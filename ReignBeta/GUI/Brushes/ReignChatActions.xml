@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Brushes>
+  <Brush Name="Reign.Chat.ActionText.15" Font="ReignSerifDynamic" TextHorizontalAlignment="Left" TextVerticalAlignment="Top">
+    <Styles>
+      <Style Name="Default" Font="ReignSerifDynamic" FontSize="15" FontColor="#C5BDAFFF" TextOutlineAmount="0" TextGlowRadius="0" TextBlur="0" />
+      <Style Name="Action" Font="ReignSerifActionItalic" FontSize="15" FontColor="#C5BDAFFF" TextOutlineAmount="0" TextGlowRadius="0" TextBlur="0" />
+    </Styles>
+  </Brush>
+  <Brush Name="Reign.Chat.ActionText.16" Font="ReignSerifDynamic" TextHorizontalAlignment="Left" TextVerticalAlignment="Top">
+    <Styles>
+      <Style Name="Default" Font="ReignSerifDynamic" FontSize="16" FontColor="#C5BDAFFF" TextOutlineAmount="0" TextGlowRadius="0" TextBlur="0" />
+      <Style Name="Action" Font="ReignSerifActionItalic" FontSize="16" FontColor="#C5BDAFFF" TextOutlineAmount="0" TextGlowRadius="0" TextBlur="0" />
+    </Styles>
+  </Brush>
+  <Brush Name="Reign.Chat.ActionText.17" Font="ReignSerifDynamic" TextHorizontalAlignment="Left" TextVerticalAlignment="Top">
+    <Styles>
+      <Style Name="Default" Font="ReignSerifDynamic" FontSize="17" FontColor="#C5BDAFFF" TextOutlineAmount="0" TextGlowRadius="0" TextBlur="0" />
+      <Style Name="Action" Font="ReignSerifActionItalic" FontSize="17" FontColor="#C5BDAFFF" TextOutlineAmount="0" TextGlowRadius="0" TextBlur="0" />
+    </Styles>
+  </Brush>
+</Brushes>

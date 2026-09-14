@@ -1,0 +1,676 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Prefab>
+  <Constants />
+  <VisualDefinitions />
+  <Window>
+    <Widget WidthSizePolicy="StretchToParent" HeightSizePolicy="StretchToParent">
+      <Children>
+        <Widget WidthSizePolicy="StretchToParent" HeightSizePolicy="StretchToParent" Sprite="BlankWhiteSquare_9" Color="#030303FF" DoNotAcceptEvents="true" />
+        <Widget Id="GovernmentCanvas" WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="1672" SuggestedHeight="941" MarginLeft="0" MarginTop="0" DoNotUseCustomScaleAndChildren="true" HorizontalAlignment="Center" VerticalAlignment="Center" ClipContents="true">
+          <Children>
+            <Widget WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="75" SuggestedHeight="115" MarginLeft="47" MarginTop="0" ClipContents="true" DoNotAcceptEvents="true">
+              <Children>
+                <ImageIdentifierWidget WidthSizePolicy="StretchToParent" HeightSizePolicy="StretchToParent" DoNotAcceptEvents="true" ImageId="@KingdomBannerId" AdditionalArgs="@KingdomBannerArgs" TextureProviderName="@KingdomBannerProvider" />
+              </Children>
+            </Widget>
+            <Widget WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="420" SuggestedHeight="235" MarginLeft="852" MarginTop="113" ClipContents="true" DoNotAcceptEvents="true" IsVisible="@IsHearingView">
+              <Children>
+                <ReignEventArtWidget WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="420" SuggestedHeight="236" MarginLeft="0" MarginTop="0" Type="ReignBeta.UI.Widgets.ReignEventArtWidget" DoNotAcceptEvents="true" EventImageId="@GovernmentSceneId" />
+              </Children>
+            </Widget>
+            <ImageWidget WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="1672" SuggestedHeight="941" MarginLeft="0" MarginTop="0" DoNotAcceptEvents="true" Sprite="reign_government_hearing_shell" />
+            <TextWidget WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="350" SuggestedHeight="39" MarginLeft="160" MarginTop="12" DoNotAcceptEvents="true" Brush="DefaultText" Brush.Font="ReignSerifDynamic" Brush.FontSize="32" Brush.FontColor="#A88A54FF" Brush.TextHorizontalAlignment="Left" Brush.TextVerticalAlignment="Top" Text="@Title" Brush.TextOutlineAmount="0" Brush.TextGlowRadius="0" Brush.TextBlur="0" />
+            <TextWidget WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="345" SuggestedHeight="25" MarginLeft="160" MarginTop="49" DoNotAcceptEvents="true" Brush="DefaultText" Brush.Font="ReignSerifDynamic" Brush.FontSize="20" Brush.FontColor="#C5BDAFFF" Brush.TextHorizontalAlignment="Left" Brush.TextVerticalAlignment="Top" Text="@KingdomName" Brush.TextOutlineAmount="0" Brush.TextGlowRadius="0" Brush.TextBlur="0" />
+            <TextWidget WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="310" SuggestedHeight="25" MarginLeft="1225" MarginTop="13" DoNotAcceptEvents="true" Brush="DefaultText" Brush.Font="ReignSerifDynamic" Brush.FontSize="14" Brush.FontColor="#C5BDAFFF" Brush.TextHorizontalAlignment="Right" Brush.TextVerticalAlignment="Top" Text="@AuthorityText" Brush.TextOutlineAmount="0" Brush.TextGlowRadius="0" Brush.TextBlur="0" />
+            <TextWidget WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="310" SuggestedHeight="20" MarginLeft="1225" MarginTop="44" DoNotAcceptEvents="true" Brush="DefaultText" Brush.Font="ReignSerifDynamic" Brush.FontSize="11" Brush.FontColor="#8A8883FF" Brush.TextHorizontalAlignment="Right" Brush.TextVerticalAlignment="Top" Text="@ModeText" Brush.TextOutlineAmount="0" Brush.TextGlowRadius="0" Brush.TextBlur="0" />
+            <ButtonWidget WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="152" SuggestedHeight="45" MarginLeft="520" MarginTop="38" Command.Click="ExecuteBusinessTab" UpdateChildrenStates="true">
+              <Children>
+                <ImageWidget WidthSizePolicy="StretchToParent" HeightSizePolicy="StretchToParent" DoNotAcceptEvents="true" Sprite="@BusinessTabSprite" />
+                <TextWidget WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="140" SuggestedHeight="30" MarginLeft="6" MarginTop="10" DoNotAcceptEvents="true" Brush="DefaultText" Brush.Font="ReignSerifDynamic" Brush.FontSize="16" Brush.FontColor="#C5BDAFFF" Brush.TextHorizontalAlignment="Center" Brush.TextVerticalAlignment="Top" Text="@BusinessTabText" Brush.TextOutlineAmount="0" Brush.TextGlowRadius="0" Brush.TextBlur="0" />
+              </Children>
+            </ButtonWidget>
+            <ButtonWidget WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="114" SuggestedHeight="45" MarginLeft="672" MarginTop="38" Command.Click="ExecuteHearingTab" UpdateChildrenStates="true">
+              <Children>
+                <ImageWidget WidthSizePolicy="StretchToParent" HeightSizePolicy="StretchToParent" DoNotAcceptEvents="true" Sprite="@HearingTabSprite" />
+                <TextWidget WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="102" SuggestedHeight="30" MarginLeft="6" MarginTop="10" DoNotAcceptEvents="true" Brush="DefaultText" Brush.Font="ReignSerifDynamic" Brush.FontSize="16" Brush.FontColor="#C5BDAFFF" Brush.TextHorizontalAlignment="Center" Brush.TextVerticalAlignment="Top" Text="Hearing" Brush.TextOutlineAmount="0" Brush.TextGlowRadius="0" Brush.TextBlur="0" />
+              </Children>
+            </ButtonWidget>
+            <ButtonWidget WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="197" SuggestedHeight="45" MarginLeft="786" MarginTop="38" Command.Click="ExecuteMembersTab" UpdateChildrenStates="true">
+              <Children>
+                <ImageWidget WidthSizePolicy="StretchToParent" HeightSizePolicy="StretchToParent" DoNotAcceptEvents="true" Sprite="@MembersTabSprite" />
+                <TextWidget WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="185" SuggestedHeight="30" MarginLeft="6" MarginTop="10" DoNotAcceptEvents="true" Brush="DefaultText" Brush.Font="ReignSerifDynamic" Brush.FontSize="16" Brush.FontColor="#C5BDAFFF" Brush.TextHorizontalAlignment="Center" Brush.TextVerticalAlignment="Top" Text="Members &amp; Parties" Brush.TextOutlineAmount="0" Brush.TextGlowRadius="0" Brush.TextBlur="0" />
+              </Children>
+            </ButtonWidget>
+            <ButtonWidget WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="199" SuggestedHeight="45" MarginLeft="983" MarginTop="38" Command.Click="ExecuteArchiveTab" UpdateChildrenStates="true">
+              <Children>
+                <ImageWidget WidthSizePolicy="StretchToParent" HeightSizePolicy="StretchToParent" DoNotAcceptEvents="true" Sprite="@ArchiveTabSprite" />
+                <TextWidget WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="187" SuggestedHeight="30" MarginLeft="6" MarginTop="10" DoNotAcceptEvents="true" Brush="DefaultText" Brush.Font="ReignSerifDynamic" Brush.FontSize="16" Brush.FontColor="#C5BDAFFF" Brush.TextHorizontalAlignment="Center" Brush.TextVerticalAlignment="Top" Text="Decisions &amp; Obligations" Brush.TextOutlineAmount="0" Brush.TextGlowRadius="0" Brush.TextBlur="0" />
+              </Children>
+            </ButtonWidget>
+            <ButtonWidget WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="94" SuggestedHeight="37" MarginLeft="1553" MarginTop="22" Command.Click="ExecuteClose" UpdateChildrenStates="true">
+              <Children>
+                <ImageWidget WidthSizePolicy="StretchToParent" HeightSizePolicy="StretchToParent" DoNotAcceptEvents="true" Sprite="reign_government_close" />
+                <TextWidget WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="78" SuggestedHeight="24" MarginLeft="8" MarginTop="8" DoNotAcceptEvents="true" Brush="DefaultText" Brush.Font="ReignSerifDynamic" Brush.FontSize="16" Brush.FontColor="#C5BDAFFF" Brush.TextHorizontalAlignment="Center" Brush.TextVerticalAlignment="Top" Text="Close ×" Brush.TextOutlineAmount="0" Brush.TextGlowRadius="0" Brush.TextBlur="0" />
+              </Children>
+            </ButtonWidget>
+            <TextWidget WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="176" SuggestedHeight="22" MarginLeft="674" MarginTop="92" DoNotAcceptEvents="true" Brush="DefaultText" Brush.Font="ReignSerifDynamic" Brush.FontSize="14" Brush.FontColor="#A88A54FF" Brush.TextHorizontalAlignment="Left" Brush.TextVerticalAlignment="Top" Text="@CenterHeading" Brush.TextOutlineAmount="0" Brush.TextGlowRadius="0" Brush.TextBlur="0" />
+            <TextWidget WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="340" SuggestedHeight="19" MarginLeft="855" MarginTop="92" DoNotAcceptEvents="true" Brush="DefaultText" Brush.Font="ReignSerifDynamic" Brush.FontSize="14" Brush.FontColor="#8A8883FF" Brush.TextHorizontalAlignment="Left" Brush.TextVerticalAlignment="Top" Text="@AttendanceText" Brush.TextOutlineAmount="0" Brush.TextGlowRadius="0" Brush.TextBlur="0" />
+            <TextWidget WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="320" SuggestedHeight="30" MarginLeft="40" MarginTop="130" DoNotAcceptEvents="true" Brush="DefaultText" Brush.Font="ReignSerifDynamic" Brush.FontSize="18" Brush.FontColor="#A88A54FF" Brush.TextHorizontalAlignment="Left" Brush.TextVerticalAlignment="Top" Text="@LeftHeading" Brush.TextOutlineAmount="0" Brush.TextGlowRadius="0" Brush.TextBlur="0" />
+            <TextWidget WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="322" SuggestedHeight="30" MarginLeft="1306" MarginTop="130" DoNotAcceptEvents="true" Brush="DefaultText" Brush.Font="ReignSerifDynamic" Brush.FontSize="18" Brush.FontColor="#A88A54FF" Brush.TextHorizontalAlignment="Left" Brush.TextVerticalAlignment="Top" Text="@RightHeading" Brush.TextOutlineAmount="0" Brush.TextGlowRadius="0" Brush.TextBlur="0" />
+            <Widget WidthSizePolicy="StretchToParent" HeightSizePolicy="StretchToParent" IsVisible="@IsHearingView" DoNotAcceptEvents="true">
+              <Children>
+                <ReignGovernmentMemberScrollPanel Id="BusinessScrollPanel" Type="ReignBeta.UI.ReignGovernmentMemberScrollPanel" WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="340" SuggestedHeight="552" MarginLeft="30" MarginTop="171" ItemCount="@BusinessCount" VisibleRows="6" VerticalScrollbar="..\BusinessScroll" InnerPanel="BusinessClip\BusinessList" ClipRect="BusinessClip" AutoHideScrollBars="false" OnlyAcceptScrollEventIfCanScroll="true" MouseScrollAxis="Vertical">
+                  <Children>
+                    <Widget Id="BusinessClip" WidthSizePolicy="StretchToParent" HeightSizePolicy="StretchToParent" ClipContents="true">
+                      <Children>
+                        <ListPanel Id="BusinessList" DataSource="{BusinessItems}" WidthSizePolicy="StretchToParent" HeightSizePolicy="CoverChildren" StackLayout.LayoutMethod="VerticalTopToBottom">
+                          <ItemTemplate>
+                            <ButtonWidget WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="340" SuggestedHeight="92" MarginLeft="0" MarginTop="0" Command.Click="ExecuteSelect" UpdateChildrenStates="true">
+                              <Children>
+                                <ImageWidget WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="340" SuggestedHeight="84" MarginLeft="0" MarginTop="0" DoNotAcceptEvents="true" Sprite="@CardSprite" />
+                                <TextWidget WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="241" SuggestedHeight="30" MarginLeft="84" MarginTop="13" DoNotAcceptEvents="true" Brush="DefaultText" Brush.Font="ReignSerifDynamic" Brush.FontSize="20" Brush.FontColor="#C5BDAFFF" Brush.TextHorizontalAlignment="Left" Brush.TextVerticalAlignment="Top" Text="@Title" Brush.TextOutlineAmount="0" Brush.TextGlowRadius="0" Brush.TextBlur="0" />
+                                <TextWidget WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="241" SuggestedHeight="34" MarginLeft="84" MarginTop="44" DoNotAcceptEvents="true" Brush="DefaultText" Brush.Font="ReignSerifDynamic" Brush.FontSize="13" Brush.FontColor="#8A8883FF" Brush.TextHorizontalAlignment="Left" Brush.TextVerticalAlignment="Top" Text="@Summary" Brush.TextOutlineAmount="0" Brush.TextGlowRadius="0" Brush.TextBlur="0" />
+                              </Children>
+                            </ButtonWidget>
+                          </ItemTemplate>
+                        </ListPanel>
+                      </Children>
+                    </Widget>
+                  </Children>
+                </ReignGovernmentMemberScrollPanel>
+                <ScrollbarWidget Id="BusinessScroll" WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="5" SuggestedHeight="552" MarginLeft="373" MarginTop="171" AlignmentAxis="Vertical" Handle="BusinessHandle" MaxValue="100" MinValue="0">
+                  <Children>
+                    <Widget Id="BusinessHandle" WidthSizePolicy="StretchToParent" HeightSizePolicy="Fixed" SuggestedHeight="40" Sprite="BlankWhiteSquare" Color="#7E6A4DFF" />
+                  </Children>
+                </ScrollbarWidget>
+                <TextWidget WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="310" SuggestedHeight="33" MarginLeft="42" MarginTop="816" DoNotAcceptEvents="true" Brush="DefaultText" Brush.Font="ReignSerifDynamic" Brush.FontSize="14" Brush.FontColor="#8A8883FF" Brush.TextHorizontalAlignment="Left" Brush.TextVerticalAlignment="Top" Text="@MeetingText" Brush.TextOutlineAmount="0" Brush.TextGlowRadius="0" Brush.TextBlur="0" />
+                <ButtonWidget WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="280" SuggestedHeight="50" MarginLeft="50" MarginTop="855" Command.Click="ExecuteHoldMeeting" UpdateChildrenStates="true" IsVisible="@IsInteractive">
+                  <Children>
+                    <ImageWidget WidthSizePolicy="StretchToParent" HeightSizePolicy="StretchToParent" DoNotAcceptEvents="true" Sprite="reign_government_button" />
+                    <TextWidget WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="254" SuggestedHeight="31" MarginLeft="13" MarginTop="9" DoNotAcceptEvents="true" Brush="DefaultText" Brush.Font="ReignSerifDynamic" Brush.FontSize="16" Brush.FontColor="#C5BDAFFF" Brush.TextHorizontalAlignment="Center" Brush.TextVerticalAlignment="Top" Text="Convene seasonal business" Brush.TextOutlineAmount="0" Brush.TextGlowRadius="0" Brush.TextBlur="0" />
+                  </Children>
+                </ButtonWidget>
+                <TextWidget WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="600" SuggestedHeight="23" MarginLeft="414" MarginTop="128" DoNotAcceptEvents="true" Brush="DefaultText" Brush.Font="ReignSerifDynamic" Brush.FontSize="15" Brush.FontColor="#A88A54FF" Brush.TextHorizontalAlignment="Left" Brush.TextVerticalAlignment="Top" Text="@MatterKind" Brush.TextOutlineAmount="0" Brush.TextGlowRadius="0" Brush.TextBlur="0" />
+                <TextWidget WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="840" SuggestedHeight="46" MarginLeft="414" MarginTop="146" DoNotAcceptEvents="true" Brush="DefaultText" Brush.Font="ReignSerifDynamic" Brush.FontSize="38" Brush.FontColor="#A88A54FF" Brush.TextHorizontalAlignment="Left" Brush.TextVerticalAlignment="Top" Text="@MatterTitle" Brush.TextOutlineAmount="0" Brush.TextGlowRadius="0" Brush.TextBlur="0" />
+                <TextWidget WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="625" SuggestedHeight="48" MarginLeft="414" MarginTop="194" DoNotAcceptEvents="true" Brush="DefaultText" Brush.Font="ReignSerifDynamic" Brush.FontSize="19" Brush.FontColor="#C5BDAFFF" Brush.TextHorizontalAlignment="Left" Brush.TextVerticalAlignment="Top" Text="@MatterSummary" Brush.TextOutlineAmount="0" Brush.TextGlowRadius="0" Brush.TextBlur="0" />
+                <TextWidget WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="640" SuggestedHeight="21" MarginLeft="414" MarginTop="442" DoNotAcceptEvents="true" Brush="DefaultText" Brush.Font="ReignSerifDynamic" Brush.FontSize="15" Brush.FontColor="#A88A54FF" Brush.TextHorizontalAlignment="Left" Brush.TextVerticalAlignment="Top" Text="PUBLIC DISCUSSION" Brush.TextOutlineAmount="0" Brush.TextGlowRadius="0" Brush.TextBlur="0" />
+                <ReignGovernmentMemberScrollPanel Id="TranscriptScrollPanel" Type="ReignBeta.UI.ReignGovernmentMemberScrollPanel" WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="840" SuggestedHeight="222" MarginLeft="414" MarginTop="464" ItemCount="@TranscriptCount" VisibleRows="3" VerticalScrollbar="..\TranscriptScroll" InnerPanel="TranscriptClip\TranscriptList" ClipRect="TranscriptClip" AutoHideScrollBars="false" OnlyAcceptScrollEventIfCanScroll="true" MouseScrollAxis="Vertical">
+                  <Children>
+                    <Widget Id="TranscriptClip" WidthSizePolicy="StretchToParent" HeightSizePolicy="StretchToParent" ClipContents="true">
+                      <Children>
+                        <ListPanel Id="TranscriptList" DataSource="{Transcript}" WidthSizePolicy="StretchToParent" HeightSizePolicy="CoverChildren" StackLayout.LayoutMethod="VerticalTopToBottom">
+                          <ItemTemplate>
+                            <Widget WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="840" SuggestedHeight="74" MarginLeft="0" MarginTop="0">
+                              <Children>
+                                <Widget WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="60" SuggestedHeight="60" MarginLeft="14" MarginTop="7" ClipContents="true" DoNotAcceptEvents="true">
+                                  <Children>
+                                    <ImageIdentifierWidget WidthSizePolicy="StretchToParent" HeightSizePolicy="StretchToParent" DoNotAcceptEvents="true" IsVisible="@HasPortrait" ImageId="@PortraitId" AdditionalArgs="@PortraitAdditionalArgs" TextureProviderName="@PortraitTextureProviderName" />
+                                    <ReignPortraitWidget Type="ReignBeta.UI.Widgets.ReignPortraitWidget" WidthSizePolicy="StretchToParent" HeightSizePolicy="StretchToParent" DoNotAcceptEvents="true" IsVisible="@HasPortrait" PortraitCacheKey="@PortraitCacheKey" UseZoomQuality="true" TargetAspect="1" />
+                                  </Children>
+                                </Widget>
+                                <ImageWidget WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="840" SuggestedHeight="72" MarginLeft="0" MarginTop="0" Sprite="reign_government_transcript_card" DoNotAcceptEvents="true" />
+                                <TextWidget WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="570" SuggestedHeight="21" MarginLeft="96" MarginTop="7" Text="@Speaker" DoNotAcceptEvents="true" Brush="DefaultText" Brush.Font="ReignSerifDynamic" Brush.FontSize="16" Brush.FontColor="#A88A54FF" Brush.TextHorizontalAlignment="Left" Brush.TextVerticalAlignment="Top" Brush.TextOutlineAmount="0" Brush.TextGlowRadius="0" Brush.TextBlur="0" />
+                                <TextWidget WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="135" SuggestedHeight="20" MarginLeft="690" MarginTop="10" Text="@Date" DoNotAcceptEvents="true" Brush="DefaultText" Brush.Font="ReignSerifDynamic" Brush.FontSize="12" Brush.FontColor="#8A8883FF" Brush.TextHorizontalAlignment="Right" Brush.TextVerticalAlignment="Top" Brush.TextOutlineAmount="0" Brush.TextGlowRadius="0" Brush.TextBlur="0" />
+                                <TextWidget WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="725" SuggestedHeight="38" MarginLeft="96" MarginTop="31" Text="@Text" DoNotAcceptEvents="true" Brush="DefaultText" Brush.Font="ReignSerifDynamic" Brush.FontSize="17" Brush.FontColor="#C5BDAFFF" Brush.TextHorizontalAlignment="Left" Brush.TextVerticalAlignment="Top" Brush.TextOutlineAmount="0" Brush.TextGlowRadius="0" Brush.TextBlur="0" />
+                              </Children>
+                            </Widget>
+                          </ItemTemplate>
+                        </ListPanel>
+                      </Children>
+                    </Widget>
+                  </Children>
+                </ReignGovernmentMemberScrollPanel>
+                <ScrollbarWidget Id="TranscriptScroll" WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="5" SuggestedHeight="222" MarginLeft="1257" MarginTop="464" AlignmentAxis="Vertical" Handle="TranscriptHandle" MaxValue="100" MinValue="0">
+                  <Children>
+                    <Widget Id="TranscriptHandle" WidthSizePolicy="StretchToParent" HeightSizePolicy="Fixed" SuggestedHeight="40" Sprite="BlankWhiteSquare" Color="#7E6A4DFF" />
+                  </Children>
+                </ScrollbarWidget>
+                <Widget WidthSizePolicy="StretchToParent" HeightSizePolicy="StretchToParent" IsVisible="@ShowComposer" DoNotAcceptEvents="true">
+                  <Children>
+                    <ImageWidget WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="717" SuggestedHeight="42" MarginLeft="414" MarginTop="688" DoNotAcceptEvents="true" Sprite="reign_government_input" />
+                    <EditableTextWidget WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="680" SuggestedHeight="27" MarginLeft="430" MarginTop="697" Brush="DefaultText" Brush.Font="ReignSerifDynamic" Brush.FontSize="18" Brush.FontColor="#C5BDAFFF" Text="@ComposerText" MaxLength="1200" Brush.TextOutlineAmount="0" Brush.TextGlowRadius="0" Brush.TextBlur="0" />
+                    <ButtonWidget WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="113" SuggestedHeight="42" MarginLeft="1142" MarginTop="688" Command.Click="ExecuteSpeak" UpdateChildrenStates="true" IsEnabled="@CanSpeak">
+                      <Children>
+                        <ImageWidget WidthSizePolicy="StretchToParent" HeightSizePolicy="StretchToParent" DoNotAcceptEvents="true" Sprite="reign_government_speak" />
+                        <TextWidget WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="80" SuggestedHeight="30" MarginLeft="10" MarginTop="10" DoNotAcceptEvents="true" Brush="DefaultText" Brush.Font="ReignSerifDynamic" Brush.FontSize="18" Brush.FontColor="#C5BDAFFF" Brush.TextHorizontalAlignment="Center" Brush.TextVerticalAlignment="Top" Text="Speak" Brush.TextOutlineAmount="0" Brush.TextGlowRadius="0" Brush.TextBlur="0" />
+                      </Children>
+                    </ButtonWidget>
+                  </Children>
+                </Widget>
+                <TextWidget WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="840" SuggestedHeight="20" MarginLeft="414" MarginTop="743" DoNotAcceptEvents="true" Brush="DefaultText" Brush.Font="ReignSerifDynamic" Brush.FontSize="14" Brush.FontColor="#A88A54FF" Brush.TextHorizontalAlignment="Left" Brush.TextVerticalAlignment="Top" Text="@RecommendationText" Brush.TextOutlineAmount="0" Brush.TextGlowRadius="0" Brush.TextBlur="0" />
+                <TextWidget WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="180" SuggestedHeight="42" MarginLeft="1072" MarginTop="861" DoNotAcceptEvents="true" Brush="DefaultText" Brush.Font="ReignSerifDynamic" Brush.FontSize="14" Brush.FontColor="#8A8883FF" Brush.TextHorizontalAlignment="Left" Brush.TextVerticalAlignment="Top" Text="@StageText" Brush.TextOutlineAmount="0" Brush.TextGlowRadius="0" Brush.TextBlur="0" />
+                <ReignGovernmentMemberScrollPanel Id="ParticipantScrollPanel" Type="ReignBeta.UI.ReignGovernmentMemberScrollPanel" WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="340" SuggestedHeight="236" MarginLeft="1303" MarginTop="199" ItemCount="@ParticipantCount" VisibleRows="2" VerticalScrollbar="..\ParticipantScroll" InnerPanel="ParticipantClip\ParticipantList" ClipRect="ParticipantClip" AutoHideScrollBars="false" OnlyAcceptScrollEventIfCanScroll="true" MouseScrollAxis="Vertical">
+                  <Children>
+                    <Widget Id="ParticipantClip" WidthSizePolicy="StretchToParent" HeightSizePolicy="StretchToParent" ClipContents="true">
+                      <Children>
+                        <ListPanel Id="ParticipantList" DataSource="{Participants}" WidthSizePolicy="StretchToParent" HeightSizePolicy="CoverChildren" StackLayout.LayoutMethod="VerticalTopToBottom">
+                          <ItemTemplate>
+                            <Widget WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="340" SuggestedHeight="118" MarginLeft="0" MarginTop="0">
+                              <Children>
+                                <Widget WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="94" SuggestedHeight="94" MarginLeft="28" MarginTop="10" ClipContents="true" DoNotAcceptEvents="true">
+                                  <Children>
+                                    <ImageIdentifierWidget WidthSizePolicy="StretchToParent" HeightSizePolicy="StretchToParent" DoNotAcceptEvents="true" IsVisible="@HasPortrait" ImageId="@PortraitId" AdditionalArgs="@PortraitAdditionalArgs" TextureProviderName="@PortraitTextureProviderName" />
+                                    <ReignPortraitWidget Type="ReignBeta.UI.Widgets.ReignPortraitWidget" WidthSizePolicy="StretchToParent" HeightSizePolicy="StretchToParent" DoNotAcceptEvents="true" IsVisible="@HasPortrait" PortraitCacheKey="@PortraitCacheKey" UseZoomQuality="true" TargetAspect="1" />
+                                  </Children>
+                                </Widget>
+                                <Widget WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="21" SuggestedHeight="29" MarginLeft="157" MarginTop="57" ClipContents="true" DoNotAcceptEvents="true">
+                                  <Children>
+                                    <ImageIdentifierWidget WidthSizePolicy="StretchToParent" HeightSizePolicy="StretchToParent" DoNotAcceptEvents="true" IsVisible="@HasBanner" ImageId="@BannerId" AdditionalArgs="@BannerArgs" TextureProviderName="@BannerProvider" />
+                                  </Children>
+                                </Widget>
+                                <ImageWidget WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="340" SuggestedHeight="110" MarginLeft="0" MarginTop="0" Sprite="reign_government_participant_card" DoNotAcceptEvents="true" />
+                                <TextWidget WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="171" SuggestedHeight="30" MarginLeft="155" MarginTop="20" Text="@Name" DoNotAcceptEvents="true" Brush="DefaultText" Brush.Font="ReignSerifDynamic" Brush.FontSize="19" Brush.FontColor="#C5BDAFFF" Brush.TextHorizontalAlignment="Left" Brush.TextVerticalAlignment="Top" Brush.TextOutlineAmount="0" Brush.TextGlowRadius="0" Brush.TextBlur="0" />
+                                <TextWidget WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="142" SuggestedHeight="18" MarginLeft="184" MarginTop="52" Text="@Role" DoNotAcceptEvents="true" Brush="DefaultText" Brush.Font="ReignSerifDynamic" Brush.FontSize="12" Brush.FontColor="#A88A54FF" Brush.TextHorizontalAlignment="Left" Brush.TextVerticalAlignment="Top" Brush.TextOutlineAmount="0" Brush.TextGlowRadius="0" Brush.TextBlur="0" />
+                                <TextWidget WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="142" SuggestedHeight="30" MarginLeft="184" MarginTop="70" Text="@Attendance" DoNotAcceptEvents="true" Brush="DefaultText" Brush.Font="ReignSerifDynamic" Brush.FontSize="12" Brush.FontColor="#8A8883FF" Brush.TextHorizontalAlignment="Left" Brush.TextVerticalAlignment="Top" Brush.TextOutlineAmount="0" Brush.TextGlowRadius="0" Brush.TextBlur="0" />
+                                <TextWidget WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="142" SuggestedHeight="16" MarginLeft="184" MarginTop="93" Text="@Constituency" DoNotAcceptEvents="true" Brush="DefaultText" Brush.Font="ReignSerifDynamic" Brush.FontSize="10" Brush.FontColor="#8A8883FF" Brush.TextHorizontalAlignment="Left" Brush.TextVerticalAlignment="Top" Brush.TextOutlineAmount="0" Brush.TextGlowRadius="0" Brush.TextBlur="0" />
+                              </Children>
+                            </Widget>
+                          </ItemTemplate>
+                        </ListPanel>
+                      </Children>
+                    </Widget>
+                  </Children>
+                </ReignGovernmentMemberScrollPanel>
+                <ScrollbarWidget Id="ParticipantScroll" WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="5" SuggestedHeight="236" MarginLeft="1647" MarginTop="199" AlignmentAxis="Vertical" Handle="ParticipantHandle" MaxValue="100" MinValue="0">
+                  <Children>
+                    <Widget Id="ParticipantHandle" WidthSizePolicy="StretchToParent" HeightSizePolicy="Fixed" SuggestedHeight="40" Sprite="BlankWhiteSquare" Color="#7E6A4DFF" />
+                  </Children>
+                </ScrollbarWidget>
+                <TextWidget WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="310" SuggestedHeight="25" MarginLeft="1306" MarginTop="448" DoNotAcceptEvents="true" Brush="DefaultText" Brush.Font="ReignSerifDynamic" Brush.FontSize="16" Brush.FontColor="#A88A54FF" Brush.TextHorizontalAlignment="Left" Brush.TextVerticalAlignment="Top" Text="ASSEMBLY" Brush.TextOutlineAmount="0" Brush.TextGlowRadius="0" Brush.TextBlur="0" />
+                <ReignGovernmentMemberScrollPanel Id="AttendanceScrollPanel" Type="ReignBeta.UI.ReignGovernmentMemberScrollPanel" WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="340" SuggestedHeight="208" MarginLeft="1303" MarginTop="473" ItemCount="@MemberCount" VisibleRows="2" VerticalScrollbar="..\AttendanceScroll" InnerPanel="AttendanceClip\AttendanceList" ClipRect="AttendanceClip" AutoHideScrollBars="false" OnlyAcceptScrollEventIfCanScroll="true" MouseScrollAxis="Vertical">
+                  <Children>
+                    <Widget Id="AttendanceClip" WidthSizePolicy="StretchToParent" HeightSizePolicy="StretchToParent" ClipContents="true">
+                      <Children>
+                        <ListPanel Id="AttendanceList" DataSource="{Members}" WidthSizePolicy="StretchToParent" HeightSizePolicy="CoverChildren" StackLayout.LayoutMethod="VerticalTopToBottom">
+                          <ItemTemplate>
+                            <Widget WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="340" SuggestedHeight="104" MarginLeft="0" MarginTop="0">
+                              <Children>
+                                <Widget WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="84" SuggestedHeight="84" MarginLeft="22" MarginTop="6" ClipContents="true" DoNotAcceptEvents="true">
+                                  <Children>
+                                    <ImageIdentifierWidget WidthSizePolicy="StretchToParent" HeightSizePolicy="StretchToParent" DoNotAcceptEvents="true" IsVisible="@HasPortrait" ImageId="@PortraitId" AdditionalArgs="@PortraitAdditionalArgs" TextureProviderName="@PortraitTextureProviderName" />
+                                    <ReignPortraitWidget Type="ReignBeta.UI.Widgets.ReignPortraitWidget" WidthSizePolicy="StretchToParent" HeightSizePolicy="StretchToParent" DoNotAcceptEvents="true" IsVisible="@HasPortrait" PortraitCacheKey="@PortraitCacheKey" UseZoomQuality="true" TargetAspect="1" />
+                                  </Children>
+                                </Widget>
+                                <Widget WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="21" SuggestedHeight="29" MarginLeft="139" MarginTop="49" ClipContents="true" DoNotAcceptEvents="true">
+                                  <Children>
+                                    <ImageIdentifierWidget WidthSizePolicy="StretchToParent" HeightSizePolicy="StretchToParent" DoNotAcceptEvents="true" IsVisible="@HasBanner" ImageId="@BannerId" AdditionalArgs="@BannerArgs" TextureProviderName="@BannerProvider" />
+                                  </Children>
+                                </Widget>
+                                <ImageWidget WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="340" SuggestedHeight="98" MarginLeft="0" MarginTop="0" Sprite="reign_government_attendance_card" DoNotAcceptEvents="true" />
+                                <TextWidget WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="190" SuggestedHeight="28" MarginLeft="137" MarginTop="16" Text="@Name" DoNotAcceptEvents="true" Brush="DefaultText" Brush.Font="ReignSerifDynamic" Brush.FontSize="18" Brush.FontColor="#C5BDAFFF" Brush.TextHorizontalAlignment="Left" Brush.TextVerticalAlignment="Top" Brush.TextOutlineAmount="0" Brush.TextGlowRadius="0" Brush.TextBlur="0" />
+                                <TextWidget WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="160" SuggestedHeight="16" MarginLeft="167" MarginTop="45" Text="@Role" DoNotAcceptEvents="true" Brush="DefaultText" Brush.Font="ReignSerifDynamic" Brush.FontSize="11" Brush.FontColor="#A88A54FF" Brush.TextHorizontalAlignment="Left" Brush.TextVerticalAlignment="Top" Brush.TextOutlineAmount="0" Brush.TextGlowRadius="0" Brush.TextBlur="0" />
+                                <TextWidget WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="160" SuggestedHeight="26" MarginLeft="167" MarginTop="62" Text="@Attendance" DoNotAcceptEvents="true" Brush="DefaultText" Brush.Font="ReignSerifDynamic" Brush.FontSize="11" Brush.FontColor="#8A8883FF" Brush.TextHorizontalAlignment="Left" Brush.TextVerticalAlignment="Top" Brush.TextOutlineAmount="0" Brush.TextGlowRadius="0" Brush.TextBlur="0" />
+                                <TextWidget WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="190" SuggestedHeight="13" MarginLeft="137" MarginTop="83" Text="@Constituency" DoNotAcceptEvents="true" Brush="DefaultText" Brush.Font="ReignSerifDynamic" Brush.FontSize="10" Brush.FontColor="#8A8883FF" Brush.TextHorizontalAlignment="Left" Brush.TextVerticalAlignment="Top" Brush.TextOutlineAmount="0" Brush.TextGlowRadius="0" Brush.TextBlur="0" />
+                              </Children>
+                            </Widget>
+                          </ItemTemplate>
+                        </ListPanel>
+                      </Children>
+                    </Widget>
+                  </Children>
+                </ReignGovernmentMemberScrollPanel>
+                <ScrollbarWidget Id="AttendanceScroll" WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="5" SuggestedHeight="208" MarginLeft="1647" MarginTop="473" AlignmentAxis="Vertical" Handle="AttendanceHandle" MaxValue="100" MinValue="0">
+                  <Children>
+                    <Widget Id="AttendanceHandle" WidthSizePolicy="StretchToParent" HeightSizePolicy="Fixed" SuggestedHeight="40" Sprite="BlankWhiteSquare" Color="#7E6A4DFF" />
+                  </Children>
+                </ScrollbarWidget>
+                <ImageWidget WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="340" SuggestedHeight="90" MarginLeft="1302" MarginTop="748" Sprite="reign_government_private_card" DoNotAcceptEvents="true" />
+                <TextWidget WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="305" SuggestedHeight="23" MarginLeft="1320" MarginTop="762" DoNotAcceptEvents="true" Brush="DefaultText" Brush.Font="ReignSerifDynamic" Brush.FontSize="15" Brush.FontColor="#A88A54FF" Brush.TextHorizontalAlignment="Left" Brush.TextVerticalAlignment="Top" Text="PRIVATE DISCUSSIONS" Brush.TextOutlineAmount="0" Brush.TextGlowRadius="0" Brush.TextBlur="0" />
+                <TextWidget WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="305" SuggestedHeight="48" MarginLeft="1320" MarginTop="784" DoNotAcceptEvents="true" Brush="DefaultText" Brush.Font="ReignSerifDynamic" Brush.FontSize="13" Brush.FontColor="#8A8883FF" Brush.TextHorizontalAlignment="Left" Brush.TextVerticalAlignment="Top" Text="@RecessText" Brush.TextOutlineAmount="0" Brush.TextGlowRadius="0" Brush.TextBlur="0" />
+                <Widget WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="308" SuggestedHeight="100" MarginLeft="415" MarginTop="248" IsVisible="@HasPetitioner">
+                  <Children>
+                    <Widget WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="308" SuggestedHeight="100" MarginLeft="0" MarginTop="0" DataSource="{Petitioner}">
+                      <Children>
+                        <Widget WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="80" SuggestedHeight="80" MarginLeft="16" MarginTop="11" ClipContents="true" DoNotAcceptEvents="true">
+                          <Children>
+                            <ImageIdentifierWidget WidthSizePolicy="StretchToParent" HeightSizePolicy="StretchToParent" DoNotAcceptEvents="true" IsVisible="@HasPortrait" ImageId="@PortraitId" AdditionalArgs="@PortraitAdditionalArgs" TextureProviderName="@PortraitTextureProviderName" />
+                            <ReignPortraitWidget Type="ReignBeta.UI.Widgets.ReignPortraitWidget" WidthSizePolicy="StretchToParent" HeightSizePolicy="StretchToParent" DoNotAcceptEvents="true" IsVisible="@HasPortrait" PortraitCacheKey="@PortraitCacheKey" UseZoomQuality="true" TargetAspect="1" />
+                          </Children>
+                        </Widget>
+                        <Widget WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="20" SuggestedHeight="28" MarginLeft="122" MarginTop="60" ClipContents="true" DoNotAcceptEvents="true">
+                          <Children>
+                            <ImageIdentifierWidget WidthSizePolicy="StretchToParent" HeightSizePolicy="StretchToParent" DoNotAcceptEvents="true" IsVisible="@HasBanner" ImageId="@BannerId" AdditionalArgs="@BannerArgs" TextureProviderName="@BannerProvider" />
+                          </Children>
+                        </Widget>
+                        <ImageWidget WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="308" SuggestedHeight="100" MarginLeft="0" MarginTop="0" Sprite="reign_government_issue_person_card" DoNotAcceptEvents="true" />
+                        <TextWidget WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="180" SuggestedHeight="18" MarginLeft="116" MarginTop="8" Text="@Role" DoNotAcceptEvents="true" Brush="DefaultText" Brush.Font="ReignSerifDynamic" Brush.FontSize="13" Brush.FontColor="#8A8883FF" Brush.TextHorizontalAlignment="Left" Brush.TextVerticalAlignment="Top" Brush.TextOutlineAmount="0" Brush.TextGlowRadius="0" Brush.TextBlur="0" />
+                        <TextWidget WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="180" SuggestedHeight="27" MarginLeft="116" MarginTop="28" Text="@Name" DoNotAcceptEvents="true" Brush="DefaultText" Brush.Font="ReignSerifDynamic" Brush.FontSize="19" Brush.FontColor="#C5BDAFFF" Brush.TextHorizontalAlignment="Left" Brush.TextVerticalAlignment="Top" Brush.TextOutlineAmount="0" Brush.TextGlowRadius="0" Brush.TextBlur="0" />
+                        <TextWidget WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="151" SuggestedHeight="32" MarginLeft="145" MarginTop="60" Text="@Attendance" DoNotAcceptEvents="true" Brush="DefaultText" Brush.Font="ReignSerifDynamic" Brush.FontSize="12" Brush.FontColor="#8A8883FF" Brush.TextHorizontalAlignment="Left" Brush.TextVerticalAlignment="Top" Brush.TextOutlineAmount="0" Brush.TextGlowRadius="0" Brush.TextBlur="0" />
+                      </Children>
+                    </Widget>
+                  </Children>
+                </Widget>
+                <Widget WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="308" SuggestedHeight="100" MarginLeft="734" MarginTop="248" IsVisible="@HasSponsor">
+                  <Children>
+                    <Widget WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="308" SuggestedHeight="100" MarginLeft="0" MarginTop="0" DataSource="{Sponsor}">
+                      <Children>
+                        <Widget WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="80" SuggestedHeight="80" MarginLeft="16" MarginTop="11" ClipContents="true" DoNotAcceptEvents="true">
+                          <Children>
+                            <ImageIdentifierWidget WidthSizePolicy="StretchToParent" HeightSizePolicy="StretchToParent" DoNotAcceptEvents="true" IsVisible="@HasPortrait" ImageId="@PortraitId" AdditionalArgs="@PortraitAdditionalArgs" TextureProviderName="@PortraitTextureProviderName" />
+                            <ReignPortraitWidget Type="ReignBeta.UI.Widgets.ReignPortraitWidget" WidthSizePolicy="StretchToParent" HeightSizePolicy="StretchToParent" DoNotAcceptEvents="true" IsVisible="@HasPortrait" PortraitCacheKey="@PortraitCacheKey" UseZoomQuality="true" TargetAspect="1" />
+                          </Children>
+                        </Widget>
+                        <Widget WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="20" SuggestedHeight="28" MarginLeft="122" MarginTop="60" ClipContents="true" DoNotAcceptEvents="true">
+                          <Children>
+                            <ImageIdentifierWidget WidthSizePolicy="StretchToParent" HeightSizePolicy="StretchToParent" DoNotAcceptEvents="true" IsVisible="@HasBanner" ImageId="@BannerId" AdditionalArgs="@BannerArgs" TextureProviderName="@BannerProvider" />
+                          </Children>
+                        </Widget>
+                        <ImageWidget WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="308" SuggestedHeight="100" MarginLeft="0" MarginTop="0" Sprite="reign_government_issue_person_card" DoNotAcceptEvents="true" />
+                        <TextWidget WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="180" SuggestedHeight="18" MarginLeft="116" MarginTop="8" Text="@Role" DoNotAcceptEvents="true" Brush="DefaultText" Brush.Font="ReignSerifDynamic" Brush.FontSize="13" Brush.FontColor="#8A8883FF" Brush.TextHorizontalAlignment="Left" Brush.TextVerticalAlignment="Top" Brush.TextOutlineAmount="0" Brush.TextGlowRadius="0" Brush.TextBlur="0" />
+                        <TextWidget WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="180" SuggestedHeight="27" MarginLeft="116" MarginTop="28" Text="@Name" DoNotAcceptEvents="true" Brush="DefaultText" Brush.Font="ReignSerifDynamic" Brush.FontSize="19" Brush.FontColor="#C5BDAFFF" Brush.TextHorizontalAlignment="Left" Brush.TextVerticalAlignment="Top" Brush.TextOutlineAmount="0" Brush.TextGlowRadius="0" Brush.TextBlur="0" />
+                        <TextWidget WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="151" SuggestedHeight="32" MarginLeft="145" MarginTop="60" Text="@Attendance" DoNotAcceptEvents="true" Brush="DefaultText" Brush.Font="ReignSerifDynamic" Brush.FontSize="12" Brush.FontColor="#8A8883FF" Brush.TextHorizontalAlignment="Left" Brush.TextVerticalAlignment="Top" Brush.TextOutlineAmount="0" Brush.TextGlowRadius="0" Brush.TextBlur="0" />
+                      </Children>
+                    </Widget>
+                  </Children>
+                </Widget>
+                <ReignGovernmentMemberScrollPanel WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="840" SuggestedHeight="65" MarginLeft="414" MarginTop="360" Id="OptionScrollPanel" Type="ReignBeta.UI.ReignGovernmentMemberScrollPanel" ItemCount="@OptionRowCount" VisibleRows="1" VerticalScrollbar="..\OptionScroll" InnerPanel="OptionClip\OptionList" ClipRect="OptionClip" AutoHideScrollBars="false" OnlyAcceptScrollEventIfCanScroll="true" MouseScrollAxis="Vertical">
+                  <Children>
+                    <Widget Id="OptionClip" WidthSizePolicy="StretchToParent" HeightSizePolicy="StretchToParent" ClipContents="true">
+                      <Children>
+                        <ListPanel Id="OptionList" DataSource="{OptionRows}" WidthSizePolicy="StretchToParent" HeightSizePolicy="CoverChildren" StackLayout.LayoutMethod="VerticalTopToBottom">
+                          <ItemTemplate>
+                            <Widget WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="840" SuggestedHeight="65" MarginLeft="0" MarginTop="0">
+                              <Children>
+                                <Widget WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="414" SuggestedHeight="65" MarginLeft="0" MarginTop="0">
+                                  <Children>
+                                    <Widget WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="414" SuggestedHeight="65" MarginLeft="0" MarginTop="0" DataSource="{Left}">
+                                      <Children>
+                                        <ImageWidget WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="414" SuggestedHeight="65" MarginLeft="0" MarginTop="0" Sprite="@CardSprite" DoNotAcceptEvents="true" />
+                                        <TextWidget WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="376" SuggestedHeight="28" MarginLeft="19" MarginTop="8" Text="@Label" DoNotAcceptEvents="true" Brush="DefaultText" Brush.Font="ReignSerifDynamic" Brush.FontSize="18" Brush.FontColor="#A88A54FF" Brush.TextHorizontalAlignment="Left" Brush.TextVerticalAlignment="Top" Brush.TextOutlineAmount="0" Brush.TextGlowRadius="0" Brush.TextBlur="0" />
+                                        <TextWidget WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="376" SuggestedHeight="28" MarginLeft="19" MarginTop="34" Text="@Detail" DoNotAcceptEvents="true" Brush="DefaultText" Brush.Font="ReignSerifDynamic" Brush.FontSize="14" Brush.FontColor="#8A8883FF" Brush.TextHorizontalAlignment="Left" Brush.TextVerticalAlignment="Top" Brush.TextOutlineAmount="0" Brush.TextGlowRadius="0" Brush.TextBlur="0" />
+                                      </Children>
+                                    </Widget>
+                                  </Children>
+                                </Widget>
+                                <Widget WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="414" SuggestedHeight="65" MarginLeft="426" MarginTop="0" IsVisible="@HasRight">
+                                  <Children>
+                                    <Widget WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="414" SuggestedHeight="65" MarginLeft="0" MarginTop="0" DataSource="{Right}">
+                                      <Children>
+                                        <ImageWidget WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="414" SuggestedHeight="65" MarginLeft="0" MarginTop="0" Sprite="@CardSprite" DoNotAcceptEvents="true" />
+                                        <TextWidget WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="376" SuggestedHeight="28" MarginLeft="19" MarginTop="8" Text="@Label" DoNotAcceptEvents="true" Brush="DefaultText" Brush.Font="ReignSerifDynamic" Brush.FontSize="18" Brush.FontColor="#A88A54FF" Brush.TextHorizontalAlignment="Left" Brush.TextVerticalAlignment="Top" Brush.TextOutlineAmount="0" Brush.TextGlowRadius="0" Brush.TextBlur="0" />
+                                        <TextWidget WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="376" SuggestedHeight="28" MarginLeft="19" MarginTop="34" Text="@Detail" DoNotAcceptEvents="true" Brush="DefaultText" Brush.Font="ReignSerifDynamic" Brush.FontSize="14" Brush.FontColor="#8A8883FF" Brush.TextHorizontalAlignment="Left" Brush.TextVerticalAlignment="Top" Brush.TextOutlineAmount="0" Brush.TextGlowRadius="0" Brush.TextBlur="0" />
+                                      </Children>
+                                    </Widget>
+                                  </Children>
+                                </Widget>
+                              </Children>
+                            </Widget>
+                          </ItemTemplate>
+                        </ListPanel>
+                      </Children>
+                    </Widget>
+                  </Children>
+                </ReignGovernmentMemberScrollPanel>
+                <ScrollbarWidget WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="5" SuggestedHeight="65" MarginLeft="1257" MarginTop="360" Id="OptionScroll" AlignmentAxis="Vertical" Handle="OptionHandle" MaxValue="100" MinValue="0">
+                  <Children>
+                    <Widget Id="OptionHandle" WidthSizePolicy="StretchToParent" HeightSizePolicy="Fixed" SuggestedHeight="40" Sprite="BlankWhiteSquare" Color="#7E6A4DFF" />
+                  </Children>
+                </ScrollbarWidget>
+                <ReignGovernmentMemberScrollPanel WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="840" SuggestedHeight="47" MarginLeft="414" MarginTop="764" Id="RecommendationScrollPanel" Type="ReignBeta.UI.ReignGovernmentMemberScrollPanel" ItemCount="@OptionRowCount" VisibleRows="1" VerticalScrollbar="..\RecommendationScroll" InnerPanel="RecommendationClip\RecommendationList" ClipRect="RecommendationClip" AutoHideScrollBars="false" OnlyAcceptScrollEventIfCanScroll="true" MouseScrollAxis="Vertical">
+                  <Children>
+                    <Widget Id="RecommendationClip" WidthSizePolicy="StretchToParent" HeightSizePolicy="StretchToParent" ClipContents="true">
+                      <Children>
+                        <ListPanel Id="RecommendationList" DataSource="{OptionRows}" WidthSizePolicy="StretchToParent" HeightSizePolicy="CoverChildren" StackLayout.LayoutMethod="VerticalTopToBottom">
+                          <ItemTemplate>
+                            <Widget WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="840" SuggestedHeight="47" MarginLeft="0" MarginTop="0">
+                              <Children>
+                                <Widget WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="414" SuggestedHeight="47" MarginLeft="0" MarginTop="0">
+                                  <Children>
+                                    <ButtonWidget WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="414" SuggestedHeight="47" MarginLeft="0" MarginTop="0" DataSource="{Left}" Command.Click="ExecuteSelect" IsEnabled="@IsEnabled">
+                                      <Children>
+                                        <ImageWidget WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="414" SuggestedHeight="47" MarginLeft="0" MarginTop="0" Sprite="@RecommendationSprite" DoNotAcceptEvents="true" />
+                                        <TextWidget WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="376" SuggestedHeight="28" MarginLeft="19" MarginTop="10" Text="@Label" DoNotAcceptEvents="true" Brush="DefaultText" Brush.Font="ReignSerifDynamic" Brush.FontSize="17" Brush.FontColor="#C5BDAFFF" Brush.TextHorizontalAlignment="Left" Brush.TextVerticalAlignment="Top" Brush.TextOutlineAmount="0" Brush.TextGlowRadius="0" Brush.TextBlur="0" />
+                                      </Children>
+                                    </ButtonWidget>
+                                  </Children>
+                                </Widget>
+                                <Widget WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="414" SuggestedHeight="47" MarginLeft="426" MarginTop="0" IsVisible="@HasRight">
+                                  <Children>
+                                    <ButtonWidget WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="414" SuggestedHeight="47" MarginLeft="0" MarginTop="0" DataSource="{Right}" Command.Click="ExecuteSelect" IsEnabled="@IsEnabled">
+                                      <Children>
+                                        <ImageWidget WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="414" SuggestedHeight="47" MarginLeft="0" MarginTop="0" Sprite="@RecommendationSprite" DoNotAcceptEvents="true" />
+                                        <TextWidget WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="376" SuggestedHeight="28" MarginLeft="19" MarginTop="10" Text="@Label" DoNotAcceptEvents="true" Brush="DefaultText" Brush.Font="ReignSerifDynamic" Brush.FontSize="17" Brush.FontColor="#C5BDAFFF" Brush.TextHorizontalAlignment="Left" Brush.TextVerticalAlignment="Top" Brush.TextOutlineAmount="0" Brush.TextGlowRadius="0" Brush.TextBlur="0" />
+                                      </Children>
+                                    </ButtonWidget>
+                                  </Children>
+                                </Widget>
+                              </Children>
+                            </Widget>
+                          </ItemTemplate>
+                        </ListPanel>
+                      </Children>
+                    </Widget>
+                  </Children>
+                </ReignGovernmentMemberScrollPanel>
+                <ScrollbarWidget WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="5" SuggestedHeight="47" MarginLeft="1257" MarginTop="764" Id="RecommendationScroll" AlignmentAxis="Vertical" Handle="RecommendationHandle" MaxValue="100" MinValue="0">
+                  <Children>
+                    <Widget Id="RecommendationHandle" WidthSizePolicy="StretchToParent" HeightSizePolicy="Fixed" SuggestedHeight="40" Sprite="BlankWhiteSquare" Color="#7E6A4DFF" />
+                  </Children>
+                </ScrollbarWidget>
+                <TextWidget WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="840" SuggestedHeight="22" MarginLeft="414" MarginTop="816" Text="@AuthorityExplanation" DoNotAcceptEvents="true" Brush="DefaultText" Brush.Font="ReignSerifDynamic" Brush.FontSize="13" Brush.FontColor="#8A8883FF" Brush.TextHorizontalAlignment="Center" Brush.TextVerticalAlignment="Top" Brush.TextOutlineAmount="0" Brush.TextGlowRadius="0" Brush.TextBlur="0" />
+                <TextWidget WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="330" SuggestedHeight="22" MarginLeft="1306" MarginTop="176" Text="PARTIES TO THIS MATTER" DoNotAcceptEvents="true" Brush="DefaultText" Brush.Font="ReignSerifDynamic" Brush.FontSize="14" Brush.FontColor="#C5BDAFFF" Brush.TextHorizontalAlignment="Left" Brush.TextVerticalAlignment="Top" Brush.TextOutlineAmount="0" Brush.TextGlowRadius="0" Brush.TextBlur="0" />
+                <ButtonWidget WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="338" SuggestedHeight="46" MarginLeft="1303" MarginTop="681" UpdateChildrenStates="true" Command.Click="ExecuteMembersTab">
+                  <Children>
+                    <ImageWidget WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="338" SuggestedHeight="46" MarginLeft="0" MarginTop="0" Sprite="reign_government_view_members_button" DoNotAcceptEvents="true" />
+                    <TextWidget WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="245" SuggestedHeight="28" MarginLeft="52" MarginTop="12" Text="View all members" DoNotAcceptEvents="true" Brush="DefaultText" Brush.Font="ReignSerifDynamic" Brush.FontSize="17" Brush.FontColor="#C5BDAFFF" Brush.TextHorizontalAlignment="Left" Brush.TextVerticalAlignment="Top" Brush.TextOutlineAmount="0" Brush.TextGlowRadius="0" Brush.TextBlur="0" />
+                  </Children>
+                </ButtonWidget>
+                <ButtonWidget WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="280" SuggestedHeight="50" MarginLeft="50" MarginTop="757" UpdateChildrenStates="true" Command.Click="ExecuteNewPolicy" IsVisible="@IsInteractive">
+                  <Children>
+                    <ImageWidget WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="280" SuggestedHeight="50" MarginLeft="0" MarginTop="0" Sprite="reign_government_button" DoNotAcceptEvents="true" />
+                    <TextWidget WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="256" SuggestedHeight="36" MarginLeft="12" MarginTop="9" Text="Introduce a matter" DoNotAcceptEvents="true" Brush="DefaultText" Brush.Font="ReignSerifDynamic" Brush.FontSize="17" Brush.FontColor="#C5BDAFFF" Brush.TextHorizontalAlignment="Center" Brush.TextVerticalAlignment="Top" Brush.TextOutlineAmount="0" Brush.TextGlowRadius="0" Brush.TextBlur="0" />
+                  </Children>
+                </ButtonWidget>
+                <Widget WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="641" SuggestedHeight="70" MarginLeft="414" MarginTop="840">
+                  <Children>
+                    <ImageWidget WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="641" SuggestedHeight="70" MarginLeft="0" MarginTop="0" Sprite="reign_government_action_group" DoNotAcceptEvents="true" />
+                    <ButtonWidget WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="280" SuggestedHeight="50" MarginLeft="11" MarginTop="11" Command.Click="ExecutePostpone" UpdateChildrenStates="true" IsVisible="@CanPostpone">
+                      <Children>
+                        <ImageWidget WidthSizePolicy="StretchToParent" HeightSizePolicy="StretchToParent" DoNotAcceptEvents="true" Sprite="reign_government_postpone_button" />
+                      </Children>
+                    </ButtonWidget>
+                    <ButtonWidget WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="280" SuggestedHeight="50" MarginLeft="11" MarginTop="11" Command.Click="ExecuteReconvene" UpdateChildrenStates="true" IsVisible="@CanReconvene">
+                      <Children>
+                        <ImageWidget WidthSizePolicy="StretchToParent" HeightSizePolicy="StretchToParent" DoNotAcceptEvents="true" Sprite="reign_government_button" />
+                        <TextWidget WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="254" SuggestedHeight="31" MarginLeft="13" MarginTop="9" DoNotAcceptEvents="true" Brush="DefaultText" Brush.Font="ReignSerifDynamic" Brush.FontSize="16" Brush.FontColor="#C5BDAFFF" Brush.TextHorizontalAlignment="Center" Brush.TextVerticalAlignment="Top" Text="Reconvene hearing" Brush.TextOutlineAmount="0" Brush.TextGlowRadius="0" Brush.TextBlur="0" />
+                      </Children>
+                    </ButtonWidget>
+                    <ButtonWidget WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="280" SuggestedHeight="50" MarginLeft="303" MarginTop="11" Command.Click="ExecuteAdoptPetition" UpdateChildrenStates="true" IsVisible="@CanAdoptPetition">
+                      <Children>
+                        <ImageWidget WidthSizePolicy="StretchToParent" HeightSizePolicy="StretchToParent" DoNotAcceptEvents="true" Sprite="reign_government_button" />
+                        <TextWidget WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="254" SuggestedHeight="31" MarginLeft="13" MarginTop="9" DoNotAcceptEvents="true" Brush="DefaultText" Brush.Font="ReignSerifDynamic" Brush.FontSize="16" Brush.FontColor="#C5BDAFFF" Brush.TextHorizontalAlignment="Center" Brush.TextVerticalAlignment="Top" Text="Adopt petition" Brush.TextOutlineAmount="0" Brush.TextGlowRadius="0" Brush.TextBlur="0" />
+                      </Children>
+                    </ButtonWidget>
+                    <ButtonWidget WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="326" SuggestedHeight="57" MarginLeft="303" MarginTop="5" Command.Click="ExecuteCallVote" UpdateChildrenStates="true" IsVisible="@CanCallVote">
+                      <Children>
+                        <ImageWidget WidthSizePolicy="StretchToParent" HeightSizePolicy="StretchToParent" DoNotAcceptEvents="true" Sprite="reign_government_button_selected" />
+                      </Children>
+                    </ButtonWidget>
+                    <ButtonWidget WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="280" SuggestedHeight="50" MarginLeft="11" MarginTop="11" Command.Click="ExecuteAcceptGovernmentDecision" UpdateChildrenStates="true" IsVisible="@CanAcceptGovernmentDecision">
+                      <Children>
+                        <ImageWidget WidthSizePolicy="StretchToParent" HeightSizePolicy="StretchToParent" DoNotAcceptEvents="true" Sprite="reign_government_button" />
+                        <TextWidget WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="254" SuggestedHeight="31" MarginLeft="13" MarginTop="9" DoNotAcceptEvents="true" Brush="DefaultText" Brush.Font="ReignSerifDynamic" Brush.FontSize="16" Brush.FontColor="#C5BDAFFF" Brush.TextHorizontalAlignment="Center" Brush.TextVerticalAlignment="Top" Text="Accept government decision" Brush.TextOutlineAmount="0" Brush.TextGlowRadius="0" Brush.TextBlur="0" />
+                      </Children>
+                    </ButtonWidget>
+                    <ButtonWidget WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="280" SuggestedHeight="50" MarginLeft="303" MarginTop="11" Command.Click="ExecuteOverrideRecommendation" UpdateChildrenStates="true" IsVisible="@CanOverrideRecommendation">
+                      <Children>
+                        <ImageWidget WidthSizePolicy="StretchToParent" HeightSizePolicy="StretchToParent" DoNotAcceptEvents="true" Sprite="reign_government_button" />
+                        <TextWidget WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="254" SuggestedHeight="31" MarginLeft="13" MarginTop="9" DoNotAcceptEvents="true" Brush="DefaultText" Brush.Font="ReignSerifDynamic" Brush.FontSize="16" Brush.FontColor="#C5BDAFFF" Brush.TextHorizontalAlignment="Center" Brush.TextVerticalAlignment="Top" Text="Uphold recommendation" Brush.TextOutlineAmount="0" Brush.TextGlowRadius="0" Brush.TextBlur="0" />
+                      </Children>
+                    </ButtonWidget>
+                  </Children>
+                </Widget>
+              </Children>
+            </Widget>
+            <Widget WidthSizePolicy="StretchToParent" HeightSizePolicy="StretchToParent" IsVisible="@IsMembersView" DoNotAcceptEvents="true">
+              <Children>
+                <ReignGovernmentMemberScrollPanel Id="PartyScrollPanel" Type="ReignBeta.UI.ReignGovernmentMemberScrollPanel" WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="340" SuggestedHeight="540" MarginLeft="30" MarginTop="172" ItemCount="@PartyCount" VisibleRows="3" VerticalScrollbar="..\PartyScroll" InnerPanel="PartyClip\PartyList" ClipRect="PartyClip" AutoHideScrollBars="false" OnlyAcceptScrollEventIfCanScroll="true" MouseScrollAxis="Vertical">
+                  <Children>
+                    <Widget Id="PartyClip" WidthSizePolicy="StretchToParent" HeightSizePolicy="StretchToParent" ClipContents="true">
+                      <Children>
+                        <ListPanel Id="PartyList" DataSource="{Parties}" WidthSizePolicy="StretchToParent" HeightSizePolicy="CoverChildren" StackLayout.LayoutMethod="VerticalTopToBottom">
+                          <ItemTemplate>
+                            <Widget WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="340" SuggestedHeight="180" MarginLeft="0" MarginTop="0">
+                              <Children>
+                                <ImageWidget WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="340" SuggestedHeight="180" MarginLeft="0" MarginTop="0" DoNotAcceptEvents="true" Sprite="reign_government_party_card" />
+                                <TextWidget WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="308" SuggestedHeight="36" MarginLeft="16" MarginTop="12" DoNotAcceptEvents="true" Brush="DefaultText" Brush.Font="ReignSerifDynamic" Brush.FontSize="23" Brush.FontColor="#A88A54FF" Brush.TextHorizontalAlignment="Left" Brush.TextVerticalAlignment="Top" Text="@Name" Brush.TextOutlineAmount="0" Brush.TextGlowRadius="0" Brush.TextBlur="0" />
+                                <TextWidget WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="308" SuggestedHeight="30" MarginLeft="16" MarginTop="50" DoNotAcceptEvents="true" Brush="DefaultText" Brush.Font="ReignSerifDynamic" Brush.FontSize="15" Brush.FontColor="#C5BDAFFF" Brush.TextHorizontalAlignment="Left" Brush.TextVerticalAlignment="Top" Text="@Speaker" Brush.TextOutlineAmount="0" Brush.TextGlowRadius="0" Brush.TextBlur="0" />
+                                <TextWidget WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="308" SuggestedHeight="43" MarginLeft="16" MarginTop="84" DoNotAcceptEvents="true" Brush="DefaultText" Brush.Font="ReignSerifDynamic" Brush.FontSize="15" Brush.FontColor="#8A8883FF" Brush.TextHorizontalAlignment="Left" Brush.TextVerticalAlignment="Top" Text="@Planks" Brush.TextOutlineAmount="0" Brush.TextGlowRadius="0" Brush.TextBlur="0" />
+                                <TextWidget WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="308" SuggestedHeight="42" MarginLeft="16" MarginTop="132" DoNotAcceptEvents="true" Brush="DefaultText" Brush.Font="ReignSerifDynamic" Brush.FontSize="14" Brush.FontColor="#8A8883FF" Brush.TextHorizontalAlignment="Left" Brush.TextVerticalAlignment="Top" Text="@Statement" Brush.TextOutlineAmount="0" Brush.TextGlowRadius="0" Brush.TextBlur="0" />
+                              </Children>
+                            </Widget>
+                          </ItemTemplate>
+                        </ListPanel>
+                      </Children>
+                    </Widget>
+                  </Children>
+                </ReignGovernmentMemberScrollPanel>
+                <ScrollbarWidget Id="PartyScroll" WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="5" SuggestedHeight="540" MarginLeft="373" MarginTop="172" AlignmentAxis="Vertical" Handle="PartyHandle" MaxValue="100" MinValue="0">
+                  <Children>
+                    <Widget Id="PartyHandle" WidthSizePolicy="StretchToParent" HeightSizePolicy="Fixed" SuggestedHeight="40" Sprite="BlankWhiteSquare" Color="#7E6A4DFF" />
+                  </Children>
+                </ScrollbarWidget>
+                <TextWidget WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="316" SuggestedHeight="99" MarginLeft="40" MarginTop="745" DoNotAcceptEvents="true" Brush="DefaultText" Brush.Font="ReignSerifDynamic" Brush.FontSize="18" Brush.FontColor="#8A8883FF" Brush.TextHorizontalAlignment="Left" Brush.TextVerticalAlignment="Top" Text="Representation follows this culture's institution. Party membership does not replace a member's individual vote." Brush.TextOutlineAmount="0" Brush.TextGlowRadius="0" Brush.TextBlur="0" />
+                <ButtonWidget WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="280" SuggestedHeight="50" MarginLeft="70" MarginTop="855" Command.Click="ExecuteAuthorityTab" UpdateChildrenStates="true">
+                  <Children>
+                    <ImageWidget WidthSizePolicy="StretchToParent" HeightSizePolicy="StretchToParent" DoNotAcceptEvents="true" Sprite="reign_government_button" />
+                    <TextWidget WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="254" SuggestedHeight="31" MarginLeft="13" MarginTop="9" DoNotAcceptEvents="true" Brush="DefaultText" Brush.Font="ReignSerifDynamic" Brush.FontSize="16" Brush.FontColor="#C5BDAFFF" Brush.TextHorizontalAlignment="Center" Brush.TextVerticalAlignment="Top" Text="Government authority" Brush.TextOutlineAmount="0" Brush.TextGlowRadius="0" Brush.TextBlur="0" />
+                  </Children>
+                </ButtonWidget>
+                <ReignGovernmentMemberScrollPanel Id="MemberDirectoryScrollPanel" Type="ReignBeta.UI.ReignGovernmentMemberScrollPanel" WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="840" SuggestedHeight="660" MarginLeft="414" MarginTop="178" ItemCount="@MemberCount" VisibleRows="6" VerticalScrollbar="..\MemberDirectoryScroll" InnerPanel="MemberDirectoryClip\MemberDirectoryList" ClipRect="MemberDirectoryClip" AutoHideScrollBars="false" OnlyAcceptScrollEventIfCanScroll="true" MouseScrollAxis="Vertical">
+                  <Children>
+                    <Widget Id="MemberDirectoryClip" WidthSizePolicy="StretchToParent" HeightSizePolicy="StretchToParent" ClipContents="true">
+                      <Children>
+                        <ListPanel Id="MemberDirectoryList" DataSource="{Members}" WidthSizePolicy="StretchToParent" HeightSizePolicy="CoverChildren" StackLayout.LayoutMethod="VerticalTopToBottom">
+                          <ItemTemplate>
+                            <Widget WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="840" SuggestedHeight="110" MarginLeft="0" MarginTop="0">
+                              <Children>
+                                <Widget WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="94" SuggestedHeight="94" MarginLeft="28" MarginTop="10" ClipContents="true" DoNotAcceptEvents="true">
+                                  <Children>
+                                    <ImageIdentifierWidget WidthSizePolicy="StretchToParent" HeightSizePolicy="StretchToParent" DoNotAcceptEvents="true" IsVisible="@HasPortrait" ImageId="@PortraitId" AdditionalArgs="@PortraitAdditionalArgs" TextureProviderName="@PortraitTextureProviderName" />
+                                    <ReignPortraitWidget Type="ReignBeta.UI.Widgets.ReignPortraitWidget" WidthSizePolicy="StretchToParent" HeightSizePolicy="StretchToParent" DoNotAcceptEvents="true" IsVisible="@HasPortrait" PortraitCacheKey="@PortraitCacheKey" UseZoomQuality="true" TargetAspect="1" />
+                                  </Children>
+                                </Widget>
+                                <Widget WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="21" SuggestedHeight="29" MarginLeft="157" MarginTop="57" ClipContents="true" DoNotAcceptEvents="true">
+                                  <Children>
+                                    <ImageIdentifierWidget WidthSizePolicy="StretchToParent" HeightSizePolicy="StretchToParent" DoNotAcceptEvents="true" IsVisible="@HasBanner" ImageId="@BannerId" AdditionalArgs="@BannerArgs" TextureProviderName="@BannerProvider" />
+                                  </Children>
+                                </Widget>
+                                <ImageWidget WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="840" SuggestedHeight="110" MarginLeft="0" MarginTop="0" Sprite="reign_government_directory_card" DoNotAcceptEvents="true" />
+                                <TextWidget WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="671" SuggestedHeight="30" MarginLeft="155" MarginTop="20" Text="@Name" DoNotAcceptEvents="true" Brush="DefaultText" Brush.Font="ReignSerifDynamic" Brush.FontSize="19" Brush.FontColor="#C5BDAFFF" Brush.TextHorizontalAlignment="Left" Brush.TextVerticalAlignment="Top" Brush.TextOutlineAmount="0" Brush.TextGlowRadius="0" Brush.TextBlur="0" />
+                                <TextWidget WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="642" SuggestedHeight="18" MarginLeft="184" MarginTop="52" Text="@Role" DoNotAcceptEvents="true" Brush="DefaultText" Brush.Font="ReignSerifDynamic" Brush.FontSize="12" Brush.FontColor="#A88A54FF" Brush.TextHorizontalAlignment="Left" Brush.TextVerticalAlignment="Top" Brush.TextOutlineAmount="0" Brush.TextGlowRadius="0" Brush.TextBlur="0" />
+                                <TextWidget WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="642" SuggestedHeight="30" MarginLeft="184" MarginTop="70" Text="@Attendance" DoNotAcceptEvents="true" Brush="DefaultText" Brush.Font="ReignSerifDynamic" Brush.FontSize="12" Brush.FontColor="#8A8883FF" Brush.TextHorizontalAlignment="Left" Brush.TextVerticalAlignment="Top" Brush.TextOutlineAmount="0" Brush.TextGlowRadius="0" Brush.TextBlur="0" />
+                                <TextWidget WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="642" SuggestedHeight="16" MarginLeft="184" MarginTop="93" Text="@Constituency" DoNotAcceptEvents="true" Brush="DefaultText" Brush.Font="ReignSerifDynamic" Brush.FontSize="10" Brush.FontColor="#8A8883FF" Brush.TextHorizontalAlignment="Left" Brush.TextVerticalAlignment="Top" Brush.TextOutlineAmount="0" Brush.TextGlowRadius="0" Brush.TextBlur="0" />
+                              </Children>
+                            </Widget>
+                          </ItemTemplate>
+                        </ListPanel>
+                      </Children>
+                    </Widget>
+                  </Children>
+                </ReignGovernmentMemberScrollPanel>
+                <ScrollbarWidget Id="MemberDirectoryScroll" WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="5" SuggestedHeight="660" MarginLeft="1257" MarginTop="178" AlignmentAxis="Vertical" Handle="MemberDirectoryHandle" MaxValue="100" MinValue="0">
+                  <Children>
+                    <Widget Id="MemberDirectoryHandle" WidthSizePolicy="StretchToParent" HeightSizePolicy="Fixed" SuggestedHeight="40" Sprite="BlankWhiteSquare" Color="#7E6A4DFF" />
+                  </Children>
+                </ScrollbarWidget>
+                <TextWidget WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="316" SuggestedHeight="145" MarginLeft="1308" MarginTop="188" DoNotAcceptEvents="true" Brush="DefaultText" Brush.Font="ReignSerifDynamic" Brush.FontSize="20" Brush.FontColor="#8A8883FF" Brush.TextHorizontalAlignment="Left" Brush.TextVerticalAlignment="Top" Text="Public seats and attendance are visible. Private agreements and personal opinions belong in individual conversations." Brush.TextOutlineAmount="0" Brush.TextGlowRadius="0" Brush.TextBlur="0" />
+                <TextWidget WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="316" SuggestedHeight="170" MarginLeft="1308" MarginTop="386" DoNotAcceptEvents="true" Brush="DefaultText" Brush.Font="ReignSerifDynamic" Brush.FontSize="20" Brush.FontColor="#C5BDAFFF" Brush.TextHorizontalAlignment="Left" Brush.TextVerticalAlignment="Top" Text="@AuthorityExplanation" Brush.TextOutlineAmount="0" Brush.TextGlowRadius="0" Brush.TextBlur="0" />
+              </Children>
+            </Widget>
+            <Widget WidthSizePolicy="StretchToParent" HeightSizePolicy="StretchToParent" IsVisible="@IsArchiveView" DoNotAcceptEvents="true">
+              <Children>
+                <ReignGovernmentMemberScrollPanel Id="ArchiveScrollPanel" Type="ReignBeta.UI.ReignGovernmentMemberScrollPanel" WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="340" SuggestedHeight="552" MarginLeft="30" MarginTop="171" ItemCount="@ArchiveCount" VisibleRows="6" VerticalScrollbar="..\ArchiveScroll" InnerPanel="ArchiveClip\ArchiveList" ClipRect="ArchiveClip" AutoHideScrollBars="false" OnlyAcceptScrollEventIfCanScroll="true" MouseScrollAxis="Vertical">
+                  <Children>
+                    <Widget Id="ArchiveClip" WidthSizePolicy="StretchToParent" HeightSizePolicy="StretchToParent" ClipContents="true">
+                      <Children>
+                        <ListPanel Id="ArchiveList" DataSource="{ArchiveItems}" WidthSizePolicy="StretchToParent" HeightSizePolicy="CoverChildren" StackLayout.LayoutMethod="VerticalTopToBottom">
+                          <ItemTemplate>
+                            <ButtonWidget WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="340" SuggestedHeight="92" MarginLeft="0" MarginTop="0" Command.Click="ExecuteSelect" UpdateChildrenStates="true">
+                              <Children>
+                                <ImageWidget WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="340" SuggestedHeight="84" MarginLeft="0" MarginTop="0" DoNotAcceptEvents="true" Sprite="@CardSprite" />
+                                <TextWidget WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="241" SuggestedHeight="30" MarginLeft="84" MarginTop="13" DoNotAcceptEvents="true" Brush="DefaultText" Brush.Font="ReignSerifDynamic" Brush.FontSize="20" Brush.FontColor="#C5BDAFFF" Brush.TextHorizontalAlignment="Left" Brush.TextVerticalAlignment="Top" Text="@Title" Brush.TextOutlineAmount="0" Brush.TextGlowRadius="0" Brush.TextBlur="0" />
+                                <TextWidget WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="241" SuggestedHeight="34" MarginLeft="84" MarginTop="44" DoNotAcceptEvents="true" Brush="DefaultText" Brush.Font="ReignSerifDynamic" Brush.FontSize="13" Brush.FontColor="#8A8883FF" Brush.TextHorizontalAlignment="Left" Brush.TextVerticalAlignment="Top" Text="@Summary" Brush.TextOutlineAmount="0" Brush.TextGlowRadius="0" Brush.TextBlur="0" />
+                              </Children>
+                            </ButtonWidget>
+                          </ItemTemplate>
+                        </ListPanel>
+                      </Children>
+                    </Widget>
+                  </Children>
+                </ReignGovernmentMemberScrollPanel>
+                <ScrollbarWidget Id="ArchiveScroll" WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="5" SuggestedHeight="552" MarginLeft="373" MarginTop="171" AlignmentAxis="Vertical" Handle="ArchiveHandle" MaxValue="100" MinValue="0">
+                  <Children>
+                    <Widget Id="ArchiveHandle" WidthSizePolicy="StretchToParent" HeightSizePolicy="Fixed" SuggestedHeight="40" Sprite="BlankWhiteSquare" Color="#7E6A4DFF" />
+                  </Children>
+                </ScrollbarWidget>
+                <TextWidget WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="820" SuggestedHeight="24" MarginLeft="414" MarginTop="130" DoNotAcceptEvents="true" Brush="DefaultText" Brush.Font="ReignSerifDynamic" Brush.FontSize="15" Brush.FontColor="#A88A54FF" Brush.TextHorizontalAlignment="Left" Brush.TextVerticalAlignment="Top" Text="@MatterKind" Brush.TextOutlineAmount="0" Brush.TextGlowRadius="0" Brush.TextBlur="0" />
+                <TextWidget WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="840" SuggestedHeight="48" MarginLeft="414" MarginTop="163" DoNotAcceptEvents="true" Brush="DefaultText" Brush.Font="ReignSerifDynamic" Brush.FontSize="32" Brush.FontColor="#A88A54FF" Brush.TextHorizontalAlignment="Left" Brush.TextVerticalAlignment="Top" Text="@MatterTitle" Brush.TextOutlineAmount="0" Brush.TextGlowRadius="0" Brush.TextBlur="0" />
+                <TextWidget WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="840" SuggestedHeight="130" MarginLeft="414" MarginTop="223" DoNotAcceptEvents="true" Brush="DefaultText" Brush.Font="ReignSerifDynamic" Brush.FontSize="20" Brush.FontColor="#C5BDAFFF" Brush.TextHorizontalAlignment="Left" Brush.TextVerticalAlignment="Top" Text="@OutcomeText" Brush.TextOutlineAmount="0" Brush.TextGlowRadius="0" Brush.TextBlur="0" />
+                <TextWidget WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="820" SuggestedHeight="26" MarginLeft="414" MarginTop="378" DoNotAcceptEvents="true" Brush="DefaultText" Brush.Font="ReignSerifDynamic" Brush.FontSize="16" Brush.FontColor="#A88A54FF" Brush.TextHorizontalAlignment="Left" Brush.TextVerticalAlignment="Top" Text="OUTSTANDING OBLIGATIONS" Brush.TextOutlineAmount="0" Brush.TextGlowRadius="0" Brush.TextBlur="0" />
+                <ReignGovernmentMemberScrollPanel Id="ObligationScrollPanel" Type="ReignBeta.UI.ReignGovernmentMemberScrollPanel" WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="840" SuggestedHeight="400" MarginLeft="414" MarginTop="420" ItemCount="@ObligationCount" VisibleRows="4" VerticalScrollbar="..\ObligationScroll" InnerPanel="ObligationClip\ObligationList" ClipRect="ObligationClip" AutoHideScrollBars="false" OnlyAcceptScrollEventIfCanScroll="true" MouseScrollAxis="Vertical">
+                  <Children>
+                    <Widget Id="ObligationClip" WidthSizePolicy="StretchToParent" HeightSizePolicy="StretchToParent" ClipContents="true">
+                      <Children>
+                        <ListPanel Id="ObligationList" DataSource="{Obligations}" WidthSizePolicy="StretchToParent" HeightSizePolicy="CoverChildren" StackLayout.LayoutMethod="VerticalTopToBottom">
+                          <ItemTemplate>
+                            <Widget WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="840" SuggestedHeight="100" MarginLeft="0" MarginTop="0">
+                              <Children>
+                                <ImageWidget WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="840" SuggestedHeight="100" MarginLeft="0" MarginTop="0" DoNotAcceptEvents="true" Sprite="reign_government_obligation_card" />
+                                <TextWidget WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="540" SuggestedHeight="31" MarginLeft="18" MarginTop="12" DoNotAcceptEvents="true" Brush="DefaultText" Brush.Font="ReignSerifDynamic" Brush.FontSize="22" Brush.FontColor="#A88A54FF" Brush.TextHorizontalAlignment="Left" Brush.TextVerticalAlignment="Top" Text="@Title" Brush.TextOutlineAmount="0" Brush.TextGlowRadius="0" Brush.TextBlur="0" />
+                                <TextWidget WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="540" SuggestedHeight="34" MarginLeft="18" MarginTop="48" DoNotAcceptEvents="true" Brush="DefaultText" Brush.Font="ReignSerifDynamic" Brush.FontSize="17" Brush.FontColor="#C5BDAFFF" Brush.TextHorizontalAlignment="Left" Brush.TextVerticalAlignment="Top" Text="@Detail" Brush.TextOutlineAmount="0" Brush.TextGlowRadius="0" Brush.TextBlur="0" />
+                                <ButtonWidget WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="280" SuggestedHeight="50" MarginLeft="550" MarginTop="26" Command.Click="ExecuteContributeGoods" UpdateChildrenStates="true" IsVisible="@CanContribute">
+                                  <Children>
+                                    <ImageWidget WidthSizePolicy="StretchToParent" HeightSizePolicy="StretchToParent" DoNotAcceptEvents="true" Sprite="reign_government_button" />
+                                    <TextWidget WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="254" SuggestedHeight="31" MarginLeft="13" MarginTop="9" DoNotAcceptEvents="true" Brush="DefaultText" Brush.Font="ReignSerifDynamic" Brush.FontSize="16" Brush.FontColor="#C5BDAFFF" Brush.TextHorizontalAlignment="Center" Brush.TextVerticalAlignment="Top" Text="Deliver available goods" Brush.TextOutlineAmount="0" Brush.TextGlowRadius="0" Brush.TextBlur="0" />
+                                  </Children>
+                                </ButtonWidget>
+                              </Children>
+                            </Widget>
+                          </ItemTemplate>
+                        </ListPanel>
+                      </Children>
+                    </Widget>
+                  </Children>
+                </ReignGovernmentMemberScrollPanel>
+                <ScrollbarWidget Id="ObligationScroll" WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="5" SuggestedHeight="400" MarginLeft="1257" MarginTop="420" AlignmentAxis="Vertical" Handle="ObligationHandle" MaxValue="100" MinValue="0">
+                  <Children>
+                    <Widget Id="ObligationHandle" WidthSizePolicy="StretchToParent" HeightSizePolicy="Fixed" SuggestedHeight="40" Sprite="BlankWhiteSquare" Color="#7E6A4DFF" />
+                  </Children>
+                </ScrollbarWidget>
+                <ReignGovernmentMemberScrollPanel Id="ArchiveParticipantScrollPanel" Type="ReignBeta.UI.ReignGovernmentMemberScrollPanel" WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="340" SuggestedHeight="236" MarginLeft="1303" MarginTop="199" ItemCount="@ParticipantCount" VisibleRows="2" VerticalScrollbar="..\ArchiveParticipantScroll" InnerPanel="ArchiveParticipantClip\ArchiveParticipantList" ClipRect="ArchiveParticipantClip" AutoHideScrollBars="false" OnlyAcceptScrollEventIfCanScroll="true" MouseScrollAxis="Vertical">
+                  <Children>
+                    <Widget Id="ArchiveParticipantClip" WidthSizePolicy="StretchToParent" HeightSizePolicy="StretchToParent" ClipContents="true">
+                      <Children>
+                        <ListPanel Id="ArchiveParticipantList" DataSource="{Participants}" WidthSizePolicy="StretchToParent" HeightSizePolicy="CoverChildren" StackLayout.LayoutMethod="VerticalTopToBottom">
+                          <ItemTemplate>
+                            <Widget WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="340" SuggestedHeight="118" MarginLeft="0" MarginTop="0">
+                              <Children>
+                                <Widget WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="94" SuggestedHeight="94" MarginLeft="28" MarginTop="10" ClipContents="true" DoNotAcceptEvents="true">
+                                  <Children>
+                                    <ImageIdentifierWidget WidthSizePolicy="StretchToParent" HeightSizePolicy="StretchToParent" DoNotAcceptEvents="true" IsVisible="@HasPortrait" ImageId="@PortraitId" AdditionalArgs="@PortraitAdditionalArgs" TextureProviderName="@PortraitTextureProviderName" />
+                                    <ReignPortraitWidget Type="ReignBeta.UI.Widgets.ReignPortraitWidget" WidthSizePolicy="StretchToParent" HeightSizePolicy="StretchToParent" DoNotAcceptEvents="true" IsVisible="@HasPortrait" PortraitCacheKey="@PortraitCacheKey" UseZoomQuality="true" TargetAspect="1" />
+                                  </Children>
+                                </Widget>
+                                <Widget WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="21" SuggestedHeight="29" MarginLeft="157" MarginTop="57" ClipContents="true" DoNotAcceptEvents="true">
+                                  <Children>
+                                    <ImageIdentifierWidget WidthSizePolicy="StretchToParent" HeightSizePolicy="StretchToParent" DoNotAcceptEvents="true" IsVisible="@HasBanner" ImageId="@BannerId" AdditionalArgs="@BannerArgs" TextureProviderName="@BannerProvider" />
+                                  </Children>
+                                </Widget>
+                                <ImageWidget WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="340" SuggestedHeight="110" MarginLeft="0" MarginTop="0" Sprite="reign_government_participant_card" DoNotAcceptEvents="true" />
+                                <TextWidget WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="171" SuggestedHeight="30" MarginLeft="155" MarginTop="20" Text="@Name" DoNotAcceptEvents="true" Brush="DefaultText" Brush.Font="ReignSerifDynamic" Brush.FontSize="19" Brush.FontColor="#C5BDAFFF" Brush.TextHorizontalAlignment="Left" Brush.TextVerticalAlignment="Top" Brush.TextOutlineAmount="0" Brush.TextGlowRadius="0" Brush.TextBlur="0" />
+                                <TextWidget WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="142" SuggestedHeight="18" MarginLeft="184" MarginTop="52" Text="@Role" DoNotAcceptEvents="true" Brush="DefaultText" Brush.Font="ReignSerifDynamic" Brush.FontSize="12" Brush.FontColor="#A88A54FF" Brush.TextHorizontalAlignment="Left" Brush.TextVerticalAlignment="Top" Brush.TextOutlineAmount="0" Brush.TextGlowRadius="0" Brush.TextBlur="0" />
+                                <TextWidget WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="142" SuggestedHeight="30" MarginLeft="184" MarginTop="70" Text="@Attendance" DoNotAcceptEvents="true" Brush="DefaultText" Brush.Font="ReignSerifDynamic" Brush.FontSize="12" Brush.FontColor="#8A8883FF" Brush.TextHorizontalAlignment="Left" Brush.TextVerticalAlignment="Top" Brush.TextOutlineAmount="0" Brush.TextGlowRadius="0" Brush.TextBlur="0" />
+                                <TextWidget WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="142" SuggestedHeight="16" MarginLeft="184" MarginTop="93" Text="@Constituency" DoNotAcceptEvents="true" Brush="DefaultText" Brush.Font="ReignSerifDynamic" Brush.FontSize="10" Brush.FontColor="#8A8883FF" Brush.TextHorizontalAlignment="Left" Brush.TextVerticalAlignment="Top" Brush.TextOutlineAmount="0" Brush.TextGlowRadius="0" Brush.TextBlur="0" />
+                              </Children>
+                            </Widget>
+                          </ItemTemplate>
+                        </ListPanel>
+                      </Children>
+                    </Widget>
+                  </Children>
+                </ReignGovernmentMemberScrollPanel>
+                <ScrollbarWidget Id="ArchiveParticipantScroll" WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="5" SuggestedHeight="236" MarginLeft="1647" MarginTop="199" AlignmentAxis="Vertical" Handle="ArchiveParticipantHandle" MaxValue="100" MinValue="0">
+                  <Children>
+                    <Widget Id="ArchiveParticipantHandle" WidthSizePolicy="StretchToParent" HeightSizePolicy="Fixed" SuggestedHeight="40" Sprite="BlankWhiteSquare" Color="#7E6A4DFF" />
+                  </Children>
+                </ScrollbarWidget>
+                <TextWidget WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="316" SuggestedHeight="60" MarginLeft="1308" MarginTop="433" DoNotAcceptEvents="true" Brush="DefaultText" Brush.Font="ReignSerifDynamic" Brush.FontSize="16" Brush.FontColor="#8A8883FF" Brush.TextHorizontalAlignment="Left" Brush.TextVerticalAlignment="Top" Text="Recorded decisions preserve the ruler's recommendation separately from the government's result." Brush.TextOutlineAmount="0" Brush.TextGlowRadius="0" Brush.TextBlur="0" />
+                <Widget WidthSizePolicy="StretchToParent" HeightSizePolicy="StretchToParent" IsVisible="@IsInteractive" DoNotAcceptEvents="true">
+                  <Children>
+                    <TextWidget DoNotAcceptEvents="true" WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="320" SuggestedHeight="30" MarginLeft="1306" MarginTop="506" Brush="DefaultText" Brush.Font="ReignSerifDynamic" Brush.FontSize="16" Brush.FontColor="#A88A54FF" Text="YOUR PRIVATE COMMITMENTS" Brush.TextOutlineAmount="0" Brush.TextGlowRadius="0" Brush.TextBlur="0" />
+                    <ReignGovernmentMemberScrollPanel Type="ReignBeta.UI.ReignGovernmentMemberScrollPanel" WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="340" SuggestedHeight="360" MarginLeft="1304" MarginTop="545" ItemCount="@CommitmentCount" VisibleRows="2" VerticalScrollbar="..\CommitmentScroll" InnerPanel="CommitmentClip\CommitmentList" ClipRect="CommitmentClip" MouseScrollAxis="Vertical">
+                      <Children>
+                        <Widget Id="CommitmentClip" WidthSizePolicy="StretchToParent" HeightSizePolicy="StretchToParent" ClipContents="true">
+                          <Children>
+                            <ListPanel Id="CommitmentList" DataSource="{Commitments}" WidthSizePolicy="StretchToParent" HeightSizePolicy="CoverChildren" StackLayout.LayoutMethod="VerticalTopToBottom">
+                              <ItemTemplate>
+                                <Widget WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="340" SuggestedHeight="180">
+                                  <Children>
+                                    <ImageWidget DoNotAcceptEvents="true" WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="340" SuggestedHeight="180" Sprite="reign_government_party_card" />
+                                    <TextWidget DoNotAcceptEvents="true" WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="306" SuggestedHeight="28" MarginLeft="16" MarginTop="12" Brush="DefaultText" Brush.Font="ReignSerifDynamic" Brush.FontSize="20" Brush.FontColor="#A88A54FF" Text="@Name" Brush.TextOutlineAmount="0" Brush.TextGlowRadius="0" Brush.TextBlur="0" />
+                                    <TextWidget DoNotAcceptEvents="true" WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="306" SuggestedHeight="28" MarginLeft="16" MarginTop="43" Brush="DefaultText" Brush.Font="ReignSerifDynamic" Brush.FontSize="16" Brush.FontColor="#C5BDAFFF" Text="@Matter" Brush.TextOutlineAmount="0" Brush.TextGlowRadius="0" Brush.TextBlur="0" />
+                                    <TextWidget DoNotAcceptEvents="true" WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="306" SuggestedHeight="58" MarginLeft="16" MarginTop="75" Brush="DefaultText" Brush.Font="ReignSerifDynamic" Brush.FontSize="15" Brush.FontColor="#C5BDAFFF" Text="@Terms" Brush.TextOutlineAmount="0" Brush.TextGlowRadius="0" Brush.TextBlur="0" />
+                                    <TextWidget DoNotAcceptEvents="true" WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="306" SuggestedHeight="33" MarginLeft="16" MarginTop="139" Brush="DefaultText" Brush.Font="ReignSerifDynamic" Brush.FontSize="13" Brush.FontColor="#8A8883FF" Text="@Status" Brush.TextOutlineAmount="0" Brush.TextGlowRadius="0" Brush.TextBlur="0" />
+                                  </Children>
+                                </Widget>
+                              </ItemTemplate>
+                            </ListPanel>
+                          </Children>
+                        </Widget>
+                      </Children>
+                    </ReignGovernmentMemberScrollPanel>
+                    <ScrollbarWidget Id="CommitmentScroll" WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="5" SuggestedHeight="360" MarginLeft="1647" MarginTop="545" AlignmentAxis="Vertical" Handle="CommitmentHandle" MinValue="0" MaxValue="100">
+                      <Children>
+                        <Widget Id="CommitmentHandle" WidthSizePolicy="StretchToParent" HeightSizePolicy="Fixed" SuggestedHeight="40" Sprite="BlankWhiteSquare" Color="#7E6A4DFF" />
+                      </Children>
+                    </ScrollbarWidget>
+                  </Children>
+                </Widget>
+              </Children>
+            </Widget>
+            <Widget WidthSizePolicy="StretchToParent" HeightSizePolicy="StretchToParent" IsVisible="@IsAuthorityView" DoNotAcceptEvents="true">
+              <Children>
+                <TextWidget WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="312" SuggestedHeight="164" MarginLeft="42" MarginTop="178" DoNotAcceptEvents="true" Brush="DefaultText" Brush.Font="ReignSerifDynamic" Brush.FontSize="20" Brush.FontColor="#8A8883FF" Brush.TextHorizontalAlignment="Left" Brush.TextVerticalAlignment="Top" Text="Authority changes alter how the ruler and government share decisions. They are separate from ordinary hearings." Brush.TextOutlineAmount="0" Brush.TextGlowRadius="0" Brush.TextBlur="0" />
+                <TextWidget WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="840" SuggestedHeight="40" MarginLeft="414" MarginTop="173" DoNotAcceptEvents="true" Brush="DefaultText" Brush.Font="ReignSerifDynamic" Brush.FontSize="26" Brush.FontColor="#A88A54FF" Brush.TextHorizontalAlignment="Left" Brush.TextVerticalAlignment="Top" Text="@AuthorityText" Brush.TextOutlineAmount="0" Brush.TextGlowRadius="0" Brush.TextBlur="0" />
+                <TextWidget WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="840" SuggestedHeight="90" MarginLeft="414" MarginTop="227" DoNotAcceptEvents="true" Brush="DefaultText" Brush.Font="ReignSerifDynamic" Brush.FontSize="22" Brush.FontColor="#C5BDAFFF" Brush.TextHorizontalAlignment="Left" Brush.TextVerticalAlignment="Top" Text="@AuthorityExplanation" Brush.TextOutlineAmount="0" Brush.TextGlowRadius="0" Brush.TextBlur="0" />
+                <TextWidget WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="840" SuggestedHeight="434" MarginLeft="414" MarginTop="336" DoNotAcceptEvents="true" Brush="DefaultText" Brush.Font="ReignSerifDynamic" Brush.FontSize="21" Brush.FontColor="#C5BDAFFF" Brush.TextHorizontalAlignment="Left" Brush.TextVerticalAlignment="Top" Text="LEVEL 1 · Advisory\nThe ruler decides after hearing the institution.\n\nLEVEL 2 · Limited\nOpposition carries formal political pressure.\n\nLEVEL 3 · Substantial\nOpposed decisions require reconsideration.\n\nLEVEL 4 · Decisive\nAn override carries constitutional consequences.\n\nLEVEL 5 · The assembly decides\nThe ruler recommends. Individual votes determine the binding result." Brush.TextOutlineAmount="0" Brush.TextGlowRadius="0" Brush.TextBlur="0" />
+                <ButtonWidget WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="280" SuggestedHeight="50" MarginLeft="425" MarginTop="835" Command.Click="ExecuteIncreaseAuthority" UpdateChildrenStates="true" IsVisible="@IsInteractive">
+                  <Children>
+                    <ImageWidget WidthSizePolicy="StretchToParent" HeightSizePolicy="StretchToParent" DoNotAcceptEvents="true" Sprite="reign_government_button" />
+                    <TextWidget WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="254" SuggestedHeight="31" MarginLeft="13" MarginTop="9" DoNotAcceptEvents="true" Brush="DefaultText" Brush.Font="ReignSerifDynamic" Brush.FontSize="16" Brush.FontColor="#C5BDAFFF" Brush.TextHorizontalAlignment="Center" Brush.TextVerticalAlignment="Top" Text="Grant greater authority" Brush.TextOutlineAmount="0" Brush.TextGlowRadius="0" Brush.TextBlur="0" />
+                  </Children>
+                </ButtonWidget>
+                <ButtonWidget WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="280" SuggestedHeight="50" MarginLeft="717" MarginTop="835" Command.Click="ExecuteReduceAuthority" UpdateChildrenStates="true" IsVisible="@IsInteractive">
+                  <Children>
+                    <ImageWidget WidthSizePolicy="StretchToParent" HeightSizePolicy="StretchToParent" DoNotAcceptEvents="true" Sprite="reign_government_button" />
+                    <TextWidget WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="254" SuggestedHeight="31" MarginLeft="13" MarginTop="9" DoNotAcceptEvents="true" Brush="DefaultText" Brush.Font="ReignSerifDynamic" Brush.FontSize="16" Brush.FontColor="#C5BDAFFF" Brush.TextHorizontalAlignment="Center" Brush.TextVerticalAlignment="Top" Text="Request authority reduction" Brush.TextOutlineAmount="0" Brush.TextGlowRadius="0" Brush.TextBlur="0" />
+                  </Children>
+                </ButtonWidget>
+                <TextWidget WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="316" SuggestedHeight="150" MarginLeft="1308" MarginTop="186" DoNotAcceptEvents="true" Brush="DefaultText" Brush.Font="ReignSerifDynamic" Brush.FontSize="20" Brush.FontColor="#8A8883FF" Brush.TextHorizontalAlignment="Left" Brush.TextVerticalAlignment="Top" Text="A reduction requires a separate consent vote. Failed consent does not silently force a reduction." Brush.TextOutlineAmount="0" Brush.TextGlowRadius="0" Brush.TextBlur="0" />
+              </Children>
+            </Widget>
+            <TextWidget WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="840" SuggestedHeight="20" MarginLeft="414" MarginTop="916" DoNotAcceptEvents="true" Brush="DefaultText" Brush.Font="ReignSerifDynamic" Brush.FontSize="13" Brush.FontColor="#8A8883FF" Brush.TextHorizontalAlignment="Left" Brush.TextVerticalAlignment="Top" Text="@StatusText" Brush.TextOutlineAmount="0" Brush.TextGlowRadius="0" Brush.TextBlur="0" />
+            <Widget WidthSizePolicy="StretchToParent" HeightSizePolicy="StretchToParent" IsVisible="@IsPolicyView" DoNotAcceptEvents="true">
+              <Children>
+                <TextWidget WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="316" SuggestedHeight="32" MarginLeft="40" MarginTop="178" Text="INTRODUCE A MATTER" DoNotAcceptEvents="true" Brush="DefaultText" Brush.Font="ReignSerifDynamic" Brush.FontSize="24" Brush.FontColor="#A88A54FF" Brush.TextHorizontalAlignment="Left" Brush.TextVerticalAlignment="Top" Brush.TextOutlineAmount="0" Brush.TextGlowRadius="0" Brush.TextBlur="0" />
+                <TextWidget WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="316" SuggestedHeight="160" MarginLeft="40" MarginTop="225" Text="Introduce a policy, repeal, fief review, or expulsion. Every proposal follows the same hearing and voting rules." DoNotAcceptEvents="true" Brush="DefaultText" Brush.Font="ReignSerifDynamic" Brush.FontSize="19" Brush.FontColor="#8A8883FF" Brush.TextHorizontalAlignment="Left" Brush.TextVerticalAlignment="Top" Brush.TextOutlineAmount="0" Brush.TextGlowRadius="0" Brush.TextBlur="0" />
+                <TextWidget WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="840" SuggestedHeight="46" MarginLeft="414" MarginTop="166" Text="Choose a proposal" DoNotAcceptEvents="true" Brush="DefaultText" Brush.Font="ReignSerifDynamic" Brush.FontSize="32" Brush.FontColor="#A88A54FF" Brush.TextHorizontalAlignment="Left" Brush.TextVerticalAlignment="Top" Brush.TextOutlineAmount="0" Brush.TextGlowRadius="0" Brush.TextBlur="0" />
+                <ReignGovernmentMemberScrollPanel WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="840" SuggestedHeight="660" MarginLeft="414" MarginTop="226" Id="PolicyChoiceScrollPanel" Type="ReignBeta.UI.ReignGovernmentMemberScrollPanel" ItemCount="@PolicyChoiceCount" VisibleRows="6" VerticalScrollbar="..\PolicyChoiceScroll" InnerPanel="PolicyChoiceClip\PolicyChoiceList" ClipRect="PolicyChoiceClip" AutoHideScrollBars="false" OnlyAcceptScrollEventIfCanScroll="true" MouseScrollAxis="Vertical">
+                  <Children>
+                    <Widget Id="PolicyChoiceClip" WidthSizePolicy="StretchToParent" HeightSizePolicy="StretchToParent" ClipContents="true">
+                      <Children>
+                        <ListPanel Id="PolicyChoiceList" DataSource="{PolicyChoices}" WidthSizePolicy="StretchToParent" HeightSizePolicy="CoverChildren" StackLayout.LayoutMethod="VerticalTopToBottom">
+                          <ItemTemplate>
+                            <ButtonWidget WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="840" SuggestedHeight="110" MarginLeft="0" MarginTop="0" IsEnabled="@IsEnabled" Command.Click="ExecuteSelect">
+                              <Children>
+                                <ImageWidget WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="840" SuggestedHeight="100" MarginLeft="0" MarginTop="0" Sprite="reign_government_obligation_card" DoNotAcceptEvents="true" />
+                                <TextWidget WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="802" SuggestedHeight="30" MarginLeft="18" MarginTop="10" Text="@Title" DoNotAcceptEvents="true" Brush="DefaultText" Brush.Font="ReignSerifDynamic" Brush.FontSize="22" Brush.FontColor="#A88A54FF" Brush.TextHorizontalAlignment="Left" Brush.TextVerticalAlignment="Top" Brush.TextOutlineAmount="0" Brush.TextGlowRadius="0" Brush.TextBlur="0" />
+                                <TextWidget WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="802" SuggestedHeight="55" MarginLeft="18" MarginTop="42" Text="@Detail" DoNotAcceptEvents="true" Brush="DefaultText" Brush.Font="ReignSerifDynamic" Brush.FontSize="16" Brush.FontColor="#C5BDAFFF" Brush.TextHorizontalAlignment="Left" Brush.TextVerticalAlignment="Top" Brush.TextOutlineAmount="0" Brush.TextGlowRadius="0" Brush.TextBlur="0" />
+                              </Children>
+                            </ButtonWidget>
+                          </ItemTemplate>
+                        </ListPanel>
+                      </Children>
+                    </Widget>
+                  </Children>
+                </ReignGovernmentMemberScrollPanel>
+                <ScrollbarWidget WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="5" SuggestedHeight="660" MarginLeft="1257" MarginTop="226" Id="PolicyChoiceScroll" AlignmentAxis="Vertical" Handle="PolicyChoiceHandle" MaxValue="100" MinValue="0">
+                  <Children>
+                    <Widget Id="PolicyChoiceHandle" WidthSizePolicy="StretchToParent" HeightSizePolicy="Fixed" SuggestedHeight="40" Sprite="BlankWhiteSquare" Color="#7E6A4DFF" />
+                  </Children>
+                </ScrollbarWidget>
+                <ButtonWidget WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="280" SuggestedHeight="50" MarginLeft="50" MarginTop="855" UpdateChildrenStates="true" Command.Click="ExecuteBusinessTab">
+                  <Children>
+                    <ImageWidget WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="280" SuggestedHeight="50" MarginLeft="0" MarginTop="0" Sprite="reign_government_button" DoNotAcceptEvents="true" />
+                    <TextWidget WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="256" SuggestedHeight="36" MarginLeft="12" MarginTop="9" Text="Return to business" DoNotAcceptEvents="true" Brush="DefaultText" Brush.Font="ReignSerifDynamic" Brush.FontSize="17" Brush.FontColor="#C5BDAFFF" Brush.TextHorizontalAlignment="Center" Brush.TextVerticalAlignment="Top" Brush.TextOutlineAmount="0" Brush.TextGlowRadius="0" Brush.TextBlur="0" />
+                  </Children>
+                </ButtonWidget>
+              </Children>
+            </Widget>
+          </Children>
+        </Widget>
+      </Children>
+    </Widget>
+  </Window>
+</Prefab>

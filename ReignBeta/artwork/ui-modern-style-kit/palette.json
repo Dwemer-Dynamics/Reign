@@ -1,0 +1,38 @@
+{
+  "schema": "reign-ui-modern-palette-v1",
+  "version": "2026.08.28.2",
+  "authority": {
+    "source": "style-reference.png",
+    "sha256": "85b689dc164ebbf70f67a081c0f7097858edb0542ef0073de0c29eef7926b0a3",
+    "rule": "These exact RGBA tokens are the only neutral-material, line, ornament, semantic-status, and text colors permitted in the modern Reign shell. Texture variation may modulate luminance locally but may not introduce a new base hue."
+  },
+  "tokens": {
+    "canvasVoid": "#030303FF",
+    "canvasBlack": "#070808FF",
+    "marbleBase": "#121211FF",
+    "marbleShadow": "#0C0C0BFF",
+    "marbleVein": "#23211D5C",
+    "panelSmoke": "#10100FFF",
+    "panelStandard": "#171717FF",
+    "panelRaised": "#1A1917FF",
+    "panelActive": "#232323FF",
+    "inputBlack": "#0B0B0BFF",
+    "borderBronze": "#352C20FF",
+    "goldAntique": "#7E6A4DFF",
+    "goldHighlight": "#A88A54FF",
+    "goldBright": "#C5AC83FF",
+    "textPrimary": "#C5BDAFFF",
+    "textSecondary": "#8A8883FF",
+    "textMuted": "#706F6AFF",
+    "semanticDanger": "#C35B32FF",
+    "disabledNeutral": "#4A4945FF",
+    "emptySilhouette": "#595956FF"
+  },
+  "materialRules": {
+    "neutralPanels": "Use canvasBlack, marbleBase, panelSmoke, panelStandard, panelRaised, or panelActive. Brown neutral panels are forbidden.",
+    "lighterCards": "Use panelRaised for ordinary lifted cards and panelActive only for selected or deliberately emphasized cards.",
+    "marbling": "Marble veins remain subordinate to content and borders; use marbleVein at or below its declared alpha.",
+    "gold": "Use borderBronze for recessive hairlines, goldAntique for primary lines, goldHighlight for headings and focal ornaments, and goldBright only for small highlights.",
+    "semanticStatus": "Use semanticDanger only for negative state values, shortages, losses, expenses, or explicitly challenging assessments. It is sampled from the approved Economic Report reference and must not be used as ornament or neutral material."
+  }
+}

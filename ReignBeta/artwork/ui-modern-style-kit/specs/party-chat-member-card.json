@@ -1,0 +1,10 @@
+{
+  "schema": "reign-overlay-asset-spec-v1",
+  "asset": {"id": "party-chat-member-card", "role": "complete moving card extracted from original Party Chat artwork; portrait underneath integrated aperture"},
+  "canvas": {"width": 286, "height": 154},
+  "normalization": {"fit": "exact", "anchor": "center", "sourceCrop": {"x": 406, "y": 189, "width": 286, "height": 154}},
+  "antialiasScale": 8,
+  "apertures": [{"id": "portrait", "shape": "ellipse", "x": 18, "y": 18, "width": 114, "height": 124, "feather": 0}],
+  "transparentRgb": "#000000",
+  "marbleReduction": {"amount": 0}
+}

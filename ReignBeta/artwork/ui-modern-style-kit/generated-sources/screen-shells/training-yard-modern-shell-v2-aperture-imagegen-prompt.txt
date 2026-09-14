@@ -1,0 +1,10 @@
+Tool: OpenAI image generation
+Date: 2026-09-04
+Use case: precise-object-edit
+Referenced image: ReignBeta/GUI/SpriteParts/ui_reignbeta_training_yard/reign_training_yard_modern_shell.png
+
+Prompt:
+Edit the supplied Reign Training Yard shell only. Add a circular selected-trainer portrait aperture centered near x=682, y=288 on the 1672x941 design canvas. The aperture must have an opaque black-marble surround and a restrained, thin antique-gold frame consistent with the shell's existing linework. Preserve every pixel outside the requested aperture treatment. Do not add a portrait, text, icon, glow, parchment, bright fantasy gold, or any other decoration. Keep the center flat black so it can be replaced with a deterministic transparent alpha opening during asset materialization.
+
+Provenance note:
+The image-generation result is retained as a design concept. It returned at 1671x941 and enlarged the aperture beyond the approved 108x108 geometry, so it is not used directly as runtime art or the approved reference. The production shell uses the same visual concept, materialized deterministically from exact Reign palette tokens at the declared geometry without stretching this output.

@@ -1,0 +1,166 @@
+<Prefab>
+  <Window>
+    <Widget WidthSizePolicy="StretchToParent" HeightSizePolicy="StretchToParent">
+      <Children>
+        <ButtonWidget WidthSizePolicy="StretchToParent" HeightSizePolicy="StretchToParent" Brush="ConversationItem.SoundBrush" DoNotPassEventsToChildren="true" UpdateChildrenStates="true" Command.Click="ExecuteNoOp">
+          <Children>
+            <Widget DoNotAcceptEvents="true" WidthSizePolicy="StretchToParent" HeightSizePolicy="StretchToParent" Sprite="BlankWhiteSquare_9" Color="#030303FF" />
+          </Children>
+        </ButtonWidget>
+
+        <!-- The approved modern composition is authored on a fixed 1672x941 logical surface. -->
+        <Widget WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="1672" SuggestedHeight="941" HorizontalAlignment="Center" VerticalAlignment="Center" ClipContents="true" DoNotUseCustomScaleAndChildren="true">
+          <Children>
+            <!-- Standalone chat keeps its approved vertical ovals. Untouched rectangular sources sit behind the single shell aperture overlay. -->
+            <ButtonWidget WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="230" SuggestedHeight="330" HorizontalAlignment="Left" MarginLeft="94" MarginTop="47" ClipContents="true" DoNotPassEventsToChildren="true" UpdateChildrenStates="true" HoveredCursorState="RightClickLink" Command.Click="ExecuteTogglePlayerPortraitZoom">
+              <Children>
+                <Widget Id="ReignChatPlayerPortraitClip" DoNotAcceptEvents="true" WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="210" SuggestedHeight="310" MarginLeft="10" MarginTop="10" ClipContents="true">
+                  <Children>
+                    <ImageIdentifierWidget Id="ReignChatPlayerPortrait" DoNotAcceptEvents="true" WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="@PlayerPortraitCropImageWidth" SuggestedHeight="@PlayerPortraitCropImageHeight" HorizontalAlignment="Center" VerticalAlignment="Center" PositionYOffset="6" ImageId="@PlayerPortraitId" AdditionalArgs="@PlayerPortraitAdditionalArgs" TextureProviderName="@PlayerPortraitTextureProviderName" />
+                  </Children>
+                </Widget>
+              </Children>
+            </ButtonWidget>
+
+            <ButtonWidget WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="230" SuggestedHeight="330" HorizontalAlignment="Right" MarginRight="109" MarginTop="47" ClipContents="true" DoNotPassEventsToChildren="true" UpdateChildrenStates="true" HoveredCursorState="RightClickLink" Command.Click="ExecuteToggleNpcPortraitZoom">
+              <Children>
+                <Widget Id="ReignChatNpcPortraitClip" DoNotAcceptEvents="true" WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="210" SuggestedHeight="310" MarginLeft="10" MarginTop="10" ClipContents="true">
+                  <Children>
+                    <ImageIdentifierWidget Id="ReignChatNpcPortrait" DoNotAcceptEvents="true" WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="@NpcPortraitCropImageWidth" SuggestedHeight="@NpcPortraitCropImageHeight" HorizontalAlignment="Center" VerticalAlignment="Center" PositionYOffset="6" ImageId="@NpcPortraitId" AdditionalArgs="@NpcPortraitAdditionalArgs" TextureProviderName="@NpcPortraitTextureProviderName" />
+                  </Children>
+                </Widget>
+              </Children>
+            </ButtonWidget>
+
+            <!-- One registered foreground shell masks both portraits, eliminating separately resampled rectangular mask seams. -->
+            <Widget Id="ReignIndividualChatShell" DoNotAcceptEvents="true" WidthSizePolicy="StretchToParent" HeightSizePolicy="StretchToParent" Sprite="reign_individual_chat_modern_shell" />
+
+            <Widget WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="270" SuggestedHeight="44" HorizontalAlignment="Left" MarginLeft="340" MarginTop="105" ClipContents="true" DoNotAcceptEvents="true">
+              <Children>
+                <TextWidget WidthSizePolicy="StretchToParent" HeightSizePolicy="StretchToParent" Brush="DefaultText" Brush.Font="ReignSerifDynamic" Brush.FontSize="17" Brush.TextHorizontalAlignment="Center" Brush.FontColor="#C5AC83FF" Text="@PlayerName" />
+              </Children>
+            </Widget>
+            <TextWidget WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="270" SuggestedHeight="70" HorizontalAlignment="Left" MarginLeft="340" MarginTop="151" Brush="DefaultText" Brush.Font="ReignSerifDynamic" Brush.FontSize="15" Brush.TextHorizontalAlignment="Center" Brush.FontColor="#C5BDAFFF" Text="@PlayerSubtitle" />
+
+            <ButtonWidget DoNotPassEventsToChildren="true" UpdateChildrenStates="true" WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="422" SuggestedHeight="62" HorizontalAlignment="Left" MarginLeft="624" MarginTop="99" Command.Click="ExecuteClose">
+              <Children>
+                <TextWidget DoNotAcceptEvents="true" WidthSizePolicy="StretchToParent" HeightSizePolicy="StretchToParent" MarginLeft="32" MarginRight="32" Brush="DefaultText" Brush.Font="ReignSerifDynamic" Brush.FontSize="20" Brush.FontColor="#C5BDAFFF" Text="Leave the Conversation" />
+              </Children>
+            </ButtonWidget>
+            <ButtonWidget DoNotPassEventsToChildren="true" UpdateChildrenStates="true" WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="422" SuggestedHeight="62" HorizontalAlignment="Left" MarginLeft="624" MarginTop="182" Command.Click="ExecuteLookAtThem">
+              <Children>
+                <TextWidget DoNotAcceptEvents="true" WidthSizePolicy="StretchToParent" HeightSizePolicy="StretchToParent" MarginLeft="32" MarginRight="32" Brush="DefaultText" Brush.Font="ReignSerifDynamic" Brush.FontSize="20" Brush.FontColor="#C5BDAFFF" Text="Look at them" />
+              </Children>
+            </ButtonWidget>
+
+            <Widget WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="270" SuggestedHeight="44" HorizontalAlignment="Right" MarginRight="340" MarginTop="105" ClipContents="true" DoNotAcceptEvents="true">
+              <Children>
+                <TextWidget WidthSizePolicy="StretchToParent" HeightSizePolicy="StretchToParent" Brush="DefaultText" Brush.Font="ReignSerifDynamic" Brush.FontSize="17" Brush.TextHorizontalAlignment="Center" Brush.FontColor="#C5AC83FF" Text="@NpcName" />
+              </Children>
+            </Widget>
+            <TextWidget WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="270" SuggestedHeight="70" HorizontalAlignment="Right" MarginRight="340" MarginTop="151" Brush="DefaultText" Brush.Font="ReignSerifDynamic" Brush.FontSize="15" Brush.TextHorizontalAlignment="Center" Brush.FontColor="#C5BDAFFF" Text="@NpcSubtitle" />
+
+            <TextWidget WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="972" SuggestedHeight="38" HorizontalAlignment="Left" MarginLeft="350" MarginTop="414" Brush="DefaultText" Brush.Font="ReignSerifDynamic" Brush.FontSize="24" Brush.TextHorizontalAlignment="Center" Brush.FontColor="#C5AC83FF" Text="@LocationText" />
+            <TextWidget WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="972" SuggestedHeight="18" HorizontalAlignment="Left" MarginLeft="350" MarginTop="451" Brush="DefaultText" Brush.Font="ReignSerifDynamic" Brush.FontSize="14" Brush.TextHorizontalAlignment="Center" Brush.FontColor="#8A8883FF" Text="@BusyText" />
+
+            <Widget Id="ReignChatLogPanelBackground" DoNotAcceptEvents="true" WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="1548" SuggestedHeight="294" HorizontalAlignment="Left" MarginLeft="62" MarginTop="500" />
+
+            <ReignAutoScrollPanel Type="ReignBeta.UI.Widgets.ReignAutoScrollPanel" WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="1490" SuggestedHeight="258" HorizontalAlignment="Left" MarginLeft="88" MarginTop="516" AutoHideScrollBars="false" MouseScrollAxis="Vertical" InnerPanel="ReignChatClip\ReignChatList" ClipRect="ReignChatClip" VerticalScrollbar="..\ReignChatScrollbar" ChatScrollVersion="@ChatScrollVersion">
+              <Children>
+                <Widget Id="ReignChatClip" WidthSizePolicy="StretchToParent" HeightSizePolicy="StretchToParent" ClipContents="true">
+                  <Children>
+                    <ListPanel Id="ReignChatList" DataSource="{ChatLines}" WidthSizePolicy="StretchToParent" HeightSizePolicy="CoverChildren" StackLayout.LayoutMethod="VerticalTopToBottom">
+                      <ItemTemplate>
+                        <Widget WidthSizePolicy="StretchToParent" HeightSizePolicy="CoverChildren" MarginBottom="8">
+                          <Children>
+                            <Widget WidthSizePolicy="Fixed" HeightSizePolicy="CoverChildren" SuggestedWidth="720" HorizontalAlignment="Left" MarginLeft="8" IsVisible="@IsPlayerLine">
+                              <Children>
+                                <TextWidget WidthSizePolicy="StretchToParent" HeightSizePolicy="Fixed" SuggestedHeight="21" MarginLeft="16" MarginRight="16" MarginTop="8" Brush="DefaultText" Brush.Font="ReignSerifDynamic" Brush.FontSize="14" Brush.TextHorizontalAlignment="Left" Brush.FontColor="#C5AC83FF" Text="@Speaker" />
+                                <RichTextWidget WidthSizePolicy="StretchToParent" HeightSizePolicy="CoverChildren" MarginLeft="16" MarginRight="16" MarginTop="31" MarginBottom="9" Brush="Reign.Chat.ActionText.16" Brush.Font="ReignSerifDynamic" Brush.FontSize="16" Brush.TextHorizontalAlignment="Left" Brush.FontColor="#C5BDAFFF" Text="@RichText" />
+                              </Children>
+                            </Widget>
+
+                            <Widget WidthSizePolicy="Fixed" HeightSizePolicy="CoverChildren" SuggestedWidth="720" HorizontalAlignment="Right" MarginRight="8" IsVisible="@IsNpcLine">
+                              <Children>
+                                <TextWidget WidthSizePolicy="StretchToParent" HeightSizePolicy="Fixed" SuggestedHeight="21" MarginLeft="16" MarginRight="16" MarginTop="8" Brush="DefaultText" Brush.Font="ReignSerifDynamic" Brush.FontSize="14" Brush.TextHorizontalAlignment="Left" Brush.FontColor="#C5AC83FF" Text="@Speaker" />
+                                <RichTextWidget WidthSizePolicy="StretchToParent" HeightSizePolicy="CoverChildren" MarginLeft="16" MarginRight="16" MarginTop="31" MarginBottom="9" Brush="Reign.Chat.ActionText.16" Brush.Font="ReignSerifDynamic" Brush.FontSize="16" Brush.TextHorizontalAlignment="Left" Brush.FontColor="#C5BDAFFF" Text="@RichText" />
+                              </Children>
+                            </Widget>
+                          </Children>
+                        </Widget>
+                      </ItemTemplate>
+                    </ListPanel>
+                  </Children>
+                </Widget>
+              </Children>
+            </ReignAutoScrollPanel>
+
+            <ScrollbarWidget Id="ReignChatScrollbar" WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="10" SuggestedHeight="248" HorizontalAlignment="Right" MarginRight="78" MarginTop="521" AlignmentAxis="Vertical" Handle="ReignChatScrollbarHandle" MaxValue="100" MinValue="0">
+              <Children>
+                <Widget WidthSizePolicy="Fixed" HeightSizePolicy="StretchToParent" SuggestedWidth="4" HorizontalAlignment="Center" Sprite="BlankWhiteSquare_9" Color="#352C20FF" />
+                <ImageWidget Id="ReignChatScrollbarHandle" WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedHeight="18" SuggestedWidth="8" HorizontalAlignment="Center" Brush="FaceGen.Scrollbar.Handle" />
+              </Children>
+            </ScrollbarWidget>
+
+            <Widget WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="1106" SuggestedHeight="75" HorizontalAlignment="Left" MarginLeft="162" MarginTop="815">
+              <Children>
+                <EditableTextWidget WidthSizePolicy="StretchToParent" HeightSizePolicy="Fixed" SuggestedHeight="44" MarginLeft="32" MarginRight="126" MarginTop="16" Brush="DefaultText" Brush.Font="ReignSerifDynamic" Brush.FontSize="19" Brush.TextHorizontalAlignment="Left" Brush.FontColor="#C5BDAFFF" Text="@InputText" IsEnabled="@InputEnabled" />
+              </Children>
+            </Widget>
+
+            <ButtonWidget DoNotPassEventsToChildren="true" UpdateChildrenStates="true" WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="200" SuggestedHeight="76" HorizontalAlignment="Right" MarginRight="177" MarginTop="814" Command.Click="ExecuteSend">
+              <Children>
+                <TextWidget DoNotAcceptEvents="true" WidthSizePolicy="StretchToParent" HeightSizePolicy="StretchToParent" Brush="DefaultText" Brush.Font="ReignSerifDynamic" Brush.FontSize="24" Brush.FontColor="#C5BDAFFF" Text="Send" />
+              </Children>
+            </ButtonWidget>
+          </Children>
+        </Widget>
+
+        <ButtonWidget Id="ReignChatZoomBackdrop" WidthSizePolicy="StretchToParent" HeightSizePolicy="StretchToParent" IsVisible="@IsPortraitZoomVisible" DoNotPassEventsToChildren="true" UpdateChildrenStates="true" RenderLate="true" Sprite="BlankWhiteSquare" Brush.Color="#030303FF" Command.Click="ExecuteClosePortraitZoom">
+          <Children>
+            <Widget WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="@ZoomFrameWidth" SuggestedHeight="@ZoomFrameHeight" HorizontalAlignment="Center" VerticalAlignment="Center" ClipContents="true" DoNotAcceptEvents="true" RenderLate="true">
+              <Children>
+                <!-- Full-body imagery remains an untouched rectangle beneath the shared opaque-marble rectangular aperture plate. -->
+                <ImageIdentifierWidget Id="ReignChatZoomPortrait" DoNotAcceptEvents="true" WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="@ZoomPortraitImageWidth" SuggestedHeight="@ZoomPortraitImageHeight" HorizontalAlignment="Center" VerticalAlignment="Center" TextureProviderName="@ZoomPortraitTextureProviderName" AdditionalArgs="@ZoomPortraitAdditionalArgs" ImageId="@ZoomPortraitId" />
+                <ImageWidget WidthSizePolicy="StretchToParent" HeightSizePolicy="StretchToParent" Sprite="reign_modern_portrait_rectangle_overlay" DoNotAcceptEvents="true" />
+              </Children>
+            </Widget>
+          </Children>
+        </ButtonWidget>
+
+        <Widget Id="ReignPregnancyWarningLayer" WidthSizePolicy="StretchToParent" HeightSizePolicy="StretchToParent" IsVisible="@IsPregnancyWarningVisible" RenderLate="true">
+          <Children>
+            <!-- The translucent hit shield blocks the underlying interface while keeping it visibly present. -->
+            <ButtonWidget Id="ReignPregnancyWarningInputShield" WidthSizePolicy="StretchToParent" HeightSizePolicy="StretchToParent" DoNotPassEventsToChildren="true" UpdateChildrenStates="true" Sprite="BlankWhiteSquare" Brush.Color="#03030388" Command.Click="ExecuteNoOp" />
+
+            <!-- Keep the modal on the same 1672x941 logical surface as the approved Individual Chat composition. -->
+            <Widget WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="1672" SuggestedHeight="941" HorizontalAlignment="Center" VerticalAlignment="Center" DoNotUseCustomScaleAndChildren="true" RenderLate="true">
+              <Children>
+                <Widget Id="ReignPregnancyWarningPanel" WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="900" SuggestedHeight="675" HorizontalAlignment="Center" VerticalAlignment="Center" RenderLate="true">
+                  <Children>
+                    <Widget DoNotAcceptEvents="true" WidthSizePolicy="StretchToParent" HeightSizePolicy="StretchToParent" RenderLate="true" Sprite="reign_pregnancy_warning" />
+                    <Widget DoNotAcceptEvents="true" WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="34" SuggestedHeight="55" HorizontalAlignment="Center" MarginTop="82" RenderLate="true" Sprite="reign_modern_crowned_r_crest" />
+                    <TextWidget Id="ReignPregnancyWarningTitle" DoNotAcceptEvents="true" WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="420" SuggestedHeight="42" HorizontalAlignment="Center" MarginTop="128" RenderLate="true" Brush="DefaultText" Brush.Font="ReignSerifDynamic" Brush.FontSize="29" Brush.TextHorizontalAlignment="Center" Brush.FontColor="#C5AC83FF" Text="Warning" />
+                    <TextWidget Id="ReignPregnancyWarningMessage" DoNotAcceptEvents="true" WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="720" SuggestedHeight="58" HorizontalAlignment="Center" MarginTop="219" RenderLate="true" Brush="DefaultText" Brush.Font="ReignSerifDynamic" Brush.FontSize="22" Brush.TextHorizontalAlignment="Center" Brush.FontColor="#C5BDAFFF" Text="This choice may result in pregnancy." />
+
+                    <ButtonWidget Id="ReignPregnancyPullOutButton" WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="324" SuggestedHeight="114" HorizontalAlignment="Left" VerticalAlignment="Top" MarginLeft="97" MarginTop="360" DoNotPassEventsToChildren="true" UpdateChildrenStates="true" RenderLate="true" HoveredCursorState="RightClickLink" Command.Click="ExecutePullOut">
+                      <Children>
+                        <TextWidget DoNotAcceptEvents="true" WidthSizePolicy="StretchToParent" HeightSizePolicy="StretchToParent" MarginLeft="18" MarginRight="18" RenderLate="true" Brush="DefaultText" Brush.Font="ReignSerifDynamic" Brush.FontSize="23" Brush.TextHorizontalAlignment="Center" Brush.FontColor="#C5AC83FF" Text="Pull Out" />
+                      </Children>
+                    </ButtonWidget>
+                    <ButtonWidget Id="ReignPregnancyProceedButton" WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="316" SuggestedHeight="114" HorizontalAlignment="Left" VerticalAlignment="Top" MarginLeft="482" MarginTop="360" DoNotPassEventsToChildren="true" UpdateChildrenStates="true" RenderLate="true" HoveredCursorState="RightClickLink" Command.Click="ExecuteProceedPregnancy">
+                      <Children>
+                        <TextWidget DoNotAcceptEvents="true" WidthSizePolicy="StretchToParent" HeightSizePolicy="StretchToParent" MarginLeft="18" MarginRight="18" RenderLate="true" Brush="DefaultText" Brush.Font="ReignSerifDynamic" Brush.FontSize="23" Brush.TextHorizontalAlignment="Center" Brush.FontColor="#C5AC83FF" Text="Proceed" />
+                      </Children>
+                    </ButtonWidget>
+                    <TextWidget Id="ReignPregnancyWarningFooter" DoNotAcceptEvents="true" WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="620" SuggestedHeight="30" HorizontalAlignment="Center" MarginTop="552" RenderLate="true" Brush="DefaultText" Brush.Font="ReignSerifDynamic" Brush.FontSize="15" Brush.TextHorizontalAlignment="Center" Brush.FontColor="#8A8883FF" Text="Choose carefully." />
+                  </Children>
+                </Widget>
+              </Children>
+            </Widget>
+          </Children>
+        </Widget>
+      </Children>
+    </Widget>
+  </Window>
+</Prefab>

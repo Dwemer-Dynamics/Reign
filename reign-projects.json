@@ -1,0 +1,135 @@
+{
+  "schema": "reign-project-catalog-v1",
+  "managedRoots": [
+    {
+      "path": "ReignRelease",
+      "group": "infrastructure",
+      "description": "Release definitions, dependency acquisition and installer source; no standalone project"
+    },
+    {
+      "path": "ReignBeta",
+      "group": "core",
+      "description": "Bannerlord Reign game client"
+    },
+    {
+      "path": "ReignBetaServer",
+      "group": "core",
+      "description": "Reign server and authoritative verification tools"
+    },
+    {
+      "path": "ReignMcp",
+      "group": "infrastructure",
+      "description": "Reign MCP server and its tests"
+    },
+    {
+      "path": "ReignModules",
+      "group": "core",
+      "description": "Bannerlord-independent Reign contracts, domain modules, and tests"
+    },
+    {
+      "path": "ReignTools",
+      "group": "tooling",
+      "description": "Explicit migration and maintenance utilities that are not shipped in the normal runtime"
+    },
+    {
+      "path": "BannerlordEditorMcp",
+      "group": "tooling",
+      "description": "Bannerlord Editor MCP, bridge, protocol, and tests"
+    },
+    {
+      "path": "NativeCharacterImageGenerator",
+      "group": "tooling",
+      "description": "Native portrait generation toolchain"
+    }
+  ],
+  "ignoredRoots": [
+    {
+      "path": "BannerlordReign",
+      "reason": "Legacy predecessor retained for reference; it is not an active Reign product project."
+    },
+    {
+      "path": "Bannerlord_CampaignSystem_decompiled",
+      "reason": "Read-only decompiled TaleWorlds reference source."
+    },
+    {
+      "path": "AIInfluence_decompiled",
+      "reason": "Read-only decompiled dependency reference source."
+    },
+    {
+      "path": "AIInfluence_inspect",
+      "reason": "Inspection output, not an active Reign project."
+    }
+  ],
+  "excludedDirectoryNames": [
+    ".git",
+    ".tmp",
+    ".codex-build",
+    "artifacts",
+    "bin",
+    "build",
+    "dist",
+    "logs",
+    "node_modules",
+    "obj",
+    ".venv",
+    ".pytest_cache",
+    "staging",
+    "deployment-backups",
+    "verification_contracts",
+    "decompiled",
+    "publish",
+    "TestResults",
+    "third_party",
+    "server",
+    "PortraitCache"
+  ],
+  "projectOverrides": {
+    "ReignBeta/ReignBeta.csproj": {
+      "id": "client",
+      "name": "Bannerlord client"
+    },
+    "ReignBetaServer/ReignBetaServer.csproj": {
+      "id": "server",
+      "name": "Reign server"
+    },
+    "ReignBetaServer/ReignVerification/ReignVerification.csproj": {
+      "id": "verification",
+      "name": "Verification runner"
+    },
+    "ReignBetaServer/ReignLiveTest/ReignLiveTest.csproj": {
+      "id": "live-test",
+      "name": "Live-test controller"
+    },
+    "ReignMcp/src/Reign.Mcp.Server/Reign.Mcp.Server.csproj": {
+      "id": "mcp",
+      "name": "Reign MCP server"
+    },
+    "ReignMcp/tests/Reign.Mcp.Tests/Reign.Mcp.Tests.csproj": {
+      "id": "mcp-tests",
+      "name": "Reign MCP tests",
+      "test": true
+    },
+    "ReignModules/Reign.Core.Contracts/Reign.Core.Contracts.csproj": {
+      "id": "core-contracts",
+      "name": "Reign core contracts"
+    },
+    "ReignModules/Reign.Relationships/Reign.Relationships.csproj": {
+      "id": "relationships",
+      "name": "Reign relationship kernel"
+    },
+    "ReignModules/Reign.Relationships.Tests/Reign.Relationships.Tests.csproj": {
+      "id": "relationships-tests",
+      "name": "Reign relationship kernel tests",
+      "test": true
+    },
+    "ReignTools/Reign.LegacySqliteImporter/Reign.LegacySqliteImporter.csproj": {
+      "id": "legacy-sqlite-importer",
+      "name": "Legacy SQLite importer"
+    },
+    "BannerlordEditorMcp/tests/Bannerlord.EditorMcp.Tests/Bannerlord.EditorMcp.Tests.csproj": {
+      "id": "editor-mcp-tests",
+      "name": "Bannerlord Editor MCP tests",
+      "test": true
+    }
+  }
+}

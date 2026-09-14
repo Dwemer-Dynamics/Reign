@@ -1,0 +1,77 @@
+{
+  "schema": "reign-fixed-region-composite-v1",
+  "assetId": "war-council-modern-shell-exact-fixed-source",
+  "approvedReference": {
+    "path": "../approved-references/war-council.png",
+    "sha256": "f8d8cc25ee4ee43fd84a7c4c0ec942fd6b89e73bf1e877bc2cadcd9f096f5ecf"
+  },
+  "imageToImageFill": {
+    "path": "../generated-sources/screen-shells/war-council-modern-shell-source.png",
+    "sha256": "8a00a564bbd356ccdb2fe8d14d482309107946d9cbe03ca4854ed32d763d0486",
+    "normalization": "exact 1672x941"
+  },
+  "canvas": {"width": 1672, "height": 941},
+  "policy": "Every pixel outside the protected map aperture and tightly bounded runtime typography, list, portrait, marker, image, and scrollbar interiors is copied byte-for-byte from the approved reference. Fixed shell, panel/card frames, portrait rings, marble, dividers, ornaments, crest, and all other fixed pixels remain exact. Runtime typography remains governed by the frozen modern-style typography contract.",
+  "protectedContent": {
+    "id": "war-council-old-scroll-map",
+    "runtimePath": "../../../GUI/SpriteParts/ui_reignbeta_war_council/reign_war_council_calradia.png",
+    "sha256": "e9aeb15807953280e596f189b05bc61e9812af434eafcac3c116af873d632887",
+    "operation": "clip-and-place-only",
+    "prohibitedOperations": ["tint", "color-grade", "desaturate", "brightness", "contrast", "marble-conversion", "pixel-reencode"],
+    "acceptance": "source bytes and decoded RGBA pixels must remain identical before and after shell production"
+  },
+  "rectangularFillMode": {
+    "type": "median-border color-matched image-to-image patch",
+    "inwardFeatherPixels": 3,
+    "borderSamplePixels": 4
+  },
+  "sceneDependentMasks": [
+    {
+      "id": "protected-runtime-map-and-markers",
+      "shape": "polygon",
+      "points": [[78, 127], [396, 127], [431, 157], [465, 127], [787, 127], [787, 848], [78, 848]]
+    },
+
+    {"id": "runtime-main-title", "shape": "rectangle", "x": 105, "y": 8, "width": 285, "height": 43},
+    {"id": "runtime-realm-subtitle", "shape": "rectangle", "x": 620, "y": 12, "width": 550, "height": 36},
+
+    {"id": "strength-heading", "shape": "rectangle", "x": 895, "y": 70, "width": 310, "height": 38},
+    {"id": "strength-runtime-list", "shape": "rectangle", "x": 883, "y": 102, "width": 325, "height": 173},
+    {"id": "strength-scrollbar-runtime", "shape": "rectangle", "x": 1207, "y": 101, "width": 10, "height": 174},
+
+    {"id": "reports-heading", "shape": "rectangle", "x": 895, "y": 299, "width": 310, "height": 40},
+    {"id": "reports-runtime-list", "shape": "rectangle", "x": 883, "y": 329, "width": 325, "height": 218},
+    {"id": "reports-scrollbar-runtime", "shape": "rectangle", "x": 1207, "y": 329, "width": 10, "height": 218},
+
+    {"id": "legend-heading", "shape": "rectangle", "x": 935, "y": 568, "width": 235, "height": 34},
+    {"id": "legend-runtime-copy", "shape": "rectangle", "x": 874, "y": 590, "width": 343, "height": 74},
+
+    {"id": "settlement-heading", "shape": "rectangle", "x": 883, "y": 679, "width": 325, "height": 39},
+    {"id": "settlement-runtime-list", "shape": "rectangle", "x": 874, "y": 705, "width": 343, "height": 185},
+    {"id": "settlement-scrollbar-runtime", "shape": "rectangle", "x": 1207, "y": 707, "width": 10, "height": 181},
+    {"id": "runtime-status", "shape": "rectangle", "x": 868, "y": 884, "width": 360, "height": 50},
+
+    {"id": "lords-heading", "shape": "rectangle", "x": 1280, "y": 59, "width": 350, "height": 50},
+
+    {"id": "lord-1-portrait", "shape": "ellipse", "x": 1263, "y": 110, "width": 98, "height": 112},
+    {"id": "lord-1-roman-control", "shape": "rectangle", "x": 1347, "y": 107, "width": 42, "height": 45},
+    {"id": "lord-1-runtime-content", "shape": "rectangle", "x": 1358, "y": 108, "width": 274, "height": 130},
+
+    {"id": "lord-2-portrait", "shape": "ellipse", "x": 1263, "y": 251, "width": 98, "height": 112},
+    {"id": "lord-2-roman-control", "shape": "rectangle", "x": 1347, "y": 248, "width": 42, "height": 45},
+    {"id": "lord-2-runtime-content", "shape": "rectangle", "x": 1358, "y": 249, "width": 274, "height": 130},
+
+    {"id": "lord-3-portrait", "shape": "ellipse", "x": 1261, "y": 389, "width": 102, "height": 121},
+    {"id": "lord-3-roman-control", "shape": "rectangle", "x": 1347, "y": 389, "width": 42, "height": 45},
+    {"id": "lord-3-runtime-content", "shape": "rectangle", "x": 1358, "y": 386, "width": 274, "height": 145},
+
+    {"id": "lord-4-portrait", "shape": "ellipse", "x": 1261, "y": 530, "width": 102, "height": 130},
+    {"id": "lord-4-roman-control", "shape": "rectangle", "x": 1347, "y": 530, "width": 42, "height": 45},
+    {"id": "lord-4-runtime-content", "shape": "rectangle", "x": 1358, "y": 527, "width": 274, "height": 145},
+    {"id": "lords-scrollbar-runtime", "shape": "rectangle", "x": 1635, "y": 103, "width": 9, "height": 578},
+
+    {"id": "councilor-heading", "shape": "rectangle", "x": 1275, "y": 694, "width": 350, "height": 48},
+    {"id": "councilor-portrait", "shape": "ellipse", "x": 1268, "y": 700, "width": 106, "height": 182},
+    {"id": "councilor-runtime-content", "shape": "rectangle", "x": 1360, "y": 735, "width": 275, "height": 151}
+  ]
+}

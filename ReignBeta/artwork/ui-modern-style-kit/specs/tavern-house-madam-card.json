@@ -1,0 +1,23 @@
+{
+  "schema": "reign-overlay-asset-spec-v1",
+  "asset": {
+    "id": "tavern-house-madam-card",
+    "role": "complete moving portrait card"
+  },
+  "canvas": {
+    "width": 260,
+    "height": 240
+  },
+  "apertures": [
+    {
+      "id": "portrait",
+      "shape": "ellipse",
+      "x": 67,
+      "y": 12,
+      "width": 126,
+      "height": 154,
+      "feather": 0
+    }
+  ],
+  "transparentRgb": "#000000"
+}

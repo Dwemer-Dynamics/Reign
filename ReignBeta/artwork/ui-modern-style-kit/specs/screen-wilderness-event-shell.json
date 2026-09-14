@@ -1,0 +1,75 @@
+{
+  "schema": "reign-overlay-asset-spec-v1",
+  "asset": {
+    "id": "wilderness-event-modern-shell",
+    "role": "exact-fixed Wilderness Event shell with a true-alpha runtime scene aperture",
+    "selectedGeneratedSourceSha256": "60fe9cc17450c4fa623c69357efc22ac1b9ff0ec15d11c441292cff92c58c7ae",
+    "generationMode": "built-in image-to-image"
+  },
+  "authorities": {
+    "layout": {
+      "path": "../approved-references/wilderness-event.png",
+      "sha256": "0d88586b639c1fe687460242569465376405d1aa20c49f460b0a481b8b1020a8"
+    },
+    "materials": {
+      "path": "../style-reference.png",
+      "sha256": "85b689dc164ebbf70f67a081c0f7097858edb0542ef0073de0c29eef7926b0a3"
+    },
+    "palette": {
+      "path": "../palette.json",
+      "schema": "reign-ui-modern-palette-v1",
+      "version": "2026.08.28.2"
+    }
+  },
+  "canvas": {
+    "width": 1672,
+    "height": 941
+  },
+  "normalization": {
+    "fit": "exact",
+    "anchor": "center"
+  },
+  "antialiasScale": 8,
+  "transparentRgb": "#070808",
+  "marbleReduction": {
+    "amount": 0.0,
+    "blurRadius": 6.0,
+    "luminanceCeiling": 96,
+    "chromaCeiling": 36,
+    "selectionSoftness": 20
+  },
+  "apertures": [
+    {
+      "id": "runtime-wilderness-scene",
+      "shape": "rectangle",
+      "x": 780,
+      "y": 127,
+      "width": 533,
+      "height": 399,
+      "cornerRadiusPixels": 0,
+      "feather": 0.0
+    }
+  ],
+  "integrationGeometry": {
+    "schema": "reign-wilderness-event-integration-geometry-v1",
+    "coordinateSystem": {
+      "units": "pixels",
+      "origin": "top-left",
+      "canvasWidth": 1672,
+      "canvasHeight": 941
+    },
+    "runtimeRegions": {
+      "attendeePanel": {"x": 14, "y": 15, "width": 580, "height": 905},
+      "activeAttendeesViewport": {"x": 42, "y": 143, "width": 520, "height": 409},
+      "availableAttendeesViewport": {"x": 42, "y": 619, "width": 520, "height": 265},
+      "header": {"x": 617, "y": 15, "width": 1038, "height": 82},
+      "sceneViewport": {"x": 780, "y": 127, "width": 533, "height": 399},
+      "sceneCaption": {"x": 780, "y": 528, "width": 533, "height": 42},
+      "endEventControl": {"x": 1427, "y": 116, "width": 202, "height": 50},
+      "phasePanel": {"x": 616, "y": 588, "width": 1039, "height": 88},
+      "chatViewport": {"x": 616, "y": 690, "width": 1039, "height": 164},
+      "input": {"x": 637, "y": 855, "width": 825, "height": 47},
+      "sendControl": {"x": 1477, "y": 854, "width": 154, "height": 50}
+    }
+  }
+}

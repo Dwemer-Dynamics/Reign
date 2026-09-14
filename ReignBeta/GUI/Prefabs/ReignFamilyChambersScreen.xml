@@ -1,0 +1,103 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Prefab>
+  <Window>
+    <Widget WidthSizePolicy="StretchToParent" HeightSizePolicy="StretchToParent">
+      <Children>
+        <Widget DoNotAcceptEvents="true" WidthSizePolicy="StretchToParent" HeightSizePolicy="StretchToParent" Sprite="BlankWhiteSquare_9" Color="#030303FF" />
+        <Widget WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="1672" SuggestedHeight="941" HorizontalAlignment="Center" VerticalAlignment="Center" DoNotUseCustomScaleAndChildren="true" ClipContents="true">
+          <Children>
+            <ImageWidget Id="FamilyChambersShell" DoNotAcceptEvents="true" WidthSizePolicy="StretchToParent" HeightSizePolicy="StretchToParent" Sprite="reign_family_chambers_modern_shell" />
+
+            <!-- Fixed title, subtitle, rail headings, central prompt, and button captions are baked into the approved shell. -->
+            <ScrollablePanel WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="337" SuggestedHeight="621" MarginLeft="57" MarginTop="173" VerticalScrollbar="..\AdultScrollbar" InnerPanel="AdultClip\AdultList" ClipRect="AdultClip" AutoHideScrollBars="false" OnlyAcceptScrollEventIfCanScroll="true" MouseScrollAxis="Vertical">
+              <Children>
+                <Widget Id="AdultClip" WidthSizePolicy="StretchToParent" HeightSizePolicy="StretchToParent" ClipContents="true">
+                  <Children>
+                    <ListPanel Id="AdultList" DataSource="{Adults}" WidthSizePolicy="StretchToParent" HeightSizePolicy="CoverChildren" StackLayout.LayoutMethod="VerticalTopToBottom">
+                      <ItemTemplate>
+                        <ButtonWidget WidthSizePolicy="StretchToParent" HeightSizePolicy="Fixed" SuggestedHeight="116" MarginBottom="12" Brush="ConversationItem.SoundBrush" Command.Click="ExecuteToggle" UpdateChildrenStates="true">
+                          <Children>
+                            <ImageWidget DoNotAcceptEvents="true" WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="322" SuggestedHeight="116" MarginLeft="1" Sprite="reign_family_chambers_person_card" />
+                            <Widget DoNotAcceptEvents="true" WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="108" SuggestedHeight="108" MarginLeft="8" MarginTop="4" ClipContents="true">
+                              <Children>
+                                <Widget DoNotAcceptEvents="true" WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="96" SuggestedHeight="96" MarginLeft="6" MarginTop="6" ClipContents="true">
+                                  <Children>
+                                    <ImageIdentifierWidget DoNotAcceptEvents="true" WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="96" SuggestedHeight="96" HorizontalAlignment="Center" VerticalAlignment="Center" ImageId="@PortraitId" AdditionalArgs="@PortraitAdditionalArgs" TextureProviderName="@PortraitTextureProviderName" />
+                                    <ReignPortraitWidget Type="ReignBeta.UI.Widgets.ReignPortraitWidget" DoNotAcceptEvents="true" WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="96" SuggestedHeight="96" HorizontalAlignment="Center" VerticalAlignment="Center" PortraitCacheKey="@PortraitCacheKey" UseZoomQuality="true" />
+                                  </Children>
+                                </Widget>
+                                <ImageWidget DoNotAcceptEvents="true" WidthSizePolicy="StretchToParent" HeightSizePolicy="StretchToParent" Sprite="reign_family_chambers_portrait_mask" />
+                              </Children>
+                            </Widget>
+                            <TextWidget DoNotAcceptEvents="true" WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="205" SuggestedHeight="28" MarginLeft="126" MarginTop="16" Brush="DefaultText" Brush.Font="ReignSerifDynamic" Brush.FontSize="19" Brush.FontColor="#C5AC83FF" Brush.TextHorizontalAlignment="Center" Text="@Name" />
+                            <TextWidget DoNotAcceptEvents="true" WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="205" SuggestedHeight="34" MarginLeft="126" MarginTop="49" Brush="DefaultText" Brush.Font="ReignSerifDynamic" Brush.FontSize="14" Brush.FontColor="#C5BDAFFF" Brush.TextHorizontalAlignment="Center" Text="@Detail" />
+                            <TextWidget DoNotAcceptEvents="true" WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="205" SuggestedHeight="24" MarginLeft="126" MarginTop="85" Brush="DefaultText" Brush.Font="ReignSerifDynamic" Brush.FontSize="13" Brush.FontColor="#8A8883FF" Brush.TextHorizontalAlignment="Center" Text="@Relation" />
+                            <Widget IsVisible="@IsSelected" DoNotAcceptEvents="true" WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="8" SuggestedHeight="8" MarginLeft="305" MarginTop="10" Sprite="BlankWhiteSquare_9" Color="#A88A54FF" />
+                            <Widget IsVisible="@IsSelected" DoNotAcceptEvents="true" WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="4" SuggestedHeight="4" MarginLeft="307" MarginTop="12" Sprite="BlankWhiteSquare_9" Color="#030303FF" />
+                          </Children>
+                        </ButtonWidget>
+                      </ItemTemplate>
+                    </ListPanel>
+                  </Children>
+                </Widget>
+              </Children>
+            </ScrollablePanel>
+            <ScrollbarWidget Id="AdultScrollbar" WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="12" SuggestedHeight="621" MarginLeft="390" MarginTop="173" AlignmentAxis="Vertical" Handle="AdultHandle" MaxValue="100" MinValue="0">
+              <Children>
+                <Widget DoNotAcceptEvents="true" WidthSizePolicy="Fixed" HeightSizePolicy="StretchToParent" SuggestedWidth="3" HorizontalAlignment="Center" Sprite="BlankWhiteSquare_9" Color="#352C20FF" />
+                <Widget Id="AdultHandle" WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="8" SuggestedHeight="72" HorizontalAlignment="Center" Sprite="BlankWhiteSquare_9" Color="#A88A54FF" />
+              </Children>
+            </ScrollbarWidget>
+
+            <ScrollablePanel WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="337" SuggestedHeight="621" MarginLeft="1278" MarginTop="173" VerticalScrollbar="..\ChildScrollbar" InnerPanel="ChildClip\ChildList" ClipRect="ChildClip" AutoHideScrollBars="false" OnlyAcceptScrollEventIfCanScroll="true" MouseScrollAxis="Vertical">
+              <Children>
+                <Widget Id="ChildClip" WidthSizePolicy="StretchToParent" HeightSizePolicy="StretchToParent" ClipContents="true">
+                  <Children>
+                    <ListPanel Id="ChildList" DataSource="{Children}" WidthSizePolicy="StretchToParent" HeightSizePolicy="CoverChildren" StackLayout.LayoutMethod="VerticalTopToBottom">
+                      <ItemTemplate>
+                        <ButtonWidget WidthSizePolicy="StretchToParent" HeightSizePolicy="Fixed" SuggestedHeight="116" MarginBottom="12" Brush="ConversationItem.SoundBrush" Command.Click="ExecuteToggle" UpdateChildrenStates="true">
+                          <Children>
+                            <ImageWidget DoNotAcceptEvents="true" WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="318" SuggestedHeight="116" Sprite="reign_family_chambers_person_card" />
+                            <Widget DoNotAcceptEvents="true" WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="108" SuggestedHeight="108" MarginLeft="8" MarginTop="4" ClipContents="true">
+                              <Children>
+                                <Widget DoNotAcceptEvents="true" WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="96" SuggestedHeight="96" MarginLeft="6" MarginTop="6" ClipContents="true">
+                                  <Children>
+                                    <ImageIdentifierWidget DoNotAcceptEvents="true" WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="96" SuggestedHeight="96" HorizontalAlignment="Center" VerticalAlignment="Center" ImageId="@PortraitId" AdditionalArgs="@PortraitAdditionalArgs" TextureProviderName="@PortraitTextureProviderName" />
+                                    <ReignPortraitWidget Type="ReignBeta.UI.Widgets.ReignPortraitWidget" DoNotAcceptEvents="true" WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="96" SuggestedHeight="96" HorizontalAlignment="Center" VerticalAlignment="Center" PortraitCacheKey="@PortraitCacheKey" UseZoomQuality="true" />
+                                  </Children>
+                                </Widget>
+                                <ImageWidget DoNotAcceptEvents="true" WidthSizePolicy="StretchToParent" HeightSizePolicy="StretchToParent" Sprite="reign_family_chambers_portrait_mask" />
+                              </Children>
+                            </Widget>
+                            <TextWidget DoNotAcceptEvents="true" WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="205" SuggestedHeight="28" MarginLeft="126" MarginTop="16" Brush="DefaultText" Brush.Font="ReignSerifDynamic" Brush.FontSize="19" Brush.FontColor="#C5AC83FF" Brush.TextHorizontalAlignment="Center" Text="@Name" />
+                            <TextWidget DoNotAcceptEvents="true" WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="205" SuggestedHeight="26" MarginLeft="126" MarginTop="49" Brush="DefaultText" Brush.Font="ReignSerifDynamic" Brush.FontSize="14" Brush.FontColor="#C5BDAFFF" Brush.TextHorizontalAlignment="Center" Text="@AgeText" />
+                            <TextWidget DoNotAcceptEvents="true" WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="205" SuggestedHeight="34" MarginLeft="126" MarginTop="78" Brush="DefaultText" Brush.Font="ReignSerifDynamic" Brush.FontSize="13" Brush.FontColor="#8A8883FF" Brush.TextHorizontalAlignment="Center" Text="@Parents" />
+                            <Widget IsVisible="@IsSelected" DoNotAcceptEvents="true" WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="8" SuggestedHeight="8" MarginLeft="305" MarginTop="10" Sprite="BlankWhiteSquare_9" Color="#A88A54FF" />
+                            <Widget IsVisible="@IsSelected" DoNotAcceptEvents="true" WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="4" SuggestedHeight="4" MarginLeft="307" MarginTop="12" Sprite="BlankWhiteSquare_9" Color="#030303FF" />
+                          </Children>
+                        </ButtonWidget>
+                      </ItemTemplate>
+                    </ListPanel>
+                  </Children>
+                </Widget>
+              </Children>
+            </ScrollablePanel>
+            <ScrollbarWidget Id="ChildScrollbar" WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="12" SuggestedHeight="621" MarginLeft="1604" MarginTop="173" AlignmentAxis="Vertical" Handle="ChildHandle" MaxValue="100" MinValue="0">
+              <Children>
+                <Widget DoNotAcceptEvents="true" WidthSizePolicy="Fixed" HeightSizePolicy="StretchToParent" SuggestedWidth="3" HorizontalAlignment="Center" Sprite="BlankWhiteSquare_9" Color="#352C20FF" />
+                <Widget Id="ChildHandle" WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="8" SuggestedHeight="72" HorizontalAlignment="Center" Sprite="BlankWhiteSquare_9" Color="#A88A54FF" />
+              </Children>
+            </ScrollbarWidget>
+
+            <TextWidget IsVisible="@IsBusy" DoNotAcceptEvents="true" WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="690" SuggestedHeight="34" MarginLeft="491" MarginTop="535" Brush="DefaultText" Brush.Font="ReignSerifDynamic" Brush.FontSize="16" Brush.FontColor="#C5AC83FF" Brush.TextHorizontalAlignment="Center" Text="PREPARING THE FAMILY SCENE..." />
+            <TextWidget DoNotAcceptEvents="true" WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="620" SuggestedHeight="30" MarginLeft="526" MarginTop="609" Brush="DefaultText" Brush.Font="ReignSerifDynamic" Brush.FontSize="17" Brush.FontColor="#C5AC83FF" Brush.TextHorizontalAlignment="Center" Text="@SelectionText" />
+            <TextWidget DoNotAcceptEvents="true" WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="690" SuggestedHeight="60" MarginLeft="491" MarginTop="683" Brush="DefaultText" Brush.Font="ReignSerifDynamic" Brush.FontSize="16" Brush.FontColor="#8A8883FF" Brush.TextHorizontalAlignment="Center" Brush.TextVerticalAlignment="Center" Text="@StatusText" />
+
+            <ButtonWidget WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="436" SuggestedHeight="54" MarginLeft="618" MarginTop="746" Brush="ConversationItem.SoundBrush" Command.Click="ExecuteEnterScene" IsEnabled="@CanEnterScene" UpdateChildrenStates="true" />
+            <ButtonWidget WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="210" SuggestedHeight="54" MarginLeft="731" MarginTop="829" Brush="ConversationItem.SoundBrush" Command.Click="ExecuteClose" UpdateChildrenStates="true" />
+          </Children>
+        </Widget>
+      </Children>
+    </Widget>
+  </Window>
+</Prefab>

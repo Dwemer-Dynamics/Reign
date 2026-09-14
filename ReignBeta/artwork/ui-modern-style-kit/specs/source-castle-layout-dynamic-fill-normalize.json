@@ -1,0 +1,23 @@
+{
+  "schema": "reign-fixed-region-composite-v1",
+  "assetId": "castle-layout-dynamic-fill-normalized-source",
+  "approvedReference": {
+    "path": "../approved-references/castle-layout.png",
+    "sha256": "e274878fb6dc9a4f13114a8a4f9f4e256f26e07146bb9653e22d57c1aeeb848c"
+  },
+  "imageToImageFill": {
+    "path": "../generated-sources/screen-shells/castle-layout-dynamic-fill-source.png",
+    "sha256": "7a728366591efec5c460349c5c7d18ded8965483a3c361d09c5e244ff06ed77c",
+    "normalization": "Lanczos normalization from the selected 1662x946 image-to-image source to the canonical 1672x941 canvas"
+  },
+  "canvas": {"width": 1672, "height": 941},
+  "policy": "This source-preparation contract normalizes the complete selected image-to-image fill. It intentionally declares the full canvas dynamic and is not itself fixed-shell acceptance evidence.",
+  "rectangularFillMode": {
+    "type": "direct normalized image-to-image source",
+    "inwardFeatherPixels": 0,
+    "borderSamplePixels": 4
+  },
+  "sceneDependentMasks": [
+    {"id": "full-canvas-normalization", "shape": "rectangle", "x": 0, "y": 0, "width": 1672, "height": 941, "colorMatch": false}
+  ]
+}

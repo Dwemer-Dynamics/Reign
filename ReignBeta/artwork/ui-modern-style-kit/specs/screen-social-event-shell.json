@@ -1,0 +1,83 @@
+{
+  "schema": "reign-overlay-asset-spec-v1",
+  "rosterCleanup": {
+    "date": "2026-09-05",
+    "materializer": "../tools/materialize_social_event_cleanup.ps1",
+    "region": { "x": 30, "y": 120, "width": 548, "height": 550 },
+    "rule": "After original shell preparation, remove obsolete inner roster frame and divider. Preserve every other source pixel including scene alpha. Both attendee lists share one continuous scrolling rail."
+  },
+  "asset": {
+    "id": "social-event-modern-shell",
+    "role": "exact-fixed Social Event shell with a true-alpha runtime scene aperture",
+    "selectedGeneratedSourceSha256": "f372f1e181a5b39c30735a008dd6c69c30fb89b4639cfc399a48bf65582dd936",
+    "generationMode": "built-in image-to-image"
+  },
+  "authorities": {
+    "layout": {
+      "path": "../approved-references/social-event.png",
+      "sha256": "e8f65c0652379fa903c3b1afb13d6fdd09467e5296782b7650b2424f97277265"
+    },
+    "materials": {
+      "path": "../style-reference.png",
+      "sha256": "85b689dc164ebbf70f67a081c0f7097858edb0542ef0073de0c29eef7926b0a3"
+    },
+    "palette": {
+      "path": "../palette.json",
+      "schema": "reign-ui-modern-palette-v1",
+      "version": "2026.08.28.2"
+    }
+  },
+  "canvas": {
+    "width": 1672,
+    "height": 941
+  },
+  "normalization": {
+    "fit": "stretch",
+    "anchor": "center"
+  },
+  "antialiasScale": 8,
+  "transparentRgb": "#070808",
+  "marbleReduction": {
+    "amount": 0.0,
+    "blurRadius": 6.0,
+    "luminanceCeiling": 96,
+    "chromaCeiling": 36,
+    "selectionSoftness": 20
+  },
+  "apertures": [
+    {
+      "id": "runtime-event-scene",
+      "shape": "rectangle",
+      "x": 765,
+      "y": 112,
+      "width": 546,
+      "height": 454,
+      "cornerRadiusPixels": 0,
+      "feather": 0.0
+    }
+  ],
+  "integrationGeometry": {
+    "schema": "reign-social-event-integration-geometry-v1",
+    "coordinateSystem": {
+      "units": "pixels",
+      "origin": "top-left",
+      "canvasWidth": 1672,
+      "canvasHeight": 941
+    },
+    "runtimeRegions": {
+      "attendeePanel": {"x": 14, "y": 10, "width": 597, "height": 913},
+      "activeAttendeesViewport": {"x": 38, "y": 136, "width": 530, "height": 485},
+      "availableAttendeesViewport": {"x": 38, "y": 675, "width": 530, "height": 220},
+      "header": {"x": 630, "y": 10, "width": 1029, "height": 80},
+      "sceneViewport": {"x": 765, "y": 112, "width": 546, "height": 454},
+      "sceneCaption": {"x": 765, "y": 568, "width": 546, "height": 66},
+      "waitApproachControl": {"x": 1421, "y": 111, "width": 228, "height": 55},
+      "nextPhaseControl": {"x": 1421, "y": 181, "width": 228, "height": 55},
+      "endEventControl": {"x": 1421, "y": 251, "width": 228, "height": 55},
+      "phasePanel": {"x": 630, "y": 649, "width": 1029, "height": 79},
+      "chatViewport": {"x": 630, "y": 740, "width": 1029, "height": 111},
+      "input": {"x": 648, "y": 855, "width": 811, "height": 48},
+      "sendControl": {"x": 1470, "y": 852, "width": 159, "height": 55}
+    }
+  }
+}

@@ -1,0 +1,2671 @@
+{
+  "version": 1,
+  "generatedUtc": "2026-09-13T01:45:22.4094443Z",
+  "spriteDataPath": "GUI/ReignBetaSpriteData.xml",
+  "spriteDataSha256": "d3f47475cff6e562134a992ef97c6be2dadc64bc31701ba45e0a24e36728ab79",
+  "categories": {
+    "ui_reignbeta_main_menu": {
+      "sheets": [
+        {
+          "id": 1,
+          "width": 1024,
+          "height": 1024,
+          "path": "GUI/RuntimeSpriteSheets/ui_reignbeta_main_menu/ui_reignbeta_main_menu_1.png",
+          "sha256": "dd98db358d00c0a9321d591d055b9d980f6a6ddcb7fca73dbab8f5f530cb23a2"
+        }
+      ],
+      "parts": {
+        "reign_main_menu_logo": {
+          "sheetId": 1,
+          "x": 4,
+          "y": 4,
+          "width": 980,
+          "height": 601,
+          "sourcePath": "GUI/SpriteParts/ui_reignbeta_main_menu/reign_main_menu_logo.png",
+          "sourceSha256": "a796042cda6ddbb8170903c351c164ae9068a5d0eb64b47a402eea1e58f90035"
+        }
+      }
+    },
+    "ui_reignbeta_individual": {
+      "sheets": [
+        {
+          "id": 1,
+          "width": 4096,
+          "height": 4096,
+          "path": "GUI/RuntimeSpriteSheets/ui_reignbeta_individual/ui_reignbeta_individual_1.png",
+          "sha256": "d23990b0f859d79aa82f7521c9e3b80a19fd5276294e427ac387de57158314f6"
+        },
+        {
+          "id": 2,
+          "width": 2048,
+          "height": 1024,
+          "path": "GUI/RuntimeSpriteSheets/ui_reignbeta_individual/ui_reignbeta_individual_2.png",
+          "sha256": "17c0ca2f8917d19710c87b9b4588b0de2ec038c863f634774d737d147340b894"
+        },
+        {
+          "id": 3,
+          "width": 2048,
+          "height": 1024,
+          "path": "GUI/RuntimeSpriteSheets/ui_reignbeta_individual/ui_reignbeta_individual_3.png",
+          "sha256": "20f98bb7a2074e111a2beb88b8ce99714362a341ef5f2cb956f62fbda0b42ea4"
+        }
+      ],
+      "parts": {
+        "reign_individual_chat_background": {
+          "sheetId": 1,
+          "x": 4,
+          "y": 4,
+          "width": 1602,
+          "height": 982,
+          "sourcePath": "GUI/SpriteParts/ui_reignbeta_individual/reign_individual_chat_background.png",
+          "sourceSha256": "e860dbe52f7bdc4fffea7097cde15fb7edb59e6eae9344c35d6239cf901c9cb2"
+        },
+        "reign_individual_chat_portrait_frame": {
+          "sheetId": 1,
+          "x": 4,
+          "y": 994,
+          "width": 520,
+          "height": 798,
+          "sourcePath": "GUI/SpriteParts/ui_reignbeta_individual/reign_individual_chat_portrait_frame.png",
+          "sourceSha256": "b9e4e1b136c84b6ed6d724fcf93109b57bffc62a5c2e945a93b3d56fb6cc6f7f"
+        },
+        "reign_individual_chat_log_panel": {
+          "sheetId": 1,
+          "x": 532,
+          "y": 994,
+          "width": 1434,
+          "height": 258,
+          "sourcePath": "GUI/SpriteParts/ui_reignbeta_individual/reign_individual_chat_log_panel.png",
+          "sourceSha256": "d94c3698491bc156df4a26d2e9a579de00d0513b9370e6e0000d29c855fd7db7"
+        },
+        "reign_pregnancy_warning": {
+          "sheetId": 1,
+          "x": 1974,
+          "y": 994,
+          "width": 1448,
+          "height": 1086,
+          "sourcePath": "GUI/SpriteParts/ui_reignbeta_individual/reign_pregnancy_warning.png",
+          "sourceSha256": "fee50a1a5d04e300bc0f26f112f2defcdc4454a968d06bc326987d18b4803596"
+        },
+        "reign_individual_chat_modern_shell": {
+          "sheetId": 2,
+          "x": 4,
+          "y": 4,
+          "width": 1672,
+          "height": 941,
+          "sourcePath": "GUI/SpriteParts/ui_reignbeta_individual/reign_individual_chat_modern_shell.png",
+          "sourceSha256": "6560f0fa49dcc312a2feafec3da327c1b9683c5635e247c9401bd40173756013"
+        },
+        "reign_individual_chat_player_portrait_mask": {
+          "sheetId": 3,
+          "x": 4,
+          "y": 4,
+          "width": 230,
+          "height": 330,
+          "sourcePath": "GUI/SpriteParts/ui_reignbeta_individual/reign_individual_chat_player_portrait_mask.png",
+          "sourceSha256": "91319346f9af2b3e7380f82a6dfc85baed78b74dc3850114e126f59eb2fcb537"
+        },
+        "reign_individual_chat_npc_portrait_mask": {
+          "sheetId": 3,
+          "x": 242,
+          "y": 4,
+          "width": 230,
+          "height": 330,
+          "sourcePath": "GUI/SpriteParts/ui_reignbeta_individual/reign_individual_chat_npc_portrait_mask.png",
+          "sourceSha256": "f57b267be16e48b2980f77bdb81f7fb13645eeebc6593c3f5e144a0410a7654e"
+        },
+        "reign_individual_chat_zoom_oval_mask": {
+          "sheetId": 3,
+          "x": 480,
+          "y": 4,
+          "width": 512,
+          "height": 768,
+          "sourcePath": "GUI/SpriteParts/ui_reignbeta_individual/reign_individual_chat_zoom_oval_mask.png",
+          "sourceSha256": "8ae14fcb253ea4da1a7294af257e90a58ce35cbbefc21b3216bd2dee805de35e"
+        }
+      }
+    },
+    "ui_reignbeta_party": {
+      "sheets": [
+        {
+          "id": 1,
+          "width": 2048,
+          "height": 1024,
+          "path": "GUI/RuntimeSpriteSheets/ui_reignbeta_party/ui_reignbeta_party_1.png",
+          "sha256": "a37201c630b191af19367d53fee1072921addeeca35d5bdc724f85bcc4c2e1ca"
+        }
+      ],
+      "parts": {
+        "reign_party_chat_background": {
+          "sheetId": 1,
+          "x": 4,
+          "y": 4,
+          "width": 1660,
+          "height": 947,
+          "sourcePath": "GUI/SpriteParts/ui_reignbeta_party/reign_party_chat_background.png",
+          "sourceSha256": "e312fdcd916192d7112fd1d59b04e4c9309baa9bba0924f38b72f96b8f983b5f"
+        }
+      }
+    },
+    "ui_reignbeta_party_chat": {
+      "sheets": [
+        {
+          "id": 1,
+          "width": 4096,
+          "height": 4096,
+          "path": "GUI/RuntimeSpriteSheets/ui_reignbeta_party_chat/ui_reignbeta_party_chat_1.png",
+          "sha256": "f0f6a49d4aab7b20d12e25f700b5a76ea85241b479830d617e6a42d990ee1667"
+        },
+        {
+          "id": 2,
+          "width": 2048,
+          "height": 1024,
+          "path": "GUI/RuntimeSpriteSheets/ui_reignbeta_party_chat/ui_reignbeta_party_chat_2.png",
+          "sha256": "57ae376c021176f1ad7957041f964c1ee337cd16efc17300917eef34df2a7978"
+        },
+        {
+          "id": 3,
+          "width": 2048,
+          "height": 1024,
+          "path": "GUI/RuntimeSpriteSheets/ui_reignbeta_party_chat/ui_reignbeta_party_chat_3.png",
+          "sha256": "57ae376c021176f1ad7957041f964c1ee337cd16efc17300917eef34df2a7978"
+        },
+        {
+          "id": 4,
+          "width": 2048,
+          "height": 1024,
+          "path": "GUI/RuntimeSpriteSheets/ui_reignbeta_party_chat/ui_reignbeta_party_chat_4.png",
+          "sha256": "57ae376c021176f1ad7957041f964c1ee337cd16efc17300917eef34df2a7978"
+        },
+        {
+          "id": 5,
+          "width": 2048,
+          "height": 1024,
+          "path": "GUI/RuntimeSpriteSheets/ui_reignbeta_party_chat/ui_reignbeta_party_chat_5.png",
+          "sha256": "aa2aca95423ce162e912dee33fd02cb940201d2fe49afc200baadca08435ecad"
+        },
+        {
+          "id": 6,
+          "width": 2048,
+          "height": 1024,
+          "path": "GUI/RuntimeSpriteSheets/ui_reignbeta_party_chat/ui_reignbeta_party_chat_6.png",
+          "sha256": "aefa4265b14a1bef7be5197600cc7476ff10fc27bb6dd7cf636a2ef5bcb313af"
+        },
+        {
+          "id": 7,
+          "width": 2048,
+          "height": 1024,
+          "path": "GUI/RuntimeSpriteSheets/ui_reignbeta_party_chat/ui_reignbeta_party_chat_7.png",
+          "sha256": "e131ac6e6ef32b24dbf0f400da74794ac42c62e57ae4124a4de3b5b795a8bf86"
+        },
+        {
+          "id": 8,
+          "width": 2048,
+          "height": 1024,
+          "path": "GUI/RuntimeSpriteSheets/ui_reignbeta_party_chat/ui_reignbeta_party_chat_8.png",
+          "sha256": "470a6cac4d6e389899553366087923e82b315862b18e2f6a5f78c15ac8989075"
+        },
+        {
+          "id": 9,
+          "width": 2048,
+          "height": 1024,
+          "path": "GUI/RuntimeSpriteSheets/ui_reignbeta_party_chat/ui_reignbeta_party_chat_9.png",
+          "sha256": "91cad790e00bef943c1b138e3b010b83f206e8f965239c3b145241e47df05ac1"
+        }
+      ],
+      "parts": {
+        "reign_party_chat_shell": {
+          "sheetId": 1,
+          "x": 1056,
+          "y": 8,
+          "width": 1660,
+          "height": 947,
+          "sourcePath": "GUI/SpriteParts/ui_reignbeta_party_chat/reign_party_chat_shell.png",
+          "sourceSha256": "5d0fc9bc9ae4d41a56839e19661f6e96886fc081b320949de91a33fe106b6052"
+        },
+        "reign_party_chat_header": {
+          "sheetId": 1,
+          "x": 8,
+          "y": 2515,
+          "width": 1800,
+          "height": 124,
+          "sourcePath": "GUI/SpriteParts/ui_reignbeta_party_chat/reign_party_chat_header.png",
+          "sourceSha256": "3c7e29bbb8dfa1822289391441d0d332eb21a06282f2ea95273e4cc6c409342f"
+        },
+        "reign_party_chat_roster": {
+          "sheetId": 1,
+          "x": 1496,
+          "y": 2059,
+          "width": 1800,
+          "height": 233,
+          "sourcePath": "GUI/SpriteParts/ui_reignbeta_party_chat/reign_party_chat_roster.png",
+          "sourceSha256": "c6bd222a9b832da6c51ebd549f82deda27ec8cc8663c5dda188eb66663ddf883"
+        },
+        "reign_party_chat_card_normal": {
+          "sheetId": 1,
+          "x": 1816,
+          "y": 1266,
+          "width": 540,
+          "height": 408,
+          "sourcePath": "GUI/SpriteParts/ui_reignbeta_party_chat/reign_party_chat_card_normal.png",
+          "sourceSha256": "df8dd240eb7224178c186bd38f393d0790d5d359a2e9c0a9a9c41bfa4445360f"
+        },
+        "reign_party_chat_card_active": {
+          "sheetId": 1,
+          "x": 2912,
+          "y": 1266,
+          "width": 540,
+          "height": 408,
+          "sourcePath": "GUI/SpriteParts/ui_reignbeta_party_chat/reign_party_chat_card_active.png",
+          "sourceSha256": "ef7c4820b8254fae9e8fd8aa077b50f6ab4984a216231da41870fb4bc60c5ddc"
+        },
+        "reign_party_chat_card_hover": {
+          "sheetId": 1,
+          "x": 2364,
+          "y": 1266,
+          "width": 540,
+          "height": 408,
+          "sourcePath": "GUI/SpriteParts/ui_reignbeta_party_chat/reign_party_chat_card_hover.png",
+          "sourceSha256": "93295bcf14a2544bf52e76f75f5bac038b917adfc6ea4c116bc22a09be939e8b"
+        },
+        "reign_party_chat_button_normal": {
+          "sheetId": 1,
+          "x": 2792,
+          "y": 2515,
+          "width": 480,
+          "height": 108,
+          "sourcePath": "GUI/SpriteParts/ui_reignbeta_party_chat/reign_party_chat_button_normal.png",
+          "sourceSha256": "7363cfc35bf9309c8c0d5f77cff1641049e57f5069df8fbcd18f873275819812"
+        },
+        "reign_party_chat_button_hover": {
+          "sheetId": 1,
+          "x": 3280,
+          "y": 2515,
+          "width": 480,
+          "height": 108,
+          "sourcePath": "GUI/SpriteParts/ui_reignbeta_party_chat/reign_party_chat_button_hover.png",
+          "sourceSha256": "7027b106e87555b3e34207b3dbb80e34468b4a1c0d764f174a6e6f9a35bac300"
+        },
+        "reign_party_chat_log": {
+          "sheetId": 1,
+          "x": 8,
+          "y": 1266,
+          "width": 1800,
+          "height": 522,
+          "sourcePath": "GUI/SpriteParts/ui_reignbeta_party_chat/reign_party_chat_log.png",
+          "sourceSha256": "6a24d9cc83e52c0bc629b1e9c63fdcc36f821a807c1c34d7a11b4fb86196768a"
+        },
+        "reign_party_chat_roster_scroll_track": {
+          "sheetId": 1,
+          "x": 2984,
+          "y": 1796,
+          "width": 1000,
+          "height": 24,
+          "sourcePath": "GUI/SpriteParts/ui_reignbeta_party_chat/reign_party_chat_roster_scroll_track.png",
+          "sourceSha256": "a47f69f9beb9a86885f4b37cef7ec181af87557ab4e59a4e903c51a40ddeff86"
+        },
+        "reign_party_chat_roster_scroll_handle": {
+          "sheetId": 1,
+          "x": 3768,
+          "y": 2515,
+          "width": 300,
+          "height": 28,
+          "sourcePath": "GUI/SpriteParts/ui_reignbeta_party_chat/reign_party_chat_roster_scroll_handle.png",
+          "sourceSha256": "32d51a069646ced5eb1e891e1a89d59d11264298e7e433b0cd681921f643cb84"
+        },
+        "reign_party_chat_portrait_preview": {
+          "sheetId": 1,
+          "x": 8,
+          "y": 8,
+          "width": 1040,
+          "height": 1250,
+          "sourcePath": "GUI/SpriteParts/ui_reignbeta_party_chat/reign_party_chat_portrait_preview.png",
+          "sourceSha256": "4bcaa3d5d0e9eb216019c71542b2ae1808720a2096dc4f1d5c30907652627d48"
+        },
+        "reign_party_chat_scroll_track": {
+          "sheetId": 1,
+          "x": 2724,
+          "y": 8,
+          "width": 24,
+          "height": 760,
+          "sourcePath": "GUI/SpriteParts/ui_reignbeta_party_chat/reign_party_chat_scroll_track.png",
+          "sourceSha256": "d8a40deea20fbf187baf33060f09f516c12105280a7e1ad7092e5a4aced3551e"
+        },
+        "reign_party_chat_scroll_handle": {
+          "sheetId": 1,
+          "x": 1416,
+          "y": 2059,
+          "width": 32,
+          "height": 252,
+          "sourcePath": "GUI/SpriteParts/ui_reignbeta_party_chat/reign_party_chat_scroll_handle.png",
+          "sourceSha256": "f9750ba967ea904ba582c65224a795937b692ce249e549e62db4066bd792ddc0"
+        },
+        "reign_party_chat_player_message": {
+          "sheetId": 1,
+          "x": 1576,
+          "y": 1796,
+          "width": 1400,
+          "height": 253,
+          "sourcePath": "GUI/SpriteParts/ui_reignbeta_party_chat/reign_party_chat_player_message.png",
+          "sourceSha256": "6303d15c94ce8bf193a8cb4d1728b12e60bd343348ce99bae0e5967e27c6799a"
+        },
+        "reign_party_chat_npc_message": {
+          "sheetId": 1,
+          "x": 8,
+          "y": 2059,
+          "width": 1400,
+          "height": 253,
+          "sourcePath": "GUI/SpriteParts/ui_reignbeta_party_chat/reign_party_chat_npc_message.png",
+          "sourceSha256": "a757236fb61f931577f137f5a3ed36ab0ec902cca7034567716c6e5d7f9fe2bf"
+        },
+        "reign_party_chat_system_message": {
+          "sheetId": 1,
+          "x": 8,
+          "y": 1796,
+          "width": 1560,
+          "height": 255,
+          "sourcePath": "GUI/SpriteParts/ui_reignbeta_party_chat/reign_party_chat_system_message.png",
+          "sourceSha256": "c39ba10b7b5801a5a9e8e558e04baa7af7472d1d1eb86f7966e23872ce03c200"
+        },
+        "reign_party_chat_divider": {
+          "sheetId": 1,
+          "x": 2416,
+          "y": 2320,
+          "width": 1200,
+          "height": 34,
+          "sourcePath": "GUI/SpriteParts/ui_reignbeta_party_chat/reign_party_chat_divider.png",
+          "sourceSha256": "54924c732b6c5a6c22d0b971d5dd34bf2fa0032beb0c4acbb74147fba532a7cb"
+        },
+        "reign_party_chat_input": {
+          "sheetId": 1,
+          "x": 8,
+          "y": 2320,
+          "width": 2400,
+          "height": 187,
+          "sourcePath": "GUI/SpriteParts/ui_reignbeta_party_chat/reign_party_chat_input.png",
+          "sourceSha256": "ee8c408cda5b3c897f4568cb039112c158ee0c3c53bc3b581d7ca39bfc716305"
+        },
+        "reign_party_chat_send_normal": {
+          "sheetId": 1,
+          "x": 1816,
+          "y": 2515,
+          "width": 480,
+          "height": 108,
+          "sourcePath": "GUI/SpriteParts/ui_reignbeta_party_chat/reign_party_chat_send_normal.png",
+          "sourceSha256": "7363cfc35bf9309c8c0d5f77cff1641049e57f5069df8fbcd18f873275819812"
+        },
+        "reign_party_chat_send_hover": {
+          "sheetId": 1,
+          "x": 2304,
+          "y": 2515,
+          "width": 480,
+          "height": 108,
+          "sourcePath": "GUI/SpriteParts/ui_reignbeta_party_chat/reign_party_chat_send_hover.png",
+          "sourceSha256": "7027b106e87555b3e34207b3dbb80e34468b4a1c0d764f174a6e6f9a35bac300"
+        },
+        "reign_party_chat_preview_scroll_track": {
+          "sheetId": 1,
+          "x": 2756,
+          "y": 8,
+          "width": 24,
+          "height": 760,
+          "sourcePath": "GUI/SpriteParts/ui_reignbeta_party_chat/reign_party_chat_preview_scroll_track.png",
+          "sourceSha256": "d8a40deea20fbf187baf33060f09f516c12105280a7e1ad7092e5a4aced3551e"
+        },
+        "reign_party_chat_preview_scroll_handle": {
+          "sheetId": 1,
+          "x": 1456,
+          "y": 2059,
+          "width": 32,
+          "height": 252,
+          "sourcePath": "GUI/SpriteParts/ui_reignbeta_party_chat/reign_party_chat_preview_scroll_handle.png",
+          "sourceSha256": "f9750ba967ea904ba582c65224a795937b692ce249e549e62db4066bd792ddc0"
+        },
+        "reign_party_chat_member_card_overlay": {
+          "sheetId": 5,
+          "x": 1680,
+          "y": 4,
+          "width": 286,
+          "height": 154,
+          "sourcePath": "GUI/SpriteParts/ui_reignbeta_party_chat/reign_party_chat_member_card_overlay.png",
+          "sourceSha256": "b75567e3e40a8f84e7e68fe9f0018473c1094d85f5783808903030bb882a9889"
+        },
+        "reign_party_chat_modern_shell": {
+          "sheetId": 5,
+          "x": 4,
+          "y": 4,
+          "width": 1672,
+          "height": 941,
+          "sourcePath": "GUI/SpriteParts/ui_reignbeta_party_chat/reign_party_chat_modern_shell.png",
+          "sourceSha256": "0dcad237dd6f7e63dc7844109fed017e424dab26081be79089558d58df27c220"
+        },
+        "reign_castle_chat_modern_shell": {
+          "sheetId": 6,
+          "x": 4,
+          "y": 4,
+          "width": 1672,
+          "height": 941,
+          "sourcePath": "GUI/SpriteParts/ui_reignbeta_party_chat/reign_castle_chat_modern_shell.png",
+          "sourceSha256": "1be283299ef18bdd84b55d7daa76349c218b55c5fb7f2d7067fc14479fd53461"
+        },
+        "reign_castle_chat_fixed_caption_overlay": {
+          "sheetId": 7,
+          "x": 4,
+          "y": 4,
+          "width": 1672,
+          "height": 941,
+          "sourcePath": "GUI/SpriteParts/ui_reignbeta_party_chat/reign_castle_chat_fixed_caption_overlay.png",
+          "sourceSha256": "cd76dcc3609c106ca514f9207a8e7e94f426bab3126b79cdb8852580d48f32a2"
+        },
+        "reign_castle_chat_approved_fallback": {
+          "sheetId": 8,
+          "x": 4,
+          "y": 4,
+          "width": 790,
+          "height": 420,
+          "sourcePath": "GUI/SpriteParts/ui_reignbeta_party_chat/reign_castle_chat_approved_fallback.png",
+          "sourceSha256": "9ccd1d542d14b39908fb319e9c5ef300e3407d7e2ebbc61062918ef4bb4143b1"
+        },
+        "reign_party_chat_portrait_mask_active": {
+          "sheetId": 8,
+          "x": 802,
+          "y": 4,
+          "width": 130,
+          "height": 132,
+          "sourcePath": "GUI/SpriteParts/ui_reignbeta_party_chat/reign_party_chat_portrait_mask_active.png",
+          "sourceSha256": "05bb73bc1f743d2fb981c73cc307069d5e246d316dca4b93c5456248bcc4539a"
+        },
+        "reign_party_chat_portrait_mask_inactive": {
+          "sheetId": 8,
+          "x": 940,
+          "y": 4,
+          "width": 130,
+          "height": 132,
+          "sourcePath": "GUI/SpriteParts/ui_reignbeta_party_chat/reign_party_chat_portrait_mask_inactive.png",
+          "sourceSha256": "f3ec6c49c16425ae86dcedfd29d39c6e0f79f7f52057ecf7cb5c5b834378218c"
+        },
+        "reign_party_chat_preview_oval_mask": {
+          "sheetId": 8,
+          "x": 1078,
+          "y": 4,
+          "width": 512,
+          "height": 768,
+          "sourcePath": "GUI/SpriteParts/ui_reignbeta_party_chat/reign_party_chat_preview_oval_mask.png",
+          "sourceSha256": "81bb01f44074bcb29d7d4f3901f6a94b2e18423a7392d9b62b1c46dc4728fff0"
+        },
+        "reign_homes_lane": {
+          "sheetId": 9,
+          "x": 4,
+          "y": 4,
+          "width": 1774,
+          "height": 887,
+          "sourcePath": "GUI/SpriteParts/ui_reignbeta_party_chat/reign_homes_lane.png",
+          "sourceSha256": "f743632ec9ac7aa451e6a82be074c0e5371a4ab54f8e80b1e426d4798e125c69"
+        }
+      }
+    },
+    "ui_reignbeta_court": {
+      "sheets": [
+        {
+          "id": 1,
+          "width": 4096,
+          "height": 4096,
+          "path": "GUI/RuntimeSpriteSheets/ui_reignbeta_court/ui_reignbeta_court_1.png",
+          "sha256": "8abddcfa7357fc212dda6718dec69f2034573e0156eee4fc29b214e7580715fb"
+        },
+        {
+          "id": 2,
+          "width": 4096,
+          "height": 2048,
+          "path": "GUI/RuntimeSpriteSheets/ui_reignbeta_court/ui_reignbeta_court_2.png",
+          "sha256": "efe65f2758f192705f0c469c990ed71285ee6af96207a87a2b854eca281579a1"
+        },
+        {
+          "id": 3,
+          "width": 2048,
+          "height": 1024,
+          "path": "GUI/RuntimeSpriteSheets/ui_reignbeta_court/ui_reignbeta_court_3.png",
+          "sha256": "4ccb0ee5fbfd68ae08d9b0c50ad0fdff94add2828f75f844c22b23d4b531b004"
+        },
+        {
+          "id": 4,
+          "width": 2048,
+          "height": 2048,
+          "path": "GUI/RuntimeSpriteSheets/ui_reignbeta_court/ui_reignbeta_court_4.png",
+          "sha256": "4021e05a958e74981d1b160381d584306ebb9f4b90c6c5af332b586a1a689679"
+        },
+        {
+          "id": 5,
+          "width": 2048,
+          "height": 1024,
+          "path": "GUI/RuntimeSpriteSheets/ui_reignbeta_court/ui_reignbeta_court_5.png",
+          "sha256": "cc65f5f2c806c7f161824b9052be3aa7aed1f72d19199d804036fd81266cf394"
+        },
+        {
+          "id": 6,
+          "width": 2048,
+          "height": 1024,
+          "path": "GUI/RuntimeSpriteSheets/ui_reignbeta_court/ui_reignbeta_court_6.png",
+          "sha256": "a45290d726b34538ec44fb58aab172c3c6ba8c32dab0985e6918a016177de1a3"
+        }
+      ],
+      "parts": {
+        "reign_court_outer_frame": {
+          "sheetId": 1,
+          "x": 4,
+          "y": 4,
+          "width": 1920,
+          "height": 1080,
+          "sourcePath": "GUI/SpriteParts/ui_reignbeta_court/reign_court_outer_frame.png",
+          "sourceSha256": "16b1d97a918a9380dbf86a552749c90740ab474ae69aeb413f50bedfced35f32"
+        },
+        "reign_court_docket_panel": {
+          "sheetId": 1,
+          "x": 1928,
+          "y": 4,
+          "width": 520,
+          "height": 828,
+          "sourcePath": "GUI/SpriteParts/ui_reignbeta_court/reign_court_docket_panel.png",
+          "sourceSha256": "badc758088223458accb49533f9ba066d24652ea1fd0c1658641da9eaaabc692"
+        },
+        "reign_court_command_rail": {
+          "sheetId": 1,
+          "x": 2452,
+          "y": 4,
+          "width": 392,
+          "height": 828,
+          "sourcePath": "GUI/SpriteParts/ui_reignbeta_court/reign_court_command_rail.png",
+          "sourceSha256": "4fddfaeab01c0d6e5baff2c2a8338655c9969c77b272bef95b9e8b2683b1c22b"
+        },
+        "reign_court_throne_background": {
+          "sheetId": 1,
+          "x": 4,
+          "y": 1088,
+          "width": 1938,
+          "height": 811,
+          "sourcePath": "GUI/SpriteParts/ui_reignbeta_court/reign_court_throne_background.png",
+          "sourceSha256": "701351d74401e6a7ea6338ab05cd52de50814246a1bf16e51514b3d52980f730"
+        },
+        "reign_court_scroll_track": {
+          "sheetId": 1,
+          "x": 1946,
+          "y": 1088,
+          "width": 12,
+          "height": 680,
+          "sourcePath": "GUI/SpriteParts/ui_reignbeta_court/reign_court_scroll_track.png",
+          "sourceSha256": "5a80daba7d226318b436ed22c29d68269ad794dbf1acc99ed0a3ecb182380c83"
+        },
+        "reign_court_banner_overlay": {
+          "sheetId": 1,
+          "x": 1962,
+          "y": 1088,
+          "width": 180,
+          "height": 340,
+          "sourcePath": "GUI/SpriteParts/ui_reignbeta_court/reign_court_banner_overlay.png",
+          "sourceSha256": "392c8d089c5a2c8fc8ed05416b581b76efb18629f010811c6c4a16b552b99066"
+        },
+        "reign_court_banner_backing": {
+          "sheetId": 1,
+          "x": 2146,
+          "y": 1088,
+          "width": 150,
+          "height": 300,
+          "sourcePath": "GUI/SpriteParts/ui_reignbeta_court/reign_court_banner_backing.png",
+          "sourceSha256": "48e59273a46c8ae6a1e27e3b11d4e3512f1275997a241a13cebbfa5b459a7356"
+        },
+        "reign_court_docket_card": {
+          "sheetId": 1,
+          "x": 2300,
+          "y": 1088,
+          "width": 440,
+          "height": 112,
+          "sourcePath": "GUI/SpriteParts/ui_reignbeta_court/reign_court_docket_card.png",
+          "sourceSha256": "31e3f98b2451c0d3ff763868d9f165f5039e8a62f2b7878741893a2e1ae0e7c7"
+        },
+        "reign_court_command_button": {
+          "sheetId": 1,
+          "x": 2744,
+          "y": 1088,
+          "width": 336,
+          "height": 96,
+          "sourcePath": "GUI/SpriteParts/ui_reignbeta_court/reign_court_command_button.png",
+          "sourceSha256": "ecb45c4f4b049b06b3919c4df7790d857a1b7adc59ae2f62ad37a00f9d57ac27"
+        },
+        "reign_court_command_button_hover": {
+          "sheetId": 1,
+          "x": 3084,
+          "y": 1088,
+          "width": 336,
+          "height": 96,
+          "sourcePath": "GUI/SpriteParts/ui_reignbeta_court/reign_court_command_button_hover.png",
+          "sourceSha256": "68a2aae9daeb4745647709b77909155414889c4ddee47001f6deadda9ad79f42"
+        },
+        "reign_court_command_button_pressed": {
+          "sheetId": 1,
+          "x": 3424,
+          "y": 1088,
+          "width": 336,
+          "height": 96,
+          "sourcePath": "GUI/SpriteParts/ui_reignbeta_court/reign_court_command_button_pressed.png",
+          "sourceSha256": "9c50d5fb6b491728253318a49052eb2dd2608c02ba62a76d2a655aacf5f2da12"
+        },
+        "reign_court_reign_medallion": {
+          "sheetId": 1,
+          "x": 3764,
+          "y": 1088,
+          "width": 96,
+          "height": 96,
+          "sourcePath": "GUI/SpriteParts/ui_reignbeta_court/reign_court_reign_medallion.png",
+          "sourceSha256": "0e3fe10e96ef8e58925b06be092986caae3f84d8f1a72600efe5e641564a0253"
+        },
+        "reign_court_status_bar": {
+          "sheetId": 1,
+          "x": 4,
+          "y": 1903,
+          "width": 1856,
+          "height": 88,
+          "sourcePath": "GUI/SpriteParts/ui_reignbeta_court/reign_court_status_bar.png",
+          "sourceSha256": "cefddfd8b8e90a25680507667cc3cdf810c05de03ed0759101e355b6f3880d67"
+        },
+        "reign_court_identity_frame": {
+          "sheetId": 1,
+          "x": 1864,
+          "y": 1903,
+          "width": 350,
+          "height": 88,
+          "sourcePath": "GUI/SpriteParts/ui_reignbeta_court/reign_court_identity_frame.png",
+          "sourceSha256": "0f40b17c1fec1055a651328fd6cd871e705371264494c23ba69e14e0555974f6"
+        },
+        "reign_court_status_frame": {
+          "sheetId": 1,
+          "x": 2218,
+          "y": 1903,
+          "width": 251,
+          "height": 88,
+          "sourcePath": "GUI/SpriteParts/ui_reignbeta_court/reign_court_status_frame.png",
+          "sourceSha256": "30d0f9c6b1523698e206e2be0eeff82fde171b69f266608325eebd319872aae6"
+        },
+        "reign_court_bottom_bar": {
+          "sheetId": 1,
+          "x": 4,
+          "y": 1995,
+          "width": 1856,
+          "height": 84,
+          "sourcePath": "GUI/SpriteParts/ui_reignbeta_court/reign_court_bottom_bar.png",
+          "sourceSha256": "b6f8827de0280d7a8690212ea9edd84515e9abde2954aafd3ba2e26e0086a660"
+        },
+        "reign_court_scroll_handle": {
+          "sheetId": 1,
+          "x": 1864,
+          "y": 1995,
+          "width": 18,
+          "height": 80,
+          "sourcePath": "GUI/SpriteParts/ui_reignbeta_court/reign_court_scroll_handle.png",
+          "sourceSha256": "25925eb10e10cb9bb3008cfde56a7947c9b8893434fec2c9a7fca16a878a760e"
+        },
+        "reign_court_title_plaque": {
+          "sheetId": 1,
+          "x": 1886,
+          "y": 1995,
+          "width": 468,
+          "height": 74,
+          "sourcePath": "GUI/SpriteParts/ui_reignbeta_court/reign_court_title_plaque.png",
+          "sourceSha256": "2af3bad2ba83a6740f0c22ef16ff7e3205968cc5bf9ec115fe376fb7f16eb0fe"
+        },
+        "reign_court_docket_header": {
+          "sheetId": 1,
+          "x": 2358,
+          "y": 1995,
+          "width": 472,
+          "height": 68,
+          "sourcePath": "GUI/SpriteParts/ui_reignbeta_court/reign_court_docket_header.png",
+          "sourceSha256": "fe098313b6d25b1b8b4a8559050f889a6d0d59066e0576fd84cf5e3ff2998731"
+        },
+        "reign_court_docket_accounts": {
+          "sheetId": 1,
+          "x": 2834,
+          "y": 1995,
+          "width": 64,
+          "height": 64,
+          "sourcePath": "GUI/SpriteParts/ui_reignbeta_court/reign_court_docket_accounts.png",
+          "sourceSha256": "16977268382dca23199be58905f797b9f5bef524f2ba2eeb1e1a06f9c518ed86"
+        },
+        "reign_court_docket_correspondence": {
+          "sheetId": 1,
+          "x": 2902,
+          "y": 1995,
+          "width": 64,
+          "height": 64,
+          "sourcePath": "GUI/SpriteParts/ui_reignbeta_court/reign_court_docket_correspondence.png",
+          "sourceSha256": "1773afe9a52e3c9acc3e36774aa28d1a91a4df12f0c9b3d9bdd7aef7d25e69af"
+        },
+        "reign_court_docket_diplomacy": {
+          "sheetId": 1,
+          "x": 2970,
+          "y": 1995,
+          "width": 64,
+          "height": 64,
+          "sourcePath": "GUI/SpriteParts/ui_reignbeta_court/reign_court_docket_diplomacy.png",
+          "sourceSha256": "e0c82f7a6280a2a9972910f08c0d32e9df8c0d803cbfc637d6701bbe599ccf0a"
+        },
+        "reign_court_docket_justice": {
+          "sheetId": 1,
+          "x": 3038,
+          "y": 1995,
+          "width": 64,
+          "height": 64,
+          "sourcePath": "GUI/SpriteParts/ui_reignbeta_court/reign_court_docket_justice.png",
+          "sourceSha256": "76831bbf073fda9ac495eb2425d952dc0e47b5ee36ca23d378ac9b72cc8ad17e"
+        },
+        "reign_court_docket_military": {
+          "sheetId": 1,
+          "x": 3106,
+          "y": 1995,
+          "width": 64,
+          "height": 64,
+          "sourcePath": "GUI/SpriteParts/ui_reignbeta_court/reign_court_docket_military.png",
+          "sourceSha256": "9ed379bc2ed91920f7a880c9ed030f4182a8fec28595a73b53ce1ba172497fb2"
+        },
+        "reign_court_docket_social": {
+          "sheetId": 1,
+          "x": 3174,
+          "y": 1995,
+          "width": 64,
+          "height": 64,
+          "sourcePath": "GUI/SpriteParts/ui_reignbeta_court/reign_court_docket_social.png",
+          "sourceSha256": "f7a8aedc6d8e8d40008db6a143d538902309a28598137d66bed0e994175be5ce"
+        },
+        "reign_court_docket_urgent": {
+          "sheetId": 1,
+          "x": 3242,
+          "y": 1995,
+          "width": 64,
+          "height": 64,
+          "sourcePath": "GUI/SpriteParts/ui_reignbeta_court/reign_court_docket_urgent.png",
+          "sourceSha256": "26d66fc34a62e90ab8bc80312c2666ddaec761fa1e31f051b57b7fa273634ba9"
+        },
+        "reign_court_icon_ambassadors": {
+          "sheetId": 1,
+          "x": 3310,
+          "y": 1995,
+          "width": 64,
+          "height": 64,
+          "sourcePath": "GUI/SpriteParts/ui_reignbeta_court/reign_court_icon_ambassadors.png",
+          "sourceSha256": "ba90d304e33844fe1d1d007a96a81836add094097216fd0674fdc5e75375177d"
+        },
+        "reign_court_icon_economic_report": {
+          "sheetId": 1,
+          "x": 3378,
+          "y": 1995,
+          "width": 64,
+          "height": 64,
+          "sourcePath": "GUI/SpriteParts/ui_reignbeta_court/reign_court_icon_economic_report.png",
+          "sourceSha256": "e1276e8d9ec9718811d5198a92fce0f737bf49fe3f6b02355a7204709642e502"
+        },
+        "reign_court_icon_keep": {
+          "sheetId": 1,
+          "x": 3446,
+          "y": 1995,
+          "width": 64,
+          "height": 64,
+          "sourcePath": "GUI/SpriteParts/ui_reignbeta_court/reign_court_icon_keep.png",
+          "sourceSha256": "2b967acaa51dc1e1de3b6e1de811501fbe1006b8e3f8940ca08e63c12a7ed480"
+        },
+        "reign_court_icon_spymaster": {
+          "sheetId": 1,
+          "x": 3514,
+          "y": 1995,
+          "width": 64,
+          "height": 64,
+          "sourcePath": "GUI/SpriteParts/ui_reignbeta_court/reign_court_icon_spymaster.png",
+          "sourceSha256": "da27d0f2a1149c83914b7629b66d2f406a60b657e181e70264c3e2dd05505eb9"
+        },
+        "reign_court_icon_war_council": {
+          "sheetId": 1,
+          "x": 3582,
+          "y": 1995,
+          "width": 64,
+          "height": 64,
+          "sourcePath": "GUI/SpriteParts/ui_reignbeta_court/reign_court_icon_war_council.png",
+          "sourceSha256": "0dab00c2cb6da6aaf735cddf16ed9031cb708e1d1a020ca6acd0a5f2333f73a5"
+        },
+        "reign_court_status_funds": {
+          "sheetId": 1,
+          "x": 3650,
+          "y": 1995,
+          "width": 64,
+          "height": 64,
+          "sourcePath": "GUI/SpriteParts/ui_reignbeta_court/reign_court_status_funds.png",
+          "sourceSha256": "8515cb35cca13dfbacaadfd3cbbc38ebea74568e369bc6de974f16ef49de2237"
+        },
+        "reign_court_status_influence": {
+          "sheetId": 1,
+          "x": 3718,
+          "y": 1995,
+          "width": 64,
+          "height": 64,
+          "sourcePath": "GUI/SpriteParts/ui_reignbeta_court/reign_court_status_influence.png",
+          "sourceSha256": "264b8bc9fe1b544d71d4f5ef7cfcdbc43f25657e5a4d457627235e03cb918be4"
+        },
+        "reign_court_status_presence": {
+          "sheetId": 1,
+          "x": 3786,
+          "y": 1995,
+          "width": 64,
+          "height": 64,
+          "sourcePath": "GUI/SpriteParts/ui_reignbeta_court/reign_court_status_presence.png",
+          "sourceSha256": "3e199389baba143aa85bbe81a7b8ceb193987a78248754d694a9a51fbc32675b"
+        },
+        "reign_court_status_renown": {
+          "sheetId": 1,
+          "x": 3854,
+          "y": 1995,
+          "width": 64,
+          "height": 64,
+          "sourcePath": "GUI/SpriteParts/ui_reignbeta_court/reign_court_status_renown.png",
+          "sourceSha256": "ee36317d575a9b93bd10cce22f07e4aad75273a8a3909d72f59823d2423b3391"
+        },
+        "reign_court_status_strength": {
+          "sheetId": 1,
+          "x": 3922,
+          "y": 1995,
+          "width": 64,
+          "height": 64,
+          "sourcePath": "GUI/SpriteParts/ui_reignbeta_court/reign_court_status_strength.png",
+          "sourceSha256": "5a5d942b039b9775bcda4be3ce1597f3079f75e4fb247be0161953502d10c292"
+        },
+        "reign_court_status_supply": {
+          "sheetId": 1,
+          "x": 3990,
+          "y": 1995,
+          "width": 64,
+          "height": 64,
+          "sourcePath": "GUI/SpriteParts/ui_reignbeta_court/reign_court_status_supply.png",
+          "sourceSha256": "b7c8c114e30b3848358097dd3289eeccf2ca8143d413c16b16db632097a085ae"
+        },
+        "reign_court_advance_button": {
+          "sheetId": 1,
+          "x": 4,
+          "y": 2083,
+          "width": 300,
+          "height": 50,
+          "sourcePath": "GUI/SpriteParts/ui_reignbeta_court/reign_court_advance_button.png",
+          "sourceSha256": "52b611c4bebf8bb348e1585e15521a7f0c6cbda46771050924cf92ceddd7ca77"
+        },
+        "reign_court_control_button": {
+          "sheetId": 1,
+          "x": 308,
+          "y": 2083,
+          "width": 150,
+          "height": 50,
+          "sourcePath": "GUI/SpriteParts/ui_reignbeta_court/reign_court_control_button.png",
+          "sourceSha256": "f32581d7ed660c95915aef2bc6f9f0685ae0fec18b0307f67b32ad0a138799f2"
+        },
+        "reign_court_divider": {
+          "sheetId": 1,
+          "x": 462,
+          "y": 2083,
+          "width": 256,
+          "height": 24,
+          "sourcePath": "GUI/SpriteParts/ui_reignbeta_court/reign_court_divider.png",
+          "sourceSha256": "099a5605d44bfc1ff853074747c784d40de9798b8dde41a823304268658b718d"
+        },
+        "reign_court_dashboard_template": {
+          "sheetId": 1,
+          "x": 4,
+          "y": 2137,
+          "width": 1920,
+          "height": 1080,
+          "sourcePath": "GUI/SpriteParts/ui_reignbeta_court/reign_court_dashboard_template.png",
+          "sourceSha256": "57960b03d1aa58ccbfe92abf3ed135aaa874ac7fcb3287efeac0ddae0fe5e8b6"
+        },
+        "reign_court_dashboard_template_large": {
+          "sheetId": 2,
+          "x": 4,
+          "y": 4,
+          "width": 3172,
+          "height": 1984,
+          "sourcePath": "GUI/SpriteParts/ui_reignbeta_court/reign_court_dashboard_template_large.png",
+          "sourceSha256": "29ab4bb7a562e888f3e0a83bb9c6a56a0a309e3e22db073a2f1c8f7a78b641b4"
+        },
+        "reign_court_compact_overlay": {
+          "sheetId": 3,
+          "x": 4,
+          "y": 4,
+          "width": 1672,
+          "height": 941,
+          "sourcePath": "GUI/SpriteParts/ui_reignbeta_court/reign_court_compact_overlay.png",
+          "sourceSha256": "99ed5e2cdc6c722d47e4c32273d097eed365229c737b7b5909ec3468903d9cd4"
+        },
+        "reign_court_throne_button_strip": {
+          "sheetId": 3,
+          "x": 4,
+          "y": 949,
+          "width": 706,
+          "height": 71,
+          "sourcePath": "GUI/SpriteParts/ui_reignbeta_court/reign_court_throne_button_strip.png",
+          "sourceSha256": "9aa40f5df33d3e305c8149bcc704cd1f7d15661e67366959d60242dc742d28bd"
+        },
+        "reign_court_modern_shell": {
+          "sheetId": 4,
+          "x": 4,
+          "y": 4,
+          "width": 1672,
+          "height": 941,
+          "sourcePath": "GUI/SpriteParts/ui_reignbeta_court/reign_court_modern_shell.png",
+          "sourceSha256": "e1e99432996546fe647d6867cd5375e0a34ea089d46054d2424c765cec0d64e1"
+        },
+        "reign_court_modern_banner_left_mask": {
+          "sheetId": 4,
+          "x": 4,
+          "y": 949,
+          "width": 102,
+          "height": 270,
+          "sourcePath": "GUI/SpriteParts/ui_reignbeta_court/reign_court_modern_banner_left_mask.png",
+          "sourceSha256": "05fb7f18ed364040c7580b8c41dad887c85cd44c493366b906245a685a413152"
+        },
+        "reign_court_modern_banner_right_mask": {
+          "sheetId": 4,
+          "x": 110,
+          "y": 949,
+          "width": 102,
+          "height": 270,
+          "sourcePath": "GUI/SpriteParts/ui_reignbeta_court/reign_court_modern_banner_right_mask.png",
+          "sourceSha256": "dcad9a369fa80ca817c3b68ae4d44dea20234b8b0280bf1c9dba169bd48e7661"
+        },
+        "reign_court_petition_modern_shell": {
+          "sheetId": 5,
+          "x": 4,
+          "y": 4,
+          "width": 1672,
+          "height": 941,
+          "sourcePath": "GUI/SpriteParts/ui_reignbeta_court/reign_court_petition_modern_shell.png",
+          "sourceSha256": "b0da8363ad1589fcb22e245291bb267a9078db510729662d141b0f7956af867d"
+        },
+        "reign_court_chancellor_card_modern": {
+          "sheetId": 5,
+          "x": 1680,
+          "y": 4,
+          "width": 322,
+          "height": 164,
+          "sourcePath": "GUI/SpriteParts/ui_reignbeta_court/reign_court_chancellor_card_modern.png",
+          "sourceSha256": "8abf5d92b2a8735b39d1b6231ca538009d4deaff1c6f8086ae9b6b0e030d76fd"
+        },
+        "reign_court_petition_card_modern": {
+          "sheetId": 5,
+          "x": 1680,
+          "y": 172,
+          "width": 322,
+          "height": 145,
+          "sourcePath": "GUI/SpriteParts/ui_reignbeta_court/reign_court_petition_card_modern.png",
+          "sourceSha256": "d55ecc86211f7feaf2e0348a9bcbd28e7408e87676a3e0d97f7dfdb83038fc10"
+        },
+        "reign_court_petition_attendee_card_modern": {
+          "sheetId": 5,
+          "x": 1680,
+          "y": 325,
+          "width": 322,
+          "height": 103,
+          "sourcePath": "GUI/SpriteParts/ui_reignbeta_court/reign_court_petition_attendee_card_modern.png",
+          "sourceSha256": "2457b8c50047cbf2d51a9c55d29fa85793c6b29714648b83c8cb30d386bd151e"
+        },
+        "reign_court_navigation_button_modern": {
+          "sheetId": 5,
+          "x": 1680,
+          "y": 436,
+          "width": 270,
+          "height": 60,
+          "sourcePath": "GUI/SpriteParts/ui_reignbeta_court/reign_court_navigation_button_modern.png",
+          "sourceSha256": "88fca0c1b29dea8b3c86a395b9f9f6eba1d9d6bb27b508cd21471aeb5a2e6f8c"
+        },
+        "reign_court_office_modern_shell": {
+          "sheetId": 6,
+          "x": 4,
+          "y": 4,
+          "width": 1672,
+          "height": 941,
+          "sourcePath": "GUI/SpriteParts/ui_reignbeta_court/reign_court_office_modern_shell.png",
+          "sourceSha256": "acd6cbc010c4d0ddd1d4267c6f4cacfa26c96c2999bbf5ccad16c1c5c393b8d2"
+        }
+      }
+    },
+    "ui_reignbeta_castle_layout": {
+      "sheets": [
+        {
+          "id": 1,
+          "width": 2048,
+          "height": 2048,
+          "path": "GUI/RuntimeSpriteSheets/ui_reignbeta_castle_layout/ui_reignbeta_castle_layout_1.png",
+          "sha256": "4f99559667504632bce1c9156a13aafd9a535d6af1bc8f8cbbc301babb1926dc"
+        }
+      ],
+      "parts": {
+        "reign_castle_layout_background": {
+          "sheetId": 1,
+          "x": 4,
+          "y": 4,
+          "width": 1672,
+          "height": 941,
+          "sourcePath": "GUI/SpriteParts/ui_reignbeta_castle_layout/reign_castle_layout_background.png",
+          "sourceSha256": "ea0ac8840fa668d759f2963218f066e87ede8ab632669f3248f15de0aedb7c9c"
+        },
+        "reign_castle_layout_modern_shell": {
+          "sheetId": 1,
+          "x": 4,
+          "y": 953,
+          "width": 1672,
+          "height": 941,
+          "sourcePath": "GUI/SpriteParts/ui_reignbeta_castle_layout/reign_castle_layout_modern_shell.png",
+          "sourceSha256": "5643ef30ba00702835ba91a89b8d264e35768db3637c502dadaf11d43c676cf8"
+        },
+        "reign_castle_layout_navigation_button": {
+          "sheetId": 1,
+          "x": 4,
+          "y": 1898,
+          "width": 300,
+          "height": 75,
+          "sourcePath": "GUI/SpriteParts/ui_reignbeta_castle_layout/reign_castle_layout_navigation_button.png",
+          "sourceSha256": "156ea2d37a5f3497e585d240605bf4390e4878bd4b3ae4e98973abe118c5554e"
+        }
+      }
+    },
+    "ui_reignbeta_family_chambers": {
+      "sheets": [
+        {
+          "id": 1,
+          "width": 2048,
+          "height": 1024,
+          "path": "GUI/RuntimeSpriteSheets/ui_reignbeta_family_chambers/ui_reignbeta_family_chambers_1.png",
+          "sha256": "76e3473ccedfa94e77bafe87842b1d0e3db771987a4ef39b60a7be967138158c"
+        }
+      ],
+      "parts": {
+        "reign_family_chambers_modern_shell": {
+          "sheetId": 1,
+          "x": 4,
+          "y": 4,
+          "width": 1672,
+          "height": 941,
+          "sourcePath": "GUI/SpriteParts/ui_reignbeta_family_chambers/reign_family_chambers_modern_shell.png",
+          "sourceSha256": "454308fab5937da2e3c5169e39092ce19e67ae80b31e84dab9b82f42f548368e"
+        },
+        "reign_family_chambers_person_card": {
+          "sheetId": 1,
+          "x": 1680,
+          "y": 4,
+          "width": 322,
+          "height": 116,
+          "sourcePath": "GUI/SpriteParts/ui_reignbeta_family_chambers/reign_family_chambers_person_card.png",
+          "sourceSha256": "03529020763d7ae3e86e1fb889921c22cae532877bf9625085d3fa2191f811fe"
+        },
+        "reign_family_chambers_portrait_mask": {
+          "sheetId": 1,
+          "x": 1680,
+          "y": 128,
+          "width": 108,
+          "height": 108,
+          "sourcePath": "GUI/SpriteParts/ui_reignbeta_family_chambers/reign_family_chambers_portrait_mask.png",
+          "sourceSha256": "80cdd37500e5fa2a1a3abd15de144c6a8ba9a025ecfb9e278d9b1f5f9bb97805"
+        }
+      }
+    },
+    "ui_reignbeta_training_yard": {
+      "sheets": [
+        {
+          "id": 1,
+          "width": 2048,
+          "height": 1024,
+          "path": "GUI/RuntimeSpriteSheets/ui_reignbeta_training_yard/ui_reignbeta_training_yard_1.png",
+          "sha256": "c2cdb3ee283b4b05be7906e2b93a9f3d6894d12164a70402a0be4d9a5ff29aad"
+        }
+      ],
+      "parts": {
+        "reign_training_yard_modern_shell": {
+          "sheetId": 1,
+          "x": 4,
+          "y": 4,
+          "width": 1672,
+          "height": 941,
+          "sourcePath": "GUI/SpriteParts/ui_reignbeta_training_yard/reign_training_yard_modern_shell.png",
+          "sourceSha256": "c1321b30d7b85da6e7091a070b78570984c4f56a3e91fcda55ebedc36d21ced5"
+        }
+      }
+    },
+    "ui_reignbeta_social_event": {
+      "sheets": [
+        {
+          "id": 1,
+          "width": 4096,
+          "height": 1024,
+          "path": "GUI/RuntimeSpriteSheets/ui_reignbeta_social_event/ui_reignbeta_social_event_1.png",
+          "sha256": "ba7909ab0f85e6cde10e697be84fd89696a7f3bb6f3bae6cbd6321f38d7213d0"
+        },
+        {
+          "id": 2,
+          "width": 2048,
+          "height": 1024,
+          "path": "GUI/RuntimeSpriteSheets/ui_reignbeta_social_event/ui_reignbeta_social_event_2.png",
+          "sha256": "d71a7099e217f89032f29b91b7295d62ddd9544b855562cc3666c8b27a08b833"
+        },
+        {
+          "id": 3,
+          "width": 2048,
+          "height": 1024,
+          "path": "GUI/RuntimeSpriteSheets/ui_reignbeta_social_event/ui_reignbeta_social_event_3.png",
+          "sha256": "c5e688c9354ad411767910e11a54f73fc21b2cc2706283cea9db3505e7fdf283"
+        },
+        {
+          "id": 4,
+          "width": 1024,
+          "height": 1024,
+          "path": "GUI/RuntimeSpriteSheets/ui_reignbeta_social_event/ui_reignbeta_social_event_4.png",
+          "sha256": "7fa51f910ce527a535387eb44aec52cb54be1e7f55224202f0ab7e350cfcdcf1"
+        }
+      ],
+      "parts": {
+        "reign_social_event_background": {
+          "sheetId": 1,
+          "x": 4,
+          "y": 4,
+          "width": 1671,
+          "height": 941,
+          "sourcePath": "GUI/SpriteParts/ui_reignbeta_social_event/reign_social_event_background.png",
+          "sourceSha256": "c8a7f3097cf9b8adfcb9127d1410ea3d7ec93272e3c79290efb4eaeb7986f71d"
+        },
+        "reign_social_event_attendees_frame": {
+          "sheetId": 1,
+          "x": 1683,
+          "y": 4,
+          "width": 468,
+          "height": 929,
+          "sourcePath": "GUI/SpriteParts/ui_reignbeta_social_event/reign_social_event_attendees_frame.png",
+          "sourceSha256": "c7502dbc586a4e2447606beaca72306d2ab33eff6d841232e5a0c1840859e120"
+        },
+        "reign_social_event_header_frame": {
+          "sheetId": 1,
+          "x": 2160,
+          "y": 4,
+          "width": 1182,
+          "height": 95,
+          "sourcePath": "GUI/SpriteParts/ui_reignbeta_social_event/reign_social_event_header_frame.png",
+          "sourceSha256": "273adcb585835dab561e90b62ac7582e63ea5eae99e87a373230912541d8b985"
+        },
+        "reign_social_event_phase_frame": {
+          "sheetId": 1,
+          "x": 2160,
+          "y": 107,
+          "width": 1171,
+          "height": 89,
+          "sourcePath": "GUI/SpriteParts/ui_reignbeta_social_event/reign_social_event_phase_frame.png",
+          "sourceSha256": "5641f9bbfa95d363743202b860603824b9a0d148409d97ed4bb65dbee99befc7"
+        },
+        "reign_social_event_chat_frame": {
+          "sheetId": 1,
+          "x": 2160,
+          "y": 204,
+          "width": 1344,
+          "height": 318,
+          "sourcePath": "GUI/SpriteParts/ui_reignbeta_social_event/reign_social_event_chat_frame.png",
+          "sourceSha256": "9901b5ce861256d086fbe78a692d50ec23c1d13e07003ca5464bcced952e1f69"
+        },
+        "reign_social_event_card_frame": {
+          "sheetId": 1,
+          "x": 2160,
+          "y": 530,
+          "width": 480,
+          "height": 124,
+          "sourcePath": "GUI/SpriteParts/ui_reignbeta_social_event/reign_social_event_card_frame.png",
+          "sourceSha256": "e83e6711ea2733acf1237d1556e90e96de8fea36f3891ae3f7837669fd545016"
+        },
+        "reign_social_event_portrait_frame": {
+          "sheetId": 1,
+          "x": 2648,
+          "y": 530,
+          "width": 108,
+          "height": 104,
+          "sourcePath": "GUI/SpriteParts/ui_reignbeta_social_event/reign_social_event_portrait_frame.png",
+          "sourceSha256": "0a34a74b0f37c833d9e0b9046873f3410343a860d8f280e0d014b5ad732a50ab"
+        },
+        "reign_social_event_send_button": {
+          "sheetId": 1,
+          "x": 2764,
+          "y": 530,
+          "width": 181,
+          "height": 53,
+          "sourcePath": "GUI/SpriteParts/ui_reignbeta_social_event/reign_social_event_send_button.png",
+          "sourceSha256": "b1ba21b11388661344cfbefd525ef3f79d1e47864636cbde1aa7958204ebdb73"
+        },
+        "reign_social_event_wait_approach_button": {
+          "sheetId": 1,
+          "x": 2953,
+          "y": 530,
+          "width": 250,
+          "height": 62,
+          "sourcePath": "GUI/SpriteParts/ui_reignbeta_social_event/reign_social_event_wait_approach_button.png",
+          "sourceSha256": "230d53d851e2bfc290442dd3347035f52d6dc6782dd77d087a85f41911efa315"
+        },
+        "reign_social_event_next_phase_button": {
+          "sheetId": 1,
+          "x": 3211,
+          "y": 530,
+          "width": 249,
+          "height": 70,
+          "sourcePath": "GUI/SpriteParts/ui_reignbeta_social_event/reign_social_event_next_phase_button.png",
+          "sourceSha256": "74c62aef6d3b655b02b0bb39bf0ae8c1baa8e51ba4accb825e130ae241dce976"
+        },
+        "reign_social_event_end_event_button": {
+          "sheetId": 1,
+          "x": 3468,
+          "y": 530,
+          "width": 246,
+          "height": 66,
+          "sourcePath": "GUI/SpriteParts/ui_reignbeta_social_event/reign_social_event_end_event_button.png",
+          "sourceSha256": "0ae81858e68d9f3dca0f138baacdab311ef6245875b8a6d204f76f697f7bfe76"
+        },
+        "reign_social_event_modern_shell": {
+          "sheetId": 2,
+          "x": 4,
+          "y": 4,
+          "width": 1672,
+          "height": 941,
+          "sourcePath": "GUI/SpriteParts/ui_reignbeta_social_event/reign_social_event_modern_shell.png",
+          "sourceSha256": "1a1b9bb59edce41e844936242a7d187b1f7c045be1c5fc1996eaaa79e9f02ea2"
+        },
+        "reign_wilderness_event_modern_shell": {
+          "sheetId": 3,
+          "x": 4,
+          "y": 4,
+          "width": 1672,
+          "height": 941,
+          "sourcePath": "GUI/SpriteParts/ui_reignbeta_social_event/reign_wilderness_event_modern_shell.png",
+          "sourceSha256": "6c26d1f677db92ae97b866f9366f68a5f0fee8b87935cb96867c014df268b42a"
+        },
+        "reign_social_event_active_portrait_mask": {
+          "sheetId": 4,
+          "x": 4,
+          "y": 4,
+          "width": 112,
+          "height": 112,
+          "sourcePath": "GUI/SpriteParts/ui_reignbeta_social_event/reign_social_event_active_portrait_mask.png",
+          "sourceSha256": "bfb124faf609077c3e59da83b0c568896ecb3e5cd0a0d8e634e9a24469cc6fb6"
+        },
+        "reign_social_event_available_portrait_mask": {
+          "sheetId": 4,
+          "x": 124,
+          "y": 4,
+          "width": 112,
+          "height": 112,
+          "sourcePath": "GUI/SpriteParts/ui_reignbeta_social_event/reign_social_event_available_portrait_mask.png",
+          "sourceSha256": "f146cecb9374408eb8bdeed097bf449b0300e3d94fb3f233cd5046fa70e59576"
+        },
+        "reign_social_event_preview_oval_mask": {
+          "sheetId": 4,
+          "x": 244,
+          "y": 4,
+          "width": 512,
+          "height": 768,
+          "sourcePath": "GUI/SpriteParts/ui_reignbeta_social_event/reign_social_event_preview_oval_mask.png",
+          "sourceSha256": "81bb01f44074bcb29d7d4f3901f6a94b2e18423a7392d9b62b1c46dc4728fff0"
+        },
+        "reign_social_event_generate_portrait_icon": {
+          "sheetId": 4,
+          "x": 764,
+          "y": 4,
+          "width": 52,
+          "height": 52,
+          "sourcePath": "GUI/SpriteParts/ui_reignbeta_social_event/reign_social_event_generate_portrait_icon.png",
+          "sourceSha256": "747419c78b0e58a1da6e2cf74422a0d2e17416decf4ab1069fef243fe73819c4"
+        }
+      }
+    },
+    "ui_reignbeta_correspondence": {
+      "sheets": [
+        {
+          "id": 1,
+          "width": 4096,
+          "height": 2048,
+          "path": "GUI/RuntimeSpriteSheets/ui_reignbeta_correspondence/ui_reignbeta_correspondence_1.png",
+          "sha256": "185e1885d92d3cf3da7723dfdadd73e9aada95203931b2f185b2db7ca39ad5e5"
+        },
+        {
+          "id": 2,
+          "width": 2048,
+          "height": 1024,
+          "path": "GUI/RuntimeSpriteSheets/ui_reignbeta_correspondence/ui_reignbeta_correspondence_2.png",
+          "sha256": "5f2a967181d1789d9845cdc86775e945bd7a0675376d66fff51ae889e6700229"
+        },
+        {
+          "id": 3,
+          "width": 1024,
+          "height": 1024,
+          "path": "GUI/RuntimeSpriteSheets/ui_reignbeta_correspondence/ui_reignbeta_correspondence_3.png",
+          "sha256": "abb0fef776a091bb53e89bb6884b239c92a010739e3975af71a89d9bbc5cb161"
+        }
+      ],
+      "parts": {
+        "reign_correspondence_background": {
+          "sheetId": 1,
+          "x": 4,
+          "y": 4,
+          "width": 1608,
+          "height": 978,
+          "sourcePath": "GUI/SpriteParts/ui_reignbeta_correspondence/reign_correspondence_background.png",
+          "sourceSha256": "3fb73e4648a5ba9f283be1873a5500e4dc1d9c7f86f7405bf894a68e780f3a4a"
+        },
+        "reign_correspondence_contact_frame": {
+          "sheetId": 1,
+          "x": 1620,
+          "y": 4,
+          "width": 1548,
+          "height": 412,
+          "sourcePath": "GUI/SpriteParts/ui_reignbeta_correspondence/reign_correspondence_contact_frame.png",
+          "sourceSha256": "6f30509b0b590e2f8130742e3ea4f79b327b6f0d22ac7ace51ecbd5381c50c7a"
+        },
+        "reign_correspondence_button": {
+          "sheetId": 1,
+          "x": 3176,
+          "y": 4,
+          "width": 626,
+          "height": 164,
+          "sourcePath": "GUI/SpriteParts/ui_reignbeta_correspondence/reign_correspondence_button.png",
+          "sourceSha256": "02a227af659bd77bbd5c3ae0638811339d2f17981c7f93b9b12c067a00232062"
+        },
+        "reign_correspondence_player_letter": {
+          "sheetId": 1,
+          "x": 1620,
+          "y": 424,
+          "width": 1886,
+          "height": 292,
+          "sourcePath": "GUI/SpriteParts/ui_reignbeta_correspondence/reign_correspondence_player_letter.png",
+          "sourceSha256": "90c1f53270d69cfd4a9efcfbc9d38d49565da95dc2250d3b703b580117ddea52"
+        },
+        "reign_correspondence_npc_letter": {
+          "sheetId": 1,
+          "x": 1620,
+          "y": 724,
+          "width": 1886,
+          "height": 300,
+          "sourcePath": "GUI/SpriteParts/ui_reignbeta_correspondence/reign_correspondence_npc_letter.png",
+          "sourceSha256": "8262ab48a21d01890332cdd50aa01c1a4617ff73a545439f0ab488d9c59e4d62"
+        },
+        "reign_correspondence_scroll_track": {
+          "sheetId": 1,
+          "x": 3980,
+          "y": 4,
+          "width": 108,
+          "height": 1932,
+          "sourcePath": "GUI/SpriteParts/ui_reignbeta_correspondence/reign_correspondence_scroll_track.png",
+          "sourceSha256": "aee656a4000fa94ae4f08fb07fa0a3cdadf54558a0dc21016b163e02a3fd3a0f"
+        },
+        "reign_correspondence_scroll_handle": {
+          "sheetId": 1,
+          "x": 3868,
+          "y": 4,
+          "width": 102,
+          "height": 410,
+          "sourcePath": "GUI/SpriteParts/ui_reignbeta_correspondence/reign_correspondence_scroll_handle.png",
+          "sourceSha256": "d1bd6c506d6c552b5ed95ba8bb54bbc09a890060fa370230b1739278270da498"
+        },
+        "reign_correspondence_modern_shell": {
+          "sheetId": 2,
+          "x": 4,
+          "y": 4,
+          "width": 1672,
+          "height": 941,
+          "sourcePath": "GUI/SpriteParts/ui_reignbeta_correspondence/reign_correspondence_modern_shell.png",
+          "sourceSha256": "9220763e3fda2d22192ae3ad2eb8fc05c870dd6c16845266fe38494e734e37ee"
+        },
+        "reign_correspondence_modern_selected_contact_overlay": {
+          "sheetId": 3,
+          "x": 4,
+          "y": 4,
+          "width": 389,
+          "height": 114,
+          "sourcePath": "GUI/SpriteParts/ui_reignbeta_correspondence/reign_correspondence_modern_selected_contact_overlay.png",
+          "sourceSha256": "7db2d00a235a5cf4e2f677e2b306f21d678c8154e68ceee559b78d46f730c243"
+        },
+        "reign_correspondence_contact_portrait_mask": {
+          "sheetId": 3,
+          "x": 401,
+          "y": 4,
+          "width": 79,
+          "height": 79,
+          "sourcePath": "GUI/SpriteParts/ui_reignbeta_correspondence/reign_correspondence_contact_portrait_mask.png",
+          "sourceSha256": "7a1b2104cbe72cbb819f478aaf5e48b95ee40a7d01a3c81fd6fbfaaab6e5d7dc"
+        }
+      }
+    },
+    "ui_reignbeta_diplomacy": {
+      "sheets": [
+        {
+          "id": 1,
+          "width": 4096,
+          "height": 1024,
+          "path": "GUI/RuntimeSpriteSheets/ui_reignbeta_diplomacy/ui_reignbeta_diplomacy_1.png",
+          "sha256": "a8d163fbe780885d811b38bc92428c7dced19425d11460ef6e6c9501dd67f275"
+        },
+        {
+          "id": 2,
+          "width": 2048,
+          "height": 1024,
+          "path": "GUI/RuntimeSpriteSheets/ui_reignbeta_diplomacy/ui_reignbeta_diplomacy_2.png",
+          "sha256": "7a4dbfe95ac0efa2291bca3e6a99671eaa29c6f47096cea5f53bc5fba56c4a7a"
+        },
+        {
+          "id": 3,
+          "width": 1024,
+          "height": 1024,
+          "path": "GUI/RuntimeSpriteSheets/ui_reignbeta_diplomacy/ui_reignbeta_diplomacy_3.png",
+          "sha256": "3b9f85315c72119d2a272b430aeae878196791e36087f893b7da264b284d0a9d"
+        }
+      ],
+      "parts": {
+        "reign_diplomacy_background": {
+          "sheetId": 1,
+          "x": 4,
+          "y": 4,
+          "width": 1240,
+          "height": 760,
+          "sourcePath": "GUI/SpriteParts/ui_reignbeta_diplomacy/reign_diplomacy_background.png",
+          "sourceSha256": "2f6d145e38f214fa2c46f94131352d7bd07ff4ddb1e6a6a298bd0173a5294358"
+        },
+        "reign_diplomacy_header": {
+          "sheetId": 1,
+          "x": 1252,
+          "y": 4,
+          "width": 900,
+          "height": 240,
+          "sourcePath": "GUI/SpriteParts/ui_reignbeta_diplomacy/reign_diplomacy_header.png",
+          "sourceSha256": "a64778d59707ab139db9c8202d992a10e0d3cf876038cd26b441a6b8d348a95f"
+        },
+        "reign_diplomacy_actor_panel": {
+          "sheetId": 1,
+          "x": 2160,
+          "y": 4,
+          "width": 248,
+          "height": 520,
+          "sourcePath": "GUI/SpriteParts/ui_reignbeta_diplomacy/reign_diplomacy_actor_panel.png",
+          "sourceSha256": "d700911e68137d392dfe51ab04d74691206db483dc2890118095522b189dbd08"
+        },
+        "reign_diplomacy_target_panel": {
+          "sheetId": 1,
+          "x": 2416,
+          "y": 4,
+          "width": 248,
+          "height": 520,
+          "sourcePath": "GUI/SpriteParts/ui_reignbeta_diplomacy/reign_diplomacy_target_panel.png",
+          "sourceSha256": "6a55a38b0a28b8732611c3ee0d63c8b4d3ecd68985712cf2ca53f72cab4bf761"
+        },
+        "reign_diplomacy_center_panel": {
+          "sheetId": 1,
+          "x": 2672,
+          "y": 4,
+          "width": 632,
+          "height": 520,
+          "sourcePath": "GUI/SpriteParts/ui_reignbeta_diplomacy/reign_diplomacy_center_panel.png",
+          "sourceSha256": "137d1518af22c6a7dd2ecb6a606e6a445a5742a12f4d84f97e38e2af8ad5ee21"
+        },
+        "reign_diplomacy_portrait_frame": {
+          "sheetId": 1,
+          "x": 3312,
+          "y": 4,
+          "width": 204,
+          "height": 228,
+          "sourcePath": "GUI/SpriteParts/ui_reignbeta_diplomacy/reign_diplomacy_portrait_frame.png",
+          "sourceSha256": "3a2efd63f47dceba76be54d479d66c47587434def3daad876d48e99f33b3cc45"
+        },
+        "reign_diplomacy_banner_frame": {
+          "sheetId": 1,
+          "x": 3524,
+          "y": 4,
+          "width": 96,
+          "height": 96,
+          "sourcePath": "GUI/SpriteParts/ui_reignbeta_diplomacy/reign_diplomacy_banner_frame.png",
+          "sourceSha256": "8c1df8bb5846b465940e9f77868dc136f505a20bbb970e9247551901c19bdba5"
+        },
+        "reign_diplomacy_divider": {
+          "sheetId": 1,
+          "x": 1252,
+          "y": 252,
+          "width": 544,
+          "height": 24,
+          "sourcePath": "GUI/SpriteParts/ui_reignbeta_diplomacy/reign_diplomacy_divider.png",
+          "sourceSha256": "f2cc31fc90954c60741a3f255943e5bab71b80a3325ff5c52eb0548096b95e82"
+        },
+        "reign_diplomacy_acknowledge_button": {
+          "sheetId": 1,
+          "x": 1252,
+          "y": 284,
+          "width": 260,
+          "height": 50,
+          "sourcePath": "GUI/SpriteParts/ui_reignbeta_diplomacy/reign_diplomacy_acknowledge_button.png",
+          "sourceSha256": "1b9b68771f0bf57f52a3c9491bd418d3c133eac00b9818bb0d788426d3fcfe0b"
+        },
+        "reign_diplomacy_acknowledge_button_hover": {
+          "sheetId": 1,
+          "x": 1520,
+          "y": 284,
+          "width": 260,
+          "height": 50,
+          "sourcePath": "GUI/SpriteParts/ui_reignbeta_diplomacy/reign_diplomacy_acknowledge_button_hover.png",
+          "sourceSha256": "c4c25e157a43ee06d1c9714ffbe194a0e3070bc5ae3d03463c326be989a3107b"
+        },
+        "reign_diplomacy_portrait_overlay_v2": {
+          "sheetId": 1,
+          "x": 1252,
+          "y": 342,
+          "width": 420,
+          "height": 440,
+          "sourcePath": "GUI/SpriteParts/ui_reignbeta_diplomacy/reign_diplomacy_portrait_overlay_v2.png",
+          "sourceSha256": "8e0eb1ddc75aaaa2d88c458fc52bfbb65c996413b8dbc7947e8abcb856929fa2"
+        },
+        "reign_diplomacy_banner_wreath_overlay_v2": {
+          "sheetId": 1,
+          "x": 1680,
+          "y": 342,
+          "width": 192,
+          "height": 192,
+          "sourcePath": "GUI/SpriteParts/ui_reignbeta_diplomacy/reign_diplomacy_banner_wreath_overlay_v2.png",
+          "sourceSha256": "49a850b866611a0739f2411fbcf4c2dfda64f1a447160d202f4f0dedfed10cb5"
+        },
+        "reign_diplomacy_modern_shell": {
+          "sheetId": 2,
+          "x": 4,
+          "y": 4,
+          "width": 1672,
+          "height": 941,
+          "sourcePath": "GUI/SpriteParts/ui_reignbeta_diplomacy/reign_diplomacy_modern_shell.png",
+          "sourceSha256": "b3dc408d3a2f97a8e06b1f387387b5af7be68b1a62e05807424c98848b00e70e"
+        },
+        "reign_diplomacy_actor_portrait_mask": {
+          "sheetId": 3,
+          "x": 4,
+          "y": 4,
+          "width": 162,
+          "height": 263,
+          "sourcePath": "GUI/SpriteParts/ui_reignbeta_diplomacy/reign_diplomacy_actor_portrait_mask.png",
+          "sourceSha256": "0a06c2e80eb5394c2b3dee9605edbe170f3e37d090d0057e7fbd4e9b04fe9393"
+        },
+        "reign_diplomacy_target_portrait_mask": {
+          "sheetId": 3,
+          "x": 174,
+          "y": 4,
+          "width": 162,
+          "height": 263,
+          "sourcePath": "GUI/SpriteParts/ui_reignbeta_diplomacy/reign_diplomacy_target_portrait_mask.png",
+          "sourceSha256": "cdd9361ecac619101a0c9dc1c5aee6cd4a1d3193cecf40ff6131b0c1cfc42483"
+        }
+      }
+    },
+    "ui_reignbeta_generation": {
+      "sheets": [
+        {
+          "id": 1,
+          "width": 2048,
+          "height": 1024,
+          "path": "GUI/RuntimeSpriteSheets/ui_reignbeta_generation/ui_reignbeta_generation_1.png",
+          "sha256": "518f2e5ea728c0177f79f2305c1df13dbe19f781bff4b60ce1b27aa47ffd98a6"
+        }
+      ],
+      "parts": {
+        "reign_notable_generation_popup": {
+          "sheetId": 1,
+          "x": 4,
+          "y": 4,
+          "width": 1672,
+          "height": 941,
+          "sourcePath": "GUI/SpriteParts/ui_reignbeta_generation/reign_notable_generation_popup.png",
+          "sourceSha256": "61234d4978beee9a0abd289433cfcb343646807b1a48d389122674ef0bc2c4a7"
+        }
+      }
+    },
+    "ui_reignbeta_economic_report": {
+      "sheets": [
+        {
+          "id": 1,
+          "width": 2048,
+          "height": 1024,
+          "path": "GUI/RuntimeSpriteSheets/ui_reignbeta_economic_report/ui_reignbeta_economic_report_1.png",
+          "sha256": "0395c2d20aee5c970ca26ec705f2f96bb6d76ca8f7354d8b4a9fa87c06c5006b"
+        },
+        {
+          "id": 2,
+          "width": 2048,
+          "height": 1024,
+          "path": "GUI/RuntimeSpriteSheets/ui_reignbeta_economic_report/ui_reignbeta_economic_report_2.png",
+          "sha256": "470fbc38bcf99f6f0e5f2424241bac5b24540ba4dbe85966d7d12b9ab3c120f1"
+        }
+      ],
+      "parts": {
+        "reign_economic_report_background": {
+          "sheetId": 1,
+          "x": 4,
+          "y": 4,
+          "width": 1678,
+          "height": 937,
+          "sourcePath": "GUI/SpriteParts/ui_reignbeta_economic_report/reign_economic_report_background.png",
+          "sourceSha256": "e240a16b121ede469b37bda2a09514906e1c720983026a92e07278b91bf77c40"
+        },
+        "reign_economic_report_modern_shell": {
+          "sheetId": 2,
+          "x": 4,
+          "y": 4,
+          "width": 1672,
+          "height": 941,
+          "sourcePath": "GUI/SpriteParts/ui_reignbeta_economic_report/reign_economic_report_modern_shell.png",
+          "sourceSha256": "1a17aedda0875e08c81e466c9ae6c92667d1fb4783b2765a05ed7f51b02bb83e"
+        },
+        "reign_economic_advisor_portrait_mask": {
+          "sheetId": 2,
+          "x": 1680,
+          "y": 4,
+          "width": 297,
+          "height": 320,
+          "sourcePath": "GUI/SpriteParts/ui_reignbeta_economic_report/reign_economic_advisor_portrait_mask.png",
+          "sourceSha256": "b2d2446f749dea2687b91918012a910da2f5a2d7a75e87f3f3cd61621c11a21a"
+        }
+      }
+    },
+    "ui_reignbeta_war_council": {
+      "sheets": [
+        {
+          "id": 1,
+          "width": 2048,
+          "height": 1024,
+          "path": "GUI/RuntimeSpriteSheets/ui_reignbeta_war_council/ui_reignbeta_war_council_1.png",
+          "sha256": "c748d217efc02c4301e5c78eef5bf7f40c8921d7b19023b1765f17eb3eebc423"
+        },
+        {
+          "id": 2,
+          "width": 1024,
+          "height": 1024,
+          "path": "GUI/RuntimeSpriteSheets/ui_reignbeta_war_council/ui_reignbeta_war_council_2.png",
+          "sha256": "ec9c6262c8118d0be8a57a41f21f2bffaec06eff4464bbef828e8a7bb9305d36"
+        }
+      ],
+      "parts": {
+        "reign_war_council_modern_shell": {
+          "sheetId": 1,
+          "x": 4,
+          "y": 4,
+          "width": 1672,
+          "height": 941,
+          "sourcePath": "GUI/SpriteParts/ui_reignbeta_war_council/reign_war_council_modern_shell.png",
+          "sourceSha256": "256c48c293762743b3315bd54482ef60db7b6281ef9a57461c3599040d8df94e"
+        },
+        "reign_war_council_lord_portrait_mask": {
+          "sheetId": 2,
+          "x": 4,
+          "y": 4,
+          "width": 113,
+          "height": 127,
+          "sourcePath": "GUI/SpriteParts/ui_reignbeta_war_council/reign_war_council_lord_portrait_mask.png",
+          "sourceSha256": "5d8139d4d7655e855f70e78c43df34ebf8473693b6809c677c8b6d8c676d8ba2"
+        },
+        "reign_war_council_assigned_portrait_mask": {
+          "sheetId": 2,
+          "x": 125,
+          "y": 4,
+          "width": 122,
+          "height": 207,
+          "sourcePath": "GUI/SpriteParts/ui_reignbeta_war_council/reign_war_council_assigned_portrait_mask.png",
+          "sourceSha256": "5914136b5fc359b17b6f0db6f7244bbfa110f3bb8bc0bb621653bba75cbc7367"
+        },
+        "reign_war_council_candidate_portrait_mask": {
+          "sheetId": 2,
+          "x": 255,
+          "y": 4,
+          "width": 54,
+          "height": 54,
+          "sourcePath": "GUI/SpriteParts/ui_reignbeta_war_council/reign_war_council_candidate_portrait_mask.png",
+          "sourceSha256": "63c591e3846456cdf67c92bed1f9993a7cff43d9f213a35685c5eb35c5e2c24a"
+        },
+        "reign_war_council_lord_portrait_mask_active": {
+          "sheetId": 2,
+          "x": 317,
+          "y": 4,
+          "width": 113,
+          "height": 127,
+          "sourcePath": "GUI/SpriteParts/ui_reignbeta_war_council/reign_war_council_lord_portrait_mask_active.png",
+          "sourceSha256": "95209382776af67feae51b2ab279450ecc8ffa4ca49399215fe4d17f349ab98a"
+        },
+        "reign_war_council_lord_card_overlay": {
+          "sheetId": 2,
+          "x": 438,
+          "y": 4,
+          "width": 417,
+          "height": 147,
+          "sourcePath": "GUI/SpriteParts/ui_reignbeta_war_council/reign_war_council_lord_card_overlay.png",
+          "sourceSha256": "df7fe097cd0f97d330bd5ba9c2eda67b7c8d99f9c235a29e83cc59fd3d8f6e32"
+        },
+        "reign_war_council_assigned_card_overlay": {
+          "sheetId": 2,
+          "x": 4,
+          "y": 219,
+          "width": 438,
+          "height": 207,
+          "sourcePath": "GUI/SpriteParts/ui_reignbeta_war_council/reign_war_council_assigned_card_overlay.png",
+          "sourceSha256": "c361ec967ba15dd34cd65948d5bf2414d488ac93e38cce184d3872e2bb1f3b06"
+        },
+        "reign_war_raven_card_icon": {
+          "sheetId": 2,
+          "x": 450,
+          "y": 219,
+          "width": 46,
+          "height": 46,
+          "sourcePath": "GUI/SpriteParts/ui_reignbeta_war_council/reign_war_raven_card_icon.png",
+          "sourceSha256": "cf7b0fcaed387d391b660b101ff30c6a8eaaa6d6636368d9fd4f633b921ccb4b"
+        }
+      }
+    },
+    "ui_reignbeta_ambassador": {
+      "sheets": [
+        {
+          "id": 1,
+          "width": 4096,
+          "height": 2048,
+          "path": "GUI/RuntimeSpriteSheets/ui_reignbeta_ambassador/ui_reignbeta_ambassador_1.png",
+          "sha256": "bbc98c7c7d72f3b29d98cbc4f22d83010def2b89fe8749964facacd2fe76b142"
+        },
+        {
+          "id": 2,
+          "width": 2048,
+          "height": 1024,
+          "path": "GUI/RuntimeSpriteSheets/ui_reignbeta_ambassador/ui_reignbeta_ambassador_2.png",
+          "sha256": "94b3bdba909d96cab24f711e5cad036b3862562cdf3468906608c188c1cf5c51"
+        },
+        {
+          "id": 3,
+          "width": 1024,
+          "height": 1024,
+          "path": "GUI/RuntimeSpriteSheets/ui_reignbeta_ambassador/ui_reignbeta_ambassador_3.png",
+          "sha256": "4d096f152a02f71cfda670bbbff5f93f0d0509f8465110df2881479805f998db"
+        },
+        {
+          "id": 4,
+          "width": 2048,
+          "height": 1024,
+          "path": "GUI/RuntimeSpriteSheets/ui_reignbeta_ambassador/ui_reignbeta_ambassador_4.png",
+          "sha256": "d01ca66acde32cf5c0eacb3f1c1599fced3e83ece33e50c1fff278a6d81f2779"
+        }
+      ],
+      "parts": {
+        "reign_ambassador_hall": {
+          "sheetId": 1,
+          "x": 4,
+          "y": 4,
+          "width": 1672,
+          "height": 941,
+          "sourcePath": "GUI/SpriteParts/ui_reignbeta_ambassador/reign_ambassador_hall.png",
+          "sourceSha256": "9bc609e41321df8e7dacf9ed5f0a8ab69f4ead5e2b28a52a6e3d9e5ca910a40a"
+        },
+        "reign_ambassador_card_overlay": {
+          "sheetId": 1,
+          "x": 1684,
+          "y": 4,
+          "width": 775,
+          "height": 2029,
+          "sourcePath": "GUI/SpriteParts/ui_reignbeta_ambassador/reign_ambassador_card_overlay.png",
+          "sourceSha256": "31c4a579b678ebf59c4ce97efecb9fa9a85833c31ff06fab69f97f93df147b83"
+        },
+        "reign_ambassador_banner_overlay": {
+          "sheetId": 1,
+          "x": 2467,
+          "y": 4,
+          "width": 681,
+          "height": 1088,
+          "sourcePath": "GUI/SpriteParts/ui_reignbeta_ambassador/reign_ambassador_banner_overlay.png",
+          "sourceSha256": "11e4f7c6e792210b6ca65aef03db3ef54509d2b42c9b9b16d3390a0b6299d440"
+        },
+        "reign_ambassador_modern_shell": {
+          "sheetId": 2,
+          "x": 4,
+          "y": 4,
+          "width": 1672,
+          "height": 941,
+          "sourcePath": "GUI/SpriteParts/ui_reignbeta_ambassador/reign_ambassador_modern_shell.png",
+          "sourceSha256": "d3aacdd5b0bba6ff77db612e6afb2cc0664ac00ee4045f36a9764bb78f4d3e21"
+        },
+        "reign_ambassador_modern_card_overlay": {
+          "sheetId": 2,
+          "x": 1680,
+          "y": 4,
+          "width": 280,
+          "height": 626,
+          "sourcePath": "GUI/SpriteParts/ui_reignbeta_ambassador/reign_ambassador_modern_card_overlay.png",
+          "sourceSha256": "98897115808d26f48dfc2f328963dbb8ea09c463335b50192907b42cab5cb873"
+        },
+        "reign_ambassador_modern_advisor_card_overlay": {
+          "sheetId": 3,
+          "x": 4,
+          "y": 4,
+          "width": 294,
+          "height": 620,
+          "sourcePath": "GUI/SpriteParts/ui_reignbeta_ambassador/reign_ambassador_modern_advisor_card_overlay.png",
+          "sourceSha256": "4a7b0fec09abf54dec35d36db784b76f02e246a236a022372ed27dc7b4fdf9ab"
+        },
+        "reign_ambassador_modern_envoy_card_overlay": {
+          "sheetId": 3,
+          "x": 306,
+          "y": 4,
+          "width": 295,
+          "height": 620,
+          "sourcePath": "GUI/SpriteParts/ui_reignbeta_ambassador/reign_ambassador_modern_envoy_card_overlay.png",
+          "sourceSha256": "401130bea8d1d91e2d126b83439efdc6c135c8c05c6beedc9e6f936ca6673673"
+        },
+        "reign_ambassador_modern_scroll_handle": {
+          "sheetId": 3,
+          "x": 609,
+          "y": 4,
+          "width": 260,
+          "height": 15,
+          "sourcePath": "GUI/SpriteParts/ui_reignbeta_ambassador/reign_ambassador_modern_scroll_handle.png",
+          "sourceSha256": "aaa5ed56fa4e8b75fb54f8247b568241d6e21e0c9e05f522e88db103cef16e48"
+        },
+        "reign_ambassador_modern_fixed_overlay": {
+          "sheetId": 4,
+          "x": 4,
+          "y": 4,
+          "width": 1672,
+          "height": 941,
+          "sourcePath": "GUI/SpriteParts/ui_reignbeta_ambassador/reign_ambassador_modern_fixed_overlay.png",
+          "sourceSha256": "9e44d880006f23d6ab2fc7310afe49a50b3a27ecdf9f1a8fe5912c7e07273dbb"
+        }
+      }
+    },
+    "ui_reignbeta_spymaster": {
+      "sheets": [
+        {
+          "id": 1,
+          "width": 4096,
+          "height": 1024,
+          "path": "GUI/RuntimeSpriteSheets/ui_reignbeta_spymaster/ui_reignbeta_spymaster_1.png",
+          "sha256": "ef2f0a90c333b92de2abde49aabd7a43dada37e32ed9179799d93e065003a30d"
+        }
+      ],
+      "parts": {
+        "reign_spymaster_background": {
+          "sheetId": 1,
+          "x": 4,
+          "y": 4,
+          "width": 1672,
+          "height": 941,
+          "sourcePath": "GUI/SpriteParts/ui_reignbeta_spymaster/reign_spymaster_background.png",
+          "sourceSha256": "5a774e9af2f24911d88325fe7d21e86a8bab6109dfbd41fadf4678ac62c8ecd7"
+        },
+        "reign_spymaster_portrait_frame_overlay": {
+          "sheetId": 1,
+          "x": 1684,
+          "y": 4,
+          "width": 529,
+          "height": 940,
+          "sourcePath": "GUI/SpriteParts/ui_reignbeta_spymaster/reign_spymaster_portrait_frame_overlay.png",
+          "sourceSha256": "92a7ab136e8e864a73e64bf7f6100fbba1cbdd00330ccfe1520e412d0f2aa22c"
+        },
+        "reign_spymaster_modern_shell": {
+          "sheetId": 1,
+          "x": 2221,
+          "y": 4,
+          "width": 1672,
+          "height": 941,
+          "sourcePath": "GUI/SpriteParts/ui_reignbeta_spymaster/reign_spymaster_modern_shell.png",
+          "sourceSha256": "7ed898760443987aae9d086cf805f18ed189891de640ead72d6079ede3be1fee"
+        },
+        "reign_spymaster_selector_plate": {
+          "sheetId": 1,
+          "x": 3900,
+          "y": 4,
+          "width": 190,
+          "height": 60,
+          "sourcePath": "GUI/SpriteParts/ui_reignbeta_spymaster/reign_spymaster_selector_plate.png",
+          "sourceSha256": "8f24180fb88857c43f528d81cf94514912211940b327234dbb98653a6bd78383"
+        },
+        "reign_spymaster_scope_clear_patch": {
+          "sheetId": 1,
+          "x": 4,
+          "y": 950,
+          "width": 340,
+          "height": 50,
+          "sourcePath": "GUI/SpriteParts/ui_reignbeta_spymaster/reign_spymaster_scope_clear_patch.png",
+          "sourceSha256": "33c3b74d717ddc98d21022fb2e7f1adc65dbb733c6d5177745cec28572eda3b7"
+        }
+      }
+    },
+    "ui_reignbeta_calibration": {
+      "sheets": [
+        {
+          "id": 1,
+          "width": 1024,
+          "height": 1024,
+          "path": "GUI/RuntimeSpriteSheets/ui_reignbeta_calibration/ui_reignbeta_calibration_1.png",
+          "sha256": "761dc20a8ca80d8ba8d67de0bf8f72370ea5cef567531c8828df6286eb180bf4"
+        }
+      ],
+      "parts": {
+        "reign_calibration_modern_panel": {
+          "sheetId": 1,
+          "x": 4,
+          "y": 4,
+          "width": 440,
+          "height": 637,
+          "sourcePath": "GUI/SpriteParts/ui_reignbeta_calibration/reign_calibration_modern_panel.png",
+          "sourceSha256": "ecd40e51ac8568c32ceb70d98dc5a0680f17c1400620b9c72e9b6c39daeccc59"
+        },
+        "reign_calibration_modern_launcher": {
+          "sheetId": 1,
+          "x": 452,
+          "y": 4,
+          "width": 286,
+          "height": 50,
+          "sourcePath": "GUI/SpriteParts/ui_reignbeta_calibration/reign_calibration_modern_launcher.png",
+          "sourceSha256": "252632999c2dc503f47ce267e1a29184000c6c064349d9e28aa76263b01d2c33"
+        }
+      }
+    },
+    "ui_reignbeta_royal_council": {
+      "sheets": [
+        {
+          "id": 1,
+          "width": 2048,
+          "height": 2048,
+          "path": "GUI/RuntimeSpriteSheets/ui_reignbeta_royal_council/ui_reignbeta_royal_council_1.png",
+          "sha256": "df3bead8ccaeff3e83a201b153f887abedbe9f6837a12866d6ac1879c07a59da"
+        }
+      ],
+      "parts": {
+        "reign_royal_council_modern_shell": {
+          "sheetId": 1,
+          "x": 4,
+          "y": 949,
+          "width": 1672,
+          "height": 941,
+          "sourcePath": "GUI/SpriteParts/ui_reignbeta_royal_council/reign_royal_council_modern_shell.png",
+          "sourceSha256": "4333fa197aa0b4dece747f948150cdb36762ab5f8b1749e525c339ad785a924c"
+        },
+        "reign_royal_council_war_portrait_mask": {
+          "sheetId": 1,
+          "x": 1680,
+          "y": 4,
+          "width": 258,
+          "height": 320,
+          "sourcePath": "GUI/SpriteParts/ui_reignbeta_royal_council/reign_royal_council_war_portrait_mask.png",
+          "sourceSha256": "72efde31e09fca595563757665ffb25be3a6e46c8c4462cf478128e533d70738"
+        },
+        "reign_royal_council_spymaster_portrait_mask": {
+          "sheetId": 1,
+          "x": 1680,
+          "y": 328,
+          "width": 257,
+          "height": 307,
+          "sourcePath": "GUI/SpriteParts/ui_reignbeta_royal_council/reign_royal_council_spymaster_portrait_mask.png",
+          "sourceSha256": "09d8bad40dc459158a3c889f8db9af8f84ea6ed8dba5cd8d1a2506035c7dce93"
+        },
+        "reign_royal_council_economic_portrait_mask": {
+          "sheetId": 1,
+          "x": 1680,
+          "y": 639,
+          "width": 256,
+          "height": 318,
+          "sourcePath": "GUI/SpriteParts/ui_reignbeta_royal_council/reign_royal_council_economic_portrait_mask.png",
+          "sourceSha256": "2b29c4273c59caeeb933c9e03f8fc7bc7cef69fc4a0f8d40fa566d3c4cd4c20a"
+        },
+        "reign_royal_council_foreign_portrait_mask": {
+          "sheetId": 1,
+          "x": 1680,
+          "y": 961,
+          "width": 255,
+          "height": 305,
+          "sourcePath": "GUI/SpriteParts/ui_reignbeta_royal_council/reign_royal_council_foreign_portrait_mask.png",
+          "sourceSha256": "08c7e90179c8e0bded8b0ea2b7d1b6c459d99358353bf83a173af81aa3ab82a8"
+        }
+      }
+    },
+    "ui_reignbeta_memories": {
+      "sheets": [
+        {
+          "id": 1,
+          "width": 2048,
+          "height": 1024,
+          "path": "GUI/RuntimeSpriteSheets/ui_reignbeta_memories/ui_reignbeta_memories_1.png",
+          "sha256": "ff9b15aed7ef829f9399f31ecb8c4cad37cee90242fb57b9e2a2bc9492d754c2"
+        }
+      ],
+      "parts": {
+        "reign_memories_book_modern_shell": {
+          "sheetId": 1,
+          "x": 4,
+          "y": 4,
+          "width": 1672,
+          "height": 941,
+          "sourcePath": "GUI/SpriteParts/ui_reignbeta_memories/reign_memories_book_modern_shell.png",
+          "sourceSha256": "ddceecf084acd0ea533e8cd25671adbe7d2fc1a73ffb0ae820f7e95c72f9afe2"
+        }
+      }
+    },
+    "ui_reignbeta_government": {
+      "sheets": [
+        {
+          "id": 1,
+          "width": 2048,
+          "height": 2048,
+          "path": "GUI/RuntimeSpriteSheets/ui_reignbeta_government/ui_reignbeta_government_1.png",
+          "sha256": "ec68514bd8bafd6d579432af191b40b4e6d3bc1abd0a84d0be31d5a163a18243"
+        }
+      ],
+      "parts": {
+        "reign_government_hearing_shell": {
+          "sheetId": 1,
+          "x": 4,
+          "y": 4,
+          "width": 1672,
+          "height": 941,
+          "sourcePath": "GUI/SpriteParts/ui_reignbeta_government/reign_government_hearing_shell.png",
+          "sourceSha256": "5078530b68249f4a9c26edcc48667c9839fbeb1f7391a8921cc4859424e6168b"
+        },
+        "reign_government_party_card": {
+          "sheetId": 1,
+          "x": 1684,
+          "y": 4,
+          "width": 340,
+          "height": 180,
+          "sourcePath": "GUI/SpriteParts/ui_reignbeta_government/reign_government_party_card.png",
+          "sourceSha256": "7255829c46a49faecb7832683e40a7bdfd9ad84bfa17a27d79cb378e322559ed"
+        },
+        "reign_government_directory_card": {
+          "sheetId": 1,
+          "x": 4,
+          "y": 953,
+          "width": 840,
+          "height": 110,
+          "sourcePath": "GUI/SpriteParts/ui_reignbeta_government/reign_government_directory_card.png",
+          "sourceSha256": "b7303036fb232e4392754225e0cbf2532319c92e74c8d081758915184d995401"
+        },
+        "reign_government_participant_card": {
+          "sheetId": 1,
+          "x": 852,
+          "y": 953,
+          "width": 340,
+          "height": 110,
+          "sourcePath": "GUI/SpriteParts/ui_reignbeta_government/reign_government_participant_card.png",
+          "sourceSha256": "404d53d572c7319492ee86f5ff1eff6f19225bccd0e373db3a66a14e4c19731a"
+        },
+        "reign_government_obligation_card": {
+          "sheetId": 1,
+          "x": 1200,
+          "y": 953,
+          "width": 840,
+          "height": 100,
+          "sourcePath": "GUI/SpriteParts/ui_reignbeta_government/reign_government_obligation_card.png",
+          "sourceSha256": "2aeb148feb2e7889e2129a9de618f4f04151fc9d820a02d655ae7f19cb08ff70"
+        },
+        "reign_government_issue_person_card": {
+          "sheetId": 1,
+          "x": 4,
+          "y": 1071,
+          "width": 308,
+          "height": 100,
+          "sourcePath": "GUI/SpriteParts/ui_reignbeta_government/reign_government_issue_person_card.png",
+          "sourceSha256": "ec220e788f904aff73f9f0049fde5edf894c9e732835f883c38879b105b4d47e"
+        },
+        "reign_government_attendance_card": {
+          "sheetId": 1,
+          "x": 320,
+          "y": 1071,
+          "width": 340,
+          "height": 98,
+          "sourcePath": "GUI/SpriteParts/ui_reignbeta_government/reign_government_attendance_card.png",
+          "sourceSha256": "130d1e78a706e38fb84b5d7d3455aced6353703c1dc886f6e9623962526cffc9"
+        },
+        "reign_government_private_card": {
+          "sheetId": 1,
+          "x": 668,
+          "y": 1071,
+          "width": 340,
+          "height": 90,
+          "sourcePath": "GUI/SpriteParts/ui_reignbeta_government/reign_government_private_card.png",
+          "sourceSha256": "50213bf5bc1aefa549047280f6bbfc19c16d14d0747049d803cb6b429ddd32fb"
+        },
+        "reign_government_business_card": {
+          "sheetId": 1,
+          "x": 1016,
+          "y": 1071,
+          "width": 340,
+          "height": 84,
+          "sourcePath": "GUI/SpriteParts/ui_reignbeta_government/reign_government_business_card.png",
+          "sourceSha256": "2274dfc55a5d7c09eceb392f531e88528eed67096f605584bf298e176029b93d"
+        },
+        "reign_government_business_selected": {
+          "sheetId": 1,
+          "x": 1364,
+          "y": 1071,
+          "width": 340,
+          "height": 84,
+          "sourcePath": "GUI/SpriteParts/ui_reignbeta_government/reign_government_business_selected.png",
+          "sourceSha256": "e8d5686d1b543e76463a07f8eec5c4c9e52f2483c63e0ce1fd21c936707352b5"
+        },
+        "reign_government_business_policy": {
+          "sheetId": 1,
+          "x": 4,
+          "y": 1179,
+          "width": 340,
+          "height": 84,
+          "sourcePath": "GUI/SpriteParts/ui_reignbeta_government/reign_government_business_policy.png",
+          "sourceSha256": "a979d29713104cd533be5885ab4d1c976c9f068415dcd7171485b9aeae6cc841"
+        },
+        "reign_government_business_policy_selected": {
+          "sheetId": 1,
+          "x": 352,
+          "y": 1179,
+          "width": 340,
+          "height": 84,
+          "sourcePath": "GUI/SpriteParts/ui_reignbeta_government/reign_government_business_policy_selected.png",
+          "sourceSha256": "b3a6e7645e8ff4f37f20036a19f6a853044ee2548e868c5687b31ea458caa232"
+        },
+        "reign_government_business_fief": {
+          "sheetId": 1,
+          "x": 700,
+          "y": 1179,
+          "width": 340,
+          "height": 84,
+          "sourcePath": "GUI/SpriteParts/ui_reignbeta_government/reign_government_business_fief.png",
+          "sourceSha256": "b651742b23eae994381fafdb46b167ec42b1ddd8b9fc852dd81f7d4107c7e6a3"
+        },
+        "reign_government_business_fief_selected": {
+          "sheetId": 1,
+          "x": 1048,
+          "y": 1179,
+          "width": 340,
+          "height": 84,
+          "sourcePath": "GUI/SpriteParts/ui_reignbeta_government/reign_government_business_fief_selected.png",
+          "sourceSha256": "a3f852da4df5e5c545fe17476f4ed3e989f6f672225a5b16a8be51bd1424ce7e"
+        },
+        "reign_government_business_diplomacy": {
+          "sheetId": 1,
+          "x": 1396,
+          "y": 1179,
+          "width": 340,
+          "height": 84,
+          "sourcePath": "GUI/SpriteParts/ui_reignbeta_government/reign_government_business_diplomacy.png",
+          "sourceSha256": "83008f3d0e65b0306749eb6ed521cda71e66ab49cd42936e3a4284db278cec00"
+        },
+        "reign_government_business_diplomacy_selected": {
+          "sheetId": 1,
+          "x": 4,
+          "y": 1271,
+          "width": 340,
+          "height": 84,
+          "sourcePath": "GUI/SpriteParts/ui_reignbeta_government/reign_government_business_diplomacy_selected.png",
+          "sourceSha256": "953a9cf139dcf543169e2ab6624e114625b4cba03b250c41b84b129792feaafa"
+        },
+        "reign_government_business_seasonal": {
+          "sheetId": 1,
+          "x": 352,
+          "y": 1271,
+          "width": 340,
+          "height": 84,
+          "sourcePath": "GUI/SpriteParts/ui_reignbeta_government/reign_government_business_seasonal.png",
+          "sourceSha256": "e3bbc6ddcea76aa3b16498ed9dd13ca090970deb3cb607d2ba0ef3634a0a3af5"
+        },
+        "reign_government_business_seasonal_selected": {
+          "sheetId": 1,
+          "x": 700,
+          "y": 1271,
+          "width": 340,
+          "height": 84,
+          "sourcePath": "GUI/SpriteParts/ui_reignbeta_government/reign_government_business_seasonal_selected.png",
+          "sourceSha256": "505e434bb7d0e304afb913e52d04e03f4bd30143f343ca4b67345277cf98e5c3"
+        },
+        "reign_government_transcript_card": {
+          "sheetId": 1,
+          "x": 1048,
+          "y": 1271,
+          "width": 840,
+          "height": 72,
+          "sourcePath": "GUI/SpriteParts/ui_reignbeta_government/reign_government_transcript_card.png",
+          "sourceSha256": "8c96a36a2adf488fbf565e434fe590645740cdc787a47f686231adcea0046be7"
+        },
+        "reign_government_action_group": {
+          "sheetId": 1,
+          "x": 4,
+          "y": 1363,
+          "width": 641,
+          "height": 70,
+          "sourcePath": "GUI/SpriteParts/ui_reignbeta_government/reign_government_action_group.png",
+          "sourceSha256": "ceb1abf236d1373b8286226939d815a7132389ffebf10f37494c2d12e6aeab2a"
+        },
+        "reign_government_option_card": {
+          "sheetId": 1,
+          "x": 653,
+          "y": 1363,
+          "width": 414,
+          "height": 65,
+          "sourcePath": "GUI/SpriteParts/ui_reignbeta_government/reign_government_option_card.png",
+          "sourceSha256": "ffd827ae80725029b6be99640129f8df2226209d3d248fa90060597febd5626e"
+        },
+        "reign_government_option_selected": {
+          "sheetId": 1,
+          "x": 1075,
+          "y": 1363,
+          "width": 414,
+          "height": 65,
+          "sourcePath": "GUI/SpriteParts/ui_reignbeta_government/reign_government_option_selected.png",
+          "sourceSha256": "ffd827ae80725029b6be99640129f8df2226209d3d248fa90060597febd5626e"
+        },
+        "reign_government_button_selected": {
+          "sheetId": 1,
+          "x": 1497,
+          "y": 1363,
+          "width": 326,
+          "height": 57,
+          "sourcePath": "GUI/SpriteParts/ui_reignbeta_government/reign_government_button_selected.png",
+          "sourceSha256": "176992850e9a9322ec5f0d5069c07a162dfd8f1761740893ccfd4cca2a277a04"
+        },
+        "reign_government_button": {
+          "sheetId": 1,
+          "x": 4,
+          "y": 1441,
+          "width": 280,
+          "height": 50,
+          "sourcePath": "GUI/SpriteParts/ui_reignbeta_government/reign_government_button.png",
+          "sourceSha256": "99932ff15dd39941682bab1c888a4f52b011567e1279710fa665d44e3bb557d3"
+        },
+        "reign_government_postpone_button": {
+          "sheetId": 1,
+          "x": 292,
+          "y": 1441,
+          "width": 280,
+          "height": 50,
+          "sourcePath": "GUI/SpriteParts/ui_reignbeta_government/reign_government_postpone_button.png",
+          "sourceSha256": "c44ae70f90b81dc85811dc8f9886d599abdfd4b6d194dff41b5cd1d7fb553859"
+        },
+        "reign_government_recommendation": {
+          "sheetId": 1,
+          "x": 580,
+          "y": 1441,
+          "width": 414,
+          "height": 47,
+          "sourcePath": "GUI/SpriteParts/ui_reignbeta_government/reign_government_recommendation.png",
+          "sourceSha256": "65191aad8a01dc47c778ba829c8e3206d896dbb47f1b0a7e614a00f5d8bb13be"
+        },
+        "reign_government_recommendation_selected": {
+          "sheetId": 1,
+          "x": 1002,
+          "y": 1441,
+          "width": 414,
+          "height": 47,
+          "sourcePath": "GUI/SpriteParts/ui_reignbeta_government/reign_government_recommendation_selected.png",
+          "sourceSha256": "534a3ab38c58e619268d5a8a75578b040a66d3201ff11106d4c64ae223c43247"
+        },
+        "reign_government_view_members_button": {
+          "sheetId": 1,
+          "x": 1424,
+          "y": 1441,
+          "width": 338,
+          "height": 46,
+          "sourcePath": "GUI/SpriteParts/ui_reignbeta_government/reign_government_view_members_button.png",
+          "sourceSha256": "02a1da169fa27908afee783c7fc211183119b3df4fa3fe6a49d558f61369af08"
+        },
+        "reign_government_tab_archive": {
+          "sheetId": 1,
+          "x": 1770,
+          "y": 1441,
+          "width": 199,
+          "height": 45,
+          "sourcePath": "GUI/SpriteParts/ui_reignbeta_government/reign_government_tab_archive.png",
+          "sourceSha256": "c7dfe791400e6aea85190e2cec8d4fcce342cfb1411a850bf7f218dc263a5d24"
+        },
+        "reign_government_tab_archive_selected": {
+          "sheetId": 1,
+          "x": 4,
+          "y": 1499,
+          "width": 199,
+          "height": 45,
+          "sourcePath": "GUI/SpriteParts/ui_reignbeta_government/reign_government_tab_archive_selected.png",
+          "sourceSha256": "0f5b4605696afb31e078a4932ec791b78faa7820f14c68cccbd0ee13a85d9f6a"
+        },
+        "reign_government_tab_members": {
+          "sheetId": 1,
+          "x": 211,
+          "y": 1499,
+          "width": 197,
+          "height": 45,
+          "sourcePath": "GUI/SpriteParts/ui_reignbeta_government/reign_government_tab_members.png",
+          "sourceSha256": "bca9f902ca547a07fb5ab9ecfaf95c82d3dad9d8c81b219122e1500f77221a81"
+        },
+        "reign_government_tab_members_selected": {
+          "sheetId": 1,
+          "x": 416,
+          "y": 1499,
+          "width": 197,
+          "height": 45,
+          "sourcePath": "GUI/SpriteParts/ui_reignbeta_government/reign_government_tab_members_selected.png",
+          "sourceSha256": "85a0862a9c9eb7a24553af8bcc2e0b03d7545f5cf4b3ddcd54f509419fd9ab2f"
+        },
+        "reign_government_tab_business": {
+          "sheetId": 1,
+          "x": 621,
+          "y": 1499,
+          "width": 152,
+          "height": 45,
+          "sourcePath": "GUI/SpriteParts/ui_reignbeta_government/reign_government_tab_business.png",
+          "sourceSha256": "9e15ad15bca5a52c28578632cb26cfccfa4cb92cbe325d70d18bfe4b6e981840"
+        },
+        "reign_government_tab_business_selected": {
+          "sheetId": 1,
+          "x": 781,
+          "y": 1499,
+          "width": 152,
+          "height": 45,
+          "sourcePath": "GUI/SpriteParts/ui_reignbeta_government/reign_government_tab_business_selected.png",
+          "sourceSha256": "c1c0f448485702311db083e67fe774b6897acf353224b7d0aac4eb351ee3208d"
+        },
+        "reign_government_tab_hearing": {
+          "sheetId": 1,
+          "x": 941,
+          "y": 1499,
+          "width": 114,
+          "height": 45,
+          "sourcePath": "GUI/SpriteParts/ui_reignbeta_government/reign_government_tab_hearing.png",
+          "sourceSha256": "a3f650b68599810c67503e0ce90c7b37e87a22466a419612623dd7f62353b531"
+        },
+        "reign_government_tab_hearing_selected": {
+          "sheetId": 1,
+          "x": 1063,
+          "y": 1499,
+          "width": 114,
+          "height": 45,
+          "sourcePath": "GUI/SpriteParts/ui_reignbeta_government/reign_government_tab_hearing_selected.png",
+          "sourceSha256": "1b75024007030668a94c29025995be841e11a158a37bc528af5e776b6e778d01"
+        },
+        "reign_government_input": {
+          "sheetId": 1,
+          "x": 1185,
+          "y": 1499,
+          "width": 717,
+          "height": 42,
+          "sourcePath": "GUI/SpriteParts/ui_reignbeta_government/reign_government_input.png",
+          "sourceSha256": "840c1dda421be5ada07aeedfddada0059eee7b518fb09fc11f375856b78914ea"
+        },
+        "reign_government_speak": {
+          "sheetId": 1,
+          "x": 1910,
+          "y": 1499,
+          "width": 113,
+          "height": 42,
+          "sourcePath": "GUI/SpriteParts/ui_reignbeta_government/reign_government_speak.png",
+          "sourceSha256": "142b6b8437f5edb70f76a7d04df3719c5f5adb30aa887cf5fdda6785f0e6a268"
+        },
+        "reign_government_close": {
+          "sheetId": 1,
+          "x": 4,
+          "y": 1552,
+          "width": 94,
+          "height": 37,
+          "sourcePath": "GUI/SpriteParts/ui_reignbeta_government/reign_government_close.png",
+          "sourceSha256": "b089e248a843264c7982a6215cbedc2817d3c223ae263cd3fdf138a2945ee1a5"
+        }
+      }
+    },
+    "ui_reignbeta_shared": {
+      "sheets": [
+        {
+          "id": 1,
+          "width": 2048,
+          "height": 2048,
+          "path": "GUI/RuntimeSpriteSheets/ui_reignbeta_shared/ui_reignbeta_shared_1.png",
+          "sha256": "7025522065095ff0f75e63e3a842c39c069ca78d669af39eb164ef9d09ced471"
+        },
+        {
+          "id": 2,
+          "width": 2048,
+          "height": 1024,
+          "path": "GUI/RuntimeSpriteSheets/ui_reignbeta_shared/ui_reignbeta_shared_2.png",
+          "sha256": "32cb157eae646cc4693324e59c5bd48902030a4ff614bb23fc8ccb513dbc12be"
+        }
+      ],
+      "parts": {
+        "reign_modern_memory_scene_overlay": {
+          "sheetId": 1,
+          "x": 4,
+          "y": 4,
+          "width": 1024,
+          "height": 576,
+          "sourcePath": "GUI/SpriteParts/ui_reignbeta_shared/reign_modern_memory_scene_overlay.png",
+          "sourceSha256": "e87f8cb99dd4c745347252ca249cd83226ec20ebc68c9deb9e7eba0232c86f92"
+        },
+        "reign_modern_portrait_circle_overlay": {
+          "sheetId": 1,
+          "x": 1036,
+          "y": 4,
+          "width": 512,
+          "height": 512,
+          "sourcePath": "GUI/SpriteParts/ui_reignbeta_shared/reign_modern_portrait_circle_overlay.png",
+          "sourceSha256": "23e64158bddd30152c196be8ddb35bb16e7d14537782a86554c6dae410ff3a63"
+        },
+        "reign_modern_portrait_oval_overlay": {
+          "sheetId": 1,
+          "x": 4,
+          "y": 588,
+          "width": 512,
+          "height": 768,
+          "sourcePath": "GUI/SpriteParts/ui_reignbeta_shared/reign_modern_portrait_oval_overlay.png",
+          "sourceSha256": "a55feb74bdc040fcf7768dd6ec3c47389cdfafa0dadaa5def90132782a2256a5"
+        },
+        "reign_modern_portrait_rectangle_overlay": {
+          "sheetId": 1,
+          "x": 524,
+          "y": 588,
+          "width": 512,
+          "height": 768,
+          "sourcePath": "GUI/SpriteParts/ui_reignbeta_shared/reign_modern_portrait_rectangle_overlay.png",
+          "sourceSha256": "a3a0586d6cf618f29a0103b83be05b041fdbbad7a62bd7eec6adb2b7a0c39ffc"
+        },
+        "reign_modern_portrait_oval_thin_frame": {
+          "sheetId": 1,
+          "x": 1044,
+          "y": 588,
+          "width": 512,
+          "height": 832,
+          "sourcePath": "GUI/SpriteParts/ui_reignbeta_shared/reign_modern_portrait_oval_thin_frame.png",
+          "sourceSha256": "1a47eb07a8181a29ff64ae413685109259ba31a83760bd024af011b0ce4dd1b6"
+        },
+        "reign_modern_banner_shield_overlay": {
+          "sheetId": 1,
+          "x": 4,
+          "y": 1428,
+          "width": 512,
+          "height": 588,
+          "sourcePath": "GUI/SpriteParts/ui_reignbeta_shared/reign_modern_banner_shield_overlay.png",
+          "sourceSha256": "c4395732660cfa089316817f0c044b587fcc1f27ca256d1e3db456d4f2ab4acd"
+        },
+        "reign_modern_portrait_empty_fill": {
+          "sheetId": 2,
+          "x": 4,
+          "y": 4,
+          "width": 512,
+          "height": 512,
+          "sourcePath": "GUI/SpriteParts/ui_reignbeta_shared/reign_modern_portrait_empty_fill.png",
+          "sourceSha256": "18b6390cc93f177d318d46a4e4d6ae1188373fdc5999317846a4fc97cc826431"
+        },
+        "reign_modern_crowned_r_crest": {
+          "sheetId": 2,
+          "x": 524,
+          "y": 4,
+          "width": 512,
+          "height": 832,
+          "sourcePath": "GUI/SpriteParts/ui_reignbeta_shared/reign_modern_crowned_r_crest.png",
+          "sourceSha256": "538ee08384e5d1b6e81e16f1b79b5185eaf6f6977c3b210a96dcf5625f801bf0"
+        }
+      }
+    },
+    "ui_reignbeta_fonts": {
+      "sheets": [
+        {
+          "id": 1,
+          "width": 4096,
+          "height": 4096,
+          "path": "GUI/RuntimeSpriteSheets/ui_reignbeta_fonts/ui_reignbeta_fonts_1.png",
+          "sha256": "0467cf9da57e952965d501a0c297e2d94ba01ccaa0b8dabc1db7700844afa9e1"
+        }
+      ],
+      "parts": {
+        "ReignSerifDynamic": {
+          "sheetId": 1,
+          "x": 4,
+          "y": 4,
+          "width": 2048,
+          "height": 2048,
+          "sourcePath": "GUI/SpriteParts/ui_reignbeta_fonts/ReignSerifDynamic.png",
+          "sourceSha256": "2c16ac0300950b365c4bd9241ae752790f8e6f78ee8536a9db6157a8130cd6e7"
+        }
+      }
+    },
+    "ui_reignbeta_action_fonts": {
+      "sheets": [
+        {
+          "id": 1,
+          "width": 2048,
+          "height": 2048,
+          "path": "GUI/RuntimeSpriteSheets/ui_reignbeta_action_fonts/ui_reignbeta_action_fonts_1.png",
+          "sha256": "14e7cc5ffcdb8f459c53074f456d422500fe896b7990676f955888c3d342e1a2"
+        }
+      ],
+      "parts": {
+        "ReignSerifActionItalic": {
+          "sheetId": 1,
+          "x": 0,
+          "y": 0,
+          "width": 2048,
+          "height": 2048,
+          "sourcePath": "GUI/SpriteParts/ui_reignbeta_action_fonts/ReignSerifActionItalic.png",
+          "sourceSha256": "152f8e9b85c961d4bc4f36a31e505cfec54014b39111b0488fe458a0848eadce"
+        }
+      }
+    },
+    "ui_reignbeta_clan_accords": {
+      "sheets": [
+        {
+          "id": 1,
+          "width": 2048,
+          "height": 2048,
+          "path": "GUI/RuntimeSpriteSheets/ui_reignbeta_clan_accords/ui_reignbeta_clan_accords_1.png",
+          "sha256": "e7b17e5b8284ea277396332c5b63346f06448a7696a8c11bbc9b7c6a63d83c5a"
+        }
+      ],
+      "parts": {
+        "reign_clan_accords_shell": {
+          "sheetId": 1,
+          "x": 4,
+          "y": 4,
+          "width": 1672,
+          "height": 941,
+          "sourcePath": "GUI/SpriteParts/ui_reignbeta_clan_accords/reign_clan_accords_shell.png",
+          "sourceSha256": "f0aed8d45b0c1a4df1de8db7a4421f4e91433f25302161d2de50ba23f96c3199"
+        },
+        "reign_clan_accords_card": {
+          "sheetId": 1,
+          "x": 4,
+          "y": 953,
+          "width": 1188,
+          "height": 104,
+          "sourcePath": "GUI/SpriteParts/ui_reignbeta_clan_accords/reign_clan_accords_card.png",
+          "sourceSha256": "4c9dff817c8862259adf6d9834ad72df3a474c995db00c1416da91af25aa0090"
+        },
+        "reign_clan_accords_button": {
+          "sheetId": 1,
+          "x": 4,
+          "y": 1065,
+          "width": 140,
+          "height": 40,
+          "sourcePath": "GUI/SpriteParts/ui_reignbeta_clan_accords/reign_clan_accords_button.png",
+          "sourceSha256": "295ac7176621b526f961e474865ab976d2e7f63306ab2638bf212daf9ee09b20"
+        },
+        "reign_clan_accords_filter": {
+          "sheetId": 1,
+          "x": 152,
+          "y": 1065,
+          "width": 294,
+          "height": 45,
+          "sourcePath": "GUI/SpriteParts/ui_reignbeta_clan_accords/reign_clan_accords_filter.png",
+          "sourceSha256": "335e086103aba592b9b85dc292755d56d979f2cba38000194d6121ec0e88e41d"
+        },
+        "reign_clan_accords_economy_entry": {
+          "sheetId": 1,
+          "x": 454,
+          "y": 1065,
+          "width": 425,
+          "height": 86,
+          "sourcePath": "GUI/SpriteParts/ui_reignbeta_clan_accords/reign_clan_accords_economy_entry.png",
+          "sourceSha256": "3fa4c852d1fcff43f57f69580a334ad9953b4d4c8ff42c64cea147f2d39e5475"
+        },
+        "reign_clan_accords_filter_idle": {
+          "sheetId": 1,
+          "x": 888,
+          "y": 1065,
+          "width": 294,
+          "height": 44,
+          "sourcePath": "GUI/SpriteParts/ui_reignbeta_clan_accords/reign_clan_accords_filter_idle.png",
+          "sourceSha256": "0cb72f0870d982a9846f523cf6c9854c51154fa527bbd00c55c44453676a141e"
+        }
+      }
+    },
+    "ui_reignbeta_tavern_house": {
+      "sheets": [
+        {
+          "id": 1,
+          "width": 2048,
+          "height": 2048,
+          "path": "GUI/RuntimeSpriteSheets/ui_reignbeta_tavern_house/ui_reignbeta_tavern_house_1.png",
+          "sha256": "91416a12994cd7043e46f62b0241475a50ade9884c343df6b0b3c87595e39aa7"
+        }
+      ],
+      "parts": {
+        "reign_tavern_house_shell": {
+          "sheetId": 1,
+          "x": 4,
+          "y": 4,
+          "width": 1672,
+          "height": 941,
+          "sourcePath": "GUI/SpriteParts/ui_reignbeta_tavern_house/reign_tavern_house_shell.png",
+          "sourceSha256": "57a42c3a131e7829ae698c2d0c76c1101096c56d01641bcc599cd1a5ef37ba97"
+        },
+        "reign_tavern_house_worker_card": {
+          "sheetId": 1,
+          "x": 1684,
+          "y": 4,
+          "width": 220,
+          "height": 218,
+          "sourcePath": "GUI/SpriteParts/ui_reignbeta_tavern_house/reign_tavern_house_worker_card.png",
+          "sourceSha256": "0b7225739ff310bbcd05d2282f67b4990fb75fed982c6ee1c42609554c604a7f"
+        },
+        "reign_tavern_house_madam_card": {
+          "sheetId": 1,
+          "x": 4,
+          "y": 957,
+          "width": 260,
+          "height": 240,
+          "sourcePath": "GUI/SpriteParts/ui_reignbeta_tavern_house/reign_tavern_house_madam_card.png",
+          "sourceSha256": "b9c0b2e9c7b548eb0666fcf7aab85eef5d9c79cff204c3dde8d1dbf09850dcbb"
+        },
+        "reign_tavern_house_eye": {
+          "sheetId": 1,
+          "x": 276,
+          "y": 957,
+          "width": 44,
+          "height": 24,
+          "sourcePath": "GUI/SpriteParts/ui_reignbeta_tavern_house/reign_tavern_house_eye.png",
+          "sourceSha256": "e17428bafb02991e333ba3bed9a907685ee3b743cf0fc0c3696188afbab6e9b3"
+        },
+        "reign_tavern_house_agreement": {
+          "sheetId": 1,
+          "x": 332,
+          "y": 957,
+          "width": 838,
+          "height": 338,
+          "sourcePath": "GUI/SpriteParts/ui_reignbeta_tavern_house/reign_tavern_house_agreement.png",
+          "sourceSha256": "51f076c9df3625df5140a046097c8855f24c6e20a1ef85b80e80b4fc4ee5f03c"
+        }
+      }
+    }
+  }
+}

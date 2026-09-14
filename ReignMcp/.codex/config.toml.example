@@ -1,0 +1,33 @@
+[mcp_servers.reign]
+command = "dotnet"
+args = [
+  "C:\\Users\\speed\\Documents\\Bannerlord Events\\ReignMcp\\src\\Reign.Mcp.Server\\bin\\Release\\net10.0\\Reign.Mcp.Server.dll"
+]
+cwd = "C:\\Users\\speed\\Documents\\Bannerlord Events"
+required = false
+startup_timeout_sec = 20
+tool_timeout_sec = 1800
+default_tools_approval_mode = "writes"
+
+[mcp_servers.reign.env]
+REIGN_WORKSPACE_ROOT = "C:\\Users\\speed\\Documents\\Bannerlord Events"
+REIGN_SERVER_URL = "http://127.0.0.1:5101"
+REIGN_MCP_ALLOW_BUILD = "true"
+REIGN_MCP_ALLOW_RESTORE = "true"
+REIGN_MCP_ALLOW_VERIFICATION_CONTROL = "true"
+REIGN_MCP_ALLOW_OFFLINE_VERIFICATION = "true"
+
+[mcp_servers.reign.tools.reign_start_verification]
+approval_mode = "approve"
+
+[mcp_servers.reign.tools.reign_cancel_verification]
+approval_mode = "approve"
+
+[mcp_servers.reign.tools.reign_build]
+approval_mode = "approve"
+
+[mcp_servers.reign.tools.reign_validate]
+approval_mode = "approve"
+
+[mcp_servers.reign.tools.reign_run_offline_verification]
+approval_mode = "approve"

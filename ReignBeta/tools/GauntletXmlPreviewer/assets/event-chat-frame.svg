@@ -1,0 +1,32 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1344" height="318" viewBox="0 0 1344 318" preserveAspectRatio="none">
+  <defs>
+    <linearGradient id="gold" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#5b370b"/>
+      <stop offset="0.32" stop-color="#d49a32"/>
+      <stop offset="0.62" stop-color="#7f5118"/>
+      <stop offset="1" stop-color="#d8a33a"/>
+    </linearGradient>
+    <filter id="glow" x="-30%" y="-30%" width="160%" height="160%">
+      <feGaussianBlur stdDeviation="0.55" result="blur"/>
+      <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
+    </filter>
+    <g id="corner" fill="none" stroke="url(#gold)" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M3 33V3h34" stroke-width="2.2"/>
+      <path d="M9 32V10h23" stroke-width="1.15" opacity=".9"/>
+      <path d="M8 9c8 0 10 5 9 11-1 5-7 8-10 4-2-3 0-6 3-6 4 0 4 6 0 10" stroke-width="1.35"/>
+      <path d="M15 4c0 7 5 11 11 11 5 0 8-5 4-8-3-2-6 0-6 3 0 4 6 4 10 0" stroke-width="1.35"/>
+      <path d="M5 5l6 3-3 6-3-3z" stroke-width="1"/>
+      <circle cx="19" cy="19" r="1.5" fill="#c88d2b" stroke="none"/>
+    </g>
+  </defs>
+  <rect x="1.25" y="1.25" width="1341.5" height="315.5" fill="none" stroke="#171007" stroke-width="2.5"/>
+  <rect x="3.25" y="3.25" width="1337.5" height="311.5" fill="none" stroke="url(#gold)" stroke-width="1.5" opacity=".95"/>
+  <rect x="9.5" y="9.5" width="1325" height="298" fill="none" stroke="#5f3b10" stroke-width="1" opacity=".9"/>
+  <path d="M16 16H1328M16 302H1328" fill="none" stroke="#b67c22" stroke-width=".75" opacity=".5"/>
+  <g filter="url(#glow)">
+    <use href="#corner"/>
+    <use href="#corner" transform="translate(1344 0) scale(-1 1)"/>
+    <use href="#corner" transform="translate(0 318) scale(1 -1)"/>
+    <use href="#corner" transform="translate(1344 318) scale(-1 -1)"/>
+  </g>
+</svg>

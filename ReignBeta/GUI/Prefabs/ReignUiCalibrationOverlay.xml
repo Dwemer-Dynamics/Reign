@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Prefab>
+  <Window>
+    <Widget Id="ReignUiCalibrationRoot" DoNotAcceptEvents="true" WidthSizePolicy="StretchToParent" HeightSizePolicy="StretchToParent">
+      <Children>
+        <Widget Id="ReignUiCalibrationLauncherCanvas" DoNotAcceptEvents="true" WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="1672" SuggestedHeight="941" HorizontalAlignment="Center" VerticalAlignment="Center" IsVisible="@IsLauncherVisible">
+          <Children>
+            <ButtonWidget Id="ReignUiCalibrationLauncher" WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="286" SuggestedHeight="50" MarginLeft="1224" MarginTop="77" UpdateChildrenStates="true" DoNotPassEventsToChildren="true" Command.Click="ExecuteToggle">
+              <Children>
+                <ImageWidget DoNotAcceptEvents="true" WidthSizePolicy="StretchToParent" HeightSizePolicy="StretchToParent" Sprite="reign_calibration_modern_launcher" />
+              </Children>
+            </ButtonWidget>
+          </Children>
+        </Widget>
+
+        <Widget Id="ReignUiCalibrationExpanded" WidthSizePolicy="StretchToParent" HeightSizePolicy="StretchToParent" IsVisible="@IsExpanded">
+          <Children>
+            <!-- Keep the selection canvas clear of the wider approved panel so
+                 the panel never consumes its own calibration input. -->
+            <ReignUiCalibrationCanvasWidget Id="ReignUiCalibrationCanvas" Type="ReignBeta.UI.Calibration.ReignUiCalibrationCanvasWidget" WidthSizePolicy="StretchToParent" HeightSizePolicy="StretchToParent" MarginRight="526" Sprite="BlankWhiteSquare" Color="#00000001" />
+
+            <Widget Id="ReignUiCalibrationSelection" DoNotAcceptEvents="true" WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="@SelectionWidth" SuggestedHeight="@SelectionHeight" PositionXOffset="@SelectionX" PositionYOffset="@SelectionY" IsVisible="@SelectionVisible">
+              <Children>
+                <Widget DoNotAcceptEvents="true" WidthSizePolicy="StretchToParent" HeightSizePolicy="Fixed" SuggestedHeight="2" Sprite="BlankWhiteSquare" Color="#65E1FFFF" />
+                <Widget DoNotAcceptEvents="true" WidthSizePolicy="StretchToParent" HeightSizePolicy="Fixed" SuggestedHeight="2" VerticalAlignment="Bottom" Sprite="BlankWhiteSquare" Color="#65E1FFFF" />
+                <Widget DoNotAcceptEvents="true" WidthSizePolicy="Fixed" HeightSizePolicy="StretchToParent" SuggestedWidth="2" Sprite="BlankWhiteSquare" Color="#65E1FFFF" />
+                <Widget DoNotAcceptEvents="true" WidthSizePolicy="Fixed" HeightSizePolicy="StretchToParent" SuggestedWidth="2" HorizontalAlignment="Right" Sprite="BlankWhiteSquare" Color="#65E1FFFF" />
+                <Widget DoNotAcceptEvents="true" WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="9" SuggestedHeight="9" HorizontalAlignment="Right" VerticalAlignment="Bottom" MarginRight="-4" MarginBottom="-4" Sprite="BlankWhiteSquare" Color="#FFFFFFFF" />
+              </Children>
+            </Widget>
+
+            <Widget Id="ReignUiCalibrationReferenceCanvas" DoNotAcceptEvents="true" WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="1672" SuggestedHeight="941" HorizontalAlignment="Center" VerticalAlignment="Center">
+              <Children>
+                <Widget Id="ReignUiCalibrationPanel" WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="440" SuggestedHeight="637" MarginLeft="1146" MarginTop="72">
+                  <Children>
+                    <ImageWidget DoNotAcceptEvents="true" WidthSizePolicy="StretchToParent" HeightSizePolicy="StretchToParent" Sprite="reign_calibration_modern_panel" />
+
+                    <TextWidget DoNotAcceptEvents="true" WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="320" SuggestedHeight="35" MarginLeft="74" MarginTop="120" Brush="DefaultText" Brush.Font="ReignSerifDynamic" Brush.FontSize="12" Brush.FontColor="#C5BDAFFF" Brush.TextHorizontalAlignment="Center" Text="@MovieText" />
+                    <TextWidget DoNotAcceptEvents="true" WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="340" SuggestedHeight="39" MarginLeft="64" MarginTop="156" Brush="DefaultText" Brush.Font="ReignSerifDynamic" Brush.FontSize="14" Brush.FontColor="#C5AC83FF" Brush.TextHorizontalAlignment="Center" Text="@SelectedText" />
+                    <TextWidget DoNotAcceptEvents="true" WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="350" SuggestedHeight="37" MarginLeft="59" MarginTop="199" Brush="DefaultText" Brush.Font="ReignSerifDynamic" Brush.FontSize="11" Brush.FontColor="#C5BDAFFF" Brush.TextHorizontalAlignment="Center" Text="@GeometryText" />
+
+                    <ButtonWidget Id="ReignUiCalibrationModeButton" WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="142" SuggestedHeight="40" MarginLeft="22" MarginTop="251" UpdateChildrenStates="true" DoNotPassEventsToChildren="true" Command.Click="ExecuteToggleMode">
+                      <Children><TextWidget DoNotAcceptEvents="true" WidthSizePolicy="StretchToParent" HeightSizePolicy="StretchToParent" Brush="DefaultText" Brush.Font="ReignSerifDynamic" Brush.FontSize="12" Brush.FontColor="#C5BDAFFF" Brush.TextHorizontalAlignment="Center" Text="@ModeText" /></Children>
+                    </ButtonWidget>
+                    <ButtonWidget Id="ReignUiCalibrationParentButton" WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="122" SuggestedHeight="40" MarginLeft="170" MarginTop="251" UpdateChildrenStates="true" DoNotPassEventsToChildren="true" Command.Click="ExecuteParent" />
+                    <ButtonWidget Id="ReignUiCalibrationCycleButton" WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="122" SuggestedHeight="40" MarginLeft="296" MarginTop="251" UpdateChildrenStates="true" DoNotPassEventsToChildren="true" Command.Click="ExecuteCycle" />
+
+                    <ButtonWidget WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="44" SuggestedHeight="43" MarginLeft="78" MarginTop="348" Command.Click="ExecuteUp" />
+                    <ButtonWidget WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="44" SuggestedHeight="39" MarginLeft="28" MarginTop="398" Command.Click="ExecuteLeft" />
+                    <ButtonWidget WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="44" SuggestedHeight="39" MarginLeft="78" MarginTop="398" />
+                    <ButtonWidget WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="44" SuggestedHeight="39" MarginLeft="128" MarginTop="398" Command.Click="ExecuteRight" />
+                    <ButtonWidget WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="44" SuggestedHeight="40" MarginLeft="78" MarginTop="445" Command.Click="ExecuteDown" />
+
+                    <ButtonWidget WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="98" SuggestedHeight="47" MarginLeft="214" MarginTop="356" Command.Click="ExecuteNarrower" />
+                    <ButtonWidget WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="98" SuggestedHeight="47" MarginLeft="319" MarginTop="356" Command.Click="ExecuteWider" />
+                    <ButtonWidget WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="98" SuggestedHeight="47" MarginLeft="214" MarginTop="425" Command.Click="ExecuteShorter" />
+                    <ButtonWidget WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="98" SuggestedHeight="47" MarginLeft="319" MarginTop="425" Command.Click="ExecuteTaller" />
+
+                    <TextWidget DoNotAcceptEvents="true" WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="400" SuggestedHeight="47" MarginLeft="19" MarginTop="508" Brush="DefaultText" Brush.Font="ReignSerifDynamic" Brush.FontSize="11" Brush.FontColor="#8A8883FF" Brush.TextHorizontalAlignment="Center" Text="@StatusText" />
+                    <ButtonWidget WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="160" SuggestedHeight="50" MarginLeft="21" MarginTop="568" Command.Click="ExecuteSaveSnapshot" />
+                    <ButtonWidget WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="108" SuggestedHeight="50" MarginLeft="190" MarginTop="568" Command.Click="ExecuteUndo" />
+                    <ButtonWidget WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="114" SuggestedHeight="50" MarginLeft="304" MarginTop="568" Command.Click="ExecuteClose" />
+                  </Children>
+                </Widget>
+              </Children>
+            </Widget>
+          </Children>
+        </Widget>
+      </Children>
+    </Widget>
+  </Window>
+</Prefab>

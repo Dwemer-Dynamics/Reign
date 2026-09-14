@@ -1,0 +1,56 @@
+{
+  "schema": "reign-overlay-asset-spec-v1",
+  "asset": {
+    "id": "castle-chat-modern-shell",
+    "role": "static Castle Chat shell with a bounded true-alpha runtime castle-scene aperture",
+    "selectedGeneratedSourceSha256": "a0635c9c5388d3a81e583b03e82b089b7195b32788207331a6bf1990819834d2",
+    "generationMode": "built-in image-to-image",
+    "promptPath": "../castle-chat-modern-shell-prompt.txt",
+    "promptSha256": "74b818f39913bf3fc3111857367090f3849557c6ff2ae18712efdec60d0f4d1c"
+  },
+  "authorities": {
+    "layout": {
+      "path": "../approved-references/castle-chat.png",
+      "sha256": "bbd2924a85ddad9761360e6d01e1ae6d630b00192575bc24ea33b1414e6e578c"
+    },
+    "materials": {
+      "path": "../style-reference.png",
+      "sha256": "85b689dc164ebbf70f67a081c0f7097858edb0542ef0073de0c29eef7926b0a3"
+    },
+    "palette": {
+      "path": "../palette.json",
+      "sha256": "fac70043a567db463ae70c975b92037dbfc38337e0d9134bc85bb03e3bb9a043",
+      "schema": "reign-ui-modern-palette-v1",
+      "version": "2026.08.28.2"
+    }
+  },
+  "canvas": {
+    "width": 1672,
+    "height": 941
+  },
+  "normalization": {
+    "fit": "exact",
+    "anchor": "center"
+  },
+  "antialiasScale": 8,
+  "transparentRgb": "#070808",
+  "marbleReduction": {
+    "amount": 0.0,
+    "blurRadius": 6.0,
+    "luminanceCeiling": 96,
+    "chromaCeiling": 36,
+    "selectionSoftness": 20
+  },
+  "apertures": [
+    {
+      "id": "runtime-castle-scene",
+      "shape": "rectangle",
+      "x": 583,
+      "y": 120,
+      "width": 790,
+      "height": 420,
+      "cornerRadiusPixels": 0,
+      "feather": 0.0
+    }
+  ]
+}

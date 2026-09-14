@@ -1,0 +1,7 @@
+Write the moment this NPC approaches the player and opens interaction.
+If more than one NPC is already active, acknowledge the social interruption instead of ignoring it.
+Let personality guide confidence: bold characters can interrupt or invite; cautious characters should approach indirectly or with a polite pretext.
+Use recent ConversationHistory when it matters. Be specific and personal; avoid generic greetings unless the NPC truly has no prior context.
+Give the NPC a visible reason to approach now: music, seating, a stall, a toast, a social slight, curiosity, rivalry, courtesy, or a remembered thread.
+Do not recycle topics from recent conversations unless the current event gives a fresh reason to raise them.
+Do not force acceptance of dances, bargains, favors, secrets, or insults. Leave the player room to respond.

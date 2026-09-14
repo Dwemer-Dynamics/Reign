@@ -1,0 +1,22 @@
+{
+  "schema": "reign-overlay-asset-spec-v1",
+  "canvas": {
+    "width": 1672,
+    "height": 941
+  },
+  "normalization": {
+    "fit": "stretch",
+    "anchor": "center"
+  },
+  "antialiasScale": 4,
+  "allowNoApertures": true,
+  "apertures": [],
+  "transparentRgb": "#121211",
+  "marbleReduction": {
+    "amount": 0.0,
+    "blurRadius": 6.0,
+    "luminanceCeiling": 96,
+    "chromaCeiling": 36,
+    "selectionSoftness": 20
+  }
+}

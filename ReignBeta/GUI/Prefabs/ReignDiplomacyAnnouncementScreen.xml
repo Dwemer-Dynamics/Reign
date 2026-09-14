@@ -1,0 +1,81 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Prefab>
+  <Constants>
+    <Constant Name="PanelWidth" Value="1672" />
+    <Constant Name="PanelHeight" Value="941" />
+  </Constants>
+  <Window>
+    <Widget Id="DiplomacyDimmer" WidthSizePolicy="StretchToParent" HeightSizePolicy="StretchToParent" Sprite="BlankWhiteSquare" Color="#030303FF" PositionYOffset="-1">
+      <Children>
+        <Widget Id="DiplomacyAnnouncement" DoNotUseCustomScaleAndChildren="true" WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="!PanelWidth" SuggestedHeight="!PanelHeight" HorizontalAlignment="Center" VerticalAlignment="Center" Sprite="reign_diplomacy_modern_shell">
+          <Children>
+            <Widget Id="DiplomacyHeaderTextRegion" WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="862" SuggestedHeight="68" HorizontalAlignment="Center" MarginTop="136" ClipContents="true">
+              <Children>
+                <TextWidget Id="DiplomacyTitle" WidthSizePolicy="StretchToParent" HeightSizePolicy="Fixed" SuggestedHeight="38" Brush="DefaultText" Brush.Font="ReignSerifDynamic" Brush.FontSize="29" Brush.TextHorizontalAlignment="Center" Brush.FontColor="#A88A54FF" Text="@Title" />
+                <TextWidget Id="DiplomacyDate" WidthSizePolicy="StretchToParent" HeightSizePolicy="Fixed" SuggestedHeight="22" MarginTop="42" Brush="DefaultText" Brush.Font="ReignSerifDynamic" Brush.FontSize="13" Brush.TextHorizontalAlignment="Center" Brush.FontColor="#7E6A4DFF" Text="@DateText" />
+              </Children>
+            </Widget>
+
+            <Widget Id="ActorPortraitGroup" DoNotAcceptEvents="true" WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="162" SuggestedHeight="263" MarginLeft="179" MarginTop="234">
+              <Children>
+                <Widget Id="ActorPortraitClip" WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="143" SuggestedHeight="240" MarginLeft="10" MarginTop="11" ClipContents="true">
+                  <Children>
+                    <ImageIdentifierWidget Id="ActorNativePortrait" DoNotAcceptEvents="true" WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="244" SuggestedHeight="244" HorizontalAlignment="Center" VerticalAlignment="Center" ImageId="@ActorPortraitId" AdditionalArgs="@ActorPortraitArgs" TextureProviderName="@ActorPortraitProvider" />
+                    <ReignPortraitWidget Id="ActorAIPortrait" Type="ReignBeta.UI.Widgets.ReignPortraitWidget" DoNotAcceptEvents="true" WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="244" SuggestedHeight="244" HorizontalAlignment="Center" VerticalAlignment="Center" PortraitCacheKey="@ActorPortraitCacheKey" />
+                  </Children>
+                </Widget>
+                <ImageWidget Id="ActorPortraitFrame" DoNotAcceptEvents="true" WidthSizePolicy="StretchToParent" HeightSizePolicy="StretchToParent" Sprite="reign_diplomacy_actor_portrait_mask" />
+              </Children>
+            </Widget>
+            <TextWidget Id="ActorName" WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="220" SuggestedHeight="34" MarginLeft="149" MarginTop="497" Brush="DefaultText" Brush.Font="ReignSerifDynamic" Brush.FontSize="18" Brush.TextHorizontalAlignment="Center" Brush.FontColor="#A88A54FF" Text="@ActorName" />
+            <TextWidget Id="ActorKingdom" WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="220" SuggestedHeight="30" MarginLeft="149" MarginTop="535" Brush="DefaultText" Brush.Font="ReignSerifDynamic" Brush.FontSize="14" Brush.TextHorizontalAlignment="Center" Brush.FontColor="#8A8883FF" Text="@ActorKingdom" />
+            <Widget Id="ActorBannerGroup" DoNotAcceptEvents="true" WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="86" SuggestedHeight="99" MarginLeft="217" MarginTop="589">
+              <Children>
+                <ImageIdentifierWidget Id="ActorBanner" DoNotAcceptEvents="true" WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="72" SuggestedHeight="78" MarginLeft="7" MarginTop="7" ImageId="@ActorBannerId" AdditionalArgs="@ActorBannerArgs" TextureProviderName="@ActorBannerProvider" />
+                <Widget Id="ActorBannerFrame" DoNotAcceptEvents="true" WidthSizePolicy="StretchToParent" HeightSizePolicy="StretchToParent" Sprite="reign_modern_banner_shield_overlay" />
+              </Children>
+            </Widget>
+            <TextWidget Id="ActorReason" WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="218" SuggestedHeight="78" MarginLeft="150" MarginTop="701" Brush="DefaultText" Brush.Font="ReignSerifDynamic" Brush.FontSize="16" Brush.TextHorizontalAlignment="Center" Brush.FontColor="#C5BDAFFF" Text="@ActorReason" />
+
+            <Widget Id="TargetGroup" WidthSizePolicy="StretchToParent" HeightSizePolicy="StretchToParent" IsVisible="@ShowTarget">
+              <Children>
+                <Widget Id="TargetPortraitGroup" DoNotAcceptEvents="true" WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="162" SuggestedHeight="263" HorizontalAlignment="Right" MarginRight="181" MarginTop="234">
+                  <Children>
+                    <Widget Id="TargetPortraitClip" WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="143" SuggestedHeight="240" MarginLeft="10" MarginTop="11" ClipContents="true">
+                      <Children>
+                        <ImageIdentifierWidget Id="TargetNativePortrait" DoNotAcceptEvents="true" WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="244" SuggestedHeight="244" HorizontalAlignment="Center" VerticalAlignment="Center" ImageId="@TargetPortraitId" AdditionalArgs="@TargetPortraitArgs" TextureProviderName="@TargetPortraitProvider" />
+                        <ReignPortraitWidget Id="TargetAIPortrait" Type="ReignBeta.UI.Widgets.ReignPortraitWidget" DoNotAcceptEvents="true" WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="244" SuggestedHeight="244" HorizontalAlignment="Center" VerticalAlignment="Center" PortraitCacheKey="@TargetPortraitCacheKey" />
+                      </Children>
+                    </Widget>
+                    <ImageWidget Id="TargetPortraitFrame" DoNotAcceptEvents="true" WidthSizePolicy="StretchToParent" HeightSizePolicy="StretchToParent" Sprite="reign_diplomacy_target_portrait_mask" />
+                  </Children>
+                </Widget>
+                <TextWidget Id="TargetName" WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="219" SuggestedHeight="34" HorizontalAlignment="Right" MarginRight="151" MarginTop="497" Brush="DefaultText" Brush.Font="ReignSerifDynamic" Brush.FontSize="18" Brush.TextHorizontalAlignment="Center" Brush.FontColor="#A88A54FF" Text="@TargetName" />
+                <TextWidget Id="TargetKingdom" WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="219" SuggestedHeight="30" HorizontalAlignment="Right" MarginRight="151" MarginTop="535" Brush="DefaultText" Brush.Font="ReignSerifDynamic" Brush.FontSize="14" Brush.TextHorizontalAlignment="Center" Brush.FontColor="#8A8883FF" Text="@TargetKingdom" />
+                <Widget Id="TargetBannerGroup" DoNotAcceptEvents="true" WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="86" SuggestedHeight="99" HorizontalAlignment="Right" MarginRight="218" MarginTop="589">
+                  <Children>
+                    <ImageIdentifierWidget Id="TargetBanner" DoNotAcceptEvents="true" WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="72" SuggestedHeight="78" MarginLeft="7" MarginTop="7" ImageId="@TargetBannerId" AdditionalArgs="@TargetBannerArgs" TextureProviderName="@TargetBannerProvider" />
+                    <Widget Id="TargetBannerFrame" DoNotAcceptEvents="true" WidthSizePolicy="StretchToParent" HeightSizePolicy="StretchToParent" Sprite="reign_modern_banner_shield_overlay" />
+                  </Children>
+                </Widget>
+                <TextWidget Id="TargetReason" WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="217" SuggestedHeight="78" HorizontalAlignment="Right" MarginRight="152" MarginTop="701" Brush="DefaultText" Brush.Font="ReignSerifDynamic" Brush.FontSize="16" Brush.TextHorizontalAlignment="Center" Brush.FontColor="#C5BDAFFF" Text="@TargetReason" />
+              </Children>
+            </Widget>
+
+            <TextWidget Id="DiplomacyOutcome" WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="732" SuggestedHeight="49" HorizontalAlignment="Center" MarginTop="278" Brush="DefaultText" Brush.Font="ReignSerifDynamic" Brush.FontSize="26" Brush.TextHorizontalAlignment="Center" Brush.FontColor="#A88A54FF" Text="@Outcome" />
+            <TextWidget Id="DiplomacySummary" WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="716" SuggestedHeight="102" HorizontalAlignment="Center" MarginTop="351" Brush="DefaultText" Brush.Font="ReignSerifDynamic" Brush.FontSize="19" Brush.TextHorizontalAlignment="Center" Brush.FontColor="#C5BDAFFF" Text="@Summary" />
+            <Widget Id="DiplomacyDivider" DoNotAcceptEvents="true" IsVisible="false" WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="716" SuggestedHeight="20" HorizontalAlignment="Center" MarginTop="540" />
+            <TextWidget Id="DiplomacyTerms" WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="716" SuggestedHeight="111" HorizontalAlignment="Center" MarginTop="596" Brush="DefaultText" Brush.Font="ReignSerifDynamic" Brush.FontSize="18" Brush.TextHorizontalAlignment="Center" Brush.FontColor="#C5BDAFFF" Text="@Terms" />
+
+            <ButtonWidget Id="DiplomacyAcknowledge" WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="431" SuggestedHeight="68" HorizontalAlignment="Center" MarginTop="788" UpdateChildrenStates="true" DoNotPassEventsToChildren="true" Command.Click="ExecuteAcknowledge">
+              <Children>
+                <Widget Id="DiplomacyAcknowledgeArt" DoNotAcceptEvents="true" IsVisible="false" WidthSizePolicy="StretchToParent" HeightSizePolicy="StretchToParent" />
+                <TextWidget Id="DiplomacyAcknowledgeLabel" DoNotAcceptEvents="true" WidthSizePolicy="StretchToParent" HeightSizePolicy="StretchToParent" Brush="DefaultText" Brush.Font="ReignSerifDynamic" Brush.FontSize="22" Brush.TextHorizontalAlignment="Center" Brush.FontColor="#C5AC83FF" Text="A C K N O W L E D G E" />
+              </Children>
+            </ButtonWidget>
+          </Children>
+        </Widget>
+      </Children>
+    </Widget>
+  </Window>
+</Prefab>

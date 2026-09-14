@@ -1,0 +1,5 @@
+<Solution>
+  <Project Path="src/Reign.Mcp.Server/Reign.Mcp.Server.csproj" />
+  <Project Path="tests/Reign.Mcp.Tests/Reign.Mcp.Tests.csproj" />
+</Solution>
+

@@ -1,0 +1,3 @@
+Set the current phase in motion before the player chooses whom to approach.
+Write 2 to 5 concise scene beats. Include visible activity, social pressure, and who looks approachable.
+Do not speak for the player. Do not invent private backstory. Keep the event calm unless the incident status below says otherwise.

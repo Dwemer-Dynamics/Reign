@@ -1,0 +1,123 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Prefab>
+  <Window>
+    <Widget WidthSizePolicy="StretchToParent" HeightSizePolicy="StretchToParent" IsVisible="@IsOverlayVisible">
+      <Children>
+        <Widget DoNotAcceptEvents="true" WidthSizePolicy="StretchToParent" HeightSizePolicy="StretchToParent" Sprite="BlankWhiteSquare_9" Color="#030303FF" />
+        <Widget WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="1672" SuggestedHeight="941" HorizontalAlignment="Center" VerticalAlignment="Center" DoNotUseCustomScaleAndChildren="true" ClipContents="true">
+          <Children>
+            <!-- The approved castle reference fills the scene aperture whenever generated room art is unavailable. -->
+            <Widget Id="CastleApprovedFallbackViewport" IsVisible="@ShowCastleApprovedFallback" WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="790" SuggestedHeight="420" MarginLeft="583" MarginTop="120" ClipContents="true" DoNotAcceptEvents="true">
+              <Children>
+                <ImageWidget Id="CastleSceneFallback" DoNotAcceptEvents="true" WidthSizePolicy="StretchToParent" HeightSizePolicy="StretchToParent" Sprite="reign_castle_chat_approved_fallback" />
+              </Children>
+            </Widget>
+            <!-- Generated room art has highest priority without entering the transcript frame below. -->
+            <Widget Id="CastleArtViewport" IsVisible="@HasCastleArt" WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="790" SuggestedHeight="420" MarginLeft="583" MarginTop="120" ClipContents="true" DoNotAcceptEvents="true">
+              <Children>
+                <ReignEventArtWidget Type="ReignBeta.UI.Widgets.ReignEventArtWidget" WidthSizePolicy="StretchToParent" HeightSizePolicy="StretchToParent" EventImageId="@CastleArtImageId" DoNotAcceptEvents="true" />
+              </Children>
+            </Widget>
+            <ImageWidget Id="CastleChatShell" DoNotAcceptEvents="true" WidthSizePolicy="StretchToParent" HeightSizePolicy="StretchToParent" Sprite="reign_castle_chat_modern_shell" />
+            <!-- Fixed RULER and SEND copy is baked from the approved reference; live controls keep only dynamic content and hit geometry. -->
+            <ImageWidget Id="CastleChatFixedCaptionOverlay" DoNotAcceptEvents="true" WidthSizePolicy="StretchToParent" HeightSizePolicy="StretchToParent" Sprite="reign_castle_chat_fixed_caption_overlay" />
+
+            <TextWidget WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="930" SuggestedHeight="42" MarginLeft="474" MarginTop="46" Brush="DefaultText" Brush.Font="ReignSerifDynamic" Brush.FontSize="27" Brush.TextHorizontalAlignment="Center" Brush.TextVerticalAlignment="Center" Brush.FontColor="#A88A54FF" Text="@CastleRoomName" />
+
+            <!-- Headshots use untouched sources beneath circular aperture plates; full-body preview remains rectangular. -->
+            <Widget WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="312" SuggestedHeight="116" MarginLeft="50" MarginTop="158">
+              <Children>
+                <ButtonWidget WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="110" SuggestedHeight="110" MarginLeft="3" MarginTop="3" ClipContents="true" Brush="ConversationItem.SoundBrush" Command.Click="ExecutePreviewPlayerPortrait" UpdateChildrenStates="true">
+                  <Children>
+                    <Widget DoNotAcceptEvents="true" WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="98" SuggestedHeight="98" MarginLeft="6" MarginTop="6" ClipContents="true">
+                      <Children>
+                        <ImageIdentifierWidget DoNotAcceptEvents="true" WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="104" SuggestedHeight="104" HorizontalAlignment="Center" VerticalAlignment="Center" ImageId="@PlayerPortraitId" AdditionalArgs="@PlayerPortraitAdditionalArgs" TextureProviderName="@PlayerPortraitTextureProviderName" />
+                        <ReignPortraitWidget Type="ReignBeta.UI.Widgets.ReignPortraitWidget" DoNotAcceptEvents="true" WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="104" SuggestedHeight="104" HorizontalAlignment="Center" VerticalAlignment="Center" PortraitCacheKey="@PlayerPortraitCacheKey" UseZoomQuality="true" />
+                      </Children>
+                    </Widget>
+                    <ImageWidget DoNotAcceptEvents="true" WidthSizePolicy="StretchToParent" HeightSizePolicy="StretchToParent" Sprite="reign_modern_portrait_circle_overlay" />
+                  </Children>
+                </ButtonWidget>
+                <TextWidget DoNotAcceptEvents="true" WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="172" SuggestedHeight="38" MarginLeft="130" MarginTop="22" Brush="DefaultText" Brush.Font="ReignSerifDynamic" Brush.FontSize="18" Brush.FontColor="#C5AC83FF" Brush.TextHorizontalAlignment="Center" Text="@PlayerDisplayName" />
+              </Children>
+            </Widget>
+
+            <ListPanel DataSource="{PartyMembers}" SuggestedWidth="312" SuggestedHeight="480" WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" MarginLeft="50" MarginTop="282" StackLayout.LayoutMethod="VerticalTopToBottom">
+              <ItemTemplate>
+                <Widget SuggestedWidth="312" SuggestedHeight="120" WidthSizePolicy="Fixed" HeightSizePolicy="Fixed">
+                  <Children>
+                    <ButtonWidget SuggestedWidth="110" SuggestedHeight="110" WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" MarginLeft="3" MarginTop="5" ClipContents="true" Brush="ConversationItem.SoundBrush" Command.Click="ExecutePreviewPortrait" UpdateChildrenStates="true">
+                      <Children>
+                        <Widget DoNotAcceptEvents="true" WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="98" SuggestedHeight="98" MarginLeft="6" MarginTop="6" ClipContents="true">
+                          <Children>
+                            <ImageIdentifierWidget IsVisible="@HasNativePortrait" DoNotAcceptEvents="true" WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="104" SuggestedHeight="104" HorizontalAlignment="Center" VerticalAlignment="Center" ImageId="@PortraitId" AdditionalArgs="@PortraitAdditionalArgs" TextureProviderName="@PortraitTextureProviderName" />
+                            <ReignPortraitWidget IsVisible="@HasNativePortrait" Type="ReignBeta.UI.Widgets.ReignPortraitWidget" DoNotAcceptEvents="true" WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="104" SuggestedHeight="104" HorizontalAlignment="Center" VerticalAlignment="Center" PortraitCacheKey="@PortraitCacheKey" UseZoomQuality="true" />
+                          </Children>
+                        </Widget>
+                        <ImageWidget DoNotAcceptEvents="true" WidthSizePolicy="StretchToParent" HeightSizePolicy="StretchToParent" Sprite="reign_modern_portrait_circle_overlay" />
+                      </Children>
+                    </ButtonWidget>
+                    <ButtonWidget SuggestedWidth="172" SuggestedHeight="62" WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" MarginLeft="130" MarginTop="27" Brush="ConversationItem.SoundBrush" Command.Click="ExecuteOpenEncyclopedia" UpdateChildrenStates="true">
+                      <Children>
+                        <TextWidget DoNotAcceptEvents="true" WidthSizePolicy="StretchToParent" HeightSizePolicy="StretchToParent" Brush="DefaultText" Brush.Font="ReignSerifDynamic" Brush.FontSize="17" Brush.TextHorizontalAlignment="Center" Brush.TextVerticalAlignment="Center" Brush.FontColor="#C5AC83FF" Text="@Name" />
+                      </Children>
+                    </ButtonWidget>
+                  </Children>
+                </Widget>
+              </ItemTemplate>
+            </ListPanel>
+
+            <TextWidget DoNotAcceptEvents="true" WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="900" SuggestedHeight="22" MarginLeft="575" MarginTop="541" Brush="DefaultText" Brush.Font="ReignSerifDynamic" Brush.FontSize="14" Brush.TextHorizontalAlignment="Center" Brush.TextVerticalAlignment="Center" Brush.FontColor="#A88A54FF" Text="@CastleRoomName" />
+            <ReignAutoScrollPanel Type="ReignBeta.UI.Widgets.ReignAutoScrollPanel" WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="1114" SuggestedHeight="190" MarginLeft="468" MarginTop="565" AutoHideScrollBars="false" MouseScrollAxis="Vertical" InnerPanel="CastleChatClip\CastleChatList" ClipRect="CastleChatClip" VerticalScrollbar="..\CastleChatScrollbar" ChatScrollVersion="@ChatScrollVersion">
+              <Children>
+                <Widget Id="CastleChatClip" WidthSizePolicy="StretchToParent" HeightSizePolicy="StretchToParent" ClipContents="true">
+                  <Children>
+                    <ListPanel Id="CastleChatList" DataSource="{ChatLines}" WidthSizePolicy="StretchToParent" HeightSizePolicy="CoverChildren" StackLayout.LayoutMethod="VerticalTopToBottom">
+                      <ItemTemplate>
+                        <Widget WidthSizePolicy="StretchToParent" HeightSizePolicy="CoverChildren" MinHeight="36" MarginBottom="8">
+                          <Children>
+                            <TextWidget WidthSizePolicy="Fixed" HeightSizePolicy="CoverChildren" SuggestedWidth="190" MinHeight="32" VerticalAlignment="Top" Brush="DefaultText" Brush.Font="ReignSerifDynamic" Brush.FontSize="17" Brush.TextHorizontalAlignment="Right" Brush.FontColor="#C5AC83FF" Text="@Speaker" />
+                            <RichTextWidget WidthSizePolicy="StretchToParent" HeightSizePolicy="CoverChildren" MinHeight="32" MarginLeft="216" MarginRight="24" VerticalAlignment="Top" Brush="Reign.Chat.ActionText.17" Brush.Font="ReignSerifDynamic" Brush.FontSize="17" Brush.TextHorizontalAlignment="Left" Brush.FontColor="#C5BDAFFF" Text="@RichText" />
+                          </Children>
+                        </Widget>
+                      </ItemTemplate>
+                    </ListPanel>
+                  </Children>
+                </Widget>
+              </Children>
+            </ReignAutoScrollPanel>
+            <ScrollbarWidget Id="CastleChatScrollbar" WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="12" SuggestedHeight="190" MarginLeft="1584" MarginTop="565" AlignmentAxis="Vertical" Handle="CastleChatScrollbarHandle" MaxValue="100" MinValue="0">
+              <Children>
+                <Widget WidthSizePolicy="Fixed" HeightSizePolicy="StretchToParent" SuggestedWidth="3" HorizontalAlignment="Center" Sprite="BlankWhiteSquare_9" Color="#352C20FF" />
+                <Widget Id="CastleChatScrollbarHandle" WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedHeight="62" SuggestedWidth="8" HorizontalAlignment="Center" Sprite="BlankWhiteSquare_9" Color="#A88A54FF" />
+              </Children>
+            </ScrollbarWidget>
+
+            <EditableTextWidget Id="CastleChatInput" WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="806" SuggestedHeight="52" MarginLeft="469" MarginTop="813" Brush="DefaultText" Brush.Font="ReignSerifDynamic" Brush.FontSize="19" Brush.FontColor="#C5BDAFFF" Text="@InputText" IsEnabled="@InputEnabled" MaxLength="2147483647" />
+            <!-- SEND is fixed approved artwork; only the interactive hitbox remains live. -->
+            <ButtonWidget WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="208" SuggestedHeight="78" MarginLeft="1357" MarginTop="801" Brush="ConversationItem.SoundBrush" Command.Click="ExecuteSend" IsEnabled="@InputEnabled" UpdateChildrenStates="true" />
+            <TextWidget IsVisible="@IsBusy" WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="850" SuggestedHeight="28" MarginLeft="467" MarginTop="772" Brush="DefaultText" Brush.Font="ReignSerifDynamic" Brush.FontSize="15" Brush.FontColor="#A88A54FF" Brush.TextHorizontalAlignment="Center" Text="@BusyText" />
+            <ButtonWidget WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="54" SuggestedHeight="54" MarginLeft="1555" MarginTop="43" Brush="ConversationItem.SoundBrush" Command.Click="ExecuteClose" UpdateChildrenStates="true" />
+
+            <ButtonWidget WidthSizePolicy="StretchToParent" HeightSizePolicy="StretchToParent" IsVisible="@IsPortraitPreviewVisible" DoNotPassEventsToChildren="true" UpdateChildrenStates="true" RenderLate="true" Sprite="BlankWhiteSquare_9" Brush.Color="#030303F2" Command.Click="ExecuteClosePortraitPreview">
+              <Children>
+                <Widget WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="520" SuggestedHeight="780" HorizontalAlignment="Center" VerticalAlignment="Center" DoNotAcceptEvents="true" RenderLate="true">
+                  <Children>
+                    <Widget WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="430" SuggestedHeight="645" MarginLeft="45" MarginTop="30" ClipContents="true">
+                      <Children>
+                        <ImageIdentifierWidget WidthSizePolicy="StretchToParent" HeightSizePolicy="StretchToParent" ImageId="@PortraitPreviewId" AdditionalArgs="@PortraitPreviewAdditionalArgs" TextureProviderName="@PortraitPreviewTextureProviderName" />
+                        <ReignPortraitWidget Type="ReignBeta.UI.Widgets.ReignPortraitWidget" DoNotAcceptEvents="true" WidthSizePolicy="StretchToParent" HeightSizePolicy="StretchToParent" PortraitCacheKey="@PortraitPreviewCacheKey" TargetAspect="0.6666667" UseFullBody="true" />
+                      </Children>
+                    </Widget>
+                    <ImageWidget DoNotAcceptEvents="true" WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="430" SuggestedHeight="645" MarginLeft="45" MarginTop="30" Sprite="reign_modern_portrait_rectangle_overlay" />
+                    <TextWidget WidthSizePolicy="StretchToParent" HeightSizePolicy="Fixed" SuggestedHeight="58" VerticalAlignment="Bottom" MarginLeft="45" MarginRight="45" MarginBottom="24" Brush="DefaultText" Brush.Font="ReignSerifDynamic" Brush.FontSize="22" Brush.FontColor="#C5BDAFFF" Text="@PortraitPreviewName" DoNotAcceptEvents="true" />
+                  </Children>
+                </Widget>
+              </Children>
+            </ButtonWidget>
+          </Children>
+        </Widget>
+      </Children>
+    </Widget>
+  </Window>
+</Prefab>

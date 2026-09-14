@@ -1,0 +1,41 @@
+{
+  "schema": "reign-overlay-asset-spec-v1",
+  "canvas": {
+    "width": 512,
+    "height": 768
+  },
+  "normalization": {
+    "fit": "stretch",
+    "anchor": "center",
+    "sourceCrop": {
+      "x": 85,
+      "y": 80,
+      "width": 854,
+      "height": 1380
+    }
+  },
+  "antialiasScale": 8,
+  "lightNeutralMatteReplacement": {
+    "minimumChannel": 170,
+    "maximumChroma": 28,
+    "color": "#0A0A09"
+  },
+  "marbleReduction": {
+    "amount": 0.5,
+    "blurRadius": 5.0,
+    "luminanceCeiling": 96,
+    "chromaCeiling": 36,
+    "selectionSoftness": 20
+  },
+  "apertures": [
+    {
+      "id": "portrait",
+      "shape": "oval",
+      "x": 39,
+      "y": 51,
+      "width": 435,
+      "height": 663,
+      "feather": 0.0
+    }
+  ]
+}

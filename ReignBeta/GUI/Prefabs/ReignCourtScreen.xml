@@ -1,0 +1,214 @@
+<Prefab>
+  <Window>
+    <!-- The outer canvas deliberately rejects events. Only the centered Court
+         workspace and its controls participate in hit testing, leaving the
+         native campaign HUD and exposed map interactive. -->
+    <Widget DoNotAcceptEvents="true" WidthSizePolicy="StretchToParent" HeightSizePolicy="StretchToParent">
+      <Children>
+        <!-- 1518x854 is the measured 16:9 workspace inside a 1920x1080 logical
+             canvas. MarginTop 150 reserves the native top HUD; the remaining
+             76 pixels reserve the native date and time-control bar. -->
+        <Widget Id="CompactCourtHome" WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="1518" SuggestedHeight="854" HorizontalAlignment="Center" VerticalAlignment="Top" MarginTop="150" IsVisible="@HomeVisible" DoNotUseCustomScaleAndChildren="true">
+          <Children>
+            <ImageWidget DoNotAcceptEvents="true" WidthSizePolicy="StretchToParent" HeightSizePolicy="StretchToParent" Sprite="reign_court_modern_shell" />
+
+            <!-- Runtime title and ruler identity occupy the generated empty plaque. -->
+            <TextWidget DoNotAcceptEvents="true" WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="722" SuggestedHeight="34" MarginLeft="397" MarginTop="36" Brush="DefaultText" Brush.Font="ReignSerifDynamic" Brush.FontSize="22" Brush.FontColor="#A88A54FF" Brush.TextHorizontalAlignment="Center" Text="@CourtTitle" />
+            <TextWidget DoNotAcceptEvents="true" WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="722" SuggestedHeight="18" MarginLeft="397" MarginTop="69" Brush="DefaultText" Brush.Font="ReignSerifDynamic" Brush.FontSize="10" Brush.FontColor="#8A8883FF" Brush.TextHorizontalAlignment="Center" Text="@PlayerName" />
+
+            <!-- Live clan banners are inset inside the dark recesses. The gold
+                 banner frames baked into the art remain above and around them. -->
+            <MaskedTextureWidget Id="CompactCourtPlayerBannerLeft" DoNotAcceptEvents="true" WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="63" SuggestedHeight="195" MarginLeft="582" MarginTop="300" Brush="ClanNaming.Stage.Banner" ImageId="@PlayerBannerId" AdditionalArgs="@PlayerBannerArgs" TextureProviderName="@PlayerBannerProvider" />
+            <MaskedTextureWidget Id="CompactCourtPlayerBannerRight" DoNotAcceptEvents="true" WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="64" SuggestedHeight="195" MarginLeft="936" MarginTop="300" Brush="ClanNaming.Stage.Banner" ImageId="@PlayerBannerId" AdditionalArgs="@PlayerBannerArgs" TextureProviderName="@PlayerBannerProvider" />
+            <!-- Foreground flag hardware masks the rectangular clan texture at
+                 the sides and pointed hem while restoring the ornate hanging
+                 outline above the live banner. -->
+            <ImageWidget Id="CompactCourtPlayerBannerLeftOverlay" DoNotAcceptEvents="true" WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="93" SuggestedHeight="245" MarginLeft="567" MarginTop="259" Sprite="reign_court_modern_banner_left_mask" />
+            <ImageWidget Id="CompactCourtPlayerBannerRightOverlay" DoNotAcceptEvents="true" WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="93" SuggestedHeight="245" MarginLeft="922" MarginTop="259" Sprite="reign_court_modern_banner_right_mask" />
+
+            <!-- The Chancellor and petitions form one attached ruler-docket rail.
+                 Only persisted ReignDocketPetition rows may populate this list. -->
+            <TextWidget DoNotAcceptEvents="true" WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="286" SuggestedHeight="30" MarginLeft="60" MarginTop="61" Brush="DefaultText" Brush.Font="ReignSerifDynamic" Brush.FontSize="17" Brush.FontColor="#A88A54FF" Brush.TextHorizontalAlignment="Center" Text="@DocketTitle" />
+            <Widget WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="292" SuggestedHeight="149" MarginLeft="57" MarginTop="99">
+              <Children>
+                <Widget WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="76" SuggestedHeight="76" MarginLeft="12" MarginTop="28">
+                  <Children>
+                    <ImageWidget DoNotAcceptEvents="true" WidthSizePolicy="StretchToParent" HeightSizePolicy="StretchToParent" Sprite="reign_modern_portrait_empty_fill" />
+                    <Widget IsVisible="@HasChancellor" DoNotAcceptEvents="true" WidthSizePolicy="StretchToParent" HeightSizePolicy="StretchToParent" ClipContents="true">
+                      <Children>
+                        <ReignPortraitWidget Type="ReignBeta.UI.Widgets.ReignPortraitWidget" DoNotAcceptEvents="true" WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="80" SuggestedHeight="80" HorizontalAlignment="Center" VerticalAlignment="Center" PortraitCacheKey="@ChancellorPortraitCacheKey" UseZoomQuality="true" />
+                      </Children>
+                    </Widget>
+                  </Children>
+                </Widget>
+                <!-- The complete card owns the portrait frame and transparent
+                     aperture; all portrait pixels are deliberately behind it. -->
+                <ImageWidget DoNotAcceptEvents="true" WidthSizePolicy="StretchToParent" HeightSizePolicy="StretchToParent" Sprite="reign_court_chancellor_card_modern" />
+                <TextWidget DoNotAcceptEvents="true" WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="176" SuggestedHeight="21" MarginLeft="101" MarginTop="39" Brush="DefaultText" Brush.Font="ReignSerifDynamic" Brush.FontSize="12" Brush.FontColor="#C5BDAFFF" Brush.TextHorizontalAlignment="Left" Text="@ChancellorName" />
+                <TextWidget DoNotAcceptEvents="true" WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="176" SuggestedHeight="18" MarginLeft="101" MarginTop="62" Brush="DefaultText" Brush.Font="ReignSerifDynamic" Brush.FontSize="8" Brush.FontColor="#A88A54FF" Brush.TextHorizontalAlignment="Left" Text="@ChancellorStateText" />
+                <TextWidget DoNotAcceptEvents="true" WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="176" SuggestedHeight="22" MarginLeft="101" MarginTop="82" Brush="DefaultText" Brush.Font="ReignSerifDynamic" Brush.FontSize="8" Brush.FontColor="#8A8883FF" Brush.TextHorizontalAlignment="Left" Text="@ChancellorSalaryText" />
+                <ButtonWidget WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="80" SuggestedHeight="20" MarginLeft="11" MarginTop="117" Command.Click="ExecuteOpenCourtHistory">
+                  <Children>
+                    <ImageWidget DoNotAcceptEvents="true" WidthSizePolicy="StretchToParent" HeightSizePolicy="StretchToParent" Sprite="reign_court_navigation_button_modern" />
+                    <TextWidget DoNotAcceptEvents="true" WidthSizePolicy="StretchToParent" HeightSizePolicy="StretchToParent" Brush="DefaultText" Brush.Font="ReignSerifDynamic" Brush.FontSize="8" Brush.FontColor="#C5AC83FF" Brush.TextHorizontalAlignment="Center" Brush.TextVerticalAlignment="Center" Text="HISTORY" />
+                  </Children>
+                </ButtonWidget>
+                <ButtonWidget IsVisible="@ChancellorToggleVisible" WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="80" SuggestedHeight="20" MarginLeft="106" MarginTop="117" Command.Click="ExecuteChancellorActive">
+                  <Children>
+                    <ImageWidget DoNotAcceptEvents="true" WidthSizePolicy="StretchToParent" HeightSizePolicy="StretchToParent" Sprite="reign_court_navigation_button_modern" />
+                    <TextWidget DoNotAcceptEvents="true" WidthSizePolicy="StretchToParent" HeightSizePolicy="StretchToParent" Brush="DefaultText" Brush.Font="ReignSerifDynamic" Brush.FontSize="8" Brush.FontColor="#C5AC83FF" Brush.TextHorizontalAlignment="Center" Brush.TextVerticalAlignment="Center" Text="ACTIVE" />
+                  </Children>
+                </ButtonWidget>
+                <ButtonWidget IsVisible="@ChancellorToggleVisible" WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="80" SuggestedHeight="20" MarginLeft="201" MarginTop="117" Command.Click="ExecuteChancellorInactive">
+                  <Children>
+                    <ImageWidget DoNotAcceptEvents="true" WidthSizePolicy="StretchToParent" HeightSizePolicy="StretchToParent" Sprite="reign_court_navigation_button_modern" />
+                    <TextWidget DoNotAcceptEvents="true" WidthSizePolicy="StretchToParent" HeightSizePolicy="StretchToParent" Brush="DefaultText" Brush.Font="ReignSerifDynamic" Brush.FontSize="8" Brush.FontColor="#C5AC83FF" Brush.TextHorizontalAlignment="Center" Brush.TextVerticalAlignment="Center" Text="INACTIVE" />
+                  </Children>
+                </ButtonWidget>
+              </Children>
+            </Widget>
+            <TextWidget DoNotAcceptEvents="true" WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="286" SuggestedHeight="24" MarginLeft="60" MarginTop="254" Brush="DefaultText" Brush.Font="ReignSerifDynamic" Brush.FontSize="13" Brush.FontColor="#A88A54FF" Brush.TextHorizontalAlignment="Center" Text="PETITIONS" />
+            <ReignDocketCardScrollPanel Type="ReignBeta.UI.ReignDocketCardScrollPanel" WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="286" SuggestedHeight="516" MarginLeft="58" MarginTop="281" ClipRect="CompactCourtDocketClip" InnerPanel="CompactCourtDocketClip\CompactCourtDocketList" VerticalScrollbar="..\CompactCourtDocketScrollbar" AutoHideScrollBars="false" OnlyAcceptScrollEventIfCanScroll="true" MouseScrollAxis="Vertical" ItemCount="@DocketItemCount">
+              <Children>
+                <Widget Id="CompactCourtDocketClip" WidthSizePolicy="StretchToParent" HeightSizePolicy="StretchToParent" ClipContents="true">
+                  <Children>
+                    <ListPanel Id="CompactCourtDocketList" DataSource="{DailyAgenda}" WidthSizePolicy="Fixed" HeightSizePolicy="CoverChildren" SuggestedWidth="280" StackLayout.LayoutMethod="VerticalTopToBottom">
+                      <ItemTemplate>
+                        <ButtonWidget WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="280" SuggestedHeight="125" MarginBottom="4" Brush="ConversationItem.SoundBrush" Command.Click="ExecuteSelect">
+                          <Children>
+                            <ImageWidget DoNotAcceptEvents="true" WidthSizePolicy="StretchToParent" HeightSizePolicy="StretchToParent" Sprite="reign_court_petition_card_modern" />
+                            <ImageWidget DoNotAcceptEvents="true" WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="34" SuggestedHeight="34" MarginLeft="12" MarginTop="47" Sprite="@IconSprite" />
+                            <TextWidget DoNotAcceptEvents="true" WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="208" SuggestedHeight="27" MarginLeft="57" MarginTop="22" Brush="DefaultText" Brush.Font="ReignSerifDynamic" Brush.FontSize="12" Brush.FontColor="#C5AC83FF" Brush.TextHorizontalAlignment="Left" Text="@Title" />
+                            <TextWidget DoNotAcceptEvents="true" WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="208" SuggestedHeight="56" MarginLeft="57" MarginTop="54" Brush="DefaultText" Brush.Font="ReignSerifDynamic" Brush.FontSize="9" Brush.FontColor="#C5BDAFFF" Brush.TextHorizontalAlignment="Left" Text="@Subtitle" />
+                          </Children>
+                        </ButtonWidget>
+                      </ItemTemplate>
+                    </ListPanel>
+                  </Children>
+                </Widget>
+              </Children>
+            </ReignDocketCardScrollPanel>
+            <ScrollbarWidget Id="CompactCourtDocketScrollbar" IsVisible="@DocketScrollVisible" WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="28" SuggestedHeight="508" MarginLeft="351" MarginTop="285" AlignmentAxis="Vertical" Handle="CompactCourtDocketScrollbarHandleHitbox" MaxValue="100" MinValue="0">
+              <Children>
+                <Widget DoNotAcceptEvents="true" WidthSizePolicy="Fixed" HeightSizePolicy="StretchToParent" SuggestedWidth="2" HorizontalAlignment="Center" Sprite="BlankWhiteSquare_9" Color="#7E6A4DFF" />
+                <Widget Id="CompactCourtDocketScrollbarHandleHitbox" WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="28" SuggestedHeight="80" HorizontalAlignment="Center">
+                  <Children>
+                    <ImageWidget Id="CompactCourtDocketScrollbarHandle" DoNotAcceptEvents="true" WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="18" SuggestedHeight="80" HorizontalAlignment="Center" Sprite="reign_court_scroll_handle" />
+                  </Children>
+                </Widget>
+              </Children>
+            </ScrollbarWidget>
+
+            <!-- Five office entrances aligned to the generated empty command recesses. -->
+            <TextWidget IsVisible="@LocalModeNoticeVisible" DoNotAcceptEvents="true" WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="290" SuggestedHeight="150" MarginLeft="1168" MarginTop="120" Brush="DefaultText" Brush.Font="ReignSerifDynamic" Brush.FontSize="15" Brush.FontColor="#A88A54FF" Brush.TextHorizontalAlignment="Center" Text="ROYAL COMMANDS ARE SUSPENDED&#10;&#10;Travel to the designated capital to convene the full Court." />
+            <TextWidget IsVisible="@RoyalCommandsVisible" DoNotAcceptEvents="true" WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="290" SuggestedHeight="28" MarginLeft="1168" MarginTop="64" Brush="DefaultText" Brush.Font="ReignSerifDynamic" Brush.FontSize="17" Brush.FontColor="#A88A54FF" Brush.TextHorizontalAlignment="Center" Text="ROYAL COMMAND" />
+            <ButtonWidget IsVisible="@RoyalCommandsVisible" WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="290" SuggestedHeight="88" MarginLeft="1168" MarginTop="120" Brush="ConversationItem.SoundBrush" Command.Click="ExecuteOpenWarCouncil">
+              <Children><ImageWidget DoNotAcceptEvents="true" WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="48" SuggestedHeight="48" MarginLeft="16" MarginTop="20" Sprite="reign_court_icon_war_council" Color="#7E6A4DFF" /><TextWidget DoNotAcceptEvents="true" WidthSizePolicy="Fixed" HeightSizePolicy="StretchToParent" SuggestedWidth="204" MarginLeft="78" Brush="DefaultText" Brush.Font="ReignSerifDynamic" Brush.FontSize="15" Brush.FontColor="#C5BDAFFF" Brush.TextHorizontalAlignment="Center" Text="WAR COUNCIL" /></Children>
+            </ButtonWidget>
+            <ButtonWidget IsVisible="@RoyalCommandsVisible" WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="290" SuggestedHeight="88" MarginLeft="1168" MarginTop="248" Brush="ConversationItem.SoundBrush" Command.Click="ExecuteOpenSpymaster">
+              <Children><ImageWidget DoNotAcceptEvents="true" WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="48" SuggestedHeight="48" MarginLeft="16" MarginTop="20" Sprite="reign_court_icon_spymaster" Color="#7E6A4DFF" /><TextWidget DoNotAcceptEvents="true" WidthSizePolicy="Fixed" HeightSizePolicy="StretchToParent" SuggestedWidth="204" MarginLeft="78" Brush="DefaultText" Brush.Font="ReignSerifDynamic" Brush.FontSize="15" Brush.FontColor="#C5BDAFFF" Brush.TextHorizontalAlignment="Center" Text="SPYMASTER" /></Children>
+            </ButtonWidget>
+            <ButtonWidget IsVisible="@RoyalCommandsVisible" WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="290" SuggestedHeight="88" MarginLeft="1168" MarginTop="375" Brush="ConversationItem.SoundBrush" Command.Click="ExecuteOpenAmbassadors">
+              <Children><ImageWidget DoNotAcceptEvents="true" WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="48" SuggestedHeight="48" MarginLeft="16" MarginTop="20" Sprite="reign_court_icon_ambassadors" Color="#7E6A4DFF" /><TextWidget DoNotAcceptEvents="true" WidthSizePolicy="Fixed" HeightSizePolicy="StretchToParent" SuggestedWidth="204" MarginLeft="78" Brush="DefaultText" Brush.Font="ReignSerifDynamic" Brush.FontSize="15" Brush.FontColor="#C5BDAFFF" Brush.TextHorizontalAlignment="Center" Text="AMBASSADORS" /></Children>
+            </ButtonWidget>
+            <ButtonWidget IsVisible="@RoyalCommandsVisible" WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="290" SuggestedHeight="88" MarginLeft="1168" MarginTop="501" Brush="ConversationItem.SoundBrush" Command.Click="ExecuteOpenEconomicReport">
+              <Children><ImageWidget DoNotAcceptEvents="true" WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="48" SuggestedHeight="48" MarginLeft="16" MarginTop="20" Sprite="reign_court_icon_economic_report" Color="#7E6A4DFF" /><TextWidget DoNotAcceptEvents="true" WidthSizePolicy="Fixed" HeightSizePolicy="StretchToParent" SuggestedWidth="204" MarginLeft="78" Brush="DefaultText" Brush.Font="ReignSerifDynamic" Brush.FontSize="14" Brush.FontColor="#C5BDAFFF" Brush.TextHorizontalAlignment="Center" Text="ECONOMIC REPORT" /></Children>
+            </ButtonWidget>
+            <ButtonWidget IsVisible="@RoyalCommandsVisible" WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="290" SuggestedHeight="88" MarginLeft="1168" MarginTop="628" Brush="ConversationItem.SoundBrush" Command.Click="ExecuteOpenRoyalCouncil">
+              <Children><ImageWidget DoNotAcceptEvents="true" WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="48" SuggestedHeight="48" MarginLeft="16" MarginTop="20" Sprite="reign_court_icon_keep" Color="#7E6A4DFF" /><TextWidget DoNotAcceptEvents="true" WidthSizePolicy="Fixed" HeightSizePolicy="StretchToParent" SuggestedWidth="204" MarginLeft="78" Brush="DefaultText" Brush.Font="ReignSerifDynamic" Brush.FontSize="14" Brush.FontColor="#C5BDAFFF" Brush.TextHorizontalAlignment="Center" Text="ROYAL COUNCIL" /></Children>
+            </ButtonWidget>
+
+            <!-- Three interface entrances sit at the foot of the throne artwork. -->
+            <ButtonWidget IsVisible="@RoyalCommandsVisible" WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="245" SuggestedHeight="55" MarginLeft="630" MarginTop="642" Command.Click="ExecuteRoyalProclamation">
+              <Children>
+                <ImageWidget DoNotAcceptEvents="true" WidthSizePolicy="StretchToParent" HeightSizePolicy="StretchToParent" Sprite="reign_court_navigation_button_modern" />
+                <TextWidget DoNotAcceptEvents="true" WidthSizePolicy="StretchToParent" HeightSizePolicy="StretchToParent" Brush="DefaultText" Brush.Font="ReignSerifDynamic" Brush.FontSize="12" Brush.FontColor="#C5BDAFFF" Brush.TextHorizontalAlignment="Center" Brush.TextVerticalAlignment="Center" Text="ROYAL PROCLAMATION" />
+              </Children>
+            </ButtonWidget>
+            <ButtonWidget IsVisible="@RoyalCommandsVisible" WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="203" SuggestedHeight="51" MarginLeft="438" MarginTop="707" Command.Click="ExecuteOpenKeep">
+              <Children><TextWidget DoNotAcceptEvents="true" WidthSizePolicy="StretchToParent" HeightSizePolicy="StretchToParent" Brush="DefaultText" Brush.Font="ReignSerifDynamic" Brush.FontSize="15" Brush.FontColor="#C5BDAFFF" Brush.TextHorizontalAlignment="Center" Text="KEEP" /></Children>
+            </ButtonWidget>
+            <ButtonWidget WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="203" SuggestedHeight="51" MarginLeft="651" MarginTop="707" Command.Click="ExecuteOpenFamilyChambers">
+              <Children><TextWidget DoNotAcceptEvents="true" WidthSizePolicy="StretchToParent" HeightSizePolicy="StretchToParent" Brush="DefaultText" Brush.Font="ReignSerifDynamic" Brush.FontSize="13" Brush.FontColor="#C5BDAFFF" Brush.TextHorizontalAlignment="Center" Text="FAMILY CHAMBERS" /></Children>
+            </ButtonWidget>
+            <ButtonWidget IsVisible="@RoyalCommandsVisible" WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="203" SuggestedHeight="51" MarginLeft="864" MarginTop="707" Command.Click="ExecuteOpenGovernment">
+              <Children><TextWidget DoNotAcceptEvents="true" WidthSizePolicy="StretchToParent" HeightSizePolicy="StretchToParent" Brush="DefaultText" Brush.Font="ReignSerifDynamic" Brush.FontSize="13" Brush.FontColor="#C5BDAFFF" Brush.TextHorizontalAlignment="Center" Text="GOVERNMENT" /></Children>
+            </ButtonWidget>
+
+            <!-- Court-only exits; native date and speed controls remain outside. -->
+            <ButtonWidget WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="157" SuggestedHeight="51" MarginLeft="1142" MarginTop="764" Brush="ConversationItem.SoundBrush" Command.Click="ExecuteClose"><Children><TextWidget DoNotAcceptEvents="true" WidthSizePolicy="StretchToParent" HeightSizePolicy="StretchToParent" Brush="DefaultText" Brush.Font="ReignSerifDynamic" Brush.FontSize="17" Brush.FontColor="#C5BDAFFF" Text="CLOSE" /></Children></ButtonWidget>
+            <ButtonWidget WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="169" SuggestedHeight="51" MarginLeft="1310" MarginTop="764" Brush="ConversationItem.SoundBrush" Command.Click="ExecuteEndCourt"><Children><TextWidget DoNotAcceptEvents="true" WidthSizePolicy="StretchToParent" HeightSizePolicy="StretchToParent" Brush="DefaultText" Brush.Font="ReignSerifDynamic" Brush.FontSize="17" Brush.FontColor="#C5BDAFFF" Text="END COURT" /></Children></ButtonWidget>
+          </Children>
+        </Widget>
+
+        <!-- Office detail pages occupy the identical compact footprint so moving
+             between Court functions never obscures native campaign controls. -->
+        <Widget Id="CompactCourtOffice" WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="1518" SuggestedHeight="854" HorizontalAlignment="Center" VerticalAlignment="Top" MarginTop="150" IsVisible="@TabContentVisible" DoNotUseCustomScaleAndChildren="true">
+          <Children>
+            <!-- One dedicated current-style shell owns every fixed office/history
+                 panel and return-control boundary. No legacy rectangles or frames
+                 are stacked over the modern raster. -->
+            <ImageWidget DoNotAcceptEvents="true" WidthSizePolicy="StretchToParent" HeightSizePolicy="StretchToParent" Sprite="reign_court_office_modern_shell" />
+
+            <TextWidget DoNotAcceptEvents="true" WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="330" SuggestedHeight="38" MarginLeft="55" MarginTop="47" Brush="DefaultText" Brush.Font="ReignSerifDynamic" Brush.FontSize="24" Brush.FontColor="#A88A54FF" Brush.TextHorizontalAlignment="Left" Text="@ScreenTitle" />
+            <TextWidget DoNotAcceptEvents="true" WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="650" SuggestedHeight="28" MarginLeft="420" MarginTop="53" Brush="DefaultText" Brush.Font="ReignSerifDynamic" Brush.FontSize="13" Brush.FontColor="#8A8883FF" Brush.TextHorizontalAlignment="Center" Text="@ScreenSubtitle" />
+            <ButtonWidget WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="174" SuggestedHeight="48" HorizontalAlignment="Right" MarginRight="29" MarginTop="32" Brush="ConversationItem.SoundBrush" Command.Click="ExecuteBackToHome"><Children><TextWidget DoNotAcceptEvents="true" WidthSizePolicy="StretchToParent" HeightSizePolicy="StretchToParent" Brush="DefaultText" Brush.Font="ReignSerifDynamic" Brush.FontSize="12" Brush.FontColor="#C5AC83FF" Text="RETURN TO COURT" /></Children></ButtonWidget>
+
+            <Widget WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="350" SuggestedHeight="682" MarginLeft="41" MarginTop="114">
+              <Children>
+                <ScrollablePanel WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="322" SuggestedHeight="638" MarginLeft="12" MarginTop="18" ClipRect="CompactCourtRowsClip" InnerPanel="CompactCourtRowsClip\CompactCourtRowsList" VerticalScrollbar="..\CompactCourtRowsScrollbar" AutoHideScrollBars="false" MouseScrollAxis="Vertical">
+                  <Children>
+                    <Widget Id="CompactCourtRowsClip" WidthSizePolicy="StretchToParent" HeightSizePolicy="StretchToParent" ClipContents="true">
+                      <Children>
+                        <ListPanel Id="CompactCourtRowsList" DataSource="{TabRows}" WidthSizePolicy="Fixed" HeightSizePolicy="CoverChildren" SuggestedWidth="322" StackLayout.LayoutMethod="VerticalTopToBottom">
+                          <ItemTemplate>
+                            <ButtonWidget WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="322" SuggestedHeight="103" MarginBottom="8" Brush="ConversationItem.SoundBrush" Command.Click="ExecuteSelect">
+                              <Children>
+                                <Widget IsVisible="@HasPortrait" DoNotAcceptEvents="true" WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="80" SuggestedHeight="80" MarginLeft="14" MarginTop="11" ClipContents="true">
+                                  <Children>
+                                    <ImageIdentifierWidget DoNotAcceptEvents="true" WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="84" SuggestedHeight="84" HorizontalAlignment="Center" VerticalAlignment="Center" ImageId="@PortraitId" AdditionalArgs="@PortraitAdditionalArgs" TextureProviderName="@PortraitTextureProviderName" />
+                                    <ReignPortraitWidget Type="ReignBeta.UI.Widgets.ReignPortraitWidget" DoNotAcceptEvents="true" WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="84" SuggestedHeight="84" HorizontalAlignment="Center" VerticalAlignment="Center" PortraitCacheKey="@PortraitCacheKey" UseZoomQuality="true" />
+                                  </Children>
+                                </Widget>
+                                <!-- The moving card itself owns the visible portrait frame. -->
+                                <ImageWidget DoNotAcceptEvents="true" WidthSizePolicy="StretchToParent" HeightSizePolicy="StretchToParent" Sprite="reign_court_petition_attendee_card_modern" />
+                                <TextWidget DoNotAcceptEvents="true" WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="190" SuggestedHeight="25" MarginLeft="105" MarginTop="12" Brush="DefaultText" Brush.Font="ReignSerifDynamic" Brush.FontSize="13" Brush.FontColor="#C5AC83FF" Brush.TextHorizontalAlignment="Left" Text="@Title" />
+                                <TextWidget DoNotAcceptEvents="true" WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="190" SuggestedHeight="38" MarginLeft="105" MarginTop="39" Brush="DefaultText" Brush.Font="ReignSerifDynamic" Brush.FontSize="9" Brush.FontColor="#8A8883FF" Brush.TextHorizontalAlignment="Left" Text="@Subtitle" />
+                                <TextWidget DoNotAcceptEvents="true" WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="190" SuggestedHeight="18" MarginLeft="105" MarginTop="78" Brush="DefaultText" Brush.Font="ReignSerifDynamic" Brush.FontSize="9" Brush.FontColor="#7E6A4DFF" Brush.TextHorizontalAlignment="Left" Text="@Status" />
+                              </Children>
+                            </ButtonWidget>
+                          </ItemTemplate>
+                        </ListPanel>
+                      </Children>
+                    </Widget>
+                  </Children>
+                </ScrollablePanel>
+                <ScrollbarWidget Id="CompactCourtRowsScrollbar" WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="16" SuggestedHeight="638" HorizontalAlignment="Right" MarginRight="2" MarginTop="18" AlignmentAxis="Vertical" Handle="CompactCourtRowsScrollbarHandle" MaxValue="100" MinValue="0"><Children><Widget DoNotAcceptEvents="true" WidthSizePolicy="Fixed" HeightSizePolicy="StretchToParent" SuggestedWidth="2" HorizontalAlignment="Center" Sprite="BlankWhiteSquare_9" Color="#352C20FF" /><ImageWidget Id="CompactCourtRowsScrollbarHandle" WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedHeight="72" SuggestedWidth="16" HorizontalAlignment="Center" Sprite="reign_court_scroll_handle" /></Children></ScrollbarWidget>
+              </Children>
+            </Widget>
+
+            <Widget WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="1056" SuggestedHeight="682" MarginLeft="418" MarginTop="114">
+              <Children>
+                <TextWidget DoNotAcceptEvents="true" WidthSizePolicy="StretchToParent" HeightSizePolicy="Fixed" SuggestedHeight="44" MarginLeft="36" MarginRight="36" MarginTop="30" Brush="DefaultText" Brush.Font="ReignSerifDynamic" Brush.FontSize="26" Brush.FontColor="#A88A54FF" Brush.TextHorizontalAlignment="Center" Text="@DetailTitle" />
+                <TextWidget DoNotAcceptEvents="true" WidthSizePolicy="StretchToParent" HeightSizePolicy="Fixed" SuggestedHeight="30" MarginLeft="42" MarginRight="42" MarginTop="80" Brush="DefaultText" Brush.Font="ReignSerifDynamic" Brush.FontSize="13" Brush.FontColor="#8A8883FF" Brush.TextHorizontalAlignment="Center" Text="@DetailMeta" />
+                <TextWidget DoNotAcceptEvents="true" WidthSizePolicy="StretchToParent" HeightSizePolicy="Fixed" SuggestedHeight="235" MarginLeft="52" MarginRight="52" MarginTop="128" Brush="DefaultText" Brush.Font="ReignSerifDynamic" Brush.FontSize="16" Brush.FontColor="#C5BDAFFF" Brush.TextHorizontalAlignment="Left" Text="@DetailBody" />
+                <ListPanel DataSource="{Actions}" WidthSizePolicy="StretchToParent" HeightSizePolicy="CoverChildren" MarginLeft="44" MarginRight="44" MarginTop="386" StackLayout.LayoutMethod="VerticalTopToBottom">
+                  <ItemTemplate>
+                    <ButtonWidget WidthSizePolicy="StretchToParent" HeightSizePolicy="Fixed" SuggestedHeight="56" MarginBottom="7" Brush="ConversationItem.SoundBrush" Command.Click="ExecuteAction" IsEnabled="@IsEnabled">
+                      <Children>
+                        <TextWidget DoNotAcceptEvents="true" WidthSizePolicy="Fixed" HeightSizePolicy="StretchToParent" SuggestedWidth="24" Brush="DefaultText" Brush.Font="ReignSerifDynamic" Brush.FontSize="15" Brush.FontColor="#A88A54FF" Text="·" />
+                        <TextWidget DoNotAcceptEvents="true" WidthSizePolicy="Fixed" HeightSizePolicy="StretchToParent" SuggestedWidth="220" MarginLeft="28" Brush="DefaultText" Brush.Font="ReignSerifDynamic" Brush.FontSize="14" Brush.FontColor="#C5BDAFFF" Brush.TextHorizontalAlignment="Left" Text="@Label" />
+                        <TextWidget DoNotAcceptEvents="true" WidthSizePolicy="StretchToParent" HeightSizePolicy="StretchToParent" MarginLeft="250" MarginRight="84" Brush="DefaultText" Brush.Font="ReignSerifDynamic" Brush.FontSize="10" Brush.FontColor="#8A8883FF" Brush.TextHorizontalAlignment="Left" Text="@Description" />
+                        <TextWidget DoNotAcceptEvents="true" WidthSizePolicy="Fixed" HeightSizePolicy="StretchToParent" SuggestedWidth="72" HorizontalAlignment="Right" MarginRight="10" Brush="DefaultText" Brush.Font="ReignSerifDynamic" Brush.FontSize="10" Brush.FontColor="#7E6A4DFF" Brush.TextHorizontalAlignment="Right" Text="@StateText" />
+                      </Children>
+                    </ButtonWidget>
+                  </ItemTemplate>
+                </ListPanel>
+              </Children>
+            </Widget>
+          </Children>
+        </Widget>
+      </Children>
+    </Widget>
+  </Window>
+</Prefab>

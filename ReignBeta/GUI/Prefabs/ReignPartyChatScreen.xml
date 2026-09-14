@@ -1,0 +1,186 @@
+<Prefab>
+  <Window>
+    <Widget WidthSizePolicy="StretchToParent" HeightSizePolicy="StretchToParent" IsVisible="@IsOverlayVisible">
+      <Children>
+        <ButtonWidget WidthSizePolicy="StretchToParent" HeightSizePolicy="StretchToParent" Brush="ConversationItem.SoundBrush" DoNotPassEventsToChildren="true" UpdateChildrenStates="true" Command.Click="ExecuteNoOp">
+          <Children>
+            <Widget DoNotAcceptEvents="true" WidthSizePolicy="StretchToParent" HeightSizePolicy="StretchToParent" Sprite="BlankWhiteSquare_9" Color="#030303FF" />
+          </Children>
+        </ButtonWidget>
+
+        <!-- The approved modern composition is authored on a fixed 1672x941 logical surface. -->
+        <Widget WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="1672" SuggestedHeight="941" HorizontalAlignment="Center" VerticalAlignment="Center" ClipContents="true" DoNotUseCustomScaleAndChildren="true">
+          <Children>
+            <Widget Id="PartyChatShell" DoNotAcceptEvents="true" WidthSizePolicy="StretchToParent" HeightSizePolicy="StretchToParent" Sprite="reign_party_chat_modern_shell" />
+
+            <Widget Id="PartyChatHeader" WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="760" SuggestedHeight="120" HorizontalAlignment="Center" MarginTop="26">
+              <Children>
+                <TextWidget WidthSizePolicy="StretchToParent" HeightSizePolicy="Fixed" SuggestedHeight="39" MarginTop="15" Brush="DefaultText" Brush.Font="ReignSerifDynamic" Brush.FontSize="30" Brush.TextHorizontalAlignment="Center" Brush.FontColor="#C5BDAFFF" Text="@Title" />
+                <TextWidget WidthSizePolicy="StretchToParent" HeightSizePolicy="Fixed" SuggestedHeight="26" MarginTop="56" Brush="DefaultText" Brush.Font="ReignSerifDynamic" Brush.FontSize="18" Brush.TextHorizontalAlignment="Center" Brush.FontColor="#C5BDAFFF" Text="@LocationText" />
+                <TextWidget WidthSizePolicy="StretchToParent" HeightSizePolicy="Fixed" SuggestedHeight="22" MarginTop="86" Brush="DefaultText" Brush.Font="ReignSerifDynamic" Brush.FontSize="15" Brush.TextHorizontalAlignment="Center" Brush.FontColor="#8A8883FF" Text="@SelectedSummary" />
+              </Children>
+            </Widget>
+
+            <ButtonWidget WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="120" SuggestedHeight="36" HorizontalAlignment="Left" MarginLeft="1218" MarginTop="36" Brush="ConversationItem.SoundBrush" Command.Click="ExecuteSelectAll" UpdateChildrenStates="true" IsVisible="@AllowGroupSelection">
+              <Children>
+                <Widget DoNotAcceptEvents="true" WidthSizePolicy="StretchToParent" HeightSizePolicy="StretchToParent" />
+                <TextWidget DoNotAcceptEvents="true" WidthSizePolicy="StretchToParent" HeightSizePolicy="StretchToParent" Brush="DefaultText" Brush.Font="ReignSerifDynamic" Brush.FontSize="15" Brush.FontColor="#C5BDAFFF" Text="All" />
+              </Children>
+            </ButtonWidget>
+            <ButtonWidget WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="120" SuggestedHeight="36" HorizontalAlignment="Left" MarginLeft="1358" MarginTop="36" Brush="ConversationItem.SoundBrush" Command.Click="ExecuteClearSelection" UpdateChildrenStates="true">
+              <Children>
+                <Widget DoNotAcceptEvents="true" WidthSizePolicy="StretchToParent" HeightSizePolicy="StretchToParent" />
+                <TextWidget DoNotAcceptEvents="true" WidthSizePolicy="StretchToParent" HeightSizePolicy="StretchToParent" Brush="DefaultText" Brush.Font="ReignSerifDynamic" Brush.FontSize="15" Brush.FontColor="#C5BDAFFF" Text="@ClearSelectionText" />
+              </Children>
+            </ButtonWidget>
+            <ButtonWidget WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="120" SuggestedHeight="36" HorizontalAlignment="Left" MarginLeft="1498" MarginTop="36" Brush="ConversationItem.SoundBrush" Command.Click="ExecuteClose" UpdateChildrenStates="true">
+              <Children>
+                <Widget DoNotAcceptEvents="true" WidthSizePolicy="StretchToParent" HeightSizePolicy="StretchToParent" />
+                <TextWidget DoNotAcceptEvents="true" WidthSizePolicy="StretchToParent" HeightSizePolicy="StretchToParent" Brush="DefaultText" Brush.Font="ReignSerifDynamic" Brush.FontSize="15" Brush.FontColor="#C5BDAFFF" Text="Leave" />
+              </Children>
+            </ButtonWidget>
+
+            <Widget Id="PartyChatRoster" WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="1590" SuggestedHeight="202" HorizontalAlignment="Left" MarginLeft="41" MarginTop="158">
+              <Children>
+                <TextWidget WidthSizePolicy="StretchToParent" HeightSizePolicy="Fixed" SuggestedHeight="30" MarginLeft="520" MarginRight="520" Brush="DefaultText" Brush.Font="ReignSerifDynamic" Brush.FontSize="20" Brush.TextHorizontalAlignment="Center" Brush.FontColor="#C5AC83FF" Text="@RosterTitle" />
+
+                <ScrollablePanel Id="PartyMemberViewport" WidthSizePolicy="StretchToParent" HeightSizePolicy="Fixed" SuggestedHeight="156" MarginLeft="52" MarginRight="52" MarginTop="32" ClipRect="PartyMemberClip" InnerPanel="PartyMemberClip\PartyMemberList" HorizontalScrollbar="..\PartyMemberScrollbar" AutoHideScrollBars="false" OnlyAcceptScrollEventIfCanScroll="true" MouseScrollAxis="Horizontal">
+                  <Children>
+                    <Widget Id="PartyMemberClip" WidthSizePolicy="StretchToParent" HeightSizePolicy="StretchToParent" ClipContents="true">
+                      <Children>
+                        <ListPanel Id="PartyMemberList" DataSource="{PartyMembers}" WidthSizePolicy="CoverChildren" HeightSizePolicy="StretchToParent" StackLayout.LayoutMethod="HorizontalLeftToRight">
+                          <ItemTemplate>
+                            <ButtonWidget Id="PartyMemberCard" WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="286" SuggestedHeight="154" MarginRight="14" ClipContents="true" Brush="ConversationItem.SoundBrush" Command.Click="ExecuteToggleActive" DoNotPassEventsToChildren="false" UpdateChildrenStates="true">
+                              <Children>
+                                <!-- Portrait, complete raster aperture plate and all controls belong to this moving item. -->
+
+                                <ButtonWidget WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="130" SuggestedHeight="136" MarginLeft="10" MarginTop="12" Brush="ConversationItem.SoundBrush" Command.Click="ExecutePreviewPortrait" DoNotPassEventsToChildren="true">
+                                  <Children>
+                                    <Widget Id="PartyMemberPortraitClip" DoNotAcceptEvents="true" WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="122" SuggestedHeight="130" MarginLeft="4" MarginTop="4" ClipContents="true">
+                                      <Children>
+                                        <ImageIdentifierWidget DoNotAcceptEvents="true" WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="128" SuggestedHeight="128" HorizontalAlignment="Center" VerticalAlignment="Center" ImageId="@PortraitId" AdditionalArgs="@PortraitAdditionalArgs" TextureProviderName="@PortraitTextureProviderName" />
+                                        <ReignPortraitWidget Type="ReignBeta.UI.Widgets.ReignPortraitWidget" DoNotAcceptEvents="true" WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="128" SuggestedHeight="128" HorizontalAlignment="Center" VerticalAlignment="Center" PortraitCacheKey="@PortraitCacheKey" UseZoomQuality="true" />
+                                      </Children>
+                                    </Widget>
+                                  </Children>
+                                </ButtonWidget>
+
+                                <ImageWidget Id="PartyMemberCardPlate" DoNotAcceptEvents="true" WidthSizePolicy="StretchToParent" HeightSizePolicy="StretchToParent" Sprite="reign_party_chat_member_card_overlay" />
+                                <Widget Id="PartyMemberSelection" DoNotAcceptEvents="true" WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="114" SuggestedHeight="2" HorizontalAlignment="Right" MarginRight="14" MarginTop="96" Sprite="BlankWhiteSquare_9" Color="#A88A54FF" IsVisible="@IsActive" />
+
+                                <ButtonWidget WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="126" SuggestedHeight="31" HorizontalAlignment="Right" MarginRight="8" MarginTop="28" Brush="ConversationItem.SoundBrush" Command.Click="ExecuteOpenEncyclopedia" DoNotPassEventsToChildren="true">
+                                  <Children>
+                                    <TextWidget DoNotAcceptEvents="true" WidthSizePolicy="StretchToParent" HeightSizePolicy="StretchToParent" Brush="DefaultText" Brush.Font="ReignSerifDynamic" Brush.FontSize="14" Brush.TextHorizontalAlignment="Center" Brush.FontColor="#C5AC83FF" Text="@Name" />
+                                  </Children>
+                                </ButtonWidget>
+                                <TextWidget DoNotAcceptEvents="true" WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="126" SuggestedHeight="@StatusHeight" HorizontalAlignment="Right" MarginRight="8" MarginTop="@StatusTop" Brush="DefaultText" Brush.Font="ReignSerifDynamic" Brush.FontSize="13" Brush.TextHorizontalAlignment="Center" Brush.FontColor="#C5BDAFFF" Text="@DisplayStatus" />
+                                <ButtonWidget WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="126" SuggestedHeight="21" HorizontalAlignment="Right" MarginRight="8" MarginTop="76" Brush="ConversationItem.SoundBrush" Command.Click="ExecuteVisitInPerson" DoNotPassEventsToChildren="true" IsVisible="@CanVisitInPerson">
+                                  <Children>
+                                    <TextWidget DoNotAcceptEvents="true" WidthSizePolicy="StretchToParent" HeightSizePolicy="StretchToParent" Brush="DefaultText" Brush.Font="ReignSerifDynamic" Brush.FontSize="13" Brush.TextHorizontalAlignment="Center" Brush.FontColor="#A88A54FF" Text="Visit in person" />
+                                  </Children>
+                                </ButtonWidget>
+                                <ButtonWidget WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="126" SuggestedHeight="31" HorizontalAlignment="Right" MarginRight="8" MarginTop="101" Brush="ConversationItem.SoundBrush" Command.Click="ExecuteGenerateAIPortrait" DoNotPassEventsToChildren="true" />
+                              </Children>
+                            </ButtonWidget>
+                          </ItemTemplate>
+                        </ListPanel>
+                      </Children>
+                    </Widget>
+                  </Children>
+                </ScrollablePanel>
+
+                <ScrollbarWidget Id="PartyMemberScrollbar" WidthSizePolicy="StretchToParent" HeightSizePolicy="Fixed" SuggestedHeight="4" HorizontalAlignment="Center" VerticalAlignment="Bottom" MarginLeft="52" MarginRight="52" MarginBottom="2" AlignmentAxis="Horizontal" Handle="PartyMemberScrollbarHandle" MaxValue="100" MinValue="0">
+                  <Children>
+                    <Widget WidthSizePolicy="StretchToParent" HeightSizePolicy="Fixed" SuggestedHeight="2" VerticalAlignment="Center" Sprite="BlankWhiteSquare_9" Color="#352C20FF" />
+                    <Widget Id="PartyMemberScrollbarHandle" WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="96" SuggestedHeight="4" VerticalAlignment="Center" Sprite="BlankWhiteSquare_9" Color="#A88A54FF" />
+                  </Children>
+                </ScrollbarWidget>
+              </Children>
+            </Widget>
+
+            <Widget Id="PartyChatLog" WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="1590" SuggestedHeight="439" HorizontalAlignment="Left" MarginLeft="41" MarginTop="378">
+              <Children>
+                <Widget Id="HomesDirectory" WidthSizePolicy="StretchToParent" HeightSizePolicy="StretchToParent" MarginLeft="34" MarginRight="52" MarginTop="24" MarginBottom="24" IsVisible="@IsHomeDirectory" DoNotAcceptEvents="true">
+                  <Children>
+                    <TextWidget WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="580" SuggestedHeight="30" HorizontalAlignment="Center" MarginTop="38" Brush="DefaultText" Brush.Font="ReignSerifDynamic" Brush.FontSize="20" Brush.TextHorizontalAlignment="Center" Brush.FontColor="#C5AC83FF" Text="Visit a home" DoNotAcceptEvents="true" />
+                    <Widget Id="HomesLane" WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="480" SuggestedHeight="240" HorizontalAlignment="Center" MarginTop="94" Sprite="reign_homes_lane" DoNotAcceptEvents="true" />
+                    <TextWidget WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="900" SuggestedHeight="48" HorizontalAlignment="Center" MarginTop="342" Brush="DefaultText" Brush.Font="ReignSerifDynamic" Brush.FontSize="19" Brush.TextHorizontalAlignment="Center" Brush.FontColor="#C5BDAFFF" Text="@HomeDirectoryText" DoNotAcceptEvents="true" />
+                  </Children>
+                </Widget>
+                <ScrollablePanel WidthSizePolicy="StretchToParent" HeightSizePolicy="StretchToParent" MarginLeft="34" MarginRight="52" MarginTop="34" MarginBottom="32" AutoHideScrollBars="false" MouseScrollAxis="Vertical" InnerPanel="PartyChatClip\PartyChatList" ClipRect="PartyChatClip" VerticalScrollbar="..\PartyChatScrollbar" IsVisible="@HasChatSession">
+                  <Children>
+                    <Widget Id="PartyChatClip" WidthSizePolicy="StretchToParent" HeightSizePolicy="StretchToParent" ClipContents="true">
+                      <Children>
+                        <ListPanel Id="PartyChatList" DataSource="{ChatLines}" WidthSizePolicy="StretchToParent" HeightSizePolicy="CoverChildren" StackLayout.LayoutMethod="VerticalTopToBottom">
+                          <ItemTemplate>
+                            <Widget WidthSizePolicy="StretchToParent" HeightSizePolicy="CoverChildren" MarginBottom="10">
+                              <Children>
+                                <Widget WidthSizePolicy="Fixed" HeightSizePolicy="CoverChildren" SuggestedWidth="760" HorizontalAlignment="Left" MarginRight="300" IsVisible="@IsPlayerLine">
+                                  <Children>
+                                    <TextWidget WidthSizePolicy="StretchToParent" HeightSizePolicy="Fixed" SuggestedHeight="22" MarginLeft="32" MarginRight="32" MarginTop="16" Brush="DefaultText" Brush.Font="ReignSerifDynamic" Brush.FontSize="15" Brush.TextHorizontalAlignment="Left" Brush.FontColor="#C5AC83FF" Text="@Speaker" />
+                                    <RichTextWidget WidthSizePolicy="StretchToParent" HeightSizePolicy="CoverChildren" MarginLeft="32" MarginRight="32" MarginTop="42" MarginBottom="16" Brush="Reign.Chat.ActionText.17" Brush.Font="ReignSerifDynamic" Brush.FontSize="17" Brush.TextHorizontalAlignment="Left" Brush.FontColor="#C5BDAFFF" Text="@RichText" />
+                                  </Children>
+                                </Widget>
+                                <Widget WidthSizePolicy="Fixed" HeightSizePolicy="CoverChildren" SuggestedWidth="760" HorizontalAlignment="Right" MarginLeft="300" IsVisible="@IsNpcLine">
+                                  <Children>
+                                    <TextWidget WidthSizePolicy="StretchToParent" HeightSizePolicy="Fixed" SuggestedHeight="22" MarginLeft="32" MarginRight="32" MarginTop="16" Brush="DefaultText" Brush.Font="ReignSerifDynamic" Brush.FontSize="15" Brush.TextHorizontalAlignment="Right" Brush.FontColor="#C5AC83FF" Text="@Speaker" />
+                                    <RichTextWidget WidthSizePolicy="StretchToParent" HeightSizePolicy="CoverChildren" MarginLeft="32" MarginRight="32" MarginTop="42" MarginBottom="16" Brush="Reign.Chat.ActionText.17" Brush.Font="ReignSerifDynamic" Brush.FontSize="17" Brush.TextHorizontalAlignment="Right" Brush.FontColor="#C5BDAFFF" Text="@RichText" />
+                                  </Children>
+                                </Widget>
+                                <Widget WidthSizePolicy="Fixed" HeightSizePolicy="CoverChildren" SuggestedWidth="708" HorizontalAlignment="Center" IsVisible="@IsSystemLine">
+                                  <Children>
+                                    <RichTextWidget WidthSizePolicy="StretchToParent" HeightSizePolicy="CoverChildren" MarginLeft="64" MarginRight="64" MarginTop="28" MarginBottom="28" Brush="Reign.Chat.ActionText.16" Brush.Font="ReignSerifDynamic" Brush.FontSize="16" Brush.TextHorizontalAlignment="Center" Brush.FontColor="#C5BDAFFF" Text="@RichText" />
+                                  </Children>
+                                </Widget>
+                              </Children>
+                            </Widget>
+                          </ItemTemplate>
+                        </ListPanel>
+                      </Children>
+                    </Widget>
+                  </Children>
+                </ScrollablePanel>
+
+                <ScrollbarWidget Id="PartyChatScrollbar" WidthSizePolicy="Fixed" HeightSizePolicy="StretchToParent" SuggestedWidth="12" HorizontalAlignment="Right" MarginRight="18" MarginTop="30" MarginBottom="28" AlignmentAxis="Vertical" Handle="PartyChatScrollbarHandle" MaxValue="100" MinValue="0" IsVisible="@HasChatSession">
+                  <Children>
+                    <Widget WidthSizePolicy="Fixed" HeightSizePolicy="StretchToParent" SuggestedWidth="4" HorizontalAlignment="Center" Sprite="BlankWhiteSquare_9" Color="#352C20FF" />
+                    <Widget Id="PartyChatScrollbarHandle" WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="8" SuggestedHeight="64" HorizontalAlignment="Center" Sprite="BlankWhiteSquare_9" Color="#A88A54FF" />
+                  </Children>
+                </ScrollbarWidget>
+              </Children>
+            </Widget>
+
+            <TextWidget WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="520" SuggestedHeight="22" HorizontalAlignment="Center" MarginTop="801" Brush="DefaultText" Brush.Font="ReignSerifDynamic" Brush.FontSize="14" Brush.TextHorizontalAlignment="Center" Brush.FontColor="#8A8883FF" Text="@BusyText" />
+            <Widget WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="1192" SuggestedHeight="66" HorizontalAlignment="Left" MarginLeft="183" MarginTop="830">
+              <Children>
+                <EditableTextWidget WidthSizePolicy="StretchToParent" HeightSizePolicy="Fixed" SuggestedHeight="42" MarginLeft="34" MarginRight="70" MarginTop="12" Brush="DefaultText" Brush.Font="ReignSerifDynamic" Brush.FontSize="18" Brush.TextHorizontalAlignment="Left" Brush.FontColor="#C5BDAFFF" Text="@InputText" IsEnabled="@InputEnabled" />
+              </Children>
+            </Widget>
+            <ButtonWidget WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="202" SuggestedHeight="66" MarginLeft="1388" MarginTop="830" HorizontalAlignment="Left" Brush="ConversationItem.SoundBrush" Command.Click="ExecuteSend" UpdateChildrenStates="true" IsEnabled="@InputEnabled">
+              <Children>
+                <Widget DoNotAcceptEvents="true" WidthSizePolicy="StretchToParent" HeightSizePolicy="StretchToParent" />
+                <TextWidget DoNotAcceptEvents="true" WidthSizePolicy="StretchToParent" HeightSizePolicy="StretchToParent" Brush="DefaultText" Brush.Font="ReignSerifDynamic" Brush.FontSize="20" Brush.FontColor="#C5BDAFFF" Text="Send" />
+              </Children>
+            </ButtonWidget>
+          </Children>
+        </Widget>
+
+        <ButtonWidget WidthSizePolicy="StretchToParent" HeightSizePolicy="StretchToParent" IsVisible="@IsPortraitPreviewVisible" DoNotPassEventsToChildren="true" UpdateChildrenStates="true" RenderLate="true" Sprite="BlankWhiteSquare" Brush.Color="#030303FF" Command.Click="ExecuteClosePortraitPreview">
+          <Children>
+            <Widget WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="520" SuggestedHeight="675" HorizontalAlignment="Center" VerticalAlignment="Center" DoNotAcceptEvents="true" RenderLate="true">
+              <Children>
+                <Widget WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="370" SuggestedHeight="555" MarginLeft="75" MarginTop="38" ClipContents="true">
+                  <Children>
+                    <ImageIdentifierWidget Id="ReignPartyChatPortraitPreview" DoNotAcceptEvents="true" WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="420" SuggestedHeight="560" HorizontalAlignment="Center" VerticalAlignment="Center" TextureProviderName="@PortraitPreviewTextureProviderName" AdditionalArgs="@PortraitPreviewAdditionalArgs" ImageId="@PortraitPreviewId" />
+                  </Children>
+                </Widget>
+                <ImageWidget WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="370" SuggestedHeight="555" MarginLeft="75" MarginTop="38" Sprite="reign_party_chat_preview_oval_mask" DoNotAcceptEvents="true" />
+                <TextWidget WidthSizePolicy="StretchToParent" HeightSizePolicy="Fixed" SuggestedHeight="58" VerticalAlignment="Bottom" MarginLeft="70" MarginRight="70" MarginBottom="14" Brush="DefaultText" Brush.Font="ReignSerifDynamic" Brush.FontSize="22" Brush.FontColor="#C5BDAFFF" Text="@PortraitPreviewName" DoNotAcceptEvents="true" />
+              </Children>
+            </Widget>
+          </Children>
+        </ButtonWidget>
+      </Children>
+    </Widget>
+  </Window>
+</Prefab>

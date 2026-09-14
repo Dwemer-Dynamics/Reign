@@ -1,0 +1,49 @@
+{
+  "schema": "reign-overlay-asset-spec-v1",
+  "asset": {
+    "id": "ambassador-scroll-handle-fixed",
+    "role": "approved-reference-exact movable horizontal Ambassador scroll handle",
+    "selectedGeneratedSourceSha256": "7466a2fbcffb88c73b2b962d4854fb8a06b3b2a8fbba35fdf5bea717c828fe01",
+    "generationMode": "built-in image-to-image exploration followed by deterministic approved-reference fixed-pixel extraction",
+    "promptPath": "../ambassador-modern-shell-prompt.txt",
+    "promptSha256": "34b9b5c34f3ca54fe2814a036ade1fbb0c6c4d62cf0d9f71cdb286559cf2b8c7"
+  },
+  "authorities": {
+    "layout": {
+      "path": "../approved-references/ambassador.png",
+      "sha256": "073f96aafde634fd1f1a43175429c8bcaa1557c28b70b30da69dce0a6d5caa94"
+    },
+    "materials": {
+      "path": "../approved-references/ambassador.png",
+      "sha256": "073f96aafde634fd1f1a43175429c8bcaa1557c28b70b30da69dce0a6d5caa94"
+    },
+    "palette": {
+      "path": "../palette.json",
+      "sha256": "fac70043a567db463ae70c975b92037dbfc38337e0d9134bc85bb03e3bb9a043",
+      "schema": "reign-ui-modern-palette-v1",
+      "version": "2026.08.28.2"
+    }
+  },
+  "canvas": { "width": 260, "height": 15 },
+  "normalization": {
+    "fit": "exact",
+    "anchor": "center",
+    "sourceCrop": { "x": 519, "y": 808, "width": 260, "height": 15 }
+  },
+  "antialiasScale": 4,
+  "allowNoApertures": true,
+  "apertures": [],
+  "transparentRgb": "#121211",
+  "marbleReduction": {
+    "amount": 0.0,
+    "blurRadius": 1.0,
+    "luminanceCeiling": 96,
+    "chromaCeiling": 36,
+    "selectionSoftness": 20
+  },
+  "integrationGeometry": {
+    "schema": "reign-ambassador-scroll-handle-integration-geometry-v1",
+    "coordinateSystem": { "units": "pixels", "origin": "top-left", "canvasWidth": 260, "canvasHeight": 15 },
+    "scrollTrack": { "x": 519, "y": 808, "width": 621, "height": 15 }
+  }
+}

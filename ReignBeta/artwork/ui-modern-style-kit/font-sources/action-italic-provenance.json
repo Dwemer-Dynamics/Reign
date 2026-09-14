@@ -1,0 +1,21 @@
+{
+  "schema": "reign-ui-font-provenance/v1",
+  "runtimeAlias": "ReignSerifActionItalic",
+  "source": {
+    "family": "Cormorant Garamond",
+    "style": "Medium Italic",
+    "version": "4.002",
+    "url": "https://raw.githubusercontent.com/CatharsisFonts/Cormorant/v4.002/fonts/ttf/CormorantGaramond-MediumItalic.ttf",
+    "license": "SIL Open Font License 1.1",
+    "licenseFile": "Cormorant-v4.002-OFL.txt"
+  },
+  "generation": {
+    "tool": "Installed TaleWorlds.GauntletUI.FontAtlas.exe",
+    "arguments": "-atlassize 2048 2048 -size 64 -angle 8 -range 16 -padding 16 -smooth 0 -smoothingConstant 0.5 -mode 1"
+  },
+  "sha256": {
+    "ReignBeta/artwork/ui-modern-style-kit/font-sources/CormorantGaramond-MediumItalic.ttf": "8dc49fcd537a3a3bd1355b87ec6a733c51306dc0cfa638d67697c32521b45ab5",
+    "ReignBeta/GUI/Fonts/ReignSerifActionItalic/ReignSerifActionItalic.fnt": "71a5482c385890b4203ddc699948788ff17064b8a270ecfe75db343984066a87",
+    "ReignBeta/GUI/SpriteParts/ui_reignbeta_action_fonts/ReignSerifActionItalic.png": "152f8e9b85c961d4bc4f36a31e505cfec54014b39111b0488fe458a0848eadce"
+  }
+}

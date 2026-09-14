@@ -1,0 +1,42 @@
+{
+  "schema": "reign-fixed-region-composite-v1",
+  "assetId": "castle-layout-modern-shell-exact-fixed-source",
+  "approvedReference": {
+    "path": "../approved-references/castle-layout.png",
+    "sha256": "e274878fb6dc9a4f13114a8a4f9f4e256f26e07146bb9653e22d57c1aeeb848c"
+  },
+  "imageToImageFill": {
+    "path": "../generated-sources/screen-shells/castle-layout-dynamic-fill-clean-source.png",
+    "sha256": "a1bda06da44be30629e7edfb4cbbde5411860f1992fba347ea710e63ce0368b3",
+    "normalization": "The selected Castle Layout image-to-image source is normalized to 1672x941, then its occupancy interiors are cleaned with the frozen modern black-marble material before exact approved-reference composition. The culture-map aperture retains the selected source material until the runtime culture map covers it."
+  },
+  "canvas": {"width": 1672, "height": 941},
+  "policy": "Every pixel outside the culture-map aperture and explicitly enumerated occupancy-row interiors is copied byte-for-byte from the approved reference. Runtime occupied and empty slots share one circular geometry; the Guest Bedrooms row preserves the functional 20-slot capacity.",
+  "rectangularFillMode": {
+    "type": "median-border color-matched image-to-image patch",
+    "inwardFeatherPixels": 0,
+    "borderSamplePixels": 4
+  },
+  "sceneDependentMasks": [
+    {"id": "culture-map-art", "shape": "rectangle", "x": 442, "y": 174, "width": 796, "height": 679},
+
+    {"id": "castle-gardens-occupancy-row", "shape": "rectangle", "x": 99, "y": 115, "width": 285, "height": 61, "colorMatch": true},
+    {"id": "noble-solar-occupancy-row", "shape": "rectangle", "x": 99, "y": 215, "width": 285, "height": 61, "colorMatch": true},
+    {"id": "library-occupancy-row", "shape": "rectangle", "x": 99, "y": 311, "width": 285, "height": 64, "colorMatch": true},
+    {"id": "training-yard-occupancy-row", "shape": "rectangle", "x": 99, "y": 410, "width": 285, "height": 64, "colorMatch": true},
+    {"id": "inner-courtyard-occupancy-row", "shape": "rectangle", "x": 99, "y": 510, "width": 285, "height": 64, "colorMatch": true},
+    {"id": "dining-chamber-occupancy-row", "shape": "rectangle", "x": 99, "y": 610, "width": 285, "height": 64, "colorMatch": true},
+    {"id": "stable-courtyard-occupancy-row", "shape": "rectangle", "x": 99, "y": 705, "width": 285, "height": 69, "colorMatch": true},
+    {"id": "portrait-gallery-occupancy-row", "shape": "rectangle", "x": 99, "y": 805, "width": 285, "height": 69, "colorMatch": true},
+
+    {"id": "main-hall-occupancy-row", "shape": "rectangle", "x": 1297, "y": 115, "width": 285, "height": 61, "colorMatch": true},
+    {"id": "royal-bedroom-occupancy-row", "shape": "rectangle", "x": 1297, "y": 215, "width": 285, "height": 61, "colorMatch": true},
+    {"id": "chapel-occupancy-row", "shape": "rectangle", "x": 1297, "y": 314, "width": 285, "height": 61, "colorMatch": true},
+
+    {"id": "guest-bedroom-20-slot-grid", "shape": "rectangle", "x": 1291, "y": 413, "width": 288, "height": 164, "colorMatch": true},
+
+    {"id": "throne-room-occupancy-row", "shape": "rectangle", "x": 1297, "y": 616, "width": 285, "height": 61, "colorMatch": true},
+    {"id": "baths-occupancy-row", "shape": "rectangle", "x": 1297, "y": 716, "width": 285, "height": 61, "colorMatch": true},
+    {"id": "battlements-occupancy-row", "shape": "rectangle", "x": 1297, "y": 809, "width": 285, "height": 60, "colorMatch": true}
+  ]
+}

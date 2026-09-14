@@ -1,0 +1,23 @@
+{
+  "schema": "reign-overlay-asset-spec-v1",
+  "asset": {
+    "id": "royal-council-war-portrait-mask",
+    "role": "seat-specific foreground material-and-frame mask for the War Councilor runtime portrait",
+    "selectedGeneratedSourceSha256": "4a12ef961203a64027fa5d33e51d8f421e61a574e34031373d1f5da6b1dc2111",
+    "generationMode": "deterministic crop from the built-in image-to-image Royal Council production shell"
+  },
+  "canvas": {"width": 258, "height": 320},
+  "normalization": {
+    "fit": "exact",
+    "anchor": "center",
+    "sourceCrop": {"x": 119, "y": 50, "width": 258, "height": 320}
+  },
+  "antialiasScale": 8,
+  "apertureEdgeMode": "hard",
+  "apertureFramePreservation": {"minimumRed": 45, "minimumRedMinusBlue": 8, "minimumGreenMinusBlue": 3},
+  "transparentRgb": "#070808",
+  "marbleReduction": {"amount": 0.0, "blurRadius": 6.0, "luminanceCeiling": 96, "chromaCeiling": 36, "selectionSoftness": 20},
+  "apertures": [
+    {"id": "war-councilor-portrait", "shape": "oval", "x": 12, "y": 8, "width": 233, "height": 304, "feather": 0.0}
+  ]
+}

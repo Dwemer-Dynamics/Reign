@@ -1,0 +1,124 @@
+{
+  "schema": "reign-fixed-region-composite-v1",
+  "assetId": "clan-accords-shell",
+  "approvedReference": {
+    "path": "../approved-references/clan-accords.png"
+  },
+  "imageToImageFill": {
+    "path": "../generated-sources/clan-accords/clean-shell-imagegen.png"
+  },
+  "canvas": {
+    "width": 1672,
+    "height": 941
+  },
+  "rectangularFillMode": {
+    "inwardFeatherPixels": 2,
+    "borderSamplePixels": 3
+  },
+  "sceneDependentMasks": [
+    {
+      "id": "subtitle",
+      "shape": "rectangle",
+      "x": 715,
+      "y": 82,
+      "width": 250,
+      "height": 21
+    },
+    {
+      "id": "trade",
+      "shape": "rectangle",
+      "x": 90,
+      "y": 215,
+      "width": 265,
+      "height": 54
+    },
+    {
+      "id": "security",
+      "shape": "rectangle",
+      "x": 410,
+      "y": 215,
+      "width": 250,
+      "height": 54
+    },
+    {
+      "id": "hearth",
+      "shape": "rectangle",
+      "x": 719,
+      "y": 215,
+      "width": 241,
+      "height": 54
+    },
+    {
+      "id": "prosperity",
+      "shape": "rectangle",
+      "x": 1009,
+      "y": 215,
+      "width": 249,
+      "height": 54
+    },
+    {
+      "id": "wages",
+      "shape": "rectangle",
+      "x": 1320,
+      "y": 215,
+      "width": 265,
+      "height": 54
+    },
+    {
+      "id": "filters",
+      "shape": "rectangle",
+      "x": 55,
+      "y": 355,
+      "width": 302,
+      "height": 277
+    },
+    {
+      "id": "capacity",
+      "shape": "rectangle",
+      "x": 66,
+      "y": 650,
+      "width": 270,
+      "height": 34
+    },
+    {
+      "id": "goodwill",
+      "shape": "rectangle",
+      "x": 64,
+      "y": 786,
+      "width": 278,
+      "height": 67
+    },
+    {
+      "id": "counts",
+      "shape": "rectangle",
+      "x": 866,
+      "y": 329,
+      "width": 287,
+      "height": 23
+    },
+    {
+      "id": "retired-cards",
+      "shape": "rectangle",
+      "x": 400,
+      "y": 354,
+      "width": 1195,
+      "height": 454
+    },
+    {
+      "id": "retired-scrollbar",
+      "shape": "rectangle",
+      "x": 1600,
+      "y": 352,
+      "width": 21,
+      "height": 459
+    },
+    {
+      "id": "war-caption",
+      "shape": "rectangle",
+      "x": 415,
+      "y": 833,
+      "width": 1170,
+      "height": 24
+    }
+  ]
+}

@@ -1,0 +1,23 @@
+{
+  "schema": "reign-overlay-asset-spec-v1",
+  "asset": {
+    "id": "tavern-house-worker-card",
+    "role": "complete moving portrait card"
+  },
+  "canvas": {
+    "width": 220,
+    "height": 218
+  },
+  "apertures": [
+    {
+      "id": "portrait",
+      "shape": "ellipse",
+      "x": 47,
+      "y": 12,
+      "width": 126,
+      "height": 126,
+      "feather": 0
+    }
+  ],
+  "transparentRgb": "#000000"
+}

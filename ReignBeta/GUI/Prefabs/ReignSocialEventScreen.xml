@@ -1,0 +1,286 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Prefab>
+  <Window>
+    <Widget WidthSizePolicy="StretchToParent" HeightSizePolicy="StretchToParent" IsVisible="@IsOverlayVisible">
+      <Children>
+        <ButtonWidget WidthSizePolicy="StretchToParent" HeightSizePolicy="StretchToParent" Brush="ConversationItem.SoundBrush" DoNotPassEventsToChildren="true" UpdateChildrenStates="true" Command.Click="ExecuteNoOp">
+          <Children>
+            <Widget DoNotAcceptEvents="true" WidthSizePolicy="StretchToParent" HeightSizePolicy="StretchToParent" Sprite="BlankWhiteSquare_9" Color="#030303FF" />
+          </Children>
+        </ButtonWidget>
+
+        <!-- Preserve the production background-provider seam beneath the approved fixed shell. -->
+        <ImageIdentifierWidget Id="ReignPartyChatBackground" DoNotAcceptEvents="true" WidthSizePolicy="StretchToParent" HeightSizePolicy="StretchToParent" ImageId="@BackgroundImageId" AdditionalArgs="@BackgroundAdditionalArgs" TextureProviderName="@BackgroundTextureProviderName" />
+        <Widget DoNotAcceptEvents="true" WidthSizePolicy="StretchToParent" HeightSizePolicy="StretchToParent" Sprite="BlankWhiteSquare_9" Color="#030303FF" />
+
+        <!-- Both event variants share this movie and fixed 1672x941 approved design surface. -->
+        <Widget Id="SocialEventCanvas" WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="1672" SuggestedHeight="941" HorizontalAlignment="Center" VerticalAlignment="Center" ClipContents="true" DoNotUseCustomScaleAndChildren="true">
+          <Children>
+            <!-- Runtime artwork stays ungraded and is clipped by the true-alpha aperture in the selected shell. -->
+            <Widget Id="SocialEventSceneViewport" WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="548" SuggestedHeight="454" MaxWidth="@EventArtSize" MaxHeight="@EventArtRowHeight" MarginLeft="765" MarginTop="112" ClipContents="true">
+              <Children>
+                <ReignEventArtWidget Id="SocialEventSceneArt" Type="ReignBeta.UI.Widgets.ReignEventArtWidget" DoNotAcceptEvents="true" WidthSizePolicy="StretchToParent" HeightSizePolicy="StretchToParent" MaxWidth="@EventArtSize" EventImageId="@EventImageId" />
+              </Children>
+            </Widget>
+
+            <Widget Id="SocialEventModernShell" DoNotAcceptEvents="true" WidthSizePolicy="StretchToParent" HeightSizePolicy="StretchToParent" Sprite="reign_social_event_modern_shell" IsVisible="@ShowPhaseControls" />
+            <Widget Id="WildernessEventModernShell" DoNotAcceptEvents="true" WidthSizePolicy="StretchToParent" HeightSizePolicy="StretchToParent" Sprite="reign_wilderness_event_modern_shell" IsVisible="@ShowWildernessArt" />
+
+            <!-- Attendee column. One scrolling data tree is shared by both visual variants. -->
+            <TextWidget Id="SocialEventAttendeesTitle" DoNotAcceptEvents="true" WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="530" SuggestedHeight="48" MarginLeft="38" MarginTop="22" Brush="DefaultText" Brush.Font="ReignSerifDynamic" Brush.FontSize="28" Brush.TextHorizontalAlignment="Center" Brush.FontColor="#A88A54FF" Text="ATTENDEES" />
+            <TextWidget DoNotAcceptEvents="true" WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="186" SuggestedHeight="32" MarginLeft="210" MarginTop="86" Brush="DefaultText" Brush.Font="ReignSerifDynamic" Brush.FontSize="18" Brush.TextHorizontalAlignment="Center" Brush.FontColor="#C5AC83FF" Text="ACTIVE" />
+
+            <ScrollablePanel Id="SocialEventAttendeeViewport" WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="530" SuggestedHeight="754" MarginLeft="38" MarginTop="130" AutoHideScrollBars="false" MouseScrollAxis="Vertical" InnerPanel="SocialEventAttendeeClip\SocialEventAttendeeStack" ClipRect="SocialEventAttendeeClip" VerticalScrollbar="..\SocialEventAttendeeScrollbar">
+              <Children>
+                <Widget Id="SocialEventAttendeeClip" WidthSizePolicy="StretchToParent" HeightSizePolicy="StretchToParent" ClipContents="true">
+                  <Children>
+                    <ListPanel Id="SocialEventAttendeeStack" WidthSizePolicy="StretchToParent" HeightSizePolicy="CoverChildren" StackLayout.LayoutMethod="VerticalTopToBottom">
+                      <Children>
+                        <ListPanel Id="ActiveAttendeeList" DataSource="{ActiveParticipants}" WidthSizePolicy="StretchToParent" HeightSizePolicy="CoverChildren" StackLayout.LayoutMethod="VerticalTopToBottom">
+                          <ItemTemplate>
+                            <Widget WidthSizePolicy="StretchToParent" HeightSizePolicy="Fixed" SuggestedHeight="132" MarginBottom="10">
+                              <Children>
+                                <ButtonWidget WidthSizePolicy="StretchToParent" HeightSizePolicy="StretchToParent" Brush="ConversationItem.SoundBrush" Command.Click="ExecuteToggleActive" DoNotPassEventsToChildren="true" UpdateChildrenStates="true">
+                                  <Children>
+                                    <Widget DoNotAcceptEvents="true" WidthSizePolicy="StretchToParent" HeightSizePolicy="StretchToParent" MarginLeft="2" MarginRight="2" MarginTop="2" MarginBottom="2" Sprite="BlankWhiteSquare_9" Color="#1A1917FF" />
+                                    <Widget DoNotAcceptEvents="true" WidthSizePolicy="StretchToParent" HeightSizePolicy="StretchToParent" Sprite="reign_social_event_card_frame" />
+                                  </Children>
+                                </ButtonWidget>
+                                <ButtonWidget WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="112" SuggestedHeight="112" MarginLeft="12" MarginTop="10" Brush="ConversationItem.SoundBrush" Command.Click="ExecutePreviewPortrait" DoNotPassEventsToChildren="true">
+                                  <Children>
+                                    <Widget DoNotAcceptEvents="true" WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="100" SuggestedHeight="100" MarginLeft="6" MarginTop="6" ClipContents="true">
+                                      <Children>
+                                        <ImageIdentifierWidget Id="AIEventsActivePortrait" DoNotAcceptEvents="true" WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="104" SuggestedHeight="104" HorizontalAlignment="Center" VerticalAlignment="Center" ImageId="@PortraitId" AdditionalArgs="@PortraitAdditionalArgs" TextureProviderName="@PortraitTextureProviderName" />
+                                        <ReignPortraitWidget Type="ReignBeta.UI.Widgets.ReignPortraitWidget" DoNotAcceptEvents="true" WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="104" SuggestedHeight="104" HorizontalAlignment="Center" VerticalAlignment="Center" PortraitCacheKey="@PortraitCacheKey" UseZoomQuality="true" />
+                                      </Children>
+                                    </Widget>
+                                    <ImageWidget DoNotAcceptEvents="true" WidthSizePolicy="StretchToParent" HeightSizePolicy="StretchToParent" Sprite="reign_social_event_active_portrait_mask" />
+                                  </Children>
+                                </ButtonWidget>
+                                <ButtonWidget WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="300" SuggestedHeight="40" MarginLeft="145" MarginTop="25" Brush="ConversationItem.SoundBrush" HoveredCursorState="RightClickLink" Command.Click="ExecuteOpenEncyclopedia" DoNotPassEventsToChildren="true">
+                                  <Children>
+                                    <TextWidget DoNotAcceptEvents="true" WidthSizePolicy="StretchToParent" HeightSizePolicy="StretchToParent" Brush="DefaultText" Brush.Font="ReignSerifDynamic" Brush.FontSize="21" Brush.TextHorizontalAlignment="Center" Brush.FontColor="#C5AC83FF" Text="@Name" />
+                                  </Children>
+                                </ButtonWidget>
+                                <TextWidget DoNotAcceptEvents="true" WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="300" SuggestedHeight="30" MarginLeft="145" MarginTop="70" Brush="DefaultText" Brush.Font="ReignSerifDynamic" Brush.FontSize="16" Brush.TextHorizontalAlignment="Center" Brush.FontColor="#C5BDAFFF" Text="@Status" />
+                                <ButtonWidget WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="52" SuggestedHeight="52" HorizontalAlignment="Right" MarginRight="18" MarginTop="40" Brush="ConversationItem.SoundBrush" HoveredCursorState="RightClickLink" Command.Click="ExecuteGenerateAIPortrait" DoNotPassEventsToChildren="true">
+                                  <Children>
+                                    <Widget DoNotAcceptEvents="true" WidthSizePolicy="StretchToParent" HeightSizePolicy="StretchToParent" Sprite="reign_social_event_generate_portrait_icon" />
+                                  </Children>
+                                </ButtonWidget>
+                              </Children>
+                            </Widget>
+                          </ItemTemplate>
+                        </ListPanel>
+
+                        <!-- The social shell reserves a taller active roster before AVAILABLE. -->
+                        <Widget DoNotAcceptEvents="true" WidthSizePolicy="StretchToParent" HeightSizePolicy="Fixed" SuggestedHeight="54" />
+                        <Widget DoNotAcceptEvents="true" WidthSizePolicy="StretchToParent" HeightSizePolicy="Fixed" SuggestedHeight="56" IsVisible="@ShowPhaseControls" />
+                        <Widget WidthSizePolicy="StretchToParent" HeightSizePolicy="Fixed" SuggestedHeight="42" MarginBottom="8">
+                          <Children>
+                            <TextWidget DoNotAcceptEvents="true" WidthSizePolicy="StretchToParent" HeightSizePolicy="StretchToParent" Brush="DefaultText" Brush.Font="ReignSerifDynamic" Brush.FontSize="17" Brush.TextHorizontalAlignment="Center" Brush.FontColor="#C5AC83FF" Text="AVAILABLE" />
+                          </Children>
+                        </Widget>
+
+                        <ListPanel Id="AvailableAttendeeList" DataSource="{AvailableAttendees}" WidthSizePolicy="StretchToParent" HeightSizePolicy="CoverChildren" StackLayout.LayoutMethod="VerticalTopToBottom">
+                          <ItemTemplate>
+                            <Widget WidthSizePolicy="StretchToParent" HeightSizePolicy="Fixed" SuggestedHeight="132" MarginBottom="10">
+                              <Children>
+                                <ButtonWidget WidthSizePolicy="StretchToParent" HeightSizePolicy="StretchToParent" Brush="ConversationItem.SoundBrush" Command.Click="ExecuteToggleActive" DoNotPassEventsToChildren="true" UpdateChildrenStates="true">
+                                  <Children>
+                                    <Widget DoNotAcceptEvents="true" WidthSizePolicy="StretchToParent" HeightSizePolicy="StretchToParent" MarginLeft="2" MarginRight="2" MarginTop="2" MarginBottom="2" Sprite="BlankWhiteSquare_9" Color="#171717FF" />
+                                    <Widget DoNotAcceptEvents="true" WidthSizePolicy="StretchToParent" HeightSizePolicy="StretchToParent" Sprite="reign_social_event_card_frame" />
+                                  </Children>
+                                </ButtonWidget>
+                                <ButtonWidget WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="112" SuggestedHeight="112" MarginLeft="12" MarginTop="10" Brush="ConversationItem.SoundBrush" Command.Click="ExecutePreviewPortrait" DoNotPassEventsToChildren="true">
+                                  <Children>
+                                    <Widget DoNotAcceptEvents="true" WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="100" SuggestedHeight="100" MarginLeft="6" MarginTop="6" ClipContents="true">
+                                      <Children>
+                                        <ImageIdentifierWidget Id="AIEventsAvailablePortrait" DoNotAcceptEvents="true" WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="104" SuggestedHeight="104" HorizontalAlignment="Center" VerticalAlignment="Center" ImageId="@PortraitId" AdditionalArgs="@PortraitAdditionalArgs" TextureProviderName="@PortraitTextureProviderName" />
+                                        <ReignPortraitWidget Type="ReignBeta.UI.Widgets.ReignPortraitWidget" DoNotAcceptEvents="true" WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="104" SuggestedHeight="104" HorizontalAlignment="Center" VerticalAlignment="Center" PortraitCacheKey="@PortraitCacheKey" UseZoomQuality="true" />
+                                      </Children>
+                                    </Widget>
+                                    <ImageWidget DoNotAcceptEvents="true" WidthSizePolicy="StretchToParent" HeightSizePolicy="StretchToParent" Sprite="reign_social_event_available_portrait_mask" />
+                                  </Children>
+                                </ButtonWidget>
+                                <ButtonWidget WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="300" SuggestedHeight="40" MarginLeft="145" MarginTop="25" Brush="ConversationItem.SoundBrush" HoveredCursorState="RightClickLink" Command.Click="ExecuteOpenEncyclopedia" DoNotPassEventsToChildren="true">
+                                  <Children>
+                                    <TextWidget DoNotAcceptEvents="true" WidthSizePolicy="StretchToParent" HeightSizePolicy="StretchToParent" Brush="DefaultText" Brush.Font="ReignSerifDynamic" Brush.FontSize="21" Brush.TextHorizontalAlignment="Center" Brush.FontColor="#C5AC83FF" Text="@Name" />
+                                  </Children>
+                                </ButtonWidget>
+                                <TextWidget DoNotAcceptEvents="true" WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="300" SuggestedHeight="30" MarginLeft="145" MarginTop="70" Brush="DefaultText" Brush.Font="ReignSerifDynamic" Brush.FontSize="16" Brush.TextHorizontalAlignment="Center" Brush.FontColor="#C5BDAFFF" Text="@Status" />
+                                <ButtonWidget WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="52" SuggestedHeight="52" HorizontalAlignment="Right" MarginRight="18" MarginTop="40" Brush="ConversationItem.SoundBrush" HoveredCursorState="RightClickLink" Command.Click="ExecuteGenerateAIPortrait" DoNotPassEventsToChildren="true">
+                                  <Children>
+                                    <Widget DoNotAcceptEvents="true" WidthSizePolicy="StretchToParent" HeightSizePolicy="StretchToParent" Sprite="reign_social_event_generate_portrait_icon" />
+                                  </Children>
+                                </ButtonWidget>
+                              </Children>
+                            </Widget>
+                          </ItemTemplate>
+                        </ListPanel>
+                      </Children>
+                    </ListPanel>
+                  </Children>
+                </Widget>
+              </Children>
+            </ScrollablePanel>
+            <ScrollbarWidget Id="SocialEventAttendeeScrollbar" WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="10" SuggestedHeight="790" MarginLeft="582" MarginTop="96" AlignmentAxis="Vertical" Handle="SocialEventAttendeeScrollbarHandle" MaxValue="100" MinValue="0">
+              <Children>
+                <Widget DoNotAcceptEvents="true" WidthSizePolicy="Fixed" HeightSizePolicy="StretchToParent" SuggestedWidth="2" HorizontalAlignment="Center" Sprite="BlankWhiteSquare_9" Color="#352C20FF" />
+                <Widget Id="SocialEventAttendeeScrollbarHandle" WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="7" SuggestedHeight="72" HorizontalAlignment="Center" Sprite="BlankWhiteSquare_9" Color="#7E6A4DFF" />
+              </Children>
+            </ScrollbarWidget>
+
+            <!-- Shared heading; nested text holders avoid preview-only legacy event-banner decoration. -->
+            <Widget Id="SocialEventHeaderContent" WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="990" SuggestedHeight="70" MarginLeft="650" MarginTop="18">
+              <Children>
+                <Widget WidthSizePolicy="StretchToParent" HeightSizePolicy="Fixed" SuggestedHeight="46">
+                  <Children>
+                    <TextWidget DoNotAcceptEvents="true" WidthSizePolicy="StretchToParent" HeightSizePolicy="StretchToParent" Brush="DefaultText" Brush.Font="ReignSerifDynamic" Brush.FontSize="29" Brush.TextHorizontalAlignment="Center" Brush.FontColor="#A88A54FF" Text="@EventTitle" />
+                  </Children>
+                </Widget>
+                <Widget WidthSizePolicy="StretchToParent" HeightSizePolicy="Fixed" SuggestedHeight="25" MarginTop="41" IsVisible="@ShowPhaseControls">
+                  <Children>
+                    <TextWidget DoNotAcceptEvents="true" WidthSizePolicy="StretchToParent" HeightSizePolicy="StretchToParent" Brush="DefaultText" Brush.Font="ReignSerifDynamic" Brush.FontSize="15" Brush.TextHorizontalAlignment="Center" Brush.FontColor="#C5AC83FF" Text="@PhaseStatus" />
+                  </Children>
+                </Widget>
+              </Children>
+            </Widget>
+
+            <TextWidget DoNotAcceptEvents="true" WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="520" SuggestedHeight="58" MarginLeft="778" MarginTop="570" Brush="DefaultText" Brush.Font="ReignSerifDynamic" Brush.FontSize="18" Brush.TextHorizontalAlignment="Center" Brush.TextVerticalAlignment="Center" Brush.FontColor="#C5BDAFFF" Text="@EventImageText" IsVisible="@ShowPhaseControls" />
+            <TextWidget DoNotAcceptEvents="true" WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="520" SuggestedHeight="40" MarginLeft="786" MarginTop="529" Brush="DefaultText" Brush.Font="ReignSerifDynamic" Brush.FontSize="17" Brush.TextHorizontalAlignment="Center" Brush.TextVerticalAlignment="Center" Brush.FontColor="#C5BDAFFF" Text="@EventImageText" IsVisible="@ShowWildernessArt" />
+
+            <!-- Hidden social controls collapse in this stack, moving the one shared End command to the wilderness frame. -->
+            <ListPanel Id="SocialEventPhaseControls" WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="228" SuggestedHeight="195" MarginLeft="1421" MarginTop="111" StackLayout.LayoutMethod="VerticalTopToBottom">
+              <Children>
+            <ButtonWidget WidthSizePolicy="StretchToParent" HeightSizePolicy="Fixed" SuggestedHeight="55" MarginBottom="15" Brush="ConversationItem.SoundBrush" IsVisible="@ShowPhaseControls" UpdateChildrenStates="true" Command.Click="ExecuteWaitApproach" DoNotPassEventsToChildren="true">
+              <Children>
+                <TextWidget DoNotAcceptEvents="true" WidthSizePolicy="StretchToParent" HeightSizePolicy="StretchToParent" Brush="DefaultText" Brush.Font="ReignSerifDynamic" Brush.FontSize="17" Brush.TextHorizontalAlignment="Center" Brush.TextVerticalAlignment="Center" Brush.FontColor="#C5BDAFFF" Text="Wait Approach" />
+              </Children>
+            </ButtonWidget>
+            <ButtonWidget WidthSizePolicy="StretchToParent" HeightSizePolicy="Fixed" SuggestedHeight="55" MarginBottom="15" Brush="ConversationItem.SoundBrush" IsVisible="@ShowPhaseControls" UpdateChildrenStates="true" Command.Click="ExecuteNextPhase" DoNotPassEventsToChildren="true">
+              <Children>
+                <TextWidget DoNotAcceptEvents="true" WidthSizePolicy="StretchToParent" HeightSizePolicy="StretchToParent" Brush="DefaultText" Brush.Font="ReignSerifDynamic" Brush.FontSize="17" Brush.TextHorizontalAlignment="Center" Brush.TextVerticalAlignment="Center" Brush.FontColor="#C5BDAFFF" Text="Next Phase" />
+              </Children>
+            </ButtonWidget>
+            <ButtonWidget WidthSizePolicy="StretchToParent" HeightSizePolicy="Fixed" SuggestedHeight="55" Brush="ConversationItem.SoundBrush" UpdateChildrenStates="true" Command.Click="ExecuteEndEvent" DoNotPassEventsToChildren="true">
+              <Children>
+                <TextWidget DoNotAcceptEvents="true" WidthSizePolicy="StretchToParent" HeightSizePolicy="StretchToParent" Brush="DefaultText" Brush.Font="ReignSerifDynamic" Brush.FontSize="17" Brush.TextHorizontalAlignment="Center" Brush.TextVerticalAlignment="Center" Brush.FontColor="#C5BDAFFF" Text="End Event" />
+              </Children>
+            </ButtonWidget>
+              </Children>
+            </ListPanel>
+
+            <!-- Variant phase banners occupy the exact authored shell apertures. -->
+            <Widget WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="1029" SuggestedHeight="79" MarginLeft="630" MarginTop="649" IsVisible="@ShowPhaseControls">
+              <Children>
+                <Widget WidthSizePolicy="StretchToParent" HeightSizePolicy="Fixed" SuggestedHeight="32" MarginTop="8">
+                  <Children>
+                    <TextWidget DoNotAcceptEvents="true" WidthSizePolicy="StretchToParent" HeightSizePolicy="StretchToParent" Brush="DefaultText" Brush.Font="ReignSerifDynamic" Brush.FontSize="21" Brush.TextHorizontalAlignment="Center" Brush.FontColor="#A88A54FF" Text="@PhaseTitle" />
+                  </Children>
+                </Widget>
+                <Widget WidthSizePolicy="StretchToParent" HeightSizePolicy="Fixed" SuggestedHeight="29" MarginLeft="40" MarginRight="40" MarginTop="39">
+                  <Children>
+                    <TextWidget DoNotAcceptEvents="true" WidthSizePolicy="StretchToParent" HeightSizePolicy="StretchToParent" Brush="DefaultText" Brush.Font="ReignSerifDynamic" Brush.FontSize="15" Brush.TextHorizontalAlignment="Center" Brush.FontColor="#C5BDAFFF" Text="@PhaseDescription" />
+                  </Children>
+                </Widget>
+              </Children>
+            </Widget>
+            <Widget WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="1039" SuggestedHeight="88" MarginLeft="616" MarginTop="588" IsVisible="@ShowWildernessArt">
+              <Children>
+                <Widget WidthSizePolicy="StretchToParent" HeightSizePolicy="Fixed" SuggestedHeight="34" MarginTop="10">
+                  <Children>
+                    <TextWidget DoNotAcceptEvents="true" WidthSizePolicy="StretchToParent" HeightSizePolicy="StretchToParent" Brush="DefaultText" Brush.Font="ReignSerifDynamic" Brush.FontSize="21" Brush.TextHorizontalAlignment="Center" Brush.FontColor="#A88A54FF" Text="@PhaseTitle" />
+                  </Children>
+                </Widget>
+                <Widget WidthSizePolicy="StretchToParent" HeightSizePolicy="Fixed" SuggestedHeight="30" MarginLeft="40" MarginRight="40" MarginTop="44">
+                  <Children>
+                    <TextWidget DoNotAcceptEvents="true" WidthSizePolicy="StretchToParent" HeightSizePolicy="StretchToParent" Brush="DefaultText" Brush.Font="ReignSerifDynamic" Brush.FontSize="15" Brush.TextHorizontalAlignment="Center" Brush.FontColor="#C5BDAFFF" Text="@PhaseDescription" />
+                  </Children>
+                </Widget>
+              </Children>
+            </Widget>
+
+            <!-- The two shell variants expose different log heights; each retains auto-scroll and the same data source. -->
+            <ReignAutoScrollPanel Id="SocialEventChatViewport" Type="ReignBeta.UI.Widgets.ReignAutoScrollPanel" WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="966" SuggestedHeight="92" MarginLeft="656" MarginTop="749" AutoHideScrollBars="false" MouseScrollAxis="Vertical" InnerPanel="SocialEventChatClip\SocialEventChatList" ClipRect="SocialEventChatClip" VerticalScrollbar="..\SocialEventChatScrollbar" ChatScrollVersion="@ChatScrollVersion" IsVisible="@ShowPhaseControls">
+              <Children>
+                <Widget Id="SocialEventChatClip" WidthSizePolicy="StretchToParent" HeightSizePolicy="StretchToParent" ClipContents="true">
+                  <Children>
+                    <ListPanel Id="SocialEventChatList" DataSource="{ChatLines}" WidthSizePolicy="StretchToParent" HeightSizePolicy="CoverChildren" StackLayout.LayoutMethod="VerticalTopToBottom">
+                      <ItemTemplate>
+                        <Widget WidthSizePolicy="StretchToParent" HeightSizePolicy="CoverChildren" MinHeight="34" MarginBottom="4">
+                          <Children>
+                            <TextWidget DoNotAcceptEvents="true" WidthSizePolicy="Fixed" HeightSizePolicy="CoverChildren" SuggestedWidth="112" MinHeight="28" Brush="DefaultText" Brush.Font="ReignSerifDynamic" Brush.FontSize="14" Brush.TextHorizontalAlignment="Right" Brush.FontColor="#A88A54FF" Text="@Speaker" />
+                            <RichTextWidget DoNotAcceptEvents="true" WidthSizePolicy="StretchToParent" HeightSizePolicy="CoverChildren" MinHeight="28" MarginLeft="130" Brush="Reign.Chat.ActionText.15" Brush.Font="ReignSerifDynamic" Brush.FontSize="15" Brush.FontColor="#C5BDAFFF" Text="@RichText" />
+                          </Children>
+                        </Widget>
+                      </ItemTemplate>
+                    </ListPanel>
+                  </Children>
+                </Widget>
+              </Children>
+            </ReignAutoScrollPanel>
+            <ScrollbarWidget Id="SocialEventChatScrollbar" WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="8" SuggestedHeight="86" MarginLeft="1634" MarginTop="749" AlignmentAxis="Vertical" Handle="SocialEventChatScrollbarHandle" MaxValue="100" MinValue="0" IsVisible="@ShowPhaseControls">
+              <Children>
+                <Widget Id="SocialEventChatScrollbarHandle" WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="6" SuggestedHeight="34" Sprite="BlankWhiteSquare_9" Color="#7E6A4DFF" />
+              </Children>
+            </ScrollbarWidget>
+
+            <ReignAutoScrollPanel Id="WildernessEventChatViewport" Type="ReignBeta.UI.Widgets.ReignAutoScrollPanel" WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="966" SuggestedHeight="145" MarginLeft="646" MarginTop="698" AutoHideScrollBars="false" MouseScrollAxis="Vertical" InnerPanel="WildernessEventChatClip\WildernessEventChatList" ClipRect="WildernessEventChatClip" VerticalScrollbar="..\WildernessEventChatScrollbar" ChatScrollVersion="@ChatScrollVersion" IsVisible="@ShowWildernessArt">
+              <Children>
+                <Widget Id="WildernessEventChatClip" WidthSizePolicy="StretchToParent" HeightSizePolicy="StretchToParent" ClipContents="true">
+                  <Children>
+                    <ListPanel Id="WildernessEventChatList" DataSource="{ChatLines}" WidthSizePolicy="StretchToParent" HeightSizePolicy="CoverChildren" StackLayout.LayoutMethod="VerticalTopToBottom">
+                      <ItemTemplate>
+                        <Widget WidthSizePolicy="StretchToParent" HeightSizePolicy="CoverChildren" MinHeight="42" MarginBottom="3">
+                          <Children>
+                            <TextWidget DoNotAcceptEvents="true" WidthSizePolicy="Fixed" HeightSizePolicy="CoverChildren" SuggestedWidth="112" MinHeight="32" Brush="DefaultText" Brush.Font="ReignSerifDynamic" Brush.FontSize="14" Brush.TextHorizontalAlignment="Right" Brush.FontColor="#A88A54FF" Text="@Speaker" />
+                            <RichTextWidget DoNotAcceptEvents="true" WidthSizePolicy="StretchToParent" HeightSizePolicy="CoverChildren" MinHeight="32" MarginLeft="130" Brush="Reign.Chat.ActionText.15" Brush.Font="ReignSerifDynamic" Brush.FontSize="15" Brush.FontColor="#C5BDAFFF" Text="@RichText" />
+                          </Children>
+                        </Widget>
+                      </ItemTemplate>
+                    </ListPanel>
+                  </Children>
+                </Widget>
+              </Children>
+            </ReignAutoScrollPanel>
+            <ScrollbarWidget Id="WildernessEventChatScrollbar" WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="8" SuggestedHeight="133" MarginLeft="1634" MarginTop="705" AlignmentAxis="Vertical" Handle="WildernessEventChatScrollbarHandle" MaxValue="100" MinValue="0" IsVisible="@ShowWildernessArt">
+              <Children>
+                <Widget Id="WildernessEventChatScrollbarHandle" WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="6" SuggestedHeight="42" Sprite="BlankWhiteSquare_9" Color="#7E6A4DFF" />
+              </Children>
+            </ScrollbarWidget>
+
+            <TextWidget DoNotAcceptEvents="true" WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="520" SuggestedHeight="20" MarginLeft="706" MarginTop="831" Brush="DefaultText" Brush.Font="ReignSerifDynamic" Brush.FontSize="12" Brush.TextHorizontalAlignment="Center" Brush.FontColor="#8A8883FF" Text="@BusyText" />
+            <EditableTextWidget Id="SocialEventInput" WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="790" SuggestedHeight="46" MarginLeft="659" MarginTop="855" Brush="DefaultText" Brush.Font="ReignSerifDynamic" Brush.FontSize="16" Brush.FontColor="#C5BDAFFF" Brush.TextHorizontalAlignment="Left" Text="@InputText" />
+            <ButtonWidget Id="SocialEventSendButton" WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="159" SuggestedHeight="55" MarginLeft="1470" MarginTop="852" Brush="ConversationItem.SoundBrush" Command.Click="ExecuteSend" DoNotPassEventsToChildren="true" UpdateChildrenStates="true">
+              <Children>
+                <TextWidget DoNotAcceptEvents="true" WidthSizePolicy="StretchToParent" HeightSizePolicy="StretchToParent" Brush="DefaultText" Brush.Font="ReignSerifDynamic" Brush.FontSize="18" Brush.TextHorizontalAlignment="Center" Brush.TextVerticalAlignment="Center" Brush.FontColor="#C5AC83FF" Text="SEND" />
+              </Children>
+            </ButtonWidget>
+          </Children>
+        </Widget>
+
+        <!-- Portrait preview is a large bust, so it uses the shared oval overlay rather than a headshot circle. -->
+        <ButtonWidget Id="AIEventsPortraitPreviewBackdrop" WidthSizePolicy="StretchToParent" HeightSizePolicy="StretchToParent" IsVisible="@IsPortraitPreviewVisible" DoNotPassEventsToChildren="true" UpdateChildrenStates="true" RenderLate="true" Sprite="BlankWhiteSquare" Brush.Color="#030303FF" Command.Click="ExecuteClosePortraitPreview">
+          <Children>
+            <Widget WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="@PortraitPreviewFrameWidth" SuggestedHeight="@PortraitPreviewFrameHeight" HorizontalAlignment="Center" VerticalAlignment="Center" DoNotAcceptEvents="true" RenderLate="true">
+              <Children>
+                <Widget WidthSizePolicy="StretchToParent" HeightSizePolicy="StretchToParent" ClipContents="true" DoNotAcceptEvents="true">
+                  <Children>
+                    <ImageIdentifierWidget Id="AIEventsPortraitPreview" DoNotAcceptEvents="true" WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="@PortraitPreviewImageWidth" SuggestedHeight="@PortraitPreviewImageHeight" HorizontalAlignment="Center" VerticalAlignment="Center" TextureProviderName="@PortraitPreviewTextureProviderName" AdditionalArgs="@PortraitPreviewAdditionalArgs" ImageId="@PortraitPreviewId" />
+                  </Children>
+                </Widget>
+                <ImageWidget WidthSizePolicy="StretchToParent" HeightSizePolicy="StretchToParent" Sprite="reign_social_event_preview_oval_mask" DoNotAcceptEvents="true" />
+            <Widget WidthSizePolicy="StretchToParent" HeightSizePolicy="Fixed" SuggestedHeight="64" VerticalAlignment="Bottom" MarginLeft="60" MarginRight="60" MarginBottom="42" Sprite="BlankWhiteSquare_9" Color="#10100FFF" DoNotAcceptEvents="true">
+                  <Children>
+                    <TextWidget WidthSizePolicy="StretchToParent" HeightSizePolicy="StretchToParent" MarginLeft="18" MarginRight="18" Brush="DefaultText" Brush.Font="ReignSerifDynamic" Brush.FontSize="25" Brush.FontColor="#C5AC83FF" Text="@PortraitPreviewName" DoNotAcceptEvents="true" />
+                  </Children>
+                </Widget>
+              </Children>
+            </Widget>
+          </Children>
+        </ButtonWidget>
+      </Children>
+    </Widget>
+  </Window>
+</Prefab>

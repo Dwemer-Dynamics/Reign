@@ -1,0 +1,1208 @@
+{
+  "clanAccords": {
+    "rule": "Integrated owning artwork only; complete cards above shell; alpha banner openings; dynamic serif data.",
+    "authority": "User-approved Clan Accords concept and Economy entry button",
+    "economyReferenceSpec": "specs/clan-accords-economy-reference.json",
+    "evidence": ".codex-build/clan-accords-art",
+    "cardSpec": "specs/clan-accords-card.json",
+    "shellSpec": "specs/clan-accords-shell.json",
+    "economyEntrySpec": "specs/clan-accords-economy-entry.json",
+    "generatedFillSha256": "ae7a8588a50e7298761c5b584b469bdfc3689d33fb89d4531574bfd8a572b0d9",
+    "generatedFill": "generated-sources/clan-accords/clean-shell-imagegen.png",
+    "date": "2026-09-08",
+    "productionNotes": "specs/clan-accords-implementation.md"
+  },
+  "partyChatSystemBoxRemoval": {
+    "date": "2026-09-06",
+    "request": "Remove the stationary central box that overlaps scrolling conversation text.",
+    "spec": "specs/party-chat-system-box-removal.json",
+    "scope": "Party Chat and settlement Homes share the cleaned shell. Only the retired box inside the existing dynamic transcript mask changes; all remaining fixed artwork and moving cards are preserved.",
+    "evidence": ".codex-build/ui-preview/homes-night/box-removal/fixed-region-composite-evidence.json"
+  },
+  "homesDirectory": {
+    "date": "2026-09-06",
+    "scope": "Settlement Homes variants of ReignPartyChatScreen; approved Party Chat fixed shell and moving card remain unchanged.",
+    "scene": {
+      "source": "generated-sources/homes/homes-lane.png",
+      "runtime": "../../GUI/SpriteParts/ui_reignbeta_party_chat/reign_homes_lane.png",
+      "sha256": "f743632ec9ac7aa451e6a82be074c0e5371a4ab54f8e80b1e426d4798e125c69",
+      "width": 1774,
+      "height": 887,
+      "sprite": "reign_homes_lane",
+      "displayWidth": 480,
+      "displayHeight": 240
+    },
+    "sceneBounds": {
+      "parent": "HomesDirectory",
+      "horizontalAlignment": "Center",
+      "top": 94,
+      "width": 480,
+      "height": 240
+    },
+    "composition": "Unmodified 2:1 scene inside the existing dynamic conversation field; no scene art over fixed frame or portrait apertures. Cards use the exact partyChatMovingCardMigration source and geometry.",
+    "text": {
+      "font": "ReignSerifDynamic",
+      "bodyRgba": "#C5BDAFFF",
+      "nameRgba": "#C5AC83FF",
+      "visitRgba": "#A88A54FF"
+    },
+    "previewStates": [
+      "settlement-homes",
+      "settlement-homes-empty",
+      "settlement-home-chat"
+    ]
+  },
+  "referenceVariants": [
+    {
+      "id": "settlement-homes",
+      "referenceId": "party-chat",
+      "fileName": "ReignPartyChatScreen.xml"
+    },
+    {
+      "id": "settlement-homes-empty",
+      "referenceId": "party-chat",
+      "fileName": "ReignPartyChatScreen.xml"
+    },
+    {
+      "id": "settlement-home-chat",
+      "referenceId": "party-chat",
+      "fileName": "ReignPartyChatScreen.xml"
+    }
+  ],
+  "conversationActions": {
+    "approvedDate": "2026-09-05",
+    "font": "ReignSerifActionItalic",
+    "scope": "NPC action spans only; speech and all fixed artwork retain the approved design",
+    "provenance": "font-sources/action-italic-provenance.json",
+    "runtimeFiles": [
+      {
+        "path": "GUI/Fonts/ReignSerifActionItalic/ReignSerifActionItalic.fnt",
+        "sha256": "71a5482c385890b4203ddc699948788ff17064b8a270ecfe75db343984066a87",
+        "kind": "approved-action-font-definition"
+      },
+      {
+        "path": "GUI/Brushes/ReignChatActions.xml",
+        "sha256": "cd388cb418e5506a7a91df3dcd5b759262fcc09e4951f883f7569b84132aa57f",
+        "kind": "approved-action-brush"
+      }
+    ]
+  },
+  "schema": "reign-ui-modern-style-kit-v1",
+  "version": "2026.09.02.1",
+  "status": "approved-design-authority",
+  "socialEventFrameCleanup": {
+    "date": "2026-09-05",
+    "request": "Replace attendee card frames only and remove obsolete graphics behind the cards.",
+    "materializer": "tools/materialize_social_event_cleanup.ps1",
+    "rule": "Both live lists reuse exact un-tinted border pixels from the original modern Social Event shell. Portraits, masks, text, row geometry and commands are unchanged. Retired inner roster rectangle and divider are removed from the shell itself, not hidden behind another widget.",
+    "source": "generated-sources/screen-shells/social-event-pre-cleanup-shell.png",
+    "generatedFill": "generated-sources/screen-shells/social-event-clean-roster-source.png",
+    "evidence": ".codex-build/social-event-frame-cleanup-20260905/asset-contract.json"
+  },
+  "partyChatMovingCardMigration": {
+    "date": "2026-09-05",
+    "card": "../../GUI/SpriteParts/ui_reignbeta_party_chat/reign_party_chat_member_card_overlay.png",
+    "sha256": "b75567e3e40a8f84e7e68fe9f0018473c1094d85f5783808903030bb882a9889",
+    "spec": "specs/party-chat-member-card.json",
+    "sourceShellSha256": "e8e5cb2101720eb182ff19f2973fe5227839148fd9b2b71cca449d2ddf1753b9",
+    "rule": "Original card pixels retained outside true-alpha aperture; whole card, frame, portrait, labels and eye control scroll together. Fixed shell contains no retired card holes."
+  },
+  "approval": {
+    "date": "2026-08-27",
+    "authority": "user-approved Codex conversation",
+    "rule": "Exactly one latest approved concept is retained for every runtime catalog state and the calibration support surface. Rejected and superseded iterations are not design authority. In native acceptance, every fixed visual element must match that retained reference exactly; only explicitly declared scene-dependent content inside approved dynamic masks may differ. Dynamic wording may vary, but its font face, weight, capitalization/tracking, size hierarchy, alignment, and frozen text colors remain fixed style and must match the retained reference as closely as Bannerlord/Gauntlet permits."
+  },
+  "referenceCanvas": {
+    "width": 1672,
+    "height": 941
+  },
+  "designSetFingerprint": {
+    "algorithm": "sha256(sorted '<filename> <file-sha256>\\n')",
+    "sha256": "78288aa47685bb73e692d9c8a89c6f7eed50f92e9ca3bfab44ff4bc5e14df1ed"
+  },
+  "styleReference": {
+    "path": "style-reference.png",
+    "width": 1672,
+    "height": 941,
+    "sha256": "85b689dc164ebbf70f67a081c0f7097858edb0542ef0073de0c29eef7926b0a3",
+    "role": "Exact palette, material, line-weight, ornament-density, and hierarchy authority."
+  },
+  "references": [
+    {
+      "id": "clan-accords",
+      "kind": "runtime",
+      "path": "approved-references/clan-accords.png",
+      "sha256": "b114aa6425220de96891bda673f6f3d393a9996b846fb0ea6ec907a73f7602b9"
+    },
+    {
+      "id": "ambassador",
+      "kind": "runtime",
+      "path": "approved-references/ambassador.png",
+      "sha256": "073f96aafde634fd1f1a43175429c8bcaa1557c28b70b30da69dce0a6d5caa94"
+    },
+    {
+      "id": "calibration-overlay",
+      "kind": "support",
+      "path": "approved-references/calibration-overlay.png",
+      "sha256": "1062a9b216c17be62475b89e1134e008d0ef43a53292d512d5f3214d0157c630"
+    },
+    {
+      "id": "castle-chat",
+      "kind": "runtime",
+      "path": "approved-references/castle-chat.png",
+      "sha256": "bbd2924a85ddad9761360e6d01e1ae6d630b00192575bc24ea33b1414e6e578c"
+    },
+    {
+      "id": "castle-layout",
+      "kind": "runtime",
+      "path": "approved-references/castle-layout.png",
+      "sha256": "e274878fb6dc9a4f13114a8a4f9f4e256f26e07146bb9653e22d57c1aeeb848c"
+    },
+    {
+      "id": "correspondence",
+      "kind": "runtime",
+      "path": "approved-references/correspondence.png",
+      "sha256": "7fa74e25cdf023d352da036afffa58a17d9e21053da8681559ecd54eb81850df"
+    },
+    {
+      "id": "court",
+      "kind": "runtime",
+      "path": "approved-references/court.png",
+      "sha256": "f170711b207ee95b186c3bf4640cc251b32c48d6905880c49a6c156e26a527bb"
+    },
+    {
+      "id": "diplomacy-announcement",
+      "kind": "runtime",
+      "path": "approved-references/diplomacy-announcement.png",
+      "sha256": "6ee8dd4623033e226b50815b8fbd95b269673b908942edc7061728398674dd12"
+    },
+    {
+      "id": "economic-report",
+      "kind": "runtime",
+      "path": "approved-references/economic-report.png",
+      "sha256": "bbdf7f899a218c5818f9b1579bdbda9efbfdfc15d2f26193aeb297525c6639b1"
+    },
+    {
+      "id": "family-chambers",
+      "kind": "runtime",
+      "path": "approved-references/family-chambers.png",
+      "sha256": "d47619f8af70a534def34a56cf2fadb95c42a5e41b2110e95f34f9ea79b98e1c"
+    },
+    {
+      "id": "training-yard",
+      "kind": "runtime",
+      "path": "approved-references/training-yard.png",
+      "sha256": "c1321b30d7b85da6e7091a070b78570984c4f56a3e91fcda55ebedc36d21ced5"
+    },
+    {
+      "id": "government",
+      "kind": "runtime",
+      "path": "generated-sources/government-hearing-v2/approved-concept.png",
+      "sha256": "ddcbcd35354a38d0c8e9a72f2c1f1cb84f5c9c3b28399767c1b4ee75a4cf5d98"
+    },
+    {
+      "id": "individual-chat",
+      "kind": "runtime",
+      "path": "approved-references/individual-chat.png",
+      "sha256": "95fe0ce9b1c35b157f6a769905b987ad876de94d46d5a1a79ac508b8a11ea5dc"
+    },
+    {
+      "id": "memories-book",
+      "kind": "runtime",
+      "path": "approved-references/memories-book.png",
+      "sha256": "ab16c728c6a01749a7d51db01d82fc734767fc22077fed5ce250b7a84d166858"
+    },
+    {
+      "id": "notable-generation",
+      "kind": "runtime",
+      "path": "approved-references/notable-generation.png",
+      "sha256": "eb3d7a52680aa55c0c4ff8acdc615a1118f770db1e9a203efed14a0bf7bdfc82"
+    },
+    {
+      "id": "party-chat",
+      "kind": "runtime",
+      "path": "approved-references/party-chat.png",
+      "sha256": "21454261b37e00073aec60731b551155f7933b9c7541950fa1ba27c0b118cdb1"
+    },
+    {
+      "id": "royal-council",
+      "kind": "runtime",
+      "path": "approved-references/royal-council.png",
+      "sha256": "1b08360102f624d2051371db436ed356ea0b0297c9eab32f05deaac771f7c1bb"
+    },
+    {
+      "id": "social-event",
+      "kind": "runtime",
+      "path": "approved-references/social-event.png",
+      "sha256": "e8f65c0652379fa903c3b1afb13d6fdd09467e5296782b7650b2424f97277265"
+    },
+    {
+      "id": "spymaster",
+      "kind": "runtime",
+      "path": "approved-references/spymaster.png",
+      "sha256": "90ea63e898de5e677002ea94f7ea4d50b6406310c540fbd2b9b10eca9d6fb109"
+    },
+    {
+      "id": "war-council",
+      "kind": "runtime",
+      "path": "approved-references/war-council.png",
+      "sha256": "f8d8cc25ee4ee43fd84a7c4c0ec942fd6b89e73bf1e877bc2cadcd9f096f5ecf"
+    },
+    {
+      "id": "wilderness-event",
+      "kind": "runtime",
+      "path": "approved-references/wilderness-event.png",
+      "sha256": "0d88586b639c1fe687460242569465376405d1aa20c49f460b0a481b8b1020a8"
+    },
+    {
+      "id": "tavern-house",
+      "kind": "runtime",
+      "path": "approved-references/tavern-house.png",
+      "sha256": "f40be141c633ccd67526a8ae13c5887df0ac278a44c5bc8c158672eed448de8e"
+    }
+  ],
+  "generatedRuntimeAssets": [
+    {
+      "id": "reign_clan_accords_filter_idle",
+      "kind": "approved-reference-integrated-artwork",
+      "path": "ReignBeta/GUI/SpriteParts/ui_reignbeta_clan_accords/reign_clan_accords_filter_idle.png",
+      "sha256": "0cb72f0870d982a9846f523cf6c9854c51154fa527bbd00c55c44453676a141e"
+    },
+    {
+      "sha256": "295ac7176621b526f961e474865ab976d2e7f63306ab2638bf212daf9ee09b20",
+      "path": "ReignBeta/GUI/SpriteParts/ui_reignbeta_clan_accords/reign_clan_accords_button.png",
+      "id": "reign_clan_accords_button",
+      "kind": "approved-reference-integrated-artwork"
+    },
+    {
+      "sha256": "4c9dff817c8862259adf6d9834ad72df3a474c995db00c1416da91af25aa0090",
+      "path": "ReignBeta/GUI/SpriteParts/ui_reignbeta_clan_accords/reign_clan_accords_card.png",
+      "id": "reign_clan_accords_card",
+      "kind": "approved-reference-integrated-artwork"
+    },
+    {
+      "sha256": "3fa4c852d1fcff43f57f69580a334ad9953b4d4c8ff42c64cea147f2d39e5475",
+      "path": "ReignBeta/GUI/SpriteParts/ui_reignbeta_clan_accords/reign_clan_accords_economy_entry.png",
+      "id": "reign_clan_accords_economy_entry",
+      "kind": "approved-reference-integrated-artwork"
+    },
+    {
+      "sha256": "335e086103aba592b9b85dc292755d56d979f2cba38000194d6121ec0e88e41d",
+      "path": "ReignBeta/GUI/SpriteParts/ui_reignbeta_clan_accords/reign_clan_accords_filter.png",
+      "id": "reign_clan_accords_filter",
+      "kind": "approved-reference-integrated-artwork"
+    },
+    {
+      "sha256": "f0aed8d45b0c1a4df1de8db7a4421f4e91433f25302161d2de50ba23f96c3199",
+      "path": "ReignBeta/GUI/SpriteParts/ui_reignbeta_clan_accords/reign_clan_accords_shell.png",
+      "id": "reign_clan_accords_shell",
+      "kind": "approved-reference-integrated-artwork"
+    },
+    {
+      "id": "tavern-frame-modern",
+      "kind": "image-to-image-derived-runtime-rgba-overlay",
+      "path": "ReignBeta/TavernArt/tavern_frame_modern.png",
+      "width": 1254,
+      "height": 1254,
+      "pngBitDepth": 8,
+      "pngColorType": 6,
+      "sha256": "1cdbe17c3426abb55c990cff7851befbb36100334ceb69147ef1e2e63be94950",
+      "provenancePath": "ReignBeta/artwork/ui-modern-style-kit/generation-provenance.json",
+      "provenanceRecordId": "tavern-frame-modern",
+      "alphaContract": {
+        "authority": "ReignBeta/artwork/ui-modern-style-kit/tools/repair_tavern_frame_alpha.py",
+        "sourceAlphaAuthority": "ReignBeta/TavernArt/tavern_frame.png",
+        "alphaPlaneSha256": "66f7c360417ecf3d83712532e90ade767fe0beebb3ddbf9ff049445472143cc5",
+        "centerAlpha": 0,
+        "transparentPixelCount": 1137911,
+        "partialAlphaPixelCount": 0,
+        "opaquePixelCount": 434605,
+        "transparentBounds": {
+          "left": 92,
+          "top": 93,
+          "right": 1160,
+          "bottom": 1161
+        }
+      },
+      "acceptance": "Raster provenance, original scene preservation, and checkerboard-matte removal verified; native Bannerlord visual and human acceptance remain pending."
+    },
+    {
+      "id": "portrait-opaque-aperture-plates",
+      "kind": "deterministic-context-matched-runtime-rgba-plate-set",
+      "specPath": "ReignBeta/artwork/ui-modern-style-kit/specs/portrait-frame-only-overlays.json",
+      "specSha256": "287e43a2ec2bd5f3c9c0f540aff68268caa9bbb3d7902bd58bc24a1af8af5244",
+      "plateCount": 25,
+      "materialPolicy": "Each contextual plate declares either an exact local card/shell crop or the exact dynamic card color used beneath it; immutable shared circle/oval artwork supplies the topmost gold frame.",
+      "toolPath": "ReignBeta/artwork/ui-modern-style-kit/tools/prepare_portrait_frame_overlays.py",
+      "toolSha256": "46917e6e53b6e5e8e34a50f62312887b276d5f92e4735170fc6ce36a49d03f2c",
+      "evidencePath": ".codex-build/ui-assets/portrait-context-continuity/portrait-aperture-evidence.json",
+      "evidenceSha256": "efea765f7fa155f9aad2b254c049082747ca0ad3b82be9229702d1c8ca14bf11",
+      "runtimeAtlasManifestPath": "ReignBeta/GUI/RuntimeSpriteSheets/manifest.json",
+      "runtimeAtlasManifestSha256": "102944994408441a013ddbb6e4b06ffeda7ebc75e82a403e12ea7bb08e555d10",
+      "provenancePath": "ReignBeta/artwork/ui-modern-style-kit/generation-provenance.json",
+      "provenanceRecordId": "portrait-opaque-aperture-plate-correction",
+      "alphaContract": {
+        "portraitSourcePixelsRead": false,
+        "portraitSourcePixelsWritten": false,
+        "opaqueContextMatchedExterior": true,
+        "contextMismatchPixelCount": 0,
+        "goldTopmostMismatchPixelCount": 0,
+        "apertureInteriorViolationPixelCount": 0,
+        "transparentAntialiasedAperture": true,
+        "separateBlackInnerBackingAllowed": false,
+        "lightNeutralHaloPixelCount": 0,
+        "nonZeroTransparentRgbPixelCount": 0
+      },
+      "acceptance": "All 25 source plates are deterministic; all 12 context-composed plates have exact exterior continuity and topmost gold-frame evidence with untouched portrait inputs. Packed atlas integrity passed; coordinated Release validation and native 2560x1600 visual/hit-testing acceptance remain pending."
+    },
+    {
+      "id": "individual-chat-modern-shell",
+      "kind": "image-to-image-fixed-region-derived-deterministic-runtime-rgba-overlay",
+      "path": "ReignBeta/GUI/SpriteParts/ui_reignbeta_individual/reign_individual_chat_modern_shell.png",
+      "width": 1672,
+      "height": 941,
+      "pngBitDepth": 8,
+      "pngColorType": 6,
+      "sha256": "6560f0fa49dcc312a2feafec3da327c1b9683c5635e247c9401bd40173756013",
+      "approvedReferencePath": "ReignBeta/artwork/ui-modern-style-kit/approved-references/individual-chat.png",
+      "approvedReferenceSha256": "95fe0ce9b1c35b157f6a769905b987ad876de94d46d5a1a79ac508b8a11ea5dc",
+      "imageToImageFillPath": "ReignBeta/artwork/ui-modern-style-kit/generated-sources/screen-shells/individual-chat-modern-shell-source.png",
+      "imageToImageFillSha256": "9bb5366801e16e1f19d003a93bbf42f3c99f720752b005046db8435de154d2a2",
+      "fixedSourcePath": "ReignBeta/artwork/ui-modern-style-kit/generated-sources/screen-shells/individual-chat-modern-shell-exact-fixed-source.png",
+      "fixedSourceSha256": "b2e6a096938000e6e291c2b7c922c57d17307a34014530a2d63a43ec9a271a4f",
+      "fixedRegionSpecPath": "ReignBeta/artwork/ui-modern-style-kit/specs/screen-individual-chat-fixed-region-mask.json",
+      "fixedRegionSpecSha256": "a319ec50830f6464fe0b37d85017fbfcb390d37ee17a6ba98eb5fd6035b996a4",
+      "fixedRegionEvidencePath": ".codex-build/ui-modern-assets/20260829/individual-chat-fixed-region-final/fixed-region-composite-evidence.json",
+      "fixedRegionEvidenceSha256": "c1bc5d25059a4ddc6107fcb475451fe490cbc0e6521ba2f87330840e6e34ee0e",
+      "apertureSpecPath": "ReignBeta/artwork/ui-modern-style-kit/specs/individual-chat-shell.json",
+      "apertureSpecSha256": "2151dff56b0e24513a97f6ab14bd2df3d60493df3b46dae053c6b88473fadecf",
+      "apertureEvidencePath": ".codex-build/ui-modern-assets/20260829/individual-chat-shell-aperture-final/overlay-evidence.json",
+      "apertureEvidenceSha256": "e02d3a77ce9fbde0b9f2ff811cefd85314cfe1721da864ff4aeba487c2079792",
+      "runtimeAtlasManifestPath": "ReignBeta/GUI/RuntimeSpriteSheets/manifest.json",
+      "runtimeAtlasManifestSha256": "9aa15965ed33244b9a46289ca8002f6659bceae85294ba93b04d7cde0f065a8a",
+      "runtimeAtlasSheetPath": "ReignBeta/GUI/RuntimeSpriteSheets/ui_reignbeta_individual/ui_reignbeta_individual_2.png",
+      "runtimeAtlasSheetSha256": "efeb9be16cb807e8550e9de333eadce3a165c6ed9fadf25a0065c52c0bde2d71",
+      "provenancePath": "ReignBeta/artwork/ui-modern-style-kit/generation-provenance.json",
+      "provenanceRecordId": "individual-chat-integrated-oval-aperture-shell",
+      "alphaContract": {
+        "portraitSourcePixelsRead": false,
+        "portraitSourcePixelsWritten": false,
+        "apertureCount": 2,
+        "transparentPixelCount": 109464,
+        "partiallyTransparentPixelCount": 2760,
+        "opaquePixelCount": 1461128,
+        "transparentRgb": "#121211",
+        "lightNeutralHaloPixelCount": 0
+      },
+      "acceptance": "The approved fixed shell, two exact antialiased oval apertures, dark transparent RGB, packed atlas equality, 70-case preview matrix, and focused portrait layering contracts are verified; native 2560x1600 visual/hit-testing acceptance remains pending."
+    },
+    {
+      "id": "pregnancy-warning-modern-shell",
+      "kind": "image-to-image-material-derived-deterministic-runtime-rgba-overlay",
+      "path": "ReignBeta/GUI/SpriteParts/ui_reignbeta_individual/reign_pregnancy_warning.png",
+      "width": 1448,
+      "height": 1086,
+      "pngBitDepth": 8,
+      "pngColorType": 6,
+      "sha256": "fee50a1a5d04e300bc0f26f112f2defcdc4454a968d06bc326987d18b4803596",
+      "sourcePath": "ReignBeta/artwork/ui-modern-style-kit/generated-sources/components/pregnancy-warning-modern-shell-v1-imagegen.png",
+      "sourceSha256": "ffa62e55c6ca0a3169b1419974616ff2729c737ebf29c4fa674484a33861f46f",
+      "promptPath": "ReignBeta/artwork/ui-modern-style-kit/generated-sources/components/pregnancy-warning-modern-shell-v1-imagegen-prompt.txt",
+      "promptSha256": "f8fb5b61dda1c09957cef0800469ea16ad360833004f55e40ba10a5aa02b025b",
+      "specPath": "ReignBeta/artwork/ui-modern-style-kit/specs/pregnancy-warning-modern-shell.json",
+      "specSha256": "8a3dfca80b8b52e9db7e452bc1372af2cdbc6a1c7150a3c10be1ca8c438bc083",
+      "toolPath": "ReignBeta/artwork/ui-modern-style-kit/tools/prepare_overlay_assets.py",
+      "toolSha256": "12f45650151b3e56eccacc1d86eeb0532e3677fa05b7583774e23cab298f3468",
+      "evidencePath": ".codex-build/ui-modern-assets/20260829/pregnancy-warning/pregnancy-warning-modern-shell.evidence.json",
+      "evidenceSha256": "eba027d0098303c01d7377d4714528f8695226ac14f7d844bb3402992c6c5849",
+      "provenancePath": "ReignBeta/artwork/ui-modern-style-kit/generation-provenance.json",
+      "provenanceRecordId": "pregnancy-warning-modern-shell-source",
+      "alphaContract": {
+        "transparentPaddingOutsideArtwork": true,
+        "transparentPixelCount": 352087,
+        "partiallyTransparentPixelCount": 0,
+        "opaquePixelCount": 1220441,
+        "minimumAlpha": 0,
+        "maximumAlpha": 255
+      },
+      "acceptance": "Creative source, deterministic 1448x1086 RGBA materialization, exact loose-source hash, alpha profile, and pixel-identical packed atlas region are verified; native 2560x1600 modal visual/input acceptance remains pending."
+    },
+    {
+      "id": "ruler-docket-independent-card-assets",
+      "kind": "image-to-image-fixed-rail-derived-deterministic-runtime-rgba-set",
+      "sourceShellPath": "ReignBeta/artwork/ui-modern-style-kit/generated-sources/screen-shells/court-modern-shell-pre-docket-rebuild.png",
+      "sourceShellSha256": "c13bbfd155b3c58b234cb4b783f23e874e8eacbbd02f35d1546607a9afd99486",
+      "cleanRailSourcePath": "ReignBeta/artwork/ui-modern-style-kit/generated-sources/screen-shells/court-docket-clean-rail-v1-imagegen.png",
+      "cleanRailSourceSha256": "a3c60fdaebed32b3b780bb48451d849a14f6281a6b0c963ef36731754889f4e6",
+      "promptPath": "ReignBeta/artwork/ui-modern-style-kit/generated-sources/screen-shells/court-docket-clean-rail-v1-imagegen-prompt.txt",
+      "promptSha256": "aa3746654b54421d10fc87a0424145b9f3618ed1d05f90521ee7b7918dea184d",
+      "courtOfficeSourcePath": "ReignBeta/artwork/ui-modern-style-kit/generated-sources/ruler-docket/court-history-modern-shell-v1-imagegen.png",
+      "courtOfficeSourceSha256": "6e59069e2a38e6edd4b346ba34de54163742b0f9be99e8cc43d9d2e1bf487d5e",
+      "courtOfficePromptPath": "ReignBeta/artwork/ui-modern-style-kit/generated-sources/ruler-docket/court-history-modern-shell-v1-imagegen-prompt.txt",
+      "courtOfficePromptSha256": "1c1f5a11539966688004e5618aceafe328ba14c29db8948f41b608d6e7f5ff10",
+      "attendeeCardSourcePath": "ReignBeta/artwork/ui-modern-style-kit/generated-sources/ruler-docket/court-petition-attendee-card-v2-imagegen.png",
+      "attendeeCardSourceSha256": "ab5bf98ad5c82389cfb27916d084a97be3be65a5cdcd997f82a7f06f0e066ec4",
+      "attendeeCardPromptPath": "ReignBeta/artwork/ui-modern-style-kit/generated-sources/ruler-docket/court-petition-attendee-card-v2-imagegen-prompt.txt",
+      "attendeeCardPromptSha256": "a4ff44634a8aeb332f63e4a65e6a222cad52085438f650d7bc77c386012a9092",
+      "petitionShellBeforeAttendeeRebuildPath": "ReignBeta/artwork/ui-modern-style-kit/generated-sources/screen-shells/court-petition-modern-shell-pre-attendee-rebuild.png",
+      "petitionShellBeforeAttendeeRebuildSha256": "bf0b8519e6aff864cea6bba976833ab47c934a26cc0cf4e7e3ccd6192c7d1d1a",
+      "courtNavigationSourcePath": "ReignBeta/artwork/ui-modern-style-kit/generated-sources/screen-shells/court-modern-shell-pre-docket-rebuild.png",
+      "courtNavigationSourceSha256": "c13bbfd155b3c58b234cb4b783f23e874e8eacbbd02f35d1546607a9afd99486",
+      "toolPath": "ReignBeta/artwork/ui-modern-style-kit/tools/prepare_ruler_docket_interface_assets.py",
+      "toolSha256": "fb2ccb67ee96d43009a2230e242d91cc42c7367ec288eafc198cea0e7667aaa5",
+      "evidencePath": ".codex-build/ui-modern-assets/20260903/ruler-docket-control-fix/court-assets-evidence.json",
+      "evidenceSha256": "3af44b997c2de72b1ecf490ba37cd00cced8f9d1878607b1009e943067c6be50",
+      "runtimeAssets": [
+        {
+          "path": "ReignBeta/GUI/SpriteParts/ui_reignbeta_court/reign_court_modern_shell.png",
+          "width": 1672,
+          "height": 941,
+          "sha256": "e1e99432996546fe647d6867cd5375e0a34ea089d46054d2424c765cec0d64e1"
+        },
+        {
+          "path": "ReignBeta/GUI/SpriteParts/ui_reignbeta_court/reign_court_chancellor_card_modern.png",
+          "width": 322,
+          "height": 164,
+          "sha256": "8abf5d92b2a8735b39d1b6231ca538009d4deaff1c6f8086ae9b6b0e030d76fd"
+        },
+        {
+          "path": "ReignBeta/GUI/SpriteParts/ui_reignbeta_court/reign_court_petition_card_modern.png",
+          "width": 322,
+          "height": 145,
+          "sha256": "d55ecc86211f7feaf2e0348a9bcbd28e7408e87676a3e0d97f7dfdb83038fc10"
+        },
+        {
+          "path": "ReignBeta/GUI/SpriteParts/ui_reignbeta_court/reign_court_petition_attendee_card_modern.png",
+          "width": 322,
+          "height": 103,
+          "sha256": "2457b8c50047cbf2d51a9c55d29fa85793c6b29714648b83c8cb30d386bd151e"
+        },
+        {
+          "path": "ReignBeta/GUI/SpriteParts/ui_reignbeta_court/reign_court_office_modern_shell.png",
+          "width": 1672,
+          "height": 941,
+          "sha256": "acd6cbc010c4d0ddd1d4267c6f4cacfa26c96c2999bbf5ccad16c1c5c393b8d2"
+        },
+        {
+          "path": "ReignBeta/GUI/SpriteParts/ui_reignbeta_court/reign_court_petition_modern_shell.png",
+          "width": 1672,
+          "height": 941,
+          "sha256": "b0da8363ad1589fcb22e245291bb267a9078db510729662d141b0f7956af867d"
+        },
+        {
+          "path": "ReignBeta/GUI/SpriteParts/ui_reignbeta_court/reign_court_navigation_button_modern.png",
+          "width": 270,
+          "height": 60,
+          "sha256": "88fca0c1b29dea8b3c86a395b9f9f6eba1d9d6bb27b508cd21471aeb5a2e6f8c"
+        }
+      ],
+      "compositionContract": "The Court and petition shells contain clean continuous roster rails with no fixed card openings. Chancellor, petition, attendee, and office/history rows are complete independent cards or dedicated shells; runtime movement carries each card's background, border, portrait frame, icon, and live content together. The Chancellor card raster owns no control plates: History, Active, and Inactive use three identical 80x20 state-aware runtime plates in one aligned row, while the vacant state shows History alone and leaves no blank plates. Those controls and Royal Proclamation use the same reusable Court navigation plate lifted directly from the actual modern lower button already baked into the Court shell. Every portrait is composed strictly behind the true-alpha aperture owned by its complete moving card. Generic brown rectangles, separate portrait masks, pale target wedges, and superseded shell apertures are structurally absent.",
+      "acceptance": "Outside each declared replacement rectangle the approved shell is pixel-identical; complete-card extraction, three aligned short Chancellor controls with matched live hitboxes, state-aware removal of the two assignment-only controls when vacant, zero baked control plates, exact reuse of the actual modern lower Court button body plus clean frozen-palette side diamonds for all four live Court controls, clean gold-only Chancellor aperture framing, integrated transparent attendee apertures, removal of the retired petitioner oval, and the dedicated current-style office shell are verified. Packed-atlas, provider-free rendered, and native acceptance are reported separately."
+    },
+    {
+      "id": "ruler-docket-compact-scroll-handle",
+      "kind": "image-generated-source-deterministic-transparent-runtime-control",
+      "sourcePath": "ReignBeta/artwork/ui-modern-style-kit/generated-sources/ruler-docket/scrollbar/reign-court-scroll-handle-imagegen-source.png",
+      "sourceSha256": "755e5b769cc1efc9eacac64fdb21089c3f4dbcb3d566a9521543672dffb3fe8c",
+      "promptPath": "ReignBeta/artwork/ui-modern-style-kit/generated-sources/ruler-docket/scrollbar/reign-court-scroll-handle-imagegen-prompt.txt",
+      "promptSha256": "3db6a589d801e78996e55b161d69dbd3493c4ba7b4aa8ee00869fa08f2d274fd",
+      "runtimeAsset": {
+        "path": "ReignBeta/GUI/SpriteParts/ui_reignbeta_court/reign_court_scroll_handle.png",
+        "width": 18,
+        "height": 80,
+        "sha256": "25925eb10e10cb9bb3008cfde56a7947c9b8893434fec2c9a7fca16a878a760e"
+      },
+      "compositionContract": "The 28x80 interactive hitbox is code-native and distinct from the visible ornament. The visible 18x80 sprite has a compact centered grip with transparent top and bottom padding; the track is a two-pixel palette-token line and never stretches a raster rail or arrow artwork.",
+      "acceptance": "Generated ornament was inspected after deterministic 18x80 RGBA preparation. Packed-atlas parity and provider-free/native finite-scroll acceptance remain required."
+    },
+    {
+      "id": "court-petition-modern-shell",
+      "kind": "image-to-image-derived-deterministic-runtime-rgba-scene-aperture-attendee-rail-shell",
+      "path": "ReignBeta/GUI/SpriteParts/ui_reignbeta_court/reign_court_petition_modern_shell.png",
+      "width": 1672,
+      "height": 941,
+      "pngBitDepth": 8,
+      "pngColorType": 6,
+      "sha256": "b0da8363ad1589fcb22e245291bb267a9078db510729662d141b0f7956af867d",
+      "sourcePath": "ReignBeta/artwork/ui-modern-style-kit/generated-sources/screen-shells/court-petition-modern-shell-v1-imagegen.png",
+      "sourceSha256": "92409d7c7288f8775a4c60c608181ea7e53a16155046a2dd911531b900d63df0",
+      "promptPath": "ReignBeta/artwork/ui-modern-style-kit/generated-sources/screen-shells/court-petition-modern-shell-v1-imagegen-prompt.txt",
+      "promptSha256": "9d91cbdeac2726223bc06f9c26f6ca94f3e795fbc23ebd6c515a0f53633aa741",
+      "specPath": "ReignBeta/artwork/ui-modern-style-kit/specs/court-petition-shell.json",
+      "specSha256": "d6e909918512df54a0d66220c2c95e9da8db914ffb2208a9a0998f4001e1a7c1",
+      "toolPath": "ReignBeta/artwork/ui-modern-style-kit/tools/prepare_ruler_docket_interface_assets.py",
+      "toolSha256": "fb2ccb67ee96d43009a2230e242d91cc42c7367ec288eafc198cea0e7667aaa5",
+      "evidencePath": ".codex-build/ui-modern-assets/20260903/ruler-docket-control-fix/court-assets-evidence.json",
+      "evidenceSha256": "3af44b997c2de72b1ecf490ba37cd00cced8f9d1878607b1009e943067c6be50",
+      "runtimeAtlasManifestPath": "ReignBeta/GUI/RuntimeSpriteSheets/manifest.json",
+      "runtimeAtlasManifestSha256": "80a79d54a1eaf44025b8badd16ac81263a15d85c31a26bf864c3a2d7be45bc0b",
+      "runtimeAtlasSheetPath": "ReignBeta/GUI/RuntimeSpriteSheets/ui_reignbeta_court/ui_reignbeta_court_5.png",
+      "runtimeAtlasSheetSha256": "cc65f5f2c806c7f161824b9052be3aa7aed1f72d19199d804036fd81266cf394",
+      "alphaContract": {
+        "apertureCount": 1,
+        "transparentPixelCount": 575882,
+        "partiallyTransparentPixelCount": 5146,
+        "opaquePixelCount": 992324,
+        "transparentRgb": "#121211",
+        "portraitSourcePixelsMutated": false,
+        "sceneSourcePixelsMutated": false
+      },
+      "compositionContract": "The culture-specific throne-room scene renders first and this single shell renders above it as the scene aperture plate and topmost antique-gold frame. The left rail is continuous black marble with no fixed portrait opening; complete attendee cards and their card-owned portrait apertures render independently above it. The ruler remains behind the camera and no throne is visible in the scene.",
+      "acceptance": "Exact 1672x941 geometry, antialiased scene aperture, dark transparent RGB, removal of the retired petitioner oval, and independent attendee-card composition are verified; packed-atlas, provider-free rendered, and native acceptance are reported separately."
+    },
+    {
+      "id": "ruler-petition-throne-viewpoint-reference",
+      "kind": "image-to-image-runtime-composition-reference",
+      "path": "ReignBeta/GUI/UiCalibration/reference-scenes/ruler-petition-throne-viewpoint-reference.png",
+      "width": 1672,
+      "height": 941,
+      "pngBitDepth": 8,
+      "pngColorType": 2,
+      "sha256": "59e997c710edadbca42b2ff9593b4d856c6fe8cffaa76d54751aa8d738a03dae",
+      "promptPath": "ReignBeta/artwork/ui-modern-style-kit/generated-sources/ruler-docket/ruler-petition-throne-viewpoint-reference-prompt.txt",
+      "promptSha256": "d975006464cbc4317f4693d382d1bf50e21208b31d521a846463ab46a5e55fdc",
+      "provenancePath": "ReignBeta/artwork/ui-modern-style-kit/generation-provenance.json",
+      "provenanceRecordId": "ruler-petition-throne-viewpoint-reference",
+      "runtimeContract": "The narrow source panel supplies petitioner identity only; this wide source panel supplies elevated camera, open dais approach, entrance-behind-petitioner direction, and an absolute no-throne spatial constraint. Culture-specific architecture remains dynamic.",
+      "acceptance": "Retained only as the fail-closed fallback for unknown cultures; the six canonical Bannerlord cultures resolve to the AtlasCloud GPT Image 2 references below."
+    },
+    {
+      "id": "ruler-petition-throne-viewpoint-empire",
+      "kind": "image-to-image-runtime-composition-reference",
+      "path": "ReignBeta/GUI/UiCalibration/reference-scenes/ruler-petition-throne-viewpoint-empire.png",
+      "width": 3840,
+      "height": 2160,
+      "pngBitDepth": 8,
+      "pngColorType": 2,
+      "sha256": "62178f5c0ce9c12ef2f605f2bd158c8588c212baaf24101aac12719a5ad26c6e",
+      "promptPath": "ReignBeta/artwork/ui-modern-style-kit/generated-sources/ruler-docket/culture-throne-rooms/ruler-petition-throne-viewpoint-empire-gpt-image-2-prompt.txt",
+      "promptSha256": "9c0932fb39bd313a98de0a7c45d0c5eb4da8b43c33fff1ce425c10b6d626aa98",
+      "provenancePath": "ReignBeta/artwork/ui-modern-style-kit/generation-provenance.json",
+      "provenanceRecordId": "ruler-petition-throne-viewpoint-empire-gpt-image-2",
+      "runtimeContract": "Culture-specific Empire environment authority for the wide composition panel; petitioner identity remains isolated to the narrow portrait panel.",
+      "acceptance": "User selected this 3840x2160 AtlasCloud GPT Image 2 output as the visual-quality and ruler-viewpoint authority."
+    },
+    {
+      "id": "ruler-petition-throne-viewpoint-vlandia",
+      "kind": "image-to-image-runtime-composition-reference",
+      "path": "ReignBeta/GUI/UiCalibration/reference-scenes/ruler-petition-throne-viewpoint-vlandia.png",
+      "width": 3840,
+      "height": 2160,
+      "pngBitDepth": 8,
+      "pngColorType": 2,
+      "sha256": "72cc2326d0958086869a1cfcc13d8b805e60962ed935803c205c66611b4252bf",
+      "promptPath": "ReignBeta/artwork/ui-modern-style-kit/generated-sources/ruler-docket/culture-throne-rooms/ruler-petition-throne-viewpoint-vlandia-gpt-image-2-prompt.txt",
+      "promptSha256": "883c04f23b1f918790d6f62740d3e2fcd82af37632bca96f671e33a305850b21",
+      "provenancePath": "ReignBeta/artwork/ui-modern-style-kit/generation-provenance.json",
+      "provenanceRecordId": "ruler-petition-throne-viewpoint-vlandia-gpt-image-2",
+      "runtimeContract": "Culture-specific Vlandia environment authority for the wide composition panel; petitioner identity remains isolated to the narrow portrait panel.",
+      "acceptance": "3840x2160 source passed visual inspection for the elevated sovereign viewpoint, open petitioner position, photoreal materials, and clean broad/medium texture."
+    },
+    {
+      "id": "ruler-petition-throne-viewpoint-sturgia",
+      "kind": "image-to-image-runtime-composition-reference",
+      "path": "ReignBeta/GUI/UiCalibration/reference-scenes/ruler-petition-throne-viewpoint-sturgia.png",
+      "width": 3840,
+      "height": 2160,
+      "pngBitDepth": 8,
+      "pngColorType": 2,
+      "sha256": "8f958365c8a661a0dc1a7114deb3984706cca5a8dc6a675f276e88842c8ea982",
+      "promptPath": "ReignBeta/artwork/ui-modern-style-kit/generated-sources/ruler-docket/culture-throne-rooms/ruler-petition-throne-viewpoint-sturgia-gpt-image-2-prompt.txt",
+      "promptSha256": "775f93bd47279d013cd028c957b87b8d4def5514166873e2b32e9b4e3eaf8cff",
+      "provenancePath": "ReignBeta/artwork/ui-modern-style-kit/generation-provenance.json",
+      "provenanceRecordId": "ruler-petition-throne-viewpoint-sturgia-gpt-image-2",
+      "runtimeContract": "Culture-specific Sturgia environment authority for the wide composition panel; petitioner identity remains isolated to the narrow portrait panel.",
+      "acceptance": "3840x2160 source passed visual inspection for the elevated sovereign viewpoint, open petitioner position, photoreal materials, and clean broad/medium texture."
+    },
+    {
+      "id": "ruler-petition-throne-viewpoint-battania",
+      "kind": "image-to-image-runtime-composition-reference",
+      "path": "ReignBeta/GUI/UiCalibration/reference-scenes/ruler-petition-throne-viewpoint-battania.png",
+      "width": 3840,
+      "height": 2160,
+      "pngBitDepth": 8,
+      "pngColorType": 2,
+      "sha256": "fc0729236c715201fab78426a730c18b8d0ee43d33664c4fb6b778c80f771ab2",
+      "promptPath": "ReignBeta/artwork/ui-modern-style-kit/generated-sources/ruler-docket/culture-throne-rooms/ruler-petition-throne-viewpoint-battania-gpt-image-2-prompt.txt",
+      "promptSha256": "3180926f16ab6f029a53aa8278a3c62a7b71aa6713fbc6f9946993426196415c",
+      "provenancePath": "ReignBeta/artwork/ui-modern-style-kit/generation-provenance.json",
+      "provenanceRecordId": "ruler-petition-throne-viewpoint-battania-gpt-image-2",
+      "runtimeContract": "Culture-specific Battania environment authority for the wide composition panel; petitioner identity remains isolated to the narrow portrait panel.",
+      "acceptance": "3840x2160 source passed visual inspection for the elevated sovereign viewpoint, open petitioner position, photoreal materials, and clean broad/medium texture."
+    },
+    {
+      "id": "ruler-petition-throne-viewpoint-aserai",
+      "kind": "image-to-image-runtime-composition-reference",
+      "path": "ReignBeta/GUI/UiCalibration/reference-scenes/ruler-petition-throne-viewpoint-aserai.png",
+      "width": 3840,
+      "height": 2160,
+      "pngBitDepth": 8,
+      "pngColorType": 2,
+      "sha256": "718eef440a36c697e1490ae70f0b4803a6f851ad29ab2cd990043ddd45d22057",
+      "promptPath": "ReignBeta/artwork/ui-modern-style-kit/generated-sources/ruler-docket/culture-throne-rooms/ruler-petition-throne-viewpoint-aserai-gpt-image-2-prompt.txt",
+      "promptSha256": "9494ad87a39ff8f609142dd78d315e2551c3a881740e10695034c369eb8ae6cc",
+      "provenancePath": "ReignBeta/artwork/ui-modern-style-kit/generation-provenance.json",
+      "provenanceRecordId": "ruler-petition-throne-viewpoint-aserai-gpt-image-2",
+      "runtimeContract": "Culture-specific Aserai environment authority for the wide composition panel; petitioner identity remains isolated to the narrow portrait panel.",
+      "acceptance": "3840x2160 source passed visual inspection for the elevated sovereign viewpoint, open petitioner position, photoreal materials, and clean broad/medium texture."
+    },
+    {
+      "id": "ruler-petition-throne-viewpoint-khuzait",
+      "kind": "image-to-image-runtime-composition-reference",
+      "path": "ReignBeta/GUI/UiCalibration/reference-scenes/ruler-petition-throne-viewpoint-khuzait.png",
+      "width": 3840,
+      "height": 2160,
+      "pngBitDepth": 8,
+      "pngColorType": 2,
+      "sha256": "b21634bc03104d660182f93a47ba53b96027d0e95a03534c144d92f3b198fc72",
+      "promptPath": "ReignBeta/artwork/ui-modern-style-kit/generated-sources/ruler-docket/culture-throne-rooms/ruler-petition-throne-viewpoint-khuzait-gpt-image-2-prompt.txt",
+      "promptSha256": "d84cc3e98f90c2808e5e454b2ac629bf822e4d20e2f9f897aecbcc1aa5461b38",
+      "provenancePath": "ReignBeta/artwork/ui-modern-style-kit/generation-provenance.json",
+      "provenanceRecordId": "ruler-petition-throne-viewpoint-khuzait-gpt-image-2",
+      "runtimeContract": "Culture-specific Khuzait environment authority for the wide composition panel; petitioner identity remains isolated to the narrow portrait panel.",
+      "acceptance": "3840x2160 source passed visual inspection for the elevated sovereign viewpoint, open petitioner position, photoreal materials, and clean broad/medium texture."
+    },
+    {
+      "id": "training-yard-modern-shell",
+      "kind": "image-generated-material-with-deterministic-fixed-typography-and-shell-owned-portrait-aperture",
+      "path": "ReignBeta/GUI/SpriteParts/ui_reignbeta_training_yard/reign_training_yard_modern_shell.png",
+      "width": 1672,
+      "height": 941,
+      "pngBitDepth": 8,
+      "pngColorType": 6,
+      "sha256": "c1321b30d7b85da6e7091a070b78570984c4f56a3e91fcda55ebedc36d21ced5",
+      "sourcePath": "ReignBeta/artwork/ui-modern-style-kit/generated-sources/screen-shells/training-yard-modern-shell-v1-imagegen.png",
+      "sourceSha256": "989ff5324969f43d0b749aa813a82c481c36b4f7779ce5155200cdb62dcc76e4",
+      "promptPath": "ReignBeta/artwork/ui-modern-style-kit/generated-sources/screen-shells/training-yard-modern-shell-v1-imagegen-prompt.txt",
+      "promptSha256": "e9b950103801a67f1975f76059a0eea8fae19e483d210cac555208b2429b7502",
+      "apertureConceptPath": "ReignBeta/artwork/ui-modern-style-kit/generated-sources/screen-shells/training-yard-modern-shell-v2-aperture-imagegen-concept.png",
+      "apertureConceptSha256": "eda474afab0e7f8e9a7edb7049fb69d48fc38d7173b405d41f869745a60da1c7",
+      "aperturePromptPath": "ReignBeta/artwork/ui-modern-style-kit/generated-sources/screen-shells/training-yard-modern-shell-v2-aperture-imagegen-prompt.txt",
+      "aperturePromptSha256": "4d0f12bb638c608606d3a5523539ebcac106fa868678370aba584c1ee5561173",
+      "transparentOverlayConceptPath": "ReignBeta/artwork/ui-modern-style-kit/generated-sources/screen-shells/training-yard-modern-shell-v4-raised-title-imagegen-concept.png",
+      "transparentOverlayConceptSha256": "e58d7c883a468ea50a4a3ca2681ddfae5635aa688f88c18754627191dd75a3c7",
+      "transparentOverlayPromptPath": "ReignBeta/artwork/ui-modern-style-kit/generated-sources/screen-shells/training-yard-modern-shell-v4-raised-title-imagegen-prompt.txt",
+      "transparentOverlayPromptSha256": "88edf9b1b3b15dccf295ea70d7649bd1c615a2e7dba2763d270ae9b3c76a1b9b",
+      "materializationToolPath": "ReignBeta/artwork/ui-modern-style-kit/tools/materialize_training_yard_shell.py",
+      "materializationToolSha256": "e69f60af53547cfae2873cf80ac3b0a49d10c834c85995eec492754f5e19cd7b",
+      "fixedRegionSpecPath": "ReignBeta/artwork/ui-modern-style-kit/specs/screen-training-yard-fixed-region-mask.json",
+      "compositionContract": "The shell owns the fixed 1672x941 floating black-marble work panels, compact title plaque, antique-gold rails and controls, deterministically composed fixed Cormorant Garamond captions, and the selected-trainer aperture plate/frame. The continuous full-screen black canvas is structurally absent so the live campaign map and native interface remain visible outside and between panels. The selected portrait is untouched and rendered below the shell through the shell's exact transparent circular opening; no separate selected-portrait overlay exists. Trainer cards retain their complete moving Family Chambers card treatment. Lists, portrait pixels, names, skills, XP, elapsed time, delivered totals, and status are live only inside declared masks.",
+      "acceptance": "The transparent-overlay image-generation concept and prompt, earlier aperture concept, retained v1 material source, deterministic geometry/alpha materialization, and approved-reference hash are registered. Fully transparent pixels have zero RGB. Provider-free matrix, palette, typography, portrait layering, scrolling, fidelity, packed-atlas, and native resolution acceptance are reported separately."
+    },
+    {
+      "id": "reign_government_hearing_shell",
+      "path": "ReignBeta/GUI/SpriteParts/ui_reignbeta_government/reign_government_hearing_shell.png",
+      "width": 1672,
+      "height": 941,
+      "sha256": "5078530b68249f4a9c26edcc48667c9839fbeb1f7391a8921cc4859424e6168b",
+      "kind": "government-feature-owner-integrated-artwork",
+      "compositionContract": "ReignBeta/artwork/ui-modern-style-kit/generated-sources/government-hearing-v2/composition-contract.json"
+    },
+    {
+      "id": "reign_government_business_card",
+      "path": "ReignBeta/GUI/SpriteParts/ui_reignbeta_government/reign_government_business_card.png",
+      "width": 340,
+      "height": 84,
+      "sha256": "2274dfc55a5d7c09eceb392f531e88528eed67096f605584bf298e176029b93d",
+      "kind": "government-feature-owner-integrated-artwork",
+      "compositionContract": "ReignBeta/artwork/ui-modern-style-kit/generated-sources/government-hearing-v2/composition-contract.json"
+    },
+    {
+      "id": "reign_government_business_selected",
+      "path": "ReignBeta/GUI/SpriteParts/ui_reignbeta_government/reign_government_business_selected.png",
+      "width": 340,
+      "height": 84,
+      "sha256": "e8d5686d1b543e76463a07f8eec5c4c9e52f2483c63e0ce1fd21c936707352b5",
+      "kind": "government-feature-owner-integrated-artwork",
+      "compositionContract": "ReignBeta/artwork/ui-modern-style-kit/generated-sources/government-hearing-v2/composition-contract.json"
+    },
+    {
+      "id": "reign_government_option_card",
+      "path": "ReignBeta/GUI/SpriteParts/ui_reignbeta_government/reign_government_option_card.png",
+      "width": 414,
+      "height": 65,
+      "sha256": "ffd827ae80725029b6be99640129f8df2226209d3d248fa90060597febd5626e",
+      "kind": "government-feature-owner-integrated-artwork",
+      "compositionContract": "ReignBeta/artwork/ui-modern-style-kit/generated-sources/government-hearing-v2/composition-contract.json"
+    },
+    {
+      "id": "reign_government_option_selected",
+      "path": "ReignBeta/GUI/SpriteParts/ui_reignbeta_government/reign_government_option_selected.png",
+      "width": 414,
+      "height": 65,
+      "sha256": "ffd827ae80725029b6be99640129f8df2226209d3d248fa90060597febd5626e",
+      "kind": "government-feature-owner-integrated-artwork",
+      "compositionContract": "ReignBeta/artwork/ui-modern-style-kit/generated-sources/government-hearing-v2/composition-contract.json"
+    },
+    {
+      "id": "reign_government_recommendation",
+      "path": "ReignBeta/GUI/SpriteParts/ui_reignbeta_government/reign_government_recommendation.png",
+      "width": 414,
+      "height": 47,
+      "sha256": "65191aad8a01dc47c778ba829c8e3206d896dbb47f1b0a7e614a00f5d8bb13be",
+      "kind": "government-feature-owner-integrated-artwork",
+      "compositionContract": "ReignBeta/artwork/ui-modern-style-kit/generated-sources/government-hearing-v2/composition-contract.json"
+    },
+    {
+      "id": "reign_government_recommendation_selected",
+      "path": "ReignBeta/GUI/SpriteParts/ui_reignbeta_government/reign_government_recommendation_selected.png",
+      "width": 414,
+      "height": 47,
+      "sha256": "534a3ab38c58e619268d5a8a75578b040a66d3201ff11106d4c64ae223c43247",
+      "kind": "government-feature-owner-integrated-artwork",
+      "compositionContract": "ReignBeta/artwork/ui-modern-style-kit/generated-sources/government-hearing-v2/composition-contract.json"
+    },
+    {
+      "id": "reign_government_participant_card",
+      "path": "ReignBeta/GUI/SpriteParts/ui_reignbeta_government/reign_government_participant_card.png",
+      "width": 340,
+      "height": 110,
+      "sha256": "404d53d572c7319492ee86f5ff1eff6f19225bccd0e373db3a66a14e4c19731a",
+      "kind": "government-feature-owner-integrated-artwork",
+      "compositionContract": "ReignBeta/artwork/ui-modern-style-kit/generated-sources/government-hearing-v2/composition-contract.json"
+    },
+    {
+      "id": "reign_government_issue_person_card",
+      "path": "ReignBeta/GUI/SpriteParts/ui_reignbeta_government/reign_government_issue_person_card.png",
+      "width": 308,
+      "height": 100,
+      "sha256": "ec220e788f904aff73f9f0049fde5edf894c9e732835f883c38879b105b4d47e",
+      "kind": "government-feature-owner-integrated-artwork",
+      "compositionContract": "ReignBeta/artwork/ui-modern-style-kit/generated-sources/government-hearing-v2/composition-contract.json"
+    },
+    {
+      "id": "reign_government_transcript_card",
+      "path": "ReignBeta/GUI/SpriteParts/ui_reignbeta_government/reign_government_transcript_card.png",
+      "width": 840,
+      "height": 72,
+      "sha256": "8c96a36a2adf488fbf565e434fe590645740cdc787a47f686231adcea0046be7",
+      "kind": "government-feature-owner-integrated-artwork",
+      "compositionContract": "ReignBeta/artwork/ui-modern-style-kit/generated-sources/government-hearing-v2/composition-contract.json"
+    },
+    {
+      "id": "reign_government_directory_card",
+      "path": "ReignBeta/GUI/SpriteParts/ui_reignbeta_government/reign_government_directory_card.png",
+      "width": 840,
+      "height": 110,
+      "sha256": "b7303036fb232e4392754225e0cbf2532319c92e74c8d081758915184d995401",
+      "kind": "government-feature-owner-integrated-artwork",
+      "compositionContract": "ReignBeta/artwork/ui-modern-style-kit/generated-sources/government-hearing-v2/composition-contract.json"
+    },
+    {
+      "id": "reign_government_party_card",
+      "path": "ReignBeta/GUI/SpriteParts/ui_reignbeta_government/reign_government_party_card.png",
+      "width": 340,
+      "height": 180,
+      "sha256": "7255829c46a49faecb7832683e40a7bdfd9ad84bfa17a27d79cb378e322559ed",
+      "kind": "government-feature-owner-integrated-artwork",
+      "compositionContract": "ReignBeta/artwork/ui-modern-style-kit/generated-sources/government-hearing-v2/composition-contract.json"
+    },
+    {
+      "id": "reign_government_obligation_card",
+      "path": "ReignBeta/GUI/SpriteParts/ui_reignbeta_government/reign_government_obligation_card.png",
+      "width": 840,
+      "height": 100,
+      "sha256": "2aeb148feb2e7889e2129a9de618f4f04151fc9d820a02d655ae7f19cb08ff70",
+      "kind": "government-feature-owner-integrated-artwork",
+      "compositionContract": "ReignBeta/artwork/ui-modern-style-kit/generated-sources/government-hearing-v2/composition-contract.json"
+    },
+    {
+      "id": "reign_government_button",
+      "path": "ReignBeta/GUI/SpriteParts/ui_reignbeta_government/reign_government_button.png",
+      "width": 280,
+      "height": 50,
+      "sha256": "99932ff15dd39941682bab1c888a4f52b011567e1279710fa665d44e3bb557d3",
+      "kind": "government-feature-owner-integrated-artwork",
+      "compositionContract": "ReignBeta/artwork/ui-modern-style-kit/generated-sources/government-hearing-v2/composition-contract.json"
+    },
+    {
+      "id": "reign_government_button_selected",
+      "path": "ReignBeta/GUI/SpriteParts/ui_reignbeta_government/reign_government_button_selected.png",
+      "width": 326,
+      "height": 57,
+      "sha256": "176992850e9a9322ec5f0d5069c07a162dfd8f1761740893ccfd4cca2a277a04",
+      "kind": "government-feature-owner-integrated-artwork",
+      "compositionContract": "ReignBeta/artwork/ui-modern-style-kit/generated-sources/government-hearing-v2/composition-contract.json"
+    },
+    {
+      "id": "reign_government_input",
+      "path": "ReignBeta/GUI/SpriteParts/ui_reignbeta_government/reign_government_input.png",
+      "width": 717,
+      "height": 42,
+      "sha256": "840c1dda421be5ada07aeedfddada0059eee7b518fb09fc11f375856b78914ea",
+      "kind": "government-feature-owner-integrated-artwork",
+      "compositionContract": "ReignBeta/artwork/ui-modern-style-kit/generated-sources/government-hearing-v2/composition-contract.json"
+    },
+    {
+      "id": "reign_government_speak",
+      "path": "ReignBeta/GUI/SpriteParts/ui_reignbeta_government/reign_government_speak.png",
+      "width": 113,
+      "height": 42,
+      "sha256": "142b6b8437f5edb70f76a7d04df3719c5f5adb30aa887cf5fdda6785f0e6a268",
+      "kind": "government-feature-owner-integrated-artwork",
+      "compositionContract": "ReignBeta/artwork/ui-modern-style-kit/generated-sources/government-hearing-v2/composition-contract.json"
+    },
+    {
+      "id": "reign_government_close",
+      "path": "ReignBeta/GUI/SpriteParts/ui_reignbeta_government/reign_government_close.png",
+      "width": 94,
+      "height": 37,
+      "sha256": "b089e248a843264c7982a6215cbedc2817d3c223ae263cd3fdf138a2945ee1a5",
+      "kind": "government-feature-owner-integrated-artwork",
+      "compositionContract": "ReignBeta/artwork/ui-modern-style-kit/generated-sources/government-hearing-v2/composition-contract.json"
+    },
+    {
+      "id": "reign_government_private_card",
+      "path": "ReignBeta/GUI/SpriteParts/ui_reignbeta_government/reign_government_private_card.png",
+      "width": 340,
+      "height": 90,
+      "sha256": "50213bf5bc1aefa549047280f6bbfc19c16d14d0747049d803cb6b429ddd32fb",
+      "kind": "government-feature-owner-integrated-artwork",
+      "compositionContract": "ReignBeta/artwork/ui-modern-style-kit/generated-sources/government-hearing-v2/composition-contract.json"
+    },
+    {
+      "id": "reign_government_attendance_card",
+      "path": "ReignBeta/GUI/SpriteParts/ui_reignbeta_government/reign_government_attendance_card.png",
+      "width": 340,
+      "height": 98,
+      "sha256": "130d1e78a706e38fb84b5d7d3455aced6353703c1dc886f6e9623962526cffc9",
+      "kind": "government-feature-owner-integrated-artwork",
+      "compositionContract": "ReignBeta/artwork/ui-modern-style-kit/generated-sources/government-hearing-v2/composition-contract.json"
+    },
+    {
+      "id": "reign_government_action_group",
+      "path": "ReignBeta/GUI/SpriteParts/ui_reignbeta_government/reign_government_action_group.png",
+      "width": 641,
+      "height": 70,
+      "sha256": "ceb1abf236d1373b8286226939d815a7132389ffebf10f37494c2d12e6aeab2a",
+      "kind": "government-feature-owner-integrated-artwork",
+      "compositionContract": "ReignBeta/artwork/ui-modern-style-kit/generated-sources/government-hearing-v2/composition-contract.json"
+    },
+    {
+      "id": "reign_government_postpone_button",
+      "path": "ReignBeta/GUI/SpriteParts/ui_reignbeta_government/reign_government_postpone_button.png",
+      "width": 280,
+      "height": 50,
+      "sha256": "c44ae70f90b81dc85811dc8f9886d599abdfd4b6d194dff41b5cd1d7fb553859",
+      "kind": "government-feature-owner-integrated-artwork",
+      "compositionContract": "ReignBeta/artwork/ui-modern-style-kit/generated-sources/government-hearing-v2/composition-contract.json"
+    },
+    {
+      "id": "reign_government_view_members_button",
+      "path": "ReignBeta/GUI/SpriteParts/ui_reignbeta_government/reign_government_view_members_button.png",
+      "width": 338,
+      "height": 46,
+      "sha256": "02a1da169fa27908afee783c7fc211183119b3df4fa3fe6a49d558f61369af08",
+      "kind": "government-feature-owner-integrated-artwork",
+      "compositionContract": "ReignBeta/artwork/ui-modern-style-kit/generated-sources/government-hearing-v2/composition-contract.json"
+    },
+    {
+      "id": "reign_government_tab_business",
+      "path": "ReignBeta/GUI/SpriteParts/ui_reignbeta_government/reign_government_tab_business.png",
+      "width": 152,
+      "height": 45,
+      "sha256": "9e15ad15bca5a52c28578632cb26cfccfa4cb92cbe325d70d18bfe4b6e981840",
+      "kind": "government-feature-owner-integrated-artwork",
+      "compositionContract": "ReignBeta/artwork/ui-modern-style-kit/generated-sources/government-hearing-v2/composition-contract.json"
+    },
+    {
+      "id": "reign_government_tab_business_selected",
+      "path": "ReignBeta/GUI/SpriteParts/ui_reignbeta_government/reign_government_tab_business_selected.png",
+      "width": 152,
+      "height": 45,
+      "sha256": "c1c0f448485702311db083e67fe774b6897acf353224b7d0aac4eb351ee3208d",
+      "kind": "government-feature-owner-integrated-artwork",
+      "compositionContract": "ReignBeta/artwork/ui-modern-style-kit/generated-sources/government-hearing-v2/composition-contract.json"
+    },
+    {
+      "id": "reign_government_tab_hearing",
+      "path": "ReignBeta/GUI/SpriteParts/ui_reignbeta_government/reign_government_tab_hearing.png",
+      "width": 114,
+      "height": 45,
+      "sha256": "a3f650b68599810c67503e0ce90c7b37e87a22466a419612623dd7f62353b531",
+      "kind": "government-feature-owner-integrated-artwork",
+      "compositionContract": "ReignBeta/artwork/ui-modern-style-kit/generated-sources/government-hearing-v2/composition-contract.json"
+    },
+    {
+      "id": "reign_government_tab_hearing_selected",
+      "path": "ReignBeta/GUI/SpriteParts/ui_reignbeta_government/reign_government_tab_hearing_selected.png",
+      "width": 114,
+      "height": 45,
+      "sha256": "1b75024007030668a94c29025995be841e11a158a37bc528af5e776b6e778d01",
+      "kind": "government-feature-owner-integrated-artwork",
+      "compositionContract": "ReignBeta/artwork/ui-modern-style-kit/generated-sources/government-hearing-v2/composition-contract.json"
+    },
+    {
+      "id": "reign_government_tab_members",
+      "path": "ReignBeta/GUI/SpriteParts/ui_reignbeta_government/reign_government_tab_members.png",
+      "width": 197,
+      "height": 45,
+      "sha256": "bca9f902ca547a07fb5ab9ecfaf95c82d3dad9d8c81b219122e1500f77221a81",
+      "kind": "government-feature-owner-integrated-artwork",
+      "compositionContract": "ReignBeta/artwork/ui-modern-style-kit/generated-sources/government-hearing-v2/composition-contract.json"
+    },
+    {
+      "id": "reign_government_tab_members_selected",
+      "path": "ReignBeta/GUI/SpriteParts/ui_reignbeta_government/reign_government_tab_members_selected.png",
+      "width": 197,
+      "height": 45,
+      "sha256": "85a0862a9c9eb7a24553af8bcc2e0b03d7545f5cf4b3ddcd54f509419fd9ab2f",
+      "kind": "government-feature-owner-integrated-artwork",
+      "compositionContract": "ReignBeta/artwork/ui-modern-style-kit/generated-sources/government-hearing-v2/composition-contract.json"
+    },
+    {
+      "id": "reign_government_tab_archive",
+      "path": "ReignBeta/GUI/SpriteParts/ui_reignbeta_government/reign_government_tab_archive.png",
+      "width": 199,
+      "height": 45,
+      "sha256": "c7dfe791400e6aea85190e2cec8d4fcce342cfb1411a850bf7f218dc263a5d24",
+      "kind": "government-feature-owner-integrated-artwork",
+      "compositionContract": "ReignBeta/artwork/ui-modern-style-kit/generated-sources/government-hearing-v2/composition-contract.json"
+    },
+    {
+      "id": "reign_government_tab_archive_selected",
+      "path": "ReignBeta/GUI/SpriteParts/ui_reignbeta_government/reign_government_tab_archive_selected.png",
+      "width": 199,
+      "height": 45,
+      "sha256": "0f5b4605696afb31e078a4932ec791b78faa7820f14c68cccbd0ee13a85d9f6a",
+      "kind": "government-feature-owner-integrated-artwork",
+      "compositionContract": "ReignBeta/artwork/ui-modern-style-kit/generated-sources/government-hearing-v2/composition-contract.json"
+    },
+    {
+      "id": "reign_government_business_policy",
+      "path": "ReignBeta/GUI/SpriteParts/ui_reignbeta_government/reign_government_business_policy.png",
+      "width": 340,
+      "height": 84,
+      "sha256": "a979d29713104cd533be5885ab4d1c976c9f068415dcd7171485b9aeae6cc841",
+      "kind": "government-feature-owner-integrated-artwork",
+      "compositionContract": "ReignBeta/artwork/ui-modern-style-kit/generated-sources/government-hearing-v2/composition-contract.json"
+    },
+    {
+      "id": "reign_government_business_policy_selected",
+      "path": "ReignBeta/GUI/SpriteParts/ui_reignbeta_government/reign_government_business_policy_selected.png",
+      "width": 340,
+      "height": 84,
+      "sha256": "b3a6e7645e8ff4f37f20036a19f6a853044ee2548e868c5687b31ea458caa232",
+      "kind": "government-feature-owner-integrated-artwork",
+      "compositionContract": "ReignBeta/artwork/ui-modern-style-kit/generated-sources/government-hearing-v2/composition-contract.json"
+    },
+    {
+      "id": "reign_government_business_fief",
+      "path": "ReignBeta/GUI/SpriteParts/ui_reignbeta_government/reign_government_business_fief.png",
+      "width": 340,
+      "height": 84,
+      "sha256": "b651742b23eae994381fafdb46b167ec42b1ddd8b9fc852dd81f7d4107c7e6a3",
+      "kind": "government-feature-owner-integrated-artwork",
+      "compositionContract": "ReignBeta/artwork/ui-modern-style-kit/generated-sources/government-hearing-v2/composition-contract.json"
+    },
+    {
+      "id": "reign_government_business_fief_selected",
+      "path": "ReignBeta/GUI/SpriteParts/ui_reignbeta_government/reign_government_business_fief_selected.png",
+      "width": 340,
+      "height": 84,
+      "sha256": "a3f852da4df5e5c545fe17476f4ed3e989f6f672225a5b16a8be51bd1424ce7e",
+      "kind": "government-feature-owner-integrated-artwork",
+      "compositionContract": "ReignBeta/artwork/ui-modern-style-kit/generated-sources/government-hearing-v2/composition-contract.json"
+    },
+    {
+      "id": "reign_government_business_diplomacy",
+      "path": "ReignBeta/GUI/SpriteParts/ui_reignbeta_government/reign_government_business_diplomacy.png",
+      "width": 340,
+      "height": 84,
+      "sha256": "83008f3d0e65b0306749eb6ed521cda71e66ab49cd42936e3a4284db278cec00",
+      "kind": "government-feature-owner-integrated-artwork",
+      "compositionContract": "ReignBeta/artwork/ui-modern-style-kit/generated-sources/government-hearing-v2/composition-contract.json"
+    },
+    {
+      "id": "reign_government_business_diplomacy_selected",
+      "path": "ReignBeta/GUI/SpriteParts/ui_reignbeta_government/reign_government_business_diplomacy_selected.png",
+      "width": 340,
+      "height": 84,
+      "sha256": "953a9cf139dcf543169e2ab6624e114625b4cba03b250c41b84b129792feaafa",
+      "kind": "government-feature-owner-integrated-artwork",
+      "compositionContract": "ReignBeta/artwork/ui-modern-style-kit/generated-sources/government-hearing-v2/composition-contract.json"
+    },
+    {
+      "id": "reign_government_business_seasonal",
+      "path": "ReignBeta/GUI/SpriteParts/ui_reignbeta_government/reign_government_business_seasonal.png",
+      "width": 340,
+      "height": 84,
+      "sha256": "e3bbc6ddcea76aa3b16498ed9dd13ca090970deb3cb607d2ba0ef3634a0a3af5",
+      "kind": "government-feature-owner-integrated-artwork",
+      "compositionContract": "ReignBeta/artwork/ui-modern-style-kit/generated-sources/government-hearing-v2/composition-contract.json"
+    },
+    {
+      "id": "reign_government_business_seasonal_selected",
+      "path": "ReignBeta/GUI/SpriteParts/ui_reignbeta_government/reign_government_business_seasonal_selected.png",
+      "width": 340,
+      "height": 84,
+      "sha256": "505e434bb7d0e304afb913e52d04e03f4bd30143f343ca4b67345277cf98e5c3",
+      "kind": "government-feature-owner-integrated-artwork",
+      "compositionContract": "ReignBeta/artwork/ui-modern-style-kit/generated-sources/government-hearing-v2/composition-contract.json"
+    }
+  ],
+  "productionRules": {
+    "bakedContentForbidden": [
+      "dynamic text and runtime values",
+      "portraits",
+      "banners",
+      "memory scenes",
+      "event scenes",
+      "map markers"
+    ],
+    "hybridTypography": {
+      "approval": "user-approved compromise",
+      "fixedArtwork": "Fixed titles, section labels, ornament-integrated captions, and other invariant typography are retained as exact approved artwork pixels. A duplicate runtime TextWidget must be structurally absent.",
+      "dynamicRuntime": "Only genuinely variable names, descriptions, messages, values, and other state-dependent wording remain live and use the packaged ReignSerifDynamic font alias.",
+      "fontSource": "Cormorant Garamond Medium v4.002, packaged under SIL OFL 1.1",
+      "acceptance": "Dynamic text must preserve the approved face character, weight, capitalization/tracking, hierarchy, alignment, wrapping, and semantic gold/gray color roles as closely as Gauntlet permits."
+    },
+    "compositionOrder": [
+      "untouched rectangular or square dynamic portrait source, centered and slightly overscanned",
+      "opaque approved black-marble plate with only the exact antialiased aperture transparent",
+      "antique-gold frame and ornaments topmost"
+    ],
+    "portraitPolicy": {
+      "compactHeadshot": "circle",
+      "largeBustOrShoulders": "vertical-oval",
+      "fullBody": "rectangle",
+      "memoryScene": "rectangle",
+      "castleOccupancySlot": "circle",
+      "individualChatHeaderPortrait": "vertical-oval",
+      "individualChatFullBodyZoom": "rectangle",
+      "nativeConversationAdditionalPortrait": "rectangle",
+      "royalCouncilOfficePortrait": "circle-or-seat-specific-oval-aperture",
+      "sourceAlphaMutation": "forbidden",
+      "innerBackingDisk": "forbidden"
+    }
+  },
+  "implementationSnapshot": {
+    "schema": "reign-ui-modern-implementation-snapshot-v1",
+    "snapshotUtc": "2026-08-28T18:21:25.501Z",
+    "status": "historical snapshot; superseded by current focused correction and runtime manifest",
+    "supportedProofResolutions": [
+      "2560x1600@1.00-first",
+      "1920x1080@1.00",
+      "3440x1440@1.00"
+    ],
+    "runtimeSpriteRegistry": {
+      "spriteDataPath": "ReignBeta/GUI/ReignBetaSpriteData.xml",
+      "spriteDataSha256": "c9e32739cec9a482e975b650bdf53b60ccade63f61714dea297ded2679e51cbf",
+      "configPath": "ReignBeta/GUI/SpriteParts/Config.xml",
+      "configSha256": "681ae9d948a9282378e01d31b8897e3bb521e7838da8d84caf5638af329a4362",
+      "runtimeManifestPath": "ReignBeta/GUI/RuntimeSpriteSheets/manifest.json",
+      "runtimeManifestSha256": "8e3a68cd5a48a210e5e68426147c21265162240e8d0664fbe5587eac90fa07df",
+      "runtimeManifestGeneratedUtc": "2026-08-28T18:13:56.4531554Z",
+      "atlasSheetSetSha256": "5f38556f03994c848b6f5ca7b680787071a2a077defe3b7474b4e6bc8f728bf9",
+      "categoryCount": 21,
+      "sheetCount": 46,
+      "partCount": 169,
+      "spriteCount": 168,
+      "genericSpriteCount": 160,
+      "nineRegionSpriteCount": 8,
+      "sourceRegionPixelChecks": 169,
+      "sourceRegionMismatchCount": 0,
+      "ghostPixelSheetCount": 0,
+      "prefabCount": 18,
+      "uniquePrefabSpriteReferences": 62,
+      "unresolvedPrefabSpriteReferences": 0,
+      "transparentEmptySheets": [
+        "ui_reignbeta_party_chat:2",
+        "ui_reignbeta_party_chat:3",
+        "ui_reignbeta_party_chat:4"
+      ],
+      "retiredRuntimeSprites": [
+        "reign_castle_chat_shell",
+        "reign_castle_chat_portrait_overlay",
+        "reign_castle_chat_scene_overlay",
+        "reign_royal_council_background"
+      ],
+      "retiredAssetRule": "Historical source PNGs may remain as unregistered archive inputs, but the retired names are absent from SpriteParts, SpriteData, the packed manifest, and every live prefab."
+    },
+    "liveFont": {
+      "alias": "ReignSerifDynamic",
+      "family": "Cormorant Garamond",
+      "style": "Medium",
+      "version": "4.002",
+      "fntPath": "ReignBeta/GUI/Fonts/ReignSerifDynamic/ReignSerifDynamic.fnt",
+      "fntSha256": "c1d65bd2d47f74cac23fb19842d55458d68bba2027929468c9464763f7527443",
+      "sourceAtlasPath": "ReignBeta/GUI/SpriteParts/ui_reignbeta_fonts/ReignSerifDynamic.png",
+      "sourceAtlasSha256": "2c16ac0300950b365c4bd9241ae752790f8e6f78ee8536a9db6157a8130cd6e7",
+      "runtimeSheetSha256": "0467cf9da57e952965d501a0c297e2d94ba01ccaa0b8dabc1db7700844afa9e1",
+      "sourceTtfPath": "ReignBeta/artwork/ui-modern-style-kit/font-sources/CormorantGaramond-Medium.ttf",
+      "sourceTtfSha256": "9abca794203d81b6512a1096b3e171855470c33318133f5ce0e0799ea665bd34",
+      "licensePath": "ReignBeta/artwork/ui-modern-style-kit/font-sources/Cormorant-v4.002-OFL.txt",
+      "licenseSha256": "60700d351cac4650c51f3f9db318d2a420f8b45052dba2715eb5fec41f0f6956",
+      "glyphCount": 589,
+      "liveWidgetCount": 365,
+      "fixedLiteralTextCount": 113,
+      "dynamicBoundTextCount": 252,
+      "missingLiteralGlyphCount": 0
+    },
+    "approvedReferenceOrnaments": [
+      {
+        "id": "social-event-generate-portrait-icon",
+        "sourceReferencePath": "ReignBeta/artwork/ui-modern-style-kit/approved-references/social-event.png",
+        "sourceReferenceSha256": "e8f65c0652379fa903c3b1afb13d6fdd09467e5296782b7650b2424f97277265",
+        "runtimePath": "ReignBeta/GUI/SpriteParts/ui_reignbeta_social_event/reign_social_event_generate_portrait_icon.png",
+        "runtimeSha256": "747419c78b0e58a1da6e2cf74422a0d2e17416decf4ab1069fef243fe73819c4",
+        "specPath": "ReignBeta/artwork/ui-modern-style-kit/specs/social-event-generate-portrait-icon.json",
+        "specSha256": "2f388659cc1cfa0012b8d4e49ee2496e74232dec87852a01a7d843a630422ee8",
+        "toolPath": "ReignBeta/artwork/ui-modern-style-kit/tools/extract_approved_ornament.ps1",
+        "toolSha256": "cb5cd6d14e89974c528b370baec98ed7cbc2ae4b88c20b546314df4a2413f877",
+        "evidencePath": ".codex-build/ui-modern-integration/20260828/social-generate-portrait-icon/evidence.json",
+        "evidenceSha256": "c4c6edc14adea6ff4e2e447f72551a2f04d14b85f0647cf917614ffcf5749e2c",
+        "registration": "one registered sprite; two live prefab references; packed at ui_reignbeta_social_event sheet 4, x=764, y=4, 52x52"
+      }
+    ],
+    "protectedDynamicArt": {
+      "warCouncilMapPath": "ReignBeta/GUI/SpriteParts/ui_reignbeta_war_council/reign_war_council_calradia.png",
+      "warCouncilMapSha256": "e9aeb15807953280e596f189b05bc61e9812af434eafcac3c116af873d632887",
+      "warCouncilTileSetFingerprintSha256": "da720f16e73a093a5d581e9687df5109b46d985d23f79b164486dd556bc7f962",
+      "rule": "The old-scroll map artwork and color are protected source content. Only runtime channel handling and the fixed frame may change; source and tile bytes remain unchanged."
+    },
+    "staticAudits": {
+      "typographyContractPath": "ReignBeta/tools/GauntletXmlPreviewer/calibration/full-catalog-typography-parity-contract.json",
+      "typographyContractSha256": "5af164496c2cebcce1a903a739339be1e4646fee83785c86589700512d40acab",
+      "typographyAuditPath": ".codex-build/ui-modern-integration/20260828/integrated-static-final/typography-parity-audit.json",
+      "typographyAuditSha256": "a9fd846859c83c0a096344cf4ecf1a9cecd7729bf324c7982de02f40a9ae247b",
+      "typographyAuditSourceFingerprintSha256": "3ebb6e7cfa065581b269d74295b3ce149627d79062a93f831352034473ba78ac",
+      "typographyResult": "19/19 catalog surfaces, 18/18 prefabs, 365/365 widgets, 113 literal and 252 dynamic, 0 divergence/font errors/errors/warnings",
+      "typographySelfTestPath": ".codex-build/ui-modern-integration/20260828/integrated-static-final/typography-parity-self-test.json",
+      "typographySelfTestSha256": "c15bf133aaf657c9face49362191284f85ac66ba2fafe59c5b5b6dbaff8849aa",
+      "typographySelfTestResult": "38/38 passed",
+      "previewContractPath": ".codex-build/ui-modern-integration/20260828/integrated-static-final/preview-contract-audit.json",
+      "previewContractSha256": "d3514803ddd90d825841c20a33fc53b54d884e2df5c1da919c9f4de794bbe4a2",
+      "previewContractResult": "18 prefabs, 614 bindings, 64 data sources, 600 runtime bindings, 185 commands, 117 tool contracts, 18 calibration targets, 15 augmentation targets, 30 patch applications, 365 typography widgets, 0 errors/warnings"
+    },
+    "providerFreeEvidence": {
+      "renderMatrixPath": ".codex-build/ui-modern-integration/20260828/integrated-static-final/provider-free-render-matrix-supported-final2/rendered-preview-audit.json",
+      "renderMatrixSha256": "182290c5d1ab22a424243f4d6b39746f9f90f967a55f98e4dbf9213968756e0c",
+      "renderMatrixResult": "68/68 passed at 1920x1080 and 3440x1440; 0 failures",
+      "fidelity1920Path": ".codex-build/ui-modern-integration/20260828/integrated-static-final/approved-reference-fidelity-supported-final2-1920x1080/approved-reference-fidelity-audit.json",
+      "fidelity1920Sha256": "aa8ae10157877c4c2fd32d87cb11b33dc7a82c4b621394b3495ca5edcd05e3cc",
+      "fidelity1920SourceFingerprintSha256": "5f70a5dff901bafbdd2351859f5a5bede4b82f1565f6fba97746dcb6c59a5361",
+      "fidelity1920Result": "19/19 passed; 0 failed; 0 blocked",
+      "fidelity3440Path": ".codex-build/ui-modern-integration/20260828/integrated-static-final/approved-reference-fidelity-supported-final2-3440x1440/approved-reference-fidelity-audit.json",
+      "fidelity3440Sha256": "afe1071700e2736b069e1ae40c16532892087b61531d65ff43c884f9821d205f",
+      "fidelity3440SourceFingerprintSha256": "c31e3c6841fbad8de200e9fe80135339252981c069db7b036a5029248f4839be",
+      "fidelity3440Result": "19/19 passed; 0 failed; 0 blocked"
+    },
+    "remainingGates": [
+      "Manifest-selected Release validation and repository-hygiene enforcement",
+      "Exact deployment of the validated artifacts through the visible Reign lifecycle",
+      "Native Bannerlord captures at 1920x1080@1.00 and 3440x1440@1.00",
+      "Nine-criterion human visual acceptance for every retained interface state",
+      "Final Bannerlord and Reign lifetime-group shutdown"
+    ]
+  },
+  "tavernHouse": {
+    "date": "2026-09-12",
+    "authority": "User-supplied four-region sketch and existing modern style kit",
+    "shellSpec": "specs/tavern-house-shell.json",
+    "workerCardSpec": "specs/tavern-house-worker-card.json",
+    "madamCardSpec": "specs/tavern-house-madam-card.json",
+    "materializer": "tools/materialize_tavern_house.py",
+    "rule": "Dedicated town tavern screen; complete cards scroll above shell. Portraits and scenes stay unchanged inside their apertures."
+  }
+}

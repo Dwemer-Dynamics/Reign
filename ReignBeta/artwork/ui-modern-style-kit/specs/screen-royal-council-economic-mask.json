@@ -1,0 +1,21 @@
+{
+  "schema": "reign-overlay-asset-spec-v1",
+  "asset": {
+    "id": "royal-council-economic-portrait-mask",
+    "role": "seat-specific foreground material-and-frame mask for the Economic Advisor runtime portrait",
+    "selectedGeneratedSourceSha256": "4a12ef961203a64027fa5d33e51d8f421e61a574e34031373d1f5da6b1dc2111",
+    "generationMode": "deterministic crop from the built-in image-to-image Royal Council production shell"
+  },
+  "canvas": {"width": 256, "height": 318},
+  "normalization": {
+    "fit": "exact",
+    "anchor": "center",
+    "sourceCrop": {"x": 1297, "y": 50, "width": 256, "height": 318}
+  },
+  "antialiasScale": 8,
+  "transparentRgb": "#070808",
+  "marbleReduction": {"amount": 0.0, "blurRadius": 6.0, "luminanceCeiling": 96, "chromaCeiling": 36, "selectionSoftness": 20},
+  "apertures": [
+    {"id": "economic-advisor-portrait", "shape": "oval", "x": 7, "y": 12, "width": 223, "height": 302, "feather": 0.0}
+  ]
+}

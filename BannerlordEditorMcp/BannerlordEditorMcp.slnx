@@ -1,0 +1,6 @@
+<Solution>
+  <Project Path="src/Bannerlord.EditorMcp.Protocol/Bannerlord.EditorMcp.Protocol.csproj" />
+  <Project Path="src/Bannerlord.EditorMcp.Server/Bannerlord.EditorMcp.Server.csproj" />
+  <Project Path="src/Bannerlord.EditorBridge/Bannerlord.EditorBridge.csproj" />
+  <Project Path="tests/Bannerlord.EditorMcp.Tests/Bannerlord.EditorMcp.Tests.csproj" />
+</Solution>

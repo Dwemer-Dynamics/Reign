@@ -1,0 +1,24 @@
+{
+  "schema": "reign-overlay-asset-spec-v1",
+  "asset": {
+    "id": "clan-accords-button"
+  },
+  "canvas": {
+    "width": 140,
+    "height": 40
+  },
+  "normalization": {
+    "fit": "exact",
+    "sourceCrop": {
+      "x": 1430,
+      "y": 382,
+      "width": 140,
+      "height": 40
+    }
+  },
+  "allowNoApertures": true,
+  "apertures": [],
+  "marbleReduction": {
+    "amount": 0
+  }
+}

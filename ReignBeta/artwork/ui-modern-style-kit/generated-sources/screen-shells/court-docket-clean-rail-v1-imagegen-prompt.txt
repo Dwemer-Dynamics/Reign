@@ -1,0 +1,15 @@
+Use case: surgical interface image-to-image edit
+Asset type: corrected production Royal Court fixed shell for Reign
+Input image 1: the existing 1672x941 production Court shell and pixel authority
+Input image 2: the approved Royal Docket visual reference
+
+Remove only the baked Chancellor opening and four baked petition-card openings
+from the left Royal Docket rail. Replace that interior with one continuous,
+subtle near-black Reign marble/smoke surface. Preserve the rail outer border and
+scroll ornament. Do not add replacement cards: complete independent Chancellor
+and petition cards render above this clean rail at runtime. Preserve the center
+throne art, title plaque, banners, right command rail, bottom controls, canvas,
+palette, and ornament. No text, people, portraits, icons, checkerboard,
+transparency, glow, or added panels. Deterministic post-processing copies only
+the declared left-rail interior into the original fixed shell and proves exact
+pixel equality everywhere else.

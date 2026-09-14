@@ -1,0 +1,132 @@
+{
+  "schema": "reign-overlay-asset-spec-v1",
+  "asset": {
+    "id": "economic-report-modern-shell",
+    "role": "opaque exact-fixed caption shell beneath dynamic Economic Report values and scrollable settlement columns",
+    "selectedGeneratedSourceSha256": "833f8accbef4121f58c6b3c70c657edf21b3c347cedb36c77c74528f0eba76c7",
+    "generationMode": "built-in image-to-image",
+    "basePromptSha256": "6e870997fa7dde62384dcd5962802944795ef2a6f17586af0979af2791db346e",
+    "selectedEditPromptSha256": "82c095acb551285fd56600994771874b1b8b3cf147d40ff03acc196161a74819"
+  },
+  "authorities": {
+    "layout": {
+      "path": "../approved-references/economic-report.png",
+      "sha256": "18343ae4df9a7685d3c9a514d86a9e1a76ef00d6fb3ae497c6152accffbbd681"
+    },
+    "materials": {
+      "path": "../style-reference.png",
+      "sha256": "85b689dc164ebbf70f67a081c0f7097858edb0542ef0073de0c29eef7926b0a3"
+    },
+    "palette": {
+      "path": "../palette.json",
+      "schema": "reign-ui-modern-palette-v1",
+      "version": "2026.08.28.2"
+    }
+  },
+  "canvas": {
+    "width": 1672,
+    "height": 941
+  },
+  "normalization": {
+    "fit": "exact",
+    "anchor": "center"
+  },
+  "antialiasScale": 4,
+  "allowNoApertures": true,
+  "apertures": [],
+  "transparentRgb": "#121211",
+  "marbleReduction": {
+    "amount": 0.0,
+    "blurRadius": 6.0,
+    "luminanceCeiling": 96,
+    "chromaCeiling": 36,
+    "selectionSoftness": 20
+  },
+  "integrationGeometry": {
+    "schema": "reign-economic-report-integration-geometry-v1",
+    "coordinateSystem": {
+      "units": "pixels",
+      "origin": "top-left",
+      "canvasWidth": 1672,
+      "canvasHeight": 941,
+      "authoritySha256": "18343ae4df9a7685d3c9a514d86a9e1a76ef00d6fb3ae497c6152accffbbd681"
+    },
+    "staticFrames": {
+      "outerFrame": {"x": 9, "y": 11, "width": 1654, "height": 920},
+      "outerFrameInset": {"x": 17, "y": 19, "width": 1637, "height": 904},
+      "titlePlaque": {"x": 431, "y": 40, "width": 806, "height": 86},
+      "settlementColumns": [
+        {"id": "settlement-1", "x": 37, "y": 140, "width": 154, "height": 648},
+        {"id": "settlement-2", "x": 195, "y": 140, "width": 147, "height": 648},
+        {"id": "settlement-3", "x": 343, "y": 140, "width": 138, "height": 648},
+        {"id": "settlement-4", "x": 485, "y": 140, "width": 129, "height": 648},
+        {"id": "settlement-5", "x": 617, "y": 140, "width": 118, "height": 648}
+      ],
+      "settlementHorizontalDividersY": [200, 405, 550],
+      "transferPanel": {"x": 745, "y": 140, "width": 274, "height": 648},
+      "kingdomOverviewPanel": {"x": 1035, "y": 140, "width": 290, "height": 648},
+      "militaryLogisticsPanel": {"x": 1331, "y": 140, "width": 297, "height": 648},
+      "rightPanelHorizontalDividersY": [378, 563],
+      "reportDatePlaque": {"x": 570, "y": 800, "width": 532, "height": 85},
+      "closeControl": {"x": 1592, "y": 31, "width": 44, "height": 44},
+      "quillOrnament": {"x": 936, "y": 628, "width": 77, "height": 139}
+    },
+    "runtimeRegions": {
+      "screenTitle": {"x": 500, "y": 59, "width": 672, "height": 48},
+      "settlementColumns": [
+        {"id": "settlement-1", "x": 49, "y": 155, "width": 130, "height": 615},
+        {"id": "settlement-2", "x": 207, "y": 155, "width": 121, "height": 615},
+        {"id": "settlement-3", "x": 355, "y": 155, "width": 111, "height": 615},
+        {"id": "settlement-4", "x": 496, "y": 155, "width": 102, "height": 615},
+        {"id": "settlement-5", "x": 627, "y": 155, "width": 94, "height": 615}
+      ],
+      "settlementRowBands": {
+        "name": {"y": 158, "height": 39},
+        "governor": {"y": 210, "height": 53},
+        "prosperityFoodSecurityLoyalty": {"y": 278, "height": 105},
+        "militiaGarrisonFoodWage": {"y": 423, "height": 111},
+        "resources": {"y": 566, "height": 195}
+      },
+      "transfer": {
+        "heading": {"x": 764, "y": 161, "width": 237, "height": 35},
+        "description": {"x": 764, "y": 203, "width": 237, "height": 48},
+        "fromLabel": {"x": 763, "y": 263, "width": 52, "height": 34},
+        "fromField": {"x": 816, "y": 264, "width": 181, "height": 33},
+        "toLabel": {"x": 763, "y": 307, "width": 52, "height": 34},
+        "toField": {"x": 816, "y": 309, "width": 181, "height": 33},
+        "arrival": {"x": 813, "y": 351, "width": 172, "height": 31},
+        "resourceLabel": {"x": 763, "y": 394, "width": 73, "height": 35},
+        "resourceField": {"x": 838, "y": 396, "width": 159, "height": 33},
+        "availability": {"x": 763, "y": 442, "width": 154, "height": 34},
+        "amountLabel": {"x": 763, "y": 481, "width": 75, "height": 34},
+        "decrementControl": {"x": 840, "y": 481, "width": 32, "height": 32},
+        "amountValue": {"x": 880, "y": 481, "width": 45, "height": 32},
+        "incrementControl": {"x": 932, "y": 481, "width": 32, "height": 32},
+        "notesLabel": {"x": 763, "y": 529, "width": 80, "height": 28},
+        "notesField": {"x": 762, "y": 557, "width": 213, "height": 118},
+        "submitControl": {"x": 774, "y": 710, "width": 162, "height": 42}
+      },
+      "kingdomOverview": {
+        "heading": {"x": 1058, "y": 164, "width": 244, "height": 38},
+        "treasuryHeading": {"x": 1112, "y": 224, "width": 135, "height": 28},
+        "treasuryRows": {"x": 1061, "y": 253, "width": 233, "height": 103},
+        "economyHeading": {"x": 1106, "y": 398, "width": 145, "height": 31},
+        "economyRows": {"x": 1061, "y": 430, "width": 233, "height": 111},
+        "resourcesHeading": {"x": 1089, "y": 579, "width": 178, "height": 31},
+        "resourcesRows": {"x": 1061, "y": 611, "width": 233, "height": 112}
+      },
+      "militaryLogistics": {
+        "heading": {"x": 1354, "y": 164, "width": 247, "height": 38},
+        "militaryRows": {"x": 1356, "y": 240, "width": 237, "height": 116},
+        "stabilityHeading": {"x": 1375, "y": 397, "width": 199, "height": 33},
+        "stabilityRows": {"x": 1356, "y": 431, "width": 237, "height": 116},
+        "surplusHeading": {"x": 1360, "y": 579, "width": 228, "height": 34},
+        "surplusRows": {"x": 1356, "y": 615, "width": 237, "height": 54}
+      },
+      "reportDate": {
+        "heading": {"x": 737, "y": 815, "width": 198, "height": 34},
+        "value": {"x": 710, "y": 848, "width": 252, "height": 32}
+      }
+    }
+  }
+}

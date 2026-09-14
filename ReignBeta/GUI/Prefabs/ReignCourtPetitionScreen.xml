@@ -1,0 +1,153 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Prefab>
+  <Window>
+    <Widget WidthSizePolicy="StretchToParent" HeightSizePolicy="StretchToParent">
+      <Children>
+        <Widget DoNotAcceptEvents="true" WidthSizePolicy="StretchToParent" HeightSizePolicy="StretchToParent" Sprite="BlankWhiteSquare_9" Color="#030303FF" />
+        <Widget Id="CourtPetitionCanvas" WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="1672" SuggestedHeight="941" HorizontalAlignment="Center" VerticalAlignment="Center" ClipContents="true" DoNotUseCustomScaleAndChildren="true">
+          <Children>
+            <!-- Dynamic imagery is deliberately rendered first. The single approved
+                 shell is an opaque aperture plate with true-alpha scene and portrait
+                 openings, so rectangular image edges can never cover its gold work. -->
+            <Widget Id="CourtPetitionSceneAperture" DoNotAcceptEvents="true" WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="1264" SuggestedHeight="464" MarginLeft="389" MarginTop="80" ClipContents="true">
+              <Children>
+                <!-- Court scenes are normalized to 16:9. Render at that authored
+                     aspect and center-crop behind the fixed panoramic aperture;
+                     never stretch the petitioner or architecture to the opening. -->
+                <ReignEventArtWidget Type="ReignBeta.UI.Widgets.ReignEventArtWidget" DoNotAcceptEvents="true" WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="1264" SuggestedHeight="711" HorizontalAlignment="Center" VerticalAlignment="Center" EventImageId="@EventImageId" />
+              </Children>
+            </Widget>
+
+            <ImageWidget Id="CourtPetitionApprovedShell" DoNotAcceptEvents="true" WidthSizePolicy="StretchToParent" HeightSizePolicy="StretchToParent" Sprite="reign_court_petition_modern_shell" />
+
+            <!-- The fixed shell contains a clean attendee rail: the retired single-
+                 petitioner oval is structurally absent. Every roster row is one
+                 complete moving card whose own raster contains both its portrait
+                 frame and true-alpha aperture. Portrait pixels render beneath it. -->
+
+            <TextWidget DoNotAcceptEvents="true" WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="322" SuggestedHeight="38" MarginLeft="20" MarginTop="42" Brush="DefaultText" Brush.Font="ReignSerifDynamic" Brush.FontSize="24" Brush.TextHorizontalAlignment="Center" Brush.FontColor="#A88A54FF" Text="ATTENDEES" />
+            <TextWidget DoNotAcceptEvents="true" WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="1240" SuggestedHeight="48" MarginLeft="408" MarginTop="19" Brush="DefaultText" Brush.Font="ReignSerifDynamic" Brush.FontSize="30" Brush.TextHorizontalAlignment="Center" Brush.FontColor="#A88A54FF" Text="@Title" />
+
+            <TextWidget DoNotAcceptEvents="true" WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="150" SuggestedHeight="26" MarginLeft="107" MarginTop="105" Brush="DefaultText" Brush.Font="ReignSerifDynamic" Brush.FontSize="15" Brush.TextHorizontalAlignment="Center" Brush.FontColor="#C5AC83FF" Text="ACTIVE" />
+            <ScrollablePanel Id="CourtPetitionAttendeeViewport" WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="322" SuggestedHeight="750" MarginLeft="22" MarginTop="137" AutoHideScrollBars="false" MouseScrollAxis="Vertical" InnerPanel="CourtPetitionAttendeeClip\CourtPetitionAttendeeStack" ClipRect="CourtPetitionAttendeeClip" VerticalScrollbar="..\CourtPetitionAttendeeScrollbar">
+              <Children>
+                <Widget Id="CourtPetitionAttendeeClip" WidthSizePolicy="StretchToParent" HeightSizePolicy="StretchToParent" ClipContents="true">
+                  <Children>
+                    <ListPanel Id="CourtPetitionAttendeeStack" WidthSizePolicy="StretchToParent" HeightSizePolicy="CoverChildren" StackLayout.LayoutMethod="VerticalTopToBottom">
+                      <Children>
+                        <ListPanel Id="CourtPetitionActiveAttendeeList" DataSource="{ActiveParticipants}" WidthSizePolicy="StretchToParent" HeightSizePolicy="CoverChildren" StackLayout.LayoutMethod="VerticalTopToBottom">
+                          <ItemTemplate>
+                            <ButtonWidget WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="322" SuggestedHeight="103" MarginBottom="8" Brush="ConversationItem.SoundBrush" Command.Click="ExecuteToggleActive" DoNotPassEventsToChildren="true" UpdateChildrenStates="true">
+                              <Children>
+                                <Widget DoNotAcceptEvents="true" WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="80" SuggestedHeight="80" MarginLeft="14" MarginTop="11" ClipContents="true">
+                                  <Children>
+                                    <ImageIdentifierWidget DoNotAcceptEvents="true" WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="84" SuggestedHeight="84" HorizontalAlignment="Center" VerticalAlignment="Center" ImageId="@PortraitId" AdditionalArgs="@PortraitAdditionalArgs" TextureProviderName="@PortraitTextureProviderName" />
+                                    <ReignPortraitWidget Type="ReignBeta.UI.Widgets.ReignPortraitWidget" DoNotAcceptEvents="true" WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="84" SuggestedHeight="84" HorizontalAlignment="Center" VerticalAlignment="Center" PortraitCacheKey="@PortraitCacheKey" UseZoomQuality="true" />
+                                  </Children>
+                                </Widget>
+                                <ImageWidget DoNotAcceptEvents="true" WidthSizePolicy="StretchToParent" HeightSizePolicy="StretchToParent" Sprite="reign_court_petition_attendee_card_modern" />
+                                <TextWidget DoNotAcceptEvents="true" WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="190" SuggestedHeight="30" MarginLeft="105" MarginTop="20" Brush="DefaultText" Brush.Font="ReignSerifDynamic" Brush.FontSize="13" Brush.TextHorizontalAlignment="Center" Brush.FontColor="#C5AC83FF" Text="@Name" />
+                                <TextWidget DoNotAcceptEvents="true" WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="190" SuggestedHeight="24" MarginLeft="105" MarginTop="57" Brush="DefaultText" Brush.Font="ReignSerifDynamic" Brush.FontSize="11" Brush.TextHorizontalAlignment="Center" Brush.FontColor="#C5BDAFFF" Text="@Status" />
+                              </Children>
+                            </ButtonWidget>
+                          </ItemTemplate>
+                        </ListPanel>
+
+                        <Widget WidthSizePolicy="StretchToParent" HeightSizePolicy="Fixed" SuggestedHeight="24" />
+                        <Widget WidthSizePolicy="StretchToParent" HeightSizePolicy="Fixed" SuggestedHeight="34" MarginBottom="8">
+                          <Children>
+                            <TextWidget DoNotAcceptEvents="true" WidthSizePolicy="StretchToParent" HeightSizePolicy="StretchToParent" Brush="DefaultText" Brush.Font="ReignSerifDynamic" Brush.FontSize="15" Brush.TextHorizontalAlignment="Center" Brush.FontColor="#C5AC83FF" Text="AVAILABLE" />
+                          </Children>
+                        </Widget>
+
+                        <ListPanel Id="CourtPetitionAvailableAttendeeList" DataSource="{AvailableAttendees}" WidthSizePolicy="StretchToParent" HeightSizePolicy="CoverChildren" StackLayout.LayoutMethod="VerticalTopToBottom">
+                          <ItemTemplate>
+                            <ButtonWidget WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="322" SuggestedHeight="103" MarginBottom="8" Brush="ConversationItem.SoundBrush" Command.Click="ExecuteToggleActive" DoNotPassEventsToChildren="true" UpdateChildrenStates="true">
+                              <Children>
+                                <Widget DoNotAcceptEvents="true" WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="80" SuggestedHeight="80" MarginLeft="14" MarginTop="11" ClipContents="true">
+                                  <Children>
+                                    <ImageIdentifierWidget DoNotAcceptEvents="true" WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="84" SuggestedHeight="84" HorizontalAlignment="Center" VerticalAlignment="Center" ImageId="@PortraitId" AdditionalArgs="@PortraitAdditionalArgs" TextureProviderName="@PortraitTextureProviderName" />
+                                    <ReignPortraitWidget Type="ReignBeta.UI.Widgets.ReignPortraitWidget" DoNotAcceptEvents="true" WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="84" SuggestedHeight="84" HorizontalAlignment="Center" VerticalAlignment="Center" PortraitCacheKey="@PortraitCacheKey" UseZoomQuality="true" />
+                                  </Children>
+                                </Widget>
+                                <ImageWidget DoNotAcceptEvents="true" WidthSizePolicy="StretchToParent" HeightSizePolicy="StretchToParent" Sprite="reign_court_petition_attendee_card_modern" />
+                                <TextWidget DoNotAcceptEvents="true" WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="190" SuggestedHeight="30" MarginLeft="105" MarginTop="20" Brush="DefaultText" Brush.Font="ReignSerifDynamic" Brush.FontSize="13" Brush.TextHorizontalAlignment="Center" Brush.FontColor="#C5AC83FF" Text="@Name" />
+                                <TextWidget DoNotAcceptEvents="true" WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="190" SuggestedHeight="24" MarginLeft="105" MarginTop="57" Brush="DefaultText" Brush.Font="ReignSerifDynamic" Brush.FontSize="11" Brush.TextHorizontalAlignment="Center" Brush.FontColor="#C5BDAFFF" Text="@Status" />
+                              </Children>
+                            </ButtonWidget>
+                          </ItemTemplate>
+                        </ListPanel>
+                      </Children>
+                    </ListPanel>
+                  </Children>
+                </Widget>
+              </Children>
+            </ScrollablePanel>
+            <ScrollbarWidget Id="CourtPetitionAttendeeScrollbar" WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="8" SuggestedHeight="744" MarginLeft="347" MarginTop="140" AlignmentAxis="Vertical" Handle="CourtPetitionAttendeeScrollbarHandle" MaxValue="100" MinValue="0">
+              <Children>
+                <Widget DoNotAcceptEvents="true" WidthSizePolicy="Fixed" HeightSizePolicy="StretchToParent" SuggestedWidth="2" HorizontalAlignment="Center" Sprite="BlankWhiteSquare_9" Color="#352C20FF" />
+                <ImageWidget Id="CourtPetitionAttendeeScrollbarHandle" WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="8" SuggestedHeight="54" HorizontalAlignment="Center" Brush="FaceGen.Scrollbar.Handle" />
+              </Children>
+            </ScrollbarWidget>
+
+            <Widget DoNotAcceptEvents="true" WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="1240" SuggestedHeight="30" MarginLeft="402" MarginTop="505" Sprite="BlankWhiteSquare_9" Color="#03030380" />
+            <TextWidget DoNotAcceptEvents="true" WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="1220" SuggestedHeight="24" MarginLeft="412" MarginTop="509" Brush="DefaultText" Brush.Font="ReignSerifDynamic" Brush.FontSize="11" Brush.TextHorizontalAlignment="Center" Brush.FontColor="#C5BDAFFF" Text="@StatusText" />
+
+            <!-- Exact terms are shown here, never on the compact docket card. -->
+            <TextWidget DoNotAcceptEvents="true" WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="432" SuggestedHeight="26" MarginLeft="420" MarginTop="564" Brush="DefaultText" Brush.Font="ReignSerifDynamic" Brush.FontSize="17" Brush.FontColor="#A88A54FF" Brush.TextHorizontalAlignment="Left" Text="THE REQUEST" />
+            <TextWidget DoNotAcceptEvents="true" WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="432" SuggestedHeight="42" MarginLeft="420" MarginTop="592" Brush="DefaultText" Brush.Font="ReignSerifDynamic" Brush.FontSize="13" Brush.FontColor="#C5BDAFFF" Brush.TextHorizontalAlignment="Left" Text="@ProblemText" />
+            <TextWidget DoNotAcceptEvents="true" WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="432" SuggestedHeight="20" MarginLeft="420" MarginTop="629" Brush="DefaultText" Brush.Font="ReignSerifDynamic" Brush.FontSize="9" Brush.FontColor="#8A8883FF" Brush.TextHorizontalAlignment="Left" Text="@NeedFacts" />
+
+            <TextWidget DoNotAcceptEvents="true" WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="222" SuggestedHeight="18" MarginLeft="919" MarginTop="568" Brush="DefaultText" Brush.Font="ReignSerifDynamic" Brush.FontSize="10" Brush.FontColor="#A88A54FF" Brush.TextHorizontalAlignment="Center" Text="REQUEST TYPE" />
+            <TextWidget DoNotAcceptEvents="true" WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="222" SuggestedHeight="43" MarginLeft="919" MarginTop="596" Brush="DefaultText" Brush.Font="ReignSerifDynamic" Brush.FontSize="12" Brush.FontColor="#C5BDAFFF" Brush.TextHorizontalAlignment="Center" Text="@RequestTypeText" />
+            <TextWidget DoNotAcceptEvents="true" WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="234" SuggestedHeight="18" MarginLeft="1160" MarginTop="568" Brush="DefaultText" Brush.Font="ReignSerifDynamic" Brush.FontSize="10" Brush.FontColor="#A88A54FF" Brush.TextHorizontalAlignment="Center" Text="REQUESTED RESOURCE" />
+            <TextWidget DoNotAcceptEvents="true" WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="234" SuggestedHeight="54" MarginLeft="1160" MarginTop="592" Brush="DefaultText" Brush.Font="ReignSerifDynamic" Brush.FontSize="11" Brush.FontColor="#C5BDAFFF" Brush.TextHorizontalAlignment="Center" Text="@RequestedResourceText" />
+            <TextWidget DoNotAcceptEvents="true" WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="224" SuggestedHeight="18" MarginLeft="1411" MarginTop="568" Brush="DefaultText" Brush.Font="ReignSerifDynamic" Brush.FontSize="10" Brush.FontColor="#A88A54FF" Brush.TextHorizontalAlignment="Center" Text="PURPOSE" />
+            <TextWidget DoNotAcceptEvents="true" WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="224" SuggestedHeight="54" MarginLeft="1411" MarginTop="592" Brush="DefaultText" Brush.Font="ReignSerifDynamic" Brush.FontSize="12" Brush.FontColor="#C5BDAFFF" Brush.TextHorizontalAlignment="Center" Text="@PurposeText" />
+
+            <!-- Conversation never applies mechanical effects. The final petition
+                 decision remains the explicit grant/fund/refuse control below. -->
+            <ReignAutoScrollPanel Type="ReignBeta.UI.Widgets.ReignAutoScrollPanel" WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="1218" SuggestedHeight="64" MarginLeft="414" MarginTop="681" AutoHideScrollBars="false" MouseScrollAxis="Vertical" InnerPanel="CourtPetitionChatClip\CourtPetitionChatList" ClipRect="CourtPetitionChatClip" VerticalScrollbar="..\CourtPetitionChatScrollbar" ChatScrollVersion="@ChatScrollVersion">
+              <Children>
+                <Widget Id="CourtPetitionChatClip" WidthSizePolicy="StretchToParent" HeightSizePolicy="StretchToParent" ClipContents="true">
+                  <Children>
+                    <ListPanel Id="CourtPetitionChatList" DataSource="{Transcript}" WidthSizePolicy="StretchToParent" HeightSizePolicy="CoverChildren" StackLayout.LayoutMethod="VerticalTopToBottom">
+                      <ItemTemplate>
+                        <Widget WidthSizePolicy="StretchToParent" HeightSizePolicy="CoverChildren" MarginBottom="3">
+                          <Children>
+                            <TextWidget DoNotAcceptEvents="true" WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="150" SuggestedHeight="24" MarginLeft="4" Brush="DefaultText" Brush.Font="ReignSerifDynamic" Brush.FontSize="11" Brush.FontColor="#A88A54FF" Brush.TextHorizontalAlignment="Left" Text="@Speaker" />
+                            <TextWidget DoNotAcceptEvents="true" WidthSizePolicy="Fixed" HeightSizePolicy="CoverChildren" SuggestedWidth="1032" MarginLeft="165" MarginRight="10" Brush="DefaultText" Brush.Font="ReignSerifDynamic" Brush.FontSize="12" Brush.FontColor="#C5BDAFFF" Brush.TextHorizontalAlignment="Left" Text="@Text" />
+                          </Children>
+                        </Widget>
+                      </ItemTemplate>
+                    </ListPanel>
+                  </Children>
+                </Widget>
+              </Children>
+            </ReignAutoScrollPanel>
+            <ScrollbarWidget Id="CourtPetitionChatScrollbar" WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="8" SuggestedHeight="60" MarginLeft="1638" MarginTop="683" AlignmentAxis="Vertical" Handle="CourtPetitionChatScrollbarHandle" MaxValue="100" MinValue="0">
+              <Children>
+                <Widget DoNotAcceptEvents="true" WidthSizePolicy="Fixed" HeightSizePolicy="StretchToParent" SuggestedWidth="3" HorizontalAlignment="Center" Sprite="BlankWhiteSquare_9" Color="#352C20FF" />
+                <ImageWidget Id="CourtPetitionChatScrollbarHandle" WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="8" SuggestedHeight="20" HorizontalAlignment="Center" Brush="FaceGen.Scrollbar.Handle" />
+              </Children>
+            </ScrollbarWidget>
+            <EditableTextWidget WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="1040" SuggestedHeight="42" MarginLeft="421" MarginTop="754" Brush="DefaultText" Brush.Font="ReignSerifDynamic" Brush.FontSize="16" Brush.TextHorizontalAlignment="Left" Brush.FontColor="#C5BDAFFF" Text="@InputText" HintText="Address the petitioner..." IsEnabled="@ConversationEnabled" />
+            <ButtonWidget DoNotPassEventsToChildren="true" UpdateChildrenStates="true" WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="150" SuggestedHeight="43" MarginLeft="1488" MarginTop="753" Brush="ConversationItem.SoundBrush" Command.Click="ExecuteSend" IsEnabled="@CanSend">
+              <Children><TextWidget DoNotAcceptEvents="true" WidthSizePolicy="StretchToParent" HeightSizePolicy="StretchToParent" Brush="DefaultText" Brush.Font="ReignSerifDynamic" Brush.FontSize="14" Brush.FontColor="#C5AC83FF" Text="SEND" /></Children>
+            </ButtonWidget>
+
+            <Widget IsVisible="@DecisionControlsVisible" WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="1030" SuggestedHeight="76" MarginLeft="393" MarginTop="835">
+              <Children>
+                <ButtonWidget IsVisible="@DirectGrantVisible" IsEnabled="@CanGrantDirect" WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="330" SuggestedHeight="76" MarginLeft="0" Brush="ConversationItem.SoundBrush" Command.Click="ExecuteGrantDirect"><Children><TextWidget DoNotAcceptEvents="true" WidthSizePolicy="StretchToParent" HeightSizePolicy="StretchToParent" Brush="DefaultText" Brush.Font="ReignSerifDynamic" Brush.FontSize="15" Brush.FontColor="#C5AC83FF" Text="@DirectGrantLabel" /></Children></ButtonWidget>
+                <ButtonWidget IsVisible="@GoldGrantVisible" IsEnabled="@CanGrantWithGold" WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="330" SuggestedHeight="76" MarginLeft="350" Brush="ConversationItem.SoundBrush" Command.Click="ExecuteGrantWithGold"><Children><TextWidget DoNotAcceptEvents="true" WidthSizePolicy="StretchToParent" HeightSizePolicy="StretchToParent" Brush="DefaultText" Brush.Font="ReignSerifDynamic" Brush.FontSize="13" Brush.FontColor="#C5AC83FF" Text="@GoldGrantLabel" /></Children></ButtonWidget>
+                <ButtonWidget IsEnabled="@CanRefuse" WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="330" SuggestedHeight="76" MarginLeft="700" Brush="ConversationItem.SoundBrush" Command.Click="ExecuteRefuse"><Children><TextWidget DoNotAcceptEvents="true" WidthSizePolicy="StretchToParent" HeightSizePolicy="StretchToParent" Brush="DefaultText" Brush.Font="ReignSerifDynamic" Brush.FontSize="15" Brush.FontColor="#C5BDAFFF" Text="@RefuseLabel" /></Children></ButtonWidget>
+              </Children>
+            </Widget>
+            <ButtonWidget IsVisible="@DecisionComplete" IsEnabled="@CanContinue" WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="330" SuggestedHeight="76" MarginLeft="743" MarginTop="835" Brush="ConversationItem.SoundBrush" Command.Click="ExecuteContinue"><Children><TextWidget DoNotAcceptEvents="true" WidthSizePolicy="StretchToParent" HeightSizePolicy="StretchToParent" Brush="DefaultText" Brush.Font="ReignSerifDynamic" Brush.FontSize="15" Brush.FontColor="#C5AC83FF" Text="RETURN TO COURT" /></Children></ButtonWidget>
+            <ButtonWidget IsVisible="@PostponeVisible" IsEnabled="@CanPostpone" WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="177" SuggestedHeight="42" MarginLeft="1478" MarginTop="858" Brush="ConversationItem.SoundBrush" Command.Click="ExecutePostpone"><Children><TextWidget DoNotAcceptEvents="true" WidthSizePolicy="StretchToParent" HeightSizePolicy="StretchToParent" Brush="DefaultText" Brush.Font="ReignSerifDynamic" Brush.FontSize="10" Brush.FontColor="#A88A54FF" Text="POSTPONE" /></Children></ButtonWidget>
+          </Children>
+        </Widget>
+      </Children>
+    </Widget>
+  </Window>
+</Prefab>

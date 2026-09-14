@@ -1,0 +1,41 @@
+{
+  "schema": "reign-fixed-region-composite-v1",
+  "assetId": "social-event-exact-fixed-shell",
+  "approvedReference": {
+    "path": "../approved-references/social-event.png",
+    "sha256": "e8f65c0652379fa903c3b1afb13d6fdd09467e5296782b7650b2424f97277265"
+  },
+  "imageToImageFill": {
+    "path": "../generated-sources/screen-shells/social-event-modern-shell-source.png",
+    "sha256": "fb1fcd3f0e81ee50d077158e6bb235a6b66202145213db199a452108f40c0dd9"
+  },
+  "canvas": {
+    "width": 1672,
+    "height": 941
+  },
+  "rectangularFillMode": {
+    "borderSamplePixels": 4,
+    "inwardFeatherPixels": 3
+  },
+  "sceneDependentMasks": [
+    { "id": "continuous-attendee-rail-retired-art-removed", "shape": "rectangle", "x": 30, "y": 120, "width": 548, "height": 550 },
+    { "id": "attendees-title", "shape": "rectangle", "x": 180, "y": 20, "width": 260, "height": 50 },
+    { "id": "active-heading", "shape": "rectangle", "x": 232, "y": 87, "width": 145, "height": 40 },
+    { "id": "active-roster", "shape": "rectangle", "x": 34, "y": 130, "width": 538, "height": 495 },
+    { "id": "available-heading", "shape": "rectangle", "x": 215, "y": 627, "width": 180, "height": 46 },
+    { "id": "available-roster", "shape": "rectangle", "x": 34, "y": 672, "width": 538, "height": 228 },
+    { "id": "event-title", "shape": "rectangle", "x": 670, "y": 16, "width": 940, "height": 48 },
+    { "id": "phase-status", "shape": "rectangle", "x": 765, "y": 50, "width": 750, "height": 32 },
+    { "id": "event-scene", "shape": "polygon", "points": [[764, 109], [1313, 109], [1313, 570], [764, 570]] },
+    { "id": "event-scene-caption", "shape": "rectangle", "x": 764, "y": 566, "width": 550, "height": 70 },
+    { "id": "wait-approach-label", "shape": "rectangle", "x": 1440, "y": 122, "width": 190, "height": 34 },
+    { "id": "next-phase-label", "shape": "rectangle", "x": 1440, "y": 192, "width": 190, "height": 34 },
+    { "id": "end-event-label", "shape": "rectangle", "x": 1440, "y": 262, "width": 190, "height": 34 },
+    { "id": "phase-title", "shape": "rectangle", "x": 650, "y": 653, "width": 990, "height": 42 },
+    { "id": "phase-description", "shape": "rectangle", "x": 655, "y": 687, "width": 980, "height": 38 },
+    { "id": "chat-lines", "shape": "rectangle", "x": 656, "y": 749, "width": 966, "height": 92 },
+    { "id": "busy-text", "shape": "rectangle", "x": 706, "y": 831, "width": 520, "height": 20 },
+    { "id": "input-text", "shape": "rectangle", "x": 660, "y": 860, "width": 790, "height": 38 },
+    { "id": "send-label", "shape": "rectangle", "x": 1480, "y": 858, "width": 140, "height": 42 }
+  ]
+}

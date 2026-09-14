@@ -1,0 +1,24 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="480" height="124" viewBox="0 0 480 124" fill="none">
+  <defs>
+    <g id="corner" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M2 30V2H30" stroke="#7B4D0F" stroke-width="2"/>
+      <path d="M5 25V5H25" stroke="#D09A31" stroke-width="1"/>
+      <path d="M5 22C5 14 10 17 10 9C18 9 14 5 23 5" stroke="#D7A53F" stroke-width="1.2"/>
+      <path d="M7 18C12 19 11 13 16 13C21 13 17 7 23 8" stroke="#8E5D19" stroke-width="1"/>
+      <path d="M8 7L12 11L8 15L4 11Z" stroke="#E1B55B" stroke-width="1"/>
+      <path d="M15 5L19 8L16 11L12 8Z" fill="#A86E1C" stroke="#E0B254" stroke-width=".7"/>
+      <path d="M5 17L9 20L6 23L3 20Z" fill="#8C5814" stroke="#C9912D" stroke-width=".7"/>
+      <circle cx="6" cy="6" r="1.5" fill="#E4BA63" stroke="#6B410C" stroke-width=".6"/>
+      <circle cx="13.5" cy="13.5" r="1.2" fill="#C68B27"/>
+      <path d="M4 32H12M32 4V12" stroke="#BA7E22" stroke-width="1"/>
+    </g>
+  </defs>
+  <rect x="1" y="1" width="478" height="122" stroke="#6B420D" stroke-width="2"/>
+  <rect x="4.5" y="4.5" width="471" height="115" stroke="#C28725"/>
+  <rect x="7.5" y="7.5" width="465" height="109" stroke="#3D260B"/>
+  <path d="M30 4.5H450M30 119.5H450" stroke="#8D5A17" stroke-width=".8"/>
+  <use href="#corner"/>
+  <use href="#corner" transform="translate(480 0) scale(-1 1)"/>
+  <use href="#corner" transform="translate(0 124) scale(1 -1)"/>
+  <use href="#corner" transform="translate(480 124) scale(-1 -1)"/>
+</svg>

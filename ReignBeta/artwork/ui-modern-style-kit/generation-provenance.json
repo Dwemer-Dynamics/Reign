@@ -1,0 +1,2142 @@
+{
+  "schema": "reign-ui-image-generation-provenance-v1",
+  "version": "2026.09.04.2",
+  "provider": "OpenAI built-in image generation",
+  "mode": "image-to-image from the approved style reference",
+  "reference": {
+    "path": "style-reference.png",
+    "sha256": "85b689dc164ebbf70f67a081c0f7097858edb0542ef0073de0c29eef7926b0a3"
+  },
+  "policy": {
+    "creativeRole": "Image generation supplies material and ornament treatment only.",
+    "technicalRole": "Deterministic post-processing owns final dimensions, true alpha, aperture geometry, edge antialiasing, and evidence.",
+    "status": "Image-to-image candidates are creative inputs only. The deterministic production ledger below is authoritative for completed fixed composites, retained/runtime source sprites, and the frozen shared-atlas materialization; native Bannerlord and human-acceptance gates remain separate."
+  },
+  "outputs": [
+    {
+      "id": "settlement-homes-lane",
+      "path": "generated-sources/homes/homes-lane.png",
+      "width": 1774,
+      "height": 887,
+      "sha256": "f743632ec9ac7aa451e6a82be074c0e5371a4ab54f8e80b1e426d4798e125c69",
+      "date": "2026-09-06",
+      "provider": "OpenAI built-in image generation",
+      "promptDescription": "Unframed realistic medieval residential lane with humble stone and timber homes, small doorways, shutters, worn paving and subtle warm domestic light. No people, writing, UI, frame, border or emblems. Muted natural color and deep charcoal compatible with the approved Reign black-marble and antique-gold style. Approved style-reference.png supplied as context, not copied into the scene.",
+      "productionUse": "Unchanged generated image displayed at its native 2:1 ratio within the existing dynamic Party Chat content field for the Homes directory. Fixed approved card/frame pixels remain unchanged.",
+      "status": "dynamic-scene-content"
+    },
+    {
+      "id": "training-yard-raised-title-transparent-overlay-concept",
+      "path": "generated-sources/screen-shells/training-yard-modern-shell-v4-raised-title-imagegen-concept.png",
+      "width": 1672,
+      "height": 941,
+      "sha256": "e58d7c883a468ea50a4a3ca2681ddfae5635aa688f88c18754627191dd75a3c7",
+      "promptRecord": "generated-sources/screen-shells/training-yard-modern-shell-v4-raised-title-imagegen-prompt.txt",
+      "promptSha256": "88edf9b1b3b15dccf295ea70d7649bd1c615a2e7dba2763d270ae9b3c76a1b9b",
+      "status": "latest-approved-concept-not-runtime",
+      "productionUse": "The accepted concept corrects the title to TRAINING YARD and raises the plaque so transparent negative space separates it from all content panels. Deterministic materialization owns the exact production typography, geometry, alpha, palette, aperture, and runtime atlas."
+    },
+    {
+      "id": "training-yard-transparent-campaign-overlay-concept",
+      "path": "generated-sources/screen-shells/training-yard-modern-shell-v3-transparent-overlay-imagegen-concept.png",
+      "width": 1672,
+      "height": 941,
+      "sha256": "3333df67c19a53d13d0f2e4f96b478ffdb220da3ee937124cfd4e9040e1f1ba5",
+      "promptRecord": "generated-sources/screen-shells/training-yard-modern-shell-v3-transparent-overlay-imagegen-prompt.txt",
+      "promptSha256": "ea2659114aa28be541cd3fbd7c8172e4ba534f7e6f9967d5ddee22b2204680a5",
+      "status": "superseded-retained-concept-not-runtime",
+      "productionUse": "The concept established floating opaque work panels over transparent campaign-map negative space. Deterministic materialization preserves the exact v1 panel geometry, frozen palette, 1672x941 canvas, zero-RGB transparency, title plaque, selected portrait aperture, and packed runtime atlas."
+    },
+    {
+      "id": "training-yard-selected-portrait-aperture-concept",
+      "path": "generated-sources/screen-shells/training-yard-modern-shell-v2-aperture-imagegen-concept.png",
+      "width": 1671,
+      "height": 941,
+      "sha256": "eda474afab0e7f8e9a7edb7049fb69d48fc38d7173b405d41f869745a60da1c7",
+      "promptRecord": "generated-sources/screen-shells/training-yard-modern-shell-v2-aperture-imagegen-prompt.txt",
+      "promptSha256": "4d0f12bb638c608606d3a5523539ebcac106fa868678370aba584c1ee5561173",
+      "status": "retained-concept-not-runtime",
+      "productionUse": "The concept established the integrated black-marble and antique-gold aperture treatment. Its 1671x941 canvas and oversized opening were rejected for runtime use; exact 108x108 geometry and true alpha are materialized deterministically onto the untouched approved 1672x941 v1 source."
+    },
+    {
+      "id": "portrait-circle-source",
+      "path": "generated-sources/portrait-circle-source.png",
+      "width": 1254,
+      "height": 1254,
+      "sha256": "1e0687c63b4a2d396efc259c32d109739146cc10da6721ffd61848d050462ae9",
+      "promptRecord": "reconstructed-from-generation-call",
+      "prompt": "Use the attached approved Reign style and color reference to create one compact circular portrait-card overlay: near-black marble matte outside a centered circular opening, restrained thin double antique-gold line, tiny cardinal diamond ornaments, no text, character, logo, or watermark; request a transparent center and flat orthographic game-UI treatment."
+    },
+    {
+      "id": "portrait-oval-source",
+      "path": "generated-sources/portrait-oval-source.png",
+      "width": 1024,
+      "height": 1536,
+      "sha256": "a006f84d177dccaac6c89f2880a036903f9cfa34802645d4687c27d21f40b3ec",
+      "promptRecord": "reconstructed-from-generation-call",
+      "prompt": "Use the attached approved Reign style and color reference to create one vertical-oval bust portrait-card overlay: near-black marble matte outside a tall centered oval opening, restrained thin double antique-gold line, tiny cardinal diamond ornaments, enough headroom for hair and shoulders, no text, character, logo, or watermark; request a transparent center and flat orthographic game-UI treatment."
+    },
+    {
+      "id": "portrait-oval-thin-frame-source",
+      "path": "generated-sources/portrait-oval-thin-frame-source.png",
+      "width": 984,
+      "height": 1598,
+      "sha256": "808d9dc4a67d72f4faa1853507cd068b2fd927c909066fc93e51aeae466a2998",
+      "promptRecord": "verbatim",
+      "prompt": "Use case: precise-object-edit\nAsset type: reusable production game-UI portrait overlay\nInput images: Image 1 is the edit target; Image 2 is the exact diplomacy portrait-oval geometry authority; Image 3 is the exact palette and material authority.\nPrimary request: Edit only Image 1's frame geometry. Enlarge the centered vertical oval opening so it occupies approximately 92% of the total canvas width and 93.5% of the total canvas height, matching the thin portrait ovals in Image 2. Reduce the four cardinal diamond ornaments proportionally so each remains complete and safely inside the canvas. Preserve the restrained thin double antique-gold line, near-black subtle marble, symmetry, and flat orthographic treatment.\nComposition/framing: vertical 162:263 proportion; full frame visible; inner opening supports a large bust with full hair and shoulders.\nConstraints: no portrait, person, text, banner, logo, icon, watermark, or outside drop shadow. The central opening must be genuinely transparent if supported; otherwise a uniform high-contrast temporary fill suitable for deterministic alpha removal. Keep every ornament fully inside the canvas.\nAvoid: thick matte, wide marble bands, large ornaments, checkerboard baked as final transparency, cropped details, baroque flourishes."
+    },
+    {
+      "id": "banner-shield-frame-source",
+      "path": "generated-sources/banner-shield-frame-source.png",
+      "width": 1169,
+      "height": 1345,
+      "sha256": "bfef8cc086f3759e9b05034a69170126cc161df7f9a6bdcb1073b1dbaac4d447",
+      "promptRecord": "verbatim",
+      "prompt": "Use case: precise-object-edit\nAsset type: reusable production game-UI banner shield overlay\nInput images: Image 1 is the edit target; Image 2 is the exact small diplomacy-shield geometry authority; Image 3 is the exact palette/material authority.\nPrimary request: Change only Image 1's shield proportions and inner opening. Make the complete outer shield exactly 86:99 proportion. Widen the rectangular inner opening to approximately 84% of the outer shield width. Shorten the inner opening to approximately 79% of the outer shield height by raising its pointed lower edge, matching Image 2. Keep the top inset small and put the extra lower material around the shield point. Preserve the restrained near-black marble, fine double antique-gold outlines, flat top, clipped upper corners, tapered sides, centered lower point, symmetry, and crisp orthographic style.\nConstraints: frame only; no banner colors, heraldry, text, letters, crown, person, portrait, logo, watermark, laurel, or outside shadow. Keep all outer and inner gold hairlines complete and safely inside the canvas. Central opening may use a uniform high-contrast temporary fill for deterministic alpha removal.\nAvoid: changing the material or gold color, thick gold, wide side bands, circular wreath, checkerboard baked as final transparency."
+    },
+    {
+      "id": "portrait-rectangle-source",
+      "path": "generated-sources/portrait-rectangle-source.png",
+      "width": 1024,
+      "height": 1536,
+      "sha256": "8688b1b80decef3e1954ee4fadd157a188785f87b2e23e98e0f7d1912957690e",
+      "promptRecord": "reconstructed-from-generation-call",
+      "prompt": "Use the attached approved Reign style and color reference to create one tall rectangular full-body portrait-card overlay: near-black marble surround, clipped geometric corners, restrained antique-gold hairlines and tiny diamonds, no text, character, logo, or watermark; request a transparent center and flat orthographic game-UI treatment."
+    },
+    {
+      "id": "memory-scene-source",
+      "path": "generated-sources/memory-scene-source.png",
+      "width": 1672,
+      "height": 941,
+      "sha256": "5a1e2260cce6dbaa2498fb8680d7c93bfe63e1704aafa10f95597eddb6a76144",
+      "promptRecord": "verbatim",
+      "prompt": "Use Image 1 as the exact visual authority. Create one production UI overlay asset for Reign: a wide horizontal rectangular memory-scene viewport frame, approximately 16:9. The live memory artwork will render beneath it. Surround the opening with the same near-black subtly veined marble and the same restrained thin double antique-gold hairlines as Image 1, with only tiny diamond ornaments at the four cardinal midpoints and clipped geometric corners. Keep the frame modern, quiet, precise, and less ornate than the legacy UI. The central aperture must be completely transparent; no portrait, scene, text, icons, logo, watermark, white fill, or checkerboard may remain. Flat orthographic UI asset, symmetrical, crisp at game resolution, transparent PNG."
+    },
+    {
+      "id": "panel-standard-source",
+      "path": "generated-sources/panel-standard-source.png",
+      "width": 1536,
+      "height": 1024,
+      "sha256": "e700d4eacc513528a2c4e0b0a2940a58bcd600ca9ff9bb457efbfac99e794ab0",
+      "promptRecord": "verbatim",
+      "prompt": "Use Image 1 as the exact visual authority. Create one reusable production UI material asset for Reign: a scalable standard panel plate, 3:2 aspect ratio. It must use the exact near-black black-marble material and subtle vein intensity of Image 1, with a very thin recessed bronze outer hairline and restrained antique-gold clipped corner accents. No title plaque, no text, no logo, no icons, no portraits, no scene, no watermark. Keep the center calm and low contrast so live text remains readable. Flat orthographic game UI asset, symmetrical, even lighting, edge-safe for nine-slice use."
+    },
+    {
+      "id": "panel-raised-source",
+      "path": "generated-sources/panel-raised-source.png",
+      "width": 1536,
+      "height": 1024,
+      "sha256": "a5a47c9564ea779c760a7040dd400a76bc8c485ce9267f069696b0867f484c6b",
+      "promptRecord": "verbatim",
+      "prompt": "Use Image 1 as the exact visual authority. Create one reusable production UI material asset for Reign: a scalable raised/selected card plate, 3:2 aspect ratio. It must be visibly but subtly lighter cool smoke-grey than the standard black-marble panel, matching the lighter grey cards in the approved modern concepts, never brown. Add only a fine antique-gold inner hairline and tiny clipped corner details; restrained hierarchy, no baroque flourishes. No text, no logo, no icons, no portraits, no watermark. Flat orthographic game UI asset, symmetrical, even lighting, edge-safe for nine-slice use."
+    },
+    {
+      "id": "diplomacy-announcement-shell-source",
+      "path": "generated-sources/screen-shells/diplomacy-announcement-shell-source.png",
+      "width": 1672,
+      "height": 941,
+      "sha256": "7b3ca77e668ec8825e8cf1f509d36eddd8797eaef644289de37ab69f06576066",
+      "promptRecord": "verbatim",
+      "prompt": "Edit Image 1 into the production STATIC SHELL for the same Reign diplomacy-announcement screen. Image 2 is the exact palette/material authority. Preserve Image 1's 1672x941 canvas, outer shell, panel positions, header plaque geometry, central panel geometry, side-card geometry, button geometry, thin gold lines, diamonds, subtle circular construction motif, spacing, and modern restraint as closely and precisely as possible. Remove every character portrait, banner/shield, word, letter, number, paragraph, button label, crest, and live-value mark. Replace removed content with the correct surrounding near-black marble or cool smoke-grey panel material from Image 2. Leave clean empty portrait zones inside both side cards so separately rendered vertical-oval portraits and transparent overlays can be composited later. No text-like artifacts, no placeholder glyphs, no people, no icons, no watermark. Flat orthographic game UI source layer."
+    },
+    {
+      "id": "memories-book-shell-source",
+      "path": "generated-sources/screen-shells/memories-book-shell-source.png",
+      "width": 1672,
+      "height": 941,
+      "sha256": "3e1dc687fc611954ca36244a1d204b048a1732bbb37bc4cd3b2aa959bf638400",
+      "promptRecord": "verbatim",
+      "prompt": "Edit Image 1 into the production STATIC SHELL for the same Reign Memories Book screen. Image 2 is the exact palette/material authority. Preserve Image 1's 1672x941 canvas, outer shell, left list panel, scrollbar structure, large right scene-frame geometry, caption-card geometry, footer separator and three navigation hit-area positions, hairline borders, clipped corners, diamonds, spacing, and modern restraint as closely and precisely as possible. Remove the memory scene, every title, list entry, counter, caption, navigation label, word, letter, and number. Replace removed areas with the appropriate near-black marble or cool smoke-grey material. The large memory viewport must be an empty rectangular scene area—not a portrait, circle, or oval—and remain visually ready for a separate dynamic memory texture and transparent frame overlay. No text-like artifacts, no people, no scene, no logo, no watermark. Flat orthographic game UI source layer."
+    },
+    {
+      "id": "castle-layout-shell-source",
+      "path": "generated-sources/screen-shells/castle-layout-shell-source.png",
+      "width": 1672,
+      "height": 941,
+      "sha256": "ef4fe9d3157edfaf62e1ce7cc7c808c8f88b2cb5946e5405be1d2e5da00aff4b",
+      "promptRecord": "verbatim",
+      "prompt": "Edit Image 1 into the production STATIC SHELL for the same Reign Castle Layout screen. Image 2 is the exact palette/material authority. Preserve Image 1's 1672x941 canvas, outer shell, title-zone geometry, central map-frame bounds, all left and right room-card panel bounds, thin antique-gold lines, clipped corners, diamonds, spacing, and modern restraint as closely and precisely as possible. Remove the castle map, every room label, every portrait, every empty silhouette, every occupancy circle, the close icon, title letters, crown/R mark, and all other text or live imagery. Replace removed content with the correct near-black marble or cool smoke-grey panel material. Leave each room card clean so identical circular occupied/empty slot overlays can be rendered dynamically; leave the center clean for the dynamic culture-specific map. No text-like artifacts, no people, no map, no icons, no logo, no watermark. Flat orthographic game UI source layer."
+    },
+    {
+      "id": "government-shell-source",
+      "path": "generated-sources/screen-shells/government-shell-source.png",
+      "width": 1672,
+      "height": 941,
+      "sha256": "ba4451a1f64024734c31dd80d196d02c6b02cb81ec205b8c63dcf051a2fb54d1",
+      "promptRecord": "verbatim",
+      "prompt": "Edit Image 1 into the production STATIC SHELL for the same Reign Government screen. Image 2 is the exact palette/material authority. Preserve Image 1's 1672x941 canvas, outer shell, top status-strip bounds, the three main column panel bounds, section-header positions, resolution and member card silhouettes, all button shapes and positions, thin antique-gold/bronze line hierarchy, clipped corners, subtle marble, spacing, and modern restraint as closely and precisely as possible. Remove every word, letter, number, live value, party/member/resolution name, paragraph, status, and button label. Replace removed content with the correct black-marble, smoke-grey, raised-grey, or selected-grey material from Image 2; retain the deliberate lighter-grey cards and keep every neutral cool, never brown. No text-like artifacts, no people, no symbols, no logo, no watermark. Flat orthographic game UI source layer."
+    },
+    {
+      "id": "correspondence-modern-shell-source",
+      "path": "generated-sources/screen-shells/correspondence-modern-shell-source.png",
+      "width": 1672,
+      "height": 941,
+      "sha256": "e1e573e4954803974b0eea59cd225e311c6020421ea935f128ea2b7e4560438e",
+      "promptRecord": "verbatim",
+      "prompt": "Use case: precise-object-edit\nAsset type: production game UI static screen shell\nInput images: Image 1 is the edit target and exact pixel-layout authority for Correspondence; Image 2 is the exact material, texture, lighting, and color authority only.\nPrimary request: Convert Image 1 into a completely textless, portraitless, iconless static Correspondence shell for runtime content overlays.\nComposition/framing: Preserve Image 1's complete 1672x941 landscape composition and pixel-register every structural element: outer double frame, centered title plaque, top-right button frame, left Known Characters panel, selected contact-row frame, all six circular portrait-ring positions and row dividers, both scrollbar tracks and handles, large correspondence/message panel, both raised message-card rectangles, lower input panel and inset input rectangle, and the two stacked lower-right button frames. Do not move, resize, add, delete, or reinterpret any panel, frame, card, button, divider, scroll track, or circular portrait ring.\nStyle/medium: shippable medieval-fantasy game UI shell; restrained modern Reign style, not concept art.\nColor palette: use only Image 2's near-black marble, black/smoke panels, cool charcoal-gray raised cards, border bronze, subdued antique gold, and tiny gold highlights. Match the supplied palette exactly; no brown panel fills and no warm gray mats.\nMaterials/textures: subtle low-contrast black marble with very restrained veins; thin precise antique-gold double-line engraving; cool-gray raised message cards and input material; clean, shallow depth.\nRequired removals: remove every letter, word, number, value, portrait, face, character, heraldic crest, lion, crown, semantic status/unread/message icon, and all message content. Fill removed portrait interiors with clean dark cool-neutral material while retaining the circular gold rings. Fill removed text and icon areas seamlessly with their surrounding black-marble, smoke-panel, or cool-gray material.\nInvariants: retain purely ornamental border diamonds, corner flourishes, frame finials, and scrollbar chrome because they are structural ornament, not live content. Keep the selected contact-row frame and all empty fixed panels exactly where Image 1 places them. The output must be fully opaque, seamless, symmetrical where the reference is symmetrical, and contain absolutely no readable or pseudo-readable text, watermark, logo, person, silhouette, portrait, heraldry, or added decoration.\nAvoid: typography-like marks, ghost letters, facial traces, body silhouettes, fantasy scenery, bright gold, gray paper, parchment, brown panels, extra ornament, altered proportions, layout drift, blur, glow, or bloom."
+    },
+    {
+      "id": "economic-report-modern-shell-source",
+      "path": "generated-sources/screen-shells/economic-report-modern-shell-source.png",
+      "width": 1672,
+      "height": 941,
+      "sha256": "b052d5977bccf17ef5d8f86d26368ee48ea34308e3479bd676a1e9ffcd5fe917",
+      "promptRecord": "verbatim-two-stage",
+      "basePrompt": "Use case: precise-object-edit\nAsset type: production static game UI shell for the Reign Economic Report\nInput images: Image 1 is the edit target and exact layout/geometry authority (approved Economic Report); Image 2 is the exact material, palette, line-weight, ornament-density, and hierarchy authority (Reign style reference).\nPrimary request: Convert Image 1 into a completely textless, live-data-free static shell while preserving its approved interface layout exactly. Keep the exact outer frame, centered top title-plaque silhouette, circular close-control geometry, five narrow left report-column frames and their horizontal divider geometry, central transfer-request panel frame and all blank field/control/notes/button outlines, two right summary-panel frames and their internal divider geometry, and the centered bottom report-date plaque silhouette. Preserve every panel boundary, inset, spacing relationship, line weight, corner treatment, and control footprint from Image 1.\nStyle/medium: polished shippable dark-fantasy game UI shell, not concept art; restrained modern Reign treatment from Image 2.\nComposition/framing: exact same full-screen 16:9 composition and geometry as Image 1; straight-on orthographic UI; no crop; no perspective; no rearrangement.\nColor palette: use only the visual palette demonstrated by Image 2 and the approved concept—near-black void, black marble base, subtle low-contrast marble veins, cool neutral charcoal/grey lifted cards, recessive bronze hairlines, antique gold primary borders, restrained gold highlights, warm parchment-neutral blank inset surfaces only where Image 1 already provides a content field.\nMaterials/textures: subtle black marble, cool grey-black raised panels, understated parchment-neutral blank content wells, thin antique-gold engraved outlines; shallow material depth; no heavy baroque ornament; no brown neutral panels.\nText (verbatim): no text at all.\nConstraints: change only the content and material treatment needed to produce a clean static shell. Preserve Image 1 geometry exactly. Remove every title, heading, settlement name, governor line, statistic label, value, number, date, dropdown value, resource name, note, button label, and other live or runtime content. Leave those regions clean and empty for runtime widgets. Preserve the close X only as a non-text control icon if present. All produced pixels must be usable as one static background shell beneath runtime text and lists. No portraits, no banners, no icons other than the existing close-control X and restrained non-semantic ornaments. No watermark.\nAvoid: letters, words, numbers, pseudo-text, glyph-like scratches, settlement names, values, dates, portraits, character art, banners, maps, data visualization, new controls, moved frames, changed panel count, changed proportions, parchment book illustrations not already implied by the approved geometry, yellow-brown panel fills, bright gold, excessive filigree, strong marble veins, bloom, glow, bevel-heavy fantasy chrome, watermark.",
+      "prompt": "Use case: precise-object-edit\nAsset type: production static game UI shell for the Reign Economic Report\nInput images: Image 1 is the edit target—the successful textless Economic Report shell. Image 2 is the approved Economic Report and exact geometry/detail authority. Image 3 is the exact modern Reign material/palette authority.\nPrimary request: Change only one thing in Image 1: restore the small antique-gold quill-and-inkwell decorative ornament shown in Image 2 at the exact same scale and position in the lower-right portion of the central transfer panel, beside the blank notes well and above/right of the blank bottom action-control outline.\nConstraints: keep every other pixel-level design decision, panel boundary, divider, field outline, button/control footprint, material, spacing relationship, outer frame, title plaque, bottom plaque, and close-control geometry from Image 1 unchanged. Keep the complete shell textless and live-data-free. The quill-and-inkwell is a non-semantic static ornament only. No text, letters, numbers, pseudo-text, dropdown values, arrows, plus/minus glyphs, labels, settlement names, dates, portraits, banners, or watermark.\nAvoid: changing panel count or proportions; moving any frame; adding any other ornament; reintroducing content; bright gold; glow; brown panel fills; strong marble veins."
+    },
+    {
+      "id": "portrait-empty-circle-source",
+      "path": "generated-sources/portrait-empty-circle-source.png",
+      "width": 1254,
+      "height": 1254,
+      "sha256": "9d2950c4e388285b1935cc0deaba58b24e9574ac74b8ed4fff60c9acf34c597a",
+      "promptRecord": "verbatim",
+      "prompt": "Use case: precise-object-edit\nAsset type: production game UI placeholder sprite with transparent background\nPrimary request: Isolate and recreate exactly one empty circular castle-occupancy portrait slot from the supplied approved Castle Layout reference. It must be a centered circular black-charcoal inset containing the same simple anonymous head-and-shoulders silhouette in muted neutral gray, with the same restrained thin antique-gold circular rim.\nInput image: the supplied Castle Layout is the exact style and color authority.\nComposition/framing: one centered front-facing circular slot only, square canvas, generous transparent margin, perfect radial alignment.\nColor palette: match the reference exactly; charcoal-black inset, silhouette matching the existing muted gray, rim matching the existing subdued antique gold.\nMaterials/textures: extremely subtle black-marble/charcoal inset, delicate worn metallic gold rim, no bright yellow, no glossy bevel.\nConstraints: actual transparent alpha outside the circular slot; no text; no portrait; no face detail; no square backing; no additional ornaments; no drop shadow outside the circle; preserve the approved understated line weight and low-contrast hierarchy.\nAvoid: frame corners, rectangular card, wreath, crown, letters, logos, labels, checkerboard, white background, gray background, decorative flourishes, bright brass, gradients outside the circle, watermark."
+    },
+    {
+      "id": "modern-crowned-r-crest-source",
+      "path": "generated-sources/modern-crowned-r-crest-source.png",
+      "width": 1254,
+      "height": 1254,
+      "sha256": "b62effe36c92d52391a381f810b3e07427ad1111196de4bd51754bed4b245624",
+      "promptRecord": "verbatim",
+      "prompt": "Use case: precise-object-edit\nAsset type: reusable production game UI crest sprite\nPrimary request: Isolate and recreate the compact crowned R crest centered above the CASTLE LAYOUT title in Image 1. Image 1 is the exact silhouette, proportion, line weight, and placement-detail authority; Image 2 is the exact antique-metal finish and restrained modern Reign palette authority.\nComposition/framing: one centered, front-facing compact crest only on a square canvas: a narrow clipped-corner shield outline containing a serif capital R, with the small crown directly above it and the tiny symmetrical connector diamonds/hairlines at left and right. Preserve generous transparent margin.\nColor palette: only subdued antique gold #7E6A4D, restrained highlight gold #A88A54, tiny #C5AC83 highlights, and near-black internal shadow; no bright yellow.\nMaterials/textures: delicate worn antique gold, shallow engraving, precise thin lines, restrained modern black-marble Reign UI.\nConstraints: actual transparent alpha everywhere outside the crest; no title text; no other letters; no background panel; no circular medallion; no lions; no wreath; no wings; no banner; no glow; no watermark.\nAvoid: baroque ornament, heavy bevels, bright brass, thick frame, checkerboard, white or gray background, extra icons, words, pseudo-text."
+    },
+    {
+      "id": "war-council-modern-shell-source",
+      "path": "generated-sources/screen-shells/war-council-modern-shell-source.png",
+      "width": 1672,
+      "height": 941,
+      "sha256": "8a00a564bbd356ccdb2fe8d14d482309107946d9cbe03ca4854ed32d763d0486",
+      "promptRecord": "verbatim",
+      "promptPath": "war-council-modern-shell-prompt.txt",
+      "promptSha256": "8d67d79d3a061f4bc4ddfe759d6ea1091b32f8191e050892eb0da2a41239a6f5",
+      "protectedContent": {
+        "id": "warCouncilMap",
+        "rule": "remove-from-generated-shell-and-composite-original-runtime-map-with-zero-color-change"
+      }
+    },
+    {
+      "id": "social-event-modern-shell-source",
+      "path": "generated-sources/screen-shells/social-event-modern-shell-source.png",
+      "width": 1671,
+      "height": 941,
+      "sha256": "fb1fcd3f0e81ee50d077158e6bb235a6b66202145213db199a452108f40c0dd9",
+      "promptRecord": "verbatim",
+      "prompt": "Use case: precise-object-edit\nAsset type: production static game UI shell for Reign Social Event\nInput images: Image 1 is the exact approved Social Event pixel-layout and geometry authority. Image 2 is the exact modern Reign palette, marble, antique-gold line weight, ornament restraint, and material hierarchy authority.\nPrimary request: Convert Image 1 into a completely textless, portraitless, scene-free, live-data-free static shell that can sit beneath runtime widgets.\nComposition/framing: preserve Image 1's complete 1672x941 orthographic composition exactly: outer border; full-height left Attendees panel; its top heading zone and Active/Available divider geometry; wide top event-title plaque; central scene-frame bounds and lower caption-strip frame; the three right-side action-button frame positions; the wide phase-description plaque; the lower transcript/chat panel, scrollbar chrome, inset input field, send-button frame, and all restrained structural corner/diamond ornaments. Do not move, resize, add, delete, or reinterpret any fixed panel, aperture, button frame, divider, scrollbar, or control footprint.\nDynamic-content removals: remove every attendee portrait, attendee card/row frame, name, status, heading, title, phase value, counter, scene image, scene caption, description, chat line, input text, button label, word, letter, number, heraldry, semantic icon, person, and pseudo-text. Leave the attendee-list body clean and uninterrupted so variable runtime cards can be drawn there. Leave the central scene interior as a perfectly clean uniform near-black temporary fill bounded by the original scene frame so deterministic post-processing can carve true alpha. Leave all text/content regions clean with their surrounding material.\nColor/material: only the approved frozen modern look—near-black subtle marble, cool black/smoke panels, deliberate cool charcoal raised regions, recessive bronze, subdued antique gold, tiny restrained highlights. No brown or parchment panels. Veining must stay low contrast and subordinate.\nConstraints: fully opaque source candidate; exact 1672x941; no readable or pseudo-readable text; no portraits, silhouettes, people, scene, logos, watermark, glow, bloom, bright brass, baroque ornament, or layout drift. Retain only non-semantic structural ornament and frame chrome."
+    },
+    {
+      "id": "wilderness-event-modern-shell-source",
+      "path": "generated-sources/screen-shells/wilderness-event-modern-shell-source.png",
+      "width": 1672,
+      "height": 941,
+      "sha256": "9019dce863cb36f5d6d77ff5154971f6264aba526b43c0e2fc7217d75c9f07f6",
+      "promptRecord": "verbatim",
+      "prompt": "Use case: precise-object-edit\nAsset type: production static game UI shell for Reign Wilderness Event\nInput images: Image 1 is the exact approved Wilderness Event pixel-layout and geometry authority. Image 2 is the exact modern Reign palette, marble, antique-gold line weight, ornament restraint, and material hierarchy authority.\nPrimary request: Convert Image 1 into a completely textless, portraitless, scene-free, live-data-free static shell that can sit beneath runtime widgets.\nComposition/framing: preserve Image 1's complete 1672x941 orthographic composition exactly: outer border; full-height left Attendees panel; its top heading zone and Active/Available divider geometry; wide top wilderness-title plaque; single upper-right End Event button frame; centered wilderness scene-frame bounds and lower caption-strip frame; the wide Encounter/phase-description plaque; the lower transcript/chat panel, scrollbar chrome, inset input field, send-button frame, and all restrained structural corner/diamond ornaments. Do not move, resize, add, delete, or reinterpret any fixed panel, aperture, button frame, divider, scrollbar, or control footprint.\nDynamic-content removals: remove every attendee portrait, attendee card/row frame, name, status, heading, title, location/time value, scene image, scene caption, phase description, chat line, input text, button label, word, letter, number, heraldry, semantic icon, person, and pseudo-text. Leave the attendee-list body clean and uninterrupted so variable runtime cards can be drawn there. Leave the central scene interior as a perfectly clean uniform near-black temporary fill bounded by the original scene frame so deterministic post-processing can carve true alpha. Leave all text/content regions clean with their surrounding material.\nColor/material: only the approved frozen modern look—near-black subtle marble, cool black/smoke panels, deliberate cool charcoal raised regions, recessive bronze, subdued antique gold, tiny restrained highlights. No brown or parchment panels. Veining must stay low contrast and subordinate.\nConstraints: fully opaque source candidate; exact 1672x941; no readable or pseudo-readable text; no portraits, silhouettes, people, scene, logos, watermark, glow, bloom, bright brass, baroque ornament, or layout drift. Retain only non-semantic structural ornament and frame chrome."
+    },
+    {
+      "id": "individual-chat-modern-shell-source",
+      "path": "generated-sources/screen-shells/individual-chat-modern-shell-source.png",
+      "width": 1672,
+      "height": 941,
+      "sha256": "9bb5366801e16e1f19d003a93bbf42f3c99f720752b005046db8435de154d2a2",
+      "status": "current image-to-image material fill for the deterministic Individual Chat integrated oval-aperture shell; generation prompt hash retained historically",
+      "promptRecord": "hash-only-from-generation-call",
+      "promptSpecPath": "specs/individual-chat-shell.json",
+      "promptSha256": "7cffdc881e4dc065dbe1a1f830d888836a488f1460f593d79de779b725cc6df4"
+    },
+    {
+      "id": "individual-chat-modern-shell-square-portrait-v1-imagegen",
+      "path": "generated-sources/screen-shells/individual-chat-modern-shell-square-portrait-v1-imagegen.png",
+      "width": 1672,
+      "height": 941,
+      "generatedWidth": 1671,
+      "generatedHeight": 941,
+      "sha256": "834da8f3c0f8103f16877bdacfcaca1597e4d889c3ed7e0d78576beb1942fec6",
+      "status": "superseded-historical; retained as the rejected square-header experiment and not referenced by the live prefab or runtime shell",
+      "promptRecord": "verbatim-file",
+      "promptSpecPath": "generated-sources/screen-shells/individual-chat-modern-shell-square-portrait-v1-imagegen-prompt.txt",
+      "promptSha256": "ea58e8d5589743ce6e85110dbb49ed035dabba2f564bef10471647c9f362a639",
+      "normalization": "Extended only the final right-edge black column from 1671x941 to 1672x941; no crop, recolor, or geometry resampling."
+    },
+    {
+      "id": "party-chat-modern-shell-source",
+      "path": "generated-sources/screen-shells/party-chat-modern-shell-source.png",
+      "width": 1672,
+      "height": 941,
+      "sha256": "31fd91beebf1760f49fb8df1ee8450418a1bad60ac5f8895384e04fcbf5b3f6e",
+      "promptRecord": "hash-only-from-generation-call",
+      "promptSpecPath": "specs/party-chat-shell.json",
+      "promptSha256": "eafe037621c9957a6622d2db2c1e748ab771a4ced96014fa1c631c548f7b8e78"
+    },
+    {
+      "id": "family-chambers-modern-shell-source",
+      "path": "generated-sources/screen-shells/family-chambers-modern-shell-source.png",
+      "width": 1672,
+      "height": 941,
+      "sha256": "eb2e3359eaf8b5b002177965441d9a0eb5a9d005709c138965f4b3c51abcaacb",
+      "artifactRole": "deterministically recomposed exact fixed-region working source",
+      "imageToImageCandidateSha256": "f9f422eeb8286c50095a7f3cfc08d33cc53826ac59140a5a700fd6eec73872db",
+      "imageToImageCandidateRetention": "historical hash only; the candidate was superseded in place and is not claimed to remain at path",
+      "promptRecord": "verbatim",
+      "promptPath": "family-chambers-modern-shell-prompt.txt",
+      "promptSha256": "a5d910d4bd55357805b235e9b10880ee545807c6d72e414c0cbcee57b4c2272a"
+    },
+    {
+      "id": "castle-chat-modern-shell-source",
+      "path": "generated-sources/screen-shells/castle-chat-modern-shell-source.png",
+      "width": 1672,
+      "height": 941,
+      "sha256": "a0635c9c5388d3a81e583b03e82b089b7195b32788207331a6bf1990819834d2",
+      "artifactRole": "deterministically recomposed exact fixed-region working source",
+      "imageToImageCandidateSha256": "a91ed827f8adb6c36a6574c1d7b0328f2668596aa72761b1cb45742c12d62905",
+      "imageToImageCandidateRetention": "historical hash only; the candidate was superseded in place and is not claimed to remain at path",
+      "promptRecord": "verbatim",
+      "promptPath": "castle-chat-modern-shell-prompt.txt",
+      "promptSha256": "74b818f39913bf3fc3111857367090f3849557c6ff2ae18712efdec60d0f4d1c"
+    },
+    {
+      "id": "notable-generation-modern-shell-source",
+      "path": "generated-sources/screen-shells/notable-generation-modern-shell-source.png",
+      "width": 1582,
+      "height": 994,
+      "sha256": "f9659f321545efb0c7e10bf3edeee8f45f7732831fe36bba9500863cb6c013e5",
+      "promptRecord": "verbatim",
+      "promptPath": "notable-generation-modern-shell-prompt.txt",
+      "promptSha256": "1c01afacb921706fc845d130c5758773f7f4cf870db044577ab7e6ae93af3e94"
+    },
+    {
+      "id": "pregnancy-warning-modern-shell-source",
+      "path": "generated-sources/components/pregnancy-warning-modern-shell-v1-imagegen.png",
+      "width": 1649,
+      "height": 954,
+      "sha256": "ffa62e55c6ca0a3169b1419974616ff2729c737ebf29c4fa674484a33861f46f",
+      "artifactRole": "image-to-image material and ornament source for the compact pregnancy-warning modal shell",
+      "promptRecord": "verbatim-multistage",
+      "promptPath": "generated-sources/components/pregnancy-warning-modern-shell-v1-imagegen-prompt.txt",
+      "promptSha256": "f8fb5b61dda1c09957cef0800469ea16ad360833004f55e40ba10a5aa02b025b",
+      "deterministicMaterialization": {
+        "status": "loose runtime RGBA source and pixel-identical packed atlas region verified; native acceptance pending",
+        "specPath": "ReignBeta/artwork/ui-modern-style-kit/specs/pregnancy-warning-modern-shell.json",
+        "specSha256": "8a3dfca80b8b52e9db7e452bc1372af2cdbc6a1c7150a3c10be1ca8c438bc083",
+        "toolPath": "ReignBeta/artwork/ui-modern-style-kit/tools/prepare_overlay_assets.py",
+        "toolSha256": "12f45650151b3e56eccacc1d86eeb0532e3677fa05b7583774e23cab298f3468",
+        "outputPath": "ReignBeta/GUI/SpriteParts/ui_reignbeta_individual/reign_pregnancy_warning.png",
+        "outputSha256": "fee50a1a5d04e300bc0f26f112f2defcdc4454a968d06bc326987d18b4803596",
+        "evidencePath": ".codex-build/ui-modern-assets/20260829/pregnancy-warning/pregnancy-warning-modern-shell.evidence.json",
+        "evidenceSha256": "eba027d0098303c01d7377d4714528f8695226ac14f7d844bb3402992c6c5849",
+        "outputWidth": 1448,
+        "outputHeight": 1086,
+        "transparentPixelCount": 352087,
+        "partiallyTransparentPixelCount": 0,
+        "opaquePixelCount": 1220441
+      }
+    },
+    {
+      "id": "ruler-petition-throne-viewpoint-reference",
+      "path": "../../GUI/UiCalibration/reference-scenes/ruler-petition-throne-viewpoint-reference.png",
+      "workspacePath": "ReignBeta/GUI/UiCalibration/reference-scenes/ruler-petition-throne-viewpoint-reference.png",
+      "width": 1672,
+      "height": 941,
+      "sha256": "59e997c710edadbca42b2ff9593b4d856c6fe8cffaa76d54751aa8d738a03dae",
+      "artifactRole": "runtime image-to-image composition reference; identity is supplied separately by the native petitioner portrait",
+      "compositionAuthority": "User-approved Court Petition example with the camera looking down from the ruler's throne, the petitioner position at the foot of the dais, and the entrance behind the petitioner.",
+      "generation": {
+        "provider": "OpenAI built-in image generation",
+        "mode": "image-to-image from the user-approved composition reference",
+        "generationId": "exec-d344036e-cb99-4aa2-999a-59b1ed2423d3",
+        "rawOutputPath": "C:/Users/speed/.codex/generated_images/01a05b34-56c8-7a52-9fcf-46986b4b886a/exec-d344036e-cb99-4aa2-999a-59b1ed2423d3.png",
+        "rawOutputRetention": "Retained as provenance evidence only; runtime resolves the project-bound workspace copy."
+      },
+      "promptRecord": "verbatim",
+      "promptPath": "generated-sources/ruler-docket/ruler-petition-throne-viewpoint-reference-prompt.txt",
+      "promptSha256": "d975006464cbc4317f4693d382d1bf50e21208b31d521a846463ab46a5e55fdc",
+      "acceptance": "The empty elevated-ruler viewpoint and no-throne spatial contract passed visual inspection; retained as the unknown-culture fallback after canonical cultures gained dedicated references."
+    },
+    {
+      "id": "ruler-petition-throne-viewpoint-empire-gpt-image-2",
+      "path": "../../GUI/UiCalibration/reference-scenes/ruler-petition-throne-viewpoint-empire.png",
+      "workspacePath": "ReignBeta/GUI/UiCalibration/reference-scenes/ruler-petition-throne-viewpoint-empire.png",
+      "width": 3840,
+      "height": 2160,
+      "sha256": "62178f5c0ce9c12ef2f605f2bd158c8588c212baaf24101aac12719a5ad26c6e",
+      "artifactRole": "culture-specific Empire runtime image-to-image composition reference; petitioner identity is supplied separately by the generated portrait",
+      "compositionAuthority": "User-selected live-action documentary-quality ruler viewpoint with the sovereign behind the camera, a gentle downward angle, clear dais-step edges, open petitioner position, and no visible throne or foreground furniture.",
+      "generation": {
+        "provider": "AtlasCloud",
+        "model": "openai/gpt-image-2/text-to-image",
+        "mode": "text-to-image",
+        "size": "3840x2160",
+        "quality": "high",
+        "outputFormat": "png",
+        "predictionIdRetention": "The approved example predated the consolidated culture batch; its Atlas prediction id was not retained in project provenance."
+      },
+      "promptRecord": "verbatim",
+      "promptPath": "generated-sources/ruler-docket/culture-throne-rooms/ruler-petition-throne-viewpoint-empire-gpt-image-2-prompt.txt",
+      "promptSha256": "9c0932fb39bd313a98de0a7c45d0c5eb4da8b43c33fff1ce425c10b6d626aa98",
+      "acceptance": "User selected this image as the quality and composition reference for the complete culture set."
+    },
+    {
+      "id": "ruler-petition-throne-viewpoint-vlandia-gpt-image-2",
+      "path": "../../GUI/UiCalibration/reference-scenes/ruler-petition-throne-viewpoint-vlandia.png",
+      "workspacePath": "ReignBeta/GUI/UiCalibration/reference-scenes/ruler-petition-throne-viewpoint-vlandia.png",
+      "width": 3840,
+      "height": 2160,
+      "sha256": "72cc2326d0958086869a1cfcc13d8b805e60962ed935803c205c66611b4252bf",
+      "artifactRole": "culture-specific Vlandia runtime image-to-image composition reference",
+      "compositionAuthority": "Approved elevated ruler viewpoint and Vlandian Norman/Western feudal architecture.",
+      "generation": {
+        "provider": "AtlasCloud",
+        "model": "openai/gpt-image-2/text-to-image",
+        "mode": "text-to-image",
+        "size": "3840x2160",
+        "quality": "high",
+        "outputFormat": "png",
+        "predictionId": "9356d98991e244fcaf28bfbcac070042"
+      },
+      "promptRecord": "verbatim",
+      "promptPath": "generated-sources/ruler-docket/culture-throne-rooms/ruler-petition-throne-viewpoint-vlandia-gpt-image-2-prompt.txt",
+      "promptSha256": "883c04f23b1f918790d6f62740d3e2fcd82af37632bca96f671e33a305850b21",
+      "acceptance": "Passed visual inspection for photorealism, culture, perspective, clean texture, and an unobstructed petitioner zone."
+    },
+    {
+      "id": "ruler-petition-throne-viewpoint-sturgia-gpt-image-2",
+      "path": "../../GUI/UiCalibration/reference-scenes/ruler-petition-throne-viewpoint-sturgia.png",
+      "workspacePath": "ReignBeta/GUI/UiCalibration/reference-scenes/ruler-petition-throne-viewpoint-sturgia.png",
+      "width": 3840,
+      "height": 2160,
+      "sha256": "8f958365c8a661a0dc1a7114deb3984706cca5a8dc6a675f276e88842c8ea982",
+      "artifactRole": "culture-specific Sturgia runtime image-to-image composition reference",
+      "compositionAuthority": "Approved elevated ruler viewpoint and Sturgian timber-and-stone northern longhall architecture.",
+      "generation": {
+        "provider": "AtlasCloud",
+        "model": "openai/gpt-image-2/text-to-image",
+        "mode": "text-to-image",
+        "size": "3840x2160",
+        "quality": "high",
+        "outputFormat": "png",
+        "predictionId": "aadfee9655f749b89c1d199b7912aa3f"
+      },
+      "promptRecord": "verbatim",
+      "promptPath": "generated-sources/ruler-docket/culture-throne-rooms/ruler-petition-throne-viewpoint-sturgia-gpt-image-2-prompt.txt",
+      "promptSha256": "775f93bd47279d013cd028c957b87b8d4def5514166873e2b32e9b4e3eaf8cff",
+      "acceptance": "Passed visual inspection for photorealism, culture, perspective, clean texture, and an unobstructed petitioner zone."
+    },
+    {
+      "id": "ruler-petition-throne-viewpoint-battania-gpt-image-2",
+      "path": "../../GUI/UiCalibration/reference-scenes/ruler-petition-throne-viewpoint-battania.png",
+      "workspacePath": "ReignBeta/GUI/UiCalibration/reference-scenes/ruler-petition-throne-viewpoint-battania.png",
+      "width": 3840,
+      "height": 2160,
+      "sha256": "fc0729236c715201fab78426a730c18b8d0ee43d33664c4fb6b778c80f771ab2",
+      "artifactRole": "culture-specific Battania runtime image-to-image composition reference",
+      "compositionAuthority": "Approved elevated ruler viewpoint and Battanian hillfort stone-and-oak architecture.",
+      "generation": {
+        "provider": "AtlasCloud",
+        "model": "openai/gpt-image-2/text-to-image",
+        "mode": "text-to-image",
+        "size": "3840x2160",
+        "quality": "high",
+        "outputFormat": "png",
+        "predictionId": "f709682d48814bf3a8df53a447481522"
+      },
+      "promptRecord": "verbatim",
+      "promptPath": "generated-sources/ruler-docket/culture-throne-rooms/ruler-petition-throne-viewpoint-battania-gpt-image-2-prompt.txt",
+      "promptSha256": "3180926f16ab6f029a53aa8278a3c62a7b71aa6713fbc6f9946993426196415c",
+      "acceptance": "Passed visual inspection for photorealism, culture, perspective, clean texture, and an unobstructed petitioner zone."
+    },
+    {
+      "id": "ruler-petition-throne-viewpoint-aserai-gpt-image-2",
+      "path": "../../GUI/UiCalibration/reference-scenes/ruler-petition-throne-viewpoint-aserai.png",
+      "workspacePath": "ReignBeta/GUI/UiCalibration/reference-scenes/ruler-petition-throne-viewpoint-aserai.png",
+      "width": 3840,
+      "height": 2160,
+      "sha256": "718eef440a36c697e1490ae70f0b4803a6f851ad29ab2cd990043ddd45d22057",
+      "artifactRole": "culture-specific Aserai runtime image-to-image composition reference",
+      "compositionAuthority": "Approved elevated ruler viewpoint and Aserai sandstone, plaster, timber-screen, and horseshoe-arch architecture.",
+      "generation": {
+        "provider": "AtlasCloud",
+        "model": "openai/gpt-image-2/text-to-image",
+        "mode": "text-to-image",
+        "size": "3840x2160",
+        "quality": "high",
+        "outputFormat": "png",
+        "predictionId": "7d9285a3c47241c5be56744d95a65b9e"
+      },
+      "promptRecord": "verbatim",
+      "promptPath": "generated-sources/ruler-docket/culture-throne-rooms/ruler-petition-throne-viewpoint-aserai-gpt-image-2-prompt.txt",
+      "promptSha256": "9494ad87a39ff8f609142dd78d315e2551c3a881740e10695034c369eb8ae6cc",
+      "acceptance": "Passed visual inspection for photorealism, culture, perspective, clean texture, and an unobstructed petitioner zone."
+    },
+    {
+      "id": "ruler-petition-throne-viewpoint-khuzait-gpt-image-2",
+      "path": "../../GUI/UiCalibration/reference-scenes/ruler-petition-throne-viewpoint-khuzait.png",
+      "workspacePath": "ReignBeta/GUI/UiCalibration/reference-scenes/ruler-petition-throne-viewpoint-khuzait.png",
+      "width": 3840,
+      "height": 2160,
+      "sha256": "b21634bc03104d660182f93a47ba53b96027d0e95a03534c144d92f3b198fc72",
+      "artifactRole": "culture-specific Khuzait runtime image-to-image composition reference",
+      "compositionAuthority": "Approved elevated ruler viewpoint and Khuzait permanent steppe timber-hall architecture.",
+      "generation": {
+        "provider": "AtlasCloud",
+        "model": "openai/gpt-image-2/text-to-image",
+        "mode": "text-to-image",
+        "size": "3840x2160",
+        "quality": "high",
+        "outputFormat": "png",
+        "predictionId": "38cf22ce02dd4a5ba3ab9d8a903569c6"
+      },
+      "promptRecord": "verbatim",
+      "promptPath": "generated-sources/ruler-docket/culture-throne-rooms/ruler-petition-throne-viewpoint-khuzait-gpt-image-2-prompt.txt",
+      "promptSha256": "d84cc3e98f90c2808e5e454b2ac629bf822e4d20e2f9f897aecbcc1aa5461b38",
+      "acceptance": "Passed visual inspection for photorealism, culture, perspective, clean texture, and an unobstructed petitioner zone."
+    },
+    {
+      "id": "ruler-docket-court-office-modern-shell-imagegen",
+      "path": "generated-sources/ruler-docket/court-history-modern-shell-v1-imagegen.png",
+      "workspacePath": "ReignBeta/artwork/ui-modern-style-kit/generated-sources/ruler-docket/court-history-modern-shell-v1-imagegen.png",
+      "width": 1672,
+      "height": 941,
+      "sha256": "6e59069e2a38e6edd4b346ba34de54163742b0f9be99e8cc43d9d2e1bf487d5e",
+      "artifactRole": "creative source for the dedicated current-style Court office and history shell",
+      "generation": {
+        "provider": "OpenAI built-in image generation",
+        "model": "image generation capability",
+        "mode": "image-to-image from the current approved Reign interface references",
+        "generationId": "exec-dde89a3f-31dc-4618-bc0d-b925bd9bc64f",
+        "transparentBackgroundReportedByTool": false
+      },
+      "promptRecord": "reconstructed-from-generation-call",
+      "promptPath": "generated-sources/ruler-docket/court-history-modern-shell-v1-imagegen-prompt.txt",
+      "promptSha256": "1c1f5a11539966688004e5618aceafe328ba14c29db8948f41b608d6e7f5ff10",
+      "runtimeDerivation": {
+        "toolPath": "ReignBeta/artwork/ui-modern-style-kit/tools/prepare_ruler_docket_interface_assets.py",
+        "toolVersion": "1.7.0",
+        "runtimePath": "ReignBeta/GUI/SpriteParts/ui_reignbeta_court/reign_court_office_modern_shell.png",
+        "runtimeSha256": "acd6cbc010c4d0ddd1d4267c6f4cacfa26c96c2999bbf5ccad16c1c5c393b8d2",
+        "evidencePath": ".codex-build/ui-modern-assets/20260903/ruler-docket-control-fix/court-assets-evidence.json"
+      },
+      "acceptance": "Passed visual inspection for current black-marble and restrained antique-gold styling, one narrow list rail, one large detail field, and an integrated return-control plate without legacy stacked rectangles."
+    },
+    {
+      "id": "ruler-docket-petition-attendee-card-imagegen",
+      "path": "generated-sources/ruler-docket/court-petition-attendee-card-v2-imagegen.png",
+      "workspacePath": "ReignBeta/artwork/ui-modern-style-kit/generated-sources/ruler-docket/court-petition-attendee-card-v2-imagegen.png",
+      "width": 1871,
+      "height": 840,
+      "sha256": "ab5bf98ad5c82389cfb27916d084a97be3be65a5cdcd997f82a7f06f0e066ec4",
+      "artifactRole": "creative source for one complete moving petition attendee card with an integrated portrait frame",
+      "generation": {
+        "provider": "OpenAI built-in image generation",
+        "model": "image generation capability",
+        "mode": "image-to-image from the current approved Reign card references",
+        "generationId": "exec-d5662c9f-e26c-4b7e-862e-00f6a5b22ab2",
+        "transparentBackgroundReportedByTool": false
+      },
+      "promptRecord": "reconstructed-from-generation-call",
+      "promptPath": "generated-sources/ruler-docket/court-petition-attendee-card-v2-imagegen-prompt.txt",
+      "promptSha256": "a4ff44634a8aeb332f63e4a65e6a222cad52085438f650d7bc77c386012a9092",
+      "runtimeDerivation": {
+        "method": "Crop the approved card, normalize to 322x103, map pale generator linework to frozen antique-gold roles, and cut the declared circular aperture into the card itself; portrait bytes remain separate and unchanged.",
+        "toolPath": "ReignBeta/artwork/ui-modern-style-kit/tools/prepare_ruler_docket_interface_assets.py",
+        "toolVersion": "1.7.0",
+        "runtimePath": "ReignBeta/GUI/SpriteParts/ui_reignbeta_court/reign_court_petition_attendee_card_modern.png",
+        "runtimeSha256": "2457b8c50047cbf2d51a9c55d29fa85793c6b29714648b83c8cb30d386bd151e",
+        "portraitAperture": [15, 11, 93, 92],
+        "apertureCenterAlpha": 0,
+        "bodyAlpha": 255,
+        "evidencePath": ".codex-build/ui-modern-assets/20260903/ruler-docket-control-fix/court-assets-evidence.json"
+      },
+      "acceptance": "Passed visual inspection at runtime dimensions; the black-marble plate, thin restrained gold border, portrait ring, and aperture are one complete raster card with true alpha and no separate overlay frame."
+    },
+    {
+      "id": "ruler-docket-court-navigation-exact-copy",
+      "path": "generated-sources/screen-shells/court-modern-shell-pre-docket-rebuild.png",
+      "workspacePath": "ReignBeta/artwork/ui-modern-style-kit/generated-sources/screen-shells/court-modern-shell-pre-docket-rebuild.png",
+      "width": 1672,
+      "height": 941,
+      "sha256": "c13bbfd155b3c58b234cb4b783f23e874e8eacbbd02f35d1546607a9afd99486",
+      "artifactRole": "approved actual modern Court shell containing the lower navigation-button authority",
+      "runtimeDerivation": {
+        "method": "Exact RGB crop of the actual modern center lower Court button body with true alpha materialized outside its approved clipped-corner geometry; the two small side diamonds are reconstructed cleanly from the frozen interactive-control palette because the left source diamond overlaps throne-floor linework.",
+        "sourceBox": [700, 774, 970, 834],
+        "buttonBodyRgbPixelTransformationCount": 0,
+        "sideDiamondsUseFrozenPaletteGeometry": true,
+        "toolPath": "ReignBeta/artwork/ui-modern-style-kit/tools/prepare_ruler_docket_interface_assets.py",
+        "toolVersion": "1.7.0",
+        "toolSha256": "fb2ccb67ee96d43009a2230e242d91cc42c7367ec288eafc198cea0e7667aaa5",
+        "runtimePath": "ReignBeta/GUI/SpriteParts/ui_reignbeta_court/reign_court_navigation_button_modern.png",
+        "runtimeSha256": "88fca0c1b29dea8b3c86a395b9f9f6eba1d9d6bb27b508cd21471aeb5a2e6f8c",
+        "runtimeDimensions": [270, 60],
+        "evidencePath": ".codex-build/ui-modern-assets/20260903/ruler-docket-control-fix/court-assets-evidence.json",
+        "evidenceSha256": "3af44b997c2de72b1ecf490ba37cd00cced8f9d1878607b1009e943067c6be50"
+      },
+      "acceptance": "The Royal Proclamation control and all three Chancellor controls use the actual modern lower Court plate; only runtime widget scale, alpha outside the plate, and label text differ."
+    },
+    {
+      "id": "ruler-docket-compact-scroll-handle-imagegen",
+      "path": "generated-sources/ruler-docket/scrollbar/reign-court-scroll-handle-imagegen-source.png",
+      "workspacePath": "ReignBeta/artwork/ui-modern-style-kit/generated-sources/ruler-docket/scrollbar/reign-court-scroll-handle-imagegen-source.png",
+      "width": 793,
+      "height": 1983,
+      "sha256": "755e5b769cc1efc9eacac64fdb21089c3f4dbcb3d566a9521543672dffb3fe8c",
+      "artifactRole": "creative ornament source for the compact ruler-docket scrollbar thumb",
+      "generation": {
+        "provider": "OpenAI built-in image generation",
+        "model": "image generation capability",
+        "mode": "image-to-image from the current approved Reign court-interface references",
+        "generationId": "exec-5eed4025-9775-4ba6-8164-8a0c8c730640",
+        "transparentBackgroundReportedByTool": true
+      },
+      "promptRecord": "reconstructed-from-generation-call",
+      "promptPath": "generated-sources/ruler-docket/scrollbar/reign-court-scroll-handle-imagegen-prompt.txt",
+      "promptSha256": "3db6a589d801e78996e55b161d69dbd3493c4ba7b4aa8ee00869fa08f2d274fd",
+      "runtimeDerivation": {
+        "sourceAlphaCrop": [241, 511, 311, 847],
+        "runtimeCanvas": [18, 80],
+        "visiblePlacement": [1, 10, 16, 60],
+        "interpolation": "high-quality bicubic",
+        "runtimePath": "ReignBeta/GUI/SpriteParts/ui_reignbeta_court/reign_court_scroll_handle.png",
+        "runtimeSha256": "25925eb10e10cb9bb3008cfde56a7947c9b8893434fec2c9a7fca16a878a760e"
+      },
+      "acceptance": "Compact grip silhouette, true alpha, restrained border, and centered diamond remained legible at the exact runtime size."
+    }
+  ],
+  "runtimeDerivations": [
+    {
+      "id": "tavern-frame-modern",
+      "status": "workspace runtime asset; raster provenance and alpha integrity verified; native acceptance pending",
+      "generation": {
+        "provider": "OpenAI built-in image generation",
+        "mode": "built-in image-to-image edit with two referenced images",
+        "generationId": "exec-3de498f9-7f18-4027-a86f-165128480940",
+        "completedUtc": "2026-08-28T13:23:20.202Z",
+        "transparentBackgroundReportedByTool": false
+      },
+      "inputs": [
+        {
+          "order": 1,
+          "role": "edit target and exact functional geometry/alpha authority",
+          "path": "ReignBeta/TavernArt/tavern_frame.png",
+          "width": 1254,
+          "height": 1254,
+          "pngBitDepth": 8,
+          "pngColorType": 6,
+          "sha256": "6147c7db6f0aac1641f7d99a6d8c99f4a8520c2012d94e2ecdec886d070035f8",
+          "alphaPlaneSha256": "461706c01a6ba193e595fc622733fbb1d051f82375dbac7e908af490af548dec"
+        },
+        {
+          "order": 2,
+          "role": "approved exact visual-style authority",
+          "path": "ReignBeta/artwork/ui-modern-style-kit/style-reference.png",
+          "sha256": "85b689dc164ebbf70f67a081c0f7097858edb0542ef0073de0c29eef7926b0a3"
+        }
+      ],
+      "promptRecord": "verbatim-from-built-in-image-to-image-call",
+      "promptSha256": "b0fb5b97a6166e3b7346ea9629d8df76847be167bf26b076c103f215f6146e17",
+      "prompt": "Edit the FIRST referenced image, the square TavernArt frame overlay. Use the SECOND referenced image only as the exact visual-style authority.\n\nCreate a production-ready square medieval-fantasy game UI frame overlay in Reign's approved modern style:\n- Preserve the FIRST image's exact square outer footprint, straight-on orthographic composition, inner scene aperture position, and approximately 85 px inset on a 1254 px canvas. Do not change the functional aperture size or alignment.\n- Replace all old carved wood, barrels, goblets, bright brass, heavy baroque scrollwork, bolts, and thick dimensional ornament with restrained charcoal-black marble, very subtle smoky-gray layered panels, and thin low-luminance antique-gold double-line borders.\n- Match the SECOND image's refined minimal linework, tiny diamond accents, quiet corner geometry, shallow material depth, nearly black marble, subdued #A88A54 / #7E6A4D gold family, and exact visual restraint.\n- Keep the entire inner scene aperture fully transparent so runtime tavern artwork beneath is unobstructed. Keep any pixels outside the outer frame transparent as well. The frame itself may include opaque/semitransparent black marble material.\n- Minimal ornament only: small symmetric corner brackets and one tiny centered diamond at each edge. No crest, crown, letters, words, icons, people, scene art, wood, or bright yellow.\n- No drop shadow extending beyond the original footprint. No perspective, mockup background, bevel exaggeration, glow, or bloom.\n- Output a clean RGBA bitmap overlay suitable for direct in-game compositing. Preserve symmetry and crisp one-pixel-friendly edges.",
+      "rawOutput": {
+        "path": "C:/Users/speed/.codex/generated_images/01a044a9-dd7d-7341-a8d3-901518ecca31/exec-3de498f9-7f18-4027-a86f-165128480940.png",
+        "retention": "Built-in generation output retained at the Codex default path; it is provenance evidence only and is not a runtime dependency.",
+        "width": 1254,
+        "height": 1254,
+        "pngBitDepth": 8,
+        "pngColorType": 2,
+        "channels": "RGB; no alpha channel",
+        "sha256": "e10341338060ce1127682732e7d35950775d77ac4ad9113a4d535a173c9ff554",
+        "rgbPlaneSha256": "d2cc10a54e5ea338e84437bf06173ad1a9e9b683d25ce2faf268af45fcddf168"
+      },
+      "deterministicAlphaTransfer": {
+        "method": "For every corresponding pixel, preserve the generated raw-output RGB values exactly and replace only alpha with the alpha byte from ReignBeta/TavernArt/tavern_frame.png; encode the result as a 32-bit ARGB PNG.",
+        "implementation": "System.Drawing per-pixel transfer into Format32bppArgb; temporary file removed after the final workspace write.",
+        "generatedRgbPreserved": true,
+        "generatedRgbPlaneSha256": "d2cc10a54e5ea338e84437bf06173ad1a9e9b683d25ce2faf268af45fcddf168",
+        "sourceAlphaPreserved": true,
+        "sourceAlphaPlaneSha256": "461706c01a6ba193e595fc622733fbb1d051f82375dbac7e908af490af548dec"
+      },
+      "deterministicAlphaCleanup": {
+        "reason": "The legacy alpha authority retained obsolete opaque ornament pixels inside the modern aperture. The generated RGB beneath those pixels was a checkerboard transparency preview that became visible in native Bannerlord.",
+        "sourceWorkspaceAssetSha256": "78ae2d3dfa026efee416b657baea8afa9b2d565794163f6d78f27e6bffa45540",
+        "method": "Within the declared inner aperture only, convert neutral matte pixels with minimum RGB 110 and channel spread at most 24 to transparent black; also clear hidden RGB on pixels that were already fully transparent. Preserve every remaining visible marble and antique-gold pixel exactly.",
+        "implementation": "ReignBeta/artwork/ui-modern-style-kit/tools/repair_tavern_frame_alpha.py",
+        "implementationSha256": "625c94706af025a908d60bccabad6038b9448d8e9c36b0c64f942615a14f6f2d",
+        "apertureBoundsInclusive": {
+          "left": 90,
+          "top": 90,
+          "right": 1163,
+          "bottom": 1163
+        },
+        "mattePixelsRemoved": 237127,
+        "hiddenRgbPixelsCleared": 900784,
+        "preservedVisiblePixels": 434605,
+        "evidencePath": ".codex-build/ui-modern-integration/20260828/tavern-frame-repair/alpha-repair-evidence.json"
+      },
+      "sourceSceneIntegrity": {
+        "sourceRoot": "C:/Users/speed/Desktop/ReignVideo/gamegraphics/Tavern",
+        "runtimeRoot": "ReignBeta/TavernArt",
+        "runtimeSceneCount": 33,
+        "sourceSceneCount": 35,
+        "byteExactMatchCount": 33,
+        "allRuntimeScenesByteExact": true,
+        "evidencePath": ".codex-build/ui-modern-integration/20260828/tavern-frame-repair/scene-source-integrity.json"
+      },
+      "finalWorkspaceAsset": {
+        "path": "ReignBeta/TavernArt/tavern_frame_modern.png",
+        "width": 1254,
+        "height": 1254,
+        "pngBitDepth": 8,
+        "pngColorType": 6,
+        "channels": "RGBA",
+        "sha256": "1cdbe17c3426abb55c990cff7851befbb36100334ceb69147ef1e2e63be94950",
+        "rgbPlaneSha256": "bff50cf578cd95e111ad0ec979e25f70597ffdaa77abbf290233ef1a4489698b",
+        "alphaPlaneSha256": "66f7c360417ecf3d83712532e90ade767fe0beebb3ddbf9ff049445472143cc5",
+        "alphaMin": 0,
+        "alphaMax": 255,
+        "centerAlpha": 0,
+        "transparentPixelCount": 1137911,
+        "partialAlphaPixelCount": 0,
+        "opaquePixelCount": 434605,
+        "transparentBounds": {
+          "left": 92,
+          "top": 93,
+          "right": 1160,
+          "bottom": 1161
+        }
+      },
+      "remainingGate": "Pending native Bannerlord capture at required resolutions and human comparison to the approved reference; provenance and alpha integrity do not establish native visual acceptance."
+    }
+  ],
+  "deterministicProductionLedger": {
+    "schema": "reign-ui-modern-deterministic-production-ledger-v1",
+    "snapshotUtc": "2026-08-28T18:38:29.000Z",
+    "scope": {
+      "completedDefinition": "A fixed composite is passed only when the cited evidence proves every pixel outside the declared scene-dependent masks is an exact RGBA match to the approved reference.",
+      "runtimeDefinition": "Runtime hashes below identify loose source sprites. The separate atlasMaterialization record attests the frozen packed manifest, SpriteData, sheets, source hashes, placements, and dimensions; neither layer by itself proves that Bannerlord rendered the sprite correctly.",
+      "candidateDefinition": "Image-to-image candidates are creative material inputs. A candidate hash alone is never completion evidence.",
+      "nativeAcceptance": "Pending for every interface: 1920x1080 and 3440x1440 native Bannerlord inspection plus human comparison to the approved reference.",
+      "authorityOrder": "finalHybridIntegration is the current implementation authority. Earlier sibling records are retained as historical checkpoints and must not override it."
+    },
+    "authorities": {
+      "assetManifest": {
+        "path": "ReignBeta/artwork/ui-modern-style-kit/asset-manifest.json",
+        "sha256": "44294e7f4843e80c4e52acdb5a46dac854ba7f44dd0062c9006486189d8b3d6"
+      },
+      "designSetFingerprintSha256": "9dd5c7581dd8236d84e4bf3da0f71323cdbc2e6ca6b6fce5a0ab7ec9d5c22250",
+      "palette": {
+        "path": "ReignBeta/artwork/ui-modern-style-kit/palette.json",
+        "sha256": "fac70043a567db463ae70c975b92037dbfc38337e0d9134bc85bb03e3bb9a043"
+      }
+    },
+    "historicalHandoffContracts": [
+      {
+        "screens": [
+          "ambassador",
+          "spymaster"
+        ],
+        "status": "superseded-narrow-handoff; not whole-screen fixed-region completion evidence",
+        "path": ".codex-build/ui-preview/ambassador-spymaster-exact-final-20260827/approved-reference-handoff-contract.json",
+        "sha256": "ca2d888cc18e2270ec700a53e04174e3bb59633bcc277dee740e2234b6242a59"
+      }
+    ],
+    "focusedCorrections": [
+      {
+        "screens": [
+          "ambassador",
+          "spymaster"
+        ],
+        "aggregateEvidencePath": ".codex-build/ui-modern-integration/20260828/fixed-region-correction/ambassador-spymaster-final-evidence.json",
+        "aggregateEvidenceSha256": "b08a37d257c6d034703ea5dcd0f38c82fbbcbf4ae7dabd71e8a278c6f56d8655",
+        "compositorPath": "ReignBeta/artwork/ui-modern-style-kit/tools/compose_fixed_regions.py",
+        "compositorSha256": "50a07688c6fab0e787e7542447c0136cdca6c70d906257c0a42b755beb6ccdb1"
+      },
+      {
+        "screens": [
+          "court",
+          "social-event",
+          "war-council",
+          "wilderness-event"
+        ],
+        "status": "passed; zero outward or fixed-region mismatches",
+        "aggregateEvidencePath": ".codex-build/ui-modern-assets/20260828/inward-aperture-aa/aperture-boundary-audit.json",
+        "aggregateEvidenceSha256": "bc5fc9334decabb81e513de0037ea3cee2999df0bda0f44372be13c9a3ff9ea6",
+        "compositorPath": "ReignBeta/artwork/ui-modern-style-kit/tools/prepare_overlay_assets.py",
+        "compositorSha256": "12f45650151b3e56eccacc1d86eeb0532e3677fa05b7583774e23cab298f3468",
+        "focusedAlphaContractPath": ".codex-build/ui-modern-assets/20260828/inward-aperture-aa/changed-shell-alpha-contract.json",
+        "focusedAlphaContractSha256": "fe2f9f7792962087081c4ed0f7387022a12c8ca2bc7ddcad72ec279e83201dec",
+        "focusedAlphaAuditPath": ".codex-build/ui-modern-assets/20260828/inward-aperture-aa/changed-shell-alpha-audit.json",
+        "focusedAlphaAuditSha256": "d131a5bab09aa88a373700b98a9a51624ed266cd9c6c7e1756daedf5c256e70b",
+        "focusedAlphaResult": "7/7 passed",
+        "sharedAlphaContractPath": "ReignBeta/GUI/UiCalibration/modern-style-contract.json",
+        "sharedAlphaContractSha256": "67ebcdd12f29921686126611a52e23081baca32ecd563f3ecc3c16601257fee2",
+        "sharedAlphaAuditPath": ".codex-build/ui-modern-integration/20260828/final-contracts/shared-overlay-alpha-audit.json",
+        "sharedAlphaAuditSha256": "5e0d5c84dd981a9249f76cd1a05c41212f2135070f694ac781abd74b2ad66a7b",
+        "sharedAlphaResult": "8/8 final-contract assets passed; 0 failed; 0 errors",
+        "sharedAlphaSelfTestPath": ".codex-build/ui-modern-integration/20260828/final-contracts/shared-overlay-alpha-self-test.json",
+        "sharedAlphaSelfTestSha256": "3510341c0ee25c6866cb595f784ba8bce48d192ecdfdf6d875727ab3dc7a62d8",
+        "sharedAlphaSelfTestResult": "8/8 expectations matched: five positive fixtures passed and three negative fixtures produced their expected failures",
+        "fullCatalogFixedRegionAuditPath": ".codex-build/ui-modern-assets/20260828/inward-aperture-aa/full-catalog-source-fixed-region-audit.json",
+        "fullCatalogFixedRegionAuditSha256": "92142cb45a43911feeb88b1263359a33615e4e6c310922900ce1c2aaf60c6785",
+        "fullCatalogFixedRegionResult": "19/19 screens; 0 fixed mismatch screens; 0 fixed alpha mismatch screens"
+      },
+      {
+        "id": "portrait-opaque-aperture-plate-correction",
+        "snapshotUtc": "2026-09-04T01:27:50.1993652Z",
+        "status": "passed; 25 shared portrait aperture plates plus the Training Yard shell-owned selected-trainer aperture are deterministic, registered regions pack pixel-identically, and coordinated Release validation, native rendering, and human acceptance remain pending",
+        "scope": "Focused production correction for user-reported visible portrait plate rectangles, white seams, black inner circles, precut portrait edges, source corners, portrait spill, and the mismatched Training Yard selected-portrait overlay. Family Chambers and Correspondence retain local context apertures, War Council retains state-matched lord apertures, and Training Yard now renders its untouched selected portrait below a true transparent opening in the fixed shell. Earlier generation and runtime-materialization entries remain historical evidence and are superseded wherever they describe generic material plates, destructive source masking, ring-only overlays, or inner backing disks.",
+        "authority": "This record is the current portrait composition authority for every Reign surface. It supersedes earlier portrait mask, ring-only overlay, black backing, and Individual Chat square-header behavior while preserving approved interface layout, protected content, typography, and historical image-generation evidence.",
+        "policy": {
+          "portraitSources": "Portrait source imagery remains an untouched square or rectangle. It is centered and slightly overscanned behind the aperture; neither persistent files nor runtime textures receive circle/oval alpha masks or re-encoding.",
+          "aperturePlates": "Each registered plate has an opaque exterior copied from its exact local card/shell crop or exact dynamic card color, one exact antialiased transparent circle/oval/rectangle aperture, immutable antique-gold frame artwork on top, zero pale-neutral halo pixels, and zero RGB in fully transparent pixels. Generic exterior rectangles and separate black inner backing disks are forbidden.",
+          "composition": "Unmodified rectangular portrait source first, opaque matching-material aperture plate second, antique-gold frame/ornament topmost. Compact portraits use circles, larger busts use ovals, native conversation and full-body views use rectangles, and memory scenes remain rectangular."
+        },
+        "implementation": {
+          "specPath": "ReignBeta/artwork/ui-modern-style-kit/specs/portrait-frame-only-overlays.json",
+          "specSha256": "287e43a2ec2bd5f3c9c0f540aff68268caa9bbb3d7902bd58bc24a1af8af5244",
+          "toolPath": "ReignBeta/artwork/ui-modern-style-kit/tools/prepare_portrait_frame_overlays.py",
+          "toolSha256": "46917e6e53b6e5e8e34a50f62312887b276d5f92e4735170fc6ce36a49d03f2c",
+          "modernStyleContractPath": "ReignBeta/GUI/UiCalibration/modern-style-contract.json",
+          "modernStyleContractSha256": "8ff940ccaaeeeb507033c3b9fa6240eaf70fb214b4f2bffe1effe57fb45d13fb",
+          "overlayAuditToolPath": "ReignBeta/tools/GauntletXmlPreviewer/audit-overlay-alpha.mjs",
+          "overlayAuditToolSha256": "49b2dbcdc13480317fa5174d7aa13adfc167da592aa6509c080bb41141da8b8b"
+        },
+        "evidence": {
+          "extractionPath": ".codex-build/ui-assets/portrait-context-continuity/portrait-aperture-evidence.json",
+          "extractionSha256": "efea765f7fa155f9aad2b254c049082747ca0ad3b82be9229702d1c8ca14bf11",
+          "extractionResult": "25/25 declared portrait plates matched the pinned outputs; all 12 context-composed plates report zero exterior mismatches, zero gold-topmost mismatches, and zero aperture-interior violations; portraitSourcePixelsRead=false and portraitSourcePixelsWritten=false for every asset under production tool 2.3.0.",
+          "auditSelfTestPath": ".codex-build/ui-preview/individual-chat-shell-aperture-final/overlay-alpha-self-test.json",
+          "auditSelfTestSha256": "79e6114c5e7aa61abf06c2d397439e0f97f501e14f8d9ea973e3692f16dfba6d",
+          "auditSelfTestResult": "All six positive fixtures passed and all six intentionally invalid ring-only, backing-disk, pale-seam, and transparent-RGB fixtures failed as expected.",
+          "contractAndAtlasAuditPath": ".codex-build/ui-assets/portrait-context-continuity/overlay-alpha-audit-current-pass1.json",
+          "contractAndAtlasAuditSha256": "4d7a4d014a3ec89325dea0fe0cabb0af5593a8dc63f484a827d7458e69fa572f",
+          "contractAndAtlasAuditResult": "32/32 current contract assets passed; all 25 retained portrait aperture plates, both registered apertures of the integrated Individual Chat shell, the compact pregnancy warning, and the remaining support assets matched source hashes and decoded runtime-atlas RGBA regions pixel-identically; provenance hash references passed."
+        },
+        "runtimeAtlas": {
+          "generatedUtc": "2026-09-04T23:35:10Z",
+          "manifestPath": "ReignBeta/GUI/RuntimeSpriteSheets/manifest.json",
+          "manifestSha256": "4ce0d7a91ef2f078c968fc222b3fa1aca062c50de44d066cc5d83c309f881b32",
+          "spriteDataPath": "ReignBeta/GUI/ReignBetaSpriteData.xml",
+          "spriteDataSha256": "972b6958e0b5d1d1fb1f9672e7c5f6fb6223b8d8f499c2c31795fadbe6f322c8",
+          "categoryCount": 22,
+          "portraitFrameRegistrationCount": 25,
+          "affectedSheets": [
+            {"path": "ReignBeta/GUI/RuntimeSpriteSheets/ui_reignbeta_court/ui_reignbeta_court_5.png", "sha256": "cc65f5f2c806c7f161824b9052be3aa7aed1f72d19199d804036fd81266cf394"},
+            {"path": "ReignBeta/GUI/RuntimeSpriteSheets/ui_reignbeta_family_chambers/ui_reignbeta_family_chambers_1.png", "sha256": "76e3473ccedfa94e77bafe87842b1d0e3db771987a4ef39b60a7be967138158c"},
+            {"path": "ReignBeta/GUI/RuntimeSpriteSheets/ui_reignbeta_correspondence/ui_reignbeta_correspondence_3.png", "sha256": "abb0fef776a091bb53e89bb6884b239c92a010739e3975af71a89d9bbc5cb161"},
+            {"path": "ReignBeta/GUI/RuntimeSpriteSheets/ui_reignbeta_diplomacy/ui_reignbeta_diplomacy_3.png", "sha256": "3b9f85315c72119d2a272b430aeae878196791e36087f893b7da264b284d0a9d"},
+            {"path": "ReignBeta/GUI/RuntimeSpriteSheets/ui_reignbeta_individual/ui_reignbeta_individual_3.png", "sha256": "20f98bb7a2074e111a2beb88b8ce99714362a341ef5f2cb956f62fbda0b42ea4"},
+            {"path": "ReignBeta/GUI/RuntimeSpriteSheets/ui_reignbeta_party_chat/ui_reignbeta_party_chat_8.png", "sha256": "470a6cac4d6e389899553366087923e82b315862b18e2f6a5f78c15ac8989075"},
+            {"path": "ReignBeta/GUI/RuntimeSpriteSheets/ui_reignbeta_royal_council/ui_reignbeta_royal_council_1.png", "sha256": "df3bead8ccaeff3e83a201b153f887abedbe9f6837a12866d6ac1879c07a59da"},
+            {"path": "ReignBeta/GUI/RuntimeSpriteSheets/ui_reignbeta_shared/ui_reignbeta_shared_1.png", "sha256": "7025522065095ff0f75e63e3a842c39c069ca78d669af39eb164ef9d09ced471"},
+            {"path": "ReignBeta/GUI/RuntimeSpriteSheets/ui_reignbeta_social_event/ui_reignbeta_social_event_4.png", "sha256": "7fa51f910ce527a535387eb44aec52cb54be1e7f55224202f0ab7e350cfcdcf1"},
+            {"path": "ReignBeta/GUI/RuntimeSpriteSheets/ui_reignbeta_war_council/ui_reignbeta_war_council_2.png", "sha256": "ec9c6262c8118d0be8a57a41f21f2bffaec06eff4464bbef828e8a7bb9305d36"}
+          ]
+        },
+        "remainingGates": [
+          "Run manifest-selected Release validation after all coordinated portrait pipeline changes are complete.",
+          "Deploy only the exact validated artifacts through the supported visible Reign lifecycle.",
+          "Capture and fix native Bannerlord evidence at the user's 2560x1600 desktop resolution first, proving no inner black disks, precut portrait edges, source corners, pale seams, spill, or unexpected fixed colors/shapes.",
+          "After 2560x1600 passes, test additional supported resolutions at or above 1920x1080; resolutions below 1080p are out of scope.",
+          "Record human acceptance against the approved modern-style references."
+        ]
+      },
+      {
+        "id": "individual-chat-square-portrait-shell-selection",
+        "snapshotUtc": "2026-08-28T21:00:21.294Z",
+        "status": "superseded-historical; rejected square-header experiment retained only for provenance",
+        "scope": "Focused Individual Chat correction replacing only the two header portrait-frame structures with symmetric square-corner rectangles and replacing the full-body zoom oval with the shared rectangular frame. Portrait pixels remain dynamic and unmodified.",
+        "authority": "This record is not live design authority. It is superseded by individual-chat-integrated-oval-aperture-shell. Its square source, prompt, specifications, and former runtime hashes are retained unchanged as historical evidence only.",
+        "imageToImage": {
+          "sourcePath": "ReignBeta/artwork/ui-modern-style-kit/generated-sources/screen-shells/individual-chat-modern-shell-square-portrait-v1-imagegen.png",
+          "sourceSha256": "834da8f3c0f8103f16877bdacfcaca1597e4d889c3ed7e0d78576beb1942fec6",
+          "promptPath": "ReignBeta/artwork/ui-modern-style-kit/generated-sources/screen-shells/individual-chat-modern-shell-square-portrait-v1-imagegen-prompt.txt",
+          "promptSha256": "ea58e8d5589743ce6e85110dbb49ed035dabba2f564bef10471647c9f362a639",
+          "normalization": "Generator output was normalized from 1671x941 to 1672x941 by extending only the final right-edge black column; no crop, recolor, or geometry resampling."
+        },
+        "contracts": {
+          "shellSpecPath": "ReignBeta/artwork/ui-modern-style-kit/specs/individual-chat-shell.json",
+          "shellSpecSha256": "cd665bc2cf614cc92f9dacf2f384fe41a75ac8c6c7713cf4fe643d1e950083c9",
+          "fixedRegionSpecPath": "ReignBeta/artwork/ui-modern-style-kit/specs/screen-individual-chat-fixed-region-mask.json",
+          "fixedRegionSpecSha256": "cd220997f2a814960194a8de06f2ffddd831e049a33e77d8e135a5dce8c09440",
+          "portraitOverlaySpecPath": "ReignBeta/artwork/ui-modern-style-kit/specs/portrait-frame-only-overlays.json",
+          "portraitOverlaySpecSha256": "4d8bf476326012b35a2c8ff26d5f3def60b7a210b6f7d610c80c88a807f7ea6f"
+        },
+        "runtimeMaterialization": {
+          "approvedReferencePath": "ReignBeta/artwork/ui-modern-style-kit/approved-references/individual-chat.png",
+          "runtimeShellPath": "ReignBeta/GUI/SpriteParts/ui_reignbeta_individual/reign_individual_chat_modern_shell.png",
+          "sharedSha256": "834da8f3c0f8103f16877bdacfcaca1597e4d889c3ed7e0d78576beb1942fec6",
+          "liveHeaderPortraitFrame": "square-corner frame baked into reign_individual_chat_modern_shell",
+          "liveFullBodyZoomFrame": "reign_modern_portrait_rectangle_overlay",
+          "retiredUnreferencedMasks": [
+            "reign_individual_chat_player_portrait_mask",
+            "reign_individual_chat_npc_portrait_mask",
+            "reign_individual_chat_zoom_oval_mask"
+          ]
+        },
+        "remainingGates": [
+          "Run the coordinated static contract and supported-resolution preview audits.",
+          "Run manifest-selected Release validation after all coordinated portrait changes are complete.",
+          "Deploy only the exact validated artifacts through the supported visible Reign lifecycle.",
+          "Capture native Bannerlord evidence at 1920x1080@1.00 and 3440x1440@1.00 and record human acceptance."
+        ]
+      },
+      {
+        "id": "individual-chat-integrated-oval-aperture-shell",
+        "snapshotUtc": "2026-08-29T10:19:07.751Z",
+        "status": "current; approved fixed shell and two exact oval apertures passed deterministic production, alpha, layering, preview-contract, and 70-case rendered-preview checks; Release validation, exact deployment, native 2560x1600 rendering, and human acceptance remain pending",
+        "scope": "Current Individual Chat correction: preserve the approved modern fixed shell, place both untouched rectangular portrait sources beneath one integrated two-aperture overlay, keep all controls above it, use the shared rectangle overlay for full-body zoom, and show the compact pregnancy warning over the live interface without a white backdrop.",
+        "authority": "This is the current Individual Chat visual-composition authority. It supersedes the square-header experiment and all local portrait-mask composition while retaining those registered sprites as unreferenced historical assets to avoid unnecessary atlas churn.",
+        "approvedReference": {
+          "path": "ReignBeta/artwork/ui-modern-style-kit/approved-references/individual-chat.png",
+          "sha256": "95fe0ce9b1c35b157f6a769905b987ad876de94d46d5a1a79ac508b8a11ea5dc"
+        },
+        "imageToImageFill": {
+          "path": "ReignBeta/artwork/ui-modern-style-kit/generated-sources/screen-shells/individual-chat-modern-shell-source.png",
+          "sha256": "9bb5366801e16e1f19d003a93bbf42f3c99f720752b005046db8435de154d2a2",
+          "role": "Creative black-marble and antique-gold material fill only; approved fixed pixels remain authoritative."
+        },
+        "fixedComposite": {
+          "specPath": "ReignBeta/artwork/ui-modern-style-kit/specs/screen-individual-chat-fixed-region-mask.json",
+          "specSha256": "a319ec50830f6464fe0b37d85017fbfcb390d37ee17a6ba98eb5fd6035b996a4",
+          "sourcePath": "ReignBeta/artwork/ui-modern-style-kit/generated-sources/screen-shells/individual-chat-modern-shell-exact-fixed-source.png",
+          "sourceSha256": "b2e6a096938000e6e291c2b7c922c57d17307a34014530a2d63a43ec9a271a4f",
+          "evidencePath": ".codex-build/ui-modern-assets/20260829/individual-chat-fixed-region-final/fixed-region-composite-evidence.json",
+          "evidenceSha256": "c1bc5d25059a4ddc6107fcb475451fe490cbc0e6521ba2f87330840e6e34ee0e",
+          "fixedPixelCount": 924377,
+          "exactFixedPixelRatio": 1.0,
+          "maximumFixedChannelDifference": 0
+        },
+        "runtimeMaterialization": {
+          "specPath": "ReignBeta/artwork/ui-modern-style-kit/specs/individual-chat-shell.json",
+          "specSha256": "2151dff56b0e24513a97f6ab14bd2df3d60493df3b46dae053c6b88473fadecf",
+          "outputPath": "ReignBeta/GUI/SpriteParts/ui_reignbeta_individual/reign_individual_chat_modern_shell.png",
+          "outputSha256": "0640ac1c59a38d0a65d46a582b6f7b888d1bf1a8bdec184b1e18ab9c8a7a27fe",
+          "evidencePath": ".codex-build/ui-modern-assets/20260829/individual-chat-shell-aperture-final/overlay-evidence.json",
+          "evidenceSha256": "e02d3a77ce9fbde0b9f2ff811cefd85314cfe1721da864ff4aeba487c2079792",
+          "apertures": [
+            {"id": "player-portrait", "shape": "oval", "x": 98, "y": 51, "width": 222, "height": 322},
+            {"id": "npc-portrait", "shape": "oval", "x": 1350, "y": 51, "width": 222, "height": 322}
+          ],
+          "transparentPixelCount": 109464,
+          "partiallyTransparentPixelCount": 2760,
+          "opaquePixelCount": 1461128,
+          "transparentRgb": "#121211",
+          "fullBodyZoomFrame": "reign_modern_portrait_rectangle_overlay",
+          "retiredUnreferencedMasks": [
+            "reign_individual_chat_player_portrait_mask",
+            "reign_individual_chat_npc_portrait_mask",
+            "reign_individual_chat_zoom_oval_mask"
+          ]
+        },
+        "runtimeAtlas": {
+          "manifestPath": "ReignBeta/GUI/RuntimeSpriteSheets/manifest.json",
+          "manifestSha256": "9aa15965ed33244b9a46289ca8002f6659bceae85294ba93b04d7cde0f065a8a",
+          "sheetPath": "ReignBeta/GUI/RuntimeSpriteSheets/ui_reignbeta_individual/ui_reignbeta_individual_2.png",
+          "sheetSha256": "efeb9be16cb807e8550e9de333eadce3a165c6ed9fadf25a0065c52c0bde2d71"
+        },
+        "providerPreviewEvidence": {
+          "portraitLayeringContract": "passed",
+          "pregnancyWarningContract": "8/8 passed",
+          "previewContractPath": ".codex-build/ui-preview/individual-chat-shell-aperture-final/preview-contract-audit.json",
+          "previewContractSha256": "3944c697a17c73766ac093edd12f34800b2c1d8fc3f16e90e191ae356728f541",
+          "renderMatrixPath": ".codex-build/ui-preview/individual-chat-shell-aperture-final/render-matrix/rendered-preview-audit.json",
+          "renderMatrixSha256": "07ac76a3d2b7ceeba96eccd91ff4a1e0ddf0fd0b16861bef09d09ff6f1c337c6",
+          "renderMatrixResult": "70/70 cases passed at 1920x1080 and 3440x1440, including normal Individual Chat and pregnancy-warning modal states."
+        },
+        "remainingGates": [
+          "Run the current two-pass contract-and-atlas alpha audit.",
+          "Run manifest-selected Release validation.",
+          "Deploy only the exact validated artifacts through the supported visible Reign lifecycle.",
+          "Capture and fix native Bannerlord evidence at 2560x1600 before any other supported resolution.",
+          "Record human visual and interaction acceptance."
+        ]
+      }
+    ],
+    "interfaces": [
+      {
+        "id": "ambassador",
+        "status": "fixed-composite-passed; runtime-source-sprites-recorded; atlas-built-native-human-pending",
+        "approvedReference": {
+          "path": "ReignBeta/artwork/ui-modern-style-kit/approved-references/ambassador.png",
+          "sha256": "073f96aafde634fd1f1a43175429c8bcaa1557c28b70b30da69dce0a6d5caa94"
+        },
+        "imageToImageCandidate": {
+          "path": "ReignBeta/artwork/ui-modern-style-kit/generated-sources/screen-shells/ambassador-modern-shell-source.png",
+          "sha256": "7466a2fbcffb88c73b2b962d4854fb8a06b3b2a8fbba35fdf5bea717c828fe01"
+        },
+        "fixedComposite": {
+          "status": "passed",
+          "specPath": "ReignBeta/artwork/ui-modern-style-kit/specs/screen-ambassador-fixed-region-mask.json",
+          "specSha256": "18cb317663ee98839d923af54db4e5003c9b6abc20fd0918830babd0a9934cd4",
+          "sourcePath": "ReignBeta/GUI/SpriteParts/ui_reignbeta_ambassador/reign_ambassador_modern_shell.png",
+          "sourceSha256": "d3aacdd5b0bba6ff77db612e6afb2cc0664ac00ee4045f36a9764bb78f4d3e21",
+          "evidencePath": ".codex-build/ui-modern-integration/20260828/fixed-region-correction/production/ambassador-shell/fixed-region-composite-evidence.json",
+          "evidenceSha256": "7d31fe12d70c41e963bcc5c0e27364a0621cf5a36a12b6384b1d59682c162c12",
+          "fixedPixelCount": 1057232,
+          "exactFixedPixelRatio": 1.0,
+          "maximumFixedChannelDifference": 0
+        },
+        "runtimeMaterialization": {
+          "prefabPath": "ReignBeta/GUI/Prefabs/ReignAmbassadorScreen.xml",
+          "prefabSha256": "713eea4281f1a7648dcfde2bdc2c9ee37880273e73f0a781e91fe2efbc3bbedc",
+          "assets": [
+            {
+              "path": "ReignBeta/GUI/SpriteParts/ui_reignbeta_ambassador/reign_ambassador_modern_shell.png",
+              "sha256": "d3aacdd5b0bba6ff77db612e6afb2cc0664ac00ee4045f36a9764bb78f4d3e21",
+              "lineage": "fixedComposite.sourceSha256"
+            },
+            {
+              "path": "ReignBeta/GUI/SpriteParts/ui_reignbeta_ambassador/reign_ambassador_modern_fixed_overlay.png",
+              "sha256": "9e44d880006f23d6ab2fc7310afe49a50b3a27ecdf9f1a8fe5912c7e07273dbb",
+              "specPath": "ReignBeta/artwork/ui-modern-style-kit/specs/screen-ambassador-fixed-region-mask.json",
+              "specSha256": "18cb317663ee98839d923af54db4e5003c9b6abc20fd0918830babd0a9934cd4",
+              "evidencePath": ".codex-build/ui-modern-integration/20260828/fixed-region-correction/production/ambassador-fixed-overlay/fixed-region-composite-evidence.json",
+              "evidenceSha256": "c9278b64c43ca1344390b177e0066a4bee080ea3f5b853c8b5214aa30c7d8f74"
+            },
+            {
+              "path": "ReignBeta/GUI/SpriteParts/ui_reignbeta_ambassador/reign_ambassador_modern_advisor_card_overlay.png",
+              "sha256": "4a7b0fec09abf54dec35d36db784b76f02e246a236a022372ed27dc7b4fdf9ab",
+              "specPath": "ReignBeta/artwork/ui-modern-style-kit/specs/ambassador-advisor-card-fixed-overlay.json",
+              "specSha256": "0ac6b3d355999498564505c0f8a6db3a1f82b8ec422ad456689a0e7a7d4d8499",
+              "evidencePath": ".codex-build/ui-modern-assets/20260827/ambassador-advisor-card-fixed-overlay.evidence.json",
+              "evidenceSha256": "4e4115e12cc9a65f1bed259169d4a1f1a6e1cf32995f4b308b97eb0fc08613f3"
+            },
+            {
+              "path": "ReignBeta/GUI/SpriteParts/ui_reignbeta_ambassador/reign_ambassador_modern_envoy_card_overlay.png",
+              "sha256": "401130bea8d1d91e2d126b83439efdc6c135c8c05c6beedc9e6f936ca6673673",
+              "specPath": "ReignBeta/artwork/ui-modern-style-kit/specs/ambassador-envoy-card-fixed-overlay.json",
+              "specSha256": "4c6d50f67b340708c677b33c73cdfc3b4ef25f2fe5f7778c0db31ae0304376a8",
+              "evidencePath": ".codex-build/ui-modern-assets/20260827/ambassador-envoy-card-fixed-overlay.evidence.json",
+              "evidenceSha256": "9cbd6d52bd43be2786625f5eaf05a1c5268cc8f826bc2cd814cc17abf2ada8a4"
+            },
+            {
+              "path": "ReignBeta/GUI/SpriteParts/ui_reignbeta_ambassador/reign_ambassador_modern_scroll_handle.png",
+              "sha256": "aaa5ed56fa4e8b75fb54f8247b568241d6e21e0c9e05f522e88db103cef16e48",
+              "specPath": "ReignBeta/artwork/ui-modern-style-kit/specs/ambassador-scroll-handle-fixed.json",
+              "specSha256": "a343fbce44586e8440a1b4d9f9b28734ca273f4c2d39dadb8412c138f3a99b24",
+              "evidencePath": ".codex-build/ui-modern-assets/20260827/ambassador-scroll-handle-fixed.evidence.json",
+              "evidenceSha256": "2c23001c2023c3159b5a0a304cc9666bd82bd0118a9e6b98effa479f42605d4d"
+            }
+          ]
+        }
+      },
+      {
+        "id": "calibration-overlay",
+        "status": "fixed-composite-passed; runtime-source-sprites-recorded; atlas-built-native-human-pending",
+        "approvedReference": {
+          "path": "ReignBeta/artwork/ui-modern-style-kit/approved-references/calibration-overlay.png",
+          "sha256": "1062a9b216c17be62475b89e1134e008d0ef43a53292d512d5f3214d0157c630"
+        },
+        "imageToImageCandidate": {
+          "path": "ReignBeta/artwork/ui-modern-style-kit/generated-sources/screen-shells/calibration-overlay-modern-panel-source.png",
+          "sha256": "a57c47d1acd79cbd33d64edf757d2b2d2eaf7cd4fc0c8e25d05204d9e92886af"
+        },
+        "fixedComposite": {
+          "status": "passed",
+          "specPath": "ReignBeta/artwork/ui-modern-style-kit/specs/screen-calibration-overlay-fixed-region-mask.json",
+          "specSha256": "4c5240ee0fe89be6c727d17a0a08a913be21ba1f437d36d3108a4f4f85df23a2",
+          "sourcePath": "ReignBeta/artwork/ui-modern-style-kit/generated-sources/screen-calibration-overlay-modern-shell-exact-fixed-source.png",
+          "sourceSha256": "338b80ff83a4cd7bec770735a07f3f8dce71782772a19b880b53197b93890b0f",
+          "evidencePath": ".codex-build/ui-modern-assets/20260827/calibration-overlay-fixed-region/fixed-region-composite-evidence.json",
+          "evidenceSha256": "76ec9b560b1564f2b31888f2748d143984c093e0de87f4df151c77bc6f374f2d",
+          "fixedPixelCount": 1396285,
+          "exactFixedPixelRatio": 1.0,
+          "maximumFixedChannelDifference": 0
+        },
+        "runtimeMaterialization": {
+          "assets": [
+            {
+              "path": "ReignBeta/GUI/SpriteParts/ui_reignbeta_calibration/reign_calibration_modern_launcher.png",
+              "sha256": "3e35aefe386d34c46f3d52793afec0a21157dafbcfd59562199472ba2e0b7bfc",
+              "specPath": "ReignBeta/artwork/ui-modern-style-kit/specs/calibration-overlay-modern-launcher.json",
+              "specSha256": "341befaad835695a4e0724806e0ee4c88111b991d0f06f70afe0bfc4c0e30af5",
+              "evidencePath": ".codex-build/ui-modern-assets/20260827/calibration-overlay-modern-launcher.evidence.json",
+              "evidenceSha256": "07d10311dd9852ab31eae4cb497335d151e85ebeb47eb844dbaa5d5a3d416440"
+            },
+            {
+              "path": "ReignBeta/GUI/SpriteParts/ui_reignbeta_calibration/reign_calibration_modern_panel.png",
+              "sha256": "350f9a9229a2d059a240d0f16d6d63781c1393ffdf99151c1e9c587c87b4fc76",
+              "specPath": "ReignBeta/artwork/ui-modern-style-kit/specs/calibration-overlay-modern-panel.json",
+              "specSha256": "966684f63c1466885a4ac1767a424e84d32665788b5fd50da340f1640e0dfa5f",
+              "evidencePath": ".codex-build/ui-modern-assets/20260827/calibration-overlay-modern-panel.evidence.json",
+              "evidenceSha256": "4b7b3be7bba85fdc66d6aac6db4f0051646f69700268eeffa8906c3c43264cf2"
+            }
+          ]
+        }
+      },
+      {
+        "id": "castle-chat",
+        "status": "fixed-composite-passed; runtime-source-sprite-recorded; atlas-built-native-human-pending",
+        "approvedReference": {
+          "path": "ReignBeta/artwork/ui-modern-style-kit/approved-references/castle-chat.png",
+          "sha256": "bbd2924a85ddad9761360e6d01e1ae6d630b00192575bc24ea33b1414e6e578c"
+        },
+        "imageToImageCandidate": {
+          "historicalSha256": "a91ed827f8adb6c36a6574c1d7b0328f2668596aa72761b1cb45742c12d62905",
+          "retention": "historical hash only; superseded in place by the deterministic fixed source"
+        },
+        "fixedComposite": {
+          "status": "passed",
+          "specPath": "ReignBeta/artwork/ui-modern-style-kit/specs/castle-chat-modern-shell.json",
+          "specSha256": "42ad862750ec15d324771842cde7516304339bb475521f0f61e92fe7c5b91990",
+          "sourcePath": "ReignBeta/artwork/ui-modern-style-kit/generated-sources/screen-shells/castle-chat-modern-shell-source.png",
+          "sourceSha256": "a0635c9c5388d3a81e583b03e82b089b7195b32788207331a6bf1990819834d2",
+          "evidencePath": ".codex-build/ui-modern-integration/20260827/family-castle-final-audit/fixed-shell-composite-evidence.json",
+          "evidenceSha256": "d20e17c83f57cde4b6f0475545781b30baabb473811e3259b78844d2c92278b8",
+          "integrityEvidencePath": ".codex-build/ui-modern-integration/20260827/family-castle-final-audit/target-integrity-audit.json",
+          "integrityEvidenceSha256": "10d2903588b04df406f7edba55a0a2b68fc518571aa0f9eba0efa731ad116c6f",
+          "fixedPixelCount": 720132,
+          "exactFixedPixelRatio": 1.0,
+          "maximumFixedChannelDifference": 0
+        },
+        "runtimeMaterialization": {
+          "assets": [
+            {
+              "path": "ReignBeta/GUI/SpriteParts/ui_reignbeta_party_chat/reign_castle_chat_modern_shell.png",
+              "sha256": "34caf28a15de5bd3ed9f0471bd6a88ab5de40b16f93cf286f07fa955d31f83d0",
+              "specPath": "ReignBeta/artwork/ui-modern-style-kit/specs/castle-chat-modern-shell.json",
+              "specSha256": "42ad862750ec15d324771842cde7516304339bb475521f0f61e92fe7c5b91990",
+              "evidencePath": ".codex-build/ui-modern-assets/20260827/castle-chat-modern-shell.evidence.json",
+              "evidenceSha256": "ba5f19fe2072c699c7915062b292fffe222164956b6fb25d86ed1107703e2151"
+            }
+          ]
+        }
+      },
+    {
+      "id": "castle-layout",
+      "status": "fixed-composite-passed; runtime-source-sprite-byte-identical; atlas-built-native-human-pending",
+      "approvedReference": {
+        "path": "ReignBeta/artwork/ui-modern-style-kit/approved-references/castle-layout.png",
+        "sha256": "e274878fb6dc9a4f13114a8a4f9f4e256f26e07146bb9653e22d57c1aeeb848c"
+      },
+      "imageToImageCandidate": {
+        "path": "ReignBeta/artwork/ui-modern-style-kit/generated-sources/screen-shells/castle-layout-shell-source.png",
+        "sha256": "ef4fe9d3157edfaf62e1ce7cc7c808c8f88b2cb5946e5405be1d2e5da00aff4b",
+        "dynamicFillPath": "ReignBeta/artwork/ui-modern-style-kit/generated-sources/screen-shells/castle-layout-dynamic-fill-source.png",
+        "dynamicFillSha256": "7a728366591efec5c460349c5c7d18ded8965483a3c361d09c5e244ff06ed77c"
+      },
+      "fixedComposite": {
+        "status": "passed",
+        "specPath": "ReignBeta/artwork/ui-modern-style-kit/specs/screen-castle-layout-fixed-region-mask.json",
+        "specSha256": "3549a6f9c8c5bbd2f4e155bb5adc7f793620cc1b3ae387a6c79555ccf939eb51",
+        "sourcePath": "ReignBeta/artwork/ui-modern-style-kit/generated-sources/screen-shells/castle-layout-modern-shell-exact-fixed-source.png",
+        "sourceSha256": "5643ef30ba00702835ba91a89b8d264e35768db3637c502dadaf11d43c676cf8",
+        "compositionFillPath": "ReignBeta/artwork/ui-modern-style-kit/generated-sources/screen-shells/castle-layout-dynamic-fill-clean-source.png",
+        "compositionFillSha256": "a1bda06da44be30629e7edfb4cbbde5411860f1992fba347ea710e63ce0368b3",
+        "compositionFillLineage": {
+          "normalizedPath": "ReignBeta/artwork/ui-modern-style-kit/generated-sources/screen-shells/castle-layout-dynamic-fill-normalized-source.png",
+          "normalizedSha256": "d1bb4545b5b922bf80b83f1f1f9355f1b5b39561ca86ea33e117dde39fb9b738",
+          "normalizationSpecPath": "ReignBeta/artwork/ui-modern-style-kit/specs/source-castle-layout-dynamic-fill-normalize.json",
+          "normalizationSpecSha256": "969d93a43ef913f3fff3ce0bd95b6957b96bfbfe91cba0038cabced9b0455914",
+          "normalizationEvidencePath": ".codex-build/ui-modern-assets/20260828/castle-layout-fill-normalize-v1/fixed-region-composite-evidence.json",
+          "normalizationEvidenceSha256": "83f760aaac0e8f5e08b508b82ccffc0e669e6d11c989463fc47059ed55bf810f",
+          "cleaningSpecPath": "ReignBeta/artwork/ui-modern-style-kit/specs/source-castle-layout-dynamic-fill-clean.json",
+          "cleaningSpecSha256": "4862140676433e999784e44c729506a07e764b9fe606bb0d8d2e1e8e193e50c5",
+          "cleaningEvidencePath": ".codex-build/ui-modern-assets/20260828/castle-layout-fill-clean-v1/fixed-region-composite-evidence.json",
+          "cleaningEvidenceSha256": "8ac25fa176c44b6ee847017efccc59f6d1fa67ecb20c718e819b2d8898f3b118"
+        },
+        "evidencePath": ".codex-build/ui-modern-assets/20260828/castle-layout-fixed-region-clean-v6/fixed-region-composite-evidence.json",
+        "evidenceSha256": "720d00fe9be45d2193e16fd2f16f91b8bc6b9d7786a22291ad73e25ab796b2b2",
+        "fixedPixelCount": 734551,
+        "exactFixedPixelRatio": 1.0,
+        "maximumFixedChannelDifference": 0
+      },
+      "runtimeMaterialization": {
+        "assets": [
+          {
+            "path": "ReignBeta/GUI/SpriteParts/ui_reignbeta_castle_layout/reign_castle_layout_modern_shell.png",
+            "sha256": "5643ef30ba00702835ba91a89b8d264e35768db3637c502dadaf11d43c676cf8",
+            "lineage": "byte-identical to fixedComposite.sourceSha256"
+          }
+        ]
+      }
+    },
+      {
+        "id": "correspondence",
+        "status": "fixed-composite-passed; runtime-source-sprite-recorded; atlas-built-native-human-pending",
+        "approvedReference": {
+          "path": "ReignBeta/artwork/ui-modern-style-kit/approved-references/correspondence.png",
+          "sha256": "7fa74e25cdf023d352da036afffa58a17d9e21053da8681559ecd54eb81850df"
+        },
+        "imageToImageCandidate": {
+          "path": "ReignBeta/artwork/ui-modern-style-kit/generated-sources/screen-shells/correspondence-modern-shell-source.png",
+          "sha256": "e1e573e4954803974b0eea59cd225e311c6020421ea935f128ea2b7e4560438e"
+        },
+        "fixedComposite": {
+          "status": "passed",
+          "specPath": "ReignBeta/artwork/ui-modern-style-kit/specs/screen-correspondence-fixed-region-mask.json",
+          "specSha256": "700fad3b27b16e3d30b456646293d28265f0b5e92045d48e17d3d332fcd6e3ff",
+          "sourcePath": "ReignBeta/artwork/ui-modern-style-kit/generated-sources/screen-shells/correspondence-modern-shell-exact-fixed-source.png",
+          "sourceSha256": "21461115e299bf3b936a13eda354928a26b7c07b6229836aa9bd52b7d88e6d1e",
+          "evidencePath": ".codex-build/ui-modern-assets/20260827/correspondence-fixed-region/fixed-region-composite-evidence.json",
+          "evidenceSha256": "5f2c6e2a2c2c40a0e435632b0ace21ba9ac66560e3300ec2c5a771147bd3ea9d",
+          "fixedPixelCount": 793454,
+          "exactFixedPixelRatio": 1.0,
+          "maximumFixedChannelDifference": 0
+        },
+        "runtimeMaterialization": {
+          "assets": [
+            {
+              "path": "ReignBeta/GUI/SpriteParts/ui_reignbeta_correspondence/reign_correspondence_modern_shell.png",
+              "sha256": "b18080fecdf70aa821e641a0bb235d350860829a785929f9f6ab6bbf7fd74ee8",
+              "specPath": "ReignBeta/artwork/ui-modern-style-kit/specs/correspondence-shell.json",
+              "specSha256": "022270e2400b15753c4f322cdc003f7ca2f6c8c68cf9e14cf571cc8f8926dce9",
+              "evidencePath": ".codex-build/ui-modern-assets/20260827/correspondence-modern-shell.evidence.json",
+              "evidenceSha256": "ddbbe9206951cfee4e64ff07eb7de76dd98dae753703c6643ca12b71bcdf7712"
+            }
+          ]
+        }
+      },
+      {
+        "id": "court",
+        "status": "fixed-composite-passed; runtime-source-sprites-recorded; atlas-built-native-human-pending",
+        "approvedReference": {
+          "path": "ReignBeta/artwork/ui-modern-style-kit/approved-references/court.png",
+          "sha256": "f170711b207ee95b186c3bf4640cc251b32c48d6905880c49a6c156e26a527bb"
+        },
+        "imageToImageCandidate": {
+          "path": "ReignBeta/artwork/ui-modern-style-kit/generated-sources/screen-court-modern-shell-source.png",
+          "sha256": "7625da36ed10bdbaf777608d97325dc9078bb0765daee12fa8b32a94df1ab3b3"
+        },
+        "fixedComposite": {
+          "status": "passed",
+          "specPath": "ReignBeta/artwork/ui-modern-style-kit/specs/screen-court-fixed-region-mask.json",
+          "specSha256": "55daf699767f3b4255540d12d086fb457a38c608604da8b986287eb21312fbbb",
+          "sourcePath": "ReignBeta/artwork/ui-modern-style-kit/generated-sources/screen-court-modern-shell-exact-fixed-source.png",
+          "sourceSha256": "d51cbc48e84105edc88d521279d428fe0d60fac090da53021f92e586af00c297",
+          "evidenceArtifactPath": ".codex-build/ui-modern-assets/20260828/inward-aperture-aa/court-approved-fixed-overlay.png",
+          "evidenceArtifactSha256": "9ea07f290c3b414149bc7bb01df32d5bb4393fcb32b2f0bb6223c1ca35b12551",
+          "evidencePath": ".codex-build/ui-modern-assets/20260828/inward-aperture-aa/court-fixed-overlay/fixed-region-composite-evidence.json",
+          "evidenceSha256": "5f74dedd6da53bebc7b918d9685df8edfb14c933f44b40b9856968b6a7397198",
+          "fullCatalogEvidencePath": ".codex-build/ui-modern-assets/20260828/inward-aperture-aa/full-catalog-source-fixed-region-audit.json",
+          "fullCatalogEvidenceSha256": "92142cb45a43911feeb88b1263359a33615e4e6c310922900ce1c2aaf60c6785",
+          "fixedPixelCount": 1142172,
+          "exactFixedPixelRatio": 1.0,
+          "maximumFixedChannelDifference": 0
+        },
+        "runtimeMaterialization": {
+          "assets": [
+            {
+              "path": "ReignBeta/GUI/SpriteParts/ui_reignbeta_court/reign_court_modern_shell.png",
+              "sha256": "c13bbfd155b3c58b234cb4b783f23e874e8eacbbd02f35d1546607a9afd99486",
+              "specPath": "ReignBeta/artwork/ui-modern-style-kit/specs/screen-court-shell.json",
+              "specSha256": "625259e096321aa707a5811c8488bb8119721ec619046401ca4d79dfa0be4580",
+              "evidencePath": ".codex-build/ui-modern-assets/20260828/inward-aperture-aa/court-modern-shell.evidence.json",
+              "evidenceSha256": "84eb72ddc92ff7ef2d108e4c6caff7ff9efab07ee9ef5468b385d988eab9681d"
+            },
+            {
+              "path": "ReignBeta/GUI/SpriteParts/ui_reignbeta_court/reign_court_modern_banner_left_mask.png",
+              "sha256": "05fb7f18ed364040c7580b8c41dad887c85cd44c493366b906245a685a413152",
+              "specPath": "ReignBeta/artwork/ui-modern-style-kit/specs/screen-court-banner-left-mask.json",
+              "specSha256": "59aedb1fd88fda6e300e1997470b8459340efea4c8f0d38af97aa35fada4574b",
+              "evidencePath": ".codex-build/ui-modern-assets/20260828/inward-aperture-aa/court-modern-banner-left-mask.evidence.json",
+              "evidenceSha256": "31039f949d333febd128b30a796f9ebce4acb4d9951ea36fa1ed474b1a093792"
+            },
+            {
+              "path": "ReignBeta/GUI/SpriteParts/ui_reignbeta_court/reign_court_modern_banner_right_mask.png",
+              "sha256": "dcad9a369fa80ca817c3b68ae4d44dea20234b8b0280bf1c9dba169bd48e7661",
+              "specPath": "ReignBeta/artwork/ui-modern-style-kit/specs/screen-court-banner-right-mask.json",
+              "specSha256": "3a6fb8c3fa40b754d077b639531e4bb8878452b4de3c08c3023b6022e89af973",
+              "evidencePath": ".codex-build/ui-modern-assets/20260828/inward-aperture-aa/court-modern-banner-right-mask.evidence.json",
+              "evidenceSha256": "b8c9f552525d027c0b2d74680e1cb857a9caf833942360095f1f66be621be1ea"
+            }
+          ]
+        }
+      },
+      {
+        "id": "diplomacy-announcement",
+        "status": "fixed-composite-passed; runtime-source-sprite-byte-identical; atlas-built-native-human-pending",
+        "approvedReference": {
+          "path": "ReignBeta/artwork/ui-modern-style-kit/approved-references/diplomacy-announcement.png",
+          "sha256": "6ee8dd4623033e226b50815b8fbd95b269673b908942edc7061728398674dd12"
+        },
+        "imageToImageCandidate": {
+          "path": "ReignBeta/artwork/ui-modern-style-kit/generated-sources/screen-shells/diplomacy-announcement-shell-source.png",
+          "sha256": "7b3ca77e668ec8825e8cf1f509d36eddd8797eaef644289de37ab69f06576066",
+          "targetedNeutralBannerFillPath": "ReignBeta/artwork/ui-modern-style-kit/generated-sources/screen-shells/diplomacy-banner-neutral-i2i-fill.png",
+          "targetedNeutralBannerFillSha256": "90670a022c6f64996a826d85dcedf46d3098d9e3033ab060c9addd7786aa29b0"
+        },
+        "fixedComposite": {
+          "status": "passed",
+          "specPath": "ReignBeta/artwork/ui-modern-style-kit/specs/screen-diplomacy-announcement-fixed-region-mask.json",
+          "specSha256": "961a658aa4e98a2b918b40ff6b1dd07cd0ea56e0c6713bdfed6a976515f48f94",
+          "sourcePath": "ReignBeta/GUI/SpriteParts/ui_reignbeta_diplomacy/reign_diplomacy_modern_shell.png",
+          "sourceSha256": "b3dc408d3a2f97a8e06b1f387387b5af7be68b1a62e05807424c98848b00e70e",
+          "compositionFillPath": "ReignBeta/artwork/ui-modern-style-kit/generated-sources/screen-diplomacy-announcement-modern-shell-neutral-banner-source.png",
+          "compositionFillSha256": "2a536b744bfca0ee4b9752627cc66df91549654a696f3dd728a12ee2b68cd26d",
+          "compositionFillSpecPath": "ReignBeta/artwork/ui-modern-style-kit/specs/source-diplomacy-neutral-banner-clean.json",
+          "compositionFillSpecSha256": "2781aca7331648712117109be83ba0dd7aa3ce4ceb20bc08f7760bf11e5a6fbb",
+          "compositionFillEvidencePath": ".codex-build/ui-modern-assets/20260828/diplomacy-neutral-banner-source-v4/fixed-region-composite-evidence.json",
+          "compositionFillEvidenceSha256": "9a88a7df1620de46f183605bdc5f0b950abc4ebc86c987b80fcea6f5a371748e",
+          "evidencePath": ".codex-build/ui-modern-assets/20260828/diplomacy-fixed-region-neutral-banner-v4/fixed-region-composite-evidence.json",
+          "evidenceSha256": "4b2a1a05d18b2e25f276f4b46eafab346958a744a9f9a75de0b38fad21ea10eb",
+          "fixedPixelCount": 1173187,
+          "exactFixedPixelRatio": 1.0,
+          "maximumFixedChannelDifference": 0
+        },
+        "runtimeMaterialization": {
+          "assets": [
+            {
+              "path": "ReignBeta/GUI/SpriteParts/ui_reignbeta_diplomacy/reign_diplomacy_modern_shell.png",
+              "sha256": "b3dc408d3a2f97a8e06b1f387387b5af7be68b1a62e05807424c98848b00e70e",
+              "lineage": "byte-identical to fixedComposite.sourceSha256"
+            }
+          ]
+        }
+      },
+      {
+        "id": "economic-report",
+        "status": "fixed-composite-passed; runtime-source-sprite-recorded; atlas-built-native-human-pending",
+        "approvedReference": {
+          "path": "ReignBeta/artwork/ui-modern-style-kit/approved-references/economic-report.png",
+          "sha256": "18343ae4df9a7685d3c9a514d86a9e1a76ef00d6fb3ae497c6152accffbbd681"
+        },
+        "imageToImageCandidate": {
+          "path": "ReignBeta/artwork/ui-modern-style-kit/generated-sources/screen-shells/economic-report-modern-shell-source.png",
+          "sha256": "b052d5977bccf17ef5d8f86d26368ee48ea34308e3479bd676a1e9ffcd5fe917"
+        },
+        "fixedComposite": {
+          "status": "passed",
+          "specPath": "ReignBeta/artwork/ui-modern-style-kit/specs/screen-economic-report-fixed-region-mask.json",
+          "specSha256": "ac06e23a4682644213c63f3b97827d779ec95db9fd787a4c624346c8c5320752",
+          "sourcePath": "ReignBeta/artwork/ui-modern-style-kit/generated-sources/screen-shells/economic-report-modern-shell-exact-fixed-source.png",
+          "sourceSha256": "833f8accbef4121f58c6b3c70c657edf21b3c347cedb36c77c74528f0eba76c7",
+          "evidencePath": ".codex-build/ui-modern-assets/20260827/economic-report-fixed-region/fixed-region-composite-evidence.json",
+          "evidenceSha256": "7119c8c148a9862548ee02c516dd93effb3f60ccb8cf0c5b43dd5f695ce81ea9",
+          "fixedPixelCount": 797943,
+          "exactFixedPixelRatio": 1.0,
+          "maximumFixedChannelDifference": 0
+        },
+        "runtimeMaterialization": {
+          "assets": [
+            {
+              "path": "ReignBeta/GUI/SpriteParts/ui_reignbeta_economic_report/reign_economic_report_modern_shell.png",
+              "sha256": "487ec94dffb64b99fd16252338fbf33cd71166a4c6eefe384c3ac0f334559f3a",
+              "specPath": "ReignBeta/artwork/ui-modern-style-kit/specs/screen-economic-report-shell.json",
+              "specSha256": "618fe047a000ea6e3d1a40f5bc2fb06240ada771b5cd8d1fcc81ed1254c05e72",
+              "evidencePath": ".codex-build/ui-modern-assets/20260827/economic-report-modern-shell.evidence.json",
+              "evidenceSha256": "cb2b078c53b42ca6f92914ecaeea0d36060372fd02413a86e5bd4c56dfe40a69"
+            }
+          ]
+        }
+      },
+      {
+        "id": "family-chambers",
+        "status": "fixed-composite-passed; runtime-source-sprite-recorded; atlas-built-native-human-pending",
+        "approvedReference": {
+          "path": "ReignBeta/artwork/ui-modern-style-kit/approved-references/family-chambers.png",
+          "sha256": "d47619f8af70a534def34a56cf2fadb95c42a5e41b2110e95f34f9ea79b98e1c"
+        },
+        "imageToImageCandidate": {
+          "historicalSha256": "f9f422eeb8286c50095a7f3cfc08d33cc53826ac59140a5a700fd6eec73872db",
+          "retention": "historical hash only; superseded in place by the deterministic fixed source",
+          "targetedRailCleanFillPath": "ReignBeta/artwork/ui-modern-style-kit/generated-sources/screen-shells/family-chambers-rail-clean-i2i-fill.png",
+          "targetedRailCleanFillSha256": "925e13932bba7e74dc23b7a9d6aa60b68e8e779f955a1771eb4206cd0ff6caa7",
+          "targetedPersonCardFillPath": "ReignBeta/artwork/ui-modern-style-kit/generated-sources/components/family-chambers-person-card-i2i-fill.png",
+          "targetedPersonCardFillSha256": "1da19406cf0e5a5c4b0880cc7a9cdd0e6c684d88207df6a2fac50c72736db996"
+        },
+        "fixedComposite": {
+          "status": "passed",
+          "specPath": "ReignBeta/artwork/ui-modern-style-kit/specs/screen-family-chambers-fixed-region-mask.json",
+          "specSha256": "0cf47f04f6d8bfc82e55b90c5484b1ddaa1b02b68a51da08d86bfcaf4c4f9753",
+          "sourcePath": "ReignBeta/GUI/SpriteParts/ui_reignbeta_family_chambers/reign_family_chambers_modern_shell.png",
+          "sourceSha256": "2423c1c7921c94c30f7a146993cd69b037d2bab5a332a4d707300c6e982fd4d3",
+          "compositionFillPath": "ReignBeta/artwork/ui-modern-style-kit/generated-sources/screen-shells/family-chambers-modern-shell-clean-source.png",
+          "compositionFillSha256": "a005946d8baddee0b88f6f04a3b31ed19de82927454f5d5facc1aae9d1ee7885",
+          "compositionFillSpecPath": "ReignBeta/artwork/ui-modern-style-kit/specs/source-family-chambers-rail-clean.json",
+          "compositionFillSpecSha256": "f52a96710cd18a9e9859ca4517f2b51b4c0f8faf10e6426f9f4219669eae95ea",
+          "compositionFillEvidencePath": ".codex-build/ui-modern-assets/20260828/family-chambers-rail-clean-v5/fixed-region-composite-evidence.json",
+          "compositionFillEvidenceSha256": "2333ea619fe9197cbadec79deeff2ed19e6c53a8aefb94489d490811c165fa1c",
+          "evidencePath": ".codex-build/ui-modern-assets/20260828/family-chambers-fixed-region-v2/fixed-region-composite-evidence.json",
+          "evidenceSha256": "a1c806adf5cc674dd7ba15926301d874f06c8a7114745472a89ea3930b8cc9fe",
+          "fixedPixelCount": 993628,
+          "exactFixedPixelRatio": 1.0,
+          "maximumFixedChannelDifference": 0
+        },
+        "runtimeMaterialization": {
+          "prefabPath": "ReignBeta/GUI/Prefabs/ReignFamilyChambersScreen.xml",
+          "prefabSha256": "f7edc5fa21dcaf4baca354c183052ee5f2119d7b115c5778b1982fd7a23e90a9",
+          "assets": [
+            {
+              "path": "ReignBeta/GUI/SpriteParts/ui_reignbeta_family_chambers/reign_family_chambers_modern_shell.png",
+              "sha256": "2423c1c7921c94c30f7a146993cd69b037d2bab5a332a4d707300c6e982fd4d3",
+              "lineage": "fixedComposite.sourceSha256"
+            },
+            {
+              "path": "ReignBeta/GUI/SpriteParts/ui_reignbeta_family_chambers/reign_family_chambers_person_card.png",
+              "sha256": "03529020763d7ae3e86e1fb889921c22cae532877bf9625085d3fa2191f811fe",
+              "specPath": "ReignBeta/artwork/ui-modern-style-kit/specs/family-chambers-person-card-fixed-regions.json",
+              "specSha256": "a70f0e5753f634fe91b4d36697033bfced8c6b2e2d70b1dbad194dfeca8806e4",
+              "evidencePath": ".codex-build/ui-modern-assets/20260828/family-chambers-person-card-v4/fixed-region-composite-evidence.json",
+              "evidenceSha256": "e244687102557dcb70df78e0548d9cb899d405a150d28d4e9e6490cc3d7eff32"
+            }
+          ]
+        }
+      },
+    {
+      "id": "government",
+      "status": "fixed-composite-passed; runtime-source-sprite-byte-identical; atlas-built-native-human-pending",
+      "approvedReference": {
+        "path": "ReignBeta/artwork/ui-modern-style-kit/approved-references/government.png",
+        "sha256": "276480912e5b00996355db5d3e114b43e9807404b0f4df5a9f1b02ecbbb15004"
+      },
+      "imageToImageCandidate": {
+        "path": "ReignBeta/artwork/ui-modern-style-kit/generated-sources/screen-shells/government-shell-source.png",
+        "sha256": "ba4451a1f64024734c31dd80d196d02c6b02cb81ec205b8c63dcf051a2fb54d1"
+      },
+      "fixedComposite": {
+        "status": "passed",
+        "specPath": "ReignBeta/artwork/ui-modern-style-kit/specs/screen-government-fixed-region-mask.json",
+        "specSha256": "404477723e7350965959faf6868e5cae5203679890466e3c62f8fd36214bab13",
+        "sourcePath": "ReignBeta/artwork/ui-modern-style-kit/generated-sources/screen-shells/government-shell-exact-fixed-source.png",
+        "sourceSha256": "4373bd700d7576c2cc4197dd59cba41f92f6e06aaaafb1f937b48c1ec360d852",
+        "compositionFillPath": "ReignBeta/artwork/ui-modern-style-kit/generated-sources/screen-shells/government-shell-source.png",
+        "compositionFillSha256": "ba4451a1f64024734c31dd80d196d02c6b02cb81ec205b8c63dcf051a2fb54d1",
+        "evidencePath": ".codex-build/ui-modern-assets/20260828/government-fixed-region-clean-v2/fixed-region-composite-evidence.json",
+        "evidenceSha256": "e93f8b26c2232cdb0842ea508e7a3acc89f182caf7dac305bdbb08346f3e841b",
+        "fixedPixelCount": 986645,
+        "exactFixedPixelRatio": 1.0,
+        "maximumFixedChannelDifference": 0
+      },
+      "runtimeMaterialization": {
+        "assets": [
+          {
+            "path": "ReignBeta/GUI/SpriteParts/ui_reignbeta_government/reign_government_modern_shell.png",
+            "sha256": "4373bd700d7576c2cc4197dd59cba41f92f6e06aaaafb1f937b48c1ec360d852",
+            "lineage": "byte-identical to fixedComposite.sourceSha256"
+          }
+        ]
+      }
+    },
+      {
+        "id": "individual-chat",
+        "status": "integrated-oval-aperture-shell-passed; untouched rectangular portrait sources layered beneath one current runtime overlay; atlas-built-static-passed-native-human-pending",
+        "approvedReference": {
+          "path": "ReignBeta/artwork/ui-modern-style-kit/approved-references/individual-chat.png",
+          "sha256": "95fe0ce9b1c35b157f6a769905b987ad876de94d46d5a1a79ac508b8a11ea5dc"
+        },
+        "imageToImageCandidate": {
+          "path": "ReignBeta/artwork/ui-modern-style-kit/generated-sources/screen-shells/individual-chat-modern-shell-square-portrait-v1-imagegen.png",
+          "sha256": "834da8f3c0f8103f16877bdacfcaca1597e4d889c3ed7e0d78576beb1942fec6",
+          "promptPath": "ReignBeta/artwork/ui-modern-style-kit/generated-sources/screen-shells/individual-chat-modern-shell-square-portrait-v1-imagegen-prompt.txt",
+          "promptSha256": "ea58e8d5589743ce6e85110dbb49ed035dabba2f564bef10471647c9f362a639",
+          "status": "superseded-historical; not referenced by the current prefab or runtime shell"
+        },
+        "fixedComposite": {
+          "status": "passed; approved fixed pixels preserved exactly and dynamic portrait interiors excluded",
+          "specPath": "ReignBeta/artwork/ui-modern-style-kit/specs/screen-individual-chat-fixed-region-mask.json",
+          "specSha256": "a319ec50830f6464fe0b37d85017fbfcb390d37ee17a6ba98eb5fd6035b996a4",
+          "sourcePath": "ReignBeta/artwork/ui-modern-style-kit/generated-sources/screen-shells/individual-chat-modern-shell-exact-fixed-source.png",
+          "sourceSha256": "b2e6a096938000e6e291c2b7c922c57d17307a34014530a2d63a43ec9a271a4f",
+          "evidencePath": ".codex-build/ui-modern-assets/20260829/individual-chat-fixed-region-final/fixed-region-composite-evidence.json",
+          "evidenceSha256": "c1bc5d25059a4ddc6107fcb475451fe490cbc0e6521ba2f87330840e6e34ee0e",
+          "fixedPixelCount": 924377,
+          "exactFixedPixelRatio": 1.0,
+          "maximumFixedChannelDifference": 0
+        },
+        "runtimeMaterialization": {
+          "assets": [
+            {
+              "path": "ReignBeta/GUI/SpriteParts/ui_reignbeta_individual/reign_individual_chat_modern_shell.png",
+              "sha256": "0640ac1c59a38d0a65d46a582b6f7b888d1bf1a8bdec184b1e18ab9c8a7a27fe",
+              "specPath": "ReignBeta/artwork/ui-modern-style-kit/specs/individual-chat-shell.json",
+              "specSha256": "2151dff56b0e24513a97f6ab14bd2df3d60493df3b46dae053c6b88473fadecf",
+              "evidencePath": ".codex-build/ui-modern-assets/20260829/individual-chat-shell-aperture-final/overlay-evidence.json",
+              "evidenceSha256": "e02d3a77ce9fbde0b9f2ff811cefd85314cfe1721da864ff4aeba487c2079792",
+              "lineage": "deterministic two-aperture RGBA overlay derived from fixedComposite.sourceSha256",
+              "evidenceStatus": "static layering, alpha, preview contract, and two-viewport rendered-preview evidence passed; native pending"
+            }
+          ]
+        }
+      },
+      {
+        "id": "memories-book",
+        "status": "fixed-composite-passed; runtime-source-sprite-byte-identical; atlas-built-native-human-pending",
+        "approvedReference": {
+          "path": "ReignBeta/artwork/ui-modern-style-kit/approved-references/memories-book.png",
+          "sha256": "ab16c728c6a01749a7d51db01d82fc734767fc22077fed5ce250b7a84d166858"
+        },
+        "imageToImageCandidate": {
+          "path": "ReignBeta/artwork/ui-modern-style-kit/generated-sources/screen-shells/memories-book-shell-source.png",
+          "sha256": "3e1dc687fc611954ca36244a1d204b048a1732bbb37bc4cd3b2aa959bf638400"
+        },
+        "fixedComposite": {
+          "status": "passed",
+          "specPath": "ReignBeta/artwork/ui-modern-style-kit/specs/screen-memories-book-fixed-region-mask.json",
+          "specSha256": "3ef7cf16b859e3ca977e06030a937e413f27b45fa563e79493827186799b4369",
+          "sourcePath": "ReignBeta/artwork/ui-modern-style-kit/generated-sources/screen-memories-book-modern-shell-exact-fixed-source.png",
+          "sourceSha256": "ed359da8a1b3df0114be28d901a6c6c98a309f57642289044d47d3c5f8c1f96d",
+          "evidencePath": ".codex-build/ui-modern-assets/20260827/memories-book-fixed-region/fixed-region-composite-evidence.json",
+          "evidenceSha256": "fe4694a52fa25840c750845b112048c8bec64e96bb789c6c64b41652df8a6aaf",
+          "fixedPixelCount": 685751,
+          "exactFixedPixelRatio": 1.0,
+          "maximumFixedChannelDifference": 0
+        },
+        "runtimeMaterialization": {
+          "assets": [
+            {
+              "path": "ReignBeta/GUI/SpriteParts/ui_reignbeta_memories/reign_memories_book_modern_shell.png",
+              "sha256": "ed359da8a1b3df0114be28d901a6c6c98a309f57642289044d47d3c5f8c1f96d",
+              "lineage": "byte-identical to fixedComposite.sourceSha256"
+            }
+          ]
+        }
+      },
+      {
+        "id": "notable-generation",
+        "status": "fixed-composite-passed; runtime-source-sprite-byte-identical; atlas-built-native-human-pending",
+        "approvedReference": {
+          "path": "ReignBeta/artwork/ui-modern-style-kit/approved-references/notable-generation.png",
+          "sha256": "eb3d7a52680aa55c0c4ff8acdc615a1118f770db1e9a203efed14a0bf7bdfc82"
+        },
+        "imageToImageCandidate": {
+          "path": "ReignBeta/artwork/ui-modern-style-kit/generated-sources/screen-shells/notable-generation-modern-shell-source.png",
+          "sha256": "f9659f321545efb0c7e10bf3edeee8f45f7732831fe36bba9500863cb6c013e5"
+        },
+        "fixedComposite": {
+          "status": "passed",
+          "compositionFillPath": "ReignBeta/artwork/ui-modern-style-kit/generated-sources/screen-shells/notable-generation-modern-shell-aligned-fill-source.png",
+          "compositionFillSha256": "38925da5cc9211c3697f6394ef83a813fde7491ac74c019bf930fb5e9c04a90e",
+          "specPath": "ReignBeta/artwork/ui-modern-style-kit/specs/screen-notable-generation-fixed-region-mask.json",
+          "specSha256": "d6dcc0333ca1231303add12281313218306934e3b7b6116b66f69703cce70ab6",
+          "sourcePath": "ReignBeta/artwork/ui-modern-style-kit/generated-sources/screen-shells/notable-generation-modern-shell-exact-fixed-source.png",
+          "sourceSha256": "61234d4978beee9a0abd289433cfcb343646807b1a48d389122674ef0bc2c4a7",
+          "evidencePath": ".codex-build/ui-modern-assets/20260828/notable-generation-fixed-region/fixed-region-composite-evidence.json",
+          "evidenceSha256": "a67bc26bd84156fd29831a02f12a12bfda023676fc74d64860f4cbc933d73015",
+          "fixedPixelCount": 1419648,
+          "exactFixedPixelRatio": 1.0,
+          "maximumFixedChannelDifference": 0
+        },
+        "runtimeMaterialization": {
+          "assets": [
+            {
+              "path": "ReignBeta/GUI/SpriteParts/ui_reignbeta_generation/reign_notable_generation_popup.png",
+              "sha256": "61234d4978beee9a0abd289433cfcb343646807b1a48d389122674ef0bc2c4a7",
+              "lineage": "byte-identical to fixedComposite.sourceSha256"
+            }
+          ]
+        }
+      },
+      {
+        "id": "party-chat",
+        "status": "fixed-composite-passed; runtime-source-sprite-recorded; atlas-built-native-human-pending",
+        "approvedReference": {
+          "path": "ReignBeta/artwork/ui-modern-style-kit/approved-references/party-chat.png",
+          "sha256": "21454261b37e00073aec60731b551155f7933b9c7541950fa1ba27c0b118cdb1"
+        },
+        "imageToImageCandidate": {
+          "path": "ReignBeta/artwork/ui-modern-style-kit/generated-sources/screen-shells/party-chat-modern-shell-source.png",
+          "sha256": "31fd91beebf1760f49fb8df1ee8450418a1bad60ac5f8895384e04fcbf5b3f6e"
+        },
+        "fixedComposite": {
+          "status": "passed",
+          "specPath": "ReignBeta/artwork/ui-modern-style-kit/specs/screen-party-chat-fixed-region-mask.json",
+          "specSha256": "ea41312651dfd4b3930c8998348641644b498f28dd870cba873bafa6785dde57",
+          "sourcePath": "ReignBeta/artwork/ui-modern-style-kit/generated-sources/screen-shells/party-chat-modern-shell-exact-fixed-source.png",
+          "sourceSha256": "8fa8ee335f9ce0ca717609516c4cfb8cd87992c0239ad441736c1e4dd3ae453a",
+          "evidencePath": ".codex-build/ui-modern-assets/20260827/party-chat-fixed-region/fixed-region-composite-evidence.json",
+          "evidenceSha256": "13dde020f5f8af0d8d62ea588f85a9b32397e71608a4dbbdb53e5699760e9b5e",
+          "fixedPixelCount": 765151,
+          "exactFixedPixelRatio": 1.0,
+          "maximumFixedChannelDifference": 0
+        },
+        "runtimeMaterialization": {
+          "assets": [
+            {
+              "path": "ReignBeta/GUI/SpriteParts/ui_reignbeta_party_chat/reign_party_chat_modern_shell.png",
+              "sha256": "e8e5cb2101720eb182ff19f2973fe5227839148fd9b2b71cca449d2ddf1753b9",
+              "specPath": "ReignBeta/artwork/ui-modern-style-kit/specs/party-chat-shell.json",
+              "specSha256": "4e06a5d38fc9362b8379756cdfea281b1f0a28434b027ae21c880e3d3f9b6160",
+              "evidencePath": ".codex-build/ui-modern-assets/20260827/party-chat-modern-shell.evidence.json",
+              "evidenceSha256": "cf096ab83fc9d2f665cb15856fa3f49fc90f507b4039ada286b362f633d05acf"
+            }
+          ]
+        }
+      },
+      {
+        "id": "royal-council",
+        "status": "fixed-composite-passed; runtime-source-sprites-recorded; atlas-built-native-human-pending",
+        "approvedReference": {
+          "path": "ReignBeta/artwork/ui-modern-style-kit/approved-references/royal-council.png",
+          "sha256": "1b08360102f624d2051371db436ed356ea0b0297c9eab32f05deaac771f7c1bb"
+        },
+        "imageToImageCandidate": {
+          "path": "ReignBeta/artwork/ui-modern-style-kit/generated-sources/screen-royal-council-modern-shell-source.png",
+          "sha256": "102d353c45b27341df00d3d89ce3efe508df83bb6f4c92574d5eeeb5f3716a3c"
+        },
+        "fixedComposite": {
+          "status": "passed",
+          "specPath": "ReignBeta/artwork/ui-modern-style-kit/specs/screen-royal-council-fixed-region-mask.json",
+          "specSha256": "516d35cba97c99fec34805b804a786f801286bee0566343441fce0d8e33437b1",
+          "sourcePath": "ReignBeta/artwork/ui-modern-style-kit/generated-sources/screen-royal-council-modern-shell-exact-fixed-source.png",
+          "sourceSha256": "8f258195ed12d45ee7b56da7648f4c31aec285b6deb0a51f423aa2bb858e0488",
+          "evidenceArtifactPath": ".codex-build/ui-modern-integration/20260827/court-royal-fixed-region/recomposed-royal-council.png",
+          "evidenceArtifactSha256": "9cd75869465dded85ddf32b86a2a41f90d51e4dacdab2cf5e9d7f01697a4968a",
+          "evidencePath": ".codex-build/ui-modern-integration/20260827/court-royal-fixed-region/recomposed-royal-council-evidence/fixed-region-composite-evidence.json",
+          "evidenceSha256": "ccdd549210c8321742d04ec1567c6ef3a70e129b001a11f8bc8ed9e582c84378",
+          "retainedSourceComparisonPath": ".codex-build/ui-modern-integration/20260827/court-royal-fixed-region/court-royal-fixed-region-comparison.json",
+          "retainedSourceComparisonSha256": "a2fdfb81519b355ee5f8c2e6d99fc05cf45efa8d0f0c6a79938d966e74349c63",
+          "fixedPixelCount": 873227,
+          "exactFixedPixelRatio": 1.0,
+          "maximumFixedChannelDifference": 0
+        },
+        "runtimeMaterialization": {
+          "assets": [
+            {
+              "path": "ReignBeta/GUI/SpriteParts/ui_reignbeta_royal_council/reign_royal_council_modern_shell.png",
+              "sha256": "4a12ef961203a64027fa5d33e51d8f421e61a574e34031373d1f5da6b1dc2111",
+              "specPath": "ReignBeta/artwork/ui-modern-style-kit/specs/screen-royal-council-shell.json",
+              "specSha256": "1f5833512aefe4dedebb052e36f47f0d096a35101c8575bf053a06243bbf2b26",
+              "evidencePath": ".codex-build/ui-modern-assets/20260827/royal-council-modern-shell.evidence.json",
+              "evidenceSha256": "56f0e2542f4fc2494ed0324cc3ec0b5fc11a1cb135647881f3ad667a07131cf5"
+            },
+            {
+              "path": "ReignBeta/GUI/SpriteParts/ui_reignbeta_royal_council/reign_royal_council_war_portrait_mask.png",
+              "sha256": "f74df6e6a9213bac32c5dbda6277e0fd405223bc7ff9b4b3c3d758a5eaec73c0",
+              "specPath": "ReignBeta/artwork/ui-modern-style-kit/specs/screen-royal-council-war-mask.json",
+              "specSha256": "650d74d7b8176e74ad87b69bdae9ff0095f609cbae0a13b9fead9ec2283658b5",
+              "evidencePath": ".codex-build/ui-modern-assets/20260827/royal-council-war-portrait-mask.evidence.json",
+              "evidenceSha256": "dceb32aa4a093301621e9c1be5b79cd8cd0f945f5faaff12f71168433522b2e1"
+            },
+            {
+              "path": "ReignBeta/GUI/SpriteParts/ui_reignbeta_royal_council/reign_royal_council_spymaster_portrait_mask.png",
+              "sha256": "3a4d165c95d320f1acd689a1df5d929b613ec698b168032508ce30bfc80decf1",
+              "specPath": "ReignBeta/artwork/ui-modern-style-kit/specs/screen-royal-council-spymaster-mask.json",
+              "specSha256": "12e1f859349261fc0c2904bae09098dbf25155a7fbed5f9e5ff28891ee6b43e6",
+              "evidencePath": ".codex-build/ui-modern-assets/20260827/royal-council-spymaster-portrait-mask.evidence.json",
+              "evidenceSha256": "7f6a1e6d69ddb3a02c4c8fb9f8c40b3880cb5dd3050aaf6ba602887c2d31f6c1"
+            },
+            {
+              "path": "ReignBeta/GUI/SpriteParts/ui_reignbeta_royal_council/reign_royal_council_economic_portrait_mask.png",
+              "sha256": "1546a17f0d4cbe4f68724ef41e6e8078211bad4b9dbfe48f5d8ce1885ea0d48d",
+              "specPath": "ReignBeta/artwork/ui-modern-style-kit/specs/screen-royal-council-economic-mask.json",
+              "specSha256": "b8901877231d398e6faf59e85512f50d47fb12c59366a91d4e4d91e69ede3aa4",
+              "evidencePath": ".codex-build/ui-modern-assets/20260827/royal-council-economic-portrait-mask.evidence.json",
+              "evidenceSha256": "717ccd55eada3626b0b5a578636cacac86aa12d9c3b2385617aa446575ea1337"
+            },
+            {
+              "path": "ReignBeta/GUI/SpriteParts/ui_reignbeta_royal_council/reign_royal_council_foreign_portrait_mask.png",
+              "sha256": "b2c6798512421155f3bcf320e390bdbd962d5fbe7fa42f2ea2bf155e0afe3afd",
+              "specPath": "ReignBeta/artwork/ui-modern-style-kit/specs/screen-royal-council-foreign-mask.json",
+              "specSha256": "a0f53df9c47d1be8bb744da324c85b92118b342ccb55179db234deaf986db11b",
+              "evidencePath": ".codex-build/ui-modern-assets/20260827/royal-council-foreign-portrait-mask.evidence.json",
+              "evidenceSha256": "597e67d2b68aae8f93e8002ea3fb3b7df09eb4ac3d9dfc1dc904775067ff956c"
+            }
+          ]
+        }
+      },
+      {
+        "id": "social-event",
+        "status": "fixed-composite-passed; runtime-source-sprite-recorded; atlas-built-native-human-pending",
+        "approvedReference": {
+          "path": "ReignBeta/artwork/ui-modern-style-kit/approved-references/social-event.png",
+          "sha256": "e8f65c0652379fa903c3b1afb13d6fdd09467e5296782b7650b2424f97277265"
+        },
+        "imageToImageCandidate": {
+          "path": "ReignBeta/artwork/ui-modern-style-kit/generated-sources/screen-shells/social-event-modern-shell-source.png",
+          "sha256": "fb1fcd3f0e81ee50d077158e6bb235a6b66202145213db199a452108f40c0dd9"
+        },
+        "fixedComposite": {
+          "status": "passed",
+          "specPath": "ReignBeta/artwork/ui-modern-style-kit/specs/screen-social-event-fixed-region-mask.json",
+          "specSha256": "b6c9eaafc298cb29b08ac5a29b4fbbd9dbf38a05aa4bd90ca6bb0c30eb7cad19",
+          "sourcePath": "ReignBeta/artwork/ui-modern-style-kit/generated-sources/screen-shells/social-event-modern-shell-exact-fixed-source.png",
+          "sourceSha256": "f372f1e181a5b39c30735a008dd6c69c30fb89b4639cfc399a48bf65582dd936",
+          "evidencePath": ".codex-build/ui-modern-assets/20260827/social-event-fixed-region/fixed-region-composite-evidence.json",
+          "evidenceSha256": "40c9092b879010fd269a22ece714047cd6289356830ca5e2970f8345617af270",
+          "fixedPixelCount": 588676,
+          "exactFixedPixelRatio": 1.0,
+          "maximumFixedChannelDifference": 0
+        },
+        "runtimeMaterialization": {
+          "assets": [
+            {
+              "path": "ReignBeta/GUI/SpriteParts/ui_reignbeta_social_event/reign_social_event_modern_shell.png",
+              "sha256": "8bfddc7169166e5389bb71f1b0bbcd1ed17d77230657b567f1cfec15425dccc2",
+              "specPath": "ReignBeta/artwork/ui-modern-style-kit/specs/screen-social-event-shell.json",
+              "specSha256": "b1137aa9f903971360bd3c21b6974a2e6bcc89efc039408ce1338e1891a96bb7",
+              "evidencePath": ".codex-build/ui-modern-assets/20260828/inward-aperture-aa/social-event-modern-shell.evidence.json",
+              "evidenceSha256": "b0c6ef46680547be911e140c7c314f49a023706f70d5c325fec84e363a56f78a"
+            }
+          ]
+        }
+      },
+      {
+        "id": "spymaster",
+        "status": "fixed-composite-passed; runtime-source-sprite-recorded; atlas-built-native-human-pending",
+        "approvedReference": {
+          "path": "ReignBeta/artwork/ui-modern-style-kit/approved-references/spymaster.png",
+          "sha256": "90ea63e898de5e677002ea94f7ea4d50b6406310c540fbd2b9b10eca9d6fb109"
+        },
+        "imageToImageCandidate": {
+          "path": "ReignBeta/artwork/ui-modern-style-kit/generated-sources/screen-shells/spymaster-modern-shell-source.png",
+          "sha256": "425ceeeb09abed6d8c080bd2d4332df800e2ce8163caf75c3028701e0a95fa98"
+        },
+        "fixedComposite": {
+          "status": "passed",
+          "specPath": "ReignBeta/artwork/ui-modern-style-kit/specs/screen-spymaster-fixed-region-mask.json",
+          "specSha256": "f7893a1bfc14d67126363014d63403bac34e4239f9b01440391fc03d37afe00d",
+          "sourcePath": "ReignBeta/GUI/SpriteParts/ui_reignbeta_spymaster/reign_spymaster_modern_shell.png",
+          "sourceSha256": "1abbd8c770a152e7770020e6b26148f43315008b5cd8c7b895b7422c2d7a87bd",
+          "evidencePath": ".codex-build/ui-modern-integration/20260828/fixed-region-correction/production/spymaster-shell/fixed-region-composite-evidence.json",
+          "evidenceSha256": "c37c241da22c0783ad2dd7e4cf2f1e183dc995b659c3b816621d039e22cedbc5",
+          "fixedPixelCount": 949351,
+          "exactFixedPixelRatio": 1.0,
+          "maximumFixedChannelDifference": 0
+        },
+        "runtimeMaterialization": {
+          "prefabPath": "ReignBeta/GUI/Prefabs/ReignSpymasterScreen.xml",
+          "prefabSha256": "90e3f396c0c0d832a23ce5267dded871320aa4f3d0b42596c5bcb9206386a403",
+          "assets": [
+            {
+              "path": "ReignBeta/GUI/SpriteParts/ui_reignbeta_spymaster/reign_spymaster_modern_shell.png",
+              "sha256": "1abbd8c770a152e7770020e6b26148f43315008b5cd8c7b895b7422c2d7a87bd",
+              "lineage": "fixedComposite.sourceSha256"
+            }
+          ]
+        }
+      },
+      {
+        "id": "war-council",
+        "status": "fixed-composite-passed; runtime-source-sprite-recorded; protected-map-byte-and-pixel-preserved; atlas-built-native-human-pending",
+        "approvedReference": {
+          "path": "ReignBeta/artwork/ui-modern-style-kit/approved-references/war-council.png",
+          "sha256": "f8d8cc25ee4ee43fd84a7c4c0ec942fd6b89e73bf1e877bc2cadcd9f096f5ecf"
+        },
+        "imageToImageCandidate": {
+          "path": "ReignBeta/artwork/ui-modern-style-kit/generated-sources/screen-shells/war-council-modern-shell-source.png",
+          "sha256": "8a00a564bbd356ccdb2fe8d14d482309107946d9cbe03ca4854ed32d763d0486"
+        },
+        "fixedComposite": {
+          "status": "passed",
+          "specPath": "ReignBeta/artwork/ui-modern-style-kit/specs/screen-war-council-fixed-region-mask.json",
+          "specSha256": "6265ae63dcff95b1923a275821a516a7ed455027b7a7dcd61db21bb98f573610",
+          "sourcePath": "ReignBeta/artwork/ui-modern-style-kit/generated-sources/screen-shells/war-council-modern-shell-exact-fixed-source.png",
+          "sourceSha256": "9e4888eb96b720b472e278e2bbbb12373de8ebcdb47d36c603aa8fb306570796",
+          "evidencePath": ".codex-build/ui-modern-assets/20260828/war-council-fixed-region/fixed-region-composite-evidence.json",
+          "evidenceSha256": "521bb2e2295cbfc0c0a25fc6458a80c1deff7fcd3d90a4c84a1f4b3c39c1899c",
+          "fixedPixelCount": 483660,
+          "exactFixedPixelRatio": 1.0,
+          "maximumFixedChannelDifference": 0
+        },
+        "runtimeMaterialization": {
+          "assets": [
+      {
+        "path": "ReignBeta/GUI/SpriteParts/ui_reignbeta_war_council/reign_war_council_modern_shell.png",
+        "sha256": "7d4bdfcc7604983045a81b31618bc16c0bdcf9b5fe6a3bffc99e6933f80d2d76",
+        "specPath": "ReignBeta/artwork/ui-modern-style-kit/specs/war-council-modern-shell.json",
+        "specSha256": "32e3e89c2c13cf525f90134c37a8c42118340b9fc4f046df3487be0e635dd58c",
+        "evidencePath": ".codex-build/ui-modern-assets/20260828/inward-aperture-aa/war-council-modern-shell.evidence.json",
+        "evidenceSha256": "f4fe7edfe70f820337592c3a92277d61da84f86340d7004fa471efefe2992b50"
+      },
+            {
+              "path": "ReignBeta/GUI/SpriteParts/ui_reignbeta_war_council/reign_war_council_calradia.png",
+              "sha256": "e9aeb15807953280e596f189b05bc61e9812af434eafcac3c116af873d632887",
+              "role": "protected old-scroll map; color and pixels must not change",
+              "evidencePath": ".codex-build/ui-modern-assets/20260828/war-council-fixed-region/protected-map-preservation-evidence.json",
+              "evidenceSha256": "480fd2a322ef2693268ba825b925d1accf1aef4b322d93307860990589c5257d"
+            }
+          ]
+        }
+      },
+      {
+        "id": "wilderness-event",
+        "status": "fixed-composite-passed; runtime-source-sprite-recorded; atlas-built-native-human-pending",
+        "approvedReference": {
+          "path": "ReignBeta/artwork/ui-modern-style-kit/approved-references/wilderness-event.png",
+          "sha256": "0d88586b639c1fe687460242569465376405d1aa20c49f460b0a481b8b1020a8"
+        },
+        "imageToImageCandidate": {
+          "path": "ReignBeta/artwork/ui-modern-style-kit/generated-sources/screen-shells/wilderness-event-modern-shell-source.png",
+          "sha256": "9019dce863cb36f5d6d77ff5154971f6264aba526b43c0e2fc7217d75c9f07f6"
+        },
+        "fixedComposite": {
+          "status": "passed",
+          "specPath": "ReignBeta/artwork/ui-modern-style-kit/specs/screen-wilderness-event-fixed-region-mask.json",
+          "specSha256": "6c140e79b41f83a0b8823ccf126e3a2ad289eb40af4847d52e0902915334a918",
+          "sourcePath": "ReignBeta/artwork/ui-modern-style-kit/generated-sources/screen-shells/wilderness-event-modern-shell-exact-fixed-source.png",
+          "sourceSha256": "60fe9cc17450c4fa623c69357efc22ac1b9ff0ec15d11c441292cff92c58c7ae",
+          "evidencePath": ".codex-build/ui-modern-assets/20260827/wilderness-event-fixed-region/fixed-region-composite-evidence.json",
+          "evidenceSha256": "380180531b2f973606759978e02a61f0942ee70a63fb0c3633868548eb349d35",
+          "fixedPixelCount": 613047,
+          "exactFixedPixelRatio": 1.0,
+          "maximumFixedChannelDifference": 0
+        },
+        "runtimeMaterialization": {
+          "assets": [
+            {
+              "path": "ReignBeta/GUI/SpriteParts/ui_reignbeta_social_event/reign_wilderness_event_modern_shell.png",
+              "sha256": "6c26d1f677db92ae97b866f9366f68a5f0fee8b87935cb96867c014df268b42a",
+              "specPath": "ReignBeta/artwork/ui-modern-style-kit/specs/screen-wilderness-event-shell.json",
+              "specSha256": "fd13541775ec9ac944412ce4989e91511a9acb83541ee1fe239e7adfbe6b238f",
+              "evidencePath": ".codex-build/ui-modern-assets/20260828/inward-aperture-aa/wilderness-event-modern-shell.evidence.json",
+              "evidenceSha256": "5b3277f97a19f58e6de4e2fc0b0ec23de27c4bb6918ef7a7f8763d9747795254"
+            }
+          ]
+        }
+      }
+    ],
+    "sharedRuntimeAssets": [
+      {
+        "id": "portrait-circle-overlay",
+        "path": "ReignBeta/GUI/SpriteParts/ui_reignbeta_shared/reign_modern_portrait_circle_overlay.png",
+        "sha256": "c578e45063d9878c5191935ccf49b5d6335219ca2d7c39010f9ff875b8a1517b",
+        "specPath": "ReignBeta/artwork/ui-modern-style-kit/specs/portrait-circle.json",
+        "specSha256": "b74aee9b01d189e6a71e4506b7a14bdd56300ce44f642daf30928b44cd66a37b",
+        "evidencePath": ".codex-build/ui-modern-assets/20260827/portrait-circle-evidence.json",
+        "evidenceSha256": "9c207f6c7200514d2cc82c025e3040c77c9607399a9d42ce767defff5a3c81cc"
+      },
+      {
+        "id": "portrait-oval-overlay",
+        "path": "ReignBeta/GUI/SpriteParts/ui_reignbeta_shared/reign_modern_portrait_oval_overlay.png",
+        "sha256": "6fd1e97570da919bcb5a415cc6f7e4bc123ad2ddb0aee1f1a0f46a0fc4111108",
+        "specPath": "ReignBeta/artwork/ui-modern-style-kit/specs/portrait-oval.json",
+        "specSha256": "6916846b709aa61eb1f9655451ec8ff1750fe81ff2f3316a1fe01c78729eac63",
+        "evidencePath": ".codex-build/ui-modern-assets/20260827/portrait-oval-evidence.json",
+        "evidenceSha256": "4c4ff345a9c651b6849e880d76161c08b51a283c1c00635355e6494c67b68198"
+      },
+      {
+        "id": "portrait-oval-thin-frame",
+        "path": "ReignBeta/GUI/SpriteParts/ui_reignbeta_shared/reign_modern_portrait_oval_thin_frame.png",
+        "sha256": "5023a017f7cd0bf5a6a1ac5833ce5613a51caa4dac69b794a314da48d671bd18",
+        "specPath": "ReignBeta/artwork/ui-modern-style-kit/specs/portrait-oval-thin-frame.json",
+        "specSha256": "14b0362c96212be09a780a96348fb4cab5c05c62785393c4b4287d30733d1fb3",
+        "evidencePath": ".codex-build/ui-modern-assets/20260827/portrait-oval-thin-frame-evidence.json",
+        "evidenceSha256": "5a24b8aeaab6fe2e5865239725f08363b65739b49f50c47447e4e3ab35763e85"
+      },
+      {
+        "id": "portrait-rectangle-overlay",
+        "path": "ReignBeta/GUI/SpriteParts/ui_reignbeta_shared/reign_modern_portrait_rectangle_overlay.png",
+        "sha256": "b9a2ae2da0fda1d3187ea88584a987ee9deb6993f4ea67c6ce073f9c6205d8f4",
+        "specPath": "ReignBeta/artwork/ui-modern-style-kit/specs/portrait-rectangle.json",
+        "specSha256": "401524852137f23af7370356e6f4b62045474a10fc48bd836a72af790c88fe69",
+        "evidencePath": ".codex-build/ui-modern-assets/20260827/portrait-rectangle-evidence.json",
+        "evidenceSha256": "2c609485daf3633da8cbcd0678898be7f532a59f111c50bdb894a51e1ae948a6"
+      },
+      {
+        "id": "portrait-empty-circle-fill",
+        "path": "ReignBeta/GUI/SpriteParts/ui_reignbeta_shared/reign_modern_portrait_empty_fill.png",
+        "sha256": "18b6390cc93f177d318d46a4e4d6ae1188373fdc5999317846a4fc97cc826431",
+        "specPath": "ReignBeta/artwork/ui-modern-style-kit/specs/portrait-empty-circle-fill.json",
+        "specSha256": "754033df95deed4677fb93df6df4551fc2bb59386e4141c5021375c3ba3c0934",
+        "evidencePath": ".codex-build/ui-modern-assets/20260827/portrait-empty-circle-fill-evidence.json",
+        "evidenceSha256": "80e3036ec7fac891e314ecd51fe5ea1cd0e95f4f1982c9783585a34fd3612e6c"
+      },
+      {
+        "id": "memory-scene-overlay",
+        "path": "ReignBeta/GUI/SpriteParts/ui_reignbeta_shared/reign_modern_memory_scene_overlay.png",
+        "sha256": "e87f8cb99dd4c745347252ca249cd83226ec20ebc68c9deb9e7eba0232c86f92",
+        "specPath": "ReignBeta/artwork/ui-modern-style-kit/specs/memory-scene.json",
+        "specSha256": "a612808c8b812cd60040c6ab1e2bb695846917ee5053dbb1099edd1f9b33fe9c",
+        "evidencePath": ".codex-build/ui-modern-assets/20260827/memory-scene-evidence.json",
+        "evidenceSha256": "f3c1394f0b222231cf357b29a54ac657617d78776d422a14efac52a950315168"
+      },
+      {
+        "id": "banner-shield-overlay",
+        "path": "ReignBeta/GUI/SpriteParts/ui_reignbeta_shared/reign_modern_banner_shield_overlay.png",
+        "sha256": "c4395732660cfa089316817f0c044b587fcc1f27ca256d1e3db456d4f2ab4acd",
+        "specPath": "ReignBeta/artwork/ui-modern-style-kit/specs/banner-shield-frame.json",
+        "specSha256": "b8370430f6e65a6e3f3d99b95e3abe85879b1c7a87e8c394b4e523e053653bbe",
+        "evidencePath": ".codex-build/ui-modern-assets/20260827/banner-shield-frame-evidence.json",
+        "evidenceSha256": "61df39987ca8ba578657437e1c4b09d1dd37416bded5fdeb2d91f7a2cf074cf0"
+      },
+      {
+        "id": "modern-crowned-r-crest",
+        "path": "ReignBeta/GUI/SpriteParts/ui_reignbeta_shared/reign_modern_crowned_r_crest.png",
+        "sha256": "538ee08384e5d1b6e81e16f1b79b5185eaf6f6977c3b210a96dcf5625f801bf0",
+        "specPath": "ReignBeta/artwork/ui-modern-style-kit/specs/modern-crowned-r-crest.json",
+        "specSha256": "a796f17606ff6b89749f07d39679683e7e4bf253dc6435bb0ad0c6c65b402356",
+        "evidencePath": ".codex-build/ui-modern-assets/20260827/modern-crowned-r-crest-evidence.json",
+        "evidenceSha256": "6c448204acb823f7b9727c65b5738c49bb5a98f2dead55ee1fc12180bb4cdc99"
+      },
+      {
+        "id": "tavern-frame-modern",
+        "path": "ReignBeta/TavernArt/tavern_frame_modern.png",
+        "sha256": "1cdbe17c3426abb55c990cff7851befbb36100334ceb69147ef1e2e63be94950",
+        "delivery": "Loose runtime RGBA overlay loaded outside the shared atlas.",
+        "provenanceRecord": "#/runtimeDerivations/0",
+        "rgbPlaneSha256": "bff50cf578cd95e111ad0ec979e25f70597ffdaa77abbf290233ef1a4489698b",
+        "alphaPlaneSha256": "66f7c360417ecf3d83712532e90ade767fe0beebb3ddbf9ff049445472143cc5",
+        "nativeAcceptance": "pending"
+      }
+    ],
+    "atlasMaterialization": {
+      "status": "historical snapshot; superseded by current focused correction and runtime manifest",
+      "generatedUtc": "2026-08-28T18:13:56.4531554Z",
+      "manifestPath": "ReignBeta/GUI/RuntimeSpriteSheets/manifest.json",
+      "manifestSha256": "8e3a68cd5a48a210e5e68426147c21265162240e8d0664fbe5587eac90fa07df",
+      "spriteDataPath": "ReignBeta/GUI/ReignBetaSpriteData.xml",
+      "spriteDataSha256": "c9e32739cec9a482e975b650bdf53b60ccade63f61714dea297ded2679e51cbf",
+      "configPath": "ReignBeta/GUI/SpriteParts/Config.xml",
+      "configSha256": "681ae9d948a9282378e01d31b8897e3bb521e7838da8d84caf5638af329a4362",
+      "atlasSheetSetSha256": "5f38556f03994c848b6f5ca7b680787071a2a077defe3b7474b4e6bc8f728bf9",
+      "coverage": {
+        "categories": 21,
+        "sheets": 46,
+        "pixelExactPackedParts": 169,
+        "sourceRegionMismatchCount": 0,
+        "ghostPixelSheetCount": 0,
+        "hashAuthority": "The frozen manifest records every sheet path/hash and every packed part source path/hash plus placement and dimensions."
+      },
+      "focusedPlacements": [
+        {
+          "id": "ambassador-fixed-overlay",
+          "sheetPath": "ReignBeta/GUI/RuntimeSpriteSheets/ui_reignbeta_ambassador/ui_reignbeta_ambassador_4.png",
+          "sheetSha256": "d01ca66acde32cf5c0eacb3f1c1599fced3e83ece33e50c1fff278a6d81f2779",
+          "sheetId": 4,
+          "x": 4,
+          "y": 4,
+          "width": 1672,
+          "height": 941,
+          "sourcePath": "ReignBeta/GUI/SpriteParts/ui_reignbeta_ambassador/reign_ambassador_modern_fixed_overlay.png",
+          "sourceSha256": "9e44d880006f23d6ab2fc7310afe49a50b3a27ecdf9f1a8fe5912c7e07273dbb"
+        },
+        {
+          "id": "family-chambers-person-card",
+          "sheetPath": "ReignBeta/GUI/RuntimeSpriteSheets/ui_reignbeta_family_chambers/ui_reignbeta_family_chambers_1.png",
+          "sheetSha256": "600f0f098691f4c18bcfbc6fc00a2fe8f345c6fe37dde1557a553cf044af49d2",
+          "sheetId": 1,
+          "x": 1680,
+          "y": 4,
+          "width": 322,
+          "height": 116,
+          "sourcePath": "ReignBeta/GUI/SpriteParts/ui_reignbeta_family_chambers/reign_family_chambers_person_card.png",
+          "sourceSha256": "03529020763d7ae3e86e1fb889921c22cae532877bf9625085d3fa2191f811fe"
+        }
+      ],
+      "correctiveCourtSheets": [
+        {
+          "path": "ReignBeta/GUI/RuntimeSpriteSheets/ui_reignbeta_court/ui_reignbeta_court_1.png",
+          "sha256": "316e6cb94c85709df7a7bdcd7a3b824e2f2476981f8ce65d94224569e3538851"
+        },
+        {
+          "path": "ReignBeta/GUI/RuntimeSpriteSheets/ui_reignbeta_court/ui_reignbeta_court_2.png",
+          "sha256": "efe65f2758f192705f0c469c990ed71285ee6af96207a87a2b854eca281579a1"
+        },
+        {
+          "path": "ReignBeta/GUI/RuntimeSpriteSheets/ui_reignbeta_court/ui_reignbeta_court_3.png",
+          "sha256": "4ccb0ee5fbfd68ae08d9b0c50ad0fdff94add2828f75f844c22b23d4b531b004"
+        },
+        {
+          "path": "ReignBeta/GUI/RuntimeSpriteSheets/ui_reignbeta_court/ui_reignbeta_court_4.png",
+          "sha256": "ba443d6c7872731876c77c45fca292ce3239741d405cd997582a5923994f2295"
+        }
+      ]
+    },
+    "typography": {
+      "status": "historical pre-hybrid checkpoint; superseded by finalHybridIntegration",
+      "contractPath": "ReignBeta/tools/GauntletXmlPreviewer/calibration/full-catalog-typography-parity-contract.json",
+      "contractSha256": "9df57f2032a6eb56e3a596e6f0af0e7a3771c8d710ddbf5c287609fb1db67df1",
+      "auditPath": ".codex-build/ui-modern-integration/20260828/final-contracts/typography-parity-audit-fixed-labels.json",
+      "auditSha256": "399db420c6d0e3485fa1172e35844c25446f706bb6766246cc9933b4f580daac",
+      "auditSourceFingerprintSha256": "7b425ba35cbc50a2ff966a9e24ddf39228c19685ca0d0982bf6db9e1c68700e5",
+      "auditResult": {
+        "ok": true,
+        "catalogSurfaces": "19/19",
+        "prefabs": "18/18",
+        "widgets": "471/471",
+        "fixedLiteralLabels": "210/210",
+        "dynamicBoundValues": "261/261",
+        "divergences": 0,
+        "errors": 0,
+        "warnings": 0
+      },
+      "selfTestPath": ".codex-build/ui-modern-integration/20260828/final-contracts/typography-parity-self-test-fixed-labels.json",
+      "selfTestSha256": "182584944fc064c8b07936b2e96ff17ab068508ef07e9bb9a5af4fc2bea3a581",
+      "selfTestResult": {
+        "cases": 21,
+        "passed": 21,
+        "failed": 0
+      },
+      "warCouncilPrefabPath": "ReignBeta/GUI/Prefabs/ReignWarCouncilScreen.xml",
+      "warCouncilPrefabSha256": "ec6fc8546379ef51ae8bf1745f7f13d842cd5ebff98149d7f5e6e495e9f79afe",
+      "warCouncilTypographyRoles": {
+        "preAlphaBrushes": 0,
+        "galahadBrushes": 34,
+        "leftAlignedWidgets": 7,
+        "centerAlignedWidgets": 36,
+        "rightAlignedWidgets": 2,
+        "leftAlignedRoles": "strength name, map legend, settlement type/name, candidate dropdown name/detail, and messenger input"
+      },
+      "notableGenerationPrefabPath": "ReignBeta/GUI/Prefabs/ReignNotableGenerationPopup.xml",
+      "notableGenerationPrefabSha256": "add183c2048c52147187c3a9551bc7141d2d4b9b80dc20f1f152c89555700650",
+      "notableGenerationScalingNote": "DoNotUseCustomScaleAndChildren was removed after the full rendered-scale audit showed it prevented reference-sized rendering.",
+      "semanticPreviewAuditPath": ".codex-build/ui-modern-integration/20260828/final-contracts/preview-contract-audit.json",
+      "semanticPreviewAuditSha256": "fc6b9920d74ef726e7b71ad05eee481931495728cd82b7f04044fab30c533130",
+      "semanticPreviewResult": {
+        "checkedBindings": 613,
+        "checkedRuntimeBindings": 599,
+        "checkedRuntimeCommands": 182,
+        "errors": 0,
+        "warnings": 0
+      },
+      "auditToolPath": "ReignBeta/tools/GauntletXmlPreviewer/audit-typography-parity.mjs",
+      "auditToolSha256": "643c9937af4fde0c3cf4f7f6232e25f33e4d14e0f0cdc86de7e8309139cb9bb3",
+      "selfTestToolPath": "ReignBeta/tools/GauntletXmlPreviewer/test-audit-typography-parity.mjs",
+      "selfTestToolSha256": "f9518314b0a8d457d7744a8f410f0a06a60e70528190491ccb53cb2300688d43",
+      "renderedPreviewAuditToolPath": "ReignBeta/tools/GauntletXmlPreviewer/audit-rendered-preview.mjs",
+      "renderedPreviewAuditToolSha256": "2ba2e28fcad90170c91a0fe485b85d07f999ecd186a9fb22771b381b85e0c032",
+      "previewApplicationPath": "ReignBeta/tools/GauntletXmlPreviewer/js/app.js",
+      "previewApplicationSha256": "40ac427366484f223ecc4d540718d109d3ed3a455e9129a7b581954407fba60b",
+      "previewCatalogPath": "ReignBeta/tools/GauntletXmlPreviewer/calibration/ui-catalog.json",
+      "previewCatalogSha256": "f4c280019bbb52cf51bd425f17ae0e8e8253a16b811db3e50644902db052c581",
+      "testingCatalogPath": "reign.testing.json",
+      "testingCatalogSha256": "fd24be823d5cb754cad328af08f88a2e8f37f1642c4ae069c0bbd33b41683468",
+      "testingCatalogVersion": "2026.08.28.3",
+      "providerFreeRenderCases": 68,
+      "testingGuidePath": "docs/agent/TESTING_TOOL_GUIDE.md",
+      "testingGuideSha256": "617878ddc930933849919812cd5fa4950b8a3cb617e9af160a9de6ac17ac175f",
+      "provedByAudit": "All 210 literal fixed labels, including exact wording and capitalization, plus the declared Gauntlet brush identity, closest resolvable face and weight attributes, font-size hierarchy, tracking controls, exact frozen semantic colors, opacity, alignment, wrapping geometry, and typographic position offsets match the frozen contract across 471 widgets and every catalog surface. Only the 261 runtime-bound Text values whose trimmed XML begins with @ are content-exempt.",
+      "nativeGlyphProof": {
+        "status": "pending",
+        "reason": "XML exactness cannot prove the font resource and glyph metrics Gauntlet resolves at runtime, or its baseline, hinting, rasterization, rendered weight, and final composited color.",
+        "warCouncilAlignmentNote": "Role-by-role review freezes 7 Left, 36 Center, and 2 Right declarations against the approved War Council reference. Native captures must still prove the effective Gauntlet alignment, baselines, and wrapping.",
+        "requiredEvidence": [
+          "native Bannerlord captures at 1920x1080 and 3440x1440",
+          "approved-reference text-region comparison wherever dynamic-text masks permit it",
+          "human acceptance of rendered face, weight, baseline, tracking, capitalization, hierarchy, alignment, wrapping, and semantic colors"
+        ]
+      },
+      "nativeReviewAttestation": {
+        "schema": "reign-ui-native-visual-review-attestation-v1",
+        "version": 1,
+        "confirmation": "I confirm this native capture matches the approved Reign reference for all fixed visuals and typography",
+        "requiredCriteria": [
+          "approvedFixedVisualsExact",
+          "differencesConfinedToDeclaredDynamicRegions",
+          "serifFaceAndWeightMatch",
+          "typographicHierarchyMatches",
+          "capitalizationAndTrackingMatch",
+          "semanticTextColorsMatch",
+          "alignmentBaselineAndWrappingMatch",
+          "nativeGlyphRenderingAccepted",
+          "noUnexpectedColorsOrShapes"
+        ],
+        "acceptanceRule": "Every criterion must be present, known, and true. A missing, false, unknown, legacy, or unreviewed attestation remains pending and cannot pass native parity."
+      }
+    },
+    "browserHarnessEvidence": {
+      "status": "historical provider-free checkpoint; superseded by finalHybridIntegration",
+      "renderMatrix": {
+        "path": ".codex-build/ui-modern-integration/20260828/render-matrix-final-dom-scale-dynamic/rendered-preview-audit.json",
+        "sha256": "54449fdc6190abc1f57d6c4e9a11d448d88526f1da6538438b232289bf620483",
+        "result": "68/68 cases passed across 1920x1080 and 3440x1440; 34/34 provider-preview surfaces passed; 0/19 standalone interfaces installed; 19/19 standalone native evidence remains pending"
+      },
+      "approvedReferenceFidelity": {
+        "contractPath": "ReignBeta/tools/GauntletXmlPreviewer/calibration/full-catalog-approved-reference-fidelity-contract.json",
+        "contractSha256": "64998bed449094c0c6303d8749b19cacb905900c9ef58d73739d3f15b85b380d",
+        "auditToolPath": "ReignBeta/tools/GauntletXmlPreviewer/audit-approved-reference-fidelity.mjs",
+        "auditToolSha256": "f4327906fd03eabc7539e9d22161cb6a4c97ee9a5adec911c302b8bc64b19aad",
+        "at1920": {
+          "path": ".codex-build/ui-modern-integration/20260828/approved-reference-fidelity-final-1920/approved-reference-fidelity-audit.json",
+          "sha256": "0cd1dc1cf55a68b9a2b2e098b768ec85c53212ecf8eebc89171349950a18d1ed",
+          "sourceFingerprintSha256": "545c736ca8e994972c422ca137969317d2a069e380babfc71abfa6e5c1446bc0",
+          "result": "19/19 passed; 0 failed; 0 blocked"
+        },
+        "at3440": {
+          "path": ".codex-build/ui-modern-integration/20260828/approved-reference-fidelity-final-3440-dom-scale/approved-reference-fidelity-audit.json",
+          "sha256": "595ff2020edc18781b1729b279d21a19da24e8981c00f943e228e58aefd6ccff",
+          "sourceFingerprintSha256": "28172ef015a089580c3a40a64bff40e4c567ea7ba521ddaee67d72261f7d02ff",
+          "result": "19/19 passed; 0 failed; 0 blocked"
+        },
+        "selfTestPath": ".codex-build/ui-modern-integration/20260828/approved-reference-fidelity-final-self-test/approved-reference-fidelity-self-test.json",
+        "selfTestSha256": "072a14d5acd66ac158c574318d6123708891e1014bd4dfabaeaca5c84e3ee798",
+        "selfTestResult": "12/12 assertions passed"
+      },
+      "renderingAuthorities": {
+        "renderAuditToolPath": "ReignBeta/tools/GauntletXmlPreviewer/audit-rendered-preview.mjs",
+        "renderAuditToolSha256": "2ba2e28fcad90170c91a0fe485b85d07f999ecd186a9fb22771b381b85e0c032",
+        "rendererPath": "ReignBeta/tools/GauntletXmlPreviewer/js/renderer.js",
+        "rendererSha256": "567f76935f3bb74b4ef765bd780fb6a0f690ab470054b4b1ef14cd542d9f82d9",
+        "modernStyleContractPath": "ReignBeta/GUI/UiCalibration/modern-style-contract.json",
+        "modernStyleContractSha256": "67ebcdd12f29921686126611a52e23081baca32ecd563f3ecc3c16601257fee2",
+        "previewCatalogPath": "ReignBeta/tools/GauntletXmlPreviewer/calibration/ui-catalog.json",
+        "previewCatalogSha256": "f4c280019bbb52cf51bd425f17ae0e8e8253a16b811db3e50644902db052c581",
+        "testingCatalogPath": "reign.testing.json",
+        "testingCatalogSha256": "fd24be823d5cb754cad328af08f88a2e8f37f1642c4ae069c0bbd33b41683468",
+        "testingCatalogVersion": "2026.08.28.3"
+      },
+      "scopeNote": "These reports prove deterministic provider-free preview behavior and contract-defined approved-reference fidelity. They do not prove installation, Bannerlord resource resolution, native glyph rasterization, native composition, scene-dependent content, or human visual acceptance."
+    },
+    "finalHybridIntegration": {
+      "schema": "reign-ui-modern-final-hybrid-integration-v1",
+      "snapshotUtc": "2026-08-28T18:38:29.000Z",
+      "status": "historical snapshot; superseded by current focused correction and runtime manifest",
+      "assetManifestPath": "ReignBeta/artwork/ui-modern-style-kit/asset-manifest.json",
+      "assetManifestSha256": "44294e7f4843e80c4e52acdb5a46dac854ba7f44dd0062c9006486189d8b3d6",
+      "hybridTypographyPolicy": "Fixed titles, section labels, ornament-integrated captions, and invariant control ornaments are exact approved artwork pixels or exact-reference registered sprites with duplicate runtime copies structurally absent. Only genuinely dynamic text remains live in ReignSerifDynamic.",
+      "runtimeSpriteRegistry": {
+        "spriteDataSha256": "c9e32739cec9a482e975b650bdf53b60ccade63f61714dea297ded2679e51cbf",
+        "configSha256": "681ae9d948a9282378e01d31b8897e3bb521e7838da8d84caf5638af329a4362",
+        "runtimeManifestSha256": "8e3a68cd5a48a210e5e68426147c21265162240e8d0664fbe5587eac90fa07df",
+        "atlasSheetSetSha256": "5f38556f03994c848b6f5ca7b680787071a2a077defe3b7474b4e6bc8f728bf9",
+        "counts": "21 categories; 46 sheets; 169 parts; 168 sprites; 169/169 pixel-exact source regions; 0 ghost sheets",
+        "prefabResolution": "18 prefabs; 62 unique reign_* references; 0 unresolved",
+        "retiredRuntimeSprites": [
+          "reign_castle_chat_shell",
+          "reign_castle_chat_portrait_overlay",
+          "reign_castle_chat_scene_overlay",
+          "reign_royal_council_background"
+        ]
+      },
+      "font": {
+        "alias": "ReignSerifDynamic",
+        "family": "Cormorant Garamond Medium 4.002",
+        "fntSha256": "c1d65bd2d47f74cac23fb19842d55458d68bba2027929468c9464763f7527443",
+        "sourceAtlasSha256": "2c16ac0300950b365c4bd9241ae752790f8e6f78ee8536a9db6157a8130cd6e7",
+        "runtimeSheetSha256": "0467cf9da57e952965d501a0c297e2d94ba01ccaa0b8dabc1db7700844afa9e1",
+        "sourceTtfSha256": "9abca794203d81b6512a1096b3e171855470c33318133f5ce0e0799ea665bd34",
+        "licenseSha256": "60700d351cac4650c51f3f9db318d2a420f8b45052dba2715eb5fec41f0f6956",
+        "glyphCount": 589,
+        "liveWidgetCount": 365,
+        "fixedLiteralTextCount": 113,
+        "dynamicBoundTextCount": 252,
+        "missingLiteralGlyphCount": 0
+      },
+      "staticEvidence": {
+        "typographyContractPath": "ReignBeta/tools/GauntletXmlPreviewer/calibration/full-catalog-typography-parity-contract.json",
+        "typographyContractSha256": "5af164496c2cebcce1a903a739339be1e4646fee83785c86589700512d40acab",
+        "typographyAuditPath": ".codex-build/ui-modern-integration/20260828/integrated-static-final/post-manifest-final/typography-parity-audit.json",
+        "typographyAuditSha256": "c336e791f0e2eb578b467bb7b8f31623847149b36c978d702ac030c345f9ea7e",
+        "typographyResult": "19/19 surfaces, 18/18 prefabs, 365/365 widgets, 0 divergences/font errors/errors/warnings",
+        "typographySelfTestPath": ".codex-build/ui-modern-integration/20260828/integrated-static-final/post-manifest-final/typography-parity-self-test.json",
+        "typographySelfTestSha256": "cfe7378d720260575026c3cc80a92f0d2b93ba846502df95ce478f40612c2928",
+        "typographySelfTestResult": "38/38 passed",
+        "previewContractPath": ".codex-build/ui-modern-integration/20260828/integrated-static-final/post-manifest-final/preview-contract-audit.json",
+        "previewContractSha256": "ed8b304a807fcf452d4280a71dfcb4bf528250abd783953b82c6dee69d98c9db",
+        "previewContractResult": "18 prefabs; 614 bindings; 600 runtime bindings; 185 commands; 117 tool contracts; 0 errors/warnings"
+      },
+      "providerFreeEvidence": {
+        "renderMatrixPath": ".codex-build/ui-modern-integration/20260828/integrated-static-final/post-manifest-final/provider-free-render-matrix/rendered-preview-audit.json",
+        "renderMatrixSha256": "50fb8f8ba67132a3d8f6e2f9eb4d216f4621b97116c6ae5d368b2bf2391640d9",
+        "renderMatrixResult": "68/68 passed at 1920x1080 and 3440x1440",
+        "fidelity1920Path": ".codex-build/ui-modern-integration/20260828/integrated-static-final/post-manifest-final/approved-reference-fidelity-1920x1080/approved-reference-fidelity-audit.json",
+        "fidelity1920Sha256": "962086d66af957a443adc0b70f3f421e0aa9b8d87254f5d904ad499fe8a843bb",
+        "fidelity1920SourceFingerprintSha256": "8ba8dc92b4b29ed8d139d1881ca62e6af1d1c268ecf47ad8c110893c27ca84d0",
+        "fidelity3440Path": ".codex-build/ui-modern-integration/20260828/integrated-static-final/post-manifest-final/approved-reference-fidelity-3440x1440/approved-reference-fidelity-audit.json",
+        "fidelity3440Sha256": "8f03d567e3b7caf916337b6106b5bf863fe6e4b4be89849f999c482035e7ab89",
+        "fidelity3440SourceFingerprintSha256": "9bf6cacf3da6f181c51bf8fe99e178ef84a2e5d04535206798ad8e5f3b7d060e",
+        "fidelityResult": "19/19 passed at each supported resolution; 0 failed; 0 blocked"
+      },
+      "approvedReferenceOrnament": {
+        "id": "social-event-generate-portrait-icon",
+        "runtimeSha256": "747419c78b0e58a1da6e2cf74422a0d2e17416decf4ab1069fef243fe73819c4",
+        "evidencePath": ".codex-build/ui-modern-integration/20260828/social-generate-portrait-icon/evidence.json",
+        "evidenceSha256": "c4c6edc14adea6ff4e2e447f72551a2f04d14b85f0647cf917614ffcf5749e2c"
+      },
+      "protectedWarCouncilMap": {
+        "path": "ReignBeta/GUI/SpriteParts/ui_reignbeta_war_council/reign_war_council_calradia.png",
+        "sha256": "e9aeb15807953280e596f189b05bc61e9812af434eafcac3c116af873d632887",
+        "tileSetFingerprintSha256": "da720f16e73a093a5d581e9687df5109b46d985d23f79b164486dd556bc7f962",
+        "rule": "Source map and tile colors/bytes remain unchanged."
+      }
+    },
+    "remainingGates": [
+      "Run manifest-selected Release validation with enforce-mode repository hygiene.",
+      "Deploy the exact validated artifacts through the supported visible Reign lifecycle.",
+      "Capture native Bannerlord evidence at 1920x1080@1.00 and 3440x1440@1.00.",
+      "Record nine-criterion human comparison for each retained interface state.",
+      "Return Bannerlord and the Reign server lifetime group to OFF."
+    ]
+  }
+}

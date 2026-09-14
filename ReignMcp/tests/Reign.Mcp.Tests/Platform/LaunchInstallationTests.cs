@@ -1,0 +1,116 @@
+using System.Runtime.InteropServices;
+using System.Runtime.Serialization.Json;
+using Reign.Core.Contracts.Platform;
+
+namespace Reign.Mcp.Tests;
+
+public sealed class LaunchInstallationTests
+{
+    [Fact]
+    public void InstallationRoundTripsWithSpacesAndUnicodeOutsideProgramFolders()
+    {
+        var root = Path.Combine(Path.GetTempPath(), "Reign launch O'Brien 測試", Guid.NewGuid().ToString("N"));
+        Directory.CreateDirectory(root);
+        try
+        {
+            var record = Record(root);
+            var path = Path.Combine(root, "installation.json");
+            using (var file = File.Create(path))
+                new DataContractJsonSerializer(typeof(ReignInstallation)).WriteObject(file, record);
+            var read = ReignInstallation.ReadFrom(path);
+            Assert.Equal(record.ServerRoot, read.ServerRoot);
+            Assert.Equal(Path.Combine(root, "state", "PortraitCache"), read.PortraitCacheRoot);
+            Assert.Equal(Path.Combine(root, "content", "PortraitCache", "_shared"), read.SharedPortraitRoot);
+            Assert.False(read.PortraitCacheRoot.StartsWith(read.ServerRoot, StringComparison.OrdinalIgnoreCase));
+        }
+        finally { Directory.Delete(root, true); }
+    }
+
+    [Theory]
+    [InlineData("schema")]
+    [InlineData("protocol")]
+    [InlineData("relative")]
+    [InlineData("different-game")]
+    [InlineData("state-in-program")]
+    [InlineData("state-in-module")]
+    [InlineData("content-in-program")]
+    [InlineData("port")]
+    public void InstallationRejectsMismatchedOrUnsafeLayout(string change)
+    {
+        var record = Record(Path.Combine(Path.GetTempPath(), "Reign isolated layout"));
+        switch (change)
+        {
+            case "schema": record.Schema = "unexpected"; break;
+            case "protocol": record.ProtocolVersion++; break;
+            case "relative": record.DataRoot = "relative-state"; break;
+            case "different-game": record.ModuleRoot = Path.Combine(record.BannerlordRoot, "Modules", "Wrong"); break;
+            case "state-in-program": record.DataRoot = Path.Combine(record.ServerRoot, "data"); break;
+            case "state-in-module": record.DataRoot = Path.Combine(record.ModuleRoot, "data"); break;
+            case "content-in-program": record.ContentRoot = Path.Combine(record.ServerRoot, "content"); break;
+            case "port": record.PostgresPort = 0; break;
+        }
+        Assert.Throws<InvalidDataException>(record.Validate);
+    }
+
+    [Fact]
+    public void NativeArchiveCommandUsesInstalledToolsAndKeepsPasswordOutOfArguments()
+    {
+        string root = Path.Combine(Path.GetTempPath(), "Reign tools O'Brien 測試");
+        string archive = Path.Combine(root, "campaign backup.dump");
+        var command = PostgreSqlTools.CreateCommand(root, "", ["pg_dump", "--file", archive], "fixture-only", root);
+        Assert.Equal(Path.Combine(root, "pg_dump.exe"), command.FileName);
+        Assert.False(command.UseShellExecute);
+        Assert.True(command.CreateNoWindow);
+        Assert.DoesNotContain("fixture-only", command.Arguments);
+        Assert.Equal("fixture-only", command.EnvironmentVariables["PGPASSWORD"]);
+        Assert.Equal(archive, PostgreSqlTools.ArchivePath(archive, native: true));
+    }
+
+    [Fact]
+    public void LegacyArchiveCommandUsesExplicitExecAndEnvironmentPassword()
+    {
+        var command = PostgreSqlTools.CreateCommand("", "ExplicitLegacyDistro", ["pg_restore", "/mnt/d/a b.dump"], "fixture-only", Path.GetTempPath());
+        Assert.Equal("wsl.exe", command.FileName);
+        Assert.Contains("--exec", command.Arguments);
+        Assert.DoesNotContain("fixture-only", command.Arguments);
+        Assert.Contains("PGPASSWORD/u", command.EnvironmentVariables["WSLENV"]);
+        Assert.Throws<ArgumentException>(() => PostgreSqlTools.CreateCommand("", "", ["pg_dump"], "", Path.GetTempPath()));
+        Assert.Throws<ArgumentException>(() => PostgreSqlTools.CreateCommand(Path.GetTempPath(), "", ["cmd.exe"], "", Path.GetTempPath()));
+    }
+
+    [Theory]
+    [InlineData("")]
+    [InlineData("plain")]
+    [InlineData("with spaces")]
+    [InlineData("O'Brien 測試")]
+    [InlineData("embedded\"quote")]
+    [InlineData("D:\\folder name\\")]
+    [InlineData("slashes\\\\\"then quote\\")]
+    public void WindowsArgumentsRoundTripThroughNativeParser(string value)
+    {
+        if (!OperatingSystem.IsWindows()) return;
+        nint argv = CommandLineToArgvW("program.exe " + PostgreSqlTools.QuoteWindowsArgument(value), out int count);
+        Assert.NotEqual(nint.Zero, argv);
+        try
+        {
+            Assert.Equal(2, count);
+            Assert.Equal(value, Marshal.PtrToStringUni(Marshal.ReadIntPtr(argv, IntPtr.Size)));
+        }
+        finally { LocalFree(argv); }
+    }
+
+    private static ReignInstallation Record(string root) => new()
+    {
+        Schema = ReignInstallation.SchemaName,
+        Version = "0.1.0-preview.1", ProtocolVersion = 1, ContentVersion = "2026.09.14",
+        ServerRoot = Path.Combine(root, "program"), ContentRoot = Path.Combine(root, "content"),
+        DataRoot = Path.Combine(root, "state"), BannerlordRoot = Path.Combine(root, "game"),
+        ModuleRoot = Path.Combine(root, "game", "Modules", "ReignBeta"),
+        PostgresBin = Path.Combine(root, "program", "postgresql", "bin"), PostgresPort = 55432
+    };
+
+    [DllImport("shell32.dll", SetLastError = true, CharSet = CharSet.Unicode)]
+    private static extern nint CommandLineToArgvW(string command, out int count);
+    [DllImport("kernel32.dll")]
+    private static extern nint LocalFree(nint memory);
+}

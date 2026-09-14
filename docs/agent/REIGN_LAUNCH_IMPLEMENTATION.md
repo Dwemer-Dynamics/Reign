@@ -1,0 +1,38 @@
+# Reign launch and repository cutover
+
+The user authorized implementation on 2026-09-14 after the other tasks stopped. Development and testing remain local. After verified cutover, `Dwemer-Dynamics/Reign` (private) and `Dwemer-Dynamics/ReignServer` (public), both on `main`, are the only publishing destinations. The former workspace GitHub repository is retired from ongoing use; its local source snapshot remains recovery evidence. Do not push the unsplit history to either new repository.
+
+`ReignRelease/release.json` records the exact destinations, release identity, platform and package boundaries. Internal ReignBeta module, assembly and save identities remain compatible. Reign contains the Bannerlord module and private integration/developer evidence. ReignServer contains the server, native portrait generator, vector worker, shared contracts and installer sources. Shared helpers have one source owner; linked compilation preserves their existing assembly identities.
+
+The install target is Windows 11 x64 with Steam Bannerlord v1.4.8. The server runs locally, outside the module directory. Windows PostgreSQL and model/runtime dependencies must be supplied by the release package. Read-only content is separate from per-user state. AI credentials belong to the installing user. The private payload host is not selected; the same verified payloads must support offline installation.
+
+## Recovery and baseline
+
+Before launch edits, task `01a09688-4ec3-7f43-92c8-a9cf6a2be80d` preserved the current tracked authored files (including staged and unstaged completed fixes) under `D:/ReignLaunch/recovery/before-implementation-20260914/`. `snapshot.json` records file hashes. Legacy tracked `server/` runtime output is excluded from this source snapshot and all repository imports. Original Git HEAD is `b36da31a3317b3fc74e0440190f6a199091c99a2`; the snapshot also preserves subsequent working-tree changes.
+
+The final dialogue fix was deployed with the relationship fixes: Release changed Tier 3 report `20260914-073242-8401bb5d`, fingerprint `6dfb1221f530097701f61243af36c9a90d4c75d89015802785b2352b393adaa6`. Earlier all/Tier 4 report `20260914-044922-802002c1` passed 155/155 offline checks. These are baseline evidence, not verification of the launch changes. Relationship p95 remains above its strict subsecond target; fresh native/provider acceptance remains separate.
+
+## Required completion evidence
+
+- Reviewed source ownership inventory, exact remote checks, no private client source in public exports, and redacted secret/large-file audits for each repository.
+- Canonical all/Tier 4 validation of the final paired source, including installer/shared-build/ownership changes, with report, fingerprint, duration and hygiene evidence.
+- Hash-locked client, server, native database, vector/model and shared-content payloads; dependency provenance and notices; no campaign, secret, backup or generated verification source in distributed payloads.
+- Portable installation/repair and isolated database backup/restore proof, clean-machine dependency closure, compatible health response and preserved visible server/Control Center lifetime.
+- Local developer workflow, manifests, scripts, recovery guidance and configured publishing targets cut over to the two new repositories. No continuing writes to the former GitHub repository.
+- Explicit remaining native, provider, clean-computer or private-host publication gaps. Do not mark the roadmap complete on source compilation alone.
+
+## Progress
+
+2026-09-14: Reobserved no other active same-project tasks and an available validation lease. Obtained an all/Tier 4 Release implementation plan with complete coverage and no diagnostics. Began preserving source and separating shared compilation and private verification packaging. Repository cutover and release artifacts are not yet complete.
+
+2026-09-14: User requires clean-install evidence before uploading either repository/package; a successful source build is insufficient. User also requested care with C: drive space. New source checkouts are `D:/Projects/Reign` and `D:/Projects/ReignServer`; release staging and test databases belong on D:. The current MCP connection still targets the old workspace, so it must be cut over before final validation and subsequent development. No upload is authorized before the clean-install requirement is met.
+
+2026-09-14: Both source repositories are staged with the exact origins and five verified sibling projections. Full `all` / Tier 4 / Release validation `20260914-183955-c74fda5e` passed in 654.2 seconds, covering all 21 managed projects, 598 MCP tests and 155/155 offline checks. Source fingerprint: `70809bb955a8a16442cfe33b667cc02395699573303d134189fbb6fd13eccf5f`. Report and enforced paired hygiene are under `D:/Projects/Reign/.codex-build/reign-mcp/validation/20260914-183955-c74fda5e/` as `validation-report.json` and `repository-hygiene-report.json` (3,961 tracked files, zero untracked files or hygiene issues).
+
+The native Windows database, per-user installation records, bundled vector/model runtime, protocol checks, dependency notices and safe installer/repair/removal functions are implemented. The first actual PowerShell 5.1 installer attempt exposed an empty-download preflight error; its fix and two regression cases are included in the passing report. Routine campaign metadata now avoids costly native Windows relation-size scans while storage reports retain actual byte counts. The native database archive round trip and fresh campaign migration are covered by offline validation; the separately bundled vector proof performs network-denied inference and persistent reopen with no Python on PATH.
+
+Canonical package assembly `20260914-185211-2e178ae8` passed in 303.3 seconds using those exact validated artifacts. Its `package-report.json`, `assembly-proof.json`, Inno compiler log and `package/` are under `D:/Projects/Reign/.codex-build/reign-mcp/release-package/20260914-185211-2e178ae8/`. The package contains the compiled setup plus client, server, runtime, dependencies and portraits ZIPs. The portrait payload carries 1,228 complete shared sets and exact file timestamps. All external inputs and packaged files have recorded hashes. Initial installation into a fresh local filesystem fixture is in progress; this fixture is not a full game copy or another computer.
+
+The local cutover is applied and recorded in `D:/ReignLaunch/local-cutover-proof.json`: the old C: origin is removed, recovery history remains, global/current-task roadmap pointers target D:, and machine-local MCP configuration targets validated D: assemblies. Full MCP transport proof passed against D: using the isolated native developer database on port 55433. The already-running connector still requires reload; canonical D: fallback validation supplied the evidence above. Historical source-control plans are marked superseded. No uploads have occurred. Clean-computer and native Bannerlord acceptance, final local installation proof and private payload hosting remain open.
+
+The actual PowerShell 5.1 installation reached its committed installation record after native database provisioning and copying all payloads, then failed when replacing the completion journal. Its untyped null backup argument became an empty path in `File.Replace`. Evidence is `D:/ReignLaunch/acceptance/install-2.log`; the completed record, receipt and staging evidence were preserved. The replacement now supplies a typed null, cleans its own temporary file on failure, and has successful replacement/locked destination/preservation contracts. A new full validation and rebuilt installer are required before accepting installation or repair.

@@ -1,0 +1,5 @@
+﻿Several people are talking among themselves. Reply briefly, no more than 400 characters.
+You are not required to speak every turn. If this speaker has nothing meaningful to add, set response to `*silence*`.
+If referring to another active NPC, use their display name in ordinary prose. Do not output technical ids or address commands.
+Do not resolve the whole group scene alone; leave space for other active characters and the player.
+

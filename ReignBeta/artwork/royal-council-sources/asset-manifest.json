@@ -1,0 +1,29 @@
+{
+  "schema": "reign-imagegen-asset-provenance-v1",
+  "createdUtc": "2026-08-25T22:45:00Z",
+  "generator": "OpenAI built-in imagegen",
+  "assets": [
+    {
+      "id": "royal-council-shell-v1",
+      "mode": "generate from visual references",
+      "promptSummary": "Front-facing black-marble and antique-gold Royal Council shell with four empty portrait niches, central parchment transcript, lower input bay, title plaque, and close mount; no people or baked text.",
+      "references": [
+        { "path": "GUI/SpriteParts/ui_reignbeta_spymaster/reign_spymaster_background.png", "sha256": "5A774E9AF2F24911D88325FE7D21E86A8BAB6109DFBD41FADF4678AC62C8ECD7" },
+        { "path": "GUI/SpriteParts/ui_reignbeta_ambassador/reign_ambassador_hall.png", "sha256": "9BC609E41321DF8E7DACF9ED5F0A8AB69F4EAD5E2B28A52A6E3D9E5CA910A40A" }
+      ],
+      "source": { "path": "artwork/royal-council-sources/royal-council-shell-v1-imagegen.png", "width": 1672, "height": 941, "sha256": "4520258E3D3F29F9661AF1694870602C18688ABD95855E94A35CA5C5405EF079" },
+      "runtimePart": { "path": "GUI/SpriteParts/ui_reignbeta_royal_council/reign_royal_council_background.png", "width": 1672, "height": 941, "sha256": "4520258E3D3F29F9661AF1694870602C18688ABD95855E94A35CA5C5405EF079" },
+      "runtimeAtlas": { "path": "GUI/RuntimeSpriteSheets/ui_reignbeta_royal_council/ui_reignbeta_royal_council_1.png", "sha256": "C0D52192FC6012005E95A48DBAE1EDD4846F7B5B7C19EFD4A911FCA72CAF703D" }
+    },
+    {
+      "id": "economic-advisor-niche-v1",
+      "status": "rejected-not-runtime",
+      "mode": "image-to-image edit",
+      "promptSummary": "Preserve the Economic Report except for replacing the two leftmost settlement scrolls with one empty Spymaster-style portrait niche and label plaque; no person or baked text.",
+      "generatedSource": { "path": "artwork/economic-advisor-sources/economic-report-advisor-niche-v1-imagegen.png", "width": 1672, "height": 941, "sha256": "30AD1EE10D37CDD09D30DF4B64FD7E744A5D7486B44B02A4443600D3907461C5" },
+      "rejectionReason": "The player rejected this edit and requested an exact restoration of the prior Economic Report.",
+      "restoredRuntimePart": { "path": "GUI/SpriteParts/ui_reignbeta_economic_report/reign_economic_report_background.png", "width": 1678, "height": 937, "sha256": "E240A16B121EDE469B37BDA2A09514906E1C720983026A92E07278B91BF77C40" },
+      "restoredRuntimeAtlas": { "path": "GUI/RuntimeSpriteSheets/ui_reignbeta_economic_report/ui_reignbeta_economic_report_1.png", "sha256": "0395C2D20AEE5C970CA26EC705F2F96BB6D76CA8F7354D8B4A9FA87C06C5006B" }
+    }
+  ]
+}

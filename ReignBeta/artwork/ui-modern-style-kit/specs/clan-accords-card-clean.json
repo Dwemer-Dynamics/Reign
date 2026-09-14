@@ -1,0 +1,68 @@
+{
+  "schema": "reign-fixed-region-composite-v1",
+  "assetId": "clan-accords-card-clean",
+  "approvedReference": {
+    "path": "../approved-references/clan-accords.png"
+  },
+  "imageToImageFill": {
+    "path": "../generated-sources/clan-accords/clean-shell-imagegen.png"
+  },
+  "canvas": {
+    "width": 1672,
+    "height": 941
+  },
+  "rectangularFillMode": {
+    "inwardFeatherPixels": 0,
+    "borderSamplePixels": 3
+  },
+  "sceneDependentMasks": [
+    {
+      "shape": "rectangle",
+      "height": 77,
+      "x": 516,
+      "y": 377,
+      "id": "partner",
+      "width": 240
+    },
+    {
+      "shape": "rectangle",
+      "height": 86,
+      "x": 781,
+      "y": 372,
+      "id": "terms",
+      "width": 636
+    },
+    {
+      "shape": "rectangle",
+      "height": 25,
+      "x": 1445,
+      "y": 389,
+      "id": "cancel-label",
+      "width": 112
+    },
+    {
+      "shape": "rectangle",
+      "height": 27,
+      "x": 1442,
+      "y": 428,
+      "id": "penalty",
+      "width": 132
+    },
+    {
+      "y": 367,
+      "shape": "rectangle",
+      "x": 102,
+      "height": 29,
+      "id": "filter-labels",
+      "width": 239
+    },
+    {
+      "height": 33,
+      "id": "idle-filter-labels",
+      "y": 414,
+      "shape": "rectangle",
+      "x": 102,
+      "width": 239
+    }
+  ]
+}

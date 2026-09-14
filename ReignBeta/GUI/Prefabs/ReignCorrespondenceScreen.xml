@@ -1,0 +1,373 @@
+<Prefab>
+  <Window>
+    <Widget WidthSizePolicy="StretchToParent" HeightSizePolicy="StretchToParent">
+      <Children>
+        <Widget WidthSizePolicy="StretchToParent" HeightSizePolicy="StretchToParent"
+                Sprite="BlankWhiteSquare" Color="#030303FF"
+                DoNotAcceptEvents="true" />
+
+        <Widget Id="CorrespondenceCanvas"
+                WidthSizePolicy="Fixed" HeightSizePolicy="Fixed"
+                SuggestedWidth="1672" SuggestedHeight="941"
+                HorizontalAlignment="Center" VerticalAlignment="Center"
+                DoNotUseCustomScaleAndChildren="true">
+          <Children>
+            <!-- Static 1672x941 modern shell. All runtime content is layered above it. -->
+            <Widget Id="CorrespondenceBackground"
+                    WidthSizePolicy="StretchToParent" HeightSizePolicy="StretchToParent"
+                    Sprite="reign_correspondence_modern_shell"
+                    DoNotAcceptEvents="true" />
+
+            <ButtonWidget Id="TopCancelButton"
+                    WidthSizePolicy="Fixed" HeightSizePolicy="Fixed"
+                    SuggestedWidth="203" SuggestedHeight="54"
+                    MarginLeft="1413" MarginTop="55"
+                    Command.Click="ExecuteCancel"
+                    DoNotPassEventsToChildren="true" />
+
+            <!-- Seven approved slots fit when the selected row is first; additional contacts remain scrollable. -->
+            <ScrollablePanel Id="ContactsViewport"
+                    WidthSizePolicy="Fixed" HeightSizePolicy="Fixed"
+                    SuggestedWidth="389" SuggestedHeight="619"
+                    MarginLeft="77" MarginTop="190"
+                    ClipRect="ContactClip"
+                    InnerPanel="ContactClip\ContactList"
+                    VerticalScrollbar="..\ContactScrollbar"
+                    AutoHideScrollBars="true"
+                    OnlyAcceptScrollEventIfCanScroll="true"
+                    MouseScrollAxis="Vertical">
+              <Children>
+                <Widget Id="ContactClip"
+                        WidthSizePolicy="StretchToParent" HeightSizePolicy="StretchToParent"
+                        ClipContents="true">
+                  <Children>
+                    <ListPanel Id="ContactList"
+                            DataSource="{Contacts}"
+                            WidthSizePolicy="StretchToParent" HeightSizePolicy="CoverChildren"
+                            StackLayout.LayoutMethod="VerticalTopToBottom">
+                      <ItemTemplate>
+                        <ButtonWidget WidthSizePolicy="StretchToParent" HeightSizePolicy="CoverChildren"
+                                Command.Click="ExecuteSelect"
+                                UpdateChildrenStates="true"
+                                DoNotPassEventsToChildren="true">
+                          <Children>
+                            <Widget WidthSizePolicy="StretchToParent" HeightSizePolicy="Fixed"
+                                    SuggestedHeight="84"
+                                    VerticalAlignment="Center"
+                                    DoNotAcceptEvents="true">
+                              <Children>
+                                <!-- Portrait content stays live and ungraded beneath the shared circular overlay. -->
+                                <Widget WidthSizePolicy="Fixed" HeightSizePolicy="Fixed"
+                                        SuggestedWidth="79" SuggestedHeight="79"
+                                        MarginLeft="21" MarginTop="5"
+                                        ClipContents="true"
+                                        DoNotAcceptEvents="true">
+                                  <Children>
+                                    <Widget WidthSizePolicy="Fixed" HeightSizePolicy="Fixed"
+                                            SuggestedWidth="71" SuggestedHeight="71"
+                                            MarginLeft="4" MarginTop="4"
+                                            ClipContents="true"
+                                            DoNotAcceptEvents="true">
+                                      <Children>
+                                        <ImageIdentifierWidget
+                                                WidthSizePolicy="Fixed" HeightSizePolicy="Fixed"
+                                                SuggestedWidth="75" SuggestedHeight="75"
+                                                HorizontalAlignment="Center" VerticalAlignment="Center"
+                                                ImageId="@PortraitId"
+                                                AdditionalArgs="@PortraitAdditionalArgs"
+                                                TextureProviderName="@PortraitTextureProviderName"
+                                                DoNotAcceptEvents="true" />
+                                        <ReignPortraitWidget Type="ReignBeta.UI.Widgets.ReignPortraitWidget"
+                                                WidthSizePolicy="Fixed" HeightSizePolicy="Fixed"
+                                                SuggestedWidth="75" SuggestedHeight="75"
+                                                HorizontalAlignment="Center" VerticalAlignment="Center"
+                                                PortraitCacheKey="@PortraitCacheKey"
+                                                DoNotAcceptEvents="true" />
+                                      </Children>
+                                    </Widget>
+                                    <Widget WidthSizePolicy="StretchToParent" HeightSizePolicy="StretchToParent"
+                                            Sprite="reign_correspondence_contact_portrait_mask"
+                                            DoNotAcceptEvents="true" />
+                                  </Children>
+                                </Widget>
+
+                                <TextWidget WidthSizePolicy="Fixed" HeightSizePolicy="Fixed"
+                                        SuggestedWidth="250" SuggestedHeight="36"
+                                        MarginLeft="127" MarginTop="1"
+                                        Brush="DefaultText" Brush.Font="ReignSerifDynamic"
+                                        Brush.FontSize="17"
+                                        Brush.TextHorizontalAlignment="Left"
+                                        Brush.TextVerticalAlignment="Center"
+                                        Brush.FontColor="#A88A54FF"
+                                        Text="@Name"
+                                        DoNotAcceptEvents="true" />
+                                <TextWidget WidthSizePolicy="Fixed" HeightSizePolicy="Fixed"
+                                        SuggestedWidth="250" SuggestedHeight="32"
+                                        MarginLeft="127" MarginTop="34"
+                                        Brush="DefaultText" Brush.Font="ReignSerifDynamic"
+                                        Brush.FontSize="15"
+                                        Brush.TextHorizontalAlignment="Left"
+                                        Brush.TextVerticalAlignment="Center"
+                                        Brush.FontColor="#C5BDAFFF"
+                                        Text="@Subtitle"
+                                        DoNotAcceptEvents="true" />
+                                <TextWidget WidthSizePolicy="Fixed" HeightSizePolicy="Fixed"
+                                        SuggestedWidth="180" SuggestedHeight="21"
+                                        MarginLeft="127" MarginTop="62"
+                                        Brush="DefaultText" Brush.Font="ReignSerifDynamic"
+                                        Brush.FontSize="13"
+                                        Brush.TextHorizontalAlignment="Left"
+                                        Brush.TextVerticalAlignment="Center"
+                                        Brush.FontColor="#A88A54FF"
+                                        Text="@Status"
+                                        DoNotAcceptEvents="true" />
+                                <TextWidget WidthSizePolicy="Fixed" HeightSizePolicy="Fixed"
+                                        SuggestedWidth="63" SuggestedHeight="21"
+                                        HorizontalAlignment="Right"
+                                        MarginRight="14" MarginTop="62"
+                                        Brush="DefaultText" Brush.Font="ReignSerifDynamic"
+                                        Brush.FontSize="12"
+                                        Brush.TextHorizontalAlignment="Right"
+                                        Brush.TextVerticalAlignment="Center"
+                                        Brush.FontColor="#C5AC83FF"
+                                        Text="@UnreadText"
+                                        IsVisible="@HasUnread"
+                                        DoNotAcceptEvents="true" />
+                              </Children>
+                            </Widget>
+
+                            <!-- The selected card has a larger approved aperture. Keep the same untouched
+                                 rectangular source centered beneath that hole, then draw the card overlay last. -->
+                            <Widget WidthSizePolicy="Fixed" HeightSizePolicy="Fixed"
+                                    SuggestedWidth="94" SuggestedHeight="96"
+                                    MarginLeft="18" MarginTop="9"
+                                    ClipContents="true"
+                                    IsVisible="@IsSelected"
+                                    DoNotAcceptEvents="true">
+                              <Children>
+                                <ImageIdentifierWidget
+                                        WidthSizePolicy="Fixed" HeightSizePolicy="Fixed"
+                                        SuggestedWidth="94" SuggestedHeight="96"
+                                        HorizontalAlignment="Center" VerticalAlignment="Center"
+                                        ImageId="@PortraitId"
+                                        AdditionalArgs="@PortraitAdditionalArgs"
+                                        TextureProviderName="@PortraitTextureProviderName"
+                                        DoNotAcceptEvents="true" />
+                                <ReignPortraitWidget Type="ReignBeta.UI.Widgets.ReignPortraitWidget"
+                                        WidthSizePolicy="Fixed" HeightSizePolicy="Fixed"
+                                        SuggestedWidth="94" SuggestedHeight="96"
+                                        HorizontalAlignment="Center" VerticalAlignment="Center"
+                                        PortraitCacheKey="@PortraitCacheKey"
+                                        DoNotAcceptEvents="true" />
+                              </Children>
+                            </Widget>
+
+                            <!-- This topmost context overlay both expands the selected row to 114px and
+                                 conceals every source corner outside its approved circular aperture. -->
+                            <Widget WidthSizePolicy="StretchToParent" HeightSizePolicy="Fixed"
+                                    SuggestedHeight="114"
+                                    Sprite="reign_correspondence_modern_selected_contact_overlay"
+                                    IsVisible="@IsSelected"
+                                    DoNotAcceptEvents="true" />
+                          </Children>
+                        </ButtonWidget>
+                      </ItemTemplate>
+                    </ListPanel>
+                  </Children>
+                </Widget>
+              </Children>
+            </ScrollablePanel>
+
+            <ScrollbarWidget Id="ContactScrollbar"
+                    WidthSizePolicy="Fixed" HeightSizePolicy="Fixed"
+                    SuggestedWidth="8" SuggestedHeight="626"
+                    MarginLeft="477" MarginTop="188"
+                    AlignmentAxis="Vertical"
+                    Handle="ContactScrollbarHandle"
+                    MaxValue="100" MinValue="0">
+              <Children>
+                <Widget Id="ContactScrollbarHandle" WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="6" SuggestedHeight="42" HorizontalAlignment="Center" Sprite="BlankWhiteSquare_9" Color="#A88A54FF" />
+              </Children>
+            </ScrollbarWidget>
+
+            <TextWidget Id="SelectedContactName"
+                    WidthSizePolicy="Fixed" HeightSizePolicy="Fixed"
+                    SuggestedWidth="750" SuggestedHeight="44"
+                    MarginLeft="700" MarginTop="151"
+                    Brush="DefaultText" Brush.Font="ReignSerifDynamic"
+                    Brush.FontSize="28"
+                    Brush.TextHorizontalAlignment="Center"
+                    Brush.TextVerticalAlignment="Center"
+                    Brush.FontColor="#A88A54FF"
+                    Text="@SelectedName"
+                    DoNotAcceptEvents="true" />
+            <TextWidget Id="SelectedContactSubtitle"
+                    WidthSizePolicy="Fixed" HeightSizePolicy="Fixed"
+                    SuggestedWidth="750" SuggestedHeight="36"
+                    MarginLeft="700" MarginTop="190"
+                    Brush="DefaultText" Brush.Font="ReignSerifDynamic"
+                    Brush.FontSize="17"
+                    Brush.TextHorizontalAlignment="Center"
+                    Brush.TextVerticalAlignment="Center"
+                    Brush.FontColor="#C5BDAFFF"
+                    Text="@SelectedSubtitle"
+                    DoNotAcceptEvents="true" />
+
+            <ReignAutoScrollPanel Id="LettersViewport"
+                    Type="ReignBeta.UI.Widgets.ReignAutoScrollPanel"
+                    WidthSizePolicy="Fixed" HeightSizePolicy="Fixed"
+                    SuggestedWidth="988" SuggestedHeight="375"
+                    MarginLeft="573" MarginTop="235"
+                    AutoHideScrollBars="true"
+                    OnlyAcceptScrollEventIfCanScroll="true"
+                    MouseScrollAxis="Vertical"
+                    InnerPanel="LetterClip\LetterList"
+                    ClipRect="LetterClip"
+                    VerticalScrollbar="..\LetterScrollbar"
+                    ChatScrollVersion="@ChatScrollVersion">
+              <Children>
+                <Widget Id="LetterClip"
+                        WidthSizePolicy="StretchToParent" HeightSizePolicy="StretchToParent"
+                        ClipContents="true">
+                  <Children>
+                    <ListPanel Id="LetterList"
+                            DataSource="{ChatLines}"
+                            WidthSizePolicy="StretchToParent" HeightSizePolicy="CoverChildren"
+                            StackLayout.LayoutMethod="VerticalTopToBottom">
+                      <ItemTemplate>
+                        <Widget WidthSizePolicy="StretchToParent" HeightSizePolicy="CoverChildren"
+                                MarginBottom="16">
+                          <Children>
+                            <Widget WidthSizePolicy="Fixed" HeightSizePolicy="CoverChildren"
+                                    SuggestedWidth="845"
+                                    HorizontalAlignment="Left"
+                                    IsVisible="@IsPlayerLine"
+                                    Sprite="BlankWhiteSquare_9"
+                                    Color="#1A1917FF">
+                              <Children>
+                                <TextWidget WidthSizePolicy="StretchToParent" HeightSizePolicy="Fixed"
+                                        SuggestedHeight="28"
+                                        MarginLeft="15" MarginRight="15" MarginTop="7"
+                                        Brush="DefaultText" Brush.Font="ReignSerifDynamic"
+                                        Brush.FontSize="15"
+                                        Brush.TextHorizontalAlignment="Left"
+                                        Brush.TextVerticalAlignment="Center"
+                                        Brush.FontColor="#A88A54FF"
+                                        Text="@Speaker"
+                                        DoNotAcceptEvents="true" />
+                                <TextWidget WidthSizePolicy="StretchToParent" HeightSizePolicy="CoverChildren"
+                                        MarginLeft="15" MarginRight="15" MarginTop="35" MarginBottom="13"
+                                        Brush="DefaultText" Brush.Font="ReignSerifDynamic"
+                                        Brush.FontSize="18"
+                                        Brush.TextHorizontalAlignment="Left"
+                                        Brush.FontColor="#C5BDAFFF"
+                                        Text="@Text"
+                                        DoNotAcceptEvents="true" />
+                              </Children>
+                            </Widget>
+
+                            <Widget WidthSizePolicy="Fixed" HeightSizePolicy="CoverChildren"
+                                    SuggestedWidth="915"
+                                    HorizontalAlignment="Right"
+                                    IsVisible="@IsNpcLine"
+                                    Sprite="BlankWhiteSquare_9"
+                                    Color="#171717FF">
+                              <Children>
+                                <TextWidget WidthSizePolicy="StretchToParent" HeightSizePolicy="Fixed"
+                                        SuggestedHeight="28"
+                                        MarginLeft="15" MarginRight="15" MarginTop="7"
+                                        Brush="DefaultText" Brush.Font="ReignSerifDynamic"
+                                        Brush.FontSize="15"
+                                        Brush.TextHorizontalAlignment="Right"
+                                        Brush.TextVerticalAlignment="Center"
+                                        Brush.FontColor="#A88A54FF"
+                                        Text="@Speaker"
+                                        DoNotAcceptEvents="true" />
+                                <TextWidget WidthSizePolicy="StretchToParent" HeightSizePolicy="CoverChildren"
+                                        MarginLeft="15" MarginRight="15" MarginTop="35" MarginBottom="13"
+                                        Brush="DefaultText" Brush.Font="ReignSerifDynamic"
+                                        Brush.FontSize="18"
+                                        Brush.TextHorizontalAlignment="Left"
+                                        Brush.FontColor="#C5BDAFFF"
+                                        Text="@Text"
+                                        DoNotAcceptEvents="true" />
+                              </Children>
+                            </Widget>
+
+                            <TextWidget WidthSizePolicy="StretchToParent" HeightSizePolicy="CoverChildren"
+                                    MarginLeft="80" MarginRight="80" MarginTop="18" MarginBottom="18"
+                                    Brush="DefaultText" Brush.Font="ReignSerifDynamic"
+                                    Brush.FontSize="17"
+                                    Brush.TextHorizontalAlignment="Center"
+                                    Brush.FontColor="#C5BDAFFF"
+                                    Text="@Text"
+                                    IsVisible="@IsSystemLine"
+                                    DoNotAcceptEvents="true" />
+                          </Children>
+                        </Widget>
+                      </ItemTemplate>
+                    </ListPanel>
+                  </Children>
+                </Widget>
+              </Children>
+            </ReignAutoScrollPanel>
+
+            <ScrollbarWidget Id="LetterScrollbar"
+                    WidthSizePolicy="Fixed" HeightSizePolicy="Fixed"
+                    SuggestedWidth="8" SuggestedHeight="379"
+                    MarginLeft="1574" MarginTop="235"
+                    AlignmentAxis="Vertical"
+                    Handle="LetterScrollbarHandle"
+                    MaxValue="100" MinValue="0">
+              <Children>
+                <Widget Id="LetterScrollbarHandle" WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="6" SuggestedHeight="42" HorizontalAlignment="Center" Sprite="BlankWhiteSquare_9" Color="#A88A54FF" />
+              </Children>
+            </ScrollbarWidget>
+
+            <TextWidget Id="CorrespondenceBusyText"
+                    WidthSizePolicy="Fixed" HeightSizePolicy="Fixed"
+                    SuggestedWidth="850" SuggestedHeight="18"
+                    MarginLeft="650" MarginTop="646"
+                    Brush="DefaultText" Brush.Font="ReignSerifDynamic"
+                    Brush.FontSize="13"
+                    Brush.TextHorizontalAlignment="Center"
+                    Brush.TextVerticalAlignment="Center"
+                    Brush.FontColor="#A88A54FF"
+                    Text="@BusyText"
+                    DoNotAcceptEvents="true" />
+
+            <Widget Id="CorrespondenceInputFrame"
+                    WidthSizePolicy="Fixed" HeightSizePolicy="Fixed"
+                    SuggestedWidth="808" SuggestedHeight="161"
+                    MarginLeft="558" MarginTop="687">
+              <Children>
+                <EditableTextWidget Id="CorrespondenceInput"
+                        WidthSizePolicy="StretchToParent" HeightSizePolicy="StretchToParent"
+                        MarginLeft="15" MarginRight="15" MarginTop="13" MarginBottom="14"
+                        Brush="DefaultText" Brush.Font="ReignSerifDynamic"
+                        Brush.FontSize="18"
+                        Brush.TextHorizontalAlignment="Left"
+                        Brush.FontColor="#C5BDAFFF"
+                        Text="@InputText" />
+              </Children>
+            </Widget>
+
+            <ButtonWidget Id="SendButton"
+                    WidthSizePolicy="Fixed" HeightSizePolicy="Fixed"
+                    SuggestedWidth="198" SuggestedHeight="63"
+                    MarginLeft="1393" MarginTop="692"
+                    Command.Click="ExecuteSend"
+                    DoNotPassEventsToChildren="true" />
+
+            <ButtonWidget Id="BottomCancelButton"
+                    WidthSizePolicy="Fixed" HeightSizePolicy="Fixed"
+                    SuggestedWidth="198" SuggestedHeight="61"
+                    MarginLeft="1393" MarginTop="779"
+                    Command.Click="ExecuteCancel"
+                    DoNotPassEventsToChildren="true" />
+          </Children>
+        </Widget>
+      </Children>
+    </Widget>
+  </Window>
+</Prefab>

@@ -1,0 +1,35 @@
+{
+  "schema": "reign-fixed-region-composite-v1",
+  "assetId": "calibration-overlay-modern-shell-exact-fixed-source",
+  "approvedReference": {
+    "path": "../approved-references/calibration-overlay.png",
+    "sha256": "1062a9b216c17be62475b89e1134e008d0ef43a53292d512d5f3214d0157c630"
+  },
+  "imageToImageFill": {
+    "path": "../generated-sources/screen-shells/calibration-overlay-modern-panel-source.png",
+    "sha256": "a57c47d1acd79cbd33d64edf757d2b2d2eaf7cd4fc0c8e25d05204d9e92886af",
+    "normalization": "exact 1672x941"
+  },
+  "canvas": {
+    "width": 1672,
+    "height": 941
+  },
+  "policy": "Every pixel outside the declared scene-dependent masks is copied byte-for-byte from the approved reference.",
+  "rectangularFillMode": {
+    "type": "median-border color-matched image-to-image patch",
+    "inwardFeatherPixels": 3,
+    "borderSamplePixels": 4
+  },
+  "sceneDependentMasks": [
+    {"id": "selection-top-edge", "shape": "rectangle", "x": 229, "y": 116, "width": 775, "height": 19},
+    {"id": "selection-bottom-edge", "shape": "rectangle", "x": 229, "y": 778, "width": 775, "height": 22},
+    {"id": "selection-left-edge", "shape": "rectangle", "x": 229, "y": 116, "width": 19, "height": 684},
+    {"id": "selection-right-edge", "shape": "rectangle", "x": 981, "y": 116, "width": 23, "height": 684},
+    {"id": "selection-resize-handle", "shape": "rectangle", "x": 978, "y": 776, "width": 27, "height": 27},
+    {"id": "movie-name", "shape": "rectangle", "x": 1220, "y": 192, "width": 320, "height": 35},
+    {"id": "selected-widget-name", "shape": "rectangle", "x": 1210, "y": 228, "width": 340, "height": 39},
+    {"id": "geometry-value", "shape": "rectangle", "x": 1205, "y": 271, "width": 350, "height": 37},
+    {"id": "move-mode-label", "shape": "rectangle", "x": 1174, "y": 331, "width": 128, "height": 27},
+    {"id": "status-instructions", "shape": "rectangle", "x": 1165, "y": 580, "width": 400, "height": 47}
+  ]
+}

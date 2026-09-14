@@ -1,0 +1,36 @@
+{
+  "schema": "reign-overlay-asset-spec-v1",
+  "canvas": {
+    "width": 1672,
+    "height": 941
+  },
+  "normalization": {
+    "fit": "stretch",
+    "anchor": "center"
+  },
+  "antialiasScale": 8,
+  "transparentRgb": "#070808",
+  "marbleReduction": {
+    "amount": 0.0,
+    "blurRadius": 6.0,
+    "luminanceCeiling": 96,
+    "chromaCeiling": 36,
+    "selectionSoftness": 20
+  },
+  "apertures": [
+    {
+      "id": "protected-runtime-map-viewport",
+      "shape": "polygon",
+      "points": [
+        [78, 127],
+        [396, 127],
+        [431, 157],
+        [465, 127],
+        [787, 127],
+        [787, 848],
+        [78, 848]
+      ],
+      "feather": 0.0
+    }
+  ]
+}

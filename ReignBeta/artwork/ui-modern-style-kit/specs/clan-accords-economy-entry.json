@@ -1,0 +1,9 @@
+{
+  "schema": "reign-overlay-asset-spec-v1",
+  "asset": { "id": "clan-accords-economy-entry", "role": "complete approved Economy navigation plaque with integrated double-shield emblem, label and framing" },
+  "canvas": { "width": 425, "height": 86 },
+  "normalization": { "fit": "exact", "sourceCrop": { "x": 1143, "y": 800, "width": 425, "height": 86 } },
+  "allowNoApertures": true,
+  "apertures": [],
+  "marbleReduction": { "amount": 0 }
+}

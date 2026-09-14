@@ -1,0 +1,31 @@
+{
+  "schema": "reign-fixed-region-composite-v1",
+  "assetId": "court-modern-shell-exact-fixed-source",
+  "approvedReference": {"path": "../approved-references/court.png", "sha256": "f170711b207ee95b186c3bf4640cc251b32c48d6905880c49a6c156e26a527bb"},
+  "imageToImageFill": {"path": "../generated-sources/screen-court-modern-shell-source.png", "sha256": "7625da36ed10bdbaf777608d97325dc9078bb0765daee12fa8b32a94df1ab3b3", "normalization": "exact 1672x941"},
+  "canvas": {"width": 1672, "height": 941},
+  "policy": "Every pixel outside the declared scene-dependent masks is copied byte-for-byte from the approved reference.",
+  "rectangularFillMode": {"type": "median-border color-matched image-to-image patch", "inwardFeatherPixels": 3, "borderSamplePixels": 4},
+  "sceneDependentMasks": [
+    {"id": "court-title-text", "shape": "rectangle", "x": 500, "y": 47, "width": 670, "height": 55},
+    {"id": "docket-title-text", "shape": "rectangle", "x": 100, "y": 83, "width": 245, "height": 42},
+    {"id": "docket-row-1-content", "shape": "rectangle", "x": 74, "y": 142, "width": 307, "height": 147},
+    {"id": "docket-row-2-content", "shape": "rectangle", "x": 74, "y": 316, "width": 307, "height": 128},
+    {"id": "docket-row-3-content", "shape": "rectangle", "x": 74, "y": 462, "width": 307, "height": 128},
+    {"id": "docket-row-4-content", "shape": "rectangle", "x": 74, "y": 608, "width": 307, "height": 116},
+    {"id": "docket-row-5-content", "shape": "rectangle", "x": 74, "y": 744, "width": 307, "height": 120},
+    {"id": "royal-command-title-text", "shape": "rectangle", "x": 1330, "y": 82, "width": 240, "height": 42},
+    {"id": "war-command-content", "shape": "rectangle", "x": 1292, "y": 140, "width": 305, "height": 80},
+    {"id": "spymaster-command-content", "shape": "rectangle", "x": 1292, "y": 278, "width": 305, "height": 80},
+    {"id": "ambassador-command-content", "shape": "rectangle", "x": 1292, "y": 416, "width": 305, "height": 80},
+    {"id": "economic-command-content", "shape": "rectangle", "x": 1292, "y": 555, "width": 305, "height": 80},
+    {"id": "council-command-content", "shape": "rectangle", "x": 1292, "y": 694, "width": 305, "height": 80},
+    {"id": "left-runtime-banner", "shape": "polygon", "points": [[641,330],[710,330],[710,488],[675.5,545],[641,488]]},
+    {"id": "right-runtime-banner", "shape": "polygon", "points": [[1031,330],[1102,330],[1102,488],[1067,545],[1031,488]]},
+    {"id": "keep-label", "shape": "rectangle", "x": 540, "y": 790, "width": 110, "height": 35},
+    {"id": "family-label", "shape": "rectangle", "x": 730, "y": 790, "width": 220, "height": 35},
+    {"id": "royal-council-label", "shape": "rectangle", "x": 990, "y": 785, "width": 205, "height": 45},
+    {"id": "close-label", "shape": "rectangle", "x": 1305, "y": 850, "width": 115, "height": 35},
+    {"id": "end-court-label", "shape": "rectangle", "x": 1480, "y": 850, "width": 125, "height": 35}
+  ]
+}

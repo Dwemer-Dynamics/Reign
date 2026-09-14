@@ -1,0 +1,22 @@
+bin/
+obj/
+.vs/
+*.user
+*.suo
+*.log
+logs/
+
+# Runtime server bundle and user data are built/copied locally, not versioned here.
+server/app/
+server/logs/
+server/data/
+
+# Campaign/runtime data can contain save-specific state and API settings.
+data/
+
+# Generated/shared portrait seed cache is a large asset bundle.
+# Keep it out of the source repo; publish it later as a release asset or LFS package.
+PortraitCache/**
+
+*.tmp
+*.bak

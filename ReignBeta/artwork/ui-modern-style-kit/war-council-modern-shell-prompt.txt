@@ -1,0 +1,30 @@
+Use case: precise UI style-transfer edit
+Asset type: production game UI static frame shell, 16:9 landscape, target canvas 1672 x 941
+
+Input images:
+- Image 1 is the exact War Council layout authority and edit target. Preserve its complete full-screen composition, panel geometry, column widths, frame footprints, dividers, borders, row spacing, map-frame footprint, decorative corner placement, and crowned R crest placement. Do not redesign, reflow, crop, zoom, or add panels.
+- Image 2 is the exact material, finish, contrast, marbling, and color authority only. Do not copy Image 2's chat layout, portraits, words, or content.
+
+Primary edit:
+Convert Image 1 into a clean, textless and portraitless static production shell. Retain only the structural black-marble surfaces, recessed and raised panel materials, antique-gold hairline frames, geometric ornaments, empty circular portrait bezels, the empty oval assigned-councilor portrait bezel, and the static crowned R crest. Remove every live title, subtitle, heading, label, name, role, report, number, Roman numeral, value, status, list entry, button caption, and other text. Remove every portrait/person, banner, raven, troop or unit token, map marker, settlement symbol, live icon, and value glyph. Leave clean empty surfaces where runtime content will render.
+
+PARAMOUNT protected-map rule:
+The old-scroll map inside the large left frame is protected runtime artwork. Do not redraw, recolor, tint, desaturate, darken, grade, imitate, or reinterpret it. Remove the map completely from this generated shell. The entire inner map viewport must contain only a flat, featureless near-black matte matching canvasBlack (#070808), with absolutely no parchment, geography, coastlines, mountains, trees, roads, labels, tokens, routes, emblems, gradients, or marble veins. The matte will be cut to true alpha deterministically after generation. Preserve the surrounding gold-and-black map bezel exactly.
+
+Exact material and palette authority:
+- canvas void #030303
+- canvas black #070808
+- black marble base #121211
+- marble shadow #0C0C0B
+- panel smoke #10100F
+- ordinary panels #171717
+- lifted cards #1A1917
+- selected/emphasized card only #232323
+- recessive border bronze #352C20
+- primary antique gold #7E6A4D
+- heading/focal gold #A88A54
+- tiny highlights only #C5AC83
+Use very subtle low-contrast marble veins; they must remain subordinate to panels and borders. No brown neutral panels, no bright yellow gold, no saturated colors.
+
+Composition invariants:
+Keep the Image 1 outer border and all structural frame geometry in their exact original locations. Preserve the four visible empty circular lord portrait frames and the one taller empty oval councilor portrait frame. Keep the large left map opening unobstructed. Keep all center and right panel interiors empty and usable for runtime text/lists. No extra ornament, no text, no character imagery, no map content, no watermark.

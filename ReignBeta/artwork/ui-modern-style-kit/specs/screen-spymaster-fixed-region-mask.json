@@ -1,0 +1,48 @@
+{
+  "schema": "reign-fixed-region-composite-v1",
+  "assetId": "spymaster-modern-shell-exact-fixed-source",
+  "approvedReference": {
+    "path": "../approved-references/spymaster.png",
+    "sha256": "90ea63e898de5e677002ea94f7ea4d50b6406310c540fbd2b9b10eca9d6fb109"
+  },
+  "imageToImageFill": {
+    "path": "../generated-sources/screen-shells/spymaster-modern-shell-source.png",
+    "sha256": "425ceeeb09abed6d8c080bd2d4332df800e2ce8163caf75c3028701e0a95fa98",
+    "promptPath": "../spymaster-modern-shell-prompt.txt",
+    "promptSha256": "1ef3986ea2529f049b1c0368bda37ac38fe0309300c540781d4447c020fa16cd",
+    "normalization": "exact 1672x941"
+  },
+  "palette": {"path": "../palette.json", "sha256": "fac70043a567db463ae70c975b92037dbfc38337e0d9134bc85bb03e3bb9a043", "schema": "reign-ui-modern-palette-v1", "version": "2026.08.28.2"},
+  "compositor": {"path": "../tools/compose_fixed_regions.py", "sha256": "50a07688c6fab0e787e7542447c0136cdca6c70d906257c0a42b755beb6ccdb1", "version": "2026.08.28.4", "productionModes": ["composite"]},
+  "canvas": {"width": 1672, "height": 941},
+  "coordinateSystem": {"units": "pixels", "origin": "top-left", "rectangleExtents": "x/y inclusive; right/bottom exclusive"},
+  "maskSemantics": "The union of sceneDependentMasks is excluded from approved-reference fixed-pixel comparison; every pixel outside that union is fixed production evidence.",
+  "policy": "Every fixed pixel outside the declared runtime portrait, selector values, report content, and genuinely dynamic text masks is copied byte-for-byte from the approved reference. Fixed headings, captions, marble, frame geometry, panels, ornaments, dividers, and interaction backgrounds remain exact approved artwork.",
+  "runtimePrefab": {"path": "../../../GUI/Prefabs/ReignSpymasterScreen.xml", "sha256": "647cf7fd00be16cf6764b69e299334870f7f4df4f62697c895fc459f358071ab"},
+  "productionSprites": [
+    {"id": "reign_spymaster_modern_shell", "sourcePath": "../../../GUI/SpriteParts/ui_reignbeta_spymaster/reign_spymaster_modern_shell.png", "sha256": "7ed898760443987aae9d086cf805f18ed189891de640ead72d6079ede3be1fee", "mode": "composite"}
+  ],
+  "rectangularFillMode": {
+    "type": "median-border color-matched image-to-image patch",
+    "inwardFeatherPixels": 3,
+    "borderSamplePixels": 4
+  },
+  "sceneDependentMasks": [
+    {"id": "spymaster-full-body-artwork", "category": "portrait-or-scene", "shape": "rectangle", "x": 120, "y": 92, "width": 329, "height": 647},
+    {"id": "spymaster-name", "category": "dynamic-text", "shape": "rectangle", "x": 120, "y": 748, "width": 329, "height": 48},
+
+    {"id": "target-selector-value", "category": "dynamic-text", "shape": "rectangle", "x": 568, "y": 237, "width": 378, "height": 38},
+    {"id": "target-selector-arrow", "category": "dynamic-text", "shape": "rectangle", "x": 941, "y": 246, "width": 25, "height": 25, "fillSourceX": 900, "fillSourceY": 246},
+    {"id": "target-detail", "category": "dynamic-text", "shape": "rectangle", "x": 556, "y": 300, "width": 437, "height": 43},
+
+    {"id": "operation-selector-value", "category": "dynamic-text", "shape": "rectangle", "x": 1090, "y": 237, "width": 399, "height": 38},
+    {"id": "operation-selector-arrow", "category": "dynamic-text", "shape": "rectangle", "x": 1492, "y": 246, "width": 25, "height": 25, "fillSourceX": 1448, "fillSourceY": 246},
+    {"id": "operation-detail", "category": "dynamic-text", "shape": "rectangle", "x": 1075, "y": 300, "width": 437, "height": 49},
+
+    {"id": "assessment-value", "category": "dynamic-text", "shape": "rectangle", "x": 1035, "y": 402, "width": 165, "height": 31},
+    {"id": "reports-list", "category": "list-or-runtime-content", "shape": "rectangle", "x": 547, "y": 618, "width": 431, "height": 211},
+    {"id": "reports-scroll-position", "category": "unprovided-state", "shape": "rectangle", "x": 978, "y": 618, "width": 18, "height": 211},
+    {"id": "report-details", "category": "dynamic-text", "shape": "rectangle", "x": 1032, "y": 618, "width": 480, "height": 211},
+    {"id": "runtime-status", "category": "dynamic-text", "shape": "rectangle", "x": 576, "y": 870, "width": 922, "height": 26}
+  ]
+}

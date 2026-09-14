@@ -1,0 +1,24 @@
+{
+  "schema": "reign-fixed-region-composite-v1",
+  "assetId": "royal-council-modern-shell-exact-fixed-source",
+  "approvedReference": {"path": "../approved-references/royal-council.png", "sha256": "1b08360102f624d2051371db436ed356ea0b0297c9eab32f05deaac771f7c1bb"},
+  "imageToImageFill": {"path": "../generated-sources/screen-royal-council-modern-shell-source.png", "sha256": "102d353c45b27341df00d3d89ce3efe508df83bb6f4c92574d5eeeb5f3716a3c", "normalization": "stretch to 1672x941 with Lanczos"},
+  "canvas": {"width": 1672, "height": 941},
+  "policy": "Every pixel outside the declared scene-dependent masks is copied byte-for-byte from the approved reference.",
+  "rectangularFillMode": {"type": "median-border color-matched image-to-image patch", "inwardFeatherPixels": 3, "borderSamplePixels": 4},
+  "sceneDependentMasks": [
+    {"id": "war-portrait", "shape": "ellipse", "x": 132, "y": 56, "width": 232, "height": 310},
+    {"id": "spymaster-portrait", "shape": "ellipse", "x": 133, "y": 470, "width": 232, "height": 296},
+    {"id": "economic-portrait", "shape": "ellipse", "x": 1302, "y": 56, "width": 230, "height": 308},
+    {"id": "foreign-portrait", "shape": "ellipse", "x": 1303, "y": 470, "width": 228, "height": 295},
+    {"id": "war-seat-dynamic-text", "shape": "rectangle", "x": 130, "y": 402, "width": 235, "height": 50},
+    {"id": "spymaster-seat-dynamic-text", "shape": "rectangle", "x": 130, "y": 811, "width": 235, "height": 55},
+    {"id": "economic-seat-dynamic-text", "shape": "rectangle", "x": 1290, "y": 402, "width": 245, "height": 50},
+    {"id": "foreign-seat-dynamic-text", "shape": "rectangle", "x": 1290, "y": 811, "width": 245, "height": 55},
+    {"id": "transcript-line-1", "shape": "rectangle", "x": 475, "y": 140, "width": 725, "height": 110},
+    {"id": "transcript-line-2", "shape": "rectangle", "x": 475, "y": 280, "width": 725, "height": 105},
+    {"id": "transcript-line-3", "shape": "rectangle", "x": 475, "y": 412, "width": 725, "height": 108},
+    {"id": "transcript-line-4", "shape": "rectangle", "x": 475, "y": 548, "width": 725, "height": 110},
+    {"id": "input-text", "shape": "rectangle", "x": 580, "y": 790, "width": 520, "height": 70}
+  ]
+}

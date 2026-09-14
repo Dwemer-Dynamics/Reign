@@ -1,0 +1,39 @@
+{
+  "schema": "reign-fixed-region-composite-v1",
+  "assetId": "economic-report-approved-clan-accords-entry",
+  "approvedReference": {
+    "path": "../generated-sources/clan-accords/economic-report-before-accords.png"
+  },
+  "imageToImageFill": {
+    "path": "../approved-references/economy-clan-accords-entry.png"
+  },
+  "canvas": {
+    "width": 1672,
+    "height": 941
+  },
+  "sceneDependentMasks": [
+    {
+      "id": "approved-entry-plaque",
+      "shape": "polygon",
+      "points": [
+        [
+          1143,
+          800
+        ],
+        [
+          1568,
+          800
+        ],
+        [
+          1568,
+          886
+        ],
+        [
+          1143,
+          886
+        ]
+      ]
+    }
+  ],
+  "policy": "Scoped user-approved addition: exact entry plaque pixels only. Original Economic Report reference is unchanged everywhere else."
+}

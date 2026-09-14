@@ -1,0 +1,53 @@
+{
+  "schema": "reign-overlay-asset-spec-v1",
+  "canvas": {
+    "width": 417,
+    "height": 147
+  },
+  "normalization": {
+    "fit": "stretch",
+    "anchor": "center"
+  },
+  "antialiasScale": 8,
+  "apertureEdgeMode": "antialiased",
+  "apertures": [
+    {
+      "id": "lord-portrait",
+      "shape": "oval",
+      "x": 8,
+      "y": 13,
+      "width": 96,
+      "height": 113,
+      "feather": 0
+    }
+  ],
+  "drawnFrames": [
+    {
+      "id": "lord-frame",
+      "shape": "oval",
+      "x": 8,
+      "y": 13,
+      "width": 96,
+      "height": 113,
+      "feather": 0,
+      "strokes": [
+        {"inset": 0, "width": 5, "color": "#21170E"},
+        {"inset": 1, "width": 2, "color": "#8C6937"},
+        {"inset": 4, "width": 2, "color": "#17110C"},
+        {"inset": 5, "width": 1, "color": "#B08A4D"}
+      ]
+    }
+  ],
+  "transparentRgb": "#121211",
+  "lightNeutralMatteAlphaRemoval": {
+    "minimumChannel": 180,
+    "maximumChroma": 14
+  },
+  "marbleReduction": {
+    "amount": 0.0,
+    "blurRadius": 4.0,
+    "luminanceCeiling": 96,
+    "chromaCeiling": 36,
+    "selectionSoftness": 20
+  }
+}

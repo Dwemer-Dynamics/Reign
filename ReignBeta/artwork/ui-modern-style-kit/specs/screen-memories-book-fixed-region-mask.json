@@ -1,0 +1,27 @@
+{
+  "schema": "reign-fixed-region-composite-v1",
+  "assetId": "memories-book-modern-shell-exact-fixed-source",
+  "approvedReference": {
+    "path": "../approved-references/memories-book.png",
+    "sha256": "ab16c728c6a01749a7d51db01d82fc734767fc22077fed5ce250b7a84d166858"
+  },
+  "imageToImageFill": {
+    "path": "../generated-sources/screen-shells/memories-book-shell-source.png",
+    "sha256": "3e1dc687fc611954ca36244a1d204b048a1732bbb37bc4cd3b2aa959bf638400",
+    "normalization": "exact 1672x941"
+  },
+  "canvas": {"width": 1672, "height": 941},
+  "policy": "Every pixel outside the declared scene-dependent masks is copied byte-for-byte from the approved reference.",
+  "rectangularFillMode": {
+    "type": "median-border color-matched image-to-image patch",
+    "inwardFeatherPixels": 3,
+    "borderSamplePixels": 4
+  },
+  "sceneDependentMasks": [
+    {"id": "runtime-page-counter", "shape": "rectangle", "x": 1475, "y": 45, "width": 117, "height": 40},
+    {"id": "runtime-memory-list", "shape": "rectangle", "x": 80, "y": 215, "width": 411, "height": 573},
+    {"id": "runtime-scroll-thumb", "shape": "rectangle", "x": 497, "y": 204, "width": 19, "height": 584},
+    {"id": "runtime-memory-scene", "shape": "rectangle", "x": 632, "y": 130, "width": 949, "height": 555},
+    {"id": "runtime-memory-caption", "shape": "rectangle", "x": 676, "y": 707, "width": 860, "height": 58}
+  ]
+}

@@ -1,0 +1,32 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Reign Ambassador Screen Prototype</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <main class="stage" aria-label="Ambassador interface prototype">
+    <section class="screen">
+      <img class="screen__plate" src="assets/ambassador-hall-plate.png" alt="">
+
+      <h1 class="screen__title">Ambassadors</h1>
+      <button class="hotspot hotspot--close" type="button" aria-label="Close Ambassador screen"></button>
+
+      <button class="hotspot hotspot--previous" type="button" aria-label="Previous ambassadors"></button>
+      <div class="rail-window" aria-label="Ambassadors">
+        <div class="rail" id="ambassadorRail"></div>
+      </div>
+      <button class="hotspot hotspot--next" type="button" aria-label="Next ambassadors"></button>
+
+      <button class="action action--establish" type="button">Establish Relations</button>
+      <button class="action action--remove" type="button">Remove Ambassador</button>
+
+      <div class="page-dots" id="pageDots" aria-hidden="true"></div>
+    </section>
+  </main>
+
+  <script src="app.js"></script>
+</body>
+</html>

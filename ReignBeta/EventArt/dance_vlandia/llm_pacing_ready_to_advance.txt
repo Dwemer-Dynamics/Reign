@@ -1,0 +1,1 @@
+The phase has reached its hard activity limit. Give a brief closing response unless the player introduced something urgent.

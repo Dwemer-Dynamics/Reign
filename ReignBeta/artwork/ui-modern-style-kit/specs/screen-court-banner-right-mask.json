@@ -1,0 +1,26 @@
+{
+  "schema": "reign-overlay-asset-spec-v1",
+  "asset": {
+    "id": "court-modern-banner-right-mask",
+    "role": "foreground material-and-frame mask for the right runtime clan banner",
+    "selectedGeneratedSourceSha256": "c13bbfd155b3c58b234cb4b783f23e874e8eacbbd02f35d1546607a9afd99486",
+    "generationMode": "deterministic crop from approved-fixed production Court shell"
+  },
+  "canvas": {"width": 102, "height": 270},
+  "normalization": {
+    "fit": "exact",
+    "anchor": "center",
+    "sourceCrop": {"x": 1015, "y": 285, "width": 102, "height": 270}
+  },
+  "antialiasScale": 8,
+  "transparentRgb": "#070808",
+  "marbleReduction": {"amount": 0.0, "blurRadius": 6.0, "luminanceCeiling": 96, "chromaCeiling": 36, "selectionSoftness": 20},
+  "apertures": [
+    {
+      "id": "runtime-clan-banner-right",
+      "shape": "polygon",
+      "points": [[16, 45], [87, 45], [87, 203], [51.5, 260], [16, 203]],
+      "feather": 0.0
+    }
+  ]
+}

@@ -1,0 +1,9 @@
+Use case: historical-scene composition reference
+Asset type: runtime image-to-image structural reference for culture-specific ruler petition scenes
+Input image: the user-approved Court Petition interface example is the exact perspective and spatial-composition authority.
+
+Create a clean, empty 16:9 medieval audience hall viewed in first person from the seated ruler's elevated position on the throne dais. Preserve the approved high camera looking slightly downward into the hall. The open petitioner standing area must be centered at the foot of the dais, with only the outer corners of unmistakable dais steps visible along the bottom edge. The long central aisle and the hall entrance must recede away from the camera in the background, so a future petitioner placed in the center would have the entrance behind them and would look upward toward the ruler/camera.
+
+Make the architecture subdued and culture-neutral enough to serve only as a composition guide; runtime prompting will replace its materials, architecture, heraldry, textiles, lighting, and attendants for each Bannerlord culture.
+
+No throne or ceremonial chair anywhere in the scene, especially not at the far end. No ruler, petitioner, courtiers, guards, people, portraits, reflections, silhouettes, hands, crowns, or character shadows. No desk, table, railing, balustrade, lectern, furniture, obstruction, text, captions, borders, logo, watermark, or interface elements. Do not reverse the room, rotate the camera, place the entrance behind the camera, or show the ruler's seat.

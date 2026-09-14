@@ -1,0 +1,20 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="296" height="650" viewBox="0 0 296 650">
+  <defs>
+    <linearGradient id="cloth" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#684133"/>
+      <stop offset="0.48" stop-color="#8b5b46"/>
+      <stop offset="1" stop-color="#4b2b24"/>
+    </linearGradient>
+    <pattern id="weave" width="12" height="12" patternUnits="userSpaceOnUse">
+      <path d="M0 12 12 0M-3 3 3-3M9 15 15 9" stroke="#d9b565" stroke-opacity=".06" stroke-width="2"/>
+    </pattern>
+  </defs>
+  <rect width="296" height="650" fill="url(#cloth)"/>
+  <rect width="296" height="650" fill="url(#weave)"/>
+  <g fill="none" stroke="#e4af39" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M148 390c-29-25-38-55-28-91 8-27 18-46 28-66 10 20 20 39 28 66 10 36 1 66-28 91Z" fill="#d99b2d" stroke-width="5"/>
+    <path d="M137 324c8 8 14 8 22 0M148 350v33" stroke="#6f4023" stroke-width="7"/>
+    <path d="M125 303c-25-28-38-60-33-98M105 239c-20-15-29-34-28-57M97 217c17-12 26-26 28-43M171 303c25-28 38-60 33-98M191 239c20-15 29-34 28-57M199 217c-17-12-26-26-28-43" stroke-width="10"/>
+    <path d="M94 206c-20-7-34-21-42-40M202 206c20-7 34-21 42-40M78 181c-14-9-22-22-24-38M218 181c14-9 22-22 24-38" stroke-width="8"/>
+  </g>
+</svg>

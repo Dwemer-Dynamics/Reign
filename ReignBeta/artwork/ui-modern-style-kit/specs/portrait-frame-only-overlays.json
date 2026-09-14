@@ -1,0 +1,441 @@
+{
+  "schema": "reign-ui-portrait-aperture-plate-spec-v2",
+  "workspaceRoot": "../../../..",
+  "policy": "Portrait source imagery remains byte-for-byte untouched and rectangular. Registered circle and oval graphics are opaque context-matched aperture plates: the exterior and corners conceal the portrait rectangle, only the exact declared aperture is transparent, approved antique-gold linework remains topmost, and visible plate rectangles, pale neutral seams, source corners, or opaque backing disks are forbidden.",
+  "individualChatUsagePolicy": "Standalone Individual Chat uses two vertical oval apertures cut directly into its single foreground shell above untouched rectangular portraits. The two legacy local masks remain reproducible but unreferenced. Native SPConversation remains an independent rectangular-frame context and must not inherit these ovals.",
+  "defaults": {
+    "antialiasScale": 8,
+    "materialSource": {
+      "path": "ReignBeta/artwork/ui-modern-style-kit/generated-sources/panel-standard-source.png",
+      "sha256": "e700d4eacc513528a2c4e0b0a2940a58bcd600ca9ff9bb457efbfac99e794ab0",
+      "crop": {"x": 96, "y": 80, "width": 1344, "height": 864}
+    },
+    "materialBandPixels": 4,
+    "ornamentBandPixels": 24,
+    "ornamentDilationPixels": 1,
+    "goldSelector": {
+      "minimumRed": 45,
+      "minimumRedMinusBlue": 8,
+      "minimumGreenMinusBlue": 3
+    },
+    "lightNeutral": {
+      "luminanceFloor": 170,
+      "chromaCeiling": 28,
+      "replacementRgb": "#0A0A09"
+    }
+  },
+  "assets": [
+    {
+      "id": "portrait-circle",
+      "preparationMode": "verify-existing-aperture-plate",
+      "path": "ReignBeta/GUI/SpriteParts/ui_reignbeta_shared/reign_modern_portrait_circle_overlay.png",
+      "width": 512,
+      "height": 512,
+      "aperture": {"x": 27, "y": 27, "width": 458, "height": 458},
+      "materialBandPixels": 8,
+      "ornamentBandPixels": 54,
+      "acceptedSourceSha256": ["ec94d0910d4996e74074acecced5865f605847c5c065d4184fe3b632e32eefac", "23e64158bddd30152c196be8ddb35bb16e7d14537782a86554c6dae410ff3a63"],
+      "expectedOutputSha256": "23e64158bddd30152c196be8ddb35bb16e7d14537782a86554c6dae410ff3a63"
+    },
+    {
+      "id": "portrait-oval",
+      "preparationMode": "verify-existing-aperture-plate",
+      "path": "ReignBeta/GUI/SpriteParts/ui_reignbeta_shared/reign_modern_portrait_oval_overlay.png",
+      "width": 512,
+      "height": 768,
+      "aperture": {"x": 39, "y": 51, "width": 435, "height": 663},
+      "materialBandPixels": 8,
+      "ornamentBandPixels": 60,
+      "acceptedSourceSha256": ["48233a24b08a0cd4c4cf54626041c1d8aaa7e83dbb33f078ecc678da426e69f5", "a55feb74bdc040fcf7768dd6ec3c47389cdfafa0dadaa5def90132782a2256a5"],
+      "expectedOutputSha256": "a55feb74bdc040fcf7768dd6ec3c47389cdfafa0dadaa5def90132782a2256a5"
+    },
+    {
+      "id": "portrait-oval-thin-frame",
+      "preparationMode": "verify-existing-aperture-plate",
+      "path": "ReignBeta/GUI/SpriteParts/ui_reignbeta_shared/reign_modern_portrait_oval_thin_frame.png",
+      "width": 512,
+      "height": 832,
+      "aperture": {"x": 19, "y": 29, "width": 472, "height": 778},
+      "materialBandPixels": 8,
+      "ornamentBandPixels": 42,
+      "acceptedSourceSha256": ["54c965971489495927eaf8635ffadd9f9d4fa2ea8f7d656a9f9e345fec50e030", "1a47eb07a8181a29ff64ae413685109259ba31a83760bd024af011b0ce4dd1b6"],
+      "expectedOutputSha256": "1a47eb07a8181a29ff64ae413685109259ba31a83760bd024af011b0ce4dd1b6"
+    },
+    {
+      "id": "portrait-rectangle",
+      "preparationMode": "verify-existing-aperture-plate",
+      "path": "ReignBeta/GUI/SpriteParts/ui_reignbeta_shared/reign_modern_portrait_rectangle_overlay.png",
+      "shape": "rectangle",
+      "width": 512,
+      "height": 768,
+      "aperture": {"x": 27, "y": 30, "width": 458, "height": 708, "cornerRadiusPixels": 12},
+      "materialBandPixels": 8,
+      "ornamentBandPixels": 42,
+      "acceptedSourceSha256": ["068909f5267a0bd989c4d5fcc67a7a24442680769bf80a6a81b94c520cc992f6", "a3a0586d6cf618f29a0103b83be05b041fdbbad7a62bd7eec6adb2b7a0c39ffc"],
+      "expectedOutputSha256": "a3a0586d6cf618f29a0103b83be05b041fdbbad7a62bd7eec6adb2b7a0c39ffc"
+    },
+    {
+      "id": "family-chambers-portrait",
+      "path": "ReignBeta/GUI/SpriteParts/ui_reignbeta_family_chambers/reign_family_chambers_portrait_mask.png",
+      "width": 108,
+      "height": 108,
+      "createIfMissing": true,
+      "recomposeExistingAperturePlate": true,
+      "frameSource": {
+        "path": "ReignBeta/GUI/SpriteParts/ui_reignbeta_shared/reign_modern_portrait_circle_overlay.png",
+        "sha256": "23e64158bddd30152c196be8ddb35bb16e7d14537782a86554c6dae410ff3a63",
+        "fitToCanvas": true
+      },
+      "materialSource": {
+        "path": "ReignBeta/GUI/SpriteParts/ui_reignbeta_family_chambers/reign_family_chambers_person_card.png",
+        "sha256": "03529020763d7ae3e86e1fb889921c22cae532877bf9625085d3fa2191f811fe",
+        "crop": {"x": 8, "y": 4, "width": 108, "height": 108}
+      },
+      "aperture": {"x": 6, "y": 6, "width": 96, "height": 96},
+      "materialBandPixels": 3,
+      "ornamentBandPixels": 14,
+      "acceptedSourceSha256": ["4fc7ea5ca678ea23dd52759e34061723b9261294a6f33b373d3ee29e079514ae", "80cdd37500e5fa2a1a3abd15de144c6a8ba9a025ecfb9e278d9b1f5f9bb97805"],
+      "expectedOutputSha256": "80cdd37500e5fa2a1a3abd15de144c6a8ba9a025ecfb9e278d9b1f5f9bb97805"
+    },
+    {
+      "id": "correspondence-contact-portrait",
+      "path": "ReignBeta/GUI/SpriteParts/ui_reignbeta_correspondence/reign_correspondence_contact_portrait_mask.png",
+      "width": 79,
+      "height": 79,
+      "createIfMissing": true,
+      "recomposeExistingAperturePlate": true,
+      "frameSource": {
+        "path": "ReignBeta/GUI/SpriteParts/ui_reignbeta_shared/reign_modern_portrait_circle_overlay.png",
+        "sha256": "23e64158bddd30152c196be8ddb35bb16e7d14537782a86554c6dae410ff3a63",
+        "fitToCanvas": true
+      },
+      "materialSource": {
+        "path": "ReignBeta/GUI/SpriteParts/ui_reignbeta_correspondence/reign_correspondence_modern_shell.png",
+        "sha256": "9220763e3fda2d22192ae3ad2eb8fc05c870dd6c16845266fe38494e734e37ee",
+        "crop": {"x": 98, "y": 195, "width": 79, "height": 79}
+      },
+      "aperture": {"x": 4, "y": 4, "width": 71, "height": 71},
+      "materialBandPixels": 3,
+      "ornamentBandPixels": 12,
+      "acceptedSourceSha256": ["8fe7485e4e0c6fdedca1370744cf62fc073b457d0705eec89172c3b44dc7dd7c", "7a1b2104cbe72cbb819f478aaf5e48b95ee40a7d01a3c81fd6fbfaaab6e5d7dc"],
+      "expectedOutputSha256": "7a1b2104cbe72cbb819f478aaf5e48b95ee40a7d01a3c81fd6fbfaaab6e5d7dc"
+    },
+    {
+      "id": "diplomacy-actor-portrait",
+      "path": "ReignBeta/GUI/SpriteParts/ui_reignbeta_diplomacy/reign_diplomacy_actor_portrait_mask.png",
+      "width": 162,
+      "height": 263,
+      "frameSource": {
+        "path": "ReignBeta/GUI/SpriteParts/ui_reignbeta_shared/reign_modern_portrait_oval_thin_frame.png",
+        "sha256": "1a47eb07a8181a29ff64ae413685109259ba31a83760bd024af011b0ce4dd1b6",
+        "fitToCanvas": true
+      },
+      "aperture": {"x": 10, "y": 11, "width": 143, "height": 240},
+      "materialSource": {
+        "path": "ReignBeta/GUI/SpriteParts/ui_reignbeta_diplomacy/reign_diplomacy_modern_shell.png",
+        "sha256": "b3dc408d3a2f97a8e06b1f387387b5af7be68b1a62e05807424c98848b00e70e",
+        "crop": {"x": 179, "y": 234, "width": 162, "height": 263}
+      },
+      "recomposeExistingAperturePlate": true,
+      "ornamentBandPixels": 20,
+      "acceptedSourceSha256": ["90bcb739694fd752e37792eabd2a2d7d4fbb61705302f68136875df83e901014", "b8fd447b42b206e811640dab84e12cd6351ddeac0cf0dbe056ab0f8f1fd586e5", "1f4cbf6515c1c5bb8dd5d2730792a0985e38c5cb9dc4ecaf655f24bcfc784e98", "579e3b6cee14d388462a095a655b58f0f4fce97d31f34d93083a7c8c1be34a90", "de1c9ccdfe2ad75a5f91c776b708f91d844367eb1c3f381cd4dcc412043b2cd9", "0a06c2e80eb5394c2b3dee9605edbe170f3e37d090d0057e7fbd4e9b04fe9393"],
+      "expectedOutputSha256": "0a06c2e80eb5394c2b3dee9605edbe170f3e37d090d0057e7fbd4e9b04fe9393"
+    },
+    {
+      "id": "diplomacy-target-portrait",
+      "path": "ReignBeta/GUI/SpriteParts/ui_reignbeta_diplomacy/reign_diplomacy_target_portrait_mask.png",
+      "width": 162,
+      "height": 263,
+      "frameSource": {
+        "path": "ReignBeta/GUI/SpriteParts/ui_reignbeta_shared/reign_modern_portrait_oval_thin_frame.png",
+        "sha256": "1a47eb07a8181a29ff64ae413685109259ba31a83760bd024af011b0ce4dd1b6",
+        "fitToCanvas": true
+      },
+      "aperture": {"x": 10, "y": 11, "width": 143, "height": 240},
+      "materialSource": {
+        "path": "ReignBeta/GUI/SpriteParts/ui_reignbeta_diplomacy/reign_diplomacy_modern_shell.png",
+        "sha256": "b3dc408d3a2f97a8e06b1f387387b5af7be68b1a62e05807424c98848b00e70e",
+        "crop": {"x": 1329, "y": 234, "width": 162, "height": 263}
+      },
+      "recomposeExistingAperturePlate": true,
+      "ornamentBandPixels": 20,
+      "acceptedSourceSha256": ["26dc87b8b3544f7d8e2e6cfef8fe63aa8db3abcb56d56a2d8b62688d246b840e", "fe66355f247b9b86d7c0fe318e21c4b5386f86d7dd8b60ab842978a98d9a0e13", "c5a79f2f50665f3c34ed26f2823898328564d1c3ff13200d88d3d5f39f939fa0", "65146854972e2160530c7cbaeb435e4d503a35db421522fa98fa9ac4b327ff1a", "1bf0cadcdf427c969eb8a065fe695e7f8a1e772bdeb340ae9edf1c5824ae2bda", "cdd9361ecac619101a0c9dc1c5aee6cd4a1d3193cecf40ff6131b0c1cfc42483"],
+      "expectedOutputSha256": "cdd9361ecac619101a0c9dc1c5aee6cd4a1d3193cecf40ff6131b0c1cfc42483"
+    },
+    {
+      "id": "individual-player-portrait",
+      "preparationMode": "verify-existing-aperture-plate",
+      "path": "ReignBeta/GUI/SpriteParts/ui_reignbeta_individual/reign_individual_chat_player_portrait_mask.png",
+      "width": 230,
+      "height": 330,
+      "recomposeExistingAperturePlate": false,
+      "frameSource": {
+        "path": "ReignBeta/artwork/ui-modern-style-kit/generated-sources/individual-chat-player-portrait-frame-source.png",
+        "sha256": "2798ab41b06b02304f8eef40df21cd75dd668c46b71c76474d5d47c747ddeee0"
+      },
+      "aperture": {"x": 4, "y": 4, "width": 222, "height": 322},
+      "materialBandPixels": 5,
+      "ornamentBandPixels": 24,
+      "acceptedSourceSha256": ["23d8c9e7ad90354c5c1ec7632b20c8b3b84f70712f9a519e46ea49f1518ddcee", "a457fe8399d4ff0a34e231b8daeee1657833e5818d53324a86973cd4672fad88", "2798ab41b06b02304f8eef40df21cd75dd668c46b71c76474d5d47c747ddeee0", "91319346f9af2b3e7380f82a6dfc85baed78b74dc3850114e126f59eb2fcb537"],
+      "expectedOutputSha256": "91319346f9af2b3e7380f82a6dfc85baed78b74dc3850114e126f59eb2fcb537"
+    },
+    {
+      "id": "individual-npc-portrait",
+      "preparationMode": "verify-existing-aperture-plate",
+      "path": "ReignBeta/GUI/SpriteParts/ui_reignbeta_individual/reign_individual_chat_npc_portrait_mask.png",
+      "width": 230,
+      "height": 330,
+      "recomposeExistingAperturePlate": false,
+      "frameSource": {
+        "path": "ReignBeta/artwork/ui-modern-style-kit/generated-sources/individual-chat-npc-portrait-frame-source.png",
+        "sha256": "8ff4fb90952cff28f31376b00be0c9c5760226db3ad319bd0bf5901dfe505788"
+      },
+      "aperture": {"x": 4, "y": 4, "width": 222, "height": 322},
+      "materialBandPixels": 5,
+      "ornamentBandPixels": 24,
+      "acceptedSourceSha256": ["d9026c7ac0e8a88c75530c423cc6031599ae1d007040bf1873626343a6c02754", "8961631a3c69ea327c4bc9da0d15d4db07da1c20f0fa697f48b82ce36971c320", "8ff4fb90952cff28f31376b00be0c9c5760226db3ad319bd0bf5901dfe505788", "f57b267be16e48b2980f77bdb81f7fb13645eeebc6593c3f5e144a0410a7654e"],
+      "expectedOutputSha256": "f57b267be16e48b2980f77bdb81f7fb13645eeebc6593c3f5e144a0410a7654e"
+    },
+    {
+      "id": "individual-zoom-portrait",
+      "path": "ReignBeta/GUI/SpriteParts/ui_reignbeta_individual/reign_individual_chat_zoom_oval_mask.png",
+      "width": 512,
+      "height": 768,
+      "aperture": {"x": 39, "y": 51, "width": 435, "height": 663},
+      "materialBandPixels": 8,
+      "ornamentBandPixels": 60,
+      "acceptedSourceSha256": ["0efff49e9db806c1f8d7875a9e3cca51884ed47a0d592f68749e80b37534fad7", "71348debe02b381ea221f61c46fe9f441250d61f1683460b56eb32cc8e6db3eb", "77fe6e4acea64d8382bc38b4b1b3bc8b50786c5c75f2f4a7223d2b816fb001f4", "8ae14fcb253ea4da1a7294af257e90a58ce35cbbefc21b3216bd2dee805de35e"],
+      "expectedOutputSha256": "8ae14fcb253ea4da1a7294af257e90a58ce35cbbefc21b3216bd2dee805de35e"
+    },
+    {
+      "id": "party-chat-active-portrait",
+      "path": "ReignBeta/GUI/SpriteParts/ui_reignbeta_party_chat/reign_party_chat_portrait_mask_active.png",
+      "width": 130,
+      "height": 132,
+      "frameSource": {
+        "path": "ReignBeta/GUI/SpriteParts/ui_reignbeta_shared/reign_modern_portrait_circle_overlay.png",
+        "sha256": "23e64158bddd30152c196be8ddb35bb16e7d14537782a86554c6dae410ff3a63",
+        "fitToCanvas": true
+      },
+      "aperture": {"x": 4, "y": 4, "width": 122, "height": 124},
+      "materialColor": "#232323",
+      "recomposeExistingAperturePlate": true,
+      "materialBandPixels": 3,
+      "ornamentBandPixels": 16,
+      "acceptedSourceSha256": ["e9f90b9478efc7895335614090dd233e149292cb78761176bd06b0593a8d7cbe", "30b81408d4c60cce74f3962ceb655a34aa969a9c3c02af9ffb9c3f77d5238eed", "00d3e4d36de684a2cb5cbfc66c03dac2a6da48e8fc7973f28b66e46ff03bf280", "4a556d9158c9c058d8f22d7e675ffcda7b07ce64b851cbfb7f43ee11d7d938a6", "1d9bb98a582a92110423883cb0f351b275c263f90d9452f686801702afb4e863", "05bb73bc1f743d2fb981c73cc307069d5e246d316dca4b93c5456248bcc4539a"],
+      "expectedOutputSha256": "05bb73bc1f743d2fb981c73cc307069d5e246d316dca4b93c5456248bcc4539a"
+    },
+    {
+      "id": "party-chat-inactive-portrait",
+      "path": "ReignBeta/GUI/SpriteParts/ui_reignbeta_party_chat/reign_party_chat_portrait_mask_inactive.png",
+      "width": 130,
+      "height": 132,
+      "frameSource": {
+        "path": "ReignBeta/GUI/SpriteParts/ui_reignbeta_shared/reign_modern_portrait_circle_overlay.png",
+        "sha256": "23e64158bddd30152c196be8ddb35bb16e7d14537782a86554c6dae410ff3a63",
+        "fitToCanvas": true
+      },
+      "aperture": {"x": 4, "y": 4, "width": 122, "height": 124},
+      "materialSource": {
+        "path": "ReignBeta/GUI/SpriteParts/ui_reignbeta_party_chat/reign_party_chat_modern_shell.png",
+        "sha256": "e8e5cb2101720eb182ff19f2973fe5227839148fd9b2b71cca449d2ddf1753b9",
+        "crop": {"x": 108, "y": 202, "width": 130, "height": 132}
+      },
+      "recomposeExistingAperturePlate": true,
+      "materialBandPixels": 3,
+      "ornamentBandPixels": 16,
+      "acceptedSourceSha256": ["1c993cd24f98ae0bcfb7d793201745052f4b46c0c63f59c5403d11728fbecf8b", "6f39dde9a9e9c6cd17991a268d93bf1fa96db9bf758907f360f6200d076cf149", "992e96ddc5bddb38475e802a43a7bab4c7470d2dc26e6144225e0f52b7f848d2", "886427ca0a4b42af8d65b371af5a5876a791d9017e5ea7326d0fe1d45898c36d", "f82c48a998144e3636ed222ef8ad56c18daae7c6ae0bc0feba6d5a3d13a959ad", "f3ec6c49c16425ae86dcedfd29d39c6e0f79f7f52057ecf7cb5c5b834378218c"],
+      "expectedOutputSha256": "f3ec6c49c16425ae86dcedfd29d39c6e0f79f7f52057ecf7cb5c5b834378218c"
+    },
+    {
+      "id": "party-chat-preview-portrait",
+      "path": "ReignBeta/GUI/SpriteParts/ui_reignbeta_party_chat/reign_party_chat_preview_oval_mask.png",
+      "width": 512,
+      "height": 768,
+      "aperture": {"x": 39, "y": 51, "width": 435, "height": 663},
+      "materialBandPixels": 8,
+      "ornamentBandPixels": 60,
+      "acceptedSourceSha256": ["dfd4baeb16e6787095d8fb432a48457c8a38ab324dc1d42c778b99bcfe60155a", "2d02e50985fc2c764ee92d7fbddb2bad807704666a87abb8a45175c320623fc7", "dc6f1cae220839ac203471409aa0fae5f5182d154c3fbba089efe741d92a7a8b", "81bb01f44074bcb29d7d4f3901f6a94b2e18423a7392d9b62b1c46dc4728fff0"],
+      "expectedOutputSha256": "81bb01f44074bcb29d7d4f3901f6a94b2e18423a7392d9b62b1c46dc4728fff0"
+    },
+    {
+      "id": "social-event-active-portrait",
+      "path": "ReignBeta/GUI/SpriteParts/ui_reignbeta_social_event/reign_social_event_active_portrait_mask.png",
+      "width": 112,
+      "height": 112,
+      "frameSource": {
+        "path": "ReignBeta/GUI/SpriteParts/ui_reignbeta_shared/reign_modern_portrait_circle_overlay.png",
+        "sha256": "23e64158bddd30152c196be8ddb35bb16e7d14537782a86554c6dae410ff3a63",
+        "fitToCanvas": true
+      },
+      "aperture": {"x": 6, "y": 6, "width": 100, "height": 100},
+      "materialColor": "#1A1917",
+      "recomposeExistingAperturePlate": true,
+      "materialBandPixels": 3,
+      "ornamentBandPixels": 14,
+      "acceptedSourceSha256": ["cbb38e146463fc32b709e83280f071c5850c56f3b9350babbc7e3167b0bf43d7", "7a39df05a066ea962ab15ce59af8c126369f00d814525d55bbe01ee0e03ff415", "83e10a68dde74f2e27b8cf4e81e3dadf102480bb7db354565c6dfd9fe55dfafb", "3786dfb3d828cddb5cfde6edd96cb57991e121f5e2034ce20f86d63b85c7cfb0", "b0e2f0245ca2a101f316c4dac094dd7a1d724e398361166597513eb474f2b211", "bfb124faf609077c3e59da83b0c568896ecb3e5cd0a0d8e634e9a24469cc6fb6"],
+      "expectedOutputSha256": "bfb124faf609077c3e59da83b0c568896ecb3e5cd0a0d8e634e9a24469cc6fb6"
+    },
+    {
+      "id": "social-event-available-portrait",
+      "path": "ReignBeta/GUI/SpriteParts/ui_reignbeta_social_event/reign_social_event_available_portrait_mask.png",
+      "width": 112,
+      "height": 112,
+      "frameSource": {
+        "path": "ReignBeta/GUI/SpriteParts/ui_reignbeta_shared/reign_modern_portrait_circle_overlay.png",
+        "sha256": "23e64158bddd30152c196be8ddb35bb16e7d14537782a86554c6dae410ff3a63",
+        "fitToCanvas": true
+      },
+      "aperture": {"x": 6, "y": 6, "width": 100, "height": 100},
+      "materialColor": "#171717",
+      "recomposeExistingAperturePlate": true,
+      "materialBandPixels": 3,
+      "ornamentBandPixels": 14,
+      "acceptedSourceSha256": ["8d245158d17ca3b2f5a303311f0e7586f5eb50dbbaf3ab619562fca328bed9b9", "4ef4bd4cec30f397ccbd8cb5b556ae65abde8e943a4020d1556f646d226c73de", "f44bb0559b876471615e22d6ee90fdffc98b4c498b8cba782a3ba43fb561b6e2", "f8353f6732f1ce09cd4d988395bcece0fa8138552d1e72b759ac67a51d59bfca", "02bcdf7808df6a16bb470484c15227fe3ee3ccd8e6b91c53953995a1371605b9", "f146cecb9374408eb8bdeed097bf449b0300e3d94fb3f233cd5046fa70e59576"],
+      "expectedOutputSha256": "f146cecb9374408eb8bdeed097bf449b0300e3d94fb3f233cd5046fa70e59576"
+    },
+    {
+      "id": "social-event-preview-portrait",
+      "path": "ReignBeta/GUI/SpriteParts/ui_reignbeta_social_event/reign_social_event_preview_oval_mask.png",
+      "width": 512,
+      "height": 768,
+      "aperture": {"x": 39, "y": 51, "width": 435, "height": 663},
+      "materialBandPixels": 8,
+      "ornamentBandPixels": 60,
+      "acceptedSourceSha256": ["dfd4baeb16e6787095d8fb432a48457c8a38ab324dc1d42c778b99bcfe60155a", "2d02e50985fc2c764ee92d7fbddb2bad807704666a87abb8a45175c320623fc7", "dc6f1cae220839ac203471409aa0fae5f5182d154c3fbba089efe741d92a7a8b", "81bb01f44074bcb29d7d4f3901f6a94b2e18423a7392d9b62b1c46dc4728fff0"],
+      "expectedOutputSha256": "81bb01f44074bcb29d7d4f3901f6a94b2e18423a7392d9b62b1c46dc4728fff0"
+    },
+    {
+      "id": "war-council-lord-portrait",
+      "path": "ReignBeta/GUI/SpriteParts/ui_reignbeta_war_council/reign_war_council_lord_portrait_mask.png",
+      "width": 113,
+      "height": 127,
+      "frameSource": {
+        "path": "ReignBeta/GUI/SpriteParts/ui_reignbeta_shared/reign_modern_portrait_circle_overlay.png",
+        "sha256": "23e64158bddd30152c196be8ddb35bb16e7d14537782a86554c6dae410ff3a63",
+        "fitToCanvas": true
+      },
+      "aperture": {"x": 4, "y": 4, "width": 105, "height": 119},
+      "materialSource": {
+        "path": "ReignBeta/GUI/SpriteParts/ui_reignbeta_war_council/reign_war_council_modern_shell.png",
+        "sha256": "7d4bdfcc7604983045a81b31618bc16c0bdcf9b5fe6a3bffc99e6933f80d2d76",
+        "crop": {"x": 1263, "y": 110, "width": 98, "height": 112}
+      },
+      "recomposeExistingAperturePlate": true,
+      "materialBandPixels": 3,
+      "ornamentBandPixels": 16,
+      "acceptedSourceSha256": ["e3efe21179b6881fb6017b81dc8d773a92137cbd85db8d65a4e1986b3f4fd475", "0e241b2040136724940ff0266e14fd497a106640149d1c7f727ad47dff7aad1c", "351b0a37af1ec0d678ec039b49912da03de6c3ee554c270ef8e0577e65f0c16d", "902cb86e811cb3023cefbed6ba3d5fa22d55d01c9323547b4129e040bf14c2cd", "6522f125eb839fff4fc26ac23eb95ba5d71b7ff1b7eedc99045d698ef38dbe4f", "5d8139d4d7655e855f70e78c43df34ebf8473693b6809c677c8b6d8c676d8ba2"],
+      "expectedOutputSha256": "5d8139d4d7655e855f70e78c43df34ebf8473693b6809c677c8b6d8c676d8ba2"
+    },
+    {
+      "id": "war-council-lord-portrait-active",
+      "path": "ReignBeta/GUI/SpriteParts/ui_reignbeta_war_council/reign_war_council_lord_portrait_mask_active.png",
+      "width": 113,
+      "height": 127,
+      "createIfMissing": true,
+      "recomposeExistingAperturePlate": true,
+      "frameSource": {
+        "path": "ReignBeta/GUI/SpriteParts/ui_reignbeta_shared/reign_modern_portrait_circle_overlay.png",
+        "sha256": "23e64158bddd30152c196be8ddb35bb16e7d14537782a86554c6dae410ff3a63",
+        "fitToCanvas": true
+      },
+      "materialColor": "#232323",
+      "aperture": {"x": 4, "y": 4, "width": 105, "height": 119},
+      "materialBandPixels": 3,
+      "ornamentBandPixels": 16,
+      "acceptedSourceSha256": ["757d64c2edbd18ffdb55687cfc5086505575e990354bf652d6c53c0a50ae37b0", "95209382776af67feae51b2ab279450ecc8ffa4ca49399215fe4d17f349ab98a"],
+      "expectedOutputSha256": "95209382776af67feae51b2ab279450ecc8ffa4ca49399215fe4d17f349ab98a"
+    },
+    {
+      "id": "war-council-assigned-portrait",
+      "path": "ReignBeta/GUI/SpriteParts/ui_reignbeta_war_council/reign_war_council_assigned_portrait_mask.png",
+      "width": 122,
+      "height": 207,
+      "frameSource": {
+        "path": "ReignBeta/GUI/SpriteParts/ui_reignbeta_shared/reign_modern_portrait_oval_thin_frame.png",
+        "sha256": "1a47eb07a8181a29ff64ae413685109259ba31a83760bd024af011b0ce4dd1b6",
+        "fitToCanvas": true
+      },
+      "aperture": {"x": 5, "y": 6, "width": 112, "height": 195},
+      "materialSource": {
+        "path": "ReignBeta/GUI/SpriteParts/ui_reignbeta_war_council/reign_war_council_modern_shell.png",
+        "sha256": "7d4bdfcc7604983045a81b31618bc16c0bdcf9b5fe6a3bffc99e6933f80d2d76",
+        "crop": {"x": 1257, "y": 700, "width": 106, "height": 182}
+      },
+      "recomposeExistingAperturePlate": true,
+      "materialBandPixels": 4,
+      "ornamentBandPixels": 18,
+      "acceptedSourceSha256": ["eabe492f1d4186ced165c3702c42a333ae219210f930afcf21f5f61c408c2bd4", "118c1217361e41c349fcf60b6a65b8806f23cec64fb69c99386e3571f84e8e14", "f91949cab862b0916d9ef12eee29732b8cee7d6cdd5abe77434fe0df9d70a8b7", "1f6cb5260dccc5a6f9abcb6d09bfae32acb20b8fd714a59ee71bab9795139da4", "e91b329f85502bc60f5b8ec0e1fd9cb36d17c4f586558d88d6374066a5794bc0", "9fcf9bd75f5c89212649450e6cce57bbe573358c03454f5f96cefb47ce6aefc9", "4586c93f8720494d5009cf89fd9f21c6cb9939280dece0edace28aa610039a50", "5914136b5fc359b17b6f0db6f7244bbfa110f3bb8bc0bb621653bba75cbc7367"],
+      "expectedOutputSha256": "5914136b5fc359b17b6f0db6f7244bbfa110f3bb8bc0bb621653bba75cbc7367"
+    },
+    {
+      "id": "war-council-candidate-portrait",
+      "path": "ReignBeta/GUI/SpriteParts/ui_reignbeta_war_council/reign_war_council_candidate_portrait_mask.png",
+      "width": 54,
+      "height": 54,
+      "frameSource": {
+        "path": "ReignBeta/GUI/SpriteParts/ui_reignbeta_shared/reign_modern_portrait_circle_overlay.png",
+        "sha256": "23e64158bddd30152c196be8ddb35bb16e7d14537782a86554c6dae410ff3a63",
+        "fitToCanvas": true
+      },
+      "aperture": {"x": 3, "y": 3, "width": 48, "height": 48},
+      "materialColor": "#171717",
+      "recomposeExistingAperturePlate": true,
+      "materialBandPixels": 2,
+      "ornamentBandPixels": 8,
+      "acceptedSourceSha256": ["e712ba0bccc4592077ad5ef805f0fc43e659c867021657a4db6b36f6b17b55c8", "265cf3002968c0b3df298e784ddbf63c93109b2d17c4bcefd41a757f3214a5f7", "2befedb6415d40d872eeb327247382c85800f6b3927d97142e342ff88937a6ad", "4f7d12d0d530dc75583e94f9f42dd207795002db4dc95300a6d7c8fb91b1d1b7", "3a6540814d52470d749a2ee93e44b6d04bfd814f6d88ca9278e6854ed823c3db", "63c591e3846456cdf67c92bed1f9993a7cff43d9f213a35685c5eb35c5e2c24a"],
+      "expectedOutputSha256": "63c591e3846456cdf67c92bed1f9993a7cff43d9f213a35685c5eb35c5e2c24a"
+    },
+    {
+      "id": "royal-council-war-portrait",
+      "preparationMode": "verify-existing-aperture-plate",
+      "path": "ReignBeta/GUI/SpriteParts/ui_reignbeta_royal_council/reign_royal_council_war_portrait_mask.png",
+      "width": 258,
+      "height": 320,
+      "aperture": {"x": 12, "y": 10, "width": 233, "height": 302},
+      "thresholds": {"allowedOpaqueLeakPixels": 400, "maximumOpaqueLeakRatio": 0.01},
+      "materialBandPixels": 4,
+      "ornamentBandPixels": 24,
+      "acceptedSourceSha256": ["733e5bd56d18ab7a190e7dee1b1b3ab3262111aa8ddc31476db75bfafd3740f7", "4d152de86d2b1b3e17eb0fc534675a958e500f7df5c9da74fab3258fdbe1329a", "7abd496fac4eb1a0cc9554aec5b98b16673aed06443c6da501cc1517cb5c6684", "e0a46160c6902a63725f255bed982e682f6350615ed828aa594d06882bc2ea96", "23a9be3af4400b19821f1a7ae199a1dab88a17a38e5b410d2e4192dcf31d9664", "72efde31e09fca595563757665ffb25be3a6e46c8c4462cf478128e533d70738"],
+      "expectedOutputSha256": "72efde31e09fca595563757665ffb25be3a6e46c8c4462cf478128e533d70738"
+    },
+    {
+      "id": "royal-council-spymaster-portrait",
+      "preparationMode": "verify-existing-aperture-plate",
+      "path": "ReignBeta/GUI/SpriteParts/ui_reignbeta_royal_council/reign_royal_council_spymaster_portrait_mask.png",
+      "width": 257,
+      "height": 307,
+      "aperture": {"x": 16, "y": 8, "width": 226, "height": 292},
+      "thresholds": {"allowedOpaqueLeakPixels": 300, "maximumOpaqueLeakRatio": 0.01},
+      "materialBandPixels": 4,
+      "ornamentBandPixels": 24,
+      "acceptedSourceSha256": ["b5f1f19a6e7f163ed88f00a5f591d10c2f662f440a1020056d61f4edebe0af23", "64021b474f0e0a12b7a5de5617def2edce1a0b9edbdaac9dd79d774a8064c289", "3e70ae7ed355ff3f5a13658854d46fa823eb877c6e81e66eb5d123e7dae1fdfb", "5a7338bd1ab2838af4082ee16b911d1cec3d89c103f25ebf3a2410b7d515c5c1", "595542d924b88ff498b83ee2c51381edc3f23a97d176727924359351e157bbdd", "09d8bad40dc459158a3c889f8db9af8f84ea6ed8dba5cd8d1a2506035c7dce93"],
+      "expectedOutputSha256": "09d8bad40dc459158a3c889f8db9af8f84ea6ed8dba5cd8d1a2506035c7dce93"
+    },
+    {
+      "id": "royal-council-economic-portrait",
+      "preparationMode": "verify-existing-aperture-plate",
+      "path": "ReignBeta/GUI/SpriteParts/ui_reignbeta_royal_council/reign_royal_council_economic_portrait_mask.png",
+      "width": 256,
+      "height": 318,
+      "aperture": {"x": 7, "y": 12, "width": 223, "height": 302},
+      "materialBandPixels": 4,
+      "ornamentBandPixels": 24,
+      "acceptedSourceSha256": ["7c14ed069e20ccda0094c84fb137b3d04d6d6e8e6591c441c1cfbd73580b548c", "e498ea1cde8ac8918e99406de2845563f9c3468e32e1d397c4e33f5eae59db9f", "322dd09c28bb34414198461fd93afe6b830f56530c2de51ca4daa9830ae5e36d", "2b29c4273c59caeeb933c9e03f8fc7bc7cef69fc4a0f8d40fa566d3c4cd4c20a"],
+      "expectedOutputSha256": "2b29c4273c59caeeb933c9e03f8fc7bc7cef69fc4a0f8d40fa566d3c4cd4c20a"
+    },
+    {
+      "id": "royal-council-foreign-portrait",
+      "preparationMode": "verify-existing-aperture-plate",
+      "path": "ReignBeta/GUI/SpriteParts/ui_reignbeta_royal_council/reign_royal_council_foreign_portrait_mask.png",
+      "width": 255,
+      "height": 305,
+      "aperture": {"x": 8, "y": 6, "width": 221, "height": 297},
+      "thresholds": {"allowedOpaqueLeakPixels": 500, "maximumOpaqueLeakRatio": 0.01, "allowedTransparentFringePixels": 120, "maximumTransparentFringeRatio": 0.05},
+      "materialBandPixels": 4,
+      "ornamentBandPixels": 24,
+      "acceptedSourceSha256": ["c348837f0c59d4affb10e498982c9c73e0a8116a393593c484e664ef17d0092d", "2982350f9b786e7fd0ea5e593c33a8e3c470def3d82150a45f7c709840d845e6", "1791e1d78aef1dd0e64e8f40bd748881c69ac6cc62dc279fb36d0b771adab41c", "c21de6421130d8edf720ea443ee4dd89661dda705e337fff62d59376e2c7602f", "b72c7425bd7730cf07ee7dfa8f65fc33935a5cbbb812cac773ebe4f489c77a5f", "08c7e90179c8e0bded8b0ea2b7d1b6c459d99358353bf83a173af81aa3ab82a8"],
+      "expectedOutputSha256": "08c7e90179c8e0bded8b0ea2b7d1b6c459d99358353bf83a173af81aa3ab82a8"
+    }
+  ]
+}

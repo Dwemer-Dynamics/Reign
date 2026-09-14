@@ -1,0 +1,9 @@
+artifacts/
+**/bin/
+**/obj/
+*.user
+*.suo
+.vs/
+module/BannerlordEditorBridge/bin/
+logs/
+snapshots/

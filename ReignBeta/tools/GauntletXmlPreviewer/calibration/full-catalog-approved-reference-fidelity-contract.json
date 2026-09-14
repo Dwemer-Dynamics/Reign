@@ -1,0 +1,107 @@
+{
+  "schema": "reign-ui-approved-reference-fidelity-contract-v1",
+  "description": "All-interface approved-reference masks. Entries backed by reign-fixed-region-composite-v1 specs are loaded directly so source composition and rendered/native acceptance share one dynamic-region authority.",
+  "screens": [
+    { "id": "tavern-house", "fixedRegionSpec": "../../../artwork/ui-modern-style-kit/specs/tavern-house-shell.json" },
+    { "id": "clan-accords", "fixedRegionSpec": "../../../artwork/ui-modern-style-kit/specs/clan-accords-shell.json" },
+    {
+      "id": "ambassador",
+      "fixedRegionSpec": "../../../artwork/ui-modern-style-kit/specs/screen-ambassador-fixed-region-mask.json"
+    },
+    {
+      "id": "calibration-overlay",
+      "fixedRegionSpec": "../../../artwork/ui-modern-style-kit/specs/screen-calibration-overlay-fixed-region-mask.json"
+    },
+    {
+      "id": "castle-layout",
+      "fixedRegionSpec": "../../../artwork/ui-modern-style-kit/specs/screen-castle-layout-fixed-region-mask.json"
+    },
+    {
+      "id": "correspondence",
+      "fixedRegionSpec": "../../../artwork/ui-modern-style-kit/specs/screen-correspondence-fixed-region-mask.json"
+    },
+    {
+      "id": "court",
+      "fixedRegionSpec": "../../../artwork/ui-modern-style-kit/specs/screen-court-fixed-region-mask.json"
+    },
+    {
+      "id": "diplomacy-announcement",
+      "fixedRegionSpec": "../../../artwork/ui-modern-style-kit/specs/screen-diplomacy-announcement-fixed-region-mask.json"
+    },
+    {
+      "id": "economic-report",
+      "fixedRegionSpec": "../../../artwork/ui-modern-style-kit/specs/screen-economic-report-fixed-region-mask.json"
+    },
+    {
+      "id": "government",
+      "fixedRegionSpec": "../../../artwork/ui-modern-style-kit/specs/screen-government-fixed-region-mask.json"
+    },
+    {
+      "id": "individual-chat",
+      "fixedRegionSpec": "../../../artwork/ui-modern-style-kit/specs/screen-individual-chat-fixed-region-mask.json"
+    },
+    {
+      "id": "memories-book",
+      "fixedRegionSpec": "../../../artwork/ui-modern-style-kit/specs/screen-memories-book-fixed-region-mask.json"
+    },
+    {
+      "id": "notable-generation",
+      "fixedRegionSpec": "../../../artwork/ui-modern-style-kit/specs/screen-notable-generation-fixed-region-mask.json"
+    },
+    {
+      "id": "party-chat",
+      "fixedRegionSpec": "../../../artwork/ui-modern-style-kit/specs/screen-party-chat-fixed-region-mask.json"
+    },
+    {
+      "id": "royal-council",
+      "fixedRegionSpec": "../../../artwork/ui-modern-style-kit/specs/screen-royal-council-fixed-region-mask.json"
+    },
+    {
+      "id": "social-event",
+      "fixedRegionSpec": "../../../artwork/ui-modern-style-kit/specs/screen-social-event-fixed-region-mask.json"
+    },
+    {
+      "id": "spymaster",
+      "fixedRegionSpec": "../../../artwork/ui-modern-style-kit/specs/screen-spymaster-fixed-region-mask.json"
+    },
+    {
+      "id": "war-council",
+      "fixedRegionSpec": "../../../artwork/ui-modern-style-kit/specs/screen-war-council-fixed-region-mask.json"
+    },
+    {
+      "id": "wilderness-event",
+      "fixedRegionSpec": "../../../artwork/ui-modern-style-kit/specs/screen-wilderness-event-fixed-region-mask.json"
+    },
+    {
+      "id": "family-chambers",
+      "fixedRegionSpec": "../../../artwork/ui-modern-style-kit/specs/screen-family-chambers-fixed-region-mask.json"
+    },
+    {
+      "id": "training-yard",
+      "fixedRegionSpec": "../../../artwork/ui-modern-style-kit/specs/screen-training-yard-fixed-region-mask.json"
+    },
+    {
+      "id": "castle-chat",
+      "exclusions": [
+        { "id": "room-title", "category": "dynamic-text", "shape": "rectangle", "x": 470, "y": 36, "width": 938, "height": 62 },
+        { "id": "player-portrait", "category": "portrait-or-scene", "shape": "ellipse", "x": 50, "y": 156, "width": 116, "height": 116 },
+        { "id": "player-identity", "category": "dynamic-text", "shape": "rectangle", "x": 176, "y": 162, "width": 192, "height": 110 },
+        { "id": "member-portrait-1", "category": "portrait-or-scene", "shape": "ellipse", "x": 50, "y": 282, "width": 116, "height": 116 },
+        { "id": "member-portrait-2", "category": "portrait-or-scene", "shape": "ellipse", "x": 50, "y": 402, "width": 116, "height": 116 },
+        { "id": "member-portrait-3", "category": "portrait-or-scene", "shape": "ellipse", "x": 50, "y": 522, "width": 116, "height": 116 },
+        { "id": "member-portrait-4", "category": "portrait-or-scene", "shape": "ellipse", "x": 50, "y": 642, "width": 116, "height": 116 },
+        { "id": "member-identity-1", "category": "list-or-runtime-content", "shape": "rectangle", "x": 176, "y": 282, "width": 192, "height": 116 },
+        { "id": "member-identity-2", "category": "list-or-runtime-content", "shape": "rectangle", "x": 176, "y": 402, "width": 192, "height": 116 },
+        { "id": "member-identity-3", "category": "list-or-runtime-content", "shape": "rectangle", "x": 176, "y": 522, "width": 192, "height": 116 },
+        { "id": "member-identity-4", "category": "list-or-runtime-content", "shape": "rectangle", "x": 176, "y": 642, "width": 192, "height": 116 },
+        { "id": "runtime-room-art", "category": "portrait-or-scene", "shape": "rectangle", "x": 580, "y": 117, "width": 796, "height": 451 },
+        { "id": "room-transcript-title", "category": "dynamic-text", "shape": "rectangle", "x": 575, "y": 541, "width": 900, "height": 22 },
+        { "id": "runtime-transcript", "category": "list-or-runtime-content", "shape": "rectangle", "x": 450, "y": 568, "width": 1123, "height": 184 },
+        { "id": "transcript-scroll-runtime", "category": "unprovided-state", "shape": "rectangle", "x": 1580, "y": 562, "width": 20, "height": 196 },
+        { "id": "busy-state", "category": "dynamic-text", "shape": "rectangle", "x": 467, "y": 770, "width": 850, "height": 30 },
+        { "id": "input-text", "category": "dynamic-text", "shape": "rectangle", "x": 450, "y": 820, "width": 790, "height": 36 },
+        { "id": "send-label", "category": "dynamic-text", "shape": "rectangle", "x": 1385, "y": 820, "width": 150, "height": 42 }
+      ]
+    }
+  ]
+}

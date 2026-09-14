@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Config>
+    <SpriteCategory Name="ui_reignbeta_main_menu">
+        <AlwaysLoad/>
+    </SpriteCategory>
+    <SpriteCategory Name="ui_reignbeta_individual">
+        <AlwaysLoad/>
+    </SpriteCategory>
+    <SpriteCategory Name="ui_reignbeta_party">
+        <AlwaysLoad/>
+    </SpriteCategory>
+    <SpriteCategory Name="ui_reignbeta_party_chat">
+        <AlwaysLoad/>
+    </SpriteCategory>
+    <SpriteCategory Name="ui_reignbeta_court">
+        <AlwaysLoad/>
+    </SpriteCategory>
+    <SpriteCategory Name="ui_reignbeta_castle_layout">
+        <AlwaysLoad/>
+    </SpriteCategory>
+    <SpriteCategory Name="ui_reignbeta_family_chambers">
+        <AlwaysLoad/>
+    </SpriteCategory>
+    <SpriteCategory Name="ui_reignbeta_training_yard">
+        <AlwaysLoad/>
+    </SpriteCategory>
+    <SpriteCategory Name="ui_reignbeta_social_event">
+        <AlwaysLoad/>
+    </SpriteCategory>
+    <SpriteCategory Name="ui_reignbeta_correspondence">
+        <AlwaysLoad/>
+    </SpriteCategory>
+    <SpriteCategory Name="ui_reignbeta_diplomacy">
+        <AlwaysLoad/>
+    </SpriteCategory>
+    <SpriteCategory Name="ui_reignbeta_economic_report">
+        <AlwaysLoad/>
+    </SpriteCategory>
+    <SpriteCategory Name="ui_reignbeta_war_council">
+        <AlwaysLoad/>
+    </SpriteCategory>
+    <SpriteCategory Name="ui_reignbeta_ambassador">
+        <AlwaysLoad/>
+    </SpriteCategory>
+    <SpriteCategory Name="ui_reignbeta_spymaster">
+        <AlwaysLoad/>
+    </SpriteCategory>
+    <SpriteCategory Name="ui_reignbeta_calibration">
+        <AlwaysLoad/>
+    </SpriteCategory>
+    <SpriteCategory Name="ui_reignbeta_royal_council">
+        <AlwaysLoad/>
+    </SpriteCategory>
+    <SpriteCategory Name="ui_reignbeta_memories">
+        <AlwaysLoad/>
+    </SpriteCategory>
+    <SpriteCategory Name="ui_reignbeta_government">
+        <AlwaysLoad/>
+    </SpriteCategory>
+    <SpriteCategory Name="ui_reignbeta_shared">
+        <AlwaysLoad/>
+    </SpriteCategory>
+    <SpriteCategory Name="ui_reignbeta_generation">
+        <AlwaysLoad/>
+    </SpriteCategory>
+    <SpriteCategory Name="ui_reignbeta_fonts">
+        <AlwaysLoad/>
+    </SpriteCategory>
+</Config>

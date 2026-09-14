@@ -1,0 +1,91 @@
+{
+  "schema": "reign-task-prompt-capture-v1",
+  "captureDirectory": ".codex-build/sovereign-castle-prompt-fixes/prompt-capture-20260905",
+  "runtimeDirectory": "C:/Users/speed/AppData/Local/Bannerlord Reign/prompts",
+  "files": [
+    {
+      "name": "castle_chat_aserai_baths_image.txt",
+      "baselineSha256": "7E0DEE51FDFB2FC811D15FB95B71D305C394E9235F43D583B000F5A4C42AC59C",
+      "sourceSha256": "7E0DEE51FDFB2FC811D15FB95B71D305C394E9235F43D583B000F5A4C42AC59C",
+      "exactExpected": true
+    },
+    {
+      "name": "castle_chat_aserai_baths_dialogue.txt",
+      "baselineSha256": "73FA44F1A4685183D29717ABAE2C059D8DE8C9CAC1FCDB8AB91FD053912744A0",
+      "sourceSha256": "9155A4729881A48658FC85D1E25A0E0CA41A560B05630DBDEBDE9F9B60D88FEF",
+      "exactExpected": true
+    },
+    {
+      "name": "castle_chat_battania_baths_image.txt",
+      "baselineSha256": "A0CE72E63F5377AB14367DE676BEA385EF9EEE5E4ED2657AA0C31510AC63B1D9",
+      "sourceSha256": "A0CE72E63F5377AB14367DE676BEA385EF9EEE5E4ED2657AA0C31510AC63B1D9",
+      "exactExpected": true
+    },
+    {
+      "name": "castle_chat_battania_baths_dialogue.txt",
+      "baselineSha256": "0046C48818A8854BE287951B60CFE2C878CBAA3E15D43DEE552EB83B6A646B97",
+      "sourceSha256": "40DEE07C7B5F7A9C3E4F89B8FCEEC1B64016EBE107CFF2C02B55C4F4C6472742",
+      "exactExpected": true
+    },
+    {
+      "name": "castle_chat_empire_baths_image.txt",
+      "baselineSha256": "199B139C85789E02B7EEC97204D3E7746766EECABC0A8D789B30B9A5E94AF33E",
+      "sourceSha256": "199B139C85789E02B7EEC97204D3E7746766EECABC0A8D789B30B9A5E94AF33E",
+      "exactExpected": true
+    },
+    {
+      "name": "castle_chat_empire_baths_dialogue.txt",
+      "baselineSha256": "59AB2F6EE0DEF1746E890516CA99CB391691B76E5BE2DF1F6F6936273652C095",
+      "sourceSha256": "A3CB55EA02F3CE938048E003DE033AD1B0C5871AE0D36F136F33B62AA816D6C4",
+      "exactExpected": true
+    },
+    {
+      "name": "castle_chat_khuzait_baths_image.txt",
+      "baselineSha256": "CAE71AD1001D339A255DCE4D14721EECE66AA10A6DD0D5C47BCF4DEAEB3E41B4",
+      "sourceSha256": "CAE71AD1001D339A255DCE4D14721EECE66AA10A6DD0D5C47BCF4DEAEB3E41B4",
+      "exactExpected": true
+    },
+    {
+      "name": "castle_chat_khuzait_baths_dialogue.txt",
+      "baselineSha256": "CC0277F6AC298C0CFC51F5111AE6050240596B015404728B0744EE8A67D715F3",
+      "sourceSha256": "4341034BF8459F4A5CE2244AB181F69446019AA66067BF7FE5794F6FA9C7DC60",
+      "exactExpected": true
+    },
+    {
+      "name": "castle_chat_nord_baths_image.txt",
+      "baselineSha256": "1BC3CF6E70CBB32AA8ADC66204EEC15933D84337994DD154B86FBA0B13A0065E",
+      "sourceSha256": "1BC3CF6E70CBB32AA8ADC66204EEC15933D84337994DD154B86FBA0B13A0065E",
+      "exactExpected": true
+    },
+    {
+      "name": "castle_chat_nord_baths_dialogue.txt",
+      "baselineSha256": "694ED446E7409C048E782B4159A26CCF813CED67851CDB745511060374A4C4D1",
+      "sourceSha256": "8D0BA5CAA488CEB704D910073FC19DF27DA387F09E4919B3C43422DE4ABD32A8",
+      "exactExpected": true
+    },
+    {
+      "name": "castle_chat_sturgia_baths_image.txt",
+      "baselineSha256": "6E6B8F8D3559C90D91F2D1FB35AA3EF71000B864746AE5A1E41D587D82901275",
+      "sourceSha256": "6E6B8F8D3559C90D91F2D1FB35AA3EF71000B864746AE5A1E41D587D82901275",
+      "exactExpected": true
+    },
+    {
+      "name": "castle_chat_sturgia_baths_dialogue.txt",
+      "baselineSha256": "1FC6061B1DEB10E4EB9E4697DB4F421D84A5FB7AA726955B6006A9959F1DB086",
+      "sourceSha256": "85649F6A9AE4ADCA4A169BF8ABDEC7D01938D587B7CA673B33F1316650D4CD47",
+      "exactExpected": true
+    },
+    {
+      "name": "castle_chat_vlandia_baths_image.txt",
+      "baselineSha256": "E611D5C1190CDD4D8E8653280CFD295F5F7A46A5A9A87D64D5170E40FC52E8D4",
+      "sourceSha256": "E611D5C1190CDD4D8E8653280CFD295F5F7A46A5A9A87D64D5170E40FC52E8D4",
+      "exactExpected": true
+    },
+    {
+      "name": "castle_chat_vlandia_baths_dialogue.txt",
+      "baselineSha256": "CE48D660CAF0B2CA182D0D6827B6D2410DF3C1AFF08AE57E0310C6291AD72CAB",
+      "sourceSha256": "9307155B00132FE50F5B9D7EC6EA9DD310A89C9BFF4081433E6B1D2E5B96E75B",
+      "exactExpected": true
+    }
+  ]
+}

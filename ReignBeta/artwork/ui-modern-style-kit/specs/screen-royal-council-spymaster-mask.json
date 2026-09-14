@@ -1,0 +1,23 @@
+{
+  "schema": "reign-overlay-asset-spec-v1",
+  "asset": {
+    "id": "royal-council-spymaster-portrait-mask",
+    "role": "seat-specific foreground material-and-frame mask for the Spymaster runtime portrait",
+    "selectedGeneratedSourceSha256": "4a12ef961203a64027fa5d33e51d8f421e61a574e34031373d1f5da6b1dc2111",
+    "generationMode": "deterministic crop from the built-in image-to-image Royal Council production shell"
+  },
+  "canvas": {"width": 257, "height": 307},
+  "normalization": {
+    "fit": "exact",
+    "anchor": "center",
+    "sourceCrop": {"x": 120, "y": 465, "width": 257, "height": 307}
+  },
+  "antialiasScale": 8,
+  "apertureEdgeMode": "hard",
+  "apertureFramePreservation": {"minimumRed": 45, "minimumRedMinusBlue": 8, "minimumGreenMinusBlue": 3},
+  "transparentRgb": "#070808",
+  "marbleReduction": {"amount": 0.0, "blurRadius": 6.0, "luminanceCeiling": 96, "chromaCeiling": 36, "selectionSoftness": 20},
+  "apertures": [
+    {"id": "spymaster-portrait", "shape": "oval", "x": 16, "y": 8, "width": 227, "height": 292, "feather": 0.0}
+  ]
+}

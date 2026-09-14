@@ -1,0 +1,26 @@
+{
+  "schema": "reign-fixed-region-composite-v1",
+  "assetId": "family-chambers-modern-shell-clean-source",
+  "approvedReference": {
+    "path": "../generated-sources/screen-shells/family-chambers-modern-shell-source.png",
+    "sha256": "eb2e3359eaf8b5b002177965441d9a0eb5a9d005709c138965f4b3c51abcaacb"
+  },
+  "imageToImageFill": {
+    "path": "../generated-sources/screen-shells/family-chambers-rail-clean-i2i-fill.png",
+    "sha256": "925e13932bba7e74dc23b7a9d6aa60b68e8e779f955a1771eb4206cd0ff6caa7",
+    "normalization": "exact 1672x941"
+  },
+  "canvas": {"width": 1672, "height": 941},
+  "policy": "Only the two scrolling-list interiors are replaced by the image-to-image clean material. Every pixel outside those interiors remains byte-for-byte identical to the selected Family Chambers generated source.",
+  "rectangularFillMode": {
+    "type": "median-border color-matched image-to-image patch",
+    "inwardFeatherPixels": 0,
+    "borderSamplePixels": 4
+  },
+  "sceneDependentMasks": [
+    {"id": "adult-list-clean-interior", "shape": "rectangle", "x": 54, "y": 170, "width": 330, "height": 630, "colorMatch": false},
+    {"id": "adult-scrollbar-clean-interior", "shape": "rectangle", "x": 390, "y": 173, "width": 12, "height": 621, "colorMatch": false, "fillSourceX": 360, "fillSourceY": 173},
+    {"id": "child-list-clean-interior", "shape": "rectangle", "x": 1274, "y": 170, "width": 326, "height": 630, "colorMatch": false},
+    {"id": "child-scrollbar-clean-interior", "shape": "rectangle", "x": 1604, "y": 173, "width": 12, "height": 621, "colorMatch": false, "fillSourceX": 1560, "fillSourceY": 173}
+  ]
+}

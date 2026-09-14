@@ -1,0 +1,87 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Prefab>
+  <Window>
+    <Widget WidthSizePolicy="StretchToParent" HeightSizePolicy="StretchToParent">
+      <Children>
+        <Widget Id="RoyalCouncilCanvas" WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="1672" SuggestedHeight="941" HorizontalAlignment="Center" VerticalAlignment="Center" Sprite="reign_royal_council_modern_shell" DoNotUseCustomScaleAndChildren="true">
+          <Children>
+            <!-- Fixed title, close glyph, seat-role headings, and SEND caption are baked into the approved shell. -->
+            <ButtonWidget WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="64" SuggestedHeight="64" HorizontalAlignment="Right" MarginRight="56" MarginTop="35" Command.Click="ExecuteClose" Brush="ConversationItem.SoundBrush" />
+
+            <Widget DataSource="{WarSeat}" WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="302" SuggestedHeight="423" MarginLeft="82" MarginTop="32">
+              <Children><ButtonWidget WidthSizePolicy="StretchToParent" HeightSizePolicy="StretchToParent" Command.Click="ExecuteOpen" DoNotPassEventsToChildren="true"><Children>
+                <Widget Id="WarPortraitClip" IsVisible="@HasPortrait" DoNotAcceptEvents="true" WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="233" SuggestedHeight="304" MarginLeft="49" MarginTop="26" ClipContents="true"><Children>
+                  <ImageIdentifierWidget DoNotAcceptEvents="true" WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="304" SuggestedHeight="304" HorizontalAlignment="Center" VerticalAlignment="Center" ImageId="@PortraitId" AdditionalArgs="@PortraitAdditionalArgs" TextureProviderName="@PortraitTextureProviderName" />
+                  <ReignPortraitWidget Type="ReignBeta.UI.Widgets.ReignPortraitWidget" DoNotAcceptEvents="true" WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="304" SuggestedHeight="304" HorizontalAlignment="Center" VerticalAlignment="Center" PortraitCacheKey="@PortraitCacheKey" TargetAspect="1.0" UseFullBody="false" />
+                </Children></Widget>
+                <TextWidget DoNotAcceptEvents="true" WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="275" SuggestedHeight="19" MarginLeft="14" MarginTop="372" Brush="Info.Text" Brush.Font="ReignSerifDynamic" Brush.FontSize="11" Brush.TextHorizontalAlignment="Center" Brush.TextVerticalAlignment="Center" Brush.FontColor="#C5BDAFFF" Text="@Name" />
+                <TextWidget DoNotAcceptEvents="true" WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="275" SuggestedHeight="15" MarginLeft="14" MarginTop="395" Brush="Info.Text" Brush.Font="ReignSerifDynamic" Brush.FontSize="8" Brush.TextHorizontalAlignment="Center" Brush.TextVerticalAlignment="Center" Brush.FontColor="#8A8883FF" Text="@Status" />
+              </Children></ButtonWidget></Children>
+            </Widget>
+
+            <Widget DataSource="{SpymasterSeat}" WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="302" SuggestedHeight="423" MarginLeft="82" MarginTop="446">
+              <Children><ButtonWidget WidthSizePolicy="StretchToParent" HeightSizePolicy="StretchToParent" Command.Click="ExecuteOpen" DoNotPassEventsToChildren="true"><Children>
+                <Widget Id="SpymasterPortraitClip" IsVisible="@HasPortrait" DoNotAcceptEvents="true" WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="227" SuggestedHeight="292" MarginLeft="54" MarginTop="27" ClipContents="true"><Children>
+                  <ImageIdentifierWidget DoNotAcceptEvents="true" WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="304" SuggestedHeight="304" HorizontalAlignment="Center" VerticalAlignment="Center" ImageId="@PortraitId" AdditionalArgs="@PortraitAdditionalArgs" TextureProviderName="@PortraitTextureProviderName" />
+                  <ReignPortraitWidget Type="ReignBeta.UI.Widgets.ReignPortraitWidget" DoNotAcceptEvents="true" WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="304" SuggestedHeight="304" HorizontalAlignment="Center" VerticalAlignment="Center" PortraitCacheKey="@PortraitCacheKey" TargetAspect="1.0" UseFullBody="false" />
+                </Children></Widget>
+                <TextWidget DoNotAcceptEvents="true" WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="275" SuggestedHeight="19" MarginLeft="14" MarginTop="372" Brush="Info.Text" Brush.Font="ReignSerifDynamic" Brush.FontSize="11" Brush.TextHorizontalAlignment="Center" Brush.TextVerticalAlignment="Center" Brush.FontColor="#C5BDAFFF" Text="@Name" />
+                <TextWidget DoNotAcceptEvents="true" WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="275" SuggestedHeight="15" MarginLeft="14" MarginTop="395" Brush="Info.Text" Brush.Font="ReignSerifDynamic" Brush.FontSize="8" Brush.TextHorizontalAlignment="Center" Brush.TextVerticalAlignment="Center" Brush.FontColor="#8A8883FF" Text="@Status" />
+              </Children></ButtonWidget></Children>
+            </Widget>
+
+            <Widget DataSource="{EconomicSeat}" WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="302" SuggestedHeight="423" HorizontalAlignment="Right" MarginRight="82" MarginTop="32">
+              <Children><ButtonWidget WidthSizePolicy="StretchToParent" HeightSizePolicy="StretchToParent" Command.Click="ExecuteOpen" DoNotPassEventsToChildren="true"><Children>
+                <Widget Id="EconomicPortraitClip" IsVisible="@HasPortrait" DoNotAcceptEvents="true" WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="223" SuggestedHeight="302" MarginLeft="16" MarginTop="30" ClipContents="true"><Children>
+                  <ImageIdentifierWidget DoNotAcceptEvents="true" WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="304" SuggestedHeight="304" HorizontalAlignment="Center" VerticalAlignment="Center" ImageId="@PortraitId" AdditionalArgs="@PortraitAdditionalArgs" TextureProviderName="@PortraitTextureProviderName" />
+                  <ReignPortraitWidget Type="ReignBeta.UI.Widgets.ReignPortraitWidget" DoNotAcceptEvents="true" WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="304" SuggestedHeight="304" HorizontalAlignment="Center" VerticalAlignment="Center" PortraitCacheKey="@PortraitCacheKey" TargetAspect="1.0" UseFullBody="false" />
+                </Children></Widget>
+                <TextWidget DoNotAcceptEvents="true" WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="275" SuggestedHeight="19" MarginLeft="14" MarginTop="372" Brush="Info.Text" Brush.Font="ReignSerifDynamic" Brush.FontSize="11" Brush.TextHorizontalAlignment="Center" Brush.TextVerticalAlignment="Center" Brush.FontColor="#C5BDAFFF" Text="@Name" />
+                <TextWidget DoNotAcceptEvents="true" WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="275" SuggestedHeight="15" MarginLeft="14" MarginTop="395" Brush="Info.Text" Brush.Font="ReignSerifDynamic" Brush.FontSize="8" Brush.TextHorizontalAlignment="Center" Brush.TextVerticalAlignment="Center" Brush.FontColor="#8A8883FF" Text="@Status" />
+              </Children></ButtonWidget></Children>
+            </Widget>
+
+            <Widget DataSource="{ForeignSeat}" WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="302" SuggestedHeight="423" HorizontalAlignment="Right" MarginRight="82" MarginTop="446">
+              <Children><ButtonWidget WidthSizePolicy="StretchToParent" HeightSizePolicy="StretchToParent" Command.Click="ExecuteOpen" DoNotPassEventsToChildren="true"><Children>
+                <Widget Id="ForeignPortraitClip" IsVisible="@HasPortrait" DoNotAcceptEvents="true" WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="223" SuggestedHeight="300" MarginLeft="17" MarginTop="22" ClipContents="true"><Children>
+                  <ImageIdentifierWidget DoNotAcceptEvents="true" WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="304" SuggestedHeight="304" HorizontalAlignment="Center" VerticalAlignment="Center" ImageId="@PortraitId" AdditionalArgs="@PortraitAdditionalArgs" TextureProviderName="@PortraitTextureProviderName" />
+                  <ReignPortraitWidget Type="ReignBeta.UI.Widgets.ReignPortraitWidget" DoNotAcceptEvents="true" WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="304" SuggestedHeight="304" HorizontalAlignment="Center" VerticalAlignment="Center" PortraitCacheKey="@PortraitCacheKey" TargetAspect="1.0" UseFullBody="false" />
+                </Children></Widget>
+                <TextWidget DoNotAcceptEvents="true" WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="275" SuggestedHeight="19" MarginLeft="14" MarginTop="372" Brush="Info.Text" Brush.Font="ReignSerifDynamic" Brush.FontSize="11" Brush.TextHorizontalAlignment="Center" Brush.TextVerticalAlignment="Center" Brush.FontColor="#C5BDAFFF" Text="@Name" />
+                <TextWidget DoNotAcceptEvents="true" WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="275" SuggestedHeight="15" MarginLeft="14" MarginTop="395" Brush="Info.Text" Brush.Font="ReignSerifDynamic" Brush.FontSize="8" Brush.TextHorizontalAlignment="Center" Brush.TextVerticalAlignment="Center" Brush.FontColor="#8A8883FF" Text="@Status" />
+              </Children></ButtonWidget></Children>
+            </Widget>
+
+            <!-- Untouched rectangular sources sit below seat-specific opaque marble aperture plates; the gold oval is the topmost layer. -->
+            <Widget Id="WarPortraitFrameOverlay" DataSource="{WarSeat}" IsVisible="@HasPortrait" DoNotAcceptEvents="true" WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="258" SuggestedHeight="320" MarginLeft="119" MarginTop="50" Sprite="reign_royal_council_war_portrait_mask" />
+            <Widget Id="SpymasterPortraitFrameOverlay" DataSource="{SpymasterSeat}" IsVisible="@HasPortrait" DoNotAcceptEvents="true" WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="257" SuggestedHeight="307" MarginLeft="120" MarginTop="465" Sprite="reign_royal_council_spymaster_portrait_mask" />
+            <Widget Id="EconomicPortraitFrameOverlay" DataSource="{EconomicSeat}" IsVisible="@HasPortrait" DoNotAcceptEvents="true" WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="256" SuggestedHeight="318" HorizontalAlignment="Right" MarginRight="119" MarginTop="50" Sprite="reign_royal_council_economic_portrait_mask" />
+            <Widget Id="ForeignPortraitFrameOverlay" DataSource="{ForeignSeat}" IsVisible="@HasPortrait" DoNotAcceptEvents="true" WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="255" SuggestedHeight="305" HorizontalAlignment="Right" MarginRight="120" MarginTop="465" Sprite="reign_royal_council_foreign_portrait_mask" />
+
+            <!-- Opaque transcript backing removes the shell's decorative dividers so long messages stay legible. -->
+            <Widget Id="CouncilTranscriptCleanBackdrop" DoNotAcceptEvents="true" WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="736" SuggestedHeight="580" MarginLeft="466" MarginTop="145" Sprite="BlankWhiteSquare_9" Color="#10100FFF" />
+            <ScrollablePanel Id="CouncilTranscriptPanel" WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="736" SuggestedHeight="580" MarginLeft="466" MarginTop="145" ClipRect="CouncilTranscriptClip" InnerPanel="CouncilTranscriptClip\CouncilTranscriptList" VerticalScrollbar="..\CouncilTranscriptScrollbar" AutoHideScrollBars="false" OnlyAcceptScrollEventIfCanScroll="true" MouseScrollAxis="Vertical">
+              <Children><Widget Id="CouncilTranscriptClip" WidthSizePolicy="StretchToParent" HeightSizePolicy="StretchToParent" ClipContents="true"><Children>
+                <ListPanel Id="CouncilTranscriptList" DataSource="{Transcript}" WidthSizePolicy="StretchToParent" HeightSizePolicy="CoverChildren" StackLayout.LayoutMethod="VerticalBottomToTop">
+                  <ItemTemplate><Widget WidthSizePolicy="StretchToParent" HeightSizePolicy="Fixed" SuggestedHeight="134" MarginLeft="22" MarginRight="28" ClipContents="true"><Children>
+                    <TextWidget WidthSizePolicy="StretchToParent" HeightSizePolicy="Fixed" SuggestedHeight="22" MarginTop="8" Brush="Info.Text" Brush.Font="ReignSerifDynamic" Brush.FontSize="14" Brush.TextHorizontalAlignment="Center" Brush.FontColor="#A88A54FF" Text="@Speaker" />
+                    <RichTextWidget WidthSizePolicy="StretchToParent" HeightSizePolicy="Fixed" SuggestedHeight="70" MarginTop="34" Brush="Info.Text" Brush.Font="ReignSerifDynamic" Brush.FontSize="15" Brush.TextHorizontalAlignment="Center" Brush.TextVerticalAlignment="Top" Brush.FontColor="#C5BDAFFF" Text="@Text" />
+                  </Children></Widget></ItemTemplate>
+                </ListPanel>
+              </Children></Widget></Children>
+            </ScrollablePanel>
+            <ScrollbarWidget Id="CouncilTranscriptScrollbar" WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="10" SuggestedHeight="568" MarginLeft="1206" MarginTop="151" AlignmentAxis="Vertical" Handle="CouncilTranscriptScrollbarHandle" MaxValue="100" MinValue="0"><Children>
+              <Widget WidthSizePolicy="Fixed" HeightSizePolicy="StretchToParent" SuggestedWidth="2" HorizontalAlignment="Center" Sprite="BlankWhiteSquare" Color="#352C20FF" />
+              <Widget Id="CouncilTranscriptScrollbarHandle" WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="8" SuggestedHeight="42" HorizontalAlignment="Center" Sprite="BlankWhiteSquare_9" Color="#7E6A4DFF" />
+            </Children></ScrollbarWidget>
+
+            <Widget WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="752" SuggestedHeight="92" MarginLeft="455" MarginTop="774"><Children>
+              <EditableTextWidget WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="625" SuggestedHeight="66" MarginLeft="18" MarginTop="13" Brush="DefaultText" Brush.Font="ReignSerifDynamic" Brush.FontSize="18" Brush.FontColor="#C5BDAFFF" Text="@InputText" HintText="@StatusText" />
+              <ButtonWidget IsEnabled="@CanSend" WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="96" SuggestedHeight="66" MarginLeft="656" MarginTop="13" Command.Click="ExecuteSend" Brush="ConversationItem.SoundBrush" />
+            </Children></Widget>
+          </Children>
+        </Widget>
+      </Children>
+    </Widget>
+  </Window>
+</Prefab>

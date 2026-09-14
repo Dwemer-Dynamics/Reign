@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Module>
+  <Name value="Bannerlord Reign"/>
+  <Id value="ReignBeta"/>
+  <Version value="v0.1.0"/>
+  <DefaultModule value="false"/>
+  <SingleplayerModule value="true"/>
+  <MultiplayerModule value="false"/>
+
+  <DependedModuleMetadatas>
+    <DependedModuleMetadata id="Native" order="LoadBeforeThis" optional="false" version="e1.0.0"/>
+    <DependedModuleMetadata id="SandBoxCore" order="LoadBeforeThis" optional="false" version="e1.0.0"/>
+    <DependedModuleMetadata id="Sandbox" order="LoadBeforeThis" optional="false" version="e1.0.0"/>
+    <DependedModuleMetadata id="StoryMode" order="LoadBeforeThis" optional="true" version="e1.0.0"/>
+    <DependedModuleMetadata id="Bannerlord.Harmony" order="LoadBeforeThis" optional="false" version="v2.3.3"/>
+    <DependedModuleMetadata id="Bannerlord.UIExtenderEx" order="LoadBeforeThis" optional="false" version="v2.8.0"/>
+    <DependedModuleMetadata id="Bannerlord.MBOptionScreen" order="LoadBeforeThis" optional="false" version="v5.0.0"/>
+  </DependedModuleMetadatas>
+
+  <SubModules>
+    <SubModule>
+      <Name value="ReignBetaSubModule"/>
+      <DLLName value="ReignBeta.dll"/>
+      <SubModuleClassType value="ReignBeta.SubModule"/>
+      <Tags/>
+    </SubModule>
+  </SubModules>
+  <Xmls>
+    <XmlNode>
+      <XmlName id="Factions" path="reign_court_clans"/>
+      <IncludedGameTypes>
+        <GameType value="Campaign"/>
+        <GameType value="CampaignStoryMode"/>
+      </IncludedGameTypes>
+    </XmlNode>
+    <XmlNode>
+      <XmlName id="NPCCharacters" path="reign_court_lords"/>
+      <IncludedGameTypes>
+        <GameType value="Campaign"/>
+        <GameType value="CampaignStoryMode"/>
+      </IncludedGameTypes>
+    </XmlNode>
+    <XmlNode>
+      <XmlName id="Heroes" path="reign_court_heroes"/>
+      <IncludedGameTypes>
+        <GameType value="Campaign"/>
+        <GameType value="CampaignStoryMode"/>
+      </IncludedGameTypes>
+    </XmlNode>
+  </Xmls>
+</Module>

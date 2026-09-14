@@ -1,0 +1,20 @@
+{
+  "schema": "reign-overlay-asset-spec-v1",
+  "asset": {
+    "id": "correspondence-modern-selected-contact-overlay",
+    "role": "exact approved thin selected-contact border with transparent runtime interior"
+  },
+  "canvas": {"width": 389, "height": 114},
+  "normalization": {
+    "fit": "exact",
+    "anchor": "center",
+    "sourceCrop": {"x": 78, "y": 190, "width": 389, "height": 114}
+  },
+  "antialiasScale": 4,
+  "transparentRgb": "#070808",
+  "marbleReduction": {"amount": 0.0, "blurRadius": 6.0, "luminanceCeiling": 96, "chromaCeiling": 36, "selectionSoftness": 20},
+  "apertures": [
+    {"id": "runtime-contact-portrait", "shape": "ellipse", "x": 20, "y": 12, "width": 88, "height": 94, "feather": 0.0},
+    {"id": "runtime-contact-text", "shape": "rectangle", "x": 116, "y": 10, "width": 268, "height": 97, "cornerRadiusPixels": 0, "feather": 0.0}
+  ]
+}

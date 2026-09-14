@@ -1,0 +1,32 @@
+[mcp_servers.reign]
+command = "dotnet"
+args = ["__REIGN_MCP_DLL__"]
+cwd = "__REIGN_WORKSPACE_ROOT__"
+enabled = true
+required = false
+startup_timeout_sec = 20
+tool_timeout_sec = 1800
+default_tools_approval_mode = "writes"
+
+[mcp_servers.reign.env]
+REIGN_WORKSPACE_ROOT = "__REIGN_WORKSPACE_ROOT__"
+REIGN_SERVER_URL = "http://127.0.0.1:5101"
+REIGN_MCP_ALLOW_BUILD = "true"
+REIGN_MCP_ALLOW_RESTORE = "true"
+REIGN_MCP_ALLOW_VERIFICATION_CONTROL = "true"
+REIGN_MCP_ALLOW_OFFLINE_VERIFICATION = "true"
+
+[mcp_servers.reign.tools.reign_start_verification]
+approval_mode = "approve"
+
+[mcp_servers.reign.tools.reign_cancel_verification]
+approval_mode = "approve"
+
+[mcp_servers.reign.tools.reign_build]
+approval_mode = "approve"
+
+[mcp_servers.reign.tools.reign_validate]
+approval_mode = "approve"
+
+[mcp_servers.reign.tools.reign_run_offline_verification]
+approval_mode = "approve"

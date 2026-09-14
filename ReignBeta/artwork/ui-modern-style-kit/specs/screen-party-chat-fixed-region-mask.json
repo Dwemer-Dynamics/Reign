@@ -1,0 +1,59 @@
+{
+  "schema": "reign-fixed-region-composite-v1",
+  "assetId": "party-chat-modern-shell-exact-fixed-source",
+  "approvedReference": {
+    "path": "../approved-references/party-chat.png",
+    "sha256": "21454261b37e00073aec60731b551155f7933b9c7541950fa1ba27c0b118cdb1"
+  },
+  "imageToImageFill": {
+    "path": "../generated-sources/screen-shells/party-chat-modern-shell-source.png",
+    "sha256": "31fd91beebf1760f49fb8df1ee8450418a1bad60ac5f8895384e04fcbf5b3f6e",
+    "normalization": "exact 1672x941"
+  },
+  "canvas": {
+    "width": 1672,
+    "height": 941
+  },
+  "policy": "Outside runtime masks the original fixed screen is preserved. The complete roster now moves as individual cards; original card pixels and integrated alpha aperture are separately audited by party-chat-member-card.json. No stationary card windows remain.",
+  "rectangularFillMode": {
+    "type": "median-border color-matched image-to-image patch",
+    "inwardFeatherPixels": 3,
+    "borderSamplePixels": 4
+  },
+  "sceneDependentMasks": [
+    {"id": "complete-moving-card-rail", "shape": "rectangle", "x": 90, "y": 186, "width": 1490, "height": 160},
+    {"id": "title-text", "shape": "rectangle", "x": 614, "y": 40, "width": 444, "height": 43},
+    {"id": "location-text", "shape": "rectangle", "x": 675, "y": 82, "width": 322, "height": 29},
+    {"id": "selection-summary-text", "shape": "rectangle", "x": 661, "y": 110, "width": 350, "height": 26},
+    {"id": "all-button-typography", "shape": "rectangle", "x": 1252, "y": 40, "width": 53, "height": 27},
+    {"id": "clear-button-typography", "shape": "rectangle", "x": 1383, "y": 40, "width": 72, "height": 27},
+    {"id": "leave-button-typography", "shape": "rectangle", "x": 1523, "y": 40, "width": 72, "height": 27},
+    {"id": "roster-heading-typography", "shape": "rectangle", "x": 702, "y": 153, "width": 268, "height": 31},
+
+    {"id": "roster-1-portrait", "shape": "ellipse", "x": 108, "y": 202, "width": 130, "height": 132},
+    {"id": "roster-1-name", "shape": "rectangle", "x": 241, "y": 214, "width": 136, "height": 38},
+    {"id": "roster-1-status", "shape": "rectangle", "x": 241, "y": 251, "width": 136, "height": 36},
+
+    {"id": "roster-2-portrait", "shape": "ellipse", "x": 408, "y": 202, "width": 130, "height": 132},
+    {"id": "roster-2-name", "shape": "rectangle", "x": 541, "y": 214, "width": 136, "height": 38},
+    {"id": "roster-2-status", "shape": "rectangle", "x": 541, "y": 251, "width": 136, "height": 36},
+
+    {"id": "roster-3-portrait", "shape": "ellipse", "x": 708, "y": 202, "width": 130, "height": 132},
+    {"id": "roster-3-name", "shape": "rectangle", "x": 841, "y": 214, "width": 136, "height": 38},
+    {"id": "roster-3-status", "shape": "rectangle", "x": 841, "y": 251, "width": 136, "height": 36},
+
+    {"id": "roster-4-portrait", "shape": "ellipse", "x": 1008, "y": 202, "width": 130, "height": 132},
+    {"id": "roster-4-name", "shape": "rectangle", "x": 1141, "y": 214, "width": 136, "height": 38},
+    {"id": "roster-4-status", "shape": "rectangle", "x": 1141, "y": 251, "width": 136, "height": 36},
+
+    {"id": "roster-5-portrait", "shape": "ellipse", "x": 1308, "y": 202, "width": 130, "height": 132},
+    {"id": "roster-5-name", "shape": "rectangle", "x": 1441, "y": 214, "width": 136, "height": 38},
+    {"id": "roster-5-status", "shape": "rectangle", "x": 1441, "y": 251, "width": 136, "height": 36},
+
+    {"id": "conversation-list", "shape": "rectangle", "x": 75, "y": 412, "width": 1504, "height": 373},
+    {"id": "conversation-scroll-handle", "shape": "rectangle", "x": 1589, "y": 407, "width": 16, "height": 384},
+    {"id": "busy-status-text", "shape": "rectangle", "x": 576, "y": 798, "width": 520, "height": 28},
+    {"id": "message-input-text", "shape": "rectangle", "x": 211, "y": 838, "width": 1100, "height": 50},
+    {"id": "send-button-typography", "shape": "rectangle", "x": 1442, "y": 840, "width": 96, "height": 42}
+  ]
+}

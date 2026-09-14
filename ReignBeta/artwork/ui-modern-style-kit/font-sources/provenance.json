@@ -1,0 +1,32 @@
+{
+  "schema": "reign-ui-font-provenance/v1",
+  "runtimeAlias": "ReignSerifDynamic",
+  "usage": "Dynamic-bound interface text only. Fixed titles, section labels, and ornament-integrated captions remain baked into approved shell artwork.",
+  "source": {
+    "family": "Cormorant Garamond",
+    "style": "Medium",
+    "weight": 500,
+    "version": "4.002",
+    "repository": "https://github.com/CatharsisFonts/Cormorant",
+    "ttfUrl": "https://raw.githubusercontent.com/CatharsisFonts/Cormorant/v4.002/fonts/ttf/CormorantGaramond-Medium.ttf",
+    "ttfSha256": "9ABCA794203D81B6512A1096B3E171855470C33318133F5CE0E0799EA665BD34",
+    "license": "SIL Open Font License 1.1",
+    "licenseFile": "Cormorant-v4.002-OFL.txt",
+    "licenseSha256": "60700D351CAC4650C51F3F9DB318D2A420F8B45052DBA2715EB5FEC41F0F6956"
+  },
+  "generation": {
+    "tool": "TaleWorlds.GauntletUI.FontAtlas.exe from the installed Bannerlord Modding Kit",
+    "arguments": "-fontpath CormorantGaramond-Medium.ttf -outputpath ReignSerifDynamic.png -atlassize 2048 2048 -size 64 -angle 8 -range 16 -padding 16 -smooth 0 -smoothingConstant 0.5 -mode 1",
+    "format": "SDF",
+    "atlasWidth": 2048,
+    "atlasHeight": 2048,
+    "glyphCount": 589,
+    "generatedOn": "2026-08-28"
+  },
+  "runtimeFiles": {
+    "fnt": "../../../GUI/Fonts/ReignSerifDynamic/ReignSerifDynamic.fnt",
+    "fntSha256": "C1D65BD2D47F74CAC23FB19842D55458D68BBA2027929468C9464763F7527443",
+    "atlas": "../../../GUI/SpriteParts/ui_reignbeta_fonts/ReignSerifDynamic.png",
+    "atlasSha256": "2C16AC0300950B365C4BD9241AE752790F8E6F78EE8536A9DB6157A8130CD6E7"
+  }
+}

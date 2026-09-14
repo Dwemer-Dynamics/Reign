@@ -1,0 +1,826 @@
+{
+  "schema": "reign-ui-modern-style-contract-v1",
+  "version": "2026.09.03.2",
+  "assetManifest": "../../artwork/ui-modern-style-kit/asset-manifest.json",
+  "palette": "../../artwork/ui-modern-style-kit/palette.json",
+  "portraitFrameOverlaySpec": {
+    "path": "../../artwork/ui-modern-style-kit/specs/portrait-frame-only-overlays.json",
+    "expectedSha256": "287e43a2ec2bd5f3c9c0f540aff68268caa9bbb3d7902bd58bc24a1af8af5244"
+  },
+  "runtimeAtlas": {
+    "manifestPath": "../RuntimeSpriteSheets/manifest.json",
+    "moduleRoot": "../..",
+    "rule": "Every registered overlay source hash and decoded RGBA region must be pixel-identical to the rebuilt runtime atlas."
+  },
+  "provenanceCorrection": {
+    "path": "../../artwork/ui-modern-style-kit/generation-provenance.json",
+    "workspaceRoot": "../../..",
+    "recordId": "portrait-opaque-aperture-plate-correction"
+  },
+  "referenceCanvas": {
+    "width": 1672,
+    "height": 941
+  },
+  "defaults": {
+    "surroundBandPixels": 3,
+    "thresholds": {
+      "minimumTransparentApertureRatio": 0.985,
+      "minimumOpaqueSurroundRatio": 0.985,
+      "maximumOpaqueLeakRatio": 0.005,
+      "maximumTransparentFringeRatio": 0.02,
+      "allowedTransparentFringePixels": 2,
+      "allowedOpaqueLeakPixels": 2
+    }
+  },
+  "portraitPolicy": {
+    "compactHeadshot": "circle",
+    "largeBustOrShoulders": "oval",
+    "fullBody": "rectangle",
+    "memoryScene": "memory",
+    "castleOccupancySlot": "circle",
+    "emptyCastleOccupancySlot": "circle-with-muted-grey-silhouette",
+    "standaloneIndividualChatHeader": "vertical-oval",
+    "standaloneIndividualChatFullBodyZoom": "rectangle",
+    "nativeConversationAdditionalPortrait": "rectangle",
+    "sourceImageRule": "Portrait source files remain byte-for-byte untouched rectangular imagery. They are centered and slightly oversized beneath the approved plate; they must never be rewritten, pre-masked, alpha-cut, tinted, padded, bordered, or baked with framing.",
+    "frameOverlayRule": "Every registered circle, oval, or portrait rectangle is an opaque black-marble aperture plate above the portrait. Its exterior and corners conceal the source rectangle; only the exact declared aperture is transparent. Approved antique-gold linework remains topmost, while opaque inner backing disks and pale neutral or white seams are forbidden.",
+    "completePortraitCardRule": "Every portrait-bearing card is one complete moving raster asset whose opaque plate, border, portrait frame, and true-alpha aperture are physically integrated. The unchanged portrait source is a sibling beneath that card. A generic rectangle combined with a separate ring, mask, or frame is forbidden, and a fixed shell must not retain a superseded portrait hole behind the card roster.",
+    "layerOrder": [
+      "dynamic-portrait-source-unchanged",
+      "centered-cover-portrait-source",
+      "opaque-black-marble-aperture-plate-with-gold-frame"
+    ]
+  },
+  "compositionOrder": [
+    "bounded-content-viewport",
+    "untouched-dynamic-texture",
+    "opaque-aperture-plate",
+    "topmost-gold-frame-and-ornament"
+  ],
+  "typography": {
+    "conversationActions": {
+      "approvedDate": "2026-09-05",
+      "widgets": "RichTextWidget in individual, party, castle, social-event and tavern-house chat transcripts",
+      "brushes": [
+        "Reign.Chat.ActionText.15",
+        "Reign.Chat.ActionText.16",
+        "Reign.Chat.ActionText.17"
+      ],
+      "defaultFont": "ReignSerifDynamic",
+      "actionFont": "ReignSerifActionItalic",
+      "rule": "User-approved action-only Cormorant Garamond Medium Italic variant, same size and primary body color as adjacent upright speech. No fixed-shell or geometry changes. Only generated span style=Action markup is permitted."
+    },
+    "status": "baked-fixed-live-dynamic",
+    "rule": "Fixed titles, section labels, and ornament-integrated captions are baked into the approved shell artwork. Only genuinely dynamic or state-dependent content remains live, and its typography must match the latest approved reference as closely as the Bannerlord/Gauntlet renderer permits.",
+    "canonicalBrush": {
+      "default": "DefaultText",
+      "allowedNativeSerifBrushes": [
+        "DefaultText",
+        "Info.Text"
+      ],
+      "explicitFontAttribute": "Brush.Font",
+      "requiredExplicitFontFace": "ReignSerifDynamic",
+      "selectionRule": "Use DefaultText or Info.Text for the approved role behavior, but explicitly declare Brush.Font=ReignSerifDynamic on every remaining live TextWidget and EditableTextWidget. The alias is a module-local Cormorant Garamond Medium SDF font. Fixed shell lettering must not also exist as hidden or transparent runtime text."
+    },
+    "fontPolicy": {
+      "familyAndFace": "Fixed shell lettering uses the exact approved raster pixels. Every genuinely dynamic or state-dependent live text widget explicitly declares Brush.Font=ReignSerifDynamic; DefaultText or Info.Text without that declaration is not sufficient and must fail acceptance.",
+      "weight": "Match the approved regular or emphasized weight without synthetic bold, glow, outline, or shadow unless that treatment is visibly present in the approved reference.",
+      "capitalizationAndTracking": "Preserve the approved capitalization, small-cap treatment, and deliberate letter spacing. Literal spaced capitals are permitted where Gauntlet exposes no tracking control.",
+      "sizeAndHierarchy": "Match each approved title, section heading, body, secondary, muted, button, caption, and numeric tier at the closest supported native font size.",
+      "alignmentAndWrapping": "Match approved horizontal and vertical alignment, baseline, line spacing, wrapping width, and truncation behavior."
+    },
+    "textEffects": {
+      "policy": "No standalone approved reference uses synthetic outline, glow, blur, or shadow text effects. These attributes must be absent or numerically inactive.",
+      "forbiddenNonzeroAttributes": [
+        "Brush.TextOutlineAmount",
+        "Brush.TextGlowRadius",
+        "Brush.TextBlur",
+        "Brush.TextShadowAmount",
+        "Brush.TextShadowOffset",
+        "Brush.TextShadowColor"
+      ]
+    },
+    "colorRoles": {
+      "secondaryGoldAndMetadata": "#7E6A4DFF",
+      "titleAndSectionHeading": "#A88A54FF",
+      "focalControlAndSmallHighlight": "#C5AC83FF",
+      "primaryBody": "#C5BDAFFF",
+      "secondaryBody": "#8A8883FF",
+      "mutedBody": "#706F6AFF",
+      "negativeState": "#C35B32FF",
+      "disabled": "#4A4945FF"
+    },
+    "acceptance": {
+      "fontFamilyAndFaceMustMatch": true,
+      "fontBrushMustBeExplicit": true,
+      "fontFaceMustBeExplicit": true,
+      "requiredFontFace": "ReignSerifDynamic",
+      "syntheticTextEffectsMustBeInactive": true,
+      "textColorMustUseExactFrozenToken": true,
+      "closestSupportedSizeRequired": true,
+      "maximumFontSizeDifferencePixels": 1,
+      "maximumBaselineDifferencePixels": 1,
+      "maximumTrackingDifferencePixels": 1,
+      "dynamicWordingDoesNotExemptTypography": true,
+      "failurePolicy": "An unexplained font, size hierarchy, alignment, tracking, weight, or text-color mismatch fails acceptance even when the text content itself is allowed to vary."
+    }
+  },
+  "protectedContent": {
+    "warCouncilMap": {
+      "interfaceId": "war-council",
+      "rule": "preserve-source-bytes-and-intended-old-scroll-color-exactly",
+      "allowedChanges": [
+        "rectangular clipping to the approved viewport",
+        "transparent frame overlay composited above the map",
+        "runtime red-blue channel-order normalization required to counter Bannerlord's texture-upload interpretation; this is a decode correction, not an art edit"
+      ],
+      "forbiddenChanges": [
+        "tint",
+        "desaturation",
+        "grayscale conversion",
+        "brightness or contrast adjustment",
+        "darkening",
+        "marble reduction",
+        "color grading",
+        "baked frame treatment"
+      ],
+      "acceptanceEvidence": "protected source and tile SHA-256 values remain unchanged; native old-scroll samples match the intended warm channel order after the isolated runtime decode correction"
+    }
+  },
+  "overlayAssets": [
+    {
+      "id": "clan-accords-integrated-banner-card",
+      "shape": "polygon",
+      "presentation": "opaque-aperture-plate",
+      "path": "../SpriteParts/ui_reignbeta_clan_accords/reign_clan_accords_card.png",
+      "backdrop": "Complete 1188x104 agreement card; banner sibling beneath card; four complete112px pitches above fixed shell.",
+      "aperture": {
+        "y": 11,
+        "width": 55,
+        "x": 33,
+        "height": 82,
+        "units": "pixels",
+        "points": [
+          [
+            33,
+            11
+          ],
+          [
+            88,
+            11
+          ],
+          [
+            88,
+            74
+          ],
+          [
+            61,
+            93
+          ],
+          [
+            33,
+            74
+          ]
+        ]
+      },
+      "expectedSha256": "4c9dff817c8862259adf6d9834ad72df3a474c995db00c1416da91af25aa0090"
+    },
+    {
+      "id": "party-chat-member-card",
+      "path": "../SpriteParts/ui_reignbeta_party_chat/reign_party_chat_member_card_overlay.png",
+      "shape": "oval",
+      "presentation": "opaque-aperture-plate",
+      "expectedSha256": "b75567e3e40a8f84e7e68fe9f0018473c1094d85f5783808903030bb882a9889",
+      "thresholds": {
+        "maximumLightNeutralPixelRatio": 5e-05
+      },
+      "retainedHighlightEvidence": "Two original eye-button glint pixels in 44044 pixels; unchanged approved source artwork, not portrait-edge matte.",
+      "aperture": {
+        "units": "pixels",
+        "x": 18,
+        "y": 18,
+        "width": 114,
+        "height": 124
+      },
+      "backdrop": "Original complete card with integrated frame and eye button, moves with portrait and labels; no fixed roster holes."
+    },
+    {
+      "id": "training-yard-selected-portrait-shell-aperture",
+      "path": "../SpriteParts/ui_reignbeta_training_yard/reign_training_yard_modern_shell.png",
+      "shape": "circle",
+      "presentation": "opaque-aperture-plate",
+      "expectedSha256": "c1321b30d7b85da6e7091a070b78570984c4f56a3e91fcda55ebedc36d21ced5",
+      "backdrop": "transparent campaign-map overlay outside and between opaque functional panels",
+      "aperture": {
+        "units": "pixels",
+        "x": 638,
+        "y": 244,
+        "width": 89,
+        "height": 89
+      },
+      "thresholds": {
+        "minimumExteriorOpaqueRatio": 0.73,
+        "maximumLightNeutralPixelRatio": 0.0001,
+        "maximumTransparentRgbLeakRatio": 0
+      }
+    },
+    {
+      "id": "portrait-circle",
+      "path": "../SpriteParts/ui_reignbeta_shared/reign_modern_portrait_circle_overlay.png",
+      "shape": "circle",
+      "presentation": "opaque-aperture-plate",
+      "expectedSha256": "23e64158bddd30152c196be8ddb35bb16e7d14537782a86554c6dae410ff3a63",
+      "aperture": {
+        "units": "pixels",
+        "x": 27,
+        "y": 27,
+        "width": 458,
+        "height": 458
+      }
+    },
+    {
+      "id": "portrait-oval",
+      "path": "../SpriteParts/ui_reignbeta_shared/reign_modern_portrait_oval_overlay.png",
+      "shape": "oval",
+      "presentation": "opaque-aperture-plate",
+      "expectedSha256": "a55feb74bdc040fcf7768dd6ec3c47389cdfafa0dadaa5def90132782a2256a5",
+      "aperture": {
+        "units": "pixels",
+        "x": 39,
+        "y": 51,
+        "width": 435,
+        "height": 663
+      }
+    },
+    {
+      "id": "portrait-oval-thin-frame",
+      "path": "../SpriteParts/ui_reignbeta_shared/reign_modern_portrait_oval_thin_frame.png",
+      "shape": "oval",
+      "presentation": "opaque-aperture-plate",
+      "expectedSha256": "1a47eb07a8181a29ff64ae413685109259ba31a83760bd024af011b0ce4dd1b6",
+      "aperture": {
+        "units": "pixels",
+        "x": 19,
+        "y": 29,
+        "width": 472,
+        "height": 778
+      }
+    },
+    {
+      "id": "banner-shield",
+      "path": "../SpriteParts/ui_reignbeta_shared/reign_modern_banner_shield_overlay.png",
+      "shape": "polygon",
+      "expectedSha256": "c4395732660cfa089316817f0c044b587fcc1f27ca256d1e3db456d4f2ab4acd",
+      "aperture": {
+        "units": "pixels",
+        "points": [
+          [
+            43,
+            42
+          ],
+          [
+            473,
+            42
+          ],
+          [
+            473,
+            440
+          ],
+          [
+            258,
+            506
+          ],
+          [
+            43,
+            440
+          ]
+        ]
+      }
+    },
+    {
+      "id": "portrait-rectangle",
+      "path": "../SpriteParts/ui_reignbeta_shared/reign_modern_portrait_rectangle_overlay.png",
+      "shape": "rectangle",
+      "presentation": "opaque-aperture-plate",
+      "expectedSha256": "a3a0586d6cf618f29a0103b83be05b041fdbbad7a62bd7eec6adb2b7a0c39ffc",
+      "aperture": {
+        "units": "pixels",
+        "x": 27,
+        "y": 30,
+        "width": 458,
+        "height": 708,
+        "cornerRadiusPixels": 12
+      }
+    },
+    {
+      "id": "memory-scene",
+      "path": "../SpriteParts/ui_reignbeta_shared/reign_modern_memory_scene_overlay.png",
+      "shape": "rectangle",
+      "expectedSha256": "e87f8cb99dd4c745347252ca249cd83226ec20ebc68c9deb9e7eba0232c86f92",
+      "aperture": {
+        "units": "pixels",
+        "x": 36,
+        "y": 37,
+        "width": 952,
+        "height": 502,
+        "cornerRadiusPixels": 8
+      }
+    },
+    {
+      "id": "individual-chat-shell-player-aperture",
+      "path": "../SpriteParts/ui_reignbeta_individual/reign_individual_chat_modern_shell.png",
+      "shape": "oval",
+      "presentation": "opaque-aperture-plate",
+      "expectedSha256": "6560f0fa49dcc312a2feafec3da327c1b9683c5635e247c9401bd40173756013",
+      "aperture": {
+        "units": "pixels",
+        "x": 104,
+        "y": 58,
+        "width": 210,
+        "height": 308
+      },
+      "thresholds": {
+        "minimumExteriorOpaqueRatio": 0.95,
+        "maximumTransparentRgbLeakRatio": 1
+      }
+    },
+    {
+      "id": "individual-chat-shell-npc-aperture",
+      "path": "../SpriteParts/ui_reignbeta_individual/reign_individual_chat_modern_shell.png",
+      "shape": "oval",
+      "presentation": "opaque-aperture-plate",
+      "expectedSha256": "6560f0fa49dcc312a2feafec3da327c1b9683c5635e247c9401bd40173756013",
+      "aperture": {
+        "units": "pixels",
+        "x": 1343,
+        "y": 58,
+        "width": 210,
+        "height": 308
+      },
+      "thresholds": {
+        "minimumExteriorOpaqueRatio": 0.95,
+        "maximumTransparentRgbLeakRatio": 1
+      }
+    },
+    {
+      "id": "court-chancellor-card-portrait-aperture",
+      "path": "../SpriteParts/ui_reignbeta_court/reign_court_chancellor_card_modern.png",
+      "shape": "circle",
+      "presentation": "complete-card-owned-opaque-aperture-plate",
+      "expectedSha256": "8abf5d92b2a8735b39d1b6231ca538009d4deaff1c6f8086ae9b6b0e030d76fd",
+      "aperture": {
+        "units": "pixels",
+        "x": 18,
+        "y": 36,
+        "width": 74,
+        "height": 74
+      },
+      "thresholds": {
+        "minimumExteriorOpaqueRatio": 0.985,
+        "minimumSurroundOpaqueRatio": 0.95,
+        "maximumTransparentRgbLeakRatio": 1
+      }
+    },
+    {
+      "id": "court-petition-attendee-card-portrait-aperture",
+      "path": "../SpriteParts/ui_reignbeta_court/reign_court_petition_attendee_card_modern.png",
+      "shape": "circle",
+      "presentation": "complete-card-owned-opaque-aperture-plate",
+      "expectedSha256": "2457b8c50047cbf2d51a9c55d29fa85793c6b29714648b83c8cb30d386bd151e",
+      "aperture": {
+        "units": "pixels",
+        "x": 15,
+        "y": 11,
+        "width": 78,
+        "height": 81
+      },
+      "thresholds": {
+        "minimumExteriorOpaqueRatio": 0.985,
+        "maximumTransparentRgbLeakRatio": 1
+      }
+    },
+    {
+      "id": "court-petition-shell-scene-aperture",
+      "path": "../SpriteParts/ui_reignbeta_court/reign_court_petition_modern_shell.png",
+      "shape": "rectangle",
+      "presentation": "opaque-aperture-plate",
+      "expectedSha256": "b0da8363ad1589fcb22e245291bb267a9078db510729662d141b0f7956af867d",
+      "aperture": {
+        "units": "pixels",
+        "x": 389,
+        "y": 80,
+        "width": 1264,
+        "height": 464,
+        "cornerRadiusPixels": 0
+      },
+      "thresholds": {
+        "minimumExteriorOpaqueRatio": 0.985,
+        "maximumOpaqueLeakRatio": 0.01,
+        "allowedOpaqueLeakPixels": 6000,
+        "maximumLightNeutralPixelRatio": 1e-05,
+        "maximumTransparentRgbLeakRatio": 1
+      }
+    },
+    {
+      "id": "reign_government_attendance_card",
+      "path": "../SpriteParts/ui_reignbeta_government/reign_government_attendance_card.png",
+      "shape": "compound",
+      "presentation": "opaque-aperture-plate",
+      "expectedSha256": "130d1e78a706e38fb84b5d7d3455aced6353703c1dc886f6e9623962526cffc9",
+      "apertures": [
+        {
+          "shape": "circle",
+          "aperture": {
+            "units": "pixels",
+            "x": 24,
+            "y": 8,
+            "width": 81,
+            "height": 81
+          }
+        },
+        {
+          "shape": "polygon",
+          "aperture": {
+            "units": "pixels",
+            "y": 49,
+            "width": 21,
+            "height": 29,
+            "x": 139,
+            "points": [
+              [
+                139,
+                49
+              ],
+              [
+                160,
+                49
+              ],
+              [
+                160,
+                68
+              ],
+              [
+                149.5,
+                78
+              ],
+              [
+                139,
+                68
+              ]
+            ]
+          }
+        }
+      ],
+      "backdrop": "Complete owning artwork from approved Government concept; declared portrait/banner/scene apertures form one intentional transparent union."
+    },
+    {
+      "id": "reign_government_hearing_shell",
+      "path": "../SpriteParts/ui_reignbeta_government/reign_government_hearing_shell.png",
+      "shape": "compound",
+      "presentation": "opaque-aperture-plate",
+      "expectedSha256": "5078530b68249f4a9c26edcc48667c9839fbeb1f7391a8921cc4859424e6168b",
+      "apertures": [
+        {
+          "shape": "polygon",
+          "aperture": {
+            "units": "pixels",
+            "y": 0,
+            "width": 75,
+            "height": 115,
+            "x": 47,
+            "points": [
+              [
+                47,
+                0
+              ],
+              [
+                122,
+                0
+              ],
+              [
+                122,
+                94
+              ],
+              [
+                84.5,
+                115
+              ],
+              [
+                47,
+                94
+              ]
+            ]
+          }
+        },
+        {
+          "shape": "rectangle",
+          "aperture": {
+            "units": "pixels",
+            "y": 113,
+            "width": 357,
+            "height": 235,
+            "x": 915
+          },
+          "alphaFade": {
+            "toX": 1085,
+            "opaqueToTransparent": true,
+            "fromX": 915
+          }
+        }
+      ],
+      "backdrop": "Complete owning artwork from approved Government concept; declared portrait/banner/scene apertures form one intentional transparent union."
+    },
+    {
+      "id": "reign_government_participant_card",
+      "path": "../SpriteParts/ui_reignbeta_government/reign_government_participant_card.png",
+      "shape": "compound",
+      "presentation": "opaque-aperture-plate",
+      "expectedSha256": "404d53d572c7319492ee86f5ff1eff6f19225bccd0e373db3a66a14e4c19731a",
+      "apertures": [
+        {
+          "shape": "circle",
+          "aperture": {
+            "units": "pixels",
+            "x": 28.5,
+            "y": 10.5,
+            "width": 92,
+            "height": 92
+          }
+        },
+        {
+          "shape": "polygon",
+          "aperture": {
+            "units": "pixels",
+            "y": 57,
+            "width": 21,
+            "height": 29,
+            "x": 157,
+            "points": [
+              [
+                157,
+                57
+              ],
+              [
+                178,
+                57
+              ],
+              [
+                178,
+                76
+              ],
+              [
+                167.5,
+                86
+              ],
+              [
+                157,
+                76
+              ]
+            ]
+          }
+        }
+      ],
+      "backdrop": "Complete owning artwork from approved Government concept; declared portrait/banner/scene apertures form one intentional transparent union."
+    },
+    {
+      "id": "reign_government_issue_person_card",
+      "path": "../SpriteParts/ui_reignbeta_government/reign_government_issue_person_card.png",
+      "shape": "compound",
+      "presentation": "opaque-aperture-plate",
+      "expectedSha256": "ec220e788f904aff73f9f0049fde5edf894c9e732835f883c38879b105b4d47e",
+      "apertures": [
+        {
+          "shape": "circle",
+          "aperture": {
+            "units": "pixels",
+            "x": 18,
+            "y": 13,
+            "width": 76,
+            "height": 76
+          }
+        },
+        {
+          "shape": "polygon",
+          "aperture": {
+            "units": "pixels",
+            "y": 60,
+            "width": 20,
+            "height": 28,
+            "x": 122,
+            "points": [
+              [
+                122,
+                60
+              ],
+              [
+                142,
+                60
+              ],
+              [
+                142,
+                78
+              ],
+              [
+                132,
+                88
+              ],
+              [
+                122,
+                78
+              ]
+            ]
+          }
+        }
+      ],
+      "backdrop": "Complete owning artwork from approved Government concept; declared portrait/banner/scene apertures form one intentional transparent union."
+    },
+    {
+      "id": "reign_government_transcript_card",
+      "path": "../SpriteParts/ui_reignbeta_government/reign_government_transcript_card.png",
+      "shape": "circle",
+      "presentation": "opaque-aperture-plate",
+      "expectedSha256": "8c96a36a2adf488fbf565e434fe590645740cdc787a47f686231adcea0046be7",
+      "aperture": {
+        "units": "pixels",
+        "x": 14.5,
+        "y": 7.5,
+        "width": 59,
+        "height": 59
+      },
+      "backdrop": "Complete owning artwork from approved Government concept; declared portrait/banner/scene apertures form one intentional transparent union."
+    },
+    {
+      "id": "reign_government_directory_card",
+      "path": "../SpriteParts/ui_reignbeta_government/reign_government_directory_card.png",
+      "shape": "compound",
+      "presentation": "opaque-aperture-plate",
+      "expectedSha256": "b7303036fb232e4392754225e0cbf2532319c92e74c8d081758915184d995401",
+      "apertures": [
+        {
+          "shape": "circle",
+          "aperture": {
+            "units": "pixels",
+            "x": 28.5,
+            "y": 10.5,
+            "width": 92,
+            "height": 92
+          }
+        },
+        {
+          "shape": "polygon",
+          "aperture": {
+            "units": "pixels",
+            "y": 57,
+            "width": 21,
+            "height": 29,
+            "x": 157,
+            "points": [
+              [
+                157,
+                57
+              ],
+              [
+                178,
+                57
+              ],
+              [
+                178,
+                76
+              ],
+              [
+                167.5,
+                86
+              ],
+              [
+                157,
+                76
+              ]
+            ]
+          }
+        }
+      ],
+      "backdrop": "Complete owning artwork from approved Government concept; declared portrait/banner/scene apertures form one intentional transparent union."
+    },
+    {
+      "id": "tavern-house-worker-card",
+      "path": "../SpriteParts/ui_reignbeta_tavern_house/reign_tavern_house_worker_card.png",
+      "shape": "circle",
+      "presentation": "opaque-aperture-plate",
+      "expectedSha256": "0b7225739ff310bbcd05d2282f67b4990fb75fed982c6ee1c42609554c604a7f",
+      "aperture": {
+        "units": "pixels",
+        "x": 47,
+        "y": 12,
+        "width": 126,
+        "height": 126
+      },
+      "backdrop": "Complete black-marble card with integrated true-alpha portrait aperture; moves above shell."
+    },
+    {
+      "id": "tavern-house-madam-card",
+      "path": "../SpriteParts/ui_reignbeta_tavern_house/reign_tavern_house_madam_card.png",
+      "shape": "oval",
+      "presentation": "opaque-aperture-plate",
+      "expectedSha256": "b9c0b2e9c7b548eb0666fcf7aab85eef5d9c79cff204c3dde8d1dbf09850dcbb",
+      "aperture": {
+        "units": "pixels",
+        "x": 67,
+        "y": 12,
+        "width": 126,
+        "height": 154
+      },
+      "backdrop": "Complete black-marble card with integrated true-alpha portrait aperture; moves above shell."
+    }
+  ],
+  "supportAssets": [
+    {
+      "id": "portrait-empty-circle-fill",
+      "path": "../SpriteParts/ui_reignbeta_shared/reign_modern_portrait_empty_fill.png",
+      "role": "empty circular castle occupancy slot",
+      "expectedSha256": "18b6390cc93f177d318d46a4e4d6ae1188373fdc5999317846a4fc97cc826431",
+      "requiredAlphaOutsideArtwork": true,
+      "paletteRole": "emptySilhouette"
+    },
+    {
+      "id": "modern-crowned-r-crest",
+      "path": "../SpriteParts/ui_reignbeta_shared/reign_modern_crowned_r_crest.png",
+      "role": "compact modern Reign title crest",
+      "expectedSha256": "538ee08384e5d1b6e81e16f1b79b5185eaf6f6977c3b210a96dcf5625f801bf0",
+      "requiredAlphaOutsideArtwork": true
+    },
+    {
+      "id": "pregnancy-warning-modern-shell",
+      "path": "../SpriteParts/ui_reignbeta_individual/reign_pregnancy_warning.png",
+      "role": "compact modal shell with transparent outside padding so the triggering interface remains visible",
+      "expectedSha256": "fee50a1a5d04e300bc0f26f112f2defcdc4454a968d06bc326987d18b4803596",
+      "requiredAlphaOutsideArtwork": true,
+      "paletteRole": "modalShell"
+    },
+    {
+      "id": "court-navigation-button-modern",
+      "path": "../SpriteParts/ui_reignbeta_court/reign_court_navigation_button_modern.png",
+      "role": "exact reusable lift of the actual modern lower Court button for Royal Proclamation and Chancellor controls",
+      "expectedSha256": "88fca0c1b29dea8b3c86a395b9f9f6eba1d9d6bb27b508cd21471aeb5a2e6f8c",
+      "requiredAlphaOutsideArtwork": true,
+      "paletteRole": "interactiveControl"
+    }
+  ],
+  "fidelity": {
+    "normalization": "1672x941",
+    "registration": "deterministic content-aware alignment with no freeform warp",
+    "dynamicContentMustBeMasked": true,
+    "wholeScreenPixelEqualityForbidden": true,
+    "nativeAcceptance": {
+      "rule": "Every fixed visual element in the native in-game interface must match the latest approved reference exactly after deterministic normalization and alignment.",
+      "fixedVisualElements": [
+        "palette colors and opacity",
+        "black-marble material and vein treatment",
+        "panel fills and lighter-grey raised or active surfaces",
+        "frame geometry and line weight",
+        "corner treatments",
+        "ornaments, dividers, crests, and emblems",
+        "portrait and scene aperture shapes",
+        "fixed spacing, sizing, and hierarchy",
+        "fixed button and interaction-state styling",
+        "font family and face, weight, capitalization, tracking, size hierarchy, alignment, and frozen text-color roles"
+      ],
+      "allowedDifferences": [
+        "declared portrait or character imagery inside its approved aperture mask",
+        "declared banner or heraldry imagery inside its approved aperture mask",
+        "declared memory or scene artwork inside its approved aperture mask",
+        "protected map contents inside the approved War Council viewport",
+        "variable text, numeric values, list entries, and progress values",
+        "other scene-dependent graphics explicitly declared as dynamic and confined to an approved mask"
+      ],
+      "forbiddenDifferences": [
+        "unexplained or off-palette colors in a fixed region",
+        "unapproved fixed shapes or geometry",
+        "missing, extra, displaced, or distorted fixed frames and ornaments",
+        "incorrect aperture shape, matte, or border",
+        "an opaque rectangular matte around a circle or oval portrait frame",
+        "a pale neutral, white, or silver halo around a circle or oval portrait frame",
+        "a portrait source file altered to bake in clipping, tint, framing, or background material",
+        "a portrait-bearing card assembled from a generic rectangle and a separate frame or mask",
+        "a superseded portrait aperture retained in a fixed shell behind a moving card roster",
+        "fixed-region texture, material, brightness, contrast, or opacity drift",
+        "unapproved font substitution, typography hierarchy drift, or off-palette text color",
+        "using dynamic-content variance to excuse a fixed-shell difference"
+      ],
+      "fixedRegionDifferenceTolerancePixels": 0,
+      "interactionStates": "Each fixed hover, pressed, selected, focused, disabled, and error state must use its approved modern-style state tokens and geometry; state changes are not exemptions from fixed-visual parity.",
+      "failurePolicy": "Any forbidden fixed-region difference fails native acceptance and must be corrected before the interface can qualify as complete."
+    },
+    "requiredEvidence": [
+      "reference and live SHA-256",
+      "static-shell mask SHA-256",
+      "aligned overlay",
+      "difference heatmap",
+      "native fixed-region comparison with explicit dynamic-region masks and zero unexplained fixed-region differences",
+      "palette deviation report",
+      "edge alignment report",
+      "widget clipping diagnostics",
+      "typography and text-color parity report",
+      "protected-content color-preservation report"
+    ]
+  }
+}
