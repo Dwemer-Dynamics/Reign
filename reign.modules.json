@@ -11,6 +11,8 @@
     "ReignMcp/scripts/**"
   ],
   "releaseTier4Paths": [
+    ".version.txt",
+    ".version_number.txt",
     "reign.repositories.json",
     "ReignRelease/**",
     ".gitattributes",
