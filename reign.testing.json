@@ -6,7 +6,7 @@
       "gates": ["trusted AllowBuild", "trusted AllowOfflineVerification", "current successful all Release fingerprint", "enforced paired hygiene", "canonical OS build lease"],
       "evidenceSchema": "reign-release-package-report-v1",
       "proofSchema": "reign-package-assembly-v1",
-      "cases": ["official_download_hashes", "runtime_component_input_hashes", "runtime_file_allowlist", "steam_dependency_runtime_without_debug_symbols", "upstream_notice_byte_hashes", "secret_path_only_audit", "five_payload_hashes", "installer_compilation", "compiled_setup_failure_page_and_nonzero_exit", "no_install_or_listener", "no_provider_calls", "clean_computer_acceptance_remains_pending"],
+      "cases": ["official_download_hashes", "runtime_component_input_hashes", "runtime_file_allowlist", "steam_dependency_runtime_without_debug_symbols", "upstream_notice_byte_hashes", "secret_path_only_audit", "five_payload_hashes", "installer_compilation", "compiled_setup_failure_page_and_nonzero_exit", "profile_installation_record_discovery", "physical_installation_path_probe_and_redirect_rejection", "legacy_ownership_adoption_without_runtime_fallback", "unpackaged_game_portrait_discovery_acceptance", "no_install_or_listener", "no_provider_calls", "clean_computer_acceptance_remains_pending"],
       "cleanup": "Retain the exact run-owned release-package directory and assembly report until acceptance. Installer contracts retain isolated temp proof directories. Setup removes only its exact marked staging tree after successful commit and retains prior versions; uninstall preserves player state and modified files."
     },
     "runtimeBuilder": {

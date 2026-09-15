@@ -7,6 +7,63 @@ namespace Reign.Mcp.Tests;
 public sealed class LaunchInstallationTests
 {
     [Fact]
+    public void ProfileDiscoveryUsesSelectedFoldersWithoutAnEnvironmentOverrideOrLegacyAppData()
+    {
+        string root = Path.Combine(Path.GetTempPath(), "Reign discovery O'Brien 測試", Guid.NewGuid().ToString("N"));
+        try
+        {
+            string profile = Path.Combine(root, "another Windows user");
+            string legacy = Path.Combine(profile, "AppData", "Local", "Bannerlord Reign", "installation.json");
+            WriteRecord(legacy, Record(Path.Combine(root, "outdated installation")));
+            Assert.Null(ReignInstallation.TryLoad(profile));
+
+            var expected = Record(Path.Combine(root, "selected drive and folders"));
+            string current = ReignInstallation.GetDefaultRecordPath(profile);
+            Assert.Equal(Path.Combine(profile, ".reign", "installation.json"), current);
+            WriteRecord(current, expected);
+            var found = Assert.IsType<ReignInstallation>(ReignInstallation.TryLoad(profile));
+            Assert.Equal(expected.SharedPortraitRoot, found.SharedPortraitRoot);
+            Assert.Equal(expected.PortraitCacheRoot, found.PortraitCacheRoot);
+            Assert.Equal(expected.ModuleRoot, found.ModuleRoot);
+
+            // Uninstall must not make an earlier setup's preserved record active.
+            File.Move(current, current + ".uninstalled");
+            Assert.Null(ReignInstallation.TryLoad(profile));
+        }
+        finally { if (Directory.Exists(root)) Directory.Delete(root, true); }
+    }
+
+    [Fact]
+    public void ExplicitRecordWinsAndMissingOrCorruptOverridesNeverFallBack()
+    {
+        string profile = Path.Combine(Path.GetTempPath(), "Reign discovery overrides", Guid.NewGuid().ToString("N"));
+        try
+        {
+            WriteRecord(ReignInstallation.GetDefaultRecordPath(profile), Record(Path.Combine(profile, "default")));
+            string explicitPath = Path.Combine(profile, "custom", "record.json");
+            var expected = Record(Path.Combine(profile, "explicit"));
+            WriteRecord(explicitPath, expected);
+            Assert.Equal(expected.DataRoot, ReignInstallation.TryLoad(profile, explicitPath)!.DataRoot);
+            File.Delete(explicitPath);
+            Assert.Throws<FileNotFoundException>(() => ReignInstallation.TryLoad(profile, explicitPath));
+            File.WriteAllText(explicitPath, "{}");
+            Assert.Throws<InvalidDataException>(() => ReignInstallation.TryLoad(profile, explicitPath));
+            Assert.Null(ReignInstallation.TryLoad(profile, explicitPath, validationMode: true));
+            Assert.Null(ReignInstallation.TryLoad(profile, validationMode: true));
+            Assert.Throws<InvalidDataException>(() => ReignInstallation.GetDefaultRecordPath(""));
+            Assert.Throws<InvalidDataException>(() => ReignInstallation.GetDefaultRecordPath("relative-profile"));
+        }
+        finally { if (Directory.Exists(profile)) Directory.Delete(profile, true); }
+    }
+
+    private static void WriteRecord(string path, ReignInstallation record)
+    {
+        Directory.CreateDirectory(Path.GetDirectoryName(path)!);
+        using var stream = File.Create(path);
+        new DataContractJsonSerializer(typeof(ReignInstallation)).WriteObject(stream, record);
+    }
+
+    [Fact]
     public void InstallationRoundTripsWithSpacesAndUnicodeOutsideProgramFolders()
     {
         var root = Path.Combine(Path.GetTempPath(), "Reign launch O'Brien 測試", Guid.NewGuid().ToString("N"));
