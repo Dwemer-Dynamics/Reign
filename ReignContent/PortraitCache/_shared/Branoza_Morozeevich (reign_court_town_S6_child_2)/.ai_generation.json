@@ -1,0 +1,27 @@
+{
+  "version": 1,
+  "cacheKey": "Branoza_Morozeevich (reign_court_town_S6_child_2)",
+  "heroStringId": "reign_court_town_S6_child_2",
+  "characterObjectId": "reign_court_town_S6_child_2",
+  "characterName": "Branoza Morozeevich",
+  "provider": "AtlasCloud",
+  "model": "xai/grok-imagine-image/edit",
+  "adapter": "atlas upload/generate/poll",
+  "sourceSha256": "28dadc3dcaf6cde2e0425319c7312c53d55b0364611fb0eae1f2f9ec6d6a0fc5",
+  "portraitSha256": "67a8c19fffd8d853f4500fc02d2462694c9b797ab8265b14e1858e8e314227f2",
+  "portraitWidth": 864,
+  "portraitHeight": 1152,
+  "physicalConfidence": {
+    "definition": "physical_confidence",
+    "score": 50,
+    "profile": "41-60",
+    "flirtatiousnessPercentage": 58,
+    "confidencePercentage": 25,
+    "flirtatiousnessWeight": 0.75,
+    "confidenceWeight": 0.25,
+    "source": "shipped_profile_library"
+  },
+  "derivativesReady": true,
+  "derivativeError": "",
+  "generatedUtc": "2026-07-17T18:19:02.0203643Z"
+}

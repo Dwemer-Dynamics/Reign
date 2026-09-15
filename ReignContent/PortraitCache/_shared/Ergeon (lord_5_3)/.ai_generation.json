@@ -1,0 +1,27 @@
+{
+  "version": 1,
+  "cacheKey": "Ergeon (lord_5_3)",
+  "heroStringId": "lord_5_3",
+  "characterObjectId": "lord_5_3",
+  "characterName": "Ergeon",
+  "provider": "AtlasCloud",
+  "model": "xai/grok-imagine-image/edit",
+  "adapter": "atlas upload/generate/poll",
+  "sourceSha256": "0bbe6ac6c563c824497624a897f407374df656021f8e3c685c63e71f104e88d4",
+  "portraitSha256": "84de3f8eb98617dac5f8ce20769ec6b02e7c200a31ab916a154c2b2852937865",
+  "portraitWidth": 832,
+  "portraitHeight": 1248,
+  "physicalConfidence": {
+    "definition": "physical_confidence",
+    "score": 60,
+    "profile": "41-60",
+    "flirtatiousnessPercentage": 67,
+    "confidencePercentage": 38,
+    "flirtatiousnessWeight": 0.75,
+    "confidenceWeight": 0.25,
+    "source": "shipped_profile_library"
+  },
+  "derivativesReady": true,
+  "derivativeError": "",
+  "generatedUtc": "2026-07-17T18:33:01.8854681Z"
+}

@@ -1,0 +1,27 @@
+{
+  "version": 1,
+  "cacheKey": "Kinteg (lord_6_23)",
+  "heroStringId": "lord_6_23",
+  "characterObjectId": "lord_6_23",
+  "characterName": "Kinteg",
+  "provider": "AtlasCloud",
+  "model": "xai/grok-imagine-image/edit",
+  "adapter": "atlas upload/generate/poll",
+  "sourceSha256": "ce2ca03f5078df60d73aed3f1fa200a696c74590fef64646a71b306cc50a3318",
+  "portraitSha256": "dc5ddf70f98d5fd8a35ca849d8968c3527c0ab073c42f063bc43a0502f7152ae",
+  "portraitWidth": 832,
+  "portraitHeight": 1248,
+  "physicalConfidence": {
+    "definition": "physical_confidence",
+    "score": 78,
+    "profile": "61-80",
+    "flirtatiousnessPercentage": 72,
+    "confidencePercentage": 95,
+    "flirtatiousnessWeight": 0.75,
+    "confidenceWeight": 0.25,
+    "source": "shipped_profile_library"
+  },
+  "derivativesReady": true,
+  "derivativeError": "",
+  "generatedUtc": "2026-07-17T18:48:35.9030492Z"
+}

@@ -1,0 +1,27 @@
+{
+  "version": 1,
+  "cacheKey": "Chagogan_Altugetai (reign_court_castle_K9_child_3)",
+  "heroStringId": "reign_court_castle_K9_child_3",
+  "characterObjectId": "reign_court_castle_K9_child_3",
+  "characterName": "Chagogan Altugetai",
+  "provider": "AtlasCloud",
+  "model": "xai/grok-imagine-image/edit",
+  "adapter": "atlas upload/generate/poll",
+  "sourceSha256": "bf58ddb981771574c08c7658982bf9ddcfc3d6162b5481a9b67659972846219a",
+  "portraitSha256": "1cc0f72626cfda1a27517f7d290293ff249bac7e7d67e8b605c30d0fcad57c6f",
+  "portraitWidth": 864,
+  "portraitHeight": 1152,
+  "physicalConfidence": {
+    "definition": "physical_confidence",
+    "score": 61,
+    "profile": "61-80",
+    "flirtatiousnessPercentage": 60,
+    "confidencePercentage": 63,
+    "flirtatiousnessWeight": 0.75,
+    "confidenceWeight": 0.25,
+    "source": "shipped_profile_library"
+  },
+  "derivativesReady": true,
+  "derivativeError": "",
+  "generatedUtc": "2026-07-17T18:22:44.8980145Z"
+}

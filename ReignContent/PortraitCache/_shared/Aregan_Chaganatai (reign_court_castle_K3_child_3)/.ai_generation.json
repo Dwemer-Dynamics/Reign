@@ -1,0 +1,27 @@
+{
+  "version": 1,
+  "cacheKey": "Aregan_Chaganatai (reign_court_castle_K3_child_3)",
+  "heroStringId": "reign_court_castle_K3_child_3",
+  "characterObjectId": "reign_court_castle_K3_child_3",
+  "characterName": "Aregan Chaganatai",
+  "provider": "AtlasCloud",
+  "model": "xai/grok-imagine-image/edit",
+  "adapter": "atlas upload/generate/poll",
+  "sourceSha256": "891675dfb61f0c6b32adba4461e8a8bbd8ef7479c583346a67ad7056fb52736d",
+  "portraitSha256": "72e6230c618faebaee7bed3b71ab9a1bb614ff4bf68692f7a3cf74a0de534890",
+  "portraitWidth": 864,
+  "portraitHeight": 1152,
+  "physicalConfidence": {
+    "definition": "physical_confidence",
+    "score": 39,
+    "profile": "21-40",
+    "flirtatiousnessPercentage": 38,
+    "confidencePercentage": 41,
+    "flirtatiousnessWeight": 0.75,
+    "confidenceWeight": 0.25,
+    "source": "shipped_profile_library"
+  },
+  "derivativesReady": true,
+  "derivativeError": "",
+  "generatedUtc": "2026-07-17T18:13:16.2890334Z"
+}

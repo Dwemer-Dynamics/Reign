@@ -1,0 +1,27 @@
+{
+  "version": 1,
+  "cacheKey": "Bahunan_Alzariqani (reign_court_castle_A9_child_1)",
+  "heroStringId": "reign_court_castle_A9_child_1",
+  "characterObjectId": "reign_court_castle_A9_child_1",
+  "characterName": "Bahunan Alzariqani",
+  "provider": "AtlasCloud",
+  "model": "xai/grok-imagine-image/edit",
+  "adapter": "atlas upload/generate/poll",
+  "sourceSha256": "40455a0c566fcdb33dfd2fc3b09a9d822bb87125180ac18e6dc8baa964176309",
+  "portraitSha256": "d2ad5351ceb19a497ee1690cb57f0a1a134875c7ed9a561d87822c1254778276",
+  "portraitWidth": 864,
+  "portraitHeight": 1152,
+  "physicalConfidence": {
+    "definition": "physical_confidence",
+    "score": 47,
+    "profile": "41-60",
+    "flirtatiousnessPercentage": 36,
+    "confidencePercentage": 79,
+    "flirtatiousnessWeight": 0.75,
+    "confidenceWeight": 0.25,
+    "source": "shipped_profile_library"
+  },
+  "derivativesReady": true,
+  "derivativeError": "",
+  "generatedUtc": "2026-07-17T18:16:03.7052744Z"
+}

@@ -1,0 +1,27 @@
+{
+  "version": 1,
+  "cacheKey": "Yamina (lord_3_22_1)",
+  "heroStringId": "lord_3_22_1",
+  "characterObjectId": "lord_3_22_1",
+  "characterName": "Yamina",
+  "provider": "AtlasCloud",
+  "model": "xai/grok-imagine-image/edit",
+  "adapter": "atlas upload/generate/poll",
+  "sourceSha256": "3ebfb1a0bb1b7efa748c301a5c0fe4c26fb1877d29f575ff7d1265932c48609d",
+  "portraitSha256": "e2a9aac89903bea36f74236f481eccf349afb90ca56a9c8ee4190b8698ea5700",
+  "portraitWidth": 832,
+  "portraitHeight": 1248,
+  "physicalConfidence": {
+    "definition": "physical_confidence",
+    "score": 48,
+    "profile": "41-60",
+    "flirtatiousnessPercentage": 50,
+    "confidencePercentage": 41,
+    "flirtatiousnessWeight": 0.75,
+    "confidenceWeight": 0.25,
+    "source": "shipped_profile_library"
+  },
+  "derivativesReady": true,
+  "derivativeError": "",
+  "generatedUtc": "2026-07-17T19:22:07.1561736Z"
+}

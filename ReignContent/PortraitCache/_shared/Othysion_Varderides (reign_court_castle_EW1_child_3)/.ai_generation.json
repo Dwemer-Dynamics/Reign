@@ -1,0 +1,27 @@
+{
+  "version": 1,
+  "cacheKey": "Othysion_Varderides (reign_court_castle_EW1_child_3)",
+  "heroStringId": "reign_court_castle_EW1_child_3",
+  "characterObjectId": "reign_court_castle_EW1_child_3",
+  "characterName": "Othysion Varderides",
+  "provider": "AtlasCloud",
+  "model": "xai/grok-imagine-image/edit",
+  "adapter": "atlas upload/generate/poll",
+  "sourceSha256": "65841650896a1114feb5dd7f7a0705573dbf4c6d6f42519c0d05d5fbfda510ac",
+  "portraitSha256": "db7b2e32c5a9ac7f0925fab5dbea3fa8636ec05124fdbd4f8f45fc776e15cbb1",
+  "portraitWidth": 864,
+  "portraitHeight": 1152,
+  "physicalConfidence": {
+    "definition": "physical_confidence",
+    "score": 33,
+    "profile": "21-40",
+    "flirtatiousnessPercentage": 23,
+    "confidencePercentage": 62,
+    "flirtatiousnessWeight": 0.75,
+    "confidenceWeight": 0.25,
+    "source": "shipped_profile_library"
+  },
+  "derivativesReady": true,
+  "derivativeError": "",
+  "generatedUtc": "2026-07-17T19:08:27.0499145Z"
+}

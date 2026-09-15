@@ -1,0 +1,27 @@
+{
+  "version": 1,
+  "cacheKey": "Zena (lord_1_74_1)",
+  "heroStringId": "lord_1_74_1",
+  "characterObjectId": "lord_1_74_1",
+  "characterName": "Zena",
+  "provider": "AtlasCloud",
+  "model": "xai/grok-imagine-image/edit",
+  "adapter": "atlas upload/generate/poll",
+  "sourceSha256": "a255416f6bc8f8d20319eed57f5e6cd8ab3c3eeefedae63d8fbd2ea9edc9e173",
+  "portraitSha256": "2f093aca7c5169098d2760f02471d75fd3c8d4dc711106e37b4290f365ce55b8",
+  "portraitWidth": 832,
+  "portraitHeight": 1248,
+  "physicalConfidence": {
+    "definition": "physical_confidence",
+    "score": 82,
+    "profile": "81-100",
+    "flirtatiousnessPercentage": 91,
+    "confidencePercentage": 54,
+    "flirtatiousnessWeight": 0.75,
+    "confidenceWeight": 0.25,
+    "source": "shipped_profile_library"
+  },
+  "derivativesReady": true,
+  "derivativeError": "",
+  "generatedUtc": "2026-07-17T19:22:56.7763616Z"
+}

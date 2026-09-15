@@ -1,0 +1,27 @@
+{
+  "version": 1,
+  "cacheKey": "Minarvina (lord_1_52_1)",
+  "heroStringId": "lord_1_52_1",
+  "characterObjectId": "lord_1_52_1",
+  "characterName": "Minarvina",
+  "provider": "AtlasCloud",
+  "model": "xai/grok-imagine-image/edit",
+  "adapter": "atlas upload/generate/poll",
+  "sourceSha256": "7592a171f3df07f8ab09c283d56ee610575495b6c2a21aa9cfe08a726ca07143",
+  "portraitSha256": "2700ca07a4c3299760c2459d71924560ec137cc5919fb4a29fff02a925319b2a",
+  "portraitWidth": 832,
+  "portraitHeight": 1248,
+  "physicalConfidence": {
+    "definition": "physical_confidence",
+    "score": 64,
+    "profile": "61-80",
+    "flirtatiousnessPercentage": 71,
+    "confidencePercentage": 42,
+    "flirtatiousnessWeight": 0.75,
+    "confidenceWeight": 0.25,
+    "source": "shipped_profile_library"
+  },
+  "derivativesReady": true,
+  "derivativeError": "",
+  "generatedUtc": "2026-07-17T19:03:38.3548477Z"
+}

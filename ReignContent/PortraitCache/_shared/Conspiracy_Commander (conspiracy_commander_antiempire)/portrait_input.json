@@ -1,0 +1,96 @@
+{
+  "version": 1,
+  "inputHash": "1f2280f770141551b5fed0b4bd31cb0f224231a43f84b195fa1e6592518b8e20",
+  "catalogHash": "12142c0ab28d2678b12b852b086450dcc4eea45e2e8a080f3baa85c42f7fb3a2",
+  "renderContractHash": "cc3b941e7d47057de9b4220f1473336e6f908719812bb2653b83bd3545cfbd2f",
+  "cacheKey": "Conspiracy_Commander (conspiracy_commander_antiempire)",
+  "heroStringId": "conspiracy_commander_antiempire",
+  "characterObjectId": "conspiracy_commander_antiempire",
+  "characterName": "Conspiracy Commander",
+  "ageYears": 30,
+  "cultureId": "sturgia",
+  "cultureName": "Sturgian",
+  "gender": "man",
+  "clanId": "none",
+  "clanTier": null,
+  "clanProvenance": "not_defined_in_module_heroes_xml",
+  "socialStation": "unranked",
+  "occupation": "Special",
+  "archetype": "special",
+  "isLord": false,
+  "isNotable": false,
+  "isWanderer": false,
+  "isAlive": null,
+  "sourceModule": "Native",
+  "sourceFile": "Modules/StoryMode/ModuleData/story_mode_characters.xml",
+  "profileSource": "neutral_fallback",
+  "profilePackVersion": "",
+  "bodyKey": "00004C01482C06943C35A36D477B47C9BA496AF98D282A6899353777A949B68A01C776140C97687500000000000000000000000000000000000000004F8C6002",
+  "bodyWeight": 0.5,
+  "bodyBuild": 0.5,
+  "faceTemplateId": "",
+  "faceGenerationVersion": "native_authored",
+  "civilianTemplate": "",
+  "civilianEquipment": [
+    {
+      "slot": "Body",
+      "itemId": "fine_town_tunic"
+    },
+    {
+      "slot": "Cape",
+      "itemId": "scarf"
+    },
+    {
+      "slot": "Gloves",
+      "itemId": "leather_gloves"
+    },
+    {
+      "slot": "Leg",
+      "itemId": "leather_cavalier_boots"
+    }
+  ],
+  "headgearSuppressed": true,
+  "physicalConfidence": {
+    "definition": "physical_confidence",
+    "score": 50,
+    "profile": "41-60",
+    "flirtatiousnessPercentage": 50,
+    "confidencePercentage": 50,
+    "flirtatiousnessWeight": 0.75,
+    "confidenceWeight": 0.25,
+    "source": "neutral_fallback"
+  },
+  "renderPreset": "ai_source_wan_portrait_v5",
+  "renderWidth": 1536,
+  "renderHeight": 2048,
+  "sourceWidth": 768,
+  "sourceHeight": 1024,
+  "cropScale": 0.24,
+  "cropWidthRatio": 0.75,
+  "cropCenterYRatio": 0.324,
+  "cameraPitchDegrees": 4,
+  "sourceSha256": "4c29c136e55eba383ac837a21be1849d4a8d0fb8ce3064dbe9a3b8ba2ff835b9",
+  "sourceFileName": "source.png",
+  "generationEndpoint": "/portraits/generate",
+  "campaignIdSource": "active_campaign_at_generation_time",
+  "promptDeferred": true,
+  "sourceImageBase64From": "source.png",
+  "outputSizeOverride": "",
+  "promptPurpose": "portrait",
+  "nativePhysique": {
+    "schema": "reign-native-physique-v1",
+    "weight": 0.5,
+    "build": 0.5,
+    "weightSource": "shared_portrait_input.bodyWeight",
+    "buildSource": "shared_portrait_input.bodyBuild",
+    "sourceSha256": "4c29c136e55eba383ac837a21be1849d4a8d0fb8ce3064dbe9a3b8ba2ff835b9",
+    "provenance": {
+      "kind": "saved_character_metadata_backfill",
+      "heroStringId": "conspiracy_commander_antiempire",
+      "profileSource": "neutral_fallback",
+      "profilePackVersion": "",
+      "originalInputSha256": "c710c8074472bdd9929a749c2340daea0e8c729a9b01553188665e1427807b11",
+      "rendererReexecuted": false
+    }
+  }
+}

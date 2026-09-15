@@ -1,0 +1,27 @@
+{
+  "version": 1,
+  "cacheKey": "Bahiran_Kashaqani (reign_court_castle_A6_child_3)",
+  "heroStringId": "reign_court_castle_A6_child_3",
+  "characterObjectId": "reign_court_castle_A6_child_3",
+  "characterName": "Bahiran Kashaqani",
+  "provider": "AtlasCloud",
+  "model": "xai/grok-imagine-image/edit",
+  "adapter": "atlas upload/generate/poll",
+  "sourceSha256": "910153bc4dee114c6f1a3cd7e2593fa35da63e6259c69784dea57ac06e1aee0a",
+  "portraitSha256": "e50d27a78a6488bd8038b071156f9dcd33bad1c67e06726a1d47ca9615c7a8c0",
+  "portraitWidth": 864,
+  "portraitHeight": 1152,
+  "physicalConfidence": {
+    "definition": "physical_confidence",
+    "score": 67,
+    "profile": "61-80",
+    "flirtatiousnessPercentage": 71,
+    "confidencePercentage": 54,
+    "flirtatiousnessWeight": 0.75,
+    "confidenceWeight": 0.25,
+    "source": "shipped_profile_library"
+  },
+  "derivativesReady": true,
+  "derivativeError": "",
+  "generatedUtc": "2026-07-17T18:15:45.3621037Z"
+}

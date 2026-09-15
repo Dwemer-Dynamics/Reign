@@ -1,0 +1,27 @@
+{
+  "version": 1,
+  "cacheKey": "Temion (lord_1_28)",
+  "heroStringId": "lord_1_28",
+  "characterObjectId": "lord_1_28",
+  "characterName": "Temion",
+  "provider": "AtlasCloud",
+  "model": "xai/grok-imagine-image/edit",
+  "adapter": "atlas upload/generate/poll",
+  "sourceSha256": "afd5a6120d61a3efd1baa02f2def0bfe598885043d4785409263e754f9c5cd30",
+  "portraitSha256": "e8db6bae7bf55e9bd7f3ec23d639bf55754b3e1d257006e9add2938f4f5b77e3",
+  "portraitWidth": 832,
+  "portraitHeight": 1248,
+  "physicalConfidence": {
+    "definition": "physical_confidence",
+    "score": 86,
+    "profile": "81-100",
+    "flirtatiousnessPercentage": 86,
+    "confidencePercentage": 85,
+    "flirtatiousnessWeight": 0.75,
+    "confidenceWeight": 0.25,
+    "source": "shipped_profile_library"
+  },
+  "derivativesReady": true,
+  "derivativeError": "",
+  "generatedUtc": "2026-07-17T19:16:26.5386432Z"
+}

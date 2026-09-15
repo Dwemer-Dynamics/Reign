@@ -1,0 +1,27 @@
+{
+  "version": 1,
+  "cacheKey": "Alynneth (lord_5_11)",
+  "heroStringId": "lord_5_11",
+  "characterObjectId": "lord_5_11",
+  "characterName": "Alynneth",
+  "provider": "AtlasCloud",
+  "model": "xai/grok-imagine-image/edit",
+  "adapter": "atlas upload/generate/poll",
+  "sourceSha256": "25de899fc4bc4d65b02596a66c4c79ad1b00073d9c687448621e00d5f427433e",
+  "portraitSha256": "97b63565aae2f1908c0ea714f9b15fb89de2e13931ba4fbaf1aaf3d37b7017a4",
+  "portraitWidth": 832,
+  "portraitHeight": 1248,
+  "physicalConfidence": {
+    "definition": "physical_confidence",
+    "score": 44,
+    "profile": "41-60",
+    "flirtatiousnessPercentage": 42,
+    "confidencePercentage": 49,
+    "flirtatiousnessWeight": 0.75,
+    "confidenceWeight": 0.25,
+    "source": "shipped_profile_library"
+  },
+  "derivativesReady": true,
+  "derivativeError": "",
+  "generatedUtc": "2026-07-17T18:12:04.5534284Z"
+}

@@ -1,0 +1,27 @@
+{
+  "version": 1,
+  "cacheKey": "Radula_Droveevich (reign_court_town_S2_child_4)",
+  "heroStringId": "reign_court_town_S2_child_4",
+  "characterObjectId": "reign_court_town_S2_child_4",
+  "characterName": "Radula Droveevich",
+  "provider": "AtlasCloud",
+  "model": "xai/grok-imagine-image/edit",
+  "adapter": "atlas upload/generate/poll",
+  "sourceSha256": "e1eb22b4fefd85e605e0f7ab22fc9704c30c8a34b6fc16ecd21440224d0f49d9",
+  "portraitSha256": "85a74b1891cf73f33472556dd419827e8bdbb2b5fdeefe1b8f048f055c49b351",
+  "portraitWidth": 864,
+  "portraitHeight": 1152,
+  "physicalConfidence": {
+    "definition": "physical_confidence",
+    "score": 48,
+    "profile": "41-60",
+    "flirtatiousnessPercentage": 48,
+    "confidencePercentage": 47,
+    "flirtatiousnessWeight": 0.75,
+    "confidenceWeight": 0.25,
+    "source": "shipped_profile_library"
+  },
+  "derivativesReady": true,
+  "derivativeError": "",
+  "generatedUtc": "2026-07-17T19:10:26.2947269Z"
+}

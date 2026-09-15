@@ -1,0 +1,27 @@
+{
+  "version": 1,
+  "cacheKey": "Gwyira_Trevadawn (reign_court_castle_B8_mother)",
+  "heroStringId": "reign_court_castle_B8_mother",
+  "characterObjectId": "reign_court_castle_B8_mother",
+  "characterName": "Gwyira Trevadawn",
+  "provider": "AtlasCloud",
+  "model": "xai/grok-imagine-image/edit",
+  "adapter": "atlas upload/generate/poll",
+  "sourceSha256": "45fa5bb42d15df0bff953115d93ceae55d012e8116ed7905c7fac6a2568c610e",
+  "portraitSha256": "b0c4fd05a434d4765846030fe51467c60af03720ffe9d02eeb040869c526f065",
+  "portraitWidth": 864,
+  "portraitHeight": 1152,
+  "physicalConfidence": {
+    "definition": "physical_confidence",
+    "score": 54,
+    "profile": "41-60",
+    "flirtatiousnessPercentage": 47,
+    "confidencePercentage": 74,
+    "flirtatiousnessWeight": 0.75,
+    "confidenceWeight": 0.25,
+    "source": "shipped_profile_library"
+  },
+  "derivativesReady": true,
+  "derivativeError": "",
+  "generatedUtc": "2026-07-17T18:40:55.7675148Z"
+}

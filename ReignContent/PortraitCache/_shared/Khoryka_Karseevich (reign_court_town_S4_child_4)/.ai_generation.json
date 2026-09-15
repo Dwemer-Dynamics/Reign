@@ -1,0 +1,27 @@
+{
+  "version": 1,
+  "cacheKey": "Khoryka_Karseevich (reign_court_town_S4_child_4)",
+  "heroStringId": "reign_court_town_S4_child_4",
+  "characterObjectId": "reign_court_town_S4_child_4",
+  "characterName": "Khoryka Karseevich",
+  "provider": "AtlasCloud",
+  "model": "xai/grok-imagine-image/edit",
+  "adapter": "atlas upload/generate/poll",
+  "sourceSha256": "3b4ddd4eeed909117e283b2e3ff9a109ef95025ca2620bee575c6733672daed7",
+  "portraitSha256": "8de16633ad55ec6ada63d9c7a7213899dd1b902ae4f733e8ed71d68da0d1f748",
+  "portraitWidth": 864,
+  "portraitHeight": 1152,
+  "physicalConfidence": {
+    "definition": "physical_confidence",
+    "score": 87,
+    "profile": "81-100",
+    "flirtatiousnessPercentage": 98,
+    "confidencePercentage": 53,
+    "flirtatiousnessWeight": 0.75,
+    "confidenceWeight": 0.25,
+    "source": "shipped_profile_library"
+  },
+  "derivativesReady": true,
+  "derivativeError": "",
+  "generatedUtc": "2026-07-17T18:48:35.7004761Z"
+}

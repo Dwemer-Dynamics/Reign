@@ -1,0 +1,27 @@
+{
+  "version": 1,
+  "cacheKey": "Ovagos (lord_1_73)",
+  "heroStringId": "lord_1_73",
+  "characterObjectId": "lord_1_73",
+  "characterName": "Ovagos",
+  "provider": "AtlasCloud",
+  "model": "xai/grok-imagine-image/edit",
+  "adapter": "atlas upload/generate/poll",
+  "sourceSha256": "1bc4d3c71333b5bc14b962a1fd4b8ea1d443d55ad7752e936d1d0a256599ddd7",
+  "portraitSha256": "ddb0b2c332d650cdc19af9f754c96f68a364e2c5564aa96885201d4f5a10fa58",
+  "portraitWidth": 832,
+  "portraitHeight": 1248,
+  "physicalConfidence": {
+    "definition": "physical_confidence",
+    "score": 82,
+    "profile": "81-100",
+    "flirtatiousnessPercentage": 94,
+    "confidencePercentage": 45,
+    "flirtatiousnessWeight": 0.75,
+    "confidenceWeight": 0.25,
+    "source": "shipped_profile_library"
+  },
+  "derivativesReady": true,
+  "derivativeError": "",
+  "generatedUtc": "2026-07-17T19:08:41.7966467Z"
+}

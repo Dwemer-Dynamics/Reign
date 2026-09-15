@@ -1,0 +1,27 @@
+{
+  "version": 1,
+  "cacheKey": "Chagaa_Altugatai (reign_court_castle_K1_child_4)",
+  "heroStringId": "reign_court_castle_K1_child_4",
+  "characterObjectId": "reign_court_castle_K1_child_4",
+  "characterName": "Chagaa Altugatai",
+  "provider": "AtlasCloud",
+  "model": "xai/grok-imagine-image/edit",
+  "adapter": "atlas upload/generate/poll",
+  "sourceSha256": "8d719587089313c15d3d9b1ab9c787259ec6d213d6b822cecce92b0c890c7695",
+  "portraitSha256": "50debdcdf5d48a923645ddc4585c192f937cf867bc1b64828a0dab921e559ec3",
+  "portraitWidth": 864,
+  "portraitHeight": 1152,
+  "physicalConfidence": {
+    "definition": "physical_confidence",
+    "score": 57,
+    "profile": "41-60",
+    "flirtatiousnessPercentage": 57,
+    "confidencePercentage": 56,
+    "flirtatiousnessWeight": 0.75,
+    "confidenceWeight": 0.25,
+    "source": "shipped_profile_library"
+  },
+  "derivativesReady": true,
+  "derivativeError": "",
+  "generatedUtc": "2026-07-17T18:22:13.5682920Z"
+}

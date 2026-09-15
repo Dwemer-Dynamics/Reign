@@ -1,0 +1,27 @@
+{
+  "version": 1,
+  "cacheKey": "Nywin (lord_5_4)",
+  "heroStringId": "lord_5_4",
+  "characterObjectId": "lord_5_4",
+  "characterName": "Nywin",
+  "provider": "AtlasCloud",
+  "model": "xai/grok-imagine-image/edit",
+  "adapter": "atlas upload/generate/poll",
+  "sourceSha256": "4f9314084a9acf64ec7cf99e8527a4385089321786d3fe920cc9ca44fa93789b",
+  "portraitSha256": "ea31546ef04d9b7eb2d1deb82bd1beaae062f39e09e57e7aceedcc470cc01bfb",
+  "portraitWidth": 832,
+  "portraitHeight": 1248,
+  "physicalConfidence": {
+    "definition": "physical_confidence",
+    "score": 70,
+    "profile": "61-80",
+    "flirtatiousnessPercentage": 78,
+    "confidencePercentage": 45,
+    "flirtatiousnessWeight": 0.75,
+    "confidenceWeight": 0.25,
+    "source": "shipped_profile_library"
+  },
+  "derivativesReady": true,
+  "derivativeError": "",
+  "generatedUtc": "2026-07-17T19:06:14.9923375Z"
+}

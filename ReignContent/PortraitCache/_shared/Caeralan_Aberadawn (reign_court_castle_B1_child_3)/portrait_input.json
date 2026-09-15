@@ -1,0 +1,96 @@
+{
+  "version": 1,
+  "inputHash": "f5607d55b0b91f9d3a1fffb9eafc4d3ecc2217e215f46e4aa5d00e5753f39c9c",
+  "catalogHash": "12142c0ab28d2678b12b852b086450dcc4eea45e2e8a080f3baa85c42f7fb3a2",
+  "renderContractHash": "cc3b941e7d47057de9b4220f1473336e6f908719812bb2653b83bd3545cfbd2f",
+  "cacheKey": "Caeralan_Aberadawn (reign_court_castle_B1_child_3)",
+  "heroStringId": "reign_court_castle_B1_child_3",
+  "characterObjectId": "reign_court_castle_B1_child_3",
+  "characterName": "Caeralan Aberadawn",
+  "ageYears": 20,
+  "cultureId": "battania",
+  "cultureName": "Battanian",
+  "gender": "man",
+  "clanId": "clan_battania_8",
+  "clanTier": 4,
+  "clanProvenance": "reign_profile_library",
+  "socialStation": "lesser lord",
+  "occupation": "Lord",
+  "archetype": "lord",
+  "isLord": true,
+  "isNotable": false,
+  "isWanderer": false,
+  "isAlive": true,
+  "sourceModule": "ReignBeta",
+  "sourceFile": "Modules/ReignBeta/ModuleData/reign_court_lords.xml",
+  "profileSource": "reign_court",
+  "profilePackVersion": "reign_profiles_v4",
+  "bodyKey": "",
+  "bodyWeight": 0.5,
+  "bodyBuild": 0.5,
+  "faceTemplateId": "townsman_battania",
+  "faceGenerationVersion": "reign_court_shared_v1",
+  "civilianTemplate": "bat_civ_template_default",
+  "civilianEquipment": [
+    {
+      "slot": "Body",
+      "itemId": "battania_civil_a"
+    },
+    {
+      "slot": "Cape",
+      "itemId": "a_battania_cloak_a"
+    },
+    {
+      "slot": "Gloves",
+      "itemId": "highland_gloves"
+    },
+    {
+      "slot": "Leg",
+      "itemId": "battania_fur_boots"
+    }
+  ],
+  "headgearSuppressed": true,
+  "physicalConfidence": {
+    "definition": "physical_confidence",
+    "score": 32,
+    "profile": "21-40",
+    "flirtatiousnessPercentage": 25,
+    "confidencePercentage": 52,
+    "flirtatiousnessWeight": 0.75,
+    "confidenceWeight": 0.25,
+    "source": "shipped_profile_library"
+  },
+  "renderPreset": "ai_source_wan_portrait_v5",
+  "renderWidth": 1536,
+  "renderHeight": 2048,
+  "sourceWidth": 768,
+  "sourceHeight": 1024,
+  "cropScale": 0.24,
+  "cropWidthRatio": 0.75,
+  "cropCenterYRatio": 0.324,
+  "cameraPitchDegrees": 4,
+  "sourceSha256": "0b4dba8e44e09a6e0f95f6ff0c0aa32bf12bedd50487105c27b7ac018b6a5f57",
+  "sourceFileName": "source.png",
+  "generationEndpoint": "/portraits/generate",
+  "campaignIdSource": "active_campaign_at_generation_time",
+  "promptDeferred": true,
+  "sourceImageBase64From": "source.png",
+  "outputSizeOverride": "",
+  "promptPurpose": "portrait",
+  "nativePhysique": {
+    "schema": "reign-native-physique-v1",
+    "weight": 0.5,
+    "build": 0.5,
+    "weightSource": "shared_portrait_input.bodyWeight",
+    "buildSource": "shared_portrait_input.bodyBuild",
+    "sourceSha256": "0b4dba8e44e09a6e0f95f6ff0c0aa32bf12bedd50487105c27b7ac018b6a5f57",
+    "provenance": {
+      "kind": "saved_character_metadata_backfill",
+      "heroStringId": "reign_court_castle_B1_child_3",
+      "profileSource": "reign_court",
+      "profilePackVersion": "reign_profiles_v4",
+      "originalInputSha256": "98d078d61f73a70e78fcfaa2c3bf4bed560aa2e5a7d2fa2e942182046ad3edd5",
+      "rendererReexecuted": false
+    }
+  }
+}

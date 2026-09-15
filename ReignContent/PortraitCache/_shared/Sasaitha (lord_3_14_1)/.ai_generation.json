@@ -1,0 +1,27 @@
+{
+  "version": 1,
+  "cacheKey": "Sasaitha (lord_3_14_1)",
+  "heroStringId": "lord_3_14_1",
+  "characterObjectId": "lord_3_14_1",
+  "characterName": "Sasaitha",
+  "provider": "AtlasCloud",
+  "model": "xai/grok-imagine-image/edit",
+  "adapter": "atlas upload/generate/poll",
+  "sourceSha256": "1adbb7a9f1b0938dc45e46a1c9996656dbee7d4cc8dc58ed68392b99e20a8d69",
+  "portraitSha256": "5f48f9d5e0647e0956e1795ad012d2f846972f5be45f18af8d49748778889893",
+  "portraitWidth": 832,
+  "portraitHeight": 1248,
+  "physicalConfidence": {
+    "definition": "physical_confidence",
+    "score": 74,
+    "profile": "61-80",
+    "flirtatiousnessPercentage": 83,
+    "confidencePercentage": 46,
+    "flirtatiousnessWeight": 0.75,
+    "confidenceWeight": 0.25,
+    "source": "shipped_profile_library"
+  },
+  "derivativesReady": true,
+  "derivativeError": "",
+  "generatedUtc": "2026-07-17T19:12:59.7551296Z"
+}

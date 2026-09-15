@@ -1,0 +1,13 @@
+{
+  "version": 1,
+  "heroStringId": "reign_court_town_S4_child_1",
+  "characterName": "Gnevykan Karseevich",
+  "imagePath": "portrait.png",
+  "imageSha256": "FE1DBE7D9F1BF1D1D2DDCBB68C000BBB2CBCC88230CC4C1D4674828C9EE1DCA2",
+  "description": "Culturally appropriate everyday Sturgian minor-lord attire inspired by refined medieval Rus and Slavic noble clothing. Men should wear a well-made long shirt beneath a tailored wool kaftan or long belted coat, decorated with fine geometric embroidery and quality trim. Women should wear a long embroidered shift with an elegant wool overdress or noble coat-dress, secured with a richly woven sash. Include subtle fur trim around collars or cuffs, tasteful clasps, and better-quality fabric than a landowner would wear. The clothing should remain practical for a northern climate while clearly showing noble rank. No headgear of any kind. No armor, weapons, crowns, ceremonial robes, or oversized fur displays.",
+  "status": "failed",
+  "descriptionSource": "portrait_prompt_fallback",
+  "retryEligible": true,
+  "error": "{\"error\":{\"message\":\"Model \\\"zai-org/glm-5.2\\\" does not support image inputs. Remove image content or choose a multimodal model.\",\"type\":\"invalid_request_error\",\"param\":\"messages\",\"code\":\"image_input_not_supported\"}}",
+  "updatedUtc": "2026-07-18T22:03:29.6954491Z"
+}

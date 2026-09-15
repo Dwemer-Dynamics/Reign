@@ -1,0 +1,27 @@
+{
+  "version": 1,
+  "cacheKey": "Ekeaa_Boroqatai (reign_court_castle_K2_child_2)",
+  "heroStringId": "reign_court_castle_K2_child_2",
+  "characterObjectId": "reign_court_castle_K2_child_2",
+  "characterName": "Ekeaa Boroqatai",
+  "provider": "AtlasCloud",
+  "model": "xai/grok-imagine-image/edit",
+  "adapter": "atlas upload/generate/poll",
+  "sourceSha256": "f3b2d067acf52aeba79337daebffb3ef2a165cd440b5f5811fe502d9d6721244",
+  "portraitSha256": "f9eb6388bdc48194210f0b7b2f9886d35544c05cda5782d79a618dfa8f20a69f",
+  "portraitWidth": 864,
+  "portraitHeight": 1152,
+  "physicalConfidence": {
+    "definition": "physical_confidence",
+    "score": 72,
+    "profile": "61-80",
+    "flirtatiousnessPercentage": 66,
+    "confidencePercentage": 89,
+    "flirtatiousnessWeight": 0.75,
+    "confidenceWeight": 0.25,
+    "source": "shipped_profile_library"
+  },
+  "derivativesReady": true,
+  "derivativeError": "",
+  "generatedUtc": "2026-07-17T18:31:32.6491864Z"
+}

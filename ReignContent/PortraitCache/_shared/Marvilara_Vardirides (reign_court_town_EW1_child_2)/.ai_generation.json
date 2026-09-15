@@ -1,0 +1,27 @@
+{
+  "version": 1,
+  "cacheKey": "Marvilara_Vardirides (reign_court_town_EW1_child_2)",
+  "heroStringId": "reign_court_town_EW1_child_2",
+  "characterObjectId": "reign_court_town_EW1_child_2",
+  "characterName": "Marvilara Vardirides",
+  "provider": "AtlasCloud",
+  "model": "xai/grok-imagine-image/edit",
+  "adapter": "atlas upload/generate/poll",
+  "sourceSha256": "ba5571567530934acc6ad6dc1b01ae9c1971d0caf10768fa6135fc63de0ac57d",
+  "portraitSha256": "3b66e16415bd9c7a8cb6e77ff50cd92c7b213388868b5da418c0ba552cd2c5ea",
+  "portraitWidth": 864,
+  "portraitHeight": 1152,
+  "physicalConfidence": {
+    "definition": "physical_confidence",
+    "score": 52,
+    "profile": "41-60",
+    "flirtatiousnessPercentage": 52,
+    "confidencePercentage": 51,
+    "flirtatiousnessWeight": 0.75,
+    "confidenceWeight": 0.25,
+    "source": "shipped_profile_library"
+  },
+  "derivativesReady": true,
+  "derivativeError": "",
+  "generatedUtc": "2026-07-17T19:00:48.3005589Z"
+}

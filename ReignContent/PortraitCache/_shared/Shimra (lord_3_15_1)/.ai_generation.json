@@ -1,0 +1,27 @@
+{
+  "version": 1,
+  "cacheKey": "Shimra (lord_3_15_1)",
+  "heroStringId": "lord_3_15_1",
+  "characterObjectId": "lord_3_15_1",
+  "characterName": "Shimra",
+  "provider": "AtlasCloud",
+  "model": "xai/grok-imagine-image/edit",
+  "adapter": "atlas upload/generate/poll",
+  "sourceSha256": "87bcfdbb8b1f0aebe2e2598a5cb49fd8ffe11963cf23d1063ffce7df38c3f958",
+  "portraitSha256": "14e3d7724140c7abc0bc07f3f2d4ed3753779a0028764708fea84a0d15a56487",
+  "portraitWidth": 832,
+  "portraitHeight": 1248,
+  "physicalConfidence": {
+    "definition": "physical_confidence",
+    "score": 69,
+    "profile": "61-80",
+    "flirtatiousnessPercentage": 76,
+    "confidencePercentage": 47,
+    "flirtatiousnessWeight": 0.75,
+    "confidenceWeight": 0.25,
+    "source": "shipped_profile_library"
+  },
+  "derivativesReady": true,
+  "derivativeError": "",
+  "generatedUtc": "2026-07-17T19:13:37.6801608Z"
+}

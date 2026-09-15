@@ -1,0 +1,27 @@
+{
+  "version": 1,
+  "cacheKey": "Iovilion_Sorianarides (reign_court_castle_EN7_child_3)",
+  "heroStringId": "reign_court_castle_EN7_child_3",
+  "characterObjectId": "reign_court_castle_EN7_child_3",
+  "characterName": "Iovilion Sorianarides",
+  "provider": "AtlasCloud",
+  "model": "xai/grok-imagine-image/edit",
+  "adapter": "atlas upload/generate/poll",
+  "sourceSha256": "bb7e7abd2c4b33f37952f93b1b3969cc5a2cc115c3604fd2c940a31dc802664c",
+  "portraitSha256": "b6676ebb0374be61e0764021c352fe6a78f795a5bc223b269ca03a7cf37d9fa9",
+  "portraitWidth": 864,
+  "portraitHeight": 1152,
+  "physicalConfidence": {
+    "definition": "physical_confidence",
+    "score": 76,
+    "profile": "61-80",
+    "flirtatiousnessPercentage": 68,
+    "confidencePercentage": 99,
+    "flirtatiousnessWeight": 0.75,
+    "confidenceWeight": 0.25,
+    "source": "shipped_profile_library"
+  },
+  "derivativesReady": true,
+  "derivativeError": "",
+  "generatedUtc": "2026-07-17T18:45:08.3607109Z"
+}

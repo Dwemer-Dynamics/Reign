@@ -1,0 +1,27 @@
+{
+  "version": 1,
+  "cacheKey": "Vashorki (lord_2_19)",
+  "heroStringId": "lord_2_19",
+  "characterObjectId": "lord_2_19",
+  "characterName": "Vashorki",
+  "provider": "AtlasCloud",
+  "model": "xai/grok-imagine-image/edit",
+  "adapter": "atlas upload/generate/poll",
+  "sourceSha256": "e21b366fcc667669be814acd7cf9b5ba93fba32de11e7cd177940f36b188d76c",
+  "portraitSha256": "6db845a4c2aad7817c0ff2278f7eba1bc7fb3fc89d855d64edeb9dab07a543e9",
+  "portraitWidth": 832,
+  "portraitHeight": 1248,
+  "physicalConfidence": {
+    "definition": "physical_confidence",
+    "score": 65,
+    "profile": "61-80",
+    "flirtatiousnessPercentage": 77,
+    "confidencePercentage": 28,
+    "flirtatiousnessWeight": 0.75,
+    "confidenceWeight": 0.25,
+    "source": "shipped_profile_library"
+  },
+  "derivativesReady": true,
+  "derivativeError": "",
+  "generatedUtc": "2026-07-17T19:20:34.2163955Z"
+}

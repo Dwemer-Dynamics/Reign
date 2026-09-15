@@ -1,0 +1,27 @@
+{
+  "version": 1,
+  "cacheKey": "Obron (lord_1_49)",
+  "heroStringId": "lord_1_49",
+  "characterObjectId": "lord_1_49",
+  "characterName": "Obron",
+  "provider": "AtlasCloud",
+  "model": "xai/grok-imagine-image/edit",
+  "adapter": "atlas upload/generate/poll",
+  "sourceSha256": "7f70ef5738640cbfdfb159ea12365422aeee01a821c9bc85a5563194268ca5c6",
+  "portraitSha256": "a0d52f842a189dce806ab5619124a149657e18cc8e65b6816a03463cddde7956",
+  "portraitWidth": 832,
+  "portraitHeight": 1248,
+  "physicalConfidence": {
+    "definition": "physical_confidence",
+    "score": 54,
+    "profile": "41-60",
+    "flirtatiousnessPercentage": 59,
+    "confidencePercentage": 38,
+    "flirtatiousnessWeight": 0.75,
+    "confidenceWeight": 0.25,
+    "source": "shipped_profile_library"
+  },
+  "derivativesReady": true,
+  "derivativeError": "",
+  "generatedUtc": "2026-07-17T19:06:12.3382440Z"
+}

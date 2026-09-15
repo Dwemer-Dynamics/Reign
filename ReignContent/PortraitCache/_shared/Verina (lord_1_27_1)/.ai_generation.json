@@ -1,0 +1,27 @@
+{
+  "version": 1,
+  "cacheKey": "Verina (lord_1_27_1)",
+  "heroStringId": "lord_1_27_1",
+  "characterObjectId": "lord_1_27_1",
+  "characterName": "Verina",
+  "provider": "AtlasCloud",
+  "model": "xai/grok-imagine-image/edit",
+  "adapter": "atlas upload/generate/poll",
+  "sourceSha256": "dc57c6eb98cd283d1b32d99036d2bff9648e5a70b23959c966b5d54a8321b1c4",
+  "portraitSha256": "1d1dddb4594bb9bfbaf246a1472108483e863e65b3c685b05c2b383e589ae66c",
+  "portraitWidth": 832,
+  "portraitHeight": 1248,
+  "physicalConfidence": {
+    "definition": "physical_confidence",
+    "score": 57,
+    "profile": "41-60",
+    "flirtatiousnessPercentage": 59,
+    "confidencePercentage": 50,
+    "flirtatiousnessWeight": 0.75,
+    "confidenceWeight": 0.25,
+    "source": "shipped_profile_library"
+  },
+  "derivativesReady": true,
+  "derivativeError": "",
+  "generatedUtc": "2026-07-17T19:20:54.7960361Z"
+}

@@ -1,0 +1,27 @@
+{
+  "version": 1,
+  "cacheKey": "Olek_the_Old (dead_lord_2_1)",
+  "heroStringId": "dead_lord_2_1",
+  "characterObjectId": "dead_lord_2_1",
+  "characterName": "Olek the Old",
+  "provider": "AtlasCloud",
+  "model": "xai/grok-imagine-image/edit",
+  "adapter": "atlas upload/generate/poll",
+  "sourceSha256": "ff54cbd751fc4877b68041071a9e38147226844879624699f7c9dd1a6eb65eb2",
+  "portraitSha256": "5846296981e94bec7382d527347ac3cd26c622b32d7f045a9eb109d2feae9499",
+  "portraitWidth": 864,
+  "portraitHeight": 1152,
+  "physicalConfidence": {
+    "definition": "physical_confidence",
+    "score": 54,
+    "profile": "41-60",
+    "flirtatiousnessPercentage": 57,
+    "confidencePercentage": 44,
+    "flirtatiousnessWeight": 0.75,
+    "confidenceWeight": 0.25,
+    "source": "shipped_profile_library"
+  },
+  "derivativesReady": true,
+  "derivativeError": "",
+  "generatedUtc": "2026-07-17T19:06:13.1164555Z"
+}

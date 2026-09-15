@@ -1,0 +1,27 @@
+{
+  "version": 1,
+  "cacheKey": "Gunnar (naval_storyline_gangradir)",
+  "heroStringId": "naval_storyline_gangradir",
+  "characterObjectId": "naval_storyline_gangradir",
+  "characterName": "Gunnar",
+  "provider": "AtlasCloud",
+  "model": "xai/grok-imagine-image/edit",
+  "adapter": "atlas upload/generate/poll",
+  "sourceSha256": "228df2a17f85df5d28a598eb28207b562c62a904ccd20671dfc943c7efa88465",
+  "portraitSha256": "6d7405600a634101eb82dbfedb171745d6e093cc8ca269b21344518ce34fd933",
+  "portraitWidth": 864,
+  "portraitHeight": 1152,
+  "physicalConfidence": {
+    "definition": "physical_confidence",
+    "score": 50,
+    "profile": "41-60",
+    "flirtatiousnessPercentage": 50,
+    "confidencePercentage": 50,
+    "flirtatiousnessWeight": 0.75,
+    "confidenceWeight": 0.25,
+    "source": "neutral_fallback"
+  },
+  "derivativesReady": true,
+  "derivativeError": "",
+  "generatedUtc": "2026-07-17T18:40:39.3711457Z"
+}

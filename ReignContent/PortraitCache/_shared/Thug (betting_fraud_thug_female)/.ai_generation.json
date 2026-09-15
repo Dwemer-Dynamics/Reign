@@ -1,0 +1,27 @@
+{
+  "version": 1,
+  "cacheKey": "Thug (betting_fraud_thug_female)",
+  "heroStringId": "betting_fraud_thug_female",
+  "characterObjectId": "betting_fraud_thug_female",
+  "characterName": "Thug",
+  "provider": "AtlasCloud",
+  "model": "xai/grok-imagine-image/edit",
+  "adapter": "atlas upload/generate/poll",
+  "sourceSha256": "2bb55a2b55d1d17e2cf54ed4e01b9c11287f83614f6eff78f57a6fec54bc3356",
+  "portraitSha256": "6a1d5a6a219dc5af3a718505548e59d769de52d51bd4d46188cc7d10a72f029b",
+  "portraitWidth": 864,
+  "portraitHeight": 1152,
+  "physicalConfidence": {
+    "definition": "physical_confidence",
+    "score": 50,
+    "profile": "41-60",
+    "flirtatiousnessPercentage": 50,
+    "confidencePercentage": 50,
+    "flirtatiousnessWeight": 0.75,
+    "confidenceWeight": 0.25,
+    "source": "neutral_fallback"
+  },
+  "derivativesReady": true,
+  "derivativeError": "",
+  "generatedUtc": "2026-07-17T19:17:04.4913351Z"
+}

@@ -1,0 +1,27 @@
+{
+  "version": 1,
+  "cacheKey": "Renuric_Fauconecourt (reign_court_town_V7_father)",
+  "heroStringId": "reign_court_town_V7_father",
+  "characterObjectId": "reign_court_town_V7_father",
+  "characterName": "Renuric Fauconecourt",
+  "provider": "AtlasCloud",
+  "model": "xai/grok-imagine-image/edit",
+  "adapter": "atlas upload/generate/poll",
+  "sourceSha256": "4ea0aec6278783331344a65fd71e870d1ded2e680383cb3936a955c3a3aed5ce",
+  "portraitSha256": "8b0cee5e4ca521308eddaa05683ad2d9c020be76174285be24b2329c87bce859",
+  "portraitWidth": 864,
+  "portraitHeight": 1152,
+  "physicalConfidence": {
+    "definition": "physical_confidence",
+    "score": 55,
+    "profile": "41-60",
+    "flirtatiousnessPercentage": 49,
+    "confidencePercentage": 72,
+    "flirtatiousnessWeight": 0.75,
+    "confidenceWeight": 0.25,
+    "source": "shipped_profile_library"
+  },
+  "derivativesReady": true,
+  "derivativeError": "",
+  "generatedUtc": "2026-07-17T19:11:31.1838082Z"
+}

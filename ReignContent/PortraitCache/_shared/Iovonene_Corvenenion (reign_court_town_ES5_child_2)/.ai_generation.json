@@ -1,0 +1,27 @@
+{
+  "version": 1,
+  "cacheKey": "Iovonene_Corvenenion (reign_court_town_ES5_child_2)",
+  "heroStringId": "reign_court_town_ES5_child_2",
+  "characterObjectId": "reign_court_town_ES5_child_2",
+  "characterName": "Iovonene Corvenenion",
+  "provider": "AtlasCloud",
+  "model": "xai/grok-imagine-image/edit",
+  "adapter": "atlas upload/generate/poll",
+  "sourceSha256": "cc4f5fa610fe898fbbeb65d84c09c6f288955ab13b37257614a83985dc74cba3",
+  "portraitSha256": "6a79ebbb1ffc717f027ade41b78e68f8022f934c5d5dd1f414952d959dabe9b2",
+  "portraitWidth": 864,
+  "portraitHeight": 1152,
+  "physicalConfidence": {
+    "definition": "physical_confidence",
+    "score": 72,
+    "profile": "61-80",
+    "flirtatiousnessPercentage": 80,
+    "confidencePercentage": 47,
+    "flirtatiousnessWeight": 0.75,
+    "confidenceWeight": 0.25,
+    "source": "shipped_profile_library"
+  },
+  "derivativesReady": true,
+  "derivativeError": "",
+  "generatedUtc": "2026-07-17T18:45:11.2242992Z"
+}

@@ -1,0 +1,27 @@
+{
+  "version": 1,
+  "cacheKey": "Evrela_Demeracourt (reign_court_castle_V4_child_4)",
+  "heroStringId": "reign_court_castle_V4_child_4",
+  "characterObjectId": "reign_court_castle_V4_child_4",
+  "characterName": "Evrela Demeracourt",
+  "provider": "AtlasCloud",
+  "model": "xai/grok-imagine-image/edit",
+  "adapter": "atlas upload/generate/poll",
+  "sourceSha256": "5a1d854c7bbfe4bd2e0c2e2a7505e602120857cda4d60ccd4153a0f0648f81b8",
+  "portraitSha256": "4b10e316636c10b6ad5d8885c9b687ed7ddd2b3b2a95cd8bbd692ec10511e1f4",
+  "portraitWidth": 864,
+  "portraitHeight": 1152,
+  "physicalConfidence": {
+    "definition": "physical_confidence",
+    "score": 45,
+    "profile": "41-60",
+    "flirtatiousnessPercentage": 43,
+    "confidencePercentage": 50,
+    "flirtatiousnessWeight": 0.75,
+    "confidenceWeight": 0.25,
+    "source": "shipped_profile_library"
+  },
+  "derivativesReady": true,
+  "derivativeError": "",
+  "generatedUtc": "2026-07-17T18:35:25.6449363Z"
+}

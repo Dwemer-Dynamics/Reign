@@ -1,0 +1,27 @@
+{
+  "version": 1,
+  "cacheKey": "Renana_Corvacourt (reign_court_castle_V3_child_2)",
+  "heroStringId": "reign_court_castle_V3_child_2",
+  "characterObjectId": "reign_court_castle_V3_child_2",
+  "characterName": "Renana Corvacourt",
+  "provider": "AtlasCloud",
+  "model": "xai/grok-imagine-image/edit",
+  "adapter": "atlas upload/generate/poll",
+  "sourceSha256": "a1a1cd30a5ab87133127699e3b5eb5c06b85325e7feac7c2239e8fc6fdf93535",
+  "portraitSha256": "b927d10d0854205ce20ceee5568725cfc5b0ea9005450a0c0ef3da2904e129f1",
+  "portraitWidth": 864,
+  "portraitHeight": 1152,
+  "physicalConfidence": {
+    "definition": "physical_confidence",
+    "score": 54,
+    "profile": "41-60",
+    "flirtatiousnessPercentage": 52,
+    "confidencePercentage": 59,
+    "flirtatiousnessWeight": 0.75,
+    "confidenceWeight": 0.25,
+    "source": "shipped_profile_library"
+  },
+  "derivativesReady": true,
+  "derivativeError": "",
+  "generatedUtc": "2026-07-17T19:11:02.3620775Z"
+}

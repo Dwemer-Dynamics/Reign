@@ -1,0 +1,13 @@
+{
+  "version": 1,
+  "heroStringId": "reign_court_castle_V6_father",
+  "characterName": "Renelic Fauconacourt",
+  "imagePath": "portrait.png",
+  "imageSha256": "FE4B990E77234B82FC284581B6D5C3C2B6C4445A36A2FAAB2B9F66F95BFFC369",
+  "description": "Culturally appropriate everyday Vlandian landowner attire inspired by practical high-medieval Norman and Frankish clothing. Use a well-made wool tunic over a linen underlayer, fitted sleeves, a sturdy leather belt, narrow trousers or chausses, and soft leather boots. For women, use a long fitted underdress with a simple but well-tailored overdress, narrow sleeves, a modest neckline, and a practical belt. The garments should appear prosperous, clean, and durable without looking aristocratic. No headgear of any kind. No armor, weapons, crowns, ceremonial robes, or fantasy elements.",
+  "status": "failed",
+  "descriptionSource": "portrait_prompt_fallback",
+  "retryEligible": true,
+  "error": "{\"error\":{\"message\":\"Model \\\"zai-org/glm-5.2\\\" does not support image inputs. Remove image content or choose a multimodal model.\",\"type\":\"invalid_request_error\",\"param\":\"messages\",\"code\":\"image_input_not_supported\"}}",
+  "updatedUtc": "2026-07-18T22:03:33.7563344Z"
+}

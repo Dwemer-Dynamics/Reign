@@ -1,0 +1,96 @@
+{
+  "version": 1,
+  "inputHash": "c0a1518cc4a5b1f373193bcc792cbc3b11161023b0dd7d57adc73381d7ee15ce",
+  "catalogHash": "12142c0ab28d2678b12b852b086450dcc4eea45e2e8a080f3baa85c42f7fb3a2",
+  "renderContractHash": "cc3b941e7d47057de9b4220f1473336e6f908719812bb2653b83bd3545cfbd2f",
+  "cacheKey": "Baldron (main_hero_father)",
+  "heroStringId": "main_hero_father",
+  "characterObjectId": "main_hero_father",
+  "characterName": "Baldron",
+  "ageYears": 50,
+  "cultureId": "battania",
+  "cultureName": "Battanian",
+  "gender": "man",
+  "clanId": "none",
+  "clanTier": null,
+  "clanProvenance": "not_defined_in_module_heroes_xml",
+  "socialStation": "unranked",
+  "occupation": "Lord",
+  "archetype": "lord",
+  "isLord": true,
+  "isNotable": false,
+  "isWanderer": false,
+  "isAlive": null,
+  "sourceModule": "Native",
+  "sourceFile": "Modules/StoryMode/ModuleData/story_mode_characters.xml",
+  "profileSource": "neutral_fallback",
+  "profilePackVersion": "",
+  "bodyKey": "0005C80000BC214266EA9979568444848885462866B3674479986B98949492360007465707678747000000000000000000000000000000000000000001440081",
+  "bodyWeight": 0.5,
+  "bodyBuild": 0.5,
+  "faceTemplateId": "",
+  "faceGenerationVersion": "native_authored",
+  "civilianTemplate": "bat_civ_template_default",
+  "civilianEquipment": [
+    {
+      "slot": "Body",
+      "itemId": "battania_civil_a"
+    },
+    {
+      "slot": "Cape",
+      "itemId": "a_battania_cloak_a"
+    },
+    {
+      "slot": "Gloves",
+      "itemId": "highland_gloves"
+    },
+    {
+      "slot": "Leg",
+      "itemId": "battania_fur_boots"
+    }
+  ],
+  "headgearSuppressed": true,
+  "physicalConfidence": {
+    "definition": "physical_confidence",
+    "score": 50,
+    "profile": "41-60",
+    "flirtatiousnessPercentage": 50,
+    "confidencePercentage": 50,
+    "flirtatiousnessWeight": 0.75,
+    "confidenceWeight": 0.25,
+    "source": "neutral_fallback"
+  },
+  "renderPreset": "ai_source_wan_portrait_v5",
+  "renderWidth": 1536,
+  "renderHeight": 2048,
+  "sourceWidth": 768,
+  "sourceHeight": 1024,
+  "cropScale": 0.24,
+  "cropWidthRatio": 0.75,
+  "cropCenterYRatio": 0.324,
+  "cameraPitchDegrees": 4,
+  "sourceSha256": "3fd6b77b4c8bceb7863de03d620f8e9f7dcb9a7ac387fd7fba51747c3cbca48e",
+  "sourceFileName": "source.png",
+  "generationEndpoint": "/portraits/generate",
+  "campaignIdSource": "active_campaign_at_generation_time",
+  "promptDeferred": true,
+  "sourceImageBase64From": "source.png",
+  "outputSizeOverride": "",
+  "promptPurpose": "portrait",
+  "nativePhysique": {
+    "schema": "reign-native-physique-v1",
+    "weight": 0.5,
+    "build": 0.5,
+    "weightSource": "shared_portrait_input.bodyWeight",
+    "buildSource": "shared_portrait_input.bodyBuild",
+    "sourceSha256": "3fd6b77b4c8bceb7863de03d620f8e9f7dcb9a7ac387fd7fba51747c3cbca48e",
+    "provenance": {
+      "kind": "saved_character_metadata_backfill",
+      "heroStringId": "main_hero_father",
+      "profileSource": "neutral_fallback",
+      "profilePackVersion": "",
+      "originalInputSha256": "ce2a5d3aa3ec931933dac003354aa7711dbd149a37f3ae1ee444a7ecc21c6b9f",
+      "rendererReexecuted": false
+    }
+  }
+}

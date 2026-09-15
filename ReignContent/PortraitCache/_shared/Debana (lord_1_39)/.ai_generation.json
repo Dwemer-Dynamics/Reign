@@ -1,0 +1,27 @@
+{
+  "version": 1,
+  "cacheKey": "Debana (lord_1_39)",
+  "heroStringId": "lord_1_39",
+  "characterObjectId": "lord_1_39",
+  "characterName": "Debana",
+  "provider": "AtlasCloud",
+  "model": "xai/grok-imagine-image/edit",
+  "adapter": "atlas upload/generate/poll",
+  "sourceSha256": "1625ba3ea42a969afa7045b8c76fac9be4282256a52e4111a7dbf810ae136c71",
+  "portraitSha256": "e4ff18fb44fae8f14fc3ca0aa23bbc96186bc6a4801aba19396456a1e7fd5d47",
+  "portraitWidth": 832,
+  "portraitHeight": 1248,
+  "physicalConfidence": {
+    "definition": "physical_confidence",
+    "score": 57,
+    "profile": "41-60",
+    "flirtatiousnessPercentage": 52,
+    "confidencePercentage": 71,
+    "flirtatiousnessWeight": 0.75,
+    "confidenceWeight": 0.25,
+    "source": "shipped_profile_library"
+  },
+  "derivativesReady": true,
+  "derivativeError": "",
+  "generatedUtc": "2026-07-17T18:26:22.9680441Z"
+}

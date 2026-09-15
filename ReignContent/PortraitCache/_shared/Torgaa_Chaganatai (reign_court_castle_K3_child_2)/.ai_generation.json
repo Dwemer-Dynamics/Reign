@@ -1,0 +1,27 @@
+{
+  "version": 1,
+  "cacheKey": "Torgaa_Chaganatai (reign_court_castle_K3_child_2)",
+  "heroStringId": "reign_court_castle_K3_child_2",
+  "characterObjectId": "reign_court_castle_K3_child_2",
+  "characterName": "Torgaa Chaganatai",
+  "provider": "AtlasCloud",
+  "model": "xai/grok-imagine-image/edit",
+  "adapter": "atlas upload/generate/poll",
+  "sourceSha256": "9568f84a654aaa2faa26fe737327b89aba9285eaf1b00472b41ccb0b2d68adb9",
+  "portraitSha256": "d09545e8044ae1d82a122a4843bc7737c8c205034a07812148f6aa768d177ac0",
+  "portraitWidth": 864,
+  "portraitHeight": 1152,
+  "physicalConfidence": {
+    "definition": "physical_confidence",
+    "score": 63,
+    "profile": "61-80",
+    "flirtatiousnessPercentage": 65,
+    "confidencePercentage": 56,
+    "flirtatiousnessWeight": 0.75,
+    "confidenceWeight": 0.25,
+    "source": "shipped_profile_library"
+  },
+  "derivativesReady": true,
+  "derivativeError": "",
+  "generatedUtc": "2026-07-17T19:17:22.5636401Z"
+}

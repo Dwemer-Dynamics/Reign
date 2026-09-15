@@ -1,0 +1,27 @@
+{
+  "version": 1,
+  "cacheKey": "Hashan (lord_3_22)",
+  "heroStringId": "lord_3_22",
+  "characterObjectId": "lord_3_22",
+  "characterName": "Hashan",
+  "provider": "AtlasCloud",
+  "model": "xai/grok-imagine-image/edit",
+  "adapter": "atlas upload/generate/poll",
+  "sourceSha256": "33afc7eaf1549b12c51521150dae78dd1271e9f2e901f646ea2c1bcff2a554bb",
+  "portraitSha256": "0419fc9c31a5ff73bab62b2754530ea18e6d3fd351e2674aadb63730d54c416d",
+  "portraitWidth": 832,
+  "portraitHeight": 1248,
+  "physicalConfidence": {
+    "definition": "physical_confidence",
+    "score": 63,
+    "profile": "61-80",
+    "flirtatiousnessPercentage": 58,
+    "confidencePercentage": 77,
+    "flirtatiousnessWeight": 0.75,
+    "confidenceWeight": 0.25,
+    "source": "shipped_profile_library"
+  },
+  "derivativesReady": true,
+  "derivativeError": "",
+  "generatedUtc": "2026-07-17T18:42:20.8418098Z"
+}

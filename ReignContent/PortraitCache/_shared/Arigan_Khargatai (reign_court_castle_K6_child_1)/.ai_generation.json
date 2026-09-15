@@ -1,0 +1,27 @@
+{
+  "version": 1,
+  "cacheKey": "Arigan_Khargatai (reign_court_castle_K6_child_1)",
+  "heroStringId": "reign_court_castle_K6_child_1",
+  "characterObjectId": "reign_court_castle_K6_child_1",
+  "characterName": "Arigan Khargatai",
+  "provider": "AtlasCloud",
+  "model": "xai/grok-imagine-image/edit",
+  "adapter": "atlas upload/generate/poll",
+  "sourceSha256": "14b5e809f0e7c3360a21fb1fee18747268cf86466b1fed9ea5a2425b964c0b26",
+  "portraitSha256": "d99fe8841792566645fcddefed475d6910f8f408e024fa146108a5e8ec003c0a",
+  "portraitWidth": 864,
+  "portraitHeight": 1152,
+  "physicalConfidence": {
+    "definition": "physical_confidence",
+    "score": 32,
+    "profile": "21-40",
+    "flirtatiousnessPercentage": 23,
+    "confidencePercentage": 58,
+    "flirtatiousnessWeight": 0.75,
+    "confidenceWeight": 0.25,
+    "source": "shipped_profile_library"
+  },
+  "derivativesReady": true,
+  "derivativeError": "",
+  "generatedUtc": "2026-07-17T18:13:33.4146354Z"
+}

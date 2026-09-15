@@ -1,0 +1,27 @@
+{
+  "version": 1,
+  "cacheKey": "Letharion_Corvenarides (reign_court_castle_EN2_child_3)",
+  "heroStringId": "reign_court_castle_EN2_child_3",
+  "characterObjectId": "reign_court_castle_EN2_child_3",
+  "characterName": "Letharion Corvenarides",
+  "provider": "AtlasCloud",
+  "model": "xai/grok-imagine-image/edit",
+  "adapter": "atlas upload/generate/poll",
+  "sourceSha256": "e2bdc6f4a6d41c57466ed6c8aa7b0e80ec44a90a67a47a5cfc5548133349c64a",
+  "portraitSha256": "18bd574c860d3ed3a539956bde94bfe68149747822f21f32b66e2a1c28937cbb",
+  "portraitWidth": 864,
+  "portraitHeight": 1152,
+  "physicalConfidence": {
+    "definition": "physical_confidence",
+    "score": 74,
+    "profile": "61-80",
+    "flirtatiousnessPercentage": 87,
+    "confidencePercentage": 34,
+    "flirtatiousnessWeight": 0.75,
+    "confidenceWeight": 0.25,
+    "source": "shipped_profile_library"
+  },
+  "derivativesReady": true,
+  "derivativeError": "",
+  "generatedUtc": "2026-07-17T18:51:10.9122231Z"
+}

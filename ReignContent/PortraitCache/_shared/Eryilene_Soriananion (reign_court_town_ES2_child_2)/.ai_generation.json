@@ -1,0 +1,27 @@
+{
+  "version": 1,
+  "cacheKey": "Eryilene_Soriananion (reign_court_town_ES2_child_2)",
+  "heroStringId": "reign_court_town_ES2_child_2",
+  "characterObjectId": "reign_court_town_ES2_child_2",
+  "characterName": "Eryilene Soriananion",
+  "provider": "AtlasCloud",
+  "model": "xai/grok-imagine-image/edit",
+  "adapter": "atlas upload/generate/poll",
+  "sourceSha256": "df55625b85154890a04887b9166ddbbe045deb575d019ecf54419d3a91222bba",
+  "portraitSha256": "3b87128e4dfbf74516c6e2b71362ba60a70563721cc485b410d637b5e7e34919",
+  "portraitWidth": 864,
+  "portraitHeight": 1152,
+  "physicalConfidence": {
+    "definition": "physical_confidence",
+    "score": 44,
+    "profile": "41-60",
+    "flirtatiousnessPercentage": 41,
+    "confidencePercentage": 52,
+    "flirtatiousnessWeight": 0.75,
+    "confidenceWeight": 0.25,
+    "source": "shipped_profile_library"
+  },
+  "derivativesReady": true,
+  "derivativeError": "",
+  "generatedUtc": "2026-07-17T18:34:04.3245017Z"
+}

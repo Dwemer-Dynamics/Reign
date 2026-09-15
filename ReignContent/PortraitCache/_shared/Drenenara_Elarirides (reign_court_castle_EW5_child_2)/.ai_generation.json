@@ -1,0 +1,27 @@
+{
+  "version": 1,
+  "cacheKey": "Drenenara_Elarirides (reign_court_castle_EW5_child_2)",
+  "heroStringId": "reign_court_castle_EW5_child_2",
+  "characterObjectId": "reign_court_castle_EW5_child_2",
+  "characterName": "Drenenara Elarirides",
+  "provider": "AtlasCloud",
+  "model": "xai/grok-imagine-image/edit",
+  "adapter": "atlas upload/generate/poll",
+  "sourceSha256": "cceb301c4167e690cbb407e0b603b98b27f1947dcaf4afae93bc5ac267604028",
+  "portraitSha256": "2a3c7119c3052981c04664a777e2f13d6c3ae9c7503ac7d634e9e0937b1af5f8",
+  "portraitWidth": 864,
+  "portraitHeight": 1152,
+  "physicalConfidence": {
+    "definition": "physical_confidence",
+    "score": 62,
+    "profile": "61-80",
+    "flirtatiousnessPercentage": 68,
+    "confidencePercentage": 43,
+    "flirtatiousnessWeight": 0.75,
+    "confidenceWeight": 0.25,
+    "source": "shipped_profile_library"
+  },
+  "derivativesReady": true,
+  "derivativeError": "",
+  "generatedUtc": "2026-07-17T18:29:22.5650305Z"
+}

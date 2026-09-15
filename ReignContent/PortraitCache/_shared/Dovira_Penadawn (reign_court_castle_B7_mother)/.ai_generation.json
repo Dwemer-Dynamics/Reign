@@ -1,0 +1,27 @@
+{
+  "version": 1,
+  "cacheKey": "Dovira_Penadawn (reign_court_castle_B7_mother)",
+  "heroStringId": "reign_court_castle_B7_mother",
+  "characterObjectId": "reign_court_castle_B7_mother",
+  "characterName": "Dovira Penadawn",
+  "provider": "AtlasCloud",
+  "model": "xai/grok-imagine-image/edit",
+  "adapter": "atlas upload/generate/poll",
+  "sourceSha256": "38220833b956d056a0e395d8067005b80e65721628e50a70f2484e2a176e2102",
+  "portraitSha256": "7bf44fd25006441705cc9766371c639302f20800e1a45094e8c1a8e647ce26e9",
+  "portraitWidth": 864,
+  "portraitHeight": 1152,
+  "physicalConfidence": {
+    "definition": "physical_confidence",
+    "score": 48,
+    "profile": "41-60",
+    "flirtatiousnessPercentage": 44,
+    "confidencePercentage": 59,
+    "flirtatiousnessWeight": 0.75,
+    "confidenceWeight": 0.25,
+    "source": "shipped_profile_library"
+  },
+  "derivativesReady": true,
+  "derivativeError": "",
+  "generatedUtc": "2026-07-17T18:28:00.4192092Z"
+}

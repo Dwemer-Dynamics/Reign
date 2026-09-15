@@ -1,0 +1,27 @@
+{
+  "version": 1,
+  "cacheKey": "Berela_Demeracourt (reign_court_castle_V4_mother)",
+  "heroStringId": "reign_court_castle_V4_mother",
+  "characterObjectId": "reign_court_castle_V4_mother",
+  "characterName": "Berela Demeracourt",
+  "provider": "AtlasCloud",
+  "model": "xai/grok-imagine-image/edit",
+  "adapter": "atlas upload/generate/poll",
+  "sourceSha256": "2d8402c3ebc3054ebc294c00aa1015d3232cd023ec9c1e1384622b4bc1c25bb8",
+  "portraitSha256": "1c1265258dd1a6210803702f06926132ce7ecab951cf1a3a3effca082c8adeb4",
+  "portraitWidth": 864,
+  "portraitHeight": 1152,
+  "physicalConfidence": {
+    "definition": "physical_confidence",
+    "score": 52,
+    "profile": "41-60",
+    "flirtatiousnessPercentage": 51,
+    "confidencePercentage": 54,
+    "flirtatiousnessWeight": 0.75,
+    "confidenceWeight": 0.25,
+    "source": "shipped_profile_library"
+  },
+  "derivativesReady": true,
+  "derivativeError": "",
+  "generatedUtc": "2026-07-17T18:16:37.4103031Z"
+}

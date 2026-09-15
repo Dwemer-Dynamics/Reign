@@ -1,0 +1,27 @@
+{
+  "version": 1,
+  "cacheKey": "Erdurand (lord_4_15)",
+  "heroStringId": "lord_4_15",
+  "characterObjectId": "lord_4_15",
+  "characterName": "Erdurand",
+  "provider": "AtlasCloud",
+  "model": "xai/grok-imagine-image/edit",
+  "adapter": "atlas upload/generate/poll",
+  "sourceSha256": "e59d9be016912371bfca3b0c7b5b18de1022488b408f784dffb15aeed0dbd839",
+  "portraitSha256": "7a9218f64c35ec5b3afc24f50ee01b58e0f2a3700337a0b94da5a1d46d3d6942",
+  "portraitWidth": 832,
+  "portraitHeight": 1248,
+  "physicalConfidence": {
+    "definition": "physical_confidence",
+    "score": 39,
+    "profile": "21-40",
+    "flirtatiousnessPercentage": 27,
+    "confidencePercentage": 74,
+    "flirtatiousnessWeight": 0.75,
+    "confidenceWeight": 0.25,
+    "source": "shipped_profile_library"
+  },
+  "derivativesReady": true,
+  "derivativeError": "",
+  "generatedUtc": "2026-07-17T18:32:56.6270309Z"
+}

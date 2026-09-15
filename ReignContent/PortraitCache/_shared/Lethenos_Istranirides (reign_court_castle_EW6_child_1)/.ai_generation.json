@@ -1,0 +1,27 @@
+{
+  "version": 1,
+  "cacheKey": "Lethenos_Istranirides (reign_court_castle_EW6_child_1)",
+  "heroStringId": "reign_court_castle_EW6_child_1",
+  "characterObjectId": "reign_court_castle_EW6_child_1",
+  "characterName": "Lethenos Istranirides",
+  "provider": "AtlasCloud",
+  "model": "xai/grok-imagine-image/edit",
+  "adapter": "atlas upload/generate/poll",
+  "sourceSha256": "c0f8678d1be2aa1feef80b71957b8a99f3f89fb5acbdfd7be53b4415ee217052",
+  "portraitSha256": "561c403e74498f09b829d7e14e2f9cd66680c2bf4c7d4bbaf5ff485dbb456fe8",
+  "portraitWidth": 864,
+  "portraitHeight": 1152,
+  "physicalConfidence": {
+    "definition": "physical_confidence",
+    "score": 97,
+    "profile": "81-100",
+    "flirtatiousnessPercentage": 96,
+    "confidencePercentage": 99,
+    "flirtatiousnessWeight": 0.75,
+    "confidenceWeight": 0.25,
+    "source": "shipped_profile_library"
+  },
+  "derivativesReady": true,
+  "derivativeError": "",
+  "generatedUtc": "2026-07-17T18:57:22.3997836Z"
+}

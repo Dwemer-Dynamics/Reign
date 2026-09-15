@@ -1,0 +1,27 @@
+{
+  "version": 1,
+  "cacheKey": "Aevysos_Merovorides (reign_court_castle_ES1_child_1)",
+  "heroStringId": "reign_court_castle_ES1_child_1",
+  "characterObjectId": "reign_court_castle_ES1_child_1",
+  "characterName": "Aevysos Merovorides",
+  "provider": "AtlasCloud",
+  "model": "xai/grok-imagine-image/edit",
+  "adapter": "atlas upload/generate/poll",
+  "sourceSha256": "6020fbb2f202d34fad49258f30495a5bf66320c5b33cc158e4ebbc506f6744fb",
+  "portraitSha256": "97fc3ed38048f4fee8523511bfb39491bd2eaf890661355cd62aafbf6062878f",
+  "portraitWidth": 864,
+  "portraitHeight": 1152,
+  "physicalConfidence": {
+    "definition": "physical_confidence",
+    "score": 33,
+    "profile": "21-40",
+    "flirtatiousnessPercentage": 25,
+    "confidencePercentage": 56,
+    "flirtatiousnessWeight": 0.75,
+    "confidenceWeight": 0.25,
+    "source": "shipped_profile_library"
+  },
+  "derivativesReady": true,
+  "derivativeError": "",
+  "generatedUtc": "2026-07-17T18:10:15.6760533Z"
+}

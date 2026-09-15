@@ -1,0 +1,27 @@
+{
+  "version": 1,
+  "cacheKey": "Marvysara_Vardorides (reign_court_castle_ES3_child_2)",
+  "heroStringId": "reign_court_castle_ES3_child_2",
+  "characterObjectId": "reign_court_castle_ES3_child_2",
+  "characterName": "Marvysara Vardorides",
+  "provider": "AtlasCloud",
+  "model": "xai/grok-imagine-image/edit",
+  "adapter": "atlas upload/generate/poll",
+  "sourceSha256": "1555ebbae2490ddaf2bd842fcdd3225d4307369354d662b5b4fd13f7671688b3",
+  "portraitSha256": "7e3032f8078d801ad2ae9d3e360ba25355cf1f6598d75a1ff5712a86fba3f352",
+  "portraitWidth": 864,
+  "portraitHeight": 1152,
+  "physicalConfidence": {
+    "definition": "physical_confidence",
+    "score": 39,
+    "profile": "21-40",
+    "flirtatiousnessPercentage": 38,
+    "confidencePercentage": 41,
+    "flirtatiousnessWeight": 0.75,
+    "confidenceWeight": 0.25,
+    "source": "shipped_profile_library"
+  },
+  "derivativesReady": true,
+  "derivativeError": "",
+  "generatedUtc": "2026-07-17T19:01:35.1047993Z"
+}

@@ -1,0 +1,27 @@
+{
+  "version": 1,
+  "cacheKey": "Othonene_Damarenion (reign_court_town_ES6_child_2)",
+  "heroStringId": "reign_court_town_ES6_child_2",
+  "characterObjectId": "reign_court_town_ES6_child_2",
+  "characterName": "Othonene Damarenion",
+  "provider": "AtlasCloud",
+  "model": "xai/grok-imagine-image/edit",
+  "adapter": "atlas upload/generate/poll",
+  "sourceSha256": "3761fe1904fa33cfd4e38d836e4af89a7679c2cdc6344afb78b631ffcbffe40b",
+  "portraitSha256": "b1f018d2bb582ed16ad3ab7c1ae20e9160c503627ca1ed56a4a9c5543d028e46",
+  "portraitWidth": 864,
+  "portraitHeight": 1152,
+  "physicalConfidence": {
+    "definition": "physical_confidence",
+    "score": 58,
+    "profile": "41-60",
+    "flirtatiousnessPercentage": 53,
+    "confidencePercentage": 72,
+    "flirtatiousnessWeight": 0.75,
+    "confidenceWeight": 0.25,
+    "source": "shipped_profile_library"
+  },
+  "derivativesReady": true,
+  "derivativeError": "",
+  "generatedUtc": "2026-07-17T19:07:57.1174742Z"
+}

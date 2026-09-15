@@ -1,0 +1,27 @@
+{
+  "version": 1,
+  "cacheKey": "Iovurara_Istranorides (reign_court_town_EW6_mother)",
+  "heroStringId": "reign_court_town_EW6_mother",
+  "characterObjectId": "reign_court_town_EW6_mother",
+  "characterName": "Iovurara Istranorides",
+  "provider": "AtlasCloud",
+  "model": "xai/grok-imagine-image/edit",
+  "adapter": "atlas upload/generate/poll",
+  "sourceSha256": "b6de7b431a47172c6675a2b60e47e8d83b1612568674eb8c657a7c9a756d2355",
+  "portraitSha256": "989021c2c78917bf976823b6b1fbbf841c4a77b9daed806427eee8e181365584",
+  "portraitWidth": 864,
+  "portraitHeight": 1152,
+  "physicalConfidence": {
+    "definition": "physical_confidence",
+    "score": 58,
+    "profile": "41-60",
+    "flirtatiousnessPercentage": 59,
+    "confidencePercentage": 54,
+    "flirtatiousnessWeight": 0.75,
+    "confidenceWeight": 0.25,
+    "source": "shipped_profile_library"
+  },
+  "derivativesReady": true,
+  "derivativeError": "",
+  "generatedUtc": "2026-07-17T18:45:27.4957982Z"
+}

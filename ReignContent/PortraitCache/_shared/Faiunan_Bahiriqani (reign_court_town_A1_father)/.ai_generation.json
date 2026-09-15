@@ -1,0 +1,27 @@
+{
+  "version": 1,
+  "cacheKey": "Faiunan_Bahiriqani (reign_court_town_A1_father)",
+  "heroStringId": "reign_court_town_A1_father",
+  "characterObjectId": "reign_court_town_A1_father",
+  "characterName": "Faiunan Bahiriqani",
+  "provider": "AtlasCloud",
+  "model": "xai/grok-imagine-image/edit",
+  "adapter": "atlas upload/generate/poll",
+  "sourceSha256": "c4fda2f2c0af23cc821dbd23904c231bae57f4d0a76c640f8d703e6ce7081149",
+  "portraitSha256": "a1c95a459907a5c91aaa012ed3023f1231b1b91c30102ba30c13c580d10ecd05",
+  "portraitWidth": 864,
+  "portraitHeight": 1152,
+  "physicalConfidence": {
+    "definition": "physical_confidence",
+    "score": 56,
+    "profile": "41-60",
+    "flirtatiousnessPercentage": 54,
+    "confidencePercentage": 61,
+    "flirtatiousnessWeight": 0.75,
+    "confidenceWeight": 0.25,
+    "source": "shipped_profile_library"
+  },
+  "derivativesReady": true,
+  "derivativeError": "",
+  "generatedUtc": "2026-07-17T18:36:40.8163457Z"
+}

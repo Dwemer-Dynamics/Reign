@@ -1,0 +1,27 @@
+{
+  "version": 1,
+  "cacheKey": "Calilia_Merovarides (reign_court_castle_EN6_child_4)",
+  "heroStringId": "reign_court_castle_EN6_child_4",
+  "characterObjectId": "reign_court_castle_EN6_child_4",
+  "characterName": "Calilia Merovarides",
+  "provider": "AtlasCloud",
+  "model": "xai/grok-imagine-image/edit",
+  "adapter": "atlas upload/generate/poll",
+  "sourceSha256": "0f21b81c6994c9a89411130de5694a02ad9b50a44797def11194220b18d25adf",
+  "portraitSha256": "f0f99bc915cb3165374ab411b5495ad4094eb65cb866d86dc0661ddd4212c4d3",
+  "portraitWidth": 864,
+  "portraitHeight": 1152,
+  "physicalConfidence": {
+    "definition": "physical_confidence",
+    "score": 57,
+    "profile": "41-60",
+    "flirtatiousnessPercentage": 62,
+    "confidencePercentage": 41,
+    "flirtatiousnessWeight": 0.75,
+    "confidenceWeight": 0.25,
+    "source": "shipped_profile_library"
+  },
+  "derivativesReady": true,
+  "derivativeError": "",
+  "generatedUtc": "2026-07-17T18:21:09.6612154Z"
+}

@@ -1,0 +1,13 @@
+{
+  "version": 1,
+  "heroStringId": "confident_contender_very_hard",
+  "characterName": "Confident Contender",
+  "imagePath": "portrait.png",
+  "imageSha256": "D47E6C86994F215F684133A601651356EEF5026DF9DE48043FB4BA7C6D65FD76",
+  "description": "Their clan is tier unknown, placing them socially among the unranked class. Use this status to guide the refinement, expense, materials, and ornament of their clothing without turning it into fantasy costume.",
+  "status": "failed",
+  "descriptionSource": "portrait_prompt_fallback",
+  "retryEligible": true,
+  "error": "{\"error\":{\"message\":\"Model \\\"zai-org/glm-5.2\\\" does not support image inputs. Remove image content or choose a multimodal model.\",\"type\":\"invalid_request_error\",\"param\":\"messages\",\"code\":\"image_input_not_supported\"}}",
+  "updatedUtc": "2026-07-18T22:03:26.8660539Z"
+}

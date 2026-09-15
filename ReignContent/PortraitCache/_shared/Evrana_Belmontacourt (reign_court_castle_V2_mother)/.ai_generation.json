@@ -1,0 +1,27 @@
+{
+  "version": 1,
+  "cacheKey": "Evrana_Belmontacourt (reign_court_castle_V2_mother)",
+  "heroStringId": "reign_court_castle_V2_mother",
+  "characterObjectId": "reign_court_castle_V2_mother",
+  "characterName": "Evrana Belmontacourt",
+  "provider": "AtlasCloud",
+  "model": "xai/grok-imagine-image/edit",
+  "adapter": "atlas upload/generate/poll",
+  "sourceSha256": "eb9f4f990c68ff59dad1b6c9eb224bc684dc1606fe9352de3148290a8eb38e16",
+  "portraitSha256": "65d4ade6098e6a66e636e8c7c8d57eb23dd48624074b859ce2042e51e8b27252",
+  "portraitWidth": 864,
+  "portraitHeight": 1152,
+  "physicalConfidence": {
+    "definition": "physical_confidence",
+    "score": 52,
+    "profile": "41-60",
+    "flirtatiousnessPercentage": 53,
+    "confidencePercentage": 48,
+    "flirtatiousnessWeight": 0.75,
+    "confidenceWeight": 0.25,
+    "source": "shipped_profile_library"
+  },
+  "derivativesReady": true,
+  "derivativeError": "",
+  "generatedUtc": "2026-07-17T18:35:25.8578553Z"
+}

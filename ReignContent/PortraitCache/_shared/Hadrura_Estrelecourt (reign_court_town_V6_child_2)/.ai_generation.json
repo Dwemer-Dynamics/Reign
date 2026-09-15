@@ -1,0 +1,27 @@
+{
+  "version": 1,
+  "cacheKey": "Hadrura_Estrelecourt (reign_court_town_V6_child_2)",
+  "heroStringId": "reign_court_town_V6_child_2",
+  "characterObjectId": "reign_court_town_V6_child_2",
+  "characterName": "Hadrura Estrelecourt",
+  "provider": "AtlasCloud",
+  "model": "xai/grok-imagine-image/edit",
+  "adapter": "atlas upload/generate/poll",
+  "sourceSha256": "0a21388761363817a7f8438194f923797a79209f6364c126534b2c7bbf9570eb",
+  "portraitSha256": "34bef6a996c92e1c08b75913e0f7c78941660a04e73d2cfc0c19567d9018fc54",
+  "portraitWidth": 864,
+  "portraitHeight": 1152,
+  "physicalConfidence": {
+    "definition": "physical_confidence",
+    "score": 33,
+    "profile": "21-40",
+    "flirtatiousnessPercentage": 27,
+    "confidencePercentage": 50,
+    "flirtatiousnessWeight": 0.75,
+    "confidenceWeight": 0.25,
+    "source": "shipped_profile_library"
+  },
+  "derivativesReady": true,
+  "derivativeError": "",
+  "generatedUtc": "2026-07-17T18:41:41.9376825Z"
+}

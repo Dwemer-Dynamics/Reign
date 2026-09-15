@@ -1,0 +1,13 @@
+{
+  "version": 1,
+  "heroStringId": "tutorial_npc_advanced_melee_easy",
+  "characterName": "Training Master",
+  "imagePath": "portrait.png",
+  "imageSha256": "4FE4D731DE80FAD9C02B35CAF73716441F52767DAC060F3A370ACB4866341AC8",
+  "description": "Their clan is tier unknown, placing them socially among the unranked class. Use this status to guide the refinement, expense, materials, and ornament of their clothing without turning it into fantasy costume.",
+  "status": "failed",
+  "descriptionSource": "portrait_prompt_fallback",
+  "retryEligible": true,
+  "error": "{\"error\":{\"message\":\"Model \\\"zai-org/glm-5.2\\\" does not support image inputs. Remove image content or choose a multimodal model.\",\"type\":\"invalid_request_error\",\"param\":\"messages\",\"code\":\"image_input_not_supported\"}}",
+  "updatedUtc": "2026-07-18T22:03:35.1140243Z"
+}

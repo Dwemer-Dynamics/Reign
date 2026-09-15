@@ -1,0 +1,27 @@
+{
+  "version": 1,
+  "cacheKey": "Lioranic_Corvacourt (reign_court_castle_V3_father)",
+  "heroStringId": "reign_court_castle_V3_father",
+  "characterObjectId": "reign_court_castle_V3_father",
+  "characterName": "Lioranic Corvacourt",
+  "provider": "AtlasCloud",
+  "model": "xai/grok-imagine-image/edit",
+  "adapter": "atlas upload/generate/poll",
+  "sourceSha256": "45bb0064e16112c53172ddb12fc1b5afb2bc4fdad50f22b429dbde1503cd0d92",
+  "portraitSha256": "eb25acfbc037db68810d3f7cb52dac4a9986500b440f0ba4f9c0f896e48fe06d",
+  "portraitWidth": 864,
+  "portraitHeight": 1152,
+  "physicalConfidence": {
+    "definition": "physical_confidence",
+    "score": 49,
+    "profile": "41-60",
+    "flirtatiousnessPercentage": 53,
+    "confidencePercentage": 36,
+    "flirtatiousnessWeight": 0.75,
+    "confidenceWeight": 0.25,
+    "source": "shipped_profile_library"
+  },
+  "derivativesReady": true,
+  "derivativeError": "",
+  "generatedUtc": "2026-07-17T18:58:46.7305527Z"
+}

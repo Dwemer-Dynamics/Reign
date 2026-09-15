@@ -1,0 +1,27 @@
+{
+  "version": 1,
+  "cacheKey": "Urkhun (dead_lord_6_1)",
+  "heroStringId": "dead_lord_6_1",
+  "characterObjectId": "dead_lord_6_1",
+  "characterName": "Urkhun",
+  "provider": "AtlasCloud",
+  "model": "xai/grok-imagine-image/edit",
+  "adapter": "atlas upload/generate/poll",
+  "sourceSha256": "0739259ce62ae720164f9ec5bab69c214853059d00118dc23157f0c1be0e7953",
+  "portraitSha256": "88f303c3c3060fac7a2aa172f088a836851ca87536b1536e9d9d43fee416e0b7",
+  "portraitWidth": 864,
+  "portraitHeight": 1152,
+  "physicalConfidence": {
+    "definition": "physical_confidence",
+    "score": 46,
+    "profile": "41-60",
+    "flirtatiousnessPercentage": 45,
+    "confidencePercentage": 48,
+    "flirtatiousnessWeight": 0.75,
+    "confidenceWeight": 0.25,
+    "source": "shipped_profile_library"
+  },
+  "derivativesReady": true,
+  "derivativeError": "",
+  "generatedUtc": "2026-07-17T19:19:54.8595342Z"
+}

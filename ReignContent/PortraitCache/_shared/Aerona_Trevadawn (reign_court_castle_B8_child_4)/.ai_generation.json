@@ -1,0 +1,27 @@
+{
+  "version": 1,
+  "cacheKey": "Aerona_Trevadawn (reign_court_castle_B8_child_4)",
+  "heroStringId": "reign_court_castle_B8_child_4",
+  "characterObjectId": "reign_court_castle_B8_child_4",
+  "characterName": "Aerona Trevadawn",
+  "provider": "AtlasCloud",
+  "model": "xai/grok-imagine-image/edit",
+  "adapter": "atlas upload/generate/poll",
+  "sourceSha256": "508ec774c2cfe79ef65ff83c1124735c22bcaa8c2405cb45bb936bb3ed5147d6",
+  "portraitSha256": "cd75f8300f409a7952ab4624404f66400a5e33e68fa689d82cebf3264bb840bd",
+  "portraitWidth": 864,
+  "portraitHeight": 1152,
+  "physicalConfidence": {
+    "definition": "physical_confidence",
+    "score": 44,
+    "profile": "41-60",
+    "flirtatiousnessPercentage": 43,
+    "confidencePercentage": 46,
+    "flirtatiousnessWeight": 0.75,
+    "confidenceWeight": 0.25,
+    "source": "shipped_profile_library"
+  },
+  "derivativesReady": true,
+  "derivativeError": "",
+  "generatedUtc": "2026-07-17T17:46:25.9595339Z"
+}

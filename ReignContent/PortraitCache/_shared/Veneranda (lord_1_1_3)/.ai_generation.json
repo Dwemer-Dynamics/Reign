@@ -1,0 +1,27 @@
+{
+  "version": 1,
+  "cacheKey": "Veneranda (lord_1_1_3)",
+  "heroStringId": "lord_1_1_3",
+  "characterObjectId": "lord_1_1_3",
+  "characterName": "Veneranda",
+  "provider": "AtlasCloud",
+  "model": "xai/grok-imagine-image/edit",
+  "adapter": "atlas upload/generate/poll",
+  "sourceSha256": "52b40e27859eb5b5a796c6852eee000921a046bead488bcd5c9573df56eb2455",
+  "portraitSha256": "53b9e6a1633f9072257348761a745c0d6b57b79eff566f1f9cbeeccbbedf46a0",
+  "portraitWidth": 832,
+  "portraitHeight": 1248,
+  "physicalConfidence": {
+    "definition": "physical_confidence",
+    "score": 50,
+    "profile": "41-60",
+    "flirtatiousnessPercentage": 47,
+    "confidencePercentage": 58,
+    "flirtatiousnessWeight": 0.75,
+    "confidenceWeight": 0.25,
+    "source": "shipped_profile_library"
+  },
+  "derivativesReady": true,
+  "derivativeError": "",
+  "generatedUtc": "2026-07-17T19:20:56.8574347Z"
+}

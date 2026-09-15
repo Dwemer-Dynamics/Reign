@@ -1,0 +1,27 @@
+{
+  "version": 1,
+  "cacheKey": "Thomund (lord_4_9)",
+  "heroStringId": "lord_4_9",
+  "characterObjectId": "lord_4_9",
+  "characterName": "Thomund",
+  "provider": "AtlasCloud",
+  "model": "xai/grok-imagine-image/edit",
+  "adapter": "atlas upload/generate/poll",
+  "sourceSha256": "174b8eec223aa2849562a07fef829286c351a42bd9d07f2a05f2387349caaa50",
+  "portraitSha256": "64b9ef16ce0a35fbfc10ca865842c3f11dca651b64df53a79df6c02e18fe0b4f",
+  "portraitWidth": 832,
+  "portraitHeight": 1248,
+  "physicalConfidence": {
+    "definition": "physical_confidence",
+    "score": 41,
+    "profile": "41-60",
+    "flirtatiousnessPercentage": 34,
+    "confidencePercentage": 61,
+    "flirtatiousnessWeight": 0.75,
+    "confidenceWeight": 0.25,
+    "source": "shipped_profile_library"
+  },
+  "derivativesReady": true,
+  "derivativeError": "",
+  "generatedUtc": "2026-07-17T19:17:07.0380282Z"
+}

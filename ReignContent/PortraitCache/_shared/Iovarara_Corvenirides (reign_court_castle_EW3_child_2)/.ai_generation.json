@@ -1,0 +1,27 @@
+{
+  "version": 1,
+  "cacheKey": "Iovarara_Corvenirides (reign_court_castle_EW3_child_2)",
+  "heroStringId": "reign_court_castle_EW3_child_2",
+  "characterObjectId": "reign_court_castle_EW3_child_2",
+  "characterName": "Iovarara Corvenirides",
+  "provider": "AtlasCloud",
+  "model": "xai/grok-imagine-image/edit",
+  "adapter": "atlas upload/generate/poll",
+  "sourceSha256": "c0bbcd052642f6c19aaa51b1df4ef166bbcf23ce38e4e490c8742f77cb73a43b",
+  "portraitSha256": "3e039c9a9272edc1f0d52c345d0e7738c881c66a6836a55ada0714ae35e72909",
+  "portraitWidth": 864,
+  "portraitHeight": 1152,
+  "physicalConfidence": {
+    "definition": "physical_confidence",
+    "score": 44,
+    "profile": "41-60",
+    "flirtatiousnessPercentage": 42,
+    "confidencePercentage": 49,
+    "flirtatiousnessWeight": 0.75,
+    "confidenceWeight": 0.25,
+    "source": "shipped_profile_library"
+  },
+  "derivativesReady": true,
+  "derivativeError": "",
+  "generatedUtc": "2026-07-17T18:44:22.0921739Z"
+}

@@ -1,0 +1,27 @@
+{
+  "version": 1,
+  "cacheKey": "Zulaika (lord_3_19_2)",
+  "heroStringId": "lord_3_19_2",
+  "characterObjectId": "lord_3_19_2",
+  "characterName": "Zulaika",
+  "provider": "AtlasCloud",
+  "model": "xai/grok-imagine-image/edit",
+  "adapter": "atlas upload/generate/poll",
+  "sourceSha256": "a10a79e32fec2ed03d1cee05d9015436f194165f4aaf9b69b9b4dae09dd0e461",
+  "portraitSha256": "883b5f83b31137d6d4299dd725544056af0371156c360cb62d9ab4140007c490",
+  "portraitWidth": 832,
+  "portraitHeight": 1248,
+  "physicalConfidence": {
+    "definition": "physical_confidence",
+    "score": 57,
+    "profile": "41-60",
+    "flirtatiousnessPercentage": 61,
+    "confidencePercentage": 44,
+    "flirtatiousnessWeight": 0.75,
+    "confidenceWeight": 0.25,
+    "source": "shipped_profile_library"
+  },
+  "derivativesReady": true,
+  "derivativeError": "",
+  "generatedUtc": "2026-07-17T19:23:33.8055806Z"
+}

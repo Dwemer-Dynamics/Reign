@@ -1,0 +1,27 @@
+{
+  "version": 1,
+  "cacheKey": "Aesos (lord_NE9_s)",
+  "heroStringId": "lord_NE9_s",
+  "characterObjectId": "lord_NE9_s",
+  "characterName": "Aesos",
+  "provider": "AtlasCloud",
+  "model": "xai/grok-imagine-image/edit",
+  "adapter": "atlas upload/generate/poll",
+  "sourceSha256": "9a7380ce94626989ea07e3e290d59ca7ed0456537797b56a1d22b517f338609b",
+  "portraitSha256": "28b4c65c0b64021dc9dc4b20d2eb9bbd6eb8d60fc7330b3bbf7a791ed3542328",
+  "portraitWidth": 832,
+  "portraitHeight": 1248,
+  "physicalConfidence": {
+    "definition": "physical_confidence",
+    "score": 78,
+    "profile": "61-80",
+    "flirtatiousnessPercentage": 76,
+    "confidencePercentage": 83,
+    "flirtatiousnessWeight": 0.75,
+    "confidenceWeight": 0.25,
+    "source": "shipped_profile_library"
+  },
+  "derivativesReady": true,
+  "derivativeError": "",
+  "generatedUtc": "2026-07-17T17:47:24.3211439Z"
+}

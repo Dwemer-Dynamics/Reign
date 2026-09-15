@@ -1,0 +1,27 @@
+{
+  "version": 1,
+  "cacheKey": "Wythuin (lord_5_12)",
+  "heroStringId": "lord_5_12",
+  "characterObjectId": "lord_5_12",
+  "characterName": "Wythuin",
+  "provider": "AtlasCloud",
+  "model": "xai/grok-imagine-image/edit",
+  "adapter": "atlas upload/generate/poll",
+  "sourceSha256": "29c85ef6f8537e48af1d5409dff6f22515bb9acae9e9e60ed5c069da221e36f3",
+  "portraitSha256": "b9ebeaf08ac8ac6c35e09ca55e339ffd2b1fa21e59e62e6b5c25131e313c0031",
+  "portraitWidth": 832,
+  "portraitHeight": 1248,
+  "physicalConfidence": {
+    "definition": "physical_confidence",
+    "score": 70,
+    "profile": "61-80",
+    "flirtatiousnessPercentage": 79,
+    "confidencePercentage": 42,
+    "flirtatiousnessWeight": 0.75,
+    "confidenceWeight": 0.25,
+    "source": "shipped_profile_library"
+  },
+  "derivativesReady": true,
+  "derivativeError": "",
+  "generatedUtc": "2026-07-17T19:21:49.0531306Z"
+}

@@ -1,0 +1,27 @@
+{
+  "version": 1,
+  "cacheKey": "Mirooma_Rudaevich (reign_court_castle_S7_child_4)",
+  "heroStringId": "reign_court_castle_S7_child_4",
+  "characterObjectId": "reign_court_castle_S7_child_4",
+  "characterName": "Mirooma Rudaevich",
+  "provider": "AtlasCloud",
+  "model": "xai/grok-imagine-image/edit",
+  "adapter": "atlas upload/generate/poll",
+  "sourceSha256": "568534c70704ef6ea786bb5377f79ab25e161bb07edaea6810eb95c6bad3e929",
+  "portraitSha256": "e5529dd1995cd00d446fb36de9abee5c1fd9a0772ea8be204e387c0bcec02947",
+  "portraitWidth": 864,
+  "portraitHeight": 1152,
+  "physicalConfidence": {
+    "definition": "physical_confidence",
+    "score": 52,
+    "profile": "41-60",
+    "flirtatiousnessPercentage": 43,
+    "confidencePercentage": 78,
+    "flirtatiousnessWeight": 0.75,
+    "confidenceWeight": 0.25,
+    "source": "shipped_profile_library"
+  },
+  "derivativesReady": true,
+  "derivativeError": "",
+  "generatedUtc": "2026-07-17T19:03:52.8288183Z"
+}

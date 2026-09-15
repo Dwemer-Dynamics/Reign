@@ -1,0 +1,27 @@
+{
+  "version": 1,
+  "cacheKey": "Araa_Altugatai (reign_court_castle_K1_mother)",
+  "heroStringId": "reign_court_castle_K1_mother",
+  "characterObjectId": "reign_court_castle_K1_mother",
+  "characterName": "Araa Altugatai",
+  "provider": "AtlasCloud",
+  "model": "xai/grok-imagine-image/edit",
+  "adapter": "atlas upload/generate/poll",
+  "sourceSha256": "70dcb83a80aafa671291da3583f719867040635096aa2b67543b56e5b13ab54a",
+  "portraitSha256": "397d19bccc8f4466298e7073efcb0a86c59702487022c94da65d8cdd4befe39b",
+  "portraitWidth": 864,
+  "portraitHeight": 1152,
+  "physicalConfidence": {
+    "definition": "physical_confidence",
+    "score": 70,
+    "profile": "61-80",
+    "flirtatiousnessPercentage": 77,
+    "confidencePercentage": 48,
+    "flirtatiousnessWeight": 0.75,
+    "confidenceWeight": 0.25,
+    "source": "shipped_profile_library"
+  },
+  "derivativesReady": true,
+  "derivativeError": "",
+  "generatedUtc": "2026-07-17T18:12:58.2127028Z"
+}

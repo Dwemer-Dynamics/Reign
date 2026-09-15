@@ -1,0 +1,27 @@
+{
+  "version": 1,
+  "cacheKey": "Eryonos_Corvenorides (reign_court_town_EW3_father)",
+  "heroStringId": "reign_court_town_EW3_father",
+  "characterObjectId": "reign_court_town_EW3_father",
+  "characterName": "Eryonos Corvenorides",
+  "provider": "AtlasCloud",
+  "model": "xai/grok-imagine-image/edit",
+  "adapter": "atlas upload/generate/poll",
+  "sourceSha256": "ba816236bda197534836d57a16ee12e22ceb0474f797769ee694127dbbad94c7",
+  "portraitSha256": "d09158ddadeb38bbdfc139a903fb0f0486bec0828ede213d082de62fa8c43da9",
+  "portraitWidth": 864,
+  "portraitHeight": 1152,
+  "physicalConfidence": {
+    "definition": "physical_confidence",
+    "score": 59,
+    "profile": "41-60",
+    "flirtatiousnessPercentage": 63,
+    "confidencePercentage": 46,
+    "flirtatiousnessWeight": 0.75,
+    "confidenceWeight": 0.25,
+    "source": "shipped_profile_library"
+  },
+  "derivativesReady": true,
+  "derivativeError": "",
+  "generatedUtc": "2026-07-17T18:34:34.6890370Z"
+}

@@ -1,0 +1,27 @@
+{
+  "version": 1,
+  "cacheKey": "Olypos (lord_1_67)",
+  "heroStringId": "lord_1_67",
+  "characterObjectId": "lord_1_67",
+  "characterName": "Olypos",
+  "provider": "AtlasCloud",
+  "model": "xai/grok-imagine-image/edit",
+  "adapter": "atlas upload/generate/poll",
+  "sourceSha256": "7b37b988d42572988ed711f108d9a894ee5f049fdc16b78cd74d402e4fff4f13",
+  "portraitSha256": "acab9e01fb97e349ac34f21506bb1bc37b242091a2765830825a6a46b003ef12",
+  "portraitWidth": 832,
+  "portraitHeight": 1248,
+  "physicalConfidence": {
+    "definition": "physical_confidence",
+    "score": 68,
+    "profile": "61-80",
+    "flirtatiousnessPercentage": 83,
+    "confidencePercentage": 22,
+    "flirtatiousnessWeight": 0.75,
+    "confidenceWeight": 0.25,
+    "source": "shipped_profile_library"
+  },
+  "derivativesReady": true,
+  "derivativeError": "",
+  "generatedUtc": "2026-07-17T19:06:31.8026167Z"
+}

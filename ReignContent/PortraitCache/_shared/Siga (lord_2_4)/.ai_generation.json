@@ -1,0 +1,27 @@
+{
+  "version": 1,
+  "cacheKey": "Siga (lord_2_4)",
+  "heroStringId": "lord_2_4",
+  "characterObjectId": "lord_2_4",
+  "characterName": "Siga",
+  "provider": "AtlasCloud",
+  "model": "xai/grok-imagine-image/edit",
+  "adapter": "atlas upload/generate/poll",
+  "sourceSha256": "d3147d62e159bfd8f8355b4d6e1b3f0951f91164279cc82a2e5906e4452d241d",
+  "portraitSha256": "6d25eb40d87e8f4b0d95516e0cd2e18fca5d54b1e0dd090b2907e50dd1ab09aa",
+  "portraitWidth": 832,
+  "portraitHeight": 1248,
+  "physicalConfidence": {
+    "definition": "physical_confidence",
+    "score": 31,
+    "profile": "21-40",
+    "flirtatiousnessPercentage": 19,
+    "confidencePercentage": 66,
+    "flirtatiousnessWeight": 0.75,
+    "confidenceWeight": 0.25,
+    "source": "shipped_profile_library"
+  },
+  "derivativesReady": true,
+  "derivativeError": "",
+  "generatedUtc": "2026-07-17T19:13:57.2718344Z"
+}

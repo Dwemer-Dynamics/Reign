@@ -1,0 +1,27 @@
+{
+  "version": 1,
+  "cacheKey": "Aelfeyja (lord_7_5_2)",
+  "heroStringId": "lord_7_5_2",
+  "characterObjectId": "lord_7_5_2",
+  "characterName": "Aelfeyja",
+  "provider": "AtlasCloud",
+  "model": "xai/grok-imagine-image/edit",
+  "adapter": "atlas upload/generate/poll",
+  "sourceSha256": "36e78dbf15aa7cd4ab492fce34b644b10bc41962a7386aff4a8977d18ed6e454",
+  "portraitSha256": "0ba8f4371cd3ec1788a9e8fd732e97e6a15058f8e6d59dad1a9465cf8c6d71f4",
+  "portraitWidth": 832,
+  "portraitHeight": 1248,
+  "physicalConfidence": {
+    "definition": "physical_confidence",
+    "score": 50,
+    "profile": "41-60",
+    "flirtatiousnessPercentage": 50,
+    "confidencePercentage": 50,
+    "flirtatiousnessWeight": 0.75,
+    "confidenceWeight": 0.25,
+    "source": "neutral_fallback"
+  },
+  "derivativesReady": true,
+  "derivativeError": "",
+  "generatedUtc": "2026-07-17T17:13:12.6054848Z"
+}

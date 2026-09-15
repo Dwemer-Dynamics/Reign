@@ -1,0 +1,27 @@
+{
+  "version": 1,
+  "cacheKey": "Aldera_Fauconacourt (reign_court_castle_V6_child_2)",
+  "heroStringId": "reign_court_castle_V6_child_2",
+  "characterObjectId": "reign_court_castle_V6_child_2",
+  "characterName": "Aldera Fauconacourt",
+  "provider": "AtlasCloud",
+  "model": "xai/grok-imagine-image/edit",
+  "adapter": "atlas upload/generate/poll",
+  "sourceSha256": "e034c329214c52124cf6b407a526b1e69499bd66b26fc8545b8f0be2d6f2319e",
+  "portraitSha256": "05160fa725b025dcd58d9386f116392a442473ddf5449601c865a6a740ad16c3",
+  "portraitWidth": 864,
+  "portraitHeight": 1152,
+  "physicalConfidence": {
+    "definition": "physical_confidence",
+    "score": 65,
+    "profile": "61-80",
+    "flirtatiousnessPercentage": 67,
+    "confidencePercentage": 58,
+    "flirtatiousnessWeight": 0.75,
+    "confidenceWeight": 0.25,
+    "source": "shipped_profile_library"
+  },
+  "derivativesReady": true,
+  "derivativeError": "",
+  "generatedUtc": "2026-07-17T18:11:08.8091361Z"
+}

@@ -1,0 +1,27 @@
+{
+  "version": 1,
+  "cacheKey": "Doruaigan_Mungoletai (reign_court_town_K6_child_1)",
+  "heroStringId": "reign_court_town_K6_child_1",
+  "characterObjectId": "reign_court_town_K6_child_1",
+  "characterName": "Doruaigan Mungoletai",
+  "provider": "AtlasCloud",
+  "model": "xai/grok-imagine-image/edit",
+  "adapter": "atlas upload/generate/poll",
+  "sourceSha256": "1bb231346099204300565c112c7d8643f80467cac72319f1c551bc8e1224357f",
+  "portraitSha256": "a6c838ea02715bd0a8d4ffbfb762623144d527ad5f5cf9b7ef3a5c5dd6b9c108",
+  "portraitWidth": 864,
+  "portraitHeight": 1152,
+  "physicalConfidence": {
+    "definition": "physical_confidence",
+    "score": 45,
+    "profile": "41-60",
+    "flirtatiousnessPercentage": 31,
+    "confidencePercentage": 86,
+    "flirtatiousnessWeight": 0.75,
+    "confidenceWeight": 0.25,
+    "source": "shipped_profile_library"
+  },
+  "derivativesReady": true,
+  "derivativeError": "",
+  "generatedUtc": "2026-07-17T18:27:14.7896206Z"
+}

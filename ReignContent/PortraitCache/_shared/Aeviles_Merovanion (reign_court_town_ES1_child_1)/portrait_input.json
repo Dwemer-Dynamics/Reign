@@ -1,0 +1,92 @@
+{
+  "version": 1,
+  "inputHash": "c7dd181f820d062d7cb01f562fbc24309d729fadcea4d95262980fe22d5db5da",
+  "catalogHash": "12142c0ab28d2678b12b852b086450dcc4eea45e2e8a080f3baa85c42f7fb3a2",
+  "renderContractHash": "cc3b941e7d47057de9b4220f1473336e6f908719812bb2653b83bd3545cfbd2f",
+  "cacheKey": "Aeviles_Merovanion (reign_court_town_ES1_child_1)",
+  "heroStringId": "reign_court_town_ES1_child_1",
+  "characterObjectId": "reign_court_town_ES1_child_1",
+  "characterName": "Aeviles Merovanion",
+  "ageYears": 25,
+  "cultureId": "empire",
+  "cultureName": "Imperial",
+  "gender": "man",
+  "clanId": "clan_empire_south_3",
+  "clanTier": 5,
+  "clanProvenance": "reign_profile_library",
+  "socialStation": "high noble",
+  "occupation": "Lord",
+  "archetype": "lord",
+  "isLord": true,
+  "isNotable": false,
+  "isWanderer": false,
+  "isAlive": true,
+  "sourceModule": "ReignBeta",
+  "sourceFile": "Modules/ReignBeta/ModuleData/reign_court_lords.xml",
+  "profileSource": "reign_court",
+  "profilePackVersion": "reign_profiles_v4",
+  "bodyKey": "",
+  "bodyWeight": 0.5,
+  "bodyBuild": 0.5,
+  "faceTemplateId": "townsman_empire",
+  "faceGenerationVersion": "reign_court_shared_v1",
+  "civilianTemplate": "emp_civ_template_flamboyant",
+  "civilianEquipment": [
+    {
+      "slot": "Body",
+      "itemId": "imperial_robes"
+    },
+    {
+      "slot": "Cape",
+      "itemId": "scarf"
+    },
+    {
+      "slot": "Leg",
+      "itemId": "fine_town_boots"
+    }
+  ],
+  "headgearSuppressed": true,
+  "physicalConfidence": {
+    "definition": "physical_confidence",
+    "score": 31,
+    "profile": "21-40",
+    "flirtatiousnessPercentage": 25,
+    "confidencePercentage": 48,
+    "flirtatiousnessWeight": 0.75,
+    "confidenceWeight": 0.25,
+    "source": "shipped_profile_library"
+  },
+  "renderPreset": "ai_source_wan_portrait_v5",
+  "renderWidth": 1536,
+  "renderHeight": 2048,
+  "sourceWidth": 768,
+  "sourceHeight": 1024,
+  "cropScale": 0.24,
+  "cropWidthRatio": 0.75,
+  "cropCenterYRatio": 0.324,
+  "cameraPitchDegrees": 4,
+  "sourceSha256": "e809447275d56d3c49e4a5c89ddd0e95f35a78234cf3a1c0f05f12ca41395288",
+  "sourceFileName": "source.png",
+  "generationEndpoint": "/portraits/generate",
+  "campaignIdSource": "active_campaign_at_generation_time",
+  "promptDeferred": true,
+  "sourceImageBase64From": "source.png",
+  "outputSizeOverride": "",
+  "promptPurpose": "portrait",
+  "nativePhysique": {
+    "schema": "reign-native-physique-v1",
+    "weight": 0.5,
+    "build": 0.5,
+    "weightSource": "shared_portrait_input.bodyWeight",
+    "buildSource": "shared_portrait_input.bodyBuild",
+    "sourceSha256": "e809447275d56d3c49e4a5c89ddd0e95f35a78234cf3a1c0f05f12ca41395288",
+    "provenance": {
+      "kind": "saved_character_metadata_backfill",
+      "heroStringId": "reign_court_town_ES1_child_1",
+      "profileSource": "reign_court",
+      "profilePackVersion": "reign_profiles_v4",
+      "originalInputSha256": "b1fe8b26825bcc29ce1e4fd72c67cffaf11b5d7427a85f65f972a8d84daa7e99",
+      "rendererReexecuted": false
+    }
+  }
+}

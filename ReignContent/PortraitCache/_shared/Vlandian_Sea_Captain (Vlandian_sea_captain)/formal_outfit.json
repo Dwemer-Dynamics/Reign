@@ -1,0 +1,13 @@
+{
+  "version": 1,
+  "heroStringId": "Vlandian_sea_captain",
+  "characterName": "Vlandian Sea Captain",
+  "imagePath": "portrait.png",
+  "imageSha256": "8772D83F9CCE19C9C18DD6FDCB3AF0ABE9D4D4012EEB05DF565A859CA914EA07",
+  "description": "Their clan is tier unknown, placing them socially among the unranked class. Use this status to guide the refinement, expense, materials, and ornament of their clothing without turning it into fantasy costume.",
+  "status": "failed",
+  "descriptionSource": "portrait_prompt_fallback",
+  "retryEligible": true,
+  "error": "{\"error\":{\"message\":\"Model \\\"zai-org/glm-5.2\\\" does not support image inputs. Remove image content or choose a multimodal model.\",\"type\":\"invalid_request_error\",\"param\":\"messages\",\"code\":\"image_input_not_supported\"}}",
+  "updatedUtc": "2026-07-18T22:03:35.6453629Z"
+}

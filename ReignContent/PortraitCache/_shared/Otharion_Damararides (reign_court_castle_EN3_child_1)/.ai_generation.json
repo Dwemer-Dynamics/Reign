@@ -1,0 +1,27 @@
+{
+  "version": 1,
+  "cacheKey": "Otharion_Damararides (reign_court_castle_EN3_child_1)",
+  "heroStringId": "reign_court_castle_EN3_child_1",
+  "characterObjectId": "reign_court_castle_EN3_child_1",
+  "characterName": "Otharion Damararides",
+  "provider": "AtlasCloud",
+  "model": "xai/grok-imagine-image/edit",
+  "adapter": "atlas upload/generate/poll",
+  "sourceSha256": "02434bbdca24c23949f91cb22532349da42014fbb64d232419752e67db5dc707",
+  "portraitSha256": "0fc8caaa2a6765b95eaa6aad04111a38b9e9b8fcc7a468c9f4f2a57255a07171",
+  "portraitWidth": 864,
+  "portraitHeight": 1152,
+  "physicalConfidence": {
+    "definition": "physical_confidence",
+    "score": 41,
+    "profile": "41-60",
+    "flirtatiousnessPercentage": 46,
+    "confidencePercentage": 25,
+    "flirtatiousnessWeight": 0.75,
+    "confidenceWeight": 0.25,
+    "source": "shipped_profile_library"
+  },
+  "derivativesReady": true,
+  "derivativeError": "",
+  "generatedUtc": "2026-07-17T19:07:07.6257293Z"
+}

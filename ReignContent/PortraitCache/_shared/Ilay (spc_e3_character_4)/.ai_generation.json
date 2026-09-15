@@ -1,0 +1,27 @@
+{
+  "version": 1,
+  "cacheKey": "Ilay (spc_e3_character_4)",
+  "heroStringId": "spc_e3_character_4",
+  "characterObjectId": "spc_e3_character_4",
+  "characterName": "Ilay",
+  "provider": "AtlasCloud",
+  "model": "xai/grok-imagine-image/edit",
+  "adapter": "atlas upload/generate/poll",
+  "sourceSha256": "b5fe1a25f413fc8d73b707e9522c75ba40866f46e681dff992987902076625da",
+  "portraitSha256": "1ec790e5cfc1c4bb42a0b98738b0f2768c9af96efdd30c6e4bd8cb9d76a333ea",
+  "portraitWidth": 864,
+  "portraitHeight": 1152,
+  "physicalConfidence": {
+    "definition": "physical_confidence",
+    "score": 50,
+    "profile": "41-60",
+    "flirtatiousnessPercentage": 50,
+    "confidencePercentage": 50,
+    "flirtatiousnessWeight": 0.75,
+    "confidenceWeight": 0.25,
+    "source": "neutral_fallback"
+  },
+  "derivativesReady": true,
+  "derivativeError": "",
+  "generatedUtc": "2026-07-17T18:44:05.8002048Z"
+}

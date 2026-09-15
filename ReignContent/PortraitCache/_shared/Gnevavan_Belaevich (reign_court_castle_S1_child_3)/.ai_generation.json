@@ -1,0 +1,27 @@
+{
+  "version": 1,
+  "cacheKey": "Gnevavan_Belaevich (reign_court_castle_S1_child_3)",
+  "heroStringId": "reign_court_castle_S1_child_3",
+  "characterObjectId": "reign_court_castle_S1_child_3",
+  "characterName": "Gnevavan Belaevich",
+  "provider": "AtlasCloud",
+  "model": "xai/grok-imagine-image/edit",
+  "adapter": "atlas upload/generate/poll",
+  "sourceSha256": "a4c6b25dc2fca2eba4dc4b215604ee8d0c5f0e28bc8c51d7695e006c29f50d49",
+  "portraitSha256": "c21b80d13fc19f4cc2d03690e9c876c3da3d2cbdc4c10c85e1d7200c133c2de0",
+  "portraitWidth": 864,
+  "portraitHeight": 1152,
+  "physicalConfidence": {
+    "definition": "physical_confidence",
+    "score": 50,
+    "profile": "41-60",
+    "flirtatiousnessPercentage": 48,
+    "confidencePercentage": 55,
+    "flirtatiousnessWeight": 0.75,
+    "confidenceWeight": 0.25,
+    "source": "shipped_profile_library"
+  },
+  "derivativesReady": true,
+  "derivativeError": "",
+  "generatedUtc": "2026-07-17T18:39:05.2372501Z"
+}

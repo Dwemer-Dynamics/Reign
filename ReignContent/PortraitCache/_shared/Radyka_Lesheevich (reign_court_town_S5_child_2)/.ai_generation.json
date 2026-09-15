@@ -1,0 +1,27 @@
+{
+  "version": 1,
+  "cacheKey": "Radyka_Lesheevich (reign_court_town_S5_child_2)",
+  "heroStringId": "reign_court_town_S5_child_2",
+  "characterObjectId": "reign_court_town_S5_child_2",
+  "characterName": "Radyka Lesheevich",
+  "provider": "AtlasCloud",
+  "model": "xai/grok-imagine-image/edit",
+  "adapter": "atlas upload/generate/poll",
+  "sourceSha256": "6cae34d537e238bd99b2f3b2f2f9124862dd7a953d2308cf9d72896e93924e94",
+  "portraitSha256": "259fc84c4212c0839c6ddce2103699c53824b7c8210952c7fee0f0f8a89bf7f7",
+  "portraitWidth": 864,
+  "portraitHeight": 1152,
+  "physicalConfidence": {
+    "definition": "physical_confidence",
+    "score": 52,
+    "profile": "41-60",
+    "flirtatiousnessPercentage": 43,
+    "confidencePercentage": 78,
+    "flirtatiousnessWeight": 0.75,
+    "confidenceWeight": 0.25,
+    "source": "shipped_profile_library"
+  },
+  "derivativesReady": true,
+  "derivativeError": "",
+  "generatedUtc": "2026-07-17T19:10:26.9467172Z"
+}

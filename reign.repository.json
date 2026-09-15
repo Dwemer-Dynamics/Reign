@@ -25,6 +25,7 @@
     "BannerlordEditorMcp",
     "ReignBeta",
     "ReignMcp",
+    "ReignContent",
     "docs",
     "tests",
     "tools"
@@ -42,7 +43,7 @@
     "BannerlordReign/**",
     "Discord Promotions/**",
     "PortraitCache/**",
-    "**/PortraitCache/**",
+    "ReignBeta/PortraitCache/**",
     "ReignBeta/server/**",
     "ReignBeta/staging/**",
     "ReignBetaServer/app/**",
@@ -127,5 +128,7 @@
     "github-token:ReignMcp/tests/Reign.Mcp.Tests/Validation/ReignRepositoryHygieneAuditTests.cs"
   ],
   "maxOrdinaryFileBytes": 26214400,
-  "largeFileAllowlist": []
+  "largeFileAllowlist": [
+    "ReignContent/PortraitCache/_shared/**/*.png"
+  ]
 }

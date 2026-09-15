@@ -1,0 +1,27 @@
+{
+  "version": 1,
+  "cacheKey": "Alwith (lord_4_22_1)",
+  "heroStringId": "lord_4_22_1",
+  "characterObjectId": "lord_4_22_1",
+  "characterName": "Alwith",
+  "provider": "AtlasCloud",
+  "model": "xai/grok-imagine-image/edit",
+  "adapter": "atlas upload/generate/poll",
+  "sourceSha256": "eb1fd7be0c74d8076b7a29134560c93b9ee12ab335f8f874e3560e0a826700f0",
+  "portraitSha256": "b9ed537aecd8e83bc3435e9ace56a74859abcad4e578ebc216ceedff4dc17466",
+  "portraitWidth": 880,
+  "portraitHeight": 1168,
+  "physicalConfidence": {
+    "definition": "physical_confidence",
+    "score": 79,
+    "profile": "61-80",
+    "flirtatiousnessPercentage": 93,
+    "confidencePercentage": 36,
+    "flirtatiousnessWeight": 0.75,
+    "confidenceWeight": 0.25,
+    "source": "shipped_profile_library"
+  },
+  "derivativesReady": true,
+  "derivativeError": "",
+  "generatedUtc": "2026-07-17T18:12:04.5474781Z"
+}

@@ -1,0 +1,27 @@
+{
+  "version": 1,
+  "cacheKey": "Iovenos_Istranirides (reign_court_castle_EW6_father)",
+  "heroStringId": "reign_court_castle_EW6_father",
+  "characterObjectId": "reign_court_castle_EW6_father",
+  "characterName": "Iovenos Istranirides",
+  "provider": "AtlasCloud",
+  "model": "xai/grok-imagine-image/edit",
+  "adapter": "atlas upload/generate/poll",
+  "sourceSha256": "eefc1ee883aab7b93a16794bcb427dba75773dba928079b15169b5c86295bd8a",
+  "portraitSha256": "b384da2d51b5a9befcaea5d23178d0a5d1c39c8ddc7564e8d76285cae99508da",
+  "portraitWidth": 864,
+  "portraitHeight": 1152,
+  "physicalConfidence": {
+    "definition": "physical_confidence",
+    "score": 90,
+    "profile": "81-100",
+    "flirtatiousnessPercentage": 90,
+    "confidencePercentage": 89,
+    "flirtatiousnessWeight": 0.75,
+    "confidenceWeight": 0.25,
+    "source": "shipped_profile_library"
+  },
+  "derivativesReady": true,
+  "derivativeError": "",
+  "generatedUtc": "2026-07-17T18:44:54.3919779Z"
+}

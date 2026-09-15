@@ -1,0 +1,96 @@
+{
+  "version": 1,
+  "inputHash": "3be7ebab3d9c54387cd8601869b3183a55d33b6b5ba732e469631487a31f2679",
+  "catalogHash": "12142c0ab28d2678b12b852b086450dcc4eea45e2e8a080f3baa85c42f7fb3a2",
+  "renderContractHash": "cc3b941e7d47057de9b4220f1473336e6f908719812bb2653b83bd3545cfbd2f",
+  "cacheKey": "Dignified_Contender (dignified_contender_easy)",
+  "heroStringId": "dignified_contender_easy",
+  "characterObjectId": "dignified_contender_easy",
+  "characterName": "Dignified Contender",
+  "ageYears": 50,
+  "cultureId": "vlandia",
+  "cultureName": "Vlandian",
+  "gender": "man",
+  "clanId": "none",
+  "clanTier": null,
+  "clanProvenance": "not_defined_in_module_heroes_xml",
+  "socialStation": "unranked",
+  "occupation": "Soldier",
+  "archetype": "soldier",
+  "isLord": false,
+  "isNotable": false,
+  "isWanderer": false,
+  "isAlive": null,
+  "sourceModule": "Native",
+  "sourceFile": "Modules/SandBox/ModuleData/spspecialcharacters.xml",
+  "profileSource": "neutral_fallback",
+  "profilePackVersion": "",
+  "bodyKey": "0016B40A06FC244396755869794078B38322A5A7B9676A787D8EAA688B99B36401A00614FA3CC2A5000000000000000000000000000000000000000001543145",
+  "bodyWeight": 0.2016,
+  "bodyBuild": 0.5,
+  "faceTemplateId": "",
+  "faceGenerationVersion": "native_authored",
+  "civilianTemplate": "",
+  "civilianEquipment": [
+    {
+      "slot": "Body",
+      "itemId": "white_coat_over_mail"
+    },
+    {
+      "slot": "Cape",
+      "itemId": "battania_woodland_cloak"
+    },
+    {
+      "slot": "Gloves",
+      "itemId": "leather_gloves"
+    },
+    {
+      "slot": "Leg",
+      "itemId": "battania_leather_boots"
+    }
+  ],
+  "headgearSuppressed": true,
+  "physicalConfidence": {
+    "definition": "physical_confidence",
+    "score": 50,
+    "profile": "41-60",
+    "flirtatiousnessPercentage": 50,
+    "confidencePercentage": 50,
+    "flirtatiousnessWeight": 0.75,
+    "confidenceWeight": 0.25,
+    "source": "neutral_fallback"
+  },
+  "renderPreset": "ai_source_wan_portrait_v5",
+  "renderWidth": 1536,
+  "renderHeight": 2048,
+  "sourceWidth": 768,
+  "sourceHeight": 1024,
+  "cropScale": 0.24,
+  "cropWidthRatio": 0.75,
+  "cropCenterYRatio": 0.324,
+  "cameraPitchDegrees": 4,
+  "sourceSha256": "209f861bace557079c1fb9f4e0f983185724754d574037d51dd6e8aca6d6e661",
+  "sourceFileName": "source.png",
+  "generationEndpoint": "/portraits/generate",
+  "campaignIdSource": "active_campaign_at_generation_time",
+  "promptDeferred": true,
+  "sourceImageBase64From": "source.png",
+  "outputSizeOverride": "",
+  "promptPurpose": "portrait",
+  "nativePhysique": {
+    "schema": "reign-native-physique-v1",
+    "weight": 0.2016,
+    "build": 0.5,
+    "weightSource": "shared_portrait_input.bodyWeight",
+    "buildSource": "shared_portrait_input.bodyBuild",
+    "sourceSha256": "209f861bace557079c1fb9f4e0f983185724754d574037d51dd6e8aca6d6e661",
+    "provenance": {
+      "kind": "saved_character_metadata_backfill",
+      "heroStringId": "dignified_contender_easy",
+      "profileSource": "neutral_fallback",
+      "profilePackVersion": "",
+      "originalInputSha256": "9704f17471a44165148d68797c7fbfbeae3c1af3a86dc5dad1775126204d08ea",
+      "rendererReexecuted": false
+    }
+  }
+}

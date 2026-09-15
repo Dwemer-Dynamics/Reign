@@ -1,0 +1,27 @@
+{
+  "version": 1,
+  "cacheKey": "Satros (lord_SE9_l)",
+  "heroStringId": "lord_SE9_l",
+  "characterObjectId": "lord_SE9_l",
+  "characterName": "Satros",
+  "provider": "AtlasCloud",
+  "model": "xai/grok-imagine-image/edit",
+  "adapter": "atlas upload/generate/poll",
+  "sourceSha256": "aa8fcff62a4edf6e8e80894a5c1044facc931fe406fe7fcceaecb09926c69331",
+  "portraitSha256": "716e9cf3565934bdaca4b8c2dd8c21e05b0610ac0de5008e4da0de645da75f63",
+  "portraitWidth": 832,
+  "portraitHeight": 1248,
+  "physicalConfidence": {
+    "definition": "physical_confidence",
+    "score": 59,
+    "profile": "41-60",
+    "flirtatiousnessPercentage": 66,
+    "confidencePercentage": 37,
+    "flirtatiousnessWeight": 0.75,
+    "confidenceWeight": 0.25,
+    "source": "shipped_profile_library"
+  },
+  "derivativesReady": true,
+  "derivativeError": "",
+  "generatedUtc": "2026-07-17T19:12:59.4619341Z"
+}

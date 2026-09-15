@@ -1,0 +1,27 @@
+{
+  "version": 1,
+  "cacheKey": "Porphalios (lord_NE9_l)",
+  "heroStringId": "lord_NE9_l",
+  "characterObjectId": "lord_NE9_l",
+  "characterName": "Porphalios",
+  "provider": "AtlasCloud",
+  "model": "xai/grok-imagine-image/edit",
+  "adapter": "atlas upload/generate/poll",
+  "sourceSha256": "68279c0cc711b550c006a3299a164302e8c38e62262500992b37e60960ac5bc1",
+  "portraitSha256": "60a436169678efa275a7d8990a0364c3b2c36f32d6bfb28236cb49f68f307bfa",
+  "portraitWidth": 832,
+  "portraitHeight": 1248,
+  "physicalConfidence": {
+    "definition": "physical_confidence",
+    "score": 47,
+    "profile": "41-60",
+    "flirtatiousnessPercentage": 49,
+    "confidencePercentage": 40,
+    "flirtatiousnessWeight": 0.75,
+    "confidenceWeight": 0.25,
+    "source": "shipped_profile_library"
+  },
+  "derivativesReady": true,
+  "derivativeError": "",
+  "generatedUtc": "2026-07-17T19:09:37.5006581Z"
+}

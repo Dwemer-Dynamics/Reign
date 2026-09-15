@@ -1,0 +1,27 @@
+{
+  "version": 1,
+  "cacheKey": "Othiles_Vardanion (reign_court_town_ES3_child_3)",
+  "heroStringId": "reign_court_town_ES3_child_3",
+  "characterObjectId": "reign_court_town_ES3_child_3",
+  "characterName": "Othiles Vardanion",
+  "provider": "AtlasCloud",
+  "model": "xai/grok-imagine-image/edit",
+  "adapter": "atlas upload/generate/poll",
+  "sourceSha256": "619137c1cb5232812458159dc421543a19e895ab5ae61246b29870e2095a7510",
+  "portraitSha256": "62c4c7f7762ccab22b46b4c732381663b86126ffea24259207154ea70a52f09b",
+  "portraitWidth": 864,
+  "portraitHeight": 1152,
+  "physicalConfidence": {
+    "definition": "physical_confidence",
+    "score": 41,
+    "profile": "41-60",
+    "flirtatiousnessPercentage": 25,
+    "confidencePercentage": 88,
+    "flirtatiousnessWeight": 0.75,
+    "confidenceWeight": 0.25,
+    "source": "shipped_profile_library"
+  },
+  "derivativesReady": true,
+  "derivativeError": "",
+  "generatedUtc": "2026-07-17T19:07:38.3610979Z"
+}

@@ -1,0 +1,27 @@
+{
+  "version": 1,
+  "cacheKey": "Elthild (lord_4_4)",
+  "heroStringId": "lord_4_4",
+  "characterObjectId": "lord_4_4",
+  "characterName": "Elthild",
+  "provider": "AtlasCloud",
+  "model": "xai/grok-imagine-image/edit",
+  "adapter": "atlas upload/generate/poll",
+  "sourceSha256": "f83b03c8c8b4935ea0c51e2202433c133a11b76c274a49f147714bc237c09357",
+  "portraitSha256": "2be745ca712f028a799285c89b7482b39208b4b704a14e2f03128fee7b9c187d",
+  "portraitWidth": 832,
+  "portraitHeight": 1248,
+  "physicalConfidence": {
+    "definition": "physical_confidence",
+    "score": 60,
+    "profile": "41-60",
+    "flirtatiousnessPercentage": 65,
+    "confidencePercentage": 44,
+    "flirtatiousnessWeight": 0.75,
+    "confidenceWeight": 0.25,
+    "source": "shipped_profile_library"
+  },
+  "derivativesReady": true,
+  "derivativeError": "",
+  "generatedUtc": "2026-07-17T18:32:22.3015718Z"
+}

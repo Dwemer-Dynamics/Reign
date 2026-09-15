@@ -1,0 +1,27 @@
+{
+  "version": 1,
+  "cacheKey": "Berana_Auberacourt (reign_court_castle_V1_child_2)",
+  "heroStringId": "reign_court_castle_V1_child_2",
+  "characterObjectId": "reign_court_castle_V1_child_2",
+  "characterName": "Berana Auberacourt",
+  "provider": "AtlasCloud",
+  "model": "xai/grok-imagine-image/edit",
+  "adapter": "atlas upload/generate/poll",
+  "sourceSha256": "1a9e6ad54050fa50ec8df65ba43bf6f6ca46910092a03de7f7dcb31365d67617",
+  "portraitSha256": "97f3f333163e7b006f26f43c1ad1afc61b05a29614d4f11d7fb6168be74ff8f6",
+  "portraitWidth": 864,
+  "portraitHeight": 1152,
+  "physicalConfidence": {
+    "definition": "physical_confidence",
+    "score": 69,
+    "profile": "61-80",
+    "flirtatiousnessPercentage": 74,
+    "confidencePercentage": 53,
+    "flirtatiousnessWeight": 0.75,
+    "confidenceWeight": 0.25,
+    "source": "shipped_profile_library"
+  },
+  "derivativesReady": true,
+  "derivativeError": "",
+  "generatedUtc": "2026-07-17T18:16:21.4682346Z"
+}

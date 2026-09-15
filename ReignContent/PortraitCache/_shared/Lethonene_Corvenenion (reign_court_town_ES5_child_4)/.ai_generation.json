@@ -1,0 +1,27 @@
+{
+  "version": 1,
+  "cacheKey": "Lethonene_Corvenenion (reign_court_town_ES5_child_4)",
+  "heroStringId": "reign_court_town_ES5_child_4",
+  "characterObjectId": "reign_court_town_ES5_child_4",
+  "characterName": "Lethonene Corvenenion",
+  "provider": "AtlasCloud",
+  "model": "xai/grok-imagine-image/edit",
+  "adapter": "atlas upload/generate/poll",
+  "sourceSha256": "086601437e5f3f33f17f412107201ef789b7b32b0f6ed3236884b78b62bfb146",
+  "portraitSha256": "b185940572a0dc652064bbbb675033de1c608d8fa7a9a3f651ef74d12b11d822",
+  "portraitWidth": 864,
+  "portraitHeight": 1152,
+  "physicalConfidence": {
+    "definition": "physical_confidence",
+    "score": 59,
+    "profile": "41-60",
+    "flirtatiousnessPercentage": 58,
+    "confidencePercentage": 61,
+    "flirtatiousnessWeight": 0.75,
+    "confidenceWeight": 0.25,
+    "source": "shipped_profile_library"
+  },
+  "derivativesReady": true,
+  "derivativeError": "",
+  "generatedUtc": "2026-07-17T18:57:56.4599990Z"
+}

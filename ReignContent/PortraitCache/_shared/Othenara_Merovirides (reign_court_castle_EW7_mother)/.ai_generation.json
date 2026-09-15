@@ -1,0 +1,27 @@
+{
+  "version": 1,
+  "cacheKey": "Othenara_Merovirides (reign_court_castle_EW7_mother)",
+  "heroStringId": "reign_court_castle_EW7_mother",
+  "characterObjectId": "reign_court_castle_EW7_mother",
+  "characterName": "Othenara Merovirides",
+  "provider": "AtlasCloud",
+  "model": "xai/grok-imagine-image/edit",
+  "adapter": "atlas upload/generate/poll",
+  "sourceSha256": "16e27dab3eb3ed6f0171a6e68731a533837f3a05af4227840d816b0c4cdbabc4",
+  "portraitSha256": "3c7d98a295496b547b5ca321463264aa242defa1c80aaa82be3aff595ceee19c",
+  "portraitWidth": 864,
+  "portraitHeight": 1152,
+  "physicalConfidence": {
+    "definition": "physical_confidence",
+    "score": 76,
+    "profile": "61-80",
+    "flirtatiousnessPercentage": 86,
+    "confidencePercentage": 45,
+    "flirtatiousnessWeight": 0.75,
+    "confidenceWeight": 0.25,
+    "source": "shipped_profile_library"
+  },
+  "derivativesReady": true,
+  "derivativeError": "",
+  "generatedUtc": "2026-07-17T19:07:24.6583274Z"
+}

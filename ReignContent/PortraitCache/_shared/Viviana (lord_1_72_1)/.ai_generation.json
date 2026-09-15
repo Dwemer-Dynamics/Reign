@@ -1,0 +1,27 @@
+{
+  "version": 1,
+  "cacheKey": "Viviana (lord_1_72_1)",
+  "heroStringId": "lord_1_72_1",
+  "characterObjectId": "lord_1_72_1",
+  "characterName": "Viviana",
+  "provider": "AtlasCloud",
+  "model": "xai/grok-imagine-image/edit",
+  "adapter": "atlas upload/generate/poll",
+  "sourceSha256": "464c91b41203dd265ce0d9a3a908fb96ae1b9591a24c30729c4689c223523c9f",
+  "portraitSha256": "5dc8d569986dde76162a1aa41d192b70c5b51c408795d9f265f6b4307198706f",
+  "portraitWidth": 832,
+  "portraitHeight": 1248,
+  "physicalConfidence": {
+    "definition": "physical_confidence",
+    "score": 62,
+    "profile": "61-80",
+    "flirtatiousnessPercentage": 65,
+    "confidencePercentage": 52,
+    "flirtatiousnessWeight": 0.75,
+    "confidenceWeight": 0.25,
+    "source": "shipped_profile_library"
+  },
+  "derivativesReady": true,
+  "derivativeError": "",
+  "generatedUtc": "2026-07-17T19:21:30.6980684Z"
+}

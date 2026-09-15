@@ -1,0 +1,27 @@
+{
+  "version": 1,
+  "cacheKey": "Undul (dead_lord_6_4)",
+  "heroStringId": "dead_lord_6_4",
+  "characterObjectId": "dead_lord_6_4",
+  "characterName": "Undul",
+  "provider": "AtlasCloud",
+  "model": "xai/grok-imagine-image/edit",
+  "adapter": "atlas upload/generate/poll",
+  "sourceSha256": "f581cb989d23eb11973de28c084a054a36d391a02fdd89382bd244c8e32d2226",
+  "portraitSha256": "87758a93b2d88eeeabcf5349629fe24a08cda0f9de8030f6de1b0dc85c477641",
+  "portraitWidth": 864,
+  "portraitHeight": 1152,
+  "physicalConfidence": {
+    "definition": "physical_confidence",
+    "score": 69,
+    "profile": "61-80",
+    "flirtatiousnessPercentage": 74,
+    "confidencePercentage": 53,
+    "flirtatiousnessWeight": 0.75,
+    "confidenceWeight": 0.25,
+    "source": "shipped_profile_library"
+  },
+  "derivativesReady": true,
+  "derivativeError": "",
+  "generatedUtc": "2026-07-17T19:19:35.7722040Z"
+}

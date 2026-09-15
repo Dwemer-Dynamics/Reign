@@ -1,0 +1,27 @@
+{
+  "version": 1,
+  "cacheKey": "Galden (lord_2_23)",
+  "heroStringId": "lord_2_23",
+  "characterObjectId": "lord_2_23",
+  "characterName": "Galden",
+  "provider": "AtlasCloud",
+  "model": "xai/grok-imagine-image/edit",
+  "adapter": "atlas upload/generate/poll",
+  "sourceSha256": "96f09c66754ff4813e11d92de06169ed43fa218f789e75bb45d5d0864aa40c78",
+  "portraitSha256": "23d4b7b3baceddcb54ff0e79eca30e836e69050acdf2ce1403058d085273cd05",
+  "portraitWidth": 832,
+  "portraitHeight": 1248,
+  "physicalConfidence": {
+    "definition": "physical_confidence",
+    "score": 61,
+    "profile": "61-80",
+    "flirtatiousnessPercentage": 72,
+    "confidencePercentage": 27,
+    "flirtatiousnessWeight": 0.75,
+    "confidenceWeight": 0.25,
+    "source": "shipped_profile_library"
+  },
+  "derivativesReady": true,
+  "derivativeError": "",
+  "generatedUtc": "2026-07-17T18:37:58.2777345Z"
+}

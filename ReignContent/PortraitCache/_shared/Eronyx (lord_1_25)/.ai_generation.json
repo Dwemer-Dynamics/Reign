@@ -1,0 +1,27 @@
+{
+  "version": 1,
+  "cacheKey": "Eronyx (lord_1_25)",
+  "heroStringId": "lord_1_25",
+  "characterObjectId": "lord_1_25",
+  "characterName": "Eronyx",
+  "provider": "AtlasCloud",
+  "model": "xai/grok-imagine-image/edit",
+  "adapter": "atlas upload/generate/poll",
+  "sourceSha256": "41860c7d9fcecd7ce593fb7aec26f84f5277c6f09375d4f1d3938d364f18e001",
+  "portraitSha256": "f6317b7de72f1f3f06bc27e6bb8fc183c503afbbd217fd9d0f2f9f4900923f74",
+  "portraitWidth": 832,
+  "portraitHeight": 1248,
+  "physicalConfidence": {
+    "definition": "physical_confidence",
+    "score": 59,
+    "profile": "41-60",
+    "flirtatiousnessPercentage": 57,
+    "confidencePercentage": 64,
+    "flirtatiousnessWeight": 0.75,
+    "confidenceWeight": 0.25,
+    "source": "shipped_profile_library"
+  },
+  "derivativesReady": true,
+  "derivativeError": "",
+  "generatedUtc": "2026-07-17T18:33:16.5250071Z"
+}

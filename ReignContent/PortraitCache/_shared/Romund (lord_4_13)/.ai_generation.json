@@ -1,0 +1,27 @@
+{
+  "version": 1,
+  "cacheKey": "Romund (lord_4_13)",
+  "heroStringId": "lord_4_13",
+  "characterObjectId": "lord_4_13",
+  "characterName": "Romund",
+  "provider": "AtlasCloud",
+  "model": "xai/grok-imagine-image/edit",
+  "adapter": "atlas upload/generate/poll",
+  "sourceSha256": "13cd249e274ac2d3c7a440898c97b575efd1ce8b86afa968ae00e0d2982a2052",
+  "portraitSha256": "2f2222e12897b18eafa038086fa52a3816aa1a9bb505f58c4b64ca41f154758d",
+  "portraitWidth": 832,
+  "portraitHeight": 1248,
+  "physicalConfidence": {
+    "definition": "physical_confidence",
+    "score": 65,
+    "profile": "61-80",
+    "flirtatiousnessPercentage": 57,
+    "confidencePercentage": 88,
+    "flirtatiousnessWeight": 0.75,
+    "confidenceWeight": 0.25,
+    "source": "shipped_profile_library"
+  },
+  "derivativesReady": true,
+  "derivativeError": "",
+  "generatedUtc": "2026-07-17T19:11:53.7296887Z"
+}

@@ -1,0 +1,27 @@
+{
+  "version": 1,
+  "cacheKey": "Pagarios (lord_SE9_c1)",
+  "heroStringId": "lord_SE9_c1",
+  "characterObjectId": "lord_SE9_c1",
+  "characterName": "Pagarios",
+  "provider": "AtlasCloud",
+  "model": "xai/grok-imagine-image/edit",
+  "adapter": "atlas upload/generate/poll",
+  "sourceSha256": "0becd342b9f072721749ce2ba551f0bb7e3724cd19fb14b1bed1351ec1de30c6",
+  "portraitSha256": "38ca9d3d28e5acb9874d3d85b26283f4ce865d3947a47e57cd15f094da364907",
+  "portraitWidth": 832,
+  "portraitHeight": 1248,
+  "physicalConfidence": {
+    "definition": "physical_confidence",
+    "score": 94,
+    "profile": "81-100",
+    "flirtatiousnessPercentage": 92,
+    "confidencePercentage": 99,
+    "flirtatiousnessWeight": 0.75,
+    "confidenceWeight": 0.25,
+    "source": "shipped_profile_library"
+  },
+  "derivativesReady": true,
+  "derivativeError": "",
+  "generatedUtc": "2026-07-17T19:08:43.1466407Z"
+}

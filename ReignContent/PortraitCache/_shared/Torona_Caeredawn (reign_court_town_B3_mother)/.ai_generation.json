@@ -1,0 +1,27 @@
+{
+  "version": 1,
+  "cacheKey": "Torona_Caeredawn (reign_court_town_B3_mother)",
+  "heroStringId": "reign_court_town_B3_mother",
+  "characterObjectId": "reign_court_town_B3_mother",
+  "characterName": "Torona Caeredawn",
+  "provider": "AtlasCloud",
+  "model": "xai/grok-imagine-image/edit",
+  "adapter": "atlas upload/generate/poll",
+  "sourceSha256": "48bf1c0b2a10eb7673d16ea77a852d97f2069da6c493f4322923997c4d3e0d23",
+  "portraitSha256": "60db3f4a8b9827e5ba2f625c5f3246f927b9be26c9c1cfb07a373961ba33be1e",
+  "portraitWidth": 864,
+  "portraitHeight": 1152,
+  "physicalConfidence": {
+    "definition": "physical_confidence",
+    "score": 61,
+    "profile": "61-80",
+    "flirtatiousnessPercentage": 72,
+    "confidencePercentage": 27,
+    "flirtatiousnessWeight": 0.75,
+    "confidenceWeight": 0.25,
+    "source": "shipped_profile_library"
+  },
+  "derivativesReady": true,
+  "derivativeError": "",
+  "generatedUtc": "2026-07-17T19:18:09.8089571Z"
+}

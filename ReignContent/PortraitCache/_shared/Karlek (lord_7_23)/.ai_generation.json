@@ -1,0 +1,27 @@
+{
+  "version": 1,
+  "cacheKey": "Karlek (lord_7_23)",
+  "heroStringId": "lord_7_23",
+  "characterObjectId": "lord_7_23",
+  "characterName": "Karlek",
+  "provider": "AtlasCloud",
+  "model": "xai/grok-imagine-image/edit",
+  "adapter": "atlas upload/generate/poll",
+  "sourceSha256": "453cbd1fc4e167c6805d48f8d9c3f6490231f0840ca2c3be9ca4dbfbb211ce65",
+  "portraitSha256": "ccd31323a6e5dfe377f03820739f87a12f0458808771de9635a5f29df6c494ff",
+  "portraitWidth": 832,
+  "portraitHeight": 1248,
+  "physicalConfidence": {
+    "definition": "physical_confidence",
+    "score": 50,
+    "profile": "41-60",
+    "flirtatiousnessPercentage": 50,
+    "confidencePercentage": 50,
+    "flirtatiousnessWeight": 0.75,
+    "confidenceWeight": 0.25,
+    "source": "neutral_fallback"
+  },
+  "derivativesReady": true,
+  "derivativeError": "",
+  "generatedUtc": "2026-07-17T18:47:14.5680673Z"
+}

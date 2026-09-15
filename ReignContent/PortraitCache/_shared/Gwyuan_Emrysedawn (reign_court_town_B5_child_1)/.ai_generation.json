@@ -1,0 +1,27 @@
+{
+  "version": 1,
+  "cacheKey": "Gwyuan_Emrysedawn (reign_court_town_B5_child_1)",
+  "heroStringId": "reign_court_town_B5_child_1",
+  "characterObjectId": "reign_court_town_B5_child_1",
+  "characterName": "Gwyuan Emrysedawn",
+  "provider": "AtlasCloud",
+  "model": "xai/grok-imagine-image/edit",
+  "adapter": "atlas upload/generate/poll",
+  "sourceSha256": "b499a48d8db17333d4ce6d9a279cfde56e7fb2f12902643abb77fe2f2fc8fe29",
+  "portraitSha256": "5c8e183eb6e6c25b36734fc2eaf5a768d56c9ed29e4e8b2fb2848261852dd3d3",
+  "portraitWidth": 864,
+  "portraitHeight": 1152,
+  "physicalConfidence": {
+    "definition": "physical_confidence",
+    "score": 44,
+    "profile": "41-60",
+    "flirtatiousnessPercentage": 35,
+    "confidencePercentage": 70,
+    "flirtatiousnessWeight": 0.75,
+    "confidenceWeight": 0.25,
+    "source": "shipped_profile_library"
+  },
+  "derivativesReady": true,
+  "derivativeError": "",
+  "generatedUtc": "2026-07-17T18:41:12.0757127Z"
+}

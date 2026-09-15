@@ -1,0 +1,27 @@
+{
+  "version": 1,
+  "cacheKey": "Safima_Kashaqani (reign_court_castle_A6_mother)",
+  "heroStringId": "reign_court_castle_A6_mother",
+  "characterObjectId": "reign_court_castle_A6_mother",
+  "characterName": "Safima Kashaqani",
+  "provider": "AtlasCloud",
+  "model": "xai/grok-imagine-image/edit",
+  "adapter": "atlas upload/generate/poll",
+  "sourceSha256": "6d2aff5bb7c72566b82f9027be37d2aa7b10d714d33a2ff6ab241d6fa22eccfd",
+  "portraitSha256": "07a1991b1b0c7c3d3ea51714a390f8943c25d39f4e7ca4f65ed6c203347ed839",
+  "portraitWidth": 864,
+  "portraitHeight": 1152,
+  "physicalConfidence": {
+    "definition": "physical_confidence",
+    "score": 65,
+    "profile": "61-80",
+    "flirtatiousnessPercentage": 72,
+    "confidencePercentage": 43,
+    "flirtatiousnessWeight": 0.75,
+    "confidenceWeight": 0.25,
+    "source": "shipped_profile_library"
+  },
+  "derivativesReady": true,
+  "derivativeError": "",
+  "generatedUtc": "2026-07-17T19:12:21.4182432Z"
+}

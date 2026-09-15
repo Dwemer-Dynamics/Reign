@@ -1,0 +1,27 @@
+{
+  "version": 1,
+  "cacheKey": "Bahadid_Alzaruqani (reign_court_town_A8_child_1)",
+  "heroStringId": "reign_court_town_A8_child_1",
+  "characterObjectId": "reign_court_town_A8_child_1",
+  "characterName": "Bahadid Alzaruqani",
+  "provider": "AtlasCloud",
+  "model": "xai/grok-imagine-image/edit",
+  "adapter": "atlas upload/generate/poll",
+  "sourceSha256": "fb0ec35bb8c19faf8cc01a0bc548cd97f10807e3aa5e23ffbe7d483a0be26529",
+  "portraitSha256": "07a2fdddf597a94ff4e002d26f9c4eb1de643911a66bd0a398ec17c75c11dbc1",
+  "portraitWidth": 864,
+  "portraitHeight": 1152,
+  "physicalConfidence": {
+    "definition": "physical_confidence",
+    "score": 50,
+    "profile": "41-60",
+    "flirtatiousnessPercentage": 47,
+    "confidencePercentage": 58,
+    "flirtatiousnessWeight": 0.75,
+    "confidenceWeight": 0.25,
+    "source": "shipped_profile_library"
+  },
+  "derivativesReady": true,
+  "derivativeError": "",
+  "generatedUtc": "2026-07-17T18:15:29.4562193Z"
+}

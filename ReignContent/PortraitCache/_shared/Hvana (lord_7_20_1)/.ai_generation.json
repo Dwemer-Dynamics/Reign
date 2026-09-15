@@ -1,0 +1,27 @@
+{
+  "version": 1,
+  "cacheKey": "Hvana (lord_7_20_1)",
+  "heroStringId": "lord_7_20_1",
+  "characterObjectId": "lord_7_20_1",
+  "characterName": "Hvana",
+  "provider": "AtlasCloud",
+  "model": "xai/grok-imagine-image/edit",
+  "adapter": "atlas upload/generate/poll",
+  "sourceSha256": "da6977ca1d5f6f36e1434c27bb6aff3a0820083c4061402d6096435287e4e8bd",
+  "portraitSha256": "6547db48fe840b6a3eed494e0e45bb9046255309509f655c46c26360ef743155",
+  "portraitWidth": 832,
+  "portraitHeight": 1248,
+  "physicalConfidence": {
+    "definition": "physical_confidence",
+    "score": 50,
+    "profile": "41-60",
+    "flirtatiousnessPercentage": 50,
+    "confidencePercentage": 50,
+    "flirtatiousnessWeight": 0.75,
+    "confidenceWeight": 0.25,
+    "source": "neutral_fallback"
+  },
+  "derivativesReady": true,
+  "derivativeError": "",
+  "generatedUtc": "2026-07-17T18:43:47.6790793Z"
+}

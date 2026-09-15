@@ -1,0 +1,27 @@
+{
+  "version": 1,
+  "cacheKey": "Eryilos_Sorianirides (reign_court_castle_EW8_child_1)",
+  "heroStringId": "reign_court_castle_EW8_child_1",
+  "characterObjectId": "reign_court_castle_EW8_child_1",
+  "characterName": "Eryilos Sorianirides",
+  "provider": "AtlasCloud",
+  "model": "xai/grok-imagine-image/edit",
+  "adapter": "atlas upload/generate/poll",
+  "sourceSha256": "bff25aac280465cfd11632f134d3f087ca2be56b34253d326a4bfb1c124d0a43",
+  "portraitSha256": "8b5b6bd2fadee87cdfb44c572d95198d331b416b1b460c4b72e2bb604bd1f8c9",
+  "portraitWidth": 864,
+  "portraitHeight": 1152,
+  "physicalConfidence": {
+    "definition": "physical_confidence",
+    "score": 61,
+    "profile": "61-80",
+    "flirtatiousnessPercentage": 74,
+    "confidencePercentage": 21,
+    "flirtatiousnessWeight": 0.75,
+    "confidenceWeight": 0.25,
+    "source": "shipped_profile_library"
+  },
+  "derivativesReady": true,
+  "derivativeError": "",
+  "generatedUtc": "2026-07-17T18:34:01.8659750Z"
+}

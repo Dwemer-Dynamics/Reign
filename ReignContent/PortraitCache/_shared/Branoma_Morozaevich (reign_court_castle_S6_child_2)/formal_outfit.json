@@ -1,0 +1,13 @@
+{
+  "version": 1,
+  "heroStringId": "reign_court_castle_S6_child_2",
+  "characterName": "Branoma Morozaevich",
+  "imagePath": "portrait.png",
+  "imageSha256": "A3A69FB440304753431946E9E0D3115D31564713FEF54413A0C7EC0F6365232C",
+  "description": "Culturally appropriate everyday Sturgian landowner attire inspired by medieval Rus and Slavic clothing suited to a cold northern climate. Men should wear a long linen shirt beneath a belted wool tunic or simple kaftan, loose trousers, wrapped lower legs, and a heavy wool outer layer or practical cloak. Women should wear a long linen shift beneath a wool overdress or simple coat-dress, tied with a woven sash and layered with a practical shoulder covering. Add modest geometric embroidery around the collar, cuffs, or hem. Fur may appear only as light functional trim. No headgear of any kind. No armor, weapons, ceremonial fur mantles, crowns, or fantasy elements.",
+  "status": "failed",
+  "descriptionSource": "portrait_prompt_fallback",
+  "retryEligible": true,
+  "error": "{\"error\":{\"message\":\"Model \\\"zai-org/glm-5.2\\\" does not support image inputs. Remove image content or choose a multimodal model.\",\"type\":\"invalid_request_error\",\"param\":\"messages\",\"code\":\"image_input_not_supported\"}}",
+  "updatedUtc": "2026-07-18T22:03:25.9911193Z"
+}

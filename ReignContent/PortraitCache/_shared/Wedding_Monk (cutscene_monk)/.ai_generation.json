@@ -1,0 +1,27 @@
+{
+  "version": 1,
+  "cacheKey": "Wedding_Monk (cutscene_monk)",
+  "heroStringId": "cutscene_monk",
+  "characterObjectId": "cutscene_monk",
+  "characterName": "Wedding Monk",
+  "provider": "AtlasCloud",
+  "model": "xai/grok-imagine-image/edit",
+  "adapter": "atlas upload/generate/poll",
+  "sourceSha256": "422cc13c9de5f4d61bc2ccb92cb680f9bdda5653c0e0ce1b999f94a5bb5f6a55",
+  "portraitSha256": "b2650e58bb5199c96d8857bee957690a7bbc4dff6c5bec969c8ad0bcddb4c1cb",
+  "portraitWidth": 864,
+  "portraitHeight": 1152,
+  "physicalConfidence": {
+    "definition": "physical_confidence",
+    "score": 50,
+    "profile": "41-60",
+    "flirtatiousnessPercentage": 50,
+    "confidencePercentage": 50,
+    "flirtatiousnessWeight": 0.75,
+    "confidenceWeight": 0.25,
+    "source": "neutral_fallback"
+  },
+  "derivativesReady": true,
+  "derivativeError": "",
+  "generatedUtc": "2026-07-17T19:21:46.1338005Z"
+}

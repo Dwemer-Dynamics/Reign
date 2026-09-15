@@ -1,0 +1,13 @@
+{
+  "version": 1,
+  "heroStringId": "lord_7_13_4",
+  "characterName": "Valmua",
+  "imagePath": "portrait.png",
+  "imageSha256": "681DB5CCE1C30CB80AE94B326B38BB133FE6E29C00D402229830EDE039AEB03B",
+  "description": "Culturally appropriate everyday Nord high-noble attire inspired by luxurious but historically grounded elite Scandinavian clothing. Use fine wool, exceptionally high-quality linen, elegant layering, intricate tablet-woven trim, tasteful brooches, decorated belts, and rich but believable textile detail. Men should wear a stately knee-length or slightly longer noble tunic with excellent tailoring, refined fastenings, and finely woven borders. Women should wear a richly made long dress or layered apron-dress arrangement over fine linen, with graceful draping, ornamental weaving, and restrained jewelry. The clothing should communicate high rank through craftsmanship and fabric quality rather than excessive ornamentation. No headgear of any kind. No helmets, caps, hoods, armor, weapons, crowns, horned helmets, or fantasy Viking styling.",
+  "status": "failed",
+  "descriptionSource": "portrait_prompt_fallback",
+  "retryEligible": true,
+  "error": "{\"error\":{\"message\":\"Model \\\"zai-org/glm-5.2\\\" does not support image inputs. Remove image content or choose a multimodal model.\",\"type\":\"invalid_request_error\",\"param\":\"messages\",\"code\":\"image_input_not_supported\"}}",
+  "updatedUtc": "2026-07-18T22:03:35.4039394Z"
+}

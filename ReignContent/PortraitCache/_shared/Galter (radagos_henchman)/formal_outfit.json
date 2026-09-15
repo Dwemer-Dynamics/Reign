@@ -1,0 +1,13 @@
+{
+  "version": 1,
+  "heroStringId": "radagos_henchman",
+  "characterName": "Galter",
+  "imagePath": "portrait.png",
+  "imageSha256": "6C9510F80D7BCE01857FB5532BE733712154B6C24D7491E81B17ED63A6E8E30E",
+  "description": "Their clan is tier unknown, placing them socially among the unranked class. Use this status to guide the refinement, expense, materials, and ornament of their clothing without turning it into fantasy costume.",
+  "status": "failed",
+  "descriptionSource": "portrait_prompt_fallback",
+  "retryEligible": true,
+  "error": "{\"error\":{\"message\":\"Model \\\"zai-org/glm-5.2\\\" does not support image inputs. Remove image content or choose a multimodal model.\",\"type\":\"invalid_request_error\",\"param\":\"messages\",\"code\":\"image_input_not_supported\"}}",
+  "updatedUtc": "2026-07-18T22:03:29.4327791Z"
+}

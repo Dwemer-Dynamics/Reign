@@ -1,0 +1,13 @@
+{
+  "version": 1,
+  "heroStringId": "reign_court_town_K4_mother",
+  "characterName": "Ekeua Erketetai",
+  "imagePath": "portrait.png",
+  "imageSha256": "148FC6E2C107995C50475FA8C17678E00D0D8AA702BBEFDD4ADDE67492F2EBA8",
+  "description": "Culturally appropriate everyday Khuzait high-noble attire inspired by elite medieval Turkic and Mongol aristocratic clothing. Use superb tailoring, layered fine wool and silk-like woven fabrics, elegant crossed-front closures, decorated sashes, refined edging, and subtle noble motifs. Men should wear a stately long noble deel or structured coat over richly made underlayers. Women should wear a luxurious robe or coat-dress with graceful lines, elaborate woven trim, and exceptionally high-quality textiles. Fur trim may be included sparingly along cuffs, collars, or garment edges. The clothing should feel wealthy, mobile, and commanding without becoming ceremonial. No headgear of any kind. No fur hats, caps, hoods, armor, weapons, crowns, or fantasy styling.",
+  "status": "failed",
+  "descriptionSource": "portrait_prompt_fallback",
+  "retryEligible": true,
+  "error": "{\"error\":{\"message\":\"Model \\\"zai-org/glm-5.2\\\" does not support image inputs. Remove image content or choose a multimodal model.\",\"type\":\"invalid_request_error\",\"param\":\"messages\",\"code\":\"image_input_not_supported\"}}",
+  "updatedUtc": "2026-07-18T22:03:28.3662071Z"
+}

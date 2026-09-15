@@ -1,0 +1,27 @@
+{
+  "version": 1,
+  "cacheKey": "Karith (lord_3_20)",
+  "heroStringId": "lord_3_20",
+  "characterObjectId": "lord_3_20",
+  "characterName": "Karith",
+  "provider": "AtlasCloud",
+  "model": "xai/grok-imagine-image/edit",
+  "adapter": "atlas upload/generate/poll",
+  "sourceSha256": "653663482121a9487c906304021217cb2060eada98f46f718253fa81a0628d76",
+  "portraitSha256": "845d89895cdbf546c1fe60eff736aa15602cffaf922f8367f874f86f2bb779cc",
+  "portraitWidth": 832,
+  "portraitHeight": 1248,
+  "physicalConfidence": {
+    "definition": "physical_confidence",
+    "score": 45,
+    "profile": "41-60",
+    "flirtatiousnessPercentage": 44,
+    "confidencePercentage": 47,
+    "flirtatiousnessWeight": 0.75,
+    "confidenceWeight": 0.25,
+    "source": "shipped_profile_library"
+  },
+  "derivativesReady": true,
+  "derivativeError": "",
+  "generatedUtc": "2026-07-17T18:47:14.4160252Z"
+}

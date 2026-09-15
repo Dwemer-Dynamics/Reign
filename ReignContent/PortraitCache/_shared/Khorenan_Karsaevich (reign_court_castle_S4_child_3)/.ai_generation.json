@@ -1,0 +1,27 @@
+{
+  "version": 1,
+  "cacheKey": "Khorenan_Karsaevich (reign_court_castle_S4_child_3)",
+  "heroStringId": "reign_court_castle_S4_child_3",
+  "characterObjectId": "reign_court_castle_S4_child_3",
+  "characterName": "Khorenan Karsaevich",
+  "provider": "AtlasCloud",
+  "model": "xai/grok-imagine-image/edit",
+  "adapter": "atlas upload/generate/poll",
+  "sourceSha256": "df6e9256ee6fdf4d01f45d327b7c9f5e1d079ed216d7e1c5b52544a0e03c0f87",
+  "portraitSha256": "6ff01780309fff1b1e8b3cded059ff2d82bda8fecfd25291c6ea4a72ec67f601",
+  "portraitWidth": 864,
+  "portraitHeight": 1152,
+  "physicalConfidence": {
+    "definition": "physical_confidence",
+    "score": 58,
+    "profile": "41-60",
+    "flirtatiousnessPercentage": 63,
+    "confidencePercentage": 42,
+    "flirtatiousnessWeight": 0.75,
+    "confidenceWeight": 0.25,
+    "source": "shipped_profile_library"
+  },
+  "derivativesReady": true,
+  "derivativeError": "",
+  "generatedUtc": "2026-07-17T18:48:02.5343355Z"
+}

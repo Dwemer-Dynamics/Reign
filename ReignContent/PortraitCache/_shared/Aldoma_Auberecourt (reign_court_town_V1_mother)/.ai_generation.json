@@ -1,0 +1,27 @@
+{
+  "version": 1,
+  "cacheKey": "Aldoma_Auberecourt (reign_court_town_V1_mother)",
+  "heroStringId": "reign_court_town_V1_mother",
+  "characterObjectId": "reign_court_town_V1_mother",
+  "characterName": "Aldoma Auberecourt",
+  "provider": "AtlasCloud",
+  "model": "xai/grok-imagine-image/edit",
+  "adapter": "atlas upload/generate/poll",
+  "sourceSha256": "fb00e0281a7e3987c4c6f7b68e69fe9378aab54ff26f9b958830594d42983daf",
+  "portraitSha256": "b213523e0b13cb54a8f3dbf2b553704b78c84b40f63d5fa6030c42272dc74c74",
+  "portraitWidth": 864,
+  "portraitHeight": 1152,
+  "physicalConfidence": {
+    "definition": "physical_confidence",
+    "score": 67,
+    "profile": "61-80",
+    "flirtatiousnessPercentage": 70,
+    "confidencePercentage": 57,
+    "flirtatiousnessWeight": 0.75,
+    "confidenceWeight": 0.25,
+    "source": "shipped_profile_library"
+  },
+  "derivativesReady": true,
+  "derivativeError": "",
+  "generatedUtc": "2026-07-17T18:11:06.2244630Z"
+}

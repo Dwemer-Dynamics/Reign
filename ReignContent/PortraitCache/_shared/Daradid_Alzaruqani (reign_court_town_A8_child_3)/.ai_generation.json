@@ -1,0 +1,27 @@
+{
+  "version": 1,
+  "cacheKey": "Daradid_Alzaruqani (reign_court_town_A8_child_3)",
+  "heroStringId": "reign_court_town_A8_child_3",
+  "characterObjectId": "reign_court_town_A8_child_3",
+  "characterName": "Daradid Alzaruqani",
+  "provider": "AtlasCloud",
+  "model": "xai/grok-imagine-image/edit",
+  "adapter": "atlas upload/generate/poll",
+  "sourceSha256": "613bb0a91cdbf7ed9d59bdc6d1ac17e0b5b220d254e3d4d29ba8e1323fb2c931",
+  "portraitSha256": "df9b8c7575bb9c0af1c431ce61ecebe028212c3f013dd04a67ab0d4a155933db",
+  "portraitWidth": 864,
+  "portraitHeight": 1152,
+  "physicalConfidence": {
+    "definition": "physical_confidence",
+    "score": 45,
+    "profile": "41-60",
+    "flirtatiousnessPercentage": 45,
+    "confidencePercentage": 44,
+    "flirtatiousnessWeight": 0.75,
+    "confidenceWeight": 0.25,
+    "source": "shipped_profile_library"
+  },
+  "derivativesReady": true,
+  "derivativeError": "",
+  "generatedUtc": "2026-07-17T18:25:48.4399746Z"
+}

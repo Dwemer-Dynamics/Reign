@@ -1,0 +1,27 @@
+{
+  "version": 1,
+  "cacheKey": "Hardy_Contender (hardy_contender_easy)",
+  "heroStringId": "hardy_contender_easy",
+  "characterObjectId": "hardy_contender_easy",
+  "characterName": "Hardy Contender",
+  "provider": "AtlasCloud",
+  "model": "xai/grok-imagine-image/edit",
+  "adapter": "atlas upload/generate/poll",
+  "sourceSha256": "187c95d638f2671adefaad4bd7c547d3bc911a6ffbe8754f8f0a8b26e5b11921",
+  "portraitSha256": "5d27e19b916ee259d89414c9d4ddb20b8e9b9979b28e76bb66b370ea048d5a25",
+  "portraitWidth": 864,
+  "portraitHeight": 1152,
+  "physicalConfidence": {
+    "definition": "physical_confidence",
+    "score": 50,
+    "profile": "41-60",
+    "flirtatiousnessPercentage": 50,
+    "confidencePercentage": 50,
+    "flirtatiousnessWeight": 0.75,
+    "confidenceWeight": 0.25,
+    "source": "neutral_fallback"
+  },
+  "derivativesReady": true,
+  "derivativeError": "",
+  "generatedUtc": "2026-07-17T18:41:58.0962052Z"
+}

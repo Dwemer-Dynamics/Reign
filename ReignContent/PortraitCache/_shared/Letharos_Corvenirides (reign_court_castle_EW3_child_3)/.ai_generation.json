@@ -1,0 +1,27 @@
+{
+  "version": 1,
+  "cacheKey": "Letharos_Corvenirides (reign_court_castle_EW3_child_3)",
+  "heroStringId": "reign_court_castle_EW3_child_3",
+  "characterObjectId": "reign_court_castle_EW3_child_3",
+  "characterName": "Letharos Corvenirides",
+  "provider": "AtlasCloud",
+  "model": "xai/grok-imagine-image/edit",
+  "adapter": "atlas upload/generate/poll",
+  "sourceSha256": "e00e770014303fe343d83c4214cb40c9880dd32d3a6f5fea4da35e4ddd477125",
+  "portraitSha256": "1b6893ccd59575da181e386d42096b7cd92e3baa36d9e06e8416184043b8fb91",
+  "portraitWidth": 864,
+  "portraitHeight": 1152,
+  "physicalConfidence": {
+    "definition": "physical_confidence",
+    "score": 69,
+    "profile": "61-80",
+    "flirtatiousnessPercentage": 77,
+    "confidencePercentage": 44,
+    "flirtatiousnessWeight": 0.75,
+    "confidenceWeight": 0.25,
+    "source": "shipped_profile_library"
+  },
+  "derivativesReady": true,
+  "derivativeError": "",
+  "generatedUtc": "2026-07-17T20:07:37.1243362Z"
+}

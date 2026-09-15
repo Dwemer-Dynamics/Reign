@@ -1,0 +1,27 @@
+{
+  "version": 1,
+  "cacheKey": "Othysara_Vardorides (reign_court_castle_ES3_child_4)",
+  "heroStringId": "reign_court_castle_ES3_child_4",
+  "characterObjectId": "reign_court_castle_ES3_child_4",
+  "characterName": "Othysara Vardorides",
+  "provider": "AtlasCloud",
+  "model": "xai/grok-imagine-image/edit",
+  "adapter": "atlas upload/generate/poll",
+  "sourceSha256": "c7e5430b13573d322ad56af1b2b9c852b9b0da6501d61e3c10b2171d5a2f2bec",
+  "portraitSha256": "4f673943d31a8a603a1c446ce14fa77f4edff147f3bef234cb13adbc4637cba3",
+  "portraitWidth": 864,
+  "portraitHeight": 1152,
+  "physicalConfidence": {
+    "definition": "physical_confidence",
+    "score": 54,
+    "profile": "41-60",
+    "flirtatiousnessPercentage": 56,
+    "confidencePercentage": 47,
+    "flirtatiousnessWeight": 0.75,
+    "confidenceWeight": 0.25,
+    "source": "shipped_profile_library"
+  },
+  "derivativesReady": true,
+  "derivativeError": "",
+  "generatedUtc": "2026-07-17T19:08:26.8075727Z"
+}

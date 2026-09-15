@@ -1,0 +1,27 @@
+{
+  "version": 1,
+  "cacheKey": "Urik (lord_2_8)",
+  "heroStringId": "lord_2_8",
+  "characterObjectId": "lord_2_8",
+  "characterName": "Urik",
+  "provider": "AtlasCloud",
+  "model": "xai/grok-imagine-image/edit",
+  "adapter": "atlas upload/generate/poll",
+  "sourceSha256": "6b38ebb30c8cdd6a310838ab7656911d95a09dbbd6b35c786c1fd67a1b84c595",
+  "portraitSha256": "fbb86f78fbcb3321345c8ffc42feca84335066d38a42ce42f6b00dceb3ce99b2",
+  "portraitWidth": 864,
+  "portraitHeight": 1152,
+  "physicalConfidence": {
+    "definition": "physical_confidence",
+    "score": 36,
+    "profile": "21-40",
+    "flirtatiousnessPercentage": 27,
+    "confidencePercentage": 62,
+    "flirtatiousnessWeight": 0.75,
+    "confidenceWeight": 0.25,
+    "source": "shipped_profile_library"
+  },
+  "derivativesReady": true,
+  "derivativeError": "",
+  "generatedUtc": "2026-07-17T19:19:54.9509287Z"
+}

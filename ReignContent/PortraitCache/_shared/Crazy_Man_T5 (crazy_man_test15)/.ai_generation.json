@@ -1,0 +1,27 @@
+{
+  "version": 1,
+  "cacheKey": "Crazy_Man_T5 (crazy_man_test15)",
+  "heroStringId": "crazy_man_test15",
+  "characterObjectId": "crazy_man_test15",
+  "characterName": "Crazy Man T5",
+  "provider": "AtlasCloud",
+  "model": "xai/grok-imagine-image/edit",
+  "adapter": "atlas upload/generate/poll",
+  "sourceSha256": "f905643aad96581c9d79e08c73bfa87fd07eaf5c5ccfde027f6c9f2790e2245f",
+  "portraitSha256": "0f9d947c492260a2d24067d6cbde172be2e6fa05ac112f221775eb669e6b2dc1",
+  "portraitWidth": 864,
+  "portraitHeight": 1152,
+  "physicalConfidence": {
+    "definition": "physical_confidence",
+    "score": 50,
+    "profile": "41-60",
+    "flirtatiousnessPercentage": 50,
+    "confidencePercentage": 50,
+    "flirtatiousnessWeight": 0.75,
+    "confidenceWeight": 0.25,
+    "source": "neutral_fallback"
+  },
+  "derivativesReady": true,
+  "derivativeError": "",
+  "generatedUtc": "2026-07-17T18:24:47.4106227Z"
+}

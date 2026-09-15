@@ -1,0 +1,27 @@
+{
+  "version": 1,
+  "cacheKey": "Voleric (lord_V11_u)",
+  "heroStringId": "lord_V11_u",
+  "characterObjectId": "lord_V11_u",
+  "characterName": "Voleric",
+  "provider": "AtlasCloud",
+  "model": "xai/grok-imagine-image/edit",
+  "adapter": "atlas upload/generate/poll",
+  "sourceSha256": "f991a3ddf5d9cbb80a33d5f7b578b06557200e4c46fc0cf1a96eb1716ab74866",
+  "portraitSha256": "ee3a961fd5f7fce7777b072e123cb6e67e4ec69177c1d41baa6ad6b1d52a2529",
+  "portraitWidth": 832,
+  "portraitHeight": 1248,
+  "physicalConfidence": {
+    "definition": "physical_confidence",
+    "score": 58,
+    "profile": "41-60",
+    "flirtatiousnessPercentage": 58,
+    "confidencePercentage": 57,
+    "flirtatiousnessWeight": 0.75,
+    "confidenceWeight": 0.25,
+    "source": "shipped_profile_library"
+  },
+  "derivativesReady": true,
+  "derivativeError": "",
+  "generatedUtc": "2026-07-17T19:21:28.8924454Z"
+}

@@ -1,0 +1,27 @@
+{
+  "version": 1,
+  "cacheKey": "Abagai (lord_6_12)",
+  "heroStringId": "lord_6_12",
+  "characterObjectId": "lord_6_12",
+  "characterName": "Abagai",
+  "provider": "NanoGPT",
+  "model": "gpt-image-1.5",
+  "adapter": "image reference generation",
+  "sourceSha256": "4419b0fea6a789834a7e44661d756d1476ac2eea2b0feee8236150b34cb791ab",
+  "portraitSha256": "8dc7a407f3b46c30ba3ed0465df1e0573da70224c99e92d563bc02a2d7ca472b",
+  "portraitWidth": 1024,
+  "portraitHeight": 1536,
+  "physicalConfidence": {
+    "definition": "physical_confidence",
+    "score": 44,
+    "profile": "41-60",
+    "flirtatiousnessPercentage": 36,
+    "confidencePercentage": 67,
+    "flirtatiousnessWeight": 0.75,
+    "confidenceWeight": 0.25,
+    "source": "shipped_profile_library"
+  },
+  "derivativesReady": true,
+  "derivativeError": "",
+  "generatedUtc": "2026-07-17T16:46:13.9584426Z"
+}

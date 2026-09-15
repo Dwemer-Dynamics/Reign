@@ -1,0 +1,27 @@
+{
+  "version": 1,
+  "cacheKey": "Altenos (lord_1_57)",
+  "heroStringId": "lord_1_57",
+  "characterObjectId": "lord_1_57",
+  "characterName": "Altenos",
+  "provider": "AtlasCloud",
+  "model": "xai/grok-imagine-image/edit",
+  "adapter": "atlas upload/generate/poll",
+  "sourceSha256": "81f24c8e26fc5e72857ed89d73dbdad1f820d6b5b53be87e0a0689ee56f87e4f",
+  "portraitSha256": "25b48f93456e0835d8a787da65671a496e906e1b4bf862eded6016959f82916c",
+  "portraitWidth": 832,
+  "portraitHeight": 1248,
+  "physicalConfidence": {
+    "definition": "physical_confidence",
+    "score": 71,
+    "profile": "61-80",
+    "flirtatiousnessPercentage": 68,
+    "confidencePercentage": 79,
+    "flirtatiousnessWeight": 0.75,
+    "confidenceWeight": 0.25,
+    "source": "shipped_profile_library"
+  },
+  "derivativesReady": true,
+  "derivativeError": "",
+  "generatedUtc": "2026-07-17T18:11:41.5769211Z"
+}

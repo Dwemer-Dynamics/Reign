@@ -1,0 +1,27 @@
+{
+  "version": 1,
+  "cacheKey": "Iovilara_Sorianirides (reign_court_castle_EW8_child_4)",
+  "heroStringId": "reign_court_castle_EW8_child_4",
+  "characterObjectId": "reign_court_castle_EW8_child_4",
+  "characterName": "Iovilara Sorianirides",
+  "provider": "AtlasCloud",
+  "model": "xai/grok-imagine-image/edit",
+  "adapter": "atlas upload/generate/poll",
+  "sourceSha256": "efcf4db8ca70b9bf202ce0246ba539902bb63f63d273ac28385ef51b321a25e5",
+  "portraitSha256": "87ee3c24132f03dd0eac1c594978bd998a29d585e8eee02a712db0434c3d800b",
+  "portraitWidth": 864,
+  "portraitHeight": 1152,
+  "physicalConfidence": {
+    "definition": "physical_confidence",
+    "score": 63,
+    "profile": "61-80",
+    "flirtatiousnessPercentage": 69,
+    "confidencePercentage": 44,
+    "flirtatiousnessWeight": 0.75,
+    "confidenceWeight": 0.25,
+    "source": "shipped_profile_library"
+  },
+  "derivativesReady": true,
+  "derivativeError": "",
+  "generatedUtc": "2026-07-17T18:44:55.2881415Z"
+}

@@ -1,0 +1,27 @@
+{
+  "version": 1,
+  "cacheKey": "Miroena_Leshaevich (reign_court_castle_S5_mother)",
+  "heroStringId": "reign_court_castle_S5_mother",
+  "characterObjectId": "reign_court_castle_S5_mother",
+  "characterName": "Miroena Leshaevich",
+  "provider": "AtlasCloud",
+  "model": "xai/grok-imagine-image/edit",
+  "adapter": "atlas upload/generate/poll",
+  "sourceSha256": "6fb1c01afc44b63e39891c087b53549f825ad00f07bd4f8c8b6d89e23a6a7a6f",
+  "portraitSha256": "eccd056417c978f8583808e944d87c3c8b766bc21c8635818e6fb8913fda5417",
+  "portraitWidth": 864,
+  "portraitHeight": 1152,
+  "physicalConfidence": {
+    "definition": "physical_confidence",
+    "score": 42,
+    "profile": "41-60",
+    "flirtatiousnessPercentage": 41,
+    "confidencePercentage": 44,
+    "flirtatiousnessWeight": 0.75,
+    "confidenceWeight": 0.25,
+    "source": "shipped_profile_library"
+  },
+  "derivativesReady": true,
+  "derivativeError": "",
+  "generatedUtc": "2026-07-17T19:03:35.8714123Z"
+}

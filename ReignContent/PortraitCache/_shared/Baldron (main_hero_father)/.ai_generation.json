@@ -1,0 +1,27 @@
+{
+  "version": 1,
+  "cacheKey": "Baldron (main_hero_father)",
+  "heroStringId": "main_hero_father",
+  "characterObjectId": "main_hero_father",
+  "characterName": "Baldron",
+  "provider": "AtlasCloud",
+  "model": "xai/grok-imagine-image/edit",
+  "adapter": "atlas upload/generate/poll",
+  "sourceSha256": "3fd6b77b4c8bceb7863de03d620f8e9f7dcb9a7ac387fd7fba51747c3cbca48e",
+  "portraitSha256": "188f6b57b6e4b3e3db660457e0ba8b29c2670cf8e770610dc3c675e1958e7915",
+  "portraitWidth": 864,
+  "portraitHeight": 1152,
+  "physicalConfidence": {
+    "definition": "physical_confidence",
+    "score": 50,
+    "profile": "41-60",
+    "flirtatiousnessPercentage": 50,
+    "confidencePercentage": 50,
+    "flirtatiousnessWeight": 0.75,
+    "confidenceWeight": 0.25,
+    "source": "neutral_fallback"
+  },
+  "derivativesReady": true,
+  "derivativeError": "",
+  "generatedUtc": "2026-07-17T18:16:01.0530038Z"
+}

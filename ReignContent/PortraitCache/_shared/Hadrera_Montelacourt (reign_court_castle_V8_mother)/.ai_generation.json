@@ -1,0 +1,27 @@
+{
+  "version": 1,
+  "cacheKey": "Hadrera_Montelacourt (reign_court_castle_V8_mother)",
+  "heroStringId": "reign_court_castle_V8_mother",
+  "characterObjectId": "reign_court_castle_V8_mother",
+  "characterName": "Hadrera Montelacourt",
+  "provider": "AtlasCloud",
+  "model": "xai/grok-imagine-image/edit",
+  "adapter": "atlas upload/generate/poll",
+  "sourceSha256": "9afc502089bc86a42836471f48e12572ee033527250872cb174395b413f26ba8",
+  "portraitSha256": "dbb243a6d35d4fbe4da63160c2b1857f280f41b154030f3f39539731a9cb9072",
+  "portraitWidth": 864,
+  "portraitHeight": 1152,
+  "physicalConfidence": {
+    "definition": "physical_confidence",
+    "score": 17,
+    "profile": "00-20",
+    "flirtatiousnessPercentage": 6,
+    "confidencePercentage": 50,
+    "flirtatiousnessWeight": 0.75,
+    "confidenceWeight": 0.25,
+    "source": "shipped_profile_library"
+  },
+  "derivativesReady": true,
+  "derivativeError": "",
+  "generatedUtc": "2026-07-17T18:41:25.7415173Z"
+}

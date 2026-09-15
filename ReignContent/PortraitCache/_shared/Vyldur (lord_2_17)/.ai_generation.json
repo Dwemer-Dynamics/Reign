@@ -1,0 +1,27 @@
+{
+  "version": 1,
+  "cacheKey": "Vyldur (lord_2_17)",
+  "heroStringId": "lord_2_17",
+  "characterObjectId": "lord_2_17",
+  "characterName": "Vyldur",
+  "provider": "AtlasCloud",
+  "model": "xai/grok-imagine-image/edit",
+  "adapter": "atlas upload/generate/poll",
+  "sourceSha256": "423f8414f7b8d8ac3a0b81df77dcac303f037ce584c8d42f5bee6a6d8273cc4e",
+  "portraitSha256": "08fde37239c9f8916bf1728ca8b4ad3f4149b1a57d26e6341b02e524fa0b08c3",
+  "portraitWidth": 832,
+  "portraitHeight": 1248,
+  "physicalConfidence": {
+    "definition": "physical_confidence",
+    "score": 59,
+    "profile": "41-60",
+    "flirtatiousnessPercentage": 59,
+    "confidencePercentage": 58,
+    "flirtatiousnessWeight": 0.75,
+    "confidenceWeight": 0.25,
+    "source": "shipped_profile_library"
+  },
+  "derivativesReady": true,
+  "derivativeError": "",
+  "generatedUtc": "2026-07-17T19:21:48.4138795Z"
+}

@@ -1,0 +1,27 @@
+{
+  "version": 1,
+  "cacheKey": "Amaliana (lord_1_1_11)",
+  "heroStringId": "lord_1_1_11",
+  "characterObjectId": "lord_1_1_11",
+  "characterName": "Amaliana",
+  "provider": "AtlasCloud",
+  "model": "xai/grok-imagine-image/edit",
+  "adapter": "atlas upload/generate/poll",
+  "sourceSha256": "c7135e628805851264457e17cbf5c3526fe90355a34968a1dabfcd6a0ee5704a",
+  "portraitSha256": "b69509be9d69420f6b4badc39a74a848c186331f32ae3ad254139007e6d8dc43",
+  "portraitWidth": 832,
+  "portraitHeight": 1248,
+  "physicalConfidence": {
+    "definition": "physical_confidence",
+    "score": 46,
+    "profile": "41-60",
+    "flirtatiousnessPercentage": 42,
+    "confidencePercentage": 57,
+    "flirtatiousnessWeight": 0.75,
+    "confidenceWeight": 0.25,
+    "source": "shipped_profile_library"
+  },
+  "derivativesReady": true,
+  "derivativeError": "",
+  "generatedUtc": "2026-07-17T18:12:04.4359599Z"
+}

@@ -1,0 +1,27 @@
+{
+  "version": 1,
+  "cacheKey": "Coranic_Auberacourt (reign_court_castle_V1_child_3)",
+  "heroStringId": "reign_court_castle_V1_child_3",
+  "characterObjectId": "reign_court_castle_V1_child_3",
+  "characterName": "Coranic Auberacourt",
+  "provider": "AtlasCloud",
+  "model": "xai/grok-imagine-image/edit",
+  "adapter": "atlas upload/generate/poll",
+  "sourceSha256": "b8a27de34a3d4d790588381e40b498adfed72a76ef9a6b45adc4afef9e019919",
+  "portraitSha256": "8cff4299e8850ae70b7985dc5b57c99be9be121a75962c8a871f9eea313f1cdf",
+  "portraitWidth": 864,
+  "portraitHeight": 1152,
+  "physicalConfidence": {
+    "definition": "physical_confidence",
+    "score": 35,
+    "profile": "21-40",
+    "flirtatiousnessPercentage": 29,
+    "confidencePercentage": 52,
+    "flirtatiousnessWeight": 0.75,
+    "confidenceWeight": 0.25,
+    "source": "shipped_profile_library"
+  },
+  "derivativesReady": true,
+  "derivativeError": "",
+  "generatedUtc": "2026-07-17T18:23:48.6070635Z"
+}

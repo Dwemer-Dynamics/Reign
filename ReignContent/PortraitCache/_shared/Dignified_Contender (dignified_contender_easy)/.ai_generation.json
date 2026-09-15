@@ -1,0 +1,27 @@
+{
+  "version": 1,
+  "cacheKey": "Dignified_Contender (dignified_contender_easy)",
+  "heroStringId": "dignified_contender_easy",
+  "characterObjectId": "dignified_contender_easy",
+  "characterName": "Dignified Contender",
+  "provider": "AtlasCloud",
+  "model": "xai/grok-imagine-image/edit",
+  "adapter": "atlas upload/generate/poll",
+  "sourceSha256": "209f861bace557079c1fb9f4e0f983185724754d574037d51dd6e8aca6d6e661",
+  "portraitSha256": "284e23a703ba5adea1613680414c370d1957b0122baec3cb59385fa6df6b1c4e",
+  "portraitWidth": 864,
+  "portraitHeight": 1152,
+  "physicalConfidence": {
+    "definition": "physical_confidence",
+    "score": 50,
+    "profile": "41-60",
+    "flirtatiousnessPercentage": 50,
+    "confidencePercentage": 50,
+    "flirtatiousnessWeight": 0.75,
+    "confidenceWeight": 0.25,
+    "source": "neutral_fallback"
+  },
+  "derivativesReady": true,
+  "derivativeError": "",
+  "generatedUtc": "2026-07-17T18:26:56.3883729Z"
+}

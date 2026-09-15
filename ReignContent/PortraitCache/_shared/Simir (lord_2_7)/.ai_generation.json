@@ -1,0 +1,27 @@
+{
+  "version": 1,
+  "cacheKey": "Simir (lord_2_7)",
+  "heroStringId": "lord_2_7",
+  "characterObjectId": "lord_2_7",
+  "characterName": "Simir",
+  "provider": "AtlasCloud",
+  "model": "xai/grok-imagine-image/edit",
+  "adapter": "atlas upload/generate/poll",
+  "sourceSha256": "3a09f9bc27a4ec24290a97eec1700584e804d1c2e5f709f28f0eb502d6d7136c",
+  "portraitSha256": "c23635cb9e9322a345ccb9bdffdca2401e5daa9892e5aaca5bee4deccae7417d",
+  "portraitWidth": 832,
+  "portraitHeight": 1248,
+  "physicalConfidence": {
+    "definition": "physical_confidence",
+    "score": 33,
+    "profile": "21-40",
+    "flirtatiousnessPercentage": 30,
+    "confidencePercentage": 41,
+    "flirtatiousnessWeight": 0.75,
+    "confidenceWeight": 0.25,
+    "source": "shipped_profile_library"
+  },
+  "derivativesReady": true,
+  "derivativeError": "",
+  "generatedUtc": "2026-07-17T19:14:14.7273761Z"
+}

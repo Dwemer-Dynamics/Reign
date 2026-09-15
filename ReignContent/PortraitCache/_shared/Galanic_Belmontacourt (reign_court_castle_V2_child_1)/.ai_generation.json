@@ -1,0 +1,27 @@
+{
+  "version": 1,
+  "cacheKey": "Galanic_Belmontacourt (reign_court_castle_V2_child_1)",
+  "heroStringId": "reign_court_castle_V2_child_1",
+  "characterObjectId": "reign_court_castle_V2_child_1",
+  "characterName": "Galanic Belmontacourt",
+  "provider": "AtlasCloud",
+  "model": "xai/grok-imagine-image/edit",
+  "adapter": "atlas upload/generate/poll",
+  "sourceSha256": "69fe58c77919b85aacf6e22fb5d04e21beb0c034068308e12a7981b108047e0b",
+  "portraitSha256": "e234eefdd4dc7aba09792235b46b68f86364139ce44dc232ff47d1b19a408f1c",
+  "portraitWidth": 864,
+  "portraitHeight": 1152,
+  "physicalConfidence": {
+    "definition": "physical_confidence",
+    "score": 63,
+    "profile": "61-80",
+    "flirtatiousnessPercentage": 70,
+    "confidencePercentage": 41,
+    "flirtatiousnessWeight": 0.75,
+    "confidenceWeight": 0.25,
+    "source": "shipped_profile_library"
+  },
+  "derivativesReady": true,
+  "derivativeError": "",
+  "generatedUtc": "2026-07-17T18:37:54.1058695Z"
+}

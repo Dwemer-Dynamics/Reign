@@ -1,0 +1,27 @@
+{
+  "version": 1,
+  "cacheKey": "Nervous_Caravanmaster (nervous_caravanmaster_2)",
+  "heroStringId": "nervous_caravanmaster_2",
+  "characterObjectId": "nervous_caravanmaster_2",
+  "characterName": "Nervous Caravanmaster",
+  "provider": "AtlasCloud",
+  "model": "xai/grok-imagine-image/edit",
+  "adapter": "atlas upload/generate/poll",
+  "sourceSha256": "b302a837b660aca5ca2d771e1014bf626d6cc56754d0b43a826ad404f9855de2",
+  "portraitSha256": "7af4ab63f9d06dec031194683758046ae932441aff08b830f0824e5ca0e3a065",
+  "portraitWidth": 864,
+  "portraitHeight": 1152,
+  "physicalConfidence": {
+    "definition": "physical_confidence",
+    "score": 50,
+    "profile": "41-60",
+    "flirtatiousnessPercentage": 50,
+    "confidencePercentage": 50,
+    "flirtatiousnessWeight": 0.75,
+    "confidenceWeight": 0.25,
+    "source": "neutral_fallback"
+  },
+  "derivativesReady": true,
+  "derivativeError": "",
+  "generatedUtc": "2026-07-17T19:05:34.6870451Z"
+}

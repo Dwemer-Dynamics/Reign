@@ -1,0 +1,27 @@
+{
+  "version": 1,
+  "cacheKey": "Garios (lord_1_7)",
+  "heroStringId": "lord_1_7",
+  "characterObjectId": "lord_1_7",
+  "characterName": "Garios",
+  "provider": "AtlasCloud",
+  "model": "xai/grok-imagine-image/edit",
+  "adapter": "atlas upload/generate/poll",
+  "sourceSha256": "2bfd37c07d935b2f393052fecaf13fb40e2ed5d1437562ceee5d84c1b87ec8db",
+  "portraitSha256": "bb389b529f735633ead9e60bacd16fbe6cd2a68a7d4b77057ffb97245cb4016d",
+  "portraitWidth": 832,
+  "portraitHeight": 1248,
+  "physicalConfidence": {
+    "definition": "physical_confidence",
+    "score": 90,
+    "profile": "81-100",
+    "flirtatiousnessPercentage": 87,
+    "confidencePercentage": 98,
+    "flirtatiousnessWeight": 0.75,
+    "confidenceWeight": 0.25,
+    "source": "shipped_profile_library"
+  },
+  "derivativesReady": true,
+  "derivativeError": "",
+  "generatedUtc": "2026-07-17T18:38:29.8429896Z"
+}

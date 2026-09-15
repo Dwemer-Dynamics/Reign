@@ -1,0 +1,27 @@
+{
+  "version": 1,
+  "cacheKey": "Gwyona_Brynedawn (reign_court_town_B2_child_4)",
+  "heroStringId": "reign_court_town_B2_child_4",
+  "characterObjectId": "reign_court_town_B2_child_4",
+  "characterName": "Gwyona Brynedawn",
+  "provider": "AtlasCloud",
+  "model": "xai/grok-imagine-image/edit",
+  "adapter": "atlas upload/generate/poll",
+  "sourceSha256": "a6c69c1bab06231f37b9f65132c2ec0296c76dcbfe9913763e2ffa974f2bf57f",
+  "portraitSha256": "46afd29b067ab18f4ad3a158f90af18d139729316b1ac4b448054ebe117a4834",
+  "portraitWidth": 864,
+  "portraitHeight": 1152,
+  "physicalConfidence": {
+    "definition": "physical_confidence",
+    "score": 65,
+    "profile": "61-80",
+    "flirtatiousnessPercentage": 73,
+    "confidencePercentage": 40,
+    "flirtatiousnessWeight": 0.75,
+    "confidenceWeight": 0.25,
+    "source": "shipped_profile_library"
+  },
+  "derivativesReady": true,
+  "derivativeError": "",
+  "generatedUtc": "2026-07-17T18:40:55.2015546Z"
+}

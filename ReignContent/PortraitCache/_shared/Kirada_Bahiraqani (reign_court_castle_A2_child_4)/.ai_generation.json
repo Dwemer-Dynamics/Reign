@@ -1,0 +1,27 @@
+{
+  "version": 1,
+  "cacheKey": "Kirada_Bahiraqani (reign_court_castle_A2_child_4)",
+  "heroStringId": "reign_court_castle_A2_child_4",
+  "characterObjectId": "reign_court_castle_A2_child_4",
+  "characterName": "Kirada Bahiraqani",
+  "provider": "AtlasCloud",
+  "model": "xai/grok-imagine-image/edit",
+  "adapter": "atlas upload/generate/poll",
+  "sourceSha256": "7efbe263b40c15f2be0a770f58569a3f2d2663b91c52642f6edd494d605f85ee",
+  "portraitSha256": "97435ac693613c4ff8448c8c975507a9d21a4c1a5e71c2d771bd4b82a6cc061f",
+  "portraitWidth": 864,
+  "portraitHeight": 1152,
+  "physicalConfidence": {
+    "definition": "physical_confidence",
+    "score": 61,
+    "profile": "61-80",
+    "flirtatiousnessPercentage": 62,
+    "confidencePercentage": 57,
+    "flirtatiousnessWeight": 0.75,
+    "confidenceWeight": 0.25,
+    "source": "shipped_profile_library"
+  },
+  "derivativesReady": true,
+  "derivativeError": "",
+  "generatedUtc": "2026-07-17T18:48:33.2959099Z"
+}

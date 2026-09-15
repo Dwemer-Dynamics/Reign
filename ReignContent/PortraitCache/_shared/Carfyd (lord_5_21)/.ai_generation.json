@@ -1,0 +1,27 @@
+{
+  "version": 1,
+  "cacheKey": "Carfyd (lord_5_21)",
+  "heroStringId": "lord_5_21",
+  "characterObjectId": "lord_5_21",
+  "characterName": "Carfyd",
+  "provider": "AtlasCloud",
+  "model": "xai/grok-imagine-image/edit",
+  "adapter": "atlas upload/generate/poll",
+  "sourceSha256": "4c86d01111ad915d2b2aff409b4f2116fdadf1a2307e4e0cf006d24fdfb30742",
+  "portraitSha256": "2da0afc07d2dda5c9b290272674a28476fd014c5ae95f0a45eb7801c8f850ef4",
+  "portraitWidth": 832,
+  "portraitHeight": 1248,
+  "physicalConfidence": {
+    "definition": "physical_confidence",
+    "score": 52,
+    "profile": "41-60",
+    "flirtatiousnessPercentage": 49,
+    "confidencePercentage": 60,
+    "flirtatiousnessWeight": 0.75,
+    "confidenceWeight": 0.25,
+    "source": "shipped_profile_library"
+  },
+  "derivativesReady": true,
+  "derivativeError": "",
+  "generatedUtc": "2026-07-17T18:22:16.7786877Z"
+}

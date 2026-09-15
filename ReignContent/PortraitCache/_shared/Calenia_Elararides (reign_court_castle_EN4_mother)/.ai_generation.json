@@ -1,0 +1,27 @@
+{
+  "version": 1,
+  "cacheKey": "Calenia_Elararides (reign_court_castle_EN4_mother)",
+  "heroStringId": "reign_court_castle_EN4_mother",
+  "characterObjectId": "reign_court_castle_EN4_mother",
+  "characterName": "Calenia Elararides",
+  "provider": "AtlasCloud",
+  "model": "xai/grok-imagine-image/edit",
+  "adapter": "atlas upload/generate/poll",
+  "sourceSha256": "03c59fdb58c7757ae5c210ddabc7464828368e862d975c07fe776fdb42d09b5a",
+  "portraitSha256": "925a0a0e3d6d6ca63ef6747323bfbb1d0c65263cabcf7728352fe41dc7656086",
+  "portraitWidth": 864,
+  "portraitHeight": 1152,
+  "physicalConfidence": {
+    "definition": "physical_confidence",
+    "score": 48,
+    "profile": "41-60",
+    "flirtatiousnessPercentage": 50,
+    "confidencePercentage": 41,
+    "flirtatiousnessWeight": 0.75,
+    "confidenceWeight": 0.25,
+    "source": "shipped_profile_library"
+  },
+  "derivativesReady": true,
+  "derivativeError": "",
+  "generatedUtc": "2026-07-17T18:20:39.0853277Z"
+}

@@ -1,0 +1,27 @@
+{
+  "version": 1,
+  "cacheKey": "Nayantai (lord_6_81)",
+  "heroStringId": "lord_6_81",
+  "characterObjectId": "lord_6_81",
+  "characterName": "Nayantai",
+  "provider": "AtlasCloud",
+  "model": "xai/grok-imagine-image/edit",
+  "adapter": "atlas upload/generate/poll",
+  "sourceSha256": "44afb8b666d7ac0e7a9e38f958b6525ffe45524aca47c95f181368f1ffc71b6f",
+  "portraitSha256": "6f0d16d9cd718015082c7e864b5407d3a25c6a8e7d3417d3b82ebda0f595d402",
+  "portraitWidth": 832,
+  "portraitHeight": 1248,
+  "physicalConfidence": {
+    "definition": "physical_confidence",
+    "score": 56,
+    "profile": "41-60",
+    "flirtatiousnessPercentage": 48,
+    "confidencePercentage": 79,
+    "flirtatiousnessWeight": 0.75,
+    "confidenceWeight": 0.25,
+    "source": "shipped_profile_library"
+  },
+  "derivativesReady": true,
+  "derivativeError": "",
+  "generatedUtc": "2026-07-17T19:05:21.6384795Z"
+}

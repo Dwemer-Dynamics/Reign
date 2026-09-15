@@ -1,0 +1,27 @@
+{
+  "version": 1,
+  "cacheKey": "Chagia_Mungolatai (reign_court_castle_K7_mother)",
+  "heroStringId": "reign_court_castle_K7_mother",
+  "characterObjectId": "reign_court_castle_K7_mother",
+  "characterName": "Chagia Mungolatai",
+  "provider": "AtlasCloud",
+  "model": "xai/grok-imagine-image/edit",
+  "adapter": "atlas upload/generate/poll",
+  "sourceSha256": "e0fdd5bbdb0c4be523c20bb6dba6cfaa236667e042f68a00a3d888200a3fe830",
+  "portraitSha256": "5940ed54c0810edc1a58808d23d8971615e0b2315ed07d3889d1bf19b25f85e9",
+  "portraitWidth": 864,
+  "portraitHeight": 1152,
+  "physicalConfidence": {
+    "definition": "physical_confidence",
+    "score": 67,
+    "profile": "61-80",
+    "flirtatiousnessPercentage": 75,
+    "confidencePercentage": 42,
+    "flirtatiousnessWeight": 0.75,
+    "confidenceWeight": 0.25,
+    "source": "shipped_profile_library"
+  },
+  "derivativesReady": true,
+  "derivativeError": "",
+  "generatedUtc": "2026-07-17T18:22:44.0116541Z"
+}

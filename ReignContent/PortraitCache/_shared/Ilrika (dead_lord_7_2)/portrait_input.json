@@ -1,0 +1,96 @@
+{
+  "version": 1,
+  "inputHash": "e481e13ac383ce19fe234042fa28e4b98daecca3473348ea3588fd14a4dfad1c",
+  "catalogHash": "12142c0ab28d2678b12b852b086450dcc4eea45e2e8a080f3baa85c42f7fb3a2",
+  "renderContractHash": "cc3b941e7d47057de9b4220f1473336e6f908719812bb2653b83bd3545cfbd2f",
+  "cacheKey": "Ilrika (dead_lord_7_2)",
+  "heroStringId": "dead_lord_7_2",
+  "characterObjectId": "dead_lord_7_2",
+  "characterName": "Ilrika",
+  "ageYears": 79,
+  "cultureId": "nord",
+  "cultureName": "Nord",
+  "gender": "woman",
+  "clanId": "clan_nord_1",
+  "clanTier": 6,
+  "clanProvenance": "module_heroes_xml_and_clans_xml",
+  "socialStation": "high noble",
+  "occupation": "Lord",
+  "archetype": "lord",
+  "isLord": true,
+  "isNotable": false,
+  "isWanderer": false,
+  "isAlive": null,
+  "sourceModule": "NavalDLC",
+  "sourceFile": "Modules/NavalDLC/ModuleData/naval_lords.xml",
+  "profileSource": "neutral_fallback",
+  "profilePackVersion": "",
+  "bodyKey": "0002880200A02016939F077507006AF1AA114B50097A09475C000143A0A55707098FB69A0837000A0000000000000000000000000000000000000000170C0102",
+  "bodyWeight": 0.5,
+  "bodyBuild": 0.5,
+  "faceTemplateId": "",
+  "faceGenerationVersion": "native_authored",
+  "civilianTemplate": "nord_noncom_template_default",
+  "civilianEquipment": [
+    {
+      "slot": "Body",
+      "itemId": "nordic_civilian_dress"
+    },
+    {
+      "slot": "Cape",
+      "itemId": "cape_norse_lady"
+    },
+    {
+      "slot": "Gloves",
+      "itemId": "nord_casual_bracers"
+    },
+    {
+      "slot": "Leg",
+      "itemId": "highland_leg_wrappings"
+    }
+  ],
+  "headgearSuppressed": true,
+  "physicalConfidence": {
+    "definition": "physical_confidence",
+    "score": 50,
+    "profile": "41-60",
+    "flirtatiousnessPercentage": 50,
+    "confidencePercentage": 50,
+    "flirtatiousnessWeight": 0.75,
+    "confidenceWeight": 0.25,
+    "source": "neutral_fallback"
+  },
+  "renderPreset": "ai_source_wan_portrait_v5",
+  "renderWidth": 1536,
+  "renderHeight": 2048,
+  "sourceWidth": 768,
+  "sourceHeight": 1024,
+  "cropScale": 0.24,
+  "cropWidthRatio": 0.75,
+  "cropCenterYRatio": 0.324,
+  "cameraPitchDegrees": 4,
+  "sourceSha256": "b380882fb14b0cd3c1e73c87b3c4632580249aaa068db6d340b2dafc771e7309",
+  "sourceFileName": "source.png",
+  "generationEndpoint": "/portraits/generate",
+  "campaignIdSource": "active_campaign_at_generation_time",
+  "promptDeferred": true,
+  "sourceImageBase64From": "source.png",
+  "outputSizeOverride": "",
+  "promptPurpose": "portrait",
+  "nativePhysique": {
+    "schema": "reign-native-physique-v1",
+    "weight": 0.5,
+    "build": 0.5,
+    "weightSource": "shared_portrait_input.bodyWeight",
+    "buildSource": "shared_portrait_input.bodyBuild",
+    "sourceSha256": "b380882fb14b0cd3c1e73c87b3c4632580249aaa068db6d340b2dafc771e7309",
+    "provenance": {
+      "kind": "saved_character_metadata_backfill",
+      "heroStringId": "dead_lord_7_2",
+      "profileSource": "neutral_fallback",
+      "profilePackVersion": "",
+      "originalInputSha256": "bcad0596457632d4a3214545b56433655188454bbbefd159a04230006d659c7d",
+      "rendererReexecuted": false
+    }
+  }
+}

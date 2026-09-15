@@ -1,0 +1,27 @@
+{
+  "version": 1,
+  "cacheKey": "Reneric_Montelacourt (reign_court_castle_V8_child_3)",
+  "heroStringId": "reign_court_castle_V8_child_3",
+  "characterObjectId": "reign_court_castle_V8_child_3",
+  "characterName": "Reneric Montelacourt",
+  "provider": "AtlasCloud",
+  "model": "xai/grok-imagine-image/edit",
+  "adapter": "atlas upload/generate/poll",
+  "sourceSha256": "ba54b3ec42f477b3df1ec46fac8a542dd7e5a4a5cfaf82ed9a90e30061959f93",
+  "portraitSha256": "a1f34d52c7cfe7374c64414416c37e501687d77f89522bbf6eab7b30c457a515",
+  "portraitWidth": 864,
+  "portraitHeight": 1152,
+  "physicalConfidence": {
+    "definition": "physical_confidence",
+    "score": 23,
+    "profile": "21-40",
+    "flirtatiousnessPercentage": 15,
+    "confidencePercentage": 45,
+    "flirtatiousnessWeight": 0.75,
+    "confidenceWeight": 0.25,
+    "source": "shipped_profile_library"
+  },
+  "derivativesReady": true,
+  "derivativeError": "",
+  "generatedUtc": "2026-07-17T19:11:16.0565889Z"
+}

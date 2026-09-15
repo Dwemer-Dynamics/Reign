@@ -1,0 +1,27 @@
+{
+  "version": 1,
+  "cacheKey": "Njasnir (lord_7_5_3)",
+  "heroStringId": "lord_7_5_3",
+  "characterObjectId": "lord_7_5_3",
+  "characterName": "Njasnir",
+  "provider": "AtlasCloud",
+  "model": "xai/grok-imagine-image/edit",
+  "adapter": "atlas upload/generate/poll",
+  "sourceSha256": "5c9599eb4a5b89996a4ac017f51590d855b223e38e76a55672d6a70b3870fa86",
+  "portraitSha256": "fc04f8a1ab4bc25cdc049fc19b8af799d17929fea41aa8c98f195c083e130322",
+  "portraitWidth": 832,
+  "portraitHeight": 1248,
+  "physicalConfidence": {
+    "definition": "physical_confidence",
+    "score": 50,
+    "profile": "41-60",
+    "flirtatiousnessPercentage": 50,
+    "confidencePercentage": 50,
+    "flirtatiousnessWeight": 0.75,
+    "confidenceWeight": 0.25,
+    "source": "neutral_fallback"
+  },
+  "derivativesReady": true,
+  "derivativeError": "",
+  "generatedUtc": "2026-07-17T19:05:57.6501060Z"
+}

@@ -1,9 +1,58 @@
 using System.Diagnostics;
+using System.Security.Cryptography;
+using System.Text.Json;
 
 namespace Reign.Mcp.Tests;
 
 public sealed class ReleaseInstallerTests
 {
+    [Fact]
+    public async Task CompleteSharedPortraitLibraryIsTrackedAndMatchesItsInventory()
+    {
+        string workspace = TestOptions.FindWorkspace();
+        string inventoryPath = Path.Combine(workspace, "ReignContent", "shared-portrait-inventory.json");
+        Assert.True(File.Exists(inventoryPath), "The private source portrait inventory is missing.");
+        using JsonDocument document = JsonDocument.Parse(await File.ReadAllTextAsync(inventoryPath));
+        JsonElement root = document.RootElement;
+        Assert.Equal("reign-shared-content-inventory-v1", root.GetProperty("schema").GetString());
+        string configuredRoot = root.GetProperty("root").GetString()!;
+        Assert.False(Path.IsPathRooted(configuredRoot));
+        string portraitRoot = Path.GetFullPath(Path.Combine(Path.GetDirectoryName(inventoryPath)!, configuredRoot));
+        Assert.Equal(Path.GetFullPath(Path.Combine(workspace, "ReignContent", "PortraitCache", "_shared")), portraitRoot);
+
+        var expected = new Dictionary<string, (long Bytes, string Sha256)>(StringComparer.Ordinal);
+        foreach (JsonElement entry in root.GetProperty("files").EnumerateArray())
+            Assert.True(expected.TryAdd(entry.GetProperty("path").GetString()!,
+                (entry.GetProperty("bytes").GetInt64(), entry.GetProperty("sha256").GetString()!)),
+                "Duplicate shared portrait inventory path.");
+        string[] actual = Directory.GetFiles(portraitRoot, "*", SearchOption.AllDirectories)
+            .Select(path => Path.GetRelativePath(portraitRoot, path).Replace('\\', '/')).Order().ToArray();
+        Assert.Equal(expected.Keys.Order(), actual);
+
+        foreach (string relative in actual)
+        {
+            string path = Path.Combine(portraitRoot, relative.Replace('/', Path.DirectorySeparatorChar));
+            var locked = expected[relative];
+            Assert.Equal(locked.Bytes, new FileInfo(path).Length);
+            await using FileStream stream = File.OpenRead(path);
+            string hash = Convert.ToHexString(await SHA256.HashDataAsync(stream)).ToLowerInvariant();
+            Assert.Equal(locked.Sha256, hash);
+        }
+
+        var git = new ProcessStartInfo("git") { WorkingDirectory = workspace, RedirectStandardOutput = true, UseShellExecute = false };
+        foreach (string argument in new[] { "ls-files", "-z", "--", "ReignContent" }) git.ArgumentList.Add(argument);
+        using Process process = Process.Start(git)!;
+        string output = await process.StandardOutput.ReadToEndAsync();
+        await process.WaitForExitAsync();
+        Assert.Equal(0, process.ExitCode);
+        var tracked = output.Split('\0', StringSplitOptions.RemoveEmptyEntries).ToHashSet(StringComparer.Ordinal);
+        Assert.Contains("ReignContent/shared-portrait-inventory.json", tracked);
+        Assert.All(actual, relative => Assert.Contains("ReignContent/PortraitCache/_shared/" + relative, tracked));
+
+        string attributes = await File.ReadAllTextAsync(Path.Combine(workspace, ".gitattributes"));
+        Assert.Contains("ReignContent/PortraitCache/_shared/**/*.png filter=lfs diff=lfs merge=lfs -text", attributes);
+    }
+
     [Fact]
     public async Task DatabaseCredentialAclUsesItsHostModuleWithAnIncompatibleInheritedModulePath()
     {

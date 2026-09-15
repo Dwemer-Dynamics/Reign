@@ -1,0 +1,27 @@
+{
+  "version": 1,
+  "cacheKey": "Emira_al_Fahda (naval_storyline_emira_al_fahda)",
+  "heroStringId": "naval_storyline_emira_al_fahda",
+  "characterObjectId": "naval_storyline_emira_al_fahda",
+  "characterName": "Emira al Fahda",
+  "provider": "AtlasCloud",
+  "model": "xai/grok-imagine-image/edit",
+  "adapter": "atlas upload/generate/poll",
+  "sourceSha256": "4c540c1beeabf99341e5c101777d4935c0168b4492ab5bf95991c714cbcf022b",
+  "portraitSha256": "9b19dad39ce04a9c13112912449dbe780cb3b8492935376c7afe4fd5b8558c53",
+  "portraitWidth": 864,
+  "portraitHeight": 1152,
+  "physicalConfidence": {
+    "definition": "physical_confidence",
+    "score": 50,
+    "profile": "41-60",
+    "flirtatiousnessPercentage": 50,
+    "confidencePercentage": 50,
+    "flirtatiousnessWeight": 0.75,
+    "confidenceWeight": 0.25,
+    "source": "neutral_fallback"
+  },
+  "derivativesReady": true,
+  "derivativeError": "",
+  "generatedUtc": "2026-07-17T18:32:41.1820489Z"
+}

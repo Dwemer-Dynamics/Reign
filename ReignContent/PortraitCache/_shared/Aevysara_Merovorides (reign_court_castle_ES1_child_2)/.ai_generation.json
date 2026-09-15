@@ -1,0 +1,27 @@
+{
+  "version": 1,
+  "cacheKey": "Aevysara_Merovorides (reign_court_castle_ES1_child_2)",
+  "heroStringId": "reign_court_castle_ES1_child_2",
+  "characterObjectId": "reign_court_castle_ES1_child_2",
+  "characterName": "Aevysara Merovorides",
+  "provider": "AtlasCloud",
+  "model": "xai/grok-imagine-image/edit",
+  "adapter": "atlas upload/generate/poll",
+  "sourceSha256": "bd6a66fafbcfd54c68b2a4000210284da929dcbda33c3c5387bde76b0cf99132",
+  "portraitSha256": "123442c7ecdc537b4b77bdf58760f7b4a3996929ae898f156bbb718c467460d4",
+  "portraitWidth": 864,
+  "portraitHeight": 1152,
+  "physicalConfidence": {
+    "definition": "physical_confidence",
+    "score": 24,
+    "profile": "21-40",
+    "flirtatiousnessPercentage": 24,
+    "confidencePercentage": 23,
+    "flirtatiousnessWeight": 0.75,
+    "confidenceWeight": 0.25,
+    "source": "shipped_profile_library"
+  },
+  "derivativesReady": true,
+  "derivativeError": "",
+  "generatedUtc": "2026-07-17T18:10:00.2039875Z"
+}

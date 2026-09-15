@@ -1,0 +1,27 @@
+{
+  "version": 1,
+  "cacheKey": "Tynops (lord_1_40)",
+  "heroStringId": "lord_1_40",
+  "characterObjectId": "lord_1_40",
+  "characterName": "Tynops",
+  "provider": "AtlasCloud",
+  "model": "xai/grok-imagine-image/edit",
+  "adapter": "atlas upload/generate/poll",
+  "sourceSha256": "a817b4757cb1a2b932ada562a924501644c9f458669c78d36144278da908e1f2",
+  "portraitSha256": "ede3d8e0f7fc9d185d66c25f95103fde4e5feaf324f1b943f7f1ade26800dd90",
+  "portraitWidth": 832,
+  "portraitHeight": 1248,
+  "physicalConfidence": {
+    "definition": "physical_confidence",
+    "score": 36,
+    "profile": "21-40",
+    "flirtatiousnessPercentage": 28,
+    "confidencePercentage": 59,
+    "flirtatiousnessWeight": 0.75,
+    "confidenceWeight": 0.25,
+    "source": "shipped_profile_library"
+  },
+  "derivativesReady": true,
+  "derivativeError": "",
+  "generatedUtc": "2026-07-17T19:19:20.6686922Z"
+}

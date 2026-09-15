@@ -1,0 +1,27 @@
+{
+  "version": 1,
+  "cacheKey": "Torgia_Torgutatai (reign_court_castle_K8_child_4)",
+  "heroStringId": "reign_court_castle_K8_child_4",
+  "characterObjectId": "reign_court_castle_K8_child_4",
+  "characterName": "Torgia Torgutatai",
+  "provider": "AtlasCloud",
+  "model": "xai/grok-imagine-image/edit",
+  "adapter": "atlas upload/generate/poll",
+  "sourceSha256": "9eced10ca85af1b254b5bba0f5b50b00e889b3e2b4098e85238eacf5b1c340e5",
+  "portraitSha256": "dc40f66b80c2a1a8064ff790370d20768517d0512b91b1dc22e96d5ca7782ef9",
+  "portraitWidth": 864,
+  "portraitHeight": 1152,
+  "physicalConfidence": {
+    "definition": "physical_confidence",
+    "score": 48,
+    "profile": "41-60",
+    "flirtatiousnessPercentage": 50,
+    "confidencePercentage": 41,
+    "flirtatiousnessWeight": 0.75,
+    "confidenceWeight": 0.25,
+    "source": "shipped_profile_library"
+  },
+  "derivativesReady": true,
+  "derivativeError": "",
+  "generatedUtc": "2026-07-17T19:17:35.8790882Z"
+}

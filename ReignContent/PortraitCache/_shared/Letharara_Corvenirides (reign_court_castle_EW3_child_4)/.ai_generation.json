@@ -1,0 +1,27 @@
+{
+  "version": 1,
+  "cacheKey": "Letharara_Corvenirides (reign_court_castle_EW3_child_4)",
+  "heroStringId": "reign_court_castle_EW3_child_4",
+  "characterObjectId": "reign_court_castle_EW3_child_4",
+  "characterName": "Letharara Corvenirides",
+  "provider": "AtlasCloud",
+  "model": "xai/grok-imagine-image/edit",
+  "adapter": "atlas upload/generate/poll",
+  "sourceSha256": "977e57fb6e7b52833fa529fe7dae7835eccb0a4549752c8752ff1be878276dad",
+  "portraitSha256": "3d0d1b5faddd37b8ff10ebca1084f6a6436c3da66941d7803381ce17b43644a2",
+  "portraitWidth": 864,
+  "portraitHeight": 1152,
+  "physicalConfidence": {
+    "definition": "physical_confidence",
+    "score": 56,
+    "profile": "41-60",
+    "flirtatiousnessPercentage": 60,
+    "confidencePercentage": 43,
+    "flirtatiousnessWeight": 0.75,
+    "confidenceWeight": 0.25,
+    "source": "shipped_profile_library"
+  },
+  "derivativesReady": true,
+  "derivativeError": "",
+  "generatedUtc": "2026-07-17T18:50:55.6608232Z"
+}

@@ -1,0 +1,27 @@
+{
+  "version": 1,
+  "cacheKey": "Radoma_Vezaevich (reign_court_castle_S8_mother)",
+  "heroStringId": "reign_court_castle_S8_mother",
+  "characterObjectId": "reign_court_castle_S8_mother",
+  "characterName": "Radoma Vezaevich",
+  "provider": "AtlasCloud",
+  "model": "xai/grok-imagine-image/edit",
+  "adapter": "atlas upload/generate/poll",
+  "sourceSha256": "6d6c69e1cc4dfe1b7a003b4517c05e72d1ff8439afdddc19af6900b2dfaf5c80",
+  "portraitSha256": "df4d49556fc092319131f033a7f1ac2a8424b037d77bf0792869b54c52186204",
+  "portraitWidth": 864,
+  "portraitHeight": 1152,
+  "physicalConfidence": {
+    "definition": "physical_confidence",
+    "score": 53,
+    "profile": "41-60",
+    "flirtatiousnessPercentage": 56,
+    "confidencePercentage": 43,
+    "flirtatiousnessWeight": 0.75,
+    "confidenceWeight": 0.25,
+    "source": "shipped_profile_library"
+  },
+  "derivativesReady": true,
+  "derivativeError": "",
+  "generatedUtc": "2026-07-17T19:10:12.8662245Z"
+}

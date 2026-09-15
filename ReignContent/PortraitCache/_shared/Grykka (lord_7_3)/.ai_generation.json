@@ -1,0 +1,27 @@
+{
+  "version": 1,
+  "cacheKey": "Grykka (lord_7_3)",
+  "heroStringId": "lord_7_3",
+  "characterObjectId": "lord_7_3",
+  "characterName": "Grykka",
+  "provider": "AtlasCloud",
+  "model": "xai/grok-imagine-image/edit",
+  "adapter": "atlas upload/generate/poll",
+  "sourceSha256": "5e989e4ad95c729032bf418cf5cef9f55a1f0a60a1a7dbb38258a0ecedb42215",
+  "portraitSha256": "89682adf74ad3dacbbcf8c3c3cc6f05cbdf3f72627331dd135bb27c4ec072afa",
+  "portraitWidth": 832,
+  "portraitHeight": 1248,
+  "physicalConfidence": {
+    "definition": "physical_confidence",
+    "score": 50,
+    "profile": "41-60",
+    "flirtatiousnessPercentage": 50,
+    "confidencePercentage": 50,
+    "flirtatiousnessWeight": 0.75,
+    "confidenceWeight": 0.25,
+    "source": "neutral_fallback"
+  },
+  "derivativesReady": true,
+  "derivativeError": "",
+  "generatedUtc": "2026-07-17T18:39:43.3147099Z"
+}

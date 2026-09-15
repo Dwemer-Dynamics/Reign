@@ -1,0 +1,27 @@
+{
+  "version": 1,
+  "cacheKey": "Kiriman_Hadramaqani (reign_court_castle_A5_child_1)",
+  "heroStringId": "reign_court_castle_A5_child_1",
+  "characterObjectId": "reign_court_castle_A5_child_1",
+  "characterName": "Kiriman Hadramaqani",
+  "provider": "AtlasCloud",
+  "model": "xai/grok-imagine-image/edit",
+  "adapter": "atlas upload/generate/poll",
+  "sourceSha256": "bd142e23bc16212630c293fa30902dd2abfc6347692025342666baf505f55d0c",
+  "portraitSha256": "04f4bc1dabc7a08318c61a7ce562487414f98c40d6f54a52b43752aca0dded25",
+  "portraitWidth": 864,
+  "portraitHeight": 1152,
+  "physicalConfidence": {
+    "definition": "physical_confidence",
+    "score": 81,
+    "profile": "81-100",
+    "flirtatiousnessPercentage": 96,
+    "confidencePercentage": 35,
+    "flirtatiousnessWeight": 0.75,
+    "confidenceWeight": 0.25,
+    "source": "shipped_profile_library"
+  },
+  "derivativesReady": true,
+  "derivativeError": "",
+  "generatedUtc": "2026-07-17T18:49:05.2505002Z"
+}

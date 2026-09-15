@@ -1,0 +1,27 @@
+{
+  "version": 1,
+  "cacheKey": "Midwife (cutscene_midwife)",
+  "heroStringId": "cutscene_midwife",
+  "characterObjectId": "cutscene_midwife",
+  "characterName": "Midwife",
+  "provider": "AtlasCloud",
+  "model": "xai/grok-imagine-image/edit",
+  "adapter": "atlas upload/generate/poll",
+  "sourceSha256": "f173333d4f7acd6929b1b293c93abb21011aa80ec17aa49456a6cd1ef2e5a37d",
+  "portraitSha256": "98678c5afbafdb751c155b747c5ef9d55cc2ee70115491692de75e9dc64202a4",
+  "portraitWidth": 864,
+  "portraitHeight": 1152,
+  "physicalConfidence": {
+    "definition": "physical_confidence",
+    "score": 50,
+    "profile": "41-60",
+    "flirtatiousnessPercentage": 50,
+    "confidencePercentage": 50,
+    "flirtatiousnessWeight": 0.75,
+    "confidenceWeight": 0.25,
+    "source": "neutral_fallback"
+  },
+  "derivativesReady": true,
+  "derivativeError": "",
+  "generatedUtc": "2026-07-17T19:03:19.0007377Z"
+}

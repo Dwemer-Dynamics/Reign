@@ -1,0 +1,27 @@
+{
+  "version": 1,
+  "cacheKey": "Lantanor (lord_1_66)",
+  "heroStringId": "lord_1_66",
+  "characterObjectId": "lord_1_66",
+  "characterName": "Lantanor",
+  "provider": "AtlasCloud",
+  "model": "xai/grok-imagine-image/edit",
+  "adapter": "atlas upload/generate/poll",
+  "sourceSha256": "7f5d7f2a0ce13923fc61f51e52e4fbdbf71de670970303249356fc8dd4d5203d",
+  "portraitSha256": "8d6ce832628e7b203c578cc1eca502aa311249854915a142968a10ac23d5d34e",
+  "portraitWidth": 832,
+  "portraitHeight": 1248,
+  "physicalConfidence": {
+    "definition": "physical_confidence",
+    "score": 77,
+    "profile": "61-80",
+    "flirtatiousnessPercentage": 72,
+    "confidencePercentage": 91,
+    "flirtatiousnessWeight": 0.75,
+    "confidenceWeight": 0.25,
+    "source": "shipped_profile_library"
+  },
+  "derivativesReady": true,
+  "derivativeError": "",
+  "generatedUtc": "2026-07-17T20:07:37.2991579Z"
+}

@@ -1,0 +1,27 @@
+{
+  "version": 1,
+  "cacheKey": "Eleduran (lord_4_23_3)",
+  "heroStringId": "lord_4_23_3",
+  "characterObjectId": "lord_4_23_3",
+  "characterName": "Eleduran",
+  "provider": "AtlasCloud",
+  "model": "xai/grok-imagine-image/edit",
+  "adapter": "atlas upload/generate/poll",
+  "sourceSha256": "9040dbeb31f3cb486bfb618af899b31cc3cafb9af80a61d744e135853971ff9b",
+  "portraitSha256": "4f4f09172463ae4d1cdf2c813f2535ea9bc1faef562714413f3982838b205864",
+  "portraitWidth": 832,
+  "portraitHeight": 1248,
+  "physicalConfidence": {
+    "definition": "physical_confidence",
+    "score": 27,
+    "profile": "21-40",
+    "flirtatiousnessPercentage": 18,
+    "confidencePercentage": 55,
+    "flirtatiousnessWeight": 0.75,
+    "confidenceWeight": 0.25,
+    "source": "shipped_profile_library"
+  },
+  "derivativesReady": true,
+  "derivativeError": "",
+  "generatedUtc": "2026-07-17T18:32:21.6459350Z"
+}

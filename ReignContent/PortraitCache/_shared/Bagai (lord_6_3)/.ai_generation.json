@@ -1,0 +1,27 @@
+{
+  "version": 1,
+  "cacheKey": "Bagai (lord_6_3)",
+  "heroStringId": "lord_6_3",
+  "characterObjectId": "lord_6_3",
+  "characterName": "Bagai",
+  "provider": "AtlasCloud",
+  "model": "xai/grok-imagine-image/edit",
+  "adapter": "atlas upload/generate/poll",
+  "sourceSha256": "30e795452a7f520ebd8a34520738011a3f4ab249c65472c103750c7d3610c0c9",
+  "portraitSha256": "2c5059817a8cb195b3d4c563f1eaf8143a663016433ce955058fdb16d51919b2",
+  "portraitWidth": 832,
+  "portraitHeight": 1248,
+  "physicalConfidence": {
+    "definition": "physical_confidence",
+    "score": 47,
+    "profile": "41-60",
+    "flirtatiousnessPercentage": 46,
+    "confidencePercentage": 49,
+    "flirtatiousnessWeight": 0.75,
+    "confidenceWeight": 0.25,
+    "source": "shipped_profile_library"
+  },
+  "derivativesReady": true,
+  "derivativeError": "",
+  "generatedUtc": "2026-07-17T18:15:13.8187995Z"
+}

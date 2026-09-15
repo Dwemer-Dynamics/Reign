@@ -1,0 +1,27 @@
+{
+  "version": 1,
+  "cacheKey": "Fennalan_Brynadawn (reign_court_castle_B2_child_3)",
+  "heroStringId": "reign_court_castle_B2_child_3",
+  "characterObjectId": "reign_court_castle_B2_child_3",
+  "characterName": "Fennalan Brynadawn",
+  "provider": "AtlasCloud",
+  "model": "xai/grok-imagine-image/edit",
+  "adapter": "atlas upload/generate/poll",
+  "sourceSha256": "c83947ef5f83bbe80ea18c9179fd13d5967fceac1fd5c6cd9eada535539f4270",
+  "portraitSha256": "60542b4a0d694a05cb7808206f4af68eaa9d00c6ad7d2cdaab7301a7ac2a8ed1",
+  "portraitWidth": 864,
+  "portraitHeight": 1152,
+  "physicalConfidence": {
+    "definition": "physical_confidence",
+    "score": 52,
+    "profile": "41-60",
+    "flirtatiousnessPercentage": 56,
+    "confidencePercentage": 39,
+    "flirtatiousnessWeight": 0.75,
+    "confidenceWeight": 0.25,
+    "source": "shipped_profile_library"
+  },
+  "derivativesReady": true,
+  "derivativeError": "",
+  "generatedUtc": "2026-07-17T18:36:58.2454839Z"
+}

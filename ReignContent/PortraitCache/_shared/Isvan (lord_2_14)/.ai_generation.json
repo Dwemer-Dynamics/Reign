@@ -1,0 +1,27 @@
+{
+  "version": 1,
+  "cacheKey": "Isvan (lord_2_14)",
+  "heroStringId": "lord_2_14",
+  "characterObjectId": "lord_2_14",
+  "characterName": "Isvan",
+  "provider": "AtlasCloud",
+  "model": "xai/grok-imagine-image/edit",
+  "adapter": "atlas upload/generate/poll",
+  "sourceSha256": "d4c31c75a82ab35aedfdffbad3dad45c2299d6278e230c74ad178338b017d34e",
+  "portraitSha256": "159e177caf9820bdd5582d8c9a9a836e90ef2b134ff36aaf2b5e56a7ef186737",
+  "portraitWidth": 832,
+  "portraitHeight": 1248,
+  "physicalConfidence": {
+    "definition": "physical_confidence",
+    "score": 22,
+    "profile": "21-40",
+    "flirtatiousnessPercentage": 4,
+    "confidencePercentage": 77,
+    "flirtatiousnessWeight": 0.75,
+    "confidenceWeight": 0.25,
+    "source": "shipped_profile_library"
+  },
+  "derivativesReady": true,
+  "derivativeError": "",
+  "generatedUtc": "2026-07-17T18:46:17.5835886Z"
+}

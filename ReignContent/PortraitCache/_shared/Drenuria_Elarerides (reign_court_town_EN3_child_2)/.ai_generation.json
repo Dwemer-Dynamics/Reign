@@ -1,0 +1,27 @@
+{
+  "version": 1,
+  "cacheKey": "Drenuria_Elarerides (reign_court_town_EN3_child_2)",
+  "heroStringId": "reign_court_town_EN3_child_2",
+  "characterObjectId": "reign_court_town_EN3_child_2",
+  "characterName": "Drenuria Elarerides",
+  "provider": "AtlasCloud",
+  "model": "xai/grok-imagine-image/edit",
+  "adapter": "atlas upload/generate/poll",
+  "sourceSha256": "0e6fa415f2bf77ddadc5c27dc049a018888d52f6a027a9d84bedaa94cfadb3a7",
+  "portraitSha256": "8fe6e1bf94538c231e85bc7bf3f493deeba40c1b12eef0d9dd92f24aceeb5a0c",
+  "portraitWidth": 864,
+  "portraitHeight": 1152,
+  "physicalConfidence": {
+    "definition": "physical_confidence",
+    "score": 75,
+    "profile": "61-80",
+    "flirtatiousnessPercentage": 83,
+    "confidencePercentage": 50,
+    "flirtatiousnessWeight": 0.75,
+    "confidenceWeight": 0.25,
+    "source": "shipped_profile_library"
+  },
+  "derivativesReady": true,
+  "derivativeError": "",
+  "generatedUtc": "2026-07-17T18:30:24.4147580Z"
+}

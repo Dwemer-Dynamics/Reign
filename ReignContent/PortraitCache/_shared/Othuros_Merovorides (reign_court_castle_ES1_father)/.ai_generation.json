@@ -1,0 +1,27 @@
+{
+  "version": 1,
+  "cacheKey": "Othuros_Merovorides (reign_court_castle_ES1_father)",
+  "heroStringId": "reign_court_castle_ES1_father",
+  "characterObjectId": "reign_court_castle_ES1_father",
+  "characterName": "Othuros Merovorides",
+  "provider": "AtlasCloud",
+  "model": "xai/grok-imagine-image/edit",
+  "adapter": "atlas upload/generate/poll",
+  "sourceSha256": "849dbe7f98ef631e755a29321f04d3bab3d9da8f8be75a048186205d1e302f45",
+  "portraitSha256": "b97200c2df89e2aadb890880b574de2f23e150ac7fb1e3b7ff842450d844e2cd",
+  "portraitWidth": 864,
+  "portraitHeight": 1152,
+  "physicalConfidence": {
+    "definition": "physical_confidence",
+    "score": 36,
+    "profile": "21-40",
+    "flirtatiousnessPercentage": 21,
+    "confidencePercentage": 80,
+    "flirtatiousnessWeight": 0.75,
+    "confidenceWeight": 0.25,
+    "source": "shipped_profile_library"
+  },
+  "derivativesReady": true,
+  "derivativeError": "",
+  "generatedUtc": "2026-07-17T19:08:26.9423896Z"
+}

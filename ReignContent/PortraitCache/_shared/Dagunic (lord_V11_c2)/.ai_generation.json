@@ -1,0 +1,27 @@
+{
+  "version": 1,
+  "cacheKey": "Dagunic (lord_V11_c2)",
+  "heroStringId": "lord_V11_c2",
+  "characterObjectId": "lord_V11_c2",
+  "characterName": "Dagunic",
+  "provider": "AtlasCloud",
+  "model": "xai/grok-imagine-image/edit",
+  "adapter": "atlas upload/generate/poll",
+  "sourceSha256": "9508fc95117af3b1b75a59db300eea4ab88629fffd82b85ac8d092171e738b27",
+  "portraitSha256": "50359063174dfa9d7a0077c173c3e489924766197a93bcec92544903478cbd33",
+  "portraitWidth": 832,
+  "portraitHeight": 1248,
+  "physicalConfidence": {
+    "definition": "physical_confidence",
+    "score": 45,
+    "profile": "41-60",
+    "flirtatiousnessPercentage": 40,
+    "confidencePercentage": 59,
+    "flirtatiousnessWeight": 0.75,
+    "confidenceWeight": 0.25,
+    "source": "shipped_profile_library"
+  },
+  "derivativesReady": true,
+  "derivativeError": "",
+  "generatedUtc": "2026-07-17T18:25:33.8411128Z"
+}

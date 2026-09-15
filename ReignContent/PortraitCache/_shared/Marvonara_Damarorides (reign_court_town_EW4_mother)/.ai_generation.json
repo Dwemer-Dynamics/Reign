@@ -1,0 +1,27 @@
+{
+  "version": 1,
+  "cacheKey": "Marvonara_Damarorides (reign_court_town_EW4_mother)",
+  "heroStringId": "reign_court_town_EW4_mother",
+  "characterObjectId": "reign_court_town_EW4_mother",
+  "characterName": "Marvonara Damarorides",
+  "provider": "AtlasCloud",
+  "model": "xai/grok-imagine-image/edit",
+  "adapter": "atlas upload/generate/poll",
+  "sourceSha256": "501fece11135e1372567d1929eeff34cf46ad9d5827bbdc632b7f3c9d08d98d8",
+  "portraitSha256": "7a72e8890870b66c977baf747423e7f381951b140d62d946fb80b386e4af8463",
+  "portraitWidth": 864,
+  "portraitHeight": 1152,
+  "physicalConfidence": {
+    "definition": "physical_confidence",
+    "score": 85,
+    "profile": "81-100",
+    "flirtatiousnessPercentage": 93,
+    "confidencePercentage": 60,
+    "flirtatiousnessWeight": 0.75,
+    "confidenceWeight": 0.25,
+    "source": "shipped_profile_library"
+  },
+  "derivativesReady": true,
+  "derivativeError": "",
+  "generatedUtc": "2026-07-17T19:01:03.8338510Z"
+}

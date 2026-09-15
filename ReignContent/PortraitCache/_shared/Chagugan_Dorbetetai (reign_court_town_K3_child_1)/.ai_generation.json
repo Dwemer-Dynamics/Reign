@@ -1,0 +1,27 @@
+{
+  "version": 1,
+  "cacheKey": "Chagugan_Dorbetetai (reign_court_town_K3_child_1)",
+  "heroStringId": "reign_court_town_K3_child_1",
+  "characterObjectId": "reign_court_town_K3_child_1",
+  "characterName": "Chagugan Dorbetetai",
+  "provider": "AtlasCloud",
+  "model": "xai/grok-imagine-image/edit",
+  "adapter": "atlas upload/generate/poll",
+  "sourceSha256": "d8bb0a1b092a84f8a897be4786d70378ec670f26b01358a3b9fd0180376ba9d6",
+  "portraitSha256": "cba7b9be9ff8c5e95958d47c76ac8e95c4a1e9c908733bdc29203e55c8109430",
+  "portraitWidth": 864,
+  "portraitHeight": 1152,
+  "physicalConfidence": {
+    "definition": "physical_confidence",
+    "score": 29,
+    "profile": "21-40",
+    "flirtatiousnessPercentage": 24,
+    "confidencePercentage": 43,
+    "flirtatiousnessWeight": 0.75,
+    "confidenceWeight": 0.25,
+    "source": "shipped_profile_library"
+  },
+  "derivativesReady": true,
+  "derivativeError": "",
+  "generatedUtc": "2026-07-17T18:23:01.7476445Z"
+}

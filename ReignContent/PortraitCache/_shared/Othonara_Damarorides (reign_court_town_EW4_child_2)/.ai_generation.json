@@ -1,0 +1,27 @@
+{
+  "version": 1,
+  "cacheKey": "Othonara_Damarorides (reign_court_town_EW4_child_2)",
+  "heroStringId": "reign_court_town_EW4_child_2",
+  "characterObjectId": "reign_court_town_EW4_child_2",
+  "characterName": "Othonara Damarorides",
+  "provider": "AtlasCloud",
+  "model": "xai/grok-imagine-image/edit",
+  "adapter": "atlas upload/generate/poll",
+  "sourceSha256": "6b2bc4e0bdfb00dc57b93f41b1aaf0a01d0738476881541ba138e23be7114291",
+  "portraitSha256": "c96f199a93e170fe45b26bf7a642f7c924a4f4ea10473592c3746fb3bb618198",
+  "portraitWidth": 864,
+  "portraitHeight": 1152,
+  "physicalConfidence": {
+    "definition": "physical_confidence",
+    "score": 85,
+    "profile": "81-100",
+    "flirtatiousnessPercentage": 95,
+    "confidencePercentage": 54,
+    "flirtatiousnessWeight": 0.75,
+    "confidenceWeight": 0.25,
+    "source": "shipped_profile_library"
+  },
+  "derivativesReady": true,
+  "derivativeError": "",
+  "generatedUtc": "2026-07-17T19:07:53.8860884Z"
+}

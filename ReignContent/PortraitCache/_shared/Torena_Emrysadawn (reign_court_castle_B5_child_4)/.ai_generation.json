@@ -1,0 +1,27 @@
+{
+  "version": 1,
+  "cacheKey": "Torena_Emrysadawn (reign_court_castle_B5_child_4)",
+  "heroStringId": "reign_court_castle_B5_child_4",
+  "characterObjectId": "reign_court_castle_B5_child_4",
+  "characterName": "Torena Emrysadawn",
+  "provider": "AtlasCloud",
+  "model": "xai/grok-imagine-image/edit",
+  "adapter": "atlas upload/generate/poll",
+  "sourceSha256": "c6517edcb7514b5d5a0e394c64a5847f4d5442bfa43f82b4caf271da9cbdee5e",
+  "portraitSha256": "045081e6f0413e5f9f52478c8104b536c275417ea66e787018b13cc207930e4b",
+  "portraitWidth": 864,
+  "portraitHeight": 1152,
+  "physicalConfidence": {
+    "definition": "physical_confidence",
+    "score": 49,
+    "profile": "41-60",
+    "flirtatiousnessPercentage": 48,
+    "confidencePercentage": 51,
+    "flirtatiousnessWeight": 0.75,
+    "confidenceWeight": 0.25,
+    "source": "shipped_profile_library"
+  },
+  "derivativesReady": true,
+  "derivativeError": "",
+  "generatedUtc": "2026-07-17T19:17:20.6872001Z"
+}

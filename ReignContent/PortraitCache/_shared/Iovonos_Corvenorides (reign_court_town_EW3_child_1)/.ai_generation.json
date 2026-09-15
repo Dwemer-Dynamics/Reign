@@ -1,0 +1,27 @@
+{
+  "version": 1,
+  "cacheKey": "Iovonos_Corvenorides (reign_court_town_EW3_child_1)",
+  "heroStringId": "reign_court_town_EW3_child_1",
+  "characterObjectId": "reign_court_town_EW3_child_1",
+  "characterName": "Iovonos Corvenorides",
+  "provider": "AtlasCloud",
+  "model": "xai/grok-imagine-image/edit",
+  "adapter": "atlas upload/generate/poll",
+  "sourceSha256": "331cd411d3c242b723bb698d3032035e2047d509f89c6a829f5a73f951f73e3d",
+  "portraitSha256": "ab9bf79fa2051f742fc5a9a4d28c5ee461012eb987310de35cb5f60629204add",
+  "portraitWidth": 864,
+  "portraitHeight": 1152,
+  "physicalConfidence": {
+    "definition": "physical_confidence",
+    "score": 49,
+    "profile": "41-60",
+    "flirtatiousnessPercentage": 47,
+    "confidencePercentage": 54,
+    "flirtatiousnessWeight": 0.75,
+    "confidenceWeight": 0.25,
+    "source": "shipped_profile_library"
+  },
+  "derivativesReady": true,
+  "derivativeError": "",
+  "generatedUtc": "2026-07-17T18:45:24.9488594Z"
+}

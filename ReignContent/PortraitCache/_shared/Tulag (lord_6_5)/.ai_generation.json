@@ -1,0 +1,27 @@
+{
+  "version": 1,
+  "cacheKey": "Tulag (lord_6_5)",
+  "heroStringId": "lord_6_5",
+  "characterObjectId": "lord_6_5",
+  "characterName": "Tulag",
+  "provider": "AtlasCloud",
+  "model": "xai/grok-imagine-image/edit",
+  "adapter": "atlas upload/generate/poll",
+  "sourceSha256": "14955a3247e8477ebe1de6a3b95d9e816598a5d2856db08d51dc8ac548d347d0",
+  "portraitSha256": "ace6e7c496545f7cb3b7f075efa86d45663d5db49113c519ab1086bafe73b5f4",
+  "portraitWidth": 832,
+  "portraitHeight": 1248,
+  "physicalConfidence": {
+    "definition": "physical_confidence",
+    "score": 52,
+    "profile": "41-60",
+    "flirtatiousnessPercentage": 56,
+    "confidencePercentage": 39,
+    "flirtatiousnessWeight": 0.75,
+    "confidenceWeight": 0.25,
+    "source": "shipped_profile_library"
+  },
+  "derivativesReady": true,
+  "derivativeError": "",
+  "generatedUtc": "2026-07-17T19:18:59.2684761Z"
+}

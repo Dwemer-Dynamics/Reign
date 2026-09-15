@@ -1,0 +1,27 @@
+{
+  "version": 1,
+  "cacheKey": "Radulan_Droveevich (reign_court_town_S2_child_3)",
+  "heroStringId": "reign_court_town_S2_child_3",
+  "characterObjectId": "reign_court_town_S2_child_3",
+  "characterName": "Radulan Droveevich",
+  "provider": "AtlasCloud",
+  "model": "xai/grok-imagine-image/edit",
+  "adapter": "atlas upload/generate/poll",
+  "sourceSha256": "26f3f01f71dc4ebd155a0e56b56618ba7a6c9ccc40206871ce34229ee197a066",
+  "portraitSha256": "8d7c6fec8ca406140cd42afbecab3369f67f9f9e4fabc78b311ef479d83b732b",
+  "portraitWidth": 864,
+  "portraitHeight": 1152,
+  "physicalConfidence": {
+    "definition": "physical_confidence",
+    "score": 29,
+    "profile": "21-40",
+    "flirtatiousnessPercentage": 21,
+    "confidencePercentage": 52,
+    "flirtatiousnessWeight": 0.75,
+    "confidenceWeight": 0.25,
+    "source": "shipped_profile_library"
+  },
+  "derivativesReady": true,
+  "derivativeError": "",
+  "generatedUtc": "2026-07-17T19:10:26.2217360Z"
+}

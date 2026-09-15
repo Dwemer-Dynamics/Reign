@@ -1,0 +1,27 @@
+{
+  "version": 1,
+  "cacheKey": "Belithor (lord_1_42)",
+  "heroStringId": "lord_1_42",
+  "characterObjectId": "lord_1_42",
+  "characterName": "Belithor",
+  "provider": "AtlasCloud",
+  "model": "xai/grok-imagine-image/edit",
+  "adapter": "atlas upload/generate/poll",
+  "sourceSha256": "98f0846d2fda3ee0b86b89f4e6cd4f9cddaf722f2c8d5c484a89efaaa9d99ba8",
+  "portraitSha256": "0bf44385aa9ff6f78d5c65b1300fb76583e0f6340a2870d3f75ca98b046fbf11",
+  "portraitWidth": 832,
+  "portraitHeight": 1248,
+  "physicalConfidence": {
+    "definition": "physical_confidence",
+    "score": 48,
+    "profile": "41-60",
+    "flirtatiousnessPercentage": 38,
+    "confidencePercentage": 77,
+    "flirtatiousnessWeight": 0.75,
+    "confidenceWeight": 0.25,
+    "source": "shipped_profile_library"
+  },
+  "derivativesReady": true,
+  "derivativeError": "",
+  "generatedUtc": "2026-07-17T18:16:24.0598616Z"
+}

@@ -1,0 +1,27 @@
+{
+  "version": 1,
+  "cacheKey": "Liorela_Estrelacourt (reign_court_castle_V5_child_4)",
+  "heroStringId": "reign_court_castle_V5_child_4",
+  "characterObjectId": "reign_court_castle_V5_child_4",
+  "characterName": "Liorela Estrelacourt",
+  "provider": "AtlasCloud",
+  "model": "xai/grok-imagine-image/edit",
+  "adapter": "atlas upload/generate/poll",
+  "sourceSha256": "e10082b0efcfd360518c2c7739c0f1f5f9513f4cbd562ad3080a24d501a224b6",
+  "portraitSha256": "81510c708a2572caf1bd586dfae615ef5f6c1b454fbfcd2e53b3560b0a2a1558",
+  "portraitWidth": 864,
+  "portraitHeight": 1152,
+  "physicalConfidence": {
+    "definition": "physical_confidence",
+    "score": 48,
+    "profile": "41-60",
+    "flirtatiousnessPercentage": 44,
+    "confidencePercentage": 59,
+    "flirtatiousnessWeight": 0.75,
+    "confidenceWeight": 0.25,
+    "source": "shipped_profile_library"
+  },
+  "derivativesReady": true,
+  "derivativeError": "",
+  "generatedUtc": "2026-07-17T18:59:07.0504051Z"
+}

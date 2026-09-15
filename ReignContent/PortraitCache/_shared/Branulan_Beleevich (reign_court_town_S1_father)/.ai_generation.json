@@ -1,0 +1,27 @@
+{
+  "version": 1,
+  "cacheKey": "Branulan_Beleevich (reign_court_town_S1_father)",
+  "heroStringId": "reign_court_town_S1_father",
+  "characterObjectId": "reign_court_town_S1_father",
+  "characterName": "Branulan Beleevich",
+  "provider": "AtlasCloud",
+  "model": "xai/grok-imagine-image/edit",
+  "adapter": "atlas upload/generate/poll",
+  "sourceSha256": "3f0a442e29cc618b37492b86b2779dda3e34778ce03ba5b7bd75e02a810a667b",
+  "portraitSha256": "a4d5be4bd9923ac4e6b0df49f2153d88296ddc4ec0f1039e55cecdb98fe4e73d",
+  "portraitWidth": 864,
+  "portraitHeight": 1152,
+  "physicalConfidence": {
+    "definition": "physical_confidence",
+    "score": 84,
+    "profile": "81-100",
+    "flirtatiousnessPercentage": 80,
+    "confidencePercentage": 95,
+    "flirtatiousnessWeight": 0.75,
+    "confidenceWeight": 0.25,
+    "source": "shipped_profile_library"
+  },
+  "derivativesReady": true,
+  "derivativeError": "",
+  "generatedUtc": "2026-07-17T18:19:18.8824598Z"
+}

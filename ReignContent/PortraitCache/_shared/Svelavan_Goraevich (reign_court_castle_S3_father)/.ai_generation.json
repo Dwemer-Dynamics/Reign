@@ -1,0 +1,27 @@
+{
+  "version": 1,
+  "cacheKey": "Svelavan_Goraevich (reign_court_castle_S3_father)",
+  "heroStringId": "reign_court_castle_S3_father",
+  "characterObjectId": "reign_court_castle_S3_father",
+  "characterName": "Svelavan Goraevich",
+  "provider": "AtlasCloud",
+  "model": "xai/grok-imagine-image/edit",
+  "adapter": "atlas upload/generate/poll",
+  "sourceSha256": "f319a981e2c4dac17d7c0df82dccf8cb23c54ca5df224fdd8777d8b49f8c434a",
+  "portraitSha256": "5c5e4dc75fa684228a16760fbbcaf43da6e1ffb379805bd134c454c35552123d",
+  "portraitWidth": 864,
+  "portraitHeight": 1152,
+  "physicalConfidence": {
+    "definition": "physical_confidence",
+    "score": 39,
+    "profile": "21-40",
+    "flirtatiousnessPercentage": 34,
+    "confidencePercentage": 53,
+    "flirtatiousnessWeight": 0.75,
+    "confidenceWeight": 0.25,
+    "source": "shipped_profile_library"
+  },
+  "derivativesReady": true,
+  "derivativeError": "",
+  "generatedUtc": "2026-07-17T19:15:09.9093528Z"
+}

@@ -1,0 +1,13 @@
+{
+  "version": 1,
+  "heroStringId": "lord_2_19",
+  "characterName": "Vashorki",
+  "imagePath": "portrait.png",
+  "imageSha256": "6DB845A4C2AAD7817C0FF2278F7EBA1BC7FB3FC89D855D64EDEB9DAB07A543E9",
+  "description": "Culturally appropriate everyday Sturgian minor-lord attire inspired by refined medieval Rus and Slavic noble clothing. Men should wear a well-made long shirt beneath a tailored wool kaftan or long belted coat, decorated with fine geometric embroidery and quality trim. Women should wear a long embroidered shift with an elegant wool overdress or noble coat-dress, secured with a richly woven sash. Include subtle fur trim around collars or cuffs, tasteful clasps, and better-quality fabric than a landowner would wear. The clothing should remain practical for a northern climate while clearly showing noble rank. No headgear of any kind. No armor, weapons, crowns, ceremonial robes, or oversized fur displays.",
+  "status": "failed",
+  "descriptionSource": "portrait_prompt_fallback",
+  "retryEligible": true,
+  "error": "{\"error\":{\"message\":\"Model \\\"zai-org/glm-5.2\\\" does not support image inputs. Remove image content or choose a multimodal model.\",\"type\":\"invalid_request_error\",\"param\":\"messages\",\"code\":\"image_input_not_supported\"}}",
+  "updatedUtc": "2026-07-18T22:03:35.4661185Z"
+}

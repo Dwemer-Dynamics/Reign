@@ -1,0 +1,27 @@
+{
+  "version": 1,
+  "cacheKey": "Esachei (lord_6_21_1)",
+  "heroStringId": "lord_6_21_1",
+  "characterObjectId": "lord_6_21_1",
+  "characterName": "Esachei",
+  "provider": "AtlasCloud",
+  "model": "xai/grok-imagine-image/edit",
+  "adapter": "atlas upload/generate/poll",
+  "sourceSha256": "89c64d5af5ca461e1f7769d5a24e81895c27cf03e553b91deb3ddc10c805d00b",
+  "portraitSha256": "9367a77445ee167277f6c3617cef44f7c80574718e174ee09d551a02b50307e9",
+  "portraitWidth": 832,
+  "portraitHeight": 1248,
+  "physicalConfidence": {
+    "definition": "physical_confidence",
+    "score": 64,
+    "profile": "61-80",
+    "flirtatiousnessPercentage": 66,
+    "confidencePercentage": 57,
+    "flirtatiousnessWeight": 0.75,
+    "confidenceWeight": 0.25,
+    "source": "shipped_profile_library"
+  },
+  "derivativesReady": true,
+  "derivativeError": "",
+  "generatedUtc": "2026-07-17T18:35:08.5667386Z"
+}

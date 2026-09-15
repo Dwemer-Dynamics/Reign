@@ -1,0 +1,13 @@
+{
+  "version": 1,
+  "heroStringId": "lord_4_16_1",
+  "characterName": "Mitela",
+  "imagePath": "portrait.png",
+  "imageSha256": "1AE5E0827F5B67F2E33F601F524EC19BB7472770454DD8732250BCDC5ABFF990",
+  "description": "Culturally appropriate everyday Vlandian high-noble attire inspired by wealthy Norman and Frankish aristocratic dress. Use luxurious fine wool and linen, expertly tailored layers, richly cut outer tunics or gowns, refined belts, decorative borders, subtle heraldic embroidery, and elegant fastenings. Men should wear a long tailored tunic or refined surcoat-style outer layer over fine linen and well-fitted chausses. Women should wear a fitted noble gown layered over a high-quality underdress, with graceful sleeves, refined trim, and tasteful jewelry. The outfit should feel expensive and powerful while remaining believable everyday noble wear. No headgear of any kind. No armor, weapons, crowns, or ceremonial regalia.",
+  "status": "failed",
+  "descriptionSource": "portrait_prompt_fallback",
+  "retryEligible": true,
+  "error": "{\"error\":{\"message\":\"Model \\\"zai-org/glm-5.2\\\" does not support image inputs. Remove image content or choose a multimodal model.\",\"type\":\"invalid_request_error\",\"param\":\"messages\",\"code\":\"image_input_not_supported\"}}",
+  "updatedUtc": "2026-07-18T22:03:32.7118982Z"
+}

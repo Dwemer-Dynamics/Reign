@@ -1,0 +1,92 @@
+{
+  "version": 1,
+  "inputHash": "da1702b0ba6e7045a27d0968bb958a2fdf9339a582ae0380ce448dde0c9c68c8",
+  "catalogHash": "12142c0ab28d2678b12b852b086450dcc4eea45e2e8a080f3baa85c42f7fb3a2",
+  "renderContractHash": "cc3b941e7d47057de9b4220f1473336e6f908719812bb2653b83bd3545cfbd2f",
+  "cacheKey": "Garios (lord_1_7)",
+  "heroStringId": "lord_1_7",
+  "characterObjectId": "lord_1_7",
+  "characterName": "Garios",
+  "ageYears": 43,
+  "cultureId": "empire",
+  "cultureName": "Imperial",
+  "gender": "man",
+  "clanId": "clan_empire_west_1",
+  "clanTier": 6,
+  "clanProvenance": "reign_profile_library",
+  "socialStation": "high noble",
+  "occupation": "Lord",
+  "archetype": "lord",
+  "isLord": true,
+  "isNotable": false,
+  "isWanderer": false,
+  "isAlive": true,
+  "sourceModule": "Native",
+  "sourceFile": "Modules/SandBox/ModuleData/lords.xml",
+  "profileSource": "native_sandbox",
+  "profilePackVersion": "reign_profiles_v4",
+  "bodyKey": "0011700FC0FC028F96938148227587B6674886898A943687452B87978A7875940007565A0F889888000000000000000000000000000000000000000000F48040",
+  "bodyWeight": 0.7,
+  "bodyBuild": 0.9,
+  "faceTemplateId": "",
+  "faceGenerationVersion": "native_authored",
+  "civilianTemplate": "w_emp_king_template_civ_m",
+  "civilianEquipment": [
+    {
+      "slot": "Body",
+      "itemId": "imperial_robes"
+    },
+    {
+      "slot": "Cape",
+      "itemId": "empire_cape_a"
+    },
+    {
+      "slot": "Leg",
+      "itemId": "fine_town_boots"
+    }
+  ],
+  "headgearSuppressed": true,
+  "physicalConfidence": {
+    "definition": "physical_confidence",
+    "score": 90,
+    "profile": "81-100",
+    "flirtatiousnessPercentage": 87,
+    "confidencePercentage": 98,
+    "flirtatiousnessWeight": 0.75,
+    "confidenceWeight": 0.25,
+    "source": "shipped_profile_library"
+  },
+  "renderPreset": "ai_source_wan_portrait_v5",
+  "renderWidth": 1536,
+  "renderHeight": 2048,
+  "sourceWidth": 768,
+  "sourceHeight": 1024,
+  "cropScale": 0.24,
+  "cropWidthRatio": 0.75,
+  "cropCenterYRatio": 0.324,
+  "cameraPitchDegrees": 4,
+  "sourceSha256": "b84fc0e891635bdcb6fd28a02e3a3ccd4bb95743c4fe197d285c70b6af74c413",
+  "sourceFileName": "source.png",
+  "generationEndpoint": "/portraits/generate",
+  "campaignIdSource": "active_campaign_at_generation_time",
+  "promptDeferred": true,
+  "sourceImageBase64From": "source.png",
+  "outputSizeOverride": "",
+  "promptPurpose": "portrait",
+  "nativePhysique": {
+    "schema": "reign-native-physique-v1",
+    "weight": 0.7,
+    "build": 0.9,
+    "weightSource": "shared_portrait_input.bodyWeight",
+    "buildSource": "shared_portrait_input.bodyBuild",
+    "sourceSha256": "b84fc0e891635bdcb6fd28a02e3a3ccd4bb95743c4fe197d285c70b6af74c413",
+    "provenance": {
+      "kind": "saved_character_metadata_backfill",
+      "heroStringId": "lord_1_7",
+      "profileSource": "native_sandbox",
+      "profilePackVersion": "reign_profiles_v4",
+      "originalInputSha256": "96e88fc63c6fea5049c8db220681f85c4eeb12bb50d3d833ae6ddd40ebee493f",
+      "rendererReexecuted": false
+    }
+  }
+}

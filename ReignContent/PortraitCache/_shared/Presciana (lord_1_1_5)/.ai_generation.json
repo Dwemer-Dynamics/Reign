@@ -1,0 +1,27 @@
+{
+  "version": 1,
+  "cacheKey": "Presciana (lord_1_1_5)",
+  "heroStringId": "lord_1_1_5",
+  "characterObjectId": "lord_1_1_5",
+  "characterName": "Presciana",
+  "provider": "AtlasCloud",
+  "model": "xai/grok-imagine-image/edit",
+  "adapter": "atlas upload/generate/poll",
+  "sourceSha256": "1465910af83924005b54356aa076f1a82f7075334b3bd0a91256fe43a70c4242",
+  "portraitSha256": "443dc85e3ebd61c2f3d958821d6c1b5b6ce6eccf1d52984a5a82efeec15b460e",
+  "portraitWidth": 832,
+  "portraitHeight": 1248,
+  "physicalConfidence": {
+    "definition": "physical_confidence",
+    "score": 61,
+    "profile": "61-80",
+    "flirtatiousnessPercentage": 61,
+    "confidencePercentage": 60,
+    "flirtatiousnessWeight": 0.75,
+    "confidenceWeight": 0.25,
+    "source": "shipped_profile_library"
+  },
+  "derivativesReady": true,
+  "derivativeError": "",
+  "generatedUtc": "2026-07-17T19:09:39.9418030Z"
+}

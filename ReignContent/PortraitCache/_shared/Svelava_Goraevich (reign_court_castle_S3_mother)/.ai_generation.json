@@ -1,0 +1,27 @@
+{
+  "version": 1,
+  "cacheKey": "Svelava_Goraevich (reign_court_castle_S3_mother)",
+  "heroStringId": "reign_court_castle_S3_mother",
+  "characterObjectId": "reign_court_castle_S3_mother",
+  "characterName": "Svelava Goraevich",
+  "provider": "AtlasCloud",
+  "model": "xai/grok-imagine-image/edit",
+  "adapter": "atlas upload/generate/poll",
+  "sourceSha256": "684da88fddd08baf3b063cc4aa63dbfe7c32a7687a24fecfdaf3d416e071316a",
+  "portraitSha256": "cdb81bdb2cf050bf066ada678e39d74a88792c9cd5d83c67d17bba59433792ed",
+  "portraitWidth": 864,
+  "portraitHeight": 1152,
+  "physicalConfidence": {
+    "definition": "physical_confidence",
+    "score": 50,
+    "profile": "41-60",
+    "flirtatiousnessPercentage": 47,
+    "confidencePercentage": 58,
+    "flirtatiousnessWeight": 0.75,
+    "confidenceWeight": 0.25,
+    "source": "shipped_profile_library"
+  },
+  "derivativesReady": true,
+  "derivativeError": "",
+  "generatedUtc": "2026-07-17T19:15:09.7420171Z"
+}

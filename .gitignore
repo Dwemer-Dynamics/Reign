@@ -18,6 +18,12 @@
 /PortraitCache/
 **/PortraitCache/
 
+# Approved shipped portrait seed content is authoritative private source.
+!/ReignContent/
+!/ReignContent/PortraitCache/
+!/ReignContent/PortraitCache/_shared/
+!/ReignContent/PortraitCache/_shared/**
+
 # Runtime installation, deployment, campaign, and backup state
 /ReignBeta/staging/
 /ReignBeta/server/

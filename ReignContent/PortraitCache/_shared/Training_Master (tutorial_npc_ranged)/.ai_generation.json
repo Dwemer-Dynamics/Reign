@@ -1,0 +1,27 @@
+{
+  "version": 1,
+  "cacheKey": "Training_Master (tutorial_npc_ranged)",
+  "heroStringId": "tutorial_npc_ranged",
+  "characterObjectId": "tutorial_npc_ranged",
+  "characterName": "Training Master",
+  "provider": "AtlasCloud",
+  "model": "xai/grok-imagine-image/edit",
+  "adapter": "atlas upload/generate/poll",
+  "sourceSha256": "c6b0d5e39174524b05ae97801a9f4cd3baa2b9a2af02dd57c6ec98d0a875292e",
+  "portraitSha256": "418be5ce05f69fb968fdf9d3b13d39c6507b15bd42e66c7410f867f18de6081e",
+  "portraitWidth": 864,
+  "portraitHeight": 1152,
+  "physicalConfidence": {
+    "definition": "physical_confidence",
+    "score": 50,
+    "profile": "41-60",
+    "flirtatiousnessPercentage": 50,
+    "confidencePercentage": 50,
+    "flirtatiousnessWeight": 0.75,
+    "confidenceWeight": 0.25,
+    "source": "neutral_fallback"
+  },
+  "derivativesReady": true,
+  "derivativeError": "",
+  "generatedUtc": "2026-07-17T19:18:42.2637578Z"
+}

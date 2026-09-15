@@ -1,0 +1,27 @@
+{
+  "version": 1,
+  "cacheKey": "Hadromic_Belmontecourt (reign_court_town_V2_child_3)",
+  "heroStringId": "reign_court_town_V2_child_3",
+  "characterObjectId": "reign_court_town_V2_child_3",
+  "characterName": "Hadromic Belmontecourt",
+  "provider": "AtlasCloud",
+  "model": "xai/grok-imagine-image/edit",
+  "adapter": "atlas upload/generate/poll",
+  "sourceSha256": "eef5f4748113827452d04a142c7824ba46ace89b2f02eaf01b169848d30170b5",
+  "portraitSha256": "22ad6994b421b86eedac484b98e30fdb628105230648f88b255181554405739b",
+  "portraitWidth": 864,
+  "portraitHeight": 1152,
+  "physicalConfidence": {
+    "definition": "physical_confidence",
+    "score": 18,
+    "profile": "00-20",
+    "flirtatiousnessPercentage": 5,
+    "confidencePercentage": 55,
+    "flirtatiousnessWeight": 0.75,
+    "confidenceWeight": 0.25,
+    "source": "shipped_profile_library"
+  },
+  "derivativesReady": true,
+  "derivativeError": "",
+  "generatedUtc": "2026-07-17T18:41:42.0342987Z"
+}

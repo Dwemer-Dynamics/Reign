@@ -1,0 +1,27 @@
+{
+  "version": 1,
+  "cacheKey": "Areliana (lord_1_69_1)",
+  "heroStringId": "lord_1_69_1",
+  "characterObjectId": "lord_1_69_1",
+  "characterName": "Areliana",
+  "provider": "AtlasCloud",
+  "model": "xai/grok-imagine-image/edit",
+  "adapter": "atlas upload/generate/poll",
+  "sourceSha256": "acf1f02c17409f8ffe56988f396f815a666f84c27c1bdb7a3159dad5756dcf4e",
+  "portraitSha256": "dd8016b9087d954840646b1e622b227292177adc5fd4bb720238129ab5f98db9",
+  "portraitWidth": 912,
+  "portraitHeight": 1136,
+  "physicalConfidence": {
+    "definition": "physical_confidence",
+    "score": 28,
+    "profile": "21-40",
+    "flirtatiousnessPercentage": 21,
+    "confidencePercentage": 48,
+    "flirtatiousnessWeight": 0.75,
+    "confidenceWeight": 0.25,
+    "source": "shipped_profile_library"
+  },
+  "derivativesReady": true,
+  "derivativeError": "",
+  "generatedUtc": "2026-07-17T18:13:33.4162857Z"
+}

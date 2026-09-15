@@ -1,0 +1,27 @@
+{
+  "version": 1,
+  "cacheKey": "Gnevena_Karsaevich (reign_court_castle_S4_child_2)",
+  "heroStringId": "reign_court_castle_S4_child_2",
+  "characterObjectId": "reign_court_castle_S4_child_2",
+  "characterName": "Gnevena Karsaevich",
+  "provider": "AtlasCloud",
+  "model": "xai/grok-imagine-image/edit",
+  "adapter": "atlas upload/generate/poll",
+  "sourceSha256": "6369195adca8b4cdf404897d2e319c2358bd88ca16dfa7f1f3fed7274626b5c6",
+  "portraitSha256": "700a6afa9343e56f154af337a5f08d41d42698b9fa67b5b4c17541cd149544ec",
+  "portraitWidth": 864,
+  "portraitHeight": 1152,
+  "physicalConfidence": {
+    "definition": "physical_confidence",
+    "score": 62,
+    "profile": "61-80",
+    "flirtatiousnessPercentage": 52,
+    "confidencePercentage": 91,
+    "flirtatiousnessWeight": 0.75,
+    "confidenceWeight": 0.25,
+    "source": "shipped_profile_library"
+  },
+  "derivativesReady": true,
+  "derivativeError": "",
+  "generatedUtc": "2026-07-17T18:39:05.2788965Z"
+}

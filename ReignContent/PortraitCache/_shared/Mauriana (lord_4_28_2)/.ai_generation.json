@@ -1,0 +1,27 @@
+{
+  "version": 1,
+  "cacheKey": "Mauriana (lord_4_28_2)",
+  "heroStringId": "lord_4_28_2",
+  "characterObjectId": "lord_4_28_2",
+  "characterName": "Mauriana",
+  "provider": "AtlasCloud",
+  "model": "xai/grok-imagine-image/edit",
+  "adapter": "atlas upload/generate/poll",
+  "sourceSha256": "96b0a4e3a25fe77e28c13d05d932c85fe0c47d27bbe5033b29d5974c1d97111f",
+  "portraitSha256": "d640722f1a12cb84e469485959768e5a4d4eb13fbef8f07695b0ba7f16f50f7c",
+  "portraitWidth": 832,
+  "portraitHeight": 1248,
+  "physicalConfidence": {
+    "definition": "physical_confidence",
+    "score": 75,
+    "profile": "61-80",
+    "flirtatiousnessPercentage": 86,
+    "confidencePercentage": 41,
+    "flirtatiousnessWeight": 0.75,
+    "confidenceWeight": 0.25,
+    "source": "shipped_profile_library"
+  },
+  "derivativesReady": true,
+  "derivativeError": "",
+  "generatedUtc": "2026-07-17T19:01:52.7716332Z"
+}

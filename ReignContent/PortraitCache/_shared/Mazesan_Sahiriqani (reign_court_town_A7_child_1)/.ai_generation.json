@@ -1,0 +1,27 @@
+{
+  "version": 1,
+  "cacheKey": "Mazesan_Sahiriqani (reign_court_town_A7_child_1)",
+  "heroStringId": "reign_court_town_A7_child_1",
+  "characterObjectId": "reign_court_town_A7_child_1",
+  "characterName": "Mazesan Sahiriqani",
+  "provider": "AtlasCloud",
+  "model": "xai/grok-imagine-image/edit",
+  "adapter": "atlas upload/generate/poll",
+  "sourceSha256": "059c263b07e96eda1ebdded5d1fef9dda97d2c3860da7c7c6cf4c1565fa5c0bb",
+  "portraitSha256": "726fd6e928009a9c3aeef9dec9eb9c480bcc5ac4d6a8376eea296fef17b0b3fc",
+  "portraitWidth": 864,
+  "portraitHeight": 1152,
+  "physicalConfidence": {
+    "definition": "physical_confidence",
+    "score": 44,
+    "profile": "41-60",
+    "flirtatiousnessPercentage": 42,
+    "confidencePercentage": 49,
+    "flirtatiousnessWeight": 0.75,
+    "confidenceWeight": 0.25,
+    "source": "shipped_profile_library"
+  },
+  "derivativesReady": true,
+  "derivativeError": "",
+  "generatedUtc": "2026-07-17T19:02:06.6506628Z"
+}

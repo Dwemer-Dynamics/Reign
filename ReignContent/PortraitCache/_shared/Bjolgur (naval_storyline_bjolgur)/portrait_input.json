@@ -1,0 +1,92 @@
+{
+  "version": 1,
+  "inputHash": "ffa42d983c04f488df4db96e1dcfdaff852fc55d839a1a2379e00056e40cc112",
+  "catalogHash": "12142c0ab28d2678b12b852b086450dcc4eea45e2e8a080f3baa85c42f7fb3a2",
+  "renderContractHash": "cc3b941e7d47057de9b4220f1473336e6f908719812bb2653b83bd3545cfbd2f",
+  "cacheKey": "Bjolgur (naval_storyline_bjolgur)",
+  "heroStringId": "naval_storyline_bjolgur",
+  "characterObjectId": "naval_storyline_bjolgur",
+  "characterName": "Bjolgur",
+  "ageYears": 65,
+  "cultureId": "nord",
+  "cultureName": "Nord",
+  "gender": "man",
+  "clanId": "none",
+  "clanTier": null,
+  "clanProvenance": "not_defined_in_module_heroes_xml",
+  "socialStation": "unranked",
+  "occupation": "Wanderer",
+  "archetype": "wanderer",
+  "isLord": false,
+  "isNotable": false,
+  "isWanderer": false,
+  "isAlive": null,
+  "sourceModule": "NavalDLC",
+  "sourceFile": "Modules/NavalDLC/ModuleData/naval_characters.xml",
+  "profileSource": "neutral_fallback",
+  "profilePackVersion": "",
+  "bodyKey": "0000440014B4379B7F7AAACB881050869762A48AD4D03F058585371B9383496906DE86680DE7427C000000000000000000000000000000000000000061AC10C2",
+  "bodyWeight": 0.56,
+  "bodyBuild": 0.963,
+  "faceTemplateId": "",
+  "faceGenerationVersion": "native_authored",
+  "civilianTemplate": "",
+  "civilianEquipment": [
+    {
+      "slot": "Body",
+      "itemId": "banded_leather_over_mail"
+    },
+    {
+      "slot": "Gloves",
+      "itemId": "studded_arm_guards"
+    },
+    {
+      "slot": "Leg",
+      "itemId": "eastern_leather_boots"
+    }
+  ],
+  "headgearSuppressed": true,
+  "physicalConfidence": {
+    "definition": "physical_confidence",
+    "score": 50,
+    "profile": "41-60",
+    "flirtatiousnessPercentage": 50,
+    "confidencePercentage": 50,
+    "flirtatiousnessWeight": 0.75,
+    "confidenceWeight": 0.25,
+    "source": "neutral_fallback"
+  },
+  "renderPreset": "ai_source_wan_portrait_v5",
+  "renderWidth": 1536,
+  "renderHeight": 2048,
+  "sourceWidth": 768,
+  "sourceHeight": 1024,
+  "cropScale": 0.24,
+  "cropWidthRatio": 0.75,
+  "cropCenterYRatio": 0.324,
+  "cameraPitchDegrees": 4,
+  "sourceSha256": "9f7b431439eaa3c5cd7b6806b6ea6798d4a59a120a1ce419f388efe57351b4c8",
+  "sourceFileName": "source.png",
+  "generationEndpoint": "/portraits/generate",
+  "campaignIdSource": "active_campaign_at_generation_time",
+  "promptDeferred": true,
+  "sourceImageBase64From": "source.png",
+  "outputSizeOverride": "",
+  "promptPurpose": "portrait",
+  "nativePhysique": {
+    "schema": "reign-native-physique-v1",
+    "weight": 0.56,
+    "build": 0.963,
+    "weightSource": "shared_portrait_input.bodyWeight",
+    "buildSource": "shared_portrait_input.bodyBuild",
+    "sourceSha256": "9f7b431439eaa3c5cd7b6806b6ea6798d4a59a120a1ce419f388efe57351b4c8",
+    "provenance": {
+      "kind": "saved_character_metadata_backfill",
+      "heroStringId": "naval_storyline_bjolgur",
+      "profileSource": "neutral_fallback",
+      "profilePackVersion": "",
+      "originalInputSha256": "618f42242efec4f73d3058f6556783df210965591ea48ada7c4e4e303fc62a24",
+      "rendererReexecuted": false
+    }
+  }
+}

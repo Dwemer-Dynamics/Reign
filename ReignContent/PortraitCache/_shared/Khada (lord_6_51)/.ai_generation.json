@@ -1,0 +1,27 @@
+{
+  "version": 1,
+  "cacheKey": "Khada (lord_6_51)",
+  "heroStringId": "lord_6_51",
+  "characterObjectId": "lord_6_51",
+  "characterName": "Khada",
+  "provider": "AtlasCloud",
+  "model": "xai/grok-imagine-image/edit",
+  "adapter": "atlas upload/generate/poll",
+  "sourceSha256": "286f6a35b3079734664332ab2ad8581e8f2a93990fb1fd2aa3c0a1e36eb91db4",
+  "portraitSha256": "b34f7b04f26116a8c05ace0237119a973c807d10d4a59d383a2b39966b562546",
+  "portraitWidth": 832,
+  "portraitHeight": 1248,
+  "physicalConfidence": {
+    "definition": "physical_confidence",
+    "score": 75,
+    "profile": "61-80",
+    "flirtatiousnessPercentage": 73,
+    "confidencePercentage": 80,
+    "flirtatiousnessWeight": 0.75,
+    "confidenceWeight": 0.25,
+    "source": "shipped_profile_library"
+  },
+  "derivativesReady": true,
+  "derivativeError": "",
+  "generatedUtc": "2026-07-17T18:47:11.9178639Z"
+}

@@ -1,0 +1,27 @@
+{
+  "version": 1,
+  "cacheKey": "Eabyr (lord_5_14_1)",
+  "heroStringId": "lord_5_14_1",
+  "characterObjectId": "lord_5_14_1",
+  "characterName": "Eabyr",
+  "provider": "AtlasCloud",
+  "model": "xai/grok-imagine-image/edit",
+  "adapter": "atlas upload/generate/poll",
+  "sourceSha256": "e7c2bf2928ec622905de939e31c8cbf2dee6a8739bfe3bbf046947fdfa1884de",
+  "portraitSha256": "6303501d4248ca5dfeaccd901f68313646790f98b9902d04b7b1bc210bf72cbb",
+  "portraitWidth": 832,
+  "portraitHeight": 1248,
+  "physicalConfidence": {
+    "definition": "physical_confidence",
+    "score": 58,
+    "profile": "41-60",
+    "flirtatiousnessPercentage": 53,
+    "confidencePercentage": 72,
+    "flirtatiousnessWeight": 0.75,
+    "confidenceWeight": 0.25,
+    "source": "shipped_profile_library"
+  },
+  "derivativesReady": true,
+  "derivativeError": "",
+  "generatedUtc": "2026-07-17T18:31:01.0399264Z"
+}

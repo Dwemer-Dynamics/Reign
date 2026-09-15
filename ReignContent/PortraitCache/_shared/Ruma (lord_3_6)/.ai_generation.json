@@ -1,0 +1,27 @@
+{
+  "version": 1,
+  "cacheKey": "Ruma (lord_3_6)",
+  "heroStringId": "lord_3_6",
+  "characterObjectId": "lord_3_6",
+  "characterName": "Ruma",
+  "provider": "AtlasCloud",
+  "model": "xai/grok-imagine-image/edit",
+  "adapter": "atlas upload/generate/poll",
+  "sourceSha256": "e863e5d2d139ec75e9f7f61a808219b1ad1eddd776cc8e4cd3949b175812c2d9",
+  "portraitSha256": "3e956065b9089a0358fe5b7fd298f016765b6786537fd7cbb669ed75e32f0aef",
+  "portraitWidth": 832,
+  "portraitHeight": 1248,
+  "physicalConfidence": {
+    "definition": "physical_confidence",
+    "score": 50,
+    "profile": "41-60",
+    "flirtatiousnessPercentage": 50,
+    "confidencePercentage": 49,
+    "flirtatiousnessWeight": 0.75,
+    "confidenceWeight": 0.25,
+    "source": "shipped_profile_library"
+  },
+  "derivativesReady": true,
+  "derivativeError": "",
+  "generatedUtc": "2026-07-17T19:11:52.5781206Z"
+}

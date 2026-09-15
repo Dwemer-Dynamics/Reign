@@ -1,0 +1,27 @@
+{
+  "version": 1,
+  "cacheKey": "Eselen (lord_6_22_1)",
+  "heroStringId": "lord_6_22_1",
+  "characterObjectId": "lord_6_22_1",
+  "characterName": "Eselen",
+  "provider": "AtlasCloud",
+  "model": "xai/grok-imagine-image/edit",
+  "adapter": "atlas upload/generate/poll",
+  "sourceSha256": "ed1e8c00c6c10d9a0fb50774009caee2f37e6f6b2abbb770f2bffcba7dffc129",
+  "portraitSha256": "0988a18c14a9e8f033e7047dd8169802cadfd2c32d140311f356cfb09c155490",
+  "portraitWidth": 832,
+  "portraitHeight": 1248,
+  "physicalConfidence": {
+    "definition": "physical_confidence",
+    "score": 64,
+    "profile": "61-80",
+    "flirtatiousnessPercentage": 67,
+    "confidencePercentage": 54,
+    "flirtatiousnessWeight": 0.75,
+    "confidenceWeight": 0.25,
+    "source": "shipped_profile_library"
+  },
+  "derivativesReady": true,
+  "derivativeError": "",
+  "generatedUtc": "2026-07-17T18:35:09.1957287Z"
+}

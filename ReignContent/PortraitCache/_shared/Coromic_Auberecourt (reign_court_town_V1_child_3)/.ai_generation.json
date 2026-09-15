@@ -1,0 +1,27 @@
+{
+  "version": 1,
+  "cacheKey": "Coromic_Auberecourt (reign_court_town_V1_child_3)",
+  "heroStringId": "reign_court_town_V1_child_3",
+  "characterObjectId": "reign_court_town_V1_child_3",
+  "characterName": "Coromic Auberecourt",
+  "provider": "AtlasCloud",
+  "model": "xai/grok-imagine-image/edit",
+  "adapter": "atlas upload/generate/poll",
+  "sourceSha256": "4cd1a790f557e81eeb70b70259ee7a030985d917c102b3f4bc4cc115cf6569f4",
+  "portraitSha256": "397a9d3b218c9199980e66795fc3e0249b2a40cd8b75466f13fd533a88065d7c",
+  "portraitWidth": 864,
+  "portraitHeight": 1152,
+  "physicalConfidence": {
+    "definition": "physical_confidence",
+    "score": 44,
+    "profile": "41-60",
+    "flirtatiousnessPercentage": 41,
+    "confidencePercentage": 52,
+    "flirtatiousnessWeight": 0.75,
+    "confidenceWeight": 0.25,
+    "source": "shipped_profile_library"
+  },
+  "derivativesReady": true,
+  "derivativeError": "",
+  "generatedUtc": "2026-07-17T18:24:20.8600450Z"
+}

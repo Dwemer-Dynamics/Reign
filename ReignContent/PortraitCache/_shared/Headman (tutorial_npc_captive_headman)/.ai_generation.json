@@ -1,0 +1,27 @@
+{
+  "version": 1,
+  "cacheKey": "Headman (tutorial_npc_captive_headman)",
+  "heroStringId": "tutorial_npc_captive_headman",
+  "characterObjectId": "tutorial_npc_captive_headman",
+  "characterName": "Headman",
+  "provider": "AtlasCloud",
+  "model": "xai/grok-imagine-image/edit",
+  "adapter": "atlas upload/generate/poll",
+  "sourceSha256": "5ae3bbf12b55256ff35f4ce7cfee402914e2b574f3a57a592bbcf399f163de71",
+  "portraitSha256": "0e6525589cf7ce3b2c5db84db0274d2fbf9f15ac2e50fbe0f63e9f8f03db2a2e",
+  "portraitWidth": 864,
+  "portraitHeight": 1152,
+  "physicalConfidence": {
+    "definition": "physical_confidence",
+    "score": 50,
+    "profile": "41-60",
+    "flirtatiousnessPercentage": 50,
+    "confidencePercentage": 50,
+    "flirtatiousnessWeight": 0.75,
+    "confidenceWeight": 0.25,
+    "source": "neutral_fallback"
+  },
+  "derivativesReady": true,
+  "derivativeError": "",
+  "generatedUtc": "2026-07-17T18:43:07.9919151Z"
+}

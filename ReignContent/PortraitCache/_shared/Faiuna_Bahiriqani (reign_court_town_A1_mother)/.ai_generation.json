@@ -1,0 +1,27 @@
+{
+  "version": 1,
+  "cacheKey": "Faiuna_Bahiriqani (reign_court_town_A1_mother)",
+  "heroStringId": "reign_court_town_A1_mother",
+  "characterObjectId": "reign_court_town_A1_mother",
+  "characterName": "Faiuna Bahiriqani",
+  "provider": "AtlasCloud",
+  "model": "xai/grok-imagine-image/edit",
+  "adapter": "atlas upload/generate/poll",
+  "sourceSha256": "744442a45d5acb5a66496a85783478e84135d230234b4acf9bcdfd716377eb72",
+  "portraitSha256": "3cb64383d7f6553171abe0beb81fe5a403f156c6e4543c4f6e45228a15ffcab9",
+  "portraitWidth": 864,
+  "portraitHeight": 1152,
+  "physicalConfidence": {
+    "definition": "physical_confidence",
+    "score": 60,
+    "profile": "41-60",
+    "flirtatiousnessPercentage": 67,
+    "confidencePercentage": 38,
+    "flirtatiousnessWeight": 0.75,
+    "confidenceWeight": 0.25,
+    "source": "shipped_profile_library"
+  },
+  "derivativesReady": true,
+  "derivativeError": "",
+  "generatedUtc": "2026-07-17T18:36:24.1418572Z"
+}

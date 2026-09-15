@@ -1,0 +1,27 @@
+{
+  "version": 1,
+  "cacheKey": "Sora (lord_1_32)",
+  "heroStringId": "lord_1_32",
+  "characterObjectId": "lord_1_32",
+  "characterName": "Sora",
+  "provider": "AtlasCloud",
+  "model": "xai/grok-imagine-image/edit",
+  "adapter": "atlas upload/generate/poll",
+  "sourceSha256": "150ab720e4578a584d935cd981cc17a10475ef5a3f8868d84c336bcf2e2f8202",
+  "portraitSha256": "3d075ea71bd9e00eafda2c6d46efac5a74f0d1ab45ba12d3309fd87c5f4c53f0",
+  "portraitWidth": 832,
+  "portraitHeight": 1248,
+  "physicalConfidence": {
+    "definition": "physical_confidence",
+    "score": 55,
+    "profile": "41-60",
+    "flirtatiousnessPercentage": 57,
+    "confidencePercentage": 48,
+    "flirtatiousnessWeight": 0.75,
+    "confidenceWeight": 0.25,
+    "source": "shipped_profile_library"
+  },
+  "derivativesReady": true,
+  "derivativeError": "",
+  "generatedUtc": "2026-07-17T19:14:37.1070833Z"
+}

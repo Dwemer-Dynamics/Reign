@@ -1,0 +1,27 @@
+{
+  "version": 1,
+  "cacheKey": "Safiman_Kashaqani (reign_court_castle_A6_father)",
+  "heroStringId": "reign_court_castle_A6_father",
+  "characterObjectId": "reign_court_castle_A6_father",
+  "characterName": "Safiman Kashaqani",
+  "provider": "AtlasCloud",
+  "model": "xai/grok-imagine-image/edit",
+  "adapter": "atlas upload/generate/poll",
+  "sourceSha256": "f45c8e52d0981b3bfa150f8322afb49c8881591849b415d8015efbb02e834f7b",
+  "portraitSha256": "40692cc60d29e127390af5998ff50ddcfecea40d704ae33204bee18f7beb33a6",
+  "portraitWidth": 864,
+  "portraitHeight": 1152,
+  "physicalConfidence": {
+    "definition": "physical_confidence",
+    "score": 64,
+    "profile": "61-80",
+    "flirtatiousnessPercentage": 65,
+    "confidencePercentage": 60,
+    "flirtatiousnessWeight": 0.75,
+    "confidenceWeight": 0.25,
+    "source": "shipped_profile_library"
+  },
+  "derivativesReady": true,
+  "derivativeError": "",
+  "generatedUtc": "2026-07-17T19:12:23.9487361Z"
+}

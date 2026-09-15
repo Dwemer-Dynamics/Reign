@@ -1,0 +1,27 @@
+{
+  "version": 1,
+  "cacheKey": "Agnathea (lord_1_1_13)",
+  "heroStringId": "lord_1_1_13",
+  "characterObjectId": "lord_1_1_13",
+  "characterName": "Agnathea",
+  "provider": "AtlasCloud",
+  "model": "xai/grok-imagine-image/edit",
+  "adapter": "atlas upload/generate/poll",
+  "sourceSha256": "77527f13e59f9552c424c5b4f77252e1483c86827a1f57fb23a0bbd163789993",
+  "portraitSha256": "e5265cc365b9ab36f40dacb00d1a4093b8b2477d5819067b710140f1364521f6",
+  "portraitWidth": 832,
+  "portraitHeight": 1248,
+  "physicalConfidence": {
+    "definition": "physical_confidence",
+    "score": 78,
+    "profile": "61-80",
+    "flirtatiousnessPercentage": 88,
+    "confidencePercentage": 47,
+    "flirtatiousnessWeight": 0.75,
+    "confidenceWeight": 0.25,
+    "source": "shipped_profile_library"
+  },
+  "derivativesReady": true,
+  "derivativeError": "",
+  "generatedUtc": "2026-07-17T18:10:18.3190410Z"
+}

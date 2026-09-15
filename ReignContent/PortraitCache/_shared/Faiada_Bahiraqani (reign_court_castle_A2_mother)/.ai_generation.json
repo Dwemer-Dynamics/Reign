@@ -1,0 +1,27 @@
+{
+  "version": 1,
+  "cacheKey": "Faiada_Bahiraqani (reign_court_castle_A2_mother)",
+  "heroStringId": "reign_court_castle_A2_mother",
+  "characterObjectId": "reign_court_castle_A2_mother",
+  "characterName": "Faiada Bahiraqani",
+  "provider": "AtlasCloud",
+  "model": "xai/grok-imagine-image/edit",
+  "adapter": "atlas upload/generate/poll",
+  "sourceSha256": "19951e8a206c062da95670438db937e12e5ed956761d8799c53e257880e11f13",
+  "portraitSha256": "f8cf765a003871f74b2f9fb866faa6938c7deee3138d48e09c07da48b75c7465",
+  "portraitWidth": 864,
+  "portraitHeight": 1152,
+  "physicalConfidence": {
+    "definition": "physical_confidence",
+    "score": 70,
+    "profile": "61-80",
+    "flirtatiousnessPercentage": 76,
+    "confidencePercentage": 51,
+    "flirtatiousnessWeight": 0.75,
+    "confidenceWeight": 0.25,
+    "source": "shipped_profile_library"
+  },
+  "derivativesReady": true,
+  "derivativeError": "",
+  "generatedUtc": "2026-07-17T18:35:53.6871098Z"
+}
