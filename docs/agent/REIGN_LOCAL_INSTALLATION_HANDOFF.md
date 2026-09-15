@@ -1,6 +1,6 @@
 # Installed Reign and performance handoff — 2026-09-14
 
-The complete new release package is installed and retained. The user's latest instruction replaces the earlier restore-after-test plan: keep the new client, server, dependencies and content, and migrate the original saves. The server is visibly running; Bannerlord is stopped. No native campaign was loaded or advanced and no paid provider calls were made during this installation/migration.
+The complete new release package is installed and retained. The user's latest instruction replaces the earlier restore-after-test plan: keep the new client, server, dependencies and content, and migrate the original saves. The later portrait-discovery repair below supersedes the original package identity. This task did not automatically load or advance a native campaign or make paid provider calls; the user independently tested a campaign and reported the discovery defect.
 
 ## Active installation and source
 
@@ -8,12 +8,13 @@ The complete new release package is installed and retained. The user's latest in
 |---|---|
 | Private client/integration checkout | `D:/Projects/Reign` — `https://github.com/Dwemer-Dynamics/Reign.git`, `main` |
 | Public server/shared/release checkout | `D:/Projects/ReignServer` — `https://github.com/Dwemer-Dynamics/ReignServer.git`, `main` |
-| Installed server version | `D:/Reign/ReignServer/versions/0.1.0-preview.1-c24cfc974de5` |
+| Installed server version | `D:/Reign/ReignServer/versions/0.1.0-preview.1-ddf9ece1fdd5` |
 | Player data | `D:/Reign/Data` |
 | Shared shipped content | `D:/Reign/Data/Content` |
 | Game | `D:/Program Files (x86)/Steam/steamapps/common/Mount & Blade II Bannerlord` |
 | Client and dependency modules | The game's `Modules` directory; the internal client identity remains `ReignBeta` |
-| Installation record | `C:/Users/speed/AppData/Local/Bannerlord Reign/installation.json` |
+| Installation record | `C:/Users/speed/.reign/installation.json` |
+| Installed bootstrap | `C:/Users/speed/.reign/setup` |
 | Live native saves | `C:/Users/speed/Documents/Mount and Blade II Bannerlord/Game Saves` |
 | Preserved game save archive | `C:/Users/speed/Documents/Mount and Blade II Bannerlord/Reign Save Archive` |
 | Transfer package | `D:/ReignLaunch/Ready/Reign-0.1.0-preview.1` |
@@ -26,13 +27,25 @@ All future source changes and commits belong to the two D: checkouts. Five decla
 
 ## Exact installed artifact and verification
 
-Artifact source commits are Reign `ea18cb82712aa9dc75479a8a5e542764d0cf8912` and ReignServer `85541f189d1c073640563fdc8839c4fec41a6090`. Later documentation-only commits are recorded separately in `D:/ReignLaunch/source-commit-pair.json`. No repository or package has been uploaded. The local release is version `0.1.0-preview.1`, protocol 1, content `2026.09.14`.
+Artifact source commits are Reign `f723666ea9f1b6e2708c642af72ad714cbd6fdda` and ReignServer `98c7776c0912bb9ed3813e8e7d4ce5d4c769c551`. Later documentation-only commits are recorded separately in `D:/ReignLaunch/source-commit-pair.json`. No repository or package has been uploaded. The local release is version `0.1.0-preview.1`, protocol 1, content `2026.09.14`.
 
-Full validation `20260914-215942-32f76582` passed **all / Release / Tier 4** in **747.558 seconds** by report timestamps: 21 projects, 22 operations, 601 MCP tests, 11 relationship tests, 23 editor tests, 75 renderer tests and 155/155 offline checks. Fingerprint: `c24cfc974de5a1a1d27591da55010acd3ac5a95664cdb6d04e6242d7c8458417`. Reports are `validation-report.json` and `repository-hygiene-report.json` under `D:/Projects/Reign/.codex-build/reign-mcp/validation/20260914-215942-32f76582/`; enforced paired hygiene had 3,961 tracked files and zero issues.
+Full validation `20260914-235951-39fb0dc0` passed **all / Release / Tier 4** in **678.062 seconds** by report timestamps: 21 projects, 22 operations, 603 MCP tests, 11 relationship tests, 23 editor tests, 75 renderer tests and 155/155 offline checks. Fingerprint: `ddf9ece1fdd5e180c14aeabbca1c557aaf94ada6a415bb7734ae205d6c75b0a2`. Reports are `validation-report.json` and `repository-hygiene-report.json` under `D:/Projects/Reign/.codex-build/reign-mcp/validation/20260914-235951-39fb0dc0/`; enforced paired hygiene had 3,962 tracked files and zero issues.
 
-Canonical package `20260914-221428-e7565d49` passed in 330.312 seconds with that fingerprint. `package-report.json` and `assembly-proof.json` are under `D:/Projects/Reign/.codex-build/reign-mcp/release-package/20260914-221428-e7565d49/`. The transfer folder has 14 files / 6,427,660,374 bytes. Setup SHA-256: `daab3872125876e37ade09e9c5f800db2d697b044c0035d275ab29d5ddf72e74`. NTFS hard links avoid an extra local payload copy; copying to another volume materializes independent bytes.
+Canonical package `20260915-001229-053ba96a` passed in 302.701 seconds with that fingerprint. `package-report.json` and `assembly-proof.json` are under `D:/Projects/Reign/.codex-build/reign-mcp/release-package/20260915-001229-053ba96a/`. The transfer folder has 14 files / 6,427,666,449 bytes. Setup SHA-256: `3c72a9496c0761e550d77b07e9351b909a2325645e68fa07bdefd3d3daf6a0aa`. NTFS hard links avoid an extra local payload copy; copying to another volume materializes independent bytes.
 
-Fresh installation evidence is under `D:/ReignLaunch/acceptance/real-install-20260914/`:
+## Portrait-discovery repair — 2026-09-14
+
+The former apparent LocalAppData record physically lived under Codex's MSIX private `LocalCache/Local` directory. The server inherited its merged view, while the normally launched game could not see the record and fell back to the missing module-relative `_shared` folder. The actual portrait files were present. Setup and both runtime consumers now share `%USERPROFILE%/.reign/installation.json`, with installation defaults outside AppData and a real-file handle check that rejects redirected writes. Repair adopted the previous record's verified ownership and kept the existing D: program/data roots. Updated components never fall back to the preserved old record.
+
+Evidence is under `D:/ReignLaunch/portrait-discovery-fix-20260914/`. `normal-process-before.json` reproduces missing discovery in an independent WMI-launched .NET Framework process. `normal-process-after.json` uses the newly installed contract with no Reign environment overrides: the record is visible, the module root matches, all 1,228 shared portrait directories are found at `D:/Reign/Data/Content/PortraitCache/_shared`, and writable portraits resolve to `D:/Reign/Data/PortraitCache`. The actual compiled wizard passed failure/exit 1 and repair/success/exit 0; its completed transaction is `D:/Reign/Data/setup/c8344755567d4868885ba67f5859a7c9.json`. Both desktop server shortcuts now select `.reign/setup/Start-ReignServer.ps1`.
+
+The prior transfer package remains at `D:/ReignLaunch/recovery/portrait-discovery-package8`. The prior installed server version remains in `versions/0.1.0-preview.1-c24cfc974de5`; the prior client and recent game-side logs remain in `Modules/ReignBeta.reign-old-c8344755567d4868885ba67f5859a7c9`. Earlier records, receipts, shortcut bytes and provenance are preserved in the repair evidence root. The original save migration below remains authoritative. Normal-process discovery proof does not replace the user's in-game portrait/save-reload acceptance or another-computer testing.
+
+Post-repair proof verified all 16,757 installed file hashes and 12,278 shared portrait timestamps. All 120,761 inventoried player files / 4,293,902,310 bytes retained their hashes and modification times, including native saves, Save Sync, campaign files, settings, prompts and personal portraits; database/runtime caches were outside that file comparison. The installed shortcut was then launched from the normal Windows process context without a preconfigured installation override. ReignServer PID 8604 and its visible dedicated Control Center PID 26452 are healthy, using the existing D: data, native PostgreSQL 55432 and vector worker 8082. Background and memory queues reported zero pending/failed work. Bannerlord is left stopped for the user's retest. See `player-files-after.json`, `installed-package-proof.json`, `visible-launch.json`, `runtime-proof.json` and `control-center-observed.json` in the repair evidence root.
+
+## Previous fresh-installation evidence
+
+The preceding package's fresh installation evidence remains under `D:/ReignLaunch/acceptance/real-install-20260914/`:
 
 - `fresh-install-acceptance.json`: the original module, dependencies, user data and entire game profile were isolated before the actual compiled installer ran. The corrected compiled negative case returned 1 with a failure page; the successful full installation returned 0. Its journal is `D:/Reign/Data/setup/525bd50021f2488ba0a39a11205de979.json` and records completed owned staging cleanup.
 - `installed-package-proof.json`: all 16,757 shipped files and 12,278 portrait timestamps matched. Native PostgreSQL 15.19 started empty with no campaigns or provider credentials; bundled local model inference and the dedicated Control Center passed.
