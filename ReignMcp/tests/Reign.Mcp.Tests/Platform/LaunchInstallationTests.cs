@@ -77,7 +77,7 @@ public sealed class LaunchInstallationTests
             var read = ReignInstallation.ReadFrom(path);
             Assert.Equal(record.ServerRoot, read.ServerRoot);
             Assert.Equal(Path.Combine(root, "state", "PortraitCache"), read.PortraitCacheRoot);
-            Assert.Equal(Path.Combine(root, "content", "PortraitCache", "_shared"), read.SharedPortraitRoot);
+            Assert.Equal(Path.Combine(root, "game", "Modules", "ReignBeta", "PortraitCache", "_shared"), read.SharedPortraitRoot);
             Assert.False(read.PortraitCacheRoot.StartsWith(read.ServerRoot, StringComparison.OrdinalIgnoreCase));
         }
         finally { Directory.Delete(root, true); }
@@ -160,9 +160,10 @@ public sealed class LaunchInstallationTests
     {
         Schema = ReignInstallation.SchemaName,
         Version = "0.1.0-preview.1", ProtocolVersion = 1, ContentVersion = "2026.09.14",
-        ServerRoot = Path.Combine(root, "program"), ContentRoot = Path.Combine(root, "content"),
+        ServerRoot = Path.Combine(root, "program"),
         DataRoot = Path.Combine(root, "state"), BannerlordRoot = Path.Combine(root, "game"),
         ModuleRoot = Path.Combine(root, "game", "Modules", "ReignBeta"),
+        ContentRoot = Path.Combine(root, "game", "Modules", "ReignBeta"),
         PostgresBin = Path.Combine(root, "program", "postgresql", "bin"), PostgresPort = 55432
     };
 

@@ -16,7 +16,7 @@ Obtain the canonical all/Release validation plan after a fresh restore. Query th
 
 Edit client/UI/integration tooling in Reign. Edit the server, shared source, native generator and release tools in ReignServer. Use explicit reviewed Git paths in the owning repository. Shared files are not copied between repositories. Releases record both commit IDs and file hashes so compatible versions can be restored together.
 
-Campaigns, saves, database clusters, API credentials, logs, campaign-generated portraits, writable caches, build output and deployment backups are external state. Keep them out of Git. The approved shared portrait seed library is not a writable cache: its complete authoritative source belongs in the private Reign repository under `ReignContent/PortraitCache/_shared`, with PNGs stored through Git LFS and every file locked by `ReignContent/shared-portrait-inventory.json`. Campaign recovery uses its separate database/Save Sync backup procedure. Source snapshots are not campaign backups.
+Campaigns, saves, database clusters, API credentials, logs, campaign-generated portraits, writable caches, build output and deployment backups are external state. Keep them out of Git. The approved shared portrait seed library is not a writable cache: its complete authoritative source belongs inside the private, directly distributable module at `ReignBeta/PortraitCache/_shared`, with PNGs stored through Git LFS and every file locked by `ReignBeta/PortraitCache/shared-portrait-inventory.json`. Campaign recovery uses its separate database/Save Sync backup procedure. Source snapshots are not campaign backups.
 
 ## Initial launch cutover
 

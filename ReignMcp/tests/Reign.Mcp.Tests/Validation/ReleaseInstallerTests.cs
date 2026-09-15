@@ -10,7 +10,7 @@ public sealed class ReleaseInstallerTests
     public async Task CompleteSharedPortraitLibraryIsTrackedAndMatchesItsInventory()
     {
         string workspace = TestOptions.FindWorkspace();
-        string inventoryPath = Path.Combine(workspace, "ReignContent", "shared-portrait-inventory.json");
+        string inventoryPath = Path.Combine(workspace, "ReignBeta", "PortraitCache", "shared-portrait-inventory.json");
         Assert.True(File.Exists(inventoryPath), "The private source portrait inventory is missing.");
         using JsonDocument document = JsonDocument.Parse(await File.ReadAllTextAsync(inventoryPath));
         JsonElement root = document.RootElement;
@@ -18,7 +18,7 @@ public sealed class ReleaseInstallerTests
         string configuredRoot = root.GetProperty("root").GetString()!;
         Assert.False(Path.IsPathRooted(configuredRoot));
         string portraitRoot = Path.GetFullPath(Path.Combine(Path.GetDirectoryName(inventoryPath)!, configuredRoot));
-        Assert.Equal(Path.GetFullPath(Path.Combine(workspace, "ReignContent", "PortraitCache", "_shared")), portraitRoot);
+        Assert.Equal(Path.GetFullPath(Path.Combine(workspace, "ReignBeta", "PortraitCache", "_shared")), portraitRoot);
 
         var expected = new Dictionary<string, (long Bytes, string Sha256)>(StringComparer.Ordinal);
         foreach (JsonElement entry in root.GetProperty("files").EnumerateArray())
@@ -40,17 +40,17 @@ public sealed class ReleaseInstallerTests
         }
 
         var git = new ProcessStartInfo("git") { WorkingDirectory = workspace, RedirectStandardOutput = true, UseShellExecute = false };
-        foreach (string argument in new[] { "ls-files", "-z", "--", "ReignContent" }) git.ArgumentList.Add(argument);
+        foreach (string argument in new[] { "ls-files", "-z", "--", "ReignBeta/PortraitCache" }) git.ArgumentList.Add(argument);
         using Process process = Process.Start(git)!;
         string output = await process.StandardOutput.ReadToEndAsync();
         await process.WaitForExitAsync();
         Assert.Equal(0, process.ExitCode);
         var tracked = output.Split('\0', StringSplitOptions.RemoveEmptyEntries).ToHashSet(StringComparer.Ordinal);
-        Assert.Contains("ReignContent/shared-portrait-inventory.json", tracked);
-        Assert.All(actual, relative => Assert.Contains("ReignContent/PortraitCache/_shared/" + relative, tracked));
+        Assert.Contains("ReignBeta/PortraitCache/shared-portrait-inventory.json", tracked);
+        Assert.All(actual, relative => Assert.Contains("ReignBeta/PortraitCache/_shared/" + relative, tracked));
 
         string attributes = await File.ReadAllTextAsync(Path.Combine(workspace, ".gitattributes"));
-        Assert.Contains("ReignContent/PortraitCache/_shared/**/*.png filter=lfs diff=lfs merge=lfs -text", attributes);
+        Assert.Contains("ReignBeta/PortraitCache/_shared/**/*.png filter=lfs diff=lfs merge=lfs -text", attributes);
     }
 
     [Fact]

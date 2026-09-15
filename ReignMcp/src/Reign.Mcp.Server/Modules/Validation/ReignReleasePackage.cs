@@ -67,7 +67,7 @@ public sealed record ReleasePackageReport(string Schema, bool Ok, string RunId,
 public static class ReleasePackageTools
 {
     [McpServerTool(Name = "reign_build_release_package", ReadOnly = false, Destructive = false, Idempotent = false, UseStructuredContent = true)]
-    [Description("Assembles a Windows Reign setup executable and five independently hashed offline payloads from an exact current successful all/Release report, locked external downloads, verified vector component and allowlisted shared portraits. Uses the canonical build lease and enforced paired-source hygiene. Requires trusted build/offline gates and absolute build-Python/specification paths. Never installs, launches a listener, uploads, accesses campaigns or calls providers. Assembly proof does not mark clean-computer or native acceptance complete.")]
+    [Description("Assembles a Windows Reign setup executable and four independently hashed offline payloads from an exact current successful all/Release report, locked external downloads, verified vector component and allowlisted shared portraits embedded in the directly distributable client module. Uses the canonical build lease and enforced paired-source hygiene. Requires trusted build/offline gates and absolute build-Python/specification paths. Never installs, launches a listener, uploads, accesses campaigns or calls providers. Assembly proof does not mark clean-computer or native acceptance complete.")]
     public static Task<ReleasePackageReport> Build(ReignValidationService validation, string validationRunId,
         string pythonExecutable, string buildSpecification, string requestingTaskId = "",
         CancellationToken cancellationToken = default) =>

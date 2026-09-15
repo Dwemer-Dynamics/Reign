@@ -37,7 +37,7 @@ def build(root: Path) -> dict:
         })
     return {
         "schema": "reign-shared-content-inventory-v1",
-        "root": "PortraitCache/_shared",
+        "root": "_shared",
         "files": files,
     }
 
@@ -49,10 +49,10 @@ def main() -> None:
     parser.add_argument("--inventory", type=Path)
     args = parser.parse_args()
     repository = Path(__file__).resolve().parents[1]
-    root = (args.root or repository / "ReignContent" / "PortraitCache" / "_shared").resolve()
-    inventory = (args.inventory or repository / "ReignContent" / "shared-portrait-inventory.json").resolve()
-    expected_root = (repository / "ReignContent" / "PortraitCache" / "_shared").resolve()
-    expected_inventory = (repository / "ReignContent" / "shared-portrait-inventory.json").resolve()
+    root = (args.root or repository / "ReignBeta" / "PortraitCache" / "_shared").resolve()
+    inventory = (args.inventory or repository / "ReignBeta" / "PortraitCache" / "shared-portrait-inventory.json").resolve()
+    expected_root = (repository / "ReignBeta" / "PortraitCache" / "_shared").resolve()
+    expected_inventory = (repository / "ReignBeta" / "PortraitCache" / "shared-portrait-inventory.json").resolve()
     if root != expected_root or inventory != expected_inventory:
         raise ValueError("The authoritative shared portrait source paths cannot be redirected")
     value = build(root)

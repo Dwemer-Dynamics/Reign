@@ -1,6 +1,6 @@
 {
   "schema": "reign-shared-content-inventory-v1",
-  "root": "PortraitCache/_shared",
+  "root": "_shared",
   "files": [
     {
       "path": "(Brother_name_set_by_culture) (tutorial_npc_brother)/.ai_generation.json",
