@@ -11,6 +11,7 @@
     <LangVersion>latest</LangVersion>
     <OutputPath>bin\Win64_Shipping_Client\</OutputPath>
     <BannerlordPath Condition="'$(BannerlordPath)' == ''">$(REIGN_BANNERLORD_PATH)</BannerlordPath>
+    <BannerlordWorkshopPath Condition="'$(BannerlordWorkshopPath)' == ''">$(BannerlordPath)\..\..\workshop\content\261550</BannerlordWorkshopPath>
     <ReignServerRoot Condition="'$(ReignServerRoot)' == '' and Exists('$(MSBuildProjectDirectory)\..\ReignModules')">$(MSBuildProjectDirectory)\..</ReignServerRoot>
     <ReignServerRoot Condition="'$(ReignServerRoot)' == ''">$(MSBuildProjectDirectory)\..\..\ReignServer</ReignServerRoot>
   </PropertyGroup>
@@ -124,6 +125,7 @@
     </Reference>
     <Reference Include="MCMv5">
       <HintPath>$(BannerlordPath)\Modules\Bannerlord.MBOptionScreen\bin\Win64_Shipping_Client\MCMv5.dll</HintPath>
+      <HintPath Condition="!Exists('$(BannerlordPath)\Modules\Bannerlord.MBOptionScreen\bin\Win64_Shipping_Client\MCMv5.dll')">$(BannerlordWorkshopPath)\2859238197\bin\Win64_Shipping_Client\MCMv5.dll</HintPath>
       <Private>false</Private>
     </Reference>
     <Reference Include="Newtonsoft.Json">
@@ -132,10 +134,12 @@
     </Reference>
     <Reference Include="0Harmony">
       <HintPath>$(BannerlordPath)\Modules\Bannerlord.Harmony\bin\Win64_Shipping_Client\0Harmony.dll</HintPath>
+      <HintPath Condition="!Exists('$(BannerlordPath)\Modules\Bannerlord.Harmony\bin\Win64_Shipping_Client\0Harmony.dll')">$(BannerlordWorkshopPath)\2859188632\bin\Win64_Shipping_Client\0Harmony.dll</HintPath>
       <Private>false</Private>
     </Reference>
     <Reference Include="Bannerlord.UIExtenderEx">
       <HintPath>$(BannerlordPath)\Modules\Bannerlord.UIExtenderEx\bin\Win64_Shipping_Client\Bannerlord.UIExtenderEx.dll</HintPath>
+      <HintPath Condition="!Exists('$(BannerlordPath)\Modules\Bannerlord.UIExtenderEx\bin\Win64_Shipping_Client\Bannerlord.UIExtenderEx.dll')">$(BannerlordWorkshopPath)\2859222409\bin\Win64_Shipping_Client\Bannerlord.UIExtenderEx.dll</HintPath>
       <Private>false</Private>
     </Reference>
   </ItemGroup>
