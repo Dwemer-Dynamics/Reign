@@ -1,4 +1,12 @@
 {
+  "participationXp": {
+    "schema": "reign-participation-xp-testing-v1",
+    "implementation": "ReignXpTests via canonical changed-path Release validation; isolated Control Center Options browser assertions and rendered states.",
+    "procedure": "docs/agent/testing/DIALOGUE_AND_PROVIDERS.md",
+    "isolation": "In-memory rules and ledger serialization; intercepted local browser requests; no provider calls, production settings mutations, listener, campaign writes or time advancement.",
+    "evidence": "Canonical validation report, repository hygiene, Options browser assertion report and screenshots, exact-artifact deployment hashes.",
+    "limits": "Native skill accounting, learning modifiers, save/reload and human UI acceptance remain manual Testing work. Existing native campaign, runtime, deployment and cleanup gates remain authoritative."
+  },
   "temporaryGuestDialogue": {
     "schema": "reign-temporary-guest-dialogue-v1",
     "suite": "prompt_efficiency",

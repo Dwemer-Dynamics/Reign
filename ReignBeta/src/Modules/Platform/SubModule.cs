@@ -119,6 +119,7 @@ namespace ReignBeta
             if (starterObject is CampaignGameStarter campaignStarter)
             {
                 campaignStarter.AddBehavior(new ReignSaveSyncCampaignBehavior());
+                campaignStarter.AddBehavior(new ReignXpCampaignBehavior());
                 campaignStarter.AddModel(new ReignVillageProductionCalculatorModel());
                 campaignStarter.AddModel(new ReignSettlementFoodModel());
                 campaignStarter.AddModel(new ReignSettlementSecurityModel());

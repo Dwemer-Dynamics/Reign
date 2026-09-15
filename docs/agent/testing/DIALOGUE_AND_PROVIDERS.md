@@ -2,6 +2,14 @@
 
 Read only the procedure relevant to the current task. Existing provider, campaign, and deployment gates remain authoritative. Dated procedure history was retained during the 2026-09-12 guide split.
 
+## Participation XP (2026-09-15)
+
+The tracked browser runner is `ReignBetaServer/src/Modules/Platform/Testing/reign-xp-options.js`. Run it with Node, the paired workspace root and a task-owned evidence directory. Set `REIGN_PLAYWRIGHT_MODULE` to the available Playwright package if it is not on Node's module path. It uses installed Edge headlessly, extracts the production Control Center styles/navigation, global settings save and XP markup/script, and intercepts all requests in memory. It covers 800, 1280 and 1920 pixel widths with seven captured states each.
+
+Run the exact changed-path Release validation plan. `ReignXpTests` covers the provider-free XP rules and saved receipt/participant ledger in memory, including fractional scaling, option validation, highest-skill/tie selection, distinct speakers, duplicate turns across phase advancement and save serialization. Render the Options tab and exercise its partial settings save and global Save Settings integration, failure states, disabled retention, min/default/max multipliers and keyboard controls with intercepted local requests; do not start a second listening server. No tests require campaign files or provider calls. Retain screenshots and the browser assertion report with the validation receipt; ordinary evidence retention owns cleanup.
+
+After exact-artifact deployment, the user's deferred manual acceptance checks actual native Charm, Steward/Trade/Leadership/Tactics and petition Leadership gains, default/on/off/slider settings, phase-end selection, no idle/postponement rewards, and native save/reload. A serialized ledger roundtrip is not native save acceptance. Automatic gameplay still requires the exact user-provided baseline and task-owned disposable copy. See [XP requirements and evidence](../REIGN_XP_REWARDS.md).
+
 ## Temporary guest parting dialogue (2026-09-14)
 
 Run manifest-selected Release validation and artifact-bound `prompt_efficiency`; `pipeline.prompt_caching` includes `RunTemporaryGuestDialogueSelfTests`. The client projects the current speaker's saved temporary-guest agreement, phase, review/return dates and freshly observed native membership into individual and Party Chat turns. The server accepts only the matching speaker/schema and finite turn-matched clock, then adds a bounded native-state block to the live prompt. No saved-record schema or native removal/return behavior changes.

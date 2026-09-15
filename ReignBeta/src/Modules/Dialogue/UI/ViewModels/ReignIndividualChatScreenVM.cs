@@ -8,6 +8,7 @@ using ReignBeta.Campaign;
 using ReignBeta.Court;
 using ReignBeta.Integration;
 using ReignBeta.Settings;
+using Reign.Core.Contracts.Dialogue;
 using TaleWorlds.CampaignSystem;
 using TaleWorlds.CampaignSystem.Party;
 using TaleWorlds.CampaignSystem.Settlements;
@@ -785,6 +786,8 @@ namespace ReignBeta.UI.ViewModels
             string guardedPromptOverrideOwnerCommandId = "")
         {
             ReignDialogueReply reply = new ReignDialogueReply();
+            if (_calibrationMode) return reply;
+            if (string.IsNullOrWhiteSpace(correlationId)) correlationId = Guid.NewGuid().ToString("N");
             text = (text ?? string.Empty).Trim();
             if (string.IsNullOrWhiteSpace(text))
             {
@@ -827,6 +830,7 @@ namespace ReignBeta.UI.ViewModels
             try
             {
                 string sessionId = await EnsureConversationSessionAsync().ConfigureAwait(false);
+                ReignXpInteraction xp = await ReignServerClient.BeginXpInteractionAsync().ConfigureAwait(false);
                 reply = await ReignServerClient.RequestDialogueResponseAsync(
                     _hero,
                     text,
@@ -894,6 +898,8 @@ namespace ReignBeta.UI.ViewModels
 
                     if (reply.Ok && !string.IsNullOrWhiteSpace(reply.Text))
                     {
+                        if (string.IsNullOrWhiteSpace(auditRunId))
+                            xp.Award("conversation:individual:" + correlationId, ReignXpSkill.Charm, ReignXpRules.ConversationXp);
                         AddChatLine(_hero?.Name?.ToString() ?? "NPC", reply.Text, "npc");
                         if (!string.IsNullOrWhiteSpace(reply.ActionShadowPreview) && ReignBetaSettings.Instance?.DebugMessagesEnabled == true)
                         {

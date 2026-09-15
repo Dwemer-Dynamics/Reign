@@ -1,4 +1,5 @@
 using System;
+using Reign.Core.Contracts.Dialogue;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -1191,7 +1192,7 @@ namespace ReignBeta.Court
             return quote;
         }
 
-        public bool TryDecideRulerPetition(string petitionId, ReignDocketGrantMethod method, bool refuse, out string receipt)
+        public bool TryDecideRulerPetition(string petitionId, ReignDocketGrantMethod method, bool refuse, out string receipt, ReignXpOptions xpOptions = null)
         {
             receipt = string.Empty;
             ReignDocketPetition petition = EnsureRulerDocketState().Petitions.FirstOrDefault(x => x.PetitionId == petitionId);
@@ -1208,6 +1209,7 @@ namespace ReignBeta.Court
                 RefusePetitionWithoutEffects(petition, CurrentDay(), "explicit_refusal");
                 QueuePetitionRelationChanges(petition, false);
                 receipt = "Petition refused.";
+                ReignBeta.Campaign.ReignXpCampaignBehavior.Instance?.Award("petition:" + petitionId, ReignXpSkill.Leadership, ReignXpRules.PetitionXp, xpOptions);
                 StateChanged?.Invoke();
                 return true;
             }
@@ -1265,6 +1267,7 @@ namespace ReignBeta.Court
             AddPetitionHistory(petition, "granted", method == ReignDocketGrantMethod.GoldSubstitute
                 ? "The ruler funded the validated gold substitute." : "The ruler granted the requested aid directly.");
             receipt = "Petition granted. The commitment is now active.";
+            ReignBeta.Campaign.ReignXpCampaignBehavior.Instance?.Award("petition:" + petitionId, ReignXpSkill.Leadership, ReignXpRules.PetitionXp, xpOptions);
             StateChanged?.Invoke();
             return true;
         }

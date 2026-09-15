@@ -38,6 +38,7 @@ namespace ReignBeta.Runtime
         public SocialEventTemplate Template { get; }
         public int CurrentPhaseIndex { get; private set; }
         public SocialEventPhase CurrentPhase => Template.Phases[CurrentPhaseIndex];
+        public string XpPhaseKey => Record.EventId + ":" + CurrentPhaseIndex;
         public IReadOnlyList<string> ActiveHeroStringIds => _activeHeroStringIds;
         public IReadOnlyCollection<string> WanderedHeroStringIds => _wanderedHeroStringIds;
         public IReadOnlyCollection<string> AutomaticApproachBlockedHeroStringIds => _approachedHeroStringIds.Concat(_wanderedHeroStringIds).Distinct(System.StringComparer.OrdinalIgnoreCase).ToList();

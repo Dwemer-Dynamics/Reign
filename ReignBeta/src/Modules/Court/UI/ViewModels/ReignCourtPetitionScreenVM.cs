@@ -1,4 +1,5 @@
 using System;
+using Reign.Core.Contracts.Dialogue;
 using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
@@ -288,7 +289,7 @@ namespace ReignBeta.UI.ViewModels
                 : message;
         }
 
-        private void Decide(ReignDocketGrantMethod method, bool refuse)
+        private async void Decide(ReignDocketGrantMethod method, bool refuse)
         {
             if (Busy || !_petition.IsPending) return;
             if (_calibrationMode)
@@ -307,7 +308,14 @@ namespace ReignBeta.UI.ViewModels
             }
 
             Busy = true;
-            if (!_court.TryDecideRulerPetition(_petition.PetitionId, method, refuse, out string receipt))
+            ReignXpInteraction xp = await ReignServerClient.BeginXpInteractionAsync();
+            await ReignMainThread.InvokeAsync(() => CompleteDecision(method, refuse, xp));
+        }
+
+        private void CompleteDecision(ReignDocketGrantMethod method, bool refuse, ReignXpInteraction xp)
+        {
+            if (xp.Owner != ReignBeta.Campaign.ReignXpCampaignBehavior.Instance) { Busy = false; return; }
+            if (!_court.TryDecideRulerPetition(_petition.PetitionId, method, refuse, out string receipt, xp.Options))
             {
                 Busy = false;
                 StatusText = receipt;
@@ -338,6 +346,9 @@ namespace ReignBeta.UI.ViewModels
                         "No active court audience participants are available.");
                 bool stagedTurn = !string.Equals(phase, "conversation",
                     StringComparison.OrdinalIgnoreCase);
+                ReignXpInteraction xp = stagedTurn ? null : await ReignServerClient.BeginXpInteractionAsync().ConfigureAwait(false);
+                string xpReceipt = "conversation:petition:" + _petition.PetitionId + ":" + Guid.NewGuid().ToString("N");
+                bool exchangeComplete = true;
                 string audienceTurn = string.Equals(phase, "opening",
                         StringComparison.OrdinalIgnoreCase)
                     ? "Begin the petition audience now by stating the matter that brought you before your ruler."
@@ -364,6 +375,7 @@ namespace ReignBeta.UI.ViewModels
                             conversationContext: conversationContext).ConfigureAwait(false);
                     if (response.Ok)
                     {
+                        exchangeComplete &= !string.IsNullOrWhiteSpace(response.Text);
                         string reply = response.Text ?? string.Empty;
                         string transcriptId = response.ConversationSessionId ?? string.Empty;
                         await ReignMainThread.InvokeAsync(() =>
@@ -394,6 +406,7 @@ namespace ReignBeta.UI.ViewModels
                     else if (string.Equals(phase, "conversation",
                                  StringComparison.OrdinalIgnoreCase))
                     {
+                        exchangeComplete = false;
                         await ReignMainThread.InvokeAsync(() =>
                             AddTranscriptLine("Court Clerk",
                                 speakerName + " could not answer: "
@@ -402,6 +415,8 @@ namespace ReignBeta.UI.ViewModels
                                     : response.Error), "system")).ConfigureAwait(false);
                     }
                 }
+                if (!stagedTurn && exchangeComplete && !string.IsNullOrWhiteSpace(playerText))
+                    await ReignMainThread.InvokeAsync(() => xp.Award(xpReceipt, ReignXpSkill.Charm, ReignXpRules.ConversationXp)).ConfigureAwait(false);
             }
             catch (Exception ex)
             {
