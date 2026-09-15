@@ -1,5 +1,11 @@
 # Tiered validation
 
+## DwemerDistro Linux component
+
+Use `reign_build_linux_server` or `ReignMcp/scripts/reign-validate.ps1 -LinuxServer -Restore -RequestingTaskId <task UUID>` to cross-publish the WSL server. The same canonical OS lease, ownership plan, source fingerprint, and paired hygiene gates apply. This produces `reign-linux-build-v1` and a complete SHA-256 `reign-linux-artifact-v1` file inventory under `.codex-build/reign-mcp/linux-server/<run>`. It does not start services, access campaigns, or call providers. Retain both reports; full manifest-selected validation and Linux runtime checks are separate proof.
+
+Public server-only installations use `ReignRelease/Build-Linux.py` under the distro manager's operation lock. It builds a fresh directory from the installed public source and writes the same artifact inventory. Agent development in paired checkouts continues to use the MCP route. Activate only a reviewed artifact with `ddistro_reign activate`; it verifies every file, health-checks the candidate, and retains the prior runtime and all data. Code rollback does not reverse database migrations. Native portrait rendering remains a Windows game helper accessed through WSL interoperability; do not count its compilation as in-game proof.
+
 For code changes, obtain `reign_get_validation_plan` before editing, then run `reign_validate` for the completed change. For policy or documentation changes, use the `changed` plan with their exact paths; a documentation-only plan succeeds at Tier 1 without a build. A read-only audit needs evidence relevant to its conclusions, not a product build.
 
 `reign.modules.json` owns module, dependency, facet and validation routing. `reign-projects.json` owns project discovery. Use their plan rather than scanning the whole repository to infer ownership.

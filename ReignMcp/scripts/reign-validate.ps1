@@ -10,6 +10,7 @@ param(
     [switch]$PlanOnly,
     [switch]$VectorRuntime,
     [switch]$ReleasePackage,
+    [switch]$LinuxServer,
     [string]$ValidationRunId,
     [string]$BuildSpecification,
     [string]$PythonExecutable,
@@ -18,7 +19,7 @@ param(
 )
 
 $ErrorActionPreference = 'Stop'
-if (@($VectorRuntime,$ReleasePackage,$PlanOnly | Where-Object { $_ }).Count -gt 1) { throw 'Choose one validation plan, vector-runtime build, or release-package build.' }
+if (@($VectorRuntime,$ReleasePackage,$PlanOnly,$LinuxServer | Where-Object { $_ }).Count -gt 1) { throw 'Choose one validation plan, Linux server, vector-runtime build, or release-package build.' }
 $mcpRoot = [System.IO.Path]::GetFullPath((Split-Path -Parent $PSScriptRoot))
 $workspaceRoot = [System.IO.Path]::GetFullPath((Split-Path -Parent $mcpRoot))
 $project = Join-Path $mcpRoot 'src\Reign.Mcp.Server\Reign.Mcp.Server.csproj'
@@ -46,7 +47,7 @@ try {
     $env:REIGN_MCP_ALLOW_OFFLINE_VERIFICATION = 'true'
     $arguments = @(
         $server,
-        $(if ($ReleasePackage) { '--release-package-cli' } elseif ($VectorRuntime) { '--release-runtime-cli' } elseif ($PlanOnly) { '--plan-cli' } else { '--validate-cli' }),
+        $(if ($LinuxServer) { '--linux-server-cli' } elseif ($ReleasePackage) { '--release-package-cli' } elseif ($VectorRuntime) { '--release-runtime-cli' } elseif ($PlanOnly) { '--plan-cli' } else { '--validate-cli' }),
         '--profile', $Profile,
         '--configuration', $Configuration
     )

@@ -1,6 +1,6 @@
 # Reign repository recovery
 
-All development and testing stay local. The authoritative publishing destinations are [Reign](https://github.com/Dwemer-Dynamics/Reign) (private client and integration tooling) and [ReignServer](https://github.com/Dwemer-Dynamics/ReignServer) (public server and shared source). Both publish from main. Do not resume publishing to the retired workspace repository.
+All development and testing stay local. The authoritative publishing destinations are [Reign](https://github.com/Dwemer-Dynamics/Reign) (private client and integration tooling) and [ReignServer](https://github.com/Dwemer-Dynamics/ReignServer) (public server and shared source). Both develop through unstable -> dev -> reign, with reign as the default branch. Create feature branches from unstable and promote paired revisions through reviewed PRs. Do not resume publishing to the retired workspace repository.
 
 ## Restore the two local checkouts
 

@@ -1,5 +1,15 @@
 {
   "launchPackaging": {
+    "linuxServerBuilder": {
+      "tool": "reign_build_linux_server",
+      "cli": "reign-validate.ps1 -LinuxServer -Restore -RequestingTaskId <task UUID>",
+      "scope": "Self-contained Linux server component; no deployment, listener, provider, campaign, or game execution",
+      "gates": ["trusted AllowBuild", "trusted AllowRestore when restoring", "all ownership plan", "enforced paired hygiene", "canonical OS build lease"],
+      "evidenceSchema": "reign-linux-build-v1",
+      "proofSchema": "reign-linux-artifact-v1",
+      "procedure": "docs/agent/VALIDATION.md",
+      "cleanup": "Retain run-owned linux-server artifacts and reports. Full validation and isolated Linux runtime probes remain separate requirements."
+    },
     "packageBuilder": {
       "tool": "reign_build_release_package",
       "cli": "reign-validate.ps1 -ReleasePackage -ValidationRunId <successful all Release run> -PythonExecutable <absolute build python> -BuildSpecification <absolute local inputs JSON> -RequestingTaskId <task UUID>",
