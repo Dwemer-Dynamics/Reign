@@ -1990,6 +1990,8 @@ namespace ReignBeta.Integration
                 ["clanAccords"] = ReignBeta.ClanAccords.ReignClanAccordsCampaignBehavior.Instance?.ConversationContext(hero) ?? new JObject(),
                 ["arrestContext"] = ReignBeta.Campaign.ReignArrestCampaignBehavior.Instance
                     ?.BuildConversationContext(hero) ?? new JObject(),
+                ["temporaryPartyGuest"] = ReignBeta.PartyAgency.ReignTemporaryPartyGuestCampaignBehavior.Instance
+                    ?.BuildConversationContext(hero) ?? new JObject(),
                 ["actionResolutionIndex"] = rulerPetition || courtLife
                     ? new JObject()
                     : BuildActionResolutionIndex(hero, participants,
@@ -3333,6 +3335,8 @@ namespace ReignBeta.Integration
                 ["phaseDescription"] = session.CurrentPhase.SettingSummary ?? string.Empty,
                 ["sceneContext"] = session.BuildSceneContext(),
                 ["nativePoliticalContext"] = BuildNativePoliticalContext(speaker),
+                ["temporaryPartyGuest"] = ReignBeta.PartyAgency.ReignTemporaryPartyGuestCampaignBehavior.Instance
+                    ?.BuildConversationContext(speaker) ?? new JObject(),
                 ["clanAccords"] = ReignBeta.ClanAccords.ReignClanAccordsCampaignBehavior.Instance?.ConversationContext(speaker) ?? new JObject(),
                 ["sceneTurnId"] = record.EventId + "_" + session.CurrentPhaseIndex + "_" + session.PhaseExchangeCount,
                 ["sceneParticipants"] = BuildSceneParticipants(record.GetAttendees()),
