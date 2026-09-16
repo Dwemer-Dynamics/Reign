@@ -494,7 +494,7 @@ function auditNativeCalibrationContract() {
   const previewerSupportEntries = catalog.interfaces.filter((entry) => entry.supportUi);
   const declared = catalog.nativeCalibration || {};
   const hostPath = path.join(moduleRoot, "src", "Modules", "WorldSimulation", "Campaign", "ReignLiveInteractionUiCalibrationHost.cs");
-  const liveTestPath = path.join(workspaceRoot, "ReignBetaServer", "ReignLiveTest", "Program.cs");
+  const liveTestPath = path.join(workspaceRoot, "ReignServer", "tests", "ReignLiveTest", "Program.cs");
   const correspondenceManagerPath = path.join(sourceRoot, "Modules", "Dialogue", "UI", "ReignCorrespondenceScreenManager.cs");
   const individualManagerPath = path.join(sourceRoot, "Modules", "Dialogue", "UI", "ReignIndividualChatScreenManager.cs");
   const socialManagerPath = path.join(sourceRoot, "Modules", "WorldSimulation", "UI", "ReignSocialEventScreenManager.cs");

@@ -34,7 +34,7 @@ public sealed class PromptEvidenceToolTests
     [Fact]
     public void FocusedPromptSuiteExecutesProductionChecksInsteadOfOnlyCoverageMetadata()
     {
-        string source = File.ReadAllText(Path.Combine(TestOptions.FindWorkspace(), "ReignBetaServer/src/Modules/Platform/VerificationLab.cs"));
+        string source = File.ReadAllText(Path.Combine(TestOptions.FindWorkspace(), "ReignServer/src/Modules/Platform/VerificationLab.cs"));
         int start = source.IndexOf("private static void RunQuickVerificationChecks", StringComparison.Ordinal);
         int end = source.IndexOf("private static void RunOfflineVerificationChecks", start, StringComparison.Ordinal);
         string quick = source[start..end];

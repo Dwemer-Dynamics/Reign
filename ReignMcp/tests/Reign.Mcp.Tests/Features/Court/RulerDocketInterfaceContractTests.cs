@@ -212,11 +212,11 @@ public sealed class RulerDocketInterfaceContractTests
             "Court", "ReignRulerDocketDomain.cs"));
         string client = File.ReadAllText(Path.Combine(root, "ReignBeta", "src", "Modules", "Court",
             "Integration", "ReignCourtServerClient.cs"));
-        string server = File.ReadAllText(Path.Combine(root, "ReignBetaServer", "src", "Modules", "Court",
+        string server = File.ReadAllText(Path.Combine(root, "ReignServer", "src", "Modules", "Court",
             "RulerDocketDialogue.cs"));
         string normalClient = File.ReadAllText(Path.Combine(root, "ReignBeta", "src", "Modules", "Platform",
             "Integration", "ReignServerClient.cs"));
-        string normalServer = File.ReadAllText(Path.Combine(root, "ReignBetaServer", "src", "Modules", "Platform",
+        string normalServer = File.ReadAllText(Path.Combine(root, "ReignServer", "src", "Modules", "Platform",
             "Program.cs"));
         string textureFactory = File.ReadAllText(Path.Combine(root, "ReignBeta", "src", "Modules", "Portraits",
             "UI", "EventArt", "ReignEventArtTextureFactory.cs"));
@@ -361,11 +361,11 @@ public sealed class RulerDocketInterfaceContractTests
             "Court", "ReignNobleDocketCampaignBehavior.cs"));
         string screen = File.ReadAllText(Path.Combine(root, "ReignBeta", "src", "Modules", "Court",
             "UI", "ViewModels", "ReignCourtScreenVM.cs"));
-        string reputation = File.ReadAllText(Path.Combine(root, "ReignBetaServer", "src", "Modules",
+        string reputation = File.ReadAllText(Path.Combine(root, "ReignServer", "src", "Modules",
             "Reputation", "CourtSocialReputation.cs"));
-        string dialogue = File.ReadAllText(Path.Combine(root, "ReignBetaServer", "src", "Modules",
+        string dialogue = File.ReadAllText(Path.Combine(root, "ReignServer", "src", "Modules",
             "Court", "RulerDocketDialogue.cs"));
-        string server = File.ReadAllText(Path.Combine(root, "ReignBetaServer", "src", "Modules",
+        string server = File.ReadAllText(Path.Combine(root, "ReignServer", "src", "Modules",
             "Platform", "Program.cs"));
 
         Assert.Contains("TryActivateNobleMatter", manager, StringComparison.Ordinal);

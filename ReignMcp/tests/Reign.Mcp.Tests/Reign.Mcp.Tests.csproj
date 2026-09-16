@@ -5,8 +5,8 @@
   </PropertyGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\src\Reign.Mcp.Server\Reign.Mcp.Server.csproj" />
-    <ProjectReference Include="..\..\..\ReignModules\Reign.Core.Contracts\Reign.Core.Contracts.csproj" />
-    <Compile Include="..\..\..\ReignBetaServer\ReignLiveTest\Features\WorldSimulation\PassiveWorldCheckpointPolicy.cs"
+    <ProjectReference Include="..\..\..\ReignServer\shared\Reign.Core.Contracts\Reign.Core.Contracts.csproj" />
+    <Compile Include="..\..\..\ReignServer\tests\ReignLiveTest\Features\WorldSimulation\PassiveWorldCheckpointPolicy.cs"
              Link="Shared\PassiveWorldCheckpointPolicy.cs" />
     <Compile Include="..\..\..\ReignBeta\src\Modules\Persistence\Save\ReignSavePayloadCodec.cs"
              Link="Shared\ReignSavePayloadCodec.cs" />
@@ -19,9 +19,9 @@
              Link="Shared\ReignScenePreparationCoordinator.cs" />
     <Compile Include="..\..\..\ReignBeta\src\Modules\Court\Integration\ReignCourtAudienceScene.cs"
              Link="Shared\ReignCourtAudienceScene.cs" />
-    <Compile Include="..\..\..\ReignModules\Reign.Shared.Source\Portraits\PngEncoder.cs"
+    <Compile Include="..\..\..\ReignServer\shared\Reign.Shared.Source\Portraits\PngEncoder.cs"
              Link="Shared\PngEncoder.cs" />
-    <Compile Include="..\..\..\ReignModules\Reign.Shared.Source\Portraits\PngReencode.cs"
+    <Compile Include="..\..\..\ReignServer\shared\Reign.Shared.Source\Portraits\PngReencode.cs"
              Link="Shared\PngReencode.cs" />
     <PackageReference Include="xunit" Version="2.9.3" />
     <PackageReference Include="xunit.runner.visualstudio" Version="3.1.5">

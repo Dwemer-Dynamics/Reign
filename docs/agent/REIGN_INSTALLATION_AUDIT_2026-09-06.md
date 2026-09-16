@@ -78,7 +78,7 @@ The following paths are relative to the exact installed root stated above; every
 
 Of the 16.18 GB backup total, **4,884,291,424 bytes are inside at least two backup-directory levels**. This is an overlapping subset, not extra space. For example, the old `server\deploy-backups\20260805-153619-ruler-diplomacy-1d3\app` snapshot contains another `deploy-backups` tree. Old verification copies also include Python build environments and generated data.
 
-The flat `server` layout also remains beside `server\app`. Targeted comparisons found **38 same-name EXE/DLL counterparts, 33 byte-identical**. `server\ReignBetaServer.exe` differs from the active-path executable; the installed launcher selects `server\app\ReignBetaServer.exe`. The classifier retains **58.38 MB of this legacy layout as unresolved**, rather than assuming every copy can be removed. The active face detector and its ONNX dependencies remain retained; no model files were changed.
+The flat `server` layout also remains beside `server\app`. Targeted comparisons found **38 same-name EXE/DLL counterparts, 33 byte-identical**. `server\ReignServer.exe` differs from the active-path executable; the installed launcher selects `server\app\ReignServer.exe`. The classifier retains **58.38 MB of this legacy layout as unresolved**, rather than assuming every copy can be removed. The active face detector and its ONNX dependencies remain retained; no model files were changed.
 
 ## Campaign/save and external-storage reconciliation
 

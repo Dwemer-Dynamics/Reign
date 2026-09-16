@@ -32,6 +32,40 @@ DwemerDistro deployments run ReignServer and its vector worker inside WSL, manag
 
 ReignServer targets linux-x64. Canonical server verification runs in WSL on Windows using isolated run-owned data and ReignValidation. Windows remains the game client and native portrait renderer platform. Do not recreate standalone Windows server installers or process ownership.
 
+## Working and deploying with DwemerDistro
+
+- Keep Reign and ReignServer as sibling checkouts. Confirm each origin, branch, HEAD and dirty state; edit server-owned junction targets in ReignServer. Run `ReignServer/scripts/Connect-Repositories.ps1` only when the required links are absent or need verified repair. Compare current branch heads before paired promotion; never assume `unstable`, `dev` and `reign` contain the same work.
+- Read the installed `reign-full-deploy` skill for combined/client deployment or `reign-server-wsl-deploy` for server-only deployment when available. The checked-in entry point is the server-owned `ReignServer/scripts/Deploy-LocalWsl.ps1`, accessible through the paired checkout. Resolve paths on the current machine instead of copying another workstation's paths.
+- Inventory WSL distributions and the licensed Bannerlord installation first. Set `REIGN_BANNERLORD_PATH` to that game directory and `REIGN_WSL_DISTRO` when selecting a non-default validation distro. The deployment script separately requires the matching `-Distro`; its default is `DwemerAI4Skyrim3`.
+- Check module IDs in both Bannerlord `Modules` and Steam Workshop `content/261550`. Reuse existing dependency modules. Hydrate tracked portrait PNGs through Git LFS and verify `ReignBeta/PortraitCache/shared-portrait-inventory.json`. Keep module staging/backups outside `Modules`, because Bannerlord discovers duplicate `SubModule.xml` files even in hidden backup directories.
+
+### Build once, deploy the validated artifacts
+
+From the Reign checkout, obtain the validation plan/status and use the current task UUID. For a combined product deployment:
+
+```powershell
+& .\ReignMcp\scripts\reign-validate.ps1 -Profile product -Restore -RequestingTaskId $env:CODEX_THREAD_ID
+& .\ReignMcp\scripts\reign-validate.ps1 -LinuxServer -Restore -RequestingTaskId $env:CODEX_THREAD_ID
+```
+
+Use the manifest-selected broader `all` profile when required. That profile needs the licensed Modding Kit for the editor bridge; report an unavailable prerequisite rather than claiming full coverage. Retain the successful product/all validation report and `reign-linux-build-v1` report, then deploy without modifying source or rebuilding:
+
+```powershell
+# Set these variables to this checkout, selected distro/game and successful report paths.
+& .\ReignServer\scripts\Deploy-LocalWsl.ps1 -Workspace $reignCheckout -ValidationReport $productReport -LinuxBuildReport $linuxReport -Distro $distro -BannerlordPath $gameDirectory
+```
+
+`-SkipServer` deploys only the validated Windows client and portrait helper; `-SkipClient` deploys only the validated Linux server and needs only its Linux report. Before server activation, install the compatible Core helpers, sync the reviewed server source while preserving `.git`, `data/` and `runtime/`, and run `sudo ddistro_reign prepare` inside the selected distro. Never deploy a developer checkout by overwriting the whole runtime directory.
+
+### Runtime contract and acceptance
+
+- The server checkout is `/var/www/html/ReignServer`; private settings, campaigns, logs and vectors are in `data/`, and retained executables, dependency environments and models are in `runtime/`. The database is lowercase `reign` on PostgreSQL port 5432. PostgreSQL storage and system-wide Core/Apache configuration remain in their normal distro locations.
+- Windows deployment identity is `%USERPROFILE%/.reign/installation.json`. Preserve its selected distro, module and cache paths; never silently replace another installation. Preserve settings/API keys without printing them. Do not copy Windows DPAPI-encrypted credentials directly into Linux.
+- The launcher-facing endpoint is `http://127.0.0.1:8089/health`; Apache proxies to WSL loopback port 5101. The vector worker uses WSL loopback port 5102. For command-line channel installation, startup, update and rollback, follow the matching [ReignServer instructions](../ReignServer/AGENTS.md#dwemerdistro-operations).
+- Confirm version/date files agree, deployed artifact hashes match the reports, server health reports the expected version and current database schema, and worker health reports `modelLoaded: true` with 384 dimensions. Allow model warm-up; a successful HTTP status alone is insufficient. Read fresh `data/logs/server.log` and verify Windows access to the installation record's WSL paths.
+- Validate stop/start through the managed lifecycle without touching other mod services. A clean-install test uses an isolated disposable distro, records exact source/artifact hashes, and restores the prior machine state. Distinguish this from packaged-installer and launcher click-through tests.
+- Report source commits, report paths/fingerprints, deployed hashes, destinations and health results. Deployment does not authorize launching Bannerlord, paid provider tests, merging or releasing. Client compilation, server health and rollback checks do not establish in-game response or native portrait-renderer acceptance.
+
 ## Interface authority
 
 Read [REIGN_INTERFACE_DESIGN_RULES.md](docs/agent/REIGN_INTERFACE_DESIGN_RULES.md) before planning/editing any Reign interface, control, card, portrait treatment or native augmentation. The machine authorities are `ReignBeta/GUI/UiCalibration/modern-style-contract.json`, `ReignBeta/artwork/ui-modern-style-kit/palette.json` and `asset-manifest.json` in that same style-kit directory. Their exact tokens, hashes, geometry, composition, typography and fidelity requirements override visual guesses and legacy iterations.

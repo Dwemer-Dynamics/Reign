@@ -244,7 +244,7 @@ public sealed class ReignBuildService(
                 "The selected validation report contains a failed process result.");
         }
 
-        var executable = Path.GetFullPath(Path.Combine(runRoot, "server", "out", "ReignBetaServer.dll"));
+        var executable = Path.GetFullPath(Path.Combine(runRoot, "server", "out", "ReignServer.dll"));
         ReignMcpOptions.EnsureWithin(runRoot, executable, "validated Reign server executable");
         if (!File.Exists(executable))
         {

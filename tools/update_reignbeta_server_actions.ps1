@@ -1,4 +1,4 @@
-$path = 'C:\Users\speed\Desktop\ReignBetaServer\Program.cs'
+$path = 'C:\Users\speed\Desktop\ReignServer\Program.cs'
 $text = [System.IO.File]::ReadAllText($path)
 
 $oldRoutes = @'

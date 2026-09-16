@@ -31,8 +31,8 @@ flowchart TD
 
 ## Source organization
 
-- Server implementation lives under `ReignBetaServer/src/Modules/<Subsystem>`.
+- Server implementation lives under `ReignServer/src/Modules/<Subsystem>`.
 - Bannerlord implementation lives under `ReignBeta/src/Modules/<Subsystem>`.
-- Live-test harness code lives under `ReignBetaServer/ReignLiveTest/Features/<Subsystem>`.
+- Live-test harness code lives under `ReignServer/tests/ReignLiveTest/Features/<Subsystem>`.
 - Feature-owned MCP tools and tests live under matching `ReignMcp/.../Modules/<Subsystem>` and `ReignMcp/tests/.../Features/<Subsystem>` folders.
 - Namespaces and assembly boundaries remain stable; folders express ownership even when a subsystem has not yet been extracted into a pure library.

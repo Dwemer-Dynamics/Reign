@@ -6,7 +6,7 @@ All development and testing stay local. The authoritative publishing destination
 
 1. Clone https://github.com/Dwemer-Dynamics/Reign.git as Reign and https://github.com/Dwemer-Dynamics/ReignServer.git as ReignServer under the same parent directory. On this development machine use D:/Projects; keep package/build/test state on D:.
 2. Read both AGENTS.md files and confirm their fetch and push origins match exactly. Keep Reign private and ReignServer public.
-3. Run ReignServer/ReignRelease/Connect-Repositories.ps1. It creates five verified source junctions in Reign and refuses conflicting directories. Existing integration paths keep working while every source file has one Git owner.
+3. Run ReignServer/ReignServer/scripts/Connect-Repositories.ps1. It creates five verified source junctions in Reign and refuses conflicting directories. Existing integration paths keep working while every source file has one Git owner.
 4. Configure Reign MCP with the local Reign checkout as REIGN_WORKSPACE_ROOT. Machine-local .codex/config.toml is excluded; use the MCP activation template. Do not copy credentials or old machine paths.
 5. Supply a licensed Bannerlord installation and documented developer prerequisites. Set REIGN_BANNERLORD_PATH for builds. End-user packages supply redistributable dependencies; source recovery excludes game-owned binaries and third-party downloads.
 
