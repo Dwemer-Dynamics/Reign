@@ -12,7 +12,6 @@
     <OutputPath>bin\Win64_Shipping_Client\</OutputPath>
     <BannerlordPath Condition="'$(BannerlordPath)' == ''">$(REIGN_BANNERLORD_PATH)</BannerlordPath>
     <BannerlordWorkshopPath Condition="'$(BannerlordWorkshopPath)' == ''">$(BannerlordPath)\..\..\workshop\content\261550</BannerlordWorkshopPath>
-    <ReignServerRoot Condition="'$(ReignServerRoot)' == '' and Exists('$(MSBuildProjectDirectory)\..\ReignModules')">$(MSBuildProjectDirectory)\..</ReignServerRoot>
     <ReignServerRoot Condition="'$(ReignServerRoot)' == ''">$(MSBuildProjectDirectory)\..\..\ReignServer</ReignServerRoot>
   </PropertyGroup>
 
@@ -32,9 +31,9 @@
 
   <ItemGroup>
     <Content Include="..\.version.txt;..\.version_number.txt" Link="%(Filename)%(Extension)" CopyToOutputDirectory="PreserveNewest" />
-    <Compile Include="$(ReignServerRoot)\NativeCharacterImageGenerator\shared\ReignCourtAppearanceGenerator.cs"
+    <Compile Include="$(ReignServerRoot)\tools\portrait-generator\shared\ReignCourtAppearanceGenerator.cs"
              Link="src\Modules\Court\ReignCourtAppearanceGenerator.cs" />
-    <Compile Include="$(ReignServerRoot)\ReignModules\Reign.Shared.Source\**\*.cs"
+    <Compile Include="$(ReignServerRoot)\shared\Reign.Shared.Source\**\*.cs"
              Link="src\Shared\%(RecursiveDir)%(Filename)%(Extension)" />
     <!-- Installed server sources and diagnostics are deployment artifacts, never
          Bannerlord client compilation inputs. -->
@@ -145,7 +144,7 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="$(ReignServerRoot)\ReignModules\Reign.Core.Contracts\Reign.Core.Contracts.csproj" />
+    <ProjectReference Include="$(ReignServerRoot)\shared\Reign.Core.Contracts\Reign.Core.Contracts.csproj" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="ModuleData\reign_tavern_cast.json">
@@ -157,7 +156,7 @@
           AfterTargets="Build"
           Condition="'$(DesignTimeBuild)' != 'true' and '$(ReignSkipNativePortraitGenerator)' != 'true'">
     <PropertyGroup>
-      <NativePortraitGeneratorProject>$(MSBuildProjectDirectory)\..\NativeCharacterImageGenerator\src\NativeCharacterImageGenerator.App\NativeCharacterImageGenerator.App.csproj</NativePortraitGeneratorProject>
+      <NativePortraitGeneratorProject>$(MSBuildProjectDirectory)\..\ReignServer\tools\portrait-generator\src\NativeCharacterImageGenerator.App\NativeCharacterImageGenerator.App.csproj</NativePortraitGeneratorProject>
       <NativePortraitGeneratorPublishDir>$([MSBuild]::EnsureTrailingSlash('$(OutputPath)'))native-portrait-generator\</NativePortraitGeneratorPublishDir>
       <NativePortraitGeneratorBuildDir>$(MSBuildProjectDirectory)\obj\bundled-native-portrait-generator\$(Configuration)\</NativePortraitGeneratorBuildDir>
     </PropertyGroup>

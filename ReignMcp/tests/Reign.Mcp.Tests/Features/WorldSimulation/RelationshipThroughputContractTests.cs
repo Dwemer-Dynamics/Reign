@@ -20,7 +20,7 @@ public sealed class RelationshipThroughputContractTests
         Assert.Contains("restore_during_failure", cases);
         Assert.Contains("snapshot_during_failure", cases);
         Assert.True(File.Exists(Path.Combine(root, scope.GetProperty("procedure").GetString()!)));
-        string verifier = File.ReadAllText(Path.Combine(root, "ReignBetaServer/src/Modules/Platform/VerificationLab.cs"));
+        string verifier = File.ReadAllText(Path.Combine(root, "ReignServer/src/Modules/Platform/VerificationLab.cs"));
         Assert.Contains("RunCampaignProviderWaitSelfTests()", verifier);
     }
 
@@ -55,7 +55,7 @@ public sealed class RelationshipThroughputContractTests
         Assert.Equal(new[] { "synchronous", "asynchronous" },
             probe.GetProperty("executionModes").EnumerateArray().Select(x => x.GetString()).ToArray());
         Assert.Equal(30000, probe.GetProperty("requestBudgetMs").GetInt32());
-        string source = File.ReadAllText(Path.Combine(root, "ReignBetaServer/src/Modules/Relationships/RelationshipThroughputReplay.cs"));
+        string source = File.ReadAllText(Path.Combine(root, "ReignServer/src/Modules/Relationships/RelationshipThroughputReplay.cs"));
         Assert.Contains("options.IsValidation", source);
         Assert.Contains("IPAddress.IsLoopback(address)", source);
         Assert.Contains("SELECT length(@payload);", source);

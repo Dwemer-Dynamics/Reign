@@ -2,19 +2,9 @@
   "schema": "reign-project-catalog-v1",
   "managedRoots": [
     {
-      "path": "ReignRelease",
-      "group": "infrastructure",
-      "description": "Release definitions, dependency acquisition and installer source; no standalone project"
-    },
-    {
       "path": "ReignBeta",
       "group": "core",
       "description": "Bannerlord Reign game client"
-    },
-    {
-      "path": "ReignBetaServer",
-      "group": "core",
-      "description": "Reign server and authoritative verification tools"
     },
     {
       "path": "ReignMcp",
@@ -22,24 +12,14 @@
       "description": "Reign MCP server and its tests"
     },
     {
-      "path": "ReignModules",
-      "group": "core",
-      "description": "Bannerlord-independent Reign contracts, domain modules, and tests"
-    },
-    {
-      "path": "ReignTools",
-      "group": "tooling",
-      "description": "Explicit migration and maintenance utilities that are not shipped in the normal runtime"
-    },
-    {
       "path": "BannerlordEditorMcp",
       "group": "tooling",
       "description": "Bannerlord Editor MCP, bridge, protocol, and tests"
     },
     {
-      "path": "NativeCharacterImageGenerator",
-      "group": "tooling",
-      "description": "Native portrait generation toolchain"
+      "path": "ReignServer",
+      "group": "core",
+      "description": "Public server source, shared modules, services and tools"
     }
   ],
   "ignoredRoots": [
@@ -88,17 +68,19 @@
       "id": "client",
       "name": "Bannerlord client"
     },
-    "ReignBetaServer/ReignBetaServer.csproj": {
+    "ReignServer/ReignServer.csproj": {
       "id": "server",
       "name": "Reign server"
     },
-    "ReignBetaServer/ReignVerification/ReignVerification.csproj": {
+    "ReignServer/tests/ReignVerification/ReignVerification.csproj": {
       "id": "verification",
-      "name": "Verification runner"
+      "name": "Verification runner",
+      "test": false
     },
-    "ReignBetaServer/ReignLiveTest/ReignLiveTest.csproj": {
+    "ReignServer/tests/ReignLiveTest/ReignLiveTest.csproj": {
       "id": "live-test",
-      "name": "Live-test controller"
+      "name": "Live-test controller",
+      "test": false
     },
     "ReignMcp/src/Reign.Mcp.Server/Reign.Mcp.Server.csproj": {
       "id": "mcp",
@@ -109,27 +91,58 @@
       "name": "Reign MCP tests",
       "test": true
     },
-    "ReignModules/Reign.Core.Contracts/Reign.Core.Contracts.csproj": {
+    "ReignServer/shared/Reign.Core.Contracts/Reign.Core.Contracts.csproj": {
       "id": "core-contracts",
       "name": "Reign core contracts"
     },
-    "ReignModules/Reign.Relationships/Reign.Relationships.csproj": {
+    "ReignServer/shared/Reign.Relationships/Reign.Relationships.csproj": {
       "id": "relationships",
       "name": "Reign relationship kernel"
     },
-    "ReignModules/Reign.Relationships.Tests/Reign.Relationships.Tests.csproj": {
+    "ReignServer/shared/Reign.Relationships.Tests/Reign.Relationships.Tests.csproj": {
       "id": "relationships-tests",
       "name": "Reign relationship kernel tests",
       "test": true
-    },
-    "ReignTools/Reign.LegacySqliteImporter/Reign.LegacySqliteImporter.csproj": {
-      "id": "legacy-sqlite-importer",
-      "name": "Legacy SQLite importer"
     },
     "BannerlordEditorMcp/tests/Bannerlord.EditorMcp.Tests/Bannerlord.EditorMcp.Tests.csproj": {
       "id": "editor-mcp-tests",
       "name": "Bannerlord Editor MCP tests",
       "test": true
+    },
+    "ReignServer/tools/portrait-generator/native-module/BannerlordNativePortraitRenderer.csproj": {
+      "id": "nativecharacterimagegenerator-native-module-bannerlordnativeportraitrenderer-csproj",
+      "name": "BannerlordNativePortraitRenderer",
+      "group": "tooling"
+    },
+    "ReignServer/tools/portrait-generator/src/NativeCharacterImageGenerator.App/NativeCharacterImageGenerator.App.csproj": {
+      "id": "nativecharacterimagegenerator-src-nativecharacterimagegenerator-app-nativecharacterimagegenerator-app-csproj",
+      "name": "NativeCharacterImageGenerator.App",
+      "group": "tooling"
+    },
+    "ReignServer/tools/portrait-generator/src/NativeCharacterImageGenerator.SourceCacheVerifier/NativeCharacterImageGenerator.SourceCacheVerifier.csproj": {
+      "id": "nativecharacterimagegenerator-src-nativecharacterimagegenerator-sourcecacheverifier-nativecharacterimagegenerator-sourcecacheverifier-csproj",
+      "name": "NativeCharacterImageGenerator.SourceCacheVerifier",
+      "group": "tooling"
+    },
+    "ReignServer/tools/portrait-generator/src/NativeCharacterImageGenerator/NativeCharacterImageGenerator.csproj": {
+      "id": "nativecharacterimagegenerator-src-nativecharacterimagegenerator-nativecharacterimagegenerator-csproj",
+      "name": "NativeCharacterImageGenerator",
+      "group": "tooling"
+    },
+    "ReignServer/tools/portrait-generator/src/NativePortraitRenderHost/NativePortraitRenderHost.csproj": {
+      "id": "nativecharacterimagegenerator-src-nativeportraitrenderhost-nativeportraitrenderhost-csproj",
+      "name": "NativePortraitRenderHost",
+      "group": "tooling"
+    },
+    "ReignServer/tools/portrait-generator/tests/NativeCharacterImageGenerator.Tests/NativeCharacterImageGenerator.Tests.csproj": {
+      "id": "nativecharacterimagegenerator-tests-nativecharacterimagegenerator-tests-nativecharacterimagegenerator-tests-csproj",
+      "name": "NativeCharacterImageGenerator.Tests",
+      "group": "tooling"
+    },
+    "ReignServer/tools/portrait-generator/tools/NativeAssetInspector/NativeAssetInspector.csproj": {
+      "id": "nativecharacterimagegenerator-tools-nativeassetinspector-nativeassetinspector-csproj",
+      "name": "NativeAssetInspector",
+      "group": "tooling"
     }
   }
 }

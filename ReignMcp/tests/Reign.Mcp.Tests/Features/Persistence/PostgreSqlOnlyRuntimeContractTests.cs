@@ -7,7 +7,7 @@ public sealed class PostgreSqlOnlyRuntimeContractTests
     {
         var root = TestOptions.FindWorkspace();
         var project = File.ReadAllText(Path.Combine(
-            root, "ReignBetaServer", "ReignBetaServer.csproj"));
+            root, "ReignServer", "ReignServer.csproj"));
 
         Assert.DoesNotContain("Microsoft.Data.Sqlite", project,
             StringComparison.OrdinalIgnoreCase);
@@ -19,19 +19,4 @@ public sealed class PostgreSqlOnlyRuntimeContractTests
             StringComparison.OrdinalIgnoreCase);
     }
 
-    [Fact]
-    public void SqliteDependencyIsIsolatedToExplicitImporter()
-    {
-        var root = TestOptions.FindWorkspace();
-        var importer = File.ReadAllText(Path.Combine(
-            root,
-            "ReignTools",
-            "Reign.LegacySqliteImporter",
-            "Reign.LegacySqliteImporter.csproj"));
-
-        Assert.Contains("Microsoft.Data.Sqlite", importer,
-            StringComparison.OrdinalIgnoreCase);
-        Assert.Contains("Npgsql", importer,
-            StringComparison.OrdinalIgnoreCase);
-    }
 }

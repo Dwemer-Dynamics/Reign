@@ -8,7 +8,7 @@ public sealed class ReignApiRouteContractTests
         var workspace = TestOptions.FindWorkspace();
         var router = string.Join(Environment.NewLine,
             Directory.EnumerateFiles(
-                    Path.Combine(workspace, "ReignBetaServer", "src"),
+                    Path.Combine(workspace, "ReignServer", "src"),
                     "Program*.cs",
                     SearchOption.AllDirectories)
                 .Order(StringComparer.OrdinalIgnoreCase)
@@ -69,7 +69,7 @@ public sealed class ReignApiRouteContractTests
     {
         var workspace = TestOptions.FindWorkspace();
         string dialogue = File.ReadAllText(TestSourceLocator.Unique(
-            Path.Combine(workspace, "ReignBetaServer"), "RulerDocketDialogue.cs",
+            Path.Combine(workspace, "ReignServer"), "RulerDocketDialogue.cs",
             "/src/Modules/Court/"));
         string art = File.ReadAllText(TestSourceLocator.Unique(
             Path.Combine(workspace, "ReignBeta"), "ReignRulerPetitionSceneClient.cs",
@@ -172,9 +172,9 @@ public sealed class ReignApiRouteContractTests
     {
         var workspace = TestOptions.FindWorkspace();
         string platform = File.ReadAllText(TestSourceLocator.Unique(
-            Path.Combine(workspace, "ReignBetaServer"), "Program.cs", "/src/Modules/Platform/"));
+            Path.Combine(workspace, "ReignServer"), "Program.cs", "/src/Modules/Platform/"));
         string liveTests = File.ReadAllText(TestSourceLocator.Unique(
-            Path.Combine(workspace, "ReignBetaServer"), "LiveInteractionTest.cs", "/src/Modules/WorldSimulation/"));
+            Path.Combine(workspace, "ReignServer"), "LiveInteractionTest.cs", "/src/Modules/WorldSimulation/"));
 
         Assert.Contains("LiveTestRunSummary(run, false)", liveTests, StringComparison.Ordinal);
         Assert.Contains("WriteIdleLiveTestRunIndex", liveTests, StringComparison.Ordinal);
@@ -195,8 +195,7 @@ public sealed class ReignApiRouteContractTests
     public void ControlCenterShutdownRunsWithoutAConfirmationPopup()
     {
         var workspace = TestOptions.FindWorkspace();
-        string platform = File.ReadAllText(TestSourceLocator.Unique(
-            Path.Combine(workspace, "ReignBetaServer"), "Program.cs", "/src/Modules/Platform/"));
+        string platform = File.ReadAllText(Path.Combine(workspace, "ReignServer", "ui", "index.html"));
 
         Assert.Contains("async function shutdownServer()", platform, StringComparison.Ordinal);
         Assert.Contains("fetch('/api/shutdown'", platform, StringComparison.Ordinal);
@@ -217,11 +216,11 @@ public sealed class ReignApiRouteContractTests
             "SubModule.cs",
             "/src/Modules/Platform/"));
         string server = File.ReadAllText(TestSourceLocator.Unique(
-            Path.Combine(workspace, "ReignBetaServer"),
+            Path.Combine(workspace, "ReignServer"),
             "SaveSync.cs",
             "/src/Modules/Persistence/"));
         string campaignBackups = File.ReadAllText(TestSourceLocator.Unique(
-            Path.Combine(workspace, "ReignBetaServer"),
+            Path.Combine(workspace, "ReignServer"),
             "CampaignBackups.cs",
             "/src/Modules/Persistence/"));
 

@@ -5,8 +5,8 @@
     ".codex/**",
     "ReignBeta/SubModule.xml",
     "ReignBeta/*.cmd",
-    "ReignBetaServer/postgresql/**",
-    "ReignBetaServer/VectorWorker/**",
+    "ReignServer/database/**",
+    "ReignServer/services/vector-worker/**",
     "ReignMcp/deployment/**",
     "ReignMcp/scripts/**"
   ],
@@ -14,8 +14,9 @@
     ".version.txt",
     ".version_number.txt",
     "reign.repositories.json",
-    "ReignRelease/**",
+    "ReignServer/release/**",
     ".gitattributes",
+    "ReignServer/.gitattributes",
     ".gitignore",
     "reign.repository.json",
     "reign-projects.json",
@@ -28,178 +29,1770 @@
     "ReignMcp/tests/Reign.Mcp.Tests/Validation/**"
   ],
   "nonCodePaths": [
-    { "pattern": "AGENTS.md", "reason": "Agent policy changes require instruction review but no product compilation." },
-    { "pattern": "REIGN_ROADMAP.md", "reason": "Roadmap-only changes require no compilation." },
-    { "pattern": "**/docs/**", "reason": "Agent and subsystem documentation is non-code." },
-    { "pattern": "**/README.md", "reason": "Documentation-only change." },
-    { "pattern": "**/THIRD_PARTY_NOTICES.md", "reason": "Third-party notice text is non-code." }
+    {
+      "pattern": "AGENTS.md",
+      "reason": "Agent policy changes require instruction review but no product compilation."
+    },
+    {
+      "pattern": "REIGN_ROADMAP.md",
+      "reason": "Roadmap-only changes require no compilation."
+    },
+    {
+      "pattern": "**/docs/**",
+      "reason": "Agent and subsystem documentation is non-code."
+    },
+    {
+      "pattern": "**/README.md",
+      "reason": "Documentation-only change."
+    },
+    {
+      "pattern": "**/THIRD_PARTY_NOTICES.md",
+      "reason": "Third-party notice text is non-code."
+    },
+    {
+      "pattern": "ReignServer/AGENTS.md",
+      "reason": "Server agent workflow documentation"
+    }
   ],
   "modules": [
     {
-      "id": "core", "name": "Core contracts", "dependsOn": [],
-      "boundaryProjects": ["core-contracts", "client", "server"], "boundaryTestProjects": [],
+      "id": "core",
+      "name": "Core contracts",
+      "dependsOn": [],
+      "boundaryProjects": [
+        "core-contracts",
+        "client",
+        "server"
+      ],
+      "boundaryTestProjects": [],
       "facets": [
-        { "id": "domain", "ownership": ["ReignModules/Reign.Core.Contracts/**"], "projects": ["core-contracts"], "testProjects": [], "defaultTier": 1, "focusedPaths": ["ReignModules/Reign.Core.Contracts/**/*.cs"], "contractPaths": ["ReignModules/Reign.Core.Contracts/Platform/**"], "integrationPaths": [], "tier4Paths": [], "validation": { "focused": [], "subsystem": [] } },
-        { "id": "shared-source", "ownership": ["ReignModules/Reign.Shared.Source/Dialogue/**", "ReignModules/Reign.Shared.Source/Characters/**", "ReignModules/Reign.Shared.Source/Portraits/**"], "projects": ["client", "server"], "testProjects": ["mcp-tests"], "defaultTier": 3, "focusedPaths": [], "contractPaths": [], "integrationPaths": [], "tier4Paths": [], "validation": { "focused": [], "subsystem": [] } }
+        {
+          "id": "domain",
+          "ownership": [
+            "ReignServer/shared/Reign.Core.Contracts/**"
+          ],
+          "projects": [
+            "core-contracts"
+          ],
+          "testProjects": [],
+          "defaultTier": 1,
+          "focusedPaths": [
+            "ReignServer/shared/Reign.Core.Contracts/**/*.cs"
+          ],
+          "contractPaths": [
+            "ReignServer/shared/Reign.Core.Contracts/Platform/**"
+          ],
+          "integrationPaths": [],
+          "tier4Paths": [],
+          "validation": {
+            "focused": [],
+            "subsystem": []
+          }
+        },
+        {
+          "id": "shared-source",
+          "ownership": [
+            "ReignServer/shared/Reign.Shared.Source/Dialogue/**",
+            "ReignServer/shared/Reign.Shared.Source/Characters/**",
+            "ReignServer/shared/Reign.Shared.Source/Portraits/**"
+          ],
+          "projects": [
+            "client",
+            "server"
+          ],
+          "testProjects": [
+            "mcp-tests"
+          ],
+          "defaultTier": 3,
+          "focusedPaths": [],
+          "contractPaths": [],
+          "integrationPaths": [],
+          "tier4Paths": [],
+          "validation": {
+            "focused": [],
+            "subsystem": []
+          }
+        }
       ]
     },
     {
-      "id": "persistence", "name": "PostgreSQL persistence", "dependsOn": ["core"],
-      "boundaryProjects": ["core-contracts", "client", "server"], "boundaryTestProjects": ["mcp-tests"],
-      "boundaryValidation": [{ "moduleId": "persistence", "projectId": "server", "arguments": ["--run-save-sync-tests", "--json"] }],
+      "id": "persistence",
+      "name": "PostgreSQL persistence",
+      "dependsOn": [
+        "core"
+      ],
+      "boundaryProjects": [
+        "core-contracts",
+        "client",
+        "server"
+      ],
+      "boundaryTestProjects": [
+        "mcp-tests"
+      ],
+      "boundaryValidation": [
+        {
+          "moduleId": "persistence",
+          "projectId": "server",
+          "arguments": [
+            "--run-save-sync-tests",
+            "--json"
+          ]
+        }
+      ],
       "facets": [
-        { "id": "server", "ownership": ["ReignBetaServer/src/Modules/Persistence/**", "ReignBetaServer/ProfileLibrary/**", "ReignBetaServer/test-fixtures/**"], "projects": ["server"], "testProjects": [], "defaultTier": 2, "focusedPaths": [], "contractPaths": [], "integrationPaths": ["**/*SaveSync*.cs", "**/*Storage*.cs"], "tier4Paths": [], "validation": { "focused": [], "subsystem": [{ "moduleId": "persistence", "projectId": "server", "arguments": ["--run-save-sync-tests", "--json"] }] } },
-        { "id": "bannerlord", "ownership": ["ReignBeta/src/Modules/Persistence/**"], "projects": ["client"], "testProjects": [], "defaultTier": 2, "focusedPaths": [], "contractPaths": [], "integrationPaths": ["**/*SaveDefiner*.cs", "**/*SavePayload*.cs"], "tier4Paths": [], "validation": { "focused": [], "subsystem": [] } },
-        { "id": "mcp", "ownership": ["ReignMcp/tests/Reign.Mcp.Tests/Features/Persistence/**"], "projects": ["mcp"], "testProjects": ["mcp-tests"], "defaultTier": 2, "focusedPaths": [], "contractPaths": [], "integrationPaths": [], "tier4Paths": [], "validation": { "focused": [], "subsystem": [{ "moduleId": "persistence", "projectId": "mcp-tests", "kind": "test-filter", "testFilter": "FullyQualifiedName~PostgreSql|FullyQualifiedName~SavePayload" }] } }
+        {
+          "id": "server",
+          "ownership": [
+            "ReignServer/src/Modules/Persistence/**",
+            "ReignServer/profiles/**",
+            "ReignServer/tests/fixtures/**"
+          ],
+          "projects": [
+            "server"
+          ],
+          "testProjects": [],
+          "defaultTier": 2,
+          "focusedPaths": [],
+          "contractPaths": [],
+          "integrationPaths": [
+            "**/*SaveSync*.cs",
+            "**/*Storage*.cs"
+          ],
+          "tier4Paths": [],
+          "validation": {
+            "focused": [],
+            "subsystem": [
+              {
+                "moduleId": "persistence",
+                "projectId": "server",
+                "arguments": [
+                  "--run-save-sync-tests",
+                  "--json"
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "id": "bannerlord",
+          "ownership": [
+            "ReignBeta/src/Modules/Persistence/**"
+          ],
+          "projects": [
+            "client"
+          ],
+          "testProjects": [],
+          "defaultTier": 2,
+          "focusedPaths": [],
+          "contractPaths": [],
+          "integrationPaths": [
+            "**/*SaveDefiner*.cs",
+            "**/*SavePayload*.cs"
+          ],
+          "tier4Paths": [],
+          "validation": {
+            "focused": [],
+            "subsystem": []
+          }
+        },
+        {
+          "id": "mcp",
+          "ownership": [
+            "ReignMcp/tests/Reign.Mcp.Tests/Features/Persistence/**"
+          ],
+          "projects": [
+            "mcp"
+          ],
+          "testProjects": [
+            "mcp-tests"
+          ],
+          "defaultTier": 2,
+          "focusedPaths": [],
+          "contractPaths": [],
+          "integrationPaths": [],
+          "tier4Paths": [],
+          "validation": {
+            "focused": [],
+            "subsystem": [
+              {
+                "moduleId": "persistence",
+                "projectId": "mcp-tests",
+                "kind": "test-filter",
+                "testFilter": "FullyQualifiedName~PostgreSql|FullyQualifiedName~SavePayload"
+              }
+            ]
+          }
+        }
       ]
     },
     {
-      "id": "characters", "name": "Characters", "dependsOn": ["core", "persistence"],
-      "boundaryProjects": ["core-contracts", "client", "server"], "boundaryTestProjects": [],
+      "id": "characters",
+      "name": "Characters",
+      "dependsOn": [
+        "core",
+        "persistence"
+      ],
+      "boundaryProjects": [
+        "core-contracts",
+        "client",
+        "server"
+      ],
+      "boundaryTestProjects": [],
       "facets": [
-        { "id": "server", "ownership": ["ReignBetaServer/src/Modules/Characters/**"], "projects": ["server"], "testProjects": [], "defaultTier": 2, "focusedPaths": [], "contractPaths": [], "integrationPaths": [], "tier4Paths": [], "validation": { "focused": [], "subsystem": [] } },
-        { "id": "bannerlord", "ownership": ["ReignBeta/src/Modules/Characters/**"], "projects": ["client"], "testProjects": [], "defaultTier": 2, "focusedPaths": [], "contractPaths": [], "integrationPaths": [], "tier4Paths": [], "validation": { "focused": [], "subsystem": [] } }
+        {
+          "id": "server",
+          "ownership": [
+            "ReignServer/src/Modules/Characters/**"
+          ],
+          "projects": [
+            "server"
+          ],
+          "testProjects": [],
+          "defaultTier": 2,
+          "focusedPaths": [],
+          "contractPaths": [],
+          "integrationPaths": [],
+          "tier4Paths": [],
+          "validation": {
+            "focused": [],
+            "subsystem": []
+          }
+        },
+        {
+          "id": "bannerlord",
+          "ownership": [
+            "ReignBeta/src/Modules/Characters/**"
+          ],
+          "projects": [
+            "client"
+          ],
+          "testProjects": [],
+          "defaultTier": 2,
+          "focusedPaths": [],
+          "contractPaths": [],
+          "integrationPaths": [],
+          "tier4Paths": [],
+          "validation": {
+            "focused": [],
+            "subsystem": []
+          }
+        }
       ]
     },
     {
-      "id": "relationships", "name": "Relationships", "dependsOn": ["characters", "persistence"], "boundaryModules": ["persistence", "dialogue"],
-      "boundaryProjects": ["core-contracts", "relationships", "client", "server"], "boundaryTestProjects": ["relationships-tests"],
-      "boundaryValidation": [{ "moduleId": "relationships", "projectId": "server", "arguments": ["--run-relationship-tests", "--json"] }],
+      "id": "relationships",
+      "name": "Relationships",
+      "dependsOn": [
+        "characters",
+        "persistence"
+      ],
+      "boundaryModules": [
+        "persistence",
+        "dialogue"
+      ],
+      "boundaryProjects": [
+        "core-contracts",
+        "relationships",
+        "client",
+        "server"
+      ],
+      "boundaryTestProjects": [
+        "relationships-tests"
+      ],
+      "boundaryValidation": [
+        {
+          "moduleId": "relationships",
+          "projectId": "server",
+          "arguments": [
+            "--run-relationship-tests",
+            "--json"
+          ]
+        }
+      ],
       "facets": [
-        { "id": "domain", "ownership": ["ReignModules/Reign.Relationships/**", "ReignModules/Reign.Relationships.Tests/**"], "projects": ["relationships"], "testProjects": ["relationships-tests"], "defaultTier": 1, "focusedPaths": ["ReignModules/Reign.Relationships/**/*.cs", "ReignModules/Reign.Relationships.Tests/**/*.cs"], "contractPaths": [], "integrationPaths": [], "tier4Paths": [], "validation": { "focused": [], "subsystem": [] } },
-        { "id": "server", "ownership": ["ReignBetaServer/src/Modules/Relationships/**"], "projects": ["server"], "testProjects": [], "defaultTier": 2, "focusedPaths": [], "contractPaths": ["**/*Api.cs"], "integrationPaths": [], "tier4Paths": [], "validation": { "focused": [], "subsystem": [{ "moduleId": "relationships", "projectId": "server", "arguments": ["--run-relationship-tests", "--json"] }] } },
-        { "id": "bannerlord", "ownership": ["ReignBeta/src/Modules/Relationships/**"], "projects": ["client"], "testProjects": [], "defaultTier": 2, "focusedPaths": [], "contractPaths": [], "integrationPaths": [], "tier4Paths": [], "validation": { "focused": [], "subsystem": [] } }
+        {
+          "id": "domain",
+          "ownership": [
+            "ReignServer/shared/Reign.Relationships/**",
+            "ReignServer/shared/Reign.Relationships.Tests/**"
+          ],
+          "projects": [
+            "relationships"
+          ],
+          "testProjects": [
+            "relationships-tests"
+          ],
+          "defaultTier": 1,
+          "focusedPaths": [
+            "ReignServer/shared/Reign.Relationships/**/*.cs",
+            "ReignServer/shared/Reign.Relationships.Tests/**/*.cs"
+          ],
+          "contractPaths": [],
+          "integrationPaths": [],
+          "tier4Paths": [],
+          "validation": {
+            "focused": [],
+            "subsystem": []
+          }
+        },
+        {
+          "id": "server",
+          "ownership": [
+            "ReignServer/src/Modules/Relationships/**"
+          ],
+          "projects": [
+            "server"
+          ],
+          "testProjects": [],
+          "defaultTier": 2,
+          "focusedPaths": [],
+          "contractPaths": [
+            "**/*Api.cs"
+          ],
+          "integrationPaths": [],
+          "tier4Paths": [],
+          "validation": {
+            "focused": [],
+            "subsystem": [
+              {
+                "moduleId": "relationships",
+                "projectId": "server",
+                "arguments": [
+                  "--run-relationship-tests",
+                  "--json"
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "id": "bannerlord",
+          "ownership": [
+            "ReignBeta/src/Modules/Relationships/**"
+          ],
+          "projects": [
+            "client"
+          ],
+          "testProjects": [],
+          "defaultTier": 2,
+          "focusedPaths": [],
+          "contractPaths": [],
+          "integrationPaths": [],
+          "tier4Paths": [],
+          "validation": {
+            "focused": [],
+            "subsystem": []
+          }
+        }
       ]
     },
     {
-      "id": "reputation", "name": "Rumors and reputation", "dependsOn": ["relationships"], "boundaryModules": ["relationships", "dialogue"],
-      "boundaryProjects": ["client", "server", "live-test", "verification", "mcp"], "boundaryTestProjects": ["mcp-tests"],
-      "boundaryValidation": [{ "moduleId": "reputation", "projectId": "server", "arguments": ["--run-rumor-tests", "--json"] }],
+      "id": "reputation",
+      "name": "Rumors and reputation",
+      "dependsOn": [
+        "relationships"
+      ],
+      "boundaryModules": [
+        "relationships",
+        "dialogue"
+      ],
+      "boundaryProjects": [
+        "client",
+        "server",
+        "live-test",
+        "verification",
+        "mcp"
+      ],
+      "boundaryTestProjects": [
+        "mcp-tests"
+      ],
+      "boundaryValidation": [
+        {
+          "moduleId": "reputation",
+          "projectId": "server",
+          "arguments": [
+            "--run-rumor-tests",
+            "--json"
+          ]
+        }
+      ],
       "facets": [
-        { "id": "server", "ownership": ["ReignBetaServer/src/Modules/Reputation/**"], "projects": ["server"], "testProjects": [], "defaultTier": 2, "focusedPaths": [], "contractPaths": [], "integrationPaths": [], "tier4Paths": [], "validation": { "focused": [], "subsystem": [{ "moduleId": "reputation", "projectId": "server", "arguments": ["--run-rumor-tests", "--json"] }] } },
-        { "id": "bannerlord", "ownership": ["ReignBeta/src/Modules/Reputation/**"], "projects": ["client"], "testProjects": [], "defaultTier": 2, "focusedPaths": [], "contractPaths": [], "integrationPaths": [], "tier4Paths": [], "validation": { "focused": [], "subsystem": [] } },
-        { "id": "harness", "ownership": ["ReignBetaServer/ReignLiveTest/Features/Reputation/**", "ReignBetaServer/ReignLiveTest/scenarios/social-reputation-*.json"], "projects": ["live-test", "verification", "server"], "testProjects": [], "defaultTier": 2, "focusedPaths": [], "contractPaths": [], "integrationPaths": [], "tier4Paths": [], "validation": { "focused": [], "subsystem": [] } },
-        { "id": "mcp", "ownership": ["ReignMcp/src/Reign.Mcp.Server/Modules/Reputation/**", "ReignMcp/tests/Reign.Mcp.Tests/Features/Reputation/**"], "projects": ["mcp"], "testProjects": ["mcp-tests"], "defaultTier": 2, "focusedPaths": [], "contractPaths": [], "integrationPaths": [], "tier4Paths": [], "validation": { "focused": [], "subsystem": [{ "moduleId": "reputation", "projectId": "mcp-tests", "kind": "test-filter", "testFilter": "FullyQualifiedName~SocialReputation" }] } }
+        {
+          "id": "server",
+          "ownership": [
+            "ReignServer/src/Modules/Reputation/**"
+          ],
+          "projects": [
+            "server"
+          ],
+          "testProjects": [],
+          "defaultTier": 2,
+          "focusedPaths": [],
+          "contractPaths": [],
+          "integrationPaths": [],
+          "tier4Paths": [],
+          "validation": {
+            "focused": [],
+            "subsystem": [
+              {
+                "moduleId": "reputation",
+                "projectId": "server",
+                "arguments": [
+                  "--run-rumor-tests",
+                  "--json"
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "id": "bannerlord",
+          "ownership": [
+            "ReignBeta/src/Modules/Reputation/**"
+          ],
+          "projects": [
+            "client"
+          ],
+          "testProjects": [],
+          "defaultTier": 2,
+          "focusedPaths": [],
+          "contractPaths": [],
+          "integrationPaths": [],
+          "tier4Paths": [],
+          "validation": {
+            "focused": [],
+            "subsystem": []
+          }
+        },
+        {
+          "id": "harness",
+          "ownership": [
+            "ReignServer/tests/ReignLiveTest/Features/Reputation/**",
+            "ReignServer/tests/ReignLiveTest/scenarios/social-reputation-*.json"
+          ],
+          "projects": [
+            "live-test",
+            "verification",
+            "server"
+          ],
+          "testProjects": [],
+          "defaultTier": 2,
+          "focusedPaths": [],
+          "contractPaths": [],
+          "integrationPaths": [],
+          "tier4Paths": [],
+          "validation": {
+            "focused": [],
+            "subsystem": []
+          }
+        },
+        {
+          "id": "mcp",
+          "ownership": [
+            "ReignMcp/src/Reign.Mcp.Server/Modules/Reputation/**",
+            "ReignMcp/tests/Reign.Mcp.Tests/Features/Reputation/**"
+          ],
+          "projects": [
+            "mcp"
+          ],
+          "testProjects": [
+            "mcp-tests"
+          ],
+          "defaultTier": 2,
+          "focusedPaths": [],
+          "contractPaths": [],
+          "integrationPaths": [],
+          "tier4Paths": [],
+          "validation": {
+            "focused": [],
+            "subsystem": [
+              {
+                "moduleId": "reputation",
+                "projectId": "mcp-tests",
+                "kind": "test-filter",
+                "testFilter": "FullyQualifiedName~SocialReputation"
+              }
+            ]
+          }
+        }
       ]
     },
     {
-      "id": "dialogue", "name": "Dialogue and memory", "dependsOn": ["characters", "relationships", "reputation", "persistence"],
-      "boundaryProjects": ["client", "server", "live-test"], "boundaryTestProjects": [],
+      "id": "dialogue",
+      "name": "Dialogue and memory",
+      "dependsOn": [
+        "characters",
+        "relationships",
+        "reputation",
+        "persistence"
+      ],
+      "boundaryProjects": [
+        "client",
+        "server",
+        "live-test"
+      ],
+      "boundaryTestProjects": [],
       "facets": [
-        { "id": "server", "ownership": ["ReignBetaServer/src/Modules/Dialogue/**"], "projects": ["server"], "testProjects": [], "defaultTier": 2, "focusedPaths": [], "contractPaths": [], "integrationPaths": [], "tier4Paths": [], "validation": { "focused": [], "subsystem": [{ "moduleId": "dialogue", "projectId": "server", "arguments": ["--run-motive-conversation-tests", "--json"] }] } },
-        { "id": "bannerlord", "ownership": ["ReignBeta/src/Modules/Dialogue/**"], "projects": ["client"], "testProjects": [], "defaultTier": 2, "focusedPaths": [], "contractPaths": [], "integrationPaths": [], "tier4Paths": [], "validation": { "focused": [], "subsystem": [] } },
-        { "id": "harness", "ownership": ["ReignBetaServer/ReignLiveTest/Features/Dialogue/**", "ReignBetaServer/ReignLiveTest/scenarios/sovereign-demeanor-*.json"], "projects": ["live-test", "server"], "testProjects": [], "defaultTier": 2, "focusedPaths": [], "contractPaths": [], "integrationPaths": [], "tier4Paths": [], "validation": { "focused": [], "subsystem": [] } }
+        {
+          "id": "server",
+          "ownership": [
+            "ReignServer/src/Modules/Dialogue/**"
+          ],
+          "projects": [
+            "server"
+          ],
+          "testProjects": [],
+          "defaultTier": 2,
+          "focusedPaths": [],
+          "contractPaths": [],
+          "integrationPaths": [],
+          "tier4Paths": [],
+          "validation": {
+            "focused": [],
+            "subsystem": [
+              {
+                "moduleId": "dialogue",
+                "projectId": "server",
+                "arguments": [
+                  "--run-motive-conversation-tests",
+                  "--json"
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "id": "bannerlord",
+          "ownership": [
+            "ReignBeta/src/Modules/Dialogue/**"
+          ],
+          "projects": [
+            "client"
+          ],
+          "testProjects": [],
+          "defaultTier": 2,
+          "focusedPaths": [],
+          "contractPaths": [],
+          "integrationPaths": [],
+          "tier4Paths": [],
+          "validation": {
+            "focused": [],
+            "subsystem": []
+          }
+        },
+        {
+          "id": "harness",
+          "ownership": [
+            "ReignServer/tests/ReignLiveTest/Features/Dialogue/**",
+            "ReignServer/tests/ReignLiveTest/scenarios/sovereign-demeanor-*.json"
+          ],
+          "projects": [
+            "live-test",
+            "server"
+          ],
+          "testProjects": [],
+          "defaultTier": 2,
+          "focusedPaths": [],
+          "contractPaths": [],
+          "integrationPaths": [],
+          "tier4Paths": [],
+          "validation": {
+            "focused": [],
+            "subsystem": []
+          }
+        }
       ]
     },
     {
-      "id": "diplomacy", "name": "Diplomacy", "dependsOn": ["characters", "relationships", "reputation", "persistence"],
-      "boundaryProjects": ["client", "server"], "boundaryTestProjects": [],
+      "id": "diplomacy",
+      "name": "Diplomacy",
+      "dependsOn": [
+        "characters",
+        "relationships",
+        "reputation",
+        "persistence"
+      ],
+      "boundaryProjects": [
+        "client",
+        "server"
+      ],
+      "boundaryTestProjects": [],
       "facets": [
-        { "id": "server", "ownership": ["ReignBetaServer/src/Modules/Diplomacy/**"], "projects": ["server"], "testProjects": [], "defaultTier": 2, "focusedPaths": [], "contractPaths": [], "integrationPaths": [], "tier4Paths": [], "validation": { "focused": [], "subsystem": [{ "moduleId": "diplomacy", "projectId": "server", "arguments": ["--run-diplomacy-tests", "--json"] }] } },
-        { "id": "bannerlord", "ownership": ["ReignBeta/src/Modules/Diplomacy/**"], "projects": ["client"], "testProjects": [], "defaultTier": 2, "focusedPaths": [], "contractPaths": [], "integrationPaths": [], "tier4Paths": [], "validation": { "focused": [], "subsystem": [] } }
+        {
+          "id": "server",
+          "ownership": [
+            "ReignServer/src/Modules/Diplomacy/**"
+          ],
+          "projects": [
+            "server"
+          ],
+          "testProjects": [],
+          "defaultTier": 2,
+          "focusedPaths": [],
+          "contractPaths": [],
+          "integrationPaths": [],
+          "tier4Paths": [],
+          "validation": {
+            "focused": [],
+            "subsystem": [
+              {
+                "moduleId": "diplomacy",
+                "projectId": "server",
+                "arguments": [
+                  "--run-diplomacy-tests",
+                  "--json"
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "id": "bannerlord",
+          "ownership": [
+            "ReignBeta/src/Modules/Diplomacy/**"
+          ],
+          "projects": [
+            "client"
+          ],
+          "testProjects": [],
+          "defaultTier": 2,
+          "focusedPaths": [],
+          "contractPaths": [],
+          "integrationPaths": [],
+          "tier4Paths": [],
+          "validation": {
+            "focused": [],
+            "subsystem": []
+          }
+        }
       ]
     },
     {
-      "id": "government", "name": "Cultural governments and political parties", "dependsOn": ["core", "persistence", "relationships", "reputation", "diplomacy", "rebellion", "world-simulation"], "boundaryModules": ["persistence", "relationships", "reputation", "diplomacy", "rebellion", "world-simulation", "court", "spymaster", "kingdom-events"],
-      "boundaryProjects": ["core-contracts", "client", "server", "live-test", "verification", "mcp"], "boundaryTestProjects": ["mcp-tests"],
+      "id": "government",
+      "name": "Cultural governments and political parties",
+      "dependsOn": [
+        "core",
+        "persistence",
+        "relationships",
+        "reputation",
+        "diplomacy",
+        "rebellion",
+        "world-simulation"
+      ],
+      "boundaryModules": [
+        "persistence",
+        "relationships",
+        "reputation",
+        "diplomacy",
+        "rebellion",
+        "world-simulation",
+        "court",
+        "spymaster",
+        "kingdom-events"
+      ],
+      "boundaryProjects": [
+        "core-contracts",
+        "client",
+        "server",
+        "live-test",
+        "verification",
+        "mcp"
+      ],
+      "boundaryTestProjects": [
+        "mcp-tests"
+      ],
       "facets": [
-        { "id": "server", "ownership": ["ReignBetaServer/src/Modules/Government/**"], "projects": ["server"], "testProjects": [], "defaultTier": 2, "focusedPaths": [], "contractPaths": [], "integrationPaths": [], "tier4Paths": [], "validation": { "focused": [], "subsystem": [{ "moduleId": "government", "projectId": "server", "arguments": ["--run-verification", "--tier", "quick", "--suite", "government", "--fail-fast", "--json"] }] } },
-        { "id": "bannerlord", "ownership": ["ReignBeta/src/Modules/Government/**"], "projects": ["client", "server"], "testProjects": [], "defaultTier": 2, "focusedPaths": [], "contractPaths": [], "integrationPaths": [], "tier4Paths": [], "validation": { "focused": [], "subsystem": [{ "moduleId": "government", "projectId": "server", "arguments": ["--run-verification", "--tier", "quick", "--suite", "government", "--fail-fast", "--json"] }] } },
-        { "id": "harness", "ownership": ["ReignBetaServer/ReignLiveTest/Features/Government/**", "ReignBetaServer/ReignLiveTest/scenarios/government-*.json"], "projects": ["live-test", "verification", "server"], "testProjects": [], "defaultTier": 2, "focusedPaths": [], "contractPaths": [], "integrationPaths": [], "tier4Paths": [], "validation": { "focused": [], "subsystem": [{ "moduleId": "government", "projectId": "server", "arguments": ["--run-verification", "--tier", "quick", "--suite", "government", "--fail-fast", "--json"] }] } },
-        { "id": "mcp", "ownership": ["ReignMcp/src/Reign.Mcp.Server/Modules/Government/**", "ReignMcp/tests/Reign.Mcp.Tests/Features/Government/**"], "projects": ["mcp"], "testProjects": ["mcp-tests"], "defaultTier": 2, "focusedPaths": [], "contractPaths": [], "integrationPaths": [], "tier4Paths": [], "validation": { "focused": [], "subsystem": [{ "moduleId": "government", "projectId": "mcp-tests", "kind": "test-filter", "testFilter": "FullyQualifiedName~Government" }] } }
+        {
+          "id": "server",
+          "ownership": [
+            "ReignServer/src/Modules/Government/**"
+          ],
+          "projects": [
+            "server"
+          ],
+          "testProjects": [],
+          "defaultTier": 2,
+          "focusedPaths": [],
+          "contractPaths": [],
+          "integrationPaths": [],
+          "tier4Paths": [],
+          "validation": {
+            "focused": [],
+            "subsystem": [
+              {
+                "moduleId": "government",
+                "projectId": "server",
+                "arguments": [
+                  "--run-verification",
+                  "--tier",
+                  "quick",
+                  "--suite",
+                  "government",
+                  "--fail-fast",
+                  "--json"
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "id": "bannerlord",
+          "ownership": [
+            "ReignBeta/src/Modules/Government/**"
+          ],
+          "projects": [
+            "client",
+            "server"
+          ],
+          "testProjects": [],
+          "defaultTier": 2,
+          "focusedPaths": [],
+          "contractPaths": [],
+          "integrationPaths": [],
+          "tier4Paths": [],
+          "validation": {
+            "focused": [],
+            "subsystem": [
+              {
+                "moduleId": "government",
+                "projectId": "server",
+                "arguments": [
+                  "--run-verification",
+                  "--tier",
+                  "quick",
+                  "--suite",
+                  "government",
+                  "--fail-fast",
+                  "--json"
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "id": "harness",
+          "ownership": [
+            "ReignServer/tests/ReignLiveTest/Features/Government/**",
+            "ReignServer/tests/ReignLiveTest/scenarios/government-*.json"
+          ],
+          "projects": [
+            "live-test",
+            "verification",
+            "server"
+          ],
+          "testProjects": [],
+          "defaultTier": 2,
+          "focusedPaths": [],
+          "contractPaths": [],
+          "integrationPaths": [],
+          "tier4Paths": [],
+          "validation": {
+            "focused": [],
+            "subsystem": [
+              {
+                "moduleId": "government",
+                "projectId": "server",
+                "arguments": [
+                  "--run-verification",
+                  "--tier",
+                  "quick",
+                  "--suite",
+                  "government",
+                  "--fail-fast",
+                  "--json"
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "id": "mcp",
+          "ownership": [
+            "ReignMcp/src/Reign.Mcp.Server/Modules/Government/**",
+            "ReignMcp/tests/Reign.Mcp.Tests/Features/Government/**"
+          ],
+          "projects": [
+            "mcp"
+          ],
+          "testProjects": [
+            "mcp-tests"
+          ],
+          "defaultTier": 2,
+          "focusedPaths": [],
+          "contractPaths": [],
+          "integrationPaths": [],
+          "tier4Paths": [],
+          "validation": {
+            "focused": [],
+            "subsystem": [
+              {
+                "moduleId": "government",
+                "projectId": "mcp-tests",
+                "kind": "test-filter",
+                "testFilter": "FullyQualifiedName~Government"
+              }
+            ]
+          }
+        }
       ]
     },
     {
-      "id": "court", "name": "Court and ambassadors", "dependsOn": ["dialogue", "diplomacy", "reputation", "persistence"], "boundaryModules": ["dialogue", "diplomacy", "persistence"],
-      "boundaryProjects": ["client", "server", "live-test", "mcp"], "boundaryTestProjects": ["mcp-tests"],
-      "boundaryValidation": [{ "moduleId": "court", "projectId": "server", "arguments": ["--run-court-tests", "--json"] }],
+      "id": "court",
+      "name": "Court and ambassadors",
+      "dependsOn": [
+        "dialogue",
+        "diplomacy",
+        "reputation",
+        "persistence"
+      ],
+      "boundaryModules": [
+        "dialogue",
+        "diplomacy",
+        "persistence"
+      ],
+      "boundaryProjects": [
+        "client",
+        "server",
+        "live-test",
+        "mcp"
+      ],
+      "boundaryTestProjects": [
+        "mcp-tests"
+      ],
+      "boundaryValidation": [
+        {
+          "moduleId": "court",
+          "projectId": "server",
+          "arguments": [
+            "--run-court-tests",
+            "--json"
+          ]
+        }
+      ],
       "facets": [
-        { "id": "server", "ownership": ["ReignBetaServer/src/Modules/Court/**"], "projects": ["server"], "testProjects": [], "defaultTier": 2, "focusedPaths": [], "contractPaths": [], "integrationPaths": [], "tier4Paths": [], "validation": { "focused": [], "subsystem": [{ "moduleId": "court", "projectId": "server", "arguments": ["--run-court-tests", "--json"] }] } },
-        { "id": "domain", "ownership": ["ReignModules/Reign.Shared.Source/Core/ReignCastleChatCore.cs"], "projects": ["client", "server"], "testProjects": [], "defaultTier": 3, "focusedPaths": [], "contractPaths": ["ReignModules/Reign.Shared.Source/Core/ReignCastleChatCore.cs"], "integrationPaths": [], "tier4Paths": [], "validation": { "focused": [], "subsystem": [] } },
-        { "id": "bannerlord", "ownership": ["ReignBeta/src/Modules/Court/**"], "projects": ["client"], "testProjects": [], "defaultTier": 2, "focusedPaths": [], "contractPaths": [], "integrationPaths": [], "tier4Paths": [], "validation": { "focused": [], "subsystem": [] } },
-        { "id": "mcp", "ownership": ["ReignMcp/src/Reign.Mcp.Server/Modules/Court/**", "ReignMcp/tests/Reign.Mcp.Tests/Features/Court/**"], "projects": ["mcp"], "testProjects": ["mcp-tests"], "defaultTier": 2, "focusedPaths": [], "contractPaths": [], "integrationPaths": [], "tier4Paths": [], "validation": { "focused": [], "subsystem": [{ "moduleId": "court", "projectId": "mcp-tests", "kind": "test-filter", "testFilter": "FullyQualifiedName~CapitalAmbassador" }] } }
+        {
+          "id": "server",
+          "ownership": [
+            "ReignServer/src/Modules/Court/**"
+          ],
+          "projects": [
+            "server"
+          ],
+          "testProjects": [],
+          "defaultTier": 2,
+          "focusedPaths": [],
+          "contractPaths": [],
+          "integrationPaths": [],
+          "tier4Paths": [],
+          "validation": {
+            "focused": [],
+            "subsystem": [
+              {
+                "moduleId": "court",
+                "projectId": "server",
+                "arguments": [
+                  "--run-court-tests",
+                  "--json"
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "id": "domain",
+          "ownership": [
+            "ReignServer/shared/Reign.Shared.Source/Core/ReignCastleChatCore.cs"
+          ],
+          "projects": [
+            "client",
+            "server"
+          ],
+          "testProjects": [],
+          "defaultTier": 3,
+          "focusedPaths": [],
+          "contractPaths": [
+            "ReignServer/shared/Reign.Shared.Source/Core/ReignCastleChatCore.cs"
+          ],
+          "integrationPaths": [],
+          "tier4Paths": [],
+          "validation": {
+            "focused": [],
+            "subsystem": []
+          }
+        },
+        {
+          "id": "bannerlord",
+          "ownership": [
+            "ReignBeta/src/Modules/Court/**"
+          ],
+          "projects": [
+            "client"
+          ],
+          "testProjects": [],
+          "defaultTier": 2,
+          "focusedPaths": [],
+          "contractPaths": [],
+          "integrationPaths": [],
+          "tier4Paths": [],
+          "validation": {
+            "focused": [],
+            "subsystem": []
+          }
+        },
+        {
+          "id": "mcp",
+          "ownership": [
+            "ReignMcp/src/Reign.Mcp.Server/Modules/Court/**",
+            "ReignMcp/tests/Reign.Mcp.Tests/Features/Court/**"
+          ],
+          "projects": [
+            "mcp"
+          ],
+          "testProjects": [
+            "mcp-tests"
+          ],
+          "defaultTier": 2,
+          "focusedPaths": [],
+          "contractPaths": [],
+          "integrationPaths": [],
+          "tier4Paths": [],
+          "validation": {
+            "focused": [],
+            "subsystem": [
+              {
+                "moduleId": "court",
+                "projectId": "mcp-tests",
+                "kind": "test-filter",
+                "testFilter": "FullyQualifiedName~CapitalAmbassador"
+              }
+            ]
+          }
+        }
       ]
     },
     {
-      "id": "spymaster", "name": "Spymaster", "dependsOn": ["court", "diplomacy", "reputation", "dialogue", "persistence"],
-      "boundaryProjects": ["client", "server", "mcp"], "boundaryTestProjects": ["mcp-tests"],
-      "boundaryValidation": [{ "moduleId": "spymaster", "projectId": "server", "arguments": ["--run-verification", "--tier", "quick", "--suite", "spymaster", "--fail-fast", "--json"] }],
+      "id": "spymaster",
+      "name": "Spymaster",
+      "dependsOn": [
+        "court",
+        "diplomacy",
+        "reputation",
+        "dialogue",
+        "persistence"
+      ],
+      "boundaryProjects": [
+        "client",
+        "server",
+        "mcp"
+      ],
+      "boundaryTestProjects": [
+        "mcp-tests"
+      ],
+      "boundaryValidation": [
+        {
+          "moduleId": "spymaster",
+          "projectId": "server",
+          "arguments": [
+            "--run-verification",
+            "--tier",
+            "quick",
+            "--suite",
+            "spymaster",
+            "--fail-fast",
+            "--json"
+          ]
+        }
+      ],
       "facets": [
-        { "id": "domain", "ownership": ["ReignModules/Reign.Shared.Source/Core/ReignSpymasterCore.cs"], "projects": ["client", "server"], "testProjects": [], "defaultTier": 3, "focusedPaths": [], "contractPaths": ["ReignModules/Reign.Shared.Source/Core/ReignSpymasterCore.cs"], "integrationPaths": [], "tier4Paths": [], "validation": { "focused": [], "subsystem": [] } },
-        { "id": "server", "ownership": ["ReignBetaServer/src/Modules/Spymaster/**"], "projects": ["server"], "testProjects": [], "defaultTier": 2, "focusedPaths": [], "contractPaths": [], "integrationPaths": [], "tier4Paths": [], "validation": { "focused": [], "subsystem": [{ "moduleId": "spymaster", "projectId": "server", "arguments": ["--run-verification", "--tier", "quick", "--suite", "spymaster", "--fail-fast", "--json"] }] } },
-        { "id": "bannerlord", "ownership": ["ReignBeta/src/Modules/Spymaster/**"], "projects": ["client", "server"], "testProjects": [], "defaultTier": 2, "focusedPaths": [], "contractPaths": [], "integrationPaths": [], "tier4Paths": [], "validation": { "focused": [], "subsystem": [{ "moduleId": "spymaster", "projectId": "server", "arguments": ["--run-verification", "--tier", "quick", "--suite", "spymaster", "--fail-fast", "--json"] }] } },
-        { "id": "harness", "ownership": ["ReignBetaServer/ReignLiveTest/scenarios/spymaster-*.json"], "projects": ["live-test", "server"], "testProjects": [], "defaultTier": 2, "focusedPaths": [], "contractPaths": [], "integrationPaths": [], "tier4Paths": [], "validation": { "focused": [], "subsystem": [{ "moduleId": "spymaster", "projectId": "server", "arguments": ["--run-verification", "--tier", "quick", "--suite", "spymaster", "--fail-fast", "--json"] }] } },
-        { "id": "mcp", "ownership": ["ReignMcp/src/Reign.Mcp.Server/Modules/Spymaster/**", "ReignMcp/tests/Reign.Mcp.Tests/Features/Spymaster/**"], "projects": ["mcp"], "testProjects": ["mcp-tests"], "defaultTier": 2, "focusedPaths": [], "contractPaths": [], "integrationPaths": [], "tier4Paths": [], "validation": { "focused": [], "subsystem": [{ "moduleId": "spymaster", "projectId": "mcp-tests", "kind": "test-filter", "testFilter": "FullyQualifiedName~Spymaster" }] } }
+        {
+          "id": "domain",
+          "ownership": [
+            "ReignServer/shared/Reign.Shared.Source/Core/ReignSpymasterCore.cs"
+          ],
+          "projects": [
+            "client",
+            "server"
+          ],
+          "testProjects": [],
+          "defaultTier": 3,
+          "focusedPaths": [],
+          "contractPaths": [
+            "ReignServer/shared/Reign.Shared.Source/Core/ReignSpymasterCore.cs"
+          ],
+          "integrationPaths": [],
+          "tier4Paths": [],
+          "validation": {
+            "focused": [],
+            "subsystem": []
+          }
+        },
+        {
+          "id": "server",
+          "ownership": [
+            "ReignServer/src/Modules/Spymaster/**"
+          ],
+          "projects": [
+            "server"
+          ],
+          "testProjects": [],
+          "defaultTier": 2,
+          "focusedPaths": [],
+          "contractPaths": [],
+          "integrationPaths": [],
+          "tier4Paths": [],
+          "validation": {
+            "focused": [],
+            "subsystem": [
+              {
+                "moduleId": "spymaster",
+                "projectId": "server",
+                "arguments": [
+                  "--run-verification",
+                  "--tier",
+                  "quick",
+                  "--suite",
+                  "spymaster",
+                  "--fail-fast",
+                  "--json"
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "id": "bannerlord",
+          "ownership": [
+            "ReignBeta/src/Modules/Spymaster/**"
+          ],
+          "projects": [
+            "client",
+            "server"
+          ],
+          "testProjects": [],
+          "defaultTier": 2,
+          "focusedPaths": [],
+          "contractPaths": [],
+          "integrationPaths": [],
+          "tier4Paths": [],
+          "validation": {
+            "focused": [],
+            "subsystem": [
+              {
+                "moduleId": "spymaster",
+                "projectId": "server",
+                "arguments": [
+                  "--run-verification",
+                  "--tier",
+                  "quick",
+                  "--suite",
+                  "spymaster",
+                  "--fail-fast",
+                  "--json"
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "id": "harness",
+          "ownership": [
+            "ReignServer/tests/ReignLiveTest/scenarios/spymaster-*.json"
+          ],
+          "projects": [
+            "live-test",
+            "server"
+          ],
+          "testProjects": [],
+          "defaultTier": 2,
+          "focusedPaths": [],
+          "contractPaths": [],
+          "integrationPaths": [],
+          "tier4Paths": [],
+          "validation": {
+            "focused": [],
+            "subsystem": [
+              {
+                "moduleId": "spymaster",
+                "projectId": "server",
+                "arguments": [
+                  "--run-verification",
+                  "--tier",
+                  "quick",
+                  "--suite",
+                  "spymaster",
+                  "--fail-fast",
+                  "--json"
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "id": "mcp",
+          "ownership": [
+            "ReignMcp/src/Reign.Mcp.Server/Modules/Spymaster/**",
+            "ReignMcp/tests/Reign.Mcp.Tests/Features/Spymaster/**"
+          ],
+          "projects": [
+            "mcp"
+          ],
+          "testProjects": [
+            "mcp-tests"
+          ],
+          "defaultTier": 2,
+          "focusedPaths": [],
+          "contractPaths": [],
+          "integrationPaths": [],
+          "tier4Paths": [],
+          "validation": {
+            "focused": [],
+            "subsystem": [
+              {
+                "moduleId": "spymaster",
+                "projectId": "mcp-tests",
+                "kind": "test-filter",
+                "testFilter": "FullyQualifiedName~Spymaster"
+              }
+            ]
+          }
+        }
       ]
     },
     {
-      "id": "kingdom-events", "name": "Kingdom events", "dependsOn": ["characters", "diplomacy", "persistence"],
-      "boundaryProjects": ["client", "server", "mcp", "live-test"], "boundaryTestProjects": ["mcp-tests"],
+      "id": "kingdom-events",
+      "name": "Kingdom events",
+      "dependsOn": [
+        "characters",
+        "diplomacy",
+        "persistence"
+      ],
+      "boundaryProjects": [
+        "client",
+        "server",
+        "mcp",
+        "live-test"
+      ],
+      "boundaryTestProjects": [
+        "mcp-tests"
+      ],
       "facets": [
-        { "id": "domain", "ownership": ["ReignModules/Reign.Shared.Source/Core/ReignKingdomEventCore.cs"], "projects": ["client", "server"], "testProjects": [], "defaultTier": 3, "focusedPaths": [], "contractPaths": ["ReignModules/Reign.Shared.Source/Core/ReignKingdomEventCore.cs"], "integrationPaths": [], "tier4Paths": [], "validation": { "focused": [], "subsystem": [] } },
-        { "id": "server", "ownership": ["ReignBetaServer/src/Modules/KingdomEvents/**"], "projects": ["server"], "testProjects": [], "defaultTier": 2, "focusedPaths": [], "contractPaths": [], "integrationPaths": [], "tier4Paths": [], "validation": { "focused": [], "subsystem": [] } },
-        { "id": "bannerlord", "ownership": ["ReignBeta/src/Modules/KingdomEvents/**"], "projects": ["client"], "testProjects": [], "defaultTier": 2, "focusedPaths": [], "contractPaths": [], "integrationPaths": [], "tier4Paths": [], "validation": { "focused": [], "subsystem": [] } },
-        { "id": "harness", "ownership": ["ReignBetaServer/ReignLiveTest/scenarios/kingdom-event-*.json"], "projects": ["live-test", "server"], "testProjects": [], "defaultTier": 2, "focusedPaths": [], "contractPaths": [], "integrationPaths": [], "tier4Paths": [], "validation": { "focused": [], "subsystem": [] } },
-        { "id": "mcp", "ownership": ["ReignMcp/src/Reign.Mcp.Server/Modules/KingdomEvents/**", "ReignMcp/tests/Reign.Mcp.Tests/Features/KingdomEvents/**"], "projects": ["mcp"], "testProjects": ["mcp-tests"], "defaultTier": 2, "focusedPaths": [], "contractPaths": [], "integrationPaths": [], "tier4Paths": [], "validation": { "focused": [], "subsystem": [{ "moduleId": "kingdom-events", "projectId": "mcp-tests", "kind": "test-filter", "testFilter": "FullyQualifiedName~KingdomEvent" }] } }
+        {
+          "id": "domain",
+          "ownership": [
+            "ReignServer/shared/Reign.Shared.Source/Core/ReignKingdomEventCore.cs"
+          ],
+          "projects": [
+            "client",
+            "server"
+          ],
+          "testProjects": [],
+          "defaultTier": 3,
+          "focusedPaths": [],
+          "contractPaths": [
+            "ReignServer/shared/Reign.Shared.Source/Core/ReignKingdomEventCore.cs"
+          ],
+          "integrationPaths": [],
+          "tier4Paths": [],
+          "validation": {
+            "focused": [],
+            "subsystem": []
+          }
+        },
+        {
+          "id": "server",
+          "ownership": [
+            "ReignServer/src/Modules/KingdomEvents/**"
+          ],
+          "projects": [
+            "server"
+          ],
+          "testProjects": [],
+          "defaultTier": 2,
+          "focusedPaths": [],
+          "contractPaths": [],
+          "integrationPaths": [],
+          "tier4Paths": [],
+          "validation": {
+            "focused": [],
+            "subsystem": []
+          }
+        },
+        {
+          "id": "bannerlord",
+          "ownership": [
+            "ReignBeta/src/Modules/KingdomEvents/**"
+          ],
+          "projects": [
+            "client"
+          ],
+          "testProjects": [],
+          "defaultTier": 2,
+          "focusedPaths": [],
+          "contractPaths": [],
+          "integrationPaths": [],
+          "tier4Paths": [],
+          "validation": {
+            "focused": [],
+            "subsystem": []
+          }
+        },
+        {
+          "id": "harness",
+          "ownership": [
+            "ReignServer/tests/ReignLiveTest/scenarios/kingdom-event-*.json"
+          ],
+          "projects": [
+            "live-test",
+            "server"
+          ],
+          "testProjects": [],
+          "defaultTier": 2,
+          "focusedPaths": [],
+          "contractPaths": [],
+          "integrationPaths": [],
+          "tier4Paths": [],
+          "validation": {
+            "focused": [],
+            "subsystem": []
+          }
+        },
+        {
+          "id": "mcp",
+          "ownership": [
+            "ReignMcp/src/Reign.Mcp.Server/Modules/KingdomEvents/**",
+            "ReignMcp/tests/Reign.Mcp.Tests/Features/KingdomEvents/**"
+          ],
+          "projects": [
+            "mcp"
+          ],
+          "testProjects": [
+            "mcp-tests"
+          ],
+          "defaultTier": 2,
+          "focusedPaths": [],
+          "contractPaths": [],
+          "integrationPaths": [],
+          "tier4Paths": [],
+          "validation": {
+            "focused": [],
+            "subsystem": [
+              {
+                "moduleId": "kingdom-events",
+                "projectId": "mcp-tests",
+                "kind": "test-filter",
+                "testFilter": "FullyQualifiedName~KingdomEvent"
+              }
+            ]
+          }
+        }
       ]
     },
     {
-      "id": "rebellion", "name": "Rebellion", "dependsOn": ["characters", "diplomacy", "reputation", "persistence"],
-      "boundaryProjects": ["client", "server"], "boundaryTestProjects": [],
+      "id": "rebellion",
+      "name": "Rebellion",
+      "dependsOn": [
+        "characters",
+        "diplomacy",
+        "reputation",
+        "persistence"
+      ],
+      "boundaryProjects": [
+        "client",
+        "server"
+      ],
+      "boundaryTestProjects": [],
       "facets": [
-        { "id": "server", "ownership": ["ReignBetaServer/src/Modules/Rebellion/**"], "projects": ["server"], "testProjects": [], "defaultTier": 2, "focusedPaths": [], "contractPaths": [], "integrationPaths": [], "tier4Paths": [], "validation": { "focused": [], "subsystem": [{ "moduleId": "rebellion", "projectId": "server", "arguments": ["--run-rebellion-tests", "--json"] }] } },
-        { "id": "bannerlord", "ownership": ["ReignBeta/src/Modules/Rebellion/**"], "projects": ["client"], "testProjects": [], "defaultTier": 2, "focusedPaths": [], "contractPaths": [], "integrationPaths": [], "tier4Paths": [], "validation": { "focused": [], "subsystem": [] } }
+        {
+          "id": "server",
+          "ownership": [
+            "ReignServer/src/Modules/Rebellion/**"
+          ],
+          "projects": [
+            "server"
+          ],
+          "testProjects": [],
+          "defaultTier": 2,
+          "focusedPaths": [],
+          "contractPaths": [],
+          "integrationPaths": [],
+          "tier4Paths": [],
+          "validation": {
+            "focused": [],
+            "subsystem": [
+              {
+                "moduleId": "rebellion",
+                "projectId": "server",
+                "arguments": [
+                  "--run-rebellion-tests",
+                  "--json"
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "id": "bannerlord",
+          "ownership": [
+            "ReignBeta/src/Modules/Rebellion/**"
+          ],
+          "projects": [
+            "client"
+          ],
+          "testProjects": [],
+          "defaultTier": 2,
+          "focusedPaths": [],
+          "contractPaths": [],
+          "integrationPaths": [],
+          "tier4Paths": [],
+          "validation": {
+            "focused": [],
+            "subsystem": []
+          }
+        }
       ]
     },
     {
-      "id": "world-simulation", "name": "World simulation", "dependsOn": ["characters", "relationships", "reputation", "diplomacy", "persistence"],
-      "boundaryProjects": ["client", "server", "live-test"], "boundaryTestProjects": ["mcp-tests"],
+      "id": "world-simulation",
+      "name": "World simulation",
+      "dependsOn": [
+        "characters",
+        "relationships",
+        "reputation",
+        "diplomacy",
+        "persistence"
+      ],
+      "boundaryProjects": [
+        "client",
+        "server",
+        "live-test"
+      ],
+      "boundaryTestProjects": [
+        "mcp-tests"
+      ],
       "facets": [
-        { "id": "server", "ownership": ["ReignBetaServer/src/Modules/WorldSimulation/**"], "projects": ["server"], "testProjects": [], "defaultTier": 2, "focusedPaths": [], "contractPaths": [], "integrationPaths": [], "tier4Paths": [], "validation": { "focused": [], "subsystem": [{ "moduleId": "world-simulation", "projectId": "server", "arguments": ["--run-world-test-tests", "--json"] }] } },
-        { "id": "bannerlord", "ownership": ["ReignBeta/src/Modules/WorldSimulation/**"], "projects": ["client"], "testProjects": [], "defaultTier": 2, "focusedPaths": [], "contractPaths": [], "integrationPaths": [], "tier4Paths": [], "validation": { "focused": [], "subsystem": [] } },
-        { "id": "harness", "ownership": ["ReignBetaServer/ReignLiveTest/Features/WorldSimulation/**", "ReignBetaServer/ReignLiveTest/scenarios/party-agency-*.json"], "projects": ["live-test", "server"], "testProjects": [], "defaultTier": 2, "focusedPaths": [], "contractPaths": [], "integrationPaths": [], "tier4Paths": [], "validation": { "focused": [], "subsystem": [] } },
-        { "id": "mcp", "ownership": ["ReignMcp/tests/Reign.Mcp.Tests/Features/WorldSimulation/**"], "projects": ["mcp"], "testProjects": ["mcp-tests"], "defaultTier": 2, "focusedPaths": [], "contractPaths": [], "integrationPaths": [], "tier4Paths": [], "validation": { "focused": [], "subsystem": [] } }
+        {
+          "id": "server",
+          "ownership": [
+            "ReignServer/src/Modules/WorldSimulation/**"
+          ],
+          "projects": [
+            "server"
+          ],
+          "testProjects": [],
+          "defaultTier": 2,
+          "focusedPaths": [],
+          "contractPaths": [],
+          "integrationPaths": [],
+          "tier4Paths": [],
+          "validation": {
+            "focused": [],
+            "subsystem": [
+              {
+                "moduleId": "world-simulation",
+                "projectId": "server",
+                "arguments": [
+                  "--run-world-test-tests",
+                  "--json"
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "id": "bannerlord",
+          "ownership": [
+            "ReignBeta/src/Modules/WorldSimulation/**"
+          ],
+          "projects": [
+            "client"
+          ],
+          "testProjects": [],
+          "defaultTier": 2,
+          "focusedPaths": [],
+          "contractPaths": [],
+          "integrationPaths": [],
+          "tier4Paths": [],
+          "validation": {
+            "focused": [],
+            "subsystem": []
+          }
+        },
+        {
+          "id": "harness",
+          "ownership": [
+            "ReignServer/tests/ReignLiveTest/Features/WorldSimulation/**",
+            "ReignServer/tests/ReignLiveTest/scenarios/party-agency-*.json"
+          ],
+          "projects": [
+            "live-test",
+            "server"
+          ],
+          "testProjects": [],
+          "defaultTier": 2,
+          "focusedPaths": [],
+          "contractPaths": [],
+          "integrationPaths": [],
+          "tier4Paths": [],
+          "validation": {
+            "focused": [],
+            "subsystem": []
+          }
+        },
+        {
+          "id": "mcp",
+          "ownership": [
+            "ReignMcp/tests/Reign.Mcp.Tests/Features/WorldSimulation/**"
+          ],
+          "projects": [
+            "mcp"
+          ],
+          "testProjects": [
+            "mcp-tests"
+          ],
+          "defaultTier": 2,
+          "focusedPaths": [],
+          "contractPaths": [],
+          "integrationPaths": [],
+          "tier4Paths": [],
+          "validation": {
+            "focused": [],
+            "subsystem": []
+          }
+        }
       ]
     },
     {
-      "id": "portraits", "name": "Portraits", "dependsOn": ["characters", "persistence"],
-      "boundaryProjects": ["client", "server"], "boundaryTestProjects": ["nativecharacterimagegenerator-tests-nativecharacterimagegenerator-tests-nativecharacterimagegenerator-tests-csproj"],
+      "id": "portraits",
+      "name": "Portraits",
+      "dependsOn": [
+        "characters",
+        "persistence"
+      ],
+      "boundaryProjects": [
+        "client",
+        "server"
+      ],
+      "boundaryTestProjects": [
+        "nativecharacterimagegenerator-tests-nativecharacterimagegenerator-tests-nativecharacterimagegenerator-tests-csproj"
+      ],
       "facets": [
-        { "id": "domain", "ownership": ["ReignModules/Reign.Shared.Source/Core/ReignPortraitDerivativeCore.cs"], "projects": ["client", "server"], "testProjects": [], "defaultTier": 3, "focusedPaths": [], "contractPaths": ["ReignModules/Reign.Shared.Source/Core/ReignPortraitDerivativeCore.cs"], "integrationPaths": [], "tier4Paths": [], "validation": { "focused": [], "subsystem": [] } },
-        { "id": "server", "ownership": ["ReignBetaServer/src/Modules/Portraits/**", "ReignBetaServer/PortraitModels/**", "ReignBetaServer/PortraitCache/**"], "projects": ["server"], "testProjects": [], "defaultTier": 2, "focusedPaths": [], "contractPaths": [], "integrationPaths": [], "tier4Paths": [], "validation": { "focused": [], "subsystem": [{ "moduleId": "portraits", "projectId": "server", "arguments": ["--run-portrait-derivative-tests"] }] } },
-        { "id": "bannerlord", "ownership": ["ReignBeta/src/Modules/Portraits/**", "ReignBeta/PortraitCache/**"], "projects": ["client"], "testProjects": [], "defaultTier": 2, "focusedPaths": [], "contractPaths": [], "integrationPaths": [], "tier4Paths": [], "validation": { "focused": [], "subsystem": [] } },
-        { "id": "tooling", "ownership": ["NativeCharacterImageGenerator/**"], "projects": ["nativecharacterimagegenerator-native-module-bannerlordnativeportraitrenderer-csproj", "nativecharacterimagegenerator-src-nativecharacterimagegenerator-app-nativecharacterimagegenerator-app-csproj", "nativecharacterimagegenerator-src-nativecharacterimagegenerator-sourcecacheverifier-nativecharacterimagegenerator-sourcecacheverifier-csproj", "nativecharacterimagegenerator-src-nativecharacterimagegenerator-nativecharacterimagegenerator-csproj", "nativecharacterimagegenerator-src-nativeportraitrenderhost-nativeportraitrenderhost-csproj", "nativecharacterimagegenerator-tools-nativeassetinspector-nativeassetinspector-csproj"], "testProjects": ["nativecharacterimagegenerator-tests-nativecharacterimagegenerator-tests-nativecharacterimagegenerator-tests-csproj"], "defaultTier": 2, "focusedPaths": [], "contractPaths": [], "integrationPaths": [], "tier4Paths": [], "validation": { "focused": [], "subsystem": [] } }
+        {
+          "id": "domain",
+          "ownership": [
+            "ReignServer/shared/Reign.Shared.Source/Core/ReignPortraitDerivativeCore.cs"
+          ],
+          "projects": [
+            "client",
+            "server"
+          ],
+          "testProjects": [],
+          "defaultTier": 3,
+          "focusedPaths": [],
+          "contractPaths": [
+            "ReignServer/shared/Reign.Shared.Source/Core/ReignPortraitDerivativeCore.cs"
+          ],
+          "integrationPaths": [],
+          "tier4Paths": [],
+          "validation": {
+            "focused": [],
+            "subsystem": []
+          }
+        },
+        {
+          "id": "server",
+          "ownership": [
+            "ReignServer/src/Modules/Portraits/**",
+            "ReignServer/resources/portrait-models/**",
+            "ReignServer/PortraitCache/**"
+          ],
+          "projects": [
+            "server"
+          ],
+          "testProjects": [],
+          "defaultTier": 2,
+          "focusedPaths": [],
+          "contractPaths": [],
+          "integrationPaths": [],
+          "tier4Paths": [],
+          "validation": {
+            "focused": [],
+            "subsystem": [
+              {
+                "moduleId": "portraits",
+                "projectId": "server",
+                "arguments": [
+                  "--run-portrait-derivative-tests"
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "id": "bannerlord",
+          "ownership": [
+            "ReignBeta/src/Modules/Portraits/**",
+            "ReignBeta/PortraitCache/**"
+          ],
+          "projects": [
+            "client"
+          ],
+          "testProjects": [],
+          "defaultTier": 2,
+          "focusedPaths": [],
+          "contractPaths": [],
+          "integrationPaths": [],
+          "tier4Paths": [],
+          "validation": {
+            "focused": [],
+            "subsystem": []
+          }
+        },
+        {
+          "id": "tooling",
+          "ownership": [
+            "ReignServer/tools/portrait-generator/**"
+          ],
+          "projects": [
+            "nativecharacterimagegenerator-native-module-bannerlordnativeportraitrenderer-csproj",
+            "nativecharacterimagegenerator-src-nativecharacterimagegenerator-app-nativecharacterimagegenerator-app-csproj",
+            "nativecharacterimagegenerator-src-nativecharacterimagegenerator-sourcecacheverifier-nativecharacterimagegenerator-sourcecacheverifier-csproj",
+            "nativecharacterimagegenerator-src-nativecharacterimagegenerator-nativecharacterimagegenerator-csproj",
+            "nativecharacterimagegenerator-src-nativeportraitrenderhost-nativeportraitrenderhost-csproj",
+            "nativecharacterimagegenerator-tools-nativeassetinspector-nativeassetinspector-csproj"
+          ],
+          "testProjects": [
+            "nativecharacterimagegenerator-tests-nativecharacterimagegenerator-tests-nativecharacterimagegenerator-tests-csproj"
+          ],
+          "defaultTier": 2,
+          "focusedPaths": [],
+          "contractPaths": [],
+          "integrationPaths": [],
+          "tier4Paths": [],
+          "validation": {
+            "focused": [],
+            "subsystem": []
+          }
+        }
       ]
     },
     {
-      "id": "ui", "name": "Shared UI and runtime assets", "dependsOn": ["characters"],
-      "boundaryProjects": ["client"], "boundaryTestProjects": [],
+      "id": "ui",
+      "name": "Shared UI and runtime assets",
+      "dependsOn": [
+        "characters"
+      ],
+      "boundaryProjects": [
+        "client"
+      ],
+      "boundaryTestProjects": [],
       "facets": [
-        { "id": "bannerlord", "ownership": ["ReignBeta/src/Modules/UI/**", "ReignBeta/GUI/**", "ReignBeta/artwork/**", "ReignBeta/EventArt/**", "ReignBeta/TavernArt/**", "ReignBeta/Videos/**", "ReignBeta/ModuleData/**"], "projects": ["client"], "testProjects": [], "defaultTier": 2, "focusedPaths": [], "contractPaths": [], "integrationPaths": [], "tier4Paths": [], "validation": { "focused": [], "subsystem": [] } }
+        {
+          "id": "bannerlord",
+          "ownership": [
+            "ReignBeta/src/Modules/UI/**",
+            "ReignBeta/GUI/**",
+            "ReignBeta/artwork/**",
+            "ReignBeta/EventArt/**",
+            "ReignBeta/TavernArt/**",
+            "ReignBeta/Videos/**",
+            "ReignBeta/ModuleData/**"
+          ],
+          "projects": [
+            "client"
+          ],
+          "testProjects": [],
+          "defaultTier": 2,
+          "focusedPaths": [],
+          "contractPaths": [],
+          "integrationPaths": [],
+          "tier4Paths": [],
+          "validation": {
+            "focused": [],
+            "subsystem": []
+          }
+        }
       ]
     },
     {
-      "id": "platform", "name": "Runtime platform and shared orchestration", "dependsOn": ["core"],
-      "boundaryProjects": ["client", "server", "live-test", "verification", "mcp"], "boundaryTestProjects": ["mcp-tests"],
+      "id": "platform",
+      "name": "Runtime platform and shared orchestration",
+      "dependsOn": [
+        "core"
+      ],
+      "boundaryProjects": [
+        "client",
+        "server",
+        "live-test",
+        "verification",
+        "mcp"
+      ],
+      "boundaryTestProjects": [
+        "mcp-tests"
+      ],
       "facets": [
-        { "id": "server", "ownership": ["ReignBetaServer/ReignBetaServer.csproj", "ReignBetaServer/src/Modules/Platform/**", "ReignBetaServer/assets/**", "ReignBetaServer/PromptDefaults/**"], "projects": ["server"], "testProjects": [], "defaultTier": 2, "focusedPaths": [], "contractPaths": [], "integrationPaths": [], "tier4Paths": [], "validation": { "focused": [], "subsystem": [{ "moduleId": "platform", "projectId": "server", "kind": "verification", "arguments": ["--run-verification", "--tier", "offline", "--suite", "interaction_architecture", "--seed", "1337", "--repeat", "1", "--fail-fast", "--json"] }] } },
-        { "id": "bannerlord", "ownership": ["ReignBeta/ReignBeta.csproj", "ReignBeta/src/Modules/Platform/**", "ReignBeta/src/Platform/**", "ReignBeta/tools/**", "ReignBeta/lib/**"], "projects": ["client"], "testProjects": [], "defaultTier": 2, "focusedPaths": [], "contractPaths": [], "integrationPaths": [], "tier4Paths": [], "validation": { "focused": [], "subsystem": [] } },
-        { "id": "harness", "ownership": ["ReignBetaServer/ReignLiveTest/Program.cs", "ReignBetaServer/ReignLiveTest/TestingCatalogControl.cs", "ReignBetaServer/ReignLiveTest/ReignLiveTest.csproj", "ReignBetaServer/ReignVerification/**", "ReignBetaServer/ReignLiveTest/scenarios/identity-*.json", "ReignBetaServer/ReignLiveTest/scenarios/memory-*.json", "ReignBetaServer/ReignLiveTest/scenarios/relationship-*.json", "ReignBetaServer/ReignLiveTest/scenarios/capital-*.json"], "projects": ["live-test", "verification", "server"], "testProjects": [], "defaultTier": 2, "focusedPaths": [], "contractPaths": [], "integrationPaths": [], "tier4Paths": [], "validation": { "focused": [], "subsystem": [] } },
-        { "id": "mcp", "ownership": ["reign.testing.json", "ReignMcp/src/Reign.Mcp.Server/Reign.Mcp.Server.csproj", "ReignMcp/tests/Reign.Mcp.Tests/Reign.Mcp.Tests.csproj", "ReignMcp/tests/Reign.Mcp.Tests/ReignCampaignReadinessStateTests.cs", "ReignMcp/src/Reign.Mcp.Server/Modules/Platform/**", "ReignMcp/tests/Reign.Mcp.Tests/Platform/**", "ReignMcp/.codex/**"], "projects": ["mcp"], "testProjects": ["mcp-tests"], "defaultTier": 2, "focusedPaths": [], "contractPaths": ["reign.testing.json"], "integrationPaths": [], "tier4Paths": [], "validation": { "focused": [], "subsystem": [] } }
+        {
+          "id": "server",
+          "ownership": [
+            "ReignServer/ReignServer.csproj",
+            "ReignServer/src/Modules/Platform/**",
+            "ReignServer/ui/assets/**",
+            "ReignServer/prompts/**",
+            "ReignServer/scripts/**",
+            "ReignServer/.github/**",
+            "ReignServer/reign.repository.json",
+            "ReignServer/ui/**"
+          ],
+          "projects": [
+            "server"
+          ],
+          "testProjects": [],
+          "defaultTier": 2,
+          "focusedPaths": [],
+          "contractPaths": [],
+          "integrationPaths": [],
+          "tier4Paths": [],
+          "validation": {
+            "focused": [],
+            "subsystem": [
+              {
+                "moduleId": "platform",
+                "projectId": "server",
+                "kind": "verification",
+                "arguments": [
+                  "--run-verification",
+                  "--tier",
+                  "offline",
+                  "--suite",
+                  "interaction_architecture",
+                  "--seed",
+                  "1337",
+                  "--repeat",
+                  "1",
+                  "--fail-fast",
+                  "--json"
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "id": "bannerlord",
+          "ownership": [
+            "ReignBeta/ReignBeta.csproj",
+            "ReignBeta/src/Modules/Platform/**",
+            "ReignBeta/src/Platform/**",
+            "ReignBeta/tools/**",
+            "ReignBeta/lib/**"
+          ],
+          "projects": [
+            "client"
+          ],
+          "testProjects": [],
+          "defaultTier": 2,
+          "focusedPaths": [],
+          "contractPaths": [],
+          "integrationPaths": [],
+          "tier4Paths": [],
+          "validation": {
+            "focused": [],
+            "subsystem": []
+          }
+        },
+        {
+          "id": "harness",
+          "ownership": [
+            "ReignServer/tests/ReignLiveTest/Program.cs",
+            "ReignServer/tests/ReignLiveTest/TestingCatalogControl.cs",
+            "ReignServer/tests/ReignLiveTest/ReignLiveTest.csproj",
+            "ReignServer/tests/ReignVerification/**",
+            "ReignServer/tests/ReignLiveTest/scenarios/identity-*.json",
+            "ReignServer/tests/ReignLiveTest/scenarios/memory-*.json",
+            "ReignServer/tests/ReignLiveTest/scenarios/relationship-*.json",
+            "ReignServer/tests/ReignLiveTest/scenarios/capital-*.json"
+          ],
+          "projects": [
+            "live-test",
+            "verification",
+            "server"
+          ],
+          "testProjects": [],
+          "defaultTier": 2,
+          "focusedPaths": [],
+          "contractPaths": [],
+          "integrationPaths": [],
+          "tier4Paths": [],
+          "validation": {
+            "focused": [],
+            "subsystem": []
+          }
+        },
+        {
+          "id": "mcp",
+          "ownership": [
+            "reign.testing.json",
+            "ReignMcp/src/Reign.Mcp.Server/Reign.Mcp.Server.csproj",
+            "ReignMcp/tests/Reign.Mcp.Tests/Reign.Mcp.Tests.csproj",
+            "ReignMcp/tests/Reign.Mcp.Tests/ReignCampaignReadinessStateTests.cs",
+            "ReignMcp/src/Reign.Mcp.Server/Modules/Platform/**",
+            "ReignMcp/tests/Reign.Mcp.Tests/Platform/**",
+            "ReignMcp/.codex/**"
+          ],
+          "projects": [
+            "mcp"
+          ],
+          "testProjects": [
+            "mcp-tests"
+          ],
+          "defaultTier": 2,
+          "focusedPaths": [],
+          "contractPaths": [
+            "reign.testing.json"
+          ],
+          "integrationPaths": [],
+          "tier4Paths": [],
+          "validation": {
+            "focused": [],
+            "subsystem": []
+          }
+        }
       ]
     },
     {
-      "id": "bannerlord-editor", "name": "Bannerlord editor tooling", "dependsOn": [],
-      "boundaryProjects": ["bannerlordeditormcp-src-bannerlord-editorbridge-bannerlord-editorbridge-csproj", "bannerlordeditormcp-src-bannerlord-editormcp-protocol-bannerlord-editormcp-protocol-csproj", "bannerlordeditormcp-src-bannerlord-editormcp-server-bannerlord-editormcp-server-csproj"], "boundaryTestProjects": ["editor-mcp-tests"],
+      "id": "bannerlord-editor",
+      "name": "Bannerlord editor tooling",
+      "dependsOn": [],
+      "boundaryProjects": [
+        "bannerlordeditormcp-src-bannerlord-editorbridge-bannerlord-editorbridge-csproj",
+        "bannerlordeditormcp-src-bannerlord-editormcp-protocol-bannerlord-editormcp-protocol-csproj",
+        "bannerlordeditormcp-src-bannerlord-editormcp-server-bannerlord-editormcp-server-csproj"
+      ],
+      "boundaryTestProjects": [
+        "editor-mcp-tests"
+      ],
       "facets": [
-        { "id": "tooling", "ownership": ["BannerlordEditorMcp/**"], "projects": ["bannerlordeditormcp-src-bannerlord-editorbridge-bannerlord-editorbridge-csproj", "bannerlordeditormcp-src-bannerlord-editormcp-protocol-bannerlord-editormcp-protocol-csproj", "bannerlordeditormcp-src-bannerlord-editormcp-server-bannerlord-editormcp-server-csproj"], "testProjects": ["editor-mcp-tests"], "defaultTier": 2, "focusedPaths": [], "contractPaths": [], "integrationPaths": [], "tier4Paths": [], "validation": { "focused": [], "subsystem": [] } }
-      ]
-    },
-    {
-      "id": "legacy-importer", "name": "Legacy SQLite importer", "dependsOn": ["persistence"],
-      "boundaryProjects": ["legacy-sqlite-importer"], "boundaryTestProjects": [],
-      "facets": [
-        { "id": "tooling", "ownership": ["ReignTools/Reign.LegacySqliteImporter/**"], "projects": ["legacy-sqlite-importer"], "testProjects": [], "defaultTier": 2, "focusedPaths": ["ReignTools/Reign.LegacySqliteImporter/**/*.cs"], "contractPaths": [], "integrationPaths": [], "tier4Paths": [], "validation": { "focused": [], "subsystem": [] } }
+        {
+          "id": "tooling",
+          "ownership": [
+            "BannerlordEditorMcp/**"
+          ],
+          "projects": [
+            "bannerlordeditormcp-src-bannerlord-editorbridge-bannerlord-editorbridge-csproj",
+            "bannerlordeditormcp-src-bannerlord-editormcp-protocol-bannerlord-editormcp-protocol-csproj",
+            "bannerlordeditormcp-src-bannerlord-editormcp-server-bannerlord-editormcp-server-csproj"
+          ],
+          "testProjects": [
+            "editor-mcp-tests"
+          ],
+          "defaultTier": 2,
+          "focusedPaths": [],
+          "contractPaths": [],
+          "integrationPaths": [],
+          "tier4Paths": [],
+          "validation": {
+            "focused": [],
+            "subsystem": []
+          }
+        }
       ]
     }
   ]

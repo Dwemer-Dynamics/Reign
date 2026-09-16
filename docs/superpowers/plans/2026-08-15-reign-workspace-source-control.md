@@ -29,30 +29,30 @@
 
 **Create:**
 
-- `.gitignore` ‚Äî workspace-wide generated/private/runtime exclusions.
-- `.gitattributes` ‚Äî deterministic text normalization and binary-asset classification.
-- `reign.repository.json` ‚Äî machine-readable repository-hygiene policy.
-- `docs/agent/PROJECT_MEMORY.md` ‚Äî index for durable project memory.
-- `docs/agent/DECISIONS.md` ‚Äî dated architectural and product decisions.
-- `docs/agent/DEBUGGING_HISTORY.md` ‚Äî costly failures, causes, attempts, fixes, and evidence.
-- `docs/agent/PERFORMANCE.md` ‚Äî measured performance decisions and evidence.
-- `docs/agent/KNOWN_PITFALLS.md` ‚Äî compact recurring hazards.
-- `docs/agent/REPOSITORY_RECOVERY.md` ‚Äî clone, recovery, and owner checklist.
-- `ReignMcp/src/Reign.Mcp.Server/Modules/Validation/ReignRepositoryHygieneAudit.cs` ‚Äî deterministic Git-backed classifier and structured evidence.
-- `ReignMcp/tests/Reign.Mcp.Tests/Validation/ReignRepositoryHygieneAuditTests.cs` ‚Äî isolated hygiene contract tests.
+- `.gitignore` ó workspace-wide generated/private/runtime exclusions.
+- `.gitattributes` ó deterministic text normalization and binary-asset classification.
+- `reign.repository.json` ó machine-readable repository-hygiene policy.
+- `docs/agent/PROJECT_MEMORY.md` ó index for durable project memory.
+- `docs/agent/DECISIONS.md` ó dated architectural and product decisions.
+- `docs/agent/DEBUGGING_HISTORY.md` ó costly failures, causes, attempts, fixes, and evidence.
+- `docs/agent/PERFORMANCE.md` ó measured performance decisions and evidence.
+- `docs/agent/KNOWN_PITFALLS.md` ó compact recurring hazards.
+- `docs/agent/REPOSITORY_RECOVERY.md` ó clone, recovery, and owner checklist.
+- `ReignMcp/src/Reign.Mcp.Server/Modules/Validation/ReignRepositoryHygieneAudit.cs` ó deterministic Git-backed classifier and structured evidence.
+- `ReignMcp/tests/Reign.Mcp.Tests/Validation/ReignRepositoryHygieneAuditTests.cs` ó isolated hygiene contract tests.
 
 **Modify:**
 
-- `AGENTS.md` ‚Äî canonical-remote, tracking, memory, and external-write rules.
-- `reign.modules.json` ‚Äî ownership/routing for root repository policy files.
-- `reign.testing.json` ‚Äî repository-hygiene evidence contract and version.
-- `docs/agent/TESTING_TOOL_GUIDE.md` ‚Äî operating and interpreting the hygiene gate.
-- `ReignMcp/src/Reign.Mcp.Server/Modules/Platform/Program.cs` ‚Äî register the audit service.
-- `ReignMcp/src/Reign.Mcp.Server/Modules/Validation/Models.cs` ‚Äî add structured hygiene report models to validation evidence.
-- `ReignMcp/src/Reign.Mcp.Server/Modules/Validation/ReignValidationService.cs` ‚Äî execute and persist the hygiene audit.
-- `ReignMcp/tests/Reign.Mcp.Tests/Validation/ReignValidationServiceTests.cs` ‚Äî validate report gating and audit-mode behavior.
-- `ReignMcp/tests/Reign.Mcp.Tests/Validation/ReignProjectCatalogTests.cs` ‚Äî validate routing of root policy files.
-- `ReignMcp/tests/Reign.Mcp.Tests/Platform/TestingCatalogContractTests.cs` ‚Äî prevent catalog/guide/evidence drift.
+- `AGENTS.md` ó canonical-remote, tracking, memory, and external-write rules.
+- `reign.modules.json` ó ownership/routing for root repository policy files.
+- `reign.testing.json` ó repository-hygiene evidence contract and version.
+- `docs/agent/TESTING_TOOL_GUIDE.md` ó operating and interpreting the hygiene gate.
+- `ReignMcp/src/Reign.Mcp.Server/Modules/Platform/Program.cs` ó register the audit service.
+- `ReignMcp/src/Reign.Mcp.Server/Modules/Validation/Models.cs` ó add structured hygiene report models to validation evidence.
+- `ReignMcp/src/Reign.Mcp.Server/Modules/Validation/ReignValidationService.cs` ó execute and persist the hygiene audit.
+- `ReignMcp/tests/Reign.Mcp.Tests/Validation/ReignValidationServiceTests.cs` ó validate report gating and audit-mode behavior.
+- `ReignMcp/tests/Reign.Mcp.Tests/Validation/ReignProjectCatalogTests.cs` ó validate routing of root policy files.
+- `ReignMcp/tests/Reign.Mcp.Tests/Platform/TestingCatalogContractTests.cs` ó prevent catalog/guide/evidence drift.
 
 ---
 
@@ -185,11 +185,11 @@ The managed source roots are:
 [
   ".codex",
   "BannerlordEditorMcp",
-  "NativeCharacterImageGenerator",
+  "ReignServer", "tools", "portrait-generator",
   "ReignBeta",
-  "ReignBetaServer",
+  "ReignServer",
   "ReignMcp",
-  "ReignModules",
+  "ReignServer", "shared",
   "ReignTools",
   "docs",
   "tests",
@@ -221,7 +221,7 @@ Add `.gitignore`, `.gitattributes`, and `reign.repository.json` as explicit Tier
 
 - [ ] **Step 6: Confirm the tests fail for the missing implementation**
 
-Call `reign_get_validation_plan` with the exact Task 1 paths, then call `reign_validate(profile="changed", configuration="Release", restore=false)` with those paths. Expected result: failure because `ReignRepositoryHygieneAudit` and its result contracts do not yet exist‚Äînot an unrelated catalog or workspace-coverage failure.
+Call `reign_get_validation_plan` with the exact Task 1 paths, then call `reign_validate(profile="changed", configuration="Release", restore=false)` with those paths. Expected result: failure because `ReignRepositoryHygieneAudit` and its result contracts do not yet existónot an unrelated catalog or workspace-coverage failure.
 
 ---
 
@@ -315,7 +315,7 @@ test: enforce Reign repository hygiene
 
 - [ ] **Step 1: Create focused memory documents**
 
-Each document starts with purpose, inclusion criteria, and a dated-entry format. `PROJECT_MEMORY.md` links the existing architecture/current-system/database/dependency/testing/validation documents and the four new focused ledgers. Initial ledgers state ‚ÄúNo durable entries recorded yet‚Äù rather than inventing history.
+Each document starts with purpose, inclusion criteria, and a dated-entry format. `PROJECT_MEMORY.md` links the existing architecture/current-system/database/dependency/testing/validation documents and the four new focused ledgers. Initial ledgers state ìNo durable entries recorded yetî rather than inventing history.
 
 Use these entry fields:
 
@@ -549,7 +549,7 @@ Tell the owner to:
 1. Keep the repository private unless they intentionally change it.
 2. Keep GitHub access for `speedaemonc4` active; reauthenticate only when GitHub reports an expired login.
 3. Keep saves, keys, runtime databases, logs, generated portraits, build output, backups, and decompiled sources in their existing excluded locations.
-4. Ask Codex to ‚Äúdocument what we learned in Reign project memory‚Äù after a costly bug, architectural decision, or measured performance change.
+4. Ask Codex to ìdocument what we learned in Reign project memoryî after a costly bug, architectural decision, or measured performance change.
 5. Let Codex run the repository-hygiene and Reign validation checks before important pushes.
 6. Transfer the repository later only through an explicit task; update `reign.repository.json`, `AGENTS.md`, local `origin`, and recovery documentation together.
 

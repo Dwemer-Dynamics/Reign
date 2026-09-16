@@ -15,11 +15,7 @@
     "visibility": "public"
   },
   "serverSourceDirectories": [
-    "ReignBetaServer",
-    "ReignModules",
-    "NativeCharacterImageGenerator",
-    "ReignTools",
-    "ReignRelease"
+    "ReignServer"
   ],
   "development": "local",
   "uploadGate": "verified-clean-install-on-another-computer"

@@ -30,7 +30,7 @@ public sealed partial class ReignValidationService
         lease.Update("building", "linux-server", runId: runId, reportPath: reportPath, sourceFingerprint: fingerprint);
         var arguments = new List<string>
         {
-            "publish", Path.Combine(options.WorkspaceRoot, "ReignBetaServer", "ReignBetaServer.csproj"),
+            "publish", Path.Combine(options.WorkspaceRoot, "ReignServer", "ReignServer.csproj"),
             "-c", "Release", "-p:ReignIncludePrivateVerificationContracts=false", "--runtime", "linux-x64",
             "--self-contained", "true", "--output", publish
         };
@@ -40,7 +40,7 @@ public sealed partial class ReignValidationService
             cancellationToken: cancellationToken).ConfigureAwait(false);
         if (process.Ok)
         {
-            using var release = JsonDocument.Parse(File.ReadAllText(Path.Combine(options.WorkspaceRoot, "ReignRelease", "release.json")));
+            using var release = JsonDocument.Parse(File.ReadAllText(Path.Combine(options.WorkspaceRoot, "ReignServer", "release", "release.json")));
             string version = release.RootElement.GetProperty("version").GetString()
                 ?? throw new InvalidDataException("Release version is missing.");
             int protocolVersion = release.RootElement.GetProperty("protocolVersion").GetInt32();
@@ -52,7 +52,7 @@ public sealed partial class ReignValidationService
                     protocolVersion, sourceFingerprint = fingerprint, files }, JsonOptions), cancellationToken);
         }
         var report = new LinuxServerBuildReport("reign-linux-build-v1",
-            process.Ok && File.Exists(Path.Combine(publish, "ReignBetaServer"))
+            process.Ok && File.Exists(Path.Combine(publish, "ReignServer"))
                 && fingerprint == ComputeSourceFingerprint(plan),
             runId, fingerprint, publish, reportPath, hygiene, process);
         await File.WriteAllTextAsync(reportPath, JsonSerializer.Serialize(report, JsonOptions), cancellationToken);
