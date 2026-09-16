@@ -16,6 +16,7 @@
     "reign.repositories.json",
     "ReignServer/release/**",
     ".gitattributes",
+    "ReignServer/.gitattributes",
     ".gitignore",
     "reign.repository.json",
     "reign-projects.json",
