@@ -1,4 +1,12 @@
 {
+  "participationXp": {
+    "schema": "reign-participation-xp-testing-v1",
+    "implementation": "ReignXpTests via canonical changed-path Release validation; isolated Control Center Options browser assertions and rendered states.",
+    "procedure": "docs/agent/testing/DIALOGUE_AND_PROVIDERS.md",
+    "isolation": "In-memory rules and ledger serialization; intercepted local browser requests; no provider calls, production settings mutations, listener, campaign writes or time advancement.",
+    "evidence": "Canonical validation report, repository hygiene, Options browser assertion report and screenshots, exact-artifact deployment hashes.",
+    "limits": "Native skill accounting, learning modifiers, save/reload and human UI acceptance remain manual Testing work. Existing native campaign, runtime, deployment and cleanup gates remain authoritative."
+  },
   "temporaryGuestDialogue": {
     "schema": "reign-temporary-guest-dialogue-v1",
     "suite": "prompt_efficiency",
@@ -366,6 +374,12 @@
     "verification": "contracts.conversation_intoxication in quick/offline contracts; focused suite conversation_intoxication; also existing --run-motive-conversation-tests route",
     "stateSchema": "reign-conversation-intoxication-v1",
     "receiptSchema": "reign-drinking-receipt-v1",
+    "binding": "Exact unique actionQuote plus occurrenceIndex/evidenceQuote, legacy unique-consumption rebind, or bounded final-action fallback. Verify current speaker, current consumption and consumed beverage independently of model booleans; no player/history inference.",
+    "beverageCatalogue": "reign-beverages-v1 in ReignBetaServer/src/Modules/Dialogue/ConversationBeverages.cs; native/Reign and compatibility provenance; nonalcohol and preparation-dependent variants retained",
+    "vesselState": "Optional vessel field in the existing state/transaction/snapshot; one unambiguous NPC vessel per conversation/location; one campaign-hour expiry; no cross-turn inference without stable session identity",
+    "quantityPolicy": "Explicit text, then compatible bounded model quantity, otherwise quarter-serving default; known remainder caps consumption; refills/spills/handoffs update vessel only; bulk capacity stays unknown",
+    "auditPhase": "drinking.receipt",
+    "regressions": "ConversationDrinkingRegressionTests executes DRINK-001 through DRINK-090, all five captured kumis failures, aliases/modifiers/mixtures, occurrence binding, cup/refill/spill/handoff order, session expiry, persistence/replay/concurrency/snapshot and blocked/stale-turn controls. Existing formatting and continuity tests remain. Run conversation_intoxication and prompt_efficiency from the exact Release artifact.",
     "minimumDrinks": 5,
     "enduranceMultiplier": 2,
     "hoursPerDrink": 2,

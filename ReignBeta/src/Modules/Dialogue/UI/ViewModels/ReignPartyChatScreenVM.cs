@@ -1,4 +1,5 @@
 using System;
+using Reign.Core.Contracts.Dialogue;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
@@ -858,6 +859,9 @@ namespace ReignBeta.UI.ViewModels
             Stopwatch timer = Stopwatch.StartNew();
             bool anyReply = false;
             bool hadFailure = false;
+            ReignXpInteraction xp = await ReignServerClient.BeginXpInteractionAsync().ConfigureAwait(false);
+            string xpReceipt = "conversation:party:" + (string.IsNullOrWhiteSpace(correlationBase)
+                ? _session.CurrentSceneTurnId : correlationBase);
 
             try
             {
@@ -984,6 +988,9 @@ namespace ReignBeta.UI.ViewModels
             }
             await ReignMainThread.InvokeAsync(PersistCastleTranscript).ConfigureAwait(false);
             batchResult.Ok = !hadFailure && batchResult.Replies.Count == activeHeroes.Count && batchResult.Replies.All(reply => reply.Ok);
+            if (batchResult.Ok && anyReply && !castleOpening && !openingTurn
+                && !string.IsNullOrWhiteSpace(playerText) && string.IsNullOrWhiteSpace(auditRunId))
+                await ReignMainThread.InvokeAsync(() => xp.Award(xpReceipt, ReignXpSkill.Charm, ReignXpRules.ConversationXp)).ConfigureAwait(false);
             if (!batchResult.Ok && string.IsNullOrWhiteSpace(batchResult.Error))
             {
                 batchResult.Error = string.Join("; ", batchResult.Replies.Where(reply => !reply.Ok)
