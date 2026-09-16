@@ -42,7 +42,7 @@ $expectedProtectedMapFileCount = 17
 $expectedTotalUiRuntimeAuthorityFileCount = $expectedUiAuthorityFileCount + $expectedAuxiliaryUiAuthorityFileCount + 2
 $fixedRuntimeUiContractSha256 = [ordered]@{
     'GUI\Brushes\ReignPortraitMasks.xml' = 'b389e1a7f6bd8c5ec2cbaa50e166b57739c54b6fb6213d29b459ccc0a43725af'
-    'GUI\UiCalibration\modern-style-contract.json' = '0d4eabe1f4a2fbea28bbb4b0eb665f7c2df72fca2e60d0a4a0e64ef1a7abecc4'
+    'GUI\UiCalibration\modern-style-contract.json' = '0878683512dbcb5f0fca09ddd143c873348814e6a670d74be30dd05c7107681c'
 }
 $approvedProtectedTileSha256 = [ordered]@{
     'reign_war_council_tile_0_0.png' = '24fe538ca063966c6b17064d05b8d7a964dd90f404567aa88b827594b9cce07e'

@@ -7,6 +7,31 @@ namespace Reign.Mcp.Tests;
 public sealed class LaunchInstallationTests
 {
     [Fact]
+    public void WslClientRecordAllowsOnlyTheSelectedManagedDistroPaths()
+    {
+        if (!OperatingSystem.IsWindows()) return;
+        var record = Record(Path.Combine(Path.GetTempPath(), "Reign WSL contract"));
+        record.ServerMode = "dwemerdistro-wsl";
+        record.WslDistro = "DwemerAI4Skyrim3";
+        record.ServerRoot = @"\\wsl.localhost\DwemerAI4Skyrim3\var\www\html\ReignServer\runtime\current";
+        record.DataRoot = record.ContentRoot = @"\\wsl.localhost\DwemerAI4Skyrim3\var\www\html\ReignServer\data";
+        record.PostgresPort = 5432;
+        record.PostgresBin = "";
+        record.Validate();
+        record.ContentRoot = record.ModuleRoot;
+        record.Validate();
+        string validRoot = record.DataRoot;
+        foreach (string invalid in new[] { @"\\remote\share", validRoot + @"\..", validRoot.Replace("DwemerAI4Skyrim3", "OtherDistro") })
+        {
+            record.DataRoot = invalid;
+            Assert.Throws<InvalidDataException>(record.Validate);
+        }
+        record.DataRoot = validRoot;
+        record.WslDistro = "../OtherDistro";
+        Assert.Throws<InvalidDataException>(record.Validate);
+    }
+
+    [Fact]
     public void ProfileDiscoveryUsesSelectedFoldersWithoutAnEnvironmentOverrideOrLegacyAppData()
     {
         string root = Path.Combine(Path.GetTempPath(), "Reign discovery O'Brien 測試", Guid.NewGuid().ToString("N"));
