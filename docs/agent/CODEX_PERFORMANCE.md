@@ -66,7 +66,7 @@ The report builder performs no provider call, campaign mutation, save mutation, 
 
 ## Validation and acceptance boundaries
 
-The browser contract entry point is `ReignBetaServer/src/Modules/Platform/codex-performance-ui-contract.mjs`; it reuses the isolated provider fixture in `chat-provider-ui-contract.mjs` so Codex controls are checked together with provider switching and parity. Intercepted traffic covers unsaved Codex draft preservation, nested settings defaults, Fast-mode placement immediately after reasoning effort, all experiment defaults, save payload shape, catalog rendering, and the explicitly confirmed bounded verification route at 1672, 1024, and 600 pixels.
+The browser contract entry point is `ReignServer/src/Modules/Platform/codex-performance-ui-contract.mjs`; it reuses the isolated provider fixture in `chat-provider-ui-contract.mjs` so Codex controls are checked together with provider switching and parity. Intercepted traffic covers unsaved Codex draft preservation, nested settings defaults, Fast-mode placement immediately after reasoning effort, all experiment defaults, save payload shape, catalog rendering, and the explicitly confirmed bounded verification route at 1672, 1024, and 600 pixels.
 
 Native Bannerlord raster/fidelity checks do not apply to this web-settings change. The provider-free browser contract does not prove GPT-5.4 entitlement, actual Fast-mode service behavior, Codex latency, roleplaying continuity, or human acceptance. Those remain deferred user-assisted comparisons with the declared call cap.
 

@@ -1,6 +1,6 @@
 # Noble Docket Event Catalog and Behavior Review
 
-This document is the human-readable review copy for the player-ruler noble docket expansion. The production catalog authority is `ReignModules/Reign.Core.Contracts/Court/ReignNobleDocketCatalog.cs`; this document explains the same 68 event templates in a form intended for design review.
+This document is the human-readable review copy for the player-ruler noble docket expansion. The production catalog authority is `ReignServer/shared/Reign.Core.Contracts/Court/ReignNobleDocketCatalog.cs`; this document explains the same 68 event templates in a form intended for design review.
 
 ## How noble matters enter the ruler's docket
 

@@ -37,7 +37,7 @@ public sealed class ReignProcessRunner(
 
         string? linuxInput = null;
         string? linuxPidFile = null;
-        if (OperatingSystem.IsWindows() && Path.GetFileName(executable) == "ReignBetaServer.dll")
+        if (OperatingSystem.IsWindows() && Path.GetFileName(executable) == "ReignServer.dll")
         {
             if (environment?.GetValueOrDefault("REIGN_VALIDATION_MODE") != "1"
                 || environment.GetValueOrDefault("REIGN_DB_NAME") != "ReignValidation")
@@ -54,7 +54,7 @@ public sealed class ReignProcessRunner(
                 "-u", "dwemer", "--", "python3", "-c", LinuxVerificationRunner })
                 startInfo.ArgumentList.Add(argument);
         }
-        else if (OperatingSystem.IsLinux() && Path.GetFileName(executable) == "ReignBetaServer.dll")
+        else if (OperatingSystem.IsLinux() && Path.GetFileName(executable) == "ReignServer.dll")
         {
             startInfo.FileName = "dotnet";
             startInfo.ArgumentList.Insert(0, executable);

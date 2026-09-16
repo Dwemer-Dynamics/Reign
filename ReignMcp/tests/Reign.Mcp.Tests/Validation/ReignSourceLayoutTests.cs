@@ -25,7 +25,7 @@ public sealed class ReignSourceLayoutTests
         foreach (string name in ReignSourceLayout.ServerDirectories)
             Assert.True(layout.CanTraverse(new DirectoryInfo(Path.Combine(fixture.Client, name))));
         var arbitrary = Path.Combine(fixture.Client, "unregistered-link");
-        fixture.Link(arbitrary, Path.Combine(fixture.Server, "ReignModules"));
+        fixture.Link(arbitrary, fixture.Server);
         Assert.False(layout.CanTraverse(new DirectoryInfo(arbitrary)));
     }
 
@@ -34,9 +34,9 @@ public sealed class ReignSourceLayoutTests
     {
         using var fixture = new Fixture();
         fixture.LinkAll();
-        string link = Path.Combine(fixture.Client, "ReignBetaServer");
+        string link = Path.Combine(fixture.Client, "ReignServer");
         Directory.Delete(link);
-        fixture.Link(link, Path.Combine(fixture.Server, "ReignModules"));
+        fixture.Link(link, fixture.Client);
         var layout = new ReignSourceLayout(fixture.Client);
         Assert.False(layout.CanTraverse(new DirectoryInfo(link)));
         Assert.Throws<InvalidDataException>(layout.ValidateProjections);
@@ -69,14 +69,20 @@ public sealed class ReignSourceLayoutTests
         string outside = Path.Combine(fixture.Server, "private-state", "nested");
         Directory.CreateDirectory(outside);
         File.WriteAllText(Path.Combine(outside, "fixture.json"), "{}");
-        fixture.Link(Path.Combine(fixture.Server, "ReignBetaServer", "escape"), Path.GetDirectoryName(outside)!);
+        fixture.Link(Path.Combine(fixture.Server, "escape"), Path.GetDirectoryName(outside)!);
         var options = TestOptions.Create() with { WorkspaceRoot = fixture.Client };
         var workspace = new WorkspaceAccess(options, new SensitiveDataRedactor());
-        Assert.Throws<InvalidDataException>(() => workspace.ReadSource("ReignBetaServer/escape/nested/fixture.json", 1, 10));
-        Assert.Throws<InvalidDataException>(() => workspace.Search("fixture", "ReignBetaServer/escape/nested", 10, false));
-        string valid = Path.Combine(fixture.Server, "ReignBetaServer", "source.cs");
+        Assert.Throws<InvalidDataException>(() => workspace.ReadSource("ReignServer/escape/nested/fixture.json", 1, 10));
+        Assert.Throws<InvalidDataException>(() => workspace.Search("fixture", "ReignServer/escape/nested", 10, false));
+        string valid = Path.Combine(fixture.Server, "source.cs");
         File.WriteAllText(valid, "// visible");
-        Assert.Contains("visible", workspace.ReadSource("ReignBetaServer/source.cs", 1, 10).Text);
+        Assert.Contains("visible", workspace.ReadSource("ReignServer/source.cs", 1, 10).Text);
+        foreach (string name in new[] { "data", "runtime" })
+        {
+            Directory.CreateDirectory(Path.Combine(fixture.Server, name));
+            File.WriteAllText(Path.Combine(fixture.Server, name, "settings.json"), "{}");
+            Assert.Throws<InvalidDataException>(() => workspace.ReadSource("ReignServer/" + name + "/settings.json", 1, 10));
+        }
     }
 
     private sealed class Fixture : IDisposable
@@ -91,7 +97,7 @@ public sealed class ReignSourceLayoutTests
             Directory.CreateDirectory(Client);
             Directory.CreateDirectory(Path.Combine(Server, ".git"));
             foreach (string name in ReignSourceLayout.ServerDirectories)
-                Directory.CreateDirectory(Path.Combine(Server, name));
+                Directory.CreateDirectory(Server);
             WriteManifest("../ReignServer");
         }
 
@@ -106,7 +112,7 @@ public sealed class ReignSourceLayoutTests
         public void LinkAll()
         {
             foreach (string name in ReignSourceLayout.ServerDirectories)
-                Link(Path.Combine(Client, name), Path.Combine(Server, name));
+                Link(Path.Combine(Client, name), Server);
         }
 
         public void Link(string link, string target)

@@ -52,7 +52,7 @@ public sealed class KingdomEventScenarioContractTests
     public void RiskBasedKingdomEventMatrixCoversEveryArchetypeAndRepresentativeTargetOrdering()
     {
         string workspace = TestOptions.FindWorkspace();
-        string scenarioRoot = Path.Combine(workspace, "ReignBetaServer", "ReignLiveTest", "scenarios");
+        string scenarioRoot = Path.Combine(workspace, "ReignServer", "tests", "ReignLiveTest", "scenarios");
         using JsonDocument manifest = JsonDocument.Parse(File.ReadAllText(
             Path.Combine(scenarioRoot, "kingdom-event-acceptance-manifest.json")));
         JsonElement root = manifest.RootElement;
@@ -70,7 +70,7 @@ public sealed class KingdomEventScenarioContractTests
         Assert.Equal(8, root.GetProperty("archetypes").EnumerateArray()
             .Count(item => item.GetProperty("polarity").GetString() == "beneficial"));
 
-        string liveServer = File.ReadAllText(TestSourceLocator.Unique(Path.Combine(workspace, "ReignBetaServer"), "LiveInteractionTest.cs", "/src/"));
+        string liveServer = File.ReadAllText(TestSourceLocator.Unique(Path.Combine(workspace, "ReignServer"), "LiveInteractionTest.cs", "/src/"));
         string liveHost = File.ReadAllText(TestSourceLocator.Unique(
             Path.Combine(workspace, "ReignBeta"),
             "ReignLiveInteractionKingdomEventHost.cs",

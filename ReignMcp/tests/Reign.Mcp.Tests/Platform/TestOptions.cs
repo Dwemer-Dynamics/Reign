@@ -27,7 +27,7 @@ internal static class TestOptions
         for (var depth = 0; cursor is not null && depth < 12; depth++, cursor = cursor.Parent)
         {
             if (File.Exists(Path.Combine(cursor.FullName, "REIGN_ROADMAP.md"))
-                && Directory.Exists(Path.Combine(cursor.FullName, "ReignBetaServer")))
+                && Directory.Exists(Path.Combine(cursor.FullName, "ReignServer")))
             {
                 return cursor.FullName;
             }

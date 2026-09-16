@@ -1028,7 +1028,7 @@ public static partial class TestingTools
 
     private static JsonElement LoadGovernmentCertificationManifest(ReignMcpOptions options)
     {
-        string path = Path.Combine(options.WorkspaceRoot, "ReignBetaServer", "ReignLiveTest",
+        string path = Path.Combine(options.WorkspaceRoot, "ReignServer", "tests", "ReignLiveTest",
             "scenarios", "government-system-manifest.json");
         if (!File.Exists(path)) throw new FileNotFoundException(
             "The authoritative Government certification manifest is missing.", path);
