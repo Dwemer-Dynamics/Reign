@@ -676,11 +676,14 @@ namespace ReignBeta.UI.ViewModels
 
         private async Task<ReignSocialEventTurnReply> RequestGroupTurnAsync(List<Hero> activeHeroes, string playerText, string correlationId = "")
         {
+            if (_calibrationMode) return new ReignSocialEventTurnReply { Error = "Calibration does not send dialogue or award XP." };
             IsBusy = true;
             BusyText = "Waiting for Bannerlord Reign...";
             ReignSocialEventTurnReply turn = null;
+            string xpPhaseKey = _session.XpPhaseKey;
             try
             {
+                ReignXpInteraction xp = await ReignServerClient.BeginXpInteractionAsync();
                 turn = await ReignServerClient.RequestSocialEventTurnAsync(
                     _session,
                     activeHeroes,
@@ -696,13 +699,6 @@ namespace ReignBeta.UI.ViewModels
                             _session.RecordTranscriptLine(speakerName, reply.Text.Trim());
                         }
                     });
-            }
-            finally
-            {
-                BusyText = string.Empty;
-                IsBusy = false;
-            }
-
             if (turn == null || !turn.Ok)
             {
                 AddSystemLine("Bannerlord Reign could not complete the group conversation: " + (turn?.Error ?? "No response."));
@@ -710,6 +706,16 @@ namespace ReignBeta.UI.ViewModels
             }
 
             _session.ApplyTurnResolution(turn.AddressedHeroStringIds, turn.WanderedHeroStringIds, turn.NextIdleCounters);
+            bool newExchange = true;
+            await ReignMainThread.InvokeAsync(() =>
+            {
+                if (xp.Owner != null)
+                    newExchange = xp.Owner.RecordSocialExchange(xpPhaseKey, turn.TurnId,
+                        turn.ParticipantResults.Where(r => r.Ok && !string.IsNullOrWhiteSpace(r.Text)
+                            && !string.Equals(r.Participation, "silent", StringComparison.OrdinalIgnoreCase))
+                            .Select(r => ReignObjectResolver.FindHero(r.HeroStringId)), xp.Options);
+            });
+            if (!newExchange) return turn;
             foreach (string heroId in turn.WanderedHeroStringIds)
             {
                 Hero wandered = Hero.AllAliveHeroes.FirstOrDefault(x => x != null && string.Equals(x.StringId, heroId, StringComparison.OrdinalIgnoreCase));
@@ -739,6 +745,15 @@ namespace ReignBeta.UI.ViewModels
 
             RefreshFromSession();
             return turn;
+            }
+            finally
+            {
+                await ReignMainThread.InvokeAsync(() =>
+                {
+                    BusyText = string.Empty;
+                    IsBusy = false;
+                });
+            }
         }
 
         private void ToggleAttendee(ReignSocialEventAttendeeVM attendee)

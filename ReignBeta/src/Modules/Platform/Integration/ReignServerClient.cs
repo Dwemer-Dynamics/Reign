@@ -919,12 +919,13 @@ namespace ReignBeta.Integration
             }
         }
 
-        public static Task<bool> FinishSocialEventPhaseAsync(ReignSocialEventSession session)
+        public static async Task<bool> FinishSocialEventPhaseAsync(ReignSocialEventSession session)
         {
-            // The propagation-era public gossip endpoint was retired with
-            // character-owned social standing. Social-event producers now emit
-            // structured social_outcome evidence through World History.
-            return Task.FromResult(session?.Record != null);
+            if (session?.Record == null) return false;
+            string phaseKey = session.XpPhaseKey;
+            ReignXpInteraction xp = await BeginXpInteractionAsync().ConfigureAwait(false);
+            await ReignMainThread.InvokeAsync(() => xp.Owner?.FinishSocialPhase(phaseKey, xp.Options)).ConfigureAwait(false);
+            return true;
         }
 
         public static async Task<JObject> RollSocialEventApproachesAsync(ReignSocialEventSession session, IEnumerable<Hero> candidates)
@@ -2132,7 +2133,7 @@ namespace ReignBeta.Integration
             return explicitHistory.Any(q.Contains) || eventQuestions.Any(q.Contains) || reportedClaims.Any(q.Contains);
         }
 
-        private static async Task<JObject> GetJsonAsync(string route)
+        private static async Task<JObject> GetJsonAsync(string route, HttpClient requestClient = null)
         {
             await ReignSaveSyncCoordinator.WaitForReadyAsync(route).ConfigureAwait(false);
             await ReignCampaignInitializationGate.WaitForReadyAsync(route).ConfigureAwait(false);
@@ -2147,7 +2148,7 @@ namespace ReignBeta.Integration
                 string url = baseUrl.TrimEnd('/') + (route.StartsWith("/", StringComparison.Ordinal) ? route : "/" + route);
                 try
                 {
-                    using (HttpResponseMessage response = await Client.GetAsync(url).ConfigureAwait(false))
+                    using (HttpResponseMessage response = await (requestClient ?? Client).GetAsync(url).ConfigureAwait(false))
                     {
                         string body = await response.Content.ReadAsStringAsync().ConfigureAwait(false);
                         ReignServerEndpoint.ReportSuccess(baseUrl);

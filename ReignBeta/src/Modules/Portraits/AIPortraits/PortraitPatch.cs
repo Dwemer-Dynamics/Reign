@@ -61,7 +61,7 @@ public static class PortraitPatch
 				}
 				string value2 = Traverse.Create(__instance).Property("ImageId").GetValue<string>();
 				string text = PortraitRequestRegistry.NormalizeKey(value2);
-				string text2 = ResolveCacheKey(__instance, text);
+				string text2 = ResolveCacheKey(__instance, value2, text);
 				if (instance != null && instance.LogUIMovies && !string.IsNullOrEmpty(value2) && _seenDisplay.TryAdd(value2, 0))
 				{
 					string text3 = (string.IsNullOrEmpty(__instance.Id) ? "vanilla" : __instance.Id);
@@ -143,7 +143,13 @@ public static class PortraitPatch
 	[HarmonyPatch(typeof(TextureWidget), "OnRender")]
 	public static class OnRenderPatch
 	{
-		private sealed class RefreshState { public long Revision = -1; public int LayoutAspect = -1; }
+		private sealed class RefreshState
+		{
+			public long Revision = -1;
+			public int LayoutAspect = -1;
+			public string ImageId;
+			public string AdditionalArgs;
+		}
 		private static readonly ConditionalWeakTable<TextureWidget, RefreshState> RefreshStates = new ConditionalWeakTable<TextureWidget, RefreshState>();
 		private static void Postfix(TextureWidget __instance)
 		{
@@ -152,10 +158,16 @@ public static class PortraitPatch
 			long revision = TextureFactory.PortraitRevision;
 			int layoutAspect = GetGameMenuPortraitOwner(__instance) == null ? 0
 				: (int)Math.Round(GetWidgetAspect(__instance, null) * 1000f);
-			if (state.Revision != revision || state.LayoutAspect != layoutAspect)
+			var identityWidget = __instance as ImageIdentifierWidget;
+			string imageId = identityWidget?.ImageId;
+			string additionalArgs = identityWidget?.AdditionalArgs;
+			if (state.Revision != revision || state.LayoutAspect != layoutAspect
+				|| state.ImageId != imageId || state.AdditionalArgs != additionalArgs)
 			{
 				state.Revision = revision;
 				state.LayoutAspect = layoutAspect;
+				state.ImageId = imageId;
+				state.AdditionalArgs = additionalArgs;
 				Texture replacement = __instance.Texture;
 				TextureSetterPatch.Prefix(__instance, ref replacement);
 				if (replacement != null && !ReferenceEquals(replacement, __instance.Texture))
@@ -169,8 +181,8 @@ public static class PortraitPatch
 				|| __instance.TextureProviderName != "CharacterImageTextureProvider") return;
 			try
 			{
-				string imageId = Traverse.Create(__instance).Property("ImageId").GetValue<string>();
-				LordSourceExportService.TryCaptureRendered(__instance, imageId);
+				string exportImageId = Traverse.Create(__instance).Property("ImageId").GetValue<string>();
+				LordSourceExportService.TryCaptureRendered(__instance, exportImageId);
 			}
 			catch (Exception ex) { Debug.Print("[AIPortraits] Reference export failed: " + ex.Message); }
 		}
@@ -270,7 +282,7 @@ public static class PortraitPatch
 		_memoryBookCacheKey = cacheKey;
 	}
 
-	private static string ResolveCacheKey(TextureWidget widget, string appearanceKey)
+	private static string ResolveCacheKey(TextureWidget widget, string imageId, string appearanceKey)
 	{
 		return widget.Id switch
 		{
@@ -282,8 +294,17 @@ public static class PortraitPatch
 			"ReignChatZoomPortrait" => _chatZoomCacheKey,
 			"AIPortraitsAIInfluenceMemoryImage" => _aiInfluenceMemoryCacheKey, 
 			"AIPortraitsMemoryBookImage" => _memoryBookCacheKey, 
-			_ => PortraitIndex.Resolve(appearanceKey), 
+			_ => ResolveNativeCacheKey(widget, imageId, appearanceKey),
 		};
+	}
+
+	private static string ResolveNativeCacheKey(TextureWidget widget, string imageId, string appearanceKey)
+	{
+		string additionalArgs = Traverse.Create(widget).Property("AdditionalArgs").GetValue<string>();
+		if (NativePortraitIdentity.TryResolve(imageId, additionalArgs,
+			ReignCampaignIdentity.CurrentCampaignId(), out string cacheKey)) return cacheKey;
+		// Legacy/unbound surfaces keep collision-safe fallback. Never guess an ambiguous hero.
+		return PortraitIndex.Resolve(appearanceKey);
 	}
 
 	private static bool IsOurBox(TextureWidget widget)
