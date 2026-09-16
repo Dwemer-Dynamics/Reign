@@ -13,8 +13,8 @@ public sealed class LaunchInstallationTests
         var record = Record(Path.Combine(Path.GetTempPath(), "Reign WSL contract"));
         record.ServerMode = "dwemerdistro-wsl";
         record.WslDistro = "DwemerAI4Skyrim3";
-        record.ServerRoot = @"\\wsl.localhost\DwemerAI4Skyrim3\opt\dwemerdistro\reign\current";
-        record.DataRoot = record.ContentRoot = @"\\wsl.localhost\DwemerAI4Skyrim3\var\lib\dwemerdistro\reign";
+        record.ServerRoot = @"\\wsl.localhost\DwemerAI4Skyrim3\var\www\html\ReignServer\runtime\current";
+        record.DataRoot = record.ContentRoot = @"\\wsl.localhost\DwemerAI4Skyrim3\var\www\html\ReignServer\data";
         record.PostgresPort = 5432;
         record.PostgresBin = "";
         record.Validate();
