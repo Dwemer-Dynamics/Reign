@@ -25,7 +25,7 @@
   },
   "runtimeFiles": {
     "fnt": "../../../GUI/Fonts/ReignSerifDynamic/ReignSerifDynamic.fnt",
-    "fntSha256": "C1D65BD2D47F74CAC23FB19842D55458D68BBA2027929468C9464763F7527443",
+    "fntSha256": "912ADB6BEBB58856F2E1C82B82B1946DB32481FFA2A4B1A8388C5EF5BCAD4753",
     "atlas": "../../../GUI/SpriteParts/ui_reignbeta_fonts/ReignSerifDynamic.png",
     "atlasSha256": "2C16AC0300950B365C4BD9241AE752790F8E6F78EE8536A9DB6157A8130CD6E7"
   }

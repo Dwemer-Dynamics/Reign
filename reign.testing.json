@@ -20,32 +20,33 @@
     "limits": "Offline proof establishes retrieval and prompt grounding, not the provider's exact wording or native acceptance. Never replay the player's historical tournament or conversation to repair it."
   },
   "launchPackaging": {
-    "packageBuilder": {
-      "tool": "reign_build_release_package",
-      "cli": "reign-validate.ps1 -ReleasePackage -ValidationRunId <successful all Release run> -PythonExecutable <absolute build python> -BuildSpecification <absolute local inputs JSON> -RequestingTaskId <task UUID>",
-      "gates": ["trusted AllowBuild", "trusted AllowOfflineVerification", "current successful all Release fingerprint", "enforced paired hygiene", "canonical OS build lease"],
-      "evidenceSchema": "reign-release-package-report-v1",
-      "proofSchema": "reign-package-assembly-v1",
-      "cases": ["official_download_hashes", "runtime_component_input_hashes", "runtime_file_allowlist", "steam_dependency_runtime_without_debug_symbols", "upstream_notice_byte_hashes", "secret_path_only_audit", "five_payload_hashes", "installer_compilation", "compiled_setup_failure_page_and_nonzero_exit", "profile_installation_record_discovery", "physical_installation_path_probe_and_redirect_rejection", "legacy_ownership_adoption_without_runtime_fallback", "unpackaged_game_portrait_discovery_acceptance", "no_install_or_listener", "no_provider_calls", "clean_computer_acceptance_remains_pending"],
-      "cleanup": "Retain the exact run-owned release-package directory and assembly report until acceptance. Installer contracts retain isolated temp proof directories. Setup removes only its exact marked staging tree after successful commit and retains prior versions; uninstall preserves player state and modified files."
-    },
-    "runtimeBuilder": {
-      "tool": "reign_build_release_runtime",
-      "cli": "reign-validate.ps1 -VectorRuntime -PythonExecutable <absolute locked build python> -ModelDirectory <verified model directory> -RequestingTaskId <task UUID>",
-      "scope": "One pinned vector runtime component; never a product-validation or clean-machine verdict",
-      "gates": ["trusted AllowBuild", "trusted AllowOfflineVerification", "all ownership plan", "enforced paired hygiene", "canonical OS build lease"],
-      "evidenceSchema": "reign-release-runtime-report-v1",
-      "proofSchema": "reign-vector-release-proof-v1",
-      "cases": ["locked_dependencies", "model_sha256", "bundled_inference_384_dimensions", "network_denied", "no_listener", "persistent_search_after_reopen", "no_python_on_path", "source_unchanged"],
-      "cleanup": "Retain the exact run-owned .codex-build/reign-mcp/release-runtime directory as component evidence. No automatic removal, no campaign access."
+    "linuxServerBuilder": {
+      "tool": "reign_build_linux_server",
+      "cli": "reign-validate.ps1 -LinuxServer -Restore -RequestingTaskId <task UUID>",
+      "scope": "Self-contained Linux server component; no deployment, listener, provider, campaign, or game execution",
+      "gates": [
+        "trusted AllowBuild",
+        "trusted AllowRestore when restoring",
+        "all ownership plan",
+        "enforced paired hygiene",
+        "canonical OS build lease"
+      ],
+      "evidenceSchema": "reign-linux-build-v1",
+      "proofSchema": "reign-linux-artifact-v1",
+      "procedure": "docs/agent/VALIDATION.md",
+      "cleanup": "Retain run-owned linux-server artifacts and reports. Full validation and isolated Linux runtime probes remain separate requirements."
     },
     "schema": "reign-launch-proof-v1",
     "procedure": "docs/agent/testing/RELEASE_PACKAGING.md",
     "profile": "all",
     "tier": 4,
     "repositoryLayout": "reign.repositories.json",
-    "contracts": ["LaunchInstallationTests", "ReignSourceLayoutTests", "ReignProtocolTests", "ReleaseRuntimeTests", "ReleaseInstallerTests", "SetupRejectsUnsupportedDatabasePathsBeforeCreatingInstallationState", "DatabaseCredentialAclUsesItsHostModuleWithAnIncompatibleInheritedModulePath", "database-path-allows-ascii-spaces-and-apostrophes", "database-path-rejects-accented-roots", "fully-offline-setup-needs-zero-download-bytes", "preflight-counts-only-missing-downloads", "replace-existing-install-record-atomically", "reject-locked-install-record-replacement", "failed-record-replacement-preserves-original-and-cleans-temp", "launcher-record-reader-is-bounded", "launcher-reads-utf8-installation-paths", "campaign_metadata_without_storage_scan"],
-    "isolation": "Non-listening contracts and isolated test databases on D:. No provider calls or campaign advancement. Native acceptance retains the existing disposable-save and runtime gates.",
+    "contracts": [
+      "LaunchInstallationTests",
+      "ReignSourceLayoutTests",
+      "ReignProtocolTests"
+    ],
+    "isolation": "Non-listening Linux server verification in WSL with ReignValidation and run-owned data; Windows client contract checks remain on Windows.",
     "publicationGate": "The complete package must have clean-install execution evidence on another computer before initial uploads. Source compilation or operation in the original developer installation is insufficient.",
     "hygiene": "Audit both independent Git checkouts and their exact fetch/push origins. Follow only declared sibling source junctions, hash both repositories, and exclude private verification workspaces from every distributed payload."
   },
