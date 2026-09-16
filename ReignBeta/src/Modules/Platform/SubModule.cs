@@ -300,6 +300,9 @@ namespace ReignBeta
                 PortraitCache.EnsureRootDirectory();
 				PortraitDerivativeService.StartBackgroundSharedValidation();
                 _portraitHarmony = new Harmony("com.bannerlordreign.reignbeta.portraits");
+                PatchPortraitHarmony(typeof(NativePortraitIdentityPatch.CampaignCodePatch), true);
+                PatchPortraitHarmony(typeof(NativePortraitIdentityPatch.CharacterCodePatch), true);
+                PatchPortraitHarmony(typeof(NativePortraitIdentityPatch.ImageIdentifierPatch), true);
                 PatchPortraitHarmony(typeof(PortraitPatch.TextureSetterPatch), true);
                 PatchPortraitHarmony(typeof(PortraitPatch.CharacterTableauRenderPatch), true);
                 PatchPortraitHarmony(typeof(PortraitPatch.OnRenderPatch), true);
