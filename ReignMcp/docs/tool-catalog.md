@@ -300,7 +300,7 @@ The existing workspace/source/validation tools support the declared sibling Reig
 
 ## Release runtime build
 
-`reign_build_release_package(validationRunId, pythonExecutable, buildSpecification, requestingTaskId)` creates the full installer and offline payloads under the canonical lease. It requires current successful all/Release validation, trusted build/offline gates and enforced paired hygiene. See `../../docs/agent/testing/RELEASE_PACKAGING.md` for inputs, artifact schemas, non-listening contracts, cleanup and the separate clean-computer publication gate.
 
-Use reign_build_release_runtime with absolute pythonExecutable/modelDirectory and requestingTaskId to package and prove the Windows vector component under the canonical lease. See ../../docs/agent/testing/RELEASE_PACKAGING.md for gates and evidence. It does not validate the complete product, install, listen or upload.
 
+
+ReignServer is Linux-only. Canonical server verification uses WSL on Windows, an isolated ReignValidation database, run-owned data and a bounded Linux process group. See `../../docs/agent/testing/RELEASE_PACKAGING.md`.

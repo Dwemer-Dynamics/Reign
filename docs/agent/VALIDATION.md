@@ -46,3 +46,7 @@ Deploy the exact artifacts from the successful report without rebuilding. For MC
 # Paired launch repositories
 
 In the paired layout, the private `Reign` checkout is the MCP workspace and the sibling public `ReignServer` owns the five directories declared in `reign.repositories.json`. `ReignRelease/Connect-Repositories.ps1` creates verified source junctions. Validation retains the existing logical paths, combines source fingerprints and enforced hygiene from both repositories, and uses the same single OS lease under Reign. Unknown/misdirected junctions are not permitted. Changes to this layout, installer or validator require `all` / Tier 4. See [launch proof](testing/RELEASE_PACKAGING.md) for pre-upload clean-install requirements.
+
+## Linux-only server
+
+ReignServer targets net10.0/linux-x64. On Windows the canonical runner executes its DLL in the selected WSL distro as dwemer with ReignValidation and run-owned data. Set REIGN_WSL_DISTRO only to select a different local distro. Windows client and portrait renderer artifacts are built separately; the helper is under client/out/native-portrait-generator. Linux publishing explicitly excludes private verification source. The legacy Windows server installer and vector-worker packaging commands are retired.

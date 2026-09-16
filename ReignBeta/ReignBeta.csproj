@@ -153,4 +153,29 @@
       <TargetPath>ModuleData\reign_tavern_cast.json</TargetPath>
     </Content>
   </ItemGroup>
+  <Target Name="PublishBundledNativePortraitGenerator"
+          AfterTargets="Build"
+          Condition="'$(DesignTimeBuild)' != 'true' and '$(ReignSkipNativePortraitGenerator)' != 'true'">
+    <PropertyGroup>
+      <NativePortraitGeneratorProject>$(MSBuildProjectDirectory)\..\NativeCharacterImageGenerator\src\NativeCharacterImageGenerator.App\NativeCharacterImageGenerator.App.csproj</NativePortraitGeneratorProject>
+      <NativePortraitGeneratorPublishDir>$([MSBuild]::EnsureTrailingSlash('$(OutputPath)'))native-portrait-generator\</NativePortraitGeneratorPublishDir>
+      <NativePortraitGeneratorBuildDir>$(MSBuildProjectDirectory)\obj\bundled-native-portrait-generator\$(Configuration)\</NativePortraitGeneratorBuildDir>
+    </PropertyGroup>
+    <Delete Files="$(NativePortraitGeneratorPublishDir)TaleWorlds.Starter.Library.dll" />
+    <MSBuild Projects="$(NativePortraitGeneratorProject)"
+             Targets="Restore"
+             Condition="'$(ReignRestoreBundledTools)' == 'true'"
+             Properties="Configuration=$(Configuration);RuntimeIdentifier=win-x64;SelfContained=true;PublishSingleFile=true;IncludeNativeLibrariesForSelfExtract=true"
+             RemoveProperties="OutDir;OutputPath;BaseOutputPath;BaseIntermediateOutputPath"
+             BuildInParallel="false" />
+    <MSBuild Projects="$(NativePortraitGeneratorProject)"
+             Targets="Publish"
+             Properties="Configuration=$(Configuration);RuntimeIdentifier=win-x64;SelfContained=true;PublishSingleFile=true;IncludeNativeLibrariesForSelfExtract=true;DebugType=None;OutputPath=$(NativePortraitGeneratorBuildDir);PublishDir=$(NativePortraitGeneratorPublishDir)"
+             RemoveProperties="OutDir;BaseOutputPath;BaseIntermediateOutputPath"
+             BuildInParallel="false" />
+    <Error Condition="!Exists('$(NativePortraitGeneratorPublishDir)Bannerlord.NativeCharacterImageGenerator.App.exe')"
+           Text="The bundled native portrait generator was not published into the Reign client package." />
+    <Error Condition="!Exists('$(NativePortraitGeneratorPublishDir)Bannerlord.NativePortraitRenderHost.exe')"
+           Text="The bundled native TaleWorlds portrait render host was not published into the Reign client package." />
+  </Target>
 </Project>

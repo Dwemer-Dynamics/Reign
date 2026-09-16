@@ -31,7 +31,7 @@ public sealed partial class ReignValidationService
         var arguments = new List<string>
         {
             "publish", Path.Combine(options.WorkspaceRoot, "ReignBetaServer", "ReignBetaServer.csproj"),
-            "-c", "Release", "-p:ReignLinux=true", "--runtime", "linux-x64",
+            "-c", "Release", "-p:ReignIncludePrivateVerificationContracts=false", "--runtime", "linux-x64",
             "--self-contained", "true", "--output", publish
         };
         if (!restore) arguments.Add("--no-restore");

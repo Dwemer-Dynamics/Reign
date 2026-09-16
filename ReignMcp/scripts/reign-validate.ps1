@@ -8,18 +8,12 @@ param(
     [string[]]$ChangedPath = @(),
     [switch]$NoFailFast,
     [switch]$PlanOnly,
-    [switch]$VectorRuntime,
-    [switch]$ReleasePackage,
     [switch]$LinuxServer,
-    [string]$ValidationRunId,
-    [string]$BuildSpecification,
-    [string]$PythonExecutable,
-    [string]$ModelDirectory,
     [string]$RequestingTaskId = $env:CODEX_THREAD_ID
 )
 
 $ErrorActionPreference = 'Stop'
-if (@($VectorRuntime,$ReleasePackage,$PlanOnly,$LinuxServer | Where-Object { $_ }).Count -gt 1) { throw 'Choose one validation plan, Linux server, vector-runtime build, or release-package build.' }
+if (@($PlanOnly,$LinuxServer | Where-Object { $_ }).Count -gt 1) { throw 'Choose a validation plan or Linux server build.' }
 $mcpRoot = [System.IO.Path]::GetFullPath((Split-Path -Parent $PSScriptRoot))
 $workspaceRoot = [System.IO.Path]::GetFullPath((Split-Path -Parent $mcpRoot))
 $project = Join-Path $mcpRoot 'src\Reign.Mcp.Server\Reign.Mcp.Server.csproj'
@@ -47,12 +41,10 @@ try {
     $env:REIGN_MCP_ALLOW_OFFLINE_VERIFICATION = 'true'
     $arguments = @(
         $server,
-        $(if ($LinuxServer) { '--linux-server-cli' } elseif ($ReleasePackage) { '--release-package-cli' } elseif ($VectorRuntime) { '--release-runtime-cli' } elseif ($PlanOnly) { '--plan-cli' } else { '--validate-cli' }),
+        $(if ($LinuxServer) { '--linux-server-cli' } elseif ($PlanOnly) { '--plan-cli' } else { '--validate-cli' }),
         '--profile', $Profile,
         '--configuration', $Configuration
     )
-    if ($VectorRuntime) { $arguments += @('--python', $PythonExecutable, '--model-directory', $ModelDirectory) }
-    if ($ReleasePackage) { $arguments += @('--python', $PythonExecutable, '--validation-run', $ValidationRunId, '--specification', $BuildSpecification) }
     if (-not [string]::IsNullOrWhiteSpace($RequestingTaskId)) {
         $arguments += @('--task-id', $RequestingTaskId)
     }

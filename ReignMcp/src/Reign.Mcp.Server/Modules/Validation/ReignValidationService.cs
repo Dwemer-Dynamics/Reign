@@ -192,7 +192,7 @@ public sealed partial class ReignValidationService(
                     }
 
                     var executable = Path.Combine(runRoot, project.Id, "out",
-                        Path.GetFileNameWithoutExtension(project.ProjectPath) + ".exe");
+                        Path.GetFileNameWithoutExtension(project.ProjectPath) + (project.Id == "server" ? ".dll" : ".exe"));
                     if (!File.Exists(executable))
                     {
                         throw new FileNotFoundException(
@@ -235,7 +235,7 @@ public sealed partial class ReignValidationService(
                     runRoot,
                     "server",
                     "out",
-                    "ReignBetaServer.exe");
+                    "ReignBetaServer.dll");
                 if (serverProject is not null && File.Exists(serverExecutable))
                 {
                     var tier = plan.VerificationTier == "offline" ? "offline" : "quick";

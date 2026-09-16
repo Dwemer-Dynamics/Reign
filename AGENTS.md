@@ -26,16 +26,11 @@ For unattended native advancement, use guarded campaign-test MCP tools. Enroll t
 
 ## Server lifecycle
 
-DwemerDistro deployments run ReignServer and its vector worker inside WSL, managed through `ddistro_server`. The launcher owns their start/stop and Control Center access. The Windows lifetime rules below apply only to existing standalone Windows installations. Linux builds use `ReignMcp/scripts/reign-validate.ps1 -LinuxServer` under the same canonical lease; a Linux build report does not replace full validation or runtime probes.
+DwemerDistro deployments run ReignServer and its vector worker inside WSL, managed through `ddistro_server`. The launcher owns their start/stop and Control Center access. There is no standalone Windows server target. Linux builds use `ReignMcp/scripts/reign-validate.ps1 -LinuxServer` under the same canonical lease; a Linux build report does not replace full validation or runtime probes.
 
-### Standalone Windows lifecycle
+### Linux-only server
 
-- The supported server is `http://127.0.0.1:5101`.
-- Start only through the visible installed shortcut or `Start ReignBeta Server.cmd`. Never launch `ReignBetaServer.exe` hidden/detached or with `-WindowStyle Hidden`.
-- The server owns one dedicated app-style Control Center. Never open it in an ordinary browser tab.
-- The server, dedicated Control Center and vector worker are one lifetime group; closing either visible Reign window must stop all three.
-- Close the current visible Control Center or server console before replacing installed server files; restart through the unified visible launch path.
-- Never start a second background server for tests. Use non-listening CLI tests, or stop the visible server first and return it visibly afterward.
+ReignServer targets linux-x64. Canonical server verification runs in WSL on Windows using isolated run-owned data and ReignValidation. Windows remains the game client and native portrait renderer platform. Do not recreate standalone Windows server installers or process ownership.
 
 ## Interface authority
 

@@ -24,9 +24,7 @@ public sealed class ToolMetadataTests
             .ToArray();
         var writes = new HashSet<string>(StringComparer.Ordinal)
         {
-            "reign_build_release_runtime",
             "reign_build_linux_server",
-            "reign_build_release_package",
             "reign_start_verification",
             "reign_cancel_verification",
             "reign_start_spymaster_test",
@@ -114,7 +112,7 @@ public sealed class ToolMetadataTests
             ,"reign_cleanup_campaigns_without_saves"
         };
 
-        Assert.Equal(115, tools.Length);
+        Assert.Equal(113, tools.Length);
         Assert.All(tools, item =>
         {
             Assert.StartsWith("reign_", item.Tool!.Name, StringComparison.Ordinal);

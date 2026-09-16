@@ -25,19 +25,6 @@ public sealed class RelationshipThroughputContractTests
     }
 
     [Fact]
-    public void ReleaseLauncherUsesInstalledNativeDatabase()
-    {
-        string launcher = File.ReadAllText(Path.Combine(TestOptions.FindWorkspace(), "ReignBeta", "Start ReignBeta Server.cmd"));
-        Assert.Contains("Start-ReignServer.ps1", launcher);
-        Assert.DoesNotContain("wsl", launcher, StringComparison.OrdinalIgnoreCase);
-        string runner = File.ReadAllText(Path.Combine(TestOptions.FindWorkspace(), "ReignRelease", "Start-ReignServer.ps1"));
-        Assert.Contains("reign-installation-v1", runner);
-        Assert.Contains("$record.serverRoot", runner);
-        Assert.Contains("--activate-only", runner);
-        Assert.DoesNotContain("Start-Process", runner);
-    }
-
-    [Fact]
     public void ReplayCatalogPreservesMeasuredBudgetAndIsolatedRoutes()
     {
         using var json = JsonDocument.Parse(File.ReadAllText(Path.Combine(TestOptions.FindWorkspace(), "reign.testing.json")));
