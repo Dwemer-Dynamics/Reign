@@ -24,6 +24,6 @@ ReignBeta/PortraitCache/_shared/**/*.png filter=lfs diff=lfs merge=lfs -text
 *.woff binary
 *.woff2 binary
 
-# Preserve exact approved portrait metadata bytes; the inventory hashes include original line endings.
-ReignBeta/PortraitCache/_shared/**/*.json -text
-ReignBeta/PortraitCache/_shared/**/*.txt -text
+# Normalize portrait text metadata to LF so inventory hashes survive clean checkouts.
+ReignBeta/PortraitCache/_shared/**/*.json text eol=lf
+ReignBeta/PortraitCache/_shared/**/*.txt text eol=lf
