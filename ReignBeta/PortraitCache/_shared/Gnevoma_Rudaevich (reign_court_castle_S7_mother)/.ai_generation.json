@@ -1,0 +1,27 @@
+{
+  "version": 1,
+  "cacheKey": "Gnevoma_Rudaevich (reign_court_castle_S7_mother)",
+  "heroStringId": "reign_court_castle_S7_mother",
+  "characterObjectId": "reign_court_castle_S7_mother",
+  "characterName": "Gnevoma Rudaevich",
+  "provider": "AtlasCloud",
+  "model": "xai/grok-imagine-image/edit",
+  "adapter": "atlas upload/generate/poll",
+  "sourceSha256": "8e1d723c203818429be0a952ab91e54bc035464ff5128bd8994d0f4f96e18154",
+  "portraitSha256": "e414d8211450bef527af7ebd4648f27c7b2f24e1ec59cf50df7ce7b9c6e8e40e",
+  "portraitWidth": 864,
+  "portraitHeight": 1152,
+  "physicalConfidence": {
+    "definition": "physical_confidence",
+    "score": 62,
+    "profile": "61-80",
+    "flirtatiousnessPercentage": 59,
+    "confidencePercentage": 70,
+    "flirtatiousnessWeight": 0.75,
+    "confidenceWeight": 0.25,
+    "source": "shipped_profile_library"
+  },
+  "derivativesReady": true,
+  "derivativeError": "",
+  "generatedUtc": "2026-07-17T18:39:08.2622917Z"
+}

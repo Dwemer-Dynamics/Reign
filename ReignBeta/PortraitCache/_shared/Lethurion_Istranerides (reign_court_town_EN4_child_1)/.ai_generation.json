@@ -1,0 +1,27 @@
+{
+  "version": 1,
+  "cacheKey": "Lethurion_Istranerides (reign_court_town_EN4_child_1)",
+  "heroStringId": "reign_court_town_EN4_child_1",
+  "characterObjectId": "reign_court_town_EN4_child_1",
+  "characterName": "Lethurion Istranerides",
+  "provider": "AtlasCloud",
+  "model": "xai/grok-imagine-image/edit",
+  "adapter": "atlas upload/generate/poll",
+  "sourceSha256": "6f0568ea47c7147089453e8acefb3d14dd8f4a1f8226a6e4384abb2e83197e13",
+  "portraitSha256": "2c33e5f3e6cec9697f1cf4447653bfd9c0ff465eaf07c10d35676c12c5f6530c",
+  "portraitWidth": 864,
+  "portraitHeight": 1152,
+  "physicalConfidence": {
+    "definition": "physical_confidence",
+    "score": 43,
+    "profile": "41-60",
+    "flirtatiousnessPercentage": 43,
+    "confidencePercentage": 42,
+    "flirtatiousnessWeight": 0.75,
+    "confidenceWeight": 0.25,
+    "source": "shipped_profile_library"
+  },
+  "derivativesReady": true,
+  "derivativeError": "",
+  "generatedUtc": "2026-07-17T18:58:11.8201842Z"
+}

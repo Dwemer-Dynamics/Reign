@@ -1,0 +1,27 @@
+{
+  "version": 1,
+  "cacheKey": "Bjolablum (lord_7_21_1)",
+  "heroStringId": "lord_7_21_1",
+  "characterObjectId": "lord_7_21_1",
+  "characterName": "Bjolablum",
+  "provider": "AtlasCloud",
+  "model": "xai/grok-imagine-image/edit",
+  "adapter": "atlas upload/generate/poll",
+  "sourceSha256": "a76ebeaf6f129962b63516f1075d9df562b34c3696ce9987e93357ef6cc1ea18",
+  "portraitSha256": "ec9675141ea08222382628f583f396272933795b7bef40faccbac115b765804e",
+  "portraitWidth": 832,
+  "portraitHeight": 1248,
+  "physicalConfidence": {
+    "definition": "physical_confidence",
+    "score": 50,
+    "profile": "41-60",
+    "flirtatiousnessPercentage": 50,
+    "confidencePercentage": 50,
+    "flirtatiousnessWeight": 0.75,
+    "confidenceWeight": 0.25,
+    "source": "neutral_fallback"
+  },
+  "derivativesReady": true,
+  "derivativeError": "",
+  "generatedUtc": "2026-07-17T18:17:13.8581160Z"
+}

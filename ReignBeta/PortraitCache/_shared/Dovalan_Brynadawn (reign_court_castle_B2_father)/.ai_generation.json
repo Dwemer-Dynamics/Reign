@@ -1,0 +1,27 @@
+{
+  "version": 1,
+  "cacheKey": "Dovalan_Brynadawn (reign_court_castle_B2_father)",
+  "heroStringId": "reign_court_castle_B2_father",
+  "characterObjectId": "reign_court_castle_B2_father",
+  "characterName": "Dovalan Brynadawn",
+  "provider": "AtlasCloud",
+  "model": "xai/grok-imagine-image/edit",
+  "adapter": "atlas upload/generate/poll",
+  "sourceSha256": "a544a22f8032e5e283f68c79ae43de954ceec800b02cf7fcc3fc18a67060f15d",
+  "portraitSha256": "10f73b0044bfa4aabf7945d79d62e339406ad6c70ee0e6003d401fe9fb041203",
+  "portraitWidth": 864,
+  "portraitHeight": 1152,
+  "physicalConfidence": {
+    "definition": "physical_confidence",
+    "score": 56,
+    "profile": "41-60",
+    "flirtatiousnessPercentage": 52,
+    "confidencePercentage": 67,
+    "flirtatiousnessWeight": 0.75,
+    "confidenceWeight": 0.25,
+    "source": "shipped_profile_library"
+  },
+  "derivativesReady": true,
+  "derivativeError": "",
+  "generatedUtc": "2026-07-17T18:27:43.9558636Z"
+}

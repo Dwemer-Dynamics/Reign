@@ -1,0 +1,27 @@
+{
+  "version": 1,
+  "cacheKey": "Qahin (lord_3_23)",
+  "heroStringId": "lord_3_23",
+  "characterObjectId": "lord_3_23",
+  "characterName": "Qahin",
+  "provider": "AtlasCloud",
+  "model": "xai/grok-imagine-image/edit",
+  "adapter": "atlas upload/generate/poll",
+  "sourceSha256": "846c0d2effa970adfcc0c00aa54993cd6a5eef7c0e6c712466414c068fce84e7",
+  "portraitSha256": "3c3833bc1139a6d9425cd8903c4cfc44ce558ecf9de4db6b725be704da370ee0",
+  "portraitWidth": 832,
+  "portraitHeight": 1248,
+  "physicalConfidence": {
+    "definition": "physical_confidence",
+    "score": 51,
+    "profile": "41-60",
+    "flirtatiousnessPercentage": 45,
+    "confidencePercentage": 68,
+    "flirtatiousnessWeight": 0.75,
+    "confidenceWeight": 0.25,
+    "source": "shipped_profile_library"
+  },
+  "derivativesReady": true,
+  "derivativeError": "",
+  "generatedUtc": "2026-07-17T19:09:56.0125972Z"
+}

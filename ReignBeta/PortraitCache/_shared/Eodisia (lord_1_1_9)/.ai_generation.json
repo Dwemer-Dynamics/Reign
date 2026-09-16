@@ -1,0 +1,27 @@
+{
+  "version": 1,
+  "cacheKey": "Eodisia (lord_1_1_9)",
+  "heroStringId": "lord_1_1_9",
+  "characterObjectId": "lord_1_1_9",
+  "characterName": "Eodisia",
+  "provider": "AtlasCloud",
+  "model": "xai/grok-imagine-image/edit",
+  "adapter": "atlas upload/generate/poll",
+  "sourceSha256": "dc761ba1ad4506c319b80023053d9ad6c15a62a8fdb663fc07791657c332b0e6",
+  "portraitSha256": "7bdcb7a10282145cb8c72d7240d0e0a720463232bbef3dc5091d14c31502e37a",
+  "portraitWidth": 832,
+  "portraitHeight": 1248,
+  "physicalConfidence": {
+    "definition": "physical_confidence",
+    "score": 77,
+    "profile": "61-80",
+    "flirtatiousnessPercentage": 85,
+    "confidencePercentage": 52,
+    "flirtatiousnessWeight": 0.75,
+    "confidenceWeight": 0.25,
+    "source": "shipped_profile_library"
+  },
+  "derivativesReady": true,
+  "derivativeError": "",
+  "generatedUtc": "2026-07-17T18:32:42.6942981Z"
+}

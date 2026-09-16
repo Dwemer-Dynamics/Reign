@@ -1,0 +1,27 @@
+{
+  "version": 1,
+  "cacheKey": "Yngvar (lord_7_24)",
+  "heroStringId": "lord_7_24",
+  "characterObjectId": "lord_7_24",
+  "characterName": "Yngvar",
+  "provider": "AtlasCloud",
+  "model": "xai/grok-imagine-image/edit",
+  "adapter": "atlas upload/generate/poll",
+  "sourceSha256": "fbbc9b1692bc0a827d4834dccf4c1c1d35cdb2afad02779819bf43b0e415a79c",
+  "portraitSha256": "5aea9c590292d12195716b9d2b4c0d74d165d1523b046b2784bf133ee0f980dc",
+  "portraitWidth": 832,
+  "portraitHeight": 1248,
+  "physicalConfidence": {
+    "definition": "physical_confidence",
+    "score": 50,
+    "profile": "41-60",
+    "flirtatiousnessPercentage": 50,
+    "confidencePercentage": 50,
+    "flirtatiousnessWeight": 0.75,
+    "confidenceWeight": 0.25,
+    "source": "neutral_fallback"
+  },
+  "derivativesReady": true,
+  "derivativeError": "",
+  "generatedUtc": "2026-07-17T19:22:39.5437033Z"
+}

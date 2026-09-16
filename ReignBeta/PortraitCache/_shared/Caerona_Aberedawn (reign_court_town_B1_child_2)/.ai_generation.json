@@ -1,0 +1,27 @@
+{
+  "version": 1,
+  "cacheKey": "Caerona_Aberedawn (reign_court_town_B1_child_2)",
+  "heroStringId": "reign_court_town_B1_child_2",
+  "characterObjectId": "reign_court_town_B1_child_2",
+  "characterName": "Caerona Aberedawn",
+  "provider": "AtlasCloud",
+  "model": "xai/grok-imagine-image/edit",
+  "adapter": "atlas upload/generate/poll",
+  "sourceSha256": "f29458ac8a72cf6ae45f6d06c102f7e62414197b547e6f83639edb896871da11",
+  "portraitSha256": "6f7b3e1d97f9d4bc1dad5191375b630f9808e76c33b4b0addf566df4ab2cd381",
+  "portraitWidth": 864,
+  "portraitHeight": 1152,
+  "physicalConfidence": {
+    "definition": "physical_confidence",
+    "score": 57,
+    "profile": "41-60",
+    "flirtatiousnessPercentage": 54,
+    "confidencePercentage": 65,
+    "flirtatiousnessWeight": 0.75,
+    "confidenceWeight": 0.25,
+    "source": "shipped_profile_library"
+  },
+  "derivativesReady": true,
+  "derivativeError": "",
+  "generatedUtc": "2026-07-17T18:19:49.9752056Z"
+}

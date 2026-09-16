@@ -1,0 +1,27 @@
+{
+  "version": 1,
+  "cacheKey": "Temun (lord_6_9)",
+  "heroStringId": "lord_6_9",
+  "characterObjectId": "lord_6_9",
+  "characterName": "Temun",
+  "provider": "AtlasCloud",
+  "model": "xai/grok-imagine-image/edit",
+  "adapter": "atlas upload/generate/poll",
+  "sourceSha256": "459681e046828755a10a6422ed9986b9f319e0a4a828c30230fbceb456022e76",
+  "portraitSha256": "c36b115c79ea5c728c2650b1500c7631482140a651a017d8b84368996a750118",
+  "portraitWidth": 832,
+  "portraitHeight": 1248,
+  "physicalConfidence": {
+    "definition": "physical_confidence",
+    "score": 24,
+    "profile": "21-40",
+    "flirtatiousnessPercentage": 13,
+    "confidencePercentage": 55,
+    "flirtatiousnessWeight": 0.75,
+    "confidenceWeight": 0.25,
+    "source": "shipped_profile_library"
+  },
+  "derivativesReady": true,
+  "derivativeError": "",
+  "generatedUtc": "2026-07-17T19:16:29.3760866Z"
+}

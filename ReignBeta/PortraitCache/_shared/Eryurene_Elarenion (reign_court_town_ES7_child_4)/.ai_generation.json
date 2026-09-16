@@ -1,0 +1,27 @@
+{
+  "version": 1,
+  "cacheKey": "Eryurene_Elarenion (reign_court_town_ES7_child_4)",
+  "heroStringId": "reign_court_town_ES7_child_4",
+  "characterObjectId": "reign_court_town_ES7_child_4",
+  "characterName": "Eryurene Elarenion",
+  "provider": "AtlasCloud",
+  "model": "xai/grok-imagine-image/edit",
+  "adapter": "atlas upload/generate/poll",
+  "sourceSha256": "5f4f18d7643c27314d8a44892664e8e1b5b59638e833a6c40c7bdf9a74aa8108",
+  "portraitSha256": "9840fa611420fc98af28aa66b2e58127ce595d2f80080f6a5361ea950da9ea07",
+  "portraitWidth": 864,
+  "portraitHeight": 1152,
+  "physicalConfidence": {
+    "definition": "physical_confidence",
+    "score": 67,
+    "profile": "61-80",
+    "flirtatiousnessPercentage": 72,
+    "confidencePercentage": 51,
+    "flirtatiousnessWeight": 0.75,
+    "confidenceWeight": 0.25,
+    "source": "shipped_profile_library"
+  },
+  "derivativesReady": true,
+  "derivativeError": "",
+  "generatedUtc": "2026-07-17T18:34:33.9537089Z"
+}

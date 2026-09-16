@@ -1,0 +1,27 @@
+{
+  "version": 1,
+  "cacheKey": "Drenenes_Elaranion (reign_court_castle_ES7_child_1)",
+  "heroStringId": "reign_court_castle_ES7_child_1",
+  "characterObjectId": "reign_court_castle_ES7_child_1",
+  "characterName": "Drenenes Elaranion",
+  "provider": "AtlasCloud",
+  "model": "xai/grok-imagine-image/edit",
+  "adapter": "atlas upload/generate/poll",
+  "sourceSha256": "462fe1318d3b88037e6686082b1f9c3bae50565e71cbe9bc7f19564c25307542",
+  "portraitSha256": "91139c2f9d772d2bc817938b3867edf728d1e1c387ee48b159babb3a84384a4e",
+  "portraitWidth": 864,
+  "portraitHeight": 1152,
+  "physicalConfidence": {
+    "definition": "physical_confidence",
+    "score": 90,
+    "profile": "81-100",
+    "flirtatiousnessPercentage": 87,
+    "confidencePercentage": 98,
+    "flirtatiousnessWeight": 0.75,
+    "confidenceWeight": 0.25,
+    "source": "shipped_profile_library"
+  },
+  "derivativesReady": true,
+  "derivativeError": "",
+  "generatedUtc": "2026-07-17T18:29:21.7951284Z"
+}

@@ -1,0 +1,27 @@
+{
+  "version": 1,
+  "cacheKey": "Liena (lord_4_11)",
+  "heroStringId": "lord_4_11",
+  "characterObjectId": "lord_4_11",
+  "characterName": "Liena",
+  "provider": "AtlasCloud",
+  "model": "xai/grok-imagine-image/edit",
+  "adapter": "atlas upload/generate/poll",
+  "sourceSha256": "437c73261e79b2bdb04e68f89c08c9bd4d89b457401429017b0c47720e18afb1",
+  "portraitSha256": "d84fa4faa7e263a11d8bf5b1a339fa355d24b6dba116f1cf83161a42f5b6a821",
+  "portraitWidth": 832,
+  "portraitHeight": 1248,
+  "physicalConfidence": {
+    "definition": "physical_confidence",
+    "score": 60,
+    "profile": "41-60",
+    "flirtatiousnessPercentage": 59,
+    "confidencePercentage": 62,
+    "flirtatiousnessWeight": 0.75,
+    "confidenceWeight": 0.25,
+    "source": "shipped_profile_library"
+  },
+  "derivativesReady": true,
+  "derivativeError": "",
+  "generatedUtc": "2026-07-17T18:58:32.3118890Z"
+}

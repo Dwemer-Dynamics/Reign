@@ -1,0 +1,27 @@
+{
+  "version": 1,
+  "cacheKey": "Taorse (lord_5_21_2)",
+  "heroStringId": "lord_5_21_2",
+  "characterObjectId": "lord_5_21_2",
+  "characterName": "Taorse",
+  "provider": "AtlasCloud",
+  "model": "xai/grok-imagine-image/edit",
+  "adapter": "atlas upload/generate/poll",
+  "sourceSha256": "effc33aa5b7f234d34ef5d5669f5195cec428cca2da8d90ec3312e92753fc32e",
+  "portraitSha256": "50d3a65e86d3ada528402b45998d5f1ffe1ef9a9895ee7c1110b2316485dea1d",
+  "portraitWidth": 832,
+  "portraitHeight": 1248,
+  "physicalConfidence": {
+    "definition": "physical_confidence",
+    "score": 57,
+    "profile": "41-60",
+    "flirtatiousnessPercentage": 56,
+    "confidencePercentage": 59,
+    "flirtatiousnessWeight": 0.75,
+    "confidenceWeight": 0.25,
+    "source": "shipped_profile_library"
+  },
+  "derivativesReady": true,
+  "derivativeError": "",
+  "generatedUtc": "2026-07-17T19:16:09.5784937Z"
+}

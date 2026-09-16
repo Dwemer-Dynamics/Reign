@@ -1,0 +1,27 @@
+{
+  "version": 1,
+  "cacheKey": "Fennuan_Emrysedawn (reign_court_town_B5_father)",
+  "heroStringId": "reign_court_town_B5_father",
+  "characterObjectId": "reign_court_town_B5_father",
+  "characterName": "Fennuan Emrysedawn",
+  "provider": "AtlasCloud",
+  "model": "xai/grok-imagine-image/edit",
+  "adapter": "atlas upload/generate/poll",
+  "sourceSha256": "fed865e7b11dbcb561d201956b52b24626a951b33d40f14dd41d88c02da3d9ac",
+  "portraitSha256": "37d4009062a36733d68f23c35959482024b7f2ce56fd3e9bfeb90906b6577364",
+  "portraitWidth": 864,
+  "portraitHeight": 1152,
+  "physicalConfidence": {
+    "definition": "physical_confidence",
+    "score": 44,
+    "profile": "41-60",
+    "flirtatiousnessPercentage": 35,
+    "confidencePercentage": 70,
+    "flirtatiousnessWeight": 0.75,
+    "confidenceWeight": 0.25,
+    "source": "shipped_profile_library"
+  },
+  "derivativesReady": true,
+  "derivativeError": "",
+  "generatedUtc": "2026-07-17T18:37:14.6063999Z"
+}

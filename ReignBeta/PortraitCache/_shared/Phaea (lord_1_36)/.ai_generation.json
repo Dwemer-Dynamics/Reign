@@ -1,0 +1,27 @@
+{
+  "version": 1,
+  "cacheKey": "Phaea (lord_1_36)",
+  "heroStringId": "lord_1_36",
+  "characterObjectId": "lord_1_36",
+  "characterName": "Phaea",
+  "provider": "AtlasCloud",
+  "model": "xai/grok-imagine-image/edit",
+  "adapter": "atlas upload/generate/poll",
+  "sourceSha256": "d3892520e649a97dbb7fe762bb7d9ef24169ce0355c7dc2db189964b543e8cdf",
+  "portraitSha256": "074a318835cd6f88e3b6874318087a329ae19dea13294ed37456f33a7041bc9c",
+  "portraitWidth": 832,
+  "portraitHeight": 1248,
+  "physicalConfidence": {
+    "definition": "physical_confidence",
+    "score": 46,
+    "profile": "41-60",
+    "flirtatiousnessPercentage": 41,
+    "confidencePercentage": 60,
+    "flirtatiousnessWeight": 0.75,
+    "confidenceWeight": 0.25,
+    "source": "shipped_profile_library"
+  },
+  "derivativesReady": true,
+  "derivativeError": "",
+  "generatedUtc": "2026-07-17T19:09:03.3489923Z"
+}

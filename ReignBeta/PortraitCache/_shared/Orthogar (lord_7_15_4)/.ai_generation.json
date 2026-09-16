@@ -1,0 +1,27 @@
+{
+  "version": 1,
+  "cacheKey": "Orthogar (lord_7_15_4)",
+  "heroStringId": "lord_7_15_4",
+  "characterObjectId": "lord_7_15_4",
+  "characterName": "Orthogar",
+  "provider": "AtlasCloud",
+  "model": "xai/grok-imagine-image/edit",
+  "adapter": "atlas upload/generate/poll",
+  "sourceSha256": "5e3f15be2451d3152e1b9fb5a17ba89e43196c4860577c7a4b0d72ffe4408c6e",
+  "portraitSha256": "cefe9ed3c03092a6f013851a5946c894221e8d6ad49f7a6e4807a1f7fafa552d",
+  "portraitWidth": 832,
+  "portraitHeight": 1248,
+  "physicalConfidence": {
+    "definition": "physical_confidence",
+    "score": 50,
+    "profile": "41-60",
+    "flirtatiousnessPercentage": 50,
+    "confidencePercentage": 50,
+    "flirtatiousnessWeight": 0.75,
+    "confidenceWeight": 0.25,
+    "source": "neutral_fallback"
+  },
+  "derivativesReady": true,
+  "derivativeError": "",
+  "generatedUtc": "2026-07-17T19:06:31.6901322Z"
+}

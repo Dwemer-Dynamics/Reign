@@ -1,0 +1,27 @@
+{
+  "version": 1,
+  "cacheKey": "Sira (lord_3_13_1)",
+  "heroStringId": "lord_3_13_1",
+  "characterObjectId": "lord_3_13_1",
+  "characterName": "Sira",
+  "provider": "AtlasCloud",
+  "model": "xai/grok-imagine-image/edit",
+  "adapter": "atlas upload/generate/poll",
+  "sourceSha256": "af7283b4131a58688b372930a9d4aa2dde29e86a04f0cbc8a591852b3ca37974",
+  "portraitSha256": "35175927863722853af3faef4679580347af26045af8f1a1076de866c81dacbd",
+  "portraitWidth": 832,
+  "portraitHeight": 1248,
+  "physicalConfidence": {
+    "definition": "physical_confidence",
+    "score": 69,
+    "profile": "61-80",
+    "flirtatiousnessPercentage": 78,
+    "confidencePercentage": 41,
+    "flirtatiousnessWeight": 0.75,
+    "confidenceWeight": 0.25,
+    "source": "shipped_profile_library"
+  },
+  "derivativesReady": true,
+  "derivativeError": "",
+  "generatedUtc": "2026-07-17T19:14:17.3010890Z"
+}

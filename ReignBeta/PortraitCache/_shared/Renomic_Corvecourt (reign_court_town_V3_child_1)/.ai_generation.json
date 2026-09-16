@@ -1,0 +1,27 @@
+{
+  "version": 1,
+  "cacheKey": "Renomic_Corvecourt (reign_court_town_V3_child_1)",
+  "heroStringId": "reign_court_town_V3_child_1",
+  "characterObjectId": "reign_court_town_V3_child_1",
+  "characterName": "Renomic Corvecourt",
+  "provider": "AtlasCloud",
+  "model": "xai/grok-imagine-image/edit",
+  "adapter": "atlas upload/generate/poll",
+  "sourceSha256": "8ab0792be46008eb0d3647341cafe672392d1902c41a49f26edbbf8bef53511a",
+  "portraitSha256": "25f061f8d0ad1aa5000187101bc189de9d71183f11b0ce4f13b06887e6063141",
+  "portraitWidth": 864,
+  "portraitHeight": 1152,
+  "physicalConfidence": {
+    "definition": "physical_confidence",
+    "score": 45,
+    "profile": "41-60",
+    "flirtatiousnessPercentage": 49,
+    "confidencePercentage": 32,
+    "flirtatiousnessWeight": 0.75,
+    "confidenceWeight": 0.25,
+    "source": "shipped_profile_library"
+  },
+  "derivativesReady": true,
+  "derivativeError": "",
+  "generatedUtc": "2026-07-17T19:11:15.7209204Z"
+}

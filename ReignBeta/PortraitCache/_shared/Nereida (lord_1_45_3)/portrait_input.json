@@ -1,0 +1,92 @@
+{
+  "version": 1,
+  "inputHash": "52b719be77e24f1d39f9ab3bea4f393517d6abb5004e26c276e80f00e759ced1",
+  "catalogHash": "12142c0ab28d2678b12b852b086450dcc4eea45e2e8a080f3baa85c42f7fb3a2",
+  "renderContractHash": "cc3b941e7d47057de9b4220f1473336e6f908719812bb2653b83bd3545cfbd2f",
+  "cacheKey": "Nereida (lord_1_45_3)",
+  "heroStringId": "lord_1_45_3",
+  "characterObjectId": "lord_1_45_3",
+  "characterName": "Nereida",
+  "ageYears": 26,
+  "cultureId": "empire",
+  "cultureName": "Imperial",
+  "gender": "woman",
+  "clanId": "clan_empire_west_5",
+  "clanTier": 3,
+  "clanProvenance": "reign_profile_library",
+  "socialStation": "lesser lord",
+  "occupation": "Lord",
+  "archetype": "lord",
+  "isLord": true,
+  "isNotable": false,
+  "isWanderer": false,
+  "isAlive": true,
+  "sourceModule": "Native",
+  "sourceFile": "Modules/SandBox/ModuleData/lords.xml",
+  "profileSource": "native_sandbox",
+  "profilePackVersion": "reign_profiles_v4",
+  "bodyKey": "000B500E518830018883625946BD4C74CD2A878665347B498B83461C3686D569012776130286C8B500000000000000000000000000000000000000004A442003",
+  "bodyWeight": 0.5,
+  "bodyBuild": 0.5,
+  "faceTemplateId": "",
+  "faceGenerationVersion": "native_authored",
+  "civilianTemplate": "emp_noncom_template_default",
+  "civilianEquipment": [
+    {
+      "slot": "Body",
+      "itemId": "vlandian_dress"
+    },
+    {
+      "slot": "Cape",
+      "itemId": "scarf"
+    },
+    {
+      "slot": "Leg",
+      "itemId": "ladys_shoe"
+    }
+  ],
+  "headgearSuppressed": true,
+  "physicalConfidence": {
+    "definition": "physical_confidence",
+    "score": 48,
+    "profile": "41-60",
+    "flirtatiousnessPercentage": 45,
+    "confidencePercentage": 56,
+    "flirtatiousnessWeight": 0.75,
+    "confidenceWeight": 0.25,
+    "source": "shipped_profile_library"
+  },
+  "renderPreset": "ai_source_wan_portrait_v5",
+  "renderWidth": 1536,
+  "renderHeight": 2048,
+  "sourceWidth": 768,
+  "sourceHeight": 1024,
+  "cropScale": 0.24,
+  "cropWidthRatio": 0.75,
+  "cropCenterYRatio": 0.324,
+  "cameraPitchDegrees": 4,
+  "sourceSha256": "74b8f28fd1511840e7d0f784e8b755e24e28c932fb769fffa9d5ddeaff715907",
+  "sourceFileName": "source.png",
+  "generationEndpoint": "/portraits/generate",
+  "campaignIdSource": "active_campaign_at_generation_time",
+  "promptDeferred": true,
+  "sourceImageBase64From": "source.png",
+  "outputSizeOverride": "",
+  "promptPurpose": "portrait",
+  "nativePhysique": {
+    "schema": "reign-native-physique-v1",
+    "weight": 0.5,
+    "build": 0.5,
+    "weightSource": "shared_portrait_input.bodyWeight",
+    "buildSource": "shared_portrait_input.bodyBuild",
+    "sourceSha256": "74b8f28fd1511840e7d0f784e8b755e24e28c932fb769fffa9d5ddeaff715907",
+    "provenance": {
+      "kind": "saved_character_metadata_backfill",
+      "heroStringId": "lord_1_45_3",
+      "profileSource": "native_sandbox",
+      "profilePackVersion": "reign_profiles_v4",
+      "originalInputSha256": "2b5bf99b5f9c21d4d423514643b96464161fea2ed35eee406736bde4f6cab371",
+      "rendererReexecuted": false
+    }
+  }
+}

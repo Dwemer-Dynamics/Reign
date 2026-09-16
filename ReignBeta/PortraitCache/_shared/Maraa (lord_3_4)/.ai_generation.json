@@ -1,0 +1,27 @@
+{
+  "version": 1,
+  "cacheKey": "Maraa (lord_3_4)",
+  "heroStringId": "lord_3_4",
+  "characterObjectId": "lord_3_4",
+  "characterName": "Maraa",
+  "provider": "AtlasCloud",
+  "model": "xai/grok-imagine-image/edit",
+  "adapter": "atlas upload/generate/poll",
+  "sourceSha256": "5db64f0d7956b8d5ff69dac0235afcea5a174c6134896b0858f66b429bf88824",
+  "portraitSha256": "4be85eb5c99a8399b0fee7b4f2ecf4e703ab440187320c8a50b9fc5b48e2d933",
+  "portraitWidth": 832,
+  "portraitHeight": 1248,
+  "physicalConfidence": {
+    "definition": "physical_confidence",
+    "score": 44,
+    "profile": "41-60",
+    "flirtatiousnessPercentage": 44,
+    "confidencePercentage": 43,
+    "flirtatiousnessWeight": 0.75,
+    "confidenceWeight": 0.25,
+    "source": "shipped_profile_library"
+  },
+  "derivativesReady": true,
+  "derivativeError": "",
+  "generatedUtc": "2026-07-17T19:00:01.8949650Z"
+}

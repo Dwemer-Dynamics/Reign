@@ -1,0 +1,27 @@
+{
+  "version": 1,
+  "cacheKey": "Lethenene_Istrananion (reign_court_castle_ES8_child_2)",
+  "heroStringId": "reign_court_castle_ES8_child_2",
+  "characterObjectId": "reign_court_castle_ES8_child_2",
+  "characterName": "Lethenene Istrananion",
+  "provider": "AtlasCloud",
+  "model": "xai/grok-imagine-image/edit",
+  "adapter": "atlas upload/generate/poll",
+  "sourceSha256": "76af17bd571a6e3dad4f6c879027e6607ecb43a2b36afed5e418c7d663b67758",
+  "portraitSha256": "661729715cd658b526870f5c2130101903a5a2d1012553c035b80641122905ef",
+  "portraitWidth": 864,
+  "portraitHeight": 1152,
+  "physicalConfidence": {
+    "definition": "physical_confidence",
+    "score": 51,
+    "profile": "41-60",
+    "flirtatiousnessPercentage": 47,
+    "confidencePercentage": 62,
+    "flirtatiousnessWeight": 0.75,
+    "confidenceWeight": 0.25,
+    "source": "shipped_profile_library"
+  },
+  "derivativesReady": true,
+  "derivativeError": "",
+  "generatedUtc": "2026-07-17T18:51:09.4834763Z"
+}

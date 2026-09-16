@@ -1,0 +1,27 @@
+{
+  "version": 1,
+  "cacheKey": "Aevenia_Damararides (reign_court_castle_EN3_child_4)",
+  "heroStringId": "reign_court_castle_EN3_child_4",
+  "characterObjectId": "reign_court_castle_EN3_child_4",
+  "characterName": "Aevenia Damararides",
+  "provider": "AtlasCloud",
+  "model": "xai/grok-imagine-image/edit",
+  "adapter": "atlas upload/generate/poll",
+  "sourceSha256": "79c3a7e080e8eb9c9fc7f9b62618a66c04ff884b7d2c83b39f2b8d48bf1b61ef",
+  "portraitSha256": "b595e7f39fbb0073ffd0c9d90709108f6ba5bfb0c19d605b9b91bbfba3aac513",
+  "portraitWidth": 864,
+  "portraitHeight": 1152,
+  "physicalConfidence": {
+    "definition": "physical_confidence",
+    "score": 84,
+    "profile": "81-100",
+    "flirtatiousnessPercentage": 97,
+    "confidencePercentage": 44,
+    "flirtatiousnessWeight": 0.75,
+    "confidenceWeight": 0.25,
+    "source": "shipped_profile_library"
+  },
+  "derivativesReady": true,
+  "derivativeError": "",
+  "generatedUtc": "2026-07-17T18:09:16.2243014Z"
+}

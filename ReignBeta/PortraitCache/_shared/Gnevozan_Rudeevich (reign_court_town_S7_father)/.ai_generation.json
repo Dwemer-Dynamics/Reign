@@ -1,0 +1,27 @@
+{
+  "version": 1,
+  "cacheKey": "Gnevozan_Rudeevich (reign_court_town_S7_father)",
+  "heroStringId": "reign_court_town_S7_father",
+  "characterObjectId": "reign_court_town_S7_father",
+  "characterName": "Gnevozan Rudeevich",
+  "provider": "AtlasCloud",
+  "model": "xai/grok-imagine-image/edit",
+  "adapter": "atlas upload/generate/poll",
+  "sourceSha256": "d171d4e09f8b63647252740ba891913d28a345969a9d68d47c88b327c9481a8f",
+  "portraitSha256": "df3d33fe94a9dd2ee66e076662a67e37e734e652588ecc880a9f6872b6c5d6e9",
+  "portraitWidth": 864,
+  "portraitHeight": 1152,
+  "physicalConfidence": {
+    "definition": "physical_confidence",
+    "score": 57,
+    "profile": "41-60",
+    "flirtatiousnessPercentage": 66,
+    "confidencePercentage": 29,
+    "flirtatiousnessWeight": 0.75,
+    "confidenceWeight": 0.25,
+    "source": "shipped_profile_library"
+  },
+  "derivativesReady": true,
+  "derivativeError": "",
+  "generatedUtc": "2026-07-17T18:39:22.3706251Z"
+}

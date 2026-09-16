@@ -1,0 +1,27 @@
+{
+  "version": 1,
+  "cacheKey": "Tegan (lord_5_91)",
+  "heroStringId": "lord_5_91",
+  "characterObjectId": "lord_5_91",
+  "characterName": "Tegan",
+  "provider": "AtlasCloud",
+  "model": "xai/grok-imagine-image/edit",
+  "adapter": "atlas upload/generate/poll",
+  "sourceSha256": "f6cff0a8c83f67e495b7d8886921faee635ab2cfbcb4df1b7f4041d79c223222",
+  "portraitSha256": "4402696145ea6b95625e09e8944e63ba49fa67673b2d29e17eb6a4d1c0d7b82c",
+  "portraitWidth": 832,
+  "portraitHeight": 1248,
+  "physicalConfidence": {
+    "definition": "physical_confidence",
+    "score": 42,
+    "profile": "41-60",
+    "flirtatiousnessPercentage": 38,
+    "confidencePercentage": 53,
+    "flirtatiousnessWeight": 0.75,
+    "confidenceWeight": 0.25,
+    "source": "shipped_profile_library"
+  },
+  "derivativesReady": true,
+  "derivativeError": "",
+  "generatedUtc": "2026-07-17T19:16:26.7089961Z"
+}

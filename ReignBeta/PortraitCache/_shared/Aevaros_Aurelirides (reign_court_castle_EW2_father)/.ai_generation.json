@@ -1,0 +1,27 @@
+{
+  "version": 1,
+  "cacheKey": "Aevaros_Aurelirides (reign_court_castle_EW2_father)",
+  "heroStringId": "reign_court_castle_EW2_father",
+  "characterObjectId": "reign_court_castle_EW2_father",
+  "characterName": "Aevaros Aurelirides",
+  "provider": "AtlasCloud",
+  "model": "xai/grok-imagine-image/edit",
+  "adapter": "atlas upload/generate/poll",
+  "sourceSha256": "c3a872db30d2116f7bf53c4c731c9edbda4666078b7c985737b0dcb917da9f26",
+  "portraitSha256": "6047e1eaf245d7e2eeebea5e98dbeb06fc37b94d3001d069099bab0c40f67730",
+  "portraitWidth": 864,
+  "portraitHeight": 1152,
+  "physicalConfidence": {
+    "definition": "physical_confidence",
+    "score": 71,
+    "profile": "61-80",
+    "flirtatiousnessPercentage": 78,
+    "confidencePercentage": 49,
+    "flirtatiousnessWeight": 0.75,
+    "confidenceWeight": 0.25,
+    "source": "shipped_profile_library"
+  },
+  "derivativesReady": true,
+  "derivativeError": "",
+  "generatedUtc": "2026-07-17T17:59:45.3425866Z"
+}

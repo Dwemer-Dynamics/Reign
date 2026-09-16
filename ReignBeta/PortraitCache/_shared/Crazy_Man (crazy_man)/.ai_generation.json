@@ -1,0 +1,27 @@
+{
+  "version": 1,
+  "cacheKey": "Crazy_Man (crazy_man)",
+  "heroStringId": "crazy_man",
+  "characterObjectId": "crazy_man",
+  "characterName": "Crazy Man",
+  "provider": "AtlasCloud",
+  "model": "xai/grok-imagine-image/edit",
+  "adapter": "atlas upload/generate/poll",
+  "sourceSha256": "6322b83f1ee1bf5ab0e5406ccea327141e44abf7d873594cb9df60de8734e153",
+  "portraitSha256": "11d6a67e58539efe0bbcdf450b52fad9bccb33c3a52ed30c7bfd6e274f20c24f",
+  "portraitWidth": 864,
+  "portraitHeight": 1152,
+  "physicalConfidence": {
+    "definition": "physical_confidence",
+    "score": 50,
+    "profile": "41-60",
+    "flirtatiousnessPercentage": 50,
+    "confidencePercentage": 50,
+    "flirtatiousnessWeight": 0.75,
+    "confidenceWeight": 0.25,
+    "source": "neutral_fallback"
+  },
+  "derivativesReady": true,
+  "derivativeError": "",
+  "generatedUtc": "2026-07-17T18:24:33.6366416Z"
+}

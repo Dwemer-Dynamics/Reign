@@ -1,0 +1,27 @@
+{
+  "version": 1,
+  "cacheKey": "Aerala_Aberadawn (reign_court_castle_B1_mother)",
+  "heroStringId": "reign_court_castle_B1_mother",
+  "characterObjectId": "reign_court_castle_B1_mother",
+  "characterName": "Aerala Aberadawn",
+  "provider": "AtlasCloud",
+  "model": "xai/grok-imagine-image/edit",
+  "adapter": "atlas upload/generate/poll",
+  "sourceSha256": "d542f3a422294731e55ed281209ed71e686a8810ba46e7da57184de1d98144df",
+  "portraitSha256": "49cb4a14be5acc669795ed1c435b7707044aad52f3f119961ca0050a5584e214",
+  "portraitWidth": 832,
+  "portraitHeight": 1248,
+  "physicalConfidence": {
+    "definition": "physical_confidence",
+    "score": 53,
+    "profile": "41-60",
+    "flirtatiousnessPercentage": 54,
+    "confidencePercentage": 49,
+    "flirtatiousnessWeight": 0.75,
+    "confidenceWeight": 0.25,
+    "source": "shipped_profile_library"
+  },
+  "derivativesReady": true,
+  "derivativeError": "",
+  "generatedUtc": "2026-07-17T17:42:03.4771046Z"
+}

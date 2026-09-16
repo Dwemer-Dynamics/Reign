@@ -1,0 +1,27 @@
+{
+  "version": 1,
+  "cacheKey": "Crazy_Man_Without_Weapon (crazy_man_test_without_weapons)",
+  "heroStringId": "crazy_man_test_without_weapons",
+  "characterObjectId": "crazy_man_test_without_weapons",
+  "characterName": "Crazy Man Without Weapon",
+  "provider": "AtlasCloud",
+  "model": "xai/grok-imagine-image/edit",
+  "adapter": "atlas upload/generate/poll",
+  "sourceSha256": "5086363e9cc92c25a92cdc14adf6a476b004ff41f38d5cf7d808cf534de88a6f",
+  "portraitSha256": "cd8ec6d0ef3383c6d0e49039ebd4f6a9c50d2055ddcf52cc26d9cd2f4592984c",
+  "portraitWidth": 864,
+  "portraitHeight": 1152,
+  "physicalConfidence": {
+    "definition": "physical_confidence",
+    "score": 50,
+    "profile": "41-60",
+    "flirtatiousnessPercentage": 50,
+    "confidencePercentage": 50,
+    "flirtatiousnessWeight": 0.75,
+    "confidenceWeight": 0.25,
+    "source": "neutral_fallback"
+  },
+  "derivativesReady": true,
+  "derivativeError": "",
+  "generatedUtc": "2026-07-17T18:25:14.6125969Z"
+}

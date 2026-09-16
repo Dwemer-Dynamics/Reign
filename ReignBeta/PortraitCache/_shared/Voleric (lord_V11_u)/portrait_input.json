@@ -1,0 +1,96 @@
+{
+  "version": 1,
+  "inputHash": "81e7a574b845103ffa3af59ac0b861e74cd96591f32cb5059fab07a176694fa4",
+  "catalogHash": "12142c0ab28d2678b12b852b086450dcc4eea45e2e8a080f3baa85c42f7fb3a2",
+  "renderContractHash": "cc3b941e7d47057de9b4220f1473336e6f908719812bb2653b83bd3545cfbd2f",
+  "cacheKey": "Voleric (lord_V11_u)",
+  "heroStringId": "lord_V11_u",
+  "characterObjectId": "lord_V11_u",
+  "characterName": "Voleric",
+  "ageYears": 46,
+  "cultureId": "vlandia",
+  "cultureName": "Vlandian",
+  "gender": "man",
+  "clanId": "clan_vlandia_11",
+  "clanTier": 2,
+  "clanProvenance": "reign_profile_library",
+  "socialStation": "landowner",
+  "occupation": "Lord",
+  "archetype": "lord",
+  "isLord": true,
+  "isNotable": false,
+  "isWanderer": false,
+  "isAlive": true,
+  "sourceModule": "Native",
+  "sourceFile": "Modules/SandBox/ModuleData/lords.xml",
+  "profileSource": "native_sandbox",
+  "profilePackVersion": "reign_profiles_v4",
+  "bodyKey": "00113C0891880002654AAC95A9972C89D33975D5959CC9D4C9754C08398B35770177761307A5606700000000000000000000000000000000000000003EDC0083",
+  "bodyWeight": 0.7,
+  "bodyBuild": 0.7,
+  "faceTemplateId": "",
+  "faceGenerationVersion": "native_authored",
+  "civilianTemplate": "vla_civ_template_default",
+  "civilianEquipment": [
+    {
+      "slot": "Body",
+      "itemId": "layered_leather_tunic"
+    },
+    {
+      "slot": "Cape",
+      "itemId": "scarf"
+    },
+    {
+      "slot": "Gloves",
+      "itemId": "leather_gloves"
+    },
+    {
+      "slot": "Leg",
+      "itemId": "leather_cavalier_boots"
+    }
+  ],
+  "headgearSuppressed": true,
+  "physicalConfidence": {
+    "definition": "physical_confidence",
+    "score": 58,
+    "profile": "41-60",
+    "flirtatiousnessPercentage": 58,
+    "confidencePercentage": 57,
+    "flirtatiousnessWeight": 0.75,
+    "confidenceWeight": 0.25,
+    "source": "shipped_profile_library"
+  },
+  "renderPreset": "ai_source_wan_portrait_v5",
+  "renderWidth": 1536,
+  "renderHeight": 2048,
+  "sourceWidth": 768,
+  "sourceHeight": 1024,
+  "cropScale": 0.24,
+  "cropWidthRatio": 0.75,
+  "cropCenterYRatio": 0.324,
+  "cameraPitchDegrees": 4,
+  "sourceSha256": "29a373de954573307d01b3bb472716c34a7b204026024557b68e61fa43cc1845",
+  "sourceFileName": "source.png",
+  "generationEndpoint": "/portraits/generate",
+  "campaignIdSource": "active_campaign_at_generation_time",
+  "promptDeferred": true,
+  "sourceImageBase64From": "source.png",
+  "outputSizeOverride": "",
+  "promptPurpose": "portrait",
+  "nativePhysique": {
+    "schema": "reign-native-physique-v1",
+    "weight": 0.7,
+    "build": 0.7,
+    "weightSource": "shared_portrait_input.bodyWeight",
+    "buildSource": "shared_portrait_input.bodyBuild",
+    "sourceSha256": "29a373de954573307d01b3bb472716c34a7b204026024557b68e61fa43cc1845",
+    "provenance": {
+      "kind": "saved_character_metadata_backfill",
+      "heroStringId": "lord_V11_u",
+      "profileSource": "native_sandbox",
+      "profilePackVersion": "reign_profiles_v4",
+      "originalInputSha256": "7a6d349f4e7b7e18dc4be34ddd2113a97fc62153674009b1292cb575153ac18a",
+      "rendererReexecuted": false
+    }
+  }
+}

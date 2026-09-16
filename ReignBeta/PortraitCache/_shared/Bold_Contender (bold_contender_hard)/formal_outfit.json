@@ -1,0 +1,13 @@
+{
+  "version": 1,
+  "heroStringId": "bold_contender_hard",
+  "characterName": "Bold Contender",
+  "imagePath": "portrait.png",
+  "imageSha256": "AD53C97C2692B042AD0B416ED75B29FE8C14B3CE8AE1119532A677D578B9D0D7",
+  "description": "Their clan is tier unknown, placing them socially among the unranked class. Use this status to guide the refinement, expense, materials, and ornament of their clothing without turning it into fantasy costume.",
+  "status": "failed",
+  "descriptionSource": "portrait_prompt_fallback",
+  "retryEligible": true,
+  "error": "{\"error\":{\"message\":\"Model \\\"zai-org/glm-5.2\\\" does not support image inputs. Remove image content or choose a multimodal model.\",\"type\":\"invalid_request_error\",\"param\":\"messages\",\"code\":\"image_input_not_supported\"}}",
+  "updatedUtc": "2026-07-18T22:03:25.6995454Z"
+}

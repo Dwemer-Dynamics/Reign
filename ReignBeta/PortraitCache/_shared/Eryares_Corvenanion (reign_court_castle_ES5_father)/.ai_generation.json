@@ -1,0 +1,27 @@
+{
+  "version": 1,
+  "cacheKey": "Eryares_Corvenanion (reign_court_castle_ES5_father)",
+  "heroStringId": "reign_court_castle_ES5_father",
+  "characterObjectId": "reign_court_castle_ES5_father",
+  "characterName": "Eryares Corvenanion",
+  "provider": "AtlasCloud",
+  "model": "xai/grok-imagine-image/edit",
+  "adapter": "atlas upload/generate/poll",
+  "sourceSha256": "9281eed1afd581d30cb7f6ef62ca411d43dc6258cd438341b5fe52d56c9f5afa",
+  "portraitSha256": "c36a282ad5c313114049d481cd227d11fe03bc4b1396823f0cd6bec4fb70f255",
+  "portraitWidth": 864,
+  "portraitHeight": 1152,
+  "physicalConfidence": {
+    "definition": "physical_confidence",
+    "score": 50,
+    "profile": "41-60",
+    "flirtatiousnessPercentage": 45,
+    "confidencePercentage": 64,
+    "flirtatiousnessWeight": 0.75,
+    "confidenceWeight": 0.25,
+    "source": "shipped_profile_library"
+  },
+  "derivativesReady": true,
+  "derivativeError": "",
+  "generatedUtc": "2026-07-17T18:33:16.2796079Z"
+}

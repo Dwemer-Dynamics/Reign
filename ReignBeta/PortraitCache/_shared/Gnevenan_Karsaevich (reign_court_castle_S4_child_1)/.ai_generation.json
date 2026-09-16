@@ -1,0 +1,27 @@
+{
+  "version": 1,
+  "cacheKey": "Gnevenan_Karsaevich (reign_court_castle_S4_child_1)",
+  "heroStringId": "reign_court_castle_S4_child_1",
+  "characterObjectId": "reign_court_castle_S4_child_1",
+  "characterName": "Gnevenan Karsaevich",
+  "provider": "AtlasCloud",
+  "model": "xai/grok-imagine-image/edit",
+  "adapter": "atlas upload/generate/poll",
+  "sourceSha256": "dc2120b2c4405352206a8edbbb9b3da05bd50ed4bbd00d26eb53b3557a33eb04",
+  "portraitSha256": "a7ba61a3db07a9a5d75a9dd96575b91cdcfa247d2b9813b1685aad336bbdb9d8",
+  "portraitWidth": 864,
+  "portraitHeight": 1152,
+  "physicalConfidence": {
+    "definition": "physical_confidence",
+    "score": 48,
+    "profile": "41-60",
+    "flirtatiousnessPercentage": 49,
+    "confidencePercentage": 44,
+    "flirtatiousnessWeight": 0.75,
+    "confidenceWeight": 0.25,
+    "source": "shipped_profile_library"
+  },
+  "derivativesReady": true,
+  "derivativeError": "",
+  "generatedUtc": "2026-07-17T18:39:05.7580487Z"
+}

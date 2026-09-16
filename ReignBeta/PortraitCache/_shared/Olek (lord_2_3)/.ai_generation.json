@@ -1,0 +1,27 @@
+{
+  "version": 1,
+  "cacheKey": "Olek (lord_2_3)",
+  "heroStringId": "lord_2_3",
+  "characterObjectId": "lord_2_3",
+  "characterName": "Olek",
+  "provider": "AtlasCloud",
+  "model": "xai/grok-imagine-image/edit",
+  "adapter": "atlas upload/generate/poll",
+  "sourceSha256": "15b31927eb583a2cdd1d92edd15a58d8b7494df7435504d05629275f5259668c",
+  "portraitSha256": "f59e9aaab205321260dbeef46adedfb6da4b748cfab24e578051e35efcc48165",
+  "portraitWidth": 832,
+  "portraitHeight": 1248,
+  "physicalConfidence": {
+    "definition": "physical_confidence",
+    "score": 52,
+    "profile": "41-60",
+    "flirtatiousnessPercentage": 46,
+    "confidencePercentage": 69,
+    "flirtatiousnessWeight": 0.75,
+    "confidenceWeight": 0.25,
+    "source": "shipped_profile_library"
+  },
+  "derivativesReady": true,
+  "derivativeError": "",
+  "generatedUtc": "2026-07-17T19:06:15.7551526Z"
+}

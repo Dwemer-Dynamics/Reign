@@ -1,0 +1,27 @@
+{
+  "version": 1,
+  "cacheKey": "Kiradan_Bahiraqani (reign_court_castle_A2_child_3)",
+  "heroStringId": "reign_court_castle_A2_child_3",
+  "characterObjectId": "reign_court_castle_A2_child_3",
+  "characterName": "Kiradan Bahiraqani",
+  "provider": "AtlasCloud",
+  "model": "xai/grok-imagine-image/edit",
+  "adapter": "atlas upload/generate/poll",
+  "sourceSha256": "2a304e9383ec4159cb8d5f11456442fa4c4162c4db402ad9e2f51545d8570e51",
+  "portraitSha256": "ba2925dc3a53f1905bbbaef5d25e660a1938177d9571211434662d17c59efa42",
+  "portraitWidth": 864,
+  "portraitHeight": 1152,
+  "physicalConfidence": {
+    "definition": "physical_confidence",
+    "score": 71,
+    "profile": "61-80",
+    "flirtatiousnessPercentage": 79,
+    "confidencePercentage": 46,
+    "flirtatiousnessWeight": 0.75,
+    "confidenceWeight": 0.25,
+    "source": "shipped_profile_library"
+  },
+  "derivativesReady": true,
+  "derivativeError": "",
+  "generatedUtc": "2026-07-17T18:48:33.0708752Z"
+}

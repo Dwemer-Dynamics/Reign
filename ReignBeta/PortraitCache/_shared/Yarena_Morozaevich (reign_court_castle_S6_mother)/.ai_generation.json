@@ -1,0 +1,27 @@
+{
+  "version": 1,
+  "cacheKey": "Yarena_Morozaevich (reign_court_castle_S6_mother)",
+  "heroStringId": "reign_court_castle_S6_mother",
+  "characterObjectId": "reign_court_castle_S6_mother",
+  "characterName": "Yarena Morozaevich",
+  "provider": "AtlasCloud",
+  "model": "xai/grok-imagine-image/edit",
+  "adapter": "atlas upload/generate/poll",
+  "sourceSha256": "509fd0b8fa3aff373cf1a1c5d1b9cc107ae2f558ce7310d24f3a515c8be899aa",
+  "portraitSha256": "2bfdd658ef0b6b522a22fbe3543ed9a394fffbb4e825b0990f28cd44544d02cc",
+  "portraitWidth": 864,
+  "portraitHeight": 1152,
+  "physicalConfidence": {
+    "definition": "physical_confidence",
+    "score": 47,
+    "profile": "41-60",
+    "flirtatiousnessPercentage": 42,
+    "confidencePercentage": 61,
+    "flirtatiousnessWeight": 0.75,
+    "confidenceWeight": 0.25,
+    "source": "shipped_profile_library"
+  },
+  "derivativesReady": true,
+  "derivativeError": "",
+  "generatedUtc": "2026-07-17T19:22:20.6164111Z"
+}

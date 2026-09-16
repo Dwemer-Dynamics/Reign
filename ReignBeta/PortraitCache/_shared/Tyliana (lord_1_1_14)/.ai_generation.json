@@ -1,0 +1,27 @@
+{
+  "version": 1,
+  "cacheKey": "Tyliana (lord_1_1_14)",
+  "heroStringId": "lord_1_1_14",
+  "characterObjectId": "lord_1_1_14",
+  "characterName": "Tyliana",
+  "provider": "AtlasCloud",
+  "model": "xai/grok-imagine-image/edit",
+  "adapter": "atlas upload/generate/poll",
+  "sourceSha256": "4edf4ebaa2b1474629450cd59483d164566954f232450ad7da7112006dc6d66b",
+  "portraitSha256": "6b1771f84483272d1ee609eb63bb56c17dd9dedb201710b8deb9f499bf743e09",
+  "portraitWidth": 832,
+  "portraitHeight": 1248,
+  "physicalConfidence": {
+    "definition": "physical_confidence",
+    "score": 82,
+    "profile": "81-100",
+    "flirtatiousnessPercentage": 93,
+    "confidencePercentage": 48,
+    "flirtatiousnessWeight": 0.75,
+    "confidenceWeight": 0.25,
+    "source": "shipped_profile_library"
+  },
+  "derivativesReady": true,
+  "derivativeError": "",
+  "generatedUtc": "2026-07-17T19:19:00.6829302Z"
+}

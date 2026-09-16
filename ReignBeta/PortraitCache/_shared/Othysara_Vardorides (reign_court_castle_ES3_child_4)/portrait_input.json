@@ -1,0 +1,92 @@
+{
+  "version": 1,
+  "inputHash": "4470ee294ce42167f595283e1ec2e38684be263622143e3665c88ca6bf6ee47e",
+  "catalogHash": "12142c0ab28d2678b12b852b086450dcc4eea45e2e8a080f3baa85c42f7fb3a2",
+  "renderContractHash": "cc3b941e7d47057de9b4220f1473336e6f908719812bb2653b83bd3545cfbd2f",
+  "cacheKey": "Othysara_Vardorides (reign_court_castle_ES3_child_4)",
+  "heroStringId": "reign_court_castle_ES3_child_4",
+  "characterObjectId": "reign_court_castle_ES3_child_4",
+  "characterName": "Othysara Vardorides",
+  "ageYears": 18,
+  "cultureId": "empire",
+  "cultureName": "Imperial",
+  "gender": "woman",
+  "clanId": "clan_empire_south_7",
+  "clanTier": 3,
+  "clanProvenance": "reign_profile_library",
+  "socialStation": "lesser lord",
+  "occupation": "Lord",
+  "archetype": "lord",
+  "isLord": true,
+  "isNotable": false,
+  "isWanderer": false,
+  "isAlive": true,
+  "sourceModule": "ReignBeta",
+  "sourceFile": "Modules/ReignBeta/ModuleData/reign_court_lords.xml",
+  "profileSource": "reign_court",
+  "profilePackVersion": "reign_profiles_v4",
+  "bodyKey": "",
+  "bodyWeight": 0.5,
+  "bodyBuild": 0.5,
+  "faceTemplateId": "townswoman_empire",
+  "faceGenerationVersion": "reign_court_shared_v1",
+  "civilianTemplate": "emp_noncom_template_southfrontier",
+  "civilianEquipment": [
+    {
+      "slot": "Body",
+      "itemId": "aserai_female_civil_b"
+    },
+    {
+      "slot": "Cape",
+      "itemId": "scarf"
+    },
+    {
+      "slot": "Leg",
+      "itemId": "southern_moccasins"
+    }
+  ],
+  "headgearSuppressed": true,
+  "physicalConfidence": {
+    "definition": "physical_confidence",
+    "score": 54,
+    "profile": "41-60",
+    "flirtatiousnessPercentage": 56,
+    "confidencePercentage": 47,
+    "flirtatiousnessWeight": 0.75,
+    "confidenceWeight": 0.25,
+    "source": "shipped_profile_library"
+  },
+  "renderPreset": "ai_source_wan_portrait_v5",
+  "renderWidth": 1536,
+  "renderHeight": 2048,
+  "sourceWidth": 768,
+  "sourceHeight": 1024,
+  "cropScale": 0.24,
+  "cropWidthRatio": 0.75,
+  "cropCenterYRatio": 0.324,
+  "cameraPitchDegrees": 4,
+  "sourceSha256": "c7e5430b13573d322ad56af1b2b9c852b9b0da6501d61e3c10b2171d5a2f2bec",
+  "sourceFileName": "source.png",
+  "generationEndpoint": "/portraits/generate",
+  "campaignIdSource": "active_campaign_at_generation_time",
+  "promptDeferred": true,
+  "sourceImageBase64From": "source.png",
+  "outputSizeOverride": "",
+  "promptPurpose": "portrait",
+  "nativePhysique": {
+    "schema": "reign-native-physique-v1",
+    "weight": 0.5,
+    "build": 0.5,
+    "weightSource": "shared_portrait_input.bodyWeight",
+    "buildSource": "shared_portrait_input.bodyBuild",
+    "sourceSha256": "c7e5430b13573d322ad56af1b2b9c852b9b0da6501d61e3c10b2171d5a2f2bec",
+    "provenance": {
+      "kind": "saved_character_metadata_backfill",
+      "heroStringId": "reign_court_castle_ES3_child_4",
+      "profileSource": "reign_court",
+      "profilePackVersion": "reign_profiles_v4",
+      "originalInputSha256": "b0e5efd530fb7feffc45364d63db0b7f8f94887c5a16c9543494d28e2d8b0196",
+      "rendererReexecuted": false
+    }
+  }
+}

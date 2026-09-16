@@ -1,0 +1,27 @@
+{
+  "version": 1,
+  "cacheKey": "Vasilia (lord_1_27_3)",
+  "heroStringId": "lord_1_27_3",
+  "characterObjectId": "lord_1_27_3",
+  "characterName": "Vasilia",
+  "provider": "AtlasCloud",
+  "model": "xai/grok-imagine-image/edit",
+  "adapter": "atlas upload/generate/poll",
+  "sourceSha256": "0f42c896134fd3ef507c76156b1f2c0b5d38082b40280a45381a89496d4f4ea4",
+  "portraitSha256": "ec0d4650579c968bf85e4aff53b91463c221a9e1b3e5a84b3346dcd534148caa",
+  "portraitWidth": 832,
+  "portraitHeight": 1248,
+  "physicalConfidence": {
+    "definition": "physical_confidence",
+    "score": 66,
+    "profile": "61-80",
+    "flirtatiousnessPercentage": 73,
+    "confidencePercentage": 44,
+    "flirtatiousnessWeight": 0.75,
+    "confidenceWeight": 0.25,
+    "source": "shipped_profile_library"
+  },
+  "derivativesReady": true,
+  "derivativeError": "",
+  "generatedUtc": "2026-07-17T19:20:54.8418604Z"
+}

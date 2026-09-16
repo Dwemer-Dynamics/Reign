@@ -1,0 +1,92 @@
+{
+  "version": 1,
+  "inputHash": "ad6b4092d477e3a1490afec1ce0322916759648e03079bd6206358643d3a9488",
+  "catalogHash": "12142c0ab28d2678b12b852b086450dcc4eea45e2e8a080f3baa85c42f7fb3a2",
+  "renderContractHash": "cc3b941e7d47057de9b4220f1473336e6f908719812bb2653b83bd3545cfbd2f",
+  "cacheKey": "Crazy_Man_T3 (crazy_man_test13)",
+  "heroStringId": "crazy_man_test13",
+  "characterObjectId": "crazy_man_test13",
+  "characterName": "Crazy Man T3",
+  "ageYears": 20,
+  "cultureId": "empire",
+  "cultureName": "Imperial",
+  "gender": "man",
+  "clanId": "none",
+  "clanTier": null,
+  "clanProvenance": "not_defined_in_module_heroes_xml",
+  "socialStation": "unranked",
+  "occupation": "Townsfolk",
+  "archetype": "townsfolk",
+  "isLord": false,
+  "isNotable": false,
+  "isWanderer": false,
+  "isAlive": null,
+  "sourceModule": "Native",
+  "sourceFile": "Modules/SandBoxCore/ModuleData/spnpccharacters.xml",
+  "profileSource": "neutral_fallback",
+  "profilePackVersion": "",
+  "bodyKey": "00000808807C1000008000000002000000008000000000000000000070000000000C209208000000000000000000000000000000000000000000000000284000",
+  "bodyWeight": 0.1394,
+  "bodyBuild": 0.1187,
+  "faceTemplateId": "",
+  "faceGenerationVersion": "native_authored",
+  "civilianTemplate": "",
+  "civilianEquipment": [
+    {
+      "slot": "Body",
+      "itemId": "imperial_robes"
+    },
+    {
+      "slot": "Cape",
+      "itemId": "leopard_pelt"
+    },
+    {
+      "slot": "Leg",
+      "itemId": "fine_town_boots"
+    }
+  ],
+  "headgearSuppressed": true,
+  "physicalConfidence": {
+    "definition": "physical_confidence",
+    "score": 50,
+    "profile": "41-60",
+    "flirtatiousnessPercentage": 50,
+    "confidencePercentage": 50,
+    "flirtatiousnessWeight": 0.75,
+    "confidenceWeight": 0.25,
+    "source": "neutral_fallback"
+  },
+  "renderPreset": "ai_source_wan_portrait_v5",
+  "renderWidth": 1536,
+  "renderHeight": 2048,
+  "sourceWidth": 768,
+  "sourceHeight": 1024,
+  "cropScale": 0.24,
+  "cropWidthRatio": 0.75,
+  "cropCenterYRatio": 0.324,
+  "cameraPitchDegrees": 4,
+  "sourceSha256": "e4b934ad1fc575c4b7662a2ff881d46027f101dfe77622c8696c879c96dffaf5",
+  "sourceFileName": "source.png",
+  "generationEndpoint": "/portraits/generate",
+  "campaignIdSource": "active_campaign_at_generation_time",
+  "promptDeferred": true,
+  "sourceImageBase64From": "source.png",
+  "outputSizeOverride": "",
+  "promptPurpose": "portrait",
+  "nativePhysique": {
+    "schema": "reign-native-physique-v1",
+    "weight": 0.1394,
+    "build": 0.1187,
+    "weightSource": "shared_portrait_input.bodyWeight",
+    "buildSource": "shared_portrait_input.bodyBuild",
+    "sourceSha256": "e4b934ad1fc575c4b7662a2ff881d46027f101dfe77622c8696c879c96dffaf5",
+    "provenance": {
+      "kind": "saved_character_metadata_backfill",
+      "heroStringId": "crazy_man_test13",
+      "profileSource": "neutral_fallback",
+      "profilePackVersion": "",
+      "originalInputSha256": "f199c2971fafd0ec37a9a93a418d7c37e0d480007f095fa2a4d370f6ee511156",
+      "rendererReexecuted": false
+    }
+  }
+}

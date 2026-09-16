@@ -1,0 +1,27 @@
+{
+  "version": 1,
+  "cacheKey": "Sanion (lord_1_29)",
+  "heroStringId": "lord_1_29",
+  "characterObjectId": "lord_1_29",
+  "characterName": "Sanion",
+  "provider": "AtlasCloud",
+  "model": "xai/grok-imagine-image/edit",
+  "adapter": "atlas upload/generate/poll",
+  "sourceSha256": "b9256f3474cc310aa36e1c5ab0f9103248eea3da66790a5dc9eabe247bac4e0a",
+  "portraitSha256": "be4c7e300efaa4dfd79c74f52ad12e17f597a85355f5f76a2a564825233f8707",
+  "portraitWidth": 832,
+  "portraitHeight": 1248,
+  "physicalConfidence": {
+    "definition": "physical_confidence",
+    "score": 40,
+    "profile": "21-40",
+    "flirtatiousnessPercentage": 29,
+    "confidencePercentage": 72,
+    "flirtatiousnessWeight": 0.75,
+    "confidenceWeight": 0.25,
+    "source": "shipped_profile_library"
+  },
+  "derivativesReady": true,
+  "derivativeError": "",
+  "generatedUtc": "2026-07-17T19:12:58.6718389Z"
+}

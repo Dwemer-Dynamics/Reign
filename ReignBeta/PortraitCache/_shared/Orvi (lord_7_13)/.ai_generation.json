@@ -1,0 +1,27 @@
+{
+  "version": 1,
+  "cacheKey": "Orvi (lord_7_13)",
+  "heroStringId": "lord_7_13",
+  "characterObjectId": "lord_7_13",
+  "characterName": "Orvi",
+  "provider": "AtlasCloud",
+  "model": "xai/grok-imagine-image/edit",
+  "adapter": "atlas upload/generate/poll",
+  "sourceSha256": "faeee5e8bf4f6ecaeff972f37126f41d3bb7f3ff0088c3116e56d797a34e1860",
+  "portraitSha256": "4c490adc3322ca23822a7185dec5943f8cdba32703d679cec185bbdaf094f640",
+  "portraitWidth": 832,
+  "portraitHeight": 1248,
+  "physicalConfidence": {
+    "definition": "physical_confidence",
+    "score": 50,
+    "profile": "41-60",
+    "flirtatiousnessPercentage": 50,
+    "confidencePercentage": 50,
+    "flirtatiousnessWeight": 0.75,
+    "confidenceWeight": 0.25,
+    "source": "neutral_fallback"
+  },
+  "derivativesReady": true,
+  "derivativeError": "",
+  "generatedUtc": "2026-07-17T19:06:51.6626193Z"
+}

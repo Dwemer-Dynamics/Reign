@@ -1,0 +1,27 @@
+{
+  "version": 1,
+  "cacheKey": "Renera_Montelacourt (reign_court_castle_V8_child_4)",
+  "heroStringId": "reign_court_castle_V8_child_4",
+  "characterObjectId": "reign_court_castle_V8_child_4",
+  "characterName": "Renera Montelacourt",
+  "provider": "AtlasCloud",
+  "model": "xai/grok-imagine-image/edit",
+  "adapter": "atlas upload/generate/poll",
+  "sourceSha256": "7c1523bde508fb20cd2ffbce3e1572df087ce4047d01c818fc35b59885b2c6b5",
+  "portraitSha256": "c96780ac592abad03dcd1501cc4764ad9f41537a4af4d9b18394f902ad3030a0",
+  "portraitWidth": 864,
+  "portraitHeight": 1152,
+  "physicalConfidence": {
+    "definition": "physical_confidence",
+    "score": 24,
+    "profile": "21-40",
+    "flirtatiousnessPercentage": 18,
+    "confidencePercentage": 42,
+    "flirtatiousnessWeight": 0.75,
+    "confidenceWeight": 0.25,
+    "source": "shipped_profile_library"
+  },
+  "derivativesReady": true,
+  "derivativeError": "",
+  "generatedUtc": "2026-07-17T19:11:15.9179563Z"
+}

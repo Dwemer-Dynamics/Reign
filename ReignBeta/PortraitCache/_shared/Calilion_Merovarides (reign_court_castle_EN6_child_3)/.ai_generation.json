@@ -1,0 +1,27 @@
+{
+  "version": 1,
+  "cacheKey": "Calilion_Merovarides (reign_court_castle_EN6_child_3)",
+  "heroStringId": "reign_court_castle_EN6_child_3",
+  "characterObjectId": "reign_court_castle_EN6_child_3",
+  "characterName": "Calilion Merovarides",
+  "provider": "AtlasCloud",
+  "model": "xai/grok-imagine-image/edit",
+  "adapter": "atlas upload/generate/poll",
+  "sourceSha256": "657216d7fc571e8ee6d4c89ae33aedd60b7b116dec45ae871a044427eace73f5",
+  "portraitSha256": "aaf9b589764e2880370879f636633924dee9ed6ea6020784bb8e11c1d698c3b5",
+  "portraitWidth": 864,
+  "portraitHeight": 1152,
+  "physicalConfidence": {
+    "definition": "physical_confidence",
+    "score": 58,
+    "profile": "41-60",
+    "flirtatiousnessPercentage": 63,
+    "confidencePercentage": 42,
+    "flirtatiousnessWeight": 0.75,
+    "confidenceWeight": 0.25,
+    "source": "shipped_profile_library"
+  },
+  "derivativesReady": true,
+  "derivativeError": "",
+  "generatedUtc": "2026-07-17T18:21:09.7991873Z"
+}

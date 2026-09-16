@@ -1,0 +1,27 @@
+{
+  "version": 1,
+  "cacheKey": "Khoroma_Rudaevich (reign_court_castle_S7_child_2)",
+  "heroStringId": "reign_court_castle_S7_child_2",
+  "characterObjectId": "reign_court_castle_S7_child_2",
+  "characterName": "Khoroma Rudaevich",
+  "provider": "AtlasCloud",
+  "model": "xai/grok-imagine-image/edit",
+  "adapter": "atlas upload/generate/poll",
+  "sourceSha256": "03b7d04b04a696a741b3fc89ac4bf5111a7fd1dec0bb07ee18d2c9e2ca37e46a",
+  "portraitSha256": "1f8b58ca0e6f28332420fea017a239d5eb83d2a827241271ec6a4de32976e5d8",
+  "portraitWidth": 864,
+  "portraitHeight": 1152,
+  "physicalConfidence": {
+    "definition": "physical_confidence",
+    "score": 61,
+    "profile": "61-80",
+    "flirtatiousnessPercentage": 57,
+    "confidencePercentage": 72,
+    "flirtatiousnessWeight": 0.75,
+    "confidenceWeight": 0.25,
+    "source": "shipped_profile_library"
+  },
+  "derivativesReady": true,
+  "derivativeError": "",
+  "generatedUtc": "2026-07-17T18:47:59.9247880Z"
+}

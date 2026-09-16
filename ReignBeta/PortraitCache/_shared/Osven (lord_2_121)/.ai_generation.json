@@ -1,0 +1,27 @@
+{
+  "version": 1,
+  "cacheKey": "Osven (lord_2_121)",
+  "heroStringId": "lord_2_121",
+  "characterObjectId": "lord_2_121",
+  "characterName": "Osven",
+  "provider": "AtlasCloud",
+  "model": "xai/grok-imagine-image/edit",
+  "adapter": "atlas upload/generate/poll",
+  "sourceSha256": "09b3687208f41d78fcaa71f9f9564a55b96b5de4b8d5eeb0c55225f4e5a48b14",
+  "portraitSha256": "b021fe7de112448b473bd5bdf7f073799ce9159fe529a60edbe98f889c7057b5",
+  "portraitWidth": 832,
+  "portraitHeight": 1248,
+  "physicalConfidence": {
+    "definition": "physical_confidence",
+    "score": 62,
+    "profile": "61-80",
+    "flirtatiousnessPercentage": 57,
+    "confidencePercentage": 76,
+    "flirtatiousnessWeight": 0.75,
+    "confidenceWeight": 0.25,
+    "source": "shipped_profile_library"
+  },
+  "derivativesReady": true,
+  "derivativeError": "",
+  "generatedUtc": "2026-07-17T19:06:54.1481588Z"
+}

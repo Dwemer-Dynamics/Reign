@@ -1,0 +1,27 @@
+{
+  "version": 1,
+  "cacheKey": "Coreric_Gervacourt (reign_court_castle_V7_father)",
+  "heroStringId": "reign_court_castle_V7_father",
+  "characterObjectId": "reign_court_castle_V7_father",
+  "characterName": "Coreric Gervacourt",
+  "provider": "AtlasCloud",
+  "model": "xai/grok-imagine-image/edit",
+  "adapter": "atlas upload/generate/poll",
+  "sourceSha256": "7c56c5b3632bca541a3307334fb36b8a1276ae976868e74793b0b2fa41106391",
+  "portraitSha256": "dab538d26c6941799b188c4851ed5541703b1abb6a68c3a9de75f84c09487253",
+  "portraitWidth": 864,
+  "portraitHeight": 1152,
+  "physicalConfidence": {
+    "definition": "physical_confidence",
+    "score": 46,
+    "profile": "41-60",
+    "flirtatiousnessPercentage": 45,
+    "confidencePercentage": 48,
+    "flirtatiousnessWeight": 0.75,
+    "confidenceWeight": 0.25,
+    "source": "shipped_profile_library"
+  },
+  "derivativesReady": true,
+  "derivativeError": "",
+  "generatedUtc": "2026-07-17T18:24:06.0917166Z"
+}

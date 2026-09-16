@@ -1,0 +1,27 @@
+{
+  "version": 1,
+  "cacheKey": "Bahada_Alzaraqani (reign_court_castle_A1_child_2)",
+  "heroStringId": "reign_court_castle_A1_child_2",
+  "characterObjectId": "reign_court_castle_A1_child_2",
+  "characterName": "Bahada Alzaraqani",
+  "provider": "AtlasCloud",
+  "model": "xai/grok-imagine-image/edit",
+  "adapter": "atlas upload/generate/poll",
+  "sourceSha256": "96db22d4242090f41b2809a618e1bc6391151e2540a3356d664c7fb269c46080",
+  "portraitSha256": "734e50da0a1fee44ac81338f19c61a9ae0d216cdeba3840ae2f859ff1c044366",
+  "portraitWidth": 864,
+  "portraitHeight": 1152,
+  "physicalConfidence": {
+    "definition": "physical_confidence",
+    "score": 66,
+    "profile": "61-80",
+    "flirtatiousnessPercentage": 69,
+    "confidencePercentage": 56,
+    "flirtatiousnessWeight": 0.75,
+    "confidenceWeight": 0.25,
+    "source": "shipped_profile_library"
+  },
+  "derivativesReady": true,
+  "derivativeError": "",
+  "generatedUtc": "2026-07-17T18:15:12.9244503Z"
+}

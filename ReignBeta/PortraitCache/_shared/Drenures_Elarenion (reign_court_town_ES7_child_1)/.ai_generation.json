@@ -1,0 +1,27 @@
+{
+  "version": 1,
+  "cacheKey": "Drenures_Elarenion (reign_court_town_ES7_child_1)",
+  "heroStringId": "reign_court_town_ES7_child_1",
+  "characterObjectId": "reign_court_town_ES7_child_1",
+  "characterName": "Drenures Elarenion",
+  "provider": "AtlasCloud",
+  "model": "xai/grok-imagine-image/edit",
+  "adapter": "atlas upload/generate/poll",
+  "sourceSha256": "ec3c743dc4fd8094f85f962f9da4cfbdde0b6575cc0240916f9996a1c8bcc8d5",
+  "portraitSha256": "e87e750ddd51f161e2e5c03a88702b24794a19fe50bd18ff10a373d077fe5b01",
+  "portraitWidth": 864,
+  "portraitHeight": 1152,
+  "physicalConfidence": {
+    "definition": "physical_confidence",
+    "score": 74,
+    "profile": "61-80",
+    "flirtatiousnessPercentage": 83,
+    "confidencePercentage": 46,
+    "flirtatiousnessWeight": 0.75,
+    "confidenceWeight": 0.25,
+    "source": "shipped_profile_library"
+  },
+  "derivativesReady": true,
+  "derivativeError": "",
+  "generatedUtc": "2026-07-17T18:30:24.2402214Z"
+}

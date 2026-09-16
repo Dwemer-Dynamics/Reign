@@ -1,0 +1,27 @@
+{
+  "version": 1,
+  "cacheKey": "Ekeegan_Erketatai (reign_court_castle_K5_father)",
+  "heroStringId": "reign_court_castle_K5_father",
+  "characterObjectId": "reign_court_castle_K5_father",
+  "characterName": "Ekeegan Erketatai",
+  "provider": "AtlasCloud",
+  "model": "xai/grok-imagine-image/edit",
+  "adapter": "atlas upload/generate/poll",
+  "sourceSha256": "986430bbb16438952c96f61f16ceef4f0c698aaafa9f1044693838f76b38e31e",
+  "portraitSha256": "730429bb793fddff7a8be14770154fc3cf06067167a17f24161130fdc623bc63",
+  "portraitWidth": 864,
+  "portraitHeight": 1152,
+  "physicalConfidence": {
+    "definition": "physical_confidence",
+    "score": 84,
+    "profile": "81-100",
+    "flirtatiousnessPercentage": 80,
+    "confidencePercentage": 95,
+    "flirtatiousnessWeight": 0.75,
+    "confidenceWeight": 0.25,
+    "source": "shipped_profile_library"
+  },
+  "derivativesReady": true,
+  "derivativeError": "",
+  "generatedUtc": "2026-07-17T18:31:48.1732061Z"
+}

@@ -1,0 +1,27 @@
+{
+  "version": 1,
+  "cacheKey": "Miroava_Drovaevich (reign_court_castle_S2_child_2)",
+  "heroStringId": "reign_court_castle_S2_child_2",
+  "characterObjectId": "reign_court_castle_S2_child_2",
+  "characterName": "Miroava Drovaevich",
+  "provider": "AtlasCloud",
+  "model": "xai/grok-imagine-image/edit",
+  "adapter": "atlas upload/generate/poll",
+  "sourceSha256": "59b44eb067aeab260110d151200d61594d64528d9e3eeba6fcd4e39d363d5f20",
+  "portraitSha256": "af0dcff68c80b96b21863c2a4bf84ba152f0c86d3d95d2bd2cb1518b657e11ff",
+  "portraitWidth": 864,
+  "portraitHeight": 1152,
+  "physicalConfidence": {
+    "definition": "physical_confidence",
+    "score": 59,
+    "profile": "41-60",
+    "flirtatiousnessPercentage": 62,
+    "confidencePercentage": 49,
+    "flirtatiousnessWeight": 0.75,
+    "confidenceWeight": 0.25,
+    "source": "shipped_profile_library"
+  },
+  "derivativesReady": true,
+  "derivativeError": "",
+  "generatedUtc": "2026-07-17T19:03:36.1836994Z"
+}

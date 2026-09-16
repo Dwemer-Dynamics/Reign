@@ -1,0 +1,27 @@
+{
+  "version": 1,
+  "cacheKey": "Nereida (lord_1_45_3)",
+  "heroStringId": "lord_1_45_3",
+  "characterObjectId": "lord_1_45_3",
+  "characterName": "Nereida",
+  "provider": "AtlasCloud",
+  "model": "xai/grok-imagine-image/edit",
+  "adapter": "atlas upload/generate/poll",
+  "sourceSha256": "ae3a8fb4fe7e75f22df09f4d368912d5aecee3fbb86468b914b616ed1152d47c",
+  "portraitSha256": "e05628f99fc08585599c2926bd7a17185e6740b95b4d25511416615db04b8c1e",
+  "portraitWidth": 832,
+  "portraitHeight": 1248,
+  "physicalConfidence": {
+    "definition": "physical_confidence",
+    "score": 48,
+    "profile": "41-60",
+    "flirtatiousnessPercentage": 45,
+    "confidencePercentage": 56,
+    "flirtatiousnessWeight": 0.75,
+    "confidenceWeight": 0.25,
+    "source": "shipped_profile_library"
+  },
+  "derivativesReady": true,
+  "derivativeError": "",
+  "generatedUtc": "2026-07-17T19:05:21.0808328Z"
+}

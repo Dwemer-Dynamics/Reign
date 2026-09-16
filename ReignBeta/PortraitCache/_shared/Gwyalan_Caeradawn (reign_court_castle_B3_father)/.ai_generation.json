@@ -1,0 +1,27 @@
+{
+  "version": 1,
+  "cacheKey": "Gwyalan_Caeradawn (reign_court_castle_B3_father)",
+  "heroStringId": "reign_court_castle_B3_father",
+  "characterObjectId": "reign_court_castle_B3_father",
+  "characterName": "Gwyalan Caeradawn",
+  "provider": "AtlasCloud",
+  "model": "xai/grok-imagine-image/edit",
+  "adapter": "atlas upload/generate/poll",
+  "sourceSha256": "0c2848099f24f5cd6f4fb1f2874cbe49c13e3711ce098208e4cf7e6a0d77c21a",
+  "portraitSha256": "3ec175074f6205def82e0f5367417c306d3e7b56b85a0fcc10f499465f731456",
+  "portraitWidth": 864,
+  "portraitHeight": 1152,
+  "physicalConfidence": {
+    "definition": "physical_confidence",
+    "score": 68,
+    "profile": "61-80",
+    "flirtatiousnessPercentage": 77,
+    "confidencePercentage": 40,
+    "flirtatiousnessWeight": 0.75,
+    "confidenceWeight": 0.25,
+    "source": "shipped_profile_library"
+  },
+  "derivativesReady": true,
+  "derivativeError": "",
+  "generatedUtc": "2026-07-17T18:40:39.3627779Z"
+}

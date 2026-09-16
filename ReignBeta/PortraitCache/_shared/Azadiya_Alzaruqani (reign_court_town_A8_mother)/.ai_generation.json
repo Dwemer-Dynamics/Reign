@@ -1,0 +1,27 @@
+{
+  "version": 1,
+  "cacheKey": "Azadiya_Alzaruqani (reign_court_town_A8_mother)",
+  "heroStringId": "reign_court_town_A8_mother",
+  "characterObjectId": "reign_court_town_A8_mother",
+  "characterName": "Azadiya Alzaruqani",
+  "provider": "AtlasCloud",
+  "model": "xai/grok-imagine-image/edit",
+  "adapter": "atlas upload/generate/poll",
+  "sourceSha256": "80adf5fdd24f348ba37fccf6d74ebc185defe81a8a2f9a27a6c1395e18949506",
+  "portraitSha256": "30aebee68399aa2099d24867a14ebfb0c13e4afcc497b467356917f464db0fcf",
+  "portraitWidth": 864,
+  "portraitHeight": 1152,
+  "physicalConfidence": {
+    "definition": "physical_confidence",
+    "score": 68,
+    "profile": "61-80",
+    "flirtatiousnessPercentage": 74,
+    "confidencePercentage": 49,
+    "flirtatiousnessWeight": 0.75,
+    "confidenceWeight": 0.25,
+    "source": "shipped_profile_library"
+  },
+  "derivativesReady": true,
+  "derivativeError": "",
+  "generatedUtc": "2026-07-17T18:14:44.0458358Z"
+}

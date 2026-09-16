@@ -1,0 +1,27 @@
+{
+  "version": 1,
+  "cacheKey": "Suruq (lord_3_16)",
+  "heroStringId": "lord_3_16",
+  "characterObjectId": "lord_3_16",
+  "characterName": "Suruq",
+  "provider": "AtlasCloud",
+  "model": "xai/grok-imagine-image/edit",
+  "adapter": "atlas upload/generate/poll",
+  "sourceSha256": "3be01806ac41631a65ce2c33586e2e4e16c9bf47e4889508414933299b7ccae9",
+  "portraitSha256": "56b701d2540cb71e114c183de2406475a51b5986b537afb42e4cd692739b200a",
+  "portraitWidth": 832,
+  "portraitHeight": 1248,
+  "physicalConfidence": {
+    "definition": "physical_confidence",
+    "score": 79,
+    "profile": "61-80",
+    "flirtatiousnessPercentage": 93,
+    "confidencePercentage": 36,
+    "flirtatiousnessWeight": 0.75,
+    "confidenceWeight": 0.25,
+    "source": "shipped_profile_library"
+  },
+  "derivativesReady": true,
+  "derivativeError": "",
+  "generatedUtc": "2026-07-17T19:14:56.6283057Z"
+}

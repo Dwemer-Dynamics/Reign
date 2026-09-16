@@ -1,0 +1,27 @@
+{
+  "version": 1,
+  "cacheKey": "Calarara_Aurelirides (reign_court_castle_EW2_child_2)",
+  "heroStringId": "reign_court_castle_EW2_child_2",
+  "characterObjectId": "reign_court_castle_EW2_child_2",
+  "characterName": "Calarara Aurelirides",
+  "provider": "AtlasCloud",
+  "model": "xai/grok-imagine-image/edit",
+  "adapter": "atlas upload/generate/poll",
+  "sourceSha256": "882d51fc10438f5d131407c0ac6c74ebbe4a268355f0515c93bdd0cce5464128",
+  "portraitSha256": "039756ac6acd4ce70213d7ffcdd784645162d2b6838acc0794ad10d424e25285",
+  "portraitWidth": 864,
+  "portraitHeight": 1152,
+  "physicalConfidence": {
+    "definition": "physical_confidence",
+    "score": 81,
+    "profile": "81-100",
+    "flirtatiousnessPercentage": 93,
+    "confidencePercentage": 44,
+    "flirtatiousnessWeight": 0.75,
+    "confidenceWeight": 0.25,
+    "source": "shipped_profile_library"
+  },
+  "derivativesReady": true,
+  "derivativeError": "",
+  "generatedUtc": "2026-07-17T18:20:09.1741690Z"
+}

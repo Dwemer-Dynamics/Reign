@@ -1,0 +1,27 @@
+{
+  "version": 1,
+  "cacheKey": "Conspiracy_Commander (conspiracy_commander_antiempire)",
+  "heroStringId": "conspiracy_commander_antiempire",
+  "characterObjectId": "conspiracy_commander_antiempire",
+  "characterName": "Conspiracy Commander",
+  "provider": "AtlasCloud",
+  "model": "xai/grok-imagine-image/edit",
+  "adapter": "atlas upload/generate/poll",
+  "sourceSha256": "4c29c136e55eba383ac837a21be1849d4a8d0fb8ce3064dbe9a3b8ba2ff835b9",
+  "portraitSha256": "4541b8f0a3136e25b0f2072719e63d81135367f393a14279dea88300931e0d94",
+  "portraitWidth": 864,
+  "portraitHeight": 1152,
+  "physicalConfidence": {
+    "definition": "physical_confidence",
+    "score": 50,
+    "profile": "41-60",
+    "flirtatiousnessPercentage": 50,
+    "confidencePercentage": 50,
+    "flirtatiousnessWeight": 0.75,
+    "confidenceWeight": 0.25,
+    "source": "neutral_fallback"
+  },
+  "derivativesReady": true,
+  "derivativeError": "",
+  "generatedUtc": "2026-07-17T18:23:32.6724310Z"
+}

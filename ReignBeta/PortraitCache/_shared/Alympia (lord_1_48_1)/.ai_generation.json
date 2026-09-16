@@ -1,0 +1,27 @@
+{
+  "version": 1,
+  "cacheKey": "Alympia (lord_1_48_1)",
+  "heroStringId": "lord_1_48_1",
+  "characterObjectId": "lord_1_48_1",
+  "characterName": "Alympia",
+  "provider": "AtlasCloud",
+  "model": "xai/grok-imagine-image/edit",
+  "adapter": "atlas upload/generate/poll",
+  "sourceSha256": "d6ffc7ae10cfccaf1b53db3d1d69c868ac08d842277b3abf4d29895ee1da9472",
+  "portraitSha256": "d96a14ead353d60be0626e3c0d511a7b3d49eed7571ce0bac89f9011ddd9ee83",
+  "portraitWidth": 832,
+  "portraitHeight": 1248,
+  "physicalConfidence": {
+    "definition": "physical_confidence",
+    "score": 66,
+    "profile": "61-80",
+    "flirtatiousnessPercentage": 72,
+    "confidencePercentage": 47,
+    "flirtatiousnessWeight": 0.75,
+    "confidenceWeight": 0.25,
+    "source": "shipped_profile_library"
+  },
+  "derivativesReady": true,
+  "derivativeError": "",
+  "generatedUtc": "2026-07-17T18:12:03.0395580Z"
+}

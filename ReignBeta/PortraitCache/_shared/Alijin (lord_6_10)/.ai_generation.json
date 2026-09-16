@@ -1,0 +1,27 @@
+{
+  "version": 1,
+  "cacheKey": "Alijin (lord_6_10)",
+  "heroStringId": "lord_6_10",
+  "characterObjectId": "lord_6_10",
+  "characterName": "Alijin",
+  "provider": "AtlasCloud",
+  "model": "xai/grok-imagine-image/edit",
+  "adapter": "atlas upload/generate/poll",
+  "sourceSha256": "287244267faf26f1dd99571251b7e470f63253da1181c77ecf8fc3ef64177e92",
+  "portraitSha256": "23bfca3fab1dd175ec0e37292ea1e06ee6a6a5308ac18d3715a3fc0d1411c02c",
+  "portraitWidth": 832,
+  "portraitHeight": 1248,
+  "physicalConfidence": {
+    "definition": "physical_confidence",
+    "score": 63,
+    "profile": "61-80",
+    "flirtatiousnessPercentage": 70,
+    "confidencePercentage": 41,
+    "flirtatiousnessWeight": 0.75,
+    "confidenceWeight": 0.25,
+    "source": "shipped_profile_library"
+  },
+  "derivativesReady": true,
+  "derivativeError": "",
+  "generatedUtc": "2026-07-17T18:11:26.7108638Z"
+}

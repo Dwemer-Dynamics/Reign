@@ -1,0 +1,27 @@
+{
+  "version": 1,
+  "cacheKey": "Othilara_Vardirides (reign_court_town_EW1_child_4)",
+  "heroStringId": "reign_court_town_EW1_child_4",
+  "characterObjectId": "reign_court_town_EW1_child_4",
+  "characterName": "Othilara Vardirides",
+  "provider": "AtlasCloud",
+  "model": "xai/grok-imagine-image/edit",
+  "adapter": "atlas upload/generate/poll",
+  "sourceSha256": "252620c2f6c03bac6c4c0c9960e655c0de0ee8849e1067eaf9c4f9697ef355fe",
+  "portraitSha256": "9a652ac2dae02d20b2d45f0e6dd39c8ac72e704840eafdfedf1a19994e5995c2",
+  "portraitWidth": 864,
+  "portraitHeight": 1152,
+  "physicalConfidence": {
+    "definition": "physical_confidence",
+    "score": 55,
+    "profile": "41-60",
+    "flirtatiousnessPercentage": 58,
+    "confidencePercentage": 45,
+    "flirtatiousnessWeight": 0.75,
+    "confidenceWeight": 0.25,
+    "source": "shipped_profile_library"
+  },
+  "derivativesReady": true,
+  "derivativeError": "",
+  "generatedUtc": "2026-07-17T19:07:40.9793279Z"
+}

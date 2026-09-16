@@ -1,0 +1,27 @@
+{
+  "version": 1,
+  "cacheKey": "Zoana (lord_1_31)",
+  "heroStringId": "lord_1_31",
+  "characterObjectId": "lord_1_31",
+  "characterName": "Zoana",
+  "provider": "AtlasCloud",
+  "model": "xai/grok-imagine-image/edit",
+  "adapter": "atlas upload/generate/poll",
+  "sourceSha256": "0d89e87b0ae0d62fc5b3a36334fda7e164a65b61186921b453fcaacc12675476",
+  "portraitSha256": "3406d17c281c52d21628ad36bcae6dd011f15d9ea6128e69166de62995729590",
+  "portraitWidth": 832,
+  "portraitHeight": 1248,
+  "physicalConfidence": {
+    "definition": "physical_confidence",
+    "score": 43,
+    "profile": "41-60",
+    "flirtatiousnessPercentage": 44,
+    "confidencePercentage": 39,
+    "flirtatiousnessWeight": 0.75,
+    "confidenceWeight": 0.25,
+    "source": "shipped_profile_library"
+  },
+  "derivativesReady": true,
+  "derivativeError": "",
+  "generatedUtc": "2026-07-17T19:23:16.0931693Z"
+}

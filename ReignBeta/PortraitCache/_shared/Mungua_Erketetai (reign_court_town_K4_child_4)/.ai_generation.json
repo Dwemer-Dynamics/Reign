@@ -1,0 +1,27 @@
+{
+  "version": 1,
+  "cacheKey": "Mungua_Erketetai (reign_court_town_K4_child_4)",
+  "heroStringId": "reign_court_town_K4_child_4",
+  "characterObjectId": "reign_court_town_K4_child_4",
+  "characterName": "Mungua Erketetai",
+  "provider": "AtlasCloud",
+  "model": "xai/grok-imagine-image/edit",
+  "adapter": "atlas upload/generate/poll",
+  "sourceSha256": "bf6bcf838e80779b2131fa5f70753f1af37670700dde13a55f8e14edb32ca73a",
+  "portraitSha256": "0cfc3b674c1430841f7eec475dcb133f49610ca160ab322781982eb88dbad936",
+  "portraitWidth": 864,
+  "portraitHeight": 1152,
+  "physicalConfidence": {
+    "definition": "physical_confidence",
+    "score": 48,
+    "profile": "41-60",
+    "flirtatiousnessPercentage": 46,
+    "confidencePercentage": 53,
+    "flirtatiousnessWeight": 0.75,
+    "confidenceWeight": 0.25,
+    "source": "shipped_profile_library"
+  },
+  "derivativesReady": true,
+  "derivativeError": "",
+  "generatedUtc": "2026-07-17T19:05:03.3674012Z"
+}

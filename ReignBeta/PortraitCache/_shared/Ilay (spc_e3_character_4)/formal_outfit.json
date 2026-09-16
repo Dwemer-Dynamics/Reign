@@ -1,0 +1,13 @@
+{
+  "version": 1,
+  "heroStringId": "spc_e3_character_4",
+  "characterName": "Ilay",
+  "imagePath": "portrait.png",
+  "imageSha256": "1EC790E5CFC1C4BB42A0B98738B0F2768C9AF96EFDD30C6E4BD8CB9D76A333EA",
+  "description": "Their clan is tier unknown, placing them socially among the unranked class. Use this status to guide the refinement, expense, materials, and ornament of their clothing without turning it into fantasy costume.",
+  "status": "failed",
+  "descriptionSource": "portrait_prompt_fallback",
+  "retryEligible": true,
+  "error": "{\"error\":{\"message\":\"Model \\\"zai-org/glm-5.2\\\" does not support image inputs. Remove image content or choose a multimodal model.\",\"type\":\"invalid_request_error\",\"param\":\"messages\",\"code\":\"image_input_not_supported\"}}",
+  "updatedUtc": "2026-07-18T22:03:30.4619863Z"
+}

@@ -1,0 +1,27 @@
+{
+  "version": 1,
+  "cacheKey": "Galera_Gervacourt (reign_court_castle_V7_child_4)",
+  "heroStringId": "reign_court_castle_V7_child_4",
+  "characterObjectId": "reign_court_castle_V7_child_4",
+  "characterName": "Galera Gervacourt",
+  "provider": "AtlasCloud",
+  "model": "xai/grok-imagine-image/edit",
+  "adapter": "atlas upload/generate/poll",
+  "sourceSha256": "e6533da49e610371ff5fc82ba16edb18876699131b5b04995b6111d954d6656d",
+  "portraitSha256": "ef8546c67c0052a1ba87408fd282f784356ce0d29e98c317f35eeef294698020",
+  "portraitWidth": 864,
+  "portraitHeight": 1152,
+  "physicalConfidence": {
+    "definition": "physical_confidence",
+    "score": 60,
+    "profile": "41-60",
+    "flirtatiousnessPercentage": 66,
+    "confidencePercentage": 41,
+    "flirtatiousnessWeight": 0.75,
+    "confidenceWeight": 0.25,
+    "source": "shipped_profile_library"
+  },
+  "derivativesReady": true,
+  "derivativeError": "",
+  "generatedUtc": "2026-07-17T18:37:54.1527192Z"
+}

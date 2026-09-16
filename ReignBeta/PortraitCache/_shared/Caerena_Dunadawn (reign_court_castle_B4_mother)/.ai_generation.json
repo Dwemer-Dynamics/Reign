@@ -1,0 +1,27 @@
+{
+  "version": 1,
+  "cacheKey": "Caerena_Dunadawn (reign_court_castle_B4_mother)",
+  "heroStringId": "reign_court_castle_B4_mother",
+  "characterObjectId": "reign_court_castle_B4_mother",
+  "characterName": "Caerena Dunadawn",
+  "provider": "AtlasCloud",
+  "model": "xai/grok-imagine-image/edit",
+  "adapter": "atlas upload/generate/poll",
+  "sourceSha256": "7323b8e9b010e29f12734c5a119f3a473ba78e46b807189d6ea5a01e5d296ae6",
+  "portraitSha256": "c09817787acb88d6f0e8f36ceeff23179adf67e138e8d0b479d77ee73eb393d5",
+  "portraitWidth": 864,
+  "portraitHeight": 1152,
+  "physicalConfidence": {
+    "definition": "physical_confidence",
+    "score": 49,
+    "profile": "41-60",
+    "flirtatiousnessPercentage": 47,
+    "confidencePercentage": 54,
+    "flirtatiousnessWeight": 0.75,
+    "confidenceWeight": 0.25,
+    "source": "shipped_profile_library"
+  },
+  "derivativesReady": true,
+  "derivativeError": "",
+  "generatedUtc": "2026-07-17T18:19:49.2043296Z"
+}

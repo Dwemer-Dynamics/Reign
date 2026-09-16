@@ -1,0 +1,27 @@
+{
+  "version": 1,
+  "cacheKey": "Furnhard (lord_4_8)",
+  "heroStringId": "lord_4_8",
+  "characterObjectId": "lord_4_8",
+  "characterName": "Furnhard",
+  "provider": "AtlasCloud",
+  "model": "xai/grok-imagine-image/edit",
+  "adapter": "atlas upload/generate/poll",
+  "sourceSha256": "b8d5d4c8eb3c54bf874f59744d09f18b9e971a63be6ff1a78073ac10e0f5098c",
+  "portraitSha256": "1a0ff6d29f73449825a48bce15008c8a8ff09ab87c8d389c1abefa84a6b6c803",
+  "portraitWidth": 832,
+  "portraitHeight": 1248,
+  "physicalConfidence": {
+    "definition": "physical_confidence",
+    "score": 42,
+    "profile": "41-60",
+    "flirtatiousnessPercentage": 45,
+    "confidencePercentage": 32,
+    "flirtatiousnessWeight": 0.75,
+    "confidenceWeight": 0.25,
+    "source": "shipped_profile_library"
+  },
+  "derivativesReady": true,
+  "derivativeError": "",
+  "generatedUtc": "2026-07-17T18:37:36.2459218Z"
+}

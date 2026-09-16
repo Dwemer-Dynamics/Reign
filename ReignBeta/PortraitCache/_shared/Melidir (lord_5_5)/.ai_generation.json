@@ -1,0 +1,27 @@
+{
+  "version": 1,
+  "cacheKey": "Melidir (lord_5_5)",
+  "heroStringId": "lord_5_5",
+  "characterObjectId": "lord_5_5",
+  "characterName": "Melidir",
+  "provider": "AtlasCloud",
+  "model": "xai/grok-imagine-image/edit",
+  "adapter": "atlas upload/generate/poll",
+  "sourceSha256": "904dd8d800f608fd4a8ceb16e8d191a403d72effdb606b02c963b0600fe98238",
+  "portraitSha256": "e03c2eef31e228f54b8fbe14b80e8b822685ac17e300646918efc3ca84647153",
+  "portraitWidth": 832,
+  "portraitHeight": 1248,
+  "physicalConfidence": {
+    "definition": "physical_confidence",
+    "score": 46,
+    "profile": "41-60",
+    "flirtatiousnessPercentage": 53,
+    "confidencePercentage": 24,
+    "flirtatiousnessWeight": 0.75,
+    "confidenceWeight": 0.25,
+    "source": "shipped_profile_library"
+  },
+  "derivativesReady": true,
+  "derivativeError": "",
+  "generatedUtc": "2026-07-17T19:03:03.4089559Z"
+}

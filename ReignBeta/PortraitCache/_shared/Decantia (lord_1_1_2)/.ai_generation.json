@@ -1,0 +1,27 @@
+{
+  "version": 1,
+  "cacheKey": "Decantia (lord_1_1_2)",
+  "heroStringId": "lord_1_1_2",
+  "characterObjectId": "lord_1_1_2",
+  "characterName": "Decantia",
+  "provider": "AtlasCloud",
+  "model": "xai/grok-imagine-image/edit",
+  "adapter": "atlas upload/generate/poll",
+  "sourceSha256": "6a87cf1a99e1095463077679ad92a2786e8a45ab3e99d6c72597eef718f42046",
+  "portraitSha256": "162cee499fc04e1cf09d2394f782cee0d422ecf0c56600c75d34ddc680eb8f64",
+  "portraitWidth": 832,
+  "portraitHeight": 1248,
+  "physicalConfidence": {
+    "definition": "physical_confidence",
+    "score": 53,
+    "profile": "41-60",
+    "flirtatiousnessPercentage": 52,
+    "confidencePercentage": 55,
+    "flirtatiousnessWeight": 0.75,
+    "confidenceWeight": 0.25,
+    "source": "shipped_profile_library"
+  },
+  "derivativesReady": true,
+  "derivativeError": "",
+  "generatedUtc": "2026-07-17T18:26:22.0882884Z"
+}

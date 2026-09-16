@@ -1,0 +1,27 @@
+{
+  "version": 1,
+  "cacheKey": "Bolat (lord_6_101)",
+  "heroStringId": "lord_6_101",
+  "characterObjectId": "lord_6_101",
+  "characterName": "Bolat",
+  "provider": "AtlasCloud",
+  "model": "xai/grok-imagine-image/edit",
+  "adapter": "atlas upload/generate/poll",
+  "sourceSha256": "83a51a1a9443c2791d7847783347a092756d88128f09d89e51675418fd4ad67e",
+  "portraitSha256": "1f1be15e89f9828a9b174eb58c12764899ae8ec87bbe2f90b05749d4aaf9ba32",
+  "portraitWidth": 832,
+  "portraitHeight": 1248,
+  "physicalConfidence": {
+    "definition": "physical_confidence",
+    "score": 40,
+    "profile": "21-40",
+    "flirtatiousnessPercentage": 39,
+    "confidencePercentage": 42,
+    "flirtatiousnessWeight": 0.75,
+    "confidenceWeight": 0.25,
+    "source": "shipped_profile_library"
+  },
+  "derivativesReady": true,
+  "derivativeError": "",
+  "generatedUtc": "2026-07-17T18:17:31.3572114Z"
+}

@@ -1,0 +1,27 @@
+{
+  "version": 1,
+  "cacheKey": "Ekeea_Erketatai (reign_court_castle_K5_mother)",
+  "heroStringId": "reign_court_castle_K5_mother",
+  "characterObjectId": "reign_court_castle_K5_mother",
+  "characterName": "Ekeea Erketatai",
+  "provider": "AtlasCloud",
+  "model": "xai/grok-imagine-image/edit",
+  "adapter": "atlas upload/generate/poll",
+  "sourceSha256": "2543ffd0121f6bdf3ecfe5297dc63dff7282a75ab6afb7bc4dadb9bc3005ad54",
+  "portraitSha256": "9afff66dd369d936023ab42718a156356119857b6a4d86ca0510152ad89f0b22",
+  "portraitWidth": 864,
+  "portraitHeight": 1152,
+  "physicalConfidence": {
+    "definition": "physical_confidence",
+    "score": 71,
+    "profile": "61-80",
+    "flirtatiousnessPercentage": 77,
+    "confidencePercentage": 52,
+    "flirtatiousnessWeight": 0.75,
+    "confidenceWeight": 0.25,
+    "source": "shipped_profile_library"
+  },
+  "derivativesReady": true,
+  "derivativeError": "",
+  "generatedUtc": "2026-07-17T18:31:47.9636321Z"
+}

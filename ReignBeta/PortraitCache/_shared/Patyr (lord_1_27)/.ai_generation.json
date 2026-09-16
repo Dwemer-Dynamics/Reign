@@ -1,0 +1,27 @@
+{
+  "version": 1,
+  "cacheKey": "Patyr (lord_1_27)",
+  "heroStringId": "lord_1_27",
+  "characterObjectId": "lord_1_27",
+  "characterName": "Patyr",
+  "provider": "AtlasCloud",
+  "model": "xai/grok-imagine-image/edit",
+  "adapter": "atlas upload/generate/poll",
+  "sourceSha256": "30cf74b4f78d514dafe1b70eacc59ac43e93cd6d63601760be43c1eb933e5f26",
+  "portraitSha256": "3094fffeb416da7b43af1fded9ce6d68baea6aabc6a703b00fd311cad23c216b",
+  "portraitWidth": 832,
+  "portraitHeight": 1248,
+  "physicalConfidence": {
+    "definition": "physical_confidence",
+    "score": 61,
+    "profile": "61-80",
+    "flirtatiousnessPercentage": 63,
+    "confidencePercentage": 54,
+    "flirtatiousnessWeight": 0.75,
+    "confidenceWeight": 0.25,
+    "source": "shipped_profile_library"
+  },
+  "derivativesReady": true,
+  "derivativeError": "",
+  "generatedUtc": "2026-07-17T19:08:41.8508070Z"
+}

@@ -1,0 +1,27 @@
+{
+  "version": 1,
+  "cacheKey": "Mirooman_Rudaevich (reign_court_castle_S7_child_3)",
+  "heroStringId": "reign_court_castle_S7_child_3",
+  "characterObjectId": "reign_court_castle_S7_child_3",
+  "characterName": "Mirooman Rudaevich",
+  "provider": "AtlasCloud",
+  "model": "xai/grok-imagine-image/edit",
+  "adapter": "atlas upload/generate/poll",
+  "sourceSha256": "3b1acfb5f072ee2d84604202a558f8e8d33ccf682bcaae37a58eaf6c0e54c980",
+  "portraitSha256": "972108c2530385736f4418371d21087d1adaf290a6bd248288944028fbe3ad94",
+  "portraitWidth": 864,
+  "portraitHeight": 1152,
+  "physicalConfidence": {
+    "definition": "physical_confidence",
+    "score": 73,
+    "profile": "61-80",
+    "flirtatiousnessPercentage": 66,
+    "confidencePercentage": 93,
+    "flirtatiousnessWeight": 0.75,
+    "confidenceWeight": 0.25,
+    "source": "shipped_profile_library"
+  },
+  "derivativesReady": true,
+  "derivativeError": "",
+  "generatedUtc": "2026-07-17T19:03:52.1197685Z"
+}

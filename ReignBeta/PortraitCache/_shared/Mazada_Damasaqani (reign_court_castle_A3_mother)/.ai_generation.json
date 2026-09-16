@@ -1,0 +1,27 @@
+{
+  "version": 1,
+  "cacheKey": "Mazada_Damasaqani (reign_court_castle_A3_mother)",
+  "heroStringId": "reign_court_castle_A3_mother",
+  "characterObjectId": "reign_court_castle_A3_mother",
+  "characterName": "Mazada Damasaqani",
+  "provider": "AtlasCloud",
+  "model": "xai/grok-imagine-image/edit",
+  "adapter": "atlas upload/generate/poll",
+  "sourceSha256": "9e5407060445f6433ad236a270162ccd7ff42554030d5d0e435613af2c6a87f6",
+  "portraitSha256": "82966f2e989c8154f7409592b2a5ff6322f6228e4646f519349f72fe7f91ed70",
+  "portraitWidth": 864,
+  "portraitHeight": 1152,
+  "physicalConfidence": {
+    "definition": "physical_confidence",
+    "score": 65,
+    "profile": "61-80",
+    "flirtatiousnessPercentage": 77,
+    "confidencePercentage": 28,
+    "flirtatiousnessWeight": 0.75,
+    "confidenceWeight": 0.25,
+    "source": "shipped_profile_library"
+  },
+  "derivativesReady": true,
+  "derivativeError": "",
+  "generatedUtc": "2026-07-17T19:01:50.2946775Z"
+}

@@ -1,0 +1,27 @@
+{
+  "version": 1,
+  "cacheKey": "Gunjadrid (lord_7_13_1)",
+  "heroStringId": "lord_7_13_1",
+  "characterObjectId": "lord_7_13_1",
+  "characterName": "Gunjadrid",
+  "provider": "AtlasCloud",
+  "model": "xai/grok-imagine-image/edit",
+  "adapter": "atlas upload/generate/poll",
+  "sourceSha256": "948d7212b8420b70e98988a1b9f064dc4ec2f126bc46bd125f779597b9efe06c",
+  "portraitSha256": "7bcb91be038ab81ae59b384495b281d902b9acbadf0738b29d10dec93a39a49d",
+  "portraitWidth": 832,
+  "portraitHeight": 1248,
+  "physicalConfidence": {
+    "definition": "physical_confidence",
+    "score": 50,
+    "profile": "41-60",
+    "flirtatiousnessPercentage": 50,
+    "confidencePercentage": 50,
+    "flirtatiousnessWeight": 0.75,
+    "confidenceWeight": 0.25,
+    "source": "neutral_fallback"
+  },
+  "derivativesReady": true,
+  "derivativeError": "",
+  "generatedUtc": "2026-07-17T18:40:22.6946312Z"
+}

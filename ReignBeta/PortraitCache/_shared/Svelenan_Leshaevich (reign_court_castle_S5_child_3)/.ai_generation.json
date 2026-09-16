@@ -1,0 +1,27 @@
+{
+  "version": 1,
+  "cacheKey": "Svelenan_Leshaevich (reign_court_castle_S5_child_3)",
+  "heroStringId": "reign_court_castle_S5_child_3",
+  "characterObjectId": "reign_court_castle_S5_child_3",
+  "characterName": "Svelenan Leshaevich",
+  "provider": "AtlasCloud",
+  "model": "xai/grok-imagine-image/edit",
+  "adapter": "atlas upload/generate/poll",
+  "sourceSha256": "cec56cf208fb38a282e1eaa5bbf036f54a59497f4113ca49d117277f81a52ed0",
+  "portraitSha256": "9c4b94ddca85cd4d91ae87cea2d6ca4d13b9a9c1a29946032b8d23c1acd58c26",
+  "portraitWidth": 864,
+  "portraitHeight": 1152,
+  "physicalConfidence": {
+    "definition": "physical_confidence",
+    "score": 51,
+    "profile": "41-60",
+    "flirtatiousnessPercentage": 56,
+    "confidencePercentage": 35,
+    "flirtatiousnessWeight": 0.75,
+    "confidenceWeight": 0.25,
+    "source": "shipped_profile_library"
+  },
+  "derivativesReady": true,
+  "derivativeError": "",
+  "generatedUtc": "2026-07-17T19:15:11.7802752Z"
+}

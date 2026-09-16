@@ -1,0 +1,96 @@
+{
+  "version": 1,
+  "inputHash": "f983f2371ff5ab76f1a6412b83a209c825c7f485f0aa73b62b075a6508ecd0a5",
+  "catalogHash": "12142c0ab28d2678b12b852b086450dcc4eea45e2e8a080f3baa85c42f7fb3a2",
+  "renderContractHash": "cc3b941e7d47057de9b4220f1473336e6f908719812bb2653b83bd3545cfbd2f",
+  "cacheKey": "Alynneth (lord_5_11)",
+  "heroStringId": "lord_5_11",
+  "characterObjectId": "lord_5_11",
+  "characterName": "Alynneth",
+  "ageYears": 19,
+  "cultureId": "battania",
+  "cultureName": "Battanian",
+  "gender": "woman",
+  "clanId": "clan_battania_2",
+  "clanTier": 5,
+  "clanProvenance": "reign_profile_library",
+  "socialStation": "high noble",
+  "occupation": "Lord",
+  "archetype": "lord",
+  "isLord": true,
+  "isNotable": false,
+  "isWanderer": false,
+  "isAlive": true,
+  "sourceModule": "Native",
+  "sourceFile": "Modules/SandBox/ModuleData/lords.xml",
+  "profileSource": "native_sandbox",
+  "profilePackVersion": "reign_profiles_v4",
+  "bodyKey": "000558044070000A5786655953636782884A77758E779328A9718E51703467650487C6460874C3760000000000000000000000000000000000000000051C0044",
+  "bodyWeight": 0.7986,
+  "bodyBuild": 0.4567,
+  "faceTemplateId": "",
+  "faceGenerationVersion": "native_authored",
+  "civilianTemplate": "bat_noncom_template_default",
+  "civilianEquipment": [
+    {
+      "slot": "Body",
+      "itemId": "battania_dress_a"
+    },
+    {
+      "slot": "Cape",
+      "itemId": "scarf"
+    },
+    {
+      "slot": "Gloves",
+      "itemId": "leather_gloves"
+    },
+    {
+      "slot": "Leg",
+      "itemId": "battania_fur_boots"
+    }
+  ],
+  "headgearSuppressed": true,
+  "physicalConfidence": {
+    "definition": "physical_confidence",
+    "score": 44,
+    "profile": "41-60",
+    "flirtatiousnessPercentage": 42,
+    "confidencePercentage": 49,
+    "flirtatiousnessWeight": 0.75,
+    "confidenceWeight": 0.25,
+    "source": "shipped_profile_library"
+  },
+  "renderPreset": "ai_source_wan_portrait_v5",
+  "renderWidth": 1536,
+  "renderHeight": 2048,
+  "sourceWidth": 768,
+  "sourceHeight": 1024,
+  "cropScale": 0.24,
+  "cropWidthRatio": 0.75,
+  "cropCenterYRatio": 0.324,
+  "cameraPitchDegrees": 4,
+  "sourceSha256": "342f3265a9a3ab36a8d6ab4ceda7383f3aafd9abddb99b26232f238cc743b928",
+  "sourceFileName": "source.png",
+  "generationEndpoint": "/portraits/generate",
+  "campaignIdSource": "active_campaign_at_generation_time",
+  "promptDeferred": true,
+  "sourceImageBase64From": "source.png",
+  "outputSizeOverride": "",
+  "promptPurpose": "portrait",
+  "nativePhysique": {
+    "schema": "reign-native-physique-v1",
+    "weight": 0.7986,
+    "build": 0.4567,
+    "weightSource": "shared_portrait_input.bodyWeight",
+    "buildSource": "shared_portrait_input.bodyBuild",
+    "sourceSha256": "342f3265a9a3ab36a8d6ab4ceda7383f3aafd9abddb99b26232f238cc743b928",
+    "provenance": {
+      "kind": "saved_character_metadata_backfill",
+      "heroStringId": "lord_5_11",
+      "profileSource": "native_sandbox",
+      "profilePackVersion": "reign_profiles_v4",
+      "originalInputSha256": "05eac6f4a34df9392b6a4baa061c2e36f080f1a7b26c85aa220e7ef77ef63d3f",
+      "rendererReexecuted": false
+    }
+  }
+}

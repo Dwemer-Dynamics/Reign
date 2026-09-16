@@ -1,0 +1,27 @@
+{
+  "version": 1,
+  "cacheKey": "Renelic_Fauconacourt (reign_court_castle_V6_father)",
+  "heroStringId": "reign_court_castle_V6_father",
+  "characterObjectId": "reign_court_castle_V6_father",
+  "characterName": "Renelic Fauconacourt",
+  "provider": "AtlasCloud",
+  "model": "xai/grok-imagine-image/edit",
+  "adapter": "atlas upload/generate/poll",
+  "sourceSha256": "b8f1312947dea67ddb14a97347c0903a7578511d76c8d019f250c9a558cec765",
+  "portraitSha256": "fe4b990e77234b82fc284581b6d5c3c2b6c4445a36a2faab2b9f66f95bffc369",
+  "portraitWidth": 864,
+  "portraitHeight": 1152,
+  "physicalConfidence": {
+    "definition": "physical_confidence",
+    "score": 72,
+    "profile": "61-80",
+    "flirtatiousnessPercentage": 84,
+    "confidencePercentage": 35,
+    "flirtatiousnessWeight": 0.75,
+    "confidenceWeight": 0.25,
+    "source": "shipped_profile_library"
+  },
+  "derivativesReady": true,
+  "derivativeError": "",
+  "generatedUtc": "2026-07-17T19:11:01.2133802Z"
+}

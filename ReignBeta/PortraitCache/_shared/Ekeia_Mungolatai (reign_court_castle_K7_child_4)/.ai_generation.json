@@ -1,0 +1,27 @@
+{
+  "version": 1,
+  "cacheKey": "Ekeia_Mungolatai (reign_court_castle_K7_child_4)",
+  "heroStringId": "reign_court_castle_K7_child_4",
+  "characterObjectId": "reign_court_castle_K7_child_4",
+  "characterName": "Ekeia Mungolatai",
+  "provider": "AtlasCloud",
+  "model": "xai/grok-imagine-image/edit",
+  "adapter": "atlas upload/generate/poll",
+  "sourceSha256": "c8aed57ca0869293302cfd39a21ef43f21c0dbd7bd016728ce7bed3e303999f6",
+  "portraitSha256": "d34abe7fee8d962ffcadd55ee915a8fc8cbdb4d22f4093ef541f389ee9b70688",
+  "portraitWidth": 864,
+  "portraitHeight": 1152,
+  "physicalConfidence": {
+    "definition": "physical_confidence",
+    "score": 70,
+    "profile": "61-80",
+    "flirtatiousnessPercentage": 79,
+    "confidencePercentage": 42,
+    "flirtatiousnessWeight": 0.75,
+    "confidenceWeight": 0.25,
+    "source": "shipped_profile_library"
+  },
+  "derivativesReady": true,
+  "derivativeError": "",
+  "generatedUtc": "2026-07-17T18:32:02.3698509Z"
+}

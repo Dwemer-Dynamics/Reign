@@ -1,0 +1,27 @@
+{
+  "version": 1,
+  "cacheKey": "Iovonia_Corvenerides (reign_court_town_EN1_child_2)",
+  "heroStringId": "reign_court_town_EN1_child_2",
+  "characterObjectId": "reign_court_town_EN1_child_2",
+  "characterName": "Iovonia Corvenerides",
+  "provider": "AtlasCloud",
+  "model": "xai/grok-imagine-image/edit",
+  "adapter": "atlas upload/generate/poll",
+  "sourceSha256": "3b18c87eba5d70f5445932858aede61b90bcfc2496ee1c116e65a98d87e06477",
+  "portraitSha256": "cb5cd8e8465cb0cb5dc65d235b26f304350b265bc7c27de260485a8b1ae01a8f",
+  "portraitWidth": 864,
+  "portraitHeight": 1152,
+  "physicalConfidence": {
+    "definition": "physical_confidence",
+    "score": 45,
+    "profile": "41-60",
+    "flirtatiousnessPercentage": 41,
+    "confidencePercentage": 56,
+    "flirtatiousnessWeight": 0.75,
+    "confidenceWeight": 0.25,
+    "source": "shipped_profile_library"
+  },
+  "derivativesReady": true,
+  "derivativeError": "",
+  "generatedUtc": "2026-07-17T18:45:26.7722675Z"
+}

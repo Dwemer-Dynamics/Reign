@@ -23,10 +23,19 @@ jobs:
       - name: Check module and assembly version agreement
         run: |
           python3 - <<'PY'
+          import re
+          from datetime import datetime
+          from pathlib import Path
           import xml.etree.ElementTree as ET
+          version = Path('.version_number.txt').read_text().strip()
+          stamp = Path('.version.txt').read_text().strip()
+          assert re.fullmatch(r'\d+\.\d+\.\d+', version), 'Invalid semantic version'
+          assert re.fullmatch(r'\d{10}', stamp), 'Invalid release date'
+          datetime.strptime(stamp, '%Y%m%d%H')
           project = ET.parse('ReignBeta/ReignBeta.csproj')
           module = ET.parse('ReignBeta/SubModule.xml')
-          version = project.findtext('.//Version')
-          assert version and module.find('.//Version').get('value').lstrip('v') == version
-          assert project.findtext('.//AssemblyVersion') == version + '.0'
+          assert module.find('.//Version').get('value').lstrip('v') == version
+          assert '.version_number.txt' in project.findtext('.//Version', '')
+          for name in ('AssemblyVersion', 'FileVersion'):
+              assert project.findtext('.//' + name) == '$(Version).0'
           PY

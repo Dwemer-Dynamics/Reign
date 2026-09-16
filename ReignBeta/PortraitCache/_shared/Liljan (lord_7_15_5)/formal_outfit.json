@@ -1,0 +1,13 @@
+{
+  "version": 1,
+  "heroStringId": "lord_7_15_5",
+  "characterName": "Liljan",
+  "imagePath": "portrait.png",
+  "imageSha256": "974A14F027506479D8DA5C84811561056479B5A1A2059846EF1F7B924C7E7FC0",
+  "description": "Culturally appropriate everyday Nord minor-lord attire inspired by refined early medieval Scandinavian noble clothing. Men should wear a well-cut wool tunic over a fine linen underlayer, quality trousers, a decorated belt, and tasteful brooch fastenings. Women should wear a long fine-linen shift with an elegant apron dress or layered wool overdress, improved textile quality, decorative woven trim, and modest metal fittings. The clothing should look practical, prestigious, and exceptionally well made without becoming ceremonial. No headgear of any kind. No helmets, caps, hoods, armor, weapons, crowns, horned helmets, or fantasy costume elements.",
+  "status": "failed",
+  "descriptionSource": "portrait_prompt_fallback",
+  "retryEligible": true,
+  "error": "{\"error\":{\"message\":\"Model \\\"zai-org/glm-5.2\\\" does not support image inputs. Remove image content or choose a multimodal model.\",\"type\":\"invalid_request_error\",\"param\":\"messages\",\"code\":\"image_input_not_supported\"}}",
+  "updatedUtc": "2026-07-18T22:03:31.8546649Z"
+}

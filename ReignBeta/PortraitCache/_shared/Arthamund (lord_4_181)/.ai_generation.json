@@ -1,0 +1,27 @@
+{
+  "version": 1,
+  "cacheKey": "Arthamund (lord_4_181)",
+  "heroStringId": "lord_4_181",
+  "characterObjectId": "lord_4_181",
+  "characterName": "Arthamund",
+  "provider": "AtlasCloud",
+  "model": "xai/grok-imagine-image/edit",
+  "adapter": "atlas upload/generate/poll",
+  "sourceSha256": "f3c5a86d687de7ffcbc5f026ee3065301cda45c0c6a43d8a170fb80c141c46c9",
+  "portraitSha256": "d2b33c88582f371b609262d07304198758a172161271775efab41a1250763def",
+  "portraitWidth": 832,
+  "portraitHeight": 1248,
+  "physicalConfidence": {
+    "definition": "physical_confidence",
+    "score": 56,
+    "profile": "41-60",
+    "flirtatiousnessPercentage": 49,
+    "confidencePercentage": 76,
+    "flirtatiousnessWeight": 0.75,
+    "confidenceWeight": 0.25,
+    "source": "shipped_profile_library"
+  },
+  "derivativesReady": true,
+  "derivativeError": "",
+  "generatedUtc": "2026-07-17T18:13:53.4073425Z"
+}

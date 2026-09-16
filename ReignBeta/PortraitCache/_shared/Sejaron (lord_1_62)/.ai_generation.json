@@ -1,0 +1,27 @@
+{
+  "version": 1,
+  "cacheKey": "Sejaron (lord_1_62)",
+  "heroStringId": "lord_1_62",
+  "characterObjectId": "lord_1_62",
+  "characterName": "Sejaron",
+  "provider": "AtlasCloud",
+  "model": "xai/grok-imagine-image/edit",
+  "adapter": "atlas upload/generate/poll",
+  "sourceSha256": "4bf03f54151c4964234d5378fd1bf7889035520dee9784e67670ead7bbf1a098",
+  "portraitSha256": "32acd574fc409700de277406f2f965b60e360f8872cbefd8ccec6fcf6ad6312b",
+  "portraitWidth": 832,
+  "portraitHeight": 1248,
+  "physicalConfidence": {
+    "definition": "physical_confidence",
+    "score": 84,
+    "profile": "81-100",
+    "flirtatiousnessPercentage": 80,
+    "confidencePercentage": 95,
+    "flirtatiousnessWeight": 0.75,
+    "confidenceWeight": 0.25,
+    "source": "shipped_profile_library"
+  },
+  "derivativesReady": true,
+  "derivativeError": "",
+  "generatedUtc": "2026-07-17T19:13:14.8290660Z"
+}

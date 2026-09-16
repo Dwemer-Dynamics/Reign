@@ -1,0 +1,27 @@
+{
+  "version": 1,
+  "cacheKey": "Mjalrik (lord_7_1_1)",
+  "heroStringId": "lord_7_1_1",
+  "characterObjectId": "lord_7_1_1",
+  "characterName": "Mjalrik",
+  "provider": "AtlasCloud",
+  "model": "xai/grok-imagine-image/edit",
+  "adapter": "atlas upload/generate/poll",
+  "sourceSha256": "cdf40be7f9462e304f0d072749cf129208589906ace52e426e5d526a9540998c",
+  "portraitSha256": "282b11cca041d72b14e70a38326d792619ce407d3c1f9285dc9b84c4bf12854b",
+  "portraitWidth": 832,
+  "portraitHeight": 1248,
+  "physicalConfidence": {
+    "definition": "physical_confidence",
+    "score": 50,
+    "profile": "41-60",
+    "flirtatiousnessPercentage": 50,
+    "confidencePercentage": 50,
+    "flirtatiousnessWeight": 0.75,
+    "confidenceWeight": 0.25,
+    "source": "neutral_fallback"
+  },
+  "derivativesReady": true,
+  "derivativeError": "",
+  "generatedUtc": "2026-07-17T19:04:30.1431196Z"
+}

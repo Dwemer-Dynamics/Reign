@@ -1,0 +1,27 @@
+{
+  "version": 1,
+  "cacheKey": "Drenenion_Elararides (reign_court_castle_EN4_child_1)",
+  "heroStringId": "reign_court_castle_EN4_child_1",
+  "characterObjectId": "reign_court_castle_EN4_child_1",
+  "characterName": "Drenenion Elararides",
+  "provider": "AtlasCloud",
+  "model": "xai/grok-imagine-image/edit",
+  "adapter": "atlas upload/generate/poll",
+  "sourceSha256": "6915beb6470c39edc6ca3abfead51754ee5cc77661b8b745c8df4140243e0d08",
+  "portraitSha256": "609a5f26cbaddfed8e48270d7f7aa6aeb1b768a76c4545940da0867f82988b93",
+  "portraitWidth": 864,
+  "portraitHeight": 1152,
+  "physicalConfidence": {
+    "definition": "physical_confidence",
+    "score": 21,
+    "profile": "21-40",
+    "flirtatiousnessPercentage": 13,
+    "confidencePercentage": 46,
+    "flirtatiousnessWeight": 0.75,
+    "confidenceWeight": 0.25,
+    "source": "shipped_profile_library"
+  },
+  "derivativesReady": true,
+  "derivativeError": "",
+  "generatedUtc": "2026-07-17T18:29:38.3345903Z"
+}

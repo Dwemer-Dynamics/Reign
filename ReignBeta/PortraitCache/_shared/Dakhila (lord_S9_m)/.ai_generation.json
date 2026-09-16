@@ -1,0 +1,27 @@
+{
+  "version": 1,
+  "cacheKey": "Dakhila (lord_S9_m)",
+  "heroStringId": "lord_S9_m",
+  "characterObjectId": "lord_S9_m",
+  "characterName": "Dakhila",
+  "provider": "AtlasCloud",
+  "model": "xai/grok-imagine-image/edit",
+  "adapter": "atlas upload/generate/poll",
+  "sourceSha256": "cd818ab7256ceff474d9a4b2e6d61e6b0c72c21cc0da9bf48d63caba20811dd9",
+  "portraitSha256": "8d4006d14e828757c88e76d77341f07780f4532779d2bd58a2f0576b8c6438de",
+  "portraitWidth": 832,
+  "portraitHeight": 1248,
+  "physicalConfidence": {
+    "definition": "physical_confidence",
+    "score": 64,
+    "profile": "61-80",
+    "flirtatiousnessPercentage": 52,
+    "confidencePercentage": 99,
+    "flirtatiousnessWeight": 0.75,
+    "confidenceWeight": 0.25,
+    "source": "shipped_profile_library"
+  },
+  "derivativesReady": true,
+  "derivativeError": "",
+  "generatedUtc": "2026-07-17T18:25:34.5549898Z"
+}

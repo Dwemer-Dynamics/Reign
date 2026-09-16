@@ -1,0 +1,92 @@
+{
+  "version": 1,
+  "inputHash": "e2add4aa72af963b71426ab0ae492ac66dbf661be95ab5f2b92a5e65d5d97a00",
+  "catalogHash": "12142c0ab28d2678b12b852b086450dcc4eea45e2e8a080f3baa85c42f7fb3a2",
+  "renderContractHash": "cc3b941e7d47057de9b4220f1473336e6f908719812bb2653b83bd3545cfbd2f",
+  "cacheKey": "Othonara_Damarorides (reign_court_town_EW4_child_2)",
+  "heroStringId": "reign_court_town_EW4_child_2",
+  "characterObjectId": "reign_court_town_EW4_child_2",
+  "characterName": "Othonara Damarorides",
+  "ageYears": 23,
+  "cultureId": "empire",
+  "cultureName": "Imperial",
+  "gender": "woman",
+  "clanId": "clan_empire_west_2",
+  "clanTier": 5,
+  "clanProvenance": "reign_profile_library",
+  "socialStation": "high noble",
+  "occupation": "Lord",
+  "archetype": "lord",
+  "isLord": true,
+  "isNotable": false,
+  "isWanderer": false,
+  "isAlive": true,
+  "sourceModule": "ReignBeta",
+  "sourceFile": "Modules/ReignBeta/ModuleData/reign_court_lords.xml",
+  "profileSource": "reign_court",
+  "profilePackVersion": "reign_profiles_v4",
+  "bodyKey": "",
+  "bodyWeight": 0.5,
+  "bodyBuild": 0.5,
+  "faceTemplateId": "townswoman_empire",
+  "faceGenerationVersion": "reign_court_shared_v1",
+  "civilianTemplate": "emp_noncom_template_flamboyant",
+  "civilianEquipment": [
+    {
+      "slot": "Body",
+      "itemId": "empire_dress_b"
+    },
+    {
+      "slot": "Cape",
+      "itemId": "scarf"
+    },
+    {
+      "slot": "Leg",
+      "itemId": "ladys_shoe"
+    }
+  ],
+  "headgearSuppressed": true,
+  "physicalConfidence": {
+    "definition": "physical_confidence",
+    "score": 85,
+    "profile": "81-100",
+    "flirtatiousnessPercentage": 95,
+    "confidencePercentage": 54,
+    "flirtatiousnessWeight": 0.75,
+    "confidenceWeight": 0.25,
+    "source": "shipped_profile_library"
+  },
+  "renderPreset": "ai_source_wan_portrait_v5",
+  "renderWidth": 1536,
+  "renderHeight": 2048,
+  "sourceWidth": 768,
+  "sourceHeight": 1024,
+  "cropScale": 0.24,
+  "cropWidthRatio": 0.75,
+  "cropCenterYRatio": 0.324,
+  "cameraPitchDegrees": 4,
+  "sourceSha256": "6b2bc4e0bdfb00dc57b93f41b1aaf0a01d0738476881541ba138e23be7114291",
+  "sourceFileName": "source.png",
+  "generationEndpoint": "/portraits/generate",
+  "campaignIdSource": "active_campaign_at_generation_time",
+  "promptDeferred": true,
+  "sourceImageBase64From": "source.png",
+  "outputSizeOverride": "",
+  "promptPurpose": "portrait",
+  "nativePhysique": {
+    "schema": "reign-native-physique-v1",
+    "weight": 0.5,
+    "build": 0.5,
+    "weightSource": "shared_portrait_input.bodyWeight",
+    "buildSource": "shared_portrait_input.bodyBuild",
+    "sourceSha256": "6b2bc4e0bdfb00dc57b93f41b1aaf0a01d0738476881541ba138e23be7114291",
+    "provenance": {
+      "kind": "saved_character_metadata_backfill",
+      "heroStringId": "reign_court_town_EW4_child_2",
+      "profileSource": "reign_court",
+      "profilePackVersion": "reign_profiles_v4",
+      "originalInputSha256": "abe6a1157d88828d2baa9c44637c1c271d783193ba5ece65c9bf925708842f28",
+      "rendererReexecuted": false
+    }
+  }
+}

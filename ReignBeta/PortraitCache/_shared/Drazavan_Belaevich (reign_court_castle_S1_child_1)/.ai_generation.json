@@ -1,0 +1,27 @@
+{
+  "version": 1,
+  "cacheKey": "Drazavan_Belaevich (reign_court_castle_S1_child_1)",
+  "heroStringId": "reign_court_castle_S1_child_1",
+  "characterObjectId": "reign_court_castle_S1_child_1",
+  "characterName": "Drazavan Belaevich",
+  "provider": "AtlasCloud",
+  "model": "xai/grok-imagine-image/edit",
+  "adapter": "atlas upload/generate/poll",
+  "sourceSha256": "52786d7637c3483ff88202ddda046791ca85fe546c81d07f6ec0e755cdba950e",
+  "portraitSha256": "4e64b82910613db7a86d81d5048e5398978635ea2e1a95b7e61266c3ab4be8a2",
+  "portraitWidth": 864,
+  "portraitHeight": 1152,
+  "physicalConfidence": {
+    "definition": "physical_confidence",
+    "score": 55,
+    "profile": "41-60",
+    "flirtatiousnessPercentage": 66,
+    "confidencePercentage": 21,
+    "flirtatiousnessWeight": 0.75,
+    "confidenceWeight": 0.25,
+    "source": "shipped_profile_library"
+  },
+  "derivativesReady": true,
+  "derivativeError": "",
+  "generatedUtc": "2026-07-17T18:28:17.2626781Z"
+}

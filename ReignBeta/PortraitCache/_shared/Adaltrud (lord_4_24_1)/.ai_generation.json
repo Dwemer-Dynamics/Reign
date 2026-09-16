@@ -1,0 +1,27 @@
+{
+  "version": 1,
+  "cacheKey": "Adaltrud (lord_4_24_1)",
+  "heroStringId": "lord_4_24_1",
+  "characterObjectId": "lord_4_24_1",
+  "characterName": "Adaltrud",
+  "provider": "AtlasCloud",
+  "model": "xai/grok-imagine-image/edit",
+  "adapter": "atlas upload/generate/poll",
+  "sourceSha256": "4b361838d418eb0c30aad147c8e0eeb5eb27d4d19de99b0215a001003716bad4",
+  "portraitSha256": "e3af8c82b1421569bfa39fbf49c078e288c295080967111a79f256f9e93192d1",
+  "portraitWidth": 912,
+  "portraitHeight": 1136,
+  "physicalConfidence": {
+    "definition": "physical_confidence",
+    "score": 71,
+    "profile": "61-80",
+    "flirtatiousnessPercentage": 79,
+    "confidencePercentage": 46,
+    "flirtatiousnessWeight": 0.75,
+    "confidenceWeight": 0.25,
+    "source": "shipped_profile_library"
+  },
+  "derivativesReady": true,
+  "derivativeError": "",
+  "generatedUtc": "2026-07-17T17:41:19.7670373Z"
+}

@@ -1,0 +1,27 @@
+{
+  "version": 1,
+  "cacheKey": "Miroyka_Lesheevich (reign_court_town_S5_mother)",
+  "heroStringId": "reign_court_town_S5_mother",
+  "characterObjectId": "reign_court_town_S5_mother",
+  "characterName": "Miroyka Lesheevich",
+  "provider": "AtlasCloud",
+  "model": "xai/grok-imagine-image/edit",
+  "adapter": "atlas upload/generate/poll",
+  "sourceSha256": "1c6cd1f16d133d2d9934f4bae2c182beeef1bee18e4989657fc617b5bbd15a45",
+  "portraitSha256": "7e73c56352ad55e341fd3d6b49f43941f0ac253236b52c1eab86ac0842a5764f",
+  "portraitWidth": 864,
+  "portraitHeight": 1152,
+  "physicalConfidence": {
+    "definition": "physical_confidence",
+    "score": 49,
+    "profile": "41-60",
+    "flirtatiousnessPercentage": 41,
+    "confidencePercentage": 72,
+    "flirtatiousnessWeight": 0.75,
+    "confidenceWeight": 0.25,
+    "source": "shipped_profile_library"
+  },
+  "derivativesReady": true,
+  "derivativeError": "",
+  "generatedUtc": "2026-07-17T19:04:12.3291577Z"
+}

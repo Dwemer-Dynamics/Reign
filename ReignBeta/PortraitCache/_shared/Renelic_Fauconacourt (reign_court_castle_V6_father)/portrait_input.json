@@ -1,0 +1,96 @@
+{
+  "version": 1,
+  "inputHash": "569e9b38499ba5596c2222cfd83a8963c552699274fa8ea3767409c4b06a2fa0",
+  "catalogHash": "12142c0ab28d2678b12b852b086450dcc4eea45e2e8a080f3baa85c42f7fb3a2",
+  "renderContractHash": "cc3b941e7d47057de9b4220f1473336e6f908719812bb2653b83bd3545cfbd2f",
+  "cacheKey": "Renelic_Fauconacourt (reign_court_castle_V6_father)",
+  "heroStringId": "reign_court_castle_V6_father",
+  "characterObjectId": "reign_court_castle_V6_father",
+  "characterName": "Renelic Fauconacourt",
+  "ageYears": 44,
+  "cultureId": "vlandia",
+  "cultureName": "Vlandian",
+  "gender": "man",
+  "clanId": "clan_vlandia_6",
+  "clanTier": 2,
+  "clanProvenance": "reign_profile_library",
+  "socialStation": "landowner",
+  "occupation": "Lord",
+  "archetype": "lord",
+  "isLord": true,
+  "isNotable": false,
+  "isWanderer": false,
+  "isAlive": true,
+  "sourceModule": "ReignBeta",
+  "sourceFile": "Modules/ReignBeta/ModuleData/reign_court_lords.xml",
+  "profileSource": "reign_court",
+  "profilePackVersion": "reign_profiles_v4",
+  "bodyKey": "",
+  "bodyWeight": 0.5,
+  "bodyBuild": 0.5,
+  "faceTemplateId": "townsman_vlandia",
+  "faceGenerationVersion": "reign_court_shared_v1",
+  "civilianTemplate": "vla_civ_template_default",
+  "civilianEquipment": [
+    {
+      "slot": "Body",
+      "itemId": "layered_leather_tunic"
+    },
+    {
+      "slot": "Cape",
+      "itemId": "scarf"
+    },
+    {
+      "slot": "Gloves",
+      "itemId": "leather_gloves"
+    },
+    {
+      "slot": "Leg",
+      "itemId": "leather_cavalier_boots"
+    }
+  ],
+  "headgearSuppressed": true,
+  "physicalConfidence": {
+    "definition": "physical_confidence",
+    "score": 72,
+    "profile": "61-80",
+    "flirtatiousnessPercentage": 84,
+    "confidencePercentage": 35,
+    "flirtatiousnessWeight": 0.75,
+    "confidenceWeight": 0.25,
+    "source": "shipped_profile_library"
+  },
+  "renderPreset": "ai_source_wan_portrait_v5",
+  "renderWidth": 1536,
+  "renderHeight": 2048,
+  "sourceWidth": 768,
+  "sourceHeight": 1024,
+  "cropScale": 0.24,
+  "cropWidthRatio": 0.75,
+  "cropCenterYRatio": 0.324,
+  "cameraPitchDegrees": 4,
+  "sourceSha256": "b8f1312947dea67ddb14a97347c0903a7578511d76c8d019f250c9a558cec765",
+  "sourceFileName": "source.png",
+  "generationEndpoint": "/portraits/generate",
+  "campaignIdSource": "active_campaign_at_generation_time",
+  "promptDeferred": true,
+  "sourceImageBase64From": "source.png",
+  "outputSizeOverride": "",
+  "promptPurpose": "portrait",
+  "nativePhysique": {
+    "schema": "reign-native-physique-v1",
+    "weight": 0.5,
+    "build": 0.5,
+    "weightSource": "shared_portrait_input.bodyWeight",
+    "buildSource": "shared_portrait_input.bodyBuild",
+    "sourceSha256": "b8f1312947dea67ddb14a97347c0903a7578511d76c8d019f250c9a558cec765",
+    "provenance": {
+      "kind": "saved_character_metadata_backfill",
+      "heroStringId": "reign_court_castle_V6_father",
+      "profileSource": "reign_court",
+      "profilePackVersion": "reign_profiles_v4",
+      "originalInputSha256": "2aad3054ebe6fc80d07fa3e02b365a425f49bbb145bb0e6a8e8d174cbe940287",
+      "rendererReexecuted": false
+    }
+  }
+}

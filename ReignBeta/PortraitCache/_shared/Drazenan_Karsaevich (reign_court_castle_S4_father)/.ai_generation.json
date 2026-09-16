@@ -1,0 +1,27 @@
+{
+  "version": 1,
+  "cacheKey": "Drazenan_Karsaevich (reign_court_castle_S4_father)",
+  "heroStringId": "reign_court_castle_S4_father",
+  "characterObjectId": "reign_court_castle_S4_father",
+  "characterName": "Drazenan Karsaevich",
+  "provider": "AtlasCloud",
+  "model": "xai/grok-imagine-image/edit",
+  "adapter": "atlas upload/generate/poll",
+  "sourceSha256": "eab79c2a6f602c20bbfaed5563cbd0f0889f856c64c06acc5951dbe0d9417927",
+  "portraitSha256": "5c52051d7987ae72b996eb214733190f54bd5d5122f7345e60335f3ef4b40c21",
+  "portraitWidth": 864,
+  "portraitHeight": 1152,
+  "physicalConfidence": {
+    "definition": "physical_confidence",
+    "score": 46,
+    "profile": "41-60",
+    "flirtatiousnessPercentage": 37,
+    "confidencePercentage": 72,
+    "flirtatiousnessWeight": 0.75,
+    "confidenceWeight": 0.25,
+    "source": "shipped_profile_library"
+  },
+  "derivativesReady": true,
+  "derivativeError": "",
+  "generatedUtc": "2026-07-17T18:28:38.9252984Z"
+}

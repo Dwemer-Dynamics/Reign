@@ -1,0 +1,27 @@
+{
+  "version": 1,
+  "cacheKey": "Zorina (lord_2_24_1)",
+  "heroStringId": "lord_2_24_1",
+  "characterObjectId": "lord_2_24_1",
+  "characterName": "Zorina",
+  "provider": "AtlasCloud",
+  "model": "xai/grok-imagine-image/edit",
+  "adapter": "atlas upload/generate/poll",
+  "sourceSha256": "b8be7b2a24e1a37eb79067952b8b1f57cc5420ede1d442043300aaa60168072b",
+  "portraitSha256": "cf17cdfdb8f955fe4d11a6fc3e2f4902571ff46c00028c634b9340663d246296",
+  "portraitWidth": 832,
+  "portraitHeight": 1248,
+  "physicalConfidence": {
+    "definition": "physical_confidence",
+    "score": 85,
+    "profile": "81-100",
+    "flirtatiousnessPercentage": 93,
+    "confidencePercentage": 60,
+    "flirtatiousnessWeight": 0.75,
+    "confidenceWeight": 0.25,
+    "source": "shipped_profile_library"
+  },
+  "derivativesReady": true,
+  "derivativeError": "",
+  "generatedUtc": "2026-07-17T19:23:35.3735110Z"
+}

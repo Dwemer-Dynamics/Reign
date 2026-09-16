@@ -1,0 +1,27 @@
+{
+  "version": 1,
+  "cacheKey": "Berysic_Fauconecourt (reign_court_town_V7_child_3)",
+  "heroStringId": "reign_court_town_V7_child_3",
+  "characterObjectId": "reign_court_town_V7_child_3",
+  "characterName": "Berysic Fauconecourt",
+  "provider": "AtlasCloud",
+  "model": "xai/grok-imagine-image/edit",
+  "adapter": "atlas upload/generate/poll",
+  "sourceSha256": "c7a1adfba7db8632b8a8a34a9705ef7ddb201da96e8c122ff57c27248a143b71",
+  "portraitSha256": "d23585c06fc2d10512f4b77cde8a8cc577da2b438b8eb82c7d035d59a787eabd",
+  "portraitWidth": 864,
+  "portraitHeight": 1152,
+  "physicalConfidence": {
+    "definition": "physical_confidence",
+    "score": 68,
+    "profile": "61-80",
+    "flirtatiousnessPercentage": 63,
+    "confidencePercentage": 82,
+    "flirtatiousnessWeight": 0.75,
+    "confidenceWeight": 0.25,
+    "source": "shipped_profile_library"
+  },
+  "derivativesReady": true,
+  "derivativeError": "",
+  "generatedUtc": "2026-07-17T18:17:11.4760838Z"
+}

@@ -1,0 +1,27 @@
+{
+  "version": 1,
+  "cacheKey": "Azadid_Alzaruqani (reign_court_town_A8_father)",
+  "heroStringId": "reign_court_town_A8_father",
+  "characterObjectId": "reign_court_town_A8_father",
+  "characterName": "Azadid Alzaruqani",
+  "provider": "AtlasCloud",
+  "model": "xai/grok-imagine-image/edit",
+  "adapter": "atlas upload/generate/poll",
+  "sourceSha256": "ed0ee39fb9a5f1b797558a2b9a5698ce315f8c3167fa0c680d0d5df56182f871",
+  "portraitSha256": "fa16b5d02ba38de3d1008664752cbd2812d81e6b1f34e537af52e3c9dd1c294a",
+  "portraitWidth": 864,
+  "portraitHeight": 1152,
+  "physicalConfidence": {
+    "definition": "physical_confidence",
+    "score": 53,
+    "profile": "41-60",
+    "flirtatiousnessPercentage": 51,
+    "confidencePercentage": 58,
+    "flirtatiousnessWeight": 0.75,
+    "confidenceWeight": 0.25,
+    "source": "shipped_profile_library"
+  },
+  "derivativesReady": true,
+  "derivativeError": "",
+  "generatedUtc": "2026-07-17T18:14:43.8542827Z"
+}

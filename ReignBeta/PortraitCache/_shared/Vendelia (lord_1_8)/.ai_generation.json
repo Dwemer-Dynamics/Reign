@@ -1,0 +1,27 @@
+{
+  "version": 1,
+  "cacheKey": "Vendelia (lord_1_8)",
+  "heroStringId": "lord_1_8",
+  "characterObjectId": "lord_1_8",
+  "characterName": "Vendelia",
+  "provider": "AtlasCloud",
+  "model": "xai/grok-imagine-image/edit",
+  "adapter": "atlas upload/generate/poll",
+  "sourceSha256": "8c2f9c5280ef7e28574b63dedd4357ef0ff5ce1476925463d8aa228853e099d8",
+  "portraitSha256": "a2cbd93bf3218df08c130e9c9c8a7ce241f5609ac31ed0bb65ec6d6b5bb9c76a",
+  "portraitWidth": 832,
+  "portraitHeight": 1248,
+  "physicalConfidence": {
+    "definition": "physical_confidence",
+    "score": 43,
+    "profile": "41-60",
+    "flirtatiousnessPercentage": 42,
+    "confidencePercentage": 45,
+    "flirtatiousnessWeight": 0.75,
+    "confidenceWeight": 0.25,
+    "source": "shipped_profile_library"
+  },
+  "derivativesReady": true,
+  "derivativeError": "",
+  "generatedUtc": "2026-07-17T19:20:54.3366287Z"
+}

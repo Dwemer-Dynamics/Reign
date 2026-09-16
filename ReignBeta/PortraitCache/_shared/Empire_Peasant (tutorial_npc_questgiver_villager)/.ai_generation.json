@@ -1,0 +1,27 @@
+{
+  "version": 1,
+  "cacheKey": "Empire_Peasant (tutorial_npc_questgiver_villager)",
+  "heroStringId": "tutorial_npc_questgiver_villager",
+  "characterObjectId": "tutorial_npc_questgiver_villager",
+  "characterName": "Empire Peasant",
+  "provider": "AtlasCloud",
+  "model": "xai/grok-imagine-image/edit",
+  "adapter": "atlas upload/generate/poll",
+  "sourceSha256": "c7814ca5b805f1198a03d83d3f275f4e0b611d019151bbc3444c222029905eab",
+  "portraitSha256": "ea83316617ad849a2bed8a9e9d217163eac8318c2bcdbb1fcc3ac975da3147f1",
+  "portraitWidth": 864,
+  "portraitHeight": 1152,
+  "physicalConfidence": {
+    "definition": "physical_confidence",
+    "score": 50,
+    "profile": "41-60",
+    "flirtatiousnessPercentage": 50,
+    "confidencePercentage": 50,
+    "flirtatiousnessWeight": 0.75,
+    "confidenceWeight": 0.25,
+    "source": "neutral_fallback"
+  },
+  "derivativesReady": true,
+  "derivativeError": "",
+  "generatedUtc": "2026-07-17T18:32:40.1345985Z"
+}

@@ -1,0 +1,27 @@
+{
+  "version": 1,
+  "cacheKey": "Ekeaigan_Mungoletai (reign_court_town_K6_child_3)",
+  "heroStringId": "reign_court_town_K6_child_3",
+  "characterObjectId": "reign_court_town_K6_child_3",
+  "characterName": "Ekeaigan Mungoletai",
+  "provider": "AtlasCloud",
+  "model": "xai/grok-imagine-image/edit",
+  "adapter": "atlas upload/generate/poll",
+  "sourceSha256": "6627002c2d633fba7229a22af539ab2f1dbde115b77636af6e0e77f298a57d65",
+  "portraitSha256": "8bc903b14bda2566e0b552426fc4c192a8af6d9c4be11a6f01773bf2e4e0110f",
+  "portraitWidth": 864,
+  "portraitHeight": 1152,
+  "physicalConfidence": {
+    "definition": "physical_confidence",
+    "score": 44,
+    "profile": "41-60",
+    "flirtatiousnessPercentage": 29,
+    "confidencePercentage": 88,
+    "flirtatiousnessWeight": 0.75,
+    "confidenceWeight": 0.25,
+    "source": "shipped_profile_library"
+  },
+  "derivativesReady": true,
+  "derivativeError": "",
+  "generatedUtc": "2026-07-17T18:31:47.9052993Z"
+}

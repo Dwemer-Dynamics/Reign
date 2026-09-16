@@ -1,0 +1,27 @@
+{
+  "version": 1,
+  "cacheKey": "Aevonia_Aurelerides (reign_court_castle_EN9_mother)",
+  "heroStringId": "reign_court_castle_EN9_mother",
+  "characterObjectId": "reign_court_castle_EN9_mother",
+  "characterName": "Aevonia Aurelerides",
+  "provider": "AtlasCloud",
+  "model": "xai/grok-imagine-image/edit",
+  "adapter": "atlas upload/generate/poll",
+  "sourceSha256": "31a639f6dd8cd850373982a10f97d2ee27d14b7f133b68577b88fcfedcd21072",
+  "portraitSha256": "3f37039d0e07a2b077fc62f6b6839fbb28019198d4b38c06dcae482acc3845d6",
+  "portraitWidth": 864,
+  "portraitHeight": 1152,
+  "physicalConfidence": {
+    "definition": "physical_confidence",
+    "score": 89,
+    "profile": "81-100",
+    "flirtatiousnessPercentage": 99,
+    "confidencePercentage": 58,
+    "flirtatiousnessWeight": 0.75,
+    "confidenceWeight": 0.25,
+    "source": "shipped_profile_library"
+  },
+  "derivativesReady": true,
+  "derivativeError": "",
+  "generatedUtc": "2026-07-17T18:09:46.5615187Z"
+}

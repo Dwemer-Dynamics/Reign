@@ -1,0 +1,27 @@
+{
+  "version": 1,
+  "cacheKey": "Caeriran_Glenadawn (reign_court_castle_B6_child_3)",
+  "heroStringId": "reign_court_castle_B6_child_3",
+  "characterObjectId": "reign_court_castle_B6_child_3",
+  "characterName": "Caeriran Glenadawn",
+  "provider": "AtlasCloud",
+  "model": "xai/grok-imagine-image/edit",
+  "adapter": "atlas upload/generate/poll",
+  "sourceSha256": "4b2a90ed7012d9aaa1d37c083f0ed4add788a5d9d2d3cfed0b4ac862cba7fcfe",
+  "portraitSha256": "bd91001111045b3b1d44ee5a81c28a4c043cc196cc3abcf281dda17433047d2e",
+  "portraitWidth": 864,
+  "portraitHeight": 1152,
+  "physicalConfidence": {
+    "definition": "physical_confidence",
+    "score": 37,
+    "profile": "21-40",
+    "flirtatiousnessPercentage": 32,
+    "confidencePercentage": 51,
+    "flirtatiousnessWeight": 0.75,
+    "confidenceWeight": 0.25,
+    "source": "shipped_profile_library"
+  },
+  "derivativesReady": true,
+  "derivativeError": "",
+  "generatedUtc": "2026-07-17T18:19:49.4262206Z"
+}

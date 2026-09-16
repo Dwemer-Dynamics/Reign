@@ -1,0 +1,27 @@
+{
+  "version": 1,
+  "cacheKey": "Bold_Contender (bold_contender_hard)",
+  "heroStringId": "bold_contender_hard",
+  "characterObjectId": "bold_contender_hard",
+  "characterName": "Bold Contender",
+  "provider": "AtlasCloud",
+  "model": "xai/grok-imagine-image/edit",
+  "adapter": "atlas upload/generate/poll",
+  "sourceSha256": "fe60b49536da6216d5021338e58947c22dd989cdbcb427ac6b0eb7ea15319896",
+  "portraitSha256": "ad53c97c2692b042ad0b416ed75b29fe8c14b3ce8ae1119532a677d578b9d0d7",
+  "portraitWidth": 864,
+  "portraitHeight": 1152,
+  "physicalConfidence": {
+    "definition": "physical_confidence",
+    "score": 50,
+    "profile": "41-60",
+    "flirtatiousnessPercentage": 50,
+    "confidencePercentage": 50,
+    "flirtatiousnessWeight": 0.75,
+    "confidenceWeight": 0.25,
+    "source": "neutral_fallback"
+  },
+  "derivativesReady": true,
+  "derivativeError": "",
+  "generatedUtc": "2026-07-17T18:17:31.4206489Z"
+}

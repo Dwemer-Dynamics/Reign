@@ -1,0 +1,27 @@
+{
+  "version": 1,
+  "cacheKey": "Lucon (lord_1_1)",
+  "heroStringId": "lord_1_1",
+  "characterObjectId": "lord_1_1",
+  "characterName": "Lucon",
+  "provider": "AtlasCloud",
+  "model": "xai/grok-imagine-image/edit",
+  "adapter": "atlas upload/generate/poll",
+  "sourceSha256": "f466cc60d73080c36f9d21ef9ec28aa61f7392acdd9ae75debb5a1181cefabeb",
+  "portraitSha256": "29b70ed1c836031cc21c2e169a548d2c29e0587bd211ec0732dbaebe80f637ac",
+  "portraitWidth": 832,
+  "portraitHeight": 1248,
+  "physicalConfidence": {
+    "definition": "physical_confidence",
+    "score": 63,
+    "profile": "61-80",
+    "flirtatiousnessPercentage": 65,
+    "confidencePercentage": 56,
+    "flirtatiousnessWeight": 0.75,
+    "confidenceWeight": 0.25,
+    "source": "shipped_profile_library"
+  },
+  "derivativesReady": true,
+  "derivativeError": "",
+  "generatedUtc": "2026-07-17T18:59:41.1350311Z"
+}

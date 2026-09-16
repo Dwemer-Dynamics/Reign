@@ -1,0 +1,27 @@
+{
+  "version": 1,
+  "cacheKey": "Hecard (lord_4_24)",
+  "heroStringId": "lord_4_24",
+  "characterObjectId": "lord_4_24",
+  "characterName": "Hecard",
+  "provider": "AtlasCloud",
+  "model": "xai/grok-imagine-image/edit",
+  "adapter": "atlas upload/generate/poll",
+  "sourceSha256": "a37b0e66d9a7f7746e6891f247dffd8fb65e81ad4392dfc29a72618c57101125",
+  "portraitSha256": "1bc2b925e5cc08d3e6e09ae41e76b1d9935c878e64541451a32ca816fbbdd8e3",
+  "portraitWidth": 832,
+  "portraitHeight": 1248,
+  "physicalConfidence": {
+    "definition": "physical_confidence",
+    "score": 74,
+    "profile": "61-80",
+    "flirtatiousnessPercentage": 67,
+    "confidencePercentage": 94,
+    "flirtatiousnessWeight": 0.75,
+    "confidenceWeight": 0.25,
+    "source": "shipped_profile_library"
+  },
+  "derivativesReady": true,
+  "derivativeError": "",
+  "generatedUtc": "2026-07-17T18:43:07.8581262Z"
+}

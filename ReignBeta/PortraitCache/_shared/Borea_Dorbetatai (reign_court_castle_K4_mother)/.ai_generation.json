@@ -1,0 +1,27 @@
+{
+  "version": 1,
+  "cacheKey": "Borea_Dorbetatai (reign_court_castle_K4_mother)",
+  "heroStringId": "reign_court_castle_K4_mother",
+  "characterObjectId": "reign_court_castle_K4_mother",
+  "characterName": "Borea Dorbetatai",
+  "provider": "AtlasCloud",
+  "model": "xai/grok-imagine-image/edit",
+  "adapter": "atlas upload/generate/poll",
+  "sourceSha256": "39081f49499554b4f3cb83a43bfe476e771a4128dc8630f9b6c92d0225aaa7df",
+  "portraitSha256": "a727ad4a10639dca1cb88e8639c5afa1e0a12fbc5c0f737ced0c1c493da17827",
+  "portraitWidth": 864,
+  "portraitHeight": 1152,
+  "physicalConfidence": {
+    "definition": "physical_confidence",
+    "score": 72,
+    "profile": "61-80",
+    "flirtatiousnessPercentage": 80,
+    "confidencePercentage": 47,
+    "flirtatiousnessWeight": 0.75,
+    "confidenceWeight": 0.25,
+    "source": "shipped_profile_library"
+  },
+  "derivativesReady": true,
+  "derivativeError": "",
+  "generatedUtc": "2026-07-17T18:17:59.0890096Z"
+}

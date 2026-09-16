@@ -1,4 +1,24 @@
 {
+  "temporaryGuestDialogue": {
+    "schema": "reign-temporary-guest-dialogue-v1",
+    "suite": "prompt_efficiency",
+    "check": "pipeline.prompt_caching",
+    "implementation": "RunTemporaryGuestDialogueSelfTests: captured Gavene farewell regressions, current-speaker native agreement projection in individual and Party Chat envelopes, stale/mismatched context exclusion, consent and conditional/continued-travel controls, accepted departure candidate/fallback, and injected provider-free production continuity repair.",
+    "policy": "Client supplies saved guest agreement plus actual membership and observation day per current speaker. Parting narration inconsistent with the native agreement invokes the existing bounded semantic repair. Only the NPC's own present accepted choice can route end_temporary_party_guest; ambiguous conversation can clarify continued travel. Unresolved mechanical guest contradictions cannot use the style-only second-attempt override. Native pending departures are not queued twice.",
+    "isolation": "Artifact-bound non-listening Verification Lab, unique guest_dialogue_test_ campaign in its isolated storage. Injected repair responder; no provider calls, live save changes or historical action replay. Existing Lab retention/cleanup owns fixture state.",
+    "procedure": "docs/agent/testing/DIALOGUE_AND_PROVIDERS.md",
+    "limits": "Conservative English contradiction guards plus model instructions; tests prove prompt/routing/repair behavior, not provider consent quality or native roster removal, protected return, review-time or save/reload acceptance. Existing native campaign-test enrollment and runtime gates apply."
+  },
+  "tournamentKnowledge": {
+    "suite": "baselines",
+    "check": "baseline.world_history",
+    "implementation": "RunWorldHistoryDialogueAssertions through the existing World History self-tests. Verifies same-day global tournament announcements/results, competitor versus reported knowledge, recent-win recognition after verified introduction, ordinary semantic-source inclusion, authoritative loading of semantic hits, history crowding, private/future/other-timeline/unknown-identity exclusions, unchanged non-tournament news delay, existing-event migration idempotency and production memory-packet injection.",
+    "policy": "Public native tournament_started and tournament_finished events are globally known at their event day with zero propagation delay. Other event delays and participant-only access remain unchanged. Ordinary dialogue reuses its one semantic search and a bounded native-history lookup; up to three recent verified-interlocutor tournament wins are available for recognition without a propagation or expiry delay, and explicit world queries and semantic matches retrieve other relevant history.",
+    "isolation": "Existing artifact-bound non-listening Verification Lab storage and generated wh_ campaign; no live campaign or provider calls. Existing World History test cleanup owns the fixture.",
+    "evidence": "Existing assertions plus counts.nativeWorldHistory, sourceEventIds, timingPhases.nativeWorldHistoryMs and the authoritative history section in the captured prompt.",
+    "procedure": "docs/agent/testing/DIALOGUE_AND_PROVIDERS.md",
+    "limits": "Offline proof establishes retrieval and prompt grounding, not the provider's exact wording or native acceptance. Never replay the player's historical tournament or conversation to repair it."
+  },
   "launchPackaging": {
     "linuxServerBuilder": {
       "tool": "reign_build_linux_server",

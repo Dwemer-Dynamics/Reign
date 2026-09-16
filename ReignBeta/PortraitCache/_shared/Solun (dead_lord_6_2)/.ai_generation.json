@@ -1,0 +1,27 @@
+{
+  "version": 1,
+  "cacheKey": "Solun (dead_lord_6_2)",
+  "heroStringId": "dead_lord_6_2",
+  "characterObjectId": "dead_lord_6_2",
+  "characterName": "Solun",
+  "provider": "AtlasCloud",
+  "model": "xai/grok-imagine-image/edit",
+  "adapter": "atlas upload/generate/poll",
+  "sourceSha256": "f23aac2122f7ecb3522750610b46ec33e3188557343ca8023ea47e8954bee39f",
+  "portraitSha256": "2728046479ee70b669caef14315e88ad9558d8f1e0083bda4b06d74c08d86807",
+  "portraitWidth": 864,
+  "portraitHeight": 1152,
+  "physicalConfidence": {
+    "definition": "physical_confidence",
+    "score": 53,
+    "profile": "41-60",
+    "flirtatiousnessPercentage": 56,
+    "confidencePercentage": 43,
+    "flirtatiousnessWeight": 0.75,
+    "confidenceWeight": 0.25,
+    "source": "shipped_profile_library"
+  },
+  "derivativesReady": true,
+  "derivativeError": "",
+  "generatedUtc": "2026-07-17T19:14:34.9260345Z"
+}

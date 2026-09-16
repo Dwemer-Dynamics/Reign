@@ -1,0 +1,27 @@
+{
+  "version": 1,
+  "cacheKey": "Ratagost (lord_2_15)",
+  "heroStringId": "lord_2_15",
+  "characterObjectId": "lord_2_15",
+  "characterName": "Ratagost",
+  "provider": "AtlasCloud",
+  "model": "xai/grok-imagine-image/edit",
+  "adapter": "atlas upload/generate/poll",
+  "sourceSha256": "3f52ea928c8a1a2160d14420b29107a662706174815c6c3d9cd1c2b1ba47eea4",
+  "portraitSha256": "d1477a8c14764fb15975b34507b7767822c046746fa0794487bb36073e1374f6",
+  "portraitWidth": 832,
+  "portraitHeight": 1248,
+  "physicalConfidence": {
+    "definition": "physical_confidence",
+    "score": 50,
+    "profile": "41-60",
+    "flirtatiousnessPercentage": 53,
+    "confidencePercentage": 40,
+    "flirtatiousnessWeight": 0.75,
+    "confidenceWeight": 0.25,
+    "source": "shipped_profile_library"
+  },
+  "derivativesReady": true,
+  "derivativeError": "",
+  "generatedUtc": "2026-07-17T19:10:45.9754500Z"
+}

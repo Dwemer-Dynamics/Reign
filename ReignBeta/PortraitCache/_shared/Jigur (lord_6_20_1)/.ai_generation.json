@@ -1,0 +1,27 @@
+{
+  "version": 1,
+  "cacheKey": "Jigur (lord_6_20_1)",
+  "heroStringId": "lord_6_20_1",
+  "characterObjectId": "lord_6_20_1",
+  "characterName": "Jigur",
+  "provider": "AtlasCloud",
+  "model": "xai/grok-imagine-image/edit",
+  "adapter": "atlas upload/generate/poll",
+  "sourceSha256": "3976f10f3f3a96d8b3060b4765344f5790fbce041da4065e490fc1c52f79d4ea",
+  "portraitSha256": "e89bdbc359bcdef232f532912cdfaa14669049418819ce17af9253fcca75bb21",
+  "portraitWidth": 832,
+  "portraitHeight": 1248,
+  "physicalConfidence": {
+    "definition": "physical_confidence",
+    "score": 66,
+    "profile": "61-80",
+    "flirtatiousnessPercentage": 69,
+    "confidencePercentage": 56,
+    "flirtatiousnessWeight": 0.75,
+    "confidenceWeight": 0.25,
+    "source": "shipped_profile_library"
+  },
+  "derivativesReady": true,
+  "derivativeError": "",
+  "generatedUtc": "2026-07-17T18:46:35.0463154Z"
+}

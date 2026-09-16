@@ -1,0 +1,27 @@
+{
+  "version": 1,
+  "cacheKey": "Eryilion_Sorianarides (reign_court_castle_EN7_child_1)",
+  "heroStringId": "reign_court_castle_EN7_child_1",
+  "characterObjectId": "reign_court_castle_EN7_child_1",
+  "characterName": "Eryilion Sorianarides",
+  "provider": "AtlasCloud",
+  "model": "xai/grok-imagine-image/edit",
+  "adapter": "atlas upload/generate/poll",
+  "sourceSha256": "94c67c9102ffbd9389e7e9d654e0d87a414dd9ee0afa1017a9438e0faa484d26",
+  "portraitSha256": "88ac973903fb7019ec543c5c7462cf2ee8410def224c7b5eceaf4861f5773c37",
+  "portraitWidth": 864,
+  "portraitHeight": 1152,
+  "physicalConfidence": {
+    "definition": "physical_confidence",
+    "score": 78,
+    "profile": "61-80",
+    "flirtatiousnessPercentage": 74,
+    "confidencePercentage": 89,
+    "flirtatiousnessWeight": 0.75,
+    "confidenceWeight": 0.25,
+    "source": "shipped_profile_library"
+  },
+  "derivativesReady": true,
+  "derivativeError": "",
+  "generatedUtc": "2026-07-17T18:34:01.6350169Z"
+}

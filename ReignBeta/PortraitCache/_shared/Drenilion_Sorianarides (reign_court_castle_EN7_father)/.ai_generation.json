@@ -1,0 +1,27 @@
+{
+  "version": 1,
+  "cacheKey": "Drenilion_Sorianarides (reign_court_castle_EN7_father)",
+  "heroStringId": "reign_court_castle_EN7_father",
+  "characterObjectId": "reign_court_castle_EN7_father",
+  "characterName": "Drenilion Sorianarides",
+  "provider": "AtlasCloud",
+  "model": "xai/grok-imagine-image/edit",
+  "adapter": "atlas upload/generate/poll",
+  "sourceSha256": "ec0926e579a770f308f3f750062056328ff58bf968417298603064e40ddb1134",
+  "portraitSha256": "88bac39d6490e14bca2fca01ab565f990f44f4b0dbb21eba3453e71ca0eedec1",
+  "portraitWidth": 864,
+  "portraitHeight": 1152,
+  "physicalConfidence": {
+    "definition": "physical_confidence",
+    "score": 76,
+    "profile": "61-80",
+    "flirtatiousnessPercentage": 72,
+    "confidencePercentage": 87,
+    "flirtatiousnessWeight": 0.75,
+    "confidenceWeight": 0.25,
+    "source": "shipped_profile_library"
+  },
+  "derivativesReady": true,
+  "derivativeError": "",
+  "generatedUtc": "2026-07-17T18:29:51.5378139Z"
+}

@@ -1,0 +1,27 @@
+{
+  "version": 1,
+  "cacheKey": "Arugan_Chaganetai (reign_court_town_K2_child_3)",
+  "heroStringId": "reign_court_town_K2_child_3",
+  "characterObjectId": "reign_court_town_K2_child_3",
+  "characterName": "Arugan Chaganetai",
+  "provider": "AtlasCloud",
+  "model": "xai/grok-imagine-image/edit",
+  "adapter": "atlas upload/generate/poll",
+  "sourceSha256": "ee1c439b3361814bbecc00c946f41413ba051cbd5b628a4b06e65e00fa721132",
+  "portraitSha256": "362830e85d9889ec2065fa4f58db8c87e491aea3f15a1a92d71ef517bf756adf",
+  "portraitWidth": 864,
+  "portraitHeight": 1152,
+  "physicalConfidence": {
+    "definition": "physical_confidence",
+    "score": 67,
+    "profile": "61-80",
+    "flirtatiousnessPercentage": 61,
+    "confidencePercentage": 84,
+    "flirtatiousnessWeight": 0.75,
+    "confidenceWeight": 0.25,
+    "source": "shipped_profile_library"
+  },
+  "derivativesReady": true,
+  "derivativeError": "",
+  "generatedUtc": "2026-07-17T18:13:48.8819965Z"
+}

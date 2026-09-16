@@ -1,0 +1,27 @@
+{
+  "version": 1,
+  "cacheKey": "Shaima (lord_3_17_1)",
+  "heroStringId": "lord_3_17_1",
+  "characterObjectId": "lord_3_17_1",
+  "characterName": "Shaima",
+  "provider": "AtlasCloud",
+  "model": "xai/grok-imagine-image/edit",
+  "adapter": "atlas upload/generate/poll",
+  "sourceSha256": "e430627d6ddf44b38cb2c9e1c3c2a96bb1d2e718fdb4fbc3667e79cccead5403",
+  "portraitSha256": "b21965e0d385362735e3cec103d0a964d26643ec0f473d59e94de03c5dc821f7",
+  "portraitWidth": 832,
+  "portraitHeight": 1248,
+  "physicalConfidence": {
+    "definition": "physical_confidence",
+    "score": 64,
+    "profile": "61-80",
+    "flirtatiousnessPercentage": 66,
+    "confidencePercentage": 57,
+    "flirtatiousnessWeight": 0.75,
+    "confidenceWeight": 0.25,
+    "source": "shipped_profile_library"
+  },
+  "derivativesReady": true,
+  "derivativeError": "",
+  "generatedUtc": "2026-07-17T19:13:40.0012645Z"
+}

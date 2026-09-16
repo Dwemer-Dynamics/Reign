@@ -1,0 +1,92 @@
+{
+  "version": 1,
+  "inputHash": "7e77659caa55b4066f9099c3831d378d5188fed71b0dc256499ab034455d19b1",
+  "catalogHash": "12142c0ab28d2678b12b852b086450dcc4eea45e2e8a080f3baa85c42f7fb3a2",
+  "renderContractHash": "cc3b941e7d47057de9b4220f1473336e6f908719812bb2653b83bd3545cfbd2f",
+  "cacheKey": "Bolat (lord_6_101)",
+  "heroStringId": "lord_6_101",
+  "characterObjectId": "lord_6_101",
+  "characterName": "Bolat",
+  "ageYears": 19,
+  "cultureId": "khuzait",
+  "cultureName": "Khuzait",
+  "gender": "woman",
+  "clanId": "clan_khuzait_1",
+  "clanTier": 6,
+  "clanProvenance": "reign_profile_library",
+  "socialStation": "high noble",
+  "occupation": "Lord",
+  "archetype": "lord",
+  "isLord": true,
+  "isNotable": false,
+  "isWanderer": false,
+  "isAlive": true,
+  "sourceModule": "Native",
+  "sourceFile": "Modules/SandBox/ModuleData/lords.xml",
+  "profileSource": "native_sandbox",
+  "profilePackVersion": "reign_profiles_v4",
+  "bodyKey": "0010D40FC0CC300BF17616D8AD922604E4116506F7EF8110E0C91E3974071051000BB6030000120E0000000000000000000000000000000000000000340C2083",
+  "bodyWeight": 0.5,
+  "bodyBuild": 0.5,
+  "faceTemplateId": "",
+  "faceGenerationVersion": "native_authored",
+  "civilianTemplate": "khu_noncom_template_default",
+  "civilianEquipment": [
+    {
+      "slot": "Body",
+      "itemId": "khuzait_dress"
+    },
+    {
+      "slot": "Cape",
+      "itemId": "scarf"
+    },
+    {
+      "slot": "Leg",
+      "itemId": "southern_moccasins"
+    }
+  ],
+  "headgearSuppressed": true,
+  "physicalConfidence": {
+    "definition": "physical_confidence",
+    "score": 40,
+    "profile": "21-40",
+    "flirtatiousnessPercentage": 39,
+    "confidencePercentage": 42,
+    "flirtatiousnessWeight": 0.75,
+    "confidenceWeight": 0.25,
+    "source": "shipped_profile_library"
+  },
+  "renderPreset": "ai_source_wan_portrait_v5",
+  "renderWidth": 1536,
+  "renderHeight": 2048,
+  "sourceWidth": 768,
+  "sourceHeight": 1024,
+  "cropScale": 0.24,
+  "cropWidthRatio": 0.75,
+  "cropCenterYRatio": 0.324,
+  "cameraPitchDegrees": 4,
+  "sourceSha256": "1dbd24de9ab842f19ddc4a79fdf132209cd32c6e04dab437683082b47e716f5b",
+  "sourceFileName": "source.png",
+  "generationEndpoint": "/portraits/generate",
+  "campaignIdSource": "active_campaign_at_generation_time",
+  "promptDeferred": true,
+  "sourceImageBase64From": "source.png",
+  "outputSizeOverride": "",
+  "promptPurpose": "portrait",
+  "nativePhysique": {
+    "schema": "reign-native-physique-v1",
+    "weight": 0.5,
+    "build": 0.5,
+    "weightSource": "shared_portrait_input.bodyWeight",
+    "buildSource": "shared_portrait_input.bodyBuild",
+    "sourceSha256": "1dbd24de9ab842f19ddc4a79fdf132209cd32c6e04dab437683082b47e716f5b",
+    "provenance": {
+      "kind": "saved_character_metadata_backfill",
+      "heroStringId": "lord_6_101",
+      "profileSource": "native_sandbox",
+      "profilePackVersion": "reign_profiles_v4",
+      "originalInputSha256": "cd67a38415e4aee65d1efb331fdcc4270f57d9ebe3ba9f5aa492b0be57d0f51f",
+      "rendererReexecuted": false
+    }
+  }
+}

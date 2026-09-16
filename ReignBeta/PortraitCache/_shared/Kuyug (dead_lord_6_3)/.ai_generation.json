@@ -1,0 +1,27 @@
+{
+  "version": 1,
+  "cacheKey": "Kuyug (dead_lord_6_3)",
+  "heroStringId": "dead_lord_6_3",
+  "characterObjectId": "dead_lord_6_3",
+  "characterName": "Kuyug",
+  "provider": "AtlasCloud",
+  "model": "xai/grok-imagine-image/edit",
+  "adapter": "atlas upload/generate/poll",
+  "sourceSha256": "207f26b03bb9b5af7784e7fb3444acf85b764b2dda694cae0214326aeba7f433",
+  "portraitSha256": "30bc923b9d2ea66a73118439932611a48837565f9a69ddc2881a50c90582d91b",
+  "portraitWidth": 864,
+  "portraitHeight": 1152,
+  "physicalConfidence": {
+    "definition": "physical_confidence",
+    "score": 50,
+    "profile": "41-60",
+    "flirtatiousnessPercentage": 51,
+    "confidencePercentage": 46,
+    "flirtatiousnessWeight": 0.75,
+    "confidenceWeight": 0.25,
+    "source": "shipped_profile_library"
+  },
+  "derivativesReady": true,
+  "derivativeError": "",
+  "generatedUtc": "2026-07-17T18:49:22.3033161Z"
+}

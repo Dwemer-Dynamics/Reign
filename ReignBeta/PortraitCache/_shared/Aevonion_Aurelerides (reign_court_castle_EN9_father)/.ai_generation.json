@@ -1,0 +1,27 @@
+{
+  "version": 1,
+  "cacheKey": "Aevonion_Aurelerides (reign_court_castle_EN9_father)",
+  "heroStringId": "reign_court_castle_EN9_father",
+  "characterObjectId": "reign_court_castle_EN9_father",
+  "characterName": "Aevonion Aurelerides",
+  "provider": "AtlasCloud",
+  "model": "xai/grok-imagine-image/edit",
+  "adapter": "atlas upload/generate/poll",
+  "sourceSha256": "781b4ce88e78ac2baa63d3a7095d19d4a76f596e17e6d41ccec053bac5a2aa94",
+  "portraitSha256": "d27b4c8d81e6f3c81033a29ec623ed64d90bbb7fb5482483b57bda33dc0b961d",
+  "portraitWidth": 864,
+  "portraitHeight": 1152,
+  "physicalConfidence": {
+    "definition": "physical_confidence",
+    "score": 67,
+    "profile": "61-80",
+    "flirtatiousnessPercentage": 74,
+    "confidencePercentage": 45,
+    "flirtatiousnessWeight": 0.75,
+    "confidenceWeight": 0.25,
+    "source": "shipped_profile_library"
+  },
+  "derivativesReady": true,
+  "derivativeError": "",
+  "generatedUtc": "2026-07-17T18:09:46.6431081Z"
+}

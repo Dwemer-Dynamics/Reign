@@ -1,0 +1,27 @@
+{
+  "version": 1,
+  "cacheKey": "Honoratus (lord_1_177)",
+  "heroStringId": "lord_1_177",
+  "characterObjectId": "lord_1_177",
+  "characterName": "Honoratus",
+  "provider": "AtlasCloud",
+  "model": "xai/grok-imagine-image/edit",
+  "adapter": "atlas upload/generate/poll",
+  "sourceSha256": "630554fcbce0753e49cc879c675e1f9259e1075e32ce4fda642bdb4fee993fae",
+  "portraitSha256": "45fc9bb537f389ed0b18d633254fd8cd8219342abbb37022dc80bce2a52be0ce",
+  "portraitWidth": 832,
+  "portraitHeight": 1248,
+  "physicalConfidence": {
+    "definition": "physical_confidence",
+    "score": 41,
+    "profile": "41-60",
+    "flirtatiousnessPercentage": 35,
+    "confidencePercentage": 58,
+    "flirtatiousnessWeight": 0.75,
+    "confidenceWeight": 0.25,
+    "source": "shipped_profile_library"
+  },
+  "derivativesReady": true,
+  "derivativeError": "",
+  "generatedUtc": "2026-07-17T18:43:25.3804419Z"
+}

@@ -1,0 +1,27 @@
+{
+  "version": 1,
+  "cacheKey": "Mungegan_Erketatai (reign_court_castle_K5_child_3)",
+  "heroStringId": "reign_court_castle_K5_child_3",
+  "characterObjectId": "reign_court_castle_K5_child_3",
+  "characterName": "Mungegan Erketatai",
+  "provider": "AtlasCloud",
+  "model": "xai/grok-imagine-image/edit",
+  "adapter": "atlas upload/generate/poll",
+  "sourceSha256": "81a2a9ab5c99d90a1d1c711abc40f68a187d8ebaef43b51bb641d5031883270d",
+  "portraitSha256": "6a0b18c14769ff5c49a84d586873d19164d467d492ad14eb09c48d863c510c7f",
+  "portraitWidth": 864,
+  "portraitHeight": 1152,
+  "physicalConfidence": {
+    "definition": "physical_confidence",
+    "score": 84,
+    "profile": "81-100",
+    "flirtatiousnessPercentage": 80,
+    "confidencePercentage": 95,
+    "flirtatiousnessWeight": 0.75,
+    "confidenceWeight": 0.25,
+    "source": "shipped_profile_library"
+  },
+  "derivativesReady": true,
+  "derivativeError": "",
+  "generatedUtc": "2026-07-17T19:04:44.6374251Z"
+}

@@ -1,0 +1,27 @@
+{
+  "version": 1,
+  "cacheKey": "Eryarion_Corvenarides (reign_court_castle_EN2_father)",
+  "heroStringId": "reign_court_castle_EN2_father",
+  "characterObjectId": "reign_court_castle_EN2_father",
+  "characterName": "Eryarion Corvenarides",
+  "provider": "AtlasCloud",
+  "model": "xai/grok-imagine-image/edit",
+  "adapter": "atlas upload/generate/poll",
+  "sourceSha256": "2b3632944eff045f9468816d0b49d26bf68688af5f9549cdefc2e67def76b867",
+  "portraitSha256": "d07332ed08e838bae69ad984321f4dcf9048193069ff58f49ef4d5998d23f83c",
+  "portraitWidth": 864,
+  "portraitHeight": 1152,
+  "physicalConfidence": {
+    "definition": "physical_confidence",
+    "score": 72,
+    "profile": "61-80",
+    "flirtatiousnessPercentage": 85,
+    "confidencePercentage": 32,
+    "flirtatiousnessWeight": 0.75,
+    "confidenceWeight": 0.25,
+    "source": "shipped_profile_library"
+  },
+  "derivativesReady": true,
+  "derivativeError": "",
+  "generatedUtc": "2026-07-17T18:33:31.7445895Z"
+}

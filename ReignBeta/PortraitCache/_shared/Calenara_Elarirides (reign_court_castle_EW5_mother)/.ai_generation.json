@@ -1,0 +1,27 @@
+{
+  "version": 1,
+  "cacheKey": "Calenara_Elarirides (reign_court_castle_EW5_mother)",
+  "heroStringId": "reign_court_castle_EW5_mother",
+  "characterObjectId": "reign_court_castle_EW5_mother",
+  "characterName": "Calenara Elarirides",
+  "provider": "AtlasCloud",
+  "model": "xai/grok-imagine-image/edit",
+  "adapter": "atlas upload/generate/poll",
+  "sourceSha256": "f2a2ccb79348ee455071dda247b3de8f7f23fea29fcb23ddd40a833e2b27ed28",
+  "portraitSha256": "2292cda014c74e615e1d7dcc13bfcab15ac94906d8f3213a0d15ad7ba5a7b375",
+  "portraitWidth": 864,
+  "portraitHeight": 1152,
+  "physicalConfidence": {
+    "definition": "physical_confidence",
+    "score": 66,
+    "profile": "61-80",
+    "flirtatiousnessPercentage": 72,
+    "confidencePercentage": 47,
+    "flirtatiousnessWeight": 0.75,
+    "confidenceWeight": 0.25,
+    "source": "shipped_profile_library"
+  },
+  "derivativesReady": true,
+  "derivativeError": "",
+  "generatedUtc": "2026-07-17T18:20:36.2764161Z"
+}

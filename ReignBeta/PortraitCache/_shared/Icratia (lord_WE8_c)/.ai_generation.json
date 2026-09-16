@@ -1,0 +1,27 @@
+{
+  "version": 1,
+  "cacheKey": "Icratia (lord_WE8_c)",
+  "heroStringId": "lord_WE8_c",
+  "characterObjectId": "lord_WE8_c",
+  "characterName": "Icratia",
+  "provider": "AtlasCloud",
+  "model": "xai/grok-imagine-image/edit",
+  "adapter": "atlas upload/generate/poll",
+  "sourceSha256": "3e4270cc0e1e9a3a5060293e84c9f6283af138957a553c5a448e81ff991f2f99",
+  "portraitSha256": "d4630e01501524af7b2ce6a256690c9c5088a505b4a597b0b8f22f3e0de6a58a",
+  "portraitWidth": 832,
+  "portraitHeight": 1248,
+  "physicalConfidence": {
+    "definition": "physical_confidence",
+    "score": 86,
+    "profile": "81-100",
+    "flirtatiousnessPercentage": 96,
+    "confidencePercentage": 55,
+    "flirtatiousnessWeight": 0.75,
+    "confidenceWeight": 0.25,
+    "source": "shipped_profile_library"
+  },
+  "derivativesReady": true,
+  "derivativeError": "",
+  "generatedUtc": "2026-07-17T18:43:46.6011522Z"
+}

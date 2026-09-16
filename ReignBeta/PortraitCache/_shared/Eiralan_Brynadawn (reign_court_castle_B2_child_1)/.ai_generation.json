@@ -1,0 +1,27 @@
+{
+  "version": 1,
+  "cacheKey": "Eiralan_Brynadawn (reign_court_castle_B2_child_1)",
+  "heroStringId": "reign_court_castle_B2_child_1",
+  "characterObjectId": "reign_court_castle_B2_child_1",
+  "characterName": "Eiralan Brynadawn",
+  "provider": "AtlasCloud",
+  "model": "xai/grok-imagine-image/edit",
+  "adapter": "atlas upload/generate/poll",
+  "sourceSha256": "49e2503094b4f5d645103413cd67e9a95c2b681758f5f21880f3095d1c57e577",
+  "portraitSha256": "0d0e55c59ced8c818d82a141754e6c7622f00174648a36c1940be902fef972e2",
+  "portraitWidth": 864,
+  "portraitHeight": 1152,
+  "physicalConfidence": {
+    "definition": "physical_confidence",
+    "score": 35,
+    "profile": "21-40",
+    "flirtatiousnessPercentage": 26,
+    "confidencePercentage": 61,
+    "flirtatiousnessWeight": 0.75,
+    "confidenceWeight": 0.25,
+    "source": "shipped_profile_library"
+  },
+  "derivativesReady": true,
+  "derivativeError": "",
+  "generatedUtc": "2026-07-17T18:31:18.1211985Z"
+}

@@ -1,0 +1,27 @@
+{
+  "version": 1,
+  "cacheKey": "Gulsyf (lord_7_14_1)",
+  "heroStringId": "lord_7_14_1",
+  "characterObjectId": "lord_7_14_1",
+  "characterName": "Gulsyf",
+  "provider": "AtlasCloud",
+  "model": "xai/grok-imagine-image/edit",
+  "adapter": "atlas upload/generate/poll",
+  "sourceSha256": "c5271622fe6d23bf6bd5996d9f207ac2907d457b6721cf838af4a84b3e079c9d",
+  "portraitSha256": "6d733b2804fee2aa2b09a5be6677a2718c8eb1e73e35889b568fee8ea0168afa",
+  "portraitWidth": 832,
+  "portraitHeight": 1248,
+  "physicalConfidence": {
+    "definition": "physical_confidence",
+    "score": 50,
+    "profile": "41-60",
+    "flirtatiousnessPercentage": 50,
+    "confidencePercentage": 50,
+    "flirtatiousnessWeight": 0.75,
+    "confidenceWeight": 0.25,
+    "source": "neutral_fallback"
+  },
+  "derivativesReady": true,
+  "derivativeError": "",
+  "generatedUtc": "2026-07-17T18:40:22.6946312Z"
+}

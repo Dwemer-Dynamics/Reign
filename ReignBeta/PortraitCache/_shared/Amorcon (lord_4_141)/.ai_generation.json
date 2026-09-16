@@ -1,0 +1,27 @@
+{
+  "version": 1,
+  "cacheKey": "Amorcon (lord_4_141)",
+  "heroStringId": "lord_4_141",
+  "characterObjectId": "lord_4_141",
+  "characterName": "Amorcon",
+  "provider": "AtlasCloud",
+  "model": "xai/grok-imagine-image/edit",
+  "adapter": "atlas upload/generate/poll",
+  "sourceSha256": "edd0ef191ff60db1f435d771f32da0102e01756f48379e1db323ac291a272772",
+  "portraitSha256": "72b68409d0cd00ba960bbc629ebd6973962a8efa50343fec0be66c63da83da56",
+  "portraitWidth": 832,
+  "portraitHeight": 1248,
+  "physicalConfidence": {
+    "definition": "physical_confidence",
+    "score": 46,
+    "profile": "41-60",
+    "flirtatiousnessPercentage": 45,
+    "confidencePercentage": 48,
+    "flirtatiousnessWeight": 0.75,
+    "confidenceWeight": 0.25,
+    "source": "shipped_profile_library"
+  },
+  "derivativesReady": true,
+  "derivativeError": "",
+  "generatedUtc": "2026-07-17T18:12:23.3238919Z"
+}

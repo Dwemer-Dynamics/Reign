@@ -1,0 +1,27 @@
+{
+  "version": 1,
+  "cacheKey": "Torgogan_Chaganetai (reign_court_town_K2_child_1)",
+  "heroStringId": "reign_court_town_K2_child_1",
+  "characterObjectId": "reign_court_town_K2_child_1",
+  "characterName": "Torgogan Chaganetai",
+  "provider": "AtlasCloud",
+  "model": "xai/grok-imagine-image/edit",
+  "adapter": "atlas upload/generate/poll",
+  "sourceSha256": "b14518b523993c8efe05e885ceb09b1e473f07f5723df6dfa4b830d4674fa41b",
+  "portraitSha256": "b58de9807e8a88a749e9ebf06804eaeebdec49072abda93dd356ae744622948e",
+  "portraitWidth": 864,
+  "portraitHeight": 1152,
+  "physicalConfidence": {
+    "definition": "physical_confidence",
+    "score": 48,
+    "profile": "41-60",
+    "flirtatiousnessPercentage": 55,
+    "confidencePercentage": 26,
+    "flirtatiousnessWeight": 0.75,
+    "confidenceWeight": 0.25,
+    "source": "shipped_profile_library"
+  },
+  "derivativesReady": true,
+  "derivativeError": "",
+  "generatedUtc": "2026-07-17T19:17:51.8607002Z"
+}

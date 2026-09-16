@@ -1,0 +1,27 @@
+{
+  "version": 1,
+  "cacheKey": "Letharene_Corvenanion (reign_court_castle_ES5_child_4)",
+  "heroStringId": "reign_court_castle_ES5_child_4",
+  "characterObjectId": "reign_court_castle_ES5_child_4",
+  "characterName": "Letharene Corvenanion",
+  "provider": "AtlasCloud",
+  "model": "xai/grok-imagine-image/edit",
+  "adapter": "atlas upload/generate/poll",
+  "sourceSha256": "0670d5b3f3a6cbb465cc183ebce09f69b5f46e8dc902012ea7f3adfa3799f41b",
+  "portraitSha256": "669f40b3d7d3ce65d43e8f5a0893a0e865c73aa1c24de7074fbaffedf481efa3",
+  "portraitWidth": 864,
+  "portraitHeight": 1152,
+  "physicalConfidence": {
+    "definition": "physical_confidence",
+    "score": 59,
+    "profile": "41-60",
+    "flirtatiousnessPercentage": 62,
+    "confidencePercentage": 49,
+    "flirtatiousnessWeight": 0.75,
+    "confidenceWeight": 0.25,
+    "source": "shipped_profile_library"
+  },
+  "derivativesReady": true,
+  "derivativeError": "",
+  "generatedUtc": "2026-07-17T18:50:53.2547647Z"
+}

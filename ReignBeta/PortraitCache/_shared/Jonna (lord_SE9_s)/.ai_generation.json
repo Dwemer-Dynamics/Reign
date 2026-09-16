@@ -1,0 +1,27 @@
+{
+  "version": 1,
+  "cacheKey": "Jonna (lord_SE9_s)",
+  "heroStringId": "lord_SE9_s",
+  "characterObjectId": "lord_SE9_s",
+  "characterName": "Jonna",
+  "provider": "AtlasCloud",
+  "model": "xai/grok-imagine-image/edit",
+  "adapter": "atlas upload/generate/poll",
+  "sourceSha256": "e244eef2b4193c276e3f1d00039cc779e695be9aff7a4de21e41abb0422f10eb",
+  "portraitSha256": "ecabc50e31cd2204fdf7b02d17fdaaec8da1bc96c81a4ef817f323e20f6d1eab",
+  "portraitWidth": 832,
+  "portraitHeight": 1248,
+  "physicalConfidence": {
+    "definition": "physical_confidence",
+    "score": 66,
+    "profile": "61-80",
+    "flirtatiousnessPercentage": 71,
+    "confidencePercentage": 50,
+    "flirtatiousnessWeight": 0.75,
+    "confidenceWeight": 0.25,
+    "source": "shipped_profile_library"
+  },
+  "derivativesReady": true,
+  "derivativeError": "",
+  "generatedUtc": "2026-07-17T18:46:37.1394390Z"
+}

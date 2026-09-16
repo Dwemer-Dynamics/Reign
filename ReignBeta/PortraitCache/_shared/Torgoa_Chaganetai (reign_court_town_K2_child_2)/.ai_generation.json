@@ -1,0 +1,27 @@
+{
+  "version": 1,
+  "cacheKey": "Torgoa_Chaganetai (reign_court_town_K2_child_2)",
+  "heroStringId": "reign_court_town_K2_child_2",
+  "characterObjectId": "reign_court_town_K2_child_2",
+  "characterName": "Torgoa Chaganetai",
+  "provider": "AtlasCloud",
+  "model": "xai/grok-imagine-image/edit",
+  "adapter": "atlas upload/generate/poll",
+  "sourceSha256": "c6faf597bc8a5ce72348ca5020429439f97fc6f90be43df8498ee964fb5efdb3",
+  "portraitSha256": "fdef0fe61e11ca7f59ab5de5fdb804cbe199ccdbceb7b68135f6f56ac2390627",
+  "portraitWidth": 864,
+  "portraitHeight": 1152,
+  "physicalConfidence": {
+    "definition": "physical_confidence",
+    "score": 63,
+    "profile": "61-80",
+    "flirtatiousnessPercentage": 62,
+    "confidencePercentage": 65,
+    "flirtatiousnessWeight": 0.75,
+    "confidenceWeight": 0.25,
+    "source": "shipped_profile_library"
+  },
+  "derivativesReady": true,
+  "derivativeError": "",
+  "generatedUtc": "2026-07-17T19:17:53.6102118Z"
+}

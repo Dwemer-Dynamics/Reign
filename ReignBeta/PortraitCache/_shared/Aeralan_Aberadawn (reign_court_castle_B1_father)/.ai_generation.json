@@ -1,0 +1,27 @@
+{
+  "version": 1,
+  "cacheKey": "Aeralan_Aberadawn (reign_court_castle_B1_father)",
+  "heroStringId": "reign_court_castle_B1_father",
+  "characterObjectId": "reign_court_castle_B1_father",
+  "characterName": "Aeralan Aberadawn",
+  "provider": "AtlasCloud",
+  "model": "xai/grok-imagine-image/edit",
+  "adapter": "atlas upload/generate/poll",
+  "sourceSha256": "57cbe7f24eee548051c0052b9523e4e177f7d0080db9feeb90ad3bd93bcf1e31",
+  "portraitSha256": "a91d92dce5315bd1efe3410e26a3c45efef6af43378f1ee8d40f9b735d6c8023",
+  "portraitWidth": 832,
+  "portraitHeight": 1248,
+  "physicalConfidence": {
+    "definition": "physical_confidence",
+    "score": 32,
+    "profile": "21-40",
+    "flirtatiousnessPercentage": 23,
+    "confidencePercentage": 58,
+    "flirtatiousnessWeight": 0.75,
+    "confidenceWeight": 0.25,
+    "source": "shipped_profile_library"
+  },
+  "derivativesReady": true,
+  "derivativeError": "",
+  "generatedUtc": "2026-07-17T17:42:17.7475234Z"
+}

@@ -1,0 +1,27 @@
+{
+  "version": 1,
+  "cacheKey": "Daruna_Alzariqani (reign_court_castle_A9_child_4)",
+  "heroStringId": "reign_court_castle_A9_child_4",
+  "characterObjectId": "reign_court_castle_A9_child_4",
+  "characterName": "Daruna Alzariqani",
+  "provider": "AtlasCloud",
+  "model": "xai/grok-imagine-image/edit",
+  "adapter": "atlas upload/generate/poll",
+  "sourceSha256": "0831e211923c21d437c8d32efd91211a45e7181c0cf62560c9c9e5b1cabbcba8",
+  "portraitSha256": "3225bf4b52ca87c2c1f884aac2545d4dd9b1b4d9c273ed61031918016aada318",
+  "portraitWidth": 864,
+  "portraitHeight": 1152,
+  "physicalConfidence": {
+    "definition": "physical_confidence",
+    "score": 52,
+    "profile": "41-60",
+    "flirtatiousnessPercentage": 51,
+    "confidencePercentage": 54,
+    "flirtatiousnessWeight": 0.75,
+    "confidenceWeight": 0.25,
+    "source": "shipped_profile_library"
+  },
+  "derivativesReady": true,
+  "derivativeError": "",
+  "generatedUtc": "2026-07-17T18:26:20.4142848Z"
+}

@@ -1,0 +1,27 @@
+{
+  "version": 1,
+  "cacheKey": "Bertliana (lord_4_25_1)",
+  "heroStringId": "lord_4_25_1",
+  "characterObjectId": "lord_4_25_1",
+  "characterName": "Bertliana",
+  "provider": "AtlasCloud",
+  "model": "xai/grok-imagine-image/edit",
+  "adapter": "atlas upload/generate/poll",
+  "sourceSha256": "5a0c0aa2770a2a130615218176de9b065ce4c0364be3b5c7461006419e046267",
+  "portraitSha256": "9916f5d53006fe0ee12a6d8bcdf31134783a265e50ce1dd7907fcbf017771d89",
+  "portraitWidth": 832,
+  "portraitHeight": 1248,
+  "physicalConfidence": {
+    "definition": "physical_confidence",
+    "score": 45,
+    "profile": "41-60",
+    "flirtatiousnessPercentage": 44,
+    "confidencePercentage": 47,
+    "flirtatiousnessWeight": 0.75,
+    "confidenceWeight": 0.25,
+    "source": "shipped_profile_library"
+  },
+  "derivativesReady": true,
+  "derivativeError": "",
+  "generatedUtc": "2026-07-17T18:16:57.1815122Z"
+}

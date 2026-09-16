@@ -1,0 +1,27 @@
+{
+  "version": 1,
+  "cacheKey": "Caeruan_Dunedawn (reign_court_town_B4_father)",
+  "heroStringId": "reign_court_town_B4_father",
+  "characterObjectId": "reign_court_town_B4_father",
+  "characterName": "Caeruan Dunedawn",
+  "provider": "AtlasCloud",
+  "model": "xai/grok-imagine-image/edit",
+  "adapter": "atlas upload/generate/poll",
+  "sourceSha256": "888cc6e7ac25b9bc737153a7a7222ffd455498f62fcfc883aa33a68219a01651",
+  "portraitSha256": "7a2969a140ed8d0d55299e663f3e75a6e8527cf52cd879400d5067e715f6ca4e",
+  "portraitWidth": 864,
+  "portraitHeight": 1152,
+  "physicalConfidence": {
+    "definition": "physical_confidence",
+    "score": 39,
+    "profile": "21-40",
+    "flirtatiousnessPercentage": 30,
+    "confidencePercentage": 65,
+    "flirtatiousnessWeight": 0.75,
+    "confidenceWeight": 0.25,
+    "source": "shipped_profile_library"
+  },
+  "derivativesReady": true,
+  "derivativeError": "",
+  "generatedUtc": "2026-07-17T18:20:09.6199269Z"
+}

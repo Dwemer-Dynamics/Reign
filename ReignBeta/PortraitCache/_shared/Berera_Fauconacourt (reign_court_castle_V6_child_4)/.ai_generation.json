@@ -1,0 +1,27 @@
+{
+  "version": 1,
+  "cacheKey": "Berera_Fauconacourt (reign_court_castle_V6_child_4)",
+  "heroStringId": "reign_court_castle_V6_child_4",
+  "characterObjectId": "reign_court_castle_V6_child_4",
+  "characterName": "Berera Fauconacourt",
+  "provider": "AtlasCloud",
+  "model": "xai/grok-imagine-image/edit",
+  "adapter": "atlas upload/generate/poll",
+  "sourceSha256": "8bb30474a2f6d889f8a1a60ed45af5f4f9b3820f82608274d5099adff5825464",
+  "portraitSha256": "3b205c2119c523967fab5ed1c94bdc8099c1d50dbbd961972ca8ace17a75bdc9",
+  "portraitWidth": 864,
+  "portraitHeight": 1152,
+  "physicalConfidence": {
+    "definition": "physical_confidence",
+    "score": 61,
+    "profile": "61-80",
+    "flirtatiousnessPercentage": 65,
+    "confidencePercentage": 48,
+    "flirtatiousnessWeight": 0.75,
+    "confidenceWeight": 0.25,
+    "source": "shipped_profile_library"
+  },
+  "derivativesReady": true,
+  "derivativeError": "",
+  "generatedUtc": "2026-07-17T18:16:41.0827153Z"
+}

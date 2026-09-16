@@ -1,0 +1,27 @@
+{
+  "version": 1,
+  "cacheKey": "Aevonara_Aurelorides (reign_court_town_EW2_mother)",
+  "heroStringId": "reign_court_town_EW2_mother",
+  "characterObjectId": "reign_court_town_EW2_mother",
+  "characterName": "Aevonara Aurelorides",
+  "provider": "AtlasCloud",
+  "model": "xai/grok-imagine-image/edit",
+  "adapter": "atlas upload/generate/poll",
+  "sourceSha256": "621a48a78b55868d743b5e41590cf9dc97cd90895c4243adfe74d463cf05e231",
+  "portraitSha256": "d8cf3e98db421a49cdd3e58a13cb42da2e1d852c3438a15f4a89edacadea2579",
+  "portraitWidth": 864,
+  "portraitHeight": 1152,
+  "physicalConfidence": {
+    "definition": "physical_confidence",
+    "score": 52,
+    "profile": "41-60",
+    "flirtatiousnessPercentage": 43,
+    "confidencePercentage": 78,
+    "flirtatiousnessWeight": 0.75,
+    "confidenceWeight": 0.25,
+    "source": "shipped_profile_library"
+  },
+  "derivativesReady": true,
+  "derivativeError": "",
+  "generatedUtc": "2026-07-17T18:09:31.6947313Z"
+}

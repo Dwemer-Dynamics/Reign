@@ -1,0 +1,27 @@
+{
+  "version": 1,
+  "cacheKey": "Arua_Chaganetai (reign_court_town_K2_child_4)",
+  "heroStringId": "reign_court_town_K2_child_4",
+  "characterObjectId": "reign_court_town_K2_child_4",
+  "characterName": "Arua Chaganetai",
+  "provider": "AtlasCloud",
+  "model": "xai/grok-imagine-image/edit",
+  "adapter": "atlas upload/generate/poll",
+  "sourceSha256": "0b96602cdf4e79a8a7fa9ed024354691201b0d2f6a2f8d1fb710c2954a0e6db6",
+  "portraitSha256": "b44ead024e1026f953429b0fdd9f0e88871c34a3a8b954c7d6a30ba1c2f2eec4",
+  "portraitWidth": 864,
+  "portraitHeight": 1152,
+  "physicalConfidence": {
+    "definition": "physical_confidence",
+    "score": 79,
+    "profile": "61-80",
+    "flirtatiousnessPercentage": 80,
+    "confidencePercentage": 75,
+    "flirtatiousnessWeight": 0.75,
+    "confidenceWeight": 0.25,
+    "source": "shipped_profile_library"
+  },
+  "derivativesReady": true,
+  "derivativeError": "",
+  "generatedUtc": "2026-07-17T18:13:48.9141978Z"
+}

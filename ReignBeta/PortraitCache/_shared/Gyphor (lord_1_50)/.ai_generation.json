@@ -1,0 +1,27 @@
+{
+  "version": 1,
+  "cacheKey": "Gyphor (lord_1_50)",
+  "heroStringId": "lord_1_50",
+  "characterObjectId": "lord_1_50",
+  "characterName": "Gyphor",
+  "provider": "AtlasCloud",
+  "model": "xai/grok-imagine-image/edit",
+  "adapter": "atlas upload/generate/poll",
+  "sourceSha256": "d208b9465a53d23d863d547ade5e7c24f7b15a2da66aca6d9bdc2f82eeb077d7",
+  "portraitSha256": "56780ff0d9a109b09514152c8b4342cc0b641a525b35fcef2d1543757b69cdc0",
+  "portraitWidth": 832,
+  "portraitHeight": 1248,
+  "physicalConfidence": {
+    "definition": "physical_confidence",
+    "score": 77,
+    "profile": "61-80",
+    "flirtatiousnessPercentage": 93,
+    "confidencePercentage": 28,
+    "flirtatiousnessWeight": 0.75,
+    "confidenceWeight": 0.25,
+    "source": "shipped_profile_library"
+  },
+  "derivativesReady": true,
+  "derivativeError": "",
+  "generatedUtc": "2026-07-17T18:41:10.4364952Z"
+}

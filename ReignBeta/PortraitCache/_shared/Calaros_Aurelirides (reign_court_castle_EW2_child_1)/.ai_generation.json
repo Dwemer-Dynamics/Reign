@@ -1,0 +1,27 @@
+{
+  "version": 1,
+  "cacheKey": "Calaros_Aurelirides (reign_court_castle_EW2_child_1)",
+  "heroStringId": "reign_court_castle_EW2_child_1",
+  "characterObjectId": "reign_court_castle_EW2_child_1",
+  "characterName": "Calaros Aurelirides",
+  "provider": "AtlasCloud",
+  "model": "xai/grok-imagine-image/edit",
+  "adapter": "atlas upload/generate/poll",
+  "sourceSha256": "a3ed7b68e12278bc93d6a7d06e4b96d4e2bdf110866782b525802abfe0f6a6d8",
+  "portraitSha256": "3bee1255f7f2e97916435ae156f1ed29e7d53f08fae795d00ba7280863f4778d",
+  "portraitWidth": 864,
+  "portraitHeight": 1152,
+  "physicalConfidence": {
+    "definition": "physical_confidence",
+    "score": 42,
+    "profile": "41-60",
+    "flirtatiousnessPercentage": 40,
+    "confidencePercentage": 47,
+    "flirtatiousnessWeight": 0.75,
+    "confidenceWeight": 0.25,
+    "source": "shipped_profile_library"
+  },
+  "derivativesReady": true,
+  "derivativeError": "",
+  "generatedUtc": "2026-07-17T18:20:22.7461341Z"
+}

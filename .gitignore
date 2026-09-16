@@ -18,6 +18,12 @@
 /PortraitCache/
 **/PortraitCache/
 
+# Approved shipped portrait seed content is part of the directly distributable module.
+!/ReignBeta/PortraitCache/
+!/ReignBeta/PortraitCache/shared-portrait-inventory.json
+!/ReignBeta/PortraitCache/_shared/
+!/ReignBeta/PortraitCache/_shared/**
+
 # Runtime installation, deployment, campaign, and backup state
 /ReignBeta/staging/
 /ReignBeta/server/

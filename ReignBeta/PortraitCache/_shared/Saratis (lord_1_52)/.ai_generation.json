@@ -1,0 +1,27 @@
+{
+  "version": 1,
+  "cacheKey": "Saratis (lord_1_52)",
+  "heroStringId": "lord_1_52",
+  "characterObjectId": "lord_1_52",
+  "characterName": "Saratis",
+  "provider": "AtlasCloud",
+  "model": "xai/grok-imagine-image/edit",
+  "adapter": "atlas upload/generate/poll",
+  "sourceSha256": "49fc7749ed4aeaf3f38c494bafbd81cd08b6f0cfa8f730a49ca1dd91301b0fc2",
+  "portraitSha256": "210c9e9c3437e890adfe90820fdd0ac353fe411f31adb672ec5ca85e2299a41e",
+  "portraitWidth": 832,
+  "portraitHeight": 1248,
+  "physicalConfidence": {
+    "definition": "physical_confidence",
+    "score": 58,
+    "profile": "41-60",
+    "flirtatiousnessPercentage": 67,
+    "confidencePercentage": 30,
+    "flirtatiousnessWeight": 0.75,
+    "confidenceWeight": 0.25,
+    "source": "shipped_profile_library"
+  },
+  "derivativesReady": true,
+  "derivativeError": "",
+  "generatedUtc": "2026-07-17T19:12:56.2248875Z"
+}

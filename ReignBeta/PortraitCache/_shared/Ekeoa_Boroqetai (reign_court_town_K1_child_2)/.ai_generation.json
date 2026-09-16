@@ -1,0 +1,27 @@
+{
+  "version": 1,
+  "cacheKey": "Ekeoa_Boroqetai (reign_court_town_K1_child_2)",
+  "heroStringId": "reign_court_town_K1_child_2",
+  "characterObjectId": "reign_court_town_K1_child_2",
+  "characterName": "Ekeoa Boroqetai",
+  "provider": "AtlasCloud",
+  "model": "xai/grok-imagine-image/edit",
+  "adapter": "atlas upload/generate/poll",
+  "sourceSha256": "a01e2a7eade75f7da6c376a4ca1a1093b03f2e53335b4dade2c2f55a0cab5e72",
+  "portraitSha256": "d34eae3a32bcb52d6e4b37ad2605728510c439eb468782332b64428a828c5944",
+  "portraitWidth": 864,
+  "portraitHeight": 1152,
+  "physicalConfidence": {
+    "definition": "physical_confidence",
+    "score": 73,
+    "profile": "61-80",
+    "flirtatiousnessPercentage": 67,
+    "confidencePercentage": 90,
+    "flirtatiousnessWeight": 0.75,
+    "confidenceWeight": 0.25,
+    "source": "shipped_profile_library"
+  },
+  "derivativesReady": true,
+  "derivativeError": "",
+  "generatedUtc": "2026-07-17T18:32:01.6945153Z"
+}

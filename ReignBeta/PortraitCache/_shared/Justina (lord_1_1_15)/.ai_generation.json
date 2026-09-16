@@ -1,0 +1,27 @@
+{
+  "version": 1,
+  "cacheKey": "Justina (lord_1_1_15)",
+  "heroStringId": "lord_1_1_15",
+  "characterObjectId": "lord_1_1_15",
+  "characterName": "Justina",
+  "provider": "AtlasCloud",
+  "model": "xai/grok-imagine-image/edit",
+  "adapter": "atlas upload/generate/poll",
+  "sourceSha256": "bf8b1cbaa2ea6fe221c8b1409d8a61c58db1efe0d7f9ab8802481bb1ae7ac5c6",
+  "portraitSha256": "5b2b7ba2a07ef59c8548c040aef6599068f357a45e1f0f50f6b057d55db92a74",
+  "portraitWidth": 832,
+  "portraitHeight": 1248,
+  "physicalConfidence": {
+    "definition": "physical_confidence",
+    "score": 34,
+    "profile": "21-40",
+    "flirtatiousnessPercentage": 30,
+    "confidencePercentage": 45,
+    "flirtatiousnessWeight": 0.75,
+    "confidenceWeight": 0.25,
+    "source": "shipped_profile_library"
+  },
+  "derivativesReady": true,
+  "derivativeError": "",
+  "generatedUtc": "2026-07-17T18:46:52.3300853Z"
+}

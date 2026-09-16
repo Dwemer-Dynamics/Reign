@@ -1,0 +1,27 @@
+{
+  "version": 1,
+  "cacheKey": "Eilidh (lord_5_5_1)",
+  "heroStringId": "lord_5_5_1",
+  "characterObjectId": "lord_5_5_1",
+  "characterName": "Eilidh",
+  "provider": "AtlasCloud",
+  "model": "xai/grok-imagine-image/edit",
+  "adapter": "atlas upload/generate/poll",
+  "sourceSha256": "354850b684ef84ee4526ff6d27a5fa676cf4ec675ae7a462e495ee58aec6fca9",
+  "portraitSha256": "1feb14abc529a299f4c5c9e6c05db8536448c612e52fd25865f6294d434ed462",
+  "portraitWidth": 832,
+  "portraitHeight": 1248,
+  "physicalConfidence": {
+    "definition": "physical_confidence",
+    "score": 46,
+    "profile": "41-60",
+    "flirtatiousnessPercentage": 45,
+    "confidencePercentage": 48,
+    "flirtatiousnessWeight": 0.75,
+    "confidenceWeight": 0.25,
+    "source": "shipped_profile_library"
+  },
+  "derivativesReady": true,
+  "derivativeError": "",
+  "generatedUtc": "2026-07-17T18:31:00.9979465Z"
+}

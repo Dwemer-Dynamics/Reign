@@ -1,0 +1,27 @@
+{
+  "version": 1,
+  "cacheKey": "Ascyron (lord_1_21)",
+  "heroStringId": "lord_1_21",
+  "characterObjectId": "lord_1_21",
+  "characterName": "Ascyron",
+  "provider": "AtlasCloud",
+  "model": "xai/grok-imagine-image/edit",
+  "adapter": "atlas upload/generate/poll",
+  "sourceSha256": "d91113e1d9d93340241001c230db27f07944ccb9a6249c947991c56890f29ac1",
+  "portraitSha256": "83a6de9372407c306fb72325f37abd893f12b4084c4db0537e6343aabf7346ae",
+  "portraitWidth": 832,
+  "portraitHeight": 1248,
+  "physicalConfidence": {
+    "definition": "physical_confidence",
+    "score": 55,
+    "profile": "41-60",
+    "flirtatiousnessPercentage": 49,
+    "confidencePercentage": 72,
+    "flirtatiousnessWeight": 0.75,
+    "confidenceWeight": 0.25,
+    "source": "shipped_profile_library"
+  },
+  "derivativesReady": true,
+  "derivativeError": "",
+  "generatedUtc": "2026-07-17T18:14:08.1302772Z"
+}

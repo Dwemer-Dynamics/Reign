@@ -1,0 +1,27 @@
+{
+  "version": 1,
+  "cacheKey": "Marvarene_Damaranion (reign_court_castle_ES6_mother)",
+  "heroStringId": "reign_court_castle_ES6_mother",
+  "characterObjectId": "reign_court_castle_ES6_mother",
+  "characterName": "Marvarene Damaranion",
+  "provider": "AtlasCloud",
+  "model": "xai/grok-imagine-image/edit",
+  "adapter": "atlas upload/generate/poll",
+  "sourceSha256": "94c03f2074c33f679f4e4d4d76cdbbb1b175654321951eb727d57e68e901f75d",
+  "portraitSha256": "b0c03dd00cf43bc17b28221ac0e175c13bec3826dc205ab528d62b9e4f3317c8",
+  "portraitWidth": 864,
+  "portraitHeight": 1152,
+  "physicalConfidence": {
+    "definition": "physical_confidence",
+    "score": 81,
+    "profile": "81-100",
+    "flirtatiousnessPercentage": 91,
+    "confidencePercentage": 50,
+    "flirtatiousnessWeight": 0.75,
+    "confidenceWeight": 0.25,
+    "source": "shipped_profile_library"
+  },
+  "derivativesReady": true,
+  "derivativeError": "",
+  "generatedUtc": "2026-07-17T19:00:14.9130092Z"
+}

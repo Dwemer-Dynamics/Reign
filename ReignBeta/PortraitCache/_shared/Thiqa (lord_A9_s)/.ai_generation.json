@@ -1,0 +1,27 @@
+{
+  "version": 1,
+  "cacheKey": "Thiqa (lord_A9_s)",
+  "heroStringId": "lord_A9_s",
+  "characterObjectId": "lord_A9_s",
+  "characterName": "Thiqa",
+  "provider": "AtlasCloud",
+  "model": "xai/grok-imagine-image/edit",
+  "adapter": "atlas upload/generate/poll",
+  "sourceSha256": "5cf59e8186693dfe3927048e3d1b4a4992d7606989c0b90400031fb46352e34c",
+  "portraitSha256": "15684e7cc28cb8ec0c57af8f8378abb60593ddc4f858c5d20e1a12eb913416ae",
+  "portraitWidth": 832,
+  "portraitHeight": 1248,
+  "physicalConfidence": {
+    "definition": "physical_confidence",
+    "score": 48,
+    "profile": "41-60",
+    "flirtatiousnessPercentage": 48,
+    "confidencePercentage": 47,
+    "flirtatiousnessWeight": 0.75,
+    "confidenceWeight": 0.25,
+    "source": "shipped_profile_library"
+  },
+  "derivativesReady": true,
+  "derivativeError": "",
+  "generatedUtc": "2026-07-17T19:16:48.2469343Z"
+}

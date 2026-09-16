@@ -1,0 +1,27 @@
+{
+  "version": 1,
+  "cacheKey": "Beranic_Auberacourt (reign_court_castle_V1_child_1)",
+  "heroStringId": "reign_court_castle_V1_child_1",
+  "characterObjectId": "reign_court_castle_V1_child_1",
+  "characterName": "Beranic Auberacourt",
+  "provider": "AtlasCloud",
+  "model": "xai/grok-imagine-image/edit",
+  "adapter": "atlas upload/generate/poll",
+  "sourceSha256": "e73961bed758b028b87f520432030c39ea5562bdc3607b2056ed60cc00fa496e",
+  "portraitSha256": "7d9786c54033090a2120873b3e7eea64fee512148b2c547f6cdc1e7428a122db",
+  "portraitWidth": 864,
+  "portraitHeight": 1152,
+  "physicalConfidence": {
+    "definition": "physical_confidence",
+    "score": 45,
+    "profile": "41-60",
+    "flirtatiousnessPercentage": 55,
+    "confidencePercentage": 16,
+    "flirtatiousnessWeight": 0.75,
+    "confidenceWeight": 0.25,
+    "source": "shipped_profile_library"
+  },
+  "derivativesReady": true,
+  "derivativeError": "",
+  "generatedUtc": "2026-07-17T18:16:20.5277511Z"
+}

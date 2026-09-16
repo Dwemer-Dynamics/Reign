@@ -1,0 +1,27 @@
+{
+  "version": 1,
+  "cacheKey": "Safesa_Sahiriqani (reign_court_town_A7_child_4)",
+  "heroStringId": "reign_court_town_A7_child_4",
+  "characterObjectId": "reign_court_town_A7_child_4",
+  "characterName": "Safesa Sahiriqani",
+  "provider": "AtlasCloud",
+  "model": "xai/grok-imagine-image/edit",
+  "adapter": "atlas upload/generate/poll",
+  "sourceSha256": "aed38cef6df79630c6a88a11229044e690aec904bb1bee809a9d1ae50fb52a81",
+  "portraitSha256": "80fe6e0fb60cd273a4ea8b98bbee6c22c31bd4eb1269fe35a0ad51a5c9eba98b",
+  "portraitWidth": 864,
+  "portraitHeight": 1152,
+  "physicalConfidence": {
+    "definition": "physical_confidence",
+    "score": 27,
+    "profile": "21-40",
+    "flirtatiousnessPercentage": 21,
+    "confidencePercentage": 44,
+    "flirtatiousnessWeight": 0.75,
+    "confidenceWeight": 0.25,
+    "source": "shipped_profile_library"
+  },
+  "derivativesReady": true,
+  "derivativeError": "",
+  "generatedUtc": "2026-07-17T19:12:07.3295596Z"
+}

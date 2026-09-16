@@ -1,0 +1,27 @@
+{
+  "version": 1,
+  "cacheKey": "Galyk (lord_S8_u)",
+  "heroStringId": "lord_S8_u",
+  "characterObjectId": "lord_S8_u",
+  "characterName": "Galyk",
+  "provider": "AtlasCloud",
+  "model": "xai/grok-imagine-image/edit",
+  "adapter": "atlas upload/generate/poll",
+  "sourceSha256": "1be37c1307a7d707402b8c9cf55fa5a02230899e811deaf0384c3a038f9bf374",
+  "portraitSha256": "b078442c4641a5d8a8f6dd311172bd1eb93bd3457f18d04e2abafa2bad28c3c0",
+  "portraitWidth": 832,
+  "portraitHeight": 1248,
+  "physicalConfidence": {
+    "definition": "physical_confidence",
+    "score": 71,
+    "profile": "61-80",
+    "flirtatiousnessPercentage": 87,
+    "confidencePercentage": 22,
+    "flirtatiousnessWeight": 0.75,
+    "confidenceWeight": 0.25,
+    "source": "shipped_profile_library"
+  },
+  "derivativesReady": true,
+  "derivativeError": "",
+  "generatedUtc": "2026-07-17T18:38:32.2747982Z"
+}

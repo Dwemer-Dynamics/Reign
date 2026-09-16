@@ -1,0 +1,92 @@
+{
+  "version": 1,
+  "inputHash": "dee2c22b35bd85a8ed830d133cfb37b72a0309aa0176b5ecf33dee779fe39af6",
+  "catalogHash": "12142c0ab28d2678b12b852b086450dcc4eea45e2e8a080f3baa85c42f7fb3a2",
+  "renderContractHash": "cc3b941e7d47057de9b4220f1473336e6f908719812bb2653b83bd3545cfbd2f",
+  "cacheKey": "Altu (lord_K9_c1)",
+  "heroStringId": "lord_K9_c1",
+  "characterObjectId": "lord_K9_c1",
+  "characterName": "Altu",
+  "ageYears": 24,
+  "cultureId": "khuzait",
+  "cultureName": "Khuzait",
+  "gender": "man",
+  "clanId": "clan_khuzait_9",
+  "clanTier": 2,
+  "clanProvenance": "reign_profile_library",
+  "socialStation": "landowner",
+  "occupation": "Lord",
+  "archetype": "lord",
+  "isLord": true,
+  "isNotable": false,
+  "isWanderer": false,
+  "isAlive": true,
+  "sourceModule": "Native",
+  "sourceFile": "Modules/SandBox/ModuleData/lords.xml",
+  "profileSource": "native_sandbox",
+  "profilePackVersion": "reign_profiles_v4",
+  "bodyKey": "000AB40CC0141840AD48BBECA574462983C78887724DBABB65D6686C8527AA8800D866030D8459A5000000000000000000000000000000000000000063AC10C6",
+  "bodyWeight": 0.3781,
+  "bodyBuild": 0.5478,
+  "faceTemplateId": "",
+  "faceGenerationVersion": "native_authored",
+  "civilianTemplate": "khu_civ_template_default",
+  "civilianEquipment": [
+    {
+      "slot": "Body",
+      "itemId": "khuzait_civil_coat"
+    },
+    {
+      "slot": "Cape",
+      "itemId": "eastern_studded_shoulders"
+    },
+    {
+      "slot": "Leg",
+      "itemId": "khuzait_curved_boots"
+    }
+  ],
+  "headgearSuppressed": true,
+  "physicalConfidence": {
+    "definition": "physical_confidence",
+    "score": 35,
+    "profile": "21-40",
+    "flirtatiousnessPercentage": 23,
+    "confidencePercentage": 70,
+    "flirtatiousnessWeight": 0.75,
+    "confidenceWeight": 0.25,
+    "source": "shipped_profile_library"
+  },
+  "renderPreset": "ai_source_wan_portrait_v5",
+  "renderWidth": 1536,
+  "renderHeight": 2048,
+  "sourceWidth": 768,
+  "sourceHeight": 1024,
+  "cropScale": 0.24,
+  "cropWidthRatio": 0.75,
+  "cropCenterYRatio": 0.324,
+  "cameraPitchDegrees": 4,
+  "sourceSha256": "dd620ee1997f6b0584250793974eb034fa353022c1f08a3b3e36708b48ab0180",
+  "sourceFileName": "source.png",
+  "generationEndpoint": "/portraits/generate",
+  "campaignIdSource": "active_campaign_at_generation_time",
+  "promptDeferred": true,
+  "sourceImageBase64From": "source.png",
+  "outputSizeOverride": "",
+  "promptPurpose": "portrait",
+  "nativePhysique": {
+    "schema": "reign-native-physique-v1",
+    "weight": 0.3781,
+    "build": 0.5478,
+    "weightSource": "shared_portrait_input.bodyWeight",
+    "buildSource": "shared_portrait_input.bodyBuild",
+    "sourceSha256": "dd620ee1997f6b0584250793974eb034fa353022c1f08a3b3e36708b48ab0180",
+    "provenance": {
+      "kind": "saved_character_metadata_backfill",
+      "heroStringId": "lord_K9_c1",
+      "profileSource": "native_sandbox",
+      "profilePackVersion": "reign_profiles_v4",
+      "originalInputSha256": "6d022d96c8c3d74a4f13c9dfdf45d04bd418f84cc6a12f5f298be9ed1d8c0650",
+      "rendererReexecuted": false
+    }
+  }
+}

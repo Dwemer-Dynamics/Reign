@@ -1,0 +1,27 @@
+{
+  "version": 1,
+  "cacheKey": "Aeriran_Glenadawn (reign_court_castle_B6_father)",
+  "heroStringId": "reign_court_castle_B6_father",
+  "characterObjectId": "reign_court_castle_B6_father",
+  "characterName": "Aeriran Glenadawn",
+  "provider": "AtlasCloud",
+  "model": "xai/grok-imagine-image/edit",
+  "adapter": "atlas upload/generate/poll",
+  "sourceSha256": "0197cdf4c371449185c68839354e361c9f742d98b507e45ee451ee7c6421e4fc",
+  "portraitSha256": "21cbb1fe849a192d452c2c89dcd03ea3c00e38bea88a56795e1c82fd8281ba2a",
+  "portraitWidth": 864,
+  "portraitHeight": 1152,
+  "physicalConfidence": {
+    "definition": "physical_confidence",
+    "score": 40,
+    "profile": "21-40",
+    "flirtatiousnessPercentage": 32,
+    "confidencePercentage": 63,
+    "flirtatiousnessWeight": 0.75,
+    "confidenceWeight": 0.25,
+    "source": "shipped_profile_library"
+  },
+  "derivativesReady": true,
+  "derivativeError": "",
+  "generatedUtc": "2026-07-17T17:45:53.4644294Z"
+}

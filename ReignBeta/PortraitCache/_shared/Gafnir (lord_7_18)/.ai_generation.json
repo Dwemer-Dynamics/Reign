@@ -1,0 +1,27 @@
+{
+  "version": 1,
+  "cacheKey": "Gafnir (lord_7_18)",
+  "heroStringId": "lord_7_18",
+  "characterObjectId": "lord_7_18",
+  "characterName": "Gafnir",
+  "provider": "AtlasCloud",
+  "model": "xai/grok-imagine-image/edit",
+  "adapter": "atlas upload/generate/poll",
+  "sourceSha256": "51e56941b5da1247340296947f1b76cb3f00d480ce6f3ef28360dffd84cd6f75",
+  "portraitSha256": "5b51643907b93d57400c268d53bc71d6e566b87cf1af422a7c322a04488d91d1",
+  "portraitWidth": 832,
+  "portraitHeight": 1248,
+  "physicalConfidence": {
+    "definition": "physical_confidence",
+    "score": 50,
+    "profile": "41-60",
+    "flirtatiousnessPercentage": 50,
+    "confidencePercentage": 50,
+    "flirtatiousnessWeight": 0.75,
+    "confidenceWeight": 0.25,
+    "source": "neutral_fallback"
+  },
+  "derivativesReady": true,
+  "derivativeError": "",
+  "generatedUtc": "2026-07-17T18:37:40.5624007Z"
+}

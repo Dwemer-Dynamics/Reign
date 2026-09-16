@@ -1,0 +1,27 @@
+{
+  "version": 1,
+  "cacheKey": "Drenarene_Aurelanion (reign_court_castle_ES4_child_4)",
+  "heroStringId": "reign_court_castle_ES4_child_4",
+  "characterObjectId": "reign_court_castle_ES4_child_4",
+  "characterName": "Drenarene Aurelanion",
+  "provider": "AtlasCloud",
+  "model": "xai/grok-imagine-image/edit",
+  "adapter": "atlas upload/generate/poll",
+  "sourceSha256": "edf364e1f5e4ded0d025138fb5160f4ff6b9af9870043db6ed27bf00bcb3d7ed",
+  "portraitSha256": "798a396390980a07f948bc352795c7fb10b0372498f7f4b109d94515761ac177",
+  "portraitWidth": 864,
+  "portraitHeight": 1152,
+  "physicalConfidence": {
+    "definition": "physical_confidence",
+    "score": 54,
+    "profile": "41-60",
+    "flirtatiousnessPercentage": 45,
+    "confidencePercentage": 80,
+    "flirtatiousnessWeight": 0.75,
+    "confidenceWeight": 0.25,
+    "source": "shipped_profile_library"
+  },
+  "derivativesReady": true,
+  "derivativeError": "",
+  "generatedUtc": "2026-07-17T18:29:08.7937232Z"
+}

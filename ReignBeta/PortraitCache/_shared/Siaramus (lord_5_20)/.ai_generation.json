@@ -1,0 +1,27 @@
+{
+  "version": 1,
+  "cacheKey": "Siaramus (lord_5_20)",
+  "heroStringId": "lord_5_20",
+  "characterObjectId": "lord_5_20",
+  "characterName": "Siaramus",
+  "provider": "AtlasCloud",
+  "model": "xai/grok-imagine-image/edit",
+  "adapter": "atlas upload/generate/poll",
+  "sourceSha256": "bfe4e1580b751f51fcd5f4bfa5492a476aa07fc4b207f02de79b4a7d84a4ca04",
+  "portraitSha256": "5395be457b4083bcaaba29e4df095f2bd239fcb49ab5c6c3acfa2f13a5874a5c",
+  "portraitWidth": 832,
+  "portraitHeight": 1248,
+  "physicalConfidence": {
+    "definition": "physical_confidence",
+    "score": 71,
+    "profile": "61-80",
+    "flirtatiousnessPercentage": 78,
+    "confidencePercentage": 49,
+    "flirtatiousnessWeight": 0.75,
+    "confidenceWeight": 0.25,
+    "source": "shipped_profile_library"
+  },
+  "derivativesReady": true,
+  "derivativeError": "",
+  "generatedUtc": "2026-07-17T19:13:57.5448084Z"
+}

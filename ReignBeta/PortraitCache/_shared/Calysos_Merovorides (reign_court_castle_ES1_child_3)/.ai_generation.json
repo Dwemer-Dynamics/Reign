@@ -1,0 +1,27 @@
+{
+  "version": 1,
+  "cacheKey": "Calysos_Merovorides (reign_court_castle_ES1_child_3)",
+  "heroStringId": "reign_court_castle_ES1_child_3",
+  "characterObjectId": "reign_court_castle_ES1_child_3",
+  "characterName": "Calysos Merovorides",
+  "provider": "AtlasCloud",
+  "model": "xai/grok-imagine-image/edit",
+  "adapter": "atlas upload/generate/poll",
+  "sourceSha256": "169d0db6b68b5f7939a96fe3ab9eb343d8c1ae33cb9081c20278b99a158e1349",
+  "portraitSha256": "e7f6bbfa353d7e9a432dd42a46f246500be90814dff2d2ca08a64e7dbe0df3a9",
+  "portraitWidth": 864,
+  "portraitHeight": 1152,
+  "physicalConfidence": {
+    "definition": "physical_confidence",
+    "score": 38,
+    "profile": "21-40",
+    "flirtatiousnessPercentage": 31,
+    "confidencePercentage": 58,
+    "flirtatiousnessWeight": 0.75,
+    "confidenceWeight": 0.25,
+    "source": "shipped_profile_library"
+  },
+  "derivativesReady": true,
+  "derivativeError": "",
+  "generatedUtc": "2026-07-17T18:21:55.9575495Z"
+}

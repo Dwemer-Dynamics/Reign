@@ -1,0 +1,27 @@
+{
+  "version": 1,
+  "cacheKey": "Drenarion_Aurelarides (reign_court_castle_EN1_child_3)",
+  "heroStringId": "reign_court_castle_EN1_child_3",
+  "characterObjectId": "reign_court_castle_EN1_child_3",
+  "characterName": "Drenarion Aurelarides",
+  "provider": "AtlasCloud",
+  "model": "xai/grok-imagine-image/edit",
+  "adapter": "atlas upload/generate/poll",
+  "sourceSha256": "0ad208d24c73af07b625718ca27879f60dc6650f176001830c3f9729c6f589f2",
+  "portraitSha256": "5d2fc363ca26fc9a62bc5788db890405259a574043d18bd6d978e096f60d3c73",
+  "portraitWidth": 864,
+  "portraitHeight": 1152,
+  "physicalConfidence": {
+    "definition": "physical_confidence",
+    "score": 36,
+    "profile": "21-40",
+    "flirtatiousnessPercentage": 26,
+    "confidencePercentage": 65,
+    "flirtatiousnessWeight": 0.75,
+    "confidenceWeight": 0.25,
+    "source": "shipped_profile_library"
+  },
+  "derivativesReady": true,
+  "derivativeError": "",
+  "generatedUtc": "2026-07-17T18:29:08.8432337Z"
+}

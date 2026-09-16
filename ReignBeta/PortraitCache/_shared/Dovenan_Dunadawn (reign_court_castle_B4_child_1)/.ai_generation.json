@@ -1,0 +1,27 @@
+{
+  "version": 1,
+  "cacheKey": "Dovenan_Dunadawn (reign_court_castle_B4_child_1)",
+  "heroStringId": "reign_court_castle_B4_child_1",
+  "characterObjectId": "reign_court_castle_B4_child_1",
+  "characterName": "Dovenan Dunadawn",
+  "provider": "AtlasCloud",
+  "model": "xai/grok-imagine-image/edit",
+  "adapter": "atlas upload/generate/poll",
+  "sourceSha256": "884da7682a01cfec6f14916824c0b073e2ca5486f4c8a12f07c8fe8bd047d663",
+  "portraitSha256": "0cc5183d66a7a38a2dff8a91310e7c61cf45f45579f28ad5d1ca29e90dfc782f",
+  "portraitWidth": 864,
+  "portraitHeight": 1152,
+  "physicalConfidence": {
+    "definition": "physical_confidence",
+    "score": 41,
+    "profile": "41-60",
+    "flirtatiousnessPercentage": 40,
+    "confidencePercentage": 43,
+    "flirtatiousnessWeight": 0.75,
+    "confidenceWeight": 0.25,
+    "source": "shipped_profile_library"
+  },
+  "derivativesReady": true,
+  "derivativeError": "",
+  "generatedUtc": "2026-07-17T18:28:00.5282524Z"
+}

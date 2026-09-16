@@ -1,0 +1,27 @@
+{
+  "version": 1,
+  "cacheKey": "Torgegan_Khargatai (reign_court_castle_K6_father)",
+  "heroStringId": "reign_court_castle_K6_father",
+  "characterObjectId": "reign_court_castle_K6_father",
+  "characterName": "Torgegan Khargatai",
+  "provider": "AtlasCloud",
+  "model": "xai/grok-imagine-image/edit",
+  "adapter": "atlas upload/generate/poll",
+  "sourceSha256": "82739118103a0b1b2805663ab50fbf8ff65875f1989b9f1cb37b1c15436446eb",
+  "portraitSha256": "3ab1096adc85d20df8f11ce11302b96f8baf6a0ad1ed29d84ab7fd583d9eeb54",
+  "portraitWidth": 864,
+  "portraitHeight": 1152,
+  "physicalConfidence": {
+    "definition": "physical_confidence",
+    "score": 37,
+    "profile": "21-40",
+    "flirtatiousnessPercentage": 35,
+    "confidencePercentage": 42,
+    "flirtatiousnessWeight": 0.75,
+    "confidenceWeight": 0.25,
+    "source": "shipped_profile_library"
+  },
+  "derivativesReady": true,
+  "derivativeError": "",
+  "generatedUtc": "2026-07-17T19:17:36.0117631Z"
+}

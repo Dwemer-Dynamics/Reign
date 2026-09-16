@@ -1,0 +1,27 @@
+{
+  "version": 1,
+  "cacheKey": "Aqar (lord_A9_l)",
+  "heroStringId": "lord_A9_l",
+  "characterObjectId": "lord_A9_l",
+  "characterName": "Aqar",
+  "provider": "AtlasCloud",
+  "model": "xai/grok-imagine-image/edit",
+  "adapter": "atlas upload/generate/poll",
+  "sourceSha256": "5ab27093895f4ce939d8726a60f5726b7591a35a34d240d1e457b3b3ccf63056",
+  "portraitSha256": "a275324e8f10163671a47436295e59d9cc30e9e6d68baa0c37011b554b4e69ba",
+  "portraitWidth": 832,
+  "portraitHeight": 1248,
+  "physicalConfidence": {
+    "definition": "physical_confidence",
+    "score": 43,
+    "profile": "41-60",
+    "flirtatiousnessPercentage": 33,
+    "confidencePercentage": 72,
+    "flirtatiousnessWeight": 0.75,
+    "confidenceWeight": 0.25,
+    "source": "shipped_profile_library"
+  },
+  "derivativesReady": true,
+  "derivativeError": "",
+  "generatedUtc": "2026-07-17T18:12:58.6767192Z"
+}

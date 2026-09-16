@@ -1,0 +1,27 @@
+{
+  "version": 1,
+  "cacheKey": "Calonara_Aurelorides (reign_court_town_EW2_child_2)",
+  "heroStringId": "reign_court_town_EW2_child_2",
+  "characterObjectId": "reign_court_town_EW2_child_2",
+  "characterName": "Calonara Aurelorides",
+  "provider": "AtlasCloud",
+  "model": "xai/grok-imagine-image/edit",
+  "adapter": "atlas upload/generate/poll",
+  "sourceSha256": "b9ae0135cca996e1876724f4a6c62a6c0f370c7394017dcee0f7b7a88c2dcd97",
+  "portraitSha256": "f287d9a08400f361aa866418bc162ff89aa92160fa6dbf54e6839c8563210762",
+  "portraitWidth": 864,
+  "portraitHeight": 1152,
+  "physicalConfidence": {
+    "definition": "physical_confidence",
+    "score": 54,
+    "profile": "41-60",
+    "flirtatiousnessPercentage": 49,
+    "confidencePercentage": 68,
+    "flirtatiousnessWeight": 0.75,
+    "confidenceWeight": 0.25,
+    "source": "shipped_profile_library"
+  },
+  "derivativesReady": true,
+  "derivativeError": "",
+  "generatedUtc": "2026-07-17T18:21:09.0938013Z"
+}

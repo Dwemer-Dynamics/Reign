@@ -1,0 +1,27 @@
+{
+  "version": 1,
+  "cacheKey": "Dyfa (lord_7_4_1)",
+  "heroStringId": "lord_7_4_1",
+  "characterObjectId": "lord_7_4_1",
+  "characterName": "Dyfa",
+  "provider": "AtlasCloud",
+  "model": "xai/grok-imagine-image/edit",
+  "adapter": "atlas upload/generate/poll",
+  "sourceSha256": "fc463046e30b1db28d7c8800662d043359260e91c82eff984f80eb9d5ae677b1",
+  "portraitSha256": "a8314f641174e6a15b3b9b3a8ad68311f816ee87a89eaa925d17e95ded3807f7",
+  "portraitWidth": 832,
+  "portraitHeight": 1248,
+  "physicalConfidence": {
+    "definition": "physical_confidence",
+    "score": 50,
+    "profile": "41-60",
+    "flirtatiousnessPercentage": 50,
+    "confidencePercentage": 50,
+    "flirtatiousnessWeight": 0.75,
+    "confidenceWeight": 0.25,
+    "source": "neutral_fallback"
+  },
+  "derivativesReady": true,
+  "derivativeError": "",
+  "generatedUtc": "2026-07-17T18:31:02.2920189Z"
+}

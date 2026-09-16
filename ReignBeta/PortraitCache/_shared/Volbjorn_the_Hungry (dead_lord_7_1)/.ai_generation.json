@@ -1,0 +1,27 @@
+{
+  "version": 1,
+  "cacheKey": "Volbjorn_the_Hungry (dead_lord_7_1)",
+  "heroStringId": "dead_lord_7_1",
+  "characterObjectId": "dead_lord_7_1",
+  "characterName": "Volbjorn the Hungry",
+  "provider": "AtlasCloud",
+  "model": "xai/grok-imagine-image/edit",
+  "adapter": "atlas upload/generate/poll",
+  "sourceSha256": "025425c63b8128538cfc1575818a19c57a187d05f8e2fc87071f5a9c1a8c4adf",
+  "portraitSha256": "6250784388ea9b06834a24cdc05b96a0dea97da9840f7df7ead7c623b4d67348",
+  "portraitWidth": 864,
+  "portraitHeight": 1152,
+  "physicalConfidence": {
+    "definition": "physical_confidence",
+    "score": 50,
+    "profile": "41-60",
+    "flirtatiousnessPercentage": 50,
+    "confidencePercentage": 50,
+    "flirtatiousnessWeight": 0.75,
+    "confidenceWeight": 0.25,
+    "source": "neutral_fallback"
+  },
+  "derivativesReady": true,
+  "derivativeError": "",
+  "generatedUtc": "2026-07-17T19:21:30.7401922Z"
+}

@@ -1,0 +1,27 @@
+{
+  "version": 1,
+  "cacheKey": "Esur (lord_6_8)",
+  "heroStringId": "lord_6_8",
+  "characterObjectId": "lord_6_8",
+  "characterName": "Esur",
+  "provider": "AtlasCloud",
+  "model": "xai/grok-imagine-image/edit",
+  "adapter": "atlas upload/generate/poll",
+  "sourceSha256": "e4a643a6341c76d93071aa4d878eb0274bc007d289023d690111263bba9f6394",
+  "portraitSha256": "e9b44a40677ac42a101d87b4aea7fc80daffb18d20d043cda4daa168bf5ae0fb",
+  "portraitWidth": 832,
+  "portraitHeight": 1248,
+  "physicalConfidence": {
+    "definition": "physical_confidence",
+    "score": 64,
+    "profile": "61-80",
+    "flirtatiousnessPercentage": 59,
+    "confidencePercentage": 78,
+    "flirtatiousnessWeight": 0.75,
+    "confidenceWeight": 0.25,
+    "source": "shipped_profile_library"
+  },
+  "derivativesReady": true,
+  "derivativeError": "",
+  "generatedUtc": "2026-07-17T18:35:09.2287832Z"
+}

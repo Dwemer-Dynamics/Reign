@@ -1,0 +1,27 @@
+{
+  "version": 1,
+  "cacheKey": "Gawen (lord_5_16_2)",
+  "heroStringId": "lord_5_16_2",
+  "characterObjectId": "lord_5_16_2",
+  "characterName": "Gawen",
+  "provider": "AtlasCloud",
+  "model": "xai/grok-imagine-image/edit",
+  "adapter": "atlas upload/generate/poll",
+  "sourceSha256": "4cc96887c3dad90763b2c1bea46f11ad4cc43db468a8d00a080945ab702aae29",
+  "portraitSha256": "6bd9c5ae4ac9df8164ee6c3d40ab734157161348e4240e0a9f3da8600bb2b005",
+  "portraitWidth": 864,
+  "portraitHeight": 1152,
+  "physicalConfidence": {
+    "definition": "physical_confidence",
+    "score": 49,
+    "profile": "41-60",
+    "flirtatiousnessPercentage": 50,
+    "confidencePercentage": 45,
+    "flirtatiousnessWeight": 0.75,
+    "confidenceWeight": 0.25,
+    "source": "shipped_profile_library"
+  },
+  "derivativesReady": true,
+  "derivativeError": "",
+  "generatedUtc": "2026-07-17T18:38:51.3654838Z"
+}

@@ -1,0 +1,27 @@
+{
+  "version": 1,
+  "cacheKey": "Torgea_Khargatai (reign_court_castle_K6_mother)",
+  "heroStringId": "reign_court_castle_K6_mother",
+  "characterObjectId": "reign_court_castle_K6_mother",
+  "characterName": "Torgea Khargatai",
+  "provider": "AtlasCloud",
+  "model": "xai/grok-imagine-image/edit",
+  "adapter": "atlas upload/generate/poll",
+  "sourceSha256": "21dd27206e1b9516232cfe3366cbb2b80945fb2e2357d64e8bf11440b9cec317",
+  "portraitSha256": "832235452ecc7b5963a74849359095d5ac0360751f186af16922f90c60b18625",
+  "portraitWidth": 864,
+  "portraitHeight": 1152,
+  "physicalConfidence": {
+    "definition": "physical_confidence",
+    "score": 63,
+    "profile": "61-80",
+    "flirtatiousnessPercentage": 70,
+    "confidencePercentage": 41,
+    "flirtatiousnessWeight": 0.75,
+    "confidenceWeight": 0.25,
+    "source": "shipped_profile_library"
+  },
+  "derivativesReady": true,
+  "derivativeError": "",
+  "generatedUtc": "2026-07-17T19:17:37.9966121Z"
+}

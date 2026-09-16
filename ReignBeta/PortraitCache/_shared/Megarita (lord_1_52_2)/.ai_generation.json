@@ -1,0 +1,27 @@
+{
+  "version": 1,
+  "cacheKey": "Megarita (lord_1_52_2)",
+  "heroStringId": "lord_1_52_2",
+  "characterObjectId": "lord_1_52_2",
+  "characterName": "Megarita",
+  "provider": "AtlasCloud",
+  "model": "xai/grok-imagine-image/edit",
+  "adapter": "atlas upload/generate/poll",
+  "sourceSha256": "99515fcc54867d14f275a2330d2442c9170248274ea97e8d1b46fc5f4b16dec2",
+  "portraitSha256": "d2895bb313c563e6d9ba240fe61df747b2a7f5a3d643db91555c0affa0e90b02",
+  "portraitWidth": 864,
+  "portraitHeight": 1152,
+  "physicalConfidence": {
+    "definition": "physical_confidence",
+    "score": 46,
+    "profile": "41-60",
+    "flirtatiousnessPercentage": 46,
+    "confidencePercentage": 45,
+    "flirtatiousnessWeight": 0.75,
+    "confidenceWeight": 0.25,
+    "source": "shipped_profile_library"
+  },
+  "derivativesReady": true,
+  "derivativeError": "",
+  "generatedUtc": "2026-07-17T19:02:38.0613280Z"
+}

@@ -1,0 +1,27 @@
+{
+  "version": 1,
+  "cacheKey": "Evranic_Belmontacourt (reign_court_castle_V2_father)",
+  "heroStringId": "reign_court_castle_V2_father",
+  "characterObjectId": "reign_court_castle_V2_father",
+  "characterName": "Evranic Belmontacourt",
+  "provider": "AtlasCloud",
+  "model": "xai/grok-imagine-image/edit",
+  "adapter": "atlas upload/generate/poll",
+  "sourceSha256": "ffff28d6015a2cadc06e8c70b0f6cec150f6af1f4fea0c6899c83186fdb4e18c",
+  "portraitSha256": "865f0585ea3129f5dd53abb89eafa534dd48b77756ecbd799ee9e5447d19eeab",
+  "portraitWidth": 864,
+  "portraitHeight": 1152,
+  "physicalConfidence": {
+    "definition": "physical_confidence",
+    "score": 73,
+    "profile": "61-80",
+    "flirtatiousnessPercentage": 80,
+    "confidencePercentage": 51,
+    "flirtatiousnessWeight": 0.75,
+    "confidenceWeight": 0.25,
+    "source": "shipped_profile_library"
+  },
+  "derivativesReady": true,
+  "derivativeError": "",
+  "generatedUtc": "2026-07-17T18:35:23.3331666Z"
+}

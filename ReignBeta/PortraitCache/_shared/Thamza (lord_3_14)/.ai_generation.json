@@ -1,0 +1,27 @@
+{
+  "version": 1,
+  "cacheKey": "Thamza (lord_3_14)",
+  "heroStringId": "lord_3_14",
+  "characterObjectId": "lord_3_14",
+  "characterName": "Thamza",
+  "provider": "AtlasCloud",
+  "model": "xai/grok-imagine-image/edit",
+  "adapter": "atlas upload/generate/poll",
+  "sourceSha256": "c84f1e7285f0a1e06d16dbb056dfa450d79efcf91b0bdb123701b39050cf9435",
+  "portraitSha256": "d6c167c1f31a55298e89406c6c2c3deb2d76fba31df47706e35644c1d98022b3",
+  "portraitWidth": 832,
+  "portraitHeight": 1248,
+  "physicalConfidence": {
+    "definition": "physical_confidence",
+    "score": 70,
+    "profile": "61-80",
+    "flirtatiousnessPercentage": 75,
+    "confidencePercentage": 54,
+    "flirtatiousnessWeight": 0.75,
+    "confidenceWeight": 0.25,
+    "source": "shipped_profile_library"
+  },
+  "derivativesReady": true,
+  "derivativeError": "",
+  "generatedUtc": "2026-07-17T19:16:44.6894062Z"
+}

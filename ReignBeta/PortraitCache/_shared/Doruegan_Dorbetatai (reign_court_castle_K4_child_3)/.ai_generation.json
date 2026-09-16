@@ -1,0 +1,27 @@
+{
+  "version": 1,
+  "cacheKey": "Doruegan_Dorbetatai (reign_court_castle_K4_child_3)",
+  "heroStringId": "reign_court_castle_K4_child_3",
+  "characterObjectId": "reign_court_castle_K4_child_3",
+  "characterName": "Doruegan Dorbetatai",
+  "provider": "AtlasCloud",
+  "model": "xai/grok-imagine-image/edit",
+  "adapter": "atlas upload/generate/poll",
+  "sourceSha256": "51d20be1a876cb361fe943f8dfd7069868b6bafc5a3cf2d5f6d60934cfa060ae",
+  "portraitSha256": "8cf307f78c1acd6ff6cb826f63f4948ea5b8e35df48ff4833bb5415a22ddce94",
+  "portraitWidth": 864,
+  "portraitHeight": 1152,
+  "physicalConfidence": {
+    "definition": "physical_confidence",
+    "score": 59,
+    "profile": "41-60",
+    "flirtatiousnessPercentage": 59,
+    "confidencePercentage": 58,
+    "flirtatiousnessWeight": 0.75,
+    "confidenceWeight": 0.25,
+    "source": "shipped_profile_library"
+  },
+  "derivativesReady": true,
+  "derivativeError": "",
+  "generatedUtc": "2026-07-17T18:27:28.3848219Z"
+}

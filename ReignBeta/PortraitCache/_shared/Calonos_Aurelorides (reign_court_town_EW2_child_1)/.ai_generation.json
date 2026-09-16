@@ -1,0 +1,27 @@
+{
+  "version": 1,
+  "cacheKey": "Calonos_Aurelorides (reign_court_town_EW2_child_1)",
+  "heroStringId": "reign_court_town_EW2_child_1",
+  "characterObjectId": "reign_court_town_EW2_child_1",
+  "characterName": "Calonos Aurelorides",
+  "provider": "AtlasCloud",
+  "model": "xai/grok-imagine-image/edit",
+  "adapter": "atlas upload/generate/poll",
+  "sourceSha256": "706e3ba99a843a1bcec4522e7d384c8c4062cf069428e131491dd8544c4a5fd8",
+  "portraitSha256": "d5a9ec1e67a1a86ba7994b9c7b7f546188f8aad392fafd97e9cadbf9a63d25ad",
+  "portraitWidth": 864,
+  "portraitHeight": 1152,
+  "physicalConfidence": {
+    "definition": "physical_confidence",
+    "score": 81,
+    "profile": "81-100",
+    "flirtatiousnessPercentage": 88,
+    "confidencePercentage": 59,
+    "flirtatiousnessWeight": 0.75,
+    "confidenceWeight": 0.25,
+    "source": "shipped_profile_library"
+  },
+  "derivativesReady": true,
+  "derivativeError": "",
+  "generatedUtc": "2026-07-17T18:21:23.5230321Z"
+}

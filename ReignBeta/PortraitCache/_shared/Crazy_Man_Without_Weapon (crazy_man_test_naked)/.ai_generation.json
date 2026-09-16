@@ -1,0 +1,27 @@
+{
+  "version": 1,
+  "cacheKey": "Crazy_Man_Without_Weapon (crazy_man_test_naked)",
+  "heroStringId": "crazy_man_test_naked",
+  "characterObjectId": "crazy_man_test_naked",
+  "characterName": "Crazy Man Without Weapon",
+  "provider": "AtlasCloud",
+  "model": "xai/grok-imagine-image/edit",
+  "adapter": "atlas upload/generate/poll",
+  "sourceSha256": "6122ef6e08c522e1fe97b7f6a35bf20e1b65e509c424e8aaa95d34d98f7b27c5",
+  "portraitSha256": "d3012fede128370d9dfb947bc91c304959bca510b1cde16611f3340861ba814a",
+  "portraitWidth": 864,
+  "portraitHeight": 1152,
+  "physicalConfidence": {
+    "definition": "physical_confidence",
+    "score": 50,
+    "profile": "41-60",
+    "flirtatiousnessPercentage": 50,
+    "confidencePercentage": 50,
+    "flirtatiousnessWeight": 0.75,
+    "confidenceWeight": 0.25,
+    "source": "neutral_fallback"
+  },
+  "derivativesReady": true,
+  "derivativeError": "",
+  "generatedUtc": "2026-07-17T18:25:14.3190077Z"
+}

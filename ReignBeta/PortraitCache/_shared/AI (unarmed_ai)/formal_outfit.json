@@ -1,0 +1,13 @@
+{
+  "version": 1,
+  "heroStringId": "unarmed_ai",
+  "characterName": "AI",
+  "imagePath": "portrait.png",
+  "imageSha256": "D6E1F779901A9428D3FDF6439BD3E5D9327ADB90B4FDE8266899B10877C06CA6",
+  "description": "Their clan is tier unknown, placing them socially among the unranked class. Use this status to guide the refinement, expense, materials, and ornament of their clothing without turning it into fantasy costume.",
+  "status": "failed",
+  "descriptionSource": "portrait_prompt_fallback",
+  "retryEligible": true,
+  "error": "{\"error\":{\"message\":\"Model \\\"zai-org/glm-5.2\\\" does not support image inputs. Remove image content or choose a multimodal model.\",\"type\":\"invalid_request_error\",\"param\":\"messages\",\"code\":\"image_input_not_supported\"}}",
+  "updatedUtc": "2026-07-18T22:03:24.2327771Z"
+}

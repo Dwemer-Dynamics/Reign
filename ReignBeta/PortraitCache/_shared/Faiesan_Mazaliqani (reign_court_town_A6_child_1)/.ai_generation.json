@@ -1,0 +1,27 @@
+{
+  "version": 1,
+  "cacheKey": "Faiesan_Mazaliqani (reign_court_town_A6_child_1)",
+  "heroStringId": "reign_court_town_A6_child_1",
+  "characterObjectId": "reign_court_town_A6_child_1",
+  "characterName": "Faiesan Mazaliqani",
+  "provider": "AtlasCloud",
+  "model": "xai/grok-imagine-image/edit",
+  "adapter": "atlas upload/generate/poll",
+  "sourceSha256": "6bac199f9b2a766f1b4fbb39b969981eac74f8ec21c341c3bb531c9888f697e1",
+  "portraitSha256": "9802492232e30b0f5811d4635a06221c4384ee83c3560338cb5171e13ec75b21",
+  "portraitWidth": 864,
+  "portraitHeight": 1152,
+  "physicalConfidence": {
+    "definition": "physical_confidence",
+    "score": 79,
+    "profile": "61-80",
+    "flirtatiousnessPercentage": 97,
+    "confidencePercentage": 24,
+    "flirtatiousnessWeight": 0.75,
+    "confidenceWeight": 0.25,
+    "source": "shipped_profile_library"
+  },
+  "derivativesReady": true,
+  "derivativeError": "",
+  "generatedUtc": "2026-07-17T18:36:10.5207337Z"
+}

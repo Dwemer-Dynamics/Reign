@@ -1,0 +1,27 @@
+{
+  "version": 1,
+  "cacheKey": "Mazuna_Damasiqani (reign_court_town_A2_mother)",
+  "heroStringId": "reign_court_town_A2_mother",
+  "characterObjectId": "reign_court_town_A2_mother",
+  "characterName": "Mazuna Damasiqani",
+  "provider": "AtlasCloud",
+  "model": "xai/grok-imagine-image/edit",
+  "adapter": "atlas upload/generate/poll",
+  "sourceSha256": "689496dc8e7e730d195e5b810db816b428abddc9e8da422c4fa690e4e8650312",
+  "portraitSha256": "8b8d9d7d41073fd35edf3a074ac71b02aef10d29308739d94e54a3d7959657b7",
+  "portraitWidth": 864,
+  "portraitHeight": 1152,
+  "physicalConfidence": {
+    "definition": "physical_confidence",
+    "score": 57,
+    "profile": "41-60",
+    "flirtatiousnessPercentage": 56,
+    "confidencePercentage": 59,
+    "flirtatiousnessWeight": 0.75,
+    "confidenceWeight": 0.25,
+    "source": "shipped_profile_library"
+  },
+  "derivativesReady": true,
+  "derivativeError": "",
+  "generatedUtc": "2026-07-17T19:02:22.8080845Z"
+}

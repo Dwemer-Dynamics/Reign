@@ -1,0 +1,27 @@
+{
+  "version": 1,
+  "cacheKey": "Callinia (lord_1_30_2)",
+  "heroStringId": "lord_1_30_2",
+  "characterObjectId": "lord_1_30_2",
+  "characterName": "Callinia",
+  "provider": "AtlasCloud",
+  "model": "xai/grok-imagine-image/edit",
+  "adapter": "atlas upload/generate/poll",
+  "sourceSha256": "aa2f432e76c3e16e4c04ef5287ae4fc0a721da7f2ee99e73ec92c42a963095f7",
+  "portraitSha256": "7c206f39f5ecc06fb9cb4b2880308d7e3fcbf5cac9af3e0912e24c942c4c4e2a",
+  "portraitWidth": 864,
+  "portraitHeight": 1152,
+  "physicalConfidence": {
+    "definition": "physical_confidence",
+    "score": 48,
+    "profile": "41-60",
+    "flirtatiousnessPercentage": 50,
+    "confidencePercentage": 41,
+    "flirtatiousnessWeight": 0.75,
+    "confidenceWeight": 0.25,
+    "source": "shipped_profile_library"
+  },
+  "derivativesReady": true,
+  "derivativeError": "",
+  "generatedUtc": "2026-07-17T18:21:09.1393482Z"
+}

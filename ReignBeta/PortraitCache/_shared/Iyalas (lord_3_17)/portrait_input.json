@@ -1,0 +1,92 @@
+{
+  "version": 1,
+  "inputHash": "d4ca38a90654366dde6f122e9ae87104064bfaa7398dbdfd5b1d6c590f5749f3",
+  "catalogHash": "12142c0ab28d2678b12b852b086450dcc4eea45e2e8a080f3baa85c42f7fb3a2",
+  "renderContractHash": "cc3b941e7d47057de9b4220f1473336e6f908719812bb2653b83bd3545cfbd2f",
+  "cacheKey": "Iyalas (lord_3_17)",
+  "heroStringId": "lord_3_17",
+  "characterObjectId": "lord_3_17",
+  "characterName": "Iyalas",
+  "ageYears": 28,
+  "cultureId": "aserai",
+  "cultureName": "Aserai",
+  "gender": "man",
+  "clanId": "clan_aserai_5",
+  "clanTier": 3,
+  "clanProvenance": "reign_profile_library",
+  "socialStation": "lesser lord",
+  "occupation": "Lord",
+  "archetype": "lord",
+  "isLord": true,
+  "isNotable": false,
+  "isWanderer": false,
+  "isAlive": true,
+  "sourceModule": "Native",
+  "sourceFile": "Modules/SandBox/ModuleData/lords.xml",
+  "profileSource": "native_sandbox",
+  "profilePackVersion": "reign_profiles_v4",
+  "bodyKey": "0022EC08800018D57881460A2B7129E25BAA85149355561688997A298E1A795304689046064BC72600000000000000000000000000000000000000001CC070C5",
+  "bodyWeight": 0.568,
+  "bodyBuild": 0.5195,
+  "faceTemplateId": "",
+  "faceGenerationVersion": "native_authored",
+  "civilianTemplate": "ase_civ_template_default",
+  "civilianEquipment": [
+    {
+      "slot": "Body",
+      "itemId": "aserai_civil_d"
+    },
+    {
+      "slot": "Cape",
+      "itemId": "leopard_pelt"
+    },
+    {
+      "slot": "Leg",
+      "itemId": "khuzait_curved_boots"
+    }
+  ],
+  "headgearSuppressed": true,
+  "physicalConfidence": {
+    "definition": "physical_confidence",
+    "score": 46,
+    "profile": "41-60",
+    "flirtatiousnessPercentage": 46,
+    "confidencePercentage": 45,
+    "flirtatiousnessWeight": 0.75,
+    "confidenceWeight": 0.25,
+    "source": "shipped_profile_library"
+  },
+  "renderPreset": "ai_source_wan_portrait_v5",
+  "renderWidth": 1536,
+  "renderHeight": 2048,
+  "sourceWidth": 768,
+  "sourceHeight": 1024,
+  "cropScale": 0.24,
+  "cropWidthRatio": 0.75,
+  "cropCenterYRatio": 0.324,
+  "cameraPitchDegrees": 4,
+  "sourceSha256": "be2cfe551e11e1094cf650c8343176acafcc483ef9187669e775dfffda6f7361",
+  "sourceFileName": "source.png",
+  "generationEndpoint": "/portraits/generate",
+  "campaignIdSource": "active_campaign_at_generation_time",
+  "promptDeferred": true,
+  "sourceImageBase64From": "source.png",
+  "outputSizeOverride": "",
+  "promptPurpose": "portrait",
+  "nativePhysique": {
+    "schema": "reign-native-physique-v1",
+    "weight": 0.568,
+    "build": 0.5195,
+    "weightSource": "shared_portrait_input.bodyWeight",
+    "buildSource": "shared_portrait_input.bodyBuild",
+    "sourceSha256": "be2cfe551e11e1094cf650c8343176acafcc483ef9187669e775dfffda6f7361",
+    "provenance": {
+      "kind": "saved_character_metadata_backfill",
+      "heroStringId": "lord_3_17",
+      "profileSource": "native_sandbox",
+      "profilePackVersion": "reign_profiles_v4",
+      "originalInputSha256": "ad5039e0d551be102e34a292f78b7bbfb9f780ffb531b5a0001a30f371e71750",
+      "rendererReexecuted": false
+    }
+  }
+}

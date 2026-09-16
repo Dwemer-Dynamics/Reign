@@ -1,0 +1,27 @@
+{
+  "version": 1,
+  "cacheKey": "Suran (lord_6_6)",
+  "heroStringId": "lord_6_6",
+  "characterObjectId": "lord_6_6",
+  "characterName": "Suran",
+  "provider": "AtlasCloud",
+  "model": "xai/grok-imagine-image/edit",
+  "adapter": "atlas upload/generate/poll",
+  "sourceSha256": "50e92ac61ff764288a2ce01311c191690e77c097c3d0a3eb881ed602f2fb82b9",
+  "portraitSha256": "305e18912e691e65f6d6cda954ac170c0d7534d58d019303bac84570e794c7ab",
+  "portraitWidth": 832,
+  "portraitHeight": 1248,
+  "physicalConfidence": {
+    "definition": "physical_confidence",
+    "score": 43,
+    "profile": "41-60",
+    "flirtatiousnessPercentage": 45,
+    "confidencePercentage": 36,
+    "flirtatiousnessWeight": 0.75,
+    "confidenceWeight": 0.25,
+    "source": "shipped_profile_library"
+  },
+  "derivativesReady": true,
+  "derivativeError": "",
+  "generatedUtc": "2026-07-17T19:14:56.5218408Z"
+}

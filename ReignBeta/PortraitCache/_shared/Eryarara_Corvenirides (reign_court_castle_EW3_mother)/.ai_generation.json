@@ -1,0 +1,27 @@
+{
+  "version": 1,
+  "cacheKey": "Eryarara_Corvenirides (reign_court_castle_EW3_mother)",
+  "heroStringId": "reign_court_castle_EW3_mother",
+  "characterObjectId": "reign_court_castle_EW3_mother",
+  "characterName": "Eryarara Corvenirides",
+  "provider": "AtlasCloud",
+  "model": "xai/grok-imagine-image/edit",
+  "adapter": "atlas upload/generate/poll",
+  "sourceSha256": "f7ed4c9a4c517d2aba89ec787130d1d30fc92b660ce23e7fa31bc5fa047dd2dd",
+  "portraitSha256": "1db49a1ab2c64d4d81337f0c0b1d570fd9a0284fdb33e1f2a93c7618fc397838",
+  "portraitWidth": 864,
+  "portraitHeight": 1152,
+  "physicalConfidence": {
+    "definition": "physical_confidence",
+    "score": 48,
+    "profile": "41-60",
+    "flirtatiousnessPercentage": 46,
+    "confidencePercentage": 53,
+    "flirtatiousnessWeight": 0.75,
+    "confidenceWeight": 0.25,
+    "source": "shipped_profile_library"
+  },
+  "derivativesReady": true,
+  "derivativeError": "",
+  "generatedUtc": "2026-07-17T18:33:16.5250071Z"
+}

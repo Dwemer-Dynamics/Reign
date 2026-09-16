@@ -1,0 +1,27 @@
+{
+  "version": 1,
+  "cacheKey": "Eryysara_Sorianorides (reign_court_castle_ES2_child_2)",
+  "heroStringId": "reign_court_castle_ES2_child_2",
+  "characterObjectId": "reign_court_castle_ES2_child_2",
+  "characterName": "Eryysara Sorianorides",
+  "provider": "AtlasCloud",
+  "model": "xai/grok-imagine-image/edit",
+  "adapter": "atlas upload/generate/poll",
+  "sourceSha256": "b44d44fe6eb514b444e0b3843245c5cb1e9c0208da086d089e8b79c200fd6ff3",
+  "portraitSha256": "d3af62982683a2e19747e7145c83bf49095db3dc021deff40b7a86fa4e398900",
+  "portraitWidth": 864,
+  "portraitHeight": 1152,
+  "physicalConfidence": {
+    "definition": "physical_confidence",
+    "score": 52,
+    "profile": "41-60",
+    "flirtatiousnessPercentage": 49,
+    "confidencePercentage": 60,
+    "flirtatiousnessWeight": 0.75,
+    "confidenceWeight": 0.25,
+    "source": "shipped_profile_library"
+  },
+  "derivativesReady": true,
+  "derivativeError": "",
+  "generatedUtc": "2026-07-17T18:34:50.1662927Z"
+}

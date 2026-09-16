@@ -1,0 +1,96 @@
+{
+  "version": 1,
+  "inputHash": "cf52808eb54f7e89faa94807cd9de71f592f6ad87635b6bdfd4b14f0ba019718",
+  "catalogHash": "12142c0ab28d2678b12b852b086450dcc4eea45e2e8a080f3baa85c42f7fb3a2",
+  "renderContractHash": "cc3b941e7d47057de9b4220f1473336e6f908719812bb2653b83bd3545cfbd2f",
+  "cacheKey": "Jarminja (lord_7_2)",
+  "heroStringId": "lord_7_2",
+  "characterObjectId": "lord_7_2",
+  "characterName": "Jarminja",
+  "ageYears": 63,
+  "cultureId": "nord",
+  "cultureName": "Nord",
+  "gender": "woman",
+  "clanId": "clan_nord_1",
+  "clanTier": 6,
+  "clanProvenance": "module_heroes_xml_and_clans_xml",
+  "socialStation": "high noble",
+  "occupation": "Lord",
+  "archetype": "lord",
+  "isLord": true,
+  "isNotable": false,
+  "isWanderer": false,
+  "isAlive": null,
+  "sourceModule": "NavalDLC",
+  "sourceFile": "Modules/NavalDLC/ModuleData/naval_lords.xml",
+  "profileSource": "neutral_fallback",
+  "profilePackVersion": "",
+  "bodyKey": "000AA007802C100A3063F379241320F86C599A764AA4442B600800F27200600A0678866807FF7FF600000000000000000000000000000000000000007CF42142",
+  "bodyWeight": 0.5,
+  "bodyBuild": 0.5,
+  "faceTemplateId": "",
+  "faceGenerationVersion": "native_authored",
+  "civilianTemplate": "nord_noncom_template_default",
+  "civilianEquipment": [
+    {
+      "slot": "Body",
+      "itemId": "nordic_civilian_dress"
+    },
+    {
+      "slot": "Cape",
+      "itemId": "cape_norse_lady"
+    },
+    {
+      "slot": "Gloves",
+      "itemId": "nord_casual_bracers"
+    },
+    {
+      "slot": "Leg",
+      "itemId": "highland_leg_wrappings"
+    }
+  ],
+  "headgearSuppressed": true,
+  "physicalConfidence": {
+    "definition": "physical_confidence",
+    "score": 50,
+    "profile": "41-60",
+    "flirtatiousnessPercentage": 50,
+    "confidencePercentage": 50,
+    "flirtatiousnessWeight": 0.75,
+    "confidenceWeight": 0.25,
+    "source": "neutral_fallback"
+  },
+  "renderPreset": "ai_source_wan_portrait_v5",
+  "renderWidth": 1536,
+  "renderHeight": 2048,
+  "sourceWidth": 768,
+  "sourceHeight": 1024,
+  "cropScale": 0.24,
+  "cropWidthRatio": 0.75,
+  "cropCenterYRatio": 0.324,
+  "cameraPitchDegrees": 4,
+  "sourceSha256": "a72d9292e3a79b0b17ee5dc1d9918f500ce00c71b819cf06a3c6dfc962f3d342",
+  "sourceFileName": "source.png",
+  "generationEndpoint": "/portraits/generate",
+  "campaignIdSource": "active_campaign_at_generation_time",
+  "promptDeferred": true,
+  "sourceImageBase64From": "source.png",
+  "outputSizeOverride": "",
+  "promptPurpose": "portrait",
+  "nativePhysique": {
+    "schema": "reign-native-physique-v1",
+    "weight": 0.5,
+    "build": 0.5,
+    "weightSource": "shared_portrait_input.bodyWeight",
+    "buildSource": "shared_portrait_input.bodyBuild",
+    "sourceSha256": "a72d9292e3a79b0b17ee5dc1d9918f500ce00c71b819cf06a3c6dfc962f3d342",
+    "provenance": {
+      "kind": "saved_character_metadata_backfill",
+      "heroStringId": "lord_7_2",
+      "profileSource": "neutral_fallback",
+      "profilePackVersion": "",
+      "originalInputSha256": "c1aad77fc3ad0726214862547c4ba3b7321d322a94eb00bc5c518192baa9b4aa",
+      "rendererReexecuted": false
+    }
+  }
+}

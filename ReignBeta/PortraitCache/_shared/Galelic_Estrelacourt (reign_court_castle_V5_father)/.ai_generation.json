@@ -1,0 +1,27 @@
+{
+  "version": 1,
+  "cacheKey": "Galelic_Estrelacourt (reign_court_castle_V5_father)",
+  "heroStringId": "reign_court_castle_V5_father",
+  "characterObjectId": "reign_court_castle_V5_father",
+  "characterName": "Galelic Estrelacourt",
+  "provider": "AtlasCloud",
+  "model": "xai/grok-imagine-image/edit",
+  "adapter": "atlas upload/generate/poll",
+  "sourceSha256": "075f4883715bc73aa5c5ce0c0b402ad3232a1deb33c76e19064f27f7d2da36f4",
+  "portraitSha256": "5326e26a7834e16624910f11d2a83efd23cc5e9a173d887233d59270559b2a63",
+  "portraitWidth": 864,
+  "portraitHeight": 1152,
+  "physicalConfidence": {
+    "definition": "physical_confidence",
+    "score": 44,
+    "profile": "41-60",
+    "flirtatiousnessPercentage": 35,
+    "confidencePercentage": 70,
+    "flirtatiousnessWeight": 0.75,
+    "confidenceWeight": 0.25,
+    "source": "shipped_profile_library"
+  },
+  "derivativesReady": true,
+  "derivativeError": "",
+  "generatedUtc": "2026-07-17T18:37:55.8141541Z"
+}

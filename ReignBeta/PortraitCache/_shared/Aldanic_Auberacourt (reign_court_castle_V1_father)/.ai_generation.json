@@ -1,0 +1,27 @@
+{
+  "version": 1,
+  "cacheKey": "Aldanic_Auberacourt (reign_court_castle_V1_father)",
+  "heroStringId": "reign_court_castle_V1_father",
+  "characterObjectId": "reign_court_castle_V1_father",
+  "characterName": "Aldanic Auberacourt",
+  "provider": "AtlasCloud",
+  "model": "xai/grok-imagine-image/edit",
+  "adapter": "atlas upload/generate/poll",
+  "sourceSha256": "7f5df3dc793a10a608a805fad8249b97e578273567c83a80bc163e32e5cb497a",
+  "portraitSha256": "341e583648c126074c027a0737e499f725b2517383ed3d112adb85e9cf74b3ea",
+  "portraitWidth": 864,
+  "portraitHeight": 1152,
+  "physicalConfidence": {
+    "definition": "physical_confidence",
+    "score": 56,
+    "profile": "41-60",
+    "flirtatiousnessPercentage": 59,
+    "confidencePercentage": 46,
+    "flirtatiousnessWeight": 0.75,
+    "confidenceWeight": 0.25,
+    "source": "shipped_profile_library"
+  },
+  "derivativesReady": true,
+  "derivativeError": "",
+  "generatedUtc": "2026-07-17T18:10:49.4668870Z"
+}

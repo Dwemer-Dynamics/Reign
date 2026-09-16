@@ -1,0 +1,27 @@
+{
+  "version": 1,
+  "cacheKey": "Tadeos (lord_1_24)",
+  "heroStringId": "lord_1_24",
+  "characterObjectId": "lord_1_24",
+  "characterName": "Tadeos",
+  "provider": "AtlasCloud",
+  "model": "xai/grok-imagine-image/edit",
+  "adapter": "atlas upload/generate/poll",
+  "sourceSha256": "9ad25203fe00f6b7b34514c335c72d44014133a30bbddb4d05c29edfd5def4e2",
+  "portraitSha256": "2d75bdfe4b614f5f236cf95fc4a5f43f7825e846cd94e9224d77a7162139bd93",
+  "portraitWidth": 832,
+  "portraitHeight": 1248,
+  "physicalConfidence": {
+    "definition": "physical_confidence",
+    "score": 70,
+    "profile": "61-80",
+    "flirtatiousnessPercentage": 74,
+    "confidencePercentage": 57,
+    "flirtatiousnessWeight": 0.75,
+    "confidenceWeight": 0.25,
+    "source": "shipped_profile_library"
+  },
+  "derivativesReady": true,
+  "derivativeError": "",
+  "generatedUtc": "2026-07-17T19:15:47.1182225Z"
+}

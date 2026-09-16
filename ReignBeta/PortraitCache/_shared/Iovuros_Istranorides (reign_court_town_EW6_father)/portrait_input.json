@@ -1,0 +1,92 @@
+{
+  "version": 1,
+  "inputHash": "2b3bf86eb2dfd99b3cdff79f7a8ea2f6f4aa927b32203cf7e683c000c4a056a1",
+  "catalogHash": "12142c0ab28d2678b12b852b086450dcc4eea45e2e8a080f3baa85c42f7fb3a2",
+  "renderContractHash": "cc3b941e7d47057de9b4220f1473336e6f908719812bb2653b83bd3545cfbd2f",
+  "cacheKey": "Iovuros_Istranorides (reign_court_town_EW6_father)",
+  "heroStringId": "reign_court_town_EW6_father",
+  "characterObjectId": "reign_court_town_EW6_father",
+  "characterName": "Iovuros Istranorides",
+  "ageYears": 44,
+  "cultureId": "empire",
+  "cultureName": "Imperial",
+  "gender": "man",
+  "clanId": "clan_empire_west_5",
+  "clanTier": 3,
+  "clanProvenance": "reign_profile_library",
+  "socialStation": "lesser lord",
+  "occupation": "Lord",
+  "archetype": "lord",
+  "isLord": true,
+  "isNotable": false,
+  "isWanderer": false,
+  "isAlive": true,
+  "sourceModule": "ReignBeta",
+  "sourceFile": "Modules/ReignBeta/ModuleData/reign_court_lords.xml",
+  "profileSource": "reign_court",
+  "profilePackVersion": "reign_profiles_v4",
+  "bodyKey": "",
+  "bodyWeight": 0.5,
+  "bodyBuild": 0.5,
+  "faceTemplateId": "townsman_empire",
+  "faceGenerationVersion": "reign_court_shared_v1",
+  "civilianTemplate": "emp_civ_template_default",
+  "civilianEquipment": [
+    {
+      "slot": "Body",
+      "itemId": "fine_town_tunic"
+    },
+    {
+      "slot": "Cape",
+      "itemId": "scarf"
+    },
+    {
+      "slot": "Leg",
+      "itemId": "folded_town_boots"
+    }
+  ],
+  "headgearSuppressed": true,
+  "physicalConfidence": {
+    "definition": "physical_confidence",
+    "score": 51,
+    "profile": "41-60",
+    "flirtatiousnessPercentage": 54,
+    "confidencePercentage": 41,
+    "flirtatiousnessWeight": 0.75,
+    "confidenceWeight": 0.25,
+    "source": "shipped_profile_library"
+  },
+  "renderPreset": "ai_source_wan_portrait_v5",
+  "renderWidth": 1536,
+  "renderHeight": 2048,
+  "sourceWidth": 768,
+  "sourceHeight": 1024,
+  "cropScale": 0.24,
+  "cropWidthRatio": 0.75,
+  "cropCenterYRatio": 0.324,
+  "cameraPitchDegrees": 4,
+  "sourceSha256": "59ebecae7ff633b3f73cd277c801db7885171d7477e2da630bf49b125b1e308c",
+  "sourceFileName": "source.png",
+  "generationEndpoint": "/portraits/generate",
+  "campaignIdSource": "active_campaign_at_generation_time",
+  "promptDeferred": true,
+  "sourceImageBase64From": "source.png",
+  "outputSizeOverride": "",
+  "promptPurpose": "portrait",
+  "nativePhysique": {
+    "schema": "reign-native-physique-v1",
+    "weight": 0.5,
+    "build": 0.5,
+    "weightSource": "shared_portrait_input.bodyWeight",
+    "buildSource": "shared_portrait_input.bodyBuild",
+    "sourceSha256": "59ebecae7ff633b3f73cd277c801db7885171d7477e2da630bf49b125b1e308c",
+    "provenance": {
+      "kind": "saved_character_metadata_backfill",
+      "heroStringId": "reign_court_town_EW6_father",
+      "profileSource": "reign_court",
+      "profilePackVersion": "reign_profiles_v4",
+      "originalInputSha256": "f9ef18929426edf09f45afe2956514fca416ac784f87ec20352b85571a696f4d",
+      "rendererReexecuted": false
+    }
+  }
+}

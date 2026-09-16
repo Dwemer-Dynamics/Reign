@@ -1,0 +1,27 @@
+{
+  "version": 1,
+  "cacheKey": "Branoman_Morozaevich (reign_court_castle_S6_child_1)",
+  "heroStringId": "reign_court_castle_S6_child_1",
+  "characterObjectId": "reign_court_castle_S6_child_1",
+  "characterName": "Branoman Morozaevich",
+  "provider": "AtlasCloud",
+  "model": "xai/grok-imagine-image/edit",
+  "adapter": "atlas upload/generate/poll",
+  "sourceSha256": "9bbb63a4ac1d1d2473e8c4799c7fb02d70c47a2865a67a1ab0e0857084ae8059",
+  "portraitSha256": "49c5314ebfbae996174d97fdce83f6269bddff525591b7be659f75ad231b44e1",
+  "portraitWidth": 864,
+  "portraitHeight": 1152,
+  "physicalConfidence": {
+    "definition": "physical_confidence",
+    "score": 73,
+    "profile": "61-80",
+    "flirtatiousnessPercentage": 87,
+    "confidencePercentage": 30,
+    "flirtatiousnessWeight": 0.75,
+    "confidenceWeight": 0.25,
+    "source": "shipped_profile_library"
+  },
+  "derivativesReady": true,
+  "derivativeError": "",
+  "generatedUtc": "2026-07-17T18:19:01.8610667Z"
+}

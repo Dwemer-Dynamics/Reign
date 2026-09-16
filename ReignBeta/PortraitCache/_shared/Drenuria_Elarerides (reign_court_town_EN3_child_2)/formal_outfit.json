@@ -1,0 +1,13 @@
+{
+  "version": 1,
+  "heroStringId": "reign_court_town_EN3_child_2",
+  "characterName": "Drenuria Elarerides",
+  "imagePath": "portrait.png",
+  "imageSha256": "8FE6E1BF94538C231E85BC7BF3F493DEEBA40C1B12EEF0D9DD92F24ACEEB5A0C",
+  "description": "Culturally appropriate everyday Calradic Imperial minor-lord attire inspired by refined late Roman and Byzantine noble clothing. Men should wear a high-quality tunic or long tailored outer coat over fine linen, decorated with narrow woven borders, refined clasps, and a decorated belt. Women should wear a long elegant dress or layered tunic ensemble with shaped sleeves, graceful draping, and tasteful trim around the neckline, cuffs, and edges. The garments should feel polished, educated, urban, and wealthy without resembling full imperial ceremony. No headgear of any kind. No armor, weapons, crowns, imperial regalia, laurel wreaths, or ceremonial robes.",
+  "status": "failed",
+  "descriptionSource": "portrait_prompt_fallback",
+  "retryEligible": true,
+  "error": "{\"error\":{\"message\":\"Model \\\"zai-org/glm-5.2\\\" does not support image inputs. Remove image content or choose a multimodal model.\",\"type\":\"invalid_request_error\",\"param\":\"messages\",\"code\":\"image_input_not_supported\"}}",
+  "updatedUtc": "2026-07-18T22:03:28.0467546Z"
+}

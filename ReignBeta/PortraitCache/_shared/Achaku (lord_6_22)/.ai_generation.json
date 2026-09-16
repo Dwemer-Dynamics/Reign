@@ -1,0 +1,27 @@
+{
+  "version": 1,
+  "cacheKey": "Achaku (lord_6_22)",
+  "heroStringId": "lord_6_22",
+  "characterObjectId": "lord_6_22",
+  "characterName": "Achaku",
+  "provider": "AtlasCloud",
+  "model": "xai/grok-imagine-image/edit",
+  "adapter": "atlas upload/generate/poll",
+  "sourceSha256": "b034036415b1017c4ca0a6a1d09c289debc2dd250ffd460d15384464c10a9c47",
+  "portraitSha256": "ce4a47f4d923460b52d7492a11e8652937eacccbdf81d9232645f6d063aa047f",
+  "portraitWidth": 912,
+  "portraitHeight": 1136,
+  "physicalConfidence": {
+    "definition": "physical_confidence",
+    "score": 60,
+    "profile": "41-60",
+    "flirtatiousnessPercentage": 55,
+    "confidencePercentage": 74,
+    "flirtatiousnessWeight": 0.75,
+    "confidenceWeight": 0.25,
+    "source": "shipped_profile_library"
+  },
+  "derivativesReady": true,
+  "derivativeError": "",
+  "generatedUtc": "2026-07-17T17:36:25.0618524Z"
+}

@@ -1,0 +1,27 @@
+{
+  "version": 1,
+  "cacheKey": "Zuad (lord_3_18_3)",
+  "heroStringId": "lord_3_18_3",
+  "characterObjectId": "lord_3_18_3",
+  "characterName": "Zuad",
+  "provider": "AtlasCloud",
+  "model": "xai/grok-imagine-image/edit",
+  "adapter": "atlas upload/generate/poll",
+  "sourceSha256": "b61670dd9983e403df380ae2f9825925aef07bdecd1932265a3eb07a8ae82fdb",
+  "portraitSha256": "d4a957c9a3c1508fec5f40fb5fd354b8ea110286682285502a11f7a581f11a60",
+  "portraitWidth": 832,
+  "portraitHeight": 1248,
+  "physicalConfidence": {
+    "definition": "physical_confidence",
+    "score": 35,
+    "profile": "21-40",
+    "flirtatiousnessPercentage": 25,
+    "confidencePercentage": 64,
+    "flirtatiousnessWeight": 0.75,
+    "confidenceWeight": 0.25,
+    "source": "shipped_profile_library"
+  },
+  "derivativesReady": true,
+  "derivativeError": "",
+  "generatedUtc": "2026-07-17T19:23:35.3787626Z"
+}

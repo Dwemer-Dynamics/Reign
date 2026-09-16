@@ -1,0 +1,27 @@
+{
+  "version": 1,
+  "cacheKey": "Liorera_Montelacourt (reign_court_castle_V8_child_2)",
+  "heroStringId": "reign_court_castle_V8_child_2",
+  "characterObjectId": "reign_court_castle_V8_child_2",
+  "characterName": "Liorera Montelacourt",
+  "provider": "AtlasCloud",
+  "model": "xai/grok-imagine-image/edit",
+  "adapter": "atlas upload/generate/poll",
+  "sourceSha256": "6cbf5130dffec19d1099776b4747da5ef8fafb2c3d38e4d15d0479e2626d6d6c",
+  "portraitSha256": "22dae1e7772ca48fd2105d0168c2d6ec24da396a74189fe58da3aa938599c4e0",
+  "portraitWidth": 864,
+  "portraitHeight": 1152,
+  "physicalConfidence": {
+    "definition": "physical_confidence",
+    "score": 25,
+    "profile": "21-40",
+    "flirtatiousnessPercentage": 17,
+    "confidencePercentage": 48,
+    "flirtatiousnessWeight": 0.75,
+    "confidenceWeight": 0.25,
+    "source": "shipped_profile_library"
+  },
+  "derivativesReady": true,
+  "derivativeError": "",
+  "generatedUtc": "2026-07-17T18:59:03.9757083Z"
+}

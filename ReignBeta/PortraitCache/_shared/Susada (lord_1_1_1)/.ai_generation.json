@@ -1,0 +1,27 @@
+{
+  "version": 1,
+  "cacheKey": "Susada (lord_1_1_1)",
+  "heroStringId": "lord_1_1_1",
+  "characterObjectId": "lord_1_1_1",
+  "characterName": "Susada",
+  "provider": "AtlasCloud",
+  "model": "xai/grok-imagine-image/edit",
+  "adapter": "atlas upload/generate/poll",
+  "sourceSha256": "02218e5fc4dcbc3750b5756b5b58bc4bf7264a6c9ac11b875ad5ec58e25c3cec",
+  "portraitSha256": "1cb02877371f106e398e249e66e919b50c4ebf7f55cc7c1771fad9f029d2d1a5",
+  "portraitWidth": 832,
+  "portraitHeight": 1248,
+  "physicalConfidence": {
+    "definition": "physical_confidence",
+    "score": 78,
+    "profile": "61-80",
+    "flirtatiousnessPercentage": 89,
+    "confidencePercentage": 44,
+    "flirtatiousnessWeight": 0.75,
+    "confidenceWeight": 0.25,
+    "source": "shipped_profile_library"
+  },
+  "derivativesReady": true,
+  "derivativeError": "",
+  "generatedUtc": "2026-07-17T19:14:55.0135140Z"
+}

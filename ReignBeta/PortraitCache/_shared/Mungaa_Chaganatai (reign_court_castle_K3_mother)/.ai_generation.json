@@ -1,0 +1,27 @@
+{
+  "version": 1,
+  "cacheKey": "Mungaa_Chaganatai (reign_court_castle_K3_mother)",
+  "heroStringId": "reign_court_castle_K3_mother",
+  "characterObjectId": "reign_court_castle_K3_mother",
+  "characterName": "Mungaa Chaganatai",
+  "provider": "AtlasCloud",
+  "model": "xai/grok-imagine-image/edit",
+  "adapter": "atlas upload/generate/poll",
+  "sourceSha256": "78e9c0a23e6b639d0ff350147ec26a7d4bfebee6de19374d4b42a189399e1b5f",
+  "portraitSha256": "8218e71bebf874de9e59a62b168e3117ca3a3e00c5dd3d08d577a678743930a3",
+  "portraitWidth": 864,
+  "portraitHeight": 1152,
+  "physicalConfidence": {
+    "definition": "physical_confidence",
+    "score": 61,
+    "profile": "61-80",
+    "flirtatiousnessPercentage": 63,
+    "confidencePercentage": 54,
+    "flirtatiousnessWeight": 0.75,
+    "confidenceWeight": 0.25,
+    "source": "shipped_profile_library"
+  },
+  "derivativesReady": true,
+  "derivativeError": "",
+  "generatedUtc": "2026-07-17T19:04:47.0826473Z"
+}

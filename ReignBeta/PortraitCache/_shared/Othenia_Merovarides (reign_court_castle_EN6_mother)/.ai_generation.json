@@ -1,0 +1,27 @@
+{
+  "version": 1,
+  "cacheKey": "Othenia_Merovarides (reign_court_castle_EN6_mother)",
+  "heroStringId": "reign_court_castle_EN6_mother",
+  "characterObjectId": "reign_court_castle_EN6_mother",
+  "characterName": "Othenia Merovarides",
+  "provider": "AtlasCloud",
+  "model": "xai/grok-imagine-image/edit",
+  "adapter": "atlas upload/generate/poll",
+  "sourceSha256": "b6ff2e9e4c20de6d82e1f8348b606e0df11f880686ab906125c3ff752e10d8d7",
+  "portraitSha256": "d86a1157257ad4a5962eafbc36f5c7c3a04414adc8f0ec9061bc89aae9f49b07",
+  "portraitWidth": 864,
+  "portraitHeight": 1152,
+  "physicalConfidence": {
+    "definition": "physical_confidence",
+    "score": 53,
+    "profile": "41-60",
+    "flirtatiousnessPercentage": 52,
+    "confidencePercentage": 55,
+    "flirtatiousnessWeight": 0.75,
+    "confidenceWeight": 0.25,
+    "source": "shipped_profile_library"
+  },
+  "derivativesReady": true,
+  "derivativeError": "",
+  "generatedUtc": "2026-07-17T19:07:23.8998474Z"
+}

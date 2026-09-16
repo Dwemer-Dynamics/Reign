@@ -1,0 +1,27 @@
+{
+  "version": 1,
+  "cacheKey": "Boria_Khargatai (reign_court_castle_K6_child_4)",
+  "heroStringId": "reign_court_castle_K6_child_4",
+  "characterObjectId": "reign_court_castle_K6_child_4",
+  "characterName": "Boria Khargatai",
+  "provider": "AtlasCloud",
+  "model": "xai/grok-imagine-image/edit",
+  "adapter": "atlas upload/generate/poll",
+  "sourceSha256": "816538a78b60b512b87177f95dbe90225efd9c51047fe41a473987fa2f33ddcf",
+  "portraitSha256": "3891e659dc49b1028d8ee6d9fbf058d4df53e426d8da4fa5c8520922f52dcc19",
+  "portraitWidth": 864,
+  "portraitHeight": 1152,
+  "physicalConfidence": {
+    "definition": "physical_confidence",
+    "score": 47,
+    "profile": "41-60",
+    "flirtatiousnessPercentage": 48,
+    "confidencePercentage": 43,
+    "flirtatiousnessWeight": 0.75,
+    "confidenceWeight": 0.25,
+    "source": "shipped_profile_library"
+  },
+  "derivativesReady": true,
+  "derivativeError": "",
+  "generatedUtc": "2026-07-17T18:17:59.1332575Z"
+}

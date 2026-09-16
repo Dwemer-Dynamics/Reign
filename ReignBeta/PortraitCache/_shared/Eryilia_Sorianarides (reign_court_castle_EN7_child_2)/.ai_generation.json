@@ -1,0 +1,27 @@
+{
+  "version": 1,
+  "cacheKey": "Eryilia_Sorianarides (reign_court_castle_EN7_child_2)",
+  "heroStringId": "reign_court_castle_EN7_child_2",
+  "characterObjectId": "reign_court_castle_EN7_child_2",
+  "characterName": "Eryilia Sorianarides",
+  "provider": "AtlasCloud",
+  "model": "xai/grok-imagine-image/edit",
+  "adapter": "atlas upload/generate/poll",
+  "sourceSha256": "dd415ed11645f1b292323d2dc7996d3978d9ec8c10dabe69975e332193bb5c4f",
+  "portraitSha256": "b7a1fd9765743d048f9bd73f60f19fe205c0b07acf18a8dbfac2291d48f7696d",
+  "portraitWidth": 864,
+  "portraitHeight": 1152,
+  "physicalConfidence": {
+    "definition": "physical_confidence",
+    "score": 53,
+    "profile": "41-60",
+    "flirtatiousnessPercentage": 51,
+    "confidencePercentage": 58,
+    "flirtatiousnessWeight": 0.75,
+    "confidenceWeight": 0.25,
+    "source": "shipped_profile_library"
+  },
+  "derivativesReady": true,
+  "derivativeError": "",
+  "generatedUtc": "2026-07-17T18:34:04.2754653Z"
+}

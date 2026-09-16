@@ -1,0 +1,13 @@
+{
+  "version": 1,
+  "heroStringId": "dead_lord_2_1",
+  "characterName": "Olek the Old",
+  "imagePath": "portrait.png",
+  "imageSha256": "5846296981E94BEC7382D527347AC3CD26C622B32D7F045A9EB109D2FEAE9499",
+  "description": "Culturally appropriate everyday Sturgian high-noble attire inspired by wealthy medieval Rus aristocracy. Use richly woven wool, fine linen, elegant long coats or kaftans, tasteful embroidery, restrained fur trim, and expertly crafted belts or clasps. Men should wear a stately long noble coat layered over a fine embroidered shirt and tailored trousers. Women should wear a richly cut long dress or overdress with embroidered cuffs, collar, and hem, paired with a fitted outer garment or elegant shoulder layer. The outfit should feel imposing, expensive, and suited to the daily life of a powerful northern noble. No headgear of any kind. No armor, weapons, crowns, full ceremonial regalia, or extravagant fur mantles.",
+  "status": "failed",
+  "descriptionSource": "portrait_prompt_fallback",
+  "retryEligible": true,
+  "error": "{\"error\":{\"message\":\"Model \\\"zai-org/glm-5.2\\\" does not support image inputs. Remove image content or choose a multimodal model.\",\"type\":\"invalid_request_error\",\"param\":\"messages\",\"code\":\"image_input_not_supported\"}}",
+  "updatedUtc": "2026-07-18T22:03:33.0202804Z"
+}

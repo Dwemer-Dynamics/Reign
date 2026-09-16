@@ -1,0 +1,27 @@
+{
+  "version": 1,
+  "cacheKey": "Theavisos (lord_NE8_c1)",
+  "heroStringId": "lord_NE8_c1",
+  "characterObjectId": "lord_NE8_c1",
+  "characterName": "Theavisos",
+  "provider": "AtlasCloud",
+  "model": "xai/grok-imagine-image/edit",
+  "adapter": "atlas upload/generate/poll",
+  "sourceSha256": "87d5c0f92a23f31975a87456eed7b447799e0a86482a47bbb8496d8f9ef2bb57",
+  "portraitSha256": "8de54e7536f2e371ace80e68652a48e676f08caeee6bc390806e679b4edbcdbe",
+  "portraitWidth": 832,
+  "portraitHeight": 1248,
+  "physicalConfidence": {
+    "definition": "physical_confidence",
+    "score": 43,
+    "profile": "41-60",
+    "flirtatiousnessPercentage": 44,
+    "confidencePercentage": 39,
+    "flirtatiousnessWeight": 0.75,
+    "confidenceWeight": 0.25,
+    "source": "shipped_profile_library"
+  },
+  "derivativesReady": true,
+  "derivativeError": "",
+  "generatedUtc": "2026-07-17T19:16:45.7886381Z"
+}

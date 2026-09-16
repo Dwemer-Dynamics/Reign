@@ -1,0 +1,27 @@
+{
+  "version": 1,
+  "cacheKey": "Tyaska (lord_2_16_1)",
+  "heroStringId": "lord_2_16_1",
+  "characterObjectId": "lord_2_16_1",
+  "characterName": "Tyaska",
+  "provider": "AtlasCloud",
+  "model": "xai/grok-imagine-image/edit",
+  "adapter": "atlas upload/generate/poll",
+  "sourceSha256": "07449ef26392159a16ae263caebb3991a474164ec14284a4c6293ade2038de9f",
+  "portraitSha256": "cc2267cb53ecb45a1f448bcbd33167b0f54d45b7e7ba9a3e6da618a9f3b279b7",
+  "portraitWidth": 832,
+  "portraitHeight": 1248,
+  "physicalConfidence": {
+    "definition": "physical_confidence",
+    "score": 60,
+    "profile": "41-60",
+    "flirtatiousnessPercentage": 60,
+    "confidencePercentage": 59,
+    "flirtatiousnessWeight": 0.75,
+    "confidenceWeight": 0.25,
+    "source": "shipped_profile_library"
+  },
+  "derivativesReady": true,
+  "derivativeError": "",
+  "generatedUtc": "2026-07-17T19:19:03.3978043Z"
+}

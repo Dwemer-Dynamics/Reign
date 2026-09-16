@@ -1,0 +1,27 @@
+{
+  "version": 1,
+  "cacheKey": "Pryndor (lord_5_15)",
+  "heroStringId": "lord_5_15",
+  "characterObjectId": "lord_5_15",
+  "characterName": "Pryndor",
+  "provider": "AtlasCloud",
+  "model": "xai/grok-imagine-image/edit",
+  "adapter": "atlas upload/generate/poll",
+  "sourceSha256": "54f5f61ad93704524d1a6341840bed56f58b6a1d0e815151d99e8cd2729157f0",
+  "portraitSha256": "a4d59c54cd86cfd651b527e8514129d16f45f3c39786ea473f48f2ea6a3397ca",
+  "portraitWidth": 832,
+  "portraitHeight": 1248,
+  "physicalConfidence": {
+    "definition": "physical_confidence",
+    "score": 50,
+    "profile": "41-60",
+    "flirtatiousnessPercentage": 42,
+    "confidencePercentage": 73,
+    "flirtatiousnessWeight": 0.75,
+    "confidenceWeight": 0.25,
+    "source": "shipped_profile_library"
+  },
+  "derivativesReady": true,
+  "derivativeError": "",
+  "generatedUtc": "2026-07-17T19:09:41.7063813Z"
+}

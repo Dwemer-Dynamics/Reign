@@ -1,0 +1,27 @@
+{
+  "version": 1,
+  "cacheKey": "Marvares_Damaranion (reign_court_castle_ES6_father)",
+  "heroStringId": "reign_court_castle_ES6_father",
+  "characterObjectId": "reign_court_castle_ES6_father",
+  "characterName": "Marvares Damaranion",
+  "provider": "AtlasCloud",
+  "model": "xai/grok-imagine-image/edit",
+  "adapter": "atlas upload/generate/poll",
+  "sourceSha256": "c6f2d1cb162d9a2107343d5d9ba6216c2ebdef00db704153aa3b139f2d584c1d",
+  "portraitSha256": "a5053f946789e5a0750b5a3d168f2ff29f308dbb5bb1dcacb233b96fde666426",
+  "portraitWidth": 864,
+  "portraitHeight": 1152,
+  "physicalConfidence": {
+    "definition": "physical_confidence",
+    "score": 61,
+    "profile": "61-80",
+    "flirtatiousnessPercentage": 66,
+    "confidencePercentage": 45,
+    "flirtatiousnessWeight": 0.75,
+    "confidenceWeight": 0.25,
+    "source": "shipped_profile_library"
+  },
+  "derivativesReady": true,
+  "derivativeError": "",
+  "generatedUtc": "2026-07-17T19:00:15.5421740Z"
+}

@@ -1,0 +1,27 @@
+{
+  "version": 1,
+  "cacheKey": "Hermit (sp_hermit)",
+  "heroStringId": "sp_hermit",
+  "characterObjectId": "sp_hermit",
+  "characterName": "Hermit",
+  "provider": "AtlasCloud",
+  "model": "xai/grok-imagine-image/edit",
+  "adapter": "atlas upload/generate/poll",
+  "sourceSha256": "b4a5dc9e05a5ff7ad91fb70b8aef90d43ffe3c46e108ea1780095681a00ed43f",
+  "portraitSha256": "d31ee0c54ab9a3e8d97f328ab577763284f244eb71a08bac77743f20857ec203",
+  "portraitWidth": 864,
+  "portraitHeight": 1152,
+  "physicalConfidence": {
+    "definition": "physical_confidence",
+    "score": 50,
+    "profile": "41-60",
+    "flirtatiousnessPercentage": 50,
+    "confidencePercentage": 50,
+    "flirtatiousnessWeight": 0.75,
+    "confidenceWeight": 0.25,
+    "source": "neutral_fallback"
+  },
+  "derivativesReady": true,
+  "derivativeError": "",
+  "generatedUtc": "2026-07-17T18:43:23.8623527Z"
+}

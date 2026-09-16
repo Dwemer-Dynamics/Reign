@@ -1,0 +1,27 @@
+{
+  "version": 1,
+  "cacheKey": "Branonan_Aberedawn (reign_court_town_B1_father)",
+  "heroStringId": "reign_court_town_B1_father",
+  "characterObjectId": "reign_court_town_B1_father",
+  "characterName": "Branonan Aberedawn",
+  "provider": "AtlasCloud",
+  "model": "xai/grok-imagine-image/edit",
+  "adapter": "atlas upload/generate/poll",
+  "sourceSha256": "d1aeab310975c7175218bad83744c942572621ab7e4c9915611059874a17bb19",
+  "portraitSha256": "9721c8a608abe9366902b2179f48c443ac590b2057155f7d197b409cd7730ada",
+  "portraitWidth": 864,
+  "portraitHeight": 1152,
+  "physicalConfidence": {
+    "definition": "physical_confidence",
+    "score": 69,
+    "profile": "61-80",
+    "flirtatiousnessPercentage": 63,
+    "confidencePercentage": 86,
+    "flirtatiousnessWeight": 0.75,
+    "confidenceWeight": 0.25,
+    "source": "shipped_profile_library"
+  },
+  "derivativesReady": true,
+  "derivativeError": "",
+  "generatedUtc": "2026-07-17T18:19:02.2683424Z"
+}

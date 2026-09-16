@@ -1,0 +1,96 @@
+{
+  "version": 1,
+  "inputHash": "e24a7a848ab48f06115c73327976fa759262b05acad5415b5b6578d46a351743",
+  "catalogHash": "12142c0ab28d2678b12b852b086450dcc4eea45e2e8a080f3baa85c42f7fb3a2",
+  "renderContractHash": "cc3b941e7d47057de9b4220f1473336e6f908719812bb2653b83bd3545cfbd2f",
+  "cacheKey": "Svedorn (lord_2_21)",
+  "heroStringId": "lord_2_21",
+  "characterObjectId": "lord_2_21",
+  "characterName": "Svedorn",
+  "ageYears": 33,
+  "cultureId": "sturgia",
+  "cultureName": "Sturgian",
+  "gender": "man",
+  "clanId": "clan_sturgia_4",
+  "clanTier": 4,
+  "clanProvenance": "reign_profile_library",
+  "socialStation": "lesser lord",
+  "occupation": "Lord",
+  "archetype": "lord",
+  "isLord": true,
+  "isNotable": false,
+  "isWanderer": false,
+  "isAlive": true,
+  "sourceModule": "Native",
+  "sourceFile": "Modules/SandBox/ModuleData/lords.xml",
+  "profileSource": "native_sandbox",
+  "profilePackVersion": "reign_profiles_v4",
+  "bodyKey": "00001C0B4B0004D4C9BC38753878986C9767762692703328AB5977498679886A00CA00030C5A99D9000000000000000000000000000000000000000039982082",
+  "bodyWeight": 0,
+  "bodyBuild": 0.6725,
+  "faceTemplateId": "",
+  "faceGenerationVersion": "native_authored",
+  "civilianTemplate": "stu_civ_template_default",
+  "civilianEquipment": [
+    {
+      "slot": "Body",
+      "itemId": "sturgia_light_tunic"
+    },
+    {
+      "slot": "Cape",
+      "itemId": "scarf"
+    },
+    {
+      "slot": "Gloves",
+      "itemId": "leather_gloves"
+    },
+    {
+      "slot": "Leg",
+      "itemId": "leather_cavalier_boots"
+    }
+  ],
+  "headgearSuppressed": true,
+  "physicalConfidence": {
+    "definition": "physical_confidence",
+    "score": 39,
+    "profile": "21-40",
+    "flirtatiousnessPercentage": 34,
+    "confidencePercentage": 53,
+    "flirtatiousnessWeight": 0.75,
+    "confidenceWeight": 0.25,
+    "source": "shipped_profile_library"
+  },
+  "renderPreset": "ai_source_wan_portrait_v5",
+  "renderWidth": 1536,
+  "renderHeight": 2048,
+  "sourceWidth": 768,
+  "sourceHeight": 1024,
+  "cropScale": 0.24,
+  "cropWidthRatio": 0.75,
+  "cropCenterYRatio": 0.324,
+  "cameraPitchDegrees": 4,
+  "sourceSha256": "6c998eaa96a74aa6b1e1252e4742da72f0bc26bf269a88077ed4cd5e9dbcffd1",
+  "sourceFileName": "source.png",
+  "generationEndpoint": "/portraits/generate",
+  "campaignIdSource": "active_campaign_at_generation_time",
+  "promptDeferred": true,
+  "sourceImageBase64From": "source.png",
+  "outputSizeOverride": "",
+  "promptPurpose": "portrait",
+  "nativePhysique": {
+    "schema": "reign-native-physique-v1",
+    "weight": 0,
+    "build": 0.6725,
+    "weightSource": "shared_portrait_input.bodyWeight",
+    "buildSource": "shared_portrait_input.bodyBuild",
+    "sourceSha256": "6c998eaa96a74aa6b1e1252e4742da72f0bc26bf269a88077ed4cd5e9dbcffd1",
+    "provenance": {
+      "kind": "saved_character_metadata_backfill",
+      "heroStringId": "lord_2_21",
+      "profileSource": "native_sandbox",
+      "profilePackVersion": "reign_profiles_v4",
+      "originalInputSha256": "7b87eda87766a21a21a5cc06a575d3bb4697f8b1e2c82965576c4b2566d2a4c2",
+      "rendererReexecuted": false
+    }
+  }
+}

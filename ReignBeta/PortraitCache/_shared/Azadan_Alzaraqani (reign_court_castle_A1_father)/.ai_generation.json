@@ -1,0 +1,27 @@
+{
+  "version": 1,
+  "cacheKey": "Azadan_Alzaraqani (reign_court_castle_A1_father)",
+  "heroStringId": "reign_court_castle_A1_father",
+  "characterObjectId": "reign_court_castle_A1_father",
+  "characterName": "Azadan Alzaraqani",
+  "provider": "AtlasCloud",
+  "model": "xai/grok-imagine-image/edit",
+  "adapter": "atlas upload/generate/poll",
+  "sourceSha256": "536344fe70be9152e85c13b1ddac5e5aabfdc370b96329c9d705fedd17015789",
+  "portraitSha256": "e70a5b3cdb467155e560bd29b5d4d7feaa101db9b031d8395d6fcbc98f387e47",
+  "portraitWidth": 864,
+  "portraitHeight": 1152,
+  "physicalConfidence": {
+    "definition": "physical_confidence",
+    "score": 63,
+    "profile": "61-80",
+    "flirtatiousnessPercentage": 58,
+    "confidencePercentage": 77,
+    "flirtatiousnessWeight": 0.75,
+    "confidenceWeight": 0.25,
+    "source": "shipped_profile_library"
+  },
+  "derivativesReady": true,
+  "derivativeError": "",
+  "generatedUtc": "2026-07-17T18:14:27.8945856Z"
+}

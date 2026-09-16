@@ -1,0 +1,27 @@
+{
+  "version": 1,
+  "cacheKey": "Torua_Emrysedawn (reign_court_town_B5_child_4)",
+  "heroStringId": "reign_court_town_B5_child_4",
+  "characterObjectId": "reign_court_town_B5_child_4",
+  "characterName": "Torua Emrysedawn",
+  "provider": "AtlasCloud",
+  "model": "xai/grok-imagine-image/edit",
+  "adapter": "atlas upload/generate/poll",
+  "sourceSha256": "8279c582886641829d279bfa10906d7cba8b955045e760aee9e7e1e9103740a0",
+  "portraitSha256": "8d0d68c24e4319e4bfce93967ca0718beab75cdbbb0e1c389f4a587ec13dac2a",
+  "portraitWidth": 864,
+  "portraitHeight": 1152,
+  "physicalConfidence": {
+    "definition": "physical_confidence",
+    "score": 51,
+    "profile": "41-60",
+    "flirtatiousnessPercentage": 48,
+    "confidencePercentage": 59,
+    "flirtatiousnessWeight": 0.75,
+    "confidenceWeight": 0.25,
+    "source": "shipped_profile_library"
+  },
+  "derivativesReady": true,
+  "derivativeError": "",
+  "generatedUtc": "2026-07-17T19:18:09.9034000Z"
+}

@@ -1,0 +1,27 @@
+{
+  "version": 1,
+  "cacheKey": "Arzagos (storymode_imperial_mentor_arzagos)",
+  "heroStringId": "storymode_imperial_mentor_arzagos",
+  "characterObjectId": "storymode_imperial_mentor_arzagos",
+  "characterName": "Arzagos",
+  "provider": "AtlasCloud",
+  "model": "xai/grok-imagine-image/edit",
+  "adapter": "atlas upload/generate/poll",
+  "sourceSha256": "d6e3d4470312386251f90946e268d70d71ed5369aadb0e8f3a9b507005eca44b",
+  "portraitSha256": "703198c3aa20b640cb90ae1af94656a87853c2d4abd752ba33dcc3b969829489",
+  "portraitWidth": 864,
+  "portraitHeight": 1152,
+  "physicalConfidence": {
+    "definition": "physical_confidence",
+    "score": 50,
+    "profile": "41-60",
+    "flirtatiousnessPercentage": 50,
+    "confidencePercentage": 50,
+    "flirtatiousnessWeight": 0.75,
+    "confidenceWeight": 0.25,
+    "source": "neutral_fallback"
+  },
+  "derivativesReady": true,
+  "derivativeError": "",
+  "generatedUtc": "2026-07-17T18:14:07.1209303Z"
+}

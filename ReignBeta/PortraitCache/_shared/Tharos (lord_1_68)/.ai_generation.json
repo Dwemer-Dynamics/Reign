@@ -1,0 +1,27 @@
+{
+  "version": 1,
+  "cacheKey": "Tharos (lord_1_68)",
+  "heroStringId": "lord_1_68",
+  "characterObjectId": "lord_1_68",
+  "characterName": "Tharos",
+  "provider": "AtlasCloud",
+  "model": "xai/grok-imagine-image/edit",
+  "adapter": "atlas upload/generate/poll",
+  "sourceSha256": "229986ef5a2aa33e685f051a65260ac26607a605ca662638e9fefe0c8e4dbad4",
+  "portraitSha256": "2e78b11d3d6fd257b9ed5bd611f21f7fd11aef2277537160c5c0f43089b1b9d5",
+  "portraitWidth": 832,
+  "portraitHeight": 1248,
+  "physicalConfidence": {
+    "definition": "physical_confidence",
+    "score": 47,
+    "profile": "41-60",
+    "flirtatiousnessPercentage": 34,
+    "confidencePercentage": 85,
+    "flirtatiousnessWeight": 0.75,
+    "confidenceWeight": 0.25,
+    "source": "shipped_profile_library"
+  },
+  "derivativesReady": true,
+  "derivativeError": "",
+  "generatedUtc": "2026-07-17T19:16:44.6303138Z"
+}

@@ -1,0 +1,27 @@
+{
+  "version": 1,
+  "cacheKey": "(Brother_name_set_by_culture) (tutorial_npc_brother)",
+  "heroStringId": "tutorial_npc_brother",
+  "characterObjectId": "tutorial_npc_brother",
+  "characterName": "(Brother name set by culture)",
+  "provider": "AtlasCloud",
+  "model": "xai/grok-imagine-image/edit",
+  "adapter": "atlas upload/generate/poll",
+  "sourceSha256": "31086e7c35d80a480c81f658f4df4b178060b62c65cc30d1a9a8aae1ca748f21",
+  "portraitSha256": "5af944701ae5cc8587e9ce2a43745b96b2631033e3f849148e06809121ab7492",
+  "portraitWidth": 864,
+  "portraitHeight": 1152,
+  "physicalConfidence": {
+    "definition": "physical_confidence",
+    "score": 50,
+    "profile": "41-60",
+    "flirtatiousnessPercentage": 50,
+    "confidencePercentage": 50,
+    "flirtatiousnessWeight": 0.75,
+    "confidenceWeight": 0.25,
+    "source": "neutral_fallback"
+  },
+  "derivativesReady": true,
+  "derivativeError": "",
+  "generatedUtc": "2026-07-17T17:35:52.2948054Z"
+}

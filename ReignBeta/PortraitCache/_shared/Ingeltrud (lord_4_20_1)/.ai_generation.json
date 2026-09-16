@@ -1,0 +1,27 @@
+{
+  "version": 1,
+  "cacheKey": "Ingeltrud (lord_4_20_1)",
+  "heroStringId": "lord_4_20_1",
+  "characterObjectId": "lord_4_20_1",
+  "characterName": "Ingeltrud",
+  "provider": "AtlasCloud",
+  "model": "xai/grok-imagine-image/edit",
+  "adapter": "atlas upload/generate/poll",
+  "sourceSha256": "42bd2b4389341cce6d7e517b3b9801657f949de948a6ffa790eefb897f72e2d3",
+  "portraitSha256": "704759bf1ce53749b5bdf485b36fc97b68b97e7ad91270ab8ca1b1fe1d4ddf31",
+  "portraitWidth": 832,
+  "portraitHeight": 1248,
+  "physicalConfidence": {
+    "definition": "physical_confidence",
+    "score": 74,
+    "profile": "61-80",
+    "flirtatiousnessPercentage": 79,
+    "confidencePercentage": 58,
+    "flirtatiousnessWeight": 0.75,
+    "confidenceWeight": 0.25,
+    "source": "shipped_profile_library"
+  },
+  "derivativesReady": true,
+  "derivativeError": "",
+  "generatedUtc": "2026-07-17T18:44:06.0236353Z"
+}

@@ -1,0 +1,27 @@
+{
+  "version": 1,
+  "cacheKey": "Miroula_Droveevich (reign_court_town_S2_child_2)",
+  "heroStringId": "reign_court_town_S2_child_2",
+  "characterObjectId": "reign_court_town_S2_child_2",
+  "characterName": "Miroula Droveevich",
+  "provider": "AtlasCloud",
+  "model": "xai/grok-imagine-image/edit",
+  "adapter": "atlas upload/generate/poll",
+  "sourceSha256": "6fabb7667a4918046657a23c325734857ce69fbc1c9de861371fb82015968ca8",
+  "portraitSha256": "1cb5a50e7dc53e52c91b5689f71c2d42b6e3c46753bd218c5c7a6fd60dad1e9b",
+  "portraitWidth": 864,
+  "portraitHeight": 1152,
+  "physicalConfidence": {
+    "definition": "physical_confidence",
+    "score": 55,
+    "profile": "41-60",
+    "flirtatiousnessPercentage": 50,
+    "confidencePercentage": 69,
+    "flirtatiousnessWeight": 0.75,
+    "confidenceWeight": 0.25,
+    "source": "shipped_profile_library"
+  },
+  "derivativesReady": true,
+  "derivativeError": "",
+  "generatedUtc": "2026-07-17T19:04:12.5283028Z"
+}

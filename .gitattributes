@@ -20,5 +20,10 @@ ReignBeta/GUI/Fonts/**/*.txt text eol=lf
 *.jpeg binary
 *.webp binary
 *.gif binary
+ReignBeta/PortraitCache/_shared/**/*.png filter=lfs diff=lfs merge=lfs -text
 *.woff binary
 *.woff2 binary
+
+# Preserve the approved portrait inventory's text hashes across clean checkouts.
+ReignBeta/PortraitCache/_shared/**/*.json text eol=crlf
+ReignBeta/PortraitCache/_shared/**/*.txt text eol=lf

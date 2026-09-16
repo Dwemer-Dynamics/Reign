@@ -1,0 +1,27 @@
+{
+  "version": 1,
+  "cacheKey": "Hafisa (lord_3_18_2)",
+  "heroStringId": "lord_3_18_2",
+  "characterObjectId": "lord_3_18_2",
+  "characterName": "Hafisa",
+  "provider": "AtlasCloud",
+  "model": "xai/grok-imagine-image/edit",
+  "adapter": "atlas upload/generate/poll",
+  "sourceSha256": "47d0f860f8d8c88a0c639d517a63c745f0f3b414ae708af009868e5ee1c6353a",
+  "portraitSha256": "c50f540c94ca0dbcb6164fa714b599adfac9310e58d9274896c6f3bf2b7c749d",
+  "portraitWidth": 832,
+  "portraitHeight": 1248,
+  "physicalConfidence": {
+    "definition": "physical_confidence",
+    "score": 70,
+    "profile": "61-80",
+    "flirtatiousnessPercentage": 78,
+    "confidencePercentage": 45,
+    "flirtatiousnessWeight": 0.75,
+    "confidenceWeight": 0.25,
+    "source": "shipped_profile_library"
+  },
+  "derivativesReady": true,
+  "derivativeError": "",
+  "generatedUtc": "2026-07-17T18:41:58.1706738Z"
+}

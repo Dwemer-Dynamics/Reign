@@ -1,0 +1,27 @@
+{
+  "version": 1,
+  "cacheKey": "Pericleia (spc_e3_character_5)",
+  "heroStringId": "spc_e3_character_5",
+  "characterObjectId": "spc_e3_character_5",
+  "characterName": "Pericleia",
+  "provider": "AtlasCloud",
+  "model": "xai/grok-imagine-image/edit",
+  "adapter": "atlas upload/generate/poll",
+  "sourceSha256": "908540fc3d88ba25982d4cfe16c3475a94b132f303caebbd3e14de3287180fee",
+  "portraitSha256": "93aa5c20e778d8a84de10dfd854260afcb57eb23fcb386aa176fd6c65e1d3484",
+  "portraitWidth": 864,
+  "portraitHeight": 1152,
+  "physicalConfidence": {
+    "definition": "physical_confidence",
+    "score": 50,
+    "profile": "41-60",
+    "flirtatiousnessPercentage": 50,
+    "confidencePercentage": 50,
+    "flirtatiousnessWeight": 0.75,
+    "confidenceWeight": 0.25,
+    "source": "neutral_fallback"
+  },
+  "derivativesReady": true,
+  "derivativeError": "",
+  "generatedUtc": "2026-07-17T19:09:00.7723935Z"
+}

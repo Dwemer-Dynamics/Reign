@@ -1,0 +1,27 @@
+{
+  "version": 1,
+  "cacheKey": "Drenilara_Sorianirides (reign_court_castle_EW8_mother)",
+  "heroStringId": "reign_court_castle_EW8_mother",
+  "characterObjectId": "reign_court_castle_EW8_mother",
+  "characterName": "Drenilara Sorianirides",
+  "provider": "AtlasCloud",
+  "model": "xai/grok-imagine-image/edit",
+  "adapter": "atlas upload/generate/poll",
+  "sourceSha256": "d00cb25e3ef939115db9f0e8f2a4080421453816cf6cd0688fc16cb2ea02789c",
+  "portraitSha256": "788ee8d1e8c31eb612187a315f104b826f58b2e1733d959fbc84e33e7318021b",
+  "portraitWidth": 864,
+  "portraitHeight": 1152,
+  "physicalConfidence": {
+    "definition": "physical_confidence",
+    "score": 73,
+    "profile": "61-80",
+    "flirtatiousnessPercentage": 77,
+    "confidencePercentage": 60,
+    "flirtatiousnessWeight": 0.75,
+    "confidenceWeight": 0.25,
+    "source": "shipped_profile_library"
+  },
+  "derivativesReady": true,
+  "derivativeError": "",
+  "generatedUtc": "2026-07-17T18:29:38.6031043Z"
+}

@@ -1,0 +1,27 @@
+{
+  "version": 1,
+  "cacheKey": "Branyka_Goreevich (reign_court_town_S3_child_4)",
+  "heroStringId": "reign_court_town_S3_child_4",
+  "characterObjectId": "reign_court_town_S3_child_4",
+  "characterName": "Branyka Goreevich",
+  "provider": "AtlasCloud",
+  "model": "xai/grok-imagine-image/edit",
+  "adapter": "atlas upload/generate/poll",
+  "sourceSha256": "49a9c16545dcf370b2d7bbcc9e9ed36a749d1a4b70a05b38d9c2010750be4e4f",
+  "portraitSha256": "f0305860aa944549e80c977937a10e90bb950028ee5ca8f70d7f235569418701",
+  "portraitWidth": 864,
+  "portraitHeight": 1152,
+  "physicalConfidence": {
+    "definition": "physical_confidence",
+    "score": 62,
+    "profile": "61-80",
+    "flirtatiousnessPercentage": 67,
+    "confidencePercentage": 46,
+    "flirtatiousnessWeight": 0.75,
+    "confidenceWeight": 0.25,
+    "source": "shipped_profile_library"
+  },
+  "derivativesReady": true,
+  "derivativeError": "",
+  "generatedUtc": "2026-07-17T18:19:35.9827124Z"
+}

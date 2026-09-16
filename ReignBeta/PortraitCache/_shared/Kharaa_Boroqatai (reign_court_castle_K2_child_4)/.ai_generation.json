@@ -1,0 +1,27 @@
+{
+  "version": 1,
+  "cacheKey": "Kharaa_Boroqatai (reign_court_castle_K2_child_4)",
+  "heroStringId": "reign_court_castle_K2_child_4",
+  "characterObjectId": "reign_court_castle_K2_child_4",
+  "characterName": "Kharaa Boroqatai",
+  "provider": "AtlasCloud",
+  "model": "xai/grok-imagine-image/edit",
+  "adapter": "atlas upload/generate/poll",
+  "sourceSha256": "a2df963d98587c87d4fc0a32150d842b7ffd2c155af46741275803bcac596c74",
+  "portraitSha256": "592b5e84f648700a958e68704ccab77e6c73b291f19ece7f72e69f8f82736d9d",
+  "portraitWidth": 864,
+  "portraitHeight": 1152,
+  "physicalConfidence": {
+    "definition": "physical_confidence",
+    "score": 77,
+    "profile": "61-80",
+    "flirtatiousnessPercentage": 72,
+    "confidencePercentage": 91,
+    "flirtatiousnessWeight": 0.75,
+    "confidenceWeight": 0.25,
+    "source": "shipped_profile_library"
+  },
+  "derivativesReady": true,
+  "derivativeError": "",
+  "generatedUtc": "2026-07-17T18:47:11.8930324Z"
+}

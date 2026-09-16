@@ -1,0 +1,27 @@
+{
+  "version": 1,
+  "cacheKey": "Sophalia (lord_1_57_1)",
+  "heroStringId": "lord_1_57_1",
+  "characterObjectId": "lord_1_57_1",
+  "characterName": "Sophalia",
+  "provider": "AtlasCloud",
+  "model": "xai/grok-imagine-image/edit",
+  "adapter": "atlas upload/generate/poll",
+  "sourceSha256": "2123b0bbc27e28b30228658669541ad297d1935218899cff111e9d15ab6dfc0f",
+  "portraitSha256": "16fde47220508fd45af8355459a7cdf8f8cdbb4bfc2892f13c49f1c5d67aa626",
+  "portraitWidth": 832,
+  "portraitHeight": 1248,
+  "physicalConfidence": {
+    "definition": "physical_confidence",
+    "score": 54,
+    "profile": "41-60",
+    "flirtatiousnessPercentage": 56,
+    "confidencePercentage": 47,
+    "flirtatiousnessWeight": 0.75,
+    "confidenceWeight": 0.25,
+    "source": "shipped_profile_library"
+  },
+  "derivativesReady": true,
+  "derivativeError": "",
+  "generatedUtc": "2026-07-17T19:14:37.5255707Z"
+}

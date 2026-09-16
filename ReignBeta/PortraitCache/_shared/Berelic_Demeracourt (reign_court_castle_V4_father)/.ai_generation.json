@@ -1,0 +1,27 @@
+{
+  "version": 1,
+  "cacheKey": "Berelic_Demeracourt (reign_court_castle_V4_father)",
+  "heroStringId": "reign_court_castle_V4_father",
+  "characterObjectId": "reign_court_castle_V4_father",
+  "characterName": "Berelic Demeracourt",
+  "provider": "AtlasCloud",
+  "model": "xai/grok-imagine-image/edit",
+  "adapter": "atlas upload/generate/poll",
+  "sourceSha256": "35f8ceda3b8224679122443d55940bc12caac42de30e41aaf8a42e629a0d0707",
+  "portraitSha256": "e7bacdb0ea3f95992ea7eede26785e6aa16c6f998fcf184ed4711c4c7983779f",
+  "portraitWidth": 864,
+  "portraitHeight": 1152,
+  "physicalConfidence": {
+    "definition": "physical_confidence",
+    "score": 45,
+    "profile": "41-60",
+    "flirtatiousnessPercentage": 46,
+    "confidencePercentage": 41,
+    "flirtatiousnessWeight": 0.75,
+    "confidenceWeight": 0.25,
+    "source": "shipped_profile_library"
+  },
+  "derivativesReady": true,
+  "derivativeError": "",
+  "generatedUtc": "2026-07-17T18:16:38.5744178Z"
+}

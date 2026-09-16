@@ -1,0 +1,27 @@
+{
+  "version": 1,
+  "cacheKey": "Haqan (lord_3_51)",
+  "heroStringId": "lord_3_51",
+  "characterObjectId": "lord_3_51",
+  "characterName": "Haqan",
+  "provider": "AtlasCloud",
+  "model": "xai/grok-imagine-image/edit",
+  "adapter": "atlas upload/generate/poll",
+  "sourceSha256": "fa3a67646f316744d3c7d2a6dadc8dea285abb92ac7ee09efc57c233222b5a65",
+  "portraitSha256": "1be098fb6b5341a270c07a466106e5bb5cfb342f466fbdaceba79c930f00aa1d",
+  "portraitWidth": 832,
+  "portraitHeight": 1248,
+  "physicalConfidence": {
+    "definition": "physical_confidence",
+    "score": 70,
+    "profile": "61-80",
+    "flirtatiousnessPercentage": 76,
+    "confidencePercentage": 51,
+    "flirtatiousnessWeight": 0.75,
+    "confidenceWeight": 0.25,
+    "source": "shipped_profile_library"
+  },
+  "derivativesReady": true,
+  "derivativeError": "",
+  "generatedUtc": "2026-07-17T18:42:00.0963819Z"
+}

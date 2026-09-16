@@ -1,0 +1,13 @@
+{
+  "version": 1,
+  "heroStringId": "naval_storyline_lahar",
+  "characterName": "Lahar",
+  "imagePath": "portrait.png",
+  "imageSha256": "599D60B23B4398F9B568ADBFC494640FF4007518707B84D57513323C8ED86B15",
+  "description": "Their clan is tier unknown, placing them socially among the unranked class. Use this status to guide the refinement, expense, materials, and ornament of their clothing without turning it into fantasy costume.",
+  "status": "failed",
+  "descriptionSource": "portrait_prompt_fallback",
+  "retryEligible": true,
+  "error": "{\"error\":{\"message\":\"Model \\\"zai-org/glm-5.2\\\" does not support image inputs. Remove image content or choose a multimodal model.\",\"type\":\"invalid_request_error\",\"param\":\"messages\",\"code\":\"image_input_not_supported\"}}",
+  "updatedUtc": "2026-07-18T22:03:31.4559832Z"
+}

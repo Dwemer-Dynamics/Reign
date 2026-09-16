@@ -1,0 +1,27 @@
+{
+  "version": 1,
+  "cacheKey": "Nemos (lord_1_44)",
+  "heroStringId": "lord_1_44",
+  "characterObjectId": "lord_1_44",
+  "characterName": "Nemos",
+  "provider": "AtlasCloud",
+  "model": "xai/grok-imagine-image/edit",
+  "adapter": "atlas upload/generate/poll",
+  "sourceSha256": "7ec3227571cd1d38cfac13af2b3363299fbcc6bda00ae21374738988c61a84f8",
+  "portraitSha256": "d88e5bbc68351f26fb88726155a102888ed0726b16c1e1c2f26e9a3c2cdb40ea",
+  "portraitWidth": 832,
+  "portraitHeight": 1248,
+  "physicalConfidence": {
+    "definition": "physical_confidence",
+    "score": 45,
+    "profile": "41-60",
+    "flirtatiousnessPercentage": 44,
+    "confidencePercentage": 47,
+    "flirtatiousnessWeight": 0.75,
+    "confidenceWeight": 0.25,
+    "source": "shipped_profile_library"
+  },
+  "derivativesReady": true,
+  "derivativeError": "",
+  "generatedUtc": "2026-07-17T19:05:21.1885881Z"
+}

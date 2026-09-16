@@ -1,0 +1,27 @@
+{
+  "version": 1,
+  "cacheKey": "Safunan_Damasiqani (reign_court_town_A2_child_1)",
+  "heroStringId": "reign_court_town_A2_child_1",
+  "characterObjectId": "reign_court_town_A2_child_1",
+  "characterName": "Safunan Damasiqani",
+  "provider": "AtlasCloud",
+  "model": "xai/grok-imagine-image/edit",
+  "adapter": "atlas upload/generate/poll",
+  "sourceSha256": "9bf2ff65a7e89a9b7d022d0d8e7cace2438470df385a666edd2c636feaf28b8b",
+  "portraitSha256": "85540ccd2a2f94bc0a28b024be5e71d068cc8884effecaf7e3f1ef53a61b42e2",
+  "portraitWidth": 864,
+  "portraitHeight": 1152,
+  "physicalConfidence": {
+    "definition": "physical_confidence",
+    "score": 36,
+    "profile": "21-40",
+    "flirtatiousnessPercentage": 21,
+    "confidencePercentage": 80,
+    "flirtatiousnessWeight": 0.75,
+    "confidenceWeight": 0.25,
+    "source": "shipped_profile_library"
+  },
+  "derivativesReady": true,
+  "derivativeError": "",
+  "generatedUtc": "2026-07-17T19:12:37.2471392Z"
+}

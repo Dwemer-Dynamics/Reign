@@ -1,0 +1,13 @@
+{
+  "version": 1,
+  "heroStringId": "reign_court_castle_ES5_child_4",
+  "characterName": "Letharene Corvenanion",
+  "imagePath": "portrait.png",
+  "imageSha256": "669F40B3D7D3CE65D43E8F5A0893A0E865C73AA1C24DE7074FBAFFEDF481EFA3",
+  "description": "Culturally appropriate everyday Calradic Imperial landowner attire inspired by practical late Roman and Byzantine civilian clothing adapted into a grounded medieval style. Men should wear a linen undertunic beneath a structured knee-length tunic or simple long coat, secured with a narrow belt. Women should wear a long tunic or underdress beneath a modest draped overdress with elegant but simple sleeves and a practical girdle. Include narrow woven borders or restrained geometric decoration. The garments should appear orderly, respectable, clean, and slightly prosperous. No headgear of any kind. No armor, weapons, laurel crowns, togas, ceremonial robes, or fantasy elements.",
+  "status": "failed",
+  "descriptionSource": "portrait_prompt_fallback",
+  "retryEligible": true,
+  "error": "{\"error\":{\"message\":\"Model \\\"zai-org/glm-5.2\\\" does not support image inputs. Remove image content or choose a multimodal model.\",\"type\":\"invalid_request_error\",\"param\":\"messages\",\"code\":\"image_input_not_supported\"}}",
+  "updatedUtc": "2026-07-18T22:03:31.5165141Z"
+}

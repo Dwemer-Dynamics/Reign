@@ -1,0 +1,27 @@
+{
+  "version": 1,
+  "cacheKey": "Evrura_Demerecourt (reign_court_town_V5_child_4)",
+  "heroStringId": "reign_court_town_V5_child_4",
+  "characterObjectId": "reign_court_town_V5_child_4",
+  "characterName": "Evrura Demerecourt",
+  "provider": "AtlasCloud",
+  "model": "xai/grok-imagine-image/edit",
+  "adapter": "atlas upload/generate/poll",
+  "sourceSha256": "2fffdf4db006373110530feb8561936be768a66807d95ba95fdd2924d82e43a7",
+  "portraitSha256": "a0402a4535f12214529979978f930d8721213caf1fa54835d14a0f54c4f45de4",
+  "portraitWidth": 864,
+  "portraitHeight": 1152,
+  "physicalConfidence": {
+    "definition": "physical_confidence",
+    "score": 58,
+    "profile": "41-60",
+    "flirtatiousnessPercentage": 60,
+    "confidencePercentage": 51,
+    "flirtatiousnessWeight": 0.75,
+    "confidenceWeight": 0.25,
+    "source": "shipped_profile_library"
+  },
+  "derivativesReady": true,
+  "derivativeError": "",
+  "generatedUtc": "2026-07-17T18:35:39.8329441Z"
+}

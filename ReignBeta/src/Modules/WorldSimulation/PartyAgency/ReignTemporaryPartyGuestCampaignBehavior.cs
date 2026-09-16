@@ -410,6 +410,32 @@ namespace ReignBeta.PartyAgency
             }
         }
 
+        public JObject BuildConversationContext(Hero hero)
+        {
+            if (hero == null || TaleWorlds.CampaignSystem.Campaign.Current == null) return new JObject();
+            ReignTemporaryPartyGuestRecord record = FindLiveRecord(hero.StringId)
+                ?? Records.LastOrDefault(x => string.Equals(x.HeroStringId, hero.StringId, StringComparison.OrdinalIgnoreCase));
+            if (record == null) return new JObject();
+            return new JObject
+            {
+                ["schema"] = "reign-temporary-guest-dialogue-v1",
+                ["enabled"] = true,
+                ["heroId"] = hero.StringId,
+                ["agreementId"] = record.AgreementId,
+                ["purpose"] = record.Purpose,
+                ["termKind"] = record.TermKind.ToString(),
+                ["phase"] = record.Phase.ToString(),
+                ["startedDay"] = record.StartedDay,
+                ["reviewDueDay"] = record.ReviewDueDay,
+                ["returnDueDay"] = record.ReturnDueDay,
+                ["returnSettlementId"] = record.ReturnSettlementStringId,
+                ["inMainParty"] = MobileParty.MainParty != null && hero.PartyBelongedTo == MobileParty.MainParty,
+                ["temporarilyExcludedFromBattle"] = record.TemporarilyExcludedFromBattle,
+                ["departureDeferredForChat"] = record.Phase == ReignTemporaryGuestPhase.Departing && ReignPartyChatScreenManager.IsOpen,
+                ["observedWorldDay"] = CampaignTime.Now.ToDays
+            };
+        }
+
         public JObject BuildHarnessSnapshot()
         {
             JArray records = new JArray(Records.Select(record => new JObject

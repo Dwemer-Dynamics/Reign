@@ -1,0 +1,96 @@
+{
+  "version": 1,
+  "inputHash": "c10302c1da35c60518c6442dae863ab1cbe5e78e2e721b7cbdc6e160e7d21891",
+  "catalogHash": "12142c0ab28d2678b12b852b086450dcc4eea45e2e8a080f3baa85c42f7fb3a2",
+  "renderContractHash": "cc3b941e7d47057de9b4220f1473336e6f908719812bb2653b83bd3545cfbd2f",
+  "cacheKey": "Olek_the_Old (dead_lord_2_1)",
+  "heroStringId": "dead_lord_2_1",
+  "characterObjectId": "dead_lord_2_1",
+  "characterName": "Olek the Old",
+  "ageYears": 67,
+  "cultureId": "sturgia",
+  "cultureName": "Sturgian",
+  "gender": "man",
+  "clanId": "clan_sturgia_2",
+  "clanTier": 5,
+  "clanProvenance": "reign_profile_library",
+  "socialStation": "high noble",
+  "occupation": "Lord",
+  "archetype": "lord",
+  "isLord": true,
+  "isNotable": false,
+  "isWanderer": false,
+  "isAlive": false,
+  "sourceModule": "Native",
+  "sourceFile": "Modules/SandBox/ModuleData/lords.xml",
+  "profileSource": "native_sandbox",
+  "profilePackVersion": "reign_profiles_v4",
+  "bodyKey": "0016200140BC140143FBBB8747BD9C66A9446A946C85E738A778E765678CA9B4000BD8350BB5C64C0000037F0000000F00000037049140010000000001903000",
+  "bodyWeight": 0.5,
+  "bodyBuild": 0.5,
+  "faceTemplateId": "",
+  "faceGenerationVersion": "native_authored",
+  "civilianTemplate": "stu_civ_template_default",
+  "civilianEquipment": [
+    {
+      "slot": "Body",
+      "itemId": "light_tunic"
+    },
+    {
+      "slot": "Cape",
+      "itemId": "scarf"
+    },
+    {
+      "slot": "Gloves",
+      "itemId": "leather_gloves"
+    },
+    {
+      "slot": "Leg",
+      "itemId": "leather_cavalier_boots"
+    }
+  ],
+  "headgearSuppressed": true,
+  "physicalConfidence": {
+    "definition": "physical_confidence",
+    "score": 54,
+    "profile": "41-60",
+    "flirtatiousnessPercentage": 57,
+    "confidencePercentage": 44,
+    "flirtatiousnessWeight": 0.75,
+    "confidenceWeight": 0.25,
+    "source": "shipped_profile_library"
+  },
+  "renderPreset": "ai_source_wan_portrait_v5",
+  "renderWidth": 1536,
+  "renderHeight": 2048,
+  "sourceWidth": 768,
+  "sourceHeight": 1024,
+  "cropScale": 0.24,
+  "cropWidthRatio": 0.75,
+  "cropCenterYRatio": 0.324,
+  "cameraPitchDegrees": 4,
+  "sourceSha256": "ff54cbd751fc4877b68041071a9e38147226844879624699f7c9dd1a6eb65eb2",
+  "sourceFileName": "source.png",
+  "generationEndpoint": "/portraits/generate",
+  "campaignIdSource": "active_campaign_at_generation_time",
+  "promptDeferred": true,
+  "sourceImageBase64From": "source.png",
+  "outputSizeOverride": "",
+  "promptPurpose": "portrait",
+  "nativePhysique": {
+    "schema": "reign-native-physique-v1",
+    "weight": 0.5,
+    "build": 0.5,
+    "weightSource": "shared_portrait_input.bodyWeight",
+    "buildSource": "shared_portrait_input.bodyBuild",
+    "sourceSha256": "ff54cbd751fc4877b68041071a9e38147226844879624699f7c9dd1a6eb65eb2",
+    "provenance": {
+      "kind": "saved_character_metadata_backfill",
+      "heroStringId": "dead_lord_2_1",
+      "profileSource": "native_sandbox",
+      "profilePackVersion": "reign_profiles_v4",
+      "originalInputSha256": "e0a521c8b0df1392281fb7ee8530cf78797e3c266efe97ceeed303da6a892610",
+      "rendererReexecuted": false
+    }
+  }
+}

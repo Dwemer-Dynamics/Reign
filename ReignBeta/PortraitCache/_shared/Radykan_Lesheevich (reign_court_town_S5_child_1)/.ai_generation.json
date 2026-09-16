@@ -1,0 +1,27 @@
+{
+  "version": 1,
+  "cacheKey": "Radykan_Lesheevich (reign_court_town_S5_child_1)",
+  "heroStringId": "reign_court_town_S5_child_1",
+  "characterObjectId": "reign_court_town_S5_child_1",
+  "characterName": "Radykan Lesheevich",
+  "provider": "AtlasCloud",
+  "model": "xai/grok-imagine-image/edit",
+  "adapter": "atlas upload/generate/poll",
+  "sourceSha256": "c994767e30633be2e879112293393730dbd7343c6f87c329c3cd305470a15799",
+  "portraitSha256": "7ddce0667cc10a1bfd9f3e61df4419bf686876f61112d59b9d31e582eed68fbf",
+  "portraitWidth": 864,
+  "portraitHeight": 1152,
+  "physicalConfidence": {
+    "definition": "physical_confidence",
+    "score": 74,
+    "profile": "61-80",
+    "flirtatiousnessPercentage": 66,
+    "confidencePercentage": 97,
+    "flirtatiousnessWeight": 0.75,
+    "confidenceWeight": 0.25,
+    "source": "shipped_profile_library"
+  },
+  "derivativesReady": true,
+  "derivativeError": "",
+  "generatedUtc": "2026-07-17T19:10:26.9594297Z"
+}

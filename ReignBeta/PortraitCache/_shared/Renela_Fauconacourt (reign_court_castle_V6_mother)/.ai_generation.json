@@ -1,0 +1,27 @@
+{
+  "version": 1,
+  "cacheKey": "Renela_Fauconacourt (reign_court_castle_V6_mother)",
+  "heroStringId": "reign_court_castle_V6_mother",
+  "characterObjectId": "reign_court_castle_V6_mother",
+  "characterName": "Renela Fauconacourt",
+  "provider": "AtlasCloud",
+  "model": "xai/grok-imagine-image/edit",
+  "adapter": "atlas upload/generate/poll",
+  "sourceSha256": "bed6c7bbb20ff7897af3082970d7f6411d4a1fdd32499d75fc6c2b7178e1716d",
+  "portraitSha256": "7382dc299e36b7e8dcfc3eb93da2358b0115ad8fe99695127900783b56304577",
+  "portraitWidth": 864,
+  "portraitHeight": 1152,
+  "physicalConfidence": {
+    "definition": "physical_confidence",
+    "score": 58,
+    "profile": "41-60",
+    "flirtatiousnessPercentage": 61,
+    "confidencePercentage": 48,
+    "flirtatiousnessWeight": 0.75,
+    "confidenceWeight": 0.25,
+    "source": "shipped_profile_library"
+  },
+  "derivativesReady": true,
+  "derivativeError": "",
+  "generatedUtc": "2026-07-17T19:11:01.2917942Z"
+}
