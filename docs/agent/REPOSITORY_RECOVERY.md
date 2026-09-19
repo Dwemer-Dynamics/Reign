@@ -1,12 +1,12 @@
 # Reign repository recovery
 
-All development and testing stay local. The authoritative publishing destinations are [Reign](https://github.com/Dwemer-Dynamics/Reign) (private client and integration tooling) and [ReignServer](https://github.com/Dwemer-Dynamics/ReignServer) (public server and shared source). Both publish from main. Do not resume publishing to the retired workspace repository.
+All development and testing stay local. The authoritative publishing destinations are [Reign](https://github.com/Dwemer-Dynamics/Reign) (private client and integration tooling) and [ReignServer](https://github.com/Dwemer-Dynamics/ReignServer) (public server and shared source). Both develop through unstable -> dev -> reign, with reign as the default branch. Create feature branches from unstable and promote paired revisions through reviewed PRs. Do not resume publishing to the retired workspace repository.
 
 ## Restore the two local checkouts
 
 1. Clone https://github.com/Dwemer-Dynamics/Reign.git as Reign and https://github.com/Dwemer-Dynamics/ReignServer.git as ReignServer under the same parent directory. On this development machine use D:/Projects; keep package/build/test state on D:.
 2. Read both AGENTS.md files and confirm their fetch and push origins match exactly. Keep Reign private and ReignServer public.
-3. Run ReignServer/ReignRelease/Connect-Repositories.ps1. It creates five verified source junctions in Reign and refuses conflicting directories. Existing integration paths keep working while every source file has one Git owner.
+3. Run ReignServer/ReignServer/scripts/Connect-Repositories.ps1. It creates five verified source junctions in Reign and refuses conflicting directories. Existing integration paths keep working while every source file has one Git owner.
 4. Configure Reign MCP with the local Reign checkout as REIGN_WORKSPACE_ROOT. Machine-local .codex/config.toml is excluded; use the MCP activation template. Do not copy credentials or old machine paths.
 5. Supply a licensed Bannerlord installation and documented developer prerequisites. Set REIGN_BANNERLORD_PATH for builds. End-user packages supply redistributable dependencies; source recovery excludes game-owned binaries and third-party downloads.
 

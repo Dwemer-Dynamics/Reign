@@ -4,29 +4,28 @@ Update this file whenever a major system is added, extracted, or materially chan
 
 ## Core contracts
 
-- Location: `ReignModules/Reign.Core.Contracts`
+- Location: `ReignServer/shared/Reign.Core.Contracts`
 - Public entry point: `ReignRelationshipBaselinePolicy`
 - Invariant: override > save-derived baseline > native baseline > current relation.
 
 ## Relationships
 
-- Pure kernel: `ReignModules/Reign.Relationships`
-- Server orchestration: `ReignBetaServer/src/Modules/Relationships`
+- Pure kernel: `ReignServer/shared/Reign.Relationships`
+- Server orchestration: `ReignServer/src/Modules/Relationships`
 - Bannerlord adapter: `ReignBeta/src/Modules/Relationships`
 - Public kernel entry point: `RelationshipCompatibilityPolicy`
 - Invariants: all 256 MBTI pairings are present; values are directional and constrained to `[-1, 1]`; relationship percentage adjustment clamps to `[-100, 100]`.
 
 ## Persistence and Save Sync
 
-- Storage and Save Sync: `ReignBetaServer/src/Modules/Persistence`
+- Storage and Save Sync: `ReignServer/src/Modules/Persistence`
 - Bannerlord save adapter: `ReignBeta/src/Modules/Persistence`
 - Provider: PostgreSQL only in production; campaign and save-point state are schema-isolated.
-- Legacy boundary: `ReignTools/Reign.LegacySqliteImporter` is an explicit read-only-source, one-way import utility.
 
 ## Feature subsystems
 
 - Characters, Reputation, Dialogue, Diplomacy, Court, Spymaster, Kingdom Events, Rebellion, World Simulation, Portraits, and UI each own matching server and/or Bannerlord folders beneath `src/Modules`.
-- Feature live-test harnesses live beneath `ReignBetaServer/ReignLiveTest/Features`.
+- Feature live-test harnesses live beneath `ReignServer/tests/ReignLiveTest/Features`.
 - Feature MCP tools and contract tests live in matching module/feature folders instead of the validation-infrastructure area.
 - Server route groups use `Program.<Subsystem>Routes.cs` partials; the central host only dispatches to those groups.
 

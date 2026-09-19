@@ -4,11 +4,14 @@
     <AssemblyName>ReignBeta</AssemblyName>
     <RootNamespace>ReignBeta</RootNamespace>
     <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
-    <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
+    <GenerateAssemblyInfo>true</GenerateAssemblyInfo>
+    <Version>$([System.IO.File]::ReadAllText('$(MSBuildProjectDirectory)\..\.version_number.txt').Trim())</Version>
+    <AssemblyVersion>$(Version).0</AssemblyVersion>
+    <FileVersion>$(Version).0</FileVersion>
     <LangVersion>latest</LangVersion>
     <OutputPath>bin\Win64_Shipping_Client\</OutputPath>
     <BannerlordPath Condition="'$(BannerlordPath)' == ''">$(REIGN_BANNERLORD_PATH)</BannerlordPath>
-    <ReignServerRoot Condition="'$(ReignServerRoot)' == '' and Exists('$(MSBuildProjectDirectory)\..\ReignModules')">$(MSBuildProjectDirectory)\..</ReignServerRoot>
+    <BannerlordWorkshopPath Condition="'$(BannerlordWorkshopPath)' == ''">$(BannerlordPath)\..\..\workshop\content\261550</BannerlordWorkshopPath>
     <ReignServerRoot Condition="'$(ReignServerRoot)' == ''">$(MSBuildProjectDirectory)\..\..\ReignServer</ReignServerRoot>
   </PropertyGroup>
 
@@ -27,9 +30,10 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Compile Include="$(ReignServerRoot)\NativeCharacterImageGenerator\shared\ReignCourtAppearanceGenerator.cs"
+    <Content Include="..\.version.txt;..\.version_number.txt" Link="%(Filename)%(Extension)" CopyToOutputDirectory="PreserveNewest" />
+    <Compile Include="$(ReignServerRoot)\tools\portrait-generator\shared\ReignCourtAppearanceGenerator.cs"
              Link="src\Modules\Court\ReignCourtAppearanceGenerator.cs" />
-    <Compile Include="$(ReignServerRoot)\ReignModules\Reign.Shared.Source\**\*.cs"
+    <Compile Include="$(ReignServerRoot)\shared\Reign.Shared.Source\**\*.cs"
              Link="src\Shared\%(RecursiveDir)%(Filename)%(Extension)" />
     <!-- Installed server sources and diagnostics are deployment artifacts, never
          Bannerlord client compilation inputs. -->
@@ -121,6 +125,7 @@
     </Reference>
     <Reference Include="MCMv5">
       <HintPath>$(BannerlordPath)\Modules\Bannerlord.MBOptionScreen\bin\Win64_Shipping_Client\MCMv5.dll</HintPath>
+      <HintPath Condition="!Exists('$(BannerlordPath)\Modules\Bannerlord.MBOptionScreen\bin\Win64_Shipping_Client\MCMv5.dll')">$(BannerlordWorkshopPath)\2859238197\bin\Win64_Shipping_Client\MCMv5.dll</HintPath>
       <Private>false</Private>
     </Reference>
     <Reference Include="Newtonsoft.Json">
@@ -129,15 +134,17 @@
     </Reference>
     <Reference Include="0Harmony">
       <HintPath>$(BannerlordPath)\Modules\Bannerlord.Harmony\bin\Win64_Shipping_Client\0Harmony.dll</HintPath>
+      <HintPath Condition="!Exists('$(BannerlordPath)\Modules\Bannerlord.Harmony\bin\Win64_Shipping_Client\0Harmony.dll')">$(BannerlordWorkshopPath)\2859188632\bin\Win64_Shipping_Client\0Harmony.dll</HintPath>
       <Private>false</Private>
     </Reference>
     <Reference Include="Bannerlord.UIExtenderEx">
       <HintPath>$(BannerlordPath)\Modules\Bannerlord.UIExtenderEx\bin\Win64_Shipping_Client\Bannerlord.UIExtenderEx.dll</HintPath>
+      <HintPath Condition="!Exists('$(BannerlordPath)\Modules\Bannerlord.UIExtenderEx\bin\Win64_Shipping_Client\Bannerlord.UIExtenderEx.dll')">$(BannerlordWorkshopPath)\2859222409\bin\Win64_Shipping_Client\Bannerlord.UIExtenderEx.dll</HintPath>
       <Private>false</Private>
     </Reference>
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="$(ReignServerRoot)\ReignModules\Reign.Core.Contracts\Reign.Core.Contracts.csproj" />
+    <ProjectReference Include="$(ReignServerRoot)\shared\Reign.Core.Contracts\Reign.Core.Contracts.csproj" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="ModuleData\reign_tavern_cast.json">
@@ -145,4 +152,29 @@
       <TargetPath>ModuleData\reign_tavern_cast.json</TargetPath>
     </Content>
   </ItemGroup>
+  <Target Name="PublishBundledNativePortraitGenerator"
+          AfterTargets="Build"
+          Condition="'$(DesignTimeBuild)' != 'true' and '$(ReignSkipNativePortraitGenerator)' != 'true'">
+    <PropertyGroup>
+      <NativePortraitGeneratorProject>$(MSBuildProjectDirectory)\..\ReignServer\tools\portrait-generator\src\NativeCharacterImageGenerator.App\NativeCharacterImageGenerator.App.csproj</NativePortraitGeneratorProject>
+      <NativePortraitGeneratorPublishDir>$([MSBuild]::EnsureTrailingSlash('$(OutputPath)'))native-portrait-generator\</NativePortraitGeneratorPublishDir>
+      <NativePortraitGeneratorBuildDir>$(MSBuildProjectDirectory)\obj\bundled-native-portrait-generator\$(Configuration)\</NativePortraitGeneratorBuildDir>
+    </PropertyGroup>
+    <Delete Files="$(NativePortraitGeneratorPublishDir)TaleWorlds.Starter.Library.dll" />
+    <MSBuild Projects="$(NativePortraitGeneratorProject)"
+             Targets="Restore"
+             Condition="'$(ReignRestoreBundledTools)' == 'true'"
+             Properties="Configuration=$(Configuration);RuntimeIdentifier=win-x64;SelfContained=true;PublishSingleFile=true;IncludeNativeLibrariesForSelfExtract=true"
+             RemoveProperties="OutDir;OutputPath;BaseOutputPath;BaseIntermediateOutputPath"
+             BuildInParallel="false" />
+    <MSBuild Projects="$(NativePortraitGeneratorProject)"
+             Targets="Publish"
+             Properties="Configuration=$(Configuration);RuntimeIdentifier=win-x64;SelfContained=true;PublishSingleFile=true;IncludeNativeLibrariesForSelfExtract=true;DebugType=None;OutputPath=$(NativePortraitGeneratorBuildDir);PublishDir=$(NativePortraitGeneratorPublishDir)"
+             RemoveProperties="OutDir;BaseOutputPath;BaseIntermediateOutputPath"
+             BuildInParallel="false" />
+    <Error Condition="!Exists('$(NativePortraitGeneratorPublishDir)Bannerlord.NativeCharacterImageGenerator.App.exe')"
+           Text="The bundled native portrait generator was not published into the Reign client package." />
+    <Error Condition="!Exists('$(NativePortraitGeneratorPublishDir)Bannerlord.NativePortraitRenderHost.exe')"
+           Text="The bundled native TaleWorlds portrait render host was not published into the Reign client package." />
+  </Target>
 </Project>

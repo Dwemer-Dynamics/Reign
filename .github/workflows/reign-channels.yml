@@ -1,0 +1,41 @@
+name: Reign channels and client version
+on:
+  pull_request:
+    branches: [unstable, dev, reign]
+permissions:
+  contents: read
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7.0.1
+      - name: Verify promotion path
+        env:
+          TARGET_BRANCH: ${{ github.base_ref }}
+          SOURCE_BRANCH: ${{ github.head_ref }}
+        run: |
+          case "$TARGET_BRANCH" in
+            dev) test "$SOURCE_BRANCH" = unstable ;;
+            reign) test "$SOURCE_BRANCH" = dev ;;
+            unstable) : ;;
+            *) exit 1 ;;
+          esac
+      - name: Check module and assembly version agreement
+        run: |
+          python3 - <<'PY'
+          import re
+          from datetime import datetime
+          from pathlib import Path
+          import xml.etree.ElementTree as ET
+          version = Path('.version_number.txt').read_text().strip()
+          stamp = Path('.version.txt').read_text().strip()
+          assert re.fullmatch(r'\d+\.\d+\.\d+', version), 'Invalid semantic version'
+          assert re.fullmatch(r'\d{10}', stamp), 'Invalid release date'
+          datetime.strptime(stamp, '%Y%m%d%H')
+          project = ET.parse('ReignBeta/ReignBeta.csproj')
+          module = ET.parse('ReignBeta/SubModule.xml')
+          assert module.find('.//Version').get('value').lstrip('v') == version
+          assert '.version_number.txt' in project.findtext('.//Version', '')
+          for name in ('AssemblyVersion', 'FileVersion'):
+              assert project.findtext('.//' + name) == '$(Version).0'
+          PY

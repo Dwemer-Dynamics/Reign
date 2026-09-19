@@ -294,7 +294,7 @@ public sealed class ReignProjectCatalog(ReignMcpOptions options)
         {
             Id = projectOverride?.Id ?? Slug(relativePath),
             Name = projectOverride?.Name ?? fileName,
-            Group = group.Trim().ToLowerInvariant(),
+            Group = (projectOverride?.Group ?? group).Trim().ToLowerInvariant(),
             ProjectPath = relativePath,
             TargetFramework = properties.TryGetValue("TargetFramework", out var framework)
                 ? framework
@@ -380,6 +380,7 @@ public sealed class ReignProjectCatalog(ReignMcpOptions options)
 
     private sealed record ProjectOverride
     {
+        public string? Group { get; init; }
         public string? Id { get; init; }
         public string? Name { get; init; }
         public bool? Test { get; init; }

@@ -41,7 +41,7 @@ namespace ReignBeta.Settings
         private bool _revealAllCharacterStatsAndRelationships;
         private bool _mcmTestModeEnabled;
         private bool _dialogueComplianceTestModeEnabled;
-        private string _localServerUrl = "http://127.0.0.1:5101";
+        private string _localServerUrl = "http://127.0.0.1:8089";
 
         private Action _openPartyChatAction = ReignBetaDebugActions.OpenPartyChat;
         private Action _openCorrespondenceAction = ReignBetaDebugActions.OpenCorrespondence;
@@ -399,14 +399,14 @@ namespace ReignBeta.Settings
             }
         }
 
-        [SettingPropertyText("Local Server URL", -1, false, "", Order = 1, RequireRestart = false, HintText = "Default: http://127.0.0.1:5101")]
+        [SettingPropertyText("Local Server URL", -1, false, "", Order = 1, RequireRestart = false, HintText = "Default: http://127.0.0.1:8089")]
         [SettingPropertyGroup("Local Server", GroupOrder = 2)]
         public string LocalServerUrl
         {
             get { return _localServerUrl; }
             set
             {
-                string next = string.IsNullOrWhiteSpace(value) ? "http://127.0.0.1:5101" : value.Trim();
+                string next = string.IsNullOrWhiteSpace(value) ? "http://127.0.0.1:8089" : value.Trim();
                 if (next != _localServerUrl)
                 {
                     _localServerUrl = next;

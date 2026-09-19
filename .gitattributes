@@ -8,6 +8,9 @@
 *.ps1 text eol=crlf
 *.cmd text eol=crlf
 *.xml text eol=lf
+*.fnt text eol=lf
+ReignBeta/artwork/ui-modern-style-kit/font-sources/*.txt text eol=lf
+ReignBeta/GUI/Fonts/**/*.txt text eol=lf
 *.yml text eol=lf
 *.yaml text eol=lf
 *.toml text eol=lf
@@ -20,3 +23,7 @@
 ReignBeta/PortraitCache/_shared/**/*.png filter=lfs diff=lfs merge=lfs -text
 *.woff binary
 *.woff2 binary
+
+# Normalize portrait text metadata to LF so inventory hashes survive clean checkouts.
+ReignBeta/PortraitCache/_shared/**/*.json text eol=lf
+ReignBeta/PortraitCache/_shared/**/*.txt text eol=lf

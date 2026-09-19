@@ -44,9 +44,9 @@
     "PortraitCache/**",
     "ReignBeta/server/**",
     "ReignBeta/staging/**",
-    "ReignBetaServer/app/**",
-    "ReignBetaServer/data/**",
-    "ReignBetaServer/logs/**",
+    "ReignServer/app/**",
+    "ReignServer/data/**",
+    "ReignServer/logs/**",
     "**/.build-venv/**",
     "**/.venv/**",
     "**/.vs/**",
@@ -84,7 +84,9 @@
     ".toml",
     ".xml",
     ".yaml",
-    ".yml"
+    ".yml",
+    ".html",
+    ".css"
   ],
   "secretNamePatterns": [
     "**/.env",

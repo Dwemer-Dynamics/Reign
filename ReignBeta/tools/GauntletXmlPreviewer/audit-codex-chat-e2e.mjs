@@ -257,7 +257,7 @@ function guardedSourceState() {
     "ReignBeta/GUI/Prefabs",
     "ReignBeta/src",
     "ReignBeta/tools/GauntletXmlPreviewer",
-    "ReignBetaServer",
+    "ReignServer",
     "ReignMcp",
     "docs/agent/TESTING_TOOL_GUIDE.md",
     "reign.testing.json"

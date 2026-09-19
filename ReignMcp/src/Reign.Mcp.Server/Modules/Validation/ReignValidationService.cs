@@ -192,7 +192,7 @@ public sealed partial class ReignValidationService(
                     }
 
                     var executable = Path.Combine(runRoot, project.Id, "out",
-                        Path.GetFileNameWithoutExtension(project.ProjectPath) + ".exe");
+                        Path.GetFileNameWithoutExtension(project.ProjectPath) + (project.Id == "server" ? ".dll" : ".exe"));
                     if (!File.Exists(executable))
                     {
                         throw new FileNotFoundException(
@@ -235,7 +235,7 @@ public sealed partial class ReignValidationService(
                     runRoot,
                     "server",
                     "out",
-                    "ReignBetaServer.exe");
+                    "ReignServer.dll");
                 if (serverProject is not null && File.Exists(serverExecutable))
                 {
                     var tier = plan.VerificationTier == "offline" ? "offline" : "quick";
@@ -385,7 +385,7 @@ public sealed partial class ReignValidationService(
         var extensions = new HashSet<string>(StringComparer.OrdinalIgnoreCase)
         {
             ".cs", ".csproj", ".props", ".targets", ".json", ".xml", ".md",
-            ".ps1", ".cmd", ".toml", ".sln", ".slnx", ".yml", ".yaml", ".py", ".iss", ".js", ".mjs", ".txt"
+            ".ps1", ".cmd", ".toml", ".sln", ".slnx", ".yml", ".yaml", ".py", ".iss", ".js", ".mjs", ".txt", ".html", ".css"
         };
         var excluded = new HashSet<string>(StringComparer.OrdinalIgnoreCase)
         {

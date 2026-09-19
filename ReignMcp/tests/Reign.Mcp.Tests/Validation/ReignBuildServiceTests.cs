@@ -6,6 +6,19 @@ namespace Reign.Mcp.Tests;
 
 public sealed class ReignBuildServiceTests
 {
+    [Theory]
+    [InlineData("reign")]
+    [InlineData("Reign")]
+    public async Task LinuxServerRunnerRejectsProductionDatabaseBeforeLaunching(string database)
+    {
+        if (!OperatingSystem.IsWindows()) return;
+        using var fixture = ValidatedArtifactFixture.Create();
+        var runner = new ReignProcessRunner(fixture.Options, new SensitiveDataRedactor());
+        await Assert.ThrowsAsync<InvalidOperationException>(() => runner.RunAsync(
+            fixture.ExecutablePath, [], fixture.Root,
+            environment: new Dictionary<string, string> { ["REIGN_VALIDATION_MODE"] = "1", ["REIGN_DB_NAME"] = database }));
+    }
+
     [Fact]
     public void ResolvesExactSuccessfulReleaseValidationArtifact()
     {
@@ -85,7 +98,7 @@ public sealed class ReignBuildServiceTests
             const string runId = "20260905-043544-696f877f";
             const string sourceFingerprint = "7c96de718783cc81e185c7712211a073fa314b3a9d0b9fda860e6baaaa4b3951";
             var runRoot = Path.Combine(options.BuildRoot, "validation", runId);
-            var executablePath = Path.Combine(runRoot, "server", "out", "ReignBetaServer.exe");
+            var executablePath = Path.Combine(runRoot, "server", "out", "ReignServer.dll");
             Directory.CreateDirectory(Path.GetDirectoryName(executablePath)!);
             File.WriteAllBytes(executablePath, [0x52, 0x45, 0x49, 0x47, 0x4e]);
             var executableSha256 = Convert.ToHexString(SHA256.HashData(File.ReadAllBytes(executablePath)))

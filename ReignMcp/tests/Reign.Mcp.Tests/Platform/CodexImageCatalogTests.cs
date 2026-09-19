@@ -19,7 +19,7 @@ public sealed class CodexImageCatalogTests
         Assert.Contains("explicit subscription-usage authorization", entry.GetProperty("liveRoute").GetString());
         Assert.Contains("never stop the shared text provider", entry.GetProperty("isolation").GetString());
         Assert.True(File.Exists(Path.Combine(root, entry.GetProperty("browserContract").GetString()!)));
-        foreach (string path in new[] { "docs/agent/TESTING_TOOL_GUIDE.md", "ReignMcp/docs/tool-catalog.md", "ReignMcp/docs/security-model.md", "ReignBetaServer/docs/VerificationLab.md" })
+        foreach (string path in new[] { "docs/agent/TESTING_TOOL_GUIDE.md", "ReignMcp/docs/tool-catalog.md", "ReignMcp/docs/security-model.md", "ReignServer/docs/server/VerificationLab.md" })
             Assert.Contains("reign-codex-image-compatibility-v1", TestingDocumentation.Read(Path.Combine(root, path)));
     }
 }

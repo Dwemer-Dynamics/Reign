@@ -27,7 +27,7 @@ public sealed class PartyAgencyHarnessContractTests
     public void ManifestOwnsFortyNaturalLanguageAndNativeReleaseCases()
     {
         string root = TestOptions.FindWorkspace();
-        string path = Path.Combine(root, "ReignBetaServer", "ReignLiveTest", "scenarios",
+        string path = Path.Combine(root, "ReignServer", "tests", "ReignLiveTest", "scenarios",
             "party-agency-manifest.json");
         using JsonDocument document = JsonDocument.Parse(File.ReadAllText(path));
         JsonElement manifest = document.RootElement;
@@ -188,7 +188,7 @@ public sealed class PartyAgencyHarnessContractTests
     {
         string root = TestOptions.FindWorkspace();
         string server = File.ReadAllText(TestSourceLocator.Unique(
-            Path.Combine(root, "ReignBetaServer"), "LiveInteractionTest.cs",
+            Path.Combine(root, "ReignServer"), "LiveInteractionTest.cs",
             "/src/Modules/WorldSimulation/"));
         foreach (string operation in new[]
         {
@@ -205,7 +205,7 @@ public sealed class PartyAgencyHarnessContractTests
     public void PositiveInvitationCasesProvideCompleteContextAndRequestExplicitConsent()
     {
         string root = TestOptions.FindWorkspace();
-        string path = Path.Combine(root, "ReignBetaServer", "ReignLiveTest", "scenarios",
+        string path = Path.Combine(root, "ReignServer", "tests", "ReignLiveTest", "scenarios",
             "party-agency-manifest.json");
         using JsonDocument document = JsonDocument.Parse(File.ReadAllText(path));
         JsonElement[] cases = document.RootElement.GetProperty("cases").EnumerateArray().ToArray();
@@ -480,7 +480,7 @@ public sealed class PartyAgencyHarnessContractTests
     public void NativeEligibilityCasesUseGuardedFixturesAndNaturalInvitationTemplates()
     {
         string root = TestOptions.FindWorkspace();
-        string path = Path.Combine(root, "ReignBetaServer", "ReignLiveTest",
+        string path = Path.Combine(root, "ReignServer", "tests", "ReignLiveTest",
             "scenarios", "party-agency-manifest.json");
         using JsonDocument document = JsonDocument.Parse(File.ReadAllText(path));
         JsonElement manifest = document.RootElement;
@@ -566,7 +566,7 @@ public sealed class PartyAgencyHarnessContractTests
     {
         string root = TestOptions.FindWorkspace();
         string server = File.ReadAllText(TestSourceLocator.Unique(
-            Path.Combine(root, "ReignBetaServer"), "Program.cs",
+            Path.Combine(root, "ReignServer"), "Program.cs",
             "/src/Modules/Platform/"));
         string behavior = File.ReadAllText(TestSourceLocator.Unique(
             Path.Combine(root, "ReignBeta"), "ReignTemporaryPartyGuestCampaignBehavior.cs",
@@ -592,7 +592,7 @@ public sealed class PartyAgencyHarnessContractTests
         Assert.Contains("duration >= MinimumFixedTermDays", behavior,
             StringComparison.Ordinal);
 
-        string manifestPath = Path.Combine(root, "ReignBetaServer", "ReignLiveTest", "scenarios", "party-agency-manifest.json");
+        string manifestPath = Path.Combine(root, "ReignServer", "tests", "ReignLiveTest", "scenarios", "party-agency-manifest.json");
         string manifest = File.ReadAllText(manifestPath);
         Assert.Contains("There is no fixed end date", manifest, StringComparison.Ordinal);
         Assert.Contains("review every five days", manifest, StringComparison.Ordinal);
@@ -603,7 +603,7 @@ public sealed class PartyAgencyHarnessContractTests
     {
         string root = TestOptions.FindWorkspace();
         string server = File.ReadAllText(TestSourceLocator.Unique(
-            Path.Combine(root, "ReignBetaServer"), "Program.cs",
+            Path.Combine(root, "ReignServer"), "Program.cs",
             "/src/Modules/Platform/"));
 
         Assert.Contains("TemporaryPartyGuestCandidateToPreserve(actionGate, playerText)", server,
@@ -636,7 +636,7 @@ public sealed class PartyAgencyHarnessContractTests
     {
         string root = TestOptions.FindWorkspace();
         string server = File.ReadAllText(TestSourceLocator.Unique(
-            Path.Combine(root, "ReignBetaServer"), "Program.cs",
+            Path.Combine(root, "ReignServer"), "Program.cs",
             "/src/Modules/Platform/"));
 
         int binding = server.IndexOf(
@@ -663,10 +663,10 @@ public sealed class PartyAgencyHarnessContractTests
     {
         string root = TestOptions.FindWorkspace();
         string server = File.ReadAllText(TestSourceLocator.Unique(
-            Path.Combine(root, "ReignBetaServer"), "Program.cs",
+            Path.Combine(root, "ReignServer"), "Program.cs",
             "/src/Modules/Platform/"));
         string relationships = File.ReadAllText(TestSourceLocator.Unique(
-            Path.Combine(root, "ReignBetaServer"), "Relationships.cs",
+            Path.Combine(root, "ReignServer"), "Relationships.cs",
             "/src/Modules/Relationships/"));
 
         Assert.Contains("IsTemporaryPartyGuestLifecycleConversation(actionGate, playerText",
@@ -697,7 +697,7 @@ public sealed class PartyAgencyHarnessContractTests
     {
         string root = TestOptions.FindWorkspace();
         string server = File.ReadAllText(TestSourceLocator.Unique(
-            Path.Combine(root, "ReignBetaServer"), "Program.cs",
+            Path.Combine(root, "ReignServer"), "Program.cs",
             "/src/Modules/Platform/"));
 
         Assert.Contains("BuildAcceptedTemporaryPartyGuestFallbackAction(", server,
