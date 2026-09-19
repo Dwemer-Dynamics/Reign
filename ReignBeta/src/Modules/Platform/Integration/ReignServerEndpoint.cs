@@ -8,7 +8,7 @@ namespace ReignBeta.Integration
 {
     internal static class ReignServerEndpoint
     {
-        internal const string DefaultBaseUrl = "http://127.0.0.1:5101";
+        internal const string DefaultBaseUrl = "http://127.0.0.1:8089";
         private static readonly object Gate = new object();
         private static string _successfulBaseUrl;
         private static DateTime _unavailableUntilUtc;

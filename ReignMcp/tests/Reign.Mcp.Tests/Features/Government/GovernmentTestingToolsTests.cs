@@ -66,7 +66,7 @@ public sealed class GovernmentTestingToolsTests
     public void GovernmentManifestAndHarnessCoverTheApprovedSystem()
     {
         string workspace = TestOptions.FindWorkspace();
-        string manifestPath = Path.Combine(workspace, "ReignBetaServer", "ReignLiveTest",
+        string manifestPath = Path.Combine(workspace, "ReignServer", "tests", "ReignLiveTest",
             "scenarios", "government-system-manifest.json");
         using JsonDocument manifest = JsonDocument.Parse(File.ReadAllText(manifestPath));
         JsonElement root = manifest.RootElement;
@@ -134,7 +134,7 @@ public sealed class GovernmentTestingToolsTests
                 Assert.DoesNotContain("level", followUp.GetString(),
                     StringComparison.OrdinalIgnoreCase);
         });
-        string dialogueSource = File.ReadAllText(Path.Combine(workspace, "ReignBetaServer", "src",
+        string dialogueSource = File.ReadAllText(Path.Combine(workspace, "ReignServer", "src",
             "Modules", "Dialogue", "MotiveAwareConversation.cs"));
         Assert.Contains("Government authority levels are hidden mechanics", dialogueSource,
             StringComparison.Ordinal);
@@ -190,10 +190,10 @@ public sealed class GovernmentTestingToolsTests
             "ReignGovernmentNativeDecisions.cs", "/src/Modules/Government/"));
         string liveHost = File.ReadAllText(TestSourceLocator.Unique(Path.Combine(workspace, "ReignBeta"),
             "ReignLiveInteractionTestHost.cs", "/src/Modules/WorldSimulation/"));
-        string serverLive = File.ReadAllText(TestSourceLocator.Unique(Path.Combine(workspace, "ReignBetaServer"),
+        string serverLive = File.ReadAllText(TestSourceLocator.Unique(Path.Combine(workspace, "ReignServer"),
             "LiveInteractionTest.cs", "/src/Modules/WorldSimulation/"));
         string serverProgram = File.ReadAllText(Path.Combine(workspace,
-            "ReignBetaServer", "src", "Modules", "Platform", "Program.cs"));
+            "ReignServer", "src", "Modules", "Platform", "Program.cs"));
         string mcp = File.ReadAllText(TestSourceLocator.Unique(Path.Combine(workspace, "ReignMcp"),
             "TestingTools.Government.cs"));
         string certificationMcp = File.ReadAllText(TestSourceLocator.Unique(
@@ -292,8 +292,8 @@ public sealed class GovernmentTestingToolsTests
     public void VerificationBundlePackagesGovernmentHarnessSafetyInputs()
     {
         string workspace = TestOptions.FindWorkspace();
-        string project = File.ReadAllText(Path.Combine(workspace, "ReignBetaServer",
-            "ReignBetaServer.csproj"));
+        string project = File.ReadAllText(Path.Combine(workspace, "ReignServer",
+            "ReignServer.csproj"));
 
         Assert.Contains("VerificationLiveTestScenario Include=", project,
             StringComparison.Ordinal);

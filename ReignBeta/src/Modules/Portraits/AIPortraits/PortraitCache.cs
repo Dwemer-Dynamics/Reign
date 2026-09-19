@@ -87,7 +87,7 @@ public static class PortraitCache
 			{
 				Path.Combine(BasePath.Name, "Modules", "ReignBeta", "server", "app", "data", "campaigns", campaignFolder, "characters"),
 				Path.Combine(desktop, "ReignBeta", "server", "app", "data", "campaigns", campaignFolder, "characters"),
-				Path.Combine(desktop, "ReignBetaServer", "app", "data", "campaigns", campaignFolder, "characters")
+				Path.Combine(desktop, "ReignServer", "app", "data", "campaigns", campaignFolder, "characters")
 			};
 		}
 	}

@@ -126,7 +126,7 @@ public sealed class TestingCatalogContractTests
         Assert.Contains("disposable-save", marriage.GetProperty("acceptance").GetString());
         Assert.Contains("contracts.dialogue_marriage", marriage.GetProperty("verification").GetString());
         foreach (string path in new[] { "docs/agent/TESTING_TOOL_GUIDE.md", "ReignMcp/docs/tool-catalog.md",
-            "ReignMcp/docs/security-model.md", "ReignBetaServer/src/Modules/Platform/VerificationLab.cs" })
+            "ReignMcp/docs/security-model.md", "ReignServer/src/Modules/Platform/VerificationLab.cs" })
             Assert.Contains("contracts.dialogue_marriage", TestingDocumentation.Read(Path.Combine(workspace, path)));
     }
 
@@ -253,8 +253,8 @@ public sealed class TestingCatalogContractTests
         Assert.Contains("Take(64)", client);
         const string outfitFrame = "ai_source_resident_full_outfit_v1";
         Assert.Contains(outfitFrame, contract.GetProperty("nativePortraitFraming").GetString());
-        Assert.Contains(outfitFrame, File.ReadAllText(Path.Combine(workspace, "NativeCharacterImageGenerator/src/NativeCharacterImageGenerator/AiSourceCacheCatalog.cs")));
-        Assert.Contains(outfitFrame, File.ReadAllText(Path.Combine(workspace, "ReignBetaServer/src/Modules/Portraits/NativePortraitSourceGeneration.cs")));
+        Assert.Contains(outfitFrame, File.ReadAllText(Path.Combine(workspace, "ReignServer/tools/portrait-generator/src/NativeCharacterImageGenerator/AiSourceCacheCatalog.cs")));
+        Assert.Contains(outfitFrame, File.ReadAllText(Path.Combine(workspace, "ReignServer/src/Modules/Portraits/NativePortraitSourceGeneration.cs")));
     }
     [Fact]
     public void PortraitClothingEditCatalogPreservesFourProfilesAndRecoveryEvidence()
@@ -928,7 +928,7 @@ public sealed class TestingCatalogContractTests
         Assert.Contains("One seed per case initially", raw,
             StringComparison.OrdinalIgnoreCase);
         string sovereignManifest = File.ReadAllText(Path.Combine(
-            TestOptions.FindWorkspace(), "ReignBetaServer", "ReignLiveTest",
+            TestOptions.FindWorkspace(), "ReignServer", "tests", "ReignLiveTest",
             "scenarios", "sovereign-demeanor-pairwise-manifest.json"));
         Assert.Contains("\"caseCount\": 36", sovereignManifest,
             StringComparison.Ordinal);
@@ -1005,7 +1005,7 @@ public sealed class TestingCatalogContractTests
     public void InitialScreenStartMenuRequiresNativeGauntletActivationEvidence()
     {
         string workspace = TestOptions.FindWorkspace();
-        string source = File.ReadAllText(Path.Combine(workspace, "ReignBetaServer", "ReignLiveTest", "Program.cs"));
+        string source = File.ReadAllText(Path.Combine(workspace, "ReignServer", "tests", "ReignLiveTest", "Program.cs"));
         string batch = File.ReadAllText(Path.Combine(workspace, "ReignBeta", "tools", "GauntletXmlPreviewer",
             "capture-native-augmentation-batch.ps1"));
 
@@ -1031,8 +1031,8 @@ public sealed class TestingCatalogContractTests
             Path.Combine(root, "reign.testing.json")));
         string[] commands = document.RootElement.GetProperty("liveTestCommands")
             .EnumerateArray().Select(value => value.GetString()!).ToArray();
-        string program = File.ReadAllText(Path.Combine(root, "ReignBetaServer", "ReignLiveTest", "Program.cs"));
-        string catalog = File.ReadAllText(Path.Combine(root, "ReignBetaServer", "ReignLiveTest", "TestingCatalogControl.cs"));
+        string program = File.ReadAllText(Path.Combine(root, "ReignServer", "tests", "ReignLiveTest", "Program.cs"));
+        string catalog = File.ReadAllText(Path.Combine(root, "ReignServer", "tests", "ReignLiveTest", "TestingCatalogControl.cs"));
         string[] implemented = System.Text.RegularExpressions.Regex.Matches(program, "case \\\"([^\\\"]+)\\\"")
             .Select(match => match.Groups[1].Value)
             .Distinct(StringComparer.Ordinal)

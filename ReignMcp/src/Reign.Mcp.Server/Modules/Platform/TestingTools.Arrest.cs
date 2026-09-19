@@ -518,7 +518,7 @@ public static partial class TestingTools
 
     private static string ArrestManifestPath(ReignMcpOptions options)
     {
-        string path = Path.Combine(options.WorkspaceRoot, "ReignBetaServer", "ReignLiveTest",
+        string path = Path.Combine(options.WorkspaceRoot, "ReignServer", "tests", "ReignLiveTest",
             "Features", "WorldSimulation", "arrest-equivalence-manifest.json");
         ReignMcpOptions.EnsureWithin(options.WorkspaceRoot, path, "arrestManifest");
         return path;

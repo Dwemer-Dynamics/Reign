@@ -10,7 +10,7 @@ param(
 $ErrorActionPreference = "Stop"
 
 $ModuleDir = "D:\Program Files (x86)\Steam\steamapps\common\Mount & Blade II Bannerlord\Modules\ReignBeta"
-$ServerExe = Join-Path $ModuleDir "server\app\ReignBetaServer.exe"
+$ServerExe = Join-Path $ModuleDir "server\app\ReignServer.exe"
 $ServerWorkDir = Join-Path $ModuleDir "server\app"
 $LauncherShortcut = "C:\Users\speed\Desktop\Bannerlord.BLSE.Launcher - Shortcut.lnk"
 $LogDir = Join-Path $ModuleDir "logs"
@@ -26,7 +26,7 @@ function Ensure-LogDir {
 
 function Stop-ReignServer {
     $procs = Get-CimInstance Win32_Process |
-        Where-Object { ($_.ExecutablePath -eq $ServerExe) -or ($_.CommandLine -like "*ReignBetaServer.exe*") }
+        Where-Object { ($_.ExecutablePath -eq $ServerExe) -or ($_.CommandLine -like "*ReignServer.exe*") }
     foreach ($proc in $procs) {
         Write-Host "Stopping ReignBetaServer pid=$($proc.ProcessId)"
         Stop-Process -Id $proc.ProcessId -Force -ErrorAction SilentlyContinue
@@ -51,7 +51,7 @@ function Stop-Bannerlord {
             ($_.CommandLine -like "*Mount & Blade II Bannerlord*" -or $_.CommandLine -like "*Bannerlord*")
         }
     foreach ($proc in $gameProcs) {
-        if ($proc.CommandLine -like "*ReignBetaServer.exe*") { continue }
+        if ($proc.CommandLine -like "*ReignServer.exe*") { continue }
         Write-Host "Stopping game/launcher pid=$($proc.ProcessId) name=$($proc.Name)"
         Stop-Process -Id $proc.ProcessId -Force -ErrorAction SilentlyContinue
     }

@@ -53,10 +53,10 @@ Each positive invitation uses a target who is not already an active guest. Revie
 
 Because changing case utterances changes test behavior, the same change will update:
 
-- `ReignBetaServer/ReignLiveTest/scenarios/party-agency-manifest.json`;
+- `ReignServer/tests/ReignLiveTest/scenarios/party-agency-manifest.json`;
 - `reign.testing.json`, advancing its catalog version from `2026.08.15.10` to `2026.08.16.1`;
 - `docs/agent/TESTING_TOOL_GUIDE.md`;
-- the Party Agency help text in `ReignBetaServer/ReignLiveTest/Program.cs`; and
+- the Party Agency help text in `ReignServer/tests/ReignLiveTest/Program.cs`; and
 - catalog and harness contract tests.
 
 The prepared certification run is immutable. After validation and deployment, testing will start a new Party Agency certification run bound to the new source, client, server, provider, catalog, and Bannerlord fingerprints. Earlier failed reports remain diagnostic evidence but cannot satisfy the new fingerprint's release gate.

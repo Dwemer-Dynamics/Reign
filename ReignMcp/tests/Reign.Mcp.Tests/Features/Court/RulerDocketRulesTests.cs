@@ -28,9 +28,9 @@ public sealed class RulerDocketRulesTests
             "WorldSimulation", "Campaign", "ReignWorldHistoryCampaignBehavior.cs"));
         string serverClient = File.ReadAllText(Path.Combine(root, "ReignBeta", "src", "Modules",
             "Platform", "Integration", "ReignServerClient.cs"));
-        string reputationServer = File.ReadAllText(Path.Combine(root, "ReignBetaServer", "src",
+        string reputationServer = File.ReadAllText(Path.Combine(root, "ReignServer", "src",
             "Modules", "Reputation", "SocialReputation.cs"));
-        string courtReputationServer = File.ReadAllText(Path.Combine(root, "ReignBetaServer", "src",
+        string courtReputationServer = File.ReadAllText(Path.Combine(root, "ReignServer", "src",
             "Modules", "Reputation", "CourtSocialReputation.cs"));
         string mcp = File.ReadAllText(TestSourceLocator.Unique(Path.Combine(root, "ReignMcp"),
             "TestingTools.Court.cs"));
@@ -480,7 +480,7 @@ public sealed class RulerDocketRulesTests
     [Theory]
     [InlineData("Zeonica\n\nI ask the court to hear me.", "Zeonica", "I ask the court to hear me.")]
     [InlineData("**Zeonica:**\r\nI object..", "Zeonica", "I object.")]
-    [InlineData("# Zeonica â€”\n\n*He bows.*\nMy claim stands.", "Zeonica", "*He bows.*\nMy claim stands.")]
+    [InlineData("# Zeonica —\n\n*He bows.*\nMy claim stands.", "Zeonica", "*He bows.*\nMy claim stands.")]
     [InlineData("Wait... I object..", "Zeonica", "Wait... I object.")]
     [InlineData("Zeonica", "Zeonica", "Zeonica")]
     [InlineData("Ortysia\nI bring news from the west.", "Zeonica", "Ortysia\nI bring news from the west.")]

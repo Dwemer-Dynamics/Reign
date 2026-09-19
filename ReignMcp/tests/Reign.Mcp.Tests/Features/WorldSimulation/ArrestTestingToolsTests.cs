@@ -79,7 +79,7 @@ public sealed class ArrestTestingToolsTests
             "TestingTools.Arrest.cs",
             "/src/Reign.Mcp.Server/Modules/Platform/"));
         string server = File.ReadAllText(TestSourceLocator.Unique(
-            Path.Combine(workspace, "ReignBetaServer"),
+            Path.Combine(workspace, "ReignServer"),
             "ArrestSystem.cs",
             "/src/Modules/WorldSimulation/"));
 
@@ -150,7 +150,7 @@ public sealed class ArrestTestingToolsTests
     {
         var workspace = TestOptions.FindWorkspace();
         string source = File.ReadAllText(TestSourceLocator.Unique(
-            Path.Combine(workspace, "ReignBetaServer"),
+            Path.Combine(workspace, "ReignServer"),
             "ArrestSystem.cs",
             "/src/Modules/WorldSimulation/"));
 

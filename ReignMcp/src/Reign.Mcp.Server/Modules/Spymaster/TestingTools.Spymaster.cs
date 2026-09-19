@@ -227,7 +227,7 @@ public static partial class TestingTools
         CancellationToken cancellationToken)
     {
         string scenarioPath = Path.GetFullPath(Path.Combine(options.WorkspaceRoot,
-            "ReignBetaServer", "ReignLiveTest", "scenarios", scenarioFile));
+            "ReignServer", "tests", "ReignLiveTest", "scenarios", scenarioFile));
         ReignMcpOptions.EnsureWithin(options.WorkspaceRoot, scenarioPath, nameof(scenarioFile));
         JsonObject scenario = JsonNode.Parse(File.ReadAllText(scenarioPath))?.AsObject()
             ?? throw new InvalidDataException("The organic Spymaster scenario is not a JSON object.");

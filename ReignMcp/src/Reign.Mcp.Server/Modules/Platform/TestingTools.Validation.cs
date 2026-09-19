@@ -262,6 +262,15 @@ public static partial class TestingTools
             requestingTaskId);
     }
 
+    [McpServerTool(Name = "reign_build_linux_server", ReadOnly = false, Destructive = false, Idempotent = false, UseStructuredContent = true)]
+    [Description("Cross-publishes the self-contained Linux server under the canonical build lease and paired hygiene audit. Returns a component artifact manifest; does not deploy, start a listener, or claim full validation.")]
+    public static Task<LinuxServerBuildReport> BuildLinuxServer(
+        ReignValidationService validation, bool restore = false, string requestingTaskId = "",
+        CancellationToken cancellationToken = default)
+    {
+        return validation.BuildLinuxServerAsync(restore, requestingTaskId, cancellationToken);
+    }
+
     [McpServerTool(Name = "reign_audit_module_coverage", ReadOnly = true, Destructive = false, Idempotent = true, UseStructuredContent = true)]
     [Description("Inventories validation-relevant files beneath every managed root and reports owned, non-code, unmapped, and ambiguous paths without building anything.")]
     public static ModuleCoverageAudit AuditModuleCoverage(

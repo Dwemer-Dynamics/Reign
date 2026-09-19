@@ -4,22 +4,18 @@
   "client": {
     "name": "Reign",
     "origin": "https://github.com/Dwemer-Dynamics/Reign.git",
-    "branch": "main",
+    "branch": "reign",
     "visibility": "private"
   },
   "server": {
     "name": "ReignServer",
     "relativePath": "../ReignServer",
     "origin": "https://github.com/Dwemer-Dynamics/ReignServer.git",
-    "branch": "main",
+    "branch": "reign",
     "visibility": "public"
   },
   "serverSourceDirectories": [
-    "ReignBetaServer",
-    "ReignModules",
-    "NativeCharacterImageGenerator",
-    "ReignTools",
-    "ReignRelease"
+    "ReignServer"
   ],
   "development": "local",
   "uploadGate": "verified-clean-install-on-another-computer"

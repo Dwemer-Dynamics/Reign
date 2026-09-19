@@ -22,18 +22,18 @@
 - Stage B budgets are: representative live covering set 120, twenty final scenes 60, `LNG-001` 110, `LNG-002` 44, and shared auxiliary/retry reserve 126. The absolute total remains 500.
 - Each final scene executes once. A failed scene is recorded and execution continues; there is no automatic repair or scene rerun.
 - Provider ambiguity is reconciled by correlation ID. A logical provider operation gets at most three physical attempts, each of which consumes budget.
-- Final acceptance requires zero critical failures, 100% structural/hard assertions, at least 95% qualitative success, and a human-review pack of 10â€“12 already-generated scenes.
+- Final acceptance requires zero critical failures, 100% structural/hard assertions, at least 95% qualitative success, and a human-review pack of 10–12 already-generated scenes.
 
 ---
 
 ### Task 1: Add the physical provider-call budget ledger
 
 **Files:**
-- Create: `ReignBetaServer/FinalConversationGauntletProviderBudget.cs`
-- Create: `ReignBetaServer/FinalConversationGauntletProviderBudgetSelfTests.cs`
-- Modify: `ReignBetaServer/FinalConversationGauntletStore.cs`
-- Modify: `ReignBetaServer/ProviderMiddleware.cs`
-- Modify: `ReignBetaServer/VerificationLab.cs`
+- Create: `ReignServer/FinalConversationGauntletProviderBudget.cs`
+- Create: `ReignServer/FinalConversationGauntletProviderBudgetSelfTests.cs`
+- Modify: `ReignServer/FinalConversationGauntletStore.cs`
+- Modify: `ReignServer/ProviderMiddleware.cs`
+- Modify: `ReignServer/VerificationLab.cs`
 
 **Interfaces:**
 - Consumes: provider `correlationId`, `requestType`, and `model` from `ProviderPostJson`.
@@ -94,13 +94,13 @@ Run MCP changed validation. Confirm the concurrency test permits exactly one fin
 ### Task 2: Classify exhaustive coverage and build the 120-call live covering set
 
 **Files:**
-- Create: `ReignBetaServer/FinalConversationGauntletCoverage.cs`
-- Create: `ReignBetaServer/FinalConversationGauntletCoverageSelfTests.cs`
-- Modify: `ReignBetaServer/FinalConversationGauntletModels.cs`
-- Modify: `ReignBetaServer/FinalConversationGauntletCatalog.cs`
-- Modify: `ReignBetaServer/FinalConversationGauntletCatalog.Core.cs`
-- Modify: `ReignBetaServer/FinalConversationGauntletCatalog.Actions.cs`
-- Modify: `ReignBetaServer/VerificationLab.cs`
+- Create: `ReignServer/FinalConversationGauntletCoverage.cs`
+- Create: `ReignServer/FinalConversationGauntletCoverageSelfTests.cs`
+- Modify: `ReignServer/FinalConversationGauntletModels.cs`
+- Modify: `ReignServer/FinalConversationGauntletCatalog.cs`
+- Modify: `ReignServer/FinalConversationGauntletCatalog.Core.cs`
+- Modify: `ReignServer/FinalConversationGauntletCatalog.Actions.cs`
+- Modify: `ReignServer/VerificationLab.cs`
 
 **Interfaces:**
 - Produces: `FinalGauntletCoverageKind` (`Deterministic`, `RepresentedLive`, `DedicatedLive`, `LongHorizon`, `FinalScene`) and `BuildLiveCoveringSet(catalog, seed, maximumProviderCalls)`.
@@ -158,12 +158,12 @@ Run MCP changed validation and inspect the emitted selection manifest. Commit wi
 ### Task 3: Select only missing Stage A evidence and enforce its 40-call partition
 
 **Files:**
-- Create: `ReignBetaServer/FinalConversationGauntletReadinessSelection.cs`
-- Create: `ReignBetaServer/FinalConversationGauntletReadinessSelectionSelfTests.cs`
-- Modify: `ReignBetaServer/FinalConversationGauntletApi.cs`
-- Modify: `ReignBetaServer/FinalConversationGauntletScheduler.cs`
-- Modify: `ReignBetaServer/ConversationReadiness.cs`
-- Modify: `ReignBetaServer/VerificationLab.cs`
+- Create: `ReignServer/FinalConversationGauntletReadinessSelection.cs`
+- Create: `ReignServer/FinalConversationGauntletReadinessSelectionSelfTests.cs`
+- Modify: `ReignServer/FinalConversationGauntletApi.cs`
+- Modify: `ReignServer/FinalConversationGauntletScheduler.cs`
+- Modify: `ReignServer/ConversationReadiness.cs`
+- Modify: `ReignServer/VerificationLab.cs`
 
 **Interfaces:**
 - Consumes: current build/settings/prompt/campaign compatibility fingerprints and readiness denominators.
@@ -197,12 +197,12 @@ Run MCP changed validation. Commit with `feat: bound final gauntlet qualificatio
 ### Task 4: Implement exact Stage B partitions and one-pass final scenes
 
 **Files:**
-- Create: `ReignBetaServer/FinalConversationGauntletManifest.cs`
-- Create: `ReignBetaServer/FinalConversationGauntletManifestSelfTests.cs`
-- Modify: `ReignBetaServer/FinalConversationGauntletScheduler.cs`
-- Modify: `ReignBetaServer/FinalConversationGauntletApi.cs`
-- Modify: `ReignBetaServer/ReignLiveTest/FinalGauntletRunner.cs`
-- Modify: `ReignBetaServer/VerificationLab.cs`
+- Create: `ReignServer/FinalConversationGauntletManifest.cs`
+- Create: `ReignServer/FinalConversationGauntletManifestSelfTests.cs`
+- Modify: `ReignServer/FinalConversationGauntletScheduler.cs`
+- Modify: `ReignServer/FinalConversationGauntletApi.cs`
+- Modify: `ReignServer/tests/ReignLiveTest/FinalGauntletRunner.cs`
+- Modify: `ReignServer/VerificationLab.cs`
 
 **Interfaces:**
 - Produces: frozen Stage B manifest with partitions `representative=120`, `finalScenes=60`, `lng001=110`, `lng002=44`, `reserve=126`.
@@ -242,10 +242,10 @@ Run MCP changed validation. Commit with `feat: freeze 500-call gauntlet manifest
 ### Task 5: Make long-horizon execution match the approved call arithmetic
 
 **Files:**
-- Modify: `ReignBetaServer/ReignLiveTest/FinalGauntletLongHorizon.cs`
-- Modify: `ReignBetaServer/FinalConversationGauntletLongHorizonEvaluation.cs`
-- Create: `ReignBetaServer/FinalConversationGauntletLongHorizonBudgetSelfTests.cs`
-- Modify: `ReignBetaServer/VerificationLab.cs`
+- Modify: `ReignServer/tests/ReignLiveTest/FinalGauntletLongHorizon.cs`
+- Modify: `ReignServer/FinalConversationGauntletLongHorizonEvaluation.cs`
+- Create: `ReignServer/FinalConversationGauntletLongHorizonBudgetSelfTests.cs`
+- Modify: `ReignServer/VerificationLab.cs`
 
 **Interfaces:**
 - `LNG-001`: 100 dialogue replies in ten closed scenes plus ten summary calls = 110.
@@ -274,13 +274,13 @@ Run MCP changed validation. Commit with `feat: bound gauntlet long horizon seque
 ### Task 6: Report the exact call ledger, coverage, and blinded review pack
 
 **Files:**
-- Modify: `ReignBetaServer/FinalConversationGauntletReports.cs`
-- Modify: `ReignBetaServer/FinalConversationGauntletReviewPack.cs`
-- Modify: `ReignBetaServer/FinalConversationGauntletReportSelfTests.cs`
-- Modify: `ReignBetaServer/Program.cs`
+- Modify: `ReignServer/FinalConversationGauntletReports.cs`
+- Modify: `ReignServer/FinalConversationGauntletReviewPack.cs`
+- Modify: `ReignServer/FinalConversationGauntletReportSelfTests.cs`
+- Modify: `ReignServer/Program.cs`
 
 **Interfaces:**
-- Produces: report fields `providerBudget`, `coverageMap`, `partitionRollup`, `unexecutedRequirements`, `completionEligibility`, and a 10â€“12 item blinded pack.
+- Produces: report fields `providerBudget`, `coverageMap`, `partitionRollup`, `unexecutedRequirements`, `completionEligibility`, and a 10–12 item blinded pack.
 
 - [ ] **Step 1: Write failing report tests**
 
@@ -313,11 +313,11 @@ Run MCP changed validation. Commit with `feat: report bounded gauntlet evidence`
 ### Task 7: Harden pause, save rotation, resume, and budget recovery
 
 **Files:**
-- Modify: `ReignBetaServer/ReignLiveTest/FinalGauntletLifecycle.cs`
-- Modify: `ReignBetaServer/ReignLiveTest/FinalGauntletProviderRecovery.cs`
-- Modify: `ReignBetaServer/ReignLiveTest/FinalGauntletRunner.cs`
-- Create: `ReignBetaServer/FinalConversationGauntletLifecycleSelfTests.cs`
-- Modify: `ReignBetaServer/VerificationLab.cs`
+- Modify: `ReignServer/tests/ReignLiveTest/FinalGauntletLifecycle.cs`
+- Modify: `ReignServer/tests/ReignLiveTest/FinalGauntletProviderRecovery.cs`
+- Modify: `ReignServer/tests/ReignLiveTest/FinalGauntletRunner.cs`
+- Create: `ReignServer/FinalConversationGauntletLifecycleSelfTests.cs`
+- Modify: `ReignServer/VerificationLab.cs`
 
 **Interfaces:**
 - Produces: safe `pause` checkpoint and restart-safe resume using the same run, case, correlation ledger, and provider ordinal.
@@ -353,8 +353,8 @@ Run MCP changed validation. Commit with `feat: make final gauntlet safely resuma
 ### Task 8: Cross-cutting validation, deployment, and ConvTest acceptance
 
 **Files:**
-- Modify only files required by failures found in Tasks 1â€“7.
-- Update: `ReignBetaServer/docs/FinalConversationGauntlet.md`
+- Modify only files required by failures found in Tasks 1–7.
+- Update: `ReignServer/docs/server/FinalConversationGauntlet.md`
 - Update: `REIGN_ROADMAP.md` only if an existing gauntlet entry requires a progress note.
 
 **Interfaces:**

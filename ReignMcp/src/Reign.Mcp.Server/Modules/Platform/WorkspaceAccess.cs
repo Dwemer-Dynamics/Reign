@@ -9,7 +9,7 @@ public sealed partial class WorkspaceAccess
     private static readonly HashSet<string> AllowedExtensions = new(StringComparer.OrdinalIgnoreCase)
     {
         ".cs", ".csproj", ".props", ".targets", ".json", ".md", ".txt", ".xml",
-        ".ps1", ".cmd", ".toml", ".yml", ".yaml", ".sln", ".slnx", ".spec", ".py", ".iss"
+        ".ps1", ".cmd", ".toml", ".yml", ".yaml", ".sln", ".slnx", ".spec", ".py", ".iss", ".html", ".css", ".js"
     };
 
     private static readonly HashSet<string> ExcludedDirectoryNames = new(StringComparer.OrdinalIgnoreCase)
@@ -38,9 +38,9 @@ public sealed partial class WorkspaceAccess
         var components = new[]
         {
             Component("Bannerlord client", Path.Combine("ReignBeta", "ReignBeta.csproj")),
-            Component("Reign server", Path.Combine("ReignBetaServer", "ReignBetaServer.csproj")),
-            Component("Verification runner", Path.Combine("ReignBetaServer", "ReignVerification", "ReignVerification.csproj")),
-            Component("Live-test controller", Path.Combine("ReignBetaServer", "ReignLiveTest", "ReignLiveTest.csproj")),
+            Component("Reign server", Path.Combine("ReignServer", "ReignServer.csproj")),
+            Component("Verification runner", Path.Combine("ReignServer", "tests", "ReignVerification", "ReignVerification.csproj")),
+            Component("Live-test controller", Path.Combine("ReignServer", "tests", "ReignLiveTest", "ReignLiveTest.csproj")),
             Component("Reign MCP", Path.Combine("ReignMcp", "src", "Reign.Mcp.Server", "Reign.Mcp.Server.csproj")),
             Component("Bannerlord Editor MCP", Path.Combine("BannerlordEditorMcp", "src", "Bannerlord.EditorMcp.Server", "Bannerlord.EditorMcp.Server.csproj"))
         };
@@ -53,14 +53,14 @@ public sealed partial class WorkspaceAccess
             TestingCatalogPath = Path.Combine(_options.WorkspaceRoot, "reign.testing.json"),
             Components = components,
             TestScenarios = EnumerateRelativeFiles(
-                Path.Combine(_options.WorkspaceRoot, "ReignBetaServer", "ReignLiveTest", "scenarios"),
+                Path.Combine(_options.WorkspaceRoot, "ReignServer", "tests", "ReignLiveTest", "scenarios"),
                 "*.json",
                 500),
             VerificationDocuments = new[]
             {
                 Path.Combine("docs", "agent", "TESTING_TOOL_GUIDE.md"),
-                Path.Combine("ReignBetaServer", "docs", "VerificationLab.md"),
-                Path.Combine("ReignBetaServer", "README.md"),
+                Path.Combine("ReignServer", "docs", "server", "VerificationLab.md"),
+                Path.Combine("ReignServer", "README.md"),
                 Path.Combine("ReignBeta", "README.md")
             }
         };

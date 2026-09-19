@@ -8,7 +8,7 @@ public sealed class CapitalAmbassadorScenarioContractTests
     public void ManifestAndMcpExposeEveryPreparedBranch()
     {
         string root = TestOptions.FindWorkspace();
-        string manifestPath = Path.Combine(root, "ReignBetaServer", "ReignLiveTest", "scenarios", "capital-ambassador-manifest.json");
+        string manifestPath = Path.Combine(root, "ReignServer", "tests", "ReignLiveTest", "scenarios", "capital-ambassador-manifest.json");
         using JsonDocument manifest = JsonDocument.Parse(File.ReadAllText(manifestPath));
         Assert.Equal(2, manifest.RootElement.GetProperty("schemaVersion").GetInt32());
         Assert.True(manifest.RootElement.GetProperty("preparedOnly").GetBoolean());
@@ -43,13 +43,13 @@ public sealed class CapitalAmbassadorScenarioContractTests
     public void ServerAndGameAdaptersUseExplicitProductionBoundaries()
     {
         string root = TestOptions.FindWorkspace();
-        string liveServer = File.ReadAllText(TestSourceLocator.Unique(Path.Combine(root, "ReignBetaServer"), "LiveInteractionTest.cs", "/src/"));
+        string liveServer = File.ReadAllText(TestSourceLocator.Unique(Path.Combine(root, "ReignServer"), "LiveInteractionTest.cs", "/src/"));
         Assert.Contains("\"capital_ambassador_test\"", liveServer, StringComparison.Ordinal);
         Assert.Contains("\"ambassador_official\"", liveServer, StringComparison.Ordinal);
 
-        string program = File.ReadAllText(TestSourceLocator.Unique(Path.Combine(root, "ReignBetaServer"), "Program.cs", "/src/"));
+        string program = File.ReadAllText(TestSourceLocator.Unique(Path.Combine(root, "ReignServer"), "Program.cs", "/src/Modules/Platform/"));
         Assert.Contains("/court/foreign-ambassadors/test", program, StringComparison.Ordinal);
-        string serverMatrix = File.ReadAllText(TestSourceLocator.Unique(Path.Combine(root, "ReignBetaServer"), "CapitalAmbassadorTestSystem.cs", "/src/"));
+        string serverMatrix = File.ReadAllText(TestSourceLocator.Unique(Path.Combine(root, "ReignServer"), "CapitalAmbassadorTestSystem.cs", "/src/"));
         Assert.Contains("run Reign capital ambassador server matrix", serverMatrix, StringComparison.Ordinal);
         Assert.Contains("cleanup", serverMatrix, StringComparison.OrdinalIgnoreCase);
         Assert.Contains("server_provider_failure_class_once", serverMatrix, StringComparison.Ordinal);
@@ -83,7 +83,7 @@ public sealed class CapitalAmbassadorScenarioContractTests
         Assert.Contains("ambassador_official", host, StringComparison.Ordinal);
         string ui = File.ReadAllText(TestSourceLocator.Unique(Path.Combine(root, "ReignBeta"), "ReignLiveInteractionUiCalibrationHost.cs", "/src/"));
         Assert.Contains("ReignAmbassadorScreenManager.TryExecuteAutomationAction", ui, StringComparison.Ordinal);
-        string liveTest = File.ReadAllText(Path.Combine(root, "ReignBetaServer", "ReignLiveTest", "Program.cs"));
+        string liveTest = File.ReadAllText(Path.Combine(root, "ReignServer", "tests", "ReignLiveTest", "Program.cs"));
         Assert.Contains("[\"value\"] = Value(args, \"--value\", \"\")", liveTest, StringComparison.Ordinal);
         Assert.Contains("ambassador|economic-report|spymaster|war-council", liveTest, StringComparison.Ordinal);
     }
@@ -101,11 +101,11 @@ public sealed class CapitalAmbassadorScenarioContractTests
         Assert.Contains("capital_harness_save_payload_bounded", fixture, StringComparison.Ordinal);
         Assert.Contains("CapitalAmbassadorLedgerMaxStoredJsonChars", fixture, StringComparison.Ordinal);
 
-        string foreign = File.ReadAllText(TestSourceLocator.Unique(Path.Combine(root, "ReignBetaServer"), "ForeignAmbassadorSystem.cs", "/src/"));
+        string foreign = File.ReadAllText(TestSourceLocator.Unique(Path.Combine(root, "ReignServer"), "ForeignAmbassadorSystem.cs", "/src/"));
         Assert.Contains("forcedTestClassification", foreign, StringComparison.Ordinal);
         Assert.Contains("string forcedTestClassification = \"\"", foreign, StringComparison.Ordinal);
         Assert.Contains("forced_test_hook", foreign, StringComparison.Ordinal);
-        string docs = File.ReadAllText(Path.Combine(root, "ReignBetaServer", "docs", "CapitalAmbassadorTesting.md"));
+        string docs = File.ReadAllText(Path.Combine(root, "ReignServer", "docs", "server", "CapitalAmbassadorTesting.md"));
         Assert.Contains("two compact end-to-end native lifecycles", docs, StringComparison.OrdinalIgnoreCase);
         Assert.Contains("sixteen player/NPC turns", docs, StringComparison.OrdinalIgnoreCase);
         Assert.Contains("never creates a fixed", docs, StringComparison.OrdinalIgnoreCase);

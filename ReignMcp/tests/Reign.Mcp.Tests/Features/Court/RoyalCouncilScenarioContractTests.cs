@@ -8,7 +8,7 @@ public sealed class RoyalCouncilScenarioContractTests
     public void ManifestCatalogMcpAndUiExposeRoyalCouncilRoute()
     {
         string root = TestOptions.FindWorkspace();
-        string manifestPath = Path.Combine(root, "ReignBetaServer", "ReignLiveTest", "scenarios", "capital-royal-council-manifest.json");
+        string manifestPath = Path.Combine(root, "ReignServer", "tests", "ReignLiveTest", "scenarios", "capital-royal-council-manifest.json");
         using JsonDocument manifest = JsonDocument.Parse(File.ReadAllText(manifestPath));
         Assert.Equal(1, manifest.RootElement.GetProperty("schemaVersion").GetInt32());
         Assert.Equal("reign_start_royal_council_test", manifest.RootElement.GetProperty("entryPoint").GetString());
@@ -29,14 +29,14 @@ public sealed class RoyalCouncilScenarioContractTests
     public void AdviceBoundaryAndLegacyOfficeAliasesAreExplicit()
     {
         string root = TestOptions.FindWorkspace();
-        string server = File.ReadAllText(TestSourceLocator.Unique(Path.Combine(root, "ReignBetaServer"), "RoyalCouncil.cs", "/src/"));
+        string server = File.ReadAllText(TestSourceLocator.Unique(Path.Combine(root, "ReignServer"), "RoyalCouncil.cs", "/src/"));
         Assert.Contains("RoyalCouncilDomainKeys", server, StringComparison.Ordinal);
         Assert.Contains("providerCallCount", server, StringComparison.Ordinal);
         Assert.Contains("nativeActions", server, StringComparison.Ordinal);
         Assert.Contains("relationshipAssessments", server, StringComparison.Ordinal);
         Assert.Contains("reputationChanges", server, StringComparison.Ordinal);
         Assert.Contains("royal_council_turns", server, StringComparison.Ordinal);
-        string court = File.ReadAllText(TestSourceLocator.Unique(Path.Combine(root, "ReignBetaServer"), "CourtSystem.cs", "/src/"));
+        string court = File.ReadAllText(TestSourceLocator.Unique(Path.Combine(root, "ReignServer"), "CourtSystem.cs", "/src/"));
         Assert.Contains("treasurer", court, StringComparison.Ordinal);
         Assert.Contains("economicadvisor", court, StringComparison.Ordinal);
         Assert.Contains("chancellor", court, StringComparison.Ordinal);

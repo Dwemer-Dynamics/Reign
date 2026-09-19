@@ -49,11 +49,11 @@ test("catalog_drift", () => {
   assert.equal(catalog.hoursPerDrink, 2); assert.equal(catalog.veryIntoxicatedRatio, .5);
   assert.equal(catalog.releaseAlcoholBelowRatio, .5); assert.equal(catalog.overwhelmedRatio, 1);
   assert.deepEqual(catalog.servings, { drink: 1, half: .5, sip: .25 });
-  const server = read("ReignBetaServer/src/Modules/Dialogue/ConversationIntoxication.cs");
+  const server = read("ReignServer/src/Modules/Dialogue/ConversationIntoxication.cs");
   assert(server.includes(catalog.stateSchema) && server.includes(catalog.receiptSchema));
   assert(read(catalog.guide).includes("conversation_intoxication"));
   assert(read("docs/agent/TESTING_TOOL_GUIDE.md").includes("conversation_intoxication"));
-  assert(read("ReignBetaServer/src/Modules/Platform/VerificationLab.cs").includes('"contracts.conversation_intoxication"'));
+  assert(read("ReignServer/src/Modules/Platform/VerificationLab.cs").includes('"contracts.conversation_intoxication"'));
 });
 const result = { schema: "reign-conversation-action-preview-contract-v1", ok: cases.every(x => x.passed), cases };
 const output = process.argv[2] || path.join(root, ".codex-build/intoxication-actions/action-preview-contract.json");

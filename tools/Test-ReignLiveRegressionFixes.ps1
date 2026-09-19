@@ -60,7 +60,7 @@ Add-Check 'events.encyclopedia_overlay_lifecycle' ($eventManager -match 'ReignSo
 $portraitPrompt = Read-Source 'ReignBeta\src\AIPortraits\NanoGptClient.cs'
 $portraitContext = Read-Source 'ReignBeta\src\AIPortraits\PortraitPromptContext.cs'
 $portraitClient = Read-Source 'ReignBeta\src\Integration\ReignServerClient.cs'
-$portraitServer = Read-Source 'ReignBetaServer\PortraitGeneration.cs'
+$portraitServer = Read-Source 'ReignServer\PortraitGeneration.cs'
 Add-Check 'portraits.custom_identity_tokens' ($portraitPrompt -match 'BuildCustomPromptStyle\(AIEventsSettings settings, PortraitPromptContext context\)' -and $portraitPrompt -match 'ExpandIdentityTokens\(settings\.PromptSuffix, context\)' -and $portraitPrompt -match 'BuildIdentityRequirement\(context\)') 'Custom portrait prompts expand the standard identity tokens and append an explicit age requirement.'
 Add-Check 'portraits.structured_identity_metadata' ($portraitContext -match 'HeroStringId' -and $portraitContext -match 'AgeYears' -and $portraitContext -match 'Gender' -and $portraitClient -match 'payload\["ageYears"\]' -and $portraitClient -match 'payload\["cultureName"\]' -and $portraitServer -match 'ExpandPortraitIdentityTokens') 'Hero id, name, age, gender, and culture cross the client/server boundary as structured metadata.'
 Add-Check 'portraits.event_thumbnails_contain' ((Read-Source 'ReignBeta\src\AIPortraits\PortraitPatch.cs') -match 'AIEventsActivePortrait.*AIEventsAvailablePortrait' -and (Read-Source 'ReignBeta\src\UI\ViewModels\ReignSocialEventAttendeeVM.cs') -match 'PortraitCropImageWidth => 104f') 'Event thumbnails contain the full generated portrait inside the enlarged frame instead of center-cropping faces.'
@@ -69,7 +69,7 @@ $bootstrap = Read-Source 'ReignBeta\src\Campaign\ReignBetaDebugActions.cs'
 Add-Check 'test_realm.no_minor_factions' ($bootstrap -match '!clan\.IsMinorFaction' -and $bootstrap -match 'IsInvalidTestVassal') 'The test realm excludes and repairs minor-faction vassals.'
 Add-Check 'test_realm.no_mercenary_service' ($bootstrap -match '!clan\.IsUnderMercenaryService') 'The test realm excludes clans under mercenary service.'
 
-$reputation = Read-Source 'ReignBetaServer\ReputationSystem.cs'
+$reputation = Read-Source 'ReignServer\ReputationSystem.cs'
 Add-Check 'server.reputation_schema_migration' ($reputation -match 'EnsureSqliteColumn\(connection, "reputation_evidence", "claim_id"' -and $reputation -match 'EnsureSqliteColumn\(connection, "reputation_evidence", "status"') 'Older campaign databases receive the missing claim_id and status columns before indexes are created.'
 Add-Check 'reputation.seasonal_neutral_drift' ($reputation -match 'last_processed_season' -and $reputation -match 'score - \(5d \* elapsed\)' -and $reputation -match 'score \+ \(5d \* elapsed\)' -and $reputation -notmatch 'ApplyReputationDecayDay') 'Natural reputation drift runs once per season and moves either sign exactly 5 points toward zero.'
 

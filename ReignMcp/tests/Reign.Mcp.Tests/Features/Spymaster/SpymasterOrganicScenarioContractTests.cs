@@ -8,7 +8,7 @@ public sealed class SpymasterOrganicScenarioContractTests
     public void OrganicManifestReferencesRunnableProductionScenarios()
     {
         string root = Path.Combine(TestOptions.FindWorkspace(),
-            "ReignBetaServer", "ReignLiveTest", "scenarios");
+            "ReignServer", "tests", "ReignLiveTest", "scenarios");
         using JsonDocument manifest = JsonDocument.Parse(File.ReadAllText(
             Path.Combine(root, "spymaster-organic-manifest.json")));
         Assert.True(manifest.RootElement.GetProperty("preparedOnly").GetBoolean());
@@ -88,7 +88,7 @@ public sealed class SpymasterOrganicScenarioContractTests
     public void OrganicSafetyConfirmationsStaySeparated()
     {
         string root = Path.Combine(TestOptions.FindWorkspace(),
-            "ReignBetaServer", "ReignLiveTest", "scenarios");
+            "ReignServer", "tests", "ReignLiveTest", "scenarios");
         string prepare = File.ReadAllText(Path.Combine(root, "spymaster-organic-prepare.json"));
         string destructive = File.ReadAllText(Path.Combine(root, "spymaster-organic-destructive-attempt.json"));
         Assert.Contains("prepare organic Spymaster test on disposable save", prepare, StringComparison.Ordinal);
@@ -115,7 +115,7 @@ public sealed class SpymasterOrganicScenarioContractTests
         Assert.Contains("exactLegacySpymasterCheckpoint", passiveWorldHost, StringComparison.Ordinal);
 
         string liveServer = File.ReadAllText(TestSourceLocator.Unique(
-            Path.Combine(TestOptions.FindWorkspace(), "ReignBetaServer"),
+            Path.Combine(TestOptions.FindWorkspace(), "ReignServer"),
             "LiveInteractionTest.cs", "/src/"));
         Assert.Contains("\"spymaster_organic\"", liveServer, StringComparison.Ordinal);
     }
@@ -132,10 +132,10 @@ public sealed class SpymasterOrganicScenarioContractTests
         Assert.Contains("settlementMenuReady", ui, StringComparison.Ordinal);
 
         string liveServer = File.ReadAllText(TestSourceLocator.Unique(
-            Path.Combine(root, "ReignBetaServer"), "LiveInteractionTest.cs", "/src/"));
+            Path.Combine(root, "ReignServer"), "LiveInteractionTest.cs", "/src/"));
         Assert.Contains("\"social_set_underlying_affinity\"", liveServer, StringComparison.Ordinal);
         string socialFixture = File.ReadAllText(TestSourceLocator.Unique(
-            Path.Combine(root, "ReignBetaServer"), "SocialBalanceTest.cs", "/src/"));
+            Path.Combine(root, "ReignServer"), "SocialBalanceTest.cs", "/src/"));
         Assert.Contains("valueMode != \"underlying\" && valueMode != \"effective\"",
             socialFixture, StringComparison.Ordinal);
         Assert.Contains("SocialBalanceUnderlyingAffinityForEffectiveValue",
@@ -209,7 +209,7 @@ public sealed class SpymasterOrganicScenarioContractTests
     public void OrganicIntelligenceExcludesRetiringNpcStatDiscovery()
     {
         string root = Path.Combine(TestOptions.FindWorkspace(),
-            "ReignBetaServer", "ReignLiveTest", "scenarios");
+            "ReignServer", "tests", "ReignLiveTest", "scenarios");
         string intelligence = File.ReadAllText(Path.Combine(root,
             "spymaster-organic-intelligence.json"));
         Assert.Contains("\"person_relationships\"", intelligence, StringComparison.Ordinal);
@@ -258,7 +258,7 @@ public sealed class SpymasterOrganicScenarioContractTests
     public void SocialMitigationSelectsIndependentTargetsWithLiveProductionRecords()
     {
         string root = TestOptions.FindWorkspace();
-        string scenario = File.ReadAllText(Path.Combine(root, "ReignBetaServer", "ReignLiveTest",
+        string scenario = File.ReadAllText(Path.Combine(root, "ReignServer", "tests", "ReignLiveTest",
             "scenarios", "spymaster-organic-social-mitigation.json"));
         Assert.Contains("foreign-noble-with-rumor", scenario, StringComparison.Ordinal);
         Assert.Contains("foreign-noble-with-reputation", scenario, StringComparison.Ordinal);
@@ -275,7 +275,7 @@ public sealed class SpymasterOrganicScenarioContractTests
     public void SocialFabricationRotatesAcrossFreshEligibleForeignTargets()
     {
         string root = TestOptions.FindWorkspace();
-        string scenario = File.ReadAllText(Path.Combine(root, "ReignBetaServer", "ReignLiveTest",
+        string scenario = File.ReadAllText(Path.Combine(root, "ReignServer", "tests", "ReignLiveTest",
             "scenarios", "spymaster-organic-social-fabrication.json"));
         Assert.Contains("fresh-foreign-noble", scenario, StringComparison.Ordinal);
 
@@ -289,7 +289,7 @@ public sealed class SpymasterOrganicScenarioContractTests
     public void ControlledSocialSuccessIsBoundToExactCapturedMissionIds()
     {
         string root = TestOptions.FindWorkspace();
-        string scenario = File.ReadAllText(Path.Combine(root, "ReignBetaServer", "ReignLiveTest",
+        string scenario = File.ReadAllText(Path.Combine(root, "ReignServer", "tests", "ReignLiveTest",
             "scenarios", "spymaster-controlled-social-success.json"));
         Assert.Contains("stable-fresh-foreign-noble", scenario, StringComparison.Ordinal);
         Assert.Contains("control_outcomes", scenario, StringComparison.Ordinal);
@@ -324,7 +324,7 @@ public sealed class SpymasterOrganicScenarioContractTests
     public void ControlledRumorMitigationUsesOneExactMissionAndACompressedLiveWindow()
     {
         string root = TestOptions.FindWorkspace();
-        string scenario = File.ReadAllText(Path.Combine(root, "ReignBetaServer", "ReignLiveTest",
+        string scenario = File.ReadAllText(Path.Combine(root, "ReignServer", "tests", "ReignLiveTest",
             "scenarios", "spymaster-controlled-rumor-mitigation.json"));
         Assert.Contains("foreign-noble-with-rumor", scenario, StringComparison.Ordinal);
         Assert.Contains("mitigate_target_rumor", scenario, StringComparison.Ordinal);
@@ -337,7 +337,7 @@ public sealed class SpymasterOrganicScenarioContractTests
     [Fact]
     public void ControlledRemainingRareBranchesStayExactAndOneShot()
     {
-        string root = Path.Combine(TestOptions.FindWorkspace(), "ReignBetaServer", "ReignLiveTest", "scenarios");
+        string root = Path.Combine(TestOptions.FindWorkspace(), "ReignServer", "tests", "ReignLiveTest", "scenarios");
         string self = File.ReadAllText(Path.Combine(root, "spymaster-controlled-self-mitigation.json"));
         Assert.Contains("mitigate_own_rumor", self, StringComparison.Ordinal);
         Assert.Contains("mitigate_own_reputation", self, StringComparison.Ordinal);
@@ -358,7 +358,7 @@ public sealed class SpymasterOrganicScenarioContractTests
         Assert.Contains("ForceForeignAgentAction", runtime, StringComparison.Ordinal);
         Assert.Contains("_forcedForeignAgentAction = null", runtime, StringComparison.Ordinal);
         string server = File.ReadAllText(TestSourceLocator.Unique(
-            Path.Combine(TestOptions.FindWorkspace(), "ReignBetaServer"), "SpymasterSystem.cs", "/src/"));
+            Path.Combine(TestOptions.FindWorkspace(), "ReignServer"), "SpymasterSystem.cs", "/src/"));
         Assert.Contains("productionActionChance", server, StringComparison.Ordinal);
         Assert.Contains("productionStableRoll", server, StringComparison.Ordinal);
     }
@@ -367,7 +367,7 @@ public sealed class SpymasterOrganicScenarioContractTests
     public void ControlledDestructiveBranchesUseExactMissionAndBreakoutOneShots()
     {
         string root = TestOptions.FindWorkspace();
-        string scenarios = Path.Combine(root, "ReignBetaServer", "ReignLiveTest", "scenarios");
+        string scenarios = Path.Combine(root, "ReignServer", "tests", "ReignLiveTest", "scenarios");
         string assassination = File.ReadAllText(Path.Combine(scenarios,
             "spymaster-controlled-assassination-success.json"));
         Assert.Contains("\"missionTypes\": [\"assassinate_person\"]", assassination,

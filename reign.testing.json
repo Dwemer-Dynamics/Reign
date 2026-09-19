@@ -28,32 +28,33 @@
     "limits": "Offline proof establishes retrieval and prompt grounding, not the provider's exact wording or native acceptance. Never replay the player's historical tournament or conversation to repair it."
   },
   "launchPackaging": {
-    "packageBuilder": {
-      "tool": "reign_build_release_package",
-      "cli": "reign-validate.ps1 -ReleasePackage -ValidationRunId <successful all Release run> -PythonExecutable <absolute build python> -BuildSpecification <absolute local inputs JSON> -RequestingTaskId <task UUID>",
-      "gates": ["trusted AllowBuild", "trusted AllowOfflineVerification", "current successful all Release fingerprint", "enforced paired hygiene", "canonical OS build lease"],
-      "evidenceSchema": "reign-release-package-report-v1",
-      "proofSchema": "reign-package-assembly-v1",
-      "cases": ["official_download_hashes", "runtime_component_input_hashes", "runtime_file_allowlist", "steam_dependency_runtime_without_debug_symbols", "upstream_notice_byte_hashes", "secret_path_only_audit", "five_payload_hashes", "installer_compilation", "compiled_setup_failure_page_and_nonzero_exit", "profile_installation_record_discovery", "physical_installation_path_probe_and_redirect_rejection", "legacy_ownership_adoption_without_runtime_fallback", "unpackaged_game_portrait_discovery_acceptance", "no_install_or_listener", "no_provider_calls", "clean_computer_acceptance_remains_pending"],
-      "cleanup": "Retain the exact run-owned release-package directory and assembly report until acceptance. Installer contracts retain isolated temp proof directories. Setup removes only its exact marked staging tree after successful commit and retains prior versions; uninstall preserves player state and modified files."
-    },
-    "runtimeBuilder": {
-      "tool": "reign_build_release_runtime",
-      "cli": "reign-validate.ps1 -VectorRuntime -PythonExecutable <absolute locked build python> -ModelDirectory <verified model directory> -RequestingTaskId <task UUID>",
-      "scope": "One pinned vector runtime component; never a product-validation or clean-machine verdict",
-      "gates": ["trusted AllowBuild", "trusted AllowOfflineVerification", "all ownership plan", "enforced paired hygiene", "canonical OS build lease"],
-      "evidenceSchema": "reign-release-runtime-report-v1",
-      "proofSchema": "reign-vector-release-proof-v1",
-      "cases": ["locked_dependencies", "model_sha256", "bundled_inference_384_dimensions", "network_denied", "no_listener", "persistent_search_after_reopen", "no_python_on_path", "source_unchanged"],
-      "cleanup": "Retain the exact run-owned .codex-build/reign-mcp/release-runtime directory as component evidence. No automatic removal, no campaign access."
+    "linuxServerBuilder": {
+      "tool": "reign_build_linux_server",
+      "cli": "reign-validate.ps1 -LinuxServer -Restore -RequestingTaskId <task UUID>",
+      "scope": "Self-contained Linux server component; no deployment, listener, provider, campaign, or game execution",
+      "gates": [
+        "trusted AllowBuild",
+        "trusted AllowRestore when restoring",
+        "all ownership plan",
+        "enforced paired hygiene",
+        "canonical OS build lease"
+      ],
+      "evidenceSchema": "reign-linux-build-v1",
+      "proofSchema": "reign-linux-artifact-v1",
+      "procedure": "docs/agent/VALIDATION.md",
+      "cleanup": "Retain run-owned linux-server artifacts and reports. Full validation and isolated Linux runtime probes remain separate requirements."
     },
     "schema": "reign-launch-proof-v1",
     "procedure": "docs/agent/testing/RELEASE_PACKAGING.md",
     "profile": "all",
     "tier": 4,
     "repositoryLayout": "reign.repositories.json",
-    "contracts": ["LaunchInstallationTests", "ReignSourceLayoutTests", "ReignProtocolTests", "ReleaseRuntimeTests", "ReleaseInstallerTests", "SetupRejectsUnsupportedDatabasePathsBeforeCreatingInstallationState", "DatabaseCredentialAclUsesItsHostModuleWithAnIncompatibleInheritedModulePath", "database-path-allows-ascii-spaces-and-apostrophes", "database-path-rejects-accented-roots", "fully-offline-setup-needs-zero-download-bytes", "preflight-counts-only-missing-downloads", "replace-existing-install-record-atomically", "reject-locked-install-record-replacement", "failed-record-replacement-preserves-original-and-cleans-temp", "launcher-record-reader-is-bounded", "launcher-reads-utf8-installation-paths", "campaign_metadata_without_storage_scan"],
-    "isolation": "Non-listening contracts and isolated test databases on D:. No provider calls or campaign advancement. Native acceptance retains the existing disposable-save and runtime gates.",
+    "contracts": [
+      "LaunchInstallationTests",
+      "ReignSourceLayoutTests",
+      "ReignProtocolTests"
+    ],
+    "isolation": "Non-listening Linux server verification in WSL with ReignValidation and run-owned data; Windows client contract checks remain on Windows.",
     "publicationGate": "The complete package must have clean-install execution evidence on another computer before initial uploads. Source compilation or operation in the original developer installation is insufficient.",
     "hygiene": "Audit both independent Git checkouts and their exact fetch/push origins. Follow only declared sibling source junctions, hash both repositories, and exclude private verification workspaces from every distributed payload."
   },
@@ -62,9 +63,9 @@
     "suite": "prompt_efficiency",
     "check": "pipeline.prompt_caching",
     "providerCalls": false,
-    "implementation": "ConversationNaturalnessSelfTests and existing RoleplayContinuitySelfTests through RunPromptCachingSelfTests; captured failure excerpts and negative controls, production envelope matrix, isolated Dynamic Characteristics persistence, accepted pernach planner candidate and item-resolution contracts.",
+    "implementation": "ConversationNaturalnessSelfTests and existing RoleplayContinuitySelfTests through RunPromptCachingSelfTests; captured failure excerpts and negative controls, production envelope matrix, isolated Dynamic Characteristics persistence, accepted pernach planner candidate and item-resolution contracts, complete non-retired action-catalog availability, and the captured Chagun clan-acceptance shortlist regression.",
     "isolation": "Existing non-listening artifact-bound Verification Lab CLI and unique naturalness_test_ campaign in isolated storage. No production campaign writes or provider calls.",
-    "limits": "English pattern guards and conservative content-token deduplication; deterministic proof does not establish provider prose quality or native gift execution. Existing bounded repair/second-attempt, cost, runtime and disposable-save gates remain unchanged.",
+    "limits": "English pattern guards and conservative content-token deduplication; deterministic proof establishes planner availability and shortlist preservation but does not establish provider prose quality or native action execution. Existing consent, native validation, bounded repair/second-attempt, cost, runtime and disposable-save gates remain unchanged.",
     "procedure": "docs/agent/testing/DIALOGUE_AND_PROVIDERS.md",
     "details": "docs/agent/DIALOGUE_NATURALNESS_FIX.md"
   },
@@ -144,7 +145,7 @@
     "offlineSuite": "codex_performance",
     "offlineTransportIsolation": "Injected Codex contracts run only in the non-listening --run-verification CLI via artifact-bound reign_run_offline_verification; the listening server refuses them so test transport cannot intercept gameplay requests.",
     "offlineContracts": ["contracts.codex_runtime", "contracts.codex_conversation", "contracts.codex_integration", "contracts.codex_performance_reports"],
-    "browserContracts": ["ReignBetaServer/src/Modules/Platform/chat-provider-ui-contract.mjs", "ReignBetaServer/src/Modules/Platform/codex-performance-ui-contract.mjs", "ReignBetaServer/src/Modules/Platform/control-center-ui-contract.mjs"],
+    "browserContracts": ["ReignServer/src/Modules/Platform/chat-provider-ui-contract.mjs", "ReignServer/src/Modules/Platform/codex-performance-ui-contract.mjs", "ReignServer/src/Modules/Platform/control-center-ui-contract.mjs"],
     "widths": [1672, 1024, 600],
     "liveRoute": "reign_start_verification: suite=codex_performance, tier=live-llm, codexPerformanceJson with exact model, caseIds, baselineOptions, variantOptions, changedOption and totalProviderCallCap (1..1000). General start Reign verification confirmation plus separate run bounded Codex performance comparison confirmation are required. Not included in aggregate live suites.",
     "budget": "Run-wide physical turn/start cap includes primary calls, repairs, retries, probes and any judges across repeat passes. No ambiguous in-flight request replay. Discovery and thread creation do not consume the generation-call cap.",
@@ -175,8 +176,8 @@
     "catalogVerified": "2026-09-09",
     "verification": "Existing interaction_architecture offline suite covers migration, key isolation/masking/clear, all twelve model banks and reasoning; contracts.image_generation_profiles covers every model across all four image profiles with injected transport, reference bytes, failure/timeout/no-key controls. No new tool, suite, command, confirmation or listener.",
     "browserContracts": [
-      "ReignBetaServer/src/Modules/Platform/chat-provider-ui-contract.mjs",
-      "ReignBetaServer/src/Modules/Portraits/portrait-profile-ui-contract.mjs"
+      "ReignServer/src/Modules/Platform/chat-provider-ui-contract.mjs",
+      "ReignServer/src/Modules/Portraits/portrait-profile-ui-contract.mjs"
     ],
     "isolation": "Exact validated Release artifact via reign_run_offline_verification; local HTML fixture with intercepted traffic. No paid traffic, login, campaign mutation or installed settings writes.",
     "acceptance": "Provider credentials and paid chat/image output require separate authorized live acceptance. No native interface or adapter changes; Gauntlet/raster fidelity is not applicable."
@@ -195,14 +196,14 @@
     "isolation": "One image at a time, job-owned Codex app-server helper using official ChatGPT login; no API keys or credential-file reads. Ephemeral job-confined workspace; inherited MCP servers, shell, additional agents and shell network disabled. Adult rejection occurs before startup. Stop the owned helper before deleting job-local references/output; never stop the shared text provider.",
     "bounds": "32 MiB PNGs, maximum 8192 per axis and 33554432 pixels, 48 MiB protocol characters, 64000-character prompt, 30..600-second job timeout. Reject out-of-job savedPath, remote outputs, links/junctions, failed/refused or missing image results. Cancellation interrupts the turn and stops only the owned helper.",
     "evidence": "Verification sandbox codex-images/report.json plus reference.png and successful portrait/scenery/social_event.png; hashes, route, duration and failure. No campaign writes. Standard reign_get_verification_results reads the containing Lab report.",
-    "browserContract": "ReignBetaServer/src/Modules/Portraits/portrait-profile-ui-contract.mjs",
+    "browserContract": "ReignServer/src/Modules/Portraits/portrait-profile-ui-contract.mjs",
     "acceptance": "Nine provider/width image-profile renders plus settings roundtrip and adult-option exclusion. No native prefab or fixed artwork changes, so native visual checks and raster-reference fidelity are not applicable to these web controls. Provider PNG success does not prove character likeness or human scene-quality acceptance.",
     "guide": "docs/agent/CODEX_IMAGE_PROVIDER_COMPATIBILITY.md"
   },
   "controlCenterNavigation": {
     "schema": "reign-control-center-navigation-ui-v1",
     "verification": "Existing quick/offline interaction_architecture suite: control_center_navigation_contract, control_center_retired_tools_absent and control_center_navigation_preview. The latter emits control-center-navigation/control-center.html beneath the isolated VerificationDir.",
-    "browserContract": "ReignBetaServer/src/Modules/Platform/control-center-ui-contract.mjs",
+    "browserContract": "ReignServer/src/Modules/Platform/control-center-ui-contract.mjs",
     "stylePalette": "ReignBeta/artwork/ui-modern-style-kit/palette.json",
     "styleCoverage": "Full Control Center modern styling: computed foreground/background/border colors and absence of glow/gradients on all 22 pages, input and button states, native-web checkbox/file controls, populated character/standing and world matrices. Existing logo/portrait bytes and backend behavior are unchanged. control_center_modern_style_contract extends interaction_architecture.",
     "invocation": "node <browserContract> <Lab control-center-navigation fixture directory> <evidence directory>; REIGN_PLAYWRIGHT_MODULE selects the existing Playwright installation, REIGN_BROWSER_CHANNEL defaults to msedge.",
@@ -390,7 +391,7 @@
       "half": 0.5,
       "sip": 0.25
     },
-    "guide": "ReignBetaServer/docs/ConversationIntoxication.md",
+    "guide": "ReignServer/docs/server/ConversationIntoxication.md",
     "previewContract": "ReignBeta/tools/GauntletXmlPreviewer/test-conversation-actions.mjs",
     "previewStates": "intoxication-actions on individual-chat, party-chat, castle-chat, social-event and wilderness-event; rendered audit requires three marker-free italic actions",
     "safety": "Non-listening exact validated artifact, provider-free, unique verifier-sandbox campaign only. Real game/server remain untouched before the user shutdown handoff. Native/provider acceptance requires its existing gates."
@@ -425,7 +426,7 @@
     },
     "preparedTavernSources": {
       "schema": "reign-prepared-tavern-native-source-v1",
-      "command": "ReignBetaServer.exe --import-tavern-native-sources <absolute native-source-manifest.json> --pack-campaign tavern_pack_<task-id>",
+      "command": "ReignServer.exe --import-tavern-native-sources <absolute native-source-manifest.json> --pack-campaign tavern_pack_<task-id>",
       "procedure": "docs/agent/TAVERN_PORTRAIT_SOURCE_PACK.md",
       "gate": "Import is provider-free and non-listening. Use validated artifacts, normal native-operation gates for rendering, stopped installed-server import or isolated process-local REIGN_DATA_ROOT, and existing provider/deployment gates afterward.",
       "isolation": "Complete authored batch only; source paths confined beneath manifest; no reparse traversal; atomic server-local pack publication; dedicated task campaign; opaque preparedNativeSourceId; no shared-cache mutation or arbitrary request paths.",
@@ -509,7 +510,7 @@
     "releaseScope": "The all profile is the ecosystem release profile: it covers every managed project and complete offline verification, and is reserved for releases and shared ownership/build/validator changes.",
     "coordination": "The workspace-wide lease prevents overlapping validations and is enforced by the OS. Call reign_get_validation_status before acquisition; its snapshot is not a reservation. Supply requestingTaskId for exact task attribution. Continue independent work while busy, or reuse only a matching successful report.",
     "changedPathsRequired": true,
-    "offlineArtifactBinding": "reign_run_offline_verification requires the exact runId of a successful Release reign_validate report, executes only <artifactRoot>/server/out/ReignBetaServer.exe, and returns report, source-fingerprint, executable-path, and executable-hash provenance. It never falls back to a packaged workspace or installed runtime.",
+    "offlineArtifactBinding": "reign_run_offline_verification requires the exact runId of a successful Release reign_validate report, executes only <artifactRoot>/server/out/ReignServer.exe, and returns report, source-fingerprint, executable-path, and executable-hash provenance. It never falls back to a packaged workspace or installed runtime.",
     "status": {
       "tool": "reign_get_validation_status",
       "schema": "reign-validation-lane-v1",
@@ -754,10 +755,10 @@
   ],
   "sovereignDemeanor": {
     "schema": "reign-sovereign-demeanor-pairwise-v1",
-    "manifest": "ReignBetaServer/ReignLiveTest/scenarios/sovereign-demeanor-pairwise-manifest.json",
-    "deterministicCommand": "ReignBetaServer.exe --run-motive-conversation-tests",
-    "providerCommand": "ReignBetaServer.exe --run-sovereign-demeanor-provider-tests --seed 271828 --resume",
-    "reclassificationCommand": "ReignBetaServer.exe --reclassify-sovereign-demeanor-report <absolute-retained-report-path>",
+    "manifest": "ReignServer/tests/ReignLiveTest/scenarios/sovereign-demeanor-pairwise-manifest.json",
+    "deterministicCommand": "ReignServer.exe --run-motive-conversation-tests",
+    "providerCommand": "ReignServer.exe --run-sovereign-demeanor-provider-tests --seed 271828 --resume",
+    "reclassificationCommand": "ReignServer.exe --reclassify-sovereign-demeanor-report <absolute-retained-report-path>",
     "proofSelection": "Use 36 risk-based pairwise natural-language cases instead of a full cross-product: every authority class, effective danger band, personality extreme, relationship posture, and scene type appears; authority-by-personality plus the designated danger/relationship/scene pairs are covered.",
     "retryPolicy": "One seed per case initially. Each completed case is checkpointed; --resume reuses progress only for the identical assembly build and seed. When only the deterministic visible-language oracle changes, reclassify the retained full report without another provider call and retain the source-report path and classification build fingerprint. Add a paraphrase or extra seed only for an actual failed, borderline, or measured-inconsistent response, using --case so already-proven equivalence classes are not rerun.",
     "releaseGate": "Zero hard political-conduct safety violations, at least 95% calibrated-demeanor agreement, no deterministic fallbacks in the initial provider matrix, and no more than 10% compact repairs. A higher repair rate is an initial-prompt quality failure, not a validator success. Deterministic fallback must clear contaminated actions when compact LLM repair remains invalid.",
@@ -1200,7 +1201,7 @@
   },
   "arrest": {
     "schema": "reign-arrest-equivalence-manifest-v2",
-    "manifest": "ReignBetaServer/ReignLiveTest/Features/WorldSimulation/arrest-equivalence-manifest.json",
+    "manifest": "ReignServer/tests/ReignLiveTest/Features/WorldSimulation/arrest-equivalence-manifest.json",
     "contractTool": "reign_run_arrest_contract_tests",
     "certificationTools": [
       "reign_prepare_arrest_certification",
@@ -1232,7 +1233,7 @@
   },
   "rebellion": {
     "schema": "reign-rebellion-certification-manifest-v1",
-    "manifest": "ReignBetaServer/ReignLiveTest/Features/WorldSimulation/rebellion-certification-manifest.json",
+    "manifest": "ReignServer/tests/ReignLiveTest/Features/WorldSimulation/rebellion-certification-manifest.json",
     "contractTool": "reign_run_rebellion_contract_tests",
     "certificationTools": [
       "reign_prepare_rebellion_certification",
@@ -1275,7 +1276,7 @@
   },
   "capitalAmbassador": {
     "schema": "reign-capital-ambassador-lifecycle-v2",
-    "manifest": "ReignBetaServer/ReignLiveTest/scenarios/capital-ambassador-manifest.json",
+    "manifest": "ReignServer/tests/ReignLiveTest/scenarios/capital-ambassador-manifest.json",
     "controller": "reign_start_capital_ambassador_test",
     "profiles": [
       "preflight",
@@ -1313,7 +1314,7 @@
   },
   "royalCouncil": {
     "schema": "reign-royal-council-acceptance-v1",
-    "manifest": "ReignBetaServer/ReignLiveTest/scenarios/capital-royal-council-manifest.json",
+    "manifest": "ReignServer/tests/ReignLiveTest/scenarios/capital-royal-council-manifest.json",
     "controller": "reign_start_royal_council_test",
     "profiles": [
       "preflight",
@@ -1475,7 +1476,7 @@
   },
   "kingdomEvents": {
     "schema": "reign-kingdom-events-launch-acceptance-v2",
-    "manifest": "ReignBetaServer/ReignLiveTest/scenarios/kingdom-event-acceptance-manifest.json",
+    "manifest": "ReignServer/tests/ReignLiveTest/scenarios/kingdom-event-acceptance-manifest.json",
     "controller": "reign_start_kingdom_event_test",
     "requiresCampaignTestRunId": true,
     "profiles": [
@@ -1502,7 +1503,7 @@
   },
   "government": {
     "schema": "reign-government-release-certification-v1",
-    "manifest": "ReignBetaServer/ReignLiveTest/scenarios/government-system-manifest.json",
+    "manifest": "ReignServer/tests/ReignLiveTest/scenarios/government-system-manifest.json",
     "controller": "reign_start_government_test",
     "mcpTools": [
       "reign_get_government_test_manifest",
@@ -1568,7 +1569,7 @@
       "reign_evaluate_party_agency_release_readiness"
     ],
     "nativeOperation": "party_agency_test",
-    "scenarioManifest": "ReignBetaServer/ReignLiveTest/scenarios/party-agency-manifest.json",
+    "scenarioManifest": "ReignServer/tests/ReignLiveTest/scenarios/party-agency-manifest.json",
     "profiles": [
       "preflight",
       "language_contract",
@@ -1668,21 +1669,21 @@
     "constructionMethod": "single_call_v1",
     "dreamCompatibility": {
       "schema": "reign-narrative-dream-compatibility-v1",
-      "policyPath": "ReignBetaServer/ProfileLibrary/narrative/dream-compatibility.json",
+      "policyPath": "ReignServer/profiles/narrative/dream-compatibility.json",
       "selection": "Existing personality eligibility before deterministic selection; required scores must exceed the existing low band of 0-40. Supporting traits weight compatible choices. No provider call is added.",
       "evidenceField": "incompatibleDreamCount",
       "maximumIncompatibleDreams": 0
     },
     "concernCompatibility": {
       "schema": "reign-narrative-concern-compatibility-v1",
-      "policyPath": "ReignBetaServer/ProfileLibrary/narrative/concern-compatibility.json",
+      "policyPath": "ReignServer/profiles/narrative/concern-compatibility.json",
       "selection": "Reviewed adult desire/value requirements use existing traits before selection. Required scores exceed40; opposing high traits must not exceed60. Dream rules remain separately cataloged. No provider calls are added.",
       "evidenceField": "incompatibleConcernCount",
       "maximumIncompatibleConcerns": 0
     },
     "factCompatibility": {
       "schema": "reign-narrative-fact-compatibility-v1",
-      "policyPath": "ReignBetaServer/ProfileLibrary/narrative/fact-compatibility.json",
+      "policyPath": "ReignServer/profiles/narrative/fact-compatibility.json",
       "selection": "Reviewed kin-dependent references require native siblingIds, olderSiblingIds or livingParentIds; missing evidence selects another concept. Premade context derives these without altering sourceFacts. Explicit age minima prevent adolescent past mentorship claims.",
       "evidenceField": "incompatibleFactCount",
       "maximumIncompatibleFacts": 0,

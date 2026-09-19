@@ -57,3 +57,27 @@ Eight installed runtime/debug files were replaced from validated artifacts after
 The supported installed visible shortcut started the server and its dedicated Control Center. Health confirms the unified lifetime group; the Control Center has a visible application window. The running executable path matches the installed target, all eight installed hashes match, and the real Options HTML and `/api/gameplay-options` return the expected controls and On/1x defaults. Four invalid settings submissions were rejected with the settings file unchanged. Existing settings were preserved during deployment. Exact evidence: `.codex-build/xp-rewards-20260915/deployment-receipt.json` and `runtime-proof.json`. No game or campaign was started.
 
 After these checks, **Test Reign XP rewards** was created in the app's **Testing** section as a parked manual checklist (task `01a0a62a-10d3-7191-82d3-f805ad5f2404`). Native XP accounting, real conversations/petitions, server restart persistence and native save/reload acceptance remain for the user. Offline success does not close that requirement; the roadmap checkbox remains open. Runtime evidence, backups and rendered outputs remain local ignored artifacts; implementation, tests, catalog and durable notes are tracked source.
+
+## Unstable integration — 2026-09-16
+
+Paired changes are reviewed in [Reign #5](https://github.com/Dwemer-Dynamics/Reign/pull/5) and [ReignServer #5](https://github.com/Dwemer-Dynamics/ReignServer/pull/5), targeting `unstable`. The integration merges the retained client XP/portrait commits through `f4ee14d9` with client base `a71eb684`, and the retained server XP/drinking commits through `9519367b` with server base `78cdf2a0`. Both histories remain merge parents. The Options page and its browser harness now use the extracted `ReignServer/ui/index.html`; shared XP rules live under `ReignServer/shared/Reign.Core.Contracts`. The current Linux server layout and DwemerDistro behavior are preserved.
+
+| Scope | Profile / tier | Result | Duration | Source fingerprint SHA-256 |
+|---|---|---|---:|---|
+| Combined client, server, contracts and tooling | changed / Release / Tier 3 | 634 MCP tests, 75 portrait-tool tests, 62 Save Sync and 170 Court assertions passed | 276.124 s | `b8242458878ad1547c482471d3bfc128b6dc80311e023b8a6a04894ab4021308` |
+| Final server prompt-layering self-test correction | changed / Release / Tier 2 | Server build and 476 dialogue assertions passed | 50.444 s | `416b0356c1be60c3a17c7e224da4852863786c9c08ac8aeacc5c7b21d7e7f53d` |
+
+Canonical reports are `.codex-build/reign-mcp/validation/20260916-164448-20b41629/validation-report.json` and `.codex-build/reign-mcp/validation/20260916-165800-3fe81f0d/validation-report.json`. Each adjacent `repository-hygiene-report.json` passes enforce-mode paired hygiene with zero issues. The only code change after the full run corrects a self-test to compare scoped, normalized prompt segments and assert World Tone for commoners as well as nobles; production prompt behavior is unchanged. The shared contract assembly is identical across both runs (SHA-256 `7156d48977675000f60ad48f4996615ae7a2d7fed8088d4a843492a6a2f60742`). Client and browser evidence are retained without rebuilding unchanged source.
+
+Artifact-bound verification of the final server DLL (SHA-256 `747da237abc926bacbd1b97303b545ebe6a8225a2d316519fd96c5f79aec9e97`) passed:
+
+- `conversation_intoxication`, quick, `verify-1789577976416-47a0f407`: 351/351 assertions, 25.623 s process duration.
+- `prompt_efficiency`, quick, `verify-1789578003927-2265e292`: prompt-size check and 177/177 caching assertions, 47.673 s.
+- `interaction_architecture`, offline, `verify-1789578124302-9d83786c`: 330/330 architecture assertions and the settlement-authority matrix, 87.735 s.
+- XP Options browser matrix: 30/30 scenarios, three widths (800/1280/1920), 21 screenshots. Wide default and narrow failure states were visually inspected; controls, text and save feedback fit their bounds.
+
+Local evidence is retained in `D:/ReignLaunch/unstable-integration-20260916`, including `component-validation-provenance.json`, `offline-summary.json`, per-suite MCP results, `xp-options-browser/browser-report.json`, screenshots and the redacted staged-path audit. No private runtime data, dependency downloads, reports or generated test files are publication inputs.
+
+Recovery notes: three unchanged hash-bound UI text files retained Windows line endings after the branch switch; restoring their exact tracked LF bytes fixed the initial hash failures without changing asset definitions or expected hashes. The loaded MCP connector predated the Linux source layout, so validation used the canonical script and supplemental verification called the current MCP over stdio. One initial isolated PostgreSQL startup failure passed after a readiness check. The architecture suite requires the `offline` dispatcher; a `quick` request produced zero checks and was treated as a failure. The catalog's older quick/offline wording needs separate maintenance. Failed attempts remain in the local evidence directory.
+
+This integration publishes source only. It does not deploy the Linux server or replace the installed client, run providers, alter player saves, establish a clean install on another machine, or complete native XP/portrait acceptance. The existing manual acceptance task and roadmap checkbox remain open.

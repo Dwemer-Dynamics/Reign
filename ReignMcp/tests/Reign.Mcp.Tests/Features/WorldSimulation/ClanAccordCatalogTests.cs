@@ -17,7 +17,7 @@ public sealed class ClanAccordCatalogTests
         Assert.Contains("Offline evidence is not native acceptance", accords.GetProperty("nativeAcceptance").GetString());
         string host = File.ReadAllText(Path.Combine(root, "ReignBeta/src/Modules/WorldSimulation/Campaign/ReignLiveInteractionTestHost.cs"));
         Assert.Contains("case \"clan_accords_test\":", host);
-        string gate = File.ReadAllText(Path.Combine(root, "ReignBetaServer/ReignLiveTest/Features/WorldSimulation/PassiveWorldControl.cs"));
+        string gate = File.ReadAllText(Path.Combine(root, "ReignServer/tests/ReignLiveTest/Features/WorldSimulation/PassiveWorldControl.cs"));
         Assert.Contains("ClanAccordsRuntimeQuiescent(nativeRuntime)", gate);
         Assert.Contains("ClanAccordsRuntimeQuiescent(runtime)", gate);
         Assert.Contains("accords.ContainsKey(\"pending\")", gate);

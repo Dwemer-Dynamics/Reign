@@ -78,11 +78,11 @@ The validated action mappings are:
 Focused offline verification:
 
 ```powershell
-ReignBetaServer.exe --run-rebellion-tests
-ReignBetaServer.exe --run-tests --suite actions --case start_ruling_clan_rebellion --canned --json
-ReignBetaServer.exe --run-tests --suite actions --case recruit_lord_to_rebellion --canned --json
-ReignBetaServer.exe --run-tests --suite actions --case join_rebellion --canned --json
-ReignBetaServer.exe --run-tests --suite actions --case surrender_rebellion --canned --json
+ReignServer.exe --run-rebellion-tests
+ReignServer.exe --run-tests --suite actions --case start_ruling_clan_rebellion --canned --json
+ReignServer.exe --run-tests --suite actions --case recruit_lord_to_rebellion --canned --json
+ReignServer.exe --run-tests --suite actions --case join_rebellion --canned --json
+ReignServer.exe --run-tests --suite actions --case surrender_rebellion --canned --json
 ```
 
 The roadmap remains incomplete until a disposable live campaign proves outbreak timing, declaration, recruitment, save/reload, both leadership outcomes, all three judgments including player defeat, and rebel-realm cleanup.

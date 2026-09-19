@@ -439,8 +439,7 @@ public static partial class TestingTools
 
     private static string RebellionManifestPath(ReignMcpOptions options)
     {
-        string path = Path.GetFullPath(Path.Combine(options.WorkspaceRoot, "ReignBetaServer",
-            "ReignLiveTest", "Features", "WorldSimulation", "rebellion-certification-manifest.json"));
+        string path = Path.GetFullPath(Path.Combine(options.WorkspaceRoot, "ReignServer", "tests", "ReignLiveTest", "Features", "WorldSimulation", "rebellion-certification-manifest.json"));
         ReignMcpOptions.EnsureWithin(options.WorkspaceRoot, path, "rebellionManifest");
         return path;
     }

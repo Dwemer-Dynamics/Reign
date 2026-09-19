@@ -94,7 +94,7 @@ public sealed record ReignMcpOptions
             {
                 if (File.Exists(Path.Combine(cursor.FullName, "REIGN_ROADMAP.md"))
                     && Directory.Exists(Path.Combine(cursor.FullName, "ReignBeta"))
-                    && Directory.Exists(Path.Combine(cursor.FullName, "ReignBetaServer")))
+                    && Directory.Exists(Path.Combine(cursor.FullName, "ReignServer")))
                 {
                     return cursor.FullName;
                 }
@@ -109,7 +109,7 @@ public sealed record ReignMcpOptions
     {
         if (!File.Exists(Path.Combine(path, "REIGN_ROADMAP.md"))
             || !Directory.Exists(Path.Combine(path, "ReignBeta"))
-            || !Directory.Exists(Path.Combine(path, "ReignBetaServer")))
+            || !Directory.Exists(Path.Combine(path, "ReignServer")))
         {
             throw new InvalidOperationException(
                 "REIGN_WORKSPACE_ROOT does not identify a Reign workspace.");

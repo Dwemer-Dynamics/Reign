@@ -70,7 +70,7 @@ public sealed class TestingCatalogService
                 || Contains(tool["description"], filter))
             .OrderBy(tool => Convert.ToString(tool["name"]), StringComparer.Ordinal)
             .ToArray();
-        string scenarioRoot = Path.Combine(_options.WorkspaceRoot, "ReignBetaServer", "ReignLiveTest", "scenarios");
+        string scenarioRoot = Path.Combine(_options.WorkspaceRoot, "ReignServer", "tests", "ReignLiveTest", "scenarios");
         string[] scenarios = Directory.Exists(scenarioRoot)
             ? Directory.EnumerateFiles(scenarioRoot, "*.json", SearchOption.TopDirectoryOnly)
                 .Select(file => Path.GetRelativePath(_options.WorkspaceRoot, file).Replace('\\', '/'))

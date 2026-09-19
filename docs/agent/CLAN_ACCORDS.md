@@ -22,10 +22,10 @@ Both clans retain formation and termination knowledge, including the original na
 
 ## Implementation boundaries
 
-- `ReignModules/Reign.Core.Contracts/ClanAccords/ClanAccordLedger.cs` owns deterministic capacity, stacking, history and idempotency rules.
+- `ReignServer/shared/Reign.Core.Contracts/ClanAccords/ClanAccordLedger.cs` owns deterministic capacity, stacking, history and idempotency rules.
 - `ReignBeta/src/Modules/Diplomacy/ClanAccords/` owns native saved state, lifecycle, exact model arithmetic and the nonmutating native contract harness. `_reign_clan_accords_v1` contains the ledger, pending events and seasonal cursor.
 - The real-time main-thread pump drains bounded saved batches even while native time is paused. Acknowledgments are bound to the sent save-state instance, request, campaign, timeline and event IDs. Failures retain work for retry.
-- `ReignBetaServer/src/Modules/Diplomacy/ClanAccords.cs` owns the campaign/timeline projection, private memory and authoritative directional relationship effects. Durable receipts prevent repeated effects; Save Sync includes the new tables.
+- `ReignServer/src/Modules/Diplomacy/ClanAccords.cs` owns the campaign/timeline projection, private memory and authoritative directional relationship effects. Durable receipts prevent repeated effects; Save Sync includes the new tables.
 - `ReignBeta/src/Modules/Diplomacy/UI/` and `GUI/Prefabs/ReignClanAccordsScreen.xml` own the screen. The Economy entry sits to the right of the date. The screen presents capacities, stacked totals, partner banner/name/current kingdom, benefits, arrangers, date and explicit cancellation confirmation.
 
 Native model benefits are applied to the completed native calculation so preexisting percentage modifiers do not scale the fixed accord amount. Native limits remain authoritative. Garrison reductions apply only to garrison parties.

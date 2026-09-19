@@ -30,27 +30,27 @@
 
 ### New server files
 
-- `ReignBetaServer/WorldTestTelemetry.cs` â€” schema, idempotent counter writes, exact relationship category membership, bounded evidence, and test fixtures.
-- `ReignBetaServer/WorldTestRollupWorker.cs` â€” independent queue/worker, daily rollup finalization, checkpoint caching, reconciliation, and worker status.
-- `ReignBetaServer/WorldTestReports.cs` â€” checkpoint and cross-campaign comparison response builders.
+- `ReignServer/WorldTestTelemetry.cs` — schema, idempotent counter writes, exact relationship category membership, bounded evidence, and test fixtures.
+- `ReignServer/WorldTestRollupWorker.cs` — independent queue/worker, daily rollup finalization, checkpoint caching, reconciliation, and worker status.
+- `ReignServer/WorldTestReports.cs` — checkpoint and cross-campaign comparison response builders.
 
 ### Existing server files
 
-- `ReignBetaServer/MbtiRelationships.cs` â€” emit relationship chunk deltas inside existing 500-pair transactions.
-- `ReignBetaServer/ContinuousRelationshipWorker.cs` â€” enqueue completed days and expose simulation-versus-rollup clocks.
-- `ReignBetaServer/SocialReputation.cs` â€” emit rumor funnel counters without changing decisions.
-- `ReignBetaServer/ExpandedSocialReputation.cs` â€” count corrections/counterevidence.
-- `ReignBetaServer/RelationshipLifecycle.cs` â€” classify organic romance/family funnel outcomes.
-- `ReignBetaServer/RelationshipDirector.cs` â€” classify arranged-marriage funnel outcomes.
-- `ReignBetaServer/WorldDiplomacyDirector.cs` â€” classify cadence, intent, proposal, and outcome counters.
-- `ReignBetaServer/WorldTest.cs` â€” replace synchronous full aggregation with materialized reads and extend details.
-- `ReignBetaServer/Program.cs` â€” routes and Control Center presentation.
-- `ReignBetaServer/VerificationLab.cs` â€” source-contract coverage for the new architecture.
-- `ReignBetaServer/ReignBetaServer.csproj` â€” include new sources in copied verification contracts.
+- `ReignServer/MbtiRelationships.cs` — emit relationship chunk deltas inside existing 500-pair transactions.
+- `ReignServer/ContinuousRelationshipWorker.cs` — enqueue completed days and expose simulation-versus-rollup clocks.
+- `ReignServer/SocialReputation.cs` — emit rumor funnel counters without changing decisions.
+- `ReignServer/ExpandedSocialReputation.cs` — count corrections/counterevidence.
+- `ReignServer/RelationshipLifecycle.cs` — classify organic romance/family funnel outcomes.
+- `ReignServer/RelationshipDirector.cs` — classify arranged-marriage funnel outcomes.
+- `ReignServer/WorldDiplomacyDirector.cs` — classify cadence, intent, proposal, and outcome counters.
+- `ReignServer/WorldTest.cs` — replace synchronous full aggregation with materialized reads and extend details.
+- `ReignServer/Program.cs` — routes and Control Center presentation.
+- `ReignServer/VerificationLab.cs` — source-contract coverage for the new architecture.
+- `ReignServer/ReignServer.csproj` — include new sources in copied verification contracts.
 
 ### Existing client files
 
-- `ReignBeta/src/Integration/ReignWorldTestClient.cs` â€” reproducibility manifest, native context, producer clocks, and compact rebellion evidence.
+- `ReignBeta/src/Integration/ReignWorldTestClient.cs` — reproducibility manifest, native context, producer clocks, and compact rebellion evidence.
 
 ## Shared Interfaces
 
@@ -104,9 +104,9 @@ never a raw relationship or rumor event.
 ### Task 1: Durable telemetry foundation
 
 **Files:**
-- Create: `ReignBetaServer/WorldTestTelemetry.cs`
-- Modify: `ReignBetaServer/ReignBetaServer.csproj`
-- Modify: `ReignBetaServer/VerificationLab.cs`
+- Create: `ReignServer/WorldTestTelemetry.cs`
+- Modify: `ReignServer/ReignServer.csproj`
+- Modify: `ReignServer/VerificationLab.cs`
 
 **Interfaces:**
 - Produces: all shared interfaces listed above.
@@ -145,7 +145,7 @@ Call `mcp__reign.reign_validate` with:
   "profile": "changed",
   "configuration": "Release",
   "restore": false,
-  "changedPaths": "ReignBetaServer/WorldTestTelemetry.cs;ReignBetaServer/WorldTest.cs;ReignBetaServer/VerificationLab.cs;ReignBetaServer/ReignBetaServer.csproj"
+  "changedPaths": "ReignServer/WorldTestTelemetry.cs;ReignServer/WorldTest.cs;ReignServer/VerificationLab.cs;ReignServer/ReignServer.csproj"
 }
 ```
 
@@ -202,10 +202,10 @@ feat: add bounded world test telemetry foundation
 ### Task 2: Incremental relationship instrumentation
 
 **Files:**
-- Modify: `ReignBetaServer/MbtiRelationships.cs:312-760`
-- Modify: `ReignBetaServer/ContinuousRelationshipWorker.cs:148-228`
-- Modify: `ReignBetaServer/WorldTestTelemetry.cs`
-- Modify: `ReignBetaServer/WorldTest.cs:403-603`
+- Modify: `ReignServer/MbtiRelationships.cs:312-760`
+- Modify: `ReignServer/ContinuousRelationshipWorker.cs:148-228`
+- Modify: `ReignServer/WorldTestTelemetry.cs`
+- Modify: `ReignServer/WorldTest.cs:403-603`
 
 **Interfaces:**
 - Consumes: `ApplyWorldTestRelationshipPairDelta`,
@@ -301,10 +301,10 @@ feat: aggregate relationship telemetry in worker chunks
 ### Task 3: Social Reputation rumor funnel instrumentation
 
 **Files:**
-- Modify: `ReignBetaServer/SocialReputation.cs:330-620,670-910`
-- Modify: `ReignBetaServer/ExpandedSocialReputation.cs:280-430`
-- Modify: `ReignBetaServer/WorldTestTelemetry.cs`
-- Modify: `ReignBetaServer/WorldTest.cs:262-317,647-692`
+- Modify: `ReignServer/SocialReputation.cs:330-620,670-910`
+- Modify: `ReignServer/ExpandedSocialReputation.cs:280-430`
+- Modify: `ReignServer/WorldTestTelemetry.cs`
+- Modify: `ReignServer/WorldTest.cs:262-317,647-692`
 
 **Interfaces:**
 - Consumes: `RecordWorldTestCounter` and `RecordWorldTestEvidence`.
@@ -386,11 +386,11 @@ feat: observe social reputation rumor funnel
 ### Task 4: Romance, diplomacy, rebellion, manifest, and pipeline counters
 
 **Files:**
-- Modify: `ReignBetaServer/RelationshipLifecycle.cs`
-- Modify: `ReignBetaServer/RelationshipDirector.cs`
-- Modify: `ReignBetaServer/WorldDiplomacyDirector.cs`
-- Modify: `ReignBetaServer/RebellionDirector.cs`
-- Modify: `ReignBetaServer/WorldTest.cs`
+- Modify: `ReignServer/RelationshipLifecycle.cs`
+- Modify: `ReignServer/RelationshipDirector.cs`
+- Modify: `ReignServer/WorldDiplomacyDirector.cs`
+- Modify: `ReignServer/RebellionDirector.cs`
+- Modify: `ReignServer/WorldTest.cs`
 - Modify: `ReignBeta/src/Integration/ReignWorldTestClient.cs`
 
 **Interfaces:**
@@ -469,11 +469,11 @@ feat: instrument passive world outcome funnels
 ### Task 5: Asynchronous rollups, checkpoints, and comparisons
 
 **Files:**
-- Create: `ReignBetaServer/WorldTestRollupWorker.cs`
-- Create: `ReignBetaServer/WorldTestReports.cs`
-- Modify: `ReignBetaServer/WorldTest.cs:49-151,340-401,812-947`
-- Modify: `ReignBetaServer/Program.cs:1319-1337`
-- Modify: `ReignBetaServer/ReignBetaServer.csproj`
+- Create: `ReignServer/WorldTestRollupWorker.cs`
+- Create: `ReignServer/WorldTestReports.cs`
+- Modify: `ReignServer/WorldTest.cs:49-151,340-401,812-947`
+- Modify: `ReignServer/Program.cs:1319-1337`
+- Modify: `ReignServer/ReignServer.csproj`
 
 **Interfaces:**
 - Consumes: telemetry tables and authoritative source ledgers.
@@ -580,8 +580,8 @@ feat: add asynchronous world test checkpoint reports
 ### Task 6: Control Center observatory UI
 
 **Files:**
-- Modify: `ReignBetaServer/Program.cs:23280-23300,23982-24020,25285-25535`
-- Modify: `ReignBetaServer/VerificationLab.cs:647-658`
+- Modify: `ReignServer/Program.cs:23280-23300,23982-24020,25285-25535`
+- Modify: `ReignServer/VerificationLab.cs:647-658`
 
 **Interfaces:**
 - Consumes: `/world-test/overview`, `/world-test/details`,
@@ -654,11 +654,11 @@ feat: present staged passive world observatory
 ### Task 7: Reconciliation, performance, and release validation
 
 **Files:**
-- Modify: `ReignBetaServer/WorldTestTelemetry.cs`
-- Modify: `ReignBetaServer/WorldTestRollupWorker.cs`
-- Modify: `ReignBetaServer/WorldTest.cs`
-- Modify: `ReignBetaServer/VerificationLab.cs`
-- Modify: `ReignBetaServer/ReignBetaServer.csproj`
+- Modify: `ReignServer/WorldTestTelemetry.cs`
+- Modify: `ReignServer/WorldTestRollupWorker.cs`
+- Modify: `ReignServer/WorldTest.cs`
+- Modify: `ReignServer/VerificationLab.cs`
+- Modify: `ReignServer/ReignServer.csproj`
 - Modify: `docs/superpowers/specs/2026-07-27-passive-world-balance-observatory-design.md`
 
 **Interfaces:**

@@ -13,7 +13,7 @@ public static partial class TestingTools
     public static IReadOnlyDictionary<string, object?> GetKingdomEventTestManifest(
         ReignMcpOptions options)
     {
-        string path = Path.Combine(options.WorkspaceRoot, "ReignBetaServer", "ReignLiveTest",
+        string path = Path.Combine(options.WorkspaceRoot, "ReignServer", "tests", "ReignLiveTest",
             "scenarios", "kingdom-event-acceptance-manifest.json");
         if (!File.Exists(path))
             throw new FileNotFoundException("The authoritative Kingdom Events acceptance manifest is missing.", path);

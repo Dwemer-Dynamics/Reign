@@ -24,14 +24,47 @@ Complete authorized implementation through appropriate verification and requeste
 
 For unattended native advancement, use guarded campaign-test MCP tools. Enroll the exact user-provided baseline and objective, then create and verify a task-named disposable copy before advancing time. A save name never proves disposability. At checkpoints, pause native time, wait for quiescence, inspect failures/in-flight work, then save; saving before queues drain is a test failure. Save Sync permits 15 unique states. Default to one rolling checkpoint; milestones require reported capacity. Delete only exact run-owned saves through confirmation-gated cleanup, never the baseline. Retain documented provider, long-running-test and runtime-control gates.
 
-## Visible server lifecycle
+## Server lifecycle
 
-- The supported server is `http://127.0.0.1:5101`.
-- Start only through the visible installed shortcut or `Start ReignBeta Server.cmd`. Never launch `ReignBetaServer.exe` hidden/detached or with `-WindowStyle Hidden`.
-- The server owns one dedicated app-style Control Center. Never open it in an ordinary browser tab.
-- The server, dedicated Control Center and vector worker are one lifetime group; closing either visible Reign window must stop all three.
-- Close the current visible Control Center or server console before replacing installed server files; restart through the unified visible launch path.
-- Never start a second background server for tests. Use non-listening CLI tests, or stop the visible server first and return it visibly afterward.
+DwemerDistro deployments run ReignServer and its vector worker inside WSL, managed through `ddistro_server`. The launcher owns their start/stop and Control Center access. There is no standalone Windows server target. Linux builds use `ReignMcp/scripts/reign-validate.ps1 -LinuxServer` under the same canonical lease; a Linux build report does not replace full validation or runtime probes.
+
+### Linux-only server
+
+ReignServer targets linux-x64. Canonical server verification runs in WSL on Windows using isolated run-owned data and ReignValidation. Windows remains the game client and native portrait renderer platform. Do not recreate standalone Windows server installers or process ownership.
+
+## Working and deploying with DwemerDistro
+
+- Keep Reign and ReignServer as sibling checkouts. Confirm each origin, branch, HEAD and dirty state; edit server-owned junction targets in ReignServer. Run `ReignServer/scripts/Connect-Repositories.ps1` only when the required links are absent or need verified repair. Compare current branch heads before paired promotion; never assume `unstable`, `dev` and `reign` contain the same work.
+- Read the installed `reign-full-deploy` skill for combined/client deployment or `reign-server-wsl-deploy` for server-only deployment when available. The checked-in entry point is the server-owned `ReignServer/scripts/Deploy-LocalWsl.ps1`, accessible through the paired checkout. Resolve paths on the current machine instead of copying another workstation's paths.
+- Inventory WSL distributions and the licensed Bannerlord installation first. Set `REIGN_BANNERLORD_PATH` to that game directory and `REIGN_WSL_DISTRO` when selecting a non-default validation distro. The deployment script separately requires the matching `-Distro`; its default is `DwemerAI4Skyrim3`.
+- Check module IDs in both Bannerlord `Modules` and Steam Workshop `content/261550`. Reuse existing dependency modules. Hydrate tracked portrait PNGs through Git LFS and verify `ReignBeta/PortraitCache/shared-portrait-inventory.json`. Keep module staging/backups outside `Modules`, because Bannerlord discovers duplicate `SubModule.xml` files even in hidden backup directories.
+
+### Build once, deploy the validated artifacts
+
+From the Reign checkout, obtain the validation plan/status and use the current task UUID. For a combined product deployment:
+
+```powershell
+& .\ReignMcp\scripts\reign-validate.ps1 -Profile product -Restore -RequestingTaskId $env:CODEX_THREAD_ID
+& .\ReignMcp\scripts\reign-validate.ps1 -LinuxServer -Restore -RequestingTaskId $env:CODEX_THREAD_ID
+```
+
+Use the manifest-selected broader `all` profile when required. That profile needs the licensed Modding Kit for the editor bridge; report an unavailable prerequisite rather than claiming full coverage. Retain the successful product/all validation report and `reign-linux-build-v1` report, then deploy without modifying source or rebuilding:
+
+```powershell
+# Set these variables to this checkout, selected distro/game and successful report paths.
+& .\ReignServer\scripts\Deploy-LocalWsl.ps1 -Workspace $reignCheckout -ValidationReport $productReport -LinuxBuildReport $linuxReport -Distro $distro -BannerlordPath $gameDirectory
+```
+
+`-SkipServer` deploys only the validated Windows client and portrait helper; `-SkipClient` deploys only the validated Linux server and needs only its Linux report. Before server activation, install the compatible Core helpers, sync the reviewed server source while preserving `.git`, `data/` and `runtime/`, and run `sudo ddistro_reign prepare` inside the selected distro. Never deploy a developer checkout by overwriting the whole runtime directory.
+
+### Runtime contract and acceptance
+
+- The server checkout is `/var/www/html/ReignServer`; private settings, campaigns, logs and vectors are in `data/`, and retained executables, dependency environments and models are in `runtime/`. The database is lowercase `reign` on PostgreSQL port 5432. PostgreSQL storage and system-wide Core/Apache configuration remain in their normal distro locations.
+- Windows deployment identity is `%USERPROFILE%/.reign/installation.json`. Preserve its selected distro, module and cache paths; never silently replace another installation. Preserve settings/API keys without printing them. Do not copy Windows DPAPI-encrypted credentials directly into Linux.
+- The launcher-facing endpoint is `http://127.0.0.1:8089/health`; Apache proxies to WSL loopback port 5101. The vector worker uses WSL loopback port 5102. For command-line channel installation, startup, update and rollback, follow the matching [ReignServer instructions](../ReignServer/AGENTS.md#dwemerdistro-operations).
+- Confirm version/date files agree, deployed artifact hashes match the reports, server health reports the expected version and current database schema, and worker health reports `modelLoaded: true` with 384 dimensions. Allow model warm-up; a successful HTTP status alone is insufficient. Read fresh `data/logs/server.log` and verify Windows access to the installation record's WSL paths.
+- Validate stop/start through the managed lifecycle without touching other mod services. A clean-install test uses an isolated disposable distro, records exact source/artifact hashes, and restores the prior machine state. Distinguish this from packaged-installer and launcher click-through tests.
+- Report source commits, report paths/fingerprints, deployed hashes, destinations and health results. Deployment does not authorize launching Bannerlord, paid provider tests, merging or releasing. Client compilation, server health and rollback checks do not establish in-game response or native portrait-renderer acceptance.
 
 ## Interface authority
 
@@ -43,8 +76,7 @@ Reuse approved assets and remove/disable superseded graphics. Fixed art must mat
 
 - Preserve unrelated or ambiguous tracked deltas. Inspect ownership/ignore policy before edits. Intentionally track human-authored source, tests, manifests, policy, durable docs, and every approved first-party asset shipped by the product under managed roots. `ReignBeta/PortraitCache/_shared` is the authoritative private source for the complete shipped shared portrait library and uses Git LFS for PNGs. It is part of the directly distributable `ReignBeta` module folder, never a separate content payload or machine-local prerequisite. Any accepted shared-portrait generation or edit must update that source set and `ReignBeta/PortraitCache/shared-portrait-inventory.json` in the same task before validation, deployment, commit, or push. The installed module copy must match the tracked source inventory exactly. Exclude campaign-generated portraits, saves/Save Sync, credentials, runtime databases/logs, builds/backups, decompiled sources, independently locked third-party binaries, and caches.
 - Stage explicit reviewed paths only; never `git add .`, `git add -A` or broad recursive wildcards. Before a push, inspect staged paths, large files, prohibited categories and redacted secret-classifier results. Report intentionally untracked or externally required material and obey enforce-mode hygiene.
-- A build or deployment is not complete when accepted first-party files exist only in runtime, staging, evidence, or a machine-local inventory. Release packaging must consume tracked first-party sources. Any external package input must be a locked, redistributable third-party dependency with checked-in provenance and hashes; player/campaign state is never a source input.
-- The canonical private client remote is `https://github.com/Dwemer-Dynamics/Reign.git`; the public server remote is `https://github.com/Dwemer-Dynamics/ReignServer.git`. Both use `main` for publication. All development and testing stay local in sibling checkouts. Server-owned directories are verified junctions listed in `reign.repositories.json`; edit and commit them in ReignServer. The former GitHub destination is retired from ongoing publication after verified cutover. Ownership, visibility, remote URL, default branch or GitHub state changes require explicit authorization and coordinated updates to the repository policies, this file, local origins and [repository recovery](docs/agent/REPOSITORY_RECOVERY.md).
+- The canonical private client remote is `https://github.com/Dwemer-Dynamics/Reign.git`; the public server remote is `https://github.com/Dwemer-Dynamics/ReignServer.git`. Both use `unstable` for development, `dev` for beta promotion, and `reign` for production and the default branch. Changes enter through draft PRs targeting `unstable`; promote compatible client/server revisions together through `unstable -> dev -> reign`. All development and testing stay local in sibling checkouts. Server-owned directories are verified junctions listed in `reign.repositories.json`; edit and commit them in ReignServer. The former GitHub destination is retired from ongoing publication after verified cutover. Ownership, visibility, remote URL, default branch or GitHub state changes require explicit authorization and coordinated updates to the repository policies, this file, local origins and [repository recovery](docs/agent/REPOSITORY_RECOVERY.md).
 - Local commits/pushes to these remotes are normal only when publishing or backup is requested. On 2026-09-14, after testing the retained new installation and portrait-discovery repair, the user confirmed that everything appears to be working and explicitly authorized the initial uploads. This supersedes the earlier initial-upload hold; it does not establish execution on a second computer. Creating/deleting/transferring repositories, visibility changes, force pushes or other remotes require explicit authorization.
 - Apply the global Project Memory skill for substantive work. [PROJECT_MEMORY.md](docs/agent/PROJECT_MEMORY.md) indexes focused ledgers; save stable lessons only when their inclusion criteria apply, with dated evidence and no invented history or secrets. Preserve recoverable checkpoints at material milestones.
 - Before a required Codex restart, follow [continuity procedures](docs/agent/CONTINUITY.md) and use `restart_codex_and_resume_task` with the current `CODEX_THREAD_ID`; never substitute ad hoc process killing/relaunch. Re-observe state after restart and continue the checkpoint.

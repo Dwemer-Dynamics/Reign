@@ -10,12 +10,12 @@ public sealed class WorkspaceAccessTests
         var service = NewService();
 
         var document = service.ReadSource(
-            Path.Combine("ReignBetaServer", "src", "Modules", "WorldSimulation", "WorldTest.cs"),
+            Path.Combine("ReignServer", "src", "Modules", "WorldSimulation", "WorldTest.cs"),
             1,
             20);
         var search = service.Search(
             "WorldTestHeartbeatApi",
-            "ReignBetaServer",
+            "ReignServer",
             10,
             caseSensitive: true);
 

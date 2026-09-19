@@ -18,6 +18,5 @@ Current pure libraries:
 
 - `Reign.Core.Contracts`: Bannerlord-independent shared relationship baseline contract.
 - `Reign.Relationships`: compatibility calculations with exhaustive deterministic unit tests.
-- `Reign.LegacySqliteImporter`: isolated one-way migration utility; it is tooling, not a runtime module.
 
 Folder-owned logical modules are Core, Persistence, Characters, Relationships, Reputation, Dialogue, Diplomacy, Court, Spymaster, Kingdom Events, Rebellion, World Simulation, Portraits, UI, Platform, Bannerlord Editor, and Legacy Importer.

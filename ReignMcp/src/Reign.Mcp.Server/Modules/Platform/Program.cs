@@ -52,31 +52,20 @@ builder.Services
 if (args.Contains("--plan-cli", StringComparer.OrdinalIgnoreCase)
     || args.Contains("--validate-cli", StringComparer.OrdinalIgnoreCase)
     || args.Contains("--validation-status-cli", StringComparer.OrdinalIgnoreCase)
-    || args.Contains("--release-runtime-cli", StringComparer.OrdinalIgnoreCase)
-    || args.Contains("--release-package-cli", StringComparer.OrdinalIgnoreCase))
+    || args.Contains("--linux-server-cli", StringComparer.OrdinalIgnoreCase))
 {
     using var validationHost = builder.Build();
     var validation = validationHost.Services.GetRequiredService<ReignValidationService>();
-    if (args.Contains("--release-package-cli", StringComparer.OrdinalIgnoreCase))
+    if (args.Contains("--linux-server-cli", StringComparer.OrdinalIgnoreCase))
     {
-        var package = await validation.BuildReleasePackageAsync(CliValue(args, "--validation-run", ""),
-            CliValue(args, "--python", ""), CliValue(args, "--specification", ""),
+        var linux = await validation.BuildLinuxServerAsync(args.Contains("--restore"),
             CliValue(args, "--task-id", Environment.GetEnvironmentVariable("CODEX_THREAD_ID") ?? ""));
-        Console.WriteLine(System.Text.Json.JsonSerializer.Serialize(package,
+        Console.WriteLine(System.Text.Json.JsonSerializer.Serialize(linux,
             new System.Text.Json.JsonSerializerOptions { WriteIndented = true }));
-        Environment.ExitCode = package.Ok ? 0 : 1;
+        Environment.ExitCode = linux.Ok ? 0 : 1;
         return;
     }
-    if (args.Contains("--release-runtime-cli", StringComparer.OrdinalIgnoreCase))
-    {
-        var runtime = await validation.BuildReleaseRuntimeAsync(
-            CliValue(args, "--python", ""), CliValue(args, "--model-directory", ""),
-            CliValue(args, "--task-id", Environment.GetEnvironmentVariable("CODEX_THREAD_ID") ?? ""));
-        Console.WriteLine(System.Text.Json.JsonSerializer.Serialize(runtime,
-            new System.Text.Json.JsonSerializerOptions { WriteIndented = true }));
-        Environment.ExitCode = runtime.Ok ? 0 : 1;
-        return;
-    }
+
     if (args.Contains("--validation-status-cli", StringComparer.OrdinalIgnoreCase))
     {
         var status = validation.GetStatus();

@@ -1268,7 +1268,7 @@ public static partial class TestingTools
 
     private static string PartyAgencyManifestPath(ReignMcpOptions options)
     {
-        string path = Path.Combine(options.WorkspaceRoot, "ReignBetaServer", "ReignLiveTest",
+        string path = Path.Combine(options.WorkspaceRoot, "ReignServer", "tests", "ReignLiveTest",
             "scenarios", "party-agency-manifest.json");
         ReignMcpOptions.EnsureWithin(options.WorkspaceRoot, path, "partyAgencyManifest");
         return path;

@@ -79,8 +79,11 @@
 /ReignVectorWorker.spec
 
 # Server-owned junctions; commit changes in ../ReignServer.
-/NativeCharacterImageGenerator/
+/ReignServer/tools/portrait-generator/
 /ReignBetaServer/
-/ReignModules/
+/ReignServer/shared/
 /ReignRelease/
 /ReignTools/
+
+# Single server-owned source projection.
+/ReignServer/

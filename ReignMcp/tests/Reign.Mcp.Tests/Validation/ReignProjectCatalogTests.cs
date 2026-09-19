@@ -89,7 +89,7 @@ public sealed class ReignProjectCatalogTests
     public void ToolProjectFileRoutesToItsBoundaryWithoutSelectingEveryToolFamily()
     {
         var plan = Catalog().CreatePlan("changed", "Release", false,
-            "NativeCharacterImageGenerator/tests/NativeCharacterImageGenerator.Tests/NativeCharacterImageGenerator.Tests.csproj");
+            "ReignServer/tools/portrait-generator/tests/NativeCharacterImageGenerator.Tests/NativeCharacterImageGenerator.Tests.csproj");
 
         Assert.Equal(3, plan.SelectedTier);
         Assert.Contains(plan.Projects, item => item.Id.Contains("nativecharacterimagegenerator", StringComparison.Ordinal));
@@ -98,31 +98,30 @@ public sealed class ReignProjectCatalogTests
     }
 
     [Theory]
-    [InlineData("ReignModules/Reign.Core.Contracts/ReignRelationshipBaselinePolicy.cs", 1, "core", "domain", "core-contracts")]
-    [InlineData("ReignBetaServer/src/Modules/Persistence/DatabaseParameterExtensions.cs", 2, "persistence", "server", "server")]
+    [InlineData("ReignServer/shared/Reign.Core.Contracts/ReignRelationshipBaselinePolicy.cs", 1, "core", "domain", "core-contracts")]
+    [InlineData("ReignServer/src/Modules/Persistence/DatabaseParameterExtensions.cs", 2, "persistence", "server", "server")]
     [InlineData("ReignBeta/src/Modules/Persistence/Campaign/ReignSaveSyncCampaignBehavior.cs", 2, "persistence", "bannerlord", "client")]
-    [InlineData("ReignBetaServer/src/Modules/Characters/CharacterTraits.cs", 2, "characters", "server", "server")]
+    [InlineData("ReignServer/src/Modules/Characters/CharacterTraits.cs", 2, "characters", "server", "server")]
     [InlineData("ReignBeta/src/Modules/Characters/Family/ReignConceptionRecord.cs", 2, "characters", "bannerlord", "client")]
-    [InlineData("ReignModules/Reign.Relationships/RelationshipCompatibilityPolicy.cs", 1, "relationships", "domain", "relationships")]
-    [InlineData("ReignBetaServer/src/Modules/Relationships/Relationships.cs", 2, "relationships", "server", "server")]
+    [InlineData("ReignServer/shared/Reign.Relationships/RelationshipCompatibilityPolicy.cs", 1, "relationships", "domain", "relationships")]
+    [InlineData("ReignServer/src/Modules/Relationships/Relationships.cs", 2, "relationships", "server", "server")]
     [InlineData("ReignBeta/src/Modules/Relationships/Campaign/ReignRelationshipCampaignBehavior.cs", 2, "relationships", "bannerlord", "client")]
-    [InlineData("ReignBetaServer/src/Modules/Reputation/SocialReputation.cs", 2, "reputation", "server", "server")]
-    [InlineData("ReignBetaServer/src/Modules/Dialogue/MotiveAwareConversation.cs", 2, "dialogue", "server", "server")]
+    [InlineData("ReignServer/src/Modules/Reputation/SocialReputation.cs", 2, "reputation", "server", "server")]
+    [InlineData("ReignServer/src/Modules/Dialogue/MotiveAwareConversation.cs", 2, "dialogue", "server", "server")]
     [InlineData("ReignBeta/src/Modules/Dialogue/Runtime/ReignConversationEligibility.cs", 2, "dialogue", "bannerlord", "client")]
-    [InlineData("ReignBetaServer/ReignLiveTest/Features/Dialogue/QualificationRunner.cs", 2, "dialogue", "harness", "live-test")]
-    [InlineData("ReignBetaServer/src/Modules/Diplomacy/WorldDiplomacyDirector.cs", 2, "diplomacy", "server", "server")]
-    [InlineData("ReignBetaServer/src/Modules/Court/CourtSystem.cs", 2, "court", "server", "server")]
-    [InlineData("ReignBetaServer/src/Modules/Spymaster/SpymasterSystem.cs", 2, "spymaster", "server", "server")]
+    [InlineData("ReignServer/tests/ReignLiveTest/Features/Dialogue/QualificationRunner.cs", 2, "dialogue", "harness", "live-test")]
+    [InlineData("ReignServer/src/Modules/Diplomacy/WorldDiplomacyDirector.cs", 2, "diplomacy", "server", "server")]
+    [InlineData("ReignServer/src/Modules/Court/CourtSystem.cs", 2, "court", "server", "server")]
+    [InlineData("ReignServer/src/Modules/Spymaster/SpymasterSystem.cs", 2, "spymaster", "server", "server")]
     [InlineData("ReignBeta/src/Modules/Spymaster/Court/ReignSpymasterCampaignBehavior.cs", 2, "spymaster", "bannerlord", "client")]
     [InlineData("ReignMcp/tests/Reign.Mcp.Tests/Features/Spymaster/SpymasterOrganicScenarioContractTests.cs", 2, "spymaster", "mcp", "mcp-tests")]
     [InlineData("ReignBeta/src/Modules/KingdomEvents/Campaign/ReignKingdomEventsCampaignBehavior.cs", 2, "kingdom-events", "bannerlord", "client")]
-    [InlineData("ReignBetaServer/src/Modules/Rebellion/RebellionDirector.cs", 2, "rebellion", "server", "server")]
-    [InlineData("ReignBetaServer/src/Modules/WorldSimulation/WorldTest.cs", 2, "world-simulation", "server", "server")]
-    [InlineData("ReignBetaServer/src/Modules/Portraits/PortraitGeneration.cs", 2, "portraits", "server", "server")]
+    [InlineData("ReignServer/src/Modules/Rebellion/RebellionDirector.cs", 2, "rebellion", "server", "server")]
+    [InlineData("ReignServer/src/Modules/WorldSimulation/WorldTest.cs", 2, "world-simulation", "server", "server")]
+    [InlineData("ReignServer/src/Modules/Portraits/PortraitGeneration.cs", 2, "portraits", "server", "server")]
     [InlineData("ReignBeta/src/Modules/UI/UI/ReignRuntimeSpriteSheets.cs", 2, "ui", "bannerlord", "client")]
     [InlineData("ReignMcp/src/Reign.Mcp.Server/Modules/Platform/ReignApiClient.cs", 2, "platform", "mcp", "mcp")]
     [InlineData("BannerlordEditorMcp/src/Bannerlord.EditorBridge/EditorBridgeController.cs", 2, "bannerlord-editor", "tooling", "bannerlordeditormcp-src-bannerlord-editorbridge-bannerlord-editorbridge-csproj")]
-    [InlineData("ReignTools/Reign.LegacySqliteImporter/Program.cs", 1, "legacy-importer", "tooling", "legacy-sqlite-importer")]
     public void EveryRepresentativeModuleFacetRoutesNarrowly(
         string path, int tier, string module, string facet, string project)
     {
@@ -172,7 +171,7 @@ public sealed class ReignProjectCatalogTests
     [Fact]
     public void SpymasterContractChangeUsesOnlyBoundaryTierThree()
     {
-        var plan = Catalog().CreatePlan("changed", "Release", false, "ReignModules/Reign.Shared.Source/Core/ReignSpymasterCore.cs");
+        var plan = Catalog().CreatePlan("changed", "Release", false, "ReignServer/shared/Reign.Shared.Source/Core/ReignSpymasterCore.cs");
 
         Assert.Equal(3, plan.SelectedTier);
         Assert.Contains(plan.Projects, item => item.Id == "client");
@@ -186,7 +185,7 @@ public sealed class ReignProjectCatalogTests
     public void MultipleModuleChangeEscalatesToTierThree()
     {
         var plan = Catalog().CreatePlan("changed", "Release", false,
-            "ReignBetaServer/src/Modules/Relationships/Relationships.cs;ReignBetaServer/src/Modules/Reputation/SocialReputation.cs");
+            "ReignServer/src/Modules/Relationships/Relationships.cs;ReignServer/src/Modules/Reputation/SocialReputation.cs");
 
         Assert.Equal(3, plan.SelectedTier);
         Assert.Contains(plan.SelectionReasons, value => value.Contains("boundary", StringComparison.OrdinalIgnoreCase));
@@ -196,7 +195,7 @@ public sealed class ReignProjectCatalogTests
     public void DocumentationOnlyChangeSucceedsWithoutBuilds()
     {
         var plan = Catalog().CreatePlan("changed", "Release", false,
-            "ReignBetaServer/docs/SpymasterTesting.md;REIGN_ROADMAP.md");
+            "ReignServer/docs/server/SpymasterTesting.md;REIGN_ROADMAP.md");
 
         Assert.Equal("ready", plan.Status);
         Assert.Equal(1, plan.SelectedTier);
@@ -217,7 +216,7 @@ public sealed class ReignProjectCatalogTests
     public void UnknownPathBlocksWithoutSelectingTierOrProjects()
     {
         var plan = Catalog().CreatePlan("changed", "Release", false,
-            "ReignBetaServer/src/Modules/Future/FutureSystem.cs");
+            "ReignServer/src/Modules/Future/FutureSystem.cs");
 
         Assert.Equal("blocked", plan.Status);
         Assert.Null(plan.SelectedTier);
@@ -233,7 +232,7 @@ public sealed class ReignProjectCatalogTests
         Assert.Equal(4, plan.SelectedTier);
         Assert.Equal("ecosystem", plan.Scope);
         Assert.Equal("offline", plan.VerificationTier);
-        Assert.Equal(21, plan.Projects.Count);
+        Assert.Equal(20, plan.Projects.Count);
     }
 
     [Fact]

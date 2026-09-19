@@ -28,7 +28,7 @@
 - Create `ReignBeta/src/Integration/ReignCampaignReadinessState.cs`: pure stages, journal, queue observation, sealing policy, and diagnostics model.
 - Create `ReignBeta/src/Campaign/ReignCampaignPreparationCampaignBehavior.cs`: persisted coordinator and Bannerlord-facing pipeline owner.
 - Create `ReignBeta/src/Integration/ReignInitializationServerClient.cs`: initialization-only server calls and seal acknowledgement.
-- Create `ReignBetaServer/InitializationReadiness.cs`: server watermark validation and self-tests.
+- Create `ReignServer/InitializationReadiness.cs`: server watermark validation and self-tests.
 - Create `ReignMcp/tests/Reign.Mcp.Tests/ReignCampaignReadinessStateTests.cs`: deterministic state-machine regression tests.
 - Modify `ReignMcp/tests/Reign.Mcp.Tests/Reign.Mcp.Tests.csproj`: link the pure readiness source into tests.
 - Modify `ReignBeta/src/Integration/ReignCampaignInitializationGate.cs`: generation-scoped initialization request permission and coordinator-only release token.
@@ -43,8 +43,8 @@
 - Modify `ReignBeta/src/SubModule.cs`: register/tick the preparation behavior before gameplay-facing systems.
 - Modify `ReignBeta/src/Campaign/ReignSaveSyncCampaignBehavior.cs`: reject unsealed saves defensively and drain only the captured finite watermark after release.
 - Modify `ReignBeta/src/Integration/ReignLiveTestClient.cs` and `ReignBeta/src/Campaign/ReignLiveInteractionTestHost.cs`: publish seal and queue evidence.
-- Modify `ReignBetaServer/Program.cs`: route `POST /initialization/readiness/seal`.
-- Modify `ReignBetaServer/VerificationLab.cs`: include readiness self-tests in offline verification.
+- Modify `ReignServer/Program.cs`: route `POST /initialization/readiness/seal`.
+- Modify `ReignServer/VerificationLab.cs`: include readiness self-tests in offline verification.
 - Modify `REIGN_ROADMAP.md`: add a dated completion note only after live acceptance.
 
 ---
@@ -428,9 +428,9 @@ git commit -m "feat: seal initialization at stable queue watermark"
 ### Task 6: Server Seal Acknowledgement and Defensive Save Contract
 
 **Files:**
-- Create: `ReignBetaServer/InitializationReadiness.cs`
-- Modify: `ReignBetaServer/Program.cs`
-- Modify: `ReignBetaServer/VerificationLab.cs`
+- Create: `ReignServer/InitializationReadiness.cs`
+- Modify: `ReignServer/Program.cs`
+- Modify: `ReignServer/VerificationLab.cs`
 - Modify: `ReignBeta/src/Integration/ReignInitializationServerClient.cs`
 - Modify: `ReignBeta/src/Campaign/ReignCampaignPreparationCampaignBehavior.cs`
 - Modify: `ReignBeta/src/Campaign/ReignSaveSyncCampaignBehavior.cs`

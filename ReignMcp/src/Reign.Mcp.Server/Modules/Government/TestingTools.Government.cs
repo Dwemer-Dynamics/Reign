@@ -12,7 +12,7 @@ public static partial class TestingTools
     [Description("Returns the authoritative Government feature-harness manifest without starting Bannerlord commands.")]
     public static IReadOnlyDictionary<string, object?> GetGovernmentTestManifest(ReignMcpOptions options)
     {
-        string path = Path.Combine(options.WorkspaceRoot, "ReignBetaServer", "ReignLiveTest",
+        string path = Path.Combine(options.WorkspaceRoot, "ReignServer", "tests", "ReignLiveTest",
             "scenarios", "government-system-manifest.json");
         if (!File.Exists(path))
             throw new FileNotFoundException("The authoritative Government feature-harness manifest is missing.", path);

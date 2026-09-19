@@ -1,5 +1,5 @@
 $root = 'C:\Users\speed\Desktop\ReignBeta'
-$serverPath = 'C:\Users\speed\Desktop\ReignBetaServer\Program.cs'
+$serverPath = 'C:\Users\speed\Desktop\ReignServer\Program.cs'
 
 $typePath = Join-Path $root 'src\World\ReignWorldActionType.cs'
 $recordPath = Join-Path $root 'src\World\ReignWorldActionRecord.cs'
