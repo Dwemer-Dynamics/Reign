@@ -63,9 +63,9 @@
     "suite": "prompt_efficiency",
     "check": "pipeline.prompt_caching",
     "providerCalls": false,
-    "implementation": "ConversationNaturalnessSelfTests and existing RoleplayContinuitySelfTests through RunPromptCachingSelfTests; captured failure excerpts and negative controls, production envelope matrix, isolated Dynamic Characteristics persistence, accepted pernach planner candidate and item-resolution contracts.",
+    "implementation": "ConversationNaturalnessSelfTests and existing RoleplayContinuitySelfTests through RunPromptCachingSelfTests; captured failure excerpts and negative controls, production envelope matrix, isolated Dynamic Characteristics persistence, accepted pernach planner candidate and item-resolution contracts, complete non-retired action-catalog availability, and the captured Chagun clan-acceptance shortlist regression.",
     "isolation": "Existing non-listening artifact-bound Verification Lab CLI and unique naturalness_test_ campaign in isolated storage. No production campaign writes or provider calls.",
-    "limits": "English pattern guards and conservative content-token deduplication; deterministic proof does not establish provider prose quality or native gift execution. Existing bounded repair/second-attempt, cost, runtime and disposable-save gates remain unchanged.",
+    "limits": "English pattern guards and conservative content-token deduplication; deterministic proof establishes planner availability and shortlist preservation but does not establish provider prose quality or native action execution. Existing consent, native validation, bounded repair/second-attempt, cost, runtime and disposable-save gates remain unchanged.",
     "procedure": "docs/agent/testing/DIALOGUE_AND_PROVIDERS.md",
     "details": "docs/agent/DIALOGUE_NATURALNESS_FIX.md"
   },

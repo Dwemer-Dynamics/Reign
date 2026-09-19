@@ -2,6 +2,12 @@
 
 Read only the procedure relevant to the current task. Existing provider, campaign, and deployment gates remain authoritative. Dated procedure history was retained during the 2026-09-12 guide split.
 
+## Production action availability (2026-09-16)
+
+Run manifest-selected Release validation and the artifact-bound `prompt_efficiency` suite. Its `pipeline.prompt_caching` check audits the complete production action catalog: every registered action except an explicitly `unsupported` retired schema must be available to the normal hidden planner. Capability labels describe execution behavior and must not silently disable a registered command. Native validation, consent checks and execution remain authoritative after selection.
+
+The same provider-free check retains the captured Chagun exchange in bounded form. An accepted `clan membership` action gate must keep `join_clan` inside both the three- and ten-choice planner limits even when the turn also mentions a caravan, bandit attacks and a joking siege. Conditional, refused, non-actionable and roleplay-only clan language must not receive deterministic preservation. Offline proof establishes catalog availability and routing, not provider selection or native Bannerlord execution; native action acceptance still uses the guarded disposable-campaign route.
+
 ## Participation XP (2026-09-15)
 
 The tracked browser runner is `ReignServer/src/Modules/Platform/Testing/reign-xp-options.js`. Run it with Node, the paired workspace root and a task-owned evidence directory. Set `REIGN_PLAYWRIGHT_MODULE` to the available Playwright package if it is not on Node's module path. It uses installed Edge headlessly, extracts the production Control Center styles/navigation, global settings save and XP markup/script, and intercepts all requests in memory. It covers 800, 1280 and 1920 pixel widths with seven captured states each.
