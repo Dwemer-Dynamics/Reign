@@ -1,0 +1,27 @@
+{
+  "version": 1,
+  "cacheKey": "Sveloman_Vezaevich (reign_court_castle_S8_child_1)",
+  "heroStringId": "reign_court_castle_S8_child_1",
+  "characterObjectId": "reign_court_castle_S8_child_1",
+  "characterName": "Sveloman Vezaevich",
+  "provider": "AtlasCloud",
+  "model": "xai/grok-imagine-image/edit",
+  "adapter": "atlas upload/generate/poll",
+  "sourceSha256": "2483393d45cf947eee7308c5b8e0b2ccd1424992f6dae551fd4f5896df1e12a9",
+  "portraitSha256": "be66949047df8120c3e263cb349bb8d55e8f34f43f05d3ae43aeae11540185e5",
+  "portraitWidth": 864,
+  "portraitHeight": 1152,
+  "physicalConfidence": {
+    "definition": "physical_confidence",
+    "score": 27,
+    "profile": "21-40",
+    "flirtatiousnessPercentage": 21,
+    "confidencePercentage": 44,
+    "flirtatiousnessWeight": 0.75,
+    "confidenceWeight": 0.25,
+    "source": "shipped_profile_library"
+  },
+  "derivativesReady": true,
+  "derivativeError": "",
+  "generatedUtc": "2026-07-17T19:15:25.0788385Z"
+}

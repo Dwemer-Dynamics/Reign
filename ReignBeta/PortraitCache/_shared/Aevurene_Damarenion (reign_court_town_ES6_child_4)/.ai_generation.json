@@ -1,0 +1,27 @@
+{
+  "version": 1,
+  "cacheKey": "Aevurene_Damarenion (reign_court_town_ES6_child_4)",
+  "heroStringId": "reign_court_town_ES6_child_4",
+  "characterObjectId": "reign_court_town_ES6_child_4",
+  "characterName": "Aevurene Damarenion",
+  "provider": "AtlasCloud",
+  "model": "xai/grok-imagine-image/edit",
+  "adapter": "atlas upload/generate/poll",
+  "sourceSha256": "496dedc6b79c7157da35798d7be291c074279414412373ddbfdb0f100a2b2750",
+  "portraitSha256": "62e2e344e26a2030f4bb2eae2a4832d3c5b56dc1118d67577cccb963246d48ea",
+  "portraitWidth": 864,
+  "portraitHeight": 1152,
+  "physicalConfidence": {
+    "definition": "physical_confidence",
+    "score": 56,
+    "profile": "41-60",
+    "flirtatiousnessPercentage": 51,
+    "confidencePercentage": 70,
+    "flirtatiousnessWeight": 0.75,
+    "confidenceWeight": 0.25,
+    "source": "shipped_profile_library"
+  },
+  "derivativesReady": true,
+  "derivativeError": "",
+  "generatedUtc": "2026-07-17T18:09:46.7357558Z"
+}

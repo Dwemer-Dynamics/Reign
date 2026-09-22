@@ -1,0 +1,27 @@
+{
+  "version": 1,
+  "cacheKey": "Marvenene_Istrananion (reign_court_castle_ES8_child_4)",
+  "heroStringId": "reign_court_castle_ES8_child_4",
+  "characterObjectId": "reign_court_castle_ES8_child_4",
+  "characterName": "Marvenene Istrananion",
+  "provider": "AtlasCloud",
+  "model": "xai/grok-imagine-image/edit",
+  "adapter": "atlas upload/generate/poll",
+  "sourceSha256": "56bf7406330fbc1d6f183288f6bda0e2ad9535db5a341e7143d1a1fa2bb6e3a2",
+  "portraitSha256": "d5f27820c72bc4a873f9b4ebcdb2d2654eec9ae9dfc09653f21869b2321b52e7",
+  "portraitWidth": 864,
+  "portraitHeight": 1152,
+  "physicalConfidence": {
+    "definition": "physical_confidence",
+    "score": 55,
+    "profile": "41-60",
+    "flirtatiousnessPercentage": 57,
+    "confidencePercentage": 48,
+    "flirtatiousnessWeight": 0.75,
+    "confidenceWeight": 0.25,
+    "source": "shipped_profile_library"
+  },
+  "derivativesReady": true,
+  "derivativeError": "",
+  "generatedUtc": "2026-07-17T19:00:29.5839394Z"
+}

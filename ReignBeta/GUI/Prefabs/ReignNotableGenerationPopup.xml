@@ -1,0 +1,92 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Prefab>
+  <Window>
+    <Widget Id="NotableGenerationPopupHost" WidthSizePolicy="StretchToParent" HeightSizePolicy="StretchToParent">
+      <Children>
+        <Widget DoNotAcceptEvents="true" WidthSizePolicy="StretchToParent" HeightSizePolicy="StretchToParent" Sprite="BlankWhiteSquare_9" Color="#030303F2" />
+        <Widget
+          Id="NotableGenerationPopup"
+          DoNotAcceptEvents="true"
+          WidthSizePolicy="Fixed"
+          HeightSizePolicy="Fixed"
+          SuggestedWidth="1672"
+          SuggestedHeight="941"
+          HorizontalAlignment="Center"
+          VerticalAlignment="Center"
+          Sprite="reign_notable_generation_popup">
+          <Children>
+            <TextWidget
+              Id="PreparationTitle"
+              DoNotAcceptEvents="true"
+              WidthSizePolicy="Fixed"
+              HeightSizePolicy="Fixed"
+              SuggestedWidth="663"
+              SuggestedHeight="72"
+              HorizontalAlignment="Center"
+              MarginTop="248"
+              Brush="DefaultText" Brush.Font="ReignSerifDynamic"
+              Brush.FontSize="40"
+              Brush.TextHorizontalAlignment="Center"
+              Brush.TextVerticalAlignment="Center"
+              Brush.FontColor="#C5AC83FF"
+              Text="@Title" />
+            <TextWidget
+              Id="PreparationDetail"
+              DoNotAcceptEvents="true"
+              WidthSizePolicy="Fixed"
+              HeightSizePolicy="Fixed"
+              SuggestedWidth="778"
+              SuggestedHeight="92"
+              HorizontalAlignment="Center"
+              MarginTop="399"
+              Brush="DefaultText" Brush.Font="ReignSerifDynamic"
+              Brush.FontSize="27"
+              Brush.TextHorizontalAlignment="Center"
+              Brush.TextVerticalAlignment="Center"
+              Brush.FontColor="#C5BDAFFF"
+              Text="@Detail" />
+            <TextWidget
+              Id="PreparationProgress"
+              DoNotAcceptEvents="true"
+              WidthSizePolicy="Fixed"
+              HeightSizePolicy="Fixed"
+              SuggestedWidth="522"
+              SuggestedHeight="44"
+              HorizontalAlignment="Center"
+              MarginTop="538"
+              Brush="DefaultText" Brush.Font="ReignSerifDynamic"
+              Brush.FontSize="26"
+              Brush.TextHorizontalAlignment="Center"
+              Brush.TextVerticalAlignment="Center"
+              Brush.FontColor="#C5AC83FF"
+              Text="@Progress" />
+            <ButtonWidget
+              Id="PreparationRetry"
+              WidthSizePolicy="Fixed"
+              HeightSizePolicy="Fixed"
+              SuggestedWidth="272"
+              SuggestedHeight="42"
+              HorizontalAlignment="Center"
+              MarginTop="594"
+              Brush="ConversationItem.SoundBrush"
+              Command.Click="ExecuteRetry"
+              IsVisible="@HasError">
+              <Children>
+                <TextWidget
+                  DoNotAcceptEvents="true"
+                  WidthSizePolicy="StretchToParent"
+                  HeightSizePolicy="StretchToParent"
+                  Brush="DefaultText" Brush.Font="ReignSerifDynamic"
+                  Brush.FontSize="21"
+                  Brush.TextHorizontalAlignment="Center"
+                  Brush.TextVerticalAlignment="Center"
+                  Brush.FontColor="#C5AC83FF"
+                  Text="R E T R Y" />
+              </Children>
+            </ButtonWidget>
+          </Children>
+        </Widget>
+      </Children>
+    </Widget>
+  </Window>
+</Prefab>

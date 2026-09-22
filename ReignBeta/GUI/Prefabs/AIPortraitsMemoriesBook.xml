@@ -1,0 +1,154 @@
+<Prefab>
+  <Window>
+    <Widget WidthSizePolicy="StretchToParent" HeightSizePolicy="StretchToParent"
+            Sprite="BlankWhiteSquare" Color="#030303FF"
+            UpdateChildrenStates="true">
+      <Children>
+        <Widget Id="MemoriesBookCanvas"
+                WidthSizePolicy="Fixed" HeightSizePolicy="Fixed"
+                SuggestedWidth="1672" SuggestedHeight="941"
+                HorizontalAlignment="Center" VerticalAlignment="Center"
+                DoNotUseCustomScaleAndChildren="true"
+                DoNotAcceptEvents="true">
+          <Children>
+            <!-- The approved 1672x941 shell owns all marble, fixed panels, and antique-gold chrome. -->
+            <ImageWidget Id="MemoriesBookModernShell"
+                    WidthSizePolicy="StretchToParent" HeightSizePolicy="StretchToParent"
+                    Sprite="reign_memories_book_modern_shell"
+                    DoNotAcceptEvents="true" />
+
+            <TextWidget Id="MemoriesBookCounter"
+                    Text="@CounterText"
+                    WidthSizePolicy="Fixed" HeightSizePolicy="Fixed"
+                    SuggestedWidth="180" SuggestedHeight="40"
+                    HorizontalAlignment="Right" VerticalAlignment="Top"
+                    MarginTop="42" MarginRight="80"
+                    Brush="DefaultText" Brush.Font="ReignSerifDynamic"
+                    Brush.FontSize="22"
+                    Brush.FontColor="#C5BDAFFF"
+                    Brush.TextHorizontalAlignment="Right"
+                    Brush.TextVerticalAlignment="Center"
+                    DoNotAcceptEvents="true" />
+
+            <!-- Dynamic list content is kept above the baked empty list recess. -->
+            <Widget Id="MemoriesBookListRegion"
+                    WidthSizePolicy="Fixed" HeightSizePolicy="Fixed"
+                    SuggestedWidth="466" SuggestedHeight="679"
+                    MarginLeft="65" MarginTop="128">
+              <Children>
+                <ScrollablePanel Id="MemoriesBookListScroller"
+                        WidthSizePolicy="Fixed" HeightSizePolicy="Fixed"
+                        SuggestedWidth="411" SuggestedHeight="573"
+                        MarginLeft="15" MarginTop="87"
+                        AutoHideScrollBars="true"
+                        ClipRect="MemoryListClipRect"
+                        InnerPanel="MemoryListClipRect\MemoryItemsList"
+                        VerticalScrollbar="..\MemoryListScrollbar\Scrollbar"
+                        OnlyAcceptScrollEventIfCanScroll="true"
+                        MouseScrollAxis="Vertical">
+                  <Children>
+                    <Widget Id="MemoryListClipRect"
+                            WidthSizePolicy="StretchToParent" HeightSizePolicy="StretchToParent"
+                            ClipContents="true">
+                      <Children>
+                        <ListPanel Id="MemoryItemsList" DataSource="{MemoryItems}"
+                                WidthSizePolicy="StretchToParent" HeightSizePolicy="CoverChildren"
+                                StackLayout.LayoutMethod="VerticalTopToBottom">
+                          <ItemTemplate>
+                            <ButtonWidget WidthSizePolicy="StretchToParent" HeightSizePolicy="Fixed"
+                                    SuggestedHeight="96"
+                                    MarginBottom="2"
+                                    Command.Click="ExecuteSelect"
+                                    DoNotPassEventsToChildren="true"
+                                    UpdateChildrenStates="true">
+                              <Children>
+                                <Widget WidthSizePolicy="StretchToParent" HeightSizePolicy="StretchToParent"
+                                        Sprite="BlankWhiteSquare_9" Color="#232323FF"
+                                        IsVisible="@IsSelected"
+                                        DoNotAcceptEvents="true" />
+                                <Widget WidthSizePolicy="StretchToParent" HeightSizePolicy="StretchToParent"
+                                        Sprite="BlankWhiteSquare_9" Color="#1A1917FF"
+                                        IsHidden="@IsSelected"
+                                        DoNotAcceptEvents="true" />
+                                <TextWidget Text="@ListText"
+                                        WidthSizePolicy="StretchToParent" HeightSizePolicy="StretchToParent"
+                                        MarginLeft="18" MarginRight="18" MarginTop="8" MarginBottom="8"
+                                        Brush="DefaultText" Brush.Font="ReignSerifDynamic"
+                                        Brush.FontSize="18"
+                                        Brush.FontColor="#C5BDAFFF"
+                                        Brush.TextHorizontalAlignment="Left"
+                                        Brush.TextVerticalAlignment="Center"
+                                        DoNotAcceptEvents="true" />
+                              </Children>
+                            </ButtonWidget>
+                          </ItemTemplate>
+                        </ListPanel>
+                      </Children>
+                    </Widget>
+                  </Children>
+                </ScrollablePanel>
+                <Standard.VerticalScrollbar Id="MemoryListScrollbar"
+                        WidthSizePolicy="Fixed" HeightSizePolicy="Fixed"
+                        SuggestedWidth="19" SuggestedHeight="584"
+                        HorizontalAlignment="Right" VerticalAlignment="Top"
+                        MarginTop="76" MarginRight="15" />
+              </Children>
+            </Widget>
+
+            <!-- Memory art is a landscape scene, never a portrait. It remains live beneath the transparent scene overlay. -->
+            <Widget Id="MemoriesBookSceneViewport"
+                    WidthSizePolicy="Fixed" HeightSizePolicy="Fixed"
+                    SuggestedWidth="949" SuggestedHeight="555"
+                    MarginLeft="632" MarginTop="130"
+                    ClipContents="true"
+                    DoNotAcceptEvents="true">
+              <Children>
+                <ReignEventArtWidget Id="AIPortraitsMemoryBookScene"
+                        Type="ReignBeta.UI.Widgets.ReignEventArtWidget"
+                        WidthSizePolicy="StretchToParent" HeightSizePolicy="StretchToParent"
+                        EventImageId="@MemoryBookImageId"
+                        DoNotAcceptEvents="true" />
+                <ImageWidget Id="MemoriesBookSceneOverlay"
+                        WidthSizePolicy="StretchToParent" HeightSizePolicy="StretchToParent"
+                        Sprite="reign_modern_memory_scene_overlay"
+                        DoNotAcceptEvents="true" />
+              </Children>
+            </Widget>
+
+            <TextWidget Id="MemoriesBookCaption"
+                    Text="@CaptionText"
+                    WidthSizePolicy="Fixed" HeightSizePolicy="Fixed"
+                    SuggestedWidth="860" SuggestedHeight="58"
+                    MarginLeft="676" MarginTop="707"
+                    Brush="DefaultText" Brush.Font="ReignSerifDynamic"
+                    Brush.FontSize="19"
+                    Brush.FontColor="#C5BDAFFF"
+                    Brush.TextHorizontalAlignment="Center"
+                    Brush.TextVerticalAlignment="Center"
+                    DoNotAcceptEvents="true" />
+
+            <!-- The approved reference defines only the normal footer treatment; no speculative hover/focus art is introduced. -->
+            <ButtonWidget Id="MemoriesBookPrevious"
+                    WidthSizePolicy="Fixed" HeightSizePolicy="Fixed"
+                    SuggestedWidth="272" SuggestedHeight="66"
+                    MarginLeft="196" MarginTop="842"
+                    Command.Click="ExecutePrevious"
+                    DoNotPassEventsToChildren="true" />
+            <ButtonWidget Id="MemoriesBookClose"
+                    WidthSizePolicy="Fixed" HeightSizePolicy="Fixed"
+                    SuggestedWidth="256" SuggestedHeight="66"
+                    MarginLeft="708" MarginTop="842"
+                    Command.Click="ExecuteClose"
+                    DoNotPassEventsToChildren="true" />
+            <ButtonWidget Id="MemoriesBookNext"
+                    WidthSizePolicy="Fixed" HeightSizePolicy="Fixed"
+                    SuggestedWidth="218" SuggestedHeight="66"
+                    MarginLeft="1205" MarginTop="842"
+                    Command.Click="ExecuteNext"
+                    DoNotPassEventsToChildren="true" />
+          </Children>
+        </Widget>
+      </Children>
+    </Widget>
+  </Window>
+</Prefab>

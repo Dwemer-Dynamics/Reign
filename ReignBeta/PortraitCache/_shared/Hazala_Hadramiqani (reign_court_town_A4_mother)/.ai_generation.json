@@ -1,0 +1,27 @@
+{
+  "version": 1,
+  "cacheKey": "Hazala_Hadramiqani (reign_court_town_A4_mother)",
+  "heroStringId": "reign_court_town_A4_mother",
+  "characterObjectId": "reign_court_town_A4_mother",
+  "characterName": "Hazala Hadramiqani",
+  "provider": "AtlasCloud",
+  "model": "xai/grok-imagine-image/edit",
+  "adapter": "atlas upload/generate/poll",
+  "sourceSha256": "a413c590497c7b5c9d114e6c598f6b4774727965e82f183d1d05a30cca13c2f4",
+  "portraitSha256": "a63076ff7d6904fd6eefd36db12522d008814ff0309a88b86c5ddf5d184d9467",
+  "portraitWidth": 864,
+  "portraitHeight": 1152,
+  "physicalConfidence": {
+    "definition": "physical_confidence",
+    "score": 53,
+    "profile": "41-60",
+    "flirtatiousnessPercentage": 54,
+    "confidencePercentage": 49,
+    "flirtatiousnessWeight": 0.75,
+    "confidenceWeight": 0.25,
+    "source": "shipped_profile_library"
+  },
+  "derivativesReady": true,
+  "derivativeError": "",
+  "generatedUtc": "2026-07-17T18:42:33.9794616Z"
+}

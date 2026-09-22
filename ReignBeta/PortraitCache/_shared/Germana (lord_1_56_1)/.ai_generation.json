@@ -1,0 +1,27 @@
+{
+  "version": 1,
+  "cacheKey": "Germana (lord_1_56_1)",
+  "heroStringId": "lord_1_56_1",
+  "characterObjectId": "lord_1_56_1",
+  "characterName": "Germana",
+  "provider": "AtlasCloud",
+  "model": "xai/grok-imagine-image/edit",
+  "adapter": "atlas upload/generate/poll",
+  "sourceSha256": "141573ff09d8ff7b2fcc35d0038ae65cb36969586c91baa0fb86ab6964f57977",
+  "portraitSha256": "9d9a34f789815d98ceb430bbd73de21e6a3d562a7a9d983b2fd03de8dd620bd4",
+  "portraitWidth": 832,
+  "portraitHeight": 1248,
+  "physicalConfidence": {
+    "definition": "physical_confidence",
+    "score": 74,
+    "profile": "61-80",
+    "flirtatiousnessPercentage": 79,
+    "confidencePercentage": 58,
+    "flirtatiousnessWeight": 0.75,
+    "confidenceWeight": 0.25,
+    "source": "shipped_profile_library"
+  },
+  "derivativesReady": true,
+  "derivativeError": "",
+  "generatedUtc": "2026-07-17T18:38:51.1463248Z"
+}

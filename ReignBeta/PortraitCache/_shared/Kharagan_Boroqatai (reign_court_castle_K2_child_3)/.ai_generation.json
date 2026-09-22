@@ -1,0 +1,27 @@
+{
+  "version": 1,
+  "cacheKey": "Kharagan_Boroqatai (reign_court_castle_K2_child_3)",
+  "heroStringId": "reign_court_castle_K2_child_3",
+  "characterObjectId": "reign_court_castle_K2_child_3",
+  "characterName": "Kharagan Boroqatai",
+  "provider": "AtlasCloud",
+  "model": "xai/grok-imagine-image/edit",
+  "adapter": "atlas upload/generate/poll",
+  "sourceSha256": "397123d3e090dba7c7075d5d7c8b61e4ad6add43f1782fb885a8763177be247b",
+  "portraitSha256": "abcf54cf10ec3fad28f64c115e21e170ba49c20bac5f8afcba0a7718e56be88a",
+  "portraitWidth": 864,
+  "portraitHeight": 1152,
+  "physicalConfidence": {
+    "definition": "physical_confidence",
+    "score": 80,
+    "profile": "61-80",
+    "flirtatiousnessPercentage": 73,
+    "confidencePercentage": 100,
+    "flirtatiousnessWeight": 0.75,
+    "confidenceWeight": 0.25,
+    "source": "shipped_profile_library"
+  },
+  "derivativesReady": true,
+  "derivativeError": "",
+  "generatedUtc": "2026-07-17T18:47:27.7330712Z"
+}

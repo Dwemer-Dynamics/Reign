@@ -1,0 +1,46 @@
+{
+  "schema": "reign-overlay-asset-spec-v1",
+  "asset": {
+    "id": "royal-council-modern-shell",
+    "role": "approved fixed-caption Royal Council shell with four true-alpha oval runtime portrait apertures",
+    "selectedGeneratedSourceSha256": "8f258195ed12d45ee7b56da7648f4c31aec285b6deb0a51f423aa2bb858e0488",
+    "generationMode": "approved-reference fixed pixels plus declared scene-dependent image-to-image fill",
+    "fixedRegionMaskPath": "screen-royal-council-fixed-region-mask.json",
+    "fixedRegionMaskSha256": "96f0039290477b6d1046e5814231071563eb7a6e76172f0a36a22d4c0b210b75",
+    "promptPath": "../royal-council-modern-shell-prompt.txt",
+    "promptSha256": "40d9e470b6cc71396e7c4a3b4f05bc80671d615305ac726451db998d90efd5d1"
+  },
+  "authorities": {
+    "layout": {
+      "path": "../approved-references/royal-council.png",
+      "sha256": "1b08360102f624d2051371db436ed356ea0b0297c9eab32f05deaac771f7c1bb"
+    },
+    "materials": {
+      "path": "../style-reference.png",
+      "sha256": "85b689dc164ebbf70f67a081c0f7097858edb0542ef0073de0c29eef7926b0a3"
+    },
+    "palette": {
+      "path": "../palette.json",
+      "sha256": "fac70043a567db463ae70c975b92037dbfc38337e0d9134bc85bb03e3bb9a043",
+      "schema": "reign-ui-modern-palette-v1",
+      "version": "2026.08.28.2"
+    }
+  },
+  "canvas": {"width": 1672, "height": 941},
+  "normalization": {"fit": "stretch", "anchor": "center"},
+  "antialiasScale": 8,
+  "transparentRgb": "#070808",
+  "marbleReduction": {
+    "amount": 0.0,
+    "blurRadius": 6.0,
+    "luminanceCeiling": 96,
+    "chromaCeiling": 36,
+    "selectionSoftness": 20
+  },
+  "apertures": [
+    {"id": "war-councilor-portrait", "shape": "oval", "x": 138, "y": 63, "width": 220, "height": 296, "feather": 0.0},
+    {"id": "spymaster-portrait", "shape": "oval", "x": 139, "y": 477, "width": 220, "height": 283, "feather": 0.0},
+    {"id": "economic-advisor-portrait", "shape": "oval", "x": 1308, "y": 63, "width": 218, "height": 294, "feather": 0.0},
+    {"id": "foreign-advisor-portrait", "shape": "oval", "x": 1309, "y": 477, "width": 216, "height": 282, "feather": 0.0}
+  ]
+}

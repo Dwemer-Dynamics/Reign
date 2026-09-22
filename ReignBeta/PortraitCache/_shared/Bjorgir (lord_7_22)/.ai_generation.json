@@ -1,0 +1,27 @@
+{
+  "version": 1,
+  "cacheKey": "Bjorgir (lord_7_22)",
+  "heroStringId": "lord_7_22",
+  "characterObjectId": "lord_7_22",
+  "characterName": "Bjorgir",
+  "provider": "AtlasCloud",
+  "model": "xai/grok-imagine-image/edit",
+  "adapter": "atlas upload/generate/poll",
+  "sourceSha256": "60455a760122c1f95fbe863f993ac653158141fb5ee445b06444662c841b2577",
+  "portraitSha256": "79c1e19757e3e15d8c50c715022beb7b2c23311a689af6e04875950b8124cbf3",
+  "portraitWidth": 832,
+  "portraitHeight": 1248,
+  "physicalConfidence": {
+    "definition": "physical_confidence",
+    "score": 50,
+    "profile": "41-60",
+    "flirtatiousnessPercentage": 50,
+    "confidencePercentage": 50,
+    "flirtatiousnessWeight": 0.75,
+    "confidenceWeight": 0.25,
+    "source": "neutral_fallback"
+  },
+  "derivativesReady": true,
+  "derivativeError": "",
+  "generatedUtc": "2026-07-17T18:17:11.0942432Z"
+}

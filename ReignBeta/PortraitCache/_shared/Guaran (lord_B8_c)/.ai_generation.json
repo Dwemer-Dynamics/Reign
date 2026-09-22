@@ -1,0 +1,27 @@
+{
+  "version": 1,
+  "cacheKey": "Guaran (lord_B8_c)",
+  "heroStringId": "lord_B8_c",
+  "characterObjectId": "lord_B8_c",
+  "characterName": "Guaran",
+  "provider": "AtlasCloud",
+  "model": "xai/grok-imagine-image/edit",
+  "adapter": "atlas upload/generate/poll",
+  "sourceSha256": "cf78753d9b1e8ee9a867ebe482d0016f1ba57dcb6210a529a205a394b7ea7526",
+  "portraitSha256": "86f9f82e8d7cbc5cd2d2c591e4ce73e4f2e7ec382581d2c84333eaea00829c84",
+  "portraitWidth": 832,
+  "portraitHeight": 1248,
+  "physicalConfidence": {
+    "definition": "physical_confidence",
+    "score": 47,
+    "profile": "41-60",
+    "flirtatiousnessPercentage": 48,
+    "confidencePercentage": 43,
+    "flirtatiousnessWeight": 0.75,
+    "confidenceWeight": 0.25,
+    "source": "shipped_profile_library"
+  },
+  "derivativesReady": true,
+  "derivativeError": "",
+  "generatedUtc": "2026-07-17T18:40:21.6831738Z"
+}

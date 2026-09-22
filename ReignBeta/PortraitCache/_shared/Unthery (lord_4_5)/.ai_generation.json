@@ -1,0 +1,27 @@
+{
+  "version": 1,
+  "cacheKey": "Unthery (lord_4_5)",
+  "heroStringId": "lord_4_5",
+  "characterObjectId": "lord_4_5",
+  "characterName": "Unthery",
+  "provider": "AtlasCloud",
+  "model": "xai/grok-imagine-image/edit",
+  "adapter": "atlas upload/generate/poll",
+  "sourceSha256": "6d22284830a9f6667e6f7a1d1f98dd05397ddb4c46a37667d430d3ec7b9d10f0",
+  "portraitSha256": "89d431ad6000f2d68a076f383a1b5800bcd92a945d13b82a92afa78821b0b0a1",
+  "portraitWidth": 832,
+  "portraitHeight": 1248,
+  "physicalConfidence": {
+    "definition": "physical_confidence",
+    "score": 37,
+    "profile": "21-40",
+    "flirtatiousnessPercentage": 22,
+    "confidencePercentage": 81,
+    "flirtatiousnessWeight": 0.75,
+    "confidenceWeight": 0.25,
+    "source": "shipped_profile_library"
+  },
+  "derivativesReady": true,
+  "derivativeError": "",
+  "generatedUtc": "2026-07-17T19:19:57.5929088Z"
+}

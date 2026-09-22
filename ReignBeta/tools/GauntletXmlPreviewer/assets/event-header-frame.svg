@@ -1,0 +1,34 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1182" height="95" viewBox="0 0 1182 95" preserveAspectRatio="none">
+  <defs>
+    <linearGradient id="gold" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#5b380c"/>
+      <stop offset=".25" stop-color="#d09a36"/>
+      <stop offset=".54" stop-color="#7c4d12"/>
+      <stop offset=".8" stop-color="#d6a13e"/>
+      <stop offset="1" stop-color="#4d2e08"/>
+    </linearGradient>
+    <filter id="softGlow" x="-35%" y="-35%" width="170%" height="170%">
+      <feGaussianBlur stdDeviation=".42" result="blur"/>
+      <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
+    </filter>
+    <g id="corner" fill="none" stroke="url(#gold)" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M4 35V4h37" stroke-width="1.9"/>
+      <path d="M9 36V9h28" stroke-width=".85" opacity=".88"/>
+      <path d="M6 8c8 0 13 4 13 11 0 5-5 10-10 7-3-2-2-6 2-7 4 0 5 6 0 11" stroke-width="1.25"/>
+      <path d="M15 5c0 8 5 13 13 13 6 0 10-5 6-9-3-3-8-1-7 3 0 4 7 4 11-1" stroke-width="1.2"/>
+      <path d="M7 7l7 3-3 7-5-4z" stroke-width=".85"/>
+      <path d="M18 8c5 4 10 4 16 1M8 31c5-3 10-2 14 2" stroke-width=".75"/>
+      <circle cx="21" cy="21" r="1.35" fill="#c78d2c" stroke="none"/>
+    </g>
+  </defs>
+  <rect x="1" y="1" width="1180" height="93" fill="none" stroke="#161006" stroke-width="2"/>
+  <rect x="3.5" y="3.5" width="1175" height="88" fill="none" stroke="url(#gold)" stroke-width="1.25"/>
+  <rect x="8" y="8" width="1166" height="79" fill="none" stroke="#684111" stroke-width=".75" opacity=".9"/>
+  <path d="M16 10H1166M16 85H1166" fill="none" stroke="#c1882c" stroke-width=".55" opacity=".54"/>
+  <g filter="url(#softGlow)">
+    <use href="#corner"/>
+    <use href="#corner" transform="translate(1182 0) scale(-1 1)"/>
+    <use href="#corner" transform="translate(0 95) scale(1 -1)"/>
+    <use href="#corner" transform="translate(1182 95) scale(-1 -1)"/>
+  </g>
+</svg>

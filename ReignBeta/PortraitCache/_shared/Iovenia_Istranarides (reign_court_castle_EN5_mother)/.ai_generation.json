@@ -1,0 +1,27 @@
+{
+  "version": 1,
+  "cacheKey": "Iovenia_Istranarides (reign_court_castle_EN5_mother)",
+  "heroStringId": "reign_court_castle_EN5_mother",
+  "characterObjectId": "reign_court_castle_EN5_mother",
+  "characterName": "Iovenia Istranarides",
+  "provider": "AtlasCloud",
+  "model": "xai/grok-imagine-image/edit",
+  "adapter": "atlas upload/generate/poll",
+  "sourceSha256": "2da1afd67e3e336a556cba65ca273250e84b7010e28187ea6bf21ce00a0b241a",
+  "portraitSha256": "57fc93d3ba7e4948591c7a83133dbf231b0cff3a263f4fa646c2330bc605e4d9",
+  "portraitWidth": 864,
+  "portraitHeight": 1152,
+  "physicalConfidence": {
+    "definition": "physical_confidence",
+    "score": 78,
+    "profile": "61-80",
+    "flirtatiousnessPercentage": 87,
+    "confidencePercentage": 50,
+    "flirtatiousnessWeight": 0.75,
+    "confidenceWeight": 0.25,
+    "source": "shipped_profile_library"
+  },
+  "derivativesReady": true,
+  "derivativeError": "",
+  "generatedUtc": "2026-07-17T18:44:38.5706880Z"
+}

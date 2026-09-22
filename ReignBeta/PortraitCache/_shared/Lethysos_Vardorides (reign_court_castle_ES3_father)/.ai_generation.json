@@ -1,0 +1,27 @@
+{
+  "version": 1,
+  "cacheKey": "Lethysos_Vardorides (reign_court_castle_ES3_father)",
+  "heroStringId": "reign_court_castle_ES3_father",
+  "characterObjectId": "reign_court_castle_ES3_father",
+  "characterName": "Lethysos Vardorides",
+  "provider": "AtlasCloud",
+  "model": "xai/grok-imagine-image/edit",
+  "adapter": "atlas upload/generate/poll",
+  "sourceSha256": "41b1b8284cecabeb01769c3bece3953b1445f457f0a27d660bef3b8b946e7a78",
+  "portraitSha256": "619ed9118d08a14c208ea7590c512a3b7ee85a9a46e8823125d6c2fbf8e1f0a4",
+  "portraitWidth": 864,
+  "portraitHeight": 1152,
+  "physicalConfidence": {
+    "definition": "physical_confidence",
+    "score": 80,
+    "profile": "61-80",
+    "flirtatiousnessPercentage": 87,
+    "confidencePercentage": 58,
+    "flirtatiousnessWeight": 0.75,
+    "confidenceWeight": 0.25,
+    "source": "shipped_profile_library"
+  },
+  "derivativesReady": true,
+  "derivativeError": "",
+  "generatedUtc": "2026-07-17T18:58:27.7545075Z"
+}

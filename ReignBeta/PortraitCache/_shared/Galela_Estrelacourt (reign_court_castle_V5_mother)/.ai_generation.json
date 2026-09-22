@@ -1,0 +1,27 @@
+{
+  "version": 1,
+  "cacheKey": "Galela_Estrelacourt (reign_court_castle_V5_mother)",
+  "heroStringId": "reign_court_castle_V5_mother",
+  "characterObjectId": "reign_court_castle_V5_mother",
+  "characterName": "Galela Estrelacourt",
+  "provider": "AtlasCloud",
+  "model": "xai/grok-imagine-image/edit",
+  "adapter": "atlas upload/generate/poll",
+  "sourceSha256": "7cdb7944744cf41304672c135530f5a1d5570bae7e3e234d6211a767cf216d48",
+  "portraitSha256": "9143f1d4d87aadd286c217212436e5467b02f2ccc9a54e93c5c70af8a3b704ad",
+  "portraitWidth": 864,
+  "portraitHeight": 1152,
+  "physicalConfidence": {
+    "definition": "physical_confidence",
+    "score": 49,
+    "profile": "41-60",
+    "flirtatiousnessPercentage": 46,
+    "confidencePercentage": 57,
+    "flirtatiousnessWeight": 0.75,
+    "confidenceWeight": 0.25,
+    "source": "shipped_profile_library"
+  },
+  "derivativesReady": true,
+  "derivativeError": "",
+  "generatedUtc": "2026-07-17T18:37:55.8523098Z"
+}

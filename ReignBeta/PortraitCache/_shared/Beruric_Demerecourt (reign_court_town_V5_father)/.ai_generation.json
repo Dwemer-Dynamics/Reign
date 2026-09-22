@@ -1,0 +1,27 @@
+{
+  "version": 1,
+  "cacheKey": "Beruric_Demerecourt (reign_court_town_V5_father)",
+  "heroStringId": "reign_court_town_V5_father",
+  "characterObjectId": "reign_court_town_V5_father",
+  "characterName": "Beruric Demerecourt",
+  "provider": "AtlasCloud",
+  "model": "xai/grok-imagine-image/edit",
+  "adapter": "atlas upload/generate/poll",
+  "sourceSha256": "a801dda2dfb10ddb7af5c93422a673b9fbe0dedb488497216b5a6c79f36eec9b",
+  "portraitSha256": "fcb69d176c7a1e51fb2ae0e2ebe34a3d3ed0ae91a1ecb2b44f78b3d7a176f805",
+  "portraitWidth": 864,
+  "portraitHeight": 1152,
+  "physicalConfidence": {
+    "definition": "physical_confidence",
+    "score": 47,
+    "profile": "41-60",
+    "flirtatiousnessPercentage": 51,
+    "confidencePercentage": 34,
+    "flirtatiousnessWeight": 0.75,
+    "confidenceWeight": 0.25,
+    "source": "shipped_profile_library"
+  },
+  "derivativesReady": true,
+  "derivativeError": "",
+  "generatedUtc": "2026-07-17T18:16:55.2629408Z"
+}

@@ -1,0 +1,27 @@
+{
+  "version": 1,
+  "cacheKey": "Corura_Demerecourt (reign_court_town_V5_child_2)",
+  "heroStringId": "reign_court_town_V5_child_2",
+  "characterObjectId": "reign_court_town_V5_child_2",
+  "characterName": "Corura Demerecourt",
+  "provider": "AtlasCloud",
+  "model": "xai/grok-imagine-image/edit",
+  "adapter": "atlas upload/generate/poll",
+  "sourceSha256": "339374d80d7c348d346341376075c4c4fc50c54d8d50769122088962bddc34d1",
+  "portraitSha256": "54ecc0b0a7ba6957983c10de1e2afa66311aef7c74514f96220b3fdf50b76294",
+  "portraitWidth": 864,
+  "portraitHeight": 1152,
+  "physicalConfidence": {
+    "definition": "physical_confidence",
+    "score": 42,
+    "profile": "41-60",
+    "flirtatiousnessPercentage": 42,
+    "confidencePercentage": 41,
+    "flirtatiousnessWeight": 0.75,
+    "confidenceWeight": 0.25,
+    "source": "shipped_profile_library"
+  },
+  "derivativesReady": true,
+  "derivativeError": "",
+  "generatedUtc": "2026-07-17T18:24:20.2649555Z"
+}

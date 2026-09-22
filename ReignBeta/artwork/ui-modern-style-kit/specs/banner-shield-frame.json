@@ -1,0 +1,58 @@
+{
+  "schema": "reign-overlay-asset-spec-v1",
+  "canvas": {
+    "width": 512,
+    "height": 588
+  },
+  "normalization": {
+    "fit": "stretch",
+    "anchor": "center",
+    "sourceCrop": {
+      "x": 83,
+      "y": 53,
+      "width": 999,
+      "height": 1253
+    },
+    "axisWarp": {
+      "x": [
+        { "source": 0, "destination": 0 },
+        { "source": 89, "destination": 43 },
+        { "source": 908, "destination": 473 },
+        { "source": 999, "destination": 512 }
+      ],
+      "y": [
+        { "source": 0, "destination": 0 },
+        { "source": 80, "destination": 42 },
+        { "source": 1118, "destination": 506 },
+        { "source": 1253, "destination": 588 }
+      ]
+    }
+  },
+  "antialiasScale": 8,
+  "lightNeutralMatteReplacement": {
+    "minimumChannel": 205,
+    "maximumChroma": 18,
+    "color": "#121211"
+  },
+  "marbleReduction": {
+    "amount": 0.5,
+    "blurRadius": 4.0,
+    "luminanceCeiling": 96,
+    "chromaCeiling": 36,
+    "selectionSoftness": 20
+  },
+  "apertures": [
+    {
+      "id": "banner",
+      "shape": "polygon",
+      "points": [
+        [43, 42],
+        [473, 42],
+        [473, 440],
+        [258, 506],
+        [43, 440]
+      ],
+      "feather": 0.0
+    }
+  ]
+}

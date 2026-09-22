@@ -1,0 +1,27 @@
+{
+  "version": 1,
+  "cacheKey": "Halthdar (lord_7_1)",
+  "heroStringId": "lord_7_1",
+  "characterObjectId": "lord_7_1",
+  "characterName": "Halthdar",
+  "provider": "AtlasCloud",
+  "model": "xai/grok-imagine-image/edit",
+  "adapter": "atlas upload/generate/poll",
+  "sourceSha256": "0adceb9ab5c016e32cd7a1eca9d440182dbe0f556be47bb0d243a43844d037b1",
+  "portraitSha256": "8253df165813e3b805e9f27dca7ff090dfbf61135bf19a33d14393931cd78bd4",
+  "portraitWidth": 832,
+  "portraitHeight": 1248,
+  "physicalConfidence": {
+    "definition": "physical_confidence",
+    "score": 50,
+    "profile": "41-60",
+    "flirtatiousnessPercentage": 50,
+    "confidencePercentage": 50,
+    "flirtatiousnessWeight": 0.75,
+    "confidenceWeight": 0.25,
+    "source": "neutral_fallback"
+  },
+  "derivativesReady": true,
+  "derivativeError": "",
+  "generatedUtc": "2026-07-17T18:42:02.9248630Z"
+}

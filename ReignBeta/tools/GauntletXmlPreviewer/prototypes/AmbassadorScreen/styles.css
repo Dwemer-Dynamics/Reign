@@ -1,0 +1,323 @@
+:root {
+  color-scheme: dark;
+  --gold: #d6ae59;
+  --gold-bright: #f0d292;
+  --ink: #070605;
+  --card-gap: 0.75%;
+  font-family: Georgia, "Times New Roman", serif;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  width: 100%;
+  height: 100%;
+  margin: 0;
+  overflow: hidden;
+  background: #020202;
+}
+
+button {
+  font: inherit;
+}
+
+.stage {
+  display: grid;
+  width: 100%;
+  height: 100%;
+  place-items: center;
+  background:
+    radial-gradient(circle at 50% 45%, #18130b 0, #050403 48%, #000 100%);
+}
+
+.screen {
+  position: relative;
+  width: min(100vw, calc(100vh * 16 / 9));
+  aspect-ratio: 16 / 9;
+  overflow: hidden;
+  background: #050403;
+  box-shadow: 0 0 54px #000;
+  container-type: inline-size;
+}
+
+.screen__plate {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: fill;
+  pointer-events: none;
+  user-select: none;
+}
+
+.screen__title {
+  position: absolute;
+  top: 7.15%;
+  left: 34.4%;
+  width: 31.25%;
+  margin: 0;
+  color: #e3c47e;
+  font-size: 3.65cqw;
+  font-variant: small-caps;
+  font-weight: 500;
+  letter-spacing: 0.045em;
+  line-height: 1;
+  text-align: center;
+  text-shadow: 0 2px 2px #000, 0 0 8px #000;
+}
+
+.hotspot {
+  position: absolute;
+  z-index: 20;
+  appearance: none;
+  border: 0;
+  padding: 0;
+  color: transparent;
+  background: transparent;
+  cursor: pointer;
+}
+
+.hotspot:focus-visible,
+.action:focus-visible,
+.ambassador-card:focus-visible {
+  outline: 2px solid var(--gold-bright);
+  outline-offset: -3px;
+}
+
+.hotspot--close {
+  top: 4.55%;
+  right: 2.35%;
+  width: 3.65%;
+  aspect-ratio: 1;
+  border-radius: 50%;
+}
+
+.hotspot--previous,
+.hotspot--next {
+  top: 50.5%;
+  width: 5.5%;
+  height: 16%;
+}
+
+.hotspot--previous {
+  left: 13.9%;
+}
+
+.hotspot--next {
+  right: 13.9%;
+}
+
+.rail-window {
+  position: absolute;
+  z-index: 4;
+  top: 23.8%;
+  left: 20.35%;
+  width: 59.25%;
+  height: 61.7%;
+  overflow: hidden;
+}
+
+.rail {
+  display: flex;
+  align-items: stretch;
+  gap: var(--card-gap);
+  width: 100%;
+  height: 100%;
+  transition: transform 360ms cubic-bezier(.2, .7, .25, 1);
+  will-change: transform;
+}
+
+.ambassador-card {
+  position: relative;
+  flex: 0 0 calc((100% - (4 * var(--card-gap))) / 5);
+  height: 100%;
+  appearance: none;
+  overflow: hidden;
+  border: 0;
+  padding: 0;
+  color: var(--gold-bright);
+  background: transparent;
+  cursor: pointer;
+}
+
+.ambassador-card::after {
+  position: absolute;
+  inset: 1.2%;
+  border: 1px solid transparent;
+  content: "";
+  pointer-events: none;
+  transition: border-color 140ms ease, box-shadow 140ms ease;
+}
+
+.ambassador-card:hover::after,
+.ambassador-card.is-selected::after {
+  border-color: rgb(227 185 90 / 78%);
+  box-shadow: inset 0 0 18px rgb(203 145 31 / 23%);
+}
+
+.ambassador-card__banner {
+  position: absolute;
+  z-index: 9;
+  top: 0;
+  left: 21%;
+  width: 58%;
+  height: 23.8%;
+  filter: drop-shadow(0 4px 2px #000);
+  pointer-events: none;
+}
+
+.ambassador-card__banner-field {
+  position: absolute;
+  z-index: 1;
+  inset: 5.5% 10% 8%;
+  display: grid;
+  place-items: center;
+  clip-path: polygon(4% 0, 96% 0, 96% 69%, 50% 100%, 4% 69%);
+  background:
+    linear-gradient(90deg, rgb(255 255 255 / 10%), transparent 24% 76%, rgb(0 0 0 / 26%)),
+    var(--banner-color);
+}
+
+.ambassador-card__banner-field::before {
+  color: var(--banner-mark);
+  content: attr(data-mark);
+  font-size: 1.75cqw;
+  line-height: 1;
+  text-shadow: 0 1px 2px #000;
+}
+
+.ambassador-card__banner-overlay {
+  position: absolute;
+  z-index: 4;
+  inset: 0;
+  background: url("assets/ambassador-banner-overlay.png") center / 100% 100% no-repeat;
+  pointer-events: none;
+}
+
+.ambassador-card__portrait {
+  position: absolute;
+  z-index: 2;
+  top: 23.1%;
+  left: 6.4%;
+  width: 87.2%;
+  height: 58.7%;
+  overflow: hidden;
+  object-fit: cover;
+  object-position: center top;
+  background: #100d09;
+  user-select: none;
+}
+
+.ambassador-card__portrait-overlay {
+  position: absolute;
+  z-index: 8;
+  top: 20.45%;
+  left: 0;
+  width: 100%;
+  height: 79.55%;
+  background: url("assets/ambassador-card-overlay-refined.png") center / 100% 100% no-repeat;
+  pointer-events: none;
+}
+
+.ambassador-card__kingdom,
+.ambassador-card__name,
+.ambassador-card__clan {
+  position: absolute;
+  z-index: 12;
+  left: 4%;
+  width: 92%;
+  overflow: hidden;
+  white-space: nowrap;
+  text-align: center;
+  text-overflow: ellipsis;
+  text-shadow: 0 2px 2px #000;
+}
+
+.ambassador-card__kingdom {
+  bottom: 12.7%;
+  font-size: 0.82cqw;
+  font-variant: small-caps;
+  letter-spacing: 0.025em;
+}
+
+.ambassador-card__name {
+  bottom: 8.45%;
+  color: #d5b66d;
+  font-size: 0.72cqw;
+  letter-spacing: 0.01em;
+}
+
+.ambassador-card__clan {
+  bottom: 4.65%;
+  color: #a88a50;
+  font-size: 0.61cqw;
+  font-style: italic;
+  letter-spacing: 0.015em;
+}
+
+.action {
+  position: absolute;
+  z-index: 12;
+  bottom: 7.55%;
+  height: 5.15%;
+  appearance: none;
+  border: 0;
+  color: #ddb96e;
+  background: transparent;
+  cursor: pointer;
+  font-size: 1.2cqw;
+  text-align: center;
+  text-shadow: 0 1px 2px #000;
+}
+
+.action:hover {
+  color: #ffe2a0;
+  filter: drop-shadow(0 0 6px rgb(255 194 73 / 42%));
+}
+
+.action--establish {
+  left: 35.1%;
+  width: 14%;
+}
+
+.action--remove {
+  left: 51%;
+  width: 14%;
+}
+
+.page-dots {
+  position: absolute;
+  z-index: 14;
+  right: 17.2%;
+  bottom: 8.4%;
+  display: none;
+  gap: 0.35cqw;
+}
+
+.page-dots > i {
+  width: 0.42cqw;
+  aspect-ratio: 1;
+  border: 1px solid #9b732e;
+  border-radius: 50%;
+  background: #171007;
+}
+
+.page-dots > i.is-active {
+  background: #d6ae59;
+  box-shadow: 0 0 5px #d6ae59;
+}
+
+@media (max-aspect-ratio: 4 / 3) {
+  .screen {
+    width: 100vw;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .rail {
+    transition: none;
+  }
+}

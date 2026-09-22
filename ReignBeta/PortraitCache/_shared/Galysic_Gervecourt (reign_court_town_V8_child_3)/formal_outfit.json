@@ -1,0 +1,13 @@
+{
+  "version": 1,
+  "heroStringId": "reign_court_town_V8_child_3",
+  "characterName": "Galysic Gervecourt",
+  "imagePath": "portrait.png",
+  "imageSha256": "37B2132E2F654DF575FA58933061D1AC87A981078774C2D30ABE46F699F8185B",
+  "description": "Culturally appropriate everyday Vlandian minor-lord attire inspired by refined high-medieval Norman and Frankish noble dress. Use a fitted wool tunic or cote over a fine linen shirt, high-quality chausses, a decorated leather belt, and an optional short mantle or shoulder drape with restrained embroidery. For women, use a long underdress with an elegant tailored overdress, shaped sleeves, fine woven fabric, and decorative trim around the cuffs, hem, and neckline. Include modest clasps, brooches, or small jewelry details. No headgear of any kind. No armor, weapons, crowns, royal regalia, or ceremonial robes.",
+  "status": "failed",
+  "descriptionSource": "portrait_prompt_fallback",
+  "retryEligible": true,
+  "error": "{\"error\":{\"message\":\"Model \\\"zai-org/glm-5.2\\\" does not support image inputs. Remove image content or choose a multimodal model.\",\"type\":\"invalid_request_error\",\"param\":\"messages\",\"code\":\"image_input_not_supported\"}}",
+  "updatedUtc": "2026-07-18T22:03:29.4785949Z"
+}

@@ -1,0 +1,27 @@
+{
+  "version": 1,
+  "cacheKey": "Vipon (lord_1_71)",
+  "heroStringId": "lord_1_71",
+  "characterObjectId": "lord_1_71",
+  "characterName": "Vipon",
+  "provider": "AtlasCloud",
+  "model": "xai/grok-imagine-image/edit",
+  "adapter": "atlas upload/generate/poll",
+  "sourceSha256": "14357721b6e86bd1b8b077c1127ba2f6ac3b1ce9092d57762613b3a4a7df7b23",
+  "portraitSha256": "5489fb9439731f1642821989d53e938dba304d82779ac31f35f488dc776275c2",
+  "portraitWidth": 832,
+  "portraitHeight": 1248,
+  "physicalConfidence": {
+    "definition": "physical_confidence",
+    "score": 93,
+    "profile": "81-100",
+    "flirtatiousnessPercentage": 96,
+    "confidencePercentage": 83,
+    "flirtatiousnessWeight": 0.75,
+    "confidenceWeight": 0.25,
+    "source": "shipped_profile_library"
+  },
+  "derivativesReady": true,
+  "derivativeError": "",
+  "generatedUtc": "2026-07-17T19:21:14.4479227Z"
+}

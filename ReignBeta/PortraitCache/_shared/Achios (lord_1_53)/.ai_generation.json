@@ -1,0 +1,27 @@
+{
+  "version": 1,
+  "cacheKey": "Achios (lord_1_53)",
+  "heroStringId": "lord_1_53",
+  "characterObjectId": "lord_1_53",
+  "characterName": "Achios",
+  "provider": "AtlasCloud",
+  "model": "xai/grok-imagine-image/edit",
+  "adapter": "atlas upload/generate/poll",
+  "sourceSha256": "fbb2d2b1f82b4ff2d4aa49193f9691e00c324cbc8dd5a352bf497a72f52cd2b8",
+  "portraitSha256": "9ea8e59d45edd6f0a8d13fcfecd0c72527038191a5af23d1999397c84c98c0ef",
+  "portraitWidth": 912,
+  "portraitHeight": 1136,
+  "physicalConfidence": {
+    "definition": "physical_confidence",
+    "score": 54,
+    "profile": "41-60",
+    "flirtatiousnessPercentage": 56,
+    "confidencePercentage": 47,
+    "flirtatiousnessWeight": 0.75,
+    "confidenceWeight": 0.25,
+    "source": "shipped_profile_library"
+  },
+  "derivativesReady": true,
+  "derivativeError": "",
+  "generatedUtc": "2026-07-17T17:36:41.6005235Z"
+}

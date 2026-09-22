@@ -1,0 +1,13 @@
+{
+  "version": 1,
+  "heroStringId": "reign_court_town_K2_child_4",
+  "characterName": "Arua Chaganetai",
+  "imagePath": "portrait.png",
+  "imageSha256": "B44EAD024E1026F953429B0FDD9F0E88871C34A3A8B954C7D6A30BA1C2F2EEC4",
+  "description": "Culturally appropriate everyday Khuzait minor-lord attire inspired by refined medieval Turkic and Mongol steppe noble clothing. Men should wear a tailored crossed-front coat or deel with refined woven trim, a decorated sash, layered sleeves, and high-quality trousers. Women should wear an elegant long robe or fitted steppe coat over a fine underdress, with carefully worked edging and decorative textile details. Include restrained cloud, knot, or geometric patterns and a limited amount of practical fur trim. The clothing should remain mobile and functional while clearly showing noble status. No headgear of any kind. No fur hats, caps, hoods, armor, weapons, crowns, or ceremonial costume.",
+  "status": "failed",
+  "descriptionSource": "portrait_prompt_fallback",
+  "retryEligible": true,
+  "error": "{\"error\":{\"message\":\"Model \\\"zai-org/glm-5.2\\\" does not support image inputs. Remove image content or choose a multimodal model.\",\"type\":\"invalid_request_error\",\"param\":\"messages\",\"code\":\"image_input_not_supported\"}}",
+  "updatedUtc": "2026-07-18T22:03:24.8661195Z"
+}

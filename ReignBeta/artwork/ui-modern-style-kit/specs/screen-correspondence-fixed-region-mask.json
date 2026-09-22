@@ -1,0 +1,45 @@
+{
+  "schema": "reign-fixed-region-composite-v1",
+  "assetId": "correspondence-modern-shell-exact-fixed-source",
+  "approvedReference": {
+    "path": "../approved-references/correspondence.png",
+    "sha256": "7fa74e25cdf023d352da036afffa58a17d9e21053da8681559ecd54eb81850df"
+  },
+  "imageToImageFill": {
+    "path": "../generated-sources/screen-shells/correspondence-modern-shell-source.png",
+    "sha256": "e1e573e4954803974b0eea59cd225e311c6020421ea935f128ea2b7e4560438e",
+    "normalization": "exact 1672x941"
+  },
+  "canvas": {
+    "width": 1672,
+    "height": 941
+  },
+  "policy": "Every pixel outside the declared runtime-content masks is copied byte-for-byte from the approved reference. Circular portrait masks contain only changeable portrait pixels; the surrounding antique-gold frames remain fixed.",
+  "rectangularFillMode": {
+    "type": "median-border color-matched image-to-image patch",
+    "inwardFeatherPixels": 3,
+    "borderSamplePixels": 4
+  },
+  "sceneDependentMasks": [
+    {"id": "selected-contact-row-state", "shape": "rectangle", "x": 77, "y": 190, "width": 390, "height": 114, "fillSourceX": 600, "fillSourceY": 500, "colorMatch": false},
+
+    {"id": "contact-2-portrait", "shape": "ellipse", "x": 98, "y": 309, "width": 80, "height": 81},
+    {"id": "contact-2-text", "shape": "rectangle", "x": 194, "y": 308, "width": 268, "height": 83},
+    {"id": "contact-3-portrait", "shape": "ellipse", "x": 98, "y": 393, "width": 80, "height": 81},
+    {"id": "contact-3-text", "shape": "rectangle", "x": 194, "y": 392, "width": 268, "height": 83},
+    {"id": "contact-4-portrait", "shape": "ellipse", "x": 98, "y": 477, "width": 80, "height": 81},
+    {"id": "contact-4-text", "shape": "rectangle", "x": 194, "y": 476, "width": 268, "height": 83},
+    {"id": "contact-5-portrait", "shape": "ellipse", "x": 98, "y": 561, "width": 80, "height": 81},
+    {"id": "contact-5-text", "shape": "rectangle", "x": 194, "y": 560, "width": 268, "height": 83},
+    {"id": "contact-6-portrait", "shape": "ellipse", "x": 98, "y": 645, "width": 80, "height": 81},
+    {"id": "contact-6-text", "shape": "rectangle", "x": 194, "y": 644, "width": 268, "height": 83},
+    {"id": "contact-7-portrait", "shape": "ellipse", "x": 98, "y": 729, "width": 80, "height": 81},
+    {"id": "contact-7-text", "shape": "rectangle", "x": 194, "y": 728, "width": 268, "height": 83},
+
+    {"id": "selected-contact-name", "shape": "rectangle", "x": 699, "y": 151, "width": 752, "height": 44},
+    {"id": "selected-contact-subtitle", "shape": "rectangle", "x": 699, "y": 190, "width": 752, "height": 36},
+    {"id": "letter-list-runtime-content", "shape": "rectangle", "x": 573, "y": 235, "width": 988, "height": 375},
+    {"id": "busy-status-text", "shape": "rectangle", "x": 650, "y": 644, "width": 850, "height": 22},
+    {"id": "message-input-text", "shape": "rectangle", "x": 573, "y": 700, "width": 778, "height": 134}
+  ]
+}

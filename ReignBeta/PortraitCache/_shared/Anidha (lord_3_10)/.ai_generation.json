@@ -1,0 +1,27 @@
+{
+  "version": 1,
+  "cacheKey": "Anidha (lord_3_10)",
+  "heroStringId": "lord_3_10",
+  "characterObjectId": "lord_3_10",
+  "characterName": "Anidha",
+  "provider": "AtlasCloud",
+  "model": "xai/grok-imagine-image/edit",
+  "adapter": "atlas upload/generate/poll",
+  "sourceSha256": "f6e54ed7039054b2fc4c14b1d6856b8615bc79c32e92be031a422f99788be7d7",
+  "portraitSha256": "708fa805e6b2423846b25e2ae727bdc667ca4374cd9c4cb72b17aa8d3001232e",
+  "portraitWidth": 912,
+  "portraitHeight": 1136,
+  "physicalConfidence": {
+    "definition": "physical_confidence",
+    "score": 62,
+    "profile": "61-80",
+    "flirtatiousnessPercentage": 71,
+    "confidencePercentage": 34,
+    "flirtatiousnessWeight": 0.75,
+    "confidenceWeight": 0.25,
+    "source": "shipped_profile_library"
+  },
+  "derivativesReady": true,
+  "derivativeError": "",
+  "generatedUtc": "2026-07-17T18:12:42.5792765Z"
+}

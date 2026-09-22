@@ -1,0 +1,27 @@
+{
+  "version": 1,
+  "cacheKey": "Marvenion_Istranarides (reign_court_castle_EN5_child_3)",
+  "heroStringId": "reign_court_castle_EN5_child_3",
+  "characterObjectId": "reign_court_castle_EN5_child_3",
+  "characterName": "Marvenion Istranarides",
+  "provider": "AtlasCloud",
+  "model": "xai/grok-imagine-image/edit",
+  "adapter": "atlas upload/generate/poll",
+  "sourceSha256": "75ba3d43eafb8144e4a5687d0aaad3bb6719ecd1fe17a1f411564d953eec912b",
+  "portraitSha256": "fd7fcfe93e319cf45354956f4c13790da502ed446b9b6a0d472225b0a25273b0",
+  "portraitWidth": 864,
+  "portraitHeight": 1152,
+  "physicalConfidence": {
+    "definition": "physical_confidence",
+    "score": 60,
+    "profile": "41-60",
+    "flirtatiousnessPercentage": 62,
+    "confidencePercentage": 53,
+    "flirtatiousnessWeight": 0.75,
+    "confidenceWeight": 0.25,
+    "source": "shipped_profile_library"
+  },
+  "derivativesReady": true,
+  "derivativeError": "",
+  "generatedUtc": "2026-07-17T19:00:48.1548670Z"
+}

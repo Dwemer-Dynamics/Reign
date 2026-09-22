@@ -1,0 +1,27 @@
+{
+  "version": 1,
+  "cacheKey": "Calatild (lord_4_6)",
+  "heroStringId": "lord_4_6",
+  "characterObjectId": "lord_4_6",
+  "characterName": "Calatild",
+  "provider": "AtlasCloud",
+  "model": "xai/grok-imagine-image/edit",
+  "adapter": "atlas upload/generate/poll",
+  "sourceSha256": "bde7cbd239916fca854f6411b216d93e0739f90cd1f5c5cb7c2562bfb786e4e5",
+  "portraitSha256": "572790f606bf6cf2dc0b641c5bf392eb7ac9c672935b259816f2904329bdec64",
+  "portraitWidth": 912,
+  "portraitHeight": 1136,
+  "physicalConfidence": {
+    "definition": "physical_confidence",
+    "score": 56,
+    "profile": "41-60",
+    "flirtatiousnessPercentage": 59,
+    "confidencePercentage": 46,
+    "flirtatiousnessWeight": 0.75,
+    "confidenceWeight": 0.25,
+    "source": "shipped_profile_library"
+  },
+  "derivativesReady": true,
+  "derivativeError": "",
+  "generatedUtc": "2026-07-17T18:20:40.6448981Z"
+}

@@ -1,0 +1,27 @@
+{
+  "version": 1,
+  "cacheKey": "Vlandian_Sea_Captain (Vlandian_sea_captain)",
+  "heroStringId": "Vlandian_sea_captain",
+  "characterObjectId": "Vlandian_sea_captain",
+  "characterName": "Vlandian Sea Captain",
+  "provider": "AtlasCloud",
+  "model": "xai/grok-imagine-image/edit",
+  "adapter": "atlas upload/generate/poll",
+  "sourceSha256": "1eb161072b0c4c2c4ab736059843414c8461860ef95fc4d155ef623cca9b582b",
+  "portraitSha256": "8772d83f9cce19c9c18dd6fdcb3af0abe9d4d4012eeb05df565a859ca914ea07",
+  "portraitWidth": 864,
+  "portraitHeight": 1152,
+  "physicalConfidence": {
+    "definition": "physical_confidence",
+    "score": 50,
+    "profile": "41-60",
+    "flirtatiousnessPercentage": 50,
+    "confidencePercentage": 50,
+    "flirtatiousnessWeight": 0.75,
+    "confidenceWeight": 0.25,
+    "source": "neutral_fallback"
+  },
+  "derivativesReady": true,
+  "derivativeError": "",
+  "generatedUtc": "2026-07-17T19:21:28.2432917Z"
+}

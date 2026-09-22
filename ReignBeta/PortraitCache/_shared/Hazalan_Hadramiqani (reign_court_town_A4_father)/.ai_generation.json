@@ -1,0 +1,27 @@
+{
+  "version": 1,
+  "cacheKey": "Hazalan_Hadramiqani (reign_court_town_A4_father)",
+  "heroStringId": "reign_court_town_A4_father",
+  "characterObjectId": "reign_court_town_A4_father",
+  "characterName": "Hazalan Hadramiqani",
+  "provider": "AtlasCloud",
+  "model": "xai/grok-imagine-image/edit",
+  "adapter": "atlas upload/generate/poll",
+  "sourceSha256": "ae5f1b1101d46e3f0e835ec802f9a661333b002d25585bf5a41f09edfbbd7f9a",
+  "portraitSha256": "2636b2d824d57ff7208bb8111bd21c704fd6e70439c1c8ccbda4092f6bd03401",
+  "portraitWidth": 864,
+  "portraitHeight": 1152,
+  "physicalConfidence": {
+    "definition": "physical_confidence",
+    "score": 34,
+    "profile": "21-40",
+    "flirtatiousnessPercentage": 23,
+    "confidencePercentage": 66,
+    "flirtatiousnessWeight": 0.75,
+    "confidenceWeight": 0.25,
+    "source": "shipped_profile_library"
+  },
+  "derivativesReady": true,
+  "derivativeError": "",
+  "generatedUtc": "2026-07-17T18:42:34.6790555Z"
+}

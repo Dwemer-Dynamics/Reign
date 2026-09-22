@@ -1,0 +1,2261 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<SpriteData>
+  <SpriteCategories>
+    <SpriteCategory>
+      <Name>ui_reignbeta_main_menu</Name>
+      <AlwaysLoad />
+      <SpriteSheetCount>1</SpriteSheetCount>
+      <SpriteSheetSize ID="1" Width="1024" Height="1024" />
+    </SpriteCategory>
+    <SpriteCategory>
+      <Name>ui_reignbeta_individual</Name>
+      <AlwaysLoad />
+      <SpriteSheetCount>3</SpriteSheetCount>
+      <SpriteSheetSize ID="1" Width="4096" Height="4096" />
+      <SpriteSheetSize ID="2" Width="2048" Height="1024" />
+      <SpriteSheetSize ID="3" Width="2048" Height="1024" />
+    </SpriteCategory>
+    <SpriteCategory>
+      <Name>ui_reignbeta_party</Name>
+      <AlwaysLoad />
+      <SpriteSheetCount>1</SpriteSheetCount>
+      <SpriteSheetSize ID="1" Width="2048" Height="1024" />
+    </SpriteCategory>
+    <SpriteCategory>
+      <Name>ui_reignbeta_party_chat</Name>
+      <AlwaysLoad />
+      <SpriteSheetCount>9</SpriteSheetCount>
+      <SpriteSheetSize ID="1" Width="4096" Height="4096" />
+      <SpriteSheetSize ID="2" Width="2048" Height="1024" />
+      <SpriteSheetSize ID="3" Width="2048" Height="1024" />
+      <SpriteSheetSize ID="4" Width="2048" Height="1024" />
+      <SpriteSheetSize ID="5" Width="2048" Height="1024" />
+      <SpriteSheetSize ID="6" Width="2048" Height="1024" />
+      <SpriteSheetSize ID="7" Width="2048" Height="1024" />
+      <SpriteSheetSize ID="8" Width="2048" Height="1024" />
+      <SpriteSheetSize ID="9" Width="2048" Height="1024" />
+    </SpriteCategory>
+    <SpriteCategory>
+      <Name>ui_reignbeta_court</Name>
+      <AlwaysLoad />
+      <SpriteSheetCount>6</SpriteSheetCount>
+      <SpriteSheetSize ID="1" Width="4096" Height="4096" />
+      <SpriteSheetSize ID="2" Width="4096" Height="2048" />
+      <SpriteSheetSize ID="3" Width="2048" Height="1024" />
+      <SpriteSheetSize ID="4" Width="2048" Height="2048" />
+      <SpriteSheetSize ID="5" Width="2048" Height="1024" />
+      <SpriteSheetSize ID="6" Width="2048" Height="1024" />
+    </SpriteCategory>
+    <SpriteCategory>
+      <Name>ui_reignbeta_castle_layout</Name>
+      <AlwaysLoad />
+      <SpriteSheetCount>1</SpriteSheetCount>
+      <SpriteSheetSize ID="1" Width="2048" Height="2048" />
+    </SpriteCategory>
+    <SpriteCategory>
+      <Name>ui_reignbeta_family_chambers</Name>
+      <AlwaysLoad />
+      <SpriteSheetCount>1</SpriteSheetCount>
+      <SpriteSheetSize ID="1" Width="2048" Height="1024" />
+    </SpriteCategory>
+    <SpriteCategory>
+      <Name>ui_reignbeta_training_yard</Name>
+      <AlwaysLoad />
+      <SpriteSheetCount>1</SpriteSheetCount>
+      <SpriteSheetSize ID="1" Width="2048" Height="1024" />
+    </SpriteCategory>
+    <SpriteCategory>
+      <Name>ui_reignbeta_social_event</Name>
+      <AlwaysLoad />
+      <SpriteSheetCount>4</SpriteSheetCount>
+      <SpriteSheetSize ID="1" Width="4096" Height="1024" />
+      <SpriteSheetSize ID="2" Width="2048" Height="1024" />
+      <SpriteSheetSize ID="3" Width="2048" Height="1024" />
+      <SpriteSheetSize ID="4" Width="1024" Height="1024" />
+    </SpriteCategory>
+    <SpriteCategory>
+      <Name>ui_reignbeta_correspondence</Name>
+      <AlwaysLoad />
+      <SpriteSheetCount>3</SpriteSheetCount>
+      <SpriteSheetSize ID="1" Width="4096" Height="2048" />
+      <SpriteSheetSize ID="2" Width="2048" Height="1024" />
+      <SpriteSheetSize ID="3" Width="1024" Height="1024" />
+    </SpriteCategory>
+    <SpriteCategory>
+      <Name>ui_reignbeta_diplomacy</Name>
+      <AlwaysLoad />
+      <SpriteSheetCount>3</SpriteSheetCount>
+      <SpriteSheetSize ID="1" Width="4096" Height="1024" />
+      <SpriteSheetSize ID="2" Width="2048" Height="1024" />
+      <SpriteSheetSize ID="3" Width="1024" Height="1024" />
+    </SpriteCategory>
+    <SpriteCategory>
+      <Name>ui_reignbeta_generation</Name>
+      <AlwaysLoad />
+      <SpriteSheetCount>1</SpriteSheetCount>
+      <SpriteSheetSize ID="1" Width="2048" Height="1024" />
+    </SpriteCategory>
+    <SpriteCategory>
+      <Name>ui_reignbeta_economic_report</Name>
+      <AlwaysLoad />
+      <SpriteSheetCount>2</SpriteSheetCount>
+      <SpriteSheetSize ID="1" Width="2048" Height="1024" />
+      <SpriteSheetSize ID="2" Width="2048" Height="1024" />
+    </SpriteCategory>
+    <SpriteCategory>
+      <Name>ui_reignbeta_war_council</Name>
+      <AlwaysLoad />
+      <SpriteSheetCount>2</SpriteSheetCount>
+      <SpriteSheetSize ID="1" Width="2048" Height="1024" />
+      <SpriteSheetSize ID="2" Width="1024" Height="1024" />
+    </SpriteCategory>
+    <SpriteCategory>
+      <Name>ui_reignbeta_ambassador</Name>
+      <AlwaysLoad />
+      <SpriteSheetCount>4</SpriteSheetCount>
+      <SpriteSheetSize ID="1" Width="4096" Height="2048" />
+      <SpriteSheetSize ID="2" Width="2048" Height="1024" />
+      <SpriteSheetSize ID="3" Width="1024" Height="1024" />
+      <SpriteSheetSize ID="4" Width="2048" Height="1024" />
+    </SpriteCategory>
+    <SpriteCategory>
+      <Name>ui_reignbeta_spymaster</Name>
+      <AlwaysLoad />
+      <SpriteSheetCount>1</SpriteSheetCount>
+      <SpriteSheetSize ID="1" Width="4096" Height="1024" />
+    </SpriteCategory>
+    <SpriteCategory>
+      <Name>ui_reignbeta_calibration</Name>
+      <AlwaysLoad />
+      <SpriteSheetCount>1</SpriteSheetCount>
+      <SpriteSheetSize ID="1" Width="1024" Height="1024" />
+    </SpriteCategory>
+    <SpriteCategory>
+      <Name>ui_reignbeta_royal_council</Name>
+      <AlwaysLoad />
+      <SpriteSheetCount>1</SpriteSheetCount>
+      <SpriteSheetSize ID="1" Width="2048" Height="2048" />
+    </SpriteCategory>
+    <SpriteCategory>
+      <Name>ui_reignbeta_memories</Name>
+      <AlwaysLoad />
+      <SpriteSheetCount>1</SpriteSheetCount>
+      <SpriteSheetSize ID="1" Width="2048" Height="1024" />
+    </SpriteCategory>
+    <SpriteCategory><Name>ui_reignbeta_government</Name><AlwaysLoad /><SpriteSheetCount>1</SpriteSheetCount><SpriteSheetSize ID="1" Width="2048" Height="2048" /></SpriteCategory>
+    <SpriteCategory>
+      <Name>ui_reignbeta_shared</Name>
+      <AlwaysLoad />
+      <SpriteSheetCount>2</SpriteSheetCount>
+      <SpriteSheetSize ID="1" Width="2048" Height="2048" />
+      <SpriteSheetSize ID="2" Width="2048" Height="1024" />
+    </SpriteCategory>
+    <SpriteCategory>
+      <Name>ui_reignbeta_fonts</Name>
+      <AlwaysLoad />
+      <SpriteSheetCount>1</SpriteSheetCount>
+      <SpriteSheetSize ID="1" Width="4096" Height="4096" />
+    </SpriteCategory>
+    <SpriteCategory>
+      <Name>ui_reignbeta_action_fonts</Name>
+      <AlwaysLoad />
+      <SpriteSheetCount>1</SpriteSheetCount>
+      <SpriteSheetSize ID="1" Width="2048" Height="2048" />
+    </SpriteCategory>
+  <SpriteCategory><Name>ui_reignbeta_clan_accords</Name><AlwaysLoad /><SpriteSheetCount>1</SpriteSheetCount><SpriteSheetSize ID="1" Width="2048" Height="2048" /></SpriteCategory>
+    <SpriteCategory><Name>ui_reignbeta_tavern_house</Name><AlwaysLoad /><SpriteSheetCount>1</SpriteSheetCount><SpriteSheetSize ID="1" Width="2048" Height="2048" /></SpriteCategory>
+  </SpriteCategories>
+  <SpriteParts>
+    <SpritePart><SheetID>1</SheetID><Name>reign_tavern_house_shell</Name><Width>1672</Width><Height>941</Height><SheetX>4</SheetX><SheetY>4</SheetY><CategoryName>ui_reignbeta_tavern_house</CategoryName></SpritePart>
+    <SpritePart><SheetID>1</SheetID><Name>reign_tavern_house_worker_card</Name><Width>220</Width><Height>218</Height><SheetX>1684</SheetX><SheetY>4</SheetY><CategoryName>ui_reignbeta_tavern_house</CategoryName></SpritePart>
+    <SpritePart><SheetID>1</SheetID><Name>reign_tavern_house_madam_card</Name><Width>260</Width><Height>240</Height><SheetX>4</SheetX><SheetY>957</SheetY><CategoryName>ui_reignbeta_tavern_house</CategoryName></SpritePart>
+    <SpritePart><SheetID>1</SheetID><Name>reign_tavern_house_eye</Name><Width>44</Width><Height>24</Height><SheetX>276</SheetX><SheetY>957</SheetY><CategoryName>ui_reignbeta_tavern_house</CategoryName></SpritePart>
+    <SpritePart><SheetID>1</SheetID><Name>reign_tavern_house_agreement</Name><Width>838</Width><Height>338</Height><SheetX>332</SheetX><SheetY>957</SheetY><CategoryName>ui_reignbeta_tavern_house</CategoryName></SpritePart>
+    <SpritePart>
+      <SheetID>9</SheetID>
+      <Name>reign_homes_lane</Name>
+      <Width>1774</Width>
+      <Height>887</Height>
+      <SheetX>4</SheetX>
+      <SheetY>4</SheetY>
+      <CategoryName>ui_reignbeta_party_chat</CategoryName>
+    </SpritePart>
+    <SpritePart>
+      <SheetID>1</SheetID>
+      <Name>reign_main_menu_logo</Name>
+      <Width>980</Width>
+      <Height>601</Height>
+      <SheetX>4</SheetX>
+      <SheetY>4</SheetY>
+      <CategoryName>ui_reignbeta_main_menu</CategoryName>
+    </SpritePart>
+    <SpritePart>
+      <SheetID>1</SheetID>
+      <Name>reign_castle_layout_background</Name>
+      <Width>1672</Width>
+      <Height>941</Height>
+      <SheetX>4</SheetX>
+      <SheetY>4</SheetY>
+      <CategoryName>ui_reignbeta_castle_layout</CategoryName>
+    </SpritePart>
+    <SpritePart>
+      <SheetID>1</SheetID>
+      <Name>reign_economic_report_background</Name>
+      <Width>1678</Width>
+      <Height>937</Height>
+      <SheetX>4</SheetX>
+      <SheetY>4</SheetY>
+      <CategoryName>ui_reignbeta_economic_report</CategoryName>
+    </SpritePart>
+    <SpritePart>
+      <SheetID>1</SheetID>
+      <Name>reign_royal_council_modern_shell</Name>
+      <Width>1672</Width>
+      <Height>941</Height>
+      <SheetX>4</SheetX>
+      <SheetY>949</SheetY>
+      <CategoryName>ui_reignbeta_royal_council</CategoryName>
+    </SpritePart>
+    <SpritePart>
+      <SheetID>1</SheetID>
+      <Name>reign_royal_council_war_portrait_mask</Name>
+      <Width>258</Width>
+      <Height>320</Height>
+      <SheetX>1680</SheetX>
+      <SheetY>4</SheetY>
+      <CategoryName>ui_reignbeta_royal_council</CategoryName>
+    </SpritePart>
+    <SpritePart>
+      <SheetID>1</SheetID>
+      <Name>reign_royal_council_spymaster_portrait_mask</Name>
+      <Width>257</Width>
+      <Height>307</Height>
+      <SheetX>1680</SheetX>
+      <SheetY>328</SheetY>
+      <CategoryName>ui_reignbeta_royal_council</CategoryName>
+    </SpritePart>
+    <SpritePart>
+      <SheetID>1</SheetID>
+      <Name>reign_royal_council_economic_portrait_mask</Name>
+      <Width>256</Width>
+      <Height>318</Height>
+      <SheetX>1680</SheetX>
+      <SheetY>639</SheetY>
+      <CategoryName>ui_reignbeta_royal_council</CategoryName>
+    </SpritePart>
+    <SpritePart>
+      <SheetID>1</SheetID>
+      <Name>reign_royal_council_foreign_portrait_mask</Name>
+      <Width>255</Width>
+      <Height>305</Height>
+      <SheetX>1680</SheetX>
+      <SheetY>961</SheetY>
+      <CategoryName>ui_reignbeta_royal_council</CategoryName>
+    </SpritePart>
+    <SpritePart>
+      <SheetID>1</SheetID>
+      <Name>reign_ambassador_hall</Name>
+      <Width>1672</Width>
+      <Height>941</Height>
+      <SheetX>4</SheetX>
+      <SheetY>4</SheetY>
+      <CategoryName>ui_reignbeta_ambassador</CategoryName>
+    </SpritePart>
+    <SpritePart>
+      <SheetID>1</SheetID>
+      <Name>reign_spymaster_background</Name>
+      <Width>1672</Width>
+      <Height>941</Height>
+      <SheetX>4</SheetX>
+      <SheetY>4</SheetY>
+      <CategoryName>ui_reignbeta_spymaster</CategoryName>
+    </SpritePart>
+    <SpritePart>
+      <SheetID>1</SheetID>
+      <Name>reign_spymaster_portrait_frame_overlay</Name>
+      <Width>529</Width>
+      <Height>940</Height>
+      <SheetX>1684</SheetX>
+      <SheetY>4</SheetY>
+      <CategoryName>ui_reignbeta_spymaster</CategoryName>
+    </SpritePart>
+    <SpritePart>
+      <SheetID>1</SheetID>
+      <Name>reign_ambassador_card_overlay</Name>
+      <Width>775</Width>
+      <Height>2029</Height>
+      <SheetX>1684</SheetX>
+      <SheetY>4</SheetY>
+      <CategoryName>ui_reignbeta_ambassador</CategoryName>
+    </SpritePart>
+    <SpritePart>
+      <SheetID>1</SheetID>
+      <Name>reign_ambassador_banner_overlay</Name>
+      <Width>681</Width>
+      <Height>1088</Height>
+      <SheetX>2467</SheetX>
+      <SheetY>4</SheetY>
+      <CategoryName>ui_reignbeta_ambassador</CategoryName>
+    </SpritePart>
+    <SpritePart>
+      <SheetID>2</SheetID>
+      <Name>reign_ambassador_modern_shell</Name>
+      <Width>1672</Width>
+      <Height>941</Height>
+      <SheetX>4</SheetX>
+      <SheetY>4</SheetY>
+      <CategoryName>ui_reignbeta_ambassador</CategoryName>
+    </SpritePart>
+    <SpritePart>
+      <SheetID>2</SheetID>
+      <Name>reign_ambassador_modern_card_overlay</Name>
+      <Width>280</Width>
+      <Height>626</Height>
+      <SheetX>1680</SheetX>
+      <SheetY>4</SheetY>
+      <CategoryName>ui_reignbeta_ambassador</CategoryName>
+    </SpritePart>
+    <SpritePart>
+      <SheetID>3</SheetID>
+      <Name>reign_ambassador_modern_advisor_card_overlay</Name>
+      <Width>294</Width>
+      <Height>620</Height>
+      <SheetX>4</SheetX>
+      <SheetY>4</SheetY>
+      <CategoryName>ui_reignbeta_ambassador</CategoryName>
+    </SpritePart>
+    <SpritePart>
+      <SheetID>3</SheetID>
+      <Name>reign_ambassador_modern_envoy_card_overlay</Name>
+      <Width>295</Width>
+      <Height>620</Height>
+      <SheetX>306</SheetX>
+      <SheetY>4</SheetY>
+      <CategoryName>ui_reignbeta_ambassador</CategoryName>
+    </SpritePart>
+    <SpritePart>
+      <SheetID>3</SheetID>
+      <Name>reign_ambassador_modern_scroll_handle</Name>
+      <Width>260</Width>
+      <Height>15</Height>
+      <SheetX>609</SheetX>
+      <SheetY>4</SheetY>
+      <CategoryName>ui_reignbeta_ambassador</CategoryName>
+    </SpritePart>
+    <SpritePart>
+      <SheetID>4</SheetID>
+      <Name>reign_ambassador_modern_fixed_overlay</Name>
+      <Width>1672</Width>
+      <Height>941</Height>
+      <SheetX>4</SheetX>
+      <SheetY>4</SheetY>
+      <CategoryName>ui_reignbeta_ambassador</CategoryName>
+    </SpritePart>
+    <SpritePart>
+      <SheetID>1</SheetID>
+      <Name>reign_spymaster_modern_shell</Name>
+      <Width>1672</Width>
+      <Height>941</Height>
+      <SheetX>2221</SheetX>
+      <SheetY>4</SheetY>
+      <CategoryName>ui_reignbeta_spymaster</CategoryName>
+    </SpritePart>
+    <SpritePart>
+      <SheetID>1</SheetID>
+      <Name>reign_spymaster_selector_plate</Name>
+      <Width>190</Width>
+      <Height>60</Height>
+      <SheetX>3900</SheetX>
+      <SheetY>4</SheetY>
+      <CategoryName>ui_reignbeta_spymaster</CategoryName>
+    </SpritePart>
+    <SpritePart>
+      <SheetID>1</SheetID>
+      <Name>reign_spymaster_scope_clear_patch</Name>
+      <Width>340</Width>
+      <Height>50</Height>
+      <SheetX>4</SheetX>
+      <SheetY>950</SheetY>
+      <CategoryName>ui_reignbeta_spymaster</CategoryName>
+    </SpritePart>
+    <SpritePart>
+      <SheetID>1</SheetID>
+      <Name>reign_calibration_modern_panel</Name>
+      <Width>440</Width>
+      <Height>637</Height>
+      <SheetX>4</SheetX>
+      <SheetY>4</SheetY>
+      <CategoryName>ui_reignbeta_calibration</CategoryName>
+    </SpritePart>
+    <SpritePart>
+      <SheetID>1</SheetID>
+      <Name>reign_calibration_modern_launcher</Name>
+      <Width>286</Width>
+      <Height>50</Height>
+      <SheetX>452</SheetX>
+      <SheetY>4</SheetY>
+      <CategoryName>ui_reignbeta_calibration</CategoryName>
+    </SpritePart>
+    <SpritePart>
+      <SheetID>1</SheetID>
+      <Name>reign_notable_generation_popup</Name>
+      <Width>1672</Width>
+      <Height>941</Height>
+      <SheetX>4</SheetX>
+      <SheetY>4</SheetY>
+      <CategoryName>ui_reignbeta_generation</CategoryName>
+    </SpritePart>
+    <SpritePart>
+      <SheetID>1</SheetID>
+      <Name>reign_individual_chat_background</Name>
+      <Width>1602</Width>
+      <Height>982</Height>
+      <SheetX>4</SheetX>
+      <SheetY>4</SheetY>
+      <CategoryName>ui_reignbeta_individual</CategoryName>
+    </SpritePart>
+    <SpritePart>
+      <SheetID>1</SheetID>
+      <Name>reign_individual_chat_portrait_frame</Name>
+      <Width>520</Width>
+      <Height>798</Height>
+      <SheetX>4</SheetX>
+      <SheetY>994</SheetY>
+      <CategoryName>ui_reignbeta_individual</CategoryName>
+    </SpritePart>
+    <SpritePart>
+      <SheetID>1</SheetID>
+      <Name>reign_individual_chat_log_panel</Name>
+      <Width>1434</Width>
+      <Height>258</Height>
+      <SheetX>532</SheetX>
+      <SheetY>994</SheetY>
+      <CategoryName>ui_reignbeta_individual</CategoryName>
+    </SpritePart>
+    <SpritePart>
+      <SheetID>1</SheetID>
+      <Name>reign_pregnancy_warning</Name>
+      <Width>1448</Width>
+      <Height>1086</Height>
+      <SheetX>1974</SheetX>
+      <SheetY>994</SheetY>
+      <CategoryName>ui_reignbeta_individual</CategoryName>
+    </SpritePart>
+    <SpritePart>
+      <SheetID>2</SheetID>
+      <Name>reign_individual_chat_modern_shell</Name>
+      <Width>1672</Width>
+      <Height>941</Height>
+      <SheetX>4</SheetX>
+      <SheetY>4</SheetY>
+      <CategoryName>ui_reignbeta_individual</CategoryName>
+    </SpritePart>
+    <SpritePart>
+      <SheetID>1</SheetID>
+      <Name>reign_party_chat_background</Name>
+      <Width>1660</Width>
+      <Height>947</Height>
+      <SheetX>4</SheetX>
+      <SheetY>4</SheetY>
+      <CategoryName>ui_reignbeta_party</CategoryName>
+    </SpritePart>
+    <SpritePart>
+      <SheetID>1</SheetID>
+      <Name>reign_party_chat_shell</Name>
+      <Width>1660</Width>
+      <Height>947</Height>
+      <SheetX>1056</SheetX>
+      <SheetY>8</SheetY>
+      <CategoryName>ui_reignbeta_party_chat</CategoryName>
+    </SpritePart>
+    <SpritePart>
+      <SheetID>5</SheetID>
+        <Name>reign_party_chat_member_card_overlay</Name>
+        <Width>286</Width>
+        <Height>154</Height>
+        <SheetX>1680</SheetX>
+        <SheetY>4</SheetY>
+        <CategoryName>ui_reignbeta_party_chat</CategoryName>
+      </SpritePart>
+      <SpritePart>
+        <SheetID>5</SheetID>
+        <Name>reign_party_chat_modern_shell</Name>
+      <Width>1672</Width>
+      <Height>941</Height>
+      <SheetX>4</SheetX>
+      <SheetY>4</SheetY>
+      <CategoryName>ui_reignbeta_party_chat</CategoryName>
+    </SpritePart>
+    <SpritePart>
+      <SheetID>6</SheetID>
+      <Name>reign_castle_chat_modern_shell</Name>
+      <Width>1672</Width>
+      <Height>941</Height>
+      <SheetX>4</SheetX>
+      <SheetY>4</SheetY>
+      <CategoryName>ui_reignbeta_party_chat</CategoryName>
+    </SpritePart>
+    <SpritePart>
+      <SheetID>1</SheetID>
+      <Name>reign_party_chat_header</Name>
+      <Width>1800</Width>
+      <Height>124</Height>
+      <SheetX>8</SheetX>
+      <SheetY>2515</SheetY>
+      <CategoryName>ui_reignbeta_party_chat</CategoryName>
+    </SpritePart>
+    <SpritePart>
+      <SheetID>1</SheetID>
+      <Name>reign_party_chat_roster</Name>
+      <Width>1800</Width>
+      <Height>233</Height>
+      <SheetX>1496</SheetX>
+      <SheetY>2059</SheetY>
+      <CategoryName>ui_reignbeta_party_chat</CategoryName>
+    </SpritePart>
+    <SpritePart>
+      <SheetID>1</SheetID>
+      <Name>reign_party_chat_card_normal</Name>
+      <Width>540</Width>
+      <Height>408</Height>
+      <SheetX>1816</SheetX>
+      <SheetY>1266</SheetY>
+      <CategoryName>ui_reignbeta_party_chat</CategoryName>
+    </SpritePart>
+    <SpritePart>
+      <SheetID>1</SheetID>
+      <Name>reign_party_chat_card_active</Name>
+      <Width>540</Width>
+      <Height>408</Height>
+      <SheetX>2912</SheetX>
+      <SheetY>1266</SheetY>
+      <CategoryName>ui_reignbeta_party_chat</CategoryName>
+    </SpritePart>
+    <SpritePart>
+      <SheetID>1</SheetID>
+      <Name>reign_party_chat_card_hover</Name>
+      <Width>540</Width>
+      <Height>408</Height>
+      <SheetX>2364</SheetX>
+      <SheetY>1266</SheetY>
+      <CategoryName>ui_reignbeta_party_chat</CategoryName>
+    </SpritePart>
+    <SpritePart>
+      <SheetID>1</SheetID>
+      <Name>reign_party_chat_button_normal</Name>
+      <Width>480</Width>
+      <Height>108</Height>
+      <SheetX>2792</SheetX>
+      <SheetY>2515</SheetY>
+      <CategoryName>ui_reignbeta_party_chat</CategoryName>
+    </SpritePart>
+    <SpritePart>
+      <SheetID>1</SheetID>
+      <Name>reign_party_chat_button_hover</Name>
+      <Width>480</Width>
+      <Height>108</Height>
+      <SheetX>3280</SheetX>
+      <SheetY>2515</SheetY>
+      <CategoryName>ui_reignbeta_party_chat</CategoryName>
+    </SpritePart>
+    <SpritePart>
+      <SheetID>1</SheetID>
+      <Name>reign_party_chat_log</Name>
+      <Width>1800</Width>
+      <Height>522</Height>
+      <SheetX>8</SheetX>
+      <SheetY>1266</SheetY>
+      <CategoryName>ui_reignbeta_party_chat</CategoryName>
+    </SpritePart>
+    <SpritePart>
+      <SheetID>1</SheetID>
+      <Name>reign_party_chat_roster_scroll_track</Name>
+      <Width>1000</Width>
+      <Height>24</Height>
+      <SheetX>2984</SheetX>
+      <SheetY>1796</SheetY>
+      <CategoryName>ui_reignbeta_party_chat</CategoryName>
+    </SpritePart>
+    <SpritePart>
+      <SheetID>1</SheetID>
+      <Name>reign_party_chat_roster_scroll_handle</Name>
+      <Width>300</Width>
+      <Height>28</Height>
+      <SheetX>3768</SheetX>
+      <SheetY>2515</SheetY>
+      <CategoryName>ui_reignbeta_party_chat</CategoryName>
+    </SpritePart>
+    <SpritePart>
+      <SheetID>1</SheetID>
+      <Name>reign_party_chat_portrait_preview</Name>
+      <Width>1040</Width>
+      <Height>1250</Height>
+      <SheetX>8</SheetX>
+      <SheetY>8</SheetY>
+      <CategoryName>ui_reignbeta_party_chat</CategoryName>
+    </SpritePart>
+    <SpritePart>
+      <SheetID>1</SheetID>
+      <Name>reign_party_chat_scroll_track</Name>
+      <Width>24</Width>
+      <Height>760</Height>
+      <SheetX>2724</SheetX>
+      <SheetY>8</SheetY>
+      <CategoryName>ui_reignbeta_party_chat</CategoryName>
+    </SpritePart>
+    <SpritePart>
+      <SheetID>1</SheetID>
+      <Name>reign_party_chat_scroll_handle</Name>
+      <Width>32</Width>
+      <Height>252</Height>
+      <SheetX>1416</SheetX>
+      <SheetY>2059</SheetY>
+      <CategoryName>ui_reignbeta_party_chat</CategoryName>
+    </SpritePart>
+    <SpritePart>
+      <SheetID>1</SheetID>
+      <Name>reign_party_chat_player_message</Name>
+      <Width>1400</Width>
+      <Height>253</Height>
+      <SheetX>1576</SheetX>
+      <SheetY>1796</SheetY>
+      <CategoryName>ui_reignbeta_party_chat</CategoryName>
+    </SpritePart>
+    <SpritePart>
+      <SheetID>1</SheetID>
+      <Name>reign_party_chat_npc_message</Name>
+      <Width>1400</Width>
+      <Height>253</Height>
+      <SheetX>8</SheetX>
+      <SheetY>2059</SheetY>
+      <CategoryName>ui_reignbeta_party_chat</CategoryName>
+    </SpritePart>
+    <SpritePart>
+      <SheetID>1</SheetID>
+      <Name>reign_party_chat_system_message</Name>
+      <Width>1560</Width>
+      <Height>255</Height>
+      <SheetX>8</SheetX>
+      <SheetY>1796</SheetY>
+      <CategoryName>ui_reignbeta_party_chat</CategoryName>
+    </SpritePart>
+    <SpritePart>
+      <SheetID>1</SheetID>
+      <Name>reign_party_chat_divider</Name>
+      <Width>1200</Width>
+      <Height>34</Height>
+      <SheetX>2416</SheetX>
+      <SheetY>2320</SheetY>
+      <CategoryName>ui_reignbeta_party_chat</CategoryName>
+    </SpritePart>
+    <SpritePart>
+      <SheetID>1</SheetID>
+      <Name>reign_party_chat_input</Name>
+      <Width>2400</Width>
+      <Height>187</Height>
+      <SheetX>8</SheetX>
+      <SheetY>2320</SheetY>
+      <CategoryName>ui_reignbeta_party_chat</CategoryName>
+    </SpritePart>
+    <SpritePart>
+      <SheetID>1</SheetID>
+      <Name>reign_party_chat_send_normal</Name>
+      <Width>480</Width>
+      <Height>108</Height>
+      <SheetX>1816</SheetX>
+      <SheetY>2515</SheetY>
+      <CategoryName>ui_reignbeta_party_chat</CategoryName>
+    </SpritePart>
+    <SpritePart>
+      <SheetID>1</SheetID>
+      <Name>reign_party_chat_send_hover</Name>
+      <Width>480</Width>
+      <Height>108</Height>
+      <SheetX>2304</SheetX>
+      <SheetY>2515</SheetY>
+      <CategoryName>ui_reignbeta_party_chat</CategoryName>
+    </SpritePart>
+    <SpritePart>
+      <SheetID>1</SheetID>
+      <Name>reign_party_chat_preview_scroll_track</Name>
+      <Width>24</Width>
+      <Height>760</Height>
+      <SheetX>2756</SheetX>
+      <SheetY>8</SheetY>
+      <CategoryName>ui_reignbeta_party_chat</CategoryName>
+    </SpritePart>
+    <SpritePart>
+      <SheetID>1</SheetID>
+      <Name>reign_party_chat_preview_scroll_handle</Name>
+      <Width>32</Width>
+      <Height>252</Height>
+      <SheetX>1456</SheetX>
+      <SheetY>2059</SheetY>
+      <CategoryName>ui_reignbeta_party_chat</CategoryName>
+    </SpritePart>
+    <SpritePart><SheetID>1</SheetID><Name>reign_court_outer_frame</Name><Width>1920</Width><Height>1080</Height><SheetX>4</SheetX><SheetY>4</SheetY><CategoryName>ui_reignbeta_court</CategoryName></SpritePart>
+    <SpritePart><SheetID>1</SheetID><Name>reign_court_docket_panel</Name><Width>520</Width><Height>828</Height><SheetX>1928</SheetX><SheetY>4</SheetY><CategoryName>ui_reignbeta_court</CategoryName></SpritePart>
+    <SpritePart><SheetID>1</SheetID><Name>reign_court_command_rail</Name><Width>392</Width><Height>828</Height><SheetX>2452</SheetX><SheetY>4</SheetY><CategoryName>ui_reignbeta_court</CategoryName></SpritePart>
+    <SpritePart><SheetID>1</SheetID><Name>reign_court_throne_background</Name><Width>1938</Width><Height>811</Height><SheetX>4</SheetX><SheetY>1088</SheetY><CategoryName>ui_reignbeta_court</CategoryName></SpritePart>
+    <SpritePart><SheetID>1</SheetID><Name>reign_court_scroll_track</Name><Width>12</Width><Height>680</Height><SheetX>1946</SheetX><SheetY>1088</SheetY><CategoryName>ui_reignbeta_court</CategoryName></SpritePart>
+    <SpritePart><SheetID>1</SheetID><Name>reign_court_banner_overlay</Name><Width>180</Width><Height>340</Height><SheetX>1962</SheetX><SheetY>1088</SheetY><CategoryName>ui_reignbeta_court</CategoryName></SpritePart>
+    <SpritePart><SheetID>1</SheetID><Name>reign_court_banner_backing</Name><Width>150</Width><Height>300</Height><SheetX>2146</SheetX><SheetY>1088</SheetY><CategoryName>ui_reignbeta_court</CategoryName></SpritePart>
+    <SpritePart><SheetID>1</SheetID><Name>reign_court_docket_card</Name><Width>440</Width><Height>112</Height><SheetX>2300</SheetX><SheetY>1088</SheetY><CategoryName>ui_reignbeta_court</CategoryName></SpritePart>
+    <SpritePart><SheetID>1</SheetID><Name>reign_court_command_button</Name><Width>336</Width><Height>96</Height><SheetX>2744</SheetX><SheetY>1088</SheetY><CategoryName>ui_reignbeta_court</CategoryName></SpritePart>
+    <SpritePart><SheetID>1</SheetID><Name>reign_court_command_button_hover</Name><Width>336</Width><Height>96</Height><SheetX>3084</SheetX><SheetY>1088</SheetY><CategoryName>ui_reignbeta_court</CategoryName></SpritePart>
+    <SpritePart><SheetID>1</SheetID><Name>reign_court_command_button_pressed</Name><Width>336</Width><Height>96</Height><SheetX>3424</SheetX><SheetY>1088</SheetY><CategoryName>ui_reignbeta_court</CategoryName></SpritePart>
+    <SpritePart><SheetID>1</SheetID><Name>reign_court_reign_medallion</Name><Width>96</Width><Height>96</Height><SheetX>3764</SheetX><SheetY>1088</SheetY><CategoryName>ui_reignbeta_court</CategoryName></SpritePart>
+    <SpritePart><SheetID>1</SheetID><Name>reign_court_status_bar</Name><Width>1856</Width><Height>88</Height><SheetX>4</SheetX><SheetY>1903</SheetY><CategoryName>ui_reignbeta_court</CategoryName></SpritePart>
+    <SpritePart><SheetID>1</SheetID><Name>reign_court_identity_frame</Name><Width>350</Width><Height>88</Height><SheetX>1864</SheetX><SheetY>1903</SheetY><CategoryName>ui_reignbeta_court</CategoryName></SpritePart>
+    <SpritePart><SheetID>1</SheetID><Name>reign_court_status_frame</Name><Width>251</Width><Height>88</Height><SheetX>2218</SheetX><SheetY>1903</SheetY><CategoryName>ui_reignbeta_court</CategoryName></SpritePart>
+    <SpritePart><SheetID>1</SheetID><Name>reign_court_bottom_bar</Name><Width>1856</Width><Height>84</Height><SheetX>4</SheetX><SheetY>1995</SheetY><CategoryName>ui_reignbeta_court</CategoryName></SpritePart>
+    <SpritePart><SheetID>1</SheetID><Name>reign_court_scroll_handle</Name><Width>18</Width><Height>80</Height><SheetX>1864</SheetX><SheetY>1995</SheetY><CategoryName>ui_reignbeta_court</CategoryName></SpritePart>
+    <SpritePart><SheetID>1</SheetID><Name>reign_court_title_plaque</Name><Width>468</Width><Height>74</Height><SheetX>1886</SheetX><SheetY>1995</SheetY><CategoryName>ui_reignbeta_court</CategoryName></SpritePart>
+    <SpritePart><SheetID>1</SheetID><Name>reign_court_docket_header</Name><Width>472</Width><Height>68</Height><SheetX>2358</SheetX><SheetY>1995</SheetY><CategoryName>ui_reignbeta_court</CategoryName></SpritePart>
+    <SpritePart><SheetID>1</SheetID><Name>reign_court_docket_accounts</Name><Width>64</Width><Height>64</Height><SheetX>2834</SheetX><SheetY>1995</SheetY><CategoryName>ui_reignbeta_court</CategoryName></SpritePart>
+    <SpritePart><SheetID>1</SheetID><Name>reign_court_docket_correspondence</Name><Width>64</Width><Height>64</Height><SheetX>2902</SheetX><SheetY>1995</SheetY><CategoryName>ui_reignbeta_court</CategoryName></SpritePart>
+    <SpritePart><SheetID>1</SheetID><Name>reign_court_docket_diplomacy</Name><Width>64</Width><Height>64</Height><SheetX>2970</SheetX><SheetY>1995</SheetY><CategoryName>ui_reignbeta_court</CategoryName></SpritePart>
+    <SpritePart><SheetID>1</SheetID><Name>reign_court_docket_justice</Name><Width>64</Width><Height>64</Height><SheetX>3038</SheetX><SheetY>1995</SheetY><CategoryName>ui_reignbeta_court</CategoryName></SpritePart>
+    <SpritePart><SheetID>1</SheetID><Name>reign_court_docket_military</Name><Width>64</Width><Height>64</Height><SheetX>3106</SheetX><SheetY>1995</SheetY><CategoryName>ui_reignbeta_court</CategoryName></SpritePart>
+    <SpritePart><SheetID>1</SheetID><Name>reign_court_docket_social</Name><Width>64</Width><Height>64</Height><SheetX>3174</SheetX><SheetY>1995</SheetY><CategoryName>ui_reignbeta_court</CategoryName></SpritePart>
+    <SpritePart><SheetID>1</SheetID><Name>reign_court_docket_urgent</Name><Width>64</Width><Height>64</Height><SheetX>3242</SheetX><SheetY>1995</SheetY><CategoryName>ui_reignbeta_court</CategoryName></SpritePart>
+    <SpritePart><SheetID>1</SheetID><Name>reign_court_icon_ambassadors</Name><Width>64</Width><Height>64</Height><SheetX>3310</SheetX><SheetY>1995</SheetY><CategoryName>ui_reignbeta_court</CategoryName></SpritePart>
+    <SpritePart><SheetID>1</SheetID><Name>reign_court_icon_economic_report</Name><Width>64</Width><Height>64</Height><SheetX>3378</SheetX><SheetY>1995</SheetY><CategoryName>ui_reignbeta_court</CategoryName></SpritePart>
+    <SpritePart><SheetID>1</SheetID><Name>reign_court_icon_keep</Name><Width>64</Width><Height>64</Height><SheetX>3446</SheetX><SheetY>1995</SheetY><CategoryName>ui_reignbeta_court</CategoryName></SpritePart>
+    <SpritePart><SheetID>1</SheetID><Name>reign_court_icon_spymaster</Name><Width>64</Width><Height>64</Height><SheetX>3514</SheetX><SheetY>1995</SheetY><CategoryName>ui_reignbeta_court</CategoryName></SpritePart>
+    <SpritePart><SheetID>1</SheetID><Name>reign_court_icon_war_council</Name><Width>64</Width><Height>64</Height><SheetX>3582</SheetX><SheetY>1995</SheetY><CategoryName>ui_reignbeta_court</CategoryName></SpritePart>
+    <SpritePart><SheetID>1</SheetID><Name>reign_court_status_funds</Name><Width>64</Width><Height>64</Height><SheetX>3650</SheetX><SheetY>1995</SheetY><CategoryName>ui_reignbeta_court</CategoryName></SpritePart>
+    <SpritePart><SheetID>1</SheetID><Name>reign_court_status_influence</Name><Width>64</Width><Height>64</Height><SheetX>3718</SheetX><SheetY>1995</SheetY><CategoryName>ui_reignbeta_court</CategoryName></SpritePart>
+    <SpritePart><SheetID>1</SheetID><Name>reign_court_status_presence</Name><Width>64</Width><Height>64</Height><SheetX>3786</SheetX><SheetY>1995</SheetY><CategoryName>ui_reignbeta_court</CategoryName></SpritePart>
+    <SpritePart><SheetID>1</SheetID><Name>reign_court_status_renown</Name><Width>64</Width><Height>64</Height><SheetX>3854</SheetX><SheetY>1995</SheetY><CategoryName>ui_reignbeta_court</CategoryName></SpritePart>
+    <SpritePart><SheetID>1</SheetID><Name>reign_court_status_strength</Name><Width>64</Width><Height>64</Height><SheetX>3922</SheetX><SheetY>1995</SheetY><CategoryName>ui_reignbeta_court</CategoryName></SpritePart>
+    <SpritePart><SheetID>1</SheetID><Name>reign_court_status_supply</Name><Width>64</Width><Height>64</Height><SheetX>3990</SheetX><SheetY>1995</SheetY><CategoryName>ui_reignbeta_court</CategoryName></SpritePart>
+    <SpritePart><SheetID>1</SheetID><Name>reign_court_advance_button</Name><Width>300</Width><Height>50</Height><SheetX>4</SheetX><SheetY>2083</SheetY><CategoryName>ui_reignbeta_court</CategoryName></SpritePart>
+    <SpritePart><SheetID>1</SheetID><Name>reign_court_control_button</Name><Width>150</Width><Height>50</Height><SheetX>308</SheetX><SheetY>2083</SheetY><CategoryName>ui_reignbeta_court</CategoryName></SpritePart>
+    <SpritePart><SheetID>1</SheetID><Name>reign_court_divider</Name><Width>256</Width><Height>24</Height><SheetX>462</SheetX><SheetY>2083</SheetY><CategoryName>ui_reignbeta_court</CategoryName></SpritePart>
+    <SpritePart><SheetID>1</SheetID><Name>reign_court_dashboard_template</Name><Width>1920</Width><Height>1080</Height><SheetX>4</SheetX><SheetY>2137</SheetY><CategoryName>ui_reignbeta_court</CategoryName></SpritePart>
+    <SpritePart><SheetID>2</SheetID><Name>reign_court_dashboard_template_large</Name><Width>3172</Width><Height>1984</Height><SheetX>4</SheetX><SheetY>4</SheetY><CategoryName>ui_reignbeta_court</CategoryName></SpritePart>
+    <SpritePart><SheetID>3</SheetID><Name>reign_court_compact_overlay</Name><Width>1672</Width><Height>941</Height><SheetX>4</SheetX><SheetY>4</SheetY><CategoryName>ui_reignbeta_court</CategoryName></SpritePart>
+    <SpritePart><SheetID>3</SheetID><Name>reign_court_throne_button_strip</Name><Width>706</Width><Height>71</Height><SheetX>4</SheetX><SheetY>949</SheetY><CategoryName>ui_reignbeta_court</CategoryName></SpritePart>
+    <SpritePart><SheetID>4</SheetID><Name>reign_court_modern_shell</Name><Width>1672</Width><Height>941</Height><SheetX>4</SheetX><SheetY>4</SheetY><CategoryName>ui_reignbeta_court</CategoryName></SpritePart>
+    <SpritePart><SheetID>4</SheetID><Name>reign_court_modern_banner_left_mask</Name><Width>102</Width><Height>270</Height><SheetX>4</SheetX><SheetY>949</SheetY><CategoryName>ui_reignbeta_court</CategoryName></SpritePart>
+    <SpritePart><SheetID>4</SheetID><Name>reign_court_modern_banner_right_mask</Name><Width>102</Width><Height>270</Height><SheetX>110</SheetX><SheetY>949</SheetY><CategoryName>ui_reignbeta_court</CategoryName></SpritePart>
+    <SpritePart><SheetID>5</SheetID><Name>reign_court_petition_modern_shell</Name><Width>1672</Width><Height>941</Height><SheetX>4</SheetX><SheetY>4</SheetY><CategoryName>ui_reignbeta_court</CategoryName></SpritePart>
+    <SpritePart><SheetID>5</SheetID><Name>reign_court_chancellor_card_modern</Name><Width>322</Width><Height>164</Height><SheetX>1680</SheetX><SheetY>4</SheetY><CategoryName>ui_reignbeta_court</CategoryName></SpritePart>
+    <SpritePart><SheetID>5</SheetID><Name>reign_court_petition_card_modern</Name><Width>322</Width><Height>145</Height><SheetX>1680</SheetX><SheetY>172</SheetY><CategoryName>ui_reignbeta_court</CategoryName></SpritePart>
+    <SpritePart><SheetID>5</SheetID><Name>reign_court_petition_attendee_card_modern</Name><Width>322</Width><Height>103</Height><SheetX>1680</SheetX><SheetY>325</SheetY><CategoryName>ui_reignbeta_court</CategoryName></SpritePart>
+    <SpritePart><SheetID>5</SheetID><Name>reign_court_navigation_button_modern</Name><Width>270</Width><Height>60</Height><SheetX>1680</SheetX><SheetY>436</SheetY><CategoryName>ui_reignbeta_court</CategoryName></SpritePart>
+    <SpritePart><SheetID>6</SheetID><Name>reign_court_office_modern_shell</Name><Width>1672</Width><Height>941</Height><SheetX>4</SheetX><SheetY>4</SheetY><CategoryName>ui_reignbeta_court</CategoryName></SpritePart>
+    <SpritePart>
+      <SheetID>1</SheetID>
+      <Name>reign_social_event_background</Name>
+      <Width>1671</Width>
+      <Height>941</Height>
+      <SheetX>4</SheetX>
+      <SheetY>4</SheetY>
+      <CategoryName>ui_reignbeta_social_event</CategoryName>
+    </SpritePart>
+    <SpritePart>
+      <SheetID>1</SheetID>
+      <Name>reign_social_event_attendees_frame</Name>
+      <Width>468</Width>
+      <Height>929</Height>
+      <SheetX>1683</SheetX>
+      <SheetY>4</SheetY>
+      <CategoryName>ui_reignbeta_social_event</CategoryName>
+    </SpritePart>
+    <SpritePart>
+      <SheetID>1</SheetID>
+      <Name>reign_social_event_header_frame</Name>
+      <Width>1182</Width>
+      <Height>95</Height>
+      <SheetX>2160</SheetX>
+      <SheetY>4</SheetY>
+      <CategoryName>ui_reignbeta_social_event</CategoryName>
+    </SpritePart>
+    <SpritePart>
+      <SheetID>1</SheetID>
+      <Name>reign_social_event_phase_frame</Name>
+      <Width>1171</Width>
+      <Height>89</Height>
+      <SheetX>2160</SheetX>
+      <SheetY>107</SheetY>
+      <CategoryName>ui_reignbeta_social_event</CategoryName>
+    </SpritePart>
+    <SpritePart>
+      <SheetID>1</SheetID>
+      <Name>reign_social_event_chat_frame</Name>
+      <Width>1344</Width>
+      <Height>318</Height>
+      <SheetX>2160</SheetX>
+      <SheetY>204</SheetY>
+      <CategoryName>ui_reignbeta_social_event</CategoryName>
+    </SpritePart>
+    <SpritePart>
+      <SheetID>1</SheetID>
+      <Name>reign_social_event_card_frame</Name>
+      <Width>480</Width>
+      <Height>124</Height>
+      <SheetX>2160</SheetX>
+      <SheetY>530</SheetY>
+      <CategoryName>ui_reignbeta_social_event</CategoryName>
+    </SpritePart>
+    <SpritePart>
+      <SheetID>1</SheetID>
+      <Name>reign_social_event_portrait_frame</Name>
+      <Width>108</Width>
+      <Height>104</Height>
+      <SheetX>2648</SheetX>
+      <SheetY>530</SheetY>
+      <CategoryName>ui_reignbeta_social_event</CategoryName>
+    </SpritePart>
+    <SpritePart>
+      <SheetID>1</SheetID>
+      <Name>reign_social_event_send_button</Name>
+      <Width>181</Width>
+      <Height>53</Height>
+      <SheetX>2764</SheetX>
+      <SheetY>530</SheetY>
+      <CategoryName>ui_reignbeta_social_event</CategoryName>
+    </SpritePart>
+    <SpritePart>
+      <SheetID>1</SheetID>
+      <Name>reign_social_event_wait_approach_button</Name>
+      <Width>250</Width>
+      <Height>62</Height>
+      <SheetX>2953</SheetX>
+      <SheetY>530</SheetY>
+      <CategoryName>ui_reignbeta_social_event</CategoryName>
+    </SpritePart>
+    <SpritePart>
+      <SheetID>1</SheetID>
+      <Name>reign_social_event_next_phase_button</Name>
+      <Width>249</Width>
+      <Height>70</Height>
+      <SheetX>3211</SheetX>
+      <SheetY>530</SheetY>
+      <CategoryName>ui_reignbeta_social_event</CategoryName>
+    </SpritePart>
+    <SpritePart>
+      <SheetID>1</SheetID>
+      <Name>reign_social_event_end_event_button</Name>
+      <Width>246</Width>
+      <Height>66</Height>
+      <SheetX>3468</SheetX>
+      <SheetY>530</SheetY>
+      <CategoryName>ui_reignbeta_social_event</CategoryName>
+    </SpritePart>
+    <SpritePart>
+      <SheetID>2</SheetID>
+      <Name>reign_social_event_modern_shell</Name>
+      <Width>1672</Width>
+      <Height>941</Height>
+      <SheetX>4</SheetX>
+      <SheetY>4</SheetY>
+      <CategoryName>ui_reignbeta_social_event</CategoryName>
+    </SpritePart>
+    <SpritePart>
+      <SheetID>3</SheetID>
+      <Name>reign_wilderness_event_modern_shell</Name>
+      <Width>1672</Width>
+      <Height>941</Height>
+      <SheetX>4</SheetX>
+      <SheetY>4</SheetY>
+      <CategoryName>ui_reignbeta_social_event</CategoryName>
+    </SpritePart>
+    <SpritePart>
+      <SheetID>1</SheetID>
+      <Name>reign_correspondence_background</Name>
+      <Width>1608</Width>
+      <Height>978</Height>
+      <SheetX>4</SheetX>
+      <SheetY>4</SheetY>
+      <CategoryName>ui_reignbeta_correspondence</CategoryName>
+    </SpritePart>
+    <SpritePart>
+      <SheetID>1</SheetID>
+      <Name>reign_correspondence_contact_frame</Name>
+      <Width>1548</Width>
+      <Height>412</Height>
+      <SheetX>1620</SheetX>
+      <SheetY>4</SheetY>
+      <CategoryName>ui_reignbeta_correspondence</CategoryName>
+    </SpritePart>
+    <SpritePart>
+      <SheetID>1</SheetID>
+      <Name>reign_correspondence_button</Name>
+      <Width>626</Width>
+      <Height>164</Height>
+      <SheetX>3176</SheetX>
+      <SheetY>4</SheetY>
+      <CategoryName>ui_reignbeta_correspondence</CategoryName>
+    </SpritePart>
+    <SpritePart>
+      <SheetID>1</SheetID>
+      <Name>reign_correspondence_player_letter</Name>
+      <Width>1886</Width>
+      <Height>292</Height>
+      <SheetX>1620</SheetX>
+      <SheetY>424</SheetY>
+      <CategoryName>ui_reignbeta_correspondence</CategoryName>
+    </SpritePart>
+    <SpritePart>
+      <SheetID>1</SheetID>
+      <Name>reign_correspondence_npc_letter</Name>
+      <Width>1886</Width>
+      <Height>300</Height>
+      <SheetX>1620</SheetX>
+      <SheetY>724</SheetY>
+      <CategoryName>ui_reignbeta_correspondence</CategoryName>
+    </SpritePart>
+    <SpritePart>
+      <SheetID>1</SheetID>
+      <Name>reign_correspondence_scroll_track</Name>
+      <Width>108</Width>
+      <Height>1932</Height>
+      <SheetX>3980</SheetX>
+      <SheetY>4</SheetY>
+      <CategoryName>ui_reignbeta_correspondence</CategoryName>
+    </SpritePart>
+    <SpritePart>
+      <SheetID>1</SheetID>
+      <Name>reign_correspondence_scroll_handle</Name>
+      <Width>102</Width>
+      <Height>410</Height>
+      <SheetX>3868</SheetX>
+      <SheetY>4</SheetY>
+      <CategoryName>ui_reignbeta_correspondence</CategoryName>
+    </SpritePart>
+    <SpritePart>
+      <SheetID>1</SheetID>
+      <Name>reign_diplomacy_background</Name>
+      <Width>1240</Width>
+      <Height>760</Height>
+      <SheetX>4</SheetX>
+      <SheetY>4</SheetY>
+      <CategoryName>ui_reignbeta_diplomacy</CategoryName>
+    </SpritePart>
+    <SpritePart>
+      <SheetID>1</SheetID>
+      <Name>reign_diplomacy_header</Name>
+      <Width>900</Width>
+      <Height>240</Height>
+      <SheetX>1252</SheetX>
+      <SheetY>4</SheetY>
+      <CategoryName>ui_reignbeta_diplomacy</CategoryName>
+    </SpritePart>
+    <SpritePart>
+      <SheetID>1</SheetID>
+      <Name>reign_diplomacy_actor_panel</Name>
+      <Width>248</Width>
+      <Height>520</Height>
+      <SheetX>2160</SheetX>
+      <SheetY>4</SheetY>
+      <CategoryName>ui_reignbeta_diplomacy</CategoryName>
+    </SpritePart>
+    <SpritePart>
+      <SheetID>1</SheetID>
+      <Name>reign_diplomacy_target_panel</Name>
+      <Width>248</Width>
+      <Height>520</Height>
+      <SheetX>2416</SheetX>
+      <SheetY>4</SheetY>
+      <CategoryName>ui_reignbeta_diplomacy</CategoryName>
+    </SpritePart>
+    <SpritePart>
+      <SheetID>1</SheetID>
+      <Name>reign_diplomacy_center_panel</Name>
+      <Width>632</Width>
+      <Height>520</Height>
+      <SheetX>2672</SheetX>
+      <SheetY>4</SheetY>
+      <CategoryName>ui_reignbeta_diplomacy</CategoryName>
+    </SpritePart>
+    <SpritePart>
+      <SheetID>1</SheetID>
+      <Name>reign_diplomacy_portrait_frame</Name>
+      <Width>204</Width>
+      <Height>228</Height>
+      <SheetX>3312</SheetX>
+      <SheetY>4</SheetY>
+      <CategoryName>ui_reignbeta_diplomacy</CategoryName>
+    </SpritePart>
+    <SpritePart>
+      <SheetID>1</SheetID>
+      <Name>reign_diplomacy_banner_frame</Name>
+      <Width>96</Width>
+      <Height>96</Height>
+      <SheetX>3524</SheetX>
+      <SheetY>4</SheetY>
+      <CategoryName>ui_reignbeta_diplomacy</CategoryName>
+    </SpritePart>
+    <SpritePart>
+      <SheetID>1</SheetID>
+      <Name>reign_diplomacy_divider</Name>
+      <Width>544</Width>
+      <Height>24</Height>
+      <SheetX>1252</SheetX>
+      <SheetY>252</SheetY>
+      <CategoryName>ui_reignbeta_diplomacy</CategoryName>
+    </SpritePart>
+    <SpritePart>
+      <SheetID>1</SheetID>
+      <Name>reign_diplomacy_acknowledge_button</Name>
+      <Width>260</Width>
+      <Height>50</Height>
+      <SheetX>1252</SheetX>
+      <SheetY>284</SheetY>
+      <CategoryName>ui_reignbeta_diplomacy</CategoryName>
+    </SpritePart>
+    <SpritePart>
+      <SheetID>1</SheetID>
+      <Name>reign_diplomacy_acknowledge_button_hover</Name>
+      <Width>260</Width>
+      <Height>50</Height>
+      <SheetX>1520</SheetX>
+      <SheetY>284</SheetY>
+      <CategoryName>ui_reignbeta_diplomacy</CategoryName>
+    </SpritePart>
+    <SpritePart>
+      <SheetID>1</SheetID>
+      <Name>reign_diplomacy_portrait_overlay_v2</Name>
+      <Width>420</Width>
+      <Height>440</Height>
+      <SheetX>1252</SheetX>
+      <SheetY>342</SheetY>
+      <CategoryName>ui_reignbeta_diplomacy</CategoryName>
+    </SpritePart>
+    <SpritePart>
+      <SheetID>1</SheetID>
+      <Name>reign_diplomacy_banner_wreath_overlay_v2</Name>
+      <Width>192</Width>
+      <Height>192</Height>
+      <SheetX>1680</SheetX>
+      <SheetY>342</SheetY>
+      <CategoryName>ui_reignbeta_diplomacy</CategoryName>
+    </SpritePart>
+    <SpritePart>
+      <SheetID>1</SheetID>
+      <Name>reign_modern_memory_scene_overlay</Name>
+      <Width>1024</Width>
+      <Height>576</Height>
+      <SheetX>4</SheetX>
+      <SheetY>4</SheetY>
+      <CategoryName>ui_reignbeta_shared</CategoryName>
+    </SpritePart>
+    <SpritePart>
+      <SheetID>1</SheetID>
+      <Name>reign_modern_portrait_circle_overlay</Name>
+      <Width>512</Width>
+      <Height>512</Height>
+      <SheetX>1036</SheetX>
+      <SheetY>4</SheetY>
+      <CategoryName>ui_reignbeta_shared</CategoryName>
+    </SpritePart>
+    <SpritePart>
+      <SheetID>1</SheetID>
+      <Name>reign_modern_portrait_oval_overlay</Name>
+      <Width>512</Width>
+      <Height>768</Height>
+      <SheetX>4</SheetX>
+      <SheetY>588</SheetY>
+      <CategoryName>ui_reignbeta_shared</CategoryName>
+    </SpritePart>
+    <SpritePart>
+      <SheetID>1</SheetID>
+      <Name>reign_modern_portrait_rectangle_overlay</Name>
+      <Width>512</Width>
+      <Height>768</Height>
+      <SheetX>524</SheetX>
+      <SheetY>588</SheetY>
+      <CategoryName>ui_reignbeta_shared</CategoryName>
+    </SpritePart>
+    <SpritePart>
+      <SheetID>1</SheetID>
+      <Name>reign_modern_portrait_oval_thin_frame</Name>
+      <Width>512</Width>
+      <Height>832</Height>
+      <SheetX>1044</SheetX>
+      <SheetY>588</SheetY>
+      <CategoryName>ui_reignbeta_shared</CategoryName>
+    </SpritePart>
+    <SpritePart>
+      <SheetID>1</SheetID>
+      <Name>reign_modern_banner_shield_overlay</Name>
+      <Width>512</Width>
+      <Height>588</Height>
+      <SheetX>4</SheetX>
+      <SheetY>1428</SheetY>
+      <CategoryName>ui_reignbeta_shared</CategoryName>
+    </SpritePart>
+    <SpritePart>
+      <SheetID>2</SheetID>
+      <Name>reign_modern_portrait_empty_fill</Name>
+      <Width>512</Width>
+      <Height>512</Height>
+      <SheetX>4</SheetX>
+      <SheetY>4</SheetY>
+      <CategoryName>ui_reignbeta_shared</CategoryName>
+    </SpritePart>
+    <SpritePart>
+      <SheetID>2</SheetID>
+      <Name>reign_modern_crowned_r_crest</Name>
+      <Width>512</Width>
+      <Height>832</Height>
+      <SheetX>524</SheetX>
+      <SheetY>4</SheetY>
+      <CategoryName>ui_reignbeta_shared</CategoryName>
+    </SpritePart>
+    <SpritePart>
+      <SheetID>2</SheetID>
+      <Name>reign_diplomacy_modern_shell</Name>
+      <Width>1672</Width>
+      <Height>941</Height>
+      <SheetX>4</SheetX>
+      <SheetY>4</SheetY>
+      <CategoryName>ui_reignbeta_diplomacy</CategoryName>
+    </SpritePart>
+    <SpritePart>
+      <SheetID>1</SheetID>
+      <Name>reign_memories_book_modern_shell</Name>
+      <Width>1672</Width>
+      <Height>941</Height>
+      <SheetX>4</SheetX>
+      <SheetY>4</SheetY>
+      <CategoryName>ui_reignbeta_memories</CategoryName>
+    </SpritePart>
+    <SpritePart>
+      <SheetID>1</SheetID>
+      <Name>reign_castle_layout_modern_shell</Name>
+      <Width>1672</Width>
+      <Height>941</Height>
+      <SheetX>4</SheetX>
+      <SheetY>953</SheetY>
+      <CategoryName>ui_reignbeta_castle_layout</CategoryName>
+    </SpritePart>
+    <SpritePart>
+      <SheetID>1</SheetID>
+      <Name>reign_castle_layout_navigation_button</Name>
+      <Width>300</Width>
+      <Height>75</Height>
+      <SheetX>4</SheetX>
+      <SheetY>1898</SheetY>
+      <CategoryName>ui_reignbeta_castle_layout</CategoryName>
+    </SpritePart>
+
+    <SpritePart>
+      <SheetID>2</SheetID>
+      <Name>reign_correspondence_modern_shell</Name>
+      <Width>1672</Width>
+      <Height>941</Height>
+      <SheetX>4</SheetX>
+      <SheetY>4</SheetY>
+      <CategoryName>ui_reignbeta_correspondence</CategoryName>
+    </SpritePart>
+    <SpritePart>
+      <SheetID>2</SheetID>
+      <Name>reign_economic_report_modern_shell</Name>
+      <Width>1672</Width>
+      <Height>941</Height>
+      <SheetX>4</SheetX>
+      <SheetY>4</SheetY>
+      <CategoryName>ui_reignbeta_economic_report</CategoryName>
+    </SpritePart>
+    <SpritePart>
+      <SheetID>2</SheetID>
+      <Name>reign_economic_advisor_portrait_mask</Name>
+      <Width>297</Width>
+      <Height>320</Height>
+      <SheetX>1680</SheetX>
+      <SheetY>4</SheetY>
+      <CategoryName>ui_reignbeta_economic_report</CategoryName>
+    </SpritePart>
+    <SpritePart>
+      <SheetID>1</SheetID>
+      <Name>reign_war_council_modern_shell</Name>
+      <Width>1672</Width>
+      <Height>941</Height>
+      <SheetX>4</SheetX>
+      <SheetY>4</SheetY>
+      <CategoryName>ui_reignbeta_war_council</CategoryName>
+    </SpritePart>
+    <SpritePart>
+      <SheetID>1</SheetID>
+      <Name>reign_family_chambers_modern_shell</Name>
+      <Width>1672</Width>
+      <Height>941</Height>
+      <SheetX>4</SheetX>
+      <SheetY>4</SheetY>
+      <CategoryName>ui_reignbeta_family_chambers</CategoryName>
+    </SpritePart>
+    <SpritePart>
+      <SheetID>1</SheetID>
+      <Name>reign_family_chambers_person_card</Name>
+      <Width>322</Width>
+      <Height>116</Height>
+      <SheetX>1680</SheetX>
+      <SheetY>4</SheetY>
+      <CategoryName>ui_reignbeta_family_chambers</CategoryName>
+    </SpritePart>
+    <SpritePart>
+      <SheetID>1</SheetID>
+      <Name>reign_family_chambers_portrait_mask</Name>
+      <Width>108</Width>
+      <Height>108</Height>
+      <SheetX>1680</SheetX>
+      <SheetY>128</SheetY>
+      <CategoryName>ui_reignbeta_family_chambers</CategoryName>
+    </SpritePart>
+    <SpritePart>
+      <SheetID>3</SheetID>
+      <Name>reign_diplomacy_actor_portrait_mask</Name>
+      <Width>162</Width>
+      <Height>263</Height>
+      <SheetX>4</SheetX>
+      <SheetY>4</SheetY>
+      <CategoryName>ui_reignbeta_diplomacy</CategoryName>
+    </SpritePart>
+    <SpritePart>
+      <SheetID>3</SheetID>
+      <Name>reign_diplomacy_target_portrait_mask</Name>
+      <Width>162</Width>
+      <Height>263</Height>
+      <SheetX>174</SheetX>
+      <SheetY>4</SheetY>
+      <CategoryName>ui_reignbeta_diplomacy</CategoryName>
+    </SpritePart>
+    <SpritePart>
+      <SheetID>3</SheetID>
+      <Name>reign_individual_chat_player_portrait_mask</Name>
+      <Width>230</Width>
+      <Height>330</Height>
+      <SheetX>4</SheetX>
+      <SheetY>4</SheetY>
+      <CategoryName>ui_reignbeta_individual</CategoryName>
+    </SpritePart>
+    <SpritePart>
+      <SheetID>3</SheetID>
+      <Name>reign_individual_chat_npc_portrait_mask</Name>
+      <Width>230</Width>
+      <Height>330</Height>
+      <SheetX>242</SheetX>
+      <SheetY>4</SheetY>
+      <CategoryName>ui_reignbeta_individual</CategoryName>
+    </SpritePart>
+    <SpritePart>
+      <SheetID>3</SheetID>
+      <Name>reign_individual_chat_zoom_oval_mask</Name>
+      <Width>512</Width>
+      <Height>768</Height>
+      <SheetX>480</SheetX>
+      <SheetY>4</SheetY>
+      <CategoryName>ui_reignbeta_individual</CategoryName>
+    </SpritePart>
+    <SpritePart>
+      <SheetID>7</SheetID>
+      <Name>reign_castle_chat_fixed_caption_overlay</Name>
+      <Width>1672</Width>
+      <Height>941</Height>
+      <SheetX>4</SheetX>
+      <SheetY>4</SheetY>
+      <CategoryName>ui_reignbeta_party_chat</CategoryName>
+    </SpritePart>
+    <SpritePart>
+      <SheetID>8</SheetID>
+      <Name>reign_castle_chat_approved_fallback</Name>
+      <Width>790</Width>
+      <Height>420</Height>
+      <SheetX>4</SheetX>
+      <SheetY>4</SheetY>
+      <CategoryName>ui_reignbeta_party_chat</CategoryName>
+    </SpritePart>
+    <SpritePart>
+      <SheetID>8</SheetID>
+      <Name>reign_party_chat_portrait_mask_active</Name>
+      <Width>130</Width>
+      <Height>132</Height>
+      <SheetX>802</SheetX>
+      <SheetY>4</SheetY>
+      <CategoryName>ui_reignbeta_party_chat</CategoryName>
+    </SpritePart>
+    <SpritePart>
+      <SheetID>8</SheetID>
+      <Name>reign_party_chat_portrait_mask_inactive</Name>
+      <Width>130</Width>
+      <Height>132</Height>
+      <SheetX>940</SheetX>
+      <SheetY>4</SheetY>
+      <CategoryName>ui_reignbeta_party_chat</CategoryName>
+    </SpritePart>
+    <SpritePart>
+      <SheetID>8</SheetID>
+      <Name>reign_party_chat_preview_oval_mask</Name>
+      <Width>512</Width>
+      <Height>768</Height>
+      <SheetX>1078</SheetX>
+      <SheetY>4</SheetY>
+      <CategoryName>ui_reignbeta_party_chat</CategoryName>
+    </SpritePart>
+    <SpritePart>
+      <SheetID>4</SheetID>
+      <Name>reign_social_event_active_portrait_mask</Name>
+      <Width>112</Width>
+      <Height>112</Height>
+      <SheetX>4</SheetX>
+      <SheetY>4</SheetY>
+      <CategoryName>ui_reignbeta_social_event</CategoryName>
+    </SpritePart>
+    <SpritePart>
+      <SheetID>4</SheetID>
+      <Name>reign_social_event_available_portrait_mask</Name>
+      <Width>112</Width>
+      <Height>112</Height>
+      <SheetX>124</SheetX>
+      <SheetY>4</SheetY>
+      <CategoryName>ui_reignbeta_social_event</CategoryName>
+    </SpritePart>
+    <SpritePart>
+      <SheetID>4</SheetID>
+      <Name>reign_social_event_preview_oval_mask</Name>
+      <Width>512</Width>
+      <Height>768</Height>
+      <SheetX>244</SheetX>
+      <SheetY>4</SheetY>
+      <CategoryName>ui_reignbeta_social_event</CategoryName>
+    </SpritePart>
+    <SpritePart>
+      <SheetID>4</SheetID>
+      <Name>reign_social_event_generate_portrait_icon</Name>
+      <Width>52</Width>
+      <Height>52</Height>
+      <SheetX>764</SheetX>
+      <SheetY>4</SheetY>
+      <CategoryName>ui_reignbeta_social_event</CategoryName>
+    </SpritePart>
+    <SpritePart>
+      <SheetID>2</SheetID>
+      <Name>reign_war_council_lord_portrait_mask</Name>
+      <Width>113</Width>
+      <Height>127</Height>
+      <SheetX>4</SheetX>
+      <SheetY>4</SheetY>
+      <CategoryName>ui_reignbeta_war_council</CategoryName>
+    </SpritePart>
+    <SpritePart>
+      <SheetID>2</SheetID>
+      <Name>reign_war_council_assigned_portrait_mask</Name>
+      <Width>122</Width>
+      <Height>207</Height>
+      <SheetX>125</SheetX>
+      <SheetY>4</SheetY>
+      <CategoryName>ui_reignbeta_war_council</CategoryName>
+    </SpritePart>
+    <SpritePart>
+      <SheetID>2</SheetID>
+      <Name>reign_war_council_candidate_portrait_mask</Name>
+      <Width>54</Width>
+      <Height>54</Height>
+      <SheetX>255</SheetX>
+      <SheetY>4</SheetY>
+      <CategoryName>ui_reignbeta_war_council</CategoryName>
+    </SpritePart>
+    <SpritePart>
+      <SheetID>2</SheetID>
+      <Name>reign_war_council_lord_portrait_mask_active</Name>
+      <Width>113</Width>
+      <Height>127</Height>
+      <SheetX>317</SheetX>
+      <SheetY>4</SheetY>
+      <CategoryName>ui_reignbeta_war_council</CategoryName>
+    </SpritePart>
+    <SpritePart>
+      <SheetID>2</SheetID>
+      <Name>reign_war_council_lord_card_overlay</Name>
+      <Width>417</Width>
+      <Height>147</Height>
+      <SheetX>438</SheetX>
+      <SheetY>4</SheetY>
+      <CategoryName>ui_reignbeta_war_council</CategoryName>
+    </SpritePart>
+    <SpritePart>
+      <SheetID>2</SheetID>
+      <Name>reign_war_council_assigned_card_overlay</Name>
+      <Width>438</Width>
+      <Height>207</Height>
+      <SheetX>4</SheetX>
+      <SheetY>219</SheetY>
+      <CategoryName>ui_reignbeta_war_council</CategoryName>
+    </SpritePart>
+    <SpritePart>
+      <SheetID>2</SheetID>
+      <Name>reign_war_raven_card_icon</Name>
+      <Width>46</Width>
+      <Height>46</Height>
+      <SheetX>450</SheetX>
+      <SheetY>219</SheetY>
+      <CategoryName>ui_reignbeta_war_council</CategoryName>
+    </SpritePart>
+    <SpritePart>
+      <SheetID>3</SheetID>
+      <Name>reign_correspondence_modern_selected_contact_overlay</Name>
+      <Width>389</Width>
+      <Height>114</Height>
+      <SheetX>4</SheetX>
+      <SheetY>4</SheetY>
+      <CategoryName>ui_reignbeta_correspondence</CategoryName>
+    </SpritePart>
+    <SpritePart>
+      <SheetID>3</SheetID>
+      <Name>reign_correspondence_contact_portrait_mask</Name>
+      <Width>79</Width>
+      <Height>79</Height>
+      <SheetX>401</SheetX>
+      <SheetY>4</SheetY>
+      <CategoryName>ui_reignbeta_correspondence</CategoryName>
+    </SpritePart>
+    <SpritePart>
+      <SheetID>1</SheetID>
+      <Name>ReignSerifDynamic</Name>
+      <Width>2048</Width>
+      <Height>2048</Height>
+      <SheetX>4</SheetX>
+      <SheetY>4</SheetY>
+      <CategoryName>ui_reignbeta_fonts</CategoryName>
+    </SpritePart>
+    <SpritePart>
+      <SheetID>1</SheetID>
+      <Name>reign_training_yard_modern_shell</Name>
+      <Width>1672</Width>
+      <Height>941</Height>
+      <SheetX>4</SheetX>
+      <SheetY>4</SheetY>
+      <CategoryName>ui_reignbeta_training_yard</CategoryName>
+    </SpritePart>
+    <SpritePart>
+      <SheetID>1</SheetID>
+      <Name>ReignSerifActionItalic</Name>
+      <Width>2048</Width><Height>2048</Height><SheetX>0</SheetX><SheetY>0</SheetY>
+      <CategoryName>ui_reignbeta_action_fonts</CategoryName>
+    </SpritePart>
+  <SpritePart><SheetID>1</SheetID><Name>reign_clan_accords_shell</Name><Width>1672</Width><Height>941</Height><SheetX>4</SheetX><SheetY>4</SheetY><CategoryName>ui_reignbeta_clan_accords</CategoryName></SpritePart>
+<SpritePart><SheetID>1</SheetID><Name>reign_clan_accords_card</Name><Width>1188</Width><Height>104</Height><SheetX>4</SheetX><SheetY>953</SheetY><CategoryName>ui_reignbeta_clan_accords</CategoryName></SpritePart>
+<SpritePart><SheetID>1</SheetID><Name>reign_clan_accords_button</Name><Width>140</Width><Height>40</Height><SheetX>4</SheetX><SheetY>1065</SheetY><CategoryName>ui_reignbeta_clan_accords</CategoryName></SpritePart>
+<SpritePart><SheetID>1</SheetID><Name>reign_clan_accords_filter</Name><Width>294</Width><Height>45</Height><SheetX>152</SheetX><SheetY>1065</SheetY><CategoryName>ui_reignbeta_clan_accords</CategoryName></SpritePart>
+<SpritePart><SheetID>1</SheetID><Name>reign_clan_accords_economy_entry</Name><Width>425</Width><Height>86</Height><SheetX>454</SheetX><SheetY>1065</SheetY><CategoryName>ui_reignbeta_clan_accords</CategoryName></SpritePart>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  <SpritePart><SheetID>1</SheetID><Name>reign_clan_accords_filter_idle</Name><Width>294</Width><Height>44</Height><SheetX>888</SheetX><SheetY>1065</SheetY><CategoryName>ui_reignbeta_clan_accords</CategoryName></SpritePart>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<SpritePart><SheetID>1</SheetID><Name>reign_government_hearing_shell</Name><Width>1672</Width><Height>941</Height><SheetX>4</SheetX><SheetY>4</SheetY><CategoryName>ui_reignbeta_government</CategoryName></SpritePart>
+<SpritePart><SheetID>1</SheetID><Name>reign_government_party_card</Name><Width>340</Width><Height>180</Height><SheetX>1684</SheetX><SheetY>4</SheetY><CategoryName>ui_reignbeta_government</CategoryName></SpritePart>
+<SpritePart><SheetID>1</SheetID><Name>reign_government_directory_card</Name><Width>840</Width><Height>110</Height><SheetX>4</SheetX><SheetY>953</SheetY><CategoryName>ui_reignbeta_government</CategoryName></SpritePart>
+<SpritePart><SheetID>1</SheetID><Name>reign_government_participant_card</Name><Width>340</Width><Height>110</Height><SheetX>852</SheetX><SheetY>953</SheetY><CategoryName>ui_reignbeta_government</CategoryName></SpritePart>
+<SpritePart><SheetID>1</SheetID><Name>reign_government_obligation_card</Name><Width>840</Width><Height>100</Height><SheetX>1200</SheetX><SheetY>953</SheetY><CategoryName>ui_reignbeta_government</CategoryName></SpritePart>
+<SpritePart><SheetID>1</SheetID><Name>reign_government_issue_person_card</Name><Width>308</Width><Height>100</Height><SheetX>4</SheetX><SheetY>1071</SheetY><CategoryName>ui_reignbeta_government</CategoryName></SpritePart>
+<SpritePart><SheetID>1</SheetID><Name>reign_government_attendance_card</Name><Width>340</Width><Height>98</Height><SheetX>320</SheetX><SheetY>1071</SheetY><CategoryName>ui_reignbeta_government</CategoryName></SpritePart>
+<SpritePart><SheetID>1</SheetID><Name>reign_government_private_card</Name><Width>340</Width><Height>90</Height><SheetX>668</SheetX><SheetY>1071</SheetY><CategoryName>ui_reignbeta_government</CategoryName></SpritePart>
+<SpritePart><SheetID>1</SheetID><Name>reign_government_business_card</Name><Width>340</Width><Height>84</Height><SheetX>1016</SheetX><SheetY>1071</SheetY><CategoryName>ui_reignbeta_government</CategoryName></SpritePart>
+<SpritePart><SheetID>1</SheetID><Name>reign_government_business_selected</Name><Width>340</Width><Height>84</Height><SheetX>1364</SheetX><SheetY>1071</SheetY><CategoryName>ui_reignbeta_government</CategoryName></SpritePart>
+<SpritePart><SheetID>1</SheetID><Name>reign_government_business_policy</Name><Width>340</Width><Height>84</Height><SheetX>4</SheetX><SheetY>1179</SheetY><CategoryName>ui_reignbeta_government</CategoryName></SpritePart>
+<SpritePart><SheetID>1</SheetID><Name>reign_government_business_policy_selected</Name><Width>340</Width><Height>84</Height><SheetX>352</SheetX><SheetY>1179</SheetY><CategoryName>ui_reignbeta_government</CategoryName></SpritePart>
+<SpritePart><SheetID>1</SheetID><Name>reign_government_business_fief</Name><Width>340</Width><Height>84</Height><SheetX>700</SheetX><SheetY>1179</SheetY><CategoryName>ui_reignbeta_government</CategoryName></SpritePart>
+<SpritePart><SheetID>1</SheetID><Name>reign_government_business_fief_selected</Name><Width>340</Width><Height>84</Height><SheetX>1048</SheetX><SheetY>1179</SheetY><CategoryName>ui_reignbeta_government</CategoryName></SpritePart>
+<SpritePart><SheetID>1</SheetID><Name>reign_government_business_diplomacy</Name><Width>340</Width><Height>84</Height><SheetX>1396</SheetX><SheetY>1179</SheetY><CategoryName>ui_reignbeta_government</CategoryName></SpritePart>
+<SpritePart><SheetID>1</SheetID><Name>reign_government_business_diplomacy_selected</Name><Width>340</Width><Height>84</Height><SheetX>4</SheetX><SheetY>1271</SheetY><CategoryName>ui_reignbeta_government</CategoryName></SpritePart>
+<SpritePart><SheetID>1</SheetID><Name>reign_government_business_seasonal</Name><Width>340</Width><Height>84</Height><SheetX>352</SheetX><SheetY>1271</SheetY><CategoryName>ui_reignbeta_government</CategoryName></SpritePart>
+<SpritePart><SheetID>1</SheetID><Name>reign_government_business_seasonal_selected</Name><Width>340</Width><Height>84</Height><SheetX>700</SheetX><SheetY>1271</SheetY><CategoryName>ui_reignbeta_government</CategoryName></SpritePart>
+<SpritePart><SheetID>1</SheetID><Name>reign_government_transcript_card</Name><Width>840</Width><Height>72</Height><SheetX>1048</SheetX><SheetY>1271</SheetY><CategoryName>ui_reignbeta_government</CategoryName></SpritePart>
+<SpritePart><SheetID>1</SheetID><Name>reign_government_action_group</Name><Width>641</Width><Height>70</Height><SheetX>4</SheetX><SheetY>1363</SheetY><CategoryName>ui_reignbeta_government</CategoryName></SpritePart>
+<SpritePart><SheetID>1</SheetID><Name>reign_government_option_card</Name><Width>414</Width><Height>65</Height><SheetX>653</SheetX><SheetY>1363</SheetY><CategoryName>ui_reignbeta_government</CategoryName></SpritePart>
+<SpritePart><SheetID>1</SheetID><Name>reign_government_option_selected</Name><Width>414</Width><Height>65</Height><SheetX>1075</SheetX><SheetY>1363</SheetY><CategoryName>ui_reignbeta_government</CategoryName></SpritePart>
+<SpritePart><SheetID>1</SheetID><Name>reign_government_button_selected</Name><Width>326</Width><Height>57</Height><SheetX>1497</SheetX><SheetY>1363</SheetY><CategoryName>ui_reignbeta_government</CategoryName></SpritePart>
+<SpritePart><SheetID>1</SheetID><Name>reign_government_button</Name><Width>280</Width><Height>50</Height><SheetX>4</SheetX><SheetY>1441</SheetY><CategoryName>ui_reignbeta_government</CategoryName></SpritePart>
+<SpritePart><SheetID>1</SheetID><Name>reign_government_postpone_button</Name><Width>280</Width><Height>50</Height><SheetX>292</SheetX><SheetY>1441</SheetY><CategoryName>ui_reignbeta_government</CategoryName></SpritePart>
+<SpritePart><SheetID>1</SheetID><Name>reign_government_recommendation</Name><Width>414</Width><Height>47</Height><SheetX>580</SheetX><SheetY>1441</SheetY><CategoryName>ui_reignbeta_government</CategoryName></SpritePart>
+<SpritePart><SheetID>1</SheetID><Name>reign_government_recommendation_selected</Name><Width>414</Width><Height>47</Height><SheetX>1002</SheetX><SheetY>1441</SheetY><CategoryName>ui_reignbeta_government</CategoryName></SpritePart>
+<SpritePart><SheetID>1</SheetID><Name>reign_government_view_members_button</Name><Width>338</Width><Height>46</Height><SheetX>1424</SheetX><SheetY>1441</SheetY><CategoryName>ui_reignbeta_government</CategoryName></SpritePart>
+<SpritePart><SheetID>1</SheetID><Name>reign_government_tab_archive</Name><Width>199</Width><Height>45</Height><SheetX>1770</SheetX><SheetY>1441</SheetY><CategoryName>ui_reignbeta_government</CategoryName></SpritePart>
+<SpritePart><SheetID>1</SheetID><Name>reign_government_tab_archive_selected</Name><Width>199</Width><Height>45</Height><SheetX>4</SheetX><SheetY>1499</SheetY><CategoryName>ui_reignbeta_government</CategoryName></SpritePart>
+<SpritePart><SheetID>1</SheetID><Name>reign_government_tab_members</Name><Width>197</Width><Height>45</Height><SheetX>211</SheetX><SheetY>1499</SheetY><CategoryName>ui_reignbeta_government</CategoryName></SpritePart>
+<SpritePart><SheetID>1</SheetID><Name>reign_government_tab_members_selected</Name><Width>197</Width><Height>45</Height><SheetX>416</SheetX><SheetY>1499</SheetY><CategoryName>ui_reignbeta_government</CategoryName></SpritePart>
+<SpritePart><SheetID>1</SheetID><Name>reign_government_tab_business</Name><Width>152</Width><Height>45</Height><SheetX>621</SheetX><SheetY>1499</SheetY><CategoryName>ui_reignbeta_government</CategoryName></SpritePart>
+<SpritePart><SheetID>1</SheetID><Name>reign_government_tab_business_selected</Name><Width>152</Width><Height>45</Height><SheetX>781</SheetX><SheetY>1499</SheetY><CategoryName>ui_reignbeta_government</CategoryName></SpritePart>
+<SpritePart><SheetID>1</SheetID><Name>reign_government_tab_hearing</Name><Width>114</Width><Height>45</Height><SheetX>941</SheetX><SheetY>1499</SheetY><CategoryName>ui_reignbeta_government</CategoryName></SpritePart>
+<SpritePart><SheetID>1</SheetID><Name>reign_government_tab_hearing_selected</Name><Width>114</Width><Height>45</Height><SheetX>1063</SheetX><SheetY>1499</SheetY><CategoryName>ui_reignbeta_government</CategoryName></SpritePart>
+<SpritePart><SheetID>1</SheetID><Name>reign_government_input</Name><Width>717</Width><Height>42</Height><SheetX>1185</SheetX><SheetY>1499</SheetY><CategoryName>ui_reignbeta_government</CategoryName></SpritePart>
+<SpritePart><SheetID>1</SheetID><Name>reign_government_speak</Name><Width>113</Width><Height>42</Height><SheetX>1910</SheetX><SheetY>1499</SheetY><CategoryName>ui_reignbeta_government</CategoryName></SpritePart>
+<SpritePart><SheetID>1</SheetID><Name>reign_government_close</Name><Width>94</Width><Height>37</Height><SheetX>4</SheetX><SheetY>1552</SheetY><CategoryName>ui_reignbeta_government</CategoryName></SpritePart>
+</SpriteParts>
+  <Sprites>
+    <GenericSprite><Name>reign_tavern_house_shell</Name><SpritePartName>reign_tavern_house_shell</SpritePartName></GenericSprite>
+    <GenericSprite><Name>reign_tavern_house_worker_card</Name><SpritePartName>reign_tavern_house_worker_card</SpritePartName></GenericSprite>
+    <GenericSprite><Name>reign_tavern_house_madam_card</Name><SpritePartName>reign_tavern_house_madam_card</SpritePartName></GenericSprite>
+    <GenericSprite><Name>reign_tavern_house_eye</Name><SpritePartName>reign_tavern_house_eye</SpritePartName></GenericSprite>
+    <GenericSprite><Name>reign_tavern_house_agreement</Name><SpritePartName>reign_tavern_house_agreement</SpritePartName></GenericSprite>
+    <GenericSprite>
+      <Name>reign_homes_lane</Name>
+      <SpritePartName>reign_homes_lane</SpritePartName>
+    </GenericSprite>
+    <GenericSprite>
+      <Name>reign_training_yard_modern_shell</Name>
+      <SpritePartName>reign_training_yard_modern_shell</SpritePartName>
+    </GenericSprite>
+    <GenericSprite>
+      <Name>reign_royal_council_modern_shell</Name>
+      <SpritePartName>reign_royal_council_modern_shell</SpritePartName>
+    </GenericSprite>
+    <GenericSprite>
+      <Name>reign_royal_council_war_portrait_mask</Name>
+      <SpritePartName>reign_royal_council_war_portrait_mask</SpritePartName>
+    </GenericSprite>
+    <GenericSprite>
+      <Name>reign_royal_council_spymaster_portrait_mask</Name>
+      <SpritePartName>reign_royal_council_spymaster_portrait_mask</SpritePartName>
+    </GenericSprite>
+    <GenericSprite>
+      <Name>reign_royal_council_economic_portrait_mask</Name>
+      <SpritePartName>reign_royal_council_economic_portrait_mask</SpritePartName>
+    </GenericSprite>
+    <GenericSprite>
+      <Name>reign_royal_council_foreign_portrait_mask</Name>
+      <SpritePartName>reign_royal_council_foreign_portrait_mask</SpritePartName>
+    </GenericSprite>
+    <GenericSprite>
+      <Name>reign_economic_report_background</Name>
+      <SpritePartName>reign_economic_report_background</SpritePartName>
+    </GenericSprite>
+    <GenericSprite>
+      <Name>reign_ambassador_hall</Name>
+      <SpritePartName>reign_ambassador_hall</SpritePartName>
+    </GenericSprite>
+    <GenericSprite>
+      <Name>reign_ambassador_card_overlay</Name>
+      <SpritePartName>reign_ambassador_card_overlay</SpritePartName>
+    </GenericSprite>
+    <GenericSprite>
+      <Name>reign_ambassador_banner_overlay</Name>
+      <SpritePartName>reign_ambassador_banner_overlay</SpritePartName>
+    </GenericSprite>
+    <GenericSprite>
+      <Name>reign_ambassador_modern_shell</Name>
+      <SpritePartName>reign_ambassador_modern_shell</SpritePartName>
+    </GenericSprite>
+    <GenericSprite>
+      <Name>reign_ambassador_modern_card_overlay</Name>
+      <SpritePartName>reign_ambassador_modern_card_overlay</SpritePartName>
+    </GenericSprite>
+    <GenericSprite>
+      <Name>reign_ambassador_modern_advisor_card_overlay</Name>
+      <SpritePartName>reign_ambassador_modern_advisor_card_overlay</SpritePartName>
+    </GenericSprite>
+    <GenericSprite>
+      <Name>reign_ambassador_modern_envoy_card_overlay</Name>
+      <SpritePartName>reign_ambassador_modern_envoy_card_overlay</SpritePartName>
+    </GenericSprite>
+    <GenericSprite>
+      <Name>reign_ambassador_modern_scroll_handle</Name>
+      <SpritePartName>reign_ambassador_modern_scroll_handle</SpritePartName>
+    </GenericSprite>
+    <GenericSprite>
+      <Name>reign_ambassador_modern_fixed_overlay</Name>
+      <SpritePartName>reign_ambassador_modern_fixed_overlay</SpritePartName>
+    </GenericSprite>
+    <GenericSprite>
+      <Name>reign_spymaster_background</Name>
+      <SpritePartName>reign_spymaster_background</SpritePartName>
+    </GenericSprite>
+    <GenericSprite>
+      <Name>reign_spymaster_portrait_frame_overlay</Name>
+      <SpritePartName>reign_spymaster_portrait_frame_overlay</SpritePartName>
+    </GenericSprite>
+    <GenericSprite>
+      <Name>reign_spymaster_modern_shell</Name>
+      <SpritePartName>reign_spymaster_modern_shell</SpritePartName>
+    </GenericSprite>
+    <NineRegionSprite>
+      <Name>reign_spymaster_selector_plate</Name>
+      <SpritePartName>reign_spymaster_selector_plate</SpritePartName>
+      <LeftWidth>28</LeftWidth>
+      <RightWidth>28</RightWidth>
+      <TopHeight>16</TopHeight>
+      <BottomHeight>16</BottomHeight>
+    </NineRegionSprite>
+    <GenericSprite>
+      <Name>reign_spymaster_scope_clear_patch</Name>
+      <SpritePartName>reign_spymaster_scope_clear_patch</SpritePartName>
+    </GenericSprite>
+    <GenericSprite>
+      <Name>reign_calibration_modern_panel</Name>
+      <SpritePartName>reign_calibration_modern_panel</SpritePartName>
+    </GenericSprite>
+    <GenericSprite>
+      <Name>reign_calibration_modern_launcher</Name>
+      <SpritePartName>reign_calibration_modern_launcher</SpritePartName>
+    </GenericSprite>
+    <GenericSprite>
+      <Name>reign_castle_layout_background</Name>
+      <SpritePartName>reign_castle_layout_background</SpritePartName>
+    </GenericSprite>
+    <GenericSprite>
+      <Name>reign_individual_chat_background</Name>
+      <SpritePartName>reign_individual_chat_background</SpritePartName>
+    </GenericSprite>
+    <GenericSprite>
+      <Name>reign_individual_chat_portrait_frame</Name>
+      <SpritePartName>reign_individual_chat_portrait_frame</SpritePartName>
+    </GenericSprite>
+    <NineRegionSprite>
+      <Name>reign_individual_chat_log_panel</Name>
+      <SpritePartName>reign_individual_chat_log_panel</SpritePartName>
+      <LeftWidth>64</LeftWidth>
+      <RightWidth>64</RightWidth>
+      <TopHeight>48</TopHeight>
+      <BottomHeight>48</BottomHeight>
+    </NineRegionSprite>
+    <GenericSprite>
+      <Name>reign_pregnancy_warning</Name>
+      <SpritePartName>reign_pregnancy_warning</SpritePartName>
+    </GenericSprite>
+    <GenericSprite>
+      <Name>reign_individual_chat_modern_shell</Name>
+      <SpritePartName>reign_individual_chat_modern_shell</SpritePartName>
+    </GenericSprite>
+    <GenericSprite>
+      <Name>reign_party_chat_background</Name>
+      <SpritePartName>reign_party_chat_background</SpritePartName>
+    </GenericSprite>
+    <GenericSprite>
+      <Name>reign_party_chat_shell</Name>
+      <SpritePartName>reign_party_chat_shell</SpritePartName>
+    </GenericSprite>
+    <GenericSprite>
+      <Name>reign_party_chat_modern_shell</Name>
+        <SpritePartName>reign_party_chat_modern_shell</SpritePartName>
+      </GenericSprite>
+      <GenericSprite>
+        <Name>reign_party_chat_member_card_overlay</Name>
+        <SpritePartName>reign_party_chat_member_card_overlay</SpritePartName>
+    </GenericSprite>
+    <GenericSprite>
+      <Name>reign_party_chat_header</Name>
+      <SpritePartName>reign_party_chat_header</SpritePartName>
+    </GenericSprite>
+    <GenericSprite>
+      <Name>reign_party_chat_roster</Name>
+      <SpritePartName>reign_party_chat_roster</SpritePartName>
+    </GenericSprite>
+    <GenericSprite>
+      <Name>reign_party_chat_card_normal</Name>
+      <SpritePartName>reign_party_chat_card_normal</SpritePartName>
+    </GenericSprite>
+    <GenericSprite>
+      <Name>reign_party_chat_card_active</Name>
+      <SpritePartName>reign_party_chat_card_active</SpritePartName>
+    </GenericSprite>
+    <GenericSprite>
+      <Name>reign_party_chat_card_hover</Name>
+      <SpritePartName>reign_party_chat_card_hover</SpritePartName>
+    </GenericSprite>
+    <GenericSprite>
+      <Name>reign_party_chat_button_normal</Name>
+      <SpritePartName>reign_party_chat_button_normal</SpritePartName>
+    </GenericSprite>
+    <GenericSprite>
+      <Name>reign_party_chat_button_hover</Name>
+      <SpritePartName>reign_party_chat_button_hover</SpritePartName>
+    </GenericSprite>
+    <GenericSprite>
+      <Name>reign_party_chat_log</Name>
+      <SpritePartName>reign_party_chat_log</SpritePartName>
+    </GenericSprite>
+    <GenericSprite>
+      <Name>reign_party_chat_roster_scroll_track</Name>
+      <SpritePartName>reign_party_chat_roster_scroll_track</SpritePartName>
+    </GenericSprite>
+    <GenericSprite>
+      <Name>reign_party_chat_roster_scroll_handle</Name>
+      <SpritePartName>reign_party_chat_roster_scroll_handle</SpritePartName>
+    </GenericSprite>
+    <GenericSprite>
+      <Name>reign_party_chat_portrait_preview</Name>
+      <SpritePartName>reign_party_chat_portrait_preview</SpritePartName>
+    </GenericSprite>
+    <GenericSprite>
+      <Name>reign_party_chat_scroll_track</Name>
+      <SpritePartName>reign_party_chat_scroll_track</SpritePartName>
+    </GenericSprite>
+    <GenericSprite>
+      <Name>reign_party_chat_scroll_handle</Name>
+      <SpritePartName>reign_party_chat_scroll_handle</SpritePartName>
+    </GenericSprite>
+    <GenericSprite>
+      <Name>reign_party_chat_player_message</Name>
+      <SpritePartName>reign_party_chat_player_message</SpritePartName>
+    </GenericSprite>
+    <GenericSprite>
+      <Name>reign_party_chat_npc_message</Name>
+      <SpritePartName>reign_party_chat_npc_message</SpritePartName>
+    </GenericSprite>
+    <GenericSprite>
+      <Name>reign_party_chat_system_message</Name>
+      <SpritePartName>reign_party_chat_system_message</SpritePartName>
+    </GenericSprite>
+    <GenericSprite>
+      <Name>reign_party_chat_divider</Name>
+      <SpritePartName>reign_party_chat_divider</SpritePartName>
+    </GenericSprite>
+    <GenericSprite>
+      <Name>reign_party_chat_input</Name>
+      <SpritePartName>reign_party_chat_input</SpritePartName>
+    </GenericSprite>
+    <GenericSprite>
+      <Name>reign_party_chat_send_normal</Name>
+      <SpritePartName>reign_party_chat_send_normal</SpritePartName>
+    </GenericSprite>
+    <GenericSprite>
+      <Name>reign_party_chat_send_hover</Name>
+      <SpritePartName>reign_party_chat_send_hover</SpritePartName>
+    </GenericSprite>
+    <GenericSprite>
+      <Name>reign_party_chat_preview_scroll_track</Name>
+      <SpritePartName>reign_party_chat_preview_scroll_track</SpritePartName>
+    </GenericSprite>
+    <GenericSprite>
+      <Name>reign_party_chat_preview_scroll_handle</Name>
+      <SpritePartName>reign_party_chat_preview_scroll_handle</SpritePartName>
+    </GenericSprite>
+    <GenericSprite><Name>reign_court_outer_frame</Name><SpritePartName>reign_court_outer_frame</SpritePartName></GenericSprite>
+    <GenericSprite><Name>reign_court_docket_panel</Name><SpritePartName>reign_court_docket_panel</SpritePartName></GenericSprite>
+    <GenericSprite><Name>reign_court_command_rail</Name><SpritePartName>reign_court_command_rail</SpritePartName></GenericSprite>
+    <GenericSprite><Name>reign_court_throne_background</Name><SpritePartName>reign_court_throne_background</SpritePartName></GenericSprite>
+    <GenericSprite><Name>reign_court_scroll_track</Name><SpritePartName>reign_court_scroll_track</SpritePartName></GenericSprite>
+    <GenericSprite><Name>reign_court_banner_overlay</Name><SpritePartName>reign_court_banner_overlay</SpritePartName></GenericSprite>
+    <GenericSprite><Name>reign_court_banner_backing</Name><SpritePartName>reign_court_banner_backing</SpritePartName></GenericSprite>
+    <GenericSprite><Name>reign_court_docket_card</Name><SpritePartName>reign_court_docket_card</SpritePartName></GenericSprite>
+    <GenericSprite><Name>reign_court_command_button</Name><SpritePartName>reign_court_command_button</SpritePartName></GenericSprite>
+    <GenericSprite><Name>reign_court_command_button_hover</Name><SpritePartName>reign_court_command_button_hover</SpritePartName></GenericSprite>
+    <GenericSprite><Name>reign_court_command_button_pressed</Name><SpritePartName>reign_court_command_button_pressed</SpritePartName></GenericSprite>
+    <GenericSprite><Name>reign_court_reign_medallion</Name><SpritePartName>reign_court_reign_medallion</SpritePartName></GenericSprite>
+    <GenericSprite><Name>reign_court_status_bar</Name><SpritePartName>reign_court_status_bar</SpritePartName></GenericSprite>
+    <GenericSprite><Name>reign_court_identity_frame</Name><SpritePartName>reign_court_identity_frame</SpritePartName></GenericSprite>
+    <GenericSprite><Name>reign_court_status_frame</Name><SpritePartName>reign_court_status_frame</SpritePartName></GenericSprite>
+    <GenericSprite><Name>reign_court_bottom_bar</Name><SpritePartName>reign_court_bottom_bar</SpritePartName></GenericSprite>
+    <GenericSprite><Name>reign_court_scroll_handle</Name><SpritePartName>reign_court_scroll_handle</SpritePartName></GenericSprite>
+    <GenericSprite><Name>reign_court_title_plaque</Name><SpritePartName>reign_court_title_plaque</SpritePartName></GenericSprite>
+    <GenericSprite><Name>reign_court_docket_header</Name><SpritePartName>reign_court_docket_header</SpritePartName></GenericSprite>
+    <GenericSprite><Name>reign_court_docket_accounts</Name><SpritePartName>reign_court_docket_accounts</SpritePartName></GenericSprite>
+    <GenericSprite><Name>reign_court_docket_correspondence</Name><SpritePartName>reign_court_docket_correspondence</SpritePartName></GenericSprite>
+    <GenericSprite><Name>reign_court_docket_diplomacy</Name><SpritePartName>reign_court_docket_diplomacy</SpritePartName></GenericSprite>
+    <GenericSprite><Name>reign_court_docket_justice</Name><SpritePartName>reign_court_docket_justice</SpritePartName></GenericSprite>
+    <GenericSprite><Name>reign_court_docket_military</Name><SpritePartName>reign_court_docket_military</SpritePartName></GenericSprite>
+    <GenericSprite><Name>reign_court_docket_social</Name><SpritePartName>reign_court_docket_social</SpritePartName></GenericSprite>
+    <GenericSprite><Name>reign_court_docket_urgent</Name><SpritePartName>reign_court_docket_urgent</SpritePartName></GenericSprite>
+    <GenericSprite><Name>reign_court_icon_ambassadors</Name><SpritePartName>reign_court_icon_ambassadors</SpritePartName></GenericSprite>
+    <GenericSprite><Name>reign_court_icon_economic_report</Name><SpritePartName>reign_court_icon_economic_report</SpritePartName></GenericSprite>
+    <GenericSprite><Name>reign_court_icon_keep</Name><SpritePartName>reign_court_icon_keep</SpritePartName></GenericSprite>
+    <GenericSprite><Name>reign_court_icon_spymaster</Name><SpritePartName>reign_court_icon_spymaster</SpritePartName></GenericSprite>
+    <GenericSprite><Name>reign_court_icon_war_council</Name><SpritePartName>reign_court_icon_war_council</SpritePartName></GenericSprite>
+    <GenericSprite><Name>reign_court_status_funds</Name><SpritePartName>reign_court_status_funds</SpritePartName></GenericSprite>
+    <GenericSprite><Name>reign_court_status_influence</Name><SpritePartName>reign_court_status_influence</SpritePartName></GenericSprite>
+    <GenericSprite><Name>reign_court_status_presence</Name><SpritePartName>reign_court_status_presence</SpritePartName></GenericSprite>
+    <GenericSprite><Name>reign_court_status_renown</Name><SpritePartName>reign_court_status_renown</SpritePartName></GenericSprite>
+    <GenericSprite><Name>reign_court_status_strength</Name><SpritePartName>reign_court_status_strength</SpritePartName></GenericSprite>
+    <GenericSprite><Name>reign_court_status_supply</Name><SpritePartName>reign_court_status_supply</SpritePartName></GenericSprite>
+    <GenericSprite><Name>reign_court_advance_button</Name><SpritePartName>reign_court_advance_button</SpritePartName></GenericSprite>
+    <GenericSprite><Name>reign_court_control_button</Name><SpritePartName>reign_court_control_button</SpritePartName></GenericSprite>
+    <GenericSprite><Name>reign_court_divider</Name><SpritePartName>reign_court_divider</SpritePartName></GenericSprite>
+    <GenericSprite><Name>reign_court_dashboard_template</Name><SpritePartName>reign_court_dashboard_template</SpritePartName></GenericSprite>
+    <GenericSprite><Name>reign_court_dashboard_template_large</Name><SpritePartName>reign_court_dashboard_template_large</SpritePartName></GenericSprite>
+    <GenericSprite><Name>reign_court_compact_overlay</Name><SpritePartName>reign_court_compact_overlay</SpritePartName></GenericSprite>
+    <GenericSprite><Name>reign_court_throne_button_strip</Name><SpritePartName>reign_court_throne_button_strip</SpritePartName></GenericSprite>
+    <GenericSprite><Name>reign_court_modern_shell</Name><SpritePartName>reign_court_modern_shell</SpritePartName></GenericSprite>
+    <GenericSprite><Name>reign_court_modern_banner_left_mask</Name><SpritePartName>reign_court_modern_banner_left_mask</SpritePartName></GenericSprite>
+    <GenericSprite><Name>reign_court_modern_banner_right_mask</Name><SpritePartName>reign_court_modern_banner_right_mask</SpritePartName></GenericSprite>
+    <GenericSprite><Name>reign_court_petition_modern_shell</Name><SpritePartName>reign_court_petition_modern_shell</SpritePartName></GenericSprite>
+    <GenericSprite><Name>reign_court_chancellor_card_modern</Name><SpritePartName>reign_court_chancellor_card_modern</SpritePartName></GenericSprite>
+    <GenericSprite><Name>reign_court_petition_card_modern</Name><SpritePartName>reign_court_petition_card_modern</SpritePartName></GenericSprite>
+    <GenericSprite><Name>reign_court_petition_attendee_card_modern</Name><SpritePartName>reign_court_petition_attendee_card_modern</SpritePartName></GenericSprite>
+    <GenericSprite><Name>reign_court_navigation_button_modern</Name><SpritePartName>reign_court_navigation_button_modern</SpritePartName></GenericSprite>
+    <GenericSprite><Name>reign_court_office_modern_shell</Name><SpritePartName>reign_court_office_modern_shell</SpritePartName></GenericSprite>
+    <GenericSprite>
+      <Name>reign_social_event_background</Name>
+      <SpritePartName>reign_social_event_background</SpritePartName>
+    </GenericSprite>
+    <NineRegionSprite>
+      <Name>reign_social_event_attendees_frame</Name>
+      <SpritePartName>reign_social_event_attendees_frame</SpritePartName>
+      <LeftWidth>36</LeftWidth>
+      <RightWidth>36</RightWidth>
+      <TopHeight>38</TopHeight>
+      <BottomHeight>38</BottomHeight>
+    </NineRegionSprite>
+    <NineRegionSprite>
+      <Name>reign_social_event_header_frame</Name>
+      <SpritePartName>reign_social_event_header_frame</SpritePartName>
+      <LeftWidth>44</LeftWidth>
+      <RightWidth>44</RightWidth>
+      <TopHeight>34</TopHeight>
+      <BottomHeight>34</BottomHeight>
+    </NineRegionSprite>
+    <NineRegionSprite>
+      <Name>reign_social_event_phase_frame</Name>
+      <SpritePartName>reign_social_event_phase_frame</SpritePartName>
+      <LeftWidth>38</LeftWidth>
+      <RightWidth>38</RightWidth>
+      <TopHeight>32</TopHeight>
+      <BottomHeight>32</BottomHeight>
+    </NineRegionSprite>
+    <NineRegionSprite>
+      <Name>reign_social_event_chat_frame</Name>
+      <SpritePartName>reign_social_event_chat_frame</SpritePartName>
+      <LeftWidth>38</LeftWidth>
+      <RightWidth>38</RightWidth>
+      <TopHeight>34</TopHeight>
+      <BottomHeight>34</BottomHeight>
+    </NineRegionSprite>
+    <NineRegionSprite>
+      <Name>reign_social_event_card_frame</Name>
+      <SpritePartName>reign_social_event_card_frame</SpritePartName>
+      <LeftWidth>34</LeftWidth>
+      <RightWidth>34</RightWidth>
+      <TopHeight>34</TopHeight>
+      <BottomHeight>34</BottomHeight>
+    </NineRegionSprite>
+    <GenericSprite>
+      <Name>reign_social_event_portrait_frame</Name>
+      <SpritePartName>reign_social_event_portrait_frame</SpritePartName>
+    </GenericSprite>
+    <GenericSprite>
+      <Name>reign_social_event_send_button</Name>
+      <SpritePartName>reign_social_event_send_button</SpritePartName>
+    </GenericSprite>
+    <GenericSprite>
+      <Name>reign_social_event_wait_approach_button</Name>
+      <SpritePartName>reign_social_event_wait_approach_button</SpritePartName>
+    </GenericSprite>
+    <GenericSprite>
+      <Name>reign_social_event_next_phase_button</Name>
+      <SpritePartName>reign_social_event_next_phase_button</SpritePartName>
+    </GenericSprite>
+    <GenericSprite>
+      <Name>reign_social_event_end_event_button</Name>
+      <SpritePartName>reign_social_event_end_event_button</SpritePartName>
+    </GenericSprite>
+    <GenericSprite>
+      <Name>reign_social_event_modern_shell</Name>
+      <SpritePartName>reign_social_event_modern_shell</SpritePartName>
+    </GenericSprite>
+    <GenericSprite>
+      <Name>reign_wilderness_event_modern_shell</Name>
+      <SpritePartName>reign_wilderness_event_modern_shell</SpritePartName>
+    </GenericSprite>
+    <GenericSprite>
+      <Name>reign_correspondence_background</Name>
+      <SpritePartName>reign_correspondence_background</SpritePartName>
+    </GenericSprite>
+    <GenericSprite>
+      <Name>reign_correspondence_contact_frame</Name>
+      <SpritePartName>reign_correspondence_contact_frame</SpritePartName>
+    </GenericSprite>
+    <GenericSprite>
+      <Name>reign_correspondence_button</Name>
+      <SpritePartName>reign_correspondence_button</SpritePartName>
+    </GenericSprite>
+    <NineRegionSprite>
+      <Name>reign_correspondence_player_letter</Name>
+      <SpritePartName>reign_correspondence_player_letter</SpritePartName>
+      <LeftWidth>160</LeftWidth>
+      <RightWidth>90</RightWidth>
+      <TopHeight>70</TopHeight>
+      <BottomHeight>70</BottomHeight>
+    </NineRegionSprite>
+    <NineRegionSprite>
+      <Name>reign_correspondence_npc_letter</Name>
+      <SpritePartName>reign_correspondence_npc_letter</SpritePartName>
+      <LeftWidth>90</LeftWidth>
+      <RightWidth>160</RightWidth>
+      <TopHeight>70</TopHeight>
+      <BottomHeight>70</BottomHeight>
+    </NineRegionSprite>
+    <GenericSprite>
+      <Name>reign_correspondence_scroll_track</Name>
+      <SpritePartName>reign_correspondence_scroll_track</SpritePartName>
+    </GenericSprite>
+    <GenericSprite>
+      <Name>reign_correspondence_scroll_handle</Name>
+      <SpritePartName>reign_correspondence_scroll_handle</SpritePartName>
+    </GenericSprite>
+    <GenericSprite>
+      <Name>reign_diplomacy_background</Name>
+      <SpritePartName>reign_diplomacy_background</SpritePartName>
+    </GenericSprite>
+    <GenericSprite>
+      <Name>reign_diplomacy_header</Name>
+      <SpritePartName>reign_diplomacy_header</SpritePartName>
+    </GenericSprite>
+    <GenericSprite>
+      <Name>reign_diplomacy_actor_panel</Name>
+      <SpritePartName>reign_diplomacy_actor_panel</SpritePartName>
+    </GenericSprite>
+    <GenericSprite>
+      <Name>reign_diplomacy_target_panel</Name>
+      <SpritePartName>reign_diplomacy_target_panel</SpritePartName>
+    </GenericSprite>
+    <GenericSprite>
+      <Name>reign_diplomacy_center_panel</Name>
+      <SpritePartName>reign_diplomacy_center_panel</SpritePartName>
+    </GenericSprite>
+    <GenericSprite>
+      <Name>reign_diplomacy_portrait_frame</Name>
+      <SpritePartName>reign_diplomacy_portrait_frame</SpritePartName>
+    </GenericSprite>
+    <GenericSprite>
+      <Name>reign_diplomacy_banner_frame</Name>
+      <SpritePartName>reign_diplomacy_banner_frame</SpritePartName>
+    </GenericSprite>
+    <GenericSprite>
+      <Name>reign_diplomacy_divider</Name>
+      <SpritePartName>reign_diplomacy_divider</SpritePartName>
+    </GenericSprite>
+    <GenericSprite>
+      <Name>reign_diplomacy_acknowledge_button</Name>
+      <SpritePartName>reign_diplomacy_acknowledge_button</SpritePartName>
+    </GenericSprite>
+    <GenericSprite>
+      <Name>reign_diplomacy_acknowledge_button_hover</Name>
+      <SpritePartName>reign_diplomacy_acknowledge_button_hover</SpritePartName>
+    </GenericSprite>
+    <GenericSprite>
+      <Name>reign_diplomacy_portrait_overlay_v2</Name>
+      <SpritePartName>reign_diplomacy_portrait_overlay_v2</SpritePartName>
+    </GenericSprite>
+    <GenericSprite>
+      <Name>reign_diplomacy_banner_wreath_overlay_v2</Name>
+      <SpritePartName>reign_diplomacy_banner_wreath_overlay_v2</SpritePartName>
+    </GenericSprite>
+    <GenericSprite>
+      <Name>reign_notable_generation_popup</Name>
+      <SpritePartName>reign_notable_generation_popup</SpritePartName>
+    </GenericSprite>
+    <GenericSprite>
+      <Name>reign_modern_memory_scene_overlay</Name>
+      <SpritePartName>reign_modern_memory_scene_overlay</SpritePartName>
+    </GenericSprite>
+    <GenericSprite>
+      <Name>reign_modern_portrait_circle_overlay</Name>
+      <SpritePartName>reign_modern_portrait_circle_overlay</SpritePartName>
+    </GenericSprite>
+    <GenericSprite>
+      <Name>reign_modern_portrait_oval_overlay</Name>
+      <SpritePartName>reign_modern_portrait_oval_overlay</SpritePartName>
+    </GenericSprite>
+    <GenericSprite>
+      <Name>reign_modern_portrait_oval_thin_frame</Name>
+      <SpritePartName>reign_modern_portrait_oval_thin_frame</SpritePartName>
+    </GenericSprite>
+    <GenericSprite>
+      <Name>reign_modern_banner_shield_overlay</Name>
+      <SpritePartName>reign_modern_banner_shield_overlay</SpritePartName>
+    </GenericSprite>
+    <GenericSprite>
+      <Name>reign_modern_portrait_empty_fill</Name>
+      <SpritePartName>reign_modern_portrait_empty_fill</SpritePartName>
+    </GenericSprite>
+    <GenericSprite>
+      <Name>reign_modern_crowned_r_crest</Name>
+      <SpritePartName>reign_modern_crowned_r_crest</SpritePartName>
+    </GenericSprite>
+    <GenericSprite>
+      <Name>reign_modern_portrait_rectangle_overlay</Name>
+      <SpritePartName>reign_modern_portrait_rectangle_overlay</SpritePartName>
+    </GenericSprite>
+    <GenericSprite>
+      <Name>reign_diplomacy_modern_shell</Name>
+      <SpritePartName>reign_diplomacy_modern_shell</SpritePartName>
+    </GenericSprite>
+    <GenericSprite>
+      <Name>reign_memories_book_modern_shell</Name>
+      <SpritePartName>reign_memories_book_modern_shell</SpritePartName>
+    </GenericSprite>
+    <GenericSprite>
+      <Name>reign_castle_layout_modern_shell</Name>
+      <SpritePartName>reign_castle_layout_modern_shell</SpritePartName>
+    </GenericSprite>
+    <GenericSprite>
+      <Name>reign_castle_layout_navigation_button</Name>
+      <SpritePartName>reign_castle_layout_navigation_button</SpritePartName>
+    </GenericSprite>
+
+    <GenericSprite>
+      <Name>reign_correspondence_modern_shell</Name>
+      <SpritePartName>reign_correspondence_modern_shell</SpritePartName>
+    </GenericSprite>
+    <GenericSprite>
+      <Name>reign_economic_report_modern_shell</Name>
+      <SpritePartName>reign_economic_report_modern_shell</SpritePartName>
+    </GenericSprite>
+    <GenericSprite>
+      <Name>reign_economic_advisor_portrait_mask</Name>
+      <SpritePartName>reign_economic_advisor_portrait_mask</SpritePartName>
+    </GenericSprite>
+    <GenericSprite>
+      <Name>reign_war_council_modern_shell</Name>
+      <SpritePartName>reign_war_council_modern_shell</SpritePartName>
+    </GenericSprite>
+    <GenericSprite>
+      <Name>reign_castle_chat_modern_shell</Name>
+      <SpritePartName>reign_castle_chat_modern_shell</SpritePartName>
+    </GenericSprite>
+    <GenericSprite>
+      <Name>reign_family_chambers_modern_shell</Name>
+      <SpritePartName>reign_family_chambers_modern_shell</SpritePartName>
+    </GenericSprite>
+    <GenericSprite>
+      <Name>reign_family_chambers_person_card</Name>
+      <SpritePartName>reign_family_chambers_person_card</SpritePartName>
+    </GenericSprite>
+    <GenericSprite>
+      <Name>reign_family_chambers_portrait_mask</Name>
+      <SpritePartName>reign_family_chambers_portrait_mask</SpritePartName>
+    </GenericSprite>
+    <GenericSprite>
+      <Name>reign_diplomacy_actor_portrait_mask</Name>
+      <SpritePartName>reign_diplomacy_actor_portrait_mask</SpritePartName>
+    </GenericSprite>
+    <GenericSprite>
+      <Name>reign_diplomacy_target_portrait_mask</Name>
+      <SpritePartName>reign_diplomacy_target_portrait_mask</SpritePartName>
+    </GenericSprite>
+    <GenericSprite>
+      <Name>reign_individual_chat_player_portrait_mask</Name>
+      <SpritePartName>reign_individual_chat_player_portrait_mask</SpritePartName>
+    </GenericSprite>
+    <GenericSprite>
+      <Name>reign_individual_chat_npc_portrait_mask</Name>
+      <SpritePartName>reign_individual_chat_npc_portrait_mask</SpritePartName>
+    </GenericSprite>
+    <GenericSprite>
+      <Name>reign_individual_chat_zoom_oval_mask</Name>
+      <SpritePartName>reign_individual_chat_zoom_oval_mask</SpritePartName>
+    </GenericSprite>
+    <GenericSprite>
+      <Name>reign_castle_chat_fixed_caption_overlay</Name>
+      <SpritePartName>reign_castle_chat_fixed_caption_overlay</SpritePartName>
+    </GenericSprite>
+    <GenericSprite>
+      <Name>reign_castle_chat_approved_fallback</Name>
+      <SpritePartName>reign_castle_chat_approved_fallback</SpritePartName>
+    </GenericSprite>
+    <GenericSprite>
+      <Name>reign_party_chat_portrait_mask_active</Name>
+      <SpritePartName>reign_party_chat_portrait_mask_active</SpritePartName>
+    </GenericSprite>
+    <GenericSprite>
+      <Name>reign_party_chat_portrait_mask_inactive</Name>
+      <SpritePartName>reign_party_chat_portrait_mask_inactive</SpritePartName>
+    </GenericSprite>
+    <GenericSprite>
+      <Name>reign_party_chat_preview_oval_mask</Name>
+      <SpritePartName>reign_party_chat_preview_oval_mask</SpritePartName>
+    </GenericSprite>
+    <GenericSprite>
+      <Name>reign_social_event_active_portrait_mask</Name>
+      <SpritePartName>reign_social_event_active_portrait_mask</SpritePartName>
+    </GenericSprite>
+    <GenericSprite>
+      <Name>reign_social_event_available_portrait_mask</Name>
+      <SpritePartName>reign_social_event_available_portrait_mask</SpritePartName>
+    </GenericSprite>
+    <GenericSprite>
+      <Name>reign_social_event_preview_oval_mask</Name>
+      <SpritePartName>reign_social_event_preview_oval_mask</SpritePartName>
+    </GenericSprite>
+    <GenericSprite>
+      <Name>reign_social_event_generate_portrait_icon</Name>
+      <SpritePartName>reign_social_event_generate_portrait_icon</SpritePartName>
+    </GenericSprite>
+    <GenericSprite>
+      <Name>reign_war_council_lord_portrait_mask</Name>
+      <SpritePartName>reign_war_council_lord_portrait_mask</SpritePartName>
+    </GenericSprite>
+    <GenericSprite>
+      <Name>reign_war_council_assigned_portrait_mask</Name>
+      <SpritePartName>reign_war_council_assigned_portrait_mask</SpritePartName>
+    </GenericSprite>
+    <GenericSprite>
+      <Name>reign_war_council_candidate_portrait_mask</Name>
+      <SpritePartName>reign_war_council_candidate_portrait_mask</SpritePartName>
+    </GenericSprite>
+    <GenericSprite>
+      <Name>reign_war_council_lord_portrait_mask_active</Name>
+      <SpritePartName>reign_war_council_lord_portrait_mask_active</SpritePartName>
+    </GenericSprite>
+    <GenericSprite>
+      <Name>reign_war_council_lord_card_overlay</Name>
+      <SpritePartName>reign_war_council_lord_card_overlay</SpritePartName>
+    </GenericSprite>
+    <GenericSprite>
+      <Name>reign_war_council_assigned_card_overlay</Name>
+      <SpritePartName>reign_war_council_assigned_card_overlay</SpritePartName>
+    </GenericSprite>
+    <GenericSprite>
+      <Name>reign_war_raven_card_icon</Name>
+      <SpritePartName>reign_war_raven_card_icon</SpritePartName>
+    </GenericSprite>
+    <GenericSprite>
+      <Name>reign_correspondence_modern_selected_contact_overlay</Name>
+      <SpritePartName>reign_correspondence_modern_selected_contact_overlay</SpritePartName>
+    </GenericSprite>
+    <GenericSprite>
+      <Name>reign_correspondence_contact_portrait_mask</Name>
+      <SpritePartName>reign_correspondence_contact_portrait_mask</SpritePartName>
+    </GenericSprite>
+    <GenericSprite>
+      <Name>ReignSerifDynamic</Name>
+      <SpritePartName>ReignSerifDynamic</SpritePartName>
+    </GenericSprite>
+    <GenericSprite><Name>ReignSerifActionItalic</Name><SpritePartName>ReignSerifActionItalic</SpritePartName></GenericSprite>
+  <GenericSprite><Name>reign_clan_accords_shell</Name><SpritePartName>reign_clan_accords_shell</SpritePartName></GenericSprite>
+<GenericSprite><Name>reign_clan_accords_card</Name><SpritePartName>reign_clan_accords_card</SpritePartName></GenericSprite>
+<GenericSprite><Name>reign_clan_accords_button</Name><SpritePartName>reign_clan_accords_button</SpritePartName></GenericSprite>
+<GenericSprite><Name>reign_clan_accords_filter</Name><SpritePartName>reign_clan_accords_filter</SpritePartName></GenericSprite>
+<GenericSprite><Name>reign_clan_accords_economy_entry</Name><SpritePartName>reign_clan_accords_economy_entry</SpritePartName></GenericSprite>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  <GenericSprite><Name>reign_clan_accords_filter_idle</Name><SpritePartName>reign_clan_accords_filter_idle</SpritePartName></GenericSprite>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<GenericSprite><Name>reign_government_hearing_shell</Name><SpritePartName>reign_government_hearing_shell</SpritePartName></GenericSprite>
+<GenericSprite><Name>reign_government_business_card</Name><SpritePartName>reign_government_business_card</SpritePartName></GenericSprite>
+<GenericSprite><Name>reign_government_business_selected</Name><SpritePartName>reign_government_business_selected</SpritePartName></GenericSprite>
+<GenericSprite><Name>reign_government_option_card</Name><SpritePartName>reign_government_option_card</SpritePartName></GenericSprite>
+<GenericSprite><Name>reign_government_option_selected</Name><SpritePartName>reign_government_option_selected</SpritePartName></GenericSprite>
+<GenericSprite><Name>reign_government_recommendation</Name><SpritePartName>reign_government_recommendation</SpritePartName></GenericSprite>
+<GenericSprite><Name>reign_government_recommendation_selected</Name><SpritePartName>reign_government_recommendation_selected</SpritePartName></GenericSprite>
+<GenericSprite><Name>reign_government_participant_card</Name><SpritePartName>reign_government_participant_card</SpritePartName></GenericSprite>
+<GenericSprite><Name>reign_government_issue_person_card</Name><SpritePartName>reign_government_issue_person_card</SpritePartName></GenericSprite>
+<GenericSprite><Name>reign_government_transcript_card</Name><SpritePartName>reign_government_transcript_card</SpritePartName></GenericSprite>
+<GenericSprite><Name>reign_government_directory_card</Name><SpritePartName>reign_government_directory_card</SpritePartName></GenericSprite>
+<GenericSprite><Name>reign_government_party_card</Name><SpritePartName>reign_government_party_card</SpritePartName></GenericSprite>
+<GenericSprite><Name>reign_government_obligation_card</Name><SpritePartName>reign_government_obligation_card</SpritePartName></GenericSprite>
+<GenericSprite><Name>reign_government_button</Name><SpritePartName>reign_government_button</SpritePartName></GenericSprite>
+<GenericSprite><Name>reign_government_button_selected</Name><SpritePartName>reign_government_button_selected</SpritePartName></GenericSprite>
+<GenericSprite><Name>reign_government_input</Name><SpritePartName>reign_government_input</SpritePartName></GenericSprite>
+<GenericSprite><Name>reign_government_speak</Name><SpritePartName>reign_government_speak</SpritePartName></GenericSprite>
+<GenericSprite><Name>reign_government_close</Name><SpritePartName>reign_government_close</SpritePartName></GenericSprite>
+<GenericSprite><Name>reign_government_private_card</Name><SpritePartName>reign_government_private_card</SpritePartName></GenericSprite>
+<GenericSprite><Name>reign_government_attendance_card</Name><SpritePartName>reign_government_attendance_card</SpritePartName></GenericSprite>
+<GenericSprite><Name>reign_government_action_group</Name><SpritePartName>reign_government_action_group</SpritePartName></GenericSprite>
+<GenericSprite><Name>reign_government_postpone_button</Name><SpritePartName>reign_government_postpone_button</SpritePartName></GenericSprite>
+<GenericSprite><Name>reign_government_view_members_button</Name><SpritePartName>reign_government_view_members_button</SpritePartName></GenericSprite>
+<GenericSprite><Name>reign_government_tab_business</Name><SpritePartName>reign_government_tab_business</SpritePartName></GenericSprite>
+<GenericSprite><Name>reign_government_tab_business_selected</Name><SpritePartName>reign_government_tab_business_selected</SpritePartName></GenericSprite>
+<GenericSprite><Name>reign_government_tab_hearing</Name><SpritePartName>reign_government_tab_hearing</SpritePartName></GenericSprite>
+<GenericSprite><Name>reign_government_tab_hearing_selected</Name><SpritePartName>reign_government_tab_hearing_selected</SpritePartName></GenericSprite>
+<GenericSprite><Name>reign_government_tab_members</Name><SpritePartName>reign_government_tab_members</SpritePartName></GenericSprite>
+<GenericSprite><Name>reign_government_tab_members_selected</Name><SpritePartName>reign_government_tab_members_selected</SpritePartName></GenericSprite>
+<GenericSprite><Name>reign_government_tab_archive</Name><SpritePartName>reign_government_tab_archive</SpritePartName></GenericSprite>
+<GenericSprite><Name>reign_government_tab_archive_selected</Name><SpritePartName>reign_government_tab_archive_selected</SpritePartName></GenericSprite>
+<GenericSprite><Name>reign_government_business_policy</Name><SpritePartName>reign_government_business_policy</SpritePartName></GenericSprite>
+<GenericSprite><Name>reign_government_business_policy_selected</Name><SpritePartName>reign_government_business_policy_selected</SpritePartName></GenericSprite>
+<GenericSprite><Name>reign_government_business_fief</Name><SpritePartName>reign_government_business_fief</SpritePartName></GenericSprite>
+<GenericSprite><Name>reign_government_business_fief_selected</Name><SpritePartName>reign_government_business_fief_selected</SpritePartName></GenericSprite>
+<GenericSprite><Name>reign_government_business_diplomacy</Name><SpritePartName>reign_government_business_diplomacy</SpritePartName></GenericSprite>
+<GenericSprite><Name>reign_government_business_diplomacy_selected</Name><SpritePartName>reign_government_business_diplomacy_selected</SpritePartName></GenericSprite>
+<GenericSprite><Name>reign_government_business_seasonal</Name><SpritePartName>reign_government_business_seasonal</SpritePartName></GenericSprite>
+<GenericSprite><Name>reign_government_business_seasonal_selected</Name><SpritePartName>reign_government_business_seasonal_selected</SpritePartName></GenericSprite>
+</Sprites>
+</SpriteData>

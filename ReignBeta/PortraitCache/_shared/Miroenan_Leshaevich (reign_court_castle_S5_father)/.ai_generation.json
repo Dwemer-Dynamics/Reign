@@ -1,0 +1,27 @@
+{
+  "version": 1,
+  "cacheKey": "Miroenan_Leshaevich (reign_court_castle_S5_father)",
+  "heroStringId": "reign_court_castle_S5_father",
+  "characterObjectId": "reign_court_castle_S5_father",
+  "characterName": "Miroenan Leshaevich",
+  "provider": "AtlasCloud",
+  "model": "xai/grok-imagine-image/edit",
+  "adapter": "atlas upload/generate/poll",
+  "sourceSha256": "22d56d2ed065ece5795bef19104268f5b7e1cb59b507bac848f43f46d17cdfce",
+  "portraitSha256": "1ce018f54a9726414c0fcee266b71038b0b1d8eaddc1ef094ec82d8e2a0bc144",
+  "portraitWidth": 864,
+  "portraitHeight": 1152,
+  "physicalConfidence": {
+    "definition": "physical_confidence",
+    "score": 42,
+    "profile": "41-60",
+    "flirtatiousnessPercentage": 44,
+    "confidencePercentage": 35,
+    "flirtatiousnessWeight": 0.75,
+    "confidenceWeight": 0.25,
+    "source": "shipped_profile_library"
+  },
+  "derivativesReady": true,
+  "derivativeError": "",
+  "generatedUtc": "2026-07-17T19:03:53.5715922Z"
+}

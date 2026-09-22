@@ -1,0 +1,27 @@
+{
+  "version": 1,
+  "cacheKey": "Amenon (lord_1_35)",
+  "heroStringId": "lord_1_35",
+  "characterObjectId": "lord_1_35",
+  "characterName": "Amenon",
+  "provider": "AtlasCloud",
+  "model": "xai/grok-imagine-image/edit",
+  "adapter": "atlas upload/generate/poll",
+  "sourceSha256": "e882886724c8da1473f5bea6a6d5bae57e30d6a5503181a6ff01e854577cb67d",
+  "portraitSha256": "209737068d5d5bad166f242d4095e918ceac6d0d0249616bf9db49926d99d7d8",
+  "portraitWidth": 832,
+  "portraitHeight": 1248,
+  "physicalConfidence": {
+    "definition": "physical_confidence",
+    "score": 55,
+    "profile": "41-60",
+    "flirtatiousnessPercentage": 44,
+    "confidencePercentage": 87,
+    "flirtatiousnessWeight": 0.75,
+    "confidenceWeight": 0.25,
+    "source": "shipped_profile_library"
+  },
+  "derivativesReady": true,
+  "derivativeError": "",
+  "generatedUtc": "2026-07-17T18:12:20.3941735Z"
+}

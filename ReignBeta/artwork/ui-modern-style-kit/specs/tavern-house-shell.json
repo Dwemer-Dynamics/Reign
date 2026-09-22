@@ -1,0 +1,100 @@
+{
+  "schema": "reign-fixed-region-composite-v1",
+  "assetId": "tavern-house-shell",
+  "authority": "User-provided four-region tavern sketch; existing Reign modern palette and typography.",
+  "approvedReference": {
+    "path": "../approved-references/tavern-house.png",
+    "sha256": "f40be141c633ccd67526a8ae13c5887df0ac278a44c5bc8c158672eed448de8e"
+  },
+  "canvas": {
+    "width": 1672,
+    "height": 941
+  },
+  "sceneDependentMasks": [
+    {
+      "id": "town-name",
+      "shape": "rectangle",
+      "x": 350,
+      "y": 57,
+      "width": 1100,
+      "height": 26
+    },
+    {
+      "id": "madam-portrait",
+      "shape": "ellipse",
+      "x": 117,
+      "y": 92,
+      "width": 126,
+      "height": 154
+    },
+    {
+      "id": "madam-name",
+      "shape": "rectangle",
+      "x": 58,
+      "y": 252,
+      "width": 244,
+      "height": 24
+    },
+    {
+      "id": "madam-status",
+      "shape": "rectangle",
+      "x": 58,
+      "y": 278,
+      "width": 244,
+      "height": 20
+    },
+    {
+      "id": "worker-rail",
+      "shape": "rectangle",
+      "x": 350,
+      "y": 94,
+      "width": 1250,
+      "height": 227
+    },
+    {
+      "id": "scene",
+      "shape": "rectangle",
+      "x": 74,
+      "y": 354,
+      "width": 532,
+      "height": 532
+    },
+    {
+      "id": "conversation-and-agreements",
+      "shape": "rectangle",
+      "x": 674,
+      "y": 334,
+      "width": 928,
+      "height": 477
+    },
+    {
+      "id": "composer",
+      "shape": "rectangle",
+      "x": 688,
+      "y": 831,
+      "width": 565,
+      "height": 52
+    },
+    {
+      "id": "send-state",
+      "shape": "rectangle",
+      "x": 1280,
+      "y": 820,
+      "width": 126,
+      "height": 72
+    },
+    {
+      "id": "image-toggle",
+      "shape": "rectangle",
+      "x": 174,
+      "y": 890,
+      "width": 330,
+      "height": 25
+    }
+  ],
+  "productionComposite": {
+    "runtimePath": "../../../GUI/SpriteParts/ui_reignbeta_tavern_house/reign_tavern_house_shell.png",
+    "expectedSha256": "57a42c3a131e7829ae698c2d0c76c1101096c56d01641bcc599cd1a5ef37ba97"
+  },
+  "materializer": "../tools/materialize_tavern_house.py"
+}

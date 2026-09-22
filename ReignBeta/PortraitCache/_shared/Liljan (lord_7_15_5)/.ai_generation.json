@@ -1,0 +1,27 @@
+{
+  "version": 1,
+  "cacheKey": "Liljan (lord_7_15_5)",
+  "heroStringId": "lord_7_15_5",
+  "characterObjectId": "lord_7_15_5",
+  "characterName": "Liljan",
+  "provider": "AtlasCloud",
+  "model": "xai/grok-imagine-image/edit",
+  "adapter": "atlas upload/generate/poll",
+  "sourceSha256": "b91e2ab236dfcd40bdaa2f7e807e222bbfd69c04435d59c1e18068999803decf",
+  "portraitSha256": "974a14f027506479d8da5c84811561056479b5a1a2059846ef1f7b924c7e7fc0",
+  "portraitWidth": 832,
+  "portraitHeight": 1248,
+  "physicalConfidence": {
+    "definition": "physical_confidence",
+    "score": 50,
+    "profile": "41-60",
+    "flirtatiousnessPercentage": 50,
+    "confidencePercentage": 50,
+    "flirtatiousnessWeight": 0.75,
+    "confidenceWeight": 0.25,
+    "source": "neutral_fallback"
+  },
+  "derivativesReady": true,
+  "derivativeError": "",
+  "generatedUtc": "2026-07-17T18:58:50.5462594Z"
+}

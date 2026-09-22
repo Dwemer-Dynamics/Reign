@@ -1,0 +1,26 @@
+{
+  "schema": "reign-fixed-region-composite-v1",
+  "assetId": "notable-generation-modern-shell-exact-fixed-source",
+  "approvedReference": {
+    "path": "../approved-references/notable-generation.png",
+    "sha256": "eb3d7a52680aa55c0c4ff8acdc615a1118f770db1e9a203efed14a0bf7bdfc82"
+  },
+  "imageToImageFill": {
+    "path": "../generated-sources/screen-shells/notable-generation-modern-shell-aligned-fill-source.png",
+    "sha256": "38925da5cc9211c3697f6394ef83a813fde7491ac74c019bf930fb5e9c04a90e",
+    "normalization": "The selected image-to-image panel source is cropped to its panel bounds, Lanczos-normalized to the approved 935x576 panel geometry, and positioned at x=355, y=162 on the 1672x941 canvas."
+  },
+  "canvas": {"width": 1672, "height": 941},
+  "policy": "Every pixel outside the live title, detail, and shared progress/error/retry typography regions is copied byte-for-byte from the approved reference. Panel geometry, marble, dividers, progress-card frame, and crest remain fixed.",
+  "rectangularFillMode": {
+    "type": "median-border color-matched image-to-image patch",
+    "inwardFeatherPixels": 4,
+    "borderSamplePixels": 6
+  },
+  "sceneDependentMasks": [
+    {"id": "title-or-error-heading", "shape": "rectangle", "x": 505, "y": 248, "width": 663, "height": 72},
+    {"id": "detail-or-error-body", "shape": "rectangle", "x": 447, "y": 399, "width": 778, "height": 92},
+    {"id": "progress-or-error-status", "shape": "rectangle", "x": 575, "y": 538, "width": 522, "height": 44},
+    {"id": "retry-label-on-error", "shape": "rectangle", "x": 700, "y": 594, "width": 272, "height": 42}
+  ]
+}

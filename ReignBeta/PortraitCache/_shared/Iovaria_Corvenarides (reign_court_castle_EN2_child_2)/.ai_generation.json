@@ -1,0 +1,27 @@
+{
+  "version": 1,
+  "cacheKey": "Iovaria_Corvenarides (reign_court_castle_EN2_child_2)",
+  "heroStringId": "reign_court_castle_EN2_child_2",
+  "characterObjectId": "reign_court_castle_EN2_child_2",
+  "characterName": "Iovaria Corvenarides",
+  "provider": "AtlasCloud",
+  "model": "xai/grok-imagine-image/edit",
+  "adapter": "atlas upload/generate/poll",
+  "sourceSha256": "8dc04b55ba88e3bc2a84c240c7b8db8ef3309a0022517879d82fa316a1e18a55",
+  "portraitSha256": "ced7a7828cebc516fc7f829a240acfbb35e1ddb77c3d9a7adedbe2995f71cc48",
+  "portraitWidth": 864,
+  "portraitHeight": 1152,
+  "physicalConfidence": {
+    "definition": "physical_confidence",
+    "score": 41,
+    "profile": "41-60",
+    "flirtatiousnessPercentage": 36,
+    "confidencePercentage": 55,
+    "flirtatiousnessWeight": 0.75,
+    "confidenceWeight": 0.25,
+    "source": "shipped_profile_library"
+  },
+  "derivativesReady": true,
+  "derivativeError": "",
+  "generatedUtc": "2026-07-17T18:44:21.9877985Z"
+}

@@ -1,0 +1,27 @@
+{
+  "version": 1,
+  "cacheKey": "Svorni (lord_7_21)",
+  "heroStringId": "lord_7_21",
+  "characterObjectId": "lord_7_21",
+  "characterName": "Svorni",
+  "provider": "AtlasCloud",
+  "model": "xai/grok-imagine-image/edit",
+  "adapter": "atlas upload/generate/poll",
+  "sourceSha256": "817b836a540f57de87b9b50379479817cfbff1e9bdb8c12077cdddc4cfb097f1",
+  "portraitSha256": "5eca0dbc58d6123f39dd96a33e6a73ff10cadad35bda3032508608200fa4c266",
+  "portraitWidth": 832,
+  "portraitHeight": 1248,
+  "physicalConfidence": {
+    "definition": "physical_confidence",
+    "score": 50,
+    "profile": "41-60",
+    "flirtatiousnessPercentage": 50,
+    "confidencePercentage": 50,
+    "flirtatiousnessWeight": 0.75,
+    "confidenceWeight": 0.25,
+    "source": "neutral_fallback"
+  },
+  "derivativesReady": true,
+  "derivativeError": "",
+  "generatedUtc": "2026-07-17T19:15:49.2525432Z"
+}

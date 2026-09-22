@@ -1,0 +1,13 @@
+{
+  "version": 1,
+  "heroStringId": "crazy_man_test4",
+  "characterName": "Crazy Man T7",
+  "imagePath": "portrait.png",
+  "imageSha256": "C3E66B8A9A969F1AAFFCE1C06411782EC4F661BA47353782C315F75D8A3A949F",
+  "description": "Their clan is tier unknown, placing them socially among the unranked class. Use this status to guide the refinement, expense, materials, and ornament of their clothing without turning it into fantasy costume.",
+  "status": "failed",
+  "descriptionSource": "portrait_prompt_fallback",
+  "retryEligible": true,
+  "error": "{\"error\":{\"message\":\"Model \\\"zai-org/glm-5.2\\\" does not support image inputs. Remove image content or choose a multimodal model.\",\"type\":\"invalid_request_error\",\"param\":\"messages\",\"code\":\"image_input_not_supported\"}}",
+  "updatedUtc": "2026-07-18T22:03:27.1620029Z"
+}

@@ -1,0 +1,9 @@
+Use case: precise-object-edit
+Asset type: reusable fixed Reign court attendee-card overlay
+Input image 1: the first generated blank attendee card, used only as the geometry edit target.
+Input image 2: approved-references/social-event.png, the current Reign Social Event restraint and line-weight authority.
+Primary request: Refine the card so it matches the current restrained Reign character cards. Remove the heavy outer bevel and orange-brown appearance. Use thin, precise, muted antique-gold linework, clipped corners, minimal ornament, and a thin circular portrait frame physically integrated at the left. Retain one tiny selection diamond near the right edge.
+Keep unchanged: One complete horizontal blank card; opaque black-marble body; blank dynamic-text area; front-on geometry; circular portrait opening.
+Transparency intent: The source canvas outside the card and the circular portrait opening represent transparency. Deterministic preparation removes the generated checker matte and cuts true alpha in both regions while preserving the integrated frame.
+Text: No text, letters, numerals, icons, watermark, pseudo-text, portrait, or silhouette.
+Avoid: Brown neutral surfaces, orange-gold, bright broad borders, stacked rectangles, thick bevels, oversized filigree, and perspective distortion.

@@ -1,0 +1,27 @@
+{
+  "version": 1,
+  "cacheKey": "Doruaia_Mungoletai (reign_court_town_K6_child_2)",
+  "heroStringId": "reign_court_town_K6_child_2",
+  "characterObjectId": "reign_court_town_K6_child_2",
+  "characterName": "Doruaia Mungoletai",
+  "provider": "AtlasCloud",
+  "model": "xai/grok-imagine-image/edit",
+  "adapter": "atlas upload/generate/poll",
+  "sourceSha256": "63daa095c1639c8be8dbbf005598127da3924a14341e5cf6d0a13d5e29d77fa0",
+  "portraitSha256": "0565d8437fe92d79ac281bc11f4373e1579bf69c3be3e7d94fc0bd3e1090dc94",
+  "portraitWidth": 864,
+  "portraitHeight": 1152,
+  "physicalConfidence": {
+    "definition": "physical_confidence",
+    "score": 68,
+    "profile": "61-80",
+    "flirtatiousnessPercentage": 74,
+    "confidencePercentage": 49,
+    "flirtatiousnessWeight": 0.75,
+    "confidenceWeight": 0.25,
+    "source": "shipped_profile_library"
+  },
+  "derivativesReady": true,
+  "derivativeError": "",
+  "generatedUtc": "2026-07-17T18:27:15.0321937Z"
+}

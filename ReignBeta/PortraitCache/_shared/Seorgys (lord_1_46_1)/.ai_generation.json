@@ -1,0 +1,27 @@
+{
+  "version": 1,
+  "cacheKey": "Seorgys (lord_1_46_1)",
+  "heroStringId": "lord_1_46_1",
+  "characterObjectId": "lord_1_46_1",
+  "characterName": "Seorgys",
+  "provider": "AtlasCloud",
+  "model": "xai/grok-imagine-image/edit",
+  "adapter": "atlas upload/generate/poll",
+  "sourceSha256": "5422d07d04d0feaead3e5b5f128a59422cdd2754feadddc6deda742ab073d277",
+  "portraitSha256": "d28ab176613dbd2af761572ab9d6964d35a372c61f911168376ee41f6ffcc989",
+  "portraitWidth": 832,
+  "portraitHeight": 1248,
+  "physicalConfidence": {
+    "definition": "physical_confidence",
+    "score": 59,
+    "profile": "41-60",
+    "flirtatiousnessPercentage": 70,
+    "confidencePercentage": 25,
+    "flirtatiousnessWeight": 0.75,
+    "confidenceWeight": 0.25,
+    "source": "shipped_profile_library"
+  },
+  "derivativesReady": true,
+  "derivativeError": "",
+  "generatedUtc": "2026-07-17T19:13:16.4001641Z"
+}

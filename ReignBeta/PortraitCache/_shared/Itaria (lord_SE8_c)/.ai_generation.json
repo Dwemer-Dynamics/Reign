@@ -1,0 +1,27 @@
+{
+  "version": 1,
+  "cacheKey": "Itaria (lord_SE8_c)",
+  "heroStringId": "lord_SE8_c",
+  "characterObjectId": "lord_SE8_c",
+  "characterName": "Itaria",
+  "provider": "AtlasCloud",
+  "model": "xai/grok-imagine-image/edit",
+  "adapter": "atlas upload/generate/poll",
+  "sourceSha256": "dbc14e8de5f51b10c54aca58977d902c4c5ea659a426598810d4b581caef1fb7",
+  "portraitSha256": "dce5736cb5b229c1b9604084b7a1da80e01a67aacda0e7a44d31e57e13a5b1d4",
+  "portraitWidth": 832,
+  "portraitHeight": 1248,
+  "physicalConfidence": {
+    "definition": "physical_confidence",
+    "score": 63,
+    "profile": "61-80",
+    "flirtatiousnessPercentage": 60,
+    "confidencePercentage": 71,
+    "flirtatiousnessWeight": 0.75,
+    "confidenceWeight": 0.25,
+    "source": "shipped_profile_library"
+  },
+  "derivativesReady": true,
+  "derivativeError": "",
+  "generatedUtc": "2026-07-17T18:46:15.9544597Z"
+}

@@ -1,0 +1,27 @@
+{
+  "version": 1,
+  "cacheKey": "Ilatar (lord_6_18)",
+  "heroStringId": "lord_6_18",
+  "characterObjectId": "lord_6_18",
+  "characterName": "Ilatar",
+  "provider": "AtlasCloud",
+  "model": "xai/grok-imagine-image/edit",
+  "adapter": "atlas upload/generate/poll",
+  "sourceSha256": "223e6285987163d4ee5f3fe49a9ddec84a98f862dcee916f065ef614edf0a1b4",
+  "portraitSha256": "85419a28d95cc4b2373d780d0e11417fc92337471e9de4269b8c99540f5cf688",
+  "portraitWidth": 832,
+  "portraitHeight": 1248,
+  "physicalConfidence": {
+    "definition": "physical_confidence",
+    "score": 36,
+    "profile": "21-40",
+    "flirtatiousnessPercentage": 34,
+    "confidencePercentage": 41,
+    "flirtatiousnessWeight": 0.75,
+    "confidenceWeight": 0.25,
+    "source": "shipped_profile_library"
+  },
+  "derivativesReady": true,
+  "derivativeError": "",
+  "generatedUtc": "2026-07-17T18:43:44.9650646Z"
+}

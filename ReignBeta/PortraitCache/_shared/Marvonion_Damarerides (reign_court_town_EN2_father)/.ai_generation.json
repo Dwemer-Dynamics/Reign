@@ -1,0 +1,27 @@
+{
+  "version": 1,
+  "cacheKey": "Marvonion_Damarerides (reign_court_town_EN2_father)",
+  "heroStringId": "reign_court_town_EN2_father",
+  "characterObjectId": "reign_court_town_EN2_father",
+  "characterName": "Marvonion Damarerides",
+  "provider": "AtlasCloud",
+  "model": "xai/grok-imagine-image/edit",
+  "adapter": "atlas upload/generate/poll",
+  "sourceSha256": "f83feb0f5980c7cb5a200902f6d30e4b1cacdd2e4a1da350f414b3e8f47fc8b6",
+  "portraitSha256": "418e11ee20e5950585fc5f25a62d98c1ee0ded2352bae710b9876e260e6e9ffa",
+  "portraitWidth": 864,
+  "portraitHeight": 1152,
+  "physicalConfidence": {
+    "definition": "physical_confidence",
+    "score": 50,
+    "profile": "41-60",
+    "flirtatiousnessPercentage": 49,
+    "confidencePercentage": 52,
+    "flirtatiousnessWeight": 0.75,
+    "confidenceWeight": 0.25,
+    "source": "shipped_profile_library"
+  },
+  "derivativesReady": true,
+  "derivativeError": "",
+  "generatedUtc": "2026-07-17T19:01:21.1961532Z"
+}

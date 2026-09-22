@@ -1,0 +1,27 @@
+{
+  "version": 1,
+  "cacheKey": "Eryenos_Elarirides (reign_court_castle_EW5_child_3)",
+  "heroStringId": "reign_court_castle_EW5_child_3",
+  "characterObjectId": "reign_court_castle_EW5_child_3",
+  "characterName": "Eryenos Elarirides",
+  "provider": "AtlasCloud",
+  "model": "xai/grok-imagine-image/edit",
+  "adapter": "atlas upload/generate/poll",
+  "sourceSha256": "2a154b59118eedaeda00f958bf4f96b4d76e0c0a92df6e93b8829bca7f8d315a",
+  "portraitSha256": "c0683f05d38e2020ca9e49f3fdd1c9db0c125f66aa3bc5fe38753f11a439a224",
+  "portraitWidth": 864,
+  "portraitHeight": 1152,
+  "physicalConfidence": {
+    "definition": "physical_confidence",
+    "score": 76,
+    "profile": "61-80",
+    "flirtatiousnessPercentage": 87,
+    "confidencePercentage": 42,
+    "flirtatiousnessWeight": 0.75,
+    "confidenceWeight": 0.25,
+    "source": "shipped_profile_library"
+  },
+  "derivativesReady": true,
+  "derivativeError": "",
+  "generatedUtc": "2026-07-17T18:33:47.8368477Z"
+}

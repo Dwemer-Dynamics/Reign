@@ -1,0 +1,27 @@
+{
+  "version": 1,
+  "cacheKey": "Othilia_Vardarides (reign_court_castle_EN8_child_4)",
+  "heroStringId": "reign_court_castle_EN8_child_4",
+  "characterObjectId": "reign_court_castle_EN8_child_4",
+  "characterName": "Othilia Vardarides",
+  "provider": "AtlasCloud",
+  "model": "xai/grok-imagine-image/edit",
+  "adapter": "atlas upload/generate/poll",
+  "sourceSha256": "25c90f23c854d32ee76a4845c579a6536afd6eb6d7416028c3273cca3ca74ab5",
+  "portraitSha256": "07c0e747010ca17ab1ecd616565603f6274322fbb2c3e44fc68a340055e30b17",
+  "portraitWidth": 864,
+  "portraitHeight": 1152,
+  "physicalConfidence": {
+    "definition": "physical_confidence",
+    "score": 64,
+    "profile": "61-80",
+    "flirtatiousnessPercentage": 68,
+    "confidencePercentage": 51,
+    "flirtatiousnessWeight": 0.75,
+    "confidenceWeight": 0.25,
+    "source": "shipped_profile_library"
+  },
+  "derivativesReady": true,
+  "derivativeError": "",
+  "generatedUtc": "2026-07-17T19:07:37.5516601Z"
+}

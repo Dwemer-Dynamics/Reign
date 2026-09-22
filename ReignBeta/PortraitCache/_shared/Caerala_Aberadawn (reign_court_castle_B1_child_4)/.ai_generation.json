@@ -1,0 +1,27 @@
+{
+  "version": 1,
+  "cacheKey": "Caerala_Aberadawn (reign_court_castle_B1_child_4)",
+  "heroStringId": "reign_court_castle_B1_child_4",
+  "characterObjectId": "reign_court_castle_B1_child_4",
+  "characterName": "Caerala Aberadawn",
+  "provider": "AtlasCloud",
+  "model": "xai/grok-imagine-image/edit",
+  "adapter": "atlas upload/generate/poll",
+  "sourceSha256": "98ebd8a9e539e98861e2bbd76142de44b1b85782a5eb4c42409ed626a1bd7d4d",
+  "portraitSha256": "556d970ad27c5c3a4f5449b4e9c5d7538e5008bfe3837a912473b01dfebb2c99",
+  "portraitWidth": 864,
+  "portraitHeight": 1152,
+  "physicalConfidence": {
+    "definition": "physical_confidence",
+    "score": 57,
+    "profile": "41-60",
+    "flirtatiousnessPercentage": 56,
+    "confidencePercentage": 59,
+    "flirtatiousnessWeight": 0.75,
+    "confidenceWeight": 0.25,
+    "source": "shipped_profile_library"
+  },
+  "derivativesReady": true,
+  "derivativeError": "",
+  "generatedUtc": "2026-07-17T18:19:35.2574833Z"
+}

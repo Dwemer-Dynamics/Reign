@@ -1,0 +1,38 @@
+{
+  "schema": "reign-fixed-region-composite-v1",
+  "assetId": "castle-layout-dynamic-fill-clean-source",
+  "approvedReference": {
+    "path": "../generated-sources/screen-shells/castle-layout-dynamic-fill-normalized-source.png",
+    "sha256": "d1bb4545b5b922bf80b83f1f1f9355f1b5b39561ca86ea33e117dde39fb9b738"
+  },
+  "imageToImageFill": {
+    "path": "../generated-sources/screen-shells/government-shell-source.png",
+    "sha256": "ba4451a1f64024734c31dd80d196d02c6b02cb81ec205b8c63dcf051a2fb54d1",
+    "normalization": "The approved modern Government image-to-image source supplies a clean black-marble panel sample with the frozen palette and no baked occupancy graphics."
+  },
+  "canvas": {"width": 1672, "height": 941},
+  "policy": "Preserve the normalized Castle Layout image-to-image source except inside occupancy interiors. Replace those interiors with clean modern black-marble material before the exact approved-reference shell is composed, preventing obsolete square dividers, circle arcs, and sample portraits from surviving beneath runtime circular slots.",
+  "rectangularFillMode": {
+    "type": "direct clean modern black-marble source patch",
+    "inwardFeatherPixels": 0,
+    "borderSamplePixels": 4
+  },
+  "sceneDependentMasks": [
+    {"id": "castle-gardens-clean", "shape": "rectangle", "x": 99, "y": 115, "width": 285, "height": 61, "colorMatch": false, "fillSourceX": 1130, "fillSourceY": 400},
+    {"id": "noble-solar-clean", "shape": "rectangle", "x": 99, "y": 215, "width": 285, "height": 61, "colorMatch": false, "fillSourceX": 1130, "fillSourceY": 400},
+    {"id": "library-clean", "shape": "rectangle", "x": 99, "y": 311, "width": 285, "height": 64, "colorMatch": false, "fillSourceX": 1130, "fillSourceY": 400},
+    {"id": "training-yard-clean", "shape": "rectangle", "x": 99, "y": 410, "width": 285, "height": 64, "colorMatch": false, "fillSourceX": 1130, "fillSourceY": 400},
+    {"id": "inner-courtyard-clean", "shape": "rectangle", "x": 99, "y": 510, "width": 285, "height": 64, "colorMatch": false, "fillSourceX": 1130, "fillSourceY": 400},
+    {"id": "dining-chamber-clean", "shape": "rectangle", "x": 99, "y": 610, "width": 285, "height": 64, "colorMatch": false, "fillSourceX": 1130, "fillSourceY": 400},
+    {"id": "stable-courtyard-clean", "shape": "rectangle", "x": 99, "y": 705, "width": 285, "height": 69, "colorMatch": false, "fillSourceX": 1130, "fillSourceY": 400},
+    {"id": "portrait-gallery-clean", "shape": "rectangle", "x": 99, "y": 805, "width": 285, "height": 69, "colorMatch": false, "fillSourceX": 1130, "fillSourceY": 400},
+
+    {"id": "main-hall-clean", "shape": "rectangle", "x": 1297, "y": 115, "width": 285, "height": 61, "colorMatch": false, "fillSourceX": 1130, "fillSourceY": 400},
+    {"id": "royal-bedroom-clean", "shape": "rectangle", "x": 1297, "y": 215, "width": 285, "height": 61, "colorMatch": false, "fillSourceX": 1130, "fillSourceY": 400},
+    {"id": "chapel-clean", "shape": "rectangle", "x": 1297, "y": 314, "width": 285, "height": 61, "colorMatch": false, "fillSourceX": 1130, "fillSourceY": 400},
+    {"id": "guest-bedrooms-clean", "shape": "rectangle", "x": 1291, "y": 413, "width": 288, "height": 164, "colorMatch": false, "fillSourceX": 1130, "fillSourceY": 380},
+    {"id": "throne-room-clean", "shape": "rectangle", "x": 1297, "y": 616, "width": 285, "height": 61, "colorMatch": false, "fillSourceX": 1130, "fillSourceY": 400},
+    {"id": "baths-clean", "shape": "rectangle", "x": 1297, "y": 716, "width": 285, "height": 61, "colorMatch": false, "fillSourceX": 1130, "fillSourceY": 400},
+    {"id": "battlements-clean", "shape": "rectangle", "x": 1297, "y": 809, "width": 285, "height": 60, "colorMatch": false, "fillSourceX": 1130, "fillSourceY": 400}
+  ]
+}

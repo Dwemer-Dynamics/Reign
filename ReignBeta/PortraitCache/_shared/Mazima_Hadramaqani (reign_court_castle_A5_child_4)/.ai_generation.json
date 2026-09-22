@@ -1,0 +1,27 @@
+{
+  "version": 1,
+  "cacheKey": "Mazima_Hadramaqani (reign_court_castle_A5_child_4)",
+  "heroStringId": "reign_court_castle_A5_child_4",
+  "characterObjectId": "reign_court_castle_A5_child_4",
+  "characterName": "Mazima Hadramaqani",
+  "provider": "AtlasCloud",
+  "model": "xai/grok-imagine-image/edit",
+  "adapter": "atlas upload/generate/poll",
+  "sourceSha256": "9ef27f8122a87796fe59825c24f00fa6d260bd0a7f0bf29df0edf8b0c4a41cdf",
+  "portraitSha256": "b7056356f802c1fc4d27f7a994daa21987ce42789730e2a8b597d51e9054ec67",
+  "portraitWidth": 864,
+  "portraitHeight": 1152,
+  "physicalConfidence": {
+    "definition": "physical_confidence",
+    "score": 85,
+    "profile": "81-100",
+    "flirtatiousnessPercentage": 95,
+    "confidencePercentage": 54,
+    "flirtatiousnessWeight": 0.75,
+    "confidenceWeight": 0.25,
+    "source": "shipped_profile_library"
+  },
+  "derivativesReady": true,
+  "derivativeError": "",
+  "generatedUtc": "2026-07-17T19:02:21.9339277Z"
+}

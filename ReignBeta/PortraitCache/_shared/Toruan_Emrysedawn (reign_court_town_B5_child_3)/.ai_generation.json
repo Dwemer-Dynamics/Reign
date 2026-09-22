@@ -1,0 +1,27 @@
+{
+  "version": 1,
+  "cacheKey": "Toruan_Emrysedawn (reign_court_town_B5_child_3)",
+  "heroStringId": "reign_court_town_B5_child_3",
+  "characterObjectId": "reign_court_town_B5_child_3",
+  "characterName": "Toruan Emrysedawn",
+  "provider": "AtlasCloud",
+  "model": "xai/grok-imagine-image/edit",
+  "adapter": "atlas upload/generate/poll",
+  "sourceSha256": "536d62cb6dba8c8f223a0d6c3d44347243b18c8b58bd06c5a9beb4679dda0b40",
+  "portraitSha256": "9a252f4dc5cff03a36a350fca9c63534043aae526ba0662d2000e5e9039150cb",
+  "portraitWidth": 864,
+  "portraitHeight": 1152,
+  "physicalConfidence": {
+    "definition": "physical_confidence",
+    "score": 40,
+    "profile": "21-40",
+    "flirtatiousnessPercentage": 29,
+    "confidencePercentage": 72,
+    "flirtatiousnessWeight": 0.75,
+    "confidenceWeight": 0.25,
+    "source": "shipped_profile_library"
+  },
+  "derivativesReady": true,
+  "derivativeError": "",
+  "generatedUtc": "2026-07-17T19:18:09.2224181Z"
+}

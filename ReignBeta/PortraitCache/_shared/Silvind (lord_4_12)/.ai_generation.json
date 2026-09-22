@@ -1,0 +1,27 @@
+{
+  "version": 1,
+  "cacheKey": "Silvind (lord_4_12)",
+  "heroStringId": "lord_4_12",
+  "characterObjectId": "lord_4_12",
+  "characterName": "Silvind",
+  "provider": "AtlasCloud",
+  "model": "xai/grok-imagine-image/edit",
+  "adapter": "atlas upload/generate/poll",
+  "sourceSha256": "3010219a62c59cefad7307df394ca0cf2118bf483171c60b3c9e0866b9d6f5f8",
+  "portraitSha256": "4459afb24fb4307106c36b49143ede055358cce33e6a1e354d8867867fd68e5c",
+  "portraitWidth": 832,
+  "portraitHeight": 1248,
+  "physicalConfidence": {
+    "definition": "physical_confidence",
+    "score": 68,
+    "profile": "61-80",
+    "flirtatiousnessPercentage": 62,
+    "confidencePercentage": 85,
+    "flirtatiousnessWeight": 0.75,
+    "confidenceWeight": 0.25,
+    "source": "shipped_profile_library"
+  },
+  "derivativesReady": true,
+  "derivativeError": "",
+  "generatedUtc": "2026-07-17T19:14:19.2156005Z"
+}

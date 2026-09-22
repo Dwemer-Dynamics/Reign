@@ -1,0 +1,27 @@
+{
+  "version": 1,
+  "cacheKey": "Crotor (lord_1_11)",
+  "heroStringId": "lord_1_11",
+  "characterObjectId": "lord_1_11",
+  "characterName": "Crotor",
+  "provider": "AtlasCloud",
+  "model": "xai/grok-imagine-image/edit",
+  "adapter": "atlas upload/generate/poll",
+  "sourceSha256": "42cce81876e8adf6df221d9a06bd9d358f23aa92de3aa4532cb96307342d350a",
+  "portraitSha256": "5c55824c64e3f0d1bc7a21201c923eb0e2519f363cc14cf7af3e09c39c6c9949",
+  "portraitWidth": 832,
+  "portraitHeight": 1248,
+  "physicalConfidence": {
+    "definition": "physical_confidence",
+    "score": 51,
+    "profile": "41-60",
+    "flirtatiousnessPercentage": 50,
+    "confidencePercentage": 53,
+    "flirtatiousnessWeight": 0.75,
+    "confidenceWeight": 0.25,
+    "source": "shipped_profile_library"
+  },
+  "derivativesReady": true,
+  "derivativeError": "",
+  "generatedUtc": "2026-07-17T18:25:16.5026771Z"
+}

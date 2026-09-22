@@ -1,0 +1,27 @@
+{
+  "version": 1,
+  "cacheKey": "Iovilos_Sorianirides (reign_court_castle_EW8_child_3)",
+  "heroStringId": "reign_court_castle_EW8_child_3",
+  "characterObjectId": "reign_court_castle_EW8_child_3",
+  "characterName": "Iovilos Sorianirides",
+  "provider": "AtlasCloud",
+  "model": "xai/grok-imagine-image/edit",
+  "adapter": "atlas upload/generate/poll",
+  "sourceSha256": "d0e62a2930e0f09600f167dc6aba7840b5150db6c6e3b27a15284fc66790406b",
+  "portraitSha256": "9b7be088ec7a18c8c34545fb896646d01dc8a837942bceef38f8ce482e306a0e",
+  "portraitWidth": 864,
+  "portraitHeight": 1152,
+  "physicalConfidence": {
+    "definition": "physical_confidence",
+    "score": 59,
+    "profile": "41-60",
+    "flirtatiousnessPercentage": 68,
+    "confidencePercentage": 31,
+    "flirtatiousnessWeight": 0.75,
+    "confidenceWeight": 0.25,
+    "source": "shipped_profile_library"
+  },
+  "derivativesReady": true,
+  "derivativeError": "",
+  "generatedUtc": "2026-07-17T18:45:08.7333012Z"
+}

@@ -1,0 +1,27 @@
+{
+  "version": 1,
+  "cacheKey": "Abalytos (lord_1_72)",
+  "heroStringId": "lord_1_72",
+  "characterObjectId": "lord_1_72",
+  "characterName": "Abalytos",
+  "provider": "AtlasCloud",
+  "model": "xai/grok-imagine-image/edit",
+  "adapter": "atlas upload/generate/poll",
+  "sourceSha256": "09e8cfce66406a1b51eab5888a5301cb84a259a556be3eef0c339da152c719f5",
+  "portraitSha256": "70bf0741061df9b140569570e6d893d97d1d0e3b1a088180c05d695c70523ac6",
+  "portraitWidth": 912,
+  "portraitHeight": 1136,
+  "physicalConfidence": {
+    "definition": "physical_confidence",
+    "score": 53,
+    "profile": "41-60",
+    "flirtatiousnessPercentage": 45,
+    "confidencePercentage": 76,
+    "flirtatiousnessWeight": 0.75,
+    "confidenceWeight": 0.25,
+    "source": "shipped_profile_library"
+  },
+  "derivativesReady": true,
+  "derivativeError": "",
+  "generatedUtc": "2026-07-17T17:36:08.4698842Z"
+}

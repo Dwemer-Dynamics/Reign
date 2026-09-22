@@ -1,0 +1,92 @@
+{
+  "version": 1,
+  "inputHash": "1c162f0dfa3f33f22130d00703ba529bbad9ed419a7f1030dcf64186bc1b9656",
+  "catalogHash": "12142c0ab28d2678b12b852b086450dcc4eea45e2e8a080f3baa85c42f7fb3a2",
+  "renderContractHash": "cc3b941e7d47057de9b4220f1473336e6f908719812bb2653b83bd3545cfbd2f",
+  "cacheKey": "Khada (lord_6_51)",
+  "heroStringId": "lord_6_51",
+  "characterObjectId": "lord_6_51",
+  "characterName": "Khada",
+  "ageYears": 19,
+  "cultureId": "khuzait",
+  "cultureName": "Khuzait",
+  "gender": "man",
+  "clanId": "clan_khuzait_3",
+  "clanTier": 5,
+  "clanProvenance": "reign_profile_library",
+  "socialStation": "high noble",
+  "occupation": "Lord",
+  "archetype": "lord",
+  "isLord": true,
+  "isNotable": false,
+  "isWanderer": false,
+  "isAlive": true,
+  "sourceModule": "Native",
+  "sourceFile": "Modules/SandBox/ModuleData/lords.xml",
+  "profileSource": "native_sandbox",
+  "profilePackVersion": "reign_profiles_v4",
+  "bodyKey": "001CA40CC7FC03099DACA8926B35885A859C74ACF8CCA654D6698187A2856C58004BB503049977690000037F0000000F00000037049140010000000000788000",
+  "bodyWeight": 0.5,
+  "bodyBuild": 0.5,
+  "faceTemplateId": "",
+  "faceGenerationVersion": "native_authored",
+  "civilianTemplate": "khu_civ_template_default",
+  "civilianEquipment": [
+    {
+      "slot": "Body",
+      "itemId": "khuzait_civil_coat"
+    },
+    {
+      "slot": "Cape",
+      "itemId": "eastern_studded_shoulders"
+    },
+    {
+      "slot": "Leg",
+      "itemId": "khuzait_curved_boots"
+    }
+  ],
+  "headgearSuppressed": true,
+  "physicalConfidence": {
+    "definition": "physical_confidence",
+    "score": 75,
+    "profile": "61-80",
+    "flirtatiousnessPercentage": 73,
+    "confidencePercentage": 80,
+    "flirtatiousnessWeight": 0.75,
+    "confidenceWeight": 0.25,
+    "source": "shipped_profile_library"
+  },
+  "renderPreset": "ai_source_wan_portrait_v5",
+  "renderWidth": 1536,
+  "renderHeight": 2048,
+  "sourceWidth": 768,
+  "sourceHeight": 1024,
+  "cropScale": 0.24,
+  "cropWidthRatio": 0.75,
+  "cropCenterYRatio": 0.324,
+  "cameraPitchDegrees": 4,
+  "sourceSha256": "48bde26bdf001f98d03effd7786c29e3009f7a306e1640be74a5c171dce9ef99",
+  "sourceFileName": "source.png",
+  "generationEndpoint": "/portraits/generate",
+  "campaignIdSource": "active_campaign_at_generation_time",
+  "promptDeferred": true,
+  "sourceImageBase64From": "source.png",
+  "outputSizeOverride": "",
+  "promptPurpose": "portrait",
+  "nativePhysique": {
+    "schema": "reign-native-physique-v1",
+    "weight": 0.5,
+    "build": 0.5,
+    "weightSource": "shared_portrait_input.bodyWeight",
+    "buildSource": "shared_portrait_input.bodyBuild",
+    "sourceSha256": "48bde26bdf001f98d03effd7786c29e3009f7a306e1640be74a5c171dce9ef99",
+    "provenance": {
+      "kind": "saved_character_metadata_backfill",
+      "heroStringId": "lord_6_51",
+      "profileSource": "native_sandbox",
+      "profilePackVersion": "reign_profiles_v4",
+      "originalInputSha256": "77daab5523745001f257e229cd0d7da94c99ff0cfc1df0e8a319b24854797498",
+      "rendererReexecuted": false
+    }
+  }
+}

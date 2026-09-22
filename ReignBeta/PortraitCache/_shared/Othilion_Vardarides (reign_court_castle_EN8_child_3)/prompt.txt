@@ -1,0 +1,27 @@
+IDENTITY AND SUBJECT
+Use the provided source image as the visual identity reference, not as a style reference.
+Create a portrait of Othilion Vardarides, a man of Imperial culture who is 20 years old.
+Their clan is tier 3, placing them socially among the lesser lord class. Use this status to guide the refinement, expense, materials, and ornament of their clothing without turning it into fantasy costume.
+Use the source face image as the primary visual reference for the subject’s appearance and identity. Preserve the recognizable facial features, apparent age, expression, eye shape, eye color, hair color, hairstyle, skin tone, facial proportions, bone structure, scars, facial hair, and other distinguishing characteristics as closely as possible.
+The source image may depict a stylized or simplified video-game character model. Do not reproduce the artificial game-model appearance, low-detail geometry, rigid facial structure, plastic skin, exaggerated proportions, or computer-rendered texture. Instead, reinterpret the character as a believable real human being while retaining the same recognizable identity.
+Translate simplified game features into natural human anatomy and realistic detail, including authentic skin texture, visible pores, subtle wrinkles, natural facial asymmetry, realistic eyes, individually defined hair, believable facial hair, and physically plausible facial proportions. The final face should look like a real person photographed in real life, not a game model, digital avatar, illustration, or CGI render.
+Treat the name, age, gender, culture, clan tier, and social station as private generation guidance. They describe the subject and must never be printed, captioned, labeled, written, or otherwise rendered anywhere in the image.
+
+COMPOSITION AND FRAMING
+Create a full head-to-toe body portrait showing the entire figure from the top of the head down to the feet
+Keep the standing figure upright and centered on the image's vertical axis, using a natural relaxed pose without leaning, crouching, sitting, or shifting toward an edge.
+Leave a small clear margin above the hair and around both sides of the body, with enough space below the feet so no part of the figure feels cramped or cropped. Use a natural full-body portrait distance rather than a close-up.
+Do not crop the forehead, top of the head, chin, shoulders, hands, legs, or feet. Keep the full body visible in frame from head to toe.
+Use a softly blurred, historically appropriate stone doorway or architectural background that does not compete with the subject.
+
+Culturally appropriate everyday Calradic Imperial minor-lord attire inspired by refined late Roman and Byzantine noble clothing. Men should wear a high-quality tunic or long tailored outer coat over fine linen, decorated with narrow woven borders, refined clasps, and a decorated belt. Women should wear a long elegant dress or layered tunic ensemble with shaped sleeves, graceful draping, and tasteful trim around the neckline, cuffs, and edges. The garments should feel polished, educated, urban, and wealthy without resembling full imperial ceremony. No headgear of any kind. No armor, weapons, crowns, imperial regalia, laurel wreaths, or ceremonial robes.
+
+PHOTOGRAPHIC STYLE
+Make the subject look like a real human being photographed candidly, not a game render or fantasy illustration.
+Use authentic skin texture, visible pores, natural imperfections, slight asymmetry, natural lips, believable eyes, realistic hair, and restrained age-appropriate detail.
+Use soft natural daylight, shallow depth of field, a realistic 85mm portrait-lens perspective, subtle film grain, and a grounded photographic finish.
+
+OUTPUT EXCLUSIONS
+Return only the portrait image itself.
+Do not render words, letters, numbers, captions, labels, names, ages, cultures, subtitles, signatures, logos, watermarks, interface elements, portrait cards, decorative title blocks, borders, banners, blank caption areas, white strips, white footer panels, or metadata panels anywhere in the image.
+No extreme close-up, face-only crop, cropped head, cropped shoulders, armor, weapons, shields, quivers, chainmail, helmets, fur war gear, plastic skin, over-smoothed face, CGI, cartoon, anime, painterly style, or modern clothing.

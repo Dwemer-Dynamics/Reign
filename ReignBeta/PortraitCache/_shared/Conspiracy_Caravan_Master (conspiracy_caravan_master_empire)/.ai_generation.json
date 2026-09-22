@@ -1,0 +1,27 @@
+{
+  "version": 1,
+  "cacheKey": "Conspiracy_Caravan_Master (conspiracy_caravan_master_empire)",
+  "heroStringId": "conspiracy_caravan_master_empire",
+  "characterObjectId": "conspiracy_caravan_master_empire",
+  "characterName": "Conspiracy Caravan Master",
+  "provider": "AtlasCloud",
+  "model": "xai/grok-imagine-image/edit",
+  "adapter": "atlas upload/generate/poll",
+  "sourceSha256": "09ab90d28cdcdf84fdae4975cce9bbd29cb0776d7ba1c104f24e77791da0edf0",
+  "portraitSha256": "b9bfcba7895598235e966838c245e218290d90bcd1d57ea40b70a7c8c23a02b0",
+  "portraitWidth": 864,
+  "portraitHeight": 1152,
+  "physicalConfidence": {
+    "definition": "physical_confidence",
+    "score": 50,
+    "profile": "41-60",
+    "flirtatiousnessPercentage": 50,
+    "confidencePercentage": 50,
+    "flirtatiousnessWeight": 0.75,
+    "confidenceWeight": 0.25,
+    "source": "neutral_fallback"
+  },
+  "derivativesReady": true,
+  "derivativeError": "",
+  "generatedUtc": "2026-07-17T18:23:33.6662112Z"
+}

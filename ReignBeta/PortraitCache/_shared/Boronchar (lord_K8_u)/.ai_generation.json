@@ -1,0 +1,27 @@
+{
+  "version": 1,
+  "cacheKey": "Boronchar (lord_K8_u)",
+  "heroStringId": "lord_K8_u",
+  "characterObjectId": "lord_K8_u",
+  "characterName": "Boronchar",
+  "provider": "AtlasCloud",
+  "model": "xai/grok-imagine-image/edit",
+  "adapter": "atlas upload/generate/poll",
+  "sourceSha256": "4bd469398b628a6b4dc9ea45f52480bb78822e8c0cb5d16fd16e36b7c7ba317c",
+  "portraitSha256": "79888d2ef0a38db924eb583efcdf565ac421d9eb676d088109fb48219bb27499",
+  "portraitWidth": 832,
+  "portraitHeight": 1248,
+  "physicalConfidence": {
+    "definition": "physical_confidence",
+    "score": 33,
+    "profile": "21-40",
+    "flirtatiousnessPercentage": 27,
+    "confidencePercentage": 50,
+    "flirtatiousnessWeight": 0.75,
+    "confidenceWeight": 0.25,
+    "source": "shipped_profile_library"
+  },
+  "derivativesReady": true,
+  "derivativeError": "",
+  "generatedUtc": "2026-07-17T18:18:13.5783148Z"
+}

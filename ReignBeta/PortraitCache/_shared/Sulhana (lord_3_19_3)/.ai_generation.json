@@ -1,0 +1,27 @@
+{
+  "version": 1,
+  "cacheKey": "Sulhana (lord_3_19_3)",
+  "heroStringId": "lord_3_19_3",
+  "characterObjectId": "lord_3_19_3",
+  "characterName": "Sulhana",
+  "provider": "AtlasCloud",
+  "model": "xai/grok-imagine-image/edit",
+  "adapter": "atlas upload/generate/poll",
+  "sourceSha256": "11e003cf2a54787fd3f27ba0db13c702ec447714c32b755600955d496ec7b3f9",
+  "portraitSha256": "ff75a7b593f9389a4fae5e9afccec542c2f1eba5d48a299f4f8402f2ac96d874",
+  "portraitWidth": 832,
+  "portraitHeight": 1248,
+  "physicalConfidence": {
+    "definition": "physical_confidence",
+    "score": 57,
+    "profile": "41-60",
+    "flirtatiousnessPercentage": 66,
+    "confidencePercentage": 29,
+    "flirtatiousnessWeight": 0.75,
+    "confidenceWeight": 0.25,
+    "source": "shipped_profile_library"
+  },
+  "derivativesReady": true,
+  "derivativeError": "",
+  "generatedUtc": "2026-07-17T19:14:37.4760231Z"
+}

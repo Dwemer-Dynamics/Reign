@@ -1,0 +1,27 @@
+{
+  "version": 1,
+  "cacheKey": "Liorelic_Estrelacourt (reign_court_castle_V5_child_3)",
+  "heroStringId": "reign_court_castle_V5_child_3",
+  "characterObjectId": "reign_court_castle_V5_child_3",
+  "characterName": "Liorelic Estrelacourt",
+  "provider": "AtlasCloud",
+  "model": "xai/grok-imagine-image/edit",
+  "adapter": "atlas upload/generate/poll",
+  "sourceSha256": "553463b69cb619aa2964e16caef7428ea99961f06c28f187f43e21d2797c5c2c",
+  "portraitSha256": "3c73784ca0024b49705d1b16b3b9f61e4782cc8db0f2361047b78431e39942db",
+  "portraitWidth": 864,
+  "portraitHeight": 1152,
+  "physicalConfidence": {
+    "definition": "physical_confidence",
+    "score": 46,
+    "profile": "41-60",
+    "flirtatiousnessPercentage": 37,
+    "confidencePercentage": 72,
+    "flirtatiousnessWeight": 0.75,
+    "confidenceWeight": 0.25,
+    "source": "shipped_profile_library"
+  },
+  "derivativesReady": true,
+  "derivativeError": "",
+  "generatedUtc": "2026-07-17T18:59:04.5337640Z"
+}

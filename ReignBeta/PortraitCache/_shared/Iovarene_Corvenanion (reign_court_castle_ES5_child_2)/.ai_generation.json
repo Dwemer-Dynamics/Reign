@@ -1,0 +1,27 @@
+{
+  "version": 1,
+  "cacheKey": "Iovarene_Corvenanion (reign_court_castle_ES5_child_2)",
+  "heroStringId": "reign_court_castle_ES5_child_2",
+  "characterObjectId": "reign_court_castle_ES5_child_2",
+  "characterName": "Iovarene Corvenanion",
+  "provider": "AtlasCloud",
+  "model": "xai/grok-imagine-image/edit",
+  "adapter": "atlas upload/generate/poll",
+  "sourceSha256": "345c035e196b9cbe1f5aa65a5447eec0959dc2304a609534a26bf5de57e0b21e",
+  "portraitSha256": "7be5c27bb462d302e44623837ba17ac2f91dc8cbe490d4532909ec005203c767",
+  "portraitWidth": 864,
+  "portraitHeight": 1152,
+  "physicalConfidence": {
+    "definition": "physical_confidence",
+    "score": 60,
+    "profile": "41-60",
+    "flirtatiousnessPercentage": 64,
+    "confidencePercentage": 47,
+    "flirtatiousnessWeight": 0.75,
+    "confidenceWeight": 0.25,
+    "source": "shipped_profile_library"
+  },
+  "derivativesReady": true,
+  "derivativeError": "",
+  "generatedUtc": "2026-07-17T18:44:19.1415734Z"
+}

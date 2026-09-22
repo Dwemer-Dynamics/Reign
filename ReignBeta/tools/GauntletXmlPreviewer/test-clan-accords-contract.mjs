@@ -1,0 +1,70 @@
+import assert from "node:assert/strict";
+import fs from "node:fs";
+import path from "node:path";
+import { fileURLToPath } from "node:url";
+import { getClanAccordsSampleData } from "./js/clan-accords-sample-data.js";
+import { selectRenderedPreviewTargets } from "./js/rendered-preview-targets.js";
+import { GauntletRenderer } from "./js/renderer.js";
+
+const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "../..");
+const textAttributes = { "Brush.Font": "ReignSerifDynamic", "Brush.FontColor": "#C5BDAFFF", "Brush.FontSize": "19", "Brush": "DefaultText" };
+const textElement = { style: {} };
+GauntletRenderer.prototype.applyTextStyle.call({ resolveText: (value) => value }, textElement,
+  { nodeName: "TextWidget", getAttribute: (key) => textAttributes[key] || null, hasAttribute: (key) => key in textAttributes }, {});
+assert.equal(textElement.style.fontFamily, '"Reign Cormorant Garamond", serif');
+assert.equal(textElement.style.fontWeight, "500");
+assert.equal(textElement.style.fontSynthesis, "none");
+assert.equal(textElement.style.textShadow, "none");
+assert.equal(textElement.style.color, "rgba(197, 189, 175, 1.000)");
+const catalog = JSON.parse(fs.readFileSync(path.join(root, "tools/GauntletXmlPreviewer/calibration/ui-catalog.json"), "utf8"));
+const fullSelection = selectRenderedPreviewTargets(catalog);
+const ownSelection = selectRenderedPreviewTargets(catalog, "clan-accords,economic-report");
+assert.equal(fullSelection.partialScope, false);
+assert.equal(ownSelection.partialScope, true);
+assert.equal(ownSelection.interfaces.length, 7, "Clan Accords base plus five declared states and Economy.");
+assert.equal(ownSelection.augmentations.length, 0);
+assert.equal(ownSelection.catalogInterfaceStateCount, fullSelection.interfaces.length, "Partial runs retain whole catalog checks.");
+assert.equal(ownSelection.catalogPrefabCount, fullSelection.catalogPrefabCount, "Install summary checks retain all source prefabs.");
+assert.deepEqual(selectRenderedPreviewTargets(catalog, "clan-accords-error").interfaces.map((entry) => entry.id), ["clan-accords-error"]);
+for (const invalid of ["", "clan-accords,", "clan-accords,clan-accords", "missing-interface"])
+  assert.throws(() => selectRenderedPreviewTargets(catalog, invalid));
+const nativeId = catalog.nativeAugmentations.targets[0].target;
+assert.equal(selectRenderedPreviewTargets(catalog, nativeId).augmentations.length, 1);
+const xml = fs.readFileSync(path.join(root, "GUI/Prefabs/ReignClanAccordsScreen.xml"), "utf8");
+const card = JSON.parse(fs.readFileSync(path.join(root, "artwork/ui-modern-style-kit/specs/clan-accords-card.json"), "utf8"));
+assert.match(xml, /<ReignClanAccordsSnapScrollPanel Type="ReignBeta\.UI\.ReignClanAccordsSnapScrollPanel"[^>]+ItemCount="@AgreementCount"/);
+assert.match(xml, /Id="AccordViewport"[^>]+SuggestedHeight="448"/);
+assert.match(xml, /Id="AccordCardSlot"[^>]+SuggestedHeight="112"/);
+assert.equal(448, 4 * 112, "Four whole card pitches fill the scroll viewport.");
+assert.equal(card.canvas.width, 1188);
+assert.equal(card.canvas.height, 104);
+assert.equal(card.apertures.length, 1, "The entire card owns exactly one banner aperture.");
+assert.equal(card.apertures[0].shape, "polygon");
+assert.ok(xml.indexOf('Id="PartnerBanner"') < xml.indexOf('Id="IntegratedAccordCardArtwork"'), "Dynamic banner is behind its complete owning card.");
+assert.doesNotMatch(xml, /Id="[^" ]*(?:FrameOverlay|BannerFrame|FixedHole)[^" ]*"/);
+for (const tag of xml.matchAll(/<TextWidget\b[^>]*>/g)) {
+  assert.match(tag[0], /Brush.Font="ReignSerifDynamic"/);
+  assert.match(tag[0], /Brush.FontColor="#(?:C5BDAF|8A8883|A88A54|C35B32)FF"/);
+  assert.match(tag[0], /Brush.TextOutlineAmount="0"/);
+}
+for (const property of ["TradeTotal", "SecurityTotal", "HearthTotal", "ProsperityTotal", "GarrisonTotal", "ConfirmationTitle", "ConfirmationText"])
+  assert.ok(xml.includes(`Text="@${property}"`), `Live binding ${property} is present.`);
+const active = getClanAccordsSampleData();
+assert.equal(active.AgreementCount, 7);
+assert.equal(active.TradeTotal, "+100 / day");
+assert.equal(active.SecurityTotal, "+0.2 / day");
+assert.ok(active.Agreements.every(row => row.Arrangers && row.KingdomName && row.BannerAsset));
+const full = getClanAccordsSampleData("clan-accords-capacity");
+assert.equal(full.AgreementCount, 30);
+assert.ok(full.Filters.slice(1).every(filter => filter.Capacity === "6 / 6"));
+assert.equal(full.GarrisonTotal, "-12%");
+const empty = getClanAccordsSampleData("clan-accords-empty");
+assert.equal(empty.IsEmpty, true);
+assert.equal(empty.Agreements.length, 0);
+assert.ok(empty.$emptyListRationales.Agreements);
+const confirm = getClanAccordsSampleData("clan-accords-confirmation");
+assert.equal(confirm.IsListEnabled, false);
+assert.equal(confirm.IsConfirmationOpen, true);
+assert.match(confirm.ConfirmationText, /decreases by 10/);
+assert.ok(getClanAccordsSampleData("clan-accords-error").StatusText);
+console.log("Clan Accords layout and provider-free fixture contract: PASS (native acceptance remains required)");

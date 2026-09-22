@@ -1,0 +1,27 @@
+{
+  "version": 1,
+  "cacheKey": "Terra (main_hero_mother)",
+  "heroStringId": "main_hero_mother",
+  "characterObjectId": "main_hero_mother",
+  "characterName": "Terra",
+  "provider": "AtlasCloud",
+  "model": "xai/grok-imagine-image/edit",
+  "adapter": "atlas upload/generate/poll",
+  "sourceSha256": "835904143629d3fdc24d249a70a1cfa40b2e876eb568bb99ec799eae54b5ef85",
+  "portraitSha256": "8a1c6e83d83f1f3a5a74c084ad255d4f90e137e8f01be03a1e5e510336ee71c6",
+  "portraitWidth": 864,
+  "portraitHeight": 1152,
+  "physicalConfidence": {
+    "definition": "physical_confidence",
+    "score": 50,
+    "profile": "41-60",
+    "flirtatiousnessPercentage": 50,
+    "confidencePercentage": 50,
+    "flirtatiousnessWeight": 0.75,
+    "confidenceWeight": 0.25,
+    "source": "neutral_fallback"
+  },
+  "derivativesReady": true,
+  "derivativeError": "",
+  "generatedUtc": "2026-07-17T19:16:23.7969493Z"
+}

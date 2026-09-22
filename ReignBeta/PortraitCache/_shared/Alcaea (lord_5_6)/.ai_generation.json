@@ -1,0 +1,27 @@
+{
+  "version": 1,
+  "cacheKey": "Alcaea (lord_5_6)",
+  "heroStringId": "lord_5_6",
+  "characterObjectId": "lord_5_6",
+  "characterName": "Alcaea",
+  "provider": "AtlasCloud",
+  "model": "xai/grok-imagine-image/edit",
+  "adapter": "atlas upload/generate/poll",
+  "sourceSha256": "09dce91fd5026402f4628b9a76ac9fd6d1e83028e9c679e77729510d84ea9470",
+  "portraitSha256": "645247668eba8d54b7b86a3398d871b222223ea6b49b012d181a0f49841f76ca",
+  "portraitWidth": 832,
+  "portraitHeight": 1248,
+  "physicalConfidence": {
+    "definition": "physical_confidence",
+    "score": 66,
+    "profile": "61-80",
+    "flirtatiousnessPercentage": 76,
+    "confidencePercentage": 35,
+    "flirtatiousnessWeight": 0.75,
+    "confidenceWeight": 0.25,
+    "source": "shipped_profile_library"
+  },
+  "derivativesReady": true,
+  "derivativeError": "",
+  "generatedUtc": "2026-07-17T18:10:51.5406152Z"
+}

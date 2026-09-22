@@ -1,0 +1,27 @@
+{
+  "version": 1,
+  "cacheKey": "Drenilia_Sorianarides (reign_court_castle_EN7_mother)",
+  "heroStringId": "reign_court_castle_EN7_mother",
+  "characterObjectId": "reign_court_castle_EN7_mother",
+  "characterName": "Drenilia Sorianarides",
+  "provider": "AtlasCloud",
+  "model": "xai/grok-imagine-image/edit",
+  "adapter": "atlas upload/generate/poll",
+  "sourceSha256": "9c8075fc66ad10f9b771c809c6bcf065249a54f7af09fedaa1e680a3dcc3ea93",
+  "portraitSha256": "46ab1c6895ab67debc0b11def278dedc64394632ac0dfde0c4961c0311e3bbc2",
+  "portraitWidth": 864,
+  "portraitHeight": 1152,
+  "physicalConfidence": {
+    "definition": "physical_confidence",
+    "score": 51,
+    "profile": "41-60",
+    "flirtatiousnessPercentage": 53,
+    "confidencePercentage": 44,
+    "flirtatiousnessWeight": 0.75,
+    "confidenceWeight": 0.25,
+    "source": "shipped_profile_library"
+  },
+  "derivativesReady": true,
+  "derivativeError": "",
+  "generatedUtc": "2026-07-17T18:29:52.1949759Z"
+}

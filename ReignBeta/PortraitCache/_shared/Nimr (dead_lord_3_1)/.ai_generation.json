@@ -1,0 +1,27 @@
+{
+  "version": 1,
+  "cacheKey": "Nimr (dead_lord_3_1)",
+  "heroStringId": "dead_lord_3_1",
+  "characterObjectId": "dead_lord_3_1",
+  "characterName": "Nimr",
+  "provider": "AtlasCloud",
+  "model": "xai/grok-imagine-image/edit",
+  "adapter": "atlas upload/generate/poll",
+  "sourceSha256": "f3dbdba037edd490bb60b9f0a57121679edd050e976e34d3f05d7a4354d543d2",
+  "portraitSha256": "715b635ca5cfb4105795dd4cec5a3f991166b232c4f33823250f0cf6516add09",
+  "portraitWidth": 864,
+  "portraitHeight": 1152,
+  "physicalConfidence": {
+    "definition": "physical_confidence",
+    "score": 61,
+    "profile": "61-80",
+    "flirtatiousnessPercentage": 66,
+    "confidencePercentage": 45,
+    "flirtatiousnessWeight": 0.75,
+    "confidenceWeight": 0.25,
+    "source": "shipped_profile_library"
+  },
+  "derivativesReady": true,
+  "derivativeError": "",
+  "generatedUtc": "2026-07-17T19:05:55.0173786Z"
+}

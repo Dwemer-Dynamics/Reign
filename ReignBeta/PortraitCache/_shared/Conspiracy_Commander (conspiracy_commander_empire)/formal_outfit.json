@@ -1,0 +1,13 @@
+{
+  "version": 1,
+  "heroStringId": "conspiracy_commander_empire",
+  "characterName": "Conspiracy Commander",
+  "imagePath": "portrait.png",
+  "imageSha256": "CD74EB90728C16E104A039DE4B9C70427F9715FAED07C752FE5F876632736B6A",
+  "description": "Their clan is tier unknown, placing them socially among the unranked class. Use this status to guide the refinement, expense, materials, and ornament of their clothing without turning it into fantasy costume.",
+  "status": "failed",
+  "descriptionSource": "portrait_prompt_fallback",
+  "retryEligible": true,
+  "error": "{\"error\":{\"message\":\"Model \\\"zai-org/glm-5.2\\\" does not support image inputs. Remove image content or choose a multimodal model.\",\"type\":\"invalid_request_error\",\"param\":\"messages\",\"code\":\"image_input_not_supported\"}}",
+  "updatedUtc": "2026-07-18T22:03:26.9138806Z"
+}

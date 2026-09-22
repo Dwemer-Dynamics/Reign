@@ -1,0 +1,27 @@
+{
+  "version": 1,
+  "cacheKey": "Ospir (lord_4_21)",
+  "heroStringId": "lord_4_21",
+  "characterObjectId": "lord_4_21",
+  "characterName": "Ospir",
+  "provider": "AtlasCloud",
+  "model": "xai/grok-imagine-image/edit",
+  "adapter": "atlas upload/generate/poll",
+  "sourceSha256": "428b5afc0a1d9261e8515e0dc0f5e9a8e2b386705cf2b90615183fd2308d71cd",
+  "portraitSha256": "eddb17d96f48186282659b9cc75d77f180814d270b2465f2fe3746bca6ff09c5",
+  "portraitWidth": 832,
+  "portraitHeight": 1248,
+  "physicalConfidence": {
+    "definition": "physical_confidence",
+    "score": 49,
+    "profile": "41-60",
+    "flirtatiousnessPercentage": 40,
+    "confidencePercentage": 75,
+    "flirtatiousnessWeight": 0.75,
+    "confidenceWeight": 0.25,
+    "source": "shipped_profile_library"
+  },
+  "derivativesReady": true,
+  "derivativeError": "",
+  "generatedUtc": "2026-07-17T19:06:48.0919438Z"
+}

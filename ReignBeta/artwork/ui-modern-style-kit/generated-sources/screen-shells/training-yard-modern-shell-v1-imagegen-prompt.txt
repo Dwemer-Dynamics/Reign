@@ -1,0 +1,8 @@
+Use case: ui-mockup
+Asset type: production static raster shell for the Reign Training Yard interface
+References: approved Family Chambers, Spymaster, and Castle Layout Reign interfaces
+Primary request: create a restrained 16:9 Training Yard shell with three regions: a narrow left trainer rail, a central selected-trainer station, a wide right troop roster, and a quiet footer.
+Style: formal Reign black marble, thin antique-gold stepped frames, restrained diamond ornaments, generous negative space.
+Revision: remove every repeated card outline, portrait opening, and scrollbar from the left and right rail interiors so complete runtime-owned cards can move through clean clipped fields.
+Constraints: static shell only; no portraits, people, troop icons, names, values, readable text, logos, watermarks, bright gold, brown parchment, native gray UI, white seams, thick bevels, glow, or extra ornament.
+Output: exact 1672 x 941 project raster selected from the built-in image generation workflow.

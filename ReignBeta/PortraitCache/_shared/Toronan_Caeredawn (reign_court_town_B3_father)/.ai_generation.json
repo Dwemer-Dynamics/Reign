@@ -1,0 +1,27 @@
+{
+  "version": 1,
+  "cacheKey": "Toronan_Caeredawn (reign_court_town_B3_father)",
+  "heroStringId": "reign_court_town_B3_father",
+  "characterObjectId": "reign_court_town_B3_father",
+  "characterName": "Toronan Caeredawn",
+  "provider": "AtlasCloud",
+  "model": "xai/grok-imagine-image/edit",
+  "adapter": "atlas upload/generate/poll",
+  "sourceSha256": "507b887bcbd95ad698e0c17504fe6f419ecfc4eb10b2d0f8866497ec725cb2c6",
+  "portraitSha256": "bbdb2aadac7ec63f7a2064a1266383626e95e734eabdd43fcda3d8b413d995e6",
+  "portraitWidth": 864,
+  "portraitHeight": 1152,
+  "physicalConfidence": {
+    "definition": "physical_confidence",
+    "score": 49,
+    "profile": "41-60",
+    "flirtatiousnessPercentage": 57,
+    "confidencePercentage": 24,
+    "flirtatiousnessWeight": 0.75,
+    "confidenceWeight": 0.25,
+    "source": "shipped_profile_library"
+  },
+  "derivativesReady": true,
+  "derivativeError": "",
+  "generatedUtc": "2026-07-17T19:18:09.2607950Z"
+}

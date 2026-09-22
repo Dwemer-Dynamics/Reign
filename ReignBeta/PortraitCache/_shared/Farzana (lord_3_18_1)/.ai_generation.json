@@ -1,0 +1,27 @@
+{
+  "version": 1,
+  "cacheKey": "Farzana (lord_3_18_1)",
+  "heroStringId": "lord_3_18_1",
+  "characterObjectId": "lord_3_18_1",
+  "characterName": "Farzana",
+  "provider": "AtlasCloud",
+  "model": "xai/grok-imagine-image/edit",
+  "adapter": "atlas upload/generate/poll",
+  "sourceSha256": "4e2ed4b269b5a4924811289aa90fc15d97373e451f7cc5a4ff8d177a90d553ba",
+  "portraitSha256": "865cf0d82b1f31171406f2b17d735002ce079af3260842084628b205a6d63623",
+  "portraitWidth": 832,
+  "portraitHeight": 1248,
+  "physicalConfidence": {
+    "definition": "physical_confidence",
+    "score": 52,
+    "profile": "41-60",
+    "flirtatiousnessPercentage": 55,
+    "confidencePercentage": 42,
+    "flirtatiousnessWeight": 0.75,
+    "confidenceWeight": 0.25,
+    "source": "shipped_profile_library"
+  },
+  "derivativesReady": true,
+  "derivativeError": "",
+  "generatedUtc": "2026-07-17T18:36:44.9011396Z"
+}

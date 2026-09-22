@@ -1,0 +1,27 @@
+{
+  "version": 1,
+  "cacheKey": "Azalan_Damasiqani (reign_court_town_A2_child_3)",
+  "heroStringId": "reign_court_town_A2_child_3",
+  "characterObjectId": "reign_court_town_A2_child_3",
+  "characterName": "Azalan Damasiqani",
+  "provider": "AtlasCloud",
+  "model": "xai/grok-imagine-image/edit",
+  "adapter": "atlas upload/generate/poll",
+  "sourceSha256": "0c6314ad97c758a892887ad4061e18ace3f9c89ade43b5abf9108fee301f889d",
+  "portraitSha256": "60a051389a0a223cc813e077d99fbdd15ff5210916b3e3e2a7c217323b11ead7",
+  "portraitWidth": 864,
+  "portraitHeight": 1152,
+  "physicalConfidence": {
+    "definition": "physical_confidence",
+    "score": 73,
+    "profile": "61-80",
+    "flirtatiousnessPercentage": 83,
+    "confidencePercentage": 42,
+    "flirtatiousnessWeight": 0.75,
+    "confidenceWeight": 0.25,
+    "source": "shipped_profile_library"
+  },
+  "derivativesReady": true,
+  "derivativeError": "",
+  "generatedUtc": "2026-07-17T18:14:46.3508389Z"
+}

@@ -1,0 +1,27 @@
+{
+  "version": 1,
+  "cacheKey": "Mazadan_Damasaqani (reign_court_castle_A3_father)",
+  "heroStringId": "reign_court_castle_A3_father",
+  "characterObjectId": "reign_court_castle_A3_father",
+  "characterName": "Mazadan Damasaqani",
+  "provider": "AtlasCloud",
+  "model": "xai/grok-imagine-image/edit",
+  "adapter": "atlas upload/generate/poll",
+  "sourceSha256": "2ce53bcec7617bb8600cc2f854c09e39e43f01891c02308fd5847a6a7677deb9",
+  "portraitSha256": "90de231e45d2dc51261aa5cf3338cf08e1a94f77a1520d2cbb008dcc02a0f96f",
+  "portraitWidth": 864,
+  "portraitHeight": 1152,
+  "physicalConfidence": {
+    "definition": "physical_confidence",
+    "score": 53,
+    "profile": "41-60",
+    "flirtatiousnessPercentage": 44,
+    "confidencePercentage": 79,
+    "flirtatiousnessWeight": 0.75,
+    "confidenceWeight": 0.25,
+    "source": "shipped_profile_library"
+  },
+  "derivativesReady": true,
+  "derivativeError": "",
+  "generatedUtc": "2026-07-17T19:02:06.2351124Z"
+}

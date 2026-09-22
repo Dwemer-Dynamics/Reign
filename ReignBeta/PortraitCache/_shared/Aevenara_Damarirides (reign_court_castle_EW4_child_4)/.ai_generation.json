@@ -1,0 +1,27 @@
+{
+  "version": 1,
+  "cacheKey": "Aevenara_Damarirides (reign_court_castle_EW4_child_4)",
+  "heroStringId": "reign_court_castle_EW4_child_4",
+  "characterObjectId": "reign_court_castle_EW4_child_4",
+  "characterName": "Aevenara Damarirides",
+  "provider": "AtlasCloud",
+  "model": "xai/grok-imagine-image/edit",
+  "adapter": "atlas upload/generate/poll",
+  "sourceSha256": "6ee8cf54b41a7f96638af461425ea6cbb0959e71c6764510dc11230d5b50df89",
+  "portraitSha256": "9a1005d3e055ed3ed92bdbf03c2f02938063b00133629194374c97bdd74b090e",
+  "portraitWidth": 864,
+  "portraitHeight": 1152,
+  "physicalConfidence": {
+    "definition": "physical_confidence",
+    "score": 51,
+    "profile": "41-60",
+    "flirtatiousnessPercentage": 49,
+    "confidencePercentage": 56,
+    "flirtatiousnessWeight": 0.75,
+    "confidenceWeight": 0.25,
+    "source": "shipped_profile_library"
+  },
+  "derivativesReady": true,
+  "derivativeError": "",
+  "generatedUtc": "2026-07-17T18:09:18.8144857Z"
+}

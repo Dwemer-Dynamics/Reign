@@ -1,0 +1,27 @@
+{
+  "version": 1,
+  "cacheKey": "Martira (lord_1_16)",
+  "heroStringId": "lord_1_16",
+  "characterObjectId": "lord_1_16",
+  "characterName": "Martira",
+  "provider": "AtlasCloud",
+  "model": "xai/grok-imagine-image/edit",
+  "adapter": "atlas upload/generate/poll",
+  "sourceSha256": "9ac9a200e77f015e96c27806e06f52ad99a48526f4103df5197d98913a0b6b0a",
+  "portraitSha256": "4af1bcf6625060f60baaf697aeb9e53521edb2bfb61447ccff0acdf71f2f7c2c",
+  "portraitWidth": 832,
+  "portraitHeight": 1248,
+  "physicalConfidence": {
+    "definition": "physical_confidence",
+    "score": 45,
+    "profile": "41-60",
+    "flirtatiousnessPercentage": 51,
+    "confidencePercentage": 26,
+    "flirtatiousnessWeight": 0.75,
+    "confidenceWeight": 0.25,
+    "source": "shipped_profile_library"
+  },
+  "derivativesReady": true,
+  "derivativeError": "",
+  "generatedUtc": "2026-07-17T18:59:59.4675467Z"
+}

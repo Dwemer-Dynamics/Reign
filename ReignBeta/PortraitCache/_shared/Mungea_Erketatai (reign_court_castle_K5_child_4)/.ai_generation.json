@@ -1,0 +1,27 @@
+{
+  "version": 1,
+  "cacheKey": "Mungea_Erketatai (reign_court_castle_K5_child_4)",
+  "heroStringId": "reign_court_castle_K5_child_4",
+  "characterObjectId": "reign_court_castle_K5_child_4",
+  "characterName": "Mungea Erketatai",
+  "provider": "AtlasCloud",
+  "model": "xai/grok-imagine-image/edit",
+  "adapter": "atlas upload/generate/poll",
+  "sourceSha256": "460442a3a697344320a13d0dec0deaae50a2c6195cedab8de4bbac4ff94527ec",
+  "portraitSha256": "405df1d6bf5e5371383d0cfc584c292ad9d372159285f8d713b4713090b5aef1",
+  "portraitWidth": 864,
+  "portraitHeight": 1152,
+  "physicalConfidence": {
+    "definition": "physical_confidence",
+    "score": 61,
+    "profile": "61-80",
+    "flirtatiousnessPercentage": 61,
+    "confidencePercentage": 60,
+    "flirtatiousnessWeight": 0.75,
+    "confidenceWeight": 0.25,
+    "source": "shipped_profile_library"
+  },
+  "derivativesReady": true,
+  "derivativeError": "",
+  "generatedUtc": "2026-07-17T19:04:44.9507443Z"
+}

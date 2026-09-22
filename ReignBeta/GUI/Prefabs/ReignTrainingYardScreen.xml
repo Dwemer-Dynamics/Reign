@@ -1,0 +1,104 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Prefab>
+  <Window>
+    <Widget WidthSizePolicy="StretchToParent" HeightSizePolicy="StretchToParent">
+      <Children>
+        <Widget WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="1672" SuggestedHeight="941" HorizontalAlignment="Center" VerticalAlignment="Center" DoNotUseCustomScaleAndChildren="true" ClipContents="true">
+          <Children>
+            <!-- The selected portrait is deliberately below the shell. The shell owns
+                 the opaque aperture plate and topmost gold frame. -->
+            <Widget IsVisible="@HasSelectedTrainer" DoNotAcceptEvents="true" WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="96" SuggestedHeight="96" MarginLeft="634" MarginTop="240" ClipContents="true">
+              <Children>
+                <ImageIdentifierWidget DoNotAcceptEvents="true" WidthSizePolicy="StretchToParent" HeightSizePolicy="StretchToParent" ImageId="@SelectedPortraitId" AdditionalArgs="@SelectedPortraitAdditionalArgs" TextureProviderName="@SelectedPortraitTextureProviderName" />
+                <ReignPortraitWidget Type="ReignBeta.UI.Widgets.ReignPortraitWidget" IsVisible="@HasSelectedGeneratedPortrait" DoNotAcceptEvents="true" WidthSizePolicy="StretchToParent" HeightSizePolicy="StretchToParent" PortraitCacheKey="@SelectedPortraitCacheKey" UseZoomQuality="true" />
+              </Children>
+            </Widget>
+            <ImageWidget Id="TrainingYardShell" DoNotAcceptEvents="true" WidthSizePolicy="StretchToParent" HeightSizePolicy="StretchToParent" Sprite="reign_training_yard_modern_shell" />
+
+            <ReignTrainingYardSnapScrollPanel Type="ReignBeta.UI.ReignTrainingYardSnapScrollPanel" WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="324" SuggestedHeight="628" MarginLeft="70" MarginTop="132" VerticalScrollbar="..\TrainerScrollbar" InnerPanel="TrainerClip\TrainerList" ClipRect="TrainerClip" AutoHideScrollBars="false" OnlyAcceptScrollEventIfCanScroll="true" MouseScrollAxis="Vertical" ItemCount="@TrainerCount" VisibleItems="5">
+              <Children>
+                <Widget Id="TrainerClip" WidthSizePolicy="StretchToParent" HeightSizePolicy="StretchToParent" ClipContents="true">
+                  <Children>
+                    <ListPanel Id="TrainerList" DataSource="{Trainers}" WidthSizePolicy="StretchToParent" HeightSizePolicy="CoverChildren" StackLayout.LayoutMethod="VerticalTopToBottom">
+                      <ItemTemplate>
+                        <ButtonWidget WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="322" SuggestedHeight="116" MarginBottom="12" Brush="ConversationItem.SoundBrush" Command.Click="ExecuteSelect" IsEnabled="@CanSelect" UpdateChildrenStates="true">
+                          <Children>
+                            <ImageWidget DoNotAcceptEvents="true" WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="322" SuggestedHeight="116" Sprite="reign_family_chambers_person_card" />
+                            <Widget DoNotAcceptEvents="true" WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="108" SuggestedHeight="108" MarginLeft="8" MarginTop="4" ClipContents="true">
+                              <Children>
+                                <Widget DoNotAcceptEvents="true" WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="96" SuggestedHeight="96" MarginLeft="6" MarginTop="6" ClipContents="true">
+                                  <Children>
+                                    <ImageIdentifierWidget DoNotAcceptEvents="true" WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="96" SuggestedHeight="96" ImageId="@PortraitId" AdditionalArgs="@PortraitAdditionalArgs" TextureProviderName="@PortraitTextureProviderName" />
+                                    <ReignPortraitWidget Type="ReignBeta.UI.Widgets.ReignPortraitWidget" IsVisible="@HasGeneratedPortrait" DoNotAcceptEvents="true" WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="96" SuggestedHeight="96" PortraitCacheKey="@PortraitCacheKey" UseZoomQuality="true" />
+                                  </Children>
+                                </Widget>
+                                <ImageWidget DoNotAcceptEvents="true" WidthSizePolicy="StretchToParent" HeightSizePolicy="StretchToParent" Sprite="reign_family_chambers_portrait_mask" />
+                              </Children>
+                            </Widget>
+                            <TextWidget DoNotAcceptEvents="true" WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="198" SuggestedHeight="38" MarginLeft="120" MarginTop="3" Brush="DefaultText" Brush.Font="ReignSerifDynamic" Brush.FontSize="17" Brush.FontColor="#C5AC83FF" Brush.TextHorizontalAlignment="Center" Brush.TextVerticalAlignment="Center" Text="@Name" />
+                            <TextWidget DoNotAcceptEvents="true" WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="198" SuggestedHeight="38" MarginLeft="120" MarginTop="43" Brush="DefaultText" Brush.Font="ReignSerifDynamic" Brush.FontSize="13" Brush.FontColor="#C5BDAFFF" Brush.TextHorizontalAlignment="Center" Brush.TextVerticalAlignment="Center" Text="@Detail" />
+                            <TextWidget DoNotAcceptEvents="true" WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="198" SuggestedHeight="24" MarginLeft="120" MarginTop="84" Brush="DefaultText" Brush.Font="ReignSerifDynamic" Brush.FontSize="12" Brush.FontColor="#8A8883FF" Brush.TextHorizontalAlignment="Center" Text="@Rate" />
+                            <Widget IsVisible="@IsSelected" DoNotAcceptEvents="true" WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="8" SuggestedHeight="8" MarginLeft="302" MarginTop="9" Sprite="BlankWhiteSquare_9" Color="#A88A54FF" />
+                          </Children>
+                        </ButtonWidget>
+                      </ItemTemplate>
+                    </ListPanel>
+                  </Children>
+                </Widget>
+              </Children>
+            </ReignTrainingYardSnapScrollPanel>
+            <ScrollbarWidget Id="TrainerScrollbar" WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="12" SuggestedHeight="628" MarginLeft="396" MarginTop="132" AlignmentAxis="Vertical" Handle="TrainerHandle" MaxValue="100" MinValue="0">
+              <Children>
+                <Widget DoNotAcceptEvents="true" WidthSizePolicy="Fixed" HeightSizePolicy="StretchToParent" SuggestedWidth="3" HorizontalAlignment="Center" Sprite="BlankWhiteSquare_9" Color="#352C20FF" />
+                <Widget Id="TrainerHandle" WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="8" SuggestedHeight="72" HorizontalAlignment="Center" Sprite="BlankWhiteSquare_9" Color="#A88A54FF" />
+              </Children>
+            </ScrollbarWidget>
+
+            <TextWidget DoNotAcceptEvents="true" WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="420" SuggestedHeight="34" MarginLeft="472" MarginTop="355" Brush="DefaultText" Brush.Font="ReignSerifDynamic" Brush.FontSize="22" Brush.FontColor="#C5AC83FF" Brush.TextHorizontalAlignment="Center" Text="@SelectedTrainerName" />
+            <TextWidget DoNotAcceptEvents="true" WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="390" SuggestedHeight="52" MarginLeft="487" MarginTop="394" Brush="DefaultText" Brush.Font="ReignSerifDynamic" Brush.FontSize="14" Brush.FontColor="#8A8883FF" Brush.TextHorizontalAlignment="Center" Brush.TextVerticalAlignment="Center" Text="@SelectedTrainerDetail" />
+            <TextWidget DoNotAcceptEvents="true" WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="390" SuggestedHeight="28" MarginLeft="487" MarginTop="463" Brush="DefaultText" Brush.Font="ReignSerifDynamic" Brush.FontSize="16" Brush.FontColor="#C5BDAFFF" Brush.TextHorizontalAlignment="Center" Text="@LeadershipText" />
+            <TextWidget DoNotAcceptEvents="true" WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="390" SuggestedHeight="28" MarginLeft="487" MarginTop="497" Brush="DefaultText" Brush.Font="ReignSerifDynamic" Brush.FontSize="16" Brush.FontColor="#C5BDAFFF" Brush.TextHorizontalAlignment="Center" Text="@WeaponText" />
+            <TextWidget DoNotAcceptEvents="true" WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="390" SuggestedHeight="34" MarginLeft="487" MarginTop="536" Brush="DefaultText" Brush.Font="ReignSerifDynamic" Brush.FontSize="18" Brush.FontColor="#A88A54FF" Brush.TextHorizontalAlignment="Center" Text="@RateText" />
+            <TextWidget DoNotAcceptEvents="true" WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="390" SuggestedHeight="28" MarginLeft="487" MarginTop="655" Brush="DefaultText" Brush.Font="ReignSerifDynamic" Brush.FontSize="16" Brush.FontColor="#C5BDAFFF" Brush.TextHorizontalAlignment="Center" Text="@ElapsedText" />
+            <TextWidget DoNotAcceptEvents="true" WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="390" SuggestedHeight="28" MarginLeft="487" MarginTop="700" Brush="DefaultText" Brush.Font="ReignSerifDynamic" Brush.FontSize="16" Brush.FontColor="#C5BDAFFF" Brush.TextHorizontalAlignment="Center" Text="@DeliveredText" />
+
+            <ReignTrainingYardSnapScrollPanel Type="ReignBeta.UI.ReignTrainingYardSnapScrollPanel" WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="620" SuggestedHeight="591" MarginLeft="973" MarginTop="132" VerticalScrollbar="..\TroopScrollbar" InnerPanel="TroopClip\TroopList" ClipRect="TroopClip" AutoHideScrollBars="false" OnlyAcceptScrollEventIfCanScroll="true" MouseScrollAxis="Vertical" ItemCount="@TroopCount" VisibleItems="8">
+              <Children>
+                <Widget Id="TroopClip" WidthSizePolicy="StretchToParent" HeightSizePolicy="StretchToParent" ClipContents="true">
+                  <Children>
+                    <ListPanel Id="TroopList" DataSource="{Troops}" WidthSizePolicy="StretchToParent" HeightSizePolicy="CoverChildren" StackLayout.LayoutMethod="VerticalTopToBottom">
+                      <ItemTemplate>
+                        <Widget WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="620" SuggestedHeight="66" MarginBottom="9">
+                          <Children>
+                            <Widget DoNotAcceptEvents="true" WidthSizePolicy="StretchToParent" HeightSizePolicy="StretchToParent" Sprite="BlankWhiteSquare_9" Color="#7E6A4DFF" />
+                            <Widget DoNotAcceptEvents="true" WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="616" SuggestedHeight="62" MarginLeft="2" MarginTop="2" Sprite="BlankWhiteSquare_9" Color="#1A1917FF" />
+                            <TextWidget DoNotAcceptEvents="true" WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="290" SuggestedHeight="36" MarginLeft="16" MarginTop="2" Brush="DefaultText" Brush.Font="ReignSerifDynamic" Brush.FontSize="15" Brush.FontColor="#C5AC83FF" Brush.TextVerticalAlignment="Center" Text="@Name" />
+                            <TextWidget DoNotAcceptEvents="true" WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="140" SuggestedHeight="22" MarginLeft="16" MarginTop="39" Brush="DefaultText" Brush.Font="ReignSerifDynamic" Brush.FontSize="13" Brush.FontColor="#8A8883FF" Text="@TierText" />
+                            <TextWidget DoNotAcceptEvents="true" WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="150" SuggestedHeight="22" MarginLeft="142" MarginTop="39" Brush="DefaultText" Brush.Font="ReignSerifDynamic" Brush.FontSize="13" Brush.FontColor="#8A8883FF" Text="@CountText" />
+                            <TextWidget DoNotAcceptEvents="true" WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="290" SuggestedHeight="25" MarginLeft="312" MarginTop="9" Brush="DefaultText" Brush.Font="ReignSerifDynamic" Brush.FontSize="14" Brush.FontColor="#C5BDAFFF" Brush.TextHorizontalAlignment="Right" Text="@ProgressText" />
+                            <TextWidget DoNotAcceptEvents="true" WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="290" SuggestedHeight="22" MarginLeft="312" MarginTop="38" Brush="DefaultText" Brush.Font="ReignSerifDynamic" Brush.FontSize="12" Brush.FontColor="#8A8883FF" Brush.TextHorizontalAlignment="Right" Text="@StateText" />
+                          </Children>
+                        </Widget>
+                      </ItemTemplate>
+                    </ListPanel>
+                  </Children>
+                </Widget>
+              </Children>
+            </ReignTrainingYardSnapScrollPanel>
+            <ScrollbarWidget Id="TroopScrollbar" WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="12" SuggestedHeight="591" MarginLeft="1597" MarginTop="132" AlignmentAxis="Vertical" Handle="TroopHandle" MaxValue="100" MinValue="0">
+              <Children>
+                <Widget DoNotAcceptEvents="true" WidthSizePolicy="Fixed" HeightSizePolicy="StretchToParent" SuggestedWidth="3" HorizontalAlignment="Center" Sprite="BlankWhiteSquare_9" Color="#352C20FF" />
+                <Widget Id="TroopHandle" WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="8" SuggestedHeight="72" HorizontalAlignment="Center" Sprite="BlankWhiteSquare_9" Color="#A88A54FF" />
+              </Children>
+            </ScrollbarWidget>
+
+            <ButtonWidget WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="310" SuggestedHeight="54" MarginLeft="55" MarginTop="837" Brush="ConversationItem.SoundBrush" Command.Click="ExecuteClose" UpdateChildrenStates="true" />
+            <TextWidget DoNotAcceptEvents="true" WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="710" SuggestedHeight="50" MarginLeft="402" MarginTop="839" Brush="DefaultText" Brush.Font="ReignSerifDynamic" Brush.FontSize="14" Brush.FontColor="#8A8883FF" Brush.TextHorizontalAlignment="Center" Brush.TextVerticalAlignment="Center" Text="@StatusText" />
+            <ButtonWidget WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="220" SuggestedHeight="54" MarginLeft="1155" MarginTop="837" Brush="ConversationItem.SoundBrush" Command.Click="ExecuteTrain" IsEnabled="@CanTrain" UpdateChildrenStates="true" />
+            <ButtonWidget WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="205" SuggestedHeight="54" MarginLeft="1407" MarginTop="837" Brush="ConversationItem.SoundBrush" Command.Click="ExecuteStop" IsEnabled="@CanStop" UpdateChildrenStates="true" />
+          </Children>
+        </Widget>
+      </Children>
+    </Widget>
+  </Window>
+</Prefab>

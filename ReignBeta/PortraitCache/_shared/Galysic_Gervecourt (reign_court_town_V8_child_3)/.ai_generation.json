@@ -1,0 +1,27 @@
+{
+  "version": 1,
+  "cacheKey": "Galysic_Gervecourt (reign_court_town_V8_child_3)",
+  "heroStringId": "reign_court_town_V8_child_3",
+  "characterObjectId": "reign_court_town_V8_child_3",
+  "characterName": "Galysic Gervecourt",
+  "provider": "AtlasCloud",
+  "model": "xai/grok-imagine-image/edit",
+  "adapter": "atlas upload/generate/poll",
+  "sourceSha256": "50d70fa08147f6f73a7b50835e94c2112da0807ae3c70d2986edc014bcba730e",
+  "portraitSha256": "37b2132e2f654df575fa58933061d1ac87a981078774c2d30abe46f699f8185b",
+  "portraitWidth": 864,
+  "portraitHeight": 1152,
+  "physicalConfidence": {
+    "definition": "physical_confidence",
+    "score": 75,
+    "profile": "61-80",
+    "flirtatiousnessPercentage": 70,
+    "confidencePercentage": 89,
+    "flirtatiousnessWeight": 0.75,
+    "confidenceWeight": 0.25,
+    "source": "shipped_profile_library"
+  },
+  "derivativesReady": true,
+  "derivativeError": "",
+  "generatedUtc": "2026-07-17T18:38:30.0289306Z"
+}

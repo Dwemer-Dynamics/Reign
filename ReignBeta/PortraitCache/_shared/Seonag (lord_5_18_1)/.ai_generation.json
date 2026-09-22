@@ -1,0 +1,27 @@
+{
+  "version": 1,
+  "cacheKey": "Seonag (lord_5_18_1)",
+  "heroStringId": "lord_5_18_1",
+  "characterObjectId": "lord_5_18_1",
+  "characterName": "Seonag",
+  "provider": "AtlasCloud",
+  "model": "xai/grok-imagine-image/edit",
+  "adapter": "atlas upload/generate/poll",
+  "sourceSha256": "b2ccbd66966b696f46f755a20b462744f470f5d2261f845a7a2439c0159796fb",
+  "portraitSha256": "4cc3204fd1541b70fca03d70d0cc06a1d9994f0612bcb2589253a02d69daa25d",
+  "portraitWidth": 832,
+  "portraitHeight": 1248,
+  "physicalConfidence": {
+    "definition": "physical_confidence",
+    "score": 57,
+    "profile": "41-60",
+    "flirtatiousnessPercentage": 53,
+    "confidencePercentage": 68,
+    "flirtatiousnessWeight": 0.75,
+    "confidenceWeight": 0.25,
+    "source": "shipped_profile_library"
+  },
+  "derivativesReady": true,
+  "derivativeError": "",
+  "generatedUtc": "2026-07-17T19:13:18.8665160Z"
+}

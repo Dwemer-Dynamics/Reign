@@ -1,0 +1,13 @@
+{
+  "version": 1,
+  "heroStringId": "reign_court_town_A6_child_1",
+  "characterName": "Faiesan Mazaliqani",
+  "imagePath": "portrait.png",
+  "imageSha256": "9802492232E30B0F5811D4635A06221C4384EE83C3560338CB5171E13EC75B21",
+  "description": "Culturally appropriate everyday Aserai high-noble attire inspired by elite medieval Arabian and Persian-influenced aristocratic dress. Use exceptionally fine layered fabrics, graceful draping, richly stitched borders, elegant geometric embroidery, and luxurious but believable textile textures. Men should wear a noble robe or long structured outer coat over a fine tunic, secured with an ornate sash and refined clasps. Women should wear a richly layered long dress with flowing outer fabric, carefully tailored sleeves, elegant embroidery, and tasteful jewelry integrated into the outfit. The clothing should feel cultured, powerful, and extremely wealthy without becoming full ceremonial regalia. No headgear of any kind. No turbans, veils, hoods, armor, weapons, or crowns.",
+  "status": "failed",
+  "descriptionSource": "portrait_prompt_fallback",
+  "retryEligible": true,
+  "error": "{\"error\":{\"message\":\"Model \\\"zai-org/glm-5.2\\\" does not support image inputs. Remove image content or choose a multimodal model.\",\"type\":\"invalid_request_error\",\"param\":\"messages\",\"code\":\"image_input_not_supported\"}}",
+  "updatedUtc": "2026-07-18T22:03:29.0886686Z"
+}

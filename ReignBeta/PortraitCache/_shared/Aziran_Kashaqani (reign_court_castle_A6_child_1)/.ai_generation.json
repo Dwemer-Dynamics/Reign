@@ -1,0 +1,27 @@
+{
+  "version": 1,
+  "cacheKey": "Aziran_Kashaqani (reign_court_castle_A6_child_1)",
+  "heroStringId": "reign_court_castle_A6_child_1",
+  "characterObjectId": "reign_court_castle_A6_child_1",
+  "characterName": "Aziran Kashaqani",
+  "provider": "AtlasCloud",
+  "model": "xai/grok-imagine-image/edit",
+  "adapter": "atlas upload/generate/poll",
+  "sourceSha256": "d76b75bf38a271b41663f9c12fa13a5d9e8101b0598eb9d81192628ccfedaa2b",
+  "portraitSha256": "7c1b19ac125fe326619d331c3160a34de4ddc9d02b19f66378022f6fefa174ae",
+  "portraitWidth": 864,
+  "portraitHeight": 1152,
+  "physicalConfidence": {
+    "definition": "physical_confidence",
+    "score": 51,
+    "profile": "41-60",
+    "flirtatiousnessPercentage": 49,
+    "confidencePercentage": 56,
+    "flirtatiousnessWeight": 0.75,
+    "confidenceWeight": 0.25,
+    "source": "shipped_profile_library"
+  },
+  "derivativesReady": true,
+  "derivativeError": "",
+  "generatedUtc": "2026-07-17T18:14:59.8754341Z"
+}

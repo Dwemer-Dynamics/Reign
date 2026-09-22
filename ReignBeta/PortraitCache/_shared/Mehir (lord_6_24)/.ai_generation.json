@@ -1,0 +1,27 @@
+{
+  "version": 1,
+  "cacheKey": "Mehir (lord_6_24)",
+  "heroStringId": "lord_6_24",
+  "characterObjectId": "lord_6_24",
+  "characterName": "Mehir",
+  "provider": "AtlasCloud",
+  "model": "xai/grok-imagine-image/edit",
+  "adapter": "atlas upload/generate/poll",
+  "sourceSha256": "f57daf9702f953054a13564bc32af55382397b9b6a853f9c79c2d332cfb7817f",
+  "portraitSha256": "bbc3147788fac4d4e654ec2051027a49d7f97cd525f4ee02539553b52b61a1a1",
+  "portraitWidth": 832,
+  "portraitHeight": 1248,
+  "physicalConfidence": {
+    "definition": "physical_confidence",
+    "score": 77,
+    "profile": "61-80",
+    "flirtatiousnessPercentage": 69,
+    "confidencePercentage": 100,
+    "flirtatiousnessWeight": 0.75,
+    "confidenceWeight": 0.25,
+    "source": "shipped_profile_library"
+  },
+  "derivativesReady": true,
+  "derivativeError": "",
+  "generatedUtc": "2026-07-17T19:02:43.8988934Z"
+}

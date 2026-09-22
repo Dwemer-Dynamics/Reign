@@ -1,0 +1,27 @@
+{
+  "version": 1,
+  "cacheKey": "Miron (lord_1_64)",
+  "heroStringId": "lord_1_64",
+  "characterObjectId": "lord_1_64",
+  "characterName": "Miron",
+  "provider": "AtlasCloud",
+  "model": "xai/grok-imagine-image/edit",
+  "adapter": "atlas upload/generate/poll",
+  "sourceSha256": "35ee5bbd8e4dd37b666016f3d7cc1ead4d3a3f62e37db130a263a4086b35f5b4",
+  "portraitSha256": "02ec111f034eb13dfbc6928e5bdc68bc9e2d9bffd84892124f9912dc22825ef8",
+  "portraitWidth": 832,
+  "portraitHeight": 1248,
+  "physicalConfidence": {
+    "definition": "physical_confidence",
+    "score": 30,
+    "profile": "21-40",
+    "flirtatiousnessPercentage": 14,
+    "confidencePercentage": 77,
+    "flirtatiousnessWeight": 0.75,
+    "confidenceWeight": 0.25,
+    "source": "shipped_profile_library"
+  },
+  "derivativesReady": true,
+  "derivativeError": "",
+  "generatedUtc": "2026-07-17T19:03:56.0839163Z"
+}

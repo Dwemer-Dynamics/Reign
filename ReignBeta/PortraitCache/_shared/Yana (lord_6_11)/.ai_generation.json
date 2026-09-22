@@ -1,0 +1,27 @@
+{
+  "version": 1,
+  "cacheKey": "Yana (lord_6_11)",
+  "heroStringId": "lord_6_11",
+  "characterObjectId": "lord_6_11",
+  "characterName": "Yana",
+  "provider": "AtlasCloud",
+  "model": "xai/grok-imagine-image/edit",
+  "adapter": "atlas upload/generate/poll",
+  "sourceSha256": "37a5ebc40de02406d135a20a9a2fcc0f3c78c77766f837e9734ff34002fb69b7",
+  "portraitSha256": "74563db56e7cecbbd88876acc6ae1ba302a4af9a56e309bab591c7db76ed51e4",
+  "portraitWidth": 832,
+  "portraitHeight": 1248,
+  "physicalConfidence": {
+    "definition": "physical_confidence",
+    "score": 68,
+    "profile": "61-80",
+    "flirtatiousnessPercentage": 61,
+    "confidencePercentage": 88,
+    "flirtatiousnessWeight": 0.75,
+    "confidenceWeight": 0.25,
+    "source": "shipped_profile_library"
+  },
+  "derivativesReady": true,
+  "derivativeError": "",
+  "generatedUtc": "2026-07-17T19:22:03.4763070Z"
+}

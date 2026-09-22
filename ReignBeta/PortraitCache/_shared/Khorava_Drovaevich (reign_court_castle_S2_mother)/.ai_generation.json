@@ -1,0 +1,27 @@
+{
+  "version": 1,
+  "cacheKey": "Khorava_Drovaevich (reign_court_castle_S2_mother)",
+  "heroStringId": "reign_court_castle_S2_mother",
+  "characterObjectId": "reign_court_castle_S2_mother",
+  "characterName": "Khorava Drovaevich",
+  "provider": "AtlasCloud",
+  "model": "xai/grok-imagine-image/edit",
+  "adapter": "atlas upload/generate/poll",
+  "sourceSha256": "50cc2c896a9e37ecbc48b0ab04921f7e46a8632f1ee3caab7df05eea599be633",
+  "portraitSha256": "3073bb637e145444864a84f7fef50d6430a5abea4ecf93fbb654e3d4b9818ef7",
+  "portraitWidth": 864,
+  "portraitHeight": 1152,
+  "physicalConfidence": {
+    "definition": "physical_confidence",
+    "score": 55,
+    "profile": "41-60",
+    "flirtatiousnessPercentage": 58,
+    "confidencePercentage": 45,
+    "flirtatiousnessWeight": 0.75,
+    "confidenceWeight": 0.25,
+    "source": "shipped_profile_library"
+  },
+  "derivativesReady": true,
+  "derivativeError": "",
+  "generatedUtc": "2026-07-17T18:47:45.7790981Z"
+}

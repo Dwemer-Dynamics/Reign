@@ -1,0 +1,27 @@
+{
+  "version": 1,
+  "cacheKey": "Rolan (lord_S9_l)",
+  "heroStringId": "lord_S9_l",
+  "characterObjectId": "lord_S9_l",
+  "characterName": "Rolan",
+  "provider": "AtlasCloud",
+  "model": "xai/grok-imagine-image/edit",
+  "adapter": "atlas upload/generate/poll",
+  "sourceSha256": "8cb409396fb4c515444bfe8878fd347a2ab0af8b3d84b5791765b74b10d2f4a2",
+  "portraitSha256": "a99dbeb31f179136a85374908c85ee431ee3a41edcd71b79f727cc9b5d8e8582",
+  "portraitWidth": 832,
+  "portraitHeight": 1248,
+  "physicalConfidence": {
+    "definition": "physical_confidence",
+    "score": 65,
+    "profile": "61-80",
+    "flirtatiousnessPercentage": 67,
+    "confidencePercentage": 58,
+    "flirtatiousnessWeight": 0.75,
+    "confidenceWeight": 0.25,
+    "source": "shipped_profile_library"
+  },
+  "derivativesReady": true,
+  "derivativeError": "",
+  "generatedUtc": "2026-07-17T19:11:53.8051070Z"
+}

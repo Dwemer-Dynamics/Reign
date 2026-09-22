@@ -1,0 +1,27 @@
+{
+  "version": 1,
+  "cacheKey": "Marvarion_Damararides (reign_court_castle_EN3_father)",
+  "heroStringId": "reign_court_castle_EN3_father",
+  "characterObjectId": "reign_court_castle_EN3_father",
+  "characterName": "Marvarion Damararides",
+  "provider": "AtlasCloud",
+  "model": "xai/grok-imagine-image/edit",
+  "adapter": "atlas upload/generate/poll",
+  "sourceSha256": "512cb5a03a1eacade83be96b6b4540637d50d6589432dcdf0f3964aad78be7f5",
+  "portraitSha256": "f3827ae83d8730b1af90fe6326148e665fef3f637ee48bf95d0dca85a9562792",
+  "portraitWidth": 864,
+  "portraitHeight": 1152,
+  "physicalConfidence": {
+    "definition": "physical_confidence",
+    "score": 51,
+    "profile": "41-60",
+    "flirtatiousnessPercentage": 56,
+    "confidencePercentage": 35,
+    "flirtatiousnessWeight": 0.75,
+    "confidenceWeight": 0.25,
+    "source": "shipped_profile_library"
+  },
+  "derivativesReady": true,
+  "derivativeError": "",
+  "generatedUtc": "2026-07-17T19:00:15.0112812Z"
+}

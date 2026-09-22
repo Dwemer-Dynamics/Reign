@@ -1,0 +1,27 @@
+{
+  "version": 1,
+  "cacheKey": "Aevarara_Aurelirides (reign_court_castle_EW2_mother)",
+  "heroStringId": "reign_court_castle_EW2_mother",
+  "characterObjectId": "reign_court_castle_EW2_mother",
+  "characterName": "Aevarara Aurelirides",
+  "provider": "AtlasCloud",
+  "model": "xai/grok-imagine-image/edit",
+  "adapter": "atlas upload/generate/poll",
+  "sourceSha256": "ee98450257d8a67297c1ebd7d81fa8c6fce6a81a3179050c70ae25763599f4fd",
+  "portraitSha256": "368d186398d3bbafb37a3b24b473c371718016bc534859f386af4f1c1bd49674",
+  "portraitWidth": 864,
+  "portraitHeight": 1152,
+  "physicalConfidence": {
+    "definition": "physical_confidence",
+    "score": 86,
+    "profile": "81-100",
+    "flirtatiousnessPercentage": 99,
+    "confidencePercentage": 46,
+    "flirtatiousnessWeight": 0.75,
+    "confidenceWeight": 0.25,
+    "source": "shipped_profile_library"
+  },
+  "derivativesReady": true,
+  "derivativeError": "",
+  "generatedUtc": "2026-07-17T17:47:39.7640413Z"
+}

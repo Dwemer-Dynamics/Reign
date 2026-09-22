@@ -1,0 +1,27 @@
+{
+  "version": 1,
+  "cacheKey": "Eryures_Elarenion (reign_court_town_ES7_child_3)",
+  "heroStringId": "reign_court_town_ES7_child_3",
+  "characterObjectId": "reign_court_town_ES7_child_3",
+  "characterName": "Eryures Elarenion",
+  "provider": "AtlasCloud",
+  "model": "xai/grok-imagine-image/edit",
+  "adapter": "atlas upload/generate/poll",
+  "sourceSha256": "1245a1782197722aeedcc87944b349840e8b21777aaf3d0c6d179df18177e8ba",
+  "portraitSha256": "ddb924605514ad793067d76ead1dc8cd759f7707b1d3867f290d3ae9b6bbad4d",
+  "portraitWidth": 864,
+  "portraitHeight": 1152,
+  "physicalConfidence": {
+    "definition": "physical_confidence",
+    "score": 85,
+    "profile": "81-100",
+    "flirtatiousnessPercentage": 97,
+    "confidencePercentage": 48,
+    "flirtatiousnessWeight": 0.75,
+    "confidenceWeight": 0.25,
+    "source": "shipped_profile_library"
+  },
+  "derivativesReady": true,
+  "derivativeError": "",
+  "generatedUtc": "2026-07-17T18:34:34.1076888Z"
+}

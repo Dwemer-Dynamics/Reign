@@ -1,0 +1,27 @@
+{
+  "version": 1,
+  "cacheKey": "Hralsa (lord_7_22_1)",
+  "heroStringId": "lord_7_22_1",
+  "characterObjectId": "lord_7_22_1",
+  "characterName": "Hralsa",
+  "provider": "AtlasCloud",
+  "model": "xai/grok-imagine-image/edit",
+  "adapter": "atlas upload/generate/poll",
+  "sourceSha256": "8acf9d626bf276b92f4cb56cf023e61c22e7614de5412cf29167eedded5f6132",
+  "portraitSha256": "5068595b990c9e6f0c36c8193eb57d264a90d139a7a96f475cb47aa185124bcb",
+  "portraitWidth": 832,
+  "portraitHeight": 1248,
+  "physicalConfidence": {
+    "definition": "physical_confidence",
+    "score": 50,
+    "profile": "41-60",
+    "flirtatiousnessPercentage": 50,
+    "confidencePercentage": 50,
+    "flirtatiousnessWeight": 0.75,
+    "confidenceWeight": 0.25,
+    "source": "neutral_fallback"
+  },
+  "derivativesReady": true,
+  "derivativeError": "",
+  "generatedUtc": "2026-07-17T18:43:25.2831667Z"
+}

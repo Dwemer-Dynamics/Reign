@@ -1,0 +1,27 @@
+{
+  "version": 1,
+  "cacheKey": "Arytha (lord_1_62_1)",
+  "heroStringId": "lord_1_62_1",
+  "characterObjectId": "lord_1_62_1",
+  "characterName": "Arytha",
+  "provider": "AtlasCloud",
+  "model": "xai/grok-imagine-image/edit",
+  "adapter": "atlas upload/generate/poll",
+  "sourceSha256": "cb62395767a9c76debf7587288d07152ae396c9ec16a7a1eed97da2cb8976b3c",
+  "portraitSha256": "c2893ecc5ed8cd2aff09432258214de7be4ad7c8ecb590719db2487b5b07116e",
+  "portraitWidth": 864,
+  "portraitHeight": 1152,
+  "physicalConfidence": {
+    "definition": "physical_confidence",
+    "score": 69,
+    "profile": "61-80",
+    "flirtatiousnessPercentage": 76,
+    "confidencePercentage": 47,
+    "flirtatiousnessWeight": 0.75,
+    "confidenceWeight": 0.25,
+    "source": "shipped_profile_library"
+  },
+  "derivativesReady": true,
+  "derivativeError": "",
+  "generatedUtc": "2026-07-17T18:14:12.3151964Z"
+}

@@ -1,0 +1,27 @@
+{
+  "version": 1,
+  "cacheKey": "Training_Master (tutorial_npc_advanced_melee_easy)",
+  "heroStringId": "tutorial_npc_advanced_melee_easy",
+  "characterObjectId": "tutorial_npc_advanced_melee_easy",
+  "characterName": "Training Master",
+  "provider": "AtlasCloud",
+  "model": "xai/grok-imagine-image/edit",
+  "adapter": "atlas upload/generate/poll",
+  "sourceSha256": "0462bc6569d9e34d75eedf587ed8319c79433e5b405ae27e1f0932af35fc602e",
+  "portraitSha256": "4fe4d731de80fad9c02b35caf73716441f52767dac060f3a370acb4866341ac8",
+  "portraitWidth": 864,
+  "portraitHeight": 1152,
+  "physicalConfidence": {
+    "definition": "physical_confidence",
+    "score": 50,
+    "profile": "41-60",
+    "flirtatiousnessPercentage": 50,
+    "confidencePercentage": 50,
+    "flirtatiousnessWeight": 0.75,
+    "confidenceWeight": 0.25,
+    "source": "neutral_fallback"
+  },
+  "derivativesReady": true,
+  "derivativeError": "",
+  "generatedUtc": "2026-07-17T19:18:25.1754888Z"
+}

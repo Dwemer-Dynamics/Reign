@@ -1,0 +1,27 @@
+{
+  "version": 1,
+  "cacheKey": "Anle (lord_7_27)",
+  "heroStringId": "lord_7_27",
+  "characterObjectId": "lord_7_27",
+  "characterName": "Anle",
+  "provider": "AtlasCloud",
+  "model": "xai/grok-imagine-image/edit",
+  "adapter": "atlas upload/generate/poll",
+  "sourceSha256": "4f04a8cd163c16b90ae9fa8dd932e11fe23f5e7c194cc773a86ad129888052e6",
+  "portraitSha256": "15481830dfa50c9f18fa8393c6f2d575239a80d3d2cac422f810f1fad562d7e6",
+  "portraitWidth": 832,
+  "portraitHeight": 1248,
+  "physicalConfidence": {
+    "definition": "physical_confidence",
+    "score": 50,
+    "profile": "41-60",
+    "flirtatiousnessPercentage": 50,
+    "confidencePercentage": 50,
+    "flirtatiousnessWeight": 0.75,
+    "confidenceWeight": 0.25,
+    "source": "neutral_fallback"
+  },
+  "derivativesReady": true,
+  "derivativeError": "",
+  "generatedUtc": "2026-07-17T18:12:42.4683028Z"
+}

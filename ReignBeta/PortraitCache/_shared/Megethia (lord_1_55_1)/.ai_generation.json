@@ -1,0 +1,27 @@
+{
+  "version": 1,
+  "cacheKey": "Megethia (lord_1_55_1)",
+  "heroStringId": "lord_1_55_1",
+  "characterObjectId": "lord_1_55_1",
+  "characterName": "Megethia",
+  "provider": "AtlasCloud",
+  "model": "xai/grok-imagine-image/edit",
+  "adapter": "atlas upload/generate/poll",
+  "sourceSha256": "f60346985538d1db187b0f2ef1deb5daf51e70e195314f4e1de5a96ccb534141",
+  "portraitSha256": "3f94c2d304bef22ac8aa2dcf72cfa5edc2178f068e7d548b1b425ce4e01c3dc7",
+  "portraitWidth": 832,
+  "portraitHeight": 1248,
+  "physicalConfidence": {
+    "definition": "physical_confidence",
+    "score": 51,
+    "profile": "41-60",
+    "flirtatiousnessPercentage": 50,
+    "confidencePercentage": 53,
+    "flirtatiousnessWeight": 0.75,
+    "confidenceWeight": 0.25,
+    "source": "shipped_profile_library"
+  },
+  "derivativesReady": true,
+  "derivativeError": "",
+  "generatedUtc": "2026-07-17T19:02:42.4589173Z"
+}

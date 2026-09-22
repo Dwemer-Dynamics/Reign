@@ -1,0 +1,27 @@
+{
+  "version": 1,
+  "cacheKey": "Doruua_Dorbetetai (reign_court_town_K3_child_4)",
+  "heroStringId": "reign_court_town_K3_child_4",
+  "characterObjectId": "reign_court_town_K3_child_4",
+  "characterName": "Doruua Dorbetetai",
+  "provider": "AtlasCloud",
+  "model": "xai/grok-imagine-image/edit",
+  "adapter": "atlas upload/generate/poll",
+  "sourceSha256": "f611cfb03f5a40ee39a84bd733181dd19a7359a6b06595c1af77c40e0c4bff50",
+  "portraitSha256": "d3a58d65e32eeba4f875a1d813e4af7600902b14f242ad195c26366c3179d348",
+  "portraitWidth": 864,
+  "portraitHeight": 1152,
+  "physicalConfidence": {
+    "definition": "physical_confidence",
+    "score": 70,
+    "profile": "61-80",
+    "flirtatiousnessPercentage": 75,
+    "confidencePercentage": 54,
+    "flirtatiousnessWeight": 0.75,
+    "confidenceWeight": 0.25,
+    "source": "shipped_profile_library"
+  },
+  "derivativesReady": true,
+  "derivativeError": "",
+  "generatedUtc": "2026-07-17T18:27:44.2393807Z"
+}

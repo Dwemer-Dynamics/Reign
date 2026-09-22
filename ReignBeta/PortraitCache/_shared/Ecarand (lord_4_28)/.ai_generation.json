@@ -1,0 +1,27 @@
+{
+  "version": 1,
+  "cacheKey": "Ecarand (lord_4_28)",
+  "heroStringId": "lord_4_28",
+  "characterObjectId": "lord_4_28",
+  "characterName": "Ecarand",
+  "provider": "AtlasCloud",
+  "model": "xai/grok-imagine-image/edit",
+  "adapter": "atlas upload/generate/poll",
+  "sourceSha256": "4cf3ad6830320481a6a5d14a98a3f2d4c37b64b1443bb0c2a389d15b56ebc0e4",
+  "portraitSha256": "951b4f2deca3044ad914d55adcfb8d05bf10c100d90b00840f50976b5d1809b9",
+  "portraitWidth": 832,
+  "portraitHeight": 1248,
+  "physicalConfidence": {
+    "definition": "physical_confidence",
+    "score": 47,
+    "profile": "41-60",
+    "flirtatiousnessPercentage": 47,
+    "confidencePercentage": 46,
+    "flirtatiousnessWeight": 0.75,
+    "confidenceWeight": 0.25,
+    "source": "shipped_profile_library"
+  },
+  "derivativesReady": true,
+  "derivativeError": "",
+  "generatedUtc": "2026-07-17T18:31:02.3679622Z"
+}

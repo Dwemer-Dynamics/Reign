@@ -1,0 +1,27 @@
+{
+  "version": 1,
+  "cacheKey": "Confident_Contender (confident_contender_easy)",
+  "heroStringId": "confident_contender_easy",
+  "characterObjectId": "confident_contender_easy",
+  "characterName": "Confident Contender",
+  "provider": "AtlasCloud",
+  "model": "xai/grok-imagine-image/edit",
+  "adapter": "atlas upload/generate/poll",
+  "sourceSha256": "d04e5d1d55583aa8a685107582ee0a500e223069c2580c7e69dd5e7671ffc6d4",
+  "portraitSha256": "8730f362773e1d718968480d2fed12e15522b334338cd64aa2a519aabef71434",
+  "portraitWidth": 864,
+  "portraitHeight": 1152,
+  "physicalConfidence": {
+    "definition": "physical_confidence",
+    "score": 50,
+    "profile": "41-60",
+    "flirtatiousnessPercentage": 50,
+    "confidencePercentage": 50,
+    "flirtatiousnessWeight": 0.75,
+    "confidenceWeight": 0.25,
+    "source": "neutral_fallback"
+  },
+  "derivativesReady": true,
+  "derivativeError": "",
+  "generatedUtc": "2026-07-17T18:23:18.0298466Z"
+}

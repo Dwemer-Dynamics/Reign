@@ -1,0 +1,96 @@
+{
+  "version": 1,
+  "inputHash": "23eda0d3203b2dba19d8b5aea7771fd2e3b082bccb85d3baca512be00c532828",
+  "catalogHash": "12142c0ab28d2678b12b852b086450dcc4eea45e2e8a080f3baa85c42f7fb3a2",
+  "renderContractHash": "cc3b941e7d47057de9b4220f1473336e6f908719812bb2653b83bd3545cfbd2f",
+  "cacheKey": "Hardy_Contender (hardy_contender_hard)",
+  "heroStringId": "hardy_contender_hard",
+  "characterObjectId": "hardy_contender_hard",
+  "characterName": "Hardy Contender",
+  "ageYears": 32,
+  "cultureId": "empire",
+  "cultureName": "Imperial",
+  "gender": "man",
+  "clanId": "none",
+  "clanTier": null,
+  "clanProvenance": "not_defined_in_module_heroes_xml",
+  "socialStation": "unranked",
+  "occupation": "Soldier",
+  "archetype": "soldier",
+  "isLord": false,
+  "isNotable": false,
+  "isWanderer": false,
+  "isAlive": null,
+  "sourceModule": "Native",
+  "sourceFile": "Modules/SandBox/ModuleData/spspecialcharacters.xml",
+  "profileSource": "neutral_fallback",
+  "profilePackVersion": "",
+  "bodyKey": "0005C00FC000000F5D1EECC2AC8071348894884B1977499893998C797E69979501B006140BEB54490000000000000000000000000000000000000000017C8045",
+  "bodyWeight": 0.2415,
+  "bodyBuild": 0.2948,
+  "faceTemplateId": "",
+  "faceGenerationVersion": "native_authored",
+  "civilianTemplate": "",
+  "civilianEquipment": [
+    {
+      "slot": "Body",
+      "itemId": "basic_imperial_leather_armor"
+    },
+    {
+      "slot": "Cape",
+      "itemId": "imperial_studded_strip_shoulders"
+    },
+    {
+      "slot": "Gloves",
+      "itemId": "eastern_plated_leather_vambraces"
+    },
+    {
+      "slot": "Leg",
+      "itemId": "battania_leather_boots"
+    }
+  ],
+  "headgearSuppressed": true,
+  "physicalConfidence": {
+    "definition": "physical_confidence",
+    "score": 50,
+    "profile": "41-60",
+    "flirtatiousnessPercentage": 50,
+    "confidencePercentage": 50,
+    "flirtatiousnessWeight": 0.75,
+    "confidenceWeight": 0.25,
+    "source": "neutral_fallback"
+  },
+  "renderPreset": "ai_source_wan_portrait_v5",
+  "renderWidth": 1536,
+  "renderHeight": 2048,
+  "sourceWidth": 768,
+  "sourceHeight": 1024,
+  "cropScale": 0.24,
+  "cropWidthRatio": 0.75,
+  "cropCenterYRatio": 0.324,
+  "cameraPitchDegrees": 4,
+  "sourceSha256": "9be1d2d791741588f2022bb541e4726df41b5b7597581043a27246848713637a",
+  "sourceFileName": "source.png",
+  "generationEndpoint": "/portraits/generate",
+  "campaignIdSource": "active_campaign_at_generation_time",
+  "promptDeferred": true,
+  "sourceImageBase64From": "source.png",
+  "outputSizeOverride": "",
+  "promptPurpose": "portrait",
+  "nativePhysique": {
+    "schema": "reign-native-physique-v1",
+    "weight": 0.2415,
+    "build": 0.2948,
+    "weightSource": "shared_portrait_input.bodyWeight",
+    "buildSource": "shared_portrait_input.bodyBuild",
+    "sourceSha256": "9be1d2d791741588f2022bb541e4726df41b5b7597581043a27246848713637a",
+    "provenance": {
+      "kind": "saved_character_metadata_backfill",
+      "heroStringId": "hardy_contender_hard",
+      "profileSource": "neutral_fallback",
+      "profilePackVersion": "",
+      "originalInputSha256": "3579d3eaad9ba32d393285576638a77dccae747dbe3641a9d9db9ab3ce8b2e9a",
+      "rendererReexecuted": false
+    }
+  }
+}

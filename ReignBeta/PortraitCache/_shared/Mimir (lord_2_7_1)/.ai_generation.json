@@ -1,0 +1,27 @@
+{
+  "version": 1,
+  "cacheKey": "Mimir (lord_2_7_1)",
+  "heroStringId": "lord_2_7_1",
+  "characterObjectId": "lord_2_7_1",
+  "characterName": "Mimir",
+  "provider": "AtlasCloud",
+  "model": "xai/grok-imagine-image/edit",
+  "adapter": "atlas upload/generate/poll",
+  "sourceSha256": "15112c5d2b69a792fc310a3ae9b9096e216ae750be330faa916cb36a34fdef79",
+  "portraitSha256": "fed697c2026d38eb2f4747375e60b9f6556af3733c0085fce07cd7e68b2490bf",
+  "portraitWidth": 832,
+  "portraitHeight": 1248,
+  "physicalConfidence": {
+    "definition": "physical_confidence",
+    "score": 33,
+    "profile": "21-40",
+    "flirtatiousnessPercentage": 30,
+    "confidencePercentage": 41,
+    "flirtatiousnessWeight": 0.75,
+    "confidenceWeight": 0.25,
+    "source": "shipped_profile_library"
+  },
+  "derivativesReady": true,
+  "derivativeError": "",
+  "generatedUtc": "2026-07-17T19:03:21.7173682Z"
+}

@@ -1,0 +1,27 @@
+{
+  "version": 1,
+  "cacheKey": "Adrichea (lord_1_1_6)",
+  "heroStringId": "lord_1_1_6",
+  "characterObjectId": "lord_1_1_6",
+  "characterName": "Adrichea",
+  "provider": "AtlasCloud",
+  "model": "xai/grok-imagine-image/edit",
+  "adapter": "atlas upload/generate/poll",
+  "sourceSha256": "aaf275c68f0f258233cd623d525996ef9ae1e2f4a74b0a626d4fe6685af5c89f",
+  "portraitSha256": "cf88064b4491c53092bcb0319fe5eb4d8c832981594a9ede5078ac1c41ece749",
+  "portraitWidth": 912,
+  "portraitHeight": 1136,
+  "physicalConfidence": {
+    "definition": "physical_confidence",
+    "score": 42,
+    "profile": "41-60",
+    "flirtatiousnessPercentage": 36,
+    "confidencePercentage": 59,
+    "flirtatiousnessWeight": 0.75,
+    "confidenceWeight": 0.25,
+    "source": "shipped_profile_library"
+  },
+  "derivativesReady": true,
+  "derivativeError": "",
+  "generatedUtc": "2026-07-17T17:15:19.8662054Z"
+}

@@ -1,0 +1,27 @@
+{
+  "version": 1,
+  "cacheKey": "Lethilion_Vardarides (reign_court_castle_EN8_father)",
+  "heroStringId": "reign_court_castle_EN8_father",
+  "characterObjectId": "reign_court_castle_EN8_father",
+  "characterName": "Lethilion Vardarides",
+  "provider": "AtlasCloud",
+  "model": "xai/grok-imagine-image/edit",
+  "adapter": "atlas upload/generate/poll",
+  "sourceSha256": "c7ab46ef62aff5c751d46d45ebe863207fb4f299308eb5f253aa1e9bd136ad79",
+  "portraitSha256": "8315aec8b36b42827b37dc3c7b13b365460df4f991af323cb3dc87e32fef2f8e",
+  "portraitWidth": 864,
+  "portraitHeight": 1152,
+  "physicalConfidence": {
+    "definition": "physical_confidence",
+    "score": 84,
+    "profile": "81-100",
+    "flirtatiousnessPercentage": 79,
+    "confidencePercentage": 98,
+    "flirtatiousnessWeight": 0.75,
+    "confidenceWeight": 0.25,
+    "source": "shipped_profile_library"
+  },
+  "derivativesReady": true,
+  "derivativeError": "",
+  "generatedUtc": "2026-07-17T18:57:43.0212372Z"
+}

@@ -1,0 +1,27 @@
+{
+  "version": 1,
+  "cacheKey": "Belgir (lord_4_23)",
+  "heroStringId": "lord_4_23",
+  "characterObjectId": "lord_4_23",
+  "characterName": "Belgir",
+  "provider": "AtlasCloud",
+  "model": "xai/grok-imagine-image/edit",
+  "adapter": "atlas upload/generate/poll",
+  "sourceSha256": "c52ba6ec281fc4a07d2940a9de0d6db6842dc78f20f03cfbfa7ed3054e11ff66",
+  "portraitSha256": "6e2a2f3d7c7df52a47fca129e62d4c07fc762639749424df8b9126ef00ed6a00",
+  "portraitWidth": 832,
+  "portraitHeight": 1248,
+  "physicalConfidence": {
+    "definition": "physical_confidence",
+    "score": 37,
+    "profile": "21-40",
+    "flirtatiousnessPercentage": 34,
+    "confidencePercentage": 45,
+    "flirtatiousnessWeight": 0.75,
+    "confidenceWeight": 0.25,
+    "source": "shipped_profile_library"
+  },
+  "derivativesReady": true,
+  "derivativeError": "",
+  "generatedUtc": "2026-07-17T18:16:24.0148476Z"
+}

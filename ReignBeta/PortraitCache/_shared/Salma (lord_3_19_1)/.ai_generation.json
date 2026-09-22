@@ -1,0 +1,27 @@
+{
+  "version": 1,
+  "cacheKey": "Salma (lord_3_19_1)",
+  "heroStringId": "lord_3_19_1",
+  "characterObjectId": "lord_3_19_1",
+  "characterName": "Salma",
+  "provider": "AtlasCloud",
+  "model": "xai/grok-imagine-image/edit",
+  "adapter": "atlas upload/generate/poll",
+  "sourceSha256": "bc68b421f599eae1436656e1db80aa96e3b3b1928b5f501bf9dc4a60496cfb30",
+  "portraitSha256": "f5c2b1399bdc063ae37e51cf8d770ddbc067dc1ff75e03339a2430fd4c31e7b4",
+  "portraitWidth": 832,
+  "portraitHeight": 1248,
+  "physicalConfidence": {
+    "definition": "physical_confidence",
+    "score": 89,
+    "profile": "81-100",
+    "flirtatiousnessPercentage": 100,
+    "confidencePercentage": 55,
+    "flirtatiousnessWeight": 0.75,
+    "confidenceWeight": 0.25,
+    "source": "shipped_profile_library"
+  },
+  "derivativesReady": true,
+  "derivativeError": "",
+  "generatedUtc": "2026-07-17T19:12:41.1161267Z"
+}

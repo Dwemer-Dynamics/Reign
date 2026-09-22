@@ -1,0 +1,27 @@
+{
+  "version": 1,
+  "cacheKey": "Galter (radagos_henchman)",
+  "heroStringId": "radagos_henchman",
+  "characterObjectId": "radagos_henchman",
+  "characterName": "Galter",
+  "provider": "AtlasCloud",
+  "model": "xai/grok-imagine-image/edit",
+  "adapter": "atlas upload/generate/poll",
+  "sourceSha256": "90068fe8e99ba77c1f9624784fe8b65e2fc266780fb467a52e916dbf0767086f",
+  "portraitSha256": "6c9510f80d7bce01857fb5532be733712154b6c24d7491e81b17ed63a6e8e30e",
+  "portraitWidth": 864,
+  "portraitHeight": 1152,
+  "physicalConfidence": {
+    "definition": "physical_confidence",
+    "score": 50,
+    "profile": "41-60",
+    "flirtatiousnessPercentage": 50,
+    "confidencePercentage": 50,
+    "flirtatiousnessWeight": 0.75,
+    "confidenceWeight": 0.25,
+    "source": "neutral_fallback"
+  },
+  "derivativesReady": true,
+  "derivativeError": "",
+  "generatedUtc": "2026-07-17T18:38:13.0632391Z"
+}

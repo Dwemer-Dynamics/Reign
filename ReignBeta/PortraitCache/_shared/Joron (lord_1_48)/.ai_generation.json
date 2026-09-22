@@ -1,0 +1,27 @@
+{
+  "version": 1,
+  "cacheKey": "Joron (lord_1_48)",
+  "heroStringId": "lord_1_48",
+  "characterObjectId": "lord_1_48",
+  "characterName": "Joron",
+  "provider": "AtlasCloud",
+  "model": "xai/grok-imagine-image/edit",
+  "adapter": "atlas upload/generate/poll",
+  "sourceSha256": "112a47f94da3d0f2efb740b1550b70adaaac00b6ac92446f3e048b4df02decf1",
+  "portraitSha256": "a6e78ae7fb36329a6249ec7a8f64754b64527184a3da9027cb043015e6522230",
+  "portraitWidth": 832,
+  "portraitHeight": 1248,
+  "physicalConfidence": {
+    "definition": "physical_confidence",
+    "score": 52,
+    "profile": "41-60",
+    "flirtatiousnessPercentage": 40,
+    "confidencePercentage": 87,
+    "flirtatiousnessWeight": 0.75,
+    "confidenceWeight": 0.25,
+    "source": "shipped_profile_library"
+  },
+  "derivativesReady": true,
+  "derivativeError": "",
+  "generatedUtc": "2026-07-17T18:46:56.4477958Z"
+}

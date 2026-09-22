@@ -1,0 +1,27 @@
+{
+  "version": 1,
+  "cacheKey": "Horgar (lord_7_17)",
+  "heroStringId": "lord_7_17",
+  "characterObjectId": "lord_7_17",
+  "characterName": "Horgar",
+  "provider": "AtlasCloud",
+  "model": "xai/grok-imagine-image/edit",
+  "adapter": "atlas upload/generate/poll",
+  "sourceSha256": "db1fd5743ac14c3908ca45163f5896ca6bc0913bd4c68d2f4d5aab3c20f658a6",
+  "portraitSha256": "fe9a74fd7c82b1041880e7817ce91bd92f5f7aa622e0753678bd02a1f97cef0e",
+  "portraitWidth": 832,
+  "portraitHeight": 1248,
+  "physicalConfidence": {
+    "definition": "physical_confidence",
+    "score": 50,
+    "profile": "41-60",
+    "flirtatiousnessPercentage": 50,
+    "confidencePercentage": 50,
+    "flirtatiousnessWeight": 0.75,
+    "confidenceWeight": 0.25,
+    "source": "neutral_fallback"
+  },
+  "derivativesReady": true,
+  "derivativeError": "",
+  "generatedUtc": "2026-07-17T18:43:26.5956933Z"
+}

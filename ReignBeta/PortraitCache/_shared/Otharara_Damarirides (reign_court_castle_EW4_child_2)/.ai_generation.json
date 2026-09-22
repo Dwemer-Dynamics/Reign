@@ -1,0 +1,27 @@
+{
+  "version": 1,
+  "cacheKey": "Otharara_Damarirides (reign_court_castle_EW4_child_2)",
+  "heroStringId": "reign_court_castle_EW4_child_2",
+  "characterObjectId": "reign_court_castle_EW4_child_2",
+  "characterName": "Otharara Damarirides",
+  "provider": "AtlasCloud",
+  "model": "xai/grok-imagine-image/edit",
+  "adapter": "atlas upload/generate/poll",
+  "sourceSha256": "1da056eda4f71b725be302a39945edb753b8451dd349e5d132dfbf581f8ef4fc",
+  "portraitSha256": "daf600c0b169925a1ad8175899bb36ceb55e635aaafa8748ddb1ccdef803216a",
+  "portraitWidth": 864,
+  "portraitHeight": 1152,
+  "physicalConfidence": {
+    "definition": "physical_confidence",
+    "score": 49,
+    "profile": "41-60",
+    "flirtatiousnessPercentage": 51,
+    "confidencePercentage": 42,
+    "flirtatiousnessWeight": 0.75,
+    "confidenceWeight": 0.25,
+    "source": "shipped_profile_library"
+  },
+  "derivativesReady": true,
+  "derivativeError": "",
+  "generatedUtc": "2026-07-17T19:06:50.5204447Z"
+}

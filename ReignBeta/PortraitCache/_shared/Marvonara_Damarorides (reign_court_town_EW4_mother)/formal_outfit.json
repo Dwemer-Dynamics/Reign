@@ -1,0 +1,13 @@
+{
+  "version": 1,
+  "heroStringId": "reign_court_town_EW4_mother",
+  "characterName": "Marvonara Damarorides",
+  "imagePath": "portrait.png",
+  "imageSha256": "7A72E8890870B66C977BAF747423E7F381951B140D62D946FB80B386E4AF8463",
+  "description": "Culturally appropriate everyday Calradic Imperial high-noble attire inspired by luxurious Byzantine aristocratic fashion, restrained enough for daily noble life. Use fine layered linen and wool, controlled flowing silhouettes, elegant draping, richly woven borders, small jeweled clasps, and sophisticated fabric textures. Men should wear a stately long tunic or structured noble coat over a fine undertunic, with refined belts and detailed edging. Women should wear a sophisticated layered noble dress with graceful drapery, tailored sleeves, and subtle aristocratic ornamentation. The outfit should communicate ancient prestige, wealth, and political importance. No headgear of any kind. No armor, weapons, crowns, laurel wreaths, or full ceremonial imperial regalia.",
+  "status": "failed",
+  "descriptionSource": "portrait_prompt_fallback",
+  "retryEligible": true,
+  "error": "{\"error\":{\"message\":\"Model \\\"zai-org/glm-5.2\\\" does not support image inputs. Remove image content or choose a multimodal model.\",\"type\":\"invalid_request_error\",\"param\":\"messages\",\"code\":\"image_input_not_supported\"}}",
+  "updatedUtc": "2026-07-18T22:03:32.1868922Z"
+}

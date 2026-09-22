@@ -1,0 +1,27 @@
+{
+  "version": 1,
+  "cacheKey": "Phadon (lord_1_6)",
+  "heroStringId": "lord_1_6",
+  "characterObjectId": "lord_1_6",
+  "characterName": "Phadon",
+  "provider": "AtlasCloud",
+  "model": "xai/grok-imagine-image/edit",
+  "adapter": "atlas upload/generate/poll",
+  "sourceSha256": "1ec1ed8a034ca8345c7edd4e1fd694835ed06ae5b01c692932f8b6d4c3e6a194",
+  "portraitSha256": "41978637122a09f92d5b98b25424a10736d3c9bcba81f53fc783931b220c2ebe",
+  "portraitWidth": 832,
+  "portraitHeight": 1248,
+  "physicalConfidence": {
+    "definition": "physical_confidence",
+    "score": 40,
+    "profile": "21-40",
+    "flirtatiousnessPercentage": 28,
+    "confidencePercentage": 75,
+    "flirtatiousnessWeight": 0.75,
+    "confidenceWeight": 0.25,
+    "source": "shipped_profile_library"
+  },
+  "derivativesReady": true,
+  "derivativeError": "",
+  "generatedUtc": "2026-07-17T19:09:03.7852855Z"
+}

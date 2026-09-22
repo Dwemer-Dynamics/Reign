@@ -1,0 +1,27 @@
+{
+  "version": 1,
+  "cacheKey": "Marvenos_Istranirides (reign_court_castle_EW6_child_3)",
+  "heroStringId": "reign_court_castle_EW6_child_3",
+  "characterObjectId": "reign_court_castle_EW6_child_3",
+  "characterName": "Marvenos Istranirides",
+  "provider": "AtlasCloud",
+  "model": "xai/grok-imagine-image/edit",
+  "adapter": "atlas upload/generate/poll",
+  "sourceSha256": "d33a91f31d38e97ffb079d26208f1daf9da4b94dcf222eca9eb4544f04616b57",
+  "portraitSha256": "a05520ca0914fa213bfaba63c30ffda574ab629a2bf2671973155631e0a1aae5",
+  "portraitWidth": 864,
+  "portraitHeight": 1152,
+  "physicalConfidence": {
+    "definition": "physical_confidence",
+    "score": 96,
+    "profile": "81-100",
+    "flirtatiousnessPercentage": 98,
+    "confidencePercentage": 89,
+    "flirtatiousnessWeight": 0.75,
+    "confidenceWeight": 0.25,
+    "source": "shipped_profile_library"
+  },
+  "derivativesReady": true,
+  "derivativeError": "",
+  "generatedUtc": "2026-07-17T19:00:45.5258854Z"
+}

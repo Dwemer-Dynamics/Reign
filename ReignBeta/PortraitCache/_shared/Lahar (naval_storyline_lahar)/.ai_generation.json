@@ -1,0 +1,27 @@
+{
+  "version": 1,
+  "cacheKey": "Lahar (naval_storyline_lahar)",
+  "heroStringId": "naval_storyline_lahar",
+  "characterObjectId": "naval_storyline_lahar",
+  "characterName": "Lahar",
+  "provider": "AtlasCloud",
+  "model": "xai/grok-imagine-image/edit",
+  "adapter": "atlas upload/generate/poll",
+  "sourceSha256": "56022ed58e0d0677b31aca4ab782723863c6b0750b5771625e08c8cac817bf98",
+  "portraitSha256": "599d60b23b4398f9b568adbfc494640ff4007518707b84d57513323c8ed86b15",
+  "portraitWidth": 864,
+  "portraitHeight": 1152,
+  "physicalConfidence": {
+    "definition": "physical_confidence",
+    "score": 50,
+    "profile": "41-60",
+    "flirtatiousnessPercentage": 50,
+    "confidencePercentage": 50,
+    "flirtatiousnessWeight": 0.75,
+    "confidenceWeight": 0.25,
+    "source": "neutral_fallback"
+  },
+  "derivativesReady": true,
+  "derivativeError": "",
+  "generatedUtc": "2026-07-17T18:50:31.5408773Z"
+}

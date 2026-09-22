@@ -1,0 +1,27 @@
+{
+  "version": 1,
+  "cacheKey": "Lethonara_Corvenorides (reign_court_town_EW3_child_4)",
+  "heroStringId": "reign_court_town_EW3_child_4",
+  "characterObjectId": "reign_court_town_EW3_child_4",
+  "characterName": "Lethonara Corvenorides",
+  "provider": "AtlasCloud",
+  "model": "xai/grok-imagine-image/edit",
+  "adapter": "atlas upload/generate/poll",
+  "sourceSha256": "4eff1b6a0869c1667532d6bfcfd0fedafc4ec4b7190983d8b59e4fbb5f3a4ef5",
+  "portraitSha256": "96978c1c939e145c83a0be710685ddddc8abda7ef69e9cb9abf8b69cafbdc1c3",
+  "portraitWidth": 864,
+  "portraitHeight": 1152,
+  "physicalConfidence": {
+    "definition": "physical_confidence",
+    "score": 45,
+    "profile": "41-60",
+    "flirtatiousnessPercentage": 44,
+    "confidencePercentage": 47,
+    "flirtatiousnessWeight": 0.75,
+    "confidenceWeight": 0.25,
+    "source": "shipped_profile_library"
+  },
+  "derivativesReady": true,
+  "derivativeError": "",
+  "generatedUtc": "2026-07-17T18:57:40.2884306Z"
+}

@@ -1,0 +1,27 @@
+{
+  "version": 1,
+  "cacheKey": "Haziran_Mazalaqani (reign_court_castle_A7_child_3)",
+  "heroStringId": "reign_court_castle_A7_child_3",
+  "characterObjectId": "reign_court_castle_A7_child_3",
+  "characterName": "Haziran Mazalaqani",
+  "provider": "AtlasCloud",
+  "model": "xai/grok-imagine-image/edit",
+  "adapter": "atlas upload/generate/poll",
+  "sourceSha256": "035e71d2a73388457799bf1e5a317513e1207b949533248807b0a79da61ab732",
+  "portraitSha256": "ccf7908d6918a365022fff49b1c9c26d8635499703b0fc15ef44a16e0734ff47",
+  "portraitWidth": 864,
+  "portraitHeight": 1152,
+  "physicalConfidence": {
+    "definition": "physical_confidence",
+    "score": 56,
+    "profile": "41-60",
+    "flirtatiousnessPercentage": 52,
+    "confidencePercentage": 67,
+    "flirtatiousnessWeight": 0.75,
+    "confidenceWeight": 0.25,
+    "source": "shipped_profile_library"
+  },
+  "derivativesReady": true,
+  "derivativeError": "",
+  "generatedUtc": "2026-07-17T18:42:51.6081464Z"
+}

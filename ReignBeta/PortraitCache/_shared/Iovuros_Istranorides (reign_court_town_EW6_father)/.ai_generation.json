@@ -1,0 +1,27 @@
+{
+  "version": 1,
+  "cacheKey": "Iovuros_Istranorides (reign_court_town_EW6_father)",
+  "heroStringId": "reign_court_town_EW6_father",
+  "characterObjectId": "reign_court_town_EW6_father",
+  "characterName": "Iovuros Istranorides",
+  "provider": "AtlasCloud",
+  "model": "xai/grok-imagine-image/edit",
+  "adapter": "atlas upload/generate/poll",
+  "sourceSha256": "59ebecae7ff633b3f73cd277c801db7885171d7477e2da630bf49b125b1e308c",
+  "portraitSha256": "7abb20a81b95f67ccb842eb1e2b312875321a0e64f99720e85bb289fb530a9f5",
+  "portraitWidth": 864,
+  "portraitHeight": 1152,
+  "physicalConfidence": {
+    "definition": "physical_confidence",
+    "score": 51,
+    "profile": "41-60",
+    "flirtatiousnessPercentage": 54,
+    "confidencePercentage": 41,
+    "flirtatiousnessWeight": 0.75,
+    "confidenceWeight": 0.25,
+    "source": "shipped_profile_library"
+  },
+  "derivativesReady": true,
+  "derivativeError": "",
+  "generatedUtc": "2026-07-17T18:45:40.8667947Z"
+}

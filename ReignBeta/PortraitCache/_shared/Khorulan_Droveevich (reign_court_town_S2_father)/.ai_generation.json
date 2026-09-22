@@ -1,0 +1,27 @@
+{
+  "version": 1,
+  "cacheKey": "Khorulan_Droveevich (reign_court_town_S2_father)",
+  "heroStringId": "reign_court_town_S2_father",
+  "characterObjectId": "reign_court_town_S2_father",
+  "characterName": "Khorulan Droveevich",
+  "provider": "AtlasCloud",
+  "model": "xai/grok-imagine-image/edit",
+  "adapter": "atlas upload/generate/poll",
+  "sourceSha256": "f8af8a46f1eefb215586449349e428fd5f09a12dcc4079f5a64470b2544fb1ed",
+  "portraitSha256": "cb198ef4d7d0fa7cbc6c13180d5d772b00be84f50ccc1bb01c14a400d705f0eb",
+  "portraitWidth": 864,
+  "portraitHeight": 1152,
+  "physicalConfidence": {
+    "definition": "physical_confidence",
+    "score": 39,
+    "profile": "21-40",
+    "flirtatiousnessPercentage": 35,
+    "confidencePercentage": 50,
+    "flirtatiousnessWeight": 0.75,
+    "confidenceWeight": 0.25,
+    "source": "shipped_profile_library"
+  },
+  "derivativesReady": true,
+  "derivativeError": "",
+  "generatedUtc": "2026-07-17T18:48:15.7539162Z"
+}

@@ -1,0 +1,27 @@
+{
+  "version": 1,
+  "cacheKey": "Corana_Auberacourt (reign_court_castle_V1_child_4)",
+  "heroStringId": "reign_court_castle_V1_child_4",
+  "characterObjectId": "reign_court_castle_V1_child_4",
+  "characterName": "Corana Auberacourt",
+  "provider": "AtlasCloud",
+  "model": "xai/grok-imagine-image/edit",
+  "adapter": "atlas upload/generate/poll",
+  "sourceSha256": "926563d0d440bf945fd80829c3691a781245e5b7a61f429cf751d4d6454869e7",
+  "portraitSha256": "fcf9768a92a5c5eb05f8bad8021e4693fa9c87306493a85956def2c4dbc1d467",
+  "portraitWidth": 864,
+  "portraitHeight": 1152,
+  "physicalConfidence": {
+    "definition": "physical_confidence",
+    "score": 73,
+    "profile": "61-80",
+    "flirtatiousnessPercentage": 80,
+    "confidencePercentage": 51,
+    "flirtatiousnessWeight": 0.75,
+    "confidenceWeight": 0.25,
+    "source": "shipped_profile_library"
+  },
+  "derivativesReady": true,
+  "derivativeError": "",
+  "generatedUtc": "2026-07-17T18:23:48.6004935Z"
+}

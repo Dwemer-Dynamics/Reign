@@ -1,0 +1,27 @@
+{
+  "version": 1,
+  "cacheKey": "Hazada_Bahiraqani (reign_court_castle_A2_child_2)",
+  "heroStringId": "reign_court_castle_A2_child_2",
+  "characterObjectId": "reign_court_castle_A2_child_2",
+  "characterName": "Hazada Bahiraqani",
+  "provider": "AtlasCloud",
+  "model": "xai/grok-imagine-image/edit",
+  "adapter": "atlas upload/generate/poll",
+  "sourceSha256": "97d9207cf602af8adee83735678af54052f3c4436cf90e8b1b919408a9bd4ccc",
+  "portraitSha256": "dfe874e27c480f89a7b1d28bdea41883871cbde85598d18e2250b337e1ae592e",
+  "portraitWidth": 864,
+  "portraitHeight": 1152,
+  "physicalConfidence": {
+    "definition": "physical_confidence",
+    "score": 56,
+    "profile": "41-60",
+    "flirtatiousnessPercentage": 56,
+    "confidencePercentage": 55,
+    "flirtatiousnessWeight": 0.75,
+    "confidenceWeight": 0.25,
+    "source": "shipped_profile_library"
+  },
+  "derivativesReady": true,
+  "derivativeError": "",
+  "generatedUtc": "2026-07-17T18:42:16.6193559Z"
+}

@@ -1,0 +1,27 @@
+{
+  "version": 1,
+  "cacheKey": "Lethilia_Vardarides (reign_court_castle_EN8_mother)",
+  "heroStringId": "reign_court_castle_EN8_mother",
+  "characterObjectId": "reign_court_castle_EN8_mother",
+  "characterName": "Lethilia Vardarides",
+  "provider": "AtlasCloud",
+  "model": "xai/grok-imagine-image/edit",
+  "adapter": "atlas upload/generate/poll",
+  "sourceSha256": "d2f5e61e94915ce06b428a95ef8f5878ba24ef87f3c5f4dd3caaaf2e91c304ef",
+  "portraitSha256": "f583349fa5f65f35e08c00f8b26c960bae34b397765b8f55e45922a3723c86cd",
+  "portraitWidth": 864,
+  "portraitHeight": 1152,
+  "physicalConfidence": {
+    "definition": "physical_confidence",
+    "score": 54,
+    "profile": "41-60",
+    "flirtatiousnessPercentage": 54,
+    "confidencePercentage": 53,
+    "flirtatiousnessWeight": 0.75,
+    "confidenceWeight": 0.25,
+    "source": "shipped_profile_library"
+  },
+  "derivativesReady": true,
+  "derivativeError": "",
+  "generatedUtc": "2026-07-17T18:57:43.0282772Z"
+}

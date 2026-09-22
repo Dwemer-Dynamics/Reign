@@ -1,0 +1,27 @@
+{
+  "version": 1,
+  "cacheKey": "Borigan_Khargatai (reign_court_castle_K6_child_3)",
+  "heroStringId": "reign_court_castle_K6_child_3",
+  "characterObjectId": "reign_court_castle_K6_child_3",
+  "characterName": "Borigan Khargatai",
+  "provider": "AtlasCloud",
+  "model": "xai/grok-imagine-image/edit",
+  "adapter": "atlas upload/generate/poll",
+  "sourceSha256": "b571fe64edbc2b691d37a769c4f824f2658ce9c1fffb949d8e09f1584d6683e0",
+  "portraitSha256": "b252e36e5b39c88ff2c27d2816b59351a1a8054e5dbd4c726217bfa2aa979381",
+  "portraitWidth": 864,
+  "portraitHeight": 1152,
+  "physicalConfidence": {
+    "definition": "physical_confidence",
+    "score": 43,
+    "profile": "41-60",
+    "flirtatiousnessPercentage": 37,
+    "confidencePercentage": 60,
+    "flirtatiousnessWeight": 0.75,
+    "confidenceWeight": 0.25,
+    "source": "shipped_profile_library"
+  },
+  "derivativesReady": true,
+  "derivativeError": "",
+  "generatedUtc": "2026-07-17T18:17:58.1223418Z"
+}

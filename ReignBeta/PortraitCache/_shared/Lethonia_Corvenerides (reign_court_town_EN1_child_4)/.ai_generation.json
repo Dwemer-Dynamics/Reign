@@ -1,0 +1,27 @@
+{
+  "version": 1,
+  "cacheKey": "Lethonia_Corvenerides (reign_court_town_EN1_child_4)",
+  "heroStringId": "reign_court_town_EN1_child_4",
+  "characterObjectId": "reign_court_town_EN1_child_4",
+  "characterName": "Lethonia Corvenerides",
+  "provider": "AtlasCloud",
+  "model": "xai/grok-imagine-image/edit",
+  "adapter": "atlas upload/generate/poll",
+  "sourceSha256": "95217aa8c1b8e52e27af8d2f930d90d566f7cce107b1403c1281bb6ff6694f9f",
+  "portraitSha256": "7ae501fc25c0b52cb2a00727fc9d7a57b4bbc8dbdc8aaa9b7d4a0cd24d4e861c",
+  "portraitWidth": 864,
+  "portraitHeight": 1152,
+  "physicalConfidence": {
+    "definition": "physical_confidence",
+    "score": 61,
+    "profile": "61-80",
+    "flirtatiousnessPercentage": 67,
+    "confidencePercentage": 42,
+    "flirtatiousnessWeight": 0.75,
+    "confidenceWeight": 0.25,
+    "source": "shipped_profile_library"
+  },
+  "derivativesReady": true,
+  "derivativeError": "",
+  "generatedUtc": "2026-07-17T18:57:58.5879071Z"
+}

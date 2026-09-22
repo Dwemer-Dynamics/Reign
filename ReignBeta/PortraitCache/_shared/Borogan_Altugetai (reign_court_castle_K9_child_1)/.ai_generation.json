@@ -1,0 +1,27 @@
+{
+  "version": 1,
+  "cacheKey": "Borogan_Altugetai (reign_court_castle_K9_child_1)",
+  "heroStringId": "reign_court_castle_K9_child_1",
+  "characterObjectId": "reign_court_castle_K9_child_1",
+  "characterName": "Borogan Altugetai",
+  "provider": "AtlasCloud",
+  "model": "xai/grok-imagine-image/edit",
+  "adapter": "atlas upload/generate/poll",
+  "sourceSha256": "e2a2eaf6427f29329cdffaac9a69a57c043a776596e4f989720218e91d424512",
+  "portraitSha256": "d47c2f3aa7807a4085a26e0cd590a09b3aaec064f21181b2e67f0c848719d930",
+  "portraitWidth": 864,
+  "portraitHeight": 1152,
+  "physicalConfidence": {
+    "definition": "physical_confidence",
+    "score": 61,
+    "profile": "61-80",
+    "flirtatiousnessPercentage": 58,
+    "confidencePercentage": 69,
+    "flirtatiousnessWeight": 0.75,
+    "confidenceWeight": 0.25,
+    "source": "shipped_profile_library"
+  },
+  "derivativesReady": true,
+  "derivativeError": "",
+  "generatedUtc": "2026-07-17T18:18:12.0346714Z"
+}

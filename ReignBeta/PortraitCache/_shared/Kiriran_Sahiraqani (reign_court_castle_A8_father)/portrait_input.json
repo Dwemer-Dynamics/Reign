@@ -1,0 +1,92 @@
+{
+  "version": 1,
+  "inputHash": "1f58ac32b065eea3c67fcf42a5eab0774647d3b00ea61cb906d4bd2e916c0003",
+  "catalogHash": "12142c0ab28d2678b12b852b086450dcc4eea45e2e8a080f3baa85c42f7fb3a2",
+  "renderContractHash": "cc3b941e7d47057de9b4220f1473336e6f908719812bb2653b83bd3545cfbd2f",
+  "cacheKey": "Kiriran_Sahiraqani (reign_court_castle_A8_father)",
+  "heroStringId": "reign_court_castle_A8_father",
+  "characterObjectId": "reign_court_castle_A8_father",
+  "characterName": "Kiriran Sahiraqani",
+  "ageYears": 44,
+  "cultureId": "aserai",
+  "cultureName": "Aserai",
+  "gender": "man",
+  "clanId": "clan_aserai_8",
+  "clanTier": 1,
+  "clanProvenance": "reign_profile_library",
+  "socialStation": "landowner",
+  "occupation": "Lord",
+  "archetype": "lord",
+  "isLord": true,
+  "isNotable": false,
+  "isWanderer": false,
+  "isAlive": true,
+  "sourceModule": "ReignBeta",
+  "sourceFile": "Modules/ReignBeta/ModuleData/reign_court_lords.xml",
+  "profileSource": "reign_court",
+  "profilePackVersion": "reign_profiles_v4",
+  "bodyKey": "",
+  "bodyWeight": 0.5,
+  "bodyBuild": 0.5,
+  "faceTemplateId": "townsman_aserai",
+  "faceGenerationVersion": "reign_court_shared_v1",
+  "civilianTemplate": "ase_civ_template_default",
+  "civilianEquipment": [
+    {
+      "slot": "Body",
+      "itemId": "aserai_civil_b"
+    },
+    {
+      "slot": "Cape",
+      "itemId": "wrapped_scarf"
+    },
+    {
+      "slot": "Leg",
+      "itemId": "khuzait_curved_boots"
+    }
+  ],
+  "headgearSuppressed": true,
+  "physicalConfidence": {
+    "definition": "physical_confidence",
+    "score": 59,
+    "profile": "41-60",
+    "flirtatiousnessPercentage": 55,
+    "confidencePercentage": 70,
+    "flirtatiousnessWeight": 0.75,
+    "confidenceWeight": 0.25,
+    "source": "shipped_profile_library"
+  },
+  "renderPreset": "ai_source_wan_portrait_v5",
+  "renderWidth": 1536,
+  "renderHeight": 2048,
+  "sourceWidth": 768,
+  "sourceHeight": 1024,
+  "cropScale": 0.24,
+  "cropWidthRatio": 0.75,
+  "cropCenterYRatio": 0.324,
+  "cameraPitchDegrees": 4,
+  "sourceSha256": "e4a8d2443011a0fad4e1565e09d72e7e65ad7018b8822776ccd9d60b1a7d93ff",
+  "sourceFileName": "source.png",
+  "generationEndpoint": "/portraits/generate",
+  "campaignIdSource": "active_campaign_at_generation_time",
+  "promptDeferred": true,
+  "sourceImageBase64From": "source.png",
+  "outputSizeOverride": "",
+  "promptPurpose": "portrait",
+  "nativePhysique": {
+    "schema": "reign-native-physique-v1",
+    "weight": 0.5,
+    "build": 0.5,
+    "weightSource": "shared_portrait_input.bodyWeight",
+    "buildSource": "shared_portrait_input.bodyBuild",
+    "sourceSha256": "e4a8d2443011a0fad4e1565e09d72e7e65ad7018b8822776ccd9d60b1a7d93ff",
+    "provenance": {
+      "kind": "saved_character_metadata_backfill",
+      "heroStringId": "reign_court_castle_A8_father",
+      "profileSource": "reign_court",
+      "profilePackVersion": "reign_profiles_v4",
+      "originalInputSha256": "f05a3bd9c41104d464d0a07d32aaf2acea21a6e28b12bf1fe741e99d372a35a8",
+      "rendererReexecuted": false
+    }
+  }
+}

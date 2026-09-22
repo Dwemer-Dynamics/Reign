@@ -1,0 +1,27 @@
+{
+  "version": 1,
+  "cacheKey": "Branoc (lord_5_18)",
+  "heroStringId": "lord_5_18",
+  "characterObjectId": "lord_5_18",
+  "characterName": "Branoc",
+  "provider": "AtlasCloud",
+  "model": "xai/grok-imagine-image/edit",
+  "adapter": "atlas upload/generate/poll",
+  "sourceSha256": "911fedd45db1f1099695b013acbba1307176f65ce3ef97ef77ebfac43380fff1",
+  "portraitSha256": "45675c77346181f8f798d734d6315a4d015f9e04429bfd05a016db623df78c95",
+  "portraitWidth": 832,
+  "portraitHeight": 1248,
+  "physicalConfidence": {
+    "definition": "physical_confidence",
+    "score": 39,
+    "profile": "21-40",
+    "flirtatiousnessPercentage": 25,
+    "confidencePercentage": 80,
+    "flirtatiousnessWeight": 0.75,
+    "confidenceWeight": 0.25,
+    "source": "shipped_profile_library"
+  },
+  "derivativesReady": true,
+  "derivativeError": "",
+  "generatedUtc": "2026-07-17T18:18:48.7626135Z"
+}

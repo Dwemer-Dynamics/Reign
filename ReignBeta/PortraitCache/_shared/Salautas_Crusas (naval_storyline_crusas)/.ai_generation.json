@@ -1,0 +1,27 @@
+{
+  "version": 1,
+  "cacheKey": "Salautas_Crusas (naval_storyline_crusas)",
+  "heroStringId": "naval_storyline_crusas",
+  "characterObjectId": "naval_storyline_crusas",
+  "characterName": "Salautas Crusas",
+  "provider": "AtlasCloud",
+  "model": "xai/grok-imagine-image/edit",
+  "adapter": "atlas upload/generate/poll",
+  "sourceSha256": "8b54a9cb2c21c738cb0c147c84a33aac46c6d13819f37b212ffa8d3f8be9b6a8",
+  "portraitSha256": "36e07c14acd3bb569104986689d6169836ac12ddaec054c5427edbe494e6baf8",
+  "portraitWidth": 864,
+  "portraitHeight": 1152,
+  "physicalConfidence": {
+    "definition": "physical_confidence",
+    "score": 50,
+    "profile": "41-60",
+    "flirtatiousnessPercentage": 50,
+    "confidencePercentage": 50,
+    "flirtatiousnessWeight": 0.75,
+    "confidenceWeight": 0.25,
+    "source": "neutral_fallback"
+  },
+  "derivativesReady": true,
+  "derivativeError": "",
+  "generatedUtc": "2026-07-17T19:12:37.1175947Z"
+}

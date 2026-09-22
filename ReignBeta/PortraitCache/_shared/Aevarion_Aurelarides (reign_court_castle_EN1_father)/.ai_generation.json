@@ -1,0 +1,27 @@
+{
+  "version": 1,
+  "cacheKey": "Aevarion_Aurelarides (reign_court_castle_EN1_father)",
+  "heroStringId": "reign_court_castle_EN1_father",
+  "characterObjectId": "reign_court_castle_EN1_father",
+  "characterName": "Aevarion Aurelarides",
+  "provider": "AtlasCloud",
+  "model": "xai/grok-imagine-image/edit",
+  "adapter": "atlas upload/generate/poll",
+  "sourceSha256": "232e43acd3d971862f0c7f003a714812185baf8b1a12d170824f6c31970f3922",
+  "portraitSha256": "6f4d80eecd0239e9ce2251d7b0f9d4625488ee2beccd9dbfaeedcc6d4b39f220",
+  "portraitWidth": 864,
+  "portraitHeight": 1152,
+  "physicalConfidence": {
+    "definition": "physical_confidence",
+    "score": 43,
+    "profile": "41-60",
+    "flirtatiousnessPercentage": 30,
+    "confidencePercentage": 81,
+    "flirtatiousnessWeight": 0.75,
+    "confidenceWeight": 0.25,
+    "source": "shipped_profile_library"
+  },
+  "derivativesReady": true,
+  "derivativeError": "",
+  "generatedUtc": "2026-07-17T17:59:45.3425866Z"
+}

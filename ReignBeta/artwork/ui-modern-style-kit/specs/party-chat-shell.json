@@ -1,0 +1,100 @@
+{
+  "schema": "reign-overlay-asset-spec-v1",
+  "asset": {
+    "id": "party-chat-modern-shell",
+    "role": "opaque textless Party Chat shell with clean rail beneath complete independently moving aperture cards",
+    "selectedGeneratedSourceSha256": "8fa8ee335f9ce0ca717609516c4cfb8cd87992c0239ad441736c1e4dd3ae453a",
+    "generationMode": "approved-reference exact fixed-region composite over built-in image-to-image dynamic fill",
+    "promptSha256": "eafe037621c9957a6622d2db2c1e748ab771a4ced96014fa1c631c548f7b8e78"
+  },
+  "authorities": {
+    "layout": {
+      "path": "../approved-references/party-chat.png",
+      "sha256": "21454261b37e00073aec60731b551155f7933b9c7541950fa1ba27c0b118cdb1"
+    },
+    "materials": {
+      "path": "../style-reference.png",
+      "sha256": "85b689dc164ebbf70f67a081c0f7097858edb0542ef0073de0c29eef7926b0a3"
+    },
+    "palette": {
+      "path": "../palette.json",
+      "sha256": "fac70043a567db463ae70c975b92037dbfc38337e0d9134bc85bb03e3bb9a043",
+      "schema": "reign-ui-modern-palette-v1",
+      "version": "2026.08.28.2"
+    }
+  },
+  "canvas": {
+    "width": 1672,
+    "height": 941
+  },
+  "normalization": {
+    "fit": "exact",
+    "anchor": "center"
+  },
+  "antialiasScale": 4,
+  "allowNoApertures": true,
+  "apertures": [],
+  "transparentRgb": "#121211",
+  "marbleReduction": {
+    "amount": 0.0,
+    "blurRadius": 6.0,
+    "luminanceCeiling": 96,
+    "chromaCeiling": 36,
+    "selectionSoftness": 20
+  },
+  "integrationGeometry": {
+    "schema": "reign-party-chat-integration-geometry-v1",
+    "coordinateSystem": {
+      "units": "pixels",
+      "origin": "top-left",
+      "canvasWidth": 1672,
+      "canvasHeight": 941,
+      "authoritySha256": "21454261b37e00073aec60731b551155f7933b9c7541950fa1ba27c0b118cdb1"
+    },
+    "staticFrames": {
+      "outerFrame": {"x": 20, "y": 21, "width": 1629, "height": 899},
+      "selectAllControl": {"x": 1218, "y": 36, "width": 120, "height": 36},
+      "clearControl": {"x": 1358, "y": 36, "width": 120, "height": 36},
+      "leaveControl": {"x": 1498, "y": 36, "width": 120, "height": 36},
+      "roster": {"x": 41, "y": 158, "width": 1590, "height": 202},
+      "retiredRosterCardPositionsForReferenceOnly": [
+        {"slot": 1, "x": 93, "y": 190, "width": 286, "height": 148},
+        {"slot": 2, "x": 393, "y": 190, "width": 286, "height": 148},
+        {"slot": 3, "x": 693, "y": 190, "width": 286, "height": 148},
+        {"slot": 4, "x": 993, "y": 190, "width": 286, "height": 148},
+        {"slot": 5, "x": 1293, "y": 190, "width": 286, "height": 148}
+      ],
+      "chatLog": {"x": 41, "y": 378, "width": 1590, "height": 439},
+      "inputFrame": {"x": 183, "y": 830, "width": 1192, "height": 66},
+      "sendControl": {"x": 1388, "y": 830, "width": 202, "height": 66},
+      "leftEmblem": {"x": 61, "y": 830, "width": 114, "height": 66}
+    },
+    "runtimeRegions": {
+      "title": {"x": 456, "y": 41, "width": 760, "height": 39},
+      "location": {"x": 456, "y": 82, "width": 760, "height": 26},
+      "selectionSummary": {"x": 456, "y": 112, "width": 760, "height": 22},
+      "rosterHeading": {"x": 561, "y": 158, "width": 550, "height": 30},
+      "rosterViewport": {"x": 93, "y": 190, "width": 1486, "height": 152},
+      "rosterItem": {"width": 286, "height": 154, "spacingAfter": 14, "sprite": "reign_party_chat_member_card_overlay", "apertureSpec": "party-chat-member-card.json"},
+      "rosterPortraitWithinItem": {"x": 16, "y": 11, "width": 128, "height": 128, "shape": "circle", "overlaySprite": "reign_modern_portrait_circle_overlay"},
+      "rosterNameWithinItem": {"x": 152, "y": 28, "width": 126, "height": 31},
+      "rosterStatusWithinItem": {"x": 152, "y": 65, "width": 126, "height": 28},
+      "rosterAiPortraitControlWithinItem": {"x": 152, "y": 101, "width": 126, "height": 31},
+      "chatViewport": {"x": 75, "y": 412, "width": 1504, "height": 373},
+      "playerMessage": {"width": 760, "minimumHeight": 80},
+      "npcMessage": {"width": 760, "minimumHeight": 80},
+      "systemMessage": {"width": 708, "minimumHeight": 72},
+      "busyStatus": {"x": 576, "y": 801, "width": 520, "height": 22},
+      "input": {"x": 217, "y": 842, "width": 1088, "height": 42},
+      "sendControl": {"x": 1388, "y": 830, "width": 202, "height": 66},
+      "portraitPreview": {"width": 370, "height": 555, "shape": "oval", "overlaySprite": "reign_modern_portrait_oval_overlay"}
+    },
+    "excludedFromStaticShellFidelityGating": [
+      "all dynamic roster portrait interiors and variable roster population beyond the five visible approved slots",
+      "all live title, location, selection, roster, status, conversation, busy, and editable-input text",
+      "scrollbar handle positions and chat-list population",
+      "active, hovered, pressed, focus, disabled, and AI-generation states absent from the approved reference",
+      "portrait-preview modal"
+    ]
+  }
+}

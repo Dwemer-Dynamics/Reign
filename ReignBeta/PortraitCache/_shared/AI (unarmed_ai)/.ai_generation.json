@@ -1,0 +1,27 @@
+{
+  "version": 1,
+  "cacheKey": "AI (unarmed_ai)",
+  "heroStringId": "unarmed_ai",
+  "characterObjectId": "unarmed_ai",
+  "characterName": "AI",
+  "provider": "AtlasCloud",
+  "model": "xai/grok-imagine-image/edit",
+  "adapter": "atlas upload/generate/poll",
+  "sourceSha256": "f0460e6de4a485520457b6084bc32521c82d1862c1e9ddc178c8317e69735381",
+  "portraitSha256": "d6e1f779901a9428d3fdf6439bd3e5d9327adb90b4fde8266899b10877c06ca6",
+  "portraitWidth": 864,
+  "portraitHeight": 1152,
+  "physicalConfidence": {
+    "definition": "physical_confidence",
+    "score": 50,
+    "profile": "41-60",
+    "flirtatiousnessPercentage": 50,
+    "confidencePercentage": 50,
+    "flirtatiousnessWeight": 0.75,
+    "confidenceWeight": 0.25,
+    "source": "neutral_fallback"
+  },
+  "derivativesReady": true,
+  "derivativeError": "",
+  "generatedUtc": "2026-07-17T18:10:32.7675953Z"
+}

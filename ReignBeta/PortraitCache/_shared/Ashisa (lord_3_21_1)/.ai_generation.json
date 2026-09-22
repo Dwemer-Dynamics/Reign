@@ -1,0 +1,27 @@
+{
+  "version": 1,
+  "cacheKey": "Ashisa (lord_3_21_1)",
+  "heroStringId": "lord_3_21_1",
+  "characterObjectId": "lord_3_21_1",
+  "characterName": "Ashisa",
+  "provider": "AtlasCloud",
+  "model": "xai/grok-imagine-image/edit",
+  "adapter": "atlas upload/generate/poll",
+  "sourceSha256": "cd3002f1f5a023ef9c3539b67e0f59eafc96321e6f45d68c8186e166c3708ff6",
+  "portraitSha256": "feea1cba891d852aec55002d97eabdf9f227634c50ff611f1823540d2c1d5e7f",
+  "portraitWidth": 832,
+  "portraitHeight": 1248,
+  "physicalConfidence": {
+    "definition": "physical_confidence",
+    "score": 55,
+    "profile": "41-60",
+    "flirtatiousnessPercentage": 55,
+    "confidencePercentage": 54,
+    "flirtatiousnessWeight": 0.75,
+    "confidenceWeight": 0.25,
+    "source": "shipped_profile_library"
+  },
+  "derivativesReady": true,
+  "derivativeError": "",
+  "generatedUtc": "2026-07-17T18:14:30.5360187Z"
+}

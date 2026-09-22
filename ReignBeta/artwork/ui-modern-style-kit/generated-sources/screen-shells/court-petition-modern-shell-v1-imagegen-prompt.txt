@@ -1,0 +1,16 @@
+Use case: precise interface image-to-image edit
+Asset type: production static Court Petition shell for Reign
+Input image: the approved Court Petition proposal and layout authority
+
+Preserve the 1672x941 composition with a narrow attached petitioner rail on the
+left and a wide audience workspace on the right. Build an integrated oval
+portrait aperture with opaque near-black marble around the opening and a thin
+antique-gold top frame. Build a very wide culture-specific throne-view aperture,
+a request-summary band, a separate conversation band with transcript space,
+black input field and compact send-button recess, and balanced bottom decision
+button recesses. Leave every live text, portrait, scene, icon, heraldry, person,
+and number absent. Use restrained near-black veined marble, smoke panels, thin
+antique-gold double lines, tiny diamonds, crisp orthographic geometry, and no
+fantasy glow or thick beveled game-menu treatment. Request genuine transparent
+portrait and scene openings. Deterministic post-processing owns final true
+alpha, exact aperture geometry, dimensions, and evidence.

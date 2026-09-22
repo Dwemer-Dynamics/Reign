@@ -1,0 +1,27 @@
+{
+  "version": 1,
+  "cacheKey": "Kirira_Sahiraqani (reign_court_castle_A8_mother)",
+  "heroStringId": "reign_court_castle_A8_mother",
+  "characterObjectId": "reign_court_castle_A8_mother",
+  "characterName": "Kirira Sahiraqani",
+  "provider": "AtlasCloud",
+  "model": "xai/grok-imagine-image/edit",
+  "adapter": "atlas upload/generate/poll",
+  "sourceSha256": "66d164c8614aae1feda121abdf6efd243a6e30665e5fd701548b0ee3e9778ee2",
+  "portraitSha256": "4b7467d78cf362d03998ba79f3461a3538d2c5fd59747213c06d1c07fdac4fdc",
+  "portraitWidth": 864,
+  "portraitHeight": 1152,
+  "physicalConfidence": {
+    "definition": "physical_confidence",
+    "score": 51,
+    "profile": "41-60",
+    "flirtatiousnessPercentage": 50,
+    "confidencePercentage": 53,
+    "flirtatiousnessWeight": 0.75,
+    "confidenceWeight": 0.25,
+    "source": "shipped_profile_library"
+  },
+  "derivativesReady": true,
+  "derivativeError": "",
+  "generatedUtc": "2026-07-17T18:49:06.3333930Z"
+}

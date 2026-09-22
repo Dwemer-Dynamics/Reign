@@ -1,0 +1,27 @@
+{
+  "version": 1,
+  "cacheKey": "Peric (lord_4_26)",
+  "heroStringId": "lord_4_26",
+  "characterObjectId": "lord_4_26",
+  "characterName": "Peric",
+  "provider": "AtlasCloud",
+  "model": "xai/grok-imagine-image/edit",
+  "adapter": "atlas upload/generate/poll",
+  "sourceSha256": "b88191150b510334b2e0811492b716f2fcbc414e448f502a842b3560ecda3fa0",
+  "portraitSha256": "526b8df69bf66e1cc6b1d95564ea98bcf5c69c007f86fef18939e9f4a34fef38",
+  "portraitWidth": 832,
+  "portraitHeight": 1248,
+  "physicalConfidence": {
+    "definition": "physical_confidence",
+    "score": 58,
+    "profile": "41-60",
+    "flirtatiousnessPercentage": 65,
+    "confidencePercentage": 36,
+    "flirtatiousnessWeight": 0.75,
+    "confidenceWeight": 0.25,
+    "source": "shipped_profile_library"
+  },
+  "derivativesReady": true,
+  "derivativeError": "",
+  "generatedUtc": "2026-07-17T19:09:03.6092081Z"
+}

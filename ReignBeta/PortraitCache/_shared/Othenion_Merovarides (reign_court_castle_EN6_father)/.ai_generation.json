@@ -1,0 +1,27 @@
+{
+  "version": 1,
+  "cacheKey": "Othenion_Merovarides (reign_court_castle_EN6_father)",
+  "heroStringId": "reign_court_castle_EN6_father",
+  "characterObjectId": "reign_court_castle_EN6_father",
+  "characterName": "Othenion Merovarides",
+  "provider": "AtlasCloud",
+  "model": "xai/grok-imagine-image/edit",
+  "adapter": "atlas upload/generate/poll",
+  "sourceSha256": "0e1ef27e9be5b4b4a0afceddeeee236debff030a534d6a87022e6ce4ae9abc51",
+  "portraitSha256": "ddbdc78ac32c631c483fb5b4997e29cf8ccf7d5a7d788ed4fc77a84efdbabe76",
+  "portraitWidth": 864,
+  "portraitHeight": 1152,
+  "physicalConfidence": {
+    "definition": "physical_confidence",
+    "score": 57,
+    "profile": "41-60",
+    "flirtatiousnessPercentage": 61,
+    "confidencePercentage": 44,
+    "flirtatiousnessWeight": 0.75,
+    "confidenceWeight": 0.25,
+    "source": "shipped_profile_library"
+  },
+  "derivativesReady": true,
+  "derivativeError": "",
+  "generatedUtc": "2026-07-17T19:07:21.3172680Z"
+}

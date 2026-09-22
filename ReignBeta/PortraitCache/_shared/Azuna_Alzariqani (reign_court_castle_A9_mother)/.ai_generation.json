@@ -1,0 +1,27 @@
+{
+  "version": 1,
+  "cacheKey": "Azuna_Alzariqani (reign_court_castle_A9_mother)",
+  "heroStringId": "reign_court_castle_A9_mother",
+  "characterObjectId": "reign_court_castle_A9_mother",
+  "characterName": "Azuna Alzariqani",
+  "provider": "AtlasCloud",
+  "model": "xai/grok-imagine-image/edit",
+  "adapter": "atlas upload/generate/poll",
+  "sourceSha256": "87975b844a6a6e8f846326ded5e71846fd826a886ff7381ea47b2c944126a533",
+  "portraitSha256": "0d189f40def0475a37f481364df85c89f3a98bd2f50414ed0db204ca6bd759c6",
+  "portraitWidth": 864,
+  "portraitHeight": 1152,
+  "physicalConfidence": {
+    "definition": "physical_confidence",
+    "score": 49,
+    "profile": "41-60",
+    "flirtatiousnessPercentage": 51,
+    "confidencePercentage": 42,
+    "flirtatiousnessWeight": 0.75,
+    "confidenceWeight": 0.25,
+    "source": "shipped_profile_library"
+  },
+  "derivativesReady": true,
+  "derivativeError": "",
+  "generatedUtc": "2026-07-17T18:15:16.3534399Z"
+}

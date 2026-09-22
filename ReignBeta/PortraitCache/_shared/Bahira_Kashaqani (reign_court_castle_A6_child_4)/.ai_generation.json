@@ -1,0 +1,27 @@
+{
+  "version": 1,
+  "cacheKey": "Bahira_Kashaqani (reign_court_castle_A6_child_4)",
+  "heroStringId": "reign_court_castle_A6_child_4",
+  "characterObjectId": "reign_court_castle_A6_child_4",
+  "characterName": "Bahira Kashaqani",
+  "provider": "AtlasCloud",
+  "model": "xai/grok-imagine-image/edit",
+  "adapter": "atlas upload/generate/poll",
+  "sourceSha256": "6fff331b1786848ad1466dfdfbb07548983686c04c37484acf9c441213a6175b",
+  "portraitSha256": "dbc51d6ffa99fedd330d01918f0b3068c02312bb7298def5234229b1664db3d1",
+  "portraitWidth": 864,
+  "portraitHeight": 1152,
+  "physicalConfidence": {
+    "definition": "physical_confidence",
+    "score": 68,
+    "profile": "61-80",
+    "flirtatiousnessPercentage": 74,
+    "confidencePercentage": 49,
+    "flirtatiousnessWeight": 0.75,
+    "confidenceWeight": 0.25,
+    "source": "shipped_profile_library"
+  },
+  "derivativesReady": true,
+  "derivativeError": "",
+  "generatedUtc": "2026-07-17T18:15:48.0131644Z"
+}

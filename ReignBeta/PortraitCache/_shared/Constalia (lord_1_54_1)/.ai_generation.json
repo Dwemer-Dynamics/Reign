@@ -1,0 +1,27 @@
+{
+  "version": 1,
+  "cacheKey": "Constalia (lord_1_54_1)",
+  "heroStringId": "lord_1_54_1",
+  "characterObjectId": "lord_1_54_1",
+  "characterName": "Constalia",
+  "provider": "AtlasCloud",
+  "model": "xai/grok-imagine-image/edit",
+  "adapter": "atlas upload/generate/poll",
+  "sourceSha256": "bac548068444e9c580d3fcfaaf290fb445c5c9561f12b3e8c4ac861d4e58bd64",
+  "portraitSha256": "ac89a7178d1ee19b7ae6bc670bdd65963549fa5c088841127b7f9ee95eeeb63b",
+  "portraitWidth": 832,
+  "portraitHeight": 1248,
+  "physicalConfidence": {
+    "definition": "physical_confidence",
+    "score": 66,
+    "profile": "61-80",
+    "flirtatiousnessPercentage": 69,
+    "confidencePercentage": 56,
+    "flirtatiousnessWeight": 0.75,
+    "confidenceWeight": 0.25,
+    "source": "shipped_profile_library"
+  },
+  "derivativesReady": true,
+  "derivativeError": "",
+  "generatedUtc": "2026-07-17T18:23:51.7611555Z"
+}

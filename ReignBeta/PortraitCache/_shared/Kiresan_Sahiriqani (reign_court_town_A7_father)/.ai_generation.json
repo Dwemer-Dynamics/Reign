@@ -1,0 +1,27 @@
+{
+  "version": 1,
+  "cacheKey": "Kiresan_Sahiriqani (reign_court_town_A7_father)",
+  "heroStringId": "reign_court_town_A7_father",
+  "characterObjectId": "reign_court_town_A7_father",
+  "characterName": "Kiresan Sahiriqani",
+  "provider": "AtlasCloud",
+  "model": "xai/grok-imagine-image/edit",
+  "adapter": "atlas upload/generate/poll",
+  "sourceSha256": "58b0b6e142b3c3296658f081413d4923df4bd01507acf9d574bf636bfdffa5ed",
+  "portraitSha256": "0ac1d7b9aa08e2f71adf1c4dba0002a8e2e25fa71dc2b2b5d4a4266fe6a56fc7",
+  "portraitWidth": 864,
+  "portraitHeight": 1152,
+  "physicalConfidence": {
+    "definition": "physical_confidence",
+    "score": 44,
+    "profile": "41-60",
+    "flirtatiousnessPercentage": 44,
+    "confidencePercentage": 43,
+    "flirtatiousnessWeight": 0.75,
+    "confidenceWeight": 0.25,
+    "source": "shipped_profile_library"
+  },
+  "derivativesReady": true,
+  "derivativeError": "",
+  "generatedUtc": "2026-07-17T18:48:49.8424054Z"
+}

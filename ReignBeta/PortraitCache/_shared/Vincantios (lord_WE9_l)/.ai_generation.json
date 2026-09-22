@@ -1,0 +1,27 @@
+{
+  "version": 1,
+  "cacheKey": "Vincantios (lord_WE9_l)",
+  "heroStringId": "lord_WE9_l",
+  "characterObjectId": "lord_WE9_l",
+  "characterName": "Vincantios",
+  "provider": "AtlasCloud",
+  "model": "xai/grok-imagine-image/edit",
+  "adapter": "atlas upload/generate/poll",
+  "sourceSha256": "b015f01f86d2f2b01834564b76820f1d184e90d40c059c1910bb40e686e2ce11",
+  "portraitSha256": "f938d851624638e1e10c799f1f339b81a9187d9296229cdc15c22fba2d4c3aca",
+  "portraitWidth": 832,
+  "portraitHeight": 1248,
+  "physicalConfidence": {
+    "definition": "physical_confidence",
+    "score": 39,
+    "profile": "21-40",
+    "flirtatiousnessPercentage": 30,
+    "confidencePercentage": 65,
+    "flirtatiousnessWeight": 0.75,
+    "confidenceWeight": 0.25,
+    "source": "shipped_profile_library"
+  },
+  "derivativesReady": true,
+  "derivativeError": "",
+  "generatedUtc": "2026-07-17T19:21:14.4346987Z"
+}

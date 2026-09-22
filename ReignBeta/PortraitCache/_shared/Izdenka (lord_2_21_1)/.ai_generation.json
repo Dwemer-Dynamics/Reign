@@ -1,0 +1,27 @@
+{
+  "version": 1,
+  "cacheKey": "Izdenka (lord_2_21_1)",
+  "heroStringId": "lord_2_21_1",
+  "characterObjectId": "lord_2_21_1",
+  "characterName": "Izdenka",
+  "provider": "AtlasCloud",
+  "model": "xai/grok-imagine-image/edit",
+  "adapter": "atlas upload/generate/poll",
+  "sourceSha256": "10991050d9f3e7944c93077648414f937a73f1481a60b0f103051b6f2ea723a1",
+  "portraitSha256": "b84ca17ad507b1fddac116758d5356baaf2b051cc991fa3eab9dd6c9a63dc0e2",
+  "portraitWidth": 832,
+  "portraitHeight": 1248,
+  "physicalConfidence": {
+    "definition": "physical_confidence",
+    "score": 32,
+    "profile": "21-40",
+    "flirtatiousnessPercentage": 26,
+    "confidencePercentage": 49,
+    "flirtatiousnessWeight": 0.75,
+    "confidenceWeight": 0.25,
+    "source": "shipped_profile_library"
+  },
+  "derivativesReady": true,
+  "derivativeError": "",
+  "generatedUtc": "2026-07-17T18:46:15.1499231Z"
+}

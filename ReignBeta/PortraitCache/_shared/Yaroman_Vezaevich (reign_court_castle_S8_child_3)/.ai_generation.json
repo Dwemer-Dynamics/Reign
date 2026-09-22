@@ -1,0 +1,27 @@
+{
+  "version": 1,
+  "cacheKey": "Yaroman_Vezaevich (reign_court_castle_S8_child_3)",
+  "heroStringId": "reign_court_castle_S8_child_3",
+  "characterObjectId": "reign_court_castle_S8_child_3",
+  "characterName": "Yaroman Vezaevich",
+  "provider": "AtlasCloud",
+  "model": "xai/grok-imagine-image/edit",
+  "adapter": "atlas upload/generate/poll",
+  "sourceSha256": "dbf9f362f0c05020d2ac340acf2bac6ab980687eeb10a92eff8629dab2bff825",
+  "portraitSha256": "16370ba9238a4179101cd70daf06217aba969d94a531e57e397d299c4c176aa1",
+  "portraitWidth": 864,
+  "portraitHeight": 1152,
+  "physicalConfidence": {
+    "definition": "physical_confidence",
+    "score": 27,
+    "profile": "21-40",
+    "flirtatiousnessPercentage": 14,
+    "confidencePercentage": 66,
+    "flirtatiousnessWeight": 0.75,
+    "confidenceWeight": 0.25,
+    "source": "shipped_profile_library"
+  },
+  "derivativesReady": true,
+  "derivativeError": "",
+  "generatedUtc": "2026-07-17T19:22:20.2326438Z"
+}

@@ -1,0 +1,27 @@
+{
+  "version": 1,
+  "cacheKey": "Lethonion_Corvenerides (reign_court_town_EN1_child_3)",
+  "heroStringId": "reign_court_town_EN1_child_3",
+  "characterObjectId": "reign_court_town_EN1_child_3",
+  "characterName": "Lethonion Corvenerides",
+  "provider": "AtlasCloud",
+  "model": "xai/grok-imagine-image/edit",
+  "adapter": "atlas upload/generate/poll",
+  "sourceSha256": "8b28c2cdf3bb419a104bbcfc82284659172131e08814f599d41336b8da4de898",
+  "portraitSha256": "4ff7ec3f672b23cfbabadb0fd2a8acb1f84eff460b4c10e53dd3502d262f0d0b",
+  "portraitWidth": 864,
+  "portraitHeight": 1152,
+  "physicalConfidence": {
+    "definition": "physical_confidence",
+    "score": 61,
+    "profile": "61-80",
+    "flirtatiousnessPercentage": 66,
+    "confidencePercentage": 45,
+    "flirtatiousnessWeight": 0.75,
+    "confidenceWeight": 0.25,
+    "source": "shipped_profile_library"
+  },
+  "derivativesReady": true,
+  "derivativeError": "",
+  "generatedUtc": "2026-07-17T18:57:56.5594840Z"
+}

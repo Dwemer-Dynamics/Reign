@@ -1,0 +1,27 @@
+{
+  "version": 1,
+  "cacheKey": "Nuqar (lord_3_13)",
+  "heroStringId": "lord_3_13",
+  "characterObjectId": "lord_3_13",
+  "characterName": "Nuqar",
+  "provider": "AtlasCloud",
+  "model": "xai/grok-imagine-image/edit",
+  "adapter": "atlas upload/generate/poll",
+  "sourceSha256": "1e20dc1e55f240dbef37b594cbdebb726d8147dc63dfdb85eab36c6b275de21d",
+  "portraitSha256": "aa33f795312d0f3311b544a14a64c4f6a236095b1551d012985b5e10cfb73765",
+  "portraitWidth": 832,
+  "portraitHeight": 1248,
+  "physicalConfidence": {
+    "definition": "physical_confidence",
+    "score": 56,
+    "profile": "41-60",
+    "flirtatiousnessPercentage": 54,
+    "confidencePercentage": 61,
+    "flirtatiousnessWeight": 0.75,
+    "confidenceWeight": 0.25,
+    "source": "shipped_profile_library"
+  },
+  "derivativesReady": true,
+  "derivativeError": "",
+  "generatedUtc": "2026-07-17T19:05:53.4508229Z"
+}

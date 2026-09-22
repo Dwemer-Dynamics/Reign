@@ -1,0 +1,27 @@
+{
+  "version": 1,
+  "cacheKey": "Aevonos_Aurelorides (reign_court_town_EW2_father)",
+  "heroStringId": "reign_court_town_EW2_father",
+  "characterObjectId": "reign_court_town_EW2_father",
+  "characterName": "Aevonos Aurelorides",
+  "provider": "AtlasCloud",
+  "model": "xai/grok-imagine-image/edit",
+  "adapter": "atlas upload/generate/poll",
+  "sourceSha256": "693b1d46523b5e352f976520ebfe9ea7426ec387d898f7d55fe389ab3442ba90",
+  "portraitSha256": "faf5576a0d9a4866f59b767bd87674b47705f4d9e196c3cde71e99bcf2acc717",
+  "portraitWidth": 864,
+  "portraitHeight": 1152,
+  "physicalConfidence": {
+    "definition": "physical_confidence",
+    "score": 98,
+    "profile": "81-100",
+    "flirtatiousnessPercentage": 98,
+    "confidencePercentage": 97,
+    "flirtatiousnessWeight": 0.75,
+    "confidenceWeight": 0.25,
+    "source": "shipped_profile_library"
+  },
+  "derivativesReady": true,
+  "derivativeError": "",
+  "generatedUtc": "2026-07-17T18:09:46.4230671Z"
+}

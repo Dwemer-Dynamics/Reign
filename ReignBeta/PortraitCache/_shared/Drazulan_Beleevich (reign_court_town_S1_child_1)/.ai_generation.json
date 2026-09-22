@@ -1,0 +1,27 @@
+{
+  "version": 1,
+  "cacheKey": "Drazulan_Beleevich (reign_court_town_S1_child_1)",
+  "heroStringId": "reign_court_town_S1_child_1",
+  "characterObjectId": "reign_court_town_S1_child_1",
+  "characterName": "Drazulan Beleevich",
+  "provider": "AtlasCloud",
+  "model": "xai/grok-imagine-image/edit",
+  "adapter": "atlas upload/generate/poll",
+  "sourceSha256": "c7bb4a4aad1fc26712f55aa9871c1cf2ed8b5853ed843833064c5c9c5bdb0027",
+  "portraitSha256": "000bd081269bd6da8c0e8a72957a81e2d86347a337e33d94ad2b72f79c8334fb",
+  "portraitWidth": 864,
+  "portraitHeight": 1152,
+  "physicalConfidence": {
+    "definition": "physical_confidence",
+    "score": 31,
+    "profile": "21-40",
+    "flirtatiousnessPercentage": 26,
+    "confidencePercentage": 45,
+    "flirtatiousnessWeight": 0.75,
+    "confidenceWeight": 0.25,
+    "source": "shipped_profile_library"
+  },
+  "derivativesReady": true,
+  "derivativeError": "",
+  "generatedUtc": "2026-07-17T18:28:52.8115052Z"
+}

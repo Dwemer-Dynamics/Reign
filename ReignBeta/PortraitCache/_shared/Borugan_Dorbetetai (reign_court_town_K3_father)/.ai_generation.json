@@ -1,0 +1,27 @@
+{
+  "version": 1,
+  "cacheKey": "Borugan_Dorbetetai (reign_court_town_K3_father)",
+  "heroStringId": "reign_court_town_K3_father",
+  "characterObjectId": "reign_court_town_K3_father",
+  "characterName": "Borugan Dorbetetai",
+  "provider": "AtlasCloud",
+  "model": "xai/grok-imagine-image/edit",
+  "adapter": "atlas upload/generate/poll",
+  "sourceSha256": "3448f7c256188402ec69ded23edbff7eb829fccaa07d25f6063030408c7f93b8",
+  "portraitSha256": "3c891cdc650666665ec38bd754abcd9cf123d70ec06f586a48e6de014597fec3",
+  "portraitWidth": 864,
+  "portraitHeight": 1152,
+  "physicalConfidence": {
+    "definition": "physical_confidence",
+    "score": 54,
+    "profile": "41-60",
+    "flirtatiousnessPercentage": 54,
+    "confidencePercentage": 53,
+    "flirtatiousnessWeight": 0.75,
+    "confidenceWeight": 0.25,
+    "source": "shipped_profile_library"
+  },
+  "derivativesReady": true,
+  "derivativeError": "",
+  "generatedUtc": "2026-07-17T18:18:14.3657024Z"
+}

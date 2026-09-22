@@ -1,0 +1,27 @@
+{
+  "version": 1,
+  "cacheKey": "Heimkir (lord_7_3_3)",
+  "heroStringId": "lord_7_3_3",
+  "characterObjectId": "lord_7_3_3",
+  "characterName": "Heimkir",
+  "provider": "AtlasCloud",
+  "model": "xai/grok-imagine-image/edit",
+  "adapter": "atlas upload/generate/poll",
+  "sourceSha256": "6c89c95d2ff839288303a38604f4ea85c85ea599d0710a4169fda2fd0db81016",
+  "portraitSha256": "ae204382b74716acad68e8e5bb9023291a2c95775d5f93ef463f4e6b50d2680b",
+  "portraitWidth": 832,
+  "portraitHeight": 1248,
+  "physicalConfidence": {
+    "definition": "physical_confidence",
+    "score": 50,
+    "profile": "41-60",
+    "flirtatiousnessPercentage": 50,
+    "confidencePercentage": 50,
+    "flirtatiousnessWeight": 0.75,
+    "confidenceWeight": 0.25,
+    "source": "neutral_fallback"
+  },
+  "derivativesReady": true,
+  "derivativeError": "",
+  "generatedUtc": "2026-07-17T18:43:07.2081179Z"
+}

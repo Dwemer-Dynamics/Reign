@@ -1,0 +1,27 @@
+{
+  "version": 1,
+  "cacheKey": "Aradwyr (lord_5_17)",
+  "heroStringId": "lord_5_17",
+  "characterObjectId": "lord_5_17",
+  "characterName": "Aradwyr",
+  "provider": "AtlasCloud",
+  "model": "xai/grok-imagine-image/edit",
+  "adapter": "atlas upload/generate/poll",
+  "sourceSha256": "dafb9ad8a943605ecd439639f8d7396e57ed8e082523d8f9ed546b7cb3803459",
+  "portraitSha256": "e0539d2a152892996020248e93f1ed047b34d70ba5d23d71147f7d9a368f81de",
+  "portraitWidth": 832,
+  "portraitHeight": 1248,
+  "physicalConfidence": {
+    "definition": "physical_confidence",
+    "score": 59,
+    "profile": "41-60",
+    "flirtatiousnessPercentage": 68,
+    "confidencePercentage": 31,
+    "flirtatiousnessWeight": 0.75,
+    "confidenceWeight": 0.25,
+    "source": "shipped_profile_library"
+  },
+  "derivativesReady": true,
+  "derivativeError": "",
+  "generatedUtc": "2026-07-17T18:13:01.3272344Z"
+}

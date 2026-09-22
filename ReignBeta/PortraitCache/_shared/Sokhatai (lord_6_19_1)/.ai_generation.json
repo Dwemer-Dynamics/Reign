@@ -1,0 +1,27 @@
+{
+  "version": 1,
+  "cacheKey": "Sokhatai (lord_6_19_1)",
+  "heroStringId": "lord_6_19_1",
+  "characterObjectId": "lord_6_19_1",
+  "characterName": "Sokhatai",
+  "provider": "AtlasCloud",
+  "model": "xai/grok-imagine-image/edit",
+  "adapter": "atlas upload/generate/poll",
+  "sourceSha256": "c15472be2f800dca385826f57545854820db6036163d0c1f383d901a24555b4a",
+  "portraitSha256": "491480d1e81ca0e48d07be98b2e4ee1b896fc447434ef4f9f6d39abde94c7d36",
+  "portraitWidth": 832,
+  "portraitHeight": 1248,
+  "physicalConfidence": {
+    "definition": "physical_confidence",
+    "score": 63,
+    "profile": "61-80",
+    "flirtatiousnessPercentage": 69,
+    "confidencePercentage": 44,
+    "flirtatiousnessWeight": 0.75,
+    "confidenceWeight": 0.25,
+    "source": "shipped_profile_library"
+  },
+  "derivativesReady": true,
+  "derivativeError": "",
+  "generatedUtc": "2026-07-17T19:14:19.2384772Z"
+}

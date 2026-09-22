@@ -1,0 +1,1034 @@
+{
+  "schema": "reign-fixed-region-composite-v1",
+  "assetId": "government-hearing-approved-fixed-regions",
+  "approvedReference": {
+    "path": "../generated-sources/government-hearing-v2/approved-concept.png",
+    "sha256": "ddcbcd35354a38d0c8e9a72f2c1f1cb84f5c9c3b28399767c1b4ee75a4cf5d98"
+  },
+  "imageToImageFill": {
+    "path": "../generated-sources/government-hearing-v2/shell-imagegen.png",
+    "sha256": "62b045751fcabca202f3f771322bb79cfb6f4b54f0f25940828ef081636d013d",
+    "normalization": "Exact1672x941; retained source reference is immutable"
+  },
+  "canvas": {
+    "width": 1672,
+    "height": 941
+  },
+  "policy": "Compare approved fixed pixels. Only named text, graphic apertures, and scrollbar handles may vary. Whole-card masks are prohibited. Card source-preservation proof is supplementary and never substitutes for rendered reference fidelity.",
+  "rectangularFillMode": {
+    "type": "declared-dynamic-interior source material",
+    "inwardFeatherPixels": 0,
+    "borderSamplePixels": 4
+  },
+  "sceneDependentMasks": [
+    {
+      "id": "header-0",
+      "shape": "rectangle",
+      "x": 160,
+      "y": 12,
+      "width": 350,
+      "height": 39
+    },
+    {
+      "id": "header-1",
+      "shape": "rectangle",
+      "x": 160,
+      "y": 49,
+      "width": 345,
+      "height": 25
+    },
+    {
+      "id": "header-2",
+      "shape": "rectangle",
+      "x": 1225,
+      "y": 13,
+      "width": 310,
+      "height": 25
+    },
+    {
+      "id": "header-3",
+      "shape": "rectangle",
+      "x": 1225,
+      "y": 44,
+      "width": 310,
+      "height": 20
+    },
+    {
+      "id": "header-4",
+      "shape": "rectangle",
+      "x": 526,
+      "y": 48,
+      "width": 140,
+      "height": 30
+    },
+    {
+      "id": "header-5",
+      "shape": "rectangle",
+      "x": 678,
+      "y": 48,
+      "width": 102,
+      "height": 30
+    },
+    {
+      "id": "header-6",
+      "shape": "rectangle",
+      "x": 792,
+      "y": 48,
+      "width": 185,
+      "height": 30
+    },
+    {
+      "id": "header-7",
+      "shape": "rectangle",
+      "x": 989,
+      "y": 48,
+      "width": 187,
+      "height": 30
+    },
+    {
+      "id": "header-8",
+      "shape": "rectangle",
+      "x": 1561,
+      "y": 30,
+      "width": 78,
+      "height": 24
+    },
+    {
+      "id": "header-9",
+      "shape": "rectangle",
+      "x": 674,
+      "y": 92,
+      "width": 176,
+      "height": 22
+    },
+    {
+      "id": "header-10",
+      "shape": "rectangle",
+      "x": 855,
+      "y": 92,
+      "width": 340,
+      "height": 19
+    },
+    {
+      "id": "header-11",
+      "shape": "rectangle",
+      "x": 40,
+      "y": 130,
+      "width": 320,
+      "height": 30
+    },
+    {
+      "id": "header-12",
+      "shape": "rectangle",
+      "x": 1306,
+      "y": 130,
+      "width": 322,
+      "height": 30
+    },
+    {
+      "id": "header-13",
+      "shape": "rectangle",
+      "x": 42,
+      "y": 816,
+      "width": 310,
+      "height": 33
+    },
+    {
+      "id": "header-14",
+      "shape": "rectangle",
+      "x": 63,
+      "y": 864,
+      "width": 254,
+      "height": 31
+    },
+    {
+      "id": "header-15",
+      "shape": "rectangle",
+      "x": 414,
+      "y": 128,
+      "width": 600,
+      "height": 23
+    },
+    {
+      "id": "header-16",
+      "shape": "rectangle",
+      "x": 414,
+      "y": 146,
+      "width": 840,
+      "height": 46
+    },
+    {
+      "id": "header-17",
+      "shape": "rectangle",
+      "x": 414,
+      "y": 194,
+      "width": 625,
+      "height": 48
+    },
+    {
+      "id": "header-18",
+      "shape": "rectangle",
+      "x": 414,
+      "y": 442,
+      "width": 640,
+      "height": 21
+    },
+    {
+      "id": "header-19",
+      "shape": "rectangle",
+      "x": 430,
+      "y": 697,
+      "width": 680,
+      "height": 27
+    },
+    {
+      "id": "header-20",
+      "shape": "rectangle",
+      "x": 1152,
+      "y": 698,
+      "width": 80,
+      "height": 30
+    },
+    {
+      "id": "header-21",
+      "shape": "rectangle",
+      "x": 414,
+      "y": 743,
+      "width": 840,
+      "height": 20
+    },
+    {
+      "id": "header-22",
+      "shape": "rectangle",
+      "x": 1072,
+      "y": 861,
+      "width": 180,
+      "height": 42
+    },
+    {
+      "id": "header-23",
+      "shape": "rectangle",
+      "x": 1306,
+      "y": 448,
+      "width": 310,
+      "height": 25
+    },
+    {
+      "id": "header-24",
+      "shape": "rectangle",
+      "x": 1320,
+      "y": 762,
+      "width": 305,
+      "height": 23
+    },
+    {
+      "id": "header-25",
+      "shape": "rectangle",
+      "x": 1320,
+      "y": 784,
+      "width": 305,
+      "height": 48
+    },
+    {
+      "id": "header-26",
+      "shape": "rectangle",
+      "x": 531,
+      "y": 256,
+      "width": 180,
+      "height": 18
+    },
+    {
+      "id": "header-27",
+      "shape": "rectangle",
+      "x": 531,
+      "y": 276,
+      "width": 180,
+      "height": 27
+    },
+    {
+      "id": "header-28",
+      "shape": "rectangle",
+      "x": 560,
+      "y": 308,
+      "width": 151,
+      "height": 32
+    },
+    {
+      "id": "header-29",
+      "shape": "rectangle",
+      "x": 850,
+      "y": 256,
+      "width": 180,
+      "height": 18
+    },
+    {
+      "id": "header-30",
+      "shape": "rectangle",
+      "x": 850,
+      "y": 276,
+      "width": 180,
+      "height": 27
+    },
+    {
+      "id": "header-31",
+      "shape": "rectangle",
+      "x": 879,
+      "y": 308,
+      "width": 151,
+      "height": 32
+    },
+    {
+      "id": "header-32",
+      "shape": "rectangle",
+      "x": 414,
+      "y": 816,
+      "width": 840,
+      "height": 22
+    },
+    {
+      "id": "header-33",
+      "shape": "rectangle",
+      "x": 1306,
+      "y": 176,
+      "width": 330,
+      "height": 22
+    },
+    {
+      "id": "header-34",
+      "shape": "rectangle",
+      "x": 1355,
+      "y": 693,
+      "width": 245,
+      "height": 28
+    },
+    {
+      "id": "header-35",
+      "shape": "rectangle",
+      "x": 62,
+      "y": 766,
+      "width": 256,
+      "height": 36
+    },
+    {
+      "id": "header-36",
+      "shape": "rectangle",
+      "x": 438,
+      "y": 860,
+      "width": 254,
+      "height": 31
+    },
+    {
+      "id": "header-37",
+      "shape": "rectangle",
+      "x": 730,
+      "y": 860,
+      "width": 254,
+      "height": 31
+    },
+    {
+      "id": "header-38",
+      "shape": "rectangle",
+      "x": 438,
+      "y": 860,
+      "width": 254,
+      "height": 31
+    },
+    {
+      "id": "header-39",
+      "shape": "rectangle",
+      "x": 730,
+      "y": 860,
+      "width": 254,
+      "height": 31
+    },
+    {
+      "id": "header-40",
+      "shape": "rectangle",
+      "x": 40,
+      "y": 745,
+      "width": 316,
+      "height": 99
+    },
+    {
+      "id": "header-41",
+      "shape": "rectangle",
+      "x": 83,
+      "y": 864,
+      "width": 254,
+      "height": 31
+    },
+    {
+      "id": "header-42",
+      "shape": "rectangle",
+      "x": 1308,
+      "y": 188,
+      "width": 316,
+      "height": 145
+    },
+    {
+      "id": "header-43",
+      "shape": "rectangle",
+      "x": 1308,
+      "y": 386,
+      "width": 316,
+      "height": 170
+    },
+    {
+      "id": "header-44",
+      "shape": "rectangle",
+      "x": 414,
+      "y": 130,
+      "width": 820,
+      "height": 24
+    },
+    {
+      "id": "header-45",
+      "shape": "rectangle",
+      "x": 414,
+      "y": 163,
+      "width": 840,
+      "height": 48
+    },
+    {
+      "id": "header-46",
+      "shape": "rectangle",
+      "x": 414,
+      "y": 223,
+      "width": 840,
+      "height": 130
+    },
+    {
+      "id": "header-47",
+      "shape": "rectangle",
+      "x": 414,
+      "y": 378,
+      "width": 820,
+      "height": 26
+    },
+    {
+      "id": "header-48",
+      "shape": "rectangle",
+      "x": 1308,
+      "y": 433,
+      "width": 316,
+      "height": 60
+    },
+    {
+      "id": "header-49",
+      "shape": "rectangle",
+      "x": 1306,
+      "y": 506,
+      "width": 320,
+      "height": 30
+    },
+    {
+      "id": "header-50",
+      "shape": "rectangle",
+      "x": 42,
+      "y": 178,
+      "width": 312,
+      "height": 164
+    },
+    {
+      "id": "header-51",
+      "shape": "rectangle",
+      "x": 414,
+      "y": 173,
+      "width": 840,
+      "height": 40
+    },
+    {
+      "id": "header-52",
+      "shape": "rectangle",
+      "x": 414,
+      "y": 227,
+      "width": 840,
+      "height": 90
+    },
+    {
+      "id": "header-53",
+      "shape": "rectangle",
+      "x": 414,
+      "y": 336,
+      "width": 840,
+      "height": 434
+    },
+    {
+      "id": "header-54",
+      "shape": "rectangle",
+      "x": 438,
+      "y": 844,
+      "width": 254,
+      "height": 31
+    },
+    {
+      "id": "header-55",
+      "shape": "rectangle",
+      "x": 730,
+      "y": 844,
+      "width": 254,
+      "height": 31
+    },
+    {
+      "id": "header-56",
+      "shape": "rectangle",
+      "x": 1308,
+      "y": 186,
+      "width": 316,
+      "height": 150
+    },
+    {
+      "id": "header-57",
+      "shape": "rectangle",
+      "x": 414,
+      "y": 916,
+      "width": 840,
+      "height": 20
+    },
+    {
+      "id": "header-58",
+      "shape": "rectangle",
+      "x": 40,
+      "y": 178,
+      "width": 316,
+      "height": 32
+    },
+    {
+      "id": "header-59",
+      "shape": "rectangle",
+      "x": 40,
+      "y": 225,
+      "width": 316,
+      "height": 160
+    },
+    {
+      "id": "header-60",
+      "shape": "rectangle",
+      "x": 414,
+      "y": 166,
+      "width": 840,
+      "height": 46
+    },
+    {
+      "id": "header-61",
+      "shape": "rectangle",
+      "x": 62,
+      "y": 864,
+      "width": 256,
+      "height": 36
+    },
+    {
+      "id": "business-0-wording",
+      "shape": "rectangle",
+      "x": 108,
+      "y": 180,
+      "width": 253,
+      "height": 69
+    },
+    {
+      "id": "business-1-wording",
+      "shape": "rectangle",
+      "x": 108,
+      "y": 272,
+      "width": 253,
+      "height": 69
+    },
+    {
+      "id": "business-2-wording",
+      "shape": "rectangle",
+      "x": 108,
+      "y": 364,
+      "width": 253,
+      "height": 69
+    },
+    {
+      "id": "business-3-wording",
+      "shape": "rectangle",
+      "x": 108,
+      "y": 456,
+      "width": 253,
+      "height": 69
+    },
+    {
+      "id": "business-4-wording",
+      "shape": "rectangle",
+      "x": 108,
+      "y": 548,
+      "width": 253,
+      "height": 69
+    },
+    {
+      "id": "business-5-wording",
+      "shape": "rectangle",
+      "x": 108,
+      "y": 640,
+      "width": 253,
+      "height": 69
+    },
+    {
+      "id": "party-0-portrait",
+      "shape": "ellipse",
+      "x": 1331.5,
+      "y": 209.5,
+      "width": 92,
+      "height": 92
+    },
+    {
+      "id": "party-0-name",
+      "shape": "rectangle",
+      "x": 1454,
+      "y": 218,
+      "width": 177,
+      "height": 32
+    },
+    {
+      "id": "party-0-details",
+      "shape": "rectangle",
+      "x": 1486,
+      "y": 251,
+      "width": 145,
+      "height": 56
+    },
+    {
+      "id": "party-0-banner",
+      "shape": "polygon",
+      "points": [
+        [
+          1460,
+          256
+        ],
+        [
+          1481,
+          256
+        ],
+        [
+          1481,
+          275
+        ],
+        [
+          1470.5,
+          285
+        ],
+        [
+          1460,
+          275
+        ]
+      ]
+    },
+    {
+      "id": "party-1-portrait",
+      "shape": "ellipse",
+      "x": 1331.5,
+      "y": 327.5,
+      "width": 92,
+      "height": 92
+    },
+    {
+      "id": "party-1-name",
+      "shape": "rectangle",
+      "x": 1454,
+      "y": 336,
+      "width": 177,
+      "height": 32
+    },
+    {
+      "id": "party-1-details",
+      "shape": "rectangle",
+      "x": 1486,
+      "y": 369,
+      "width": 145,
+      "height": 56
+    },
+    {
+      "id": "party-1-banner",
+      "shape": "polygon",
+      "points": [
+        [
+          1460,
+          374
+        ],
+        [
+          1481,
+          374
+        ],
+        [
+          1481,
+          393
+        ],
+        [
+          1470.5,
+          403
+        ],
+        [
+          1460,
+          393
+        ]
+      ]
+    },
+    {
+      "id": "assembly-0-portrait",
+      "shape": "ellipse",
+      "x": 1327,
+      "y": 481,
+      "width": 81,
+      "height": 81
+    },
+    {
+      "id": "assembly-0-name",
+      "shape": "rectangle",
+      "x": 1435,
+      "y": 486,
+      "width": 196,
+      "height": 30
+    },
+    {
+      "id": "assembly-0-details",
+      "shape": "rectangle",
+      "x": 1468,
+      "y": 518,
+      "width": 163,
+      "height": 51
+    },
+    {
+      "id": "assembly-0-banner",
+      "shape": "polygon",
+      "points": [
+        [
+          1442,
+          522
+        ],
+        [
+          1463,
+          522
+        ],
+        [
+          1463,
+          541
+        ],
+        [
+          1452.5,
+          551
+        ],
+        [
+          1442,
+          541
+        ]
+      ]
+    },
+    {
+      "id": "assembly-1-portrait",
+      "shape": "ellipse",
+      "x": 1327,
+      "y": 585,
+      "width": 81,
+      "height": 81
+    },
+    {
+      "id": "assembly-1-name",
+      "shape": "rectangle",
+      "x": 1435,
+      "y": 590,
+      "width": 196,
+      "height": 30
+    },
+    {
+      "id": "assembly-1-details",
+      "shape": "rectangle",
+      "x": 1468,
+      "y": 622,
+      "width": 163,
+      "height": 51
+    },
+    {
+      "id": "assembly-1-banner",
+      "shape": "polygon",
+      "points": [
+        [
+          1442,
+          626
+        ],
+        [
+          1463,
+          626
+        ],
+        [
+          1463,
+          645
+        ],
+        [
+          1452.5,
+          655
+        ],
+        [
+          1442,
+          645
+        ]
+      ]
+    },
+    {
+      "id": "issue-0-portrait",
+      "shape": "ellipse",
+      "x": 433,
+      "y": 261,
+      "width": 76,
+      "height": 76
+    },
+    {
+      "id": "issue-0-name-role",
+      "shape": "rectangle",
+      "x": 531,
+      "y": 254,
+      "width": 181,
+      "height": 45
+    },
+    {
+      "id": "issue-0-attendance",
+      "shape": "rectangle",
+      "x": 560,
+      "y": 304,
+      "width": 152,
+      "height": 37
+    },
+    {
+      "id": "issue-0-banner",
+      "shape": "polygon",
+      "points": [
+        [
+          537,
+          308
+        ],
+        [
+          557,
+          308
+        ],
+        [
+          557,
+          326
+        ],
+        [
+          547,
+          336
+        ],
+        [
+          537,
+          326
+        ]
+      ]
+    },
+    {
+      "id": "issue-1-portrait",
+      "shape": "ellipse",
+      "x": 752,
+      "y": 261,
+      "width": 76,
+      "height": 76
+    },
+    {
+      "id": "issue-1-name-role",
+      "shape": "rectangle",
+      "x": 850,
+      "y": 254,
+      "width": 181,
+      "height": 45
+    },
+    {
+      "id": "issue-1-attendance",
+      "shape": "rectangle",
+      "x": 879,
+      "y": 304,
+      "width": 152,
+      "height": 37
+    },
+    {
+      "id": "issue-1-banner",
+      "shape": "polygon",
+      "points": [
+        [
+          856,
+          308
+        ],
+        [
+          876,
+          308
+        ],
+        [
+          876,
+          326
+        ],
+        [
+          866,
+          336
+        ],
+        [
+          856,
+          326
+        ]
+      ]
+    },
+    {
+      "id": "transcript-0-portrait",
+      "shape": "ellipse",
+      "x": 428.5,
+      "y": 471.5,
+      "width": 59,
+      "height": 59
+    },
+    {
+      "id": "transcript-0-wording",
+      "shape": "rectangle",
+      "x": 502,
+      "y": 469,
+      "width": 737,
+      "height": 64
+    },
+    {
+      "id": "transcript-1-portrait",
+      "shape": "ellipse",
+      "x": 428.5,
+      "y": 545.5,
+      "width": 59,
+      "height": 59
+    },
+    {
+      "id": "transcript-1-wording",
+      "shape": "rectangle",
+      "x": 502,
+      "y": 543,
+      "width": 737,
+      "height": 64
+    },
+    {
+      "id": "transcript-2-portrait",
+      "shape": "ellipse",
+      "x": 428.5,
+      "y": 619.5,
+      "width": 59,
+      "height": 59
+    },
+    {
+      "id": "transcript-2-wording",
+      "shape": "rectangle",
+      "x": 502,
+      "y": 617,
+      "width": 737,
+      "height": 64
+    },
+    {
+      "id": "option-0-wording",
+      "shape": "rectangle",
+      "x": 423,
+      "y": 369,
+      "width": 396,
+      "height": 47
+    },
+    {
+      "id": "recommendation-0-wording",
+      "shape": "rectangle",
+      "x": 423,
+      "y": 773,
+      "width": 396,
+      "height": 29
+    },
+    {
+      "id": "option-1-wording",
+      "shape": "rectangle",
+      "x": 849,
+      "y": 369,
+      "width": 396,
+      "height": 47
+    },
+    {
+      "id": "recommendation-1-wording",
+      "shape": "rectangle",
+      "x": 849,
+      "y": 773,
+      "width": 396,
+      "height": 29
+    },
+    {
+      "id": "kingdom-banner",
+      "shape": "polygon",
+      "points": [
+        [
+          47,
+          0
+        ],
+        [
+          122,
+          0
+        ],
+        [
+          122,
+          94
+        ],
+        [
+          84.5,
+          115
+        ],
+        [
+          47,
+          94
+        ]
+      ]
+    },
+    {
+      "id": "culture-scene",
+      "shape": "rectangle",
+      "x": 915,
+      "y": 113,
+      "width": 357,
+      "height": 235
+    },
+    {
+      "id": "business-scroll-handle",
+      "shape": "rectangle",
+      "x": 373,
+      "y": 171,
+      "width": 7,
+      "height": 552
+    },
+    {
+      "id": "participant-scroll-handle",
+      "shape": "rectangle",
+      "x": 1647,
+      "y": 199,
+      "width": 7,
+      "height": 236
+    },
+    {
+      "id": "attendance-scroll-handle",
+      "shape": "rectangle",
+      "x": 1647,
+      "y": 473,
+      "width": 7,
+      "height": 208
+    },
+    {
+      "id": "transcript-scroll-handle",
+      "shape": "rectangle",
+      "x": 1257,
+      "y": 464,
+      "width": 7,
+      "height": 222
+    },
+    {
+      "id": "option-scroll-handle",
+      "shape": "rectangle",
+      "x": 1257,
+      "y": 360,
+      "width": 7,
+      "height": 65
+    },
+    {
+      "id": "recommendation-scroll-handle",
+      "shape": "rectangle",
+      "x": 1257,
+      "y": 764,
+      "width": 7,
+      "height": 47
+    }
+  ],
+  "compositionContract": "../generated-sources/government-hearing-v2/composition-contract.json",
+  "targetedPreviewState": "government",
+  "supplementaryEvidence": "../../../../.codex-build/government-ui/evidence/aperture-evidence.json"
+}

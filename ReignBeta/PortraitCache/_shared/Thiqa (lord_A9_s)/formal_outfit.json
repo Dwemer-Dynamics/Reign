@@ -1,0 +1,13 @@
+{
+  "version": 1,
+  "heroStringId": "lord_A9_s",
+  "characterName": "Thiqa",
+  "imagePath": "portrait.png",
+  "imageSha256": "15684E7CC28CB8EC0C57AF8F8378ABB60593DDC4F858C5D20E1A12EB913416AE",
+  "description": "Culturally appropriate everyday Aserai landowner attire inspired by practical medieval Arabian and North African civilian clothing suited to a hot desert climate. Men should wear a light linen or cotton undertunic beneath a loose ankle-length robe, open-front outer garment, or wrapped coat, secured with a woven sash. Women should wear a long breathable dress with layered flowing fabric, fitted or gathered sleeves, and a light draped outer layer around the shoulders. Include simple geometric borders or restrained embroidery. The outfit should appear prosperous, breathable, practical, and well maintained. No headgear of any kind. No turbans, veils, hoods, armor, weapons, crowns, ceremonial robes, or fantasy elements.",
+  "status": "failed",
+  "descriptionSource": "portrait_prompt_fallback",
+  "retryEligible": true,
+  "error": "{\"error\":{\"message\":\"Model \\\"zai-org/glm-5.2\\\" does not support image inputs. Remove image content or choose a multimodal model.\",\"type\":\"invalid_request_error\",\"param\":\"messages\",\"code\":\"image_input_not_supported\"}}",
+  "updatedUtc": "2026-07-18T22:03:34.7452830Z"
+}

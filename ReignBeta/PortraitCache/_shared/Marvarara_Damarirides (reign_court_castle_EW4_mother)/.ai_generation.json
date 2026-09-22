@@ -1,0 +1,27 @@
+{
+  "version": 1,
+  "cacheKey": "Marvarara_Damarirides (reign_court_castle_EW4_mother)",
+  "heroStringId": "reign_court_castle_EW4_mother",
+  "characterObjectId": "reign_court_castle_EW4_mother",
+  "characterName": "Marvarara Damarirides",
+  "provider": "AtlasCloud",
+  "model": "xai/grok-imagine-image/edit",
+  "adapter": "atlas upload/generate/poll",
+  "sourceSha256": "ce8f3bf5eccd4e3e9551e3af49d32096ed33b37e0db7d133a96626d59d14b879",
+  "portraitSha256": "e57a66d7f430fff4c287e1df56194dc11d4b13aef0008adf4d49cb17f386955b",
+  "portraitWidth": 864,
+  "portraitHeight": 1152,
+  "physicalConfidence": {
+    "definition": "physical_confidence",
+    "score": 48,
+    "profile": "41-60",
+    "flirtatiousnessPercentage": 45,
+    "confidencePercentage": 56,
+    "flirtatiousnessWeight": 0.75,
+    "confidenceWeight": 0.25,
+    "source": "shipped_profile_library"
+  },
+  "derivativesReady": true,
+  "derivativeError": "",
+  "generatedUtc": "2026-07-17T19:00:15.2547556Z"
+}

@@ -1,0 +1,65 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFramework>net472</TargetFramework>
+    <AssemblyName>ArenaOverhaul.1.4.6</AssemblyName>
+    <RootNamespace>ArenaOverhaul</RootNamespace>
+    <GenerateAssemblyInfo>true</GenerateAssemblyInfo>
+    <Version>1.5.9.4</Version>
+    <Nullable>enable</Nullable>
+    <LangVersion>latest</LangVersion>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <CheckForOverflowUnderflow>false</CheckForOverflowUnderflow>
+    <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
+    <OutputPath>$(MSBuildProjectDirectory)\bin\$(Configuration)\</OutputPath>
+    <CopyLocalLockFileAssemblies>false</CopyLocalLockFileAssemblies>
+  </PropertyGroup>
+
+  <PropertyGroup>
+    <BannerlordDir Condition="'$(BannerlordDir)' == ''">$(REIGN_BANNERLORD_PATH)</BannerlordDir>
+    <BannerlordWorkshopPath Condition="'$(BannerlordWorkshopPath)' == ''">$(BannerlordDir)\..\..\workshop\content\261550</BannerlordWorkshopPath>
+    <GameBin>$(BannerlordDir)\bin\Win64_Shipping_Client</GameBin>
+    <NativeBin>$(BannerlordDir)\Modules\Native\bin\Win64_Shipping_Client</NativeBin>
+    <SandboxBin>$(BannerlordDir)\Modules\SandBox\bin\Win64_Shipping_Client</SandboxBin>
+    <StoryModeBin>$(BannerlordDir)\Modules\StoryMode\bin\Win64_Shipping_Client</StoryModeBin>
+    <HarmonyBin>$(BannerlordDir)\Modules\Bannerlord.Harmony\bin\Win64_Shipping_Client</HarmonyBin>
+    <ButterLibBin>$(BannerlordDir)\Modules\Bannerlord.ButterLib\bin\Win64_Shipping_Client</ButterLibBin>
+    <UIExtenderBin>$(BannerlordDir)\Modules\Bannerlord.UIExtenderEx\bin\Win64_Shipping_Client</UIExtenderBin>
+    <MCMBin>$(BannerlordDir)\Modules\Bannerlord.MBOptionScreen\bin\Win64_Shipping_Client</MCMBin>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Bannerlord.BUTR.Shared" Version="3.0.0.142" />
+    <PackageReference Include="Bannerlord.ModuleManager.Source" Version="5.0.222" />
+    <PackageReference Include="Harmony.Extensions" Version="3.2.0.77" />
+    <PackageReference Include="IsExternalInit" Version="1.0.3" PrivateAssets="all" />
+    <Reference Include="0Harmony"><HintPath>$(HarmonyBin)\0Harmony.dll</HintPath><HintPath Condition="!Exists('$(HarmonyBin)\0Harmony.dll')">$(BannerlordWorkshopPath)\2859188632\bin\Win64_Shipping_Client\0Harmony.dll</HintPath><Private>false</Private></Reference>
+    <Reference Include="Bannerlord.ButterLib"><HintPath>$(ButterLibBin)\Bannerlord.ButterLib.dll</HintPath><Private>false</Private></Reference>
+    <Reference Include="Bannerlord.UIExtenderEx"><HintPath>$(UIExtenderBin)\Bannerlord.UIExtenderEx.dll</HintPath><HintPath Condition="!Exists('$(UIExtenderBin)\Bannerlord.UIExtenderEx.dll')">$(BannerlordWorkshopPath)\2859222409\bin\Win64_Shipping_Client\Bannerlord.UIExtenderEx.dll</HintPath><Private>false</Private></Reference>
+    <Reference Include="MCMv5"><HintPath>$(MCMBin)\MCMv5.dll</HintPath><HintPath Condition="!Exists('$(MCMBin)\MCMv5.dll')">$(BannerlordWorkshopPath)\2859238197\bin\Win64_Shipping_Client\MCMv5.dll</HintPath><Private>false</Private></Reference>
+    <Reference Include="Newtonsoft.Json"><HintPath>$(GameBin)\Newtonsoft.Json.dll</HintPath><Private>false</Private></Reference>
+    <Reference Include="SandBox"><HintPath>$(SandboxBin)\SandBox.dll</HintPath><Private>false</Private></Reference>
+    <Reference Include="SandBox.View"><HintPath>$(SandboxBin)\SandBox.View.dll</HintPath><Private>false</Private></Reference>
+    <Reference Include="SandBox.ViewModelCollection"><HintPath>$(SandboxBin)\SandBox.ViewModelCollection.dll</HintPath><Private>false</Private></Reference>
+    <Reference Include="StoryMode"><HintPath>$(StoryModeBin)\StoryMode.dll</HintPath><Private>false</Private></Reference>
+    <Reference Include="TaleWorlds.CampaignSystem"><HintPath>$(GameBin)\TaleWorlds.CampaignSystem.dll</HintPath><Private>false</Private></Reference>
+    <Reference Include="TaleWorlds.CampaignSystem.ViewModelCollection"><HintPath>$(GameBin)\TaleWorlds.CampaignSystem.ViewModelCollection.dll</HintPath><Private>false</Private></Reference>
+    <Reference Include="TaleWorlds.Core"><HintPath>$(GameBin)\TaleWorlds.Core.dll</HintPath><Private>false</Private></Reference>
+    <Reference Include="TaleWorlds.Core.ViewModelCollection"><HintPath>$(GameBin)\TaleWorlds.Core.ViewModelCollection.dll</HintPath><Private>false</Private></Reference>
+    <Reference Include="TaleWorlds.DotNet"><HintPath>$(GameBin)\TaleWorlds.DotNet.dll</HintPath><Private>false</Private></Reference>
+    <Reference Include="TaleWorlds.Engine"><HintPath>$(GameBin)\TaleWorlds.Engine.dll</HintPath><Private>false</Private></Reference>
+    <Reference Include="TaleWorlds.Engine.GauntletUI"><HintPath>$(GameBin)\TaleWorlds.Engine.GauntletUI.dll</HintPath><Private>false</Private></Reference>
+    <Reference Include="TaleWorlds.GauntletUI"><HintPath>$(GameBin)\TaleWorlds.GauntletUI.dll</HintPath><Private>false</Private></Reference>
+    <Reference Include="TaleWorlds.GauntletUI.Data"><HintPath>$(GameBin)\TaleWorlds.GauntletUI.Data.dll</HintPath><Private>false</Private></Reference>
+    <Reference Include="TaleWorlds.InputSystem"><HintPath>$(GameBin)\TaleWorlds.InputSystem.dll</HintPath><Private>false</Private></Reference>
+    <Reference Include="TaleWorlds.Library"><HintPath>$(GameBin)\TaleWorlds.Library.dll</HintPath><Private>false</Private></Reference>
+    <Reference Include="TaleWorlds.Localization"><HintPath>$(GameBin)\TaleWorlds.Localization.dll</HintPath><Private>false</Private></Reference>
+    <Reference Include="TaleWorlds.ModuleManager"><HintPath>$(GameBin)\TaleWorlds.ModuleManager.dll</HintPath><Private>false</Private></Reference>
+    <Reference Include="TaleWorlds.MountAndBlade"><HintPath>$(GameBin)\TaleWorlds.MountAndBlade.dll</HintPath><Private>false</Private></Reference>
+    <Reference Include="TaleWorlds.MountAndBlade.GauntletUI"><HintPath>$(NativeBin)\TaleWorlds.MountAndBlade.GauntletUI.dll</HintPath><Private>false</Private></Reference>
+    <Reference Include="TaleWorlds.MountAndBlade.View"><HintPath>$(NativeBin)\TaleWorlds.MountAndBlade.View.dll</HintPath><Private>false</Private></Reference>
+    <Reference Include="TaleWorlds.ObjectSystem"><HintPath>$(GameBin)\TaleWorlds.ObjectSystem.dll</HintPath><Private>false</Private></Reference>
+    <Reference Include="TaleWorlds.SaveSystem"><HintPath>$(GameBin)\TaleWorlds.SaveSystem.dll</HintPath><Private>false</Private></Reference>
+    <Reference Include="TaleWorlds.ScreenSystem"><HintPath>$(GameBin)\TaleWorlds.ScreenSystem.dll</HintPath><Private>false</Private></Reference>
+    <Reference Include="System.Runtime.CompilerServices.Unsafe"><HintPath>$(ButterLibBin)\System.Runtime.CompilerServices.Unsafe.dll</HintPath><Private>false</Private></Reference>
+  </ItemGroup>
+</Project>

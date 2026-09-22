@@ -1,0 +1,27 @@
+{
+  "version": 1,
+  "cacheKey": "Caerenan_Dunadawn (reign_court_castle_B4_father)",
+  "heroStringId": "reign_court_castle_B4_father",
+  "characterObjectId": "reign_court_castle_B4_father",
+  "characterName": "Caerenan Dunadawn",
+  "provider": "AtlasCloud",
+  "model": "xai/grok-imagine-image/edit",
+  "adapter": "atlas upload/generate/poll",
+  "sourceSha256": "7344779d83949c93fc1c88b0ee8327f5f3bffa4ad22d3ba613e2e70fba15892d",
+  "portraitSha256": "df767d23e440fddd6a36087accd6934885633e1fa2ca75ec882a9cc232f30f36",
+  "portraitWidth": 864,
+  "portraitHeight": 1152,
+  "physicalConfidence": {
+    "definition": "physical_confidence",
+    "score": 29,
+    "profile": "21-40",
+    "flirtatiousnessPercentage": 22,
+    "confidencePercentage": 49,
+    "flirtatiousnessWeight": 0.75,
+    "confidenceWeight": 0.25,
+    "source": "shipped_profile_library"
+  },
+  "derivativesReady": true,
+  "derivativeError": "",
+  "generatedUtc": "2026-07-17T18:19:49.2916578Z"
+}

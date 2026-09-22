@@ -1,0 +1,27 @@
+{
+  "version": 1,
+  "cacheKey": "Aevilia_Merovarides (reign_court_castle_EN6_child_2)",
+  "heroStringId": "reign_court_castle_EN6_child_2",
+  "characterObjectId": "reign_court_castle_EN6_child_2",
+  "characterName": "Aevilia Merovarides",
+  "provider": "AtlasCloud",
+  "model": "xai/grok-imagine-image/edit",
+  "adapter": "atlas upload/generate/poll",
+  "sourceSha256": "6370b81552ecafffca9f7ac408b0b1f6d0a7c5f889772610dff9517f3e7d79de",
+  "portraitSha256": "687fc0bfe05dc28b7d568795dcd6d52d523df43f23853f7292939bfc4f7b3cce",
+  "portraitWidth": 864,
+  "portraitHeight": 1152,
+  "physicalConfidence": {
+    "definition": "physical_confidence",
+    "score": 74,
+    "profile": "61-80",
+    "flirtatiousnessPercentage": 80,
+    "confidencePercentage": 55,
+    "flirtatiousnessWeight": 0.75,
+    "confidenceWeight": 0.25,
+    "source": "shipped_profile_library"
+  },
+  "derivativesReady": true,
+  "derivativeError": "",
+  "generatedUtc": "2026-07-17T18:02:56.1825557Z"
+}

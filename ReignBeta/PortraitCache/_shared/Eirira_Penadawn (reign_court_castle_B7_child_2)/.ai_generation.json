@@ -1,0 +1,27 @@
+{
+  "version": 1,
+  "cacheKey": "Eirira_Penadawn (reign_court_castle_B7_child_2)",
+  "heroStringId": "reign_court_castle_B7_child_2",
+  "characterObjectId": "reign_court_castle_B7_child_2",
+  "characterName": "Eirira Penadawn",
+  "provider": "AtlasCloud",
+  "model": "xai/grok-imagine-image/edit",
+  "adapter": "atlas upload/generate/poll",
+  "sourceSha256": "ae77e6f72103a7bf171c577cb23f13562a924cd6a1954437222b2db82c8ed7b0",
+  "portraitSha256": "4d8955cfffb4970cdef64276cfe641130149486701cc5b5d16846f161f2218a2",
+  "portraitWidth": 864,
+  "portraitHeight": 1152,
+  "physicalConfidence": {
+    "definition": "physical_confidence",
+    "score": 75,
+    "profile": "61-80",
+    "flirtatiousnessPercentage": 80,
+    "confidencePercentage": 59,
+    "flirtatiousnessWeight": 0.75,
+    "confidenceWeight": 0.25,
+    "source": "shipped_profile_library"
+  },
+  "derivativesReady": true,
+  "derivativeError": "",
+  "generatedUtc": "2026-07-17T18:31:18.7766746Z"
+}

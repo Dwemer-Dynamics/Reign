@@ -1,0 +1,96 @@
+{
+  "version": 1,
+  "inputHash": "7036d6e939a4859ebb98177201faf35a39e9baec3d170da79cd826524eb25777",
+  "catalogHash": "12142c0ab28d2678b12b852b086450dcc4eea45e2e8a080f3baa85c42f7fb3a2",
+  "renderContractHash": "cc3b941e7d47057de9b4220f1473336e6f908719812bb2653b83bd3545cfbd2f",
+  "cacheKey": "Lahar (naval_storyline_lahar)",
+  "heroStringId": "naval_storyline_lahar",
+  "characterObjectId": "naval_storyline_lahar",
+  "characterName": "Lahar",
+  "ageYears": 48,
+  "cultureId": "aserai",
+  "cultureName": "Aserai",
+  "gender": "man",
+  "clanId": "none",
+  "clanTier": null,
+  "clanProvenance": "not_defined_in_module_heroes_xml",
+  "socialStation": "unranked",
+  "occupation": "Wanderer",
+  "archetype": "wanderer",
+  "isLord": false,
+  "isNotable": false,
+  "isWanderer": false,
+  "isAlive": null,
+  "sourceModule": "NavalDLC",
+  "sourceFile": "Modules/NavalDLC/ModuleData/naval_characters.xml",
+  "profileSource": "neutral_fallback",
+  "profilePackVersion": "",
+  "bodyKey": "0034BC0F24001B006795655F01503270A8672521CB860A04034F76637C47270004A006460A408883000000000000000000000000000000000000000045547002",
+  "bodyWeight": 0,
+  "bodyBuild": 0.0046,
+  "faceTemplateId": "",
+  "faceGenerationVersion": "native_authored",
+  "civilianTemplate": "",
+  "civilianEquipment": [
+    {
+      "slot": "Body",
+      "itemId": "bandit_hybrid_armor_a"
+    },
+    {
+      "slot": "Cape",
+      "itemId": "a_aserai_scale_b_shoulder_d"
+    },
+    {
+      "slot": "Gloves",
+      "itemId": "tacky_bandit_bracer"
+    },
+    {
+      "slot": "Leg",
+      "itemId": "turndown_leather_boots"
+    }
+  ],
+  "headgearSuppressed": true,
+  "physicalConfidence": {
+    "definition": "physical_confidence",
+    "score": 50,
+    "profile": "41-60",
+    "flirtatiousnessPercentage": 50,
+    "confidencePercentage": 50,
+    "flirtatiousnessWeight": 0.75,
+    "confidenceWeight": 0.25,
+    "source": "neutral_fallback"
+  },
+  "renderPreset": "ai_source_wan_portrait_v5",
+  "renderWidth": 1536,
+  "renderHeight": 2048,
+  "sourceWidth": 768,
+  "sourceHeight": 1024,
+  "cropScale": 0.24,
+  "cropWidthRatio": 0.75,
+  "cropCenterYRatio": 0.324,
+  "cameraPitchDegrees": 4,
+  "sourceSha256": "56022ed58e0d0677b31aca4ab782723863c6b0750b5771625e08c8cac817bf98",
+  "sourceFileName": "source.png",
+  "generationEndpoint": "/portraits/generate",
+  "campaignIdSource": "active_campaign_at_generation_time",
+  "promptDeferred": true,
+  "sourceImageBase64From": "source.png",
+  "outputSizeOverride": "",
+  "promptPurpose": "portrait",
+  "nativePhysique": {
+    "schema": "reign-native-physique-v1",
+    "weight": 0,
+    "build": 0.0046,
+    "weightSource": "shared_portrait_input.bodyWeight",
+    "buildSource": "shared_portrait_input.bodyBuild",
+    "sourceSha256": "56022ed58e0d0677b31aca4ab782723863c6b0750b5771625e08c8cac817bf98",
+    "provenance": {
+      "kind": "saved_character_metadata_backfill",
+      "heroStringId": "naval_storyline_lahar",
+      "profileSource": "neutral_fallback",
+      "profilePackVersion": "",
+      "originalInputSha256": "1035663663536cc90791012a4788938b5b71cabdb204abf80481273550198651",
+      "rendererReexecuted": false
+    }
+  }
+}

@@ -1,0 +1,31 @@
+IDENTITY AND SUBJECT
+Use the provided source image as the visual identity reference, not as a style reference.
+Create a portrait of Renera Montelacourt, a woman of Vlandian culture who is 18 years old.
+Their clan is tier 3, placing them socially among the lesser lord class. Use this status to guide the refinement, expense, materials, and ornament of their clothing without turning it into fantasy costume.
+Use the source face image as the primary visual reference for the subject’s appearance and identity. Preserve the recognizable facial features, apparent age, expression, eye shape, eye color, hair color, hairstyle, skin tone, facial proportions, bone structure, scars, facial hair, and other distinguishing characteristics as closely as possible.
+The source image may depict a stylized or simplified video-game character model. Do not reproduce the artificial game-model appearance, low-detail geometry, rigid facial structure, plastic skin, exaggerated proportions, or computer-rendered texture. Instead, reinterpret the character as a believable real human being while retaining the same recognizable identity.
+Translate simplified game features into natural human anatomy and realistic detail, including authentic skin texture, visible pores, subtle wrinkles, natural facial asymmetry, realistic eyes, individually defined hair, believable facial hair, and physically plausible facial proportions. The final face should look like a real person photographed in real life, not a game model, digital avatar, illustration, or CGI render.
+Treat the name, age, gender, culture, clan tier, and social station as private generation guidance. They describe the subject and must never be printed, captioned, labeled, written, or otherwise rendered anywhere in the image.
+
+COMPOSITION AND FRAMING
+Create a full head-to-toe body portrait showing the entire figure from the top of the head down to the feet
+Keep the standing figure upright and centered on the image's vertical axis, using a natural relaxed pose without leaning, crouching, sitting, or shifting toward an edge.
+Leave a small clear margin above the hair and around both sides of the body, with enough space below the feet so no part of the figure feels cramped or cropped. Use a natural full-body portrait distance rather than a close-up.
+Do not crop the forehead, top of the head, chin, shoulders, hands, legs, or feet. Keep the full body visible in frame from head to toe.
+Use a softly blurred, historically appropriate stone doorway or architectural background that does not compete with the subject.
+
+Culturally appropriate everyday Vlandian minor-lord attire inspired by refined high-medieval Norman and Frankish noble dress. Use a fitted wool tunic or cote over a fine linen shirt, high-quality chausses, a decorated leather belt, and an optional short mantle or shoulder drape with restrained embroidery. For women, use a long underdress with an elegant tailored overdress, shaped sleeves, fine woven fabric, and decorative trim around the cuffs, hem, and neckline. Include modest clasps, brooches, or small jewelry details. No headgear of any kind. No armor, weapons, crowns, royal regalia, or ceremonial robes.
+
+FEMALE PHYSICAL CONFIDENCE MODIFIER - 21 TO 40
+Computed physical_confidence score: 24 out of 100.
+Respect and fully incorporate every other prompt’s clothing style, fabrics, cultural descriptions, ornamentation, and overall design for the woman. Apply this override only to revealingness. Tailor the outfit (within the given style and culture) to near-full modest coverage with the mildest possible opening: neckline at or just below the base of the throat/collarbones (soft square, boat, or high-V), full length sleeves to the wrists that may sit slightly closer to the arm, opaque fabrics that allow only a soft natural silhouette to show under structured or draped layers, floor-length skirts with no openings. Face, minimal neck, and hands only. Proper court coverage with slight shape awareness allowed. All other elements remain free and must be used.
+
+PHOTOGRAPHIC STYLE
+Make the subject look like a real human being photographed candidly, not a game render or fantasy illustration.
+Use authentic skin texture, visible pores, natural imperfections, slight asymmetry, natural lips, believable eyes, realistic hair, and restrained age-appropriate detail.
+Use soft natural daylight, shallow depth of field, a realistic 85mm portrait-lens perspective, subtle film grain, and a grounded photographic finish.
+
+OUTPUT EXCLUSIONS
+Return only the portrait image itself.
+Do not render words, letters, numbers, captions, labels, names, ages, cultures, subtitles, signatures, logos, watermarks, interface elements, portrait cards, decorative title blocks, borders, banners, blank caption areas, white strips, white footer panels, or metadata panels anywhere in the image.
+No extreme close-up, face-only crop, cropped head, cropped shoulders, armor, weapons, shields, quivers, chainmail, helmets, fur war gear, plastic skin, over-smoothed face, CGI, cartoon, anime, painterly style, or modern clothing.

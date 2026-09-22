@@ -1,0 +1,13 @@
+{
+  "version": 1,
+  "heroStringId": "naval_storyline_emira_al_fahda",
+  "characterName": "Emira al Fahda",
+  "imagePath": "portrait.png",
+  "imageSha256": "9B19DAD39CE04A9C13112912449DBE780CB3B8492935376C7AFE4FD5B8558C53",
+  "description": "Their clan is tier unknown, placing them socially among the unranked class. Use this status to guide the refinement, expense, materials, and ornament of their clothing without turning it into fantasy costume. Respect and fully incorporate every other prompt’s clothing style, fabrics, cultural descriptions, ornamentation, and overall design for the woman. Apply this override only to revealingness. Tailor the outfit (within the given style and culture) more toward moderate revealingness: lowered neckline that clearly shows upper chest and soft cleavage, sleeves shortened to the elbow or gently off the shoulder if the style permits, closer-fitted bodice that contours breasts and waist while remaining elegant, floor-length skirts that may include structured movement or low side slits. Shoulders may be lightly bare or softly covered. Clear limited skin and defined figure, yet still court-appr",
+  "status": "failed",
+  "descriptionSource": "portrait_prompt_fallback",
+  "retryEligible": true,
+  "error": "{\"error\":{\"message\":\"Model \\\"zai-org/glm-5.2\\\" does not support image inputs. Remove image content or choose a multimodal model.\",\"type\":\"invalid_request_error\",\"param\":\"messages\",\"code\":\"image_input_not_supported\"}}",
+  "updatedUtc": "2026-07-18T22:03:28.4625277Z"
+}

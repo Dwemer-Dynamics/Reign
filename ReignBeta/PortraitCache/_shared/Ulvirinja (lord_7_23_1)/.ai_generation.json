@@ -1,0 +1,27 @@
+{
+  "version": 1,
+  "cacheKey": "Ulvirinja (lord_7_23_1)",
+  "heroStringId": "lord_7_23_1",
+  "characterObjectId": "lord_7_23_1",
+  "characterName": "Ulvirinja",
+  "provider": "AtlasCloud",
+  "model": "xai/grok-imagine-image/edit",
+  "adapter": "atlas upload/generate/poll",
+  "sourceSha256": "dc89be487f41b98713f4ee94a7767625bcc555c935c6031480117c9f37e3a57d",
+  "portraitSha256": "0e81983bceb5eb2374311529d046d9e22b369fb7944c9231ec8af0ecd730e667",
+  "portraitWidth": 832,
+  "portraitHeight": 1248,
+  "physicalConfidence": {
+    "definition": "physical_confidence",
+    "score": 50,
+    "profile": "41-60",
+    "flirtatiousnessPercentage": 50,
+    "confidencePercentage": 50,
+    "flirtatiousnessWeight": 0.75,
+    "confidenceWeight": 0.25,
+    "source": "neutral_fallback"
+  },
+  "derivativesReady": true,
+  "derivativeError": "",
+  "generatedUtc": "2026-07-17T19:19:21.9890700Z"
+}

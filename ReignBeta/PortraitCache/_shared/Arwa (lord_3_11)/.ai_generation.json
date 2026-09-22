@@ -1,0 +1,27 @@
+{
+  "version": 1,
+  "cacheKey": "Arwa (lord_3_11)",
+  "heroStringId": "lord_3_11",
+  "characterObjectId": "lord_3_11",
+  "characterName": "Arwa",
+  "provider": "AtlasCloud",
+  "model": "xai/grok-imagine-image/edit",
+  "adapter": "atlas upload/generate/poll",
+  "sourceSha256": "997d72460bf39e2d32821dfc434a9e89d056342f52764caa7b6c04c72ee1fa17",
+  "portraitSha256": "cc5706d1ecfb75a7ef3df335eeeae976a07e32f2f0c7402bbaabf01ffdc92601",
+  "portraitWidth": 912,
+  "portraitHeight": 1136,
+  "physicalConfidence": {
+    "definition": "physical_confidence",
+    "score": 72,
+    "profile": "61-80",
+    "flirtatiousnessPercentage": 72,
+    "confidencePercentage": 71,
+    "flirtatiousnessWeight": 0.75,
+    "confidenceWeight": 0.25,
+    "source": "shipped_profile_library"
+  },
+  "derivativesReady": true,
+  "derivativeError": "",
+  "generatedUtc": "2026-07-17T18:13:53.4187826Z"
+}

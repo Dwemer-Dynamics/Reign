@@ -1,0 +1,96 @@
+{
+  "version": 1,
+  "inputHash": "364ea025a4b836a1dd983ee4fa82487bca3335e9e9b8821275a0f54ee54f26c0",
+  "catalogHash": "12142c0ab28d2678b12b852b086450dcc4eea45e2e8a080f3baa85c42f7fb3a2",
+  "renderContractHash": "cc3b941e7d47057de9b4220f1473336e6f908719812bb2653b83bd3545cfbd2f",
+  "cacheKey": "Confident_Contender (confident_contender_easy)",
+  "heroStringId": "confident_contender_easy",
+  "characterObjectId": "confident_contender_easy",
+  "characterName": "Confident Contender",
+  "ageYears": 31,
+  "cultureId": "aserai",
+  "cultureName": "Aserai",
+  "gender": "man",
+  "clanId": "none",
+  "clanTier": null,
+  "clanProvenance": "not_defined_in_module_heroes_xml",
+  "socialStation": "unranked",
+  "occupation": "Soldier",
+  "archetype": "soldier",
+  "isLord": false,
+  "isNotable": false,
+  "isWanderer": false,
+  "isAlive": null,
+  "sourceModule": "Native",
+  "sourceFile": "Modules/SandBox/ModuleData/spspecialcharacters.xml",
+  "profileSource": "neutral_fallback",
+  "profilePackVersion": "",
+  "bodyKey": "002D000FC0FC359997B7BD8BA820B77798D95B7AA827F9787D8EAA686777579A01400614043CC2A50000000000000000000000000000000000000000007C2145",
+  "bodyWeight": 0,
+  "bodyBuild": 0,
+  "faceTemplateId": "",
+  "faceGenerationVersion": "native_authored",
+  "civilianTemplate": "",
+  "civilianEquipment": [
+    {
+      "slot": "Body",
+      "itemId": "brass_lamellar_over_mail"
+    },
+    {
+      "slot": "Cape",
+      "itemId": "wrapped_scarf"
+    },
+    {
+      "slot": "Gloves",
+      "itemId": "leather_gloves"
+    },
+    {
+      "slot": "Leg",
+      "itemId": "khuzait_curved_boots"
+    }
+  ],
+  "headgearSuppressed": true,
+  "physicalConfidence": {
+    "definition": "physical_confidence",
+    "score": 50,
+    "profile": "41-60",
+    "flirtatiousnessPercentage": 50,
+    "confidencePercentage": 50,
+    "flirtatiousnessWeight": 0.75,
+    "confidenceWeight": 0.25,
+    "source": "neutral_fallback"
+  },
+  "renderPreset": "ai_source_wan_portrait_v5",
+  "renderWidth": 1536,
+  "renderHeight": 2048,
+  "sourceWidth": 768,
+  "sourceHeight": 1024,
+  "cropScale": 0.24,
+  "cropWidthRatio": 0.75,
+  "cropCenterYRatio": 0.324,
+  "cameraPitchDegrees": 4,
+  "sourceSha256": "d04e5d1d55583aa8a685107582ee0a500e223069c2580c7e69dd5e7671ffc6d4",
+  "sourceFileName": "source.png",
+  "generationEndpoint": "/portraits/generate",
+  "campaignIdSource": "active_campaign_at_generation_time",
+  "promptDeferred": true,
+  "sourceImageBase64From": "source.png",
+  "outputSizeOverride": "",
+  "promptPurpose": "portrait",
+  "nativePhysique": {
+    "schema": "reign-native-physique-v1",
+    "weight": 0,
+    "build": 0,
+    "weightSource": "shared_portrait_input.bodyWeight",
+    "buildSource": "shared_portrait_input.bodyBuild",
+    "sourceSha256": "d04e5d1d55583aa8a685107582ee0a500e223069c2580c7e69dd5e7671ffc6d4",
+    "provenance": {
+      "kind": "saved_character_metadata_backfill",
+      "heroStringId": "confident_contender_easy",
+      "profileSource": "neutral_fallback",
+      "profilePackVersion": "",
+      "originalInputSha256": "af6deddcb03b8a1f70018fd019799594494668962065591f66184f8529c4dbaf",
+      "rendererReexecuted": false
+    }
+  }
+}

@@ -1,0 +1,22 @@
+{
+  "schema": "reign-paired-repositories-v1",
+  "mode": "paired",
+  "client": {
+    "name": "Reign",
+    "origin": "https://github.com/Dwemer-Dynamics/Reign.git",
+    "branch": "reign",
+    "visibility": "private"
+  },
+  "server": {
+    "name": "ReignServer",
+    "relativePath": "../ReignServer",
+    "origin": "https://github.com/Dwemer-Dynamics/ReignServer.git",
+    "branch": "reign",
+    "visibility": "public"
+  },
+  "serverSourceDirectories": [
+    "ReignServer"
+  ],
+  "development": "local",
+  "uploadGate": "verified-clean-install-on-another-computer"
+}

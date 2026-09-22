@@ -1,0 +1,27 @@
+{
+  "version": 1,
+  "cacheKey": "Torira_Trevadawn (reign_court_castle_B8_child_2)",
+  "heroStringId": "reign_court_castle_B8_child_2",
+  "characterObjectId": "reign_court_castle_B8_child_2",
+  "characterName": "Torira Trevadawn",
+  "provider": "AtlasCloud",
+  "model": "xai/grok-imagine-image/edit",
+  "adapter": "atlas upload/generate/poll",
+  "sourceSha256": "43f59964e583945b89a45f72fa7e845faf1b08be9e8ac82dc8bf32821c31903d",
+  "portraitSha256": "adf57970ffbdb8842ed74b5f5a1ee98b05f709ca944695590d5af48ac8d4975b",
+  "portraitWidth": 864,
+  "portraitHeight": 1152,
+  "physicalConfidence": {
+    "definition": "physical_confidence",
+    "score": 50,
+    "profile": "41-60",
+    "flirtatiousnessPercentage": 49,
+    "confidencePercentage": 52,
+    "flirtatiousnessWeight": 0.75,
+    "confidenceWeight": 0.25,
+    "source": "shipped_profile_library"
+  },
+  "derivativesReady": true,
+  "derivativeError": "",
+  "generatedUtc": "2026-07-17T19:17:53.5442877Z"
+}

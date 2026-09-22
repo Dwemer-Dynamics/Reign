@@ -1,0 +1,27 @@
+{
+  "version": 1,
+  "cacheKey": "Phalarisa (lord_1_1_4)",
+  "heroStringId": "lord_1_1_4",
+  "characterObjectId": "lord_1_1_4",
+  "characterName": "Phalarisa",
+  "provider": "AtlasCloud",
+  "model": "xai/grok-imagine-image/edit",
+  "adapter": "atlas upload/generate/poll",
+  "sourceSha256": "981ebbf4ab82c3477e852fa0d81afd0410f2c97e0dc4a2abe0b31b092f1b24de",
+  "portraitSha256": "b578231835ef1755affc70d370137fd6e74fa9657c430cca57e5592bf415abb0",
+  "portraitWidth": 832,
+  "portraitHeight": 1248,
+  "physicalConfidence": {
+    "definition": "physical_confidence",
+    "score": 73,
+    "profile": "61-80",
+    "flirtatiousnessPercentage": 82,
+    "confidencePercentage": 45,
+    "flirtatiousnessWeight": 0.75,
+    "confidenceWeight": 0.25,
+    "source": "shipped_profile_library"
+  },
+  "derivativesReady": true,
+  "derivativeError": "",
+  "generatedUtc": "2026-07-17T19:09:21.3253819Z"
+}

@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Module>
+  <Name value="Bannerlord Editor MCP Bridge"/>
+  <Id value="BannerlordEditorBridge"/>
+  <Version value="v0.1.0"/>
+  <DefaultModule value="false"/>
+  <SingleplayerModule value="true"/>
+  <MultiplayerModule value="false"/>
+  <DependedModuleMetadatas>
+    <DependedModuleMetadata id="Native" order="LoadBeforeThis" optional="false" version="e1.0.0"/>
+  </DependedModuleMetadatas>
+  <SubModules>
+    <SubModule>
+      <Name value="BannerlordEditorBridge"/>
+      <DLLName value="Bannerlord.EditorBridge.dll"/>
+      <SubModuleClassType value="Bannerlord.EditorBridge.SubModule"/>
+      <Tags/>
+    </SubModule>
+  </SubModules>
+</Module>

@@ -1,0 +1,27 @@
+{
+  "version": 1,
+  "cacheKey": "Mungia_Torgutatai (reign_court_castle_K8_child_2)",
+  "heroStringId": "reign_court_castle_K8_child_2",
+  "characterObjectId": "reign_court_castle_K8_child_2",
+  "characterName": "Mungia Torgutatai",
+  "provider": "AtlasCloud",
+  "model": "xai/grok-imagine-image/edit",
+  "adapter": "atlas upload/generate/poll",
+  "sourceSha256": "f6b3cb50f225a356e763b9128832f664cdfba03c22b521dfd6c492a691496df1",
+  "portraitSha256": "cf818acfa586232e9be34e116569a6e58f471a2174ad5357b66838ef86f348b0",
+  "portraitWidth": 864,
+  "portraitHeight": 1152,
+  "physicalConfidence": {
+    "definition": "physical_confidence",
+    "score": 58,
+    "profile": "41-60",
+    "flirtatiousnessPercentage": 60,
+    "confidencePercentage": 51,
+    "flirtatiousnessWeight": 0.75,
+    "confidenceWeight": 0.25,
+    "source": "shipped_profile_library"
+  },
+  "derivativesReady": true,
+  "derivativeError": "",
+  "generatedUtc": "2026-07-17T19:04:44.9423670Z"
+}

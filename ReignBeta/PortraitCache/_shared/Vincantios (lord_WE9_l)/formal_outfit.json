@@ -1,0 +1,13 @@
+{
+  "version": 1,
+  "heroStringId": "lord_WE9_l",
+  "characterName": "Vincantios",
+  "imagePath": "portrait.png",
+  "imageSha256": "F938D851624638E1E10C799F1F339B81A9187D9296229CDC15C22FBA2D4C3ACA",
+  "description": "Culturally appropriate everyday Calradic Imperial landowner attire inspired by practical late Roman and Byzantine civilian clothing adapted into a grounded medieval style. Men should wear a linen undertunic beneath a structured knee-length tunic or simple long coat, secured with a narrow belt. Women should wear a long tunic or underdress beneath a modest draped overdress with elegant but simple sleeves and a practical girdle. Include narrow woven borders or restrained geometric decoration. The garments should appear orderly, respectable, clean, and slightly prosperous. No headgear of any kind. No armor, weapons, laurel crowns, togas, ceremonial robes, or fantasy elements.",
+  "status": "failed",
+  "descriptionSource": "portrait_prompt_fallback",
+  "retryEligible": true,
+  "error": "{\"error\":{\"message\":\"Model \\\"zai-org/glm-5.2\\\" does not support image inputs. Remove image content or choose a multimodal model.\",\"type\":\"invalid_request_error\",\"param\":\"messages\",\"code\":\"image_input_not_supported\"}}",
+  "updatedUtc": "2026-07-18T22:03:35.5412376Z"
+}

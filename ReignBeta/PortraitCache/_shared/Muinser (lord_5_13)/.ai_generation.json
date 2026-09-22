@@ -1,0 +1,27 @@
+{
+  "version": 1,
+  "cacheKey": "Muinser (lord_5_13)",
+  "heroStringId": "lord_5_13",
+  "characterObjectId": "lord_5_13",
+  "characterName": "Muinser",
+  "provider": "AtlasCloud",
+  "model": "xai/grok-imagine-image/edit",
+  "adapter": "atlas upload/generate/poll",
+  "sourceSha256": "019f9c2f0a8c5d5995fc5004f467f94ceca6167112399203fc420f07d8393276",
+  "portraitSha256": "c3fd2a2d246bb71cb4f23c836e5629f376fac4245cba2077fc99d0b753592772",
+  "portraitWidth": 832,
+  "portraitHeight": 1248,
+  "physicalConfidence": {
+    "definition": "physical_confidence",
+    "score": 38,
+    "profile": "21-40",
+    "flirtatiousnessPercentage": 24,
+    "confidencePercentage": 79,
+    "flirtatiousnessWeight": 0.75,
+    "confidenceWeight": 0.25,
+    "source": "shipped_profile_library"
+  },
+  "derivativesReady": true,
+  "derivativeError": "",
+  "generatedUtc": "2026-07-17T19:04:30.1771520Z"
+}

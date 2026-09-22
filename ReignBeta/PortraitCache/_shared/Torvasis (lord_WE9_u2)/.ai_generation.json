@@ -1,0 +1,27 @@
+{
+  "version": 1,
+  "cacheKey": "Torvasis (lord_WE9_u2)",
+  "heroStringId": "lord_WE9_u2",
+  "characterObjectId": "lord_WE9_u2",
+  "characterName": "Torvasis",
+  "provider": "AtlasCloud",
+  "model": "xai/grok-imagine-image/edit",
+  "adapter": "atlas upload/generate/poll",
+  "sourceSha256": "c1062a68a3513d390b872cf0e08421bc0751f7e8e60b54d8f58e46f80ad55d42",
+  "portraitSha256": "8f40407210f5628ba345e5c15f3c751f339d9454e655f74b91d54e6c0d1239fc",
+  "portraitWidth": 832,
+  "portraitHeight": 1248,
+  "physicalConfidence": {
+    "definition": "physical_confidence",
+    "score": 51,
+    "profile": "41-60",
+    "flirtatiousnessPercentage": 59,
+    "confidencePercentage": 26,
+    "flirtatiousnessWeight": 0.75,
+    "confidenceWeight": 0.25,
+    "source": "shipped_profile_library"
+  },
+  "derivativesReady": true,
+  "derivativeError": "",
+  "generatedUtc": "2026-07-17T19:18:24.8721083Z"
+}

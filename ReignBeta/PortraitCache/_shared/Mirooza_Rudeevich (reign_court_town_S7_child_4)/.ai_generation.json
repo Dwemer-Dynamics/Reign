@@ -1,0 +1,27 @@
+{
+  "version": 1,
+  "cacheKey": "Mirooza_Rudeevich (reign_court_town_S7_child_4)",
+  "heroStringId": "reign_court_town_S7_child_4",
+  "characterObjectId": "reign_court_town_S7_child_4",
+  "characterName": "Mirooza Rudeevich",
+  "provider": "AtlasCloud",
+  "model": "xai/grok-imagine-image/edit",
+  "adapter": "atlas upload/generate/poll",
+  "sourceSha256": "008ca084f5ef82bb8b2b2dc73c9b40d02ec757028f0844ca7b0d713be5b65acb",
+  "portraitSha256": "011f541831ea55c49022b75753f7fae275e78788d19083ef7db6b0fd51bbe3d9",
+  "portraitWidth": 864,
+  "portraitHeight": 1152,
+  "physicalConfidence": {
+    "definition": "physical_confidence",
+    "score": 72,
+    "profile": "61-80",
+    "flirtatiousnessPercentage": 79,
+    "confidencePercentage": 50,
+    "flirtatiousnessWeight": 0.75,
+    "confidenceWeight": 0.25,
+    "source": "shipped_profile_library"
+  },
+  "derivativesReady": true,
+  "derivativeError": "",
+  "generatedUtc": "2026-07-17T19:03:52.0651354Z"
+}

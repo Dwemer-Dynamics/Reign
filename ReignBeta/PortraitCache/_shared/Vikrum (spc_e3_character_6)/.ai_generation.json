@@ -1,0 +1,27 @@
+{
+  "version": 1,
+  "cacheKey": "Vikrum (spc_e3_character_6)",
+  "heroStringId": "spc_e3_character_6",
+  "characterObjectId": "spc_e3_character_6",
+  "characterName": "Vikrum",
+  "provider": "AtlasCloud",
+  "model": "xai/grok-imagine-image/edit",
+  "adapter": "atlas upload/generate/poll",
+  "sourceSha256": "175b4b2a88f96e9bf37d2ed6273593de28e5cabfbe80d76f20934c9093b6c4d8",
+  "portraitSha256": "3a62fe85c57e6b367ac5597bf562f83a970d97d9a02d12c36f05742f783f4f5a",
+  "portraitWidth": 864,
+  "portraitHeight": 1152,
+  "physicalConfidence": {
+    "definition": "physical_confidence",
+    "score": 50,
+    "profile": "41-60",
+    "flirtatiousnessPercentage": 50,
+    "confidencePercentage": 50,
+    "flirtatiousnessWeight": 0.75,
+    "confidenceWeight": 0.25,
+    "source": "neutral_fallback"
+  },
+  "derivativesReady": true,
+  "derivativeError": "",
+  "generatedUtc": "2026-07-17T19:21:14.9244753Z"
+}

@@ -1,0 +1,40 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <IsPackable>false</IsPackable>
+  </PropertyGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\..\src\Reign.Mcp.Server\Reign.Mcp.Server.csproj" />
+    <ProjectReference Include="..\..\..\ReignServer\shared\Reign.Core.Contracts\Reign.Core.Contracts.csproj" />
+    <Compile Include="..\..\..\ReignServer\tests\ReignLiveTest\Features\WorldSimulation\PassiveWorldCheckpointPolicy.cs"
+             Link="Shared\PassiveWorldCheckpointPolicy.cs" />
+    <Compile Include="..\..\..\ReignBeta\src\Modules\Persistence\Save\ReignSavePayloadCodec.cs"
+             Link="Shared\ReignSavePayloadCodec.cs" />
+    <Compile Include="..\..\..\ReignBeta\src\Modules\WorldSimulation\Integration\ReignWorldHistoryFlushPolicy.cs"
+             Link="Shared\ReignWorldHistoryFlushPolicy.cs" />
+    <Compile Include="..\..\..\ReignBeta\src\Modules\Platform\Integration\ReignCampaignReadinessState.cs"
+             Link="Shared\ReignCampaignReadinessState.cs" />
+    <Compile Include="..\..\..\ReignBeta\src\Modules\Portraits\AIPortraits\NativePortraitIdentity.cs"
+             Link="Shared\NativePortraitIdentity.cs" />
+    <Compile Include="..\..\..\ReignBeta\src\Modules\Portraits\AIPortraits\PortraitAvailabilityCache.cs"
+             Link="Shared\PortraitAvailabilityCache.cs" />
+    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.14.1" />
+    <Compile Include="..\..\..\ReignBeta\src\Modules\WorldSimulation\PartyAgency\ReignGuestWagePolicy.cs"
+             Link="Shared\ReignGuestWagePolicy.cs" />
+    <Compile Include="..\..\..\ReignBeta\src\Modules\Characters\Campaign\ReignBusinessOwnershipRelease.cs"
+             Link="Shared\ReignBusinessOwnershipRelease.cs" />
+    <Compile Include="..\..\..\ReignBeta\src\Modules\Court\UI\ReignScenePreparationCoordinator.cs"
+             Link="Shared\ReignScenePreparationCoordinator.cs" />
+    <Compile Include="..\..\..\ReignBeta\src\Modules\Court\Integration\ReignCourtAudienceScene.cs"
+             Link="Shared\ReignCourtAudienceScene.cs" />
+    <Compile Include="..\..\..\ReignServer\shared\Reign.Shared.Source\Portraits\PngEncoder.cs"
+             Link="Shared\PngEncoder.cs" />
+    <Compile Include="..\..\..\ReignServer\shared\Reign.Shared.Source\Portraits\PngReencode.cs"
+             Link="Shared\PngReencode.cs" />
+    <PackageReference Include="xunit" Version="2.9.3" />
+    <PackageReference Include="xunit.runner.visualstudio" Version="3.1.5">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageReference>
+  </ItemGroup>
+</Project>

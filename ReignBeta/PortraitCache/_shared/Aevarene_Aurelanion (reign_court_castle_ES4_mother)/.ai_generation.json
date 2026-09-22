@@ -1,0 +1,27 @@
+{
+  "version": 1,
+  "cacheKey": "Aevarene_Aurelanion (reign_court_castle_ES4_mother)",
+  "heroStringId": "reign_court_castle_ES4_mother",
+  "characterObjectId": "reign_court_castle_ES4_mother",
+  "characterName": "Aevarene Aurelanion",
+  "provider": "AtlasCloud",
+  "model": "xai/grok-imagine-image/edit",
+  "adapter": "atlas upload/generate/poll",
+  "sourceSha256": "8ee1caa5a291097e85544063a89aa0d5a3e11d95bf4987536b7e45674c6d6a38",
+  "portraitSha256": "d841f9d351d7a26577655866fc39639e589a622eef4331861c3a3e053056d4b9",
+  "portraitWidth": 864,
+  "portraitHeight": 1152,
+  "physicalConfidence": {
+    "definition": "physical_confidence",
+    "score": 53,
+    "profile": "41-60",
+    "flirtatiousnessPercentage": 45,
+    "confidencePercentage": 76,
+    "flirtatiousnessWeight": 0.75,
+    "confidenceWeight": 0.25,
+    "source": "shipped_profile_library"
+  },
+  "derivativesReady": true,
+  "derivativeError": "",
+  "generatedUtc": "2026-07-17T17:47:55.1521150Z"
+}

@@ -1,0 +1,27 @@
+{
+  "version": 1,
+  "cacheKey": "Toverik (lord_7_20)",
+  "heroStringId": "lord_7_20",
+  "characterObjectId": "lord_7_20",
+  "characterName": "Toverik",
+  "provider": "AtlasCloud",
+  "model": "xai/grok-imagine-image/edit",
+  "adapter": "atlas upload/generate/poll",
+  "sourceSha256": "a2504f44ce5b2724a114417e7010bc6e5ba66851333d364260cbc827d441db88",
+  "portraitSha256": "cf482576224b4961634823d8bc7e171f1b2863c1796fd46e4d57784e9404fded",
+  "portraitWidth": 832,
+  "portraitHeight": 1248,
+  "physicalConfidence": {
+    "definition": "physical_confidence",
+    "score": 50,
+    "profile": "41-60",
+    "flirtatiousnessPercentage": 50,
+    "confidencePercentage": 50,
+    "flirtatiousnessWeight": 0.75,
+    "confidenceWeight": 0.25,
+    "source": "neutral_fallback"
+  },
+  "derivativesReady": true,
+  "derivativeError": "",
+  "generatedUtc": "2026-07-17T19:18:25.1179089Z"
+}

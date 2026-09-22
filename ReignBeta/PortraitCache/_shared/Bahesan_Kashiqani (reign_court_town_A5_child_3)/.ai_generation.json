@@ -1,0 +1,27 @@
+{
+  "version": 1,
+  "cacheKey": "Bahesan_Kashiqani (reign_court_town_A5_child_3)",
+  "heroStringId": "reign_court_town_A5_child_3",
+  "characterObjectId": "reign_court_town_A5_child_3",
+  "characterName": "Bahesan Kashiqani",
+  "provider": "AtlasCloud",
+  "model": "xai/grok-imagine-image/edit",
+  "adapter": "atlas upload/generate/poll",
+  "sourceSha256": "b3ce6afa866cef45bf354f797efbb965270e44ee0f363318fefdcc6a6ba02314",
+  "portraitSha256": "0b03ae899b93262530a85de653f8aa4872ee4e7a9f952bbf3204159cfb8cc28d",
+  "portraitWidth": 864,
+  "portraitHeight": 1152,
+  "physicalConfidence": {
+    "definition": "physical_confidence",
+    "score": 63,
+    "profile": "61-80",
+    "flirtatiousnessPercentage": 70,
+    "confidencePercentage": 41,
+    "flirtatiousnessWeight": 0.75,
+    "confidenceWeight": 0.25,
+    "source": "shipped_profile_library"
+  },
+  "derivativesReady": true,
+  "derivativeError": "",
+  "generatedUtc": "2026-07-17T18:15:45.5845661Z"
+}

@@ -1,0 +1,27 @@
+{
+  "version": 1,
+  "cacheKey": "Evrysa_Gervecourt (reign_court_town_V8_child_2)",
+  "heroStringId": "reign_court_town_V8_child_2",
+  "characterObjectId": "reign_court_town_V8_child_2",
+  "characterName": "Evrysa Gervecourt",
+  "provider": "AtlasCloud",
+  "model": "xai/grok-imagine-image/edit",
+  "adapter": "atlas upload/generate/poll",
+  "sourceSha256": "054183f9808a5ff8264e14ccc06e400904e0b0ee6f128bf0e24fa83ef92cf0ab",
+  "portraitSha256": "c8446ac8725a27a9251c9d48d01918ae47948125ea48e80e7e1324e8aa2f122a",
+  "portraitWidth": 864,
+  "portraitHeight": 1152,
+  "physicalConfidence": {
+    "definition": "physical_confidence",
+    "score": 44,
+    "profile": "41-60",
+    "flirtatiousnessPercentage": 41,
+    "confidencePercentage": 52,
+    "flirtatiousnessWeight": 0.75,
+    "confidenceWeight": 0.25,
+    "source": "shipped_profile_library"
+  },
+  "derivativesReady": true,
+  "derivativeError": "",
+  "generatedUtc": "2026-07-17T18:35:54.8532121Z"
+}

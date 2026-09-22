@@ -1,0 +1,27 @@
+{
+  "version": 1,
+  "cacheKey": "Radagos'_Raider (storymode_quest_raider)",
+  "heroStringId": "storymode_quest_raider",
+  "characterObjectId": "storymode_quest_raider",
+  "characterName": "Radagos' Raider",
+  "provider": "AtlasCloud",
+  "model": "xai/grok-imagine-image/edit",
+  "adapter": "atlas upload/generate/poll",
+  "sourceSha256": "9de7600bf525024f6e2705c769b11bbf385a2cfc0d579618cdcafa401422e8ef",
+  "portraitSha256": "f9514300eb6fad14d5144eb352777c811efd50f74e1f9ca772d09ba789f4215f",
+  "portraitWidth": 864,
+  "portraitHeight": 1152,
+  "physicalConfidence": {
+    "definition": "physical_confidence",
+    "score": 50,
+    "profile": "41-60",
+    "flirtatiousnessPercentage": 50,
+    "confidencePercentage": 50,
+    "flirtatiousnessWeight": 0.75,
+    "confidenceWeight": 0.25,
+    "source": "neutral_fallback"
+  },
+  "derivativesReady": true,
+  "derivativeError": "",
+  "generatedUtc": "2026-07-17T19:09:56.2431891Z"
+}

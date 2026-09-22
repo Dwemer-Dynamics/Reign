@@ -1,0 +1,27 @@
+{
+  "version": 1,
+  "cacheKey": "Calysara_Merovorides (reign_court_castle_ES1_child_4)",
+  "heroStringId": "reign_court_castle_ES1_child_4",
+  "characterObjectId": "reign_court_castle_ES1_child_4",
+  "characterName": "Calysara Merovorides",
+  "provider": "AtlasCloud",
+  "model": "xai/grok-imagine-image/edit",
+  "adapter": "atlas upload/generate/poll",
+  "sourceSha256": "76c18994fa4b6199a440eb3dd0c86375e0f16524d0fd8e0999f028d7fd4b5885",
+  "portraitSha256": "bec64f0d930095cf0a0a8b1d9e5213f587eb32e6b1f0f411ec4a5d1a0527180d",
+  "portraitWidth": 864,
+  "portraitHeight": 1152,
+  "physicalConfidence": {
+    "definition": "physical_confidence",
+    "score": 36,
+    "profile": "21-40",
+    "flirtatiousnessPercentage": 38,
+    "confidencePercentage": 29,
+    "flirtatiousnessWeight": 0.75,
+    "confidenceWeight": 0.25,
+    "source": "shipped_profile_library"
+  },
+  "derivativesReady": true,
+  "derivativeError": "",
+  "generatedUtc": "2026-07-17T18:21:58.0899153Z"
+}

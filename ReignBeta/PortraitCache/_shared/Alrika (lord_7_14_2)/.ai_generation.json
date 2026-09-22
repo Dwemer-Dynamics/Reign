@@ -1,0 +1,27 @@
+{
+  "version": 1,
+  "cacheKey": "Alrika (lord_7_14_2)",
+  "heroStringId": "lord_7_14_2",
+  "characterObjectId": "lord_7_14_2",
+  "characterName": "Alrika",
+  "provider": "AtlasCloud",
+  "model": "xai/grok-imagine-image/edit",
+  "adapter": "atlas upload/generate/poll",
+  "sourceSha256": "914ce77c61ebbad4a5ecc182de0272bf60cf7c8c8e9c3be128d0346ed21eb2a9",
+  "portraitSha256": "af298e5e35297e64245e84394d7bc6793497abe4b9f00871f8e796b568551f3f",
+  "portraitWidth": 832,
+  "portraitHeight": 1248,
+  "physicalConfidence": {
+    "definition": "physical_confidence",
+    "score": 50,
+    "profile": "41-60",
+    "flirtatiousnessPercentage": 50,
+    "confidencePercentage": 50,
+    "flirtatiousnessWeight": 0.75,
+    "confidenceWeight": 0.25,
+    "source": "neutral_fallback"
+  },
+  "derivativesReady": true,
+  "derivativeError": "",
+  "generatedUtc": "2026-07-17T18:11:43.0120717Z"
+}

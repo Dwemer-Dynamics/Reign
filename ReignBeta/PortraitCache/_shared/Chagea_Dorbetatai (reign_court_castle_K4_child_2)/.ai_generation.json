@@ -1,0 +1,27 @@
+{
+  "version": 1,
+  "cacheKey": "Chagea_Dorbetatai (reign_court_castle_K4_child_2)",
+  "heroStringId": "reign_court_castle_K4_child_2",
+  "characterObjectId": "reign_court_castle_K4_child_2",
+  "characterName": "Chagea Dorbetatai",
+  "provider": "AtlasCloud",
+  "model": "xai/grok-imagine-image/edit",
+  "adapter": "atlas upload/generate/poll",
+  "sourceSha256": "4dfafee2663851233c25ed422fb8f047fc128677adc194c0bf0ac53c97db28cf",
+  "portraitSha256": "bd595f94d39f43efbc2e4f9ec4e8184471638d4191607b4882509483efc4f3c3",
+  "portraitWidth": 864,
+  "portraitHeight": 1152,
+  "physicalConfidence": {
+    "definition": "physical_confidence",
+    "score": 83,
+    "profile": "81-100",
+    "flirtatiousnessPercentage": 80,
+    "confidencePercentage": 91,
+    "flirtatiousnessWeight": 0.75,
+    "confidenceWeight": 0.25,
+    "source": "shipped_profile_library"
+  },
+  "derivativesReady": true,
+  "derivativeError": "",
+  "generatedUtc": "2026-07-17T18:22:31.0352862Z"
+}

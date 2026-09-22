@@ -1,0 +1,27 @@
+{
+  "version": 1,
+  "cacheKey": "Iovysos_Sorianorides (reign_court_castle_ES2_child_3)",
+  "heroStringId": "reign_court_castle_ES2_child_3",
+  "characterObjectId": "reign_court_castle_ES2_child_3",
+  "characterName": "Iovysos Sorianorides",
+  "provider": "AtlasCloud",
+  "model": "xai/grok-imagine-image/edit",
+  "adapter": "atlas upload/generate/poll",
+  "sourceSha256": "953df7c2c745ffaaf422f2eff40f71c2810e68fe823911e354586ffcffcd5b16",
+  "portraitSha256": "e809af7bb86a86141aef899b9c4edc566bb2b6f3295983a277576a456bd3cdfb",
+  "portraitWidth": 864,
+  "portraitHeight": 1152,
+  "physicalConfidence": {
+    "definition": "physical_confidence",
+    "score": 23,
+    "profile": "21-40",
+    "flirtatiousnessPercentage": 30,
+    "confidencePercentage": 2,
+    "flirtatiousnessWeight": 0.75,
+    "confidenceWeight": 0.25,
+    "source": "shipped_profile_library"
+  },
+  "derivativesReady": true,
+  "derivativeError": "",
+  "generatedUtc": "2026-07-17T18:45:56.0830427Z"
+}

@@ -1,0 +1,27 @@
+{
+  "version": 1,
+  "cacheKey": "Kautas (lord_7_16)",
+  "heroStringId": "lord_7_16",
+  "characterObjectId": "lord_7_16",
+  "characterName": "Kautas",
+  "provider": "AtlasCloud",
+  "model": "xai/grok-imagine-image/edit",
+  "adapter": "atlas upload/generate/poll",
+  "sourceSha256": "1536494b6bb8f52ff3fad0229d1c7b0cafdcb67937a7cf34bb1f4f7a3f753ac2",
+  "portraitSha256": "12866a88f75357eb12b613724e9d0ad1322c5a0146b8ede34e1a04f8c73da0d5",
+  "portraitWidth": 832,
+  "portraitHeight": 1248,
+  "physicalConfidence": {
+    "definition": "physical_confidence",
+    "score": 50,
+    "profile": "41-60",
+    "flirtatiousnessPercentage": 50,
+    "confidencePercentage": 50,
+    "flirtatiousnessWeight": 0.75,
+    "confidenceWeight": 0.25,
+    "source": "neutral_fallback"
+  },
+  "derivativesReady": true,
+  "derivativeError": "",
+  "generatedUtc": "2026-07-17T18:47:12.0348118Z"
+}

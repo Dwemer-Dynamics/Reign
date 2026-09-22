@@ -1,0 +1,27 @@
+{
+  "version": 1,
+  "cacheKey": "Ranaon (lord_5_3_1)",
+  "heroStringId": "lord_5_3_1",
+  "characterObjectId": "lord_5_3_1",
+  "characterName": "Ranaon",
+  "provider": "AtlasCloud",
+  "model": "xai/grok-imagine-image/edit",
+  "adapter": "atlas upload/generate/poll",
+  "sourceSha256": "6062afedfa55376c989bcbd97ae761fb73c1772b5dd88e5ec2a1684f86184c27",
+  "portraitSha256": "6ae54eb21ee6ccb82d2f3e0762d11e9c9bf07d69c888c67b04f1ecbbd69f4384",
+  "portraitWidth": 832,
+  "portraitHeight": 1248,
+  "physicalConfidence": {
+    "definition": "physical_confidence",
+    "score": 61,
+    "profile": "61-80",
+    "flirtatiousnessPercentage": 63,
+    "confidencePercentage": 54,
+    "flirtatiousnessWeight": 0.75,
+    "confidenceWeight": 0.25,
+    "source": "shipped_profile_library"
+  },
+  "derivativesReady": true,
+  "derivativeError": "",
+  "generatedUtc": "2026-07-17T19:10:47.8717295Z"
+}

@@ -1,0 +1,27 @@
+{
+  "version": 1,
+  "cacheKey": "Kanujan (lord_6_19)",
+  "heroStringId": "lord_6_19",
+  "characterObjectId": "lord_6_19",
+  "characterName": "Kanujan",
+  "provider": "AtlasCloud",
+  "model": "xai/grok-imagine-image/edit",
+  "adapter": "atlas upload/generate/poll",
+  "sourceSha256": "aeb87f63072b3e1873900b3fa09e39b518014966f2aa3af59e32fbf8b49c129f",
+  "portraitSha256": "8e4b5692656897c21ae586d9d9f44980e13b34eb2b7b6f635b9350665970a5f3",
+  "portraitWidth": 832,
+  "portraitHeight": 1248,
+  "physicalConfidence": {
+    "definition": "physical_confidence",
+    "score": 49,
+    "profile": "41-60",
+    "flirtatiousnessPercentage": 45,
+    "confidencePercentage": 60,
+    "flirtatiousnessWeight": 0.75,
+    "confidenceWeight": 0.25,
+    "source": "shipped_profile_library"
+  },
+  "derivativesReady": true,
+  "derivativeError": "",
+  "generatedUtc": "2026-07-17T18:46:53.7998896Z"
+}

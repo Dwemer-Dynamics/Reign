@@ -1,0 +1,27 @@
+{
+  "version": 1,
+  "cacheKey": "Unagen (lord_6_16_2)",
+  "heroStringId": "lord_6_16_2",
+  "characterObjectId": "lord_6_16_2",
+  "characterName": "Unagen",
+  "provider": "AtlasCloud",
+  "model": "xai/grok-imagine-image/edit",
+  "adapter": "atlas upload/generate/poll",
+  "sourceSha256": "c94932ad27d0ce822dd39c3708cc195984f384c8295dd8b7a6aef9247b3ff003",
+  "portraitSha256": "8f61b7bd419405b60cbd6d9385a0ca4da653b8e425d450df1c74e844d30d2b3e",
+  "portraitWidth": 832,
+  "portraitHeight": 1248,
+  "physicalConfidence": {
+    "definition": "physical_confidence",
+    "score": 71,
+    "profile": "61-80",
+    "flirtatiousnessPercentage": 61,
+    "confidencePercentage": 100,
+    "flirtatiousnessWeight": 0.75,
+    "confidenceWeight": 0.25,
+    "source": "shipped_profile_library"
+  },
+  "derivativesReady": true,
+  "derivativeError": "",
+  "generatedUtc": "2026-07-17T19:19:40.2470596Z"
+}

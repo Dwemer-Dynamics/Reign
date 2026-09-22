@@ -1,0 +1,27 @@
+{
+  "version": 1,
+  "cacheKey": "Sidunric (lord_7_1_2)",
+  "heroStringId": "lord_7_1_2",
+  "characterObjectId": "lord_7_1_2",
+  "characterName": "Sidunric",
+  "provider": "AtlasCloud",
+  "model": "xai/grok-imagine-image/edit",
+  "adapter": "atlas upload/generate/poll",
+  "sourceSha256": "d2568416c663c0c6bd77a090d374a639ffcb97e0ab805cb26f51a6d68203aa54",
+  "portraitSha256": "9385e24c5f8c8dcf973aa924ac679ef3c0b489dc0da076cf9ca275ba8e296651",
+  "portraitWidth": 832,
+  "portraitHeight": 1248,
+  "physicalConfidence": {
+    "definition": "physical_confidence",
+    "score": 50,
+    "profile": "41-60",
+    "flirtatiousnessPercentage": 50,
+    "confidencePercentage": 50,
+    "flirtatiousnessWeight": 0.75,
+    "confidenceWeight": 0.25,
+    "source": "neutral_fallback"
+  },
+  "derivativesReady": true,
+  "derivativeError": "",
+  "generatedUtc": "2026-07-17T19:13:57.2718344Z"
+}

@@ -1,0 +1,27 @@
+{
+  "version": 1,
+  "cacheKey": "Jinda (lord_3_2)",
+  "heroStringId": "lord_3_2",
+  "characterObjectId": "lord_3_2",
+  "characterName": "Jinda",
+  "provider": "AtlasCloud",
+  "model": "xai/grok-imagine-image/edit",
+  "adapter": "atlas upload/generate/poll",
+  "sourceSha256": "90717fc8d9996291f2d7d50d6aa306ce31e3689062435459e0476bb225cfb0b9",
+  "portraitSha256": "d01fc5751cc8877d7fcbd5b5d099ff5c78c6814227ccdbd4392918202e2f3958",
+  "portraitWidth": 832,
+  "portraitHeight": 1248,
+  "physicalConfidence": {
+    "definition": "physical_confidence",
+    "score": 27,
+    "profile": "21-40",
+    "flirtatiousnessPercentage": 22,
+    "confidencePercentage": 41,
+    "flirtatiousnessWeight": 0.75,
+    "confidenceWeight": 0.25,
+    "source": "shipped_profile_library"
+  },
+  "derivativesReady": true,
+  "derivativeError": "",
+  "generatedUtc": "2026-07-17T18:46:35.1259403Z"
+}

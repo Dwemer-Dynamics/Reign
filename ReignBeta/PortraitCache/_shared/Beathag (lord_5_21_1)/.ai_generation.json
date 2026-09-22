@@ -1,0 +1,27 @@
+{
+  "version": 1,
+  "cacheKey": "Beathag (lord_5_21_1)",
+  "heroStringId": "lord_5_21_1",
+  "characterObjectId": "lord_5_21_1",
+  "characterName": "Beathag",
+  "provider": "AtlasCloud",
+  "model": "xai/grok-imagine-image/edit",
+  "adapter": "atlas upload/generate/poll",
+  "sourceSha256": "47fc26b5d02f8ab106dee895dbec81676164f05ba2f92d4ae07434e2a286abd9",
+  "portraitSha256": "81e38a839722b250784122f4ff3e86e1038510d324bf21c855b9770244a002b2",
+  "portraitWidth": 832,
+  "portraitHeight": 1248,
+  "physicalConfidence": {
+    "definition": "physical_confidence",
+    "score": 51,
+    "profile": "41-60",
+    "flirtatiousnessPercentage": 49,
+    "confidencePercentage": 56,
+    "flirtatiousnessWeight": 0.75,
+    "confidenceWeight": 0.25,
+    "source": "shipped_profile_library"
+  },
+  "derivativesReady": true,
+  "derivativeError": "",
+  "generatedUtc": "2026-07-17T18:16:06.2739986Z"
+}

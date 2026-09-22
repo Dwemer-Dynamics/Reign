@@ -1,0 +1,27 @@
+{
+  "version": 1,
+  "cacheKey": "Mengus (lord_5_7)",
+  "heroStringId": "lord_5_7",
+  "characterObjectId": "lord_5_7",
+  "characterName": "Mengus",
+  "provider": "AtlasCloud",
+  "model": "xai/grok-imagine-image/edit",
+  "adapter": "atlas upload/generate/poll",
+  "sourceSha256": "7642814243b869191d2950187699e39762d055bb546455a9165b8c410fc9c93b",
+  "portraitSha256": "5961f9b84e600069020eb217dfdc4c0ae96ba194915f7c9b0fb7756e38385d80",
+  "portraitWidth": 832,
+  "portraitHeight": 1248,
+  "physicalConfidence": {
+    "definition": "physical_confidence",
+    "score": 61,
+    "profile": "61-80",
+    "flirtatiousnessPercentage": 59,
+    "confidencePercentage": 66,
+    "flirtatiousnessWeight": 0.75,
+    "confidenceWeight": 0.25,
+    "source": "shipped_profile_library"
+  },
+  "derivativesReady": true,
+  "derivativeError": "",
+  "generatedUtc": "2026-07-17T19:03:02.0006080Z"
+}

@@ -1,0 +1,27 @@
+{
+  "version": 1,
+  "cacheKey": "Manteos (lord_1_3)",
+  "heroStringId": "lord_1_3",
+  "characterObjectId": "lord_1_3",
+  "characterName": "Manteos",
+  "provider": "AtlasCloud",
+  "model": "xai/grok-imagine-image/edit",
+  "adapter": "atlas upload/generate/poll",
+  "sourceSha256": "eb6747470a51bf866537431181777c28e1cbc5764e4770b36886fa09a1671aed",
+  "portraitSha256": "15b0f53feb3458eb2de9f223631624d9de1c5d2c6d782b8fd60e17a67e46c24c",
+  "portraitWidth": 832,
+  "portraitHeight": 1248,
+  "physicalConfidence": {
+    "definition": "physical_confidence",
+    "score": 71,
+    "profile": "61-80",
+    "flirtatiousnessPercentage": 75,
+    "confidencePercentage": 58,
+    "flirtatiousnessWeight": 0.75,
+    "confidenceWeight": 0.25,
+    "source": "shipped_profile_library"
+  },
+  "derivativesReady": true,
+  "derivativeError": "",
+  "generatedUtc": "2026-07-17T18:59:56.9710674Z"
+}

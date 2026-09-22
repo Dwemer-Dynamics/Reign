@@ -1,0 +1,27 @@
+{
+  "version": 1,
+  "cacheKey": "Iovuria_Istranerides (reign_court_town_EN4_mother)",
+  "heroStringId": "reign_court_town_EN4_mother",
+  "characterObjectId": "reign_court_town_EN4_mother",
+  "characterName": "Iovuria Istranerides",
+  "provider": "AtlasCloud",
+  "model": "xai/grok-imagine-image/edit",
+  "adapter": "atlas upload/generate/poll",
+  "sourceSha256": "0b731b4679238627a6b6b8bf3aa4f83f3708c43b9843c1fb24d41f7cd8f42ebb",
+  "portraitSha256": "aa87ae32889ef662a371815f736aae4db33bbc7920d090cbd073ade1d6091a5f",
+  "portraitWidth": 864,
+  "portraitHeight": 1152,
+  "physicalConfidence": {
+    "definition": "physical_confidence",
+    "score": 76,
+    "profile": "61-80",
+    "flirtatiousnessPercentage": 86,
+    "confidencePercentage": 45,
+    "flirtatiousnessWeight": 0.75,
+    "confidenceWeight": 0.25,
+    "source": "shipped_profile_library"
+  },
+  "derivativesReady": true,
+  "derivativeError": "",
+  "generatedUtc": "2026-07-17T18:45:40.6423344Z"
+}

@@ -1,0 +1,27 @@
+{
+  "version": 1,
+  "cacheKey": "Eryuros_Elarorides (reign_court_town_EW5_child_3)",
+  "heroStringId": "reign_court_town_EW5_child_3",
+  "characterObjectId": "reign_court_town_EW5_child_3",
+  "characterName": "Eryuros Elarorides",
+  "provider": "AtlasCloud",
+  "model": "xai/grok-imagine-image/edit",
+  "adapter": "atlas upload/generate/poll",
+  "sourceSha256": "bb6392d87552649e32f6f8a99777d6ee4dcc05216f5c0851fdd050411ce9de17",
+  "portraitSha256": "597212d28949e80dcd6cbf2db440cc4f9cd735ea213ebd8f226efa24a735bebd",
+  "portraitWidth": 864,
+  "portraitHeight": 1152,
+  "physicalConfidence": {
+    "definition": "physical_confidence",
+    "score": 58,
+    "profile": "41-60",
+    "flirtatiousnessPercentage": 63,
+    "confidencePercentage": 42,
+    "flirtatiousnessWeight": 0.75,
+    "confidenceWeight": 0.25,
+    "source": "shipped_profile_library"
+  },
+  "derivativesReady": true,
+  "derivativeError": "",
+  "generatedUtc": "2026-07-17T18:34:47.4828880Z"
+}

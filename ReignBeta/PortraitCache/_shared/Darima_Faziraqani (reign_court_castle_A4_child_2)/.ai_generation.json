@@ -1,0 +1,27 @@
+{
+  "version": 1,
+  "cacheKey": "Darima_Faziraqani (reign_court_castle_A4_child_2)",
+  "heroStringId": "reign_court_castle_A4_child_2",
+  "characterObjectId": "reign_court_castle_A4_child_2",
+  "characterName": "Darima Faziraqani",
+  "provider": "AtlasCloud",
+  "model": "xai/grok-imagine-image/edit",
+  "adapter": "atlas upload/generate/poll",
+  "sourceSha256": "9c88f84d59a7093831f0311752eb96033083b12e34ea2624918c0f93fe754615",
+  "portraitSha256": "c4e16779489f7224dd5adb743a78e06a36b11be11e148518788109343205aedf",
+  "portraitWidth": 864,
+  "portraitHeight": 1152,
+  "physicalConfidence": {
+    "definition": "physical_confidence",
+    "score": 62,
+    "profile": "61-80",
+    "flirtatiousnessPercentage": 62,
+    "confidencePercentage": 61,
+    "flirtatiousnessWeight": 0.75,
+    "confidenceWeight": 0.25,
+    "source": "shipped_profile_library"
+  },
+  "derivativesReady": true,
+  "derivativeError": "",
+  "generatedUtc": "2026-07-17T18:26:05.6139449Z"
+}

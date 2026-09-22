@@ -1,0 +1,27 @@
+{
+  "version": 1,
+  "cacheKey": "Jarminja (lord_7_2)",
+  "heroStringId": "lord_7_2",
+  "characterObjectId": "lord_7_2",
+  "characterName": "Jarminja",
+  "provider": "AtlasCloud",
+  "model": "xai/grok-imagine-image/edit",
+  "adapter": "atlas upload/generate/poll",
+  "sourceSha256": "3362bede8b9d34d69db5d2d838a5f04e2912ecfa89c7e65d346e3f53cad661a1",
+  "portraitSha256": "b1e76f3da40c592ef7eedaefc4e541ada1f46fa43581e50403f65e5ee3e4e402",
+  "portraitWidth": 832,
+  "portraitHeight": 1248,
+  "physicalConfidence": {
+    "definition": "physical_confidence",
+    "score": 50,
+    "profile": "41-60",
+    "flirtatiousnessPercentage": 50,
+    "confidencePercentage": 50,
+    "flirtatiousnessWeight": 0.75,
+    "confidenceWeight": 0.25,
+    "source": "neutral_fallback"
+  },
+  "derivativesReady": true,
+  "derivativeError": "",
+  "generatedUtc": "2026-07-17T18:46:15.9752487Z"
+}

@@ -1,0 +1,27 @@
+{
+  "version": 1,
+  "cacheKey": "Chason (lord_1_43)",
+  "heroStringId": "lord_1_43",
+  "characterObjectId": "lord_1_43",
+  "characterName": "Chason",
+  "provider": "AtlasCloud",
+  "model": "xai/grok-imagine-image/edit",
+  "adapter": "atlas upload/generate/poll",
+  "sourceSha256": "fb2be484d818c6648762938c0f94f4e2c8969c1d69ab98877aaf5f5032d987d7",
+  "portraitSha256": "70909be9005565b7c0a5298ac0649c0d338de11c3771c9b344015d0964c73d7f",
+  "portraitWidth": 832,
+  "portraitHeight": 1248,
+  "physicalConfidence": {
+    "definition": "physical_confidence",
+    "score": 16,
+    "profile": "00-20",
+    "flirtatiousnessPercentage": 1,
+    "confidencePercentage": 60,
+    "flirtatiousnessWeight": 0.75,
+    "confidenceWeight": 0.25,
+    "source": "shipped_profile_library"
+  },
+  "derivativesReady": true,
+  "derivativeError": "",
+  "generatedUtc": "2026-07-17T18:23:04.7372240Z"
+}

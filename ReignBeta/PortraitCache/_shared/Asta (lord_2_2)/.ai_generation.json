@@ -1,0 +1,27 @@
+{
+  "version": 1,
+  "cacheKey": "Asta (lord_2_2)",
+  "heroStringId": "lord_2_2",
+  "characterObjectId": "lord_2_2",
+  "characterName": "Asta",
+  "provider": "AtlasCloud",
+  "model": "xai/grok-imagine-image/edit",
+  "adapter": "atlas upload/generate/poll",
+  "sourceSha256": "76798e990cfe5484811eaa77ab9ee04cb5f2dbd2f4819a92cd9b55bd822d4091",
+  "portraitSha256": "6968b39d942c8422e458fa1d571e406e60b1d3dadceb899123eaf17df082448b",
+  "portraitWidth": 832,
+  "portraitHeight": 1248,
+  "physicalConfidence": {
+    "definition": "physical_confidence",
+    "score": 70,
+    "profile": "61-80",
+    "flirtatiousnessPercentage": 77,
+    "confidencePercentage": 48,
+    "flirtatiousnessWeight": 0.75,
+    "confidenceWeight": 0.25,
+    "source": "shipped_profile_library"
+  },
+  "derivativesReady": true,
+  "derivativeError": "",
+  "generatedUtc": "2026-07-17T18:14:30.4687609Z"
+}

@@ -1,0 +1,27 @@
+{
+  "version": 1,
+  "cacheKey": "Kirima_Hadramaqani (reign_court_castle_A5_child_2)",
+  "heroStringId": "reign_court_castle_A5_child_2",
+  "characterObjectId": "reign_court_castle_A5_child_2",
+  "characterName": "Kirima Hadramaqani",
+  "provider": "AtlasCloud",
+  "model": "xai/grok-imagine-image/edit",
+  "adapter": "atlas upload/generate/poll",
+  "sourceSha256": "a66be7ffba9a1f0135754d5082e94134fc56f6450a92b34e23d012bd34952c08",
+  "portraitSha256": "c1aefe1d2323cf55205a6248c084af192931cb8aec4db1af4eda109efaf85365",
+  "portraitWidth": 864,
+  "portraitHeight": 1152,
+  "physicalConfidence": {
+    "definition": "physical_confidence",
+    "score": 43,
+    "profile": "41-60",
+    "flirtatiousnessPercentage": 41,
+    "confidencePercentage": 48,
+    "flirtatiousnessWeight": 0.75,
+    "confidenceWeight": 0.25,
+    "source": "shipped_profile_library"
+  },
+  "derivativesReady": true,
+  "derivativeError": "",
+  "generatedUtc": "2026-07-17T18:48:49.1175597Z"
+}

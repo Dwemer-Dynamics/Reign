@@ -1,0 +1,61 @@
+{
+  "schema": "reign-overlay-asset-spec-v1",
+  "asset": {
+    "id": "notable-generation-modern-shell",
+    "role": "opaque textless static Notable Generation popup shell beneath live title, detail, progress, and retry widgets",
+    "selectedGeneratedSourceSha256": "f9659f321545efb0c7e10bf3edeee8f45f7732831fe36bba9500863cb6c013e5",
+    "generationMode": "built-in image-to-image",
+    "promptPath": "../notable-generation-modern-shell-prompt.txt",
+    "promptSha256": "1c01afacb921706fc845d130c5758773f7f4cf870db044577ab7e6ae93af3e94"
+  },
+  "authorities": {
+    "layout": {
+      "path": "../approved-references/notable-generation.png",
+      "sha256": "eb3d7a52680aa55c0c4ff8acdc615a1118f770db1e9a203efed14a0bf7bdfc82"
+    },
+    "materials": {
+      "path": "../style-reference.png",
+      "sha256": "85b689dc164ebbf70f67a081c0f7097858edb0542ef0073de0c29eef7926b0a3"
+    },
+    "palette": {
+      "path": "../palette.json",
+      "sha256": "fac70043a567db463ae70c975b92037dbfc38337e0d9134bc85bb03e3bb9a043",
+      "schema": "reign-ui-modern-palette-v1",
+      "version": "2026.08.28.2"
+    }
+  },
+  "canvas": {
+    "width": 1584,
+    "height": 993
+  },
+  "normalization": {
+    "fit": "stretch",
+    "anchor": "center"
+  },
+  "antialiasScale": 4,
+  "allowNoApertures": true,
+  "apertures": [],
+  "transparentRgb": "#121211",
+  "marbleReduction": {
+    "amount": 0.0,
+    "blurRadius": 6.0,
+    "luminanceCeiling": 96,
+    "chromaCeiling": 36,
+    "selectionSoftness": 20
+  },
+  "integrationGeometry": {
+    "coordinateSystem": {
+      "units": "popup-logical-pixels",
+      "canvasWidth": 600,
+      "canvasHeight": 375,
+      "authority": "preserve established runtime popup bounds"
+    },
+    "runtimeRegions": {
+      "title": {"x": 50, "y": 48, "width": 500, "height": 58},
+      "detail": {"x": 68, "y": 126, "width": 465, "height": 105},
+      "progress": {"x": 80, "y": 235, "width": 440, "height": 42},
+      "retry": {"x": 195, "y": 289, "width": 210, "height": 48},
+      "brandCrest": {"x": 267, "y": 308, "width": 66, "height": 66}
+    }
+  }
+}

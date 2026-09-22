@@ -1,0 +1,27 @@
+{
+  "version": 1,
+  "cacheKey": "Mungagan_Chaganatai (reign_court_castle_K3_father)",
+  "heroStringId": "reign_court_castle_K3_father",
+  "characterObjectId": "reign_court_castle_K3_father",
+  "characterName": "Mungagan Chaganatai",
+  "provider": "AtlasCloud",
+  "model": "xai/grok-imagine-image/edit",
+  "adapter": "atlas upload/generate/poll",
+  "sourceSha256": "f4dbf1fbe0540c52c613233b5af7c54e37a8ce4795a163563e9124ee86e1a1a9",
+  "portraitSha256": "69506373154bc254d205397a975df62242eccdeb9542b70d5a499f0d0afddc7d",
+  "portraitWidth": 864,
+  "portraitHeight": 1152,
+  "physicalConfidence": {
+    "definition": "physical_confidence",
+    "score": 33,
+    "profile": "21-40",
+    "flirtatiousnessPercentage": 26,
+    "confidencePercentage": 53,
+    "flirtatiousnessWeight": 0.75,
+    "confidenceWeight": 0.25,
+    "source": "shipped_profile_library"
+  },
+  "derivativesReady": true,
+  "derivativeError": "",
+  "generatedUtc": "2026-07-17T19:04:47.3381636Z"
+}

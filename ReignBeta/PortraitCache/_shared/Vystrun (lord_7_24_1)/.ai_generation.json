@@ -1,0 +1,27 @@
+{
+  "version": 1,
+  "cacheKey": "Vystrun (lord_7_24_1)",
+  "heroStringId": "lord_7_24_1",
+  "characterObjectId": "lord_7_24_1",
+  "characterName": "Vystrun",
+  "provider": "AtlasCloud",
+  "model": "xai/grok-imagine-image/edit",
+  "adapter": "atlas upload/generate/poll",
+  "sourceSha256": "9aef6636695513dc45874021a245a588f5b1667c3b22c3c12303a5aac7fca6f5",
+  "portraitSha256": "e8ecf39a8d308293ebd6379fa72f36f7a077cc95d3f48d8c3fba739860c1cb57",
+  "portraitWidth": 832,
+  "portraitHeight": 1248,
+  "physicalConfidence": {
+    "definition": "physical_confidence",
+    "score": 50,
+    "profile": "41-60",
+    "flirtatiousnessPercentage": 50,
+    "confidencePercentage": 50,
+    "flirtatiousnessWeight": 0.75,
+    "confidenceWeight": 0.25,
+    "source": "neutral_fallback"
+  },
+  "derivativesReady": true,
+  "derivativeError": "",
+  "generatedUtc": "2026-07-17T19:21:49.0269997Z"
+}

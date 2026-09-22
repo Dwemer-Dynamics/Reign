@@ -1,0 +1,27 @@
+{
+  "version": 1,
+  "cacheKey": "Manan (lord_3_12)",
+  "heroStringId": "lord_3_12",
+  "characterObjectId": "lord_3_12",
+  "characterName": "Manan",
+  "provider": "AtlasCloud",
+  "model": "xai/grok-imagine-image/edit",
+  "adapter": "atlas upload/generate/poll",
+  "sourceSha256": "6aa160a7e3e9d12230b1d097ea125b55b75fbea7ff28c158e771726726e8885d",
+  "portraitSha256": "296abb6976223123312d29d3db12733f213051fc4c295998259b8b41c82c6b93",
+  "portraitWidth": 832,
+  "portraitHeight": 1248,
+  "physicalConfidence": {
+    "definition": "physical_confidence",
+    "score": 60,
+    "profile": "41-60",
+    "flirtatiousnessPercentage": 65,
+    "confidencePercentage": 44,
+    "flirtatiousnessWeight": 0.75,
+    "confidenceWeight": 0.25,
+    "source": "shipped_profile_library"
+  },
+  "derivativesReady": true,
+  "derivativeError": "",
+  "generatedUtc": "2026-07-17T19:00:01.8463146Z"
+}

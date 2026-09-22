@@ -1,0 +1,24 @@
+{
+  "schema": "reign-imagegen-source-manifest-v1",
+  "asset": "reign_notable_generation_popup",
+  "generatedUtc": "2026-08-26T06:29:00Z",
+  "tool": "built-in ImageGen",
+  "purpose": "Remove obsolete baked prose so the prefab's dynamic Title, Detail, and Progress bindings render once.",
+  "original": {
+    "path": "reign-notable-generation-popup-baked-text-original.png",
+    "width": 1586,
+    "height": 992,
+    "sha256": "a71c8b212fbbf2040866ba40be807e00c7dbe72ba10d18eb0568b711638fb92d"
+  },
+  "generated": {
+    "path": "reign-notable-generation-popup-blank-v1-imagegen.png",
+    "width": 1584,
+    "height": 993,
+    "sha256": "2ff13939460ff1002dc2fc6a23bf1a71e5b980259f82fa5b01eb465c3e8d0652"
+  },
+  "runtimeSource": {
+    "path": "../../GUI/SpriteParts/ui_reignbeta_generation/reign_notable_generation_popup.png",
+    "sha256": "2ff13939460ff1002dc2fc6a23bf1a71e5b980259f82fa5b01eb465c3e8d0652"
+  },
+  "prompt": "Remove every baked word, letter, sentence, and text glyph. Preserve the complete black-leather-and-gold shell, outer border, corner filigree, horizontal divider, both barrel medallions, geometry, palette, and lighting. Reconstruct continuous texture behind removed text; add no text or ornaments."
+}

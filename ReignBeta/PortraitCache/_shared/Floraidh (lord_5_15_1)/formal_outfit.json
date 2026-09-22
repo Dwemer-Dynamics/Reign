@@ -1,0 +1,13 @@
+{
+  "version": 1,
+  "heroStringId": "lord_5_15_1",
+  "characterName": "Floraidh",
+  "imagePath": "portrait.png",
+  "imageSha256": "1E8A9DC5AB13E3068E39F4764540F2CFEF8E20ACD7F5A642C50A9712ACF145D4",
+  "description": "Culturally appropriate everyday Battanian minor-lord attire inspired by refined Celtic and highland noble clothing. Use dense woven wool, quality linen, soft leather details, cleaner tailoring, decorative brooches, and more elaborate woven trim than ordinary landowners would possess. Men should wear a fitted tunic, practical trousers, a decorated belt, and a layered cloak fastened at the shoulder. Women should wear a long underdress with a tailored overdress, woven belt, elegant draped shawl, and restrained ornamental trim. Include subtle knotwork and geometric patterns without theatrical fantasy styling. No headgear of any kind. No armor, weapons, crowns, or ceremonial druid imagery.",
+  "status": "failed",
+  "descriptionSource": "portrait_prompt_fallback",
+  "retryEligible": true,
+  "error": "{\"error\":{\"message\":\"Model \\\"zai-org/glm-5.2\\\" does not support image inputs. Remove image content or choose a multimodal model.\",\"type\":\"invalid_request_error\",\"param\":\"messages\",\"code\":\"image_input_not_supported\"}}",
+  "updatedUtc": "2026-07-18T22:03:29.2952412Z"
+}

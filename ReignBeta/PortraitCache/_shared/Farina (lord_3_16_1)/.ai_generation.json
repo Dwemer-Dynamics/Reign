@@ -1,0 +1,27 @@
+{
+  "version": 1,
+  "cacheKey": "Farina (lord_3_16_1)",
+  "heroStringId": "lord_3_16_1",
+  "characterObjectId": "lord_3_16_1",
+  "characterName": "Farina",
+  "provider": "AtlasCloud",
+  "model": "xai/grok-imagine-image/edit",
+  "adapter": "atlas upload/generate/poll",
+  "sourceSha256": "103992ba2bf3a85f4eec4c108d670baf89a56f61817e999e25e634d8f69e9a8a",
+  "portraitSha256": "25e095e628bde0ac5dec6bff6e100e7c0ab18f2419e1dc330914a1d5ef0b0d22",
+  "portraitWidth": 832,
+  "portraitHeight": 1248,
+  "physicalConfidence": {
+    "definition": "physical_confidence",
+    "score": 81,
+    "profile": "81-100",
+    "flirtatiousnessPercentage": 93,
+    "confidencePercentage": 44,
+    "flirtatiousnessWeight": 0.75,
+    "confidenceWeight": 0.25,
+    "source": "shipped_profile_library"
+  },
+  "derivativesReady": true,
+  "derivativeError": "",
+  "generatedUtc": "2026-07-17T18:36:43.5872342Z"
+}

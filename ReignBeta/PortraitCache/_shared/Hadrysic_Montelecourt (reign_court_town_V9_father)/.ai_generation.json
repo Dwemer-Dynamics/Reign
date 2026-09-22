@@ -1,0 +1,27 @@
+{
+  "version": 1,
+  "cacheKey": "Hadrysic_Montelecourt (reign_court_town_V9_father)",
+  "heroStringId": "reign_court_town_V9_father",
+  "characterObjectId": "reign_court_town_V9_father",
+  "characterName": "Hadrysic Montelecourt",
+  "provider": "AtlasCloud",
+  "model": "xai/grok-imagine-image/edit",
+  "adapter": "atlas upload/generate/poll",
+  "sourceSha256": "c784efe96496ea590a3c15f674944ceeaad0097f426c4a263665f458d01f5d26",
+  "portraitSha256": "f2ff3e789e7e6aae451e3f4bc7ae9eb931eb88d304e66cfdaa52b9d6c88e9cab",
+  "portraitWidth": 864,
+  "portraitHeight": 1152,
+  "physicalConfidence": {
+    "definition": "physical_confidence",
+    "score": 70,
+    "profile": "61-80",
+    "flirtatiousnessPercentage": 83,
+    "confidencePercentage": 30,
+    "flirtatiousnessWeight": 0.75,
+    "confidenceWeight": 0.25,
+    "source": "shipped_profile_library"
+  },
+  "derivativesReady": true,
+  "derivativeError": "",
+  "generatedUtc": "2026-07-17T18:41:42.0539061Z"
+}

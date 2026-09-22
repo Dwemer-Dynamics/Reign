@@ -1,0 +1,27 @@
+{
+  "version": 1,
+  "cacheKey": "Yarykan_Morozeevich (reign_court_town_S6_father)",
+  "heroStringId": "reign_court_town_S6_father",
+  "characterObjectId": "reign_court_town_S6_father",
+  "characterName": "Yarykan Morozeevich",
+  "provider": "AtlasCloud",
+  "model": "xai/grok-imagine-image/edit",
+  "adapter": "atlas upload/generate/poll",
+  "sourceSha256": "186e0305f0d0c7019a4147371d8222ff0d468ab219a066bc4aecb4d33c57e138",
+  "portraitSha256": "400932fe67ac64c34192024945e0dce43b501ecb5079955161d891a16baf0ff3",
+  "portraitWidth": 864,
+  "portraitHeight": 1152,
+  "physicalConfidence": {
+    "definition": "physical_confidence",
+    "score": 54,
+    "profile": "41-60",
+    "flirtatiousnessPercentage": 63,
+    "confidencePercentage": 26,
+    "flirtatiousnessWeight": 0.75,
+    "confidenceWeight": 0.25,
+    "source": "shipped_profile_library"
+  },
+  "derivativesReady": true,
+  "derivativeError": "",
+  "generatedUtc": "2026-07-17T19:22:37.0893372Z"
+}

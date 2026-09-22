@@ -1,0 +1,89 @@
+# Codex, verification, and transient workspace output
+/.codex-build/
+**/.codex-build/
+/.codex-live-artifacts/
+/.codex-live-backups/
+/.codex/config.toml
+/.tmp/
+/tmp/
+/artifacts/
+/logs/
+
+# Legacy, decompiled, inspection, and promotional reference trees
+/AIInfluence_decompiled/
+/AIInfluence_inspect/
+/Bannerlord_CampaignSystem_decompiled/
+/BannerlordReign/
+/Discord Promotions/
+/PortraitCache/
+**/PortraitCache/
+
+# Approved shipped portrait seed content is part of the directly distributable module.
+!/ReignBeta/PortraitCache/
+!/ReignBeta/PortraitCache/shared-portrait-inventory.json
+!/ReignBeta/PortraitCache/_shared/
+!/ReignBeta/PortraitCache/_shared/**
+
+# Runtime installation, deployment, campaign, and backup state
+/ReignBeta/staging/
+/ReignBeta/server/
+/ReignBetaServer/app/
+/ReignBetaServer/data/
+/ReignBetaServer/logs/
+/server/app/data/logs/
+**/deployment-backups/
+**/verification_contracts/
+**/staging/
+
+# Build and package output
+**/bin/
+**/obj/
+**/.vs/
+**/TestResults/
+**/build/
+**/dist/
+**/publish/
+**/.build-venv/
+**/.venv/
+**/__pycache__/
+**/node_modules/
+**/lib/**/*.dll
+*.user
+*.suo
+*.pdb
+*.cache
+
+# Runtime data and secrets
+.env
+.env.*
+!.env.example
+*.db
+*.sqlite
+*.sqlite3
+*.sav
+*.pfx
+*.pem
+*.key
+*credentials*.json
+*secrets*.json
+
+# Logs, command captures, and temporary files
+*.log
+*.tmp
+*.bak
+/reignbeta_*_stdout.txt
+/reignbeta_*_stderr.txt
+/test-results-*.txt
+
+# Generated root packaging artifact containing a machine-local absolute path
+/ReignVectorWorker.spec
+
+# Server-owned junctions; commit changes in ../ReignServer.
+/ReignServer/tools/portrait-generator/
+/ReignBetaServer/
+/ReignServer/shared/
+/ReignRelease/
+/ReignTools/
+
+# Single server-owned source projection.
+/ReignServer/

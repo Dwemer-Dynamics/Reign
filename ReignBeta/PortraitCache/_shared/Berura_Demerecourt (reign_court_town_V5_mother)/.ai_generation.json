@@ -1,0 +1,27 @@
+{
+  "version": 1,
+  "cacheKey": "Berura_Demerecourt (reign_court_town_V5_mother)",
+  "heroStringId": "reign_court_town_V5_mother",
+  "characterObjectId": "reign_court_town_V5_mother",
+  "characterName": "Berura Demerecourt",
+  "provider": "AtlasCloud",
+  "model": "xai/grok-imagine-image/edit",
+  "adapter": "atlas upload/generate/poll",
+  "sourceSha256": "383f627f4f36525ab95ba581b79f95246ebf3b91741e1ace3c3405fd635a840a",
+  "portraitSha256": "5f3d4b8ea94aee060218f20acfbe83aabc132229f240ef630751c8880ba27230",
+  "portraitWidth": 864,
+  "portraitHeight": 1152,
+  "physicalConfidence": {
+    "definition": "physical_confidence",
+    "score": 47,
+    "profile": "41-60",
+    "flirtatiousnessPercentage": 46,
+    "confidencePercentage": 49,
+    "flirtatiousnessWeight": 0.75,
+    "confidenceWeight": 0.25,
+    "source": "shipped_profile_library"
+  },
+  "derivativesReady": true,
+  "derivativeError": "",
+  "generatedUtc": "2026-07-17T18:16:55.1062450Z"
+}

@@ -1,0 +1,27 @@
+{
+  "version": 1,
+  "cacheKey": "Mungoa_Chaganetai (reign_court_town_K2_mother)",
+  "heroStringId": "reign_court_town_K2_mother",
+  "characterObjectId": "reign_court_town_K2_mother",
+  "characterName": "Mungoa Chaganetai",
+  "provider": "AtlasCloud",
+  "model": "xai/grok-imagine-image/edit",
+  "adapter": "atlas upload/generate/poll",
+  "sourceSha256": "9e3d15b764d5bf50b992314941ae59b16f954856ddd8d7bcdfd03146fcf4adf2",
+  "portraitSha256": "c9b5196ccda4a73df68fd9c4e776fcc9b6066da1d2f57202b151a746cf0f873a",
+  "portraitWidth": 864,
+  "portraitHeight": 1152,
+  "physicalConfidence": {
+    "definition": "physical_confidence",
+    "score": 69,
+    "profile": "61-80",
+    "flirtatiousnessPercentage": 70,
+    "confidencePercentage": 65,
+    "flirtatiousnessWeight": 0.75,
+    "confidenceWeight": 0.25,
+    "source": "shipped_profile_library"
+  },
+  "derivativesReady": true,
+  "derivativeError": "",
+  "generatedUtc": "2026-07-17T19:05:02.7569140Z"
+}

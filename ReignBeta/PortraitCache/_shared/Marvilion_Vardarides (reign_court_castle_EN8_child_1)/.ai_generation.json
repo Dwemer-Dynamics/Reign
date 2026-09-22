@@ -1,0 +1,27 @@
+{
+  "version": 1,
+  "cacheKey": "Marvilion_Vardarides (reign_court_castle_EN8_child_1)",
+  "heroStringId": "reign_court_castle_EN8_child_1",
+  "characterObjectId": "reign_court_castle_EN8_child_1",
+  "characterName": "Marvilion Vardarides",
+  "provider": "AtlasCloud",
+  "model": "xai/grok-imagine-image/edit",
+  "adapter": "atlas upload/generate/poll",
+  "sourceSha256": "5ce0d1052cd5beed2415f977fb21560c066458f9a2da888cd666a01652a3b2d9",
+  "portraitSha256": "e03b185d99f6c2e3527e2103533c6ab0956612e3fc07eb89688e7e2930d4c7c9",
+  "portraitWidth": 864,
+  "portraitHeight": 1152,
+  "physicalConfidence": {
+    "definition": "physical_confidence",
+    "score": 65,
+    "profile": "61-80",
+    "flirtatiousnessPercentage": 55,
+    "confidencePercentage": 94,
+    "flirtatiousnessWeight": 0.75,
+    "confidenceWeight": 0.25,
+    "source": "shipped_profile_library"
+  },
+  "derivativesReady": true,
+  "derivativeError": "",
+  "generatedUtc": "2026-07-17T19:01:01.4325601Z"
+}

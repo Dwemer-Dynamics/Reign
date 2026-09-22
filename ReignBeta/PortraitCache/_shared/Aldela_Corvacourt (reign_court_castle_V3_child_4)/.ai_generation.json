@@ -1,0 +1,27 @@
+{
+  "version": 1,
+  "cacheKey": "Aldela_Corvacourt (reign_court_castle_V3_child_4)",
+  "heroStringId": "reign_court_castle_V3_child_4",
+  "characterObjectId": "reign_court_castle_V3_child_4",
+  "characterName": "Aldela Corvacourt",
+  "provider": "AtlasCloud",
+  "model": "xai/grok-imagine-image/edit",
+  "adapter": "atlas upload/generate/poll",
+  "sourceSha256": "5e22872c40781e9ab55578b9697aa28ac67d2f8ad7362a3f7dcdb818fc0e7c3f",
+  "portraitSha256": "0e0c86b1c043172a70648b2c2713f5c53664fa264ae23e5e0cb56c61151cf857",
+  "portraitWidth": 864,
+  "portraitHeight": 1152,
+  "physicalConfidence": {
+    "definition": "physical_confidence",
+    "score": 57,
+    "profile": "41-60",
+    "flirtatiousnessPercentage": 50,
+    "confidencePercentage": 77,
+    "flirtatiousnessWeight": 0.75,
+    "confidenceWeight": 0.25,
+    "source": "shipped_profile_library"
+  },
+  "derivativesReady": true,
+  "derivativeError": "",
+  "generatedUtc": "2026-07-17T18:10:52.1168874Z"
+}

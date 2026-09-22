@@ -1,0 +1,27 @@
+{
+  "version": 1,
+  "cacheKey": "Aevenene_Damaranion (reign_court_castle_ES6_child_4)",
+  "heroStringId": "reign_court_castle_ES6_child_4",
+  "characterObjectId": "reign_court_castle_ES6_child_4",
+  "characterName": "Aevenene Damaranion",
+  "provider": "AtlasCloud",
+  "model": "xai/grok-imagine-image/edit",
+  "adapter": "atlas upload/generate/poll",
+  "sourceSha256": "45cede5b0351e5816ced7deac978b5d69a7448eeb6131411b3e946d030d65b90",
+  "portraitSha256": "3d0ebdf5a6a1895c87502904e62f9b01f84c4d7015e4f67553a09c5a648babe8",
+  "portraitWidth": 864,
+  "portraitHeight": 1152,
+  "physicalConfidence": {
+    "definition": "physical_confidence",
+    "score": 57,
+    "profile": "41-60",
+    "flirtatiousnessPercentage": 51,
+    "confidencePercentage": 74,
+    "flirtatiousnessWeight": 0.75,
+    "confidenceWeight": 0.25,
+    "source": "shipped_profile_library"
+  },
+  "derivativesReady": true,
+  "derivativeError": "",
+  "generatedUtc": "2026-07-17T18:09:18.7651006Z"
+}

@@ -1,0 +1,27 @@
+{
+  "version": 1,
+  "cacheKey": "Kharea_Erketatai (reign_court_castle_K5_child_2)",
+  "heroStringId": "reign_court_castle_K5_child_2",
+  "characterObjectId": "reign_court_castle_K5_child_2",
+  "characterName": "Kharea Erketatai",
+  "provider": "AtlasCloud",
+  "model": "xai/grok-imagine-image/edit",
+  "adapter": "atlas upload/generate/poll",
+  "sourceSha256": "61e330f87829d57261eeaeba09afb6a666d08db9184eb0bf0f0eb0c3b1d6526c",
+  "portraitSha256": "dde33f046ecdb715176e2647c6426e4ab5afedfbb227c0836fb01f97a8434939",
+  "portraitWidth": 864,
+  "portraitHeight": 1152,
+  "physicalConfidence": {
+    "definition": "physical_confidence",
+    "score": 74,
+    "profile": "61-80",
+    "flirtatiousnessPercentage": 79,
+    "confidencePercentage": 58,
+    "flirtatiousnessWeight": 0.75,
+    "confidenceWeight": 0.25,
+    "source": "shipped_profile_library"
+  },
+  "derivativesReady": true,
+  "derivativeError": "",
+  "generatedUtc": "2026-07-17T18:47:30.3541299Z"
+}

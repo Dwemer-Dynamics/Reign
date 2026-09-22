@@ -1,0 +1,27 @@
+{
+  "version": 1,
+  "cacheKey": "Ilrika (dead_lord_7_2)",
+  "heroStringId": "dead_lord_7_2",
+  "characterObjectId": "dead_lord_7_2",
+  "characterName": "Ilrika",
+  "provider": "AtlasCloud",
+  "model": "xai/grok-imagine-image/edit",
+  "adapter": "atlas upload/generate/poll",
+  "sourceSha256": "b380882fb14b0cd3c1e73c87b3c4632580249aaa068db6d340b2dafc771e7309",
+  "portraitSha256": "1c031433894a926c4354af12706ea5cb9987aa8d05250791117918d6c1145e17",
+  "portraitWidth": 864,
+  "portraitHeight": 1152,
+  "physicalConfidence": {
+    "definition": "physical_confidence",
+    "score": 50,
+    "profile": "41-60",
+    "flirtatiousnessPercentage": 50,
+    "confidencePercentage": 50,
+    "flirtatiousnessWeight": 0.75,
+    "confidenceWeight": 0.25,
+    "source": "neutral_fallback"
+  },
+  "derivativesReady": true,
+  "derivativeError": "",
+  "generatedUtc": "2026-07-17T18:44:05.8577280Z"
+}

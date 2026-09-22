@@ -1,0 +1,27 @@
+{
+  "version": 1,
+  "cacheKey": "Eryenara_Elarirides (reign_court_castle_EW5_child_4)",
+  "heroStringId": "reign_court_castle_EW5_child_4",
+  "characterObjectId": "reign_court_castle_EW5_child_4",
+  "characterName": "Eryenara Elarirides",
+  "provider": "AtlasCloud",
+  "model": "xai/grok-imagine-image/edit",
+  "adapter": "atlas upload/generate/poll",
+  "sourceSha256": "41d0bd6f1a37f041a010ef27a282d7f8bd79100c1f250482b437aa357a74bf1b",
+  "portraitSha256": "18cd83ddc7e8a9a28349ed192f6535c03cf68b2bfc277501acf12e16d1f6b598",
+  "portraitWidth": 864,
+  "portraitHeight": 1152,
+  "physicalConfidence": {
+    "definition": "physical_confidence",
+    "score": 63,
+    "profile": "61-80",
+    "flirtatiousnessPercentage": 66,
+    "confidencePercentage": 53,
+    "flirtatiousnessWeight": 0.75,
+    "confidenceWeight": 0.25,
+    "source": "shipped_profile_library"
+  },
+  "derivativesReady": true,
+  "derivativeError": "",
+  "generatedUtc": "2026-07-17T18:33:34.1140240Z"
+}

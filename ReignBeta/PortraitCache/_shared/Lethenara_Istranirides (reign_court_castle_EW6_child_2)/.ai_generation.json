@@ -1,0 +1,27 @@
+{
+  "version": 1,
+  "cacheKey": "Lethenara_Istranirides (reign_court_castle_EW6_child_2)",
+  "heroStringId": "reign_court_castle_EW6_child_2",
+  "characterObjectId": "reign_court_castle_EW6_child_2",
+  "characterName": "Lethenara Istranirides",
+  "provider": "AtlasCloud",
+  "model": "xai/grok-imagine-image/edit",
+  "adapter": "atlas upload/generate/poll",
+  "sourceSha256": "5c70e34151a9e43e319384ef8d955fcaa8092085cfd1b6d189a11c83d094e531",
+  "portraitSha256": "00b3bf91c2eacfb97550f4cea536917cde59be117f51dcbc58d0e2e50eaf4f4d",
+  "portraitWidth": 864,
+  "portraitHeight": 1152,
+  "physicalConfidence": {
+    "definition": "physical_confidence",
+    "score": 81,
+    "profile": "81-100",
+    "flirtatiousnessPercentage": 89,
+    "confidencePercentage": 56,
+    "flirtatiousnessWeight": 0.75,
+    "confidenceWeight": 0.25,
+    "source": "shipped_profile_library"
+  },
+  "derivativesReady": true,
+  "derivativeError": "",
+  "generatedUtc": "2026-07-17T18:51:16.2637422Z"
+}

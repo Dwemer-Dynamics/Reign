@@ -1,0 +1,27 @@
+{
+  "version": 1,
+  "cacheKey": "Drazena_Karsaevich (reign_court_castle_S4_mother)",
+  "heroStringId": "reign_court_castle_S4_mother",
+  "characterObjectId": "reign_court_castle_S4_mother",
+  "characterName": "Drazena Karsaevich",
+  "provider": "AtlasCloud",
+  "model": "xai/grok-imagine-image/edit",
+  "adapter": "atlas upload/generate/poll",
+  "sourceSha256": "c807b0ea90b802f6a71f2e0eb9d9c6920e5fba6931fed9749a0deca65a46c9bd",
+  "portraitSha256": "f47e24b0f5e47310d18cb190099b0be67d143008a593e9cbde6ebb8604741422",
+  "portraitWidth": 864,
+  "portraitHeight": 1152,
+  "physicalConfidence": {
+    "definition": "physical_confidence",
+    "score": 61,
+    "profile": "61-80",
+    "flirtatiousnessPercentage": 52,
+    "confidencePercentage": 87,
+    "flirtatiousnessWeight": 0.75,
+    "confidenceWeight": 0.25,
+    "source": "shipped_profile_library"
+  },
+  "derivativesReady": true,
+  "derivativeError": "",
+  "generatedUtc": "2026-07-17T18:28:38.8493216Z"
+}

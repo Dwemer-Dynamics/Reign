@@ -1,0 +1,27 @@
+{
+  "version": 1,
+  "cacheKey": "Pradentia (lord_NE8_s)",
+  "heroStringId": "lord_NE8_s",
+  "characterObjectId": "lord_NE8_s",
+  "characterName": "Pradentia",
+  "provider": "AtlasCloud",
+  "model": "xai/grok-imagine-image/edit",
+  "adapter": "atlas upload/generate/poll",
+  "sourceSha256": "b48bfe39b5e982dc38c3d845a8aa63326b7ad18e7bacb6baf64bf4bce01fe757",
+  "portraitSha256": "c59e8b1849a0c42fefa845f4a3a8a63d8a8deb4fc9b5a97d33efd8ad4df29122",
+  "portraitWidth": 832,
+  "portraitHeight": 1248,
+  "physicalConfidence": {
+    "definition": "physical_confidence",
+    "score": 81,
+    "profile": "81-100",
+    "flirtatiousnessPercentage": 75,
+    "confidencePercentage": 98,
+    "flirtatiousnessWeight": 0.75,
+    "confidenceWeight": 0.25,
+    "source": "shipped_profile_library"
+  },
+  "derivativesReady": true,
+  "derivativeError": "",
+  "generatedUtc": "2026-07-17T19:09:37.2579855Z"
+}

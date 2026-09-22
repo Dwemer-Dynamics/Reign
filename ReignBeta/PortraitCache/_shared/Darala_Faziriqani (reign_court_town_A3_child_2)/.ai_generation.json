@@ -1,0 +1,27 @@
+{
+  "version": 1,
+  "cacheKey": "Darala_Faziriqani (reign_court_town_A3_child_2)",
+  "heroStringId": "reign_court_town_A3_child_2",
+  "characterObjectId": "reign_court_town_A3_child_2",
+  "characterName": "Darala Faziriqani",
+  "provider": "AtlasCloud",
+  "model": "xai/grok-imagine-image/edit",
+  "adapter": "atlas upload/generate/poll",
+  "sourceSha256": "c097cd5f076e2974e211e19d8cb562cf838134ae984a0f2af42dde1410d93490",
+  "portraitSha256": "44dca152c6d13f49593177843d786cde3a094380b66c3d47a7edf40ce7278a00",
+  "portraitWidth": 864,
+  "portraitHeight": 1152,
+  "physicalConfidence": {
+    "definition": "physical_confidence",
+    "score": 58,
+    "profile": "41-60",
+    "flirtatiousnessPercentage": 63,
+    "confidencePercentage": 42,
+    "flirtatiousnessWeight": 0.75,
+    "confidenceWeight": 0.25,
+    "source": "shipped_profile_library"
+  },
+  "derivativesReady": true,
+  "derivativeError": "",
+  "generatedUtc": "2026-07-17T18:25:47.6870016Z"
+}

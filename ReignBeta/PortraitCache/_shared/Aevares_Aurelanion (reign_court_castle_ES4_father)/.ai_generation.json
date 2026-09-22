@@ -1,0 +1,27 @@
+{
+  "version": 1,
+  "cacheKey": "Aevares_Aurelanion (reign_court_castle_ES4_father)",
+  "heroStringId": "reign_court_castle_ES4_father",
+  "characterObjectId": "reign_court_castle_ES4_father",
+  "characterName": "Aevares Aurelanion",
+  "provider": "AtlasCloud",
+  "model": "xai/grok-imagine-image/edit",
+  "adapter": "atlas upload/generate/poll",
+  "sourceSha256": "7800412f0f92166d2958d376d01a54d3eddc5547c4d6f9ee440723c79883a875",
+  "portraitSha256": "d9019ee9e3204494729527847acd67b3884c0792dcf4d8d4828ff4b02c681624",
+  "portraitWidth": 864,
+  "portraitHeight": 1152,
+  "physicalConfidence": {
+    "definition": "physical_confidence",
+    "score": 47,
+    "profile": "41-60",
+    "flirtatiousnessPercentage": 36,
+    "confidencePercentage": 79,
+    "flirtatiousnessWeight": 0.75,
+    "confidenceWeight": 0.25,
+    "source": "shipped_profile_library"
+  },
+  "derivativesReady": true,
+  "derivativeError": "",
+  "generatedUtc": "2026-07-17T17:59:45.4951585Z"
+}

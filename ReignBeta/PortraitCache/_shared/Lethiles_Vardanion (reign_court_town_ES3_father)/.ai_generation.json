@@ -1,0 +1,27 @@
+{
+  "version": 1,
+  "cacheKey": "Lethiles_Vardanion (reign_court_town_ES3_father)",
+  "heroStringId": "reign_court_town_ES3_father",
+  "characterObjectId": "reign_court_town_ES3_father",
+  "characterName": "Lethiles Vardanion",
+  "provider": "AtlasCloud",
+  "model": "xai/grok-imagine-image/edit",
+  "adapter": "atlas upload/generate/poll",
+  "sourceSha256": "c74cbdf04eca36310d84329f07ab9d5adf15827c10e102ce0bbf9e74514b6734",
+  "portraitSha256": "a2df140c9dca35d889514e07e316bc0997d601e386fa34bdc66404fa4f45035a",
+  "portraitWidth": 864,
+  "portraitHeight": 1152,
+  "physicalConfidence": {
+    "definition": "physical_confidence",
+    "score": 40,
+    "profile": "21-40",
+    "flirtatiousnessPercentage": 23,
+    "confidencePercentage": 90,
+    "flirtatiousnessWeight": 0.75,
+    "confidenceWeight": 0.25,
+    "source": "shipped_profile_library"
+  },
+  "derivativesReady": true,
+  "derivativeError": "",
+  "generatedUtc": "2026-07-17T18:57:40.3570288Z"
+}

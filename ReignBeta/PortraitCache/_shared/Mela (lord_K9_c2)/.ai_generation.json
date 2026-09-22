@@ -1,0 +1,27 @@
+{
+  "version": 1,
+  "cacheKey": "Mela (lord_K9_c2)",
+  "heroStringId": "lord_K9_c2",
+  "characterObjectId": "lord_K9_c2",
+  "characterName": "Mela",
+  "provider": "AtlasCloud",
+  "model": "xai/grok-imagine-image/edit",
+  "adapter": "atlas upload/generate/poll",
+  "sourceSha256": "c36f78a3d1b6190236f930458127aae9ac62cbac8d0c8aa7d22d200de4f8be54",
+  "portraitSha256": "51507ce25c9368bf90da36b8f24d059d582186f0b7c4ccf9adc2b98c62945f07",
+  "portraitWidth": 832,
+  "portraitHeight": 1248,
+  "physicalConfidence": {
+    "definition": "physical_confidence",
+    "score": 46,
+    "profile": "41-60",
+    "flirtatiousnessPercentage": 46,
+    "confidencePercentage": 45,
+    "flirtatiousnessWeight": 0.75,
+    "confidenceWeight": 0.25,
+    "source": "shipped_profile_library"
+  },
+  "derivativesReady": true,
+  "derivativeError": "",
+  "generatedUtc": "2026-07-17T19:03:01.9547753Z"
+}

@@ -1,0 +1,27 @@
+{
+  "version": 1,
+  "cacheKey": "Zeno (lord_1_155)",
+  "heroStringId": "lord_1_155",
+  "characterObjectId": "lord_1_155",
+  "characterName": "Zeno",
+  "provider": "AtlasCloud",
+  "model": "xai/grok-imagine-image/edit",
+  "adapter": "atlas upload/generate/poll",
+  "sourceSha256": "b924f9a891736bb5e6f15f6f10cbcf025d3a22532c8e3b5f9c20039935a531bf",
+  "portraitSha256": "b0435be674f438ef95e469796514269cb78105e6c7fc977b2d11c95f35ec0abc",
+  "portraitWidth": 832,
+  "portraitHeight": 1248,
+  "physicalConfidence": {
+    "definition": "physical_confidence",
+    "score": 48,
+    "profile": "41-60",
+    "flirtatiousnessPercentage": 47,
+    "confidencePercentage": 50,
+    "flirtatiousnessWeight": 0.75,
+    "confidenceWeight": 0.25,
+    "source": "shipped_profile_library"
+  },
+  "derivativesReady": true,
+  "derivativeError": "",
+  "generatedUtc": "2026-07-17T19:22:59.0497416Z"
+}

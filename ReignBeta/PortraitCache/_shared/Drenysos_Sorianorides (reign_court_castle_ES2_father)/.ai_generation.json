@@ -1,0 +1,27 @@
+{
+  "version": 1,
+  "cacheKey": "Drenysos_Sorianorides (reign_court_castle_ES2_father)",
+  "heroStringId": "reign_court_castle_ES2_father",
+  "characterObjectId": "reign_court_castle_ES2_father",
+  "characterName": "Drenysos Sorianorides",
+  "provider": "AtlasCloud",
+  "model": "xai/grok-imagine-image/edit",
+  "adapter": "atlas upload/generate/poll",
+  "sourceSha256": "695d3f94451f2e8629a339a8476e82494b901a52205778defecfc4f0148eca0c",
+  "portraitSha256": "7f3d4b12cb67baa2b1710d8c49820672afd66cc44feff7780b654808f5eee55a",
+  "portraitWidth": 864,
+  "portraitHeight": 1152,
+  "physicalConfidence": {
+    "definition": "physical_confidence",
+    "score": 31,
+    "profile": "21-40",
+    "flirtatiousnessPercentage": 38,
+    "confidencePercentage": 10,
+    "flirtatiousnessWeight": 0.75,
+    "confidenceWeight": 0.25,
+    "source": "shipped_profile_library"
+  },
+  "derivativesReady": true,
+  "derivativeError": "",
+  "generatedUtc": "2026-07-17T18:30:40.9132227Z"
+}

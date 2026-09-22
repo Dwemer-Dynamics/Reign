@@ -1,0 +1,27 @@
+{
+  "version": 1,
+  "cacheKey": "Galeric_Gervacourt (reign_court_castle_V7_child_3)",
+  "heroStringId": "reign_court_castle_V7_child_3",
+  "characterObjectId": "reign_court_castle_V7_child_3",
+  "characterName": "Galeric Gervacourt",
+  "provider": "AtlasCloud",
+  "model": "xai/grok-imagine-image/edit",
+  "adapter": "atlas upload/generate/poll",
+  "sourceSha256": "e822c58438486f60aa77a5c03f9fb7529f753e522a97cd7d2c231553ff6bb044",
+  "portraitSha256": "e92621df82ee33b6774a502b69040cebdee5d75be37795a96d823bc897373e54",
+  "portraitWidth": 864,
+  "portraitHeight": 1152,
+  "physicalConfidence": {
+    "definition": "physical_confidence",
+    "score": 67,
+    "profile": "61-80",
+    "flirtatiousnessPercentage": 59,
+    "confidencePercentage": 90,
+    "flirtatiousnessWeight": 0.75,
+    "confidenceWeight": 0.25,
+    "source": "shipped_profile_library"
+  },
+  "derivativesReady": true,
+  "derivativeError": "",
+  "generatedUtc": "2026-07-17T18:38:13.0997478Z"
+}

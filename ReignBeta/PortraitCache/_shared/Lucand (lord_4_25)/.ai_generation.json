@@ -1,0 +1,27 @@
+{
+  "version": 1,
+  "cacheKey": "Lucand (lord_4_25)",
+  "heroStringId": "lord_4_25",
+  "characterObjectId": "lord_4_25",
+  "characterName": "Lucand",
+  "provider": "AtlasCloud",
+  "model": "xai/grok-imagine-image/edit",
+  "adapter": "atlas upload/generate/poll",
+  "sourceSha256": "e85bfa99535ebf0e92f2864432b31cd14b54ccfa433ba546c50388d4619beb56",
+  "portraitSha256": "59aac952b050f0fd249be229129bf54f7370397ab9fd091be1cf48192b2270d6",
+  "portraitWidth": 832,
+  "portraitHeight": 1248,
+  "physicalConfidence": {
+    "definition": "physical_confidence",
+    "score": 66,
+    "profile": "61-80",
+    "flirtatiousnessPercentage": 60,
+    "confidencePercentage": 83,
+    "flirtatiousnessWeight": 0.75,
+    "confidenceWeight": 0.25,
+    "source": "shipped_profile_library"
+  },
+  "derivativesReady": true,
+  "derivativeError": "",
+  "generatedUtc": "2026-07-17T18:59:41.1869587Z"
+}

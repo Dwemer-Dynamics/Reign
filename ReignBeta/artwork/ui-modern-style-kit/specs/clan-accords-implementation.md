@@ -1,0 +1,13 @@
+# Clan Accords artwork and native interface
+
+The approved Clan Accords reference is retained at `approved-references/clan-accords.png`. Its production shell preserves every fixed pixel outside `clan-accords-shell.json`. All scrolling cards render above this shell, in a 1188 × 448 clip viewport beginning at (404, 360). Four 112-pixel pitches show four complete 1188 × 104 cards. Banner, integrated artwork, names, terms, arrangers, date and cancel command share the same card parent.
+
+`clan-accords-card-clean.json` removes variable lettering using imagegen-derived material. `clan-accords-card.json` crops the complete original card and cuts its declared polygon banner aperture. `clan-accords-button.json` and `clan-accords-filter.json` crop complete original controls. Alpha pixels are zero-RGB. Neither portrait nor banner source textures are modified.
+
+The Economy entry is a complete 425 × 86 plaque at (1143, 800), to the right of the date. `clan-accords-economy-reference.json` records its narrowly scoped addition to the old Economy reference; all pixels outside that plaque are unchanged. The prior reference remains recoverable under generated-sources/clan-accords/economic-report-before-accords.png.
+
+Runtime category: `ui_reignbeta_clan_accords`. Use `build-runtime-sprite-sheets.ps1 -Categories ui_reignbeta_clan_accords` after materialization. The category must load before either the Economy or Clan Accords movie. Custom widget `ReignBeta.UI.ReignClanAccordsSnapScrollPanel` is explicitly declared through the prefab Type attribute, matching existing Gauntlet custom-widget discovery.
+
+Presentation API: `ReignClanAccordsScreenManager.Open(court, snapshot, cancel)`. The snapshot supplies active records only. The cancellation delegate returns an empty error string only after committing the native ledger. The VM shows a confirmation, prevents repeated submissions, preserves the chosen type filter, refreshes totals/capacity and re-observes snapshots once per second without rebuilding unchanged cards. Missing banners have a neutral silhouette fallback. Read-only bonus formulas mirror the fixed five accord definitions; gameplay remains authoritative outside the UI.
+
+Preview fixtures cover active, empty, full tier-6 capacity (30 agreements), confirmation, failed cancellation and landless settlements. `test-clan-accords-contract.mjs` checks layout, integrated banner order, live bindings, palette/font declarations and fixture limits. Full preview, alpha, typography and reference-fidelity audits remain required. Browser evidence does not replace native Bannerlord interaction and campaign acceptance.

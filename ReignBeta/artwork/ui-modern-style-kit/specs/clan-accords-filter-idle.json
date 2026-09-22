@@ -1,0 +1,25 @@
+{
+  "schema": "reign-overlay-asset-spec-v1",
+  "asset": {
+    "id": "clan-accords-filter-idle",
+    "role": "Complete ordinary filter row with original integrated diamond"
+  },
+  "canvas": {
+    "width": 294,
+    "height": 44
+  },
+  "normalization": {
+    "fit": "exact",
+    "sourceCrop": {
+      "x": 58,
+      "y": 404,
+      "width": 294,
+      "height": 44
+    }
+  },
+  "allowNoApertures": true,
+  "apertures": [],
+  "marbleReduction": {
+    "amount": 0
+  }
+}

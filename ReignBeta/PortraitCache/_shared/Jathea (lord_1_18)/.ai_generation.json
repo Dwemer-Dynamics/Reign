@@ -1,0 +1,27 @@
+{
+  "version": 1,
+  "cacheKey": "Jathea (lord_1_18)",
+  "heroStringId": "lord_1_18",
+  "characterObjectId": "lord_1_18",
+  "characterName": "Jathea",
+  "provider": "AtlasCloud",
+  "model": "xai/grok-imagine-image/edit",
+  "adapter": "atlas upload/generate/poll",
+  "sourceSha256": "7df014bc9c85ad16d2f0237835b6bb17ea6898dc3c2e5331c0f0dd7f7cd48d51",
+  "portraitSha256": "c3ae05243591f537b7bf22fa155b4e4a5edbe704e250d1a2146e063a699399d2",
+  "portraitWidth": 832,
+  "portraitHeight": 1248,
+  "physicalConfidence": {
+    "definition": "physical_confidence",
+    "score": 23,
+    "profile": "21-40",
+    "flirtatiousnessPercentage": 21,
+    "confidencePercentage": 28,
+    "flirtatiousnessWeight": 0.75,
+    "confidenceWeight": 0.25,
+    "source": "shipped_profile_library"
+  },
+  "derivativesReady": true,
+  "derivativeError": "",
+  "generatedUtc": "2026-07-17T18:46:36.9958493Z"
+}

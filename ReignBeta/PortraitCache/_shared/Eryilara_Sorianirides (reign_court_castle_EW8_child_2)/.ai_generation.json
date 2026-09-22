@@ -1,0 +1,27 @@
+{
+  "version": 1,
+  "cacheKey": "Eryilara_Sorianirides (reign_court_castle_EW8_child_2)",
+  "heroStringId": "reign_court_castle_EW8_child_2",
+  "characterObjectId": "reign_court_castle_EW8_child_2",
+  "characterName": "Eryilara Sorianirides",
+  "provider": "AtlasCloud",
+  "model": "xai/grok-imagine-image/edit",
+  "adapter": "atlas upload/generate/poll",
+  "sourceSha256": "17973bac31684effa8d5c6cb9fefc251cf1ee059c9a7fc17b3d58946c44b9252",
+  "portraitSha256": "281211a68a420fc1e8db4a0c94f744fa1a005934952e735da58576929871ee65",
+  "portraitWidth": 864,
+  "portraitHeight": 1152,
+  "physicalConfidence": {
+    "definition": "physical_confidence",
+    "score": 52,
+    "profile": "41-60",
+    "flirtatiousnessPercentage": 55,
+    "confidencePercentage": 42,
+    "flirtatiousnessWeight": 0.75,
+    "confidenceWeight": 0.25,
+    "source": "shipped_profile_library"
+  },
+  "derivativesReady": true,
+  "derivativeError": "",
+  "generatedUtc": "2026-07-17T18:33:47.8842390Z"
+}

@@ -1,0 +1,27 @@
+{
+  "version": 1,
+  "cacheKey": "Eryenion_Elararides (reign_court_castle_EN4_child_3)",
+  "heroStringId": "reign_court_castle_EN4_child_3",
+  "characterObjectId": "reign_court_castle_EN4_child_3",
+  "characterName": "Eryenion Elararides",
+  "provider": "AtlasCloud",
+  "model": "xai/grok-imagine-image/edit",
+  "adapter": "atlas upload/generate/poll",
+  "sourceSha256": "950ae408319e6cccf4da2ebc570f71e6a89c377b7fddb880ff894ac0db0aacf1",
+  "portraitSha256": "aacb88e95cdc4b18c14999797f7baaad10975c781b5e1cd46b5458a4b3c5d481",
+  "portraitWidth": 864,
+  "portraitHeight": 1152,
+  "physicalConfidence": {
+    "definition": "physical_confidence",
+    "score": 41,
+    "profile": "41-60",
+    "flirtatiousnessPercentage": 29,
+    "confidencePercentage": 76,
+    "flirtatiousnessWeight": 0.75,
+    "confidenceWeight": 0.25,
+    "source": "shipped_profile_library"
+  },
+  "derivativesReady": true,
+  "derivativeError": "",
+  "generatedUtc": "2026-07-17T18:33:47.2435044Z"
+}

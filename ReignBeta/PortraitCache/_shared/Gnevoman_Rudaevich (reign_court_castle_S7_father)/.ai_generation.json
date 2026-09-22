@@ -1,0 +1,27 @@
+{
+  "version": 1,
+  "cacheKey": "Gnevoman_Rudaevich (reign_court_castle_S7_father)",
+  "heroStringId": "reign_court_castle_S7_father",
+  "characterObjectId": "reign_court_castle_S7_father",
+  "characterName": "Gnevoman Rudaevich",
+  "provider": "AtlasCloud",
+  "model": "xai/grok-imagine-image/edit",
+  "adapter": "atlas upload/generate/poll",
+  "sourceSha256": "74d30d0cfcc72f967da87f395cc48688ad894b952efb4f6c80b5b0307ddf4f6b",
+  "portraitSha256": "3972176b5f1d92496d95c738846c12ced59179e248810452eeb1a8c639818450",
+  "portraitWidth": 864,
+  "portraitHeight": 1152,
+  "physicalConfidence": {
+    "definition": "physical_confidence",
+    "score": 54,
+    "profile": "41-60",
+    "flirtatiousnessPercentage": 50,
+    "confidencePercentage": 65,
+    "flirtatiousnessWeight": 0.75,
+    "confidenceWeight": 0.25,
+    "source": "shipped_profile_library"
+  },
+  "derivativesReady": true,
+  "derivativeError": "",
+  "generatedUtc": "2026-07-17T18:39:05.8122534Z"
+}

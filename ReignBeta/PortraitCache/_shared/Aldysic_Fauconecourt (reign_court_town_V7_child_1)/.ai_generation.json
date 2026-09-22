@@ -1,0 +1,27 @@
+{
+  "version": 1,
+  "cacheKey": "Aldysic_Fauconecourt (reign_court_town_V7_child_1)",
+  "heroStringId": "reign_court_town_V7_child_1",
+  "characterObjectId": "reign_court_town_V7_child_1",
+  "characterName": "Aldysic Fauconecourt",
+  "provider": "AtlasCloud",
+  "model": "xai/grok-imagine-image/edit",
+  "adapter": "atlas upload/generate/poll",
+  "sourceSha256": "e1310faec8024a0aa4da3237dda5c13396227a91b23cc4897d895967b00fb592",
+  "portraitSha256": "b8419d6589b832cda41d667cc8725c2d963b323c82275a8e463c90a6620e4d38",
+  "portraitWidth": 864,
+  "portraitHeight": 1152,
+  "physicalConfidence": {
+    "definition": "physical_confidence",
+    "score": 90,
+    "profile": "81-100",
+    "flirtatiousnessPercentage": 89,
+    "confidencePercentage": 92,
+    "flirtatiousnessWeight": 0.75,
+    "confidenceWeight": 0.25,
+    "source": "shipped_profile_library"
+  },
+  "derivativesReady": true,
+  "derivativeError": "",
+  "generatedUtc": "2026-07-17T18:11:22.2075394Z"
+}

@@ -1,0 +1,27 @@
+{
+  "version": 1,
+  "cacheKey": "Azada_Alzaraqani (reign_court_castle_A1_mother)",
+  "heroStringId": "reign_court_castle_A1_mother",
+  "characterObjectId": "reign_court_castle_A1_mother",
+  "characterName": "Azada Alzaraqani",
+  "provider": "AtlasCloud",
+  "model": "xai/grok-imagine-image/edit",
+  "adapter": "atlas upload/generate/poll",
+  "sourceSha256": "f8000b0897d1dfa7b24fff4bcd727b029d6519f421ecced37d49585c24c21b46",
+  "portraitSha256": "211703e623fb99a215ac149046833944b13ecf8420a0bd89c6a2df4f2fdf3d6b",
+  "portraitWidth": 864,
+  "portraitHeight": 1152,
+  "physicalConfidence": {
+    "definition": "physical_confidence",
+    "score": 32,
+    "profile": "21-40",
+    "flirtatiousnessPercentage": 27,
+    "confidencePercentage": 46,
+    "flirtatiousnessWeight": 0.75,
+    "confidenceWeight": 0.25,
+    "source": "shipped_profile_library"
+  },
+  "derivativesReady": true,
+  "derivativeError": "",
+  "generatedUtc": "2026-07-17T18:14:26.2093155Z"
+}

@@ -1,0 +1,27 @@
+{
+  "version": 1,
+  "cacheKey": "Aeron (lord_5_16)",
+  "heroStringId": "lord_5_16",
+  "characterObjectId": "lord_5_16",
+  "characterName": "Aeron",
+  "provider": "AtlasCloud",
+  "model": "xai/grok-imagine-image/edit",
+  "adapter": "atlas upload/generate/poll",
+  "sourceSha256": "e8468c55fb45e8ae73ea01f9db2f2038e4cce78c47fa73a5e5b5b51e8f326d75",
+  "portraitSha256": "a862abfaf64c988a6f97085820c11df0a8de17e554a2b3bc82125da241c4f669",
+  "portraitWidth": 832,
+  "portraitHeight": 1248,
+  "physicalConfidence": {
+    "definition": "physical_confidence",
+    "score": 41,
+    "profile": "41-60",
+    "flirtatiousnessPercentage": 31,
+    "confidencePercentage": 70,
+    "flirtatiousnessWeight": 0.75,
+    "confidenceWeight": 0.25,
+    "source": "shipped_profile_library"
+  },
+  "derivativesReady": true,
+  "derivativeError": "",
+  "generatedUtc": "2026-07-17T17:46:10.2609758Z"
+}

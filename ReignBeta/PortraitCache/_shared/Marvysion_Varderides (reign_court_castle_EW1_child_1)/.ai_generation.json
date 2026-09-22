@@ -1,0 +1,27 @@
+{
+  "version": 1,
+  "cacheKey": "Marvysion_Varderides (reign_court_castle_EW1_child_1)",
+  "heroStringId": "reign_court_castle_EW1_child_1",
+  "characterObjectId": "reign_court_castle_EW1_child_1",
+  "characterName": "Marvysion Varderides",
+  "provider": "AtlasCloud",
+  "model": "xai/grok-imagine-image/edit",
+  "adapter": "atlas upload/generate/poll",
+  "sourceSha256": "04cb047afd7958843bee464ff8e5db83d6f79d87c7c0e4fc7327008edf5ab95e",
+  "portraitSha256": "572f99a9e933ecd469054d85f6df174aed2d8a931dd7257604e5ea7f83ad7294",
+  "portraitWidth": 864,
+  "portraitHeight": 1152,
+  "physicalConfidence": {
+    "definition": "physical_confidence",
+    "score": 57,
+    "profile": "41-60",
+    "flirtatiousnessPercentage": 49,
+    "confidencePercentage": 80,
+    "flirtatiousnessWeight": 0.75,
+    "confidenceWeight": 0.25,
+    "source": "shipped_profile_library"
+  },
+  "derivativesReady": true,
+  "derivativeError": "",
+  "generatedUtc": "2026-07-17T19:01:48.6803429Z"
+}

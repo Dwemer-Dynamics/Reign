@@ -1,0 +1,27 @@
+{
+  "version": 1,
+  "cacheKey": "Maziran_Sahiraqani (reign_court_castle_A8_child_1)",
+  "heroStringId": "reign_court_castle_A8_child_1",
+  "characterObjectId": "reign_court_castle_A8_child_1",
+  "characterName": "Maziran Sahiraqani",
+  "provider": "AtlasCloud",
+  "model": "xai/grok-imagine-image/edit",
+  "adapter": "atlas upload/generate/poll",
+  "sourceSha256": "0b784a9fce240bf36a326869f0def5391814046a27ed5724cc9ecd3748903e0e",
+  "portraitSha256": "21fc75d161294f8841b79ce8fbcb6bbbd6c0069b3be5007ba1d159617883e862",
+  "portraitWidth": 864,
+  "portraitHeight": 1152,
+  "physicalConfidence": {
+    "definition": "physical_confidence",
+    "score": 61,
+    "profile": "61-80",
+    "flirtatiousnessPercentage": 55,
+    "confidencePercentage": 78,
+    "flirtatiousnessWeight": 0.75,
+    "confidenceWeight": 0.25,
+    "source": "shipped_profile_library"
+  },
+  "derivativesReady": true,
+  "derivativeError": "",
+  "generatedUtc": "2026-07-17T19:02:22.8080845Z"
+}

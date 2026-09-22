@@ -1,0 +1,27 @@
+{
+  "version": 1,
+  "cacheKey": "Calilos_Merovirides (reign_court_castle_EW7_child_3)",
+  "heroStringId": "reign_court_castle_EW7_child_3",
+  "characterObjectId": "reign_court_castle_EW7_child_3",
+  "characterName": "Calilos Merovirides",
+  "provider": "AtlasCloud",
+  "model": "xai/grok-imagine-image/edit",
+  "adapter": "atlas upload/generate/poll",
+  "sourceSha256": "8c4583e110ea4660a201cef46d1cc7a6a0f64395dd82370c8723271ecf37467f",
+  "portraitSha256": "711b3f93cdac9fd506ca1f834917849dc27149268a791124ef07c16d47067f47",
+  "portraitWidth": 864,
+  "portraitHeight": 1152,
+  "physicalConfidence": {
+    "definition": "physical_confidence",
+    "score": 41,
+    "profile": "41-60",
+    "flirtatiousnessPercentage": 41,
+    "confidencePercentage": 40,
+    "flirtatiousnessWeight": 0.75,
+    "confidenceWeight": 0.25,
+    "source": "shipped_profile_library"
+  },
+  "derivativesReady": true,
+  "derivativeError": "",
+  "generatedUtc": "2026-07-17T18:21:09.7192319Z"
+}

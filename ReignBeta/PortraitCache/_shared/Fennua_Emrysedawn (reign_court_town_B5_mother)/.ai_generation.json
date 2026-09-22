@@ -1,0 +1,27 @@
+{
+  "version": 1,
+  "cacheKey": "Fennua_Emrysedawn (reign_court_town_B5_mother)",
+  "heroStringId": "reign_court_town_B5_mother",
+  "characterObjectId": "reign_court_town_B5_mother",
+  "characterName": "Fennua Emrysedawn",
+  "provider": "AtlasCloud",
+  "model": "xai/grok-imagine-image/edit",
+  "adapter": "atlas upload/generate/poll",
+  "sourceSha256": "b807cc9bd3364dda2f92eae27d7f3232479a79944bef7af10e662565910d548b",
+  "portraitSha256": "4bcbe4a8e16d318128261d8be6342fee24dceb64baea822b1802300ed67d5838",
+  "portraitWidth": 864,
+  "portraitHeight": 1152,
+  "physicalConfidence": {
+    "definition": "physical_confidence",
+    "score": 56,
+    "profile": "41-60",
+    "flirtatiousnessPercentage": 58,
+    "confidencePercentage": 49,
+    "flirtatiousnessWeight": 0.75,
+    "confidenceWeight": 0.25,
+    "source": "shipped_profile_library"
+  },
+  "derivativesReady": true,
+  "derivativeError": "",
+  "generatedUtc": "2026-07-17T18:37:19.5254858Z"
+}

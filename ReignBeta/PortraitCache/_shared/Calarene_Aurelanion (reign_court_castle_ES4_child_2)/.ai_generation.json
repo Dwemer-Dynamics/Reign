@@ -1,0 +1,27 @@
+{
+  "version": 1,
+  "cacheKey": "Calarene_Aurelanion (reign_court_castle_ES4_child_2)",
+  "heroStringId": "reign_court_castle_ES4_child_2",
+  "characterObjectId": "reign_court_castle_ES4_child_2",
+  "characterName": "Calarene Aurelanion",
+  "provider": "AtlasCloud",
+  "model": "xai/grok-imagine-image/edit",
+  "adapter": "atlas upload/generate/poll",
+  "sourceSha256": "8b2d6822bcb137854945cd70d0f499dc6503e8c080b05b4c03efef8370ba491e",
+  "portraitSha256": "a24b273751b2e710a568a843d7c9aaa657d27b0537563261aa90739eb423a0ad",
+  "portraitWidth": 864,
+  "portraitHeight": 1152,
+  "physicalConfidence": {
+    "definition": "physical_confidence",
+    "score": 55,
+    "profile": "41-60",
+    "flirtatiousnessPercentage": 47,
+    "confidencePercentage": 78,
+    "flirtatiousnessWeight": 0.75,
+    "confidenceWeight": 0.25,
+    "source": "shipped_profile_library"
+  },
+  "derivativesReady": true,
+  "derivativeError": "",
+  "generatedUtc": "2026-07-17T18:20:23.4662666Z"
+}

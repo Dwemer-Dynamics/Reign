@@ -1,0 +1,27 @@
+{
+  "version": 1,
+  "cacheKey": "Thephilos (lord_1_75)",
+  "heroStringId": "lord_1_75",
+  "characterObjectId": "lord_1_75",
+  "characterName": "Thephilos",
+  "provider": "AtlasCloud",
+  "model": "xai/grok-imagine-image/edit",
+  "adapter": "atlas upload/generate/poll",
+  "sourceSha256": "712e172e9dbf7eea18e1e172a27f6b79d038150f8deae28620fd684db6f1fc57",
+  "portraitSha256": "488ab85d32fafa6207a719407475478e355f395e8e24b57ed442e1b453e5f29f",
+  "portraitWidth": 832,
+  "portraitHeight": 1248,
+  "physicalConfidence": {
+    "definition": "physical_confidence",
+    "score": 84,
+    "profile": "81-100",
+    "flirtatiousnessPercentage": 96,
+    "confidencePercentage": 47,
+    "flirtatiousnessWeight": 0.75,
+    "confidenceWeight": 0.25,
+    "source": "shipped_profile_library"
+  },
+  "derivativesReady": true,
+  "derivativeError": "",
+  "generatedUtc": "2026-07-17T19:16:48.8438915Z"
+}

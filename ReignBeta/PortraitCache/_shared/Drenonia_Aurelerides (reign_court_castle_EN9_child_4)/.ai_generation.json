@@ -1,0 +1,27 @@
+{
+  "version": 1,
+  "cacheKey": "Drenonia_Aurelerides (reign_court_castle_EN9_child_4)",
+  "heroStringId": "reign_court_castle_EN9_child_4",
+  "characterObjectId": "reign_court_castle_EN9_child_4",
+  "characterName": "Drenonia Aurelerides",
+  "provider": "AtlasCloud",
+  "model": "xai/grok-imagine-image/edit",
+  "adapter": "atlas upload/generate/poll",
+  "sourceSha256": "4dd5a0d47913c90296ba1e7493688075272e34f85732e6f06e2c21d0339f0dd1",
+  "portraitSha256": "2d6af467ad06ceebbe8043d6a8c2a214fc14eb6a56a98697340c59e8fa6a4181",
+  "portraitWidth": 864,
+  "portraitHeight": 1152,
+  "physicalConfidence": {
+    "definition": "physical_confidence",
+    "score": 83,
+    "profile": "81-100",
+    "flirtatiousnessPercentage": 91,
+    "confidencePercentage": 58,
+    "flirtatiousnessWeight": 0.75,
+    "confidenceWeight": 0.25,
+    "source": "shipped_profile_library"
+  },
+  "derivativesReady": true,
+  "derivativeError": "",
+  "generatedUtc": "2026-07-17T18:30:07.9552178Z"
+}

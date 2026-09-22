@@ -1,0 +1,27 @@
+{
+  "version": 1,
+  "cacheKey": "Diasca (lord_SE9_c2)",
+  "heroStringId": "lord_SE9_c2",
+  "characterObjectId": "lord_SE9_c2",
+  "characterName": "Diasca",
+  "provider": "AtlasCloud",
+  "model": "xai/grok-imagine-image/edit",
+  "adapter": "atlas upload/generate/poll",
+  "sourceSha256": "bd0c78656298bb2e316b1696865d4cdb043bc8c3bca671e9627b7496d9a33640",
+  "portraitSha256": "03dbd2167d8b38467ecb8433125214c98afa5b21ca6ece97a1d356c6d9b03644",
+  "portraitWidth": 832,
+  "portraitHeight": 1248,
+  "physicalConfidence": {
+    "definition": "physical_confidence",
+    "score": 60,
+    "profile": "41-60",
+    "flirtatiousnessPercentage": 65,
+    "confidencePercentage": 44,
+    "flirtatiousnessWeight": 0.75,
+    "confidenceWeight": 0.25,
+    "source": "shipped_profile_library"
+  },
+  "derivativesReady": true,
+  "derivativeError": "",
+  "generatedUtc": "2026-07-17T18:26:42.4549188Z"
+}

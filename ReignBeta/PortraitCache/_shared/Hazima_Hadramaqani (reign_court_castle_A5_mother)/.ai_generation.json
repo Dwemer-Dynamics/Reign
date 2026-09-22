@@ -1,0 +1,27 @@
+{
+  "version": 1,
+  "cacheKey": "Hazima_Hadramaqani (reign_court_castle_A5_mother)",
+  "heroStringId": "reign_court_castle_A5_mother",
+  "characterObjectId": "reign_court_castle_A5_mother",
+  "characterName": "Hazima Hadramaqani",
+  "provider": "AtlasCloud",
+  "model": "xai/grok-imagine-image/edit",
+  "adapter": "atlas upload/generate/poll",
+  "sourceSha256": "5eb3751520ee54a7d0f9e37f2da8ae0d50d981c17dd435c0f99e8a7ef9c17027",
+  "portraitSha256": "06392c60ba8fecbf4960895d784f4f61152b2a02896fac68075781faf8bf4d7a",
+  "portraitWidth": 864,
+  "portraitHeight": 1152,
+  "physicalConfidence": {
+    "definition": "physical_confidence",
+    "score": 79,
+    "profile": "61-80",
+    "flirtatiousnessPercentage": 91,
+    "confidencePercentage": 42,
+    "flirtatiousnessWeight": 0.75,
+    "confidenceWeight": 0.25,
+    "source": "shipped_profile_library"
+  },
+  "derivativesReady": true,
+  "derivativeError": "",
+  "generatedUtc": "2026-07-17T18:42:52.6626040Z"
+}

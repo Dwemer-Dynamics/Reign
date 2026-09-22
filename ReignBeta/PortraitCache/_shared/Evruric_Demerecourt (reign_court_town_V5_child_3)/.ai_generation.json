@@ -1,0 +1,27 @@
+{
+  "version": 1,
+  "cacheKey": "Evruric_Demerecourt (reign_court_town_V5_child_3)",
+  "heroStringId": "reign_court_town_V5_child_3",
+  "characterObjectId": "reign_court_town_V5_child_3",
+  "characterName": "Evruric Demerecourt",
+  "provider": "AtlasCloud",
+  "model": "xai/grok-imagine-image/edit",
+  "adapter": "atlas upload/generate/poll",
+  "sourceSha256": "aea3cff9eb1ce63053255a7b982862f85e2eecc2871492e3cca06c1c44f8da5b",
+  "portraitSha256": "c83d5d29895f6f3fe3c5485928afb84230a9afddb96170bb1798cbf5df7c4043",
+  "portraitWidth": 864,
+  "portraitHeight": 1152,
+  "physicalConfidence": {
+    "definition": "physical_confidence",
+    "score": 65,
+    "profile": "61-80",
+    "flirtatiousnessPercentage": 69,
+    "confidencePercentage": 52,
+    "flirtatiousnessWeight": 0.75,
+    "confidenceWeight": 0.25,
+    "source": "shipped_profile_library"
+  },
+  "derivativesReady": true,
+  "derivativeError": "",
+  "generatedUtc": "2026-07-17T18:35:53.3229281Z"
+}

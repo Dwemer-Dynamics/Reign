@@ -1,0 +1,62 @@
+{
+  "schema": "reign-overlay-asset-spec-v1",
+  "asset": {
+    "id": "spymaster-modern-shell",
+    "role": "approved-reference-exact fixed-caption Spymaster shell with only genuinely dynamic portrait, selector, assessment, report, and status regions left live",
+    "selectedGeneratedSourceSha256": "425ceeeb09abed6d8c080bd2d4332df800e2ce8163caf75c3028701e0a95fa98",
+    "generationMode": "built-in image-to-image exploration followed by deterministic approved-reference fixed-pixel extraction",
+    "promptPath": "../spymaster-modern-shell-prompt.txt",
+    "promptSha256": "1ef3986ea2529f049b1c0368bda37ac38fe0309300c540781d4447c020fa16cd"
+  },
+  "authorities": {
+    "layout": {
+      "path": "../approved-references/spymaster.png",
+      "sha256": "90ea63e898de5e677002ea94f7ea4d50b6406310c540fbd2b9b10eca9d6fb109"
+    },
+    "materials": {
+      "path": "../approved-references/spymaster.png",
+      "sha256": "90ea63e898de5e677002ea94f7ea4d50b6406310c540fbd2b9b10eca9d6fb109"
+    },
+    "palette": {
+      "path": "../palette.json",
+      "sha256": "fac70043a567db463ae70c975b92037dbfc38337e0d9134bc85bb03e3bb9a043",
+      "schema": "reign-ui-modern-palette-v1",
+      "version": "2026.08.28.2"
+    }
+  },
+  "canvas": {"width": 1672, "height": 941},
+  "normalization": {"fit": "exact", "anchor": "center"},
+  "antialiasScale": 8,
+  "apertures": [
+    {"id": "spymaster-full-body-artwork", "shape": "rectangle", "x": 120, "y": 92, "width": 329, "height": 647, "feather": 0.0},
+    {"id": "spymaster-name", "shape": "rectangle", "x": 120, "y": 748, "width": 329, "height": 48, "feather": 0.0},
+    {"id": "target-selector-value", "shape": "rectangle", "x": 568, "y": 237, "width": 378, "height": 38, "feather": 0.0},
+    {"id": "target-detail", "shape": "rectangle", "x": 556, "y": 300, "width": 437, "height": 43, "feather": 0.0},
+    {"id": "operation-selector-value", "shape": "rectangle", "x": 1090, "y": 237, "width": 399, "height": 38, "feather": 0.0},
+    {"id": "operation-detail", "shape": "rectangle", "x": 1075, "y": 300, "width": 437, "height": 49, "feather": 0.0},
+    {"id": "assessment-value", "shape": "rectangle", "x": 1035, "y": 402, "width": 165, "height": 31, "feather": 0.0},
+    {"id": "reports-list", "shape": "rectangle", "x": 547, "y": 618, "width": 431, "height": 211, "feather": 0.0},
+    {"id": "report-details", "shape": "rectangle", "x": 1032, "y": 618, "width": 480, "height": 211, "feather": 0.0}
+  ],
+  "transparentRgb": "#121211",
+  "marbleReduction": {
+    "amount": 0.0,
+    "blurRadius": 6.0,
+    "luminanceCeiling": 96,
+    "chromaCeiling": 36,
+    "selectionSoftness": 20
+  },
+  "integrationGeometry": {
+    "schema": "reign-spymaster-integration-geometry-v1",
+    "coordinateSystem": {"units": "pixels", "origin": "top-left", "canvasWidth": 1672, "canvasHeight": 941},
+    "runtimeRegions": {
+      "fullBodyPortrait": {"x": 120, "y": 92, "width": 329, "height": 647, "shape": "rectangle"},
+      "portraitName": {"x": 119, "y": 744, "width": 331, "height": 65},
+      "closeControl": {"x": 1585, "y": 58, "width": 38, "height": 38},
+      "primaryTabs": {"x": 520, "y": 69, "width": 1037, "height": 48},
+      "upperPanel": {"x": 516, "y": 121, "width": 1042, "height": 401},
+      "reportList": {"x": 531, "y": 580, "width": 466, "height": 271},
+      "reportDetail": {"x": 1017, "y": 580, "width": 523, "height": 271}
+    }
+  }
+}

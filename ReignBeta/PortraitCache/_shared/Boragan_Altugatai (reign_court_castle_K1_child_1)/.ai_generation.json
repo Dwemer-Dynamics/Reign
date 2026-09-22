@@ -1,0 +1,27 @@
+{
+  "version": 1,
+  "cacheKey": "Boragan_Altugatai (reign_court_castle_K1_child_1)",
+  "heroStringId": "reign_court_castle_K1_child_1",
+  "characterObjectId": "reign_court_castle_K1_child_1",
+  "characterName": "Boragan Altugatai",
+  "provider": "AtlasCloud",
+  "model": "xai/grok-imagine-image/edit",
+  "adapter": "atlas upload/generate/poll",
+  "sourceSha256": "4b95e157db93b8acc935b06da0d85a06733573d9d6620f9fb576475f019a389a",
+  "portraitSha256": "b894500f7c3abda0265ea26436ec5e9e1aa71f0ffa3c9028f13fc0578847e69d",
+  "portraitWidth": 864,
+  "portraitHeight": 1152,
+  "physicalConfidence": {
+    "definition": "physical_confidence",
+    "score": 57,
+    "profile": "41-60",
+    "flirtatiousnessPercentage": 58,
+    "confidencePercentage": 53,
+    "flirtatiousnessWeight": 0.75,
+    "confidenceWeight": 0.25,
+    "source": "shipped_profile_library"
+  },
+  "derivativesReady": true,
+  "derivativeError": "",
+  "generatedUtc": "2026-07-17T18:17:45.0906730Z"
+}

@@ -1,0 +1,27 @@
+{
+  "version": 1,
+  "cacheKey": "Eryuria_Elarerides (reign_court_town_EN3_child_4)",
+  "heroStringId": "reign_court_town_EN3_child_4",
+  "characterObjectId": "reign_court_town_EN3_child_4",
+  "characterName": "Eryuria Elarerides",
+  "provider": "AtlasCloud",
+  "model": "xai/grok-imagine-image/edit",
+  "adapter": "atlas upload/generate/poll",
+  "sourceSha256": "16c08a0ffa6f0a44b61962f1c183532465d887099df1b9b380347d0281e4e0ee",
+  "portraitSha256": "f457c082e7e5b7a1056ebebb983e0983c3589365ab405853e091e556c1638fe5",
+  "portraitWidth": 864,
+  "portraitHeight": 1152,
+  "physicalConfidence": {
+    "definition": "physical_confidence",
+    "score": 47,
+    "profile": "41-60",
+    "flirtatiousnessPercentage": 45,
+    "confidencePercentage": 52,
+    "flirtatiousnessWeight": 0.75,
+    "confidenceWeight": 0.25,
+    "source": "shipped_profile_library"
+  },
+  "derivativesReady": true,
+  "derivativeError": "",
+  "generatedUtc": "2026-07-17T18:34:34.6679348Z"
+}

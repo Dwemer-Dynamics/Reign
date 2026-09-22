@@ -1,0 +1,27 @@
+{
+  "version": 1,
+  "cacheKey": "Phenoria (lord_1_4)",
+  "heroStringId": "lord_1_4",
+  "characterObjectId": "lord_1_4",
+  "characterName": "Phenoria",
+  "provider": "AtlasCloud",
+  "model": "xai/grok-imagine-image/edit",
+  "adapter": "atlas upload/generate/poll",
+  "sourceSha256": "595f6e7ffd1d0d72b1e4d91772848f23fbedfd55c0ec49e99357832012de9729",
+  "portraitSha256": "4f066002ac63ac9af8dfc7f4a4c7ed2cd2801ee55089eb27e6aca168c5e31092",
+  "portraitWidth": 832,
+  "portraitHeight": 1248,
+  "physicalConfidence": {
+    "definition": "physical_confidence",
+    "score": 73,
+    "profile": "61-80",
+    "flirtatiousnessPercentage": 78,
+    "confidencePercentage": 57,
+    "flirtatiousnessWeight": 0.75,
+    "confidenceWeight": 0.25,
+    "source": "shipped_profile_library"
+  },
+  "derivativesReady": true,
+  "derivativeError": "",
+  "generatedUtc": "2026-07-17T19:09:22.3017757Z"
+}

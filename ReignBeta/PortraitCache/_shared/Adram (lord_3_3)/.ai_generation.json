@@ -1,0 +1,27 @@
+{
+  "version": 1,
+  "cacheKey": "Adram (lord_3_3)",
+  "heroStringId": "lord_3_3",
+  "characterObjectId": "lord_3_3",
+  "characterName": "Adram",
+  "provider": "AtlasCloud",
+  "model": "xai/grok-imagine-image/edit",
+  "adapter": "atlas upload/generate/poll",
+  "sourceSha256": "ca1a42e0d56733bae9b70c322c66fac43d300241ae8f80e2c06bcbc6ffe5bfe2",
+  "portraitSha256": "408714e7725e3032adb0d57f04fb9646e1dbd89f0eb076a7455fb1a14a6b7eac",
+  "portraitWidth": 912,
+  "portraitHeight": 1136,
+  "physicalConfidence": {
+    "definition": "physical_confidence",
+    "score": 84,
+    "profile": "81-100",
+    "flirtatiousnessPercentage": 97,
+    "confidencePercentage": 44,
+    "flirtatiousnessWeight": 0.75,
+    "confidenceWeight": 0.25,
+    "source": "shipped_profile_library"
+  },
+  "derivativesReady": true,
+  "derivativeError": "",
+  "generatedUtc": "2026-07-17T17:41:47.1444710Z"
+}

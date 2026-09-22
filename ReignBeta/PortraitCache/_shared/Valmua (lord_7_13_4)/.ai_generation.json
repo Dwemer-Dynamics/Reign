@@ -1,0 +1,27 @@
+{
+  "version": 1,
+  "cacheKey": "Valmua (lord_7_13_4)",
+  "heroStringId": "lord_7_13_4",
+  "characterObjectId": "lord_7_13_4",
+  "characterName": "Valmua",
+  "provider": "AtlasCloud",
+  "model": "xai/grok-imagine-image/edit",
+  "adapter": "atlas upload/generate/poll",
+  "sourceSha256": "3b8e0c6336ab559cb2db2d1bb58fe21bc945ef91f44a9e46443efdc33d5277e8",
+  "portraitSha256": "681db5cce1c30cb80ae94b326b38bb133fe6e29c00d402229830ede039aeb03b",
+  "portraitWidth": 832,
+  "portraitHeight": 1248,
+  "physicalConfidence": {
+    "definition": "physical_confidence",
+    "score": 50,
+    "profile": "41-60",
+    "flirtatiousnessPercentage": 50,
+    "confidencePercentage": 50,
+    "flirtatiousnessWeight": 0.75,
+    "confidenceWeight": 0.25,
+    "source": "neutral_fallback"
+  },
+  "derivativesReady": true,
+  "derivativeError": "",
+  "generatedUtc": "2026-07-17T19:20:15.3262559Z"
+}

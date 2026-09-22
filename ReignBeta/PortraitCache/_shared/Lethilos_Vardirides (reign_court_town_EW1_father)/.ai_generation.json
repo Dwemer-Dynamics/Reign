@@ -1,0 +1,27 @@
+{
+  "version": 1,
+  "cacheKey": "Lethilos_Vardirides (reign_court_town_EW1_father)",
+  "heroStringId": "reign_court_town_EW1_father",
+  "characterObjectId": "reign_court_town_EW1_father",
+  "characterName": "Lethilos Vardirides",
+  "provider": "AtlasCloud",
+  "model": "xai/grok-imagine-image/edit",
+  "adapter": "atlas upload/generate/poll",
+  "sourceSha256": "e34967ddfc64b80cb00cef9d0bf21768183b70a02cd9b0f4d1d81794326e3d0f",
+  "portraitSha256": "1530d71afd3712340e390550d0760053e5ea35a36dec1792fa79398d5f2980b6",
+  "portraitWidth": 864,
+  "portraitHeight": 1152,
+  "physicalConfidence": {
+    "definition": "physical_confidence",
+    "score": 56,
+    "profile": "41-60",
+    "flirtatiousnessPercentage": 65,
+    "confidencePercentage": 28,
+    "flirtatiousnessWeight": 0.75,
+    "confidenceWeight": 0.25,
+    "source": "shipped_profile_library"
+  },
+  "derivativesReady": true,
+  "derivativeError": "",
+  "generatedUtc": "2026-07-17T18:57:40.2593351Z"
+}

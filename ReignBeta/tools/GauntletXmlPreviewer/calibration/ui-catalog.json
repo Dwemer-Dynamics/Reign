@@ -1,0 +1,869 @@
+{
+  "schema": "reign-ui-catalog-v1",
+  "minimumSupportedHeight": 1080,
+  "supportedResolutionContract": "Release parity covers common desktop resolutions at or above 1080 pixels high. Resolutions below 1920x1080 are intentionally unsupported.",
+  "targetMatrix": [
+    {
+      "resolution": "1920x1080",
+      "aspect": "16:9",
+      "uiScales": [
+        0.8,
+        1,
+        1.2
+      ]
+    },
+    {
+      "resolution": "2560x1440",
+      "aspect": "16:9",
+      "uiScales": [
+        1,
+        1.2
+      ]
+    },
+    {
+      "resolution": "2560x1600",
+      "aspect": "16:10",
+      "uiScales": [
+        0.8,
+        1,
+        1.2,
+        1.4
+      ]
+    },
+    {
+      "resolution": "3440x1440",
+      "aspect": "21:9",
+      "uiScales": [
+        1,
+        1.2
+      ]
+    },
+    {
+      "resolution": "3840x1600",
+      "aspect": "24:10",
+      "uiScales": [
+        1,
+        1.2
+      ]
+    },
+    {
+      "resolution": "3840x2160",
+      "aspect": "16:9",
+      "uiScales": [
+        1,
+        1.2
+      ]
+    }
+  ],
+  "nativeCalibration": {
+    "targetCount": 22,
+    "uniqueRuntimeMovieCount": 21,
+    "previewerSupportMovie": "ReignUiCalibrationOverlay",
+    "providerFreeFixtureTargets": [
+      "correspondence",
+      "individual-chat",
+      "party-chat",
+      "tavern-house",
+      "social-event",
+      "wilderness-event",
+      "diplomacy-announcement",
+      "notable-generation",
+      "memories-book"
+    ],
+    "contract": "Every runtime movie owned by the Reign client has a cataloged prefab and ui-open target. Dialogue, correspondence, social-event, diplomacy, notable-generation, Court Petition, and Memories Book calibration fixtures are temporary, provider-free, and may not write conversation, letter, event, petition, relationship, reputation, pressure, memory-image, or campaign-action state."
+  },
+  "nativeAugmentations": {
+    "targetCount": 15,
+    "patchApplicationCount": 30,
+    "contract": "Every PrefabExtension application in ReignBeta client source is cataloged by native target and authoritative installed base-prefab path. These are Reign additions to native Bannerlord interfaces rather than standalone Reign movies; their source attributes, XPath targets, patch classes, and inserted XML remain source-discovered and are audited separately from the 18 standalone prefab files.",
+    "targets": [
+      {
+        "id": "native-initial-screen",
+        "label": "Main Menu Logo",
+        "target": "InitialScreen",
+        "basePrefab": "Native/GUI/Prefabs/InitialScreen.xml",
+        "sources": [
+          "src/Modules/UI/UI/ReignMainMenuLogoPrefabPatches.cs"
+        ]
+      },
+      {
+        "id": "native-game-menu",
+        "label": "Settlement Tavern Art",
+        "target": "GameMenu",
+        "basePrefab": "Native/GUI/Prefabs/GameMenu/GameMenu.xml",
+        "sources": [
+          "src/Modules/UI/UI/Tavern/ReignTavernGameMenuInsertPatch.cs"
+        ]
+      },
+      {
+        "id": "native-encyclopedia-hero",
+        "label": "Encyclopedia Hero Skills",
+        "target": "EncyclopediaHeroPage",
+        "basePrefab": "SandBox/GUI/Prefabs/Encyclopedia/EncyclopediaSubPages/EncyclopediaHeroPage.xml",
+        "sources": [
+          "src/Modules/UI/UI/HiddenInformation/ReignHiddenInformationPrefabPatches.cs"
+        ]
+      },
+      {
+        "id": "native-clan-members",
+        "label": "Clan Member Skills",
+        "target": "ClanMembers",
+        "basePrefab": "SandBox/GUI/Prefabs/Clan/ClanMembers.xml",
+        "sources": [
+          "src/Modules/UI/UI/HiddenInformation/ReignHiddenInformationPrefabPatches.cs"
+        ]
+      },
+      {
+        "id": "native-marriage-offer",
+        "label": "Marriage Offer Knowledge",
+        "target": "MarriageOfferPopup",
+        "basePrefab": "SandBox/GUI/Prefabs/Map/MarriageOfferPopup.xml",
+        "sources": [
+          "src/Modules/UI/UI/HiddenInformation/ReignHiddenInformationPrefabPatches.cs"
+        ]
+      },
+      {
+        "id": "native-heir-selection",
+        "label": "Heir Selection Skills",
+        "target": "HeirSelectionPopup",
+        "basePrefab": "SandBox/GUI/Prefabs/Map/HeirSelectionPopup.xml",
+        "sources": [
+          "src/Modules/UI/UI/HiddenInformation/ReignHiddenInformationPrefabPatches.cs"
+        ]
+      },
+      {
+        "id": "native-skill-grid-item",
+        "label": "Character Skill Grid",
+        "target": "SkillGridItem",
+        "basePrefab": "SandBox/GUI/Prefabs/CharacterDeveloper/SkillGridItem.xml",
+        "sources": [
+          "src/Modules/UI/UI/HiddenInformation/ReignHiddenInformationPrefabPatches.cs"
+        ]
+      },
+      {
+        "id": "native-character-developer",
+        "label": "Character Developer Knowledge",
+        "target": "CharacterDeveloper",
+        "basePrefab": "SandBox/GUI/Prefabs/CharacterDeveloper/CharacterDeveloper.xml",
+        "sources": [
+          "src/Modules/UI/UI/HiddenInformation/ReignHiddenInformationPrefabPatches.cs"
+        ]
+      },
+      {
+        "id": "native-crafting-hero",
+        "label": "Crafting Hero Skill",
+        "target": "CraftingHeroPopup",
+        "basePrefab": "SandBox/GUI/Prefabs/Crafting/CraftingHeroPopup.xml",
+        "sources": [
+          "src/Modules/UI/UI/HiddenInformation/ReignHiddenInformationPrefabPatches.cs"
+        ]
+      },
+      {
+        "id": "native-crafting",
+        "label": "Crafting Skill Knowledge",
+        "target": "Crafting",
+        "basePrefab": "SandBox/GUI/Prefabs/Crafting/Crafting.xml",
+        "sources": [
+          "src/Modules/UI/UI/HiddenInformation/ReignHiddenInformationPrefabPatches.cs"
+        ]
+      },
+      {
+        "id": "native-education",
+        "label": "Education Skill Results",
+        "target": "EducationGainedProperties",
+        "basePrefab": "SandBox/GUI/Prefabs/Education/EducationGainedProperties.xml",
+        "sources": [
+          "src/Modules/UI/UI/HiddenInformation/ReignHiddenInformationPrefabPatches.cs"
+        ]
+      },
+      {
+        "id": "native-recruit-volunteer",
+        "label": "Recruit Relation Knowledge",
+        "target": "RecruitVolunteerTuple",
+        "basePrefab": "SandBox/GUI/Prefabs/Recruitment/RecruitVolunteerTuple.xml",
+        "sources": [
+          "src/Modules/UI/UI/HiddenInformation/ReignHiddenInformationPrefabPatches.cs"
+        ]
+      },
+      {
+        "id": "native-game-menu-party",
+        "label": "Settlement Party Portrait",
+        "target": "GameMenuPartyItem",
+        "basePrefab": "SandBox/GUI/Prefabs/Map/GameMenuPartyItem.xml",
+        "sources": [
+          "src/Modules/UI/UI/GameMenu/ReignGameMenuPartyItemInsertPatch.cs"
+        ]
+      },
+      {
+        "id": "native-conversation",
+        "label": "Conversation Portraits",
+        "target": "SPConversation",
+        "basePrefab": "Native/GUI/Prefabs/Conversation/SPConversation.xml",
+        "sources": [
+          "src/Modules/Portraits/AIPortraits/ConversationPortraitInsertPatch.cs"
+        ]
+      },
+      {
+        "id": "native-quests",
+        "label": "Quest Memory Book Button",
+        "target": "QuestsScreen",
+        "basePrefab": "SandBox/GUI/Prefabs/QuestsScreen/QuestsScreen.xml",
+        "sources": [
+          "src/Modules/Portraits/AIPortraits/QuestMemoryBookInsertPatch.cs"
+        ]
+      }
+    ]
+  },
+  "interfaces": [
+    {
+      "id": "clan-accords",
+      "movie": "ReignClanAccordsScreen",
+      "prefab": "GUI/Prefabs/ReignClanAccordsScreen.xml",
+      "manager": "ReignClanAccordsScreenManager",
+      "viewModel": "ReignClanAccordsVM",
+      "entry": "Court > Economic Report > Clan Accords",
+      "liveAction": "ui-open --target clan-accords",
+      "previewStates": [
+        {
+          "label": "Clan Accords - empty",
+          "id": "clan-accords-empty",
+          "variant": "clan-accords-empty",
+          "previewOnly": true,
+          "liveAction": "previewer preset only",
+          "entry": "Economy > Clan Accords"
+        },
+        {
+          "label": "Clan Accords - capacity",
+          "id": "clan-accords-capacity",
+          "variant": "clan-accords-capacity",
+          "previewOnly": true,
+          "liveAction": "previewer preset only",
+          "entry": "Economy > Clan Accords"
+        },
+        {
+          "label": "Clan Accords - confirmation",
+          "id": "clan-accords-confirmation",
+          "variant": "clan-accords-confirmation",
+          "previewOnly": true,
+          "liveAction": "previewer preset only",
+          "entry": "Economy > Clan Accords"
+        },
+        {
+          "label": "Clan Accords - error",
+          "id": "clan-accords-error",
+          "variant": "clan-accords-error",
+          "previewOnly": true,
+          "liveAction": "previewer preset only",
+          "entry": "Economy > Clan Accords"
+        },
+        {
+          "label": "Clan Accords - landless",
+          "id": "clan-accords-landless",
+          "variant": "clan-accords-landless",
+          "previewOnly": true,
+          "liveAction": "previewer preset only",
+          "entry": "Economy > Clan Accords"
+        }
+      ]
+    },
+    {
+      "id": "court",
+      "movie": "ReignCourtScreen",
+      "prefab": "GUI/Prefabs/ReignCourtScreen.xml",
+      "manager": "ReignCourtScreenManager",
+      "viewModel": "ReignCourtScreenVM",
+      "entry": "Settlement menu > Enter Rule Mode",
+      "liveAction": "ui-open --target court",
+      "firstCase": true,
+      "previewStates": [
+        {
+          "id": "court-history",
+          "label": "Court History",
+          "variant": "court-history",
+          "entry": "Court > Royal Docket > History",
+          "liveAction": "previewer preset only",
+          "previewOnly": true
+        }
+      ]
+    },
+    {
+      "id": "court-petition",
+      "movie": "ReignCourtPetitionScreen",
+      "prefab": "GUI/Prefabs/ReignCourtPetitionScreen.xml",
+      "manager": "ReignCourtPetitionScreenManager",
+      "viewModel": "ReignCourtPetitionScreenVM",
+      "alternateViewModels": [
+        "ReignCourtLifeScreenVM"
+      ],
+      "entry": "Court > Ruler Docket > petition",
+      "liveAction": "ui-open --target court-petition",
+      "firstCase": true,
+      "previewStates": [
+        {
+          "id": "court-life-international",
+          "label": "Foreign Audience",
+          "variant": "court-life-international",
+          "previewOnly": true,
+          "nativeInjection": false,
+          "liveAction": "previewer preset only"
+        },
+        {
+          "id": "court-life-family",
+          "label": "Family Visit",
+          "variant": "court-life-family",
+          "previewOnly": true,
+          "nativeInjection": false,
+          "liveAction": "previewer preset only"
+        },
+        {
+          "id": "court-life-patronage",
+          "label": "Patronage Offer",
+          "variant": "court-life-patronage",
+          "previewOnly": true,
+          "nativeInjection": false,
+          "liveAction": "previewer preset only"
+        },
+        {
+          "id": "court-life-visitors",
+          "label": "Visiting Household",
+          "variant": "court-life-visitors",
+          "previewOnly": true,
+          "nativeInjection": false,
+          "liveAction": "previewer preset only"
+        }
+      ]
+    },
+    {
+      "id": "castle-layout",
+      "movie": "ReignCastleLayoutScreen",
+      "prefab": "GUI/Prefabs/ReignCastleLayoutScreen.xml",
+      "manager": "ReignCastleLayoutScreenManager",
+      "viewModel": "ReignCastleLayoutScreenVM",
+      "entry": "Court > Keep",
+      "liveAction": "ui-open --target castle-layout",
+      "firstCase": true
+    },
+    {
+      "id": "castle-chat",
+      "movie": "ReignCastleChatScreen",
+      "prefab": "GUI/Prefabs/ReignCastleChatScreen.xml",
+      "manager": "ReignPartyChatScreenManager",
+      "viewModel": "ReignPartyChatScreenVM",
+      "entry": "Castle Layout > occupied room",
+      "liveAction": "ui-open --target castle-chat",
+      "firstCase": true,
+      "previewStates": [
+        {
+          "id": "castle-chat-intoxication-actions",
+          "label": "castle-chat Actions",
+          "variant": "intoxication-actions",
+          "entry": "Castle Layout > occupied room",
+          "liveAction": "previewer preset only",
+          "previewOnly": true
+        }
+      ]
+    },
+    {
+      "id": "ambassador",
+      "movie": "ReignAmbassadorScreen",
+      "prefab": "GUI/Prefabs/ReignAmbassadorScreen.xml",
+      "manager": "ReignAmbassadorScreenManager",
+      "viewModel": "ReignAmbassadorScreenVM",
+      "entry": "Court > Ambassadors",
+      "liveAction": "ui-open --target ambassador"
+    },
+    {
+      "id": "economic-report",
+      "movie": "ReignCourtEconomicReportScreen",
+      "prefab": "GUI/Prefabs/ReignCourtEconomicReportScreen.xml",
+      "manager": "ReignCourtEconomicReportScreenManager",
+      "viewModel": "ReignCourtEconomicReportVM",
+      "entry": "Court > Economic Report",
+      "liveAction": "ui-open --target economic-report"
+    },
+    {
+      "id": "government",
+      "movie": "ReignGovernmentScreen",
+      "prefab": "GUI/Prefabs/ReignGovernmentScreen.xml",
+      "manager": "ReignGovernmentScreenManager",
+      "viewModel": "ReignGovernmentScreenVM",
+      "entry": "Court > Government or native town keep > Explore the keep > Government",
+      "liveAction": "ui-open --target government",
+      "previewStates": [
+        {
+          "id": "government-urgent",
+          "label": "government-urgent",
+          "variant": "government-urgent",
+          "entry": "Government",
+          "previewOnly": true,
+          "liveAction": "previewer preset only"
+        },
+        {
+          "id": "government-postponed",
+          "label": "government-postponed",
+          "variant": "government-postponed",
+          "entry": "Government",
+          "previewOnly": true,
+          "liveAction": "previewer preset only"
+        },
+        {
+          "id": "government-members",
+          "label": "government-members",
+          "variant": "government-members",
+          "entry": "Government",
+          "previewOnly": true,
+          "liveAction": "previewer preset only"
+        },
+        {
+          "id": "government-archive",
+          "label": "government-archive",
+          "variant": "government-archive",
+          "entry": "Government",
+          "previewOnly": true,
+          "liveAction": "previewer preset only"
+        },
+        {
+          "id": "government-authority",
+          "label": "government-authority",
+          "variant": "government-authority",
+          "entry": "Government",
+          "previewOnly": true,
+          "liveAction": "previewer preset only"
+        },
+        {
+          "id": "government-readonly",
+          "label": "government-readonly",
+          "variant": "government-readonly",
+          "entry": "Government",
+          "previewOnly": true,
+          "liveAction": "previewer preset only"
+        },
+        {
+          "id": "government-empty",
+          "label": "government-empty",
+          "variant": "government-empty",
+          "entry": "Government",
+          "previewOnly": true,
+          "liveAction": "previewer preset only"
+        },
+        {
+          "id": "government-level3",
+          "label": "government-level3",
+          "variant": "government-level3",
+          "entry": "Government",
+          "previewOnly": true,
+          "liveAction": "previewer preset only"
+        },
+        {
+          "id": "government-proposals",
+          "label": "government-proposals",
+          "variant": "government-proposals",
+          "entry": "Government",
+          "previewOnly": true,
+          "liveAction": "previewer preset only"
+        }
+      ],
+      "firstCase": true
+    },
+    {
+      "id": "family-chambers",
+      "movie": "ReignFamilyChambersScreen",
+      "prefab": "GUI/Prefabs/ReignFamilyChambersScreen.xml",
+      "manager": "ReignFamilyChambersScreenManager",
+      "viewModel": "ReignFamilyChambersScreenVM",
+      "entry": "Court > Family Chambers",
+      "liveAction": "ui-open --target family-chambers"
+    },
+    {
+      "id": "training-yard",
+      "movie": "ReignTrainingYardScreen",
+      "prefab": "GUI/Prefabs/ReignTrainingYardScreen.xml",
+      "manager": "ReignTrainingYardScreenManager",
+      "viewModel": "ReignTrainingYardScreenVM",
+      "entry": "Native town/castle keep > Visit the training yard",
+      "liveAction": "ui-open --target training-yard",
+      "previewStates": [
+        {
+          "id": "training-yard-empty",
+          "label": "Training Yard Empty",
+          "variant": "training-yard-empty",
+          "entry": "Training Yard without eligible trainers or troops",
+          "liveAction": "previewer preset only",
+          "previewOnly": true
+        },
+        {
+          "id": "training-yard-active",
+          "label": "Training Yard Active",
+          "variant": "training-yard-active",
+          "entry": "Training Yard while campaign time advances",
+          "liveAction": "previewer preset only",
+          "previewOnly": true
+        }
+      ]
+    },
+    {
+      "id": "royal-council",
+      "movie": "ReignRoyalCouncilScreen",
+      "prefab": "GUI/Prefabs/ReignRoyalCouncilScreen.xml",
+      "manager": "ReignRoyalCouncilScreenManager",
+      "viewModel": "ReignRoyalCouncilScreenVM",
+      "entry": "Court > Royal Council",
+      "liveAction": "ui-open --target royal-council"
+    },
+    {
+      "id": "spymaster",
+      "movie": "ReignSpymasterScreen",
+      "prefab": "GUI/Prefabs/ReignSpymasterScreen.xml",
+      "manager": "ReignSpymasterScreenManager",
+      "viewModel": "ReignSpymasterScreenVM",
+      "entry": "Court > Spymaster",
+      "liveAction": "ui-open --target spymaster",
+      "previewStates": [
+        {
+          "id": "spymaster-people",
+          "label": "People Intelligence",
+          "variant": "spymaster-people",
+          "entry": "Spymaster > Gather Intelligence > People",
+          "liveAction": "previewer preset only",
+          "previewOnly": true
+        },
+        {
+          "id": "spymaster-subterfuge",
+          "label": "Subterfuge",
+          "variant": "spymaster-subterfuge",
+          "entry": "Spymaster > Subterfuge",
+          "liveAction": "previewer preset only",
+          "previewOnly": true
+        },
+        {
+          "id": "spymaster-reputation",
+          "label": "Rumor & Reputation",
+          "variant": "spymaster-reputation",
+          "entry": "Spymaster > Rumor & Reputation",
+          "liveAction": "previewer preset only",
+          "previewOnly": true
+        },
+        {
+          "id": "spymaster-archive",
+          "label": "Archive",
+          "variant": "spymaster-archive",
+          "entry": "Spymaster > Archive",
+          "liveAction": "previewer preset only",
+          "previewOnly": true
+        }
+      ]
+    },
+    {
+      "id": "war-council",
+      "movie": "ReignWarCouncilScreen",
+      "prefab": "GUI/Prefabs/ReignWarCouncilScreen.xml",
+      "manager": "ReignWarCouncilScreenManager",
+      "viewModel": "ReignWarCouncilScreenVM",
+      "entry": "Court > War Council",
+      "liveAction": "ui-open --target war-council"
+    },
+    {
+      "id": "correspondence",
+      "movie": "ReignCorrespondenceScreen",
+      "prefab": "GUI/Prefabs/ReignCorrespondenceScreen.xml",
+      "manager": "ReignCorrespondenceScreenManager",
+      "viewModel": "ReignCorrespondenceScreenVM",
+      "entry": "Court matter/contact > Correspond",
+      "liveAction": "ui-open --target correspondence"
+    },
+    {
+      "id": "individual-chat",
+      "movie": "ReignIndividualChatScreen",
+      "prefab": "GUI/Prefabs/ReignIndividualChatScreen.xml",
+      "manager": "ReignIndividualChatScreenManager",
+      "viewModel": "ReignIndividualChatScreenVM",
+      "entry": "Conversation > Reign individual chat",
+      "liveAction": "ui-open --target individual-chat",
+      "previewStates": [
+        {
+          "id": "individual-chat-pregnancy-warning",
+          "label": "Pregnancy Warning",
+          "variant": "pregnancy-warning",
+          "entry": "Individual Chat > conception warning",
+          "liveAction": "previewer preset only",
+          "previewOnly": true,
+          "nativeInjection": false,
+          "nativeEvidence": {
+            "required": true,
+            "setupAction": "show-pregnancy-warning",
+            "matrix": "inherit-parent",
+            "providerRenderId": "individual-chat-pregnancy-warning",
+            "acceptanceRelativePath": "states/individual-chat-pregnancy-warning/acceptance.json",
+            "requiredVisibleWidgetIds": [
+              "ReignPregnancyWarningLayer",
+              "ReignPregnancyWarningInputShield",
+              "ReignPregnancyWarningPanel",
+              "ReignPregnancyPullOutButton",
+              "ReignPregnancyProceedButton"
+            ],
+            "requiredEnabledWidgetIds": [
+              "ReignPregnancyWarningInputShield",
+              "ReignPregnancyPullOutButton",
+              "ReignPregnancyProceedButton"
+            ],
+            "statusReceiptCommand": "ui_status",
+            "statusAssertions": {
+              "target": "individual-chat",
+              "movieName": "ReignIndividualChatScreen",
+              "individualChatOpen": true,
+              "individualChatCalibrationFixture": true,
+              "individualChatBusy": true,
+              "individualChatModalFocusOwned": true,
+              "individualChatActiveStateBlocked": true,
+              "individualChatPregnancy.warningVisible": true,
+              "individualChatPregnancy.inputEnabled": false,
+              "individualChatPregnancy.decisionBusy": false,
+              "individualChatPregnancy.providerFreeFixture": true
+            }
+          }
+        },
+        {
+          "id": "individual-chat-intoxication-actions",
+          "label": "individual-chat Actions",
+          "variant": "intoxication-actions",
+          "entry": "Conversation > Reign individual chat",
+          "liveAction": "previewer preset only",
+          "previewOnly": true
+        }
+      ]
+    },
+    {
+      "id": "tavern-house",
+      "movie": "ReignTavernHouseScreen",
+      "prefab": "GUI/Prefabs/ReignTavernHouseScreen.xml",
+      "manager": "ReignTavernHouseScreenManager",
+      "viewModel": "ReignTavernHouseScreenVM",
+      "entry": "Town > Tavern > Visit the Madam",
+      "liveAction": "ui-open --target tavern-house",
+      "previewStates": [
+        {
+          "id": "tavern-house-negotiating",
+          "label": "Madam negotiation",
+          "variant": "tavern-house-negotiating",
+          "entry": "Town > Tavern > Visit the Madam",
+          "liveAction": "previewer preset; native feature acceptance required",
+          "previewOnly": true,
+          "nativeInjection": false
+        },
+        {
+          "id": "tavern-house-quote",
+          "label": "Visit agreement",
+          "variant": "tavern-house-quote",
+          "entry": "Town > Tavern > Visit the Madam",
+          "liveAction": "previewer preset; native feature acceptance required",
+          "previewOnly": true,
+          "nativeInjection": false
+        },
+        {
+          "id": "tavern-house-payment-pending",
+          "label": "Payment confirmation pending",
+          "variant": "tavern-house-payment-pending",
+          "entry": "Town > Tavern > Visit the Madam",
+          "liveAction": "previewer preset; native feature acceptance required",
+          "previewOnly": true,
+          "nativeInjection": false
+        },
+        {
+          "id": "tavern-house-paid",
+          "label": "Private visit",
+          "variant": "tavern-house-paid",
+          "entry": "Town > Tavern > Visit the Madam",
+          "liveAction": "previewer preset; native feature acceptance required",
+          "previewOnly": true,
+          "nativeInjection": false
+        },
+        {
+          "id": "tavern-house-image-pending",
+          "label": "Scene generation pending",
+          "variant": "tavern-house-image-pending",
+          "entry": "Town > Tavern > Visit the Madam",
+          "liveAction": "previewer preset; native feature acceptance required",
+          "previewOnly": true,
+          "nativeInjection": false
+        },
+        {
+          "id": "tavern-house-image-failed",
+          "label": "Scene generation failed",
+          "variant": "tavern-house-image-failed",
+          "entry": "Town > Tavern > Visit the Madam",
+          "liveAction": "previewer preset; native feature acceptance required",
+          "previewOnly": true,
+          "nativeInjection": false
+        },
+        {
+          "id": "tavern-house-images-disabled",
+          "label": "Scene images disabled",
+          "variant": "tavern-house-images-disabled",
+          "entry": "Town > Tavern > Visit the Madam",
+          "liveAction": "previewer preset; native feature acceptance required",
+          "previewOnly": true,
+          "nativeInjection": false
+        },
+        {
+          "id": "tavern-house-portraits-missing",
+          "label": "Missing character portraits",
+          "variant": "tavern-house-portraits-missing",
+          "entry": "Town > Tavern > Visit the Madam",
+          "liveAction": "previewer preset; native feature acceptance required",
+          "previewOnly": true,
+          "nativeInjection": false
+        },
+        {
+          "id": "tavern-house-max-workers-long-chat",
+          "label": "Maximum workers and long conversation",
+          "variant": "tavern-house-max-workers-long-chat",
+          "entry": "Town > Tavern > Visit the Madam",
+          "liveAction": "previewer preset; native feature acceptance required",
+          "previewOnly": true,
+          "nativeInjection": false
+        },
+        {
+          "id": "tavern-house-portrait-preview",
+          "label": "Full-body portrait viewer",
+          "variant": "tavern-house-portrait-preview",
+          "entry": "Town > Tavern > Visit the Madam",
+          "liveAction": "previewer preset; native feature acceptance required",
+          "previewOnly": true,
+          "nativeInjection": false
+        },
+        {
+          "id": "tavern-house-recruitment-offer",
+          "label": "Recruitment offer",
+          "variant": "tavern-house-recruitment-offer",
+          "entry": "Town > Tavern > Visit the Madam",
+          "liveAction": "previewer preset; native feature acceptance required",
+          "previewOnly": true,
+          "nativeInjection": false,
+          "description": "Agreed party recruitment and tangible payment confirmation."
+        }
+      ]
+    },
+    {
+      "id": "party-chat",
+      "movie": "ReignPartyChatScreen",
+      "prefab": "GUI/Prefabs/ReignPartyChatScreen.xml",
+      "manager": "ReignPartyChatScreenManager",
+      "viewModel": "ReignPartyChatScreenVM",
+      "entry": "Campaign party-chat action",
+      "liveAction": "ui-open --target party-chat",
+      "previewStates": [
+        {
+          "id": "settlement-homes",
+          "label": "Settlement Homes",
+          "variant": "homes-directory",
+          "entry": "Town, castle or village > Visit the homes",
+          "liveAction": "settlement Homes native acceptance",
+          "previewOnly": true
+        },
+        {
+          "id": "settlement-homes-empty",
+          "label": "Homes — No known residents",
+          "variant": "homes-empty",
+          "entry": "Settlement without met residents",
+          "liveAction": "settlement Homes native acceptance",
+          "previewOnly": true
+        },
+        {
+          "id": "settlement-home-chat",
+          "label": "Private home visit",
+          "variant": "homes-private-chat",
+          "entry": "Homes > resident card",
+          "liveAction": "settlement Homes native acceptance",
+          "previewOnly": true
+        },
+        {
+          "id": "party-chat-intoxication-actions",
+          "label": "party-chat Actions",
+          "variant": "intoxication-actions",
+          "entry": "Campaign party-chat action",
+          "liveAction": "previewer preset only",
+          "previewOnly": true
+        }
+      ]
+    },
+    {
+      "id": "social-event",
+      "movie": "ReignSocialEventScreen",
+      "prefab": "GUI/Prefabs/ReignSocialEventScreen.xml",
+      "manager": "ReignSocialEventScreenManager",
+      "viewModel": "ReignSocialEventScreenVM",
+      "entry": "Settlement social event",
+      "liveAction": "ui-open --target social-event",
+      "variant": "social",
+      "previewStates": [
+        {
+          "id": "social-event-intoxication-actions",
+          "label": "social-event Actions",
+          "variant": "intoxication-actions",
+          "entry": "Settlement social event",
+          "liveAction": "previewer preset only",
+          "previewOnly": true
+        }
+      ]
+    },
+    {
+      "id": "wilderness-event",
+      "movie": "ReignSocialEventScreen",
+      "prefab": "GUI/Prefabs/ReignSocialEventScreen.xml",
+      "manager": "ReignSocialEventScreenManager",
+      "viewModel": "ReignSocialEventScreenVM",
+      "entry": "Generated wilderness event",
+      "liveAction": "ui-open --target wilderness-event",
+      "variant": "wilderness",
+      "previewStates": [
+        {
+          "id": "wilderness-event-intoxication-actions",
+          "label": "wilderness-event Actions",
+          "variant": "intoxication-actions",
+          "entry": "Generated wilderness event",
+          "liveAction": "previewer preset only",
+          "previewOnly": true
+        }
+      ]
+    },
+    {
+      "id": "diplomacy-announcement",
+      "movie": "ReignDiplomacyAnnouncementScreen",
+      "prefab": "GUI/Prefabs/ReignDiplomacyAnnouncementScreen.xml",
+      "manager": "ReignDiplomacyAnnouncementScreenManager",
+      "viewModel": "ReignDiplomacyAnnouncementVM",
+      "entry": "World diplomacy announcement queue",
+      "liveAction": "ui-open --target diplomacy-announcement"
+    },
+    {
+      "id": "notable-generation",
+      "movie": "ReignNotableGenerationPopup",
+      "prefab": "GUI/Prefabs/ReignNotableGenerationPopup.xml",
+      "manager": "ReignNotableGenerationPopupManager",
+      "viewModel": "NotableGenerationPopupViewModel",
+      "entry": "New-campaign notable generation gate",
+      "liveAction": "ui-open --target notable-generation"
+    },
+    {
+      "id": "memories-book",
+      "label": "Memories Book",
+      "movie": "AIPortraitsMemoriesBook",
+      "prefab": "GUI/Prefabs/AIPortraitsMemoriesBook.xml",
+      "manager": "MemoriesBookOverlay",
+      "viewModel": "MemoriesBookVM",
+      "entry": "Quest screen > Memory Book",
+      "liveAction": "ui-open --target memories-book"
+    },
+    {
+      "id": "calibration-overlay",
+      "movie": "ReignUiCalibrationOverlay",
+      "prefab": "GUI/Prefabs/ReignUiCalibrationOverlay.xml",
+      "manager": "ReignUiCalibrationService",
+      "viewModel": "ReignUiCalibrationVM",
+      "entry": "XML Previewer > Calibration Overlay",
+      "liveAction": "previewer only",
+      "supportUi": true,
+      "nativeInjection": false
+    }
+  ]
+}

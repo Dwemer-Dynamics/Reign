@@ -1,0 +1,27 @@
+{
+  "version": 1,
+  "cacheKey": "Haziman_Hadramaqani (reign_court_castle_A5_father)",
+  "heroStringId": "reign_court_castle_A5_father",
+  "characterObjectId": "reign_court_castle_A5_father",
+  "characterName": "Haziman Hadramaqani",
+  "provider": "AtlasCloud",
+  "model": "xai/grok-imagine-image/edit",
+  "adapter": "atlas upload/generate/poll",
+  "sourceSha256": "fe9c8f7d0f9bca0bb62038a0bec39df743588b7f9839b7e714d500ac22680f4c",
+  "portraitSha256": "3235b15d6b9de7869851e39eb4cd8d6fe535e7d90d406e0ba79c02506b943a76",
+  "portraitWidth": 864,
+  "portraitHeight": 1152,
+  "physicalConfidence": {
+    "definition": "physical_confidence",
+    "score": 72,
+    "profile": "61-80",
+    "flirtatiousnessPercentage": 78,
+    "confidencePercentage": 53,
+    "flirtatiousnessWeight": 0.75,
+    "confidenceWeight": 0.25,
+    "source": "shipped_profile_library"
+  },
+  "derivativesReady": true,
+  "derivativeError": "",
+  "generatedUtc": "2026-07-17T18:42:50.0247660Z"
+}

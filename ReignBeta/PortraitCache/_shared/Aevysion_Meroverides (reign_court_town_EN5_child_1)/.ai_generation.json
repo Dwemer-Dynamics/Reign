@@ -1,0 +1,27 @@
+{
+  "version": 1,
+  "cacheKey": "Aevysion_Meroverides (reign_court_town_EN5_child_1)",
+  "heroStringId": "reign_court_town_EN5_child_1",
+  "characterObjectId": "reign_court_town_EN5_child_1",
+  "characterName": "Aevysion Meroverides",
+  "provider": "AtlasCloud",
+  "model": "xai/grok-imagine-image/edit",
+  "adapter": "atlas upload/generate/poll",
+  "sourceSha256": "2021a7b6db72a46a25360829fcfe647bdf3b8992e87a75df747a0961ca15d6dc",
+  "portraitSha256": "c199ff5247819c665ecc95f2a2031269d791e9895bfec3ad156676964c15d01a",
+  "portraitWidth": 864,
+  "portraitHeight": 1152,
+  "physicalConfidence": {
+    "definition": "physical_confidence",
+    "score": 80,
+    "profile": "61-80",
+    "flirtatiousnessPercentage": 96,
+    "confidencePercentage": 31,
+    "flirtatiousnessWeight": 0.75,
+    "confidenceWeight": 0.25,
+    "source": "shipped_profile_library"
+  },
+  "derivativesReady": true,
+  "derivativeError": "",
+  "generatedUtc": "2026-07-17T18:10:17.3501122Z"
+}

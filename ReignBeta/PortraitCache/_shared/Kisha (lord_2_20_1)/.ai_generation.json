@@ -1,0 +1,27 @@
+{
+  "version": 1,
+  "cacheKey": "Kisha (lord_2_20_1)",
+  "heroStringId": "lord_2_20_1",
+  "characterObjectId": "lord_2_20_1",
+  "characterName": "Kisha",
+  "provider": "AtlasCloud",
+  "model": "xai/grok-imagine-image/edit",
+  "adapter": "atlas upload/generate/poll",
+  "sourceSha256": "5e0589da98730f2e159cc8693368d622a24dc3348a0a97d452eef4b4cfa257c8",
+  "portraitSha256": "09280c86f6242fb03b3e9b0510d18c062976364b13e26feeb7b5f3d814d974fe",
+  "portraitWidth": 832,
+  "portraitHeight": 1248,
+  "physicalConfidence": {
+    "definition": "physical_confidence",
+    "score": 51,
+    "profile": "41-60",
+    "flirtatiousnessPercentage": 45,
+    "confidencePercentage": 68,
+    "flirtatiousnessWeight": 0.75,
+    "confidenceWeight": 0.25,
+    "source": "shipped_profile_library"
+  },
+  "derivativesReady": true,
+  "derivativeError": "",
+  "generatedUtc": "2026-07-17T18:49:27.4973792Z"
+}

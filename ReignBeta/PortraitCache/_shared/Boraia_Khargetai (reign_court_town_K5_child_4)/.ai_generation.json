@@ -1,0 +1,27 @@
+{
+  "version": 1,
+  "cacheKey": "Boraia_Khargetai (reign_court_town_K5_child_4)",
+  "heroStringId": "reign_court_town_K5_child_4",
+  "characterObjectId": "reign_court_town_K5_child_4",
+  "characterName": "Boraia Khargetai",
+  "provider": "AtlasCloud",
+  "model": "xai/grok-imagine-image/edit",
+  "adapter": "atlas upload/generate/poll",
+  "sourceSha256": "c5e196a18909f94388ec692fd9e39ba5fb71a74cd3ddbded56ee962b62b80f84",
+  "portraitSha256": "62611d466ad82fe020bf97fedb72bf6b620bdc94f3a68056829e2dcfdef942c1",
+  "portraitWidth": 864,
+  "portraitHeight": 1152,
+  "physicalConfidence": {
+    "definition": "physical_confidence",
+    "score": 69,
+    "profile": "61-80",
+    "flirtatiousnessPercentage": 61,
+    "confidencePercentage": 92,
+    "flirtatiousnessWeight": 0.75,
+    "confidenceWeight": 0.25,
+    "source": "shipped_profile_library"
+  },
+  "derivativesReady": true,
+  "derivativeError": "",
+  "generatedUtc": "2026-07-17T18:17:44.4166867Z"
+}

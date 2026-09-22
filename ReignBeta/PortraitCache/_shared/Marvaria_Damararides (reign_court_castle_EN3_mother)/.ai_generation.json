@@ -1,0 +1,27 @@
+{
+  "version": 1,
+  "cacheKey": "Marvaria_Damararides (reign_court_castle_EN3_mother)",
+  "heroStringId": "reign_court_castle_EN3_mother",
+  "characterObjectId": "reign_court_castle_EN3_mother",
+  "characterName": "Marvaria Damararides",
+  "provider": "AtlasCloud",
+  "model": "xai/grok-imagine-image/edit",
+  "adapter": "atlas upload/generate/poll",
+  "sourceSha256": "9cd9b32e44036e8b87350e609c4af8819fd4d4c01721291c91a52597583ff5d7",
+  "portraitSha256": "f3b115c1d0a0ea37c07bfea0753d693004b5547ad908f2f16f0574f740bf5a83",
+  "portraitWidth": 864,
+  "portraitHeight": 1152,
+  "physicalConfidence": {
+    "definition": "physical_confidence",
+    "score": 88,
+    "profile": "81-100",
+    "flirtatiousnessPercentage": 97,
+    "confidencePercentage": 60,
+    "flirtatiousnessWeight": 0.75,
+    "confidenceWeight": 0.25,
+    "source": "shipped_profile_library"
+  },
+  "derivativesReady": true,
+  "derivativeError": "",
+  "generatedUtc": "2026-07-17T19:00:15.6350170Z"
+}

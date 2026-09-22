@@ -1,0 +1,27 @@
+{
+  "version": 1,
+  "cacheKey": "Doruea_Dorbetatai (reign_court_castle_K4_child_4)",
+  "heroStringId": "reign_court_castle_K4_child_4",
+  "characterObjectId": "reign_court_castle_K4_child_4",
+  "characterName": "Doruea Dorbetatai",
+  "provider": "AtlasCloud",
+  "model": "xai/grok-imagine-image/edit",
+  "adapter": "atlas upload/generate/poll",
+  "sourceSha256": "bbf5f09fb12ba659f10078b4b8abb30602b66c9178d1b91b7f08c83af7fc8723",
+  "portraitSha256": "5212824dd30345949415e0a69074dc9f098fb8a0e0063a2ce107ebf210bbe240",
+  "portraitWidth": 864,
+  "portraitHeight": 1152,
+  "physicalConfidence": {
+    "definition": "physical_confidence",
+    "score": 37,
+    "profile": "21-40",
+    "flirtatiousnessPercentage": 34,
+    "confidencePercentage": 45,
+    "flirtatiousnessWeight": 0.75,
+    "confidenceWeight": 0.25,
+    "source": "shipped_profile_library"
+  },
+  "derivativesReady": true,
+  "derivativeError": "",
+  "generatedUtc": "2026-07-17T18:27:12.1615747Z"
+}

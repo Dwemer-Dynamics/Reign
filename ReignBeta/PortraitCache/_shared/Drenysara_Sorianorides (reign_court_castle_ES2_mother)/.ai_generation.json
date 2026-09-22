@@ -1,0 +1,27 @@
+{
+  "version": 1,
+  "cacheKey": "Drenysara_Sorianorides (reign_court_castle_ES2_mother)",
+  "heroStringId": "reign_court_castle_ES2_mother",
+  "characterObjectId": "reign_court_castle_ES2_mother",
+  "characterName": "Drenysara Sorianorides",
+  "provider": "AtlasCloud",
+  "model": "xai/grok-imagine-image/edit",
+  "adapter": "atlas upload/generate/poll",
+  "sourceSha256": "6a25ef2ea000d1591f83640d3c62a7839b4463cdeb9e2df1532cee5d49ce3110",
+  "portraitSha256": "33f5897c5811e16eea028766a1e5fe8def33682c77756149c2c8a0ad07e106b0",
+  "portraitWidth": 864,
+  "portraitHeight": 1152,
+  "physicalConfidence": {
+    "definition": "physical_confidence",
+    "score": 73,
+    "profile": "61-80",
+    "flirtatiousnessPercentage": 83,
+    "confidencePercentage": 42,
+    "flirtatiousnessWeight": 0.75,
+    "confidenceWeight": 0.25,
+    "source": "shipped_profile_library"
+  },
+  "derivativesReady": true,
+  "derivativeError": "",
+  "generatedUtc": "2026-07-17T18:30:43.6076483Z"
+}

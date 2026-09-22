@@ -1,0 +1,27 @@
+{
+  "version": 1,
+  "cacheKey": "Calilene_Merovanion (reign_court_town_ES1_child_4)",
+  "heroStringId": "reign_court_town_ES1_child_4",
+  "characterObjectId": "reign_court_town_ES1_child_4",
+  "characterName": "Calilene Merovanion",
+  "provider": "AtlasCloud",
+  "model": "xai/grok-imagine-image/edit",
+  "adapter": "atlas upload/generate/poll",
+  "sourceSha256": "fcc2c4a29ccf958ee71bb109b0ba0f77f5b4c8183e0bd72531345b7c7734fd77",
+  "portraitSha256": "994a65635207e4c9b615cb0bab22ee441819039327a5952e84c1c7cc7ec4fd18",
+  "portraitWidth": 864,
+  "portraitHeight": 1152,
+  "physicalConfidence": {
+    "definition": "physical_confidence",
+    "score": 36,
+    "profile": "21-40",
+    "flirtatiousnessPercentage": 38,
+    "confidencePercentage": 29,
+    "flirtatiousnessWeight": 0.75,
+    "confidenceWeight": 0.25,
+    "source": "shipped_profile_library"
+  },
+  "derivativesReady": true,
+  "derivativeError": "",
+  "generatedUtc": "2026-07-17T18:20:54.2563174Z"
+}

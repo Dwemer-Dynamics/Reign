@@ -1,0 +1,27 @@
+{
+  "version": 1,
+  "cacheKey": "Drenenos_Elarirides (reign_court_castle_EW5_child_1)",
+  "heroStringId": "reign_court_castle_EW5_child_1",
+  "characterObjectId": "reign_court_castle_EW5_child_1",
+  "characterName": "Drenenos Elarirides",
+  "provider": "AtlasCloud",
+  "model": "xai/grok-imagine-image/edit",
+  "adapter": "atlas upload/generate/poll",
+  "sourceSha256": "20127adc46b5b47b838236933b7edd3a27af200fa78849177c9d332787963353",
+  "portraitSha256": "569fcc6033a870aacc9d8e94e9a86daf09cc97f1ef46784501fed99fdf0b7827",
+  "portraitWidth": 864,
+  "portraitHeight": 1152,
+  "physicalConfidence": {
+    "definition": "physical_confidence",
+    "score": 74,
+    "profile": "61-80",
+    "flirtatiousnessPercentage": 81,
+    "confidencePercentage": 52,
+    "flirtatiousnessWeight": 0.75,
+    "confidenceWeight": 0.25,
+    "source": "shipped_profile_library"
+  },
+  "derivativesReady": true,
+  "derivativeError": "",
+  "generatedUtc": "2026-07-17T18:29:38.7738907Z"
+}

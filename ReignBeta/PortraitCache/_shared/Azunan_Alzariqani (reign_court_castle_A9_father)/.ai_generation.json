@@ -1,0 +1,27 @@
+{
+  "version": 1,
+  "cacheKey": "Azunan_Alzariqani (reign_court_castle_A9_father)",
+  "heroStringId": "reign_court_castle_A9_father",
+  "characterObjectId": "reign_court_castle_A9_father",
+  "characterName": "Azunan Alzariqani",
+  "provider": "AtlasCloud",
+  "model": "xai/grok-imagine-image/edit",
+  "adapter": "atlas upload/generate/poll",
+  "sourceSha256": "91558af0393c5eb90d96302fc19a0e515387404a4e8c322c1c49382a0d08a3e3",
+  "portraitSha256": "dd1e109d192ca1efe0387bfb058b5d0ca3bf196eb35d112e6826903e4be54483",
+  "portraitWidth": 864,
+  "portraitHeight": 1152,
+  "physicalConfidence": {
+    "definition": "physical_confidence",
+    "score": 35,
+    "profile": "21-40",
+    "flirtatiousnessPercentage": 26,
+    "confidencePercentage": 61,
+    "flirtatiousnessWeight": 0.75,
+    "confidenceWeight": 0.25,
+    "source": "shipped_profile_library"
+  },
+  "derivativesReady": true,
+  "derivativeError": "",
+  "generatedUtc": "2026-07-17T18:15:13.2221063Z"
+}

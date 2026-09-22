@@ -1,0 +1,27 @@
+{
+  "version": 1,
+  "cacheKey": "Othurara_Merovorides (reign_court_castle_ES1_mother)",
+  "heroStringId": "reign_court_castle_ES1_mother",
+  "characterObjectId": "reign_court_castle_ES1_mother",
+  "characterName": "Othurara Merovorides",
+  "provider": "AtlasCloud",
+  "model": "xai/grok-imagine-image/edit",
+  "adapter": "atlas upload/generate/poll",
+  "sourceSha256": "540623563e3f4d97ac87cbd7c964b9d06f4415409617465ed766c8702831a29a",
+  "portraitSha256": "ed7d35f44efaf8503ad3c0557f5e3f0c953bd6822ef5dc2654721f298b19b9b6",
+  "portraitWidth": 864,
+  "portraitHeight": 1152,
+  "physicalConfidence": {
+    "definition": "physical_confidence",
+    "score": 25,
+    "profile": "21-40",
+    "flirtatiousnessPercentage": 24,
+    "confidencePercentage": 27,
+    "flirtatiousnessWeight": 0.75,
+    "confidenceWeight": 0.25,
+    "source": "shipped_profile_library"
+  },
+  "derivativesReady": true,
+  "derivativeError": "",
+  "generatedUtc": "2026-07-17T19:08:13.0621975Z"
+}

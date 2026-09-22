@@ -1,0 +1,24 @@
+{
+  "schema": "reign-fixed-region-composite-v1",
+  "assetId": "diplomacy-announcement-modern-shell-neutral-banner-source",
+  "approvedReference": {
+    "path": "../generated-sources/screen-diplomacy-announcement-modern-shell-exact-fixed-source.png",
+    "sha256": "e2910f8c677b11d8f22c28e2c3d6b649b1c90c31a2b5f849a67172f8580521e2"
+  },
+  "imageToImageFill": {
+    "path": "../generated-sources/screen-shells/diplomacy-banner-neutral-i2i-fill.png",
+    "sha256": "90670a022c6f64996a826d85dcedf46d3098d9e3033ab060c9addd7786aa29b0",
+    "normalization": "exact 1672x941"
+  },
+  "canvas": {"width": 1672, "height": 941},
+  "policy": "Only the two runtime banner interiors are replaced with neutral image-to-image material. Every pixel outside the shield polygons remains byte-for-byte identical to the prior exact fixed source.",
+  "rectangularFillMode": {
+    "type": "median-border color-matched image-to-image patch",
+    "inwardFeatherPixels": 3,
+    "borderSamplePixels": 4
+  },
+  "sceneDependentMasks": [
+    {"id": "left-neutral-banner-group", "shape": "polygon", "points": [[217, 589], [303, 589], [303, 674], [260, 688], [217, 674]]},
+    {"id": "right-neutral-banner-group", "shape": "polygon", "points": [[1368, 589], [1454, 589], [1454, 674], [1411, 688], [1368, 674]]}
+  ]
+}

@@ -1,0 +1,27 @@
+{
+  "version": 1,
+  "cacheKey": "Zlatka (lord_2_23_1)",
+  "heroStringId": "lord_2_23_1",
+  "characterObjectId": "lord_2_23_1",
+  "characterName": "Zlatka",
+  "provider": "AtlasCloud",
+  "model": "xai/grok-imagine-image/edit",
+  "adapter": "atlas upload/generate/poll",
+  "sourceSha256": "7dd6797cf3460d18de8816f0f789554651b3b033a02633b06d62879cb21f1f9c",
+  "portraitSha256": "8b092421ee62c8d8aa8778c54da94c1efcf96eaeb46d8a5c5e6619e2e03acd49",
+  "portraitWidth": 832,
+  "portraitHeight": 1248,
+  "physicalConfidence": {
+    "definition": "physical_confidence",
+    "score": 30,
+    "profile": "21-40",
+    "flirtatiousnessPercentage": 24,
+    "confidencePercentage": 47,
+    "flirtatiousnessWeight": 0.75,
+    "confidenceWeight": 0.25,
+    "source": "shipped_profile_library"
+  },
+  "derivativesReady": true,
+  "derivativeError": "",
+  "generatedUtc": "2026-07-17T19:23:18.0617171Z"
+}

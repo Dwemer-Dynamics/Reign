@@ -1,0 +1,27 @@
+{
+  "version": 1,
+  "cacheKey": "Gnevoza_Rudeevich (reign_court_town_S7_mother)",
+  "heroStringId": "reign_court_town_S7_mother",
+  "characterObjectId": "reign_court_town_S7_mother",
+  "characterName": "Gnevoza Rudeevich",
+  "provider": "AtlasCloud",
+  "model": "xai/grok-imagine-image/edit",
+  "adapter": "atlas upload/generate/poll",
+  "sourceSha256": "1e71f28bf45d12b0cd04cbef230da8d8ec5ed7eedb6407858963ec78cdb9191f",
+  "portraitSha256": "7ef0eac90aa1cf764afe0b9910f7afa67ad28b9594031f3c512818628a9a7893",
+  "portraitWidth": 864,
+  "portraitHeight": 1152,
+  "physicalConfidence": {
+    "definition": "physical_confidence",
+    "score": 79,
+    "profile": "61-80",
+    "flirtatiousnessPercentage": 87,
+    "confidencePercentage": 54,
+    "flirtatiousnessWeight": 0.75,
+    "confidenceWeight": 0.25,
+    "source": "shipped_profile_library"
+  },
+  "derivativesReady": true,
+  "derivativeError": "",
+  "generatedUtc": "2026-07-17T18:39:22.1197723Z"
+}

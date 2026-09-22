@@ -1,0 +1,63 @@
+{
+  "schema": "reign-overlay-asset-spec-v1",
+  "asset": {
+    "id": "ambassador-envoy-card-fixed-overlay",
+    "role": "approved-reference-exact fixed pixels for each repeatable resident-envoy card above live full-body artwork, banner, and text",
+    "selectedGeneratedSourceSha256": "bb2a2c5fe0fec5724075a254c092b240bedfdf84872fc909f62434220cb07ef5",
+    "generationMode": "built-in image-to-image exploration followed by deterministic approved-reference fixed-pixel extraction",
+    "promptPath": "../ambassador-card-modern-overlay-prompt.txt",
+    "promptSha256": "e9011c77340c3f3d1ba60f712c1b3ef48e42d888f2f2362ece3aaca9b33066a4"
+  },
+  "authorities": {
+    "layout": {
+      "path": "../approved-references/ambassador.png",
+      "sha256": "073f96aafde634fd1f1a43175429c8bcaa1557c28b70b30da69dce0a6d5caa94"
+    },
+    "materials": {
+      "path": "../approved-references/ambassador.png",
+      "sha256": "073f96aafde634fd1f1a43175429c8bcaa1557c28b70b30da69dce0a6d5caa94"
+    },
+    "palette": {
+      "path": "../palette.json",
+      "sha256": "fac70043a567db463ae70c975b92037dbfc38337e0d9134bc85bb03e3bb9a043",
+      "schema": "reign-ui-modern-palette-v1",
+      "version": "2026.08.28.2"
+    }
+  },
+  "canvas": { "width": 295, "height": 620 },
+  "normalization": {
+    "fit": "exact",
+    "anchor": "center",
+    "sourceCrop": { "x": 520, "y": 167, "width": 295, "height": 620 }
+  },
+  "antialiasScale": 8,
+  "apertures": [
+    { "id": "portrait-left-of-banner", "shape": "rectangle", "x": 11, "y": 14, "width": 208, "height": 369, "feather": 0.0 },
+    { "id": "portrait-below-banner", "shape": "rectangle", "x": 219, "y": 91, "width": 61, "height": 292, "feather": 0.0 },
+    { "id": "runtime-banner", "shape": "rectangle", "x": 229, "y": 27, "width": 42, "height": 53, "feather": 0.0 },
+    { "id": "realm-text", "shape": "rectangle", "x": 31, "y": 402, "width": 228, "height": 23, "feather": 0.0 },
+    { "id": "name-text", "shape": "rectangle", "x": 31, "y": 436, "width": 228, "height": 31, "feather": 0.0 },
+    { "id": "clan-text", "shape": "rectangle", "x": 31, "y": 473, "width": 228, "height": 25, "feather": 0.0 },
+    { "id": "status-text", "shape": "rectangle", "x": 31, "y": 503, "width": 228, "height": 24, "feather": 0.0 },
+    { "id": "invitation-text", "shape": "rectangle", "x": 31, "y": 531, "width": 228, "height": 25, "feather": 0.0 },
+    { "id": "action-label", "shape": "rectangle", "x": 71, "y": 573, "width": 148, "height": 24, "feather": 0.0 }
+  ],
+  "transparentRgb": "#121211",
+  "marbleReduction": {
+    "amount": 0.0,
+    "blurRadius": 6.0,
+    "luminanceCeiling": 96,
+    "chromaCeiling": 36,
+    "selectionSoftness": 20
+  },
+  "integrationGeometry": {
+    "schema": "reign-ambassador-card-integration-geometry-v1",
+    "coordinateSystem": { "units": "pixels", "origin": "top-left", "canvasWidth": 295, "canvasHeight": 620 },
+    "runtimeRegions": {
+      "fullBodyPortrait": { "x": 11, "y": 14, "width": 269, "height": 369, "shape": "rectangle" },
+      "banner": { "x": 229, "y": 27, "width": 42, "height": 53, "shape": "rectangle" },
+      "labels": { "x": 31, "y": 402, "width": 228, "height": 154 },
+      "dismissControl": { "x": 40, "y": 565, "width": 214, "height": 38 }
+    }
+  }
+}

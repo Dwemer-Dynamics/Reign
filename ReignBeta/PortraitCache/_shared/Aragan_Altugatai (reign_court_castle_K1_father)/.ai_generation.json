@@ -1,0 +1,27 @@
+{
+  "version": 1,
+  "cacheKey": "Aragan_Altugatai (reign_court_castle_K1_father)",
+  "heroStringId": "reign_court_castle_K1_father",
+  "characterObjectId": "reign_court_castle_K1_father",
+  "characterName": "Aragan Altugatai",
+  "provider": "AtlasCloud",
+  "model": "xai/grok-imagine-image/edit",
+  "adapter": "atlas upload/generate/poll",
+  "sourceSha256": "8067e1e1d37db290a11f019ac2eaa5ec4cd2d10acbf71b6bfe973745e8379f13",
+  "portraitSha256": "9fc5e55cb77a7da08c98af11efd78a4f7c6983594b789c52b71692bb8db8ab2f",
+  "portraitWidth": 864,
+  "portraitHeight": 1152,
+  "physicalConfidence": {
+    "definition": "physical_confidence",
+    "score": 72,
+    "profile": "61-80",
+    "flirtatiousnessPercentage": 72,
+    "confidencePercentage": 71,
+    "flirtatiousnessWeight": 0.75,
+    "confidenceWeight": 0.25,
+    "source": "shipped_profile_library"
+  },
+  "derivativesReady": true,
+  "derivativeError": "",
+  "generatedUtc": "2026-07-17T18:12:55.7127157Z"
+}

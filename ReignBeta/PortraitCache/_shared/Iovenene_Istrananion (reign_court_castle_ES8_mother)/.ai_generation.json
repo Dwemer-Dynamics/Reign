@@ -1,0 +1,27 @@
+{
+  "version": 1,
+  "cacheKey": "Iovenene_Istrananion (reign_court_castle_ES8_mother)",
+  "heroStringId": "reign_court_castle_ES8_mother",
+  "characterObjectId": "reign_court_castle_ES8_mother",
+  "characterName": "Iovenene Istrananion",
+  "provider": "AtlasCloud",
+  "model": "xai/grok-imagine-image/edit",
+  "adapter": "atlas upload/generate/poll",
+  "sourceSha256": "ccc21ea4ab39ac5856bb2d3d3360812dc8cb8ebbad92b8c3ed77edde77daa39d",
+  "portraitSha256": "604bc922047d7324981a5939206cc9fbfba99a2db2edfdc2eec6b20075be33ba",
+  "portraitWidth": 864,
+  "portraitHeight": 1152,
+  "physicalConfidence": {
+    "definition": "physical_confidence",
+    "score": 61,
+    "profile": "61-80",
+    "flirtatiousnessPercentage": 65,
+    "confidencePercentage": 48,
+    "flirtatiousnessWeight": 0.75,
+    "confidenceWeight": 0.25,
+    "source": "shipped_profile_library"
+  },
+  "derivativesReady": true,
+  "derivativeError": "",
+  "generatedUtc": "2026-07-17T18:44:38.4342138Z"
+}

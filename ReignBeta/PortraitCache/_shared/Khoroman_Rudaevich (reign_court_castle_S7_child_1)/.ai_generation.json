@@ -1,0 +1,27 @@
+{
+  "version": 1,
+  "cacheKey": "Khoroman_Rudaevich (reign_court_castle_S7_child_1)",
+  "heroStringId": "reign_court_castle_S7_child_1",
+  "characterObjectId": "reign_court_castle_S7_child_1",
+  "characterName": "Khoroman Rudaevich",
+  "provider": "AtlasCloud",
+  "model": "xai/grok-imagine-image/edit",
+  "adapter": "atlas upload/generate/poll",
+  "sourceSha256": "f8e411eaea1748f775fdaa2c8102fea5ebc00c2c7ce12e66548bf563cfb15e29",
+  "portraitSha256": "22c564ad8c757256a37ad0cefdb1d2534cef099d5f51b90abb3c5f896b18e233",
+  "portraitWidth": 864,
+  "portraitHeight": 1152,
+  "physicalConfidence": {
+    "definition": "physical_confidence",
+    "score": 85,
+    "profile": "81-100",
+    "flirtatiousnessPercentage": 80,
+    "confidencePercentage": 99,
+    "flirtatiousnessWeight": 0.75,
+    "confidenceWeight": 0.25,
+    "source": "shipped_profile_library"
+  },
+  "derivativesReady": true,
+  "derivativeError": "",
+  "generatedUtc": "2026-07-17T18:48:19.3317500Z"
+}

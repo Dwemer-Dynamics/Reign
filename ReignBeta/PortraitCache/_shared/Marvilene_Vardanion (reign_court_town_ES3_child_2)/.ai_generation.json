@@ -1,0 +1,27 @@
+{
+  "version": 1,
+  "cacheKey": "Marvilene_Vardanion (reign_court_town_ES3_child_2)",
+  "heroStringId": "reign_court_town_ES3_child_2",
+  "characterObjectId": "reign_court_town_ES3_child_2",
+  "characterName": "Marvilene Vardanion",
+  "provider": "AtlasCloud",
+  "model": "xai/grok-imagine-image/edit",
+  "adapter": "atlas upload/generate/poll",
+  "sourceSha256": "4a142550362ba3a6d72a080871c7ccc1dcf080f2291113eed1ec05e62799f7b6",
+  "portraitSha256": "cbd629ca144f6133293808693cb2ae25b2d143c07f6b7e144d2067b775dbe848",
+  "portraitWidth": 864,
+  "portraitHeight": 1152,
+  "physicalConfidence": {
+    "definition": "physical_confidence",
+    "score": 61,
+    "profile": "61-80",
+    "flirtatiousnessPercentage": 62,
+    "confidencePercentage": 57,
+    "flirtatiousnessWeight": 0.75,
+    "confidenceWeight": 0.25,
+    "source": "shipped_profile_library"
+  },
+  "derivativesReady": true,
+  "derivativeError": "",
+  "generatedUtc": "2026-07-17T19:00:45.7672543Z"
+}

@@ -1,0 +1,27 @@
+{
+  "version": 1,
+  "cacheKey": "Ulyk (spc_e3_character_3)",
+  "heroStringId": "spc_e3_character_3",
+  "characterObjectId": "spc_e3_character_3",
+  "characterName": "Ulyk",
+  "provider": "AtlasCloud",
+  "model": "xai/grok-imagine-image/edit",
+  "adapter": "atlas upload/generate/poll",
+  "sourceSha256": "d53ec4789a96655aca8420aa152ed7c2ed0903a22f520cd8f71f7efd93027183",
+  "portraitSha256": "29415c5ed61a0d4e8bd391c2cb6129c091f171f6ade6e24676ef5f21e3d64089",
+  "portraitWidth": 864,
+  "portraitHeight": 1152,
+  "physicalConfidence": {
+    "definition": "physical_confidence",
+    "score": 50,
+    "profile": "41-60",
+    "flirtatiousnessPercentage": 50,
+    "confidencePercentage": 50,
+    "flirtatiousnessWeight": 0.75,
+    "confidenceWeight": 0.25,
+    "source": "neutral_fallback"
+  },
+  "derivativesReady": true,
+  "derivativeError": "",
+  "generatedUtc": "2026-07-17T19:19:37.7904979Z"
+}

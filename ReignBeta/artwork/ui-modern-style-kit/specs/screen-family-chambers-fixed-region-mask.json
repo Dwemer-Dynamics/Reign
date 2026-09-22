@@ -1,0 +1,30 @@
+{
+  "schema": "reign-fixed-region-composite-v1",
+  "assetId": "family-chambers-modern-shell",
+  "approvedReference": {
+    "path": "../approved-references/family-chambers.png",
+    "sha256": "d47619f8af70a534def34a56cf2fadb95c42a5e41b2110e95f34f9ea79b98e1c"
+  },
+  "imageToImageFill": {
+    "path": "../generated-sources/screen-shells/family-chambers-modern-shell-clean-source.png",
+    "sha256": "a005946d8baddee0b88f6f04a3b31ed19de82927454f5d5facc1aae9d1ee7885",
+    "normalization": "exact 1672x941"
+  },
+  "canvas": {"width": 1672, "height": 941},
+  "policy": "Every pixel outside the declared runtime text, list, and scrollbar masks is copied byte-for-byte from the approved Family Chambers reference. Occupant cards and scrollbar state exist only as live widgets.",
+  "maskSemantics": "The two rail masks are intentionally empty when their bound collections are empty; runtime card widgets restore the approved per-entry panel and circular portrait treatment only for actual occupants.",
+  "rectangularFillMode": {
+    "type": "median-border color-matched image-to-image patch",
+    "inwardFeatherPixels": 3,
+    "borderSamplePixels": 4
+  },
+  "sceneDependentMasks": [
+    {"id": "runtime-adult-list", "shape": "rectangle", "x": 54, "y": 170, "width": 330, "height": 630, "colorMatch": false},
+    {"id": "runtime-adult-scrollbar", "shape": "rectangle", "x": 390, "y": 173, "width": 12, "height": 621, "colorMatch": false},
+    {"id": "runtime-child-list", "shape": "rectangle", "x": 1274, "y": 170, "width": 326, "height": 630, "colorMatch": false},
+    {"id": "runtime-child-scrollbar", "shape": "rectangle", "x": 1604, "y": 173, "width": 12, "height": 621, "colorMatch": false},
+    {"id": "runtime-busy-state", "shape": "rectangle", "x": 491, "y": 535, "width": 690, "height": 34},
+    {"id": "runtime-selection-count", "shape": "rectangle", "x": 526, "y": 609, "width": 620, "height": 30},
+    {"id": "runtime-status", "shape": "rectangle", "x": 491, "y": 683, "width": 690, "height": 60}
+  ]
+}

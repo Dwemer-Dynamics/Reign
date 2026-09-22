@@ -1,0 +1,27 @@
+{
+  "version": 1,
+  "cacheKey": "Niphon (lord_1_69)",
+  "heroStringId": "lord_1_69",
+  "characterObjectId": "lord_1_69",
+  "characterName": "Niphon",
+  "provider": "AtlasCloud",
+  "model": "xai/grok-imagine-image/edit",
+  "adapter": "atlas upload/generate/poll",
+  "sourceSha256": "347330bf49f939764f7c159ba0d34eb67d3122ac03aa07b2864439a7d0a2b4d3",
+  "portraitSha256": "2f33aa594a1c3341d9e827a1bec7a25108741b846c869893a1d02d3d365b0d08",
+  "portraitWidth": 832,
+  "portraitHeight": 1248,
+  "physicalConfidence": {
+    "definition": "physical_confidence",
+    "score": 76,
+    "profile": "61-80",
+    "flirtatiousnessPercentage": 85,
+    "confidencePercentage": 48,
+    "flirtatiousnessWeight": 0.75,
+    "confidenceWeight": 0.25,
+    "source": "shipped_profile_library"
+  },
+  "derivativesReady": true,
+  "derivativeError": "",
+  "generatedUtc": "2026-07-17T19:05:53.5549611Z"
+}

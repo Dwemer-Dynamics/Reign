@@ -1,0 +1,27 @@
+{
+  "version": 1,
+  "cacheKey": "Torala_Caeradawn (reign_court_castle_B3_child_2)",
+  "heroStringId": "reign_court_castle_B3_child_2",
+  "characterObjectId": "reign_court_castle_B3_child_2",
+  "characterName": "Torala Caeradawn",
+  "provider": "AtlasCloud",
+  "model": "xai/grok-imagine-image/edit",
+  "adapter": "atlas upload/generate/poll",
+  "sourceSha256": "e77ab20f25c75bb703bc58ce3b50bdae2d4f1ef94a35cb7d0d2bf76950fcf259",
+  "portraitSha256": "1880f487e1d930a406a69ca0a500823e755ac7c0622e825fdf23b545cb6118bb",
+  "portraitWidth": 864,
+  "portraitHeight": 1152,
+  "physicalConfidence": {
+    "definition": "physical_confidence",
+    "score": 47,
+    "profile": "41-60",
+    "flirtatiousnessPercentage": 44,
+    "confidencePercentage": 55,
+    "flirtatiousnessWeight": 0.75,
+    "confidenceWeight": 0.25,
+    "source": "shipped_profile_library"
+  },
+  "derivativesReady": true,
+  "derivativeError": "",
+  "generatedUtc": "2026-07-17T19:17:20.7085682Z"
+}

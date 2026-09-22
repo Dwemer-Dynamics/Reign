@@ -1,0 +1,27 @@
+{
+  "version": 1,
+  "cacheKey": "Fennonan_Brynedawn (reign_court_town_B2_child_1)",
+  "heroStringId": "reign_court_town_B2_child_1",
+  "characterObjectId": "reign_court_town_B2_child_1",
+  "characterName": "Fennonan Brynedawn",
+  "provider": "AtlasCloud",
+  "model": "xai/grok-imagine-image/edit",
+  "adapter": "atlas upload/generate/poll",
+  "sourceSha256": "907e1a0d448afa8cb2051213579050179dc1ed08446e1b37d50e2a68d8a19cd0",
+  "portraitSha256": "b3159d43e68c5ba2c2b6db3cba4f81f1fe27c582460cd1be534a4ad54e73d26b",
+  "portraitWidth": 864,
+  "portraitHeight": 1152,
+  "physicalConfidence": {
+    "definition": "physical_confidence",
+    "score": 50,
+    "profile": "41-60",
+    "flirtatiousnessPercentage": 42,
+    "confidencePercentage": 73,
+    "flirtatiousnessWeight": 0.75,
+    "confidenceWeight": 0.25,
+    "source": "shipped_profile_library"
+  },
+  "derivativesReady": true,
+  "derivativeError": "",
+  "generatedUtc": "2026-07-17T18:37:18.5288573Z"
+}

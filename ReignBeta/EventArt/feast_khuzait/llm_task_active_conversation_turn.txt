@@ -1,0 +1,3 @@
+Write only this speaker's next response in the ongoing event conversation.
+The response may include a short physical action in first or third person, but it must remain focused on the current event phase.
+React to the player and to the active group. Do not answer for other named NPCs unless a brief glance, interruption, or visible reaction is necessary.

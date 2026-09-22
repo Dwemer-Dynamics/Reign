@@ -1,0 +1,27 @@
+{
+  "version": 1,
+  "cacheKey": "Radagos (tutorial_npc_radagos)",
+  "heroStringId": "tutorial_npc_radagos",
+  "characterObjectId": "tutorial_npc_radagos",
+  "characterName": "Radagos",
+  "provider": "AtlasCloud",
+  "model": "xai/grok-imagine-image/edit",
+  "adapter": "atlas upload/generate/poll",
+  "sourceSha256": "b7a32340d5528ae9b9250e7bc851cd555f704a05280ca9ef37c368b0d2cc1525",
+  "portraitSha256": "27b5d3f4c63e581317f71f650f5a1ac54b92b3fb9dffb51afd190ab52a9954c6",
+  "portraitWidth": 864,
+  "portraitHeight": 1152,
+  "physicalConfidence": {
+    "definition": "physical_confidence",
+    "score": 50,
+    "profile": "41-60",
+    "flirtatiousnessPercentage": 50,
+    "confidencePercentage": 50,
+    "flirtatiousnessWeight": 0.75,
+    "confidenceWeight": 0.25,
+    "source": "neutral_fallback"
+  },
+  "derivativesReady": true,
+  "derivativeError": "",
+  "generatedUtc": "2026-07-17T19:09:55.8967917Z"
+}

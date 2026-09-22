@@ -1,0 +1,27 @@
+{
+  "version": 1,
+  "cacheKey": "Variasis (lord_1_1_17)",
+  "heroStringId": "lord_1_1_17",
+  "characterObjectId": "lord_1_1_17",
+  "characterName": "Variasis",
+  "provider": "AtlasCloud",
+  "model": "xai/grok-imagine-image/edit",
+  "adapter": "atlas upload/generate/poll",
+  "sourceSha256": "17612a22a87cfaffa1d90e5948a0420fc890b4240d06bc229f6fba628c6f26a7",
+  "portraitSha256": "e3ac7a3deec0168bf099f344de6a7d10e469acde159590e8ac290b410cf4d48c",
+  "portraitWidth": 832,
+  "portraitHeight": 1248,
+  "physicalConfidence": {
+    "definition": "physical_confidence",
+    "score": 45,
+    "profile": "41-60",
+    "flirtatiousnessPercentage": 48,
+    "confidencePercentage": 35,
+    "flirtatiousnessWeight": 0.75,
+    "confidenceWeight": 0.25,
+    "source": "shipped_profile_library"
+  },
+  "derivativesReady": true,
+  "derivativeError": "",
+  "generatedUtc": "2026-07-17T19:20:17.4149980Z"
+}

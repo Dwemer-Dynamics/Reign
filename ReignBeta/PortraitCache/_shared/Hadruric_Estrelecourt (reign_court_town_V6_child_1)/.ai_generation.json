@@ -1,0 +1,27 @@
+{
+  "version": 1,
+  "cacheKey": "Hadruric_Estrelecourt (reign_court_town_V6_child_1)",
+  "heroStringId": "reign_court_town_V6_child_1",
+  "characterObjectId": "reign_court_town_V6_child_1",
+  "characterName": "Hadruric Estrelecourt",
+  "provider": "AtlasCloud",
+  "model": "xai/grok-imagine-image/edit",
+  "adapter": "atlas upload/generate/poll",
+  "sourceSha256": "5f272975af1194e9cb59eac5bac767af4c2e5c3a4b2d980199cf1ec8ba220060",
+  "portraitSha256": "3d63b2144d2d6f770afb6bb7464f8de6a721c1fb0107496fa0673aea10605b49",
+  "portraitWidth": 864,
+  "portraitHeight": 1152,
+  "physicalConfidence": {
+    "definition": "physical_confidence",
+    "score": 46,
+    "profile": "41-60",
+    "flirtatiousnessPercentage": 30,
+    "confidencePercentage": 93,
+    "flirtatiousnessWeight": 0.75,
+    "confidenceWeight": 0.25,
+    "source": "shipped_profile_library"
+  },
+  "derivativesReady": true,
+  "derivativeError": "",
+  "generatedUtc": "2026-07-17T18:41:41.2502582Z"
+}

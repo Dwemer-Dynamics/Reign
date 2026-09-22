@@ -1,0 +1,27 @@
+{
+  "version": 1,
+  "cacheKey": "Megenhelda (lord_4_3_1)",
+  "heroStringId": "lord_4_3_1",
+  "characterObjectId": "lord_4_3_1",
+  "characterName": "Megenhelda",
+  "provider": "AtlasCloud",
+  "model": "xai/grok-imagine-image/edit",
+  "adapter": "atlas upload/generate/poll",
+  "sourceSha256": "f4c303b46dfca54921ca3de541c6e460d7b490d7d0c8236086bdb13e3e9cd8a8",
+  "portraitSha256": "af820b4e52ffa7661f11647f88cd979b0c1b1ad81606c81640170cb1e0ea1268",
+  "portraitWidth": 832,
+  "portraitHeight": 1248,
+  "physicalConfidence": {
+    "definition": "physical_confidence",
+    "score": 53,
+    "profile": "41-60",
+    "flirtatiousnessPercentage": 52,
+    "confidencePercentage": 55,
+    "flirtatiousnessWeight": 0.75,
+    "confidenceWeight": 0.25,
+    "source": "shipped_profile_library"
+  },
+  "derivativesReady": true,
+  "derivativeError": "",
+  "generatedUtc": "2026-07-17T19:02:43.9131708Z"
+}

@@ -1,0 +1,13 @@
+{
+  "version": 1,
+  "heroStringId": "lord_7_20",
+  "characterName": "Toverik",
+  "imagePath": "portrait.png",
+  "imageSha256": "CF482576224B4961634823D8BC7E171F1B2863C1796FD46E4D57784E9404FDED",
+  "description": "Culturally appropriate everyday Nord landowner attire inspired by historically grounded early medieval Scandinavian civilian clothing. Men should wear a long-sleeved linen undershirt beneath a knee-length wool tunic, straight or loose trousers, a sturdy leather belt, and wrapped lower legs. Women should wear a long linen shift beneath a wool apron dress or layered overdress, secured with modest brooches and a woven belt. Include subtle tablet-woven trim and practical layered fabric. The garments should appear sturdy, clean, and modestly prosperous. No headgear of any kind. No helmets, caps, hoods, armor, weapons, crowns, ceremonial garments, horned helmets, or fantasy Viking styling.",
+  "status": "failed",
+  "descriptionSource": "portrait_prompt_fallback",
+  "retryEligible": true,
+  "error": "{\"error\":{\"message\":\"Model \\\"zai-org/glm-5.2\\\" does not support image inputs. Remove image content or choose a multimodal model.\",\"type\":\"invalid_request_error\",\"param\":\"messages\",\"code\":\"image_input_not_supported\"}}",
+  "updatedUtc": "2026-07-18T22:03:35.0702804Z"
+}

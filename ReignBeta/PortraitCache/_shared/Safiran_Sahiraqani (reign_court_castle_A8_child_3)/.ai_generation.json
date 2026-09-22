@@ -1,0 +1,27 @@
+{
+  "version": 1,
+  "cacheKey": "Safiran_Sahiraqani (reign_court_castle_A8_child_3)",
+  "heroStringId": "reign_court_castle_A8_child_3",
+  "characterObjectId": "reign_court_castle_A8_child_3",
+  "characterName": "Safiran Sahiraqani",
+  "provider": "AtlasCloud",
+  "model": "xai/grok-imagine-image/edit",
+  "adapter": "atlas upload/generate/poll",
+  "sourceSha256": "a32bf29db33a3d97b48fc88620ecc756f0caf9fddbba5339428a021a4246a634",
+  "portraitSha256": "6122e278814f902a3f3d2fc514f4f1b8077bf12587da4d843e41e839a135cec7",
+  "portraitWidth": 864,
+  "portraitHeight": 1152,
+  "physicalConfidence": {
+    "definition": "physical_confidence",
+    "score": 53,
+    "profile": "41-60",
+    "flirtatiousnessPercentage": 45,
+    "confidencePercentage": 76,
+    "flirtatiousnessWeight": 0.75,
+    "confidenceWeight": 0.25,
+    "source": "shipped_profile_library"
+  },
+  "derivativesReady": true,
+  "derivativeError": "",
+  "generatedUtc": "2026-07-17T19:12:21.0792264Z"
+}

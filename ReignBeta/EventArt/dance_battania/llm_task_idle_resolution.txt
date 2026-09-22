@@ -1,0 +1,3 @@
+Write a short natural beat showing whether this NPC remains nearby, steps back, waits, or leaves the active conversation.
+Make the behavior fit personality and status. Proud or bold characters may leave pointedly; patient or calculating characters may linger and watch.
+Do not punish the player. This is social pacing, not a failure state.

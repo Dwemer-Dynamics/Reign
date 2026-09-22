@@ -1,0 +1,27 @@
+{
+  "version": 1,
+  "cacheKey": "Urundulf (lord_V9_u)",
+  "heroStringId": "lord_V9_u",
+  "characterObjectId": "lord_V9_u",
+  "characterName": "Urundulf",
+  "provider": "AtlasCloud",
+  "model": "xai/grok-imagine-image/edit",
+  "adapter": "atlas upload/generate/poll",
+  "sourceSha256": "146582561fe4e840f7d0ed287c2068e1946fd71872e66e953a91b157130c6064",
+  "portraitSha256": "85dd3f2d996f1f6ef0b5fcf1b5539d43c333df0f89c11ef421ba429447c57dfb",
+  "portraitWidth": 832,
+  "portraitHeight": 1248,
+  "physicalConfidence": {
+    "definition": "physical_confidence",
+    "score": 67,
+    "profile": "61-80",
+    "flirtatiousnessPercentage": 69,
+    "confidencePercentage": 60,
+    "flirtatiousnessWeight": 0.75,
+    "confidenceWeight": 0.25,
+    "source": "shipped_profile_library"
+  },
+  "derivativesReady": true,
+  "derivativeError": "",
+  "generatedUtc": "2026-07-17T19:19:55.2012937Z"
+}

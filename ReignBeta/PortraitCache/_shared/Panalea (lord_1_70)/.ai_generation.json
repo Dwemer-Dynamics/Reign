@@ -1,0 +1,27 @@
+{
+  "version": 1,
+  "cacheKey": "Panalea (lord_1_70)",
+  "heroStringId": "lord_1_70",
+  "characterObjectId": "lord_1_70",
+  "characterName": "Panalea",
+  "provider": "AtlasCloud",
+  "model": "xai/grok-imagine-image/edit",
+  "adapter": "atlas upload/generate/poll",
+  "sourceSha256": "08e00a74bd1758ab238766908043faa9d72178a6cd4af3a3573bf1b1ab042c6a",
+  "portraitSha256": "a1762ad13c5359726f50b43411575d3f7848c8b566214bb676ca80fc84ef97fa",
+  "portraitWidth": 832,
+  "portraitHeight": 1248,
+  "physicalConfidence": {
+    "definition": "physical_confidence",
+    "score": 55,
+    "profile": "41-60",
+    "flirtatiousnessPercentage": 59,
+    "confidencePercentage": 42,
+    "flirtatiousnessWeight": 0.75,
+    "confidenceWeight": 0.25,
+    "source": "shipped_profile_library"
+  },
+  "derivativesReady": true,
+  "derivativeError": "",
+  "generatedUtc": "2026-07-17T19:08:45.6691015Z"
+}

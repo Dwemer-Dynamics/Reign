@@ -1,0 +1,27 @@
+{
+  "version": 1,
+  "cacheKey": "Aevuria_Damarerides (reign_court_town_EN2_child_4)",
+  "heroStringId": "reign_court_town_EN2_child_4",
+  "characterObjectId": "reign_court_town_EN2_child_4",
+  "characterName": "Aevuria Damarerides",
+  "provider": "AtlasCloud",
+  "model": "xai/grok-imagine-image/edit",
+  "adapter": "atlas upload/generate/poll",
+  "sourceSha256": "7553710f5354c83d4509eec9170ef8b3b656d8f65d6e1a30cc0cd495ff25c2f9",
+  "portraitSha256": "37f1b461d49b4cf1558235663286b1e227eb60809a4bb3035668ec2d14018e7e",
+  "portraitWidth": 864,
+  "portraitHeight": 1152,
+  "physicalConfidence": {
+    "definition": "physical_confidence",
+    "score": 47,
+    "profile": "41-60",
+    "flirtatiousnessPercentage": 54,
+    "confidencePercentage": 25,
+    "flirtatiousnessWeight": 0.75,
+    "confidenceWeight": 0.25,
+    "source": "shipped_profile_library"
+  },
+  "derivativesReady": true,
+  "derivativeError": "",
+  "generatedUtc": "2026-07-17T18:10:00.4213945Z"
+}

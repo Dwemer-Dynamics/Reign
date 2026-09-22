@@ -1,0 +1,27 @@
+{
+  "version": 1,
+  "cacheKey": "Calysia_Meroverides (reign_court_town_EN5_child_4)",
+  "heroStringId": "reign_court_town_EN5_child_4",
+  "characterObjectId": "reign_court_town_EN5_child_4",
+  "characterName": "Calysia Meroverides",
+  "provider": "AtlasCloud",
+  "model": "xai/grok-imagine-image/edit",
+  "adapter": "atlas upload/generate/poll",
+  "sourceSha256": "9823605f670362855dfc482729bf0c096238e540125f381734a34806907237fe",
+  "portraitSha256": "4c35943201c2dab7cfc2b4abff678e43ab7cc78ada9a2908fd9381f338ceff9c",
+  "portraitWidth": 864,
+  "portraitHeight": 1152,
+  "physicalConfidence": {
+    "definition": "physical_confidence",
+    "score": 89,
+    "profile": "81-100",
+    "flirtatiousnessPercentage": 99,
+    "confidencePercentage": 58,
+    "flirtatiousnessWeight": 0.75,
+    "confidenceWeight": 0.25,
+    "source": "shipped_profile_library"
+  },
+  "derivativesReady": true,
+  "derivativeError": "",
+  "generatedUtc": "2026-07-17T18:21:55.4501537Z"
+}

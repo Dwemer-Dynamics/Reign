@@ -1,0 +1,37 @@
+{
+  "schema": "reign-fixed-region-composite-v1",
+  "assetId": "wilderness-event-exact-fixed-shell",
+  "approvedReference": {
+    "path": "../approved-references/wilderness-event.png",
+    "sha256": "0d88586b639c1fe687460242569465376405d1aa20c49f460b0a481b8b1020a8"
+  },
+  "imageToImageFill": {
+    "path": "../generated-sources/screen-shells/wilderness-event-modern-shell-source.png",
+    "sha256": "9019dce863cb36f5d6d77ff5154971f6264aba526b43c0e2fc7217d75c9f07f6"
+  },
+  "canvas": {
+    "width": 1672,
+    "height": 941
+  },
+  "rectangularFillMode": {
+    "borderSamplePixels": 4,
+    "inwardFeatherPixels": 3
+  },
+  "sceneDependentMasks": [
+    { "id": "attendees-title", "shape": "rectangle", "x": 175, "y": 22, "width": 270, "height": 52 },
+    { "id": "active-heading", "shape": "rectangle", "x": 228, "y": 94, "width": 150, "height": 42 },
+    { "id": "active-roster", "shape": "rectangle", "x": 36, "y": 138, "width": 532, "height": 428 },
+    { "id": "available-heading", "shape": "rectangle", "x": 205, "y": 568, "width": 200, "height": 52 },
+    { "id": "available-roster", "shape": "rectangle", "x": 36, "y": 616, "width": 532, "height": 272 },
+    { "id": "event-title", "shape": "rectangle", "x": 680, "y": 20, "width": 910, "height": 62 },
+    { "id": "event-scene", "shape": "polygon", "points": [[779, 124], [1314, 124], [1314, 528], [779, 528]] },
+    { "id": "event-scene-caption", "shape": "rectangle", "x": 779, "y": 526, "width": 536, "height": 46 },
+    { "id": "end-event-label", "shape": "rectangle", "x": 1445, "y": 124, "width": 168, "height": 34 },
+    { "id": "phase-title", "shape": "rectangle", "x": 640, "y": 594, "width": 995, "height": 43 },
+    { "id": "phase-description", "shape": "rectangle", "x": 640, "y": 630, "width": 995, "height": 39 },
+    { "id": "chat-lines", "shape": "rectangle", "x": 646, "y": 698, "width": 966, "height": 145 },
+    { "id": "busy-text", "shape": "rectangle", "x": 706, "y": 831, "width": 520, "height": 20 },
+    { "id": "input-text", "shape": "rectangle", "x": 642, "y": 860, "width": 815, "height": 38 },
+    { "id": "send-label", "shape": "rectangle", "x": 1480, "y": 858, "width": 140, "height": 42 }
+  ]
+}

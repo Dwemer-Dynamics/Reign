@@ -1,0 +1,27 @@
+{
+  "version": 1,
+  "cacheKey": "Miroozan_Rudeevich (reign_court_town_S7_child_3)",
+  "heroStringId": "reign_court_town_S7_child_3",
+  "characterObjectId": "reign_court_town_S7_child_3",
+  "characterName": "Miroozan Rudeevich",
+  "provider": "AtlasCloud",
+  "model": "xai/grok-imagine-image/edit",
+  "adapter": "atlas upload/generate/poll",
+  "sourceSha256": "97678b665a0a9a6103cdafaaad13c52917fd85f4ecccc3c3281f61756e8e619e",
+  "portraitSha256": "85bed146db1bff014b74d3d36f12912e2db699919f80b1fa91ddee80259c0eff",
+  "portraitWidth": 864,
+  "portraitHeight": 1152,
+  "physicalConfidence": {
+    "definition": "physical_confidence",
+    "score": 79,
+    "profile": "61-80",
+    "flirtatiousnessPercentage": 94,
+    "confidencePercentage": 33,
+    "flirtatiousnessWeight": 0.75,
+    "confidenceWeight": 0.25,
+    "source": "shipped_profile_library"
+  },
+  "derivativesReady": true,
+  "derivativeError": "",
+  "generatedUtc": "2026-07-17T19:04:10.0089207Z"
+}

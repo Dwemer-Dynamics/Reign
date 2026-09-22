@@ -1,0 +1,27 @@
+{
+  "version": 1,
+  "cacheKey": "Hadranic_Belmontacourt (reign_court_castle_V2_child_3)",
+  "heroStringId": "reign_court_castle_V2_child_3",
+  "characterObjectId": "reign_court_castle_V2_child_3",
+  "characterName": "Hadranic Belmontacourt",
+  "provider": "AtlasCloud",
+  "model": "xai/grok-imagine-image/edit",
+  "adapter": "atlas upload/generate/poll",
+  "sourceSha256": "f5a74f272cccb428af29fb53e9e7827bb9b389db50fba2794aa0748ae7dba92d",
+  "portraitSha256": "fd614177a9a23c6b2d0c6fabf8bf5d9bdaeb27da7f33f630ce31641129eb77aa",
+  "portraitWidth": 864,
+  "portraitHeight": 1152,
+  "physicalConfidence": {
+    "definition": "physical_confidence",
+    "score": 60,
+    "profile": "41-60",
+    "flirtatiousnessPercentage": 64,
+    "confidencePercentage": 47,
+    "flirtatiousnessWeight": 0.75,
+    "confidenceWeight": 0.25,
+    "source": "shipped_profile_library"
+  },
+  "derivativesReady": true,
+  "derivativeError": "",
+  "generatedUtc": "2026-07-17T18:41:08.8081269Z"
+}

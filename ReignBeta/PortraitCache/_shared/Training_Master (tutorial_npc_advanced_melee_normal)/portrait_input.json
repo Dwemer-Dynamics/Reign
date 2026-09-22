@@ -1,0 +1,92 @@
+{
+  "version": 1,
+  "inputHash": "01a4a565a3294453cadaa57984dd2a91b79624dd301b6d710d1de2200ccfd565",
+  "catalogHash": "12142c0ab28d2678b12b852b086450dcc4eea45e2e8a080f3baa85c42f7fb3a2",
+  "renderContractHash": "cc3b941e7d47057de9b4220f1473336e6f908719812bb2653b83bd3545cfbd2f",
+  "cacheKey": "Training_Master (tutorial_npc_advanced_melee_normal)",
+  "heroStringId": "tutorial_npc_advanced_melee_normal",
+  "characterObjectId": "tutorial_npc_advanced_melee_normal",
+  "characterName": "Training Master",
+  "ageYears": 70,
+  "cultureId": "battania",
+  "cultureName": "Battanian",
+  "gender": "man",
+  "clanId": "none",
+  "clanTier": null,
+  "clanProvenance": "not_defined_in_module_heroes_xml",
+  "socialStation": "unranked",
+  "occupation": "Soldier",
+  "archetype": "soldier",
+  "isLord": false,
+  "isNotable": false,
+  "isWanderer": false,
+  "isAlive": null,
+  "sourceModule": "Native",
+  "sourceFile": "Modules/StoryMode/ModuleData/story_mode_characters.xml",
+  "profileSource": "neutral_fallback",
+  "profilePackVersion": "",
+  "bodyKey": "0011000017CC2140C87C765C76A348EA725B6A9A7988A21598B692967DA6B1540CD736CD0D689A44000000000000000000000000000000000000000067C42042",
+  "bodyWeight": 0.233,
+  "bodyBuild": 0.4491,
+  "faceTemplateId": "",
+  "faceGenerationVersion": "native_authored",
+  "civilianTemplate": "",
+  "civilianEquipment": [
+    {
+      "slot": "Body",
+      "itemId": "tunic_with_shoulder_pads"
+    },
+    {
+      "slot": "Cape",
+      "itemId": "scarf"
+    },
+    {
+      "slot": "Leg",
+      "itemId": "leather_cavalier_boots"
+    }
+  ],
+  "headgearSuppressed": true,
+  "physicalConfidence": {
+    "definition": "physical_confidence",
+    "score": 50,
+    "profile": "41-60",
+    "flirtatiousnessPercentage": 50,
+    "confidencePercentage": 50,
+    "flirtatiousnessWeight": 0.75,
+    "confidenceWeight": 0.25,
+    "source": "neutral_fallback"
+  },
+  "renderPreset": "ai_source_wan_portrait_v5",
+  "renderWidth": 1536,
+  "renderHeight": 2048,
+  "sourceWidth": 768,
+  "sourceHeight": 1024,
+  "cropScale": 0.24,
+  "cropWidthRatio": 0.75,
+  "cropCenterYRatio": 0.324,
+  "cameraPitchDegrees": 4,
+  "sourceSha256": "c1589db9cb34d30dd68c44f8a39e4ef64fb805f4d29ba189781da2fd057b3c30",
+  "sourceFileName": "source.png",
+  "generationEndpoint": "/portraits/generate",
+  "campaignIdSource": "active_campaign_at_generation_time",
+  "promptDeferred": true,
+  "sourceImageBase64From": "source.png",
+  "outputSizeOverride": "",
+  "promptPurpose": "portrait",
+  "nativePhysique": {
+    "schema": "reign-native-physique-v1",
+    "weight": 0.233,
+    "build": 0.4491,
+    "weightSource": "shared_portrait_input.bodyWeight",
+    "buildSource": "shared_portrait_input.bodyBuild",
+    "sourceSha256": "c1589db9cb34d30dd68c44f8a39e4ef64fb805f4d29ba189781da2fd057b3c30",
+    "provenance": {
+      "kind": "saved_character_metadata_backfill",
+      "heroStringId": "tutorial_npc_advanced_melee_normal",
+      "profileSource": "neutral_fallback",
+      "profilePackVersion": "",
+      "originalInputSha256": "354d582a409cf6333f25e4d89c50ee5864ed8c412dd5437684d8bc440624521a",
+      "rendererReexecuted": false
+    }
+  }
+}

@@ -1,0 +1,27 @@
+{
+  "version": 1,
+  "cacheKey": "Drazoma_Morozaevich (reign_court_castle_S6_child_4)",
+  "heroStringId": "reign_court_castle_S6_child_4",
+  "characterObjectId": "reign_court_castle_S6_child_4",
+  "characterName": "Drazoma Morozaevich",
+  "provider": "AtlasCloud",
+  "model": "xai/grok-imagine-image/edit",
+  "adapter": "atlas upload/generate/poll",
+  "sourceSha256": "dd65cdbdb9594606cdd0403580e20e8ed8115d0c62f7286cd8f6c34153d80d08",
+  "portraitSha256": "9aa83574664d5bd0c804de83c5df3214b0ea0997ea0e8f257a1579e07014ee54",
+  "portraitWidth": 864,
+  "portraitHeight": 1152,
+  "physicalConfidence": {
+    "definition": "physical_confidence",
+    "score": 62,
+    "profile": "61-80",
+    "flirtatiousnessPercentage": 56,
+    "confidencePercentage": 79,
+    "flirtatiousnessWeight": 0.75,
+    "confidenceWeight": 0.25,
+    "source": "shipped_profile_library"
+  },
+  "derivativesReady": true,
+  "derivativeError": "",
+  "generatedUtc": "2026-07-17T18:28:37.8177414Z"
+}

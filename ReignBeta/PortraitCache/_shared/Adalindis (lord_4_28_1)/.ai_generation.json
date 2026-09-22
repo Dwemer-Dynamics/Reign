@@ -1,0 +1,27 @@
+{
+  "version": 1,
+  "cacheKey": "Adalindis (lord_4_28_1)",
+  "heroStringId": "lord_4_28_1",
+  "characterObjectId": "lord_4_28_1",
+  "characterName": "Adalindis",
+  "provider": "AtlasCloud",
+  "model": "xai/grok-imagine-image/edit",
+  "adapter": "atlas upload/generate/poll",
+  "sourceSha256": "25c858be07623325acfc925f6d17cf508ee76c72d38a0ce539ff147334d592e2",
+  "portraitSha256": "48513337eb82bc39872de0b2530c574edea15167702c41e56579f1ab24bf1e54",
+  "portraitWidth": 912,
+  "portraitHeight": 1136,
+  "physicalConfidence": {
+    "definition": "physical_confidence",
+    "score": 45,
+    "profile": "41-60",
+    "flirtatiousnessPercentage": 43,
+    "confidencePercentage": 50,
+    "flirtatiousnessWeight": 0.75,
+    "confidenceWeight": 0.25,
+    "source": "shipped_profile_library"
+  },
+  "derivativesReady": true,
+  "derivativeError": "",
+  "generatedUtc": "2026-07-17T17:41:03.2633681Z"
+}

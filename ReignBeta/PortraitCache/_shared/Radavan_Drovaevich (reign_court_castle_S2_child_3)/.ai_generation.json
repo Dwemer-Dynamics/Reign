@@ -1,0 +1,27 @@
+{
+  "version": 1,
+  "cacheKey": "Radavan_Drovaevich (reign_court_castle_S2_child_3)",
+  "heroStringId": "reign_court_castle_S2_child_3",
+  "characterObjectId": "reign_court_castle_S2_child_3",
+  "characterName": "Radavan Drovaevich",
+  "provider": "AtlasCloud",
+  "model": "xai/grok-imagine-image/edit",
+  "adapter": "atlas upload/generate/poll",
+  "sourceSha256": "03fac55ec84c301d7374fe6082a373754f2136eb443335f2b803b577e79f01bc",
+  "portraitSha256": "0fca0746576f5d170555fcec6d83faa9a60c374bd063e09fa49274f1920a4f84",
+  "portraitWidth": 864,
+  "portraitHeight": 1152,
+  "physicalConfidence": {
+    "definition": "physical_confidence",
+    "score": 29,
+    "profile": "21-40",
+    "flirtatiousnessPercentage": 21,
+    "confidencePercentage": 52,
+    "flirtatiousnessWeight": 0.75,
+    "confidenceWeight": 0.25,
+    "source": "shipped_profile_library"
+  },
+  "derivativesReady": true,
+  "derivativeError": "",
+  "generatedUtc": "2026-07-17T19:10:10.3925838Z"
+}

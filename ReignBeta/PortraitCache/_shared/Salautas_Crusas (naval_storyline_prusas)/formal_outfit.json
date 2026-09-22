@@ -1,0 +1,13 @@
+{
+  "version": 1,
+  "heroStringId": "naval_storyline_prusas",
+  "characterName": "Salautas Crusas",
+  "imagePath": "portrait.png",
+  "imageSha256": "D978B8F5B1D9F7692CB2BEA0CCCCBCD1061AA422C1A8D9384C866B08554CD364",
+  "description": "Their clan is tier unknown, placing them socially among the unranked class. Use this status to guide the refinement, expense, materials, and ornament of their clothing without turning it into fantasy costume.",
+  "status": "failed",
+  "descriptionSource": "portrait_prompt_fallback",
+  "retryEligible": true,
+  "error": "{\"error\":{\"message\":\"Model \\\"zai-org/glm-5.2\\\" does not support image inputs. Remove image content or choose a multimodal model.\",\"type\":\"invalid_request_error\",\"param\":\"messages\",\"code\":\"image_input_not_supported\"}}",
+  "updatedUtc": "2026-07-18T22:03:34.0203000Z"
+}

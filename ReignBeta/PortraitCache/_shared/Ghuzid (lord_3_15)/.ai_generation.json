@@ -1,0 +1,27 @@
+{
+  "version": 1,
+  "cacheKey": "Ghuzid (lord_3_15)",
+  "heroStringId": "lord_3_15",
+  "characterObjectId": "lord_3_15",
+  "characterName": "Ghuzid",
+  "provider": "AtlasCloud",
+  "model": "xai/grok-imagine-image/edit",
+  "adapter": "atlas upload/generate/poll",
+  "sourceSha256": "a70818dd75c22556152fd043fe500730687c1f945acc3c866866b3c7de37d710",
+  "portraitSha256": "d9aafb7faf0f8417f4695308a7b74a255a67aa5c0fd222481c618087463d7d5b",
+  "portraitWidth": 832,
+  "portraitHeight": 1248,
+  "physicalConfidence": {
+    "definition": "physical_confidence",
+    "score": 25,
+    "profile": "21-40",
+    "flirtatiousnessPercentage": 12,
+    "confidencePercentage": 63,
+    "flirtatiousnessWeight": 0.75,
+    "confidenceWeight": 0.25,
+    "source": "shipped_profile_library"
+  },
+  "derivativesReady": true,
+  "derivativeError": "",
+  "generatedUtc": "2026-07-17T18:38:47.2788720Z"
+}

@@ -1,0 +1,13 @@
+{
+  "version": 1,
+  "heroStringId": "lord_NE9_s",
+  "characterName": "Aesos",
+  "imagePath": "portrait.png",
+  "imageSha256": "28B4C65C0B64021DC9DC4B20D2EB9BBD6EB8D60FC7330B3BBF7A791ED3542328",
+  "description": "Culturally appropriate everyday Calradic Imperial landowner attire inspired by practical late Roman and Byzantine civilian clothing adapted into a grounded medieval style. Men should wear a linen undertunic beneath a structured knee-length tunic or simple long coat, secured with a narrow belt. Women should wear a long tunic or underdress beneath a modest draped overdress with elegant but simple sleeves and a practical girdle. Include narrow woven borders or restrained geometric decoration. The garments should appear orderly, respectable, clean, and slightly prosperous. No headgear of any kind. No armor, weapons, laurel crowns, togas, ceremonial robes, or fantasy elements.",
+  "status": "failed",
+  "descriptionSource": "portrait_prompt_fallback",
+  "retryEligible": true,
+  "error": "{\"error\":{\"message\":\"Model \\\"zai-org/glm-5.2\\\" does not support image inputs. Remove image content or choose a multimodal model.\",\"type\":\"invalid_request_error\",\"param\":\"messages\",\"code\":\"image_input_not_supported\"}}",
+  "updatedUtc": "2026-07-18T22:03:23.9645564Z"
+}

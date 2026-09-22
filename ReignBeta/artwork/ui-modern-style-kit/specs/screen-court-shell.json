@@ -1,0 +1,54 @@
+{
+  "schema": "reign-overlay-asset-spec-v1",
+  "asset": {
+    "id": "court-modern-shell",
+    "role": "textless static Court shell with true-alpha runtime clan-banner apertures",
+    "selectedGeneratedSourceSha256": "d51cbc48e84105edc88d521279d428fe0d60fac090da53021f92e586af00c297",
+    "generationMode": "approved-reference fixed pixels plus declared scene-dependent image-to-image fill",
+    "fixedRegionMaskPath": "screen-court-fixed-region-mask.json",
+    "fixedRegionMaskSha256": "55daf699767f3b4255540d12d086fb457a38c608604da8b986287eb21312fbbb",
+    "promptPath": "../court-modern-shell-prompt.txt",
+    "promptSha256": "08996761645fd5dd10a403704d9fcf03960e9985fa3efb53eac6041984b08d6f"
+  },
+  "authorities": {
+    "layout": {
+      "path": "../approved-references/court.png",
+      "sha256": "f170711b207ee95b186c3bf4640cc251b32c48d6905880c49a6c156e26a527bb"
+    },
+    "materials": {
+      "path": "../style-reference.png",
+      "sha256": "85b689dc164ebbf70f67a081c0f7097858edb0542ef0073de0c29eef7926b0a3"
+    },
+    "palette": {
+      "path": "../palette.json",
+      "sha256": "fac70043a567db463ae70c975b92037dbfc38337e0d9134bc85bb03e3bb9a043",
+      "schema": "reign-ui-modern-palette-v1",
+      "version": "2026.08.28.2"
+    }
+  },
+  "canvas": {"width": 1672, "height": 941},
+  "normalization": {"fit": "exact", "anchor": "center"},
+  "antialiasScale": 8,
+  "transparentRgb": "#070808",
+  "marbleReduction": {
+    "amount": 0.0,
+    "blurRadius": 6.0,
+    "luminanceCeiling": 96,
+    "chromaCeiling": 36,
+    "selectionSoftness": 20
+  },
+  "apertures": [
+    {
+      "id": "runtime-clan-banner-left",
+      "shape": "polygon",
+      "points": [[641, 330], [710, 330], [710, 488], [675.5, 545], [641, 488]],
+      "feather": 0.0
+    },
+    {
+      "id": "runtime-clan-banner-right",
+      "shape": "polygon",
+      "points": [[1031, 330], [1102, 330], [1102, 488], [1066.5, 545], [1031, 488]],
+      "feather": 0.0
+    }
+  ]
+}

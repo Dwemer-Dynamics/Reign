@@ -1,0 +1,27 @@
+{
+  "version": 1,
+  "cacheKey": "Safesan_Sahiriqani (reign_court_town_A7_child_3)",
+  "heroStringId": "reign_court_town_A7_child_3",
+  "characterObjectId": "reign_court_town_A7_child_3",
+  "characterName": "Safesan Sahiriqani",
+  "provider": "AtlasCloud",
+  "model": "xai/grok-imagine-image/edit",
+  "adapter": "atlas upload/generate/poll",
+  "sourceSha256": "ecc56dd29d72f2a9c6480989c7cdb18a37c2f1ac8557b7d441fe4ded226e743d",
+  "portraitSha256": "9be9460d8a93ff8a8f2688f306f5127f64ccca45eca0a458f5d2084215d4f91f",
+  "portraitWidth": 864,
+  "portraitHeight": 1152,
+  "physicalConfidence": {
+    "definition": "physical_confidence",
+    "score": 44,
+    "profile": "41-60",
+    "flirtatiousnessPercentage": 44,
+    "confidencePercentage": 43,
+    "flirtatiousnessWeight": 0.75,
+    "confidenceWeight": 0.25,
+    "source": "shipped_profile_library"
+  },
+  "derivativesReady": true,
+  "derivativeError": "",
+  "generatedUtc": "2026-07-17T19:12:21.0792264Z"
+}

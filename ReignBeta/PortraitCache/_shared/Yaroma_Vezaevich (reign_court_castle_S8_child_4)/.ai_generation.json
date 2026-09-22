@@ -1,0 +1,27 @@
+{
+  "version": 1,
+  "cacheKey": "Yaroma_Vezaevich (reign_court_castle_S8_child_4)",
+  "heroStringId": "reign_court_castle_S8_child_4",
+  "characterObjectId": "reign_court_castle_S8_child_4",
+  "characterName": "Yaroma Vezaevich",
+  "provider": "AtlasCloud",
+  "model": "xai/grok-imagine-image/edit",
+  "adapter": "atlas upload/generate/poll",
+  "sourceSha256": "b87d741297bbeff7b2258847fa10c5aa1b80eca7ed42b09c3239f605c904e6c8",
+  "portraitSha256": "02b7d9b6e09c0456941e91d7c21561b6754806939cb9cfff2a802c963b72bf34",
+  "portraitWidth": 864,
+  "portraitHeight": 1152,
+  "physicalConfidence": {
+    "definition": "physical_confidence",
+    "score": 37,
+    "profile": "21-40",
+    "flirtatiousnessPercentage": 30,
+    "confidencePercentage": 57,
+    "flirtatiousnessWeight": 0.75,
+    "confidenceWeight": 0.25,
+    "source": "shipped_profile_library"
+  },
+  "derivativesReady": true,
+  "derivativeError": "",
+  "generatedUtc": "2026-07-17T19:22:20.5225877Z"
+}

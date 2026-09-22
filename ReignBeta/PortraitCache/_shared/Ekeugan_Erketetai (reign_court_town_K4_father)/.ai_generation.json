@@ -1,0 +1,27 @@
+{
+  "version": 1,
+  "cacheKey": "Ekeugan_Erketetai (reign_court_town_K4_father)",
+  "heroStringId": "reign_court_town_K4_father",
+  "characterObjectId": "reign_court_town_K4_father",
+  "characterName": "Ekeugan Erketetai",
+  "provider": "AtlasCloud",
+  "model": "xai/grok-imagine-image/edit",
+  "adapter": "atlas upload/generate/poll",
+  "sourceSha256": "c8c2429f354491e5126c32104542f5f56f9e7010d83118708678c7db6bf9859d",
+  "portraitSha256": "4045a714ce7f93fd2f4fce3917d21caf7abe48c4b9ebd8e11dc440e7db5c6142",
+  "portraitWidth": 864,
+  "portraitHeight": 1152,
+  "physicalConfidence": {
+    "definition": "physical_confidence",
+    "score": 77,
+    "profile": "61-80",
+    "flirtatiousnessPercentage": 77,
+    "confidencePercentage": 76,
+    "flirtatiousnessWeight": 0.75,
+    "confidenceWeight": 0.25,
+    "source": "shipped_profile_library"
+  },
+  "derivativesReady": true,
+  "derivativeError": "",
+  "generatedUtc": "2026-07-17T18:32:19.6456098Z"
+}

@@ -1,0 +1,27 @@
+{
+  "version": 1,
+  "cacheKey": "Catella (lord_1_40_1)",
+  "heroStringId": "lord_1_40_1",
+  "characterObjectId": "lord_1_40_1",
+  "characterName": "Catella",
+  "provider": "AtlasCloud",
+  "model": "xai/grok-imagine-image/edit",
+  "adapter": "atlas upload/generate/poll",
+  "sourceSha256": "cdc998f629502416d806807b6534358ae14fee0a784671175a226787a6e4eeda",
+  "portraitSha256": "1a23d28b71180e53bdd3c5bf59af51e56d8c0f59eba7c03f23a6cd1bd4ec452b",
+  "portraitWidth": 832,
+  "portraitHeight": 1248,
+  "physicalConfidence": {
+    "definition": "physical_confidence",
+    "score": 77,
+    "profile": "61-80",
+    "flirtatiousnessPercentage": 84,
+    "confidencePercentage": 55,
+    "flirtatiousnessWeight": 0.75,
+    "confidenceWeight": 0.25,
+    "source": "shipped_profile_library"
+  },
+  "derivativesReady": true,
+  "derivativeError": "",
+  "generatedUtc": "2026-07-17T18:22:15.2456974Z"
+}

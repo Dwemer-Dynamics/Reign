@@ -1,0 +1,27 @@
+{
+  "version": 1,
+  "cacheKey": "Ulbos (lord_1_47)",
+  "heroStringId": "lord_1_47",
+  "characterObjectId": "lord_1_47",
+  "characterName": "Ulbos",
+  "provider": "AtlasCloud",
+  "model": "xai/grok-imagine-image/edit",
+  "adapter": "atlas upload/generate/poll",
+  "sourceSha256": "c25376c9fa7a69d2ae937ea560064e344b908f93031a01c7bc0556c1b493c64f",
+  "portraitSha256": "cf897b4421d7b01ef3bb873956ed097677536a4bf5c1818ac6b71c01b0206347",
+  "portraitWidth": 832,
+  "portraitHeight": 1248,
+  "physicalConfidence": {
+    "definition": "physical_confidence",
+    "score": 49,
+    "profile": "41-60",
+    "flirtatiousnessPercentage": 49,
+    "confidencePercentage": 48,
+    "flirtatiousnessWeight": 0.75,
+    "confidenceWeight": 0.25,
+    "source": "shipped_profile_library"
+  },
+  "derivativesReady": true,
+  "derivativeError": "",
+  "generatedUtc": "2026-07-17T19:19:20.1637164Z"
+}

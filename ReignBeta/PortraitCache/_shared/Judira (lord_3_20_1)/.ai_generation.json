@@ -1,0 +1,27 @@
+{
+  "version": 1,
+  "cacheKey": "Judira (lord_3_20_1)",
+  "heroStringId": "lord_3_20_1",
+  "characterObjectId": "lord_3_20_1",
+  "characterName": "Judira",
+  "provider": "AtlasCloud",
+  "model": "xai/grok-imagine-image/edit",
+  "adapter": "atlas upload/generate/poll",
+  "sourceSha256": "c5d0075c34f319a3bfab63ccf7d810b8003421ecf725ec863e8614f6d18a61f1",
+  "portraitSha256": "d4ae1e1d4a32d2b0384eae5b69d2688d40de8ea7636ffccd20a85408a288297b",
+  "portraitWidth": 832,
+  "portraitHeight": 1248,
+  "physicalConfidence": {
+    "definition": "physical_confidence",
+    "score": 53,
+    "profile": "41-60",
+    "flirtatiousnessPercentage": 56,
+    "confidencePercentage": 43,
+    "flirtatiousnessWeight": 0.75,
+    "confidenceWeight": 0.25,
+    "source": "shipped_profile_library"
+  },
+  "derivativesReady": true,
+  "derivativeError": "",
+  "generatedUtc": "2026-07-17T18:46:56.3896461Z"
+}

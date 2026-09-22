@@ -1,0 +1,27 @@
+{
+  "version": 1,
+  "cacheKey": "Eryurara_Elarorides (reign_court_town_EW5_child_4)",
+  "heroStringId": "reign_court_town_EW5_child_4",
+  "characterObjectId": "reign_court_town_EW5_child_4",
+  "characterName": "Eryurara Elarorides",
+  "provider": "AtlasCloud",
+  "model": "xai/grok-imagine-image/edit",
+  "adapter": "atlas upload/generate/poll",
+  "sourceSha256": "f06ee4f34cd3f6714fcba01487e43e52a967aadd4d4d2e3d95187ffa79823efe",
+  "portraitSha256": "765375825ab44b16b2234304300acb53f506367b62eb9ce2252000d1c961a0d8",
+  "portraitWidth": 864,
+  "portraitHeight": 1152,
+  "physicalConfidence": {
+    "definition": "physical_confidence",
+    "score": 74,
+    "profile": "61-80",
+    "flirtatiousnessPercentage": 82,
+    "confidencePercentage": 49,
+    "flirtatiousnessWeight": 0.75,
+    "confidenceWeight": 0.25,
+    "source": "shipped_profile_library"
+  },
+  "derivativesReady": true,
+  "derivativeError": "",
+  "generatedUtc": "2026-07-17T18:34:34.6235896Z"
+}

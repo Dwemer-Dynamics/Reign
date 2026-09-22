@@ -1,0 +1,27 @@
+{
+  "version": 1,
+  "cacheKey": "Oragur (lord_6_15)",
+  "heroStringId": "lord_6_15",
+  "characterObjectId": "lord_6_15",
+  "characterName": "Oragur",
+  "provider": "AtlasCloud",
+  "model": "xai/grok-imagine-image/edit",
+  "adapter": "atlas upload/generate/poll",
+  "sourceSha256": "8b5224cbcb0d1a3433e619f78a2d2bb084d615c56d0028caf029b6b7da007fad",
+  "portraitSha256": "1294fd96fb9c0ce1b243f357d4beb6ffc82de10c873c99ebd300cbdf8a3e590d",
+  "portraitWidth": 832,
+  "portraitHeight": 1248,
+  "physicalConfidence": {
+    "definition": "physical_confidence",
+    "score": 51,
+    "profile": "41-60",
+    "flirtatiousnessPercentage": 49,
+    "confidencePercentage": 56,
+    "flirtatiousnessWeight": 0.75,
+    "confidenceWeight": 0.25,
+    "source": "shipped_profile_library"
+  },
+  "derivativesReady": true,
+  "derivativeError": "",
+  "generatedUtc": "2026-07-17T19:06:33.2532596Z"
+}

@@ -1,0 +1,27 @@
+{
+  "version": 1,
+  "cacheKey": "Eryysos_Sorianorides (reign_court_castle_ES2_child_1)",
+  "heroStringId": "reign_court_castle_ES2_child_1",
+  "characterObjectId": "reign_court_castle_ES2_child_1",
+  "characterName": "Eryysos Sorianorides",
+  "provider": "AtlasCloud",
+  "model": "xai/grok-imagine-image/edit",
+  "adapter": "atlas upload/generate/poll",
+  "sourceSha256": "02ba58e66ecd5eb50fe49983dd10a243f8b32ef3e4d58c5b08a7e272152e3921",
+  "portraitSha256": "c9cec78bb57daa0c24fc3f2b07486d2ec64bed85e7140383c3e70123caf1b214",
+  "portraitWidth": 864,
+  "portraitHeight": 1152,
+  "physicalConfidence": {
+    "definition": "physical_confidence",
+    "score": 18,
+    "profile": "00-20",
+    "flirtatiousnessPercentage": 24,
+    "confidencePercentage": 0,
+    "flirtatiousnessWeight": 0.75,
+    "confidenceWeight": 0.25,
+    "source": "shipped_profile_library"
+  },
+  "derivativesReady": true,
+  "derivativeError": "",
+  "generatedUtc": "2026-07-17T18:35:06.5791693Z"
+}

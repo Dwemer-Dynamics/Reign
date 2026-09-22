@@ -1,0 +1,27 @@
+{
+  "version": 1,
+  "cacheKey": "Elbet (lord_4_17)",
+  "heroStringId": "lord_4_17",
+  "characterObjectId": "lord_4_17",
+  "characterName": "Elbet",
+  "provider": "AtlasCloud",
+  "model": "xai/grok-imagine-image/edit",
+  "adapter": "atlas upload/generate/poll",
+  "sourceSha256": "d3ba36c1ddab503662687a5580d2ac9c07b96cd9bf9d56f8eace30260308df7a",
+  "portraitSha256": "2120c1431d94d1fc5c6cc204d5083498037104ef71ecae424a96b06739606d89",
+  "portraitWidth": 832,
+  "portraitHeight": 1248,
+  "physicalConfidence": {
+    "definition": "physical_confidence",
+    "score": 83,
+    "profile": "81-100",
+    "flirtatiousnessPercentage": 93,
+    "confidencePercentage": 52,
+    "flirtatiousnessWeight": 0.75,
+    "confidenceWeight": 0.25,
+    "source": "shipped_profile_library"
+  },
+  "derivativesReady": true,
+  "derivativeError": "",
+  "generatedUtc": "2026-07-17T18:32:24.2581611Z"
+}

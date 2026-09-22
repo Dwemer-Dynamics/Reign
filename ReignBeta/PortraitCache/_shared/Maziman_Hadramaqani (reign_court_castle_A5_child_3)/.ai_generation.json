@@ -1,0 +1,27 @@
+{
+  "version": 1,
+  "cacheKey": "Maziman_Hadramaqani (reign_court_castle_A5_child_3)",
+  "heroStringId": "reign_court_castle_A5_child_3",
+  "characterObjectId": "reign_court_castle_A5_child_3",
+  "characterName": "Maziman Hadramaqani",
+  "provider": "AtlasCloud",
+  "model": "xai/grok-imagine-image/edit",
+  "adapter": "atlas upload/generate/poll",
+  "sourceSha256": "d4376ea67fdd74f8dfadf5ae41204233feb313aa7b07e9e598d95886cb452353",
+  "portraitSha256": "32dc43c61ba81bf1e0ac614ef99cd3b3d63037d4dbb7ef58f376fd405b5764ab",
+  "portraitWidth": 864,
+  "portraitHeight": 1152,
+  "physicalConfidence": {
+    "definition": "physical_confidence",
+    "score": 28,
+    "profile": "21-40",
+    "flirtatiousnessPercentage": 11,
+    "confidencePercentage": 77,
+    "flirtatiousnessWeight": 0.75,
+    "confidenceWeight": 0.25,
+    "source": "shipped_profile_library"
+  },
+  "derivativesReady": true,
+  "derivativeError": "",
+  "generatedUtc": "2026-07-17T19:02:22.0798547Z"
+}

@@ -1,0 +1,27 @@
+{
+  "version": 1,
+  "cacheKey": "Drenaria_Aurelarides (reign_court_castle_EN1_child_4)",
+  "heroStringId": "reign_court_castle_EN1_child_4",
+  "characterObjectId": "reign_court_castle_EN1_child_4",
+  "characterName": "Drenaria Aurelarides",
+  "provider": "AtlasCloud",
+  "model": "xai/grok-imagine-image/edit",
+  "adapter": "atlas upload/generate/poll",
+  "sourceSha256": "9ef3447454d95da57d5cfdd13b337fd8dfe1233e27bf7669b95a3b98224b8bd7",
+  "portraitSha256": "1e0ec00d3aab286d63de2e9c2b8af82e51d87bf88f4cba272b62f8cab27c8cf2",
+  "portraitWidth": 864,
+  "portraitHeight": 1152,
+  "physicalConfidence": {
+    "definition": "physical_confidence",
+    "score": 82,
+    "profile": "81-100",
+    "flirtatiousnessPercentage": 95,
+    "confidencePercentage": 42,
+    "flirtatiousnessWeight": 0.75,
+    "confidenceWeight": 0.25,
+    "source": "shipped_profile_library"
+  },
+  "derivativesReady": true,
+  "derivativeError": "",
+  "generatedUtc": "2026-07-17T18:29:08.6779268Z"
+}

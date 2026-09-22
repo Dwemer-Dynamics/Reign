@@ -1,0 +1,27 @@
+{
+  "version": 1,
+  "cacheKey": "Evrera_Gervacourt (reign_court_castle_V7_child_2)",
+  "heroStringId": "reign_court_castle_V7_child_2",
+  "characterObjectId": "reign_court_castle_V7_child_2",
+  "characterName": "Evrera Gervacourt",
+  "provider": "AtlasCloud",
+  "model": "xai/grok-imagine-image/edit",
+  "adapter": "atlas upload/generate/poll",
+  "sourceSha256": "67b0907e82fc0f73a1042c8dd3c9ae3eab2ca2cf4093fed3c60d07b9ea845883",
+  "portraitSha256": "5b4acdc8a7e1c4fff0751e7f6420ad3c4545c243d913d61a4939b5c22b9280aa",
+  "portraitWidth": 864,
+  "portraitHeight": 1152,
+  "physicalConfidence": {
+    "definition": "physical_confidence",
+    "score": 71,
+    "profile": "61-80",
+    "flirtatiousnessPercentage": 76,
+    "confidencePercentage": 55,
+    "flirtatiousnessWeight": 0.75,
+    "confidenceWeight": 0.25,
+    "source": "shipped_profile_library"
+  },
+  "derivativesReady": true,
+  "derivativeError": "",
+  "generatedUtc": "2026-07-17T18:35:39.8704111Z"
+}

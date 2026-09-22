@@ -1,0 +1,27 @@
+{
+  "version": 1,
+  "cacheKey": "Aevaria_Aurelarides (reign_court_castle_EN1_mother)",
+  "heroStringId": "reign_court_castle_EN1_mother",
+  "characterObjectId": "reign_court_castle_EN1_mother",
+  "characterName": "Aevaria Aurelarides",
+  "provider": "AtlasCloud",
+  "model": "xai/grok-imagine-image/edit",
+  "adapter": "atlas upload/generate/poll",
+  "sourceSha256": "543bd2cf9f93efec60f5ee5fa3e4afdbedee4eaea28625794f6cc24bc7572376",
+  "portraitSha256": "61c189a96457694552a29642b609a2cf2768a89fc729b9ea6ed2f516f46ee3e1",
+  "portraitWidth": 864,
+  "portraitHeight": 1152,
+  "physicalConfidence": {
+    "definition": "physical_confidence",
+    "score": 72,
+    "profile": "61-80",
+    "flirtatiousnessPercentage": 79,
+    "confidencePercentage": 50,
+    "flirtatiousnessWeight": 0.75,
+    "confidenceWeight": 0.25,
+    "source": "shipped_profile_library"
+  },
+  "derivativesReady": true,
+  "derivativeError": "",
+  "generatedUtc": "2026-07-17T17:59:47.5990065Z"
+}

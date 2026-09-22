@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Brushes>
+  <!-- The circle sprite stretches with the widget, producing either a circle
+       or a vertical oval while the runtime portrait texture remains unmodified. -->
+  <Brush Name="Reign.Portrait.EllipseMask">
+    <Layers>
+      <BrushLayer Name="Default" Sprite="BlankWhiteCircle" />
+    </Layers>
+  </Brush>
+</Brushes>

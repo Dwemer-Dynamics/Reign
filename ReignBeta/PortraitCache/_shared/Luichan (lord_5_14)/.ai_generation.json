@@ -1,0 +1,27 @@
+{
+  "version": 1,
+  "cacheKey": "Luichan (lord_5_14)",
+  "heroStringId": "lord_5_14",
+  "characterObjectId": "lord_5_14",
+  "characterName": "Luichan",
+  "provider": "AtlasCloud",
+  "model": "xai/grok-imagine-image/edit",
+  "adapter": "atlas upload/generate/poll",
+  "sourceSha256": "a3a3b19c865759cdce7ed0882e275f56732905591c85316dcbd3d0b44bb0361c",
+  "portraitSha256": "73835ff6119fe94e64edac245903098f0debe33f393add7fc4745886e511e140",
+  "portraitWidth": 832,
+  "portraitHeight": 1248,
+  "physicalConfidence": {
+    "definition": "physical_confidence",
+    "score": 41,
+    "profile": "41-60",
+    "flirtatiousnessPercentage": 37,
+    "confidencePercentage": 52,
+    "flirtatiousnessWeight": 0.75,
+    "confidenceWeight": 0.25,
+    "source": "shipped_profile_library"
+  },
+  "derivativesReady": true,
+  "derivativeError": "",
+  "generatedUtc": "2026-07-17T18:59:41.9756047Z"
+}

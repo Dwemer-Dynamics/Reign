@@ -1,0 +1,27 @@
+{
+  "version": 1,
+  "cacheKey": "Floraidh (lord_5_15_1)",
+  "heroStringId": "lord_5_15_1",
+  "characterObjectId": "lord_5_15_1",
+  "characterName": "Floraidh",
+  "provider": "AtlasCloud",
+  "model": "xai/grok-imagine-image/edit",
+  "adapter": "atlas upload/generate/poll",
+  "sourceSha256": "eeafca1ddf6d15f21529b6d7ca70be213c3e8e47ddd405c2912a21ce61b6fa8b",
+  "portraitSha256": "1e8a9dc5ab13e3068e39f4764540f2cfef8e20acd7f5a642c50a9712acf145d4",
+  "portraitWidth": 832,
+  "portraitHeight": 1248,
+  "physicalConfidence": {
+    "definition": "physical_confidence",
+    "score": 71,
+    "profile": "61-80",
+    "flirtatiousnessPercentage": 62,
+    "confidencePercentage": 97,
+    "flirtatiousnessWeight": 0.75,
+    "confidenceWeight": 0.25,
+    "source": "shipped_profile_library"
+  },
+  "derivativesReady": true,
+  "derivativeError": "",
+  "generatedUtc": "2026-07-17T18:37:40.5747149Z"
+}

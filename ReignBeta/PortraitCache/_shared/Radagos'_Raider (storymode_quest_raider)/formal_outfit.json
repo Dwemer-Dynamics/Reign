@@ -1,0 +1,13 @@
+{
+  "version": 1,
+  "heroStringId": "storymode_quest_raider",
+  "characterName": "Radagos' Raider",
+  "imagePath": "portrait.png",
+  "imageSha256": "F9514300EB6FAD14D5144EB352777C811EFD50F74E1F9CA772D09BA789F4215F",
+  "description": "Their clan is tier unknown, placing them socially among the unranked class. Use this status to guide the refinement, expense, materials, and ornament of their clothing without turning it into fantasy costume.",
+  "status": "failed",
+  "descriptionSource": "portrait_prompt_fallback",
+  "retryEligible": true,
+  "error": "{\"error\":{\"message\":\"Model \\\"zai-org/glm-5.2\\\" does not support image inputs. Remove image content or choose a multimodal model.\",\"type\":\"invalid_request_error\",\"param\":\"messages\",\"code\":\"image_input_not_supported\"}}",
+  "updatedUtc": "2026-07-18T22:03:33.5905151Z"
+}

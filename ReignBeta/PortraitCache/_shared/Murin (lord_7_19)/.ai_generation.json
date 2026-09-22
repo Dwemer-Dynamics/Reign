@@ -1,0 +1,27 @@
+{
+  "version": 1,
+  "cacheKey": "Murin (lord_7_19)",
+  "heroStringId": "lord_7_19",
+  "characterObjectId": "lord_7_19",
+  "characterName": "Murin",
+  "provider": "AtlasCloud",
+  "model": "xai/grok-imagine-image/edit",
+  "adapter": "atlas upload/generate/poll",
+  "sourceSha256": "f3466adc766e82d918402755df3f740d2569beaa6a26a14ccb71b2bba506f0e5",
+  "portraitSha256": "b725b163e0340e44a5ab4614f3d0ea8bd091c497bbd0f37f6a7c5dc88f6edeca",
+  "portraitWidth": 832,
+  "portraitHeight": 1248,
+  "physicalConfidence": {
+    "definition": "physical_confidence",
+    "score": 50,
+    "profile": "41-60",
+    "flirtatiousnessPercentage": 50,
+    "confidencePercentage": 50,
+    "flirtatiousnessWeight": 0.75,
+    "confidenceWeight": 0.25,
+    "source": "neutral_fallback"
+  },
+  "derivativesReady": true,
+  "derivativeError": "",
+  "generatedUtc": "2026-07-17T19:05:21.6590377Z"
+}

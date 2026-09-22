@@ -1,0 +1,27 @@
+{
+  "version": 1,
+  "cacheKey": "Synesios (lord_1_30_3)",
+  "heroStringId": "lord_1_30_3",
+  "characterObjectId": "lord_1_30_3",
+  "characterName": "Synesios",
+  "provider": "AtlasCloud",
+  "model": "xai/grok-imagine-image/edit",
+  "adapter": "atlas upload/generate/poll",
+  "sourceSha256": "8359fa38d4085bea18041d9dc3e9f818793010cdb116326ef77ea70a2aa5d4c8",
+  "portraitSha256": "febbc0a6c3a9818366cfeaed682c2f14dfa23fb7e1c7027e26911c8dd12f1236",
+  "portraitWidth": 864,
+  "portraitHeight": 1152,
+  "physicalConfidence": {
+    "definition": "physical_confidence",
+    "score": 44,
+    "profile": "41-60",
+    "flirtatiousnessPercentage": 41,
+    "confidencePercentage": 52,
+    "flirtatiousnessWeight": 0.75,
+    "confidenceWeight": 0.25,
+    "source": "shipped_profile_library"
+  },
+  "derivativesReady": true,
+  "derivativeError": "",
+  "generatedUtc": "2026-07-17T19:15:49.3511242Z"
+}

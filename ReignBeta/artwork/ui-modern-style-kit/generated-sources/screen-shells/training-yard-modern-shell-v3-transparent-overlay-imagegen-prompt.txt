@@ -1,0 +1,19 @@
+Tool: built-in image generation
+Date: 2026-09-04
+Use case: precise-object-edit
+Input: approved-references/training-yard.png
+
+Convert the supplied full-screen opaque Training Yard shell into a transparent
+campaign-map overlay. Preserve the existing antique-gold frame geometry,
+section layout, fixed title and captions, circular selected-trainer aperture,
+button frames, and overall proportions. Remove the continuous black canvas
+outside and between functional framed panels so the live campaign map and
+native Bannerlord interface can show through. Retain restrained opaque
+black-marble backing only inside the trainer rail, selected-trainer information
+cards, troop rail, footer status field, and button plates where legibility needs
+it. Do not add dynamic names, values, troop data, portraits, map imagery, icons,
+controls, new colors, glow, parchment, bright gold, white seams, or watermarks.
+
+Production note: This output is retained as composition provenance only.
+Deterministic materialization owns the exact 1672x941 canvas, frozen palette,
+true alpha, title plaque, portrait aperture, and runtime atlas pixels.

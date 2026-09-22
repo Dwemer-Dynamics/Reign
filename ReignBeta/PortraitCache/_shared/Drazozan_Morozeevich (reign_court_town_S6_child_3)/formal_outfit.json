@@ -1,0 +1,13 @@
+{
+  "version": 1,
+  "heroStringId": "reign_court_town_S6_child_3",
+  "characterName": "Drazozan Morozeevich",
+  "imagePath": "portrait.png",
+  "imageSha256": "CF4D5826987F28D17D266711F1FA7468D050B3FCA7A6AC97FDFCA1E9D1290EA9",
+  "description": "Culturally appropriate everyday Sturgian minor-lord attire inspired by refined medieval Rus and Slavic noble clothing. Men should wear a well-made long shirt beneath a tailored wool kaftan or long belted coat, decorated with fine geometric embroidery and quality trim. Women should wear a long embroidered shift with an elegant wool overdress or noble coat-dress, secured with a richly woven sash. Include subtle fur trim around collars or cuffs, tasteful clasps, and better-quality fabric than a landowner would wear. The clothing should remain practical for a northern climate while clearly showing noble rank. No headgear of any kind. No armor, weapons, crowns, ceremonial robes, or oversized fur displays.",
+  "status": "failed",
+  "descriptionSource": "portrait_prompt_fallback",
+  "retryEligible": true,
+  "error": "{\"error\":{\"message\":\"Model \\\"zai-org/glm-5.2\\\" does not support image inputs. Remove image content or choose a multimodal model.\",\"type\":\"invalid_request_error\",\"param\":\"messages\",\"code\":\"image_input_not_supported\"}}",
+  "updatedUtc": "2026-07-18T22:03:27.8134447Z"
+}

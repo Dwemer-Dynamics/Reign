@@ -1,0 +1,27 @@
+{
+  "version": 1,
+  "cacheKey": "Crazy_Man_T4 (crazy_man_test9)",
+  "heroStringId": "crazy_man_test9",
+  "characterObjectId": "crazy_man_test9",
+  "characterName": "Crazy Man T4",
+  "provider": "AtlasCloud",
+  "model": "xai/grok-imagine-image/edit",
+  "adapter": "atlas upload/generate/poll",
+  "sourceSha256": "6c312a608fc487cc6f4d48e9f3549c67e9bfdf1d7dac286252e35a00e1da5224",
+  "portraitSha256": "79bd7f104955718c0b4f0d9d851f35c30ec20afbf10fa529272bb4e0d76213ec",
+  "portraitWidth": 864,
+  "portraitHeight": 1152,
+  "physicalConfidence": {
+    "definition": "physical_confidence",
+    "score": 50,
+    "profile": "41-60",
+    "flirtatiousnessPercentage": 50,
+    "confidencePercentage": 50,
+    "flirtatiousnessWeight": 0.75,
+    "confidenceWeight": 0.25,
+    "source": "neutral_fallback"
+  },
+  "derivativesReady": true,
+  "derivativeError": "",
+  "generatedUtc": "2026-07-17T18:24:33.9488884Z"
+}

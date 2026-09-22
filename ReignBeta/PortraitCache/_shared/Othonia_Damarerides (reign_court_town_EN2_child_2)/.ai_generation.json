@@ -1,0 +1,27 @@
+{
+  "version": 1,
+  "cacheKey": "Othonia_Damarerides (reign_court_town_EN2_child_2)",
+  "heroStringId": "reign_court_town_EN2_child_2",
+  "characterObjectId": "reign_court_town_EN2_child_2",
+  "characterName": "Othonia Damarerides",
+  "provider": "AtlasCloud",
+  "model": "xai/grok-imagine-image/edit",
+  "adapter": "atlas upload/generate/poll",
+  "sourceSha256": "219b4279c159942e50b87d702085117d0d32bac25db623e3e4c85b5a3517fa3e",
+  "portraitSha256": "5fa036a6ca2c254004541824286d746cca5e7b2d59520bbdcb5cfee1710efab8",
+  "portraitWidth": 864,
+  "portraitHeight": 1152,
+  "physicalConfidence": {
+    "definition": "physical_confidence",
+    "score": 75,
+    "profile": "61-80",
+    "flirtatiousnessPercentage": 84,
+    "confidencePercentage": 47,
+    "flirtatiousnessWeight": 0.75,
+    "confidenceWeight": 0.25,
+    "source": "shipped_profile_library"
+  },
+  "derivativesReady": true,
+  "derivativeError": "",
+  "generatedUtc": "2026-07-17T19:08:10.3737209Z"
+}

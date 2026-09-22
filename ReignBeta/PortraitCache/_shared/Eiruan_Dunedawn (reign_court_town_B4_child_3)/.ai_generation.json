@@ -1,0 +1,27 @@
+{
+  "version": 1,
+  "cacheKey": "Eiruan_Dunedawn (reign_court_town_B4_child_3)",
+  "heroStringId": "reign_court_town_B4_child_3",
+  "characterObjectId": "reign_court_town_B4_child_3",
+  "characterName": "Eiruan Dunedawn",
+  "provider": "AtlasCloud",
+  "model": "xai/grok-imagine-image/edit",
+  "adapter": "atlas upload/generate/poll",
+  "sourceSha256": "9c562fd152a6f83b2f0ce0a7848f044467904b6bac772e7beb1f5a806edea75f",
+  "portraitSha256": "49920be5a4f45ee82fdfc4ff3279bd36d0473e1d72a7f20452f3e2cfd68f824a",
+  "portraitWidth": 864,
+  "portraitHeight": 1152,
+  "physicalConfidence": {
+    "definition": "physical_confidence",
+    "score": 40,
+    "profile": "21-40",
+    "flirtatiousnessPercentage": 38,
+    "confidencePercentage": 45,
+    "flirtatiousnessWeight": 0.75,
+    "confidenceWeight": 0.25,
+    "source": "shipped_profile_library"
+  },
+  "derivativesReady": true,
+  "derivativeError": "",
+  "generatedUtc": "2026-07-17T18:31:32.4535372Z"
+}

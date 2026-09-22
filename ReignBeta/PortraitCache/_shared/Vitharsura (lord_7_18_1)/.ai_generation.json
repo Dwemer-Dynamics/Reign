@@ -1,0 +1,27 @@
+{
+  "version": 1,
+  "cacheKey": "Vitharsura (lord_7_18_1)",
+  "heroStringId": "lord_7_18_1",
+  "characterObjectId": "lord_7_18_1",
+  "characterName": "Vitharsura",
+  "provider": "AtlasCloud",
+  "model": "xai/grok-imagine-image/edit",
+  "adapter": "atlas upload/generate/poll",
+  "sourceSha256": "16cab1cc1d34045d0c8dea0ef3a3e8f609ad23ed12c88f45727e157156e646fd",
+  "portraitSha256": "01d582d6475098cb762f6516d39430f867b295bf1cb269878161f36d6bb99875",
+  "portraitWidth": 832,
+  "portraitHeight": 1248,
+  "physicalConfidence": {
+    "definition": "physical_confidence",
+    "score": 50,
+    "profile": "41-60",
+    "flirtatiousnessPercentage": 50,
+    "confidencePercentage": 50,
+    "flirtatiousnessWeight": 0.75,
+    "confidenceWeight": 0.25,
+    "source": "neutral_fallback"
+  },
+  "derivativesReady": true,
+  "derivativeError": "",
+  "generatedUtc": "2026-07-17T19:21:14.9669407Z"
+}

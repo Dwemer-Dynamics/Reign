@@ -1,0 +1,27 @@
+{
+  "version": 1,
+  "cacheKey": "Yfinja (lord_7_13_2)",
+  "heroStringId": "lord_7_13_2",
+  "characterObjectId": "lord_7_13_2",
+  "characterName": "Yfinja",
+  "provider": "AtlasCloud",
+  "model": "xai/grok-imagine-image/edit",
+  "adapter": "atlas upload/generate/poll",
+  "sourceSha256": "ee70994986d989e7a7a0de94bc114d3509fb2ea067e10682d2050d38bd8ea055",
+  "portraitSha256": "63779fac0b545608c981a25582c766485f4dd28901b6065d58a388e63727617e",
+  "portraitWidth": 832,
+  "portraitHeight": 1248,
+  "physicalConfidence": {
+    "definition": "physical_confidence",
+    "score": 50,
+    "profile": "41-60",
+    "flirtatiousnessPercentage": 50,
+    "confidencePercentage": 50,
+    "flirtatiousnessWeight": 0.75,
+    "confidenceWeight": 0.25,
+    "source": "neutral_fallback"
+  },
+  "derivativesReady": true,
+  "derivativeError": "",
+  "generatedUtc": "2026-07-17T19:22:39.6645033Z"
+}

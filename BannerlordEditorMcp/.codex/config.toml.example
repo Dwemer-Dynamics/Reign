@@ -1,0 +1,25 @@
+[mcp_servers.bannerlord_editor]
+command = "dotnet"
+args = [
+  "C:\\Users\\speed\\Documents\\Bannerlord Events\\BannerlordEditorMcp\\src\\Bannerlord.EditorMcp.Server\\bin\\Debug\\net10.0\\Bannerlord.EditorMcp.Server.dll"
+]
+cwd = "C:\\Users\\speed\\Documents\\Bannerlord Events\\BannerlordEditorMcp"
+required = false
+startup_timeout_sec = 20
+tool_timeout_sec = 180
+default_tools_approval_mode = "writes"
+
+[mcp_servers.bannerlord_editor.env]
+BANNERLORD_GAME_DIR = "D:\\Program Files (x86)\\Steam\\steamapps\\common\\Mount & Blade II Bannerlord"
+BANNERLORD_PROJECT_DIR = "C:\\Users\\speed\\Documents\\Bannerlord Events\\BannerlordEditorMcp"
+BANNERLORD_MOD_DIR = "D:\\Program Files (x86)\\Steam\\steamapps\\common\\Mount & Blade II Bannerlord\\Modules\\BannerlordEditorBridge"
+BANNERLORD_EDITOR_PIPE = "BannerlordEditorMcp.v1"
+
+[mcp_servers.bannerlord_editor.tools.scene_create_test_entity]
+approval_mode = "approve"
+
+[mcp_servers.bannerlord_editor.tools.scene_set_test_entity_transform]
+approval_mode = "approve"
+
+[mcp_servers.bannerlord_editor.tools.scene_remove_test_entity]
+approval_mode = "approve"

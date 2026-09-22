@@ -1,0 +1,27 @@
+{
+  "version": 1,
+  "cacheKey": "Usair (lord_3_9)",
+  "heroStringId": "lord_3_9",
+  "characterObjectId": "lord_3_9",
+  "characterName": "Usair",
+  "provider": "AtlasCloud",
+  "model": "xai/grok-imagine-image/edit",
+  "adapter": "atlas upload/generate/poll",
+  "sourceSha256": "ecd5781acddb39d286b63ee05b25f2f2b2c065b241a11e4629b7a095ae6181b8",
+  "portraitSha256": "305ae3240296a6b1f00747712c588709ddca4f95ae7579bc99c3fce8483f7923",
+  "portraitWidth": 832,
+  "portraitHeight": 1248,
+  "physicalConfidence": {
+    "definition": "physical_confidence",
+    "score": 57,
+    "profile": "41-60",
+    "flirtatiousnessPercentage": 59,
+    "confidencePercentage": 50,
+    "flirtatiousnessWeight": 0.75,
+    "confidenceWeight": 0.25,
+    "source": "shipped_profile_library"
+  },
+  "derivativesReady": true,
+  "derivativeError": "",
+  "generatedUtc": "2026-07-17T19:19:57.7935018Z"
+}

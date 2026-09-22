@@ -1,0 +1,27 @@
+{
+  "version": 1,
+  "cacheKey": "Unjort (lord_7_15)",
+  "heroStringId": "lord_7_15",
+  "characterObjectId": "lord_7_15",
+  "characterName": "Unjort",
+  "provider": "AtlasCloud",
+  "model": "xai/grok-imagine-image/edit",
+  "adapter": "atlas upload/generate/poll",
+  "sourceSha256": "e0d480253f1ed6b2df9fff89f87081e3996e0503294d40459bafb51f256b8201",
+  "portraitSha256": "e55eadf75b471e48b1b3de0ab76ba4f452c0576ce36c8b8c7b9aeacbd1e2ff5b",
+  "portraitWidth": 832,
+  "portraitHeight": 1248,
+  "physicalConfidence": {
+    "definition": "physical_confidence",
+    "score": 50,
+    "profile": "41-60",
+    "flirtatiousnessPercentage": 50,
+    "confidencePercentage": 50,
+    "flirtatiousnessWeight": 0.75,
+    "confidenceWeight": 0.25,
+    "source": "neutral_fallback"
+  },
+  "derivativesReady": true,
+  "derivativeError": "",
+  "generatedUtc": "2026-07-17T19:19:35.7285542Z"
+}

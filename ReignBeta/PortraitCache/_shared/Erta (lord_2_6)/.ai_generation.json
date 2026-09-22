@@ -1,0 +1,27 @@
+{
+  "version": 1,
+  "cacheKey": "Erta (lord_2_6)",
+  "heroStringId": "lord_2_6",
+  "characterObjectId": "lord_2_6",
+  "characterName": "Erta",
+  "provider": "AtlasCloud",
+  "model": "xai/grok-imagine-image/edit",
+  "adapter": "atlas upload/generate/poll",
+  "sourceSha256": "92967bac8f492e067830a8c0935f4017fa3ec9c0837be85dd118b37466461f34",
+  "portraitSha256": "0989cee5d43718f22dceea74493fba22bf5dee2375de7ec3ead5719c0306a781",
+  "portraitWidth": 832,
+  "portraitHeight": 1248,
+  "physicalConfidence": {
+    "definition": "physical_confidence",
+    "score": 61,
+    "profile": "61-80",
+    "flirtatiousnessPercentage": 65,
+    "confidencePercentage": 48,
+    "flirtatiousnessWeight": 0.75,
+    "confidenceWeight": 0.25,
+    "source": "shipped_profile_library"
+  },
+  "derivativesReady": true,
+  "derivativeError": "",
+  "generatedUtc": "2026-07-17T18:33:19.0812939Z"
+}

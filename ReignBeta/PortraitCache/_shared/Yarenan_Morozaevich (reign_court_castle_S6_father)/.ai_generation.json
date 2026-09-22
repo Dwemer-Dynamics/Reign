@@ -1,0 +1,27 @@
+{
+  "version": 1,
+  "cacheKey": "Yarenan_Morozaevich (reign_court_castle_S6_father)",
+  "heroStringId": "reign_court_castle_S6_father",
+  "characterObjectId": "reign_court_castle_S6_father",
+  "characterName": "Yarenan Morozaevich",
+  "provider": "AtlasCloud",
+  "model": "xai/grok-imagine-image/edit",
+  "adapter": "atlas upload/generate/poll",
+  "sourceSha256": "22d2562bd9e3c8d6a0c7988aa7caab5a6784026c27b93b69f033cf77ec20fc09",
+  "portraitSha256": "4fc126892ed9712cb0028124c91efa7a74ac1433f85dfa19f29e7e9c64df3311",
+  "portraitWidth": 864,
+  "portraitHeight": 1152,
+  "physicalConfidence": {
+    "definition": "physical_confidence",
+    "score": 77,
+    "profile": "61-80",
+    "flirtatiousnessPercentage": 91,
+    "confidencePercentage": 34,
+    "flirtatiousnessWeight": 0.75,
+    "confidenceWeight": 0.25,
+    "source": "shipped_profile_library"
+  },
+  "derivativesReady": true,
+  "derivativeError": "",
+  "generatedUtc": "2026-07-17T19:22:23.1096676Z"
+}

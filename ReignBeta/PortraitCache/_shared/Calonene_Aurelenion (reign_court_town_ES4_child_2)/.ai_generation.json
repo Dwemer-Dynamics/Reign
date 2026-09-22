@@ -1,0 +1,27 @@
+{
+  "version": 1,
+  "cacheKey": "Calonene_Aurelenion (reign_court_town_ES4_child_2)",
+  "heroStringId": "reign_court_town_ES4_child_2",
+  "characterObjectId": "reign_court_town_ES4_child_2",
+  "characterName": "Calonene Aurelenion",
+  "provider": "AtlasCloud",
+  "model": "xai/grok-imagine-image/edit",
+  "adapter": "atlas upload/generate/poll",
+  "sourceSha256": "7ceeeb1dfeabbfc565b0524883bd81398d9e97910288a66f6f9318bcff3a15b8",
+  "portraitSha256": "d02d7efa919820f5444eb9e880e0e83026a1c0e80295c81ec8d03ad84dfe5c1a",
+  "portraitWidth": 864,
+  "portraitHeight": 1152,
+  "physicalConfidence": {
+    "definition": "physical_confidence",
+    "score": 56,
+    "profile": "41-60",
+    "flirtatiousnessPercentage": 55,
+    "confidencePercentage": 58,
+    "flirtatiousnessWeight": 0.75,
+    "confidenceWeight": 0.25,
+    "source": "shipped_profile_library"
+  },
+  "derivativesReady": true,
+  "derivativeError": "",
+  "generatedUtc": "2026-07-17T18:21:23.3163877Z"
+}

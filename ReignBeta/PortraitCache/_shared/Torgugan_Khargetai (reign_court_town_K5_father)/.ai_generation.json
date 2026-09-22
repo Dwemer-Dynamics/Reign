@@ -1,0 +1,27 @@
+{
+  "version": 1,
+  "cacheKey": "Torgugan_Khargetai (reign_court_town_K5_father)",
+  "heroStringId": "reign_court_town_K5_father",
+  "characterObjectId": "reign_court_town_K5_father",
+  "characterName": "Torgugan Khargetai",
+  "provider": "AtlasCloud",
+  "model": "xai/grok-imagine-image/edit",
+  "adapter": "atlas upload/generate/poll",
+  "sourceSha256": "6d78a8510accf6b70052450dfb99de8a1eab2e5e3d1b7403b8a13076016df77c",
+  "portraitSha256": "589a149efbf8ed2d3aef16ab41a88a0d0904fa07582b8e01fc00c95922d24f5b",
+  "portraitWidth": 864,
+  "portraitHeight": 1152,
+  "physicalConfidence": {
+    "definition": "physical_confidence",
+    "score": 40,
+    "profile": "21-40",
+    "flirtatiousnessPercentage": 36,
+    "confidencePercentage": 51,
+    "flirtatiousnessWeight": 0.75,
+    "confidenceWeight": 0.25,
+    "source": "shipped_profile_library"
+  },
+  "derivativesReady": true,
+  "derivativeError": "",
+  "generatedUtc": "2026-07-17T19:17:51.3304362Z"
+}

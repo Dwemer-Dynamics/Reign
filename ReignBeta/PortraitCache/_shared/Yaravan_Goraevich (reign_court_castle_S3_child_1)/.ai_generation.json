@@ -1,0 +1,27 @@
+{
+  "version": 1,
+  "cacheKey": "Yaravan_Goraevich (reign_court_castle_S3_child_1)",
+  "heroStringId": "reign_court_castle_S3_child_1",
+  "characterObjectId": "reign_court_castle_S3_child_1",
+  "characterName": "Yaravan Goraevich",
+  "provider": "AtlasCloud",
+  "model": "xai/grok-imagine-image/edit",
+  "adapter": "atlas upload/generate/poll",
+  "sourceSha256": "720a5aea3dedc0654067e64d225c731c52565a1bd587f3bfd55510f257e53382",
+  "portraitSha256": "1e05dafc8c15715dd78f2c8eb13231862498fe37bcee65d7cc4f1be05b85f907",
+  "portraitWidth": 864,
+  "portraitHeight": 1152,
+  "physicalConfidence": {
+    "definition": "physical_confidence",
+    "score": 82,
+    "profile": "81-100",
+    "flirtatiousnessPercentage": 76,
+    "confidencePercentage": 99,
+    "flirtatiousnessWeight": 0.75,
+    "confidenceWeight": 0.25,
+    "source": "shipped_profile_library"
+  },
+  "derivativesReady": true,
+  "derivativeError": "",
+  "generatedUtc": "2026-07-17T19:22:04.6012716Z"
+}

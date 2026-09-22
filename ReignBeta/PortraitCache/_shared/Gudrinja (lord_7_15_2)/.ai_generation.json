@@ -1,0 +1,27 @@
+{
+  "version": 1,
+  "cacheKey": "Gudrinja (lord_7_15_2)",
+  "heroStringId": "lord_7_15_2",
+  "characterObjectId": "lord_7_15_2",
+  "characterName": "Gudrinja",
+  "provider": "AtlasCloud",
+  "model": "xai/grok-imagine-image/edit",
+  "adapter": "atlas upload/generate/poll",
+  "sourceSha256": "bdcced3dec60ab62f05973ca9f64e7bdbc04767f1995d14e5b6c0e518125cc91",
+  "portraitSha256": "823c66d26648bd3f4566d39b7fb9d52d962c8a0246569efe00b30447604d2453",
+  "portraitWidth": 832,
+  "portraitHeight": 1248,
+  "physicalConfidence": {
+    "definition": "physical_confidence",
+    "score": 50,
+    "profile": "41-60",
+    "flirtatiousnessPercentage": 50,
+    "confidencePercentage": 50,
+    "flirtatiousnessWeight": 0.75,
+    "confidenceWeight": 0.25,
+    "source": "neutral_fallback"
+  },
+  "derivativesReady": true,
+  "derivativeError": "",
+  "generatedUtc": "2026-07-17T18:40:19.9279955Z"
+}

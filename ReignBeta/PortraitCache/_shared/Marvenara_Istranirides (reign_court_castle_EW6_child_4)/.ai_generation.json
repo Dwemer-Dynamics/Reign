@@ -1,0 +1,27 @@
+{
+  "version": 1,
+  "cacheKey": "Marvenara_Istranirides (reign_court_castle_EW6_child_4)",
+  "heroStringId": "reign_court_castle_EW6_child_4",
+  "characterObjectId": "reign_court_castle_EW6_child_4",
+  "characterName": "Marvenara Istranirides",
+  "provider": "AtlasCloud",
+  "model": "xai/grok-imagine-image/edit",
+  "adapter": "atlas upload/generate/poll",
+  "sourceSha256": "13ccce2986c752e155ceb27dbcf9d2944f20ec8bc80605b6a3e8cd1e68976c81",
+  "portraitSha256": "b7d0e4cc5d8799c3c51dce74f1c24fe16cf5d102c7487f07a40051f73beaf235",
+  "portraitWidth": 864,
+  "portraitHeight": 1152,
+  "physicalConfidence": {
+    "definition": "physical_confidence",
+    "score": 83,
+    "profile": "81-100",
+    "flirtatiousnessPercentage": 95,
+    "confidencePercentage": 46,
+    "flirtatiousnessWeight": 0.75,
+    "confidenceWeight": 0.25,
+    "source": "shipped_profile_library"
+  },
+  "derivativesReady": true,
+  "derivativeError": "",
+  "generatedUtc": "2026-07-17T19:00:29.0822529Z"
+}

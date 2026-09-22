@@ -1,0 +1,18 @@
+{
+  "schema": "reign-fixed-region-composite-v1",
+  "assetId": "party-chat-system-box-removal",
+  "approvedReference": {
+    "path": "../generated-sources/screen-shells/party-chat-pre-system-box-removal.png",
+    "sha256": "c344abbbea08cf104fd95154727bc47817c1142b7b5bfeae5062e23e56191acd"
+  },
+  "imageToImageFill": {
+    "path": "../generated-sources/screen-shells/party-chat-no-system-box-source.png",
+    "sha256": "76e46a770f1ad0b224ee828070277e778441e6beb58c8cfd0837236f0dc91d15"
+  },
+  "canvas": {"width": 1672, "height": 941},
+  "policy": "User requested removal of the stationary system-message box on 2026-09-06. Preserve every pixel outside this bounded part of the existing dynamic transcript area. No overlay hides retired graphics; remove them from the shell itself.",
+  "rectangularFillMode": {"inwardFeatherPixels": 3, "borderSamplePixels": 4},
+  "sceneDependentMasks": [
+    {"id": "retired-system-box", "shape": "rectangle", "x": 468, "y": 416, "width": 725, "height": 88}
+  ]
+}

@@ -1,0 +1,27 @@
+{
+  "version": 1,
+  "cacheKey": "Lethuros_Istranorides (reign_court_town_EW6_child_1)",
+  "heroStringId": "reign_court_town_EW6_child_1",
+  "characterObjectId": "reign_court_town_EW6_child_1",
+  "characterName": "Lethuros Istranorides",
+  "provider": "AtlasCloud",
+  "model": "xai/grok-imagine-image/edit",
+  "adapter": "atlas upload/generate/poll",
+  "sourceSha256": "0d59f753e4cd332d3528652b25e45467a6ade9fe9f2aae688ca4371d57944083",
+  "portraitSha256": "63d511772897789ba96c1f38960e6feffd1079da4a3e43926dcf5b0a7baf97e2",
+  "portraitWidth": 864,
+  "portraitHeight": 1152,
+  "physicalConfidence": {
+    "definition": "physical_confidence",
+    "score": 52,
+    "profile": "41-60",
+    "flirtatiousnessPercentage": 52,
+    "confidencePercentage": 51,
+    "flirtatiousnessWeight": 0.75,
+    "confidenceWeight": 0.25,
+    "source": "shipped_profile_library"
+  },
+  "derivativesReady": true,
+  "derivativeError": "",
+  "generatedUtc": "2026-07-17T18:58:12.1560396Z"
+}

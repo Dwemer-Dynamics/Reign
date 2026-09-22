@@ -1,0 +1,27 @@
+{
+  "version": 1,
+  "cacheKey": "Elendara (lord_V11_c1)",
+  "heroStringId": "lord_V11_c1",
+  "characterObjectId": "lord_V11_c1",
+  "characterName": "Elendara",
+  "provider": "AtlasCloud",
+  "model": "xai/grok-imagine-image/edit",
+  "adapter": "atlas upload/generate/poll",
+  "sourceSha256": "7646f5572915d627fe178dd4c4ca5e232260d7b1ace2410e5f3ba07498bfa829",
+  "portraitSha256": "5eb4e82ef673991a54549c43bac053ba6e0a5152ea3a347565b852df46d9af18",
+  "portraitWidth": 832,
+  "portraitHeight": 1248,
+  "physicalConfidence": {
+    "definition": "physical_confidence",
+    "score": 57,
+    "profile": "41-60",
+    "flirtatiousnessPercentage": 61,
+    "confidencePercentage": 44,
+    "flirtatiousnessWeight": 0.75,
+    "confidenceWeight": 0.25,
+    "source": "shipped_profile_library"
+  },
+  "derivativesReady": true,
+  "derivativeError": "",
+  "generatedUtc": "2026-07-17T18:32:24.2203848Z"
+}

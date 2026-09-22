@@ -1,0 +1,27 @@
+{
+  "version": 1,
+  "cacheKey": "Eironan_Brynedawn (reign_court_town_B2_father)",
+  "heroStringId": "reign_court_town_B2_father",
+  "characterObjectId": "reign_court_town_B2_father",
+  "characterName": "Eironan Brynedawn",
+  "provider": "AtlasCloud",
+  "model": "xai/grok-imagine-image/edit",
+  "adapter": "atlas upload/generate/poll",
+  "sourceSha256": "69a9fd773847ff681f51ab9195427b319b9273cb3b2c76d287563a308f2d4156",
+  "portraitSha256": "90ed384e8a7f18d8d6261356b16c6443bbb4c4d4b1e750c9fe9e5a07a124e5fb",
+  "portraitWidth": 864,
+  "portraitHeight": 1152,
+  "physicalConfidence": {
+    "definition": "physical_confidence",
+    "score": 59,
+    "profile": "41-60",
+    "flirtatiousnessPercentage": 56,
+    "confidencePercentage": 67,
+    "flirtatiousnessWeight": 0.75,
+    "confidenceWeight": 0.25,
+    "source": "shipped_profile_library"
+  },
+  "derivativesReady": true,
+  "derivativeError": "",
+  "generatedUtc": "2026-07-17T18:31:35.1195657Z"
+}

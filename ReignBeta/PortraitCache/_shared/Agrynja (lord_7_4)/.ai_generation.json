@@ -1,0 +1,27 @@
+{
+  "version": 1,
+  "cacheKey": "Agrynja (lord_7_4)",
+  "heroStringId": "lord_7_4",
+  "characterObjectId": "lord_7_4",
+  "characterName": "Agrynja",
+  "provider": "AtlasCloud",
+  "model": "xai/grok-imagine-image/edit",
+  "adapter": "atlas upload/generate/poll",
+  "sourceSha256": "c7e52d3786f276f082bfbe7e8ff6ef874411db5cfbce666882a6a35aefbc9534",
+  "portraitSha256": "8da214cd74e2e2e47dff3c2e5ab18dfe8f609407c93ea21e97bd23fb61cd3bc5",
+  "portraitWidth": 832,
+  "portraitHeight": 1248,
+  "physicalConfidence": {
+    "definition": "physical_confidence",
+    "score": 50,
+    "profile": "41-60",
+    "flirtatiousnessPercentage": 50,
+    "confidencePercentage": 50,
+    "flirtatiousnessWeight": 0.75,
+    "confidenceWeight": 0.25,
+    "source": "neutral_fallback"
+  },
+  "derivativesReady": true,
+  "derivativeError": "",
+  "generatedUtc": "2026-07-17T18:10:35.0667865Z"
+}

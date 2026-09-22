@@ -1,0 +1,27 @@
+{
+  "version": 1,
+  "cacheKey": "Aevuros_Damarorides (reign_court_town_EW4_child_3)",
+  "heroStringId": "reign_court_town_EW4_child_3",
+  "characterObjectId": "reign_court_town_EW4_child_3",
+  "characterName": "Aevuros Damarorides",
+  "provider": "AtlasCloud",
+  "model": "xai/grok-imagine-image/edit",
+  "adapter": "atlas upload/generate/poll",
+  "sourceSha256": "c4355b7a9cd5f3aa9f9ecc9c222a01111d086e7064e59c0f6ff884a6f9843183",
+  "portraitSha256": "8bf31968be8551507bbbb3a8fdd263a94e36eeda255d482c6d4d0cf238d80822",
+  "portraitWidth": 864,
+  "portraitHeight": 1152,
+  "physicalConfidence": {
+    "definition": "physical_confidence",
+    "score": 67,
+    "profile": "61-80",
+    "flirtatiousnessPercentage": 56,
+    "confidencePercentage": 99,
+    "flirtatiousnessWeight": 0.75,
+    "confidenceWeight": 0.25,
+    "source": "shipped_profile_library"
+  },
+  "derivativesReady": true,
+  "derivativeError": "",
+  "generatedUtc": "2026-07-17T18:09:59.7405448Z"
+}

@@ -1,0 +1,27 @@
+{
+  "version": 1,
+  "cacheKey": "Alvar (lord_2_24)",
+  "heroStringId": "lord_2_24",
+  "characterObjectId": "lord_2_24",
+  "characterName": "Alvar",
+  "provider": "AtlasCloud",
+  "model": "xai/grok-imagine-image/edit",
+  "adapter": "atlas upload/generate/poll",
+  "sourceSha256": "c3128515dba2e3a6e7e7adb2608ad072401d4fe505c2b3b9af5e99afd684ff3a",
+  "portraitSha256": "ab586ff54d0409c7f2b76fcf9c9a2856eee528a43771265f01980bb776ab8560",
+  "portraitWidth": 832,
+  "portraitHeight": 1248,
+  "physicalConfidence": {
+    "definition": "physical_confidence",
+    "score": 73,
+    "profile": "61-80",
+    "flirtatiousnessPercentage": 85,
+    "confidencePercentage": 36,
+    "flirtatiousnessWeight": 0.75,
+    "confidenceWeight": 0.25,
+    "source": "shipped_profile_library"
+  },
+  "derivativesReady": true,
+  "derivativeError": "",
+  "generatedUtc": "2026-07-17T18:11:45.5617334Z"
+}

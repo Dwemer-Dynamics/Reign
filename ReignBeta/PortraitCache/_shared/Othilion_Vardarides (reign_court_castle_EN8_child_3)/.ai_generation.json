@@ -1,0 +1,27 @@
+{
+  "version": 1,
+  "cacheKey": "Othilion_Vardarides (reign_court_castle_EN8_child_3)",
+  "heroStringId": "reign_court_castle_EN8_child_3",
+  "characterObjectId": "reign_court_castle_EN8_child_3",
+  "characterName": "Othilion Vardarides",
+  "provider": "AtlasCloud",
+  "model": "xai/grok-imagine-image/edit",
+  "adapter": "atlas upload/generate/poll",
+  "sourceSha256": "f16203f243c5042ed2377dc0f37b252d738a8fed2e6f8c51b87ed9c281d27e42",
+  "portraitSha256": "a9b33a6d82423c677c87ee888b86dc08b26848b39506db06a1d1236a9b89cd0d",
+  "portraitWidth": 864,
+  "portraitHeight": 1152,
+  "physicalConfidence": {
+    "definition": "physical_confidence",
+    "score": 41,
+    "profile": "41-60",
+    "flirtatiousnessPercentage": 45,
+    "confidencePercentage": 28,
+    "flirtatiousnessWeight": 0.75,
+    "confidenceWeight": 0.25,
+    "source": "shipped_profile_library"
+  },
+  "derivativesReady": true,
+  "derivativeError": "",
+  "generatedUtc": "2026-07-17T19:07:54.6787535Z"
+}

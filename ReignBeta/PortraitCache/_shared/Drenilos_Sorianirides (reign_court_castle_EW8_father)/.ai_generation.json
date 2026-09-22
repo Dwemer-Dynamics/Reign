@@ -1,0 +1,27 @@
+{
+  "version": 1,
+  "cacheKey": "Drenilos_Sorianirides (reign_court_castle_EW8_father)",
+  "heroStringId": "reign_court_castle_EW8_father",
+  "characterObjectId": "reign_court_castle_EW8_father",
+  "characterName": "Drenilos Sorianirides",
+  "provider": "AtlasCloud",
+  "model": "xai/grok-imagine-image/edit",
+  "adapter": "atlas upload/generate/poll",
+  "sourceSha256": "5a69c73cd9ea09d301bdb2de157bb5bbf6f00c8a439b7750ce54aed813b83b9e",
+  "portraitSha256": "96e9eff937bff8d3094da7c3ef407d87453f282153932d675a2c123220e882b2",
+  "portraitWidth": 864,
+  "portraitHeight": 1152,
+  "physicalConfidence": {
+    "definition": "physical_confidence",
+    "score": 61,
+    "profile": "61-80",
+    "flirtatiousnessPercentage": 68,
+    "confidencePercentage": 39,
+    "flirtatiousnessWeight": 0.75,
+    "confidenceWeight": 0.25,
+    "source": "shipped_profile_library"
+  },
+  "derivativesReady": true,
+  "derivativeError": "",
+  "generatedUtc": "2026-07-17T18:29:54.7765709Z"
+}

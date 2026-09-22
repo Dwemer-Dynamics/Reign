@@ -1,0 +1,27 @@
+{
+  "version": 1,
+  "cacheKey": "Eirena_Dunadawn (reign_court_castle_B4_child_4)",
+  "heroStringId": "reign_court_castle_B4_child_4",
+  "characterObjectId": "reign_court_castle_B4_child_4",
+  "characterName": "Eirena Dunadawn",
+  "provider": "AtlasCloud",
+  "model": "xai/grok-imagine-image/edit",
+  "adapter": "atlas upload/generate/poll",
+  "sourceSha256": "825a576300c389dc69c3863fc6314555048993c361235062a827d3a44c08958c",
+  "portraitSha256": "eb6dc77b1ec93a52062b03c44d30ba6a118152a3a936ce6a1ede4347a0f6493f",
+  "portraitWidth": 864,
+  "portraitHeight": 1152,
+  "physicalConfidence": {
+    "definition": "physical_confidence",
+    "score": 60,
+    "profile": "41-60",
+    "flirtatiousnessPercentage": 71,
+    "confidencePercentage": 26,
+    "flirtatiousnessWeight": 0.75,
+    "confidenceWeight": 0.25,
+    "source": "shipped_profile_library"
+  },
+  "derivativesReady": true,
+  "derivativeError": "",
+  "generatedUtc": "2026-07-17T18:31:18.0380266Z"
+}

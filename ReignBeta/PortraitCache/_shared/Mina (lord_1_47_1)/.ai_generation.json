@@ -1,0 +1,27 @@
+{
+  "version": 1,
+  "cacheKey": "Mina (lord_1_47_1)",
+  "heroStringId": "lord_1_47_1",
+  "characterObjectId": "lord_1_47_1",
+  "characterName": "Mina",
+  "provider": "AtlasCloud",
+  "model": "xai/grok-imagine-image/edit",
+  "adapter": "atlas upload/generate/poll",
+  "sourceSha256": "cd418a5fb1cd88c2cfbe555d07d3973ecf3071b837d601fa1cc27f1578cb6f7e",
+  "portraitSha256": "72de09f82ac7b5dceb40828c0f707a27edbc894d53f234cf36ecf00d0767f48a",
+  "portraitWidth": 832,
+  "portraitHeight": 1248,
+  "physicalConfidence": {
+    "definition": "physical_confidence",
+    "score": 47,
+    "profile": "41-60",
+    "flirtatiousnessPercentage": 41,
+    "confidencePercentage": 64,
+    "flirtatiousnessWeight": 0.75,
+    "confidenceWeight": 0.25,
+    "source": "shipped_profile_library"
+  },
+  "derivativesReady": true,
+  "derivativeError": "",
+  "generatedUtc": "2026-07-17T19:03:38.6711008Z"
+}

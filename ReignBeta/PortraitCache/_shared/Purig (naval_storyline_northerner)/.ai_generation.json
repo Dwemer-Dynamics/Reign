@@ -1,0 +1,27 @@
+{
+  "version": 1,
+  "cacheKey": "Purig (naval_storyline_northerner)",
+  "heroStringId": "naval_storyline_northerner",
+  "characterObjectId": "naval_storyline_northerner",
+  "characterName": "Purig",
+  "provider": "AtlasCloud",
+  "model": "xai/grok-imagine-image/edit",
+  "adapter": "atlas upload/generate/poll",
+  "sourceSha256": "f70eaa197a1c5ec54ef2c18a72f09f139fc8ea75d54a8ae01da610ce6b75df7e",
+  "portraitSha256": "4d8e4ce49fd351268bf983912f7acb010dc3e6a4cc4e0b247d5a0cd79d1c1506",
+  "portraitWidth": 864,
+  "portraitHeight": 1152,
+  "physicalConfidence": {
+    "definition": "physical_confidence",
+    "score": 50,
+    "profile": "41-60",
+    "flirtatiousnessPercentage": 50,
+    "confidencePercentage": 50,
+    "flirtatiousnessWeight": 0.75,
+    "confidenceWeight": 0.25,
+    "source": "neutral_fallback"
+  },
+  "derivativesReady": true,
+  "derivativeError": "",
+  "generatedUtc": "2026-07-17T19:09:56.1946472Z"
+}

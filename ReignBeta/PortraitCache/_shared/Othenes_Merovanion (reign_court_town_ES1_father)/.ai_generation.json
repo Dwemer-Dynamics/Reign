@@ -1,0 +1,27 @@
+{
+  "version": 1,
+  "cacheKey": "Othenes_Merovanion (reign_court_town_ES1_father)",
+  "heroStringId": "reign_court_town_ES1_father",
+  "characterObjectId": "reign_court_town_ES1_father",
+  "characterName": "Othenes Merovanion",
+  "provider": "AtlasCloud",
+  "model": "xai/grok-imagine-image/edit",
+  "adapter": "atlas upload/generate/poll",
+  "sourceSha256": "16c3fdebd32ad854bea88d23a1ef89bba4e9c354dea0abb23fb20f77b2fd1fc3",
+  "portraitSha256": "cb8d74caa86a4a2a89a8417a7e9e9ad8231eb6de2f79d81f3d7156ef01c7a68e",
+  "portraitWidth": 864,
+  "portraitHeight": 1152,
+  "physicalConfidence": {
+    "definition": "physical_confidence",
+    "score": 40,
+    "profile": "21-40",
+    "flirtatiousnessPercentage": 37,
+    "confidencePercentage": 48,
+    "flirtatiousnessWeight": 0.75,
+    "confidenceWeight": 0.25,
+    "source": "shipped_profile_library"
+  },
+  "derivativesReady": true,
+  "derivativeError": "",
+  "generatedUtc": "2026-07-17T19:07:24.6351646Z"
+}

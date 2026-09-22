@@ -1,0 +1,27 @@
+{
+  "version": 1,
+  "cacheKey": "Chagigan_Mungolatai (reign_court_castle_K7_father)",
+  "heroStringId": "reign_court_castle_K7_father",
+  "characterObjectId": "reign_court_castle_K7_father",
+  "characterName": "Chagigan Mungolatai",
+  "provider": "AtlasCloud",
+  "model": "xai/grok-imagine-image/edit",
+  "adapter": "atlas upload/generate/poll",
+  "sourceSha256": "b3867995273c0eb2eaef55be0963d3259fbb4cb66e836222e2c24c4330659cfa",
+  "portraitSha256": "9e1b75f602ae4f3b1a817233035aafe0eed2998c20581630396b3e07693af421",
+  "portraitWidth": 864,
+  "portraitHeight": 1152,
+  "physicalConfidence": {
+    "definition": "physical_confidence",
+    "score": 71,
+    "profile": "61-80",
+    "flirtatiousnessPercentage": 66,
+    "confidencePercentage": 85,
+    "flirtatiousnessWeight": 0.75,
+    "confidenceWeight": 0.25,
+    "source": "shipped_profile_library"
+  },
+  "derivativesReady": true,
+  "derivativeError": "",
+  "generatedUtc": "2026-07-17T18:22:44.7184883Z"
+}

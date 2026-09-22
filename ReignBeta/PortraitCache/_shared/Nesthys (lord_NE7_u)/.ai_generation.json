@@ -1,0 +1,27 @@
+{
+  "version": 1,
+  "cacheKey": "Nesthys (lord_NE7_u)",
+  "heroStringId": "lord_NE7_u",
+  "characterObjectId": "lord_NE7_u",
+  "characterName": "Nesthys",
+  "provider": "AtlasCloud",
+  "model": "xai/grok-imagine-image/edit",
+  "adapter": "atlas upload/generate/poll",
+  "sourceSha256": "f8e48e24d21478f6df4b7c0bbb20faed902c755909eed6030c1736c64c8e3088",
+  "portraitSha256": "4581f3a07dc7851426b3d57fe73e572c253a8cfd484cca86ed02fc169ed814ff",
+  "portraitWidth": 832,
+  "portraitHeight": 1248,
+  "physicalConfidence": {
+    "definition": "physical_confidence",
+    "score": 82,
+    "profile": "81-100",
+    "flirtatiousnessPercentage": 92,
+    "confidencePercentage": 51,
+    "flirtatiousnessWeight": 0.75,
+    "confidenceWeight": 0.25,
+    "source": "shipped_profile_library"
+  },
+  "derivativesReady": true,
+  "derivativeError": "",
+  "generatedUtc": "2026-07-17T19:05:39.7163293Z"
+}

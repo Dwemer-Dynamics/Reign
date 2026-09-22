@@ -1,0 +1,27 @@
+{
+  "version": 1,
+  "cacheKey": "Corein (lord_5_10)",
+  "heroStringId": "lord_5_10",
+  "characterObjectId": "lord_5_10",
+  "characterName": "Corein",
+  "provider": "AtlasCloud",
+  "model": "xai/grok-imagine-image/edit",
+  "adapter": "atlas upload/generate/poll",
+  "sourceSha256": "de1ab22fbad5632069da56c86218439bf251e2ebc27ea03d524c7dfcc44f0de7",
+  "portraitSha256": "07a49b8544aee03a1c51622a7bdb1128c48e671c62bd552078efa2f688922637",
+  "portraitWidth": 832,
+  "portraitHeight": 1248,
+  "physicalConfidence": {
+    "definition": "physical_confidence",
+    "score": 57,
+    "profile": "41-60",
+    "flirtatiousnessPercentage": 49,
+    "confidencePercentage": 80,
+    "flirtatiousnessWeight": 0.75,
+    "confidenceWeight": 0.25,
+    "source": "shipped_profile_library"
+  },
+  "derivativesReady": true,
+  "derivativeError": "",
+  "generatedUtc": "2026-07-17T18:23:53.3785578Z"
+}

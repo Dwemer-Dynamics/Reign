@@ -1,0 +1,27 @@
+{
+  "version": 1,
+  "cacheKey": "Alderic_Fauconacourt (reign_court_castle_V6_child_1)",
+  "heroStringId": "reign_court_castle_V6_child_1",
+  "characterObjectId": "reign_court_castle_V6_child_1",
+  "characterName": "Alderic Fauconacourt",
+  "provider": "AtlasCloud",
+  "model": "xai/grok-imagine-image/edit",
+  "adapter": "atlas upload/generate/poll",
+  "sourceSha256": "b1294a444ab1f51fdfc22692caba0d209653e5d13be366ef3a87de70d5f8a62f",
+  "portraitSha256": "7687592108cd7aea146f2eafe5a08d034a1bb3c274f9bb1b59a49a4c40efe4f3",
+  "portraitWidth": 864,
+  "portraitHeight": 1152,
+  "physicalConfidence": {
+    "definition": "physical_confidence",
+    "score": 79,
+    "profile": "61-80",
+    "flirtatiousnessPercentage": 98,
+    "confidencePercentage": 21,
+    "flirtatiousnessWeight": 0.75,
+    "confidenceWeight": 0.25,
+    "source": "shipped_profile_library"
+  },
+  "derivativesReady": true,
+  "derivativeError": "",
+  "generatedUtc": "2026-07-17T18:11:06.0786265Z"
+}

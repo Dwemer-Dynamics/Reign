@@ -1,0 +1,27 @@
+{
+  "version": 1,
+  "cacheKey": "Bortu (lord_6_13)",
+  "heroStringId": "lord_6_13",
+  "characterObjectId": "lord_6_13",
+  "characterName": "Bortu",
+  "provider": "AtlasCloud",
+  "model": "xai/grok-imagine-image/edit",
+  "adapter": "atlas upload/generate/poll",
+  "sourceSha256": "d8ceb33ca284dbdc5cb49db21794bcbc61d43ba36598890fec0174592d898603",
+  "portraitSha256": "d9df73b384b86df22ef1037577a2f094dc8280fb1b0654f7da0fbb2545bf9262",
+  "portraitWidth": 832,
+  "portraitHeight": 1248,
+  "physicalConfidence": {
+    "definition": "physical_confidence",
+    "score": 57,
+    "profile": "41-60",
+    "flirtatiousnessPercentage": 67,
+    "confidencePercentage": 26,
+    "flirtatiousnessWeight": 0.75,
+    "confidenceWeight": 0.25,
+    "source": "shipped_profile_library"
+  },
+  "derivativesReady": true,
+  "derivativeError": "",
+  "generatedUtc": "2026-07-17T18:18:12.2115728Z"
+}

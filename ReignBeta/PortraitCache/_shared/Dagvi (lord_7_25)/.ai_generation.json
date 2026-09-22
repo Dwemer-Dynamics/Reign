@@ -1,0 +1,27 @@
+{
+  "version": 1,
+  "cacheKey": "Dagvi (lord_7_25)",
+  "heroStringId": "lord_7_25",
+  "characterObjectId": "lord_7_25",
+  "characterName": "Dagvi",
+  "provider": "AtlasCloud",
+  "model": "xai/grok-imagine-image/edit",
+  "adapter": "atlas upload/generate/poll",
+  "sourceSha256": "ff0e19c3c8b830699ef4fbcb0630848e6eb6e57cadfa758c639f74b5ad2d3c22",
+  "portraitSha256": "23558a1d867bd2b3e6fe77cda8fb05625b118378fac59e368ef482f7c4c6daad",
+  "portraitWidth": 832,
+  "portraitHeight": 1248,
+  "physicalConfidence": {
+    "definition": "physical_confidence",
+    "score": 50,
+    "profile": "41-60",
+    "flirtatiousnessPercentage": 50,
+    "confidencePercentage": 50,
+    "flirtatiousnessWeight": 0.75,
+    "confidenceWeight": 0.25,
+    "source": "neutral_fallback"
+  },
+  "derivativesReady": true,
+  "derivativeError": "",
+  "generatedUtc": "2026-07-17T18:25:32.0617111Z"
+}

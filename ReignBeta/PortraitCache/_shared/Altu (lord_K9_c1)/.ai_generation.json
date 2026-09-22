@@ -1,0 +1,27 @@
+{
+  "version": 1,
+  "cacheKey": "Altu (lord_K9_c1)",
+  "heroStringId": "lord_K9_c1",
+  "characterObjectId": "lord_K9_c1",
+  "characterName": "Altu",
+  "provider": "AtlasCloud",
+  "model": "xai/grok-imagine-image/edit",
+  "adapter": "atlas upload/generate/poll",
+  "sourceSha256": "9e2b54d3af44687f92625a814c2fd3fe65a98641ebab8396c186abd465125ac8",
+  "portraitSha256": "543229703b8d270b25bee3afa07c58421e8b0517214c63be3a2b83f89e2e5bf1",
+  "portraitWidth": 832,
+  "portraitHeight": 1248,
+  "physicalConfidence": {
+    "definition": "physical_confidence",
+    "score": 35,
+    "profile": "21-40",
+    "flirtatiousnessPercentage": 23,
+    "confidencePercentage": 70,
+    "flirtatiousnessWeight": 0.75,
+    "confidenceWeight": 0.25,
+    "source": "shipped_profile_library"
+  },
+  "derivativesReady": true,
+  "derivativeError": "",
+  "generatedUtc": "2026-07-17T18:11:44.3737381Z"
+}

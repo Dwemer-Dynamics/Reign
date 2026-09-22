@@ -1,0 +1,27 @@
+{
+  "version": 1,
+  "cacheKey": "Calarion_Aurelarides (reign_court_castle_EN1_child_1)",
+  "heroStringId": "reign_court_castle_EN1_child_1",
+  "characterObjectId": "reign_court_castle_EN1_child_1",
+  "characterName": "Calarion Aurelarides",
+  "provider": "AtlasCloud",
+  "model": "xai/grok-imagine-image/edit",
+  "adapter": "atlas upload/generate/poll",
+  "sourceSha256": "09a546aa17b25ba72eb5d26b8408bb95b48ca44bbd9060792ace89f44f06d2a7",
+  "portraitSha256": "8ac35e3241ddec6d4be6e73907cef94863029b3a46993e46b2987e84a40afaf8",
+  "portraitWidth": 864,
+  "portraitHeight": 1152,
+  "physicalConfidence": {
+    "definition": "physical_confidence",
+    "score": 17,
+    "profile": "00-20",
+    "flirtatiousnessPercentage": 3,
+    "confidencePercentage": 59,
+    "flirtatiousnessWeight": 0.75,
+    "confidenceWeight": 0.25,
+    "source": "shipped_profile_library"
+  },
+  "derivativesReady": true,
+  "derivativeError": "",
+  "generatedUtc": "2026-07-17T18:20:23.4662666Z"
+}

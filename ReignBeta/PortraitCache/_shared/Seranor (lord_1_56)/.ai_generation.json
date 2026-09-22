@@ -1,0 +1,27 @@
+{
+  "version": 1,
+  "cacheKey": "Seranor (lord_1_56)",
+  "heroStringId": "lord_1_56",
+  "characterObjectId": "lord_1_56",
+  "characterName": "Seranor",
+  "provider": "AtlasCloud",
+  "model": "xai/grok-imagine-image/edit",
+  "adapter": "atlas upload/generate/poll",
+  "sourceSha256": "ab0836e4da1ae1d5ecad10d8d361bcb0d88aff0ffbcc362de4643d0c6e6e6526",
+  "portraitSha256": "72d4739f020b533b4723617527c72a21b9a17fc184ff7fbdc5d939019aa43e68",
+  "portraitWidth": 832,
+  "portraitHeight": 1248,
+  "physicalConfidence": {
+    "definition": "physical_confidence",
+    "score": 58,
+    "profile": "41-60",
+    "flirtatiousnessPercentage": 47,
+    "confidencePercentage": 90,
+    "flirtatiousnessWeight": 0.75,
+    "confidenceWeight": 0.25,
+    "source": "shipped_profile_library"
+  },
+  "derivativesReady": true,
+  "derivativeError": "",
+  "generatedUtc": "2026-07-17T19:13:37.0803396Z"
+}

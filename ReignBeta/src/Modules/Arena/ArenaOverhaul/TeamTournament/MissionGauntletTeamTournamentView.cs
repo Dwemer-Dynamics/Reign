@@ -1,0 +1,143 @@
+﻿using ArenaOverhaul.TeamTournament.ViewModels;
+
+using TaleWorlds.CampaignSystem.TournamentGames;
+using TaleWorlds.Core;
+using TaleWorlds.Engine;
+using TaleWorlds.Engine.GauntletUI;
+using TaleWorlds.GauntletUI.Data;
+using TaleWorlds.Library;
+using TaleWorlds.MountAndBlade;
+using TaleWorlds.MountAndBlade.View;
+using TaleWorlds.MountAndBlade.View.MissionViews;
+
+namespace ArenaOverhaul.TeamTournament
+{
+    [OverrideView(typeof(TeamTournamentMissionView))]
+    public class MissionGauntletTeamTournamentView : MissionView
+    {
+        private TeamTournamentBehavior? _behavior;
+        private Camera? _customCamera;
+        private bool _viewEnabled = true;
+#pragma warning disable IDE0052 // Remove unread private members
+        private GauntletMovieIdentifier? _gauntletMovie;
+#pragma warning restore IDE0052 // Remove unread private members
+        private GauntletLayer? _gauntletLayer;
+        private TeamTournamentVM? _dataSource;
+
+        public MissionGauntletTeamTournamentView()
+        {
+            ViewOrderPriority = 48;
+        }
+
+        public override void OnMissionScreenInitialize()
+        {
+            base.OnMissionScreenInitialize();
+            _dataSource = new TeamTournamentVM(DisableUi, _behavior!);
+            _gauntletLayer = new GauntletLayer("GauntletLayer", ViewOrderPriority);
+            _gauntletMovie = _gauntletLayer.LoadMovie("Tournament", _dataSource);
+            MissionScreen.CustomCamera = _customCamera;
+            _gauntletLayer.InputRestrictions.SetInputRestrictions(true, InputUsageMask.All);
+            MissionScreen.AddLayer(_gauntletLayer);
+        }
+
+        public override void OnMissionScreenFinalize()
+        {
+            _gauntletLayer?.InputRestrictions.ResetInputRestrictions();
+            _gauntletMovie = null;
+            _gauntletLayer = null;
+            _dataSource?.OnFinalize();
+            _dataSource = null;
+            base.OnMissionScreenFinalize();
+        }
+
+        public override void AfterStart()
+        {
+            _behavior = Mission.GetMissionBehavior<TeamTournamentBehavior>();
+            var gameEntity = Mission.Scene.FindEntityWithTag("camera_instance");
+            _customCamera = Camera.CreateCamera();
+            var vec = default(Vec3);
+            gameEntity?.GetCameraParamsFromCameraScript(_customCamera, ref vec);
+        }
+
+        public override void OnMissionTick(float dt)
+        {
+            if (_behavior == null)
+            {
+                return;
+            }
+            if (!_viewEnabled && ((_behavior.LastMatch != null && _behavior.CurrentMatch == null) || _behavior.CurrentMatch!.IsReady))
+            {
+                _dataSource?.Refresh();
+                ShowUi();
+            }
+            if (!_viewEnabled && (_dataSource?.CurrentMatch?.IsValid ?? false))
+            {
+                var currentMatch = _behavior.CurrentMatch;
+                if (currentMatch != null && currentMatch.State == TournamentMatch.MatchState.Started)
+                {
+                    _dataSource.CurrentMatch.RefreshActiveMatch();
+                }
+            }
+            if (_dataSource!.IsOver && _viewEnabled && !DebugInput.IsControlDown() && DebugInput.IsHotKeyPressed("ShowHighlightsSummary"))
+            {
+                HighlightsController missionBehaviour = Mission.GetMissionBehavior<HighlightsController>();
+                if (missionBehaviour == null)
+                {
+                    return;
+                }
+                missionBehaviour.ShowSummary();
+            }
+        }
+
+        private void DisableUi()
+        {
+            if (!_viewEnabled)
+            {
+                return;
+            }
+            MissionScreen.UpdateFreeCamera(_customCamera!.Frame);
+            MissionScreen.CustomCamera = null;
+            _viewEnabled = false;
+            _gauntletLayer!.InputRestrictions.ResetInputRestrictions();
+        }
+
+        private void ShowUi()
+        {
+            if (_viewEnabled)
+            {
+                return;
+            }
+            MissionScreen.CustomCamera = _customCamera;
+            _viewEnabled = true;
+            _gauntletLayer!.InputRestrictions.SetInputRestrictions(true, InputUsageMask.All);
+        }
+
+        public override void OnAgentRemoved(Agent affectedAgent, Agent affectorAgent, AgentState agentState, KillingBlow killingBlow)
+        {
+            base.OnAgentRemoved(affectedAgent, affectorAgent, agentState, killingBlow);
+            _dataSource!.OnAgentRemoved(affectedAgent);
+        }
+
+        public override void OnPhotoModeActivated()
+        {
+            base.OnPhotoModeActivated();
+#if v125 || v126 || v127 || v128 || v129 || v1210 || v1211 || v1212
+            _gauntletLayer!.UIContext.ContextAlpha = 0f;
+#else
+            _gauntletLayer!.UIContext.ContextAlpha = 0f;
+#endif
+        }
+
+        public override void OnPhotoModeDeactivated()
+        {
+            base.OnPhotoModeDeactivated();
+#if v125 || v126 || v127 || v128 || v129 || v1210 || v1211 || v1212
+            _gauntletLayer!.UIContext.ContextAlpha = 1f;
+#else
+            _gauntletLayer!.UIContext.ContextAlpha = 1f;
+#endif
+        }
+    }
+
+    public class TeamTournamentMissionView : MissionView { }
+}

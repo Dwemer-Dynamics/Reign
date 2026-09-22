@@ -1,0 +1,27 @@
+{
+  "version": 1,
+  "cacheKey": "Ingunde (lord_4_24_3)",
+  "heroStringId": "lord_4_24_3",
+  "characterObjectId": "lord_4_24_3",
+  "characterName": "Ingunde",
+  "provider": "AtlasCloud",
+  "model": "xai/grok-imagine-image/edit",
+  "adapter": "atlas upload/generate/poll",
+  "sourceSha256": "d6d34edc243ec6eb74bcd120917682a23a38863f9cda85cee6384924fc20be4e",
+  "portraitSha256": "0e36237e45f5db31e8553c0ab4c304aecacb802f388b0dec4c8dcd1d0359d0d9",
+  "portraitWidth": 832,
+  "portraitHeight": 1248,
+  "physicalConfidence": {
+    "definition": "physical_confidence",
+    "score": 60,
+    "profile": "41-60",
+    "flirtatiousnessPercentage": 65,
+    "confidencePercentage": 44,
+    "flirtatiousnessWeight": 0.75,
+    "confidenceWeight": 0.25,
+    "source": "shipped_profile_library"
+  },
+  "derivativesReady": true,
+  "derivativeError": "",
+  "generatedUtc": "2026-07-17T18:44:05.8417047Z"
+}

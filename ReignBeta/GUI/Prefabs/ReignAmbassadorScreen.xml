@@ -1,0 +1,109 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Prefab>
+  <Window>
+    <Widget WidthSizePolicy="StretchToParent" HeightSizePolicy="StretchToParent" Sprite="BlankWhiteSquare" Color="#030303FF">
+      <Children>
+        <Widget Id="AmbassadorCanvas" WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="1672" SuggestedHeight="941" HorizontalAlignment="Center" VerticalAlignment="Center" Sprite="reign_ambassador_modern_shell" DoNotUseCustomScaleAndChildren="true">
+          <Children>
+            <ButtonWidget Id="AmbassadorClose" AlphaFactor="0" WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="64" SuggestedHeight="64" MarginLeft="1585" MarginTop="22" Command.Click="ExecuteClose" />
+
+            <!-- Opaque stage removes every baked fixed card/window from the shell. All live cards render above it. -->
+            <Widget Id="AmbassadorCardsCleanBackdrop" DoNotAcceptEvents="true" WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="1340" SuggestedHeight="675" MarginLeft="177" MarginTop="154" Sprite="BlankWhiteSquare_9" Color="#10100FFF" />
+
+            <Widget DataSource="{ForeignAdvisor}" WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="294" SuggestedHeight="620" MarginLeft="195" MarginTop="167" ClipContents="true">
+              <Children>
+                <ButtonWidget AlphaFactor="0" WidthSizePolicy="StretchToParent" HeightSizePolicy="StretchToParent" Command.Click="ExecuteOpen" Brush="ConversationItem.SoundBrush" DoNotPassEventsToChildren="true" />
+                <Widget DoNotAcceptEvents="true" WidthSizePolicy="StretchToParent" HeightSizePolicy="StretchToParent" Sprite="BlankWhiteSquare_9" Color="#10100FFF" />
+                <Widget DoNotAcceptEvents="true" WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="267" SuggestedHeight="369" MarginLeft="14" MarginTop="14" ClipContents="true">
+                  <Children>
+                    <Widget DoNotAcceptEvents="true" WidthSizePolicy="StretchToParent" HeightSizePolicy="StretchToParent" Sprite="BlankWhiteSquare_9" Color="#10100FFF" />
+                    <ImageIdentifierWidget IsVisible="@HasPortrait" DoNotAcceptEvents="true" WidthSizePolicy="StretchToParent" HeightSizePolicy="StretchToParent" ImageId="@PortraitId" AdditionalArgs="@PortraitAdditionalArgs" TextureProviderName="@PortraitTextureProviderName" />
+                    <ReignPortraitWidget Type="ReignBeta.UI.Widgets.ReignPortraitWidget" IsVisible="@HasPortrait" DoNotAcceptEvents="true" WidthSizePolicy="StretchToParent" HeightSizePolicy="StretchToParent" PortraitCacheKey="@PortraitCacheKey" TargetAspect="0.724" UseFullBody="true" />
+                  </Children>
+                </Widget>
+                <Widget DoNotAcceptEvents="true" WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="42" SuggestedHeight="53" MarginLeft="229" MarginTop="27" Sprite="BlankWhiteSquare_9" Color="#10100FFF" />
+                <Widget DoNotAcceptEvents="true" WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="267" SuggestedHeight="222" MarginLeft="14" MarginTop="383" Sprite="BlankWhiteSquare_9" Color="#171717FF" />
+                <ImageWidget DoNotAcceptEvents="true" WidthSizePolicy="StretchToParent" HeightSizePolicy="StretchToParent" Sprite="reign_ambassador_modern_advisor_card_overlay" />
+                <TextWidget DoNotAcceptEvents="true" WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="221" SuggestedHeight="23" MarginLeft="36" MarginTop="402" Brush="Info.Text" Brush.Font="ReignSerifDynamic" Brush.FontSize="17" Brush.TextHorizontalAlignment="Center" Brush.TextVerticalAlignment="Center" Brush.FontColor="#C5AC83FF" Text="FOREIGN ADVISOR" />
+                <TextWidget DoNotAcceptEvents="true" WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="221" SuggestedHeight="31" MarginLeft="36" MarginTop="436" Brush="Info.Text" Brush.Font="ReignSerifDynamic" Brush.FontSize="20" Brush.TextHorizontalAlignment="Center" Brush.TextVerticalAlignment="Center" Brush.FontColor="#C5BDAFFF" Text="@Name" />
+                <TextWidget DoNotAcceptEvents="true" WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="221" SuggestedHeight="23" MarginLeft="36" MarginTop="483" Brush="Info.Text" Brush.Font="ReignSerifDynamic" Brush.FontSize="12" Brush.TextHorizontalAlignment="Center" Brush.TextVerticalAlignment="Center" Brush.FontColor="#8A8883FF" Text="@Status" />
+                <TextWidget DoNotAcceptEvents="true" WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="236" SuggestedHeight="29" MarginLeft="29" MarginTop="530" Brush="Info.Text" Brush.Font="ReignSerifDynamic" Brush.FontSize="10" Brush.TextHorizontalAlignment="Center" Brush.TextVerticalAlignment="Center" Brush.FontColor="#706F6AFF" Text="CLICK TO APPOINT OR REPLACE" />
+                <TextWidget DoNotAcceptEvents="true" WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="151" SuggestedHeight="24" MarginLeft="72" MarginTop="573" Brush="Info.Text" Brush.Font="ReignSerifDynamic" Brush.FontSize="11" Brush.TextHorizontalAlignment="Center" Brush.TextVerticalAlignment="Center" Brush.FontColor="#C5BDAFFF" Text="APPOINT OR REPLACE" />
+              </Children>
+            </Widget>
+
+            <!-- The foreign-adviser card represents the player's court, so its flag slot uses the player's banner. -->
+            <Widget Id="ForeignAdvisorPlayerBanner" DoNotAcceptEvents="true" WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="38" SuggestedHeight="49" MarginLeft="426" MarginTop="196" ClipContents="true">
+              <Children>
+                <ImageIdentifierWidget DoNotAcceptEvents="true" WidthSizePolicy="StretchToParent" HeightSizePolicy="StretchToParent" ImageId="@PlayerBannerId" AdditionalArgs="@PlayerBannerArgs" TextureProviderName="@PlayerBannerProvider" />
+              </Children>
+            </Widget>
+
+            <ReignAmbassadorSnapScrollPanel Id="AmbassadorRailViewport" Type="ReignBeta.UI.ReignAmbassadorSnapScrollPanel" WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="981" SuggestedHeight="638" MarginLeft="520" MarginTop="167" ClipRect="AmbassadorRailClip" InnerPanel="AmbassadorRailClip\AmbassadorRail" HorizontalScrollbar="..\AmbassadorRailScrollbar" AutoHideScrollBars="true" OnlyAcceptScrollEventIfCanScroll="true" MouseScrollAxis="Horizontal" ItemCount="@AmbassadorCount">
+              <Children>
+                <Widget Id="AmbassadorRailClip" WidthSizePolicy="StretchToParent" HeightSizePolicy="StretchToParent" ClipContents="true">
+                  <Children>
+                    <ListPanel Id="AmbassadorRail" DataSource="{Ambassadors}" WidthSizePolicy="CoverChildren" HeightSizePolicy="StretchToParent" StackLayout.LayoutMethod="HorizontalLeftToRight">
+                      <ItemTemplate>
+                        <Widget WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="295" SuggestedHeight="620" MarginRight="32" ClipContents="true">
+                          <Children>
+                            <ButtonWidget AlphaFactor="0" WidthSizePolicy="StretchToParent" HeightSizePolicy="Fixed" SuggestedHeight="558" Command.Click="ExecuteSpeak" Brush="ConversationItem.SoundBrush" DoNotPassEventsToChildren="true" />
+                            <Widget DoNotAcceptEvents="true" WidthSizePolicy="StretchToParent" HeightSizePolicy="StretchToParent" Sprite="BlankWhiteSquare_9" Color="#10100FFF" />
+                            <Widget DoNotAcceptEvents="true" WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="269" SuggestedHeight="369" MarginLeft="11" MarginTop="14" ClipContents="true">
+                              <Children>
+                                <Widget DoNotAcceptEvents="true" WidthSizePolicy="StretchToParent" HeightSizePolicy="StretchToParent" Sprite="BlankWhiteSquare_9" Color="#10100FFF" />
+                                <ImageIdentifierWidget DoNotAcceptEvents="true" WidthSizePolicy="StretchToParent" HeightSizePolicy="StretchToParent" ImageId="@PortraitId" AdditionalArgs="@PortraitArgs" TextureProviderName="@PortraitProvider" />
+                                <ReignPortraitWidget Type="ReignBeta.UI.Widgets.ReignPortraitWidget" IsVisible="@HasPortrait" DoNotAcceptEvents="true" WidthSizePolicy="StretchToParent" HeightSizePolicy="StretchToParent" PortraitCacheKey="@PortraitCacheKey" TargetAspect="0.729" UseFullBody="true" />
+                                <CharacterTableauWidget IsVisible="@HasCharacterModel" DataSource="{AmbassadorModel}" DoNotAcceptEvents="true" WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="295" SuggestedHeight="470" HorizontalAlignment="Center" VerticalAlignment="Bottom" PositionYOffset="66" BannerCodeText="@BannerCodeText" BodyProperties="@BodyProperties" CharStringId="@CharStringId" EquipmentCode="@EquipmentCode" IsFemale="@IsFemale" MountCreationKey="@MountCreationKey" StanceIndex="@StanceIndex" ArmorColor1="@ArmorColor1" ArmorColor2="@ArmorColor2" Race="@Race" IsTableauEnabled="@IsTableauEnabled" DoNotUseCustomScale="true" />
+                              </Children>
+                            </Widget>
+                            <Widget DoNotAcceptEvents="true" WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="42" SuggestedHeight="53" MarginLeft="229" MarginTop="27" ClipContents="true">
+                              <Children>
+                                <Widget DoNotAcceptEvents="true" WidthSizePolicy="StretchToParent" HeightSizePolicy="StretchToParent" Sprite="BlankWhiteSquare_9" Color="#10100FFF" />
+                                <ImageIdentifierWidget DoNotAcceptEvents="true" WidthSizePolicy="StretchToParent" HeightSizePolicy="StretchToParent" ImageId="@BannerId" AdditionalArgs="@BannerArgs" TextureProviderName="@BannerProvider" />
+                              </Children>
+                            </Widget>
+                            <Widget DoNotAcceptEvents="true" WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="269" SuggestedHeight="222" MarginLeft="11" MarginTop="383" Sprite="BlankWhiteSquare_9" Color="#171717FF" />
+                            <ImageWidget DoNotAcceptEvents="true" WidthSizePolicy="StretchToParent" HeightSizePolicy="StretchToParent" Sprite="reign_ambassador_modern_envoy_card_overlay" />
+                            <TextWidget DoNotAcceptEvents="true" WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="228" SuggestedHeight="23" MarginLeft="31" MarginTop="402" Brush="Info.Text" Brush.Font="ReignSerifDynamic" Brush.FontSize="16" Brush.TextHorizontalAlignment="Center" Brush.TextVerticalAlignment="Center" Brush.FontColor="#C5AC83FF" Text="@KingdomName" />
+                            <TextWidget DoNotAcceptEvents="true" WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="228" SuggestedHeight="31" MarginLeft="31" MarginTop="436" Brush="Info.Text" Brush.Font="ReignSerifDynamic" Brush.FontSize="20" Brush.TextHorizontalAlignment="Center" Brush.TextVerticalAlignment="Center" Brush.FontColor="#C5BDAFFF" Text="@Name" />
+                            <TextWidget DoNotAcceptEvents="true" WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="228" SuggestedHeight="25" MarginLeft="31" MarginTop="473" Brush="Info.Text" Brush.Font="ReignSerifDynamic" Brush.FontSize="12" Brush.TextHorizontalAlignment="Center" Brush.TextVerticalAlignment="Center" Brush.FontColor="#8A8883FF" Text="@ClanName" />
+                            <TextWidget DoNotAcceptEvents="true" WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="228" SuggestedHeight="24" MarginLeft="31" MarginTop="503" Brush="Info.Text" Brush.Font="ReignSerifDynamic" Brush.FontSize="11" Brush.TextHorizontalAlignment="Center" Brush.TextVerticalAlignment="Center" Brush.FontColor="#C5BDAFFF" Text="@StatusText" />
+                            <TextWidget DoNotAcceptEvents="true" WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="228" SuggestedHeight="25" MarginLeft="31" MarginTop="531" Brush="Info.Text" Brush.Font="ReignSerifDynamic" Brush.FontSize="9" Brush.TextHorizontalAlignment="Center" Brush.TextVerticalAlignment="Center" Brush.FontColor="#706F6AFF" Text="CLICK ENVOY TO SPEAK" />
+                            <ButtonWidget IsVisible="@CanDismiss" WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="214" SuggestedHeight="38" MarginLeft="40" MarginTop="565" Command.Click="ExecuteDismiss" Brush="ConversationItem.SoundBrush" DoNotPassEventsToChildren="true">
+                              <Children>
+                                <TextWidget DoNotAcceptEvents="true" WidthSizePolicy="StretchToParent" HeightSizePolicy="StretchToParent" Brush="Info.Text" Brush.Font="ReignSerifDynamic" Brush.FontSize="12" Brush.TextHorizontalAlignment="Center" Brush.TextVerticalAlignment="Center" Brush.FontColor="#C5BDAFFF" Text="DISMISS ENVOY" />
+                              </Children>
+                            </ButtonWidget>
+                          </Children>
+                        </Widget>
+                      </ItemTemplate>
+                    </ListPanel>
+                  </Children>
+                </Widget>
+              </Children>
+            </ReignAmbassadorSnapScrollPanel>
+
+            <ScrollbarWidget Id="AmbassadorRailScrollbar" WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="981" SuggestedHeight="14" MarginLeft="520" MarginTop="806" AlignmentAxis="Horizontal" Handle="AmbassadorRailScrollbarHandle" MaxValue="100" MinValue="0">
+              <Children>
+                <Widget Id="AmbassadorRailScrollbarHandle" WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="260" SuggestedHeight="15" VerticalAlignment="Center" Sprite="reign_ambassador_modern_scroll_handle" />
+              </Children>
+            </ScrollbarWidget>
+
+            <Widget IsVisible="@ShowEmptyState" WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="680" SuggestedHeight="210" MarginLeft="645" MarginTop="337">
+              <Children>
+                <Widget DoNotAcceptEvents="true" WidthSizePolicy="StretchToParent" HeightSizePolicy="StretchToParent" Sprite="BlankWhiteSquare_9" Color="#171717FF" />
+                <Widget DoNotAcceptEvents="true" WidthSizePolicy="StretchToParent" HeightSizePolicy="StretchToParent" Sprite="gold_frame_9" Color="#7E6A4DFF" />
+                <TextWidget DoNotAcceptEvents="true" WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="620" SuggestedHeight="44" HorizontalAlignment="Center" MarginTop="48" Brush="Info.Text" Brush.Font="ReignSerifDynamic" Brush.FontSize="25" Brush.TextHorizontalAlignment="Center" Brush.TextVerticalAlignment="Center" Brush.FontColor="#C5AC83FF" Text="NO RESIDENT AMBASSADORS" />
+                <TextWidget DoNotAcceptEvents="true" WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="570" SuggestedHeight="70" HorizontalAlignment="Center" MarginTop="105" Brush="Info.Text" Brush.Font="ReignSerifDynamic" Brush.FontSize="15" Brush.TextHorizontalAlignment="Center" Brush.TextVerticalAlignment="Center" Brush.FontColor="#8A8883FF" Text="Establish relations with a foreign kingdom to invite an official envoy to your capital." />
+              </Children>
+            </Widget>
+
+            <!-- The caption is fixed artwork in reign_ambassador_modern_fixed_overlay; retain only the live hit target. -->
+            <ButtonWidget Id="EstablishRelationsButton" WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="472" SuggestedHeight="52" MarginLeft="596" MarginTop="846" Command.Click="ExecuteEstablishRelations" Brush="ConversationItem.SoundBrush" DoNotPassEventsToChildren="true" />
+          </Children>
+        </Widget>
+      </Children>
+    </Widget>
+  </Window>
+</Prefab>

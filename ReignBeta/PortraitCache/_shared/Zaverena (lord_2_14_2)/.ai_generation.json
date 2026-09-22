@@ -1,0 +1,27 @@
+{
+  "version": 1,
+  "cacheKey": "Zaverena (lord_2_14_2)",
+  "heroStringId": "lord_2_14_2",
+  "characterObjectId": "lord_2_14_2",
+  "characterName": "Zaverena",
+  "provider": "AtlasCloud",
+  "model": "xai/grok-imagine-image/edit",
+  "adapter": "atlas upload/generate/poll",
+  "sourceSha256": "3b7d59267c464a943f69b16076c7acc8fe23b4bfd251e5c0965bb5c814adcf7a",
+  "portraitSha256": "bf0f37c05c546d8798b51d3148a6429bf819240e2a1c476b5de8ab4c03ccab8e",
+  "portraitWidth": 832,
+  "portraitHeight": 1248,
+  "physicalConfidence": {
+    "definition": "physical_confidence",
+    "score": 37,
+    "profile": "21-40",
+    "flirtatiousnessPercentage": 35,
+    "confidencePercentage": 42,
+    "flirtatiousnessWeight": 0.75,
+    "confidenceWeight": 0.25,
+    "source": "shipped_profile_library"
+  },
+  "derivativesReady": true,
+  "derivativeError": "",
+  "generatedUtc": "2026-07-17T19:22:54.7410654Z"
+}

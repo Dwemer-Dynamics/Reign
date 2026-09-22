@@ -1,0 +1,27 @@
+{
+  "version": 1,
+  "cacheKey": "Eryysia_Sorianerides (reign_court_town_EN6_child_2)",
+  "heroStringId": "reign_court_town_EN6_child_2",
+  "characterObjectId": "reign_court_town_EN6_child_2",
+  "characterName": "Eryysia Sorianerides",
+  "provider": "AtlasCloud",
+  "model": "xai/grok-imagine-image/edit",
+  "adapter": "atlas upload/generate/poll",
+  "sourceSha256": "f930d824e44cedbee0086cacac08cd440298ec3323eda10a790c219e4b164051",
+  "portraitSha256": "d6dee0a081404bc6fb5ef5258618605ffc23f10532c572e249435ed84d70df9b",
+  "portraitWidth": 864,
+  "portraitHeight": 1152,
+  "physicalConfidence": {
+    "definition": "physical_confidence",
+    "score": 76,
+    "profile": "61-80",
+    "flirtatiousnessPercentage": 84,
+    "confidencePercentage": 51,
+    "flirtatiousnessWeight": 0.75,
+    "confidenceWeight": 0.25,
+    "source": "shipped_profile_library"
+  },
+  "derivativesReady": true,
+  "derivativeError": "",
+  "generatedUtc": "2026-07-17T18:34:50.4629010Z"
+}

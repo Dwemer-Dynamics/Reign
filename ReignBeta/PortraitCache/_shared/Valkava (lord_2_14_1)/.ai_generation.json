@@ -1,0 +1,27 @@
+{
+  "version": 1,
+  "cacheKey": "Valkava (lord_2_14_1)",
+  "heroStringId": "lord_2_14_1",
+  "characterObjectId": "lord_2_14_1",
+  "characterName": "Valkava",
+  "provider": "AtlasCloud",
+  "model": "xai/grok-imagine-image/edit",
+  "adapter": "atlas upload/generate/poll",
+  "sourceSha256": "1efc1427fad062093170d65653ad581dd72e02922bc994e0e3b2c9c914cd9212",
+  "portraitSha256": "6fb9255b14ad5fa752ef56d1c3e1d91c14a0508b0ecc3fc566addfd5e32477df",
+  "portraitWidth": 832,
+  "portraitHeight": 1248,
+  "physicalConfidence": {
+    "definition": "physical_confidence",
+    "score": 82,
+    "profile": "81-100",
+    "flirtatiousnessPercentage": 94,
+    "confidencePercentage": 45,
+    "flirtatiousnessWeight": 0.75,
+    "confidenceWeight": 0.25,
+    "source": "shipped_profile_library"
+  },
+  "derivativesReady": true,
+  "derivativeError": "",
+  "generatedUtc": "2026-07-17T19:20:15.7388546Z"
+}

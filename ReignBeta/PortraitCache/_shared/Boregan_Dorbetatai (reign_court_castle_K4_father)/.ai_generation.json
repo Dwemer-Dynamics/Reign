@@ -1,0 +1,27 @@
+{
+  "version": 1,
+  "cacheKey": "Boregan_Dorbetatai (reign_court_castle_K4_father)",
+  "heroStringId": "reign_court_castle_K4_father",
+  "characterObjectId": "reign_court_castle_K4_father",
+  "characterName": "Boregan Dorbetatai",
+  "provider": "AtlasCloud",
+  "model": "xai/grok-imagine-image/edit",
+  "adapter": "atlas upload/generate/poll",
+  "sourceSha256": "c711ca78ea9c2a31e0a800ad0554022617001a9afe34e7727098e1b8df1e6c98",
+  "portraitSha256": "90b669589847fa258e6f94ae04eba7e1691ff8fddb0228232506fc62915e1104",
+  "portraitWidth": 864,
+  "portraitHeight": 1152,
+  "physicalConfidence": {
+    "definition": "physical_confidence",
+    "score": 54,
+    "profile": "41-60",
+    "flirtatiousnessPercentage": 53,
+    "confidencePercentage": 56,
+    "flirtatiousnessWeight": 0.75,
+    "confidenceWeight": 0.25,
+    "source": "shipped_profile_library"
+  },
+  "derivativesReady": true,
+  "derivativeError": "",
+  "generatedUtc": "2026-07-17T18:17:58.9991436Z"
+}

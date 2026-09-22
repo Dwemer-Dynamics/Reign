@@ -1,0 +1,27 @@
+{
+  "version": 1,
+  "cacheKey": "Fenniran_Penadawn (reign_court_castle_B7_child_3)",
+  "heroStringId": "reign_court_castle_B7_child_3",
+  "characterObjectId": "reign_court_castle_B7_child_3",
+  "characterName": "Fenniran Penadawn",
+  "provider": "AtlasCloud",
+  "model": "xai/grok-imagine-image/edit",
+  "adapter": "atlas upload/generate/poll",
+  "sourceSha256": "d6a62d0f8848274ec67a302fe4bc069e3ba986ad97ae524480d81ddf2fe99adc",
+  "portraitSha256": "38e6c826505ba91c85c6cbb737db2ed3b0e77e49e10b31100fe229d082e6f610",
+  "portraitWidth": 864,
+  "portraitHeight": 1152,
+  "physicalConfidence": {
+    "definition": "physical_confidence",
+    "score": 57,
+    "profile": "41-60",
+    "flirtatiousnessPercentage": 67,
+    "confidencePercentage": 26,
+    "flirtatiousnessWeight": 0.75,
+    "confidenceWeight": 0.25,
+    "source": "shipped_profile_library"
+  },
+  "derivativesReady": true,
+  "derivativeError": "",
+  "generatedUtc": "2026-07-17T18:37:01.5908125Z"
+}

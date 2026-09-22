@@ -1,0 +1,27 @@
+{
+  "version": 1,
+  "cacheKey": "Epipheria (lord_1_1_12)",
+  "heroStringId": "lord_1_1_12",
+  "characterObjectId": "lord_1_1_12",
+  "characterName": "Epipheria",
+  "provider": "AtlasCloud",
+  "model": "xai/grok-imagine-image/edit",
+  "adapter": "atlas upload/generate/poll",
+  "sourceSha256": "5a0f67fbee772c78fb8de29e7c46267b1b4b669ff093d67973774b32d46ef7a7",
+  "portraitSha256": "b8059795306027471969d2a00de53d1c269ebca0a6b6cccbdd7c67a1044b9b3f",
+  "portraitWidth": 832,
+  "portraitHeight": 1248,
+  "physicalConfidence": {
+    "definition": "physical_confidence",
+    "score": 36,
+    "profile": "21-40",
+    "flirtatiousnessPercentage": 27,
+    "confidencePercentage": 62,
+    "flirtatiousnessWeight": 0.75,
+    "confidenceWeight": 0.25,
+    "source": "shipped_profile_library"
+  },
+  "derivativesReady": true,
+  "derivativeError": "",
+  "generatedUtc": "2026-07-17T18:33:00.3285055Z"
+}

@@ -1,0 +1,27 @@
+{
+  "version": 1,
+  "cacheKey": "Othysos_Vardorides (reign_court_castle_ES3_child_3)",
+  "heroStringId": "reign_court_castle_ES3_child_3",
+  "characterObjectId": "reign_court_castle_ES3_child_3",
+  "characterName": "Othysos Vardorides",
+  "provider": "AtlasCloud",
+  "model": "xai/grok-imagine-image/edit",
+  "adapter": "atlas upload/generate/poll",
+  "sourceSha256": "c83842ef075c180f600d52db3fd0eb1b474eea8c5382e4936a80e1f24521190b",
+  "portraitSha256": "0c9cc3f9fb34f69be4cd8d9ae9017751c761006377707f5000b6c985254ecf2d",
+  "portraitWidth": 864,
+  "portraitHeight": 1152,
+  "physicalConfidence": {
+    "definition": "physical_confidence",
+    "score": 79,
+    "profile": "61-80",
+    "flirtatiousnessPercentage": 85,
+    "confidencePercentage": 60,
+    "flirtatiousnessWeight": 0.75,
+    "confidenceWeight": 0.25,
+    "source": "shipped_profile_library"
+  },
+  "derivativesReady": true,
+  "derivativeError": "",
+  "generatedUtc": "2026-07-17T19:08:45.7757568Z"
+}

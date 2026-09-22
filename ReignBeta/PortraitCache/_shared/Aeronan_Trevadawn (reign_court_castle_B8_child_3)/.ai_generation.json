@@ -1,0 +1,27 @@
+{
+  "version": 1,
+  "cacheKey": "Aeronan_Trevadawn (reign_court_castle_B8_child_3)",
+  "heroStringId": "reign_court_castle_B8_child_3",
+  "characterObjectId": "reign_court_castle_B8_child_3",
+  "characterName": "Aeronan Trevadawn",
+  "provider": "AtlasCloud",
+  "model": "xai/grok-imagine-image/edit",
+  "adapter": "atlas upload/generate/poll",
+  "sourceSha256": "1854e655f76e0f0a1dd7b4798124e0e803b822251da7f3f6e8c97d0eb8992e37",
+  "portraitSha256": "64741409e854a35b1b3322ba88a1f7a590bc8fe5fec81912c4c7bafeb73c2085",
+  "portraitWidth": 864,
+  "portraitHeight": 1152,
+  "physicalConfidence": {
+    "definition": "physical_confidence",
+    "score": 61,
+    "profile": "61-80",
+    "flirtatiousnessPercentage": 58,
+    "confidencePercentage": 69,
+    "flirtatiousnessWeight": 0.75,
+    "confidenceWeight": 0.25,
+    "source": "shipped_profile_library"
+  },
+  "derivativesReady": true,
+  "derivativeError": "",
+  "generatedUtc": "2026-07-17T17:46:41.3249083Z"
+}

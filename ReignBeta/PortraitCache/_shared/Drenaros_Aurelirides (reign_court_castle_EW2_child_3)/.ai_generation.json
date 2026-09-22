@@ -1,0 +1,27 @@
+{
+  "version": 1,
+  "cacheKey": "Drenaros_Aurelirides (reign_court_castle_EW2_child_3)",
+  "heroStringId": "reign_court_castle_EW2_child_3",
+  "characterObjectId": "reign_court_castle_EW2_child_3",
+  "characterName": "Drenaros Aurelirides",
+  "provider": "AtlasCloud",
+  "model": "xai/grok-imagine-image/edit",
+  "adapter": "atlas upload/generate/poll",
+  "sourceSha256": "735d9b865fbadeee3863021bce2992e2c59903ca4d49007f21be5fdbceac1077",
+  "portraitSha256": "6e5e4cf8db320a899ace83a1df58adc16a120ab227eb5c2d713abe44a997399f",
+  "portraitWidth": 864,
+  "portraitHeight": 1152,
+  "physicalConfidence": {
+    "definition": "physical_confidence",
+    "score": 66,
+    "profile": "61-80",
+    "flirtatiousnessPercentage": 78,
+    "confidencePercentage": 29,
+    "flirtatiousnessWeight": 0.75,
+    "confidenceWeight": 0.25,
+    "source": "shipped_profile_library"
+  },
+  "derivativesReady": true,
+  "derivativeError": "",
+  "generatedUtc": "2026-07-17T18:29:22.6718760Z"
+}

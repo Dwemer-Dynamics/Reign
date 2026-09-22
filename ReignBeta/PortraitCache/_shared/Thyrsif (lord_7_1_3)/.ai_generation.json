@@ -1,0 +1,27 @@
+{
+  "version": 1,
+  "cacheKey": "Thyrsif (lord_7_1_3)",
+  "heroStringId": "lord_7_1_3",
+  "characterObjectId": "lord_7_1_3",
+  "characterName": "Thyrsif",
+  "provider": "AtlasCloud",
+  "model": "xai/grok-imagine-image/edit",
+  "adapter": "atlas upload/generate/poll",
+  "sourceSha256": "a2323514530cb616aa00701039ea17f232399b21f893c02546dfe4bdb0668ee1",
+  "portraitSha256": "3c0ae6f3edf3b5b2c18d5726336b1b3d4f6b21adc2cd5f5281ab756a83bcd416",
+  "portraitWidth": 832,
+  "portraitHeight": 1248,
+  "physicalConfidence": {
+    "definition": "physical_confidence",
+    "score": 50,
+    "profile": "41-60",
+    "flirtatiousnessPercentage": 50,
+    "confidencePercentage": 50,
+    "flirtatiousnessWeight": 0.75,
+    "confidenceWeight": 0.25,
+    "source": "neutral_fallback"
+  },
+  "derivativesReady": true,
+  "derivativeError": "",
+  "generatedUtc": "2026-07-17T19:17:06.9958324Z"
+}

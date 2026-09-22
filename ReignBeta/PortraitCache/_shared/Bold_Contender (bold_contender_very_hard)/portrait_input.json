@@ -1,0 +1,92 @@
+{
+  "version": 1,
+  "inputHash": "3f2044ba6362bfea9464ceb8a181b85371f5f9d4ce23f8214a4e24a0f23bb070",
+  "catalogHash": "12142c0ab28d2678b12b852b086450dcc4eea45e2e8a080f3baa85c42f7fb3a2",
+  "renderContractHash": "cc3b941e7d47057de9b4220f1473336e6f908719812bb2653b83bd3545cfbd2f",
+  "cacheKey": "Bold_Contender (bold_contender_very_hard)",
+  "heroStringId": "bold_contender_very_hard",
+  "characterObjectId": "bold_contender_very_hard",
+  "characterName": "Bold Contender",
+  "ageYears": 30,
+  "cultureId": "sturgia",
+  "cultureName": "Sturgian",
+  "gender": "man",
+  "clanId": "none",
+  "clanTier": null,
+  "clanProvenance": "not_defined_in_module_heroes_xml",
+  "socialStation": "unranked",
+  "occupation": "Soldier",
+  "archetype": "soldier",
+  "isLord": false,
+  "isNotable": false,
+  "isWanderer": false,
+  "isAlive": null,
+  "sourceModule": "Native",
+  "sourceFile": "Modules/SandBox/ModuleData/spspecialcharacters.xml",
+  "profileSource": "neutral_fallback",
+  "profilePackVersion": "",
+  "bodyKey": "0005C002C00009005D1EECC2AC8071348894884B1977499893998C797E69979501B006140BEB54490000000000000000000000000000000000000000017C8045",
+  "bodyWeight": 0.2016,
+  "bodyBuild": 0.5,
+  "faceTemplateId": "",
+  "faceGenerationVersion": "native_authored",
+  "civilianTemplate": "",
+  "civilianEquipment": [
+    {
+      "slot": "Body",
+      "itemId": "northern_lamellar_armor"
+    },
+    {
+      "slot": "Cape",
+      "itemId": "padded_leather_shoulders"
+    },
+    {
+      "slot": "Leg",
+      "itemId": "strapped_shoes"
+    }
+  ],
+  "headgearSuppressed": true,
+  "physicalConfidence": {
+    "definition": "physical_confidence",
+    "score": 50,
+    "profile": "41-60",
+    "flirtatiousnessPercentage": 50,
+    "confidencePercentage": 50,
+    "flirtatiousnessWeight": 0.75,
+    "confidenceWeight": 0.25,
+    "source": "neutral_fallback"
+  },
+  "renderPreset": "ai_source_wan_portrait_v5",
+  "renderWidth": 1536,
+  "renderHeight": 2048,
+  "sourceWidth": 768,
+  "sourceHeight": 1024,
+  "cropScale": 0.24,
+  "cropWidthRatio": 0.75,
+  "cropCenterYRatio": 0.324,
+  "cameraPitchDegrees": 4,
+  "sourceSha256": "1a4173f6a135dacd937e6ab8be9dfcbd8e18c57db5cecc9db997c316d59c17b0",
+  "sourceFileName": "source.png",
+  "generationEndpoint": "/portraits/generate",
+  "campaignIdSource": "active_campaign_at_generation_time",
+  "promptDeferred": true,
+  "sourceImageBase64From": "source.png",
+  "outputSizeOverride": "",
+  "promptPurpose": "portrait",
+  "nativePhysique": {
+    "schema": "reign-native-physique-v1",
+    "weight": 0.2016,
+    "build": 0.5,
+    "weightSource": "shared_portrait_input.bodyWeight",
+    "buildSource": "shared_portrait_input.bodyBuild",
+    "sourceSha256": "1a4173f6a135dacd937e6ab8be9dfcbd8e18c57db5cecc9db997c316d59c17b0",
+    "provenance": {
+      "kind": "saved_character_metadata_backfill",
+      "heroStringId": "bold_contender_very_hard",
+      "profileSource": "neutral_fallback",
+      "profilePackVersion": "",
+      "originalInputSha256": "d8668100f77338df862f94c51ed10f29766e875f68c6f0c7c412619d8c705c00",
+      "rendererReexecuted": false
+    }
+  }
+}

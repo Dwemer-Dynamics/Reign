@@ -1,0 +1,27 @@
+{
+  "version": 1,
+  "cacheKey": "Safalan_Kashiqani (reign_court_town_A5_father)",
+  "heroStringId": "reign_court_town_A5_father",
+  "characterObjectId": "reign_court_town_A5_father",
+  "characterName": "Safalan Kashiqani",
+  "provider": "AtlasCloud",
+  "model": "xai/grok-imagine-image/edit",
+  "adapter": "atlas upload/generate/poll",
+  "sourceSha256": "79e516d47b9adbdb4ff9c1f1aabfbf79482f029d9acbbde848bf8e10a2a1f06b",
+  "portraitSha256": "b0895a526f8e0bbefe61c845512544332ea5e48ff93bdaea1a5beea439e96f06",
+  "portraitWidth": 864,
+  "portraitHeight": 1152,
+  "physicalConfidence": {
+    "definition": "physical_confidence",
+    "score": 66,
+    "profile": "61-80",
+    "flirtatiousnessPercentage": 70,
+    "confidencePercentage": 53,
+    "flirtatiousnessWeight": 0.75,
+    "confidenceWeight": 0.25,
+    "source": "shipped_profile_library"
+  },
+  "derivativesReady": true,
+  "derivativeError": "",
+  "generatedUtc": "2026-07-17T19:12:07.5135953Z"
+}

@@ -1,0 +1,27 @@
+{
+  "version": 1,
+  "cacheKey": "Rozhivol (lord_2_111)",
+  "heroStringId": "lord_2_111",
+  "characterObjectId": "lord_2_111",
+  "characterName": "Rozhivol",
+  "provider": "AtlasCloud",
+  "model": "xai/grok-imagine-image/edit",
+  "adapter": "atlas upload/generate/poll",
+  "sourceSha256": "b423e80a4a2b6462c3a2e4a8c71b51ccd38087edaff64a77bd05d3318c21061b",
+  "portraitSha256": "4d6605dd117cc07d840dcf7824a9c6a78deda38ab4e789c6349107a90ba336ff",
+  "portraitWidth": 832,
+  "portraitHeight": 1248,
+  "physicalConfidence": {
+    "definition": "physical_confidence",
+    "score": 81,
+    "profile": "81-100",
+    "flirtatiousnessPercentage": 78,
+    "confidencePercentage": 89,
+    "flirtatiousnessWeight": 0.75,
+    "confidenceWeight": 0.25,
+    "source": "shipped_profile_library"
+  },
+  "derivativesReady": true,
+  "derivativeError": "",
+  "generatedUtc": "2026-07-17T19:11:49.8632917Z"
+}

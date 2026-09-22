@@ -1,0 +1,27 @@
+{
+  "version": 1,
+  "cacheKey": "Aevurara_Damarorides (reign_court_town_EW4_child_4)",
+  "heroStringId": "reign_court_town_EW4_child_4",
+  "characterObjectId": "reign_court_town_EW4_child_4",
+  "characterName": "Aevurara Damarorides",
+  "provider": "AtlasCloud",
+  "model": "xai/grok-imagine-image/edit",
+  "adapter": "atlas upload/generate/poll",
+  "sourceSha256": "d151e6dfecf6be747367c0ee1771933ec3bffd2d9ea590687babd89e917b9393",
+  "portraitSha256": "f0a29a95bfec648fa4b36f78baf6ff35144931786d28b4bc0b8bd2b00e0d758e",
+  "portraitWidth": 864,
+  "portraitHeight": 1152,
+  "physicalConfidence": {
+    "definition": "physical_confidence",
+    "score": 73,
+    "profile": "61-80",
+    "flirtatiousnessPercentage": 81,
+    "confidencePercentage": 48,
+    "flirtatiousnessWeight": 0.75,
+    "confidenceWeight": 0.25,
+    "source": "shipped_profile_library"
+  },
+  "derivativesReady": true,
+  "derivativeError": "",
+  "generatedUtc": "2026-07-17T18:09:46.4881491Z"
+}

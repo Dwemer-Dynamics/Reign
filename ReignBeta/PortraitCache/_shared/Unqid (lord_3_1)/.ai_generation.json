@@ -1,0 +1,27 @@
+{
+  "version": 1,
+  "cacheKey": "Unqid (lord_3_1)",
+  "heroStringId": "lord_3_1",
+  "characterObjectId": "lord_3_1",
+  "characterName": "Unqid",
+  "provider": "AtlasCloud",
+  "model": "xai/grok-imagine-image/edit",
+  "adapter": "atlas upload/generate/poll",
+  "sourceSha256": "3c2a8289efa63fd3ab529c59afddf3c68bb6efd10599e2877e1ce73af58bbf9e",
+  "portraitSha256": "f9751bb76c841053d8a5254006e55e92020674272c59621ae16dd0a7d335b388",
+  "portraitWidth": 832,
+  "portraitHeight": 1248,
+  "physicalConfidence": {
+    "definition": "physical_confidence",
+    "score": 84,
+    "profile": "81-100",
+    "flirtatiousnessPercentage": 99,
+    "confidencePercentage": 38,
+    "flirtatiousnessWeight": 0.75,
+    "confidenceWeight": 0.25,
+    "source": "shipped_profile_library"
+  },
+  "derivativesReady": true,
+  "derivativeError": "",
+  "generatedUtc": "2026-07-17T19:19:40.3707360Z"
+}

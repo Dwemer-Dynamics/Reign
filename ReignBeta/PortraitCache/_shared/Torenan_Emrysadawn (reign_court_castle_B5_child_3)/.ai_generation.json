@@ -1,0 +1,27 @@
+{
+  "version": 1,
+  "cacheKey": "Torenan_Emrysadawn (reign_court_castle_B5_child_3)",
+  "heroStringId": "reign_court_castle_B5_child_3",
+  "characterObjectId": "reign_court_castle_B5_child_3",
+  "characterName": "Torenan Emrysadawn",
+  "provider": "AtlasCloud",
+  "model": "xai/grok-imagine-image/edit",
+  "adapter": "atlas upload/generate/poll",
+  "sourceSha256": "3fbcf77948717b0a64562da5a3d4442a6d640b8e00b00eb5e89baf0dbe77295d",
+  "portraitSha256": "e6ad89290fb899a21bbec6969890a1fbf62c2517a1fd0dbd70f0208654057e67",
+  "portraitWidth": 864,
+  "portraitHeight": 1152,
+  "physicalConfidence": {
+    "definition": "physical_confidence",
+    "score": 81,
+    "profile": "81-100",
+    "flirtatiousnessPercentage": 77,
+    "confidencePercentage": 92,
+    "flirtatiousnessWeight": 0.75,
+    "confidenceWeight": 0.25,
+    "source": "shipped_profile_library"
+  },
+  "derivativesReady": true,
+  "derivativeError": "",
+  "generatedUtc": "2026-07-17T19:17:20.0011946Z"
+}

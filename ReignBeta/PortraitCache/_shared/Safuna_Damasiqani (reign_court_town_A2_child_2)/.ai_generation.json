@@ -1,0 +1,27 @@
+{
+  "version": 1,
+  "cacheKey": "Safuna_Damasiqani (reign_court_town_A2_child_2)",
+  "heroStringId": "reign_court_town_A2_child_2",
+  "characterObjectId": "reign_court_town_A2_child_2",
+  "characterName": "Safuna Damasiqani",
+  "provider": "AtlasCloud",
+  "model": "xai/grok-imagine-image/edit",
+  "adapter": "atlas upload/generate/poll",
+  "sourceSha256": "5fe1271877cfc5c6c24742c7cf8f14d94eef730c33bf33d73dbe1dffaef3ad98",
+  "portraitSha256": "ad3dc5cc4596f10219e94733dfce2127134565c7595cebeceade5b72fca237e1",
+  "portraitWidth": 864,
+  "portraitHeight": 1152,
+  "physicalConfidence": {
+    "definition": "physical_confidence",
+    "score": 51,
+    "profile": "41-60",
+    "flirtatiousnessPercentage": 52,
+    "confidencePercentage": 47,
+    "flirtatiousnessWeight": 0.75,
+    "confidenceWeight": 0.25,
+    "source": "shipped_profile_library"
+  },
+  "derivativesReady": true,
+  "derivativeError": "",
+  "generatedUtc": "2026-07-17T19:12:38.6889697Z"
+}

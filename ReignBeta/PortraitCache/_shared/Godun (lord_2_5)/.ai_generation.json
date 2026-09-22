@@ -1,0 +1,27 @@
+{
+  "version": 1,
+  "cacheKey": "Godun (lord_2_5)",
+  "heroStringId": "lord_2_5",
+  "characterObjectId": "lord_2_5",
+  "characterName": "Godun",
+  "provider": "AtlasCloud",
+  "model": "xai/grok-imagine-image/edit",
+  "adapter": "atlas upload/generate/poll",
+  "sourceSha256": "220a23437439c4cfc7ef6deaba66bb879bee363f44329907b9d95d2a8ffa5b78",
+  "portraitSha256": "9104b1d299b13e8055cdf536027c0de329ca4d53c6dfcc36b633095557a630d2",
+  "portraitWidth": 832,
+  "portraitHeight": 1248,
+  "physicalConfidence": {
+    "definition": "physical_confidence",
+    "score": 72,
+    "profile": "61-80",
+    "flirtatiousnessPercentage": 64,
+    "confidencePercentage": 95,
+    "flirtatiousnessWeight": 0.75,
+    "confidenceWeight": 0.25,
+    "source": "shipped_profile_library"
+  },
+  "derivativesReady": true,
+  "derivativeError": "",
+  "generatedUtc": "2026-07-17T18:40:02.4908280Z"
+}

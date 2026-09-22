@@ -1,0 +1,27 @@
+{
+  "version": 1,
+  "cacheKey": "Raganvad (lord_2_1)",
+  "heroStringId": "lord_2_1",
+  "characterObjectId": "lord_2_1",
+  "characterName": "Raganvad",
+  "provider": "AtlasCloud",
+  "model": "xai/grok-imagine-image/edit",
+  "adapter": "atlas upload/generate/poll",
+  "sourceSha256": "b987cc0eedc821265e527f44201b6322fffe074178c20c844fc98f769e67adbb",
+  "portraitSha256": "1f1f26ee2b77228d1ea02d8616028562b24765ff47d498129b6d5e2c275fdea7",
+  "portraitWidth": 832,
+  "portraitHeight": 1248,
+  "physicalConfidence": {
+    "definition": "physical_confidence",
+    "score": 82,
+    "profile": "81-100",
+    "flirtatiousnessPercentage": 76,
+    "confidencePercentage": 99,
+    "flirtatiousnessWeight": 0.75,
+    "confidenceWeight": 0.25,
+    "source": "shipped_profile_library"
+  },
+  "derivativesReady": true,
+  "derivativeError": "",
+  "generatedUtc": "2026-07-17T19:10:47.8175414Z"
+}

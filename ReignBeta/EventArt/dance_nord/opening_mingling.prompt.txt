@@ -1,0 +1,12 @@
+﻿Create an ultra-photorealistic historical social-event photograph for a Mount & Blade II: Bannerlord inspired mod UI background. It should look like a real candid photograph from a high-end full-frame camera, not artwork.
+
+Culture style: Viking inspired coastal longhouse culture, carved posts, wool and fur clothing, sea wind, whale-bone and knotwork details, shields only as wall decor
+Event: Longhouse Revel
+Phase: Opening Mingling
+Scene to depict: Small groups form before the music begins while the host's household finishes preparations.
+
+Show the place, guests, social action, and mood clearly. Include noble guests and a few common attendants. Make the image feel like a real historical reenactment photograph in fictional Calradia: natural human faces, varied ages and body types, realistic skin texture, believable fabric weave, worn wood, stone, metal, ceramic, candle wax, dust, food, and lived-in props. Use natural daylight, torchlight, candlelight, or firelight as appropriate, with realistic shadows, camera exposure, lens perspective, depth of field, and subtle imperfections. Compose with a strong central event scene and enough open space that UI panels could sit around the edges.
+
+Strict style: photorealistic live-action documentary still, authentic historical costume photography, natural color grading. Avoid illustration, painting, drawing, concept art, fantasy splash art, digital art, CGI, 3D render, game screenshot, plastic skin, over-smoothed faces, exaggerated armor, dramatic magic lighting, modern fashion, and staged poster composition.
+
+No modern objects. No guns. No battle. No gore. No explicit sexual content. No readable text. No captions. No UI. No speech bubbles. Weapons may appear only as background decor if culturally appropriate, never as the focus.

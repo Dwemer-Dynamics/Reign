@@ -1,0 +1,27 @@
+{
+  "version": 1,
+  "cacheKey": "Ulman (lord_6_21)",
+  "heroStringId": "lord_6_21",
+  "characterObjectId": "lord_6_21",
+  "characterName": "Ulman",
+  "provider": "AtlasCloud",
+  "model": "xai/grok-imagine-image/edit",
+  "adapter": "atlas upload/generate/poll",
+  "sourceSha256": "73040cc147692c60f735794fe698ffeddee0626883416d9fac8de9ec1c5302bb",
+  "portraitSha256": "e330f0324645d0d4a5718f7b0aa19d7e02a72c4396c52f4687331a1cc78cef14",
+  "portraitWidth": 832,
+  "portraitHeight": 1248,
+  "physicalConfidence": {
+    "definition": "physical_confidence",
+    "score": 47,
+    "profile": "41-60",
+    "flirtatiousnessPercentage": 30,
+    "confidencePercentage": 97,
+    "flirtatiousnessWeight": 0.75,
+    "confidenceWeight": 0.25,
+    "source": "shipped_profile_library"
+  },
+  "derivativesReady": true,
+  "derivativeError": "",
+  "generatedUtc": "2026-07-17T19:19:17.4887285Z"
+}

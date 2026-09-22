@@ -1,0 +1,27 @@
+{
+  "version": 1,
+  "cacheKey": "Area_Chaganatai (reign_court_castle_K3_child_4)",
+  "heroStringId": "reign_court_castle_K3_child_4",
+  "characterObjectId": "reign_court_castle_K3_child_4",
+  "characterName": "Area Chaganatai",
+  "provider": "AtlasCloud",
+  "model": "xai/grok-imagine-image/edit",
+  "adapter": "atlas upload/generate/poll",
+  "sourceSha256": "6fc9237c8025d5fed205375e48af93f839fb9da806fb28514885236421f39229",
+  "portraitSha256": "8c9e36d53addc72804971cf32fa6998f021bf7c842f27380905cf2f8fdcf885a",
+  "portraitWidth": 864,
+  "portraitHeight": 1152,
+  "physicalConfidence": {
+    "definition": "physical_confidence",
+    "score": 73,
+    "profile": "61-80",
+    "flirtatiousnessPercentage": 79,
+    "confidencePercentage": 54,
+    "flirtatiousnessWeight": 0.75,
+    "confidenceWeight": 0.25,
+    "source": "shipped_profile_library"
+  },
+  "derivativesReady": true,
+  "derivativeError": "",
+  "generatedUtc": "2026-07-17T18:13:17.3775563Z"
+}

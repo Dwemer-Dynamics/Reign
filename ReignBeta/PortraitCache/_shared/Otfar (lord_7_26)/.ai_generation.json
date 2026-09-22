@@ -1,0 +1,27 @@
+{
+  "version": 1,
+  "cacheKey": "Otfar (lord_7_26)",
+  "heroStringId": "lord_7_26",
+  "characterObjectId": "lord_7_26",
+  "characterName": "Otfar",
+  "provider": "AtlasCloud",
+  "model": "xai/grok-imagine-image/edit",
+  "adapter": "atlas upload/generate/poll",
+  "sourceSha256": "855ab1b266dae8b314096175716e9beca2e374a2f735c5206fa760dd6b7e2407",
+  "portraitSha256": "79c5b1cc5efe9d100e23278ead465422efe56ad4c3290f77f4f78de17e8fd34d",
+  "portraitWidth": 832,
+  "portraitHeight": 1248,
+  "physicalConfidence": {
+    "definition": "physical_confidence",
+    "score": 50,
+    "profile": "41-60",
+    "flirtatiousnessPercentage": 50,
+    "confidencePercentage": 50,
+    "flirtatiousnessWeight": 0.75,
+    "confidenceWeight": 0.25,
+    "source": "neutral_fallback"
+  },
+  "derivativesReady": true,
+  "derivativeError": "",
+  "generatedUtc": "2026-07-17T19:06:51.5389669Z"
+}

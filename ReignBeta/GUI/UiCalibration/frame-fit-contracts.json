@@ -1,0 +1,98 @@
+{
+  "schema": "reign-ui-frame-fit-contracts-v1",
+  "coordinateSystem": "logical-pixels-at-1920x1080-reference",
+  "contracts": [
+    {
+      "id": "diplomacy-banner-wreath-v2",
+      "description": "A clipped, centered banner viewport beneath the diplomacy wreath overlay.",
+      "frameSprite": "reign_diplomacy_banner_wreath_overlay_v2",
+      "frameWidth": 96,
+      "frameHeight": 96,
+      "aperture": {
+        "x": 27.5,
+        "y": 18.5,
+        "width": 41,
+        "height": 45.5
+      },
+      "content": {
+        "fit": "cover",
+        "centerX": 48,
+        "centerY": 41.25,
+        "overscan": 1.08,
+        "clipRequired": true
+      },
+      "layerOrder": [
+        "clipped-content-viewport",
+        "banner-texture",
+        "wreath-overlay"
+      ],
+      "sourceMeasurement": {
+        "assetPixelWidth": 192,
+        "assetPixelHeight": 192,
+        "clearBounds": { "left": 55, "top": 37, "right": 136, "bottom": 127 }
+      }
+    },
+    {
+      "id": "war-council-lord-card-portrait-v1",
+      "description": "An untouched square lord portrait centered beneath a complete roster-card overlay whose only opening is the approved oval.",
+      "frameSprite": "reign_war_council_lord_card_overlay",
+      "frameWidth": 417,
+      "frameHeight": 147,
+      "aperture": {
+        "x": 7,
+        "y": 8,
+        "width": 105,
+        "height": 119
+      },
+      "content": {
+        "fit": "cover",
+        "centerX": 59.5,
+        "centerY": 67.5,
+        "overscan": 1.08,
+        "clipRequired": true
+      },
+      "layerOrder": [
+        "clipped-content-viewport",
+        "untouched-square-portrait",
+        "complete-card-aperture-overlay",
+        "live-card-copy-and-controls"
+      ],
+      "sourceMeasurement": {
+        "assetPixelWidth": 417,
+        "assetPixelHeight": 147,
+        "clearBounds": { "left": 7, "top": 8, "right": 111, "bottom": 126 }
+      }
+    },
+    {
+      "id": "war-council-assigned-card-portrait-v1",
+      "description": "An untouched square councilor portrait centered beneath the complete assigned-councilor card overlay and its tall oval aperture.",
+      "frameSprite": "reign_war_council_assigned_card_overlay",
+      "frameWidth": 438,
+      "frameHeight": 207,
+      "aperture": {
+        "x": 16,
+        "y": 6,
+        "width": 112,
+        "height": 195
+      },
+      "content": {
+        "fit": "cover",
+        "centerX": 72,
+        "centerY": 103.5,
+        "overscan": 1.08,
+        "clipRequired": true
+      },
+      "layerOrder": [
+        "clipped-content-viewport",
+        "untouched-square-portrait",
+        "complete-card-aperture-overlay",
+        "live-card-copy-and-controls"
+      ],
+      "sourceMeasurement": {
+        "assetPixelWidth": 438,
+        "assetPixelHeight": 207,
+        "clearBounds": { "left": 16, "top": 6, "right": 127, "bottom": 200 }
+      }
+    }
+  ]
+}

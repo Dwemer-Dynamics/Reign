@@ -1,0 +1,27 @@
+{
+  "version": 1,
+  "cacheKey": "Eiriran_Penadawn (reign_court_castle_B7_child_1)",
+  "heroStringId": "reign_court_castle_B7_child_1",
+  "characterObjectId": "reign_court_castle_B7_child_1",
+  "characterName": "Eiriran Penadawn",
+  "provider": "AtlasCloud",
+  "model": "xai/grok-imagine-image/edit",
+  "adapter": "atlas upload/generate/poll",
+  "sourceSha256": "33dffc3c65f3cfe2201d35eb1a5efbcc68213227fb16ce3cf1de73466353c30a",
+  "portraitSha256": "566bb1b33d57b9526213cf21dc715458237f42ac891a7152400d8df97409f853",
+  "portraitWidth": 864,
+  "portraitHeight": 1152,
+  "physicalConfidence": {
+    "definition": "physical_confidence",
+    "score": 59,
+    "profile": "41-60",
+    "flirtatiousnessPercentage": 69,
+    "confidencePercentage": 28,
+    "flirtatiousnessWeight": 0.75,
+    "confidenceWeight": 0.25,
+    "source": "shipped_profile_library"
+  },
+  "derivativesReady": true,
+  "derivativeError": "",
+  "generatedUtc": "2026-07-17T18:31:16.1340158Z"
+}

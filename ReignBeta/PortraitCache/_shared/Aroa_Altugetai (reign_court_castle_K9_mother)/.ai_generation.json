@@ -1,0 +1,27 @@
+{
+  "version": 1,
+  "cacheKey": "Aroa_Altugetai (reign_court_castle_K9_mother)",
+  "heroStringId": "reign_court_castle_K9_mother",
+  "characterObjectId": "reign_court_castle_K9_mother",
+  "characterName": "Aroa Altugetai",
+  "provider": "AtlasCloud",
+  "model": "xai/grok-imagine-image/edit",
+  "adapter": "atlas upload/generate/poll",
+  "sourceSha256": "602f85e881f781d595eddc785f79d6e3eea57c4388b7a4458c3f1deba39e467e",
+  "portraitSha256": "6aa775b11774ea7528b77c3cd4ca219ae1d4db94764286b559f32a296eea0d97",
+  "portraitWidth": 864,
+  "portraitHeight": 1152,
+  "physicalConfidence": {
+    "definition": "physical_confidence",
+    "score": 69,
+    "profile": "61-80",
+    "flirtatiousnessPercentage": 77,
+    "confidencePercentage": 44,
+    "flirtatiousnessWeight": 0.75,
+    "confidenceWeight": 0.25,
+    "source": "shipped_profile_library"
+  },
+  "derivativesReady": true,
+  "derivativeError": "",
+  "generatedUtc": "2026-07-17T18:13:35.6209814Z"
+}

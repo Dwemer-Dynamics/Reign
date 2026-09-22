@@ -1,0 +1,10 @@
+Use case: ui-mockup
+Asset type: fixed blank raster shell for the Reign court office/history screen
+Input image 1: reign_court_modern_shell.png, the exact current Reign Court black-marble and antique-gold style authority.
+Input image 2: reign_memories_book_modern_shell.png, a composition reference for a refined left record list and dominant right detail panel.
+Primary request: Create a clean, production-quality blank 16:9 medieval royal court administration interface shell matching the current Reign interface family. This is fixed shell art only; all words and data render dynamically over it.
+Composition: Full 1672 x 941 landscape canvas. One restrained outer boundary. A quiet blank header with room for a left-aligned title, centered subtitle, and compact return control at upper right. Below it, one narrow left records panel and one wide right detail panel with deliberate negative space. The left panel supports complete independent scrolling cards, not fixed card holes. The right panel is one continuous reading surface. Include one refined blank return-button plate at upper right.
+Style: Restrained black and near-black marble, thin precise antique-gold linework, clipped corners, tiny diamonds, formal hierarchy, and subtle texture matching the input authorities.
+Palette: Near-black neutral surfaces only, muted antique-gold lines, and scarce small highlights. No brown neutral panels or orange-brown framing.
+Text: No text, letters, numerals, icons, watermark, pseudo-text, heraldry, portraits, characters, or scene art.
+Avoid: Stacked legacy rectangles, thick nested double frames, transparent holes, broad bright gold, stretching, glow, parchment, leather, wood, stone, heavy bevels, and oversized filigree.

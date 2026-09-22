@@ -1,0 +1,27 @@
+{
+  "version": 1,
+  "cacheKey": "Arogan_Altugetai (reign_court_castle_K9_father)",
+  "heroStringId": "reign_court_castle_K9_father",
+  "characterObjectId": "reign_court_castle_K9_father",
+  "characterName": "Arogan Altugetai",
+  "provider": "AtlasCloud",
+  "model": "xai/grok-imagine-image/edit",
+  "adapter": "atlas upload/generate/poll",
+  "sourceSha256": "9dac68a738eee21f36ec45d6bbcdfcade6effb78bac0fd058b207d9215da13b4",
+  "portraitSha256": "16cdb0ca9039f0f20ee33de4074d10f7972823215dce346b6743f0b0b8d8f240",
+  "portraitWidth": 864,
+  "portraitHeight": 1152,
+  "physicalConfidence": {
+    "definition": "physical_confidence",
+    "score": 64,
+    "profile": "61-80",
+    "flirtatiousnessPercentage": 60,
+    "confidencePercentage": 75,
+    "flirtatiousnessWeight": 0.75,
+    "confidenceWeight": 0.25,
+    "source": "shipped_profile_library"
+  },
+  "derivativesReady": true,
+  "derivativeError": "",
+  "generatedUtc": "2026-07-17T18:13:49.3160680Z"
+}

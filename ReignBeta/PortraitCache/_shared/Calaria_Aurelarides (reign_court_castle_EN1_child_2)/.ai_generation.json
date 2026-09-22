@@ -1,0 +1,27 @@
+{
+  "version": 1,
+  "cacheKey": "Calaria_Aurelarides (reign_court_castle_EN1_child_2)",
+  "heroStringId": "reign_court_castle_EN1_child_2",
+  "characterObjectId": "reign_court_castle_EN1_child_2",
+  "characterName": "Calaria Aurelarides",
+  "provider": "AtlasCloud",
+  "model": "xai/grok-imagine-image/edit",
+  "adapter": "atlas upload/generate/poll",
+  "sourceSha256": "46915e81b90999a5d5c1426eb86212ab9e70e2a3b607e1466178d94d35293917",
+  "portraitSha256": "071bc994701dee59d4b28cc2969067a5ed774bdf4087e7b15298eeb2f84faeb3",
+  "portraitWidth": 864,
+  "portraitHeight": 1152,
+  "physicalConfidence": {
+    "definition": "physical_confidence",
+    "score": 54,
+    "profile": "41-60",
+    "flirtatiousnessPercentage": 57,
+    "confidencePercentage": 44,
+    "flirtatiousnessWeight": 0.75,
+    "confidenceWeight": 0.25,
+    "source": "shipped_profile_library"
+  },
+  "derivativesReady": true,
+  "derivativeError": "",
+  "generatedUtc": "2026-07-17T18:20:22.5606144Z"
+}

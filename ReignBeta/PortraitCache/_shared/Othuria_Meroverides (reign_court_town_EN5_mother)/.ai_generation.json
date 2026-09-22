@@ -1,0 +1,27 @@
+{
+  "version": 1,
+  "cacheKey": "Othuria_Meroverides (reign_court_town_EN5_mother)",
+  "heroStringId": "reign_court_town_EN5_mother",
+  "characterObjectId": "reign_court_town_EN5_mother",
+  "characterName": "Othuria Meroverides",
+  "provider": "AtlasCloud",
+  "model": "xai/grok-imagine-image/edit",
+  "adapter": "atlas upload/generate/poll",
+  "sourceSha256": "0a1a1c642b218183d0e731112d5ec37d5938c5db71fa2d3b1c77a54574c4280d",
+  "portraitSha256": "701f2711cbb11752a4d78ce09003aabaca14d874e3db21f1d33be1fd03a1500d",
+  "portraitWidth": 864,
+  "portraitHeight": 1152,
+  "physicalConfidence": {
+    "definition": "physical_confidence",
+    "score": 76,
+    "profile": "61-80",
+    "flirtatiousnessPercentage": 87,
+    "confidencePercentage": 42,
+    "flirtatiousnessWeight": 0.75,
+    "confidenceWeight": 0.25,
+    "source": "shipped_profile_library"
+  },
+  "derivativesReady": true,
+  "derivativeError": "",
+  "generatedUtc": "2026-07-17T19:08:13.1520148Z"
+}

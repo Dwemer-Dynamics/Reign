@@ -1,0 +1,13 @@
+{
+  "version": 1,
+  "heroStringId": "nervous_caravanmaster_3",
+  "characterName": "Nervous Caravanmaster",
+  "imagePath": "portrait.png",
+  "imageSha256": "77B28230DC4C2FB8B804BA20EB742F8655E3AE4255E2C8C6A20C4852E86A595E",
+  "description": "Their clan is tier unknown, placing them socially among the unranked class. Use this status to guide the refinement, expense, materials, and ornament of their clothing without turning it into fantasy costume.",
+  "status": "failed",
+  "descriptionSource": "portrait_prompt_fallback",
+  "retryEligible": true,
+  "error": "{\"error\":{\"message\":\"Model \\\"zai-org/glm-5.2\\\" does not support image inputs. Remove image content or choose a multimodal model.\",\"type\":\"invalid_request_error\",\"param\":\"messages\",\"code\":\"image_input_not_supported\"}}",
+  "updatedUtc": "2026-07-18T22:03:32.9202435Z"
+}

@@ -1,0 +1,25 @@
+{
+  "schema": "reign-fixed-region-composite-v1",
+  "assetId": "castle-chat-fixed-caption-overlay",
+  "approvedReference": {
+    "path": "../approved-references/castle-chat.png",
+    "sha256": "bbd2924a85ddad9761360e6d01e1ae6d630b00192575bc24ea33b1414e6e578c"
+  },
+  "imageToImageFill": {
+    "path": "../approved-references/castle-chat.png",
+    "sha256": "bbd2924a85ddad9761360e6d01e1ae6d630b00192575bc24ea33b1414e6e578c",
+    "normalization": "exact 1672x941"
+  },
+  "canvas": {"width": 1672, "height": 941},
+  "policy": "Only the approved fixed RULER caption and SEND button regions remain opaque; every other pixel is a declared runtime aperture.",
+  "rectangularFillMode": {"type": "median-border color-matched image-to-image patch", "inwardFeatherPixels": 0, "borderSamplePixels": 1},
+  "sceneDependentMasks": [
+    {"id": "all-above-ruler", "shape": "rectangle", "x": 0, "y": 0, "width": 1672, "height": 218, "colorMatch": false},
+    {"id": "left-of-ruler", "shape": "rectangle", "x": 0, "y": 218, "width": 186, "height": 20, "colorMatch": false},
+    {"id": "right-of-ruler", "shape": "rectangle", "x": 249, "y": 218, "width": 1423, "height": 20, "colorMatch": false},
+    {"id": "below-ruler-above-send", "shape": "rectangle", "x": 0, "y": 238, "width": 1672, "height": 563, "colorMatch": false},
+    {"id": "all-below-send", "shape": "rectangle", "x": 0, "y": 879, "width": 1672, "height": 62, "colorMatch": false},
+    {"id": "left-of-send", "shape": "rectangle", "x": 0, "y": 801, "width": 1357, "height": 78, "colorMatch": false},
+    {"id": "right-of-send", "shape": "rectangle", "x": 1565, "y": 801, "width": 107, "height": 78, "colorMatch": false}
+  ]
+}

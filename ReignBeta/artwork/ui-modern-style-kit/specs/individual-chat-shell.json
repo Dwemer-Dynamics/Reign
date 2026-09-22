@@ -1,0 +1,110 @@
+{
+  "schema": "reign-overlay-asset-spec-v1",
+  "asset": {
+    "id": "individual-chat-modern-shell",
+    "role": "textless exact-fixed Individual Chat foreground shell with registered oval apertures over untouched live portrait rectangles",
+    "selectedGeneratedSourceSha256": "b2e6a096938000e6e291c2b7c922c57d17307a34014530a2d63a43ec9a271a4f",
+    "generationMode": "approved-reference exact fixed-region composite over built-in image-to-image dynamic fill",
+    "promptSha256": "7cffdc881e4dc065dbe1a1f830d888836a488f1460f593d79de779b725cc6df4"
+  },
+  "authorities": {
+    "layout": {
+      "path": "../approved-references/individual-chat.png",
+      "sha256": "95fe0ce9b1c35b157f6a769905b987ad876de94d46d5a1a79ac508b8a11ea5dc"
+    },
+    "materials": {
+      "path": "../style-reference.png",
+      "sha256": "85b689dc164ebbf70f67a081c0f7097858edb0542ef0073de0c29eef7926b0a3"
+    },
+    "palette": {
+      "path": "../palette.json",
+      "sha256": "fac70043a567db463ae70c975b92037dbfc38337e0d9134bc85bb03e3bb9a043",
+      "schema": "reign-ui-modern-palette-v1",
+      "version": "2026.08.28.2"
+    }
+  },
+  "canvas": {
+    "width": 1672,
+    "height": 941
+  },
+  "normalization": {
+    "fit": "exact",
+    "anchor": "center"
+  },
+  "antialiasScale": 8,
+  "allowNoApertures": false,
+  "apertures": [
+    {
+      "id": "player-portrait",
+      "shape": "oval",
+      "x": 104,
+      "y": 57,
+      "width": 210,
+      "height": 310,
+      "feather": 0.0
+    },
+    {
+      "id": "npc-portrait",
+      "shape": "oval",
+      "x": 1343,
+      "y": 57,
+      "width": 210,
+      "height": 310,
+      "feather": 0.0
+    }
+  ],
+  "transparentRgb": "#121211",
+  "marbleReduction": {
+    "amount": 0.0,
+    "blurRadius": 6.0,
+    "luminanceCeiling": 96,
+    "chromaCeiling": 36,
+    "selectionSoftness": 20
+  },
+  "integrationGeometry": {
+    "schema": "reign-individual-chat-integration-geometry-v1",
+    "coordinateSystem": {
+      "units": "pixels",
+      "origin": "top-left",
+      "canvasWidth": 1672,
+      "canvasHeight": 941,
+      "authoritySha256": "95fe0ce9b1c35b157f6a769905b987ad876de94d46d5a1a79ac508b8a11ea5dc"
+    },
+    "staticFrames": {
+      "outerFrame": {"x": 20, "y": 21, "width": 1627, "height": 899},
+      "playerPortraitFrame": {"x": 94, "y": 47, "width": 230, "height": 330},
+      "npcPortraitFrame": {"x": 1346, "y": 47, "width": 230, "height": 330},
+      "leaveControl": {"x": 624, "y": 99, "width": 422, "height": 62},
+      "lookControl": {"x": 624, "y": 182, "width": 422, "height": 62},
+      "locationPlaque": {"x": 329, "y": 402, "width": 1015, "height": 73},
+      "chatLog": {"x": 62, "y": 500, "width": 1548, "height": 294},
+      "inputFrame": {"x": 162, "y": 815, "width": 1106, "height": 75},
+      "sendControl": {"x": 1295, "y": 814, "width": 200, "height": 76},
+      "leftEmblem": {"x": 62, "y": 815, "width": 77, "height": 76},
+      "rightEmblem": {"x": 1521, "y": 815, "width": 87, "height": 76}
+    },
+    "runtimeRegions": {
+      "playerPortrait": {"x": 104, "y": 57, "width": 210, "height": 310, "shape": "oval", "apertureCarrierSprite": "reign_individual_chat_modern_shell"},
+      "npcPortrait": {"x": 1343, "y": 57, "width": 210, "height": 310, "shape": "oval", "apertureCarrierSprite": "reign_individual_chat_modern_shell"},
+      "playerName": {"x": 340, "y": 105, "width": 270, "height": 44},
+      "playerSubtitle": {"x": 340, "y": 151, "width": 270, "height": 70},
+      "npcName": {"x": 1062, "y": 105, "width": 270, "height": 44},
+      "npcSubtitle": {"x": 1062, "y": 151, "width": 270, "height": 70},
+      "leaveControl": {"x": 624, "y": 99, "width": 422, "height": 62},
+      "lookControl": {"x": 624, "y": 182, "width": 422, "height": 62},
+      "location": {"x": 350, "y": 414, "width": 972, "height": 38},
+      "busyStatus": {"x": 350, "y": 451, "width": 972, "height": 18},
+      "chatViewport": {"x": 88, "y": 516, "width": 1490, "height": 258},
+      "chatScrollbar": {"x": 1584, "y": 521, "width": 10, "height": 248},
+      "input": {"x": 194, "y": 831, "width": 948, "height": 44},
+      "sendControl": {"x": 1295, "y": 814, "width": 200, "height": 76}
+    },
+    "excludedFromStaticShellFidelityGating": [
+      "both dynamic portrait interiors",
+      "all live names, subtitles, locations, status, conversation text, and editable input",
+      "scrollbar handle position and chat-list population",
+      "hovered, pressed, selected, focus, and disabled states absent from the approved reference",
+      "portrait zoom and pregnancy-warning modal layers"
+    ]
+  }
+}

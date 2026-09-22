@@ -1,0 +1,27 @@
+{
+  "version": 1,
+  "cacheKey": "Lilizha (lord_2_13_1)",
+  "heroStringId": "lord_2_13_1",
+  "characterObjectId": "lord_2_13_1",
+  "characterName": "Lilizha",
+  "provider": "AtlasCloud",
+  "model": "xai/grok-imagine-image/edit",
+  "adapter": "atlas upload/generate/poll",
+  "sourceSha256": "ffd058c8ae3309a96e9177f49277718a1a2661765835d7d04ce4973035b0fcb0",
+  "portraitSha256": "7802da6259c84ca56eb3a91e6332cccff5a66d1193a90399a3ad4ac9df0c5a5c",
+  "portraitWidth": 832,
+  "portraitHeight": 1248,
+  "physicalConfidence": {
+    "definition": "physical_confidence",
+    "score": 57,
+    "profile": "41-60",
+    "flirtatiousnessPercentage": 55,
+    "confidencePercentage": 62,
+    "flirtatiousnessWeight": 0.75,
+    "confidenceWeight": 0.25,
+    "source": "shipped_profile_library"
+  },
+  "derivativesReady": true,
+  "derivativeError": "",
+  "generatedUtc": "2026-07-17T18:58:50.3420838Z"
+}

@@ -1,0 +1,28 @@
+{
+  "schema": "reign-fixed-region-composite-v1",
+  "assetId": "family-chambers-person-card",
+  "approvedReference": {
+    "path": "../generated-sources/components/family-chambers-person-card-approved-crop.png",
+    "sha256": "4ac8b85a778b3e01a7cf83ccd9068970343ec354e3a0ee3267c8955fa4990dbd",
+    "derivation": "Exact crop x=58,y=174,width=322,height=116 from approved-references/family-chambers.png SHA-256 d47619f8af70a534def34a56cf2fadb95c42a5e41b2110e95f34f9ea79b98e1c"
+  },
+  "imageToImageFill": {
+    "path": "../generated-sources/components/family-chambers-person-card-i2i-fill.png",
+    "sha256": "1da19406cf0e5a5c4b0880cc7a9cdd0e6c684d88207df6a2fac50c72736db996",
+    "normalization": "exact 322x116 generated-source crop before fixed-region composition"
+  },
+  "canvas": {"width": 322, "height": 116},
+  "policy": "The approved card crop is byte-for-byte authority outside the declared runtime portrait, text, and selection masks. Runtime data and shared portrait overlay replace only those masks.",
+  "rectangularFillMode": {
+    "type": "median-border color-matched image-to-image patch",
+    "inwardFeatherPixels": 2,
+    "borderSamplePixels": 3
+  },
+  "sceneDependentMasks": [
+    {"id": "runtime-portrait", "shape": "rectangle", "x": 2, "y": 2, "width": 124, "height": 112, "colorMatch": false},
+    {"id": "runtime-name", "shape": "rectangle", "x": 126, "y": 16, "width": 196, "height": 28},
+    {"id": "runtime-detail", "shape": "rectangle", "x": 126, "y": 49, "width": 196, "height": 34},
+    {"id": "runtime-relation", "shape": "rectangle", "x": 126, "y": 85, "width": 196, "height": 24},
+    {"id": "runtime-selection", "shape": "rectangle", "x": 305, "y": 10, "width": 8, "height": 8}
+  ]
+}

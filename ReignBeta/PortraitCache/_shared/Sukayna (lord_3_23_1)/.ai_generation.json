@@ -1,0 +1,27 @@
+{
+  "version": 1,
+  "cacheKey": "Sukayna (lord_3_23_1)",
+  "heroStringId": "lord_3_23_1",
+  "characterObjectId": "lord_3_23_1",
+  "characterName": "Sukayna",
+  "provider": "AtlasCloud",
+  "model": "xai/grok-imagine-image/edit",
+  "adapter": "atlas upload/generate/poll",
+  "sourceSha256": "8c8769ae8fb76186ef7a298431b442ca9a4c7633c27161924a67e33c78b09c11",
+  "portraitSha256": "fa0f8bb9fa2b646fbaa46e174261246ef71c4bb23d22cdefcdbefaf960887dfb",
+  "portraitWidth": 832,
+  "portraitHeight": 1248,
+  "physicalConfidence": {
+    "definition": "physical_confidence",
+    "score": 65,
+    "profile": "61-80",
+    "flirtatiousnessPercentage": 69,
+    "confidencePercentage": 52,
+    "flirtatiousnessWeight": 0.75,
+    "confidenceWeight": 0.25,
+    "source": "shipped_profile_library"
+  },
+  "derivativesReady": true,
+  "derivativeError": "",
+  "generatedUtc": "2026-07-17T19:14:37.1019067Z"
+}

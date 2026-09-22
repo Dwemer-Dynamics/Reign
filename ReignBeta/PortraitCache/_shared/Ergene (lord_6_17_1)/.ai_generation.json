@@ -1,0 +1,27 @@
+{
+  "version": 1,
+  "cacheKey": "Ergene (lord_6_17_1)",
+  "heroStringId": "lord_6_17_1",
+  "characterObjectId": "lord_6_17_1",
+  "characterName": "Ergene",
+  "provider": "AtlasCloud",
+  "model": "xai/grok-imagine-image/edit",
+  "adapter": "atlas upload/generate/poll",
+  "sourceSha256": "983dba04d3c4663509eca1f93c07ca3cbb3a45b855dbb560417836be8dea8208",
+  "portraitSha256": "77085d8c782c636caa582bdc97095e6ceda45cc84aad25fde047318f02d4f83b",
+  "portraitWidth": 832,
+  "portraitHeight": 1248,
+  "physicalConfidence": {
+    "definition": "physical_confidence",
+    "score": 87,
+    "profile": "81-100",
+    "flirtatiousnessPercentage": 99,
+    "confidencePercentage": 50,
+    "flirtatiousnessWeight": 0.75,
+    "confidenceWeight": 0.25,
+    "source": "shipped_profile_library"
+  },
+  "derivativesReady": true,
+  "derivativeError": "",
+  "generatedUtc": "2026-07-17T18:32:59.4029179Z"
+}

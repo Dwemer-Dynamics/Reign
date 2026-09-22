@@ -1,0 +1,27 @@
+{
+  "version": 1,
+  "cacheKey": "Reingarda (lord_4_26_1)",
+  "heroStringId": "lord_4_26_1",
+  "characterObjectId": "lord_4_26_1",
+  "characterName": "Reingarda",
+  "provider": "AtlasCloud",
+  "model": "xai/grok-imagine-image/edit",
+  "adapter": "atlas upload/generate/poll",
+  "sourceSha256": "c123fc384bb9157a0c5f43a69c5c861bc13e89745563284ca1e81eb161fdef46",
+  "portraitSha256": "9b8b1f20d739bb586a958bd87d1eb8c7719c931d4c7ea09c42d023a9a004333e",
+  "portraitWidth": 832,
+  "portraitHeight": 1248,
+  "physicalConfidence": {
+    "definition": "physical_confidence",
+    "score": 43,
+    "profile": "41-60",
+    "flirtatiousnessPercentage": 49,
+    "confidencePercentage": 24,
+    "flirtatiousnessWeight": 0.75,
+    "confidenceWeight": 0.25,
+    "source": "shipped_profile_library"
+  },
+  "derivativesReady": true,
+  "derivativeError": "",
+  "generatedUtc": "2026-07-17T19:11:02.3005936Z"
+}

@@ -1,0 +1,27 @@
+{
+  "version": 1,
+  "cacheKey": "Aevenos_Damarirides (reign_court_castle_EW4_child_3)",
+  "heroStringId": "reign_court_castle_EW4_child_3",
+  "characterObjectId": "reign_court_castle_EW4_child_3",
+  "characterName": "Aevenos Damarirides",
+  "provider": "AtlasCloud",
+  "model": "xai/grok-imagine-image/edit",
+  "adapter": "atlas upload/generate/poll",
+  "sourceSha256": "8dbeee35ec6d3a82118e615938aab086a95f7971f9a2f08dc067cc6750f5b8f2",
+  "portraitSha256": "629f57b746f3a1f212197060e06eb89653114faf1aafbbcc7a028407da7760c4",
+  "portraitWidth": 864,
+  "portraitHeight": 1152,
+  "physicalConfidence": {
+    "definition": "physical_confidence",
+    "score": 53,
+    "profile": "41-60",
+    "flirtatiousnessPercentage": 52,
+    "confidencePercentage": 55,
+    "flirtatiousnessWeight": 0.75,
+    "confidenceWeight": 0.25,
+    "source": "shipped_profile_library"
+  },
+  "derivativesReady": true,
+  "derivativeError": "",
+  "generatedUtc": "2026-07-17T18:02:58.1827542Z"
+}

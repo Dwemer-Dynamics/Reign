@@ -1,0 +1,27 @@
+{
+  "version": 1,
+  "cacheKey": "Aevenion_Damararides (reign_court_castle_EN3_child_3)",
+  "heroStringId": "reign_court_castle_EN3_child_3",
+  "characterObjectId": "reign_court_castle_EN3_child_3",
+  "characterName": "Aevenion Damararides",
+  "provider": "AtlasCloud",
+  "model": "xai/grok-imagine-image/edit",
+  "adapter": "atlas upload/generate/poll",
+  "sourceSha256": "bbe055e9acfdcbf3d96f70011f0dde061b6225e09bc71c3b686eac8ea4260e56",
+  "portraitSha256": "4561ebbc291998df416eb2b215f1d2634042175fac085f35b0e4fee0ffa92a21",
+  "portraitWidth": 864,
+  "portraitHeight": 1152,
+  "physicalConfidence": {
+    "definition": "physical_confidence",
+    "score": 42,
+    "profile": "41-60",
+    "flirtatiousnessPercentage": 48,
+    "confidencePercentage": 23,
+    "flirtatiousnessWeight": 0.75,
+    "confidenceWeight": 0.25,
+    "source": "shipped_profile_library"
+  },
+  "derivativesReady": true,
+  "derivativeError": "",
+  "generatedUtc": "2026-07-17T18:02:56.0451840Z"
+}

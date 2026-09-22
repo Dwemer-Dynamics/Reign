@@ -1,0 +1,46 @@
+{
+  "schema": "reign-overlay-asset-spec-v1",
+  "asset": {
+    "id": "family-chambers-modern-shell",
+    "role": "opaque approved fixed-caption Family Chambers shell beneath live character lists and dynamic status controls",
+    "selectedGeneratedSourceSha256": "eb2e3359eaf8b5b002177965441d9a0eb5a9d005709c138965f4b3c51abcaacb",
+    "generationMode": "built-in image-to-image",
+    "promptPath": "../family-chambers-modern-shell-prompt.txt",
+    "promptSha256": "a5d910d4bd55357805b235e9b10880ee545807c6d72e414c0cbcee57b4c2272a"
+  },
+  "authorities": {
+    "layout": {
+      "path": "../approved-references/family-chambers.png",
+      "sha256": "d47619f8af70a534def34a56cf2fadb95c42a5e41b2110e95f34f9ea79b98e1c"
+    },
+    "materials": {
+      "path": "../style-reference.png",
+      "sha256": "85b689dc164ebbf70f67a081c0f7097858edb0542ef0073de0c29eef7926b0a3"
+    },
+    "palette": {
+      "path": "../palette.json",
+      "sha256": "fac70043a567db463ae70c975b92037dbfc38337e0d9134bc85bb03e3bb9a043",
+      "schema": "reign-ui-modern-palette-v1",
+      "version": "2026.08.28.2"
+    }
+  },
+  "canvas": {
+    "width": 1672,
+    "height": 941
+  },
+  "normalization": {
+    "fit": "exact",
+    "anchor": "center"
+  },
+  "antialiasScale": 4,
+  "allowNoApertures": true,
+  "apertures": [],
+  "transparentRgb": "#121211",
+  "marbleReduction": {
+    "amount": 0.0,
+    "blurRadius": 6.0,
+    "luminanceCeiling": 96,
+    "chromaCeiling": 36,
+    "selectionSoftness": 20
+  }
+}

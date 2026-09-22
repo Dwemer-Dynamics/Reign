@@ -1,0 +1,27 @@
+{
+  "version": 1,
+  "cacheKey": "Awdhan (lord_3_19)",
+  "heroStringId": "lord_3_19",
+  "characterObjectId": "lord_3_19",
+  "characterName": "Awdhan",
+  "provider": "AtlasCloud",
+  "model": "xai/grok-imagine-image/edit",
+  "adapter": "atlas upload/generate/poll",
+  "sourceSha256": "a69c3e069bd0bd662bd676a5409666fecad5cf9bfe468bd5513f4534a656c65c",
+  "portraitSha256": "e0ee576275eb52c37330267da0506ea4134e9feaa809ec8a3f6bf6259e758173",
+  "portraitWidth": 832,
+  "portraitHeight": 1248,
+  "physicalConfidence": {
+    "definition": "physical_confidence",
+    "score": 83,
+    "profile": "81-100",
+    "flirtatiousnessPercentage": 80,
+    "confidencePercentage": 91,
+    "flirtatiousnessWeight": 0.75,
+    "confidenceWeight": 0.25,
+    "source": "shipped_profile_library"
+  },
+  "derivativesReady": true,
+  "derivativeError": "",
+  "generatedUtc": "2026-07-17T18:14:26.3113826Z"
+}

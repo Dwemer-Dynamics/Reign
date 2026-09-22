@@ -1,0 +1,27 @@
+{
+  "version": 1,
+  "cacheKey": "Hylasiana (lord_1_1_7)",
+  "heroStringId": "lord_1_1_7",
+  "characterObjectId": "lord_1_1_7",
+  "characterName": "Hylasiana",
+  "provider": "AtlasCloud",
+  "model": "xai/grok-imagine-image/edit",
+  "adapter": "atlas upload/generate/poll",
+  "sourceSha256": "55e1d56ef90f7a750850b3b416452d45df9bee2d6b53121d03b8eb7e65cf5ae3",
+  "portraitSha256": "2b637904e260ea2cde52bd8f61a8a8b6704f75a4412501b4048cd2518db0492d",
+  "portraitWidth": 832,
+  "portraitHeight": 1248,
+  "physicalConfidence": {
+    "definition": "physical_confidence",
+    "score": 84,
+    "profile": "81-100",
+    "flirtatiousnessPercentage": 95,
+    "confidencePercentage": 50,
+    "flirtatiousnessWeight": 0.75,
+    "confidenceWeight": 0.25,
+    "source": "shipped_profile_library"
+  },
+  "derivativesReady": true,
+  "derivativeError": "",
+  "generatedUtc": "2026-07-17T18:43:46.7185222Z"
+}

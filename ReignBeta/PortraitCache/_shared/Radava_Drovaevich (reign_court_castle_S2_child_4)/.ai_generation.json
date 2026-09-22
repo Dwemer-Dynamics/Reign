@@ -1,0 +1,27 @@
+{
+  "version": 1,
+  "cacheKey": "Radava_Drovaevich (reign_court_castle_S2_child_4)",
+  "heroStringId": "reign_court_castle_S2_child_4",
+  "characterObjectId": "reign_court_castle_S2_child_4",
+  "characterName": "Radava Drovaevich",
+  "provider": "AtlasCloud",
+  "model": "xai/grok-imagine-image/edit",
+  "adapter": "atlas upload/generate/poll",
+  "sourceSha256": "eb64837b7705d71227018b42585756e80fd8a4b8050bdef36188723684e6e4de",
+  "portraitSha256": "ac5cc11a11851c46ed6a31add410a97cecb4da4b25b55f27eb3c4ea9f864398c",
+  "portraitWidth": 864,
+  "portraitHeight": 1152,
+  "physicalConfidence": {
+    "definition": "physical_confidence",
+    "score": 60,
+    "profile": "41-60",
+    "flirtatiousnessPercentage": 56,
+    "confidencePercentage": 71,
+    "flirtatiousnessWeight": 0.75,
+    "confidenceWeight": 0.25,
+    "source": "shipped_profile_library"
+  },
+  "derivativesReady": true,
+  "derivativeError": "",
+  "generatedUtc": "2026-07-17T19:10:10.5378088Z"
+}

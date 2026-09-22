@@ -1,0 +1,27 @@
+{
+  "version": 1,
+  "cacheKey": "Othysia_Varderides (reign_court_castle_EW1_child_4)",
+  "heroStringId": "reign_court_castle_EW1_child_4",
+  "characterObjectId": "reign_court_castle_EW1_child_4",
+  "characterName": "Othysia Varderides",
+  "provider": "AtlasCloud",
+  "model": "xai/grok-imagine-image/edit",
+  "adapter": "atlas upload/generate/poll",
+  "sourceSha256": "952b49132c8798690556867e36098c9dbf9df6a4cc9da6a96b60465af96ed67f",
+  "portraitSha256": "6fdb7a61b25c549ce34ed0be55cfafe5bb92ec9772382fd8183a4f3ffcba15cd",
+  "portraitWidth": 864,
+  "portraitHeight": 1152,
+  "physicalConfidence": {
+    "definition": "physical_confidence",
+    "score": 76,
+    "profile": "61-80",
+    "flirtatiousnessPercentage": 86,
+    "confidencePercentage": 45,
+    "flirtatiousnessWeight": 0.75,
+    "confidenceWeight": 0.25,
+    "source": "shipped_profile_library"
+  },
+  "derivativesReady": true,
+  "derivativeError": "",
+  "generatedUtc": "2026-07-17T19:08:26.2090473Z"
+}

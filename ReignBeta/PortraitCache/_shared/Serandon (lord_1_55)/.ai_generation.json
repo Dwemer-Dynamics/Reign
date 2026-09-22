@@ -1,0 +1,27 @@
+{
+  "version": 1,
+  "cacheKey": "Serandon (lord_1_55)",
+  "heroStringId": "lord_1_55",
+  "characterObjectId": "lord_1_55",
+  "characterName": "Serandon",
+  "provider": "AtlasCloud",
+  "model": "xai/grok-imagine-image/edit",
+  "adapter": "atlas upload/generate/poll",
+  "sourceSha256": "7b24009b5a6e59011a5dc16305144c678d44bf5b70a978aec17b73f6160e0fff",
+  "portraitSha256": "468b4bfc22700b44b626b3b515243a5d016e9672ae1ceac6addf50064491f97e",
+  "portraitWidth": 832,
+  "portraitHeight": 1248,
+  "physicalConfidence": {
+    "definition": "physical_confidence",
+    "score": 61,
+    "profile": "61-80",
+    "flirtatiousnessPercentage": 70,
+    "confidencePercentage": 33,
+    "flirtatiousnessWeight": 0.75,
+    "confidenceWeight": 0.25,
+    "source": "shipped_profile_library"
+  },
+  "derivativesReady": true,
+  "derivativeError": "",
+  "generatedUtc": "2026-07-17T19:13:14.8979632Z"
+}

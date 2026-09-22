@@ -1,0 +1,13 @@
+{
+  "version": 1,
+  "heroStringId": "crazy_man_test_without_weapons",
+  "characterName": "Crazy Man Without Weapon",
+  "imagePath": "portrait.png",
+  "imageSha256": "CD8EC6D0EF3383C6D0E49039EBD4F6A9C50D2055DDCF52CC26D9CD2F4592984C",
+  "description": "Their clan is tier unknown, placing them socially among the unranked class. Use this status to guide the refinement, expense, materials, and ornament of their clothing without turning it into fantasy costume.",
+  "status": "failed",
+  "descriptionSource": "portrait_prompt_fallback",
+  "retryEligible": true,
+  "error": "{\"error\":{\"message\":\"Model \\\"zai-org/glm-5.2\\\" does not support image inputs. Remove image content or choose a multimodal model.\",\"type\":\"invalid_request_error\",\"param\":\"messages\",\"code\":\"image_input_not_supported\"}}",
+  "updatedUtc": "2026-07-18T22:03:27.2160982Z"
+}

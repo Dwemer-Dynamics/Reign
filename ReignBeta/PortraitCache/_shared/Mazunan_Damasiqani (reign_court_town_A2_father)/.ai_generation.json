@@ -1,0 +1,27 @@
+{
+  "version": 1,
+  "cacheKey": "Mazunan_Damasiqani (reign_court_town_A2_father)",
+  "heroStringId": "reign_court_town_A2_father",
+  "characterObjectId": "reign_court_town_A2_father",
+  "characterName": "Mazunan Damasiqani",
+  "provider": "AtlasCloud",
+  "model": "xai/grok-imagine-image/edit",
+  "adapter": "atlas upload/generate/poll",
+  "sourceSha256": "fb3021887af2fc17f8221463511105671cb968641d66af8fdb272f97ae5fea8c",
+  "portraitSha256": "5399910e48343313dc49591a5319d2499e7e3f75f8b07604e35534947ce3ede2",
+  "portraitWidth": 864,
+  "portraitHeight": 1152,
+  "physicalConfidence": {
+    "definition": "physical_confidence",
+    "score": 84,
+    "profile": "81-100",
+    "flirtatiousnessPercentage": 93,
+    "confidencePercentage": 56,
+    "flirtatiousnessWeight": 0.75,
+    "confidenceWeight": 0.25,
+    "source": "shipped_profile_library"
+  },
+  "derivativesReady": true,
+  "derivativeError": "",
+  "generatedUtc": "2026-07-17T19:02:38.0345385Z"
+}

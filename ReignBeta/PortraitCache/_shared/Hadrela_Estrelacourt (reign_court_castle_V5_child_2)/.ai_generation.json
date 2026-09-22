@@ -1,0 +1,27 @@
+{
+  "version": 1,
+  "cacheKey": "Hadrela_Estrelacourt (reign_court_castle_V5_child_2)",
+  "heroStringId": "reign_court_castle_V5_child_2",
+  "characterObjectId": "reign_court_castle_V5_child_2",
+  "characterName": "Hadrela Estrelacourt",
+  "provider": "AtlasCloud",
+  "model": "xai/grok-imagine-image/edit",
+  "adapter": "atlas upload/generate/poll",
+  "sourceSha256": "dee15f810e3f51fb3a2849c5c7955b255979703bc1ed1beb4e24f0cd042596c8",
+  "portraitSha256": "fd65567d9fac0e337eb2e8b2974c651f879dfedbd8a9963a6e9b119241d41ab8",
+  "portraitWidth": 864,
+  "portraitHeight": 1152,
+  "physicalConfidence": {
+    "definition": "physical_confidence",
+    "score": 48,
+    "profile": "41-60",
+    "flirtatiousnessPercentage": 46,
+    "confidencePercentage": 53,
+    "flirtatiousnessWeight": 0.75,
+    "confidenceWeight": 0.25,
+    "source": "shipped_profile_library"
+  },
+  "derivativesReady": true,
+  "derivativeError": "",
+  "generatedUtc": "2026-07-17T18:41:25.4332658Z"
+}

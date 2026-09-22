@@ -1,0 +1,27 @@
+{
+  "version": 1,
+  "cacheKey": "Iovysia_Sorianerides (reign_court_town_EN6_child_4)",
+  "heroStringId": "reign_court_town_EN6_child_4",
+  "characterObjectId": "reign_court_town_EN6_child_4",
+  "characterName": "Iovysia Sorianerides",
+  "provider": "AtlasCloud",
+  "model": "xai/grok-imagine-image/edit",
+  "adapter": "atlas upload/generate/poll",
+  "sourceSha256": "48154691e5a9ac3300af80c2f9555090c2ecd4078381ac2ffd8d579282d634a2",
+  "portraitSha256": "bc51567909d39e1ac78ebeeb89ef5ca370cf9c484a9398802f0ee243d7a8d392",
+  "portraitWidth": 864,
+  "portraitHeight": 1152,
+  "physicalConfidence": {
+    "definition": "physical_confidence",
+    "score": 84,
+    "profile": "81-100",
+    "flirtatiousnessPercentage": 98,
+    "confidencePercentage": 41,
+    "flirtatiousnessWeight": 0.75,
+    "confidenceWeight": 0.25,
+    "source": "shipped_profile_library"
+  },
+  "derivativesReady": true,
+  "derivativeError": "",
+  "generatedUtc": "2026-07-17T18:45:40.6827496Z"
+}

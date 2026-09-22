@@ -1,0 +1,27 @@
+{
+  "version": 1,
+  "cacheKey": "Hazadan_Bahiraqani (reign_court_castle_A2_child_1)",
+  "heroStringId": "reign_court_castle_A2_child_1",
+  "characterObjectId": "reign_court_castle_A2_child_1",
+  "characterName": "Hazadan Bahiraqani",
+  "provider": "AtlasCloud",
+  "model": "xai/grok-imagine-image/edit",
+  "adapter": "atlas upload/generate/poll",
+  "sourceSha256": "0d435b5098c760b75af70ac072aa347717137c8789b39945b61f9b7c5e298c3b",
+  "portraitSha256": "3ae96a64765881774418c75cb92ec29326ade602560d3c33fa33d6dbcdac9317",
+  "portraitWidth": 864,
+  "portraitHeight": 1152,
+  "physicalConfidence": {
+    "definition": "physical_confidence",
+    "score": 48,
+    "profile": "41-60",
+    "flirtatiousnessPercentage": 49,
+    "confidencePercentage": 44,
+    "flirtatiousnessWeight": 0.75,
+    "confidenceWeight": 0.25,
+    "source": "shipped_profile_library"
+  },
+  "derivativesReady": true,
+  "derivativeError": "",
+  "generatedUtc": "2026-07-17T18:42:33.7873959Z"
+}

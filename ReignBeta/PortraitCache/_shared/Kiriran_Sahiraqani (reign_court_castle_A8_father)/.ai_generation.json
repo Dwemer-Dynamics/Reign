@@ -1,0 +1,27 @@
+{
+  "version": 1,
+  "cacheKey": "Kiriran_Sahiraqani (reign_court_castle_A8_father)",
+  "heroStringId": "reign_court_castle_A8_father",
+  "characterObjectId": "reign_court_castle_A8_father",
+  "characterName": "Kiriran Sahiraqani",
+  "provider": "AtlasCloud",
+  "model": "xai/grok-imagine-image/edit",
+  "adapter": "atlas upload/generate/poll",
+  "sourceSha256": "e4a8d2443011a0fad4e1565e09d72e7e65ad7018b8822776ccd9d60b1a7d93ff",
+  "portraitSha256": "0228e2579995bba664152079c8743bd687abe0035b260e2ca4fbdf936cfd5538",
+  "portraitWidth": 864,
+  "portraitHeight": 1152,
+  "physicalConfidence": {
+    "definition": "physical_confidence",
+    "score": 59,
+    "profile": "41-60",
+    "flirtatiousnessPercentage": 55,
+    "confidencePercentage": 70,
+    "flirtatiousnessWeight": 0.75,
+    "confidenceWeight": 0.25,
+    "source": "shipped_profile_library"
+  },
+  "derivativesReady": true,
+  "derivativeError": "",
+  "generatedUtc": "2026-07-17T18:49:07.8313763Z"
+}

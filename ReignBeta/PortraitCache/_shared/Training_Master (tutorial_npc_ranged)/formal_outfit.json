@@ -1,0 +1,13 @@
+{
+  "version": 1,
+  "heroStringId": "tutorial_npc_ranged",
+  "characterName": "Training Master",
+  "imagePath": "portrait.png",
+  "imageSha256": "418BE5CE05F69FB968FDF9D3B13D39C6507B15BD42E66C7410F867F18DE6081E",
+  "description": "Their clan is tier unknown, placing them socially among the unranked class. Use this status to guide the refinement, expense, materials, and ornament of their clothing without turning it into fantasy costume.",
+  "status": "failed",
+  "descriptionSource": "portrait_prompt_fallback",
+  "retryEligible": true,
+  "error": "{\"error\":{\"message\":\"Model \\\"zai-org/glm-5.2\\\" does not support image inputs. Remove image content or choose a multimodal model.\",\"type\":\"invalid_request_error\",\"param\":\"messages\",\"code\":\"image_input_not_supported\"}}",
+  "updatedUtc": "2026-07-18T22:03:35.1703083Z"
+}

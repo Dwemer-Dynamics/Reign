@@ -1,0 +1,27 @@
+{
+  "version": 1,
+  "cacheKey": "Drenonos_Aurelorides (reign_court_town_EW2_child_3)",
+  "heroStringId": "reign_court_town_EW2_child_3",
+  "characterObjectId": "reign_court_town_EW2_child_3",
+  "characterName": "Drenonos Aurelorides",
+  "provider": "AtlasCloud",
+  "model": "xai/grok-imagine-image/edit",
+  "adapter": "atlas upload/generate/poll",
+  "sourceSha256": "8abffaa3fd9b5f7ab159d18e3a95e94200d064bfcfaeacdccb18835dcb7c1fd7",
+  "portraitSha256": "1aa8c2af63636630033f76be53e00503fae9b758a1d973859d5bbaae9dd3981d",
+  "portraitWidth": 864,
+  "portraitHeight": 1152,
+  "physicalConfidence": {
+    "definition": "physical_confidence",
+    "score": 89,
+    "profile": "81-100",
+    "flirtatiousnessPercentage": 90,
+    "confidencePercentage": 85,
+    "flirtatiousnessWeight": 0.75,
+    "confidenceWeight": 0.25,
+    "source": "shipped_profile_library"
+  },
+  "derivativesReady": true,
+  "derivativeError": "",
+  "generatedUtc": "2026-07-17T18:30:08.6110655Z"
+}

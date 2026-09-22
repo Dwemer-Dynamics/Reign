@@ -1,0 +1,92 @@
+{
+  "version": 1,
+  "inputHash": "de6bf4a8b92caf217cbe589f6d1653dcc8d5cf1199718a9261902db9c1fdbcaa",
+  "catalogHash": "12142c0ab28d2678b12b852b086450dcc4eea45e2e8a080f3baa85c42f7fb3a2",
+  "renderContractHash": "cc3b941e7d47057de9b4220f1473336e6f908719812bb2653b83bd3545cfbd2f",
+  "cacheKey": "Boraa_Altugatai (reign_court_castle_K1_child_2)",
+  "heroStringId": "reign_court_castle_K1_child_2",
+  "characterObjectId": "reign_court_castle_K1_child_2",
+  "characterName": "Boraa Altugatai",
+  "ageYears": 23,
+  "cultureId": "khuzait",
+  "cultureName": "Khuzait",
+  "gender": "woman",
+  "clanId": "clan_khuzait_3",
+  "clanTier": 5,
+  "clanProvenance": "reign_profile_library",
+  "socialStation": "high noble",
+  "occupation": "Lord",
+  "archetype": "lord",
+  "isLord": true,
+  "isNotable": false,
+  "isWanderer": false,
+  "isAlive": true,
+  "sourceModule": "ReignBeta",
+  "sourceFile": "Modules/ReignBeta/ModuleData/reign_court_lords.xml",
+  "profileSource": "reign_court",
+  "profilePackVersion": "reign_profiles_v4",
+  "bodyKey": "",
+  "bodyWeight": 0.5,
+  "bodyBuild": 0.5,
+  "faceTemplateId": "townswoman_khuzait",
+  "faceGenerationVersion": "reign_court_shared_v1",
+  "civilianTemplate": "khu_civ_template_nomad",
+  "civilianEquipment": [
+    {
+      "slot": "Body",
+      "itemId": "khuzait_fortified_armor"
+    },
+    {
+      "slot": "Gloves",
+      "itemId": "leather_gloves"
+    },
+    {
+      "slot": "Leg",
+      "itemId": "khuzait_curved_boots"
+    }
+  ],
+  "headgearSuppressed": true,
+  "physicalConfidence": {
+    "definition": "physical_confidence",
+    "score": 36,
+    "profile": "21-40",
+    "flirtatiousnessPercentage": 23,
+    "confidencePercentage": 74,
+    "flirtatiousnessWeight": 0.75,
+    "confidenceWeight": 0.25,
+    "source": "shipped_profile_library"
+  },
+  "renderPreset": "ai_source_wan_portrait_v5",
+  "renderWidth": 1536,
+  "renderHeight": 2048,
+  "sourceWidth": 768,
+  "sourceHeight": 1024,
+  "cropScale": 0.24,
+  "cropWidthRatio": 0.75,
+  "cropCenterYRatio": 0.324,
+  "cameraPitchDegrees": 4,
+  "sourceSha256": "4b47ac97dba6a1b0b3fa6823f4aa195f8e41b5700a574ce7056d9822da2e93c1",
+  "sourceFileName": "source.png",
+  "generationEndpoint": "/portraits/generate",
+  "campaignIdSource": "active_campaign_at_generation_time",
+  "promptDeferred": true,
+  "sourceImageBase64From": "source.png",
+  "outputSizeOverride": "",
+  "promptPurpose": "portrait",
+  "nativePhysique": {
+    "schema": "reign-native-physique-v1",
+    "weight": 0.5,
+    "build": 0.5,
+    "weightSource": "shared_portrait_input.bodyWeight",
+    "buildSource": "shared_portrait_input.bodyBuild",
+    "sourceSha256": "4b47ac97dba6a1b0b3fa6823f4aa195f8e41b5700a574ce7056d9822da2e93c1",
+    "provenance": {
+      "kind": "saved_character_metadata_backfill",
+      "heroStringId": "reign_court_castle_K1_child_2",
+      "profileSource": "reign_court",
+      "profilePackVersion": "reign_profiles_v4",
+      "originalInputSha256": "d9f42615322e06a66173c466a27f2bdb8a66312351b5a6b9e34d603caacfe6ee",
+      "rendererReexecuted": false
+    }
+  }
+}

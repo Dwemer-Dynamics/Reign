@@ -1,0 +1,27 @@
+{
+  "version": 1,
+  "cacheKey": "Aldric (lord_4_3)",
+  "heroStringId": "lord_4_3",
+  "characterObjectId": "lord_4_3",
+  "characterName": "Aldric",
+  "provider": "AtlasCloud",
+  "model": "xai/grok-imagine-image/edit",
+  "adapter": "atlas upload/generate/poll",
+  "sourceSha256": "ebf2ba3d994c88a6150ffc87e5f635e58c8710edea4e69bfa34790910e4234ff",
+  "portraitSha256": "f90e6fa547fea11c9f6473e94e19f5ccbb231a5b3c4a1311d8854eeff39e6c3d",
+  "portraitWidth": 832,
+  "portraitHeight": 1248,
+  "physicalConfidence": {
+    "definition": "physical_confidence",
+    "score": 54,
+    "profile": "41-60",
+    "flirtatiousnessPercentage": 60,
+    "confidencePercentage": 35,
+    "flirtatiousnessWeight": 0.75,
+    "confidenceWeight": 0.25,
+    "source": "shipped_profile_library"
+  },
+  "derivativesReady": true,
+  "derivativeError": "",
+  "generatedUtc": "2026-07-17T18:11:08.7799364Z"
+}

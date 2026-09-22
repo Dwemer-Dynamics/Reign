@@ -1,0 +1,27 @@
+{
+  "version": 1,
+  "cacheKey": "Marvilia_Vardarides (reign_court_castle_EN8_child_2)",
+  "heroStringId": "reign_court_castle_EN8_child_2",
+  "characterObjectId": "reign_court_castle_EN8_child_2",
+  "characterName": "Marvilia Vardarides",
+  "provider": "AtlasCloud",
+  "model": "xai/grok-imagine-image/edit",
+  "adapter": "atlas upload/generate/poll",
+  "sourceSha256": "cd0d35f284f67fc6b16de76d1fcef33cc7d8012acd3bd23bd71727dff40d9014",
+  "portraitSha256": "ae8ee28a283370b0b9a96a31dc85634080acda1dc8ccc3299de9c961bba9fba4",
+  "portraitWidth": 864,
+  "portraitHeight": 1152,
+  "physicalConfidence": {
+    "definition": "physical_confidence",
+    "score": 68,
+    "profile": "61-80",
+    "flirtatiousnessPercentage": 62,
+    "confidencePercentage": 85,
+    "flirtatiousnessWeight": 0.75,
+    "confidenceWeight": 0.25,
+    "source": "shipped_profile_library"
+  },
+  "derivativesReady": true,
+  "derivativeError": "",
+  "generatedUtc": "2026-07-17T19:01:01.2192594Z"
+}

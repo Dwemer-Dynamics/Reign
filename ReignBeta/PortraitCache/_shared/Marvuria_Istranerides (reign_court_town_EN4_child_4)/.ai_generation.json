@@ -1,0 +1,27 @@
+{
+  "version": 1,
+  "cacheKey": "Marvuria_Istranerides (reign_court_town_EN4_child_4)",
+  "heroStringId": "reign_court_town_EN4_child_4",
+  "characterObjectId": "reign_court_town_EN4_child_4",
+  "characterName": "Marvuria Istranerides",
+  "provider": "AtlasCloud",
+  "model": "xai/grok-imagine-image/edit",
+  "adapter": "atlas upload/generate/poll",
+  "sourceSha256": "0abf662ef26b5e51ce069e75d474f1d214a5c996b35441b9b3b1e3dff70ffeb1",
+  "portraitSha256": "e02d0c90d47312b476619aad1c7a93ed5b91da08fe6b212540c1c446a043f5dd",
+  "portraitWidth": 864,
+  "portraitHeight": 1152,
+  "physicalConfidence": {
+    "definition": "physical_confidence",
+    "score": 81,
+    "profile": "81-100",
+    "flirtatiousnessPercentage": 88,
+    "confidencePercentage": 59,
+    "flirtatiousnessWeight": 0.75,
+    "confidenceWeight": 0.25,
+    "source": "shipped_profile_library"
+  },
+  "derivativesReady": true,
+  "derivativeError": "",
+  "generatedUtc": "2026-07-17T19:01:34.5856590Z"
+}

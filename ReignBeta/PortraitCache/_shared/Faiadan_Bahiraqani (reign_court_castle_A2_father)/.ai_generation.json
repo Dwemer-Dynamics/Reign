@@ -1,0 +1,27 @@
+{
+  "version": 1,
+  "cacheKey": "Faiadan_Bahiraqani (reign_court_castle_A2_father)",
+  "heroStringId": "reign_court_castle_A2_father",
+  "characterObjectId": "reign_court_castle_A2_father",
+  "characterName": "Faiadan Bahiraqani",
+  "provider": "AtlasCloud",
+  "model": "xai/grok-imagine-image/edit",
+  "adapter": "atlas upload/generate/poll",
+  "sourceSha256": "d388c769d82b238399cc5f796cc21797496701c5a969b4838811dc78e679c447",
+  "portraitSha256": "78775ec4e2324fb0c7551c902f27b870c7f57d153918d9e23c8923e1f7221277",
+  "portraitWidth": 864,
+  "portraitHeight": 1152,
+  "physicalConfidence": {
+    "definition": "physical_confidence",
+    "score": 67,
+    "profile": "61-80",
+    "flirtatiousnessPercentage": 73,
+    "confidencePercentage": 48,
+    "flirtatiousnessWeight": 0.75,
+    "confidenceWeight": 0.25,
+    "source": "shipped_profile_library"
+  },
+  "derivativesReady": true,
+  "derivativeError": "",
+  "generatedUtc": "2026-07-17T18:36:09.3543420Z"
+}

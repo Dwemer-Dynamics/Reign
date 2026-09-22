@@ -1,0 +1,27 @@
+{
+  "version": 1,
+  "cacheKey": "Vidar (lord_2_13)",
+  "heroStringId": "lord_2_13",
+  "characterObjectId": "lord_2_13",
+  "characterName": "Vidar",
+  "provider": "AtlasCloud",
+  "model": "xai/grok-imagine-image/edit",
+  "adapter": "atlas upload/generate/poll",
+  "sourceSha256": "a7d7407e5d14860d8a9852d81ca7875acb2bd84963a5632007807e42b327e898",
+  "portraitSha256": "248ebe4db41fa7b36300c6f9568fcd98c18033f5c869ad476a571070deff220d",
+  "portraitWidth": 832,
+  "portraitHeight": 1248,
+  "physicalConfidence": {
+    "definition": "physical_confidence",
+    "score": 48,
+    "profile": "41-60",
+    "flirtatiousnessPercentage": 39,
+    "confidencePercentage": 74,
+    "flirtatiousnessWeight": 0.75,
+    "confidenceWeight": 0.25,
+    "source": "shipped_profile_library"
+  },
+  "derivativesReady": true,
+  "derivativeError": "",
+  "generatedUtc": "2026-07-17T19:20:55.0583273Z"
+}

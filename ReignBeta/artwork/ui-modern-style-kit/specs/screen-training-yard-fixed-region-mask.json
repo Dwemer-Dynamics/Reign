@@ -1,0 +1,24 @@
+{
+  "schema": "reign-fixed-region-composite-v1",
+  "assetId": "training-yard-modern-shell",
+  "approvedReference": {
+    "path": "../approved-references/training-yard.png",
+    "sha256": "c1321b30d7b85da6e7091a070b78570984c4f56a3e91fcda55ebedc36d21ced5"
+  },
+  "imageToImageFill": {
+    "path": "../generated-sources/screen-shells/training-yard-modern-shell-v1-imagegen.png",
+    "sha256": "989ff5324969f43d0b749aa813a82c481c36b4f7779ce5155200cdb62dcc76e4",
+    "normalization": "exact 1672x941"
+  },
+  "canvas": {"width": 1672, "height": 941},
+  "policy": "Every pixel outside declared live list, portrait, value, status, and scrollbar masks is the approved transparent-overlay Training Yard shell. The continuous full-screen canvas is absent; exact transparent negative-space pixels expose the live campaign map and native interface. Fixed captions and the selected-trainer opaque aperture plate/top frame exist only in the shell artwork; the untouched portrait is below its transparent center.",
+  "maskSemantics": "The left and right rails are clean fixed surfaces. Runtime lists carry complete cards through scrolling, with no retired stationary card or portrait frames beneath them.",
+  "sceneDependentMasks": [
+    {"id": "trainer-card-list", "shape": "rectangle", "x": 68, "y": 130, "width": 342, "height": 642, "colorMatch": false},
+    {"id": "selected-trainer-portrait", "shape": "rectangle", "x": 620, "y": 226, "width": 124, "height": 124, "colorMatch": false},
+    {"id": "selected-trainer-dynamic-values", "shape": "rectangle", "x": 475, "y": 350, "width": 410, "height": 230},
+    {"id": "elapsed-and-delivered", "shape": "rectangle", "x": 475, "y": 645, "width": 410, "height": 96},
+    {"id": "troop-card-list", "shape": "rectangle", "x": 970, "y": 130, "width": 640, "height": 642, "colorMatch": false},
+    {"id": "training-status", "shape": "rectangle", "x": 398, "y": 832, "width": 720, "height": 62}
+  ]
+}

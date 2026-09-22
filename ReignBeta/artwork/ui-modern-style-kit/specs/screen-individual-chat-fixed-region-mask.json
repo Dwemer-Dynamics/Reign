@@ -1,0 +1,43 @@
+{
+  "schema": "reign-fixed-region-composite-v1",
+  "assetId": "individual-chat-modern-shell-exact-fixed-source",
+  "approvedReference": {
+    "path": "../approved-references/individual-chat.png",
+    "sha256": "95fe0ce9b1c35b157f6a769905b987ad876de94d46d5a1a79ac508b8a11ea5dc"
+  },
+  "imageToImageFill": {
+    "path": "../generated-sources/screen-shells/individual-chat-modern-shell-source.png",
+    "sha256": "9bb5366801e16e1f19d003a93bbf42f3c99f720752b005046db8435de154d2a2",
+    "normalization": "exact 1672x941"
+  },
+  "canvas": {
+    "width": 1672,
+    "height": 941
+  },
+  "policy": "Every pixel outside the declared runtime-content masks is copied byte-for-byte from the approved reference. The two large busts use oval masks confined to the portrait interiors; their antique-gold oval frames remain fixed.",
+  "rectangularFillMode": {
+    "type": "median-border color-matched image-to-image patch",
+    "inwardFeatherPixels": 3,
+    "borderSamplePixels": 4
+  },
+  "sceneDependentMasks": [
+    {"id": "player-large-bust", "shape": "ellipse", "x": 104, "y": 57, "width": 210, "height": 310},
+    {"id": "npc-large-bust", "shape": "ellipse", "x": 1343, "y": 57, "width": 210, "height": 310},
+    {"id": "npc-reference-shoulder-residual", "shape": "polygon", "points": [[1356,276],[1355,279],[1356,284],[1357,288],[1359,292],[1361,296],[1363,300],[1365,304],[1367,308],[1369,312],[1371,316],[1374,320],[1377,324],[1381,328],[1384,332],[1387,335],[1390,335],[1389,332],[1385,328],[1382,324],[1380,320],[1378,316],[1376,312],[1374,308],[1372,304],[1370,300],[1368,296],[1366,292],[1364,288],[1363,284],[1362,280],[1361,276]]},
+
+    {"id": "player-name", "shape": "rectangle", "x": 402, "y": 106, "width": 140, "height": 42},
+    {"id": "player-subtitle", "shape": "rectangle", "x": 389, "y": 166, "width": 194, "height": 61},
+    {"id": "npc-name", "shape": "rectangle", "x": 1124, "y": 106, "width": 140, "height": 42},
+    {"id": "npc-subtitle", "shape": "rectangle", "x": 1097, "y": 166, "width": 194, "height": 61},
+
+    {"id": "leave-button-typography", "shape": "rectangle", "x": 675, "y": 111, "width": 322, "height": 39},
+    {"id": "look-button-typography", "shape": "rectangle", "x": 731, "y": 194, "width": 210, "height": 39},
+    {"id": "location-text", "shape": "rectangle", "x": 579, "y": 416, "width": 514, "height": 43},
+    {"id": "busy-status-text", "shape": "rectangle", "x": 350, "y": 449, "width": 972, "height": 22},
+
+    {"id": "conversation-list", "shape": "rectangle", "x": 88, "y": 516, "width": 1490, "height": 258},
+    {"id": "conversation-scroll-handle", "shape": "rectangle", "x": 1582, "y": 519, "width": 14, "height": 252},
+    {"id": "message-input-text", "shape": "rectangle", "x": 190, "y": 827, "width": 956, "height": 52},
+    {"id": "send-button-typography", "shape": "rectangle", "x": 1348, "y": 829, "width": 95, "height": 45}
+  ]
+}

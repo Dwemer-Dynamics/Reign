@@ -1,0 +1,13 @@
+{
+  "version": 1,
+  "heroStringId": "reign_court_castle_B4_child_1",
+  "characterName": "Dovenan Dunadawn",
+  "imagePath": "portrait.png",
+  "imageSha256": "0CC5183D66A7A38A2DFF8A91310E7C61CF45F45579F28AD5D1CA29E90DFC782F",
+  "description": "Culturally appropriate everyday Battanian minor-lord attire inspired by refined Celtic and highland noble clothing. Use dense woven wool, quality linen, soft leather details, cleaner tailoring, decorative brooches, and more elaborate woven trim than ordinary landowners would possess. Men should wear a fitted tunic, practical trousers, a decorated belt, and a layered cloak fastened at the shoulder. Women should wear a long underdress with a tailored overdress, woven belt, elegant draped shawl, and restrained ornamental trim. Include subtle knotwork and geometric patterns without theatrical fantasy styling. No headgear of any kind. No armor, weapons, crowns, or ceremonial druid imagery.",
+  "status": "failed",
+  "descriptionSource": "portrait_prompt_fallback",
+  "retryEligible": true,
+  "error": "{\"error\":{\"message\":\"Model \\\"zai-org/glm-5.2\\\" does not support image inputs. Remove image content or choose a multimodal model.\",\"type\":\"invalid_request_error\",\"param\":\"messages\",\"code\":\"image_input_not_supported\"}}",
+  "updatedUtc": "2026-07-18T22:03:27.6699251Z"
+}

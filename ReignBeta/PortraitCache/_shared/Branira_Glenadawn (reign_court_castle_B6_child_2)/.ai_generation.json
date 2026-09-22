@@ -1,0 +1,27 @@
+{
+  "version": 1,
+  "cacheKey": "Branira_Glenadawn (reign_court_castle_B6_child_2)",
+  "heroStringId": "reign_court_castle_B6_child_2",
+  "characterObjectId": "reign_court_castle_B6_child_2",
+  "characterName": "Branira Glenadawn",
+  "provider": "AtlasCloud",
+  "model": "xai/grok-imagine-image/edit",
+  "adapter": "atlas upload/generate/poll",
+  "sourceSha256": "d676bba0045c87b5886258f03fd668aec475afa644acb11bfa5bab9ae282cded",
+  "portraitSha256": "87f58980a7e3a72911c4b5c2265a66b0c22d9394c02a1a80def75730b043b109",
+  "portraitWidth": 864,
+  "portraitHeight": 1152,
+  "physicalConfidence": {
+    "definition": "physical_confidence",
+    "score": 53,
+    "profile": "41-60",
+    "flirtatiousnessPercentage": 47,
+    "confidencePercentage": 70,
+    "flirtatiousnessWeight": 0.75,
+    "confidenceWeight": 0.25,
+    "source": "shipped_profile_library"
+  },
+  "derivativesReady": true,
+  "derivativeError": "",
+  "generatedUtc": "2026-07-17T18:18:44.6335796Z"
+}

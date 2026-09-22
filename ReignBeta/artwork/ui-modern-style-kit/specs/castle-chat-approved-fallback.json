@@ -1,0 +1,18 @@
+{
+  "schema": "reign-overlay-asset-spec-v1",
+  "asset": {
+    "id": "castle-chat-approved-fallback",
+    "role": "exact approved no-art castle-scene fallback crop"
+  },
+  "canvas": {"width": 790, "height": 420},
+  "normalization": {
+    "fit": "exact",
+    "anchor": "center",
+    "sourceCrop": {"x": 583, "y": 120, "width": 790, "height": 420}
+  },
+  "allowNoApertures": true,
+  "antialiasScale": 4,
+  "transparentRgb": "#070808",
+  "marbleReduction": {"amount": 0.0, "blurRadius": 6.0, "luminanceCeiling": 96, "chromaCeiling": 36, "selectionSoftness": 20},
+  "apertures": []
+}

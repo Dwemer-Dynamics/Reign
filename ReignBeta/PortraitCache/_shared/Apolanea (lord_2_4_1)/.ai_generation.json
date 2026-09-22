@@ -1,0 +1,27 @@
+{
+  "version": 1,
+  "cacheKey": "Apolanea (lord_2_4_1)",
+  "heroStringId": "lord_2_4_1",
+  "characterObjectId": "lord_2_4_1",
+  "characterName": "Apolanea",
+  "provider": "AtlasCloud",
+  "model": "xai/grok-imagine-image/edit",
+  "adapter": "atlas upload/generate/poll",
+  "sourceSha256": "66f852149d7360b7b401f96fc1e54773b4f864105d0d102be25c7078366a68e3",
+  "portraitSha256": "405df25d13915be09e4d59bdd7347e0be47908bcc0a0757aa8bacaf509a12e3b",
+  "portraitWidth": 832,
+  "portraitHeight": 1248,
+  "physicalConfidence": {
+    "definition": "physical_confidence",
+    "score": 77,
+    "profile": "61-80",
+    "flirtatiousnessPercentage": 71,
+    "confidencePercentage": 94,
+    "flirtatiousnessWeight": 0.75,
+    "confidenceWeight": 0.25,
+    "source": "shipped_profile_library"
+  },
+  "derivativesReady": true,
+  "derivativeError": "",
+  "generatedUtc": "2026-07-17T18:12:39.0615645Z"
+}

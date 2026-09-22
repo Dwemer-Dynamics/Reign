@@ -1,0 +1,13 @@
+{
+  "version": 1,
+  "heroStringId": "reign_court_castle_K3_mother",
+  "characterName": "Mungaa Chaganatai",
+  "imagePath": "portrait.png",
+  "imageSha256": "8218E71BEBF874DE9E59A62B168E3117CA3A3E00C5DD3D08D577A678743930A3",
+  "description": "Culturally appropriate everyday Khuzait landowner attire inspired by practical medieval Turkic and Mongol steppe clothing suited to riding, travel, wind, and changing weather. Men should wear a crossed-front deel or caftan with an overlapping closure, a broad woven or leather sash, loose trousers, and practical layered sleeves. Women should wear a long crossed-front robe or fitted steppe coat over a simple underdress, secured with a woven sash. Fabrics should include wool, felt, linen, and restrained leather edging. Add simple woven geometric trim. No headgear of any kind. No fur hats, caps, hoods, armor, weapons, oversized fur displays, crowns, or fantasy elements.",
+  "status": "failed",
+  "descriptionSource": "portrait_prompt_fallback",
+  "retryEligible": true,
+  "error": "{\"error\":{\"message\":\"Model \\\"zai-org/glm-5.2\\\" does not support image inputs. Remove image content or choose a multimodal model.\",\"type\":\"invalid_request_error\",\"param\":\"messages\",\"code\":\"image_input_not_supported\"}}",
+  "updatedUtc": "2026-07-18T22:03:32.7453040Z"
+}

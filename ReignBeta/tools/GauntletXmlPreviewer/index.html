@@ -1,0 +1,324 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Bannerlord Reign Gauntlet XML Previewer</title>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <div class="app-shell">
+    <aside class="control-panel" aria-label="Preview controls">
+      <header class="brand">
+        <p class="eyebrow">Bannerlord Reign</p>
+        <h1>Gauntlet XML Previewer</h1>
+        <p>Load any Reign prefab, stress its bindings, and click through every rendered layer to identify the exact XML object.</p>
+      </header>
+
+      <section class="control-section">
+        <div class="section-heading">
+          <h2>Reign prefabs</h2>
+          <span>live XML</span>
+        </div>
+        <div id="prefabGrid" class="prefab-grid">
+          <button class="prefab-button featured" data-interface="social-event" data-prefab="../../GUI/Prefabs/ReignSocialEventScreen.xml" data-preset="social">Social Event</button>
+          <button class="prefab-button featured variant" data-interface="wilderness-event" data-prefab="../../GUI/Prefabs/ReignSocialEventScreen.xml" data-preset="wilderness">Wilderness Event</button>
+          <button class="prefab-button" data-interface="individual-chat" data-prefab="../../GUI/Prefabs/ReignIndividualChatScreen.xml">Individual Chat</button>
+          <button class="prefab-button variant" data-interface="individual-chat-pregnancy-warning" data-prefab="../../GUI/Prefabs/ReignIndividualChatScreen.xml" data-preset="pregnancy-warning">Pregnancy Warning</button>
+          <button class="prefab-button variant" data-interface="individual-chat-intoxication-actions" data-prefab="../../GUI/Prefabs/ReignIndividualChatScreen.xml" data-preset="intoxication-actions">Individual Chat Actions</button>
+          <button class="prefab-button variant" data-interface="party-chat-intoxication-actions" data-prefab="../../GUI/Prefabs/ReignPartyChatScreen.xml" data-preset="intoxication-actions">Party Chat Actions</button>
+          <button class="prefab-button variant" data-interface="castle-chat-intoxication-actions" data-prefab="../../GUI/Prefabs/ReignCastleChatScreen.xml" data-preset="intoxication-actions">Castle Chat Actions</button>
+          <button class="prefab-button variant" data-interface="social-event-intoxication-actions" data-prefab="../../GUI/Prefabs/ReignSocialEventScreen.xml" data-preset="intoxication-actions">Social Event Actions</button>
+          <button class="prefab-button variant" data-interface="wilderness-event-intoxication-actions" data-prefab="../../GUI/Prefabs/ReignSocialEventScreen.xml" data-preset="intoxication-actions">Wilderness Event Actions</button>
+          <button class="prefab-button" data-interface="party-chat" data-prefab="../../GUI/Prefabs/ReignPartyChatScreen.xml">Party Chat</button>
+          <button class="prefab-button" data-interface="court" data-prefab="../../GUI/Prefabs/ReignCourtScreen.xml">Court</button>
+          <button class="prefab-button variant" data-interface="court-history" data-prefab="../../GUI/Prefabs/ReignCourtScreen.xml" data-preset="court-history">Court History</button>
+          <button class="prefab-button featured" data-interface="court-petition" data-prefab="../../GUI/Prefabs/ReignCourtPetitionScreen.xml">Court Petition</button>
+          <button class="prefab-button variant" data-interface="court-life-international" data-prefab="../../GUI/Prefabs/ReignCourtPetitionScreen.xml" data-preset="court-life-international">Foreign Audience</button>
+          <button class="prefab-button variant" data-interface="court-life-family" data-prefab="../../GUI/Prefabs/ReignCourtPetitionScreen.xml" data-preset="court-life-family">Family Visit</button>
+          <button class="prefab-button variant" data-interface="court-life-patronage" data-prefab="../../GUI/Prefabs/ReignCourtPetitionScreen.xml" data-preset="court-life-patronage">Patronage Offer</button>
+          <button class="prefab-button variant" data-interface="court-life-visitors" data-prefab="../../GUI/Prefabs/ReignCourtPetitionScreen.xml" data-preset="court-life-visitors">Visiting Household</button>
+          <button class="prefab-button featured" data-interface="royal-council" data-prefab="../../GUI/Prefabs/ReignRoyalCouncilScreen.xml">Royal Council</button>
+          <button class="prefab-button" data-interface="family-chambers" data-prefab="../../GUI/Prefabs/ReignFamilyChambersScreen.xml">Family Chambers</button>
+          <button class="prefab-button" data-interface="training-yard" data-prefab="../../GUI/Prefabs/ReignTrainingYardScreen.xml">Training Yard</button>
+          <button class="prefab-button variant" data-interface="training-yard-empty" data-prefab="../../GUI/Prefabs/ReignTrainingYardScreen.xml" data-preset="training-yard-empty">Training Yard · Empty</button>
+          <button class="prefab-button variant" data-interface="training-yard-active" data-prefab="../../GUI/Prefabs/ReignTrainingYardScreen.xml" data-preset="training-yard-active">Training Yard · Active</button>
+          <button class="prefab-button" data-interface="castle-layout" data-prefab="../../GUI/Prefabs/ReignCastleLayoutScreen.xml">Castle Layout</button>
+          <button class="prefab-button featured" data-interface="castle-chat" data-prefab="../../GUI/Prefabs/ReignCastleChatScreen.xml">Castle Chat</button>
+          <button class="prefab-button" data-interface="ambassador" data-prefab="../../GUI/Prefabs/ReignAmbassadorScreen.xml">Ambassadors</button>
+          <button class="prefab-button" data-interface="economic-report" data-prefab="../../GUI/Prefabs/ReignCourtEconomicReportScreen.xml">Economic Report</button>
+          <button class="prefab-button featured" data-interface="government" data-prefab="../../GUI/Prefabs/ReignGovernmentScreen.xml">Government</button>
+          <button class="prefab-button" data-interface="war-council" data-prefab="../../GUI/Prefabs/ReignWarCouncilScreen.xml">War Council</button>
+          <button class="prefab-button" data-interface="spymaster" data-prefab="../../GUI/Prefabs/ReignSpymasterScreen.xml">Spymaster</button>
+          <button class="prefab-button variant" data-interface="spymaster-people" data-prefab="../../GUI/Prefabs/ReignSpymasterScreen.xml" data-preset="spymaster-people">Spymaster · People</button>
+          <button class="prefab-button variant" data-interface="spymaster-subterfuge" data-prefab="../../GUI/Prefabs/ReignSpymasterScreen.xml" data-preset="spymaster-subterfuge">Spymaster · Subterfuge</button>
+          <button class="prefab-button variant" data-interface="spymaster-reputation" data-prefab="../../GUI/Prefabs/ReignSpymasterScreen.xml" data-preset="spymaster-reputation">Spymaster · Reputation</button>
+          <button class="prefab-button variant" data-interface="spymaster-archive" data-prefab="../../GUI/Prefabs/ReignSpymasterScreen.xml" data-preset="spymaster-archive">Spymaster · Archive</button>
+          <button class="prefab-button" data-interface="correspondence" data-prefab="../../GUI/Prefabs/ReignCorrespondenceScreen.xml">Correspondence</button>
+          <button class="prefab-button" data-interface="diplomacy-announcement" data-prefab="../../GUI/Prefabs/ReignDiplomacyAnnouncementScreen.xml">Diplomacy</button>
+          <button class="prefab-button" data-interface="notable-generation" data-prefab="../../GUI/Prefabs/ReignNotableGenerationPopup.xml">Notable Generation</button>
+          <button class="prefab-button" data-interface="memories-book" data-prefab="../../GUI/Prefabs/AIPortraitsMemoriesBook.xml">Memories Book</button>
+          <button class="prefab-button support" data-interface="calibration-overlay" data-prefab="../../GUI/Prefabs/ReignUiCalibrationOverlay.xml">Calibration Overlay</button>
+        </div>
+        <p id="prefabCatalogStatus" class="microcopy catalog-status">19 standalone interfaces · 1 runtime variant · 1 support interface</p>
+      </section>
+
+      <section class="control-section">
+        <div class="section-heading">
+          <h2>Native UI additions</h2>
+          <span>composed runtime patches</span>
+        </div>
+        <div id="augmentationGrid" class="prefab-grid"></div>
+        <p id="augmentationCatalogStatus" class="microcopy catalog-status">Loading Reign additions to native Bannerlord interfaces…</p>
+      </section>
+
+      <section class="control-section">
+        <div class="section-heading"><h2>Load XML</h2><span>any prefab</span></div>
+        <label class="file-button">
+          Choose XML file
+          <input id="fileInput" type="file" accept=".xml,text/xml,application/xml" />
+        </label>
+        <textarea id="xmlPaste" spellcheck="false" placeholder="Paste a Prefab, Window, or Gauntlet widget tree…"></textarea>
+        <button id="loadPaste" class="secondary-button">Render pasted XML</button>
+        <p class="microcopy">You can also drop an XML file anywhere on the preview canvas.</p>
+      </section>
+
+      <section class="control-section">
+        <div class="section-heading"><h2>Test surface</h2><span id="viewportBadge">2560 × 1600</span></div>
+        <label class="field-label" for="viewportSelect">Viewport</label>
+        <select id="viewportSelect">
+          <option value="1920x1080">1920 × 1080 · 1080p</option>
+          <option value="2560x1440">2560 × 1440 · 1440p</option>
+          <option value="2560x1600" selected>2560 × 1600 · live 16:10</option>
+          <option value="3440x1440">3440 × 1440 · ultrawide</option>
+          <option value="3840x1600">3840 × 1600 · ultrawide+</option>
+          <option value="3840x2160">3840 × 2160 · 4K</option>
+        </select>
+        <label class="field-label" for="uiScaleSelect">Gauntlet UI scale</label>
+        <select id="uiScaleSelect">
+          <option value="0.80">80%</option>
+          <option value="1" selected>100%</option>
+          <option value="1.20">120%</option>
+          <option value="1.40">140%</option>
+        </select>
+        <label class="field-label" for="runtimeScaleSelect">Runtime scale contract</label>
+        <select id="runtimeScaleSelect">
+          <option value="auto" selected>Auto by prefab</option>
+          <option value="native">Standard Gauntlet native</option>
+          <option value="custom-scale-locked">Ignore player UI scale</option>
+          <option value="reference-locked">Fixed 1080 reference</option>
+        </select>
+        <label class="field-label" for="courtStateSelect">Court example state</label>
+        <select id="courtStateSelect">
+          <option value="home" selected>Court home</option>
+          <option value="tab">Functional tab</option>
+          <option value="detail">Matter detail</option>
+          <option value="audience">Audience conversation</option>
+        </select>
+        <div class="toggle-grid">
+          <label><input id="fitToggle" type="checkbox" checked /> Fit canvas</label>
+          <label><input id="outlineToggle" type="checkbox" /> Node outlines</label>
+          <label><input id="labelToggle" type="checkbox" /> XML labels</label>
+        </div>
+      </section>
+
+      <section class="control-section calibration-controls">
+        <div class="section-heading"><h2>Calibration editor</h2><span>non-destructive</span></div>
+        <div class="toggle-grid">
+          <label><input id="editModeToggle" type="checkbox" /> Drag and resize</label>
+          <label><input id="aspectLockToggle" type="checkbox" /> Lock aspect</label>
+        </div>
+        <label class="field-label" for="snapSelect">Snap increment</label>
+        <select id="snapSelect">
+          <option value="1">1 logical pixel</option>
+          <option value="5" selected>5 logical pixels</option>
+          <option value="10">10 logical pixels</option>
+        </select>
+        <div class="calibration-button-row">
+          <button id="undoCalibration" class="secondary-button" disabled>Undo</button>
+          <button id="redoCalibration" class="secondary-button" disabled>Redo</button>
+        </div>
+        <label class="file-button compact-file-button">Import live snapshot<input id="runtimeSnapshotInput" type="file" accept=".json,application/json" /></label>
+        <button id="applyRuntimeEdits" class="secondary-button" disabled>Import live adjustments</button>
+        <div class="native-authority-card">
+          <strong>Bannerlord native authority</strong>
+          <label class="toggle-row"><input id="nativeAuthorityToggle" type="checkbox" checked /> Use exact engine scale and measurements</label>
+          <label class="toggle-row"><input id="nativeDataToggle" type="checkbox" /> Use captured game-state text and list shape</label>
+          <label class="toggle-row"><input id="nativeCaptureToggle" type="checkbox" /> Overlay latest game capture</label>
+          <button id="refreshNativeEvidence" class="secondary-button">Refresh native evidence</button>
+          <span id="nativeEvidenceStatus">No native evidence loaded.</span>
+        </div>
+        <div class="native-parity-card">
+          <strong>Every-interface parity gate</strong>
+          <span id="nativeParityStatus" aria-live="polite">Checking current readiness…</span>
+          <button id="refreshNativeParity" class="secondary-button">Refresh parity gate</button>
+          <small id="nativeParityDetail">Provider preview, installed hashes, and reviewed native evidence are evaluated separately.</small>
+        </div>
+        <label class="file-button compact-file-button">Overlay game screenshot<input id="referenceImageInput" type="file" accept="image/png,image/jpeg,image/webp" /></label>
+        <label class="field-label" for="referenceOpacity">Reference opacity</label>
+        <input id="referenceOpacity" type="range" min="0" max="100" value="50" />
+        <label class="toggle-row"><input id="differenceToggle" type="checkbox" /> Pixel-difference blend</label>
+        <button id="clearReference" class="secondary-button" disabled>Clear comparison</button>
+        <p class="microcopy">Select a rendered object and press Delete to stage removal. Edits and deletions remain in memory until you save a patch or explicitly apply it to source XML.</p>
+      </section>
+
+      <section class="control-section status-section">
+        <div class="section-heading"><h2>Status</h2><span id="statusDot" class="status-dot"></span></div>
+        <div id="status" class="status-copy" role="status">Ready.</div>
+        <div class="source-sync-row">
+          <span id="sourceSyncStatus" class="source-sync-status">No tracked source loaded.</span>
+          <button id="reloadCurrentSource" class="secondary-button source-reload-button" disabled>Reload current source</button>
+        </div>
+      </section>
+    </aside>
+
+    <main class="workspace">
+      <header class="workspace-toolbar">
+        <div>
+          <strong id="fileTitle">No XML loaded</strong>
+          <span id="fileMeta">Choose a current prefab, local file, dropped file, or pasted snippet.</span>
+        </div>
+        <div class="toolbar-hint"><kbd>Click</kbd> inspect · click again to cycle stacked objects</div>
+      </header>
+      <div id="stageShell" class="stage-shell">
+        <div id="stageWrap" class="stage-wrap">
+          <div id="stage" class="stage" aria-label="Gauntlet preview canvas">
+            <div id="stageContent" class="stage-content">
+              <div class="drop-hint">
+                <span>Drop a Gauntlet XML file here</span>
+                <small>or choose one of the current Reign prefabs</small>
+              </div>
+            </div>
+            <img id="referenceOverlay" class="reference-overlay" alt="Live-game comparison" hidden />
+            <div id="runtimeMeasurementOverlay" class="runtime-measurement-overlay" hidden></div>
+            <div id="calibrationOverlay" class="calibration-overlay" hidden>
+              <div class="calibration-move-surface" data-calibration-handle="move"></div>
+              <button class="calibration-handle nw" data-calibration-handle="nw" aria-label="Resize top left"></button>
+              <button class="calibration-handle n" data-calibration-handle="n" aria-label="Resize top"></button>
+              <button class="calibration-handle ne" data-calibration-handle="ne" aria-label="Resize top right"></button>
+              <button class="calibration-handle e" data-calibration-handle="e" aria-label="Resize right"></button>
+              <button class="calibration-handle se" data-calibration-handle="se" aria-label="Resize bottom right"></button>
+              <button class="calibration-handle s" data-calibration-handle="s" aria-label="Resize bottom"></button>
+              <button class="calibration-handle sw" data-calibration-handle="sw" aria-label="Resize bottom left"></button>
+              <button class="calibration-handle w" data-calibration-handle="w" aria-label="Resize left"></button>
+              <span class="calibration-size-label"></span>
+            </div>
+            <div id="viewportReadout" class="viewport-readout">1920 × 1080 · UI 100%</div>
+          </div>
+        </div>
+      </div>
+    </main>
+
+    <aside class="inspector-panel" aria-label="Persistent XML object inspector">
+      <header class="inspector-header">
+        <p class="eyebrow">Persistent selection</p>
+        <h2 id="selectionTitle">Nothing selected</h2>
+        <p id="selectionSubtitle">Click any rendered object. Repeated clicks at the same point cycle through overlapping layers.</p>
+      </header>
+
+      <section class="token-card">
+        <label for="selectionToken">Copyable selection token</label>
+        <div class="token-row">
+          <input id="selectionToken" readonly value="" placeholder="Select an object to create a token" />
+          <button id="copyToken" disabled>Copy</button>
+        </div>
+        <span id="copyFeedback" class="copy-feedback" aria-live="polite"></span>
+      </section>
+
+      <section id="inspectorEmpty" class="empty-inspector">
+        <div class="target-mark">⌖</div>
+        <p>The inspector stays visible while you change viewport size, UI scale, outlines, or Court state.</p>
+      </section>
+
+      <section id="inspectorDetails" class="inspector-details" hidden>
+        <dl id="identityDetails" class="detail-grid"></dl>
+        <div class="inspector-block">
+          <h3>Bound properties</h3>
+          <div id="boundProperties" class="property-list"></div>
+        </div>
+        <div class="inspector-block">
+          <h3>All XML attributes</h3>
+          <div id="attributeList" class="property-list"></div>
+        </div>
+        <div id="calibrationInspector" class="inspector-block calibration-inspector" hidden>
+          <div class="section-heading"><h3>Calibration values</h3><span id="calibrationDirtyBadge">clean</span></div>
+          <div class="calibration-value-grid">
+            <label>X offset<input id="editPositionX" type="number" step="1" /></label>
+            <label>Y offset<input id="editPositionY" type="number" step="1" /></label>
+            <label>Width<input id="editWidth" type="number" min="1" step="1" /></label>
+            <label>Height<input id="editHeight" type="number" min="1" step="1" /></label>
+            <label>Left margin<input id="editMarginLeft" type="number" step="1" /></label>
+            <label>Top margin<input id="editMarginTop" type="number" step="1" /></label>
+            <label>Right margin<input id="editMarginRight" type="number" step="1" /></label>
+            <label>Bottom margin<input id="editMarginBottom" type="number" step="1" /></label>
+          </div>
+          <button id="applyCalibrationValues" class="secondary-button">Apply values</button>
+          <div class="live-measurement-card">
+            <strong>Live Bannerlord measurement</strong>
+            <span id="runtimeMeasurementText">No matching runtime snapshot loaded.</span>
+          </div>
+          <label for="calibrationPatchReview">Pending XML changes</label>
+          <textarea id="calibrationPatchReview" readonly spellcheck="false" placeholder="Select and edit a widget to create a patch."></textarea>
+          <div class="calibration-action-grid">
+            <button id="saveCalibrationPatch" class="secondary-button" disabled>Save patch</button>
+            <button id="downloadCalibrationPatch" class="secondary-button" disabled>Download</button>
+            <button id="applyCalibrationSource" class="danger-button" disabled>Apply to source</button>
+          </div>
+          <div class="game-sync-card">
+            <strong>Workspace → installed game</strong>
+            <span id="prefabInstallSummary">Checking all Reign UI prefabs…</span>
+            <span id="prefabInstallStatus">Checking the installed prefab…</span>
+            <div class="calibration-button-row">
+              <button id="refreshPrefabInstallStatus" class="secondary-button">Refresh</button>
+              <button id="installCurrentPrefab" class="secondary-button" disabled>Install current XML</button>
+            </div>
+            <button id="applyCalibrationGame" class="danger-button full-width-button" disabled>Apply changes + install in game</button>
+            <small>Installation is hash-verified, backed up, and refused while Bannerlord is running. Reopen the interface after installation.</small>
+          </div>
+          <p id="calibrationFeedback" class="copy-feedback" aria-live="polite"></p>
+        </div>
+      </section>
+
+      <section class="diagnostics-panel">
+        <div class="diagnostics-heading">
+          <div>
+            <p class="eyebrow">Automated checks</p>
+            <h2>Diagnostics</h2>
+          </div>
+          <span id="issueCount" class="issue-count">0</span>
+        </div>
+        <div id="diagnosticSummary" class="diagnostic-summary">
+          <span><b id="missingCount">0</b> bindings</span>
+          <span><b id="assetCount">0</b> assets</span>
+          <span><b id="overflowCount">0</b> overflow</span>
+          <span><b id="clippingCount">0</b> clipping</span>
+          <span><b id="fitCount">0</b> fit contracts</span>
+        </div>
+        <div id="diagnosticList" class="diagnostic-list">
+          <p class="microcopy">Diagnostics appear after a prefab renders.</p>
+        </div>
+      </section>
+    </aside>
+
+    <section class="codex-dock" aria-label="Codex XML editing chat">
+      <div class="codex-dock-heading">
+        <div>
+          <p class="eyebrow">Codex editing task</p>
+          <strong>Ask for a change to the selected XML object</strong>
+        </div>
+        <span id="codexConnectionStatus" class="codex-status">Connecting…</span>
+      </div>
+      <div id="codexTranscript" class="codex-transcript" aria-live="polite">
+        <p class="codex-message system">Click an interface element, then describe the change. The current file, XML path, bindings, geometry, diagnostics, and pending edits are sent with your request.</p>
+      </div>
+      <div class="codex-input-row">
+        <span id="codexSelectionContext" class="codex-selection-context">No widget selected</span>
+        <textarea id="codexPrompt" rows="2" placeholder="Example: Move this SEND button down 12 pixels and keep its label centered inside the frame."></textarea>
+        <button id="sendCodexPrompt" class="codex-send" disabled>Send to Codex</button>
+      </div>
+    </section>
+  </div>
+
+  <script type="module" src="js/app.js"></script>
+</body>
+</html>

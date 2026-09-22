@@ -1,0 +1,27 @@
+{
+  "version": 1,
+  "cacheKey": "Beromic_Auberecourt (reign_court_town_V1_child_1)",
+  "heroStringId": "reign_court_town_V1_child_1",
+  "characterObjectId": "reign_court_town_V1_child_1",
+  "characterName": "Beromic Auberecourt",
+  "provider": "AtlasCloud",
+  "model": "xai/grok-imagine-image/edit",
+  "adapter": "atlas upload/generate/poll",
+  "sourceSha256": "84aa78d4d874c55e9e481b9e123d78f21e083b7125926671d7a32de2d88a4847",
+  "portraitSha256": "b20dfc94616e34618b32bad0f562d68da50415f5e20d789a05a7baede1f7384a",
+  "portraitWidth": 864,
+  "portraitHeight": 1152,
+  "physicalConfidence": {
+    "definition": "physical_confidence",
+    "score": 58,
+    "profile": "41-60",
+    "flirtatiousnessPercentage": 47,
+    "confidencePercentage": 90,
+    "flirtatiousnessWeight": 0.75,
+    "confidenceWeight": 0.25,
+    "source": "shipped_profile_library"
+  },
+  "derivativesReady": true,
+  "derivativeError": "",
+  "generatedUtc": "2026-07-17T18:16:55.1654766Z"
+}

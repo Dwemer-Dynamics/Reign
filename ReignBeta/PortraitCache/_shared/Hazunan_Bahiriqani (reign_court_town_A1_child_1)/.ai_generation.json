@@ -1,0 +1,27 @@
+{
+  "version": 1,
+  "cacheKey": "Hazunan_Bahiriqani (reign_court_town_A1_child_1)",
+  "heroStringId": "reign_court_town_A1_child_1",
+  "characterObjectId": "reign_court_town_A1_child_1",
+  "characterName": "Hazunan Bahiriqani",
+  "provider": "AtlasCloud",
+  "model": "xai/grok-imagine-image/edit",
+  "adapter": "atlas upload/generate/poll",
+  "sourceSha256": "c87cb7f714ccf57fa60238fe16189caea26405d080f5c62f625a955f9941a070",
+  "portraitSha256": "59d0d31fca8d2a0dbc70fef0d19d2654075294c623da895972d489e7b861156c",
+  "portraitWidth": 864,
+  "portraitHeight": 1152,
+  "physicalConfidence": {
+    "definition": "physical_confidence",
+    "score": 40,
+    "profile": "21-40",
+    "flirtatiousnessPercentage": 48,
+    "confidencePercentage": 17,
+    "flirtatiousnessWeight": 0.75,
+    "confidenceWeight": 0.25,
+    "source": "shipped_profile_library"
+  },
+  "derivativesReady": true,
+  "derivativeError": "",
+  "generatedUtc": "2026-07-17T18:43:07.1748012Z"
+}

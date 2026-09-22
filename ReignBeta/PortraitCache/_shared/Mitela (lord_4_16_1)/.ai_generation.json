@@ -1,0 +1,27 @@
+{
+  "version": 1,
+  "cacheKey": "Mitela (lord_4_16_1)",
+  "heroStringId": "lord_4_16_1",
+  "characterObjectId": "lord_4_16_1",
+  "characterName": "Mitela",
+  "provider": "AtlasCloud",
+  "model": "xai/grok-imagine-image/edit",
+  "adapter": "atlas upload/generate/poll",
+  "sourceSha256": "bcf36fdfab2a5d167867714b0aa51bd6d0e5e712b9cf4c482a0b2c4157c31144",
+  "portraitSha256": "1ae5e0827f5b67f2e33f601f524ec19bb7472770454dd8732250bcdc5abff990",
+  "portraitWidth": 832,
+  "portraitHeight": 1248,
+  "physicalConfidence": {
+    "definition": "physical_confidence",
+    "score": 51,
+    "profile": "41-60",
+    "flirtatiousnessPercentage": 42,
+    "confidencePercentage": 77,
+    "flirtatiousnessWeight": 0.75,
+    "confidenceWeight": 0.25,
+    "source": "shipped_profile_library"
+  },
+  "derivativesReady": true,
+  "derivativeError": "",
+  "generatedUtc": "2026-07-17T19:04:30.9303517Z"
+}

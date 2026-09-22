@@ -1,0 +1,27 @@
+{
+  "version": 1,
+  "cacheKey": "Daradiya_Alzaruqani (reign_court_town_A8_child_4)",
+  "heroStringId": "reign_court_town_A8_child_4",
+  "characterObjectId": "reign_court_town_A8_child_4",
+  "characterName": "Daradiya Alzaruqani",
+  "provider": "AtlasCloud",
+  "model": "xai/grok-imagine-image/edit",
+  "adapter": "atlas upload/generate/poll",
+  "sourceSha256": "c1e015595bbc714636548b94ae56a21ed1c47ad123ea0fb85f40564cb12363c6",
+  "portraitSha256": "85e44c0f4965da6fe4b99a57f00eb31ea0a79dab58f10349a5a876b9a43e0494",
+  "portraitWidth": 864,
+  "portraitHeight": 1152,
+  "physicalConfidence": {
+    "definition": "physical_confidence",
+    "score": 40,
+    "profile": "21-40",
+    "flirtatiousnessPercentage": 32,
+    "confidencePercentage": 63,
+    "flirtatiousnessWeight": 0.75,
+    "confidenceWeight": 0.25,
+    "source": "shipped_profile_library"
+  },
+  "derivativesReady": true,
+  "derivativeError": "",
+  "generatedUtc": "2026-07-17T18:25:48.4930508Z"
+}

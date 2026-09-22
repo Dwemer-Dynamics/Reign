@@ -1,0 +1,27 @@
+{
+  "version": 1,
+  "cacheKey": "Sechen (lord_6_15_2)",
+  "heroStringId": "lord_6_15_2",
+  "characterObjectId": "lord_6_15_2",
+  "characterName": "Sechen",
+  "provider": "AtlasCloud",
+  "model": "xai/grok-imagine-image/edit",
+  "adapter": "atlas upload/generate/poll",
+  "sourceSha256": "6e72c5f178f65db28df496ae7ca3037df70bc5d7fcc00d25920139a83ea91813",
+  "portraitSha256": "81d07e846ff8e6d9fb91aee8bf57df04c0fd02b84cce2c986d943d43fb3c6357",
+  "portraitWidth": 832,
+  "portraitHeight": 1248,
+  "physicalConfidence": {
+    "definition": "physical_confidence",
+    "score": 51,
+    "profile": "41-60",
+    "flirtatiousnessPercentage": 48,
+    "confidencePercentage": 59,
+    "flirtatiousnessWeight": 0.75,
+    "confidenceWeight": 0.25,
+    "source": "shipped_profile_library"
+  },
+  "derivativesReady": true,
+  "derivativeError": "",
+  "generatedUtc": "2026-07-17T19:12:59.6530029Z"
+}

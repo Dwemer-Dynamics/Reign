@@ -1,0 +1,27 @@
+{
+  "version": 1,
+  "cacheKey": "Tovsja (lord_7_15_1)",
+  "heroStringId": "lord_7_15_1",
+  "characterObjectId": "lord_7_15_1",
+  "characterName": "Tovsja",
+  "provider": "AtlasCloud",
+  "model": "xai/grok-imagine-image/edit",
+  "adapter": "atlas upload/generate/poll",
+  "sourceSha256": "4f6444e05268e22b9d16e854c7b022edf278a0e0d7a20341cb1fc41a309dc9c0",
+  "portraitSha256": "824d4a39a81704a0e4d0ef3245a3c86e386753ef3f4c2a657921b33f84e3a5d1",
+  "portraitWidth": 832,
+  "portraitHeight": 1248,
+  "physicalConfidence": {
+    "definition": "physical_confidence",
+    "score": 50,
+    "profile": "41-60",
+    "flirtatiousnessPercentage": 50,
+    "confidencePercentage": 50,
+    "flirtatiousnessWeight": 0.75,
+    "confidenceWeight": 0.25,
+    "source": "neutral_fallback"
+  },
+  "derivativesReady": true,
+  "derivativeError": "",
+  "generatedUtc": "2026-07-17T19:18:27.6431852Z"
+}

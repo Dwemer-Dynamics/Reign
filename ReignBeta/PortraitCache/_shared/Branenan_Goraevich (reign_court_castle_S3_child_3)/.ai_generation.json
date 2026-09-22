@@ -1,0 +1,27 @@
+{
+  "version": 1,
+  "cacheKey": "Branenan_Goraevich (reign_court_castle_S3_child_3)",
+  "heroStringId": "reign_court_castle_S3_child_3",
+  "characterObjectId": "reign_court_castle_S3_child_3",
+  "characterName": "Branenan Goraevich",
+  "provider": "AtlasCloud",
+  "model": "xai/grok-imagine-image/edit",
+  "adapter": "atlas upload/generate/poll",
+  "sourceSha256": "453f863b3826c27f224935122bf2947783e8b162d0887c63fa3476c1e75da6cd",
+  "portraitSha256": "1a3dbe5f6f5f000b45887570f73a524b1f4563682f5cbb9c61177095c5ef2896",
+  "portraitWidth": 864,
+  "portraitHeight": 1152,
+  "physicalConfidence": {
+    "definition": "physical_confidence",
+    "score": 39,
+    "profile": "21-40",
+    "flirtatiousnessPercentage": 38,
+    "confidencePercentage": 41,
+    "flirtatiousnessWeight": 0.75,
+    "confidenceWeight": 0.25,
+    "source": "shipped_profile_library"
+  },
+  "derivativesReady": true,
+  "derivativeError": "",
+  "generatedUtc": "2026-07-17T18:18:45.4824281Z"
+}

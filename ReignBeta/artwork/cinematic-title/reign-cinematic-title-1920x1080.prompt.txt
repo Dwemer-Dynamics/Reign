@@ -1,0 +1,19 @@
+Use case: stylized-concept
+Asset type: cinematic opening title card for the Reign game/mod, final 16:9 still at exactly 1920 x 1080 pixels
+Input images: Image 1 is ReignBeta/artwork/ui-modern-style-kit/approved-references/royal-council.png and is the exact Reign palette, material, typography mood, and restraint reference; Image 2 is ReignBeta/artwork/ui-modern-style-kit/generated-sources/modern-crowned-r-crest-source.png and is the crowned-R heraldic brand reference
+Primary request: create a dramatic cinematic title card for REIGN, not a game menu and not a UI screen
+Scene/backdrop: immense near-black royal hall suggested only through darkness, subtle black-marble texture, faint drifting smoke and dust, barely visible architectural depth
+Subject: the single word "REIGN" centered as the dominant focal title, with a refined crowned-R heraldic crest integrated above it and a very restrained thin ornamental divider below
+Style/medium: premium cinematic title design, photoreal metal and stone materials, elegant medieval political drama, solemn and prestigious rather than high-fantasy
+Composition/framing: exact 1920x1080 landscape, centered symmetrical composition, generous negative space, title occupying the central third, no border and no interface panels
+Lighting/mood: low-key chiaroscuro; a narrow soft overhead shaft catches only the title and crest; quiet smoke; subtle gold glints; ominous, regal, controlled
+Color palette: near-black #070808 and black marble #121211, antique gold #7E6A4D, restrained highlight gold #A88A54, scarce pale glint #C5AC83
+Materials/textures: aged brushed antique gold with subtle scratches and patina; deep matte black marble with very low-contrast veins; no glossy yellow gold
+Text (verbatim): "REIGN"
+Typography: large refined classical high-contrast serif capitals, wide deliberate tracking, perfectly legible, antique-gold dimensional lettering; render the word exactly once with no other letters or words
+Constraints: cinematic title card only; preserve Reign's restrained black-marble and antique-gold identity; no people; no characters; no menu buttons; no UI chrome; no subtitle; no slogan; no logos besides the crowned-R crest; no watermark
+Avoid: bright fantasy gold, orange-gold, brown parchment, blue magical light, flames, weapons, castles in daylight, busy filigree, thick bevels, glowing outlines, lens-flare clutter, extra text, misspelled text
+
+Generation mode: built-in ImageGen tool with the two project-local reference images above.
+Generated source: C:\Users\speed\.codex\generated_images\01a0a2ed-0f07-77b0-8b00-b8ad72947d3f\exec-0027887f-1c3b-46b8-80a2-8c41a83ff73b.png (1672 x 941).
+Finalization: deterministically resampled to exactly 1920 x 1080 with high-quality bicubic interpolation; no crop or content edits.

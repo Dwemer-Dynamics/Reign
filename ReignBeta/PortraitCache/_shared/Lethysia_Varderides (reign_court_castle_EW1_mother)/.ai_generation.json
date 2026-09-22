@@ -1,0 +1,27 @@
+{
+  "version": 1,
+  "cacheKey": "Lethysia_Varderides (reign_court_castle_EW1_mother)",
+  "heroStringId": "reign_court_castle_EW1_mother",
+  "characterObjectId": "reign_court_castle_EW1_mother",
+  "characterName": "Lethysia Varderides",
+  "provider": "AtlasCloud",
+  "model": "xai/grok-imagine-image/edit",
+  "adapter": "atlas upload/generate/poll",
+  "sourceSha256": "28bcbac102ca2ec52234eaf1a37095bf3eef1b48ec7c8f17390c4c0aff4d62cf",
+  "portraitSha256": "895e1a7630d55dcfc071894e364b1b02722bb1f4670800ada45843b7d0d9bb73",
+  "portraitWidth": 864,
+  "portraitHeight": 1152,
+  "physicalConfidence": {
+    "definition": "physical_confidence",
+    "score": 80,
+    "profile": "61-80",
+    "flirtatiousnessPercentage": 88,
+    "confidencePercentage": 55,
+    "flirtatiousnessWeight": 0.75,
+    "confidenceWeight": 0.25,
+    "source": "shipped_profile_library"
+  },
+  "derivativesReady": true,
+  "derivativeError": "",
+  "generatedUtc": "2026-07-17T18:58:30.3463897Z"
+}

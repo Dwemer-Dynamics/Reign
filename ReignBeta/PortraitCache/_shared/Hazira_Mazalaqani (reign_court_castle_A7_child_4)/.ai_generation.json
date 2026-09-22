@@ -1,0 +1,27 @@
+{
+  "version": 1,
+  "cacheKey": "Hazira_Mazalaqani (reign_court_castle_A7_child_4)",
+  "heroStringId": "reign_court_castle_A7_child_4",
+  "characterObjectId": "reign_court_castle_A7_child_4",
+  "characterName": "Hazira Mazalaqani",
+  "provider": "AtlasCloud",
+  "model": "xai/grok-imagine-image/edit",
+  "adapter": "atlas upload/generate/poll",
+  "sourceSha256": "871a829d2c80e8b78256ba71de67d2a9d169b05f41be05b8e9306d7d7b96aff9",
+  "portraitSha256": "a216bf4472f29100bb4e6adee7076ff8697d73bbeb33d0f66ace72014b36c645",
+  "portraitWidth": 864,
+  "portraitHeight": 1152,
+  "physicalConfidence": {
+    "definition": "physical_confidence",
+    "score": 55,
+    "profile": "41-60",
+    "flirtatiousnessPercentage": 65,
+    "confidencePercentage": 24,
+    "flirtatiousnessWeight": 0.75,
+    "confidenceWeight": 0.25,
+    "source": "shipped_profile_library"
+  },
+  "derivativesReady": true,
+  "derivativeError": "",
+  "generatedUtc": "2026-07-17T18:42:49.0549825Z"
+}

@@ -1,0 +1,47 @@
+{
+  "schema": "reign-overlay-asset-spec-v1",
+  "asset": {
+    "id": "calibration-overlay-modern-launcher",
+    "role": "exact-fixed approved-caption Calibration Overlay launcher plaque",
+    "selectedGeneratedSourceSha256": "338b80ff83a4cd7bec770735a07f3f8dce71782772a19b880b53197b93890b0f",
+    "generationMode": "built-in image-to-image plus deterministic exact-fixed compositing",
+    "promptPath": "../calibration-overlay-modern-panel-prompt.txt",
+    "promptSha256": "736cdcafef5b2973b06e5da59744a3961e26cf1e1f05e894fa9e467f901494c5"
+  },
+  "authorities": {
+    "layout": {
+      "path": "../approved-references/calibration-overlay.png",
+      "sha256": "1062a9b216c17be62475b89e1134e008d0ef43a53292d512d5f3214d0157c630"
+    },
+    "materials": {
+      "path": "../style-reference.png",
+      "sha256": "85b689dc164ebbf70f67a081c0f7097858edb0542ef0073de0c29eef7926b0a3"
+    },
+    "palette": {
+      "path": "../palette.json",
+      "sha256": "fac70043a567db463ae70c975b92037dbfc38337e0d9134bc85bb03e3bb9a043",
+      "schema": "reign-ui-modern-palette-v1",
+      "version": "2026.08.28.2"
+    }
+  },
+  "canvas": {
+    "width": 286,
+    "height": 50
+  },
+  "normalization": {
+    "fit": "stretch",
+    "anchor": "center",
+    "sourceCrop": {"x": 1224, "y": 77, "width": 286, "height": 50}
+  },
+  "antialiasScale": 4,
+  "allowNoApertures": true,
+  "apertures": [],
+  "transparentRgb": "#121211",
+  "marbleReduction": {
+    "amount": 0.0,
+    "blurRadius": 6.0,
+    "luminanceCeiling": 96,
+    "chromaCeiling": 36,
+    "selectionSoftness": 20
+  }
+}

@@ -1,0 +1,27 @@
+{
+  "version": 1,
+  "cacheKey": "Gwyena_Emrysadawn (reign_court_castle_B5_child_2)",
+  "heroStringId": "reign_court_castle_B5_child_2",
+  "characterObjectId": "reign_court_castle_B5_child_2",
+  "characterName": "Gwyena Emrysadawn",
+  "provider": "AtlasCloud",
+  "model": "xai/grok-imagine-image/edit",
+  "adapter": "atlas upload/generate/poll",
+  "sourceSha256": "78f590e388a82762e75ca5fb68fd0f94a059835bf7ac6e394ea0825ab4a99dd7",
+  "portraitSha256": "e6418a37b4236fc12f41ec99d4b485e70964428368217f34cd5a9da6394adbbe",
+  "portraitWidth": 864,
+  "portraitHeight": 1152,
+  "physicalConfidence": {
+    "definition": "physical_confidence",
+    "score": 49,
+    "profile": "41-60",
+    "flirtatiousnessPercentage": 46,
+    "confidencePercentage": 57,
+    "flirtatiousnessWeight": 0.75,
+    "confidenceWeight": 0.25,
+    "source": "shipped_profile_library"
+  },
+  "derivativesReady": true,
+  "derivativeError": "",
+  "generatedUtc": "2026-07-17T18:40:39.4868569Z"
+}

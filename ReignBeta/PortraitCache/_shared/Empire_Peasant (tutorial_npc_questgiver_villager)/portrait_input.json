@@ -1,0 +1,92 @@
+{
+  "version": 1,
+  "inputHash": "2d06eb954c1643ca439eed7649afd251a17f6641590404928400a48790bf032b",
+  "catalogHash": "12142c0ab28d2678b12b852b086450dcc4eea45e2e8a080f3baa85c42f7fb3a2",
+  "renderContractHash": "cc3b941e7d47057de9b4220f1473336e6f908719812bb2653b83bd3545cfbd2f",
+  "cacheKey": "Empire_Peasant (tutorial_npc_questgiver_villager)",
+  "heroStringId": "tutorial_npc_questgiver_villager",
+  "characterObjectId": "tutorial_npc_questgiver_villager",
+  "characterName": "Empire Peasant",
+  "ageYears": 22,
+  "cultureId": "empire",
+  "cultureName": "Imperial",
+  "gender": "man",
+  "clanId": "none",
+  "clanTier": null,
+  "clanProvenance": "not_defined_in_module_heroes_xml",
+  "socialStation": "unranked",
+  "occupation": "Special",
+  "archetype": "special",
+  "isLord": false,
+  "isNotable": false,
+  "isWanderer": false,
+  "isAlive": null,
+  "sourceModule": "Native",
+  "sourceFile": "Modules/StoryMode/ModuleData/story_mode_characters.xml",
+  "profileSource": "neutral_fallback",
+  "profilePackVersion": "",
+  "bodyKey": "00109C0340FC200659A4894CAAA8A4A6BC7262A86699976479AD7D8A99877A3A007886030768E986000000000000000000000000000000000000000000FC1142",
+  "bodyWeight": 0.5605,
+  "bodyBuild": 0.5265,
+  "faceTemplateId": "",
+  "faceGenerationVersion": "native_authored",
+  "civilianTemplate": "",
+  "civilianEquipment": [
+    {
+      "slot": "Body",
+      "itemId": "tied_cloth_tunic"
+    },
+    {
+      "slot": "Cape",
+      "itemId": "green_hood"
+    },
+    {
+      "slot": "Leg",
+      "itemId": "empire_horseman_boots"
+    }
+  ],
+  "headgearSuppressed": true,
+  "physicalConfidence": {
+    "definition": "physical_confidence",
+    "score": 50,
+    "profile": "41-60",
+    "flirtatiousnessPercentage": 50,
+    "confidencePercentage": 50,
+    "flirtatiousnessWeight": 0.75,
+    "confidenceWeight": 0.25,
+    "source": "neutral_fallback"
+  },
+  "renderPreset": "ai_source_wan_portrait_v5",
+  "renderWidth": 1536,
+  "renderHeight": 2048,
+  "sourceWidth": 768,
+  "sourceHeight": 1024,
+  "cropScale": 0.24,
+  "cropWidthRatio": 0.75,
+  "cropCenterYRatio": 0.324,
+  "cameraPitchDegrees": 4,
+  "sourceSha256": "c7814ca5b805f1198a03d83d3f275f4e0b611d019151bbc3444c222029905eab",
+  "sourceFileName": "source.png",
+  "generationEndpoint": "/portraits/generate",
+  "campaignIdSource": "active_campaign_at_generation_time",
+  "promptDeferred": true,
+  "sourceImageBase64From": "source.png",
+  "outputSizeOverride": "",
+  "promptPurpose": "portrait",
+  "nativePhysique": {
+    "schema": "reign-native-physique-v1",
+    "weight": 0.5605,
+    "build": 0.5265,
+    "weightSource": "shared_portrait_input.bodyWeight",
+    "buildSource": "shared_portrait_input.bodyBuild",
+    "sourceSha256": "c7814ca5b805f1198a03d83d3f275f4e0b611d019151bbc3444c222029905eab",
+    "provenance": {
+      "kind": "saved_character_metadata_backfill",
+      "heroStringId": "tutorial_npc_questgiver_villager",
+      "profileSource": "neutral_fallback",
+      "profilePackVersion": "",
+      "originalInputSha256": "27deea7287e8f2e22df4a447dfb330763fff9227de37ad4e2eb9757dbf013ceb",
+      "rendererReexecuted": false
+    }
+  }
+}

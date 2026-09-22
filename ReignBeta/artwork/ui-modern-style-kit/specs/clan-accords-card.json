@@ -1,0 +1,55 @@
+{
+  "schema": "reign-overlay-asset-spec-v1",
+  "asset": {
+    "id": "clan-accords-card",
+    "role": "complete moving card with integrated banner aperture and cancel outline"
+  },
+  "canvas": {
+    "width": 1188,
+    "height": 104
+  },
+  "normalization": {
+    "fit": "exact",
+    "anchor": "center",
+    "sourceCrop": {
+      "x": 404,
+      "y": 360,
+      "width": 1188,
+      "height": 104
+    }
+  },
+  "antialiasScale": 8,
+  "transparentRgb": "#000000",
+  "marbleReduction": {
+    "amount": 0
+  },
+  "apertures": [
+    {
+      "id": "banner",
+      "shape": "polygon",
+      "points": [
+        [
+          33,
+          11
+        ],
+        [
+          88,
+          11
+        ],
+        [
+          88,
+          74
+        ],
+        [
+          61,
+          93
+        ],
+        [
+          33,
+          74
+        ]
+      ],
+      "feather": 0
+    }
+  ]
+}

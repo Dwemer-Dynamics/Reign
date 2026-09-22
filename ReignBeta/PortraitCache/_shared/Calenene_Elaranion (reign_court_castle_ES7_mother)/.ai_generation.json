@@ -1,0 +1,27 @@
+{
+  "version": 1,
+  "cacheKey": "Calenene_Elaranion (reign_court_castle_ES7_mother)",
+  "heroStringId": "reign_court_castle_ES7_mother",
+  "characterObjectId": "reign_court_castle_ES7_mother",
+  "characterName": "Calenene Elaranion",
+  "provider": "AtlasCloud",
+  "model": "xai/grok-imagine-image/edit",
+  "adapter": "atlas upload/generate/poll",
+  "sourceSha256": "f96b87c2afa4deb86631e45e538c9eef079baf225cdf4bd0f74d04f7a8c6d00e",
+  "portraitSha256": "e9f7665332e2da6cad8b52aa1c2df6a48872d3a4bf1cff73af1f56d69bf3e156",
+  "portraitWidth": 864,
+  "portraitHeight": 1152,
+  "physicalConfidence": {
+    "definition": "physical_confidence",
+    "score": 58,
+    "profile": "41-60",
+    "flirtatiousnessPercentage": 62,
+    "confidencePercentage": 45,
+    "flirtatiousnessWeight": 0.75,
+    "confidenceWeight": 0.25,
+    "source": "shipped_profile_library"
+  },
+  "derivativesReady": true,
+  "derivativeError": "",
+  "generatedUtc": "2026-07-17T18:20:36.2290801Z"
+}

@@ -1,0 +1,27 @@
+{
+  "version": 1,
+  "cacheKey": "Ukhai (lord_3_21)",
+  "heroStringId": "lord_3_21",
+  "characterObjectId": "lord_3_21",
+  "characterName": "Ukhai",
+  "provider": "AtlasCloud",
+  "model": "xai/grok-imagine-image/edit",
+  "adapter": "atlas upload/generate/poll",
+  "sourceSha256": "dfa1b28ec8bf8a6f3595ef757902284d78e38f821b6e7665c0edb0fd91be54cf",
+  "portraitSha256": "f7a925fe2c316f62a1302241ce135ee090540c7b3f5c34297cea8d4fc7e14a3d",
+  "portraitWidth": 832,
+  "portraitHeight": 1248,
+  "physicalConfidence": {
+    "definition": "physical_confidence",
+    "score": 48,
+    "profile": "41-60",
+    "flirtatiousnessPercentage": 43,
+    "confidencePercentage": 62,
+    "flirtatiousnessWeight": 0.75,
+    "confidenceWeight": 0.25,
+    "source": "shipped_profile_library"
+  },
+  "derivativesReady": true,
+  "derivativeError": "",
+  "generatedUtc": "2026-07-17T19:19:22.0944960Z"
+}

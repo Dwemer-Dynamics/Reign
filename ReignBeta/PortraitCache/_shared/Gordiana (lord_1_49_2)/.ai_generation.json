@@ -1,0 +1,27 @@
+{
+  "version": 1,
+  "cacheKey": "Gordiana (lord_1_49_2)",
+  "heroStringId": "lord_1_49_2",
+  "characterObjectId": "lord_1_49_2",
+  "characterName": "Gordiana",
+  "provider": "AtlasCloud",
+  "model": "xai/grok-imagine-image/edit",
+  "adapter": "atlas upload/generate/poll",
+  "sourceSha256": "3c4a24137ff45b8bcc7ffdaaa07719f56964526bea63fda437c508a4730f299a",
+  "portraitSha256": "daf9f3c45b3cec786917a443bfa8dac8b1cf4b8940fbe9bc43288aed63e02b66",
+  "portraitWidth": 864,
+  "portraitHeight": 1152,
+  "physicalConfidence": {
+    "definition": "physical_confidence",
+    "score": 52,
+    "profile": "41-60",
+    "flirtatiousnessPercentage": 50,
+    "confidencePercentage": 57,
+    "flirtatiousnessWeight": 0.75,
+    "confidenceWeight": 0.25,
+    "source": "shipped_profile_library"
+  },
+  "derivativesReady": true,
+  "derivativeError": "",
+  "generatedUtc": "2026-07-17T18:39:39.1197604Z"
+}

@@ -1,0 +1,27 @@
+{
+  "version": 1,
+  "cacheKey": "Sein (lord_5_8)",
+  "heroStringId": "lord_5_8",
+  "characterObjectId": "lord_5_8",
+  "characterName": "Sein",
+  "provider": "AtlasCloud",
+  "model": "xai/grok-imagine-image/edit",
+  "adapter": "atlas upload/generate/poll",
+  "sourceSha256": "211b9bb2a301e8107cd4264a3bc6ddcf251f0c41a02f9a7248fc718a4c54816f",
+  "portraitSha256": "2c4a983672004da4bd5e25b99459ec97f83364f4badc43d984a4fca531d4e0ed",
+  "portraitWidth": 832,
+  "portraitHeight": 1248,
+  "physicalConfidence": {
+    "definition": "physical_confidence",
+    "score": 57,
+    "profile": "41-60",
+    "flirtatiousnessPercentage": 50,
+    "confidencePercentage": 77,
+    "flirtatiousnessWeight": 0.75,
+    "confidenceWeight": 0.25,
+    "source": "shipped_profile_library"
+  },
+  "derivativesReady": true,
+  "derivativeError": "",
+  "generatedUtc": "2026-07-17T19:13:18.8833787Z"
+}

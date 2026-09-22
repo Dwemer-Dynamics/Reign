@@ -1,0 +1,27 @@
+{
+  "version": 1,
+  "cacheKey": "Arcor (lord_1_41)",
+  "heroStringId": "lord_1_41",
+  "characterObjectId": "lord_1_41",
+  "characterName": "Arcor",
+  "provider": "AtlasCloud",
+  "model": "xai/grok-imagine-image/edit",
+  "adapter": "atlas upload/generate/poll",
+  "sourceSha256": "76f2da4f5bd20b9808355306000191fb26aead189209380b700e5d5e79d66bd6",
+  "portraitSha256": "3dc07e37fa67fd4525924fef1191a65b8ba14133b43a8db68cbb9285ab81c1d8",
+  "portraitWidth": 832,
+  "portraitHeight": 1248,
+  "physicalConfidence": {
+    "definition": "physical_confidence",
+    "score": 53,
+    "profile": "41-60",
+    "flirtatiousnessPercentage": 51,
+    "confidencePercentage": 58,
+    "flirtatiousnessWeight": 0.75,
+    "confidenceWeight": 0.25,
+    "source": "shipped_profile_library"
+  },
+  "derivativesReady": true,
+  "derivativeError": "",
+  "generatedUtc": "2026-07-17T18:13:18.7921485Z"
+}

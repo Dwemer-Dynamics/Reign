@@ -1,0 +1,27 @@
+{
+  "version": 1,
+  "cacheKey": "Darada_Alzaraqani (reign_court_castle_A1_child_4)",
+  "heroStringId": "reign_court_castle_A1_child_4",
+  "characterObjectId": "reign_court_castle_A1_child_4",
+  "characterName": "Darada Alzaraqani",
+  "provider": "AtlasCloud",
+  "model": "xai/grok-imagine-image/edit",
+  "adapter": "atlas upload/generate/poll",
+  "sourceSha256": "289275f1de34b922586290e77aec06360bfe31782a6f5eaac6041b52fa968652",
+  "portraitSha256": "c3a158ac7ce147c959d3e2e607cd7114a4f83a3d4c150392619d1e50bc94d87d",
+  "portraitWidth": 864,
+  "portraitHeight": 1152,
+  "physicalConfidence": {
+    "definition": "physical_confidence",
+    "score": 29,
+    "profile": "21-40",
+    "flirtatiousnessPercentage": 23,
+    "confidencePercentage": 46,
+    "flirtatiousnessWeight": 0.75,
+    "confidenceWeight": 0.25,
+    "source": "shipped_profile_library"
+  },
+  "derivativesReady": true,
+  "derivativeError": "",
+  "generatedUtc": "2026-07-17T18:25:32.0617111Z"
+}

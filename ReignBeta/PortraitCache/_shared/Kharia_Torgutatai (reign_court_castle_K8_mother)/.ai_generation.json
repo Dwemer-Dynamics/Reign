@@ -1,0 +1,27 @@
+{
+  "version": 1,
+  "cacheKey": "Kharia_Torgutatai (reign_court_castle_K8_mother)",
+  "heroStringId": "reign_court_castle_K8_mother",
+  "characterObjectId": "reign_court_castle_K8_mother",
+  "characterName": "Kharia Torgutatai",
+  "provider": "AtlasCloud",
+  "model": "xai/grok-imagine-image/edit",
+  "adapter": "atlas upload/generate/poll",
+  "sourceSha256": "92b61bddf2eb013f7ace70666db9bc38d2c6128d1980416aeee78e88350792fc",
+  "portraitSha256": "8dee7693a317fcfbd7a93a243060b3c0771e74f28081d415a341f4cf29d325bd",
+  "portraitWidth": 864,
+  "portraitHeight": 1152,
+  "physicalConfidence": {
+    "definition": "physical_confidence",
+    "score": 50,
+    "profile": "41-60",
+    "flirtatiousnessPercentage": 52,
+    "confidencePercentage": 43,
+    "flirtatiousnessWeight": 0.75,
+    "confidenceWeight": 0.25,
+    "source": "shipped_profile_library"
+  },
+  "derivativesReady": true,
+  "derivativeError": "",
+  "generatedUtc": "2026-07-17T18:47:27.9623423Z"
+}

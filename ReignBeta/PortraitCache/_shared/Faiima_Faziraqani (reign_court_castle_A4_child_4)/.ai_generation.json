@@ -1,0 +1,27 @@
+{
+  "version": 1,
+  "cacheKey": "Faiima_Faziraqani (reign_court_castle_A4_child_4)",
+  "heroStringId": "reign_court_castle_A4_child_4",
+  "characterObjectId": "reign_court_castle_A4_child_4",
+  "characterName": "Faiima Faziraqani",
+  "provider": "AtlasCloud",
+  "model": "xai/grok-imagine-image/edit",
+  "adapter": "atlas upload/generate/poll",
+  "sourceSha256": "964b7421d7fe50f121f42ff7cd758ff3680aea148b3ae0d18683c123832ae3f4",
+  "portraitSha256": "be93200706bd63a6827aac7abc1eab2f6bef842a880342160301df03fd5ad632",
+  "portraitWidth": 864,
+  "portraitHeight": 1152,
+  "physicalConfidence": {
+    "definition": "physical_confidence",
+    "score": 70,
+    "profile": "61-80",
+    "flirtatiousnessPercentage": 68,
+    "confidencePercentage": 75,
+    "flirtatiousnessWeight": 0.75,
+    "confidenceWeight": 0.25,
+    "source": "shipped_profile_library"
+  },
+  "derivativesReady": true,
+  "derivativeError": "",
+  "generatedUtc": "2026-07-17T18:36:26.6355073Z"
+}

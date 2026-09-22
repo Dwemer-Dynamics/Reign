@@ -1,0 +1,27 @@
+{
+  "version": 1,
+  "cacheKey": "Branala_Aberadawn (reign_court_castle_B1_child_2)",
+  "heroStringId": "reign_court_castle_B1_child_2",
+  "characterObjectId": "reign_court_castle_B1_child_2",
+  "characterName": "Branala Aberadawn",
+  "provider": "AtlasCloud",
+  "model": "xai/grok-imagine-image/edit",
+  "adapter": "atlas upload/generate/poll",
+  "sourceSha256": "fabb43b216d45a33c9acc5edcb5c18337a41ed5cf16eceb6d7f7cd29312226a4",
+  "portraitSha256": "3ae8ae9cfc5910a43ae24ea6caa6a9781b713ba4a9301e7d3f5644ab1a124679",
+  "portraitWidth": 864,
+  "portraitHeight": 1152,
+  "physicalConfidence": {
+    "definition": "physical_confidence",
+    "score": 57,
+    "profile": "41-60",
+    "flirtatiousnessPercentage": 58,
+    "confidencePercentage": 53,
+    "flirtatiousnessWeight": 0.75,
+    "confidenceWeight": 0.25,
+    "source": "shipped_profile_library"
+  },
+  "derivativesReady": true,
+  "derivativeError": "",
+  "generatedUtc": "2026-07-17T18:18:31.7074304Z"
+}

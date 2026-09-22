@@ -1,0 +1,27 @@
+{
+  "version": 1,
+  "cacheKey": "Iovenara_Istranirides (reign_court_castle_EW6_mother)",
+  "heroStringId": "reign_court_castle_EW6_mother",
+  "characterObjectId": "reign_court_castle_EW6_mother",
+  "characterName": "Iovenara Istranirides",
+  "provider": "AtlasCloud",
+  "model": "xai/grok-imagine-image/edit",
+  "adapter": "atlas upload/generate/poll",
+  "sourceSha256": "6fbadf2715a2e8c5b1ca8592a95c34423106de6ce82323eecc917afeecefff71",
+  "portraitSha256": "409dc56c08e891e4beb6dd8ef05b2973c52213f08448fe7e990f7fb8da2a82c4",
+  "portraitWidth": 864,
+  "portraitHeight": 1152,
+  "physicalConfidence": {
+    "definition": "physical_confidence",
+    "score": 79,
+    "profile": "61-80",
+    "flirtatiousnessPercentage": 91,
+    "confidencePercentage": 42,
+    "flirtatiousnessWeight": 0.75,
+    "confidenceWeight": 0.25,
+    "source": "shipped_profile_library"
+  },
+  "derivativesReady": true,
+  "derivativeError": "",
+  "generatedUtc": "2026-07-17T18:44:35.5873589Z"
+}

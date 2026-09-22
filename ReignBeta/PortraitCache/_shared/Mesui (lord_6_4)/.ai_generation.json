@@ -1,0 +1,27 @@
+{
+  "version": 1,
+  "cacheKey": "Mesui (lord_6_4)",
+  "heroStringId": "lord_6_4",
+  "characterObjectId": "lord_6_4",
+  "characterName": "Mesui",
+  "provider": "AtlasCloud",
+  "model": "xai/grok-imagine-image/edit",
+  "adapter": "atlas upload/generate/poll",
+  "sourceSha256": "6a06c761a26676faeaaa0e04f7f2f2c09b10b349daad2692dc41844c52a6251b",
+  "portraitSha256": "710754761ac54d73ee262e968ecad69d2273df59a93477a23f40d914784cafdd",
+  "portraitWidth": 832,
+  "portraitHeight": 1248,
+  "physicalConfidence": {
+    "definition": "physical_confidence",
+    "score": 64,
+    "profile": "61-80",
+    "flirtatiousnessPercentage": 59,
+    "confidencePercentage": 78,
+    "flirtatiousnessWeight": 0.75,
+    "confidenceWeight": 0.25,
+    "source": "shipped_profile_library"
+  },
+  "derivativesReady": true,
+  "derivativeError": "",
+  "generatedUtc": "2026-07-17T19:03:20.7578059Z"
+}

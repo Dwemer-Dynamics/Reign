@@ -1,0 +1,27 @@
+{
+  "version": 1,
+  "cacheKey": "Tariq (lord_3_3_1)",
+  "heroStringId": "lord_3_3_1",
+  "characterObjectId": "lord_3_3_1",
+  "characterName": "Tariq",
+  "provider": "AtlasCloud",
+  "model": "xai/grok-imagine-image/edit",
+  "adapter": "atlas upload/generate/poll",
+  "sourceSha256": "746bc229060549505d5bbddc0234c625738b483d9c276f1010d4feb8dcfda51b",
+  "portraitSha256": "1e4648084e47354a0a972c8a4965ee0537c788d9cfc886533ec2ac973dc38bfe",
+  "portraitWidth": 832,
+  "portraitHeight": 1248,
+  "physicalConfidence": {
+    "definition": "physical_confidence",
+    "score": 68,
+    "profile": "61-80",
+    "flirtatiousnessPercentage": 73,
+    "confidencePercentage": 52,
+    "flirtatiousnessWeight": 0.75,
+    "confidenceWeight": 0.25,
+    "source": "shipped_profile_library"
+  },
+  "derivativesReady": true,
+  "derivativeError": "",
+  "generatedUtc": "2026-07-17T19:16:05.6889723Z"
+}

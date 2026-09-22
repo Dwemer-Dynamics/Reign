@@ -1,0 +1,53 @@
+{
+  "schema": "reign-overlay-asset-spec-v1",
+  "asset": {
+    "id": "ambassador-card-modern-overlay",
+    "role": "repeatable modern Ambassador card overlay above runtime full-body portrait and banner imagery",
+    "selectedGeneratedSourceSha256": "bb2a2c5fe0fec5724075a254c092b240bedfdf84872fc909f62434220cb07ef5",
+    "generationMode": "built-in image-to-image",
+    "promptPath": "../ambassador-card-modern-overlay-prompt.txt",
+    "promptSha256": "e9011c77340c3f3d1ba60f712c1b3ef48e42d888f2f2362ece3aaca9b33066a4"
+  },
+  "authorities": {
+    "layout": {
+      "path": "../approved-references/ambassador.png",
+      "sha256": "073f96aafde634fd1f1a43175429c8bcaa1557c28b70b30da69dce0a6d5caa94"
+    },
+    "materials": {
+      "path": "../style-reference.png",
+      "sha256": "85b689dc164ebbf70f67a081c0f7097858edb0542ef0073de0c29eef7926b0a3"
+    },
+    "palette": {
+      "path": "../palette.json",
+      "sha256": "fac70043a567db463ae70c975b92037dbfc38337e0d9134bc85bb03e3bb9a043",
+      "schema": "reign-ui-modern-palette-v1",
+      "version": "2026.08.28.2"
+    }
+  },
+  "canvas": {"width": 280, "height": 626},
+  "normalization": {"fit": "stretch", "anchor": "center"},
+  "antialiasScale": 8,
+  "apertures": [
+    {"id": "portrait-main", "shape": "rectangle", "x": 20, "y": 20, "width": 177, "height": 352, "feather": 0.0},
+    {"id": "portrait-below-banner", "shape": "rectangle", "x": 197, "y": 85, "width": 62, "height": 287, "feather": 0.0},
+    {"id": "banner", "shape": "rectangle", "x": 208, "y": 31, "width": 44, "height": 43, "feather": 0.0}
+  ],
+  "transparentRgb": "#121211",
+  "marbleReduction": {
+    "amount": 0.0,
+    "blurRadius": 6.0,
+    "luminanceCeiling": 96,
+    "chromaCeiling": 36,
+    "selectionSoftness": 20
+  },
+  "integrationGeometry": {
+    "schema": "reign-ambassador-card-integration-geometry-v1",
+    "coordinateSystem": {"units": "pixels", "origin": "top-left", "canvasWidth": 280, "canvasHeight": 626},
+    "runtimeRegions": {
+      "fullBodyPortrait": {"x": 20, "y": 20, "width": 239, "height": 352, "shape": "rectangle"},
+      "banner": {"x": 208, "y": 31, "width": 44, "height": 43, "shape": "rectangle"},
+      "labels": {"x": 24, "y": 386, "width": 232, "height": 154},
+      "dismissControl": {"x": 42, "y": 562, "width": 196, "height": 40}
+    }
+  }
+}

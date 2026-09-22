@@ -1,0 +1,27 @@
+{
+  "version": 1,
+  "cacheKey": "Gautgar (lord_7_3_1)",
+  "heroStringId": "lord_7_3_1",
+  "characterObjectId": "lord_7_3_1",
+  "characterName": "Gautgar",
+  "provider": "AtlasCloud",
+  "model": "xai/grok-imagine-image/edit",
+  "adapter": "atlas upload/generate/poll",
+  "sourceSha256": "c6ad646630d8a3a8da4051e3a2396d228e8e79ca3c99c6c86bd2a9ea71d32b36",
+  "portraitSha256": "54921e2c30d4c938edc6e07939fc6eb637aa4ae3571d8fab52917190c931bcee",
+  "portraitWidth": 832,
+  "portraitHeight": 1248,
+  "physicalConfidence": {
+    "definition": "physical_confidence",
+    "score": 50,
+    "profile": "41-60",
+    "flirtatiousnessPercentage": 50,
+    "confidencePercentage": 50,
+    "flirtatiousnessWeight": 0.75,
+    "confidenceWeight": 0.25,
+    "source": "neutral_fallback"
+  },
+  "derivativesReady": true,
+  "derivativeError": "",
+  "generatedUtc": "2026-07-17T18:38:51.3260944Z"
+}

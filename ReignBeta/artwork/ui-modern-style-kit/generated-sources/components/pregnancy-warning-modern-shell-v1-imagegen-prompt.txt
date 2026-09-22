@@ -1,0 +1,28 @@
+Mode: image-to-image
+Provider: OpenAI built-in image generation
+Generated source retained: pregnancy-warning-modern-shell-v1-imagegen.png
+
+Reference 1:
+C:/Users/speed/AppData/Local/Temp/codex-clipboard-5dab5a8c-b712-4e17-83b9-e41f1635a073.png
+Role: approved exact palette, material, line-weight, ornament-density, and hierarchy authority.
+
+Reference 2:
+C:/Users/speed/AppData/Local/Temp/codex-clipboard-96173eea-0e97-4841-ad00-2a4851643bd5.png
+Role: warning-modal content arrangement only; its white surrounding screen, size, typography, and legacy panel treatment are not authority.
+
+Primary generation prompt:
+Create a production-ready transparent PNG UI overlay asset for the Reign game, using image-to-image references. The first reference is the approved exact visual system and palette; the second reference only communicates the warning-modal content arrangement that will be rebuilt.
+
+Make a compact centered modal shell with an approximately 16:9 panel proportion, intended to appear at roughly 900 by 520 logical pixels over an already-visible interface. Outside the panel must be genuinely transparent alpha, with no white, gray, black, glow, vignette, or dimming backdrop.
+
+Inside the panel: near-black charcoal marble with extremely subtle, fine warm-gray/gold veining matching the first reference; restrained antique-gold thin double-line perimeter frame; small geometric diamond accents at corners and edge midpoints; very subtle concentric geometric royal watermark centered in the field. Use the exact understated modern Reign aesthetic of reference 1—thin elegant antique-gold lines, muted bronze rather than bright yellow, restrained ornament, no baroque scrollwork, no thick bevels.
+
+Reserve clear empty zones for dynamic UI text: a title zone near the top, a centered one-line warning message zone, and a small footer zone. Add two empty matching button plates in a lower horizontal row, each a dark slightly lighter charcoal marble rectangle with thin antique-gold double-line frame and tiny diamond end accents. Leave both button interiors completely blank for runtime labels.
+
+Do not include any words, letters, numbers, icons, logos, crown, R monogram, people, portraits, white background, shadows outside the panel, bright yellow gold, or baked UI text. Ensure all fixed edges are crisp and symmetrical, with the central panel opaque and only the outside canvas transparent. This is a raster game UI asset, not a screenshot or mockup.
+
+Alpha-correction edit prompt:
+Edit this exact production UI asset. Preserve the black-marble modal panel, its antique-gold frame, watermark, divider ornaments, and two empty button plates exactly. Remove every checkerboard tile and every pixel outside the framed panel. The entire area outside the panel must be genuine transparent alpha (RGBA alpha 0), not white, not gray, not black, and not a transparency-grid illustration. Keep the panel itself fully opaque. Do not add text, icons, letters, shadows, glow, or any new ornament. Output a PNG with a real alpha channel.
+
+Production note:
+The provider returned a visually correct neutral checkerboard matte instead of a true alpha channel. In accordance with generation-provenance policy, deterministic post-processing removes only that neutral matte, normalizes the retained panel to the legacy 1448x1086 sprite canvas, and leaves all creative panel pixels unchanged.

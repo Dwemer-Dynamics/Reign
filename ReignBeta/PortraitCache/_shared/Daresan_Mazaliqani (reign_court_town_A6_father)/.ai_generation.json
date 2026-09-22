@@ -1,0 +1,27 @@
+{
+  "version": 1,
+  "cacheKey": "Daresan_Mazaliqani (reign_court_town_A6_father)",
+  "heroStringId": "reign_court_town_A6_father",
+  "characterObjectId": "reign_court_town_A6_father",
+  "characterName": "Daresan Mazaliqani",
+  "provider": "AtlasCloud",
+  "model": "xai/grok-imagine-image/edit",
+  "adapter": "atlas upload/generate/poll",
+  "sourceSha256": "8eb7aca57c76d84a63a9dd418a5abca32b07eaaa54cb7ede7d4e48b56b570e33",
+  "portraitSha256": "ca2b0651e01f1f6bbdd5571374c0f463f65e8fda972602e628bedc341095704e",
+  "portraitWidth": 864,
+  "portraitHeight": 1152,
+  "physicalConfidence": {
+    "definition": "physical_confidence",
+    "score": 45,
+    "profile": "41-60",
+    "flirtatiousnessPercentage": 57,
+    "confidencePercentage": 7,
+    "flirtatiousnessWeight": 0.75,
+    "confidenceWeight": 0.25,
+    "source": "shipped_profile_library"
+  },
+  "derivativesReady": true,
+  "derivativeError": "",
+  "generatedUtc": "2026-07-17T18:26:01.9005051Z"
+}

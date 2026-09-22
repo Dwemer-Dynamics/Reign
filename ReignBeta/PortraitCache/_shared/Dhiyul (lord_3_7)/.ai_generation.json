@@ -1,0 +1,27 @@
+{
+  "version": 1,
+  "cacheKey": "Dhiyul (lord_3_7)",
+  "heroStringId": "lord_3_7",
+  "characterObjectId": "lord_3_7",
+  "characterName": "Dhiyul",
+  "provider": "AtlasCloud",
+  "model": "xai/grok-imagine-image/edit",
+  "adapter": "atlas upload/generate/poll",
+  "sourceSha256": "91f0f4e35e73a15e7aaf84402a1819e01429976b68d476a73ee2c9e6af253095",
+  "portraitSha256": "2ecdc7027448ea236c0a3f55181249cda4b2e2d48c690985ddeede712ea29582",
+  "portraitWidth": 832,
+  "portraitHeight": 1248,
+  "physicalConfidence": {
+    "definition": "physical_confidence",
+    "score": 44,
+    "profile": "41-60",
+    "flirtatiousnessPercentage": 53,
+    "confidencePercentage": 16,
+    "flirtatiousnessWeight": 0.75,
+    "confidenceWeight": 0.25,
+    "source": "shipped_profile_library"
+  },
+  "derivativesReady": true,
+  "derivativeError": "",
+  "generatedUtc": "2026-07-17T18:26:41.8871116Z"
+}

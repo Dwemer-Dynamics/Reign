@@ -1,0 +1,27 @@
+{
+  "version": 1,
+  "cacheKey": "Azima_Damasaqani (reign_court_castle_A3_child_4)",
+  "heroStringId": "reign_court_castle_A3_child_4",
+  "characterObjectId": "reign_court_castle_A3_child_4",
+  "characterName": "Azima Damasaqani",
+  "provider": "AtlasCloud",
+  "model": "xai/grok-imagine-image/edit",
+  "adapter": "atlas upload/generate/poll",
+  "sourceSha256": "14b8e3d9e80fdbe0c67ef2bcd952de6b6879823b3e78161133faf311bda82e93",
+  "portraitSha256": "440006f274c69ea0a4fccb637f25f112e016cb64f62af049bb34749db1832c5c",
+  "portraitWidth": 864,
+  "portraitHeight": 1152,
+  "physicalConfidence": {
+    "definition": "physical_confidence",
+    "score": 55,
+    "profile": "41-60",
+    "flirtatiousnessPercentage": 61,
+    "confidencePercentage": 36,
+    "flirtatiousnessWeight": 0.75,
+    "confidenceWeight": 0.25,
+    "source": "shipped_profile_library"
+  },
+  "derivativesReady": true,
+  "derivativeError": "",
+  "generatedUtc": "2026-07-17T18:14:59.7673740Z"
+}

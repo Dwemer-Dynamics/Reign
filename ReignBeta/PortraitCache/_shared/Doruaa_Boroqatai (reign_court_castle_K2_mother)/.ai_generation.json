@@ -1,0 +1,27 @@
+{
+  "version": 1,
+  "cacheKey": "Doruaa_Boroqatai (reign_court_castle_K2_mother)",
+  "heroStringId": "reign_court_castle_K2_mother",
+  "characterObjectId": "reign_court_castle_K2_mother",
+  "characterName": "Doruaa Boroqatai",
+  "provider": "AtlasCloud",
+  "model": "xai/grok-imagine-image/edit",
+  "adapter": "atlas upload/generate/poll",
+  "sourceSha256": "7604b720dd5ca523b6763f5df510cec162c5eb0ed683b95ec187e52399016dc7",
+  "portraitSha256": "3936e40a89d990ee6d3bb303dbbd836118570c1cd46cf1e77fc88170025e92d7",
+  "portraitWidth": 864,
+  "portraitHeight": 1152,
+  "physicalConfidence": {
+    "definition": "physical_confidence",
+    "score": 79,
+    "profile": "61-80",
+    "flirtatiousnessPercentage": 78,
+    "confidencePercentage": 81,
+    "flirtatiousnessWeight": 0.75,
+    "confidenceWeight": 0.25,
+    "source": "shipped_profile_library"
+  },
+  "derivativesReady": true,
+  "derivativeError": "",
+  "generatedUtc": "2026-07-17T18:27:12.5444014Z"
+}

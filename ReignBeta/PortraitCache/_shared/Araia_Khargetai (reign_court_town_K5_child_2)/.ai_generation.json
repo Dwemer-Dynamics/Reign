@@ -1,0 +1,27 @@
+{
+  "version": 1,
+  "cacheKey": "Araia_Khargetai (reign_court_town_K5_child_2)",
+  "heroStringId": "reign_court_town_K5_child_2",
+  "characterObjectId": "reign_court_town_K5_child_2",
+  "characterName": "Araia Khargetai",
+  "provider": "AtlasCloud",
+  "model": "xai/grok-imagine-image/edit",
+  "adapter": "atlas upload/generate/poll",
+  "sourceSha256": "3a6d701c44695b02bd6a127a4b06f26382b7a73eb22de9b82c07252999096b41",
+  "portraitSha256": "c73ac9201dbf9e3412a5061196bb13f713496f1c6c45de7c44a7dffc5df3b2bc",
+  "portraitWidth": 864,
+  "portraitHeight": 1152,
+  "physicalConfidence": {
+    "definition": "physical_confidence",
+    "score": 68,
+    "profile": "61-80",
+    "flirtatiousnessPercentage": 75,
+    "confidencePercentage": 46,
+    "flirtatiousnessWeight": 0.75,
+    "confidenceWeight": 0.25,
+    "source": "shipped_profile_library"
+  },
+  "derivativesReady": true,
+  "derivativeError": "",
+  "generatedUtc": "2026-07-17T18:13:17.2880139Z"
+}

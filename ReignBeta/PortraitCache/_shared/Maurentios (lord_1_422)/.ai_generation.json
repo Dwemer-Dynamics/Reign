@@ -1,0 +1,27 @@
+{
+  "version": 1,
+  "cacheKey": "Maurentios (lord_1_422)",
+  "heroStringId": "lord_1_422",
+  "characterObjectId": "lord_1_422",
+  "characterName": "Maurentios",
+  "provider": "AtlasCloud",
+  "model": "xai/grok-imagine-image/edit",
+  "adapter": "atlas upload/generate/poll",
+  "sourceSha256": "5ad7b443f6ec31940c81bcad8b412e4964ec214b88fd5027c24e53ab5b5f6a38",
+  "portraitSha256": "2006c3f4330210e958ca729a6a47239abdaebf10d9af5b2d7545402e40d48465",
+  "portraitWidth": 864,
+  "portraitHeight": 1152,
+  "physicalConfidence": {
+    "definition": "physical_confidence",
+    "score": 73,
+    "profile": "61-80",
+    "flirtatiousnessPercentage": 70,
+    "confidencePercentage": 81,
+    "flirtatiousnessWeight": 0.75,
+    "confidenceWeight": 0.25,
+    "source": "shipped_profile_library"
+  },
+  "derivativesReady": true,
+  "derivativeError": "",
+  "generatedUtc": "2026-07-17T19:01:50.2946775Z"
+}

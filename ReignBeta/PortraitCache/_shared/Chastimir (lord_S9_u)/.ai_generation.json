@@ -1,0 +1,27 @@
+{
+  "version": 1,
+  "cacheKey": "Chastimir (lord_S9_u)",
+  "heroStringId": "lord_S9_u",
+  "characterObjectId": "lord_S9_u",
+  "characterName": "Chastimir",
+  "provider": "AtlasCloud",
+  "model": "xai/grok-imagine-image/edit",
+  "adapter": "atlas upload/generate/poll",
+  "sourceSha256": "f2112e1fd9dfcd89a5118dc9967ecb78158ed6f534191f31ddd1b96e9b240a80",
+  "portraitSha256": "b16ba44fbca92df8dcc0cbda1af7ee404ffe69a53383523fe71282966e670f29",
+  "portraitWidth": 832,
+  "portraitHeight": 1248,
+  "physicalConfidence": {
+    "definition": "physical_confidence",
+    "score": 38,
+    "profile": "21-40",
+    "flirtatiousnessPercentage": 28,
+    "confidencePercentage": 67,
+    "flirtatiousnessWeight": 0.75,
+    "confidenceWeight": 0.25,
+    "source": "shipped_profile_library"
+  },
+  "derivativesReady": true,
+  "derivativeError": "",
+  "generatedUtc": "2026-07-17T18:23:19.6606710Z"
+}

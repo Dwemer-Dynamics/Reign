@@ -1,0 +1,13 @@
+{
+  "version": 1,
+  "heroStringId": "lord_7_14",
+  "characterName": "Gornlautir",
+  "imagePath": "portrait.png",
+  "imageSha256": "3E25B08D2B4CE8CC682A592018A8025D354A8D5CEA15A075BB97B98D00D02C01",
+  "description": "Culturally appropriate everyday Nord minor-lord attire inspired by refined early medieval Scandinavian noble clothing. Men should wear a well-cut wool tunic over a fine linen underlayer, quality trousers, a decorated belt, and tasteful brooch fastenings. Women should wear a long fine-linen shift with an elegant apron dress or layered wool overdress, improved textile quality, decorative woven trim, and modest metal fittings. The clothing should look practical, prestigious, and exceptionally well made without becoming ceremonial. No headgear of any kind. No helmets, caps, hoods, armor, weapons, crowns, horned helmets, or fantasy costume elements.",
+  "status": "failed",
+  "descriptionSource": "portrait_prompt_fallback",
+  "retryEligible": true,
+  "error": "{\"error\":{\"message\":\"Model \\\"zai-org/glm-5.2\\\" does not support image inputs. Remove image content or choose a multimodal model.\",\"type\":\"invalid_request_error\",\"param\":\"messages\",\"code\":\"image_input_not_supported\"}}",
+  "updatedUtc": "2026-07-18T22:03:29.7339307Z"
+}

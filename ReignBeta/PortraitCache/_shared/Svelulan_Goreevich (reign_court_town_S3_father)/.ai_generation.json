@@ -1,0 +1,27 @@
+{
+  "version": 1,
+  "cacheKey": "Svelulan_Goreevich (reign_court_town_S3_father)",
+  "heroStringId": "reign_court_town_S3_father",
+  "characterObjectId": "reign_court_town_S3_father",
+  "characterName": "Svelulan Goreevich",
+  "provider": "AtlasCloud",
+  "model": "xai/grok-imagine-image/edit",
+  "adapter": "atlas upload/generate/poll",
+  "sourceSha256": "7590dc78319dba3f26f72c401a55ec43080ac3f145e20e95789e60764f2e7f61",
+  "portraitSha256": "4cbf1342d045b2d4b931f8533b01c4aba0b38a5c555295a349ce37ff0a453377",
+  "portraitWidth": 864,
+  "portraitHeight": 1152,
+  "physicalConfidence": {
+    "definition": "physical_confidence",
+    "score": 45,
+    "profile": "41-60",
+    "flirtatiousnessPercentage": 38,
+    "confidencePercentage": 65,
+    "flirtatiousnessWeight": 0.75,
+    "confidenceWeight": 0.25,
+    "source": "shipped_profile_library"
+  },
+  "derivativesReady": true,
+  "derivativeError": "",
+  "generatedUtc": "2026-07-17T19:15:25.4364515Z"
+}

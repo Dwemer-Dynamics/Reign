@@ -1,0 +1,39 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFramework>net472</TargetFramework>
+    <AssemblyName>Bannerlord.EditorBridge</AssemblyName>
+    <RootNamespace>Bannerlord.EditorBridge</RootNamespace>
+    <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
+    <GenerateAssemblyInfo>true</GenerateAssemblyInfo>
+    <BannerlordPath Condition="'$(BannerlordPath)' == ''">D:\Program Files (x86)\Steam\steamapps\common\Mount &amp; Blade II Bannerlord</BannerlordPath>
+    <BannerlordEditorBin>$(BannerlordPath)\bin\Win64_Shipping_wEditor</BannerlordEditorBin>
+    <OutputPath>..\..\module\BannerlordEditorBridge\bin\Win64_Shipping_wEditor\</OutputPath>
+  </PropertyGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Bannerlord.EditorMcp.Protocol\Bannerlord.EditorMcp.Protocol.csproj" />
+    <PackageReference Include="Microsoft.NETFramework.ReferenceAssemblies.net472" Version="1.0.3" PrivateAssets="all" />
+    <Reference Include="Newtonsoft.Json">
+      <HintPath>$(BannerlordEditorBin)\Newtonsoft.Json.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
+    <Reference Include="TaleWorlds.DotNet">
+      <HintPath>$(BannerlordEditorBin)\TaleWorlds.DotNet.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
+    <Reference Include="TaleWorlds.Engine">
+      <HintPath>$(BannerlordEditorBin)\TaleWorlds.Engine.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
+    <Reference Include="TaleWorlds.Library">
+      <HintPath>$(BannerlordEditorBin)\TaleWorlds.Library.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
+    <Reference Include="TaleWorlds.MountAndBlade">
+      <HintPath>$(BannerlordEditorBin)\TaleWorlds.MountAndBlade.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
+  </ItemGroup>
+  <Target Name="VerifyBannerlordEditor" BeforeTargets="ResolveReferences">
+    <Error Condition="!Exists('$(BannerlordEditorBin)\TaleWorlds.Engine.dll')" Text="Bannerlord Modding Kit assemblies were not found at $(BannerlordEditorBin). Set BannerlordPath to the installed game root." />
+  </Target>
+</Project>

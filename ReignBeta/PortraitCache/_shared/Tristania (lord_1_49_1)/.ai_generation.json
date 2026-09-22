@@ -1,0 +1,27 @@
+{
+  "version": 1,
+  "cacheKey": "Tristania (lord_1_49_1)",
+  "heroStringId": "lord_1_49_1",
+  "characterObjectId": "lord_1_49_1",
+  "characterName": "Tristania",
+  "provider": "AtlasCloud",
+  "model": "xai/grok-imagine-image/edit",
+  "adapter": "atlas upload/generate/poll",
+  "sourceSha256": "dff44c36b348be0b5e33e1710fd416223ac6995006fc734895bd8ec3abfe30da",
+  "portraitSha256": "fddf4c084176a4e69845e9b7816f716d518b81f546f59855f540ec321e5c6916",
+  "portraitWidth": 832,
+  "portraitHeight": 1248,
+  "physicalConfidence": {
+    "definition": "physical_confidence",
+    "score": 73,
+    "profile": "61-80",
+    "flirtatiousnessPercentage": 71,
+    "confidencePercentage": 78,
+    "flirtatiousnessWeight": 0.75,
+    "confidenceWeight": 0.25,
+    "source": "shipped_profile_library"
+  },
+  "derivativesReady": true,
+  "derivativeError": "",
+  "generatedUtc": "2026-07-17T19:18:44.5974727Z"
+}

@@ -1,0 +1,27 @@
+{
+  "version": 1,
+  "cacheKey": "Svedorn (lord_2_21)",
+  "heroStringId": "lord_2_21",
+  "characterObjectId": "lord_2_21",
+  "characterName": "Svedorn",
+  "provider": "AtlasCloud",
+  "model": "xai/grok-imagine-image/edit",
+  "adapter": "atlas upload/generate/poll",
+  "sourceSha256": "8eae70296383731b646ab660b88ef197f2fe4f21024f7322fa64f62825a4fa7c",
+  "portraitSha256": "34849b970dfc103120f90dc852e4e35ee9226e167119dde4baffe099e697669f",
+  "portraitWidth": 832,
+  "portraitHeight": 1248,
+  "physicalConfidence": {
+    "definition": "physical_confidence",
+    "score": 39,
+    "profile": "21-40",
+    "flirtatiousnessPercentage": 34,
+    "confidencePercentage": 53,
+    "flirtatiousnessWeight": 0.75,
+    "confidenceWeight": 0.25,
+    "source": "shipped_profile_library"
+  },
+  "derivativesReady": true,
+  "derivativeError": "",
+  "generatedUtc": "2026-07-17T19:15:11.9094858Z"
+}

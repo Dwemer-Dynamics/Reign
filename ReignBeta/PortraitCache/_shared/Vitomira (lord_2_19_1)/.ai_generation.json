@@ -1,0 +1,27 @@
+{
+  "version": 1,
+  "cacheKey": "Vitomira (lord_2_19_1)",
+  "heroStringId": "lord_2_19_1",
+  "characterObjectId": "lord_2_19_1",
+  "characterName": "Vitomira",
+  "provider": "AtlasCloud",
+  "model": "xai/grok-imagine-image/edit",
+  "adapter": "atlas upload/generate/poll",
+  "sourceSha256": "49415ccd586685175d6faa9ca4030aaaa474a3e2414a89000582c5f1870b67e5",
+  "portraitSha256": "aee4d11250a1253c0f955ff8d3d3cb79d76e14300ff03a51a2b5b0fd93d9fd4a",
+  "portraitWidth": 832,
+  "portraitHeight": 1248,
+  "physicalConfidence": {
+    "definition": "physical_confidence",
+    "score": 56,
+    "profile": "41-60",
+    "flirtatiousnessPercentage": 57,
+    "confidencePercentage": 52,
+    "flirtatiousnessWeight": 0.75,
+    "confidenceWeight": 0.25,
+    "source": "shipped_profile_library"
+  },
+  "derivativesReady": true,
+  "derivativeError": "",
+  "generatedUtc": "2026-07-17T19:21:14.7933112Z"
+}

@@ -1,0 +1,27 @@
+{
+  "version": 1,
+  "cacheKey": "Boraa_Altugatai (reign_court_castle_K1_child_2)",
+  "heroStringId": "reign_court_castle_K1_child_2",
+  "characterObjectId": "reign_court_castle_K1_child_2",
+  "characterName": "Boraa Altugatai",
+  "provider": "AtlasCloud",
+  "model": "xai/grok-imagine-image/edit",
+  "adapter": "atlas upload/generate/poll",
+  "sourceSha256": "4b47ac97dba6a1b0b3fa6823f4aa195f8e41b5700a574ce7056d9822da2e93c1",
+  "portraitSha256": "2631ef6c4728b6debc11a0470bc0be92e2fcaaedb832f1e3cc4c3dd29ee4c16c",
+  "portraitWidth": 864,
+  "portraitHeight": 1152,
+  "physicalConfidence": {
+    "definition": "physical_confidence",
+    "score": 36,
+    "profile": "21-40",
+    "flirtatiousnessPercentage": 23,
+    "confidencePercentage": 74,
+    "flirtatiousnessWeight": 0.75,
+    "confidenceWeight": 0.25,
+    "source": "shipped_profile_library"
+  },
+  "derivativesReady": true,
+  "derivativeError": "",
+  "generatedUtc": "2026-07-17T18:17:44.5204634Z"
+}

@@ -1,0 +1,31 @@
+{
+  "antialiasScale": 8,
+  "apertureEdgeMode": "antialiased",
+  "apertureFramePreservation": {
+    "darkPixelMaximum": 0,
+    "minimumGreenMinusBlue": 3,
+    "minimumRed": 45,
+    "minimumRedMinusBlue": 8
+  },
+  "apertures": [
+    {
+      "feather": 0.0,
+      "height": 464,
+      "id": "culture-throne-view",
+      "shape": "rectangle",
+      "width": 1264,
+      "x": 389,
+      "y": 80
+    }
+  ],
+  "canvas": {
+    "height": 941,
+    "width": 1672
+  },
+  "normalization": {
+    "anchor": "center",
+    "fit": "exact"
+  },
+  "schema": "reign-overlay-asset-spec-v1",
+  "transparentRgb": "#121211"
+}

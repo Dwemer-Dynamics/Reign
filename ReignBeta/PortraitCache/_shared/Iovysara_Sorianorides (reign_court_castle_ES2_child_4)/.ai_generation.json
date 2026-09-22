@@ -1,0 +1,27 @@
+{
+  "version": 1,
+  "cacheKey": "Iovysara_Sorianorides (reign_court_castle_ES2_child_4)",
+  "heroStringId": "reign_court_castle_ES2_child_4",
+  "characterObjectId": "reign_court_castle_ES2_child_4",
+  "characterName": "Iovysara Sorianorides",
+  "provider": "AtlasCloud",
+  "model": "xai/grok-imagine-image/edit",
+  "adapter": "atlas upload/generate/poll",
+  "sourceSha256": "7a493d8337f15c7915a2a7abaa07f8f4da5910095836f107e5c356784d44b691",
+  "portraitSha256": "6f63c16a54ebf0fa8d8923ea0c38f00e3d4151cb3b0084ef1c90b39d6b3069d0",
+  "portraitWidth": 864,
+  "portraitHeight": 1152,
+  "physicalConfidence": {
+    "definition": "physical_confidence",
+    "score": 83,
+    "profile": "81-100",
+    "flirtatiousnessPercentage": 91,
+    "confidencePercentage": 58,
+    "flirtatiousnessWeight": 0.75,
+    "confidenceWeight": 0.25,
+    "source": "shipped_profile_library"
+  },
+  "derivativesReady": true,
+  "derivativeError": "",
+  "generatedUtc": "2026-07-17T18:45:41.4229544Z"
+}

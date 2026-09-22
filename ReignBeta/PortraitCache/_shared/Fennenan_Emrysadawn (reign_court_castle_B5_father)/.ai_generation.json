@@ -1,0 +1,27 @@
+{
+  "version": 1,
+  "cacheKey": "Fennenan_Emrysadawn (reign_court_castle_B5_father)",
+  "heroStringId": "reign_court_castle_B5_father",
+  "characterObjectId": "reign_court_castle_B5_father",
+  "characterName": "Fennenan Emrysadawn",
+  "provider": "AtlasCloud",
+  "model": "xai/grok-imagine-image/edit",
+  "adapter": "atlas upload/generate/poll",
+  "sourceSha256": "cbbfe13e7d281ebeedb847d73d5ee84f4a32b3bb20790b1a424ee819c9137518",
+  "portraitSha256": "2b578fcf106a731d3c149c5ce3659cb6422a899aeceb8a9d0564fb85c36e9afe",
+  "portraitWidth": 864,
+  "portraitHeight": 1152,
+  "physicalConfidence": {
+    "definition": "physical_confidence",
+    "score": 75,
+    "profile": "61-80",
+    "flirtatiousnessPercentage": 67,
+    "confidencePercentage": 98,
+    "flirtatiousnessWeight": 0.75,
+    "confidenceWeight": 0.25,
+    "source": "shipped_profile_library"
+  },
+  "derivativesReady": true,
+  "derivativeError": "",
+  "generatedUtc": "2026-07-17T18:37:00.6890833Z"
+}

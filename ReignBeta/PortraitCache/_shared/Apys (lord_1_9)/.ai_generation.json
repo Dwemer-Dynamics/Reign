@@ -1,0 +1,27 @@
+{
+  "version": 1,
+  "cacheKey": "Apys (lord_1_9)",
+  "heroStringId": "lord_1_9",
+  "characterObjectId": "lord_1_9",
+  "characterName": "Apys",
+  "provider": "AtlasCloud",
+  "model": "xai/grok-imagine-image/edit",
+  "adapter": "atlas upload/generate/poll",
+  "sourceSha256": "8e8f3b79614ce5114985bf4017ebd4367fa54bf3f08b9be7867fb9e7aba3a197",
+  "portraitSha256": "a449393a1ca36303c8e59c700ad32e9f34698d82908d38a44b6fca8a7ba4cab2",
+  "portraitWidth": 832,
+  "portraitHeight": 1248,
+  "physicalConfidence": {
+    "definition": "physical_confidence",
+    "score": 61,
+    "profile": "61-80",
+    "flirtatiousnessPercentage": 69,
+    "confidencePercentage": 36,
+    "flirtatiousnessWeight": 0.75,
+    "confidenceWeight": 0.25,
+    "source": "shipped_profile_library"
+  },
+  "derivativesReady": true,
+  "derivativeError": "",
+  "generatedUtc": "2026-07-17T18:12:57.0580995Z"
+}

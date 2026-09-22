@@ -1,0 +1,13 @@
+{
+  "version": 1,
+  "heroStringId": "reign_court_castle_V1_child_4",
+  "characterName": "Corana Auberacourt",
+  "imagePath": "portrait.png",
+  "imageSha256": "FCF9768A92A5C5EB05F8BAD8021E4693FA9C87306493A85956DEF2C4DBC1D467",
+  "description": "Culturally appropriate everyday Vlandian landowner attire inspired by practical high-medieval Norman and Frankish clothing. Use a well-made wool tunic over a linen underlayer, fitted sleeves, a sturdy leather belt, narrow trousers or chausses, and soft leather boots. For women, use a long fitted underdress with a simple but well-tailored overdress, narrow sleeves, a modest neckline, and a practical belt. The garments should appear prosperous, clean, and durable without looking aristocratic. No headgear of any kind. No armor, weapons, crowns, ceremonial robes, or fantasy elements.",
+  "status": "failed",
+  "descriptionSource": "portrait_prompt_fallback",
+  "retryEligible": true,
+  "error": "{\"error\":{\"message\":\"Model \\\"zai-org/glm-5.2\\\" does not support image inputs. Remove image content or choose a multimodal model.\",\"type\":\"invalid_request_error\",\"param\":\"messages\",\"code\":\"image_input_not_supported\"}}",
+  "updatedUtc": "2026-07-18T22:03:26.9369312Z"
+}

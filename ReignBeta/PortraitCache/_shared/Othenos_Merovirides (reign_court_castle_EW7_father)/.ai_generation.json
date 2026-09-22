@@ -1,0 +1,27 @@
+{
+  "version": 1,
+  "cacheKey": "Othenos_Merovirides (reign_court_castle_EW7_father)",
+  "heroStringId": "reign_court_castle_EW7_father",
+  "characterObjectId": "reign_court_castle_EW7_father",
+  "characterName": "Othenos Merovirides",
+  "provider": "AtlasCloud",
+  "model": "xai/grok-imagine-image/edit",
+  "adapter": "atlas upload/generate/poll",
+  "sourceSha256": "3eb9a63d8b2262d0ba1a2a5b970a42d7e0b050ab847de3c825e077e6aa63a1a4",
+  "portraitSha256": "bc5fbd744732c58d049e5eeed702f8176ce4e2262d98eec1495177c41ab73001",
+  "portraitWidth": 864,
+  "portraitHeight": 1152,
+  "physicalConfidence": {
+    "definition": "physical_confidence",
+    "score": 45,
+    "profile": "41-60",
+    "flirtatiousnessPercentage": 51,
+    "confidencePercentage": 26,
+    "flirtatiousnessWeight": 0.75,
+    "confidenceWeight": 0.25,
+    "source": "shipped_profile_library"
+  },
+  "derivativesReady": true,
+  "derivativeError": "",
+  "generatedUtc": "2026-07-17T19:07:38.4715924Z"
+}

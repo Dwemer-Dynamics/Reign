@@ -1,0 +1,5 @@
+If the incident status is none, return a brief quiet background beat and do not escalate.
+If there is an incident, write a visible event beat involving inactive attendees, not the player, unless the player chooses to intervene later.
+Keep it socially outrageous rather than warlike: public insult, spilled wine, broken etiquette, humiliating refusal, exposed lie, jealous outburst, or an argument over status.
+Do not start combat. Do not create death, arrest, siege news, marriage obligations, or campaign-changing consequences.
+End with the room's reaction and one clear hook the player could notice.

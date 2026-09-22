@@ -1,0 +1,27 @@
+{
+  "version": 1,
+  "cacheKey": "Crazy_Man_T7 (crazy_man_test7)",
+  "heroStringId": "crazy_man_test7",
+  "characterObjectId": "crazy_man_test7",
+  "characterName": "Crazy Man T7",
+  "provider": "AtlasCloud",
+  "model": "xai/grok-imagine-image/edit",
+  "adapter": "atlas upload/generate/poll",
+  "sourceSha256": "3af1b4b4d999d321483d3047c3718c59041c82fd33c999e8c1f32a7f45e1ab54",
+  "portraitSha256": "8e640dcaef674d9ec7f8782ca1e2e8c69b371f7fe4a394532c75895141d38ed1",
+  "portraitWidth": 864,
+  "portraitHeight": 1152,
+  "physicalConfidence": {
+    "definition": "physical_confidence",
+    "score": 50,
+    "profile": "41-60",
+    "flirtatiousnessPercentage": 50,
+    "confidencePercentage": 50,
+    "flirtatiousnessWeight": 0.75,
+    "confidenceWeight": 0.25,
+    "source": "neutral_fallback"
+  },
+  "derivativesReady": true,
+  "derivativeError": "",
+  "generatedUtc": "2026-07-17T18:25:16.4833047Z"
+}

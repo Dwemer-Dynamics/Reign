@@ -1,0 +1,27 @@
+{
+  "version": 1,
+  "cacheKey": "Rodarac (lord_B8_s)",
+  "heroStringId": "lord_B8_s",
+  "characterObjectId": "lord_B8_s",
+  "characterName": "Rodarac",
+  "provider": "AtlasCloud",
+  "model": "xai/grok-imagine-image/edit",
+  "adapter": "atlas upload/generate/poll",
+  "sourceSha256": "8fe94bdc6f435a689907f258c2ac1211cc8a2685c8957fae565f4e49578ced26",
+  "portraitSha256": "3b91154d77cc0c91820bff0d7fe05c719547dc1a38d8b53362e9f64c9dcb2976",
+  "portraitWidth": 832,
+  "portraitHeight": 1248,
+  "physicalConfidence": {
+    "definition": "physical_confidence",
+    "score": 31,
+    "profile": "21-40",
+    "flirtatiousnessPercentage": 24,
+    "confidencePercentage": 51,
+    "flirtatiousnessWeight": 0.75,
+    "confidenceWeight": 0.25,
+    "source": "shipped_profile_library"
+  },
+  "derivativesReady": true,
+  "derivativeError": "",
+  "generatedUtc": "2026-07-17T19:11:51.1884269Z"
+}

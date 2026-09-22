@@ -1,0 +1,27 @@
+{
+  "version": 1,
+  "cacheKey": "Conspiracy_Commander (conspiracy_commander_empire)",
+  "heroStringId": "conspiracy_commander_empire",
+  "characterObjectId": "conspiracy_commander_empire",
+  "characterName": "Conspiracy Commander",
+  "provider": "AtlasCloud",
+  "model": "xai/grok-imagine-image/edit",
+  "adapter": "atlas upload/generate/poll",
+  "sourceSha256": "e664dc4a9e14396ecbee3de3b2e188caca518d5ff9277ed209cd6eb3f4f2d961",
+  "portraitSha256": "cd74eb90728c16e104a039de4b9c70427f9715faed07c752fe5f876632736b6a",
+  "portraitWidth": 864,
+  "portraitHeight": 1152,
+  "physicalConfidence": {
+    "definition": "physical_confidence",
+    "score": 50,
+    "profile": "41-60",
+    "flirtatiousnessPercentage": 50,
+    "confidencePercentage": 50,
+    "flirtatiousnessWeight": 0.75,
+    "confidenceWeight": 0.25,
+    "source": "neutral_fallback"
+  },
+  "derivativesReady": true,
+  "derivativeError": "",
+  "generatedUtc": "2026-07-17T18:23:33.0127926Z"
+}

@@ -1,0 +1,13 @@
+{
+  "version": 1,
+  "heroStringId": "conspiracy_caravan_master_empire",
+  "characterName": "Conspiracy Caravan Master",
+  "imagePath": "portrait.png",
+  "imageSha256": "B9BFCBA7895598235E966838C245E218290D90BCD1D57EA40B70A7C8C23A02B0",
+  "description": "Their clan is tier unknown, placing them socially among the unranked class. Use this status to guide the refinement, expense, materials, and ornament of their clothing without turning it into fantasy costume.",
+  "status": "failed",
+  "descriptionSource": "portrait_prompt_fallback",
+  "retryEligible": true,
+  "error": "{\"error\":{\"message\":\"Model \\\"zai-org/glm-5.2\\\" does not support image inputs. Remove image content or choose a multimodal model.\",\"type\":\"invalid_request_error\",\"param\":\"messages\",\"code\":\"image_input_not_supported\"}}",
+  "updatedUtc": "2026-07-18T22:03:26.8910897Z"
+}

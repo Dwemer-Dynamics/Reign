@@ -1,0 +1,27 @@
+{
+  "version": 1,
+  "cacheKey": "Mazala_Hadramiqani (reign_court_town_A4_child_4)",
+  "heroStringId": "reign_court_town_A4_child_4",
+  "characterObjectId": "reign_court_town_A4_child_4",
+  "characterName": "Mazala Hadramiqani",
+  "provider": "AtlasCloud",
+  "model": "xai/grok-imagine-image/edit",
+  "adapter": "atlas upload/generate/poll",
+  "sourceSha256": "fc86ad93e74ec0d8ca4321d8dd611d7ddc16cba6c83ad24eb2bfa654f8679ec1",
+  "portraitSha256": "a5d7955b0c118cb29ba374bce16b33d3586502ac641af6da67d079bf1d385b15",
+  "portraitWidth": 864,
+  "portraitHeight": 1152,
+  "physicalConfidence": {
+    "definition": "physical_confidence",
+    "score": 52,
+    "profile": "41-60",
+    "flirtatiousnessPercentage": 52,
+    "confidencePercentage": 51,
+    "flirtatiousnessWeight": 0.75,
+    "confidenceWeight": 0.25,
+    "source": "shipped_profile_library"
+  },
+  "derivativesReady": true,
+  "derivativeError": "",
+  "generatedUtc": "2026-07-17T19:02:06.4768471Z"
+}

@@ -1,0 +1,27 @@
+{
+  "version": 1,
+  "cacheKey": "Faiiran_Mazalaqani (reign_court_castle_A7_child_1)",
+  "heroStringId": "reign_court_castle_A7_child_1",
+  "characterObjectId": "reign_court_castle_A7_child_1",
+  "characterName": "Faiiran Mazalaqani",
+  "provider": "AtlasCloud",
+  "model": "xai/grok-imagine-image/edit",
+  "adapter": "atlas upload/generate/poll",
+  "sourceSha256": "b601768210b4e528a1bde29383c12f35bd5e6e41513760b475ea63ed6a2021a1",
+  "portraitSha256": "26ea7e963ce090065fa57874ff599f33801a150f72beff0db53bd38433c7c97a",
+  "portraitWidth": 864,
+  "portraitHeight": 1152,
+  "physicalConfidence": {
+    "definition": "physical_confidence",
+    "score": 59,
+    "profile": "41-60",
+    "flirtatiousnessPercentage": 58,
+    "confidencePercentage": 61,
+    "flirtatiousnessWeight": 0.75,
+    "confidenceWeight": 0.25,
+    "source": "shipped_profile_library"
+  },
+  "derivativesReady": true,
+  "derivativeError": "",
+  "generatedUtc": "2026-07-17T18:36:26.8203754Z"
+}

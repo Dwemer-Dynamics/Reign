@@ -1,0 +1,27 @@
+{
+  "version": 1,
+  "cacheKey": "Nicasor (lord_1_51)",
+  "heroStringId": "lord_1_51",
+  "characterObjectId": "lord_1_51",
+  "characterName": "Nicasor",
+  "provider": "AtlasCloud",
+  "model": "xai/grok-imagine-image/edit",
+  "adapter": "atlas upload/generate/poll",
+  "sourceSha256": "14a08b2d66779c5f9f332f168d6b358f196d1ff2f1e0bccc70683f1ecd067539",
+  "portraitSha256": "5a8b1a7f43e23569eca05ee62b7e737f118774450e19ea04d0753ab8ac720901",
+  "portraitWidth": 832,
+  "portraitHeight": 1248,
+  "physicalConfidence": {
+    "definition": "physical_confidence",
+    "score": 54,
+    "profile": "41-60",
+    "flirtatiousnessPercentage": 50,
+    "confidencePercentage": 65,
+    "flirtatiousnessWeight": 0.75,
+    "confidenceWeight": 0.25,
+    "source": "shipped_profile_library"
+  },
+  "derivativesReady": true,
+  "derivativeError": "",
+  "generatedUtc": "2026-07-17T19:05:35.3093670Z"
+}

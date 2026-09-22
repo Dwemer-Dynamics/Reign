@@ -1,0 +1,8 @@
+<Project>
+  <!-- This file belongs to private Reign. It is absent from the public server
+       checkout. The canonical integration build retains source-based proofs;
+       the release packager excludes verification_contracts entirely. -->
+  <PropertyGroup Condition="Exists('$(MSBuildThisFileDirectory)ReignBeta\ReignBeta.csproj')">
+    <ReignIncludePrivateVerificationContracts Condition="'$(ReignIncludePrivateVerificationContracts)' == ''">true</ReignIncludePrivateVerificationContracts>
+  </PropertyGroup>
+</Project>

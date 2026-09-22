@@ -1,0 +1,27 @@
+{
+  "version": 1,
+  "cacheKey": "Addas (lord_3_8)",
+  "heroStringId": "lord_3_8",
+  "characterObjectId": "lord_3_8",
+  "characterName": "Addas",
+  "provider": "AtlasCloud",
+  "model": "xai/grok-imagine-image/edit",
+  "adapter": "atlas upload/generate/poll",
+  "sourceSha256": "6393d201d4c0579f04c502a83649597aa06671ed69d00cd5f867228313716db6",
+  "portraitSha256": "43e079465bd063de867802dbac0beba05a2e46c17a044f4e9d7de9a1c451de0a",
+  "portraitWidth": 912,
+  "portraitHeight": 1136,
+  "physicalConfidence": {
+    "definition": "physical_confidence",
+    "score": 48,
+    "profile": "41-60",
+    "flirtatiousnessPercentage": 40,
+    "confidencePercentage": 71,
+    "flirtatiousnessWeight": 0.75,
+    "confidenceWeight": 0.25,
+    "source": "shipped_profile_library"
+  },
+  "derivativesReady": true,
+  "derivativeError": "",
+  "generatedUtc": "2026-07-17T17:41:33.3996794Z"
+}

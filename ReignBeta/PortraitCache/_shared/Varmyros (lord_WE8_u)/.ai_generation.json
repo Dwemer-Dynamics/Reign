@@ -1,0 +1,27 @@
+{
+  "version": 1,
+  "cacheKey": "Varmyros (lord_WE8_u)",
+  "heroStringId": "lord_WE8_u",
+  "characterObjectId": "lord_WE8_u",
+  "characterName": "Varmyros",
+  "provider": "AtlasCloud",
+  "model": "xai/grok-imagine-image/edit",
+  "adapter": "atlas upload/generate/poll",
+  "sourceSha256": "d7acd6890b25cd95a7a2bdf866b53500066ebbd8b10087fbecc80540108334b6",
+  "portraitSha256": "426758869b352f9d87ea67da4e82b3630be02fa9e11be526fd630bfafb329c75",
+  "portraitWidth": 832,
+  "portraitHeight": 1248,
+  "physicalConfidence": {
+    "definition": "physical_confidence",
+    "score": 42,
+    "profile": "41-60",
+    "flirtatiousnessPercentage": 42,
+    "confidencePercentage": 41,
+    "flirtatiousnessWeight": 0.75,
+    "confidenceWeight": 0.25,
+    "source": "shipped_profile_library"
+  },
+  "derivativesReady": true,
+  "derivativeError": "",
+  "generatedUtc": "2026-07-17T19:20:37.2970824Z"
+}

@@ -1,0 +1,27 @@
+{
+  "version": 1,
+  "cacheKey": "Sevin (lord_K9_s)",
+  "heroStringId": "lord_K9_s",
+  "characterObjectId": "lord_K9_s",
+  "characterName": "Sevin",
+  "provider": "AtlasCloud",
+  "model": "xai/grok-imagine-image/edit",
+  "adapter": "atlas upload/generate/poll",
+  "sourceSha256": "1be710e6b4f41ea6eba49aa5f942b76025a0c215bb22742f0839b568dc02500f",
+  "portraitSha256": "7b0d78942a7ac6d051e48ca9909a73e94009a121d02fefca1a6cd2f43e03a8db",
+  "portraitWidth": 832,
+  "portraitHeight": 1248,
+  "physicalConfidence": {
+    "definition": "physical_confidence",
+    "score": 61,
+    "profile": "61-80",
+    "flirtatiousnessPercentage": 66,
+    "confidencePercentage": 45,
+    "flirtatiousnessWeight": 0.75,
+    "confidenceWeight": 0.25,
+    "source": "shipped_profile_library"
+  },
+  "derivativesReady": true,
+  "derivativeError": "",
+  "generatedUtc": "2026-07-17T19:13:39.9971368Z"
+}
