@@ -146,7 +146,11 @@ public sealed class GovernmentTestingToolsTests
             && testCase.TryGetProperty("followUpText", out _));
         Assert.Equal(6, certification.GetProperty("deterministicCases").GetArrayLength());
         JsonElement nativeCases = certification.GetProperty("nativeCases");
-        Assert.Equal(43, nativeCases.GetArrayLength());
+        Assert.Equal(53, nativeCases.GetArrayLength());
+        foreach (string caseId in Enumerable.Range(44, 10).Select(index => "GOV-NATIVE-" + index.ToString("000")))
+            Assert.Contains(nativeCases.EnumerateArray(), testCase => testCase.GetProperty("id").GetString() == caseId);
+        Assert.Contains(nativeCases.EnumerateArray(), testCase => testCase.GetProperty("id").GetString() == "GOV-NATIVE-044"
+            && testCase.GetProperty("requiredAssertions").EnumerateArray().Any(a => a.GetString() == "government_fief_awarded_exactly_once"));
         Assert.All(nativeCases.EnumerateArray(), testCase =>
         {
             Assert.True(testCase.TryGetProperty("requiredAssertions", out JsonElement assertions));

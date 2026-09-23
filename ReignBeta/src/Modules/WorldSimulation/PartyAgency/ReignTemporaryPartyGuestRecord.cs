@@ -58,6 +58,8 @@ namespace ReignBeta.PartyAgency
         [SaveableField(34)] public int WageArrearsGold;
         [SaveableField(35)] public string PendingTermsJson;
         [SaveableField(36)] public float WageAccrualEndDay;
+        // Older saves default to revision zero. Renewal advances this even when campaign time is paused.
+        [SaveableField(37)] public int AgreementRevision;
 
         public ReignTemporaryPartyGuestRecord()
         {

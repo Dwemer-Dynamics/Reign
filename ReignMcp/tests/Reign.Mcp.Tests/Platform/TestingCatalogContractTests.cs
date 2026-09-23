@@ -490,11 +490,11 @@ public sealed class TestingCatalogContractTests
         Assert.Contains("reign_carry_forward_government_passes", raw, StringComparison.Ordinal);
         Assert.Contains("reign_evaluate_government_release_readiness", raw, StringComparison.Ordinal);
         Assert.Contains("36 risk-based natural-language", raw, StringComparison.OrdinalIgnoreCase);
-        Assert.Contains("43 native", raw, StringComparison.OrdinalIgnoreCase);
+        Assert.Contains("53 native", raw, StringComparison.OrdinalIgnoreCase);
         Assert.Contains("attempt-suffixed live-run ID",
             government.GetProperty("retryContract").GetString(),
             StringComparison.OrdinalIgnoreCase);
-        Assert.Contains("All 85 required case instances", raw, StringComparison.OrdinalIgnoreCase);
+        Assert.Contains("All 95 required case instances", raw, StringComparison.OrdinalIgnoreCase);
         Assert.Contains("fallback Council of Estates", raw, StringComparison.OrdinalIgnoreCase);
         Assert.Contains("100% tag/action/safety correctness", raw, StringComparison.OrdinalIgnoreCase);
         Assert.Contains("natural second player turn", raw, StringComparison.OrdinalIgnoreCase);

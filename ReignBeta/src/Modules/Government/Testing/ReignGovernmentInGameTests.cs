@@ -83,6 +83,8 @@ namespace ReignBeta.Government
             AddGovernmentAssertion(assertions, "government_campaign_loaded",
                 TaleWorlds.CampaignSystem.Campaign.Current != null,
                 "A Bannerlord campaign is loaded.", null);
+            AddGovernmentAssertion(assertions, "government_native_interception_ready", ReignGovernmentPatches.VerifyReady(),
+                "Every required Government Harmony hook is installed exactly once under the Government owner.", ReignGovernmentPatches.BuildDiagnostics());
             AddGovernmentAssertion(assertions, "government_all_kingdoms_initialized", allInitialized,
                 "Every eligible kingdom has a saved level, culture institution, two to four parties, valid multi-plank agendas, a deterministic majority coalition, occupied seats, and one speaker for each occupied party.",
                 new JObject { ["eligibleKingdomCount"] = kingdoms.Count, ["governmentCount"] = _governments.Count });
@@ -456,6 +458,8 @@ namespace ReignBeta.Government
         {
             JArray assertions = new JArray();
             string caseId = (options?.Value<string>("caseId") ?? string.Empty).Trim();
+            if (caseId == "GOV-NATIVE-049") GovernmentFiefSavePrepare(assertions);
+            if (caseId == "GOV-NATIVE-052") GovernmentFiefSaveAssert(assertions, true);
             if (caseId.Equals("GOV-NATIVE-022", StringComparison.OrdinalIgnoreCase))
             {
                 Kingdom kingdom = Clan.PlayerClan?.Kingdom;
@@ -532,6 +536,8 @@ namespace ReignBeta.Government
                 "Government, party, member, resolution, pressure, lobbying, and meeting state survived reload byte-stably.",
                 new JObject { ["expected"] = expected, ["actual"] = actual });
             string caseId = (options?.Value<string>("caseId") ?? string.Empty).Trim();
+            if (caseId == "GOV-NATIVE-050" || caseId == "GOV-NATIVE-053")
+                GovernmentFiefSaveAssert(assertions, caseId == "GOV-NATIVE-053");
             if (caseId.Equals("GOV-NATIVE-035", StringComparison.OrdinalIgnoreCase))
             {
                 Kingdom kingdom = Clan.PlayerClan?.Kingdom;
@@ -616,6 +622,7 @@ namespace ReignBeta.Government
             {
                 ["ok"] = ok, ["schema"] = "reign-government-test-report-v1",
                 ["runId"] = runId ?? string.Empty, ["profile"] = profile ?? string.Empty,
+                ["nativeInterception"] = ReignGovernmentPatches.BuildDiagnostics(),
                 ["assertions"] = assertions, ["failedAssertionCount"] = assertions.Children<JObject>()
                     .Count(row => row.Value<bool?>("passed") != true),
                 ["capturedUtc"] = DateTime.UtcNow.ToString("o")

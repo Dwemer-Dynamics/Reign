@@ -285,7 +285,16 @@ namespace ReignBeta.Campaign
                 _ = ReignServerClient.ReportActionAsync(queued, "enqueued_immediate", "Queued immediately from dialogue response.");
                 if (!queued.RequiresAcceptance && queued.ExecuteAfterDay <= now)
                 {
-                    ExecuteAction(queued, now);
+                    try
+                    {
+                        ExecuteAction(queued, now);
+                    }
+                    catch (System.Exception ex)
+                    {
+                        ReignLog.Exception("Immediate dialogue action execution failed action=" + queued.ActionId
+                            + " type=" + queued.Type, ex);
+                        throw;
+                    }
                 }
             }
 

@@ -17,6 +17,14 @@ namespace ReignBeta.Government
         public string TargetId = string.Empty;
         public string NativeDecisionType = string.Empty;
         public string NativeFingerprint = string.Empty;
+        public int NativeCaptureVersion;
+        public string NativeCaptureSource = string.Empty;
+        public string NativeCapturedOwnerClanId = string.Empty;
+        public string NativeQuarantineReason = string.Empty;
+        public bool NativeEffectStarted;
+        public int NativeEffectInvocationCount;
+        public int NativeOwnerChangeEventCount;
+        public System.Collections.Generic.List<int> NativeDecisionAliasIndices = new System.Collections.Generic.List<int>();
         public string ActionCorrelationId = string.Empty;
         public string ActionPayloadJson = string.Empty;
         public string CounterpartOfBusinessId = string.Empty;

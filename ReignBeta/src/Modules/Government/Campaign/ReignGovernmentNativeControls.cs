@@ -16,7 +16,7 @@ namespace ReignBeta.Government
     internal static class ReignGovernmentNativeControlAuthority
     {
         internal const string Explanation = "Handled through Reign Government. Open Government to petition, recommend, or review this matter.";
-        internal static bool Active => Clan.PlayerClan?.Kingdom != null
+        internal static bool Active => ReignGovernmentPatches.IsReady && Clan.PlayerClan?.Kingdom != null
             && ReignGovernmentCampaignBehavior.Instance?.EnsureGovernment(Clan.PlayerClan.Kingdom) != null;
     }
 

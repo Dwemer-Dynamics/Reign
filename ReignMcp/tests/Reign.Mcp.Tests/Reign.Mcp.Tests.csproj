@@ -19,8 +19,18 @@
     <Compile Include="..\..\..\ReignBeta\src\Modules\Portraits\AIPortraits\PortraitAvailabilityCache.cs"
              Link="Shared\PortraitAvailabilityCache.cs" />
     <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.14.1" />
+    <Compile Include="..\..\..\ReignBeta\src\Modules\Government\Domain\ReignGovernmentBusinessRecord.cs"
+             Link="Shared\ReignGovernmentBusinessRecord.cs" />
+    <Compile Include="..\..\..\ReignBeta\src\Modules\Government\Domain\ReignGovernmentNativeSafety.cs"
+             Link="Shared\ReignGovernmentNativeSafety.cs" />
     <Compile Include="..\..\..\ReignBeta\src\Modules\WorldSimulation\PartyAgency\ReignGuestWagePolicy.cs"
              Link="Shared\ReignGuestWagePolicy.cs" />
+    <Compile Include="..\..\..\ReignBeta\src\Modules\WorldSimulation\PartyAgency\ReignGuestReviewSession.cs"
+             Link="Shared\ReignGuestReviewSession.cs" />
+    <Compile Include="..\..\..\ReignBeta\src\Modules\WorldSimulation\World\ReignSceneTeamSafety.cs"
+             Link="Shared\ReignSceneTeamSafety.cs" />
+    <Compile Include="..\..\..\ReignBeta\src\Modules\Dialogue\UI\ReignPartyChatCleanup.cs"
+             Link="Shared\ReignPartyChatCleanup.cs" />
     <Compile Include="..\..\..\ReignBeta\src\Modules\Characters\Campaign\ReignBusinessOwnershipRelease.cs"
              Link="Shared\ReignBusinessOwnershipRelease.cs" />
     <Compile Include="..\..\..\ReignBeta\src\Modules\Court\UI\ReignScenePreparationCoordinator.cs"

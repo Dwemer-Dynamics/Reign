@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using Newtonsoft.Json.Linq;
 using ReignBeta.Campaign;
+using ReignBeta.Integration;
 using ReignBeta.Runtime;
 using ReignBeta.UI;
 using ReignBeta.World;
@@ -31,9 +32,12 @@ namespace ReignBeta.PartyAgency
         private List<ReignTemporaryPartyGuestRecord> _records = new List<ReignTemporaryPartyGuestRecord>();
         private bool _reviewInquiryOpen;
         private string _reviewHeroStringId = string.Empty;
+        private string _reviewAgreementId = string.Empty;
+        private string _reviewInquirySessionId = string.Empty;
         private bool _ownsReviewTimeLock;
-        private readonly Dictionary<string, ReviewCloseResolution> _reviewCloseResolutions =
-            new Dictionary<string, ReviewCloseResolution>(StringComparer.OrdinalIgnoreCase);
+        private TaleWorlds.CampaignSystem.Campaign _reviewTimeLockCampaign;
+        private readonly Dictionary<string, ReignGuestReviewSession> _reviewCloseResolutions =
+            new Dictionary<string, ReignGuestReviewSession>(StringComparer.OrdinalIgnoreCase);
 
         public static ReignTemporaryPartyGuestCampaignBehavior Instance { get; private set; }
 
@@ -221,9 +225,12 @@ namespace ReignBeta.PartyAgency
                 reason = "This action requires an active temporary noble guest agreement.";
                 return false;
             }
+            if (action.Type == ReignWorldActionType.RegularEndTemporaryPartyGuest
+                && !ValidateDepartureTarget(record, ParseTerms(action.TermsJson), out reason)) return false;
             if (action.Type == ReignWorldActionType.RegularRenewTemporaryPartyGuest)
             {
                 JObject terms = ParseTerms(action.TermsJson);
+                if (!ValidateRenewalTarget(record, terms, out reason)) return false;
                 if (!ValidateGuestWageTerms(terms, hero, out reason)) return false;
                 if (hero.PartyBelongedTo != MobileParty.MainParty)
                 {
@@ -267,6 +274,8 @@ namespace ReignBeta.PartyAgency
             if (record == null || hero?.PartyBelongedTo != MobileParty.MainParty)
                 return ReignActionResult.ValidationFailed("RenewTemporaryPartyGuest requires an active guest in the player party.");
             JObject terms = ParseTerms(action.TermsJson);
+            if (!ValidateRenewalTarget(record, terms, out string targetFailure))
+                return ReignActionResult.ValidationFailed(targetFailure);
             if (!ReadBool(terms, "consentConfirmed", false))
                 return ReignActionResult.ValidationFailed("The noble must explicitly consent to the renewed temporary-party agreement.");
             if (!string.IsNullOrWhiteSpace(record.HostileFactionStringId)
@@ -298,6 +307,7 @@ namespace ReignBeta.PartyAgency
             record.TermKind = kind;
             record.FixedTermDays = days;
             record.ReviewDueDay = now + (kind == ReignTemporaryGuestTermKind.Fixed ? days : OpenEndedReviewDays);
+            record.AgreementRevision++;
             record.Phase = ReignTemporaryGuestPhase.Active;
             record.LastReviewReason = string.Empty;
             record.LastStateChangeDay = now;
@@ -312,6 +322,8 @@ namespace ReignBeta.PartyAgency
             ReignTemporaryPartyGuestRecord record = FindLiveRecord(hero?.StringId);
             if (record == null)
                 return ReignActionResult.ValidationFailed("EndTemporaryPartyGuest requires an active temporary guest.");
+            if (!ValidateDepartureTarget(record, ParseTerms(action.TermsJson), out string targetFailure))
+                return ReignActionResult.ValidationFailed(targetFailure);
             if (record.Phase == ReignTemporaryGuestPhase.AwaitingStart)
             {
                 record.Phase = ReignTemporaryGuestPhase.Completed;
@@ -431,7 +443,17 @@ namespace ReignBeta.PartyAgency
 
         public void ApplicationTick()
         {
-            if (TaleWorlds.CampaignSystem.Campaign.Current == null || MobileParty.MainParty == null) return;
+            if (TaleWorlds.CampaignSystem.Campaign.Current == null || MobileParty.MainParty == null)
+            {
+                ReleaseReviewTimeLock();
+                _reviewCloseResolutions.Clear();
+                return;
+            }
+            if (_reviewInquiryOpen && !IsCurrentReview(FindLiveRecord(_reviewHeroStringId), FindHero(_reviewHeroStringId), _reviewAgreementId))
+            {
+                InformationManager.HideInquiry();
+                ClearReviewInquiry();
+            }
             PromotePastDueReviews();
             ResolveClosedReviews();
             TryShowDueReview();
@@ -463,12 +485,14 @@ namespace ReignBeta.PartyAgency
             ReignTemporaryPartyGuestRecord record = FindLiveRecord(hero.StringId)
                 ?? Records.LastOrDefault(x => string.Equals(x.HeroStringId, hero.StringId, StringComparison.OrdinalIgnoreCase));
             if (record == null) return new JObject();
+            JObject reviewAction = ReviewActionReceipt(record);
             return new JObject
             {
                 ["schema"] = "reign-temporary-guest-dialogue-v1",
                 ["enabled"] = true,
                 ["heroId"] = hero.StringId,
                 ["agreementId"] = record.AgreementId,
+                ["agreementRevision"] = record.AgreementRevision,
                 ["purpose"] = record.Purpose,
                 ["termKind"] = record.TermKind.ToString(),
                 ["phase"] = record.Phase.ToString(),
@@ -480,6 +504,8 @@ namespace ReignBeta.PartyAgency
                 ["wageArrearsGold"] = record.WageArrearsGold,
                 ["pendingTerms"] = record.Phase == ReignTemporaryGuestPhase.AwaitingStart ? ParseTerms(record.PendingTermsJson) : null,
                 ["reviewDueDay"] = record.ReviewDueDay,
+                ["reviewActionStatus"] = reviewAction.Value<string>("status"),
+                ["reviewActionMessage"] = reviewAction.Value<string>("message"),
                 ["returnDueDay"] = record.ReturnDueDay,
                 ["returnSettlementId"] = record.ReturnSettlementStringId,
                 ["inMainParty"] = MobileParty.MainParty != null && hero.PartyBelongedTo == MobileParty.MainParty,
@@ -494,6 +520,7 @@ namespace ReignBeta.PartyAgency
             JArray records = new JArray(Records.Select(record => new JObject
             {
                 ["agreementId"] = record.AgreementId,
+                ["agreementRevision"] = record.AgreementRevision,
                 ["heroId"] = record.HeroStringId,
                 ["sourcePartyId"] = record.SourcePartyStringId,
                 ["purpose"] = record.Purpose,
@@ -522,6 +549,19 @@ namespace ReignBeta.PartyAgency
                 ["returningCount"] = Records.Count(record => record.Phase == ReignTemporaryGuestPhase.Returning),
                 ["completedCount"] = Records.Count(record => record.Phase == ReignTemporaryGuestPhase.Completed),
                 ["records"] = records,
+                ["reviewInquiryOpen"] = _reviewInquiryOpen,
+                ["reviewHeroId"] = _reviewHeroStringId,
+                ["reviewAgreementId"] = _reviewAgreementId,
+                ["reviewInquirySessionId"] = _reviewInquirySessionId,
+                ["ownsReviewTimeLock"] = _ownsReviewTimeLock,
+                ["reviewSessions"] = new JArray(_reviewCloseResolutions.Values.Select(session => new JObject
+                {
+                    ["sessionId"] = session.SessionId, ["heroId"] = session.HeroId,
+                    ["agreementId"] = session.AgreementId, ["closed"] = session.ClosedUtc.HasValue,
+                    ["providerPending"] = session.ProviderPending, ["providerFailed"] = session.ProviderFailed,
+                    ["actionIds"] = new JArray(session.ActionIds)
+                })),
+                ["partyChatLifecycle"] = ReignPartyChatScreenManager.BuildLifecycleSnapshot(),
                 ["policy"] = new JObject
                 {
                     ["openEndedReviewDays"] = OpenEndedReviewDays,
@@ -535,6 +575,9 @@ namespace ReignBeta.PartyAgency
 
         private void OnGameLoadFinished()
         {
+            _reviewCloseResolutions.Clear();
+            ClearReviewInquiry();
+            ReleaseReviewTimeLock();
             foreach (ReignTemporaryPartyGuestRecord record in Records.Where(x => x.IsLive))
             {
                 if (record.Phase == ReignTemporaryGuestPhase.AwaitingStart) continue;
@@ -821,9 +864,10 @@ namespace ReignBeta.PartyAgency
 
         private void TryShowDueReview()
         {
-            if (_reviewInquiryOpen || ReignPartyChatScreenManager.IsOpen || !CanPresentReview()) return;
+            if (_reviewInquiryOpen || ReignPartyChatScreenManager.IsOpenOrPending || !CanPresentReview()) return;
             ReignTemporaryPartyGuestRecord record = Records
-                .Where(x => x.Phase == ReignTemporaryGuestPhase.ReviewDue)
+                .Where(x => IsCurrentReview(x, FindHero(x.HeroStringId), x.AgreementId)
+                    && !_reviewCloseResolutions.ContainsKey(x.HeroStringId))
                 .OrderBy(x => x.LastStateChangeDay)
                 .ThenBy(x => x.HeroStringId)
                 .FirstOrDefault();
@@ -832,6 +876,9 @@ namespace ReignBeta.PartyAgency
             AcquireReviewTimeLock();
             _reviewInquiryOpen = true;
             _reviewHeroStringId = hero.StringId;
+            _reviewAgreementId = record.AgreementId;
+            string inquirySessionId = Guid.NewGuid().ToString("N");
+            _reviewInquirySessionId = inquirySessionId;
             string term = record.TermKind == ReignTemporaryGuestTermKind.Fixed
                 ? "Fixed term: " + record.FixedTermDays.ToString("0.#") + " days"
                 : "Open-ended; reviewed every five days";
@@ -841,33 +888,44 @@ namespace ReignBeta.PartyAgency
             InformationManager.ShowInquiry(new InquiryData(
                 "Temporary Party Guest Review", body, true, true,
                 "Speak Now", "Let Them Depart",
-                () => OpenReviewConversation(record, hero),
                 () =>
                 {
-                    _reviewInquiryOpen = false;
-                    _reviewHeroStringId = string.Empty;
+                    if (!_reviewInquiryOpen || _reviewInquirySessionId != inquirySessionId
+                        || _reviewAgreementId != record.AgreementId) return;
+                    OpenReviewConversation(record, hero);
+                },
+                () =>
+                {
+                    if (!_reviewInquiryOpen || _reviewInquirySessionId != inquirySessionId || _reviewAgreementId != record.AgreementId
+                        || !IsCurrentReview(record, hero, record.AgreementId)) return;
+                    ClearReviewInquiry();
                     BeginDeparture(record);
+                    RefreshReviewTimeLock();
                 }), true);
         }
 
         private void OpenReviewConversation(ReignTemporaryPartyGuestRecord record, Hero hero)
         {
-            _reviewInquiryOpen = false;
-            _reviewHeroStringId = string.Empty;
+            ClearReviewInquiry();
+            if (!IsCurrentReview(record, hero, record?.AgreementId)) return;
+            var session = new ReignGuestReviewSession(hero.StringId, record.AgreementId);
+            _reviewCloseResolutions[hero.StringId] = session;
             string context = "This is a mandatory temporary-party review. " + hero.Name
                 + " must discuss whether the journey is still needed and explicitly consent to any renewal. Purpose: "
                 + record.Purpose + ". " + record.LastReviewReason;
             ReignPartyChatScreenManager.OpenTargetedReview(hero, context,
-                providerFailed => OnReviewChatClosed(record.HeroStringId, providerFailed));
+                providerFailed => OnReviewChatClosed(session, providerFailed), session,
+                () => IsCurrentReview(record, hero, session.AgreementId));
         }
 
-        private void OnReviewChatClosed(string heroId, bool providerFailed)
+        private void OnReviewChatClosed(ReignGuestReviewSession session, bool providerFailed)
         {
-            _reviewCloseResolutions[heroId] = new ReviewCloseResolution
-            {
-                ResolveAfterUtc = DateTime.UtcNow.AddSeconds(3),
-                ProviderFailed = providerFailed
-            };
+            if (!_reviewCloseResolutions.TryGetValue(session.HeroId, out var current)
+                || !ReferenceEquals(current, session)) return;
+            if (providerFailed && !session.ProviderPending) session.CompleteTurn(false, null);
+            session.Close(DateTime.UtcNow);
+            ReignLog.Info("Guest review closed hero=" + session.HeroId + " agreement=" + session.AgreementId
+                + " session=" + session.SessionId + " pending=" + session.ProviderPending);
         }
 
         internal bool NotifyDisposableLiveTestReviewProviderFailure(string heroId)
@@ -876,9 +934,10 @@ namespace ReignBeta.PartyAgency
             if (record == null || record.Phase != ReignTemporaryGuestPhase.ReviewDue)
                 return false;
             InformationManager.HideInquiry();
-            _reviewInquiryOpen = false;
-            _reviewHeroStringId = string.Empty;
-            OnReviewChatClosed(heroId, true);
+            ClearReviewInquiry();
+            var session = new ReignGuestReviewSession(heroId, record.AgreementId);
+            _reviewCloseResolutions[heroId] = session;
+            OnReviewChatClosed(session, true);
             return true;
         }
 
@@ -888,8 +947,7 @@ namespace ReignBeta.PartyAgency
             if (record == null || record.Phase != ReignTemporaryGuestPhase.ReviewDue)
                 return false;
             InformationManager.HideInquiry();
-            _reviewInquiryOpen = false;
-            _reviewHeroStringId = string.Empty;
+            ClearReviewInquiry();
             _reviewCloseResolutions.Remove(heroId ?? string.Empty);
             BeginDeparture(record);
             return record.Phase == ReignTemporaryGuestPhase.Returning
@@ -918,45 +976,118 @@ namespace ReignBeta.PartyAgency
 
         private void ResolveClosedReviews()
         {
-            foreach (KeyValuePair<string, ReviewCloseResolution> pending in _reviewCloseResolutions
-                .Where(x => DateTime.UtcNow >= x.Value.ResolveAfterUtc).ToList())
+            foreach (var pending in _reviewCloseResolutions.ToList())
             {
-                _reviewCloseResolutions.Remove(pending.Key);
                 ReignTemporaryPartyGuestRecord record = FindLiveRecord(pending.Key);
-                if (record == null || record.Phase != ReignTemporaryGuestPhase.ReviewDue) continue;
-                if (pending.Value.ProviderFailed)
-                {
-                    record.LastReviewReason = "The conversation provider did not complete the review. Retry or let the guest depart.";
-                    continue;
-                }
-                BeginDeparture(record);
+                Hero hero = FindHero(pending.Key);
+                var ledger = ReignAICampaignBehavior.Instance?.Actions;
+                bool nativePending = pending.Value.ActionIds.Any(id =>
+                    ledger?.FirstOrDefault(action => action.ActionId == id)?.IsTerminal != true);
+                ReignGuestReviewResolution resolution = pending.Value.Resolve(record?.HeroStringId,
+                    record?.AgreementId, record?.Phase.ToString(), IsReviewParticipant(hero), nativePending, DateTime.UtcNow);
+                if (resolution == ReignGuestReviewResolution.Pending) continue;
+                _reviewCloseResolutions.Remove(pending.Key);
+                if (resolution != ReignGuestReviewResolution.Retry) continue;
+                record.LastReviewReason = pending.Value.ProviderPending || nativePending
+                    ? "The review action has not finished. No renewal has been applied. Retry or explicitly let the guest depart."
+                    : pending.Value.ProviderFailed
+                        ? "The conversation provider did not complete the review. Retry or let the guest depart."
+                        : "No native renewal was confirmed. " + ReviewActionReceipt(record).Value<string>("message")
+                            + " Retry the review or explicitly let the guest depart.";
+                // Provider success, an empty action list, or a failed action is never authority to depart.
+                ReignLog.Info("Guest review unresolved hero=" + pending.Key + " session=" + pending.Value.SessionId);
             }
+        }
+
+        private void ClearReviewInquiry()
+        {
+            _reviewInquiryOpen = false; _reviewHeroStringId = string.Empty;
+            _reviewAgreementId = string.Empty; _reviewInquirySessionId = string.Empty;
+        }
+
+        private static bool IsReviewParticipant(Hero hero)
+            => hero != null && hero.IsAlive && !hero.IsPrisoner && MobileParty.MainParty != null
+                && hero.PartyBelongedTo == MobileParty.MainParty;
+
+        private bool IsCurrentReview(ReignTemporaryPartyGuestRecord record, Hero hero, string agreementId)
+            => record != null && record.Phase == ReignTemporaryGuestPhase.ReviewDue
+                && record.AgreementId == agreementId && ReferenceEquals(record, FindLiveRecord(hero?.StringId))
+                && IsReviewParticipant(hero) && !record.TemporarilyExcludedFromBattle;
+
+        private static bool ValidateRenewalTarget(ReignTemporaryPartyGuestRecord record, JObject terms, out string reason)
+        {
+            bool matches = ReignGuestReviewSession.MatchesRenewal(record.AgreementId, record.ReviewDueDay,
+                record.Phase.ToString(), ReadString(terms, "agreementId", ""),
+                ReadFloat(terms, "expectedReviewDueDay", float.NaN), record.AgreementRevision,
+                terms.Value<int?>("expectedAgreementRevision") ?? -1);
+            reason = matches ? string.Empty : "This renewal no longer matches the current guest agreement and review deadline. Please review the current terms again.";
+            return matches;
+        }
+
+        private static bool ValidateDepartureTarget(ReignTemporaryPartyGuestRecord record, JObject terms, out string reason)
+        {
+            // Legacy departures did not carry a revision. Bound new actions may never end a replacement/renewed agreement.
+            if (terms["agreementId"] == null && terms["expectedReviewDueDay"] == null && terms["expectedAgreementRevision"] == null)
+            { reason = string.Empty; return true; }
+            bool matches = ReadString(terms, "agreementId", "") == record.AgreementId
+                && ReadFloat(terms, "expectedReviewDueDay", float.NaN) == record.ReviewDueDay
+                && (terms.Value<int?>("expectedAgreementRevision") ?? 0) == record.AgreementRevision
+                && (record.Phase == ReignTemporaryGuestPhase.Active || record.Phase == ReignTemporaryGuestPhase.ReviewDue
+                    || record.Phase == ReignTemporaryGuestPhase.AwaitingStart);
+            reason = matches ? string.Empty : "This departure belongs to an older guest agreement or review. Please confirm the current decision again.";
+            return matches;
+        }
+
+        private static JObject ReviewActionReceipt(ReignTemporaryPartyGuestRecord record)
+        {
+            var action = ReignAICampaignBehavior.Instance?.Actions.LastOrDefault(x => x != null
+                && x.ActorHeroStringId == record.HeroStringId
+                && (x.Type == ReignWorldActionType.RegularRenewTemporaryPartyGuest
+                    || x.Type == ReignWorldActionType.RegularAcceptTemporaryPartyGuest
+                    || x.Type == ReignWorldActionType.RegularEndTemporaryPartyGuest)
+                && (ReadString(ParseTerms(x.TermsJson), "agreementId", record.AgreementId) == record.AgreementId));
+            return new JObject
+            {
+                ["actionId"] = action?.ActionId ?? "", ["status"] = action?.Status.ToString() ?? "none",
+                ["message"] = action == null ? "No guest action receipt is available."
+                    : !string.IsNullOrWhiteSpace(action.FailureReason) ? action.FailureReason
+                    : action.Status == ReignWorldActionStatus.Completed ? "The guest action completed; the current native phase and deadline above are authoritative."
+                    : "The guest action is " + action.Status + "."
+            };
         }
 
         private void AcquireReviewTimeLock()
         {
             if (TaleWorlds.CampaignSystem.Campaign.Current == null) return;
+            if (_reviewTimeLockCampaign != TaleWorlds.CampaignSystem.Campaign.Current) ReleaseReviewTimeLock();
             TaleWorlds.CampaignSystem.Campaign.Current.TimeControlMode = CampaignTimeControlMode.Stop;
             if (!TaleWorlds.CampaignSystem.Campaign.Current.TimeControlModeLock)
             {
                 TaleWorlds.CampaignSystem.Campaign.Current.SetTimeControlModeLock(true);
                 _ownsReviewTimeLock = true;
+                _reviewTimeLockCampaign = TaleWorlds.CampaignSystem.Campaign.Current;
             }
         }
 
         private void RefreshReviewTimeLock()
         {
-            bool hasDueReview = Records.Any(x => x.Phase == ReignTemporaryGuestPhase.ReviewDue);
+            bool hasDueReview = Records.Any(x => IsCurrentReview(x, FindHero(x.HeroStringId), x.AgreementId));
             if (hasDueReview || _reviewInquiryOpen)
             {
                 AcquireReviewTimeLock();
                 return;
             }
-            if (_ownsReviewTimeLock && TaleWorlds.CampaignSystem.Campaign.Current != null)
+            ReleaseReviewTimeLock();
+        }
+
+        private void ReleaseReviewTimeLock()
+        {
+            if (_ownsReviewTimeLock && _reviewTimeLockCampaign != null)
             {
-                TaleWorlds.CampaignSystem.Campaign.Current.SetTimeControlModeLock(false);
+                _reviewTimeLockCampaign.SetTimeControlModeLock(false);
                 _ownsReviewTimeLock = false;
             }
+            _reviewTimeLockCampaign = null;
         }
 
         private static bool CanPresentReview()
@@ -1137,10 +1268,5 @@ namespace ReignBeta.PartyAgency
             return obj?[key]?.Value<bool?>() ?? fallback;
         }
 
-        private sealed class ReviewCloseResolution
-        {
-            public DateTime ResolveAfterUtc;
-            public bool ProviderFailed;
-        }
     }
 }

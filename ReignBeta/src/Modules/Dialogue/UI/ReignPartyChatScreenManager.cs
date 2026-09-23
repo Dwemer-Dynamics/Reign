@@ -4,6 +4,8 @@ using ReignBeta.Settings;
 using ReignBeta.UI.ViewModels;
 using ReignBeta.UI.Widgets;
 using ReignBeta.Court;
+using ReignBeta.PartyAgency;
+using Newtonsoft.Json.Linq;
 using TaleWorlds.CampaignSystem;
 using TaleWorlds.CampaignSystem.Party;
 using TaleWorlds.CampaignSystem.Settlements;
@@ -27,17 +29,29 @@ namespace ReignBeta.UI
         private static bool _loggedFocusIssue;
         private static bool _externalOverlayMode;
         private static bool _activeStateDisableRegistered;
+        private static Action _releaseActiveStateDisable;
         private static bool _ignoreNextHotkeyRelease;
         private static float _externalOverlayResumeDelay;
         private static CastleRoomSessionRecord _pendingCastleSession;
         private static Hero _pendingTargetedHero;
         private static string _pendingTargetedContext = string.Empty;
         private static Action<bool> _pendingTargetedClose;
+        private static ReignGuestReviewSession _pendingReviewSession;
+        private static Func<bool> _pendingReviewStillValid;
         private static Settlement _pendingHomesSettlement;
         private static Hero _pendingHomeResident;
 
         public static bool IsOpen { get; private set; }
+        public static bool IsOpenOrPending => IsOpen || _pendingOpen;
         public static ReignPartyChatScreenVM ActiveViewModel => _dataSource;
+
+        public static JObject BuildLifecycleSnapshot() => new JObject
+        {
+            ["open"] = IsOpen, ["pendingOpen"] = _pendingOpen,
+            ["activeStateDisableRegistered"] = _activeStateDisableRegistered,
+            ["hasLayer"] = _gauntletLayer != null, ["hasHost"] = _hostScreen != null,
+            ["targetedReviewSessionId"] = _pendingReviewSession?.SessionId ?? string.Empty
+        };
 
         public static void ApplicationTick(float dt)
         {
@@ -90,9 +104,10 @@ namespace ReignBeta.UI
             OpenOnHost(host);
         }
 
-        public static void OpenTargetedReview(Hero hero, string context, Action<bool> onClosed)
+        public static void OpenTargetedReview(Hero hero, string context, Action<bool> onClosed,
+            ReignGuestReviewSession reviewSession = null, Func<bool> stillValid = null)
         {
-            if (hero == null || IsOpen || _pendingOpen)
+            if (hero == null || IsOpen || _pendingOpen || (stillValid != null && !stillValid()))
             {
                 onClosed?.Invoke(true);
                 return;
@@ -100,6 +115,8 @@ namespace ReignBeta.UI
             _pendingTargetedHero = hero;
             _pendingTargetedContext = context ?? string.Empty;
             _pendingTargetedClose = onClosed;
+            _pendingReviewSession = reviewSession;
+            _pendingReviewStillValid = stillValid;
             ScreenBase host = ScreenManager.TopScreen;
             if (!CanAttachToHost(host))
             {
@@ -111,6 +128,8 @@ namespace ReignBeta.UI
 
         public static void Tick(float dt)
         {
+            if (_pendingOpen && _pendingReviewStillValid != null && !_pendingReviewStillValid())
+            { Close(); return; }
             if (_pendingOpen && !IsOpen && CanAttachToHost(ScreenManager.TopScreen))
             {
                 _pendingOpen = false;
@@ -119,6 +138,8 @@ namespace ReignBeta.UI
 
             if (!IsOpen)
             {
+                // A failed engine cleanup is retried against the original owner, never a new game state.
+                UnregisterActiveStateDisableRequest();
                 return;
             }
 
@@ -146,6 +167,7 @@ namespace ReignBeta.UI
 
             ApplyInputLock();
             _dataSource?.RefreshCastleArt();
+            _dataSource?.RefreshTargetedReviewReceipt();
             if (ScreenManager.FocusedLayer != _gauntletLayer)
             {
                 if (!_loggedFocusIssue)
@@ -189,30 +211,17 @@ namespace ReignBeta.UI
         {
             Action<bool> targetedClose = _pendingTargetedClose;
             bool targetedProviderFailed = _dataSource?.TargetedReviewProviderFailed ?? true;
+            var layer = _gauntletLayer;
+            var host = _hostScreen;
+            var dataSource = _dataSource;
+            // Detach our state first: recursive closes and late replies cannot operate on a later screen.
             _pendingTargetedClose = null;
             _pendingTargetedHero = null;
             _pendingTargetedContext = string.Empty;
+            _pendingReviewSession = null;
+            _pendingReviewStillValid = null;
             _pendingHomesSettlement = null;
             _pendingHomeResident = null;
-            if (_gauntletLayer != null)
-            {
-                _gauntletLayer.IsFocusLayer = false;
-                _gauntletLayer.InputRestrictions.ResetInputRestrictions();
-                ScreenManager.TryLoseFocus(_gauntletLayer);
-                try
-                {
-                    if (_hostScreen != null && _hostScreen.HasLayer(_gauntletLayer))
-                    {
-                        _hostScreen.RemoveLayer(_gauntletLayer);
-                    }
-                }
-                catch (Exception ex)
-                {
-                    ReignLog.Warn("Party chat layer removal failed: " + ex.Message);
-                }
-            }
-
-            _dataSource?.OnFinalize();
             _dataSource = null;
             _gauntletLayer = null;
             _hostScreen = null;
@@ -220,14 +229,31 @@ namespace ReignBeta.UI
             _pendingCastleSession = null;
             _externalOverlayMode = false;
             _loggedFocusIssue = false;
-            UnregisterActiveStateDisableRequest();
             IsOpen = false;
-            ReignLog.Info("Party chat closed.");
-            targetedClose?.Invoke(targetedProviderFailed);
+            try
+            {
+                ReignPartyChatCleanup.Run(LogCleanupFailure,
+                    () => { if (layer != null) layer.IsFocusLayer = false; },
+                    () => layer?.InputRestrictions.ResetInputRestrictions(),
+                    () => { if (layer != null) ScreenManager.TryLoseFocus(layer); },
+                    () => { if (host != null && layer != null && host.HasLayer(layer)) host.RemoveLayer(layer); },
+                    () => dataSource?.OnFinalize());
+            }
+            finally
+            {
+                ReignPartyChatCleanup.Run(LogCleanupFailure,
+                    UnregisterActiveStateDisableRequest,
+                    () => ReignLog.Info("Party chat closed; activeStateDisableRegistered=" + _activeStateDisableRegistered),
+                    () => targetedClose?.Invoke(targetedProviderFailed));
+            }
         }
+
+        private static void LogCleanupFailure(Exception ex)
+            => ReignLog.Warn("Party chat cleanup failed: " + ex.Message);
 
         private static void OpenOnHost(ScreenBase host)
         {
+            if (_pendingReviewStillValid != null && !_pendingReviewStillValid()) { Close(); return; }
             if (host == null)
             {
                 InformationManager.DisplayMessage(new InformationMessage("[Bannerlord Reign] Party Chat could not find a screen to attach to.", Color.FromUint(0xFFFFAA00)));
@@ -243,7 +269,7 @@ namespace ReignBeta.UI
                     ? new ReignPartyChatScreenVM(Close, _pendingCastleSession, OpenEncyclopediaOverlay, OpenPortraitRequestOverlay)
                     : targeted
                         ? new ReignPartyChatScreenVM(Close, _pendingTargetedHero, _pendingTargetedContext,
-                            OpenEncyclopediaOverlay, OpenPortraitRequestOverlay)
+                            OpenEncyclopediaOverlay, OpenPortraitRequestOverlay, _pendingReviewSession)
                         : _pendingHomesSettlement != null
                             ? new ReignPartyChatScreenVM(Close, _pendingHomesSettlement, _pendingHomeResident,
                                 OpenEncyclopediaOverlay, OpenPortraitRequestOverlay)
@@ -428,7 +454,10 @@ namespace ReignBeta.UI
 
             try
             {
-                Game.Current?.GameStateManager?.RegisterActiveStateDisableRequest(ActiveStateDisableRequester);
+                var manager = Game.Current?.GameStateManager;
+                if (manager == null) return;
+                manager.RegisterActiveStateDisableRequest(ActiveStateDisableRequester);
+                _releaseActiveStateDisable = () => manager.UnregisterActiveStateDisableRequest(ActiveStateDisableRequester);
                 _activeStateDisableRegistered = true;
             }
             catch (Exception ex)
@@ -446,15 +475,13 @@ namespace ReignBeta.UI
 
             try
             {
-                Game.Current?.GameStateManager?.UnregisterActiveStateDisableRequest(ActiveStateDisableRequester);
+                _releaseActiveStateDisable?.Invoke();
+                _releaseActiveStateDisable = null;
+                _activeStateDisableRegistered = false;
             }
             catch (Exception ex)
             {
                 ReignLog.Warn("Party chat active-state unlock failed: " + ex.Message);
-            }
-            finally
-            {
-                _activeStateDisableRegistered = false;
             }
         }
     }

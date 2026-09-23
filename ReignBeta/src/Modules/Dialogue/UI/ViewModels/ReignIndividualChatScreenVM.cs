@@ -21,6 +21,7 @@ namespace ReignBeta.UI.ViewModels
     public sealed class ReignIndividualChatScreenVM : ViewModel
     {
         private readonly Hero _hero;
+        internal Hero ConversationHero => _hero;
         private readonly Action _closeScreen;
         private readonly Action<Hero> _lookAtHero;
         private string _title;

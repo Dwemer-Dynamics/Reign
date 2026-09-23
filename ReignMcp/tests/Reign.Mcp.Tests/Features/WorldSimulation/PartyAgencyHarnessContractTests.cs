@@ -611,7 +611,7 @@ public sealed class PartyAgencyHarnessContractTests
             Path.Combine(root, "ReignServer"), "Program.cs",
             "/src/Modules/Platform/"));
 
-        Assert.Contains("TemporaryPartyGuestCandidateToPreserve(actionGate, playerText)", server,
+        Assert.Contains("TemporaryPartyGuestCandidateToPreserve(actionGate, playerText, payload, hero)", server,
             StringComparison.Ordinal);
         Assert.Contains("return \"accept_temporary_party_guest\"", server, StringComparison.Ordinal);
         Assert.Contains("return \"renew_temporary_party_guest\"", server, StringComparison.Ordinal);
@@ -709,7 +709,7 @@ public sealed class PartyAgencyHarnessContractTests
             StringComparison.Ordinal);
         Assert.Contains("if (candidates.Count == 0)", server, StringComparison.Ordinal);
         Assert.Contains("accepted_temporary_guest_fallback", server, StringComparison.Ordinal);
-        Assert.Contains("TemporaryPartyGuestCandidateToPreserve(actionGate, playerText)", server,
+        Assert.Contains("TemporaryPartyGuestCandidateToPreserve(actionGate, playerText, payload, hero)", server,
             StringComparison.Ordinal);
         Assert.Contains("replacedMismatchedPlannerAction", server,
             StringComparison.Ordinal);
@@ -754,6 +754,48 @@ public sealed class PartyAgencyHarnessContractTests
         Assert.Contains("now >= x.ReviewDueDay", behavior, StringComparison.Ordinal);
         Assert.Contains("record.Phase = ReignTemporaryGuestPhase.ReviewDue", behavior,
             StringComparison.Ordinal);
+    }
+
+    [Fact]
+    public void ReviewLifecycleUsesTestedSessionPolicyAndOwnsOnlyItsCleanup()
+    {
+        string root = TestOptions.FindWorkspace();
+        string behavior = File.ReadAllText(TestSourceLocator.Unique(Path.Combine(root, "ReignBeta"),
+            "ReignTemporaryPartyGuestCampaignBehavior.cs", "/src/Modules/WorldSimulation/PartyAgency/"));
+        string closeResolution = behavior.Split("private void ResolveClosedReviews()", StringSplitOptions.None)[1]
+            .Split("private void ClearReviewInquiry()", StringSplitOptions.None)[0];
+        Assert.Contains("pending.Value.Resolve(", closeResolution);
+        Assert.DoesNotContain("BeginDeparture(", closeResolution);
+        Assert.DoesNotContain("AddSeconds(3)", behavior);
+        Assert.Contains("ReferenceEquals(current, session)", behavior);
+        Assert.Contains("_reviewInquirySessionId != inquirySessionId", behavior);
+        Assert.Contains("!_reviewCloseResolutions.ContainsKey(x.HeroStringId)", behavior);
+        Assert.Contains("ReignGuestReviewSession.MatchesRenewal", behavior);
+        Assert.Contains("record.AgreementRevision++", behavior);
+        string record = File.ReadAllText(TestSourceLocator.Unique(Path.Combine(root, "ReignBeta"),
+            "ReignTemporaryPartyGuestRecord.cs", "/src/Modules/WorldSimulation/PartyAgency/"));
+        Assert.Contains("[SaveableField(37)] public int AgreementRevision", record);
+        var fieldIds = System.Text.RegularExpressions.Regex.Matches(record, @"SaveableField\((\d+)\)")
+            .Cast<System.Text.RegularExpressions.Match>()
+            .Select(match => match.Groups[1].Value).ToArray();
+        Assert.Equal(fieldIds.Length, fieldIds.Distinct().Count());
+        string manager = File.ReadAllText(TestSourceLocator.Unique(Path.Combine(root, "ReignBeta"),
+            "ReignPartyChatScreenManager.cs", "/src/Modules/Dialogue/UI/"));
+        Assert.Contains("finally", manager);
+        Assert.Contains("ReignPartyChatCleanup.Run(LogCleanupFailure", manager);
+        Assert.Contains("() => dataSource?.OnFinalize()", manager);
+        Assert.Contains("_releaseActiveStateDisable = () => manager.UnregisterActiveStateDisableRequest", manager);
+        Assert.Contains("_pendingReviewStillValid != null && !_pendingReviewStillValid()", manager);
+        string vm = File.ReadAllText(TestSourceLocator.Unique(Path.Combine(root, "ReignBeta"),
+            "ReignPartyChatScreenVM.cs", "/src/Modules/Dialogue/UI/ViewModels/"));
+        Assert.Contains("_guestReviewSession?.CompleteTurn", vm);
+        Assert.Contains("if (_isFinalized) break;", vm);
+        Assert.Contains("RefreshTargetedReviewReceipt", vm);
+        string tracker = vm.Split("private async Task<ReignPartyChatBatchResult> RequestLiveNpcTurns(", StringSplitOptions.None)[1]
+            .Split("public void RefreshTargetedReviewReceipt()", StringSplitOptions.None)[0];
+        Assert.Matches(@"if \(_guestReviewSession != null\)\s*\{\s*IsBusy = false;\s*BusyText = string.Empty;", tracker);
+        Assert.Contains("() => { if (!_isFinalized) PersistCastleTranscript(); }", vm);
+        Assert.Contains("() => { if (!_isFinalized) xp.Award(", vm);
     }
 
     [Fact]

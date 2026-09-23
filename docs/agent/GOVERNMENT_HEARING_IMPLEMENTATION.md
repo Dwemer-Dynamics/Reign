@@ -1,5 +1,17 @@
 # Government hearings integration
 
+## Native award replay repair (2026-09-22)
+
+Epinosa's observed capture was followed by one native claimant award and a second Reign award on a later daily tick. The Government Harmony classes existed but were absent from the module lifecycle. The `KingdomDecisionAdded` listener captured a hearing too late to stop the NPC kingdom's immediate election.
+
+`ReignGovernmentPatches` now installs the explicit Government patch inventory under its own owner, verifies each actual hook exactly once, and removes its partial group if setup or later verification fails. Native takeover and control suppression require readiness. Proposal, election-start, election-outcome and direct-outcome paths share capture; the late event is diagnostic only. Runtime test reports expose `reign-government-interception-v1` with per-target evidence.
+
+Native hearings persist their capture version/source, original settlement owner, exact terms, duplicate decision aliases, effect-start intent and invocation/ownership-event receipts. A one-use permit binds execution to the exact native decision and outcome. Native owner changes invalidate older open awards even if ownership later returns to the same clan. The authorized preliminary reassignment still creates a distinct allocation hearing. Bilateral execution consumes the source government's independent intent/receipt. A partial effect is held for review instead of retried; relation consequences retain their separate receipts.
+
+Old open hearings without verified provenance are held as `execution_failed` with a recorded explanation before daily processing or manual execution. Completed history stays intact. This migration never changes a settlement owner or invents a retroactive award. Epinosa's current ownership requires a separately chosen campaign correction, if desired.
+
+Provider-free MCP tests execute the shared production safety policy for provenance, missing patches, changed terms/owners, interrupted effects, replay, aliases and JSON round trips. A lifecycle inventory contract detects any Government patch missing from module startup. The new manifest cases `GOV-NATIVE-044` through `053` require real native interception, NPC/player award effects, failure rollback, legacy quarantine, the two-stage reassignment, open-hearing reload, guarded daily advancement and completed-award reload. Build/contract results do not establish native campaign acceptance or deployment.
+
 Implementation checkpoint, 2026-09-08. Task `01a07f00-c1ec-7d21-a5e1-53ab39cb25b7`.
 
 ## Authority and deployment boundary

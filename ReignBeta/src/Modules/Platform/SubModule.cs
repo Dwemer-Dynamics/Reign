@@ -44,6 +44,7 @@ namespace ReignBeta
             ReignPregnancyPatches.Apply();
             ReignMarriagePatches.Apply();
             ReignDiplomacyPatches.Apply();
+            ReignGovernmentPatches.Apply();
             ReignIndividualRelationPatches.Apply();
             ReignDungeonEscapePatches.Apply();
             ReignArrestCustodyPatches.Apply();
@@ -142,6 +143,7 @@ namespace ReignBeta
                 campaignStarter.AddBehavior(new ReignCampaignCommandBehavior());
                 campaignStarter.AddBehavior(new ReignWorldHistoryCampaignBehavior());
                 campaignStarter.AddBehavior(new ReignTemporaryPartyGuestCampaignBehavior());
+                campaignStarter.AddBehavior(new ReignFollowCampaignBehavior());
                 campaignStarter.AddBehavior(new ReignRecruitedNotableCampaignBehavior());
                 campaignStarter.AddBehavior(new ReignArrestCampaignBehavior());
                 campaignStarter.AddBehavior(new ReignCombatReputationCampaignBehavior());
@@ -221,6 +223,7 @@ namespace ReignBeta
             RunTickStage("party chat overlay", () => ReignPartyChatScreenManager.ApplicationTick(dt));
             RunTickStage("tavern house overlay", () => ReignTavernHouseScreenManager.ApplicationTick(dt));
             RunTickStage("temporary noble guests", () => ReignTemporaryPartyGuestCampaignBehavior.Instance?.ApplicationTick());
+            RunTickStage("persistent follow representation", () => ReignFollowCampaignBehavior.Instance?.ApplicationTick(dt));
             RunTickStage("correspondence overlay", () => ReignCorrespondenceScreenManager.ApplicationTick(dt));
             RunTickStage("duel launch prompt", ReignDuelLaunchPromptService.Tick);
             RunTickStage("diplomacy announcement overlay", () => ReignDiplomacyAnnouncementScreenManager.ApplicationTick(dt));
@@ -277,6 +280,7 @@ namespace ReignBeta
             ReignPregnancyPatches.Unapply();
             ReignMarriagePatches.Unapply();
             ReignDiplomacyPatches.Unapply();
+            ReignGovernmentPatches.Unapply();
             ReignIndividualRelationPatches.Unapply();
             ReignDungeonEscapePatches.Unapply();
             ReignArrestCustodyPatches.Unapply();

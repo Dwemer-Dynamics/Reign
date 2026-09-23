@@ -52,6 +52,7 @@ namespace ReignBeta.Government
             CampaignEvents.DailyTickEvent.AddNonSerializedListener(this, OnDailyTick);
             CampaignEvents.KingdomDecisionAdded.AddNonSerializedListener(this, OnNativeKingdomDecisionAdded);
             CampaignEvents.KingdomDecisionConcluded.AddNonSerializedListener(this, OnNativeKingdomDecisionConcluded);
+            CampaignEvents.OnSettlementOwnerChangedEvent.AddNonSerializedListener(this, OnGovernmentSettlementOwnerChanged);
             RegisterResolutionProgressEvents();
             RegisterGovernmentAttendanceEvents();
             CampaignEvents.OnSessionLaunchedEvent.AddNonSerializedListener(this, OnGovernmentSessionLaunched);

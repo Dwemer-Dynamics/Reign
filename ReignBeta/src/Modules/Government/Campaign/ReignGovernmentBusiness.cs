@@ -56,8 +56,13 @@ namespace ReignBeta.Government
             foreach (var record in _business)
             {
                 var decision = NativeBusinessDecision(record);
+                var aliases = (record.NativeDecisionAliasIndices ?? new List<int>())
+                    .Where(i => i >= 0 && i < _ownedNativeDecisions.Count).Select(i => _ownedNativeDecisions[i]).ToList();
                 record.NativeDecisionIndex = decision == null ? -1 : native.Count;
                 if (decision != null) native.Add(decision);
+                record.NativeDecisionAliasIndices = new List<int>();
+                foreach (var alias in aliases)
+                { record.NativeDecisionAliasIndices.Add(native.Count); native.Add(alias); }
             }
             _ownedNativeDecisions = native;
         }
@@ -198,8 +203,11 @@ namespace ReignBeta.Government
 
         public void TickGovernmentBusiness()
         {
+            ReignGovernmentPatches.VerifyReady();
             foreach (var record in _business.Where(x => !GovernmentBusinessRules.IsClosed(x.Status)).ToList())
             {
+                if (!string.IsNullOrEmpty(record.NativeDecisionType) && !record.ExecutionApplied
+                    && !ValidateNativeBusiness(record, out _)) continue;
                 ObserveGovernmentActionQueue(record);
                 if (GovernmentBusinessRules.IsClosed(record.Status)) continue;
                 Kingdom kingdom = FindKingdom(record.KingdomStringId);

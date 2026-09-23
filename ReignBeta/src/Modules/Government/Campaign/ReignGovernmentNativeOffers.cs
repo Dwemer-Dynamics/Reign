@@ -13,7 +13,7 @@ namespace ReignBeta.Government
         internal bool OwnsNativePeaceOffer(IFaction opponent)
         {
             var realm = Clan.PlayerClan?.Kingdom;
-            return opponent is Kingdom && realm?.RulingClan != null && realm != opponent
+            return ReignGovernmentPatches.IsReady && opponent is Kingdom && realm?.RulingClan != null && realm != opponent
                 && Hero.MainHero?.MapFaction == realm && EnsureGovernment(realm) != null;
         }
 
@@ -23,7 +23,7 @@ namespace ReignBeta.Government
             var realm = Clan.PlayerClan.Kingdom;
             // The notification measures payment BY the opponent. Native recipient decisions use the reverse sign.
             return TryCaptureNativeDecision(new MakePeaceKingdomDecision(realm.RulingClan, opponent,
-                -opponentDailyTribute, durationDays, applyResults: true, isProposedByOpponent: true));
+                -opponentDailyTribute, durationDays, applyResults: true, isProposedByOpponent: true), "offer");
         }
     }
 

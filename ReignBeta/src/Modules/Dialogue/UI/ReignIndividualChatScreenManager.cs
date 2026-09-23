@@ -32,6 +32,8 @@ namespace ReignBeta.UI
             get { return _dataSource; }
         }
 
+        internal static Hero ActiveHero => _dataSource?.ConversationHero;
+
         public static string AutomationInputText => _dataSource?.InputText ?? string.Empty;
         public static string AutomationBusyText => _dataSource?.BusyText ?? string.Empty;
         public static int AutomationChatLineCount => _dataSource?.ChatLines?.Count ?? 0;

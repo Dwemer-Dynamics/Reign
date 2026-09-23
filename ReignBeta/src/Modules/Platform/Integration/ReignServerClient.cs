@@ -1016,7 +1016,7 @@ namespace ReignBeta.Integration
                 reply.TimingSummary = FormatTimingSummary(response["timing"] as JObject);
                 if (!reply.Ok && string.IsNullOrWhiteSpace(reply.Error))
                 {
-                    reply.Error = response.ToString(Formatting.None);
+                    reply.Error = FriendlyConversationFailure(response, payload.Value<string>("correlationId"));
                 }
 
                 if (reply.Ok && Hero.MainHero != null)
@@ -1030,7 +1030,8 @@ namespace ReignBeta.Integration
                         _ = ObservePlayerHistoricalClaimForListenersSafelyAsync(speaker, session.Record.GetAttendees(), playerText, "social_event");
                     }
 
-                    _ = ObserveNpcHistoricalClaimForListenersSafelyAsync(speaker, session.Record.GetAttendees(), reply.Text, "social_event");
+                    if (string.IsNullOrWhiteSpace(response.Value<string>("privateAudienceHeroStringId")))
+                        _ = ObserveNpcHistoricalClaimForListenersSafelyAsync(speaker, session.Record.GetAttendees(), reply.Text, "social_event");
                 }
 
                 return reply;
@@ -1134,6 +1135,7 @@ namespace ReignBeta.Integration
                 reply.Participation = response.Value<string>("participation") ?? "speak";
                 reply.ReactionTargetHeroStringId = response.Value<string>("reactionTargetHeroStringId") ?? string.Empty;
                 reply.Error = response.Value<string>("error") ?? string.Empty;
+                reply.PrivateAudienceHeroStringId = response.Value<string>("privateAudienceHeroStringId") ?? string.Empty;
                 reply.EncyclopediaText = response.Value<string>("encyclopediaText") ?? string.Empty;
                 reply.CorrelationId = payload.Value<string>("correlationId") ?? string.Empty;
                 JObject exchange = response["conversationExchange"] as JObject;
@@ -1150,12 +1152,13 @@ namespace ReignBeta.Integration
                     + " timing=" + reply.TimingSummary);
                 if (!reply.Ok && string.IsNullOrWhiteSpace(reply.Error))
                 {
-                    reply.Error = response.ToString(Formatting.None);
+                    reply.Error = FriendlyConversationFailure(response, reply.CorrelationId);
                 }
 
                 if (reply.Ok && Hero.MainHero != null && !familyChambers)
                 {
-                    _ = ObserveNpcHistoricalClaimForListenersSafelyAsync(speaker, activeHeroes, reply.Text, "party_chat");
+                    if (string.IsNullOrWhiteSpace(reply.PrivateAudienceHeroStringId))
+                        _ = ObserveNpcHistoricalClaimForListenersSafelyAsync(speaker, activeHeroes, reply.Text, "party_chat");
                     _ = ObservePlayerHistoricalClaimForListenersSafelyAsync(speaker, activeHeroes, playerText, "party_chat");
                 }
 
@@ -1900,7 +1903,7 @@ namespace ReignBeta.Integration
                     + " timing=" + reply.TimingSummary);
                 if (!reply.Ok && string.IsNullOrWhiteSpace(reply.Error))
                 {
-                    reply.Error = response.ToString(Formatting.None);
+                    reply.Error = FriendlyConversationFailure(response, reply.CorrelationId);
                 }
 
                 if (reply.Ok && Hero.MainHero != null && !officialAmbassador
@@ -1977,6 +1980,7 @@ namespace ReignBeta.Integration
                     ? "individual_" + (hero?.StringId ?? "unknown") + "_" + Guid.NewGuid().ToString("N")
                     : conversationSessionId + "_" + Guid.NewGuid().ToString("N"),
                 ["sceneParticipants"] = BuildSceneParticipants(participants),
+                ["localPresence"] = BuildLocalPresenceSnapshot(participants),
                 ["channel"] = official ? "ambassador_official"
                     : rulerPetition ? "ruler_petition"
                     : nobleDocket ? "noble_docket" : courtLife ? "court_life" : "in_person",
@@ -2081,6 +2085,7 @@ namespace ReignBeta.Integration
             try
             {
                 Hero player = Hero.MainHero;
+                claim = PublicSpokenPlayerText(claim);
                 if (player == null || !LooksLikeHistoricalWorldClaim(claim)) return;
                 List<Hero> targets = (listeners ?? Enumerable.Empty<Hero>()).Where(x => x != null && x != player && x != respondingTarget)
                     .GroupBy(x => x.StringId, StringComparer.OrdinalIgnoreCase).Select(x => x.First()).Take(12).ToList();
@@ -3288,6 +3293,37 @@ namespace ReignBeta.Integration
             }
         }
 
+        private static string FriendlyConversationFailure(JObject response, string correlationId)
+        {
+            string code = response?["llm"]?["errorCode"]?.Value<string>() ?? string.Empty;
+            string message = code == "structured_response_incomplete_after_retries"
+                ? "The AI could not complete this reply. Please try again."
+                : code == "roleplay_continuity_repair_unusable"
+                    ? "The AI reply could not pass the conversation checks. Please try again."
+                    : "The AI could not complete this reply. Please try again.";
+            string reference = string.IsNullOrWhiteSpace(correlationId)
+                ? response?.Value<string>("correlationId") ?? string.Empty
+                : correlationId;
+            return string.IsNullOrWhiteSpace(reference) ? message : message + " Reference: " + reference.Trim();
+        }
+
+        private static string PublicSpokenPlayerText(string text)
+        {
+            string source = text ?? string.Empty;
+            StringBuilder publicSpeech = new StringBuilder();
+            bool privateSpeech = false;
+            int cursor = 0;
+            foreach (Match action in Regex.Matches(source, @"\*([^*]+)\*", RegexOptions.Singleline))
+            {
+                if (!privateSpeech) publicSpeech.Append(source.Substring(cursor, action.Index - cursor));
+                privateSpeech = Regex.IsMatch(action.Groups[1].Value,
+                    @"\bwhisper(?:s|ed|ing)?\b", RegexOptions.IgnoreCase);
+                cursor = action.Index + action.Length;
+            }
+            if (!privateSpeech) publicSpeech.Append(source.Substring(cursor));
+            return publicSpeech.ToString();
+        }
+
         private static string FormatTimingSummary(JObject timing)
         {
             if (timing == null)
@@ -3349,6 +3385,7 @@ namespace ReignBeta.Integration
                 ["clanAccords"] = ReignBeta.ClanAccords.ReignClanAccordsCampaignBehavior.Instance?.ConversationContext(speaker) ?? new JObject(),
                 ["sceneTurnId"] = record.EventId + "_" + session.CurrentPhaseIndex + "_" + session.PhaseExchangeCount,
                 ["sceneParticipants"] = BuildSceneParticipants(record.GetAttendees()),
+                ["localPresence"] = BuildLocalPresenceSnapshot(record.GetAttendees()),
                 ["isDancePhase"] = session.Template.TemplateId.StartsWith("dance_", StringComparison.OrdinalIgnoreCase)
                     && (session.CurrentPhase.PhaseId == "first_dance" || session.CurrentPhase.PhaseId == "refreshments_and_second_dance"),
                 ["playerIsFemale"] = Hero.MainHero?.IsFemale ?? false,
@@ -3381,6 +3418,7 @@ namespace ReignBeta.Integration
                     ["speakerHeroStringId"] = line.SpeakerHeroStringId ?? string.Empty,
                     ["speaker"] = line.Speaker ?? string.Empty,
                     ["role"] = line.Role ?? string.Empty,
+                    ["audienceHeroStringId"] = line.AudienceHeroStringId ?? string.Empty,
                     ["text"] = line.Text ?? string.Empty
                 });
             }
@@ -3417,6 +3455,7 @@ namespace ReignBeta.Integration
                     ? session.SessionId + "_turn_" + session.PlayerInputCount
                     : session.CurrentSceneTurnId,
                 ["sceneParticipants"] = BuildSceneParticipants(activeHeroes),
+                ["localPresence"] = BuildLocalPresenceSnapshot(activeHeroes),
                 ["activeHeroIds"] = new JArray(activeHeroes.Where(x => x != null).Select(x => x.StringId)),
                 ["participants"] = new JArray(activeHeroes.Where(x => x != null)
                     .Select(x => x.StringId)
@@ -3432,6 +3471,45 @@ namespace ReignBeta.Integration
                     speaker,
                     activeHeroes,
                     RequiresFullActionResolutionIndex(playerText))
+            };
+        }
+
+        private static JObject BuildLocalPresenceSnapshot(IEnumerable<Hero> heroes)
+        {
+            var participants = (heroes ?? Enumerable.Empty<Hero>()).Where(x => x != null)
+                .Concat(Hero.MainHero == null ? Enumerable.Empty<Hero>() : new[] { Hero.MainHero }).Distinct().ToList();
+            Settlement settlement = Settlement.CurrentSettlement ?? MobileParty.MainParty?.CurrentSettlement;
+            string room = CampaignMission.Current?.Location?.StringId ?? string.Empty;
+            var missionHeroes = Mission.Current?.Agents?.Select(agent => (agent.Character as CharacterObject)?.HeroObject)
+                .Where(hero => hero != null).Distinct().ToList() ?? new List<Hero>();
+            var people = participants.Concat(participants.SelectMany(hero => new[] { hero.Father, hero.Mother, hero.Spouse }))
+                .Concat(missionHeroes)
+                .Concat(settlement == null ? Enumerable.Empty<Hero>() : settlement.HeroesWithoutParty.AsEnumerable())
+                .Where(hero => hero != null).Distinct().ToList();
+            var rows = new JArray();
+            foreach (Hero hero in people.Take(96))
+            {
+                Settlement actual = hero == Hero.MainHero ? settlement : hero.CurrentSettlement ?? hero.PartyBelongedTo?.CurrentSettlement;
+                bool inScene = missionHeroes.Contains(hero);
+                string townPresence = !hero.IsAlive ? "absent" : settlement == null ? "unknown" : actual == settlement ? "present" : actual == null ? "unknown" : "absent";
+                string roomPresence = inScene && !string.IsNullOrWhiteSpace(room) ? "present" : townPresence == "absent" ? "absent" : "unknown";
+                rows.Add(new JObject
+                {
+                    ["heroStringId"] = hero.StringId, ["name"] = hero.Name?.ToString() ?? hero.StringId,
+                    ["settlementPresence"] = townPresence, ["roomPresence"] = roomPresence,
+                    ["conversationWitness"] = hero.IsAlive && participants.Contains(hero),
+                    ["alive"] = townPresence == "present" || inScene || participants.Contains(hero) ? new JValue(hero.IsAlive) : JValue.CreateNull(),
+                    ["prisoner"] = townPresence == "present" || inScene || participants.Contains(hero) ? new JValue(hero.IsPrisoner) : JValue.CreateNull(),
+                    ["source"] = inScene ? "current_mission_agent" : actual == settlement && settlement != null ? "native_settlement" : "native_presence_constraint"
+                });
+            }
+            return new JObject
+            {
+                ["schema"] = "reign-local-presence-v1", ["settlementId"] = settlement?.StringId ?? string.Empty,
+                ["roomId"] = room, ["worldDay"] = CampaignTime.Now.ToDays,
+                ["partyPositionX"] = Math.Round((MobileParty.MainParty?.GetPosition2D ?? Vec2.Zero).X, 2),
+                ["partyPositionY"] = Math.Round((MobileParty.MainParty?.GetPosition2D ?? Vec2.Zero).Y, 2),
+                ["rosterComplete"] = false, ["omittedCount"] = Math.Max(0, people.Count - 96), ["people"] = rows
             };
         }
 
@@ -5820,6 +5898,7 @@ namespace ReignBeta.Integration
         public JArray RelationshipAssessments { get; set; } = new JArray();
         public string Participation { get; set; } = "speak";
         public string ReactionTargetHeroStringId { get; set; } = string.Empty;
+        public string PrivateAudienceHeroStringId { get; set; } = string.Empty;
         public string Error { get; set; } = string.Empty;
         public string EncyclopediaText { get; set; } = string.Empty;
         public string CorrelationId { get; set; } = string.Empty;

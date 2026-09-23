@@ -12,6 +12,8 @@ using ReignBeta.CastleChat;
 using ReignBeta.Integration;
 using ReignBeta.Runtime;
 using ReignBeta.Campaign;
+using ReignBeta.PartyAgency;
+using ReignBeta.World;
 using TaleWorlds.CampaignSystem;
 using TaleWorlds.CampaignSystem.Settlements;
 using TaleWorlds.Core;
@@ -41,7 +43,7 @@ namespace ReignBeta.UI.ViewModels
         private Task _activeBatchTask;
         private string _conversationSessionId = string.Empty;
         private bool _conversationFinishRequested;
-        private bool _isFinalized;
+        private volatile bool _isFinalized;
         private string _title;
         private string _locationText;
         private string _selectedSummary;
@@ -73,6 +75,8 @@ namespace ReignBeta.UI.ViewModels
         private bool _inputEnabled = true;
         private readonly bool _targetedReviewMode;
         private readonly string _targetedReviewContext = string.Empty;
+        private readonly ReignGuestReviewSession _guestReviewSession;
+        private readonly HashSet<string> _shownReviewReceipts = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
         private readonly Settlement _homesSettlement;
         private readonly Hero _homeResident;
         private readonly string _homeContext = string.Empty;
@@ -139,12 +143,14 @@ namespace ReignBeta.UI.ViewModels
         }
 
         public ReignPartyChatScreenVM(Action closeScreen, Hero targetedHero, string reviewContext,
-            Action<Hero> openEncyclopediaOverlay = null, Action<Hero> requestPortraitOverlay = null)
+            Action<Hero> openEncyclopediaOverlay = null, Action<Hero> requestPortraitOverlay = null,
+            ReignGuestReviewSession reviewSession = null)
         {
             _closeScreen = closeScreen;
             _openEncyclopediaOverlay = openEncyclopediaOverlay;
             _requestPortraitOverlay = requestPortraitOverlay;
             _targetedReviewMode = true;
+            _guestReviewSession = reviewSession;
             _targetedReviewContext = reviewContext ?? string.Empty;
             TargetedReviewProviderFailed = true;
             _session = new ReignPartyChatSession();
@@ -553,7 +559,7 @@ namespace ReignBeta.UI.ViewModels
         public async void ExecuteSend()
         {
             string text = (InputText ?? string.Empty).Trim();
-            if (string.IsNullOrWhiteSpace(text) || IsBusy || !InputEnabled)
+            if (_isFinalized || string.IsNullOrWhiteSpace(text) || IsBusy || !InputEnabled)
             {
                 return;
             }
@@ -577,6 +583,7 @@ namespace ReignBeta.UI.ViewModels
                 suppressRelationshipAssessment: _targetedReviewMode);
             _activeBatchTask = batch;
             await batch;
+            if (_isFinalized) return;
             if (ReferenceEquals(_activeBatchTask, batch))
             {
                 _activeBatchTask = null;
@@ -653,7 +660,7 @@ namespace ReignBeta.UI.ViewModels
             {
                 _activeBatchTask = null;
             }
-            await ReignMainThread.InvokeAsync(RefreshLabels).ConfigureAwait(false);
+            await ReignMainThread.InvokeAsync(() => { if (!_isFinalized) RefreshLabels(); }).ConfigureAwait(false);
             return result;
         }
 
@@ -781,14 +788,81 @@ namespace ReignBeta.UI.ViewModels
 
         public override void OnFinalize()
         {
-            PersistCastleTranscript();
+            if (_isFinalized) return;
             _isFinalized = true;
-            RequestConversationFinish("screen_finalized");
-            base.OnFinalize();
+            try { PersistCastleTranscript(); }
+            finally
+            {
+                try { RequestConversationFinish("screen_finalized"); }
+                finally { base.OnFinalize(); }
+            }
             ReignLog.Info("Party chat finalized.");
         }
 
         private async Task<ReignPartyChatBatchResult> RequestLiveNpcTurns(
+            List<Hero> activeHeroes, string playerText, string auditRunId = "",
+            int auditSceneIndex = -1, int auditTurnIndex = -1, bool requireStillSelected = true,
+            string correlationBase = "", bool castleOpening = false, bool openingTurn = false,
+            bool suppressRelationshipAssessment = false)
+        {
+            if (_isFinalized) return new ReignPartyChatBatchResult { Error = "Conversation closed." };
+            await ReignMainThread.InvokeAsync(() =>
+            {
+                _guestReviewSession?.BeginTurn();
+                if (!_isFinalized && _targetedReviewMode) TargetedReviewProviderFailed = true;
+            }).ConfigureAwait(false);
+            ReignPartyChatBatchResult result = null;
+            try
+            {
+                if (_isFinalized) return new ReignPartyChatBatchResult { Error = "Conversation closed." };
+                result = await RequestLiveNpcTurnsCore(activeHeroes, playerText, auditRunId, auditSceneIndex,
+                    auditTurnIndex, requireStillSelected, correlationBase, castleOpening, openingTurn,
+                    suppressRelationshipAssessment).ConfigureAwait(false);
+                return result;
+            }
+            finally
+            {
+                await ReignMainThread.InvokeAsync(() =>
+                {
+                    // Keep the receipt tracker alive after close, but never mutate the finalized view.
+                    var ids = (result?.Replies ?? new List<ReignPartyChatReply>())
+                        .SelectMany(reply => reply.QueuedActions.OfType<JObject>())
+                        .Select(row => row["record"] as JObject ?? row)
+                        .Where(row => (row.Value<string>("command") ?? row.Value<string>("type") ?? "")
+                            .IndexOf("temporary", StringComparison.OrdinalIgnoreCase) >= 0)
+                        .Select(row => row.Value<string>("actionId") ?? row.Value<string>("serverActionId"));
+                    _guestReviewSession?.CompleteTurn(result?.Ok == true, ids);
+                    if (_isFinalized) return;
+                    if (_targetedReviewMode) TargetedReviewProviderFailed = result?.Ok != true;
+                    RefreshTargetedReviewReceipt();
+                    // The core owns ordinary chat's busy state. Only the review tracker defers its reset.
+                    if (_guestReviewSession != null)
+                    {
+                        IsBusy = false;
+                        BusyText = string.Empty;
+                    }
+                }).ConfigureAwait(false);
+            }
+        }
+
+        public void RefreshTargetedReviewReceipt()
+        {
+            if (_isFinalized || _guestReviewSession == null) return;
+            foreach (string id in _guestReviewSession.ActionIds)
+            {
+                var action = ReignAICampaignBehavior.Instance?.Actions.FirstOrDefault(x => x.ActionId == id);
+                string status = action?.Status.ToString() ?? "Pending";
+                if (!_shownReviewReceipts.Add(id + ":" + status)) continue;
+                string message = action?.Status == ReignWorldActionStatus.Completed
+                    ? "Guest action applied. The native agreement has been updated."
+                    : action?.IsTerminal == true
+                        ? "Guest action was not applied: " + (action.FailureReason ?? status) + " Review again or explicitly let the guest depart."
+                        : "Guest agreement accepted; waiting for native execution. The review is not resolved yet.";
+                AddSystemLine(message, false);
+            }
+        }
+
+        private async Task<ReignPartyChatBatchResult> RequestLiveNpcTurnsCore(
             List<Hero> activeHeroes,
             string playerText,
             string auditRunId = "",
@@ -851,6 +925,7 @@ namespace ReignBeta.UI.ViewModels
             }
             await ReignMainThread.InvokeAsync(() =>
             {
+                if (_isFinalized) return;
                 IsBusy = true;
                 BusyText = castleOpening
                     ? "Preparing the room conversation..."
@@ -880,6 +955,7 @@ namespace ReignBeta.UI.ViewModels
                 List<Hero> orderedSpeakers = BuildResponseOrder(activeHeroes, playerText);
                 for (int speakerIndex = 0; speakerIndex < orderedSpeakers.Count; speakerIndex++)
                 {
+                    if (_isFinalized) break;
                     Hero speaker = orderedSpeakers[speakerIndex];
                     bool stillSelected = !requireStillSelected || await ReignMainThread.InvokeAsync(() => IsStillSelected(speaker)).ConfigureAwait(false);
                     if (speaker == null || !stillSelected)
@@ -891,7 +967,7 @@ namespace ReignBeta.UI.ViewModels
                     {
                         string progressText = CastleOpeningProgressText(
                             speaker.Name?.ToString(), speakerIndex + 1, orderedSpeakers.Count);
-                        await ReignMainThread.InvokeAsync(() => BusyText = progressText).ConfigureAwait(false);
+                        await ReignMainThread.InvokeAsync(() => { if (!_isFinalized) BusyText = progressText; }).ConfigureAwait(false);
                     }
 
                     string effectiveCorrelationBase = string.IsNullOrWhiteSpace(
@@ -919,6 +995,7 @@ namespace ReignBeta.UI.ViewModels
                         _castleSession?.ScenePlanJson ?? "{}",
                         IsHomesMode ? "at " + _homeResident.Name + "'s home in " + _homesSettlement.Name : "").ConfigureAwait(false);
                     batchResult.Replies.Add(reply);
+                    if (_isFinalized) break;
                     if (!reply.Ok)
                     {
                         hadFailure = true;
@@ -939,8 +1016,13 @@ namespace ReignBeta.UI.ViewModels
                     }
 
                     string speakerName = speaker.Name?.ToString() ?? "NPC";
-                    _session.RecordTranscriptLine(speakerName, clean, speaker.StringId, "npc");
-                    await ReignMainThread.InvokeAsync(() => AddChatLine(speakerName, clean, "npc")).ConfigureAwait(false);
+                    await ReignMainThread.InvokeAsync(() =>
+                    {
+                        if (_isFinalized) return;
+                        _session.RecordTranscriptLine(speakerName, clean, speaker.StringId, "npc",
+                            reply.PrivateAudienceHeroStringId);
+                        AddChatLine(speakerName, clean, "npc");
+                    }).ConfigureAwait(false);
                     anyReply = true;
 
                     if (!string.IsNullOrWhiteSpace(reply.TimingSummary))
@@ -949,13 +1031,13 @@ namespace ReignBeta.UI.ViewModels
                     }
                 }
 
-                if (!hadFailure && batchResult.Replies.Count == activeHeroes.Count && batchResult.Replies.All(x => x.Ok)
+                if (!_isFinalized && !hadFailure && batchResult.Replies.Count == activeHeroes.Count && batchResult.Replies.All(x => x.Ok)
                     && !suppressRelationshipAssessment
                     && !string.Equals(_castleSession?.InteractionMode, "family_chambers", StringComparison.OrdinalIgnoreCase))
                 {
                     if (castleOpening)
                     {
-                        await ReignMainThread.InvokeAsync(() => BusyText = "Reviewing the opening conversation...").ConfigureAwait(false);
+                        await ReignMainThread.InvokeAsync(() => { if (!_isFinalized) BusyText = "Reviewing the opening conversation..."; }).ConfigureAwait(false);
                     }
                     JObject relationshipResult = await ReignServerClient.ApplyConversationRelationshipAssessmentsAsync(
                         batchResult.ExchangeId,
@@ -976,6 +1058,7 @@ namespace ReignBeta.UI.ViewModels
                 timer.Stop();
                 await ReignMainThread.InvokeAsync(() =>
                 {
+                    if (_isFinalized || _guestReviewSession != null) return;
                     IsBusy = false;
                     BusyText = string.Empty;
                 }).ConfigureAwait(false);
@@ -986,11 +1069,11 @@ namespace ReignBeta.UI.ViewModels
             {
                 await ReignMainThread.InvokeAsync(() => AddSystemLine("No one answers just yet.", false)).ConfigureAwait(false);
             }
-            await ReignMainThread.InvokeAsync(PersistCastleTranscript).ConfigureAwait(false);
+            await ReignMainThread.InvokeAsync(() => { if (!_isFinalized) PersistCastleTranscript(); }).ConfigureAwait(false);
             batchResult.Ok = !hadFailure && batchResult.Replies.Count == activeHeroes.Count && batchResult.Replies.All(reply => reply.Ok);
-            if (batchResult.Ok && anyReply && !castleOpening && !openingTurn
+            if (!_isFinalized && batchResult.Ok && anyReply && !castleOpening && !openingTurn
                 && !string.IsNullOrWhiteSpace(playerText) && string.IsNullOrWhiteSpace(auditRunId))
-                await ReignMainThread.InvokeAsync(() => xp.Award(xpReceipt, ReignXpSkill.Charm, ReignXpRules.ConversationXp)).ConfigureAwait(false);
+                await ReignMainThread.InvokeAsync(() => { if (!_isFinalized) xp.Award(xpReceipt, ReignXpSkill.Charm, ReignXpRules.ConversationXp); }).ConfigureAwait(false);
             if (!batchResult.Ok && string.IsNullOrWhiteSpace(batchResult.Error))
             {
                 batchResult.Error = string.Join("; ", batchResult.Replies.Where(reply => !reply.Ok)
@@ -1004,7 +1087,7 @@ namespace ReignBeta.UI.ViewModels
             ReignPartyChatBatchResult result = null;
             try { result = await opening.ConfigureAwait(false); }
             catch { }
-            TargetedReviewProviderFailed = result?.Ok != true;
+            // Every targeted turn updates the tracker; the opening cannot overwrite a later result.
             if (ReferenceEquals(_activeBatchTask, opening)) _activeBatchTask = null;
         }
 
@@ -1359,7 +1442,9 @@ namespace ReignBeta.UI.ViewModels
             clean = Regex.Replace(clean, @"\bmain_hero\b", playerName, RegexOptions.IgnoreCase);
             clean = Regex.Replace(clean, @"\baddress:[A-Za-z0-9_]+\b", string.Empty, RegexOptions.IgnoreCase);
             clean = Regex.Replace(clean, @"\bCharacterObject_\d+\b", "someone", RegexOptions.IgnoreCase);
-            clean = Regex.Replace(clean, @"\s{2,}", " ").Trim();
+            clean = Regex.Replace(clean, @"[ \t]+", " ");
+            clean = Regex.Replace(clean, @"[ \t]*\r?\n[ \t]*", "\n");
+            clean = Regex.Replace(clean, @"\n{3,}", "\n\n").Trim();
             return clean;
         }
 
@@ -1408,6 +1493,7 @@ namespace ReignBeta.UI.ViewModels
 
         private void AddSystemLine(string text, bool recordTranscript)
         {
+            if (_isFinalized) return;
             AddChatLine("Party", text, "system");
             if (recordTranscript)
             {
@@ -1417,6 +1503,7 @@ namespace ReignBeta.UI.ViewModels
 
         private void AddChatLine(string speaker, string text, string role)
         {
+            if (_isFinalized) return;
             ChatLines.Add(new ReignChatLineVM(speaker, text, role));
             ChatScrollVersion++;
         }

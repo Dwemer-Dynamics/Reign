@@ -60,7 +60,7 @@ namespace ReignBeta.Runtime
             CurrentSceneTurnId = SessionId + "_turn_" + PlayerInputCount;
         }
 
-        public void RecordTranscriptLine(string speaker, string text, string speakerHeroStringId = "", string role = "")
+        public void RecordTranscriptLine(string speaker, string text, string speakerHeroStringId = "", string role = "", string audienceHeroStringId = "")
         {
             string cleanText = CleanText(text);
             if (string.IsNullOrWhiteSpace(cleanText))
@@ -84,6 +84,7 @@ namespace ReignBeta.Runtime
                 SpeakerHeroStringId = speakerHeroStringId ?? string.Empty,
                 Speaker = cleanSpeaker,
                 Role = normalizedRole,
+                AudienceHeroStringId = audienceHeroStringId ?? string.Empty,
                 Text = cleanText
             });
             while (_recentTranscriptLines.Count > MaximumTranscriptLines)
@@ -382,7 +383,7 @@ namespace ReignBeta.Runtime
         {
             return string.IsNullOrWhiteSpace(text)
                 ? string.Empty
-                : text.Replace("\r", " ").Replace("\n", " ").Trim();
+                : text.Replace("\r\n", "\n").Replace('\r', '\n').Trim();
         }
     }
 
@@ -394,6 +395,7 @@ namespace ReignBeta.Runtime
         public string SpeakerHeroStringId { get; set; } = string.Empty;
         public string Speaker { get; set; } = string.Empty;
         public string Role { get; set; } = string.Empty;
+        public string AudienceHeroStringId { get; set; } = string.Empty;
         public string Text { get; set; } = string.Empty;
     }
 }

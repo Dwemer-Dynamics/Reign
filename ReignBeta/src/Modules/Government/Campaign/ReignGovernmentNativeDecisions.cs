@@ -6,8 +6,11 @@ using HarmonyLib;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using Reign.Core.Contracts.Government;
+using ReignBeta.Integration;
 using TaleWorlds.CampaignSystem;
 using TaleWorlds.CampaignSystem.Election;
+using TaleWorlds.CampaignSystem.Actions;
+using TaleWorlds.CampaignSystem.Settlements;
 
 namespace ReignBeta.Government
 {
@@ -24,16 +27,26 @@ namespace ReignBeta.Government
             ["AcceptCallToWarAgreementDecision"] = "call_to_war"
         };
 
-        public bool TryCaptureNativeDecision(KingdomDecision decision)
+        public bool TryCaptureNativeDecision(KingdomDecision decision, string captureSource = "reign")
         {
             if (decision == null || decision is KingSelectionKingdomDecision || !NativeBusinessKinds.TryGetValue(decision.GetType().Name, out string kind)
                 || decision.GetType().Namespace != typeof(KingdomDecision).Namespace) return false;
-            if (EnsureGovernment(decision.Kingdom) == null) return false;
             if (_ownedNativeDecisions.Contains(decision)) return true;
+            if (!ReignGovernmentPatches.VerifyReady() || EnsureGovernment(decision.Kingdom) == null) return false;
             string target = NativeTargetId(decision);
             string fingerprint = NativeRequestIdentity(decision, target);
             if (!string.IsNullOrEmpty(_capturingCounterpartOfBusinessId)) fingerprint += "|response:" + _capturingCounterpartOfBusinessId;
-            if (_business.Any(x => !GovernmentBusinessRules.IsClosed(x.Status) && string.Equals(x.NativeFingerprint, fingerprint, StringComparison.Ordinal))) return true;
+            var duplicate = _business.FirstOrDefault(x => !GovernmentBusinessRules.IsClosed(x.Status)
+                && string.Equals(x.NativeFingerprint, fingerprint, StringComparison.Ordinal));
+            if (duplicate != null)
+            {
+                // Retain this exact alias through reload, including after the original hearing closes.
+                duplicate.NativeDecisionAliasIndices = duplicate.NativeDecisionAliasIndices ?? new List<int>();
+                duplicate.NativeDecisionAliasIndices.Add(_ownedNativeDecisions.Count);
+                _ownedNativeDecisions.Add(decision);
+                ChangedBusiness(duplicate);
+                return true;
+            }
             var candidates = new List<DecisionOutcome>();
             JArray options;
             string adapterError = string.Empty;
@@ -52,6 +65,8 @@ namespace ReignBeta.Government
                 KingdomStringId = decision.Kingdom.StringId, Kind = kind,
                 Title = decision.GetGeneralTitle()?.ToString() ?? kind, Summary = decision.GetChooseDescription()?.ToString() ?? string.Empty,
                 NativeDecisionType = decision.GetType().Name, NativeFingerprint = fingerprint, TargetId = target,
+                NativeCaptureVersion = ReignGovernmentNativeSafety.CaptureVersion, NativeCaptureSource = captureSource,
+                NativeCapturedOwnerClanId = NativeSettlementOwnerClanId(decision),
                 NativeDecisionIndex = _ownedNativeDecisions.Count, CreatedDay = CurrentDay(),
                 CounterpartOfBusinessId = _capturingCounterpartOfBusinessId ?? string.Empty,
                 PetitionerHeroStringId = mandatory ? string.Empty : decision.ProposerClan?.Leader?.StringId ?? string.Empty,
@@ -106,19 +121,53 @@ namespace ReignBeta.Government
             decision.NotifyPlayer = false; decision.PlayerExamined = true;
             if (record.Status == "awaiting_sponsorship") FindBusinessSponsor(record);
             ChangedBusiness(record);
+            ReignLog.Info("Government captured native decision: business=" + record.BusinessId + "; type="
+                + record.NativeDecisionType + "; kingdom=" + record.KingdomStringId + "; target=" + record.TargetId
+                + "; source=" + record.NativeCaptureSource + "; owner=" + record.NativeCapturedOwnerClanId);
             return true;
         }
 
         private void OnNativeKingdomDecisionAdded(KingdomDecision decision, bool isPlayerDecision)
-        { if (TryCaptureNativeDecision(decision)) decision.Kingdom.RemoveDecision(decision); }
+        {
+            // NPC AddDecision starts its election immediately AFTER this event. Removing a decision here
+            // cannot cancel that call stack. Never create a second executable hearing from this notification.
+            if (decision != null && NativeBusinessKinds.ContainsKey(decision.GetType().Name))
+                ReignLog.Warn("Native Government decision passed through AddDecision: " + decision.GetType().Name
+                    + "; kingdom=" + decision.Kingdom?.StringId + "; Reign did not capture the late event.");
+        }
         private void MigrateNativeGovernmentBusiness()
         {
+            foreach (var record in _business.Where(x => !GovernmentBusinessRules.IsClosed(x.Status)
+                && !string.IsNullOrEmpty(x.NativeDecisionType)).ToList())
+            {
+                // A completed effect is historical evidence, even if an old save lacks capture metadata.
+                if (record.ExecutionApplied) continue;
+                ValidateNativeBusiness(record, out _);
+            }
             foreach (var kingdom in Kingdom.All.Where(IsEligibleKingdom).ToList())
                 foreach (var decision in kingdom.UnresolvedDecisions.ToList())
-                    if (TryCaptureNativeDecision(decision)) kingdom.RemoveDecision(decision);
+                    if (TryCaptureNativeDecision(decision, "unresolved")) kingdom.RemoveDecision(decision);
         }
         private void OnNativeKingdomDecisionConcluded(KingdomDecision decision, DecisionOutcome outcome, bool isPlayerDecision)
-        { if (decision is KingdomPolicyDecision && NativeOutcomeEnforced(outcome)) RecordNativePolicyResolutionProgress(decision.Kingdom, decision); }
+        {
+            if (!ReferenceEquals(_executingGovernmentDecision, decision))
+                foreach (var record in _business.Where(x => !GovernmentBusinessRules.IsClosed(x.Status)
+                    && !x.ExecutionApplied && ReferenceEquals(NativeBusinessDecision(x), decision)).ToList())
+                    QuarantineNativeBusiness(record, "Bannerlord concluded this decision outside its Government hearing. Its effects will not be replayed.");
+            if (decision is KingdomPolicyDecision && NativeOutcomeEnforced(outcome)) RecordNativePolicyResolutionProgress(decision.Kingdom, decision);
+        }
+
+        private void OnGovernmentSettlementOwnerChanged(Settlement settlement, bool openToClaim, Hero newOwner,
+            Hero oldOwner, Hero capturer, ChangeOwnerOfSettlementAction.ChangeOwnerOfSettlementDetail detail)
+        {
+            if (_executingGovernmentBusiness != null && Same(_executingGovernmentBusiness.TargetId, settlement?.StringId))
+                _executingGovernmentBusiness.NativeOwnerChangeEventCount++;
+            foreach (var record in _business.Where(x => !GovernmentBusinessRules.IsClosed(x.Status)
+                && (x.Kind == "fief_allocation" || x.Kind == "fief_reassignment")
+                && Same(x.TargetId, settlement?.StringId) && !ReferenceEquals(x, _executingGovernmentBusiness)).ToList())
+                QuarantineNativeBusiness(record, "Settlement ownership changed outside this hearing (" + detail
+                    + "). Its old award is held for review, even if the former clan regains the settlement.");
+        }
 
         private bool ValidateNativeBusiness(ReignGovernmentBusinessRecord record, out string result)
         {
@@ -128,6 +177,12 @@ namespace ReignBeta.Government
             KingdomDecision decision = NativeBusinessDecision(record);
             if (decision == null || decision.Kingdom == null || !IsEligibleKingdom(decision.Kingdom))
             { CloseInvalidBusiness(record, result = "The original decision or kingdom is unavailable."); return false; }
+            string fingerprint = NativeRequestIdentity(decision, NativeTargetId(decision));
+            if (!string.IsNullOrEmpty(record.CounterpartOfBusinessId)) fingerprint += "|response:" + record.CounterpartOfBusinessId;
+            string block = ReignGovernmentNativeSafety.ExecutionBlock(record, ReignGovernmentPatches.VerifyReady(),
+                fingerprint, NativeSettlementOwnerClanId(decision));
+            if (block.Length > 0)
+            { QuarantineNativeBusiness(record, result = block); return false; }
             if (decision is KingdomPolicyDecision policy && decision.Kingdom.HasPolicy(policy.Policy) != record.IsRepeal)
             { CloseInvalidBusiness(record, result = "The policy position changed; this petition is no longer applicable."); return false; }
             if (decision is SettlementClaimantDecision allocation && allocation.Settlement.MapFaction != decision.Kingdom
@@ -165,9 +220,10 @@ namespace ReignBeta.Government
                 .FirstOrDefault(x => Same(x.Option.Value<string>("id"), optionId));
             if (candidate == null)
             { CloseInvalidBusiness(record, result = "The selected candidate is no longer eligible; a new proposal is required."); return false; }
+            if (!ReignGovernmentNativeSafety.TryBeginEffect(record))
+            { result = "The native effect cannot be started again."; return false; }
             try
             {
-                _executingGovernmentDecision = decision;
                 // No native election, influence spending, or duplicate secondary relationship effects.
                 if (optionId == "accept" && !string.IsNullOrEmpty(record.CounterpartOfBusinessId))
                     ApplyBilateralNativeEffect(record);
@@ -176,13 +232,15 @@ namespace ReignBeta.Government
                 {
                     var appliedPeace = new MakePeaceKingdomDecision(acceptedPeace.ProposerClan, acceptedPeace.FactionToMakePeaceWith,
                         acceptedPeace.DailyTributeToBePaid, acceptedPeace.DailyTributeDurationInDays, true, true);
-                    _executingGovernmentDecision = appliedPeace;
-                    appliedPeace.ApplyChosenOutcome(appliedPeace.DetermineInitialCandidates().First(NativeOutcomeEnforced));
+                    ApplyAuthorizedNativeOutcome(record, appliedPeace, appliedPeace.DetermineInitialCandidates().First(NativeOutcomeEnforced));
                 }
-                else decision.ApplyChosenOutcome(candidate.Outcome);
+                else ApplyAuthorizedNativeOutcome(record, decision, candidate.Outcome);
                 VerifyNativeBusinessEffect(record, decision, optionId);
                 RecordNativeDiplomaticRelationReceipt(record, decision);
                 record.ExecutionApplied = true; record.ExecutedOptionId = optionId; record.RulerOverrode = overridden;
+                ReignLog.Info("Government applied native decision once: business=" + record.BusinessId
+                    + "; type=" + record.NativeDecisionType + "; target=" + record.TargetId + "; option=" + optionId
+                    + "; invocations=" + record.NativeEffectInvocationCount);
                 decision.Kingdom.RemoveDecision(decision); decision.Kingdom.OnKingdomDecisionConcluded();
                 RecordNativePolicyResolutionProgress(decision.Kingdom, decision);
             }
@@ -190,9 +248,10 @@ namespace ReignBeta.Government
             {
                 record.Status = "execution_failed";
                 record.Outcome = "Execution needs review after " + ex.GetType().Name + ". The vote is preserved; no automatic retry will duplicate uncertain effects.";
+                record.NativeQuarantineReason = record.Outcome;
+                ReignLog.Exception("Government native effect needs review: " + record.BusinessId, ex);
                 ChangedBusiness(record); result = record.Outcome; return false;
             }
-            finally { _executingGovernmentDecision = null; }
             FinishBusiness(record, optionId, overridden); result = record.Outcome; return true;
         }
 
@@ -260,7 +319,55 @@ namespace ReignBeta.Government
         internal bool OwnsNativeDecision(KingdomDecision decision) => _ownedNativeDecisions.Contains(decision);
         internal bool IsApplyingGovernmentNativeEffect => _executingGovernmentDecision != null;
 
-        internal bool CanApplyNativeDecision(KingdomDecision decision) => ReferenceEquals(_executingGovernmentDecision, decision) || !TryCaptureNativeDecision(decision);
+        private ReignGovernmentBusinessRecord _executingGovernmentBusiness;
+        private DecisionOutcome _authorizedNativeOutcome;
+        private bool _nativeEffectPermitAvailable;
+
+        internal bool CanApplyNativeDecision(KingdomDecision decision, DecisionOutcome outcome = null)
+        {
+            if (ReferenceEquals(_executingGovernmentDecision, decision))
+            {
+                return ReferenceEquals(_authorizedNativeOutcome, outcome)
+                    && ReignGovernmentNativeSafety.TryConsumeEffectPermit(_executingGovernmentBusiness, ref _nativeEffectPermitAvailable);
+            }
+            return !TryCaptureNativeDecision(decision, "outcome");
+        }
+
+        private void ApplyAuthorizedNativeOutcome(ReignGovernmentBusinessRecord record, KingdomDecision decision, DecisionOutcome outcome)
+        {
+            if (!record.NativeEffectStarted || record.NativeEffectInvocationCount != 0 || !ReignGovernmentPatches.VerifyReady())
+                throw new InvalidOperationException("The native effect does not have a fresh verified execution permit.");
+            var previousDecision = _executingGovernmentDecision;
+            var previousRecord = _executingGovernmentBusiness;
+            var previousOutcome = _authorizedNativeOutcome;
+            bool previousPermit = _nativeEffectPermitAvailable;
+            try
+            {
+                _executingGovernmentDecision = decision; _executingGovernmentBusiness = record;
+                _authorizedNativeOutcome = outcome; _nativeEffectPermitAvailable = true;
+                decision.ApplyChosenOutcome(outcome);
+                if (_nativeEffectPermitAvailable || record.NativeEffectInvocationCount != 1)
+                    throw new InvalidOperationException("The native outcome did not consume its exact Government execution permit.");
+            }
+            finally
+            {
+                _executingGovernmentDecision = previousDecision; _executingGovernmentBusiness = previousRecord;
+                _authorizedNativeOutcome = previousOutcome; _nativeEffectPermitAvailable = previousPermit;
+            }
+        }
+
+        private void QuarantineNativeBusiness(ReignGovernmentBusinessRecord record, string reason)
+        {
+            if (record.NativeQuarantineReason == reason && record.Status == "execution_failed") return;
+            record.NativeQuarantineReason = reason; record.Status = "execution_failed"; record.Outcome = reason;
+            NotifyGovernmentBusinessClosed(record);
+            ChangedBusiness(record);
+            ReignLog.Warn("Government hearing held: " + record.BusinessId + "; " + reason);
+        }
+
+        private static string NativeSettlementOwnerClanId(KingdomDecision decision) =>
+            (decision as SettlementClaimantDecision)?.Settlement?.OwnerClan?.StringId
+            ?? (decision as SettlementClaimantPreliminaryDecision)?.Settlement?.OwnerClan?.StringId ?? string.Empty;
         private static JObject NativeOption(DecisionOutcome outcome, int index)
         {
             string target = (outcome as SettlementClaimantDecision.ClanAsDecisionOutcome)?.Clan?.StringId ?? string.Empty;
@@ -357,7 +464,7 @@ namespace ReignBeta.Government
     [HarmonyPatch(typeof(Kingdom), nameof(Kingdom.AddDecision))]
     internal static class ReignGovernmentNativeProposalPatch
     {
-        private static bool Prefix(KingdomDecision kingdomDecision) => ReignGovernmentCampaignBehavior.Instance?.TryCaptureNativeDecision(kingdomDecision) != true;
+        private static bool Prefix(KingdomDecision kingdomDecision) => ReignGovernmentCampaignBehavior.Instance?.TryCaptureNativeDecision(kingdomDecision, "proposal") != true;
     }
     [HarmonyPatch]
     internal static class ReignGovernmentNativeOutcomePatch
@@ -368,14 +475,20 @@ namespace ReignBeta.Government
             {
                 var type = typeof(KingdomDecision).Assembly.GetType(typeof(KingdomDecision).Namespace + "." + name);
                 var method = type?.GetMethod("ApplyChosenOutcome", new[] { typeof(DecisionOutcome) });
-                if (method != null) yield return method;
+                if (method == null) throw new MissingMethodException(type?.FullName ?? name, "ApplyChosenOutcome");
+                yield return method;
             }
         }
-        private static bool Prefix(KingdomDecision __instance) => ReignGovernmentCampaignBehavior.Instance?.CanApplyNativeDecision(__instance) != false;
+        private static bool Prefix(KingdomDecision __instance, DecisionOutcome __0) => ReignGovernmentCampaignBehavior.Instance?.CanApplyNativeDecision(__instance, __0) != false;
     }
-    [HarmonyPatch(typeof(KingdomElection), "ApplyChosenOutcome")]
+    [HarmonyPatch]
     internal static class ReignGovernmentNativeElectionPatch
     {
-        private static bool Prefix(KingdomDecision ____decision) => ReignGovernmentCampaignBehavior.Instance?.TryCaptureNativeDecision(____decision) != true;
+        private static IEnumerable<MethodBase> TargetMethods()
+        {
+            yield return AccessTools.Method(typeof(KingdomElection), "StartElection");
+            yield return AccessTools.Method(typeof(KingdomElection), "ApplyChosenOutcome");
+        }
+        private static bool Prefix(KingdomDecision ____decision) => ReignGovernmentCampaignBehavior.Instance?.TryCaptureNativeDecision(____decision, "election") != true;
     }
 }

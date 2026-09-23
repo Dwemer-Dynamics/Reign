@@ -670,7 +670,7 @@ namespace ArenaOverhaul.CampaignBehaviors
             shouldBeDisabled &= TeamTournamentHelpers.IsTournamentActive;
             canPlayerDo &= TeamTournamentHelpers.IsTournamentActive;
 
-            if (shouldBeDisabled || string.IsNullOrEmpty(disabledText.ToString()))
+            if (string.IsNullOrEmpty(disabledText?.ToString()))
                 disabledText = new TextObject("{=Ams5ccKzh}Roster can only be selected for team tournaments.");
 
             return TWHelpers.MenuHelper.SetOptionProperties(args, canPlayerDo, shouldBeDisabled, disabledText);

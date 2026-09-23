@@ -315,7 +315,7 @@ namespace ReignBeta.Government
         {
             JArray assertions = new JArray();
             string caseId = (options.Value<string>("caseId") ?? runId).Trim().ToUpperInvariant();
-            var owned = new HashSet<string>(Enumerable.Range(2, 42)
+            var owned = new HashSet<string>(Enumerable.Range(2, 52)
                 .Select(index => "GOV-NATIVE-" + index.ToString("000")),
                 StringComparer.OrdinalIgnoreCase);
             bool manifestOwned = owned.Contains(caseId);
@@ -359,6 +359,16 @@ namespace ReignBeta.Government
                     break;
                 case "GOV-NATIVE-018":
                     GovernmentNativeDecisionCase(assertions, playerKingdom);
+                    break;
+                case "GOV-NATIVE-044":
+                case "GOV-NATIVE-045":
+                case "GOV-NATIVE-046":
+                case "GOV-NATIVE-047":
+                case "GOV-NATIVE-048":
+                    GovernmentFiefNativeCase(assertions, caseId);
+                    break;
+                case "GOV-NATIVE-051":
+                    GovernmentFiefSaveAssert(assertions, true);
                     break;
                 case "GOV-NATIVE-019":
                     GovernmentNativeCoalitionCase(assertions, playerKingdom, state);

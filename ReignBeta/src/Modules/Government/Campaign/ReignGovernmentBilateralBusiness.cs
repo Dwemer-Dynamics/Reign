@@ -79,6 +79,7 @@ namespace ReignBeta.Government
             if (source == null || source.Status != "awaiting_counterpart" || source.ExecutionApplied)
                 throw new InvalidOperationException("The source authorization is no longer pending.");
             if (!ValidateNativeBusiness(source, out string reason)) throw new InvalidOperationException(reason);
+            if (!ReignGovernmentNativeSafety.TryBeginEffect(source)) throw new InvalidOperationException("The source native effect already started.");
             KingdomDecision execution = NativeBusinessDecision(source);
             // Native advisory peace proposals intentionally set applyResults=false; their approved bilateral
             // execution uses the same exact terms with effects enabled, never a synthetic acceptance popup.
@@ -86,8 +87,7 @@ namespace ReignBeta.Government
                 execution = new MakePeaceKingdomDecision(peace.ProposerClan, peace.FactionToMakePeaceWith,
                     peace.DailyTributeToBePaid, peace.DailyTributeDurationInDays, true, true);
             var outcome = execution.DetermineInitialCandidates().First(NativeOutcomeEnforced);
-            _executingGovernmentDecision = execution;
-            execution.ApplyChosenOutcome(outcome);
+            ApplyAuthorizedNativeOutcome(source, execution, outcome);
             VerifyNativeBusinessEffect(source, execution, "accept");
             RecordNativeDiplomaticRelationReceipt(source, execution);
             RecordNativeDiplomaticRelationReceipt(response, NativeBusinessDecision(response));

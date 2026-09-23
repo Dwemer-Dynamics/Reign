@@ -33,20 +33,24 @@ namespace ReignBeta.World
             Hero target = ReignObjectResolver.FindHero(action.TargetHeroStringId);
             MobileParty actorParty = actor?.PartyBelongedTo;
             Settlement settlement = ReignObjectResolver.FindSettlement(action.TargetSettlementStringId);
+            ReignSceneActionMissionBehavior sceneActions = ReignSceneActionMissionBehavior.Current;
 
             switch (action.Type)
             {
                 case ReignWorldActionType.RegularFollowOnMap:
-                    if (ReignSceneActionMissionBehavior.Current?.CanFollow(actor, target) == true)
-                        return ReignSceneActionMissionBehavior.Current.Begin(action, actor, target);
-                    return FollowOnMap(action, actor, actorParty, target);
+                    return ReignFollowCampaignBehavior.Instance == null
+                        ? ReignActionResult.ValidationFailed("The persistent Follow service is unavailable.")
+                        : ReignFollowCampaignBehavior.Instance.Start(action, actor, target, sceneActions);
                 case ReignWorldActionType.RegularFollowInScene:
-                    return ReignSceneActionMissionBehavior.Current?.Begin(action, actor, target)
-                        ?? ReignActionResult.ValidationFailed("Scene following requires an active mission.");
+                    // Retained only for compatible queued data. New dialogue exposes one
+                    // Follow command whose agreement spans campaign and mission contexts.
+                    return ReignFollowCampaignBehavior.Instance == null
+                        ? ReignActionResult.ValidationFailed("The persistent Follow service is unavailable.")
+                        : ReignFollowCampaignBehavior.Instance.Start(action, actor, target, sceneActions);
                 case ReignWorldActionType.RegularStopFollowing:
-                    if (ReignSceneActionMissionBehavior.Current?.IsFollowing(actor) == true)
-                        return ReignSceneActionMissionBehavior.Current.Stop(actor);
-                    return StopFollowing(actor, actorParty);
+                    return ReignFollowCampaignBehavior.Instance == null
+                        ? ReignActionResult.ValidationFailed("The persistent Follow service is unavailable.")
+                        : ReignFollowCampaignBehavior.Instance.Stop(actor, sceneActions);
                 case ReignWorldActionType.RegularGoToSettlement:
                     return GoToSettlement(actor, actorParty, settlement);
                 case ReignWorldActionType.RegularPatrolAroundSettlement:
@@ -60,7 +64,7 @@ namespace ReignBeta.World
                 case ReignWorldActionType.RegularCreateParty:
                     return CreateParty(action, actor, settlement);
                 case ReignWorldActionType.RegularShowTheWay:
-                    return ReignSceneActionMissionBehavior.Current?.Begin(action, actor, target)
+                    return sceneActions?.Begin(action, actor, target)
                         ?? ReignActionResult.ValidationFailed("Scene guidance requires an active mission.");
                 case ReignWorldActionType.RegularAttackParty:
                     return AttackParty(action, actor, actorParty, target);
@@ -162,29 +166,6 @@ namespace ReignBeta.World
                 default:
                     return ReignActionResult.FailTerminal("Unsupported regular action type: " + action.Type, "unsupported_action", "unsupported_action");
             }
-        }
-
-        private static ReignActionResult FollowOnMap(ReignWorldActionRecord action, Hero actor, MobileParty actorParty, Hero target)
-        {
-            MobileParty targetParty = ResolveTargetParty(action) ?? target?.PartyBelongedTo;
-            if (targetParty == null)
-            {
-                return ReignActionResult.ValidationFailed("FollowOnMap requires a target hero or target party with an active party.");
-            }
-
-            SetPartyAiAction.GetActionForEscortingParty(actorParty, targetParty, actorParty.NavigationCapability, actorParty.IsCurrentlyAtSea, targetParty.IsCurrentlyAtSea);
-            return VerifyMovement(actorParty, AiBehavior.EscortParty, null, targetParty,
-                () => ReignActionResult.Done(actor.Name + " received the order to follow " + PartyName(targetParty) + ".")
-                .WithEffect("movement_order", "party", targetParty.StringId, PartyName(targetParty), "order=follow_on_map")
-                .WithChangedEntity("party", actorParty.StringId, PartyName(actorParty), "movement_order_changed"));
-        }
-
-        private static ReignActionResult StopFollowing(Hero actor, MobileParty actorParty)
-        {
-            actorParty.SetMoveModeHold();
-            return VerifyMovement(actorParty, AiBehavior.Hold, null, null, () => ReignActionResult.Done(actor.Name + " stopped following and is holding position.")
-                .WithEffect("movement_order", "party", actorParty.StringId, PartyName(actorParty), "order=hold")
-                .WithChangedEntity("party", actorParty.StringId, PartyName(actorParty), "movement_order_changed"));
         }
 
         private static ReignActionResult GoToSettlement(Hero actor, MobileParty actorParty, Settlement settlement)
