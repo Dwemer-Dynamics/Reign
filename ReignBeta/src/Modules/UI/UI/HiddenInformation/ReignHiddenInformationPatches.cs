@@ -8,7 +8,6 @@ using ReignBeta.Integration;
 using TaleWorlds.CampaignSystem;
 using TaleWorlds.CampaignSystem.ViewModelCollection;
 using TaleWorlds.CampaignSystem.ViewModelCollection.ClanManagement;
-using TaleWorlds.CampaignSystem.ViewModelCollection.CharacterDeveloper;
 using TaleWorlds.CampaignSystem.ViewModelCollection.Conversation;
 using TaleWorlds.CampaignSystem.ViewModelCollection.Education;
 using TaleWorlds.CampaignSystem.ViewModelCollection.Encyclopedia.Pages;
@@ -16,7 +15,6 @@ using TaleWorlds.CampaignSystem.ViewModelCollection.GameMenu.Overlay;
 using TaleWorlds.CampaignSystem.ViewModelCollection.GameMenu.Recruitment;
 using TaleWorlds.CampaignSystem.ViewModelCollection.Map.HeirSelectionPopup;
 using TaleWorlds.CampaignSystem.ViewModelCollection.Map.MarriageOfferPopup;
-using TaleWorlds.CampaignSystem.ViewModelCollection.WeaponCrafting.WeaponDesign;
 using TaleWorlds.Core;
 using TaleWorlds.Core.ViewModelCollection.Generic;
 using TaleWorlds.Core.ViewModelCollection.Information;
@@ -61,15 +59,8 @@ namespace ReignBeta.UI.HiddenInformation
                 Patch(AccessTools.Method(typeof(GameMenuPartyItemVM), nameof(GameMenuPartyItemVM.RefreshProperties)), postfix: nameof(GameMenuPartyRefreshPostfix));
                 Patch(AccessTools.Method(typeof(RecruitVolunteerOwnerVM), nameof(RecruitVolunteerOwnerVM.RefreshValues)), postfix: nameof(RecruitOwnerRefreshPostfix));
                 Patch(AccessTools.Method(typeof(RecruitVolunteerTroopVM), nameof(RecruitVolunteerTroopVM.ExecuteBeginHint)), prefix: nameof(RecruitHintPrefix));
-                Patch(AccessTools.Method(typeof(WeaponDesignVM), "OnCraftingHeroChanged"), postfix: nameof(WeaponDesignHeroChangedPostfix));
                 Patch(AccessTools.Method(typeof(MissionConversationVM), nameof(MissionConversationVM.Refresh)), postfix: nameof(ConversationRefreshPostfix));
-                Patch(AccessTools.Method(typeof(CharacterDeveloperVM), "SetCurrentHero"), postfix: nameof(CharacterDeveloperHeroChangedPostfix));
 
-                PatchAllConstructors(typeof(EncyclopediaHeroPageVM), nameof(HeroPresentationConstructedPostfix));
-                PatchAllConstructors(typeof(ClanLordItemVM), nameof(HeroPresentationConstructedPostfix));
-                PatchAllConstructors(typeof(MarriageOfferPopupHeroVM), nameof(HeroPresentationConstructedPostfix));
-                PatchAllConstructors(typeof(HeirSelectionPopupHeroVM), nameof(HeroPresentationConstructedPostfix));
-                PatchAllConstructors(typeof(EducationGainedPropertiesVM), nameof(HeroPresentationConstructedPostfix));
                 PatchAllConstructors(typeof(RecruitVolunteerOwnerVM), nameof(RecruitOwnerConstructedPostfix));
                 PatchRelationComparer();
                 foreach (OptionalPresentationPatch optionalPatch in OptionalPatches)
@@ -78,7 +69,7 @@ namespace ReignBeta.UI.HiddenInformation
                 }
                 PatchClanCardPropertyConstructors();
 
-                ReignLog.Info("Character relationship presentation firewall loaded; character skills remain visible.");
+                ReignLog.Info("Character relationship presentation firewall loaded; native character skill presentation retained.");
             }
             catch (Exception ex)
             {
@@ -167,7 +158,6 @@ namespace ReignBeta.UI.HiddenInformation
             {
                 return;
             }
-            ReignHiddenInformationPolicy.AssociateSkillTree(__instance, hero);
             if (!ReignHiddenInformationPolicy.ShouldMask(hero))
             {
                 return;
@@ -202,7 +192,6 @@ namespace ReignBeta.UI.HiddenInformation
         private static void ClanLordRefreshPostfix(ClanLordItemVM __instance)
         {
             Hero hero = __instance?.GetHero();
-            ReignHiddenInformationPolicy.AssociateSkillTree(__instance, hero);
             if (ReignHiddenInformationPolicy.ShouldMask(hero))
             {
                 __instance.RelationToMainHeroText = string.Empty;
@@ -211,7 +200,6 @@ namespace ReignBeta.UI.HiddenInformation
 
         private static void MarriageHeroRefreshPostfix(MarriageOfferPopupHeroVM __instance)
         {
-            ReignHiddenInformationPolicy.AssociateSkillTree(__instance, __instance?.Hero);
             if (ReignHiddenInformationPolicy.ShouldMask(__instance?.Hero))
             {
                 __instance.Relation = 0;
@@ -220,7 +208,6 @@ namespace ReignBeta.UI.HiddenInformation
 
         private static void HeirHeroRefreshPostfix(HeirSelectionPopupHeroVM __instance)
         {
-            ReignHiddenInformationPolicy.AssociateSkillTree(__instance, __instance?.Hero);
             if (ReignHiddenInformationPolicy.ShouldMask(__instance?.Hero))
             {
                 __instance.RelationToMainHero = string.Empty;
@@ -273,45 +260,6 @@ namespace ReignBeta.UI.HiddenInformation
             }
             __instance.Relation = 0;
             __instance.RelationText = string.Empty;
-        }
-
-        private static void CharacterDeveloperHeroChangedPostfix(CharacterDeveloperVM __instance)
-        {
-            __instance?.OnPropertyChanged("ReignIsCurrentHeroSkillHidden");
-            __instance?.OnPropertyChanged("ReignIsCurrentHeroSkillVisible");
-        }
-
-        private static void HeroPresentationConstructedPostfix(object __instance, object[] __args)
-        {
-            Hero hero = null;
-            if (__args != null)
-            {
-                foreach (object argument in __args)
-                {
-                    if (ReignHiddenInformationPolicy.TryResolveHero(argument, out hero))
-                    {
-                        break;
-                    }
-                }
-            }
-            if (hero == null)
-            {
-                ReignHiddenInformationPolicy.TryResolveHero(__instance, out hero);
-            }
-            ReignHiddenInformationPolicy.AssociateSkillTree(__instance, hero);
-        }
-
-        private static void WeaponDesignHeroChangedPostfix(WeaponDesignVM __instance, object[] __args)
-        {
-            Hero hero = null;
-            if (__args != null && __args.Length > 0)
-            {
-                ReignHiddenInformationPolicy.TryResolveHero(__args[0], out hero);
-            }
-            ReignHiddenInformationPolicy.Associate(__instance, hero);
-            __instance?.OnPropertyChanged("ReignIsCraftingSkillHidden");
-            __instance?.OnPropertyChanged("ReignIsCraftingSkillVisible");
-            __instance?.OnPropertyChanged("ReignCraftingSkillText");
         }
 
         private static void DynamicTooltipResultPostfix(object[] __args, object __result)

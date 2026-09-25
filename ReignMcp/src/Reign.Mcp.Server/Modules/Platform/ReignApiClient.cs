@@ -65,7 +65,9 @@ public sealed class ReignApiClient(
             try
             {
                 using var document = JsonDocument.Parse(text);
-                data = _redactor.Redact(document.RootElement);
+                data = path == "/api/diagnostics/conversations/payload"
+                    ? _redactor.RedactDiagnosticPayload(document.RootElement)
+                    : _redactor.Redact(document.RootElement);
                 if (data.Value.ValueKind == JsonValueKind.Object
                     && data.Value.TryGetProperty("ok", out var okProperty)
                     && okProperty.ValueKind == JsonValueKind.False

@@ -41,6 +41,30 @@ public sealed partial class SensitiveDataRedactor
         return LabeledSecretPattern().Replace(result, "$1=[REDACTED]");
     }
 
+    // This single endpoint returns immutable, credential-redacted text from the
+    // explicit capture store. Rewriting fiction's "secret" or a partial token
+    // across page boundaries would corrupt its content hashes and pagination.
+    public JsonElement RedactDiagnosticPayload(JsonElement input)
+    {
+        if (input.ValueKind != JsonValueKind.Object) return Redact(input);
+        using var stream = new MemoryStream();
+        using (var writer = new Utf8JsonWriter(stream))
+        {
+            writer.WriteStartObject();
+            foreach (var property in input.EnumerateObject())
+            {
+                writer.WritePropertyName(property.Name);
+                if (property.Name == "content" && property.Value.ValueKind == JsonValueKind.String)
+                    property.Value.WriteTo(writer);
+                else if (SensitiveKeys.Contains(property.Name)) writer.WriteStringValue("[REDACTED]");
+                else WriteElement(writer, property.Value, property.Name);
+            }
+            writer.WriteEndObject();
+        }
+        using var document = JsonDocument.Parse(stream.ToArray());
+        return document.RootElement.Clone();
+    }
+
     private void WriteElement(Utf8JsonWriter writer, JsonElement element, string? propertyName)
     {
         switch (element.ValueKind)
@@ -78,4 +102,3 @@ public sealed partial class SensitiveDataRedactor
         }
     }
 }
-

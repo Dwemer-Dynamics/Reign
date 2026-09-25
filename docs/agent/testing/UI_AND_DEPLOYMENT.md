@@ -124,7 +124,7 @@ Hostility warning cases PA-LANG-017 and PA-LANG-018 are self-contained and retai
 
 ## Preview parity visibility
 
-The previewer's **Every-interface parity gate** keeps provider-preview coverage for all 68 browser interface states while installed-runtime and reviewed-native readiness cover all 37 native surfaces (22 runtime interface states and 15 native augmentations). It identifies exact deployment and native-evidence pending targets, exposes their reasons, and sends the same bounded state with selected-widget Codex context. Provider-free capture mode disables the live refresh to prevent the 166-case matrix from multiplying readiness audits.
+The previewer's **Every-interface parity gate** keeps provider-preview coverage for all 68 browser interface states while installed-runtime and reviewed-native readiness cover all 29 native surfaces (22 runtime interface states and 7 native augmentations). It identifies exact deployment and native-evidence pending targets, exposes their reasons, and sends the same bounded state with selected-widget Codex context. Provider-free capture mode disables the live refresh to prevent the 150-case matrix from multiplying readiness audits.
 
 # Concurrent scene preparation and native action font binding (2026-09-06)
 

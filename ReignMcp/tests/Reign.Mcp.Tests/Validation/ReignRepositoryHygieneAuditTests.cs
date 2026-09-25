@@ -224,7 +224,8 @@ public sealed class ReignRepositoryHygieneAuditTests
             Assert.Contains("'" + name + "'", verifier, StringComparison.Ordinal);
             Assert.Contains("'" + name + "'", deploy, StringComparison.Ordinal);
         }
-        Assert.Contains("-StagedModule $module", deploy, StringComparison.Ordinal);
+        Assert.Contains("-StagedModule $stage", deploy, StringComparison.Ordinal);
+        Assert.Contains("-StagedModule $activatedModule", deploy, StringComparison.Ordinal);
         Assert.Contains("Test-ReignServerContent.ps1", deploy, StringComparison.Ordinal);
         Assert.Contains("runtime checksum mismatch", deploy, StringComparison.Ordinal);
         string serverVerifier = File.ReadAllText(Path.Combine(workspace, "ReignServer", "scripts", "Test-ReignServerContent.ps1"));

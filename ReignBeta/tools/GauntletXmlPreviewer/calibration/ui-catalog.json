@@ -73,8 +73,8 @@
     "contract": "Every runtime movie owned by the Reign client has a cataloged prefab and ui-open target. Dialogue, correspondence, social-event, diplomacy, notable-generation, Court Petition, and Memories Book calibration fixtures are temporary, provider-free, and may not write conversation, letter, event, petition, relationship, reputation, pressure, memory-image, or campaign-action state."
   },
   "nativeAugmentations": {
-    "targetCount": 15,
-    "patchApplicationCount": 30,
+    "targetCount": 7,
+    "patchApplicationCount": 9,
     "contract": "Every PrefabExtension application in ReignBeta client source is cataloged by native target and authoritative installed base-prefab path. These are Reign additions to native Bannerlord interfaces rather than standalone Reign movies; their source attributes, XPath targets, patch classes, and inserted XML remain source-discovered and are audited separately from the 18 standalone prefab files.",
     "targets": [
       {
@@ -96,82 +96,10 @@
         ]
       },
       {
-        "id": "native-encyclopedia-hero",
-        "label": "Encyclopedia Hero Skills",
-        "target": "EncyclopediaHeroPage",
-        "basePrefab": "SandBox/GUI/Prefabs/Encyclopedia/EncyclopediaSubPages/EncyclopediaHeroPage.xml",
-        "sources": [
-          "src/Modules/UI/UI/HiddenInformation/ReignHiddenInformationPrefabPatches.cs"
-        ]
-      },
-      {
-        "id": "native-clan-members",
-        "label": "Clan Member Skills",
-        "target": "ClanMembers",
-        "basePrefab": "SandBox/GUI/Prefabs/Clan/ClanMembers.xml",
-        "sources": [
-          "src/Modules/UI/UI/HiddenInformation/ReignHiddenInformationPrefabPatches.cs"
-        ]
-      },
-      {
         "id": "native-marriage-offer",
         "label": "Marriage Offer Knowledge",
         "target": "MarriageOfferPopup",
         "basePrefab": "SandBox/GUI/Prefabs/Map/MarriageOfferPopup.xml",
-        "sources": [
-          "src/Modules/UI/UI/HiddenInformation/ReignHiddenInformationPrefabPatches.cs"
-        ]
-      },
-      {
-        "id": "native-heir-selection",
-        "label": "Heir Selection Skills",
-        "target": "HeirSelectionPopup",
-        "basePrefab": "SandBox/GUI/Prefabs/Map/HeirSelectionPopup.xml",
-        "sources": [
-          "src/Modules/UI/UI/HiddenInformation/ReignHiddenInformationPrefabPatches.cs"
-        ]
-      },
-      {
-        "id": "native-skill-grid-item",
-        "label": "Character Skill Grid",
-        "target": "SkillGridItem",
-        "basePrefab": "SandBox/GUI/Prefabs/CharacterDeveloper/SkillGridItem.xml",
-        "sources": [
-          "src/Modules/UI/UI/HiddenInformation/ReignHiddenInformationPrefabPatches.cs"
-        ]
-      },
-      {
-        "id": "native-character-developer",
-        "label": "Character Developer Knowledge",
-        "target": "CharacterDeveloper",
-        "basePrefab": "SandBox/GUI/Prefabs/CharacterDeveloper/CharacterDeveloper.xml",
-        "sources": [
-          "src/Modules/UI/UI/HiddenInformation/ReignHiddenInformationPrefabPatches.cs"
-        ]
-      },
-      {
-        "id": "native-crafting-hero",
-        "label": "Crafting Hero Skill",
-        "target": "CraftingHeroPopup",
-        "basePrefab": "SandBox/GUI/Prefabs/Crafting/CraftingHeroPopup.xml",
-        "sources": [
-          "src/Modules/UI/UI/HiddenInformation/ReignHiddenInformationPrefabPatches.cs"
-        ]
-      },
-      {
-        "id": "native-crafting",
-        "label": "Crafting Skill Knowledge",
-        "target": "Crafting",
-        "basePrefab": "SandBox/GUI/Prefabs/Crafting/Crafting.xml",
-        "sources": [
-          "src/Modules/UI/UI/HiddenInformation/ReignHiddenInformationPrefabPatches.cs"
-        ]
-      },
-      {
-        "id": "native-education",
-        "label": "Education Skill Results",
-        "target": "EducationGainedProperties",
-        "basePrefab": "SandBox/GUI/Prefabs/Education/EducationGainedProperties.xml",
         "sources": [
           "src/Modules/UI/UI/HiddenInformation/ReignHiddenInformationPrefabPatches.cs"
         ]

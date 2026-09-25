@@ -7,6 +7,45 @@ namespace Reign.Mcp.Server;
 [McpServerToolType]
 public static class RuntimeTools
 {
+    [McpServerTool(Name = "reign_query_conversation_diagnostics", ReadOnly = true, Destructive = false, Idempotent = true, UseStructuredContent = true)]
+    [Description("Lists retained conversation diagnostic summaries with bounded pagination. Includes partial historical audits; never enables capture or calls a provider.")]
+    public static Task<ApiEnvelope> QueryConversationDiagnostics(ReignApiClient api,
+        string campaignId = "", string conversationKey = "", string search = "", string mode = "", string status = "",
+        int offset = 0, int limit = 40, CancellationToken cancellationToken = default) =>
+        api.GetAsync("/api/diagnostics/conversations", new Dictionary<string, string?> {
+            ["campaignId"] = InputGuard.OptionalIdentifier(campaignId, nameof(campaignId)),
+            ["conversationKey"] = InputGuard.OptionalIdentifier(conversationKey, nameof(conversationKey)),
+            ["search"] = InputGuard.BoundedText(search, nameof(search), 200),
+            ["mode"] = InputGuard.OptionalIdentifier(mode, nameof(mode)),
+            ["status"] = InputGuard.OptionalIdentifier(status, nameof(status)),
+            ["offset"] = InputGuard.Range(offset, nameof(offset), 0, 10000000).ToString(),
+            ["limit"] = InputGuard.Range(limit, nameof(limit), 1, 100).ToString()
+        }, cancellationToken);
+
+    [McpServerTool(Name = "reign_get_conversation_diagnostic_trace", ReadOnly = true, Destructive = false, Idempotent = true, UseStructuredContent = true)]
+    [Description("Returns ordered processing and repair steps for one exact retained response, with lazy payload references and actual rejection reasons. Read-only; no provider calls.")]
+    public static Task<ApiEnvelope> GetConversationDiagnosticTrace(ReignApiClient api, string traceId,
+        string campaignId = "", CancellationToken cancellationToken = default) =>
+        api.GetAsync("/api/diagnostics/conversations/trace", new Dictionary<string, string?> {
+            ["traceId"] = DiagnosticIdentifier(traceId, nameof(traceId)),
+            ["campaignId"] = InputGuard.OptionalIdentifier(campaignId, nameof(campaignId))
+        }, cancellationToken);
+
+    [McpServerTool(Name = "reign_get_conversation_diagnostic_payload", ReadOnly = true, Destructive = false, Idempotent = true, UseStructuredContent = true)]
+    [Description("Reads a bounded page of explicitly captured LLM evidence. May contain private NPC context, rejected drafts and provider-returned reasoning. Credentials are removed at capture. Follow nextOffset to retrieve the complete immutable payload. Never enables capture or calls a provider.")]
+    public static Task<ApiEnvelope> GetConversationDiagnosticPayload(ReignApiClient api, string traceId, string payloadId,
+        string campaignId = "", int offset = 0, int length = 12000, CancellationToken cancellationToken = default) =>
+        api.GetAsync("/api/diagnostics/conversations/payload", new Dictionary<string, string?> {
+            ["traceId"] = DiagnosticIdentifier(traceId, nameof(traceId)),
+            ["payloadId"] = DiagnosticIdentifier(payloadId, nameof(payloadId)),
+            ["campaignId"] = InputGuard.OptionalIdentifier(campaignId, nameof(campaignId)),
+            ["offset"] = InputGuard.Range(offset, nameof(offset), 0, int.MaxValue).ToString(),
+            ["length"] = InputGuard.Range(length, nameof(length), 2, 12000).ToString()
+        }, cancellationToken);
+
+    private static string DiagnosticIdentifier(string value, string name) =>
+        string.IsNullOrWhiteSpace(value) ? throw new ArgumentException("An exact identifier is required.", name) : InputGuard.OptionalIdentifier(value, name);
+
     [McpServerTool(Name = "reign_get_capabilities", ReadOnly = true, Destructive = false, Idempotent = true, UseStructuredContent = true)]
     [Description("Returns the Reign MCP server's enforced boundaries, configured workspace/server targets, and whether gated build or verification controls are enabled.")]
     public static CapabilityManifest GetCapabilities(ReignMcpOptions options)
