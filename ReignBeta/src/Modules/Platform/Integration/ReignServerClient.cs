@@ -1194,6 +1194,7 @@ namespace ReignBeta.Integration
                     ["externalHeroId"] = request?.ExternalHeroId ?? string.Empty,
                     ["externalContext"] = request?.ExternalContext ?? string.Empty
                 };
+                payload["recentEvents"] = JArray.FromObject(request?.RecentEvents ?? new List<ReignRecentWildernessEvent>());
 
                 JArray participants = new JArray();
                 foreach (ReignGeneratedWildernessParticipant participant in request?.Participants ?? new List<ReignGeneratedWildernessParticipant>())
@@ -1217,6 +1218,7 @@ namespace ReignBeta.Integration
                 result.Ok = response.Value<bool?>("ok") == true;
                 result.Error = response.Value<string>("error") ?? string.Empty;
                 result.Title = response.Value<string>("title") ?? string.Empty;
+                result.VarietyKey = response.Value<string>("varietyKey") ?? string.Empty;
                 result.ApproachDescription = response.Value<string>("approachDescription") ?? response.Value<string>("approach_description") ?? string.Empty;
                 result.OpeningText = response.Value<string>("openingText") ?? response.Value<string>("opening_text") ?? string.Empty;
                 result.PlayerHook = response.Value<string>("playerHook") ?? response.Value<string>("player_hook") ?? string.Empty;
@@ -4463,8 +4465,12 @@ namespace ReignBeta.Integration
             row["age"] = hero.Age;
             row["bodyWeight"] = hero.Weight;
             row["bodyBuild"] = hero.Build;
-            if (ReignBeta.Campaign.ReignTavernHouseCampaignBehavior.Instance?.GetPerson(hero) != null)
+            JObject tavern = ReignBeta.Campaign.ReignTavernHouseCampaignBehavior.Instance?.Metadata(hero);
+            if (tavern != null)
+            {
                 row["portraitSourceProfile"] = "ai_source_resident_full_outfit_v1";
+                row["tavernHouse"] = tavern;
+            }
             var resident = ReignBeta.Campaign.ReignEncounteredResidentsCampaignBehavior.Instance?.Find(hero);
             if (resident != null)
             {
@@ -5939,6 +5945,19 @@ namespace ReignBeta.Integration
         public string ExternalHeroId { get; set; } = string.Empty;
         public string ExternalContext { get; set; } = string.Empty;
         public List<ReignGeneratedWildernessParticipant> Participants { get; set; } = new List<ReignGeneratedWildernessParticipant>();
+        public List<ReignRecentWildernessEvent> RecentEvents { get; set; } = new List<ReignRecentWildernessEvent>();
+    }
+
+    public sealed class ReignRecentWildernessEvent
+    {
+        [JsonProperty("varietyKey")]
+        public string VarietyKey { get; set; } = string.Empty;
+        [JsonProperty("title")]
+        public string Title { get; set; } = string.Empty;
+        [JsonProperty("approachDescription")]
+        public string ApproachDescription { get; set; } = string.Empty;
+        [JsonProperty("openingText")]
+        public string OpeningText { get; set; } = string.Empty;
     }
 
     public sealed class ReignGeneratedWildernessParticipant
@@ -5953,6 +5972,7 @@ namespace ReignBeta.Integration
         public bool Ok { get; set; }
         public string Error { get; set; } = string.Empty;
         public string Title { get; set; } = string.Empty;
+        public string VarietyKey { get; set; } = string.Empty;
         public string ApproachDescription { get; set; } = string.Empty;
         public string OpeningText { get; set; } = string.Empty;
         public string PlayerHook { get; set; } = string.Empty;

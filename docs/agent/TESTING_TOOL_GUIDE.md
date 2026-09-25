@@ -136,3 +136,12 @@ These anchors preserve links from older task checkpoints. Each opens the relocat
 - [OpenRouter providers (2026-09-09)](testing/DIALOGUE_AND_PROVIDERS.md#openrouter-providers-2026-09-09)
 <a id="codex-performance-controls-and-isolated-comparisons"></a>
 - [Codex performance controls and isolated comparisons](testing/DIALOGUE_AND_PROVIDERS.md#codex-performance-controls-and-isolated-comparisons)
+
+
+## Precision memory verification and maintenance (2026-09-23)
+
+Run manifest-selected changed/Release validation, then `reign_run_offline_verification` with its exact `validationRunId`, `tier=offline`, `suite=memory_precision` and confirmation `run isolated offline verification`. Keep `prompt_efficiency`, `memory_relationships` and Save Sync coverage with the candidate. Fixtures are run-owned in ReignValidation, use no paid providers or listening runtime, and retain existing Lab cleanup. Inspect every `memory_precision_*` assertion and the packet's actual required content, not only source IDs.
+
+The validated `ReignServer/scripts/Repair-ConversationContinuity.ps1` gains `-Mode Stage`: an exact campaign/timeline `reign-memory-stage-request-v1` produces a read-only serializable snapshot manifest with complete source records, source hashes, unresolved coverage and token estimates. The existing `Preview` rolls back; `Apply` requires the reviewed manifest/artifact hashes, unchanged sources and restore generation, stopped game/service and verified backup. New operations are `rebuild_scene_memory`, `set_memory_mode` (legacy/shadow/precision, projection-generation increment) and `quarantine_summary`; all are derived-state operations. Staging cannot run providers, replay actions, change scores or rewrite original transcripts. An uninitialized predeployment generation must be restaged after schema deployment. Private memory content stays in ignored evidence storage.
+
+Shadow is the default and makes no additional helper/provider calls. A helper can choose only supplied eligible aliases, once, with one bounded source expansion. Cross-encoder ranking is optional and requires a local model plus a held-out accuracy/latency certificate; it stays disabled on failure. Sources and limits: `ReignServer/docs/server/MemoryPrecision.md`. Paid provider, native game and human roleplay acceptance remain separate gates; synthetic offline cases cannot prove their quality targets.

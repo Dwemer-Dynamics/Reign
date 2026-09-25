@@ -397,6 +397,15 @@ namespace ReignBeta.Campaign
                     TerrainKey = terrainKey,
                     LocationText = locationText,
                     TimeOfDayText = GetGeneratedWildernessTimeOfDayText(now),
+                    RecentEvents = _events.Where(record => record != null && record.IsGeneratedWildernessEvent)
+                        .OrderByDescending(record => record.AnnouncementDay).Take(8)
+                        .Select(record => new ReignRecentWildernessEvent
+                        {
+                            VarietyKey = record.GeneratedVarietyKey ?? string.Empty,
+                            Title = record.GeneratedTitle ?? record.DisplayName ?? string.Empty,
+                            ApproachDescription = record.GeneratedApproachText ?? string.Empty,
+                            OpeningText = record.GeneratedOpeningText ?? string.Empty
+                        }).ToList(),
                     Participants = participants.Select(x => new ReignGeneratedWildernessParticipant
                     {
                         Hero = x,
@@ -412,10 +421,14 @@ namespace ReignBeta.Campaign
                 _generatedWildernessRequestRunning = false;
             }
 
-            if (scenario == null || !scenario.Ok)
+            if (scenario == null || !scenario.Ok
+                || string.IsNullOrWhiteSpace(scenario.ApproachDescription)
+                || string.IsNullOrWhiteSpace(scenario.OpeningText)
+                || string.IsNullOrWhiteSpace(scenario.PlayerHook))
             {
                 ReignLog.Warn("Generated wilderness server plan failed: " + (scenario?.Error ?? "unknown"));
-                scenario = BuildFallbackGeneratedWildernessScenario(terrainKey, locationText, participants);
+                if (forced) Show("The wilderness event could not be prepared. Please try again later.");
+                return false;
             }
 
             List<Hero> selectedParticipants =
@@ -597,6 +610,7 @@ namespace ReignBeta.Campaign
                 GeneratedLocationText = locationText ?? string.Empty,
                 GeneratedTimeOfDayText = GetGeneratedWildernessTimeOfDayText(now),
                 GeneratedTitle = title,
+                GeneratedVarietyKey = scenario?.VarietyKey ?? string.Empty,
                 GeneratedApproachText = scenario?.ApproachDescription ?? string.Empty,
                 GeneratedOpeningText = scenario?.OpeningText ?? string.Empty,
                 GeneratedPlayerHook = scenario?.PlayerHook ?? string.Empty,
@@ -606,25 +620,6 @@ namespace ReignBeta.Campaign
                 GeneratedSurfaceClues = scenario?.SurfaceClues ?? string.Empty,
                 GeneratedHiddenContext = scenario?.HiddenContext ?? string.Empty,
                 GeneratedDiscoveryRoutes = scenario?.DiscoveryRoutes ?? string.Empty
-            };
-        }
-
-        private static ReignGeneratedWildernessScenario BuildFallbackGeneratedWildernessScenario(string terrainKey, string locationText, List<Hero> participants)
-        {
-            string names = string.Join(", ", (participants ?? new List<Hero>()).Select(x => x.Name?.ToString()).Where(x => !string.IsNullOrWhiteSpace(x)));
-            return new ReignGeneratedWildernessScenario
-            {
-                Ok = true,
-                Title = "Something Ahead",
-                ApproachDescription = "Something draws your attention " + (locationText ?? "on the road") + ". " + (string.IsNullOrWhiteSpace(names) ? "Someone in the party" : names) + " slows, watching the scene with unusual care.",
-                OpeningText = "The road falls briefly quiet. Whatever this moment is, it feels personal rather than dangerous.",
-                PlayerHook = "You have a chance to ask what has caught their eye.",
-                ParticipantHeroIds = (participants ?? new List<Hero>()).Where(x => x != null).Select(x => x.StringId).ToList(),
-                TerrainKey = terrainKey ?? "plain",
-                EmotionalPressure = "uncertainty",
-                SurfaceClues = "hesitation; watchfulness; a pause in travel",
-                HiddenContext = "The participant has a private association with what they noticed, but they will only reveal it if the player draws it out.",
-                DiscoveryRoutes = "Ask directly; offer reassurance; challenge the visible hesitation."
             };
         }
 
@@ -1147,7 +1142,11 @@ namespace ReignBeta.Campaign
         private void PruneClosedEvents()
         {
             float cutoff = CurrentCampaignDay() - 20f;
-            _events.RemoveAll(x => x != null && x.Status != SocialEventStatus.Pending && x.ExpiresDay < cutoff);
+            var recentWilderness = new HashSet<SocialEventRecord>(_events
+                .Where(record => record != null && record.IsGeneratedWildernessEvent)
+                .OrderByDescending(record => record.AnnouncementDay).Take(8));
+            _events.RemoveAll(x => x != null && x.Status != SocialEventStatus.Pending
+                && x.ExpiresDay < cutoff && !recentWilderness.Contains(x));
         }
 
         private static List<Hero> FindSafeAttendees(Settlement settlement)

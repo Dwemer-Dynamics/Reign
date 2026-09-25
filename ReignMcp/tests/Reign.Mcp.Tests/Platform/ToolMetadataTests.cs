@@ -114,7 +114,7 @@ public sealed class ToolMetadataTests
             ,"reign_cleanup_campaigns_without_saves"
         };
 
-        Assert.Equal(114, tools.Length);
+        Assert.Equal(117, tools.Length);
         Assert.All(tools, item =>
         {
             Assert.StartsWith("reign_", item.Tool!.Name, StringComparison.Ordinal);

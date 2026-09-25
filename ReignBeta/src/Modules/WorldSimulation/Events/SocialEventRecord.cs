@@ -86,6 +86,9 @@ namespace ReignBeta.Events
         [SaveableField(26)]
         public string GeneratedTimeOfDayText;
 
+        [SaveableField(27)]
+        public string GeneratedVarietyKey;
+
         public SocialEventRecord()
         {
             AttendeeHeroStringIds = new List<string>();
