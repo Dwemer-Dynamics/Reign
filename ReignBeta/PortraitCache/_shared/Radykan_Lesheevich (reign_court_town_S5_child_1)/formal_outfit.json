@@ -3,11 +3,11 @@
   "heroStringId": "reign_court_town_S5_child_1",
   "characterName": "Radykan Lesheevich",
   "imagePath": "portrait.png",
-  "imageSha256": "7DDCE0667CC10A1BFD9F3E61DF4419BF686876F61112D59B9D31E582EED68FBF",
-  "description": "Culturally appropriate everyday Sturgian minor-lord attire inspired by refined medieval Rus and Slavic noble clothing. Men should wear a well-made long shirt beneath a tailored wool kaftan or long belted coat, decorated with fine geometric embroidery and quality trim. Women should wear a long embroidered shift with an elegant wool overdress or noble coat-dress, secured with a richly woven sash. Include subtle fur trim around collars or cuffs, tasteful clasps, and better-quality fabric than a landowner would wear. The clothing should remain practical for a northern climate while clearly showing noble rank. No headgear of any kind. No armor, weapons, crowns, ceremonial robes, or oversized fur displays.",
-  "status": "failed",
-  "descriptionSource": "portrait_prompt_fallback",
-  "retryEligible": true,
-  "error": "{\"error\":{\"message\":\"Model \\\"zai-org/glm-5.2\\\" does not support image inputs. Remove image content or choose a multimodal model.\",\"type\":\"invalid_request_error\",\"param\":\"messages\",\"code\":\"image_input_not_supported\"}}",
-  "updatedUtc": "2026-07-18T22:03:33.6577579Z"
+  "imageSha256": "235921ECC74C9A1389BC1D4D050A784CFA0210398D0E402A02F70C116A88C0BA",
+  "description": "Sturgian long blue wool coat over a cream embroidered linen shirt, with pale geometric woven borders at opening, cuffs and hem and a restrained brown fur collar. A decorated brown woven and leather sash with round buckle and fringed hanging ends secures the waist. Dark trousers and tall brown leather boots complete the outfit.",
+  "status": "completed",
+  "descriptionSource": "agent_vision",
+  "retryEligible": false,
+  "error": "",
+  "updatedUtc": "2026-10-08T00:18:26.859Z"
 }

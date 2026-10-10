@@ -656,6 +656,11 @@ public static class TextureFactory
 	}
 
 	private static int _portraitRevision;
+	// Preview files are short-lived and must not accumulate in the global UI cache.
+	public static void ForgetFile(string key)
+	{
+		if (!string.IsNullOrEmpty(key)) _builtFiles.TryRemove(key, out _);
+	}
 	public static int PortraitRevision => _portraitRevision;
 	internal static void NotifyPortraitAvailabilityChanged() => Interlocked.Increment(ref _portraitRevision);
 

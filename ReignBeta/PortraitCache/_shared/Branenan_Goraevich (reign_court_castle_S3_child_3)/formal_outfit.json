@@ -3,11 +3,11 @@
   "heroStringId": "reign_court_castle_S3_child_3",
   "characterName": "Branenan Goraevich",
   "imagePath": "portrait.png",
-  "imageSha256": "1A3DBE5F6F5F000B45887570F73A524B1F4563682F5CBB9C61177095C5EF2896",
-  "description": "Culturally appropriate everyday Sturgian high-noble attire inspired by wealthy medieval Rus aristocracy. Use richly woven wool, fine linen, elegant long coats or kaftans, tasteful embroidery, restrained fur trim, and expertly crafted belts or clasps. Men should wear a stately long noble coat layered over a fine embroidered shirt and tailored trousers. Women should wear a richly cut long dress or overdress with embroidered cuffs, collar, and hem, paired with a fitted outer garment or elegant shoulder layer. The outfit should feel imposing, expensive, and suited to the daily life of a powerful northern noble. No headgear of any kind. No armor, weapons, crowns, full ceremonial regalia, or extravagant fur mantles.",
-  "status": "failed",
-  "descriptionSource": "portrait_prompt_fallback",
-  "retryEligible": true,
-  "error": "{\"error\":{\"message\":\"Model \\\"zai-org/glm-5.2\\\" does not support image inputs. Remove image content or choose a multimodal model.\",\"type\":\"invalid_request_error\",\"param\":\"messages\",\"code\":\"image_input_not_supported\"}}",
-  "updatedUtc": "2026-07-18T22:03:25.9471735Z"
+  "imageSha256": "F016BD88DEC3275077657AD4200AAA8BF8FFC8C378F7B07A4FB384B0FE2A704A",
+  "description": "Actual second full image: single upright young man with short sandy textured crop/shorn sides and pointed golden chin beard with connected moustache, cheeks mostly bare, hair margin, visible hands and brown boots. Navy long embroidered noble coat with restrained fur edges/cuffs, cream embroidered shirt, ornate belt, brown trousers. Plain stone doorway, no text, banner, headgear, armour or weapons; natural medium body.",
+  "status": "completed",
+  "descriptionSource": "agent_vision",
+  "retryEligible": false,
+  "error": "",
+  "updatedUtc": "2026-10-08T06:24:04.018Z"
 }

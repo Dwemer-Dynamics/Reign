@@ -17,9 +17,18 @@ Select a participant uniformly, then their highest **Steward, Trade, Leadership 
 
 ## Settings and boundaries
 
-The Control Center Options tab's Save XP options button saves only `reignXpEnabled` and `reignXpMultiplier` through the existing settings API. The global Save Settings button also includes the correctly typed XP values. Defaults are On and 1x. The slider accepts 0.25x through 5x in 0.25x steps, retains its value when disabled, and displays scaled base amounts. Invalid incoming values are rejected before settings writes. Existing server settings and secrets are preserved by the existing partial merge.
+The Control Center Options tab's Save XP options button saves only the XP toggle and five multiplier values through the existing settings API. The global Save Settings button also includes correctly typed XP values. Defaults are On and 1x for every multiplier. The universal `reignXpMultiplier` accepts 0.25x through 5x in 0.25x steps. Each category accepts 0x through 5x in 0.25x steps; 0x disables that category. Disabled controls retain their values and the page displays combined base amounts. Invalid incoming values are rejected before settings writes. Existing server settings and secrets are preserved by the existing partial merge.
 
-`GET /api/gameplay-options` exposes only success and those two gameplay values. The client refreshes before relevant interactions and phase completion with a five-second transport timeout per candidate endpoint. It retains the last confirmed configuration on failure; before any confirmed configuration it grants nothing. Settings are global to the selected server and require no restart. An in-flight turn uses its captured settings. No missed rewards are queued for later when options are disabled or unavailable.
+| XP reason | Additional setting | Default |
+|---|---|---:|
+| Individual, party/group and petition conversation Charm | `reignXpConversationMultiplier` | 1x |
+| Once-per-phase social-event Charm | `reignXpSocialCharmMultiplier` | 1x |
+| Social phase-end skill bonus | `reignXpSocialBonusMultiplier` | 1x |
+| Explicit petition grant/refusal Leadership | `reignXpPetitionMultiplier` | 1x |
+
+Awarded XP before Bannerlord's learning rate is **base XP × universal multiplier × category multiplier**. Missing category fields in old server settings or an older gameplay-options response default to 1x. Award sites pass an explicit reason so conversation Charm and social-phase Charm can be tuned independently. A zero-valued category still consumes its receipt; turning it back on cannot replay earlier rewards. Eligibility, native learning modifiers, skill selection and duplicate protection retain their existing behavior.
+
+`GET /api/gameplay-options` exposes success, these XP gameplay values and the existing player-approach options. The client refreshes before relevant interactions and phase completion with a five-second transport timeout per candidate endpoint. It retains the last confirmed configuration on failure; before any confirmed configuration it grants nothing. Settings are global to the selected server and require no restart. An in-flight turn uses its captured settings. No missed rewards are queued for later when options are disabled or unavailable.
 
 The native campaign behavior awards only to the player through `Hero.AddSkillXp`, on the native main thread. It serializes its claim ledger and unfinished phase participants in `_reign_participation_xp_v1` within the Bannerlord save. Loading an earlier save restores corresponding earlier XP and eligibility. Exact conversation receipts, social turn identities, phase reward identities and petition IDs cannot pay twice. A context captured for another campaign cannot apply rewards to the new campaign.
 
@@ -81,3 +90,41 @@ Local evidence is retained in `D:/ReignLaunch/unstable-integration-20260916`, in
 Recovery notes: three unchanged hash-bound UI text files retained Windows line endings after the branch switch; restoring their exact tracked LF bytes fixed the initial hash failures without changing asset definitions or expected hashes. The loaded MCP connector predated the Linux source layout, so validation used the canonical script and supplemental verification called the current MCP over stdio. One initial isolated PostgreSQL startup failure passed after a readiness check. The architecture suite requires the `offline` dispatcher; a `quick` request produced zero checks and was treated as a failure. The catalog's older quick/offline wording needs separate maintenance. Failed attempts remain in the local evidence directory.
 
 This integration publishes source only. It does not deploy the Linux server or replace the installed client, run providers, alter player saves, establish a clean install on another machine, or complete native XP/portrait acceptance. The existing manual acceptance task and roadmap checkbox remain open.
+
+## Independent XP category modifiers — 2026-10-07
+
+Implemented the four settings listed above while retaining the universal multiplier. Native award sites pass explicit reasons; social Charm, phase-end skill bonuses and petition grants/refusals use their own categories. Conversation Charm covers individual, party/group and petition exchanges. Every category defaults to 1x, permits 0x–5x in quarter steps and combines with the universal setting. Old settings retain their reward amounts. Receipt eligibility, native learning modifiers, stable phase selection and the saved ledger/codec retain their existing behavior.
+
+| Verification | Result | Duration | Fingerprint / run |
+|---|---|---:|---|
+| Canonical changed / Release / Tier 3 | 1,572 tests passed, including all 28 XP cases; persistence and court boundaries; paired hygiene passed | 517.256 s | `118de4c0ebbb50db6f98a9b7f7e045c8afed8ab0f562763084babb3291e29f03` / `20261007-171828-c479f273` |
+| Artifact-bound offline `interaction_architecture` | 519/519 architecture assertions, including 16 XP settings assertions, plus settlement-authority check passed | 229.743 s process | `verify-1791394072319-24ab65a8`, bound to the preceding Release artifact |
+| Canonical Linux component publish | Self-contained Linux artifact and paired hygiene passed | 69.108 s | `a747a96b99dea357d53b45b71f8d5b3e71780a10207d9e08c4de140d4e9f8cc8` / `20261007-173236-f5f5431d` |
+| Isolated production Options browser matrix | 72 named scenario runs at 800/1280/1920 pixels; 42 screenshots; no script failures | — | Both save paths, independent category persistence, mixed rewards, failure and disabled retention, legacy defaults and keyboard bounds |
+
+Canonical reports are `.codex-build/reign-mcp/validation/20261007-171828-c479f273/validation-report.json` and its `repository-hygiene-report.json`, plus `.codex-build/reign-mcp/linux-server/20261007-173236-f5f5431d/linux-build-report.json` (Linux hygiene is embedded). The first validation attempt `20261007-171709-878e5ae5` stopped at hygiene because the new authored self-test file was untracked; registering that exact file resolved it. No failed product assertion was suppressed.
+
+Client output is retained under the successful validation run's `client/out`; Linux output is under the Linux run's `publish`, with `reign-linux-artifact.json`. The client, validation server and Linux shared-contract files have distinct hashes. A comparison of all 251 type/member declarations and 1,850 executable methods, constants, locals and exception-region offsets passed across the three assemblies. Deploy each component's own exact hash-bound contract file. This parity check does not replace native execution acceptance.
+
+The task-owned release receipt, copied validation/hygiene reports, browser report/screenshots, offline verifier response and contract comparison are retained under `C:/Users/speed/Documents/Codex/2026-09-15/reign-xp-manual-testing/outputs`, headed by `XP_Category_Modifiers_Ready_2026-10-07.json`. Narrow combined-value and wide default screenshots were visually inspected. All verification used isolated state; no providers, live campaign changes or production settings writes were used.
+
+At the initial build checkpoint, deployment awaited the user's stop of Bannerlord and the server. The user subsequently confirmed both were stopped and authorized deployment; the verified result follows. Native learning-rate and save/reload acceptance remain open.
+
+### Deployment and production script-order correction — 2026-10-07
+
+Deployed the two XP client DLLs from `20261007-171828-c479f273` over the verified full product baseline `20261007-162501-cccdacd8`. The full module content, portrait helper and Windows installation identity were preserved. Prior DLLs and the installation record are retained outside Bannerlord's `Modules` directory in `.reign-deployment/xp-before-20261007-171828-c479f273`.
+
+The first server deployment's real Control Center page revealed `Cannot access 'floatIds' before initialization`, preventing navigation to Options. The isolated browser fixture had moved all field declarations before injected scripts and missed the production ordering. Moved category membership into the template's `floatIds` declaration, made the fixture preserve declaration/injection order, and added a named regression scenario. The final full served-page test opens Options, checks all five sliders and the enabled toggle, confirms the managed server reports on, and records no script errors. Read-only lifecycle status is allowed; provider requests and settings writes remain blocked.
+
+| Final correction verification | Result | Duration | Fingerprint / run |
+|---|---|---:|---|
+| Canonical changed / Release / Tier 3 | 1,572 tests, including 28 XP cases; 113/113 quick verification checks; paired hygiene passed | 440.961 s | `cd7a15080296e80c9d63299377121a52d43c4946426d8578f7d6b16423479f9a` / `20261007-181216-5bee7061` |
+| Canonical Linux component publish | Exact deployment artifact and paired hygiene passed | 30.804 s | `6fc7c8490705100bce92e1b87e8533323c1007fd33463a1f0a61dd8b6ad8c4f5` / `20261007-182004-b8b684fa` |
+| Corrected isolated browser matrix | 75 named scenario runs at 800/1280/1920 pixels; 42 screenshots | — | Includes production field initialization order and both save paths |
+| Deployed page and managed lifecycle | Options navigation and controls passed; server/owned worker stop and restart passed | — | `xp-deployed-options-ui.json`, `xp-corrected-runtime-stopped.json`, `xp-corrected-runtime-restarted.json` |
+
+Final server activation uses `/var/www/html/ReignServer/runtime/current`, retained version `20261007182239-36777`. All 1,375 installed files and inventory match the final Linux manifest. Public port 8089 and internal server 5101 are healthy at version 0.1.0, database `reign`, schema 2/2. Worker 5102 has the loaded 384-dimensional model; a provider-free local inference probe passed with no current error and no persisted documents. Fresh startup logs contain no error/fatal entries. Private settings and Windows bridge hashes exactly match predeployment values and remain readable as the server's `reign` identity. XP remains enabled with universal/category multipliers all at 1x.
+
+The final Linux shared-contract DLL retains the initial Linux hash, so the existing metadata/IL parity proof remains applicable to the retained client. Both components keep their own validated files. Source rollback copies are retained under `deployment-backups/xp-corrected-20261007-182004-b8b684fa-source`, and the earlier compatible server version remains available. A temporary rollback command was blocked by automatic approval review; it was not executed. The corrected activation completed through the canonical deployment script.
+
+The authoritative task-owned deployment receipt is `C:/Users/speed/Documents/Codex/2026-09-15/reign-xp-manual-testing/outputs/XP_Category_Modifiers_Deployment_2026-10-07.json`, with copied corrected validation/hygiene reports, browser screenshots, exact installed hashes, runtime/worker/lifecycle/log probes and the first-deployment regression evidence. Narrow combined-value and actual served-page screenshots were visually inspected. No game was launched or campaign advanced. Native XP accounting and save/reload acceptance remain open; the roadmap checkbox stays unchecked.

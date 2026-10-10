@@ -3,11 +3,11 @@
   "heroStringId": "reign_court_castle_A4_father",
   "characterName": "Bahiman Faziraqani",
   "imagePath": "portrait.png",
-  "imageSha256": "DD074B4836BD9D5DBABDC8D070ABB264CAB5CACD97916AD85BEC62B6A9198F47",
-  "description": "Culturally appropriate everyday Aserai minor-lord attire inspired by refined medieval Arabian, North African, and limited Persian noble clothing. Men should wear a flowing robe or structured open-front coat over a fine lightweight tunic, secured with a decorated woven sash. Women should wear a long elegant dress with soft layered fabrics, shaped sleeves, graceful draping, and fine embroidery around the neckline, cuffs, and hem. Show rank through superior fabric, elegant borders, geometric embroidery, and subtle jewelry rather than excessive ornamentation. No headgear of any kind. No turbans, veils, hoods, armor, weapons, crowns, or ceremonial excess.",
-  "status": "failed",
-  "descriptionSource": "portrait_prompt_fallback",
-  "retryEligible": true,
-  "error": "{\"error\":{\"message\":\"Model \\\"zai-org/glm-5.2\\\" does not support image inputs. Remove image content or choose a multimodal model.\",\"type\":\"invalid_request_error\",\"param\":\"messages\",\"code\":\"image_input_not_supported\"}}",
-  "updatedUtc": "2026-07-18T22:03:25.2886076Z"
+  "imageSha256": "0293B3E0F761DE3ECAD78438C54E66BFDD8F346D268BAD269772F3EA0149DC94",
+  "description": "A full-length brown open-front robe with broad muted gold geometric woven-looking borders down both front edges, at the cuffs and around the hem. A cream long tunic underneath has a small open collar and delicate tan-gold decoration along the neck and front. A wide brown-and-gold patterned sash wraps the waist, with long fringed ends. Brown trousers and dark ankle boots show below the garments. Fabric fibres cannot be confirmed visually. No headgear, weapons or armor appear.",
+  "status": "completed",
+  "descriptionSource": "agent_vision",
+  "retryEligible": false,
+  "error": "",
+  "updatedUtc": "2026-10-07T20:48:20.399Z"
 }

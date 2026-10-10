@@ -2,38 +2,248 @@
   "Version": 3,
   "CropAlgorithmVersion": 2,
   "SourceFileName": "portrait.png",
-  "SourcePath": "portrait.png",
-  "SourceLength": 1330066,
-  "SourceLastWriteUtcTicks": 639199114918004167,
-  "SourceWidth": 864,
-  "SourceHeight": 1152,
-  "CropX": 333,
-  "CropY": 70,
-  "CropWidth": 192,
-  "CropHeight": 240,
-  "WideCropX": 261,
-  "WideCropY": 70,
-  "WideCropWidth": 336,
-  "WideCropHeight": 240,
+  "SourcePath": "C:\\ReignPortraitRebuild\\2026-10-07-01a11741-culture-v2\\_shared\\Lethuria_Istranerides (reign_court_town_EN4_child_2)\\portrait.png",
+  "SourceLength": 2323177,
+  "SourceLastWriteUtcTicks": 639270627914089469,
+  "SourceWidth": 1086,
+  "SourceHeight": 1448,
+  "CropX": 388,
+  "CropY": 0,
+  "CropWidth": 266,
+  "CropHeight": 332,
+  "WideCropX": 288,
+  "WideCropY": 0,
+  "WideCropWidth": 465,
+  "WideCropHeight": 332,
   "FocusMethod": "ultraface",
   "FocusModel": "version-RFB-320",
-  "FocusConfidence": 0.9995087385177612,
-  "FaceCandidateCount": 2,
-  "FaceX": 0.44132280349731445,
-  "FaceY": 0.0848546251654625,
-  "FaceWidth": 0.11002403497695923,
-  "FaceHeight": 0.096805639564991,
-  "NeedsReview": true,
+  "FocusConfidence": 0.9989030361175537,
+  "FaceCandidateCount": 1,
+  "FaceX": 0.4342099726200104,
+  "FaceY": 0.05685527250170708,
+  "FaceWidth": 0.09037706255912781,
+  "FaceHeight": 0.09044282510876656,
+  "NeedsReview": false,
   "ThumbnailFileName": "thumbnail.png",
-  "ThumbnailWidth": 192,
-  "ThumbnailHeight": 240,
+  "ThumbnailWidth": 256,
+  "ThumbnailHeight": 320,
   "PartyThumbnailFileName": "thumbnail_wide.png",
-  "PartyThumbnailWidth": 336,
-  "PartyThumbnailHeight": 240,
+  "PartyThumbnailWidth": 448,
+  "PartyThumbnailHeight": 320,
   "PortraitFileName": "portrait_chest.png",
-  "PortraitWidth": 192,
-  "PortraitHeight": 240,
+  "PortraitWidth": 266,
+  "PortraitHeight": 332,
   "ZoomFileName": "zoom.png",
-  "ZoomWidth": 864,
-  "ZoomHeight": 1152
+  "ZoomWidth": 1024,
+  "ZoomHeight": 1365,
+  "ManualCropProvenance": {
+    "schema": "reign-manual-crop-provenance-v1",
+    "actualCropPolicy": "manual-crown-expansion-v1",
+    "nativeAlgorithmProducedRectangle": false,
+    "compatibilityFields": {
+      "Version": 3,
+      "CropAlgorithmVersion": 2
+    },
+    "compatibilityFieldInterpretation": "Existing consumer compatibility tags are retained; the NEW explicit adapter, not native CalculateFocusedCrop algorithm2, selected these rectangles.",
+    "master": {
+      "path": "C:\\ReignPortraitRebuild\\2026-10-07-01a11741-culture-v2\\_shared\\Lethuria_Istranerides (reign_court_town_EN4_child_2)\\portrait.png",
+      "sha256": "7f0049538a455a83d84a256a088276b1ec3c145ddb29e01c28dedd8ab5ffc2d1"
+    },
+    "baselineMetadata": {
+      "path": "C:\\ReignPortraitRebuild\\2026-10-07-01a11741-culture-v2\\_shared\\Lethuria_Istranerides (reign_court_town_EN4_child_2)\\.portrait_derivatives.json",
+      "sha256": "84f9f81b805f274a8ec523ac8d7e2b988e52e9e8d46ea142b0b2a966a611d956"
+    },
+    "plan": {
+      "path": "C:\\ReignPortraitRebuild\\2026-10-07-01a11741-culture-v2\\audit\\crown-repair-route-component-001\\candidate-plan-001.json",
+      "sha256": "450e92d3caac55be9f2692da3edc235d7c5af8de0e0a5f1610d1f9e0cb06523e"
+    },
+    "candidateReport": {
+      "path": "C:\\ReignPortraitRebuild\\2026-10-07-01a11741-culture-v2\\audit\\crown-repair-candidates-001\\reign_court_town_EN4_child_2\\candidate-derivatives.json",
+      "sha256": "06502caf270aaab35053e2b5027d15d8f9dac26f5295d648b729635ca4c4a53b"
+    },
+    "actualRootCropReview": {
+      "path": "C:\\ReignPortraitRebuild\\2026-10-07-01a11741-culture-v2\\audit\\crown-repair-candidates-001\\reign_court_town_EN4_child_2\\actual-root-crop-review-001.json",
+      "sha256": "54c03433f2899129853d82fee6f66231ccab7e0edf006ccf0e614a2df24a7a28"
+    },
+    "actualProducer": {
+      "path": "C:\\ReignPortraitRebuild\\2026-10-07-01a11741-culture-v2\\audit\\crown-repair-route-component-001\\render-crown-candidate-001.ps1",
+      "sha256": "30db3ce5d439d350066f0fb0df4893267bb266ce78650dd61606bdcd3e856c4f"
+    },
+    "codecAssembly": {
+      "path": "D:/Projects/Reign/.codex-build/reign-mcp/validation/20261007-181216-5bee7061/client/out/ReignBeta.dll",
+      "sha256": "498c5d8e7af24226dbf5b9d37147fd562cf0e42b6477b6f4607f6011905ac5b8"
+    },
+    "authorization": {
+      "path": "C:\\ReignPortraitRebuild\\2026-10-07-01a11741-culture-v2\\audit\\crown-repair-route-component-001\\root-preview-release-three-001.json",
+      "sha256": "ed9d6cab61e3beeaa82d79cc2e55fbf06aae9d66c4b68ea13b07e1f63f7c8fea"
+    },
+    "baselineArchive": {
+      "path": "C:\\ReignPortraitRebuild\\2026-10-07-01a11741-culture-v2\\audit\\crown-repair-baseline-archive-005-001\\archive.json",
+      "sha256": "792d7a172e183e68a0d618479c9149cbd9ea9e5f11367c7970bdda976527d107"
+    },
+    "originalGenerationLineage": {
+      "phaseResult": {
+        "path": "C:\\ReignPortraitRebuild\\2026-10-07-01a11741-culture-v2\\audit\\residual-correction-phase3-001\\reign_court_town_EN4_child_2\\root-result-001.json",
+        "sha256": "26524edc18338f84115f101c0143c5fb928ac4d81c6854ec90ae809f58b7b078"
+      },
+      "originalPhaseId": "residual-correction-phase3-001",
+      "requestId": "4261a8d9-0de3-474c-8bf6-7fa583f04c3a",
+      "suppliedPromptReceipts": [
+        {
+          "path": "C:\\ReignPortraitRebuild\\2026-10-07-01a11741-culture-v2\\audit\\residual-correction-phase3-001\\reign_court_town_EN4_child_2\\calls\\4261a8d9-0de3-474c-8bf6-7fa583f04c3a\\supplied-prompt.json",
+          "sha256": "0a22723b9bf9ffb8cfd89a81304ae0da6182152d2d89f83e1f3546796fc993ee",
+          "response": {
+            "path": "C:\\ReignPortraitRebuild\\2026-10-07-01a11741-culture-v2\\audit\\residual-correction-phase3-001\\reign_court_town_EN4_child_2\\calls\\4261a8d9-0de3-474c-8bf6-7fa583f04c3a\\response.json",
+            "sha256": "836e3059267b327790ec24c49040a0171197bdf447b4da8768876e0d82db698d"
+          }
+        }
+      ],
+      "originalActualPhaseCalls": 1,
+      "originalDerivativeReport": {
+        "path": "C:\\ReignPortraitRebuild\\2026-10-07-01a11741-culture-v2\\audit\\residual-correction-phase3-001\\reign_court_town_EN4_child_2\\derivative-report.json",
+        "sha256": "246ce0dd1c4c2df1abd1bb288fe53553c0b892f277d5731cef94966ba892702e"
+      }
+    },
+    "rawFocusUnchanged": true,
+    "noCandidateExclusions": true,
+    "faceCropsUnchanged": [
+      {
+        "variant": "original",
+        "path": "C:\\ReignPortraitRebuild\\2026-10-07-01a11741-culture-v2\\audit\\face-screening-005\\faces\\reign_court_town_EN4_child_2-original.png",
+        "sha256": "8f595b6d8e58d4a6e826247ee92c4d47cfbbe1d03382cef58ec85a2aea9201cc"
+      },
+      {
+        "variant": "grayscale",
+        "path": "C:\\ReignPortraitRebuild\\2026-10-07-01a11741-culture-v2\\audit\\face-screening-005\\faces\\reign_court_town_EN4_child_2-grayscale.png",
+        "sha256": "64e12967b0d5bf0aa9db8a84c0896ba81d910b70d11ba632c7adcc3cc75f1648"
+      },
+      {
+        "variant": "internal_mask",
+        "path": "C:\\ReignPortraitRebuild\\2026-10-07-01a11741-culture-v2\\audit\\face-screening-005\\faces\\reign_court_town_EN4_child_2-internal_mask.png",
+        "sha256": "cf9bf0e9b2be13915a48339405e4d4908d24718e5ab4754101e9a4ca3f3d16c5"
+      }
+    ],
+    "rectangle": {
+      "x": 388,
+      "y": 0,
+      "width": 266,
+      "height": 332
+    },
+    "wideRectangle": {
+      "x": 288,
+      "y": 0,
+      "width": 465,
+      "height": 332
+    },
+    "productBytes": [
+      {
+        "name": "portrait_chest.png",
+        "sha256": "c12bc58d248ec5966083227cb0f9c258011135b8e86f0e6e35ebf1a0f84aec5e",
+        "width": 266,
+        "height": 332
+      },
+      {
+        "name": "thumbnail.png",
+        "sha256": "5606969d4dc5fb8bb5354da5d7830b40e81206641cd0adadc8d872589fa7a5fe",
+        "width": 256,
+        "height": 320
+      },
+      {
+        "name": "thumbnail_wide.png",
+        "sha256": "2aea139c2c0f5c4e6c98f800a6ba3070dac250abced3b4c5b81c135fd04ab30e",
+        "width": 448,
+        "height": 320
+      }
+    ],
+    "zoomUnchanged": {
+      "path": "C:\\ReignPortraitRebuild\\2026-10-07-01a11741-culture-v2\\_shared\\Lethuria_Istranerides (reign_court_town_EN4_child_2)\\zoom.png",
+      "sha256": "9a89b6ebb353cd8c518861fe08742cd693da0cc4debbfe2d1a159fb8de6236cf"
+    },
+    "scope": "Crop acceptance only. No geometry/source/compound/overall acceptance implied.",
+    "forcedRebuildLimitation": "Existing native forced regeneration or source freshness invalidation can regenerate algorithm2 rectangles and remove this extension.",
+    "MetadataPrecisionPreservation": {
+      "schema": "reign-exact-native-json-precision-preservation-v1",
+      "actualSerializer": {
+        "path": "C:\\ReignPortraitRebuild\\2026-10-07-01a11741-culture-v2\\audit\\crown-runtime-complete-three-proposal-component-003\\build-compatible-metadata-int64-002.py",
+        "sha256": "91e262edf6c5743e8416f3b007d9174b26c4314ef9fbb584dee6d0956424dd25"
+      },
+      "retainedJS001SemanticValidation": {
+        "path": "C:\\ReignPortraitRebuild\\2026-10-07-01a11741-culture-v2\\audit\\crown-repair-route-component-001\\candidate-contracts-001.cjs",
+        "sha256": "7a1544a3ad6ef2d8271dfc690401fd8a3af93be70ff57589d5a831769c952313"
+      },
+      "nativeValuesCopiedFromExactOriginal": {
+        "path": "C:\\ReignPortraitRebuild\\2026-10-07-01a11741-culture-v2\\_shared\\Lethuria_Istranerides (reign_court_town_EN4_child_2)\\.portrait_derivatives.json",
+        "sha256": "84f9f81b805f274a8ec523ac8d7e2b988e52e9e8d46ea142b0b2a966a611d956"
+      },
+      "nativeFieldsChangedOnly": [
+        "CropX",
+        "CropY",
+        "CropWidth",
+        "CropHeight",
+        "WideCropX",
+        "WideCropY",
+        "WideCropWidth",
+        "WideCropHeight",
+        "PortraitWidth",
+        "PortraitHeight",
+        "ThumbnailWidth",
+        "ThumbnailHeight",
+        "PartyThumbnailWidth",
+        "PartyThumbnailHeight"
+      ],
+      "unsafeNativeIntegersEnumerated": [
+        {
+          "jsonPath": "$.SourceLastWriteUtcTicks",
+          "exactDecimal": "639270627914089469"
+        }
+      ],
+      "sourceLastWriteUtcTicksExactDecimal": "639270627914089469",
+      "originalStringsPreservedWithoutDateParsing": true,
+      "actualCropProducerUnchanged": true
+    }
+  },
+  "StagedAssetProvenance": {
+    "schema": "reign-staged-effective-portrait-origin-v1",
+    "id": "reign_court_town_EN4_child_2",
+    "kind": "manual_same_master",
+    "currentLocalFiles": [
+      {
+        "name": "portrait_chest.png",
+        "sha256": "c12bc58d248ec5966083227cb0f9c258011135b8e86f0e6e35ebf1a0f84aec5e",
+        "bytes": 194791
+      },
+      {
+        "name": "thumbnail.png",
+        "sha256": "5606969d4dc5fb8bb5354da5d7830b40e81206641cd0adadc8d872589fa7a5fe",
+        "bytes": 174794
+      },
+      {
+        "name": "thumbnail_wide.png",
+        "sha256": "2aea139c2c0f5c4e6c98f800a6ba3070dac250abced3b4c5b81c135fd04ab30e",
+        "bytes": 269899
+      },
+      {
+        "name": "portrait.png",
+        "sha256": "7f0049538a455a83d84a256a088276b1ec3c145ddb29e01c28dedd8ab5ffc2d1",
+        "bytes": 2323177
+      },
+      {
+        "name": "zoom.png",
+        "sha256": "9a89b6ebb353cd8c518861fe08742cd693da0cc4debbfe2d1a159fb8de6236cf",
+        "bytes": 3303983
+      }
+    ],
+    "nativeAlgorithmProducedRectangle": false,
+    "priorProducerExtensionsRetainedVerbatim": true,
+    "absolutePriorReferencesRole": "Historical/candidate references; current module pixels/provenance use the relative currentLocalFiles.",
+    "sourcePathProjection": {
+      "from": "C:\\ReignPortraitRebuild\\2026-10-07-01a11741-culture-v2\\_shared\\Lethuria_Istranerides (reign_court_town_EN4_child_2)\\portrait.png",
+      "to": "C:\\ReignPortraitRebuild\\2026-10-07-01a11741-culture-v2\\_shared\\Lethuria_Istranerides (reign_court_town_EN4_child_2)\\portrait.png",
+      "reason": "Unchanged current fullbody cache anchor"
+    },
+    "independentChestNativeForcedRegenerationCanOverwrite": false,
+    "globalFaceAcceptance": false,
+    "nativeUIAcceptance": false,
+    "notSwapApproval": true
+  }
 }

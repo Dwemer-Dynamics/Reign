@@ -1,11 +1,198 @@
 using System.Text.Json;
 using System.Text.RegularExpressions;
+using Reign.Core.Contracts.Government;
 using ReignBeta.Government;
 
 namespace Reign.Mcp.Tests;
 
 public sealed class GovernmentNativeSafetyTests
 {
+    private static (ReignGovernmentBusinessRecord Source, ReignGovernmentBusinessRecord Response) CounterpartRefusal()
+    {
+        var source = new ReignGovernmentBusinessRecord
+        {
+            BusinessId = "source", KingdomStringId = "initiating_realm", Kind = "world_action", Status = "decided",
+            CounterpartBusinessId = "response", ActionCorrelationId = "accepted_pact",
+            ActionPayloadJson = "{\"termsHash\":\"exact_signed_terms\"}", WinningOptionId = "accept",
+            DecisionRulerHeroStringId = "initiating_ruler", Outcome = "The counterpart refused."
+        };
+        var response = new ReignGovernmentBusinessRecord
+        {
+            BusinessId = "response", KingdomStringId = "receiving_realm", Kind = "world_action", Status = "decided",
+            CounterpartOfBusinessId = "source", ActionCorrelationId = source.ActionCorrelationId,
+            ActionPayloadJson = source.ActionPayloadJson, WinningOptionId = "reject", ExecutedOptionId = "reject",
+            // Actual saved world-action refusals are finalized by FinishBusiness without a native effect.
+            ExecutionApplied = true
+        };
+        return (source, response);
+    }
+
+    [Fact]
+    public void SavedCounterpartRejectionIsLawfulWithoutRewritingTheInitiatingVoteOrApplyingEffects()
+    {
+        var (source, response) = CounterpartRefusal();
+        string sourceJson = JsonSerializer.Serialize(source, SaveOptions);
+        string responseJson = JsonSerializer.Serialize(response, SaveOptions);
+        Assert.True(ReignGovernmentNativeSafety.IsRecordedCounterpartRefusal(source, response));
+        var loadedSource = JsonSerializer.Deserialize<ReignGovernmentBusinessRecord>(sourceJson, SaveOptions)!;
+        var loadedResponse = JsonSerializer.Deserialize<ReignGovernmentBusinessRecord>(responseJson, SaveOptions)!;
+        Assert.True(ReignGovernmentNativeSafety.IsRecordedCounterpartRefusal(loadedSource, loadedResponse));
+        Assert.Equal(sourceJson, JsonSerializer.Serialize(source, SaveOptions));
+        Assert.Equal(responseJson, JsonSerializer.Serialize(response, SaveOptions));
+        Assert.Equal("accept", source.WinningOptionId);
+        Assert.Equal("initiating_ruler", source.DecisionRulerHeroStringId);
+        Assert.False(source.ExecutionApplied);
+        Assert.True(response.ExecutionApplied);
+        Assert.False(response.NativeEffectStarted);
+        Assert.Equal(0, response.NativeEffectInvocationCount);
+    }
+
+    [Theory]
+    [InlineData("unclosed_source")]
+    [InlineData("source_already_accepted")]
+    [InlineData("source_not_world_action")]
+    [InlineData("source_is_counterpart")]
+    [InlineData("missing_source_identity")]
+    [InlineData("different_response")]
+    [InlineData("different_source")]
+    [InlineData("missing_action_identity")]
+    [InlineData("different_action_identity")]
+    [InlineData("missing_terms")]
+    [InlineData("different_terms")]
+    [InlineData("same_realm")]
+    [InlineData("missing_realm")]
+    [InlineData("response_not_world_action")]
+    [InlineData("unclosed_response")]
+    [InlineData("response_accepted")]
+    [InlineData("response_failed")]
+    [InlineData("response_expired")]
+    [InlineData("source_effect_applied")]
+    [InlineData("source_effect_uncertain")]
+    [InlineData("source_effect_invoked")]
+    [InlineData("response_decision_unfinished")]
+    [InlineData("response_effect_uncertain")]
+    [InlineData("response_effect_invoked")]
+    [InlineData("source_quarantined")]
+    [InlineData("response_quarantined")]
+    public void CounterpartRefusalCannotHideChangedTermsMissingDecisionsOrUncertainEffects(string fault)
+    {
+        var (source, response) = CounterpartRefusal();
+        switch (fault)
+        {
+            case "unclosed_source": source.Status = "awaiting_counterpart"; break;
+            case "source_already_accepted": source.ExecutedOptionId = "accept"; break;
+            case "source_not_world_action": source.Kind = "native_policy"; break;
+            case "source_is_counterpart": source.CounterpartOfBusinessId = "another_source"; break;
+            case "missing_source_identity": source.BusinessId = ""; response.CounterpartOfBusinessId = ""; break;
+            case "different_response": source.CounterpartBusinessId = "another_response"; break;
+            case "different_source": response.CounterpartOfBusinessId = "another_source"; break;
+            case "missing_action_identity": source.ActionCorrelationId = response.ActionCorrelationId = ""; break;
+            case "different_action_identity": response.ActionCorrelationId = "another_action"; break;
+            case "missing_terms": source.ActionPayloadJson = response.ActionPayloadJson = ""; break;
+            case "different_terms": response.ActionPayloadJson = "{\"termsHash\":\"changed\"}"; break;
+            case "same_realm": response.KingdomStringId = source.KingdomStringId; break;
+            case "missing_realm": source.KingdomStringId = ""; break;
+            case "response_not_world_action": response.Kind = "native_policy"; break;
+            case "unclosed_response": response.Status = "awaiting_ruler"; break;
+            case "response_accepted": response.ExecutedOptionId = "accept"; break;
+            case "response_failed": response.Status = "execution_failed"; break;
+            case "response_expired": response.Status = "expired"; break;
+            case "source_effect_applied": source.ExecutionApplied = true; break;
+            case "source_effect_uncertain": source.NativeEffectStarted = true; break;
+            case "source_effect_invoked": source.NativeEffectInvocationCount = 1; break;
+            case "response_decision_unfinished": response.ExecutionApplied = false; break;
+            case "response_effect_uncertain": response.NativeEffectStarted = true; break;
+            case "response_effect_invoked": response.NativeEffectInvocationCount = 1; break;
+            case "source_quarantined": source.NativeQuarantineReason = "Uncertain native outcome"; break;
+            case "response_quarantined": response.NativeQuarantineReason = "Uncertain native outcome"; break;
+            default: throw new InvalidOperationException(fault);
+        }
+        Assert.False(ReignGovernmentNativeSafety.IsRecordedCounterpartRefusal(source, response));
+        Assert.False(ReignGovernmentNativeSafety.IsRecordedCounterpartRefusal(source, null!));
+        Assert.False(ReignGovernmentNativeSafety.IsRecordedCounterpartRefusal(null!, response));
+    }
+
+    [Theory]
+    [InlineData("proposed", null, false, true)] // Legacy proposals have no hearing.
+    [InlineData("debate", null, false, false)]
+    [InlineData("proposed", "awaiting_ruler", true, true)]
+    [InlineData("debate", "awaiting_ruler", true, true)] // Recorded native seasonal vote.
+    [InlineData("debate", "reconsideration", true, true)] // Timing/opposition guards remain separate.
+    [InlineData("proposed", "reconsideration", true, true)]
+    [InlineData("debate", "hearing", true, false)]
+    [InlineData("proposed", "hearing", true, false)]
+    [InlineData("debate", "postponed", true, false)]
+    [InlineData("debate", "awaiting_sponsorship", true, false)]
+    [InlineData("debate", "decided", true, false)]
+    [InlineData("debate", "invalidated", true, false)]
+    [InlineData("debate", "expired", true, false)]
+    [InlineData("debate", null, true, false)]
+    [InlineData("active", "awaiting_ruler", true, false)]
+    [InlineData("completed", "awaiting_ruler", true, false)]
+    [InlineData("refused", "awaiting_ruler", true, false)]
+    [InlineData(null, "awaiting_ruler", true, false)]
+    [InlineData("unknown", "awaiting_ruler", true, false)]
+    public void ResolutionDecisionEligibilityRequiresRecordedHearingWithoutReopeningTerminalResolutions(
+        string? resolutionStatus, string? hearingStatus, bool hasHearing, bool expected)
+    {
+        Assert.Equal(expected, GovernmentBusinessRules.CanDecideResolution(resolutionStatus!, hearingStatus!, hasHearing));
+    }
+
+    [Fact]
+    public void RuralVolunteerFallbackPreservesNativeVillageRecruitmentAndDoesNotRelocateAttendees()
+    {
+        string source = File.ReadAllText(Path.Combine(TestOptions.FindWorkspace(), "ReignBeta", "src", "Modules",
+            "Government", "Campaign", "ReignGovernmentNativeDecisions.cs"));
+        string fallback = source[source.IndexOf("internal static class ReignGovernmentRuralVolunteerPatch", StringComparison.Ordinal)
+            ..source.IndexOf("internal static class ReignGovernmentNativeNoticePatch", StringComparison.Ordinal)];
+        Assert.Contains("typeof(DefaultVolunteerModel), nameof(DefaultVolunteerModel.GetBasicVolunteer)", fallback);
+        Assert.Contains("sellerHero?.IsRuralNotable != true", fallback);
+        Assert.Contains("sellerHero.CurrentSettlement?.Village?.Bound != null) return true;", fallback);
+        Assert.Contains("sellerHero.HomeSettlement?.Village?.Bound != null", fallback);
+        Assert.Contains("sellerHero.HomeSettlement : sellerHero.BornSettlement", fallback);
+        Assert.Contains("village?.Village?.Bound?.IsCastle == true", fallback);
+        Assert.Contains("sellerHero.Culture.EliteBasicTroop : sellerHero.Culture.BasicTroop", fallback);
+        Assert.Contains("if (volunteer == null) return true;", fallback);
+        Assert.DoesNotMatch(@"sellerHero\.Culture\s*=(?!=)", fallback);
+        foreach (string mutation in new[] { "Teleport", "ApplyForCharacterOnly", "VolunteerTypes", "TryCommit", "_governmentAttendance" })
+            Assert.DoesNotContain(mutation, fallback);
+    }
+
+    [Fact]
+    public void RuralVisitorIssueDiscoveryGuardDoesNotDisableVillageIssuesOrMutateAttendance()
+    {
+        string source = File.ReadAllText(Path.Combine(TestOptions.FindWorkspace(), "ReignBeta", "src", "Modules",
+            "Government", "Campaign", "ReignGovernmentNativeDecisions.cs"));
+        string guard = source[source.IndexOf("internal static class ReignGovernmentRuralIssueContextPatch", StringComparison.Ordinal)
+            ..source.IndexOf("internal static class ReignGovernmentNativeNoticePatch", StringComparison.Ordinal)];
+        Assert.Contains("typeof(CampaignEvents), nameof(CampaignEvents.OnCheckForIssue), new[] { typeof(Hero) }", guard);
+        Assert.Contains("ReignGovernmentNativeSafety.AllowNativeIssueDiscovery(", guard);
+        Assert.Contains("__0?.IsHeadman == true, __0?.IsRuralNotable == true", guard);
+        Assert.Contains("settlement != null, settlement?.Village?.Bound?.Town != null", guard);
+        foreach (string mutation in new[] { "Teleport", "OnIssueUpdated", "RemoveIssue", "IssueManager", "TryCommit", "_governmentAttendance" })
+            Assert.DoesNotContain(mutation, guard);
+    }
+
+    [Theory]
+    [InlineData(true, false, true, false, false)] // Headman is distinct from RuralNotable in the installed game.
+    [InlineData(false, true, true, false, false)]
+    [InlineData(true, true, true, false, false)]
+    [InlineData(false, false, true, false, true)] // Urban notable discovery remains native.
+    [InlineData(true, false, true, true, true)]
+    [InlineData(false, true, true, true, true)]
+    [InlineData(true, true, true, true, true)]
+    [InlineData(false, false, true, true, true)]
+    [InlineData(true, false, false, false, true)] // Native predicates retain null-settlement handling.
+    [InlineData(false, true, false, false, true)]
+    [InlineData(true, true, false, false, true)]
+    [InlineData(false, false, false, false, true)]
+    public void NativeIssueEligibilityCoversBothRuralOccupationsAndPreservesValidContexts(
+        bool isHeadman, bool isRuralNotable, bool hasCurrentSettlement, bool hasVillageContext, bool expected)
+    {
+        Assert.Equal(expected, ReignGovernmentNativeSafety.AllowNativeIssueDiscovery(
+            isHeadman, isRuralNotable, hasCurrentSettlement, hasVillageContext));
+    }
+
     private static readonly JsonSerializerOptions SaveOptions = new() { IncludeFields = true };
 
     private static ReignGovernmentBusinessRecord Captured() => new()

@@ -3,11 +3,11 @@
   "heroStringId": "reign_court_castle_EN1_child_2",
   "characterName": "Calaria Aurelarides",
   "imagePath": "portrait.png",
-  "imageSha256": "071BC994701DEE59D4B28CC2969067A5ED774BDF4087E7B15298EEB2F84FAEB3",
-  "description": "Culturally appropriate everyday Calradic Imperial minor-lord attire inspired by refined late Roman and Byzantine noble clothing. Men should wear a high-quality tunic or long tailored outer coat over fine linen, decorated with narrow woven borders, refined clasps, and a decorated belt. Women should wear a long elegant dress or layered tunic ensemble with shaped sleeves, graceful draping, and tasteful trim around the neckline, cuffs, and edges. The garments should feel polished, educated, urban, and wealthy without resembling full imperial ceremony. No headgear of any kind. No armor, weapons, crowns, imperial regalia, laurel wreaths, or ceremonial robes.",
-  "status": "failed",
-  "descriptionSource": "portrait_prompt_fallback",
-  "retryEligible": true,
-  "error": "{\"error\":{\"message\":\"Model \\\"zai-org/glm-5.2\\\" does not support image inputs. Remove image content or choose a multimodal model.\",\"type\":\"invalid_request_error\",\"param\":\"messages\",\"code\":\"image_input_not_supported\"}}",
-  "updatedUtc": "2026-07-18T22:03:26.3268376Z"
+  "imageSha256": "BB5836AEAC1043704A22BFB41FB924A97A6F2EB9D4577207C1C54ABC2E2CFFA3",
+  "description": "Floor-length plum-purple square-neck court gown with fitted bodice, gold woven borders, sleeves resting below the shoulders and gold shoulder brooches, decorated narrow belt, cream draped arm wrap with patterned edges, pale underskirt and small gold-brown shoes.",
+  "status": "completed",
+  "descriptionSource": "agent_vision",
+  "retryEligible": false,
+  "error": "",
+  "updatedUtc": "2026-10-07T21:08:43.235Z"
 }

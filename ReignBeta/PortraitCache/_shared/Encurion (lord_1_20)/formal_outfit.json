@@ -3,11 +3,11 @@
   "heroStringId": "lord_1_20",
   "characterName": "Encurion",
   "imagePath": "portrait.png",
-  "imageSha256": "20BD62C3CF7A5EEC289BE572F3D621FC90C91B8BFFF2DB97050958C7ADF595B8",
-  "description": "Culturally appropriate everyday Calradic Imperial minor-lord attire inspired by refined late Roman and Byzantine noble clothing. Men should wear a high-quality tunic or long tailored outer coat over fine linen, decorated with narrow woven borders, refined clasps, and a decorated belt. Women should wear a long elegant dress or layered tunic ensemble with shaped sleeves, graceful draping, and tasteful trim around the neckline, cuffs, and edges. The garments should feel polished, educated, urban, and wealthy without resembling full imperial ceremony. No headgear of any kind. No armor, weapons, crowns, imperial regalia, laurel wreaths, or ceremonial robes.",
-  "status": "failed",
-  "descriptionSource": "portrait_prompt_fallback",
-  "retryEligible": true,
-  "error": "{\"error\":{\"message\":\"Model \\\"zai-org/glm-5.2\\\" does not support image inputs. Remove image content or choose a multimodal model.\",\"type\":\"invalid_request_error\",\"param\":\"messages\",\"code\":\"image_input_not_supported\"}}",
-  "updatedUtc": "2026-07-18T22:03:28.4745082Z"
+  "imageSha256": "8DFD50613C23120268127B6D82267669FF26DBA0C62C62BF29C4CAA97022FF86",
+  "description": "He wears a calf-length deep burgundy textured open-front coat with gold geometric edging at the collar, front bands, cuffs and hem. Beneath is an ivory tunic with gold decorated front and hem borders and a short upright split collar. A brown leather belt with a round gold buckle and long hanging strap secures the waist. Pale ivory trousers are tucked into tall brown leather boots. The garment is unarmored and his head is uncovered. He holds no weapons and wears no crown.",
+  "status": "completed",
+  "descriptionSource": "agent_vision",
+  "retryEligible": false,
+  "error": "",
+  "updatedUtc": "2026-10-07T22:02:26.849Z"
 }

@@ -1,0 +1,74 @@
+{
+  "schema": "reign-portable-actual-portrait-origin-v1",
+  "id": "lord_5_10",
+  "kind": "edited_fullbody",
+  "actualReceiptSha256": "74a5e8a0d4e62bf842b2b16f17bc050e143520552dcc6eba442239051005594d",
+  "actualReceiptUtf8": "{\r\n  \"schema\": \"reign-root-old-face-restyle-actual-v1\",\r\n  \"createdUtc\": \"2026-10-09T03:19:26.832429+00:00\",\r\n  \"id\": \"lord_5_10\",\r\n  \"actualCaller\": \"root\",\r\n  \"actualBuiltinImageCalls\": 1,\r\n  \"actualRetries\": 0,\r\n  \"paidApiCalls\": 0,\r\n  \"exactPrompt\": {\r\n    \"path\": \"C:\\\\ReignPortraitRebuild\\\\2026-10-07-01a11741-culture-v2\\\\audit\\\\corein-own-old-face-approval-candidate-001\\\\full-prompt.txt\",\r\n    \"sha256\": \"e09d63602aa31120e87c592874441006ec6e30f6afba0fcc5a754e984c268213\",\r\n    \"bytes\": 12988\r\n  },\r\n  \"exactToolRequest\": {\r\n    \"path\": \"C:\\\\ReignPortraitRebuild\\\\2026-10-07-01a11741-culture-v2\\\\audit\\\\corein-own-old-face-approval-candidate-001\\\\tool-request.json\",\r\n    \"sha256\": \"f49b64acee2b75a339b4c4f694a8c94ec03d11097f267a3c270729a1584b7e3c\",\r\n    \"bytes\": 13434\r\n  },\r\n  \"referenceImages\": [\r\n    {\r\n      \"path\": \"D:\\\\Program Files (x86)\\\\Steam\\\\steamapps\\\\common\\\\Mount & Blade II Bannerlord\\\\Modules\\\\ReignBeta\\\\PortraitCache\\\\_shared\\\\Corein (lord_5_10)\\\\portrait_chest.png\",\r\n      \"sha256\": \"04a78894da8b70f891caf77d0ce6fc1ad632e302f3e92269b1fbd241265bcec9\",\r\n      \"bytes\": 605952\r\n    },\r\n    {\r\n      \"path\": \"C:\\\\ReignPortraitRebuild\\\\2026-10-07-01a11741-culture-v2\\\\_shared\\\\Corein (lord_5_10)\\\\portrait.png\",\r\n      \"sha256\": \"e0adc131602a43f36616411f460193221b8ccd6a349271ab997a20e8296d43d8\",\r\n      \"bytes\": 2331878\r\n    }\r\n  ],\r\n  \"providerOutput\": {\r\n    \"path\": \"C:\\\\Users\\\\speed\\\\.codex\\\\generated_images\\\\01a11741-4ac1-7cd2-9aca-e03d81313445\\\\exec-b57d3256-2660-4255-b1ed-54c0b5ecbf7a.png\",\r\n    \"sha256\": \"5d7ad20c826a9526d284dfa30a0cc8894f5485154e17bd8bdcf45b60303661d8\",\r\n    \"bytes\": 2401758\r\n  },\r\n  \"provider\": \"Codex built-in image_gen\",\r\n  \"backendModel\": \"unknown\",\r\n  \"actualToolDurationSeconds\": 33.2,\r\n  \"rootPersonallyViewedBothReferencesAndActualInlineResult\": true,\r\n  \"rootActualObservation\": \"Old in-game face remains recognizable through green eyes/lid geometry, nose/mouth proportions, exposed cheeks and tapered chin; direct steady gaze and relaxed firm unsmiling lips replace softer prior expression. Current green-and-gold court garment, upright fullbody posture, natural body scale, soft daylight and photographic texture retained. Exact pixel-lock not claimed.\",\r\n  \"userApprovalRequiredBeforeUse\": true,\r\n  \"humanAccepted\": false,\r\n  \"currentWrites\": 0,\r\n  \"productWrites\": 0,\r\n  \"globalFaceAcceptance\": false,\r\n  \"notSwapApproval\": true,\r\n  \"canonicalBefore\": [\r\n    {\r\n      \"path\": \"C:\\\\ReignPortraitRebuild\\\\2026-10-07-01a11741-culture-v2\\\\_shared\\\\Corein (lord_5_10)\\\\portrait.png\",\r\n      \"sha256\": \"e0adc131602a43f36616411f460193221b8ccd6a349271ab997a20e8296d43d8\",\r\n      \"bytes\": 2331878\r\n    },\r\n    {\r\n      \"path\": \"C:\\\\ReignPortraitRebuild\\\\2026-10-07-01a11741-culture-v2\\\\_shared\\\\Corein (lord_5_10)\\\\zoom.png\",\r\n      \"sha256\": \"a956b39f56bedd4a800435b6b48755d284131ee80902e232e0ac0388e26ed5ff\",\r\n      \"bytes\": 3324825\r\n    },\r\n    {\r\n      \"path\": \"C:\\\\ReignPortraitRebuild\\\\2026-10-07-01a11741-culture-v2\\\\_shared\\\\Corein (lord_5_10)\\\\portrait_chest.png\",\r\n      \"sha256\": \"59920153d2059b2736b1e32fc193bfa99e64a37aefbd765255d5487e2a67a258\",\r\n      \"bytes\": 191159\r\n    },\r\n    {\r\n      \"path\": \"C:\\\\ReignPortraitRebuild\\\\2026-10-07-01a11741-culture-v2\\\\_shared\\\\Corein (lord_5_10)\\\\.portrait_derivatives.json\",\r\n      \"sha256\": \"8327c7c0c1e1506fa7f0b6d5e6337ef2f1b9474b868346866fc2aa5f48292f2a\",\r\n      \"bytes\": 1186\r\n    }\r\n  ]\r\n}\r\n",
+  "localFiles": [
+    {
+      "name": "portrait.png",
+      "sha256": "5d7ad20c826a9526d284dfa30a0cc8894f5485154e17bd8bdcf45b60303661d8",
+      "bytes": 2401758
+    },
+    {
+      "name": "zoom.png",
+      "sha256": "402e73c05678ac6b58a43a22d71175b43a2d7891a16d9044680d1599d78f8441",
+      "bytes": 3487562
+    },
+    {
+      "name": "portrait_chest.png",
+      "sha256": "29e00ffb2f6bdec7db94aa5b7c8083d3958963ce618da51a9172c1ee13fca846",
+      "bytes": 254922
+    },
+    {
+      "name": "thumbnail.png",
+      "sha256": "cab35ce848b4595e8e3a8287826f73eb18da1a5ad831382d9bd3f0bbc49ea734",
+      "bytes": 197093
+    },
+    {
+      "name": "thumbnail_wide.png",
+      "sha256": "4b7803a45daa5195c0340cb3fcbcb539320ad23bf50808b66c8ade183e004b9f",
+      "bytes": 315902
+    },
+    {
+      "name": "prompt_edit.txt",
+      "sha256": "e09d63602aa31120e87c592874441006ec6e30f6afba0fcc5a754e984c268213",
+      "bytes": 12988
+    }
+  ],
+  "historicalParent": {
+    "record": {
+      "path": "C:\\ReignPortraitRebuild\\2026-10-07-01a11741-culture-v2\\_shared\\Corein (lord_5_10)\\.ai_generation.json",
+      "sha256": "8c47da5b9ca180c042bf180437bdd0cfafef499b49dfb997a8d8697d7adb4a48",
+      "bytes": 3789
+    },
+    "prompt": {
+      "path": "C:\\ReignPortraitRebuild\\2026-10-07-01a11741-culture-v2\\_shared\\Corein (lord_5_10)\\prompt.txt",
+      "sha256": "19d5a5f3d265703a6acc6660b529980b7f5b91e2eed21945b14c02cda2c34ac4",
+      "bytes": 8901
+    },
+    "role": "Original staged generation; historical parent only. The exact approved old-face restyle has its own prompt and authentic receipt."
+  },
+  "authenticRawReceiptNotRewritten": true,
+  "actualOriginAdapter": {
+    "rawSchema": "reign-root-old-face-restyle-actual-v1",
+    "actualCallsField": "actualBuiltinImageCalls",
+    "actualRetriesField": "actualRetries",
+    "rawActualCalls": 1,
+    "rawRetries": 0,
+    "fieldMapping": {
+      "id": "id",
+      "source": "providerOutput",
+      "prompt": "exactPrompt"
+    }
+  },
+  "directUserApproval": {
+    "path": "C:\\ReignPortraitRebuild\\2026-10-07-01a11741-culture-v2\\audit\\corein-own-old-face-approval-candidate-001\\user-approval-001.json",
+    "sha256": "90cd71f9d6e05651c5341b40464287ca2ab7d5eb8403141fa0c4e09e99693959",
+    "bytes": 1153
+  },
+  "thisImageUserAccepted": true,
+  "globalFaceAcceptance": false,
+  "nativeUIAcceptance": false,
+  "notSwapApproval": true
+}

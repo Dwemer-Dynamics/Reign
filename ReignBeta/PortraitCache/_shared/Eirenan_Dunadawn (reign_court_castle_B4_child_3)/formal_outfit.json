@@ -3,11 +3,11 @@
   "heroStringId": "reign_court_castle_B4_child_3",
   "characterName": "Eirenan Dunadawn",
   "imagePath": "portrait.png",
-  "imageSha256": "0618E3937BFC0806A8624A3806D033065A30230E4175CC43E390BBCF836DBF3E",
-  "description": "Culturally appropriate everyday Battanian minor-lord attire inspired by refined Celtic and highland noble clothing. Use dense woven wool, quality linen, soft leather details, cleaner tailoring, decorative brooches, and more elaborate woven trim than ordinary landowners would possess. Men should wear a fitted tunic, practical trousers, a decorated belt, and a layered cloak fastened at the shoulder. Women should wear a long underdress with a tailored overdress, woven belt, elegant draped shawl, and restrained ornamental trim. Include subtle knotwork and geometric patterns without theatrical fantasy styling. No headgear of any kind. No armor, weapons, crowns, or ceremonial druid imagery.",
-  "status": "failed",
-  "descriptionSource": "portrait_prompt_fallback",
-  "retryEligible": true,
-  "error": "{\"error\":{\"message\":\"Model \\\"zai-org/glm-5.2\\\" does not support image inputs. Remove image content or choose a multimodal model.\",\"type\":\"invalid_request_error\",\"param\":\"messages\",\"code\":\"image_input_not_supported\"}}",
-  "updatedUtc": "2026-07-18T22:03:28.1994945Z"
+  "imageSha256": "CB406DF07B6340B913DEC1C2466571048AEEBECA26CE7276B9D9933F3E7AABCB",
+  "description": "Eirenan Dunadawn wears a deep green knee-length tunic with gold knotwork borders at the neckline, central front, cuffs and hem over a pale linen undertunic visible at the collar and cuffs. A heavy green fringed cloak includes a checked panel, knotwork edging and a round shoulder brooch. His decorated brown leather belt has a square buckle, a long hanging strap and a small pouch. Brown trousers, lower-leg wraps and brown leather boots complete the outfit. His curly hair is uncovered.",
+  "status": "completed",
+  "descriptionSource": "agent_vision",
+  "retryEligible": false,
+  "error": "",
+  "updatedUtc": "2026-10-07T21:52:56.834Z"
 }

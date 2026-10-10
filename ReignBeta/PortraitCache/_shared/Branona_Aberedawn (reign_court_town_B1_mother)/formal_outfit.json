@@ -3,11 +3,11 @@
   "heroStringId": "reign_court_town_B1_mother",
   "characterName": "Branona Aberedawn",
   "imagePath": "portrait.png",
-  "imageSha256": "42A3D79D326B4D32094CD4B019C4660D40718B072F38F8CE6D8EB4A81C81F0EB",
-  "description": "Culturally appropriate everyday Battanian high-noble attire inspired by elite Celtic and highland aristocratic clothing. Use fine woven wool, linen, soft leather accents, sophisticated layering, ornate brooches, and carefully worked borders featuring tasteful knotwork or geometric designs. Men should wear a richly made noble tunic with a broad decorated belt and an exceptionally well-crafted draped cloak. Women should wear a long fitted noble dress beneath a richly layered overdress, with elegant woven borders, decorative brooch fastenings, and a graceful shoulder wrap. The outfit should communicate power through craftsmanship and rich textiles rather than excessive decoration. No headgear of any kind. No armor, weapons, crowns, or fantasy druid elements.",
-  "status": "failed",
-  "descriptionSource": "portrait_prompt_fallback",
-  "retryEligible": true,
-  "error": "{\"error\":{\"message\":\"Model \\\"zai-org/glm-5.2\\\" does not support image inputs. Remove image content or choose a multimodal model.\",\"type\":\"invalid_request_error\",\"param\":\"messages\",\"code\":\"image_input_not_supported\"}}",
-  "updatedUtc": "2026-07-18T22:03:26.0031332Z"
+  "imageSha256": "86D2D8AE71F7173B9E8DDFFE6102E23920401E482CBA7084D9C01B6DB5D3CF9B",
+  "description": "She wears a floor-length forest-green gown with a square neckline, fitted bodice and elbow-length sleeves. Gold knotwork borders decorate the neckline, shoulders, cuffs, waist and long skirt front. Round ornate gold brooches fasten short shoulder drapes. A decorated green-and-gold belt has a round metal clasp. A broad green wrap with matching gold knotwork edging and fine fringe rests around her forearms and hangs at the sides. A muted cream underdress appears at the lower front opening. A simple ring and dark brown closed leather shoes are visible.",
+  "status": "completed",
+  "descriptionSource": "agent_vision",
+  "retryEligible": false,
+  "error": "",
+  "updatedUtc": "2026-10-07T20:56:08.935Z"
 }

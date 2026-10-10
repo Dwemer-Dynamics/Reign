@@ -3,11 +3,11 @@
   "heroStringId": "reign_court_castle_ES8_child_4",
   "characterName": "Marvenene Istrananion",
   "imagePath": "portrait.png",
-  "imageSha256": "D5F27820C72BC4A873F9B4EBCDB2D2654EEC9AE9DFC09653F21869B2321B52E7",
-  "description": "Culturally appropriate everyday Calradic Imperial high-noble attire inspired by luxurious Byzantine aristocratic fashion, restrained enough for daily noble life. Use fine layered linen and wool, controlled flowing silhouettes, elegant draping, richly woven borders, small jeweled clasps, and sophisticated fabric textures. Men should wear a stately long tunic or structured noble coat over a fine undertunic, with refined belts and detailed edging. Women should wear a sophisticated layered noble dress with graceful drapery, tailored sleeves, and subtle aristocratic ornamentation. The outfit should communicate ancient prestige, wealth, and political importance. No headgear of any kind. No armor, weapons, crowns, laurel wreaths, or full ceremonial imperial regalia.",
-  "status": "failed",
-  "descriptionSource": "portrait_prompt_fallback",
-  "retryEligible": true,
-  "error": "{\"error\":{\"message\":\"Model \\\"zai-org/glm-5.2\\\" does not support image inputs. Remove image content or choose a multimodal model.\",\"type\":\"invalid_request_error\",\"param\":\"messages\",\"code\":\"image_input_not_supported\"}}",
-  "updatedUtc": "2026-07-18T22:03:32.1012778Z"
+  "imageSha256": "572177277C4E833AE7B2B9EF278CB2156581E926097468B33C89E089E65D38E3",
+  "description": "She wears an ivory floor-length opaque court gown with a square structured purple embroidered bodice, gold woven borders, decorated shoulder straps and round clasps, purple off-shoulder sleeves and a purple-gold draped wrap along the arms. A woven decorated belt and brown embroidered shoes are visible. No headgear, armor or weapons; one shoe is partly obscured by the full skirt.",
+  "status": "completed",
+  "descriptionSource": "agent_vision",
+  "retryEligible": false,
+  "error": "",
+  "updatedUtc": "2026-10-08T05:11:02.392Z"
 }

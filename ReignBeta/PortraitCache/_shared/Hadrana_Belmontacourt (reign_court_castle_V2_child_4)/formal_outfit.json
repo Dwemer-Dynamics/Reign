@@ -3,11 +3,11 @@
   "heroStringId": "reign_court_castle_V2_child_4",
   "characterName": "Hadrana Belmontacourt",
   "imagePath": "portrait.png",
-  "imageSha256": "6F8A1253533344B66274EF25A33B8F7975B1C8573920A53E511100999B67F45A",
-  "description": "Culturally appropriate everyday Vlandian landowner attire inspired by practical high-medieval Norman and Frankish clothing. Use a well-made wool tunic over a linen underlayer, fitted sleeves, a sturdy leather belt, narrow trousers or chausses, and soft leather boots. For women, use a long fitted underdress with a simple but well-tailored overdress, narrow sleeves, a modest neckline, and a practical belt. The garments should appear prosperous, clean, and durable without looking aristocratic. No headgear of any kind. No armor, weapons, crowns, ceremonial robes, or fantasy elements.",
-  "status": "failed",
-  "descriptionSource": "portrait_prompt_fallback",
-  "retryEligible": true,
-  "error": "{\"error\":{\"message\":\"Model \\\"zai-org/glm-5.2\\\" does not support image inputs. Remove image content or choose a multimodal model.\",\"type\":\"invalid_request_error\",\"param\":\"messages\",\"code\":\"image_input_not_supported\"}}",
-  "updatedUtc": "2026-07-18T22:03:29.9244304Z"
+  "imageSha256": "0F3E74807B2AB5BAEB7DCC8D1764DFCD7F56A79380E2BD5A1C8F39B29E43B13F",
+  "description": "Full-length upright young adult woman in opaque russet-red fitted wool overdress/gown with low square neckline, elbow-length outer sleeves over cream linen fitted sleeves/underdress, narrow woven borders, practical brown belt/round buckle and red wrap resting along forearms. Floor-length skirt has lower front opening showing cream underlayer and one brown shoe; other foot concealed by hem. Plain stone doorway, no headgear/armor/weapons. Dark loose asymmetric waves fall over viewer-right shoulder; some top sections gathered back.",
+  "status": "completed",
+  "descriptionSource": "agent_vision",
+  "retryEligible": false,
+  "error": "",
+  "updatedUtc": "2026-10-08T05:13:21.575Z"
 }

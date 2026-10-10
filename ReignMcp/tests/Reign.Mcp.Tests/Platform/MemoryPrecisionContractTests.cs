@@ -1,11 +1,14 @@
 using System.Diagnostics;
 using System.Text.Json;
 using Reign.Mcp.Server;
+using Xunit.Abstractions;
 
 namespace Reign.Mcp.Tests;
 
 public sealed class MemoryPrecisionContractTests
 {
+    private readonly ITestOutputHelper output;
+    public MemoryPrecisionContractTests(ITestOutputHelper output) => this.output = output;
     [Theory]
     [InlineData("Stage", false, false)]
     [InlineData("Preview", false, false)]
@@ -51,7 +54,11 @@ public sealed class MemoryPrecisionContractTests
                 } catch { if (!$expected -or $_.Exception.Message -ne $expected) { throw } }
                 exit 0
                 """;
-            var start=new ProcessStartInfo("powershell.exe") {UseShellExecute=false,RedirectStandardOutput=true,RedirectStandardError=true,CreateNoWindow=true};
+            string shellRoot=Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.System),"WindowsPowerShell","v1.0");
+            var start=new ProcessStartInfo(Path.Combine(shellRoot,"powershell.exe")) {UseShellExecute=false,RedirectStandardOutput=true,RedirectStandardError=true,CreateNoWindow=true};
+            // Bind the fixture to Windows PowerShell's own utility modules even
+            // when the canonical validator inherits a PowerShell 7 environment.
+            start.Environment["PSModulePath"]=Path.Combine(shellRoot,"Modules");
             foreach(string arg in new[]{"-NoProfile","-NonInteractive","-EncodedCommand",Convert.ToBase64String(System.Text.Encoding.Unicode.GetBytes(script))}) start.ArgumentList.Add(arg);
             start.Environment["WRAPPER_SCRIPT"]=Path.Combine(TestOptions.FindWorkspace(),"ReignServer/scripts/Repair-ConversationContinuity.ps1");
             start.Environment["WRAPPER_MANIFEST"]=manifest;
@@ -91,7 +98,10 @@ public sealed class MemoryPrecisionContractTests
         using var timeout=new CancellationTokenSource(TimeSpan.FromSeconds(60));
         try { await process.WaitForExitAsync(timeout.Token); }
         catch(OperationCanceledException) {process.Kill(true);throw new TimeoutException("Isolated worker runtime contracts exceeded 60 seconds.");}
-        Assert.True(process.ExitCode==0,(await output)+(await error));
+        string stdout=await output, stderr=await error;
+        this.output.WriteLine(stdout);
+        this.output.WriteLine(stderr);
+        Assert.True(process.ExitCode==0,stdout+stderr);
     }
 
     [Fact]

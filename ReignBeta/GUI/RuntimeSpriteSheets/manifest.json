@@ -1,8 +1,8 @@
 {
   "version": 1,
-  "generatedUtc": "2026-09-20T01:38:29.5595909Z",
+  "generatedUtc": "2026-10-05T02:27:56.8115030Z",
   "spriteDataPath": "GUI/ReignBetaSpriteData.xml",
-  "spriteDataSha256": "3e7c0d17baa7388e0e2e18b6c3e8d8ddc3c72aee42c5388a111c007eedc2c024",
+  "spriteDataSha256": "6a9ebd9ef037b72b3df5176b9b95e0db62ef8ec2d1bcf970b4596d254d107ede",
   "categories": {
     "ui_reignbeta_main_menu": {
       "sheets": [
@@ -48,6 +48,13 @@
           "height": 1024,
           "path": "GUI/RuntimeSpriteSheets/ui_reignbeta_individual/ui_reignbeta_individual_3.png",
           "sha256": "20f98bb7a2074e111a2beb88b8ce99714362a341ef5f2cb956f62fbda0b42ea4"
+        },
+        {
+          "id": 4,
+          "width": 2048,
+          "height": 2048,
+          "path": "GUI/RuntimeSpriteSheets/ui_reignbeta_individual/ui_reignbeta_individual_4.png",
+          "sha256": "6ef8c04482b57db4bd989fa3fdb26b91b709d334a193ff7b8fe2a847970fc7a1"
         }
       ],
       "parts": {
@@ -122,6 +129,24 @@
           "height": 768,
           "sourcePath": "GUI/SpriteParts/ui_reignbeta_individual/reign_individual_chat_zoom_oval_mask.png",
           "sourceSha256": "8ae14fcb253ea4da1a7294af257e90a58ce35cbbefc21b3216bd2dee805de35e"
+        },
+        "reign_outfit_change_shell": {
+          "sheetId": 4,
+          "x": 4,
+          "y": 4,
+          "width": 1672,
+          "height": 941,
+          "sourcePath": "GUI/SpriteParts/ui_reignbeta_individual/reign_outfit_change_shell.png",
+          "sourceSha256": "6e4d012135b2a22f1656416d336c781e3a9b549ce2d0aaaa8033a81d77270b85"
+        },
+        "reign_outfit_action_button": {
+          "sheetId": 4,
+          "x": 4,
+          "y": 953,
+          "width": 422,
+          "height": 62,
+          "sourcePath": "GUI/SpriteParts/ui_reignbeta_individual/reign_outfit_action_button.png",
+          "sourceSha256": "549af12c8bc98d2fe01271d8326327d8b0692d68a62c36c76352c558b336b0c1"
         }
       }
     },
@@ -1332,7 +1357,7 @@
           "width": 2048,
           "height": 1024,
           "path": "GUI/RuntimeSpriteSheets/ui_reignbeta_correspondence/ui_reignbeta_correspondence_2.png",
-          "sha256": "5f2a967181d1789d9845cdc86775e945bd7a0675376d66fff51ae889e6700229"
+          "sha256": "49bf2f61f1872c62de0e4271dacae9d1c94e8700adc3e51323cd88fd34b45192"
         },
         {
           "id": 3,
@@ -1413,7 +1438,7 @@
           "width": 1672,
           "height": 941,
           "sourcePath": "GUI/SpriteParts/ui_reignbeta_correspondence/reign_correspondence_modern_shell.png",
-          "sourceSha256": "9220763e3fda2d22192ae3ad2eb8fc05c870dd6c16845266fe38494e734e37ee"
+          "sourceSha256": "85f4a74b374eb6f0ff99696d076e67486417083392d5877595d7edff47e3bb9e"
         },
         "reign_correspondence_modern_selected_contact_overlay": {
           "sheetId": 3,
@@ -2664,6 +2689,59 @@
           "height": 338,
           "sourcePath": "GUI/SpriteParts/ui_reignbeta_tavern_house/reign_tavern_house_agreement.png",
           "sourceSha256": "51f076c9df3625df5140a046097c8855f24c6e20a1ef85b80e80b4fc4ee5f03c"
+        }
+      }
+    },
+    "ui_reignbeta_actions": {
+      "sheets": [
+        {
+          "id": 1,
+          "width": 2048,
+          "height": 1024,
+          "path": "GUI/RuntimeSpriteSheets/ui_reignbeta_actions/ui_reignbeta_actions_1.png",
+          "sha256": "6d1173b6f1931f6e14b32acdfafd70e5e3c0123afb8d6dec090fa164d50df848"
+        }
+      ],
+      "parts": {
+        "reign_action_builder_shell": {
+          "sheetId": 1,
+          "x": 4,
+          "y": 4,
+          "width": 1672,
+          "height": 941,
+          "sourcePath": "GUI/SpriteParts/ui_reignbeta_actions/reign_action_builder_shell.png",
+          "sourceSha256": "7f0226da9fbe3b9c0f01de2377963f82d6c7f8583a1296b8fbcf74e21a9b8d41"
+        }
+      }
+    },
+    "ui_reignbeta_banter": {
+      "sheets": [
+        {
+          "id": 1,
+          "width": 1024,
+          "height": 256,
+          "path": "GUI/RuntimeSpriteSheets/ui_reignbeta_banter/ui_reignbeta_banter_1.png",
+          "sha256": "3733eb72f7e7a57fd729918a7c28ad6660590c1c1f99ae9243c58a719d33047b"
+        }
+      ],
+      "parts": {
+        "reign_banter_panel": {
+          "sheetId": 1,
+          "x": 4,
+          "y": 4,
+          "width": 420,
+          "height": 220,
+          "sourcePath": "GUI/SpriteParts/ui_reignbeta_banter/reign_banter_panel.png",
+          "sourceSha256": "1d575d2e8b2d55815fbe729f993f5da6cf405a803044cf698ac6a019cbcd5a19"
+        },
+        "reign_banter_collapsed": {
+          "sheetId": 1,
+          "x": 428,
+          "y": 4,
+          "width": 420,
+          "height": 42,
+          "sourcePath": "GUI/SpriteParts/ui_reignbeta_banter/reign_banter_collapsed.png",
+          "sourceSha256": "e7a3d1b173d19f982880b4c10b2e744fbd0931c9a721b97018169ac750e6e2dd"
         }
       }
     }

@@ -3,11 +3,11 @@
   "heroStringId": "reign_court_town_ES5_child_1",
   "characterName": "Iovones Corvenenion",
   "imagePath": "portrait.png",
-  "imageSha256": "2ECEA6E964A4FBD8CF00B57D7F338E6F105C9F8E31DE2CBCAAA02E3D3E434A50",
-  "description": "Culturally appropriate everyday Calradic Imperial high-noble attire inspired by luxurious Byzantine aristocratic fashion, restrained enough for daily noble life. Use fine layered linen and wool, controlled flowing silhouettes, elegant draping, richly woven borders, small jeweled clasps, and sophisticated fabric textures. Men should wear a stately long tunic or structured noble coat over a fine undertunic, with refined belts and detailed edging. Women should wear a sophisticated layered noble dress with graceful drapery, tailored sleeves, and subtle aristocratic ornamentation. The outfit should communicate ancient prestige, wealth, and political importance. No headgear of any kind. No armor, weapons, crowns, laurel wreaths, or full ceremonial imperial regalia.",
-  "status": "failed",
-  "descriptionSource": "portrait_prompt_fallback",
-  "retryEligible": true,
-  "error": "{\"error\":{\"message\":\"Model \\\"zai-org/glm-5.2\\\" does not support image inputs. Remove image content or choose a multimodal model.\",\"type\":\"invalid_request_error\",\"param\":\"messages\",\"code\":\"image_input_not_supported\"}}",
-  "updatedUtc": "2026-07-18T22:03:30.7245254Z"
+  "imageSha256": "8D0A0CBC2DE19C48A223A90FA7D364703EE2126D3A5478F3FF8C3F23E199B597",
+  "description": "Long purple tailored outer robe/coated drape with wide gold geometric woven borders over a long cream undertunic with narrow purple/gold placket, cuffs and hem. Paired round shoulder clasps linked by short chain, patterned belt with round metal buckle and long fringed decorated textile end, dark trousers and tall brown leather boots. Both hands clasped visibly in front. No headgear, armor or weapon.",
+  "status": "completed",
+  "descriptionSource": "agent_vision",
+  "retryEligible": false,
+  "error": "",
+  "updatedUtc": "2026-10-08T00:01:51.690Z"
 }

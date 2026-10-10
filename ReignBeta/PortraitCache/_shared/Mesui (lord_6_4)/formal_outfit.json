@@ -3,11 +3,11 @@
   "heroStringId": "lord_6_4",
   "characterName": "Mesui",
   "imagePath": "portrait.png",
-  "imageSha256": "710754761AC54D73EE262E968ECAD69D2273DF59A93477A23F40D914784CAFDD",
-  "description": "Culturally appropriate everyday Khuzait minor-lord attire inspired by refined medieval Turkic and Mongol steppe noble clothing. Men should wear a tailored crossed-front coat or deel with refined woven trim, a decorated sash, layered sleeves, and high-quality trousers. Women should wear an elegant long robe or fitted steppe coat over a fine underdress, with carefully worked edging and decorative textile details. Include restrained cloud, knot, or geometric patterns and a limited amount of practical fur trim. The clothing should remain mobile and functional while clearly showing noble status. No headgear of any kind. No fur hats, caps, hoods, armor, weapons, crowns, or ceremonial costume.",
-  "status": "failed",
-  "descriptionSource": "portrait_prompt_fallback",
-  "retryEligible": true,
-  "error": "{\"error\":{\"message\":\"Model \\\"zai-org/glm-5.2\\\" does not support image inputs. Remove image content or choose a multimodal model.\",\"type\":\"invalid_request_error\",\"param\":\"messages\",\"code\":\"image_input_not_supported\"}}",
-  "updatedUtc": "2026-07-18T22:03:32.5633878Z"
+  "imageSha256": "EDC09EEDEA272719B37AF83F5D3976452D8E71D6A801D7295749290D72FC6B90",
+  "description": "Mesui wears an opaque muted teal floor-length court gown with a low square neckline, fitted structured bodice and elbow-length sleeves. Fine gold cloud and geometric woven motifs cover the teal outer fabric and edge the neckline, cuffs, waist and long skirt sides. A cream patterned underdress forms the central bodice and lower-front panel. A decorated teal sash with small round ornaments and tassels sits at the waist. A brown shoulder wrap with matching teal and gold borders rests around her forearms. Long modest drop earrings and a round brooch near her left neckline provide ornaments. Brown embroidered flat shoes show under the hem. Her loose black hair is uncovered.",
+  "status": "completed",
+  "descriptionSource": "agent_vision",
+  "retryEligible": false,
+  "error": "",
+  "updatedUtc": "2026-10-08T00:36:04.628Z"
 }

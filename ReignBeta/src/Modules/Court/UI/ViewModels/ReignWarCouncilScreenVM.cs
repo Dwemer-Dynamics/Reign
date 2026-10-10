@@ -22,8 +22,13 @@ using TaleWorlds.Library;
 
 namespace ReignBeta.UI.ViewModels
 {
-    public sealed class ReignWarCouncilScreenVM : ViewModel
+    public sealed class ReignWarCouncilScreenVM : ViewModel, IReignActionHost
     {
+        private ReignActionComposerVM _composer;
+        public ReignActionComposerVM Composer => _composer ?? (_composer = new ReignActionComposerVM(() => OnPropertyChanged(nameof(MessengerInputText))));
+        [DataSourceProperty] public string ActionComposerId => Composer.Id;
+        public IReadOnlyList<Hero> ActionParticipants => _messengerRecipient == null ? new Hero[0] : new[] { _messengerRecipient };
+        public bool ActionBusy => !MessengerVisible || MessengerBusy;
         public const float ViewportWidth = 820f;
         public const float ViewportHeight = 820f;
         public const float BaseMapWidth = 820f;
@@ -111,7 +116,7 @@ namespace ReignBeta.UI.ViewModels
         [DataSourceProperty] public string CouncilorPortraitProvider { get => _councilorPortraitProvider; private set { if (_councilorPortraitProvider != value) { _councilorPortraitProvider = value; OnPropertyChangedWithValue(value); } } }
         [DataSourceProperty] public bool MessengerVisible { get => _messengerVisible; private set { if (_messengerVisible != value) { _messengerVisible = value; OnPropertyChangedWithValue(value); } } }
         [DataSourceProperty] public bool MessengerBusy { get => _messengerBusy; private set { if (_messengerBusy != value) { _messengerBusy = value; OnPropertyChangedWithValue(value); } } }
-        [DataSourceProperty] public string MessengerInputText { get => _messengerInputText; set { if (_messengerInputText != value) { _messengerInputText = value ?? string.Empty; OnPropertyChangedWithValue(_messengerInputText); } } }
+        [DataSourceProperty] public string MessengerInputText { get => Composer.State.Text; set => Composer.SetText(value); }
         [DataSourceProperty] public string MessengerRecipientName { get => _messengerRecipientName; private set { if (_messengerRecipientName != value) { _messengerRecipientName = value; OnPropertyChangedWithValue(value); OnPropertyChanged(nameof(MessengerTitle)); } } }
         [DataSourceProperty] public string MessengerTitle => "RAVEN TO " + MessengerRecipientName;
         [DataSourceProperty] public string MessengerStatus { get => _messengerStatus; private set { if (_messengerStatus != value) { _messengerStatus = value; OnPropertyChangedWithValue(value); } } }
@@ -143,6 +148,7 @@ namespace ReignBeta.UI.ViewModels
 
         public override void OnFinalize()
         {
+            ReignActionBuilder.CloseFor(this); _composer?.Dispose();
             _finalized = true;
             base.OnFinalize();
         }
@@ -506,7 +512,8 @@ namespace ReignBeta.UI.ViewModels
             MessengerBusy = true;
             MessengerStatus = "Dispatching raven...";
             ReignLetterSendResult result = await ReignCorrespondenceScreenVM.SendProductionLetterAsync(
-                recipient, body, "war-council-raven-" + Guid.NewGuid().ToString("N"));
+                recipient, body, "war-council-raven-" + Guid.NewGuid().ToString("N"),
+                Composer.State.Draft == null ? null : ReignBeta.Actions.ReignActionService.Copy(Composer.State.Draft));
             await ReignMainThread.InvokeAsync(() =>
             {
                 if (_finalized) return;

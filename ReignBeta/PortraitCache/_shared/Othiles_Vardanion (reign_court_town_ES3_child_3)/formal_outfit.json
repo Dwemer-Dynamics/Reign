@@ -3,11 +3,11 @@
   "heroStringId": "reign_court_town_ES3_child_3",
   "characterName": "Othiles Vardanion",
   "imagePath": "portrait.png",
-  "imageSha256": "62C4C7F7762CCAB22B46B4C732381663B86126FFEA24259207154EA70A52F09B",
-  "description": "Culturally appropriate everyday Calradic Imperial minor-lord attire inspired by refined late Roman and Byzantine noble clothing. Men should wear a high-quality tunic or long tailored outer coat over fine linen, decorated with narrow woven borders, refined clasps, and a decorated belt. Women should wear a long elegant dress or layered tunic ensemble with shaped sleeves, graceful draping, and tasteful trim around the neckline, cuffs, and edges. The garments should feel polished, educated, urban, and wealthy without resembling full imperial ceremony. No headgear of any kind. No armor, weapons, crowns, imperial regalia, laurel wreaths, or ceremonial robes.",
-  "status": "failed",
-  "descriptionSource": "portrait_prompt_fallback",
-  "retryEligible": true,
-  "error": "{\"error\":{\"message\":\"Model \\\"zai-org/glm-5.2\\\" does not support image inputs. Remove image content or choose a multimodal model.\",\"type\":\"invalid_request_error\",\"param\":\"messages\",\"code\":\"image_input_not_supported\"}}",
-  "updatedUtc": "2026-07-18T22:03:33.2124416Z"
+  "imageSha256": "964DC287E8980F42C7780D506560C89999A1BF80600E8B87D1EF0359F65F671F",
+  "description": "Long burgundy tailored noble coat over cream linen tunic, narrow gold woven borders, decorated belt, dark trousers and tall brown leather boots; upright full body with hands and feet visible.",
+  "status": "completed",
+  "descriptionSource": "agent_vision",
+  "retryEligible": false,
+  "error": "",
+  "updatedUtc": "2026-10-08T05:40:32.093Z"
 }

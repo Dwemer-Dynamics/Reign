@@ -3,11 +3,11 @@
   "heroStringId": "lord_1_4",
   "characterName": "Phenoria",
   "imagePath": "portrait.png",
-  "imageSha256": "4F066002AC63AC9AF8DFC7F4A4C7ED2CD2801EE55089EB27E6ACA168C5E31092",
-  "description": "Culturally appropriate everyday Calradic Imperial high-noble attire inspired by luxurious Byzantine aristocratic fashion, restrained enough for daily noble life. Use fine layered linen and wool, controlled flowing silhouettes, elegant draping, richly woven borders, small jeweled clasps, and sophisticated fabric textures. Men should wear a stately long tunic or structured noble coat over a fine undertunic, with refined belts and detailed edging. Women should wear a sophisticated layered noble dress with graceful drapery, tailored sleeves, and subtle aristocratic ornamentation. The outfit should communicate ancient prestige, wealth, and political importance. No headgear of any kind. No armor, weapons, crowns, laurel wreaths, or full ceremonial imperial regalia.",
-  "status": "failed",
-  "descriptionSource": "portrait_prompt_fallback",
-  "retryEligible": true,
-  "error": "{\"error\":{\"message\":\"Model \\\"zai-org/glm-5.2\\\" does not support image inputs. Remove image content or choose a multimodal model.\",\"type\":\"invalid_request_error\",\"param\":\"messages\",\"code\":\"image_input_not_supported\"}}",
-  "updatedUtc": "2026-07-18T22:03:33.4368975Z"
+  "imageSha256": "119CAF1C710A7AE15BBE7A2DDF8EAF791A2E8E55C6A101C5148AA4BD53CA2123",
+  "description": "She wears an opaque burgundy-and-cream floor-length court gown with a low square neckline, fitted bodice, elbow-length sleeves, gold woven geometric borders and central skirt panel, two round shoulder brooches, a decorated belt and a cream gold-edged wrap resting around her arms. Dark closed shoes are visible beneath the hem. No headgear, armor or weapon is visible.",
+  "status": "completed",
+  "descriptionSource": "agent_vision",
+  "retryEligible": false,
+  "error": "",
+  "updatedUtc": "2026-10-08T04:01:04.960Z"
 }

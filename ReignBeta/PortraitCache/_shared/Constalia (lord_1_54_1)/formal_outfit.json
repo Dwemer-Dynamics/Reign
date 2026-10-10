@@ -3,11 +3,11 @@
   "heroStringId": "lord_1_54_1",
   "characterName": "Constalia",
   "imagePath": "portrait.png",
-  "imageSha256": "AC89A7178D1EE19B7AE6BC670BDD65963549FA5C088841127B7F9EE95EEEB63B",
-  "description": "Culturally appropriate everyday Calradic Imperial minor-lord attire inspired by refined late Roman and Byzantine noble clothing. Men should wear a high-quality tunic or long tailored outer coat over fine linen, decorated with narrow woven borders, refined clasps, and a decorated belt. Women should wear a long elegant dress or layered tunic ensemble with shaped sleeves, graceful draping, and tasteful trim around the neckline, cuffs, and edges. The garments should feel polished, educated, urban, and wealthy without resembling full imperial ceremony. No headgear of any kind. No armor, weapons, crowns, imperial regalia, laurel wreaths, or ceremonial robes.",
-  "status": "failed",
-  "descriptionSource": "portrait_prompt_fallback",
-  "retryEligible": true,
-  "error": "{\"error\":{\"message\":\"Model \\\"zai-org/glm-5.2\\\" does not support image inputs. Remove image content or choose a multimodal model.\",\"type\":\"invalid_request_error\",\"param\":\"messages\",\"code\":\"image_input_not_supported\"}}",
-  "updatedUtc": "2026-07-18T22:03:26.9310035Z"
+  "imageSha256": "B90925689D9E4B2B40A2944CBB1F3C91E9C6D3910EF7873F4FA5C2FE73731009",
+  "description": "She wears a floor-length muted plum-purple patterned overdress with a fitted bodice, low square neckline and elbow-length sleeves, over a cream textured underdress. Narrow gold woven borders edge the neckline, sleeves, front and hem. A decorated waist belt has a circular patterned buckle and a long flat hanging end. A matching purple drape rests along both arms and falls at the sides with fine gold edging. Small earrings and a ring provide restrained jewelry. Brown gold-decorated closed shoes show beneath the hem. Upper chest is exposed while opaque layered cloth covers the bust, abdomen, hips and pelvis. No headgear or armor appears; fibers remain visually uncertain.",
+  "status": "completed",
+  "descriptionSource": "agent_vision",
+  "retryEligible": false,
+  "error": "",
+  "updatedUtc": "2026-10-07T21:20:32.994Z"
 }

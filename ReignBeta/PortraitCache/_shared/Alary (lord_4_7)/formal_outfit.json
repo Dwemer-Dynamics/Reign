@@ -3,11 +3,11 @@
   "heroStringId": "lord_4_7",
   "characterName": "Alary",
   "imagePath": "portrait.png",
-  "imageSha256": "9BFD7FB6C853C41DD352A76765F94FB4A20161372C5A1585ED3C4BD9013414EA",
-  "description": "Culturally appropriate everyday Vlandian high-noble attire inspired by wealthy Norman and Frankish aristocratic dress. Use luxurious fine wool and linen, expertly tailored layers, richly cut outer tunics or gowns, refined belts, decorative borders, subtle heraldic embroidery, and elegant fastenings. Men should wear a long tailored tunic or refined surcoat-style outer layer over fine linen and well-fitted chausses. Women should wear a fitted noble gown layered over a high-quality underdress, with graceful sleeves, refined trim, and tasteful jewelry. The outfit should feel expensive and powerful while remaining believable everyday noble wear. No headgear of any kind. No armor, weapons, crowns, or ceremonial regalia.",
-  "status": "failed",
-  "descriptionSource": "portrait_prompt_fallback",
-  "retryEligible": true,
-  "error": "{\"error\":{\"message\":\"Model \\\"zai-org/glm-5.2\\\" does not support image inputs. Remove image content or choose a multimodal model.\",\"type\":\"invalid_request_error\",\"param\":\"messages\",\"code\":\"image_input_not_supported\"}}",
-  "updatedUtc": "2026-07-18T22:03:24.2619951Z"
+  "imageSha256": "F85FF98008D13EFF315F4354B67F45C995E9A07C796CB2C78333735DA14B0CB9",
+  "description": "Alary wears a long burgundy velvet-like noble tunic with fine gold embroidered borders, gold heraldic motifs near the hem and a matching decorated belt with a round metal buckle and hanging strap. A cream linen shirt shows at the split neck and in long sleeves with embroidered cuffs. A dark blue-grey and gold patterned cloak is fastened at his shoulders by two circular clasps and a short chain. Dark fitted trousers tuck into tall brown leather boots. His hands are loosely clasped and bear a ring; his head is bare. No armor or weapons are visible.",
+  "status": "completed",
+  "descriptionSource": "agent_vision",
+  "retryEligible": false,
+  "error": "",
+  "updatedUtc": "2026-10-08T04:23:54.508Z"
 }

@@ -3,11 +3,11 @@
   "heroStringId": "lord_3_14",
   "characterName": "Thamza",
   "imagePath": "portrait.png",
-  "imageSha256": "D6C167C1F31A55298E89406C6C2C3DEB2D76FBA31DF47706E35644C1D98022B3",
-  "description": "Culturally appropriate everyday Aserai minor-lord attire inspired by refined medieval Arabian, North African, and limited Persian noble clothing. Men should wear a flowing robe or structured open-front coat over a fine lightweight tunic, secured with a decorated woven sash. Women should wear a long elegant dress with soft layered fabrics, shaped sleeves, graceful draping, and fine embroidery around the neckline, cuffs, and hem. Show rank through superior fabric, elegant borders, geometric embroidery, and subtle jewelry rather than excessive ornamentation. No headgear of any kind. No turbans, veils, hoods, armor, weapons, crowns, or ceremonial excess.",
-  "status": "failed",
-  "descriptionSource": "portrait_prompt_fallback",
-  "retryEligible": true,
-  "error": "{\"error\":{\"message\":\"Model \\\"zai-org/glm-5.2\\\" does not support image inputs. Remove image content or choose a multimodal model.\",\"type\":\"invalid_request_error\",\"param\":\"messages\",\"code\":\"image_input_not_supported\"}}",
-  "updatedUtc": "2026-07-18T22:03:34.6991658Z"
+  "imageSha256": "980CDEE0BBE7E9CB7EBD711FAD01A2C299C9642CE71B49E246920F9D05E7E2ED",
+  "description": "He wears an opaque cream ankle-length tunic and matching loose trousers under a long open brown robe with gold geometric woven borders, wide sleeve cuffs and patterned front edges. A striped woven brown-and-gold sash wraps the waist with a fringed end hanging in front. Brown leather closed shoes are fully visible. No headgear, armor or weapon.",
+  "status": "completed",
+  "descriptionSource": "agent_vision",
+  "retryEligible": false,
+  "error": "",
+  "updatedUtc": "2026-10-08T04:14:05.236Z"
 }

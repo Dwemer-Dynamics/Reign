@@ -3,11 +3,11 @@
   "heroStringId": "reign_court_town_V1_mother",
   "characterName": "Aldoma Auberecourt",
   "imagePath": "portrait.png",
-  "imageSha256": "B213523E0B13CB54A8F3DBF2B553704B78C84B40F63D5FA6030C42272DC74C74",
-  "description": "Culturally appropriate everyday Vlandian high-noble attire inspired by wealthy Norman and Frankish aristocratic dress. Use luxurious fine wool and linen, expertly tailored layers, richly cut outer tunics or gowns, refined belts, decorative borders, subtle heraldic embroidery, and elegant fastenings. Men should wear a long tailored tunic or refined surcoat-style outer layer over fine linen and well-fitted chausses. Women should wear a fitted noble gown layered over a high-quality underdress, with graceful sleeves, refined trim, and tasteful jewelry. The outfit should feel expensive and powerful while remaining believable everyday noble wear. No headgear of any kind. No armor, weapons, crowns, or ceremonial regalia.",
-  "status": "failed",
-  "descriptionSource": "portrait_prompt_fallback",
-  "retryEligible": true,
-  "error": "{\"error\":{\"message\":\"Model \\\"zai-org/glm-5.2\\\" does not support image inputs. Remove image content or choose a multimodal model.\",\"type\":\"invalid_request_error\",\"param\":\"messages\",\"code\":\"image_input_not_supported\"}}",
-  "updatedUtc": "2026-07-18T22:03:24.3161403Z"
+  "imageSha256": "29263BA3FFEE51E238FA8E201058F762E30714291EDFDC8FDE8C5235052B24BA",
+  "description": "She wears a floor-length burgundy gown with a straight square neckline, fitted bodice and long sleeves decorated with elaborate gold floral embroidery. Wide gold borders descend along the open skirt front and hem. A cream underdress with fine brown-gold floral embroidery shows at the skirt center and inside the hanging sleeve fabric. An ornate gold belt with oval jeweled plaques encircles the waist. Small gold drop earrings, a fine necklace with a red-centered pendant and a ring complement the gown. A dark closed shoe is barely visible below the front hem.",
+  "status": "completed",
+  "descriptionSource": "agent_vision",
+  "retryEligible": false,
+  "error": "",
+  "updatedUtc": "2026-10-07T20:29:36.788Z"
 }

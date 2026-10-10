@@ -3,11 +3,11 @@
   "heroStringId": "lord_2_7_1",
   "characterName": "Mimir",
   "imagePath": "portrait.png",
-  "imageSha256": "FED697C2026D38EB2F4747375E60B9F6556AF3733C0085FCE07CD7E68B2490BF",
-  "description": "Culturally appropriate everyday Sturgian high-noble attire inspired by wealthy medieval Rus aristocracy. Use richly woven wool, fine linen, elegant long coats or kaftans, tasteful embroidery, restrained fur trim, and expertly crafted belts or clasps. Men should wear a stately long noble coat layered over a fine embroidered shirt and tailored trousers. Women should wear a richly cut long dress or overdress with embroidered cuffs, collar, and hem, paired with a fitted outer garment or elegant shoulder layer. The outfit should feel imposing, expensive, and suited to the daily life of a powerful northern noble. No headgear of any kind. No armor, weapons, crowns, full ceremonial regalia, or extravagant fur mantles.",
-  "status": "failed",
-  "descriptionSource": "portrait_prompt_fallback",
-  "retryEligible": true,
-  "error": "{\"error\":{\"message\":\"Model \\\"zai-org/glm-5.2\\\" does not support image inputs. Remove image content or choose a multimodal model.\",\"type\":\"invalid_request_error\",\"param\":\"messages\",\"code\":\"image_input_not_supported\"}}",
-  "updatedUtc": "2026-07-18T22:03:32.5983872Z"
+  "imageSha256": "AE673CB317231EDB92C41ADBB7FF68CF75DCC153C9BD3EF2BDFDA42AD8C080ED",
+  "description": "A dark blue long wool noble coat has fine pale geometric embroidery at its open front, cuffs, collar and hem, including paired bird motifs on the lower panels. An ivory embroidered long shirt appears underneath. Round metal chest fastenings join by a small chain, and a brown belt carries round metal details along a hanging strap. Brown trousers and tall leather boots show below the hem. Both hands rest clearly at the sides.",
+  "status": "completed",
+  "descriptionSource": "agent_vision",
+  "retryEligible": false,
+  "error": "",
+  "updatedUtc": "2026-10-08T01:25:33.359Z"
 }

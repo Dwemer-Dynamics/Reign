@@ -3,11 +3,11 @@
   "heroStringId": "lord_3_19",
   "characterName": "Awdhan",
   "imagePath": "portrait.png",
-  "imageSha256": "E0EE576275EB52C37330267DA0506EA4134E9FEAA809EC8A3F6BF6259E758173",
-  "description": "Culturally appropriate everyday Aserai minor-lord attire inspired by refined medieval Arabian, North African, and limited Persian noble clothing. Men should wear a flowing robe or structured open-front coat over a fine lightweight tunic, secured with a decorated woven sash. Women should wear a long elegant dress with soft layered fabrics, shaped sleeves, graceful draping, and fine embroidery around the neckline, cuffs, and hem. Show rank through superior fabric, elegant borders, geometric embroidery, and subtle jewelry rather than excessive ornamentation. No headgear of any kind. No turbans, veils, hoods, armor, weapons, crowns, or ceremonial excess.",
-  "status": "failed",
-  "descriptionSource": "portrait_prompt_fallback",
-  "retryEligible": true,
-  "error": "{\"error\":{\"message\":\"Model \\\"zai-org/glm-5.2\\\" does not support image inputs. Remove image content or choose a multimodal model.\",\"type\":\"invalid_request_error\",\"param\":\"messages\",\"code\":\"image_input_not_supported\"}}",
-  "updatedUtc": "2026-07-18T22:03:24.9860799Z"
+  "imageSha256": "335CD3F57495B743172B3EC0B77562BDCD4F1319D7AFAF510CE3AE8109DE2BE9",
+  "description": "An opaque cream ankle-length tunic lies beneath a loose long brown open-front robe with broad gold-toned geometric woven borders at the front edges and cuffs. A wide brown and gold woven sash wraps the waist and hangs down the front. Dark brown leather ankle shoes are visible. The head is uncovered, and no armor or weapon is present.",
+  "status": "completed",
+  "descriptionSource": "agent_vision",
+  "retryEligible": false,
+  "error": "",
+  "updatedUtc": "2026-10-07T20:36:34.185Z"
 }

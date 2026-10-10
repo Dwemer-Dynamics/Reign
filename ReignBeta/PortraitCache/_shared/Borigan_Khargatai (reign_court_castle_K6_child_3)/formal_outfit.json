@@ -3,11 +3,11 @@
   "heroStringId": "reign_court_castle_K6_child_3",
   "characterName": "Borigan Khargatai",
   "imagePath": "portrait.png",
-  "imageSha256": "B252E36E5B39C88FF2C27D2816B59351A1A8054E5DBD4C726217BFA2AA979381",
-  "description": "Culturally appropriate everyday Khuzait minor-lord attire inspired by refined medieval Turkic and Mongol steppe noble clothing. Men should wear a tailored crossed-front coat or deel with refined woven trim, a decorated sash, layered sleeves, and high-quality trousers. Women should wear an elegant long robe or fitted steppe coat over a fine underdress, with carefully worked edging and decorative textile details. Include restrained cloud, knot, or geometric patterns and a limited amount of practical fur trim. The clothing should remain mobile and functional while clearly showing noble status. No headgear of any kind. No fur hats, caps, hoods, armor, weapons, crowns, or ceremonial costume.",
-  "status": "failed",
-  "descriptionSource": "portrait_prompt_fallback",
-  "retryEligible": true,
-  "error": "{\"error\":{\"message\":\"Model \\\"zai-org/glm-5.2\\\" does not support image inputs. Remove image content or choose a multimodal model.\",\"type\":\"invalid_request_error\",\"param\":\"messages\",\"code\":\"image_input_not_supported\"}}",
-  "updatedUtc": "2026-07-18T22:03:25.7859762Z"
+  "imageSha256": "4E81351AF994C182697000A51210981C62F5A9FE6E00A2D1543009CB37D92284",
+  "description": "He wears a dark desaturated teal-grey crossed-front long coat or deel with gold-toned geometric and cloud-like woven borders at the collar, crossing closure, sleeves and hem. A white underlayer appears at the throat. Layered sleeves include darker fitted fabric extending to the wrists beneath wider outer sleeves. A brown decorated sash and belt with round metal fittings secure the waist, with woven tasselled lengths hanging at one side. Brown trousers and embroidered brown mid-calf leather boots complete the outfit. Fabrics are opaque and the styling is refined everyday steppe nobility. No headgear, weapon or armor appears; exact textile fibers are uncertain.",
+  "status": "completed",
+  "descriptionSource": "agent_vision",
+  "retryEligible": false,
+  "error": "",
+  "updatedUtc": "2026-10-07T21:00:08.902Z"
 }

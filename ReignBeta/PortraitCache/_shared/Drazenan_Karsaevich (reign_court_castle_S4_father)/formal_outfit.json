@@ -3,11 +3,11 @@
   "heroStringId": "reign_court_castle_S4_father",
   "characterName": "Drazenan Karsaevich",
   "imagePath": "portrait.png",
-  "imageSha256": "5C52051D7987AE72B996EB214733190F54BD5D5122F7345E60335F3EF4B40C21",
-  "description": "Culturally appropriate everyday Sturgian landowner attire inspired by medieval Rus and Slavic clothing suited to a cold northern climate. Men should wear a long linen shirt beneath a belted wool tunic or simple kaftan, loose trousers, wrapped lower legs, and a heavy wool outer layer or practical cloak. Women should wear a long linen shift beneath a wool overdress or simple coat-dress, tied with a woven sash and layered with a practical shoulder covering. Add modest geometric embroidery around the collar, cuffs, or hem. Fur may appear only as light functional trim. No headgear of any kind. No armor, weapons, ceremonial fur mantles, crowns, or fantasy elements.",
-  "status": "failed",
-  "descriptionSource": "portrait_prompt_fallback",
-  "retryEligible": true,
-  "error": "{\"error\":{\"message\":\"Model \\\"zai-org/glm-5.2\\\" does not support image inputs. Remove image content or choose a multimodal model.\",\"type\":\"invalid_request_error\",\"param\":\"messages\",\"code\":\"image_input_not_supported\"}}",
-  "updatedUtc": "2026-07-18T22:03:27.7785846Z"
+  "imageSha256": "49858CD934E48FB60B6B833F0BF19A48526A8D77E0862C995B382E1E337FB536",
+  "description": "Dark blue knee-length wool tunic with restrained gold geometric collar, cuff and hem trim over cream linen, decorated woven brown sash with fringed end and small pouch, heavy brown practical cloak with round brooch, loose brown trousers, wrapped lower legs and dark leather shoes.",
+  "status": "completed",
+  "descriptionSource": "agent_vision",
+  "retryEligible": false,
+  "error": "",
+  "updatedUtc": "2026-10-07T21:26:55.015Z"
 }

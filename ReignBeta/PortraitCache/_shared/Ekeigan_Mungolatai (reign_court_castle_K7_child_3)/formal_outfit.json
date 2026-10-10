@@ -3,11 +3,11 @@
   "heroStringId": "reign_court_castle_K7_child_3",
   "characterName": "Ekeigan Mungolatai",
   "imagePath": "portrait.png",
-  "imageSha256": "EAAE37A4B073EE00C172D6BABE7ACFC49361B93F18A430423F77D2D9D0E0CE53",
-  "description": "Culturally appropriate everyday Khuzait minor-lord attire inspired by refined medieval Turkic and Mongol steppe noble clothing. Men should wear a tailored crossed-front coat or deel with refined woven trim, a decorated sash, layered sleeves, and high-quality trousers. Women should wear an elegant long robe or fitted steppe coat over a fine underdress, with carefully worked edging and decorative textile details. Include restrained cloud, knot, or geometric patterns and a limited amount of practical fur trim. The clothing should remain mobile and functional while clearly showing noble status. No headgear of any kind. No fur hats, caps, hoods, armor, weapons, crowns, or ceremonial costume.",
-  "status": "failed",
-  "descriptionSource": "portrait_prompt_fallback",
-  "retryEligible": true,
-  "error": "{\"error\":{\"message\":\"Model \\\"zai-org/glm-5.2\\\" does not support image inputs. Remove image content or choose a multimodal model.\",\"type\":\"invalid_request_error\",\"param\":\"messages\",\"code\":\"image_input_not_supported\"}}",
-  "updatedUtc": "2026-07-18T22:03:28.3453057Z"
+  "imageSha256": "553C2F756A50224DA9B1CB511CD3350CD817F98949DCDFDA7A5EAA2BC6272267",
+  "description": "Teal crossed-front knee-length coat with woven gold cloud/knot trim, cream layered undersleeves with dark patterned cuffs, decorated rust-brown sash with round metal fittings and tassels, brown trousers and decorated tall dark boots. No headgear, armour or weapons.",
+  "status": "completed",
+  "descriptionSource": "agent_vision",
+  "retryEligible": false,
+  "error": "",
+  "updatedUtc": "2026-10-08T04:58:57.019Z"
 }

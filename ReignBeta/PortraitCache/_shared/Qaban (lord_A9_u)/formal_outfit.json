@@ -3,11 +3,11 @@
   "heroStringId": "lord_A9_u",
   "characterName": "Qaban",
   "imagePath": "portrait.png",
-  "imageSha256": "CD7720CBAF30ACF8268280A161EF31D5D1579570814BFCC558E6DFD3C28424C7",
-  "description": "Culturally appropriate everyday Aserai landowner attire inspired by practical medieval Arabian and North African civilian clothing suited to a hot desert climate. Men should wear a light linen or cotton undertunic beneath a loose ankle-length robe, open-front outer garment, or wrapped coat, secured with a woven sash. Women should wear a long breathable dress with layered flowing fabric, fitted or gathered sleeves, and a light draped outer layer around the shoulders. Include simple geometric borders or restrained embroidery. The outfit should appear prosperous, breathable, practical, and well maintained. No headgear of any kind. No turbans, veils, hoods, armor, weapons, crowns, ceremonial robes, or fantasy elements.",
-  "status": "failed",
-  "descriptionSource": "portrait_prompt_fallback",
-  "retryEligible": true,
-  "error": "{\"error\":{\"message\":\"Model \\\"zai-org/glm-5.2\\\" does not support image inputs. Remove image content or choose a multimodal model.\",\"type\":\"invalid_request_error\",\"param\":\"messages\",\"code\":\"image_input_not_supported\"}}",
-  "updatedUtc": "2026-07-18T22:03:33.5452754Z"
+  "imageSha256": "A331F00865854F969DC347B21DC92E8D22F529C561C0192671C358F52D7C9629",
+  "description": "Brown ankle-length open-front outer robe with geometric gold borders over cream undertunic, gold woven sash and brown leather shoes.",
+  "status": "completed",
+  "descriptionSource": "agent_vision",
+  "retryEligible": false,
+  "error": "",
+  "updatedUtc": "2026-10-07T23:28:51.467Z"
 }

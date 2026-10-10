@@ -50,6 +50,7 @@ namespace ReignBeta.Court
         public bool TechnicalFailure { get; set; }
         public string PendingPlayerTurnId { get; set; } = string.Empty;
         public string PendingPlayerText { get; set; } = string.Empty;
+        public string PendingActionJson { get; set; } = string.Empty;
         public List<string> CompletedReplyKeys { get; set; } = new List<string>();
         public Dictionary<string, string> ReplyTextsByKey { get; set; } = new Dictionary<string, string>();
         public List<string> CompletedInterpretationKeys { get; set; } = new List<string>();

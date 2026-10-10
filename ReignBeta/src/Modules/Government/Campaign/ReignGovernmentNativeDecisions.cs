@@ -11,6 +11,7 @@ using TaleWorlds.CampaignSystem;
 using TaleWorlds.CampaignSystem.Election;
 using TaleWorlds.CampaignSystem.Actions;
 using TaleWorlds.CampaignSystem.Settlements;
+using TaleWorlds.CampaignSystem.GameComponents;
 
 namespace ReignBeta.Government
 {
@@ -448,6 +449,53 @@ namespace ReignBeta.Government
                 policy.StringId, 1, "Government decision applied the recorded policy position.");
         }
     }
+    // Government attendance can legitimately place a village notable in the capital.
+    // Native recruitment assumes rural sellers are physically in a village. Resolve
+    // their village origin without moving them or changing their attendance/volunteers.
+    [HarmonyPatch]
+    internal static class ReignGovernmentRuralVolunteerPatch
+    {
+        private static IEnumerable<MethodBase> TargetMethods()
+        {
+            yield return AccessTools.Method(typeof(DefaultVolunteerModel), nameof(DefaultVolunteerModel.GetBasicVolunteer));
+        }
+
+        private static bool Prefix(Hero sellerHero, ref CharacterObject __result)
+        {
+            if (sellerHero?.IsRuralNotable != true || sellerHero.Culture == null
+                || sellerHero.CurrentSettlement?.Village?.Bound != null) return true;
+
+            Settlement village = sellerHero.HomeSettlement?.Village?.Bound != null
+                ? sellerHero.HomeSettlement : sellerHero.BornSettlement;
+            CharacterObject volunteer = village?.Village?.Bound?.IsCastle == true
+                ? sellerHero.Culture.EliteBasicTroop : sellerHero.Culture.BasicTroop;
+            if (volunteer == null) return true;
+            __result = volunteer;
+            return false;
+        }
+    }
+
+    // Village issue predicates assume headmen and rural notables have a bound village.
+    // Visiting the capital for government business does not make that notable a
+    // town quest giver. Defer new issue discovery until village context returns;
+    // existing issue updates, ordinary village issues and urban notables stay native.
+    [HarmonyPatch]
+    internal static class ReignGovernmentRuralIssueContextPatch
+    {
+        private static IEnumerable<MethodBase> TargetMethods()
+        {
+            yield return AccessTools.Method(typeof(CampaignEvents), nameof(CampaignEvents.OnCheckForIssue), new[] { typeof(Hero) });
+        }
+
+        private static bool Prefix(Hero __0)
+        {
+            Settlement settlement = __0?.CurrentSettlement;
+            return ReignGovernmentNativeSafety.AllowNativeIssueDiscovery(
+                __0?.IsHeadman == true, __0?.IsRuralNotable == true,
+                settlement != null, settlement?.Village?.Bound?.Town != null);
+        }
+    }
+
     [HarmonyPatch]
     internal static class ReignGovernmentNativeNoticePatch
     {

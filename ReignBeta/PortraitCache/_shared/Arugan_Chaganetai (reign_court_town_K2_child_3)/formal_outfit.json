@@ -3,11 +3,11 @@
   "heroStringId": "reign_court_town_K2_child_3",
   "characterName": "Arugan Chaganetai",
   "imagePath": "portrait.png",
-  "imageSha256": "362830E85D9889EC2065FA4F58DB8C87E491AEA3F15A1A92D71EF517BF756ADF",
-  "description": "Culturally appropriate everyday Khuzait minor-lord attire inspired by refined medieval Turkic and Mongol steppe noble clothing. Men should wear a tailored crossed-front coat or deel with refined woven trim, a decorated sash, layered sleeves, and high-quality trousers. Women should wear an elegant long robe or fitted steppe coat over a fine underdress, with carefully worked edging and decorative textile details. Include restrained cloud, knot, or geometric patterns and a limited amount of practical fur trim. The clothing should remain mobile and functional while clearly showing noble status. No headgear of any kind. No fur hats, caps, hoods, armor, weapons, crowns, or ceremonial costume.",
-  "status": "failed",
-  "descriptionSource": "portrait_prompt_fallback",
-  "retryEligible": true,
-  "error": "{\"error\":{\"message\":\"Model \\\"zai-org/glm-5.2\\\" does not support image inputs. Remove image content or choose a multimodal model.\",\"type\":\"invalid_request_error\",\"param\":\"messages\",\"code\":\"image_input_not_supported\"}}",
-  "updatedUtc": "2026-07-18T22:03:24.8786782Z"
+  "imageSha256": "1BFBB4837B9D9E6EB82501CBCAAD89CD4A4B5317F58D3221E71AF62086D83EF9",
+  "description": "Arugan wears an olive-grey textured wrap coat with gold scrolling embroidered borders and pale fur edging at collar, sleeve ends and hem, cream patterned under-sleeves, a brown woven patterned sash with hanging end and silver-toned pendant tassels, loose dark patterned trousers and tall brown boots. Both hands hang visibly at his sides, with the entire opaque layered outfit and ground visible.",
+  "status": "completed",
+  "descriptionSource": "agent_vision",
+  "retryEligible": false,
+  "error": "",
+  "updatedUtc": "2026-10-08T21:23:35.064Z"
 }

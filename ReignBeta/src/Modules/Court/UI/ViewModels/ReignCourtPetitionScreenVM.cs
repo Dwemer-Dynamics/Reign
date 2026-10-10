@@ -18,8 +18,13 @@ using TaleWorlds.Library;
 
 namespace ReignBeta.UI.ViewModels
 {
-    public sealed class ReignCourtPetitionScreenVM : ViewModel
+    public sealed class ReignCourtPetitionScreenVM : ViewModel, IReignActionHost
     {
+        private ReignActionComposerVM _composer;
+        public ReignActionComposerVM Composer => _composer ?? (_composer = new ReignActionComposerVM(() => { OnPropertyChanged(nameof(InputText)); OnPropertyChanged(nameof(CanSend)); }));
+        [DataSourceProperty] public string ActionComposerId => Composer.Id;
+        public IReadOnlyList<Hero> ActionParticipants => ActiveAudienceHeroes().ToList();
+        public bool ActionBusy => Busy || DecisionComplete || _calibrationMode;
         private const int MaxActiveParticipants = 4;
         private const int MaxCourtAttendees = 25;
 
@@ -130,14 +135,10 @@ namespace ReignBeta.UI.ViewModels
         [DataSourceProperty]
         public string InputText
         {
-            get { return _inputText; }
+            get { return Composer.State.Text; }
             set
             {
-                string next = value ?? string.Empty;
-                if (_inputText == next) return;
-                _inputText = next;
-                OnPropertyChangedWithValue(next);
-                OnPropertyChanged(nameof(CanSend));
+                Composer.SetText(value);
             }
         }
         [DataSourceProperty]
@@ -177,7 +178,7 @@ namespace ReignBeta.UI.ViewModels
         internal string ScenePreparationError => _scene?.Error ?? string.Empty;
         internal string ScenePreparationStatus => _calibrationMode ? "disabled" : _scene?.Status ?? "failed";
         internal JObject ScenePreparationEvidence => _scene?.Evidence ?? new JObject { ["status"] = "disabled", ["ready"] = false };
-        public override void OnFinalize() { _scene?.Close(); base.OnFinalize(); }
+        public override void OnFinalize() { ReignActionBuilder.CloseFor(this); _composer?.Dispose(); _scene?.Close(); base.OnFinalize(); }
         [DataSourceProperty] public bool HasPortrait => _petitionerCard?.HasPortrait == true;
         [DataSourceProperty] public bool DirectGrantVisible => _petition.Kind != ReignPetitionKind.Food
             || _petition.FoodStockCost > 0;
@@ -253,8 +254,17 @@ namespace ReignBeta.UI.ViewModels
         public void ExecuteContinue() { if (CanContinue) _close?.Invoke(); }
         public void ExecuteSend()
         {
-            string text = (InputText ?? string.Empty).Trim();
-            if (!CanSend || text.Length == 0) return;
+            string text = InputText ?? string.Empty;
+            if (!CanSend || string.IsNullOrWhiteSpace(text)) return;
+            string contributionId = "petition_input_" + Guid.NewGuid().ToString("N");
+            if (!_calibrationMode)
+            {
+                try { ReignBeta.Runtime.ReignConversationInputJournal.Save(ReignServerClient.GetCampaignId(),
+                    ReignBeta.Campaign.ReignWorldHistoryCampaignBehavior.Instance?.TimelineId ?? "main", Hero.MainHero?.StringId ?? "",
+                    contributionId, text, _petition.PetitionerHeroId, _petition.TranscriptId); }
+                catch (Exception ex) { StatusText = "Your message could not be saved locally: " + ex.Message; return; }
+            }
+            var action = Composer.State.Draft == null ? null : ReignBeta.Actions.ReignActionService.Copy(Composer.State.Draft);
             InputText = string.Empty;
             AddTranscriptLine("You", text, "player");
             if (_calibrationMode)
@@ -264,7 +274,7 @@ namespace ReignBeta.UI.ViewModels
                 StatusText = "Provider-free calibration conversation; no decision was applied.";
                 return;
             }
-            _ = RequestReactionAsync("conversation", string.Empty, text);
+            _ = RequestReactionAsync("conversation", string.Empty, text, action, contributionId);
         }
 
         internal string AutomationTranscript => string.Join("\n",
@@ -327,7 +337,7 @@ namespace ReignBeta.UI.ViewModels
             _ = RequestReactionAsync("closing", _petition.DecisionReason, string.Empty);
         }
 
-        private async Task RequestReactionAsync(string phase, string outcome, string playerText)
+        private async Task RequestReactionAsync(string phase, string outcome, string playerText, Reign.Core.Contracts.Actions.ActionAgreement action = null, string contributionId = "")
         {
             if (_calibrationMode) return;
             Busy = true;
@@ -365,6 +375,7 @@ namespace ReignBeta.UI.ViewModels
                     JObject conversationContext = await ReignMainThread.InvokeAsync(() =>
                         BuildPetitionConversationContext(phase, outcome, stagedTurn,
                             speaker, activeSpeakers)).ConfigureAwait(false);
+                    if (contributionId.Length > 0) conversationContext["contributionId"] = contributionId;
                     ReignDialogueReply response = await ReignServerClient
                         .RequestDialogueResponseAsync(speaker, audienceTurn,
                             isPetitioner ? _petition.TranscriptId : string.Empty,
@@ -372,7 +383,7 @@ namespace ReignBeta.UI.ViewModels
                             "ruler_petition_" + _petition.PetitionId + "_"
                                 + speaker.StringId + "_" + Guid.NewGuid().ToString("N"),
                             applyNativeEncyclopediaText: false,
-                            conversationContext: conversationContext).ConfigureAwait(false);
+                            conversationContext: conversationContext, actionDraft: action?.NpcId == speaker.StringId ? action : null).ConfigureAwait(false);
                     if (response.Ok)
                     {
                         exchangeComplete &= !string.IsNullOrWhiteSpace(response.Text);
@@ -416,7 +427,7 @@ namespace ReignBeta.UI.ViewModels
                     }
                 }
                 if (!stagedTurn && exchangeComplete && !string.IsNullOrWhiteSpace(playerText))
-                    await ReignMainThread.InvokeAsync(() => xp.Award(xpReceipt, ReignXpSkill.Charm, ReignXpRules.ConversationXp)).ConfigureAwait(false);
+                    await ReignMainThread.InvokeAsync(() => xp.Award(xpReceipt, ReignXpSkill.Charm, ReignXpRules.ConversationXp, ReignXpReason.Conversation)).ConfigureAwait(false);
             }
             catch (Exception ex)
             {

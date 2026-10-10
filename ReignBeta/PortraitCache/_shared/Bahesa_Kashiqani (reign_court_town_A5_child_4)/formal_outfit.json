@@ -3,11 +3,11 @@
   "heroStringId": "reign_court_town_A5_child_4",
   "characterName": "Bahesa Kashiqani",
   "imagePath": "portrait.png",
-  "imageSha256": "FC1558B7E28C77B8826262663A0C9EC42F1C95FE2F6EC27675BE87858B93F601",
-  "description": "Culturally appropriate everyday Aserai high-noble attire inspired by elite medieval Arabian and Persian-influenced aristocratic dress. Use exceptionally fine layered fabrics, graceful draping, richly stitched borders, elegant geometric embroidery, and luxurious but believable textile textures. Men should wear a noble robe or long structured outer coat over a fine tunic, secured with an ornate sash and refined clasps. Women should wear a richly layered long dress with flowing outer fabric, carefully tailored sleeves, elegant embroidery, and tasteful jewelry integrated into the outfit. The clothing should feel cultured, powerful, and extremely wealthy without becoming full ceremonial regalia. No headgear of any kind. No turbans, veils, hoods, armor, weapons, or crowns.",
-  "status": "failed",
-  "descriptionSource": "portrait_prompt_fallback",
-  "retryEligible": true,
-  "error": "{\"error\":{\"message\":\"Model \\\"zai-org/glm-5.2\\\" does not support image inputs. Remove image content or choose a multimodal model.\",\"type\":\"invalid_request_error\",\"param\":\"messages\",\"code\":\"image_input_not_supported\"}}",
-  "updatedUtc": "2026-07-18T22:03:25.2453572Z"
+  "imageSha256": "6F01CC43D259F634CC5B268FFF268D4A260FBA1FF2AAAA4C832682F1FA71E777",
+  "description": "She wears an opaque cream-and-gold patterned floor-length gown with a low square neckline, fitted bodice, narrow decorated shoulder straps and elbow-length sleeves resting below the shoulders. Gold geometric embroidery and dark gold borders frame the bodice, waist, front skirt opening and hem. Round gold ornaments sit at the neckline sides and several linked ornamental pendants hang from the ornate belt. A broad ochre-gold wrap with dark geometric patterned borders falls loosely around her arms and down the sides. Large gold drop earrings, a necklace with small hanging pendants, bracelets and rings accompany the outfit. A gold-brown closed-toe patterned shoe is visible below the modest lower opening. No headgear or weapons appear.",
+  "status": "completed",
+  "descriptionSource": "agent_vision",
+  "retryEligible": false,
+  "error": "",
+  "updatedUtc": "2026-10-07T20:43:41.107Z"
 }

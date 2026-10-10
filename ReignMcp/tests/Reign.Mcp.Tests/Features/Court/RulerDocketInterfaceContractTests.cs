@@ -43,7 +43,9 @@ public sealed class RulerDocketInterfaceContractTests
         string root = TestOptions.FindWorkspace();
         string vm = File.ReadAllText(Path.Combine(root, "ReignBeta", "src", "Modules", "Court",
             "UI", "ViewModels", "ReignCourtLifeScreenVM.cs"));
-        string constructor = vm[..vm.IndexOf("[DataSourceProperty]", StringComparison.Ordinal)];
+        int start = vm.IndexOf("public ReignCourtLifeScreenVM(", StringComparison.Ordinal);
+        int end = vm.IndexOf("private static bool HasCompleteOpeningReceipts", start, StringComparison.Ordinal);
+        string constructor = vm[start..end];
         // Visitor, family, patronage and international audiences share this constructor.
         // Its environment must come from the saved host even when the lead is foreign or absent.
         Assert.Contains("Settlement.Find(matter.SettlementId ?? string.Empty)", constructor);
@@ -188,7 +190,7 @@ public sealed class RulerDocketInterfaceContractTests
             StringComparison.Ordinal);
         Assert.Contains("courtNavigationBodyRgbPixelTransformationCount\": 0", assetTool,
             StringComparison.Ordinal);
-        Assert.Contains("$expectedUiAuthorityFileCount = 318", deployUi,
+        Assert.Contains("$expectedUiAuthorityFileCount = 330", deployUi,
             StringComparison.Ordinal);
         Assert.Contains("validated-native-portrait-generator", deployUi, StringComparison.Ordinal);
         Assert.Contains("$nativePortraitGeneratorFileCount", deployUi, StringComparison.Ordinal);
@@ -259,7 +261,8 @@ public sealed class RulerDocketInterfaceContractTests
         Assert.DoesNotContain("reign_social_event_available_portrait_mask", xml,
             StringComparison.Ordinal);
         Assert.Contains("DataSource=\"{Transcript}\"", xml, StringComparison.Ordinal);
-        Assert.Contains("<EditableTextWidget", xml, StringComparison.Ordinal);
+        Assert.Contains("<ReignActionEditableTextWidget", xml, StringComparison.Ordinal);
+        Assert.Contains("ComposerId=\"@ActionComposerId\"", xml, StringComparison.Ordinal);
         Assert.Contains("Text=\"@InputText\"", xml, StringComparison.Ordinal);
         Assert.Contains("Command.Click=\"ExecuteSend\"", xml, StringComparison.Ordinal);
         Assert.Contains("IsVisible=\"@DecisionControlsVisible\"", xml, StringComparison.Ordinal);
@@ -296,7 +299,7 @@ public sealed class RulerDocketInterfaceContractTests
         Assert.Contains("[\"actionResolutionIndex\"] = rulerPetition", normalClient,
             StringComparison.Ordinal);
         Assert.Contains("? new JObject()", normalClient, StringComparison.Ordinal);
-        Assert.Contains("else if (!rulerPetitionAudience && !nobleDocketAudience && !courtLifeAudience)", normalServer,
+        Assert.Contains("else if (!npcOpening && !rulerPetitionAudience && !nobleDocketAudience && !courtLifeAudience)", normalServer,
             StringComparison.Ordinal);
         Assert.Contains("payload[\"playerText\"]", client, StringComparison.Ordinal);
         Assert.Contains("payload[\"transcript\"]", client, StringComparison.Ordinal);

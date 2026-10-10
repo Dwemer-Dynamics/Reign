@@ -17,7 +17,25 @@ namespace ReignBeta.Integration
 
         public static void RequestPortrait(Hero hero)
         {
-            bool armed = TryRequestPortrait(hero, out string message, out uint color);
+            string key = hero == null ? null : CharacterCacheId.ForHero(hero);
+            if (hero != null && !PortraitCache.IsPending(key)
+                && (TextureFactory.Has(key) || PortraitCache.ExistsOnDisk(key)))
+            {
+                if (ReignBeta.UI.ReignPortraitRefreshPopup.IsOpen) return;
+                string campaign = ReignCampaignIdentity.CurrentCampaignId();
+                TaleWorlds.ScreenSystem.ScreenManager.PushScreen(new ReignBeta.UI.ReignPortraitRefreshPopup(
+                    hero.Name?.ToString() ?? "them", hero.Age >= 18 && hero.Age <= 150, mode =>
+                    {
+                        if (ReignCampaignIdentity.CurrentCampaignId() == campaign) RequestPortraitChoice(hero, mode);
+                    }));
+                return;
+            }
+            RequestPortraitChoice(hero, "");
+        }
+
+        private static void RequestPortraitChoice(Hero hero, string mode)
+        {
+            bool armed = TryRequestPortrait(hero, out string message, out uint color, mode);
             if (!string.IsNullOrWhiteSpace(message))
             {
                 InformationManager.DisplayMessage(new InformationMessage("[Bannerlord Reign] " + message, Color.FromUint(color)));
@@ -65,7 +83,7 @@ namespace ReignBeta.Integration
             _queuedEncyclopediaDelayTicks = 0;
         }
 
-        public static bool TryRequestPortrait(Hero hero, out string message, out uint color)
+        public static bool TryRequestPortrait(Hero hero, out string message, out uint color, string refreshMode = "")
         {
             color = 0xFFFFAA00;
             message = string.Empty;
@@ -90,7 +108,7 @@ namespace ReignBeta.Integration
                 return false;
             }
 
-            if (TextureFactory.Has(cacheKey) || PortraitCache.ExistsOnDisk(cacheKey))
+            if (refreshMode.Length == 0 && (TextureFactory.Has(cacheKey) || PortraitCache.ExistsOnDisk(cacheKey)))
             {
                 color = 0xFF00DD55;
                 message = "You already have a vivid image of " + hero.Name + ".";
@@ -122,6 +140,15 @@ namespace ReignBeta.Integration
                 message = "You're still picturing " + heroName + "...";
                 return false;
             }
+            // Pin the exact displayed master before leaving the game thread. Never use a native
+            // source for the age-only edit; Look Again always renders the fresh snapshot below.
+            byte[] reference = refreshMode == "reflect_years" ? PortraitCache.GetDiskBytes(cacheKey) : null;
+            if (refreshMode == "reflect_years" && (hero.Age < 18 || reference == null))
+            {
+                PortraitCache.MarkComplete(cacheKey);
+                message = "An existing adult portrait is required to reflect on the years.";
+                return false;
+            }
             Task.Run(async () =>
             {
                 using (new PortraitRequestScope(campaignId, campaignFolder, snapshot))
@@ -129,8 +156,8 @@ namespace ReignBeta.Integration
                     try
                     {
                         var product = await NanoGptClient.GeneratePortraitProductAsync(
-                            NanoGptClient.BuildPrompt(context), null, null, cacheKey, heroId, context).ConfigureAwait(false);
-                        bool saved = product != null && await PortraitCache.SavePortraitProductAsync(cacheKey, product).ConfigureAwait(false);
+                            NanoGptClient.BuildPrompt(context), reference, null, cacheKey, heroId, context, refreshMode: refreshMode).ConfigureAwait(false);
+                        bool saved = product != null && await PortraitCache.SavePortraitProductAsync(cacheKey, product, replaceExisting: refreshMode.Length != 0).ConfigureAwait(false);
                         string error = NanoGptClient.LastErrorForDisplay;
                         await ReignMainThread.InvokeAsync(() =>
                         {

@@ -56,10 +56,12 @@
     }
   ],
   "nativeCalibration": {
-    "targetCount": 22,
-    "uniqueRuntimeMovieCount": 21,
+    "targetCount": 26,
+    "uniqueRuntimeMovieCount": 25,
     "previewerSupportMovie": "ReignUiCalibrationOverlay",
     "providerFreeFixtureTargets": [
+      "party-banter",
+      "action-builder",
       "correspondence",
       "individual-chat",
       "party-chat",
@@ -68,7 +70,8 @@
       "wilderness-event",
       "diplomacy-announcement",
       "notable-generation",
-      "memories-book"
+      "memories-book",
+      "portrait-refresh"
     ],
     "contract": "Every runtime movie owned by the Reign client has a cataloged prefab and ui-open target. Dialogue, correspondence, social-event, diplomacy, notable-generation, Court Petition, and Memories Book calibration fixtures are temporary, provider-free, and may not write conversation, letter, event, petition, relationship, reputation, pressure, memory-image, or campaign-action state."
   },
@@ -143,6 +146,150 @@
     ]
   },
   "interfaces": [
+    {
+      "id": "party-banter",
+      "label": "Travel party banter",
+      "movie": "ReignBanterPanel",
+      "prefab": "GUI/Prefabs/ReignBanterPanel.xml",
+      "manager": "ReignBanterPanel",
+      "viewModel": "BanterPanelVM",
+      "entry": "Campaign travel",
+      "liveAction": "ui-open --target party-banter",
+      "referenceSurfaceElementId": "BanterArtwork",
+      "previewStates": [
+        {
+          "id": "banter-collapsed",
+          "label": "Collapsed",
+          "variant": "banter-collapsed",
+          "referenceSurfaceElementId": "BanterCollapsedArtwork",
+          "previewOnly": true
+        },
+        {
+          "id": "banter-generating",
+          "label": "Waiting for speech",
+          "variant": "banter-generating",
+          "previewOnly": true
+        },
+        {
+          "id": "banter-long",
+          "label": "Maximum length exchange",
+          "variant": "banter-long",
+          "previewOnly": true
+        },
+        {
+          "id": "banter-takeover",
+          "label": "Joining party chat",
+          "variant": "banter-takeover",
+          "previewOnly": true
+        },
+        {
+          "id": "banter-finished",
+          "label": "Finished exchange",
+          "variant": "banter-finished",
+          "previewOnly": true
+        }
+      ]
+    },
+    {
+      "id": "action-builder",
+      "movie": "ReignActionBuilder",
+      "prefab": "GUI/Prefabs/ReignActionBuilder.xml",
+      "manager": "ReignActionBuilder",
+      "viewModel": "ReignActionBuilderVM",
+      "entry": "Conversation > Alt+A",
+      "liveAction": "ui-open --target action-builder",
+      "previewStates": [
+        {
+          "id": "action-builder-selection",
+          "label": "Action selector",
+          "variant": "action-builder-selection",
+          "previewOnly": true,
+          "liveAction": "previewer preset only",
+          "entry": "Conversation > Alt+A > Give"
+        },
+        {
+          "id": "action-builder-bargain",
+          "label": "Compound bargain",
+          "variant": "action-builder-bargain",
+          "previewOnly": true,
+          "liveAction": "previewer preset only",
+          "entry": "Conversation > Alt+A > and you will give"
+        },
+        {
+          "id": "action-builder-categories",
+          "label": "Action categories",
+          "variant": "action-builder-categories",
+          "previewOnly": true,
+          "liveAction": "previewer preset only",
+          "entry": "Conversation > Alt+A > Action categories"
+        },
+        {
+          "id": "action-builder-amount",
+          "label": "Gold amount",
+          "variant": "action-builder-amount",
+          "previewOnly": true,
+          "liveAction": "previewer preset only",
+          "entry": "Conversation > Alt+A > Gold amount"
+        },
+        {
+          "id": "action-builder-settlements",
+          "label": "Alphabetical towns",
+          "variant": "action-builder-settlements",
+          "previewOnly": true,
+          "liveAction": "previewer preset only",
+          "entry": "Conversation > Alt+A > Alphabetical towns"
+        },
+        {
+          "id": "action-builder-parties",
+          "label": "Political support",
+          "variant": "action-builder-parties",
+          "previewOnly": true,
+          "liveAction": "previewer preset only",
+          "entry": "Conversation > Alt+A > Political support"
+        },
+        {
+          "id": "action-builder-support",
+          "label": "Support choices",
+          "variant": "action-builder-support",
+          "previewOnly": true,
+          "liveAction": "previewer preset only",
+          "entry": "Conversation > Alt+A > Support"
+        },
+        {
+          "id": "action-builder-pledge",
+          "label": "Advance rebellion pledge",
+          "variant": "action-builder-pledge",
+          "previewOnly": true,
+          "liveAction": "previewer preset only",
+          "entry": "Conversation > Alt+A > Support > Future rebellion"
+        },
+        {
+          "id": "action-builder-declaration",
+          "label": "Player rebellion declaration",
+          "variant": "action-builder-declaration",
+          "previewOnly": true,
+          "liveAction": "previewer preset only",
+          "entry": "Conversation with ruler > Alt+A > I wish to > Clan and kingdom"
+        },
+        {
+          "id": "action-builder-npc-offer",
+          "label": "NPC offer review",
+          "variant": "action-builder-npc-offer",
+          "previewOnly": true,
+          "liveAction": "previewer preset only",
+          "entry": "Conversation > Alt+A > NPC offer review"
+        },
+        {
+          "id": "action-builder-error",
+          "label": "Unavailable selection",
+          "variant": "action-builder-error",
+          "previewOnly": true,
+          "liveAction": "previewer preset only",
+          "entry": "Conversation > Alt+A > Unavailable selection"
+        }
+      ],
+      "referenceSurfaceElementId": "ActionBuilderShell"
+    },
     {
       "id": "clan-accords",
       "movie": "ReignClanAccordsScreen",
@@ -557,6 +704,51 @@
           "entry": "Conversation > Reign individual chat",
           "liveAction": "previewer preset only",
           "previewOnly": true
+        },
+        {
+          "id": "individual-chat-outfit-input",
+          "label": "New clothes: input",
+          "variant": "outfit-input",
+          "previewOnly": true,
+          "nativeInjection": false,
+          "liveAction": "previewer preset only",
+          "entry": "Conversation > New clothes"
+        },
+        {
+          "id": "individual-chat-outfit-changing",
+          "label": "New clothes: changing",
+          "variant": "outfit-changing",
+          "previewOnly": true,
+          "nativeInjection": false,
+          "liveAction": "previewer preset only",
+          "entry": "Conversation > New clothes"
+        },
+        {
+          "id": "individual-chat-outfit-ready",
+          "label": "New clothes: ready",
+          "variant": "outfit-ready",
+          "previewOnly": true,
+          "nativeInjection": false,
+          "liveAction": "previewer preset only",
+          "entry": "Conversation > New clothes"
+        },
+        {
+          "id": "individual-chat-outfit-failed",
+          "label": "New clothes: failed",
+          "variant": "outfit-failed",
+          "previewOnly": true,
+          "nativeInjection": false,
+          "liveAction": "previewer preset only",
+          "entry": "Conversation > New clothes"
+        },
+        {
+          "id": "individual-chat-outfit-ineligible",
+          "label": "New clothes: ineligible",
+          "variant": "outfit-ineligible",
+          "previewOnly": true,
+          "nativeInjection": false,
+          "liveAction": "previewer preset only",
+          "entry": "Conversation > New clothes"
         }
       ]
     },
@@ -773,6 +965,35 @@
       "liveAction": "ui-open --target notable-generation"
     },
     {
+      "id": "player-approach",
+      "label": "Jealousy approach",
+      "variant": "approach-jealousy",
+      "movie": "ReignPlayerApproachPopup",
+      "prefab": "GUI/Prefabs/ReignPlayerApproachPopup.xml",
+      "manager": "ReignPlayerApproachPopup",
+      "viewModel": "ApproachPopupVM",
+      "entry": "Saved NPC request to speak",
+      "liveAction": "ui-open --target player-approach",
+      "previewStates": [
+        {
+          "id": "keep-approach",
+          "label": "Keep approach group",
+          "variant": "approach-keep",
+          "entry": "Up to four nobles approach",
+          "liveAction": "previewer preset only",
+          "previewOnly": true
+        },
+        {
+          "id": "patrol-approach",
+          "label": "Patrolling noble contact",
+          "variant": "approach-patrol",
+          "entry": "Friendly patrol reaches the player",
+          "liveAction": "previewer preset only",
+          "previewOnly": true
+        }
+      ]
+    },
+    {
       "id": "memories-book",
       "label": "Memories Book",
       "movie": "AIPortraitsMemoriesBook",
@@ -781,6 +1002,16 @@
       "viewModel": "MemoriesBookVM",
       "entry": "Quest screen > Memory Book",
       "liveAction": "ui-open --target memories-book"
+    },
+    {
+      "id": "portrait-refresh",
+      "label": "Portrait refresh",
+      "movie": "ReignPortraitRefreshPopup",
+      "prefab": "GUI/Prefabs/ReignPortraitRefreshPopup.xml",
+      "manager": "ReignPortraitRefreshPopup",
+      "viewModel": "PortraitRefreshPopupVM",
+      "entry": "Existing AI portrait > Look at them",
+      "liveAction": "ui-open --target portrait-refresh"
     },
     {
       "id": "calibration-overlay",

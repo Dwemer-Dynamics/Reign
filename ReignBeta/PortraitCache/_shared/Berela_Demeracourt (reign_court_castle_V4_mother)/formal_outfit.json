@@ -3,11 +3,11 @@
   "heroStringId": "reign_court_castle_V4_mother",
   "characterName": "Berela Demeracourt",
   "imagePath": "portrait.png",
-  "imageSha256": "1C1265258DD1A6210803702F06926132CE7ECAB951CF1A3A3EFFCA082C8ADEB4",
-  "description": "Culturally appropriate everyday Vlandian landowner attire inspired by practical high-medieval Norman and Frankish clothing. Use a well-made wool tunic over a linen underlayer, fitted sleeves, a sturdy leather belt, narrow trousers or chausses, and soft leather boots. For women, use a long fitted underdress with a simple but well-tailored overdress, narrow sleeves, a modest neckline, and a practical belt. The garments should appear prosperous, clean, and durable without looking aristocratic. No headgear of any kind. No armor, weapons, crowns, ceremonial robes, or fantasy elements.",
-  "status": "failed",
-  "descriptionSource": "portrait_prompt_fallback",
-  "retryEligible": true,
-  "error": "{\"error\":{\"message\":\"Model \\\"zai-org/glm-5.2\\\" does not support image inputs. Remove image content or choose a multimodal model.\",\"type\":\"invalid_request_error\",\"param\":\"messages\",\"code\":\"image_input_not_supported\"}}",
-  "updatedUtc": "2026-07-18T22:03:25.5032821Z"
+  "imageSha256": "9A73818E86AAB1954B1D0F095AD385991BD94483B7DBF0F0D37A8DDE614BEF52",
+  "description": "Opaque burgundy full-length square-neck wool overdress with restrained woven geometric trim, elbow-length sleeves, ivory underdress, plain leather belt with round metal fittings, brown wool wrap around the forearms and brown closed shoes.",
+  "status": "completed",
+  "descriptionSource": "agent_vision",
+  "retryEligible": false,
+  "error": "",
+  "updatedUtc": "2026-10-07T20:37:04.471Z"
 }

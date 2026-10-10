@@ -8,6 +8,7 @@ using Reign.Core.Contracts.Court;
 using ReignBeta.Campaign;
 using ReignBeta.Integration;
 using ReignBeta.Settings;
+using ReignBeta.Save;
 using ReignBeta.UI;
 using ReignBeta.World;
 using TaleWorlds.CampaignSystem;
@@ -52,6 +53,7 @@ namespace ReignBeta.Court
         private string _economicReportStateJson = string.Empty;
         private ReignEconomicReportState _economicReportState = new ReignEconomicReportState();
         private string _spymasterStateJson = string.Empty;
+        private List<string> _spymasterStateChunks = new List<string>();
         private ReignSpymasterState _spymasterState = new ReignSpymasterState();
         private readonly HashSet<string> _economicLetterRequestsInFlight = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
         private int _consecutiveAuthorityFailures;
@@ -122,8 +124,9 @@ namespace ReignBeta.Court
                 }
                 _economicReportStateJson = JsonConvert.SerializeObject(
                     _economicReportState ?? new ReignEconomicReportState(), Formatting.None);
-                _spymasterStateJson = JsonConvert.SerializeObject(
-                    EnsureSpymasterState(), Formatting.None);
+                _spymasterStateJson = string.Empty;
+                _spymasterStateChunks = ReignSavePayloadCodec.Encode(JsonConvert.SerializeObject(
+                    EnsureSpymasterState(), Formatting.None));
                 PrepareRulerDocketForSave();
             }
             dataStore.SyncData("_reignCourt_session", ref _session);
@@ -150,6 +153,7 @@ namespace ReignBeta.Court
             dataStore.SyncData("_reignCourt_advanceToDocketDay", ref _advanceToDocketDay);
             dataStore.SyncData("_reignCourt_economicReportState", ref _economicReportStateJson);
             dataStore.SyncData("_reignCourt_spymasterState", ref _spymasterStateJson);
+            dataStore.SyncData("_reignCourt_spymasterStateChunks_v2", ref _spymasterStateChunks);
             dataStore.SyncData("_reignCourt_rulerDocketState", ref _rulerDocketStateJson);
             dataStore.SyncData("_reignCourt_rulerDocketStateChunks", ref _rulerDocketStateChunks);
             if (dataStore.IsLoading)
@@ -172,15 +176,21 @@ namespace ReignBeta.Court
                 }
                 try
                 {
-                    _spymasterState = string.IsNullOrWhiteSpace(_spymasterStateJson)
+                    string spymasterJson = _spymasterStateJson;
+                    if (_spymasterStateChunks != null && _spymasterStateChunks.Count > 0)
+                        spymasterJson = ReignSavePayloadCodec.Decode(_spymasterStateChunks);
+                    else if (spymasterJson?.StartsWith("reign-gzip-v1:", StringComparison.Ordinal) == true)
+                        spymasterJson = ReignSavePayloadCodec.DecodeLegacyArchiveEntry(spymasterJson);
+                    _spymasterState = string.IsNullOrWhiteSpace(spymasterJson)
                         ? new ReignSpymasterState()
-                        : JsonConvert.DeserializeObject<ReignSpymasterState>(_spymasterStateJson)
+                        : JsonConvert.DeserializeObject<ReignSpymasterState>(spymasterJson)
                           ?? new ReignSpymasterState();
                 }
                 catch (Exception ex)
                 {
                     ReignLog.Warn("Spymaster save state could not be restored: " + ex.Message);
-                    _spymasterState = new ReignSpymasterState();
+                    // Losing mission and effect receipts could replay irreversible actions.
+                    throw new InvalidOperationException("Spymaster save state could not be restored safely.", ex);
                 }
                 RestoreRulerDocketAfterLoad();
             }
@@ -603,8 +613,9 @@ namespace ReignBeta.Court
                 : "[Bannerlord Reign] The Regent's matter remains pending: " + error))).ConfigureAwait(false);
         }
 
-        public async Task<string> AssignOfficeAsync(ReignCourtOffice office, Hero hero)
+        public async Task<string> AssignOfficeAsync(ReignCourtOffice office, Hero hero, string agreementOperationId = null)
         {
+            var agreementContinuation = CourtAgreementContinuation(agreementOperationId);
             if (!_serverAvailable || !_serverSessionOpened) return MutationUnavailable();
             CourtOfficeAssignment active = _offices.FirstOrDefault(x => x.IsActive && x.Office == office);
             if (office == ReignCourtOffice.Spymaster && active != null
@@ -612,12 +623,13 @@ namespace ReignBeta.Court
                 && !CanChangeSpymasterOffice(out string activeMissionError)) return activeMissionError;
             if (!ReignCourtOfficeService.IsEligible(hero, _session.Authority, _offices.Where(x => x != active), out string eligibilityError)) return eligibilityError;
             long expectedRevision = active?.Revision ?? 0;
-            string commandId = "court_office_assign_" + Guid.NewGuid().ToString("N");
+            string commandId = agreementOperationId ?? "court_office_assign_" + Guid.NewGuid().ToString("N");
             ReignCourtServerResponse response = await ReignCourtServerClient.AssignOfficeAsync(office, hero, expectedRevision, commandId,
                 NativeHeroEligibility(hero)).ConfigureAwait(false);
             if (!response.Ok) return response.Error;
             return await ReignMainThread.InvokeAsync(() =>
             {
+                agreementContinuation();
                 if (IsNobleVisitorReserved(hero)) return "This noble is committed to a court visit. Assign an office after the visit ends.";
                 if (!ReignCourtOfficeService.TryAssign(_offices, office, hero, _session.Authority, commandId, expectedRevision, CurrentDayFloat(), out CourtOfficeAssignment assignment, out string error)) return error;
                 assignment.AssignmentId = response.Raw.Value<string>("recordId") ?? assignment.AssignmentId;
@@ -628,17 +640,19 @@ namespace ReignBeta.Court
             }).ConfigureAwait(false);
         }
 
-        public async Task<string> DismissOfficeAsync(CourtOfficeAssignment assignment)
+        public async Task<string> DismissOfficeAsync(CourtOfficeAssignment assignment, string agreementOperationId = null)
         {
+            var agreementContinuation = CourtAgreementContinuation(agreementOperationId);
             if (!_serverAvailable || !_serverSessionOpened) return MutationUnavailable();
             if (assignment == null || !assignment.IsActive) return "That office is already vacant.";
             if (assignment.Office == ReignCourtOffice.Spymaster && !CanChangeSpymasterOffice(out string activeMissionError))
                 return activeMissionError;
-            string commandId = "court_office_dismiss_" + Guid.NewGuid().ToString("N");
+            string commandId = agreementOperationId ?? "court_office_dismiss_" + Guid.NewGuid().ToString("N");
             ReignCourtServerResponse response = await ReignCourtServerClient.DismissOfficeAsync(assignment.Office, assignment.Revision, commandId, "dismissed_by_ruler").ConfigureAwait(false);
             if (!response.Ok) return response.Error;
             return await ReignMainThread.InvokeAsync(() =>
             {
+                agreementContinuation();
                 if (!ReignCourtOfficeService.TryDismiss(_offices, assignment.Office, commandId, assignment.Revision, CurrentDayFloat(), "dismissed_by_ruler", out string error)) return error;
                 assignment.Revision = response.Revision;
                 _session.Revision++;
@@ -647,8 +661,9 @@ namespace ReignBeta.Court
             }).ConfigureAwait(false);
         }
 
-        public async Task<string> AssignRegentAsync(Hero hero)
+        public async Task<string> AssignRegentAsync(Hero hero, string agreementOperationId = null)
         {
+            var agreementContinuation = CourtAgreementContinuation(agreementOperationId);
             if (_session?.Authority != ReignCourtAuthority.Royal) return "A Regent may be appointed only by a kingdom ruler.";
             if (!_serverAvailable || !_serverSessionOpened) return MutationUnavailable();
             JObject eligibility = NativeHeroEligibility(hero);
@@ -656,11 +671,12 @@ namespace ReignBeta.Court
                 return "The Regent must be an adult, free, active member of the royal court scope.";
             CourtRegentAssignment active = ActiveRegent;
             long expectedRevision = active?.Revision ?? 0;
-            string commandId = "court_regent_assign_" + Guid.NewGuid().ToString("N");
+            string commandId = agreementOperationId ?? "court_regent_assign_" + Guid.NewGuid().ToString("N");
             ReignCourtServerResponse response = await ReignCourtServerClient.AssignRegentAsync(hero, expectedRevision, commandId, eligibility).ConfigureAwait(false);
             if (!response.Ok) return response.Error;
             await ReignMainThread.InvokeAsync(() =>
             {
+                agreementContinuation();
                 if (active != null)
                 {
                     active.IsActive = false;
@@ -678,35 +694,39 @@ namespace ReignBeta.Court
             return string.Empty;
         }
 
-        public async Task<string> DismissRegentAsync()
+        public async Task<string> DismissRegentAsync(string agreementOperationId = null)
         {
+            var agreementContinuation = CourtAgreementContinuation(agreementOperationId);
             CourtRegentAssignment active = ActiveRegent;
             if (active == null) return "No Regent is assigned.";
             if (!_serverAvailable || !_serverSessionOpened) return MutationUnavailable();
-            string commandId = "court_regent_dismiss_" + Guid.NewGuid().ToString("N");
+            string commandId = agreementOperationId ?? "court_regent_dismiss_" + Guid.NewGuid().ToString("N");
             ReignCourtServerResponse response = await ReignCourtServerClient.DismissRegentAsync(active.Revision, commandId, "dismissed_by_ruler").ConfigureAwait(false);
             if (!response.Ok) return response.Error;
             await ReignMainThread.InvokeAsync(() =>
             {
+                agreementContinuation();
                 active.IsActive = false;active.DismissedDay = CurrentDayFloat();active.DismissalReason = "dismissed_by_ruler";
                 active.Revision = response.Revision;active.LastCommandId = commandId;_session.Revision++;StateChanged?.Invoke();
             }).ConfigureAwait(false);
             return string.Empty;
         }
 
-        public async Task<string> AssignAmbassadorAsync(Hero hero, Kingdom target, string missionType)
+        public async Task<string> AssignAmbassadorAsync(Hero hero, Kingdom target, string missionType, string agreementOperationId = null)
         {
+            var agreementContinuation = CourtAgreementContinuation(agreementOperationId);
             if (!_serverAvailable || !_serverSessionOpened) return MutationUnavailable();
             if (_session.Authority != ReignCourtAuthority.Royal) return "Ambassador postings require royal court authority.";
             if (_ambassadors.Count(x => x.Status != "recalled" && x.Status != "replaced") >= 3) return "All three ambassador postings are occupied.";
             JObject eligibility=NativeHeroEligibility(hero);
             if(eligibility.Value<bool?>("isAdult")!=true||eligibility.Value<bool?>("isFree")!=true||eligibility.Value<bool?>("inCourtScope")!=true)return "The ambassador must be an adult, free, active hero within royal court scope.";
             if (_ambassadors.Any(x => x.HeroStringId == hero.StringId && x.Status != "recalled" && x.Status != "replaced")) return "That hero already holds an ambassador posting.";
-            string commandId = "court_ambassador_assign_" + Guid.NewGuid().ToString("N");
+            string commandId = agreementOperationId ?? "court_ambassador_assign_" + Guid.NewGuid().ToString("N");
             ReignCourtServerResponse response = await ReignCourtServerClient.AssignAmbassadorAsync(hero, target, missionType, 3f, 0, commandId, eligibility).ConfigureAwait(false);
             if (!response.Ok) return response.Error;
             await ReignMainThread.InvokeAsync(() =>
             {
+                agreementContinuation();
                 _ambassadors.Add(new AmbassadorPosting
                 {
                     PostingId = response.Raw.Value<string>("recordId") ?? "ambassador_" + Guid.NewGuid().ToString("N"),
@@ -725,17 +745,19 @@ namespace ReignBeta.Court
             return string.Empty;
         }
 
-        public async Task<string> SetAmbassadorMissionAsync(AmbassadorPosting posting, string missionType, JObject terms)
+        public async Task<string> SetAmbassadorMissionAsync(AmbassadorPosting posting, string missionType, JObject terms, string agreementOperationId = null)
         {
+            var agreementContinuation = CourtAgreementContinuation(agreementOperationId);
             if (!_serverAvailable || !_serverSessionOpened) return MutationUnavailable();
             if (posting == null || posting.Status == "recalled" || posting.Status == "replaced") return "That posting is no longer active.";
             terms = terms ?? new JObject();
             string hash = ReignCourtTerms.Hash(terms.ToString(Newtonsoft.Json.Formatting.None));
-            string commandId = "court_ambassador_mission_" + Guid.NewGuid().ToString("N");
+            string commandId = agreementOperationId ?? "court_ambassador_mission_" + Guid.NewGuid().ToString("N");
             ReignCourtServerResponse response = await ReignCourtServerClient.SetAmbassadorMissionAsync(posting, missionType, terms, hash, posting.Revision, commandId).ConfigureAwait(false);
             if (!response.Ok) return response.Error;
             await ReignMainThread.InvokeAsync(() =>
             {
+                agreementContinuation();
                 posting.MissionType = missionType;
                 posting.MissionTermsJson = terms.ToString(Newtonsoft.Json.Formatting.None);
                 posting.Status = "posted";
@@ -747,15 +769,17 @@ namespace ReignBeta.Court
             return string.Empty;
         }
 
-        public async Task<string> RecallAmbassadorAsync(AmbassadorPosting posting)
+        public async Task<string> RecallAmbassadorAsync(AmbassadorPosting posting, string agreementOperationId = null)
         {
+            var agreementContinuation = CourtAgreementContinuation(agreementOperationId);
             if (!_serverAvailable || !_serverSessionOpened) return MutationUnavailable();
             if (posting == null || posting.Status == "recalled") return "That ambassador has already been recalled.";
-            string commandId = "court_ambassador_recall_" + Guid.NewGuid().ToString("N");
+            string commandId = agreementOperationId ?? "court_ambassador_recall_" + Guid.NewGuid().ToString("N");
             ReignCourtServerResponse response = await ReignCourtServerClient.RecallAmbassadorAsync(posting, posting.Revision, commandId).ConfigureAwait(false);
             if (!response.Ok) return response.Error;
             await ReignMainThread.InvokeAsync(() =>
             {
+                agreementContinuation();
                 posting.Status = "recalled";
                 posting.RecalledDay = CurrentDayFloat();
                 posting.Revision = response.Revision;

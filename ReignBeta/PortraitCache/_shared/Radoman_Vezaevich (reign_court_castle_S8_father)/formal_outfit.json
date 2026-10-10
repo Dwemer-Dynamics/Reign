@@ -3,11 +3,11 @@
   "heroStringId": "reign_court_castle_S8_father",
   "characterName": "Radoman Vezaevich",
   "imagePath": "portrait.png",
-  "imageSha256": "1A96001BBB0F5F7B4B546A69ABA3BFC84F975CFA5C76C0518BC4DD28667E4F49",
-  "description": "Culturally appropriate everyday Sturgian minor-lord attire inspired by refined medieval Rus and Slavic noble clothing. Men should wear a well-made long shirt beneath a tailored wool kaftan or long belted coat, decorated with fine geometric embroidery and quality trim. Women should wear a long embroidered shift with an elegant wool overdress or noble coat-dress, secured with a richly woven sash. Include subtle fur trim around collars or cuffs, tasteful clasps, and better-quality fabric than a landowner would wear. The clothing should remain practical for a northern climate while clearly showing noble rank. No headgear of any kind. No armor, weapons, crowns, ceremonial robes, or oversized fur displays.",
-  "status": "failed",
-  "descriptionSource": "portrait_prompt_fallback",
-  "retryEligible": true,
-  "error": "{\"error\":{\"message\":\"Model \\\"zai-org/glm-5.2\\\" does not support image inputs. Remove image content or choose a multimodal model.\",\"type\":\"invalid_request_error\",\"param\":\"messages\",\"code\":\"image_input_not_supported\"}}",
-  "updatedUtc": "2026-07-18T22:03:33.6369362Z"
+  "imageSha256": "2EF474891856CD0C741E8CA495CD175DE49ED713719249BF27F3246155CF0592",
+  "description": "Actual third full image: one mature man upright head to boots, short sandy parted cap, outward blond moustache and separate short rounded chin tuft, bare cheeks, visible hands/head margin. Long navy embroidered lesser-lord coat with restrained fur edges/cuffs, cream embroidered shirt, decorated belt, brown trousers and boots. Plain stone doorway, no words/banner/headgear/armour/weapons; natural medium male body.",
+  "status": "completed",
+  "descriptionSource": "agent_vision",
+  "retryEligible": false,
+  "error": "",
+  "updatedUtc": "2026-10-08T06:30:26.981Z"
 }

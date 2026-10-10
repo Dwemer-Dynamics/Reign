@@ -76,7 +76,7 @@
             </Children></ScrollbarWidget>
 
             <Widget WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="752" SuggestedHeight="92" MarginLeft="455" MarginTop="774"><Children>
-              <EditableTextWidget WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="625" SuggestedHeight="66" MarginLeft="18" MarginTop="13" Brush="DefaultText" Brush.Font="ReignSerifDynamic" Brush.FontSize="18" Brush.FontColor="#C5BDAFFF" Text="@InputText" HintText="@StatusText" MaxLength="2147483647" />
+              <ReignActionEditableTextWidget WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="625" SuggestedHeight="66" MarginLeft="18" MarginTop="13" Brush="Reign.Chat.Composer.18" Brush.Font="ReignSerifDynamic" Brush.FontSize="18" Brush.FontColor="#C5BDAFFF" Text="@InputText" ComposerId="@ActionComposerId" HintText="@StatusText" MaxLength="2147483647" />
               <ButtonWidget IsEnabled="@CanSend" WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="96" SuggestedHeight="66" MarginLeft="656" MarginTop="13" Command.Click="ExecuteSend" Brush="ConversationItem.SoundBrush" />
             </Children></Widget>
           </Children>

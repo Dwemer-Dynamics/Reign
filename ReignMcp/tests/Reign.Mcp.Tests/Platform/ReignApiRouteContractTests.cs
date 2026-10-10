@@ -192,13 +192,18 @@ public sealed class ReignApiRouteContractTests
     }
 
     [Fact]
-    public void ControlCenterShutdownRunsWithoutAConfirmationPopup()
+    public void ControlCenterPowerUsesManagedLifecycleWithoutAConfirmationPopup()
     {
         var workspace = TestOptions.FindWorkspace();
         string platform = File.ReadAllText(Path.Combine(workspace, "ReignServer", "ui", "index.html"));
 
-        Assert.Contains("async function shutdownServer()", platform, StringComparison.Ordinal);
-        Assert.Contains("fetch('/api/shutdown'", platform, StringComparison.Ordinal);
+        string power = File.ReadAllText(Path.Combine(workspace, "ReignServer", "ui", "server-control.js"));
+        Assert.Contains("onclick='toggleServerPower()'", platform, StringComparison.Ordinal);
+        Assert.Contains("async function toggleServerPower()", power, StringComparison.Ordinal);
+        Assert.Contains("'/reign-control/'", power, StringComparison.Ordinal);
+        Assert.Contains("'X-Reign-Control':'1'", power, StringComparison.Ordinal);
+        Assert.DoesNotContain("confirm(", power, StringComparison.Ordinal);
+        Assert.DoesNotContain("fetch('/api/shutdown'", platform, StringComparison.Ordinal);
         Assert.DoesNotContain("confirm('Shut down the Bannerlord Reign server?", platform,
             StringComparison.Ordinal);
     }

@@ -3,11 +3,11 @@
   "heroStringId": "lord_1_1_16",
   "characterName": "Leontia",
   "imagePath": "portrait.png",
-  "imageSha256": "E61613D01E7A5C68DA965248DF8F191D46715E5609F312AC4D683888E0BBD733",
-  "description": "Culturally appropriate everyday Calradic Imperial landowner attire inspired by practical late Roman and Byzantine civilian clothing adapted into a grounded medieval style. Men should wear a linen undertunic beneath a structured knee-length tunic or simple long coat, secured with a narrow belt. Women should wear a long tunic or underdress beneath a modest draped overdress with elegant but simple sleeves and a practical girdle. Include narrow woven borders or restrained geometric decoration. The garments should appear orderly, respectable, clean, and slightly prosperous. No headgear of any kind. No armor, weapons, laurel crowns, togas, ceremonial robes, or fantasy elements.",
-  "status": "failed",
-  "descriptionSource": "portrait_prompt_fallback",
-  "retryEligible": true,
-  "error": "{\"error\":{\"message\":\"Model \\\"zai-org/glm-5.2\\\" does not support image inputs. Remove image content or choose a multimodal model.\",\"type\":\"invalid_request_error\",\"param\":\"messages\",\"code\":\"image_input_not_supported\"}}",
-  "updatedUtc": "2026-07-18T22:03:31.4953168Z"
+  "imageSha256": "34F88F5ECD6F46E6F9D1C2509ECA2D91FFF663BD29E172C6DDE9E346F25640E0",
+  "description": "Deep plum-purple floor-length patterned gown with low square neckline, fitted bodice and elbow-length sleeves, gold woven edging and round decorated belt fittings. A cream patterned wrap hangs from the forearms, with a light inner skirt showing centrally. Brown patterned leather shoes are visible under the hem. No headgear, armor or weapons.",
+  "status": "completed",
+  "descriptionSource": "agent_vision",
+  "retryEligible": false,
+  "error": "",
+  "updatedUtc": "2026-10-07T23:32:23.107Z"
 }

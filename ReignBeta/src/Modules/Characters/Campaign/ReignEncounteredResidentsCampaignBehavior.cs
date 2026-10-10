@@ -29,6 +29,7 @@ namespace ReignBeta.Campaign
         public uint ClothingColor1, ClothingColor2;
         public bool Initialized, Military, ReleasedFromDuty, InitialPortraitCompleted, Recruited, Retired;
         public string SourcePartyId, ManpowerTemplateId, RecruitmentReceipt, DutyReleaseReceipt;
+        public int RecruitmentCredit;
         public int RecruitmentGold;
         public bool RecruitmentGoldPaid;
         public double MetDay;
@@ -63,6 +64,9 @@ namespace ReignBeta.Campaign
             Instance = this;
             ReignEncounteredResidentPatches.Install();
             CampaignEvents.OnSessionLaunchedEvent.AddNonSerializedListener(this, OnSessionLaunched);
+            CampaignEvents.OnGameLoadFinishedEvent.AddNonSerializedListener(this, RepairResidentClanMembers);
+            CampaignEvents.DailyTickEvent.AddNonSerializedListener(this, KeepResidentsAtHome);
+            CampaignEvents.DailyTickEvent.AddNonSerializedListener(this, RepairResidentClanMembers);
             CampaignEvents.OnMissionEndedEvent.AddNonSerializedListener(this, _ => ClearScene());
         }
 
@@ -110,12 +114,32 @@ namespace ReignBeta.Campaign
                     }, args => {
                         Settlement settlement = Settlement.CurrentSettlement;
                         if (settlement == null) return;
+                        KeepResidentsAtHome();
                         args.MapState?.ExitMenuMode();
                         ReignPartyChatScreenManager.OpenHomes(settlement);
                     }, false, 5);
         }
 
         internal IEnumerable<EncounteredResident> Records => _residents;
+
+        private void KeepResidentsAtHome()
+        {
+            // An unrecruited resident has no travel schedule. Native time progression
+            // must not remove them from their saved home or assign another settlement.
+            // Preserve actual party, clan, and captivity transfers.
+            foreach (EncounteredResident resident in _residents.Where(r => r.Initialized && !r.Recruited && !r.Retired))
+            {
+                Hero hero = Resolve(resident);
+                if (hero == null || !hero.IsAlive || hero.IsPrisoner
+                    || hero.IsNotable || hero.PartyBelongedTo != null || hero.Clan != null || hero.CompanionOf != null
+                    || ReignBeta.PartyAgency.ReignTemporaryPartyGuestCampaignBehavior.Instance?.Records.Any(r => r.IsLive && r.HeroStringId == hero.StringId) == true) continue;
+                Settlement home = Settlement.Find(resident.HomeId);
+                if (home == null || hero.CurrentSettlement == home) continue;
+                if (hero.CurrentSettlement != null) LeaveSettlementAction.ApplyForCharacterOnly(hero);
+                EnterSettlementAction.ApplyForCharacterOnly(hero, home);
+                ReignLog.Info("Restored encountered resident hero=" + hero.StringId + " home=" + resident.HomeId);
+            }
+        }
         internal EncounteredResident Find(Hero hero) => hero == null ? null : _residents.FirstOrDefault(r => r.HeroId == hero.StringId);
         internal Hero Resolve(EncounteredResident record) => string.IsNullOrEmpty(record?.HeroId) ? null : Hero.Find(record.HeroId);
         private EncounteredResident SlotResident(string slot) => _residents.FirstOrDefault(r => r.SlotKey == slot && !r.Recruited && !r.Retired);
@@ -135,14 +159,15 @@ namespace ReignBeta.Campaign
             var record = Find(hero);
             Agent present = Mission.Current?.Agents.FirstOrDefault(a => a.IsActive() && ResolveAgent(a) == hero);
             if (present?.Origin != null && _colors.TryGetValue(present.Origin, out var colors)) return colors;
-            return Tuple.Create(hero.Clan?.Color ?? record.ClothingColor1, hero.Clan?.Color2 ?? record.ClothingColor2);
+            return Tuple.Create(hero?.Clan?.Color ?? record?.ClothingColor1 ?? hero?.Culture?.Color ?? 0U,
+                hero?.Clan?.Color2 ?? record?.ClothingColor2 ?? hero?.Culture?.Color2 ?? 0U);
         }
 
         internal List<Hero> ResidentsAt(Settlement settlement)
         {
             if (settlement == null) return new List<Hero>();
             return _residents.Where(r => r.Initialized).Select(r => new { Record = r, Hero = Resolve(r) })
-                .Where(x => x.Hero != null && !x.Record.Retired && !x.Record.Recruited && EncounteredResidentRules.IsAvailable(x.Record.HomeId,
+                .Where(x => x.Hero != null && !x.Hero.IsNotable && !x.Record.Retired && !x.Record.Recruited && EncounteredResidentRules.IsAvailable(x.Record.HomeId,
                     x.Hero.CurrentSettlement?.StringId, settlement.StringId, true, x.Hero.IsAlive,
                     x.Hero.IsPrisoner, x.Hero.PartyBelongedTo != null,
                     x.Hero.Age >= TaleWorlds.CampaignSystem.Campaign.Current.Models.AgeModel.HeroComesOfAge))
@@ -155,8 +180,8 @@ namespace ReignBeta.Campaign
             if (agent == null || source == null || !agent.IsHuman || !agent.IsActive() || source.IsHero
                 || agent == Agent.Main || Settlement.CurrentSettlement == null || agent.Age < 18
                 || (Agent.Main != null && agent.IsEnemyOf(Agent.Main))) return false;
-            if (source.Occupation == Occupation.Special) return false;
-            // Only ordinary settlement spawns have a stable native service slot.
+            // Service workers can use Special as well as tavern-specific occupations.
+            // Only settlement spawns with a stable native service slot are eligible.
             return agent.Origin != null && _originSlots.ContainsKey(agent.Origin);
         }
 
@@ -224,10 +249,8 @@ namespace ReignBeta.Campaign
         internal void BeforeSpawn(AgentBuildData data)
         {
             if (data?.AgentOrigin == null) return;
-            if (Find((data.AgentCharacter as CharacterObject)?.HeroObject) != null)
-                _colors[data.AgentOrigin] = Tuple.Create(data.AgentClothingColor1, data.AgentClothingColor2);
-            if (!_originSlots.TryGetValue(data.AgentOrigin, out var slot)) return;
             _colors[data.AgentOrigin] = Tuple.Create(data.AgentClothingColor1, data.AgentClothingColor2);
+            if (!_originSlots.TryGetValue(data.AgentOrigin, out var slot)) return;
             var resident = SlotResident(slot);
             Hero hero = Resolve(resident);
             if (hero == null || !resident.Initialized || !ResidentsAt(Settlement.CurrentSettlement).Contains(hero)) return;
@@ -358,7 +381,7 @@ namespace ReignBeta.Campaign
         }
 
         internal bool SuppressAutomaticLocation(Hero hero) => Find(hero) is EncounteredResident resident
-            && !resident.Recruited && hero.PartyBelongedTo == null && !hero.IsPrisoner;
+            && !resident.Recruited && !hero.IsNotable && hero.PartyBelongedTo == null && !hero.IsPrisoner;
 
         internal void VisitInPerson(Hero hero)
         {
@@ -462,6 +485,9 @@ namespace ReignBeta.Campaign
             var record = Find(hero); if (record == null) return null;
             var home = Settlement.Find(record.HomeId);
             return new JObject { ["schema"] = "reign-encountered-resident-v1", ["residentId"] = record.Id,
+                ["recruitmentAgreementId"] = AgreementId(hero),
+                ["recruitmentCreditGold"] = ReignBeta.World.ReignGoldTransferService.Instance?.Credit(hero, AgreementId(hero)) ?? 0,
+                ["nativePaymentReceipts"] = ReignBeta.World.ReignGoldTransferService.Instance?.Snapshot(hero) ?? new JArray(),
                 ["homeSettlementId"] = record.HomeId, ["homeSettlementName"] = home?.Name?.ToString() ?? "",
                 ["homeOwnerClanLeaderId"] = home?.OwnerClan?.Leader?.StringId ?? "",
                 ["homeRulerId"] = home?.OwnerClan?.Kingdom?.Leader?.StringId ?? "",
@@ -470,6 +496,7 @@ namespace ReignBeta.Campaign
                 ["occupation"] = record.Role, ["military"] = record.Military, ["releasedFromDuty"] = record.ReleasedFromDuty,
                 ["initialPortraitCompleted"] = record.InitialPortraitCompleted, ["recruited"] = record.Recruited };
         }
+        internal string AgreementId(Hero hero) => Find(hero) is EncounteredResident resident ? "resident:" + resident.Id : "";
     }
 
     internal sealed class ReignEncounteredResidentMissionBehavior : MissionBehavior

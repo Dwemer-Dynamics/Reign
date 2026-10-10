@@ -3,11 +3,11 @@
   "heroStringId": "lord_1_1",
   "characterName": "Lucon",
   "imagePath": "portrait.png",
-  "imageSha256": "29B70ED1C836031CC21C2E169A548D2C29E0587BD211EC0732DBAEBE80F637AC",
-  "description": "Culturally appropriate everyday Calradic Imperial high-noble attire inspired by luxurious Byzantine aristocratic fashion, restrained enough for daily noble life. Use fine layered linen and wool, controlled flowing silhouettes, elegant draping, richly woven borders, small jeweled clasps, and sophisticated fabric textures. Men should wear a stately long tunic or structured noble coat over a fine undertunic, with refined belts and detailed edging. Women should wear a sophisticated layered noble dress with graceful drapery, tailored sleeves, and subtle aristocratic ornamentation. The outfit should communicate ancient prestige, wealth, and political importance. No headgear of any kind. No armor, weapons, crowns, laurel wreaths, or full ceremonial imperial regalia.",
-  "status": "failed",
-  "descriptionSource": "portrait_prompt_fallback",
-  "retryEligible": true,
-  "error": "{\"error\":{\"message\":\"Model \\\"zai-org/glm-5.2\\\" does not support image inputs. Remove image content or choose a multimodal model.\",\"type\":\"invalid_request_error\",\"param\":\"messages\",\"code\":\"image_input_not_supported\"}}",
-  "updatedUtc": "2026-07-18T22:03:31.9703157Z"
+  "imageSha256": "58C975DC69EB0AF25E303F55C18507B68633CC5D59679427AAFA1ADC23BFD8F0",
+  "description": "A long cream linen tunic with narrow gold woven edging beneath a deep plum patterned outer coat and heavy draped shoulder mantle with broad ornamental gold borders. Small round metal clasps linked by a chain fasten the mantle across the upper chest. A decorated leather belt with a round metal buckle secures the waist. Long sleeves cover the wrists, and tall brown leather boots are visible below the garments. No headgear, armor or weapons are present.",
+  "status": "completed",
+  "descriptionSource": "agent_vision",
+  "retryEligible": false,
+  "error": "",
+  "updatedUtc": "2026-10-08T03:46:34.012Z"
 }

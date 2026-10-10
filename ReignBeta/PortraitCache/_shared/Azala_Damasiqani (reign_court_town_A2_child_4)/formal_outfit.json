@@ -3,11 +3,11 @@
   "heroStringId": "reign_court_town_A2_child_4",
   "characterName": "Azala Damasiqani",
   "imagePath": "portrait.png",
-  "imageSha256": "19D570ED2F26220C5215532351F3EA616EED371E2F9CD70EA7DEDA6DAECCF861",
-  "description": "Culturally appropriate everyday Aserai minor-lord attire inspired by refined medieval Arabian, North African, and limited Persian noble clothing. Men should wear a flowing robe or structured open-front coat over a fine lightweight tunic, secured with a decorated woven sash. Women should wear a long elegant dress with soft layered fabrics, shaped sleeves, graceful draping, and fine embroidery around the neckline, cuffs, and hem. Show rank through superior fabric, elegant borders, geometric embroidery, and subtle jewelry rather than excessive ornamentation. No headgear of any kind. No turbans, veils, hoods, armor, weapons, crowns, or ceremonial excess.",
-  "status": "failed",
-  "descriptionSource": "portrait_prompt_fallback",
-  "retryEligible": true,
-  "error": "{\"error\":{\"message\":\"Model \\\"zai-org/glm-5.2\\\" does not support image inputs. Remove image content or choose a multimodal model.\",\"type\":\"invalid_request_error\",\"param\":\"messages\",\"code\":\"image_input_not_supported\"}}",
-  "updatedUtc": "2026-07-18T22:03:25.0286354Z"
+  "imageSha256": "D4A96FF8C7328D9ADA03E09728800B071F57375DD0C5993ACBFE16E47C0824A5",
+  "description": "Opaque rust-burgundy floor-length court dress with a low square neckline and elbow-length sleeves. A fitted structured bodice is decorated with gold floral and geometric embroidery. Broad gold patterned borders run down the front, around the cuffs and hem. A cream underlayer shows in the lower front opening. The broad woven waist belt has round gold clasps and dangling ornaments. A tan-gold geometric bordered and fringed wrap rests around the forearms and hangs at both sides. A gold bracelet and small earrings accompany the gown; a patterned closed flat shoe is visible. No headgear, armor or weapon is present.",
+  "status": "completed",
+  "descriptionSource": "agent_vision",
+  "retryEligible": false,
+  "error": "",
+  "updatedUtc": "2026-10-07T20:42:40.863Z"
 }

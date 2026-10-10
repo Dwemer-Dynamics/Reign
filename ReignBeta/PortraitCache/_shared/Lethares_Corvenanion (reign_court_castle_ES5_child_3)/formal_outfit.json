@@ -3,11 +3,11 @@
   "heroStringId": "reign_court_castle_ES5_child_3",
   "characterName": "Lethares Corvenanion",
   "imagePath": "portrait.png",
-  "imageSha256": "9003ED08D8E02D5E26DD5B44507F0B4D4DF19926BA35C94A50181BAD9C5B20C1",
-  "description": "Culturally appropriate everyday Calradic Imperial landowner attire inspired by practical late Roman and Byzantine civilian clothing adapted into a grounded medieval style. Men should wear a linen undertunic beneath a structured knee-length tunic or simple long coat, secured with a narrow belt. Women should wear a long tunic or underdress beneath a modest draped overdress with elegant but simple sleeves and a practical girdle. Include narrow woven borders or restrained geometric decoration. The garments should appear orderly, respectable, clean, and slightly prosperous. No headgear of any kind. No armor, weapons, laurel crowns, togas, ceremonial robes, or fantasy elements.",
-  "status": "failed",
-  "descriptionSource": "portrait_prompt_fallback",
-  "retryEligible": true,
-  "error": "{\"error\":{\"message\":\"Model \\\"zai-org/glm-5.2\\\" does not support image inputs. Remove image content or choose a multimodal model.\",\"type\":\"invalid_request_error\",\"param\":\"messages\",\"code\":\"image_input_not_supported\"}}",
-  "updatedUtc": "2026-07-18T22:03:31.5267243Z"
+  "imageSha256": "D324ED6207284EC56AABF0D5635F8AF9BD82E098695FA05CED7B96F6283955E2",
+  "description": "Lethares wears a knee-length burgundy-brown open-front coat with narrow gold geometric woven borders along the front edges, cuffs and hem. Underneath is an ivory linen tunic with a decorated split neckline and lower border. A narrow brown leather belt has a round bronze clasp and long plain hanging end with small metal fittings. Brown fitted trousers tuck into tall brown leather boots. Both feet are visible; his arms rest behind his back, hiding the hands naturally rather than cropping them. The garments are opaque and modestly ornamented. No headgear, armor or weapon appears.",
+  "status": "completed",
+  "descriptionSource": "agent_vision",
+  "retryEligible": false,
+  "error": "",
+  "updatedUtc": "2026-10-07T23:44:42.110Z"
 }

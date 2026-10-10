@@ -3,11 +3,11 @@
   "heroStringId": "reign_court_castle_EN7_child_4",
   "characterName": "Iovilia Sorianarides",
   "imagePath": "portrait.png",
-  "imageSha256": "CBFE864A3DF563F7ABF11D95D9E725CF191BE6528E098C91FE6CA5435C3239BD",
-  "description": "Culturally appropriate everyday Calradic Imperial landowner attire inspired by practical late Roman and Byzantine civilian clothing adapted into a grounded medieval style. Men should wear a linen undertunic beneath a structured knee-length tunic or simple long coat, secured with a narrow belt. Women should wear a long tunic or underdress beneath a modest draped overdress with elegant but simple sleeves and a practical girdle. Include narrow woven borders or restrained geometric decoration. The garments should appear orderly, respectable, clean, and slightly prosperous. No headgear of any kind. No armor, weapons, laurel crowns, togas, ceremonial robes, or fantasy elements.",
-  "status": "failed",
-  "descriptionSource": "portrait_prompt_fallback",
-  "retryEligible": true,
-  "error": "{\"error\":{\"message\":\"Model \\\"zai-org/glm-5.2\\\" does not support image inputs. Remove image content or choose a multimodal model.\",\"type\":\"invalid_request_error\",\"param\":\"messages\",\"code\":\"image_input_not_supported\"}}",
-  "updatedUtc": "2026-07-18T22:03:30.6745356Z"
+  "imageSha256": "9C12718927A104A2AEE56167E4FBB4B875BF71208CA7F33C60AD428DF104BEF0",
+  "description": "Opaque cream floor-length court dress with low square neckline, naturally fitted bodice and elbow sleeves, restrained purple/gold woven borders at neckline, seams, cuffs and hem. Narrow purple/gold girdle with a round clasp, loose plum shoulder wrap resting along forearms, small pendant, modest drop earrings and bracelet, brown closed leather shoes. Bare head, no armor or weapons. Plain stone columns, steps and wooden doorway fill the background; no hanging banner, cloth emblem, fringe or attachment is visible.",
+  "status": "completed",
+  "descriptionSource": "agent_vision",
+  "retryEligible": false,
+  "error": "",
+  "updatedUtc": "2026-10-08T10:09:04.206Z"
 }

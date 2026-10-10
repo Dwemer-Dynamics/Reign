@@ -3,11 +3,11 @@
   "heroStringId": "lord_6_12",
   "characterName": "Abagai",
   "imagePath": "portrait.png",
-  "imageSha256": "8DC7A407F3B46C30BA3ED0465DF1E0573DA70224C99E92D563BC02A2D7CA472B",
-  "description": "Culturally appropriate everyday Khuzait high-noble attire inspired by elite medieval Turkic and Mongol aristocratic clothing. Use superb tailoring, layered fine wool and silk-like woven fabrics, elegant crossed-front closures, decorated sashes, refined edging, and subtle noble motifs. Men should wear a stately long noble deel or structured coat over richly made underlayers. Women should wear a luxurious robe or coat-dress with graceful lines, elaborate woven trim, and exceptionally high-quality textiles. Fur trim may be included sparingly along cuffs, collars, or garment edges. The clothing should feel wealthy, mobile, and commanding without becoming ceremonial. No headgear of any kind. No fur hats, caps, hoods, armor, weapons, crowns, or fantasy styling.",
-  "status": "failed",
-  "descriptionSource": "portrait_prompt_fallback",
-  "retryEligible": true,
-  "error": "{\"error\":{\"message\":\"Model \\\"zai-org/glm-5.2\\\" does not support image inputs. Remove image content or choose a multimodal model.\",\"type\":\"invalid_request_error\",\"param\":\"messages\",\"code\":\"image_input_not_supported\"}}",
-  "updatedUtc": "2026-07-18T22:03:23.8285545Z"
+  "imageSha256": "597CE7EEE8342E2A6FCDBB08BEDB3C54FF4684111A61252C838DFFA37A7DFFFB",
+  "description": "A floor-length deep muted teal court dress with dense gold woven-looking floral and geometric decoration. The bodice is fitted and structured with a low square neckline; the upper chest is visible while the bust and torso remain covered by opaque fabric. Wide elbow-length sleeves have patterned cuffs. A cream woven-looking wrap rests around the lower arms and hangs along both sides. A decorated narrow belt with round metal ornaments and a hanging medallion-and-tassel chain defines the waist. The skirt is layered over a cream patterned inner panel and falls to the floor. One dark patterned boot is visible. The exact fibre composition cannot be determined from the picture.",
+  "status": "completed",
+  "descriptionSource": "agent_vision",
+  "retryEligible": false,
+  "error": "",
+  "updatedUtc": "2026-10-07T20:15:38.443Z"
 }

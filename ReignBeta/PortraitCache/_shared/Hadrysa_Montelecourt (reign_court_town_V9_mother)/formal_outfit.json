@@ -3,11 +3,11 @@
   "heroStringId": "reign_court_town_V9_mother",
   "characterName": "Hadrysa Montelecourt",
   "imagePath": "portrait.png",
-  "imageSha256": "36F9A82AA3552F0636FE5C2B0CB7FCFCDCAF1F7468036B251493FF72227AD701",
-  "description": "Culturally appropriate everyday Vlandian landowner attire inspired by practical high-medieval Norman and Frankish clothing. Use a well-made wool tunic over a linen underlayer, fitted sleeves, a sturdy leather belt, narrow trousers or chausses, and soft leather boots. For women, use a long fitted underdress with a simple but well-tailored overdress, narrow sleeves, a modest neckline, and a practical belt. The garments should appear prosperous, clean, and durable without looking aristocratic. No headgear of any kind. No armor, weapons, crowns, ceremonial robes, or fantasy elements.",
-  "status": "failed",
-  "descriptionSource": "portrait_prompt_fallback",
-  "retryEligible": true,
-  "error": "{\"error\":{\"message\":\"Model \\\"zai-org/glm-5.2\\\" does not support image inputs. Remove image content or choose a multimodal model.\",\"type\":\"invalid_request_error\",\"param\":\"messages\",\"code\":\"image_input_not_supported\"}}",
-  "updatedUtc": "2026-07-18T22:03:30.0078669Z"
+  "imageSha256": "C6B469005EEDB1EEF7E361A76DFE3F28E473ADAE039261DE1B89881FC696F0AE",
+  "description": "She wears an opaque muted brick-red floor-length gown with a fitted low square bodice and elbow-length sleeves, bordered by narrow gold-and-dark geometric woven trim. A cream underdress shows at the neckline, wrists and lower central skirt opening above brown closed shoes. A matching red shoulder wrap lined in cream drapes loosely over both forearms with decorated edges. A brown leather-looking belt carries several circular metal ornaments and a hanging end. Small earrings and a round pendant add restrained jewelry. Fabric appears dense and wool-like over linen-like pale layers; exact fibers are uncertain.",
+  "status": "completed",
+  "descriptionSource": "agent_vision",
+  "retryEligible": false,
+  "error": "",
+  "updatedUtc": "2026-10-07T22:45:10.508Z"
 }

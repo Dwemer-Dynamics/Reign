@@ -16,8 +16,10 @@ using TaleWorlds.CampaignSystem.Party;
 using TaleWorlds.CampaignSystem.Settlements;
 using TaleWorlds.CampaignSystem.TournamentGames;
 using TaleWorlds.Core;
+using TaleWorlds.Engine.Screens;
 using TaleWorlds.Library;
 using TaleWorlds.Localization;
+using TaleWorlds.ScreenSystem;
 
 namespace ReignBeta.Campaign
 {
@@ -40,6 +42,7 @@ namespace ReignBeta.Campaign
         private ReignSocialEventSession _currentSession;
         private bool _skipFirstDailyTickAfterLoad;
         private bool _generatedWildernessRequestRunning;
+        private float _pendingWildernessCheckElapsed;
 
         public static ReignSocialEventsCampaignBehavior Instance { get; private set; }
 
@@ -49,6 +52,7 @@ namespace ReignBeta.Campaign
             CampaignEvents.OnSessionLaunchedEvent.AddNonSerializedListener(this, OnSessionLaunched);
             CampaignEvents.DailyTickEvent.AddNonSerializedListener(this, OnDailyTick);
             CampaignEvents.HourlyTickEvent.AddNonSerializedListener(this, OnHourlyTick);
+            CampaignEvents.TickEvent.AddNonSerializedListener(this, OnTick);
             CampaignEvents.TournamentStarted.AddNonSerializedListener(this, OnTournamentStarted);
             CampaignEvents.TournamentFinished.AddNonSerializedListener(this, OnTournamentFinished);
             CampaignEvents.TournamentCancelled.AddNonSerializedListener(this, OnTournamentCancelled);
@@ -112,6 +116,7 @@ namespace ReignBeta.Campaign
                 Status = SocialEventStatus.Attended,
                 AnnouncementSent = true,
                 IsGeneratedWildernessEvent = true,
+                GeneratedInitiatorHeroStringId = npc.StringId,
                 GeneratedTerrainKey = "plain",
                 GeneratedLocationText = location,
                 GeneratedTimeOfDayText = GetGeneratedWildernessTimeOfDayText(now),
@@ -235,6 +240,14 @@ namespace ReignBeta.Campaign
             }
         }
 
+        private void OnTick(float dt)
+        {
+            _pendingWildernessCheckElapsed += dt;
+            if (_pendingWildernessCheckElapsed < 0.5f) return;
+            _pendingWildernessCheckElapsed = 0f;
+            TryOpenPendingWildernessEvent();
+        }
+
         public void ForceGeneratedWildernessEvent()
         {
             ReignLog.Info("ForceGeneratedWildernessEvent invoked.");
@@ -336,11 +349,11 @@ namespace ReignBeta.Campaign
             IEnumerable<Hero> preferredParticipants = null,
             int minimumParticipants = 1)
         {
-            if (_generatedWildernessRequestRunning)
+            if (_generatedWildernessRequestRunning || _events.Any(record => record.IsDeferredWildernessEvent))
             {
                 if (forced)
                 {
-                    Show("A generated wilderness event is already being prepared.");
+                    Show("A wilderness event is being prepared or waiting for your return to the open campaign map.");
                 }
 
                 return false;
@@ -389,7 +402,7 @@ namespace ReignBeta.Campaign
                 Show("Generating a Bannerlord Reign wilderness event...");
             }
 
-            ReignGeneratedWildernessScenario scenario;
+            TaleWorlds.CampaignSystem.Campaign requestCampaign = TaleWorlds.CampaignSystem.Campaign.Current;
             try
             {
                 ReignGeneratedWildernessRequest request = new ReignGeneratedWildernessRequest
@@ -414,13 +427,30 @@ namespace ReignBeta.Campaign
                     }).ToList()
                 };
 
-                scenario = await ReignServerClient.GenerateWildernessScenarioAsync(request);
+                return await ReignWildernessEventCompletion.RunAsync(
+                    ReignServerClient.GenerateWildernessScenarioAsync(request),
+                    work => ReignMainThread.InvokeAsync(work),
+                    () =>
+                    {
+                        bool sameCampaign = ReferenceEquals(Instance, this)
+                            && ReferenceEquals(TaleWorlds.CampaignSystem.Campaign.Current, requestCampaign);
+                        if (!sameCampaign)
+                            ReignLog.Info("Discarded wilderness result from a campaign that is no longer active.");
+                        return sameCampaign;
+                    },
+                    scenario => CompleteGeneratedWildernessEvent(now, forced, openScreen, terrainKey,
+                        locationText, participants, minimumParticipants, scenario)).ConfigureAwait(false);
             }
             finally
             {
-                _generatedWildernessRequestRunning = false;
+                await ReignMainThread.InvokeAsync(() => _generatedWildernessRequestRunning = false).ConfigureAwait(false);
             }
+        }
 
+        private bool CompleteGeneratedWildernessEvent(float now, bool forced, bool openScreen,
+            string terrainKey, string locationText, List<Hero> participants, int minimumParticipants,
+            ReignGeneratedWildernessScenario scenario)
+        {
             if (scenario == null || !scenario.Ok
                 || string.IsNullOrWhiteSpace(scenario.ApproachDescription)
                 || string.IsNullOrWhiteSpace(scenario.OpeningText)
@@ -448,11 +478,59 @@ namespace ReignBeta.Campaign
             }
 
             _events.Add(record);
+            if (openScreen)
+            {
+                // Pending records are already native-save fields. Keep the exact
+                // generated text through town visits and save/reload, with no reroll.
+                record.Status = SocialEventStatus.Pending;
+                record.AnnouncementSent = false;
+                ReignLog.Info("Prepared wilderness event id=" + record.EventId + "; waiting for the open campaign map.");
+                TryOpenPendingWildernessEvent();
+                return true;
+            }
+
+            // The existing provider/native harness explicitly requests no popup.
             _currentSession = new ReignSocialEventSession(record);
-            Show("A Bannerlord Reign wilderness event begins.");
-            ReignLog.Info("Generated wilderness event opened id=" + record.EventId + " participants=" + record.AttendeeHeroStringIds.Count);
-            if (openScreen) ReignSocialEventScreenManager.Open(_currentSession, ResolveCurrentSession);
             return true;
+        }
+
+        private void TryOpenPendingWildernessEvent()
+        {
+            SocialEventRecord record = _events.FirstOrDefault(candidate => candidate.IsDeferredWildernessEvent);
+            if (record == null || ReignCampaignInitializationGate.IsPending || !SettingsAllowEvents()
+                || ReignBetaSettings.Instance?.GeneratedWildernessEventsEnabled == false
+                || !CanStartGeneratedWildernessEvent(out _)) return;
+
+            // Keep temporary absences pending, but a dead/missing participant
+            // must not leave an undeliverable event blocking future generation.
+            List<Hero> attendees = record.GetAttendees().ToList();
+            if (attendees.Count != record.AttendeeHeroStringIds.Count)
+            {
+                record.Status = SocialEventStatus.Expired;
+                record.ExpiresDay = CurrentCampaignDay();
+                ReignLog.Info("Expired pending wilderness event because a participant is no longer alive: " + record.EventId);
+                return;
+            }
+            var eligibleIds = new HashSet<string>(ReignPartyChatSession.GetMainPartyHeroes()
+                .Where(hero => hero != null && hero != Hero.MainHero && hero.IsAlive && !hero.IsPrisoner && !hero.IsWounded)
+                .Select(hero => hero.StringId), StringComparer.OrdinalIgnoreCase);
+            if (attendees.Any(hero => !eligibleIds.Contains(hero.StringId))) return;
+
+            var session = new ReignSocialEventSession(record);
+            _currentSession = session;
+            ReignSocialEventScreenManager.Open(session, ResolveCurrentSession);
+            if (!ReignSocialEventScreenManager.IsOpen)
+            {
+                _currentSession = null;
+                return;
+            }
+
+            record.Status = SocialEventStatus.Attended;
+            record.AnnouncementSent = true;
+            record.AnnouncementDay = CurrentCampaignDay();
+            record.ExpiresDay = record.AnnouncementDay + 0.25f;
+            Show("A Bannerlord Reign wilderness event begins.");
+            ReignLog.Info("Generated wilderness event opened id=" + record.EventId + " participants=" + attendees.Count);
         }
 
         private static bool CanStartGeneratedWildernessEvent(out string rejection)
@@ -464,7 +542,8 @@ namespace ReignBeta.Campaign
                 return false;
             }
 
-            if (ReignSocialEventScreenManager.IsOpen || ReignPartyChatScreenManager.IsOpen)
+            if (ReignSocialEventScreenManager.IsOpen || ReignPartyChatScreenManager.IsOpen
+                || ReignIndividualChatScreenManager.IsOpen || ReignCorrespondenceScreenManager.IsOpen)
             {
                 rejection = "Another Bannerlord Reign screen is already open.";
                 return false;
@@ -484,7 +563,9 @@ namespace ReignBeta.Campaign
             }
 
             MapState mapState = Game.Current?.GameStateManager?.ActiveState as MapState;
-            if (mapState == null || mapState.AtMenu || mapState.MapConversationActive || mapState.IsSimulationActive)
+            if (mapState == null || mapState.AtMenu || mapState.MapConversationActive || mapState.IsSimulationActive
+                || !IsCampaignMapScreen(ScreenManager.TopScreen?.GetType())
+                || !(ScreenManager.FocusedLayer is SceneLayer))
             {
                 rejection = "Generated wilderness events can only start on the open campaign map.";
                 return false;
@@ -497,6 +578,14 @@ namespace ReignBeta.Campaign
             }
 
             return true;
+        }
+
+        private static bool IsCampaignMapScreen(Type screenType)
+        {
+            // Include native/DLC subclasses without adding a hard SandBox.View dependency.
+            for (Type type = screenType; type != null; type = type.BaseType)
+                if (type.FullName == "SandBox.View.Map.MapScreen") return true;
+            return false;
         }
 
         private static List<Hero> PickGeneratedWildernessPartyParticipants(
@@ -611,6 +700,8 @@ namespace ReignBeta.Campaign
                 GeneratedTimeOfDayText = GetGeneratedWildernessTimeOfDayText(now),
                 GeneratedTitle = title,
                 GeneratedVarietyKey = scenario?.VarietyKey ?? string.Empty,
+                GeneratedInitiatorHeroStringId = participants.Any(x => x.StringId == scenario?.InitiatorHeroStringId)
+                    ? scenario.InitiatorHeroStringId : string.Empty,
                 GeneratedApproachText = scenario?.ApproachDescription ?? string.Empty,
                 GeneratedOpeningText = scenario?.OpeningText ?? string.Empty,
                 GeneratedPlayerHook = scenario?.PlayerHook ?? string.Empty,

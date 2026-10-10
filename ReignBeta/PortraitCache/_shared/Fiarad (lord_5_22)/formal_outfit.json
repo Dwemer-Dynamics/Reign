@@ -3,11 +3,11 @@
   "heroStringId": "lord_5_22",
   "characterName": "Fiarad",
   "imagePath": "portrait.png",
-  "imageSha256": "8D2A4FA1354414CC6160B738AB9A618F7D2D655EEB84DA619E4902830546D397",
-  "description": "Culturally appropriate everyday Battanian high-noble attire inspired by elite Celtic and highland aristocratic clothing. Use fine woven wool, linen, soft leather accents, sophisticated layering, ornate brooches, and carefully worked borders featuring tasteful knotwork or geometric designs. Men should wear a richly made noble tunic with a broad decorated belt and an exceptionally well-crafted draped cloak. Women should wear a long fitted noble dress beneath a richly layered overdress, with elegant woven borders, decorative brooch fastenings, and a graceful shoulder wrap. The outfit should communicate power through craftsmanship and rich textiles rather than excessive decoration. No headgear of any kind. No armor, weapons, crowns, or fantasy druid elements.",
-  "status": "failed",
-  "descriptionSource": "portrait_prompt_fallback",
-  "retryEligible": true,
-  "error": "{\"error\":{\"message\":\"Model \\\"zai-org/glm-5.2\\\" does not support image inputs. Remove image content or choose a multimodal model.\",\"type\":\"invalid_request_error\",\"param\":\"messages\",\"code\":\"image_input_not_supported\"}}",
-  "updatedUtc": "2026-07-18T22:03:29.2869456Z"
+  "imageSha256": "AFCCD8D17156E7DD1221C9857EE42AC667383794BD61D7B01602C475CD12E47C",
+  "description": "A richly woven dark olive noble tunic with golden interlaced knotwork borders at the neckline, front, cuffs and hem. A broad decorated leather belt with round engraved metal clasp and long ornamented hanging strap secures the waist. A dark green-and-brown checked wool cloak with elaborate knotwork edging and fringed lower edge is draped across the shoulders and fastened by a large round brooch. Brown trousers and brown leather boots with wrap-style straps complete the outfit; no headgear, armor or weapons.",
+  "status": "completed",
+  "descriptionSource": "agent_vision",
+  "retryEligible": false,
+  "error": "",
+  "updatedUtc": "2026-10-08T04:22:21.727Z"
 }

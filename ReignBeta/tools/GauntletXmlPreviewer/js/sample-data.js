@@ -1,6 +1,6 @@
 import { getGovernmentHearingSampleData, GOVERNMENT_ROOT_KEYS } from "./government-hearing-sample-data.js";
 import { getClanAccordsSampleData, CLAN_ACCORDS_ROOT_KEYS } from "./clan-accords-sample-data.js";
-import { getTavernHouseSampleData, TAVERN_HOUSE_ROOT_KEYS } from "./tavern-house-sample-data.js";
+import { getTavernHouseSampleData as getTavernHouseBaseData, TAVERN_HOUSE_ROOT_KEYS } from "./tavern-house-sample-data.js";
 import { previewActionRichText } from "./action-text.js";
 // Shared source portraits are always present. Generated chest/zoom derivatives
 // are optional, so using source.png keeps the preview deterministic instead of
@@ -80,6 +80,14 @@ const INDIVIDUAL_CHAT_LINES = [
 ];
 
 export const SAMPLE_DATA = {
+  "ReignActionBuilder.xml": {
+    Title: "Begin your sentence", Sentence: "Your action sentence will appear here.", Error: "", Search: "", Entry: "100",
+    EntryVisible: false, SearchVisible: false, CanAccept: false, CanBack: false,
+    Choices: [
+      { Label: "I would like you…", Detail: "", Enabled: true },
+      { Label: "I wish to…", Detail: "", Enabled: true }
+    ]
+  },
   Title: "A Pact Proclaimed Before the Lords of Calradia",
   DateText: "Summer 3, 1088",
   LocationText: "Location: the imperial hall at Amitatys",
@@ -156,10 +164,26 @@ export const SAMPLE_DATA = {
   IsBusy: false,
   BusyText: "Waiting for Bannerlord Reign...",
   InputEnabled: true,
+  ActionComposerId: "preview-action-composer",
   InputText: "",
   ChatScrollVersion: 7,
   IsPortraitZoomVisible: false,
   IsPregnancyWarningVisible: false,
+  CanChangeOutfit: true,
+  IsOutfitVisible: false,
+  IsOutfitInputVisible: false,
+  IsOutfitComparisonVisible: false,
+  IsOutfitReady: false,
+  IsOutfitChanging: false,
+  CanCancelOutfit: true,
+  OutfitDescription: "Deep blue linen tunic with silver buttons, ivory cuffs and a narrow brown leather belt.",
+  OutfitStatus: "",
+  OutfitBeforePath: ASSETS.spymasterFullBody,
+  OutfitAfterPath: "",
+  OutfitBeforeWidth: 438,
+  OutfitBeforeHeight: 584,
+  OutfitAfterWidth: 438,
+  OutfitAfterHeight: 584,
   IsPortraitPreviewVisible: false,
   ZoomFrameWidth: 620,
   ZoomFrameHeight: 720,
@@ -438,6 +462,11 @@ const PREVIEW_PRESET_OVERRIDES = {
     IsBusy: true,
     BusyText: "Choose whether to proceed."
   },
+  "outfit-input": { IsOutfitVisible: true, IsOutfitInputVisible: true, InputEnabled: false },
+  "outfit-changing": { IsOutfitVisible: true, IsOutfitComparisonVisible: true, IsOutfitChanging: true, InputEnabled: false },
+  "outfit-ready": { IsOutfitVisible: true, IsOutfitComparisonVisible: true, IsOutfitReady: true, OutfitAfterPath: ASSETS.spymasterFullBody, InputEnabled: false },
+  "outfit-failed": { IsOutfitVisible: true, IsOutfitComparisonVisible: true, OutfitStatus: "The new portrait could not be generated. Please try again.", InputEnabled: false },
+  "outfit-ineligible": { CanChangeOutfit: false },
   "training-yard-empty": {
     TrainerCount: 0,
     TroopCount: 0,
@@ -685,6 +714,18 @@ const PREFAB_SAMPLE_OVERRIDES = {
       { Name: "Sturgian Heroic Line Breaker", TierText: "TIER 5", CountText: "9 TROOPS", ProgressText: "1,699 / 1,700 XP", StateText: "RECEIVING TRAINING", CanGainXp: true }
     ]
   },
+  "ReignPortraitRefreshPopup.xml": {
+    Title: "LOOK AGAIN?",
+    Detail: "You already have an image of Rhagaea. Look Again replaces it using their current native appearance. Reflect on the Years changes only their apparent age.",
+    LookAgainText: "Look Again", ReflectText: "Reflect on the Years", CancelText: "CANCEL", CanReflect: true
+  },
+  "ReignPlayerApproachPopup.xml": {
+    Title: "A REQUEST TO SPEAK", Detail: "Rhagaea is asking to speak with you.", AcceptText: "Talk to them", DeclineText: "Tell them another time"
+  },
+  "ReignBanterPanel.xml": {
+    Title: "Party banter", Collapsed: false, Expanded: true, PanelLeft: 1234, PanelTop: 599, PanelWidth: 420, PanelHeight: 220, DragWidth: 256, TitleWidth: 220, TranscriptWidth: 390, TranscriptHeight: 144, StatusWidth: 344, CollapseText: "Minimize", CanJoin: true, ChatScrollVersion: 1, Status: "",
+    Transcript: "Rhagaea: Even a crown does little to keep the rain out.\n\nJon: I could hold a cloak over it, Your Majesty.\n\nRhagaea: See to your own boots first."
+  },
   "ReignNotableGenerationPopup.xml": {
     Title: "PREPARING CALRADIA",
     Detail: "Generating the notable characters and relationships needed for this campaign.",
@@ -764,6 +805,7 @@ const PREFAB_SAMPLE_OVERRIDES = {
     ]
   },
   "ReignCourtPetitionScreen.xml": {
+    ActionComposerId: "preview-action-composer",
     Title: "COURT PETITION",
     PetitionerName: "Mengus fen Gruffendoc",
     PetitionerRole: "Petitioner for Ortysia",
@@ -833,6 +875,7 @@ const PREFAB_SAMPLE_OVERRIDES = {
     StatusText: "Select, move, resize, export, and compare against the browser preview."
   },
   "ReignRoyalCouncilScreen.xml": {
+    ActionComposerId: "preview-action-composer",
     WarSeat: {
       Role: "war",
       Title: "WAR COUNCILOR",
@@ -897,6 +940,7 @@ const PREFAB_SAMPLE_OVERRIDES = {
     StatusText: "The council awaits your question."
   },
   "ReignWarCouncilScreen.xml": {
+    ActionComposerId: "preview-action-composer",
     MapWidth: 820,
     MapHeight: 820,
     MapOffsetX: 0,
@@ -1226,29 +1270,35 @@ const PREFAB_SAMPLE_OVERRIDES = {
   }
 };
 
+function getTavernHouseSampleData(preset) { return { ...getTavernHouseBaseData(preset), ActionComposerId: "preview-action-composer" }; }
+
 const PREFAB_ROOT_KEYS = {
-  "ReignTavernHouseScreen.xml": TAVERN_HOUSE_ROOT_KEYS,
+  "ReignActionBuilder.xml": ["Title", "Recipient", "Sentence", "Error", "Search", "Entry", "EntryVisible", "SearchVisible", "CanAccept", "CanBack", "Choices"],
+  "ReignTavernHouseScreen.xml": ["ActionComposerId", ...TAVERN_HOUSE_ROOT_KEYS],
   "ReignClanAccordsScreen.xml": CLAN_ACCORDS_ROOT_KEYS,
   "AIPortraitsMemoriesBook.xml": ["MemoryItems", "MemoryBookImageId", "TitleText", "CaptionText", "CounterText", "HasMemories"],
   "ReignAmbassadorScreen.xml": ["PlayerBannerId", "PlayerBannerAsset", "PlayerBannerArgs", "PlayerBannerProvider", "ForeignAdvisor", "Ambassadors", "ShowEmptyState", "StatusText"],
-  "ReignCastleChatScreen.xml": ["CastleRoomName", "HasCastleArt", "CastleArtImageId", "CastleTavernArtImageId", "ShowCastleTavernArt", "ShowCastleApprovedFallback", "EventImageAsset", "PlayerDisplayName", "PlayerPortraitId", "PlayerPortraitAdditionalArgs", "PlayerPortraitTextureProviderName", "PlayerPortraitCacheKey", "IsBusy", "BusyText", "InputEnabled", "InputText", "PartyMembers", "ChatLines", "ChatScrollVersion", "IsOverlayVisible", "IsPortraitPreviewVisible", "PortraitPreviewId", "PortraitPreviewAsset", "PortraitPreviewAdditionalArgs", "PortraitPreviewTextureProviderName", "PortraitPreviewCacheKey", "PortraitPreviewName"],
+  "ReignCastleChatScreen.xml": ["ActionComposerId", "CastleRoomName", "HasCastleArt", "CastleArtImageId", "CastleTavernArtImageId", "ShowCastleTavernArt", "ShowCastleApprovedFallback", "EventImageAsset", "PlayerDisplayName", "PlayerPortraitId", "PlayerPortraitAdditionalArgs", "PlayerPortraitTextureProviderName", "PlayerPortraitCacheKey", "IsBusy", "BusyText", "InputEnabled", "InputText", "PartyMembers", "ChatLines", "ChatScrollVersion", "IsOverlayVisible", "IsPortraitPreviewVisible", "PortraitPreviewId", "PortraitPreviewAsset", "PortraitPreviewAdditionalArgs", "PortraitPreviewTextureProviderName", "PortraitPreviewCacheKey", "PortraitPreviewName"],
   "ReignCastleLayoutScreen.xml": ["CastleMapImageId", "GovernmentButtonText", "CastleGardenSlots", "TrainingYardSlots", "StableCourtyardSlots", "GuestBedroomRow1", "GuestBedroomRow2", "GuestBedroomRow3", "GuestBedroomRow4", "NobleSolarSlots", "InnerCourtyardSlots", "MainHallSlots", "RoyalBedroomSlots", "ThroneRoomSlots", "LibrarySlots", "DiningChamberSlots", "PortraitGallerySlots", "ChapelSlots", "BathsSlots", "BattlementSlots"],
-  "ReignCorrespondenceScreen.xml": ["Contacts", "SelectedName", "SelectedSubtitle", "ChatLines", "ChatScrollVersion", "BusyText", "InputText"],
+  "ReignCorrespondenceScreen.xml": ["ActionComposerId", "Contacts", "SelectedName", "SelectedSubtitle", "ChatLines", "ChatScrollVersion", "BusyText", "InputText"],
   "ReignCourtEconomicReportScreen.xml": ["SourceName", "TargetName", "GoodsName", "AvailableText", "AmountText", "ArrivalText", "Notes", "IsSourceDropdownOpen", "IsTargetDropdownOpen", "SourceOptions", "TargetOptions", "ReportDateText", "StatusText", "TreasuryText", "DailyIncomeText", "DailyExpensesText", "NetDailyChangeText", "TariffsTradeText", "VillageManorText", "TradeBalanceText", "OutstandingDebtsText", "GrainTotalText", "MeatTotalText", "TimberTotalText", "IronTotalText", "TotalMilitiaText", "TotalGarrisonText", "GarrisonUpkeepText", "WarInventoryText", "NetDailyPositive", "NetDailyNegative", "TradeBalancePositive", "TradeBalanceNegative", "CanSubmit", "HasSettlementOverflow", "EconomicAdvisor", "Settlements", "SurplusRows"],
   "ReignCourtScreen.xml": ["CourtTitle", "DocketTitle", "PlayerName", "PlayerBannerId", "PlayerBannerAsset", "PlayerBannerArgs", "PlayerBannerProvider", "HomeVisible", "LargeHomeVisible", "ReferenceHomeVisible", "TabContentVisible", "DetailVisible", "AudienceVisible", "ActionsVisible", "ScreenTitle", "ScreenSubtitle", "StatusText", "DetailTitle", "DetailBody", "DetailMeta", "AudienceSpeaker", "AudienceText", "AudienceEmotion", "AudienceInput", "AudienceHasPortrait", "AudiencePortraitId", "AudiencePortraitAsset", "AudiencePortraitAdditionalArgs", "AudiencePortraitTextureProviderName", "AudiencePortraitCacheKey", "Tabs", "Counters", "Lands", "DailyAgenda", "DocketItemCount", "DocketScrollVisible", "People", "DiplomaticStatus", "AmbassadorCards", "Rumors", "TabRows", "Actions", "RoyalCommandsVisible", "LocalModeNoticeVisible", "HasChancellor", "ChancellorName", "ChancellorPortraitCacheKey", "ChancellorStateText", "ChancellorSalaryText", "ChancellorToggleVisible"],
-  "ReignCourtPetitionScreen.xml": ["Title", "PetitionerName", "PetitionerRole", "SeverityText", "ProblemText", "RequestTypeText", "RequestedResourceText", "PurposeText", "NeedFacts", "RequestTerms", "BenefitText", "DangerText", "WarningText", "EventImageId", "EventImageAsset", "ActiveParticipants", "AvailableAttendees", "DirectGrantVisible", "GoldGrantVisible", "CanGrantDirect", "CanGrantWithGold", "CanRefuse", "DecisionComplete", "DecisionControlsVisible", "PostponeVisible", "CanPostpone", "CanContinue", "DirectGrantLabel", "GoldGrantLabel", "RefuseLabel", "StatusText", "Transcript", "InputText", "ChatScrollVersion", "CanSend", "ConversationEnabled"],
+  "ReignCourtPetitionScreen.xml": ["ActionComposerId", "Title", "PetitionerName", "PetitionerRole", "SeverityText", "ProblemText", "RequestTypeText", "RequestedResourceText", "PurposeText", "NeedFacts", "RequestTerms", "BenefitText", "DangerText", "WarningText", "EventImageId", "EventImageAsset", "ActiveParticipants", "AvailableAttendees", "DirectGrantVisible", "GoldGrantVisible", "CanGrantDirect", "CanGrantWithGold", "CanRefuse", "DecisionComplete", "DecisionControlsVisible", "PostponeVisible", "CanPostpone", "CanContinue", "DirectGrantLabel", "GoldGrantLabel", "RefuseLabel", "StatusText", "Transcript", "InputText", "ChatScrollVersion", "CanSend", "ConversationEnabled"],
   "ReignDiplomacyAnnouncementScreen.xml": ["Title", "DateText", "ShowTarget", "Outcome", "Summary", "Terms", "ActorName", "ActorKingdom", "ActorReason", "ActorPortraitId", "ActorPortraitAsset", "ActorPortraitArgs", "ActorPortraitProvider", "ActorPortraitCacheKey", "ActorBannerId", "ActorBannerArgs", "ActorBannerProvider", "TargetName", "TargetKingdom", "TargetReason", "TargetPortraitId", "TargetPortraitAsset", "TargetPortraitArgs", "TargetPortraitProvider", "TargetPortraitCacheKey", "TargetBannerId", "TargetBannerArgs", "TargetBannerProvider"],
   "ReignFamilyChambersScreen.xml": ["Title", "Subtitle", "Adults", "Children", "SelectionText", "StatusText", "IsBusy", "CanEnterScene"],
   "ReignTrainingYardScreen.xml": ["Title", "TrainerHeading", "TroopHeading", "SelectedTrainerName", "SelectedTrainerDetail", "LeadershipText", "WeaponText", "RateText", "ElapsedText", "DeliveredText", "StatusText", "IsTraining", "CanTrain", "CanStop", "HasSelectedTrainer", "HasSelectedGeneratedPortrait", "SelectedPortraitCacheKey", "SelectedPortraitId", "SelectedPortraitAdditionalArgs", "SelectedPortraitTextureProviderName", "PortraitAsset", "TrainerCount", "TroopCount", "Trainers", "Troops"],
   "ReignGovernmentScreen.xml": GOVERNMENT_ROOT_KEYS,
-  "ReignIndividualChatScreen.xml": ["PlayerName", "PlayerSubtitle", "PlayerInfo", "PlayerPortraitId", "PlayerPortraitAsset", "PlayerPortraitAdditionalArgs", "PlayerPortraitTextureProviderName", "PlayerPortraitCropImageWidth", "PlayerPortraitCropImageHeight", "NpcName", "NpcSubtitle", "NpcInfo", "NpcPortraitId", "NpcPortraitAsset", "NpcPortraitAdditionalArgs", "NpcPortraitTextureProviderName", "NpcPortraitCropImageWidth", "NpcPortraitCropImageHeight", "LocationText", "IsBusy", "BusyText", "InputEnabled", "InputText", "ChatLines", "ChatScrollVersion", "IsPortraitZoomVisible", "IsPregnancyWarningVisible", "ZoomFrameWidth", "ZoomFrameHeight", "ZoomPortraitImageWidth", "ZoomPortraitImageHeight", "ZoomPortraitId", "ZoomPortraitAsset", "ZoomPortraitAdditionalArgs", "ZoomPortraitTextureProviderName"],
+  "ReignIndividualChatScreen.xml": ["ActionComposerId", "CanChangeOutfit", "IsOutfitVisible", "IsOutfitInputVisible", "IsOutfitComparisonVisible", "IsOutfitReady", "IsOutfitChanging", "CanCancelOutfit", "OutfitDescription", "OutfitStatus", "OutfitBeforePath", "OutfitAfterPath", "OutfitBeforeWidth", "OutfitBeforeHeight", "OutfitAfterWidth", "OutfitAfterHeight", "PlayerName", "PlayerSubtitle", "PlayerInfo", "PlayerPortraitId", "PlayerPortraitAsset", "PlayerPortraitAdditionalArgs", "PlayerPortraitTextureProviderName", "PlayerPortraitCropImageWidth", "PlayerPortraitCropImageHeight", "NpcName", "NpcSubtitle", "NpcInfo", "NpcPortraitId", "NpcPortraitAsset", "NpcPortraitAdditionalArgs", "NpcPortraitTextureProviderName", "NpcPortraitCropImageWidth", "NpcPortraitCropImageHeight", "LocationText", "IsBusy", "BusyText", "InputEnabled", "InputText", "ChatLines", "ChatScrollVersion", "IsPortraitZoomVisible", "IsPregnancyWarningVisible", "ZoomFrameWidth", "ZoomFrameHeight", "ZoomPortraitImageWidth", "ZoomPortraitImageHeight", "ZoomPortraitId", "ZoomPortraitAsset", "ZoomPortraitAdditionalArgs", "ZoomPortraitTextureProviderName"],
+  "ReignPortraitRefreshPopup.xml": ["Title", "Detail", "LookAgainText", "ReflectText", "CancelText", "CanReflect"],
+  "ReignPlayerApproachPopup.xml": ["Title", "Detail", "AcceptText", "DeclineText"],
+  "ReignBanterPanel.xml": ["Title", "Collapsed", "Expanded", "PanelHeight", "CollapseText", "CanJoin", "ChatScrollVersion", "Status", "Transcript"],
   "ReignNotableGenerationPopup.xml": ["Title", "Detail", "Progress", "HasError"],
-  "ReignPartyChatScreen.xml": ["Title", "LocationText", "SelectedSummary", "BusyText", "InputText", "ChatLines", "PartyMembers", "IsOverlayVisible", "IsPortraitPreviewVisible", "PortraitPreviewId", "PortraitPreviewAsset", "PortraitPreviewAdditionalArgs", "PortraitPreviewTextureProviderName", "PortraitPreviewName"],
-  "ReignRoyalCouncilScreen.xml": ["WarSeat", "SpymasterSeat", "EconomicSeat", "ForeignSeat", "Transcript", "InputText", "CanSend", "IsBusy", "StatusText"],
-  "ReignSocialEventScreen.xml": ["IsOverlayVisible", "ShowPhaseControls", "ShowWildernessArt", "EventTitle", "PhaseTitle", "PhaseStatus", "PhaseDescription", "EventImageId", "EventImageAsset", "EventImageText", "EventArtSize", "EventArtRowHeight", "AttendeeListTopMargin", "AttendeeListBottomMargin", "AttendeeTitleTopMargin", "EventArtTopMargin", "EventBackgroundImageId", "BackgroundImageId", "BackgroundAsset", "BackgroundAdditionalArgs", "BackgroundTextureProviderName", "CultureTint", "BusyText", "InputText", "ChatLines", "ChatScrollVersion", "ActiveParticipants", "AvailableAttendees", "IsPortraitPreviewVisible", "PortraitPreviewFrameWidth", "PortraitPreviewFrameHeight", "PortraitPreviewImageWidth", "PortraitPreviewImageHeight", "PortraitPreviewId", "PortraitPreviewAsset", "PortraitPreviewAdditionalArgs", "PortraitPreviewTextureProviderName", "PortraitPreviewName"],
+  "ReignPartyChatScreen.xml": ["ActionComposerId", "Title", "LocationText", "SelectedSummary", "BusyText", "InputText", "ChatLines", "PartyMembers", "IsOverlayVisible", "IsPortraitPreviewVisible", "PortraitPreviewId", "PortraitPreviewAsset", "PortraitPreviewAdditionalArgs", "PortraitPreviewTextureProviderName", "PortraitPreviewName"],
+  "ReignRoyalCouncilScreen.xml": ["ActionComposerId", "WarSeat", "SpymasterSeat", "EconomicSeat", "ForeignSeat", "Transcript", "InputText", "CanSend", "IsBusy", "StatusText"],
+  "ReignSocialEventScreen.xml": ["ActionComposerId", "IsOverlayVisible", "ShowPhaseControls", "ShowWildernessArt", "EventTitle", "PhaseTitle", "PhaseStatus", "PhaseDescription", "EventImageId", "EventImageAsset", "EventImageText", "EventArtSize", "EventArtRowHeight", "AttendeeListTopMargin", "AttendeeListBottomMargin", "AttendeeTitleTopMargin", "EventArtTopMargin", "EventBackgroundImageId", "BackgroundImageId", "BackgroundAsset", "BackgroundAdditionalArgs", "BackgroundTextureProviderName", "CultureTint", "BusyText", "InputText", "ChatLines", "ChatScrollVersion", "ActiveParticipants", "AvailableAttendees", "IsPortraitPreviewVisible", "PortraitPreviewFrameWidth", "PortraitPreviewFrameHeight", "PortraitPreviewImageWidth", "PortraitPreviewImageHeight", "PortraitPreviewId", "PortraitPreviewAsset", "PortraitPreviewAdditionalArgs", "PortraitPreviewTextureProviderName", "PortraitPreviewName"],
   "ReignSpymasterScreen.xml": ["SpymasterName", "PortraitCacheKey", "PortraitId", "PortraitArgs", "PortraitProvider", "HasPortrait", "HasSpymaster", "ShowSpymasterAiPortrait", "ShowSpymasterTableauFallback", "ShowAppointmentPrompt", "AppointmentPending", "SpymasterModel", "IsIntelligence", "IsSubterfuge", "IsReputation", "IsArchive", "ShowOperationPanel", "IsLands", "IsPeople", "ShowPeopleGroups", "ShowSocialItem", "PeopleGroupText", "SocialScopeText", "TargetName", "TargetDetail", "ActionName", "OperationDetail", "AssessmentText", "IsOrdinaryAssessment", "IsChallengingAssessment", "SocialItemName", "TargetDropdownOpen", "ActionDropdownOpen", "SocialDropdownOpen", "CanBegin", "CanBreakout", "BreakoutText", "StatusText", "ReportText", "TargetOptions", "ActionOptions", "SocialItems", "Reports"],
   "ReignUiCalibrationOverlay.xml": ["IsLauncherVisible", "IsExpanded", "SelectionVisible", "SelectionX", "SelectionY", "SelectionWidth", "SelectionHeight", "MovieText", "SelectedText", "GeometryText", "ModeText", "StatusText"],
-  "ReignWarCouncilScreen.xml": ["MapWidth", "MapHeight", "MapOffsetX", "MapOffsetY", "MarkerRevision", "SelectedLordIndex", "LordCount", "StatusText", "MapImageId", "OuterFrameImageId", "RavenImageId", "PanelFrameImageId", "TallPanelFrameImageId", "PanelFrameOverlayImageId", "CouncilorName", "CouncilorTitle", "CouncilorSkillText", "CouncilorPortraitId", "CouncilorPortraitArgs", "CouncilorPortraitProvider", "CouncilorDropdownOpen", "MessengerVisible", "MessengerTitle", "MessengerInputText", "MessengerStatus", "Kingdoms", "Reports", "Settlements", "Lords", "CouncilorCandidates"]
+  "ReignWarCouncilScreen.xml": ["ActionComposerId", "MapWidth", "MapHeight", "MapOffsetX", "MapOffsetY", "MarkerRevision", "SelectedLordIndex", "LordCount", "StatusText", "MapImageId", "OuterFrameImageId", "RavenImageId", "PanelFrameImageId", "TallPanelFrameImageId", "PanelFrameOverlayImageId", "CouncilorName", "CouncilorTitle", "CouncilorSkillText", "CouncilorPortraitId", "CouncilorPortraitArgs", "CouncilorPortraitProvider", "CouncilorDropdownOpen", "MessengerVisible", "MessengerTitle", "MessengerInputText", "MessengerStatus", "Kingdoms", "Reports", "Settlements", "Lords", "CouncilorCandidates"]
 };
 
 export function getNativeAugmentationSampleData(target) {
@@ -1370,6 +1420,61 @@ function courtLifePreview(source, title, participants, reply, terms, severity = 
 
 export function getSampleDataForPrefab(fileName, preset = "") {
   const normalizedName = String(fileName || "").replaceAll("\\", "/").split("/").at(-1);
+  if (normalizedName === "ReignActionBuilder.xml") {
+    const result = structuredClone(SAMPLE_DATA[normalizedName]);
+    const choices = labels => labels.map(Label => ({ Label, Detail: "", Enabled: true }));
+    if (preset) result.CanBack = true;
+    if (preset === "action-builder-categories") Object.assign(result, {
+      Title: "Choose an action", SearchVisible: true,
+      Choices: choices(["Give…", "Go to…", "Support…", "Government decisions…", "Court and intelligence…", "Party and military orders…", "Diplomacy…", "Clan and kingdom…", "Personal requests…"])
+    });
+    if (preset === "action-builder-selection") Object.assign(result, {
+      Title: "Select troops", SearchVisible: true, CanAccept: false,
+      Choices: ["Aserai Archer", "Aserai Footman", "Battanian Fian", "Imperial Archer", "Imperial Legionary", "Khuzait Horse Archer", "Sturgian Spearman", "Vlandian Banner Knight"].map((Label, i) => ({ Label, Detail: `${12 + i * 2} available`, Enabled: true }))
+        .concat([{ Label: "Lord's bodyguard", Detail: "This person does not command these troops.", Enabled: false }])
+    });
+    if (preset === "action-builder-bargain" || preset === "action-builder-npc-offer") Object.assign(result, {
+      Title: "Your sentence", CanAccept: true,
+      Sentence: "I wish to give you 12 Imperial Legionaries; and I will give you 8 Battanian Fians; and you will give me 15,000 denars; and you will give me 4 war horses.",
+      Choices: choices(["and I will give…", "and you will give…", "Add another action…", "Edit a term or its timing…", "Payment: after verified fulfillment"])
+    });
+    if (preset === "action-builder-npc-offer") {
+      result.Sentence = "I would like you to give me the prisoner Lord Neretzes; and I will give you 25,000 denars.";
+      result.Choices.unshift({ Label: "Decline this offer", Detail: "", Enabled: true });
+    }
+    if (preset === "action-builder-amount") Object.assign(result, {
+      Title: "Amount of gold", EntryVisible: true, Choices: [], $emptyListRationales: { Choices: "The amount step uses the number field and Continue." }
+    });
+    if (preset === "action-builder-settlements") Object.assign(result, {
+      Title: "Select settlement", SearchVisible: true,
+      Choices: choices(["Amitatys", "Amprela", "Argoron", "Askar", "Balgard", "Car Banseth", "Chaikand", "Danustica", "Dunglanys", "Epicrotea", "Galend", "Hubyar", "Husn Fulq", "Jaculan", "Jalmarys", "Lageta"])
+    });
+    if (preset === "action-builder-parties") Object.assign(result, {
+      Title: "Select political party", SearchVisible: true,
+      Choices: choices(["Crown Loyalists", "Freeholders", "Noble Assembly", "Town League"])
+    });
+    if (preset === "action-builder-support") Object.assign(result, {
+      Title: "What support are you proposing?", SearchVisible: true,
+      Choices: choices(["Back a political platform", "Join a political party", "Support a proposal", "Support me when I declare rebellion"])
+    });
+    if (preset === "action-builder-pledge") Object.assign(result, {
+      Title: "Your sentence", CanAccept: true,
+      Sentence: "I would like you to support me when I declare rebellion against Lucon, ruler of the Northern Empire.",
+      Choices: choices(["and you will give…", "and I will give…", "Add another action…", "Edit a term or its timing…"])
+    });
+    if (preset === "action-builder-declaration") Object.assign(result, {
+      Title: "Your sentence", CanAccept: true,
+      Sentence: "I declare rebellion against your rule of the Northern Empire, as leader of the House of Varos.",
+      Choices: [{ Label: "Declared when you send this message", Detail: "The ruler cannot veto it. You can still go Back or Cancel.", Enabled: false }]
+    });
+    if (preset === "action-builder-error") Object.assign(result, {
+      Title: "Select troops", SearchVisible: true, Error: "This person no longer commands the selected troops.",
+      Choices: [{ Label: "Imperial Legionary", Detail: "No longer available", Enabled: false }]
+    });
+    result.Recipient = preset === "action-builder-pledge" ? "To Argoros" : "To Lucon";
+    result.Choices = result.Choices.map(row => ({ ...row, Disabled: !row.Enabled }));
+    return result;
+  }
   if (normalizedName === "ReignClanAccordsScreen.xml") return getClanAccordsSampleData(preset);
   if (normalizedName === "ReignGovernmentScreen.xml") return getGovernmentHearingSampleData(preset);
   if (normalizedName === "ReignTavernHouseScreen.xml") return getTavernHouseSampleData(preset);
@@ -1382,6 +1487,21 @@ export function getSampleDataForPrefab(fileName, preset = "") {
     ...(PREFAB_SAMPLE_OVERRIDES[normalizedName] || {}),
     ...(PREVIEW_PRESET_OVERRIDES[preset] || {})
   };
+  if (normalizedName === "ReignPlayerApproachPopup.xml" && preset === "approach-keep") Object.assign(result, {
+    Detail: "Lucon, Rhagaea, Caladog and Mesui wish to speak with you.", AcceptText: "See what they want", DeclineText: "Avoid them"
+  });
+  if (normalizedName === "ReignBanterPanel.xml") {
+    if (preset === "banter-collapsed") Object.assign(result, { Collapsed: true, Expanded: false, PanelLeft: 80, PanelTop: 60, PanelHeight: 42, CollapseText: "Expand" });
+    if (preset === "banter-generating") Object.assign(result, { Transcript: "", Status: "Someone is about to speak…" });
+    if (preset === "banter-takeover") Object.assign(result, { CanJoin: false, Status: "Joining…" });
+    if (preset === "banter-long") {
+      Object.assign(result, { PanelLeft: 120, PanelTop: 80, PanelWidth: 640, PanelHeight: 380, DragWidth: 476, TitleWidth: 440, TranscriptWidth: 610, TranscriptHeight: 304, StatusWidth: 564 });
+      result.Transcript = Array.from({length:12}, (_,i) => (i%2 ? "Jon" : "Rhagaea") + ": " + "We will find a dry place before nightfall, if the weather permits. ".repeat(15)).join("\n\n");
+    }
+  }
+  if (normalizedName === "ReignPlayerApproachPopup.xml" && preset === "approach-patrol") Object.assign(result, {
+    Title: "A NOBLE'S PARTY", Detail: "Caladog's party is approaching you.", AcceptText: "Stop and see what they want", DeclineText: "Nod and pass"
+  });
   if (normalizedName === "ReignPartyChatScreen.xml" && preset.startsWith("homes-")) {
     const atHome = preset === "homes-private-chat";
     const empty = preset === "homes-empty";

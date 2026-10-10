@@ -3,11 +3,11 @@
   "heroStringId": "dead_lord_2_2",
   "characterName": "Varra",
   "imagePath": "portrait.png",
-  "imageSha256": "B12EC2EDAAF3021F31423621A399F2E2A489F02015D30FF693E1A9E09851645B",
-  "description": "Culturally appropriate everyday Sturgian high-noble attire inspired by wealthy medieval Rus aristocracy. Use richly woven wool, fine linen, elegant long coats or kaftans, tasteful embroidery, restrained fur trim, and expertly crafted belts or clasps. Men should wear a stately long noble coat layered over a fine embroidered shirt and tailored trousers. Women should wear a richly cut long dress or overdress with embroidered cuffs, collar, and hem, paired with a fitted outer garment or elegant shoulder layer. The outfit should feel imposing, expensive, and suited to the daily life of a powerful northern noble. No headgear of any kind. No armor, weapons, crowns, full ceremonial regalia, or extravagant fur mantles.",
-  "status": "failed",
-  "descriptionSource": "portrait_prompt_fallback",
-  "retryEligible": true,
-  "error": "{\"error\":{\"message\":\"Model \\\"zai-org/glm-5.2\\\" does not support image inputs. Remove image content or choose a multimodal model.\",\"type\":\"invalid_request_error\",\"param\":\"messages\",\"code\":\"image_input_not_supported\"}}",
-  "updatedUtc": "2026-07-18T22:03:35.4456387Z"
+  "imageSha256": "BC7330FF6EDC3BEF09099C42C927584BEE21C3E08C2C2CA609250C1A42881227",
+  "description": "Blue floor-length structured noble gown with a low square neckline and gold woven embroidered front panels and borders, cream underdress and sleeve lining, decorative round brooches, a narrow gold-patterned belt and a cream-and-blue shoulder wrap resting along the arms. Brown closed leather shoes are visible beneath the hem. Substantial opaque fabric covers the bust, abdomen and pelvis; no headgear, armor or weapons.",
+  "status": "completed",
+  "descriptionSource": "agent_vision",
+  "retryEligible": false,
+  "error": "",
+  "updatedUtc": "2026-10-08T03:48:58.686Z"
 }

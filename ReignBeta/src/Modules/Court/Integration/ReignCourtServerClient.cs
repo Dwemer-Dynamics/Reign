@@ -141,13 +141,14 @@ namespace ReignBeta.Integration
             return PostAsync("/court/offices/dismiss", payload);
         }
 
-        public static Task<ReignCourtServerResponse> RequestRoyalCouncilAdviceAsync(string councilSessionId, string turnId,
+        public static async Task<ReignCourtServerResponse> RequestRoyalCouncilAdviceAsync(string councilSessionId, string turnId,
             string role, Hero speaker, string playerText, bool isOpening, bool expand, JObject domainPacket,
-            JArray transcript, JArray presentAdvisorIds)
+            JArray transcript, JArray presentAdvisorIds, Reign.Core.Contracts.Actions.ActionAgreement actionDraft = null, string contributionId = "")
         {
             JObject payload = BasePayload(string.Empty, 0);
             payload["councilSessionId"] = councilSessionId ?? string.Empty;
             payload["turnId"] = turnId ?? string.Empty;
+            if (contributionId.Length > 0) payload["contributionId"] = contributionId;
             payload["role"] = role ?? string.Empty;
             payload["playerText"] = playerText ?? string.Empty;
             payload["isOpening"] = isOpening;
@@ -162,7 +163,12 @@ namespace ReignBeta.Integration
                 ["cultureId"] = speaker?.Culture?.StringId ?? string.Empty,
                 ["clanId"] = speaker?.Clan?.StringId ?? string.Empty
             };
-            return PostAsync("/court/royal-council/respond", payload);
+            Action<JObject> complete = await ReignMainThread.InvokeAsync(() => ReignServerClient.BeginStructuredActionExchange(payload, speaker, actionDraft)).ConfigureAwait(false);
+            ReignCourtServerResponse response = await PostAsync("/court/royal-council/respond", payload).ConfigureAwait(false);
+            await ReignMainThread.InvokeAsync(() => complete(response.Raw)).ConfigureAwait(false);
+            response.Ok = response.Raw.Value<bool?>("ok") == true;
+            response.Error = response.Raw.Value<string>("error") ?? response.Error;
+            return response;
         }
 
         public static Task<ReignCourtServerResponse> RequestRulerPetitionReactionAsync(
@@ -464,6 +470,17 @@ namespace ReignBeta.Integration
 
         private static async Task<ReignCourtServerResponse> PostAsync(string route, JObject payload)
         {
+            if (route == "/court/royal-council/respond" || route == "/court/ruler-petition/respond")
+            {
+                try
+                {
+                    JObject result = await ReignServerClient.PostJsonAsync(route, payload).ConfigureAwait(false);
+                    return new ReignCourtServerResponse { Ok = result.Value<bool?>("ok") == true,
+                        Error = result.Value<string>("error") ?? "", Revision = ReadNumericRevision(result),
+                        NativeActions = result["nativeActions"] as JArray ?? new JArray(), Raw = result };
+                }
+                catch (Exception ex) { return new ReignCourtServerResponse { Ok = false, Error = ex.Message }; }
+            }
             try { await ReignSaveSyncCoordinator.WaitForReadyAsync(route).ConfigureAwait(false); }
             catch (Exception ex) { return new ReignCourtServerResponse { Ok = false, Error = ex.Message }; }
             if (!ReignServerEndpoint.TryBeginRequest(out string unavailable))

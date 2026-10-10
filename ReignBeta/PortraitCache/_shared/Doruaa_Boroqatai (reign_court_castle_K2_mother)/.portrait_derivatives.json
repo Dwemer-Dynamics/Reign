@@ -2,27 +2,27 @@
   "Version": 3,
   "CropAlgorithmVersion": 2,
   "SourceFileName": "portrait.png",
-  "SourcePath": "portrait.png",
-  "SourceLength": 1634260,
-  "SourceLastWriteUtcTicks": 639199096322306619,
-  "SourceWidth": 864,
-  "SourceHeight": 1152,
-  "CropX": 278,
-  "CropY": 103,
-  "CropWidth": 311,
-  "CropHeight": 389,
-  "WideCropX": 161,
-  "WideCropY": 103,
-  "WideCropWidth": 545,
-  "WideCropHeight": 389,
+  "SourcePath": "C:\\ReignPortraitRebuild\\2026-10-07-01a11741-culture-v2\\_shared\\Doruaa_Boroqatai (reign_court_castle_K2_mother)\\portrait.png",
+  "SourceLength": 2352522,
+  "SourceLastWriteUtcTicks": 639270912303132919,
+  "SourceWidth": 1086,
+  "SourceHeight": 1448,
+  "CropX": 379,
+  "CropY": 0,
+  "CropWidth": 281,
+  "CropHeight": 351,
+  "WideCropX": 274,
+  "WideCropY": 0,
+  "WideCropWidth": 491,
+  "WideCropHeight": 351,
   "FocusMethod": "ultraface",
   "FocusModel": "version-RFB-320",
-  "FocusConfidence": 0.999988317489624,
+  "FocusConfidence": 0.9994860887527466,
   "FaceCandidateCount": 1,
-  "FaceX": 0.4193248748779297,
-  "FaceY": 0.1283034086227417,
-  "FaceWidth": 0.16443336009979248,
-  "FaceHeight": 0.15690791606903076,
+  "FaceX": 0.42619526386260986,
+  "FaceY": 0.05949895456433296,
+  "FaceWidth": 0.10483306646347046,
+  "FaceHeight": 0.09645884856581688,
   "NeedsReview": false,
   "ThumbnailFileName": "thumbnail.png",
   "ThumbnailWidth": 256,
@@ -31,9 +31,180 @@
   "PartyThumbnailWidth": 448,
   "PartyThumbnailHeight": 320,
   "PortraitFileName": "portrait_chest.png",
-  "PortraitWidth": 311,
-  "PortraitHeight": 389,
+  "PortraitWidth": 281,
+  "PortraitHeight": 351,
   "ZoomFileName": "zoom.png",
-  "ZoomWidth": 864,
-  "ZoomHeight": 1152
+  "ZoomWidth": 1024,
+  "ZoomHeight": 1365,
+  "ManualCropProvenance": {
+    "schema": "reign-manual-crop-provenance-v1",
+    "actualCropPolicy": "manual-crown-expansion-v1",
+    "nativeAlgorithmProducedRectangle": false,
+    "compatibilityFields": {
+      "Version": 3,
+      "CropAlgorithmVersion": 2
+    },
+    "compatibilityFieldInterpretation": "Retained native consumer tags; this explicit adapter selected the rectangles, not algorithm2.",
+    "master": {
+      "path": "C:\\ReignPortraitRebuild\\2026-10-07-01a11741-culture-v2\\_shared\\Doruaa_Boroqatai (reign_court_castle_K2_mother)\\portrait.png",
+      "sha256": "e41c869d1c071f5a69952e7129f165a7d1d0da963c2a2cd066e0bac4cba54120",
+      "bytes": 2352522
+    },
+    "baselineMetadata": {
+      "path": "C:\\ReignPortraitRebuild\\2026-10-07-01a11741-culture-v2\\_shared\\Doruaa_Boroqatai (reign_court_castle_K2_mother)\\.portrait_derivatives.json",
+      "sha256": "ab1287345bd751845c4ea6fbe9a22dabe1c3a47d8d872caa09cde39837c419b9",
+      "bytes": 1214
+    },
+    "plan": {
+      "path": "C:\\ReignPortraitRebuild\\2026-10-07-01a11741-culture-v2\\audit\\remaining-phase4-crown-pack-preparation-component-001\\candidate-plan-001.json",
+      "sha256": "92023e4675e2b55ff1398bb4179fd790ed4585f7cfb1e36311cd919f8a21b666",
+      "bytes": 125163
+    },
+    "authorization": {
+      "path": "C:\\ReignPortraitRebuild\\2026-10-07-01a11741-culture-v2\\audit\\remaining-phase4-crown-pack-preparation-component-001\\root-release-001.json",
+      "sha256": "a9f72a1dd9f9cd592d1a3c3b113539231d53906f02f60e5a8788c2e0359fb481",
+      "bytes": 2490
+    },
+    "actualProducer": {
+      "path": "C:\\ReignPortraitRebuild\\2026-10-07-01a11741-culture-v2\\audit\\remaining-phase4-crown-pack-preparation-component-001\\candidate-crown-pack-001.py",
+      "sha256": "9d23c388eb640f6ca67a0b2ffefe155eb7d72acc274c29ed776baec2e76c13bb",
+      "bytes": 12300
+    },
+    "nativeCodecWorker": {
+      "path": "C:\\ReignPortraitRebuild\\2026-10-07-01a11741-culture-v2\\audit\\remaining-phase4-crown-pack-preparation-component-001\\native-crown-codec-001.ps1",
+      "sha256": "5dc42027b8c46261f4040b3c08dfd5b5957fae6f36864d348f542828634ff974",
+      "bytes": 6106
+    },
+    "codecAssembly": {
+      "path": "D:\\Projects\\Reign\\.codex-build\\reign-mcp\\validation\\20261007-181216-5bee7061\\client\\out\\ReignBeta.dll",
+      "sha256": "498c5d8e7af24226dbf5b9d37147fd562cf0e42b6477b6f4607f6011905ac5b8",
+      "bytes": 5388800
+    },
+    "originalGenerationLineage": {
+      "phaseResult": {
+        "path": "C:\\ReignPortraitRebuild\\2026-10-07-01a11741-culture-v2\\audit\\residual-correction-phase4-001\\reign_court_castle_K2_mother\\result.json",
+        "sha256": "b30d3ba9b4be11506119678e1ccd23b0ca56975cef3b9ff1377fd945cf11eebe",
+        "bytes": 5724
+      },
+      "originalDerivativeReport": {
+        "path": "C:\\ReignPortraitRebuild\\2026-10-07-01a11741-culture-v2\\audit\\phase4-execution-review-route-001\\reign_court_castle_K2_mother\\derivative-report.json",
+        "sha256": "c1dc9d78683fc59e5f186cb64377b5ff3f9b7bb2ecfec3ccff65aba2461c89d5",
+        "bytes": 3804
+      }
+    },
+    "rawFocusUnchanged": true,
+    "noCandidateExclusions": true,
+    "rectangleXYWH": [
+      379,
+      0,
+      281,
+      351
+    ],
+    "wideRectangleXYWH": [
+      274,
+      0,
+      491,
+      351
+    ],
+    "productBytes": [
+      {
+        "path": "C:\\ReignPortraitRebuild\\2026-10-07-01a11741-culture-v2\\audit\\remaining-phase4-crown-pack-preparation-component-001\\candidate-packs-001\\reign_court_castle_K2_mother\\portrait_chest.png",
+        "sha256": "7e595ad243cc2f3522fcaaa61a38fef72911628eee084b4337ff13a905093d19",
+        "bytes": 229885,
+        "name": "portrait_chest.png",
+        "dimensions": [
+          281,
+          351
+        ]
+      },
+      {
+        "path": "C:\\ReignPortraitRebuild\\2026-10-07-01a11741-culture-v2\\audit\\remaining-phase4-crown-pack-preparation-component-001\\candidate-packs-001\\reign_court_castle_K2_mother\\thumbnail.png",
+        "sha256": "064cc98d82a78eb8221bc1b913d71331308e9d3e4578b1aec1b5e3053f143d7b",
+        "bytes": 187554,
+        "name": "thumbnail.png",
+        "dimensions": [
+          256,
+          320
+        ]
+      },
+      {
+        "path": "C:\\ReignPortraitRebuild\\2026-10-07-01a11741-culture-v2\\audit\\remaining-phase4-crown-pack-preparation-component-001\\candidate-packs-001\\reign_court_castle_K2_mother\\thumbnail_wide.png",
+        "sha256": "3177f329daceb8d99fd84669a9624f275cbde314423bf5104a39769f8b887454",
+        "bytes": 296908,
+        "name": "thumbnail_wide.png",
+        "dimensions": [
+          448,
+          320
+        ]
+      }
+    ],
+    "zoomUnchanged": {
+      "path": "C:\\ReignPortraitRebuild\\2026-10-07-01a11741-culture-v2\\_shared\\Doruaa_Boroqatai (reign_court_castle_K2_mother)\\zoom.png",
+      "sha256": "de9dfe2d1448c6ced34400eb3454d11d624ccee41f74d249c00d2c18e12feed5",
+      "bytes": 3299474
+    },
+    "scope": "Candidate crop only; root raster approval and audit reader/adoption pending. No source/geometry/family/overall acceptance.",
+    "sourceLastWriteUtcTicksExactDecimal": "639270912303132919",
+    "nativeFieldsChangedOnly": [
+      "CropX",
+      "CropY",
+      "CropWidth",
+      "CropHeight",
+      "WideCropX",
+      "WideCropY",
+      "WideCropWidth",
+      "WideCropHeight",
+      "PortraitWidth",
+      "PortraitHeight",
+      "ThumbnailWidth",
+      "ThumbnailHeight",
+      "PartyThumbnailWidth",
+      "PartyThumbnailHeight"
+    ],
+    "forcedRebuildLimitation": "Native forced regeneration/freshness invalidation may replace these crops and this extension."
+  },
+  "StagedAssetProvenance": {
+    "schema": "reign-staged-effective-portrait-origin-v1",
+    "id": "reign_court_castle_K2_mother",
+    "kind": "manual_same_master",
+    "currentLocalFiles": [
+      {
+        "name": "portrait_chest.png",
+        "sha256": "7e595ad243cc2f3522fcaaa61a38fef72911628eee084b4337ff13a905093d19",
+        "bytes": 229885
+      },
+      {
+        "name": "thumbnail.png",
+        "sha256": "064cc98d82a78eb8221bc1b913d71331308e9d3e4578b1aec1b5e3053f143d7b",
+        "bytes": 187554
+      },
+      {
+        "name": "thumbnail_wide.png",
+        "sha256": "3177f329daceb8d99fd84669a9624f275cbde314423bf5104a39769f8b887454",
+        "bytes": 296908
+      },
+      {
+        "name": "portrait.png",
+        "sha256": "e41c869d1c071f5a69952e7129f165a7d1d0da963c2a2cd066e0bac4cba54120",
+        "bytes": 2352522
+      },
+      {
+        "name": "zoom.png",
+        "sha256": "de9dfe2d1448c6ced34400eb3454d11d624ccee41f74d249c00d2c18e12feed5",
+        "bytes": 3299474
+      }
+    ],
+    "nativeAlgorithmProducedRectangle": false,
+    "priorProducerExtensionsRetainedVerbatim": true,
+    "absolutePriorReferencesRole": "Historical/candidate references; current module pixels/provenance use the relative currentLocalFiles.",
+    "sourcePathProjection": {
+      "from": "C:\\ReignPortraitRebuild\\2026-10-07-01a11741-culture-v2\\_shared\\Doruaa_Boroqatai (reign_court_castle_K2_mother)\\portrait.png",
+      "to": "C:\\ReignPortraitRebuild\\2026-10-07-01a11741-culture-v2\\_shared\\Doruaa_Boroqatai (reign_court_castle_K2_mother)\\portrait.png",
+      "reason": "Unchanged current fullbody cache anchor"
+    },
+    "independentChestNativeForcedRegenerationCanOverwrite": false,
+    "globalFaceAcceptance": false,
+    "nativeUIAcceptance": false,
+    "notSwapApproval": true
+  }
 }

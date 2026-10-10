@@ -3,11 +3,11 @@
   "heroStringId": "lord_1_28",
   "characterName": "Temion",
   "imagePath": "portrait.png",
-  "imageSha256": "E8DB6BAE7BF55E9BD7F3EC23D639BF55754B3E1D257006E9ADD2938F4F5B77E3",
-  "description": "Culturally appropriate everyday Calradic Imperial minor-lord attire inspired by refined late Roman and Byzantine noble clothing. Men should wear a high-quality tunic or long tailored outer coat over fine linen, decorated with narrow woven borders, refined clasps, and a decorated belt. Women should wear a long elegant dress or layered tunic ensemble with shaped sleeves, graceful draping, and tasteful trim around the neckline, cuffs, and edges. The garments should feel polished, educated, urban, and wealthy without resembling full imperial ceremony. No headgear of any kind. No armor, weapons, crowns, imperial regalia, laurel wreaths, or ceremonial robes.",
-  "status": "failed",
-  "descriptionSource": "portrait_prompt_fallback",
-  "retryEligible": true,
-  "error": "{\"error\":{\"message\":\"Model \\\"zai-org/glm-5.2\\\" does not support image inputs. Remove image content or choose a multimodal model.\",\"type\":\"invalid_request_error\",\"param\":\"messages\",\"code\":\"image_input_not_supported\"}}",
-  "updatedUtc": "2026-07-18T22:03:34.6536135Z"
+  "imageSha256": "724B8E5E3ED8670EB44CE84E230F9457040F26BC21042B9A80118DB49F181009",
+  "description": "An ankle-length burgundy brocade court coat has gold patterned borders along its open front, cuffs and hem. A cream woven tunic, cream trousers and cuffs show underneath. A brown leather belt carries a large round gold medallion buckle, smaller round mounts and a decorated hanging strap. Dark brown knee-high leather boots complete the outfit; both bare hands hang visibly at the sides.",
+  "status": "completed",
+  "descriptionSource": "agent_vision",
+  "retryEligible": false,
+  "error": "",
+  "updatedUtc": "2026-10-08T20:57:55.288Z"
 }

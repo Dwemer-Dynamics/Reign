@@ -184,6 +184,7 @@ namespace ReignBeta.UI
                 ExitExternalOverlayMode();
             }
 
+            if (ReignActionBuilder.Handle(this, _dataSource)) return;
             ApplyInputLock();
             if (ScreenManager.FocusedLayer != _gauntletLayer)
             {

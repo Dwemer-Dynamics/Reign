@@ -3,11 +3,11 @@
   "heroStringId": "lord_4_6_1",
   "characterName": "Odofled",
   "imagePath": "portrait.png",
-  "imageSha256": "B21C8DD1E593174964D3344BE991FBD213C8450DC47AB9294E1F58A4FAD5EAF2",
-  "description": "Culturally appropriate everyday Vlandian minor-lord attire inspired by refined high-medieval Norman and Frankish noble dress. Use a fitted wool tunic or cote over a fine linen shirt, high-quality chausses, a decorated leather belt, and an optional short mantle or shoulder drape with restrained embroidery. For women, use a long underdress with an elegant tailored overdress, shaped sleeves, fine woven fabric, and decorative trim around the cuffs, hem, and neckline. Include modest clasps, brooches, or small jewelry details. No headgear of any kind. No armor, weapons, crowns, royal regalia, or ceremonial robes.",
-  "status": "failed",
-  "descriptionSource": "portrait_prompt_fallback",
-  "retryEligible": true,
-  "error": "{\"error\":{\"message\":\"Model \\\"zai-org/glm-5.2\\\" does not support image inputs. Remove image content or choose a multimodal model.\",\"type\":\"invalid_request_error\",\"param\":\"messages\",\"code\":\"image_input_not_supported\"}}",
-  "updatedUtc": "2026-07-18T22:03:32.9952849Z"
+  "imageSha256": "AC882B3D39E801B26343C55B2436F5CBF87ED012A8829317AAFED9117E50442C",
+  "description": "She wears an opaque deep burgundy floor-length overdress with a high soft square neckline near the collarbones. A fine ivory long-sleeved underdress provides full wrist-length sleeves and a visible narrow center skirt panel. Narrow gold patterned woven borders frame the neckline, cuffs and hem. A matching burgundy mantle hangs from the shoulders and is fastened at one side by a round decorative gold brooch. A narrow brown decorated belt sits at the waist. Brown closed leather shoes are visible below the skirt. Cloth appears substantial and woven; exact fiber is uncertain.",
+  "status": "completed",
+  "descriptionSource": "agent_vision",
+  "retryEligible": false,
+  "error": "",
+  "updatedUtc": "2026-10-08T00:17:34.993Z"
 }

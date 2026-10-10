@@ -3,11 +3,11 @@
   "heroStringId": "reign_court_castle_A9_child_1",
   "characterName": "Bahunan Alzariqani",
   "imagePath": "portrait.png",
-  "imageSha256": "D2AD5351CEB19A497EE1690CB57F0A1A134875C7ED9A561D87822C1254778276",
-  "description": "Culturally appropriate everyday Aserai landowner attire inspired by practical medieval Arabian and North African civilian clothing suited to a hot desert climate. Men should wear a light linen or cotton undertunic beneath a loose ankle-length robe, open-front outer garment, or wrapped coat, secured with a woven sash. Women should wear a long breathable dress with layered flowing fabric, fitted or gathered sleeves, and a light draped outer layer around the shoulders. Include simple geometric borders or restrained embroidery. The outfit should appear prosperous, breathable, practical, and well maintained. No headgear of any kind. No turbans, veils, hoods, armor, weapons, crowns, ceremonial robes, or fantasy elements.",
-  "status": "failed",
-  "descriptionSource": "portrait_prompt_fallback",
-  "retryEligible": true,
-  "error": "{\"error\":{\"message\":\"Model \\\"zai-org/glm-5.2\\\" does not support image inputs. Remove image content or choose a multimodal model.\",\"type\":\"invalid_request_error\",\"param\":\"messages\",\"code\":\"image_input_not_supported\"}}",
-  "updatedUtc": "2026-07-18T22:03:25.4066528Z"
+  "imageSha256": "CBAC36C8F52E57839B15839AC8A5EF8FCE968099605C9AAF1267EF90A2625199",
+  "description": "He wears an opaque tan textured ankle-length open robe with wide elbow-length outer sleeves and restrained dark brown-and-gold geometric woven borders along the opening and sleeve ends. A cream linen-like long-sleeved tunic shows at the split neckline, forearms and front and falls near the ankles. A brown-and-gold patterned woven sash wraps the waist with a long fringed end hanging on one side. His ankles are visible above low dark brown leather slip-on shoes. No jewelry, headgear or weapons are visible.",
+  "status": "completed",
+  "descriptionSource": "agent_vision",
+  "retryEligible": false,
+  "error": "",
+  "updatedUtc": "2026-10-07T20:43:43.292Z"
 }

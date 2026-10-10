@@ -53,6 +53,13 @@
               </Children>
             </ButtonWidget>
 
+            <ButtonWidget Id="ReignChangeClothesButton" Brush="ConversationItem.SoundBrush" WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="422" SuggestedHeight="62" HorizontalAlignment="Left" MarginLeft="624" MarginTop="263" IsVisible="@CanChangeOutfit" IsEnabled="@InputEnabled" DoNotPassEventsToChildren="true" UpdateChildrenStates="true" Command.Click="ExecuteChangeClothes">
+              <Children>
+                <Widget DoNotAcceptEvents="true" WidthSizePolicy="StretchToParent" HeightSizePolicy="StretchToParent" Sprite="reign_outfit_action_button" />
+                <TextWidget DoNotAcceptEvents="true" WidthSizePolicy="StretchToParent" HeightSizePolicy="StretchToParent" Brush="DefaultText" Brush.Font="ReignSerifDynamic" Brush.FontSize="20" Brush.FontColor="#C5BDAFFF" Text="Let's get you some new clothes" />
+              </Children>
+            </ButtonWidget>
+
             <Widget WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="270" SuggestedHeight="44" HorizontalAlignment="Right" MarginRight="340" MarginTop="105" ClipContents="true" DoNotAcceptEvents="true">
               <Children>
                 <TextWidget WidthSizePolicy="StretchToParent" HeightSizePolicy="StretchToParent" Brush="DefaultText" Brush.Font="ReignSerifDynamic" Brush.FontSize="17" Brush.TextHorizontalAlignment="Center" Brush.FontColor="#C5AC83FF" Text="@NpcName" />
@@ -104,7 +111,7 @@
 
             <Widget WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="1106" SuggestedHeight="75" HorizontalAlignment="Left" MarginLeft="162" MarginTop="815">
               <Children>
-                <EditableTextWidget WidthSizePolicy="StretchToParent" HeightSizePolicy="Fixed" SuggestedHeight="44" MarginLeft="32" MarginRight="126" MarginTop="16" Brush="DefaultText" Brush.Font="ReignSerifDynamic" Brush.FontSize="19" Brush.TextHorizontalAlignment="Left" Brush.FontColor="#C5BDAFFF" Text="@InputText" IsEnabled="@InputEnabled" MaxLength="2147483647" />
+                <ReignActionEditableTextWidget WidthSizePolicy="StretchToParent" HeightSizePolicy="Fixed" SuggestedHeight="44" MarginLeft="32" MarginRight="126" MarginTop="16" Brush="Reign.Chat.Composer.19" Brush.Font="ReignSerifDynamic" Brush.FontSize="19" Brush.TextHorizontalAlignment="Left" Brush.FontColor="#C5BDAFFF" Text="@InputText" ComposerId="@ActionComposerId" IsEnabled="@InputEnabled" MaxLength="2147483647" />
               </Children>
             </Widget>
 
@@ -127,6 +134,57 @@
             </Widget>
           </Children>
         </ButtonWidget>
+
+        <Widget Id="ReignOutfitLayer" WidthSizePolicy="StretchToParent" HeightSizePolicy="StretchToParent" IsVisible="@IsOutfitVisible" RenderLate="true">
+          <Children>
+            <ButtonWidget Brush="ConversationItem.SoundBrush" WidthSizePolicy="StretchToParent" HeightSizePolicy="StretchToParent" Sprite="BlankWhiteSquare_9" Color="#030303FF" Command.Click="ExecuteNoOp" DoNotPassEventsToChildren="true" UpdateChildrenStates="true" />
+            <Widget WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="1672" SuggestedHeight="941" HorizontalAlignment="Center" VerticalAlignment="Center" DoNotUseCustomScaleAndChildren="true">
+              <Children>
+                <Widget Id="ReignOutfitComparison" WidthSizePolicy="StretchToParent" HeightSizePolicy="StretchToParent" IsVisible="@IsOutfitComparisonVisible">
+                  <Children>
+                    <Widget WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="464" SuggestedHeight="584" MarginLeft="269" MarginTop="140" ClipContents="true" DoNotAcceptEvents="true">
+                      <Children>
+                        <ReignOutfitPortraitWidget Id="ReignOutfitBefore" Type="ReignBeta.UI.Widgets.ReignOutfitPortraitWidget" WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="@OutfitBeforeWidth" SuggestedHeight="@OutfitBeforeHeight" HorizontalAlignment="Center" VerticalAlignment="Center" ImagePath="@OutfitBeforePath" DoNotAcceptEvents="true" />
+                      </Children>
+                    </Widget>
+                    <Widget WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="466" SuggestedHeight="584" MarginLeft="940" MarginTop="140" ClipContents="true" DoNotAcceptEvents="true">
+                      <Children>
+                        <ReignOutfitPortraitWidget Id="ReignOutfitAfter" Type="ReignBeta.UI.Widgets.ReignOutfitPortraitWidget" WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="@OutfitAfterWidth" SuggestedHeight="@OutfitAfterHeight" HorizontalAlignment="Center" VerticalAlignment="Center" ImagePath="@OutfitAfterPath" DoNotAcceptEvents="true" />
+                        <TextWidget Id="ReignOutfitChanging" WidthSizePolicy="StretchToParent" HeightSizePolicy="StretchToParent" Brush="DefaultText" Brush.Font="ReignSerifDynamic" Brush.FontSize="30" Brush.FontColor="#C5BDAFFF" IsVisible="@IsOutfitChanging" Text="Changing" DoNotAcceptEvents="true" />
+                      </Children>
+                    </Widget>
+                    <Widget Id="ReignOutfitShell" WidthSizePolicy="StretchToParent" HeightSizePolicy="StretchToParent" Sprite="reign_outfit_change_shell" DoNotAcceptEvents="true" />
+                    <TextWidget WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="710" SuggestedHeight="64" MarginLeft="90" MarginTop="824" Text="@OutfitStatus" Brush="DefaultText" Brush.Font="ReignSerifDynamic" Brush.FontSize="19" Brush.FontColor="#C5BDAFFF" DoNotAcceptEvents="true" />
+                    <ButtonWidget Id="ReignOutfitConfirm" Brush="ConversationItem.SoundBrush" WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="422" SuggestedHeight="62" MarginLeft="900" MarginTop="824" IsVisible="@IsOutfitReady" Command.Click="ExecuteConfirmOutfit" DoNotPassEventsToChildren="true" UpdateChildrenStates="true">
+                      <Children>
+                        <Widget WidthSizePolicy="StretchToParent" HeightSizePolicy="StretchToParent" Sprite="reign_outfit_action_button" DoNotAcceptEvents="true" />
+                        <TextWidget WidthSizePolicy="StretchToParent" HeightSizePolicy="StretchToParent" Text="Confirm changes" Brush="DefaultText" Brush.Font="ReignSerifDynamic" Brush.FontSize="24" Brush.FontColor="#C5BDAFFF" DoNotAcceptEvents="true" />
+                      </Children>
+                    </ButtonWidget>
+                    <!-- Cancel lettering and its complete control are owned by the generated shell. -->
+                    <ButtonWidget Id="ReignOutfitCancel" Brush="ConversationItem.SoundBrush" WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="259" SuggestedHeight="62" MarginLeft="1347" MarginTop="824" IsEnabled="@CanCancelOutfit" Command.Click="ExecuteCancelOutfit" DoNotPassEventsToChildren="true" UpdateChildrenStates="true" />
+                  </Children>
+                </Widget>
+                <Widget Id="ReignOutfitInput" WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="900" SuggestedHeight="675" HorizontalAlignment="Center" VerticalAlignment="Center" IsVisible="@IsOutfitInputVisible">
+                  <Children>
+                    <Widget WidthSizePolicy="StretchToParent" HeightSizePolicy="StretchToParent" Sprite="reign_pregnancy_warning" DoNotAcceptEvents="true" />
+                    <TextWidget WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="650" SuggestedHeight="50" HorizontalAlignment="Center" MarginTop="120" Text="New clothes" Brush="DefaultText" Brush.Font="ReignSerifDynamic" Brush.FontSize="29" Brush.FontColor="#A88A54FF" DoNotAcceptEvents="true" />
+                    <TextWidget WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="720" SuggestedHeight="72" HorizontalAlignment="Center" MarginTop="183" Text="What kind of clothes did you find? I want every little detail about them." Brush="DefaultText" Brush.Font="ReignSerifDynamic" Brush.FontSize="22" Brush.FontColor="#C5BDAFFF" DoNotAcceptEvents="true" />
+                    <Widget WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="720" SuggestedHeight="80" HorizontalAlignment="Center" MarginTop="265" Sprite="BlankWhiteSquare_9" Color="#0B0B0BFF" DoNotAcceptEvents="true" />
+                    <EditableTextWidget Id="ReignOutfitDescription" WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="688" SuggestedHeight="64" HorizontalAlignment="Center" MarginTop="273" MaxLength="4000" Text="@OutfitDescription" Brush="DefaultText" Brush.Font="ReignSerifDynamic" Brush.FontSize="20" Brush.TextHorizontalAlignment="Left" Brush.FontColor="#C5BDAFFF" />
+                    <ButtonWidget Id="ReignOutfitSubmit" Brush="ConversationItem.SoundBrush" WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="324" SuggestedHeight="114" MarginLeft="97" MarginTop="360" Command.Click="ExecuteSubmitOutfit" DoNotPassEventsToChildren="true" UpdateChildrenStates="true">
+                      <Children><TextWidget WidthSizePolicy="StretchToParent" HeightSizePolicy="StretchToParent" Text="Submit" Brush="DefaultText" Brush.Font="ReignSerifDynamic" Brush.FontSize="23" Brush.FontColor="#C5BDAFFF" DoNotAcceptEvents="true" /></Children>
+                    </ButtonWidget>
+                    <ButtonWidget Id="ReignOutfitInputCancel" Brush="ConversationItem.SoundBrush" WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="316" SuggestedHeight="114" MarginLeft="482" MarginTop="360" Command.Click="ExecuteCancelOutfit" DoNotPassEventsToChildren="true" UpdateChildrenStates="true">
+                      <Children><TextWidget WidthSizePolicy="StretchToParent" HeightSizePolicy="StretchToParent" Text="Cancel" Brush="DefaultText" Brush.Font="ReignSerifDynamic" Brush.FontSize="23" Brush.FontColor="#C5BDAFFF" DoNotAcceptEvents="true" /></Children>
+                    </ButtonWidget>
+                    <TextWidget WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="720" SuggestedHeight="72" HorizontalAlignment="Center" MarginTop="490" Text="@OutfitStatus" Brush="DefaultText" Brush.Font="ReignSerifDynamic" Brush.FontSize="18" Brush.FontColor="#C5BDAFFF" DoNotAcceptEvents="true" />
+                  </Children>
+                </Widget>
+              </Children>
+            </Widget>
+          </Children>
+        </Widget>
 
         <Widget Id="ReignPregnancyWarningLayer" WidthSizePolicy="StretchToParent" HeightSizePolicy="StretchToParent" IsVisible="@IsPregnancyWarningVisible" RenderLate="true">
           <Children>

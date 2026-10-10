@@ -3,11 +3,11 @@
   "heroStringId": "dead_lord_6_4",
   "characterName": "Undul",
   "imagePath": "portrait.png",
-  "imageSha256": "87758A93B2D88EEEABCF5349629FE24A08CDA0F9DE8030F6DE1B0DC85C477641",
-  "description": "Culturally appropriate everyday Khuzait high-noble attire inspired by elite medieval Turkic and Mongol aristocratic clothing. Use superb tailoring, layered fine wool and silk-like woven fabrics, elegant crossed-front closures, decorated sashes, refined edging, and subtle noble motifs. Men should wear a stately long noble deel or structured coat over richly made underlayers. Women should wear a luxurious robe or coat-dress with graceful lines, elaborate woven trim, and exceptionally high-quality textiles. Fur trim may be included sparingly along cuffs, collars, or garment edges. The clothing should feel wealthy, mobile, and commanding without becoming ceremonial. No headgear of any kind. No fur hats, caps, hoods, armor, weapons, crowns, or fantasy styling.",
-  "status": "failed",
-  "descriptionSource": "portrait_prompt_fallback",
-  "retryEligible": true,
-  "error": "{\"error\":{\"message\":\"Model \\\"zai-org/glm-5.2\\\" does not support image inputs. Remove image content or choose a multimodal model.\",\"type\":\"invalid_request_error\",\"param\":\"messages\",\"code\":\"image_input_not_supported\"}}",
-  "updatedUtc": "2026-07-18T22:03:35.3077335Z"
+  "imageSha256": "D9F12F7C5B44F3FEA28080E981FF02B5CE61A24FD00B0D6E8569EADE024156A9",
+  "description": "Teal patterned wrap-front long robe with gold scrollwork embroidery and brown fur edging, coordinating long under-robe, broad brown belt with round metal ornaments and a hanging tassel, and dark leather boots.",
+  "status": "completed",
+  "descriptionSource": "agent_vision",
+  "retryEligible": false,
+  "error": "",
+  "updatedUtc": "2026-10-08T01:02:28.371Z"
 }

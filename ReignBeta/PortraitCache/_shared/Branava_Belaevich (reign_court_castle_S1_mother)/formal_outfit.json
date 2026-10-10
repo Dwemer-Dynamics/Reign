@@ -3,11 +3,11 @@
   "heroStringId": "reign_court_castle_S1_mother",
   "characterName": "Branava Belaevich",
   "imagePath": "portrait.png",
-  "imageSha256": "5530A27EACCECFC4E62A26A2F3F2CB6203DF94AB6EDD35954895DA1AED8BFAB6",
-  "description": "Culturally appropriate everyday Sturgian minor-lord attire inspired by refined medieval Rus and Slavic noble clothing. Men should wear a well-made long shirt beneath a tailored wool kaftan or long belted coat, decorated with fine geometric embroidery and quality trim. Women should wear a long embroidered shift with an elegant wool overdress or noble coat-dress, secured with a richly woven sash. Include subtle fur trim around collars or cuffs, tasteful clasps, and better-quality fabric than a landowner would wear. The clothing should remain practical for a northern climate while clearly showing noble rank. No headgear of any kind. No armor, weapons, crowns, ceremonial robes, or oversized fur displays.",
-  "status": "failed",
-  "descriptionSource": "portrait_prompt_fallback",
-  "retryEligible": true,
-  "error": "{\"error\":{\"message\":\"Model \\\"zai-org/glm-5.2\\\" does not support image inputs. Remove image content or choose a multimodal model.\",\"type\":\"invalid_request_error\",\"param\":\"messages\",\"code\":\"image_input_not_supported\"}}",
-  "updatedUtc": "2026-07-18T22:03:25.9117782Z"
+  "imageSha256": "E69A3A2E2B1CA7B066AF858C912C1AE54A7B5B9DE10D3A6E84877E74E1FFC760",
+  "description": "An opaque navy floor-length gown has a low square neckline, fitted bodice, elbow-length sleeves, and fine geometric woven borders at the neck, sleeve cuffs, central panels, and hem. A cream underdress panel is visible down the center. Round shoulder brooches and a patterned belt secure the dress. A grey-brown fringed wool wrap drapes along the forearms; a small pendant and brown decorated shoes are visible.",
+  "status": "completed",
+  "descriptionSource": "agent_vision",
+  "retryEligible": false,
+  "error": "",
+  "updatedUtc": "2026-10-07T20:49:38.845Z"
 }

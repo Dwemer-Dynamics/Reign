@@ -3,11 +3,11 @@
   "heroStringId": "reign_court_castle_B4_child_4",
   "characterName": "Eirena Dunadawn",
   "imagePath": "portrait.png",
-  "imageSha256": "EB6DC77B1EC93A52062B03C44D30BA6A118152A3A936CE6A1EDE4347A0F6493F",
-  "description": "Culturally appropriate everyday Battanian minor-lord attire inspired by refined Celtic and highland noble clothing. Use dense woven wool, quality linen, soft leather details, cleaner tailoring, decorative brooches, and more elaborate woven trim than ordinary landowners would possess. Men should wear a fitted tunic, practical trousers, a decorated belt, and a layered cloak fastened at the shoulder. Women should wear a long underdress with a tailored overdress, woven belt, elegant draped shawl, and restrained ornamental trim. Include subtle knotwork and geometric patterns without theatrical fantasy styling. No headgear of any kind. No armor, weapons, crowns, or ceremonial druid imagery.",
-  "status": "failed",
-  "descriptionSource": "portrait_prompt_fallback",
-  "retryEligible": true,
-  "error": "{\"error\":{\"message\":\"Model \\\"zai-org/glm-5.2\\\" does not support image inputs. Remove image content or choose a multimodal model.\",\"type\":\"invalid_request_error\",\"param\":\"messages\",\"code\":\"image_input_not_supported\"}}",
-  "updatedUtc": "2026-07-18T22:03:28.1911727Z"
+  "imageSha256": "4092533CFBE6987EE8F7261E9F6E2B3C12F9D5A7C7BB41D134482A0723B0A901",
+  "description": "She wears a dark moss-green woven court gown with a low square neckline, fitted bodice, elbow-length sleeves and a floor-length open-front skirt over a pale cream underdress. Narrow gold-tan knotwork borders outline the neckline, bodice, cuffs, front edges and hem. A woven green-and-gold belt closes with a round metal clasp, while a dark blue-green plaid shawl drapes over the shoulders and forearms, held by two round brooches. Brown leather lace-up footwear shows beneath the hem. No headgear, armor or weapons are visible.",
+  "status": "completed",
+  "descriptionSource": "agent_vision",
+  "retryEligible": false,
+  "error": "",
+  "updatedUtc": "2026-10-07T22:31:45.021Z"
 }

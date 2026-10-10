@@ -3,11 +3,11 @@
   "heroStringId": "reign_court_town_V7_child_1",
   "characterName": "Aldysic Fauconecourt",
   "imagePath": "portrait.png",
-  "imageSha256": "B8419D6589B832CDA41D667CC8725C2D963B323C82275A8E463C90A6620E4D38",
-  "description": "Culturally appropriate everyday Vlandian high-noble attire inspired by wealthy Norman and Frankish aristocratic dress. Use luxurious fine wool and linen, expertly tailored layers, richly cut outer tunics or gowns, refined belts, decorative borders, subtle heraldic embroidery, and elegant fastenings. Men should wear a long tailored tunic or refined surcoat-style outer layer over fine linen and well-fitted chausses. Women should wear a fitted noble gown layered over a high-quality underdress, with graceful sleeves, refined trim, and tasteful jewelry. The outfit should feel expensive and powerful while remaining believable everyday noble wear. No headgear of any kind. No armor, weapons, crowns, or ceremonial regalia.",
-  "status": "failed",
-  "descriptionSource": "portrait_prompt_fallback",
-  "retryEligible": true,
-  "error": "{\"error\":{\"message\":\"Model \\\"zai-org/glm-5.2\\\" does not support image inputs. Remove image content or choose a multimodal model.\",\"type\":\"invalid_request_error\",\"param\":\"messages\",\"code\":\"image_input_not_supported\"}}",
-  "updatedUtc": "2026-07-18T22:03:24.3786583Z"
+  "imageSha256": "8F6226A515A97FD3DBEA84B178611535853C57F0C559F5D3409382138E7C9831",
+  "description": "He wears a textured burgundy knee-length outer tunic with gold plant-scroll embroidery along its front and hem over a cream long-sleeved linen-like undertunic. The cream neckline is laced, and its cuffs have narrow brown woven borders. A deep brown-plum cloak covers the shoulders, has short open sleeves, gold scroll borders and two round gold shoulder clasps linked by a chain. A brown decorated belt has a round gold buckle, small studs and a hanging medallion-studded end. Dark fitted trousers and brown calf-high leather boots with low heels complete the outfit. No headgear or weapon appears.",
+  "status": "completed",
+  "descriptionSource": "agent_vision",
+  "retryEligible": false,
+  "error": "",
+  "updatedUtc": "2026-10-07T20:27:39.015Z"
 }

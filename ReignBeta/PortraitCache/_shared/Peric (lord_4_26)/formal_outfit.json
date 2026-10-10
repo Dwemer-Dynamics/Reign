@@ -3,11 +3,11 @@
   "heroStringId": "lord_4_26",
   "characterName": "Peric",
   "imagePath": "portrait.png",
-  "imageSha256": "526B8DF69BF66E1CC6B1D95564EA98BCF5C69C007F86FEF18939E9F4A34FEF38",
-  "description": "Culturally appropriate everyday Vlandian minor-lord attire inspired by refined high-medieval Norman and Frankish noble dress. Use a fitted wool tunic or cote over a fine linen shirt, high-quality chausses, a decorated leather belt, and an optional short mantle or shoulder drape with restrained embroidery. For women, use a long underdress with an elegant tailored overdress, shaped sleeves, fine woven fabric, and decorative trim around the cuffs, hem, and neckline. Include modest clasps, brooches, or small jewelry details. No headgear of any kind. No armor, weapons, crowns, royal regalia, or ceremonial robes.",
-  "status": "failed",
-  "descriptionSource": "portrait_prompt_fallback",
-  "retryEligible": true,
-  "error": "{\"error\":{\"message\":\"Model \\\"zai-org/glm-5.2\\\" does not support image inputs. Remove image content or choose a multimodal model.\",\"type\":\"invalid_request_error\",\"param\":\"messages\",\"code\":\"image_input_not_supported\"}}",
-  "updatedUtc": "2026-07-18T22:03:33.3960791Z"
+  "imageSha256": "221130BEC73E5C230F9F9EAAB92DE5031CBB151E9D2E067D8889443CD3D597ED",
+  "description": "A rust-red wool-like knee-length tunic with narrow gold-patterned cuffs and hem over an ivory linen shirt, dark brown short shoulder mantle with patterned edging and bronze clasp, a decorated brown leather belt with pendant tail, brown fitted trousers and tall brown leather boots.",
+  "status": "completed",
+  "descriptionSource": "agent_vision",
+  "retryEligible": false,
+  "error": "",
+  "updatedUtc": "2026-10-08T00:33:32.761Z"
 }

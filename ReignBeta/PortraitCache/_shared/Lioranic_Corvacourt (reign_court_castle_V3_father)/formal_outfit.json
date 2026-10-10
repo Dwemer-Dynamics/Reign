@@ -3,11 +3,11 @@
   "heroStringId": "reign_court_castle_V3_father",
   "characterName": "Lioranic Corvacourt",
   "imagePath": "portrait.png",
-  "imageSha256": "EB25ACFBC037DB68810D3F7CB52DAC4A9986500B440F0BA4F9C0F896E48FE06D",
-  "description": "Culturally appropriate everyday Vlandian minor-lord attire inspired by refined high-medieval Norman and Frankish noble dress. Use a fitted wool tunic or cote over a fine linen shirt, high-quality chausses, a decorated leather belt, and an optional short mantle or shoulder drape with restrained embroidery. For women, use a long underdress with an elegant tailored overdress, shaped sleeves, fine woven fabric, and decorative trim around the cuffs, hem, and neckline. Include modest clasps, brooches, or small jewelry details. No headgear of any kind. No armor, weapons, crowns, royal regalia, or ceremonial robes.",
-  "status": "failed",
-  "descriptionSource": "portrait_prompt_fallback",
-  "retryEligible": true,
-  "error": "{\"error\":{\"message\":\"Model \\\"zai-org/glm-5.2\\\" does not support image inputs. Remove image content or choose a multimodal model.\",\"type\":\"invalid_request_error\",\"param\":\"messages\",\"code\":\"image_input_not_supported\"}}",
-  "updatedUtc": "2026-07-18T22:03:31.8702527Z"
+  "imageSha256": "7F08D5FFABED3F3B705BD7772823D68728DD70D1DBC391D4062881E8957961CC",
+  "description": "Rust red knee-length wool tunic with fine gold borders over cream linen collar/cuffs, decorated leather belt, brown trousers and tall boots, dark shoulder mantle fastened with round brooch.",
+  "status": "completed",
+  "descriptionSource": "agent_vision",
+  "retryEligible": false,
+  "error": "",
+  "updatedUtc": "2026-10-07T23:00:04.440Z"
 }

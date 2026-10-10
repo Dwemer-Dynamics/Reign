@@ -3,11 +3,11 @@
   "heroStringId": "reign_court_town_V2_child_2",
   "characterName": "Galoma Belmontecourt",
   "imagePath": "portrait.png",
-  "imageSha256": "05217E01BE9ADBDEA8EE9422085B6E0B94DCB74F4375E3394240C75C975BB137",
-  "description": "Culturally appropriate everyday Vlandian minor-lord attire inspired by refined high-medieval Norman and Frankish noble dress. Use a fitted wool tunic or cote over a fine linen shirt, high-quality chausses, a decorated leather belt, and an optional short mantle or shoulder drape with restrained embroidery. For women, use a long underdress with an elegant tailored overdress, shaped sleeves, fine woven fabric, and decorative trim around the cuffs, hem, and neckline. Include modest clasps, brooches, or small jewelry details. No headgear of any kind. No armor, weapons, crowns, royal regalia, or ceremonial robes.",
-  "status": "failed",
-  "descriptionSource": "portrait_prompt_fallback",
-  "retryEligible": true,
-  "error": "{\"error\":{\"message\":\"Model \\\"zai-org/glm-5.2\\\" does not support image inputs. Remove image content or choose a multimodal model.\",\"type\":\"invalid_request_error\",\"param\":\"messages\",\"code\":\"image_input_not_supported\"}}",
-  "updatedUtc": "2026-07-18T22:03:29.4160906Z"
+  "imageSha256": "15E035934D180CCD3B96C3C55D119DB0ADFEE6C638AC08EA20E2A3B4AA53260D",
+  "description": "The woman wears a fully opaque burgundy-red long gown with a closed upright collar just below the chin and full sleeves reaching the wrists. Gold-brown floral woven borders run down the front, around the collar, cuffs and floor-length closed hem. A heavy brown patterned cloak covers the shoulders and hangs down both sides, joined across the upper chest by two round brooches and a short gold chain. A decorated leather belt has small gold round fittings and a long patterned strap. Only her face and hands show above the clothing, with dark leather boots beneath the closed skirt.",
+  "status": "completed",
+  "descriptionSource": "agent_vision",
+  "retryEligible": false,
+  "error": "",
+  "updatedUtc": "2026-10-07T22:35:04.745Z"
 }

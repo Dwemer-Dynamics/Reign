@@ -132,7 +132,8 @@ namespace AIPortraits
             string cacheKey,
             string heroStringId,
             PortraitPromptContext promptContext,
-            CancellationToken ct = default)
+            CancellationToken ct = default,
+            string refreshMode = "")
         {
             await Throttle.WaitAsync(ct);
             try
@@ -172,7 +173,7 @@ namespace AIPortraits
                     PortraitCache.MarkPendingGenerationOperation(cacheKey, heroStringId, generationOperationId);
 
                 _lastImageProviderRequestLog.Value = "POST /portraits/generate via Bannerlord Reign local server. Source image bytes and API keys are omitted from game logs.";
-                ReignPortraitGenerationResult result = await ReignServerClient.GeneratePortraitAsync(cacheKey, heroStringId, prompt, sourceImagePng, outputSizeOverride, promptContext, "portrait", generationOperationId).ConfigureAwait(false);
+                ReignPortraitGenerationResult result = await ReignServerClient.GeneratePortraitAsync(cacheKey, heroStringId, prompt, sourceImagePng, outputSizeOverride, promptContext, "portrait", generationOperationId, refreshMode).ConfigureAwait(false);
                 if (result == null || !result.Ok || result.ImageBytes == null || result.ImageBytes.Length == 0)
                 {
                     if (result == null || !result.GenerationMayStillComplete)

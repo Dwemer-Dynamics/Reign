@@ -28,6 +28,8 @@ namespace ReignBeta.Campaign
         private const string UiCalibrationAutomationLeaseOwner = "reign-live-interaction-ui";
         private static string _uiCalibrationTarget = string.Empty;
         private static string _uiCalibrationMovie = string.Empty;
+        private static TaleWorlds.CampaignSystem.Campaign _uiCalibrationClockCampaign;
+        private static double _uiCalibrationClockDayBefore;
 
         private static async Task<LiveCommandResult> UiOpenAsync(JObject command)
         {
@@ -53,7 +55,7 @@ namespace ReignBeta.Campaign
                     return LiveCommandResult.Failed("The production court controller is unavailable.");
 
             JObject uiEnrollment = command["enrollment"] as JObject;
-            bool docketClockIsolation = (target == "court" || target == "family-chambers")
+            bool docketClockIsolation = (target == "court" || target == "family-chambers" || target == "royal-council")
                 && ((!string.IsNullOrWhiteSpace(command.Value<string>("campaignTestRunId"))
                     && !string.IsNullOrWhiteSpace(command.Value<string>("expectedSaveName")))
                     || (!string.IsNullOrWhiteSpace(uiEnrollment?.Value<string>("campaignTestRunId"))
@@ -67,6 +69,8 @@ namespace ReignBeta.Campaign
                     if (TaleWorlds.CampaignSystem.Campaign.Current?.TimeControlMode != CampaignTimeControlMode.Stop)
                         return "Pause and drain the enrolled campaign before opening a docket test.";
                     docketWorldDayBefore = CampaignTime.Now.ToDays;
+                    _uiCalibrationClockCampaign = TaleWorlds.CampaignSystem.Campaign.Current;
+                    _uiCalibrationClockDayBefore = docketWorldDayBefore;
                 }
                 if (!court.IsRuleModeActive)
                 {
@@ -166,6 +170,13 @@ namespace ReignBeta.Campaign
                         ReignCorrespondenceScreenManager.OpenForCalibration(hero);
                         break;
                     }
+                    case "action-builder":
+                    {
+                        Hero hero = FindCalibrationHero();
+                        if (hero == null) return "No eligible adult character is available for the action-builder calibration fixture.";
+                        ReignActionBuilder.OpenForCalibration(hero);
+                        break;
+                    }
                     case "individual-chat":
                     {
                         Hero hero = FindCalibrationHero();
@@ -194,6 +205,14 @@ namespace ReignBeta.Campaign
                     case "notable-generation":
                         if (!ReignNotableGenerationPopupManager.ShowCalibrationFixture())
                             return "The notable-generation calibration popup could not be opened.";
+                        break;
+                    case "portrait-refresh":
+                        if (!ReignPortraitRefreshPopup.ShowCalibrationFixture()) return "The portrait refresh calibration popup could not be opened.";
+                        break;
+                    case "player-approach":
+                    case "party-banter":
+                        if (target == "party-banter") { if (!ReignBanterPanel.ShowCalibrationFixture()) return "The banter calibration panel could not be opened."; break; }
+                        if (!ReignPlayerApproachPopup.ShowCalibrationFixture()) return "The approach calibration popup could not be opened.";
                         break;
                     case "memories-book":
                         MemoriesBookOverlay.OpenForCalibration();
@@ -230,7 +249,6 @@ namespace ReignBeta.Campaign
 
             _uiCalibrationTarget = target;
             _uiCalibrationMovie = MovieForUiTarget(target);
-            keepAutomationLease = true;
             JObject openedState = UiStateJson();
             if (docketClockIsolation)
             {
@@ -247,12 +265,18 @@ namespace ReignBeta.Campaign
                     return LiveCommandResult.Failed("Docket opening did not preserve the paused campaign day.", openedState);
                 }
             }
+            keepAutomationLease = true;
             return LiveCommandResult.Completed("Production Reign UI opened for calibration.", openedState);
             }
             finally
             {
                 if (!keepAutomationLease)
                 {
+                    if (_uiCalibrationClockCampaign != null)
+                    {
+                        try { await ReignMainThread.InvokeAsync(CloseCalibrationScreens).ConfigureAwait(false); }
+                        catch (Exception ex) { ReignLog.Warn("Enrolled UI failed-open cleanup failed: " + ex.Message); }
+                    }
                     if (IsNativeUiTarget(target))
                     {
                         try
@@ -264,6 +288,7 @@ namespace ReignBeta.Campaign
                             ReignLog.Warn("Native UI calibration failed-open cleanup failed: " + ex.Message);
                         }
                     }
+                    ClearCalibrationClockGuard();
                     ReignUiCalibrationService.ReleaseAutomationLease(UiCalibrationAutomationLeaseOwner);
                 }
             }
@@ -424,6 +449,7 @@ namespace ReignBeta.Campaign
             }
             finally
             {
+                ClearCalibrationClockGuard();
                 ReignUiCalibrationService.ReleaseAutomationLease(UiCalibrationAutomationLeaseOwner);
             }
         }
@@ -433,7 +459,7 @@ namespace ReignBeta.Campaign
             if (IsNativeUiTarget(_uiCalibrationTarget))
                 return await UiCloseAsync().ConfigureAwait(false);
 
-            bool returningToCourt = await ReignMainThread.InvokeAsync(() =>
+            bool returningToCourt = await ReignMainThread.InvokeAsync(() => PreserveCalibrationClock(() =>
             {
                 if (ReignPartyChatScreenManager.IsOpen
                     && ReignPartyChatScreenManager.ActiveViewModel?.IsCastleMode == true)
@@ -517,7 +543,7 @@ namespace ReignBeta.Campaign
                     return false;
                 }
                 return false;
-            }).ConfigureAwait(false);
+            })).ConfigureAwait(false);
 
             if (returningToCourt)
             {
@@ -528,7 +554,8 @@ namespace ReignBeta.Campaign
                     return LiveCommandResult.Failed("The production sub-screen did not return to Court before the bounded deadline.", UiStateJson());
                 _uiCalibrationTarget = "court";
                 _uiCalibrationMovie = MovieForUiTarget("court");
-                return LiveCommandResult.Completed("Calibration sub-screen returned to Court.", UiStateJson());
+                return await ReignMainThread.InvokeAsync(() => CalibrationClockResult(
+                    "Calibration sub-screen returned to Court.", UiStateJson())).ConfigureAwait(false);
             }
 
             _uiCalibrationTarget = string.Empty;
@@ -540,6 +567,7 @@ namespace ReignBeta.Campaign
             }
             finally
             {
+                ClearCalibrationClockGuard();
                 ReignUiCalibrationService.ReleaseAutomationLease(UiCalibrationAutomationLeaseOwner);
             }
         }
@@ -547,8 +575,8 @@ namespace ReignBeta.Campaign
         private static async Task<LiveCommandResult> RestoreSettlementMenuAfterCalibrationAsync(
             string successMessage)
         {
-            string restoreError = await ReignMainThread.InvokeAsync(
-                RestoreSettlementMenuAfterCalibration).ConfigureAwait(false);
+            string restoreError = await ReignMainThread.InvokeAsync(() =>
+                PreserveCalibrationClock(RestoreSettlementMenuAfterCalibration)).ConfigureAwait(false);
             if (!string.IsNullOrWhiteSpace(restoreError))
                 return LiveCommandResult.Failed(restoreError, UiStateJson());
 
@@ -558,7 +586,8 @@ namespace ReignBeta.Campaign
             {
                 state = await ReignMainThread.InvokeAsync(UiStateJson).ConfigureAwait(false);
                 if (state.Value<bool?>("settlementMenuReady") == true)
-                    return LiveCommandResult.Completed(successMessage, state);
+                    return await ReignMainThread.InvokeAsync(() =>
+                        CalibrationClockResult(successMessage, state)).ConfigureAwait(false);
                 await Task.Delay(100).ConfigureAwait(false);
             }
             return LiveCommandResult.Failed(
@@ -590,6 +619,54 @@ namespace ReignBeta.Campaign
 
         private static void CloseCalibrationScreens()
         {
+            PreserveCalibrationClock(() =>
+            {
+                CloseCalibrationScreensCore();
+                return true;
+            });
+        }
+
+        // This is an ephemeral setup guard, never enrollment or advance authority.
+        // A reloaded campaign is a different object and must not inherit the pause.
+        private static T PreserveCalibrationClock<T>(Func<T> operation)
+        {
+            try { return operation(); }
+            finally
+            {
+                if (_uiCalibrationClockCampaign != null
+                    && ReferenceEquals(_uiCalibrationClockCampaign, TaleWorlds.CampaignSystem.Campaign.Current))
+                    _uiCalibrationClockCampaign.TimeControlMode = CampaignTimeControlMode.Stop;
+            }
+        }
+
+        private static LiveCommandResult CalibrationClockResult(string message, JObject state)
+        {
+            if (_uiCalibrationClockCampaign == null)
+                return LiveCommandResult.Completed(message, state);
+            bool sameCampaign = ReferenceEquals(_uiCalibrationClockCampaign, TaleWorlds.CampaignSystem.Campaign.Current);
+            double dayAfter = CampaignTime.Now.ToDays;
+            bool paused = sameCampaign && _uiCalibrationClockCampaign.TimeControlMode == CampaignTimeControlMode.Stop;
+            state["docketClock"] = new JObject
+            {
+                ["worldDayBefore"] = _uiCalibrationClockDayBefore,
+                ["worldDayAfter"] = dayAfter,
+                ["timePaused"] = paused,
+                ["sameCampaign"] = sameCampaign
+            };
+            return sameCampaign && paused && dayAfter == _uiCalibrationClockDayBefore
+                ? LiveCommandResult.Completed(message, state)
+                : LiveCommandResult.Failed("Calibration navigation did not preserve the paused campaign day.", state);
+        }
+
+        private static void ClearCalibrationClockGuard()
+        {
+            _uiCalibrationClockCampaign = null;
+            _uiCalibrationClockDayBefore = 0;
+        }
+
+        private static void CloseCalibrationScreensCore()
+        {
+            if (ReignActionBuilder.IsCalibrationFixture) ReignActionBuilder.Close();
             CloseNativeUiCalibrationTarget();
             if (ReignPartyChatScreenManager.IsOpen
                 && ReignPartyChatScreenManager.ActiveViewModel?.IsCastleMode == true)
@@ -606,6 +683,9 @@ namespace ReignBeta.Campaign
                 ReignSocialEventScreenManager.Close();
             ReignDiplomacyAnnouncementScreenManager.TryCloseCalibrationFixture();
             ReignNotableGenerationPopupManager.HideCalibrationFixture();
+            ReignPortraitRefreshPopup.HideCalibrationFixture();
+            ReignPlayerApproachPopup.HideCalibrationFixture();
+            ReignBanterPanel.HideCalibrationFixture();
             MemoriesBookOverlay.CloseCalibrationFixture();
             ReignCourtPetitionScreenManager.CloseCalibrationFixture();
             ReignCourtPetitionScreenManager.TryCloseAutomationAudience();
@@ -640,6 +720,7 @@ namespace ReignBeta.Campaign
                 case "family-chambers": return ReignFamilyChambersScreenManager.IsOpen;
                 case "training-yard": return ReignTrainingYardScreenManager.IsOpen;
                 case "royal-council": return ReignRoyalCouncilScreenManager.IsOpen;
+                case "action-builder": return ReignActionBuilder.IsOpen && ReignActionBuilder.IsCalibrationFixture;
                 case "correspondence": return ReignCorrespondenceScreenManager.IsOpen;
                 case "individual-chat": return ReignIndividualChatScreenManager.IsOpen;
                 case "party-chat": return ReignPartyChatScreenManager.IsOpen
@@ -650,6 +731,9 @@ namespace ReignBeta.Campaign
                 case "wilderness-event": return ReignSocialEventScreenManager.IsOpen;
                 case "diplomacy-announcement": return ReignDiplomacyAnnouncementScreenManager.IsOpen;
                 case "notable-generation": return ReignNotableGenerationPopupManager.IsOpen;
+                case "portrait-refresh": return ReignPortraitRefreshPopup.IsOpen;
+                case "player-approach": return ReignPlayerApproachPopup.IsOpen;
+                case "party-banter": return ReignBanterPanel.IsOpen;
                 case "memories-book": return MemoriesBookOverlay.IsCalibrationOpen;
                 case "native-initial-screen":
                 case "native-game-menu":
@@ -692,6 +776,7 @@ namespace ReignBeta.Campaign
                 case "familychambers": return "family-chambers";
                 case "trainingyard": return "training-yard";
                 case "royalcouncil": return "royal-council";
+                case "actionbuilder": return "action-builder";
                 case "individualchat": return "individual-chat";
                 case "partychat": return "party-chat";
                 case "tavernhouse":
@@ -733,6 +818,7 @@ namespace ReignBeta.Campaign
                 case "family-chambers": return target;
                 case "training-yard": return target;
                 case "royal-council": return target;
+                case "action-builder":
                 case "correspondence":
                 case "individual-chat":
                 case "party-chat":
@@ -741,6 +827,9 @@ namespace ReignBeta.Campaign
                 case "wilderness-event":
                 case "diplomacy-announcement":
                 case "notable-generation":
+                case "portrait-refresh":
+                case "player-approach":
+                case "party-banter":
                 case "memories-book": return target;
                 case "native-initial-screen":
                 case "native-game-menu":
@@ -778,6 +867,7 @@ namespace ReignBeta.Campaign
                 case "family-chambers": return "ReignFamilyChambersScreen";
                 case "training-yard": return "ReignTrainingYardScreen";
                 case "royal-council": return "ReignRoyalCouncilScreen";
+                case "action-builder": return "ReignActionBuilder";
                 case "correspondence": return "ReignCorrespondenceScreen";
                 case "individual-chat": return "ReignIndividualChatScreen";
                 case "party-chat": return "ReignPartyChatScreen";
@@ -786,6 +876,9 @@ namespace ReignBeta.Campaign
                 case "wilderness-event": return "ReignSocialEventScreen";
                 case "diplomacy-announcement": return "ReignDiplomacyAnnouncementScreen";
                 case "notable-generation": return "ReignNotableGenerationPopup";
+                case "portrait-refresh": return "ReignPortraitRefreshPopup";
+                case "player-approach": return "ReignPlayerApproachPopup";
+                case "party-banter": return "ReignBanterPanel";
                 case "memories-book": return "AIPortraitsMemoriesBook";
                 default: return string.Empty;
             }

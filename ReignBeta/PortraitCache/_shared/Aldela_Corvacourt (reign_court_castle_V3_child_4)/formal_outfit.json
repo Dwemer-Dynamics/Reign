@@ -3,11 +3,11 @@
   "heroStringId": "reign_court_castle_V3_child_4",
   "characterName": "Aldela Corvacourt",
   "imagePath": "portrait.png",
-  "imageSha256": "0E0C86B1C043172A70648B2C2713F5C53664FA264AE23E5E0CB56C61151CF857",
-  "description": "Culturally appropriate everyday Vlandian minor-lord attire inspired by refined high-medieval Norman and Frankish noble dress. Use a fitted wool tunic or cote over a fine linen shirt, high-quality chausses, a decorated leather belt, and an optional short mantle or shoulder drape with restrained embroidery. For women, use a long underdress with an elegant tailored overdress, shaped sleeves, fine woven fabric, and decorative trim around the cuffs, hem, and neckline. Include modest clasps, brooches, or small jewelry details. No headgear of any kind. No armor, weapons, crowns, royal regalia, or ceremonial robes.",
-  "status": "failed",
-  "descriptionSource": "portrait_prompt_fallback",
-  "retryEligible": true,
-  "error": "{\"error\":{\"message\":\"Model \\\"zai-org/glm-5.2\\\" does not support image inputs. Remove image content or choose a multimodal model.\",\"type\":\"invalid_request_error\",\"param\":\"messages\",\"code\":\"image_input_not_supported\"}}",
-  "updatedUtc": "2026-07-18T22:03:24.2869654Z"
+  "imageSha256": "A8AA1321C2FE46411F1EA54E5D2B001417E26DCB602AE7765F2B21527259152A",
+  "description": "Opaque rust-red floor-length gown with a low square neckline, fitted bodice and elbow-length sleeves. Fine gold-brown floral woven trim runs around the neckline, shoulder straps, cuffs, front opening and bottom hem. A decorated leather or woven waist belt carries several round metal plaques and a central clasp. A cream underdress with restrained brown embroidery is visible through the front skirt. An ochre-gold shoulder wrap with burgundy ornamental borders rests loosely around the forearms and hangs down both sides. Small earrings, a pendant necklace and brown closed leather shoes are visible. No headgear, armor or weapon is present.",
+  "status": "completed",
+  "descriptionSource": "agent_vision",
+  "retryEligible": false,
+  "error": "",
+  "updatedUtc": "2026-10-07T20:27:35.131Z"
 }

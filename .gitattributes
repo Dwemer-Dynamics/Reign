@@ -26,6 +26,6 @@ ReignBeta/TavernHousePortraits/**/*.json -text whitespace=cr-at-eol
 *.woff binary
 *.woff2 binary
 
-# Normalize portrait text metadata to LF so inventory hashes survive clean checkouts.
-ReignBeta/PortraitCache/_shared/**/*.json text eol=lf
-ReignBeta/PortraitCache/_shared/**/*.txt text eol=lf
+# Preserve approved portrait prompt and provenance bytes, including their hash bindings.
+ReignBeta/PortraitCache/_shared/**/*.json -text whitespace=cr-at-eol
+ReignBeta/PortraitCache/_shared/**/*.txt -text whitespace=cr-at-eol

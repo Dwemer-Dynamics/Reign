@@ -3,11 +3,11 @@
   "heroStringId": "lord_1_8",
   "characterName": "Vendelia",
   "imagePath": "portrait.png",
-  "imageSha256": "A2CBD93BF3218DF08C130E9C9C8A7CE241F5609AC31ED0BB65EC6D6B5BB9C76A",
-  "description": "Culturally appropriate everyday Calradic Imperial high-noble attire inspired by luxurious Byzantine aristocratic fashion, restrained enough for daily noble life. Use fine layered linen and wool, controlled flowing silhouettes, elegant draping, richly woven borders, small jeweled clasps, and sophisticated fabric textures. Men should wear a stately long tunic or structured noble coat over a fine undertunic, with refined belts and detailed edging. Women should wear a sophisticated layered noble dress with graceful drapery, tailored sleeves, and subtle aristocratic ornamentation. The outfit should communicate ancient prestige, wealth, and political importance. No headgear of any kind. No armor, weapons, crowns, laurel wreaths, or full ceremonial imperial regalia.",
-  "status": "failed",
-  "descriptionSource": "portrait_prompt_fallback",
-  "retryEligible": true,
-  "error": "{\"error\":{\"message\":\"Model \\\"zai-org/glm-5.2\\\" does not support image inputs. Remove image content or choose a multimodal model.\",\"type\":\"invalid_request_error\",\"param\":\"messages\",\"code\":\"image_input_not_supported\"}}",
-  "updatedUtc": "2026-07-18T22:03:35.4869800Z"
+  "imageSha256": "2E74F5E8845143365CC44F9B2708AD5D1433D5C6E802F2F7F11A81A412AB5E96",
+  "description": "Vendelia wears an opaque plum floor-length court gown with a low square neckline, gold geometric woven borders, fitted elbow-length sleeves and a narrow decorated belt. A cream-and-gold wrap rests over her forearms; earrings, pendant necklace, rings and a bracelet provide restrained ornament. Both hands and decorated plum shoes are visible.",
+  "status": "completed",
+  "descriptionSource": "agent_vision",
+  "retryEligible": false,
+  "error": "",
+  "updatedUtc": "2026-10-08T01:21:59.585Z"
 }

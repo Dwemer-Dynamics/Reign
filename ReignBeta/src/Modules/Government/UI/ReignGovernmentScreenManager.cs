@@ -196,7 +196,7 @@ namespace ReignBeta.UI
             OpenNow(new OpenRequest { Kingdom = kingdom, Interactive = true, BusinessId = next.BusinessId });
         }
 
-        internal static bool CanPresentOnMap()
+        internal static bool CanPresentOnMap(ScreenLayer permittedFocusLayer = null)
         {
             var campaign = TaleWorlds.CampaignSystem.Campaign.Current;
             if (campaign == null || campaign.TimeControlModeLock || MobileParty.MainParty == null || Mission.Current != null
@@ -211,7 +211,7 @@ namespace ReignBeta.UI
             var escape = screen.GetType().GetProperty("IsEscapeMenuOpened");
             if (escape?.GetValue(screen, null) is bool open && open) return false;
             var focused = ScreenManager.FocusedLayer;
-            if (focused is GauntletLayer)
+            if (focused is GauntletLayer && !ReferenceEquals(focused, permittedFocusLayer))
             {
                 string name = focused.GetType().GetProperty("Name")?.GetValue(focused, null)?.ToString() ?? string.Empty;
                 if (name.IndexOf("Map", StringComparison.OrdinalIgnoreCase) < 0 || new[] { "Reign", "Escape", "Conversation", "Kingdom" }.Any(x => name.IndexOf(x, StringComparison.OrdinalIgnoreCase) >= 0)) return false;

@@ -3,11 +3,11 @@
   "heroStringId": "lord_5_3_2",
   "characterName": "Ladogual",
   "imagePath": "portrait.png",
-  "imageSha256": "674EA6FC3617F6092008B8A5FD0C110F2CE943668033CD7EAFDD0CBFF8625F84",
-  "description": "Culturally appropriate everyday Battanian high-noble attire inspired by elite Celtic and highland aristocratic clothing. Use fine woven wool, linen, soft leather accents, sophisticated layering, ornate brooches, and carefully worked borders featuring tasteful knotwork or geometric designs. Men should wear a richly made noble tunic with a broad decorated belt and an exceptionally well-crafted draped cloak. Women should wear a long fitted noble dress beneath a richly layered overdress, with elegant woven borders, decorative brooch fastenings, and a graceful shoulder wrap. The outfit should communicate power through craftsmanship and rich textiles rather than excessive decoration. No headgear of any kind. No armor, weapons, crowns, or fantasy druid elements.",
-  "status": "failed",
-  "descriptionSource": "portrait_prompt_fallback",
-  "retryEligible": true,
-  "error": "{\"error\":{\"message\":\"Model \\\"zai-org/glm-5.2\\\" does not support image inputs. Remove image content or choose a multimodal model.\",\"type\":\"invalid_request_error\",\"param\":\"messages\",\"code\":\"image_input_not_supported\"}}",
-  "updatedUtc": "2026-07-18T22:03:31.4402759Z"
+  "imageSha256": "E584D9AA380D1AE74E1C8DF2D1505DD3AAE9825B6E1EFA4E52ACD65ADCCE52B7",
+  "description": "Ladogual wears a full-length dark forest-green textured gown with a low square neckline, structured fitted bodice and elbow-length outer sleeves. Gold-tan knotwork borders decorate the bodice, neckline, skirt front, hem and sleeve bands. A cream underlayer appears at the sleeves and lower center of the skirt. A broad decorated belt with round metal buckle defines the waist. A matching green wrap with cream lining and knotwork edging hangs loosely from the shoulders and arms, secured by two round brooches near the shoulders. A small ring is visible, and dark closed shoes show below the hem. Fabrics appear wool-like over linen-like cloth, with actual fiber uncertain.",
+  "status": "completed",
+  "descriptionSource": "agent_vision",
+  "retryEligible": false,
+  "error": "",
+  "updatedUtc": "2026-10-07T23:25:19.641Z"
 }

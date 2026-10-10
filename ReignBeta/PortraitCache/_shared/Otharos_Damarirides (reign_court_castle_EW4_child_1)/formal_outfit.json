@@ -3,11 +3,11 @@
   "heroStringId": "reign_court_castle_EW4_child_1",
   "characterName": "Otharos Damarirides",
   "imagePath": "portrait.png",
-  "imageSha256": "D271191C1F792223266E260743B62615A968416A7BDF8E52654758A408F72216",
-  "description": "Culturally appropriate everyday Calradic Imperial minor-lord attire inspired by refined late Roman and Byzantine noble clothing. Men should wear a high-quality tunic or long tailored outer coat over fine linen, decorated with narrow woven borders, refined clasps, and a decorated belt. Women should wear a long elegant dress or layered tunic ensemble with shaped sleeves, graceful draping, and tasteful trim around the neckline, cuffs, and edges. The garments should feel polished, educated, urban, and wealthy without resembling full imperial ceremony. No headgear of any kind. No armor, weapons, crowns, imperial regalia, laurel wreaths, or ceremonial robes.",
-  "status": "failed",
-  "descriptionSource": "portrait_prompt_fallback",
-  "retryEligible": true,
-  "error": "{\"error\":{\"message\":\"Model \\\"zai-org/glm-5.2\\\" does not support image inputs. Remove image content or choose a multimodal model.\",\"type\":\"invalid_request_error\",\"param\":\"messages\",\"code\":\"image_input_not_supported\"}}",
-  "updatedUtc": "2026-07-18T22:03:33.1350624Z"
+  "imageSha256": "D641BDDF752DC51390F2D1B3780AF6500602DD9ED64CF8930880C815D380F446",
+  "description": "He wears a plum long-sleeved knee-length tunic with narrow gold woven neckline, front, cuff and hem borders over cream linen visible at neck, wrists and hem, a decorated brown leather belt with gold fittings and long hanging strap, brown trousers and tall brown leather boots. A cream woven shoulder wrap with plum and gold borders drapes from his left shoulder and is fastened with one round gold clasp. Both hands are visible. No headgear, armor or weapon is visible. Plain stone columns and doorway replace the prior wall hanging.",
+  "status": "completed",
+  "descriptionSource": "agent_vision",
+  "retryEligible": false,
+  "error": "",
+  "updatedUtc": "2026-10-08T09:42:07.648Z"
 }

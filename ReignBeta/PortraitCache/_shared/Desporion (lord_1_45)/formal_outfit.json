@@ -3,11 +3,11 @@
   "heroStringId": "lord_1_45",
   "characterName": "Desporion",
   "imagePath": "portrait.png",
-  "imageSha256": "B9FC9EB7CEA3D354482E08EA5F475574035BAA75407634369F03FAB507CDA010",
-  "description": "Culturally appropriate everyday Calradic Imperial minor-lord attire inspired by refined late Roman and Byzantine noble clothing. Men should wear a high-quality tunic or long tailored outer coat over fine linen, decorated with narrow woven borders, refined clasps, and a decorated belt. Women should wear a long elegant dress or layered tunic ensemble with shaped sleeves, graceful draping, and tasteful trim around the neckline, cuffs, and edges. The garments should feel polished, educated, urban, and wealthy without resembling full imperial ceremony. No headgear of any kind. No armor, weapons, crowns, imperial regalia, laurel wreaths, or ceremonial robes.",
-  "status": "failed",
-  "descriptionSource": "portrait_prompt_fallback",
-  "retryEligible": true,
-  "error": "{\"error\":{\"message\":\"Model \\\"zai-org/glm-5.2\\\" does not support image inputs. Remove image content or choose a multimodal model.\",\"type\":\"invalid_request_error\",\"param\":\"messages\",\"code\":\"image_input_not_supported\"}}",
-  "updatedUtc": "2026-07-18T22:03:27.4040014Z"
+  "imageSha256": "6C216EA45877FC6E3EEDB06A6C2607858B650E08DED20C2C105A7825A904C8AB",
+  "description": "He wears a long deep plum patterned coat with full sleeves, gold woven edging along the front opening, cuffs and lower hem, over an ivory tunic with a short split collar. A plum shoulder mantle with gold border is secured by a circular metal clasp. A broad decorated gold-brown belt with a round buckle wraps the waist. The coat reaches near the knees. Dark brown trousers are tucked into tall brown leather boots. A small gold wrist band is visible near one cuff. His head is uncovered, and he carries no weapons or armor.",
+  "status": "completed",
+  "descriptionSource": "agent_vision",
+  "retryEligible": false,
+  "error": "",
+  "updatedUtc": "2026-10-07T21:36:37.919Z"
 }

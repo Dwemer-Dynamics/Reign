@@ -3,11 +3,11 @@
   "heroStringId": "reign_court_town_V5_child_4",
   "characterName": "Evrura Demerecourt",
   "imagePath": "portrait.png",
-  "imageSha256": "A0402A4535F12214529979978F930D8721213CAF1FA54835D14A0F54C4F45DE4",
-  "description": "Culturally appropriate everyday Vlandian high-noble attire inspired by wealthy Norman and Frankish aristocratic dress. Use luxurious fine wool and linen, expertly tailored layers, richly cut outer tunics or gowns, refined belts, decorative borders, subtle heraldic embroidery, and elegant fastenings. Men should wear a long tailored tunic or refined surcoat-style outer layer over fine linen and well-fitted chausses. Women should wear a fitted noble gown layered over a high-quality underdress, with graceful sleeves, refined trim, and tasteful jewelry. The outfit should feel expensive and powerful while remaining believable everyday noble wear. No headgear of any kind. No armor, weapons, crowns, or ceremonial regalia.",
-  "status": "failed",
-  "descriptionSource": "portrait_prompt_fallback",
-  "retryEligible": true,
-  "error": "{\"error\":{\"message\":\"Model \\\"zai-org/glm-5.2\\\" does not support image inputs. Remove image content or choose a multimodal model.\",\"type\":\"invalid_request_error\",\"param\":\"messages\",\"code\":\"image_input_not_supported\"}}",
-  "updatedUtc": "2026-07-18T22:03:29.0090294Z"
+  "imageSha256": "3664CA8678FCDC1DD3C0170425034A6A193EF6D7BDA1198F0846AB88938E1F45",
+  "description": "The woman wears an opaque deep reddish-brown noble gown with a low square neckline, fitted panelled bodice and elbow-length outer sleeves. Gold floral woven borders frame the neckline, bodice seams, sleeve edges, waist and long front skirt panels. Small round jewel-set clasps sit near the shoulders and on the decorative belt. A cream inner dress shows down the center of the floor-length skirt, and cream fabric drapes around her forearms beneath the outer sleeves. A fine gold necklace is visible. A dark leather shoe peeks beneath the hem. Her bobbed head remains uncovered.",
+  "status": "completed",
+  "descriptionSource": "agent_vision",
+  "retryEligible": false,
+  "error": "",
+  "updatedUtc": "2026-10-07T22:24:25.071Z"
 }

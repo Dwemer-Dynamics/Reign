@@ -3,11 +3,11 @@
   "heroStringId": "lord_1_155",
   "characterName": "Zeno",
   "imagePath": "portrait.png",
-  "imageSha256": "B0435BE674F438EF95E469796514269CB78105E6C7FC977B2D11C95F35EC0ABC",
-  "description": "Culturally appropriate everyday Calradic Imperial minor-lord attire inspired by refined late Roman and Byzantine noble clothing. Men should wear a high-quality tunic or long tailored outer coat over fine linen, decorated with narrow woven borders, refined clasps, and a decorated belt. Women should wear a long elegant dress or layered tunic ensemble with shaped sleeves, graceful draping, and tasteful trim around the neckline, cuffs, and edges. The garments should feel polished, educated, urban, and wealthy without resembling full imperial ceremony. No headgear of any kind. No armor, weapons, crowns, imperial regalia, laurel wreaths, or ceremonial robes.",
-  "status": "failed",
-  "descriptionSource": "portrait_prompt_fallback",
-  "retryEligible": true,
-  "error": "{\"error\":{\"message\":\"Model \\\"zai-org/glm-5.2\\\" does not support image inputs. Remove image content or choose a multimodal model.\",\"type\":\"invalid_request_error\",\"param\":\"messages\",\"code\":\"image_input_not_supported\"}}",
-  "updatedUtc": "2026-07-18T22:03:35.8786216Z"
+  "imageSha256": "7458D15ACBD1C5132BE3994344029C2F0F7F1B45F29BD694A154D7E6A00C986B",
+  "description": "A cream long tunic with a narrow burgundy-and-gold neckline sits beneath a deep purple long outer robe with gold woven borders and matching cuffs. A burgundy drape crosses the chest and hangs from a round shoulder brooch. A decorated leather belt and tall brown leather boots complete the full-length outfit.",
+  "status": "completed",
+  "descriptionSource": "agent_vision",
+  "retryEligible": false,
+  "error": "",
+  "updatedUtc": "2026-10-08T20:59:23.422Z"
 }

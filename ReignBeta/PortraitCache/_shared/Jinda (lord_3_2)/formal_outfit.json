@@ -3,11 +3,11 @@
   "heroStringId": "lord_3_2",
   "characterName": "Jinda",
   "imagePath": "portrait.png",
-  "imageSha256": "D01FC5751CC8877D7FCBD5B5D099FF5C78C6814227CCDBD4392918202E2F3958",
-  "description": "Culturally appropriate everyday Aserai high-noble attire inspired by elite medieval Arabian and Persian-influenced aristocratic dress. Use exceptionally fine layered fabrics, graceful draping, richly stitched borders, elegant geometric embroidery, and luxurious but believable textile textures. Men should wear a noble robe or long structured outer coat over a fine tunic, secured with an ornate sash and refined clasps. Women should wear a richly layered long dress with flowing outer fabric, carefully tailored sleeves, elegant embroidery, and tasteful jewelry integrated into the outfit. The clothing should feel cultured, powerful, and extremely wealthy without becoming full ceremonial regalia. No headgear of any kind. No turbans, veils, hoods, armor, weapons, or crowns.",
-  "status": "failed",
-  "descriptionSource": "portrait_prompt_fallback",
-  "retryEligible": true,
-  "error": "{\"error\":{\"message\":\"Model \\\"zai-org/glm-5.2\\\" does not support image inputs. Remove image content or choose a multimodal model.\",\"type\":\"invalid_request_error\",\"param\":\"messages\",\"code\":\"image_input_not_supported\"}}",
-  "updatedUtc": "2026-07-18T22:03:30.9702879Z"
+  "imageSha256": "DCFA3CBBFB1448D8498ED0125FD241315014DBF9A50878D9852967F95B5FCBFD",
+  "description": "She wears an ivory floor-length long-sleeved dress with a high square neckline and gold embroidered front panel beneath a brown-gold flowing outer garment with rich geometric and floral borders. A decorated waist belt with round metal fittings, gold necklace, small earrings and rings complement the dress. Long opaque sleeves reach the wrists and the unbroken skirt covers the legs; gold-brown shoes show at the hem. No headgear, armor or weapons are visible.",
+  "status": "completed",
+  "descriptionSource": "agent_vision",
+  "retryEligible": false,
+  "error": "",
+  "updatedUtc": "2026-10-07T23:04:25.045Z"
 }

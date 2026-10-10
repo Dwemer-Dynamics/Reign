@@ -26,7 +26,17 @@ namespace ReignBeta.Campaign
         public static ReignRelationshipCampaignBehavior Instance { get; private set; }
 
         private bool _tickInFlight;
+        private bool _replyTickInFlight;
+        internal bool CorrespondenceApplyPending => _tickInFlight || _replyTickInFlight;
+        private List<string> _appliedMailRelationEffects = new List<string>();
+        private List<string> _announcedLetterIds = new List<string>();
+        private List<string> _nativeConversationEffectJournal = new List<string>();
+        private List<NativeRelationEffectReceipt> _nativeConversationEffectCache;
+        private readonly HashSet<string> _mailReceiptAcks = new HashSet<string>(StringComparer.Ordinal);
+        private bool _autonomousMailEvaluationInFlight;
+        private int _lastAutonomousMailSlot = -1;
         private float _lastTickDay = -1000f;
+        private double _lastCorrespondencePollHour = double.NegativeInfinity;
         private float _lastDirectorSnapshotDay = -1000f;
         private bool _directorSnapshotInFlight;
         private float _lastAmbientSnapshotDay = -1000f;
@@ -221,6 +231,30 @@ namespace ReignBeta.Campaign
             }
         }
 
+        internal JObject ApplyConversationRelationOnce(IEnumerable<string> receiptIds, Hero subject, Hero target, int delta, bool show)
+        {
+            if (subject == null || target == null || subject == target)
+                throw new InvalidOperationException("The native relationship participants are unavailable.");
+            if (_nativeConversationEffectCache == null)
+                _nativeConversationEffectCache = _nativeConversationEffectJournal.Select(value => JObject.Parse(value).ToObject<NativeRelationEffectReceipt>()).ToList();
+            var receipt = NativeRelationEffectLedger.Apply(_nativeConversationEffectCache, receiptIds,
+                subject.StringId, target.StringId, delta, () => subject.GetRelation(target),
+                value => ChangeRelationAction.ApplyRelationChangeBetweenHeroes(subject, target, value, show),
+                value => _nativeConversationEffectJournal.Add(JObject.FromObject(value).ToString(Newtonsoft.Json.Formatting.None)), out bool replayed);
+            if (!receipt.ObservationComplete)
+                throw new InvalidOperationException("The native relationship effect is recorded but its result could not be observed; it will not be applied again.");
+            return new JObject
+            {
+                ["schema"] = "reign-native-relationship-receipt-v2", ["subjectId"] = receipt.SubjectId, ["targetId"] = receipt.TargetId,
+                ["delta"] = receipt.RequestedDelta, ["requestedDelta"] = receipt.RequestedDelta,
+                ["priorNativeRelation"] = receipt.Before, ["nativeRelation"] = receipt.After,
+                ["observedDelta"] = receipt.After - receipt.Before,
+                ["modifierOrCapDifference"] = receipt.After - receipt.Before - receipt.RequestedDelta,
+                ["measurementStatus"] = "observed_before_and_after", ["applicationError"] = receipt.ApplicationError,
+                ["appliedUtc"] = receipt.AppliedUtc, ["idempotentReplay"] = replayed
+            };
+        }
+
         public override void RegisterEvents()
         {
             Instance = this;
@@ -233,6 +267,13 @@ namespace ReignBeta.Campaign
         public override void SyncData(IDataStore dataStore)
         {
             dataStore.SyncData("_reignRelationship_lastTickDay", ref _lastTickDay);
+            dataStore.SyncData("_reignRelationship_appliedMailRelationEffects", ref _appliedMailRelationEffects);
+            dataStore.SyncData("_reignRelationship_announcedLetterIds", ref _announcedLetterIds);
+            dataStore.SyncData("_reignRelationship_nativeConversationEffectJournal", ref _nativeConversationEffectJournal);
+            if (_nativeConversationEffectJournal == null) _nativeConversationEffectJournal = new List<string>();
+            _nativeConversationEffectCache = null;
+            if (_appliedMailRelationEffects == null) _appliedMailRelationEffects = new List<string>();
+            if (_announcedLetterIds == null) _announcedLetterIds = new List<string>();
             dataStore.SyncData("_reignRelationship_lastDirectorSnapshotDay", ref _lastDirectorSnapshotDay);
             dataStore.SyncData("_reignRelationship_lastAmbientSnapshotDay", ref _lastAmbientSnapshotDay);
             dataStore.SyncData("_reignRelationship_lastAmbientCapturedDay", ref _lastAmbientCapturedDay);
@@ -484,40 +525,110 @@ namespace ReignBeta.Campaign
         private void OnHourlyTick()
         {
             if (ReignCampaignInitializationGate.IsPending) return;
-            if (Hero.MainHero == null) return;
+            if (Hero.MainHero == null || ReignSaveSyncCoordinator.IsAlignmentPending) return;
             float day = (float)CampaignTime.Now.ToDays;
             TrySchedulePassiveRelationshipSnapshots(day);
+            TryScheduleAutonomousMail(day);
             if (_tickInFlight) return;
-            if (day - _lastTickDay < 0.2f) return;
+            double hour = CampaignTime.Now.ToHours;
+            if (!CorrespondenceTransitPolicy.ShouldPollAtHour(hour, _lastCorrespondencePollHour)) return;
+            _lastCorrespondencePollHour = hour;
+            // Keep the old saved field for compatibility, not as the cadence gate.
             _lastTickDay = day;
             _tickInFlight = true;
-            _ = PollAsync();
+            _ = PollAsync("delivery");
         }
 
-        private async Task PollAsync()
+        private void TryScheduleAutonomousMail(float day)
+        {
+            if (ReignBetaSettings.Instance?.CorrespondenceEnabled == false
+                || !ReignCampaignPreparationCampaignBehavior.AreAutonomousWorldSystemsUnlocked(day)
+                || ReignSaveSyncCoordinator.IsAlignmentPending
+                || _autonomousMailEvaluationInFlight) return;
+            int slot = (int)Math.Floor(day / 3f);
+            if (slot == _lastAutonomousMailSlot) return;
+            _autonomousMailEvaluationInFlight = true;
+            _ = EvaluateAutonomousMailAsync(slot);
+        }
+
+        private async Task EvaluateAutonomousMailAsync(int slot)
         {
             try
             {
-                ReignCorrespondenceTickResult result = await ReignServerClient.TickCorrespondenceAsync().ConfigureAwait(false);
+                if (await ReignServerClient.EvaluateAutonomousCorrespondenceAsync().ConfigureAwait(false))
+                    _lastAutonomousMailSlot = slot;
+            }
+            finally
+            {
+                _autonomousMailEvaluationInFlight = false;
+            }
+        }
+
+        private async Task PollAsync(string phase)
+        {
+            var nativeCampaign = TaleWorlds.CampaignSystem.Campaign.Current;
+            string timeline = ReignWorldHistoryCampaignBehavior.Instance?.TimelineId ?? "main";
+            List<string> sentAcks;
+            lock (_mailReceiptAcks) sentAcks = _mailReceiptAcks.Take(100).ToList();
+            try
+            {
+                ReignCorrespondenceTickResult result = await ReignServerClient.TickCorrespondenceAsync(phase, sentAcks).ConfigureAwait(false);
+                if (!result.Ok) return;
+                JArray nativeApplications = new JArray();
                 await ReignMainThread.InvokeAsync(() =>
                 {
+                    if (!ReferenceEquals(nativeCampaign, TaleWorlds.CampaignSystem.Campaign.Current)
+                        || !ReferenceEquals(this, Instance) || ReignSaveSyncCoordinator.IsAlignmentPending
+                        || timeline != (ReignWorldHistoryCampaignBehavior.Instance?.TimelineId ?? "main")
+                        || result.TimelineId != timeline) return;
+                    lock (_mailReceiptAcks) foreach (string id in sentAcks) _mailReceiptAcks.Remove(id);
+                    bool applied = true;
                     foreach (ReignNativeRelationChange change in result.NativeRelationChanges ?? new List<ReignNativeRelationChange>())
                     {
                         Hero subject = FindHero(change.SubjectId);
                         Hero target = FindHero(change.TargetId);
-                        if (subject != null && target != null && change.Delta != 0)
+                        string effect = change.EventId + "|" + change.SubjectId + "|" + change.TargetId;
+                        if (_appliedMailRelationEffects.Contains(effect)) continue;
+                        if (string.IsNullOrWhiteSpace(change.EventId) || subject == null || target == null)
+                        { applied = false; continue; }
+                        if (change.Delta != 0)
                         {
-                            ChangeRelationAction.ApplyRelationChangeBetweenHeroes(subject, target, change.Delta, true);
+                            // Preserve normal Bannerlord rewards and notifications.
+                            // Positive gains can be modified by its diplomacy model;
+                            // capture the observed result rather than calling that
+                            // difference a duplicate or silently stripping bonuses.
+                            JObject observation = ApplyConversationRelationOnce(new[] { "mail:" + effect }, subject, target, change.Delta, true);
+                            observation["eventId"] = change.EventId;
+                            observation["applicationPath"] = "bannerlord_gameplay_relation";
+                            observation["timelineId"] = timeline;
+                            nativeApplications.Add(observation);
                         }
+                        _appliedMailRelationEffects.Add(effect);
                     }
-                    foreach (ReignLetter letter in result.DeliveredLetters ?? new List<ReignLetter>()) _pendingMail.Enqueue(letter);
+                    foreach (ReignLetter letter in result.DeliveredLetters ?? new List<ReignLetter>())
+                    {
+                        if (_announcedLetterIds.Contains(letter.LetterId)) continue;
+                        _announcedLetterIds.Add(letter.LetterId);
+                        _pendingMail.Enqueue(letter);
+                    }
                     if (result.QueuedActions != null && result.QueuedActions.Count > 0)
                     {
                         int queued = ReignAICampaignBehavior.Instance?.EnqueueAndExecuteServerActions(result.QueuedActions) ?? 0;
                         ReignLog.Info("Immediate correspondence action import actions=" + result.QueuedActions.Count + " queued=" + queued);
+                        if (ReignAICampaignBehavior.Instance == null) applied = false;
                     }
+                    if (applied) lock (_mailReceiptAcks) foreach (string id in result.DeliveryReceiptIds) _mailReceiptAcks.Add(id);
                     TryShowMailInquiry();
+                    if (phase == "delivery" && result.PendingReplyCount > 0 && !_replyTickInFlight)
+                    {
+                        _replyTickInFlight = true;
+                        _ = PollAsync("replies");
+                    }
                 }).ConfigureAwait(false);
+                foreach (JObject receipt in nativeApplications.OfType<JObject>())
+                    await ReignServerClient.IngestAuditAsync(receipt.Value<string>("eventId"), "correspondence",
+                        "native.relationship_receipt", "completed", "Applied one correspondence relationship receipt through Bannerlord's normal relation path.",
+                        receipt, receipt.Value<string>("subjectId"), eventId: receipt.Value<string>("eventId")).ConfigureAwait(false);
                 ReignNativeRelationSyncProgress nativeProgress = NativeSyncProgressSnapshot();
                 if (nativeProgress != null)
                     await ReignServerClient.ReportNativeRelationSyncProgressAsync(nativeProgress).ConfigureAwait(false);
@@ -528,7 +639,8 @@ namespace ReignBeta.Campaign
             }
             finally
             {
-                _tickInFlight = false;
+                if (phase == "replies") _replyTickInFlight = false;
+                else _tickInFlight = false;
             }
         }
 

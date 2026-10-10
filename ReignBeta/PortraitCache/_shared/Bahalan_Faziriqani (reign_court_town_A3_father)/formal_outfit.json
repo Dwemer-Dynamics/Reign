@@ -3,11 +3,11 @@
   "heroStringId": "reign_court_town_A3_father",
   "characterName": "Bahalan Faziriqani",
   "imagePath": "portrait.png",
-  "imageSha256": "03A06066B84FCEA6F658D67FAEC8183139A089E7BD14D8B746DCDCF5323E0D65",
-  "description": "Culturally appropriate everyday Aserai minor-lord attire inspired by refined medieval Arabian, North African, and limited Persian noble clothing. Men should wear a flowing robe or structured open-front coat over a fine lightweight tunic, secured with a decorated woven sash. Women should wear a long elegant dress with soft layered fabrics, shaped sleeves, graceful draping, and fine embroidery around the neckline, cuffs, and hem. Show rank through superior fabric, elegant borders, geometric embroidery, and subtle jewelry rather than excessive ornamentation. No headgear of any kind. No turbans, veils, hoods, armor, weapons, crowns, or ceremonial excess.",
-  "status": "failed",
-  "descriptionSource": "portrait_prompt_fallback",
-  "retryEligible": true,
-  "error": "{\"error\":{\"message\":\"Model \\\"zai-org/glm-5.2\\\" does not support image inputs. Remove image content or choose a multimodal model.\",\"type\":\"invalid_request_error\",\"param\":\"messages\",\"code\":\"image_input_not_supported\"}}",
-  "updatedUtc": "2026-07-18T22:03:25.2244513Z"
+  "imageSha256": "C67E78FBCEC271B1B876D596BCA681AF578E52CE74C0D1B268F807C877D7D888",
+  "description": "Bahalan wears a cream long tunic with embroidered split neckline beneath a brown gold-bordered open robe, a broad patterned sash, cream trousers and brown shoes. No headgear, armor or weapons; whole standing figure visible against blurred stone architecture.",
+  "status": "completed",
+  "descriptionSource": "agent_vision",
+  "retryEligible": false,
+  "error": "",
+  "updatedUtc": "2026-10-08T05:24:36.946Z"
 }

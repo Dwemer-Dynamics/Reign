@@ -3,11 +3,11 @@
   "heroStringId": "lord_1_69_1",
   "characterName": "Areliana",
   "imagePath": "portrait.png",
-  "imageSha256": "DD8016B9087D954840646B1E622B227292177ADC5FD4BB720238129AB5F98DB9",
-  "description": "Culturally appropriate everyday Calradic Imperial minor-lord attire inspired by refined late Roman and Byzantine noble clothing. Men should wear a high-quality tunic or long tailored outer coat over fine linen, decorated with narrow woven borders, refined clasps, and a decorated belt. Women should wear a long elegant dress or layered tunic ensemble with shaped sleeves, graceful draping, and tasteful trim around the neckline, cuffs, and edges. The garments should feel polished, educated, urban, and wealthy without resembling full imperial ceremony. No headgear of any kind. No armor, weapons, crowns, imperial regalia, laurel wreaths, or ceremonial robes.",
-  "status": "failed",
-  "descriptionSource": "portrait_prompt_fallback",
-  "retryEligible": true,
-  "error": "{\"error\":{\"message\":\"Model \\\"zai-org/glm-5.2\\\" does not support image inputs. Remove image content or choose a multimodal model.\",\"type\":\"invalid_request_error\",\"param\":\"messages\",\"code\":\"image_input_not_supported\"}}",
-  "updatedUtc": "2026-07-18T22:03:24.7703546Z"
+  "imageSha256": "4F97C335ED5A0BE6B2362C598948BFEFA6EB7CD68CB31D4F87C769E056BC9237",
+  "description": "Opaque plum-burgundy floor-length gown with a high soft square to boat-shaped neckline near the collarbones and full wrist-length sleeves with slightly flared ends. Gold woven floral and geometric borders outline the neckline, front vertical strips, cuffs and hem. A narrow decorated waist belt carries round metal ornaments. A cream underlayer is visible at the neck and in a lower front panel. A brown closed leather shoe shows beneath the skirt. The dress is modest and fitted gently at the waist, without an additional shoulder wrap. No armor, weapon or headgear is visible.",
+  "status": "completed",
+  "descriptionSource": "agent_vision",
+  "retryEligible": false,
+  "error": "",
+  "updatedUtc": "2026-10-07T20:35:39.995Z"
 }

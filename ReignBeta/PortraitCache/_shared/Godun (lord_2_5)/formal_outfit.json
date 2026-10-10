@@ -3,11 +3,11 @@
   "heroStringId": "lord_2_5",
   "characterName": "Godun",
   "imagePath": "portrait.png",
-  "imageSha256": "9104B1D299B13E8055CDF536027C0DE329CA4D53C6DFCC36B633095557A630D2",
-  "description": "Culturally appropriate everyday Sturgian minor-lord attire inspired by refined medieval Rus and Slavic noble clothing. Men should wear a well-made long shirt beneath a tailored wool kaftan or long belted coat, decorated with fine geometric embroidery and quality trim. Women should wear a long embroidered shift with an elegant wool overdress or noble coat-dress, secured with a richly woven sash. Include subtle fur trim around collars or cuffs, tasteful clasps, and better-quality fabric than a landowner would wear. The clothing should remain practical for a northern climate while clearly showing noble rank. No headgear of any kind. No armor, weapons, crowns, ceremonial robes, or oversized fur displays.",
-  "status": "failed",
-  "descriptionSource": "portrait_prompt_fallback",
-  "retryEligible": true,
-  "error": "{\"error\":{\"message\":\"Model \\\"zai-org/glm-5.2\\\" does not support image inputs. Remove image content or choose a multimodal model.\",\"type\":\"invalid_request_error\",\"param\":\"messages\",\"code\":\"image_input_not_supported\"}}",
-  "updatedUtc": "2026-07-18T22:03:29.7078050Z"
+  "imageSha256": "341A1F28FB8DB2AAA4B67D66A73F7BB2D227D733849026468F012F9A3CA5ED01",
+  "description": "Godun wears a long dark navy wool kaftan with brown-grey fur edging at the collar and cuffs, blue-and-gold geometric embroidered bands along the front, cuffs and hem, and small round metal clasps near the upper chest. A broad decorated brown belt with a circular centre buckle and rectangular side fittings secures the coat. A cream embroidered linen shirt shows at the neckline and below the opening, over loose brown trousers tucked into tall dark brown leather boots. His head and hands are uncovered; no armor or weapons are visible.",
+  "status": "completed",
+  "descriptionSource": "agent_vision",
+  "retryEligible": false,
+  "error": "",
+  "updatedUtc": "2026-10-08T03:59:24.544Z"
 }

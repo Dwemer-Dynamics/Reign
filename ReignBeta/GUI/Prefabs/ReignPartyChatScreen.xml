@@ -153,7 +153,7 @@
             <TextWidget WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="520" SuggestedHeight="22" HorizontalAlignment="Center" MarginTop="801" Brush="DefaultText" Brush.Font="ReignSerifDynamic" Brush.FontSize="14" Brush.TextHorizontalAlignment="Center" Brush.FontColor="#8A8883FF" Text="@BusyText" />
             <Widget WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="1192" SuggestedHeight="66" HorizontalAlignment="Left" MarginLeft="183" MarginTop="830">
               <Children>
-                <EditableTextWidget WidthSizePolicy="StretchToParent" HeightSizePolicy="Fixed" SuggestedHeight="42" MarginLeft="34" MarginRight="70" MarginTop="12" Brush="DefaultText" Brush.Font="ReignSerifDynamic" Brush.FontSize="18" Brush.TextHorizontalAlignment="Left" Brush.FontColor="#C5BDAFFF" Text="@InputText" IsEnabled="@InputEnabled" MaxLength="2147483647" />
+                <ReignActionEditableTextWidget WidthSizePolicy="StretchToParent" HeightSizePolicy="Fixed" SuggestedHeight="42" MarginLeft="34" MarginRight="70" MarginTop="12" Brush="Reign.Chat.Composer.18" Brush.Font="ReignSerifDynamic" Brush.FontSize="18" Brush.TextHorizontalAlignment="Left" Brush.FontColor="#C5BDAFFF" Text="@InputText" ComposerId="@ActionComposerId" IsEnabled="@InputEnabled" MaxLength="2147483647" />
               </Children>
             </Widget>
             <ButtonWidget WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="202" SuggestedHeight="66" MarginLeft="1388" MarginTop="830" HorizontalAlignment="Left" Brush="ConversationItem.SoundBrush" Command.Click="ExecuteSend" UpdateChildrenStates="true" IsEnabled="@InputEnabled">

@@ -3,11 +3,11 @@
   "heroStringId": "reign_court_town_V8_mother",
   "characterName": "Corysa Gervecourt",
   "imagePath": "portrait.png",
-  "imageSha256": "198D09C93968C09A4E79B660BBB34E5B0FA102F388F58C0D0DB12B3248E2D224",
-  "description": "Culturally appropriate everyday Vlandian minor-lord attire inspired by refined high-medieval Norman and Frankish noble dress. Use a fitted wool tunic or cote over a fine linen shirt, high-quality chausses, a decorated leather belt, and an optional short mantle or shoulder drape with restrained embroidery. For women, use a long underdress with an elegant tailored overdress, shaped sleeves, fine woven fabric, and decorative trim around the cuffs, hem, and neckline. Include modest clasps, brooches, or small jewelry details. No headgear of any kind. No armor, weapons, crowns, royal regalia, or ceremonial robes.",
-  "status": "failed",
-  "descriptionSource": "portrait_prompt_fallback",
-  "retryEligible": true,
-  "error": "{\"error\":{\"message\":\"Model \\\"zai-org/glm-5.2\\\" does not support image inputs. Remove image content or choose a multimodal model.\",\"type\":\"invalid_request_error\",\"param\":\"messages\",\"code\":\"image_input_not_supported\"}}",
-  "updatedUtc": "2026-07-18T22:03:27.0062564Z"
+  "imageSha256": "230B18EAB3EB40C962C87B2DC4C24A2F7A70347539D9A126F36933178FD88667",
+  "description": "She wears a dark red floor-length gown with a low square neckline, elbow-length sleeves and narrow floral woven borders at the neckline, bodice, cuffs and hem. A light patterned underdress is visible at the center skirt, and a red wrap with decorative edging hangs around her forearms. Round shoulder brooches, a narrow belt with a round buckle, a small pendant and rings provide restrained ornament. Brown closed shoes appear beneath the hem; her head is bare.",
+  "status": "completed",
+  "descriptionSource": "agent_vision",
+  "retryEligible": false,
+  "error": "",
+  "updatedUtc": "2026-10-07T21:20:11.179Z"
 }

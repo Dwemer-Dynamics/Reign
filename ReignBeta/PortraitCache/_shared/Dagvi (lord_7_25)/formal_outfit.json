@@ -3,11 +3,11 @@
   "heroStringId": "lord_7_25",
   "characterName": "Dagvi",
   "imagePath": "portrait.png",
-  "imageSha256": "23558A1D867BD2B3E6FE77CDA8FB05625B118378FAC59E368EF482F7C4C6DAAD",
-  "description": "Culturally appropriate everyday Nord landowner attire inspired by historically grounded early medieval Scandinavian civilian clothing. Men should wear a long-sleeved linen undershirt beneath a knee-length wool tunic, straight or loose trousers, a sturdy leather belt, and wrapped lower legs. Women should wear a long linen shift beneath a wool apron dress or layered overdress, secured with modest brooches and a woven belt. Include subtle tablet-woven trim and practical layered fabric. The garments should appear sturdy, clean, and modestly prosperous. No headgear of any kind. No helmets, caps, hoods, armor, weapons, crowns, ceremonial garments, horned helmets, or fantasy Viking styling.",
-  "status": "failed",
-  "descriptionSource": "portrait_prompt_fallback",
-  "retryEligible": true,
-  "error": "{\"error\":{\"message\":\"Model \\\"zai-org/glm-5.2\\\" does not support image inputs. Remove image content or choose a multimodal model.\",\"type\":\"invalid_request_error\",\"param\":\"messages\",\"code\":\"image_input_not_supported\"}}",
-  "updatedUtc": "2026-07-18T22:03:27.2577637Z"
+  "imageSha256": "2F2FB5C1991ED5478A40D3AE280A3F9F47C588C2E6973560DD726E9985D75D82",
+  "description": "A sturdy dark olive-grey knee-length wool tunic with subtle red-and-cream geometric tablet-woven edging around the neck, cuffs and hem, worn over a cream linen undershirt visible at the open neck and wrists. A plain brown leather belt with rectangular brass-toned buckle and long hanging end secures the waist. Brown wool trousers, grey cloth lower-leg wraps crossed by leather ties and dark brown low leather shoes complete the outfit. No headgear, armor or weapons.",
+  "status": "completed",
+  "descriptionSource": "agent_vision",
+  "retryEligible": false,
+  "error": "",
+  "updatedUtc": "2026-10-08T04:28:41.203Z"
 }

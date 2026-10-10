@@ -3,11 +3,11 @@
   "heroStringId": "reign_court_castle_EN9_child_2",
   "characterName": "Calonia Aurelerides",
   "imagePath": "portrait.png",
-  "imageSha256": "0356D6C0DFAF785E3ECB22A21FEA6557413D4CA29C0D407FBCB4581AAE0BC366",
-  "description": "Culturally appropriate everyday Calradic Imperial high-noble attire inspired by luxurious Byzantine aristocratic fashion, restrained enough for daily noble life. Use fine layered linen and wool, controlled flowing silhouettes, elegant draping, richly woven borders, small jeweled clasps, and sophisticated fabric textures. Men should wear a stately long tunic or structured noble coat over a fine undertunic, with refined belts and detailed edging. Women should wear a sophisticated layered noble dress with graceful drapery, tailored sleeves, and subtle aristocratic ornamentation. The outfit should communicate ancient prestige, wealth, and political importance. No headgear of any kind. No armor, weapons, crowns, laurel wreaths, or full ceremonial imperial regalia.",
-  "status": "failed",
-  "descriptionSource": "portrait_prompt_fallback",
-  "retryEligible": true,
-  "error": "{\"error\":{\"message\":\"Model \\\"zai-org/glm-5.2\\\" does not support image inputs. Remove image content or choose a multimodal model.\",\"type\":\"invalid_request_error\",\"param\":\"messages\",\"code\":\"image_input_not_supported\"}}",
-  "updatedUtc": "2026-07-18T22:03:26.5285941Z"
+  "imageSha256": "0CCF4AA525F1E204541F5BEAF462E27CDA36885D9DD155075CE174F14E502249",
+  "description": "Opaque purple floor-length gown with a low square neckline, fitted bodice and off-the-shoulder elbow-length sleeves attached to decorated shoulder straps by round jeweled gold brooches. Broad gold floral-geometric woven borders outline the neckline, straps, bodice, sleeve ends, vertical skirt strips and hem. A wide woven waist belt has a round purple-centered gold clasp and a hanging chain ornament. Cream gold-bordered wrap lies along the forearms and hangs at the sides. A below-knee skirt opening shows the lower leg and patterned closed gold-brown shoe. Pendant necklace, earrings and bracelet are visible. No headgear, armor or weapon is present.",
+  "status": "completed",
+  "descriptionSource": "agent_vision",
+  "retryEligible": false,
+  "error": "",
+  "updatedUtc": "2026-10-07T21:16:58.787Z"
 }

@@ -1,16 +1,90 @@
 {
   "version": 1,
+  "schema": "reign-builtin-chat-reference-guided-image-generation-culture-v1",
   "cacheKey": "Rath (lord_5_131)",
   "heroStringId": "lord_5_131",
   "characterObjectId": "lord_5_131",
   "characterName": "Rath",
-  "provider": "AtlasCloud",
-  "model": "xai/grok-imagine-image/edit",
-  "adapter": "atlas upload/generate/poll",
-  "sourceSha256": "16e5fda1f975773b75cb2272af8e82b1e0cc12ef9d2d3af6529f8ab8921e9201",
-  "portraitSha256": "7b6779f21d9fb552b26af0e29116faa4d79adfb3416cdcdc106191b3f304629d",
-  "portraitWidth": 832,
-  "portraitHeight": 1248,
+  "worker": "worker-1",
+  "generatedOriginalPath": "C:\\Users\\speed\\.codex\\generated_images\\01a11c35-b9ad-75f1-9c21-5742fde8069d\\exec-faba425f-189b-4b92-9b19-d172fea639d5.png",
+  "sourceFileCreationUtc": "2026-10-08T21:13:05.131Z",
+  "generationRequestId": "6b578746-ef88-4ca3-a47c-e18048449741",
+  "generationRequestSha256": "83d0fdbd03dd93c8dfd0488a776a6cb21c469ce6bb56e123c19d889669a52b92",
+  "generationReturnSha256": "472a9b03c4b577a14f4ba5e66106dc28f5d3c5d6817705e1a59bc698fc62b033",
+  "provider": "Codex built-in image_gen",
+  "model": "unknown",
+  "adapter": "old-face-identity/new-style-reference-guided",
+  "generationMode": "reference_guided",
+  "inputImages": 2,
+  "references": [
+    {
+      "id": "lord_5_131",
+      "role": "old_identity",
+      "path": "D:\\Program Files (x86)\\Steam\\steamapps\\common\\Mount & Blade II Bannerlord\\Modules\\ReignBeta\\PortraitCache\\_shared\\Rath (lord_5_131)\\portrait_chest.png",
+      "sha256": "a5620526db30398901023a83d7921b900a9a4e8a1cf7ab1c2bc7673060cd837d",
+      "originalReference": {
+        "path": "D:\\Program Files (x86)\\Steam\\steamapps\\common\\Mount & Blade II Bannerlord\\Modules\\ReignBeta\\PortraitCache\\_shared\\Rath (lord_5_131)\\portrait_chest.png",
+        "sha256": "a5620526db30398901023a83d7921b900a9a4e8a1cf7ab1c2bc7673060cd837d"
+      }
+    },
+    {
+      "id": "lord_5_131",
+      "role": "new_style",
+      "path": "C:\\ReignPortraitRebuild\\2026-10-07-01a11741-culture-v2\\audit\\residual-correction-phase4-001\\lord_5_131\\predecessor-files\\_shared\\Rath (lord_5_131)\\portrait.png",
+      "sha256": "c59fedd3242e8fa13ea29b600c98a3d67d5f72f01089d2ce7c9cb5c65cf5e5e4",
+      "originalReference": {
+        "path": "C:\\ReignPortraitRebuild\\2026-10-07-01a11741-culture-v2\\_shared\\Rath (lord_5_131)\\portrait.png",
+        "sha256": "c59fedd3242e8fa13ea29b600c98a3d67d5f72f01089d2ce7c9cb5c65cf5e5e4"
+      }
+    }
+  ],
+  "referenceGuidedExecution": {
+    "schema": "reign-portrait-reference-guided-execution-v1",
+    "generationMode": "reference_guided",
+    "inputImages": 2,
+    "references": [
+      {
+        "id": "lord_5_131",
+        "role": "old_identity",
+        "path": "D:\\Program Files (x86)\\Steam\\steamapps\\common\\Mount & Blade II Bannerlord\\Modules\\ReignBeta\\PortraitCache\\_shared\\Rath (lord_5_131)\\portrait_chest.png",
+        "sha256": "a5620526db30398901023a83d7921b900a9a4e8a1cf7ab1c2bc7673060cd837d",
+        "originalReference": {
+          "path": "D:\\Program Files (x86)\\Steam\\steamapps\\common\\Mount & Blade II Bannerlord\\Modules\\ReignBeta\\PortraitCache\\_shared\\Rath (lord_5_131)\\portrait_chest.png",
+          "sha256": "a5620526db30398901023a83d7921b900a9a4e8a1cf7ab1c2bc7673060cd837d"
+        }
+      },
+      {
+        "id": "lord_5_131",
+        "role": "new_style",
+        "path": "C:\\ReignPortraitRebuild\\2026-10-07-01a11741-culture-v2\\audit\\residual-correction-phase4-001\\lord_5_131\\predecessor-files\\_shared\\Rath (lord_5_131)\\portrait.png",
+        "sha256": "c59fedd3242e8fa13ea29b600c98a3d67d5f72f01089d2ce7c9cb5c65cf5e5e4",
+        "originalReference": {
+          "path": "C:\\ReignPortraitRebuild\\2026-10-07-01a11741-culture-v2\\_shared\\Rath (lord_5_131)\\portrait.png",
+          "sha256": "c59fedd3242e8fa13ea29b600c98a3d67d5f72f01089d2ce7c9cb5c65cf5e5e4"
+        }
+      }
+    ],
+    "textCompositionImageInputs": 0,
+    "textVerificationSha256": "86f17c1339ff2fb20671d71d4dda9df88c2ec3200a48675d99b19ad532d1c2f8",
+    "textPromptSha256": "dc6f6f78226b69970a73ed17a90064350392800a49ccbba89063ac13e2e5ea8c",
+    "compositionProofSha256": "d7f5f68b7676ad86c426ce86690edf2dc654d96a819a5b9a875984bcb46df3de",
+    "rootCompositionReview": {
+      "path": "C:\\ReignPortraitRebuild\\2026-10-07-01a11741-culture-v2\\audit\\root-full32-prompt-composition-review-001\\lord_5_131\\root-hybrid-composition-review.json",
+      "sha256": "78a7dcb0ca3df6086c9652333202839b9ef76554f447435142c84b456c478e0f"
+    }
+  },
+  "sourceSha256": "8eebff9e4a225cab7c9ced847f8ff6aa2a7c688fecdec8fce1665dc785bc33a0",
+  "portraitSha256": "c5c4a2eb5fb85c4c8421ea054b1771bfe1339208492d76d05c89bbb556512c95",
+  "portraitWidth": 1086,
+  "portraitHeight": 1448,
+  "promptSha256": "90a87c594850c2949831315dc09c5697b70c0588b3ff18c2574f9d09af996192",
+  "descriptionSha256": "80733440307227b5bbb3ba9f19aa07e08e9b3156e1757b882d915a0860467b90",
+  "cultureId": "battania",
+  "cultureReferenceKey": "battania",
+  "cultureReference": "Celtic Atlantic regional appearance, drawing on Irish, Scottish and Welsh populations.",
+  "cultureLayerFile": "portrait_facial_culture_battania.txt",
+  "cultureLayerFullText": "FACIAL CULTURAL APPEARANCE — BATTANIAN\nStored cultureId: battania.\nRegional reference: Celtic Atlantic regional appearance, drawing on Irish, Scottish and Welsh populations.\nCreate a believable real human face with this regional appearance. Apply the regional reference positively to facial appearance, facial structure and complexion; it is not only a clothing, setting or background instruction.\nBlend the regional reference with the individual facial description. Where simplified native geometry or game-renderer shading differs from this regional appearance, use a plausible natural blend while retaining recognizable individual traits: face outline, relative proportions, eyes, brows, nose, mouth, jaw and chin. Preserve the described hair identity, arrangement and texture, facial-hair pattern, eye character, visible scars and markings; do not invent new distinguishing marks.\nThese regional populations contain substantial individual variation. Do not give every member the same face, impose a universal skin, hair or eye color, or replace the written individual identity with a generic regional stereotype. Preserve source-grounded differences and natural human asymmetry.\nKeep the exact authored age and the independent native weight and build values. This layer applies to facial appearance and realistic complexion interpretation, not body size, muscularity, garment coverage or social rank. Every complete composition, clothing, confidence, photographic, output and physique modifier remains in effect. Do not print this reference or any metadata in the image.",
+  "cultureLayerSha256": "61f429edd007ef5f69ea3a5970444551f95a48e02abb297a5c4aa7c0e6e1f66a",
   "physicalConfidence": {
     "definition": "physical_confidence",
     "score": 55,
@@ -21,7 +95,10 @@
     "confidenceWeight": 0.25,
     "source": "shipped_profile_library"
   },
+  "confidenceCoverageOverride": null,
   "derivativesReady": true,
   "derivativeError": "",
-  "generatedUtc": "2026-07-17T19:10:46.2728511Z"
+  "generatedUtc": "2026-10-08T21:13:22.796Z",
+  "serverSigned": false,
+  "derivativeReportSha256": "9941032b2ddeb3588d5c60e069c943c15013227e2972f025761cee99666ec9c4"
 }

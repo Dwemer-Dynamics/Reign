@@ -167,7 +167,7 @@ namespace ReignBeta.Government
             if (record.Status == "authorized") return true;
             if (record.Status == "decided" && record.ExecutedOptionId == "accept")
             { blockedResult = ReignActionResult.NoOp("This government-authorized action already completed."); return false; }
-            if (GovernmentBusinessRules.IsRecordedAuthorizationRefusal(record.Status, record.ExecutedOptionId))
+            if (HasRecordedAuthorizationRefusal(record))
             { blockedResult = RecordedAuthorizationRefusal(record); return false; }
             if (GovernmentBusinessRules.IsClosed(record.Status))
             { blockedResult = ReignActionResult.FailTerminal("The government process did not authorize this action.", "government_refused", "government_authority"); return false; }
@@ -191,19 +191,24 @@ namespace ReignBeta.Government
             var record = _business.FirstOrDefault(x => Same(x.ActionCorrelationId, action.ActionId)
                 && string.IsNullOrEmpty(x.CounterpartOfBusinessId));
             if (record == null
-                || !GovernmentBusinessRules.IsRecordedAuthorizationRefusal(record.Status, record.ExecutedOptionId)
+                || !HasRecordedAuthorizationRefusal(record)
                 || !string.Equals(record.ActionPayloadJson, GovernmentActionIdentity(action), StringComparison.Ordinal))
                 return false;
             result = RecordedAuthorizationRefusal(record);
             return true;
         }
 
+        private bool HasRecordedAuthorizationRefusal(ReignGovernmentBusinessRecord record) =>
+            GovernmentBusinessRules.IsRecordedAuthorizationRefusal(record.Status, record.ExecutedOptionId)
+            || ReignGovernmentNativeSafety.IsRecordedCounterpartRefusal(record,
+                _business.FirstOrDefault(x => x.BusinessId == record.CounterpartBusinessId));
+
         private static ReignActionResult RecordedAuthorizationRefusal(ReignGovernmentBusinessRecord record) =>
             ReignActionResult.Rejected("The government process did not authorize this action.",
                 "government_authorization_refused", "government_authority")
                 .WithDiagnostic("governmentBusinessId", record.BusinessId)
                 .WithDiagnostic("governmentStatus", record.Status)
-                .WithDiagnostic("governmentExecutedOptionId", record.ExecutedOptionId);
+                .WithDiagnostic("governmentExecutedOptionId", "reject");
         private static string GovernmentActionIdentity(ReignWorldActionRecord action) => new JObject
         {
             ["type"] = action.TypeValue, ["actorHero"] = action.ActorHeroStringId, ["actorClan"] = action.ActorClanStringId,

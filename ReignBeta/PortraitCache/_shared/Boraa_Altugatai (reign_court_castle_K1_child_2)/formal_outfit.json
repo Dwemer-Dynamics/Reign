@@ -3,11 +3,11 @@
   "heroStringId": "reign_court_castle_K1_child_2",
   "characterName": "Boraa Altugatai",
   "imagePath": "portrait.png",
-  "imageSha256": "2631EF6C4728B6DEBC11A0470BC0BE92E2FCAAEDB832F1E3CC4C3DD29EE4C16C",
-  "description": "Culturally appropriate everyday Khuzait high-noble attire inspired by elite medieval Turkic and Mongol aristocratic clothing. Use superb tailoring, layered fine wool and silk-like woven fabrics, elegant crossed-front closures, decorated sashes, refined edging, and subtle noble motifs. Men should wear a stately long noble deel or structured coat over richly made underlayers. Women should wear a luxurious robe or coat-dress with graceful lines, elaborate woven trim, and exceptionally high-quality textiles. Fur trim may be included sparingly along cuffs, collars, or garment edges. The clothing should feel wealthy, mobile, and commanding without becoming ceremonial. No headgear of any kind. No fur hats, caps, hoods, armor, weapons, crowns, or fantasy styling.",
-  "status": "failed",
-  "descriptionSource": "portrait_prompt_fallback",
-  "retryEligible": true,
-  "error": "{\"error\":{\"message\":\"Model \\\"zai-org/glm-5.2\\\" does not support image inputs. Remove image content or choose a multimodal model.\",\"type\":\"invalid_request_error\",\"param\":\"messages\",\"code\":\"image_input_not_supported\"}}",
-  "updatedUtc": "2026-07-18T22:03:25.7204295Z"
+  "imageSha256": "3E6F742047B2D56CB83A901F6608E6F4219C305D85A848A4AD998CA7DE389C86",
+  "description": "Opaque teal long court gown with wide embroidered sleeves, a crossing teal front panel over a pale patterned underdress, round covered neckline, gold woven borders and large decorative animal-like scroll motifs near the lower skirt, a narrow belt with circular metal fittings and a hanging decorated strap, and two dark embroidered closed boots. Both hands are joined at the lower waist.",
+  "status": "completed",
+  "descriptionSource": "agent_vision",
+  "retryEligible": false,
+  "error": "",
+  "updatedUtc": "2026-10-08T21:30:06.198Z"
 }

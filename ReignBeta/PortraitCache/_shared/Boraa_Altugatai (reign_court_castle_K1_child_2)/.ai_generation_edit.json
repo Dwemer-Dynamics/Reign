@@ -1,0 +1,65 @@
+{
+  "schema": "reign-portable-actual-portrait-origin-v1",
+  "id": "reign_court_castle_K1_child_2",
+  "kind": "edited_fullbody",
+  "actualReceiptSha256": "5cd75cbc1fb55896cc341a970efc53a2a7be20c88b6368297ac52c687b98109b",
+  "actualReceiptUtf8": "{\r\n  \"schema\": \"reign-root-actual-builtin-targeted-edit-result-v1\",\r\n  \"createdUtc\": \"2026-10-09T01:23:15.253916+00:00\",\r\n  \"id\": \"reign_court_castle_K1_child_2\",\r\n  \"rootRelease\": {\r\n    \"path\": \"C:\\\\ReignPortraitRebuild\\\\2026-10-07-01a11741-culture-v2\\\\audit\\\\root-boraa-braid-only-edit-001\\\\root-release-001.json\",\r\n    \"sha256\": \"fc25ac7e0b6930a9cea10aca86f7642ce15ee2e56ca079b60c1fe3cc1548a521\"\r\n  },\r\n  \"exactPrompt\": {\r\n    \"path\": \"C:\\\\ReignPortraitRebuild\\\\2026-10-07-01a11741-culture-v2\\\\audit\\\\remaining-phase4-personal-adjudication-route-001\\\\boraa-braid-edit-proposal-001\\\\full-prompt.txt\",\r\n    \"sha256\": \"796b391d45aa6580d5006061d321558d48733ff2a753af45c7bcc05d384bf30b\",\r\n    \"bytes\": 13346\r\n  },\r\n  \"actualReferences\": [\r\n    {\r\n      \"path\": \"C:\\\\ReignPortraitRebuild\\\\2026-10-07-01a11741-culture-v2\\\\_shared\\\\Boraa_Altugatai (reign_court_castle_K1_child_2)\\\\portrait.png\",\r\n      \"sha256\": \"3e6f742047b2d56cb83a901f6608e6f4219c305d85a848a4ad998ca7de389c86\",\r\n      \"bytes\": 2252671,\r\n      \"image\": 1,\r\n      \"purpose\": \"current_full_portrait_edit_target\"\r\n    },\r\n    {\r\n      \"path\": \"C:\\\\Users\\\\speed\\\\Desktop\\\\sourcegen\\\\Reign Shared Portrait Source Cache - 20260716-200950\\\\_shared\\\\Boraa_Altugatai (reign_court_castle_K1_child_2)\\\\source.png\",\r\n      \"sha256\": \"4b47ac97dba6a1b0b3fa6823f4aa195f8e41b5700a574ce7056d9822da2e93c1\",\r\n      \"bytes\": 747827,\r\n      \"image\": 2,\r\n      \"purpose\": \"native_braid_endpoints_only_no_identity_body_or_style_transfer\"\r\n    }\r\n  ],\r\n  \"actualGeneratedFile\": {\r\n    \"path\": \"C:\\\\Users\\\\speed\\\\.codex\\\\generated_images\\\\01a11741-4ac1-7cd2-9aca-e03d81313445\\\\exec-06092754-319e-4b5c-89ca-f25fa63d544f.png\",\r\n    \"sha256\": \"10edbd111205c75127d96a29154a55b1105642ba3ce6a99e8e5aa6638e72cdb3\",\r\n    \"bytes\": 2144083,\r\n    \"width\": 1086,\r\n    \"height\": 1448\r\n  },\r\n  \"actualBuiltinImageCalls\": 1,\r\n  \"actualRetries\": 0,\r\n  \"paidApiCalls\": 0,\r\n  \"resultPersonallyViewedBy\": \"root\",\r\n  \"actualView\": \"builtin returned inline image\",\r\n  \"rootVisualObservation\": \"Both braids now finish on the upper chest, clearly above the belt, preserving center part, braid thickness and dark hair. Current Khuzait facial identity, youthful adult age23 impression, opaque high-noble garment, standing body proportions, joined hands, boots, soft daylight and architectural background remain visually consistent. Underlying garment continues where long braid ends were removed. No photographic pixel-lock is claimed; the generative edit may change small facial or textile details. No facial-distinction credit is assigned to this grooming change.\",\r\n  \"sourceCorrectionDisposition\": \"braid_endpoints_accepted_by_root_visual_review\",\r\n  \"nativeDerivativePacking\": \"pending\",\r\n  \"neighborIdentityReview\": \"pending_for_edited_pixels\",\r\n  \"currentWrites\": 0,\r\n  \"productWrites\": 0,\r\n  \"humanAccepted\": false,\r\n  \"notSwapApproval\": true\r\n}\r\n",
+  "originalReceiptEncoding": "UTF-8; BOM retained if present",
+  "localFiles": [
+    {
+      "name": "portrait_chest.png",
+      "sha256": "ecf23fc5fb165ef86a0671ffe2e53ad81230c0ab9702f6e91d03eb5e40041b83",
+      "bytes": 220762
+    },
+    {
+      "name": "thumbnail.png",
+      "sha256": "e3eb693f967d91b012fd3478a5dafe18963df0d8f7818dc6f574a9163aa9a4bb",
+      "bytes": 181486
+    },
+    {
+      "name": "thumbnail_wide.png",
+      "sha256": "a7fb757563dca106589e4a31346ad5eaae05417f241adf012b4c469e54a2f6a0",
+      "bytes": 268836
+    },
+    {
+      "name": "portrait.png",
+      "sha256": "10edbd111205c75127d96a29154a55b1105642ba3ce6a99e8e5aa6638e72cdb3",
+      "bytes": 2144083
+    },
+    {
+      "name": "zoom.png",
+      "sha256": "95132828348eede52bfdaac9f61906398ae592d85394bf8bc31382356c13074f",
+      "bytes": 3240839
+    },
+    {
+      "name": "prompt_edit.txt",
+      "sha256": "796b391d45aa6580d5006061d321558d48733ff2a753af45c7bcc05d384bf30b",
+      "bytes": 13346
+    }
+  ],
+  "historicalParent": {
+    "record": {
+      "path": "C:\\ReignPortraitRebuild\\2026-10-07-01a11741-culture-v2\\_shared\\Boraa_Altugatai (reign_court_castle_K1_child_2)\\.ai_generation.json",
+      "sha256": "995d8760d3ff1d0fb03098ed4ebce1a520298f90273e9edb6feee655e6754170",
+      "bytes": 7499
+    },
+    "prompt": {
+      "path": "C:\\ReignPortraitRebuild\\2026-10-07-01a11741-culture-v2\\_shared\\Boraa_Altugatai (reign_court_castle_K1_child_2)\\prompt.txt",
+      "sha256": "6160546f5083b44a1a300ad65be348b23a6d44220bbe5d42991930df58c50a98",
+      "bytes": 11218
+    },
+    "role": "Original fullbody generation; not the new independent chest/edit producer."
+  },
+  "authenticRawReceiptNotRewritten": true,
+  "rawAbsolutePathsRole": "Historical tool/provider locations only. Current pixel source and prompt are bound by localFiles.",
+  "actualOriginAdapter": {
+    "rawSchema": "reign-root-actual-builtin-targeted-edit-result-v1",
+    "actualCallsField": "actualBuiltinImageCalls",
+    "actualRetriesField": "actualRetries",
+    "rawActualCalls": 1,
+    "rawRetries": 0
+  },
+  "globalFaceAcceptance": false,
+  "nativeUIAcceptance": false,
+  "notSwapApproval": true
+}

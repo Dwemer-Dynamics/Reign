@@ -3,11 +3,11 @@
   "heroStringId": "reign_court_castle_ES6_child_4",
   "characterName": "Aevenene Damaranion",
   "imagePath": "portrait.png",
-  "imageSha256": "3D0EBDF5A6A1895C87502904E62F9B01F84C4D7015E4F67553A09C5A648BABE8",
-  "description": "Culturally appropriate everyday Calradic Imperial high-noble attire inspired by luxurious Byzantine aristocratic fashion, restrained enough for daily noble life. Use fine layered linen and wool, controlled flowing silhouettes, elegant draping, richly woven borders, small jeweled clasps, and sophisticated fabric textures. Men should wear a stately long tunic or structured noble coat over a fine undertunic, with refined belts and detailed edging. Women should wear a sophisticated layered noble dress with graceful drapery, tailored sleeves, and subtle aristocratic ornamentation. The outfit should communicate ancient prestige, wealth, and political importance. No headgear of any kind. No armor, weapons, crowns, laurel wreaths, or full ceremonial imperial regalia.",
-  "status": "failed",
-  "descriptionSource": "portrait_prompt_fallback",
-  "retryEligible": true,
-  "error": "{\"error\":{\"message\":\"Model \\\"zai-org/glm-5.2\\\" does not support image inputs. Remove image content or choose a multimodal model.\",\"type\":\"invalid_request_error\",\"param\":\"messages\",\"code\":\"image_input_not_supported\"}}",
-  "updatedUtc": "2026-07-18T22:03:24.0144525Z"
+  "imageSha256": "385A7F80472EF885F02710D12EB960ED35486DD2595F6C14D27BEA735BC556DA",
+  "description": "Opaque dark plum-purple floor-length gown, with a low square neckline and fitted bodice, elbow-length sleeves and wide gold-red geometric woven ornament around the neckline, shoulder straps, waist, vertical front and skirt hem. Round decorative shoulder clasps, a narrow gold patterned waist belt and a hanging chain ornament add detail. A cream opaque underdress is visible through the lower front opening. A long cream wrap with gold-purple borders hangs along both forearms and down the sides. A small gold-purple pendant necklace and a gold-purple closed shoe are visible. No armor, head covering or weapon is present.",
+  "status": "completed",
+  "descriptionSource": "agent_vision",
+  "retryEligible": false,
+  "error": "",
+  "updatedUtc": "2026-10-07T20:21:51.342Z"
 }

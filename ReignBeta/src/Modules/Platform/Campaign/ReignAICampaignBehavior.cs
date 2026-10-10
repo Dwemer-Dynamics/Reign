@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
@@ -36,6 +37,7 @@ namespace ReignBeta.Campaign
         private bool _worldTestConfirmedCadenceInitialized;
         private bool _worldTestSaveSyncResumePending;
         private bool _governmentRefusalsReconciled;
+        private bool _completedCampaignOrdersReconciled;
         private long _lastRealtimeActionPollUtcTicks;
         private static readonly long RealtimeActionPollIntervalTicks =
             System.TimeSpan.FromSeconds(1d).Ticks;
@@ -108,10 +110,23 @@ namespace ReignBeta.Campaign
 
         public ReignActionResult GetLastActionResult(string actionId)
         {
-            return !string.IsNullOrWhiteSpace(actionId) && _lastActionResults.TryGetValue(actionId, out ReignActionResult result)
-                ? result
-                : null;
+            if (!string.IsNullOrWhiteSpace(actionId) && _lastActionResults.TryGetValue(actionId, out ReignActionResult result)) return result;
+            var saved = _actions.FirstOrDefault(a => a != null && a.ActionId == actionId);
+            if (saved == null) return null;
+            if (saved.Status == ReignWorldActionStatus.Completed) return ReignActionResult.Done("Already completed; the saved action receipt prevents a second execution.");
+            if (saved.Status == ReignWorldActionStatus.Cancelled) return ReignActionResult.NoOp("This action was cancelled; its saved receipt prevents another execution.")
+                .WithResultCode("action_cancelled").WithOutcome("cancelled");
+            if (saved.IsTerminal) return ReignActionResult.ValidationFailed(saved.FailureReason ?? "This action was not completed.");
+            return ReignActionResult.Progress("Awaiting native completion.");
         }
+
+        internal JArray ConversationActionReceipts(Hero hero) => JArray.FromObject(_actions
+            .Where(a => a != null && hero != null && (a.ActorHeroStringId == hero.StringId || a.TargetHeroStringId == hero.StringId))
+            .OrderByDescending(a => a.CreatedDay).Take(12).Select(a => new {
+                actionId = a.ActionId, command = a.NegotiatedCommand,
+                status = a.Status == ReignWorldActionStatus.Completed ? "applied"
+                    : a.Status == ReignWorldActionStatus.Cancelled ? "cancelled" : a.IsTerminal ? "failed" : "pending",
+                message = GetLastActionResult(a.ActionId)?.Message ?? "Awaiting native completion." }));
 
         public override void RegisterEvents()
         {
@@ -145,6 +160,19 @@ namespace ReignBeta.Campaign
                 {
                     if (ReignGovernmentCampaignBehavior.Instance.TryGetRecordedAuthorizationRefusal(action, out var refusal))
                         RecordRejectedAction(action, refusal);
+                }
+            }
+
+            if (!_completedCampaignOrdersReconciled && ReignBeta.Actions.ReignAgreementBehavior.Instance != null
+                && ReignCampaignCommandBehavior.Instance != null)
+            {
+                _completedCampaignOrdersReconciled = true;
+                foreach (var action in _actions.ToList())
+                {
+                    if (TryRetireImpossibleTreaty(action)) continue;
+                    if (ReignBeta.Actions.ReignAgreementBehavior.Instance?.ReconcileObservedCampaignCancellation(action) == true) continue;
+                    TryRestoreObservedPendingCampaignOrder(action);
+                    TryCompleteObservedCampaignOrder(action);
                 }
             }
 
@@ -212,9 +240,9 @@ namespace ReignBeta.Campaign
         private void PruneSaveBackedHistory()
         {
             _actions = (_actions ?? new List<ReignWorldActionRecord>())
-                .Where(x => x != null && !x.IsTerminal)
+                .Where(x => x != null && (!x.IsTerminal || DurableDialogueReceipt(x)))
                 .Concat((_actions ?? new List<ReignWorldActionRecord>())
-                    .Where(x => x != null && x.IsTerminal)
+                    .Where(x => x != null && x.IsTerminal && !DurableDialogueReceipt(x))
                     .OrderByDescending(x => x.LastAttemptDay)
                     .ThenByDescending(x => x.CreatedDay)
                     .Take(128))
@@ -270,8 +298,15 @@ namespace ReignBeta.Campaign
             float now = CurrentDay();
             foreach (ReignWorldActionRecord action in actions)
             {
-                if (action == null || _actions.Any(x => x != null && x.ActionId == action.ActionId))
+                if (action == null) continue;
+                var existing = _actions.FirstOrDefault(x => x != null && x.ActionId == action.ActionId);
+                if (existing != null)
                 {
+                    if (existing.TermsHash != action.TermsHash || existing.Type != action.Type
+                        || existing.ActorHeroStringId != action.ActorHeroStringId || existing.TargetHeroStringId != action.TargetHeroStringId)
+                        throw new InvalidOperationException("A replayed action has different terms: " + action.ActionId);
+                    var prior = GetLastActionResult(existing.ActionId);
+                    _ = ReignServerClient.ReportActionAsync(existing, existing.Status.ToString().ToLowerInvariant(), prior?.Message ?? "Saved action result.", prior);
                     continue;
                 }
 
@@ -300,6 +335,10 @@ namespace ReignBeta.Campaign
 
             return queuedCount;
         }
+
+        private static bool DurableDialogueReceipt(ReignWorldActionRecord action) => action.ActionId != null
+            && (action.ActionId.StartsWith("pa_", StringComparison.Ordinal) || action.ActionId.StartsWith("da_", StringComparison.Ordinal)
+                || action.ActionId.StartsWith("sa_", StringComparison.Ordinal));
 
         public ReignWorldActionRecord QueueDeclareWar(Kingdom actor, Kingdom target, string reason)
         {
@@ -354,6 +393,8 @@ namespace ReignBeta.Campaign
 
             float now = CurrentDay();
             MaybeTickConversationSceneState();
+            if (!ReignSaveSyncCoordinator.IsAlignmentPending)
+                _ = ReignServerClient.TickPersonalGossipAsync();
             ReignActionGauntlet.TickAllSuites();
             MaybeStartServerActionPoll(now);
             MaybeSubmitWorldTestHeartbeat(now);
@@ -544,8 +585,15 @@ namespace ReignBeta.Campaign
             int added = 0;
             foreach (ReignWorldActionRecord action in pending)
             {
-                if (action == null || _actions.Any(x => x != null && x.ActionId == action.ActionId))
+                if (action == null) continue;
+                var existing = _actions.FirstOrDefault(x => x != null && x.ActionId == action.ActionId);
+                if (existing != null)
                 {
+                    if (existing.TermsHash != action.TermsHash || existing.Type != action.Type
+                        || existing.ActorHeroStringId != action.ActorHeroStringId || existing.TargetHeroStringId != action.TargetHeroStringId)
+                    { ReignLog.Warn("Rejected conflicting action replay " + action.ActionId); continue; }
+                    var prior = GetLastActionResult(existing.ActionId);
+                    _ = ReignServerClient.ReportActionAsync(existing, existing.Status.ToString().ToLowerInvariant(), prior?.Message ?? "Saved action result.", prior);
                     continue;
                 }
 
@@ -575,6 +623,103 @@ namespace ReignBeta.Campaign
             queued.Status = ReignWorldActionStatus.Accepted;
             queued.ExecuteAfterDay = CurrentDay();
             return ExecuteAction(queued, CurrentDay());
+        }
+
+        private bool TryRestoreObservedPendingCampaignOrder(ReignWorldActionRecord action)
+        {
+            if (action == null || action.Type != ReignWorldActionType.RegularIssueCampaignOrder
+                || action.Status != ReignWorldActionStatus.Completed) return false;
+            JObject terms;
+            try { terms = JObject.Parse(action.TermsJson ?? "{}"); }
+            catch (Newtonsoft.Json.JsonException) { return false; }
+            string namedOrder = terms.Value<string>("orderId");
+            string orderId = string.IsNullOrWhiteSpace(namedOrder) ? action.ActionId : namedOrder.Trim();
+            var order = ReignCampaignCommandBehavior.Instance?.Orders.FirstOrDefault(o =>
+                string.Equals(o.OrderId, orderId, StringComparison.OrdinalIgnoreCase));
+            string correlation = string.IsNullOrWhiteSpace(action.NegotiationId) ? action.ActionId : action.NegotiationId;
+            if (order == null || order.IsTerminal || order.CommanderHeroStringId != action.ActorHeroStringId
+                || order.CorrelationId != correlation || order.Steps == null || order.Steps.Count == 0
+                || order.CompletedStepCount >= order.Steps.Count
+                || ReignBeta.Actions.ReignAgreementBehavior.Instance?.MatchesObservedPendingOrder(action, order.Status) != true)
+                return false;
+            // A duplicate issue receipt used to claim completion while the exact saved
+            // native order was still active. Correct only that receipt; do not issue it.
+            var progress = ReignActionResult.Progress("The accepted native campaign order remains in progress.")
+                .WithResultCode("campaign_order_accepted")
+                .WithEffect("campaign_order", "order", order.OrderId, order.Objective, "nativeProgressObserved=true");
+            action.Status = ReignWorldActionStatus.Executing;
+            action.FailureReason = string.Empty;
+            action.ExecuteAfterDay = CurrentDay() + 1f / 24f;
+            RememberActionResult(action, progress);
+            _ = ReignServerClient.ReportActionAsync(action, "executing", progress.Message, progress);
+            return true;
+        }
+
+        private bool TryRetireImpossibleTreaty(ReignWorldActionRecord action)
+        {
+            string kind = action?.Type == ReignWorldActionType.DiplomacyDemilitarizedBorder ? "demilitarized_border"
+                : action?.Type == ReignWorldActionType.DiplomacyCaravanProtectionAgreement ? "caravan_protection_agreement"
+                : action?.Type == ReignWorldActionType.DiplomacySignDefensivePact ? "defensive_pact" : "";
+            if (kind.Length == 0 || (action.ExecutionPhase != "idle" && action.ExecutionPhase != "obsolete")
+                || (action.ExecutionSnapshotJson != "{}" && !string.IsNullOrEmpty(action.ExecutionSnapshotJson))) return false;
+            bool recorded = _agreements.Any(t => t != null && t.Kind == kind && SameAgreementPair(t, action)
+                && t.Reason == action.Reason && t.TermsJson == action.TermsJson);
+            if (ReignBeta.Actions.ReignAgreementBehavior.Instance?.ReconcileImpossibleTreaty(action, recorded) != true) return false;
+            var result = ReignActionResult.Obsolete(ReignBeta.Actions.ReignUnfulfilledTreatyPolicy.Message,
+                ReignBeta.Actions.ReignUnfulfilledTreatyPolicy.ResultCode);
+            RememberActionResult(action, result);
+            if (action.Status == ReignWorldActionStatus.Cancelled) return true;
+            action.Status = ReignWorldActionStatus.Cancelled;
+            action.FailureReason = string.Empty;
+            action.ExecutionPhase = "obsolete";
+            ReignLog.Info("Obsoleted unfulfilled treaty " + action.ActionId + ": " + result.Message);
+            _ = ReignServerClient.ReportActionAsync(action, "obsolete", result.Message, result);
+            return true;
+        }
+
+        internal bool RecordObservedCampaignCancellation(ReignWorldActionRecord action, string orderId, string cancellationId)
+        {
+            if (action == null || !_actions.Contains(action) || action.Type != ReignWorldActionType.RegularIssueCampaignOrder) return false;
+            bool alreadyCancelled = action.Status == ReignWorldActionStatus.Cancelled;
+            if (action.IsTerminal && !alreadyCancelled) return false;
+            var result = ReignActionResult.NoOp("The supervised campaign order was cancelled by mutual agreement.")
+                .WithResultCode("campaign_order_cancelled").WithOutcome("cancelled")
+                .WithEffect("campaign_order_cancelled", "order", orderId, "", "cancellationAgreement=" + cancellationId);
+            RememberActionResult(action, result);
+            // The receipt cache is transient; restore it on reload without reporting or applying cancellation twice.
+            if (alreadyCancelled) return true;
+            action.Status = ReignWorldActionStatus.Cancelled;
+            action.FailureReason = string.Empty;
+            action.ExecuteAfterDay = CurrentDay();
+            _ = ReignServerClient.ReportActionAsync(action, "cancelled", result.Message, result);
+            return true;
+        }
+
+        internal bool TryCompleteObservedCampaignOrder(ReignWorldActionRecord action)
+        {
+            if (action == null || action.Type != ReignWorldActionType.RegularIssueCampaignOrder
+                || (action.IsTerminal && !(action.Status == ReignWorldActionStatus.Failed
+                    && action.FailureReason == ReignBeta.Actions.ReignCompletedOrderPolicy.StaleAuthorizationFailure))) return false;
+            JObject terms;
+            try { terms = JObject.Parse(action.TermsJson ?? "{}"); }
+            catch (Newtonsoft.Json.JsonException) { return false; }
+            string namedOrder = terms.Value<string>("orderId");
+            string orderId = string.IsNullOrWhiteSpace(namedOrder) ? action.ActionId : namedOrder.Trim();
+            var order = ReignCampaignCommandBehavior.Instance?.Orders.FirstOrDefault(o =>
+                string.Equals(o.OrderId, orderId, StringComparison.OrdinalIgnoreCase));
+            string correlation = string.IsNullOrWhiteSpace(action.NegotiationId) ? action.ActionId : action.NegotiationId;
+            if (order == null || order.Status != "completed" || order.CommanderHeroStringId != action.ActorHeroStringId
+                || order.CorrelationId != correlation || order.Steps == null || order.Steps.Count == 0
+                || order.CompletedStepCount != order.Steps.Count || order.Steps.Any(s => s.Status != "completed")
+                || ReignBeta.Actions.ReignAgreementBehavior.Instance?.MatchesObservedCompletedOrder(action, order.Status) != true)
+                return false;
+            // Recover only the known stale authorization error after exact native and
+            // saved-consent proof. No native executor runs on this receipt-only path.
+            if (action.Status == ReignWorldActionStatus.Failed) action.Status = ReignWorldActionStatus.Executing;
+            return CompleteActionFromMissionHook(action.ActionId, ReignActionResult.Done("The supervised campaign order completed.")
+                .WithResultCode("campaign_order_completed")
+                .WithEffect("campaign_order_completed", "order", order.OrderId, order.Objective,
+                    "completedSteps=" + order.CompletedStepCount + ";nativeCompletionObserved=true"));
         }
 
         public bool CompleteActionFromMissionHook(string actionId, ReignActionResult result)
@@ -629,6 +774,10 @@ namespace ReignBeta.Campaign
                 return ReignActionResult.Progress("Action deferred until the native save completes.")
                     .WithResultCode("native_save_in_progress");
             }
+
+            if (TryRetireImpossibleTreaty(action)
+                || ReignBeta.Actions.ReignAgreementBehavior.Instance?.ReconcileObservedCampaignCancellation(action) == true
+                || TryCompleteObservedCampaignOrder(action)) return GetLastActionResult(action.ActionId);
 
             if (action.RequiresAcceptance && action.Status == ReignWorldActionStatus.Proposed)
             {

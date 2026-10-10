@@ -3,11 +3,11 @@
   "heroStringId": "reign_court_castle_K7_child_4",
   "characterName": "Ekeia Mungolatai",
   "imagePath": "portrait.png",
-  "imageSha256": "D34ABE7FEE8D962FFCADD55EE915A8FC8CBDB4D22F4093EF541F389EE9B70688",
-  "description": "Culturally appropriate everyday Khuzait minor-lord attire inspired by refined medieval Turkic and Mongol steppe noble clothing. Men should wear a tailored crossed-front coat or deel with refined woven trim, a decorated sash, layered sleeves, and high-quality trousers. Women should wear an elegant long robe or fitted steppe coat over a fine underdress, with carefully worked edging and decorative textile details. Include restrained cloud, knot, or geometric patterns and a limited amount of practical fur trim. The clothing should remain mobile and functional while clearly showing noble status. No headgear of any kind. No fur hats, caps, hoods, armor, weapons, crowns, or ceremonial costume.",
-  "status": "failed",
-  "descriptionSource": "portrait_prompt_fallback",
-  "retryEligible": true,
-  "error": "{\"error\":{\"message\":\"Model \\\"zai-org/glm-5.2\\\" does not support image inputs. Remove image content or choose a multimodal model.\",\"type\":\"invalid_request_error\",\"param\":\"messages\",\"code\":\"image_input_not_supported\"}}",
-  "updatedUtc": "2026-07-18T22:03:28.3376455Z"
+  "imageSha256": "BF457B6CBEE1CAC35DD9E12A04B56E831C0AA1D005287AAA43777778509A6BEA",
+  "description": "She wears a slate-blue textured floor-length court gown with a low square neckline, fitted structured bodice and elbow-length sleeves. Gold-tan geometric and looping embroidered borders run around the neckline, shoulders, bodice seams, cuffs, front skirt edges and hem. A narrow decorated belt closes with a round clasp and short hanging textile ornaments. A pale cream patterned underdress is visible through the front opening, and a cream-blue embroidered wrap rests around the forearms. Blue-and-gold low shoes show beneath the skirt. No headgear, armor or weapons are visible.",
+  "status": "completed",
+  "descriptionSource": "agent_vision",
+  "retryEligible": false,
+  "error": "",
+  "updatedUtc": "2026-10-07T22:31:49.091Z"
 }

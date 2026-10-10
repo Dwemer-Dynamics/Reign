@@ -3,11 +3,11 @@
   "heroStringId": "reign_court_town_V5_child_2",
   "characterName": "Corura Demerecourt",
   "imagePath": "portrait.png",
-  "imageSha256": "54ECC0B0A7BA6957983C10DE1E2AFA66311AEF7C74514F96220B3FDF50B76294",
-  "description": "Culturally appropriate everyday Vlandian high-noble attire inspired by wealthy Norman and Frankish aristocratic dress. Use luxurious fine wool and linen, expertly tailored layers, richly cut outer tunics or gowns, refined belts, decorative borders, subtle heraldic embroidery, and elegant fastenings. Men should wear a long tailored tunic or refined surcoat-style outer layer over fine linen and well-fitted chausses. Women should wear a fitted noble gown layered over a high-quality underdress, with graceful sleeves, refined trim, and tasteful jewelry. The outfit should feel expensive and powerful while remaining believable everyday noble wear. No headgear of any kind. No armor, weapons, crowns, or ceremonial regalia.",
-  "status": "failed",
-  "descriptionSource": "portrait_prompt_fallback",
-  "retryEligible": true,
-  "error": "{\"error\":{\"message\":\"Model \\\"zai-org/glm-5.2\\\" does not support image inputs. Remove image content or choose a multimodal model.\",\"type\":\"invalid_request_error\",\"param\":\"messages\",\"code\":\"image_input_not_supported\"}}",
-  "updatedUtc": "2026-07-18T22:03:26.9930253Z"
+  "imageSha256": "EAC346A2B482620DB467FD2B9C41271F849F1B0D55C601F9CD04F209376C3F3C",
+  "description": "Deep red floor-length gown with low square neckline, opaque fitted bodice and elbow-length sleeves, gold woven borders and heraldic embroidery, cream underdress, decorated narrow belt, round shoulder clasps, cream-and-red draped arm wrap, pendant and brown shoes.",
+  "status": "completed",
+  "descriptionSource": "agent_vision",
+  "retryEligible": false,
+  "error": "",
+  "updatedUtc": "2026-10-07T21:20:01.041Z"
 }

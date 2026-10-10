@@ -1,4 +1,5 @@
 using System;
+using Reign.Core.Contracts.Government;
 
 namespace ReignBeta.Government
 {
@@ -6,6 +7,36 @@ namespace ReignBeta.Government
     internal static class ReignGovernmentNativeSafety
     {
         internal const int CaptureVersion = 1;
+
+        // Old saves may close the initiating hearing without copying the counterpart's
+        // rejection. Derive that outcome only from the linked, identical, effect-free record.
+        internal static bool IsRecordedCounterpartRefusal(ReignGovernmentBusinessRecord source,
+            ReignGovernmentBusinessRecord response) => source != null && response != null
+            && source.Kind == "world_action" && response.Kind == "world_action"
+            && source.Status == "decided" && string.IsNullOrEmpty(source.ExecutedOptionId)
+            && GovernmentBusinessRules.IsRecordedAuthorizationRefusal(response.Status, response.ExecutedOptionId)
+            && !string.IsNullOrEmpty(source.BusinessId)
+            && !string.IsNullOrEmpty(source.CounterpartBusinessId)
+            && source.CounterpartBusinessId == response.BusinessId
+            && response.CounterpartOfBusinessId == source.BusinessId
+            && string.IsNullOrEmpty(source.CounterpartOfBusinessId)
+            && !string.IsNullOrEmpty(source.KingdomStringId)
+            && !string.IsNullOrEmpty(response.KingdomStringId)
+            && source.KingdomStringId != response.KingdomStringId
+            && !string.IsNullOrEmpty(source.ActionCorrelationId)
+            && source.ActionCorrelationId == response.ActionCorrelationId
+            && !string.IsNullOrEmpty(source.ActionPayloadJson)
+            && string.Equals(source.ActionPayloadJson, response.ActionPayloadJson, StringComparison.Ordinal)
+            && !source.ExecutionApplied && !source.NativeEffectStarted && source.NativeEffectInvocationCount == 0
+            && string.IsNullOrEmpty(source.NativeQuarantineReason)
+            // FinishBusiness finalizes a world-action rejection with ExecutionApplied=true;
+            // only the native intent/invocation fields indicate an actual treaty effect.
+            && response.ExecutionApplied && !response.NativeEffectStarted && response.NativeEffectInvocationCount == 0
+            && string.IsNullOrEmpty(response.NativeQuarantineReason);
+
+        internal static bool AllowNativeIssueDiscovery(bool isHeadman, bool isRuralNotable,
+            bool hasCurrentSettlement, bool hasVillageContext) =>
+            (!isHeadman && !isRuralNotable) || !hasCurrentSettlement || hasVillageContext;
 
         internal static bool IsTrustedCapture(ReignGovernmentBusinessRecord record) => record != null
             && record.NativeCaptureVersion == CaptureVersion

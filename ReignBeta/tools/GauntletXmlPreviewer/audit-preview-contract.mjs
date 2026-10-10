@@ -699,7 +699,7 @@ function auditStandaloneEditableInputContract() {
     const prefabPath = path.join(prefabRoot, fileName);
     if (!fs.existsSync(prefabPath)) continue;
     const documentNode = parseXml(fs.readFileSync(prefabPath, "utf8"));
-    const editableWidgets = findNodesByTag(documentNode, "EditableTextWidget");
+    const editableWidgets = findNodes(documentNode, (node) => node.tag.endsWith("EditableTextWidget"));
     if (!editableWidgets.length) continue;
 
     const manager = classIndex.get(entry.manager);
@@ -798,7 +798,7 @@ function auditCastleLayoutInteractionContract() {
       found: matches.length === 1,
       doNotAcceptEvents: panel?.attributes.DoNotAcceptEvents || "",
       doNotPassEventsToChildren: panel?.attributes.DoNotPassEventsToChildren || "",
-      interactiveDescendants: panel ? findNodes(panel, (node) => node.tag === "ButtonWidget" || node.tag === "EditableTextWidget" || Object.keys(node.attributes || {}).some((name) => name.startsWith("Command."))).length : 0
+      interactiveDescendants: panel ? findNodes(panel, (node) => node.tag === "ButtonWidget" || node.tag.endsWith("EditableTextWidget") || Object.keys(node.attributes || {}).some((name) => name.startsWith("Command."))).length : 0
     };
     targets.push(target);
     if (matches.length !== 1) {
@@ -1086,7 +1086,7 @@ function lineForOffset(text, offset) {
 }
 
 function auditTypographyNode(node, xml, report, xmlPath, allowedBrushes, allowedColors, explicitFontAttribute, requiredFontFace, forbiddenSyntheticTextEffects) {
-  if (node.tag === "TextWidget" || node.tag === "RichTextWidget" || node.tag === "EditableTextWidget") {
+  if (node.tag === "TextWidget" || node.tag === "RichTextWidget" || node.tag.endsWith("EditableTextWidget")) {
     report.checkedWidgets += 1;
     const brush = String(node.attributes.Brush || "").trim();
     const fontFace = String(node.attributes[explicitFontAttribute] || "").trim();
@@ -1248,8 +1248,19 @@ function buildClassIndex(documents) {
       const methods = new Set();
       const methodPattern = /(?:public|internal)\s+(?:static\s+)?(?:async\s+)?[A-Za-z_][A-Za-z0-9_.?<>,\[\]\s]*\s+([A-Za-z_][A-Za-z0-9_]*)\s*\(/g;
       for (const method of body.matchAll(methodPattern)) methods.add(method[1]);
+      const isPartial = /\bpartial\s*$/.test(document.text.slice(Math.max(0, match.index - 30), match.index));
+      const prior = index.get(match[1]);
+      if (isPartial && prior?.isPartial) {
+        for (const [name, member] of members) prior.members.set(name, member);
+        for (const method of methods) prior.methods.add(method);
+        prior.baseType ||= baseType;
+        prior.body += "\n" + body;
+        prior.fullText += "\n" + document.text;
+        continue;
+      }
       index.set(match[1], {
         name: match[1],
+        isPartial,
         baseType,
         file: path.relative(workspaceRoot, document.file),
         body,

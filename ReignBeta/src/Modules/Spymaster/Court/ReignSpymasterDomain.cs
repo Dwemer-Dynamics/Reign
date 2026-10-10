@@ -47,6 +47,7 @@ namespace ReignBeta.Court
         public string RequestSummary = string.Empty;
         public string ResultSummary = string.Empty;
         public string ReportJson = "{}";
+        public string AgreementEffectState = "";
         public string SocialItemId = string.Empty;
         public string FabricatedText = string.Empty;
         public float OutcomeRoll = -1f;

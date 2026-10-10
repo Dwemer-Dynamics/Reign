@@ -62,6 +62,7 @@ try {
     expression: `(async () => {
       await document.fonts.ready;
       const { GauntletRenderer } = await import('./js/renderer.js');
+      const { previewActionRichText } = await import('./js/action-text.js');
       const stage = document.createElement('div');
       stage.style.cssText = 'position:fixed;left:0;top:0;width:1000px;height:1000px;';
       document.body.appendChild(stage);
@@ -71,7 +72,10 @@ try {
       for (const width of [240, 420]) {
         for (const kind of ['TextWidget', 'RichTextWidget']) {
           for (const formatted of [false, true]) {
-            const text = formatted && kind === 'RichTextWidget' ? '<span style="Action">A quiet smile accompanies the reply.</span> ' + plain : plain;
+           for (const longReply of [false, true]) {
+            const tail = ' The final sentence remains reachable.';
+            const body = longReply ? plain.repeat(40) + tail : plain;
+            const text = formatted && kind === 'RichTextWidget' ? previewActionRichText('*A quiet smile accompanies the reply.* ' + body) : body;
             const offset = formatted && kind === 'TextWidget' ? ' PositionXOffset="3" PositionYOffset="2"' : '';
             const xml = '<Prefab><Window><Widget WidthSizePolicy="Fixed" HeightSizePolicy="CoverChildren" SuggestedWidth="' + width + '"><Children><' + kind + ' WidthSizePolicy="StretchToParent" HeightSizePolicy="CoverChildren" Brush="Reign.Chat.ActionText.17" Brush.Font="ReignSerifDynamic" Brush.FontSize="17" Text="@Body"' + offset + ' /></Children></Widget></Window></Prefab>';
             renderer.render(xml, 'MultilineContract.xml', { Body: text });
@@ -80,11 +84,12 @@ try {
             const range = document.createRange(); range.selectNodeContents(element);
             const textBounds = range.getBoundingClientRect();
             const bounds = element.getBoundingClientRect();
-            samples.push({ kind, formatted, width, height: bounds.height, textHeight: textBounds.height,
+            samples.push({ kind, formatted, longReply, complete: element.textContent.endsWith(longReply ? tail : plain), width, height: bounds.height, textHeight: textBounds.height,
               positionYOffset: Number(element.dataset.positionYOffset || 0),
               scrollHeight: element.scrollHeight, clientHeight: element.clientHeight,
               parentHeight: element.parentElement.getBoundingClientRect().height,
               italicCount: element.querySelectorAll('em').length });
+           }
           }
         }
       }
@@ -95,7 +100,7 @@ try {
   assert.ok(!response.exceptionDetails, JSON.stringify(response.exceptionDetails));
   const samples = response.result.value;
   report = { schema: "reign-ui-multiline-cover-children-contract-v1", generatedUtc: new Date().toISOString(), samples,
-    passed: samples.length === 8 && samples.every(sample => sample.height > 35
+    passed: samples.length === 16 && samples.every(sample => sample.complete && sample.height > (sample.longReply ? 350 : 35)
       && sample.positionYOffset === (sample.formatted && sample.kind === "TextWidget" ? 2 : 0)
       && sample.scrollHeight <= sample.clientHeight + sample.positionYOffset + 1 && sample.textHeight <= sample.height + 1
       && sample.parentHeight >= sample.height - 1 && sample.italicCount === (sample.formatted && sample.kind === "RichTextWidget" ? 1 : 0)) };

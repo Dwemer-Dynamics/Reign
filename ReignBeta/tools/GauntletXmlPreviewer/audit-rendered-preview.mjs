@@ -2,7 +2,7 @@ import { spawn } from "node:child_process";
 import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
-import { selectRenderedPreviewTargets } from "./js/rendered-preview-targets.js";
+import { selectRenderedPreviewTargets, selectReferenceSurface, isReferenceSurfaceCandidate } from "./js/rendered-preview-targets.js";
 
 const toolRoot = path.dirname(fileURLToPath(import.meta.url));
 const catalogPath = path.join(toolRoot, "calibration", "ui-catalog.json");
@@ -102,7 +102,7 @@ try {
       await cdp.send("Page.navigate", { url: url.href });
       let state = await waitForPreviewState(cdp, fileName, viewport, 15000, entry.id);
       await settleFrames(cdp);
-      state = await evaluateState(cdp);
+      state = await evaluateState(cdp, entry.referenceSurfaceElementId || "");
       const capture = await cdp.send("Page.captureScreenshot", { format: "png", captureBeyondViewport: false, fromSurface: true });
       const caseId = `${entry.id}-${viewport}`;
       const screenshotPath = path.join(screenshotsRoot, `${caseId}.png`);
@@ -370,7 +370,7 @@ async function settleFrames(cdp) {
   });
 }
 
-async function evaluateState(cdp) {
+async function evaluateState(cdp, referenceSurfaceElementId = "") {
   const expression = `(() => {
     const api = window.__reignPreviewer;
     if (!api) return null;
@@ -395,18 +395,13 @@ async function evaluateState(cdp) {
           area: rect.width * rect.height
         };
       })
-      .filter((candidate) => candidate.attributes.WidthSizePolicy === "Fixed"
-        && candidate.attributes.HeightSizePolicy === "Fixed"
-        && candidate.rect.width >= 350
-        && candidate.rect.height >= 190
-        && Math.abs(candidate.aspect - targetAspect) <= 0.03
-        && candidate.style.display !== "none"
-        && candidate.style.visibility !== "hidden"
-        && Number(candidate.style.opacity || 1) > 0)
+      .filter((candidate) => (${isReferenceSurfaceCandidate.toString()})(candidate, ${JSON.stringify(referenceSurfaceElementId)}))
       .sort((left, right) => right.area - left.area || String(left.metadata.path || "").localeCompare(String(right.metadata.path || "")));
-    const surface = surfaceCandidates[0] || null;
+    const chooseReferenceSurface = ${selectReferenceSurface.toString()};
+    const requestedSurfaceId = ${JSON.stringify(referenceSurfaceElementId)};
+    const surface = chooseReferenceSurface(surfaceCandidates, requestedSurfaceId);
     const referenceSurfaceBounds = surface ? {
-      method: "largest-visible-fixed-16x9-gauntlet-root-v1",
+      method: requestedSurfaceId ? (surface.element.classList.contains("runtime-nine-region") ? "declared-visible-nine-region-gauntlet-artwork-v1" : "declared-visible-fixed-gauntlet-artwork-v1") : "largest-visible-fixed-16x9-gauntlet-root-v1",
       x: surface.rect.x,
       y: surface.rect.y,
       width: surface.rect.width,

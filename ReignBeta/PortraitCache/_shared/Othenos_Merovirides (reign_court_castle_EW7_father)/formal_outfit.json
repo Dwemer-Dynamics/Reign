@@ -3,11 +3,11 @@
   "heroStringId": "reign_court_castle_EW7_father",
   "characterName": "Othenos Merovirides",
   "imagePath": "portrait.png",
-  "imageSha256": "BC5FBD744732C58D049E5EEED702F8176CE4E2262D98EEC1495177C41AB73001",
-  "description": "Culturally appropriate everyday Calradic Imperial landowner attire inspired by practical late Roman and Byzantine civilian clothing adapted into a grounded medieval style. Men should wear a linen undertunic beneath a structured knee-length tunic or simple long coat, secured with a narrow belt. Women should wear a long tunic or underdress beneath a modest draped overdress with elegant but simple sleeves and a practical girdle. Include narrow woven borders or restrained geometric decoration. The garments should appear orderly, respectable, clean, and slightly prosperous. No headgear of any kind. No armor, weapons, laurel crowns, togas, ceremonial robes, or fantasy elements.",
-  "status": "failed",
-  "descriptionSource": "portrait_prompt_fallback",
-  "retryEligible": true,
-  "error": "{\"error\":{\"message\":\"Model \\\"zai-org/glm-5.2\\\" does not support image inputs. Remove image content or choose a multimodal model.\",\"type\":\"invalid_request_error\",\"param\":\"messages\",\"code\":\"image_input_not_supported\"}}",
-  "updatedUtc": "2026-07-18T22:03:33.1915376Z"
+  "imageSha256": "923687A0A220FC2447BF78F7C9157D761B755F3016F7BAE0FD903AE18B6BD57B",
+  "description": "Plum knee-length open coat with narrow gold borders over cream tunic, plain decorated belt, tan trousers and tall brown boots.",
+  "status": "completed",
+  "descriptionSource": "agent_vision",
+  "retryEligible": false,
+  "error": "",
+  "updatedUtc": "2026-10-07T23:27:43.574Z"
 }

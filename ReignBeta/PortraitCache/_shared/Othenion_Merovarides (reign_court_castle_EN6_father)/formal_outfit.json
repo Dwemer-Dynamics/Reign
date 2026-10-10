@@ -3,11 +3,11 @@
   "heroStringId": "reign_court_castle_EN6_father",
   "characterName": "Othenion Merovarides",
   "imagePath": "portrait.png",
-  "imageSha256": "DDBDC78AC32C631C483FB5B4997E29CF8CCF7D5A7D788ED4FC77A84EFDBABE76",
-  "description": "Culturally appropriate everyday Calradic Imperial high-noble attire inspired by luxurious Byzantine aristocratic fashion, restrained enough for daily noble life. Use fine layered linen and wool, controlled flowing silhouettes, elegant draping, richly woven borders, small jeweled clasps, and sophisticated fabric textures. Men should wear a stately long tunic or structured noble coat over a fine undertunic, with refined belts and detailed edging. Women should wear a sophisticated layered noble dress with graceful drapery, tailored sleeves, and subtle aristocratic ornamentation. The outfit should communicate ancient prestige, wealth, and political importance. No headgear of any kind. No armor, weapons, crowns, laurel wreaths, or full ceremonial imperial regalia.",
-  "status": "failed",
-  "descriptionSource": "portrait_prompt_fallback",
-  "retryEligible": true,
-  "error": "{\"error\":{\"message\":\"Model \\\"zai-org/glm-5.2\\\" does not support image inputs. Remove image content or choose a multimodal model.\",\"type\":\"invalid_request_error\",\"param\":\"messages\",\"code\":\"image_input_not_supported\"}}",
-  "updatedUtc": "2026-07-18T22:03:33.1804196Z"
+  "imageSha256": "27343C5D46E889A4EFE12E7528B3A3ECB4913910D8CD5470A83DBD2DE730B363",
+  "description": "Opaque pale long court under-robe with dark gold patterned woven bands, burgundy open over-robe and matching diagonal mantle fastened with a circular shoulder brooch, broad decorated belt with a long hanging strap, pale cuffs beneath wide embroidered sleeves, and two dark brown leather ankle boots. Both hands are visible.",
+  "status": "completed",
+  "descriptionSource": "agent_vision",
+  "retryEligible": false,
+  "error": "",
+  "updatedUtc": "2026-10-08T21:17:37.485Z"
 }

@@ -3,11 +3,11 @@
   "heroStringId": "reign_court_town_B5_child_2",
   "characterName": "Gwyua Emrysedawn",
   "imagePath": "portrait.png",
-  "imageSha256": "5249EE2B6231907C45611C0881191A7E2192743B131F90847C3ADF1DC6E4EB3D",
-  "description": "Culturally appropriate everyday Battanian minor-lord attire inspired by refined Celtic and highland noble clothing. Use dense woven wool, quality linen, soft leather details, cleaner tailoring, decorative brooches, and more elaborate woven trim than ordinary landowners would possess. Men should wear a fitted tunic, practical trousers, a decorated belt, and a layered cloak fastened at the shoulder. Women should wear a long underdress with a tailored overdress, woven belt, elegant draped shawl, and restrained ornamental trim. Include subtle knotwork and geometric patterns without theatrical fantasy styling. No headgear of any kind. No armor, weapons, crowns, or ceremonial druid imagery.",
-  "status": "failed",
-  "descriptionSource": "portrait_prompt_fallback",
-  "retryEligible": true,
-  "error": "{\"error\":{\"message\":\"Model \\\"zai-org/glm-5.2\\\" does not support image inputs. Remove image content or choose a multimodal model.\",\"type\":\"invalid_request_error\",\"param\":\"messages\",\"code\":\"image_input_not_supported\"}}",
-  "updatedUtc": "2026-07-18T22:03:29.8994438Z"
+  "imageSha256": "0133A7FC9251D6C7FF47E90A47E628266D4A1096DE7E6BB8DA9F03D3C07322A8",
+  "description": "The woman wears an opaque dark green floor-length gown with a low square neckline, fitted bodice and elbow-length sleeves. Tan-gold knotwork woven borders frame the neckline, shoulder straps, sleeve edges, front panels and lower hem. Round gold-patterned clasps sit at the shoulders and center waist. A narrow decorated belt has a long central hanging end. A dark green-and-brown checked wrap rests loosely around both forearms and hangs down the sides with fringed edges. The skirt stays closed except for a modest low walking opening. Brown leather shoes show underneath, and her gathered head remains uncovered.",
+  "status": "completed",
+  "descriptionSource": "agent_vision",
+  "retryEligible": false,
+  "error": "",
+  "updatedUtc": "2026-10-07T22:50:09.078Z"
 }

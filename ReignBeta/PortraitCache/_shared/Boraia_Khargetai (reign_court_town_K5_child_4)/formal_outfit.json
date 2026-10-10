@@ -3,11 +3,11 @@
   "heroStringId": "reign_court_town_K5_child_4",
   "characterName": "Boraia Khargetai",
   "imagePath": "portrait.png",
-  "imageSha256": "62611D466AD82FE020BF97FEDB72BF6B620BDC94F3A68056829E2DCFDEF942C1",
-  "description": "Culturally appropriate everyday Khuzait high-noble attire inspired by elite medieval Turkic and Mongol aristocratic clothing. Use superb tailoring, layered fine wool and silk-like woven fabrics, elegant crossed-front closures, decorated sashes, refined edging, and subtle noble motifs. Men should wear a stately long noble deel or structured coat over richly made underlayers. Women should wear a luxurious robe or coat-dress with graceful lines, elaborate woven trim, and exceptionally high-quality textiles. Fur trim may be included sparingly along cuffs, collars, or garment edges. The clothing should feel wealthy, mobile, and commanding without becoming ceremonial. No headgear of any kind. No fur hats, caps, hoods, armor, weapons, crowns, or fantasy styling.",
-  "status": "failed",
-  "descriptionSource": "portrait_prompt_fallback",
-  "retryEligible": true,
-  "error": "{\"error\":{\"message\":\"Model \\\"zai-org/glm-5.2\\\" does not support image inputs. Remove image content or choose a multimodal model.\",\"type\":\"invalid_request_error\",\"param\":\"messages\",\"code\":\"image_input_not_supported\"}}",
-  "updatedUtc": "2026-07-18T22:03:25.7460821Z"
+  "imageSha256": "7BE11F821A2D7CEE39433DE3EC114E3A336F37BE710BDEF332DB540F32B73AAF",
+  "description": "Teal-blue floor-length gown with low square neckline, fitted bodice and elbow-length sleeves, bordered in gold cloud and knot woven patterns. A cream gold-trimmed wrap rests over her arms; round brooches, a broad decorated belt with hanging chain, drop earrings and patterned leather shoes are visible.",
+  "status": "completed",
+  "descriptionSource": "agent_vision",
+  "retryEligible": false,
+  "error": "",
+  "updatedUtc": "2026-10-07T20:54:21.735Z"
 }

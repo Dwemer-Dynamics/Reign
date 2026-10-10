@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using System.Linq;
+using ArenaOverhaul.Tournament;
 
 using TaleWorlds.CampaignSystem;
 using TaleWorlds.CampaignSystem.Settlements;
@@ -51,6 +52,12 @@ namespace ArenaOverhaul.TeamTournament
                 yield return hero3;
         }
 
+        // Used only for actual main-party members, after roster membership has
+        // been established. Guests and recruited civilians need no combat role
+        // or minimum weapon skill to join the player's chosen team.
+        public static bool CanJoinPlayerTeam(this CharacterObject character) =>
+            !character.IsHero || TournamentHeroEligibility.IsAvailable(character.HeroObject);
+
         public static bool CanBeAParticipant(this CharacterObject character, bool considerSkills, bool allowNotables = false)
         {
             if (!character.IsHero)
@@ -58,8 +65,7 @@ namespace ArenaOverhaul.TeamTournament
 
             Hero heroObject = character.HeroObject;
             return
-                !heroObject.IsChild && !heroObject.IsNoncombatant && !heroObject.IsWounded && !heroObject.IsPrisoner
-                && (allowNotables || !heroObject.IsNotable)
+                TournamentHeroEligibility.CanParticipate(heroObject, allowNotables)
                 && (!considerSkills || heroObject.GetSkillValue(DefaultSkills.OneHanded) >= 100 || heroObject.GetSkillValue(DefaultSkills.TwoHanded) >= 100 || heroObject.GetSkillValue(DefaultSkills.Polearm) >= 100);
         }
 

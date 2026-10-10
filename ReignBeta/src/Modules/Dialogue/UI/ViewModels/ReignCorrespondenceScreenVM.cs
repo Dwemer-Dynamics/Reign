@@ -11,8 +11,14 @@ using TaleWorlds.Library;
 
 namespace ReignBeta.UI.ViewModels
 {
-    public sealed class ReignCorrespondenceScreenVM : ViewModel
+    public sealed class ReignCorrespondenceScreenVM : ViewModel, ReignBeta.UI.IReignActionHost
     {
+        public IReadOnlyList<Hero> ActionParticipants => _selected?.Hero == null ? new Hero[0] : new[] { _selected.Hero };
+        public bool ActionBusy => IsBusy || _calibrationMode;
+        private ReignActionComposerVM _composer;
+        public ReignActionComposerVM Composer => _composer ?? (_composer = new ReignActionComposerVM(() => OnPropertyChanged(nameof(InputText))));
+        [DataSourceProperty] public string ActionComposerId => Composer.Id;
+        public Reign.Core.Contracts.Actions.ActionAgreement ActionDraft => Composer.State.HasValidAttachment ? Composer.State.Draft : null;
         private readonly Action _close;
         private readonly string _preselectedHeroId;
         private readonly bool _calibrationMode;
@@ -20,7 +26,6 @@ namespace ReignBeta.UI.ViewModels
         private ReignCorrespondenceContactVM _selected;
         private string _selectedName = "Select a correspondent";
         private string _selectedSubtitle = "";
-        private string _inputText = string.Empty;
         private string _busyText = "Loading correspondence...";
         private bool _isBusy = true;
         private int _chatScrollVersion;
@@ -57,8 +62,8 @@ namespace ReignBeta.UI.ViewModels
         [DataSourceProperty]
         public string InputText
         {
-            get { return _inputText; }
-            set { if (value != _inputText) { _inputText = value; OnPropertyChangedWithValue(value); } }
+            get { return Composer.State.Text; }
+            set { Composer.SetText(value); }
         }
 
         [DataSourceProperty]
@@ -101,7 +106,7 @@ namespace ReignBeta.UI.ViewModels
             ReignLetterSendResult result = await SendProductionLetterAsync(
                 _selected.Hero,
                 body,
-                string.Empty);
+                string.Empty, ActionDraft == null ? null : ReignBeta.Actions.ReignActionService.Copy(ActionDraft));
             await ReignMainThread.InvokeAsync(() =>
             {
                 if (_finalized) return;
@@ -120,12 +125,13 @@ namespace ReignBeta.UI.ViewModels
         public static async Task<ReignLetterSendResult> SendProductionLetterAsync(
             Hero recipient,
             string body,
-            string correlationId)
+            string correlationId,
+            Reign.Core.Contracts.Actions.ActionAgreement actionDraft = null)
         {
             ReignLetterSendResult result = await ReignServerClient.SendLetterAsync(
                 recipient,
                 body,
-                correlationId).ConfigureAwait(false);
+                correlationId, actionDraft).ConfigureAwait(false);
             if (!result.Ok || result.QueuedActions == null || result.QueuedActions.Count == 0)
                 return result;
 
@@ -147,6 +153,8 @@ namespace ReignBeta.UI.ViewModels
 
         public override void OnFinalize()
         {
+            ReignActionBuilder.CloseFor(this);
+            _composer?.Dispose();
             _finalized = true;
             base.OnFinalize();
         }
@@ -156,7 +164,8 @@ namespace ReignBeta.UI.ViewModels
             List<Hero> heroes = await ReignMainThread.InvokeAsync(ReignServerClient.GetKnownCorrespondenceContacts);
             ReignCorrespondenceSnapshot snapshot = await ReignServerClient.GetCorrespondenceAsync(heroes);
             foreach (string heroId in (snapshot.Letters ?? new List<ReignLetter>())
-                .Where(x => string.Equals(x.Source, "campaign_command_urgent_report", StringComparison.OrdinalIgnoreCase))
+                .Where(x => string.Equals(x.Source, "campaign_command_urgent_report", StringComparison.OrdinalIgnoreCase)
+                    || string.Equals(x.Source, "npc_introduction", StringComparison.OrdinalIgnoreCase))
                 .SelectMany(x => new[] { x.SenderId, x.RecipientId })
                 .Where(x => !string.IsNullOrWhiteSpace(x))
                 .Distinct(StringComparer.OrdinalIgnoreCase))

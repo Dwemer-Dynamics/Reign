@@ -3,11 +3,11 @@
   "heroStringId": "reign_court_castle_EW1_child_4",
   "characterName": "Othysia Varderides",
   "imagePath": "portrait.png",
-  "imageSha256": "6FDB7A61B25C549CE34ED0BE55CFAFE5BB92EC9772382FD8183A4F3FFCBA15CD",
-  "description": "Culturally appropriate everyday Calradic Imperial high-noble attire inspired by luxurious Byzantine aristocratic fashion, restrained enough for daily noble life. Use fine layered linen and wool, controlled flowing silhouettes, elegant draping, richly woven borders, small jeweled clasps, and sophisticated fabric textures. Men should wear a stately long tunic or structured noble coat over a fine undertunic, with refined belts and detailed edging. Women should wear a sophisticated layered noble dress with graceful drapery, tailored sleeves, and subtle aristocratic ornamentation. The outfit should communicate ancient prestige, wealth, and political importance. No headgear of any kind. No armor, weapons, crowns, laurel wreaths, or full ceremonial imperial regalia.",
-  "status": "failed",
-  "descriptionSource": "portrait_prompt_fallback",
-  "retryEligible": true,
-  "error": "{\"error\":{\"message\":\"Model \\\"zai-org/glm-5.2\\\" does not support image inputs. Remove image content or choose a multimodal model.\",\"type\":\"invalid_request_error\",\"param\":\"messages\",\"code\":\"image_input_not_supported\"}}",
-  "updatedUtc": "2026-07-18T22:03:33.3327810Z"
+  "imageSha256": "46539570CB8BA821D6C02C311ADCACFC2EC69680DF10EA735912BB509F275493",
+  "description": "Opaque plum floor-length noble gown with low square neckline and fitted gold-bordered bodice, elbow-length sleeves, cream arm wrap, broad gold belt, pendant and gold-edged shoes.",
+  "status": "completed",
+  "descriptionSource": "agent_vision",
+  "retryEligible": false,
+  "error": "",
+  "updatedUtc": "2026-10-07T23:28:46.975Z"
 }

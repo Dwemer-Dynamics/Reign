@@ -91,6 +91,7 @@ namespace ReignBeta.UI
             if (_host == null || _layer == null || ScreenManager.TopScreen != _host || !_host.HasLayer(_layer)) { Close(false); return; }
             try
             {
+                if (ReignActionBuilder.Handle(_host, _vm)) return;
                 _layer.InputRestrictions.SetInputRestrictions(true, InputUsageMask.All);
                 if (ScreenManager.FocusedLayer != _layer) ScreenManager.TrySetFocus(_layer);
                 ApplyScale();

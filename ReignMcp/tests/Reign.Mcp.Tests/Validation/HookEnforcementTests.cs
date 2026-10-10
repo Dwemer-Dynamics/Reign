@@ -28,6 +28,42 @@ public sealed class HookEnforcementTests
         Assert.Equal("", RunHook(command));
     }
 
+    [Theory]
+    [InlineData("ReignServer/scripts/Deploy-LocalWsl.ps1")]
+    [InlineData("../ReignServer/scripts/Deploy-LocalWsl.ps1")]
+    public void CanonicalArtifactDeploymentIsAllowed(string relativePath)
+    {
+        var path = Path.GetFullPath(Path.Combine(TestOptions.FindWorkspace(), relativePath));
+        Assert.Equal("", RunHook($"& '{path}' -Workspace '{TestOptions.FindWorkspace()}' -LinuxBuildReport 'validated.json' -SkipClient"));
+        Assert.Equal("", RunHook($"Get-Content -LiteralPath '{path}'"));
+        Assert.Equal("", RunHook($"pwsh -File '{path}' -ValidationReport 'product.json' -LinuxBuildReport 'linux.json'"));
+    }
+
+    [Theory]
+    [InlineData("scripts/deploy.ps1")]
+    [InlineData("scripts/build.ps1")]
+    [InlineData("D:/unrelated/scripts/Deploy-LocalWsl.ps1")]
+    [InlineData("D:/unrelated/scripts/Deploy-LocalWsl-extra.ps1")]
+    public void LegacyOrUnrelatedDeploymentScriptsRemainDenied(string path)
+    {
+        AssertDenied(RunHook($"& '{path}'"));
+    }
+
+    [Theory]
+    [InlineData("dotnet build ReignBeta/ReignBeta.csproj")]
+    [InlineData("& 'scripts/deploy.ps1'")]
+    public void CanonicalDeploymentDoesNotExemptOtherCommands(string otherCommand)
+    {
+        var path = Path.GetFullPath(Path.Combine(TestOptions.FindWorkspace(), "../ReignServer/scripts/Deploy-LocalWsl.ps1"));
+        AssertDenied(RunHook($"& '{path}' -LinuxBuildReport 'validated.json' -SkipClient; {otherCommand}"));
+    }
+
+    private static void AssertDenied(string output)
+    {
+        using var document = JsonDocument.Parse(output);
+        Assert.Equal("deny", document.RootElement.GetProperty("hookSpecificOutput").GetProperty("permissionDecision").GetString());
+    }
+
     private static string RunHook(string command)
     {
         var workspace = TestOptions.FindWorkspace();
@@ -57,7 +93,7 @@ public sealed class HookEnforcementTests
         process.StandardInput.Write(JsonSerializer.Serialize(new
         {
             tool_name = "Bash",
-            tool_input = new { command }
+            tool_input = new { command, workdir = workspace }
         }));
         process.StandardInput.Close();
         var output = process.StandardOutput.ReadToEnd().Trim();

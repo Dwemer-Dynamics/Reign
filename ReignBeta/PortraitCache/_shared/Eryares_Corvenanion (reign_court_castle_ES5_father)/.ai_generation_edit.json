@@ -1,0 +1,70 @@
+{
+  "schema": "reign-portable-actual-portrait-origin-v1",
+  "id": "reign_court_castle_ES5_father",
+  "kind": "edited_fullbody",
+  "actualReceiptSha256": "5e37d4a82cae260383f63801129c45da35fac11cf1471c03f4bd99c1b4536d4b",
+  "actualReceiptUtf8": "{\n  \"schema\": \"reign-root-old-face-restyle-actual-v1\",\n  \"createdUtc\": \"2026-10-09T02:50:34.578229+00:00\",\n  \"id\": \"reign_court_castle_ES5_father\",\n  \"actualCaller\": \"/root/old_face_followup\",\n  \"authorizedBy\": \"/root\",\n  \"actualBuiltinImageCalls\": 1,\n  \"actualRetries\": 0,\n  \"paidApiCalls\": 0,\n  \"exactPrompt\": {\n    \"path\": \"C:\\\\ReignPortraitRebuild\\\\2026-10-07-01a11741-culture-v2\\\\audit\\\\remaining-sixteen-identity-source-review-route-001\\\\eryares-own-old-face-edit-001\\\\full-prompt.txt\",\n    \"sha256\": \"6bafd77352e609a2550ed673c501ee91a2b82a13e55854c3ee0211b88768f165\",\n    \"bytes\": 12893\n  },\n  \"exactToolRequest\": {\n    \"path\": \"C:\\\\ReignPortraitRebuild\\\\2026-10-07-01a11741-culture-v2\\\\audit\\\\remaining-sixteen-identity-source-review-route-001\\\\eryares-own-old-face-edit-001\\\\tool-request.json\",\n    \"sha256\": \"89bddd3243ca11956ac777d41ca0b34427f6cc2b567887a30cf5e02a67ea54dc\",\n    \"bytes\": 13409\n  },\n  \"preparation\": {\n    \"path\": \"C:\\\\ReignPortraitRebuild\\\\2026-10-07-01a11741-culture-v2\\\\audit\\\\remaining-sixteen-identity-source-review-route-001\\\\eryares-own-old-face-edit-001\\\\preparation.json\",\n    \"sha256\": \"126c6677483f954e55da138878bf886b8b47bb6ef12e2300d144a52a92900b82\",\n    \"bytes\": 2648\n  },\n  \"providerOutput\": {\n    \"path\": \"C:\\\\Users\\\\speed\\\\.codex\\\\generated_images\\\\01a11e87-eb28-7fa1-8c35-4dea6c643a64\\\\exec-7ff1a4c3-761b-46b1-90f4-d34f8955594e.png\",\n    \"sha256\": \"b81ce2719fe708cc35a4ffbbed9983f363cf17f140ef674b7357b26caaabceca\",\n    \"bytes\": 2287461,\n    \"dimensions\": [\n      1086,\n      1448\n    ]\n  },\n  \"referenceImages\": [\n    {\n      \"role\": \"current full-body edit target; quality/posture/body/clothing/composition\",\n      \"path\": \"C:\\\\ReignPortraitRebuild\\\\2026-10-07-01a11741-culture-v2\\\\_shared\\\\Eryares_Corvenanion (reign_court_castle_ES5_father)\\\\portrait.png\",\n      \"sha256\": \"e4df5798dcbf5bb327e89b099c71a95aff9de9b587d15d72557b83b16e992690\",\n      \"bytes\": 2372051\n    },\n    {\n      \"role\": \"own old shared portrait; individual facial likeness only\",\n      \"path\": \"D:\\\\Program Files (x86)\\\\Steam\\\\steamapps\\\\common\\\\Mount & Blade II Bannerlord\\\\Modules\\\\ReignBeta\\\\PortraitCache\\\\_shared\\\\Eryares_Corvenanion (reign_court_castle_ES5_father)\\\\portrait_chest.png\",\n      \"sha256\": \"7bee14ccf4607f0d957bd8adefd1533874a08d45ca20b92401df41e1296b0222\",\n      \"bytes\": 100661\n    }\n  ],\n  \"provider\": \"Codex built-in image_gen\",\n  \"backendModel\": \"unknown\",\n  \"personallyReviewedBy\": \"/root/old_face_followup\",\n  \"actualVisualObservations\": \"Returned portrait preserves a recognizable old facial identity with the longer fine projecting nose, restrained closed mouth and narrower exposed lower-face taper. Photo texture, age44 impression, upright natural full-body proportions, complete hands and boots, burgundy Imperial civilian garment and soft daylight remain consistent with current set. No pixel-lock or exact metric equivalence is claimed. Generative changes beyond the face are minor and visually coherent.\",\n  \"nativePackReport\": {\n    \"path\": \"C:\\\\ReignPortraitRebuild\\\\2026-10-07-01a11741-culture-v2\\\\audit\\\\remaining-sixteen-identity-source-review-route-001\\\\eryares-own-old-face-edit-001\\\\native-pack-report-001.json\",\n    \"sha256\": \"0b3ef8efd819bff7e0eeef7ed5465e3d25cf6c1727f40beb3cd09022139f017e\",\n    \"bytes\": 3921\n  },\n  \"nativePackExecution\": {\n    \"path\": \"C:\\\\ReignPortraitRebuild\\\\2026-10-07-01a11741-culture-v2\\\\audit\\\\remaining-sixteen-identity-source-review-route-001\\\\eryares-own-old-face-edit-001\\\\native-pack-execution-001.json\",\n    \"sha256\": \"d24682951a738389a2ae1f61cedb00a96afeb356f04c1d7a896aa12e22dc7962\",\n    \"bytes\": 515\n  },\n  \"manualCrownPackReceipt\": {\n    \"path\": \"C:\\\\ReignPortraitRebuild\\\\2026-10-07-01a11741-culture-v2\\\\audit\\\\remaining-sixteen-identity-source-review-route-001\\\\eryares-own-old-face-edit-001\\\\crown-pack-001\\\\pack-receipt.json\",\n    \"sha256\": \"d6f69e08d26a305326c67ec8ea7cdc3e1e0bacbd44b501cd4b724819a2322748\",\n    \"bytes\": 3356\n  },\n  \"manualCrownPackExecution\": {\n    \"path\": \"C:\\\\ReignPortraitRebuild\\\\2026-10-07-01a11741-culture-v2\\\\audit\\\\remaining-sixteen-identity-source-review-route-001\\\\eryares-own-old-face-edit-001\\\\crown-pack-execution-001.json\",\n    \"sha256\": \"cfaa9bdc33154704a91a7eb91e8f4ca91ee699072f1444aa407f16b0785e6345\",\n    \"bytes\": 3047\n  },\n  \"nativeMetadataUntouchedExcept14CropDimensionFields\": true,\n  \"actualRasterReview\": \"Personally viewed builtin full result and all3 native products, then all3 final manual-crown products. Final complete main crown has clear background margin; natural face/collar context retained.\",\n  \"finalFiles\": [\n    {\n      \"path\": \"C:\\\\ReignPortraitRebuild\\\\2026-10-07-01a11741-culture-v2\\\\audit\\\\remaining-sixteen-identity-source-review-route-001\\\\eryares-own-old-face-edit-001\\\\native-pack-001\\\\portrait.png\",\n      \"sha256\": \"b81ce2719fe708cc35a4ffbbed9983f363cf17f140ef674b7357b26caaabceca\",\n      \"bytes\": 2287461\n    },\n    {\n      \"path\": \"C:\\\\ReignPortraitRebuild\\\\2026-10-07-01a11741-culture-v2\\\\audit\\\\remaining-sixteen-identity-source-review-route-001\\\\eryares-own-old-face-edit-001\\\\native-pack-001\\\\zoom.png\",\n      \"sha256\": \"b7a1d50bb2877fe97c041cdb364ce1ab6f88de55313b0bb1075d1f0a2309368f\",\n      \"bytes\": 3393756\n    },\n    {\n      \"path\": \"C:\\\\ReignPortraitRebuild\\\\2026-10-07-01a11741-culture-v2\\\\audit\\\\remaining-sixteen-identity-source-review-route-001\\\\eryares-own-old-face-edit-001\\\\crown-pack-001\\\\portrait_chest.png\",\n      \"sha256\": \"59e74a37c24701e3ad8f6696a545d08635acd4ad8ca53ca9284acc990731cd40\",\n      \"bytes\": 240746\n    },\n    {\n      \"path\": \"C:\\\\ReignPortraitRebuild\\\\2026-10-07-01a11741-culture-v2\\\\audit\\\\remaining-sixteen-identity-source-review-route-001\\\\eryares-own-old-face-edit-001\\\\crown-pack-001\\\\thumbnail.png\",\n      \"sha256\": \"f7dd393b8b88bc873686a924783672acb1244d13ef182dbffe630ff7b6ff5277\",\n      \"bytes\": 184303\n    },\n    {\n      \"path\": \"C:\\\\ReignPortraitRebuild\\\\2026-10-07-01a11741-culture-v2\\\\audit\\\\remaining-sixteen-identity-source-review-route-001\\\\eryares-own-old-face-edit-001\\\\crown-pack-001\\\\thumbnail_wide.png\",\n      \"sha256\": \"a7442578c24aadb722f215d0b92af7b7dcaf809cfac7e81e5c14fa4c49da2240\",\n      \"bytes\": 309333\n    },\n    {\n      \"path\": \"C:\\\\ReignPortraitRebuild\\\\2026-10-07-01a11741-culture-v2\\\\audit\\\\remaining-sixteen-identity-source-review-route-001\\\\eryares-own-old-face-edit-001\\\\crown-pack-001\\\\.portrait_derivatives.json\",\n      \"sha256\": \"7b16b3965e2e10baf9516e683d37ab1b637d5831f77f49ac9eb16a71b9bff0cc\",\n      \"bytes\": 5077\n    }\n  ],\n  \"currentWrites\": 0,\n  \"productWrites\": 0,\n  \"humanAccepted\": false,\n  \"rootRasterApprovalPending\": true,\n  \"neighborIdentityReview\": \"pending root practical comparison\",\n  \"notSwapApproval\": true\n}\n",
+  "originalReceiptEncoding": "UTF-8; BOM retained if present",
+  "localFiles": [
+    {
+      "name": "portrait_chest.png",
+      "sha256": "59e74a37c24701e3ad8f6696a545d08635acd4ad8ca53ca9284acc990731cd40",
+      "bytes": 240746
+    },
+    {
+      "name": "thumbnail.png",
+      "sha256": "f7dd393b8b88bc873686a924783672acb1244d13ef182dbffe630ff7b6ff5277",
+      "bytes": 184303
+    },
+    {
+      "name": "thumbnail_wide.png",
+      "sha256": "a7442578c24aadb722f215d0b92af7b7dcaf809cfac7e81e5c14fa4c49da2240",
+      "bytes": 309333
+    },
+    {
+      "name": "portrait.png",
+      "sha256": "b81ce2719fe708cc35a4ffbbed9983f363cf17f140ef674b7357b26caaabceca",
+      "bytes": 2287461
+    },
+    {
+      "name": "zoom.png",
+      "sha256": "b7a1d50bb2877fe97c041cdb364ce1ab6f88de55313b0bb1075d1f0a2309368f",
+      "bytes": 3393756
+    },
+    {
+      "name": "prompt_edit.txt",
+      "sha256": "6bafd77352e609a2550ed673c501ee91a2b82a13e55854c3ee0211b88768f165",
+      "bytes": 12893
+    }
+  ],
+  "historicalParent": {
+    "record": {
+      "path": "C:\\ReignPortraitRebuild\\2026-10-07-01a11741-culture-v2\\_shared\\Eryares_Corvenanion (reign_court_castle_ES5_father)\\.ai_generation.json",
+      "sha256": "ec4f11186429bce00e06e0792f73c53c1ed7e84b2e355d93884d09346ab33a4c",
+      "bytes": 7598
+    },
+    "prompt": {
+      "path": "C:\\ReignPortraitRebuild\\2026-10-07-01a11741-culture-v2\\_shared\\Eryares_Corvenanion (reign_court_castle_ES5_father)\\prompt.txt",
+      "sha256": "39abdca4c457df6c0cc1308948deac40af56ffc77da9ac967052751e018b8c32",
+      "bytes": 10096
+    },
+    "role": "Original fullbody generation; not the new own-old-face edit producer."
+  },
+  "authenticRawReceiptNotRewritten": true,
+  "rawAbsolutePathsRole": "Historical tool/provider locations only. Current pixel source and prompt are bound by localFiles.",
+  "actualOriginAdapter": {
+    "rawSchema": "reign-root-old-face-restyle-actual-v1",
+    "actualCallsField": "actualBuiltinImageCalls",
+    "actualRetriesField": "actualRetries",
+    "rawActualCalls": 1,
+    "rawRetries": 0,
+    "fieldMapping": {
+      "id": "id",
+      "source": "providerOutput",
+      "prompt": "exactPrompt"
+    }
+  },
+  "globalFaceAcceptance": false,
+  "nativeUIAcceptance": false,
+  "notSwapApproval": true
+}

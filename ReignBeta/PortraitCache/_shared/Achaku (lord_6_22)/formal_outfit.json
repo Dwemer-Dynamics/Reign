@@ -3,11 +3,11 @@
   "heroStringId": "lord_6_22",
   "characterName": "Achaku",
   "imagePath": "portrait.png",
-  "imageSha256": "CE4A47F4D923460B52D7492A11E8652937EACCCBDF81D9232645F6D063AA047F",
-  "description": "Culturally appropriate everyday Khuzait minor-lord attire inspired by refined medieval Turkic and Mongol steppe noble clothing. Men should wear a tailored crossed-front coat or deel with refined woven trim, a decorated sash, layered sleeves, and high-quality trousers. Women should wear an elegant long robe or fitted steppe coat over a fine underdress, with carefully worked edging and decorative textile details. Include restrained cloud, knot, or geometric patterns and a limited amount of practical fur trim. The clothing should remain mobile and functional while clearly showing noble status. No headgear of any kind. No fur hats, caps, hoods, armor, weapons, crowns, or ceremonial costume.",
-  "status": "failed",
-  "descriptionSource": "portrait_prompt_fallback",
-  "retryEligible": true,
-  "error": "{\"error\":{\"message\":\"Model \\\"zai-org/glm-5.2\\\" does not support image inputs. Remove image content or choose a multimodal model.\",\"type\":\"invalid_request_error\",\"param\":\"messages\",\"code\":\"image_input_not_supported\"}}",
-  "updatedUtc": "2026-07-18T22:03:23.8410712Z"
+  "imageSha256": "4EA1CE71F5CB15CA74479508288D1C5726078FF4C16BEF4758B97FEB592E88B1",
+  "description": "A dark teal crossed-front long steppe coat with muted gold woven floral and cloud edging, a broad decorated sash belt with metal roundels and hanging tassels, pale linen underlayer, leather wrist cuffs, loose dark patterned trousers and brown leather boots. No headgear or weapons.",
+  "status": "completed",
+  "descriptionSource": "agent_vision",
+  "retryEligible": false,
+  "error": "",
+  "updatedUtc": "2026-10-07T20:16:45.085Z"
 }

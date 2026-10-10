@@ -3,11 +3,11 @@
   "heroStringId": "reign_court_castle_EW2_mother",
   "characterName": "Aevarara Aurelirides",
   "imagePath": "portrait.png",
-  "imageSha256": "368D186398D3BBAFB37A3B24B473C371718016BC534859F386AF4F1C1BD49674",
-  "description": "Culturally appropriate everyday Calradic Imperial minor-lord attire inspired by refined late Roman and Byzantine noble clothing. Men should wear a high-quality tunic or long tailored outer coat over fine linen, decorated with narrow woven borders, refined clasps, and a decorated belt. Women should wear a long elegant dress or layered tunic ensemble with shaped sleeves, graceful draping, and tasteful trim around the neckline, cuffs, and edges. The garments should feel polished, educated, urban, and wealthy without resembling full imperial ceremony. No headgear of any kind. No armor, weapons, crowns, imperial regalia, laurel wreaths, or ceremonial robes.",
-  "status": "failed",
-  "descriptionSource": "portrait_prompt_fallback",
-  "retryEligible": true,
-  "error": "{\"error\":{\"message\":\"Model \\\"zai-org/glm-5.2\\\" does not support image inputs. Remove image content or choose a multimodal model.\",\"type\":\"invalid_request_error\",\"param\":\"messages\",\"code\":\"image_input_not_supported\"}}",
-  "updatedUtc": "2026-07-18T22:03:23.9695535Z"
+  "imageSha256": "3732A084431BDEA30D9ECF7051F4C96EABC8173B944E33F2BDF49847EA5AE224",
+  "description": "Opaque deep plum-purple floor-length gown with a low square neckline, a fitted structured bodice, elbow-length sleeves and restrained gold patterned borders at the neckline, shoulders, cuffs and front skirt edges. Small round gold clasps fasten the shoulder straps; a decorative gold belt with a round central clasp sits at the waist. A cream underdress shows between the open front skirt panels. A long cream wrap with purple-gold borders rests around the arms and hangs down each side. Small gold drop earrings, rings and a simple bracelet are visible, with a gold-patterned closed shoe at the hem. No armor, headgear or weapon is visible.",
+  "status": "completed",
+  "descriptionSource": "agent_vision",
+  "retryEligible": false,
+  "error": "",
+  "updatedUtc": "2026-10-07T20:17:11.054Z"
 }

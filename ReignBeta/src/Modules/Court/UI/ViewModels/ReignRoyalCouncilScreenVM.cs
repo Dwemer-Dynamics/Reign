@@ -16,8 +16,13 @@ using TaleWorlds.Library;
 
 namespace ReignBeta.UI.ViewModels
 {
-    public sealed class ReignRoyalCouncilScreenVM : ViewModel
+    public sealed class ReignRoyalCouncilScreenVM : ViewModel, IReignActionHost
     {
+        private ReignActionComposerVM _composer;
+        public ReignActionComposerVM Composer => _composer ?? (_composer = new ReignActionComposerVM(() => { OnPropertyChanged(nameof(InputText)); OnPropertyChanged(nameof(CanSend)); }));
+        [DataSourceProperty] public string ActionComposerId => Composer.Id;
+        public IReadOnlyList<Hero> ActionParticipants => Roles.Select(Seat).Where(s => s?.IsAvailable == true).Select(s => s.Hero).ToList();
+        public bool ActionBusy => IsBusy || _calibrationFixture;
         private static readonly string[] Roles = { "war", "spymaster", "economic", "foreign" };
         private readonly ReignCourtCampaignBehavior _court;
         private readonly Action _close;
@@ -50,7 +55,7 @@ namespace ReignBeta.UI.ViewModels
         [DataSourceProperty] public ReignRoyalCouncilSeatVM EconomicSeat { get; private set; }
         [DataSourceProperty] public ReignRoyalCouncilSeatVM ForeignSeat { get; private set; }
         [DataSourceProperty] public MBBindingList<ReignChatLineVM> Transcript { get; }
-        [DataSourceProperty] public string InputText { get => _inputText; set { if (_inputText != value) { _inputText = value ?? string.Empty; OnPropertyChangedWithValue(_inputText); } } }
+        [DataSourceProperty] public string InputText { get => Composer.State.Text; set => Composer.SetText(value); }
         [DataSourceProperty] public string StatusText { get => _statusText; private set { if (_statusText != value) { _statusText = value; OnPropertyChangedWithValue(value); } } }
         [DataSourceProperty] public bool IsBusy { get => _busy; private set { if (_busy != value) { _busy = value; OnPropertyChangedWithValue(value); OnPropertyChanged(nameof(CanSend)); } } }
         [DataSourceProperty] public bool CanSend => !IsBusy && !string.IsNullOrWhiteSpace(InputText);
@@ -59,12 +64,18 @@ namespace ReignBeta.UI.ViewModels
         public bool AutomationCalibrationFixture => _calibrationFixture;
 
         public void ExecuteClose() => _close?.Invoke();
+        public override void OnFinalize() { ReignActionBuilder.CloseFor(this); _composer?.Dispose(); base.OnFinalize(); }
         public void ExecuteSend()
         {
-            string text = (InputText ?? string.Empty).Trim();
-            if (IsBusy || text.Length == 0) return;
+            string text = InputText ?? string.Empty;
+            if (IsBusy || string.IsNullOrWhiteSpace(text)) return;
+            string contribution = "council_input_" + Guid.NewGuid().ToString("N");
+            try { ReignBeta.Runtime.ReignConversationInputJournal.Save(ReignServerClient.GetCampaignId(),
+                ReignBeta.Campaign.ReignWorldHistoryCampaignBehavior.Instance?.TimelineId ?? "main", Hero.MainHero?.StringId ?? "", contribution, text, session: _sessionId); }
+            catch (Exception ex) { StatusText = "Your message could not be saved locally: " + ex.Message; return; }
+            var action = Composer.State.Draft == null ? null : ReignBeta.Actions.ReignActionService.Copy(Composer.State.Draft);
             InputText = string.Empty;
-            _ = SendAsync(text);
+            _ = SendAsync(text, action, contribution);
         }
 
         public bool TryAutomation(string action, string value, out string error)
@@ -115,11 +126,12 @@ namespace ReignBeta.UI.ViewModels
             Transcript.Add(new ReignChatLineVM(seat.Hero?.Name?.ToString() ?? seat.Title, text, "npc"));
         }
 
-        private async Task SendAsync(string text)
+        private async Task SendAsync(string text, Reign.Core.Contracts.Actions.ActionAgreement action = null, string contributionId = "")
         {
             IsBusy = true;
             Transcript.Add(new ReignChatLineVM("You", text, "player"));
             List<string> routed = Route(text);
+            if (action != null) routed.AddRange(Roles.Where(role => Seat(role)?.Hero?.StringId == action.NpcId));
             bool expand = IsExpansion(text);
             if (expand && routed.Count == 0) routed = _lastRoles.ToList();
             routed = routed.Distinct(StringComparer.OrdinalIgnoreCase).Where(role => Seat(role)?.IsAvailable == true).ToList();
@@ -131,16 +143,17 @@ namespace ReignBeta.UI.ViewModels
                 return;
             }
             _lastRoles = routed;
-            foreach (string role in routed) await RequestAdvisorAsync(role, Seat(role).Hero, text, false, expand).ConfigureAwait(false);
+            foreach (string role in routed) await RequestAdvisorAsync(role, Seat(role).Hero, text, false, expand,
+                Seat(role).Hero.StringId == action?.NpcId ? action : null, contributionId).ConfigureAwait(false);
             await ReignMainThread.InvokeAsync(() => { IsBusy = false; StatusText = "The council awaits your next question."; });
         }
 
-        private async Task RequestAdvisorAsync(string role, Hero hero, string playerText, bool opening, bool expand)
+        private async Task RequestAdvisorAsync(string role, Hero hero, string playerText, bool opening, bool expand, Reign.Core.Contracts.Actions.ActionAgreement action = null, string contributionId = "")
         {
             JArray record = new JArray(Transcript.Select(line => new JObject { ["speaker"] = line.Speaker, ["role"] = line.Role, ["text"] = line.Text }));
             JArray present = new JArray(Roles.Select(Seat).Where(seat => seat?.IsAvailable == true).Select(seat => seat.Hero.StringId));
             ReignCourtServerResponse response = await ReignCourtServerClient.RequestRoyalCouncilAdviceAsync(_sessionId,
-                "council_turn_" + Guid.NewGuid().ToString("N"), role, hero, playerText, opening, expand, BuildDomainPacket(role), record, present).ConfigureAwait(false);
+                "council_turn_" + Guid.NewGuid().ToString("N"), role, hero, playerText, opening, expand, BuildDomainPacket(role), record, present, action, contributionId).ConfigureAwait(false);
             _providerCallCount += Math.Max(0, response.Raw.Value<int?>("providerCallCount") ?? 0);
             await ReignMainThread.InvokeAsync(() =>
             {

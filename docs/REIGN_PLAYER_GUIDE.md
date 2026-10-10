@@ -347,6 +347,8 @@ Travel time is physical:
 
 Replies, rebellion summons, ruler-docket business, ambassador matters, and Campaign Command reports can all use the same letter infrastructure. Some explicitly sovereign player commands execute on dispatch by design; ordinary conversation and replies wait for delivery.
 
+Characters outside your party may also initiate letters. Every three campaign days, each known living adult with directional Reign affinity toward you of at least +10 has that affinity as a percentage chance to write. An unmet character needs at least +20 affinity and may introduce themselves by letter; at most one first introduction is dispatched in a three-day check. A delivered introduction adds that character to Correspondence. After an unsolicited letter is successfully written and dispatched, its sender receives a random 3–15 campaign-day cooldown. The letter is fully generated before dispatch; the arrival notice appears only after its physical delivery and inbox storage.
+
 ## Scheduled town social events
 
 When enabled, Reign checks for an ordinary town event no more than once every **3 days**. If fewer than **2** events are open, the scheduling attempt has a **25%** chance to create one in an eligible town. Events are announced and remain available for their template's opportunity window, normally 2–4 days.
@@ -1055,7 +1057,7 @@ Orders can compose multiple steps, such as recruit, patrol, and hold, or form an
 
 An eligible foreign-clan lord or lady can temporarily travel inside the player's main party without becoming a companion or changing clan. Ask in ordinary one-on-one dialogue. The noble must be a living, active, free adult; belong to another clan; not be a companion, governor, prisoner, child, dead, quest-bound, in battle, or in a siege; and must explicitly consent. Leaving an army is a separate decision that also requires acceptance.
 
-The terms must state the purpose, risk, relevance, and duration, and must ask rather than command. A fixed visit can last **1–30 days**. An open-ended visit has a mandatory review every **5 days**. The guest keeps their original clan, kingdom, identity, and equipment; their equipment is locked while the agreement is live. Accepting, renewing, or ending the guest arrangement is relationship-neutral and does not itself create traits, rumors, or reputation.
+The terms must state the purpose, risk, relevance, and duration, and must ask rather than command. A fixed visit can last **1–30 days**. An open-ended visit has a mandatory review every **30 days**. The guest keeps their original clan, kingdom, identity, and equipment; their equipment is locked while the agreement is live. Accepting, renewing, or ending the guest arrangement is relationship-neutral and does not itself create traits, rumors, or reputation.
 
 If the guest led a party, Reign leaves **[Name]'s Waiting Camp** on the map. This is the real original party, visibly paused and protected from encounters, reinforcement use, finance/desertion processing, and ordinary autonomous orders until the guest returns. It is not destroyed or secretly reassigned.
 
@@ -1096,10 +1098,11 @@ An NPC can agree to a duel during a one-on-one conversation. Reign then shows a 
 
 Modes are:
 
-- **Training/nonlethal:** both combatants normally begin at 100 health and the duel stops when either reaches 8 health. Nearby agents can be paused inside an 18-unit radius. Original player health is restored afterward.
-- **Lethal/duel of honor:** death risk is explicit. The target defaults to 100% death risk on defeat; player death is disabled unless the validated terms explicitly allow it.
+- **Practice:** nonlethal sparring with no reputational stakes. Only the NPC opponent remembers the result. It adds no public combat record, kingdom news, rumor, reputation or automatic relationship change.
+- **Honor:** a nonlethal personal challenge. Its winner and loser can become publicly known through the combat record, kingdom news and reputation rumors.
+- **Lethal:** death risk is explicit. The target defaults to 100% death risk on defeat; player death is disabled unless the validated terms explicitly allow it.
 
-The winner receives Duelist social evidence and the loser Fallen Challenger. Arrest duels use the same combat path but convert victory into custody and defeat into escape.
+The existing nonlethal combat path normally begins both combatants at 100 health and stops at 8 health, with original player health restored afterward. Legacy training actions remain supported. Practice never emits Duelist or Fallen Challenger evidence. Other duels retain their existing social evidence. Arrest duels use the combat path but convert victory into custody and defeat into escape; practice cannot become an arrest duel.
 
 ## Arrests
 
@@ -1659,7 +1662,7 @@ This chapter collects Reign's most consequential numeric rules in one place for 
 | Adult-retained childhood memories | created at exact age 5 or older |
 | Family Chambers client-session retention | 30 days |
 | Temporary guest fixed term | 1–30 days |
-| Temporary guest open-ended review | every 5 days |
+| Temporary guest open-ended review | every 30 days |
 | Temporary guest return travel | `clamp(1 + distance ÷ 12, 1, 12)` hours |
 
 ## World and economy

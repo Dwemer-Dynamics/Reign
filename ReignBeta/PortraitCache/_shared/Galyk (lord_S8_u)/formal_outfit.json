@@ -3,11 +3,11 @@
   "heroStringId": "lord_S8_u",
   "characterName": "Galyk",
   "imagePath": "portrait.png",
-  "imageSha256": "B078442C4641A5D8A8F6DD311172BD1EB93BD3457F18D04E2ABAFA2BAD28C3C0",
-  "description": "Culturally appropriate everyday Sturgian landowner attire inspired by medieval Rus and Slavic clothing suited to a cold northern climate. Men should wear a long linen shirt beneath a belted wool tunic or simple kaftan, loose trousers, wrapped lower legs, and a heavy wool outer layer or practical cloak. Women should wear a long linen shift beneath a wool overdress or simple coat-dress, tied with a woven sash and layered with a practical shoulder covering. Add modest geometric embroidery around the collar, cuffs, or hem. Fur may appear only as light functional trim. No headgear of any kind. No armor, weapons, ceremonial fur mantles, crowns, or fantasy elements.",
-  "status": "failed",
-  "descriptionSource": "portrait_prompt_fallback",
-  "retryEligible": true,
-  "error": "{\"error\":{\"message\":\"Model \\\"zai-org/glm-5.2\\\" does not support image inputs. Remove image content or choose a multimodal model.\",\"type\":\"invalid_request_error\",\"param\":\"messages\",\"code\":\"image_input_not_supported\"}}",
-  "updatedUtc": "2026-07-18T22:03:29.4703013Z"
+  "imageSha256": "857D84B5C886732D5CE2BE58E8EA0779230219CBCEA970C8124F52A21CFEE18D",
+  "description": "Galyk wears a dark blue knee-length wool tunic with narrow pale geometric woven borders at the split neckline and hem over an ivory linen underlayer visible at cuffs and lower hem. A heavy brown open-front wool outer coat has restrained pale geometric borders around the front and cuffs. A plain brown leather belt with a rectangular buckle and long hanging end secures the tunic. Brown trousers, wrapped lower legs with crossed ties and brown leather shoes complete the outfit. His short bowl-cut hair is uncovered.",
+  "status": "completed",
+  "descriptionSource": "agent_vision",
+  "retryEligible": false,
+  "error": "",
+  "updatedUtc": "2026-10-07T22:19:30.565Z"
 }

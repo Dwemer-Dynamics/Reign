@@ -72,6 +72,7 @@ namespace ReignBeta.UI
             { Close(false); return; }
             try
             {
+                if (ReignActionBuilder.Handle(_host, _vm)) return;
                 _layer.InputRestrictions.SetInputRestrictions(true, InputUsageMask.All);
                 _layer.Input.IsKeysAllowed = true;
                 if (ScreenManager.FocusedLayer != _layer) ScreenManager.TrySetFocus(_layer);

@@ -22,6 +22,7 @@
     "goldHighlight": "#A88A54FF",
     "goldBright": "#C5AC83FF",
     "textPrimary": "#C5BDAFFF",
+    "textAction": "#FFFFFFFF",
     "textSecondary": "#8A8883FF",
     "textMuted": "#706F6AFF",
     "semanticDanger": "#C35B32FF",
@@ -29,6 +30,7 @@
     "emptySilhouette": "#595956FF"
   },
   "materialRules": {
+    "actionText": "2026-10-03 explicit user direction: white textAction identifies a protected structured action segment inside the conversation composer. It is also used for native selected-text readability. Ordinary speech retains textPrimary; white is not a new panel or ornament color.",
     "neutralPanels": "Use canvasBlack, marbleBase, panelSmoke, panelStandard, panelRaised, or panelActive. Brown neutral panels are forbidden.",
     "lighterCards": "Use panelRaised for ordinary lifted cards and panelActive only for selected or deliberately emphasized cards.",
     "marbling": "Marble veins remain subordinate to content and borders; use marbleVein at or below its declared alpha.",

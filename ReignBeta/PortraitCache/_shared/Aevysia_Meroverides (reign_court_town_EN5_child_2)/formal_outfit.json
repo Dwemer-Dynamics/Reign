@@ -3,11 +3,11 @@
   "heroStringId": "reign_court_town_EN5_child_2",
   "characterName": "Aevysia Meroverides",
   "imagePath": "portrait.png",
-  "imageSha256": "008334EF4A3EF0B8843C10E29406A2522DC3A2C1138B791BBC5A9C38299896D0",
-  "description": "Culturally appropriate everyday Calradic Imperial minor-lord attire inspired by refined late Roman and Byzantine noble clothing. Men should wear a high-quality tunic or long tailored outer coat over fine linen, decorated with narrow woven borders, refined clasps, and a decorated belt. Women should wear a long elegant dress or layered tunic ensemble with shaped sleeves, graceful draping, and tasteful trim around the neckline, cuffs, and edges. The garments should feel polished, educated, urban, and wealthy without resembling full imperial ceremony. No headgear of any kind. No armor, weapons, crowns, imperial regalia, laurel wreaths, or ceremonial robes.",
-  "status": "failed",
-  "descriptionSource": "portrait_prompt_fallback",
-  "retryEligible": true,
-  "error": "{\"error\":{\"message\":\"Model \\\"zai-org/glm-5.2\\\" does not support image inputs. Remove image content or choose a multimodal model.\",\"type\":\"invalid_request_error\",\"param\":\"messages\",\"code\":\"image_input_not_supported\"}}",
-  "updatedUtc": "2026-07-18T22:03:24.1778803Z"
+  "imageSha256": "780DD97D96F1D6B5C3255FF095C3A004E12965E25638F81808492884600919A9",
+  "description": "She wears a deep plum textured opaque gown with a low square neckline, structured fitted bodice, elbow-length sleeves and floor-length skirt. Narrow gold geometric woven borders run around the neckline, bodice seams, sleeves, waist and long front skirt opening. A circular gold ornamental clasp centers the decorated girdle. A cream underdress shows through the lower front opening, while a cream shoulder wrap with plum-and-gold borders lies loosely around her forearms and hangs down the sides. Her visible closed-toe brown shoe bears gold patterned ornament. Small gold drop earrings and a fine necklace with a small round pendant accompany the dress. No headgear or weapon is present.",
+  "status": "completed",
+  "descriptionSource": "agent_vision",
+  "retryEligible": false,
+  "error": "",
+  "updatedUtc": "2026-10-07T20:23:01.223Z"
 }

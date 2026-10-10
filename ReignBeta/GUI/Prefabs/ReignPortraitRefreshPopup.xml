@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Prefab>
+  <Window>
+    <Widget Id="PortraitRefreshPopupHost" WidthSizePolicy="StretchToParent" HeightSizePolicy="StretchToParent">
+      <Children>
+        <Widget DoNotAcceptEvents="true" WidthSizePolicy="StretchToParent" HeightSizePolicy="StretchToParent" Sprite="BlankWhiteSquare_9" Color="#030303F2" />
+        <Widget Id="PortraitRefreshPopup" DoNotAcceptEvents="true" WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="1672" SuggestedHeight="941" HorizontalAlignment="Center" VerticalAlignment="Center" Sprite="reign_notable_generation_popup">
+          <Children>
+            <TextWidget Id="RefreshTitle" DoNotAcceptEvents="true" WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="663" SuggestedHeight="72" HorizontalAlignment="Center" MarginTop="248" Brush="DefaultText" Brush.Font="ReignSerifDynamic" Brush.FontSize="40" Brush.TextHorizontalAlignment="Center" Brush.TextVerticalAlignment="Center" Brush.FontColor="#C5AC83FF" Text="@Title" />
+            <TextWidget Id="RefreshDetail" DoNotAcceptEvents="true" WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="778" SuggestedHeight="104" HorizontalAlignment="Center" MarginTop="399" Brush="DefaultText" Brush.Font="ReignSerifDynamic" Brush.FontSize="23" Brush.TextHorizontalAlignment="Center" Brush.TextVerticalAlignment="Center" Brush.FontColor="#C5BDAFFF" Text="@Detail" />
+            <ButtonWidget Id="LookAgain" WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="182" SuggestedHeight="44" MarginLeft="558" MarginTop="538" Brush="ConversationItem.SoundBrush" Command.Click="ExecuteLookAgain">
+              <Children>
+                <TextWidget Id="LookAgainLabel" DoNotAcceptEvents="true" WidthSizePolicy="StretchToParent" HeightSizePolicy="StretchToParent" Brush="DefaultText" Brush.Font="ReignSerifDynamic" Brush.FontSize="18" Brush.TextHorizontalAlignment="Center" Brush.TextVerticalAlignment="Center" Brush.FontColor="#C5AC83FF" Text="@LookAgainText" />
+              </Children>
+            </ButtonWidget>
+            <ButtonWidget Id="ReflectYears" IsEnabled="@CanReflect" WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="182" SuggestedHeight="44" MarginLeft="745" MarginTop="538" Brush="ConversationItem.SoundBrush" Command.Click="ExecuteReflect">
+              <Children>
+                <TextWidget Id="ReflectYearsLabel" DoNotAcceptEvents="true" WidthSizePolicy="StretchToParent" HeightSizePolicy="StretchToParent" Brush="DefaultText" Brush.Font="ReignSerifDynamic" Brush.FontSize="18" Brush.TextHorizontalAlignment="Center" Brush.TextVerticalAlignment="Center" Brush.FontColor="#C5AC83FF" Text="@ReflectText" />
+              </Children>
+            </ButtonWidget>
+            <ButtonWidget Id="CancelRefresh" WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="182" SuggestedHeight="44" MarginLeft="932" MarginTop="538" Brush="ConversationItem.SoundBrush" Command.Click="ExecuteCancel">
+              <Children>
+                <TextWidget Id="CancelRefreshLabel" DoNotAcceptEvents="true" WidthSizePolicy="StretchToParent" HeightSizePolicy="StretchToParent" Brush="DefaultText" Brush.Font="ReignSerifDynamic" Brush.FontSize="18" Brush.TextHorizontalAlignment="Center" Brush.TextVerticalAlignment="Center" Brush.FontColor="#C5AC83FF" Text="@CancelText" />
+              </Children>
+            </ButtonWidget>
+          </Children>
+        </Widget>
+      </Children>
+    </Widget>
+  </Window>
+</Prefab>

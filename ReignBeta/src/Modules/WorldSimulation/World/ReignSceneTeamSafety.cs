@@ -11,5 +11,13 @@ namespace ReignBeta.World
             return actorTeam?.IsValid == true && targetTeam?.IsValid == true
                 && actorTeam.IsEnemyOf(targetTeam);
         }
+
+        internal static bool IsPlayerTeamOrEnemy(Team team, Team playerTeam)
+        {
+            // Battle sampling can also see Team.Invalid (including on mounts).
+            // Require real teams even when both references are the same sentinel.
+            return team?.IsValid == true && playerTeam?.IsValid == true
+                && (team == playerTeam || AreHostile(team, playerTeam));
+        }
     }
 }

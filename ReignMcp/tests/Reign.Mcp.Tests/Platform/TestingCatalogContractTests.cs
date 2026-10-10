@@ -304,10 +304,10 @@ public sealed class TestingCatalogContractTests
         Assert.True(counts.GetProperty("checkedRuntimeCommands").GetInt32() > 0);
         Assert.Equal(12, counts.GetProperty("checkedEditingContracts").GetInt32());
         Assert.Equal(118, counts.GetProperty("checkedToolContracts").GetInt32());
-        Assert.Equal(22, counts.GetProperty("checkedNativeCalibrationTargets").GetInt32());
+        Assert.Equal(26, counts.GetProperty("checkedNativeCalibrationTargets").GetInt32());
         Assert.Equal(7, counts.GetProperty("checkedNativeAugmentationTargets").GetInt32());
         Assert.Equal(9, counts.GetProperty("checkedNativePatchApplications").GetInt32());
-        Assert.Equal(21, counts.GetProperty("discoveredRuntimeMovies").GetInt32());
+        Assert.Equal(25, counts.GetProperty("discoveredRuntimeMovies").GetInt32());
         Assert.Equal(0, counts.GetProperty("errors").GetInt32());
         Assert.Equal(0, counts.GetProperty("warnings").GetInt32());
     }
@@ -570,12 +570,17 @@ public sealed class TestingCatalogContractTests
         Assert.Equal("ReignBeta/tools/GauntletXmlPreviewer/audit-approved-reference-fidelity.mjs",
             fidelityCapability.GetProperty("entry").GetString());
         Assert.Equal("workspace-output", fidelityCapability.GetProperty("risk").GetString());
-        Assert.Equal(22, previewer.GetProperty("currentPrefabCount").GetInt32());
-        Assert.Equal(68, previewer.GetProperty("currentInterfaceStateCount").GetInt32());
+        Assert.Equal(26, previewer.GetProperty("currentPrefabCount").GetInt32());
+        using JsonDocument actualUiCatalog = JsonDocument.Parse(File.ReadAllText(Path.Combine(
+            TestOptions.FindWorkspace(), "ReignBeta", "tools", "GauntletXmlPreviewer", "calibration", "ui-catalog.json")));
+        int actualInterfaceStates = actualUiCatalog.RootElement.GetProperty("interfaces").EnumerateArray()
+            .Sum(entry => 1 + (entry.TryGetProperty("previewStates", out JsonElement states) ? states.GetArrayLength() : 0));
+        Assert.Equal(actualInterfaceStates, previewer.GetProperty("currentInterfaceStateCount").GetInt32());
         Assert.Equal(7, previewer.GetProperty("nativeAugmentationTargetCount").GetInt32());
         Assert.Equal(9, previewer.GetProperty("nativePatchApplicationCount").GetInt32());
-        Assert.Equal(150, previewer.GetProperty("providerFreeRenderCaseCount").GetInt32());
-        Assert.Equal(29, previewer.GetProperty("nativeAcceptanceSurfaceCount").GetInt32());
+        Assert.Equal((actualInterfaceStates + previewer.GetProperty("nativeAugmentationTargetCount").GetInt32()) * 2,
+            previewer.GetProperty("providerFreeRenderCaseCount").GetInt32());
+        Assert.Equal(33, previewer.GetProperty("nativeAcceptanceSurfaceCount").GetInt32());
         Assert.Equal(1, previewer.GetProperty("nativeRuntimeStateAcceptanceCount").GetInt32());
         Assert.Equal("reign-ui-native-runtime-state-acceptance-v1",
             pregnancyWarningState.GetProperty("schema").GetString());
@@ -593,7 +598,8 @@ public sealed class TestingCatalogContractTests
         Assert.Contains("ui-open --target individual-chat", pregnancyWarningCapture, StringComparison.Ordinal);
         Assert.Contains("show-pregnancy-warning", pregnancyWarningCapture, StringComparison.Ordinal);
         Assert.Contains("reviewed=false", pregnancyWarningCapture, StringComparison.Ordinal);
-        Assert.Contains("does not change the 68 browser states, 150 provider-free renders, or 29 native surfaces",
+        int actualRenderCases = (actualInterfaceStates + previewer.GetProperty("nativeAugmentationTargetCount").GetInt32()) * 2;
+        Assert.Contains($"does not change the {actualInterfaceStates} browser states, {actualRenderCases} provider-free renders, or 33 native surfaces",
             pregnancyWarningCapture, StringComparison.OrdinalIgnoreCase);
         string testingGuide = TestingDocumentation.Read(Path.Combine(TestOptions.FindWorkspace(), "docs", "agent",
             "TESTING_TOOL_GUIDE.md"));
@@ -607,10 +613,10 @@ public sealed class TestingCatalogContractTests
                 documentation, StringComparison.Ordinal);
             Assert.Contains("<evidence-root>/individual-chat/states/individual-chat-pregnancy-warning/<matrix-case>/state-receipt.json",
                 documentation, StringComparison.Ordinal);
-            Assert.Contains("68 browser states", documentation, StringComparison.OrdinalIgnoreCase);
-            Assert.Contains("150", documentation, StringComparison.Ordinal);
-            Assert.Contains("29 native surfaces", documentation, StringComparison.OrdinalIgnoreCase);
-            Assert.DoesNotContain("33 native surfaces", documentation, StringComparison.OrdinalIgnoreCase);
+            Assert.Contains($"{actualInterfaceStates} browser states", documentation, StringComparison.OrdinalIgnoreCase);
+            Assert.Contains(actualRenderCases.ToString(System.Globalization.CultureInfo.InvariantCulture), documentation, StringComparison.Ordinal);
+            Assert.Contains("33 native surfaces", documentation, StringComparison.OrdinalIgnoreCase);
+            Assert.DoesNotContain("34 native surfaces", documentation, StringComparison.OrdinalIgnoreCase);
         }
         Assert.Equal(1080, previewer.GetProperty("minimumSupportedHeight").GetInt32());
         Assert.Equal(
@@ -661,7 +667,7 @@ public sealed class TestingCatalogContractTests
         Assert.Contains("gold/gray semantic text colors", previewer.GetProperty("nativeVisualReviewContract").GetString(), StringComparison.OrdinalIgnoreCase);
         Assert.Contains("no unexpected colors or shapes", previewer.GetProperty("nativeVisualReviewContract").GetString(), StringComparison.OrdinalIgnoreCase);
         Assert.Contains("Missing, false, unknown, legacy, or unreviewed attestations remain pending", previewer.GetProperty("nativeVisualReviewContract").GetString(), StringComparison.OrdinalIgnoreCase);
-        Assert.Contains("all 29 native surfaces", previewer.GetProperty("nativeAcceptanceContract").GetString(), StringComparison.OrdinalIgnoreCase);
+        Assert.Contains("all 33 native surfaces", previewer.GetProperty("nativeAcceptanceContract").GetString(), StringComparison.OrdinalIgnoreCase);
         Assert.Contains("--require-pass exits nonzero", previewer.GetProperty("nativeAcceptanceContract").GetString(), StringComparison.OrdinalIgnoreCase);
         Assert.Contains("no calibration-overlay movie, widget, action, or supportUi payload", previewer.GetProperty("nativeAcceptanceContract").GetString(), StringComparison.OrdinalIgnoreCase);
         Assert.Contains("verified-foreground Bannerlord receipt", previewer.GetProperty("nativeAcceptanceContract").GetString(), StringComparison.OrdinalIgnoreCase);
@@ -704,7 +710,7 @@ public sealed class TestingCatalogContractTests
         Assert.Contains("reviewed=false", previewer.GetProperty("nativeDisplayMatrixContract").GetString(), StringComparison.OrdinalIgnoreCase);
         Assert.Contains("-NativeAugmentations", previewer.GetProperty("nativeDisplayMatrixContract").GetString(), StringComparison.Ordinal);
         Assert.Contains("non-persistent four-domain transcript", previewer.GetProperty("nativeFixtureSafetyContract").GetString(), StringComparison.OrdinalIgnoreCase);
-        Assert.Contains("all 29 native surfaces", previewer.GetProperty("readinessUiContract").GetString(), StringComparison.OrdinalIgnoreCase);
+        Assert.Contains("all 33 native surfaces", previewer.GetProperty("readinessUiContract").GetString(), StringComparison.OrdinalIgnoreCase);
         Assert.Contains("selected-widget Codex context", previewer.GetProperty("readinessUiContract").GetString(), StringComparison.OrdinalIgnoreCase);
         Assert.Contains("Installation remains available while Bannerlord runs", previewer.GetProperty("installContract").GetString(), StringComparison.OrdinalIgnoreCase);
         Assert.Contains("movie-load time", previewer.GetProperty("parityContract").GetString(), StringComparison.OrdinalIgnoreCase);
@@ -726,14 +732,18 @@ public sealed class TestingCatalogContractTests
             previewer.GetProperty("approvedReferenceFidelityContractSchema").GetString());
         Assert.Contains("referenceSurfaceBounds",
             previewer.GetProperty("approvedReferenceFidelityRule").GetString(), StringComparison.Ordinal);
+        Assert.Contains("referenceSurfaceElementId",
+            previewer.GetProperty("approvedReferenceFidelityRule").GetString(), StringComparison.Ordinal);
+        Assert.Contains("missing or duplicate candidates fail closed",
+            previewer.GetProperty("approvedReferenceFidelityRule").GetString(), StringComparison.Ordinal);
         Assert.Contains("Missing or out-of-bounds geometry fails closed",
             previewer.GetProperty("approvedReferenceFidelityRule").GetString(), StringComparison.Ordinal);
         Assert.Equal("ReignBeta/tools/GauntletXmlPreviewer/audit-typography-parity.mjs",
             previewer.GetProperty("typographyParityAudit").GetString());
         Assert.Equal("reign-ui-typography-parity-audit-v1",
             previewer.GetProperty("typographyParityAuditSchema").GetString());
-        Assert.Equal(176, previewer.GetProperty("typographyFixedLiteralTextCount").GetInt32());
-        Assert.Equal(376, previewer.GetProperty("typographyDynamicBoundTextCount").GetInt32());
+        Assert.Equal(187, previewer.GetProperty("typographyFixedLiteralTextCount").GetInt32());
+        Assert.Equal(398, previewer.GetProperty("typographyDynamicBoundTextCount").GetInt32());
         Assert.Contains("including literal runtime controls and runtime-bound values",
             previewer.GetProperty("typographyParityRule").GetString(), StringComparison.Ordinal);
         Assert.Contains("must not survive as hidden or transparent runtime TextWidgets",
@@ -743,14 +753,14 @@ public sealed class TestingCatalogContractTests
         Assert.Contains("reviewed native 2560x1600 captures",
             previewer.GetProperty("typographyParityRule").GetString(), StringComparison.OrdinalIgnoreCase);
         Assert.Equal(2, previewer.GetProperty("providerFreeRenderMatrix").GetArrayLength());
-        Assert.Equal(22, previewer.GetProperty("nativeCalibrationTargets").GetArrayLength());
-        Assert.Equal(21, previewer.GetProperty("nativeRuntimeMovieCount").GetInt32());
+        Assert.Equal(26, previewer.GetProperty("nativeCalibrationTargets").GetArrayLength());
+        Assert.Equal(25, previewer.GetProperty("nativeRuntimeMovieCount").GetInt32());
         Assert.Equal("ReignUiCalibrationOverlay", previewer.GetProperty("previewerSupportMovie").GetString());
         string uiCatalogRaw = File.ReadAllText(Path.Combine(TestOptions.FindWorkspace(), "ReignBeta", "tools",
             "GauntletXmlPreviewer", "calibration", "ui-catalog.json"));
         using JsonDocument uiCatalogDocument = JsonDocument.Parse(uiCatalogRaw);
         JsonElement uiCatalog = uiCatalogDocument.RootElement;
-        Assert.Equal(22, uiCatalog.GetProperty("nativeCalibration").GetProperty("targetCount").GetInt32());
+        Assert.Equal(26, uiCatalog.GetProperty("nativeCalibration").GetProperty("targetCount").GetInt32());
         Assert.Equal("ReignUiCalibrationOverlay",
             uiCatalog.GetProperty("nativeCalibration").GetProperty("previewerSupportMovie").GetString());
         JsonElement calibrationOverlay = uiCatalog.GetProperty("interfaces").EnumerateArray()
@@ -964,12 +974,12 @@ public sealed class TestingCatalogContractTests
         Assert.Contains("reign-ui-window-capture-v1", guide, StringComparison.Ordinal);
         Assert.Contains("Every-interface parity gate", guide, StringComparison.Ordinal);
         Assert.Contains("headless runtime snapshot", guide, StringComparison.OrdinalIgnoreCase);
-        Assert.Contains("150-case", guide, StringComparison.OrdinalIgnoreCase);
+        Assert.Contains($"{actualRenderCases}-case", guide, StringComparison.OrdinalIgnoreCase);
         Assert.Contains("workspace, installed, and snapshot prefab hashes to agree", guide, StringComparison.OrdinalIgnoreCase);
         Assert.Contains("all-prefab summary", guide, StringComparison.OrdinalIgnoreCase);
         Assert.Contains("hold Alt only when the exact child offset is intentionally required", guide, StringComparison.OrdinalIgnoreCase);
         Assert.Contains("bottom Codex dock", guide, StringComparison.OrdinalIgnoreCase);
-        Assert.Contains("The 22 native runtime targets are", guide, StringComparison.OrdinalIgnoreCase);
+        Assert.Contains("The 25 native runtime targets are", guide, StringComparison.OrdinalIgnoreCase);
         Assert.Contains("7 native Bannerlord prefab targets", guide, StringComparison.OrdinalIgnoreCase);
         Assert.Contains("9 PrefabExtension applications", guide, StringComparison.OrdinalIgnoreCase);
         Assert.Contains("ui-open --target memories-book", guide, StringComparison.Ordinal);
@@ -1044,7 +1054,7 @@ public sealed class TestingCatalogContractTests
             Assert.Contains($"case \"{command}\"", program, StringComparison.Ordinal);
             Assert.Contains($"\"{command}\"", catalog, StringComparison.Ordinal);
         }
-        Assert.Contains("ui-open --target court|court-petition|castle-layout|castle-chat|ambassador|economic-report|clan-accords|government|family-chambers|training-yard|royal-council|spymaster|war-council|correspondence|individual-chat|party-chat|tavern-house|social-event|wilderness-event|diplomacy-announcement|notable-generation|memories-book",
+        Assert.Contains("ui-open --target action-builder|party-banter|court|court-petition|castle-layout|castle-chat|ambassador|economic-report|clan-accords|government|family-chambers|training-yard|royal-council|spymaster|war-council|correspondence|individual-chat|party-chat|tavern-house|social-event|wilderness-event|diplomacy-announcement|notable-generation|player-approach|portrait-refresh|memories-book",
             program, StringComparison.Ordinal);
         Assert.Contains("ui-action --target ambassador|economic-report|spymaster|war-council|family-chambers|training-yard|royal-council|individual-chat|native-conversation",
             program, StringComparison.Ordinal);

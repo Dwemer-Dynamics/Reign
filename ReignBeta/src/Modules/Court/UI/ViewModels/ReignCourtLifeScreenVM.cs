@@ -18,8 +18,13 @@ namespace ReignBeta.UI.ViewModels
 {
     // Shares the approved court petition movie, including its four portrait slots,
     // transcript scrolling, typography and decision controls.
-    public sealed class ReignCourtLifeScreenVM : ViewModel
+    public sealed class ReignCourtLifeScreenVM : ViewModel, IReignActionHost
     {
+        private ReignActionComposerVM _composer;
+        public ReignActionComposerVM Composer => _composer ?? (_composer = new ReignActionComposerVM(() => { OnPropertyChanged(nameof(InputText)); Notify(); }));
+        [DataSourceProperty] public string ActionComposerId => Composer.Id;
+        public IReadOnlyList<Hero> ActionParticipants => _matter.Participants.Select(p => FindHero(p.HeroId)).Where(h => h != null).ToList();
+        public bool ActionBusy => Busy || DecisionComplete;
         private readonly ReignCourtCampaignBehavior _court;
         private readonly ReignCourtLifeMatter _matter;
         private readonly Action _close;
@@ -109,7 +114,7 @@ namespace ReignBeta.UI.ViewModels
         [DataSourceProperty] public MBBindingList<ReignChatLineVM> Transcript { get; }
         [DataSourceProperty] public MBBindingList<ReignCourtLifeAttendeeVM> ActiveParticipants { get; }
         [DataSourceProperty] public MBBindingList<ReignCourtLifeAttendeeVM> AvailableAttendees { get; }
-        [DataSourceProperty] public string InputText { get => _input; set { _input = value ?? ""; OnPropertyChangedWithValue(_input); Notify(); } }
+        [DataSourceProperty] public string InputText { get => Composer.State.Text; set => Composer.SetText(value); }
         [DataSourceProperty] public string StatusText { get => _status; private set { _status = value ?? ""; OnPropertyChangedWithValue(_status); } }
         [DataSourceProperty] public bool Busy { get => _busy; private set { _busy = value; OnPropertyChangedWithValue(value); Notify(); } }
         [DataSourceProperty] public bool DecisionComplete => _matter.EffectsCommitted || !_matter.IsPending || _matter.State == ReignCourtLifeMatterState.Deferred;
@@ -144,7 +149,24 @@ namespace ReignBeta.UI.ViewModels
         public bool AutomationProviderBackedPhaseComplete(string phase) => !Busy && !_matter.TechnicalFailure
             && (phase == "opening" ? _matter.Participants.All(x => _matter.CompletedReplyKeys.Contains("opening|" + x.ActorId)) : AutomationNaturalConversationComplete);
 
-        public void ExecuteSend() { if (CanSend) { string text = InputText; InputText = ""; _ = ConverseAsync("conversation", text); } }
+        public void ExecuteSend()
+        {
+            if (!CanSend) return;
+            string text = InputText;
+            if (string.IsNullOrWhiteSpace(_matter.PendingPlayerTurnId))
+            {
+                string contribution = "court_life_turn_" + Guid.NewGuid().ToString("N");
+                try { ReignBeta.Runtime.ReignConversationInputJournal.Save(ReignServerClient.GetCampaignId(),
+                    ReignBeta.Campaign.ReignWorldHistoryCampaignBehavior.Instance?.TimelineId ?? "main", Hero.MainHero?.StringId ?? "", contribution, text); }
+                catch (Exception ex) { StatusText = "Your message could not be saved locally: " + ex.Message; return; }
+                _matter.PendingPlayerTurnId = contribution;
+                _matter.PendingPlayerText = text;
+                AddLine(Hero.MainHero?.Name?.ToString() ?? "Ruler", text, "user");
+                _matter.PendingActionJson = Composer.State.Draft == null ? "" : Newtonsoft.Json.JsonConvert.SerializeObject(Composer.State.Draft);
+            }
+            else if (text != _matter.PendingPlayerText) { StatusText = "The previous message is still pending. Your new text remains in the composer."; return; }
+            InputText = ""; _ = ConverseAsync("conversation", text);
+        }
         public void ExecuteGrantDirect()
         {
             if (!CanGrantDirect) return;
@@ -164,7 +186,7 @@ namespace ReignBeta.UI.ViewModels
         public void ExecuteContinue() { if (CanContinue) _close?.Invoke(); }
         public void ExecutePostpone() { if (CanPostpone) { _court.NotifyCourtLifeChanged(); _close?.Invoke(); } }
         public void OnFrameTick(float dt) { if (_lastState != _matter.State) { _lastState = _matter.State; Notify(); } }
-        public override void OnFinalize() { _finalized = true; _scene.Close(); base.OnFinalize(); }
+        public override void OnFinalize() { _finalized = true; ReignActionBuilder.CloseFor(this); _composer?.Dispose(); _scene.Close(); base.OnFinalize(); }
         public void RegisterTechnicalFailure(string text) { _matter.TechnicalFailure = true; StatusText = text; Busy = false; }
         public bool TryAutomationAction(string action, string value, out string error)
         {
@@ -201,6 +223,8 @@ namespace ReignBeta.UI.ViewModels
                     }
                     turnId = _matter.PendingPlayerTurnId; text = _matter.PendingPlayerText;
                 }
+                var action = phase == "conversation" && !string.IsNullOrWhiteSpace(_matter.PendingActionJson)
+                    ? Newtonsoft.Json.JsonConvert.DeserializeObject<Reign.Core.Contracts.Actions.ActionAgreement>(_matter.PendingActionJson) : null;
                 foreach (ReignCourtLifeParticipant person in _matter.Participants)
                 {
                     string key = turnId + "|" + person.ActorId;
@@ -214,7 +238,9 @@ namespace ReignBeta.UI.ViewModels
                         if (!string.IsNullOrWhiteSpace(person.HeroId) && (hero == null || !hero.IsAlive || hero.IsPrisoner))
                             throw new InvalidOperationException("This guest is no longer available for the audience.");
                         context = BuildSpeakerContext(person, phase, turnId);
+                        if (phase == "conversation") context["contributionId"] = turnId;
                         if (hero == null || hero.IsChild) thinPayload = BuildThinPayload(person, hero, context, phase, turnId, text);
+                        if (phase == "conversation" && thinPayload != null) thinPayload["contributionId"] = turnId;
                     }).ConfigureAwait(false);
                     string visible;
                     if (!_matter.ReplyTextsByKey.TryGetValue(key, out visible))
@@ -225,7 +251,7 @@ namespace ReignBeta.UI.ViewModels
                         ReignDialogueReply reply = await ReignServerClient.RequestDialogueResponseAsync(hero,
                             phase == "opening" ? "[The court grants you leave to speak.]" : text,
                             _matter.TranscriptId, correlationId: _matter.MatterId + "_" + turnId + "_" + person.ActorId,
-                            applyNativeEncyclopediaText: false, conversationContext: context).ConfigureAwait(false);
+                            applyNativeEncyclopediaText: false, conversationContext: context, actionDraft: action?.NpcId == hero.StringId ? action : null).ConfigureAwait(false);
                         if (!reply.Ok || string.IsNullOrWhiteSpace(reply.Text)) throw new InvalidOperationException(reply.Error ?? "The guest did not reply.");
                         raw = reply.RawResponse; raw["reply"] = reply.Text;
                     }
@@ -293,7 +319,7 @@ namespace ReignBeta.UI.ViewModels
                     {
                         _matter.CompletedPlayerTurnIds.Add(turnId);
                         if (_matter.Source == ReignDocketSource.Family) _ = _court.RecordFamilyVisitTurnAsync(_matter, turnId);
-                        _matter.PendingPlayerTurnId = ""; _matter.PendingPlayerText = "";
+                        _matter.PendingPlayerTurnId = ""; _matter.PendingPlayerText = ""; _matter.PendingActionJson = "";
                     }
                     if (string.IsNullOrWhiteSpace(_matter.SelectedOptionId)) StatusText = "Your guests await your response.";
                     _court.NotifyCourtLifeChanged();

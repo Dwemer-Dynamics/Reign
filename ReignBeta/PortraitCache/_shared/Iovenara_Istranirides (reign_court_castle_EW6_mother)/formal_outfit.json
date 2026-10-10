@@ -3,11 +3,11 @@
   "heroStringId": "reign_court_castle_EW6_mother",
   "characterName": "Iovenara Istranirides",
   "imagePath": "portrait.png",
-  "imageSha256": "409DC56C08E891E4BEB6DD8EF05B2973C52213F08448FE7E990F7FB8DA2A82C4",
-  "description": "Culturally appropriate everyday Calradic Imperial landowner attire inspired by practical late Roman and Byzantine civilian clothing adapted into a grounded medieval style. Men should wear a linen undertunic beneath a structured knee-length tunic or simple long coat, secured with a narrow belt. Women should wear a long tunic or underdress beneath a modest draped overdress with elegant but simple sleeves and a practical girdle. Include narrow woven borders or restrained geometric decoration. The garments should appear orderly, respectable, clean, and slightly prosperous. No headgear of any kind. No armor, weapons, laurel crowns, togas, ceremonial robes, or fantasy elements.",
-  "status": "failed",
-  "descriptionSource": "portrait_prompt_fallback",
-  "retryEligible": true,
-  "error": "{\"error\":{\"message\":\"Model \\\"zai-org/glm-5.2\\\" does not support image inputs. Remove image content or choose a multimodal model.\",\"type\":\"invalid_request_error\",\"param\":\"messages\",\"code\":\"image_input_not_supported\"}}",
-  "updatedUtc": "2026-07-18T22:03:30.5787028Z"
+  "imageSha256": "4027F66CE33C95D4AC21A4D99E57A9F6EEDD0C3C54D3C27618953EC55FEBE397",
+  "description": "Dark red floor-length fitted overdress over cream linen underdress, low square neckline, elbow-length sleeves and narrow gold geometric trim at neckline, cuffs, waist and central skirt panel. Cream fringed shawl with patterned red/gold borders rests around forearms, decorated belt with circular fittings, pendant, earrings and rings, gold-brown leather shoe visible through low front walking opening. Both hands visible. No headgear, armor or weapon; other foot beneath opaque skirt.",
+  "status": "completed",
+  "descriptionSource": "agent_vision",
+  "retryEligible": false,
+  "error": "",
+  "updatedUtc": "2026-10-07T23:52:22.401Z"
 }

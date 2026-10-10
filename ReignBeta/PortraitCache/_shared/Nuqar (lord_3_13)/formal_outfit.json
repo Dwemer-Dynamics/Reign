@@ -3,11 +3,11 @@
   "heroStringId": "lord_3_13",
   "characterName": "Nuqar",
   "imagePath": "portrait.png",
-  "imageSha256": "AA33F795312D0F3311B544A14A64C4F6A236095B1551D012985B5E10CFB73765",
-  "description": "Culturally appropriate everyday Aserai high-noble attire inspired by elite medieval Arabian and Persian-influenced aristocratic dress. Use exceptionally fine layered fabrics, graceful draping, richly stitched borders, elegant geometric embroidery, and luxurious but believable textile textures. Men should wear a noble robe or long structured outer coat over a fine tunic, secured with an ornate sash and refined clasps. Women should wear a richly layered long dress with flowing outer fabric, carefully tailored sleeves, elegant embroidery, and tasteful jewelry integrated into the outfit. The clothing should feel cultured, powerful, and extremely wealthy without becoming full ceremonial regalia. No headgear of any kind. No turbans, veils, hoods, armor, weapons, or crowns.",
-  "status": "failed",
-  "descriptionSource": "portrait_prompt_fallback",
-  "retryEligible": true,
-  "error": "{\"error\":{\"message\":\"Model \\\"zai-org/glm-5.2\\\" does not support image inputs. Remove image content or choose a multimodal model.\",\"type\":\"invalid_request_error\",\"param\":\"messages\",\"code\":\"image_input_not_supported\"}}",
-  "updatedUtc": "2026-07-18T22:03:32.9744482Z"
+  "imageSha256": "11D80277F4894BD63C36066801D968A3E4E8FEFABD7631B9D39D189979D4C7EA",
+  "description": "Nuqar wears a long warm brown brocade outer robe with broad gold geometric embroidered borders, over an ivory patterned long tunic with richly embroidered neckline and cuffs. A dark brown-and-gold woven sash with several refined circular metal clasps wraps his waist and hangs down the front in tasselled ends. Light tan trouser hems show above dark embroidered leather shoes. His uncovered hands are loosely clasped in front; his head is bare, with no armor or weapons.",
+  "status": "completed",
+  "descriptionSource": "agent_vision",
+  "retryEligible": false,
+  "error": "",
+  "updatedUtc": "2026-10-08T04:16:21.957Z"
 }

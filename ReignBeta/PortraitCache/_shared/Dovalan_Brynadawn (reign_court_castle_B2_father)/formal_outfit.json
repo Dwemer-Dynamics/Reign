@@ -3,11 +3,11 @@
   "heroStringId": "reign_court_castle_B2_father",
   "characterName": "Dovalan Brynadawn",
   "imagePath": "portrait.png",
-  "imageSha256": "10F73B0044BFA4AABF7945D79D62E339406AD6C70EE0E6003D401FE9FB041203",
-  "description": "Culturally appropriate everyday Battanian minor-lord attire inspired by refined Celtic and highland noble clothing. Use dense woven wool, quality linen, soft leather details, cleaner tailoring, decorative brooches, and more elaborate woven trim than ordinary landowners would possess. Men should wear a fitted tunic, practical trousers, a decorated belt, and a layered cloak fastened at the shoulder. Women should wear a long underdress with a tailored overdress, woven belt, elegant draped shawl, and restrained ornamental trim. Include subtle knotwork and geometric patterns without theatrical fantasy styling. No headgear of any kind. No armor, weapons, crowns, or ceremonial druid imagery.",
-  "status": "failed",
-  "descriptionSource": "portrait_prompt_fallback",
-  "retryEligible": true,
-  "error": "{\"error\":{\"message\":\"Model \\\"zai-org/glm-5.2\\\" does not support image inputs. Remove image content or choose a multimodal model.\",\"type\":\"invalid_request_error\",\"param\":\"messages\",\"code\":\"image_input_not_supported\"}}",
-  "updatedUtc": "2026-07-18T22:03:27.6394766Z"
+  "imageSha256": "4C6316D84FB092572157C70113C1379D26D326F57A3E3F9CDB0459E6798EB7F6",
+  "description": "Dark olive-grey wool tunic with warm gold-brown knotwork edging at neckline, cuffs and hem, cream linen underlayer visible below, broad decorated leather belt with medallions and long hanging strap, brown trousers and tall dark leather boots with wrapped straps. Layered dark green plaid woven cloak with knotwork border and fringed edge fastened at shoulder by a round brooch. Both hands visible, full tight curl cap and boots framed. No headgear, armor, weapon or text.",
+  "status": "completed",
+  "descriptionSource": "agent_vision",
+  "retryEligible": false,
+  "error": "",
+  "updatedUtc": "2026-10-08T00:29:04.200Z"
 }

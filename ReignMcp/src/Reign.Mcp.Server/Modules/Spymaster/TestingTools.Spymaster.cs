@@ -7,6 +7,111 @@ namespace Reign.Mcp.Server;
 
 public static partial class TestingTools
 {
+    [McpServerTool(Name = "reign_control_spymaster_action_test", ReadOnly = false, Destructive = true, Idempotent = false, UseStructuredContent = true)]
+    [Description("Prepares, captures, controls, observes or verifies up to three non-assassination Spymaster missions created by genuinely accepted action conversations in an exact enrolled disposable Current save. Success rolls are one-shot and mission-bound; this does not submit actions, synthesize consent, advance time or save.")]
+    public static async Task<ApiEnvelope> ControlSpymasterActionTest(
+        ReignApiClient api, ReignMcpOptions options, CampaignTestService campaignTests,
+        string campaignId, string campaignTestRunId, string fixtureRunId,
+        [AllowedValues("prepare", "capture", "control", "observe", "verify")] string phase,
+        string batchId = "accepted_actions",
+        [Description("Comma-separated exact saved conversation agreement IDs, one to three for capture/control/verify; empty for prepare/observe.")] string agreementIds = "",
+        [Description("Exact text required: control Reign Spymaster action test on disposable save")] string confirmation = "",
+        CancellationToken cancellationToken = default)
+    {
+        if (!options.AllowVerificationControl)
+            throw new InvalidOperationException("Verification control is disabled.");
+        InputGuard.RequireConfirmation(confirmation, "control Reign Spymaster action test on disposable save");
+        campaignId = RequiredIdentifier(campaignId, nameof(campaignId));
+        campaignTestRunId = RequiredIdentifier(campaignTestRunId, nameof(campaignTestRunId));
+        fixtureRunId = RequiredIdentifier(fixtureRunId, nameof(fixtureRunId));
+        batchId = RequiredIdentifier(batchId, nameof(batchId));
+        string[] ids = ParseSpymasterActionControlIds(phase, agreementIds);
+        CampaignTestAuthorization auth = await campaignTests.RequireArmedOwnedSaveAsync(
+            campaignTestRunId, campaignId, cancellationToken).ConfigureAwait(false);
+        return await api.PostAsync("/tests/live/run/start", BuildSpymasterActionControlRequest(
+            fixtureRunId, phase, batchId, ids, auth), cancellationToken).ConfigureAwait(false);
+    }
+
+    public static string[] ParseSpymasterActionControlIds(string phase, string agreementIds)
+    {
+        if (phase is not ("prepare" or "capture" or "control" or "observe" or "verify"))
+            throw new ArgumentException("Unsupported Spymaster action control phase.", nameof(phase));
+        if (agreementIds is null || agreementIds.Length > 384)
+            throw new ArgumentException("Agreement IDs exceed the bound.", nameof(agreementIds));
+        string[] ids = agreementIds.Length == 0 ? [] : agreementIds.Split(',')
+            .Select(x => RequiredIdentifier(x, nameof(agreementIds))).ToArray();
+        bool needsIds = phase is "capture" or "control" or "verify";
+        if (ids.Length > 3 || ids.Distinct(StringComparer.Ordinal).Count() != ids.Length
+            || (needsIds ? ids.Length == 0 : ids.Length != 0))
+            throw new ArgumentException("Supply one to three distinct agreement IDs only for capture/control/verify.", nameof(agreementIds));
+        return ids;
+    }
+
+    public static object BuildSpymasterActionControlRequest(string fixtureRunId, string phase,
+        string batchId, string[] agreementIds, CampaignTestAuthorization auth)
+        => BuildAcceptedSpymasterControlRequest(fixtureRunId, phase, batchId, agreementIds, auth, false);
+
+    [McpServerTool(Name = "reign_control_spymaster_destructive_action_test", ReadOnly = false, Destructive = true, Idempotent = false, UseStructuredContent = true)]
+    [Description("Controls only assassination missions from genuinely signed Spymaster action conversations in the exact enrolled paused disposable Current. Requires separate control and irreversible confirmations, a drained recovery checkpoint, and native death proof before restoring that checkpoint. Never submits actions or synthesizes consent.")]
+    public static async Task<ApiEnvelope> ControlSpymasterDestructiveActionTest(
+        ReignApiClient api, ReignMcpOptions options, CampaignTestService campaignTests,
+        string campaignId, string campaignTestRunId, string fixtureRunId,
+        [AllowedValues("prepare", "capture", "control", "observe", "verify")] string phase,
+        string batchId = "accepted_assassinations", string agreementIds = "",
+        [Description("Exact text required: control Reign Spymaster action test on disposable save")] string confirmation = "",
+        [Description("Exact text required: run irreversible Reign Spymaster test on disposable save")] string irreversibleConfirmation = "",
+        CancellationToken cancellationToken = default)
+    {
+        if (!options.AllowVerificationControl)
+            throw new InvalidOperationException("Verification control is disabled.");
+        RequireSpymasterDestructiveActionConfirmations(confirmation, irreversibleConfirmation);
+        campaignId = RequiredIdentifier(campaignId, nameof(campaignId));
+        campaignTestRunId = RequiredIdentifier(campaignTestRunId, nameof(campaignTestRunId));
+        fixtureRunId = RequiredIdentifier(fixtureRunId, nameof(fixtureRunId));
+        batchId = RequiredIdentifier(batchId, nameof(batchId));
+        string[] ids = ParseSpymasterActionControlIds(phase, agreementIds);
+        CampaignTestAuthorization auth = await campaignTests.RequireArmedOwnedSaveAsync(
+            campaignTestRunId, campaignId, cancellationToken).ConfigureAwait(false);
+        return await api.PostAsync("/tests/live/run/start", BuildSpymasterDestructiveActionControlRequest(
+            fixtureRunId, phase, batchId, ids, auth, confirmation, irreversibleConfirmation), cancellationToken).ConfigureAwait(false);
+    }
+
+    public static void RequireSpymasterDestructiveActionConfirmations(string confirmation, string irreversibleConfirmation)
+    {
+        InputGuard.RequireConfirmation(confirmation, "control Reign Spymaster action test on disposable save");
+        InputGuard.RequireConfirmation(irreversibleConfirmation, "run irreversible Reign Spymaster test on disposable save");
+    }
+
+    public static object BuildSpymasterDestructiveActionControlRequest(string fixtureRunId, string phase,
+        string batchId, string[] agreementIds, CampaignTestAuthorization auth, string confirmation, string irreversibleConfirmation)
+    {
+        RequireSpymasterDestructiveActionConfirmations(confirmation, irreversibleConfirmation);
+        return BuildAcceptedSpymasterControlRequest(fixtureRunId, phase, batchId, agreementIds, auth, true);
+    }
+
+    private static object BuildAcceptedSpymasterControlRequest(string fixtureRunId, string phase,
+        string batchId, string[] agreementIds, CampaignTestAuthorization auth, bool destructive)
+    {
+        // Repeat input validation for callers of the provider-free request contract.
+        fixtureRunId = RequiredIdentifier(fixtureRunId, nameof(fixtureRunId));
+        batchId = RequiredIdentifier(batchId, nameof(batchId));
+        agreementIds = ParseSpymasterActionControlIds(phase, string.Join(",", agreementIds));
+        var enrollment = new { source = destructive ? "reign_mcp_spymaster_destructive_action_control" : "reign_mcp_spymaster_action_control",
+            campaignTestRunId = auth.CampaignTestRunId, campaignId = auth.CampaignId,
+            timelineId = auth.TimelineId, disposableSaveName = auth.CurrentSaveName,
+            protectedBaselineSaveName = auth.BaselineSaveName };
+        return new { schemaVersion = 2, campaignId = auth.CampaignId, mode = "spymaster",
+            label = "MCP accepted Spymaster action " + phase, presentation = "visible", effects = "full",
+            autoCompleteWhenIdle = true, enrollment,
+            steps = new[] { new { operation = "spymaster_organic", actionControl = true,
+                destructiveActionControl = destructive,
+                irreversibleConfirmation = destructive ? "run irreversible Reign Spymaster test on disposable save" : "",
+                controlConfirmation = destructive ? "control Reign Spymaster action test on disposable save" : "",
+                fixtureRunId = (destructive ? "destructive_action_control_" : "action_control_") + fixtureRunId,
+                phase, batch = (destructive ? "destructive_action_" : "action_") + batchId,
+                agreementIds, enrollment, timeoutSeconds = 120 } } };
+    }
+
     [McpServerTool(Name = "reign_get_spymaster_test_manifest", ReadOnly = true, Destructive = false, Idempotent = true, UseStructuredContent = true)]
     [Description("Returns the durable Spymaster test profiles, isolation guarantees, coverage domains, and lifecycle requirements without starting a run.")]
     public static IReadOnlyDictionary<string, object> GetSpymasterTestManifest()

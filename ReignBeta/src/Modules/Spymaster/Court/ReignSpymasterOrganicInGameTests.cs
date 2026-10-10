@@ -4,6 +4,11 @@ using System.Linq;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using ReignBeta.Integration;
+using ReignBeta.Actions;
+using ReignBeta.Campaign;
+using ReignBeta.World;
+using Reign.Core.Contracts.Actions;
+using Reign.Core.Contracts.Court;
 using TaleWorlds.CampaignSystem;
 using TaleWorlds.CampaignSystem.Actions;
 using TaleWorlds.CampaignSystem.Settlements;
@@ -16,6 +21,163 @@ namespace ReignBeta.Court
         private const string OrganicIrreversibleConfirmation = "run irreversible Reign Spymaster test on disposable save";
         private const string ControlledOutcomeConfirmation = "force Reign Spymaster outcomes on disposable save";
         private const string ControlledAgentActionConfirmation = "force one Reign Spymaster foreign-agent action on disposable save";
+
+        internal JObject RunSpymasterActionControlProfile(string runId, string phase, JObject options)
+            => RunAcceptedSpymasterControlProfile(runId, phase, options, false);
+
+        internal JObject RunSpymasterDestructiveActionControlProfile(string runId, string phase, JObject options)
+        {
+            if (options.Value<bool?>("destructiveActionControl") != true
+                || options.Value<string>("irreversibleConfirmation") != OrganicIrreversibleConfirmation
+                || options.Value<string>("controlConfirmation") != "control Reign Spymaster action test on disposable save"
+                || (options["enrollment"] as JObject)?.Value<string>("source") != "reign_mcp_spymaster_destructive_action_control")
+                return OrganicFailure(runId, phase, "Accepted assassination controls require their separate irreversible authorization.");
+            return RunAcceptedSpymasterControlProfile(runId, phase, options, true);
+        }
+
+        private JObject RunAcceptedSpymasterControlProfile(string runId, string phase, JObject options, bool destructive)
+        {
+            try
+            {
+                if (!runId.StartsWith(destructive ? "destructive_action_control_" : "action_control_", StringComparison.Ordinal)
+                    || !((string)options["batch"] ?? "").StartsWith(destructive ? "destructive_action_" : "action_", StringComparison.Ordinal))
+                    throw new InvalidOperationException("Action controls require their own ledger and batch namespace.");
+                if (phase == "prepare")
+                    return PrepareOrganicLedger(runId, new JObject { ["confirmation"] = OrganicPrepareConfirmation });
+                if (phase == "observe") return ObserveOrganicTest(runId, options);
+                if (phase != "capture" && phase != "control" && phase != "verify")
+                    throw new InvalidOperationException("Unsupported accepted-action control phase.");
+                ReignSpymasterOrganicTestLedger ledger = FindOrganicLedger(runId);
+                if (ledger == null || !ledger.DisposableSaveConfirmed
+                    || ledger.CampaignId != ReignCampaignIdentity.CurrentCampaignId()
+                    || ledger.SpymasterHeroStringId != ActiveSpymaster?.StringId)
+                    throw new InvalidOperationException("Prepare a ledger for the current campaign and appointed Spymaster first.");
+                List<ReignSpymasterMission> missions = AcceptedActionControlMissions(ledger, options, phase != "verify", destructive);
+                if (phase == "capture")
+                {
+                    JObject captured = CaptureOrganicMissions(runId, options, missions);
+                    if (destructive && captured.Value<bool?>("ok") == true)
+                    {
+                        var capturedBatch = ledger.Batches.Last(x => x.Label == (string)options["batch"]);
+                        JArray targets = new JArray(missions.Select(m =>
+                        {
+                            Hero target = AcceptedAssassinationHero(m);
+                            return new JObject { ["missionId"] = m.MissionId, ["targetId"] = m.TargetStringId,
+                                ["heroId"] = target?.StringId, ["isAlive"] = target?.IsAlive == true };
+                        }));
+                        JObject before = JObject.Parse(capturedBatch.PreSnapshotJson);
+                        before["acceptedAssassinationTargets"] = targets;
+                        string retained = before.ToString(Formatting.None);
+                        if (retained.Length > OrganicLedgerMaxStoredJsonChars)
+                            throw new InvalidOperationException("The bounded assassination target receipt exceeds the retained snapshot limit.");
+                        capturedBatch.PreSnapshotJson = retained;
+                        captured["assassinationTargetsBefore"] = targets.DeepClone();
+                        captured["batch"] = JObject.FromObject(capturedBatch);
+                        StateChanged?.Invoke();
+                    }
+                    return captured;
+                }
+                var batch = ledger.Batches.LastOrDefault(x => x.Label == (string)options["batch"]);
+                if (batch == null || batch.MissionIds.Count != missions.Count
+                    || !new HashSet<string>(batch.MissionIds, StringComparer.Ordinal).SetEquals(missions.Select(x => x.MissionId)))
+                    throw new InvalidOperationException("The exact accepted agreements must match the captured batch.");
+                var bounded = new JObject { ["batch"] = options["batch"], ["minimum"] = missions.Count,
+                    ["confirmation"] = ControlledOutcomeConfirmation, ["unitRoll"] = 0f };
+                if (phase == "control") return ControlOrganicMissionOutcomes(runId, bounded);
+                JObject verified = VerifyControlledMissionOutcomes(runId, bounded);
+                if (destructive)
+                {
+                    JArray assertions = (JArray)verified["assertions"];
+                    var targets = new JArray(missions.Select(m =>
+                    {
+                        Hero target = CapturedAssassinationHero(batch, m.MissionId);
+                        return new JObject { ["missionId"] = m.MissionId, ["targetId"] = m.TargetStringId,
+                            ["heroId"] = target?.StringId,
+                            ["isDead"] = target?.IsDead == true, ["isAlive"] = target?.IsAlive == true };
+                    }));
+                    AddOrganicAssertion(assertions, "accepted_assassination_native_deaths",
+                        targets.All(t => t.Value<bool>("isDead") && !t.Value<bool>("isAlive"))
+                        && missions.All(m => (m.ResultSummary ?? "").StartsWith(
+                            CapturedAssassinationHero(batch, m.MissionId)?.Name + " was assassinated.", StringComparison.Ordinal)),
+                        "Every exact signed assassination target died through the production resolver.", targets);
+                    verified = OrganicResult(runId, "verify_controlled_outcomes", assertions);
+                    verified["state"] = OrganicStateSnapshot(ledger);
+                }
+                return verified;
+            }
+            catch (Exception ex) { return OrganicFailure(runId, phase, ex.Message); }
+        }
+
+        private List<ReignSpymasterMission> AcceptedActionControlMissions(ReignSpymasterOrganicTestLedger ledger,
+            JObject options, bool requireActive, bool destructive)
+        {
+            JArray ids = options["agreementIds"] as JArray;
+            if (ids == null || ids.Count < 1 || ids.Count > 3 || ids.Any(x => x.Type != JTokenType.String)
+                || ids.Values<string>().Distinct(StringComparer.Ordinal).Count() != ids.Count)
+                throw new InvalidOperationException("Supply one to three distinct saved conversation agreement IDs.");
+            var result = new List<ReignSpymasterMission>();
+            foreach (string id in ids.Values<string>())
+            {
+                AgreementJournal journal = ReignAgreementBehavior.Instance?.Agreements.FirstOrDefault(x => x.Agreement.Id == id);
+                ActionAgreement agreement = journal?.Agreement;
+                string context = ReignCampaignIdentity.CurrentCampaignId() + ":"
+                    + (ReignWorldHistoryCampaignBehavior.Instance?.TimelineId ?? "main") + ":" + ActiveSpymaster?.StringId;
+                if (agreement == null || journal.OperatorAuthorized || agreement.Origin != ActionOrigin.Conversation
+                    || !agreement.HasBothConsents || journal.CommittedHash != agreement.TermsHash()
+                    || agreement.PlayerId != Hero.MainHero?.StringId || agreement.NpcId != ActiveSpymaster?.StringId
+                    || agreement.ConversationId != context || agreement.Failure.Length > 0
+                    || (requireActive && agreement.State != AgreementState.Waiting && agreement.State != AgreementState.InTransit)
+                    || agreement.Clauses.Count < 1 || agreement.Clauses.Count > 3)
+                    throw new InvalidOperationException("Only exact consenting, current, non-operator Spymaster conversations can be controlled.");
+                foreach (ActionClause clause in agreement.Clauses)
+                {
+                    if (!clause.ActionId.StartsWith("spymaster.", StringComparison.Ordinal)
+                        || clause.ActionId.StartsWith("spymaster.assassinate_", StringComparison.Ordinal) != destructive
+                        || !ReignActionCatalog.All.Any(x => x.Id == clause.ActionId)
+                        || clause.ActorId != ActiveSpymaster?.StringId || clause.RecipientId != Hero.MainHero?.StringId)
+                        throw new InvalidOperationException(destructive
+                            ? "Only registered assassination Spymaster clauses are allowed in the separately authorized route."
+                            : "Only registered non-assassination Spymaster clauses are allowed.");
+                    AgreementStep step = journal.Steps.SingleOrDefault(x => x.ClauseId == clause.Id && x.Installment == 0);
+                    JObject receipt = step == null || string.IsNullOrEmpty(step.Snapshot) ? null : JObject.Parse(step.Snapshot);
+                    string operation = "sa_" + ReignCourtTerms.Hash(agreement.Id + ":" + clause.Id);
+                    ReignSpymasterMission mission = EnsureSpymasterState().Missions.FirstOrDefault(x => x.MissionId == operation);
+                    if (step == null || !step.Started || step.Returned || receipt?.Value<string>("missionId") != operation
+                        || receipt.Value<string>("operationId") != operation || mission == null
+                        || mission.SpymasterHeroStringId != ActiveSpymaster?.StringId || mission.MissionType != SpyType(clause)
+                        || mission.TargetStringId != SpyTarget(clause) || mission.StartedDay + 0.001f < ledger.StartedDay
+                        || ledger.InitialMissionIds.Contains(operation) || requireActive && (step.Completed || mission.State != ReignSpymasterMissionState.Active))
+                        throw new InvalidOperationException("The accepted step must identify its exact production mission after preparation.");
+                    if (destructive)
+                    {
+                        var capturedBatch = ledger.Batches.LastOrDefault(x => x.Label == (string)options["batch"]);
+                        Hero capturedTarget = capturedBatch == null ? null : CapturedAssassinationHero(capturedBatch, mission.MissionId);
+                        Hero target = requireActive ? AcceptedAssassinationHero(mission) : capturedTarget;
+                        if (target == null || target == Hero.MainHero || target == ActiveSpymaster
+                            || requireActive && !target.IsAlive || capturedBatch != null && target != capturedTarget)
+                            throw new InvalidOperationException("Accepted assassination controls require the exact captured living target outside the player and appointed Spymaster.");
+                    }
+                    result.Add(mission);
+                }
+            }
+            if (result.Count > 3 || result.Select(x => x.MissionId).Distinct(StringComparer.Ordinal).Count() != result.Count)
+                throw new InvalidOperationException("At most three distinct accepted production missions can be controlled.");
+            return result;
+        }
+
+        private Hero AcceptedAssassinationHero(ReignSpymasterMission mission) =>
+            mission.MissionType == "assassinate_governor"
+                ? FindSettlement(mission.TargetStringId)?.Town?.Governor : FindHero(mission.TargetStringId);
+
+        private static Hero CapturedAssassinationHero(ReignSpymasterOrganicBatchRecord batch, string missionId)
+        {
+            JArray targets = JObject.Parse(batch.PreSnapshotJson)["acceptedAssassinationTargets"] as JArray;
+            JToken target = targets?.SingleOrDefault(x => x.Value<string>("missionId") == missionId);
+            if (target?.Value<bool?>("isAlive") != true) return null;
+            string heroId = target.Value<string>("heroId");
+            return Hero.AllAliveHeroes.Concat(Hero.DeadOrDisabledHeroes)
+                .FirstOrDefault(x => x != null && x.StringId == heroId);
+        }
 
         internal JObject RunSpymasterOrganicProfile(string runId, string phase, JObject options)
         {
@@ -137,15 +299,17 @@ namespace ReignBeta.Court
             return result;
         }
 
-        private JObject CaptureOrganicMissions(string runId, JObject options)
+        private JObject CaptureOrganicMissions(string runId, JObject options, List<ReignSpymasterMission> accepted = null)
         {
             ReignSpymasterOrganicTestLedger ledger = FindOrganicLedger(runId);
             if (ledger == null || !ledger.DisposableSaveConfirmed)
                 return OrganicFailure(runId, "capture", "Prepare the organic ledger on a disposable save first.");
             ReignSpymasterState state = EnsureSpymasterState();
             HashSet<string> known = new HashSet<string>(ledger.InitialMissionIds.Concat(ledger.MissionIds), StringComparer.OrdinalIgnoreCase);
-            List<ReignSpymasterMission> added = state.Missions.Where(x => x.StartedDay + 0.001f >= ledger.StartedDay && !known.Contains(x.MissionId))
+            List<ReignSpymasterMission> added = (accepted ?? state.Missions).Where(x => x.StartedDay + 0.001f >= ledger.StartedDay && !known.Contains(x.MissionId))
                 .OrderBy(x => x.StartedDay).ToList();
+            if (accepted != null && (added.Count != accepted.Count || ledger.Batches.Any(x => x.Label == (string)options["batch"])))
+                return OrganicFailure(runId, "capture", "Accepted mission capture is exactly once; use observe/control on the retained batch.");
             string label = (string)options["batch"] ?? "organic_batch";
             ReignSpymasterOrganicBatchRecord batch = new ReignSpymasterOrganicBatchRecord
             {
@@ -171,8 +335,8 @@ namespace ReignBeta.Court
                     ["missionIds"] = new JArray(batch.MissionIds)
                 });
             AddOrganicAssertion(assertions, "organic_native_random_path", !ReignSpymasterTestRuntime.Active
-                && added.All(x => (x.MissionId ?? string.Empty).StartsWith("spy_", StringComparison.OrdinalIgnoreCase)
-                    && !(x.MissionId ?? string.Empty).StartsWith("spytest_", StringComparison.OrdinalIgnoreCase)),
+                && (accepted != null || added.All(x => (x.MissionId ?? string.Empty).StartsWith("spy_", StringComparison.OrdinalIgnoreCase)
+                    && !(x.MissionId ?? string.Empty).StartsWith("spytest_", StringComparison.OrdinalIgnoreCase))),
                 "Captured missions use ordinary production IDs and native Bannerlord rolls.", null);
             JObject result = OrganicResult(runId, "capture", assertions);
             result["batch"] = JObject.FromObject(batch);

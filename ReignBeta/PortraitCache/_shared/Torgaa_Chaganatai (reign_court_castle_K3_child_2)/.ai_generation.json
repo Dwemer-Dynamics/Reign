@@ -1,16 +1,90 @@
 {
   "version": 1,
+  "schema": "reign-builtin-chat-reference-guided-image-generation-culture-v1",
   "cacheKey": "Torgaa_Chaganatai (reign_court_castle_K3_child_2)",
   "heroStringId": "reign_court_castle_K3_child_2",
   "characterObjectId": "reign_court_castle_K3_child_2",
   "characterName": "Torgaa Chaganatai",
-  "provider": "AtlasCloud",
-  "model": "xai/grok-imagine-image/edit",
-  "adapter": "atlas upload/generate/poll",
+  "worker": "worker-1",
+  "generatedOriginalPath": "C:\\Users\\speed\\.codex\\generated_images\\01a11c35-9331-7471-a03c-9fcc53956ad3\\exec-2d57fdf5-dcee-47bb-a3f9-51d1e76b084b.png",
+  "sourceFileCreationUtc": "2026-10-08T21:17:07.061Z",
+  "generationRequestId": "a125edb2-2d61-47c5-a7df-5acc57671a2b",
+  "generationRequestSha256": "2279b4883499ac7933371c91166cf8cca3a03704b814d9bae40dae6a37f51ef6",
+  "generationReturnSha256": "f13a4b44cf45b16cec87f41f95a5b2314f40e3dd99698a0fba8b783e8c047ea8",
+  "provider": "Codex built-in image_gen",
+  "model": "unknown",
+  "adapter": "old-face-identity/new-style-reference-guided",
+  "generationMode": "reference_guided",
+  "inputImages": 2,
+  "references": [
+    {
+      "id": "reign_court_castle_K3_child_2",
+      "role": "old_identity",
+      "path": "D:\\Program Files (x86)\\Steam\\steamapps\\common\\Mount & Blade II Bannerlord\\Modules\\ReignBeta\\PortraitCache\\_shared\\Torgaa_Chaganatai (reign_court_castle_K3_child_2)\\portrait_chest.png",
+      "sha256": "238b6318229a134effcf0b8238d8c33bd575f38663450052e39c5ef6c60b7ab1",
+      "originalReference": {
+        "path": "D:\\Program Files (x86)\\Steam\\steamapps\\common\\Mount & Blade II Bannerlord\\Modules\\ReignBeta\\PortraitCache\\_shared\\Torgaa_Chaganatai (reign_court_castle_K3_child_2)\\portrait_chest.png",
+        "sha256": "238b6318229a134effcf0b8238d8c33bd575f38663450052e39c5ef6c60b7ab1"
+      }
+    },
+    {
+      "id": "reign_court_castle_K3_child_2",
+      "role": "new_style",
+      "path": "C:\\ReignPortraitRebuild\\2026-10-07-01a11741-culture-v2\\audit\\residual-correction-phase4-001\\reign_court_castle_K3_child_2\\predecessor-files\\_shared\\Torgaa_Chaganatai (reign_court_castle_K3_child_2)\\portrait.png",
+      "sha256": "19d9482e6e421db660070ac656d2d351cd7f13d76a549f6e626e2594fdb4d7e0",
+      "originalReference": {
+        "path": "C:\\ReignPortraitRebuild\\2026-10-07-01a11741-culture-v2\\_shared\\Torgaa_Chaganatai (reign_court_castle_K3_child_2)\\portrait.png",
+        "sha256": "19d9482e6e421db660070ac656d2d351cd7f13d76a549f6e626e2594fdb4d7e0"
+      }
+    }
+  ],
+  "referenceGuidedExecution": {
+    "schema": "reign-portrait-reference-guided-execution-v1",
+    "generationMode": "reference_guided",
+    "inputImages": 2,
+    "references": [
+      {
+        "id": "reign_court_castle_K3_child_2",
+        "role": "old_identity",
+        "path": "D:\\Program Files (x86)\\Steam\\steamapps\\common\\Mount & Blade II Bannerlord\\Modules\\ReignBeta\\PortraitCache\\_shared\\Torgaa_Chaganatai (reign_court_castle_K3_child_2)\\portrait_chest.png",
+        "sha256": "238b6318229a134effcf0b8238d8c33bd575f38663450052e39c5ef6c60b7ab1",
+        "originalReference": {
+          "path": "D:\\Program Files (x86)\\Steam\\steamapps\\common\\Mount & Blade II Bannerlord\\Modules\\ReignBeta\\PortraitCache\\_shared\\Torgaa_Chaganatai (reign_court_castle_K3_child_2)\\portrait_chest.png",
+          "sha256": "238b6318229a134effcf0b8238d8c33bd575f38663450052e39c5ef6c60b7ab1"
+        }
+      },
+      {
+        "id": "reign_court_castle_K3_child_2",
+        "role": "new_style",
+        "path": "C:\\ReignPortraitRebuild\\2026-10-07-01a11741-culture-v2\\audit\\residual-correction-phase4-001\\reign_court_castle_K3_child_2\\predecessor-files\\_shared\\Torgaa_Chaganatai (reign_court_castle_K3_child_2)\\portrait.png",
+        "sha256": "19d9482e6e421db660070ac656d2d351cd7f13d76a549f6e626e2594fdb4d7e0",
+        "originalReference": {
+          "path": "C:\\ReignPortraitRebuild\\2026-10-07-01a11741-culture-v2\\_shared\\Torgaa_Chaganatai (reign_court_castle_K3_child_2)\\portrait.png",
+          "sha256": "19d9482e6e421db660070ac656d2d351cd7f13d76a549f6e626e2594fdb4d7e0"
+        }
+      }
+    ],
+    "textCompositionImageInputs": 0,
+    "textVerificationSha256": "8802ea46df1a424a98085887f708ddc549479cb437fb60374d82a49fa8096298",
+    "textPromptSha256": "20120a6e240bddfa0ec5a1e97f39f2228c584667cf9ec56820dfa2fb38b2ec7a",
+    "compositionProofSha256": "1792472ae501fc0b79c4a7ff9bd11ea1e2ff0eb0d6aba5c44d80eca6febba596",
+    "rootCompositionReview": {
+      "path": "C:\\ReignPortraitRebuild\\2026-10-07-01a11741-culture-v2\\audit\\root-full32-prompt-composition-review-001\\reign_court_castle_K3_child_2\\root-hybrid-composition-review.json",
+      "sha256": "91dedd146ea0895c434d0f9e2690ed80ef5d2d153dc5dfe69fb6526074fea95b"
+    }
+  },
   "sourceSha256": "9568f84a654aaa2faa26fe737327b89aba9285eaf1b00472b41ccb0b2d68adb9",
-  "portraitSha256": "d09545e8044ae1d82a122a4843bc7737c8c205034a07812148f6aa768d177ac0",
-  "portraitWidth": 864,
-  "portraitHeight": 1152,
+  "portraitSha256": "c604c0239c62ae6a853040db7bcb74d8352db89d3cfee1557c9f0843bfa2a8ad",
+  "portraitWidth": 1086,
+  "portraitHeight": 1448,
+  "promptSha256": "4bf346950056c7cc2510ef8e47b102ede1a9fd60e4de0aba2b6d70a2d8dc6d24",
+  "descriptionSha256": "15f7847b9eb7a8bc76e9b6f9bbb11f6b7ab5362b9c1c35f0f8229ae9c672d24c",
+  "cultureId": "khuzait",
+  "cultureReferenceKey": "khuzait",
+  "cultureReference": "Primarily Mongolian, blended with Central Asian regional appearance.",
+  "cultureLayerFile": "portrait_facial_culture_khuzait.txt",
+  "cultureLayerFullText": "FACIAL CULTURAL APPEARANCE — KHUZAIT\nStored cultureId: khuzait.\nRegional reference: Primarily Mongolian, blended with Central Asian regional appearance.\nCreate a believable real human face with this regional appearance. Apply the regional reference positively to facial appearance, facial structure and complexion; it is not only a clothing, setting or background instruction.\nBlend the regional reference with the individual facial description. Where simplified native geometry or game-renderer shading differs from this regional appearance, use a plausible natural blend while retaining recognizable individual traits: face outline, relative proportions, eyes, brows, nose, mouth, jaw and chin. Preserve the described hair identity, arrangement and texture, facial-hair pattern, eye character, visible scars and markings; do not invent new distinguishing marks.\nThese regional populations contain substantial individual variation. Do not give every member the same face, impose a universal skin, hair or eye color, or replace the written individual identity with a generic regional stereotype. Preserve source-grounded differences and natural human asymmetry.\nKeep the exact authored age and the independent native weight and build values. This layer applies to facial appearance and realistic complexion interpretation, not body size, muscularity, garment coverage or social rank. Every complete composition, clothing, confidence, photographic, output and physique modifier remains in effect. Do not print this reference or any metadata in the image.",
+  "cultureLayerSha256": "8021b483ac49323c920d9d6e899966a6be02ae6e6bd42441d6a3bac4420cbda6",
   "physicalConfidence": {
     "definition": "physical_confidence",
     "score": 63,
@@ -21,7 +95,10 @@
     "confidenceWeight": 0.25,
     "source": "shipped_profile_library"
   },
+  "confidenceCoverageOverride": "Corein opaque41–60 court variant",
   "derivativesReady": true,
   "derivativeError": "",
-  "generatedUtc": "2026-07-17T19:17:22.5636401Z"
+  "generatedUtc": "2026-10-08T21:17:24.660Z",
+  "serverSigned": false,
+  "derivativeReportSha256": "7dce67e2dcc976a65f7db6e111ba4e8f5f84da92b974245c25a83a3b7e9f6eec"
 }

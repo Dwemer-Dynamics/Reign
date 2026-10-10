@@ -1,5 +1,7 @@
 # Reign Interface Design Rules
 
+The 2026-10-03 explicit action-composer requirement adds `textAction` (white) to the palette for indivisible structured action sentences within the existing chat editor. Ordinary speech remains `textPrimary`; native selected text may use white over its highlight. This is a scoped semantic text role, not permission for white panels, borders, or ornaments. Keep the existing composer geometry and ReignSerifDynamic font.
+
 This document is the mandatory human-readable standard for all Reign interface design and implementation. It applies to standalone Gauntlet screens, embedded panels, cards, popups, native-screen augmentations, portraits, banners, generated scene apertures, controls, hover/selected/disabled states, and future redesigns.
 
 The visual target is the restrained black-marble and antique-gold court style shown by the approved Spymaster, Correspondence, Memories Book, Diplomacy Announcement, Family Chambers, and Royal Council designs. The result must feel formal, quiet, readable, symmetrical where appropriate, and materially consistent. It must not become bright fantasy gold, brown parchment UI, generic grey game UI, or a mixture of old and new Reign graphics.

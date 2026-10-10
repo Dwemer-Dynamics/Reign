@@ -7,6 +7,7 @@ using Newtonsoft.Json.Linq;
 using ReignBeta.Court;
 using ReignBeta.Runtime;
 using ReignBeta.Settings;
+using ReignBeta.World;
 using TaleWorlds.CampaignSystem;
 using TaleWorlds.CampaignSystem.Actions;
 using TaleWorlds.CampaignSystem.Party;
@@ -17,9 +18,69 @@ namespace ReignBeta.Integration
     public static partial class ReignServerClient
     {
         private static int _correspondenceTickInFlight;
+        private static int _autonomousCorrespondenceInFlight;
 
         public static int CorrespondenceTickInFlight =>
-            Volatile.Read(ref _correspondenceTickInFlight);
+            Volatile.Read(ref _correspondenceTickInFlight) + Volatile.Read(ref _autonomousCorrespondenceInFlight)
+            + (ReignBeta.Campaign.ReignRelationshipCampaignBehavior.Instance?.CorrespondenceApplyPending == true ? 1 : 0);
+
+        public static async Task<bool> EvaluateAutonomousCorrespondenceAsync()
+        {
+            Interlocked.Increment(ref _autonomousCorrespondenceInFlight);
+            try
+            {
+                string campaignId = GetCampaignId();
+                string playerId = Hero.MainHero?.StringId ?? string.Empty;
+                double day = CurrentWorldDay();
+                JObject ids = await PostJsonAsync("/correspondence/autonomous/candidates", new JObject
+                {
+                    ["campaignId"] = campaignId, ["playerId"] = playerId
+                }).ConfigureAwait(false);
+                JArray candidates = await ReignMainThread.InvokeAsync(() =>
+                {
+                    var rows = new JArray();
+                    Hero player = Hero.MainHero;
+                    if (player == null) return rows;
+                    foreach (string id in (ids["heroIds"] as JArray ?? new JArray()).Values<string>())
+                    {
+                        Hero hero = ReignObjectResolver.FindHero(id);
+                        if (hero == null || !ReignConversationEligibility.IsAdultLivingNpc(hero)
+                            || hero.PartyBelongedTo == MobileParty.MainParty) continue;
+                        ReignLetterRoute route = CalculateLetterRoute(hero, player, day);
+                        var candidate = new JObject
+                        {
+                            ["heroId"] = hero.StringId,
+                            ["name"] = hero.Name?.ToString() ?? hero.StringId,
+                            ["known"] = IsLegitimateContact(player, hero),
+                            ["profile"] = BuildHeroProfile(hero),
+                            ["originId"] = route.OriginId,
+                            ["destinationId"] = route.DestinationId,
+                            ["transitDays"] = Math.Max(0.25d, route.DeliveryDay - day)
+                        };
+                        ConfigureStructuredActions(candidate, hero, null);
+                        rows.Add(candidate);
+                    }
+                    return rows;
+                }).ConfigureAwait(false);
+                JObject response = await PostJsonAsync("/correspondence/autonomous/evaluate", new JObject
+                {
+                    ["campaignId"] = campaignId, ["playerId"] = playerId,
+                    ["playerName"] = await ReignMainThread.InvokeAsync(() => Hero.MainHero?.Name?.ToString() ?? "Player").ConfigureAwait(false),
+                    ["worldDay"] = day,
+                    ["candidates"] = candidates
+                }).ConfigureAwait(false);
+                return response.Value<bool?>("ok") == true;
+            }
+            catch (Exception ex)
+            {
+                ReignLog.Warn("Autonomous correspondence evaluation failed: " + ex.Message);
+                return false;
+            }
+            finally
+            {
+                Interlocked.Decrement(ref _autonomousCorrespondenceInFlight);
+            }
+        }
 
         public static List<Hero> GetKnownCorrespondenceContacts()
         {
@@ -73,7 +134,8 @@ namespace ReignBeta.Integration
         public static async Task<ReignLetterSendResult> SendLetterAsync(
             Hero recipient,
             string body,
-            string correlationId)
+            string correlationId,
+            Reign.Core.Contracts.Actions.ActionAgreement actionDraft = null)
         {
             ReignLetterSendResult result = new ReignLetterSendResult();
             try
@@ -96,6 +158,7 @@ namespace ReignBeta.Integration
                     ["recipientName"] = recipient.Name?.ToString() ?? recipient.StringId,
                     ["body"] = body,
                     ["source"] = "player",
+                    ["timelineId"] = ReignBeta.Campaign.ReignWorldHistoryCampaignBehavior.Instance?.TimelineId ?? "main",
                     ["dispatchDay"] = day,
                     ["deliveryDay"] = route.DeliveryDay,
                     ["originId"] = route.OriginId,
@@ -108,10 +171,11 @@ namespace ReignBeta.Integration
                     ["speakerHeroStringId"] = recipient.StringId,
                     ["speakerKingdomId"] = recipient.Clan?.Kingdom?.StringId ?? string.Empty,
                     ["speakerClanId"] = recipient.Clan?.StringId ?? string.Empty,
-                    ["correlationId"] = correlationId ?? string.Empty,
+                    ["correlationId"] = string.IsNullOrWhiteSpace(correlationId) ? NewCorrelationId("letter", recipient.StringId) : correlationId,
                     ["actionResolutionIndex"] = BuildActionResolutionIndex(recipient,
                         new List<Hero> { recipient }, true)
                 };
+                await ReignMainThread.InvokeAsync(() => ConfigureStructuredActions(payload, recipient, actionDraft)).ConfigureAwait(false);
                 JObject response = await PostJsonAsync("/correspondence/send", payload).ConfigureAwait(false);
                 result.Ok = response.Value<bool?>("ok") == true;
                 result.Error = response.Value<string>("error") ?? string.Empty;
@@ -228,18 +292,26 @@ namespace ReignBeta.Integration
             return result;
         }
 
-        public static async Task<ReignCorrespondenceTickResult> TickCorrespondenceAsync()
+        public static async Task<ReignCorrespondenceTickResult> TickCorrespondenceAsync(string phase = "all", IEnumerable<string> deliveryReceiptAcks = null)
         {
             Interlocked.Increment(ref _correspondenceTickInFlight);
             ReignCorrespondenceTickResult result = new ReignCorrespondenceTickResult();
             try
             {
+                var expectedCampaign = await ReignMainThread.InvokeAsync(() => TaleWorlds.CampaignSystem.Campaign.Current).ConfigureAwait(false);
+                string expectedTimeline = ReignBeta.Campaign.ReignWorldHistoryCampaignBehavior.Instance?.TimelineId ?? "main";
                 JObject response = await PostJsonAsync("/correspondence/tick", new JObject
                 {
                     ["campaignId"] = GetCampaignId(),
                     ["playerId"] = Hero.MainHero?.StringId ?? string.Empty,
-                    ["worldDay"] = CurrentWorldDay()
+                    ["worldDay"] = CurrentWorldDay(),
+                    ["timelineId"] = ReignBeta.Campaign.ReignWorldHistoryCampaignBehavior.Instance?.TimelineId ?? "main",
+                    ["phase"] = phase,
+                    ["deliveryReceiptAcks"] = new JArray(deliveryReceiptAcks ?? Enumerable.Empty<string>())
                 }).ConfigureAwait(false);
+                result.TimelineId = response.Value<string>("timelineId") ?? "";
+                result.PendingReplyCount = response.Value<int?>("pendingReplyCount") ?? 0;
+                result.DeliveryReceiptIds = (response["deliveryReceiptIds"] as JArray ?? new JArray()).Values<string>().ToList();
                 result.Ok = response.Value<bool?>("ok") == true;
                 result.Error = response.Value<string>("error") ?? string.Empty;
                 result.DeliveredLetters = ParseLetters(response["deliveredLetters"] as JArray);
@@ -253,6 +325,19 @@ namespace ReignBeta.Integration
                         EventId = ReadFirst(obj, "event_id", "eventId")
                     }).ToList();
                 result.QueuedActions = ParseQueuedActionRows(response["queuedActions"]);
+                await ReignMainThread.InvokeAsync(() =>
+                {
+                    if (!ReferenceEquals(expectedCampaign, TaleWorlds.CampaignSystem.Campaign.Current)
+                        || expectedTimeline != (ReignBeta.Campaign.ReignWorldHistoryCampaignBehavior.Instance?.TimelineId ?? "main"))
+                        throw new InvalidOperationException("The campaign changed before the delivered action response arrived.");
+                    foreach (var delivery in (response["structuredActionDeliveries"] as JArray ?? new JArray()).OfType<JObject>())
+                    {
+                        var request = delivery["request"] as JObject; var answer = delivery["response"] as JObject;
+                        if (request == null || answer == null) continue;
+                        var npc = ReignObjectResolver.FindHero(request["structuredActionContext"]?.Value<string>("npcId"));
+                        ProcessStructuredActionDecision(request, answer, npc, "letter:" + delivery.Value<string>("letterId"));
+                    }
+                }).ConfigureAwait(false);
             }
             catch (Exception ex)
             {
@@ -516,6 +601,10 @@ namespace ReignBeta.Integration
                 ["speakerResults"] = speakerResults
             };
             if (!string.IsNullOrWhiteSpace(correlationId)) payload["correlationId"] = correlationId;
+            var relationCampaign = TaleWorlds.CampaignSystem.Campaign.Current;
+            payload["nativeReceiptProtocol"] = "reign-native-relationship-receipt-v2";
+            var relationBehavior = ReignBeta.Campaign.ReignRelationshipCampaignBehavior.Instance;
+            string relationTimeline = ReignBeta.Campaign.ReignWorldHistoryCampaignBehavior.Instance?.TimelineId ?? "main";
             JObject response = await PostJsonAsync("/relationships/conversation/evaluate", payload).ConfigureAwait(false);
             if (response.Value<bool?>("ok") != true) return response;
             foreach (JObject change in (response["nativeChanges"] as JArray ?? new JArray()).OfType<JObject>())
@@ -526,24 +615,19 @@ namespace ReignBeta.Integration
                 bool show = change.Value<bool?>("showNotification") == true;
                 if (subject != null && target != null && subject != target)
                 {
-                    int priorNativeRelation = subject.GetRelation(target);
-                    if (delta != 0)
-                    {
-                        await ReignMainThread.InvokeAsync(() => ChangeRelationAction.ApplyRelationChangeBetweenHeroes(subject, target, delta, show)).ConfigureAwait(false);
-                    }
                     JArray receiptIds = change["receiptIds"] as JArray ?? new JArray();
-                    JObject nativeReceipt = new JObject
+                    JObject nativeReceipt = null;
+                    await ReignMainThread.InvokeAsync(() =>
                     {
-                        ["subjectId"] = subject.StringId,
-                        ["targetId"] = target.StringId,
-                        ["delta"] = delta,
-                        ["priorNativeRelation"] = priorNativeRelation,
-                        ["nativeRelation"] = subject.GetRelation(target),
-                        ["appliedUtc"] = DateTimeOffset.UtcNow.ToString("o")
-                    };
+                        if (relationBehavior == null || !ReferenceEquals(relationBehavior, ReignBeta.Campaign.ReignRelationshipCampaignBehavior.Instance)
+                            || !ReferenceEquals(relationCampaign, TaleWorlds.CampaignSystem.Campaign.Current)
+                            || relationTimeline != (ReignBeta.Campaign.ReignWorldHistoryCampaignBehavior.Instance?.TimelineId ?? "main"))
+                            throw new InvalidOperationException("The campaign changed before the relationship effect could be applied.");
+                        nativeReceipt = relationBehavior.ApplyConversationRelationOnce(receiptIds.Values<string>(), subject, target, delta, show);
+                    }).ConfigureAwait(false);
                     JObject acknowledgement = await PostJsonAsync("/relationships/conversation/native-receipt", new JObject
                     {
-                        ["campaignId"] = GetCampaignId(),
+                        ["campaignId"] = payload.Value<string>("campaignId"),
                         ["receiptIds"] = receiptIds.DeepClone(),
                         ["nativeReceipt"] = nativeReceipt
                     }).ConfigureAwait(false);
@@ -568,9 +652,17 @@ namespace ReignBeta.Integration
                 || (hero.Clan != null && hero.Clan == player.Clan);
         }
 
+        internal static double ActionDeliveryDays(Hero sender, Hero recipient, double day)
+        {
+            if (sender == null || recipient == null) throw new InvalidOperationException("Both delivery participants must still exist.");
+            return Math.Max(0.25d, CalculateLetterRoute(sender, recipient, day).DeliveryDay - day);
+        }
+
         private static ReignLetterRoute CalculateLetterRoute(Hero sender, Hero recipient, double day)
         {
-            Settlement origin = sender.CurrentSettlement ?? MobileParty.MainParty?.CurrentSettlement ?? Settlement.CurrentSettlement;
+            Settlement origin = sender.CurrentSettlement ?? sender.PartyBelongedTo?.CurrentSettlement;
+            if (sender == Hero.MainHero)
+                origin = origin ?? MobileParty.MainParty?.CurrentSettlement ?? Settlement.CurrentSettlement;
             Settlement destination = recipient.CurrentSettlement ?? recipient.PartyBelongedTo?.CurrentSettlement;
             if (origin != null && destination != null && origin == destination)
             {
@@ -581,7 +673,9 @@ namespace ReignBeta.Integration
             bool hasDistance = false;
             try
             {
-                var originPosition = sender.PartyBelongedTo?.GetPosition2D ?? MobileParty.MainParty?.GetPosition2D ?? origin?.GetPosition2D;
+                var originPosition = sender.PartyBelongedTo?.GetPosition2D
+                    ?? (sender == Hero.MainHero ? MobileParty.MainParty?.GetPosition2D : null)
+                    ?? origin?.GetPosition2D;
                 var destinationPosition = recipient.PartyBelongedTo?.GetPosition2D ?? destination?.GetPosition2D;
                 if (originPosition.HasValue && destinationPosition.HasValue)
                 {
@@ -674,6 +768,9 @@ namespace ReignBeta.Integration
 
     public sealed class ReignCorrespondenceTickResult
     {
+        public string TimelineId { get; set; } = string.Empty;
+        public int PendingReplyCount { get; set; }
+        public List<string> DeliveryReceiptIds { get; set; } = new List<string>();
         public bool Ok { get; set; }
         public string Error { get; set; } = string.Empty;
         public List<ReignLetter> DeliveredLetters { get; set; } = new List<ReignLetter>();

@@ -3,11 +3,11 @@
   "heroStringId": "lord_2_15_4",
   "characterName": "Bovan",
   "imagePath": "portrait.png",
-  "imageSha256": "28CC175ACC986988BA2C112F4674742288C17C785E49BB46942ABCA42C72730C",
-  "description": "Culturally appropriate everyday Sturgian minor-lord attire inspired by refined medieval Rus and Slavic noble clothing. Men should wear a well-made long shirt beneath a tailored wool kaftan or long belted coat, decorated with fine geometric embroidery and quality trim. Women should wear a long embroidered shift with an elegant wool overdress or noble coat-dress, secured with a richly woven sash. Include subtle fur trim around collars or cuffs, tasteful clasps, and better-quality fabric than a landowner would wear. The clothing should remain practical for a northern climate while clearly showing noble rank. No headgear of any kind. No armor, weapons, crowns, ceremonial robes, or oversized fur displays.",
-  "status": "failed",
-  "descriptionSource": "portrait_prompt_fallback",
-  "retryEligible": true,
-  "error": "{\"error\":{\"message\":\"Model \\\"zai-org/glm-5.2\\\" does not support image inputs. Remove image content or choose a multimodal model.\",\"type\":\"invalid_request_error\",\"param\":\"messages\",\"code\":\"image_input_not_supported\"}}",
-  "updatedUtc": "2026-07-18T22:03:25.8662562Z"
+  "imageSha256": "68C07B05D00F6653D8D4BEA5AFB4ED7C472119C7B53A8A379945986018FE9740",
+  "description": "He wears a long navy blue wool-like kaftan with narrow gold-toned geometric borders along the open front, cuffs and hem. Brown fur-like trim lines the collar and cuffs. A cream long shirt with blue embroidery is visible inside the coat and at the neckline. A woven blue and gold sash wraps the waist, with a fringed end hanging down the front. Dark brown trousers tuck into tall worn brown leather boots with wrap-like fastening near the upper shafts. Full sleeves and layered opaque cloth cover the torso and legs. The fur trim is restrained rather than a large cloak. Exact materials cannot be confirmed.",
+  "status": "completed",
+  "descriptionSource": "agent_vision",
+  "retryEligible": false,
+  "error": "",
+  "updatedUtc": "2026-10-07T21:00:09.590Z"
 }

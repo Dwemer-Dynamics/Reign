@@ -1,16 +1,90 @@
 {
   "version": 1,
+  "schema": "reign-builtin-chat-reference-guided-image-generation-culture-v1",
   "cacheKey": "Aevysara_Merovorides (reign_court_castle_ES1_child_2)",
   "heroStringId": "reign_court_castle_ES1_child_2",
   "characterObjectId": "reign_court_castle_ES1_child_2",
   "characterName": "Aevysara Merovorides",
-  "provider": "AtlasCloud",
-  "model": "xai/grok-imagine-image/edit",
-  "adapter": "atlas upload/generate/poll",
+  "worker": "worker-4",
+  "generatedOriginalPath": "C:\\Users\\speed\\.codex\\generated_images\\01a11741-4ac1-7cd2-9aca-e03d81313445\\exec-f69479af-35b3-4807-b8f1-753c1ced6c98.png",
+  "sourceFileCreationUtc": "2026-10-08T20:55:59.447Z",
+  "generationRequestId": "24d145a3-4c9b-4226-adb8-8de69bd2fc8a",
+  "generationRequestSha256": "49140f7da5a5753071063c58b7410e0d8cead3f661a8d962113feb2dd162027f",
+  "generationReturnSha256": "54025d4645bafb803e5f00dad085dcb6e91382a6656b5b57e50221c118371d4e",
+  "provider": "Codex built-in image_gen",
+  "model": "unknown",
+  "adapter": "old-face-identity/new-style-reference-guided",
+  "generationMode": "reference_guided",
+  "inputImages": 2,
+  "references": [
+    {
+      "id": "reign_court_castle_ES1_child_2",
+      "role": "old_identity",
+      "path": "D:\\Program Files (x86)\\Steam\\steamapps\\common\\Mount & Blade II Bannerlord\\Modules\\ReignBeta\\PortraitCache\\_shared\\Aevysara_Merovorides (reign_court_castle_ES1_child_2)\\portrait_chest.png",
+      "sha256": "b44e1de688f6e3c37990269ea1a86cda5459738c68b8beac89491159c9d2be96",
+      "originalReference": {
+        "path": "D:\\Program Files (x86)\\Steam\\steamapps\\common\\Mount & Blade II Bannerlord\\Modules\\ReignBeta\\PortraitCache\\_shared\\Aevysara_Merovorides (reign_court_castle_ES1_child_2)\\portrait_chest.png",
+        "sha256": "b44e1de688f6e3c37990269ea1a86cda5459738c68b8beac89491159c9d2be96"
+      }
+    },
+    {
+      "id": "reign_court_castle_ES1_child_2",
+      "role": "new_style",
+      "path": "C:\\ReignPortraitRebuild\\2026-10-07-01a11741-culture-v2\\audit\\residual-correction-phase4-001\\reign_court_castle_ES1_child_2\\predecessor-files\\_shared\\Aevysara_Merovorides (reign_court_castle_ES1_child_2)\\portrait.png",
+      "sha256": "9330584024cf50af26ce913dc6a22a7175da951902b3f301c4812a66a5b9ab5a",
+      "originalReference": {
+        "path": "C:\\ReignPortraitRebuild\\2026-10-07-01a11741-culture-v2\\_shared\\Aevysara_Merovorides (reign_court_castle_ES1_child_2)\\portrait.png",
+        "sha256": "9330584024cf50af26ce913dc6a22a7175da951902b3f301c4812a66a5b9ab5a"
+      }
+    }
+  ],
+  "referenceGuidedExecution": {
+    "schema": "reign-portrait-reference-guided-execution-v1",
+    "generationMode": "reference_guided",
+    "inputImages": 2,
+    "references": [
+      {
+        "id": "reign_court_castle_ES1_child_2",
+        "role": "old_identity",
+        "path": "D:\\Program Files (x86)\\Steam\\steamapps\\common\\Mount & Blade II Bannerlord\\Modules\\ReignBeta\\PortraitCache\\_shared\\Aevysara_Merovorides (reign_court_castle_ES1_child_2)\\portrait_chest.png",
+        "sha256": "b44e1de688f6e3c37990269ea1a86cda5459738c68b8beac89491159c9d2be96",
+        "originalReference": {
+          "path": "D:\\Program Files (x86)\\Steam\\steamapps\\common\\Mount & Blade II Bannerlord\\Modules\\ReignBeta\\PortraitCache\\_shared\\Aevysara_Merovorides (reign_court_castle_ES1_child_2)\\portrait_chest.png",
+          "sha256": "b44e1de688f6e3c37990269ea1a86cda5459738c68b8beac89491159c9d2be96"
+        }
+      },
+      {
+        "id": "reign_court_castle_ES1_child_2",
+        "role": "new_style",
+        "path": "C:\\ReignPortraitRebuild\\2026-10-07-01a11741-culture-v2\\audit\\residual-correction-phase4-001\\reign_court_castle_ES1_child_2\\predecessor-files\\_shared\\Aevysara_Merovorides (reign_court_castle_ES1_child_2)\\portrait.png",
+        "sha256": "9330584024cf50af26ce913dc6a22a7175da951902b3f301c4812a66a5b9ab5a",
+        "originalReference": {
+          "path": "C:\\ReignPortraitRebuild\\2026-10-07-01a11741-culture-v2\\_shared\\Aevysara_Merovorides (reign_court_castle_ES1_child_2)\\portrait.png",
+          "sha256": "9330584024cf50af26ce913dc6a22a7175da951902b3f301c4812a66a5b9ab5a"
+        }
+      }
+    ],
+    "textCompositionImageInputs": 0,
+    "textVerificationSha256": "fa37967ae815e065af7ce214eb29d64f93c69b972c1cd1f486a7648b75947627",
+    "textPromptSha256": "bed7ef10c12b4ea763193433b28b394c3e46f3931273121a017a8d047c355b3d",
+    "compositionProofSha256": "4407ce7e3fbad867213aeb5169a1c49f931d359d004c851c00e1bbb82bc07f35",
+    "rootCompositionReview": {
+      "path": "C:\\ReignPortraitRebuild\\2026-10-07-01a11741-culture-v2\\audit\\root-full32-prompt-composition-review-001\\reign_court_castle_ES1_child_2\\root-hybrid-composition-review.json",
+      "sha256": "7a9276f89365cd6c33c8c6733b21896a7040f4bdcd73443efaa1a692c8717efa"
+    }
+  },
   "sourceSha256": "bd6a66fafbcfd54c68b2a4000210284da929dcbda33c3c5387bde76b0cf99132",
-  "portraitSha256": "123442c7ecdc537b4b77bdf58760f7b4a3996929ae898f156bbb718c467460d4",
-  "portraitWidth": 864,
-  "portraitHeight": 1152,
+  "portraitSha256": "c53cd18bddb59d3071299d9db4a361c7b192e8b2efa62dc5221b2ea242c77e3b",
+  "portraitWidth": 1086,
+  "portraitHeight": 1448,
+  "promptSha256": "8cc73ad5c978291097e7f024152f0c87c6d386f49d82d6d50541ba632a3d12a6",
+  "descriptionSha256": "e79640487d6ae4d84a08ec257ecedbbaeb32a622ea0cefeadf85ab4a055300d2",
+  "cultureId": "empire",
+  "cultureReferenceKey": "empire",
+  "cultureReference": "Eastern Mediterranean regional appearance, drawing on Greek, Anatolian and neighboring populations.",
+  "cultureLayerFile": "portrait_facial_culture_empire.txt",
+  "cultureLayerFullText": "FACIAL CULTURAL APPEARANCE — IMPERIAL\nStored cultureId: empire.\nRegional reference: Eastern Mediterranean regional appearance, drawing on Greek, Anatolian and neighboring populations.\nCreate a believable real human face with this regional appearance. Apply the regional reference positively to facial appearance, facial structure and complexion; it is not only a clothing, setting or background instruction.\nBlend the regional reference with the individual facial description. Where simplified native geometry or game-renderer shading differs from this regional appearance, use a plausible natural blend while retaining recognizable individual traits: face outline, relative proportions, eyes, brows, nose, mouth, jaw and chin. Preserve the described hair identity, arrangement and texture, facial-hair pattern, eye character, visible scars and markings; do not invent new distinguishing marks.\nThese regional populations contain substantial individual variation. Do not give every member the same face, impose a universal skin, hair or eye color, or replace the written individual identity with a generic regional stereotype. Preserve source-grounded differences and natural human asymmetry.\nKeep the exact authored age and the independent native weight and build values. This layer applies to facial appearance and realistic complexion interpretation, not body size, muscularity, garment coverage or social rank. Every complete composition, clothing, confidence, photographic, output and physique modifier remains in effect. Do not print this reference or any metadata in the image.",
+  "cultureLayerSha256": "4ce99b540f2d8935b87d2f624a278f0c51678c9a26604ded18cf1d2eda40306e",
   "physicalConfidence": {
     "definition": "physical_confidence",
     "score": 24,
@@ -21,7 +95,10 @@
     "confidenceWeight": 0.25,
     "source": "shipped_profile_library"
   },
+  "confidenceCoverageOverride": null,
   "derivativesReady": true,
   "derivativeError": "",
-  "generatedUtc": "2026-07-17T18:10:00.2039875Z"
+  "generatedUtc": "2026-10-08T20:57:17.341Z",
+  "serverSigned": false,
+  "derivativeReportSha256": "10676cd94ab0d82f847175fee77f176fbef445300ca1aac954c1cdb6f39ccdd1"
 }

@@ -3,11 +3,11 @@
   "heroStringId": "reign_court_town_A4_child_3",
   "characterName": "Mazalan Hadramiqani",
   "imagePath": "portrait.png",
-  "imageSha256": "AE11B9B9132FB9166D7EC31787ED7309D866441D556801836A34B50CF74F93E2",
-  "description": "Culturally appropriate everyday Aserai minor-lord attire inspired by refined medieval Arabian, North African, and limited Persian noble clothing. Men should wear a flowing robe or structured open-front coat over a fine lightweight tunic, secured with a decorated woven sash. Women should wear a long elegant dress with soft layered fabrics, shaped sleeves, graceful draping, and fine embroidery around the neckline, cuffs, and hem. Show rank through superior fabric, elegant borders, geometric embroidery, and subtle jewelry rather than excessive ornamentation. No headgear of any kind. No turbans, veils, hoods, armor, weapons, crowns, or ceremonial excess.",
-  "status": "failed",
-  "descriptionSource": "portrait_prompt_fallback",
-  "retryEligible": true,
-  "error": "{\"error\":{\"message\":\"Model \\\"zai-org/glm-5.2\\\" does not support image inputs. Remove image content or choose a multimodal model.\",\"type\":\"invalid_request_error\",\"param\":\"messages\",\"code\":\"image_input_not_supported\"}}",
-  "updatedUtc": "2026-07-18T22:03:32.4119512Z"
+  "imageSha256": "83A3DDA4DA0F698563D748BE8F827FA9E468D29B9CD7538FDAA26C72CD3777F7",
+  "description": "A brown patterned long open robe with gold geometric woven borders lies over an ivory long tunic with a split round collar, embroidered front edging and long sleeves. A patterned gold-brown woven sash wraps the waist and falls in fringed ends. Ivory trousers and dark brown leather shoes show below the hems. Both hands hang visibly at the sides; no headgear or armor is present.",
+  "status": "completed",
+  "descriptionSource": "agent_vision",
+  "retryEligible": false,
+  "error": "",
+  "updatedUtc": "2026-10-08T01:17:39.700Z"
 }

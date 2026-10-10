@@ -3,11 +3,11 @@
   "heroStringId": "lord_7_18",
   "characterName": "Gafnir",
   "imagePath": "portrait.png",
-  "imageSha256": "5B51643907B93D57400C268D53BC71D6E566B87CF1AF422A7C322A04488D91D1",
-  "description": "Culturally appropriate everyday Nord minor-lord attire inspired by refined early medieval Scandinavian noble clothing. Men should wear a well-cut wool tunic over a fine linen underlayer, quality trousers, a decorated belt, and tasteful brooch fastenings. Women should wear a long fine-linen shift with an elegant apron dress or layered wool overdress, improved textile quality, decorative woven trim, and modest metal fittings. The clothing should look practical, prestigious, and exceptionally well made without becoming ceremonial. No headgear of any kind. No helmets, caps, hoods, armor, weapons, crowns, horned helmets, or fantasy costume elements.",
-  "status": "failed",
-  "descriptionSource": "portrait_prompt_fallback",
-  "retryEligible": true,
-  "error": "{\"error\":{\"message\":\"Model \\\"zai-org/glm-5.2\\\" does not support image inputs. Remove image content or choose a multimodal model.\",\"type\":\"invalid_request_error\",\"param\":\"messages\",\"code\":\"image_input_not_supported\"}}",
-  "updatedUtc": "2026-07-18T22:03:29.3245475Z"
+  "imageSha256": "F8504F87B158D351E79F90505A3C325C3A9AA247F121BA6483944EEC074D8AE5",
+  "description": "He wears a deep blue textured knee-length tunic with narrow gold geometric woven trim at its neck, central front, cuffs and hem. A cream underlayer shows at the neck and wrists. A brown wool-like shoulder wrap is fastened by paired circular gold-toned brooches connected across the upper chest. His brown leather-looking belt has a buckle, round ornament and long decorated hanging end. Brown trousers are gathered above dark striped or wrapped calf coverings, with low brown closed shoes. The clothing is substantial and opaque, with restrained woven decoration and visible natural textile texture; exact fibers are not confirmed. No headgear or weapon is present.",
+  "status": "completed",
+  "descriptionSource": "agent_vision",
+  "retryEligible": false,
+  "error": "",
+  "updatedUtc": "2026-10-07T22:25:54.299Z"
 }

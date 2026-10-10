@@ -3,11 +3,11 @@
   "heroStringId": "reign_court_castle_EN8_mother",
   "characterName": "Lethilia Vardarides",
   "imagePath": "portrait.png",
-  "imageSha256": "F583349FA5F65F35E08C00F8B26C960BAE34B397765B8F55E45922A3723C86CD",
-  "description": "Culturally appropriate everyday Calradic Imperial minor-lord attire inspired by refined late Roman and Byzantine noble clothing. Men should wear a high-quality tunic or long tailored outer coat over fine linen, decorated with narrow woven borders, refined clasps, and a decorated belt. Women should wear a long elegant dress or layered tunic ensemble with shaped sleeves, graceful draping, and tasteful trim around the neckline, cuffs, and edges. The garments should feel polished, educated, urban, and wealthy without resembling full imperial ceremony. No headgear of any kind. No armor, weapons, crowns, imperial regalia, laurel wreaths, or ceremonial robes.",
-  "status": "failed",
-  "descriptionSource": "portrait_prompt_fallback",
-  "retryEligible": true,
-  "error": "{\"error\":{\"message\":\"Model \\\"zai-org/glm-5.2\\\" does not support image inputs. Remove image content or choose a multimodal model.\",\"type\":\"invalid_request_error\",\"param\":\"messages\",\"code\":\"image_input_not_supported\"}}",
-  "updatedUtc": "2026-07-18T22:03:31.6285785Z"
+  "imageSha256": "8E15F38A453999C2E63B0B24F4B3C081F881297FB4E798204D87933D8FB52B59",
+  "description": "Actual plum floor-length square-neck fitted gown with elbow sleeves, narrow gold geometric woven neckline/cuff/waist/front skirt/hem borders, cream underdress front panel and draped cream wrap along forearms with matching patterned edges, round shoulder brooches and belt clasp, small earrings and brown shoes. No headgear, armor or weapon.",
+  "status": "completed",
+  "descriptionSource": "agent_vision",
+  "retryEligible": false,
+  "error": "",
+  "updatedUtc": "2026-10-08T04:32:23.400Z"
 }

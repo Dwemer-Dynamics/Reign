@@ -3,11 +3,11 @@
   "heroStringId": "reign_court_castle_V6_child_1",
   "characterName": "Alderic Fauconacourt",
   "imagePath": "portrait.png",
-  "imageSha256": "7687592108CD7AEA146F2EAFE5A08D034A1BB3C274F9BB1B59A49A4C40EFE4F3",
-  "description": "Culturally appropriate everyday Vlandian landowner attire inspired by practical high-medieval Norman and Frankish clothing. Use a well-made wool tunic over a linen underlayer, fitted sleeves, a sturdy leather belt, narrow trousers or chausses, and soft leather boots. For women, use a long fitted underdress with a simple but well-tailored overdress, narrow sleeves, a modest neckline, and a practical belt. The garments should appear prosperous, clean, and durable without looking aristocratic. No headgear of any kind. No armor, weapons, crowns, ceremonial robes, or fantasy elements.",
-  "status": "failed",
-  "descriptionSource": "portrait_prompt_fallback",
-  "retryEligible": true,
-  "error": "{\"error\":{\"message\":\"Model \\\"zai-org/glm-5.2\\\" does not support image inputs. Remove image content or choose a multimodal model.\",\"type\":\"invalid_request_error\",\"param\":\"messages\",\"code\":\"image_input_not_supported\"}}",
-  "updatedUtc": "2026-07-18T22:03:24.3161403Z"
+  "imageSha256": "4D59F5D37CE838158CCC43F69C96A162A9C25B57ED9C1B32FF4491AC59C7210C",
+  "description": "He wears a burgundy patterned long-sleeved tunic reaching the knees, with a short open neck slit and narrow gold-and-dark woven borders at the neckline, cuffs, front seam and hem. A cream linen undertunic shows at the neck and wrists. A brown leather belt with a plain buckle and long hanging end shapes the waist. Brown trousers are tucked into dark brown leather boots. His head and hands are uncovered; there is no visible armor or weapon.",
+  "status": "completed",
+  "descriptionSource": "agent_vision",
+  "retryEligible": false,
+  "error": "",
+  "updatedUtc": "2026-10-08T21:04:25.924Z"
 }

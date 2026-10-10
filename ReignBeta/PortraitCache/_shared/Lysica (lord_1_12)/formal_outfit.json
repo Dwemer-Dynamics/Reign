@@ -3,11 +3,11 @@
   "heroStringId": "lord_1_12",
   "characterName": "Lysica",
   "imagePath": "portrait.png",
-  "imageSha256": "E0F82C6C789C2946A85B1054EFCA1CA0B5EAF9064D148F5E529A24DA98B253E2",
-  "description": "Culturally appropriate everyday Calradic Imperial minor-lord attire inspired by refined late Roman and Byzantine noble clothing. Men should wear a high-quality tunic or long tailored outer coat over fine linen, decorated with narrow woven borders, refined clasps, and a decorated belt. Women should wear a long elegant dress or layered tunic ensemble with shaped sleeves, graceful draping, and tasteful trim around the neckline, cuffs, and edges. The garments should feel polished, educated, urban, and wealthy without resembling full imperial ceremony. No headgear of any kind. No armor, weapons, crowns, imperial regalia, laurel wreaths, or ceremonial robes.",
-  "status": "failed",
-  "descriptionSource": "portrait_prompt_fallback",
-  "retryEligible": true,
-  "error": "{\"error\":{\"message\":\"Model \\\"zai-org/glm-5.2\\\" does not support image inputs. Remove image content or choose a multimodal model.\",\"type\":\"invalid_request_error\",\"param\":\"messages\",\"code\":\"image_input_not_supported\"}}",
-  "updatedUtc": "2026-07-18T22:03:31.9786317Z"
+  "imageSha256": "0340205CD0DE195727D3AE7F8C9CDD9D78A384057DDA2CA54DB370E531550E4F",
+  "description": "Lysica wears an opaque plum-purple floor-length court gown with a low square neckline, fitted structured bodice and elbow-length sleeves. Narrow gold woven floral/geometric borders outline the neckline, shoulder straps, sleeve ends, waist, center-front skirt opening and hem. Two round gold brooches fasten the upper straps, and a decorated belt has a round center clasp. A pale linen underskirt shows through the below-knee front opening. A pale bordered wrap rests around her forearms, with gold earrings, a small pendant and a broad worked bracelet. Both gold-brown closed shoes are visible beneath the hem. There is no headgear, armor or weapon; substantial opaque fabric covers bust, abdomen, hips and pelvis.",
+  "status": "completed",
+  "descriptionSource": "agent_vision",
+  "retryEligible": false,
+  "error": "",
+  "updatedUtc": "2026-10-08T03:45:54.399Z"
 }

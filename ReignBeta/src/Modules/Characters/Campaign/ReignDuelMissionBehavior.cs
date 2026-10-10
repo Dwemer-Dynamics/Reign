@@ -171,7 +171,7 @@ namespace ReignBeta.Campaign
             ReignDuelService.MarkActive(intent.ActionId);
 
             ApplyDuelSetup(player, opponent);
-            InformationManager.DisplayMessage(new InformationMessage("[Bannerlord Reign] " + intent.OpponentName + " steps into a " + (intent.Lethal ? "duel of honor." : "training duel."), Color.FromUint(0xFFFFD36A)));
+            InformationManager.DisplayMessage(new InformationMessage("[Bannerlord Reign] " + intent.OpponentName + " steps into a " + ReignDuelModePolicy.DisplayName(intent.Mode) + ".", Color.FromUint(0xFFFFD36A)));
             ReignLog.Info("Conversation duel started fallback action=" + intent.ActionId + " opponent=" + intent.OpponentHeroStringId + " mode=" + intent.Mode + " source=" + source);
             return true;
         }
@@ -250,7 +250,7 @@ namespace ReignBeta.Campaign
                 {
                     ReignDuelService.MarkActive(intent.ActionId);
                     method.Invoke(fightHandler, args);
-                    InformationManager.DisplayMessage(new InformationMessage("[Bannerlord Reign] " + intent.OpponentName + " steps into a " + (intent.Lethal ? "duel of honor." : "training duel."), Color.FromUint(0xFFFFD36A)));
+                    InformationManager.DisplayMessage(new InformationMessage("[Bannerlord Reign] " + intent.OpponentName + " steps into a " + ReignDuelModePolicy.DisplayName(intent.Mode) + ".", Color.FromUint(0xFFFFD36A)));
                     ReignLog.Info("Conversation duel started native action=" + intent.ActionId + " opponent=" + intent.OpponentHeroStringId + " mode=" + intent.Mode + " source=" + source);
                     return true;
                 }
@@ -479,6 +479,7 @@ namespace ReignBeta.Campaign
             ReignActionResult result = ReignActionResult.Done(message)
                 .WithResultCode(arrestDuel
                     ? playerWon ? "arrest_duel_capture_completed" : "arrest_duel_escape_completed"
+                    : ReignDuelModePolicy.IsPractice(finished.Mode) ? "practice_duel_completed"
                     : finished.Lethal ? "lethal_duel_completed" : "training_duel_completed")
                 .WithEffect("duel_completed", "hero", finished.OpponentHeroStringId, finished.OpponentName, "mode=" + finished.Mode + ";winner=" + winnerName + ";loser=" + loserName + ";reason=" + finishReason)
                 .WithChangedEntity("hero", finished.OpponentHeroStringId, finished.OpponentName, playerWon ? "lost_duel_to_player" : "won_duel_against_player")
@@ -561,8 +562,11 @@ namespace ReignBeta.Campaign
         {
             if (intent.Lethal)
             {
-                return winnerName + " defeated " + loserName + " in a duel of honor" + (killed ? ", and the matter ended in death." : ".");
+                return winnerName + " defeated " + loserName + " in a duel to the death" + (killed ? ", and the matter ended in death." : ".");
             }
+
+            if (intent.Mode == "honor") return winnerName + " bested " + loserName + " in a duel of honor.";
+            if (ReignDuelModePolicy.IsPractice(intent.Mode)) return winnerName + " bested " + loserName + " in a private practice duel.";
 
             if (string.Equals(intent.Purpose, "hostile", StringComparison.OrdinalIgnoreCase))
             {

@@ -3,11 +3,11 @@
   "heroStringId": "reign_court_castle_A7_mother",
   "characterName": "Darira Mazalaqani",
   "imagePath": "portrait.png",
-  "imageSha256": "18061B1FFFCF4AD1BCA33A8373C4A09387B6BD62B49151780704D77B5AD6C72D",
-  "description": "Culturally appropriate everyday Aserai minor-lord attire inspired by refined medieval Arabian, North African, and limited Persian noble clothing. Men should wear a flowing robe or structured open-front coat over a fine lightweight tunic, secured with a decorated woven sash. Women should wear a long elegant dress with soft layered fabrics, shaped sleeves, graceful draping, and fine embroidery around the neckline, cuffs, and hem. Show rank through superior fabric, elegant borders, geometric embroidery, and subtle jewelry rather than excessive ornamentation. No headgear of any kind. No turbans, veils, hoods, armor, weapons, crowns, or ceremonial excess.",
-  "status": "failed",
-  "descriptionSource": "portrait_prompt_fallback",
-  "retryEligible": true,
-  "error": "{\"error\":{\"message\":\"Model \\\"zai-org/glm-5.2\\\" does not support image inputs. Remove image content or choose a multimodal model.\",\"type\":\"invalid_request_error\",\"param\":\"messages\",\"code\":\"image_input_not_supported\"}}",
-  "updatedUtc": "2026-07-18T22:03:27.3409962Z"
+  "imageSha256": "91A520113322B13B385712102B82A2852D18735D9EAD04716F37FAF00F71851B",
+  "description": "She wears a cream-gold patterned floor-length gown with a fitted bodice, low square neckline and sleeves ending near the elbows. Dark gold geometric borders outline the neckline, cuffs and vertical front panels. A warm gold woven belt has round decorated metal fastenings and long tasselled ties. A deep reddish-brown shawl with gold embroidery hangs around her forearms and down both sides. The skirt opens slightly to show a muted rust underlayer and gold-patterned shoes. Gold drop earrings, a pendant necklace, bracelets and a ring add restrained jewelry. No headgear or armor is present.",
+  "status": "completed",
+  "descriptionSource": "agent_vision",
+  "retryEligible": false,
+  "error": "",
+  "updatedUtc": "2026-10-07T21:36:36.056Z"
 }

@@ -3,11 +3,11 @@
   "heroStringId": "reign_court_town_ES7_child_3",
   "characterName": "Eryures Elarenion",
   "imagePath": "portrait.png",
-  "imageSha256": "DDB924605514AD793067D76EAD1DC8CD759F7707B1D3867F290D3AE9B6BBAD4D",
-  "description": "Culturally appropriate everyday Calradic Imperial minor-lord attire inspired by refined late Roman and Byzantine noble clothing. Men should wear a high-quality tunic or long tailored outer coat over fine linen, decorated with narrow woven borders, refined clasps, and a decorated belt. Women should wear a long elegant dress or layered tunic ensemble with shaped sleeves, graceful draping, and tasteful trim around the neckline, cuffs, and edges. The garments should feel polished, educated, urban, and wealthy without resembling full imperial ceremony. No headgear of any kind. No armor, weapons, crowns, imperial regalia, laurel wreaths, or ceremonial robes.",
-  "status": "failed",
-  "descriptionSource": "portrait_prompt_fallback",
-  "retryEligible": true,
-  "error": "{\"error\":{\"message\":\"Model \\\"zai-org/glm-5.2\\\" does not support image inputs. Remove image content or choose a multimodal model.\",\"type\":\"invalid_request_error\",\"param\":\"messages\",\"code\":\"image_input_not_supported\"}}",
-  "updatedUtc": "2026-07-18T22:03:28.7734615Z"
+  "imageSha256": "87B0EE9A3395BBD2339F48F28C53BC8493A72CB15BC295E49F357CFA59B807B2",
+  "description": "The young man wears a dark plum-purple long outer coat with gold woven edging along the open front, cuffs and knee-length hem. A cream undertunic has a narrow upright collar and an embroidered central opening. Two small round gold clasps decorate the upper front. A broad decorated gold belt with a round buckle secures the layers at the waist, with a reddish-brown patterned sash hanging at his left side. Brown fitted trousers and dark brown tall leather boots are visible below the coat. He has no headgear, armor or weapons, and both hands remain uncovered.",
+  "status": "completed",
+  "descriptionSource": "agent_vision",
+  "retryEligible": false,
+  "error": "",
+  "updatedUtc": "2026-10-07T22:13:17.703Z"
 }

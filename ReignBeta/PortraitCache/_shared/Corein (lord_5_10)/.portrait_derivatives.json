@@ -2,27 +2,27 @@
   "Version": 3,
   "CropAlgorithmVersion": 2,
   "SourceFileName": "portrait.png",
-  "SourcePath": "portrait.png",
-  "SourceLength": 5609662,
-  "SourceLastWriteUtcTicks": 639211228434409002,
-  "SourceWidth": 1776,
-  "SourceHeight": 2368,
-  "CropX": 665,
-  "CropY": 128,
-  "CropWidth": 421,
-  "CropHeight": 526,
-  "WideCropX": 507,
-  "WideCropY": 128,
-  "WideCropWidth": 736,
-  "WideCropHeight": 526,
+  "SourcePath": "C:\\ReignPortraitRebuild\\2026-10-07-01a11741-culture-v2\\_shared\\Corein (lord_5_10)\\portrait.png",
+  "SourceLength": 2401758,
+  "SourceLastWriteUtcTicks": 639271127371698429,
+  "SourceWidth": 1086,
+  "SourceHeight": 1448,
+  "CropX": 376,
+  "CropY": 0,
+  "CropWidth": 290,
+  "CropHeight": 362,
+  "WideCropX": 267,
+  "WideCropY": 0,
+  "WideCropWidth": 507,
+  "WideCropHeight": 362,
   "FocusMethod": "ultraface",
   "FocusModel": "version-RFB-320",
-  "FocusConfidence": 0.9995204210281372,
+  "FocusConfidence": 0.9999516010284424,
   "FaceCandidateCount": 1,
-  "FaceX": 0.44645142555236816,
-  "FaceY": 0.07996619492769241,
-  "FaceWidth": 0.09293138980865479,
-  "FaceHeight": 0.10332926362752914,
+  "FaceX": 0.4358188211917877,
+  "FaceY": 0.06376513838768005,
+  "FaceWidth": 0.08722159266471863,
+  "FaceHeight": 0.09789794683456421,
   "NeedsReview": false,
   "ThumbnailFileName": "thumbnail.png",
   "ThumbnailWidth": 256,
@@ -31,9 +31,76 @@
   "PartyThumbnailWidth": 448,
   "PartyThumbnailHeight": 320,
   "PortraitFileName": "portrait_chest.png",
-  "PortraitWidth": 421,
-  "PortraitHeight": 526,
+  "PortraitWidth": 290,
+  "PortraitHeight": 362,
   "ZoomFileName": "zoom.png",
   "ZoomWidth": 1024,
-  "ZoomHeight": 1365
+  "ZoomHeight": 1365,
+  "ManualCropProvenance": {
+    "schema": "reign-manual-crown-crop-provenance-v1",
+    "producer": "C-only adapter selected y=0 rectangles; frozen native Decode/CropRgba/ResizeBilinear/EncodeRgba",
+    "sourceSha256": "5d7ad20c826a9526d284dfa30a0cc8894f5485154e17bd8bdcf45b60303661d8",
+    "originalNativeMetadata": {
+      "path": "C:\\ReignPortraitRebuild\\2026-10-07-01a11741-culture-v2\\audit\\corein-own-old-face-approval-candidate-001\\native-pack-001\\.portrait_derivatives.json",
+      "sha256": "a1c85ac0ce0a9bd7c61f2026668515f45ac68a85594359a2e7069d48e4541ea5",
+      "bytes": 1223
+    },
+    "planSha256": "5e9ce1c881eed1e99447c6ecdcb7e7bcd2116e65188ec08f5d6a3c55ffa1e3bb",
+    "rawFocusPreserved": true,
+    "nativeBuildV2Invoked": false,
+    "nativeIsCurrentV2Invoked": false,
+    "forcedRegenerationMayOverwriteManualCrop": true
+  },
+  "StagedAssetProvenance": {
+    "schema": "reign-staged-effective-portrait-origin-v1",
+    "id": "lord_5_10",
+    "kind": "edited_fullbody",
+    "currentLocalFiles": [
+      {
+        "name": "portrait.png",
+        "sha256": "5d7ad20c826a9526d284dfa30a0cc8894f5485154e17bd8bdcf45b60303661d8",
+        "bytes": 2401758
+      },
+      {
+        "name": "zoom.png",
+        "sha256": "402e73c05678ac6b58a43a22d71175b43a2d7891a16d9044680d1599d78f8441",
+        "bytes": 3487562
+      },
+      {
+        "name": "portrait_chest.png",
+        "sha256": "29e00ffb2f6bdec7db94aa5b7c8083d3958963ce618da51a9172c1ee13fca846",
+        "bytes": 254922
+      },
+      {
+        "name": "thumbnail.png",
+        "sha256": "cab35ce848b4595e8e3a8287826f73eb18da1a5ad831382d9bd3f0bbc49ea734",
+        "bytes": 197093
+      },
+      {
+        "name": "thumbnail_wide.png",
+        "sha256": "4b7803a45daa5195c0340cb3fcbcb539320ad23bf50808b66c8ade183e004b9f",
+        "bytes": 315902
+      },
+      {
+        "name": "prompt_edit.txt",
+        "sha256": "e09d63602aa31120e87c592874441006ec6e30f6afba0fcc5a754e984c268213",
+        "bytes": 12988
+      }
+    ],
+    "nativeAlgorithmProducedRectangle": false,
+    "priorProducerExtensionsRetainedVerbatim": true,
+    "sourcePathProjection": {
+      "from": "C:\\ReignPortraitRebuild\\2026-10-07-01a11741-culture-v2\\audit\\corein-own-old-face-approval-candidate-001\\native-pack-001\\portrait.png",
+      "to": "C:\\ReignPortraitRebuild\\2026-10-07-01a11741-culture-v2\\_shared\\Corein (lord_5_10)\\portrait.png",
+      "reason": "Same exact approved native-packed fullbody bytes/stat at canonical C-stage anchor"
+    },
+    "directUserApproval": {
+      "path": "C:\\ReignPortraitRebuild\\2026-10-07-01a11741-culture-v2\\audit\\corein-own-old-face-approval-candidate-001\\user-approval-001.json",
+      "sha256": "90cd71f9d6e05651c5341b40464287ca2ab7d5eb8403141fa0c4e09e99693959",
+      "bytes": 1153
+    },
+    "globalFaceAcceptance": false,
+    "nativeUIAcceptance": false,
+    "notSwapApproval": true
+  }
 }

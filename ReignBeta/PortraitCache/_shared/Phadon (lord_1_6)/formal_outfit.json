@@ -3,11 +3,11 @@
   "heroStringId": "lord_1_6",
   "characterName": "Phadon",
   "imagePath": "portrait.png",
-  "imageSha256": "41978637122A09F92D5B98B25424A10736D3C9BCBA81F53FC783931B220C2EBE",
-  "description": "Culturally appropriate everyday Calradic Imperial minor-lord attire inspired by refined late Roman and Byzantine noble clothing. Men should wear a high-quality tunic or long tailored outer coat over fine linen, decorated with narrow woven borders, refined clasps, and a decorated belt. Women should wear a long elegant dress or layered tunic ensemble with shaped sleeves, graceful draping, and tasteful trim around the neckline, cuffs, and edges. The garments should feel polished, educated, urban, and wealthy without resembling full imperial ceremony. No headgear of any kind. No armor, weapons, crowns, imperial regalia, laurel wreaths, or ceremonial robes.",
-  "status": "failed",
-  "descriptionSource": "portrait_prompt_fallback",
-  "retryEligible": true,
-  "error": "{\"error\":{\"message\":\"Model \\\"zai-org/glm-5.2\\\" does not support image inputs. Remove image content or choose a multimodal model.\",\"type\":\"invalid_request_error\",\"param\":\"messages\",\"code\":\"image_input_not_supported\"}}",
-  "updatedUtc": "2026-07-18T22:03:33.4164736Z"
+  "imageSha256": "2340C4FD220C73F8C8163A3D1661BC35D05D4DB9085945D33CE0E1AC5F3115B1",
+  "description": "A long burgundy layered outer tunic/coat with gold woven vertical borders and short outer sleeves over cream long-sleeved linen. A decorated dark belt bears round gold medallions and a hanging tab. Dark trousers and calf-high brown leather boots are visible. Hands rest behind the back. No headgear, armor or weapon.",
+  "status": "completed",
+  "descriptionSource": "agent_vision",
+  "retryEligible": false,
+  "error": "",
+  "updatedUtc": "2026-10-08T04:18:30.198Z"
 }

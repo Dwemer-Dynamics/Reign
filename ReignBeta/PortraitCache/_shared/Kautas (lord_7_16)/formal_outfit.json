@@ -3,11 +3,11 @@
   "heroStringId": "lord_7_16",
   "characterName": "Kautas",
   "imagePath": "portrait.png",
-  "imageSha256": "12866A88F75357EB12B613724E9D0AD1322C5A0146B8EDE34E1A04F8C73DA0D5",
-  "description": "Culturally appropriate everyday Nord minor-lord attire inspired by refined early medieval Scandinavian noble clothing. Men should wear a well-cut wool tunic over a fine linen underlayer, quality trousers, a decorated belt, and tasteful brooch fastenings. Women should wear a long fine-linen shift with an elegant apron dress or layered wool overdress, improved textile quality, decorative woven trim, and modest metal fittings. The clothing should look practical, prestigious, and exceptionally well made without becoming ceremonial. No headgear of any kind. No helmets, caps, hoods, armor, weapons, crowns, horned helmets, or fantasy costume elements.",
-  "status": "failed",
-  "descriptionSource": "portrait_prompt_fallback",
-  "retryEligible": true,
-  "error": "{\"error\":{\"message\":\"Model \\\"zai-org/glm-5.2\\\" does not support image inputs. Remove image content or choose a multimodal model.\",\"type\":\"invalid_request_error\",\"param\":\"messages\",\"code\":\"image_input_not_supported\"}}",
-  "updatedUtc": "2026-07-18T22:03:31.1249329Z"
+  "imageSha256": "E640DEC0E08D67F9BFED49A3F38B0BB21133FF12E441ABF260B99EEEC16933E8",
+  "description": "Kautas wears a dark navy knee-length textured wool-like tunic with tan geometric borders at the neckline, cuffs and lower hem. A cream linen-like underlayer shows at the neck, wrists and lower edge. Two round silver-toned brooches connected by a small bar fasten the chest. A broad brown leather-like belt with rectangular buckle, round fittings and a long hanging end cinches the waist. Brown textured trousers lead to tall brown boots with crossing straps around the upper shafts. Exact fibers are uncertain. Clothing is opaque with modest metal ornament and no headgear, armor, weapon or oversized fur.",
+  "status": "completed",
+  "descriptionSource": "agent_vision",
+  "retryEligible": false,
+  "error": "",
+  "updatedUtc": "2026-10-07T23:20:48.637Z"
 }

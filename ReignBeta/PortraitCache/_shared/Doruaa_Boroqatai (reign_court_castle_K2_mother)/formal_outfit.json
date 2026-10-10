@@ -3,11 +3,11 @@
   "heroStringId": "reign_court_castle_K2_mother",
   "characterName": "Doruaa Boroqatai",
   "imagePath": "portrait.png",
-  "imageSha256": "3936E40A89D990EE6D3BB303DBBD836118570C1CD46CF1E77FC88170025E92D7",
-  "description": "Culturally appropriate everyday Khuzait minor-lord attire inspired by refined medieval Turkic and Mongol steppe noble clothing. Men should wear a tailored crossed-front coat or deel with refined woven trim, a decorated sash, layered sleeves, and high-quality trousers. Women should wear an elegant long robe or fitted steppe coat over a fine underdress, with carefully worked edging and decorative textile details. Include restrained cloud, knot, or geometric patterns and a limited amount of practical fur trim. The clothing should remain mobile and functional while clearly showing noble status. No headgear of any kind. No fur hats, caps, hoods, armor, weapons, crowns, or ceremonial costume.",
-  "status": "failed",
-  "descriptionSource": "portrait_prompt_fallback",
-  "retryEligible": true,
-  "error": "{\"error\":{\"message\":\"Model \\\"zai-org/glm-5.2\\\" does not support image inputs. Remove image content or choose a multimodal model.\",\"type\":\"invalid_request_error\",\"param\":\"messages\",\"code\":\"image_input_not_supported\"}}",
-  "updatedUtc": "2026-07-18T22:03:27.4626277Z"
+  "imageSha256": "E41C869D1C071F5A69952E7129F165A7D1D0DA963C2A2CD066E0BAC4CBA54120",
+  "description": "Opaque teal patterned floor-length dress with a straight square neckline, gold and pale geometric borders, fitted covered bodice and long sleeves, a wide decorative belt with two round metal clasps and long woven hanging tabs, and a brown patterned wrap draped around the upper arms. The hands are joined low in front, and brown closed leather footwear is visible below the hem.",
+  "status": "completed",
+  "descriptionSource": "agent_vision",
+  "retryEligible": false,
+  "error": "",
+  "updatedUtc": "2026-10-08T21:20:30.261Z"
 }

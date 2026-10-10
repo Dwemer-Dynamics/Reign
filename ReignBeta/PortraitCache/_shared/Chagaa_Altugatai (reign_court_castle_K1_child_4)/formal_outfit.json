@@ -3,11 +3,11 @@
   "heroStringId": "reign_court_castle_K1_child_4",
   "characterName": "Chagaa Altugatai",
   "imagePath": "portrait.png",
-  "imageSha256": "50DEBDCDF5D48A923645DDC4585C192F937CF867BC1B64828A0DAB921E559EC3",
-  "description": "Culturally appropriate everyday Khuzait high-noble attire inspired by elite medieval Turkic and Mongol aristocratic clothing. Use superb tailoring, layered fine wool and silk-like woven fabrics, elegant crossed-front closures, decorated sashes, refined edging, and subtle noble motifs. Men should wear a stately long noble deel or structured coat over richly made underlayers. Women should wear a luxurious robe or coat-dress with graceful lines, elaborate woven trim, and exceptionally high-quality textiles. Fur trim may be included sparingly along cuffs, collars, or garment edges. The clothing should feel wealthy, mobile, and commanding without becoming ceremonial. No headgear of any kind. No fur hats, caps, hoods, armor, weapons, crowns, or fantasy styling.",
-  "status": "failed",
-  "descriptionSource": "portrait_prompt_fallback",
-  "retryEligible": true,
-  "error": "{\"error\":{\"message\":\"Model \\\"zai-org/glm-5.2\\\" does not support image inputs. Remove image content or choose a multimodal model.\",\"type\":\"invalid_request_error\",\"param\":\"messages\",\"code\":\"image_input_not_supported\"}}",
-  "updatedUtc": "2026-07-18T22:03:26.6452820Z"
+  "imageSha256": "01DD3F7B40DC1E8CB91139A6DE4EAC5A4D18B2EBB6BBF7E6C8A631D9C3A7AFF8",
+  "description": "A teal patterned floor-length court gown has a low square neckline, fitted opaque bodice, attached sleeves ending at the elbows and broad gold woven borders down the front and around the skirt. Small round decorative brooches with hanging tassels sit near the shoulders, and a narrow decorated belt fastens the waist. A cream wrap with teal-gold borders drapes loosely around both forearms, separate from the sleeves. Her hands rest visibly together in front, and two decorated closed boots appear below the skirt. Plain stone pillars and a dark wooden door form an unadorned background.",
+  "status": "completed",
+  "descriptionSource": "agent_vision",
+  "retryEligible": false,
+  "error": "",
+  "updatedUtc": "2026-10-08T13:20:45.662Z"
 }

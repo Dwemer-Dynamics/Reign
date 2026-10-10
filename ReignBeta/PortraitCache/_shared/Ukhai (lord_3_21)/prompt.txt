@@ -1,11 +1,16 @@
-IDENTITY AND SUBJECT
-Use the provided source image as the visual identity reference, not as a style reference.
-Create a portrait of Ukhai, a man of Aserai culture who is 28 years old.
-Their clan is tier 3, placing them socially among the lesser lord class. Use this status to guide the refinement, expense, materials, and ornament of their clothing without turning it into fantasy costume.
-Use the source face image as the primary visual reference for the subject’s appearance and identity. Preserve the recognizable facial features, apparent age, expression, eye shape, eye color, hair color, hairstyle, skin tone, facial proportions, bone structure, scars, facial hair, and other distinguishing characteristics as closely as possible.
-The source image may depict a stylized or simplified video-game character model. Do not reproduce the artificial game-model appearance, low-detail geometry, rigid facial structure, plastic skin, exaggerated proportions, or computer-rendered texture. Instead, reinterpret the character as a believable real human being while retaining the same recognizable identity.
-Translate simplified game features into natural human anatomy and realistic detail, including authentic skin texture, visible pores, subtle wrinkles, natural facial asymmetry, realistic eyes, individually defined hair, believable facial hair, and physically plausible facial proportions. The final face should look like a real person photographed in real life, not a game model, digital avatar, illustration, or CGI render.
-Treat the name, age, gender, culture, clan tier, and social station as private generation guidance. They describe the subject and must never be printed, captioned, labeled, written, or otherwise rendered anywhere in the image.
+I want you to create a picture of a 28-year-old man who looks like the description below. Create one photographic full-body portrait. Clothing follows Aserai lesser lord fashion, with the craftsmanship and social station of clan tier 3. These values are generation guidance and must never be printed in the image.
+Use a vertical 3:4 portrait canvas. Generate from the written traits alone.
+
+FACIAL APPEARANCE AND HAIR
+He has an elongated broad oval face, full lower cheeks and a substantial rounded jaw beneath the chin beard. Warm medium tan skin shows natural pores and mild rosy cheeks. Eyes are medium-open brown with amber tones beneath thick straight dark brows, a small outer arch. Nose is long and fairly narrow at the bridge, rounded broader tip. Lips medium full muted brown-pink. Hair dark brown, near-center part, loose fairly straight waves from ears to shoulders, uneven shoulder ends, no shaved sides. Facial hair: sparse separate short dark upper-lip hairs, with visible gaps rather than a dense formed mustache; cheeks nearly clean. A substantial dark chin beard begins at the corners of the lower mouth and across the chin, narrowing downward into a tapered gathered tip reaching the upper chest. Preserve the sparse upper lip and chin-focused beard rather than a full cheek beard. No definite scar or tattoo. Authored weight .7348 means heavyset fullness independently of build .4839 moderate muscle. Blend Arabian/Levantine/North African facial appearance while retaining source geometry.
+
+FACIAL CULTURAL APPEARANCE — ASERAI
+Stored cultureId: aserai.
+Regional reference: Arabian, Levantine and North African regional appearance.
+Create a believable real human face with this regional appearance. Apply the regional reference positively to facial appearance, facial structure and complexion; it is not only a clothing, setting or background instruction.
+Blend the regional reference with the individual facial description. Where simplified native geometry or game-renderer shading differs from this regional appearance, use a plausible natural blend while retaining recognizable individual traits: face outline, relative proportions, eyes, brows, nose, mouth, jaw and chin. Preserve the described hair identity, arrangement and texture, facial-hair pattern, eye character, visible scars and markings; do not invent new distinguishing marks.
+These regional populations contain substantial individual variation. Do not give every member the same face, impose a universal skin, hair or eye color, or replace the written individual identity with a generic regional stereotype. Preserve source-grounded differences and natural human asymmetry.
+Keep the exact authored age and the independent native weight and build values. This layer applies to facial appearance and realistic complexion interpretation, not body size, muscularity, garment coverage or social rank. Every complete composition, clothing, confidence, photographic, output and physique modifier remains in effect. Do not print this reference or any metadata in the image.
 
 COMPOSITION AND FRAMING
 Create a full head-to-toe body portrait showing the entire figure from the top of the head down to the feet
@@ -25,3 +30,18 @@ OUTPUT EXCLUSIONS
 Return only the portrait image itself.
 Do not render words, letters, numbers, captions, labels, names, ages, cultures, subtitles, signatures, logos, watermarks, interface elements, portrait cards, decorative title blocks, borders, banners, blank caption areas, white strips, white footer panels, or metadata panels anywhere in the image.
 No extreme close-up, face-only crop, cropped head, cropped shoulders, armor, weapons, shields, quivers, chainmail, helmets, fur war gear, plastic skin, over-smoothed face, CGI, cartoon, anime, painterly style, or modern clothing.
+
+NATIVE BODY APPEARANCE — AUTHORITATIVE PHYSIQUE
+Native weight: 0.7348 on a 0–1 scale: Heavyset, increased body fat.
+Native build: 0.4839 on a 0–1 scale: Moderate musculature.
+These are independent native appearance sliders, not kilograms, BMI, clinical classifications or body-fat percentages. Respect the exact position within each range, without abrupt changes at descriptive boundaries.
+Weight controls body-fat fullness. For women, build controls natural muscle tone, firmness, and athletic definition, not added muscle mass, bulky shoulders, thick arms, or masculine bodybuilder proportions. For men, build controls muscle mass. High weight does not imply muscle. High build does not imply extra fat or automatically visible abdominal definition; body fat and clothing can obscure definition.
+Match these native proportions even if another prompt or the supplied AI portrait conflicts. Preserve native age, sex, skeletal proportions, face and identity. Do not infer breast size, enlarge curves, beautify, slim or bulk up the person beyond these values.
+Garments must fit this physique. Revealingness and physical confidence change clothing coverage only, never body size. Covered muscles need not be exposed. During a clothing edit, correct conflicting AI physique to these native values while preserving the person's face and identity. Never print these instructions or values in the image.
+
+COMPOSITION CORRECTION FOR CANONICAL CROPS
+Leave clear stone architecture above the entire hairstyle. Place the very top of the hair at roughly 6% of total canvas height and the chin at roughly 18% of total canvas height. Keep the complete body and both feet inside the canvas with floor visible below the shoes. Do not enlarge the face or crop the hair. Preserve the written identity and all preceding appearance, clothing, light and style instructions.
+
+IDENTITY CORRECTION AFTER SOURCE AND RESULT REVIEW
+Retain authored age28, exact weight0.7348 and exact build0.4839. Depict a naturally heavyset man with clearly increased soft torso, waist, upper-arm and cheek fullness beneath properly fitting robes; do not make a lean model or add bodybuilder muscles. Beard must be broad and dense across the entire chin and around the lower corners of the mouth before tapering into a gathered tip at upper chest. On the upper lip show only a few separated short fine hairs with clear skin between them: an incomplete sparse natural upper lip, not a continuous shaped mustache. Keep cheeks mostly clean and retain dark shoulder-length near-center-part hair, brown eyes and the long broad oval native facial geometry. Preserve all full culture, style, clothing and framing layers.
+Preserve every preceding complete cultural, photographic, composition, clothing and physique layer. Change only the reviewed identity details; do not invent distinguishing features.

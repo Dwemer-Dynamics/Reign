@@ -10,6 +10,7 @@ const TOOL_VERSION = "2026.09.06.1";
 const REPORT_SCHEMA = "reign-ui-approved-reference-fidelity-audit-v1";
 const CONTRACT_SCHEMA = "reign-ui-approved-reference-fidelity-contract-v1";
 const DEFAULT_TARGETS = [
+  "action-builder",
   "ambassador",
   "calibration-overlay",
   "castle-chat",
@@ -24,6 +25,10 @@ const DEFAULT_TARGETS = [
   "individual-chat",
   "memories-book",
   "notable-generation",
+  "player-approach",
+  "portrait-refresh",
+  "keep-approach",
+  "patrol-approach",
   "party-chat",
   "royal-council",
   "social-event",

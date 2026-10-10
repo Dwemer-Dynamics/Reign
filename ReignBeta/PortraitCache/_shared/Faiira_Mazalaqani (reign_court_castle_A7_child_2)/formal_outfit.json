@@ -3,11 +3,11 @@
   "heroStringId": "reign_court_castle_A7_child_2",
   "characterName": "Faiira Mazalaqani",
   "imagePath": "portrait.png",
-  "imageSha256": "BCA3FACF27911E1B063E7B9F5CFC67BEE93196F4287A188F95406660690E16BD",
-  "description": "Culturally appropriate everyday Aserai minor-lord attire inspired by refined medieval Arabian, North African, and limited Persian noble clothing. Men should wear a flowing robe or structured open-front coat over a fine lightweight tunic, secured with a decorated woven sash. Women should wear a long elegant dress with soft layered fabrics, shaped sleeves, graceful draping, and fine embroidery around the neckline, cuffs, and hem. Show rank through superior fabric, elegant borders, geometric embroidery, and subtle jewelry rather than excessive ornamentation. No headgear of any kind. No turbans, veils, hoods, armor, weapons, crowns, or ceremonial excess.",
-  "status": "failed",
-  "descriptionSource": "portrait_prompt_fallback",
-  "retryEligible": true,
-  "error": "{\"error\":{\"message\":\"Model \\\"zai-org/glm-5.2\\\" does not support image inputs. Remove image content or choose a multimodal model.\",\"type\":\"invalid_request_error\",\"param\":\"messages\",\"code\":\"image_input_not_supported\"}}",
-  "updatedUtc": "2026-07-18T22:03:29.1202517Z"
+  "imageSha256": "13B39CE3F966E0370F7176F4030F00324864D2C1E458A0CF4B6980E1C8E697EA",
+  "description": "She wears a warm cream full-length gown with a low square neckline, fitted structured bodice and elbow-length sleeves. Gold-and-brown embroidered borders decorate the neckline, bodice panels, sleeve cuffs, waist and long front skirt opening. Round brooches fasten the upper bodice straps. A decorated belt with a circular clasp and tassel secures the waist. A bronze-brown wrap with wide gold-toned patterned borders drapes loosely around the forearms and down both sides. Gold-colored earrings, a broad bracelet and small rings are visible. A modest lower opening shows a brown embroidered closed shoe and part of the lower leg. Opaque textured fabrics cover the bust, abdomen and pelvis; exact fibers are uncertain.",
+  "status": "completed",
+  "descriptionSource": "agent_vision",
+  "retryEligible": false,
+  "error": "",
+  "updatedUtc": "2026-10-07T22:18:40.678Z"
 }

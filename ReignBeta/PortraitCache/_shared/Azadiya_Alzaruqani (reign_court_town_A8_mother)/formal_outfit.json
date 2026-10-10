@@ -3,11 +3,11 @@
   "heroStringId": "reign_court_town_A8_mother",
   "characterName": "Azadiya Alzaruqani",
   "imagePath": "portrait.png",
-  "imageSha256": "30AEBEE68399AA2099D24867A14EBFB0C13E4AFCC497B467356917F464DB0FCF",
-  "description": "Culturally appropriate everyday Aserai minor-lord attire inspired by refined medieval Arabian, North African, and limited Persian noble clothing. Men should wear a flowing robe or structured open-front coat over a fine lightweight tunic, secured with a decorated woven sash. Women should wear a long elegant dress with soft layered fabrics, shaped sleeves, graceful draping, and fine embroidery around the neckline, cuffs, and hem. Show rank through superior fabric, elegant borders, geometric embroidery, and subtle jewelry rather than excessive ornamentation. No headgear of any kind. No turbans, veils, hoods, armor, weapons, crowns, or ceremonial excess.",
-  "status": "failed",
-  "descriptionSource": "portrait_prompt_fallback",
-  "retryEligible": true,
-  "error": "{\"error\":{\"message\":\"Model \\\"zai-org/glm-5.2\\\" does not support image inputs. Remove image content or choose a multimodal model.\",\"type\":\"invalid_request_error\",\"param\":\"messages\",\"code\":\"image_input_not_supported\"}}",
-  "updatedUtc": "2026-07-18T22:03:25.0286354Z"
+  "imageSha256": "1D81C9EBA9D2FFD6CCB9337F6BCFFDC5EFBFCCD75B2D8D7A4082168F9C9151A7",
+  "description": "A cream-gold full-length court gown with dark brown/gold geometric embroidered borders has a low square neckline, fitted opaque bodice and attached elbow-length sleeves. A broad decorated dark waist belt has a round gold-toned clasp. A brown woven wrap with gold edges and fringe drapes loosely along both forearms. Small dangling earrings, a pendant necklace, bracelets and a ring provide restrained jewelry. Both hands are visible clasped in front, and decorated closed shoes appear below the hem. The backdrop is plain stone columns and an unadorned dark wooden door.",
+  "status": "completed",
+  "descriptionSource": "agent_vision",
+  "retryEligible": false,
+  "error": "",
+  "updatedUtc": "2026-10-08T13:23:46.108Z"
 }

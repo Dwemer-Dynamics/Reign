@@ -3,11 +3,11 @@
   "heroStringId": "reign_court_castle_V2_child_2",
   "characterName": "Galana Belmontacourt",
   "imagePath": "portrait.png",
-  "imageSha256": "B5B24C3488C89834936CAD3BAC14C371B4562F8AC3E359A39B74E9C03F37F868",
-  "description": "Culturally appropriate everyday Vlandian landowner attire inspired by practical high-medieval Norman and Frankish clothing. Use a well-made wool tunic over a linen underlayer, fitted sleeves, a sturdy leather belt, narrow trousers or chausses, and soft leather boots. For women, use a long fitted underdress with a simple but well-tailored overdress, narrow sleeves, a modest neckline, and a practical belt. The garments should appear prosperous, clean, and durable without looking aristocratic. No headgear of any kind. No armor, weapons, crowns, ceremonial robes, or fantasy elements.",
-  "status": "failed",
-  "descriptionSource": "portrait_prompt_fallback",
-  "retryEligible": true,
-  "error": "{\"error\":{\"message\":\"Model \\\"zai-org/glm-5.2\\\" does not support image inputs. Remove image content or choose a multimodal model.\",\"type\":\"invalid_request_error\",\"param\":\"messages\",\"code\":\"image_input_not_supported\"}}",
-  "updatedUtc": "2026-07-18T22:03:29.3406682Z"
+  "imageSha256": "8A63EE094B48ABC4DCEFDABDBB701211DE861B4A62C662010E7B01D705916854",
+  "description": "The woman wears a deep burgundy-red opaque gown with a low square neckline, structured fitted bodice and elbow-length outer sleeves. Narrow gold-brown woven borders trim the neckline, shoulder straps, cuffs, waist and floor-length hem. A cream inner dress is visible between the long front panels. A tan-brown patterned wrap lies around her forearms and hangs down both sides, while a decorated belt with a small round clasp and hanging gold fittings sits at the waist. A small pendant necklace is visible. Dark brown leather shoes show beneath the hem, and her head is uncovered.",
+  "status": "completed",
+  "descriptionSource": "agent_vision",
+  "retryEligible": false,
+  "error": "",
+  "updatedUtc": "2026-10-07T22:35:02.795Z"
 }

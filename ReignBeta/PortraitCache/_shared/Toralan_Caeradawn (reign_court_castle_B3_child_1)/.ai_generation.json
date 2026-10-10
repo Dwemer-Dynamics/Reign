@@ -1,16 +1,90 @@
 {
   "version": 1,
+  "schema": "reign-builtin-chat-reference-guided-image-generation-culture-v1",
   "cacheKey": "Toralan_Caeradawn (reign_court_castle_B3_child_1)",
   "heroStringId": "reign_court_castle_B3_child_1",
   "characterObjectId": "reign_court_castle_B3_child_1",
   "characterName": "Toralan Caeradawn",
-  "provider": "AtlasCloud",
-  "model": "xai/grok-imagine-image/edit",
-  "adapter": "atlas upload/generate/poll",
+  "worker": "worker-0",
+  "generatedOriginalPath": "C:\\Users\\speed\\.codex\\generated_images\\01a11c35-9331-7471-a03c-9fcc53956ad3\\exec-8f156b14-04b0-44ea-b9ae-d6337f525557.png",
+  "sourceFileCreationUtc": "2026-10-08T21:10:39.750Z",
+  "generationRequestId": "af5e29e6-7e36-4663-88dc-4a9e4f70385b",
+  "generationRequestSha256": "f7db4a12d80ff8fb2e3f1862b387340d7864311f444a07e3f495c57ec8113653",
+  "generationReturnSha256": "0e352217f3a2109a0d35bca270407092c3e1d6ceca5c9e8f679915197fe14059",
+  "provider": "Codex built-in image_gen",
+  "model": "unknown",
+  "adapter": "old-face-identity/new-style-reference-guided",
+  "generationMode": "reference_guided",
+  "inputImages": 2,
+  "references": [
+    {
+      "id": "reign_court_castle_B3_child_1",
+      "role": "old_identity",
+      "path": "D:\\Program Files (x86)\\Steam\\steamapps\\common\\Mount & Blade II Bannerlord\\Modules\\ReignBeta\\PortraitCache\\_shared\\Toralan_Caeradawn (reign_court_castle_B3_child_1)\\portrait_chest.png",
+      "sha256": "9c9f4ddf0bb6f1ddcd49350dc1ad412e0cc859654adc03ab640b84b9455fbfee",
+      "originalReference": {
+        "path": "D:\\Program Files (x86)\\Steam\\steamapps\\common\\Mount & Blade II Bannerlord\\Modules\\ReignBeta\\PortraitCache\\_shared\\Toralan_Caeradawn (reign_court_castle_B3_child_1)\\portrait_chest.png",
+        "sha256": "9c9f4ddf0bb6f1ddcd49350dc1ad412e0cc859654adc03ab640b84b9455fbfee"
+      }
+    },
+    {
+      "id": "reign_court_castle_B3_child_1",
+      "role": "new_style",
+      "path": "C:\\ReignPortraitRebuild\\2026-10-07-01a11741-culture-v2\\audit\\residual-correction-phase4-001\\reign_court_castle_B3_child_1\\predecessor-files\\_shared\\Toralan_Caeradawn (reign_court_castle_B3_child_1)\\portrait.png",
+      "sha256": "58f72c93a965a0a2d4b559d90769e9405ada35750ece57415dd3c0f5a824fe57",
+      "originalReference": {
+        "path": "C:\\ReignPortraitRebuild\\2026-10-07-01a11741-culture-v2\\_shared\\Toralan_Caeradawn (reign_court_castle_B3_child_1)\\portrait.png",
+        "sha256": "58f72c93a965a0a2d4b559d90769e9405ada35750ece57415dd3c0f5a824fe57"
+      }
+    }
+  ],
+  "referenceGuidedExecution": {
+    "schema": "reign-portrait-reference-guided-execution-v1",
+    "generationMode": "reference_guided",
+    "inputImages": 2,
+    "references": [
+      {
+        "id": "reign_court_castle_B3_child_1",
+        "role": "old_identity",
+        "path": "D:\\Program Files (x86)\\Steam\\steamapps\\common\\Mount & Blade II Bannerlord\\Modules\\ReignBeta\\PortraitCache\\_shared\\Toralan_Caeradawn (reign_court_castle_B3_child_1)\\portrait_chest.png",
+        "sha256": "9c9f4ddf0bb6f1ddcd49350dc1ad412e0cc859654adc03ab640b84b9455fbfee",
+        "originalReference": {
+          "path": "D:\\Program Files (x86)\\Steam\\steamapps\\common\\Mount & Blade II Bannerlord\\Modules\\ReignBeta\\PortraitCache\\_shared\\Toralan_Caeradawn (reign_court_castle_B3_child_1)\\portrait_chest.png",
+          "sha256": "9c9f4ddf0bb6f1ddcd49350dc1ad412e0cc859654adc03ab640b84b9455fbfee"
+        }
+      },
+      {
+        "id": "reign_court_castle_B3_child_1",
+        "role": "new_style",
+        "path": "C:\\ReignPortraitRebuild\\2026-10-07-01a11741-culture-v2\\audit\\residual-correction-phase4-001\\reign_court_castle_B3_child_1\\predecessor-files\\_shared\\Toralan_Caeradawn (reign_court_castle_B3_child_1)\\portrait.png",
+        "sha256": "58f72c93a965a0a2d4b559d90769e9405ada35750ece57415dd3c0f5a824fe57",
+        "originalReference": {
+          "path": "C:\\ReignPortraitRebuild\\2026-10-07-01a11741-culture-v2\\_shared\\Toralan_Caeradawn (reign_court_castle_B3_child_1)\\portrait.png",
+          "sha256": "58f72c93a965a0a2d4b559d90769e9405ada35750ece57415dd3c0f5a824fe57"
+        }
+      }
+    ],
+    "textCompositionImageInputs": 0,
+    "textVerificationSha256": "7c681e8e124127f08ff65a90e39950d3990760a32f4516387ddba4879dba6de6",
+    "textPromptSha256": "533b2067ccbd3eb79d92782255b6c5b5ecdce934dd47f3768a0ebddfded385df",
+    "compositionProofSha256": "ef6f8a34dd85eee816796d10d1198da31dbec5e61c3c584fb966a41e0b0dcc4d",
+    "rootCompositionReview": {
+      "path": "C:\\ReignPortraitRebuild\\2026-10-07-01a11741-culture-v2\\audit\\root-full32-prompt-composition-review-001\\reign_court_castle_B3_child_1\\root-hybrid-composition-review.json",
+      "sha256": "d8d40803d5425e80ec4f17a30e7608ffd12810838b3ed368bde45a9cbb309bf6"
+    }
+  },
   "sourceSha256": "a8694449b3e560565c0398c044d089a85fad413f94e668469e203aaf2d83e317",
-  "portraitSha256": "aa9ce2821fe56a4d10425e0ba118872fb28f33a9e759a500e40ebaa4ed1362b1",
-  "portraitWidth": 864,
-  "portraitHeight": 1152,
+  "portraitSha256": "670c2f8b5d7d3880777f8aa3b9aba9b71f458c1e7692e4c7b9babfdc9432efc7",
+  "portraitWidth": 1086,
+  "portraitHeight": 1448,
+  "promptSha256": "5ebefa03a7a8fac5c1bcb0928f351cc2b82c7a901451a6569ef1f0ecf40756d1",
+  "descriptionSha256": "c0c273ce7be627aca67cb8c568533108a533c217be6ea3eba16f4cd691d446b6",
+  "cultureId": "battania",
+  "cultureReferenceKey": "battania",
+  "cultureReference": "Celtic Atlantic regional appearance, drawing on Irish, Scottish and Welsh populations.",
+  "cultureLayerFile": "portrait_facial_culture_battania.txt",
+  "cultureLayerFullText": "FACIAL CULTURAL APPEARANCE — BATTANIAN\nStored cultureId: battania.\nRegional reference: Celtic Atlantic regional appearance, drawing on Irish, Scottish and Welsh populations.\nCreate a believable real human face with this regional appearance. Apply the regional reference positively to facial appearance, facial structure and complexion; it is not only a clothing, setting or background instruction.\nBlend the regional reference with the individual facial description. Where simplified native geometry or game-renderer shading differs from this regional appearance, use a plausible natural blend while retaining recognizable individual traits: face outline, relative proportions, eyes, brows, nose, mouth, jaw and chin. Preserve the described hair identity, arrangement and texture, facial-hair pattern, eye character, visible scars and markings; do not invent new distinguishing marks.\nThese regional populations contain substantial individual variation. Do not give every member the same face, impose a universal skin, hair or eye color, or replace the written individual identity with a generic regional stereotype. Preserve source-grounded differences and natural human asymmetry.\nKeep the exact authored age and the independent native weight and build values. This layer applies to facial appearance and realistic complexion interpretation, not body size, muscularity, garment coverage or social rank. Every complete composition, clothing, confidence, photographic, output and physique modifier remains in effect. Do not print this reference or any metadata in the image.",
+  "cultureLayerSha256": "61f429edd007ef5f69ea3a5970444551f95a48e02abb297a5c4aa7c0e6e1f66a",
   "physicalConfidence": {
     "definition": "physical_confidence",
     "score": 56,
@@ -21,7 +95,10 @@
     "confidenceWeight": 0.25,
     "source": "shipped_profile_library"
   },
+  "confidenceCoverageOverride": null,
   "derivativesReady": true,
   "derivativeError": "",
-  "generatedUtc": "2026-07-17T19:17:20.3262076Z"
+  "generatedUtc": "2026-10-08T21:11:11.592Z",
+  "serverSigned": false,
+  "derivativeReportSha256": "00c3952148f7df8e747d377b054bf875180cc570574d4da9bf972d0cbf86b070"
 }

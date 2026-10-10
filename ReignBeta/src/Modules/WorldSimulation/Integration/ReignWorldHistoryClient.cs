@@ -77,11 +77,12 @@ namespace ReignBeta.Integration
             return await PostJsonAsync("/world-history/lie-check", payload).ConfigureAwait(false);
         }
 
-        internal static async Task<JObject> IngestWorldHistoryBatchAsync(string timelineId, float completeFromDay, JArray events)
+        internal static async Task<JObject> IngestWorldHistoryBatchAsync(string campaignId, string timelineId, float completeFromDay, JArray events, string generation, long epoch)
         {
             return await PostJsonAsync("/world-history/ingest-batch", new JObject
             {
-                ["campaignId"] = GetCampaignId(), ["clientId"] = "reign_native_campaign", ["timelineId"] = timelineId ?? "main",
+                ["campaignId"] = campaignId, ["clientId"] = "reign_native_campaign", ["timelineId"] = timelineId ?? "main",
+                ["sharedActivityGeneration"] = generation, ["_reignHistoryEpoch"] = epoch,
                 ["historyCompleteFromWorldDay"] = completeFromDay, ["events"] = events ?? new JArray()
             }).ConfigureAwait(false);
         }
@@ -111,6 +112,7 @@ namespace ReignBeta.Integration
         private const long MaximumOutboxBytes = 32L * 1024L * 1024L;
         private const long RetainedOutboxBytes = 16L * 1024L * 1024L;
         private static readonly ConcurrentQueue<JObject> Pending = new ConcurrentQueue<JObject>();
+        private static readonly ConcurrentDictionary<string, JObject> SharedPending = new ConcurrentDictionary<string, JObject>(StringComparer.Ordinal);
         private static readonly object StateLock = new object();
         private static readonly object FileLock = new object();
         private static readonly object RoutineLock = new object();
@@ -147,12 +149,18 @@ namespace ReignBeta.Integration
         private static string _campaignId = "default";
         private static string _timelineId = "main";
         private static float _completeFromDay;
+        private static long _epoch;
+
+        internal static bool IsCurrentRequest(JObject payload) =>
+            payload?.Value<long?>("_reignHistoryEpoch") == Interlocked.Read(ref _epoch);
 
         internal static void Initialize(string campaignId, string timelineId, float completeFromDay)
         {
             FlushRoutineBuckets(true);
             lock (StateLock)
             {
+                if (_campaignId != SafeSegment(campaignId, "default") || _timelineId != SafeSegment(timelineId, "main"))
+                { SharedPending.Clear(); Interlocked.Increment(ref _epoch); }
                 _campaignId = SafeSegment(campaignId, "default");
                 _timelineId = SafeSegment(timelineId, "main");
                 _completeFromDay = completeFromDay;
@@ -171,9 +179,12 @@ namespace ReignBeta.Integration
             {
                 envelope["_reignCampaignId"] = _campaignId;
                 envelope["_reignTimelineId"] = _timelineId;
+                envelope["_reignHistoryEpoch"] = _epoch;
             }
             string eventType = envelope.Value<string>("eventType") ?? string.Empty;
-            if (RoutineEventTypes.Contains(eventType))
+            bool shared = !string.IsNullOrWhiteSpace(envelope["payload"]?.Value<string>("playerHeroId"));
+            if (shared) SharedPending[envelope.Value<string>("eventId")] = envelope;
+            if (RoutineEventTypes.Contains(eventType) && !shared)
             {
                 envelope["retentionClass"] = "routine";
                 CoalesceRoutineEvent(envelope);
@@ -181,6 +192,56 @@ namespace ReignBeta.Integration
             }
             Pending.Enqueue(envelope);
             Kick();
+        }
+
+        internal static async Task<JObject> SynchronizeSharedActivitiesAsync()
+        {
+            string timeline, campaign, generation;
+            float completeFrom;
+            long epoch;
+            lock (StateLock) { timeline = _timelineId; campaign = _campaignId; completeFrom = _completeFromDay;
+                epoch = _epoch; generation = ReignBeta.Campaign.ReignWorldHistoryCampaignBehavior.Instance?.SharedActivityGeneration ?? string.Empty; }
+            string path = PendingPath(timeline, campaign);
+            // Recover relevant durable outbox entries without making the next
+            // reply wait for unrelated world traffic or the normal upload cadence.
+            lock (FileLock)
+            {
+                if (File.Exists(path))
+                    foreach (string line in File.ReadLines(path))
+                    {
+                        JObject item;
+                        try { item = JObject.Parse(line); } catch { continue; }
+                        if (!string.IsNullOrWhiteSpace(item["payload"]?.Value<string>("playerHeroId"))
+                            && !string.IsNullOrWhiteSpace(item.Value<string>("eventId")))
+                            SharedPending[item.Value<string>("eventId")] = item;
+                    }
+            }
+            long boundary = Volatile.Read(ref _activeSaveBoundarySequence);
+            var eligible = SharedPending.Values.Where(e => e.Value<string>("_reignTimelineId") == timeline
+                && e.Value<string>("_reignCampaignId") == campaign
+                && (e.Value<long?>("sequence") ?? 0) <= boundary).ToList();
+            var pending = eligible.OrderBy(e => e.Value<string>("eventType") == "party_contact_interval")
+                .ThenByDescending(e => e.Value<long?>("sequence") ?? 0).Take(256).OrderBy(e => e.Value<long?>("sequence") ?? 0).ToList();
+            var ids = new JArray(pending.Select(e => e.Value<string>("eventId")));
+            if (pending.Count == 0) return new JObject { ["complete"] = epoch == Interlocked.Read(ref _epoch), ["timelineId"] = timeline, ["generation"] = generation, ["eventIds"] = ids };
+            var upload = ReignServerClient.IngestWorldHistoryBatchAsync(campaign, timeline, completeFrom, new JArray(pending), generation, epoch);
+            if (await Task.WhenAny(upload, Task.Delay(4000)).ConfigureAwait(false) != upload)
+            {
+                // Observe any late failure; the durable outbox owns retry.
+                _ = upload.ContinueWith(t => { var ignored = t.Exception; }, TaskContinuationOptions.OnlyOnFaulted);
+                return new JObject { ["complete"] = false, ["timelineId"] = timeline, ["eventIds"] = ids, ["reason"] = "activity_sync_pending" };
+            }
+            JObject response;
+            try { response = await upload.ConfigureAwait(false); }
+            catch { return new JObject { ["complete"] = false, ["timelineId"] = timeline, ["eventIds"] = ids, ["reason"] = "activity_sync_unavailable" }; }
+            bool complete = response?.Value<bool?>("ok") == true && epoch == Interlocked.Read(ref _epoch);
+            if (complete)
+            {
+                RemoveAcknowledged(path, pending.Select(e => e.Value<string>("eventId")));
+                foreach (JObject item in pending) SharedPending.TryRemove(item.Value<string>("eventId"), out _);
+                complete = pending.Count == eligible.Count;
+            }
+            return new JObject { ["complete"] = complete, ["timelineId"] = timeline, ["generation"] = generation, ["eventIds"] = ids };
         }
 
         internal static bool FlushAndWait(TimeSpan timeout)
@@ -315,11 +376,13 @@ namespace ReignBeta.Integration
 
         internal static void ResetToSavePoint(string campaignId, string timelineId, long maximumSequence)
         {
+            SharedPending.Clear();
             FlushRoutineBuckets(true);
             string campaign = SafeSegment(campaignId, "default");
             string timeline = SafeSegment(timelineId, "main");
             lock (StateLock)
             {
+                Interlocked.Increment(ref _epoch);
                 _campaignId = campaign;
                 _timelineId = timeline;
             }
@@ -464,14 +527,18 @@ namespace ReignBeta.Integration
                     await Task.Delay(250).ConfigureAwait(false);
                 while (true)
                 {
-                    string timeline;
+                    string timeline, campaign, generation;
+                    long epoch;
                     float completeFrom;
                     lock (StateLock)
                     {
                         timeline = _timelineId;
+                        campaign = _campaignId;
+                        epoch = _epoch;
+                        generation = ReignBeta.Campaign.ReignWorldHistoryCampaignBehavior.Instance?.SharedActivityGeneration ?? string.Empty;
                         completeFrom = _completeFromDay;
                     }
-                    string path = PendingPath(timeline);
+                    string path = PendingPath(timeline, campaign);
                     bool urgent = Volatile.Read(ref _urgentFlush) != 0;
                     int uploadBatchSize =
                         ReignWorldHistoryFlushPolicy.UploadBatchSize(urgent);
@@ -483,7 +550,7 @@ namespace ReignBeta.Integration
                     }
                     if (newlyQueued.Count > 0)
                     {
-                        Persist(path, newlyQueued);
+                        Persist(path, newlyQueued, epoch);
                     }
 
                     if (!CanAttemptUpload())
@@ -517,7 +584,7 @@ namespace ReignBeta.Integration
                             }
                             if (coalesced.Count > 0)
                             {
-                                Persist(path, coalesced);
+                                Persist(path, coalesced, epoch);
                                 stagedCount += coalesced.Count;
                             }
                         }
@@ -542,8 +609,10 @@ namespace ReignBeta.Integration
                     try
                     {
                         Stopwatch uploadTimer = Stopwatch.StartNew();
-                        JObject response = await ReignServerClient.IngestWorldHistoryBatchAsync(timeline, completeFrom, new JArray(persisted)).ConfigureAwait(false);
+                        if (epoch != Interlocked.Read(ref _epoch)) continue;
+                        JObject response = await ReignServerClient.IngestWorldHistoryBatchAsync(campaign, timeline, completeFrom, new JArray(persisted), generation, epoch).ConfigureAwait(false);
                         uploadTimer.Stop();
+                        if (epoch != Interlocked.Read(ref _epoch)) continue;
                         if (response?.Value<bool?>("ok") != true)
                         {
                             RegisterUploadFailure();
@@ -553,6 +622,8 @@ namespace ReignBeta.Integration
                         RecordUploadTelemetry(response, persisted.Count,
                             uploadTimer.ElapsedMilliseconds);
                         RemoveAcknowledged(path, persisted.Select(x => x.Value<string>("eventId")).Where(x => !string.IsNullOrWhiteSpace(x)));
+                        foreach (JObject item in persisted)
+                            SharedPending.TryRemove(item.Value<string>("eventId") ?? string.Empty, out _);
                     }
                     catch (Exception ex)
                     {
@@ -576,14 +647,24 @@ namespace ReignBeta.Integration
             }
         }
 
-        private static void Persist(string path, IEnumerable<JObject> events)
+        private static void Persist(string path, IEnumerable<JObject> events, long epoch)
         {
+            lock (StateLock)
             lock (FileLock)
             {
+                if (epoch != _epoch)
+                {
+                    // An old worker may have drained newly queued events while a
+                    // save was loading. Return only the new epoch's work; a
+                    // completed Save Sync boundary already owns older events.
+                    foreach (JObject item in events.Where(e => e.Value<long?>("_reignHistoryEpoch") == _epoch)) Pending.Enqueue(item);
+                    return;
+                }
                 Directory.CreateDirectory(Path.GetDirectoryName(path));
                 StringBuilder builder = new StringBuilder();
                 foreach (JObject item in events)
                 {
+                    if (item.Value<string>("_reignCampaignId") != _campaignId || item.Value<string>("_reignTimelineId") != _timelineId) continue;
                     builder.AppendLine(item.ToString(Formatting.None));
                 }
                 File.AppendAllText(path, builder.ToString(), new UTF8Encoding(false));
@@ -602,13 +683,28 @@ namespace ReignBeta.Integration
             using (StreamReader reader = new StreamReader(input, Encoding.UTF8, true))
             using (StreamWriter writer = new StreamWriter(temp, false, new UTF8Encoding(false)))
             {
+                // Personal outcomes are not disposable world noise. Retain them
+                // even if an extended outage exceeds the ordinary outbox bound.
+                foreach (string earlier in File.ReadLines(path))
+                {
+                    try
+                    {
+                        JObject item = JObject.Parse(earlier);
+                        if (!string.IsNullOrWhiteSpace(item["payload"]?.Value<string>("playerHeroId"))) writer.WriteLine(earlier);
+                    }
+                    catch { }
+                }
                 input.Seek(start, SeekOrigin.Begin);
                 if (start > 0L) reader.ReadLine();
                 string line;
-                while ((line = reader.ReadLine()) != null) writer.WriteLine(line);
+                while ((line = reader.ReadLine()) != null)
+                {
+                    try { if (!string.IsNullOrWhiteSpace(JObject.Parse(line)["payload"]?.Value<string>("playerHeroId"))) continue; } catch { }
+                    writer.WriteLine(line);
+                }
             }
             File.Replace(temp, path, null);
-            ReignLog.Warn("World-history outbox exceeded 32 MB; oldest deferred events were discarded and the newest 16 MB retained.");
+            ReignLog.Warn("World-history outbox exceeded 32 MB; personal activity evidence was preserved alongside the newest 16 MB of ordinary events.");
         }
 
         private static List<JObject> ReadPendingBatch(
@@ -742,10 +838,10 @@ namespace ReignBeta.Integration
             });
         }
 
-        private static string PendingPath(string timeline)
+        private static string PendingPath(string timeline, string campaignOverride = null)
         {
             string campaign;
-            lock (StateLock) campaign = _campaignId;
+            lock (StateLock) campaign = campaignOverride ?? _campaignId;
             return Path.Combine(BasePath.Name, "Modules", "ReignBeta", "HistoryOutbox", campaign, SafeSegment(timeline, "main"), "pending.jsonl");
         }
 

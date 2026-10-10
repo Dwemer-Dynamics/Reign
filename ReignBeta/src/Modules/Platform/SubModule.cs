@@ -41,6 +41,7 @@ namespace ReignBeta
             base.OnSubModuleLoad();
             EnsureManagedRuntimeDependencies();
             ReignEncyclopediaSafetyPatch.Apply();
+            ReignMapBarInputSafetyPatch.Apply();
             ReignPregnancyPatches.Apply();
             ReignMarriagePatches.Apply();
             ReignDiplomacyPatches.Apply();
@@ -52,6 +53,7 @@ namespace ReignBeta
             ReignSaveSyncDeletionPatch.Apply();
             ReignEconomyPatches.Apply();
             ReignTemporaryPartyGuestPatches.Apply();
+            ReignRescueConversationBehavior.Install();
             ReignWorkshopDialoguePatches.Apply();
             ReignMainMenuVideoPatches.Apply();
             ReignPopupKeyboardPatches.Apply();
@@ -139,7 +141,9 @@ namespace ReignBeta
                 campaignStarter.AddBehavior(new ReignCharacterEditorCampaignBehavior());
                 campaignStarter.AddBehavior(new ReignCharacterKnowledgeCampaignBehavior());
                 campaignStarter.AddBehavior(new ReignAICampaignBehavior());
+                campaignStarter.AddBehavior(new ReignBeta.Actions.ReignAgreementBehavior());
                 campaignStarter.AddBehavior(new ReignPersonalItemService());
+                campaignStarter.AddBehavior(new ReignGoldTransferService());
                 campaignStarter.AddBehavior(new ReignCampaignCommandBehavior());
                 campaignStarter.AddBehavior(new ReignWorldHistoryCampaignBehavior());
                 campaignStarter.AddBehavior(new ReignTemporaryPartyGuestCampaignBehavior());
@@ -157,6 +161,9 @@ namespace ReignBeta
                 campaignStarter.AddBehavior(new ReignWandererPopulationCampaignBehavior());
                 campaignStarter.AddBehavior(new ReignSocialEventsCampaignBehavior());
                 campaignStarter.AddBehavior(new ReignRelationshipCampaignBehavior());
+                campaignStarter.AddBehavior(new ReignPlayerApproachCampaignBehavior());
+                campaignStarter.AddBehavior(new ReignBanterCampaignBehavior());
+                campaignStarter.AddBehavior(new ReignRescueConversationBehavior());
                 campaignStarter.AddBehavior(new ReignFamilyCampaignBehavior());
                 campaignStarter.AddBehavior(new ReignCourtPersonalityReputationCampaignBehavior());
 #if !REIGN_EXCLUDE_COURT
@@ -173,6 +180,12 @@ namespace ReignBeta
                 campaignStarter.AddBehavior(new PreloadCampaignBehavior());
                 campaignStarter.AddBehavior(new ConversationBehavior());
             }
+        }
+
+        public override void OnGameEnd(Game game)
+        {
+            ReignBanterCampaignBehavior.Instance?.CampaignEnded();
+            base.OnGameEnd(game);
         }
 
         protected override void OnApplicationTick(float dt)
@@ -208,6 +221,7 @@ namespace ReignBeta
                 () => ReignCharacterEditorCampaignBehavior.Instance?.ApplicationTick(dt));
 
             RunTickStage("continuous relationship outbox", () => ReignServerClient.RelationshipRealtimeTick(dt));
+            RunTickStage("player approach options", () => ReignServerClient.PlayerApproachOptionsTick(dt));
             RunTickStage("continuous native relationship projection", () => ReignRelationshipCampaignBehavior.Instance?.ApplicationTick(dt));
             RunTickStage("continuous server action execution", () => ReignAICampaignBehavior.Instance?.ApplicationTick(dt));
 
@@ -221,6 +235,7 @@ namespace ReignBeta
             RunTickStage("individual chat overlay", () => ReignIndividualChatScreenManager.ApplicationTick(dt));
             RunTickStage("social event overlay", () => ReignSocialEventScreenManager.ApplicationTick(dt));
             RunTickStage("party chat overlay", () => ReignPartyChatScreenManager.ApplicationTick(dt));
+            RunTickStage("party banter", () => ReignBanterCampaignBehavior.Instance?.ApplicationTick(dt));
             RunTickStage("tavern house overlay", () => ReignTavernHouseScreenManager.ApplicationTick(dt));
             RunTickStage("temporary noble guests", () => ReignTemporaryPartyGuestCampaignBehavior.Instance?.ApplicationTick());
             RunTickStage("persistent follow representation", () => ReignFollowCampaignBehavior.Instance?.ApplicationTick(dt));
@@ -245,6 +260,7 @@ namespace ReignBeta
             RunTickStage("memory queue", MemoryQueue.DrainOnMainThread);
             RunTickStage("diagnostics", DiagnosticsRunner.Tick);
             RunTickStage("action gauntlet", () => ReignActionGauntlet.ApplicationTick(dt));
+            RunTickStage("action sentence builder", ReignActionBuilder.ApplicationTick);
         }
 
         private static void RunTickStage(string stage, Action action)
@@ -271,6 +287,7 @@ namespace ReignBeta
             mission.AddMissionBehavior(new ReignDuelMissionBehavior());
             mission.AddMissionBehavior(new ReignSceneActionMissionBehavior());
             mission.AddMissionBehavior(new ReignEncounteredResidentMissionBehavior());
+            mission.AddMissionBehavior(new ReignBeta.Campaign.ReignSharedActivityMissionBehavior());
         }
 
         protected override void OnSubModuleUnloaded()
@@ -290,6 +307,7 @@ namespace ReignBeta
             ReignWorkshopDialoguePatches.Unapply();
             ReignMainMenuVideoPatches.Unapply();
             ReignPopupKeyboardPatches.Unapply();
+            ReignMapBarInputSafetyPatch.Unapply();
 #if !REIGN_EXCLUDE_COURT
             ReignCourtNobleSafetyPatches.Unapply();
 #endif

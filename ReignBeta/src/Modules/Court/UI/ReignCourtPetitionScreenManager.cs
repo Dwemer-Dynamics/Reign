@@ -266,6 +266,8 @@ namespace ReignBeta.UI
                 _vm?.OnFrameTick(dt);
                 _nobleVm?.OnFrameTick(dt);
                 _lifeVm?.OnFrameTick(dt);
+                IReignActionHost actionHost = (IReignActionHost)_vm ?? (IReignActionHost)_nobleVm ?? _lifeVm;
+                if (ReignActionBuilder.Handle(_host, actionHost)) return;
                 _layer.InputRestrictions.SetInputRestrictions(true, InputUsageMask.All);
                 _layer.Input.IsKeysAllowed = true;
                 if (Input.IsKeyReleased(InputKey.Escape))

@@ -1,0 +1,16 @@
+{
+  "schema": "reign-fixed-region-composite-v1",
+  "assetId": "player-approach-shared-approved-shell",
+  "approvedReference": {
+    "path": "../approved-references/notable-generation.png",
+    "sha256": "eb3d7a52680aa55c0c4ff8acdc615a1118f770db1e9a203efed14a0bf7bdfc82"
+  },
+  "canvas": { "width": 1672, "height": 941 },
+  "policy": "Reuse the approved notable-generation owning artwork, exact geometry, marble, gold and crest. Only the title, public request, two choice labels in the existing status plate and superseded retry label are dynamic. No new fixed artwork.",
+  "sceneDependentMasks": [
+    { "id": "title", "shape": "rectangle", "x": 505, "y": 248, "width": 663, "height": 72 },
+    { "id": "public-request", "shape": "rectangle", "x": 447, "y": 399, "width": 778, "height": 92 },
+    { "id": "two-choice-labels", "shape": "rectangle", "x": 558, "y": 538, "width": 556, "height": 44 },
+    { "id": "superseded-retry-label", "shape": "rectangle", "x": 700, "y": 594, "width": 272, "height": 42 }
+  ]
+}

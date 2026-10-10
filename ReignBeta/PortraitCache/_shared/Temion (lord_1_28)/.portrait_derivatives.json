@@ -2,27 +2,27 @@
   "Version": 3,
   "CropAlgorithmVersion": 2,
   "SourceFileName": "portrait.png",
-  "SourcePath": "portrait.png",
-  "SourceLength": 2142481,
-  "SourceLastWriteUtcTicks": 639248625016891487,
-  "SourceWidth": 1024,
-  "SourceHeight": 1536,
-  "CropX": 298,
-  "CropY": 60,
-  "CropWidth": 399,
-  "CropHeight": 499,
-  "WideCropX": 148,
-  "WideCropY": 60,
-  "WideCropWidth": 699,
-  "WideCropHeight": 499,
+  "SourcePath": "C:\\ReignPortraitRebuild\\2026-10-07-01a11741-culture-v2\\_shared\\Temion (lord_1_28)\\portrait.png",
+  "SourceLength": 2207624,
+  "SourceLastWriteUtcTicks": 639270898753379282,
+  "SourceWidth": 1086,
+  "SourceHeight": 1448,
+  "CropX": 384,
+  "CropY": 0,
+  "CropWidth": 282,
+  "CropHeight": 353,
+  "WideCropX": 278,
+  "WideCropY": 0,
+  "WideCropWidth": 494,
+  "WideCropHeight": 353,
   "FocusMethod": "ultraface",
   "FocusModel": "version-RFB-320",
-  "FocusConfidence": 0.9999980926513672,
+  "FocusConfidence": 0.999961256980896,
   "FaceCandidateCount": 1,
-  "FaceX": 0.40258708596229553,
-  "FaceY": 0.07689999788999557,
-  "FaceWidth": 0.1667986810207367,
-  "FaceHeight": 0.15110034495592117,
+  "FaceX": 0.4281436502933502,
+  "FaceY": 0.07039064168930054,
+  "FaceWidth": 0.1108529269695282,
+  "FaceHeight": 0.09121409058570862,
   "NeedsReview": false,
   "ThumbnailFileName": "thumbnail.png",
   "ThumbnailWidth": 256,
@@ -31,9 +31,180 @@
   "PartyThumbnailWidth": 448,
   "PartyThumbnailHeight": 320,
   "PortraitFileName": "portrait_chest.png",
-  "PortraitWidth": 399,
-  "PortraitHeight": 499,
+  "PortraitWidth": 282,
+  "PortraitHeight": 353,
   "ZoomFileName": "zoom.png",
   "ZoomWidth": 1024,
-  "ZoomHeight": 1536
+  "ZoomHeight": 1365,
+  "ManualCropProvenance": {
+    "schema": "reign-manual-crop-provenance-v1",
+    "actualCropPolicy": "manual-crown-expansion-v1",
+    "nativeAlgorithmProducedRectangle": false,
+    "compatibilityFields": {
+      "Version": 3,
+      "CropAlgorithmVersion": 2
+    },
+    "compatibilityFieldInterpretation": "Retained native consumer tags; this explicit adapter selected the rectangles, not algorithm2.",
+    "master": {
+      "path": "C:\\ReignPortraitRebuild\\2026-10-07-01a11741-culture-v2\\_shared\\Temion (lord_1_28)\\portrait.png",
+      "sha256": "724b8e5e3ed8670eb44ce84e230f9457040f26bc21042b9a80118db49f181009",
+      "bytes": 2207624
+    },
+    "baselineMetadata": {
+      "path": "C:\\ReignPortraitRebuild\\2026-10-07-01a11741-culture-v2\\_shared\\Temion (lord_1_28)\\.portrait_derivatives.json",
+      "sha256": "a382828128ec49244a1ba12d77df9658bd2bf9e4b28762adec43118653d452dd",
+      "bytes": 1182
+    },
+    "plan": {
+      "path": "C:\\ReignPortraitRebuild\\2026-10-07-01a11741-culture-v2\\audit\\remaining-phase4-crown-pack-preparation-component-001\\candidate-plan-001.json",
+      "sha256": "92023e4675e2b55ff1398bb4179fd790ed4585f7cfb1e36311cd919f8a21b666",
+      "bytes": 125163
+    },
+    "authorization": {
+      "path": "C:\\ReignPortraitRebuild\\2026-10-07-01a11741-culture-v2\\audit\\remaining-phase4-crown-pack-preparation-component-001\\root-release-001.json",
+      "sha256": "a9f72a1dd9f9cd592d1a3c3b113539231d53906f02f60e5a8788c2e0359fb481",
+      "bytes": 2490
+    },
+    "actualProducer": {
+      "path": "C:\\ReignPortraitRebuild\\2026-10-07-01a11741-culture-v2\\audit\\remaining-phase4-crown-pack-preparation-component-001\\candidate-crown-pack-001.py",
+      "sha256": "9d23c388eb640f6ca67a0b2ffefe155eb7d72acc274c29ed776baec2e76c13bb",
+      "bytes": 12300
+    },
+    "nativeCodecWorker": {
+      "path": "C:\\ReignPortraitRebuild\\2026-10-07-01a11741-culture-v2\\audit\\remaining-phase4-crown-pack-preparation-component-001\\native-crown-codec-001.ps1",
+      "sha256": "5dc42027b8c46261f4040b3c08dfd5b5957fae6f36864d348f542828634ff974",
+      "bytes": 6106
+    },
+    "codecAssembly": {
+      "path": "D:\\Projects\\Reign\\.codex-build\\reign-mcp\\validation\\20261007-181216-5bee7061\\client\\out\\ReignBeta.dll",
+      "sha256": "498c5d8e7af24226dbf5b9d37147fd562cf0e42b6477b6f4607f6011905ac5b8",
+      "bytes": 5388800
+    },
+    "originalGenerationLineage": {
+      "phaseResult": {
+        "path": "C:\\ReignPortraitRebuild\\2026-10-07-01a11741-culture-v2\\audit\\residual-correction-phase4-001\\lord_1_28\\gallery-result-001.json",
+        "sha256": "f1d7341afd243b093b701664364bc8297b4d7739e4d6463b5ede41257e209638",
+        "bytes": 5395
+      },
+      "originalDerivativeReport": {
+        "path": "C:\\ReignPortraitRebuild\\2026-10-07-01a11741-culture-v2\\audit\\residual-correction-phase4-001\\lord_1_28\\gallery-derivative-report-001.json",
+        "sha256": "46580e38491947e2baf93ca521693c54ed4f3d60fc45ad4273fc5d38c169bb1b",
+        "bytes": 3721
+      }
+    },
+    "rawFocusUnchanged": true,
+    "noCandidateExclusions": true,
+    "rectangleXYWH": [
+      384,
+      0,
+      282,
+      353
+    ],
+    "wideRectangleXYWH": [
+      278,
+      0,
+      494,
+      353
+    ],
+    "productBytes": [
+      {
+        "path": "C:\\ReignPortraitRebuild\\2026-10-07-01a11741-culture-v2\\audit\\remaining-phase4-crown-pack-preparation-component-001\\candidate-packs-001\\lord_1_28\\portrait_chest.png",
+        "sha256": "6e1aa893e605215eff7b40afae63697bd34c7b11f733e903b9daf21689598a60",
+        "bytes": 222080,
+        "name": "portrait_chest.png",
+        "dimensions": [
+          282,
+          353
+        ]
+      },
+      {
+        "path": "C:\\ReignPortraitRebuild\\2026-10-07-01a11741-culture-v2\\audit\\remaining-phase4-crown-pack-preparation-component-001\\candidate-packs-001\\lord_1_28\\thumbnail.png",
+        "sha256": "14e5a94e9b0f7b5e6ab09f5bc022d43099b427bedfc196d700771a919e4e86d8",
+        "bytes": 179536,
+        "name": "thumbnail.png",
+        "dimensions": [
+          256,
+          320
+        ]
+      },
+      {
+        "path": "C:\\ReignPortraitRebuild\\2026-10-07-01a11741-culture-v2\\audit\\remaining-phase4-crown-pack-preparation-component-001\\candidate-packs-001\\lord_1_28\\thumbnail_wide.png",
+        "sha256": "d41fe2fd71ce06bd77a6743b0edff20889af98531ab268063cf95c463b906147",
+        "bytes": 290926,
+        "name": "thumbnail_wide.png",
+        "dimensions": [
+          448,
+          320
+        ]
+      }
+    ],
+    "zoomUnchanged": {
+      "path": "C:\\ReignPortraitRebuild\\2026-10-07-01a11741-culture-v2\\_shared\\Temion (lord_1_28)\\zoom.png",
+      "sha256": "d0cffd437676c00e03e3b0adbc5bf907741d0225dde7c711dca7b0380641d66b",
+      "bytes": 3198879
+    },
+    "scope": "Candidate crop only; root raster approval and audit reader/adoption pending. No source/geometry/family/overall acceptance.",
+    "sourceLastWriteUtcTicksExactDecimal": "639270898753379282",
+    "nativeFieldsChangedOnly": [
+      "CropX",
+      "CropY",
+      "CropWidth",
+      "CropHeight",
+      "WideCropX",
+      "WideCropY",
+      "WideCropWidth",
+      "WideCropHeight",
+      "PortraitWidth",
+      "PortraitHeight",
+      "ThumbnailWidth",
+      "ThumbnailHeight",
+      "PartyThumbnailWidth",
+      "PartyThumbnailHeight"
+    ],
+    "forcedRebuildLimitation": "Native forced regeneration/freshness invalidation may replace these crops and this extension."
+  },
+  "StagedAssetProvenance": {
+    "schema": "reign-staged-effective-portrait-origin-v1",
+    "id": "lord_1_28",
+    "kind": "manual_same_master",
+    "currentLocalFiles": [
+      {
+        "name": "portrait_chest.png",
+        "sha256": "6e1aa893e605215eff7b40afae63697bd34c7b11f733e903b9daf21689598a60",
+        "bytes": 222080
+      },
+      {
+        "name": "thumbnail.png",
+        "sha256": "14e5a94e9b0f7b5e6ab09f5bc022d43099b427bedfc196d700771a919e4e86d8",
+        "bytes": 179536
+      },
+      {
+        "name": "thumbnail_wide.png",
+        "sha256": "d41fe2fd71ce06bd77a6743b0edff20889af98531ab268063cf95c463b906147",
+        "bytes": 290926
+      },
+      {
+        "name": "portrait.png",
+        "sha256": "724b8e5e3ed8670eb44ce84e230f9457040f26bc21042b9a80118db49f181009",
+        "bytes": 2207624
+      },
+      {
+        "name": "zoom.png",
+        "sha256": "d0cffd437676c00e03e3b0adbc5bf907741d0225dde7c711dca7b0380641d66b",
+        "bytes": 3198879
+      }
+    ],
+    "nativeAlgorithmProducedRectangle": false,
+    "priorProducerExtensionsRetainedVerbatim": true,
+    "absolutePriorReferencesRole": "Historical/candidate references; current module pixels/provenance use the relative currentLocalFiles.",
+    "sourcePathProjection": {
+      "from": "C:\\ReignPortraitRebuild\\2026-10-07-01a11741-culture-v2\\_shared\\Temion (lord_1_28)\\portrait.png",
+      "to": "C:\\ReignPortraitRebuild\\2026-10-07-01a11741-culture-v2\\_shared\\Temion (lord_1_28)\\portrait.png",
+      "reason": "Unchanged current fullbody cache anchor"
+    },
+    "independentChestNativeForcedRegenerationCanOverwrite": false,
+    "globalFaceAcceptance": false,
+    "nativeUIAcceptance": false,
+    "notSwapApproval": true
+  }
 }

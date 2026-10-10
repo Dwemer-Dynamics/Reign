@@ -1,11 +1,26 @@
-IDENTITY AND SUBJECT
-Use the provided source image as the visual identity reference, not as a style reference.
-Create a portrait of Godun, a man of Sturgian culture who is 50 years old.
-Their clan is tier 4, placing them socially among the lesser lord class. Use this status to guide the refinement, expense, materials, and ornament of their clothing without turning it into fantasy costume.
-Use the source face image as the primary visual reference for the subject’s appearance and identity. Preserve the recognizable facial features, apparent age, expression, eye shape, eye color, hair color, hairstyle, skin tone, facial proportions, bone structure, scars, facial hair, and other distinguishing characteristics as closely as possible.
-The source image may depict a stylized or simplified video-game character model. Do not reproduce the artificial game-model appearance, low-detail geometry, rigid facial structure, plastic skin, exaggerated proportions, or computer-rendered texture. Instead, reinterpret the character as a believable real human being while retaining the same recognizable identity.
-Translate simplified game features into natural human anatomy and realistic detail, including authentic skin texture, visible pores, subtle wrinkles, natural facial asymmetry, realistic eyes, individually defined hair, believable facial hair, and physically plausible facial proportions. The final face should look like a real person photographed in real life, not a game model, digital avatar, illustration, or CGI render.
-Treat the name, age, gender, culture, clan tier, and social station as private generation guidance. They describe the subject and must never be printed, captioned, labeled, written, or otherwise rendered anywhere in the image.
+I want you to create a picture of a 50-year-old man who looks like the description below. Create one photographic full-body portrait. Clothing follows Sturgian lesser lord fashion, with the craftsmanship and social station of clan tier 4. These values are generation guidance and must never be printed in the image.
+Use a vertical 3:4 portrait canvas. Generate from the written traits alone.
+
+FACIAL APPEARANCE AND HAIR
+Godun is a 50-year-old Sturgian man with fair warm beige-peach skin and a long oval face. His exposed midface has broad, full, forward-rounded cheeks: soft convex cheek surfaces beside the nose and beneath the eyes, continuing into full outer cheeks. Give these cheeks visible volume consistent with his exact heavyset native physique, rather than hollow, flat, angular cheek planes. His lower jaw is rounded and hidden by the beard; do not use an invented jaw or beard contour to define his identity. Preserve fine horizontal forehead wrinkles, natural under-eye creases, nasolabial folds and mature uneven complexion. He must look fifty, not younger or extremely old.
+
+His eyes are muted grey-hazel with green-brown colour around dark pupils and dark iris rims; the exact hue remains uncertain under native lighting. His eyes are large and openly rounded, with tall oval-round openings, rounded lower lids and clearly visible irises. Keep a full visible upper eyelid surface above each lash line. The orbital openings sit relatively shallowly in the face and are spaced about one eye-width apart. His medium-thick brown-grey brows are gently curved and lifted clear of the upper lids, with level outer ends. This is a naturally open-eyed face; do not give him deeply recessed small eyes, overhanging brow ledges, heavy hooded lids or a narrowed squint. His composed serious expression does not compress the actual eye apertures.
+
+His nose is long and narrow through the bridge, with a slim straight central ridge descending between the open eyes. The lower nose projects distinctly forward and down, ending in a small rounded pendant tip below the nostril wings. Keep the bridge and wings narrow enough that the tip is a separate, compact pear-shaped projection, rather than a broad blunt horizontal bulb spanning a wide base. The nostrils are small curved openings and the nasal base is compact. Preserve the native long prominent nose but make its slim shaft, lowered projecting tip and narrow base unambiguous.
+
+His mouth is compact beneath a connected moustache. Preserve muted pale peach-pink lips, a shallow M-shaped upper lip and a visibly fuller bowed central lower lip with short nearly level corners. The small bare or short-haired gap around the lower lip leaves this central lip clearly visible. Do not expand the moustache across the mouth or turn the lips into a thin straight slit.
+
+His sandy ash-brown and golden-grey hair has conspicuous pale grey strands down the sides. Keep the loose medium-length mane swept backward from an exposed forehead and a modest central V-shaped hairline. Uneven waves run beside the temples and ears toward the neck. The lower ends are obscured by native clothing, so their exact length is uncertain; do not invent very long braids. Both sides remain fully haired. His coarse golden-brown connected moustache and full beard include grey and ash strands, dense along the jaw and chin. The beard forms a medium-short rounded block under the chin, with the small natural gap around the lower lip. Keep this pattern and ageing colour mixture. Add no scars, tattoos, freckles or new marks.
+
+Render natural human proportions and the complete Sturgian cultural appearance. Keep the exact age, independent weight and male build modifiers. His visibly different facial structure must come from the combination of large open rounded eyes, full convex exposed cheeks and the narrow long nose with a compact lowered projecting tip. Hair, beard, age, expression, outfit and lighting do not establish this distinction.
+
+FACIAL CULTURAL APPEARANCE — STURGIAN
+Stored cultureId: sturgia.
+Regional reference: Eastern European and Slavic regional appearance.
+Create a believable real human face with this regional appearance. Apply the regional reference positively to facial appearance, facial structure and complexion; it is not only a clothing, setting or background instruction.
+Blend the regional reference with the individual facial description. Where simplified native geometry or game-renderer shading differs from this regional appearance, use a plausible natural blend while retaining recognizable individual traits: face outline, relative proportions, eyes, brows, nose, mouth, jaw and chin. Preserve the described hair identity, arrangement and texture, facial-hair pattern, eye character, visible scars and markings; do not invent new distinguishing marks.
+These regional populations contain substantial individual variation. Do not give every member the same face, impose a universal skin, hair or eye color, or replace the written individual identity with a generic regional stereotype. Preserve source-grounded differences and natural human asymmetry.
+Keep the exact authored age and the independent native weight and build values. This layer applies to facial appearance and realistic complexion interpretation, not body size, muscularity, garment coverage or social rank. Every complete composition, clothing, confidence, photographic, output and physique modifier remains in effect. Do not print this reference or any metadata in the image.
 
 COMPOSITION AND FRAMING
 Create a full head-to-toe body portrait showing the entire figure from the top of the head down to the feet
@@ -25,3 +40,14 @@ OUTPUT EXCLUSIONS
 Return only the portrait image itself.
 Do not render words, letters, numbers, captions, labels, names, ages, cultures, subtitles, signatures, logos, watermarks, interface elements, portrait cards, decorative title blocks, borders, banners, blank caption areas, white strips, white footer panels, or metadata panels anywhere in the image.
 No extreme close-up, face-only crop, cropped head, cropped shoulders, armor, weapons, shields, quivers, chainmail, helmets, fur war gear, plastic skin, over-smoothed face, CGI, cartoon, anime, painterly style, or modern clothing.
+
+NATIVE BODY APPEARANCE — AUTHORITATIVE PHYSIQUE
+Native weight: 0.7289 on a 0–1 scale: Heavyset, increased body fat.
+Native build: 0.7611 on a 0–1 scale: Muscular.
+These are independent native appearance sliders, not kilograms, BMI, clinical classifications or body-fat percentages. Respect the exact position within each range, without abrupt changes at descriptive boundaries.
+Weight controls body-fat fullness. For women, build controls natural muscle tone, firmness, and athletic definition, not added muscle mass, bulky shoulders, thick arms, or masculine bodybuilder proportions. For men, build controls muscle mass. High weight does not imply muscle. High build does not imply extra fat or automatically visible abdominal definition; body fat and clothing can obscure definition.
+Match these native proportions even if another prompt or the supplied AI portrait conflicts. Preserve native age, sex, skeletal proportions, face and identity. Do not infer breast size, enlarge curves, beautify, slim or bulk up the person beyond these values.
+Garments must fit this physique. Revealingness and physical confidence change clothing coverage only, never body size. Covered muscles need not be exposed. During a clothing edit, correct conflicting AI physique to these native values while preserving the person's face and identity. Never print these instructions or values in the image.
+
+COMPOSITION CORRECTION FOR CANONICAL CROPS
+Leave clear stone architecture above the entire hairstyle. Place the very top of the hair at roughly 6% of total canvas height and the chin at roughly 18% of total canvas height. Keep the complete body and both feet inside the canvas with floor visible below the shoes. Do not enlarge the face or crop the hair. Preserve the written identity and all preceding appearance, clothing, light and style instructions.

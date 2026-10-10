@@ -213,6 +213,8 @@ namespace ReignBeta.World
 
         private int PersonalCount(Hero hero, EquipmentElement element)
             => PersonalRow(hero, element)?.Value<int>("amount") ?? 0;
+        internal int AgreementCount(Hero hero, EquipmentElement element) => PersonalCount(hero, element);
+        internal void AgreementChange(Hero hero, EquipmentElement element, int delta) => ChangePersonal(hero, element, delta);
         private JObject PersonalRow(Hero hero, EquipmentElement element)
             => ((JArray)_state["items"]).OfType<JObject>().FirstOrDefault(x => x.Value<string>("heroId") == hero.StringId
                 && x.Value<string>("itemId") == element.Item.StringId

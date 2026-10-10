@@ -52,15 +52,15 @@ namespace ReignBeta.Integration
             }
         }
 
-        public static async Task SendCampaignOrderReportLetterAsync(ReignCampaignOrderRecord order)
+        public static async Task<bool> SendCampaignOrderReportLetterAsync(ReignCampaignOrderRecord order)
         {
             if (order == null || string.IsNullOrWhiteSpace(order.PendingReportId)
-                || string.IsNullOrWhiteSpace(order.PendingReportText)) return;
+                || string.IsNullOrWhiteSpace(order.PendingReportText)) return false;
             try
             {
                 Hero sender = ReignObjectResolver.FindHero(order.CommanderHeroStringId);
                 Hero recipient = Hero.MainHero;
-                if (sender == null || recipient == null) return;
+                if (sender == null || recipient == null) return false;
                 double day = TaleWorlds.CampaignSystem.Campaign.Current == null
                     ? 0d : CampaignTime.Now.ToDays;
                 JObject response = await PostJsonAsync("/correspondence/send", new JObject
@@ -72,7 +72,7 @@ namespace ReignBeta.Integration
                     ["recipientId"] = recipient.StringId ?? string.Empty,
                     ["recipientName"] = recipient.Name?.ToString() ?? "Sovereign",
                     ["body"] = order.PendingReportText,
-                    ["source"] = "campaign_command_urgent_report",
+                    ["source"] = ReignCampaignReportPolicy.LetterSource(order.AwaitingGuidance),
                     ["reason"] = order.PendingReportId,
                     ["dispatchDay"] = day,
                     ["deliveryDay"] = day,
@@ -85,12 +85,15 @@ namespace ReignBeta.Integration
                 if (response.Value<bool?>("ok") != true)
                     ReignLog.Warn("Campaign command report letter was not accepted: "
                         + (response.Value<string>("error") ?? "unknown error"));
+                return ReignCampaignReportPolicy.LetterDelivered(response.Value<bool?>("ok") == true,
+                    response.Value<string>("letterId"), response.Value<string>("status"));
             }
             catch (Exception ex)
             {
-                // The immediate in-game report remains authoritative and is shown even
-                // when the correspondence service is temporarily unavailable.
+                // Keep the saved outbox pending. A server failure cannot fulfill
+                // scouting; the same report identity will be retried.
                 ReignLog.Warn("Campaign command report letter fallback used: " + ex.Message);
+                return false;
             }
         }
 

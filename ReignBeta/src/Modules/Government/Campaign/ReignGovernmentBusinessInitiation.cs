@@ -60,7 +60,8 @@ namespace ReignBeta.Government
         public JArray GetPolicyBusinessChoices(string kingdomId)
         {
             Kingdom kingdom = FindKingdom(kingdomId);
-            if (kingdom == null || EnsureGovernment(kingdom) == null) return new JArray();
+            // This supplies selectors and previews; opening one must not create a government.
+            if (kingdom == null || GetGovernment(kingdom) == null) return new JArray();
             return new JArray(PolicyObject.All.OrderBy(x => x.Name.ToString(), StringComparer.CurrentCulture).Select(policy =>
                 new JObject { ["policyId"] = policy.StringId,
                     ["label"] = (kingdom.HasPolicy(policy) ? "Repeal " : "Enact ") + policy.Name,

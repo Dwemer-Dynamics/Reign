@@ -3,11 +3,11 @@
   "heroStringId": "lord_1_53",
   "characterName": "Achios",
   "imagePath": "portrait.png",
-  "imageSha256": "9EA8E59D45EDD6F0A8D13FCFECD0C72527038191A5AF23D1999397C84C98C0EF",
-  "description": "Culturally appropriate everyday Calradic Imperial minor-lord attire inspired by refined late Roman and Byzantine noble clothing. Men should wear a high-quality tunic or long tailored outer coat over fine linen, decorated with narrow woven borders, refined clasps, and a decorated belt. Women should wear a long elegant dress or layered tunic ensemble with shaped sleeves, graceful draping, and tasteful trim around the neckline, cuffs, and edges. The garments should feel polished, educated, urban, and wealthy without resembling full imperial ceremony. No headgear of any kind. No armor, weapons, crowns, imperial regalia, laurel wreaths, or ceremonial robes.",
-  "status": "failed",
-  "descriptionSource": "portrait_prompt_fallback",
-  "retryEligible": true,
-  "error": "{\"error\":{\"message\":\"Model \\\"zai-org/glm-5.2\\\" does not support image inputs. Remove image content or choose a multimodal model.\",\"type\":\"invalid_request_error\",\"param\":\"messages\",\"code\":\"image_input_not_supported\"}}",
-  "updatedUtc": "2026-07-18T22:03:23.8410712Z"
+  "imageSha256": "F46DAFDE8F5EFCE61BF1774CB139A6248EB6820217F746C6642104675EA438D6",
+  "description": "An opaque cream linen undertunic with long sleeves and narrow dark embroidered borders is worn beneath a burgundy, knee-to-mid-calf outer coat with short broad sleeves, fine gold woven edging, two round chest clasps joined by a small chain, and a patterned belt. Dark trousers and tall brown leather boots are visible. The full figure has no headgear, armor, or weapon.",
+  "status": "completed",
+  "descriptionSource": "agent_vision",
+  "retryEligible": false,
+  "error": "",
+  "updatedUtc": "2026-10-07T20:17:47.815Z"
 }

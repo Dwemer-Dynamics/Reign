@@ -3,11 +3,11 @@
   "heroStringId": "reign_court_town_ES7_mother",
   "characterName": "Calurene Elarenion",
   "imagePath": "portrait.png",
-  "imageSha256": "E05444606575BD5D087B32BA1995D36E03912F6EB1B5149F151FF32D226ADD95",
-  "description": "Culturally appropriate everyday Calradic Imperial minor-lord attire inspired by refined late Roman and Byzantine noble clothing. Men should wear a high-quality tunic or long tailored outer coat over fine linen, decorated with narrow woven borders, refined clasps, and a decorated belt. Women should wear a long elegant dress or layered tunic ensemble with shaped sleeves, graceful draping, and tasteful trim around the neckline, cuffs, and edges. The garments should feel polished, educated, urban, and wealthy without resembling full imperial ceremony. No headgear of any kind. No armor, weapons, crowns, imperial regalia, laurel wreaths, or ceremonial robes.",
-  "status": "failed",
-  "descriptionSource": "portrait_prompt_fallback",
-  "retryEligible": true,
-  "error": "{\"error\":{\"message\":\"Model \\\"zai-org/glm-5.2\\\" does not support image inputs. Remove image content or choose a multimodal model.\",\"type\":\"invalid_request_error\",\"param\":\"messages\",\"code\":\"image_input_not_supported\"}}",
-  "updatedUtc": "2026-07-18T22:03:26.5717856Z"
+  "imageSha256": "86CB2E0D53F034DEB14C61C970A62A7D40CD4A32BC85C871BE81FAC75500FA56",
+  "description": "She wears a muted burgundy floor-length gown with a square neckline and elbow-length sleeves, decorated with narrow gold woven borders and round shoulder brooches. A gold-patterned belt gathers the waist. An ivory wrap with burgundy-and-gold edging drapes loosely around her forearms, and a light underdress appears through the low walking opening. Brown closed shoes and small hanging earrings are visible. Her head is bare.",
+  "status": "completed",
+  "descriptionSource": "agent_vision",
+  "retryEligible": false,
+  "error": "",
+  "updatedUtc": "2026-10-07T21:14:03.189Z"
 }

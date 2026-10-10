@@ -17,8 +17,16 @@ using TaleWorlds.Library;
 
 namespace ReignBeta.UI.ViewModels
 {
-    public sealed class ReignTavernHouseScreenVM : ViewModel
+    public sealed class ReignTavernHouseScreenVM : ViewModel, IReignActionHost
     {
+        private ReignActionComposerVM _composer;
+        private Reign.Core.Contracts.Actions.ActionAgreement _pendingActionDraft;
+        public ReignActionComposerVM Composer => _composer ?? (_composer = new ReignActionComposerVM(() => OnPropertyChanged(nameof(InputText))));
+        [DataSourceProperty] public string ActionComposerId => Composer.Id;
+        public IReadOnlyList<Hero> ActionParticipants => IsVisiting
+            ? _receipt.ParticipantHeroIds.Select(id => _staff.FirstOrDefault(h => h.StringId == id)).Where(h => h != null).ToList()
+            : new List<Hero> { _madam };
+        public bool ActionBusy => !CanSend || _fixture || _pendingTurn != null;
         private readonly Action _close;
         private readonly ReignTavernHouseCampaignBehavior _house;
         private readonly List<Hero> _staff;
@@ -71,7 +79,7 @@ namespace ReignBeta.UI.ViewModels
         [DataSourceProperty] public string VisitSummary => IsVisiting
             ? "Private visit · " + string.Join(", ", _receipt.ParticipantHeroIds.Select(id => _staff.FirstOrDefault(h => h.StringId == id)?.Name?.ToString() ?? id))
             : _receipt?.Paid == true ? "Payment complete · confirmation pending" : "Speak with the madam to agree on company and payment.";
-        [DataSourceProperty] public string InputText { get => _inputText; set { _inputText = value ?? ""; OnPropertyChangedWithValue(_inputText); } }
+        [DataSourceProperty] public string InputText { get => Composer.State.Text; set => Composer.SetText(value); }
         [DataSourceProperty] public bool ImagesEnabled => ReignBetaSettings.Instance?.TavernHouseImageGeneration ?? true;
         [DataSourceProperty] public string ImageToggleText => ImagesEnabled ? "Scene images: ON" : "Scene images: OFF";
         [DataSourceProperty] public bool IsPortraitPreviewVisible => _preview != null;
@@ -140,14 +148,17 @@ namespace ReignBeta.UI.ViewModels
             if (_pendingTurn != null) { _ = ContinueTurnAsync(); return; }
             string text = InputText.Trim();
             if (text.Length == 0) return;
+            var action = Composer.State.Draft == null ? null : ReignBeta.Actions.ReignActionService.Copy(Composer.State.Draft);
             InputText = ""; AddLine(Hero.MainHero.Name.ToString(), text, "player");
-            StartTurn(text);
+            StartTurn(text, action);
         }
 
-        private void StartTurn(string text)
+        private void StartTurn(string text, Reign.Core.Contracts.Actions.ActionAgreement action = null)
         {
+            _pendingActionDraft = action;
             _quote = null; _recruitmentAgreement = null;
             _pendingTurn = ReignServerClient.BuildTavernHousePayload(Town, _conversationId);
+            _pendingTurn["structuredActionRecipientId"] = action?.NpcId ?? "";
             _pendingTurn["playerText"] = text;
             _pendingTurn["playerTurnId"] = Guid.NewGuid().ToString("N");
             _pendingRequestId = null;
@@ -170,13 +181,18 @@ namespace ReignBeta.UI.ViewModels
                     JObject request = (JObject)_pendingTurn.DeepClone();
                     request["speakerHeroStringId"] = speaker.StringId;
                     request["requestId"] = _pendingRequestId ?? request.Value<string>("playerTurnId") + "_" + index;
-                    JObject response = await ReignServerClient.PostTavernHouseAsync("respond", request).ConfigureAwait(false);
+                    JObject response = await ReignServerClient.PostTavernHouseAsync("respond", request,
+                        _pendingActionDraft?.NpcId == speaker.StringId ? _pendingActionDraft : null).ConfigureAwait(false);
                     bool next = await ReignMainThread.InvokeAsync(() =>
                     {
                         if (_finalized) return false;
                         if (response.Value<bool?>("ok") != true) { _statusText = Error(response); return false; }
                         string reply = response.Value<string>("reply") ?? "";
-                        if (reply.Length > 0) AddLine(speaker.Name.ToString(), reply, "npc");
+                        if (!string.IsNullOrWhiteSpace(reply))
+                        {
+                            speaker.SetHasMet();
+                            AddLine(speaker.Name.ToString(), reply, "npc");
+                        }
                         _transcriptRevision = response.Value<int?>("transcriptRevision") ?? _transcriptRevision;
                         _quote = response["quote"]?.ToObject<TavernHouseVisitQuote>();
                         if (response["recruitmentAgreement"] is JObject recruitment) _recruitmentAgreement = recruitment;
@@ -335,6 +351,7 @@ namespace ReignBeta.UI.ViewModels
         }
         public override void OnFinalize()
         {
+            ReignActionBuilder.CloseFor(this); _composer?.Dispose();
             if (_finalized) return;
             _finalized = true;
             // A debit awaiting server confirmation stays open and resumes with the original receipt.

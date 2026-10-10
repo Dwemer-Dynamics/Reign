@@ -3,11 +3,11 @@
   "heroStringId": "reign_court_town_EN5_child_3",
   "characterName": "Calysion Meroverides",
   "imagePath": "portrait.png",
-  "imageSha256": "5BA9ABEF511E51F844969BA06192B5FC83FA25430FC80A8FED672DCC4EC6F098",
-  "description": "Culturally appropriate everyday Calradic Imperial minor-lord attire inspired by refined late Roman and Byzantine noble clothing. Men should wear a high-quality tunic or long tailored outer coat over fine linen, decorated with narrow woven borders, refined clasps, and a decorated belt. Women should wear a long elegant dress or layered tunic ensemble with shaped sleeves, graceful draping, and tasteful trim around the neckline, cuffs, and edges. The garments should feel polished, educated, urban, and wealthy without resembling full imperial ceremony. No headgear of any kind. No armor, weapons, crowns, imperial regalia, laurel wreaths, or ceremonial robes.",
-  "status": "failed",
-  "descriptionSource": "portrait_prompt_fallback",
-  "retryEligible": true,
-  "error": "{\"error\":{\"message\":\"Model \\\"zai-org/glm-5.2\\\" does not support image inputs. Remove image content or choose a multimodal model.\",\"type\":\"invalid_request_error\",\"param\":\"messages\",\"code\":\"image_input_not_supported\"}}",
-  "updatedUtc": "2026-07-18T22:03:26.6160699Z"
+  "imageSha256": "06A5A9BB888672595571D1A27E937453B0D008A7F5D7E08EB8C225CF20F88870",
+  "description": "He wears a burgundy patterned long outer coat over an ivory tunic, with narrow gold geometric embroidery around the neckline, front edges, cuffs and hem. A burgundy shoulder drape is held by a round metal brooch, and a decorated brown belt has a circular buckle. Brown trousers and tall brown leather boots complete the outfit; his head is bare.",
+  "status": "completed",
+  "descriptionSource": "agent_vision",
+  "retryEligible": false,
+  "error": "",
+  "updatedUtc": "2026-10-07T21:14:04.622Z"
 }

@@ -64,7 +64,9 @@ namespace ReignBeta.Government
             MigrateNativeGovernmentBusiness();
             ImportSeasonalBusiness();
 #if !REIGN_EXCLUDE_COURT
-            starter.AddGameMenuOption("town_keep", "reign_explore_town_keep", "{=!}Explore the keep",
+            starter.AddGameMenuOption(ReignKeepAccessPolicy.TownMenuId, "reign_explore_town_keep", "{=!}Explore the keep",
+                ExploreKeepCondition, ExploreKeepConsequence, false, 1);
+            starter.AddGameMenuOption(ReignKeepAccessPolicy.CastleMenuId, "reign_explore_castle_keep", "{=!}Explore the keep",
                 ExploreKeepCondition, ExploreKeepConsequence, false, 1);
 #endif
         }
@@ -72,7 +74,7 @@ namespace ReignBeta.Government
 #if !REIGN_EXCLUDE_COURT
         private static bool ExploreKeepCondition(MenuCallbackArgs args)
         {
-            bool available = Settlement.CurrentSettlement?.IsTown == true
+            bool available = ReignCastleLayoutScreenManager.CurrentKeepMenuId != null
                 && TaleWorlds.CampaignSystem.Campaign.Current?.GetCampaignBehavior<ReignCourtCampaignBehavior>() != null;
             args.optionLeaveType = GameMenuOption.LeaveType.Wait;
             args.IsEnabled = available;

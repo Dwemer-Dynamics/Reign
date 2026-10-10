@@ -3,11 +3,11 @@
   "heroStringId": "reign_court_castle_V3_mother",
   "characterName": "Liorana Corvacourt",
   "imagePath": "portrait.png",
-  "imageSha256": "164FED81869F3A9EBE3CE93101BC8F4547DE6D7358DE32D5743AE0C8EAB90267",
-  "description": "Culturally appropriate everyday Vlandian minor-lord attire inspired by refined high-medieval Norman and Frankish noble dress. Use a fitted wool tunic or cote over a fine linen shirt, high-quality chausses, a decorated leather belt, and an optional short mantle or shoulder drape with restrained embroidery. For women, use a long underdress with an elegant tailored overdress, shaped sleeves, fine woven fabric, and decorative trim around the cuffs, hem, and neckline. Include modest clasps, brooches, or small jewelry details. No headgear of any kind. No armor, weapons, crowns, royal regalia, or ceremonial robes.",
-  "status": "failed",
-  "descriptionSource": "portrait_prompt_fallback",
-  "retryEligible": true,
-  "error": "{\"error\":{\"message\":\"Model \\\"zai-org/glm-5.2\\\" does not support image inputs. Remove image content or choose a multimodal model.\",\"type\":\"invalid_request_error\",\"param\":\"messages\",\"code\":\"image_input_not_supported\"}}",
-  "updatedUtc": "2026-07-18T22:03:31.8546649Z"
+  "imageSha256": "A568D8E1E2E5D7C287D38B48669DE215F741A53594899C3BD866A59F7930B370",
+  "description": "Liorana wears an opaque burgundy-red floor-length gown with a low square neckline, fitted bodice and elbow-length sleeves. Narrow gold woven knot and geometric borders frame the neckline, straps, sleeves, center skirt and hem. A cream underdress shows at the modest lower walking opening. A dark brown shawl with wide gold patterned edges rests over her forearms. A decorated metal belt has round fittings and a long hanging front end. Small drop earrings, a pendant and ring provide restrained jewelry. Both brown leather shoes show below the hem. No headgear or weapon appears.",
+  "status": "completed",
+  "descriptionSource": "agent_vision",
+  "retryEligible": false,
+  "error": "",
+  "updatedUtc": "2026-10-07T23:55:04.423Z"
 }

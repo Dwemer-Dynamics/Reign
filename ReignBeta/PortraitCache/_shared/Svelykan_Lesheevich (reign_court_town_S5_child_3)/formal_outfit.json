@@ -3,11 +3,11 @@
   "heroStringId": "reign_court_town_S5_child_3",
   "characterName": "Svelykan Lesheevich",
   "imagePath": "portrait.png",
-  "imageSha256": "B1A34589155973E315796CA2CDDB4CBBA5E350ED8D707B784BFC98EA87E0D216",
-  "description": "Culturally appropriate everyday Sturgian minor-lord attire inspired by refined medieval Rus and Slavic noble clothing. Men should wear a well-made long shirt beneath a tailored wool kaftan or long belted coat, decorated with fine geometric embroidery and quality trim. Women should wear a long embroidered shift with an elegant wool overdress or noble coat-dress, secured with a richly woven sash. Include subtle fur trim around collars or cuffs, tasteful clasps, and better-quality fabric than a landowner would wear. The clothing should remain practical for a northern climate while clearly showing noble rank. No headgear of any kind. No armor, weapons, crowns, ceremonial robes, or oversized fur displays.",
-  "status": "failed",
-  "descriptionSource": "portrait_prompt_fallback",
-  "retryEligible": true,
-  "error": "{\"error\":{\"message\":\"Model \\\"zai-org/glm-5.2\\\" does not support image inputs. Remove image content or choose a multimodal model.\",\"type\":\"invalid_request_error\",\"param\":\"messages\",\"code\":\"image_input_not_supported\"}}",
-  "updatedUtc": "2026-07-18T22:03:34.5196677Z"
+  "imageSha256": "697108D16B0586A5BFCD740E5FF98AA0CBDF61F1F8BBB6EBF2B5FFD6DC37E0A9",
+  "description": "Blue gold-embroidered fur-trimmed coat over pale patterned tunic, tasseled woven leather belt, brown trousers and brown boots.",
+  "status": "completed",
+  "descriptionSource": "agent_vision",
+  "retryEligible": false,
+  "error": "",
+  "updatedUtc": "2026-10-07T23:53:37.955Z"
 }

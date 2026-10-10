@@ -43,6 +43,17 @@ namespace ReignBeta.Campaign
         {
             if (hero == null || hero == Hero.MainHero || !hero.IsAlive || !hero.IsNotable || hero.Clan == null)
                 return false;
+            return ClearNotableRole(hero, hero.CompanionOf != null ? Occupation.Wanderer : Occupation.Lord);
+        }
+
+        internal static bool ClearDepartingNotableRole(Hero hero)
+        {
+            if (hero == null || hero == Hero.MainHero || !hero.IsAlive || !hero.IsNotable) return false;
+            return ClearNotableRole(hero, Occupation.Special);
+        }
+
+        private static bool ClearNotableRole(Hero hero, Occupation occupation)
+        {
             if (!ClearingRoles.Add(hero)) return false;
             try
             {
@@ -50,10 +61,21 @@ namespace ReignBeta.Campaign
                 // transfer fails, IsNotable remains the save-backed retry marker;
                 // completed transfers are absent from the next ownership snapshot.
                 ReleaseBusinessOwnership(hero);
-                Occupation occupation = hero.CompanionOf != null ? Occupation.Wanderer : Occupation.Lord;
+                foreach (var alley in hero.OwnedAlleys.ToList())
+                    if (alley.Owner == hero) alley.SetOwner(null);
+                if (hero.OwnedAlleys.Any(alley => alley.Owner == hero))
+                    throw new InvalidOperationException("The departing notable retained an alley.");
+                if (hero.Issue != null)
+                {
+                    hero.Issue.CompleteIssueWithCancel();
+                    if (hero.Issue != null)
+                        throw new InvalidOperationException("The departing notable retained a native issue.");
+                }
+                hero.SupporterOf = null;
+                if (hero.VolunteerTypes != null) Array.Clear(hero.VolunteerTypes, 0, hero.VolunteerTypes.Length);
                 hero.SetNewOccupation(occupation);
                 if (hero.IsNotable) throw new InvalidOperationException("Recruited hero retained the native notable occupation.");
-                ReignLog.Info("Cleared recruited notable role and businesses hero=" + hero.StringId + " clan=" + hero.Clan.StringId + " occupation=" + occupation);
+                ReignLog.Info("Cleared recruited notable role and businesses hero=" + hero.StringId + " clan=" + (hero.Clan?.StringId ?? "") + " occupation=" + occupation);
                 return true;
             }
             catch (Exception ex)

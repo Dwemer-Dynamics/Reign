@@ -1,0 +1,68 @@
+REFERENCE-GUIDED PORTRAIT: INDIVIDUAL FACIAL IDENTITY WITH PHOTOGRAPHIC REFINEMENT
+Image 1 is this character's old shared portrait chest crop. Use its supported individual eye, nose and mouth proportions as an identity reference, subject to the native-source overrides in the complete written facial description below. Preserve the exposed anatomical differences that make this individual recognizable. Improve skin, eyes and anatomical transitions into natural photographic detail; do not copy renderer softness or low-detail facial texture. Avoid generic beautification.
+Image 2 is the currently staged portrait of the same character. Use Image 2 for photographic finish, soft daylight, natural upright full-body posture, head-to-body scale, clothing craftsmanship, background treatment and composition only. Do not take facial identity from Image 2 or average the two faces together. Rebuild the body using the exact authored age and independent weight and muscle/tone guidance below; do not inherit Image 1's body proportions, stance, arm lengths or framing. Use natural human anatomy and a relaxed upright pose consistent with Image 2.
+The complete native-source facial description governs authored age, hair and facial-hair identity, eye-color family, skin details and visible marks where the old portrait differs. Blend the full written cultural appearance with the individual's supported proportions. All complete clothing, confidence, physique, photographic, output and composition instructions below remain active. Create one coherent photographic full-body portrait.
+
+I want you to create a picture of a 23-year-old woman who looks like the description below. Create one photographic full-body portrait. Clothing follows Khuzait high noble fashion, with the craftsmanship and social station of clan tier 5. These values are generation guidance and must never be printed in the image.
+Use a vertical 3:4 portrait canvas. Use the two supplied images according to their separate reference roles above, together with the complete written guidance below.
+
+FACIAL APPEARANCE AND HAIR
+Boraa Altugatai is an adult Khuzait woman aged exactly 23. Her face is a balanced elongated oval, with a broad smooth forehead, moderately high cheeks and modest natural cheek fullness. The lower cheeks narrow gradually into a longer, relatively narrow rounded chin. Preserve appreciable vertical height between lower lip and chin base and a smooth rounded finish rather than an abrupt short lower jaw.
+
+Her native brown to amber-brown irises retain dark rims. Dark-brown brows are thicker inward, gently raised in their outer halves and tapered at the ends. Her eyes have oval-centered almond apertures, curved lower lids, mild outer upper hooding and a gentle rise at the outer corners, spaced about one eye width apart. The center remains naturally open at rest with ordinary adult eye size. Keep the almond span and modest hooding without forcing a squint or a round enlarged eye.
+
+Her nose has a fine straight medium-length bridge, a small blunt rounded lower end and restrained natural wings, with at most a slight tip lift. Preserve the whole nasal span and realistic projection. Her closed mouth has compact short-to-medium breadth, a thin shallow bowed upper lip and a distinctly fuller central lower lip in subdued pink-brown. A natural medium philtrum has a softly expressed groove. Neutral corners keep mouth breadth anatomical. The compact mouth and fine nasal span sit above the appreciably longer rounded chin taper.
+
+Her warm light-to-medium golden-tan complexion retains subtle cheek and nose warmth, natural under-eye color and youthful adult pores and asymmetry. Preserve very dark-brown nearly black hair, its visible center part and smooth swept-back upper sections. Two substantial moderately tight braids descend in front of the shoulders and finish at the upper chest, with small loose temple strands. The native source shows their ends on the upper chest; do not lengthen these braids to the waist. The old chest crop does not clearly establish their endpoints. Do not invent hidden rear construction or further unseen length.
+
+Blend her individual anatomy with the complete Khuzait primarily Mongolian and Central Asian regional guidance. Add no marks.
+
+FACIAL CULTURAL APPEARANCE — KHUZAIT
+Stored cultureId: khuzait.
+Regional reference: Primarily Mongolian, blended with Central Asian regional appearance.
+Create a believable real human face with this regional appearance. Apply the regional reference positively to facial appearance, facial structure and complexion; it is not only a clothing, setting or background instruction.
+Blend the regional reference with the individual facial description. Where simplified native geometry or game-renderer shading differs from this regional appearance, use a plausible natural blend while retaining recognizable individual traits: face outline, relative proportions, eyes, brows, nose, mouth, jaw and chin. Preserve the described hair identity, arrangement and texture, facial-hair pattern, eye character, visible scars and markings; do not invent new distinguishing marks.
+These regional populations contain substantial individual variation. Do not give every member the same face, impose a universal skin, hair or eye color, or replace the written individual identity with a generic regional stereotype. Preserve source-grounded differences and natural human asymmetry.
+Keep the exact authored age and the independent native weight and build values. This layer applies to facial appearance and realistic complexion interpretation, not body size, muscularity, garment coverage or social rank. Every complete composition, clothing, confidence, photographic, output and physique modifier remains in effect. Do not print this reference or any metadata in the image.
+
+COMPOSITION AND FRAMING
+Create a full head-to-toe body portrait showing the entire figure from the top of the head down to the feet
+Keep the standing figure upright and centered on the image's vertical axis, using a natural relaxed pose without leaning, crouching, sitting, or shifting toward an edge.
+Leave a small clear margin above the hair and around both sides of the body, with enough space below the feet so no part of the figure feels cramped or cropped. Use a natural full-body portrait distance rather than a close-up.
+Do not crop the forehead, top of the head, chin, shoulders, hands, legs, or feet. Keep the full body visible in frame from head to toe.
+Use a softly blurred, historically appropriate stone doorway or architectural background that does not compete with the subject.
+
+Culturally appropriate everyday Khuzait high-noble attire inspired by elite medieval Turkic and Mongol aristocratic clothing. Use superb tailoring, layered fine wool and silk-like woven fabrics, elegant crossed-front closures, decorated sashes, refined edging, and subtle noble motifs. Men should wear a stately long noble deel or structured coat over richly made underlayers. Women should wear a luxurious robe or coat-dress with graceful lines, elaborate woven trim, and exceptionally high-quality textiles. Fur trim may be included sparingly along cuffs, collars, or garment edges. The clothing should feel wealthy, mobile, and commanding without becoming ceremonial. No headgear of any kind. No fur hats, caps, hoods, armor, weapons, crowns, or fantasy styling.
+
+FEMALE PHYSICAL CONFIDENCE MODIFIER - 21 TO 40
+Computed physical_confidence score: 36 out of 100.
+Respect and fully incorporate every other prompt’s clothing style, fabrics, cultural descriptions, ornamentation, and overall design for the woman. Apply this override only to revealingness. Tailor the outfit (within the given style and culture) to near-full modest coverage with the mildest possible opening: neckline at or just below the base of the throat/collarbones (soft square, boat, or high-V), full length sleeves to the wrists that may sit slightly closer to the arm, opaque fabrics that allow only a soft natural silhouette to show under structured or draped layers, floor-length skirts with no openings. Face, minimal neck, and hands only. Proper court coverage with slight shape awareness allowed. All other elements remain free and must be used.
+
+PHOTOGRAPHIC STYLE
+Make the subject look like a real human being photographed candidly, not a game render or fantasy illustration.
+Use authentic skin texture, visible pores, natural imperfections, slight asymmetry, natural lips, believable eyes, realistic hair, and restrained age-appropriate detail.
+Use soft natural daylight, shallow depth of field, a realistic 85mm portrait-lens perspective, subtle film grain, and a grounded photographic finish.
+
+OUTPUT EXCLUSIONS
+Return only the portrait image itself.
+Do not render words, letters, numbers, captions, labels, names, ages, cultures, subtitles, signatures, logos, watermarks, interface elements, portrait cards, decorative title blocks, borders, banners, blank caption areas, white strips, white footer panels, or metadata panels anywhere in the image.
+No extreme close-up, face-only crop, cropped head, cropped shoulders, armor, weapons, shields, quivers, chainmail, helmets, fur war gear, plastic skin, over-smoothed face, CGI, cartoon, anime, painterly style, or modern clothing.
+
+NATIVE BODY APPEARANCE — AUTHORITATIVE PHYSIQUE
+Native weight: 0.5 on a 0–1 scale: Medium body-fat level.
+Native build: 0.5 on a 0–1 scale: Moderately toned.
+These are independent native appearance sliders, not kilograms, BMI, clinical classifications or body-fat percentages. Respect the exact position within each range, without abrupt changes at descriptive boundaries.
+Weight controls body-fat fullness. For women, build controls natural muscle tone, firmness, and athletic definition, not added muscle mass, bulky shoulders, thick arms, or masculine bodybuilder proportions. For men, build controls muscle mass. High weight does not imply muscle. High build does not imply extra fat or automatically visible abdominal definition; body fat and clothing can obscure definition.
+Match these native proportions even if another prompt or the supplied AI portrait conflicts. Preserve native age, sex, skeletal proportions, face and identity. Do not infer breast size, enlarge curves, beautify, slim or bulk up the person beyond these values.
+Garments must fit this physique. Revealingness and physical confidence change clothing coverage only, never body size. Covered muscles need not be exposed. During a clothing edit, correct conflicting AI physique to these native values while preserving the person's face and identity. Never print these instructions or values in the image.
+
+COMPOSITION CORRECTION FOR CANONICAL CROPS
+Leave clear stone architecture above the entire hairstyle. Place the very top of the hair at roughly 6% of total canvas height and the chin at roughly 18% of total canvas height. Keep the complete body and both feet inside the canvas with floor visible below the shoes. Do not enlarge the face or crop the hair. Preserve the written identity and all preceding appearance, clothing, light and style instructions.
+
+CURRENT MATERIAL AND BACKGROUND REQUIREMENTS
+complete court garment.
+
+CURRENT SCOPED EDIT — RESTORE ONLY THE AUTHORED BRAID ENDPOINTS
+For this edit, the complete preceding prompt is retained as uncondensed character, clothing, physique, confidence, cultural and photographic guidance. The earlier generation-reference role assignments and instructions to rebuild the face/body are historical context and are superseded only for this narrow edit by the following active roles: Image 1 is the exact current full photographic portrait to edit; Image 2 is the native source and supplies ONLY the already-authored braid endpoints. Do not use Image 2 to change facial identity, facial proportions, skin, apparent age, body, pose, garment, background or photographic finish. Do not average the faces.
+Shorten ONLY the lower portions of the two existing front braids so both terminate at the upper chest, matching the native endpoints and the complete MAIN description above, clearly above the mid-torso and waist. Keep the existing center part, scalp hair, braid origins, thickness, tightness, texture and color. Give the shortened ends natural small existing-hair finishes without adding beads, new ornaments or new hair construction. Where lower braid sections are removed, continue the existing underlying garment naturally, preserving its fabric, trim and pattern.
+Preserve the actual current woman's face and expression exactly in identity, her current native-consistent body proportions, head-to-body scale, natural upright posture, joined hands, both boots, whole-figure framing, opaque court garment, clothing coverage, belt, jewelry, soft daylight, photographic skin/eyes, and the actual doorway/background. Do not simplify the doorway or redesign the face. Retain exact age23, independent native weight0.50 and female tone/firmness0.50, original confidence36 and all complete selected cultural, clothing, photographic, composition and output guidance. Do not build masculine muscle mass or alter body size. This is a grooming-length correction, not a facial-distinction change. Produce one coherent photographic edit of Image 1; do not add text, labels, panels, borders or additional people.

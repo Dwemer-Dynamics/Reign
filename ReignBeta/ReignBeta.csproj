@@ -18,6 +18,8 @@
   <Target Name="RequireBannerlordReferences" BeforeTargets="ResolveReferences">
     <Error Condition="!Exists('$(BannerlordPath)\bin\Win64_Shipping_Client\TaleWorlds.CampaignSystem.dll')"
            Text="Set REIGN_BANNERLORD_PATH (or BannerlordPath) to your licensed Bannerlord v1.4.8 installation before validating the client." />
+    <Error Condition="!Exists('$(BannerlordPath)\bin\Win64_Shipping_Client\System.Numerics.Vectors.dll')"
+           Text="The licensed Bannerlord installation must contain its native System.Numerics.Vectors.dll; a NuGet facade cannot replace it." />
   </Target>
 
   <PropertyGroup Condition="'$(ExcludeCourt)' == 'true'">
@@ -42,11 +44,18 @@
     <Compile Remove="src\Modules\Arena\ArenaOverhaul\**\*.cs" />
     <Reference Include="System.IO.Compression" />
     <Reference Include="System.Net.Http" />
-    <Reference Include="System.Numerics" Aliases="global,NumericsVectors" />
+    <Reference Include="System.Numerics" Aliases="FrameworkNumerics" />
+    <!-- Gauntlet exposes Vector2 from the game's implementation. The NuGet
+         net46 facade forwards it to System.Numerics and changes native member
+         signatures, causing MissingMethodException when the editor is JITted. -->
+    <Reference Include="System.Numerics.Vectors" Aliases="global,NumericsVectors">
+      <HintPath>$(BannerlordPath)\bin\Win64_Shipping_Client\System.Numerics.Vectors.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
     <PackageReference Include="JpegLibrary" Version="0.4.32" />
     <PackageReference Include="System.Buffers" Version="4.5.1" />
     <PackageReference Include="System.Memory" Version="4.5.4" />
-    <PackageReference Include="System.Numerics.Vectors" Version="4.5.0" Aliases="NumericsVectors" />
+    <PackageReference Include="System.Numerics.Vectors" Version="4.5.0" ExcludeAssets="all" />
     <PackageReference Include="System.Runtime.CompilerServices.Unsafe" Version="6.0.0" />
     <Reference Include="TaleWorlds.CampaignSystem">
       <HintPath>$(BannerlordPath)\bin\Win64_Shipping_Client\TaleWorlds.CampaignSystem.dll</HintPath>
@@ -110,6 +119,10 @@
     </Reference>
     <Reference Include="SandBox">
       <HintPath>$(BannerlordPath)\Modules\SandBox\bin\Win64_Shipping_Client\SandBox.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
+    <Reference Include="SandBox.View">
+      <HintPath>$(BannerlordPath)\Modules\SandBox\bin\Win64_Shipping_Client\SandBox.View.dll</HintPath>
       <Private>false</Private>
     </Reference>
     <Reference Include="TaleWorlds.ScreenSystem">

@@ -3,11 +3,11 @@
   "heroStringId": "lord_4_20_1",
   "characterName": "Ingeltrud",
   "imagePath": "portrait.png",
-  "imageSha256": "704759BF1CE53749B5BDF485B36FC97B68B97E7AD91270AB8CA1B1FE1D4DDF31",
-  "description": "Culturally appropriate everyday Vlandian landowner attire inspired by practical high-medieval Norman and Frankish clothing. Use a well-made wool tunic over a linen underlayer, fitted sleeves, a sturdy leather belt, narrow trousers or chausses, and soft leather boots. For women, use a long fitted underdress with a simple but well-tailored overdress, narrow sleeves, a modest neckline, and a practical belt. The garments should appear prosperous, clean, and durable without looking aristocratic. No headgear of any kind. No armor, weapons, crowns, ceremonial robes, or fantasy elements.",
-  "status": "failed",
-  "descriptionSource": "portrait_prompt_fallback",
-  "retryEligible": true,
-  "error": "{\"error\":{\"message\":\"Model \\\"zai-org/glm-5.2\\\" does not support image inputs. Remove image content or choose a multimodal model.\",\"type\":\"invalid_request_error\",\"param\":\"messages\",\"code\":\"image_input_not_supported\"}}",
-  "updatedUtc": "2026-07-18T22:03:30.5036463Z"
+  "imageSha256": "4E7889F538531077DE7CCAFDCFABB46A269F1550945773B73C69453E4D1D97DE",
+  "description": "A long opaque burgundy dress has a square neckline, elbow-length fitted sleeves and patterned gold borders at neckline and cuffs. A narrow decorated belt circles the waist; the skirt opens visually onto a cream centre panel. A dark blue gold-edged wrap rests around both forearms, with a small pendant necklace and brown shoes visible.",
+  "status": "completed",
+  "descriptionSource": "agent_vision",
+  "retryEligible": false,
+  "error": "",
+  "updatedUtc": "2026-10-08T21:06:47.101Z"
 }

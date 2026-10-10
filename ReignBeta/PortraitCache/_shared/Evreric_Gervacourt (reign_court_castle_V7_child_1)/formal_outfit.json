@@ -3,11 +3,11 @@
   "heroStringId": "reign_court_castle_V7_child_1",
   "characterName": "Evreric Gervacourt",
   "imagePath": "portrait.png",
-  "imageSha256": "F15F174221E5088195A4CD6E818544DC7E1675AF423B0EC6DBB6377BD0B9F3C1",
-  "description": "Culturally appropriate everyday Vlandian high-noble attire inspired by wealthy Norman and Frankish aristocratic dress. Use luxurious fine wool and linen, expertly tailored layers, richly cut outer tunics or gowns, refined belts, decorative borders, subtle heraldic embroidery, and elegant fastenings. Men should wear a long tailored tunic or refined surcoat-style outer layer over fine linen and well-fitted chausses. Women should wear a fitted noble gown layered over a high-quality underdress, with graceful sleeves, refined trim, and tasteful jewelry. The outfit should feel expensive and powerful while remaining believable everyday noble wear. No headgear of any kind. No armor, weapons, crowns, or ceremonial regalia.",
-  "status": "failed",
-  "descriptionSource": "portrait_prompt_fallback",
-  "retryEligible": true,
-  "error": "{\"error\":{\"message\":\"Model \\\"zai-org/glm-5.2\\\" does not support image inputs. Remove image content or choose a multimodal model.\",\"type\":\"invalid_request_error\",\"param\":\"messages\",\"code\":\"image_input_not_supported\"}}",
-  "updatedUtc": "2026-07-18T22:03:28.9827753Z"
+  "imageSha256": "11B3AB76C2FE7C4A0937554452E71EE769B74EE6FDC7DF9420450AB869812A07",
+  "description": "Rich burgundy long noble coat with gold woven borders and restrained heraldic fleur/lion motifs, cream tailored embroidered undercoat with high collar and metal buttons, decorated brown belt with round buckle, dark fitted trousers/chausses and tall brown boots. No headgear, armour or weapons.",
+  "status": "completed",
+  "descriptionSource": "agent_vision",
+  "retryEligible": false,
+  "error": "",
+  "updatedUtc": "2026-10-08T05:16:14.784Z"
 }

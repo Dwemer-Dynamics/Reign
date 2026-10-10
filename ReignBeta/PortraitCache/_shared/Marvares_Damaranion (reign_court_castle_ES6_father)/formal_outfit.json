@@ -3,11 +3,11 @@
   "heroStringId": "reign_court_castle_ES6_father",
   "characterName": "Marvares Damaranion",
   "imagePath": "portrait.png",
-  "imageSha256": "A5053F946789E5A0750B5A3D168F2FF29F308DBB5BB1DCACB233B96FDE666426",
-  "description": "Culturally appropriate everyday Calradic Imperial high-noble attire inspired by luxurious Byzantine aristocratic fashion, restrained enough for daily noble life. Use fine layered linen and wool, controlled flowing silhouettes, elegant draping, richly woven borders, small jeweled clasps, and sophisticated fabric textures. Men should wear a stately long tunic or structured noble coat over a fine undertunic, with refined belts and detailed edging. Women should wear a sophisticated layered noble dress with graceful drapery, tailored sleeves, and subtle aristocratic ornamentation. The outfit should communicate ancient prestige, wealth, and political importance. No headgear of any kind. No armor, weapons, crowns, laurel wreaths, or full ceremonial imperial regalia.",
-  "status": "failed",
-  "descriptionSource": "portrait_prompt_fallback",
-  "retryEligible": true,
-  "error": "{\"error\":{\"message\":\"Model \\\"zai-org/glm-5.2\\\" does not support image inputs. Remove image content or choose a multimodal model.\",\"type\":\"invalid_request_error\",\"param\":\"messages\",\"code\":\"image_input_not_supported\"}}",
-  "updatedUtc": "2026-07-18T22:03:32.0638454Z"
+  "imageSha256": "F7054FAA61328E87C7384522F3939DEEAF79A930B627193FA6A305B48B01EB4D",
+  "description": "Marvares wears a plum short-sleeved outer court coat and draped mantle with broad gold patterned borders over a long cream patterned tunic with embroidered cuffs and hem. A round gold shoulder brooch holds the mantle; a dark belt bears circular gold plaques and a long decorated hanging end. One hand rests beside the belt and the other hangs exposed; dark brown boots show below the hem.",
+  "status": "completed",
+  "descriptionSource": "agent_vision",
+  "retryEligible": false,
+  "error": "",
+  "updatedUtc": "2026-10-08T21:18:16.328Z"
 }

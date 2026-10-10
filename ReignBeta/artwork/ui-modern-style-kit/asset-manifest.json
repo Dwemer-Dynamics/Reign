@@ -1,4 +1,21 @@
 {
+  "partyBanter": {
+    "authority": "User-authorized travel banter implementation, 2026-10-04; existing frozen Reign palette and integrated artwork policy",
+    "status": "candidate-native-and-human-review-pending",
+    "generator": "tools/materialize_banter_panel.ps1",
+    "runtimeArtwork": "../../GUI/SpriteParts/ui_reignbeta_banter/reign_banter_panel.png",
+    "runtimeArtworkSha256": "1d575d2e8b2d55815fbe729f993f5da6cf405a803044cf698ac6a019cbcd5a19",
+    "collapsedArtwork": "../../GUI/SpriteParts/ui_reignbeta_banter/reign_banter_collapsed.png",
+    "collapsedArtworkSha256": "e7a3d1b173d19f982880b4c10b2e744fbd0931c9a721b97018169ac750e6e2dd",
+    "rule": "2026-10-09 user-authorized resizing: the unchanged complete 420x220/420x42 source plates use native NineRegionSprite metadata. Preserve expanded borders 15/60/40/36 and collapsed borders 15/60/8/8, including the lower-right dialog icon, instead of uniformly stretching the artwork. No portrait, separate frame or legacy backing. Dynamic transcript and small functional resize grip use ReignSerifDynamic and frozen palette. Candidate fidelity is not human approval."
+  },
+  "playerApproaches": {
+    "date": "2026-10-03",
+    "authority": "User-requested jealousy, keep and friendly patrol approach choices",
+    "fixedRegionSpec": "specs/screen-player-approach-fixed-region-mask.json",
+    "runtimeShell": "../../GUI/SpriteParts/ui_reignbeta_generation/reign_notable_generation_popup.png",
+    "rule": "Reuse the approved owning artwork and existing title/detail/status apertures. Two choice labels occupy the existing status plate; no fixed asset changes."
+  },
   "clanAccords": {
     "rule": "Integrated owning artwork only; complete cards above shell; alpha banner openings; dynamic serif data.",
     "authority": "User-approved Clan Accords concept and Economy entry button",
@@ -54,6 +71,31 @@
   },
   "referenceVariants": [
     {
+      "id": "individual-chat-outfit-changing",
+      "referenceId": "outfit-change",
+      "fileName": "ReignIndividualChatScreen.xml"
+    },
+    {
+      "id": "individual-chat-outfit-ready",
+      "referenceId": "outfit-change",
+      "fileName": "ReignIndividualChatScreen.xml"
+    },
+    {
+      "id": "individual-chat-outfit-failed",
+      "referenceId": "outfit-change",
+      "fileName": "ReignIndividualChatScreen.xml"
+    },
+    {
+      "id": "individual-chat-outfit-input",
+      "referenceId": "outfit-input",
+      "fileName": "ReignIndividualChatScreen.xml"
+    },
+    {
+      "id": "individual-chat-outfit-ineligible",
+      "referenceId": "individual-chat",
+      "fileName": "ReignIndividualChatScreen.xml"
+    },
+    {
       "id": "settlement-homes",
       "referenceId": "party-chat",
       "fileName": "ReignPartyChatScreen.xml"
@@ -67,6 +109,71 @@
       "id": "settlement-home-chat",
       "referenceId": "party-chat",
       "fileName": "ReignPartyChatScreen.xml"
+    },
+    {
+      "id": "action-builder-selection",
+      "referenceId": "action-builder",
+      "fileName": "ReignActionBuilder.xml"
+    },
+    {
+      "id": "action-builder-bargain",
+      "referenceId": "action-builder",
+      "fileName": "ReignActionBuilder.xml"
+    },
+    {
+      "id": "action-builder-categories",
+      "referenceId": "action-builder",
+      "fileName": "ReignActionBuilder.xml"
+    },
+    {
+      "id": "action-builder-amount",
+      "referenceId": "action-builder",
+      "fileName": "ReignActionBuilder.xml"
+    },
+    {
+      "id": "action-builder-settlements",
+      "referenceId": "action-builder",
+      "fileName": "ReignActionBuilder.xml"
+    },
+    {
+      "id": "action-builder-parties",
+      "referenceId": "action-builder",
+      "fileName": "ReignActionBuilder.xml"
+    },
+    {
+      "id": "action-builder-support",
+      "referenceId": "action-builder",
+      "fileName": "ReignActionBuilder.xml"
+    },
+    {
+      "id": "action-builder-pledge",
+      "referenceId": "action-builder",
+      "fileName": "ReignActionBuilder.xml"
+    },
+    {
+      "id": "action-builder-declaration",
+      "referenceId": "action-builder",
+      "fileName": "ReignActionBuilder.xml"
+    },
+    {
+      "id": "action-builder-npc-offer",
+      "referenceId": "action-builder",
+      "fileName": "ReignActionBuilder.xml"
+    },
+    {
+      "id": "action-builder-error",
+      "referenceId": "action-builder",
+      "fileName": "ReignActionBuilder.xml"
+    },
+    {
+      "id": "keep-approach",
+      "referenceId": "player-approach",
+      "fileName": "ReignPlayerApproachPopup.xml"
+    },
+    {
+      "id": "patrol-approach",
+      "referenceId": "player-approach",
+      "fileName": "ReignPlayerApproachPopup.xml"
     }
   ],
   "conversationActions": {
@@ -128,6 +235,20 @@
     "role": "Exact palette, material, line-weight, ornament-density, and hierarchy authority."
   },
   "references": [
+    {
+      "id": "outfit-change",
+      "kind": "runtime",
+      "path": "generated-sources/outfit-change/shell-alpha.png",
+      "sha256": "6e4d012135b2a22f1656416d336c781e3a9b549ce2d0aaaa8033a81d77270b85",
+      "approvalStatus": "candidate; human/native acceptance pending"
+    },
+    {
+      "id": "outfit-input",
+      "kind": "runtime",
+      "path": "generated-sources/outfit-change/input-reference.png",
+      "sha256": "55aa1707dccaf2599b0abf170833018db1628c6d1b92a8f5d751a93c4ba1e4fe",
+      "approvalStatus": "composition of approved dialog; native acceptance pending"
+    },
     {
       "id": "clan-accords",
       "kind": "runtime",
@@ -259,6 +380,27 @@
       "kind": "runtime",
       "path": "approved-references/tavern-house.png",
       "sha256": "f40be141c633ccd67526a8ae13c5887df0ac278a44c5bc8c158672eed448de8e"
+    },
+    {
+      "id": "action-builder",
+      "kind": "runtime",
+      "path": "concepts/action-builder-shell-2026-10-02.png",
+      "sha256": "7f0226da9fbe3b9c0f01de2377963f82d6c7f8583a1296b8fbcf74e21a9b8d41",
+      "approvalStatus": "candidate; human/native acceptance pending"
+    },
+    {
+      "id": "player-approach",
+      "kind": "runtime",
+      "path": "approved-references/notable-generation.png",
+      "sha256": "eb3d7a52680aa55c0c4ff8acdc615a1118f770db1e9a203efed14a0bf7bdfc82",
+      "provenance": "Existing approved notable-generation reference and owning artwork reused unchanged; bounded dynamic request and choices."
+    },
+    {
+      "id": "portrait-refresh",
+      "kind": "runtime",
+      "path": "approved-references/notable-generation.png",
+      "sha256": "eb3d7a52680aa55c0c4ff8acdc615a1118f770db1e9a203efed14a0bf7bdfc82",
+      "provenance": "Existing approved notable-generation owning artwork reused unchanged for user-requested 2026-10-06 portrait refresh; title, description and three labels only."
     }
   ],
   "generatedRuntimeAssets": [
@@ -1204,5 +1346,32 @@
     "madamCardSpec": "specs/tavern-house-madam-card.json",
     "materializer": "tools/materialize_tavern_house.py",
     "rule": "Dedicated town tavern screen; complete cards scroll above shell. Portraits and scenes stay unchanged inside their apertures."
+  },
+  "conversationOutfitChange": {
+    "schema": "reign-outfit-ui-v1",
+    "source": "generated-sources/outfit-change/shell.png",
+    "runtimePath": "ReignBeta/GUI/SpriteParts/ui_reignbeta_individual/reign_outfit_change_shell.png",
+    "sha256": "6e4d012135b2a22f1656416d336c781e3a9b549ce2d0aaaa8033a81d77270b85",
+    "canvas": {
+      "width": 1672,
+      "height": 941
+    },
+    "status": "implemented-reference; human and native acceptance pending",
+    "composition": "One integrated opaque shell with two true-alpha full-body apertures. Dynamic portraits are unchanged, contained and beneath the shell. Confirm is conditional; cancel is lower right.",
+    "generationPrompt": "generated-sources/outfit-change/prompt.txt",
+    "materializer": "tools/prepare-outfit-shell.ps1",
+    "entryControl": "reign_outfit_action_button reuses the complete approved 422x62 individual-chat action plate."
+  },
+  "portraitRefresh": {
+    "authority": "User request, 2026-10-06",
+    "movie": "ReignPortraitRefreshPopup",
+    "fixedRegionSpec": "specs/screen-portrait-refresh-fixed-region-mask.json",
+    "owningSprite": "reign_notable_generation_popup",
+    "canvas": {
+      "width": 1672,
+      "height": 941
+    },
+    "dynamicFont": "ReignSerifDynamic",
+    "rule": "Unchanged approved notable-generation shell; three independent choice hitboxes remain inside its status plate. Native acceptance pending."
   }
 }

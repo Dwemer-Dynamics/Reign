@@ -3,11 +3,11 @@
   "heroStringId": "reign_court_town_EW1_child_3",
   "characterName": "Othilos Vardirides",
   "imagePath": "portrait.png",
-  "imageSha256": "7D84174AB2861A87990701A83D9F6C738FDA03EB47064A12AD22591264612E12",
-  "description": "Culturally appropriate everyday Calradic Imperial minor-lord attire inspired by refined late Roman and Byzantine noble clothing. Men should wear a high-quality tunic or long tailored outer coat over fine linen, decorated with narrow woven borders, refined clasps, and a decorated belt. Women should wear a long elegant dress or layered tunic ensemble with shaped sleeves, graceful draping, and tasteful trim around the neckline, cuffs, and edges. The garments should feel polished, educated, urban, and wealthy without resembling full imperial ceremony. No headgear of any kind. No armor, weapons, crowns, imperial regalia, laurel wreaths, or ceremonial robes.",
-  "status": "failed",
-  "descriptionSource": "portrait_prompt_fallback",
-  "retryEligible": true,
-  "error": "{\"error\":{\"message\":\"Model \\\"zai-org/glm-5.2\\\" does not support image inputs. Remove image content or choose a multimodal model.\",\"type\":\"invalid_request_error\",\"param\":\"messages\",\"code\":\"image_input_not_supported\"}}",
-  "updatedUtc": "2026-07-18T22:03:33.2361337Z"
+  "imageSha256": "CE554B9778CA96AB06A42B2AA3D9EA18E4F528E81A956E2C87556D3C56C60E49",
+  "description": "He wears a deep brown plum long outer coat with narrow gold patterned borders along the open front, collar, cuffs and hem. A cream undertunic shows in the central opening, gathered at the waist by a decorated brown belt with a round gold buckle and hanging strap. Dark trousers end inside tall brown leather boots. The head is bare and the hands are held behind his body, naturally hidden. The long sleeves and layered coat cover the arms and torso; the complete standing figure and both boots are visible.",
+  "status": "completed",
+  "descriptionSource": "agent_vision",
+  "retryEligible": false,
+  "error": "",
+  "updatedUtc": "2026-10-08T01:04:52.877Z"
 }

@@ -1,5 +1,6 @@
 using System.Reflection;
 using System.Text;
+using Reign.Core.Contracts.Dialogue;
 
 namespace Reign.Mcp.Tests;
 
@@ -59,6 +60,44 @@ public sealed class ReignSavePayloadCodecTests
         Assert.Contains("dataStore.SyncData(\"_reign_startingChildren_chunks_v2\", ref chunks);", source);
         Assert.Contains("if (chunks != null && chunks.Count > 0) json = ReignSavePayloadCodec.Decode(chunks);", source);
         Assert.Contains("_loadedSave = true;", source);
+    }
+
+    [Fact]
+    public void Participation_xp_receipts_survive_the_archive_limit_without_reawarding()
+    {
+        var ledger = new ReignXpLedger();
+        for (int i = 0; i < 700; i++)
+            Assert.True(ledger.TryClaim("conversation:individual:" + i.ToString("x32")));
+        string json = System.Text.Json.JsonSerializer.Serialize(ledger);
+        Assert.True(Encoding.UTF8.GetByteCount(json) + 4 > short.MaxValue);
+
+        var chunks = ReignBeta.Save.ReignSavePayloadCodec.Encode(json);
+        Assert.All(chunks, chunk => Assert.InRange(Encoding.UTF8.GetByteCount(chunk) + 4, 1, short.MaxValue));
+        string restored = ReignBeta.Save.ReignSavePayloadCodec.Decode(chunks);
+        var reloaded = System.Text.Json.JsonSerializer.Deserialize<ReignXpLedger>(restored)!;
+        Assert.False(reloaded.TryClaim("conversation:individual:" + 699.ToString("x32")));
+
+        string source = File.ReadAllText(Path.Combine(TestOptions.FindWorkspace(), "ReignBeta", "src",
+            "Modules", "Dialogue", "Campaign", "ReignXpCampaignBehavior.cs"));
+        Assert.Contains("string json = null;", source);
+        Assert.Contains("_reign_participation_xp_chunks_v2", source);
+        Assert.Contains("ReignSavePayloadCodec.Encode(JsonConvert.SerializeObject(_ledger))", source);
+        Assert.Contains("ReignSavePayloadCodec.DecodeLegacyArchiveEntry(json)", source);
+    }
+
+    [Fact]
+    public void Recovered_legacy_xp_envelope_can_exceed_chunk_limit_but_not_archive_limit()
+    {
+        var random = new Random(46177);
+        var bytes = new byte[11_000];
+        random.NextBytes(bytes);
+        string payload = Convert.ToBase64String(bytes);
+        string envelope = string.Concat(ReignBeta.Save.ReignSavePayloadCodec.Encode(payload));
+        Assert.True(Encoding.UTF8.GetByteCount(envelope) + 4 > 12_004);
+        Assert.True(Encoding.UTF8.GetByteCount(envelope) + 4 <= short.MaxValue);
+        Assert.Equal(payload, ReignBeta.Save.ReignSavePayloadCodec.DecodeLegacyArchiveEntry(envelope));
+        Assert.Throws<System.IO.InvalidDataException>(() =>
+            ReignBeta.Save.ReignSavePayloadCodec.DecodeLegacyArchiveEntry(new string('x', short.MaxValue)));
     }
 
     [Fact]

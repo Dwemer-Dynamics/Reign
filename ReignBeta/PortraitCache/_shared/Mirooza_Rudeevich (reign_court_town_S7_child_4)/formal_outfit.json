@@ -3,11 +3,11 @@
   "heroStringId": "reign_court_town_S7_child_4",
   "characterName": "Mirooza Rudeevich",
   "imagePath": "portrait.png",
-  "imageSha256": "011F541831EA55C49022B75753F7FAE275E78788D19083EF7DB6B0FD51BBE3D9",
-  "description": "Culturally appropriate everyday Sturgian minor-lord attire inspired by refined medieval Rus and Slavic noble clothing. Men should wear a well-made long shirt beneath a tailored wool kaftan or long belted coat, decorated with fine geometric embroidery and quality trim. Women should wear a long embroidered shift with an elegant wool overdress or noble coat-dress, secured with a richly woven sash. Include subtle fur trim around collars or cuffs, tasteful clasps, and better-quality fabric than a landowner would wear. The clothing should remain practical for a northern climate while clearly showing noble rank. No headgear of any kind. No armor, weapons, crowns, ceremonial robes, or oversized fur displays.",
-  "status": "failed",
-  "descriptionSource": "portrait_prompt_fallback",
-  "retryEligible": true,
-  "error": "{\"error\":{\"message\":\"Model \\\"zai-org/glm-5.2\\\" does not support image inputs. Remove image content or choose a multimodal model.\",\"type\":\"invalid_request_error\",\"param\":\"messages\",\"code\":\"image_input_not_supported\"}}",
-  "updatedUtc": "2026-07-18T22:03:32.6647873Z"
+  "imageSha256": "9EE092813B60570F9FBFF7C93A710249EA652C59301D5C595E035F7D472F7150",
+  "description": "She wears an opaque dark blue floor-length gown with a low square neckline, fitted paneled bodice and elbow-length sleeves. Fine gold geometric borders follow the neckline, bodice seams, cuffs and hem. A blue and gold woven sash with a circular decorative buckle and fringed hanging tail wraps the waist. Round gold clasps accent the shoulder straps. A pale beige woven wrap edged in blue and gold rests across the forearms and hangs at both sides with fringe. The ivory underdress and brown closed boots are visible below the front skirt opening. Exact textile fiber is uncertain.",
+  "status": "completed",
+  "descriptionSource": "agent_vision",
+  "retryEligible": false,
+  "error": "",
+  "updatedUtc": "2026-10-08T00:02:22.758Z"
 }

@@ -3,11 +3,11 @@
   "heroStringId": "lord_2_121",
   "characterName": "Osven",
   "imagePath": "portrait.png",
-  "imageSha256": "B021FE7DE112448B473BD5BDF7F073799CE9159FE529A60EDBE98F889C7057B5",
-  "description": "Culturally appropriate everyday Sturgian minor-lord attire inspired by refined medieval Rus and Slavic noble clothing. Men should wear a well-made long shirt beneath a tailored wool kaftan or long belted coat, decorated with fine geometric embroidery and quality trim. Women should wear a long embroidered shift with an elegant wool overdress or noble coat-dress, secured with a richly woven sash. Include subtle fur trim around collars or cuffs, tasteful clasps, and better-quality fabric than a landowner would wear. The clothing should remain practical for a northern climate while clearly showing noble rank. No headgear of any kind. No armor, weapons, crowns, ceremonial robes, or oversized fur displays.",
-  "status": "failed",
-  "descriptionSource": "portrait_prompt_fallback",
-  "retryEligible": true,
-  "error": "{\"error\":{\"message\":\"Model \\\"zai-org/glm-5.2\\\" does not support image inputs. Remove image content or choose a multimodal model.\",\"type\":\"invalid_request_error\",\"param\":\"messages\",\"code\":\"image_input_not_supported\"}}",
-  "updatedUtc": "2026-07-18T22:03:33.0888175Z"
+  "imageSha256": "1482677D53306AD9FC0DA6617035511CF3538523646531B8B4A92F377108D641",
+  "description": "Sturgian long blue wool coat over a cream linen embroidered shirt, with pale geometric woven borders at neckline, opening, cuffs and hem and fur collar, cuffs and hem. Paired round metal brooches joined by a cord fasten the upper coat. A blue patterned sash with fringed hanging ends secures the waist. Dark trousers and tall wrapped brown leather boots complete the outfit.",
+  "status": "completed",
+  "descriptionSource": "agent_vision",
+  "retryEligible": false,
+  "error": "",
+  "updatedUtc": "2026-10-08T00:09:43.927Z"
 }

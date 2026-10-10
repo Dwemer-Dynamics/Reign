@@ -1209,7 +1209,7 @@ namespace ReignBeta.Court
                 RefusePetitionWithoutEffects(petition, CurrentDay(), "explicit_refusal");
                 QueuePetitionRelationChanges(petition, false);
                 receipt = "Petition refused.";
-                ReignBeta.Campaign.ReignXpCampaignBehavior.Instance?.Award("petition:" + petitionId, ReignXpSkill.Leadership, ReignXpRules.PetitionXp, xpOptions);
+                ReignBeta.Campaign.ReignXpCampaignBehavior.Instance?.Award("petition:" + petitionId, ReignXpSkill.Leadership, ReignXpRules.PetitionXp, xpOptions, ReignXpReason.PetitionDecision);
                 StateChanged?.Invoke();
                 return true;
             }
@@ -1267,7 +1267,7 @@ namespace ReignBeta.Court
             AddPetitionHistory(petition, "granted", method == ReignDocketGrantMethod.GoldSubstitute
                 ? "The ruler funded the validated gold substitute." : "The ruler granted the requested aid directly.");
             receipt = "Petition granted. The commitment is now active.";
-            ReignBeta.Campaign.ReignXpCampaignBehavior.Instance?.Award("petition:" + petitionId, ReignXpSkill.Leadership, ReignXpRules.PetitionXp, xpOptions);
+            ReignBeta.Campaign.ReignXpCampaignBehavior.Instance?.Award("petition:" + petitionId, ReignXpSkill.Leadership, ReignXpRules.PetitionXp, xpOptions, ReignXpReason.PetitionDecision);
             StateChanged?.Invoke();
             return true;
         }

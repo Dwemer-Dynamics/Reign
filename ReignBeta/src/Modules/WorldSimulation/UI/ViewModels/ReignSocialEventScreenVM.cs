@@ -16,8 +16,21 @@ using TaleWorlds.Library;
 
 namespace ReignBeta.UI.ViewModels
 {
-    public sealed class ReignSocialEventScreenVM : ViewModel
+    public sealed class ReignSocialEventScreenVM : ViewModel, ReignBeta.UI.IReignActionHost
     {
+        public IReadOnlyList<Hero> ActionParticipants => _session.ActiveHeroes().ToList();
+        public bool ActionBusy => IsBusy;
+        private ReignActionComposerVM _composer;
+        public ReignActionComposerVM Composer => _composer ?? (_composer = new ReignActionComposerVM(() => OnPropertyChanged(nameof(InputText))));
+        public override void OnFinalize()
+        {
+            ReignActionBuilder.CloseFor(this);
+            _composer?.Dispose();
+            base.OnFinalize();
+        }
+
+        [DataSourceProperty] public string ActionComposerId => Composer.Id;
+        public Reign.Core.Contracts.Actions.ActionAgreement ActionDraft => Composer.State.HasValidAttachment ? Composer.State.Draft : null;
         private readonly ReignSocialEventSession _session;
         private readonly Action _closeScreen;
         private readonly Action _resolveEvent;
@@ -31,7 +44,6 @@ namespace ReignBeta.UI.ViewModels
         private string _eventImageId;
         private string _eventImageText;
         private string _eventBackgroundImageId;
-        private string _inputText;
         private string _busyText;
         private bool _isBusy;
         private bool _isOverlayVisible = true;
@@ -375,15 +387,8 @@ namespace ReignBeta.UI.ViewModels
         [DataSourceProperty]
         public string InputText
         {
-            get { return _inputText; }
-            set
-            {
-                if (value != _inputText)
-                {
-                    _inputText = value;
-                    OnPropertyChangedWithValue(value);
-                }
-            }
+            get { return Composer.State.Text; }
+            set { Composer.SetText(value); }
         }
 
         [DataSourceProperty]
@@ -441,12 +446,15 @@ namespace ReignBeta.UI.ViewModels
                 BusyText = "Calibration mode does not send dialogue.";
                 return;
             }
-            await SendAutomationLineAsync(InputText, string.Empty);
+            await SendLineAsync(InputText, string.Empty, ActionDraft == null ? null : ReignBeta.Actions.ReignActionService.Copy(ActionDraft));
         }
 
-        public async Task<ReignSocialEventTurnReply> SendAutomationLineAsync(string text, string correlationId)
+        public Task<ReignSocialEventTurnReply> SendAutomationLineAsync(string text, string correlationId) => SendLineAsync(text, correlationId, null);
+
+        private async Task<ReignSocialEventTurnReply> SendLineAsync(string text, string correlationId, Reign.Core.Contracts.Actions.ActionAgreement actionDraft)
         {
-            text = (text ?? string.Empty).Trim();
+            text = text ?? string.Empty;
+            if (string.IsNullOrWhiteSpace(correlationId)) correlationId = Guid.NewGuid().ToString("N");
             ReignSocialEventTurnReply rejected = new ReignSocialEventTurnReply();
             List<Hero> activeHeroes = null;
             bool accepted = await ReignMainThread.InvokeAsync(() =>
@@ -455,6 +463,11 @@ namespace ReignBeta.UI.ViewModels
                 if (IsBusy) { rejected.Error = "Social-event conversation is busy."; return false; }
                 activeHeroes = _session.ActiveHeroes().ToList();
                 if (activeHeroes.Count == 0) { rejected.Error = "No social-event participants are active."; return false; }
+                if (actionDraft != null && !activeHeroes.Any(h => h.StringId == actionDraft.NpcId)) { rejected.Error = "Activate the character addressed by your action."; return false; }
+                try { ReignConversationInputJournal.Save(ReignServerClient.GetCampaignId(),
+                    ReignBeta.Campaign.ReignWorldHistoryCampaignBehavior.Instance?.TimelineId ?? "main", Hero.MainHero?.StringId ?? "",
+                    correlationId, text, session: "social_event_" + _session.Record.EventId); }
+                catch (Exception ex) { rejected.Error = "Your message could not be saved locally: " + ex.Message; AddSystemLine(rejected.Error); return false; }
                 string playerName = Hero.MainHero?.Name?.ToString() ?? "Player";
                 AddChatLine(playerName, text, "player");
                 _session.RecordTranscriptLine(playerName, text);
@@ -462,7 +475,7 @@ namespace ReignBeta.UI.ViewModels
                 return true;
             }).ConfigureAwait(false);
             if (!accepted) return rejected;
-            return await RequestGroupTurnAsync(activeHeroes, text, correlationId).ConfigureAwait(false);
+            return await RequestGroupTurnAsync(activeHeroes, text, correlationId, actionDraft).ConfigureAwait(false);
         }
 
         public bool SelectAutomationHeroes(IEnumerable<Hero> heroes)
@@ -674,7 +687,7 @@ namespace ReignBeta.UI.ViewModels
             }
         }
 
-        private async Task<ReignSocialEventTurnReply> RequestGroupTurnAsync(List<Hero> activeHeroes, string playerText, string correlationId = "")
+        private async Task<ReignSocialEventTurnReply> RequestGroupTurnAsync(List<Hero> activeHeroes, string playerText, string correlationId = "", Reign.Core.Contracts.Actions.ActionAgreement actionDraft = null)
         {
             if (_calibrationMode) return new ReignSocialEventTurnReply { Error = "Calibration does not send dialogue or award XP." };
             IsBusy = true;
@@ -698,7 +711,7 @@ namespace ReignBeta.UI.ViewModels
                             AddChatLine(speakerName, reply.Text.Trim(), "npc");
                             _session.RecordTranscriptLine(speakerName, reply.Text.Trim());
                         }
-                    });
+                    }, actionDraft);
             if (turn == null || !turn.Ok)
             {
                 AddSystemLine("Bannerlord Reign could not complete the group conversation: " + (turn?.Error ?? "No response."));

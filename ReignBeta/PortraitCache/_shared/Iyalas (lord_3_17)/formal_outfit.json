@@ -3,11 +3,11 @@
   "heroStringId": "lord_3_17",
   "characterName": "Iyalas",
   "imagePath": "portrait.png",
-  "imageSha256": "6EF6D5F1BAA34848F9AFE11884249F09EF2651132C311E1C1DDA2069D3DE4A4F",
-  "description": "Culturally appropriate everyday Aserai minor-lord attire inspired by refined medieval Arabian, North African, and limited Persian noble clothing. Men should wear a flowing robe or structured open-front coat over a fine lightweight tunic, secured with a decorated woven sash. Women should wear a long elegant dress with soft layered fabrics, shaped sleeves, graceful draping, and fine embroidery around the neckline, cuffs, and hem. Show rank through superior fabric, elegant borders, geometric embroidery, and subtle jewelry rather than excessive ornamentation. No headgear of any kind. No turbans, veils, hoods, armor, weapons, crowns, or ceremonial excess.",
-  "status": "failed",
-  "descriptionSource": "portrait_prompt_fallback",
-  "retryEligible": true,
-  "error": "{\"error\":{\"message\":\"Model \\\"zai-org/glm-5.2\\\" does not support image inputs. Remove image content or choose a multimodal model.\",\"type\":\"invalid_request_error\",\"param\":\"messages\",\"code\":\"image_input_not_supported\"}}",
-  "updatedUtc": "2026-07-18T22:03:30.9048141Z"
+  "imageSha256": "FCC39BD2E875DFD80297D692BB1718416E89A0DC878BFCC09C2F014F5D4F361C",
+  "description": "An opaque cream full-length Aserai linen robe and matching loose trousers, an embroidered brown outer robe with wide sleeves and ornate narrow gold geometric edging, a brown-and-gold woven sash with hanging fringed ends and closed brown leather shoes. Modest pendant and no headgear or weapons.",
+  "status": "completed",
+  "descriptionSource": "agent_vision",
+  "retryEligible": false,
+  "error": "",
+  "updatedUtc": "2026-10-08T04:21:27.612Z"
 }

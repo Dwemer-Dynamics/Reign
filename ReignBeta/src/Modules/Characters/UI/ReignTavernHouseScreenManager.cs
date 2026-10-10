@@ -56,6 +56,7 @@ namespace ReignBeta.UI
                     || !IsCalibrationFixture && ActiveViewModel.Town != Settlement.CurrentSettlement)
                 { Close(); return; }
                 ApplyInputLock();
+                if (ReignActionBuilder.Handle(_host, ActiveViewModel)) return;
                 ActiveViewModel.Tick(dt);
                 if (_layer.Input.IsKeyReleased(InputKey.Escape))
                 {

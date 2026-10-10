@@ -3,11 +3,11 @@
   "heroStringId": "reign_court_town_V9_child_2",
   "characterName": "Liorysa Montelecourt",
   "imagePath": "portrait.png",
-  "imageSha256": "8E2717A287ED646D7A291F13507D5A8292EFDABCCAF3075E01829691CA830C57",
-  "description": "Culturally appropriate everyday Vlandian landowner attire inspired by practical high-medieval Norman and Frankish clothing. Use a well-made wool tunic over a linen underlayer, fitted sleeves, a sturdy leather belt, narrow trousers or chausses, and soft leather boots. For women, use a long fitted underdress with a simple but well-tailored overdress, narrow sleeves, a modest neckline, and a practical belt. The garments should appear prosperous, clean, and durable without looking aristocratic. No headgear of any kind. No armor, weapons, crowns, ceremonial robes, or fantasy elements.",
-  "status": "failed",
-  "descriptionSource": "portrait_prompt_fallback",
-  "retryEligible": true,
-  "error": "{\"error\":{\"message\":\"Model \\\"zai-org/glm-5.2\\\" does not support image inputs. Remove image content or choose a multimodal model.\",\"type\":\"invalid_request_error\",\"param\":\"messages\",\"code\":\"image_input_not_supported\"}}",
-  "updatedUtc": "2026-07-18T22:03:31.9411040Z"
+  "imageSha256": "D796709BBE1CE46ED3E419C36F70EB3CEA4F665B1AF7452FCBE2084F3267999A",
+  "description": "Burgundy opaque low-square-neck fitted court gown with cream underdress and sleeves, gold-brown woven neckline, cuffs, front and hem edging, thin decorated leather belt with round clasp, small sleeve brooches and burgundy patterned wrap resting along the arms. Small pendant and earrings, brown shoes. Both hands together in front; full side-gather hair and both shoes inside frame. No headgear, armor, weapon or text. Court modifier yields richer textile ornament than minimal landowner trim.",
+  "status": "completed",
+  "descriptionSource": "agent_vision",
+  "retryEligible": false,
+  "error": "",
+  "updatedUtc": "2026-10-08T00:47:59.837Z"
 }

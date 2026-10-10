@@ -12,9 +12,10 @@ public sealed class ReignXpTests
     public void MultiplierAppliesToEveryRewardWithoutRoundingAwaySmallAmounts(double multiplier, float charm, float bonus, float petition)
     {
         var options = new ReignXpOptions { Confirmed = true, Multiplier = multiplier };
-        Assert.Equal(charm, ReignXpRules.Amount(ReignXpRules.ConversationXp, options));
-        Assert.Equal(bonus, ReignXpRules.Amount(ReignXpRules.SocialBonusXp, options));
-        Assert.Equal(petition, ReignXpRules.Amount(ReignXpRules.PetitionXp, options));
+        Assert.Equal(charm, ReignXpRules.Amount(ReignXpRules.ConversationXp, options, ReignXpReason.Conversation));
+        Assert.Equal(charm, ReignXpRules.Amount(ReignXpRules.ConversationXp, options, ReignXpReason.SocialCharm));
+        Assert.Equal(bonus, ReignXpRules.Amount(ReignXpRules.SocialBonusXp, options, ReignXpReason.SocialBonus));
+        Assert.Equal(petition, ReignXpRules.Amount(ReignXpRules.PetitionXp, options, ReignXpReason.PetitionDecision));
     }
 
     [Theory]
@@ -23,14 +24,90 @@ public sealed class ReignXpTests
     public void InvalidSettingsCannotAwardXp(double multiplier)
     {
         Assert.False(ReignXpRules.IsValidMultiplier(multiplier));
-        Assert.Equal(0, ReignXpRules.Amount(5, new ReignXpOptions { Confirmed = true, Multiplier = multiplier }));
+        Assert.Equal(0, ReignXpRules.Amount(5, new ReignXpOptions { Confirmed = true, Multiplier = multiplier }, ReignXpReason.Conversation));
     }
 
     [Fact]
     public void DisabledOrNeverConfirmedOptionsGiveNothing()
     {
-        Assert.Equal(0, ReignXpRules.Amount(5, new ReignXpOptions()));
-        Assert.Equal(0, ReignXpRules.Amount(5, new ReignXpOptions { Confirmed = true, Enabled = false }));
+        foreach (var reason in Enum.GetValues<ReignXpReason>())
+        {
+            Assert.Equal(0, ReignXpRules.Amount(5, new ReignXpOptions(), reason));
+            Assert.Equal(0, ReignXpRules.Amount(5, new ReignXpOptions { Confirmed = true, Enabled = false }, reason));
+        }
+    }
+
+    [Theory]
+    [InlineData(0)] [InlineData(.25)] [InlineData(1)] [InlineData(5)]
+    public void EveryCategoryScalesIndependentlyAlongsideUniversalMultiplier(double category)
+    {
+        var options = new ReignXpOptions { Confirmed = true, Multiplier = 2 };
+        foreach (var selected in Enum.GetValues<ReignXpReason>())
+        {
+            SetCategory(options, selected, category);
+            foreach (var reason in Enum.GetValues<ReignXpReason>())
+            {
+                double baseXp = reason == ReignXpReason.SocialBonus ? 2 : reason == ReignXpReason.PetitionDecision ? 10 : 5;
+                Assert.Equal((float)(baseXp * 2 * (reason == selected ? category : 1)), ReignXpRules.Amount(baseXp, options, reason));
+            }
+            SetCategory(options, selected, 1);
+        }
+    }
+
+    [Theory]
+    [InlineData(-.25)] [InlineData(5.25)] [InlineData(.3)]
+    [InlineData(double.NaN)] [InlineData(double.PositiveInfinity)]
+    public void InvalidCategoryCannotAwardOrChangeOtherCategories(double category)
+    {
+        Assert.False(ReignXpRules.IsValidCategoryMultiplier(category));
+        foreach (var selected in Enum.GetValues<ReignXpReason>())
+        {
+            var options = new ReignXpOptions { Confirmed = true };
+            SetCategory(options, selected, category);
+            foreach (var reason in Enum.GetValues<ReignXpReason>())
+                Assert.Equal(reason == selected ? 0f : 5f, ReignXpRules.Amount(5, options, reason));
+        }
+        Assert.Equal(0, ReignXpRules.Amount(5, new ReignXpOptions { Confirmed = true }, (ReignXpReason)999));
+    }
+
+    [Fact]
+    public void LegacyOptionsDefaultEveryCategoryToOneAndKeepFractionalRewards()
+    {
+        var options = JsonSerializer.Deserialize<ReignXpOptions>("{\"Confirmed\":true,\"Multiplier\":0.25}")!;
+        Assert.Equal(1.25f, ReignXpRules.Amount(5, options, ReignXpReason.Conversation));
+        Assert.Equal(1.25f, ReignXpRules.Amount(5, options, ReignXpReason.SocialCharm));
+        Assert.Equal(.5f, ReignXpRules.Amount(2, options, ReignXpReason.SocialBonus));
+        Assert.Equal(2.5f, ReignXpRules.Amount(10, options, ReignXpReason.PetitionDecision));
+        options.SocialBonusMultiplier = .25;
+        Assert.Equal(.125f, ReignXpRules.Amount(2, options, ReignXpReason.SocialBonus));
+        options.Multiplier = 5;
+        options.PetitionMultiplier = 5;
+        Assert.Equal(250f, ReignXpRules.Amount(10, options, ReignXpReason.PetitionDecision));
+    }
+
+    [Fact]
+    public void DisabledCategoryReceiptCannotBeReplayedAfterReenabling()
+    {
+        var ledger = new ReignXpLedger();
+        var options = new ReignXpOptions { Confirmed = true, ConversationMultiplier = 0 };
+        Assert.True(ledger.TryClaim("conversation:disabled"));
+        Assert.Equal(0, ReignXpRules.Amount(5, options, ReignXpReason.Conversation));
+        options.ConversationMultiplier = 1;
+        var reloaded = JsonSerializer.Deserialize<ReignXpLedger>(JsonSerializer.Serialize(ledger))!;
+        Assert.False(reloaded.TryClaim("conversation:disabled"));
+        Assert.True(reloaded.TryClaim("conversation:new"));
+        Assert.Equal(5, ReignXpRules.Amount(5, options, ReignXpReason.Conversation));
+    }
+
+    private static void SetCategory(ReignXpOptions options, ReignXpReason reason, double value)
+    {
+        switch (reason)
+        {
+            case ReignXpReason.Conversation: options.ConversationMultiplier = value; break;
+            case ReignXpReason.SocialCharm: options.SocialCharmMultiplier = value; break;
+            case ReignXpReason.SocialBonus: options.SocialBonusMultiplier = value; break;
+            case ReignXpReason.PetitionDecision: options.PetitionMultiplier = value; break;
+        }
     }
 
     [Theory]

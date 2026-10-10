@@ -3,11 +3,11 @@
   "heroStringId": "reign_court_castle_EW4_father",
   "characterName": "Marvaros Damarirides",
   "imagePath": "portrait.png",
-  "imageSha256": "7FE765D811B6D74DCE2507811B02C2FB92E05FF7B89C7240176C211F81BC6D9B",
-  "description": "Culturally appropriate everyday Calradic Imperial minor-lord attire inspired by refined late Roman and Byzantine noble clothing. Men should wear a high-quality tunic or long tailored outer coat over fine linen, decorated with narrow woven borders, refined clasps, and a decorated belt. Women should wear a long elegant dress or layered tunic ensemble with shaped sleeves, graceful draping, and tasteful trim around the neckline, cuffs, and edges. The garments should feel polished, educated, urban, and wealthy without resembling full imperial ceremony. No headgear of any kind. No armor, weapons, crowns, imperial regalia, laurel wreaths, or ceremonial robes.",
-  "status": "failed",
-  "descriptionSource": "portrait_prompt_fallback",
-  "retryEligible": true,
-  "error": "{\"error\":{\"message\":\"Model \\\"zai-org/glm-5.2\\\" does not support image inputs. Remove image content or choose a multimodal model.\",\"type\":\"invalid_request_error\",\"param\":\"messages\",\"code\":\"image_input_not_supported\"}}",
-  "updatedUtc": "2026-07-18T22:03:32.0861052Z"
+  "imageSha256": "9407646681258256B8B8C6EA027FC416BF3282C4AA8F48DBEFB27C52298238AA",
+  "description": "Long plum outer coat with broad woven gold front and hem borders and two small round upper-chest clasps, cream linen long tunic with patterned neckline and hem, decorated belt with round buckle and long woven end, dark trousers and brown calf boots. No headgear, armor or weapons.",
+  "status": "completed",
+  "descriptionSource": "agent_vision",
+  "retryEligible": false,
+  "error": "",
+  "updatedUtc": "2026-10-08T04:50:08.634Z"
 }

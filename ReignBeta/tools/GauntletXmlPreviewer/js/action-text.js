@@ -20,8 +20,7 @@ export function appendActionRichText(element, value) {
 // implementation remains authoritative; the parity fixtures test both routes.
 export function previewActionRichText(value, enabled = true) {
   let text = String(value ?? "");
-  const truncated = text.length > 4000;
-  text = text.slice(0, 4000).replaceAll("<", "(").replaceAll(">", ")");
+  text = text.replaceAll("<", "(").replaceAll(">", ")");
   let output = "";
   for (let i = 0; i < text.length; i++) {
     if (enabled && text[i] === "\\" && text[i + 1] === "*") { output += "*"; i++; continue; }
@@ -37,5 +36,5 @@ export function previewActionRichText(value, enabled = true) {
     output += `<span style="Action">${text.slice(i + 1, close).replaceAll("\\*", "*")}</span>`;
     i = close;
   }
-  return output + (truncated ? "..." : "");
+  return output;
 }

@@ -3,11 +3,11 @@
   "heroStringId": "lord_7_25_1",
   "characterName": "Drivana",
   "imagePath": "portrait.png",
-  "imageSha256": "3A47A99124FD03AF4DD1D8B1B9758E46271B74BEE208CD2CE9E5B43A5C363EC9",
-  "description": "Culturally appropriate everyday Nord landowner attire inspired by historically grounded early medieval Scandinavian civilian clothing. Men should wear a long-sleeved linen undershirt beneath a knee-length wool tunic, straight or loose trousers, a sturdy leather belt, and wrapped lower legs. Women should wear a long linen shift beneath a wool apron dress or layered overdress, secured with modest brooches and a woven belt. Include subtle tablet-woven trim and practical layered fabric. The garments should appear sturdy, clean, and modestly prosperous. No headgear of any kind. No helmets, caps, hoods, armor, weapons, crowns, ceremonial garments, horned helmets, or fantasy Viking styling.",
-  "status": "failed",
-  "descriptionSource": "portrait_prompt_fallback",
-  "retryEligible": true,
-  "error": "{\"error\":{\"message\":\"Model \\\"zai-org/glm-5.2\\\" does not support image inputs. Remove image content or choose a multimodal model.\",\"type\":\"invalid_request_error\",\"param\":\"messages\",\"code\":\"image_input_not_supported\"}}",
-  "updatedUtc": "2026-07-18T22:03:28.0917001Z"
+  "imageSha256": "2E9E5CF955BCE32FBE63D3D3FA1C6E65FA39A71164C93C454172BD2226559196",
+  "description": "Floor-length dark olive square-neck wool gown with fitted bodice, elbow sleeves, beige geometric tablet-woven bands and cream linen shift through front walking opening. Brown wool shoulder wrap with patterned borders and fringes along forearms, woven belt with round clasp, shoulder brooches and brown leather shoes. No headgear, armor or weapon.",
+  "status": "completed",
+  "descriptionSource": "agent_vision",
+  "retryEligible": false,
+  "error": "",
+  "updatedUtc": "2026-10-07T22:24:06.665Z"
 }

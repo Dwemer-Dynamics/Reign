@@ -3,11 +3,11 @@
   "heroStringId": "reign_court_castle_K4_child_2",
   "characterName": "Chagea Dorbetatai",
   "imagePath": "portrait.png",
-  "imageSha256": "BD595F94D39F43EFBC2E4F9EC4E8184471638D4191607B4882509483EFC4F3C3",
-  "description": "Culturally appropriate everyday Khuzait high-noble attire inspired by elite medieval Turkic and Mongol aristocratic clothing. Use superb tailoring, layered fine wool and silk-like woven fabrics, elegant crossed-front closures, decorated sashes, refined edging, and subtle noble motifs. Men should wear a stately long noble deel or structured coat over richly made underlayers. Women should wear a luxurious robe or coat-dress with graceful lines, elaborate woven trim, and exceptionally high-quality textiles. Fur trim may be included sparingly along cuffs, collars, or garment edges. The clothing should feel wealthy, mobile, and commanding without becoming ceremonial. No headgear of any kind. No fur hats, caps, hoods, armor, weapons, crowns, or fantasy styling.",
-  "status": "failed",
-  "descriptionSource": "portrait_prompt_fallback",
-  "retryEligible": true,
-  "error": "{\"error\":{\"message\":\"Model \\\"zai-org/glm-5.2\\\" does not support image inputs. Remove image content or choose a multimodal model.\",\"type\":\"invalid_request_error\",\"param\":\"messages\",\"code\":\"image_input_not_supported\"}}",
-  "updatedUtc": "2026-07-18T22:03:26.6702619Z"
+  "imageSha256": "C07E6E873C33A69A58B5B0599D1C6BDEA21BAA03EC6F8CB9D1DA3BC845DC672D",
+  "description": "She wears a floor-length teal-blue patterned coat-dress with a fitted structured bodice, low square neckline and elbow-length sleeves. Broad muted gold woven borders frame the neckline, central front and skirt edges. A matching decorated sash has two circular metal fittings with small hanging ornaments. A cream patterned underdress appears along the lower front and a substantial cream wrap with teal-and-gold woven borders rests around the arms, hanging down each side with fringed ends. A simple gold-toned bracelet is visible. Brown decorated shoes show below the hem. All principal fabrics are opaque, with upper chest exposed but bust, abdomen, hips and pelvis covered. Exact textile fibers are uncertain.",
+  "status": "completed",
+  "descriptionSource": "agent_vision",
+  "retryEligible": false,
+  "error": "",
+  "updatedUtc": "2026-10-07T21:20:32.673Z"
 }

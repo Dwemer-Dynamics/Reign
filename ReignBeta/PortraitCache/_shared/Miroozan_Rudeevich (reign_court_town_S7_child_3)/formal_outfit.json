@@ -3,11 +3,11 @@
   "heroStringId": "reign_court_town_S7_child_3",
   "characterName": "Miroozan Rudeevich",
   "imagePath": "portrait.png",
-  "imageSha256": "85BED146DB1BFF014B74D3D36F12912E2DB699919F80B1FA91DDEE80259C0EFF",
-  "description": "Culturally appropriate everyday Sturgian minor-lord attire inspired by refined medieval Rus and Slavic noble clothing. Men should wear a well-made long shirt beneath a tailored wool kaftan or long belted coat, decorated with fine geometric embroidery and quality trim. Women should wear a long embroidered shift with an elegant wool overdress or noble coat-dress, secured with a richly woven sash. Include subtle fur trim around collars or cuffs, tasteful clasps, and better-quality fabric than a landowner would wear. The clothing should remain practical for a northern climate while clearly showing noble rank. No headgear of any kind. No armor, weapons, crowns, ceremonial robes, or oversized fur displays.",
-  "status": "failed",
-  "descriptionSource": "portrait_prompt_fallback",
-  "retryEligible": true,
-  "error": "{\"error\":{\"message\":\"Model \\\"zai-org/glm-5.2\\\" does not support image inputs. Remove image content or choose a multimodal model.\",\"type\":\"invalid_request_error\",\"param\":\"messages\",\"code\":\"image_input_not_supported\"}}",
-  "updatedUtc": "2026-07-18T22:03:32.6744282Z"
+  "imageSha256": "F4D9A409CFF88AC243EA7AB26EB35D25070DAB8D673387BC175853FD08854C54",
+  "description": "Miroozan wears a dark navy long wool coat with restrained brown-gray fur trim at the collar, cuffs, front edges and lower hem. Fine pale gold geometric woven borders and small motifs decorate the coat fronts, sleeves and hem. The cream linen shirt underneath has dark blue embroidery around its split neckline and lower edge. Several paired circular metal clasps appear along the upper coat opening. A broad navy-and-gold woven sash circles the waist and hangs down with a fringed end. Brown trousers and tall dark brown leather boots finish the ensemble. Both hands hang naturally at his sides. His head is uncovered, without armor, weapon or crown.",
+  "status": "completed",
+  "descriptionSource": "agent_vision",
+  "retryEligible": false,
+  "error": "",
+  "updatedUtc": "2026-10-08T00:39:29.279Z"
 }

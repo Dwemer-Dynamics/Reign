@@ -3,11 +3,11 @@
   "heroStringId": "reign_court_town_EW1_child_4",
   "characterName": "Othilara Vardirides",
   "imagePath": "portrait.png",
-  "imageSha256": "9A652AC2DAE02D20B2D45F0E6DD39C8AC72E704840EAFDFEDF1A19994E5995C2",
-  "description": "Culturally appropriate everyday Calradic Imperial minor-lord attire inspired by refined late Roman and Byzantine noble clothing. Men should wear a high-quality tunic or long tailored outer coat over fine linen, decorated with narrow woven borders, refined clasps, and a decorated belt. Women should wear a long elegant dress or layered tunic ensemble with shaped sleeves, graceful draping, and tasteful trim around the neckline, cuffs, and edges. The garments should feel polished, educated, urban, and wealthy without resembling full imperial ceremony. No headgear of any kind. No armor, weapons, crowns, imperial regalia, laurel wreaths, or ceremonial robes.",
-  "status": "failed",
-  "descriptionSource": "portrait_prompt_fallback",
-  "retryEligible": true,
-  "error": "{\"error\":{\"message\":\"Model \\\"zai-org/glm-5.2\\\" does not support image inputs. Remove image content or choose a multimodal model.\",\"type\":\"invalid_request_error\",\"param\":\"messages\",\"code\":\"image_input_not_supported\"}}",
-  "updatedUtc": "2026-07-18T22:03:33.1965384Z"
+  "imageSha256": "DC355B09B5CA72AC9DA03B63725A947E7BF71743962C46AE08750794D9D5CD6F",
+  "description": "Imperial burgundy floor-length court gown over cream linen, with a low square neckline, fitted opaque bodice, elbow sleeves and gold woven borders at neckline, cuffs, waist, front and hem. Small round gold belt clasps secure the waist. A cream-plum wrap with gold borders rests on the arms; pendant necklace, earrings, bracelet, rings and decorated gold flats complete the outfit.",
+  "status": "completed",
+  "descriptionSource": "agent_vision",
+  "retryEligible": false,
+  "error": "",
+  "updatedUtc": "2026-10-08T00:06:08.642Z"
 }

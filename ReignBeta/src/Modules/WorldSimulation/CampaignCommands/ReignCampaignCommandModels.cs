@@ -1,3 +1,6 @@
+// These legacy save models retain their nullable runtime defaults when linked into strict test projects.
+#nullable disable
+
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -190,6 +193,9 @@ namespace ReignBeta.World
         public string AnchorSettlementIdsCsv = string.Empty;
         public string PendingReportId = string.Empty;
         public string PendingReportText = string.Empty;
+        public string ReportLetterDeliveredId = string.Empty;
+        public bool ReportLetterPending;
+        public double NextReportLetterAttemptDay;
         public string LastDecision = "continue";
         public string LastFailure = string.Empty;
         public string LastNativeSignature = string.Empty;
@@ -213,6 +219,8 @@ namespace ReignBeta.World
         public int AttemptCount;
         public int AnchorIndex;
         public int NativeReassertions;
+        public string NativeDecisionLockPartyId = string.Empty;
+        public bool NativeDecisionLockOriginalValue;
         public int DeviationCount;
         public bool AwaitingGuidance;
         public bool UrgentReportPending;
@@ -225,6 +233,33 @@ namespace ReignBeta.World
                 return Status == "completed" || Status == "failed" || Status == "refused"
                     || Status == "cancelled";
             }
+        }
+    }
+
+    /// <summary>Proposal eligibility is separate from exact saved execution consent.</summary>
+    public static class ReignCampaignControlConsent
+    {
+        public static bool Validate(ReignCampaignOrderRecord order, string commanderId, string issuerId,
+            bool structured, bool console, bool proposal, bool acceptedSavedAction, out string reason)
+        {
+            reason = string.Empty;
+            if (order == null || order.IsTerminal)
+            { reason = "The campaign order is missing or already terminal."; return false; }
+            if (structured)
+            {
+                if (string.IsNullOrWhiteSpace(order.CommanderHeroStringId)
+                    || order.CommanderHeroStringId != commanderId)
+                { reason = "Only the commander bound by this agreement may change this order."; return false; }
+                if (string.IsNullOrWhiteSpace(order.IssuerHeroStringId)
+                    || order.IssuerHeroStringId != issuerId)
+                { reason = "Only the original issuer and commander may agree to change this order."; return false; }
+                if (!proposal && !acceptedSavedAction)
+                { reason = "The campaign instruction does not match an accepted saved agreement."; return false; }
+                return true;
+            }
+            if ((order.AuthorityMode == "explicit_agreement" || order.AuthorityMode == "operator") && !console)
+            { reason = "A committed bargain cannot be changed or cancelled unilaterally."; return false; }
+            return true;
         }
     }
 

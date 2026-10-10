@@ -3,11 +3,11 @@
   "heroStringId": "lord_4_23_3",
   "characterName": "Eleduran",
   "imagePath": "portrait.png",
-  "imageSha256": "4F4F09172463AE4D1CDF2C813F2535EA9BC1FAEF562714413F3982838B205864",
-  "description": "Culturally appropriate everyday Vlandian minor-lord attire inspired by refined high-medieval Norman and Frankish noble dress. Use a fitted wool tunic or cote over a fine linen shirt, high-quality chausses, a decorated leather belt, and an optional short mantle or shoulder drape with restrained embroidery. For women, use a long underdress with an elegant tailored overdress, shaped sleeves, fine woven fabric, and decorative trim around the cuffs, hem, and neckline. Include modest clasps, brooches, or small jewelry details. No headgear of any kind. No armor, weapons, crowns, royal regalia, or ceremonial robes.",
-  "status": "failed",
-  "descriptionSource": "portrait_prompt_fallback",
-  "retryEligible": true,
-  "error": "{\"error\":{\"message\":\"Model \\\"zai-org/glm-5.2\\\" does not support image inputs. Remove image content or choose a multimodal model.\",\"type\":\"invalid_request_error\",\"param\":\"messages\",\"code\":\"image_input_not_supported\"}}",
-  "updatedUtc": "2026-07-18T22:03:28.4078230Z"
+  "imageSha256": "3733AB9603A48CEAE3CE01E0CCC5EDC856971D13202E4E8EAB7318A47A3ABC0E",
+  "description": "He wears a reddish-brown woven open-front knee-length cote over a cream linen shirt and long cream underlayer, with pale gold geometric embroidery along the collar, front borders, cuffs and hem. A matching red-brown mantle crosses the upper chest, held by a round brooch, and has narrow worked edging. A decorated brown leather belt with a round buckle and long hanging end secures the cote. Brown trousers and tall brown leather boots complete the outfit. No headgear, armor or weapons appear.",
+  "status": "completed",
+  "descriptionSource": "agent_vision",
+  "retryEligible": false,
+  "error": "",
+  "updatedUtc": "2026-10-07T22:37:25.835Z"
 }

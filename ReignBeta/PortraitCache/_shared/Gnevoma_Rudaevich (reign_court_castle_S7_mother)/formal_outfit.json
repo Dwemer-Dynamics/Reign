@@ -3,11 +3,11 @@
   "heroStringId": "reign_court_castle_S7_mother",
   "characterName": "Gnevoma Rudaevich",
   "imagePath": "portrait.png",
-  "imageSha256": "E414D8211450BEF527AF7EBD4648F27C7B2F24E1EC59CF50DF7CE7B9C6E8E40E",
-  "description": "Culturally appropriate everyday Sturgian minor-lord attire inspired by refined medieval Rus and Slavic noble clothing. Men should wear a well-made long shirt beneath a tailored wool kaftan or long belted coat, decorated with fine geometric embroidery and quality trim. Women should wear a long embroidered shift with an elegant wool overdress or noble coat-dress, secured with a richly woven sash. Include subtle fur trim around collars or cuffs, tasteful clasps, and better-quality fabric than a landowner would wear. The clothing should remain practical for a northern climate while clearly showing noble rank. No headgear of any kind. No armor, weapons, crowns, ceremonial robes, or oversized fur displays.",
-  "status": "failed",
-  "descriptionSource": "portrait_prompt_fallback",
-  "retryEligible": true,
-  "error": "{\"error\":{\"message\":\"Model \\\"zai-org/glm-5.2\\\" does not support image inputs. Remove image content or choose a multimodal model.\",\"type\":\"invalid_request_error\",\"param\":\"messages\",\"code\":\"image_input_not_supported\"}}",
-  "updatedUtc": "2026-07-18T22:03:29.6345779Z"
+  "imageSha256": "6ACCD3651EF52C5B2EA5A3DD61DD6AC40A2D0BC0636B391879205CAB86A98CCA",
+  "description": "Gnevoma wears a blue floor-length wool gown with a square neckline, ivory linen inset, gold geometric embroidered borders, round shoulder clasps and a decorated waist belt with a circular buckle. A matching blue wrap with modest natural brown fur drapes around her forearms and sides. Both brown leather shoes are visible below the long skirt.",
+  "status": "completed",
+  "descriptionSource": "agent_vision",
+  "retryEligible": false,
+  "error": "",
+  "updatedUtc": "2026-10-07T22:30:39.890Z"
 }

@@ -3,11 +3,11 @@
   "heroStringId": "reign_court_castle_K3_child_2",
   "characterName": "Torgaa Chaganatai",
   "imagePath": "portrait.png",
-  "imageSha256": "D09545E8044AE1D82A122A4843BC7737C8C205034A07812148F6AA768D177AC0",
-  "description": "Culturally appropriate everyday Khuzait landowner attire inspired by practical medieval Turkic and Mongol steppe clothing suited to riding, travel, wind, and changing weather. Men should wear a crossed-front deel or caftan with an overlapping closure, a broad woven or leather sash, loose trousers, and practical layered sleeves. Women should wear a long crossed-front robe or fitted steppe coat over a simple underdress, secured with a woven sash. Fabrics should include wool, felt, linen, and restrained leather edging. Add simple woven geometric trim. No headgear of any kind. No fur hats, caps, hoods, armor, weapons, oversized fur displays, crowns, or fantasy elements.",
-  "status": "failed",
-  "descriptionSource": "portrait_prompt_fallback",
-  "retryEligible": true,
-  "error": "{\"error\":{\"message\":\"Model \\\"zai-org/glm-5.2\\\" does not support image inputs. Remove image content or choose a multimodal model.\",\"type\":\"invalid_request_error\",\"param\":\"messages\",\"code\":\"image_input_not_supported\"}}",
-  "updatedUtc": "2026-07-18T22:03:34.9120025Z"
+  "imageSha256": "C604C0239C62AE6A853040DB7BCB74D8352DB89D3CFEE1557C9F0843BFA2A8AD",
+  "description": "A floor-length teal-blue gown with gold patterned borders, a cream center skirt panel, decorated brown belt and hanging tassel chain, broad cream-lined draped sleeves, and small brown shoe tips beneath the hem. Both hands rest visibly together in front of the waist.",
+  "status": "completed",
+  "descriptionSource": "agent_vision",
+  "retryEligible": false,
+  "error": "",
+  "updatedUtc": "2026-10-08T21:17:24.660Z"
 }

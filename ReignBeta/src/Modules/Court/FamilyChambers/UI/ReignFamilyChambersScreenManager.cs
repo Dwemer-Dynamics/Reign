@@ -65,9 +65,9 @@ namespace ReignBeta.UI
 
         public static void OpenFromKeep(ReignCourtCampaignBehavior court, Action returnToKeep)
         {
-            if (court == null || Settlement.CurrentSettlement?.IsTown != true)
+            if (court == null || ReignCastleLayoutScreenManager.CurrentKeepMenuId == null)
             {
-                ReignLog.Warn("Family Chambers keep entry ignored because no native town keep is active.");
+                ReignLog.Warn("Family Chambers keep entry ignored because no native town or castle keep is active.");
                 return;
             }
             if (ReignFamilyChambersCampaignBehavior.Instance == null) return;
@@ -78,6 +78,8 @@ namespace ReignBeta.UI
 
         private static void OpenNow(ReignCourtCampaignBehavior court, bool allowOutsideRuleMode, Action originReturn)
         {
+            if (court == null || (allowOutsideRuleMode
+                ? ReignCastleLayoutScreenManager.CurrentKeepMenuId == null : !court.IsRuleModeActive)) return;
             if (IsOpen) Close(false);
             if (!ReignRuntimeSpriteSheets.EnsureCategoryLoaded("ui_reignbeta_party_chat"))
             {
@@ -143,7 +145,7 @@ namespace ReignBeta.UI
                 if (_court?.IsRuleModeActive == true) ReignCourtScreenManager.Open(_court);
             }
             if (!IsOpen) return;
-            bool originValid = _allowOutsideRuleMode ? Settlement.CurrentSettlement?.IsTown == true
+            bool originValid = _allowOutsideRuleMode ? ReignCastleLayoutScreenManager.CurrentKeepMenuId != null
                 : _court?.ShouldKeepCourtScreenOpen == true;
             if (!originValid || _host == null || _layer == null
                 || ScreenManager.TopScreen != _host || !SafeHasLayer(_host, _layer))

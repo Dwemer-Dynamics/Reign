@@ -2,38 +2,256 @@
   "Version": 3,
   "CropAlgorithmVersion": 2,
   "SourceFileName": "portrait.png",
-  "SourcePath": "portrait.png",
-  "SourceLength": 1380292,
-  "SourceLastWriteUtcTicks": 639199097348978489,
-  "SourceWidth": 864,
-  "SourceHeight": 1152,
-  "CropX": 330,
-  "CropY": 97,
-  "CropWidth": 192,
-  "CropHeight": 240,
-  "WideCropX": 258,
-  "WideCropY": 97,
-  "WideCropWidth": 336,
-  "WideCropHeight": 240,
+  "SourcePath": "C:\\ReignPortraitRebuild\\2026-10-07-01a11741-culture-v2\\_shared\\Drazykan_Karseevich (reign_court_town_S4_father)\\portrait.png",
+  "SourceLength": 2358248,
+  "SourceLastWriteUtcTicks": 639270916624905936,
+  "SourceWidth": 1086,
+  "SourceHeight": 1448,
+  "CropX": 406,
+  "CropY": 45,
+  "CropWidth": 235,
+  "CropHeight": 294,
+  "WideCropX": 317,
+  "WideCropY": 45,
+  "WideCropWidth": 412,
+  "WideCropHeight": 294,
   "FocusMethod": "ultraface",
   "FocusModel": "version-RFB-320",
-  "FocusConfidence": 0.9992973804473877,
+  "FocusConfidence": 0.9974587559700012,
   "FaceCandidateCount": 1,
-  "FaceX": 0.43668362498283386,
-  "FaceY": 0.10850563645362854,
-  "FaceWidth": 0.11353680491447449,
-  "FaceHeight": 0.09681519865989685,
+  "FaceX": 0.43173956871032715,
+  "FaceY": 0.05442998930811882,
+  "FaceWidth": 0.09981036186218262,
+  "FaceHeight": 0.09430556371808052,
   "NeedsReview": false,
   "ThumbnailFileName": "thumbnail.png",
   "ThumbnailWidth": 192,
   "ThumbnailHeight": 240,
   "PartyThumbnailFileName": "thumbnail_wide.png",
-  "PartyThumbnailWidth": 336,
-  "PartyThumbnailHeight": 240,
+  "PartyThumbnailWidth": 128,
+  "PartyThumbnailHeight": 96,
   "PortraitFileName": "portrait_chest.png",
-  "PortraitWidth": 192,
-  "PortraitHeight": 240,
+  "PortraitWidth": 768,
+  "PortraitHeight": 960,
   "ZoomFileName": "zoom.png",
-  "ZoomWidth": 864,
-  "ZoomHeight": 1152
+  "ZoomWidth": 1024,
+  "ZoomHeight": 1365,
+  "IndependentGeneratedChestProvenance": {
+    "schema": "reign-independent-generated-chest-provenance-v1",
+    "kind": "independent_generated_chest",
+    "id": "reign_court_town_S4_father",
+    "generatedChestSource": {
+      "path": "C:/Users/speed/.codex/generated_images/01a11c35-b9ad-75f1-9c21-5742fde8069d/exec-35cc7c83-3d97-434c-900e-6829ab06e4c8.png",
+      "sha256": "4bd0825f154899f655a7a40ae4e7697b3d87073697544dfd1243a149cc693af3"
+    },
+    "sourceDimensions": [
+      1086,
+      1448
+    ],
+    "requestId": "0bb77638-b0ab-4f25-bb8b-a9772b8bbc97",
+    "exactPrompt": {
+      "path": "C:/ReignPortraitRebuild/2026-10-07-01a11741-culture-v2/audit/seven-clean-chest-drafts-gallery-001/reign_court_town_S4_father-chest-prompt-001.txt",
+      "sha256": "462a807ee5371d70c8649a67879e3bbdd882a3209f4f6d3fb8e2105a8737fb19"
+    },
+    "actualGenerationResult": {
+      "path": "C:\\ReignPortraitRebuild\\2026-10-07-01a11741-culture-v2\\audit\\root-focused-chest-quality-reign_court_town_S4_father-001\\actual-result-001.json",
+      "sha256": "14f4e912c450ce519b64c59b46b237204b4e1020d89836551f794ec265bd3fc3"
+    },
+    "generationRootRelease": {
+      "path": "C:/ReignPortraitRebuild/2026-10-07-01a11741-culture-v2/audit/root-focused-chest-quality-reign_court_town_S4_father-001/root-release-001.json",
+      "sha256": "0394af66ceef83f2e95ca234a648eae6a75921df2c468ec44e85e43341a07971"
+    },
+    "priorActualExperimentResults": [],
+    "authenticCaseAdapter": {
+      "schema": "reign-authentic-chest-result-case-adapter-v1",
+      "rawSchema": "reign-bounded-chat-image-actual-result-v1",
+      "fieldMapping": {
+        "id": "id",
+        "source": "output",
+        "prompt": "prompt",
+        "references": "referenceOrder",
+        "actualCalls": "actualImageCalls",
+        "rawRetries": "retryCount",
+        "preservedInputs": "original generation release.inputs + actual postCallChecks + suppliedStringLedger"
+      },
+      "rawActualCalls": 1,
+      "rawRetries": 0,
+      "generationReleaseRetryBudget": 0,
+      "originalReceiptUnmodified": true
+    },
+    "rootActualSourceReview": {
+      "path": "C:\\ReignPortraitRebuild\\2026-10-07-01a11741-culture-v2\\audit\\root-seven-actual-chest-personal-review-001.json",
+      "sha256": "497179eee716d802b4bbb43725fcee89349ed744e7cba50c8d7723c4bbdbc92b"
+    },
+    "originalFullbodyMaster": {
+      "path": "C:\\ReignPortraitRebuild\\2026-10-07-01a11741-culture-v2\\_shared\\Drazykan_Karseevich (reign_court_town_S4_father)\\portrait.png",
+      "sha256": "f807575bde3cc1ba0f84ce652903ff826fd86fecded007eef339117fa198e83c"
+    },
+    "originalZoom": {
+      "path": "C:\\ReignPortraitRebuild\\2026-10-07-01a11741-culture-v2\\_shared\\Drazykan_Karseevich (reign_court_town_S4_father)\\zoom.png",
+      "sha256": "31a8510d8a25e709e325bae6d4e691cede57436a74625fcfc980b3747531d065"
+    },
+    "originalNativeMetadata": {
+      "path": "C:\\ReignPortraitRebuild\\2026-10-07-01a11741-culture-v2\\_shared\\Drazykan_Karseevich (reign_court_town_S4_father)\\.portrait_derivatives.json",
+      "sha256": "481e7f02f17d8d90d3b9cbe28c1d5e436c3b99e59f9df045a288fb6353983fc0"
+    },
+    "originalGenerationReceipt": {
+      "path": "C:\\ReignPortraitRebuild\\2026-10-07-01a11741-culture-v2\\_shared\\Drazykan_Karseevich (reign_court_town_S4_father)\\.ai_generation.json",
+      "sha256": "2d29764b94b454041965023f5c66363a7f394f56d3ac1171d5efa1c3ae227354"
+    },
+    "legacyCropFieldRole": "Retained fullbody reference windows; NOT new chest pixel derivation.",
+    "originalFullbodyTicksExactDecimal": "639270916624905936",
+    "chestFocus": {
+      "method": "ultraface",
+      "model": "version-RFB-320",
+      "confidence": 0.9999994039535522,
+      "candidateCount": 1,
+      "x": 0.307653546333313,
+      "y": 0.14097796380519867,
+      "width": 0.34936654567718506,
+      "height": 0.36129142343997955,
+      "modelSha256": "34cd7e60aeff28744c657de7a3dc64e872d506741de66987f3426f2b79f88017",
+      "onnxruntimeVersion": "1.24.2",
+      "inputSha256": "79b2bfb7b9c7d4f2df2e044c9573857d12fe183af2220bf4d2150b9991e20627"
+    },
+    "actualProducts": [
+      {
+        "rect": {
+          "x": 0,
+          "y": 0,
+          "width": 1086,
+          "height": 1358
+        },
+        "path": "C:\\ReignPortraitRebuild\\2026-10-07-01a11741-culture-v2\\audit\\independent-generated-chest-ten-candidate-pack-component-001\\reign_court_town_S4_father\\candidate-pack-001\\portrait_chest.png",
+        "height": 960,
+        "bytes": 1741006,
+        "source": {
+          "path": "C:/Users/speed/.codex/generated_images/01a11c35-b9ad-75f1-9c21-5742fde8069d/exec-35cc7c83-3d97-434c-900e-6829ab06e4c8.png",
+          "sha256": "4bd0825f154899f655a7a40ae4e7697b3d87073697544dfd1243a149cc693af3"
+        },
+        "width": 768,
+        "name": "portrait_chest.png",
+        "sha256": "8935372949e4a5d3d61cc73508b22f5009975361914fe7daf97f9e71fa74f177"
+      },
+      {
+        "rect": {
+          "x": 0,
+          "y": 0,
+          "width": 1086,
+          "height": 1358
+        },
+        "path": "C:\\ReignPortraitRebuild\\2026-10-07-01a11741-culture-v2\\audit\\independent-generated-chest-ten-candidate-pack-component-001\\reign_court_town_S4_father\\candidate-pack-001\\thumbnail.png",
+        "height": 240,
+        "bytes": 121916,
+        "source": {
+          "path": "C:/Users/speed/.codex/generated_images/01a11c35-b9ad-75f1-9c21-5742fde8069d/exec-35cc7c83-3d97-434c-900e-6829ab06e4c8.png",
+          "sha256": "4bd0825f154899f655a7a40ae4e7697b3d87073697544dfd1243a149cc693af3"
+        },
+        "width": 192,
+        "name": "thumbnail.png",
+        "sha256": "389b4f3c69c1cebec1e16ed2b2ad75cf23f7e8e459744a140444869168764cbb"
+      },
+      {
+        "rect": {
+          "x": 0,
+          "y": 0,
+          "width": 1086,
+          "height": 815
+        },
+        "path": "C:\\ReignPortraitRebuild\\2026-10-07-01a11741-culture-v2\\audit\\independent-generated-chest-ten-candidate-pack-component-001\\reign_court_town_S4_father\\candidate-pack-001\\thumbnail_wide.png",
+        "height": 96,
+        "bytes": 33993,
+        "source": {
+          "path": "C:/Users/speed/.codex/generated_images/01a11c35-b9ad-75f1-9c21-5742fde8069d/exec-35cc7c83-3d97-434c-900e-6829ab06e4c8.png",
+          "sha256": "4bd0825f154899f655a7a40ae4e7697b3d87073697544dfd1243a149cc693af3"
+        },
+        "width": 128,
+        "name": "thumbnail_wide.png",
+        "sha256": "ca3a6e66a9572313453d3ac4995cb30a4b5fec024d270bb2ea533bcdb1f4b8a7"
+      }
+    ],
+    "actualAdapter": {
+      "path": "C:\\ReignPortraitRebuild\\2026-10-07-01a11741-culture-v2\\audit\\independent-generated-chest-ten-candidate-pack-component-001\\candidate-pack-001.py",
+      "sha256": "47274989bffa7a2cc9c0b6d1376f5cde84fe7d78fca82624c35567ff9c253e57"
+    },
+    "nativeWorker": {
+      "path": "C:\\ReignPortraitRebuild\\2026-10-07-01a11741-culture-v2\\audit\\independent-generated-chest-ten-candidate-pack-component-001\\native-worker-001.ps1",
+      "sha256": "90c444d9eb77b6839588ec85e33f2a6fbde0fc0bd1acb4f15dc1be64292c7a51"
+    },
+    "nativeCodecAssembly": {
+      "path": "D:\\Projects\\Reign\\.codex-build\\reign-mcp\\validation\\20261007-181216-5bee7061\\client\\out\\ReignBeta.dll",
+      "sha256": "498c5d8e7af24226dbf5b9d37147fd562cf0e42b6477b6f4607f6011905ac5b8"
+    },
+    "candidateRootRelease": {
+      "path": "C:\\ReignPortraitRebuild\\2026-10-07-01a11741-culture-v2\\audit\\independent-generated-chest-ten-candidate-pack-component-001\\root-pack-release-reign_court_town_S4_father-001.json",
+      "sha256": "6974ba609e6b0f8418c99dc48ec20a20cdef11041b5f2458bd93332cea5cd6ae"
+    },
+    "nativeBuildV2Invoked": false,
+    "nativeCommitV2Invoked": false,
+    "nativeAlgorithmProducedRectangle": false,
+    "fullbodyCompositionGateApplied": false,
+    "chestFramingCriterion": "Authentic finite one-face focus, source-valid centered face; actual root preview must judge full crown/chest and wide lower-beard limitation.",
+    "effectiveFaceIdentity": {
+      "path": "C:/Users/speed/.codex/generated_images/01a11c35-b9ad-75f1-9c21-5742fde8069d/exec-35cc7c83-3d97-434c-900e-6829ab06e4c8.png",
+      "sha256": "4bd0825f154899f655a7a40ae4e7697b3d87073697544dfd1243a149cc693af3"
+    },
+    "oldFullbodyMasterEqualityDoesNotTransferGeometryOrFamily": true,
+    "nativeCompatibilityOnly": true,
+    "nativeUIAcceptance": false,
+    "notSwapApproval": true
+  },
+  "StagedAssetProvenance": {
+    "schema": "reign-staged-effective-portrait-origin-v1",
+    "id": "reign_court_town_S4_father",
+    "kind": "independent_chest",
+    "currentLocalFiles": [
+      {
+        "name": "portrait_chest.png",
+        "sha256": "8935372949e4a5d3d61cc73508b22f5009975361914fe7daf97f9e71fa74f177",
+        "bytes": 1741006
+      },
+      {
+        "name": "thumbnail.png",
+        "sha256": "389b4f3c69c1cebec1e16ed2b2ad75cf23f7e8e459744a140444869168764cbb",
+        "bytes": 121916
+      },
+      {
+        "name": "thumbnail_wide.png",
+        "sha256": "ca3a6e66a9572313453d3ac4995cb30a4b5fec024d270bb2ea533bcdb1f4b8a7",
+        "bytes": 33993
+      },
+      {
+        "name": "portrait_chest_source.png",
+        "sha256": "4bd0825f154899f655a7a40ae4e7697b3d87073697544dfd1243a149cc693af3",
+        "bytes": 2685150
+      },
+      {
+        "name": "prompt_chest.txt",
+        "sha256": "462a807ee5371d70c8649a67879e3bbdd882a3209f4f6d3fb8e2105a8737fb19",
+        "bytes": 13315
+      },
+      {
+        "name": "portrait.png",
+        "sha256": "f807575bde3cc1ba0f84ce652903ff826fd86fecded007eef339117fa198e83c",
+        "bytes": 2358248
+      },
+      {
+        "name": "zoom.png",
+        "sha256": "31a8510d8a25e709e325bae6d4e691cede57436a74625fcfc980b3747531d065",
+        "bytes": 3187764
+      }
+    ],
+    "nativeAlgorithmProducedRectangle": false,
+    "priorProducerExtensionsRetainedVerbatim": true,
+    "absolutePriorReferencesRole": "Historical/candidate references; current module pixels/provenance use the relative currentLocalFiles.",
+    "sourcePathProjection": {
+      "from": "C:\\ReignPortraitRebuild\\2026-10-07-01a11741-culture-v2\\_shared\\Drazykan_Karseevich (reign_court_town_S4_father)\\portrait.png",
+      "to": "C:\\ReignPortraitRebuild\\2026-10-07-01a11741-culture-v2\\_shared\\Drazykan_Karseevich (reign_court_town_S4_father)\\portrait.png",
+      "reason": "Unchanged current fullbody cache anchor"
+    },
+    "independentChestNativeForcedRegenerationCanOverwrite": true,
+    "globalFaceAcceptance": false,
+    "nativeUIAcceptance": false,
+    "notSwapApproval": true
+  }
 }

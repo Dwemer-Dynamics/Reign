@@ -3,11 +3,11 @@
   "heroStringId": "lord_6_1",
   "characterName": "Monchug",
   "imagePath": "portrait.png",
-  "imageSha256": "798080CA1AB50727EDFD47B32F45682D33A3AA9B6DD1E532F1A5AA73AC5C0847",
-  "description": "Culturally appropriate everyday Khuzait high-noble attire inspired by elite medieval Turkic and Mongol aristocratic clothing. Use superb tailoring, layered fine wool and silk-like woven fabrics, elegant crossed-front closures, decorated sashes, refined edging, and subtle noble motifs. Men should wear a stately long noble deel or structured coat over richly made underlayers. Women should wear a luxurious robe or coat-dress with graceful lines, elaborate woven trim, and exceptionally high-quality textiles. Fur trim may be included sparingly along cuffs, collars, or garment edges. The clothing should feel wealthy, mobile, and commanding without becoming ceremonial. No headgear of any kind. No fur hats, caps, hoods, armor, weapons, crowns, or fantasy styling.",
-  "status": "failed",
-  "descriptionSource": "portrait_prompt_fallback",
-  "retryEligible": true,
-  "error": "{\"error\":{\"message\":\"Model \\\"zai-org/glm-5.2\\\" does not support image inputs. Remove image content or choose a multimodal model.\",\"type\":\"invalid_request_error\",\"param\":\"messages\",\"code\":\"image_input_not_supported\"}}",
-  "updatedUtc": "2026-07-18T22:03:32.7244244Z"
+  "imageSha256": "62CAB1AE61BB7ABDA63A70C8180F45823A7BD830CDD9227646F4777D998ED96C",
+  "description": "Monchug wears a long muted teal crossed-front noble coat or deel over a cream linen underlayer, with broad gold scrolling and geometric woven borders around the overlapping neckline, front edges, cuffs and hem. Refined gold motifs are scattered across the teal fabric. Dark patterned under-sleeves extend to the wrists. A broad dark brown decorated belt with large round metal ornaments secures the waist, with a tasselled hanging detail. Cream cloth is visible down the center-front opening, and dark brown patterned trousers and embroidered leather boots show beneath the long coat. His short black hair is uncovered. There is no armor, weapon, crown or fur hat.",
+  "status": "completed",
+  "descriptionSource": "agent_vision",
+  "retryEligible": false,
+  "error": "",
+  "updatedUtc": "2026-10-08T00:36:10.467Z"
 }

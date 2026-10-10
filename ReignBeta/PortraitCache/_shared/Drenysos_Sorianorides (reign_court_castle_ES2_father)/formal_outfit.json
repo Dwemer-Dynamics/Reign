@@ -3,11 +3,11 @@
   "heroStringId": "reign_court_castle_ES2_father",
   "characterName": "Drenysos Sorianorides",
   "imagePath": "portrait.png",
-  "imageSha256": "7F3D4B12CB67BAA2B1710D8C49820672AFD66CC44FEFF7780B654808F5EEE55A",
-  "description": "Culturally appropriate everyday Calradic Imperial minor-lord attire inspired by refined late Roman and Byzantine noble clothing. Men should wear a high-quality tunic or long tailored outer coat over fine linen, decorated with narrow woven borders, refined clasps, and a decorated belt. Women should wear a long elegant dress or layered tunic ensemble with shaped sleeves, graceful draping, and tasteful trim around the neckline, cuffs, and edges. The garments should feel polished, educated, urban, and wealthy without resembling full imperial ceremony. No headgear of any kind. No armor, weapons, crowns, imperial regalia, laurel wreaths, or ceremonial robes.",
-  "status": "failed",
-  "descriptionSource": "portrait_prompt_fallback",
-  "retryEligible": true,
-  "error": "{\"error\":{\"message\":\"Model \\\"zai-org/glm-5.2\\\" does not support image inputs. Remove image content or choose a multimodal model.\",\"type\":\"invalid_request_error\",\"param\":\"messages\",\"code\":\"image_input_not_supported\"}}",
-  "updatedUtc": "2026-07-18T22:03:28.0855799Z"
+  "imageSha256": "3ED4A4969D7CEF447A3B23AB17A58F932AF45CC7AAC693B80E5AF43F59DA0C5C",
+  "description": "Fully opaque floor-length burgundy court tunic with long sleeves and gold geometric embroidery at the round neck, front opening, cuffs and hem; cream inner tunic visible at neck, cuffs and hem; ornate gold-brown belt at the natural waist; dark purple long draped shoulder cloak fastened by a round brooch with patterned gold edging and fringe; brown trousers and complete brown leather boots. Both hands clasp in front, face uncovered, full body visible against plain stone columns and a dark wooden doorway, with no heraldic wall banner.",
+  "status": "completed",
+  "descriptionSource": "agent_vision",
+  "retryEligible": false,
+  "error": "",
+  "updatedUtc": "2026-10-08T09:48:38.720Z"
 }

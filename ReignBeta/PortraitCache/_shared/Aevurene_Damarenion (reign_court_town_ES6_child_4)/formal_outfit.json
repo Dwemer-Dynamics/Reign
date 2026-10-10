@@ -3,11 +3,11 @@
   "heroStringId": "reign_court_town_ES6_child_4",
   "characterName": "Aevurene Damarenion",
   "imagePath": "portrait.png",
-  "imageSha256": "62E2E344E26A2030F4BB2EAE2A4832D3C5B56DC1118D67577CCCB963246D48EA",
-  "description": "Culturally appropriate everyday Calradic Imperial minor-lord attire inspired by refined late Roman and Byzantine noble clothing. Men should wear a high-quality tunic or long tailored outer coat over fine linen, decorated with narrow woven borders, refined clasps, and a decorated belt. Women should wear a long elegant dress or layered tunic ensemble with shaped sleeves, graceful draping, and tasteful trim around the neckline, cuffs, and edges. The garments should feel polished, educated, urban, and wealthy without resembling full imperial ceremony. No headgear of any kind. No armor, weapons, crowns, imperial regalia, laurel wreaths, or ceremonial robes.",
-  "status": "failed",
-  "descriptionSource": "portrait_prompt_fallback",
-  "retryEligible": true,
-  "error": "{\"error\":{\"message\":\"Model \\\"zai-org/glm-5.2\\\" does not support image inputs. Remove image content or choose a multimodal model.\",\"type\":\"invalid_request_error\",\"param\":\"messages\",\"code\":\"image_input_not_supported\"}}",
-  "updatedUtc": "2026-07-18T22:03:24.1411061Z"
+  "imageSha256": "FCC827C685BE9857E3B9B34B4F6780A4A82325772EB7B1F7566E4E55B99FAAF1",
+  "description": "She wears a floor-length deep burgundy gown with a straight square neckline and narrow gold-edged shoulder straps. Gold and dark embroidered bands border the neckline and run vertically down the front. An ornate gold belt with oval plaques and hanging ornaments defines the waist. The front opening reveals an opaque cream underdress; a mauve shawl with gold embroidered borders rests around her upper arms and falls at both sides. A small round pendant, delicate earrings and a gold wrist cuff complete the outfit. An embroidered brown-gold closed shoe is visible below the hem.",
+  "status": "completed",
+  "descriptionSource": "agent_vision",
+  "retryEligible": false,
+  "error": "",
+  "updatedUtc": "2026-10-07T20:29:31.187Z"
 }

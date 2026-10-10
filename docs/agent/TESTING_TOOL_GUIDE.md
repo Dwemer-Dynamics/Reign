@@ -1,6 +1,8 @@
 # Reign Testing Tool Guide
 
-Use this entry point to select a proof layer and a procedure. Read the relevant procedure; do not load the entire runbook for every edit. `reign.testing.json` owns capability names, gates, evidence schemas and this document index. Query `reign_get_testing_catalog` with a relevant filter when the route is uncertain.
+Select a proof layer and read its procedure. `reign.testing.json` owns capability names, gates, evidence schemas and this document index. Query `reign_get_testing_catalog` with a relevant filter when the route is uncertain.
+
+For current-turn source speaker normalization, use `dialogueMemoryAccuracy.sourceSpeakerAliases` and the [dialogue procedure](testing/DIALOGUE_AND_PROVIDERS.md). The `prompt_efficiency` suite checks event-scoped current aliases, canonical stored ownership and next-read continuity; passing citation checks does not establish semantic accuracy.
 
 ## Start with the affected behavior
 
@@ -13,6 +15,8 @@ Use this entry point to select a proof layer and a procedure. Read the relevant 
 | Subjective dialogue, visuals or play quality | Required human/native acceptance with retained evidence |
 
 Offline results do not establish required native acceptance. A read-only explanation or audit does not require a product build. For source or policy changes, use [validation guidance](VALIDATION.md) and the current manifest-selected plan.
+
+For pre-writer evidence accuracy, `memory_evidence_replay` can optionally capture the production writer envelope, publish a captured reply and its memory layers into its isolated fixture, and retain the next request's actual evidence. Follow [the writer/storage replay procedure](testing/DIALOGUE_AND_PROVIDERS.md#evidence-writer-and-next-read-replay-2026-09-29). Its optional finalCheck connects bounded local recovery and the durable checker/revision budget to publication and the next read, using captured responses only. Pending checker/rewrite stages cannot publish intermediate output. It does not invoke models or execute actions; supplied failures, pending stages and semantic review remain separate. Retain exact model-capacity metadata for large snapshots; normal source and size limits still apply, and a preparation failure is recorded rather than counted as a completed writer test.
 
 ## Coordinate shared work
 
@@ -29,6 +33,7 @@ Pass the current Codex task UUID as `requestingTaskId` to `reign_validate`. Busy
 - [Dialogue and provider testing](testing/DIALOGUE_AND_PROVIDERS.md)
 - [Interface proof and deployment](testing/UI_AND_DEPLOYMENT.md)
 - [Feature harness procedures](testing/FEATURE_HARNESSES.md)
+- [Personal gossip launch proof](testing/PERSONAL_GOSSIP_LAUNCH_PLAN_2026-10-04.md)
 - [Recovery and continuity](testing/RECOVERY.md)
 - [Launch packaging and clean-install proof](testing/RELEASE_PACKAGING.md)
 
@@ -117,7 +122,7 @@ These anchors preserve links from older task checkpoints. Each opens the relocat
 <a id="portrait-clothing-edit-profiles-2026-09-04"></a>
 - [Portrait clothing edit profiles (2026-09-04)](testing/CHARACTERS_AND_PORTRAITS.md#portrait-clothing-edit-profiles-2026-09-04)
 <a id="conversation-intoxication-and-italic-actions"></a>
-- [Conversation intoxication and italic actions](testing/DIALOGUE_AND_PROVIDERS.md#conversation-intoxication-and-italic-actions)
+- [Conversation intoxication, private drinking and italic actions](testing/DIALOGUE_AND_PROVIDERS.md#conversation-intoxication-and-italic-actions)
 <a id="concurrent-scene-preparation-and-native-action-font-binding-2026-09-06"></a>
 - [Concurrent scene preparation and native action font binding (2026-09-06)](testing/UI_AND_DEPLOYMENT.md#concurrent-scene-preparation-and-native-action-font-binding-2026-09-06)
 <a id="immediate-noble-visitors-2026-09-07"></a>
@@ -145,3 +150,7 @@ Run manifest-selected changed/Release validation, then `reign_run_offline_verifi
 The validated `ReignServer/scripts/Repair-ConversationContinuity.ps1` gains `-Mode Stage`: an exact campaign/timeline `reign-memory-stage-request-v1` produces a read-only serializable snapshot manifest with complete source records, source hashes, unresolved coverage and token estimates. The existing `Preview` rolls back; `Apply` requires the reviewed manifest/artifact hashes, unchanged sources and restore generation, stopped game/service and verified backup. New operations are `rebuild_scene_memory`, `set_memory_mode` (legacy/shadow/precision, projection-generation increment) and `quarantine_summary`; all are derived-state operations. Staging cannot run providers, replay actions, change scores or rewrite original transcripts. An uninitialized predeployment generation must be restaged after schema deployment. Private memory content stays in ignored evidence storage.
 
 Shadow is the default and makes no additional helper/provider calls. A helper can choose only supplied eligible aliases, once, with one bounded source expansion. Cross-encoder ranking is optional and requires a local model plus a held-out accuracy/latency certificate; it stays disabled on failure. Sources and limits: `ReignServer/docs/server/MemoryPrecision.md`. Paid provider, native game and human roleplay acceptance remain separate gates; synthetic offline cases cannot prove their quality targets.
+
+Memory replay transport evidence: [initial provider JSON capture](testing/DIALOGUE_AND_PROVIDERS.md#initial-provider-json-capture-2026-09-29) records shared-builder NanoGPT JSON/hash and bounded fixture generation settings. Live and replay generation share dialogue/event request defaults, including dialogue's 0.5 temperature cap and production output budget; party chat uses the event participation contract. Explicit quiet is distinguished from malformed empty speech, with quiet publication/next-read coverage excluded. Disabled checking sends explicit reasoning `none`. Reader packing protects current speech citations and retains independently valid findings after rejecting invented aliases. Use these contracts to distinguish production settings from private prompt/reasoning variants; capture does not dispatch HTTP, reproduce live queue/retry state or authorize provider spend.
+
+`reign_test_structured_actions`: [procedure](testing/FEATURE_HARNESSES.md#guarded-structured-action-tests).

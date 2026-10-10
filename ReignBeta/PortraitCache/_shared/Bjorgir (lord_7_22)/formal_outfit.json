@@ -3,11 +3,11 @@
   "heroStringId": "lord_7_22",
   "characterName": "Bjorgir",
   "imagePath": "portrait.png",
-  "imageSha256": "79C1E19757E3E15D8C50C715022BEB7B2C23311A689AF6E04875950B8124CBF3",
-  "description": "Culturally appropriate everyday Nord minor-lord attire inspired by refined early medieval Scandinavian noble clothing. Men should wear a well-cut wool tunic over a fine linen underlayer, quality trousers, a decorated belt, and tasteful brooch fastenings. Women should wear a long fine-linen shift with an elegant apron dress or layered wool overdress, improved textile quality, decorative woven trim, and modest metal fittings. The clothing should look practical, prestigious, and exceptionally well made without becoming ceremonial. No headgear of any kind. No helmets, caps, hoods, armor, weapons, crowns, horned helmets, or fantasy costume elements.",
-  "status": "failed",
-  "descriptionSource": "portrait_prompt_fallback",
-  "retryEligible": true,
-  "error": "{\"error\":{\"message\":\"Model \\\"zai-org/glm-5.2\\\" does not support image inputs. Remove image content or choose a multimodal model.\",\"type\":\"invalid_request_error\",\"param\":\"messages\",\"code\":\"image_input_not_supported\"}}",
-  "updatedUtc": "2026-07-18T22:03:25.6520789Z"
+  "imageSha256": "DCF27573D555220B46CFFF7857AE1999654C3D13CC6F90A80CF6FDB788CBB853",
+  "description": "He wears a dark slate-blue knee-length wool tunic with gold-beige knotwork trim around the neckline, down the open front, at the cuffs and along the hem. A cream linen underlayer shows at the raised collar, sleeve ends and lower front opening. Two round metal brooches joined by a short chain decorate the upper chest. A wide brown leather belt with embossed ornamentation and a round metal buckle has a long decorated hanging tail. Brown trousers are tucked into tall brown leather boots bound with crossing straps.",
+  "status": "completed",
+  "descriptionSource": "agent_vision",
+  "retryEligible": false,
+  "error": "",
+  "updatedUtc": "2026-10-07T20:49:17.128Z"
 }

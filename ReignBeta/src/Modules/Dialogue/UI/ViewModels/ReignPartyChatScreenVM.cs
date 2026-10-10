@@ -31,8 +31,14 @@ namespace ReignBeta.UI.ViewModels
         public List<ReignPartyChatReply> Replies { get; } = new List<ReignPartyChatReply>();
     }
 
-    public sealed class ReignPartyChatScreenVM : ViewModel
+    public sealed class ReignPartyChatScreenVM : ViewModel, ReignBeta.UI.IReignActionHost
     {
+        public IReadOnlyList<Hero> ActionParticipants => GetSelectedHeroes();
+        public bool ActionBusy => IsBusy || !InputEnabled;
+        private ReignActionComposerVM _composer;
+        public ReignActionComposerVM Composer => _composer ?? (_composer = new ReignActionComposerVM(() => OnPropertyChanged(nameof(InputText))));
+        [DataSourceProperty] public string ActionComposerId => Composer.Id;
+        public Reign.Core.Contracts.Actions.ActionAgreement ActionDraft => Composer.State.HasValidAttachment ? Composer.State.Draft : null;
         private readonly ReignPartyChatSession _session;
         private readonly Action _closeScreen;
         private readonly Action<Hero> _openEncyclopediaOverlay;
@@ -43,11 +49,11 @@ namespace ReignBeta.UI.ViewModels
         private Task _activeBatchTask;
         private string _conversationSessionId = string.Empty;
         private bool _conversationFinishRequested;
+        private bool _banterReadOnly;
         private volatile bool _isFinalized;
         private string _title;
         private string _locationText;
         private string _selectedSummary;
-        private string _inputText;
         private string _busyText;
         private bool _isBusy;
         private int _chatScrollVersion;
@@ -108,6 +114,29 @@ namespace ReignBeta.UI.ViewModels
             RefreshLabels();
             AddSystemLine("Select characters above, then speak to them as a group.", false);
             ReignLog.Info("Party chat opened characters=" + PartyMembers.Count);
+        }
+
+        internal ReignPartyChatScreenVM(Action closeScreen, JObject banter,
+            Action<Hero> openEncyclopediaOverlay = null, Action<Hero> requestPortraitOverlay = null)
+            : this(closeScreen, openEncyclopediaOverlay, requestPortraitOverlay)
+        {
+            ChatLines.Clear();
+            _banterReadOnly = banter.Value<bool?>("readOnly") == true;
+            _conversationSessionId = _banterReadOnly ? "" : banter.Value<string>("handoffSessionId") ?? banter.Value<string>("sessionId") ?? "";
+            _session.RestoreIdentity(_conversationSessionId.Length > 0 ? _conversationSessionId : banter.Value<string>("sessionId"));
+            var ids = new HashSet<string>((banter["heroIds"] as JArray ?? new JArray()).Values<string>());
+            foreach (var member in PartyMembers) member.IsActive = ids.Contains(member.Hero.StringId);
+            var lines = (banter["transcript"] as JArray ?? new JArray()).OfType<JObject>().Select((x, i) => new ReignPartyChatTranscriptLine {
+                Sequence = i + 1, SessionId = x.Value<string>("sessionId") ?? _session.SessionId,
+                ExchangeId = x.Value<string>("exchangeId") ?? "", SpeakerHeroStringId = x.Value<string>("speakerHeroStringId") ?? "",
+                Speaker = x.Value<string>("speaker") ?? "Traveler", Text = x.Value<string>("text") ?? "", Role = x.Value<string>("role") ?? "npc"
+            }).ToList();
+            _session.RestoreTranscript(lines);
+            foreach (var line in lines) AddChatLine(line.Speaker, line.Text, line.Role);
+            RememberConversationHeroes(GetSelectedHeroes());
+            InputEnabled = !_banterReadOnly && _conversationSessionId.Length > 0;
+            if (!InputEnabled) AddSystemLine("This exchange can be read here. One or more original travelers are no longer available.", false);
+            RefreshLabels();
         }
 
         public ReignPartyChatScreenVM(Action closeScreen, CastleRoomSessionRecord castleSession,
@@ -175,6 +204,19 @@ namespace ReignBeta.UI.ViewModels
                 openingTurn: true, suppressRelationshipAssessment: true);
             _activeBatchTask = opening;
             _ = TrackTargetedOpeningAsync(opening);
+        }
+
+        public ReignPartyChatScreenVM(Action closeScreen, List<Hero> heroes, JObject approach,
+            Action<Hero> openEncyclopediaOverlay = null, Action<Hero> requestPortraitOverlay = null)
+        {
+            _closeScreen = closeScreen; _openEncyclopediaOverlay = openEncyclopediaOverlay;
+            _requestPortraitOverlay = requestPortraitOverlay;
+            _session = new ReignPartyChatSession { ApproachRequestId = approach.Value<string>("requestId") ?? "" };
+            PartyMembers = new MBBindingList<ReignPartyChatMemberVM>(); ChatLines = new MBBindingList<ReignChatLineVM>();
+            Title = "A conversation in the keep"; SetBackgroundIdentifier();
+            foreach (Hero hero in heroes) PartyMembers.Add(new ReignPartyChatMemberVM(hero, true, _ => { }, PreviewPortrait, OpenEncyclopedia, GenerateAIPortrait));
+            RefreshLabels(); _session.BeginOpeningTurn();
+            _activeBatchTask = RequestLiveNpcTurns(heroes, string.Empty, requireStillSelected: false, openingTurn: true);
         }
 
         public ReignPartyChatScreenVM(Action closeScreen, Settlement settlement, Hero resident,
@@ -377,15 +419,8 @@ namespace ReignBeta.UI.ViewModels
         [DataSourceProperty]
         public string InputText
         {
-            get { return _inputText; }
-            set
-            {
-                if (value != _inputText)
-                {
-                    _inputText = value;
-                    OnPropertyChangedWithValue(value);
-                }
-            }
+            get { return Composer.State.Text; }
+            set { Composer.SetText(value); }
         }
 
         [DataSourceProperty]
@@ -558,14 +593,22 @@ namespace ReignBeta.UI.ViewModels
 
         public async void ExecuteSend()
         {
-            string text = (InputText ?? string.Empty).Trim();
+            string text = InputText ?? string.Empty;
             if (_isFinalized || string.IsNullOrWhiteSpace(text) || IsBusy || !InputEnabled)
             {
                 return;
             }
 
+            var actionDraft = ActionDraft == null ? null : ReignBeta.Actions.ReignActionService.Copy(ActionDraft);
             List<Hero> activeHeroes = GetSelectedHeroes();
+            if (actionDraft != null && !activeHeroes.Any(h => h.StringId == actionDraft.NpcId))
+            { AddSystemLine("Select the character addressed by your action before sending it.", false); return; }
+            if (activeHeroes.Count == 0) { AddSystemLine("Select one or more characters before expecting a reply.", false); return; }
             string playerName = Hero.MainHero?.Name?.ToString() ?? "Player";
+            try { ReignConversationInputJournal.Save(ReignServerClient.GetCampaignId(),
+                ReignBeta.Campaign.ReignWorldHistoryCampaignBehavior.Instance?.TimelineId ?? "main", Hero.MainHero?.StringId ?? "",
+                _session.SessionId + "_turn_" + (_session.PlayerInputCount + 1), text, session: _session.SessionId); }
+            catch (Exception ex) { AddSystemLine("Your message could not be saved locally: " + ex.Message, false); return; }
             _session.RegisterPlayerInput();
             AddChatLine(playerName, text, "player");
             _session.RecordTranscriptLine(playerName, text, Hero.MainHero?.StringId ?? string.Empty, "player");
@@ -580,7 +623,7 @@ namespace ReignBeta.UI.ViewModels
 
             RememberConversationHeroes(activeHeroes);
             Task<ReignPartyChatBatchResult> batch = RequestLiveNpcTurns(activeHeroes, text,
-                suppressRelationshipAssessment: _targetedReviewMode);
+                suppressRelationshipAssessment: _targetedReviewMode, actionDraft: actionDraft);
             _activeBatchTask = batch;
             await batch;
             if (_isFinalized) return;
@@ -599,7 +642,7 @@ namespace ReignBeta.UI.ViewModels
             int turnIndex,
             string correlationBase = "")
         {
-            text = (text ?? string.Empty).Trim();
+            text = text ?? string.Empty;
             ReignPartyChatBatchResult rejected = new ReignPartyChatBatchResult();
             if (!await WaitForAutomationReadyAsync().ConfigureAwait(false))
             {
@@ -610,7 +653,7 @@ namespace ReignBeta.UI.ViewModels
             List<Hero> activeHeroes = null;
             bool accepted = await ReignMainThread.InvokeAsync(() =>
             {
-                if (_isFinalized)
+                if (_isFinalized || _banterReadOnly || !InputEnabled)
                 {
                     rejected.Error = "Party chat closed.";
                     return false;
@@ -634,6 +677,10 @@ namespace ReignBeta.UI.ViewModels
                 }
 
                 string playerName = Hero.MainHero?.Name?.ToString() ?? "Player";
+                try { ReignConversationInputJournal.Save(ReignServerClient.GetCampaignId(),
+                    ReignBeta.Campaign.ReignWorldHistoryCampaignBehavior.Instance?.TimelineId ?? "main", Hero.MainHero?.StringId ?? "",
+                    _session.SessionId + "_turn_" + (_session.PlayerInputCount + 1), text, session: _session.SessionId); }
+                catch (Exception ex) { rejected.Error = "Your message could not be saved locally: " + ex.Message; return false; }
                 _session.RegisterPlayerInput();
                 AddChatLine(playerName, text, "player");
                 _session.RecordTranscriptLine(playerName, text, Hero.MainHero?.StringId ?? string.Empty, "player");
@@ -788,6 +835,8 @@ namespace ReignBeta.UI.ViewModels
 
         public override void OnFinalize()
         {
+            ReignActionBuilder.CloseFor(this);
+            _composer?.Dispose();
             if (_isFinalized) return;
             _isFinalized = true;
             try { PersistCastleTranscript(); }
@@ -803,7 +852,8 @@ namespace ReignBeta.UI.ViewModels
             List<Hero> activeHeroes, string playerText, string auditRunId = "",
             int auditSceneIndex = -1, int auditTurnIndex = -1, bool requireStillSelected = true,
             string correlationBase = "", bool castleOpening = false, bool openingTurn = false,
-            bool suppressRelationshipAssessment = false)
+            bool suppressRelationshipAssessment = false,
+            Reign.Core.Contracts.Actions.ActionAgreement actionDraft = null)
         {
             if (_isFinalized) return new ReignPartyChatBatchResult { Error = "Conversation closed." };
             await ReignMainThread.InvokeAsync(() =>
@@ -817,7 +867,7 @@ namespace ReignBeta.UI.ViewModels
                 if (_isFinalized) return new ReignPartyChatBatchResult { Error = "Conversation closed." };
                 result = await RequestLiveNpcTurnsCore(activeHeroes, playerText, auditRunId, auditSceneIndex,
                     auditTurnIndex, requireStillSelected, correlationBase, castleOpening, openingTurn,
-                    suppressRelationshipAssessment).ConfigureAwait(false);
+                    suppressRelationshipAssessment, actionDraft).ConfigureAwait(false);
                 return result;
             }
             finally
@@ -872,7 +922,8 @@ namespace ReignBeta.UI.ViewModels
             string correlationBase = "",
             bool castleOpening = false,
             bool openingTurn = false,
-            bool suppressRelationshipAssessment = false)
+            bool suppressRelationshipAssessment = false,
+            Reign.Core.Contracts.Actions.ActionAgreement actionDraft = null)
         {
             ReignPartyChatBatchResult batchResult = new ReignPartyChatBatchResult();
             if (castleOpening && _castleMode && ChatLines.Count == 0
@@ -886,11 +937,16 @@ namespace ReignBeta.UI.ViewModels
                         {
                             ["campaignId"] = ReignServerClient.GetCampaignId(),
                             ["conversationSessionId"] = _session.SessionId.Trim(),
+                            ["playerHeroStringId"] = Hero.MainHero?.StringId ?? "",
+                            ["timelineId"] = ReignBeta.Campaign.ReignWorldHistoryCampaignBehavior.Instance?.TimelineId ?? "main",
                             ["limit"] = 36
                         }).ConfigureAwait(false);
                     JArray rows = response.Value<bool?>("ok") == true
                         ? response["lines"] as JArray
                         : null;
+                    rows = rows ?? new JArray();
+                    ReignConversationInputJournal.AppendPending(rows, ReignServerClient.GetCampaignId(),
+                        ReignBeta.Campaign.ReignWorldHistoryCampaignBehavior.Instance?.TimelineId ?? "main", Hero.MainHero?.StringId ?? "", session: _session.SessionId);
                     if (rows != null)
                     {
                         _pendingRecoveredTranscript = new List<ReignPartyChatTranscriptLine>();
@@ -934,6 +990,7 @@ namespace ReignBeta.UI.ViewModels
             Stopwatch timer = Stopwatch.StartNew();
             bool anyReply = false;
             bool hadFailure = false;
+            int expectedSpeakerCount = 0;
             ReignXpInteraction xp = await ReignServerClient.BeginXpInteractionAsync().ConfigureAwait(false);
             string xpReceipt = "conversation:party:" + (string.IsNullOrWhiteSpace(correlationBase)
                 ? _session.CurrentSceneTurnId : correlationBase);
@@ -952,7 +1009,25 @@ namespace ReignBeta.UI.ViewModels
                 batchResult.SessionId = sessionId;
                 batchResult.ExchangeId = _session.CurrentSceneTurnId;
 
-                List<Hero> orderedSpeakers = BuildResponseOrder(activeHeroes, playerText);
+                JObject speakingFloor = await ReignServerClient.RequestPartyChatTurnPlanAsync(_session, activeHeroes, playerText, castleOpening || openingTurn, actionDraft?.NpcId ?? "").ConfigureAwait(false);
+                if (speakingFloor.Value<bool?>("ok") != true || !(speakingFloor["responseOrder"] is JArray plannedOrder))
+                {
+                    hadFailure = true;
+                    batchResult.Error = "Bannerlord Reign could not prepare the group turn: " + (speakingFloor.Value<string>("error") ?? "missing speaking plan");
+                    await ReignMainThread.InvokeAsync(() => AddSystemLine(batchResult.Error, false)).ConfigureAwait(false);
+                    return batchResult;
+                }
+                var plannedIds = plannedOrder.Values<string>().ToList();
+                if (plannedIds.Distinct(StringComparer.OrdinalIgnoreCase).Count() != plannedIds.Count
+                    || plannedIds.Any(id => !activeHeroes.Any(hero => hero.StringId.Equals(id, StringComparison.OrdinalIgnoreCase))))
+                {
+                    hadFailure = true;
+                    batchResult.Error = "The group speaking plan contains an unavailable participant.";
+                    await ReignMainThread.InvokeAsync(() => AddSystemLine(batchResult.Error, false)).ConfigureAwait(false);
+                    return batchResult;
+                }
+                List<Hero> orderedSpeakers = plannedIds.Select(id => activeHeroes.First(hero => hero.StringId.Equals(id, StringComparison.OrdinalIgnoreCase))).ToList();
+                expectedSpeakerCount = orderedSpeakers.Count;
                 for (int speakerIndex = 0; speakerIndex < orderedSpeakers.Count; speakerIndex++)
                 {
                     if (_isFinalized) break;
@@ -981,7 +1056,7 @@ namespace ReignBeta.UI.ViewModels
                     ReignPartyChatReply reply = await ReignServerClient.RequestPartyChatResponseAsync(
                         _session,
                         speaker,
-                        orderedSpeakers,
+                        activeHeroes,
                         playerText,
                         correlationId,
                         auditRunId,
@@ -993,7 +1068,8 @@ namespace ReignBeta.UI.ViewModels
                         string.Equals(_castleSession?.InteractionMode, "family_chambers", StringComparison.OrdinalIgnoreCase),
                         _castleSession?.ChildHeroIdsCsv ?? string.Empty,
                         _castleSession?.ScenePlanJson ?? "{}",
-                        IsHomesMode ? "at " + _homeResident.Name + "'s home in " + _homesSettlement.Name : "").ConfigureAwait(false);
+                        IsHomesMode ? "at " + _homeResident.Name + "'s home in " + _homesSettlement.Name : "",
+                        speakingFloor, speaker.StringId == actionDraft?.NpcId ? actionDraft : null).ConfigureAwait(false);
                     batchResult.Replies.Add(reply);
                     if (_isFinalized) break;
                     if (!reply.Ok)
@@ -1008,7 +1084,7 @@ namespace ReignBeta.UI.ViewModels
                         continue;
                     }
 
-                    string clean = SanitizeReplyText(reply.Text, speaker, orderedSpeakers);
+                    string clean = SanitizeReplyText(reply.Text, speaker, activeHeroes);
                     if (string.IsNullOrWhiteSpace(clean) || IsSilence(clean))
                     {
                         ReignLog.Info("Party chat NPC stayed silent speaker=" + speaker.StringId);
@@ -1031,7 +1107,7 @@ namespace ReignBeta.UI.ViewModels
                     }
                 }
 
-                if (!_isFinalized && !hadFailure && batchResult.Replies.Count == activeHeroes.Count && batchResult.Replies.All(x => x.Ok)
+                if (!_isFinalized && !hadFailure && batchResult.Replies.Count > 0 && batchResult.Replies.Count == orderedSpeakers.Count && batchResult.Replies.All(x => x.Ok)
                     && !suppressRelationshipAssessment
                     && !string.Equals(_castleSession?.InteractionMode, "family_chambers", StringComparison.OrdinalIgnoreCase))
                 {
@@ -1070,10 +1146,10 @@ namespace ReignBeta.UI.ViewModels
                 await ReignMainThread.InvokeAsync(() => AddSystemLine("No one answers just yet.", false)).ConfigureAwait(false);
             }
             await ReignMainThread.InvokeAsync(() => { if (!_isFinalized) PersistCastleTranscript(); }).ConfigureAwait(false);
-            batchResult.Ok = !hadFailure && batchResult.Replies.Count == activeHeroes.Count && batchResult.Replies.All(reply => reply.Ok);
+            batchResult.Ok = !hadFailure && batchResult.Replies.Count == expectedSpeakerCount && batchResult.Replies.All(reply => reply.Ok);
             if (!_isFinalized && batchResult.Ok && anyReply && !castleOpening && !openingTurn
                 && !string.IsNullOrWhiteSpace(playerText) && string.IsNullOrWhiteSpace(auditRunId))
-                await ReignMainThread.InvokeAsync(() => { if (!_isFinalized) xp.Award(xpReceipt, ReignXpSkill.Charm, ReignXpRules.ConversationXp); }).ConfigureAwait(false);
+                await ReignMainThread.InvokeAsync(() => { if (!_isFinalized) xp.Award(xpReceipt, ReignXpSkill.Charm, ReignXpRules.ConversationXp, ReignXpReason.Conversation); }).ConfigureAwait(false);
             if (!batchResult.Ok && string.IsNullOrWhiteSpace(batchResult.Error))
             {
                 batchResult.Error = string.Join("; ", batchResult.Replies.Where(reply => !reply.Ok)
@@ -1510,127 +1586,18 @@ namespace ReignBeta.UI.ViewModels
 
         private List<Hero> BuildResponseOrder(IEnumerable<Hero> activeHeroes, string playerText)
         {
-            List<Hero> speakers = new List<Hero>();
-            HashSet<string> seenIds = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
-            if (activeHeroes != null)
-            {
-                foreach (Hero hero in activeHeroes)
-                {
-                    if (hero != null
-                        && !string.IsNullOrWhiteSpace(hero.StringId)
-                        && seenIds.Add(hero.StringId))
-                    {
-                        speakers.Add(hero);
-                    }
-                }
-            }
-
-            Hero directlyAddressed = ResolveDirectlyAddressedSpeaker(speakers, playerText);
-            string seed = (_session?.SessionId ?? string.Empty) + "|"
-                + (_session?.CurrentSceneTurnId ?? string.Empty) + "|"
-                + (_session?.PlayerInputCount.ToString() ?? "0") + "|"
-                + (playerText ?? string.Empty);
-            List<Hero> ordered = new List<Hero>();
-            if (directlyAddressed != null) ordered.Add(directlyAddressed);
-            foreach (Hero hero in speakers)
-            {
-                if (directlyAddressed != null
-                    && hero.StringId.Equals(directlyAddressed.StringId, StringComparison.OrdinalIgnoreCase))
-                {
-                    continue;
-                }
-
-                ulong heroKey = StableResponseOrderKey(seed, hero.StringId);
-                int insertionIndex = ordered.Count;
-                int firstRandomIndex = directlyAddressed == null ? 0 : 1;
-                for (int index = firstRandomIndex; index < ordered.Count; index++)
-                {
-                    Hero existing = ordered[index];
-                    ulong existingKey = StableResponseOrderKey(seed, existing.StringId);
-                    if (heroKey < existingKey
-                        || (heroKey == existingKey
-                            && string.Compare(hero.StringId, existing.StringId, StringComparison.OrdinalIgnoreCase) < 0))
-                    {
-                        insertionIndex = index;
-                        break;
-                    }
-                }
-
-                ordered.Insert(insertionIndex, hero);
-            }
-
-            return ordered;
-        }
-
-        private static Hero ResolveDirectlyAddressedSpeaker(List<Hero> speakers, string playerText)
-        {
-            if (speakers == null || speakers.Count == 0 || string.IsNullOrWhiteSpace(playerText)) return null;
-            Dictionary<string, int> firstNameCounts = new Dictionary<string, int>(StringComparer.OrdinalIgnoreCase);
-            foreach (Hero hero in speakers)
-            {
-                string first = FirstName(hero.Name?.ToString());
-                if (first.Length < 3) continue;
-                firstNameCounts[first] = firstNameCounts.TryGetValue(first, out int count) ? count + 1 : 1;
-            }
-
-            Hero bestHero = null;
-            int bestIndex = int.MaxValue;
-            foreach (Hero hero in speakers)
-            {
-                string full = hero.Name?.ToString()?.Trim() ?? string.Empty;
-                string first = FirstName(full);
-                int fullIndex = WholePhraseIndex(playerText, full);
-                int firstIndex = first.Length >= 3
-                    && firstNameCounts.TryGetValue(first, out int count)
-                    && count == 1
-                        ? WholePhraseIndex(playerText, first)
-                        : -1;
-                int index = fullIndex < 0 ? firstIndex : firstIndex < 0 ? fullIndex : Math.Min(fullIndex, firstIndex);
-                if (index < 0
-                    || index > bestIndex
-                    || (index == bestIndex
-                        && bestHero != null
-                        && string.Compare(hero.StringId, bestHero.StringId, StringComparison.OrdinalIgnoreCase) >= 0))
-                {
-                    continue;
-                }
-
-                bestHero = hero;
-                bestIndex = index;
-            }
-
-            return bestHero;
-        }
-
-        private static int WholePhraseIndex(string text, string phrase)
-        {
-            if (string.IsNullOrWhiteSpace(text) || string.IsNullOrWhiteSpace(phrase)) return -1;
-            Match match = Regex.Match(text,
-                @"(?<![\p{L}\p{N}])" + Regex.Escape(phrase.Trim()) + @"(?![\p{L}\p{N}])",
-                RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
-            return match.Success ? match.Index : -1;
-        }
-
-        private static string FirstName(string name)
-        {
-            return string.IsNullOrWhiteSpace(name)
-                ? string.Empty
-                : name.Trim().Split(new[] { ' ' }, StringSplitOptions.RemoveEmptyEntries).FirstOrDefault() ?? string.Empty;
-        }
-
-        private static ulong StableResponseOrderKey(string seed, string heroId)
-        {
-            string value = ((seed ?? string.Empty) + "|" + (heroId ?? string.Empty)).ToLowerInvariant();
-            unchecked
-            {
-                ulong hash = 14695981039346656037UL;
-                foreach (char character in value)
-                {
-                    hash ^= character;
-                    hash *= 1099511628211UL;
-                }
-                return hash;
-            }
+            var speakers = (activeHeroes ?? Enumerable.Empty<Hero>()).Where(hero => hero != null
+                    && !string.IsNullOrWhiteSpace(hero.StringId))
+                .GroupBy(hero => hero.StringId, StringComparer.OrdinalIgnoreCase).Select(group => group.First()).ToList();
+            var participants = speakers.Select(hero => new GroupTurnParticipant
+                { Id = hero.StringId, Name = hero.Name?.ToString() ?? string.Empty }).ToList();
+            var prior = (_session?.RecentTranscriptEntries ?? Array.Empty<ReignPartyChatTranscriptLine>())
+                .Select(line => new GroupTurnLine { SpeakerId = line.SpeakerHeroStringId, Role = line.Role, Text = line.Text });
+            string seed = (_session?.SessionId ?? string.Empty) + "|" + (_session?.CurrentSceneTurnId ?? string.Empty)
+                + "|" + (_session?.PlayerInputCount.ToString() ?? "0") + "|" + (playerText ?? string.Empty);
+            var addressed = GroupConversationTurnOrder.ResolveAddressed(participants, playerText, prior);
+            return GroupConversationTurnOrder.Order(participants, playerText, seed, addressed)
+                .Select(id => speakers.First(hero => hero.StringId.Equals(id, StringComparison.OrdinalIgnoreCase))).ToList();
         }
 
         private List<ReignPartyChatTranscriptLine> _pendingRecoveredTranscript;

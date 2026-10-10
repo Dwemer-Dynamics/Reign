@@ -50,28 +50,21 @@ namespace ReignBeta.Integration
                 {
                     try
                     {
-                        byte[] bytes = File.ReadAllBytes(sourcePath);
-                        if (bytes.Length < 24 || bytes[0] != 137 || bytes[1] != 80 || bytes[2] != 78 || bytes[3] != 71)
-                            throw new InvalidDataException("The shipped tavern portrait is not a PNG.");
                         // A normal portrait request may have completed before this worker began.
                         if (PortraitCache.ExistsOnDisk(cacheKey) && !repairSeed) return;
-                        Directory.CreateDirectory(cacheDirectory);
-                        // The shipped V2 manifest carries the validated face-focus receipt. SaveAndPrepareAsync
-                        // uses it to rebuild cache-local derivatives whose source path and timestamps match this save.
-                        File.Copy(sourceManifestPath, Path.Combine(cacheDirectory, PortraitDerivativeService.ManifestFileName), true);
-                        bool prepared = await PortraitCache.SaveAndPrepareAsync(cacheKey, bytes).ConfigureAwait(false);
-                        string hash;
-                        using (var sha = SHA256.Create()) hash = BitConverter.ToString(sha.ComputeHash(bytes)).Replace("-", "").ToLowerInvariant();
+                        string hash = ReignTavernPortraitPack.Install(root, castId, cacheDirectory);
                         JObject receipt = new JObject { ["schema"] = "reign-tavern-portrait-seed-v1", ["castId"] = castId,
                             ["heroStringId"] = heroId, ["campaignId"] = campaignId, ["cacheKey"] = cacheKey,
-                            ["sourceSha256"] = hash, ["masterSha256"] = hash, ["derivativesReady"] = prepared };
+                            ["sourceSha256"] = hash, ["masterSha256"] = hash, ["derivativesReady"] = true };
                         File.WriteAllText(Path.Combine(PortraitCache.DirFor(cacheKey), ".tavern_seed.json"), receipt.ToString(Formatting.Indented));
+                        _ = ReignServerClient.RegisterPortraitFileAsync(cacheKey, PortraitCache.DiskPath(cacheKey), "shipped_tavern");
                         await ReignMainThread.InvokeAsync(() =>
                         {
                             if (ReignTavernHouseCampaignBehavior.Instance != behavior || ReignCampaignIdentity.CurrentCampaignId() != campaignId) return;
-                            person.PortraitComplete = prepared && PortraitCache.ExistsOnDisk(cacheKey);
-                            PortraitIndex.Register(appearanceCode, cacheKey);
                             TextureFactory.Invalidate(cacheKey);
+                            person.PortraitComplete = PortraitCache.ExistsOnDisk(cacheKey);
+                            PortraitIndex.Register(appearanceCode, cacheKey);
+                            ReignLog.Info("Tavern shipped portrait ready cast=" + castId + " hero=" + heroId + " campaign=" + campaignId);
                         });
                     }
                     catch (Exception ex) { ReignLog.Exception("Tavern shipped portrait seed " + castId, ex); }

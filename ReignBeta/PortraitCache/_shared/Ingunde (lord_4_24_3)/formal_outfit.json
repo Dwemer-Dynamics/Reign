@@ -3,11 +3,11 @@
   "heroStringId": "lord_4_24_3",
   "characterName": "Ingunde",
   "imagePath": "portrait.png",
-  "imageSha256": "0E36237E45F5DB31E8553C0AB4C304AECACB802F388B0DEC4C8DCD1D0359D0D9",
-  "description": "Culturally appropriate everyday Vlandian minor-lord attire inspired by refined high-medieval Norman and Frankish noble dress. Use a fitted wool tunic or cote over a fine linen shirt, high-quality chausses, a decorated leather belt, and an optional short mantle or shoulder drape with restrained embroidery. For women, use a long underdress with an elegant tailored overdress, shaped sleeves, fine woven fabric, and decorative trim around the cuffs, hem, and neckline. Include modest clasps, brooches, or small jewelry details. No headgear of any kind. No armor, weapons, crowns, royal regalia, or ceremonial robes.",
-  "status": "failed",
-  "descriptionSource": "portrait_prompt_fallback",
-  "retryEligible": true,
-  "error": "{\"error\":{\"message\":\"Model \\\"zai-org/glm-5.2\\\" does not support image inputs. Remove image content or choose a multimodal model.\",\"type\":\"invalid_request_error\",\"param\":\"messages\",\"code\":\"image_input_not_supported\"}}",
-  "updatedUtc": "2026-07-18T22:03:30.5153319Z"
+  "imageSha256": "841887D039C2053DBC6DAFA3BE52DBDAC9400965F8DE67D44206B3B0471678E6",
+  "description": "Rust-red floor-length tailored overdress over cream underdress visible centrally and at elbow-length sleeves, low square neckline. Fine gold woven geometric borders at neckline, sleeves, waist and front skirt edges, small round belt fittings with hanging ends, cream-lined red wrap around forearms, small pendant and earrings. One dark leather shoe visible below hem; other largely covered. Both hands visible in front. No headgear, armor or weapon.",
+  "status": "completed",
+  "descriptionSource": "agent_vision",
+  "retryEligible": false,
+  "error": "",
+  "updatedUtc": "2026-10-07T23:52:20.995Z"
 }

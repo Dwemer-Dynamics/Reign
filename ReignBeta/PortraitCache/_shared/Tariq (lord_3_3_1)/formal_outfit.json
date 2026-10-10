@@ -3,11 +3,11 @@
   "heroStringId": "lord_3_3_1",
   "characterName": "Tariq",
   "imagePath": "portrait.png",
-  "imageSha256": "1E4648084E47354A0A972C8A4965EE0537C788D9CFC886533EC2AC973DC38BFE",
-  "description": "Culturally appropriate everyday Aserai minor-lord attire inspired by refined medieval Arabian, North African, and limited Persian noble clothing. Men should wear a flowing robe or structured open-front coat over a fine lightweight tunic, secured with a decorated woven sash. Women should wear a long elegant dress with soft layered fabrics, shaped sleeves, graceful draping, and fine embroidery around the neckline, cuffs, and hem. Show rank through superior fabric, elegant borders, geometric embroidery, and subtle jewelry rather than excessive ornamentation. No headgear of any kind. No turbans, veils, hoods, armor, weapons, crowns, or ceremonial excess.",
-  "status": "failed",
-  "descriptionSource": "portrait_prompt_fallback",
-  "retryEligible": true,
-  "error": "{\"error\":{\"message\":\"Model \\\"zai-org/glm-5.2\\\" does not support image inputs. Remove image content or choose a multimodal model.\",\"type\":\"invalid_request_error\",\"param\":\"messages\",\"code\":\"image_input_not_supported\"}}",
-  "updatedUtc": "2026-07-18T22:03:34.6161429Z"
+  "imageSha256": "D38B0BBE90206FEF08BD79623CED141F26C926A1F8A3C22BC89BFF90AFDCB6D4",
+  "description": "He wears an opaque cream knee-length lightweight tunic with narrow geometric embroidery at the collar and placket, loose cream trousers and a long open brown robe with broad gold geometric woven front borders and cuffs. A red-brown patterned sash wraps the waist with fringed ends hanging in front. Brown closed leather shoes are fully visible. No headgear, armor or weapon.",
+  "status": "completed",
+  "descriptionSource": "agent_vision",
+  "retryEligible": false,
+  "error": "",
+  "updatedUtc": "2026-10-08T04:19:11.205Z"
 }

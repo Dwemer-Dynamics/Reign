@@ -3,11 +3,11 @@
   "heroStringId": "reign_court_town_EW6_mother",
   "characterName": "Iovurara Istranorides",
   "imagePath": "portrait.png",
-  "imageSha256": "989021C2C78917BF976823B6B1FBBF841C4A77B9DAED806427EEE8E181365584",
-  "description": "Culturally appropriate everyday Calradic Imperial minor-lord attire inspired by refined late Roman and Byzantine noble clothing. Men should wear a high-quality tunic or long tailored outer coat over fine linen, decorated with narrow woven borders, refined clasps, and a decorated belt. Women should wear a long elegant dress or layered tunic ensemble with shaped sleeves, graceful draping, and tasteful trim around the neckline, cuffs, and edges. The garments should feel polished, educated, urban, and wealthy without resembling full imperial ceremony. No headgear of any kind. No armor, weapons, crowns, imperial regalia, laurel wreaths, or ceremonial robes.",
-  "status": "failed",
-  "descriptionSource": "portrait_prompt_fallback",
-  "retryEligible": true,
-  "error": "{\"error\":{\"message\":\"Model \\\"zai-org/glm-5.2\\\" does not support image inputs. Remove image content or choose a multimodal model.\",\"type\":\"invalid_request_error\",\"param\":\"messages\",\"code\":\"image_input_not_supported\"}}",
-  "updatedUtc": "2026-07-18T22:03:30.7536947Z"
+  "imageSha256": "9EEFD5F5AA561B42F1397E564A3B27ACF85109E3CAF9D750E75B972A44AA8E73",
+  "description": "Iovurara wears an opaque burgundy-red floor-length gown with a low square neckline, naturally fitted bodice and elbow-length outer sleeves. Gold floral and geometric woven borders run around the neckline, straps, waist, sleeves and skirt hem. Small round bronze shoulder brooches and earrings provide restrained jewelry. Ivory linen underlayers show at the forearms and skirt opening. A broad cream shawl with burgundy and gold borders rests along her arms. A narrow decorated belt has a central round clasp. Brown embroidered leather shoes appear beneath the skirt. No headgear or weapon appears.",
+  "status": "completed",
+  "descriptionSource": "agent_vision",
+  "retryEligible": false,
+  "error": "",
+  "updatedUtc": "2026-10-07T23:15:06.598Z"
 }

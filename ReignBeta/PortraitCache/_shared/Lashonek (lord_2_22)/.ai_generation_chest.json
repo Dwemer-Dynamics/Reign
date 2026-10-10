@@ -1,0 +1,70 @@
+{
+  "schema": "reign-portable-actual-portrait-origin-v1",
+  "id": "lord_2_22",
+  "kind": "independent_chest",
+  "actualReceiptSha256": "18d297294fe657989c8dfc9eedf3a3fb561fd4c3159df1331d92ca2a1cd19cfc",
+  "actualReceiptUtf8": "{\r\n  \"schema\": \"reign-independent-generated-chest-candidate-result-v1\",\r\n  \"createdUtc\": \"2026-10-08T22:53:16.778286+00:00\",\r\n  \"candidateId\": \"focused-chest-quality-lash-002\",\r\n  \"id\": \"lord_2_22\",\r\n  \"requestId\": \"9109a8c8-dfc3-4219-8b54-8a3306e460c0\",\r\n  \"release\": {\r\n    \"path\": \"C:\\\\ReignPortraitRebuild\\\\2026-10-07-01a11741-culture-v2\\\\audit\\\\root-focused-chest-quality-lash-002\\\\root-release-001.json\",\r\n    \"sha256\": \"0de7d72bc576d0709b04007c3514de1c6bb39ff09d5fdfac979d119dbdad68d9\"\r\n  },\r\n  \"exactPrompt\": {\r\n    \"path\": \"C:\\\\ReignPortraitRebuild\\\\2026-10-07-01a11741-culture-v2\\\\audit\\\\phase4-focused-face-edit-drafts-gallery-001\\\\lord_2_22-chest-preview-prompt-002.txt\",\r\n    \"sha256\": \"2c99e8a6503cd9c2579c6f59c3b70979e56dad7f15d536aa1d959367ab97ed31\"\r\n  },\r\n  \"references\": [\r\n    {\r\n      \"image\": 1,\r\n      \"role\": \"new_canonical_chest\",\r\n      \"path\": \"C:\\\\ReignPortraitRebuild\\\\2026-10-07-01a11741-culture-v2\\\\_shared\\\\Lashonek (lord_2_22)/portrait_chest.png\",\r\n      \"sha256\": \"60aff7acbbe9a9670b5d8823897393f02620a7d693675299edaec6fa52986af8\",\r\n      \"bytes\": 222748\r\n    },\r\n    {\r\n      \"image\": 2,\r\n      \"role\": \"old_installed_chest\",\r\n      \"path\": \"D:\\\\Program Files (x86)\\\\Steam\\\\steamapps\\\\common\\\\Mount & Blade II Bannerlord\\\\Modules\\\\ReignBeta\\\\PortraitCache\\\\_shared\\\\Lashonek (lord_2_22)\\\\portrait_chest.png\",\r\n      \"sha256\": \"f35045904d4ebc60c555dc82bcd8a8c4453ae26e783b69225ddc079c8d21265e\",\r\n      \"bytes\": 421444\r\n    },\r\n    {\r\n      \"image\": 3,\r\n      \"role\": \"native_source\",\r\n      \"path\": \"C:\\\\Users\\\\speed\\\\Desktop\\\\sourcegen\\\\Reign Shared Portrait Source Cache - 20260716-200950\\\\_shared\\\\Lashonek (lord_2_22)\\\\source.png\",\r\n      \"sha256\": \"581b52cb0243ff42c87762cf9499601acc9266c617f81c8f15b11bd49a73ebb8\",\r\n      \"bytes\": 912517\r\n    }\r\n  ],\r\n  \"actualImageCalls\": 1,\r\n  \"retries\": 0,\r\n  \"experimentCallsAcross001And002\": 2,\r\n  \"canonicalPhase4CallsUnaffected\": 32,\r\n  \"builtinToolReturned\": true,\r\n  \"observedGeneratedOutputIdentifier\": \"exec-0f2143b9-0e20-4ab5-a859-e3d649688a9e.png\",\r\n  \"output\": {\r\n    \"path\": \"C:\\\\Users\\\\speed\\\\.codex\\\\generated_images\\\\01a11741-4ac1-7cd2-9aca-e03d81313445\\\\exec-0f2143b9-0e20-4ab5-a859-e3d649688a9e.png\",\r\n    \"sha256\": \"c3e3093b9b2c0005242b5c48aa63f62905c0c17fe2876f47ca30e74153ab197e\"\r\n  },\r\n  \"outputDimensions\": [\r\n    1086,\r\n    1448\r\n  ],\r\n  \"outputBytes\": 2409299,\r\n  \"personallyViewedBy\": \"root\",\r\n  \"verdict\": \"promising_quality_candidate_review_required\",\r\n  \"observation\": \"Correct chest framing with intact visible crown. Skin pores, eyelid edges, lip surface and nasal transition have many more resolved original pixels than the existing distant-master crop; current photographic identity/culture and upright pose remain recognizable. Lower nasal lobe and exposed lower lip are fuller, though exact two-structure neighbor separation is unproven. Small new dark neck detail needs material/source comparison before acceptance; no inferred hidden jaw. Iris remains visually gray-green/blue under daylight and is not distinctness evidence.\",\r\n  \"actualCurrentInputsAfterCall\": [\r\n    {\r\n      \"path\": \"C:\\\\Users\\\\speed\\\\Desktop\\\\sourcegen\\\\Reign Shared Portrait Source Cache - 20260716-200950\\\\_shared\\\\Lashonek (lord_2_22)\\\\source.png\",\r\n      \"sha256\": \"581b52cb0243ff42c87762cf9499601acc9266c617f81c8f15b11bd49a73ebb8\"\r\n    },\r\n    {\r\n      \"path\": \"D:\\\\Program Files (x86)\\\\Steam\\\\steamapps\\\\common\\\\Mount & Blade II Bannerlord\\\\Modules\\\\ReignBeta\\\\PortraitCache\\\\_shared\\\\Lashonek (lord_2_22)\\\\portrait_chest.png\",\r\n      \"sha256\": \"f35045904d4ebc60c555dc82bcd8a8c4453ae26e783b69225ddc079c8d21265e\"\r\n    },\r\n    {\r\n      \"path\": \"C:\\\\ReignPortraitRebuild\\\\2026-10-07-01a11741-culture-v2\\\\_shared\\\\Lashonek (lord_2_22)\\\\portrait_chest.png\",\r\n      \"sha256\": \"60aff7acbbe9a9670b5d8823897393f02620a7d693675299edaec6fa52986af8\"\r\n    },\r\n    {\r\n      \"path\": \"C:\\\\ReignPortraitRebuild\\\\2026-10-07-01a11741-culture-v2\\\\_shared\\\\Lashonek (lord_2_22)\\\\portrait.png\",\r\n      \"sha256\": \"d6294c7328a3e8742cb23c55210f7499c6787001e5bebedf1eb13fffc82f6c3c\"\r\n    },\r\n    {\r\n      \"path\": \"C:\\\\ReignPortraitRebuild\\\\2026-10-07-01a11741-culture-v2\\\\work\\\\lord_2_22\\\\prompt.txt\",\r\n      \"sha256\": \"cced69c863e80f5749dcf99bea736ceaffe29af98aa7a77cd3d73fde38086ddc\"\r\n    },\r\n    {\r\n      \"path\": \"C:\\\\ReignPortraitRebuild\\\\2026-10-07-01a11741-culture-v2\\\\work\\\\lord_2_22\\\\description.txt\",\r\n      \"sha256\": \"521fbe6a6614ff06907fc647e7508ee33fe51e3dfc098b17a166cc3878c1aca4\"\r\n    },\r\n    {\r\n      \"path\": \"C:\\\\ReignPortraitRebuild\\\\2026-10-07-01a11741-culture-v2\\\\work\\\\lord_2_22\\\\verification.json\",\r\n      \"sha256\": \"261563d74faea8ed45341642786af9970fdd4f7db11a5e5ba6a13623c5278263\"\r\n    },\r\n    {\r\n      \"path\": \"C:\\\\ReignPortraitRebuild\\\\2026-10-07-01a11741-culture-v2\\\\work\\\\lord_2_22\\\\visual-review.json\",\r\n      \"sha256\": \"d94a13127a410eb8d907830fd1c9089fafad4fa2450759fd5eb66becc28e19fc\"\r\n    },\r\n    {\r\n      \"path\": \"C:\\\\ReignPortraitRebuild\\\\2026-10-07-01a11741-culture-v2\\\\audit\\\\residual-correction-phase4-001\\\\lord_2_22\\\\gallery-result-001.json\",\r\n      \"sha256\": \"a5baf24382ecdbc86e2605aaca485bd8d33546b54a3cc980857d0e27653cef2b\"\r\n    },\r\n    {\r\n      \"path\": \"D:\\\\Projects\\\\Reign\\\\ReignBeta\\\\PortraitCache\\\\_shared\\\\Lashonek (lord_2_22)\\\\portrait_input.json\",\r\n      \"sha256\": \"a52472cd267e4c8b744816db7aa7ad4a7ed419458e9bedc4d4fb8f7ee3668c9e\"\r\n    },\r\n    {\r\n      \"path\": \"C:\\\\Users\\\\speed\\\\Desktop\\\\sourcegen\\\\Reign Shared Portrait Source Cache - 20260716-200950\\\\_shared\\\\Lashonek (lord_2_22)\\\\portrait_input.json\",\r\n      \"sha256\": \"484e18785f9b1cba20fcebe4262629274f7dfff21a289fb9b8e595c0685395e7\"\r\n    },\r\n    {\r\n      \"path\": \"C:\\\\ReignPortraitRebuild\\\\2026-10-07-01a11741-culture-v2\\\\_shared\\\\Lashonek (lord_2_22)\\\\portrait.png\",\r\n      \"sha256\": \"d6294c7328a3e8742cb23c55210f7499c6787001e5bebedf1eb13fffc82f6c3c\"\r\n    },\r\n    {\r\n      \"path\": \"C:\\\\ReignPortraitRebuild\\\\2026-10-07-01a11741-culture-v2\\\\_shared\\\\Lashonek (lord_2_22)\\\\portrait_chest.png\",\r\n      \"sha256\": \"60aff7acbbe9a9670b5d8823897393f02620a7d693675299edaec6fa52986af8\"\r\n    },\r\n    {\r\n      \"path\": \"C:\\\\ReignPortraitRebuild\\\\2026-10-07-01a11741-culture-v2\\\\_shared\\\\Lashonek (lord_2_22)\\\\thumbnail.png\",\r\n      \"sha256\": \"7ba6fe4b1e1f0cfe9bacc6ab1040d9f13dd1685ba0514f5fde7037c35e071f47\"\r\n    },\r\n    {\r\n      \"path\": \"C:\\\\ReignPortraitRebuild\\\\2026-10-07-01a11741-culture-v2\\\\_shared\\\\Lashonek (lord_2_22)\\\\thumbnail_wide.png\",\r\n      \"sha256\": \"695457c7b6093c0deeebfd5821f7c72206cbef36f88ff0860e78223433b67386\"\r\n    },\r\n    {\r\n      \"path\": \"C:\\\\ReignPortraitRebuild\\\\2026-10-07-01a11741-culture-v2\\\\_shared\\\\Lashonek (lord_2_22)\\\\zoom.png\",\r\n      \"sha256\": \"0f08d21d8dbf4a8a97b17b13692f91e31205c62d9c322bc6bfd4f271b312c14c\"\r\n    },\r\n    {\r\n      \"path\": \"C:\\\\ReignPortraitRebuild\\\\2026-10-07-01a11741-culture-v2\\\\_shared\\\\Lashonek (lord_2_22)\\\\.portrait_derivatives.json\",\r\n      \"sha256\": \"8905e8b4fa5eb5ce1feaa79d223e77f9d6a5fc264e457d4a16a6f0bc138fbd8a\"\r\n    },\r\n    {\r\n      \"path\": \"C:\\\\ReignPortraitRebuild\\\\2026-10-07-01a11741-culture-v2\\\\_shared\\\\Lashonek (lord_2_22)\\\\.ai_generation.json\",\r\n      \"sha256\": \"e8443a899bcae7093198683c7b4d7a6601098408e60bdb587cf0f14b5ab43acc\"\r\n    },\r\n    {\r\n      \"path\": \"C:\\\\ReignPortraitRebuild\\\\2026-10-07-01a11741-culture-v2\\\\_shared\\\\Lashonek (lord_2_22)\\\\portrait_input.json\",\r\n      \"sha256\": \"a52472cd267e4c8b744816db7aa7ad4a7ed419458e9bedc4d4fb8f7ee3668c9e\"\r\n    },\r\n    {\r\n      \"path\": \"C:\\\\ReignPortraitRebuild\\\\2026-10-07-01a11741-culture-v2\\\\_shared\\\\Lashonek (lord_2_22)\\\\formal_outfit.json\",\r\n      \"sha256\": \"a362859bab7ab365c45280c3259b1b6de54edfe0c26b27716f0451e46e422ad5\"\r\n    },\r\n    {\r\n      \"path\": \"C:\\\\ReignPortraitRebuild\\\\2026-10-07-01a11741-culture-v2\\\\_shared\\\\Lashonek (lord_2_22)\\\\prompt.txt\",\r\n      \"sha256\": \"cced69c863e80f5749dcf99bea736ceaffe29af98aa7a77cd3d73fde38086ddc\"\r\n    }\r\n  ],\r\n  \"allCurrentInputsUnchanged\": true,\r\n  \"canonicalWrites\": 0,\r\n  \"metadataWrites\": 0,\r\n  \"currentAdopted\": false,\r\n  \"nativePackingClaim\": false,\r\n  \"notSwapApproval\": true\r\n}\r\n",
+  "originalReceiptEncoding": "UTF-8; BOM retained if present",
+  "localFiles": [
+    {
+      "name": "portrait_chest.png",
+      "sha256": "0b7f4d568acd6a2d5af46a389931708c8d0c596d08db68596a248de4218ea91b",
+      "bytes": 1749133
+    },
+    {
+      "name": "thumbnail.png",
+      "sha256": "cd2564343dd3e25eef98d6ef3871562b3a6110dd4ebe77a03f3e4a32fe281ff3",
+      "bytes": 124407
+    },
+    {
+      "name": "thumbnail_wide.png",
+      "sha256": "f4ec54f81efe96e6ec16ff5cd0ebbd8001a95d5923c08e5fc19c5350d0e7b422",
+      "bytes": 34610
+    },
+    {
+      "name": "portrait_chest_source.png",
+      "sha256": "c3e3093b9b2c0005242b5c48aa63f62905c0c17fe2876f47ca30e74153ab197e",
+      "bytes": 2409299
+    },
+    {
+      "name": "prompt_chest.txt",
+      "sha256": "2c99e8a6503cd9c2579c6f59c3b70979e56dad7f15d536aa1d959367ab97ed31",
+      "bytes": 12045
+    },
+    {
+      "name": "portrait.png",
+      "sha256": "d6294c7328a3e8742cb23c55210f7499c6787001e5bebedf1eb13fffc82f6c3c",
+      "bytes": 2438177
+    },
+    {
+      "name": "zoom.png",
+      "sha256": "0f08d21d8dbf4a8a97b17b13692f91e31205c62d9c322bc6bfd4f271b312c14c",
+      "bytes": 3331215
+    }
+  ],
+  "historicalParent": {
+    "record": {
+      "path": "C:\\ReignPortraitRebuild\\2026-10-07-01a11741-culture-v2\\_shared\\Lashonek (lord_2_22)\\.ai_generation.json",
+      "sha256": "e8443a899bcae7093198683c7b4d7a6601098408e60bdb587cf0f14b5ab43acc",
+      "bytes": 7030
+    },
+    "prompt": {
+      "path": "C:\\ReignPortraitRebuild\\2026-10-07-01a11741-culture-v2\\_shared\\Lashonek (lord_2_22)\\prompt.txt",
+      "sha256": "cced69c863e80f5749dcf99bea736ceaffe29af98aa7a77cd3d73fde38086ddc",
+      "bytes": 10750
+    },
+    "role": "Original fullbody generation; not the new independent chest/edit producer."
+  },
+  "authenticRawReceiptNotRewritten": true,
+  "rawAbsolutePathsRole": "Historical tool/provider locations only. Current pixel source and prompt are bound by localFiles.",
+  "actualOriginAdapter": {
+    "rawSchema": "reign-independent-generated-chest-candidate-result-v1",
+    "actualCallsField": "actualImageCalls",
+    "actualRetriesField": "retries",
+    "rawActualCalls": 1,
+    "rawRetries": 0
+  },
+  "globalFaceAcceptance": false,
+  "nativeUIAcceptance": false,
+  "notSwapApproval": true
+}

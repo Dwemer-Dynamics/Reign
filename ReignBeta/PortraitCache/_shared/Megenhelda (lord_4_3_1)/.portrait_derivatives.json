@@ -2,38 +2,248 @@
   "Version": 3,
   "CropAlgorithmVersion": 2,
   "SourceFileName": "portrait.png",
-  "SourcePath": "portrait.png",
-  "SourceLength": 1459363,
-  "SourceLastWriteUtcTicks": 639199117636463988,
-  "SourceWidth": 832,
-  "SourceHeight": 1248,
-  "CropX": 276,
-  "CropY": 43,
-  "CropWidth": 240,
-  "CropHeight": 300,
-  "WideCropX": 186,
-  "WideCropY": 43,
-  "WideCropWidth": 420,
-  "WideCropHeight": 300,
+  "SourcePath": "C:\\ReignPortraitRebuild\\2026-10-07-01a11741-culture-v2\\_shared\\Megenhelda (lord_4_3_1)\\portrait.png",
+  "SourceLength": 2229491,
+  "SourceLastWriteUtcTicks": 639270621593097525,
+  "SourceWidth": 1086,
+  "SourceHeight": 1448,
+  "CropX": 398,
+  "CropY": 0,
+  "CropWidth": 282,
+  "CropHeight": 352,
+  "WideCropX": 293,
+  "WideCropY": 0,
+  "WideCropWidth": 493,
+  "WideCropHeight": 352,
   "FocusMethod": "ultraface",
   "FocusModel": "version-RFB-320",
-  "FocusConfidence": 0.9996869564056396,
+  "FocusConfidence": 0.9996662139892578,
   "FaceCandidateCount": 1,
-  "FaceX": 0.4079008102416992,
-  "FaceY": 0.062202196568250656,
-  "FaceWidth": 0.13514924049377441,
-  "FaceHeight": 0.11198485270142555,
+  "FaceX": 0.4521618187427521,
+  "FaceY": 0.06342687457799911,
+  "FaceWidth": 0.08895567059516907,
+  "FaceHeight": 0.09439311176538467,
   "NeedsReview": false,
   "ThumbnailFileName": "thumbnail.png",
-  "ThumbnailWidth": 240,
-  "ThumbnailHeight": 300,
+  "ThumbnailWidth": 256,
+  "ThumbnailHeight": 320,
   "PartyThumbnailFileName": "thumbnail_wide.png",
-  "PartyThumbnailWidth": 420,
-  "PartyThumbnailHeight": 300,
+  "PartyThumbnailWidth": 448,
+  "PartyThumbnailHeight": 320,
   "PortraitFileName": "portrait_chest.png",
-  "PortraitWidth": 240,
-  "PortraitHeight": 300,
+  "PortraitWidth": 282,
+  "PortraitHeight": 352,
   "ZoomFileName": "zoom.png",
-  "ZoomWidth": 832,
-  "ZoomHeight": 1248
+  "ZoomWidth": 1024,
+  "ZoomHeight": 1365,
+  "ManualCropProvenance": {
+    "schema": "reign-manual-crop-provenance-v1",
+    "actualCropPolicy": "manual-crown-expansion-v1",
+    "nativeAlgorithmProducedRectangle": false,
+    "compatibilityFields": {
+      "Version": 3,
+      "CropAlgorithmVersion": 2
+    },
+    "compatibilityFieldInterpretation": "Existing consumer compatibility tags are retained; the NEW explicit adapter, not native CalculateFocusedCrop algorithm2, selected these rectangles.",
+    "master": {
+      "path": "C:\\ReignPortraitRebuild\\2026-10-07-01a11741-culture-v2\\_shared\\Megenhelda (lord_4_3_1)\\portrait.png",
+      "sha256": "7b837e360338bc4ec1d4156c8a6eedad553de1ae0c393f52496fc2d88de15fda"
+    },
+    "baselineMetadata": {
+      "path": "C:\\ReignPortraitRebuild\\2026-10-07-01a11741-culture-v2\\_shared\\Megenhelda (lord_4_3_1)\\.portrait_derivatives.json",
+      "sha256": "ab799ac50d01ce1bafdecc5372a8573f93fd8848aaaa4df8579f31a3f0d5e39f"
+    },
+    "plan": {
+      "path": "C:\\ReignPortraitRebuild\\2026-10-07-01a11741-culture-v2\\audit\\crown-repair-route-component-001\\candidate-plan-001.json",
+      "sha256": "450e92d3caac55be9f2692da3edc235d7c5af8de0e0a5f1610d1f9e0cb06523e"
+    },
+    "candidateReport": {
+      "path": "C:\\ReignPortraitRebuild\\2026-10-07-01a11741-culture-v2\\audit\\crown-repair-candidates-001\\lord_4_3_1\\candidate-derivatives.json",
+      "sha256": "01fd594b08f2909404fdbad5fb067d90ae310dbc87bea6ea37d007e4753cfbf3"
+    },
+    "actualRootCropReview": {
+      "path": "C:\\ReignPortraitRebuild\\2026-10-07-01a11741-culture-v2\\audit\\crown-repair-candidates-001\\lord_4_3_1\\actual-root-crop-review-001.json",
+      "sha256": "0ff47872a35cf761f38337df2d6560c1691ade8427ccc58796fbc3b205462d6e"
+    },
+    "actualProducer": {
+      "path": "C:\\ReignPortraitRebuild\\2026-10-07-01a11741-culture-v2\\audit\\crown-repair-route-component-001\\render-crown-candidate-001.ps1",
+      "sha256": "30db3ce5d439d350066f0fb0df4893267bb266ce78650dd61606bdcd3e856c4f"
+    },
+    "codecAssembly": {
+      "path": "D:/Projects/Reign/.codex-build/reign-mcp/validation/20261007-181216-5bee7061/client/out/ReignBeta.dll",
+      "sha256": "498c5d8e7af24226dbf5b9d37147fd562cf0e42b6477b6f4607f6011905ac5b8"
+    },
+    "authorization": {
+      "path": "C:\\ReignPortraitRebuild\\2026-10-07-01a11741-culture-v2\\audit\\crown-repair-route-component-001\\root-preview-release-three-001.json",
+      "sha256": "ed9d6cab61e3beeaa82d79cc2e55fbf06aae9d66c4b68ea13b07e1f63f7c8fea"
+    },
+    "baselineArchive": {
+      "path": "C:\\ReignPortraitRebuild\\2026-10-07-01a11741-culture-v2\\audit\\crown-repair-baseline-archive-005-001\\archive.json",
+      "sha256": "792d7a172e183e68a0d618479c9149cbd9ea9e5f11367c7970bdda976527d107"
+    },
+    "originalGenerationLineage": {
+      "phaseResult": {
+        "path": "C:\\ReignPortraitRebuild\\2026-10-07-01a11741-culture-v2\\audit\\residual-correction-phase3-001\\lord_4_3_1\\result-worker5-001.json",
+        "sha256": "c939c4db5dfb8f3a143f685791f962548981161045741c1af31fe2a9381b121d"
+      },
+      "originalPhaseId": "residual-correction-phase3-001",
+      "requestId": "ce1a3357-f52f-425a-b92e-15e5d7478888",
+      "suppliedPromptReceipts": [
+        {
+          "path": "C:\\ReignPortraitRebuild\\2026-10-07-01a11741-culture-v2\\audit\\residual-correction-phase3-001\\lord_4_3_1\\calls\\ce1a3357-f52f-425a-b92e-15e5d7478888\\supplied-prompt.json",
+          "sha256": "fb9005dcaf3c6c9136e1a42f9f29626676b7f7bb77877a1b17dd6cc23f80bc8d",
+          "response": {
+            "path": "C:\\ReignPortraitRebuild\\2026-10-07-01a11741-culture-v2\\audit\\residual-correction-phase3-001\\lord_4_3_1\\calls\\ce1a3357-f52f-425a-b92e-15e5d7478888\\response.json",
+            "sha256": "829f386baf13f5810527856e2b794bb7f7cb2881457bfd92b8290ba7dab3fa8c"
+          }
+        }
+      ],
+      "originalActualPhaseCalls": 1,
+      "originalDerivativeReport": {
+        "path": "C:\\ReignPortraitRebuild\\2026-10-07-01a11741-culture-v2\\audit\\residual-correction-phase3-001\\lord_4_3_1\\derivative-report-worker5-001.json",
+        "sha256": "3b0575456c305e7cf161cac50907c2c502c92ba9e51596616c81148da22f473c"
+      }
+    },
+    "rawFocusUnchanged": true,
+    "noCandidateExclusions": true,
+    "faceCropsUnchanged": [
+      {
+        "variant": "original",
+        "path": "C:\\ReignPortraitRebuild\\2026-10-07-01a11741-culture-v2\\audit\\face-screening-005\\faces\\lord_4_3_1-original.png",
+        "sha256": "4385d272698399acfd4cd433a228f0544b9f1f09008e548024a8c0758bfdd9bd"
+      },
+      {
+        "variant": "grayscale",
+        "path": "C:\\ReignPortraitRebuild\\2026-10-07-01a11741-culture-v2\\audit\\face-screening-005\\faces\\lord_4_3_1-grayscale.png",
+        "sha256": "3729ccd18962715036f1894639704a85825a552ef7cae0fe0f51217224fa464c"
+      },
+      {
+        "variant": "internal_mask",
+        "path": "C:\\ReignPortraitRebuild\\2026-10-07-01a11741-culture-v2\\audit\\face-screening-005\\faces\\lord_4_3_1-internal_mask.png",
+        "sha256": "4f11fadfe91c7b1b2c98c408c8d67e570563b781efac5fd9d0ce09cc43e6dae2"
+      }
+    ],
+    "rectangle": {
+      "x": 398,
+      "y": 0,
+      "width": 282,
+      "height": 352
+    },
+    "wideRectangle": {
+      "x": 293,
+      "y": 0,
+      "width": 493,
+      "height": 352
+    },
+    "productBytes": [
+      {
+        "name": "portrait_chest.png",
+        "sha256": "7a66f1085c1ecbc5a0f90462fe1c55c59b73eefeb45778efc4e3fb70cdecb84a",
+        "width": 282,
+        "height": 352
+      },
+      {
+        "name": "thumbnail.png",
+        "sha256": "c6eee8f899f892aef1cd23cbf9e0d8602858f0cd368f617d16e1e23319c47346",
+        "width": 256,
+        "height": 320
+      },
+      {
+        "name": "thumbnail_wide.png",
+        "sha256": "f5d373199fe8cb64a35541d80ff22d9f3d660b2bfffa7eb7a3a8480ebad8809c",
+        "width": 448,
+        "height": 320
+      }
+    ],
+    "zoomUnchanged": {
+      "path": "C:\\ReignPortraitRebuild\\2026-10-07-01a11741-culture-v2\\_shared\\Megenhelda (lord_4_3_1)\\zoom.png",
+      "sha256": "10d383cac4d310f242bf32bdb06f1417c218d1748d937026478606c172991e52"
+    },
+    "scope": "Crop acceptance only. No geometry/source/compound/overall acceptance implied.",
+    "forcedRebuildLimitation": "Existing native forced regeneration or source freshness invalidation can regenerate algorithm2 rectangles and remove this extension.",
+    "MetadataPrecisionPreservation": {
+      "schema": "reign-exact-native-json-precision-preservation-v1",
+      "actualSerializer": {
+        "path": "C:\\ReignPortraitRebuild\\2026-10-07-01a11741-culture-v2\\audit\\crown-runtime-complete-three-proposal-component-003\\build-compatible-metadata-int64-002.py",
+        "sha256": "91e262edf6c5743e8416f3b007d9174b26c4314ef9fbb584dee6d0956424dd25"
+      },
+      "retainedJS001SemanticValidation": {
+        "path": "C:\\ReignPortraitRebuild\\2026-10-07-01a11741-culture-v2\\audit\\crown-repair-route-component-001\\candidate-contracts-001.cjs",
+        "sha256": "7a1544a3ad6ef2d8271dfc690401fd8a3af93be70ff57589d5a831769c952313"
+      },
+      "nativeValuesCopiedFromExactOriginal": {
+        "path": "C:\\ReignPortraitRebuild\\2026-10-07-01a11741-culture-v2\\_shared\\Megenhelda (lord_4_3_1)\\.portrait_derivatives.json",
+        "sha256": "ab799ac50d01ce1bafdecc5372a8573f93fd8848aaaa4df8579f31a3f0d5e39f"
+      },
+      "nativeFieldsChangedOnly": [
+        "CropX",
+        "CropY",
+        "CropWidth",
+        "CropHeight",
+        "WideCropX",
+        "WideCropY",
+        "WideCropWidth",
+        "WideCropHeight",
+        "PortraitWidth",
+        "PortraitHeight",
+        "ThumbnailWidth",
+        "ThumbnailHeight",
+        "PartyThumbnailWidth",
+        "PartyThumbnailHeight"
+      ],
+      "unsafeNativeIntegersEnumerated": [
+        {
+          "jsonPath": "$.SourceLastWriteUtcTicks",
+          "exactDecimal": "639270621593097525"
+        }
+      ],
+      "sourceLastWriteUtcTicksExactDecimal": "639270621593097525",
+      "originalStringsPreservedWithoutDateParsing": true,
+      "actualCropProducerUnchanged": true
+    }
+  },
+  "StagedAssetProvenance": {
+    "schema": "reign-staged-effective-portrait-origin-v1",
+    "id": "lord_4_3_1",
+    "kind": "manual_same_master",
+    "currentLocalFiles": [
+      {
+        "name": "portrait_chest.png",
+        "sha256": "7a66f1085c1ecbc5a0f90462fe1c55c59b73eefeb45778efc4e3fb70cdecb84a",
+        "bytes": 220685
+      },
+      {
+        "name": "thumbnail.png",
+        "sha256": "c6eee8f899f892aef1cd23cbf9e0d8602858f0cd368f617d16e1e23319c47346",
+        "bytes": 179346
+      },
+      {
+        "name": "thumbnail_wide.png",
+        "sha256": "f5d373199fe8cb64a35541d80ff22d9f3d660b2bfffa7eb7a3a8480ebad8809c",
+        "bytes": 282762
+      },
+      {
+        "name": "portrait.png",
+        "sha256": "7b837e360338bc4ec1d4156c8a6eedad553de1ae0c393f52496fc2d88de15fda",
+        "bytes": 2229491
+      },
+      {
+        "name": "zoom.png",
+        "sha256": "10d383cac4d310f242bf32bdb06f1417c218d1748d937026478606c172991e52",
+        "bytes": 3215602
+      }
+    ],
+    "nativeAlgorithmProducedRectangle": false,
+    "priorProducerExtensionsRetainedVerbatim": true,
+    "absolutePriorReferencesRole": "Historical/candidate references; current module pixels/provenance use the relative currentLocalFiles.",
+    "sourcePathProjection": {
+      "from": "C:\\ReignPortraitRebuild\\2026-10-07-01a11741-culture-v2\\_shared\\Megenhelda (lord_4_3_1)\\portrait.png",
+      "to": "C:\\ReignPortraitRebuild\\2026-10-07-01a11741-culture-v2\\_shared\\Megenhelda (lord_4_3_1)\\portrait.png",
+      "reason": "Unchanged current fullbody cache anchor"
+    },
+    "independentChestNativeForcedRegenerationCanOverwrite": false,
+    "globalFaceAcceptance": false,
+    "nativeUIAcceptance": false,
+    "notSwapApproval": true
+  }
 }

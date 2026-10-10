@@ -3,11 +3,11 @@
   "heroStringId": "lord_3_4",
   "characterName": "Maraa",
   "imagePath": "portrait.png",
-  "imageSha256": "4BE85EB5C99A8399B0FEE7B4F2ECF4E703AB440187320C8A50B9FC5B48E2D933",
-  "description": "Culturally appropriate everyday Aserai minor-lord attire inspired by refined medieval Arabian, North African, and limited Persian noble clothing. Men should wear a flowing robe or structured open-front coat over a fine lightweight tunic, secured with a decorated woven sash. Women should wear a long elegant dress with soft layered fabrics, shaped sleeves, graceful draping, and fine embroidery around the neckline, cuffs, and hem. Show rank through superior fabric, elegant borders, geometric embroidery, and subtle jewelry rather than excessive ornamentation. No headgear of any kind. No turbans, veils, hoods, armor, weapons, crowns, or ceremonial excess.",
-  "status": "failed",
-  "descriptionSource": "portrait_prompt_fallback",
-  "retryEligible": true,
-  "error": "{\"error\":{\"message\":\"Model \\\"zai-org/glm-5.2\\\" does not support image inputs. Remove image content or choose a multimodal model.\",\"type\":\"invalid_request_error\",\"param\":\"messages\",\"code\":\"image_input_not_supported\"}}",
-  "updatedUtc": "2026-07-18T22:03:32.0255570Z"
+  "imageSha256": "159E87C39C161BC1F87A4742CDD0B009FFEA53AE226FF6B0FECDF86B31969633",
+  "description": "Ivory floor-length low square-neck court gown with gold embroidered borders and front panels, long sleeves, gold-medallion belt, gold-patterned elbow shawl, gold earrings and closed patterned shoes.",
+  "status": "completed",
+  "descriptionSource": "agent_vision",
+  "retryEligible": false,
+  "error": "",
+  "updatedUtc": "2026-10-07T22:48:55.497Z"
 }

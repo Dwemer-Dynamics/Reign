@@ -146,7 +146,8 @@ namespace ReignBeta.PartyAgency
 
         private static bool StartPartyEncounterPrefix(PartyBase attackerParty, PartyBase defenderParty)
         {
-            return !ShouldBlockEncounter(attackerParty, defenderParty);
+            if (ShouldBlockEncounter(attackerParty, defenderParty)) return false;
+            return ReignBeta.Campaign.ReignPlayerApproachCampaignBehavior.Instance?.ConsumeFriendlyEncounter(attackerParty, defenderParty) != true;
         }
 
         private static bool CanPartyJoinBattlePrefix(PartyBase __0, ref bool __result)

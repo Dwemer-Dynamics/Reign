@@ -3,11 +3,11 @@
   "heroStringId": "lord_2_17_1",
   "characterName": "Dracha",
   "imagePath": "portrait.png",
-  "imageSha256": "9BF62094D63C5CBA341C5CF2D0DE7475C1A064EADC8A55E1CB80D92919E03CD9",
-  "description": "Culturally appropriate everyday Sturgian minor-lord attire inspired by refined medieval Rus and Slavic noble clothing. Men should wear a well-made long shirt beneath a tailored wool kaftan or long belted coat, decorated with fine geometric embroidery and quality trim. Women should wear a long embroidered shift with an elegant wool overdress or noble coat-dress, secured with a richly woven sash. Include subtle fur trim around collars or cuffs, tasteful clasps, and better-quality fabric than a landowner would wear. The clothing should remain practical for a northern climate while clearly showing noble rank. No headgear of any kind. No armor, weapons, crowns, ceremonial robes, or oversized fur displays.",
-  "status": "failed",
-  "descriptionSource": "portrait_prompt_fallback",
-  "retryEligible": true,
-  "error": "{\"error\":{\"message\":\"Model \\\"zai-org/glm-5.2\\\" does not support image inputs. Remove image content or choose a multimodal model.\",\"type\":\"invalid_request_error\",\"param\":\"messages\",\"code\":\"image_input_not_supported\"}}",
-  "updatedUtc": "2026-07-18T22:03:27.7328207Z"
+  "imageSha256": "F8F612E4B8300B54390630E0E864499BC57BCA240D79F9A8576EA5AED4A04894",
+  "description": "Blue floor-length square-neck embroidered wool overdress with elbow sleeves over an ivory patterned shift, broad woven sash, blue geometric embroidered wrap along the forearms and dark brown closed shoes.",
+  "status": "completed",
+  "descriptionSource": "agent_vision",
+  "retryEligible": false,
+  "error": "",
+  "updatedUtc": "2026-10-07T21:08:25.044Z"
 }

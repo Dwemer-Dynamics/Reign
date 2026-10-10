@@ -3,11 +3,11 @@
   "heroStringId": "reign_court_town_B4_child_2",
   "characterName": "Dovua Dunedawn",
   "imagePath": "portrait.png",
-  "imageSha256": "3C9BDF32D40C0D482E4B70D8F76BD8B2029F93489944467C77A7C2393405B347",
-  "description": "Culturally appropriate everyday Battanian high-noble attire inspired by elite Celtic and highland aristocratic clothing. Use fine woven wool, linen, soft leather accents, sophisticated layering, ornate brooches, and carefully worked borders featuring tasteful knotwork or geometric designs. Men should wear a richly made noble tunic with a broad decorated belt and an exceptionally well-crafted draped cloak. Women should wear a long fitted noble dress beneath a richly layered overdress, with elegant woven borders, decorative brooch fastenings, and a graceful shoulder wrap. The outfit should communicate power through craftsmanship and rich textiles rather than excessive decoration. No headgear of any kind. No armor, weapons, crowns, or fantasy druid elements.",
-  "status": "failed",
-  "descriptionSource": "portrait_prompt_fallback",
-  "retryEligible": true,
-  "error": "{\"error\":{\"message\":\"Model \\\"zai-org/glm-5.2\\\" does not support image inputs. Remove image content or choose a multimodal model.\",\"type\":\"invalid_request_error\",\"param\":\"messages\",\"code\":\"image_input_not_supported\"}}",
-  "updatedUtc": "2026-07-18T22:03:27.7161493Z"
+  "imageSha256": "B1B4B0FCEB9A9A560E2CC5CBEF2618F38088F31666073CF416C662EE2845EECC",
+  "description": "Floor-length dark green square-neck court gown with fitted bodice, elbow sleeves and gold knotwork borders over a cream underdress visible in the front walking opening. Green/gold checked shoulder wrap rests along forearms with woven knotwork bands and fringes. Round shoulder brooches and belt clasp, brown leather shoe toe beneath hem. No headgear, armor or weapon.",
+  "status": "completed",
+  "descriptionSource": "agent_vision",
+  "retryEligible": false,
+  "error": "",
+  "updatedUtc": "2026-10-07T22:08:23.878Z"
 }

@@ -3,11 +3,11 @@
   "heroStringId": "reign_court_castle_EN5_father",
   "characterName": "Iovenion Istranarides",
   "imagePath": "portrait.png",
-  "imageSha256": "B5E84C5298AF456118C271E83E9BF8C25A0471DD8A594237E4AC9D9A3356FD12",
-  "description": "Culturally appropriate everyday Calradic Imperial high-noble attire inspired by luxurious Byzantine aristocratic fashion, restrained enough for daily noble life. Use fine layered linen and wool, controlled flowing silhouettes, elegant draping, richly woven borders, small jeweled clasps, and sophisticated fabric textures. Men should wear a stately long tunic or structured noble coat over a fine undertunic, with refined belts and detailed edging. Women should wear a sophisticated layered noble dress with graceful drapery, tailored sleeves, and subtle aristocratic ornamentation. The outfit should communicate ancient prestige, wealth, and political importance. No headgear of any kind. No armor, weapons, crowns, laurel wreaths, or full ceremonial imperial regalia.",
-  "status": "failed",
-  "descriptionSource": "portrait_prompt_fallback",
-  "retryEligible": true,
-  "error": "{\"error\":{\"message\":\"Model \\\"zai-org/glm-5.2\\\" does not support image inputs. Remove image content or choose a multimodal model.\",\"type\":\"invalid_request_error\",\"param\":\"messages\",\"code\":\"image_input_not_supported\"}}",
-  "updatedUtc": "2026-07-18T22:03:30.6195462Z"
+  "imageSha256": "C5FFCB7774AD550627D213128B3232ED041F1CE9E6220988A711C17F722C9897",
+  "description": "Iovenion wears a long deep plum-purple noble outer coat with broad gold geometric woven borders and richly textured fabric. A cream linen undertunic has a decorated narrow split neckline and an embroidered lower hem. Large round jeweled brooches fasten the shoulder drapery. A decorated brown-gold belt defines the waist and includes a hanging woven end. Ivory sleeves have wide patterned cuffs. Dark leather knee boots show beneath the layered hems. His hands rest together naturally. No headgear, weapon or armor appears; the garments remain opaque.",
+  "status": "completed",
+  "descriptionSource": "agent_vision",
+  "retryEligible": false,
+  "error": "",
+  "updatedUtc": "2026-10-07T23:15:02.544Z"
 }

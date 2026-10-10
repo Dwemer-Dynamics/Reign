@@ -3,11 +3,11 @@
   "heroStringId": "reign_court_castle_EW6_child_2",
   "characterName": "Lethenara Istranirides",
   "imagePath": "portrait.png",
-  "imageSha256": "00B3BF91C2EACFB97550F4CEA536917CDE59BE117F51DCBC58D0E2E50EAF4F4D",
-  "description": "Culturally appropriate everyday Calradic Imperial landowner attire inspired by practical late Roman and Byzantine civilian clothing adapted into a grounded medieval style. Men should wear a linen undertunic beneath a structured knee-length tunic or simple long coat, secured with a narrow belt. Women should wear a long tunic or underdress beneath a modest draped overdress with elegant but simple sleeves and a practical girdle. Include narrow woven borders or restrained geometric decoration. The garments should appear orderly, respectable, clean, and slightly prosperous. No headgear of any kind. No armor, weapons, laurel crowns, togas, ceremonial robes, or fantasy elements.",
-  "status": "failed",
-  "descriptionSource": "portrait_prompt_fallback",
-  "retryEligible": true,
-  "error": "{\"error\":{\"message\":\"Model \\\"zai-org/glm-5.2\\\" does not support image inputs. Remove image content or choose a multimodal model.\",\"type\":\"invalid_request_error\",\"param\":\"messages\",\"code\":\"image_input_not_supported\"}}",
-  "updatedUtc": "2026-07-18T22:03:31.5596147Z"
+  "imageSha256": "3053692B4F74608F218FEFE2EF4A722530D97790028D0E50938BE128C81669FE",
+  "description": "She wears a plum floor-length gown with a low square neckline, fitted bodice and elbow sleeves, bordered with narrow tan-gold geometric trim. A decorated waist belt with round clasp secures it over an ivory underdress visible at the central lower panel. An ivory gold-bordered wrap rests along the forearms; brown embroidered shoes are visible. No headgear, armor or weapons are visible.",
+  "status": "completed",
+  "descriptionSource": "agent_vision",
+  "retryEligible": false,
+  "error": "",
+  "updatedUtc": "2026-10-07T23:21:07.189Z"
 }

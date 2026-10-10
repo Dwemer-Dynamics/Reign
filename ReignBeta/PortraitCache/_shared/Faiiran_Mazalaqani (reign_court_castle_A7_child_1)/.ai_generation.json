@@ -1,16 +1,90 @@
 {
   "version": 1,
+  "schema": "reign-builtin-chat-reference-guided-image-generation-culture-v1",
   "cacheKey": "Faiiran_Mazalaqani (reign_court_castle_A7_child_1)",
   "heroStringId": "reign_court_castle_A7_child_1",
   "characterObjectId": "reign_court_castle_A7_child_1",
   "characterName": "Faiiran Mazalaqani",
-  "provider": "AtlasCloud",
-  "model": "xai/grok-imagine-image/edit",
-  "adapter": "atlas upload/generate/poll",
+  "worker": "worker-2",
+  "generatedOriginalPath": "C:\\Users\\speed\\.codex\\generated_images\\01a11c35-b9ad-75f1-9c21-5742fde8069d\\exec-73c8175f-ba9a-45c6-a801-70154e094c78.png",
+  "sourceFileCreationUtc": "2026-10-08T21:14:38.628Z",
+  "generationRequestId": "f4beac85-4411-4f0b-bb44-063f2e8ae200",
+  "generationRequestSha256": "0fcd0425a2be8afdfbb9704d5ca1d492add4eca1bb9bf2b011bc066ae5ee4bda",
+  "generationReturnSha256": "5c6b9eceac849bff4fcbae2ba86be3f05e390583bc6248f3c358ea681c1cc071",
+  "provider": "Codex built-in image_gen",
+  "model": "unknown",
+  "adapter": "old-face-identity/new-style-reference-guided",
+  "generationMode": "reference_guided",
+  "inputImages": 2,
+  "references": [
+    {
+      "id": "reign_court_castle_A7_child_1",
+      "role": "old_identity",
+      "path": "D:\\Program Files (x86)\\Steam\\steamapps\\common\\Mount & Blade II Bannerlord\\Modules\\ReignBeta\\PortraitCache\\_shared\\Faiiran_Mazalaqani (reign_court_castle_A7_child_1)\\portrait_chest.png",
+      "sha256": "3729d81d938efd79e31808a16170ead78963f7dfb3fabdeaba483af79bb8ee0f",
+      "originalReference": {
+        "path": "D:\\Program Files (x86)\\Steam\\steamapps\\common\\Mount & Blade II Bannerlord\\Modules\\ReignBeta\\PortraitCache\\_shared\\Faiiran_Mazalaqani (reign_court_castle_A7_child_1)\\portrait_chest.png",
+        "sha256": "3729d81d938efd79e31808a16170ead78963f7dfb3fabdeaba483af79bb8ee0f"
+      }
+    },
+    {
+      "id": "reign_court_castle_A7_child_1",
+      "role": "new_style",
+      "path": "C:\\ReignPortraitRebuild\\2026-10-07-01a11741-culture-v2\\audit\\residual-correction-phase4-001\\reign_court_castle_A7_child_1\\predecessor-files\\_shared\\Faiiran_Mazalaqani (reign_court_castle_A7_child_1)\\portrait.png",
+      "sha256": "aa89db93831eab003603ef965afe7b5b539462232ef27807e36c625cf45994ef",
+      "originalReference": {
+        "path": "C:\\ReignPortraitRebuild\\2026-10-07-01a11741-culture-v2\\_shared\\Faiiran_Mazalaqani (reign_court_castle_A7_child_1)\\portrait.png",
+        "sha256": "aa89db93831eab003603ef965afe7b5b539462232ef27807e36c625cf45994ef"
+      }
+    }
+  ],
+  "referenceGuidedExecution": {
+    "schema": "reign-portrait-reference-guided-execution-v1",
+    "generationMode": "reference_guided",
+    "inputImages": 2,
+    "references": [
+      {
+        "id": "reign_court_castle_A7_child_1",
+        "role": "old_identity",
+        "path": "D:\\Program Files (x86)\\Steam\\steamapps\\common\\Mount & Blade II Bannerlord\\Modules\\ReignBeta\\PortraitCache\\_shared\\Faiiran_Mazalaqani (reign_court_castle_A7_child_1)\\portrait_chest.png",
+        "sha256": "3729d81d938efd79e31808a16170ead78963f7dfb3fabdeaba483af79bb8ee0f",
+        "originalReference": {
+          "path": "D:\\Program Files (x86)\\Steam\\steamapps\\common\\Mount & Blade II Bannerlord\\Modules\\ReignBeta\\PortraitCache\\_shared\\Faiiran_Mazalaqani (reign_court_castle_A7_child_1)\\portrait_chest.png",
+          "sha256": "3729d81d938efd79e31808a16170ead78963f7dfb3fabdeaba483af79bb8ee0f"
+        }
+      },
+      {
+        "id": "reign_court_castle_A7_child_1",
+        "role": "new_style",
+        "path": "C:\\ReignPortraitRebuild\\2026-10-07-01a11741-culture-v2\\audit\\residual-correction-phase4-001\\reign_court_castle_A7_child_1\\predecessor-files\\_shared\\Faiiran_Mazalaqani (reign_court_castle_A7_child_1)\\portrait.png",
+        "sha256": "aa89db93831eab003603ef965afe7b5b539462232ef27807e36c625cf45994ef",
+        "originalReference": {
+          "path": "C:\\ReignPortraitRebuild\\2026-10-07-01a11741-culture-v2\\_shared\\Faiiran_Mazalaqani (reign_court_castle_A7_child_1)\\portrait.png",
+          "sha256": "aa89db93831eab003603ef965afe7b5b539462232ef27807e36c625cf45994ef"
+        }
+      }
+    ],
+    "textCompositionImageInputs": 0,
+    "textVerificationSha256": "4e08403e0ad1d84cc64467bd735ebcbc4a5025da6b8b9bb596f92c85974b0360",
+    "textPromptSha256": "bfad6e8391b4118ff636081262fd476500aebebedc37dc01dd0d664c84e11954",
+    "compositionProofSha256": "0d433c435acea771cfa7e14c59e5b759be0e46e5e5f63a2b8793792d214dc36c",
+    "rootCompositionReview": {
+      "path": "C:\\ReignPortraitRebuild\\2026-10-07-01a11741-culture-v2\\audit\\root-full32-prompt-composition-review-001\\reign_court_castle_A7_child_1\\root-hybrid-composition-review.json",
+      "sha256": "0f5d042c322a78483fab5314ca976160f6419d871c8da5ae08a22b4be86f3795"
+    }
+  },
   "sourceSha256": "b601768210b4e528a1bde29383c12f35bd5e6e41513760b475ea63ed6a2021a1",
-  "portraitSha256": "26ea7e963ce090065fa57874ff599f33801a150f72beff0db53bd38433c7c97a",
-  "portraitWidth": 864,
-  "portraitHeight": 1152,
+  "portraitSha256": "ef1b78888cd183b315b9b725fd6bd877be3bbb773eab33a3f65102bc280378e3",
+  "portraitWidth": 1086,
+  "portraitHeight": 1448,
+  "promptSha256": "20a88ffaaa3d0d02344b5266fea6b7ac222b7f8fd83e3eb369196e0151509e99",
+  "descriptionSha256": "d9813cd305d072feb519c59213913ffbb3e0e8939c6a653005ef02df3c37475c",
+  "cultureId": "aserai",
+  "cultureReferenceKey": "aserai",
+  "cultureReference": "Arabian, Levantine and North African regional appearance.",
+  "cultureLayerFile": "portrait_facial_culture_aserai.txt",
+  "cultureLayerFullText": "FACIAL CULTURAL APPEARANCE — ASERAI\nStored cultureId: aserai.\nRegional reference: Arabian, Levantine and North African regional appearance.\nCreate a believable real human face with this regional appearance. Apply the regional reference positively to facial appearance, facial structure and complexion; it is not only a clothing, setting or background instruction.\nBlend the regional reference with the individual facial description. Where simplified native geometry or game-renderer shading differs from this regional appearance, use a plausible natural blend while retaining recognizable individual traits: face outline, relative proportions, eyes, brows, nose, mouth, jaw and chin. Preserve the described hair identity, arrangement and texture, facial-hair pattern, eye character, visible scars and markings; do not invent new distinguishing marks.\nThese regional populations contain substantial individual variation. Do not give every member the same face, impose a universal skin, hair or eye color, or replace the written individual identity with a generic regional stereotype. Preserve source-grounded differences and natural human asymmetry.\nKeep the exact authored age and the independent native weight and build values. This layer applies to facial appearance and realistic complexion interpretation, not body size, muscularity, garment coverage or social rank. Every complete composition, clothing, confidence, photographic, output and physique modifier remains in effect. Do not print this reference or any metadata in the image.",
+  "cultureLayerSha256": "9ab8eacda516b388198fe78a39ebe6a8014b88d2b4db2b0e097b6e0aacdb72b4",
   "physicalConfidence": {
     "definition": "physical_confidence",
     "score": 59,
@@ -21,7 +95,10 @@
     "confidenceWeight": 0.25,
     "source": "shipped_profile_library"
   },
+  "confidenceCoverageOverride": null,
   "derivativesReady": true,
   "derivativeError": "",
-  "generatedUtc": "2026-07-17T18:36:26.8203754Z"
+  "generatedUtc": "2026-10-08T21:14:56.760Z",
+  "serverSigned": false,
+  "derivativeReportSha256": "c47859eed86cde716ed470558306b9da64dee127618c0bd3bbb31e931373ec2a"
 }

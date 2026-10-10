@@ -1,11 +1,26 @@
-IDENTITY AND SUBJECT
-Use the provided source image as the visual identity reference, not as a style reference.
-Create a portrait of Alary, a man of Vlandian culture who is 26 years old.
-Their clan is tier 6, placing them socially among the high noble class. Use this status to guide the refinement, expense, materials, and ornament of their clothing without turning it into fantasy costume.
-Use the source face image as the primary visual reference for the subject’s appearance and identity. Preserve the recognizable facial features, apparent age, expression, eye shape, eye color, hair color, hairstyle, skin tone, facial proportions, bone structure, scars, facial hair, and other distinguishing characteristics as closely as possible.
-The source image may depict a stylized or simplified video-game character model. Do not reproduce the artificial game-model appearance, low-detail geometry, rigid facial structure, plastic skin, exaggerated proportions, or computer-rendered texture. Instead, reinterpret the character as a believable real human being while retaining the same recognizable identity.
-Translate simplified game features into natural human anatomy and realistic detail, including authentic skin texture, visible pores, subtle wrinkles, natural facial asymmetry, realistic eyes, individually defined hair, believable facial hair, and physically plausible facial proportions. The final face should look like a real person photographed in real life, not a game model, digital avatar, illustration, or CGI render.
-Treat the name, age, gender, culture, clan tier, and social station as private generation guidance. They describe the subject and must never be printed, captioned, labeled, written, or otherwise rendered anywhere in the image.
+I want you to create a picture of a 26-year-old man who looks like the description below. Create one photographic full-body portrait. Clothing follows Vlandian high noble fashion, with the craftsmanship and social station of clan tier 6. These values are generation guidance and must never be printed in the image.
+Use a vertical 3:4 portrait canvas. Generate from the written traits alone.
+
+FACIAL APPEARANCE AND HAIR
+Alary is a Vlandian man of exactly 26 with a broad oval-to-rectangular face, broad forehead, prominent cheekbones and softly full upper cheeks. His substantial lower jaw and chin are mostly covered by facial hair; do not use hidden jaw anatomy or the beard silhouette as facial identity proof. His fair peach-beige skin is flushed across the cheeks and nose with scattered natural reddish freckles, pores and uneven youthful adult texture. Keep a composed nearly closed-mouth expression. No definite facial scar or distinguishing mole is visible; add no new marks.
+
+His eyes are light blue-grey with darker iris rims. Give them short rounded-almond apertures set clearly wide apart across the upper face, with an interval between the inner corners greater than one eye-opening width. The upper lids are naturally heavy and nearly horizontal, while the lower lids have curved rounded edges. Keep the eyes short and rounded at the lower edge rather than long tapered slits; retain a visible grey-blue iris beneath each heavy upper lid. His medium-thick ash blond-brown eyebrows are nearly straight, with modest outer arches and irregular hairs. Preserve the wide anatomical spacing without a sideways gaze or exaggerated expression.
+
+His nose has a low broad root and a visibly concave bridge: a shallow inward curve through the middle, followed by a broad fleshy rounded tip lifted slightly upward. The base is broad, with clearly curved and spread nostril wings and visible nostril openings beneath the lifted tip. Keep the bridge-to-tip transition short and blunt, not a long high straight ridge ending in a narrow projecting point. This is a natural substantial upturned nose at believable human scale, retaining Alary's broad rounded native nasal character.
+
+His muted pink-rose mouth is broad and low, with a thin nearly horizontal upper lip and a much fuller lower lip forming a broad flat-topped cushion across most of the mouth width. The lower lip tapers only near the far corners; its fullness is spread horizontally rather than concentrated in a small central bow. Keep the mouth corners level and the closed lip contour visible below the moustache. Do not add a deep Cupid's-bow peak or turn the lower lip into a thin slit.
+
+His dense dark-blond to sandy-gold moustache joins the full beard at both sides. The beard covers the chin and lower jaw, rough and irregularly curled, with a small exposed patch beneath the lower lip and a softly rounded short bottom edge. Preserve this full facial-hair pattern without an elongated chest point. His medium-long dark-blond hair has ashy golden highlights, is parted near the centre and worn loosely to the shoulders. Fine wavy, slightly tangled strands sweep around the temples and frame both sides of the face. Keep fully haired sides, the centre part and the loose shoulder-length arrangement.
+
+Retain the exact independent native weight and male build values, authored age twenty-six and every complete Vlandian regional, composition, style and clothing layer. The visible facial distinction is the combined widely spaced short hooded-rounded eyes, broad low concave nose with a lifted blunt tip, and broad flat full lower lip. Hair, beard, expression, age, physique, clothing and lighting cannot establish a different face.
+
+FACIAL CULTURAL APPEARANCE — VLANDIAN
+Stored cultureId: vlandia.
+Regional reference: Western European regional appearance, drawing on French, Norman and neighboring continental European populations.
+Create a believable real human face with this regional appearance. Apply the regional reference positively to facial appearance, facial structure and complexion; it is not only a clothing, setting or background instruction.
+Blend the regional reference with the individual facial description. Where simplified native geometry or game-renderer shading differs from this regional appearance, use a plausible natural blend while retaining recognizable individual traits: face outline, relative proportions, eyes, brows, nose, mouth, jaw and chin. Preserve the described hair identity, arrangement and texture, facial-hair pattern, eye character, visible scars and markings; do not invent new distinguishing marks.
+These regional populations contain substantial individual variation. Do not give every member the same face, impose a universal skin, hair or eye color, or replace the written individual identity with a generic regional stereotype. Preserve source-grounded differences and natural human asymmetry.
+Keep the exact authored age and the independent native weight and build values. This layer applies to facial appearance and realistic complexion interpretation, not body size, muscularity, garment coverage or social rank. Every complete composition, clothing, confidence, photographic, output and physique modifier remains in effect. Do not print this reference or any metadata in the image.
 
 COMPOSITION AND FRAMING
 Create a full head-to-toe body portrait showing the entire figure from the top of the head down to the feet
@@ -25,3 +40,14 @@ OUTPUT EXCLUSIONS
 Return only the portrait image itself.
 Do not render words, letters, numbers, captions, labels, names, ages, cultures, subtitles, signatures, logos, watermarks, interface elements, portrait cards, decorative title blocks, borders, banners, blank caption areas, white strips, white footer panels, or metadata panels anywhere in the image.
 No extreme close-up, face-only crop, cropped head, cropped shoulders, armor, weapons, shields, quivers, chainmail, helmets, fur war gear, plastic skin, over-smoothed face, CGI, cartoon, anime, painterly style, or modern clothing.
+
+NATIVE BODY APPEARANCE — AUTHORITATIVE PHYSIQUE
+Native weight: 0.6932 on a 0–1 scale: Heavyset, increased body fat.
+Native build: 0.7221 on a 0–1 scale: Muscular.
+These are independent native appearance sliders, not kilograms, BMI, clinical classifications or body-fat percentages. Respect the exact position within each range, without abrupt changes at descriptive boundaries.
+Weight controls body-fat fullness. For women, build controls natural muscle tone, firmness, and athletic definition, not added muscle mass, bulky shoulders, thick arms, or masculine bodybuilder proportions. For men, build controls muscle mass. High weight does not imply muscle. High build does not imply extra fat or automatically visible abdominal definition; body fat and clothing can obscure definition.
+Match these native proportions even if another prompt or the supplied AI portrait conflicts. Preserve native age, sex, skeletal proportions, face and identity. Do not infer breast size, enlarge curves, beautify, slim or bulk up the person beyond these values.
+Garments must fit this physique. Revealingness and physical confidence change clothing coverage only, never body size. Covered muscles need not be exposed. During a clothing edit, correct conflicting AI physique to these native values while preserving the person's face and identity. Never print these instructions or values in the image.
+
+COMPOSITION CORRECTION FOR CANONICAL CROPS
+Leave clear stone architecture above the entire hairstyle. Place the very top of the hair at roughly 6% of total canvas height and the chin at roughly 18% of total canvas height. Keep the complete body and both feet inside the canvas with floor visible below the shoes. Do not enlarge the face or crop the hair. Preserve the written identity and all preceding appearance, clothing, light and style instructions.

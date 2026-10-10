@@ -80,7 +80,7 @@ namespace ReignBeta.ClanAccords
             _dirty = true;
         }
 
-        public bool ValidateAction(ReignWorldActionRecord action, out string error)
+        public bool ValidateAction(ReignWorldActionRecord action, out string error, bool proposal = false)
         {
             error = string.Empty;
             if (action == null || string.IsNullOrWhiteSpace(action.ActionId))
@@ -90,14 +90,14 @@ namespace ReignBeta.ClanAccords
             else if (action.Type != ReignWorldActionType.RegularCreateClanAccord && action.Type != ReignWorldActionType.RegularCancelClanAccord)
                 error = "Unsupported Clan Accords action.";
             if (error.Length > 0) return false;
-            Reconcile();
+            if (!proposal) Reconcile();
             JObject terms;
             try { terms = JObject.Parse(action.TermsJson ?? "{}"); }
             catch (JsonException) { error = "Invalid Clan Accords terms."; return false; }
-            if (terms.Value<bool?>("playerConfirmed") != true)
+            if (!proposal && !ReignActionValidator.HasOperatorAuthorization(action) && terms.Value<bool?>("playerConfirmed") != true)
             { error = "The player must explicitly confirm this agreement or cancellation."; return false; }
             bool fromUi = action.Source == "clan_accords_ui";
-            if (!fromUi && !ReignActionValidator.IsDialogueActionSource(action.Source))
+            if (!fromUi && !ReignActionValidator.IsStructuredAction(action) && !ReignActionValidator.IsDialogueActionSource(action.Source))
             { error = "Clan Accords must originate from a player conversation or the management screen."; return false; }
             if (action.Type == ReignWorldActionType.RegularCancelClanAccord)
             {
@@ -118,7 +118,7 @@ namespace ReignBeta.ClanAccords
             else if (Hostile(npc.Clan)) error = "Accords cannot be signed with an opposing clan during war.";
             else if (action.TargetHeroStringId != Hero.MainHero.StringId) error = "The player must be the other negotiator.";
             else if (terms.Value<string>("partnerClanId") != npc.Clan.StringId) error = "The negotiator's clan has changed or is unresolved.";
-            else if (terms.Value<bool?>("consentConfirmed") != true) error = "The NPC must explicitly accept the accord.";
+            else if (!proposal && !ReignActionValidator.HasOperatorAuthorization(action) && terms.Value<bool?>("consentConfirmed") != true) error = "The NPC must explicitly accept the accord.";
             else if (!Enum.TryParse(terms.Value<string>("accordType"), true, out ClanAccordType type) || !Enum.IsDefined(typeof(ClanAccordType), type))
                 error = "Choose a supported Clan Accord type.";
             else if (!Records.Any(x => x.ActionId == action.ActionId)

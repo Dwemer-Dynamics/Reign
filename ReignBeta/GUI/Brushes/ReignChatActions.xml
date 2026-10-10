@@ -1,5 +1,33 @@
 <?xml version="1.0" encoding="utf-8"?>
 <Brushes>
+  <Brush Name="Reign.Chat.Composer.20" Font="ReignSerifDynamic" FontSize="20" TextHorizontalAlignment="Left" TextVerticalAlignment="Center">
+    <Styles>
+      <Style FontSize="20" Name="Default" Font="ReignSerifDynamic" FontColor="#C5BDAFFF" TextOutlineAmount="0" TextGlowRadius="0" TextBlur="0" />
+      <Style FontSize="20" Name="Action" Font="ReignSerifDynamic" FontColor="#FFFFFFFF" TextOutlineAmount="0" TextGlowRadius="0" TextBlur="0" />
+      <Style FontSize="20" Name="Highlight" Font="ReignSerifDynamic" FontColor="#FFFFFFFF" TextOutlineAmount="0" TextGlowRadius="0" TextBlur="0" />
+    </Styles>
+  </Brush>
+  <Brush Name="Reign.Chat.Composer.16" Font="ReignSerifDynamic" FontSize="16" TextHorizontalAlignment="Left" TextVerticalAlignment="Center">
+    <Styles>
+      <Style FontSize="16" Name="Default" Font="ReignSerifDynamic" FontColor="#C5BDAFFF" TextOutlineAmount="0" TextGlowRadius="0" TextBlur="0" />
+      <Style FontSize="16" Name="Action" Font="ReignSerifDynamic" FontColor="#FFFFFFFF" TextOutlineAmount="0" TextGlowRadius="0" TextBlur="0" />
+      <Style FontSize="16" Name="Highlight" Font="ReignSerifDynamic" FontColor="#FFFFFFFF" TextOutlineAmount="0" TextGlowRadius="0" TextBlur="0" />
+    </Styles>
+  </Brush>
+  <Brush Name="Reign.Chat.Composer.18" Font="ReignSerifDynamic" FontSize="18" TextHorizontalAlignment="Left" TextVerticalAlignment="Center">
+    <Styles>
+      <Style FontSize="18" Name="Default" Font="ReignSerifDynamic" FontColor="#C5BDAFFF" TextOutlineAmount="0" TextGlowRadius="0" TextBlur="0" />
+      <Style FontSize="18" Name="Action" Font="ReignSerifDynamic" FontColor="#FFFFFFFF" TextOutlineAmount="0" TextGlowRadius="0" TextBlur="0" />
+      <Style FontSize="18" Name="Highlight" Font="ReignSerifDynamic" FontColor="#FFFFFFFF" TextOutlineAmount="0" TextGlowRadius="0" TextBlur="0" />
+    </Styles>
+  </Brush>
+  <Brush Name="Reign.Chat.Composer.19" Font="ReignSerifDynamic" FontSize="19" TextHorizontalAlignment="Left" TextVerticalAlignment="Center">
+    <Styles>
+      <Style FontSize="19" Name="Default" Font="ReignSerifDynamic" FontColor="#C5BDAFFF" TextOutlineAmount="0" TextGlowRadius="0" TextBlur="0" />
+      <Style FontSize="19" Name="Action" Font="ReignSerifDynamic" FontColor="#FFFFFFFF" TextOutlineAmount="0" TextGlowRadius="0" TextBlur="0" />
+      <Style FontSize="19" Name="Highlight" Font="ReignSerifDynamic" FontColor="#FFFFFFFF" TextOutlineAmount="0" TextGlowRadius="0" TextBlur="0" />
+    </Styles>
+  </Brush>
   <Brush Name="Reign.Chat.ActionText.15" Font="ReignSerifDynamic" TextHorizontalAlignment="Left" TextVerticalAlignment="Top">
     <Styles>
       <Style Name="Default" Font="ReignSerifDynamic" FontSize="15" FontColor="#C5BDAFFF" TextOutlineAmount="0" TextGlowRadius="0" TextBlur="0" />

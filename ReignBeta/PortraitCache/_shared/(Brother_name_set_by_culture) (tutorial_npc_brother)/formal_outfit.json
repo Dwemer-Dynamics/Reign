@@ -3,11 +3,11 @@
   "heroStringId": "tutorial_npc_brother",
   "characterName": "(Brother name set by culture)",
   "imagePath": "portrait.png",
-  "imageSha256": "5AF944701AE5CC8587E9CE2A43745B96B2631033E3F849148E06809121AB7492",
-  "description": "Their clan is tier unknown, placing them socially among the unranked class. Use this status to guide the refinement, expense, materials, and ornament of their clothing without turning it into fantasy costume.",
-  "status": "failed",
-  "descriptionSource": "portrait_prompt_fallback",
-  "retryEligible": true,
-  "error": "{\"error\":{\"message\":\"Model \\\"zai-org/glm-5.2\\\" does not support image inputs. Remove image content or choose a multimodal model.\",\"type\":\"invalid_request_error\",\"param\":\"messages\",\"code\":\"image_input_not_supported\"}}",
-  "updatedUtc": "2026-07-18T22:03:23.8160743Z"
+  "imageSha256": "27E0D010D41C31831C28C276C915553E682387233AAC6ADF12E6D9E1B09B9A31",
+  "description": "A coarse dark olive knee-length tunic with a small laced opening at the collar, over ivory long sleeves. A large green-and-brown checked wool shoulder mantle with fringed edges is fastened by a round bronze ring brooch at one shoulder. A simple brown leather belt with a rectangular buckle and long hanging end holds the waist. Brown trousers, wrapped dark calf coverings and laced brown ankle boots complete the plain historical outfit. No armor or headgear.",
+  "status": "completed",
+  "descriptionSource": "agent_vision",
+  "retryEligible": false,
+  "error": "",
+  "updatedUtc": "2026-10-07T20:16:28.939Z"
 }

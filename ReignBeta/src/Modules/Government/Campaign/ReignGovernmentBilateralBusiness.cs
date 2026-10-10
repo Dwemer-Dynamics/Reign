@@ -102,6 +102,7 @@ namespace ReignBeta.Government
             var source = _business.FirstOrDefault(x => Same(x.BusinessId, response.CounterpartOfBusinessId));
             if (source == null || source.Status != "awaiting_counterpart") return;
             source.Status = "decided"; source.ResolvedDay = CurrentDay();
+            source.ExecutedOptionId = "reject";
             source.Outcome = "The counterpart government refused the proposal. No agreement was enacted.";
             // The initiating ruler did not personally refuse its domestic petition.
             source.ConsequencesApplied = true;

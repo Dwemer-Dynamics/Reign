@@ -100,6 +100,7 @@ namespace ReignBeta.UI
                 return;
             }
 
+            if (ReignActionBuilder.Handle(_host, _vm)) return;
             ApplyInputLock();
             if (ScreenManager.FocusedLayer != _layer) ScreenManager.TrySetFocus(_layer);
             if (Input.IsKeyReleased(InputKey.Escape) || _layer.Input.IsKeyReleased(InputKey.Escape)) Close();

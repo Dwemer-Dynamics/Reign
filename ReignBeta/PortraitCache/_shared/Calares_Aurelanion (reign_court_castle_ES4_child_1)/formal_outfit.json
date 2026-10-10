@@ -3,11 +3,11 @@
   "heroStringId": "reign_court_castle_ES4_child_1",
   "characterName": "Calares Aurelanion",
   "imagePath": "portrait.png",
-  "imageSha256": "D29420422DE71490026AD176542504311B81FFC9C1A671FAA872F0A1E25F3406",
-  "description": "Culturally appropriate everyday Calradic Imperial high-noble attire inspired by luxurious Byzantine aristocratic fashion, restrained enough for daily noble life. Use fine layered linen and wool, controlled flowing silhouettes, elegant draping, richly woven borders, small jeweled clasps, and sophisticated fabric textures. Men should wear a stately long tunic or structured noble coat over a fine undertunic, with refined belts and detailed edging. Women should wear a sophisticated layered noble dress with graceful drapery, tailored sleeves, and subtle aristocratic ornamentation. The outfit should communicate ancient prestige, wealth, and political importance. No headgear of any kind. No armor, weapons, crowns, laurel wreaths, or full ceremonial imperial regalia.",
-  "status": "failed",
-  "descriptionSource": "portrait_prompt_fallback",
-  "retryEligible": true,
-  "error": "{\"error\":{\"message\":\"Model \\\"zai-org/glm-5.2\\\" does not support image inputs. Remove image content or choose a multimodal model.\",\"type\":\"invalid_request_error\",\"param\":\"messages\",\"code\":\"image_input_not_supported\"}}",
-  "updatedUtc": "2026-07-18T22:03:26.3268376Z"
+  "imageSha256": "A8D04D30B04DB74EF68B635814D034044F62946AF5B6AF292FCABD5E76101CFF",
+  "description": "Opaque cream ankle-length noble tunic with broad purple and gold woven floral-geometric borders around the neckline, vertical front strips, sleeve ends and hem. A rich plum-purple mantle drapes diagonally across the chest and over one shoulder, secured with a small round jeweled gold clasp. Wide ornate woven gold borders line the mantle. A brown leather waist belt has a large round gold clasp, smaller ornaments and a decorated long hanging strap. A gold ring with a dark purple stone is visible. Brown tall leather boots show below the tunic. No headgear, armor or weapon is present.",
+  "status": "completed",
+  "descriptionSource": "agent_vision",
+  "retryEligible": false,
+  "error": "",
+  "updatedUtc": "2026-10-07T20:59:58.304Z"
 }

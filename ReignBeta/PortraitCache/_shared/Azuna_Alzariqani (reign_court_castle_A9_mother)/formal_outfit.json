@@ -3,11 +3,11 @@
   "heroStringId": "reign_court_castle_A9_mother",
   "characterName": "Azuna Alzariqani",
   "imagePath": "portrait.png",
-  "imageSha256": "0D189F40DEF0475A37F481364DF85C89F3A98BD2F50414ED0DB204CA6BD759C6",
-  "description": "Culturally appropriate everyday Aserai landowner attire inspired by practical medieval Arabian and North African civilian clothing suited to a hot desert climate. Men should wear a light linen or cotton undertunic beneath a loose ankle-length robe, open-front outer garment, or wrapped coat, secured with a woven sash. Women should wear a long breathable dress with layered flowing fabric, fitted or gathered sleeves, and a light draped outer layer around the shoulders. Include simple geometric borders or restrained embroidery. The outfit should appear prosperous, breathable, practical, and well maintained. No headgear of any kind. No turbans, veils, hoods, armor, weapons, crowns, ceremonial robes, or fantasy elements.",
-  "status": "failed",
-  "descriptionSource": "portrait_prompt_fallback",
-  "retryEligible": true,
-  "error": "{\"error\":{\"message\":\"Model \\\"zai-org/glm-5.2\\\" does not support image inputs. Remove image content or choose a multimodal model.\",\"type\":\"invalid_request_error\",\"param\":\"messages\",\"code\":\"image_input_not_supported\"}}",
-  "updatedUtc": "2026-07-18T22:03:25.1328338Z"
+  "imageSha256": "D18BC4FD3B595556D9D1B26E6F7A169D4728F7EF930E3614B72BF5AE27D46333",
+  "description": "A cream floor-length gown with rust-brown panels, low square neckline and elbow-length sleeves. Gold geometric woven trim borders the neck, front panels, waist and hem. A rust-brown matching wrap rests over her forearms; a round belt ornament, gold earrings, bracelets and brown sandals are visible.",
+  "status": "completed",
+  "descriptionSource": "agent_vision",
+  "retryEligible": false,
+  "error": "",
+  "updatedUtc": "2026-10-07T20:47:13.413Z"
 }

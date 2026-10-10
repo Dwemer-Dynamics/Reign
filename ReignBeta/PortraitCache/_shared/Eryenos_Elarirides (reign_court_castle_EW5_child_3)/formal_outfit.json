@@ -3,11 +3,11 @@
   "heroStringId": "reign_court_castle_EW5_child_3",
   "characterName": "Eryenos Elarirides",
   "imagePath": "portrait.png",
-  "imageSha256": "C0683F05D38E2020CA9E49F3FDD1C9DB0C125F66AA3BC5FE38753F11A439A224",
-  "description": "Culturally appropriate everyday Calradic Imperial minor-lord attire inspired by refined late Roman and Byzantine noble clothing. Men should wear a high-quality tunic or long tailored outer coat over fine linen, decorated with narrow woven borders, refined clasps, and a decorated belt. Women should wear a long elegant dress or layered tunic ensemble with shaped sleeves, graceful draping, and tasteful trim around the neckline, cuffs, and edges. The garments should feel polished, educated, urban, and wealthy without resembling full imperial ceremony. No headgear of any kind. No armor, weapons, crowns, imperial regalia, laurel wreaths, or ceremonial robes.",
-  "status": "failed",
-  "descriptionSource": "portrait_prompt_fallback",
-  "retryEligible": true,
-  "error": "{\"error\":{\"message\":\"Model \\\"zai-org/glm-5.2\\\" does not support image inputs. Remove image content or choose a multimodal model.\",\"type\":\"invalid_request_error\",\"param\":\"messages\",\"code\":\"image_input_not_supported\"}}",
-  "updatedUtc": "2026-07-18T22:03:28.6328127Z"
+  "imageSha256": "60643635F3969BBC6411F0C4DD90F1F1CD103D4AA79578A90E3FEAF12F3D7406",
+  "description": "He wears a muted plum-purple long open-front coat over a cream tunic, with narrow gold-toned woven borders along the coat opening, cuffs and hem. Two round brooches are joined across the upper chest by a short metal link. The cream tunic has patterned bands at its split neckline, front and lower hem. A broad dark brown leather belt carries several circular ornaments, with a long hanging decorated tail. Brown trousers and tall dark brown leather boots complete the outfit. Fabrics have a substantial woven appearance; exact fibers are uncertain. His hands rest naturally behind his torso. The ensemble covers torso and limbs without headgear, armor or weapons.",
+  "status": "completed",
+  "descriptionSource": "agent_vision",
+  "retryEligible": false,
+  "error": "",
+  "updatedUtc": "2026-10-07T22:18:41.637Z"
 }

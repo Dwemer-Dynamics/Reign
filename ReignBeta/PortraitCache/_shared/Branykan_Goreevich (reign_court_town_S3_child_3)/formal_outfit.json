@@ -3,11 +3,11 @@
   "heroStringId": "reign_court_town_S3_child_3",
   "characterName": "Branykan Goreevich",
   "imagePath": "portrait.png",
-  "imageSha256": "65E5F19049827FB66C7390EE0E6154BCC96F342CF6BF7BAB23D0E1FA17794ED8",
-  "description": "Culturally appropriate everyday Sturgian high-noble attire inspired by wealthy medieval Rus aristocracy. Use richly woven wool, fine linen, elegant long coats or kaftans, tasteful embroidery, restrained fur trim, and expertly crafted belts or clasps. Men should wear a stately long noble coat layered over a fine embroidered shirt and tailored trousers. Women should wear a richly cut long dress or overdress with embroidered cuffs, collar, and hem, paired with a fitted outer garment or elegant shoulder layer. The outfit should feel imposing, expensive, and suited to the daily life of a powerful northern noble. No headgear of any kind. No armor, weapons, crowns, full ceremonial regalia, or extravagant fur mantles.",
-  "status": "failed",
-  "descriptionSource": "portrait_prompt_fallback",
-  "retryEligible": true,
-  "error": "{\"error\":{\"message\":\"Model \\\"zai-org/glm-5.2\\\" does not support image inputs. Remove image content or choose a multimodal model.\",\"type\":\"invalid_request_error\",\"param\":\"messages\",\"code\":\"image_input_not_supported\"}}",
-  "updatedUtc": "2026-07-18T22:03:26.1036469Z"
+  "imageSha256": "87B7DAD07CA85ADD3126C2D787CB980B0017526A8397D25AA0FA4CAB22C639EB",
+  "description": "He wears a long navy blue wool-like coat, open at the front over a cream linen-like long shirt. Fine gold woven borders cover the coat front, cuffs and hem. The shirt has blue geometric embroidery framing its neckline and lower hem. A dark brown decorated belt with round metal fittings circles the waist. Two circular clasps sit at the upper coat front. Full sleeves cover the arms, with white underlayer cuffs visible at the wrists. Dark brown trousers tuck into tall brown leather boots. The clothes are opaque, structured and richly made without ceremonial regalia. No headgear or weapon appears; exact fibers are uncertain.",
+  "status": "completed",
+  "descriptionSource": "agent_vision",
+  "retryEligible": false,
+  "error": "",
+  "updatedUtc": "2026-10-07T21:04:14.945Z"
 }

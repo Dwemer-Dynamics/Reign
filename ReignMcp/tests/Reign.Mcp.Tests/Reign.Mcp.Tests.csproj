@@ -4,6 +4,14 @@
     <IsPackable>false</IsPackable>
   </PropertyGroup>
   <ItemGroup>
+    <Compile Include="..\..\..\ReignBeta\src\Modules\Dialogue\UI\ReignBanterWindowState.cs"
+             Link="Shared\ReignBanterWindowState.cs" />
+    <Compile Include="..\..\..\ReignBeta\src\Modules\Arena\ArenaOverhaul\Tournament\TournamentHeroEligibility.cs"
+             Link="Shared\TournamentHeroEligibility.cs" />
+    <Compile Include="..\..\..\ReignBeta\src\Modules\Arena\ArenaOverhaul\TeamTournament\TeamTournamentHelpers.cs"
+             Link="Shared\TeamTournamentHelpers.cs" />
+    <Compile Include="..\..\..\ReignBeta\src\Modules\Arena\ArenaOverhaul\TeamTournament\TeamTournamentRosterPolicy.cs"
+             Link="Shared\TeamTournamentRosterPolicy.cs" />
     <ProjectReference Include="..\..\src\Reign.Mcp.Server\Reign.Mcp.Server.csproj" />
     <ProjectReference Include="..\..\..\ReignServer\shared\Reign.Core.Contracts\Reign.Core.Contracts.csproj" />
     <Compile Include="..\..\..\ReignServer\tests\ReignLiveTest\Features\WorldSimulation\PassiveWorldCheckpointPolicy.cs"
@@ -14,10 +22,14 @@
              Link="Shared\ReignWorldHistoryFlushPolicy.cs" />
     <Compile Include="..\..\..\ReignBeta\src\Modules\Platform\Integration\ReignCampaignReadinessState.cs"
              Link="Shared\ReignCampaignReadinessState.cs" />
+    <Compile Include="..\..\..\ReignBeta\src\Modules\Relationships\UI\ReignPlayerApproachPresentationPolicy.cs"
+             Link="Shared\ReignPlayerApproachPresentationPolicy.cs" />
     <Compile Include="..\..\..\ReignBeta\src\Modules\Portraits\AIPortraits\NativePortraitIdentity.cs"
              Link="Shared\NativePortraitIdentity.cs" />
     <Compile Include="..\..\..\ReignBeta\src\Modules\Portraits\AIPortraits\PortraitAvailabilityCache.cs"
              Link="Shared\PortraitAvailabilityCache.cs" />
+    <Compile Include="..\..\..\ReignBeta\src\Modules\Portraits\AIPortraits\PortraitProductTransaction.cs"
+             Link="Shared\PortraitProductTransaction.cs" />
     <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.14.1" />
     <Compile Include="..\..\..\ReignBeta\src\Modules\Government\Domain\ReignGovernmentBusinessRecord.cs"
              Link="Shared\ReignGovernmentBusinessRecord.cs" />
@@ -25,16 +37,34 @@
              Link="Shared\ReignGovernmentNativeSafety.cs" />
     <Compile Include="..\..\..\ReignBeta\src\Modules\WorldSimulation\PartyAgency\ReignGuestWagePolicy.cs"
              Link="Shared\ReignGuestWagePolicy.cs" />
+    <Compile Include="..\..\..\ReignBeta\src\Modules\WorldSimulation\Actions\ReignCompletedOrderPolicy.cs"
+             Link="Shared\ReignCompletedOrderPolicy.cs" />
+    <Compile Include="..\..\..\ReignBeta\src\Modules\WorldSimulation\Actions\ReignUnfulfilledTreatyPolicy.cs"
+             Link="Shared\ReignUnfulfilledTreatyPolicy.cs" />
+    <Compile Include="..\..\..\ReignBeta\src\Modules\WorldSimulation\CampaignCommands\ReignTimedHoldPolicy.cs"
+             Link="Shared\ReignTimedHoldPolicy.cs" />
+    <Compile Include="..\..\..\ReignBeta\src\Modules\WorldSimulation\CampaignCommands\ReignCampaignReportPolicy.cs"
+             Link="Shared\ReignCampaignReportPolicy.cs" />
+    <Compile Include="..\..\..\ReignBeta\src\Modules\WorldSimulation\CampaignCommands\ReignCampaignCommandModels.cs"
+             Link="Shared\ReignCampaignCommandModels.cs" />
     <Compile Include="..\..\..\ReignBeta\src\Modules\WorldSimulation\PartyAgency\ReignGuestReviewSession.cs"
              Link="Shared\ReignGuestReviewSession.cs" />
     <Compile Include="..\..\..\ReignBeta\src\Modules\WorldSimulation\World\ReignSceneTeamSafety.cs"
              Link="Shared\ReignSceneTeamSafety.cs" />
+    <Compile Include="..\..\..\ReignBeta\src\Modules\WorldSimulation\Runtime\ReignWildernessEventCompletion.cs"
+             Link="Shared\ReignWildernessEventCompletion.cs" />
     <Compile Include="..\..\..\ReignBeta\src\Modules\Dialogue\UI\ReignPartyChatCleanup.cs"
              Link="Shared\ReignPartyChatCleanup.cs" />
+    <Compile Include="..\..\..\ReignBeta\src\Modules\Characters\Campaign\ReignDuelModePolicy.cs"
+             Link="Shared\ReignDuelModePolicy.cs" />
     <Compile Include="..\..\..\ReignBeta\src\Modules\Characters\Campaign\ReignBusinessOwnershipRelease.cs"
              Link="Shared\ReignBusinessOwnershipRelease.cs" />
+    <Compile Include="..\..\..\ReignBeta\src\Modules\Characters\Campaign\ReignResidentCompanionRegistration.cs"
+             Link="Shared\ReignResidentCompanionRegistration.cs" />
     <Compile Include="..\..\..\ReignBeta\src\Modules\Court\UI\ReignScenePreparationCoordinator.cs"
              Link="Shared\ReignScenePreparationCoordinator.cs" />
+    <Compile Include="..\..\..\ReignBeta\src\Modules\Court\UI\ReignKeepAccessPolicy.cs"
+             Link="Shared\ReignKeepAccessPolicy.cs" />
     <Compile Include="..\..\..\ReignBeta\src\Modules\Court\Integration\ReignCourtAudienceScene.cs"
              Link="Shared\ReignCourtAudienceScene.cs" />
     <Compile Include="..\..\..\ReignServer\shared\Reign.Shared.Source\Portraits\PngEncoder.cs"

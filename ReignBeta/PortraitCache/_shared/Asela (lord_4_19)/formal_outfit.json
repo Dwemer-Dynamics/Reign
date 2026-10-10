@@ -3,11 +3,11 @@
   "heroStringId": "lord_4_19",
   "characterName": "Asela",
   "imagePath": "portrait.png",
-  "imageSha256": "21DE8E683E0413391A3086F5D7A3355E2F500B4BA89D679BB87F59212CEE0913",
-  "description": "Culturally appropriate everyday Vlandian high-noble attire inspired by wealthy Norman and Frankish aristocratic dress. Use luxurious fine wool and linen, expertly tailored layers, richly cut outer tunics or gowns, refined belts, decorative borders, subtle heraldic embroidery, and elegant fastenings. Men should wear a long tailored tunic or refined surcoat-style outer layer over fine linen and well-fitted chausses. Women should wear a fitted noble gown layered over a high-quality underdress, with graceful sleeves, refined trim, and tasteful jewelry. The outfit should feel expensive and powerful while remaining believable everyday noble wear. No headgear of any kind. No armor, weapons, crowns, or ceremonial regalia.",
-  "status": "failed",
-  "descriptionSource": "portrait_prompt_fallback",
-  "retryEligible": true,
-  "error": "{\"error\":{\"message\":\"Model \\\"zai-org/glm-5.2\\\" does not support image inputs. Remove image content or choose a multimodal model.\",\"type\":\"invalid_request_error\",\"param\":\"messages\",\"code\":\"image_input_not_supported\"}}",
-  "updatedUtc": "2026-07-18T22:03:24.9437979Z"
+  "imageSha256": "3BF586CD4A672C605EC0D2A72AA77FC1D42AE98C6E1C58C1AC7F15A59A1FBC1E",
+  "description": "An opaque floor-length deep burgundy Vlandian court gown with a low broad square neckline, narrow gold geometric edging, fitted waist and decorated belt with round clasp, long split hanging sleeves over cream linen cuffs, a cream central skirt panel and closed brown court shoes. Modest gold pendant and no headgear or weapons.",
+  "status": "completed",
+  "descriptionSource": "agent_vision",
+  "retryEligible": false,
+  "error": "",
+  "updatedUtc": "2026-10-08T04:30:38.989Z"
 }

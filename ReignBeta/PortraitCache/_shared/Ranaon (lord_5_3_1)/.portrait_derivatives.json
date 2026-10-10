@@ -2,38 +2,256 @@
   "Version": 3,
   "CropAlgorithmVersion": 2,
   "SourceFileName": "portrait.png",
-  "SourcePath": "portrait.png",
-  "SourceLength": 1465972,
-  "SourceLastWriteUtcTicks": 639199122476227070,
-  "SourceWidth": 832,
-  "SourceHeight": 1248,
-  "CropX": 301,
-  "CropY": 55,
-  "CropWidth": 216,
-  "CropHeight": 270,
-  "WideCropX": 220,
-  "WideCropY": 55,
-  "WideCropWidth": 378,
-  "WideCropHeight": 270,
+  "SourcePath": "C:\\ReignPortraitRebuild\\2026-10-07-01a11741-culture-v2\\_shared\\Ranaon (lord_5_3_1)\\portrait.png",
+  "SourceLength": 2225327,
+  "SourceLastWriteUtcTicks": 639270157781424138,
+  "SourceWidth": 1086,
+  "SourceHeight": 1448,
+  "CropX": 422,
+  "CropY": 67,
+  "CropWidth": 233,
+  "CropHeight": 291,
+  "WideCropX": 335,
+  "WideCropY": 67,
+  "WideCropWidth": 407,
+  "WideCropHeight": 291,
   "FocusMethod": "ultraface",
   "FocusModel": "version-RFB-320",
-  "FocusConfidence": 0.9990473389625549,
+  "FocusConfidence": 0.999879002571106,
   "FaceCandidateCount": 1,
-  "FaceX": 0.4293116331100464,
-  "FaceY": 0.06896643340587616,
-  "FaceWidth": 0.12361669540405273,
-  "FaceHeight": 0.10080620646476746,
+  "FaceX": 0.4510297477245331,
+  "FaceY": 0.0695924311876297,
+  "FaceWidth": 0.08928629755973816,
+  "FaceHeight": 0.09338711202144623,
   "NeedsReview": false,
   "ThumbnailFileName": "thumbnail.png",
-  "ThumbnailWidth": 216,
-  "ThumbnailHeight": 270,
+  "ThumbnailWidth": 192,
+  "ThumbnailHeight": 240,
   "PartyThumbnailFileName": "thumbnail_wide.png",
-  "PartyThumbnailWidth": 378,
-  "PartyThumbnailHeight": 270,
+  "PartyThumbnailWidth": 128,
+  "PartyThumbnailHeight": 96,
   "PortraitFileName": "portrait_chest.png",
-  "PortraitWidth": 216,
-  "PortraitHeight": 270,
+  "PortraitWidth": 768,
+  "PortraitHeight": 960,
   "ZoomFileName": "zoom.png",
-  "ZoomWidth": 832,
-  "ZoomHeight": 1248
+  "ZoomWidth": 1024,
+  "ZoomHeight": 1365,
+  "IndependentGeneratedChestProvenance": {
+    "schema": "reign-independent-generated-chest-provenance-v1",
+    "kind": "independent_generated_chest",
+    "id": "lord_5_3_1",
+    "generatedChestSource": {
+      "path": "C:\\Users\\speed\\.codex\\generated_images\\01a11741-4ac1-7cd2-9aca-e03d81313445\\exec-bdf7ec17-3981-4dcd-b289-80bbc62b0ddc.png",
+      "sha256": "dcc4b6737df8ed1481b5c39d21f1368f8e305fb089becd439d41f98089e694e6"
+    },
+    "sourceDimensions": [
+      1087,
+      1447
+    ],
+    "requestId": "722677d6-3674-48b1-8394-1bc8cd8b8ed1",
+    "exactPrompt": {
+      "path": "C:\\ReignPortraitRebuild\\2026-10-07-01a11741-culture-v2\\audit\\phase4-clean-chest-three-drafts-route-001\\lord_5_3_1-chest-prompt-001.txt",
+      "sha256": "2ffc4a3c643f624fab226564e70f2a0a7f2f488e855e224d77d11f6ca019e95c"
+    },
+    "actualGenerationResult": {
+      "path": "C:\\ReignPortraitRebuild\\2026-10-07-01a11741-culture-v2\\audit\\root-focused-chest-quality-lord_5_3_1-001\\actual-result-001.json",
+      "sha256": "5af8192de37c7c34d471950d12dce645429f42154dea13cb0068655b55142547"
+    },
+    "generationRootRelease": {
+      "path": "C:\\ReignPortraitRebuild\\2026-10-07-01a11741-culture-v2\\audit\\root-focused-chest-quality-lord_5_3_1-001\\root-release-001.json",
+      "sha256": "2d5ca0b14217c0c829a8c50339ca59e131e848996be19c58fcf509d5d88e5e0e"
+    },
+    "priorActualExperimentResults": [],
+    "authenticCaseAdapter": {
+      "schema": "reign-authentic-chest-result-case-adapter-v1",
+      "rawSchema": "reign-actual-independent-generated-chest-result-v1",
+      "fieldMapping": {
+        "id": "characterId",
+        "source": "actualOutput",
+        "prompt": "exactPrompt",
+        "references": "referenceOrder",
+        "actualCalls": "actualImageCalls",
+        "rawRetries": "actualRetryCalls",
+        "preservedInputs": "original generation release.inputs"
+      },
+      "rawActualCalls": 1,
+      "rawRetries": 0,
+      "generationReleaseRetryBudget": 0,
+      "originalReceiptUnmodified": true
+    },
+    "rootActualSourceReview": {
+      "path": "C:\\ReignPortraitRebuild\\2026-10-07-01a11741-culture-v2\\audit\\root-focused-chest-quality-lord_5_3_1-001\\actual-result-001.json",
+      "sha256": "5af8192de37c7c34d471950d12dce645429f42154dea13cb0068655b55142547"
+    },
+    "originalFullbodyMaster": {
+      "path": "C:\\ReignPortraitRebuild\\2026-10-07-01a11741-culture-v2\\_shared\\Ranaon (lord_5_3_1)\\portrait.png",
+      "sha256": "9f64b30093f104c36d9bb9ccb66bfd07db3bb5c3c384c956abf9b505326f7806"
+    },
+    "originalZoom": {
+      "path": "C:\\ReignPortraitRebuild\\2026-10-07-01a11741-culture-v2\\_shared\\Ranaon (lord_5_3_1)\\zoom.png",
+      "sha256": "87b1b7a117da39fd5b301aef19a953ab9b8f4509e4cfc698af32278aaa048324"
+    },
+    "originalNativeMetadata": {
+      "path": "C:\\ReignPortraitRebuild\\2026-10-07-01a11741-culture-v2\\_shared\\Ranaon (lord_5_3_1)\\.portrait_derivatives.json",
+      "sha256": "a9f01e3f7877ddbbae224f2c5b59d5a5a963b2313f75c3bbf29559f084e3543c"
+    },
+    "originalGenerationReceipt": {
+      "path": "C:\\ReignPortraitRebuild\\2026-10-07-01a11741-culture-v2\\_shared\\Ranaon (lord_5_3_1)\\.ai_generation.json",
+      "sha256": "3365c8f1d2f2eb562a263b6a3bf3c7ff08a3e86d5d74b4600995815edaa70909"
+    },
+    "legacyCropFieldRole": "Retained fullbody reference windows; NOT new chest pixel derivation.",
+    "originalFullbodyTicksExactDecimal": "639270157781424138",
+    "chestFocus": {
+      "method": "ultraface",
+      "model": "version-RFB-320",
+      "confidence": 0.9999934434890747,
+      "candidateCount": 1,
+      "x": 0.3378254771232605,
+      "y": 0.14774741232395172,
+      "width": 0.34550797939300537,
+      "height": 0.34002088010311127,
+      "modelSha256": "34cd7e60aeff28744c657de7a3dc64e872d506741de66987f3426f2b79f88017",
+      "onnxruntimeVersion": "1.24.2",
+      "inputSha256": "f2c57d969eed8a2b74303cbf2dbadaebc2648fbf9f512c98b20d7ff5bc3b184a"
+    },
+    "actualProducts": [
+      {
+        "bytes": 1581756,
+        "source": {
+          "path": "C:\\Users\\speed\\.codex\\generated_images\\01a11741-4ac1-7cd2-9aca-e03d81313445\\exec-bdf7ec17-3981-4dcd-b289-80bbc62b0ddc.png",
+          "sha256": "dcc4b6737df8ed1481b5c39d21f1368f8e305fb089becd439d41f98089e694e6"
+        },
+        "sha256": "542ba3f076f9b5d30c818e72ec501f4532263e82a682b46ac6213020de623269",
+        "rect": {
+          "x": 0,
+          "y": 0,
+          "width": 1087,
+          "height": 1359
+        },
+        "name": "portrait_chest.png",
+        "width": 768,
+        "path": "C:\\ReignPortraitRebuild\\2026-10-07-01a11741-culture-v2\\audit\\independent-generated-chest-ten-candidate-pack-component-001\\lord_5_3_1\\candidate-pack-001\\portrait_chest.png",
+        "height": 960
+      },
+      {
+        "bytes": 117699,
+        "source": {
+          "path": "C:\\Users\\speed\\.codex\\generated_images\\01a11741-4ac1-7cd2-9aca-e03d81313445\\exec-bdf7ec17-3981-4dcd-b289-80bbc62b0ddc.png",
+          "sha256": "dcc4b6737df8ed1481b5c39d21f1368f8e305fb089becd439d41f98089e694e6"
+        },
+        "sha256": "9bb53ae93aa4e74ba248b15506cd8c134c4fd36843885e6d12abeafeaf32e0ac",
+        "rect": {
+          "x": 0,
+          "y": 0,
+          "width": 1087,
+          "height": 1359
+        },
+        "name": "thumbnail.png",
+        "width": 192,
+        "path": "C:\\ReignPortraitRebuild\\2026-10-07-01a11741-culture-v2\\audit\\independent-generated-chest-ten-candidate-pack-component-001\\lord_5_3_1\\candidate-pack-001\\thumbnail.png",
+        "height": 240
+      },
+      {
+        "bytes": 31598,
+        "source": {
+          "path": "C:\\Users\\speed\\.codex\\generated_images\\01a11741-4ac1-7cd2-9aca-e03d81313445\\exec-bdf7ec17-3981-4dcd-b289-80bbc62b0ddc.png",
+          "sha256": "dcc4b6737df8ed1481b5c39d21f1368f8e305fb089becd439d41f98089e694e6"
+        },
+        "sha256": "dd663cb3d29bd9bd27eedc3a48c692196bdfb3d583de355233f1ef75168d6f9d",
+        "rect": {
+          "x": 0,
+          "y": 0,
+          "width": 1087,
+          "height": 815
+        },
+        "name": "thumbnail_wide.png",
+        "width": 128,
+        "path": "C:\\ReignPortraitRebuild\\2026-10-07-01a11741-culture-v2\\audit\\independent-generated-chest-ten-candidate-pack-component-001\\lord_5_3_1\\candidate-pack-001\\thumbnail_wide.png",
+        "height": 96
+      }
+    ],
+    "actualAdapter": {
+      "path": "C:\\ReignPortraitRebuild\\2026-10-07-01a11741-culture-v2\\audit\\independent-generated-chest-ten-candidate-pack-component-001\\candidate-pack-001.py",
+      "sha256": "47274989bffa7a2cc9c0b6d1376f5cde84fe7d78fca82624c35567ff9c253e57"
+    },
+    "nativeWorker": {
+      "path": "C:\\ReignPortraitRebuild\\2026-10-07-01a11741-culture-v2\\audit\\independent-generated-chest-ten-candidate-pack-component-001\\native-worker-001.ps1",
+      "sha256": "90c444d9eb77b6839588ec85e33f2a6fbde0fc0bd1acb4f15dc1be64292c7a51"
+    },
+    "nativeCodecAssembly": {
+      "path": "D:\\Projects\\Reign\\.codex-build\\reign-mcp\\validation\\20261007-181216-5bee7061\\client\\out\\ReignBeta.dll",
+      "sha256": "498c5d8e7af24226dbf5b9d37147fd562cf0e42b6477b6f4607f6011905ac5b8"
+    },
+    "candidateRootRelease": {
+      "path": "C:\\ReignPortraitRebuild\\2026-10-07-01a11741-culture-v2\\audit\\independent-generated-chest-ten-candidate-pack-component-001\\root-pack-release-lord_5_3_1-001.json",
+      "sha256": "da629aea790004cebeb8dedb20dffe78b691b93a23323ae728632c2646dbb8bb"
+    },
+    "nativeBuildV2Invoked": false,
+    "nativeCommitV2Invoked": false,
+    "nativeAlgorithmProducedRectangle": false,
+    "fullbodyCompositionGateApplied": false,
+    "chestFramingCriterion": "Authentic finite one-face focus, source-valid centered face; actual root preview must judge full crown/chest and wide lower-beard limitation.",
+    "effectiveFaceIdentity": {
+      "path": "C:\\Users\\speed\\.codex\\generated_images\\01a11741-4ac1-7cd2-9aca-e03d81313445\\exec-bdf7ec17-3981-4dcd-b289-80bbc62b0ddc.png",
+      "sha256": "dcc4b6737df8ed1481b5c39d21f1368f8e305fb089becd439d41f98089e694e6"
+    },
+    "oldFullbodyMasterEqualityDoesNotTransferGeometryOrFamily": true,
+    "nativeCompatibilityOnly": true,
+    "nativeUIAcceptance": false,
+    "notSwapApproval": true
+  },
+  "StagedAssetProvenance": {
+    "schema": "reign-staged-effective-portrait-origin-v1",
+    "id": "lord_5_3_1",
+    "kind": "independent_chest",
+    "currentLocalFiles": [
+      {
+        "name": "portrait_chest.png",
+        "sha256": "542ba3f076f9b5d30c818e72ec501f4532263e82a682b46ac6213020de623269",
+        "bytes": 1581756
+      },
+      {
+        "name": "thumbnail.png",
+        "sha256": "9bb53ae93aa4e74ba248b15506cd8c134c4fd36843885e6d12abeafeaf32e0ac",
+        "bytes": 117699
+      },
+      {
+        "name": "thumbnail_wide.png",
+        "sha256": "dd663cb3d29bd9bd27eedc3a48c692196bdfb3d583de355233f1ef75168d6f9d",
+        "bytes": 31598
+      },
+      {
+        "name": "portrait_chest_source.png",
+        "sha256": "dcc4b6737df8ed1481b5c39d21f1368f8e305fb089becd439d41f98089e694e6",
+        "bytes": 2184024
+      },
+      {
+        "name": "prompt_chest.txt",
+        "sha256": "2ffc4a3c643f624fab226564e70f2a0a7f2f488e855e224d77d11f6ca019e95c",
+        "bytes": 11966
+      },
+      {
+        "name": "portrait.png",
+        "sha256": "9f64b30093f104c36d9bb9ccb66bfd07db3bb5c3c384c956abf9b505326f7806",
+        "bytes": 2225327
+      },
+      {
+        "name": "zoom.png",
+        "sha256": "87b1b7a117da39fd5b301aef19a953ab9b8f4509e4cfc698af32278aaa048324",
+        "bytes": 3174147
+      }
+    ],
+    "nativeAlgorithmProducedRectangle": false,
+    "priorProducerExtensionsRetainedVerbatim": true,
+    "absolutePriorReferencesRole": "Historical/candidate references; current module pixels/provenance use the relative currentLocalFiles.",
+    "sourcePathProjection": {
+      "from": "C:\\ReignPortraitRebuild\\2026-10-07-01a11741-culture-v2\\_shared\\Ranaon (lord_5_3_1)\\portrait.png",
+      "to": "C:\\ReignPortraitRebuild\\2026-10-07-01a11741-culture-v2\\_shared\\Ranaon (lord_5_3_1)\\portrait.png",
+      "reason": "Unchanged current fullbody cache anchor"
+    },
+    "independentChestNativeForcedRegenerationCanOverwrite": true,
+    "globalFaceAcceptance": false,
+    "nativeUIAcceptance": false,
+    "notSwapApproval": true
+  }
 }

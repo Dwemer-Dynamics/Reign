@@ -3,11 +3,11 @@
   "heroStringId": "reign_court_castle_B3_child_1",
   "characterName": "Toralan Caeradawn",
   "imagePath": "portrait.png",
-  "imageSha256": "AA9CE2821FE56A4D10425E0BA118872FB28F33A9E759A500E40EBAA4ED1362B1",
-  "description": "Culturally appropriate everyday Battanian high-noble attire inspired by elite Celtic and highland aristocratic clothing. Use fine woven wool, linen, soft leather accents, sophisticated layering, ornate brooches, and carefully worked borders featuring tasteful knotwork or geometric designs. Men should wear a richly made noble tunic with a broad decorated belt and an exceptionally well-crafted draped cloak. Women should wear a long fitted noble dress beneath a richly layered overdress, with elegant woven borders, decorative brooch fastenings, and a graceful shoulder wrap. The outfit should communicate power through craftsmanship and rich textiles rather than excessive decoration. No headgear of any kind. No armor, weapons, crowns, or fantasy druid elements.",
-  "status": "failed",
-  "descriptionSource": "portrait_prompt_fallback",
-  "retryEligible": true,
-  "error": "{\"error\":{\"message\":\"Model \\\"zai-org/glm-5.2\\\" does not support image inputs. Remove image content or choose a multimodal model.\",\"type\":\"invalid_request_error\",\"param\":\"messages\",\"code\":\"image_input_not_supported\"}}",
-  "updatedUtc": "2026-07-18T22:03:34.8151431Z"
+  "imageSha256": "670C2F8B5D7D3880777F8AA3B9ABA9B71F458C1E7692E4C7B9BABFDC9432EFC7",
+  "description": "A dark green knee-length patterned tunic with gold interlaced trim is belted with a broad decorated brown leather belt. A matching green cloak with gold edging and fringe crosses the shoulders and fastens with a large circular brooch. Cream cuff layers, brown trousers and tall wrapped brown leather boots are visible; both hands rest naturally at the sides.",
+  "status": "completed",
+  "descriptionSource": "agent_vision",
+  "retryEligible": false,
+  "error": "",
+  "updatedUtc": "2026-10-08T21:11:11.592Z"
 }

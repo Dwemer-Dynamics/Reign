@@ -2,6 +2,7 @@ using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Security.Cryptography;
 using System.Text;
 using System.Threading.Tasks;
@@ -267,7 +268,7 @@ public static class PortraitCache
 		return prepared;
 	}
 
-	public static async Task<bool> SavePortraitProductAsync(string id, ReignPortraitGenerationResult product)
+	public static async Task<bool> SavePortraitProductAsync(string id, ReignPortraitGenerationResult product, bool replaceExisting = false)
 	{
 		if (string.IsNullOrEmpty(id) || product == null)
 		{
@@ -278,6 +279,10 @@ public static class PortraitCache
 		try
 		{
 			ValidatePortraitProduct(product);
+			// Recovery delivers the same durable receipt even when the original popup
+			// callback is gone. Preserve its intent when replacing an outfit override.
+			string recoveredRefreshMode = JObject.Parse(product.PortraitProductReceiptJson).Value<string>("portraitRefreshMode");
+			replaceExisting |= recoveredRefreshMode == "look_again" || recoveredRefreshMode == "reflect_years";
 		}
 		catch (Exception ex) when (ex is InvalidDataException || ex is JsonException || ex is FormatException || ex is ArgumentException)
 		{
@@ -304,7 +309,7 @@ public static class PortraitCache
 			object commitLock = _productCommitLocks.GetOrAdd(outputDirectory, _ => new object());
 			lock (commitLock)
 			{
-				CommitPortraitProduct(outputDirectory, product);
+				CommitPortraitProduct(outputDirectory, product, replaceExisting);
 			}
 
 			InvalidateAvailability(id);
@@ -320,7 +325,7 @@ public static class PortraitCache
 		}
 		catch (Exception ex)
 		{
-			NanoGptClient.ReportPortraitProductError("The generated portrait was rejected and the existing portrait was kept. " + ex.Message);
+			NanoGptClient.ReportPortraitProductError("Portrait replacement failed. " + ex.Message);
 			return false;
 		}
 	}
@@ -425,7 +430,10 @@ public static class PortraitCache
 		{
 			throw new InvalidDataException("The portrait master dimensions did not match its signed product receipt.");
 		}
-		if (sourceRgba == null || sourceWidth != 768 || sourceHeight != 1024
+        JObject sourceReceipt = JObject.Parse(product.PortraitProductReceiptJson);
+        bool ageEdit = sourceReceipt["source"]?["provenance"]?.Value<string>("kind") == "portrait_age_edit"
+            && sourceReceipt["source"]?.Value<string>("renderContract") == "finished_portrait_age_edit_v1";
+		if (sourceRgba == null || (!ageEdit && (sourceWidth != 768 || sourceHeight != 1024))
 			|| sourceWidth != product.SourceWidth || sourceHeight != product.SourceHeight)
 		{
 			throw new InvalidDataException("The canonical source was not the required 768x1024 native portrait input.");
@@ -446,12 +454,13 @@ public static class PortraitCache
 		}
 	}
 
-	private static void CommitPortraitProduct(string outputDirectory, ReignPortraitGenerationResult product)
+	private static void CommitPortraitProduct(string outputDirectory, ReignPortraitGenerationResult product, bool replaceExisting)
 	{
 		string token = Guid.NewGuid().ToString("N");
 		string masterPath = Path.Combine(outputDirectory, PortraitFileName);
 		var master = new ProductCommitItem(masterPath, product.ImageBytes, product.PortraitWidth, product.PortraitHeight, true, token);
 		var items = new List<ProductCommitItem> { master };
+		bool accepted = false;
 		try
 		{
 			File.WriteAllBytes(master.TemporaryPath, master.Bytes);
@@ -475,7 +484,14 @@ public static class PortraitCache
 			build.Manifest.SourceLength = temporaryMaster.Length;
 			build.Manifest.SourceLastWriteUtcTicks = temporaryMaster.LastWriteTimeUtc.Ticks;
 
-			items.Add(new ProductCommitItem(Path.Combine(outputDirectory, SourceFileName), product.SourceImageBytes, 768, 1024, true, token));
+            if (replaceExisting && File.Exists(Path.Combine(outputDirectory, CustomFileName)))
+            {
+                items.Add(new ProductCommitItem(Path.Combine(outputDirectory, CustomFileName), product.ImageBytes,
+                    product.PortraitWidth, product.PortraitHeight, true, token));
+                items.Add(new ProductCommitItem(Path.Combine(outputDirectory, PortraitDerivativeService.OutfitReceiptFileName),
+                    Encoding.UTF8.GetBytes(product.PortraitProductReceiptJson), 0, 0, false, token));
+            }
+			items.Add(new ProductCommitItem(Path.Combine(outputDirectory, SourceFileName), product.SourceImageBytes, product.SourceWidth, product.SourceHeight, true, token));
 			items.Add(new ProductCommitItem(Path.Combine(outputDirectory, PromptFileName), Encoding.UTF8.GetBytes(product.EffectivePrompt), 0, 0, false, token));
 			items.Add(new ProductCommitItem(Path.Combine(outputDirectory, PortraitInputFileName), Encoding.UTF8.GetBytes(product.PortraitInputJson), 0, 0, false, token));
 			items.Add(new ProductCommitItem(Path.Combine(outputDirectory, GenerationReceiptFileName), Encoding.UTF8.GetBytes(product.PortraitProductReceiptJson), 0, 0, false, token));
@@ -504,53 +520,21 @@ public static class PortraitCache
 				}
 			}
 
-			foreach (ProductCommitItem item in items)
+			PortraitProductTransaction.Commit(items.Select(item => item.File), () =>
 			{
-				item.HadOriginal = File.Exists(item.Path);
-				if (item.HadOriginal)
-				{
-					File.Replace(item.TemporaryPath, item.Path, item.BackupPath);
-				}
-				else
-				{
-					File.Move(item.TemporaryPath, item.Path);
-				}
-				item.Committed = true;
-				if (item.IsPng && !PortraitDerivativeCore.HasPngDimensions(item.Path, item.Width, item.Height))
-				{
-					throw new InvalidDataException("A committed portrait product file failed PNG validation: " + Path.GetFileName(item.Path));
-				}
-			}
-			if (!PortraitDerivativeCore.IsCurrentV2(build.Manifest, masterPath, outputDirectory))
-			{
-				throw new InvalidDataException("The complete committed portrait product failed derivative-manifest validation.");
-			}
-		}
-		catch
-		{
-			for (int index = items.Count - 1; index >= 0; index--)
-			{
-				ProductCommitItem item = items[index];
-				try
-				{
-					if (item.Committed)
-					{
-						if (File.Exists(item.Path)) File.Delete(item.Path);
-						if (item.HadOriginal && File.Exists(item.BackupPath)) File.Move(item.BackupPath, item.Path);
-					}
-				}
-				catch
-				{
-				}
-			}
-			throw;
+				foreach (ProductCommitItem item in items)
+					if (item.IsPng && !PortraitDerivativeCore.HasPngDimensions(item.Path, item.Width, item.Height))
+						throw new InvalidDataException("A committed portrait product file failed PNG validation: " + Path.GetFileName(item.Path));
+				if (!PortraitDerivativeCore.IsCurrentV2(build.Manifest, masterPath, outputDirectory))
+					throw new InvalidDataException("The complete committed portrait product failed derivative-manifest validation.");
+			});
+			accepted = true;
 		}
 		finally
 		{
 			foreach (ProductCommitItem item in items)
 			{
-				try { if (File.Exists(item.TemporaryPath)) File.Delete(item.TemporaryPath); } catch { }
-				try { if (File.Exists(item.BackupPath)) File.Delete(item.BackupPath); } catch { }
+				item.File.Cleanup(accepted);
 			}
 		}
 	}
@@ -567,22 +551,20 @@ public static class PortraitCache
 
 	private sealed class ProductCommitItem
 	{
+		public readonly PortraitProductTransaction.FileCommit File;
 		public readonly string Path;
 		public readonly string TemporaryPath;
-		public readonly string BackupPath;
 		public readonly byte[] Bytes;
 		public readonly int Width;
 		public readonly int Height;
 		public readonly bool IsPng;
 		public bool TemporaryWritten;
-		public bool HadOriginal;
-		public bool Committed;
 
 		public ProductCommitItem(string path, byte[] bytes, int width, int height, bool isPng, string token)
 		{
+			File = new PortraitProductTransaction.FileCommit(path, token);
 			Path = path;
-			TemporaryPath = path + ".tmp." + token;
-			BackupPath = path + ".bak." + token;
+			TemporaryPath = File.TemporaryPath;
 			Bytes = bytes ?? throw new InvalidDataException("A portrait product artifact was empty.");
 			Width = width;
 			Height = height;
@@ -1211,26 +1193,7 @@ public static class PortraitCache
 
 	private static void WriteAtomic(string path, byte[] bytes)
 	{
-		string temporary = path + ".tmp." + Guid.NewGuid().ToString("N");
-		File.WriteAllBytes(temporary, bytes);
-		try
-		{
-			if (File.Exists(path))
-			{
-				File.Replace(temporary, path, null);
-			}
-			else
-			{
-				File.Move(temporary, path);
-			}
-		}
-		finally
-		{
-			if (File.Exists(temporary))
-			{
-				File.Delete(temporary);
-			}
-		}
+		PortraitProductTransaction.WriteAllBytes(path, bytes);
 	}
 
 	private static bool TryGetPreferredDiskPath(string id, out string path)

@@ -3,11 +3,11 @@
   "heroStringId": "reign_court_castle_S7_child_2",
   "characterName": "Khoroma Rudaevich",
   "imagePath": "portrait.png",
-  "imageSha256": "1F8B58CA0E6F28332420FEA017A239D5EB83D2A827241271EC6A4DE32976E5D8",
-  "description": "Culturally appropriate everyday Sturgian minor-lord attire inspired by refined medieval Rus and Slavic noble clothing. Men should wear a well-made long shirt beneath a tailored wool kaftan or long belted coat, decorated with fine geometric embroidery and quality trim. Women should wear a long embroidered shift with an elegant wool overdress or noble coat-dress, secured with a richly woven sash. Include subtle fur trim around collars or cuffs, tasteful clasps, and better-quality fabric than a landowner would wear. The clothing should remain practical for a northern climate while clearly showing noble rank. No headgear of any kind. No armor, weapons, crowns, ceremonial robes, or oversized fur displays.",
-  "status": "failed",
-  "descriptionSource": "portrait_prompt_fallback",
-  "retryEligible": true,
-  "error": "{\"error\":{\"message\":\"Model \\\"zai-org/glm-5.2\\\" does not support image inputs. Remove image content or choose a multimodal model.\",\"type\":\"invalid_request_error\",\"param\":\"messages\",\"code\":\"image_input_not_supported\"}}",
-  "updatedUtc": "2026-07-18T22:03:31.2594593Z"
+  "imageSha256": "9BDD3E31B6E20683D2BB3037EFBB4326FD959CCDA78AA0605F319B392AB6E707",
+  "description": "A long muted blue wool Sturgian gown over a cream linen shift, with a low square neckline and naturally fitted opaque bodice. Gold geometric woven bands frame the neckline, run down the front and edge the waist, elbow sleeves and hem. Two round bronze-gold brooches secure the upper straps. A heavy grey wool shoulder wrap with fringed edges rests along the arms. A modest front walking opening reveals the linen underlayer and dark brown shoes.",
+  "status": "completed",
+  "descriptionSource": "agent_vision",
+  "retryEligible": false,
+  "error": "",
+  "updatedUtc": "2026-10-07T23:07:11.423Z"
 }

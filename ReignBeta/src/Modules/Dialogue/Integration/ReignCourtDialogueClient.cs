@@ -21,7 +21,7 @@ namespace ReignBeta.Integration
     public static partial class ReignServerClient
     {
         public static async Task<ReignCourtDialogueReply> RequestCourtMatterResponseAsync(CourtMatter matter, Hero speaker, string playerText,
-            long expectedRevision, string commandId)
+            long expectedRevision, string commandId, Reign.Core.Contracts.Actions.ActionAgreement actionDraft = null)
         {
             ReignCourtDialogueReply reply = new ReignCourtDialogueReply();
             try
@@ -57,8 +57,10 @@ namespace ReignBeta.Integration
                     ["nativePoliticalContext"] = BuildNativePoliticalContext(speaker),
                     ["actionResolutionIndex"] = BuildActionResolutionIndex(speaker, new List<Hero> { speaker })
                 };
+                Action<JObject> completeAction = await ReignMainThread.InvokeAsync(() => BeginStructuredActionExchange(payload, speaker, actionDraft)).ConfigureAwait(false);
                 await AttachContextBundlesAsync(payload, "dialogue", speaker, new List<Hero> { speaker }).ConfigureAwait(false);
                 JObject response = await PostJsonAsync("/court/matter/respond", payload).ConfigureAwait(false);
+                await ReignMainThread.InvokeAsync(() => completeAction(response)).ConfigureAwait(false);
                 reply.Ok = response.Value<bool?>("ok") == true;
                 reply.Text = response.Value<string>("reply") ?? string.Empty;
                 reply.Emotion = response.Value<string>("emotion") ?? string.Empty;

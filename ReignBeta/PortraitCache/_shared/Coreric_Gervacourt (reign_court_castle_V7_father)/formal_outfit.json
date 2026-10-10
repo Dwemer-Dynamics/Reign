@@ -3,11 +3,11 @@
   "heroStringId": "reign_court_castle_V7_father",
   "characterName": "Coreric Gervacourt",
   "imagePath": "portrait.png",
-  "imageSha256": "DAB538D26C6941799B188C4851ED5541703B1ABB6A68C3A9DE75F84C09487253",
-  "description": "Culturally appropriate everyday Vlandian high-noble attire inspired by wealthy Norman and Frankish aristocratic dress. Use luxurious fine wool and linen, expertly tailored layers, richly cut outer tunics or gowns, refined belts, decorative borders, subtle heraldic embroidery, and elegant fastenings. Men should wear a long tailored tunic or refined surcoat-style outer layer over fine linen and well-fitted chausses. Women should wear a fitted noble gown layered over a high-quality underdress, with graceful sleeves, refined trim, and tasteful jewelry. The outfit should feel expensive and powerful while remaining believable everyday noble wear. No headgear of any kind. No armor, weapons, crowns, or ceremonial regalia.",
-  "status": "failed",
-  "descriptionSource": "portrait_prompt_fallback",
-  "retryEligible": true,
-  "error": "{\"error\":{\"message\":\"Model \\\"zai-org/glm-5.2\\\" does not support image inputs. Remove image content or choose a multimodal model.\",\"type\":\"invalid_request_error\",\"param\":\"messages\",\"code\":\"image_input_not_supported\"}}",
-  "updatedUtc": "2026-07-18T22:03:26.9744224Z"
+  "imageSha256": "8EC78CA7A8DDDFEDA131ED1037A04601723B8D2C3A608DD32F70E295B38AB73A",
+  "description": "He wears a long burgundy-red sleeveless outer tunic or surcoat-style layer with broad gold heraldic and floral woven borders at the collar, front edges and hem. A cream textured long shirt shows at the front opening and full sleeves, with decorated cuffs. A dark brown belt has a round ornate gold-toned buckle and a decorated hanging leather end. Dark brown narrow trousers tuck into tall brown leather boots. All garments are opaque and well tailored, with noble craftsmanship but no ceremonial regalia. The hands rest behind the torso in this relaxed standing pose. No headgear, armor or weapons appear; textile fibers cannot be confirmed visually.",
+  "status": "completed",
+  "descriptionSource": "agent_vision",
+  "retryEligible": false,
+  "error": "",
+  "updatedUtc": "2026-10-07T21:25:41.149Z"
 }

@@ -3,11 +3,11 @@
   "heroStringId": "lord_NE9_s",
   "characterName": "Aesos",
   "imagePath": "portrait.png",
-  "imageSha256": "28B4C65C0B64021DC9DC4B20D2EB9BBD6EB8D60FC7330B3BBF7A791ED3542328",
-  "description": "Culturally appropriate everyday Calradic Imperial landowner attire inspired by practical late Roman and Byzantine civilian clothing adapted into a grounded medieval style. Men should wear a linen undertunic beneath a structured knee-length tunic or simple long coat, secured with a narrow belt. Women should wear a long tunic or underdress beneath a modest draped overdress with elegant but simple sleeves and a practical girdle. Include narrow woven borders or restrained geometric decoration. The garments should appear orderly, respectable, clean, and slightly prosperous. No headgear of any kind. No armor, weapons, laurel crowns, togas, ceremonial robes, or fantasy elements.",
-  "status": "failed",
-  "descriptionSource": "portrait_prompt_fallback",
-  "retryEligible": true,
-  "error": "{\"error\":{\"message\":\"Model \\\"zai-org/glm-5.2\\\" does not support image inputs. Remove image content or choose a multimodal model.\",\"type\":\"invalid_request_error\",\"param\":\"messages\",\"code\":\"image_input_not_supported\"}}",
-  "updatedUtc": "2026-07-18T22:03:23.9645564Z"
+  "imageSha256": "FED71D7C3FC3791100DABD66ED33BA2FA967813F7554E5CFEC0E048BFF4B1C3A",
+  "description": "Actual outfit: burgundy knee-to-calf long open-front coat with gold geometric woven front bands, cuffs and hem over cream linen knee-length tunic with small split neckline and narrow gold geometric neck/hem trim. Narrow brown leather waist belt with round metal buckle, brown trousers and tall plain brown leather boots. No armor or weapons.",
+  "status": "completed",
+  "descriptionSource": "agent_vision",
+  "retryEligible": false,
+  "error": "",
+  "updatedUtc": "2026-10-08T04:19:16.707Z"
 }

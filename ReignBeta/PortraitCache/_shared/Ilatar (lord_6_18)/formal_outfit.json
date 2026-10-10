@@ -3,11 +3,11 @@
   "heroStringId": "lord_6_18",
   "characterName": "Ilatar",
   "imagePath": "portrait.png",
-  "imageSha256": "85419A28D95CC4B2373D780D0E11417FC92337471E9DE4269B8C99540F5CF688",
-  "description": "Culturally appropriate everyday Khuzait minor-lord attire inspired by refined medieval Turkic and Mongol steppe noble clothing. Men should wear a tailored crossed-front coat or deel with refined woven trim, a decorated sash, layered sleeves, and high-quality trousers. Women should wear an elegant long robe or fitted steppe coat over a fine underdress, with carefully worked edging and decorative textile details. Include restrained cloud, knot, or geometric patterns and a limited amount of practical fur trim. The clothing should remain mobile and functional while clearly showing noble status. No headgear of any kind. No fur hats, caps, hoods, armor, weapons, crowns, or ceremonial costume.",
-  "status": "failed",
-  "descriptionSource": "portrait_prompt_fallback",
-  "retryEligible": true,
-  "error": "{\"error\":{\"message\":\"Model \\\"zai-org/glm-5.2\\\" does not support image inputs. Remove image content or choose a multimodal model.\",\"type\":\"invalid_request_error\",\"param\":\"messages\",\"code\":\"image_input_not_supported\"}}",
-  "updatedUtc": "2026-07-18T22:03:30.4518182Z"
+  "imageSha256": "778B3287BE401CDA3751C81210CAF8BF8B6C25813DD29B4E5BE8D98C7D3104E6",
+  "description": "A long blue-grey crossed-front steppe coat with narrow gold knotwork trim on the front overlap, sleeve edges and hem, layered over cream/grey sleeves and tan trousers. A broad decorated brown leather sash-belt with round metal fittings and hanging tassels secures the waist. Brown leather wrist cuffs and tall brown boots complete the mobile noble outfit. No headgear, armor or weapons are present.",
+  "status": "completed",
+  "descriptionSource": "agent_vision",
+  "retryEligible": false,
+  "error": "",
+  "updatedUtc": "2026-10-08T04:09:04.942Z"
 }

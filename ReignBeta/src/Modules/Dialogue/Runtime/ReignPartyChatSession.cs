@@ -18,6 +18,7 @@ namespace ReignBeta.Runtime
 
         public string SessionId { get; private set; } = "party_chat_" + Guid.NewGuid().ToString("N");
         public string CurrentSceneTurnId { get; private set; } = string.Empty;
+        public string ApproachRequestId { get; set; } = string.Empty;
 
         public IReadOnlyList<string> RecentTranscriptLines => _recentTranscriptLines
             .Select(line => line.Speaker + ": " + line.Text).ToList();
@@ -62,7 +63,7 @@ namespace ReignBeta.Runtime
 
         public void RecordTranscriptLine(string speaker, string text, string speakerHeroStringId = "", string role = "", string audienceHeroStringId = "")
         {
-            string cleanText = CleanText(text);
+            string cleanText = string.Equals(role, "player", StringComparison.OrdinalIgnoreCase) ? text ?? string.Empty : CleanText(text);
             if (string.IsNullOrWhiteSpace(cleanText))
             {
                 return;

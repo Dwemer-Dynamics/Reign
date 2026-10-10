@@ -34,7 +34,12 @@ namespace ReignBeta.Campaign
                     && actualCampaign == enrollment.Value<string>("campaignId")
                     && actualTimeline == enrollment.Value<string>("timelineId")
                     && Hero.MainHero?.StringId == enrollment.Value<string>("mainHeroId");
-                string confirmation = leave ? "leave resident scene on enrolled disposable save" : "approach resident on enrolled disposable save";
+                string missionKind = command.Value<string>("missionKind") ?? string.Empty;
+                bool arenaExit = leave && missionKind == "completed_arena_duel";
+                if (missionKind.Length != 0 && !arenaExit)
+                    return LiveCommandResult.Failed("Unknown native scene operation kind.");
+                string confirmation = arenaExit ? "leave completed arena duel on enrolled disposable save"
+                    : leave ? "leave resident scene on enrolled disposable save" : "approach resident on enrolled disposable save";
                 if (!_armed || !isolated || command.Value<string>("confirmation") != confirmation)
                     return LiveCommandResult.Failed("An armed exact campaign-test Current enrollment and matching scene-operation confirmation are required.");
                 if (command.Value<string>("expectedGameInstanceId") != GameInstanceId
@@ -42,14 +47,17 @@ namespace ReignBeta.Campaign
                     || ReignSaveSyncCoordinator.IsAlignmentPending)
                     return LiveCommandResult.Failed("The game instance or Save Sync alignment changed; re-observe before approaching.");
                 if (campaign == null || campaign.TimeControlMode != CampaignTimeControlMode.Stop
-                    || Mission.Current == null || Agent.Main == null || !Agent.Main.IsActive()
+                    || Mission.Current == null || (!arenaExit && (Agent.Main == null || !Agent.Main.IsActive()))
                     || Settlement.CurrentSettlement == null || Settlement.CurrentSettlement.IsUnderSiege
                     || campaign.ConversationManager.IsConversationInProgress || behavior == null
                     || Mission.Current.IsFieldBattle || Mission.Current.IsSiegeBattle || Mission.Current.IsSallyOutBattle
-                    || Mission.Current.IsNavalBattle || Mission.Current.IsNavalRaidBattle || !Mission.Current.IsFriendlyMission
+                    || Mission.Current.IsNavalBattle || Mission.Current.IsNavalRaidBattle || (!arenaExit && !Mission.Current.IsFriendlyMission)
                     || Hero.MainHero?.PartyBelongedTo?.MapEvent != null
                     || ReignBeta.UI.ReignIndividualChatScreenManager.IsOpen || ReignBeta.UI.ReignPartyChatScreenManager.IsOpen)
                     return LiveCommandResult.Failed("Approach requires a paused peaceful settlement mission without an active native conversation.");
+                if (arenaExit && (Mission.Current.GetMissionBehavior<SandBox.Missions.MissionLogics.Arena.ArenaDuelMissionController>() == null
+                    || Mission.Current.GetMissionBehavior<ReignArenaDuelEquipmentBehavior>() == null))
+                    return LiveCommandResult.Failed("Completed-duel exit requires the exact Reign native arena mission; no exit was forced.");
                 var handler = Mission.Current.GetMissionBehavior<SandBox.Missions.MissionLogics.MissionAgentHandler>();
                 if (handler == null) return LiveCommandResult.Failed("The native settlement agent handler is unavailable.");
                 if (leave)
@@ -69,7 +77,8 @@ namespace ReignBeta.Campaign
                         ["timelineId"] = actualTimeline, ["saveIdentifier"] = save,
                         ["campaignTestRunId"] = enrollment.Value<string>("campaignTestRunId"),
                         ["gameInstanceId"] = GameInstanceId, ["settlementId"] = settlementId,
-                        ["nativeExitRequested"] = true, ["providerCalls"] = 0, ["directRecruitmentActions"] = 0 });
+                        ["nativeExitRequested"] = true, ["missionKind"] = arenaExit ? "completed_arena_duel" : "resident",
+                        ["providerCalls"] = 0, ["directRecruitmentActions"] = 0 });
                 }
                 Agent target = Mission.Current.Agents.FirstOrDefault(a => a.Index == command.Value<int?>("agentIndex"));
                 string body;

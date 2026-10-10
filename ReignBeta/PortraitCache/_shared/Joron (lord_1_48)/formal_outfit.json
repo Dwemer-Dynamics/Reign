@@ -3,11 +3,11 @@
   "heroStringId": "lord_1_48",
   "characterName": "Joron",
   "imagePath": "portrait.png",
-  "imageSha256": "A6E78AE7FB36329A6249EC7A8F64754B64527184A3DA9027CB043015E6522230",
-  "description": "Culturally appropriate everyday Calradic Imperial minor-lord attire inspired by refined late Roman and Byzantine noble clothing. Men should wear a high-quality tunic or long tailored outer coat over fine linen, decorated with narrow woven borders, refined clasps, and a decorated belt. Women should wear a long elegant dress or layered tunic ensemble with shaped sleeves, graceful draping, and tasteful trim around the neckline, cuffs, and edges. The garments should feel polished, educated, urban, and wealthy without resembling full imperial ceremony. No headgear of any kind. No armor, weapons, crowns, imperial regalia, laurel wreaths, or ceremonial robes.",
-  "status": "failed",
-  "descriptionSource": "portrait_prompt_fallback",
-  "retryEligible": true,
-  "error": "{\"error\":{\"message\":\"Model \\\"zai-org/glm-5.2\\\" does not support image inputs. Remove image content or choose a multimodal model.\",\"type\":\"invalid_request_error\",\"param\":\"messages\",\"code\":\"image_input_not_supported\"}}",
-  "updatedUtc": "2026-07-18T22:03:30.9870034Z"
+  "imageSha256": "107ABC2F8E1CA157E44F2E31E0A0C7790CFA39042D0EAF9072723FB46938E196",
+  "description": "Joron wears a long burgundy-purple tailored outer coat with narrow gold patterned borders along the open front, cuffs and lower edge. Beneath it is a cream ankle-length tunic with a small slit neckline, fine gold-brown embroidered edging and a narrow decorated hem. A broad patterned belt has a round metal buckle and two tasseled hanging ends. Dark brown trousers and tall brown leather-like boots cover the legs. The sleeves reach the wrists, with small cream cuffs. A small ring is visible. Fabrics appear woven with a slightly plush outer-coat surface, but exact fibers cannot be established. The outfit is opaque and no headgear, armor or weapon is present.",
+  "status": "completed",
+  "descriptionSource": "agent_vision",
+  "retryEligible": false,
+  "error": "",
+  "updatedUtc": "2026-10-07T23:12:06.654Z"
 }

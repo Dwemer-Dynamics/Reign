@@ -26,7 +26,7 @@ namespace ReignBeta.Campaign
     public static partial class ReignLiveInteractionTestHost
     {
         private static readonly string[] CoreSupportedModes =
-            { "individual_chat", "party_chat", "social_event", "wilderness_event", "social_balance", "passive_world", "campaign_command", "government", "party_agency" };
+            { "individual_chat", "party_chat", "social_event", "wilderness_event", "social_balance", "passive_world", "campaign_command", "government", "party_agency", "structured_actions" };
         private static TaleWorlds.CampaignSystem.Campaign _observedCampaign;
         private static string _gameInstanceId = string.Empty;
         private static DateTime _nextHeartbeatUtc = DateTime.MinValue;
@@ -72,6 +72,7 @@ namespace ReignBeta.Campaign
 
         public static string GameInstanceId => _gameInstanceId;
         public static bool IsBusy => _commandInFlight || _sessionCleanupInFlight;
+        internal static bool OwnsAutomationSession => IsBusy || (_armed && !string.IsNullOrWhiteSpace(_activeRunId));
         public static int CompletedCommandCacheCount => CompletedCommandResults.Count;
 
         public static string[] GetSupportedModes()
@@ -358,6 +359,7 @@ namespace ReignBeta.Campaign
                 case "restore_manipulation_fixture": return await RestoreManipulationFixtureAsync().ConfigureAwait(false);
                 case "gauntlet_snapshot": return await GauntletSnapshotAsync(command).ConfigureAwait(false);
                 case "action_probe_wait": return await ActionProbeWaitAsync(command).ConfigureAwait(false);
+                case "structured_action_test": return await StructuredActionTestAsync(command).ConfigureAwait(false);
                 case "gauntlet_apply_fixture": return await GauntletApplyFixtureAsync(command).ConfigureAwait(false);
                 case "gauntlet_restore_fixture": return await GauntletRestoreFixtureAsync(command).ConfigureAwait(false);
                 case "gauntlet_advance_time": return await GauntletAdvanceTimeAsync(command).ConfigureAwait(false);
@@ -466,7 +468,7 @@ namespace ReignBeta.Campaign
             snapshot["directDialogueActionInvocation"] = false;
             snapshot["contractAssertions"] = new JObject
             {
-                ["openEndedReviewIsFiveDays"] = ReignTemporaryPartyGuestCampaignBehavior.OpenEndedReviewDays == 5f,
+                ["openEndedReviewIsThirtyDays"] = ReignTemporaryPartyGuestCampaignBehavior.OpenEndedReviewDays == 30f,
                 ["fixedTermRangeIsOneToThirtyDays"] = ReignTemporaryPartyGuestCampaignBehavior.MinimumFixedTermDays == 1f
                     && ReignTemporaryPartyGuestCampaignBehavior.MaximumFixedTermDays == 30f,
                 ["returnRangeIsOneToTwelveHours"] = ReignTemporaryPartyGuestCampaignBehavior.MinimumReturnHours == 1f
@@ -1956,15 +1958,94 @@ namespace ReignBeta.Campaign
             }
             if ((_activeMode == "individual_chat" || _activeMode == "ambassador_official") && _individualVm != null)
             {
+                Reign.Core.Contracts.Actions.ActionAgreement attachedAction = null;
+                if (command["structuredActionDraft"] != null)
+                {
+                    try
+                    {
+                        text = await ReignMainThread.InvokeAsync(() =>
+                        {
+                            var enrollment = command["enrollment"] as JObject;
+                            string expected = enrollment?.Value<string>("disposableSaveName") ?? "";
+                            string baseline = enrollment?.Value<string>("protectedBaselineSaveName") ?? "";
+                            if (!_armed || _activeMode != "individual_chat" || !actionAcceptanceProbe
+                                || command.Value<bool?>("naturalLanguageCase") != true
+                                || enrollment?.Value<string>("source") != "reign_mcp_action_probe"
+                                || string.IsNullOrWhiteSpace(enrollment?.Value<string>("campaignTestRunId"))
+                                || expected.Length == 0 || baseline.Length == 0 || expected == baseline
+                                || expected != ActiveSaveName() || command.Value<string>("expectedSaveName") != expected
+                                || enrollment.Value<string>("campaignId") != ReignCampaignIdentity.CurrentCampaignId()
+                                || command.Value<string>("campaignId") != ReignCampaignIdentity.CurrentCampaignId()
+                                || enrollment.Value<string>("timelineId") != (ReignWorldHistoryCampaignBehavior.Instance?.TimelineId ?? "main")
+                                || command.Value<string>("gameInstanceId") != _gameInstanceId
+                                || TaleWorlds.CampaignSystem.Campaign.Current?.TimeControlMode != CampaignTimeControlMode.Stop
+                                || command.Value<string>("structuredActionActorHeroId") != _individualVm.ConversationHero?.StringId)
+                                throw new InvalidOperationException("Typed conversations require the exact paused, armed, enrolled Current and open NPC.");
+                            var draft = (command["structuredActionDraft"] as JObject)?.ToObject<Reign.Core.Contracts.Actions.ActionAgreement>()
+                                ?? throw new InvalidOperationException("Missing typed proposal.");
+                            string player = Hero.MainHero.StringId, npc = _individualVm.ConversationHero.StringId;
+                            if (draft.Clauses == null || draft.Clauses.Count == 0 || draft.Clauses.Count > 64
+                                || draft.Clauses.Any(c => c == null || Reign.Core.Contracts.Actions.ReignActionCatalog.Find(c.ActionId)?.ConversationEligible != true))
+                                throw new InvalidOperationException("Only registered conversation actions can be attached.");
+                            bool reviewNpcOffer = command.Value<bool?>("reviewNpcOffer") == true;
+                            if (draft.PlayerId != player || draft.NpcId != npc
+                                || draft.ProposerId != (reviewNpcOffer ? npc : player))
+                                throw new InvalidOperationException("The attached proposal must match the current player, open NPC and selected proposal author.");
+                            if (reviewNpcOffer)
+                            {
+                                // Review uses the saved production offer, never caller-supplied
+                                // signatures or a substitute proposal. Normal Send supplies
+                                // player consent only after this exact rendered-terms check.
+                                if (draft.Origin != Reign.Core.Contracts.Actions.ActionOrigin.Conversation || draft.Revision < 1)
+                                    throw new InvalidOperationException("The reviewed NPC offer has invalid origin or revision.");
+                                ReignBeta.Actions.ReignActionWording.Render(draft);
+                                var pending = ReignBeta.Actions.ReignAgreementBehavior.Instance?.Offers
+                                    .FirstOrDefault(a => a.Id == draft.Id);
+                                if (pending == null || pending.State != Reign.Core.Contracts.Actions.AgreementState.Counteroffered
+                                    || pending.PlayerId != player || pending.NpcId != npc || pending.ProposerId != npc
+                                    || pending.Origin != Reign.Core.Contracts.Actions.ActionOrigin.Conversation
+                                    || pending.Revision != draft.Revision || pending.TermsHash() != draft.TermsHash()
+                                    || pending.NpcAcceptedHash != pending.TermsHash() || pending.PlayerAcceptedHash.Length != 0)
+                                    throw new InvalidOperationException("The reviewed NPC offer is missing, changed, unsigned or no longer pending.");
+                                draft = ReignBeta.Actions.ReignActionService.Copy(pending);
+                            }
+                            else
+                            {
+                                draft.Origin = Reign.Core.Contracts.Actions.ActionOrigin.Conversation;
+                                draft.State = Reign.Core.Contracts.Actions.AgreementState.Draft;
+                                draft.PlayerAcceptedHash = ""; draft.NpcAcceptedHash = "";
+                            }
+                            ReignBeta.Actions.ReignActionWording.Render(draft);
+                            var replayCandidate = ReignBeta.Actions.ReignActionService.Copy(draft);
+                            replayCandidate.ConversationId = ReignCampaignIdentity.CurrentCampaignId() + ":"
+                                + (ReignWorldHistoryCampaignBehavior.Instance?.TimelineId ?? "main") + ":" + npc;
+                            var savedJournal = ReignBeta.Actions.ReignAgreementBehavior.Instance?.Agreements
+                                .FirstOrDefault(j => j.Agreement.Id == draft.Id);
+                            // Confirmation of exact completed terms uses normal Send's saved
+                            // receipt route. New, changed, unsigned, pending and operator
+                            // proposals still require current native execution eligibility.
+                            bool completedReplay = !reviewNpcOffer
+                                && Reign.Core.Contracts.Actions.AgreementRules.IsExactCompletedReplay(replayCandidate, savedJournal);
+                            var errors = completedReplay ? new List<string>()
+                                : ReignBeta.Actions.ReignActionService.Preview(draft);
+                            if (errors.Count > 0) throw new InvalidOperationException(string.Join("; ", errors));
+                            string composed = _individualVm.PrepareAutomationActionLine(draft, text);
+                            attachedAction = ReignBeta.Actions.ReignActionService.Copy(_individualVm.ActionDraft);
+                            return composed;
+                        }).ConfigureAwait(false);
+                    }
+                    catch (Exception ex) { return LiveCommandResult.Failed("Typed action preflight failed: " + ex.Message); }
+                }
                 ReignDialogueReply reply = await _individualVm.SendAutomationLineAsync(
                     text, correlation, _activeRunId, scene, turn,
                     guardedPromptOverride, guardedPromptOverrideDirective,
-                    guardedPromptOverrideOwnerCommandId).ConfigureAwait(false);
+                    guardedPromptOverrideOwnerCommandId, attachedAction).ConfigureAwait(false);
                 _lastNpcReplyText = reply.Text ?? string.Empty;
                 JObject data = new JObject
                 {
                     ["ok"] = reply.Ok, ["text"] = reply.Text ?? string.Empty, ["emotion"] = reply.Emotion ?? string.Empty,
                     ["playerText"] = text,
+                    ["attachedAction"] = attachedAction == null ? null : JObject.FromObject(attachedAction),
                     ["contextualPartyAgencyResponse"] = contextualPartyAgencyResponse,
                     ["guardedPromptOverrideRequested"] = guardedPromptOverride,
                     ["governmentCertificationMemoryIsolationRequested"] =
@@ -1986,6 +2067,13 @@ namespace ReignBeta.Campaign
                             ["negotiatedCommand"] = action.NegotiatedCommand ?? string.Empty
                         }))
                 };
+                if (attachedAction != null)
+                    data["agreementJournal"] = await ReignMainThread.InvokeAsync(() =>
+                    {
+                        var journal = ReignBeta.Actions.ReignAgreementBehavior.Instance?.Agreements
+                            .FirstOrDefault(j => j.Agreement.Id == attachedAction.Id);
+                        return journal == null ? null : JObject.FromObject(journal);
+                    }).ConfigureAwait(false);
                 LiveCommandResult result = reply.Ok ? LiveCommandResult.Completed("Individual dialogue turn completed.", data) : LiveCommandResult.Failed(reply.Error, data);
                 result.CorrelationIds.Add(reply.CorrelationId ?? correlation);
                 if (reply.ConceptionGateNeeded) result.Status = "needs_input";

@@ -3,11 +3,11 @@
   "heroStringId": "reign_court_town_ES4_child_1",
   "characterName": "Calones Aurelenion",
   "imagePath": "portrait.png",
-  "imageSha256": "8448516E4F59A81E6E5CB3D07F2D9E10BBBEC5C24A323CF1479B2071B8DE85E6",
-  "description": "Culturally appropriate everyday Calradic Imperial high-noble attire inspired by luxurious Byzantine aristocratic fashion, restrained enough for daily noble life. Use fine layered linen and wool, controlled flowing silhouettes, elegant draping, richly woven borders, small jeweled clasps, and sophisticated fabric textures. Men should wear a stately long tunic or structured noble coat over a fine undertunic, with refined belts and detailed edging. Women should wear a sophisticated layered noble dress with graceful drapery, tailored sleeves, and subtle aristocratic ornamentation. The outfit should communicate ancient prestige, wealth, and political importance. No headgear of any kind. No armor, weapons, crowns, laurel wreaths, or full ceremonial imperial regalia.",
-  "status": "failed",
-  "descriptionSource": "portrait_prompt_fallback",
-  "retryEligible": true,
-  "error": "{\"error\":{\"message\":\"Model \\\"zai-org/glm-5.2\\\" does not support image inputs. Remove image content or choose a multimodal model.\",\"type\":\"invalid_request_error\",\"param\":\"messages\",\"code\":\"image_input_not_supported\"}}",
-  "updatedUtc": "2026-07-18T22:03:26.5196367Z"
+  "imageSha256": "7BD73A3F70F7D21243C4FE392F8A6F56D59C5270B3E8666314C65E6DEC3C2EB7",
+  "description": "He wears a long cream textured tunic and lower underlayer with purple-and-gold woven borders at the round neckline, center front, cuffs and hem. A deep plum-purple draped outer layer crosses one shoulder and falls along the side, with broad gold geometric edging and a small purple-centered clasp. A decorated belt has a round purple-red fitting and hanging woven end. Full sleeves cover the arms and brown leather boots show below the hem. The clothing is opaque, flowing and finely made. No headgear, weapon or armor appears. Exact fibers are uncertain; the cream layer looks linen-like and the purple drape dense and softly textured.",
+  "status": "completed",
+  "descriptionSource": "agent_vision",
+  "retryEligible": false,
+  "error": "",
+  "updatedUtc": "2026-10-07T21:16:03.541Z"
 }

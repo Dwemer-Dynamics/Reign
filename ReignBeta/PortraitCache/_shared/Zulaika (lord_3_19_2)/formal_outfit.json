@@ -3,11 +3,11 @@
   "heroStringId": "lord_3_19_2",
   "characterName": "Zulaika",
   "imagePath": "portrait.png",
-  "imageSha256": "883B5F83B31137D6D4299DD725544056AF0371156C360CB62D9AB4140007C490",
-  "description": "Culturally appropriate everyday Aserai minor-lord attire inspired by refined medieval Arabian, North African, and limited Persian noble clothing. Men should wear a flowing robe or structured open-front coat over a fine lightweight tunic, secured with a decorated woven sash. Women should wear a long elegant dress with soft layered fabrics, shaped sleeves, graceful draping, and fine embroidery around the neckline, cuffs, and hem. Show rank through superior fabric, elegant borders, geometric embroidery, and subtle jewelry rather than excessive ornamentation. No headgear of any kind. No turbans, veils, hoods, armor, weapons, crowns, or ceremonial excess.",
-  "status": "failed",
-  "descriptionSource": "portrait_prompt_fallback",
-  "retryEligible": true,
-  "error": "{\"error\":{\"message\":\"Model \\\"zai-org/glm-5.2\\\" does not support image inputs. Remove image content or choose a multimodal model.\",\"type\":\"invalid_request_error\",\"param\":\"messages\",\"code\":\"image_input_not_supported\"}}",
-  "updatedUtc": "2026-07-18T22:03:35.9536407Z"
+  "imageSha256": "8FF9B668F72F4C92DE27F989CB87CBAE7BE50459751E9FC7041A8C25AE760977",
+  "description": "An opaque cream full-length Aserai court gown with a broad square neckline and narrow shoulder straps, rich gold geometric front panels and edging, a decorated gold waist belt with hanging tassels, a burgundy embroidered wrap resting around the forearms, modest gold earrings and pendant, and gold closed-toe court shoes. No headgear or weapons.",
+  "status": "completed",
+  "descriptionSource": "agent_vision",
+  "retryEligible": false,
+  "error": "",
+  "updatedUtc": "2026-10-08T04:24:44.835Z"
 }

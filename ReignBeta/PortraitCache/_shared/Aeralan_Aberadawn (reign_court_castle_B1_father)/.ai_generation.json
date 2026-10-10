@@ -1,16 +1,90 @@
 {
   "version": 1,
+  "schema": "reign-builtin-chat-reference-guided-image-generation-culture-v1",
   "cacheKey": "Aeralan_Aberadawn (reign_court_castle_B1_father)",
   "heroStringId": "reign_court_castle_B1_father",
   "characterObjectId": "reign_court_castle_B1_father",
   "characterName": "Aeralan Aberadawn",
-  "provider": "AtlasCloud",
-  "model": "xai/grok-imagine-image/edit",
-  "adapter": "atlas upload/generate/poll",
-  "sourceSha256": "57cbe7f24eee548051c0052b9523e4e177f7d0080db9feeb90ad3bd93bcf1e31",
-  "portraitSha256": "a91d92dce5315bd1efe3410e26a3c45efef6af43378f1ee8d40f9b735d6c8023",
-  "portraitWidth": 832,
-  "portraitHeight": 1248,
+  "worker": "worker-5",
+  "generatedOriginalPath": "C:\\Users\\speed\\.codex\\generated_images\\01a11c35-ffed-7141-9578-6b68f5fc5978\\exec-bd5c08ff-8cef-4855-b3ca-fe7a360af5ec.png",
+  "sourceFileCreationUtc": "2026-10-08T21:14:50.649Z",
+  "generationRequestId": "f4a8f0d2-d894-4b19-b5c6-adb7944a64b9",
+  "generationRequestSha256": "55139449131355bf95a69856f7ee180257905a102c2c27653b872afebcd96c25",
+  "generationReturnSha256": "00f4ddb2ed632a15d69bb006fa4a371edd7438207d4b5800f6c8ae93ac625e5e",
+  "provider": "Codex built-in image_gen",
+  "model": "unknown",
+  "adapter": "old-face-identity/new-style-reference-guided",
+  "generationMode": "reference_guided",
+  "inputImages": 2,
+  "references": [
+    {
+      "id": "reign_court_castle_B1_father",
+      "role": "old_identity",
+      "path": "D:\\Program Files (x86)\\Steam\\steamapps\\common\\Mount & Blade II Bannerlord\\Modules\\ReignBeta\\PortraitCache\\_shared\\Aeralan_Aberadawn (reign_court_castle_B1_father)\\portrait_chest.png",
+      "sha256": "011132bc423c879eb41ad16cfe02c07ed3c16799caf39726466e6e64d23f9411",
+      "originalReference": {
+        "path": "D:\\Program Files (x86)\\Steam\\steamapps\\common\\Mount & Blade II Bannerlord\\Modules\\ReignBeta\\PortraitCache\\_shared\\Aeralan_Aberadawn (reign_court_castle_B1_father)\\portrait_chest.png",
+        "sha256": "011132bc423c879eb41ad16cfe02c07ed3c16799caf39726466e6e64d23f9411"
+      }
+    },
+    {
+      "id": "reign_court_castle_B1_father",
+      "role": "new_style",
+      "path": "C:\\ReignPortraitRebuild\\2026-10-07-01a11741-culture-v2\\audit\\residual-correction-phase4-001\\reign_court_castle_B1_father\\predecessor-files\\_shared\\Aeralan_Aberadawn (reign_court_castle_B1_father)\\portrait.png",
+      "sha256": "f38a4b89abd974fa89910df1cb4e6bbe19e79edcaa84a49c6b78a2e9a40b0c28",
+      "originalReference": {
+        "path": "C:\\ReignPortraitRebuild\\2026-10-07-01a11741-culture-v2\\_shared\\Aeralan_Aberadawn (reign_court_castle_B1_father)\\portrait.png",
+        "sha256": "f38a4b89abd974fa89910df1cb4e6bbe19e79edcaa84a49c6b78a2e9a40b0c28"
+      }
+    }
+  ],
+  "referenceGuidedExecution": {
+    "schema": "reign-portrait-reference-guided-execution-v1",
+    "generationMode": "reference_guided",
+    "inputImages": 2,
+    "references": [
+      {
+        "id": "reign_court_castle_B1_father",
+        "role": "old_identity",
+        "path": "D:\\Program Files (x86)\\Steam\\steamapps\\common\\Mount & Blade II Bannerlord\\Modules\\ReignBeta\\PortraitCache\\_shared\\Aeralan_Aberadawn (reign_court_castle_B1_father)\\portrait_chest.png",
+        "sha256": "011132bc423c879eb41ad16cfe02c07ed3c16799caf39726466e6e64d23f9411",
+        "originalReference": {
+          "path": "D:\\Program Files (x86)\\Steam\\steamapps\\common\\Mount & Blade II Bannerlord\\Modules\\ReignBeta\\PortraitCache\\_shared\\Aeralan_Aberadawn (reign_court_castle_B1_father)\\portrait_chest.png",
+          "sha256": "011132bc423c879eb41ad16cfe02c07ed3c16799caf39726466e6e64d23f9411"
+        }
+      },
+      {
+        "id": "reign_court_castle_B1_father",
+        "role": "new_style",
+        "path": "C:\\ReignPortraitRebuild\\2026-10-07-01a11741-culture-v2\\audit\\residual-correction-phase4-001\\reign_court_castle_B1_father\\predecessor-files\\_shared\\Aeralan_Aberadawn (reign_court_castle_B1_father)\\portrait.png",
+        "sha256": "f38a4b89abd974fa89910df1cb4e6bbe19e79edcaa84a49c6b78a2e9a40b0c28",
+        "originalReference": {
+          "path": "C:\\ReignPortraitRebuild\\2026-10-07-01a11741-culture-v2\\_shared\\Aeralan_Aberadawn (reign_court_castle_B1_father)\\portrait.png",
+          "sha256": "f38a4b89abd974fa89910df1cb4e6bbe19e79edcaa84a49c6b78a2e9a40b0c28"
+        }
+      }
+    ],
+    "textCompositionImageInputs": 0,
+    "textVerificationSha256": "708314de4f104ba8eb7ec5eaa71cd95426919086b2cdf355ff8d6b91d4163d21",
+    "textPromptSha256": "f6a82f410ae2574005d93036fe51d9a37c1590ab6a050cc9a5bb30a05214863d",
+    "compositionProofSha256": "faf8341434f50ad0c6f4da8a0a9165bac4525c7a7686a0efbe2006b4181547da",
+    "rootCompositionReview": {
+      "path": "C:\\ReignPortraitRebuild\\2026-10-07-01a11741-culture-v2\\audit\\root-full32-prompt-composition-review-001\\reign_court_castle_B1_father\\root-hybrid-composition-review.json",
+      "sha256": "ef55bd69d2189b31b3d84a5ccfec6abfb1ea167f5e34ecefc8d63d23ffdc97fa"
+    }
+  },
+  "sourceSha256": "0804bdbc1d075c5f30971fb07c6a3c87fd3f52204efafdf61db11c0d2114fb7d",
+  "portraitSha256": "73eb152e9ab390a851ddd3e468dbf33164769e881a3b14ab051edadd7011bfdd",
+  "portraitWidth": 1086,
+  "portraitHeight": 1448,
+  "promptSha256": "38b4570d728c522dfe827389674db50a1f2760aa1c41ce99548b963a46dd7367",
+  "descriptionSha256": "9f55d68b511dcca3c6f91ac705f40a0d2d6c975df13f9fdb7f76c816fb123424",
+  "cultureId": "battania",
+  "cultureReferenceKey": "battania",
+  "cultureReference": "Celtic Atlantic regional appearance, drawing on Irish, Scottish and Welsh populations.",
+  "cultureLayerFile": "portrait_facial_culture_battania.txt",
+  "cultureLayerFullText": "FACIAL CULTURAL APPEARANCE — BATTANIAN\nStored cultureId: battania.\nRegional reference: Celtic Atlantic regional appearance, drawing on Irish, Scottish and Welsh populations.\nCreate a believable real human face with this regional appearance. Apply the regional reference positively to facial appearance, facial structure and complexion; it is not only a clothing, setting or background instruction.\nBlend the regional reference with the individual facial description. Where simplified native geometry or game-renderer shading differs from this regional appearance, use a plausible natural blend while retaining recognizable individual traits: face outline, relative proportions, eyes, brows, nose, mouth, jaw and chin. Preserve the described hair identity, arrangement and texture, facial-hair pattern, eye character, visible scars and markings; do not invent new distinguishing marks.\nThese regional populations contain substantial individual variation. Do not give every member the same face, impose a universal skin, hair or eye color, or replace the written individual identity with a generic regional stereotype. Preserve source-grounded differences and natural human asymmetry.\nKeep the exact authored age and the independent native weight and build values. This layer applies to facial appearance and realistic complexion interpretation, not body size, muscularity, garment coverage or social rank. Every complete composition, clothing, confidence, photographic, output and physique modifier remains in effect. Do not print this reference or any metadata in the image.",
+  "cultureLayerSha256": "61f429edd007ef5f69ea3a5970444551f95a48e02abb297a5c4aa7c0e6e1f66a",
   "physicalConfidence": {
     "definition": "physical_confidence",
     "score": 32,
@@ -21,7 +95,10 @@
     "confidenceWeight": 0.25,
     "source": "shipped_profile_library"
   },
+  "confidenceCoverageOverride": null,
   "derivativesReady": true,
   "derivativeError": "",
-  "generatedUtc": "2026-07-17T17:42:17.7475234Z"
+  "generatedUtc": "2026-10-08T21:15:22.579Z",
+  "serverSigned": false,
+  "derivativeReportSha256": "a5c86078e46e4d19fac95201d13a9d679fb9e9effe4dc431bb3b222440668311"
 }

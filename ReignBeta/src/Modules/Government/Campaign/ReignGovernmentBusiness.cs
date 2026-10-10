@@ -136,7 +136,9 @@ namespace ReignBeta.Government
             {
                 Hero member = FindHero(seat.HeroStringId);
                 if (member == null || !member.IsAlive) continue;
-                var selected = options.OrderByDescending(x => BusinessOptionScore(record, seat, member, x, true))
+                string agreedOption = AgreedVoteOption(record.BusinessId, member.StringId);
+                var selected = options.FirstOrDefault(x => x.Value<string>("id") == agreedOption)
+                    ?? options.OrderByDescending(x => BusinessOptionScore(record, seat, member, x, true))
                     .ThenBy(x => x.Value<string>("id"), StringComparer.Ordinal).FirstOrDefault();
                 if (selected == null) continue;
                 var attendance = GetBusinessAttendance(record.BusinessId).FirstOrDefault(x => Same(x.HeroStringId, member.StringId));
@@ -291,7 +293,8 @@ namespace ReignBeta.Government
             Kingdom kingdom = FindKingdom(record.KingdomStringId);
             string optionId = option.Value<string>("id");
             bool affirmative = option.Value<bool?>("affirmative") ?? false;
-            var planks = ParsePlanks(FindParty(record.KingdomStringId, seat.PartyId)?.PlanksCsv);
+            string agreedPlatform = AgreedPlatformParty(member.StringId);
+            var planks = ParsePlanks(FindParty(record.KingdomStringId, agreedPlatform.Length > 0 ? agreedPlatform : seat.PartyId)?.PlanksCsv);
             int alignment = ActionPlankAlignment(MapNativeDecisionKind(NativeBusinessDecision(record)), planks);
             int interest = 0;
             int personality = 0;

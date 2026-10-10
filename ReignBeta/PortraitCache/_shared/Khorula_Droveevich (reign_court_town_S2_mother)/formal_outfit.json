@@ -3,11 +3,11 @@
   "heroStringId": "reign_court_town_S2_mother",
   "characterName": "Khorula Droveevich",
   "imagePath": "portrait.png",
-  "imageSha256": "449F96C0957E138814C78F1101ED1FFB10D40B5AF527B436235D99A32B87E39E",
-  "description": "Culturally appropriate everyday Sturgian high-noble attire inspired by wealthy medieval Rus aristocracy. Use richly woven wool, fine linen, elegant long coats or kaftans, tasteful embroidery, restrained fur trim, and expertly crafted belts or clasps. Men should wear a stately long noble coat layered over a fine embroidered shirt and tailored trousers. Women should wear a richly cut long dress or overdress with embroidered cuffs, collar, and hem, paired with a fitted outer garment or elegant shoulder layer. The outfit should feel imposing, expensive, and suited to the daily life of a powerful northern noble. No headgear of any kind. No armor, weapons, crowns, full ceremonial regalia, or extravagant fur mantles.",
-  "status": "failed",
-  "descriptionSource": "portrait_prompt_fallback",
-  "retryEligible": true,
-  "error": "{\"error\":{\"message\":\"Model \\\"zai-org/glm-5.2\\\" does not support image inputs. Remove image content or choose a multimodal model.\",\"type\":\"invalid_request_error\",\"param\":\"messages\",\"code\":\"image_input_not_supported\"}}",
-  "updatedUtc": "2026-07-18T22:03:31.2869124Z"
+  "imageSha256": "FF134CDE4FC85339B441CFF2B439D41EB0223EBEB05FDFFE4E5A9222E2A8905F",
+  "description": "Khorula wears a full-length dark blue patterned gown with a low square neckline, fitted structured bodice and elbow-length sleeves. Narrow gold-tan woven borders decorate the neckline, bodice, sleeves and hem. A cream patterned underlayer appears along the skirt opening and cuffs. A richly woven belt with two round metal clasps defines the waist. A matching dark blue and gold bordered wrap rests along her arms, with fringed ends hanging to the lower skirt. A round pendant and small earrings provide restrained jewelry. Brown closed shoes are visible beneath the hem. Fabrics appear substantial and opaque; exact fibers cannot be identified. No headgear, armor or weapon appears.",
+  "status": "completed",
+  "descriptionSource": "agent_vision",
+  "retryEligible": false,
+  "error": "",
+  "updatedUtc": "2026-10-07T23:20:49.374Z"
 }

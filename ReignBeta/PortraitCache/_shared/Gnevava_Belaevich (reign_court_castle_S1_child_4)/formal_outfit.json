@@ -3,11 +3,11 @@
   "heroStringId": "reign_court_castle_S1_child_4",
   "characterName": "Gnevava Belaevich",
   "imagePath": "portrait.png",
-  "imageSha256": "5C4FCD8F9012C6BEC105790C5D731F83BE2D6FC48547CBAB294449122DC3DAA4",
-  "description": "Culturally appropriate everyday Sturgian minor-lord attire inspired by refined medieval Rus and Slavic noble clothing. Men should wear a well-made long shirt beneath a tailored wool kaftan or long belted coat, decorated with fine geometric embroidery and quality trim. Women should wear a long embroidered shift with an elegant wool overdress or noble coat-dress, secured with a richly woven sash. Include subtle fur trim around collars or cuffs, tasteful clasps, and better-quality fabric than a landowner would wear. The clothing should remain practical for a northern climate while clearly showing noble rank. No headgear of any kind. No armor, weapons, crowns, ceremonial robes, or oversized fur displays.",
-  "status": "failed",
-  "descriptionSource": "portrait_prompt_fallback",
-  "retryEligible": true,
-  "error": "{\"error\":{\"message\":\"Model \\\"zai-org/glm-5.2\\\" does not support image inputs. Remove image content or choose a multimodal model.\",\"type\":\"invalid_request_error\",\"param\":\"messages\",\"code\":\"image_input_not_supported\"}}",
-  "updatedUtc": "2026-07-18T22:03:29.6071262Z"
+  "imageSha256": "3C22BCBA47C69A4673C9C27766CABB3AFCAA13C9CEB1C2819A8923110B6C51E4",
+  "description": "Blue floor-length low square-neck gown with gold geometric embroidery and elbow sleeves, patterned woven belt, cream underskirt, gray-brown fur-trimmed shawl over forearms and brown closed shoes.",
+  "status": "completed",
+  "descriptionSource": "agent_vision",
+  "retryEligible": false,
+  "error": "",
+  "updatedUtc": "2026-10-07T21:56:26.357Z"
 }

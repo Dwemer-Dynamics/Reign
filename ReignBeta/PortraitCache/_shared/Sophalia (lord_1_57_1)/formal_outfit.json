@@ -3,11 +3,11 @@
   "heroStringId": "lord_1_57_1",
   "characterName": "Sophalia",
   "imagePath": "portrait.png",
-  "imageSha256": "16FDE47220508FD45AF8355459A7CDF8F8CDBB4BFC2892F13C49F1C5D67AA626",
-  "description": "Culturally appropriate everyday Calradic Imperial minor-lord attire inspired by refined late Roman and Byzantine noble clothing. Men should wear a high-quality tunic or long tailored outer coat over fine linen, decorated with narrow woven borders, refined clasps, and a decorated belt. Women should wear a long elegant dress or layered tunic ensemble with shaped sleeves, graceful draping, and tasteful trim around the neckline, cuffs, and edges. The garments should feel polished, educated, urban, and wealthy without resembling full imperial ceremony. No headgear of any kind. No armor, weapons, crowns, imperial regalia, laurel wreaths, or ceremonial robes.",
-  "status": "failed",
-  "descriptionSource": "portrait_prompt_fallback",
-  "retryEligible": true,
-  "error": "{\"error\":{\"message\":\"Model \\\"zai-org/glm-5.2\\\" does not support image inputs. Remove image content or choose a multimodal model.\",\"type\":\"invalid_request_error\",\"param\":\"messages\",\"code\":\"image_input_not_supported\"}}",
-  "updatedUtc": "2026-07-18T22:03:34.3287037Z"
+  "imageSha256": "51E932FF9FD9D0594C5E147041B158EC18BAFB33D71C80572382A103D10C0205",
+  "description": "Full-length burgundy court gown with square neckline, cream front skirt panel and gold embroidered borders; gold waist belt with round clasp, matching mantle around arms, gold earrings and dark embroidered shoes.",
+  "status": "completed",
+  "descriptionSource": "agent_vision",
+  "retryEligible": false,
+  "error": "",
+  "updatedUtc": "2026-10-08T01:16:00.238Z"
 }

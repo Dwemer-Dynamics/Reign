@@ -3,11 +3,11 @@
   "heroStringId": "reign_court_castle_K3_mother",
   "characterName": "Mungaa Chaganatai",
   "imagePath": "portrait.png",
-  "imageSha256": "8218E71BEBF874DE9E59A62B168E3117CA3A3E00C5DD3D08D577A678743930A3",
-  "description": "Culturally appropriate everyday Khuzait landowner attire inspired by practical medieval Turkic and Mongol steppe clothing suited to riding, travel, wind, and changing weather. Men should wear a crossed-front deel or caftan with an overlapping closure, a broad woven or leather sash, loose trousers, and practical layered sleeves. Women should wear a long crossed-front robe or fitted steppe coat over a simple underdress, secured with a woven sash. Fabrics should include wool, felt, linen, and restrained leather edging. Add simple woven geometric trim. No headgear of any kind. No fur hats, caps, hoods, armor, weapons, oversized fur displays, crowns, or fantasy elements.",
-  "status": "failed",
-  "descriptionSource": "portrait_prompt_fallback",
-  "retryEligible": true,
-  "error": "{\"error\":{\"message\":\"Model \\\"zai-org/glm-5.2\\\" does not support image inputs. Remove image content or choose a multimodal model.\",\"type\":\"invalid_request_error\",\"param\":\"messages\",\"code\":\"image_input_not_supported\"}}",
-  "updatedUtc": "2026-07-18T22:03:32.7453040Z"
+  "imageSha256": "6028C067A6573C6596F5B0D4BDA1D472E227D75E284239DFF6AE07E3A0E57789",
+  "description": "A muted teal court gown has a low square neckline, fitted structured bodice, elbow-length sleeves and long paneled skirt. Narrow gold and darker geometric woven bands trim the neckline, cuffs, front and hem. An ivory underdress forms a central inset, while an ivory wrap with teal-gold borders rests around the forearms. A broad woven belt has round metal medallions and hanging tassels. Small earrings and brown shoes are visible.",
+  "status": "completed",
+  "descriptionSource": "agent_vision",
+  "retryEligible": false,
+  "error": "",
+  "updatedUtc": "2026-10-08T01:37:00.264Z"
 }

@@ -1,1 +1,210 @@
-{"Version":3,"CropAlgorithmVersion":2,"SourceFileName":"portrait.png","SourcePath":"D:\\Reign\\Data\\Content\\PortraitCache\\_shared\\Phaea (lord_1_36)\\portrait.png","SourceLength":1852444,"SourceLastWriteUtcTicks":639250356019737502,"SourceWidth":1024,"SourceHeight":1536,"CropX":365,"CropY":56,"CropWidth":290,"CropHeight":362,"WideCropX":256,"WideCropY":56,"WideCropWidth":507,"WideCropHeight":362,"FocusMethod":"ultraface","FocusModel":"version-RFB-320","FocusConfidence":0.99965155124664307,"FaceCandidateCount":1,"FaceX":0.42929044365882874,"FaceY":0.063817784190177917,"FaceWidth":0.13743957877159119,"FaceHeight":0.10957014560699463,"NeedsReview":false,"ThumbnailFileName":"thumbnail.png","ThumbnailWidth":256,"ThumbnailHeight":320,"PartyThumbnailFileName":"thumbnail_wide.png","PartyThumbnailWidth":448,"PartyThumbnailHeight":320,"PortraitFileName":"portrait_chest.png","PortraitWidth":290,"PortraitHeight":362,"ZoomFileName":"zoom.png","ZoomWidth":1024,"ZoomHeight":1536}
+{
+  "Version": 3,
+  "CropAlgorithmVersion": 2,
+  "SourceFileName": "portrait.png",
+  "SourcePath": "C:\\ReignPortraitRebuild\\2026-10-07-01a11741-culture-v2\\_shared\\Phaea (lord_1_36)\\portrait.png",
+  "SourceLength": 2194869,
+  "SourceLastWriteUtcTicks": 639270898891284572,
+  "SourceWidth": 1086,
+  "SourceHeight": 1448,
+  "CropX": 403,
+  "CropY": 0,
+  "CropWidth": 279,
+  "CropHeight": 349,
+  "WideCropX": 298,
+  "WideCropY": 0,
+  "WideCropWidth": 489,
+  "WideCropHeight": 349,
+  "FocusMethod": "ultraface",
+  "FocusModel": "version-RFB-320",
+  "FocusConfidence": 0.9997010827064514,
+  "FaceCandidateCount": 1,
+  "FaceX": 0.447864830493927,
+  "FaceY": 0.07940830290317535,
+  "FaceWidth": 0.10422998666763306,
+  "FaceHeight": 0.08500710129737854,
+  "NeedsReview": false,
+  "ThumbnailFileName": "thumbnail.png",
+  "ThumbnailWidth": 256,
+  "ThumbnailHeight": 320,
+  "PartyThumbnailFileName": "thumbnail_wide.png",
+  "PartyThumbnailWidth": 448,
+  "PartyThumbnailHeight": 320,
+  "PortraitFileName": "portrait_chest.png",
+  "PortraitWidth": 279,
+  "PortraitHeight": 349,
+  "ZoomFileName": "zoom.png",
+  "ZoomWidth": 1024,
+  "ZoomHeight": 1365,
+  "ManualCropProvenance": {
+    "schema": "reign-manual-crop-provenance-v1",
+    "actualCropPolicy": "manual-crown-expansion-v1",
+    "nativeAlgorithmProducedRectangle": false,
+    "compatibilityFields": {
+      "Version": 3,
+      "CropAlgorithmVersion": 2
+    },
+    "compatibilityFieldInterpretation": "Retained native consumer tags; this explicit adapter selected the rectangles, not algorithm2.",
+    "master": {
+      "path": "C:\\ReignPortraitRebuild\\2026-10-07-01a11741-culture-v2\\_shared\\Phaea (lord_1_36)\\portrait.png",
+      "sha256": "089b32a71c6916b6f2f82cba2d44904b287476c1de3b17021385d18920c159a7",
+      "bytes": 2194869
+    },
+    "baselineMetadata": {
+      "path": "C:\\ReignPortraitRebuild\\2026-10-07-01a11741-culture-v2\\_shared\\Phaea (lord_1_36)\\.portrait_derivatives.json",
+      "sha256": "2be09052375188121fe1f0e5cad512794a3274f294706c751147fd07d46cb2ca",
+      "bytes": 1182
+    },
+    "plan": {
+      "path": "C:\\ReignPortraitRebuild\\2026-10-07-01a11741-culture-v2\\audit\\remaining-phase4-crown-pack-preparation-component-001\\candidate-plan-001.json",
+      "sha256": "92023e4675e2b55ff1398bb4179fd790ed4585f7cfb1e36311cd919f8a21b666",
+      "bytes": 125163
+    },
+    "authorization": {
+      "path": "C:\\ReignPortraitRebuild\\2026-10-07-01a11741-culture-v2\\audit\\remaining-phase4-crown-pack-preparation-component-001\\root-release-001.json",
+      "sha256": "a9f72a1dd9f9cd592d1a3c3b113539231d53906f02f60e5a8788c2e0359fb481",
+      "bytes": 2490
+    },
+    "actualProducer": {
+      "path": "C:\\ReignPortraitRebuild\\2026-10-07-01a11741-culture-v2\\audit\\remaining-phase4-crown-pack-preparation-component-001\\candidate-crown-pack-001.py",
+      "sha256": "9d23c388eb640f6ca67a0b2ffefe155eb7d72acc274c29ed776baec2e76c13bb",
+      "bytes": 12300
+    },
+    "nativeCodecWorker": {
+      "path": "C:\\ReignPortraitRebuild\\2026-10-07-01a11741-culture-v2\\audit\\remaining-phase4-crown-pack-preparation-component-001\\native-crown-codec-001.ps1",
+      "sha256": "5dc42027b8c46261f4040b3c08dfd5b5957fae6f36864d348f542828634ff974",
+      "bytes": 6106
+    },
+    "codecAssembly": {
+      "path": "D:\\Projects\\Reign\\.codex-build\\reign-mcp\\validation\\20261007-181216-5bee7061\\client\\out\\ReignBeta.dll",
+      "sha256": "498c5d8e7af24226dbf5b9d37147fd562cf0e42b6477b6f4607f6011905ac5b8",
+      "bytes": 5388800
+    },
+    "originalGenerationLineage": {
+      "phaseResult": {
+        "path": "C:\\ReignPortraitRebuild\\2026-10-07-01a11741-culture-v2\\audit\\residual-correction-phase4-001\\lord_1_36\\result.json",
+        "sha256": "f01d482a95dc74c35030c4ed688bb48038b05c222e8fec294a5acd2843badf99",
+        "bytes": 5994
+      },
+      "originalDerivativeReport": {
+        "path": "C:\\ReignPortraitRebuild\\2026-10-07-01a11741-culture-v2\\audit\\phase4-execution-review-route-001\\lord_1_36\\derivative-report.json",
+        "sha256": "e8072c5b607479f72e4a2fbfc7ce9c06c26e139e2b5bf908bc3111a14d86643d",
+        "bytes": 3721
+      }
+    },
+    "rawFocusUnchanged": true,
+    "noCandidateExclusions": true,
+    "rectangleXYWH": [
+      403,
+      0,
+      279,
+      349
+    ],
+    "wideRectangleXYWH": [
+      298,
+      0,
+      489,
+      349
+    ],
+    "productBytes": [
+      {
+        "path": "C:\\ReignPortraitRebuild\\2026-10-07-01a11741-culture-v2\\audit\\remaining-phase4-crown-pack-preparation-component-001\\candidate-packs-001\\lord_1_36\\portrait_chest.png",
+        "sha256": "b4e6dfc0d5f95ff6196a8044b0ee3b5417aa733b471a554a1e70d41a5e87e61f",
+        "bytes": 216297,
+        "name": "portrait_chest.png",
+        "dimensions": [
+          279,
+          349
+        ]
+      },
+      {
+        "path": "C:\\ReignPortraitRebuild\\2026-10-07-01a11741-culture-v2\\audit\\remaining-phase4-crown-pack-preparation-component-001\\candidate-packs-001\\lord_1_36\\thumbnail.png",
+        "sha256": "fe49935c67554f95268efaafd25a96583259dc478bc3772599b6bd46ad020326",
+        "bytes": 178974,
+        "name": "thumbnail.png",
+        "dimensions": [
+          256,
+          320
+        ]
+      },
+      {
+        "path": "C:\\ReignPortraitRebuild\\2026-10-07-01a11741-culture-v2\\audit\\remaining-phase4-crown-pack-preparation-component-001\\candidate-packs-001\\lord_1_36\\thumbnail_wide.png",
+        "sha256": "e7b279c7603594c2626497afc253cd0be30815af33e5660c74d7f004f2021bf8",
+        "bytes": 275463,
+        "name": "thumbnail_wide.png",
+        "dimensions": [
+          448,
+          320
+        ]
+      }
+    ],
+    "zoomUnchanged": {
+      "path": "C:\\ReignPortraitRebuild\\2026-10-07-01a11741-culture-v2\\_shared\\Phaea (lord_1_36)\\zoom.png",
+      "sha256": "04301444a98f58c92712b14b44ff5a53811734222a1f96cd4577c5378cd4042c",
+      "bytes": 3213890
+    },
+    "scope": "Candidate crop only; root raster approval and audit reader/adoption pending. No source/geometry/family/overall acceptance.",
+    "sourceLastWriteUtcTicksExactDecimal": "639270898891284572",
+    "nativeFieldsChangedOnly": [
+      "CropX",
+      "CropY",
+      "CropWidth",
+      "CropHeight",
+      "WideCropX",
+      "WideCropY",
+      "WideCropWidth",
+      "WideCropHeight",
+      "PortraitWidth",
+      "PortraitHeight",
+      "ThumbnailWidth",
+      "ThumbnailHeight",
+      "PartyThumbnailWidth",
+      "PartyThumbnailHeight"
+    ],
+    "forcedRebuildLimitation": "Native forced regeneration/freshness invalidation may replace these crops and this extension."
+  },
+  "StagedAssetProvenance": {
+    "schema": "reign-staged-effective-portrait-origin-v1",
+    "id": "lord_1_36",
+    "kind": "manual_same_master",
+    "currentLocalFiles": [
+      {
+        "name": "portrait_chest.png",
+        "sha256": "b4e6dfc0d5f95ff6196a8044b0ee3b5417aa733b471a554a1e70d41a5e87e61f",
+        "bytes": 216297
+      },
+      {
+        "name": "thumbnail.png",
+        "sha256": "fe49935c67554f95268efaafd25a96583259dc478bc3772599b6bd46ad020326",
+        "bytes": 178974
+      },
+      {
+        "name": "thumbnail_wide.png",
+        "sha256": "e7b279c7603594c2626497afc253cd0be30815af33e5660c74d7f004f2021bf8",
+        "bytes": 275463
+      },
+      {
+        "name": "portrait.png",
+        "sha256": "089b32a71c6916b6f2f82cba2d44904b287476c1de3b17021385d18920c159a7",
+        "bytes": 2194869
+      },
+      {
+        "name": "zoom.png",
+        "sha256": "04301444a98f58c92712b14b44ff5a53811734222a1f96cd4577c5378cd4042c",
+        "bytes": 3213890
+      }
+    ],
+    "nativeAlgorithmProducedRectangle": false,
+    "priorProducerExtensionsRetainedVerbatim": true,
+    "absolutePriorReferencesRole": "Historical/candidate references; current module pixels/provenance use the relative currentLocalFiles.",
+    "sourcePathProjection": {
+      "from": "C:\\ReignPortraitRebuild\\2026-10-07-01a11741-culture-v2\\_shared\\Phaea (lord_1_36)\\portrait.png",
+      "to": "C:\\ReignPortraitRebuild\\2026-10-07-01a11741-culture-v2\\_shared\\Phaea (lord_1_36)\\portrait.png",
+      "reason": "Unchanged current fullbody cache anchor"
+    },
+    "independentChestNativeForcedRegenerationCanOverwrite": false,
+    "globalFaceAcceptance": false,
+    "nativeUIAcceptance": false,
+    "notSwapApproval": true
+  }
+}

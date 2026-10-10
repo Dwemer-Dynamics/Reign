@@ -1,16 +1,90 @@
 {
   "version": 1,
+  "schema": "reign-builtin-chat-reference-guided-image-generation-culture-v1",
   "cacheKey": "Miroenan_Leshaevich (reign_court_castle_S5_father)",
   "heroStringId": "reign_court_castle_S5_father",
   "characterObjectId": "reign_court_castle_S5_father",
   "characterName": "Miroenan Leshaevich",
-  "provider": "AtlasCloud",
-  "model": "xai/grok-imagine-image/edit",
-  "adapter": "atlas upload/generate/poll",
+  "worker": "worker-4",
+  "generatedOriginalPath": "C:\\Users\\speed\\.codex\\generated_images\\01a11c35-9331-7471-a03c-9fcc53956ad3\\exec-bbd4ecf4-b2bd-450c-9173-bf42d9b81d4e.png",
+  "sourceFileCreationUtc": "2026-10-08T21:18:39.701Z",
+  "generationRequestId": "569b21eb-631c-40ce-8ef4-cde70f845925",
+  "generationRequestSha256": "e26fab2e0f571d052bbd3d6e030c024c3d819ed5e8ea6411426034638987d65b",
+  "generationReturnSha256": "f14524b9860f87c76bc24646ed33d11dbc03123001a26542a6826fe6ea498e93",
+  "provider": "Codex built-in image_gen",
+  "model": "unknown",
+  "adapter": "old-face-identity/new-style-reference-guided",
+  "generationMode": "reference_guided",
+  "inputImages": 2,
+  "references": [
+    {
+      "id": "reign_court_castle_S5_father",
+      "role": "old_identity",
+      "path": "D:\\Program Files (x86)\\Steam\\steamapps\\common\\Mount & Blade II Bannerlord\\Modules\\ReignBeta\\PortraitCache\\_shared\\Miroenan_Leshaevich (reign_court_castle_S5_father)\\portrait_chest.png",
+      "sha256": "923c529ea4d4e9fb79e2f8be92213e04a3a2ca70008b22912bbe226019d4e6da",
+      "originalReference": {
+        "path": "D:\\Program Files (x86)\\Steam\\steamapps\\common\\Mount & Blade II Bannerlord\\Modules\\ReignBeta\\PortraitCache\\_shared\\Miroenan_Leshaevich (reign_court_castle_S5_father)\\portrait_chest.png",
+        "sha256": "923c529ea4d4e9fb79e2f8be92213e04a3a2ca70008b22912bbe226019d4e6da"
+      }
+    },
+    {
+      "id": "reign_court_castle_S5_father",
+      "role": "new_style",
+      "path": "C:\\ReignPortraitRebuild\\2026-10-07-01a11741-culture-v2\\audit\\residual-correction-phase4-001\\reign_court_castle_S5_father\\predecessor-files\\_shared\\Miroenan_Leshaevich (reign_court_castle_S5_father)\\portrait.png",
+      "sha256": "a94a4260cf6a4473f8ac27922250b9a1098fe6bb51cb11c47f541a48baee5740",
+      "originalReference": {
+        "path": "C:\\ReignPortraitRebuild\\2026-10-07-01a11741-culture-v2\\_shared\\Miroenan_Leshaevich (reign_court_castle_S5_father)\\portrait.png",
+        "sha256": "a94a4260cf6a4473f8ac27922250b9a1098fe6bb51cb11c47f541a48baee5740"
+      }
+    }
+  ],
+  "referenceGuidedExecution": {
+    "schema": "reign-portrait-reference-guided-execution-v1",
+    "generationMode": "reference_guided",
+    "inputImages": 2,
+    "references": [
+      {
+        "id": "reign_court_castle_S5_father",
+        "role": "old_identity",
+        "path": "D:\\Program Files (x86)\\Steam\\steamapps\\common\\Mount & Blade II Bannerlord\\Modules\\ReignBeta\\PortraitCache\\_shared\\Miroenan_Leshaevich (reign_court_castle_S5_father)\\portrait_chest.png",
+        "sha256": "923c529ea4d4e9fb79e2f8be92213e04a3a2ca70008b22912bbe226019d4e6da",
+        "originalReference": {
+          "path": "D:\\Program Files (x86)\\Steam\\steamapps\\common\\Mount & Blade II Bannerlord\\Modules\\ReignBeta\\PortraitCache\\_shared\\Miroenan_Leshaevich (reign_court_castle_S5_father)\\portrait_chest.png",
+          "sha256": "923c529ea4d4e9fb79e2f8be92213e04a3a2ca70008b22912bbe226019d4e6da"
+        }
+      },
+      {
+        "id": "reign_court_castle_S5_father",
+        "role": "new_style",
+        "path": "C:\\ReignPortraitRebuild\\2026-10-07-01a11741-culture-v2\\audit\\residual-correction-phase4-001\\reign_court_castle_S5_father\\predecessor-files\\_shared\\Miroenan_Leshaevich (reign_court_castle_S5_father)\\portrait.png",
+        "sha256": "a94a4260cf6a4473f8ac27922250b9a1098fe6bb51cb11c47f541a48baee5740",
+        "originalReference": {
+          "path": "C:\\ReignPortraitRebuild\\2026-10-07-01a11741-culture-v2\\_shared\\Miroenan_Leshaevich (reign_court_castle_S5_father)\\portrait.png",
+          "sha256": "a94a4260cf6a4473f8ac27922250b9a1098fe6bb51cb11c47f541a48baee5740"
+        }
+      }
+    ],
+    "textCompositionImageInputs": 0,
+    "textVerificationSha256": "76dd5a414e678fe876e0ec1dc855e984f8b1113fab3cf357830fbccd5122a539",
+    "textPromptSha256": "e62d82edcd6504893cf53d7b4a66a517466c010c3e6df6b38d43c8b4cfbd8b84",
+    "compositionProofSha256": "097384f6afa7d6e6cb31b9e34c2b7dbaf4c8e13ad34988f5965c6998dc50867f",
+    "rootCompositionReview": {
+      "path": "C:\\ReignPortraitRebuild\\2026-10-07-01a11741-culture-v2\\audit\\root-full32-prompt-composition-review-001\\reign_court_castle_S5_father\\root-hybrid-composition-review.json",
+      "sha256": "675fd44c3ed8b69e72e92eefe4d8361341377cf094c12962aa15918c4ef409e0"
+    }
+  },
   "sourceSha256": "22d56d2ed065ece5795bef19104268f5b7e1cb59b507bac848f43f46d17cdfce",
-  "portraitSha256": "1ce018f54a9726414c0fcee266b71038b0b1d8eaddc1ef094ec82d8e2a0bc144",
-  "portraitWidth": 864,
-  "portraitHeight": 1152,
+  "portraitSha256": "f90e841e239d722690960735d338749c83010f439e41d759b43524cb1ea761be",
+  "portraitWidth": 1086,
+  "portraitHeight": 1448,
+  "promptSha256": "d095a5c8c5290818926aba0cde12f8e4570316887fcfb2e05d6d7295e9f2c7ba",
+  "descriptionSha256": "212f821260a4b444d2fa226c5e5b9946c3a3016b11d3751e1f3f9a709acf4eb7",
+  "cultureId": "sturgia",
+  "cultureReferenceKey": "sturgia",
+  "cultureReference": "Eastern European and Slavic regional appearance.",
+  "cultureLayerFile": "portrait_facial_culture_sturgia.txt",
+  "cultureLayerFullText": "FACIAL CULTURAL APPEARANCE — STURGIAN\nStored cultureId: sturgia.\nRegional reference: Eastern European and Slavic regional appearance.\nCreate a believable real human face with this regional appearance. Apply the regional reference positively to facial appearance, facial structure and complexion; it is not only a clothing, setting or background instruction.\nBlend the regional reference with the individual facial description. Where simplified native geometry or game-renderer shading differs from this regional appearance, use a plausible natural blend while retaining recognizable individual traits: face outline, relative proportions, eyes, brows, nose, mouth, jaw and chin. Preserve the described hair identity, arrangement and texture, facial-hair pattern, eye character, visible scars and markings; do not invent new distinguishing marks.\nThese regional populations contain substantial individual variation. Do not give every member the same face, impose a universal skin, hair or eye color, or replace the written individual identity with a generic regional stereotype. Preserve source-grounded differences and natural human asymmetry.\nKeep the exact authored age and the independent native weight and build values. This layer applies to facial appearance and realistic complexion interpretation, not body size, muscularity, garment coverage or social rank. Every complete composition, clothing, confidence, photographic, output and physique modifier remains in effect. Do not print this reference or any metadata in the image.",
+  "cultureLayerSha256": "5fc312b4af9c990e2740af3573c1fc3cc244e24adae6636e66adea9d3b8155f6",
   "physicalConfidence": {
     "definition": "physical_confidence",
     "score": 42,
@@ -21,7 +95,10 @@
     "confidenceWeight": 0.25,
     "source": "shipped_profile_library"
   },
+  "confidenceCoverageOverride": null,
   "derivativesReady": true,
   "derivativeError": "",
-  "generatedUtc": "2026-07-17T19:03:53.5715922Z"
+  "generatedUtc": "2026-10-08T21:18:56.933Z",
+  "serverSigned": false,
+  "derivativeReportSha256": "a57a91e97fc28b6ac4f1a19ed4b7eae81ffd78f26fcbbb9ed90fa8dfb81f135c"
 }

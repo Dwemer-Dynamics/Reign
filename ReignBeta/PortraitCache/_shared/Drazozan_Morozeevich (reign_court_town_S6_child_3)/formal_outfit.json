@@ -3,11 +3,11 @@
   "heroStringId": "reign_court_town_S6_child_3",
   "characterName": "Drazozan Morozeevich",
   "imagePath": "portrait.png",
-  "imageSha256": "CF4D5826987F28D17D266711F1FA7468D050B3FCA7A6AC97FDFCA1E9D1290EA9",
-  "description": "Culturally appropriate everyday Sturgian minor-lord attire inspired by refined medieval Rus and Slavic noble clothing. Men should wear a well-made long shirt beneath a tailored wool kaftan or long belted coat, decorated with fine geometric embroidery and quality trim. Women should wear a long embroidered shift with an elegant wool overdress or noble coat-dress, secured with a richly woven sash. Include subtle fur trim around collars or cuffs, tasteful clasps, and better-quality fabric than a landowner would wear. The clothing should remain practical for a northern climate while clearly showing noble rank. No headgear of any kind. No armor, weapons, crowns, ceremonial robes, or oversized fur displays.",
-  "status": "failed",
-  "descriptionSource": "portrait_prompt_fallback",
-  "retryEligible": true,
-  "error": "{\"error\":{\"message\":\"Model \\\"zai-org/glm-5.2\\\" does not support image inputs. Remove image content or choose a multimodal model.\",\"type\":\"invalid_request_error\",\"param\":\"messages\",\"code\":\"image_input_not_supported\"}}",
-  "updatedUtc": "2026-07-18T22:03:27.8134447Z"
+  "imageSha256": "8258D257BFFF16B0BC20B28C156447B0FF1914F3AEEA48FFDEED614F143FEB35",
+  "description": "He wears a long dark navy-blue textured coat over a cream long tunic, with pale geometric woven borders along the coat opening, hem and cuffs. A modest brown fur collar frames the neck, and two round metal clasps are joined across the chest. A matching blue patterned woven sash is belted at the waist with one tasseled end hanging in front. Dark patterned trousers and tall brown leather boots complete the ensemble. The visible fabrics resemble wool and linen, though their exact fiber content cannot be established from the image. The outfit fully covers torso and limbs, and has no headgear, weapons or armor.",
+  "status": "completed",
+  "descriptionSource": "agent_vision",
+  "retryEligible": false,
+  "error": "",
+  "updatedUtc": "2026-10-07T21:40:44.067Z"
 }

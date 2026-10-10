@@ -3,11 +3,11 @@
   "heroStringId": "reign_court_town_A4_child_2",
   "characterName": "Kirala Hadramiqani",
   "imagePath": "portrait.png",
-  "imageSha256": "1BC5ED75C3108D139FDDC9B74573554609A00A7969149D1AD0F0E772FF947783",
-  "description": "Culturally appropriate everyday Aserai minor-lord attire inspired by refined medieval Arabian, North African, and limited Persian noble clothing. Men should wear a flowing robe or structured open-front coat over a fine lightweight tunic, secured with a decorated woven sash. Women should wear a long elegant dress with soft layered fabrics, shaped sleeves, graceful draping, and fine embroidery around the neckline, cuffs, and hem. Show rank through superior fabric, elegant borders, geometric embroidery, and subtle jewelry rather than excessive ornamentation. No headgear of any kind. No turbans, veils, hoods, armor, weapons, crowns, or ceremonial excess.",
-  "status": "failed",
-  "descriptionSource": "portrait_prompt_fallback",
-  "retryEligible": true,
-  "error": "{\"error\":{\"message\":\"Model \\\"zai-org/glm-5.2\\\" does not support image inputs. Remove image content or choose a multimodal model.\",\"type\":\"invalid_request_error\",\"param\":\"messages\",\"code\":\"image_input_not_supported\"}}",
-  "updatedUtc": "2026-07-18T22:03:31.3417334Z"
+  "imageSha256": "A6523ECC493A6D240E439FA6F6DB3FEC2C00CF04750753D67656239B179C1A4B",
+  "description": "Kirala wears a cream and pale gold floor-length textured gown with a low square neckline, fitted structured bodice and elbow-length shaped sleeves. Gold-brown geometric woven or embroidered borders decorate the neckline, central front, waist, sleeve bands and hem. A burgundy patterned wrap with gold borders rests along the arms and hangs to the lower skirt. Small gold-toned earrings and a bracelet accompany two round decorative waist fittings and hanging ornament. A modest low skirt opening shows an ankle and a decorated closed flat shoe. Fabric remains substantial and opaque, with exact fibers uncertain. No headgear, armor or weapon is visible.",
+  "status": "completed",
+  "descriptionSource": "agent_vision",
+  "retryEligible": false,
+  "error": "",
+  "updatedUtc": "2026-10-07T23:20:48.990Z"
 }

@@ -3,11 +3,11 @@
   "heroStringId": "reign_court_town_EN4_child_1",
   "characterName": "Lethurion Istranerides",
   "imagePath": "portrait.png",
-  "imageSha256": "2C33E5F3E6CEC9697F1CF4447653BFD9C0FF465EAF07C10D35676C12C5F6530C",
-  "description": "Culturally appropriate everyday Calradic Imperial high-noble attire inspired by luxurious Byzantine aristocratic fashion, restrained enough for daily noble life. Use fine layered linen and wool, controlled flowing silhouettes, elegant draping, richly woven borders, small jeweled clasps, and sophisticated fabric textures. Men should wear a stately long tunic or structured noble coat over a fine undertunic, with refined belts and detailed edging. Women should wear a sophisticated layered noble dress with graceful drapery, tailored sleeves, and subtle aristocratic ornamentation. The outfit should communicate ancient prestige, wealth, and political importance. No headgear of any kind. No armor, weapons, crowns, laurel wreaths, or full ceremonial imperial regalia.",
-  "status": "failed",
-  "descriptionSource": "portrait_prompt_fallback",
-  "retryEligible": true,
-  "error": "{\"error\":{\"message\":\"Model \\\"zai-org/glm-5.2\\\" does not support image inputs. Remove image content or choose a multimodal model.\",\"type\":\"invalid_request_error\",\"param\":\"messages\",\"code\":\"image_input_not_supported\"}}",
-  "updatedUtc": "2026-07-18T22:03:31.7744275Z"
+  "imageSha256": "993A18DE0B560B90F1CE79DAD9CAD246FB5F01452C06EF0ADA4D1B48123D3E17",
+  "description": "Actual third output has a full-length plum-purple Imperial outer tunic/robe over a cream undertunic, with richly woven gold borders, broad sleeve cuffs, a round shoulder clasp and a decorated belt. A purple mantle drapes down one side. Both hands and dark gold-trimmed boots are visible. The figure stands upright against plain bare stone columns and doorway; no wall banner, emblem, words, armor or weapon is visible.",
+  "status": "completed",
+  "descriptionSource": "agent_vision",
+  "retryEligible": false,
+  "error": "",
+  "updatedUtc": "2026-10-08T05:34:35.337Z"
 }

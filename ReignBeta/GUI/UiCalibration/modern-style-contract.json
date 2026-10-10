@@ -1,8 +1,58 @@
 {
+  "partyBanter": {
+    "authority": "User-authorized travel banter, 2026-10-04; movable/resizable/minimize-expand controls requested 2026-10-09",
+    "movie": "ReignBanterPanel",
+    "canvas": {
+      "width": 1672,
+      "height": 941
+    },
+    "panel": {
+      "width": 420,
+      "height": 220,
+      "collapsedHeight": 42,
+      "right": 18,
+      "bottom": 122,
+      "minWidth": 320,
+      "minExpandedHeight": 200,
+      "maxWidth": 1000,
+      "maxExpandedHeight": 700,
+      "screenInset": 8,
+      "resizeGrip": "BanterResizeHandle",
+      "dragHandle": "BanterDragHandle"
+    },
+    "dynamicFont": "ReignSerifDynamic",
+    "fixedRegionSpec": "../../artwork/ui-modern-style-kit/specs/screen-banter-fixed-region-mask.json",
+    "rule": "Nonmodal floating window. Existing complete artwork uses native NineRegionSprite borders: expanded 15/60/40/36; bar 15/60/8/8. Fixed edges and dialog symbol retain size; only center/edge strips extend. Header dragging, separate corner resizing, clipped scroll viewport and disjoint minimize/join/grip hitboxes. Minimize retains a movable 42-unit bar with Expand and Join. Local player geometry survives reopening and clamps on viewport changes. Mouse focus/restrictions exist only over the panel or during a held drag; keyboard and map time are untouched. Native/human acceptance remains required."
+  },
   "schema": "reign-ui-modern-style-contract-v1",
   "version": "2026.09.03.2",
+  "playerApproaches": {
+    "authority": "User request, 2026-10-03",
+    "movie": "ReignPlayerApproachPopup",
+    "fixedRegionSpec": "../../artwork/ui-modern-style-kit/specs/screen-player-approach-fixed-region-mask.json",
+    "owningSprite": "reign_notable_generation_popup",
+    "canvas": {
+      "width": 1672,
+      "height": 941
+    },
+    "dynamicFont": "ReignSerifDynamic",
+    "rule": "Reuse approved notable-generation art without changing any fixed pixel. Title and public request use its existing apertures; the two buttons occupy its status plate. No numerical neglect scores or private conversation content appear in the request."
+  },
   "assetManifest": "../../artwork/ui-modern-style-kit/asset-manifest.json",
   "palette": "../../artwork/ui-modern-style-kit/palette.json",
+  "structuredActionComposer": {
+    "authority": "Explicit user instruction, 2026-10-03",
+    "widget": "ReignActionEditableTextWidget",
+    "brushes": [
+      "Reign.Chat.Composer.16",
+      "Reign.Chat.Composer.18",
+      "Reign.Chat.Composer.20",
+      "Reign.Chat.Composer.19"
+    ],
+    "actionTextToken": "textAction",
+    "ordinaryTextToken": "textPrimary",
+    "rule": "Preserve the current composer geometry and ReignSerifDynamic face. Only the attached indivisible action segment renders white; ordinary speech remains gray. Native selection may render white over its selection highlight. Backspace/Delete/cut/replacement touching the segment cancels the complete attached draft and preserves untouched surrounding text."
+  },
   "portraitFrameOverlaySpec": {
     "path": "../../artwork/ui-modern-style-kit/specs/portrait-frame-only-overlays.json",
     "expectedSha256": "287e43a2ec2bd5f3c9c0f540aff68268caa9bbb3d7902bd58bc24a1af8af5244"
@@ -75,6 +125,10 @@
     "canonicalBrush": {
       "default": "DefaultText",
       "allowedNativeSerifBrushes": [
+        "Reign.Chat.Composer.16",
+        "Reign.Chat.Composer.18",
+        "Reign.Chat.Composer.20",
+        "Reign.Chat.Composer.19",
         "DefaultText",
         "Info.Text"
       ],
@@ -148,6 +202,109 @@
     }
   },
   "overlayAssets": [
+    {
+      "id": "outfit-change-integrated-shell",
+      "path": "../SpriteParts/ui_reignbeta_individual/reign_outfit_change_shell.png",
+      "shape": "compound",
+      "presentation": "opaque-aperture-plate",
+      "expectedSha256": "6e4d012135b2a22f1656416d336c781e3a9b549ce2d0aaaa8033a81d77270b85",
+      "apertures": [
+        {
+          "shape": "polygon",
+          "aperture": {
+            "units": "pixels",
+            "x": 269,
+            "y": 139,
+            "width": 464,
+            "height": 585,
+            "points": [
+              [
+                280,
+                139
+              ],
+              [
+                721,
+                139
+              ],
+              [
+                733,
+                151
+              ],
+              [
+                733,
+                710
+              ],
+              [
+                721,
+                724
+              ],
+              [
+                280,
+                724
+              ],
+              [
+                269,
+                710
+              ],
+              [
+                269,
+                151
+              ]
+            ]
+          }
+        },
+        {
+          "shape": "polygon",
+          "aperture": {
+            "units": "pixels",
+            "x": 940,
+            "y": 139,
+            "width": 464,
+            "height": 585,
+            "points": [
+              [
+                951,
+                139
+              ],
+              [
+                1392,
+                139
+              ],
+              [
+                1404,
+                151
+              ],
+              [
+                1404,
+                710
+              ],
+              [
+                1392,
+                724
+              ],
+              [
+                951,
+                724
+              ],
+              [
+                940,
+                710
+              ],
+              [
+                940,
+                151
+              ]
+            ]
+          }
+        }
+      ],
+      "backdrop": "Integrated generated artwork; untouched full-body PNGs contained underneath both apertures.",
+      "thresholds": {
+        "maximumLightNeutralPixelRatio": 5e-05,
+        "allowedOpaqueLeakPixels": 80,
+        "maximumOpaqueLeakRatio": 0.0003
+      }
+    },
     {
       "id": "clan-accords-integrated-banner-card",
       "shape": "polygon",
@@ -822,5 +979,76 @@
       "typography and text-color parity report",
       "protected-content color-preservation report"
     ]
+  },
+  "conversationOutfitChange": {
+    "referenceCanvas": {
+      "width": 1672,
+      "height": 941
+    },
+    "shell": {
+      "path": "../SpriteParts/ui_reignbeta_individual/reign_outfit_change_shell.png",
+      "sha256": "6e4d012135b2a22f1656416d336c781e3a9b549ce2d0aaaa8033a81d77270b85"
+    },
+    "fullBodyFit": "contain; never distort or crop head/feet",
+    "beforeBounds": [
+      269,
+      140,
+      464,
+      584
+    ],
+    "afterBounds": [
+      940,
+      140,
+      466,
+      584
+    ],
+    "fixedLabels": [
+      "New Clothes",
+      "Before",
+      "After",
+      "Cancel"
+    ],
+    "dynamic": [
+      "description",
+      "Changing",
+      "status",
+      "Confirm changes"
+    ],
+    "requiredStates": [
+      "input",
+      "changing",
+      "ready",
+      "failed",
+      "ineligible"
+    ],
+    "nativeAcceptance": "pending"
+  },
+  "structuredActionBuilder": {
+    "referenceId": "action-builder",
+    "approvalStatus": "candidate; human/native acceptance pending",
+    "fixedRegionSpec": "../../artwork/ui-modern-style-kit/specs/action-builder-shell.json",
+    "referenceSurfaceElementId": "ActionBuilderShell",
+    "sourceCanvas": {
+      "width": 1672,
+      "height": 941
+    },
+    "runtimeArtwork": {
+      "width": 1337.6,
+      "height": 752.8
+    },
+    "dynamicFont": "ReignSerifDynamic",
+    "composition": "One complete black-marble and antique-gold owning artwork; no separate decorative frames. Step choices scroll within a 680x200 viewport at 40px row pitch. Sentence scrolls within a 652x64 reading field. Back and Cancel remain visible. Only declared dynamic regions are masked for source-reference fidelity."
+  },
+  "portraitRefresh": {
+    "authority": "User request, 2026-10-06",
+    "movie": "ReignPortraitRefreshPopup",
+    "fixedRegionSpec": "../../artwork/ui-modern-style-kit/specs/screen-portrait-refresh-fixed-region-mask.json",
+    "owningSprite": "reign_notable_generation_popup",
+    "canvas": {
+      "width": 1672,
+      "height": 941
+    },
+    "dynamicFont": "ReignSerifDynamic",
+    "rule": "Unchanged approved notable-generation shell; three independent choice hitboxes remain inside its status plate. Native acceptance pending."
   }
 }

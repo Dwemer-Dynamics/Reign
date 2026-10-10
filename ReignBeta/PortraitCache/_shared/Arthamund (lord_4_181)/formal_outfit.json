@@ -3,11 +3,11 @@
   "heroStringId": "lord_4_181",
   "characterName": "Arthamund",
   "imagePath": "portrait.png",
-  "imageSha256": "D2B33C88582F371B609262D07304198758A172161271775EFAB41A1250763DEF",
-  "description": "Culturally appropriate everyday Vlandian high-noble attire inspired by wealthy Norman and Frankish aristocratic dress. Use luxurious fine wool and linen, expertly tailored layers, richly cut outer tunics or gowns, refined belts, decorative borders, subtle heraldic embroidery, and elegant fastenings. Men should wear a long tailored tunic or refined surcoat-style outer layer over fine linen and well-fitted chausses. Women should wear a fitted noble gown layered over a high-quality underdress, with graceful sleeves, refined trim, and tasteful jewelry. The outfit should feel expensive and powerful while remaining believable everyday noble wear. No headgear of any kind. No armor, weapons, crowns, or ceremonial regalia.",
-  "status": "failed",
-  "descriptionSource": "portrait_prompt_fallback",
-  "retryEligible": true,
-  "error": "{\"error\":{\"message\":\"Model \\\"zai-org/glm-5.2\\\" does not support image inputs. Remove image content or choose a multimodal model.\",\"type\":\"invalid_request_error\",\"param\":\"messages\",\"code\":\"image_input_not_supported\"}}",
-  "updatedUtc": "2026-07-18T22:03:24.8537226Z"
+  "imageSha256": "BF1155904CEFA952477A9B33D705AD0318F4BA4E18DA48E05CF364A4ECEEC276",
+  "description": "A rust-red long noble tunic or coat with ornate gold trim along the high collar, front, cuffs and hem, layered over a cream shirt visible at the wrists and lower hem. A broad brown shoulder mantle is fastened by two round metal brooches linked with a short chain; its edges have rich gold geometric borders. A narrow decorated waist belt has a round buckle and long hanging ornamental end. Brown fitted trousers and brown ankle boots complete the clothing. Textiles look substantial and patterned; exact fibre composition is uncertain. No headgear or weapons appear.",
+  "status": "completed",
+  "descriptionSource": "agent_vision",
+  "retryEligible": false,
+  "error": "",
+  "updatedUtc": "2026-10-07T20:38:18.796Z"
 }

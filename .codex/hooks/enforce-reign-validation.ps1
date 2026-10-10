@@ -46,8 +46,44 @@ $directVstest =
     $command -match '(?i)(?:^|[\s;&|])(?:&\s*)?(?:"[^"]*[\\/]vstest\.console(?:\.exe)?"|vstest\.console(?:\.exe)?)\b'
 $directVerification =
     $command -match '(?i)(?:ReignBetaServer|ReignVerification)(?:\.exe)?[^\r\n]*--run-verification'
-$legacyBuildScript =
-    $command -match '(?i)(?:scripts[\\/])(?:build|prepare-deployment|test-deployment|deploy[^\\/]*)\.ps1'
+# The paired deployment entry point only activates report-bound artifacts. Resolve
+# each literal path separately so mentioning it cannot exempt another legacy
+# script or a direct build elsewhere in the command.
+$workspaceRoot = [IO.Path]::GetFullPath((Join-Path $PSScriptRoot '..\..'))
+$canonicalDeploymentPaths = @(
+    [IO.Path]::GetFullPath((Join-Path $workspaceRoot 'ReignServer\scripts\Deploy-LocalWsl.ps1')),
+    [IO.Path]::GetFullPath((Join-Path $workspaceRoot '..\ReignServer\scripts\Deploy-LocalWsl.ps1'))
+)
+$commandDirectory = $workspaceRoot
+if ($payload.tool_input.workdir) {
+    $commandDirectory = [string]$payload.tool_input.workdir
+} elseif ($payload.cwd) {
+    $commandDirectory = [string]$payload.cwd
+}
+$deploymentLiterals = @()
+try {
+    $parseTokens = $null
+    $parseErrors = $null
+    $tree = [Management.Automation.Language.Parser]::ParseInput($command, [ref]$parseTokens, [ref]$parseErrors)
+    if ($parseErrors.Count -eq 0) {
+        $deploymentLiterals = @($tree.FindAll({ param($node)
+            $node -is [Management.Automation.Language.StringConstantExpressionAst]
+        }, $true) | Where-Object {
+            try {
+                $literalPath = if ([IO.Path]::IsPathRooted($_.Value)) { $_.Value } else { Join-Path $commandDirectory $_.Value }
+                [IO.Path]::GetFullPath($literalPath) -in $canonicalDeploymentPaths
+            } catch { $false }
+        })
+    }
+} catch { $deploymentLiterals = @() }
+$legacyBuildScript = $false
+foreach ($match in [regex]::Matches($command, '(?i)(?:scripts[\\/])(?:build|prepare-deployment|test-deployment|deploy[^\\/]*)\.ps1')) {
+    $canonicalLiteral = @($deploymentLiterals | Where-Object {
+        $_.Extent.StartOffset -le $match.Index -and
+        $_.Extent.EndOffset -ge ($match.Index + $match.Length)
+    })
+    if ($canonicalLiteral.Count -eq 0) { $legacyBuildScript = $true }
+}
 
 if (-not ($directDotnetOperation -or $directMsBuild -or $directVstest -or
         $directVerification -or $legacyBuildScript)) {

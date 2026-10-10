@@ -3,11 +3,11 @@
   "heroStringId": "lord_1_57",
   "characterName": "Altenos",
   "imagePath": "portrait.png",
-  "imageSha256": "25B48F93456E0835D8A787DA65671A496E906E1B4BF862EDED6016959F82916C",
-  "description": "Culturally appropriate everyday Calradic Imperial minor-lord attire inspired by refined late Roman and Byzantine noble clothing. Men should wear a high-quality tunic or long tailored outer coat over fine linen, decorated with narrow woven borders, refined clasps, and a decorated belt. Women should wear a long elegant dress or layered tunic ensemble with shaped sleeves, graceful draping, and tasteful trim around the neckline, cuffs, and edges. The garments should feel polished, educated, urban, and wealthy without resembling full imperial ceremony. No headgear of any kind. No armor, weapons, crowns, imperial regalia, laurel wreaths, or ceremonial robes.",
-  "status": "failed",
-  "descriptionSource": "portrait_prompt_fallback",
-  "retryEligible": true,
-  "error": "{\"error\":{\"message\":\"Model \\\"zai-org/glm-5.2\\\" does not support image inputs. Remove image content or choose a multimodal model.\",\"type\":\"invalid_request_error\",\"param\":\"messages\",\"code\":\"image_input_not_supported\"}}",
-  "updatedUtc": "2026-07-18T22:03:24.4358178Z"
+  "imageSha256": "4713814DFAD88FAC09A3A5ADB7BD9E95DA7F179487BBE5B87DE70A95D29117EC",
+  "description": "Opaque plum-purple knee-to-calf-length tailored coat over a cream linen undertunic. Broad gold floral-geometric borders run around the high split neckline, front opening, sleeve ends and hem. Several small gold clasps fasten the upper opening; cream inner cuffs show at the wrists. A broad brown leather waist belt carries round gold metal plaques, a large decorated round clasp and a long ornamented hanging strap. Dark brown trousers and tall dark brown leather boots complete the noble outfit. The coat fits a moderately built male frame. No shoulder cloak, headgear, armor or weapon is visible.",
+  "status": "completed",
+  "descriptionSource": "agent_vision",
+  "retryEligible": false,
+  "error": "",
+  "updatedUtc": "2026-10-07T21:10:31.974Z"
 }

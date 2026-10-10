@@ -114,7 +114,15 @@ public sealed class ToolMetadataTests
             ,"reign_cleanup_campaigns_without_saves"
         };
 
-        Assert.Equal(117, tools.Length);
+        writes.Add("reign_test_structured_actions");
+        destructive.Add("reign_test_structured_actions");
+        writes.Add("reign_test_action_conversations");
+        destructive.Add("reign_test_action_conversations");
+        writes.Add("reign_control_spymaster_action_test");
+        destructive.Add("reign_control_spymaster_action_test");
+        writes.Add("reign_control_spymaster_destructive_action_test");
+        destructive.Add("reign_control_spymaster_destructive_action_test");
+        Assert.Equal(121, tools.Length);
         Assert.All(tools, item =>
         {
             Assert.StartsWith("reign_", item.Tool!.Name, StringComparison.Ordinal);

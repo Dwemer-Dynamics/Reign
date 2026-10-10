@@ -773,7 +773,7 @@ export function extractTypographyWidgets(xml) {
     counts.set(tag, ordinal);
     const xmlPath = `${parent?.path || ""}/${tag}[${ordinal}]`;
     const attributes = parseAttributes(match[3] || "");
-    if (tag === "TextWidget" || tag === "RichTextWidget" || tag === "EditableTextWidget") {
+    if (tag === "TextWidget" || tag === "RichTextWidget" || tag.endsWith("EditableTextWidget")) {
       widgets.push({
         key: xmlPath,
         kind: tag,

@@ -3,11 +3,11 @@
   "heroStringId": "reign_court_town_EW2_child_2",
   "characterName": "Calonara Aurelorides",
   "imagePath": "portrait.png",
-  "imageSha256": "F287D9A08400F361AA866418BC162FF89AA92160FA6DBF54E6839C8563210762",
-  "description": "Culturally appropriate everyday Calradic Imperial high-noble attire inspired by luxurious Byzantine aristocratic fashion, restrained enough for daily noble life. Use fine layered linen and wool, controlled flowing silhouettes, elegant draping, richly woven borders, small jeweled clasps, and sophisticated fabric textures. Men should wear a stately long tunic or structured noble coat over a fine undertunic, with refined belts and detailed edging. Women should wear a sophisticated layered noble dress with graceful drapery, tailored sleeves, and subtle aristocratic ornamentation. The outfit should communicate ancient prestige, wealth, and political importance. No headgear of any kind. No armor, weapons, crowns, laurel wreaths, or full ceremonial imperial regalia.",
-  "status": "failed",
-  "descriptionSource": "portrait_prompt_fallback",
-  "retryEligible": true,
-  "error": "{\"error\":{\"message\":\"Model \\\"zai-org/glm-5.2\\\" does not support image inputs. Remove image content or choose a multimodal model.\",\"type\":\"invalid_request_error\",\"param\":\"messages\",\"code\":\"image_input_not_supported\"}}",
-  "updatedUtc": "2026-07-18T22:03:26.5028659Z"
+  "imageSha256": "3690F88AD11DDAB9A5F186F0BB6EED6DAB85764C5BF8E5A3E6F527B70D2AB1D5",
+  "description": "She wears an ivory patterned floor-length gown with a low square neckline and elbow-length sleeves. Purple and gold woven borders edge the bodice, sleeves and skirt, with round red jeweled shoulder clasps and a narrow decorated belt. A deep purple mantle with gold edging hangs loosely around her arms. Patterned closed shoes are visible beneath the hem; her head is bare.",
+  "status": "completed",
+  "descriptionSource": "agent_vision",
+  "retryEligible": false,
+  "error": "",
+  "updatedUtc": "2026-10-07T21:14:01.625Z"
 }

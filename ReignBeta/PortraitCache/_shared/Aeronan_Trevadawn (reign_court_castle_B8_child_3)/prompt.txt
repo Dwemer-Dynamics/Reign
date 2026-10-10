@@ -1,11 +1,24 @@
-IDENTITY AND SUBJECT
-Use the provided source image as the visual identity reference, not as a style reference.
-Create a portrait of Aeronan Trevadawn, a man of Battanian culture who is 20 years old.
-Their clan is tier 6, placing them socially among the high noble class. Use this status to guide the refinement, expense, materials, and ornament of their clothing without turning it into fantasy costume.
-Use the source face image as the primary visual reference for the subject’s appearance and identity. Preserve the recognizable facial features, apparent age, expression, eye shape, eye color, hair color, hairstyle, skin tone, facial proportions, bone structure, scars, facial hair, and other distinguishing characteristics as closely as possible.
-The source image may depict a stylized or simplified video-game character model. Do not reproduce the artificial game-model appearance, low-detail geometry, rigid facial structure, plastic skin, exaggerated proportions, or computer-rendered texture. Instead, reinterpret the character as a believable real human being while retaining the same recognizable identity.
-Translate simplified game features into natural human anatomy and realistic detail, including authentic skin texture, visible pores, subtle wrinkles, natural facial asymmetry, realistic eyes, individually defined hair, believable facial hair, and physically plausible facial proportions. The final face should look like a real person photographed in real life, not a game model, digital avatar, illustration, or CGI render.
-Treat the name, age, gender, culture, clan tier, and social station as private generation guidance. They describe the subject and must never be printed, captioned, labeled, written, or otherwise rendered anywhere in the image.
+I want you to create a picture of a 20-year-old man who looks like the description below. Create one photographic full-body portrait. Clothing follows Battanian high noble fashion, with the craftsmanship and social station of clan tier 6. These values are generation guidance and must never be printed in the image.
+Use a vertical 3:4 portrait canvas. Generate from the written traits alone.
+
+FACIAL APPEARANCE AND HAIR
+Aeronan Trevadawn is the recorded 20-year-old Battanian man. Keep his fair warm peach-beige complexion, flushed central cheeks and nose, and numerous irregular red-brown freckles and small blemishes across forehead, nose and cheeks. Keep natural pores and youthful adult skin, with no invented scar. His eyes remain muted olive green with dark outer rims, fairly narrow almond openings and heavy upper lids. Set those almond eyes conspicuously farther apart across a broad nose root, with about one and a quarter eye-widths of space between the inner corners. Keep the iris colour and lid weight; the deliberate change is the wider structural interval. Light-to-medium brown brows are fairly fine and mostly straight with small outer arches and uneven hairs.
+
+The long oval face retains a broad upper forehead, moderately prominent cheekbones and strong rounded lower jaw. His nose is a substantial short-to-medium straight nose with a broad ridge, ending in a broad fleshy round bulb and wide curved nostril wings. The lower nose is visibly wide and blunt, with a slightly low-set tip and level-to-downward base, rather than a long fine bridge ending in a tiny pointed tip. Retain the native projecting round-tip character and flushed nasal skin while making the bridge shorter and the lower base markedly broader.
+
+His closed muted pink-rose lips form a clearly wide horizontal mouth beneath the moustache. The upper lip has a broad shallow Cupid bow and a visible full central cushion; the lower lip is softly full and broad, not a tiny short central pout. Keep a neutral serious expression and show the real lip edges unobscured by the moustache. Wide eye spacing, the broad blunt shorter nose and the wide fuller visible mouth must be independently readable natural facial structures at thumbnail size.
+
+His dense light-brown-to-dark-blond hair has ashy golden highlights and tight irregular curls. Preserve the broad thick curly mass over the crown and upper sides, uneven front hairline and temple curls. A dense sandy golden-brown moustache has longer ends descending beside the mouth, connecting to short hair around the chin. A small darker under-lip patch remains; scattered short stubble covers the cheeks and jaw. Keep this mouth-ring arrangement and short facial hair, rather than uniform full cheek beard. Beard outline does not establish facial differentiation.
+
+Preserve his exact authored age 20, native weight 0.5 and male muscle-mass build 0.5 independently. Retain every full Battanian culture, clothing, composition, style, body and output layer. Use the naturally wider eye interval, substantial blunt lower nose and broad full lip geometry for identity; hair, beard, expression, clothing, age and body are not evidence of a different face.
+
+FACIAL CULTURAL APPEARANCE — BATTANIAN
+Stored cultureId: battania.
+Regional reference: Celtic Atlantic regional appearance, drawing on Irish, Scottish and Welsh populations.
+Create a believable real human face with this regional appearance. Apply the regional reference positively to facial appearance, facial structure and complexion; it is not only a clothing, setting or background instruction.
+Blend the regional reference with the individual facial description. Where simplified native geometry or game-renderer shading differs from this regional appearance, use a plausible natural blend while retaining recognizable individual traits: face outline, relative proportions, eyes, brows, nose, mouth, jaw and chin. Preserve the described hair identity, arrangement and texture, facial-hair pattern, eye character, visible scars and markings; do not invent new distinguishing marks.
+These regional populations contain substantial individual variation. Do not give every member the same face, impose a universal skin, hair or eye color, or replace the written individual identity with a generic regional stereotype. Preserve source-grounded differences and natural human asymmetry.
+Keep the exact authored age and the independent native weight and build values. This layer applies to facial appearance and realistic complexion interpretation, not body size, muscularity, garment coverage or social rank. Every complete composition, clothing, confidence, photographic, output and physique modifier remains in effect. Do not print this reference or any metadata in the image.
 
 COMPOSITION AND FRAMING
 Create a full head-to-toe body portrait showing the entire figure from the top of the head down to the feet
@@ -25,3 +38,14 @@ OUTPUT EXCLUSIONS
 Return only the portrait image itself.
 Do not render words, letters, numbers, captions, labels, names, ages, cultures, subtitles, signatures, logos, watermarks, interface elements, portrait cards, decorative title blocks, borders, banners, blank caption areas, white strips, white footer panels, or metadata panels anywhere in the image.
 No extreme close-up, face-only crop, cropped head, cropped shoulders, armor, weapons, shields, quivers, chainmail, helmets, fur war gear, plastic skin, over-smoothed face, CGI, cartoon, anime, painterly style, or modern clothing.
+
+NATIVE BODY APPEARANCE — AUTHORITATIVE PHYSIQUE
+Native weight: 0.5 on a 0–1 scale: Medium body-fat level.
+Native build: 0.5 on a 0–1 scale: Moderate musculature.
+These are independent native appearance sliders, not kilograms, BMI, clinical classifications or body-fat percentages. Respect the exact position within each range, without abrupt changes at descriptive boundaries.
+Weight controls body-fat fullness. For women, build controls natural muscle tone, firmness, and athletic definition, not added muscle mass, bulky shoulders, thick arms, or masculine bodybuilder proportions. For men, build controls muscle mass. High weight does not imply muscle. High build does not imply extra fat or automatically visible abdominal definition; body fat and clothing can obscure definition.
+Match these native proportions even if another prompt or the supplied AI portrait conflicts. Preserve native age, sex, skeletal proportions, face and identity. Do not infer breast size, enlarge curves, beautify, slim or bulk up the person beyond these values.
+Garments must fit this physique. Revealingness and physical confidence change clothing coverage only, never body size. Covered muscles need not be exposed. During a clothing edit, correct conflicting AI physique to these native values while preserving the person's face and identity. Never print these instructions or values in the image.
+
+COMPOSITION CORRECTION FOR CANONICAL CROPS
+Leave clear stone architecture above the entire hairstyle. Place the very top of the hair at roughly 6% of total canvas height and the chin at roughly 18% of total canvas height. Keep the complete body and both feet inside the canvas with floor visible below the shoes. Do not enlarge the face or crop the hair. Preserve the written identity and all preceding appearance, clothing, light and style instructions.

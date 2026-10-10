@@ -3,11 +3,11 @@
   "heroStringId": "lord_2_6",
   "characterName": "Erta",
   "imagePath": "portrait.png",
-  "imageSha256": "0989CEE5D43718F22DCEEA74493FBA22BF5DEE2375DE7EC3EAD5719C0306A781",
-  "description": "Culturally appropriate everyday Sturgian minor-lord attire inspired by refined medieval Rus and Slavic noble clothing. Men should wear a well-made long shirt beneath a tailored wool kaftan or long belted coat, decorated with fine geometric embroidery and quality trim. Women should wear a long embroidered shift with an elegant wool overdress or noble coat-dress, secured with a richly woven sash. Include subtle fur trim around collars or cuffs, tasteful clasps, and better-quality fabric than a landowner would wear. The clothing should remain practical for a northern climate while clearly showing noble rank. No headgear of any kind. No armor, weapons, crowns, ceremonial robes, or oversized fur displays.",
-  "status": "failed",
-  "descriptionSource": "portrait_prompt_fallback",
-  "retryEligible": true,
-  "error": "{\"error\":{\"message\":\"Model \\\"zai-org/glm-5.2\\\" does not support image inputs. Remove image content or choose a multimodal model.\",\"type\":\"invalid_request_error\",\"param\":\"messages\",\"code\":\"image_input_not_supported\"}}",
-  "updatedUtc": "2026-07-18T22:03:28.5475360Z"
+  "imageSha256": "3D38644F5C4A697BB60FB386FDF70A0F628118326E39D32793E69868B8AFA2B0",
+  "description": "Opaque blue woven floor-length gown with gold geometric edging, low square neckline, elbow sleeves, round brooches, decorated sash and fur-edged blue wrap resting around the arms; brown boots visible.",
+  "status": "completed",
+  "descriptionSource": "agent_vision",
+  "retryEligible": false,
+  "error": "",
+  "updatedUtc": "2026-10-07T22:02:38.265Z"
 }

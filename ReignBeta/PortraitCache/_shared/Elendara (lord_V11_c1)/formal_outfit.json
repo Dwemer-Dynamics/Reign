@@ -3,11 +3,11 @@
   "heroStringId": "lord_V11_c1",
   "characterName": "Elendara",
   "imagePath": "portrait.png",
-  "imageSha256": "5EB4E82EF673991A54549C43BAC053BA6E0A5152EA3A347565B852DF46D9AF18",
-  "description": "Culturally appropriate everyday Vlandian landowner attire inspired by practical high-medieval Norman and Frankish clothing. Use a well-made wool tunic over a linen underlayer, fitted sleeves, a sturdy leather belt, narrow trousers or chausses, and soft leather boots. For women, use a long fitted underdress with a simple but well-tailored overdress, narrow sleeves, a modest neckline, and a practical belt. The garments should appear prosperous, clean, and durable without looking aristocratic. No headgear of any kind. No armor, weapons, crowns, ceremonial robes, or fantasy elements.",
-  "status": "failed",
-  "descriptionSource": "portrait_prompt_fallback",
-  "retryEligible": true,
-  "error": "{\"error\":{\"message\":\"Model \\\"zai-org/glm-5.2\\\" does not support image inputs. Remove image content or choose a multimodal model.\",\"type\":\"invalid_request_error\",\"param\":\"messages\",\"code\":\"image_input_not_supported\"}}",
-  "updatedUtc": "2026-07-18T22:03:28.4164921Z"
+  "imageSha256": "A9BA9243B75991CB60DBF5DF7B912C9739C3DBB13896B748556DCAACFA5E6EBD",
+  "description": "Elendara wears a burgundy floor-length court gown with a low square neckline, elbow-length sleeves and narrow gold geometric woven borders at the neckline, bodice seams, cuffs, centre and hem. Round shoulder and belt brooches secure the layers. A dark navy fringed wrap with gold woven borders rests around her forearms, and ivory linen cuffs show beneath the sleeves. A pale ivory underdress is visible through the lower walking opening, with brown closed leather shoes below. Her loose chestnut side gathering is uncovered.",
+  "status": "completed",
+  "descriptionSource": "agent_vision",
+  "retryEligible": false,
+  "error": "",
+  "updatedUtc": "2026-10-07T22:11:23.382Z"
 }

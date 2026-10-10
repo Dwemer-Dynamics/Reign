@@ -28,6 +28,9 @@ namespace ReignBeta.UI
 
         public static bool IsOpen { get; private set; }
 
+        internal static string CurrentKeepMenuId => ReignKeepAccessPolicy.GetNativeMenuId(
+            Settlement.CurrentSettlement?.IsTown == true, Settlement.CurrentSettlement?.IsCastle == true);
+
         public static void Open(ReignCourtCampaignBehavior court)
         {
             if (court == null || !court.IsRuleModeActive) return;
@@ -42,14 +45,14 @@ namespace ReignBeta.UI
 
         public static void OpenFromKeep(ReignCourtCampaignBehavior court)
         {
-            if (court == null || Settlement.CurrentSettlement?.IsTown != true) return;
+            if (court == null || CurrentKeepMenuId == null) return;
             _pendingCourt = court;
             _pendingFromKeep = true;
         }
 
         private static void OpenNow(ReignCourtCampaignBehavior court, bool fromKeep)
         {
-            if (court == null || (!fromKeep && !court.IsRuleModeActive)) return;
+            if (court == null || (fromKeep ? CurrentKeepMenuId == null : !court.IsRuleModeActive)) return;
             if (IsOpen) Close(false);
 
             if (!ReignRuntimeSpriteSheets.EnsureCategoryLoaded("ui_reignbeta_castle_layout"))
@@ -119,7 +122,7 @@ namespace ReignBeta.UI
             }
 
             if (!IsOpen) return;
-            bool originValid = _fromKeep ? Settlement.CurrentSettlement?.IsTown == true : _court?.IsRuleModeActive == true;
+            bool originValid = _fromKeep ? CurrentKeepMenuId != null : _court?.IsRuleModeActive == true;
             if (!originValid || _host == null || _layer == null || ScreenManager.TopScreen != _host || !SafeHasLayer(_host, _layer))
             {
                 ReignLog.Warn("Castle Layout lost its host layer: host="
@@ -151,7 +154,9 @@ namespace ReignBeta.UI
             Close(false);
             if (fromKeep)
             {
-                try { TaleWorlds.CampaignSystem.GameMenus.GameMenu.ActivateGameMenu("town_keep"); }
+                string menuId = CurrentKeepMenuId;
+                if (menuId == null) return;
+                try { TaleWorlds.CampaignSystem.GameMenus.GameMenu.ActivateGameMenu(menuId); }
                 catch (Exception ex) { ReignLog.Warn("Could not return to the native keep menu: " + ex.Message); }
             }
             else if (court?.IsRuleModeActive == true) _pendingReturnToCourt = court;

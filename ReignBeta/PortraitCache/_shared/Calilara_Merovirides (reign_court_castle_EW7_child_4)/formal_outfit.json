@@ -3,11 +3,11 @@
   "heroStringId": "reign_court_castle_EW7_child_4",
   "characterName": "Calilara Merovirides",
   "imagePath": "portrait.png",
-  "imageSha256": "DC6D5393279D49F1DF59DF87EE995F4B25845A5A6F16F567C737A936E9A8620C",
-  "description": "Culturally appropriate everyday Calradic Imperial landowner attire inspired by practical late Roman and Byzantine civilian clothing adapted into a grounded medieval style. Men should wear a linen undertunic beneath a structured knee-length tunic or simple long coat, secured with a narrow belt. Women should wear a long tunic or underdress beneath a modest draped overdress with elegant but simple sleeves and a practical girdle. Include narrow woven borders or restrained geometric decoration. The garments should appear orderly, respectable, clean, and slightly prosperous. No headgear of any kind. No armor, weapons, laurel crowns, togas, ceremonial robes, or fantasy elements.",
-  "status": "failed",
-  "descriptionSource": "portrait_prompt_fallback",
-  "retryEligible": true,
-  "error": "{\"error\":{\"message\":\"Model \\\"zai-org/glm-5.2\\\" does not support image inputs. Remove image content or choose a multimodal model.\",\"type\":\"invalid_request_error\",\"param\":\"messages\",\"code\":\"image_input_not_supported\"}}",
-  "updatedUtc": "2026-07-18T22:03:26.4286140Z"
+  "imageSha256": "C6B8F8A489AAC4F1417FC3BE802224B55AED599D1071F016ADAB13444602E243",
+  "description": "Burgundy opaque floor-length gown with low square neckline, fitted bodice, elbow sleeves and restrained cream geometric woven borders, cream linen underlayer, paired small shoulder brooches, narrow woven girdle with round fastening, cream draped arm wrap and brown closed shoes. No headgear, armour or weapons.",
+  "status": "completed",
+  "descriptionSource": "agent_vision",
+  "retryEligible": false,
+  "error": "",
+  "updatedUtc": "2026-10-08T04:50:43.272Z"
 }

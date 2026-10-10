@@ -3,11 +3,11 @@
   "heroStringId": "reign_court_town_S4_child_1",
   "characterName": "Gnevykan Karseevich",
   "imagePath": "portrait.png",
-  "imageSha256": "FE1DBE7D9F1BF1D1D2DDCBB68C000BBB2CBCC88230CC4C1D4674828C9EE1DCA2",
-  "description": "Culturally appropriate everyday Sturgian minor-lord attire inspired by refined medieval Rus and Slavic noble clothing. Men should wear a well-made long shirt beneath a tailored wool kaftan or long belted coat, decorated with fine geometric embroidery and quality trim. Women should wear a long embroidered shift with an elegant wool overdress or noble coat-dress, secured with a richly woven sash. Include subtle fur trim around collars or cuffs, tasteful clasps, and better-quality fabric than a landowner would wear. The clothing should remain practical for a northern climate while clearly showing noble rank. No headgear of any kind. No armor, weapons, crowns, ceremonial robes, or oversized fur displays.",
-  "status": "failed",
-  "descriptionSource": "portrait_prompt_fallback",
-  "retryEligible": true,
-  "error": "{\"error\":{\"message\":\"Model \\\"zai-org/glm-5.2\\\" does not support image inputs. Remove image content or choose a multimodal model.\",\"type\":\"invalid_request_error\",\"param\":\"messages\",\"code\":\"image_input_not_supported\"}}",
-  "updatedUtc": "2026-07-18T22:03:29.6954491Z"
+  "imageSha256": "BAD80452E591A7A260E4EE3E1DBF824E0BD613467A45BB161E980B62B5A3069A",
+  "description": "Gnevykan wears a long blue wool coat with restrained brown fur at collar and cuffs and gold geometric embroidered borders. An ivory long shirt with blue embroidery shows beneath it. Paired circular clasps linked by a short bar fasten the chest, and a woven belt and hanging tasselled sash mark the waist. Brown trousers and tall leather boots are fully visible.",
+  "status": "completed",
+  "descriptionSource": "agent_vision",
+  "retryEligible": false,
+  "error": "",
+  "updatedUtc": "2026-10-07T22:30:46.312Z"
 }

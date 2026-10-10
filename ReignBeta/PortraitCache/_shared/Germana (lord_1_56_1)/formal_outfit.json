@@ -3,11 +3,11 @@
   "heroStringId": "lord_1_56_1",
   "characterName": "Germana",
   "imagePath": "portrait.png",
-  "imageSha256": "9D9A34F789815D98CEB430BBD73DE21E6A3D562A7A9D983B2FD03DE8DD620BD4",
-  "description": "Culturally appropriate everyday Calradic Imperial minor-lord attire inspired by refined late Roman and Byzantine noble clothing. Men should wear a high-quality tunic or long tailored outer coat over fine linen, decorated with narrow woven borders, refined clasps, and a decorated belt. Women should wear a long elegant dress or layered tunic ensemble with shaped sleeves, graceful draping, and tasteful trim around the neckline, cuffs, and edges. The garments should feel polished, educated, urban, and wealthy without resembling full imperial ceremony. No headgear of any kind. No armor, weapons, crowns, imperial regalia, laurel wreaths, or ceremonial robes.",
-  "status": "failed",
-  "descriptionSource": "portrait_prompt_fallback",
-  "retryEligible": true,
-  "error": "{\"error\":{\"message\":\"Model \\\"zai-org/glm-5.2\\\" does not support image inputs. Remove image content or choose a multimodal model.\",\"type\":\"invalid_request_error\",\"param\":\"messages\",\"code\":\"image_input_not_supported\"}}",
-  "updatedUtc": "2026-07-18T22:03:29.5827869Z"
+  "imageSha256": "9EA73C82E0F578A52D760692DC2892BD1B51659754A70668ADFCE691627C780F",
+  "description": "Deep plum-purple floor-length fitted gown with low square neckline, elbow-length sleeves and gold woven vine/geometric trim on neckline, bodice seams, cuffs and skirt front. Cream linen shoulder wrap with purple-and-gold bordered edges rests around the forearms. Decorated belt with round gold-coloured buckle and fittings; small round shoulder brooches, dangling gold earrings and a ring. Brown-gold leather shoe visible through low front walking opening; other foot lies under skirt. Both hands visible clasped in front. No headgear, armor or weapon.",
+  "status": "completed",
+  "descriptionSource": "agent_vision",
+  "retryEligible": false,
+  "error": "",
+  "updatedUtc": "2026-10-07T23:22:20.291Z"
 }

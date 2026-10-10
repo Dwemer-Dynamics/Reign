@@ -1,6 +1,13 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <SpriteData>
   <SpriteCategories>
+    <SpriteCategory><Name>ui_reignbeta_banter</Name><AlwaysLoad /><SpriteSheetCount>1</SpriteSheetCount><SpriteSheetSize ID="1" Width="1024" Height="256" /></SpriteCategory>
+    <SpriteCategory>
+      <Name>ui_reignbeta_actions</Name>
+      <AlwaysLoad />
+      <SpriteSheetCount>1</SpriteSheetCount>
+      <SpriteSheetSize ID="1" Width="2048" Height="1024" />
+    </SpriteCategory>
     <SpriteCategory>
       <Name>ui_reignbeta_main_menu</Name>
       <AlwaysLoad />
@@ -10,10 +17,11 @@
     <SpriteCategory>
       <Name>ui_reignbeta_individual</Name>
       <AlwaysLoad />
-      <SpriteSheetCount>3</SpriteSheetCount>
+      <SpriteSheetCount>4</SpriteSheetCount>
       <SpriteSheetSize ID="1" Width="4096" Height="4096" />
       <SpriteSheetSize ID="2" Width="2048" Height="1024" />
       <SpriteSheetSize ID="3" Width="2048" Height="1024" />
+    <SpriteSheetSize ID="4" Width="2048" Height="2048" />
     </SpriteCategory>
     <SpriteCategory>
       <Name>ui_reignbeta_party</Name>
@@ -166,6 +174,17 @@
     <SpriteCategory><Name>ui_reignbeta_tavern_house</Name><AlwaysLoad /><SpriteSheetCount>1</SpriteSheetCount><SpriteSheetSize ID="1" Width="2048" Height="2048" /></SpriteCategory>
   </SpriteCategories>
   <SpriteParts>
+    <SpritePart><SheetID>1</SheetID><Name>reign_banter_panel</Name><Width>420</Width><Height>220</Height><SheetX>4</SheetX><SheetY>4</SheetY><CategoryName>ui_reignbeta_banter</CategoryName></SpritePart>
+    <SpritePart><SheetID>1</SheetID><Name>reign_banter_collapsed</Name><Width>420</Width><Height>42</Height><SheetX>428</SheetX><SheetY>4</SheetY><CategoryName>ui_reignbeta_banter</CategoryName></SpritePart>
+    <SpritePart>
+      <SheetID>1</SheetID>
+      <Name>reign_action_builder_shell</Name>
+      <Width>1672</Width>
+      <Height>941</Height>
+      <SheetX>4</SheetX>
+      <SheetY>4</SheetY>
+      <CategoryName>ui_reignbeta_actions</CategoryName>
+    </SpritePart>
     <SpritePart><SheetID>1</SheetID><Name>reign_tavern_house_shell</Name><Width>1672</Width><Height>941</Height><SheetX>4</SheetX><SheetY>4</SheetY><CategoryName>ui_reignbeta_tavern_house</CategoryName></SpritePart>
     <SpritePart><SheetID>1</SheetID><Name>reign_tavern_house_worker_card</Name><Width>220</Width><Height>218</Height><SheetX>1684</SheetX><SheetY>4</SheetY><CategoryName>ui_reignbeta_tavern_house</CategoryName></SpritePart>
     <SpritePart><SheetID>1</SheetID><Name>reign_tavern_house_madam_card</Name><Width>260</Width><Height>240</Height><SheetX>4</SheetX><SheetY>957</SheetY><CategoryName>ui_reignbeta_tavern_house</CategoryName></SpritePart>
@@ -1532,8 +1551,13 @@
 <SpritePart><SheetID>1</SheetID><Name>reign_government_input</Name><Width>717</Width><Height>42</Height><SheetX>1185</SheetX><SheetY>1499</SheetY><CategoryName>ui_reignbeta_government</CategoryName></SpritePart>
 <SpritePart><SheetID>1</SheetID><Name>reign_government_speak</Name><Width>113</Width><Height>42</Height><SheetX>1910</SheetX><SheetY>1499</SheetY><CategoryName>ui_reignbeta_government</CategoryName></SpritePart>
 <SpritePart><SheetID>1</SheetID><Name>reign_government_close</Name><Width>94</Width><Height>37</Height><SheetX>4</SheetX><SheetY>1552</SheetY><CategoryName>ui_reignbeta_government</CategoryName></SpritePart>
+    <SpritePart><SheetID>4</SheetID><Name>reign_outfit_change_shell</Name><Width>1672</Width><Height>941</Height><SheetX>4</SheetX><SheetY>4</SheetY><CategoryName>ui_reignbeta_individual</CategoryName></SpritePart>
+    <SpritePart><SheetID>4</SheetID><Name>reign_outfit_action_button</Name><Width>422</Width><Height>62</Height><SheetX>4</SheetX><SheetY>953</SheetY><CategoryName>ui_reignbeta_individual</CategoryName></SpritePart>
 </SpriteParts>
   <Sprites>
+    <NineRegionSprite><Name>reign_banter_panel</Name><SpritePartName>reign_banter_panel</SpritePartName><LeftWidth>15</LeftWidth><RightWidth>60</RightWidth><TopHeight>40</TopHeight><BottomHeight>36</BottomHeight></NineRegionSprite>
+    <NineRegionSprite><Name>reign_banter_collapsed</Name><SpritePartName>reign_banter_collapsed</SpritePartName><LeftWidth>15</LeftWidth><RightWidth>60</RightWidth><TopHeight>8</TopHeight><BottomHeight>8</BottomHeight></NineRegionSprite>
+    <GenericSprite><Name>reign_action_builder_shell</Name><SpritePartName>reign_action_builder_shell</SpritePartName></GenericSprite>
     <GenericSprite><Name>reign_tavern_house_shell</Name><SpritePartName>reign_tavern_house_shell</SpritePartName></GenericSprite>
     <GenericSprite><Name>reign_tavern_house_worker_card</Name><SpritePartName>reign_tavern_house_worker_card</SpritePartName></GenericSprite>
     <GenericSprite><Name>reign_tavern_house_madam_card</Name><SpritePartName>reign_tavern_house_madam_card</SpritePartName></GenericSprite>
@@ -2257,5 +2281,7 @@
 <GenericSprite><Name>reign_government_business_diplomacy_selected</Name><SpritePartName>reign_government_business_diplomacy_selected</SpritePartName></GenericSprite>
 <GenericSprite><Name>reign_government_business_seasonal</Name><SpritePartName>reign_government_business_seasonal</SpritePartName></GenericSprite>
 <GenericSprite><Name>reign_government_business_seasonal_selected</Name><SpritePartName>reign_government_business_seasonal_selected</SpritePartName></GenericSprite>
-</Sprites>
+    <GenericSprite><Name>reign_outfit_change_shell</Name><SpritePartName>reign_outfit_change_shell</SpritePartName></GenericSprite>
+      <GenericSprite><Name>reign_outfit_action_button</Name><SpritePartName>reign_outfit_action_button</SpritePartName></GenericSprite>
+  </Sprites>
 </SpriteData>

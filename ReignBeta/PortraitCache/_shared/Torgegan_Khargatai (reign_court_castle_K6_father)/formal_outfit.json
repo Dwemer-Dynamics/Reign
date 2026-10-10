@@ -3,11 +3,11 @@
   "heroStringId": "reign_court_castle_K6_father",
   "characterName": "Torgegan Khargatai",
   "imagePath": "portrait.png",
-  "imageSha256": "3AB1096ADC85D20DF8F11CE11302B96F8BAF6A0AD1ED29D84AB7FD583D9EEB54",
-  "description": "Culturally appropriate everyday Khuzait minor-lord attire inspired by refined medieval Turkic and Mongol steppe noble clothing. Men should wear a tailored crossed-front coat or deel with refined woven trim, a decorated sash, layered sleeves, and high-quality trousers. Women should wear an elegant long robe or fitted steppe coat over a fine underdress, with carefully worked edging and decorative textile details. Include restrained cloud, knot, or geometric patterns and a limited amount of practical fur trim. The clothing should remain mobile and functional while clearly showing noble status. No headgear of any kind. No fur hats, caps, hoods, armor, weapons, crowns, or ceremonial costume.",
-  "status": "failed",
-  "descriptionSource": "portrait_prompt_fallback",
-  "retryEligible": true,
-  "error": "{\"error\":{\"message\":\"Model \\\"zai-org/glm-5.2\\\" does not support image inputs. Remove image content or choose a multimodal model.\",\"type\":\"invalid_request_error\",\"param\":\"messages\",\"code\":\"image_input_not_supported\"}}",
-  "updatedUtc": "2026-07-18T22:03:34.9328116Z"
+  "imageSha256": "B810B325181AFC459DCD6DF8E97FB2E19188830D16515C554E88C0DE9E0B904E",
+  "description": "Olive gold long crossed-front deel with muted cloud motifs and narrow geometric woven borders, layered dark fitted forearm sleeves, broad decorated sash with restrained round clasps and hanging textile end. Loose patterned trousers and tall soft embroidered boots.",
+  "status": "completed",
+  "descriptionSource": "agent_vision",
+  "retryEligible": false,
+  "error": "",
+  "updatedUtc": "2026-10-08T01:09:09.225Z"
 }

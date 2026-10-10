@@ -97,7 +97,7 @@ namespace ArenaOverhaul.TeamTournament
                 availableRoster.AddToCounts(element.Troop, 1, insertAtFront: false, element.IsWounded ? 1 : 0, element.Xp);
 
             // now also add own troops in party roster
-            foreach (var element in MobileParty.MainParty.MemberRoster.ToFlattenedRoster().Where(x => (!x.Troop.IsHero || !availableRoster.Contains(x.Troop)) && !x.IsWounded && x.Troop.CanBeAParticipant(false, false)))
+            foreach (var element in MobileParty.MainParty.MemberRoster.ToFlattenedRoster().Where(x => (!x.Troop.IsHero || !availableRoster.Contains(x.Troop)) && !x.IsWounded && x.Troop.CanJoinPlayerTeam()))
                 availableRoster.AddToCounts(element.Troop, 1, insertAtFront: false, element.IsWounded ? 1 : 0, element.Xp);
             return availableRoster;
         }

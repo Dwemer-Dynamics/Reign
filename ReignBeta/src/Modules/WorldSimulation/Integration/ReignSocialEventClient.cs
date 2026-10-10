@@ -18,7 +18,8 @@ namespace ReignBeta.Integration
             IReadOnlyList<Hero> activeHeroes,
             string playerText,
             string turnId,
-            Action<ReignEventReply> onReply = null)
+            Action<ReignEventReply> onReply = null,
+            Reign.Core.Contracts.Actions.ActionAgreement actionDraft = null)
         {
             ReignSocialEventTurnReply turn = new ReignSocialEventTurnReply { TurnId = turnId ?? string.Empty };
             try
@@ -38,6 +39,10 @@ namespace ReignBeta.Integration
                     ? Guid.NewGuid().ToString("N")
                     : turnId;
                 JObject payload = BuildSocialEventPayload(session, null, playerText);
+                var relationCampaign = TaleWorlds.CampaignSystem.Campaign.Current;
+                payload["nativeReceiptProtocol"] = "reign-native-relationship-receipt-v2";
+                var relationBehavior = ReignBeta.Campaign.ReignRelationshipCampaignBehavior.Instance;
+                string relationTimeline = ReignBeta.Campaign.ReignWorldHistoryCampaignBehavior.Instance?.TimelineId ?? "main";
                 // The visible UI and the Live Bridge both enter through this method.
                 // Use the exactly-once turn id as the correlation root so every
                 // participant prompt, adjudication receipt, and audit row can be
@@ -46,46 +51,65 @@ namespace ReignBeta.Integration
                 payload["turnId"] = turnCorrelationId;
                 turn.TurnId = payload.Value<string>("turnId") ?? string.Empty;
                 payload["sceneTurnId"] = turn.TurnId;
+                payload["contributionId"] = turn.TurnId;
                 payload["mode"] = "social_event";
                 payload["playerIsFemale"] = Hero.MainHero?.IsFemale ?? false;
                 payload["phaseExchangeCount"] = session.PhaseExchangeCount;
                 payload["remainingActiveSlots"] = session.RemainingActiveSlots;
                 payload["automaticApproachBlockedHeroIds"] = new JArray(session.AutomaticApproachBlockedHeroStringIds);
                 payload["idleCounters"] = JObject.FromObject(session.IgnoredTurnCounts);
+                payload["structuredActionProtocolVersion"] = Reign.Core.Contracts.Actions.ActionNegotiation.ProtocolVersion;
+                payload["structuredActionRecipientId"] = actionDraft?.NpcId ?? "";
                 payload["conversationRelationshipChangesEnabled"] = ReignBetaSettings.Instance?.EventRelationshipChangesEnabled != false;
 
+                // Fix the server-owned floor before requesting any model-selected
+                // context. Keep the full audience in every selected writer payload.
+                payload["activeHeroIds"] = new JArray(speakers.Select(hero => hero.StringId));
+                JObject floor = await PostJsonAsync("/events/social/turn-plan", payload).ConfigureAwait(false);
+                if (floor.Value<bool?>("ok") != true || !(floor["responseOrder"] is JArray floorOrder))
+                    throw new InvalidOperationException(floor.Value<string>("error") ?? "The event speaking plan is unavailable.");
+                var selectedIds = floorOrder.Values<string>().ToList();
+                if (selectedIds.Distinct(StringComparer.OrdinalIgnoreCase).Count() != selectedIds.Count
+                    || selectedIds.Any(id => !speakers.Any(hero => hero.StringId.Equals(id, StringComparison.OrdinalIgnoreCase))))
+                    throw new InvalidOperationException("The event speaking plan contains an unavailable participant.");
+                var selectedSpeakers = selectedIds.Select(id => speakers.First(hero => hero.StringId.Equals(id, StringComparison.OrdinalIgnoreCase))).ToList();
+
                 JArray participantRequests = new JArray();
-                foreach (Hero speaker in speakers)
+                foreach (Hero speaker in selectedSpeakers)
                 {
-                    JObject request = BuildSocialEventPayload(session, speaker, playerText);
+                    JObject request = await ReignMainThread.InvokeAsync(() => BuildSocialEventPayload(session, speaker, playerText)).ConfigureAwait(false);
                     request["correlationId"] = turnCorrelationId + "-npc-" + speaker.StringId;
                     request["turnId"] = turn.TurnId;
                     request["sceneTurnId"] = turn.TurnId;
+                    request["contributionId"] = turn.TurnId;
                     request["mode"] = "social_event";
                     request["turnType"] = "player_reply";
                     request["approachOpening"] = false;
+                    request["structuredActionRecipientId"] = actionDraft?.NpcId ?? "";
+                    await ReignMainThread.InvokeAsync(() => ConfigureStructuredActions(request, speaker,
+                        actionDraft?.NpcId == speaker.StringId ? actionDraft : null)).ConfigureAwait(false);
                     request["playerIsFemale"] = Hero.MainHero?.IsFemale ?? false;
                     await AttachContextBundlesAsync(request, "social_event", speaker, session.Record.GetAttendees()).ConfigureAwait(false);
                     participantRequests.Add(request);
                 }
                 payload["participantRequests"] = participantRequests;
 
-                JArray relationshipPairs = new JArray();
-                List<Hero> possibleTargets = speakers.Concat(new[] { Hero.MainHero }).Where(x => x != null).Distinct().ToList();
-                foreach (Hero subject in speakers)
+                JArray relationshipPairs = await ReignMainThread.InvokeAsync(() =>
                 {
-                    foreach (Hero target in possibleTargets.Where(x => x != subject))
+                    var pairs = new JArray();
+                    List<Hero> possibleTargets = speakers.Concat(new[] { Hero.MainHero }).Where(x => x != null).Distinct().ToList();
+                    foreach (Hero subject in speakers)
                     {
-                        relationshipPairs.Add(new JObject
+                        foreach (Hero target in possibleTargets.Where(x => x != subject))
                         {
-                            ["subjectId"] = subject.StringId,
-                            ["targetId"] = target.StringId,
-                            ["nativeRelation"] = subject.GetRelation(target),
-                            ["subject"] = BuildHeroProfile(subject),
-                            ["target"] = BuildHeroProfile(target)
-                        });
+                            pairs.Add(new JObject {
+                                ["subjectId"] = subject.StringId, ["targetId"] = target.StringId,
+                                ["nativeRelation"] = subject.GetRelation(target),
+                                ["subject"] = BuildHeroProfile(subject), ["target"] = BuildHeroProfile(target) });
+                        }
                     }
-                }
+                    return pairs;
+                }).ConfigureAwait(false);
                 payload["relationshipPairs"] = relationshipPairs;
                 payload["progressiveReplies"] = true;
                 payload["replyCursor"] = 0;
@@ -94,10 +118,11 @@ namespace ReignBeta.Integration
                 bool retriedFailure = false;
                 // One request per speaker plus final adjudication, with one
                 // bounded retry under the original exactly-once turn identity.
-                for (int step = 0; step < speakers.Count + 2; step++)
+                for (int step = 0; step < selectedSpeakers.Count + 2; step++)
                 {
                     response = await PostJsonAsync("/events/social/turn", payload).ConfigureAwait(false);
-                    await DeliverSocialEventRepliesAsync(response, session, playerText, turn, delivered, onReply).ConfigureAwait(false);
+                    await DeliverSocialEventRepliesAsync(response, session, playerText, turn, delivered, onReply, participantRequests,
+                        relationCampaign, relationTimeline).ConfigureAwait(false);
                     if (response.Value<bool?>("ok") == true && response.Value<bool?>("hasMore") == true)
                     {
                         int nextCursor = response.Value<int?>("replyCursor") ?? 0;
@@ -140,7 +165,7 @@ namespace ReignBeta.Integration
                     foreach (JObject receipt in (response["relationshipReceipts"] as JArray ?? new JArray()).OfType<JObject>())
                     {
                         string receiptId = receipt.Value<string>("receiptId") ?? string.Empty;
-                        if (receipt.Value<bool?>("ok") != true || string.IsNullOrWhiteSpace(receiptId) || session.HasRelationshipReceipt(receiptId))
+                        if (receipt.Value<bool?>("ok") != true || string.IsNullOrWhiteSpace(receiptId))
                         {
                             continue;
                         }
@@ -150,28 +175,27 @@ namespace ReignBeta.Integration
                         bool showNotification = receipt.Value<bool?>("showNotification") == true;
                         if (subject != null && target != null)
                         {
-                            int priorNativeRelation = subject.GetRelation(target);
-                            if (delta != 0)
-                            {
-                                await ReignMainThread.InvokeAsync(() => ChangeRelationAction.ApplyRelationChangeBetweenHeroes(subject, target, delta, showNotification)).ConfigureAwait(false);
-                            }
-                            session.TryRegisterRelationshipReceipt(receiptId);
                             JArray adjudicationReceiptIds = receipt["receiptIds"] as JArray ?? new JArray();
+                            JObject nativeReceipt = null;
+                            await ReignMainThread.InvokeAsync(() =>
+                            {
+                                if (relationBehavior == null || !ReferenceEquals(relationBehavior, ReignBeta.Campaign.ReignRelationshipCampaignBehavior.Instance)
+                                    || !ReferenceEquals(relationCampaign, TaleWorlds.CampaignSystem.Campaign.Current)
+                                    || relationTimeline != (ReignBeta.Campaign.ReignWorldHistoryCampaignBehavior.Instance?.TimelineId ?? "main"))
+                                    throw new InvalidOperationException("The campaign changed before the social relationship effect could be applied.");
+                                nativeReceipt = relationBehavior.ApplyConversationRelationOnce(adjudicationReceiptIds.Values<string>(), subject, target, delta, showNotification);
+                            }).ConfigureAwait(false);
                             JObject acknowledgement = await PostJsonAsync("/relationships/conversation/native-receipt", new JObject
                             {
-                                ["campaignId"] = GetCampaignId(),
+                                ["campaignId"] = payload.Value<string>("campaignId"),
                                 ["receiptIds"] = adjudicationReceiptIds.DeepClone(),
-                                ["nativeReceipt"] = new JObject
-                                {
-                                    ["subjectId"] = subject.StringId, ["targetId"] = target.StringId, ["delta"] = delta,
-                                    ["priorNativeRelation"] = priorNativeRelation,
-                                    ["nativeRelation"] = subject.GetRelation(target), ["appliedUtc"] = DateTimeOffset.UtcNow.ToString("o")
-                                }
+                                ["nativeReceipt"] = nativeReceipt
                             }).ConfigureAwait(false);
                             if (acknowledgement.Value<bool?>("ok") != true)
                             {
                                 throw new InvalidOperationException("The server did not acknowledge the social-event personal-relation receipt.");
                             }
+                            session.TryRegisterRelationshipReceipt(receiptId);
                         }
                     }
                 }
@@ -186,7 +210,8 @@ namespace ReignBeta.Integration
 
         private static async Task DeliverSocialEventRepliesAsync(JObject response,
             ReignSocialEventSession session, string playerText, ReignSocialEventTurnReply turn,
-            HashSet<string> delivered, Action<ReignEventReply> onReply)
+            HashSet<string> delivered, Action<ReignEventReply> onReply, JArray participantRequests,
+            TaleWorlds.CampaignSystem.Campaign expectedCampaign, string expectedTimeline)
         {
             foreach (JObject row in (response["participantResults"] as JArray ?? new JArray()).OfType<JObject>())
             {
@@ -212,6 +237,11 @@ namespace ReignBeta.Integration
                 await ReignMainThread.InvokeAsync(() =>
                 {
                     Hero speaker = ReignObjectResolver.FindHero(heroId);
+                    if (!ReferenceEquals(expectedCampaign, TaleWorlds.CampaignSystem.Campaign.Current)
+                        || expectedTimeline != (ReignBeta.Campaign.ReignWorldHistoryCampaignBehavior.Instance?.TimelineId ?? "main"))
+                        throw new InvalidOperationException("The campaign changed before the action response arrived.");
+                    var request = participantRequests.OfType<JObject>().FirstOrDefault(r => r["structuredActionContext"]?.Value<string>("npcId") == heroId);
+                    if (request != null) { ProcessStructuredActionDecision(request, row, speaker); reply.Text = row.Value<string>("reply") ?? ""; }
                     if (speaker != null)
                     {
                         ApplyHeroEncyclopediaText(speaker, reply.EncyclopediaText);

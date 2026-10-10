@@ -127,8 +127,15 @@ namespace ReignBeta.Court
         }
 
         public string StartSpymasterMission(string missionType, string targetType, string targetId,
-            string targetName, string socialItemId = null, string fabricatedText = null)
+            string targetName, string socialItemId = null, string fabricatedText = null, string agreementOperationId = null)
         {
+            if (!string.IsNullOrEmpty(agreementOperationId))
+            {
+                var previous = EnsureSpymasterState().Missions.FirstOrDefault(m => m.MissionId == agreementOperationId);
+                if (previous != null) return previous.MissionType == missionType && previous.TargetType == targetType && previous.TargetStringId == targetId
+                    && previous.SocialItemId == (socialItemId ?? "") && previous.FabricatedText == (fabricatedText ?? "")
+                    ? "" : "This intelligence operation ID already belongs to different terms.";
+            }
             if (!IsRuleModeActive) return "Only a reigning ruler may direct the intelligence service.";
             Hero spymaster = ActiveSpymaster;
             if (spymaster == null) return "Appoint a Spymaster first.";
@@ -163,9 +170,9 @@ namespace ReignBeta.Court
             float day = CurrentDayFloat();
             ReignSpymasterMission mission = new ReignSpymasterMission
             {
-                MissionId = ReignSpymasterTestRuntime.Active
+                MissionId = agreementOperationId ?? (ReignSpymasterTestRuntime.Active
                     ? "spytest_" + ReignSpymasterTestRuntime.RunId + "_" + Guid.NewGuid().ToString("N")
-                    : "spy_" + Guid.NewGuid().ToString("N"),
+                    : "spy_" + Guid.NewGuid().ToString("N")),
                 SpymasterHeroStringId = spymaster.StringId,
                 MissionType = missionType ?? string.Empty,
                 TargetType = targetType ?? string.Empty,
@@ -253,7 +260,9 @@ namespace ReignBeta.Court
             if (succeeded)
             {
                 mission.State = ReignSpymasterMissionState.Succeeded;
+                mission.AgreementEffectState = "applying";
                 ResolveSuccessfulSpymasterMission(mission, spymaster, day);
+                if (mission.AgreementEffectState == "applying") mission.AgreementEffectState = "completed";
                 ReignSpymasterTestRuntime.DiscardMissionConsequence(mission.MissionId);
             }
             else
@@ -542,23 +551,39 @@ namespace ReignBeta.Court
 
         private async System.Threading.Tasks.Task EnrichSocialReportAsync(ReignSpymasterMission mission, Hero person)
         {
+            Action fence = CourtActionContextFence();
+            mission.AgreementEffectState = "pending"; _courtAgreementSpyEffects.Add(mission.MissionId);
             try
             {
                 JObject status = await ReignSpymasterServerClient.GetSocialStatusAsync(person.StringId).ConfigureAwait(false);
                 await ReignMainThread.InvokeAsync(() =>
                 {
+                    fence();
+                    if (!EnsureSpymasterState().Missions.Contains(mission)) return;
                     if (mission.State != ReignSpymasterMissionState.Succeeded) return;
+                    if (status == null || status["error"] != null) throw new InvalidOperationException("The intelligence report was not returned.");
                     JArray rumors = status?["rumors"] as JArray ?? new JArray();
                     JArray reputations = status?["reputations"] as JArray ?? new JArray();
                     string details = "Rumors: " + (rumors.Count == 0 ? "none confirmed" : string.Join("; ", rumors.Select(x => (string)x["description"] ?? (string)x["tag_id"])))
                         + ". Reputations: " + (reputations.Count == 0 ? "none recorded" : string.Join("; ", reputations.Select(x => (string)x["description"] ?? (string)x["tag_id"]))) + ".";
                     mission.ResultSummary = details;
                     mission.ReportJson = status.ToString(Formatting.None);
+                    mission.AgreementEffectState = "completed"; _courtAgreementSpyEffects.Remove(mission.MissionId);
+                    ReignBeta.Actions.ReignAgreementBehavior.Instance?.RecheckPendingAgreements();
                     _ = ReignSpymasterServerClient.RecordMissionMemoryAsync(mission, "resolved");
                     StateChanged?.Invoke();
                 }).ConfigureAwait(false);
             }
-            catch (Exception ex) { ReignLog.Warn("Spymaster social report could not be enriched: " + ex.Message); }
+            catch (Exception ex)
+            {
+                ReignLog.Warn("Spymaster social report could not be enriched: " + ex.Message);
+                await ReignMainThread.InvokeAsync(() =>
+                {
+                    try { fence(); } catch { return; }
+                    mission.AgreementEffectState = "uncertain"; _courtAgreementSpyEffects.Remove(mission.MissionId);
+                    ReignBeta.Actions.ReignAgreementBehavior.Instance?.RecheckPendingAgreements();
+                }).ConfigureAwait(false);
+            }
         }
 
         private static string BuildSettlementReport(ReignSettlementSupplySnapshot x)
@@ -575,7 +600,7 @@ namespace ReignBeta.Court
                 + " (" + x.MilitiaChange.ToString("+0.0;-0.0;0") + "/day), garrison " + x.GarrisonCount
                 + " (" + x.GarrisonWounded + " wounded), villages " + x.VillageCount + " (" + x.RaidedVillageCount + " raided), market gold "
                 + x.MarketGold.ToString("N0") + ", daily tax " + x.DailyTaxIncome.ToString("N0") + ", construction: " + (x.CurrentConstruction ?? "none")
-                + " at " + x.CurrentConstructionProgress.ToString("0.0") + "%" + (x.IsBesieged ? ", UNDER SIEGE" : string.Empty)
+                + " at " + x.CurrentConstructionProgress.ToString("0.0") + " construction points" + (x.IsBesieged ? ", UNDER SIEGE" : string.Empty)
                 + ". Market: " + goods + ".";
         }
 
@@ -705,15 +730,22 @@ namespace ReignBeta.Court
 
         private async System.Threading.Tasks.Task ApplySocialOperationAndRecordAsync(ReignSpymasterMission mission)
         {
+            Action fence = CourtActionContextFence();
+            mission.AgreementEffectState = "pending"; _courtAgreementSpyEffects.Add(mission.MissionId);
             try
             {
                 JObject result = await ReignSpymasterServerClient.ApplySocialOperationAsync(mission).ConfigureAwait(false);
                 await ReignMainThread.InvokeAsync(() =>
                 {
+                    fence();
+                    if (!EnsureSpymasterState().Missions.Contains(mission)) return;
                     string outcome = (string)result?["outcome"];
+                    if (string.IsNullOrWhiteSpace(outcome) || result?["error"] != null) throw new InvalidOperationException("The social operation has no confirmed outcome.");
                     if (!string.IsNullOrWhiteSpace(outcome))
                         mission.ResultSummary = "The social operation succeeded: " + outcome.Replace('_', ' ') + ".";
                     mission.ReportJson = result?.ToString(Formatting.None) ?? "{}";
+                    mission.AgreementEffectState = "completed"; _courtAgreementSpyEffects.Remove(mission.MissionId);
+                    ReignBeta.Actions.ReignAgreementBehavior.Instance?.RecheckPendingAgreements();
                     _ = ReignSpymasterServerClient.RecordMissionMemoryAsync(mission, "resolved");
                     StateChanged?.Invoke();
                 }).ConfigureAwait(false);
@@ -722,7 +754,10 @@ namespace ReignBeta.Court
             {
                 await ReignMainThread.InvokeAsync(() =>
                 {
+                    try { fence(); } catch { return; }
+                    mission.AgreementEffectState = "uncertain"; _courtAgreementSpyEffects.Remove(mission.MissionId);
                     mission.ResultSummary = "The field operation succeeded, but its social record could not be synchronized: " + ex.Message;
+                    ReignBeta.Actions.ReignAgreementBehavior.Instance?.RecheckPendingAgreements();
                     StateChanged?.Invoke();
                 }).ConfigureAwait(false);
             }

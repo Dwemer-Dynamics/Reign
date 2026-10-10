@@ -3,11 +3,11 @@
   "heroStringId": "reign_court_castle_V6_child_4",
   "characterName": "Berera Fauconacourt",
   "imagePath": "portrait.png",
-  "imageSha256": "3B205C2119C523967FAB5ED1C94BDC8099C1D50DBBD961972CA8ACE17A75BDC9",
-  "description": "Culturally appropriate everyday Vlandian landowner attire inspired by practical high-medieval Norman and Frankish clothing. Use a well-made wool tunic over a linen underlayer, fitted sleeves, a sturdy leather belt, narrow trousers or chausses, and soft leather boots. For women, use a long fitted underdress with a simple but well-tailored overdress, narrow sleeves, a modest neckline, and a practical belt. The garments should appear prosperous, clean, and durable without looking aristocratic. No headgear of any kind. No armor, weapons, crowns, ceremonial robes, or fantasy elements.",
-  "status": "failed",
-  "descriptionSource": "portrait_prompt_fallback",
-  "retryEligible": true,
-  "error": "{\"error\":{\"message\":\"Model \\\"zai-org/glm-5.2\\\" does not support image inputs. Remove image content or choose a multimodal model.\",\"type\":\"invalid_request_error\",\"param\":\"messages\",\"code\":\"image_input_not_supported\"}}",
-  "updatedUtc": "2026-07-18T22:03:25.5317645Z"
+  "imageSha256": "A623ED47C7934E259555B34B82C936F5AAF8D65B846417A87587536B7E59AE3C",
+  "description": "Opaque rust-red floor-length wool overdress with a low square neckline, fitted bodice and elbow-length sleeves, over a cream linen underdress. Narrow tan-gold geometric woven trim outlines the neckline, cuffs, vertical front and hem. A narrow plain brown leather waist belt closes with a small round metal buckle. An olive-brown patterned shawl rests along both forearms and hangs down the sides, with subtle geometric borders. Cream underdress appears at the wrists and through the lower front opening. Brown closed leather footwear is visible at the hem. The fabric is textured and practical. No headgear, armor or weapon is present.",
+  "status": "completed",
+  "descriptionSource": "agent_vision",
+  "retryEligible": false,
+  "error": "",
+  "updatedUtc": "2026-10-07T20:49:19.808Z"
 }

@@ -295,6 +295,9 @@ namespace ReignBeta.Integration
                 {
                     ["campaignId"] = GetCampaignId(),
                     ["serverActionId"] = action.ActionId ?? string.Empty,
+                    ["timelineId"] = ReignWorldHistoryCampaignBehavior.Instance?.TimelineId ?? "main",
+                    ["playerHeroStringId"] = Hero.MainHero?.StringId ?? string.Empty,
+                    ["sharedActivityGeneration"] = ReignWorldHistoryCampaignBehavior.Instance?.SharedActivityGeneration ?? string.Empty,
                     ["actionId"] = action.ActionId ?? string.Empty,
                     ["status"] = status ?? "reported",
                     ["type"] = action.Type.ToString(),
@@ -1044,6 +1047,30 @@ namespace ReignBeta.Integration
             }
         }
 
+        public static async Task<JObject> RequestPartyChatTurnPlanAsync(ReignPartyChatSession session,
+            List<Hero> presentHeroes, string playerText, bool opening = false, string actionRecipientId = "")
+        {
+            if (session == null || presentHeroes == null || presentHeroes.Count == 0)
+                return new JObject { ["ok"] = false, ["error"] = "No group audience is available." };
+            try
+            {
+                JObject payload = await ReignMainThread.InvokeAsync(() => BuildPartyChatPayload(session,
+                    presentHeroes[0], presentHeroes, playerText)).ConfigureAwait(false);
+                payload["mode"] = "party_chat";
+                payload["approachOpening"] = opening;
+                payload["structuredActionRecipientId"] = actionRecipientId;
+                payload["structuredActionProtocolVersion"] = Reign.Core.Contracts.Actions.ActionNegotiation.ProtocolVersion;
+                // Freeze the full audience's response order before context selection.
+                // Each NPC's contextual writer decides whether to speak or listen.
+                return await PostJsonAsync("/party-chat/turn-plan", payload).ConfigureAwait(false);
+            }
+            catch (Exception ex)
+            {
+                ReignLog.Warn("Group speaking plan failed: " + ex.GetType().Name);
+                return new JObject { ["ok"] = false, ["error"] = "The group speaking plan is temporarily unavailable." };
+            }
+        }
+
         public static async Task<ReignPartyChatReply> RequestPartyChatResponseAsync(
             ReignPartyChatSession session,
             Hero speaker,
@@ -1059,7 +1086,9 @@ namespace ReignBeta.Integration
             bool familyChambers = false,
             string childHeroIdsCsv = "",
             string familyScenePlanJson = "{}",
-            string residentHomeVenue = "")
+            string residentHomeVenue = "",
+            JObject speakingFloor = null,
+            Reign.Core.Contracts.Actions.ActionAgreement actionDraft = null)
         {
             ReignPartyChatReply reply = new ReignPartyChatReply
             {
@@ -1081,7 +1110,19 @@ namespace ReignBeta.Integration
                     return reply;
                 }
 
-                JObject payload = BuildPartyChatPayload(session, speaker, activeHeroes ?? new List<Hero>(), playerText);
+                JObject payload = await ReignMainThread.InvokeAsync(() => BuildPartyChatPayload(session, speaker, activeHeroes ?? new List<Hero>(), playerText)).ConfigureAwait(false);
+                if (speakingFloor != null)
+                {
+                    payload["structuredActionRecipientId"] = speakingFloor.Value<string>("structuredActionRecipientId") ?? "";
+                    var order = (speakingFloor["responseOrder"] as JArray ?? new JArray()).Values<string>().ToList();
+                    payload["partySpeakerIndex"] = order.FindIndex(id => string.Equals(id, speaker.StringId, StringComparison.OrdinalIgnoreCase));
+                    payload["partySpeakerCount"] = order.Count;
+                    payload["groupTurnPlan"] = new JObject {
+                        ["responseOrder"] = new JArray(order),
+                        ["addressedHeroStringIds"] = speakingFloor["addressedHeroStringIds"]?.DeepClone() ?? new JArray(),
+                        ["policy"] = speakingFloor.Value<string>("policy") ?? ""
+                    };
+                }
                 JObject visitorContext = ReignCourtCampaignBehavior.Instance?.BuildNobleVisitorConversationContext(speaker.StringId);
                 if (visitorContext?.Value<bool?>("enabled") == true) payload["nobleVisitorContext"] = visitorContext;
                 payload["correlationId"] = string.IsNullOrWhiteSpace(correlationId)
@@ -1123,7 +1164,7 @@ namespace ReignBeta.Integration
                 }
                 await AttachContextBundlesAsync(payload, "party_chat", speaker, activeHeroes ?? new List<Hero>()).ConfigureAwait(false);
                 Stopwatch timer = Stopwatch.StartNew();
-                JObject response = await PostWandererConversationAsync("/party-chat/respond", payload, speaker, castleOpening ? string.Empty : playerText).ConfigureAwait(false);
+                JObject response = await PostWandererConversationAsync("/party-chat/respond", payload, speaker, castleOpening ? string.Empty : playerText, actionDraft).ConfigureAwait(false);
                 timer.Stop();
                 reply.Ok = response.Value<bool?>("ok") == true;
                 reply.Text = response.Value<string>("reply") ?? string.Empty;
@@ -1219,6 +1260,7 @@ namespace ReignBeta.Integration
                 result.Error = response.Value<string>("error") ?? string.Empty;
                 result.Title = response.Value<string>("title") ?? string.Empty;
                 result.VarietyKey = response.Value<string>("varietyKey") ?? string.Empty;
+                result.InitiatorHeroStringId = response.Value<string>("initiatorHeroStringId") ?? string.Empty;
                 result.ApproachDescription = response.Value<string>("approachDescription") ?? response.Value<string>("approach_description") ?? string.Empty;
                 result.OpeningText = response.Value<string>("openingText") ?? response.Value<string>("opening_text") ?? string.Empty;
                 result.PlayerHook = response.Value<string>("playerHook") ?? response.Value<string>("player_hook") ?? string.Empty;
@@ -1274,7 +1316,7 @@ namespace ReignBeta.Integration
             }
         }
 
-        public static async Task<ReignPortraitGenerationResult> GeneratePortraitAsync(string cacheKey, string heroStringId, string prompt, byte[] sourceImagePng, string outputSizeOverride = null, AIPortraits.PortraitPromptContext promptContext = null, string promptPurpose = "portrait", string generationOperationId = null)
+        public static async Task<ReignPortraitGenerationResult> GeneratePortraitAsync(string cacheKey, string heroStringId, string prompt, byte[] sourceImagePng, string outputSizeOverride = null, AIPortraits.PortraitPromptContext promptContext = null, string promptPurpose = "portrait", string generationOperationId = null, string portraitRefreshMode = "")
         {
             ReignPortraitGenerationResult result = new ReignPortraitGenerationResult();
             bool portraitProduct = string.IsNullOrWhiteSpace(promptPurpose)
@@ -1284,7 +1326,7 @@ namespace ReignBeta.Integration
             result.GenerationOperationId = generationOperationId ?? string.Empty;
             try
             {
-				byte[] compatibleSource = portraitProduct ? null : AIPortraits.PngReencode.NormalizeImageEditSource(sourceImagePng);
+				byte[] compatibleSource = portraitProduct ? (portraitRefreshMode == "reflect_years" ? sourceImagePng : null) : AIPortraits.PngReencode.NormalizeImageEditSource(sourceImagePng);
 				if (!portraitProduct && (compatibleSource == null || compatibleSource.Length == 0))
 				{
 					result.Ok = false;
@@ -1312,6 +1354,7 @@ namespace ReignBeta.Integration
                     ["heroStringId"] = heroStringId ?? string.Empty,
                     ["characterObjectId"] = ExtractCharacterObjectId(cacheKey),
                     ["prompt"] = prompt ?? string.Empty,
+                    ["portraitRefreshMode"] = portraitRefreshMode,
                     ["promptPurpose"] = string.IsNullOrWhiteSpace(promptPurpose) ? "portrait" : promptPurpose,
                     ["sourceImageBase64"] = sourceImagePng == null ? null : Convert.ToBase64String(sourceImagePng)
                 };
@@ -1568,6 +1611,8 @@ namespace ReignBeta.Integration
                     ["correlationId"] = NewCorrelationId("dialogue", hero.StringId),
                     ["mode"] = "dialogue",
                     ["heroStringId"] = hero.StringId,
+                    ["playerHeroStringId"] = Hero.MainHero?.StringId ?? "",
+                    ["timelineId"] = ReignWorldHistoryCampaignBehavior.Instance?.TimelineId ?? "main",
                     ["limit"] = limit
                 };
                 if (conversationContext != null)
@@ -1580,17 +1625,10 @@ namespace ReignBeta.Integration
                 JObject response = await PostJsonAsync("/dialogue/history", payload).ConfigureAwait(false);
                 timer.Stop();
                 ReignLog.Info("HTTP /dialogue/history hero=" + hero.StringId + " clientMs=" + timer.ElapsedMilliseconds + " ok=" + (response.Value<bool?>("ok") == true));
-                if (response.Value<bool?>("ok") != true)
-                {
-                    return lines;
-                }
+                JArray array = response.Value<bool?>("ok") == true ? response["lines"] as JArray ?? new JArray() : new JArray();
 
-                JArray array = response["lines"] as JArray;
-                if (array == null)
-                {
-                    return lines;
-                }
-
+                ReignConversationInputJournal.AppendPending(array, payload.Value<string>("campaignId"),
+                    payload.Value<string>("timelineId"), payload.Value<string>("playerHeroStringId"), hero.StringId);
                 foreach (JToken token in array)
                 {
                     JObject obj = token as JObject;
@@ -1613,6 +1651,18 @@ namespace ReignBeta.Integration
             catch (Exception ex)
             {
                 ReignLog.Warn("Dialogue history load failed: " + ex.Message);
+                if (lines.Count == 0 && hero != null)
+                {
+                    var pending = new JArray();
+                    try
+                    {
+                        ReignConversationInputJournal.AppendPending(pending, GetCampaignId(),
+                            ReignWorldHistoryCampaignBehavior.Instance?.TimelineId ?? "main", Hero.MainHero?.StringId ?? "", hero.StringId);
+                        foreach (JObject row in pending.OfType<JObject>())
+                            lines.Add(new ReignDialogueLine(row.Value<string>("speaker"), row.Value<string>("text"), "player"));
+                    }
+                    catch (Exception savedError) { ReignLog.Warn("Local conversation recovery failed: " + savedError.Message); }
+                }
             }
 
             return lines;
@@ -1620,11 +1670,18 @@ namespace ReignBeta.Integration
 
         public static async Task<string> StartConversationSessionAsync(Hero hero, JObject conversationContext = null)
         {
+            var result = await StartConversationSessionWithIdentityAsync(hero, conversationContext).ConfigureAwait(false);
+            return result.Ok ? result.SessionId : string.Empty;
+        }
+
+        public static async Task<Reign.Core.Contracts.Dialogue.ConversationSessionStart> StartConversationSessionWithIdentityAsync(Hero hero, JObject conversationContext = null)
+        {
+            var result = new Reign.Core.Contracts.Dialogue.ConversationSessionStart();
             try
             {
                 if (hero == null || string.IsNullOrWhiteSpace(hero.StringId))
                 {
-                    return string.Empty;
+                    return result;
                 }
                 bool official = IsOfficialAmbassadorContext(conversationContext);
                 string representedRulerId = conversationContext?.Value<string>("representedRulerId") ?? string.Empty;
@@ -1640,14 +1697,23 @@ namespace ReignBeta.Integration
                     ["participants"] = new JArray(new[] { hero.StringId, Hero.MainHero?.StringId ?? string.Empty, official ? representedRulerId : string.Empty }.Where(id => !string.IsNullOrWhiteSpace(id)).Distinct(StringComparer.OrdinalIgnoreCase))
                 };
                 if (official) payload["ambassadorContext"] = conversationContext.DeepClone();
+                foreach (string key in new[] { "sessionId", "logicalConversationId", "continuedFromSessionId", "continuationReason" })
+                    if (conversationContext?[key] != null) payload[key] = conversationContext[key].DeepClone();
+                foreach (string key in new[] { "campaignId", "timelineId", "playerId" })
+                    if (!string.IsNullOrWhiteSpace(conversationContext?.Value<string>(key))) payload[key] = conversationContext[key].DeepClone();
                 JObject response = await PostJsonAsync("/memory/conversation/start", payload).ConfigureAwait(false);
-                return response.Value<bool?>("ok") == true ? response.Value<string>("sessionId") ?? string.Empty : string.Empty;
+                result.Ok = response.Value<bool?>("ok") == true;
+                result.SessionId = response.Value<string>("sessionId") ?? string.Empty;
+                result.LogicalConversationId = response.Value<string>("logicalConversationId") ?? string.Empty;
+                result.Status = response.Value<string>("status") ?? "open";
+                result.Error = response.Value<string>("error") ?? string.Empty;
             }
             catch (Exception ex)
             {
                 ReignLog.Warn("Conversation session start failed: " + ex.Message);
-                return string.Empty;
+                result.Error = ex.Message;
             }
+            return result;
         }
 
         public static async Task<ReignConversationFinishResult> FinishConversationSessionAsync(Hero hero, string sessionId, string reason = "closed_by_game", JObject conversationContext = null)
@@ -1673,6 +1739,8 @@ namespace ReignBeta.Integration
                 };
                 if (IsOfficialAmbassadorContext(conversationContext))
                     payload["ambassadorContext"] = conversationContext.DeepClone();
+                foreach (string key in new[] { "campaignId", "timelineId", "playerId" })
+                    if (!string.IsNullOrWhiteSpace(conversationContext?.Value<string>(key))) payload[key] = conversationContext[key].DeepClone();
                 JObject response = await PostJsonAsync("/memory/conversation/finish", payload).ConfigureAwait(false);
                 result.Ok = response.Value<bool?>("ok") == true;
                 result.SceneSummaryId = response.Value<string>("sceneSummaryId") ?? string.Empty;
@@ -1781,7 +1849,7 @@ namespace ReignBeta.Integration
             return result;
         }
 
-        public static async Task RecoverConversationSessionsAsync()
+        public static async Task<bool> RecoverConversationSessionsAsync()
         {
             try
             {
@@ -1791,10 +1859,12 @@ namespace ReignBeta.Integration
                     ["worldDay"] = TaleWorlds.CampaignSystem.Campaign.Current == null ? 0d : CampaignTime.Now.ToDays
                 }).ConfigureAwait(false);
                 ReignLog.Info("Conversation recovery ok=" + (response.Value<bool?>("ok") == true) + " count=" + (response.Value<int?>("recoveredCount") ?? 0));
+                return response.Value<bool?>("ok") == true;
             }
             catch (Exception ex)
             {
                 ReignLog.Warn("Conversation recovery failed: " + ex.Message);
+                return false;
             }
         }
 
@@ -1811,7 +1881,8 @@ namespace ReignBeta.Integration
             JObject conversationContext = null,
             bool guardedPromptOverride = false,
             string guardedPromptOverrideDirective = "",
-            string guardedPromptOverrideOwnerCommandId = "")
+            string guardedPromptOverrideOwnerCommandId = "",
+            Reign.Core.Contracts.Actions.ActionAgreement actionDraft = null)
         {
             ReignDialogueReply reply = new ReignDialogueReply();
             try
@@ -1842,7 +1913,7 @@ namespace ReignBeta.Integration
                         playerPromptLabel,
                         settings?.McmTestModeEnabled ?? false,
                         conversationContext)).ConfigureAwait(false);
-                if (!string.IsNullOrWhiteSpace(correlationId)) payload["correlationId"] = correlationId;
+                if (!string.IsNullOrWhiteSpace(correlationId)) { payload["correlationId"] = correlationId; payload["contributionId"] = conversationContext?.Value<string>("contributionId") ?? correlationId; }
                 if (!string.IsNullOrWhiteSpace(dialogueAuditRunId))
                 {
                     payload["dialogueAuditRunId"] = dialogueAuditRunId;
@@ -1864,7 +1935,7 @@ namespace ReignBeta.Integration
                 if (!officialAmbassador)
                     await AttachContextBundlesAsync(payload, "dialogue", hero, new List<Hero> { hero }).ConfigureAwait(false);
                 Stopwatch timer = Stopwatch.StartNew();
-                JObject response = await PostWandererConversationAsync("/dialogue/respond", payload, hero, playerText).ConfigureAwait(false);
+                JObject response = await PostWandererConversationAsync("/dialogue/respond", payload, hero, playerText, actionDraft).ConfigureAwait(false);
                 timer.Stop();
                 reply.Ok = response.Value<bool?>("ok") == true;
                 reply.Text = response.Value<string>("reply") ?? string.Empty;
@@ -1888,9 +1959,9 @@ namespace ReignBeta.Integration
                 reply.SelectedContextPulls = response["selectedContextPulls"] as JArray ?? new JArray();
                 reply.ContextBundles = response["contextBundles"] as JArray ?? new JArray();
                 reply.MemoryWrites = response["memoryWrites"] as JArray ?? new JArray();
-                reply.ChancellorDecision = response["chancellorDecision"] as JObject ?? new JObject();
+                reply.ChancellorDecision = payload.Value<int?>("structuredActionProtocolVersion") == 1 ? new JObject() : response["chancellorDecision"] as JObject ?? new JObject();
                 reply.RawResponse = response;
-                if (reply.Ok && payload["governmentPrivateContext"] is JObject governmentPrivateContext)
+                if (reply.Ok && payload.Value<int?>("structuredActionProtocolVersion") != 1 && payload["governmentPrivateContext"] is JObject governmentPrivateContext)
                     response["governmentCommitmentReceipt"] = await ReignMainThread.InvokeAsync(() =>
                         ReignBeta.Government.ReignGovernmentCampaignBehavior.Instance
                             ?.ApplyGovernmentPrivateConversationResult(governmentPrivateContext, response)
@@ -1983,6 +2054,8 @@ namespace ReignBeta.Integration
                     : conversationSessionId + "_" + Guid.NewGuid().ToString("N"),
                 ["sceneParticipants"] = BuildSceneParticipants(participants),
                 ["localPresence"] = BuildLocalPresenceSnapshot(participants),
+                ["playerAttentionPresence"] = BuildPlayerAttentionPresence(hero),
+                ["gossipPresence"] = BuildPersonalGossipPresence(),
                 ["channel"] = official ? "ambassador_official"
                     : rulerPetition ? "ruler_petition"
                     : nobleDocket ? "noble_docket" : courtLife ? "court_life" : "in_person",
@@ -2045,6 +2118,9 @@ namespace ReignBeta.Integration
                     if (value != null) payload[property] = value.DeepClone();
                 }
             }
+            if (conversationContext != null)
+                foreach (string key in new[] { "approachRequestId", "approachOpening", "rescueOpening", "rescueContext" })
+                    if (conversationContext[key] != null) payload[key] = conversationContext[key].DeepClone();
             return payload;
         }
 
@@ -2191,10 +2267,34 @@ namespace ReignBeta.Integration
             return PostJsonAsync("/tests/social-balance/affair/candidates", payload ?? new JObject());
         }
 
-        internal static async Task<JObject> PostJsonAsync(string route, JObject payload)
+        internal static async Task<JObject> PostJsonAsync(string route, JObject payload, Func<Task<bool>> isCurrentRequest = null)
         {
+            bool conversationInput = payload != null && (route == "/dialogue/respond" || route == "/party-chat/respond"
+                || route == "/events/social/respond" || route == "/events/social/turn" || route == "/events/social/turn-plan"
+                || route == "/court/life/respond" || route == "/court/royal-council/respond" || route == "/court/ruler-petition/respond"
+                || route == "/castle-chat/scene/generate" || route == "/family-chambers/scene/generate");
+            if (conversationInput) ReignConversationInputJournal.Prepare(payload);
             await ReignSaveSyncCoordinator.WaitForReadyAsync(route).ConfigureAwait(false);
             await ReignCampaignInitializationGate.WaitForReadyAsync(route).ConfigureAwait(false);
+            if (route == "/world-history/ingest-batch" && !ReignWorldHistoryTransport.IsCurrentRequest(payload))
+                throw new OperationCanceledException("World-history request belongs to a previous loaded save.");
+            if (conversationInput || payload != null && route == "/correspondence/send")
+            {
+                double nativeDay = await ReignMainThread.InvokeAsync(() =>
+                {
+                    ReignWorldHistoryCampaignBehavior.Instance?.CaptureSharedPartyContact();
+                    payload["partyContext"] = BuildConversationPartyRoster();
+                    if (ReignCalendarService.TryGetCalendarPosition(CampaignTime.Now, out int year, out _, out int season, out int day, out _))
+                    {
+                        double hour = (CampaignTime.Now.ToDays % 1d) * 24d;
+                        payload["conversationDateLabel"] = year + " " + new[] { "Spring", "Summer", "Autumn", "Winter" }[season]
+                            + " " + (day + 1) + " " + (hour < 6 || hour >= 21 ? "Night" : hour < 12 ? "Morning" : hour < 18 ? "Afternoon" : "Evening");
+                    }
+                    return TaleWorlds.CampaignSystem.Campaign.Current == null ? 0d : CampaignTime.Now.ToDays;
+                }).ConfigureAwait(false);
+                if (nativeDay > 0d) payload["worldDay"] = nativeDay;
+                payload["sharedActivitySync"] = await Task.Run(() => ReignWorldHistoryTransport.SynchronizeSharedActivitiesAsync()).ConfigureAwait(false);
+            }
             bool liveTestRoute = route.StartsWith(
                 "/tests/live/", StringComparison.OrdinalIgnoreCase);
             // The production bridge is itself the recovery/control plane. An
@@ -2221,6 +2321,8 @@ namespace ReignBeta.Integration
                 ReignJsonHttpContent content = null;
                 try
                 {
+                    if (isCurrentRequest != null && !await isCurrentRequest().ConfigureAwait(false))
+                        throw new OperationCanceledException("Request belongs to a previous loaded save.");
                     content = new ReignJsonHttpContent(payload ?? new JObject());
                     using (content)
                     using (HttpRequestMessage request = new HttpRequestMessage(
@@ -2257,7 +2359,9 @@ namespace ReignBeta.Integration
                                 throw new InvalidOperationException("HTTP " + (int)response.StatusCode + ": " + body);
                             }
 
-                            return JObject.Parse(body);
+                            JObject parsedResponse = JObject.Parse(body);
+                            if (conversationInput) ReignConversationInputJournal.Acknowledge(payload, parsedResponse);
+                            return parsedResponse;
                         }
                     }
                 }
@@ -3362,6 +3466,8 @@ namespace ReignBeta.Integration
                 ["eventId"] = record.EventId ?? string.Empty,
                 ["timelineId"] = ReignWorldHistoryCampaignBehavior.Instance?.TimelineId ?? "main",
                 ["templateId"] = record.TemplateId ?? string.Empty,
+                ["wildernessInitiatorHeroStringId"] = record.IsGeneratedWildernessEvent ? record.GeneratedInitiatorHeroStringId ?? string.Empty : string.Empty,
+                ["wildernessApproachText"] = record.IsGeneratedWildernessEvent ? record.GeneratedApproachText ?? string.Empty : string.Empty,
                 ["displayName"] = record.DisplayName ?? string.Empty,
                 ["settlementId"] = record.SettlementStringId ?? string.Empty,
                 ["hostHeroStringId"] = record.HostHeroStringId ?? string.Empty,
@@ -3386,8 +3492,10 @@ namespace ReignBeta.Integration
                     ["daysPerWeek"] = CampaignTime.DaysInWeek, ["daysPerYear"] = ReignCalendarService.DaysPerYear },
                 ["clanAccords"] = ReignBeta.ClanAccords.ReignClanAccordsCampaignBehavior.Instance?.ConversationContext(speaker) ?? new JObject(),
                 ["sceneTurnId"] = record.EventId + "_" + session.CurrentPhaseIndex + "_" + session.PhaseExchangeCount,
+                ["playerAttentionPresence"] = BuildPlayerAttentionPresence(speaker),
                 ["sceneParticipants"] = BuildSceneParticipants(record.GetAttendees()),
                 ["localPresence"] = BuildLocalPresenceSnapshot(record.GetAttendees()),
+                ["gossipPresence"] = BuildPersonalGossipPresence(),
                 ["isDancePhase"] = session.Template.TemplateId.StartsWith("dance_", StringComparison.OrdinalIgnoreCase)
                     && (session.CurrentPhase.PhaseId == "first_dance" || session.CurrentPhase.PhaseId == "refreshments_and_second_dance"),
                 ["playerIsFemale"] = Hero.MainHero?.IsFemale ?? false,
@@ -3456,8 +3564,12 @@ namespace ReignBeta.Integration
                 ["turnId"] = string.IsNullOrWhiteSpace(session.CurrentSceneTurnId)
                     ? session.SessionId + "_turn_" + session.PlayerInputCount
                     : session.CurrentSceneTurnId,
+                ["playerAttentionPresence"] = BuildPlayerAttentionPresence(speaker),
+                ["approachRequestId"] = session.ApproachRequestId,
+                ["approachOpening"] = !string.IsNullOrWhiteSpace(session.ApproachRequestId) && session.PlayerInputCount == 0,
                 ["sceneParticipants"] = BuildSceneParticipants(activeHeroes),
                 ["localPresence"] = BuildLocalPresenceSnapshot(activeHeroes),
+                ["gossipPresence"] = BuildPersonalGossipPresence(),
                 ["activeHeroIds"] = new JArray(activeHeroes.Where(x => x != null).Select(x => x.StringId)),
                 ["participants"] = new JArray(activeHeroes.Where(x => x != null)
                     .Select(x => x.StringId)
@@ -3508,11 +3620,46 @@ namespace ReignBeta.Integration
             return new JObject
             {
                 ["schema"] = "reign-local-presence-v1", ["settlementId"] = settlement?.StringId ?? string.Empty,
+                ["partyContext"] = BuildConversationPartyRoster(),
                 ["roomId"] = room, ["worldDay"] = CampaignTime.Now.ToDays,
                 ["partyPositionX"] = Math.Round((MobileParty.MainParty?.GetPosition2D ?? Vec2.Zero).X, 2),
                 ["partyPositionY"] = Math.Round((MobileParty.MainParty?.GetPosition2D ?? Vec2.Zero).Y, 2),
                 ["rosterComplete"] = false, ["omittedCount"] = Math.Max(0, people.Count - 96), ["people"] = rows
             };
+        }
+
+        private static JObject BuildConversationPartyRoster()
+        {
+            var main = MobileParty.MainParty;
+            var members = new JArray();
+            var prisoners = new JArray();
+            if (main != null)
+            {
+                foreach (var row in main.MemberRoster.GetTroopRoster())
+                {
+                    Hero hero = row.Character?.HeroObject;
+                    if (hero == null || row.Number <= 0) continue;
+                    var guest = ReignBeta.PartyAgency.ReignTemporaryPartyGuestCampaignBehavior.Instance?.Records
+                        .FirstOrDefault(record => record.HeroStringId == hero.StringId && record.IsLive
+                            && (record.Phase == ReignBeta.PartyAgency.ReignTemporaryGuestPhase.Active
+                                || record.Phase == ReignBeta.PartyAgency.ReignTemporaryGuestPhase.ReviewDue
+                                || record.Phase == ReignBeta.PartyAgency.ReignTemporaryGuestPhase.Departing));
+                    var roles = new JArray();
+                    foreach (string role in new[] { "Scout", "Surgeon", "Engineer", "Quartermaster" })
+                    {
+                        var property = main.GetType().GetProperty("Effective" + role);
+                        if (property?.GetValue(main, null) is Hero holder && holder == hero) roles.Add(role.ToLowerInvariant());
+                    }
+                    members.Add(new JObject { ["heroStringId"] = hero.StringId, ["name"] = hero.Name?.ToString() ?? hero.StringId,
+                        ["membership"] = guest == null ? "member" : "temporary_guest", ["source"] = "native_main_party_member_roster",
+                        ["roleEvidence"] = roles });
+                }
+                foreach (var row in main.PrisonRoster.GetTroopRoster())
+                    if (row.Character?.HeroObject != null && row.Number > 0) prisoners.Add(row.Character.HeroObject.StringId);
+            }
+            return new JObject { ["schema"] = "reign-party-context-v1", ["partyId"] = main?.StringId ?? "",
+                ["worldDay"] = CampaignTime.Now.ToDays, ["complete"] = main != null, ["members"] = members,
+                ["prisoners"] = prisoners, ["source"] = "native_main_party_member_roster" };
         }
 
         private static JArray BuildSceneParticipants(IEnumerable<Hero> heroes)
@@ -4209,7 +4356,7 @@ namespace ReignBeta.Integration
                 Concept("trade package", "regular", "trade_package", "buy; sell; barter; price; denars for item; gold for prisoner; ships for gold; settlement sale"),
                 Concept("item transfer", "regular", "transfer_item", "give armor; give weapon; hand over item; transfer equipment"),
                 Concept("travel order", "regular", "go_to_settlement", "go to town; ride to city; travel to castle; return to settlement"),
-                Concept("duel", "regular", "duel_player", "friendly duel; training duel; lethal duel; duel of honor"),
+                Concept("duel", "regular", "duel_player", "practice duel; sparring; friendly duel; training duel; lethal duel; duel of honor"),
                 Concept("feast", "social", "social_event_feast", "dinner; banquet; gathering"),
                 Concept("private audience", "social", "social_event_private_audience", "speak privately; closed meeting"),
                 Concept("public insult", "social", "social_action_humiliate", "humiliate; shame; denounce before court")
@@ -4312,6 +4459,8 @@ namespace ReignBeta.Integration
                 ["kingdomName"] = hero?.Clan?.Kingdom?.InformalName?.ToString() ?? hero?.MapFaction?.Name?.ToString() ?? string.Empty,
                 ["currentSettlementId"] = hero?.CurrentSettlement?.StringId ?? string.Empty,
                 ["currentSettlementName"] = hero?.CurrentSettlement?.Name?.ToString() ?? string.Empty,
+                ["homeSettlementId"] = hero?.HomeSettlement?.StringId ?? string.Empty,
+                ["homeSettlementName"] = hero?.HomeSettlement?.Name?.ToString() ?? string.Empty,
                 ["partyId"] = hero?.PartyBelongedTo?.StringId ?? string.Empty,
                 ["occupation"] = hero?.Occupation.ToString() ?? string.Empty,
                 ["age"] = hero?.Age ?? 0f,
@@ -5973,6 +6122,7 @@ namespace ReignBeta.Integration
         public string Error { get; set; } = string.Empty;
         public string Title { get; set; } = string.Empty;
         public string VarietyKey { get; set; } = string.Empty;
+        public string InitiatorHeroStringId { get; set; } = string.Empty;
         public string ApproachDescription { get; set; } = string.Empty;
         public string OpeningText { get; set; } = string.Empty;
         public string PlayerHook { get; set; } = string.Empty;

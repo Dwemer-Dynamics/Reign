@@ -3,11 +3,11 @@
   "heroStringId": "lord_1_66",
   "characterName": "Lantanor",
   "imagePath": "portrait.png",
-  "imageSha256": "8D6CE832628E7B203C578CC1ECA502AA311249854915A142968A10AC23D5D34E",
-  "description": "Culturally appropriate everyday Calradic Imperial minor-lord attire inspired by refined late Roman and Byzantine noble clothing. Men should wear a high-quality tunic or long tailored outer coat over fine linen, decorated with narrow woven borders, refined clasps, and a decorated belt. Women should wear a long elegant dress or layered tunic ensemble with shaped sleeves, graceful draping, and tasteful trim around the neckline, cuffs, and edges. The garments should feel polished, educated, urban, and wealthy without resembling full imperial ceremony. No headgear of any kind. No armor, weapons, crowns, imperial regalia, laurel wreaths, or ceremonial robes.",
-  "status": "failed",
-  "descriptionSource": "portrait_prompt_fallback",
-  "retryEligible": true,
-  "error": "{\"error\":{\"message\":\"Model \\\"zai-org/glm-5.2\\\" does not support image inputs. Remove image content or choose a multimodal model.\",\"type\":\"invalid_request_error\",\"param\":\"messages\",\"code\":\"image_input_not_supported\"}}",
-  "updatedUtc": "2026-07-18T22:03:31.4702486Z"
+  "imageSha256": "2F4FF852A95A69DF90CDAC8EA50DA5DBF1140190D1E941ECA340ED4EFFAD5698",
+  "description": "Lantanor wears a long deep plum-brown noble coat with subtle all-over textile motifs and narrow gold woven borders around the split collar, front edges, cuffs and hem. Small bronze clasps fasten the upper coat. An ivory linen tunic underneath has decorated neckline and lower border. A broad ornate brown leather belt has circular and square bronze fittings and long hanging ends. Dark trousers tuck into tall brown leather boots. Both hands and feet are fully visible. The outfit is opaque and tailored with no headgear, armor or weapon.",
+  "status": "completed",
+  "descriptionSource": "agent_vision",
+  "retryEligible": false,
+  "error": "",
+  "updatedUtc": "2026-10-07T23:44:39.759Z"
 }

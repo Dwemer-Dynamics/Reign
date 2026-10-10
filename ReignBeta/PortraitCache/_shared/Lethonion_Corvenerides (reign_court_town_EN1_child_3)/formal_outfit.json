@@ -3,11 +3,11 @@
   "heroStringId": "reign_court_town_EN1_child_3",
   "characterName": "Lethonion Corvenerides",
   "imagePath": "portrait.png",
-  "imageSha256": "4FF7EC3F672B23CFBABADB0FD2A8ACB1F84EFF460B4C10E53DD3502D262F0D0B",
-  "description": "Culturally appropriate everyday Calradic Imperial high-noble attire inspired by luxurious Byzantine aristocratic fashion, restrained enough for daily noble life. Use fine layered linen and wool, controlled flowing silhouettes, elegant draping, richly woven borders, small jeweled clasps, and sophisticated fabric textures. Men should wear a stately long tunic or structured noble coat over a fine undertunic, with refined belts and detailed edging. Women should wear a sophisticated layered noble dress with graceful drapery, tailored sleeves, and subtle aristocratic ornamentation. The outfit should communicate ancient prestige, wealth, and political importance. No headgear of any kind. No armor, weapons, crowns, laurel wreaths, or full ceremonial imperial regalia.",
-  "status": "failed",
-  "descriptionSource": "portrait_prompt_fallback",
-  "retryEligible": true,
-  "error": "{\"error\":{\"message\":\"Model \\\"zai-org/glm-5.2\\\" does not support image inputs. Remove image content or choose a multimodal model.\",\"type\":\"invalid_request_error\",\"param\":\"messages\",\"code\":\"image_input_not_supported\"}}",
-  "updatedUtc": "2026-07-18T22:03:31.7410936Z"
+  "imageSha256": "4CD9AF73862EC5AECE649038E928B78D60D479254A3F496DABC5981FADA3AC71",
+  "description": "Lethonion wears a cream long tunic with a small slit neckline and gold geometric borders beneath a deep purple long outer coat. A burgundy patterned shoulder mantle with gold edging is fixed by a round red-centered brooch. Wide cuffs carry intricate narrow woven borders. A broad brown decorated belt and hanging metal fittings define the waist. Dark trousers and tall brown leather-like boots cover the lower legs. Cloth is substantial and opaque, with exact fibers uncertain. Sleeves reach the wrists and jewelry is restrained. No headgear, armor, weapon or crown is visible.",
+  "status": "completed",
+  "descriptionSource": "agent_vision",
+  "retryEligible": false,
+  "error": "",
+  "updatedUtc": "2026-10-07T23:34:31.640Z"
 }

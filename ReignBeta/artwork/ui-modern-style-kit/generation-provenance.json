@@ -176,6 +176,27 @@
       "prompt": "Use case: precise-object-edit\nAsset type: production game UI static screen shell\nInput images: Image 1 is the edit target and exact pixel-layout authority for Correspondence; Image 2 is the exact material, texture, lighting, and color authority only.\nPrimary request: Convert Image 1 into a completely textless, portraitless, iconless static Correspondence shell for runtime content overlays.\nComposition/framing: Preserve Image 1's complete 1672x941 landscape composition and pixel-register every structural element: outer double frame, centered title plaque, top-right button frame, left Known Characters panel, selected contact-row frame, all six circular portrait-ring positions and row dividers, both scrollbar tracks and handles, large correspondence/message panel, both raised message-card rectangles, lower input panel and inset input rectangle, and the two stacked lower-right button frames. Do not move, resize, add, delete, or reinterpret any panel, frame, card, button, divider, scroll track, or circular portrait ring.\nStyle/medium: shippable medieval-fantasy game UI shell; restrained modern Reign style, not concept art.\nColor palette: use only Image 2's near-black marble, black/smoke panels, cool charcoal-gray raised cards, border bronze, subdued antique gold, and tiny gold highlights. Match the supplied palette exactly; no brown panel fills and no warm gray mats.\nMaterials/textures: subtle low-contrast black marble with very restrained veins; thin precise antique-gold double-line engraving; cool-gray raised message cards and input material; clean, shallow depth.\nRequired removals: remove every letter, word, number, value, portrait, face, character, heraldic crest, lion, crown, semantic status/unread/message icon, and all message content. Fill removed portrait interiors with clean dark cool-neutral material while retaining the circular gold rings. Fill removed text and icon areas seamlessly with their surrounding black-marble, smoke-panel, or cool-gray material.\nInvariants: retain purely ornamental border diamonds, corner flourishes, frame finials, and scrollbar chrome because they are structural ornament, not live content. Keep the selected contact-row frame and all empty fixed panels exactly where Image 1 places them. The output must be fully opaque, seamless, symmetrical where the reference is symmetrical, and contain absolutely no readable or pseudo-readable text, watermark, logo, person, silhouette, portrait, heraldry, or added decoration.\nAvoid: typography-like marks, ghost letters, facial traces, body silhouettes, fantasy scenery, bright gold, gray paper, parchment, brown panels, extra ornament, altered proportions, layout drift, blur, glow, or bloom."
     },
     {
+      "id": "correspondence-clean-roster-source",
+      "path": "generated-sources/screen-shells/correspondence-clean-roster-source.png",
+      "width": 1672,
+      "height": 941,
+      "sha256": "b97530815a75e0572eb592c6b1f2439d6f80b762bc27777473a1ceb72a8ed5ad",
+      "promptRecord": "two-stage-edit",
+      "lineage": "Edited correspondence-modern-shell-source to remove fixed contact-row art; the fixed-region compositor restores all pixels outside declared masks from the approved reference.",
+      "basePrompt": "Remove every fixed contact-row graphic inside x=77..466 and y=190..809: the selected-contact rectangle, portrait circles, diamonds, dividers, and old portrait holes. Fill with continuous dark black marble. Preserve outer rail, title, scrollbar, bottom crest, right panel, and dimensions; add no new objects.",
+      "prompt": "Remove the new tall gold inset border inside the left contact rail, including its top, left, right, and bottom lines. Fill with matching black marble. Keep the outer rail frame, title, scrollbar, and bottom crest. The entire roster field should contain no portrait rings, diamonds, dividers, or rectangle outline."
+    },
+    {
+      "id": "correspondence-clean-content-source",
+      "path": "generated-sources/screen-shells/correspondence-clean-content-source.png",
+      "width": 1672,
+      "height": 941,
+      "sha256": "85ff93cd1e10664f726a90c19504529a91083798f30e2562f498f13c5ba8b57f",
+      "promptRecord": "edit",
+      "lineage": "Edited correspondence-clean-roster-source to remove two fixed message bands; only declared dynamic regions are used by the fixed-region compositor.",
+      "prompt": "Remove the two broad nonmoving dark-grey horizontal rectangles inside the right conversation panel, at approximately x=645..1559 y=235..319 and x=573..1417 y=336..422. Replace both with the same continuous subtle near-black marble as the open conversation background. Keep the panel frame, scrollbar, clean contact rail, and other layout areas. Add no objects, borders, cards, typography, ornaments, or gradients. Preserve 1672x941."
+    },
+    {
       "id": "economic-report-modern-shell-source",
       "path": "generated-sources/screen-shells/economic-report-modern-shell-source.png",
       "width": 1672,
@@ -1159,18 +1180,18 @@
           "sha256": "7fa74e25cdf023d352da036afffa58a17d9e21053da8681559ecd54eb81850df"
         },
         "imageToImageCandidate": {
-          "path": "ReignBeta/artwork/ui-modern-style-kit/generated-sources/screen-shells/correspondence-modern-shell-source.png",
-          "sha256": "e1e573e4954803974b0eea59cd225e311c6020421ea935f128ea2b7e4560438e"
+          "path": "ReignBeta/artwork/ui-modern-style-kit/generated-sources/screen-shells/correspondence-clean-content-source.png",
+          "sha256": "85ff93cd1e10664f726a90c19504529a91083798f30e2562f498f13c5ba8b57f"
         },
         "fixedComposite": {
           "status": "passed",
           "specPath": "ReignBeta/artwork/ui-modern-style-kit/specs/screen-correspondence-fixed-region-mask.json",
-          "specSha256": "700fad3b27b16e3d30b456646293d28265f0b5e92045d48e17d3d332fcd6e3ff",
+          "specSha256": "11de0fa3618fde207ef21256961a853a244a7d554c311dc7f41aae091198be19",
           "sourcePath": "ReignBeta/artwork/ui-modern-style-kit/generated-sources/screen-shells/correspondence-modern-shell-exact-fixed-source.png",
-          "sourceSha256": "21461115e299bf3b936a13eda354928a26b7c07b6229836aa9bd52b7d88e6d1e",
-          "evidencePath": ".codex-build/ui-modern-assets/20260827/correspondence-fixed-region/fixed-region-composite-evidence.json",
-          "evidenceSha256": "5f2c6e2a2c2c40a0e435632b0ace21ba9ac66560e3300ec2c5a771147bd3ea9d",
-          "fixedPixelCount": 793454,
+          "sourceSha256": "861a82824bc81d9fead1b357c5dd27b6640df13baa89524efaa146f0fb29f666",
+          "evidencePath": ".codex-build/ui-modern-assets/20260926/correspondence-fixed-region/fixed-region-composite-evidence.json",
+          "evidenceSha256": "d5d30f810ab37a15b2694ecc444f1a4de3d631562496e2afdbae72aab3d041fc",
+          "fixedPixelCount": 703949,
           "exactFixedPixelRatio": 1.0,
           "maximumFixedChannelDifference": 0
         },
@@ -1178,11 +1199,11 @@
           "assets": [
             {
               "path": "ReignBeta/GUI/SpriteParts/ui_reignbeta_correspondence/reign_correspondence_modern_shell.png",
-              "sha256": "b18080fecdf70aa821e641a0bb235d350860829a785929f9f6ab6bbf7fd74ee8",
+              "sha256": "85f4a74b374eb6f0ff99696d076e67486417083392d5877595d7edff47e3bb9e",
               "specPath": "ReignBeta/artwork/ui-modern-style-kit/specs/correspondence-shell.json",
               "specSha256": "022270e2400b15753c4f322cdc003f7ca2f6c8c68cf9e14cf571cc8f8926dce9",
-              "evidencePath": ".codex-build/ui-modern-assets/20260827/correspondence-modern-shell.evidence.json",
-              "evidenceSha256": "ddbbe9206951cfee4e64ff07eb7de76dd98dae753703c6643ca12b71bcdf7712"
+              "evidencePath": ".codex-build/ui-modern-assets/20260926/correspondence-modern-shell.evidence.json",
+              "evidenceSha256": "a8e6395a04351e30874c1311ac1c99f61166c4b9469d6cae0fea889f41a835f4"
             }
           ]
         }

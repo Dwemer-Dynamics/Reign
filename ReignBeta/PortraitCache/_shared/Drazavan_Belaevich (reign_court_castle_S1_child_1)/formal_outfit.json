@@ -3,11 +3,11 @@
   "heroStringId": "reign_court_castle_S1_child_1",
   "characterName": "Drazavan Belaevich",
   "imagePath": "portrait.png",
-  "imageSha256": "4E64B82910613DB7A86D81D5048E5398978635EA2E1A95B7E61266C3AB4BE8A2",
-  "description": "Culturally appropriate everyday Sturgian minor-lord attire inspired by refined medieval Rus and Slavic noble clothing. Men should wear a well-made long shirt beneath a tailored wool kaftan or long belted coat, decorated with fine geometric embroidery and quality trim. Women should wear a long embroidered shift with an elegant wool overdress or noble coat-dress, secured with a richly woven sash. Include subtle fur trim around collars or cuffs, tasteful clasps, and better-quality fabric than a landowner would wear. The clothing should remain practical for a northern climate while clearly showing noble rank. No headgear of any kind. No armor, weapons, crowns, ceremonial robes, or oversized fur displays.",
-  "status": "failed",
-  "descriptionSource": "portrait_prompt_fallback",
-  "retryEligible": true,
-  "error": "{\"error\":{\"message\":\"Model \\\"zai-org/glm-5.2\\\" does not support image inputs. Remove image content or choose a multimodal model.\",\"type\":\"invalid_request_error\",\"param\":\"messages\",\"code\":\"image_input_not_supported\"}}",
-  "updatedUtc": "2026-07-18T22:03:27.7536183Z"
+  "imageSha256": "56E44161F2514130382ED7613E2666B04AC657B6762B855D934A0D5B862E7454",
+  "description": "Long blue embroidered wool kaftan with restrained fur collar/cuffs and linked metal clasps, cream long shirt, patterned burgundy sash, brown trousers and tall brown boots. No headgear, armor or weapons.",
+  "status": "completed",
+  "descriptionSource": "agent_vision",
+  "retryEligible": false,
+  "error": "",
+  "updatedUtc": "2026-10-08T05:29:02.508Z"
 }

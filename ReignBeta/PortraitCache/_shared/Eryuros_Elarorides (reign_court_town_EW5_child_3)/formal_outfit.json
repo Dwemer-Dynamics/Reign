@@ -3,11 +3,11 @@
   "heroStringId": "reign_court_town_EW5_child_3",
   "characterName": "Eryuros Elarorides",
   "imagePath": "portrait.png",
-  "imageSha256": "597212D28949E80DCD6CBF2DB440CC4F9CD735EA213EBD8F226EFA24A735BEBD",
-  "description": "Culturally appropriate everyday Calradic Imperial minor-lord attire inspired by refined late Roman and Byzantine noble clothing. Men should wear a high-quality tunic or long tailored outer coat over fine linen, decorated with narrow woven borders, refined clasps, and a decorated belt. Women should wear a long elegant dress or layered tunic ensemble with shaped sleeves, graceful draping, and tasteful trim around the neckline, cuffs, and edges. The garments should feel polished, educated, urban, and wealthy without resembling full imperial ceremony. No headgear of any kind. No armor, weapons, crowns, imperial regalia, laurel wreaths, or ceremonial robes.",
-  "status": "failed",
-  "descriptionSource": "portrait_prompt_fallback",
-  "retryEligible": true,
-  "error": "{\"error\":{\"message\":\"Model \\\"zai-org/glm-5.2\\\" does not support image inputs. Remove image content or choose a multimodal model.\",\"type\":\"invalid_request_error\",\"param\":\"messages\",\"code\":\"image_input_not_supported\"}}",
-  "updatedUtc": "2026-07-18T22:03:28.8583994Z"
+  "imageSha256": "7FE17076BE8A0E85C33130E28018B665AB9F79E4FA624EBF83FD5F06B1ED6E07",
+  "description": "He wears a long plum-brown patterned open outer coat with gold-tan geometric front borders, cuffs and hem over a cream linen tunic with decorated neckline and central strip. A narrow worked belt with a round ornate clasp secures the waist. Dark trousers and tall brown leather boots are visible. No headgear, armor or weapons appear.",
+  "status": "completed",
+  "descriptionSource": "agent_vision",
+  "retryEligible": false,
+  "error": "",
+  "updatedUtc": "2026-10-07T22:51:03.305Z"
 }

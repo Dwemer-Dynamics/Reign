@@ -3,11 +3,11 @@
   "heroStringId": "reign_court_town_S1_child_1",
   "characterName": "Drazulan Beleevich",
   "imagePath": "portrait.png",
-  "imageSha256": "000BD081269BD6DA8C0E8A72957A81E2D86347A337E33D94AD2B72F79C8334FB",
-  "description": "Culturally appropriate everyday Sturgian high-noble attire inspired by wealthy medieval Rus aristocracy. Use richly woven wool, fine linen, elegant long coats or kaftans, tasteful embroidery, restrained fur trim, and expertly crafted belts or clasps. Men should wear a stately long noble coat layered over a fine embroidered shirt and tailored trousers. Women should wear a richly cut long dress or overdress with embroidered cuffs, collar, and hem, paired with a fitted outer garment or elegant shoulder layer. The outfit should feel imposing, expensive, and suited to the daily life of a powerful northern noble. No headgear of any kind. No armor, weapons, crowns, full ceremonial regalia, or extravagant fur mantles.",
-  "status": "failed",
-  "descriptionSource": "portrait_prompt_fallback",
-  "retryEligible": true,
-  "error": "{\"error\":{\"message\":\"Model \\\"zai-org/glm-5.2\\\" does not support image inputs. Remove image content or choose a multimodal model.\",\"type\":\"invalid_request_error\",\"param\":\"messages\",\"code\":\"image_input_not_supported\"}}",
-  "updatedUtc": "2026-07-18T22:03:27.8161283Z"
+  "imageSha256": "2A0BB95E6344762FEBE3C02D77FADD595342012C58FE60E64486733A05F1D555",
+  "description": "Actual long navy noble coat with gold woven geometric embroidery, narrow restrained fur edging and cuffs, cream embroidered linen shirt, decorated brown leather belt with metal clasps and ornaments, dark trousers and tall soft brown leather boots. No headgear, armor or weapons.",
+  "status": "completed",
+  "descriptionSource": "agent_vision",
+  "retryEligible": false,
+  "error": "",
+  "updatedUtc": "2026-10-08T06:36:44.265Z"
 }

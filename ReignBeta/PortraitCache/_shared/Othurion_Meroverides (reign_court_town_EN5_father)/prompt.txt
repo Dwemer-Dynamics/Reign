@@ -1,11 +1,16 @@
-IDENTITY AND SUBJECT
-Use the provided source image as the visual identity reference, not as a style reference.
-Create a portrait of Othurion Meroverides, a man of Imperial culture who is 44 years old.
-Their clan is tier 3, placing them socially among the lesser lord class. Use this status to guide the refinement, expense, materials, and ornament of their clothing without turning it into fantasy costume.
-Use the source face image as the primary visual reference for the subject’s appearance and identity. Preserve the recognizable facial features, apparent age, expression, eye shape, eye color, hair color, hairstyle, skin tone, facial proportions, bone structure, scars, facial hair, and other distinguishing characteristics as closely as possible.
-The source image may depict a stylized or simplified video-game character model. Do not reproduce the artificial game-model appearance, low-detail geometry, rigid facial structure, plastic skin, exaggerated proportions, or computer-rendered texture. Instead, reinterpret the character as a believable real human being while retaining the same recognizable identity.
-Translate simplified game features into natural human anatomy and realistic detail, including authentic skin texture, visible pores, subtle wrinkles, natural facial asymmetry, realistic eyes, individually defined hair, believable facial hair, and physically plausible facial proportions. The final face should look like a real person photographed in real life, not a game model, digital avatar, illustration, or CGI render.
-Treat the name, age, gender, culture, clan tier, and social station as private generation guidance. They describe the subject and must never be printed, captioned, labeled, written, or otherwise rendered anywhere in the image.
+I want you to create a picture of a 44-year-old man who looks like the description below. Create one photographic full-body portrait. Clothing follows Imperial lesser lord fashion, with the craftsmanship and social station of clan tier 3. These values are generation guidance and must never be printed in the image.
+Use a vertical 3:4 portrait canvas. Generate from the written traits alone.
+
+FACIAL APPEARANCE AND HAIR
+Othurion is a mature adult man with a warm lightly tanned complexion and a long oval face. His forehead is high and fairly broad, with fine horizontal lines and adult skin texture. His eyes are muted olive green around dark pupils, narrow almonds with slightly hooded upper lids and moderate lower lid folds. His eyebrows are dark brown, thick at their inner ends and fairly straight before angling slightly down outside. His nose is long and prominent, with a straight narrow bridge, rounded projecting tip and distinct nostril wings. His cheeks have ordinary moderate fullness above a relatively broad jaw. His lips are natural muted brown rose, medium in fullness and closed in a neutral expression. His hair is nearly black dark brown, short to medium, with an uneven near-center part and pointed loose strands falling forward across both sides of the forehead. The front is asymmetric, longer toward his right, the viewer's left, while the sides lie around the ears and nape. Preserve this forward shag rather than a backward slick sweep or short curled crop. He has a sparse dark moustache, a separate small pointed patch under the lower lip, and dense close stubble across the lower cheeks, jaw and chin. Keep this pattern short, without a long connected beard. No distinctive tattoo or confirmed individual scar is visible.
+
+FACIAL CULTURAL APPEARANCE — IMPERIAL
+Stored cultureId: empire.
+Regional reference: Eastern Mediterranean regional appearance, drawing on Greek, Anatolian and neighboring populations.
+Create a believable real human face with this regional appearance. Apply the regional reference positively to facial appearance, facial structure and complexion; it is not only a clothing, setting or background instruction.
+Blend the regional reference with the individual facial description. Where simplified native geometry or game-renderer shading differs from this regional appearance, use a plausible natural blend while retaining recognizable individual traits: face outline, relative proportions, eyes, brows, nose, mouth, jaw and chin. Preserve the described hair identity, arrangement and texture, facial-hair pattern, eye character, visible scars and markings; do not invent new distinguishing marks.
+These regional populations contain substantial individual variation. Do not give every member the same face, impose a universal skin, hair or eye color, or replace the written individual identity with a generic regional stereotype. Preserve source-grounded differences and natural human asymmetry.
+Keep the exact authored age and the independent native weight and build values. This layer applies to facial appearance and realistic complexion interpretation, not body size, muscularity, garment coverage or social rank. Every complete composition, clothing, confidence, photographic, output and physique modifier remains in effect. Do not print this reference or any metadata in the image.
 
 COMPOSITION AND FRAMING
 Create a full head-to-toe body portrait showing the entire figure from the top of the head down to the feet
@@ -25,3 +30,22 @@ OUTPUT EXCLUSIONS
 Return only the portrait image itself.
 Do not render words, letters, numbers, captions, labels, names, ages, cultures, subtitles, signatures, logos, watermarks, interface elements, portrait cards, decorative title blocks, borders, banners, blank caption areas, white strips, white footer panels, or metadata panels anywhere in the image.
 No extreme close-up, face-only crop, cropped head, cropped shoulders, armor, weapons, shields, quivers, chainmail, helmets, fur war gear, plastic skin, over-smoothed face, CGI, cartoon, anime, painterly style, or modern clothing.
+
+NATIVE BODY APPEARANCE — AUTHORITATIVE PHYSIQUE
+Native weight: 0.5 on a 0–1 scale: Medium body-fat level.
+Native build: 0.5 on a 0–1 scale: Moderate musculature.
+These are independent native appearance sliders, not kilograms, BMI, clinical classifications or body-fat percentages. Respect the exact position within each range, without abrupt changes at descriptive boundaries.
+Weight controls body-fat fullness. For women, build controls natural muscle tone, firmness, and athletic definition, not added muscle mass, bulky shoulders, thick arms, or masculine bodybuilder proportions. For men, build controls muscle mass. High weight does not imply muscle. High build does not imply extra fat or automatically visible abdominal definition; body fat and clothing can obscure definition.
+Match these native proportions even if another prompt or the supplied AI portrait conflicts. Preserve native age, sex, skeletal proportions, face and identity. Do not infer breast size, enlarge curves, beautify, slim or bulk up the person beyond these values.
+Garments must fit this physique. Revealingness and physical confidence change clothing coverage only, never body size. Covered muscles need not be exposed. During a clothing edit, correct conflicting AI physique to these native values while preserving the person's face and identity. Never print these instructions or values in the image.
+
+COMPOSITION CORRECTION FOR CANONICAL CROPS
+Leave clear stone architecture above the entire hairstyle. Place the very top of the hair at roughly 6% of total canvas height and the chin at roughly 18% of total canvas height. Keep the complete body and both feet inside the canvas with floor visible below the shoes. Do not enlarge the face or crop the hair. Preserve the written identity and all preceding appearance, clothing, light and style instructions.
+
+IDENTITY CORRECTION AFTER SOURCE AND RESULT REVIEW
+Preserve ALL full layers. Othurion has clearly OLIVE-GREEN irises around dark pupils, not brown or dark hazel. Both eyes must show muted green at canonical face-crop distance. Retain mature long oval, long rounded nose and short-to-medium nearly black asymmetric forward shag, longer toward HIS RIGHT/viewer LEFT. Keep sparse moustache, separate tiny pointed patch and jaw stubble short. Age44, weight0.5 and male mass0.5 remain unchanged.
+Preserve every preceding complete cultural, photographic, composition, clothing and physique layer. Change only the reviewed identity details; do not invent distinguishing features.
+
+IDENTITY CORRECTION AFTER SOURCE AND RESULT REVIEW
+FINAL FOCUSED EYE CORRECTION: Othurion's eye color is visibly OLIVE GREEN. Make BOTH irises light enough that the green is clearly recognizable in the canonical face crop: muted moss/olive green outer iris with a dark pupil. NO BROWN irises, NO dark hazel or amber eyes. Natural green, not fluorescent and not contacts. The Imperial regional layer permits green eyes and must not substitute generic brown. Keep his mature face, near-black asymmetric forward shag, sparse moustache/separate patch/jaw stubble, exact age44, weight0.5, male mass0.5 and all complete original clothing/composition/culture/style layers.
+Preserve every preceding complete cultural, photographic, composition, clothing and physique layer. Change only the reviewed identity details; do not invent distinguishing features.

@@ -3,11 +3,11 @@
   "heroStringId": "reign_court_town_V3_child_3",
   "characterName": "Alduric Corvecourt",
   "imagePath": "portrait.png",
-  "imageSha256": "8FF81745F4044E7B9AD4B7E99A0115FE49BCD474505D87713B08CC4A17984A1A",
-  "description": "Culturally appropriate everyday Vlandian minor-lord attire inspired by refined high-medieval Norman and Frankish noble dress. Use a fitted wool tunic or cote over a fine linen shirt, high-quality chausses, a decorated leather belt, and an optional short mantle or shoulder drape with restrained embroidery. For women, use a long underdress with an elegant tailored overdress, shaped sleeves, fine woven fabric, and decorative trim around the cuffs, hem, and neckline. Include modest clasps, brooches, or small jewelry details. No headgear of any kind. No armor, weapons, crowns, royal regalia, or ceremonial robes.",
-  "status": "failed",
-  "descriptionSource": "portrait_prompt_fallback",
-  "retryEligible": true,
-  "error": "{\"error\":{\"message\":\"Model \\\"zai-org/glm-5.2\\\" does not support image inputs. Remove image content or choose a multimodal model.\",\"type\":\"invalid_request_error\",\"param\":\"messages\",\"code\":\"image_input_not_supported\"}}",
-  "updatedUtc": "2026-07-18T22:03:24.3615337Z"
+  "imageSha256": "28582CCBC1EEE6906C875C69ED4AFB3AA05C0CD029F1F00C9B5383A71DE33641",
+  "description": "A brown knee-length noble coat with a small patterned neckline, gold-red woven trim around the opening, cuffs and hem, over a cream linen shirt. A burgundy cloak hangs from one shoulder and is held by a round brooch. A decorated leather belt with long hanging strap, dark trousers and tall brown boots are visible.",
+  "status": "completed",
+  "descriptionSource": "agent_vision",
+  "retryEligible": false,
+  "error": "",
+  "updatedUtc": "2026-10-07T20:32:36.422Z"
 }

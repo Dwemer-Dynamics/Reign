@@ -3,11 +3,11 @@
   "heroStringId": "main_hero_father",
   "characterName": "Baldron",
   "imagePath": "portrait.png",
-  "imageSha256": "188F6B57B6E4B3E3DB660457E0BA8B29C2670CF8E770610DC3C675E1958E7915",
-  "description": "Their clan is tier unknown, placing them socially among the unranked class. Use this status to guide the refinement, expense, materials, and ornament of their clothing without turning it into fantasy costume.",
-  "status": "failed",
-  "descriptionSource": "portrait_prompt_fallback",
-  "retryEligible": true,
-  "error": "{\"error\":{\"message\":\"Model \\\"zai-org/glm-5.2\\\" does not support image inputs. Remove image content or choose a multimodal model.\",\"type\":\"invalid_request_error\",\"param\":\"messages\",\"code\":\"image_input_not_supported\"}}",
-  "updatedUtc": "2026-07-18T22:03:25.4203807Z"
+  "imageSha256": "1A4AFE7FA6860128124AFEFB58F697E67B7078227CCB66EE8A436043F9EE0762",
+  "description": "He wears a muted olive-green knee-length wool tunic with long sleeves, narrow cream underlayer edges at the cuffs, and a simple dark brown leather belt with an oval metal buckle and long hanging tail. A broad rough woven olive-brown plaid wrap with fringed edges crosses the shoulders and chest, fastened near one shoulder by a round metal brooch. Brown trousers are tucked into dark brown leather boots with crisscrossed lower-leg wrapping straps. The clothing is practical and subdued, with visible textile texture and little ornamentation.",
+  "status": "completed",
+  "descriptionSource": "agent_vision",
+  "retryEligible": false,
+  "error": "",
+  "updatedUtc": "2026-10-07T20:49:12.497Z"
 }

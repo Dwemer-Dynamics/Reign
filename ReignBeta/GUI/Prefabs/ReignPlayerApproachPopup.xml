@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Prefab>
+  <Window>
+    <Widget Id="PlayerApproachPopupHost" WidthSizePolicy="StretchToParent" HeightSizePolicy="StretchToParent">
+      <Children>
+        <Widget DoNotAcceptEvents="true" WidthSizePolicy="StretchToParent" HeightSizePolicy="StretchToParent" Sprite="BlankWhiteSquare_9" Color="#030303F2" />
+        <Widget Id="PlayerApproachPopup" DoNotAcceptEvents="true" WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="1672" SuggestedHeight="941" HorizontalAlignment="Center" VerticalAlignment="Center" Sprite="reign_notable_generation_popup">
+          <Children>
+            <TextWidget Id="ApproachTitle" DoNotAcceptEvents="true" WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="663" SuggestedHeight="72" HorizontalAlignment="Center" MarginTop="248" Brush="DefaultText" Brush.Font="ReignSerifDynamic" Brush.FontSize="40" Brush.TextHorizontalAlignment="Center" Brush.TextVerticalAlignment="Center" Brush.FontColor="#C5AC83FF" Text="@Title" />
+            <TextWidget Id="ApproachDetail" DoNotAcceptEvents="true" WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="778" SuggestedHeight="92" HorizontalAlignment="Center" MarginTop="399" Brush="DefaultText" Brush.Font="ReignSerifDynamic" Brush.FontSize="25" Brush.TextHorizontalAlignment="Center" Brush.TextVerticalAlignment="Center" Brush.FontColor="#C5BDAFFF" Text="@Detail" />
+            <ButtonWidget Id="AcceptApproach" WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="276" SuggestedHeight="44" MarginLeft="558" MarginTop="538" Brush="ConversationItem.SoundBrush" Command.Click="ExecuteAccept">
+              <Children>
+                <TextWidget Id="AcceptApproachLabel" DoNotAcceptEvents="true" WidthSizePolicy="StretchToParent" HeightSizePolicy="StretchToParent" Brush="DefaultText" Brush.Font="ReignSerifDynamic" Brush.FontSize="18" Brush.TextHorizontalAlignment="Center" Brush.TextVerticalAlignment="Center" Brush.FontColor="#C5AC83FF" Text="@AcceptText" />
+              </Children>
+            </ButtonWidget>
+            <ButtonWidget Id="DeclineApproach" WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="276" SuggestedHeight="44" MarginLeft="838" MarginTop="538" Brush="ConversationItem.SoundBrush" Command.Click="ExecuteDecline">
+              <Children>
+                <TextWidget Id="DeclineApproachLabel" DoNotAcceptEvents="true" WidthSizePolicy="StretchToParent" HeightSizePolicy="StretchToParent" Brush="DefaultText" Brush.Font="ReignSerifDynamic" Brush.FontSize="18" Brush.TextHorizontalAlignment="Center" Brush.TextVerticalAlignment="Center" Brush.FontColor="#C5AC83FF" Text="@DeclineText" />
+              </Children>
+            </ButtonWidget>
+          </Children>
+        </Widget>
+      </Children>
+    </Widget>
+  </Window>
+</Prefab>

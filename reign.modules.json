@@ -1565,7 +1565,8 @@
           "ownership": [
             "ReignBeta/src/Modules/Portraits/**",
             "ReignBeta/PortraitCache/**",
-            "ReignBeta/TavernHousePortraits/**"
+            "ReignBeta/TavernHousePortraits/**",
+            "tools/update_shared_portrait_inventory.py"
           ],
           "projects": [
             "client"

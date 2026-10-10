@@ -636,8 +636,10 @@ namespace ReignBeta.Campaign
             item.LastOutcome = source;
             if (firstCapture) AddHistory(item, "captured", accused.Name + " was placed in player custody.");
             SynchronizeCaseEffect(item, accused, false);
-            RecordHistory(item, accused, "arrest_captured", "captured",
-                accused.Name + " was imprisoned on the player's accusation: " + item.RawAccusation + ".");
+            // The native custody event can finalize this capture before its caller returns.
+            if (firstCapture)
+                RecordHistory(item, accused, "arrest_captured", "captured",
+                    accused.Name + " was imprisoned on the player's accusation: " + item.RawAccusation + ".");
         }
 
         private void EvaluateCause(ReignArrestCase item, Hero accused)

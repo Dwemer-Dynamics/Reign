@@ -3,11 +3,11 @@
   "heroStringId": "reign_court_town_S3_mother",
   "characterName": "Svelula Goreevich",
   "imagePath": "portrait.png",
-  "imageSha256": "19E4439BA0B4F5B079465048334E08232798F6E7508FE5EA8C5A57866659E891",
-  "description": "Culturally appropriate everyday Sturgian high-noble attire inspired by wealthy medieval Rus aristocracy. Use richly woven wool, fine linen, elegant long coats or kaftans, tasteful embroidery, restrained fur trim, and expertly crafted belts or clasps. Men should wear a stately long noble coat layered over a fine embroidered shirt and tailored trousers. Women should wear a richly cut long dress or overdress with embroidered cuffs, collar, and hem, paired with a fitted outer garment or elegant shoulder layer. The outfit should feel imposing, expensive, and suited to the daily life of a powerful northern noble. No headgear of any kind. No armor, weapons, crowns, full ceremonial regalia, or extravagant fur mantles.",
-  "status": "failed",
-  "descriptionSource": "portrait_prompt_fallback",
-  "retryEligible": true,
-  "error": "{\"error\":{\"message\":\"Model \\\"zai-org/glm-5.2\\\" does not support image inputs. Remove image content or choose a multimodal model.\",\"type\":\"invalid_request_error\",\"param\":\"messages\",\"code\":\"image_input_not_supported\"}}",
-  "updatedUtc": "2026-07-18T22:03:34.4952925Z"
+  "imageSha256": "60561B474164DD9E9BB4B5FAEAAD321F2356BB8B6D9E231278AB501C12A628D5",
+  "description": "Opaque slate-blue floor-length fitted gown with low square neckline and elbow sleeves, gold geometric embroidered trim, cream undershift and loose blue arm wrap, decorated belt, pendant and dark shoes.",
+  "status": "completed",
+  "descriptionSource": "agent_vision",
+  "retryEligible": false,
+  "error": "",
+  "updatedUtc": "2026-10-07T23:48:37.651Z"
 }

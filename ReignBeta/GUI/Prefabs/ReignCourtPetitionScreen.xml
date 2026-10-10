@@ -131,7 +131,7 @@
                 <ImageWidget Id="CourtPetitionChatScrollbarHandle" WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="8" SuggestedHeight="20" HorizontalAlignment="Center" Brush="FaceGen.Scrollbar.Handle" />
               </Children>
             </ScrollbarWidget>
-            <EditableTextWidget WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="1040" SuggestedHeight="42" MarginLeft="421" MarginTop="754" Brush="DefaultText" Brush.Font="ReignSerifDynamic" Brush.FontSize="16" Brush.TextHorizontalAlignment="Left" Brush.FontColor="#C5BDAFFF" Text="@InputText" HintText="Address the petitioner..." IsEnabled="@ConversationEnabled" MaxLength="2147483647" />
+            <ReignActionEditableTextWidget WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="1040" SuggestedHeight="42" MarginLeft="421" MarginTop="754" Brush="Reign.Chat.Composer.16" Brush.Font="ReignSerifDynamic" Brush.FontSize="16" Brush.TextHorizontalAlignment="Left" Brush.FontColor="#C5BDAFFF" Text="@InputText" ComposerId="@ActionComposerId" HintText="Address the petitioner..." IsEnabled="@ConversationEnabled" MaxLength="2147483647" />
             <ButtonWidget DoNotPassEventsToChildren="true" UpdateChildrenStates="true" WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="150" SuggestedHeight="43" MarginLeft="1488" MarginTop="753" Brush="ConversationItem.SoundBrush" Command.Click="ExecuteSend" IsEnabled="@CanSend">
               <Children><TextWidget DoNotAcceptEvents="true" WidthSizePolicy="StretchToParent" HeightSizePolicy="StretchToParent" Brush="DefaultText" Brush.Font="ReignSerifDynamic" Brush.FontSize="14" Brush.FontColor="#C5AC83FF" Text="SEND" /></Children>
             </ButtonWidget>

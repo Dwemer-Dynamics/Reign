@@ -2,6 +2,7 @@ using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.IO;
+using System.Security.Cryptography;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
@@ -71,6 +72,7 @@ public static class PortraitDerivativeService
 	public const string PortraitFileName = PortraitDerivativeCore.PortraitFileName;
 	public const string ZoomFileName = PortraitDerivativeCore.ZoomFileName;
 	public const string ManifestFileName = PortraitDerivativeCore.ManifestFileName;
+	public const string OutfitReceiptFileName = ".outfit_portrait.json";
 	public const int CurrentVersion = PortraitDerivativeCore.CurrentVersion;
 
 	private const int LegacyVersion = 1;
@@ -292,9 +294,17 @@ public static class PortraitDerivativeService
 		}
 
 		return string.Equals(Path.GetFileName(item.SourcePath), PortraitCache.PortraitFileName, StringComparison.OrdinalIgnoreCase)
+			|| IsOutfitCustomSource(item.SourcePath, item.OutputDirectory)
 			? PrepareV2(item)
 			: PrepareLegacy(item);
 	}
+
+	private static bool IsOutfitCustomSource(string sourcePath, string outputDirectory)
+		=> string.Equals(Path.GetFileName(sourcePath), PortraitCache.CustomFileName, StringComparison.OrdinalIgnoreCase)
+			&& File.Exists(Path.Combine(outputDirectory, OutfitReceiptFileName));
+
+	public static bool HasCurrentFullBodyProducts(string sourcePath, string outputDirectory)
+		=> TryReadCurrentV2(sourcePath, outputDirectory, out var _);
 
 	private static bool PrepareV2(WorkItem item)
 	{
@@ -310,7 +320,7 @@ public static class PortraitDerivativeService
 			return false;
 		}
 
-		if (!TryReadPersistedFaceFocus(item.OutputDirectory, out PortraitFaceFocus focus))
+		if (!TryReadPersistedFaceFocus(item.SourcePath, item.OutputDirectory, sourceBytes, out PortraitFaceFocus focus))
 		{
 			Debug.Print("[AIPortraits] Refusing legacy fallback crop for full-body portrait " + item.Id
 				+ "; a server-validated face-focus receipt or prior focused manifest is required.");
@@ -335,11 +345,21 @@ public static class PortraitDerivativeService
 		return true;
 	}
 
-	private static bool TryReadPersistedFaceFocus(string outputDirectory, out PortraitFaceFocus focus)
+	private static bool TryReadPersistedFaceFocus(string sourcePath, string outputDirectory, byte[] sourceBytes, out PortraitFaceFocus focus)
 	{
 		focus = null;
 		try
 		{
+			if (IsOutfitCustomSource(sourcePath, outputDirectory))
+			{
+				JObject outfitReceipt = JObject.Parse(File.ReadAllText(Path.Combine(outputDirectory, OutfitReceiptFileName), Encoding.UTF8));
+				string sourceHash;
+				using (var sha = SHA256.Create()) sourceHash = BitConverter.ToString(sha.ComputeHash(sourceBytes)).Replace("-", "").ToLowerInvariant();
+				return outfitReceipt.Value<string>("schema") == "reign-portrait-product-v1"
+					&& outfitReceipt.Value<bool?>("accepted") == true
+					&& outfitReceipt["master"]?.Value<string>("sha256") == sourceHash
+					&& TryReadFaceFocus(outfitReceipt["focus"] as JObject, out focus);
+			}
 			string receiptPath = Path.Combine(outputDirectory, PortraitCache.GenerationReceiptFileName);
 			if (File.Exists(receiptPath))
 			{
@@ -464,6 +484,7 @@ public static class PortraitDerivativeService
 		}
 
 		if (_ready.TryGetValue(key, out ReadySet cached)
+			&& (!cached.IsLegacy || !IsOutfitCustomSource(sourcePath, outputDirectory))
 			&& cached.SourceLength == sourceInfo.Length
 			&& cached.SourceLastWriteUtcTicks == sourceInfo.LastWriteTimeUtc.Ticks
 			&& FileMatches(cached.ThumbnailPath, cached.ThumbnailLength, cached.ThumbnailLastWriteUtcTicks)
@@ -492,7 +513,8 @@ public static class PortraitDerivativeService
 				return true;
 			}
 
-			if (!string.Equals(sourceInfo.Name, PortraitCache.PortraitFileName, StringComparison.OrdinalIgnoreCase))
+			if (!string.Equals(sourceInfo.Name, PortraitCache.PortraitFileName, StringComparison.OrdinalIgnoreCase)
+				&& !IsOutfitCustomSource(sourcePath, outputDirectory))
 			{
 				LegacyDerivativeManifest legacy = JsonConvert.DeserializeObject<LegacyDerivativeManifest>(json);
 				if (IsCurrentLegacy(legacy, sourceInfo, outputDirectory))
@@ -653,26 +675,7 @@ public static class PortraitDerivativeService
 		{
 			throw new InvalidDataException("Cannot write an empty portrait derivative.");
 		}
-		string temporary = path + ".tmp." + Guid.NewGuid().ToString("N");
-		File.WriteAllBytes(temporary, bytes);
-		try
-		{
-			if (File.Exists(path))
-			{
-				File.Replace(temporary, path, null);
-			}
-			else
-			{
-				File.Move(temporary, path);
-			}
-		}
-		finally
-		{
-			if (File.Exists(temporary))
-			{
-				File.Delete(temporary);
-			}
-		}
+		PortraitProductTransaction.WriteAllBytes(path, bytes);
 	}
 
 	private static bool IsJpeg(byte[] bytes)

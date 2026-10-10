@@ -4,10 +4,12 @@ using System.Globalization;
 using System.Linq;
 using System.Security.Cryptography;
 using System.Text;
+using System.Threading.Tasks;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using ReignBeta.Campaign;
 using ReignBeta.Integration;
+using ReignBeta.PartyAgency;
 using ReignBeta.Settings;
 using ReignBeta.Save;
 using ReignBeta.Shared.WarCouncil;
@@ -32,6 +34,9 @@ namespace ReignBeta.World
         private List<ReignCampaignOrderRecord> _orders = new List<ReignCampaignOrderRecord>();
         private List<string> _stateChunks = new List<string>();
         private string _legacyState = string.Empty;
+        private bool _nativeDecisionLocksRestored;
+        private readonly HashSet<string> _reportLettersInFlight = new HashSet<string>(StringComparer.Ordinal);
+        private float _reportDeliveryElapsed;
 
         public static ReignCampaignCommandBehavior Instance { get; private set; }
         public IReadOnlyList<ReignCampaignOrderRecord> Orders => _orders;
@@ -47,6 +52,8 @@ namespace ReignBeta.World
         {
             Instance = this;
             CampaignEvents.HourlyTickEvent.AddNonSerializedListener(this, OnHourlyTick);
+            CampaignEvents.TickEvent.AddNonSerializedListener(this, RestoreNativeDecisionLocks);
+            CampaignEvents.TickEvent.AddNonSerializedListener(this, DeliverPendingReportLetters);
             CampaignEvents.MapEventEnded.AddNonSerializedListener(this, OnMapEventEnded);
             CampaignEvents.OnSiegeEventStartedEvent.AddNonSerializedListener(this, OnSiegeEventStarted);
             CampaignEvents.OnSiegeEventEndedEvent.AddNonSerializedListener(this, OnSiegeEventEnded);
@@ -89,7 +96,7 @@ namespace ReignBeta.World
             }
         }
 
-        public static bool ValidateControlAction(ReignWorldActionRecord action, out string reason)
+        public static bool ValidateControlAction(ReignWorldActionRecord action, out string reason, bool proposal = false)
         {
             reason = string.Empty;
             if (action == null)
@@ -126,7 +133,12 @@ namespace ReignBeta.World
                     reason = "A partyless commander must belong to a clan before a lord party can be established.";
                     return false;
                 }
-                if (!HasAuthorityOrAcceptedRecommendation(action, commander, out reason)) return false;
+                if (ReignActionValidator.IsStructuredAction(action))
+                {
+                    if (!proposal && ReignBeta.Actions.ReignAgreementBehavior.Instance?.Authorizes(action) != true)
+                    { reason = "The campaign instruction does not match an accepted saved agreement."; return false; }
+                }
+                else if (!HasAuthorityOrAcceptedRecommendation(action, commander, out reason)) return false;
                 return ValidatePlanShape(action, out reason);
             }
 
@@ -138,11 +150,11 @@ namespace ReignBeta.World
             }
             ReignCampaignOrderRecord existing = Instance?._orders.FirstOrDefault(x =>
                 string.Equals(x.OrderId, orderId, StringComparison.OrdinalIgnoreCase));
-            if (existing == null || existing.IsTerminal)
-            {
-                reason = "The campaign order is missing or already terminal.";
-                return false;
-            }
+            bool structured = ReignActionValidator.IsStructuredAction(action);
+            if (!ReignCampaignControlConsent.Validate(existing, action.ActorHeroStringId,
+                action.TargetHeroStringId, structured, action.Source == "reign_console", proposal,
+                !proposal && structured && ReignBeta.Actions.ReignAgreementBehavior.Instance?.Authorizes(action) == true,
+                out reason)) return false;
             if (action.Type == ReignWorldActionType.RegularRespondToOrderReport
                 && string.IsNullOrWhiteSpace(ReadString(action.TermsJson, "response", string.Empty)))
             {
@@ -173,9 +185,23 @@ namespace ReignBeta.World
             JObject terms = ParseTerms(action.TermsJson);
             string requestedId = terms.Value<string>("orderId");
             string orderId = string.IsNullOrWhiteSpace(requestedId) ? action.ActionId : requestedId.Trim();
-            if (_orders.Any(x => string.Equals(x.OrderId, orderId, StringComparison.OrdinalIgnoreCase)))
-                return ReignActionResult.NoOp("Campaign order " + orderId + " was already accepted.")
-                    .WithResultCode("campaign_order_duplicate_suppressed");
+            var existingOrder = _orders.FirstOrDefault(x => string.Equals(x.OrderId, orderId, StringComparison.OrdinalIgnoreCase));
+            if (existingOrder != null)
+            {
+                string correlation = string.IsNullOrWhiteSpace(action.NegotiationId) ? action.ActionId : action.NegotiationId;
+                if (existingOrder.CommanderHeroStringId != action.ActorHeroStringId || existingOrder.CorrelationId != correlation)
+                    return ReignActionResult.ValidationFailed("The order identity belongs to a different accepted request.");
+                if (!existingOrder.IsTerminal)
+                    return ReignActionResult.Progress("Campaign order " + orderId + " is still in progress; it was not issued again.")
+                        .WithResultCode("campaign_order_accepted");
+                if (existingOrder.Status == "completed" && existingOrder.Steps?.Count > 0
+                    && existingOrder.CompletedStepCount == existingOrder.Steps.Count
+                    && existingOrder.Steps.All(s => s.Status == "completed"))
+                    return ReignActionResult.Done("Campaign order " + orderId + " completed.")
+                        .WithResultCode("campaign_order_completed");
+                return ReignActionResult.FailTerminal("Campaign order " + orderId + " ended: " + existingOrder.LastFailure,
+                    "campaign_order_" + existingOrder.Status, "campaign_order_terminal");
+            }
 
             Hero commander = ReignObjectResolver.FindHero(action.ActorHeroStringId);
             List<ReignCampaignOrderStepRecord> steps = BuildSteps(action, terms, commander);
@@ -250,8 +276,10 @@ namespace ReignBeta.World
             AppendHistory(order, "revised", "Revision " + order.Revision + " accepted.");
             ReviewOrder(order, true);
             Publish(order, "revised");
-            return ReignActionResult.Progress("Campaign order " + order.OrderId + " was revised and reissued.")
-                .WithResultCode("campaign_order_revised");
+            return ReignActionResult.Done("Campaign order " + order.OrderId + " was revised and reissued.")
+                .WithResultCode("campaign_order_revised")
+                .WithEffect("campaign_order_revision", "order", order.OrderId, order.Objective,
+                    "revision=" + order.Revision + ";status=" + order.Status);
         }
 
         private ReignActionResult Respond(ReignWorldActionRecord action)
@@ -292,8 +320,10 @@ namespace ReignBeta.World
             AppendHistory(order, "guidance", "Sovereign response: " + response + ".");
             ReviewOrder(order, true);
             Publish(order, "guidance_received");
-            return ReignActionResult.Progress("Guidance was delivered for campaign order " + order.OrderId + ".")
-                .WithResultCode("campaign_order_guidance_received");
+            return ReignActionResult.Done("Guidance was delivered for campaign order " + order.OrderId + ".")
+                .WithResultCode("campaign_order_guidance_received")
+                .WithEffect("campaign_order_guidance", "order", order.OrderId, order.Objective,
+                    "response=" + response + ";status=" + order.Status);
         }
 
         private ReignActionResult Cancel(ReignWorldActionRecord action)
@@ -318,6 +348,8 @@ namespace ReignBeta.World
 
         private void OnHourlyTick()
         {
+            foreach (ReignCampaignOrderRecord order in _orders.Where(x => x != null))
+                SyncNativeDecisionLock(order);
             if (ReignBetaSettings.Instance?.CampaignCommandEngineEnabled == false) return;
             double now = CurrentDay();
             foreach (ReignCampaignOrderRecord order in _orders.Where(x => x != null && !x.IsTerminal).ToList())
@@ -343,8 +375,21 @@ namespace ReignBeta.World
             order.NextReviewDay = now + Hour;
             order.AttemptCount++;
 
+            if (order.Stage == "awaiting_report")
+            {
+                if (ReignCampaignReportPolicy.CanFinishScouting(order.Objective, order.Stage,
+                    order.ReportLetterPending, order.PendingReportId, order.ReportLetterDeliveredId))
+                {
+                    Complete(order, "The scouting report was delivered.");
+                    return;
+                }
+                TryDeliverReportLetter(order);
+                return;
+            }
+
             Hero commander = ReignObjectResolver.FindHero(order.CommanderHeroStringId);
             MobileParty party = commander?.PartyBelongedTo;
+            if (ReignBeta.Campaign.ReignPlayerApproachCampaignBehavior.Instance?.YieldPatrolOrder(party, order.OrderId, order.Revision, order.Objective) == true) return;
             if (commander == null || commander.IsDead || commander.IsPrisoner)
             {
                 Fail(order, "commander_unavailable", "The commander is no longer living and free.");
@@ -382,7 +427,7 @@ namespace ReignBeta.World
             }
 
             if (party.Army != null && party.Army.LeaderParty != party
-                && RequiresIndependentMovement(order.Objective)
+                && (RequiresIndependentMovement(order.Objective) || HasNamedTimedHoldTarget(order))
                 && !ReadBool(order.TermsJson, "armyDetachmentAccepted", false))
             {
                 RequestGuidance(order, "The party is subordinate in " + party.Army.Name
@@ -393,8 +438,9 @@ namespace ReignBeta.World
             ResolveAndStoreAnchors(order);
             Settlement target = ResolveTargetSettlement(order);
             MobileParty targetParty = ResolveTargetParty(order);
-            ReignCampaignCommandDecision decision = ReignCampaignCommandJudgment.Evaluate(
-                BuildDecisionInput(order, commander, party, target, targetParty));
+            ReignCampaignCommandDecision decision = IsBindingOrder(order)
+                ? new ReignCampaignCommandDecision { Outcome = "continue", Reason = "Honor the accepted agreement." }
+                : ReignCampaignCommandJudgment.Evaluate(BuildDecisionInput(order, commander, party, target, targetParty));
             order.LastDecision = decision.Outcome;
             if (decision.RequiresReport && (decision.Outcome == "request_guidance" || decision.Outcome == "refuse"))
             {
@@ -418,6 +464,7 @@ namespace ReignBeta.World
                 order.Stage = "adapting";
             }
 
+            PrepareTimedHold(order, party);
             if (ObserveCompletion(order, party, target, targetParty)) return;
             string before = NativeSignature(party);
             if (!ApplyNativeOrder(order, party, target, targetParty, out string failure))
@@ -446,6 +493,13 @@ namespace ReignBeta.World
             if (order.DeadlineDay > 0d && now >= order.DeadlineDay
                 && order.Objective != "besiege_capture" && order.Objective != "relieve_siege")
             {
+                if (order.Objective == "scout_report")
+                {
+                    order.Stage = "awaiting_report";
+                    QueueReport(order, BuildScoutingObservation(party, target), false);
+                    Publish(order, "report_queued");
+                    return true;
+                }
                 Complete(order, "The ordered duration elapsed.");
                 return true;
             }
@@ -521,6 +575,7 @@ namespace ReignBeta.World
             Settlement target, MobileParty targetParty, out string failure)
         {
             failure = string.Empty;
+            SyncNativeDecisionLock(order);
             switch (order.Objective)
             {
                 case "establish_party":
@@ -548,10 +603,26 @@ namespace ReignBeta.World
                 case "recruit_resupply":
                     if (!ValidateRecruitmentCapacity(order, party, out failure)) return false;
                     if (target == null) { failure = "No safe, navigable settlement anchor is available."; return false; }
+                    // Land parties visit the town gate; targeting its offshore port can strand them on the coast.
                     SetPartyAiAction.GetActionForVisitingSettlement(party, target, party.NavigationCapability,
-                        party.IsCurrentlyAtSea, target.HasPort);
+                        party.IsCurrentlyAtSea, party.IsCurrentlyAtSea && target.HasPort);
                     return true;
                 case "timed_hold":
+                    if (HasNamedTimedHoldTarget(order))
+                    {
+                        Settlement holdTarget = ReignObjectResolver.FindSettlement(order.TargetSettlementStringId);
+                        if (holdTarget == null)
+                        { failure = "obsolete:The agreed waiting settlement no longer exists."; return false; }
+                        if (!AtTimedHoldDestination(party, holdTarget))
+                        {
+                            if (party.IsCurrentlyAtSea)
+                                SetPartyAiAction.GetActionForVisitingSettlement(party, holdTarget,
+                                    party.NavigationCapability, true, holdTarget.HasPort);
+                            else
+                                party.SetMoveGoToPoint(holdTarget.GatePosition, party.NavigationCapability);
+                            return true;
+                        }
+                    }
                     party.SetMoveModeHold();
                     return true;
                 case "patrol":
@@ -564,11 +635,12 @@ namespace ReignBeta.World
                     }
                     if (target == null) { failure = "No concrete patrol anchor could be resolved."; return false; }
                     SetPartyAiAction.GetActionForPatrollingAroundSettlement(party, target,
-                        party.NavigationCapability, party.IsCurrentlyAtSea, target.HasPort);
+                        party.NavigationCapability, party.IsCurrentlyAtSea, party.IsCurrentlyAtSea && target.HasPort);
                     AdvanceAnchor(order);
                     return true;
                 case "escort":
-                    if (!ValidOtherParty(party, targetParty)) { failure = "obsolete:The escort target is no longer active."; return false; }
+                    if (targetParty == null || targetParty == party || !targetParty.IsActive)
+                    { failure = "obsolete:The escort target is no longer active."; return false; }
                     SetPartyAiAction.GetActionForEscortingParty(party, targetParty, party.NavigationCapability,
                         party.IsCurrentlyAtSea, targetParty.IsCurrentlyAtSea);
                     return true;
@@ -592,6 +664,18 @@ namespace ReignBeta.World
                     }
                     if (party.Army == null || party.Army.LeaderParty != party)
                     { failure = "Native army creation did not produce a leader army."; return false; }
+                    // CreateArmy treats its settlement as a strategic focus and
+                    // deliberately chooses a different gathering settlement.
+                    // Keep native membership, costs and readiness, but bind the
+                    // gathering camp to the destination this commander accepted.
+                    if (party.Army.IsWaitingForArmyMembers() && party.Army.AiBehaviorObject != target)
+                    {
+                        party.Army.AiBehaviorObject = target;
+                        party.SetMoveGoToPoint(Helpers.NavigationHelper.FindReachablePointAroundPosition(
+                            target.GatePosition, MobileParty.NavigationType.Default,
+                            party.Army.GatheringPositionMaxDistanceToTheSettlement,
+                            party.Army.GatheringPositionMinDistanceToTheSettlement), party.NavigationCapability);
+                    }
                     order.Stage = party.Army.IsWaitingForArmyMembers() ? "assembling_army" : "army_ready";
                     return true;
                 case "join_army":
@@ -633,7 +717,7 @@ namespace ReignBeta.World
                             party.NavigationCapability, party.IsCurrentlyAtSea);
                     else
                         SetPartyAiAction.GetActionForPatrollingAroundSettlement(party, target,
-                            party.NavigationCapability, party.IsCurrentlyAtSea, target.HasPort);
+                            party.NavigationCapability, party.IsCurrentlyAtSea, party.IsCurrentlyAtSea && target.HasPort);
                     return true;
                 case "relieve_siege":
                     if (target == null || !target.IsFortification) { failure = "obsolete:The relief target is unavailable."; return false; }
@@ -649,7 +733,7 @@ namespace ReignBeta.World
                             party.NavigationCapability, party.IsCurrentlyAtSea);
                     else if (target != null)
                         SetPartyAiAction.GetActionForPatrollingAroundSettlement(party, target,
-                            party.NavigationCapability, party.IsCurrentlyAtSea, target.HasPort);
+                            party.NavigationCapability, party.IsCurrentlyAtSea, party.IsCurrentlyAtSea && target.HasPort);
                     else
                     { failure = "No hostile party or concrete regional anchor is currently available."; return false; }
                     return true;
@@ -674,7 +758,7 @@ namespace ReignBeta.World
             order.GuidanceDeadlineDay = CurrentDay() + GuidanceWindow;
             QueueReport(order, reason, true);
             AppendHistory(order, "guidance_requested", reason);
-            if (exceptional && !order.LlmJudgmentRequested)
+            if (exceptional && !IsBindingOrder(order) && !order.LlmJudgmentRequested)
             {
                 order.LlmJudgmentRequested = true;
                 _ = ReignServerClient.RequestCampaignOrderJudgmentAsync(order, BuildJudgmentPayload(order));
@@ -686,10 +770,96 @@ namespace ReignBeta.World
         {
             order.PendingReportId = "order_report_" + Guid.NewGuid().ToString("N");
             Hero commander = ReignObjectResolver.FindHero(order.CommanderHeroStringId);
-            order.PendingReportText = (commander?.Name?.ToString() ?? "Your commander") + " reports on order "
-                + order.OrderId + ":\n\n" + reason + "\n\nThe order is paused for guidance. If no answer arrives within 12 campaign hours, the commander will decide according to duty, loyalty, and conditions.";
+            order.PendingReportText = ReignCampaignReportPolicy.Body(commander?.Name?.ToString(),
+                order.Objective, ResolveTargetSettlement(order)?.Name?.ToString(), reason,
+                order.Status, order.AwaitingGuidance);
             order.UrgentReportPending = urgent;
             order.LastReportDay = CurrentDay();
+            order.ReportLetterPending = true;
+            order.NextReportLetterAttemptDay = 0d;
+            TryDeliverReportLetter(order);
+        }
+
+        private static string BuildScoutingObservation(MobileParty party, Settlement target)
+        {
+            if (party == null || !party.IsActive)
+                return "The scouting party is unavailable; no current observations can be confirmed.";
+            List<MobileParty> enemies = MobileParty.All.Where(x => ValidOtherParty(party, x)
+                && IsHostile(party, x.MapFaction)
+                && party.GetPosition2D.DistanceSquared(x.GetPosition2D) <= NearbyEnemyRadiusSquared)
+                .OrderBy(x => party.GetPosition2D.DistanceSquared(x.GetPosition2D)).ToList();
+            string summary = "At the end of scouting, our party had " + party.MemberRoster.TotalManCount
+                + " troops. I observed " + enemies.Count + " active hostile parties near our current position.";
+            if (enemies.Count > 0)
+                summary += " The nearest were " + string.Join(", ", enemies.Take(8)
+                    .Select(x => x.Name?.ToString() ?? "an unnamed party")) + ".";
+            if (target != null)
+                summary += " " + target.Name + (target.IsUnderSiege ? " was under siege." : " was not under siege.");
+            return summary + " These observations describe the local situation when this report was made.";
+        }
+
+        private void DeliverPendingReportLetters(float dt)
+        {
+            _reportDeliveryElapsed += dt;
+            if (_reportDeliveryElapsed < 1f) return;
+            _reportDeliveryElapsed = 0f;
+            foreach (ReignCampaignOrderRecord order in _orders.Where(x => x != null && x.ReportLetterPending).ToList())
+                TryDeliverReportLetter(order);
+        }
+
+        private void TryDeliverReportLetter(ReignCampaignOrderRecord order)
+        {
+            if (order == null || !order.ReportLetterPending || CurrentDay() < order.NextReportLetterAttemptDay
+                || string.IsNullOrWhiteSpace(order.PendingReportId) || string.IsNullOrWhiteSpace(order.PendingReportText)
+                || !_reportLettersInFlight.Add(order.OrderId)) return;
+            // Freeze the exact report before asynchronous dispatch; a later guidance
+            // report cannot borrow an older letter's successful receipt.
+            var report = new ReignCampaignOrderRecord
+            {
+                OrderId = order.OrderId, CorrelationId = order.CorrelationId,
+                CommanderHeroStringId = order.CommanderHeroStringId,
+                PendingReportId = order.PendingReportId, PendingReportText = order.PendingReportText,
+                AwaitingGuidance = order.AwaitingGuidance
+            };
+            _ = DeliverReportLetterAsync(order, report);
+        }
+
+        private async Task DeliverReportLetterAsync(ReignCampaignOrderRecord order, ReignCampaignOrderRecord report)
+        {
+            try
+            {
+                bool delivered = await ReignServerClient.SendCampaignOrderReportLetterAsync(report);
+                await ReignMainThread.InvokeAsync(() =>
+                {
+                    if (Instance != this || !_orders.Contains(order)
+                        || order.PendingReportId != report.PendingReportId) return;
+                    if (!delivered)
+                    {
+                        order.NextReportLetterAttemptDay = CurrentDay() + Hour;
+                        return;
+                    }
+                    order.ReportLetterPending = false;
+                    order.ReportLetterDeliveredId = report.PendingReportId;
+                    AppendHistory(order, "report_letter_delivered", report.PendingReportId);
+                    if (ReignCampaignReportPolicy.CanFinishScouting(order.Objective, order.Stage,
+                        order.ReportLetterPending, order.PendingReportId, order.ReportLetterDeliveredId))
+                        Complete(order, "The scouting report was delivered.");
+                    else Publish(order, "report_letter_delivered");
+                });
+            }
+            catch (Exception ex)
+            {
+                await ReignMainThread.InvokeAsync(() =>
+                {
+                    if (Instance == this && _orders.Contains(order) && order.PendingReportId == report.PendingReportId)
+                        order.NextReportLetterAttemptDay = CurrentDay() + Hour;
+                });
+                ReignLog.Warn("Campaign report delivery will retry: " + ex.Message);
+            }
+            finally
+            {
+                await ReignMainThread.InvokeAsync(() => _reportLettersInFlight.Remove(order.OrderId));
+            }
         }
 
         private void DeliverUrgentReport(ReignCampaignOrderRecord order)
@@ -699,7 +869,6 @@ namespace ReignBeta.World
             TaleWorlds.CampaignSystem.Campaign campaign = TaleWorlds.CampaignSystem.Campaign.Current;
             if (campaign != null && !campaign.TimeControlModeLock)
                 campaign.TimeControlMode = CampaignTimeControlMode.Stop;
-            _ = ReignServerClient.SendCampaignOrderReportLetterAsync(order);
             InformationManager.ShowInquiry(new InquiryData(
                 "Urgent Campaign Report",
                 order.PendingReportText + "\n\nReport ID: " + order.PendingReportId,
@@ -710,6 +879,11 @@ namespace ReignBeta.World
 
         private void ResolveUnansweredReport(ReignCampaignOrderRecord order)
         {
+            if (IsBindingOrder(order))
+            {
+                Fail(order, "agreement_cannot_proceed", "The accepted objective cannot proceed without changing its agreed terms: " + order.PendingReportText);
+                return;
+            }
             string outcome = ReignCampaignCommandJudgment.IsAllowedOutcome(order.LlmOutcome)
                 ? order.LlmOutcome : order.LastDecision;
             if (outcome == "request_guidance" || outcome == "refuse")
@@ -836,6 +1010,8 @@ namespace ReignBeta.World
 
         private void Complete(ReignCampaignOrderRecord order, string reason)
         {
+            bool deliveredScoutReport = ReignCampaignReportPolicy.CanFinishScouting(order.Objective,
+                order.Stage, order.ReportLetterPending, order.PendingReportId, order.ReportLetterDeliveredId);
             EnsurePlan(order);
             ReignCampaignOrderStepRecord step = CurrentStep(order);
             if (step != null)
@@ -865,7 +1041,7 @@ namespace ReignBeta.World
             order.Stage = "terminal";
             order.AwaitingGuidance = false;
             AppendHistory(order, "completed", reason);
-            QueueReport(order, reason, false);
+            if (!deliveredScoutReport) QueueReport(order, reason, false);
             Publish(order, "completed");
         }
 
@@ -1021,9 +1197,13 @@ namespace ReignBeta.World
 
         private static string ResolveAuthorityMode(ReignWorldActionRecord action)
         {
+            if (ReignActionValidator.IsStructuredAction(action)) return action.AuthorizationMode;
             Hero commander = ReignObjectResolver.FindHero(action.ActorHeroStringId);
             return HasDirectAuthority(commander) ? "direct_authority" : "accepted_recommendation";
         }
+
+        private static bool IsBindingOrder(ReignCampaignOrderRecord order) => order != null
+            && (order.AuthorityMode == "explicit_agreement" || order.AuthorityMode == "operator");
 
         private static bool IsSovereignOrder(ReignCampaignOrderRecord order)
         {
@@ -1035,6 +1215,28 @@ namespace ReignBeta.World
         {
             return objective != "join_army" && objective != "leave_army" && objective != "disband_army"
                 && objective != "timed_hold";
+        }
+
+        private static bool HasNamedTimedHoldTarget(ReignCampaignOrderRecord order) =>
+            order?.Objective == "timed_hold" && !string.IsNullOrWhiteSpace(order.TargetSettlementStringId);
+
+        private static bool AtTimedHoldDestination(MobileParty party, Settlement target) =>
+            party != null && target != null && !party.IsCurrentlyAtSea
+                && party.Position.DistanceSquared(target.GatePosition) <= 4f;
+
+        private static void PrepareTimedHold(ReignCampaignOrderRecord order, MobileParty party)
+        {
+            if (!HasNamedTimedHoldTarget(order)) return;
+            Settlement target = ReignObjectResolver.FindSettlement(order.TargetSettlementStringId);
+            double duration = ReadDouble(ParseTerms(order.TermsJson), "durationHours", DefaultDurationHours("timed_hold"));
+            double deadline = ReignTimedHoldPolicy.Deadline(CurrentDay(), duration, true,
+                AtTimedHoldDestination(party, target), order.HoldUntilDay);
+            if (deadline == order.HoldUntilDay && deadline == order.DeadlineDay) return;
+            order.HoldUntilDay = order.DeadlineDay = deadline;
+            SyncCurrentStepFromOrder(order);
+            AppendHistory(order, deadline > 0d ? "hold_started" : "hold_arrival_pending",
+                deadline > 0d ? "The agreed waiting duration started at the settlement gate."
+                    : "Travel to the agreed settlement gate before starting the waiting duration.");
         }
 
         private void ResolveAndStoreAnchors(ReignCampaignOrderRecord order)
@@ -1057,6 +1259,10 @@ namespace ReignBeta.World
             }
             if (order.Objective == "withdraw" || order.Objective == "recruit_resupply")
             {
+                // A selected destination is part of the accepted agreement. Only an
+                // unspecified destination may follow the nearest safe settlement.
+                if (!string.IsNullOrWhiteSpace(order.TargetSettlementStringId))
+                    return explicitTarget;
                 MobileParty party = ReignObjectResolver.FindHeroParty(order.CommanderHeroStringId);
                 Settlement safe = Settlement.All.Where(x => x != null && !x.IsHideout && !x.IsUnderSiege
                     && party?.MapFaction != null && x.MapFaction == party.MapFaction
@@ -1141,7 +1347,46 @@ namespace ReignBeta.World
 
         private static void Publish(ReignCampaignOrderRecord order, string eventType)
         {
+            SyncNativeDecisionLock(order);
             _ = ReignServerClient.ReportCampaignOrderStateAsync(order, eventType);
+        }
+
+        private void RestoreNativeDecisionLocks(float dt)
+        {
+            if (_nativeDecisionLocksRestored) return;
+            _nativeDecisionLocksRestored = true;
+            foreach (ReignCampaignOrderRecord order in _orders.Where(x => x != null))
+            {
+                SyncNativeDecisionLock(order);
+                if (!string.IsNullOrEmpty(order.NativeDecisionLockPartyId))
+                    ReviewOrder(order, true);
+            }
+        }
+
+        private static void SyncNativeDecisionLock(ReignCampaignOrderRecord order)
+        {
+            MobileParty party = ReignObjectResolver.FindHeroParty(order.CommanderHeroStringId);
+            bool owns = ReignTimedHoldPolicy.OwnsNativeDecisions(order.Objective, order.AuthorityMode,
+                order.Status, order.AwaitingGuidance,
+                ReignBetaSettings.Instance?.CampaignCommandEngineEnabled != false,
+                party != null && party.IsActive && !party.IsMainParty
+                    && party.LeaderHero?.StringId == order.CommanderHeroStringId && party.Army == null);
+            if (!string.IsNullOrEmpty(order.NativeDecisionLockPartyId)
+                && (!owns || order.NativeDecisionLockPartyId != party?.StringId))
+            {
+                MobileParty previous = ReignObjectResolver.FindParty(order.NativeDecisionLockPartyId);
+                if (previous != null && previous.IsActive && !previous.IsMainParty)
+                    previous.Ai.SetDoNotMakeNewDecisions(order.NativeDecisionLockOriginalValue
+                        || ReignTemporaryPartyGuestCampaignBehavior.Instance?.IsProtectedCamp(previous) == true);
+                order.NativeDecisionLockPartyId = string.Empty;
+            }
+            if (!owns) return;
+            if (string.IsNullOrEmpty(order.NativeDecisionLockPartyId))
+            {
+                order.NativeDecisionLockOriginalValue = party.Ai.DoNotMakeNewDecisions;
+                order.NativeDecisionLockPartyId = party.StringId;
+            }
+            party.Ai.SetDoNotMakeNewDecisions(true);
         }
 
         private ReignCampaignOrderRecord FindOrder(ReignWorldActionRecord action)
@@ -1364,8 +1609,11 @@ namespace ReignBeta.World
             step.Status = "active";
             step.Stage = "preflight";
             double duration = ReadDouble(ParseTerms(step.TermsJson), "durationHours", DefaultDurationHours(step.Objective));
-            step.DeadlineDay = duration > 0d ? now + duration / 24d : 0d;
-            step.HoldUntilDay = step.Objective == "timed_hold" ? now + Math.Max(1d, duration) / 24d : 0d;
+            bool awaitingHoldArrival = step.Objective == "timed_hold"
+                && !string.IsNullOrWhiteSpace(step.TargetSettlementStringId);
+            step.DeadlineDay = duration > 0d && !awaitingHoldArrival ? now + duration / 24d : 0d;
+            step.HoldUntilDay = step.Objective == "timed_hold" && !awaitingHoldArrival
+                ? ReignTimedHoldPolicy.Deadline(now, duration, false, true, 0d) : 0d;
             ApplyCurrentStepToOrder(order);
         }
 

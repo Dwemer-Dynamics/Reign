@@ -37,7 +37,8 @@ namespace ArenaOverhaul.Tournament
         }
 
         public static bool IsRightTypeOfHero(Hero hero, bool allowNotables = false) =>
-            hero != null && !hero.IsDead && !hero.IsWounded && !hero.IsPrisoner && !hero.IsNoncombatant && !hero.IsChild && (hero.IsLord || hero.IsWanderer || (allowNotables && hero.IsNotable));
+            TournamentHeroEligibility.CanParticipate(hero, allowNotables)
+            && (hero.IsLord || hero.IsWanderer || hero.CompanionOf != null || (allowNotables && hero.IsNotable));
 
         protected static void GetUpgradeTargets(CharacterObject troop, List<CharacterObject> list)
         {

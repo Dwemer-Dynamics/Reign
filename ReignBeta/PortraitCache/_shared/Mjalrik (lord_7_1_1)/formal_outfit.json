@@ -3,11 +3,11 @@
   "heroStringId": "lord_7_1_1",
   "characterName": "Mjalrik",
   "imagePath": "portrait.png",
-  "imageSha256": "282B11CCA041D72B14E70A38326D792619CE407D3C1F9285DC9B84C4BF12854B",
-  "description": "Culturally appropriate everyday Nord high-noble attire inspired by luxurious but historically grounded elite Scandinavian clothing. Use fine wool, exceptionally high-quality linen, elegant layering, intricate tablet-woven trim, tasteful brooches, decorated belts, and rich but believable textile detail. Men should wear a stately knee-length or slightly longer noble tunic with excellent tailoring, refined fastenings, and finely woven borders. Women should wear a richly made long dress or layered apron-dress arrangement over fine linen, with graceful draping, ornamental weaving, and restrained jewelry. The clothing should communicate high rank through craftsmanship and fabric quality rather than excessive ornamentation. No headgear of any kind. No helmets, caps, hoods, armor, weapons, crowns, horned helmets, or fantasy Viking styling.",
-  "status": "failed",
-  "descriptionSource": "portrait_prompt_fallback",
-  "retryEligible": true,
-  "error": "{\"error\":{\"message\":\"Model \\\"zai-org/glm-5.2\\\" does not support image inputs. Remove image content or choose a multimodal model.\",\"type\":\"invalid_request_error\",\"param\":\"messages\",\"code\":\"image_input_not_supported\"}}",
-  "updatedUtc": "2026-07-18T22:03:32.7176560Z"
+  "imageSha256": "EB4898324CD03AE1705D775540F7BE0DE833BDB3E25797740A389E06CE716182",
+  "description": "He wears an opaque navy knee-length tunic with gold geometric tablet-woven trim around the neckline, center opening, cuffs and hem. A pale cream shirt shows at the neckline and wrists. A dark brown long mantle with gold borders falls from the shoulders, fastened by two large round metal brooches and a short connecting chain. A brown belt with ornate round gold fittings and a long decorated tail marks the waist. Dark trousers and tall brown leather boots secured with crossing straps are fully visible. Fabric appears heavy and woven; exact fiber is uncertain.",
+  "status": "completed",
+  "descriptionSource": "agent_vision",
+  "retryEligible": false,
+  "error": "",
+  "updatedUtc": "2026-10-08T00:12:59.421Z"
 }

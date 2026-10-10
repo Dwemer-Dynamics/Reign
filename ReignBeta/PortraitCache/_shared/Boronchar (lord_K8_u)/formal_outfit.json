@@ -3,11 +3,11 @@
   "heroStringId": "lord_K8_u",
   "characterName": "Boronchar",
   "imagePath": "portrait.png",
-  "imageSha256": "79888D2EF0A38DB924EB583EFCDF565AC421D9EB676D088109FB48219BB27499",
-  "description": "Culturally appropriate everyday Khuzait landowner attire inspired by practical medieval Turkic and Mongol steppe clothing suited to riding, travel, wind, and changing weather. Men should wear a crossed-front deel or caftan with an overlapping closure, a broad woven or leather sash, loose trousers, and practical layered sleeves. Women should wear a long crossed-front robe or fitted steppe coat over a simple underdress, secured with a woven sash. Fabrics should include wool, felt, linen, and restrained leather edging. Add simple woven geometric trim. No headgear of any kind. No fur hats, caps, hoods, armor, weapons, oversized fur displays, crowns, or fantasy elements.",
-  "status": "failed",
-  "descriptionSource": "portrait_prompt_fallback",
-  "retryEligible": true,
-  "error": "{\"error\":{\"message\":\"Model \\\"zai-org/glm-5.2\\\" does not support image inputs. Remove image content or choose a multimodal model.\",\"type\":\"invalid_request_error\",\"param\":\"messages\",\"code\":\"image_input_not_supported\"}}",
-  "updatedUtc": "2026-07-18T22:03:25.8286184Z"
+  "imageSha256": "0769B07273AC84829C547A4E3061BE27F3A54848AB743AF25CB6C207A0F40C46",
+  "description": "An opaque muted teal crossed-front coat reaches below the knees, with full layered sleeves and restrained geometric woven borders along its closure, cuffs, and hem. A broad brown woven and leather sash with round metal ornaments and hanging tassels wraps the waist. Brown loose trousers and tall brown leather boots are visible. No headgear, weapon, or armor is worn.",
+  "status": "completed",
+  "descriptionSource": "agent_vision",
+  "retryEligible": false,
+  "error": "",
+  "updatedUtc": "2026-10-07T20:49:34.698Z"
 }

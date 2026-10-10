@@ -1,16 +1,90 @@
 {
   "version": 1,
+  "schema": "reign-builtin-chat-reference-guided-image-generation-culture-v1",
   "cacheKey": "Zeno (lord_1_155)",
   "heroStringId": "lord_1_155",
   "characterObjectId": "lord_1_155",
   "characterName": "Zeno",
-  "provider": "AtlasCloud",
-  "model": "xai/grok-imagine-image/edit",
-  "adapter": "atlas upload/generate/poll",
-  "sourceSha256": "b924f9a891736bb5e6f15f6f10cbcf025d3a22532c8e3b5f9c20039935a531bf",
-  "portraitSha256": "b0435be674f438ef95e469796514269cb78105e6c7fc977b2d11c95f35ec0abc",
-  "portraitWidth": 832,
-  "portraitHeight": 1248,
+  "worker": "worker-4",
+  "generatedOriginalPath": "C:\\Users\\speed\\.codex\\generated_images\\01a11c35-9331-7471-a03c-9fcc53956ad3\\exec-a2063fad-ca45-44bc-99fd-0d798666ef4b.png",
+  "sourceFileCreationUtc": "2026-10-08T20:57:06.325Z",
+  "generationRequestId": "2b4f79d9-2936-4a28-b60d-a73107ed9938",
+  "generationRequestSha256": "7c68b7e3d947d4489969f21681de8b156a11765e01dd389dddf7277a3099b9a4",
+  "generationReturnSha256": "d4c19550ebadd1021ae2336d379da036070d5e46f6233cb174e278f9587f7084",
+  "provider": "Codex built-in image_gen",
+  "model": "unknown",
+  "adapter": "old-face-identity/new-style-reference-guided",
+  "generationMode": "reference_guided",
+  "inputImages": 2,
+  "references": [
+    {
+      "id": "lord_1_155",
+      "role": "old_identity",
+      "path": "D:\\Program Files (x86)\\Steam\\steamapps\\common\\Mount & Blade II Bannerlord\\Modules\\ReignBeta\\PortraitCache\\_shared\\Zeno (lord_1_155)\\portrait_chest.png",
+      "sha256": "0aba4d365dd390535ff3a95c57aff0ecfe61892fc08308dec96b6245d977474b",
+      "originalReference": {
+        "path": "D:\\Program Files (x86)\\Steam\\steamapps\\common\\Mount & Blade II Bannerlord\\Modules\\ReignBeta\\PortraitCache\\_shared\\Zeno (lord_1_155)\\portrait_chest.png",
+        "sha256": "0aba4d365dd390535ff3a95c57aff0ecfe61892fc08308dec96b6245d977474b"
+      }
+    },
+    {
+      "id": "lord_1_155",
+      "role": "new_style",
+      "path": "C:\\ReignPortraitRebuild\\2026-10-07-01a11741-culture-v2\\audit\\residual-correction-phase4-001\\lord_1_155\\predecessor-files\\_shared\\Zeno (lord_1_155)\\portrait.png",
+      "sha256": "7d015ee17a09c9b0f9b26b4722adae992678d5e7c500cd91cfd3cc8e04641698",
+      "originalReference": {
+        "path": "C:\\ReignPortraitRebuild\\2026-10-07-01a11741-culture-v2\\_shared\\Zeno (lord_1_155)\\portrait.png",
+        "sha256": "7d015ee17a09c9b0f9b26b4722adae992678d5e7c500cd91cfd3cc8e04641698"
+      }
+    }
+  ],
+  "referenceGuidedExecution": {
+    "schema": "reign-portrait-reference-guided-execution-v1",
+    "generationMode": "reference_guided",
+    "inputImages": 2,
+    "references": [
+      {
+        "id": "lord_1_155",
+        "role": "old_identity",
+        "path": "D:\\Program Files (x86)\\Steam\\steamapps\\common\\Mount & Blade II Bannerlord\\Modules\\ReignBeta\\PortraitCache\\_shared\\Zeno (lord_1_155)\\portrait_chest.png",
+        "sha256": "0aba4d365dd390535ff3a95c57aff0ecfe61892fc08308dec96b6245d977474b",
+        "originalReference": {
+          "path": "D:\\Program Files (x86)\\Steam\\steamapps\\common\\Mount & Blade II Bannerlord\\Modules\\ReignBeta\\PortraitCache\\_shared\\Zeno (lord_1_155)\\portrait_chest.png",
+          "sha256": "0aba4d365dd390535ff3a95c57aff0ecfe61892fc08308dec96b6245d977474b"
+        }
+      },
+      {
+        "id": "lord_1_155",
+        "role": "new_style",
+        "path": "C:\\ReignPortraitRebuild\\2026-10-07-01a11741-culture-v2\\audit\\residual-correction-phase4-001\\lord_1_155\\predecessor-files\\_shared\\Zeno (lord_1_155)\\portrait.png",
+        "sha256": "7d015ee17a09c9b0f9b26b4722adae992678d5e7c500cd91cfd3cc8e04641698",
+        "originalReference": {
+          "path": "C:\\ReignPortraitRebuild\\2026-10-07-01a11741-culture-v2\\_shared\\Zeno (lord_1_155)\\portrait.png",
+          "sha256": "7d015ee17a09c9b0f9b26b4722adae992678d5e7c500cd91cfd3cc8e04641698"
+        }
+      }
+    ],
+    "textCompositionImageInputs": 0,
+    "textVerificationSha256": "0bdf86e6e780021550b180506e2920094560d6d7831972c5ab2a90029883014d",
+    "textPromptSha256": "b28beaff13327dccee49555f30e9476e9c329e49570e41a4ef678916dd1cc55f",
+    "compositionProofSha256": "ef7ef5a172f293f454254ea4b13afb035f935bd94986c6d20d08d542ca2cc186",
+    "rootCompositionReview": {
+      "path": "C:\\ReignPortraitRebuild\\2026-10-07-01a11741-culture-v2\\audit\\root-full32-prompt-composition-review-001\\lord_1_155\\root-hybrid-composition-review.json",
+      "sha256": "791534b44958bef7ca4c27590b76025d3e2f6175b5b4a1fc39a36edc67c3315b"
+    }
+  },
+  "sourceSha256": "2f4160c39108963739c247aa9f06b83e262dbd33a9996636545d656d71909c46",
+  "portraitSha256": "7458d15acbd1c5132be3994344029c2f0f7f1b45f29bd694a154d7e6a00c986b",
+  "portraitWidth": 1086,
+  "portraitHeight": 1448,
+  "promptSha256": "c4369c1f3c538feffdd959dd6198a380f6275a1ba0a636a2e1d3e6669f746325",
+  "descriptionSha256": "9e2bf2d620ab4fedcecc09d270947b5c329d2f0874c8d6b6294e106a3ebbd936",
+  "cultureId": "empire",
+  "cultureReferenceKey": "empire",
+  "cultureReference": "Eastern Mediterranean regional appearance, drawing on Greek, Anatolian and neighboring populations.",
+  "cultureLayerFile": "portrait_facial_culture_empire.txt",
+  "cultureLayerFullText": "FACIAL CULTURAL APPEARANCE — IMPERIAL\nStored cultureId: empire.\nRegional reference: Eastern Mediterranean regional appearance, drawing on Greek, Anatolian and neighboring populations.\nCreate a believable real human face with this regional appearance. Apply the regional reference positively to facial appearance, facial structure and complexion; it is not only a clothing, setting or background instruction.\nBlend the regional reference with the individual facial description. Where simplified native geometry or game-renderer shading differs from this regional appearance, use a plausible natural blend while retaining recognizable individual traits: face outline, relative proportions, eyes, brows, nose, mouth, jaw and chin. Preserve the described hair identity, arrangement and texture, facial-hair pattern, eye character, visible scars and markings; do not invent new distinguishing marks.\nThese regional populations contain substantial individual variation. Do not give every member the same face, impose a universal skin, hair or eye color, or replace the written individual identity with a generic regional stereotype. Preserve source-grounded differences and natural human asymmetry.\nKeep the exact authored age and the independent native weight and build values. This layer applies to facial appearance and realistic complexion interpretation, not body size, muscularity, garment coverage or social rank. Every complete composition, clothing, confidence, photographic, output and physique modifier remains in effect. Do not print this reference or any metadata in the image.",
+  "cultureLayerSha256": "4ce99b540f2d8935b87d2f624a278f0c51678c9a26604ded18cf1d2eda40306e",
   "physicalConfidence": {
     "definition": "physical_confidence",
     "score": 48,
@@ -21,7 +95,10 @@
     "confidenceWeight": 0.25,
     "source": "shipped_profile_library"
   },
+  "confidenceCoverageOverride": null,
   "derivativesReady": true,
   "derivativeError": "",
-  "generatedUtc": "2026-07-17T19:22:59.0497416Z"
+  "generatedUtc": "2026-10-08T20:59:23.422Z",
+  "serverSigned": false,
+  "derivativeReportSha256": "d7782b8a7f14008e53144a0f4f2545db12b5c79b8bdb84210b17e2864ec4d7fa"
 }

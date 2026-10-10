@@ -3,11 +3,11 @@
   "heroStringId": "lord_2_19_1",
   "characterName": "Vitomira",
   "imagePath": "portrait.png",
-  "imageSha256": "AEE4D11250A1253C0F955FF8D3D3CB79D76E14300FF03A51A2B5B0FD93D9FD4A",
-  "description": "Culturally appropriate everyday Sturgian minor-lord attire inspired by refined medieval Rus and Slavic noble clothing. Men should wear a well-made long shirt beneath a tailored wool kaftan or long belted coat, decorated with fine geometric embroidery and quality trim. Women should wear a long embroidered shift with an elegant wool overdress or noble coat-dress, secured with a richly woven sash. Include subtle fur trim around collars or cuffs, tasteful clasps, and better-quality fabric than a landowner would wear. The clothing should remain practical for a northern climate while clearly showing noble rank. No headgear of any kind. No armor, weapons, crowns, ceremonial robes, or oversized fur displays.",
-  "status": "failed",
-  "descriptionSource": "portrait_prompt_fallback",
-  "retryEligible": true,
-  "error": "{\"error\":{\"message\":\"Model \\\"zai-org/glm-5.2\\\" does not support image inputs. Remove image content or choose a multimodal model.\",\"type\":\"invalid_request_error\",\"param\":\"messages\",\"code\":\"image_input_not_supported\"}}",
-  "updatedUtc": "2026-07-18T22:03:35.6168515Z"
+  "imageSha256": "616C092E4EB5155450810F6A731001165EB49DCFFB41DFD80A5DDF261620EE0B",
+  "description": "A floor-length deep blue wool noble gown with low square neckline and opaque fitted bodice, narrow gold-and-cream geometric woven borders along the shoulders, neckline, front panels, cuffs and hem. A cream shift shows at the lower front opening. A blue-and-gold woven sash and decorated belt hold the waist, with long tasseled ends. Round gold-toned brooches fasten the shoulders. A blue fur-edged wrap rests around the forearms, and dark brown leather shoes show below the skirt. No headgear, armor or weapons are visible.",
+  "status": "completed",
+  "descriptionSource": "agent_vision",
+  "retryEligible": false,
+  "error": "",
+  "updatedUtc": "2026-10-08T04:05:41.922Z"
 }

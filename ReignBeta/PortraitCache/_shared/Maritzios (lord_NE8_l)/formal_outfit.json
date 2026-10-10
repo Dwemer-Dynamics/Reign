@@ -3,11 +3,11 @@
   "heroStringId": "lord_NE8_l",
   "characterName": "Maritzios",
   "imagePath": "portrait.png",
-  "imageSha256": "FD3A553F2149F1F1C32EE049C37BE2AF07BCF6E776A459E0B0D3DBF1AEF14562",
-  "description": "Culturally appropriate everyday Calradic Imperial minor-lord attire inspired by refined late Roman and Byzantine noble clothing. Men should wear a high-quality tunic or long tailored outer coat over fine linen, decorated with narrow woven borders, refined clasps, and a decorated belt. Women should wear a long elegant dress or layered tunic ensemble with shaped sleeves, graceful draping, and tasteful trim around the neckline, cuffs, and edges. The garments should feel polished, educated, urban, and wealthy without resembling full imperial ceremony. No headgear of any kind. No armor, weapons, crowns, imperial regalia, laurel wreaths, or ceremonial robes.",
-  "status": "failed",
-  "descriptionSource": "portrait_prompt_fallback",
-  "retryEligible": true,
-  "error": "{\"error\":{\"message\":\"Model \\\"zai-org/glm-5.2\\\" does not support image inputs. Remove image content or choose a multimodal model.\",\"type\":\"invalid_request_error\",\"param\":\"messages\",\"code\":\"image_input_not_supported\"}}",
-  "updatedUtc": "2026-07-18T22:03:32.0255570Z"
+  "imageSha256": "EBD8415ECF4E437A3A4905A78B73D5BD434F2ACB9F9FF1E7780A6B0710DB9194",
+  "description": "Maritzios wears a cream ankle-length tunic with a small slit neckline and narrow burgundy-and-gold woven borders at collar, cuffs and hem. A burgundy patterned long open-front coat has matching decorative borders along its front and short outer sleeves. Cream long inner sleeves reach the wrists. A broad dark decorated belt with round buckle and long metal-decorated tasseled hanging end encircles the waist. Loose dark trousers are tucked into tall brown leather-like boots. Cloth is substantial and opaque, with exact fibers uncertain. No headgear, armor, weapon or crown is visible.",
+  "status": "completed",
+  "descriptionSource": "agent_vision",
+  "retryEligible": false,
+  "error": "",
+  "updatedUtc": "2026-10-07T23:43:55.203Z"
 }

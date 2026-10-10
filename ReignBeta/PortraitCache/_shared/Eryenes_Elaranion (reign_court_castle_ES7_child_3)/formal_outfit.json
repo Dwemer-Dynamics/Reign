@@ -3,11 +3,11 @@
   "heroStringId": "reign_court_castle_ES7_child_3",
   "characterName": "Eryenes Elaranion",
   "imagePath": "portrait.png",
-  "imageSha256": "0BB5A82ABAC45E3A36F705BD2C5248E35358D3890F139D865B3818E5092523F7",
-  "description": "Culturally appropriate everyday Calradic Imperial landowner attire inspired by practical late Roman and Byzantine civilian clothing adapted into a grounded medieval style. Men should wear a linen undertunic beneath a structured knee-length tunic or simple long coat, secured with a narrow belt. Women should wear a long tunic or underdress beneath a modest draped overdress with elegant but simple sleeves and a practical girdle. Include narrow woven borders or restrained geometric decoration. The garments should appear orderly, respectable, clean, and slightly prosperous. No headgear of any kind. No armor, weapons, laurel crowns, togas, ceremonial robes, or fantasy elements.",
-  "status": "failed",
-  "descriptionSource": "portrait_prompt_fallback",
-  "retryEligible": true,
-  "error": "{\"error\":{\"message\":\"Model \\\"zai-org/glm-5.2\\\" does not support image inputs. Remove image content or choose a multimodal model.\",\"type\":\"invalid_request_error\",\"param\":\"messages\",\"code\":\"image_input_not_supported\"}}",
-  "updatedUtc": "2026-07-18T22:03:28.6140599Z"
+  "imageSha256": "1DACE819CB4F5657A0B6DCB89A08A894930521C383B39E8922820E837B5A8D38",
+  "description": "He wears a long cream linen undertunic with narrow gold-tan geometric collar and cuff borders beneath a plum-purple knee-length open outer tunic with short sleeves and narrow worked front/sleeve/hem edging. A narrow brown leather belt has a simple buckle and long studded hanging end. Brown trousers and tall plain brown leather boots are visible. Both hands hang visibly at his sides. No headgear, armor or weapons appear.",
+  "status": "completed",
+  "descriptionSource": "agent_vision",
+  "retryEligible": false,
+  "error": "",
+  "updatedUtc": "2026-10-07T23:11:45.608Z"
 }

@@ -3,11 +3,11 @@
   "heroStringId": "reign_court_castle_ES2_child_4",
   "characterName": "Iovysara Sorianorides",
   "imagePath": "portrait.png",
-  "imageSha256": "6F63C16A54EBF0FA8D8923EA0C38F00E3D4151CB3B0084EF1C90B39D6B3069D0",
-  "description": "Culturally appropriate everyday Calradic Imperial minor-lord attire inspired by refined late Roman and Byzantine noble clothing. Men should wear a high-quality tunic or long tailored outer coat over fine linen, decorated with narrow woven borders, refined clasps, and a decorated belt. Women should wear a long elegant dress or layered tunic ensemble with shaped sleeves, graceful draping, and tasteful trim around the neckline, cuffs, and edges. The garments should feel polished, educated, urban, and wealthy without resembling full imperial ceremony. No headgear of any kind. No armor, weapons, crowns, imperial regalia, laurel wreaths, or ceremonial robes.",
-  "status": "failed",
-  "descriptionSource": "portrait_prompt_fallback",
-  "retryEligible": true,
-  "error": "{\"error\":{\"message\":\"Model \\\"zai-org/glm-5.2\\\" does not support image inputs. Remove image content or choose a multimodal model.\",\"type\":\"invalid_request_error\",\"param\":\"messages\",\"code\":\"image_input_not_supported\"}}",
-  "updatedUtc": "2026-07-18T22:03:30.8038815Z"
+  "imageSha256": "5D3107A6C7DD0B10DF91B15555B22983A7D632B2F4AD41A3C22C8159128125F2",
+  "description": "Purple opaque floor-length court gown with low square neckline, fitted bodice, elbow sleeves, gold geometric neckline and front/hem borders, decorated girdle of round metal fittings, cream linen underlayer and a cream woven-edge wrap resting around the arms, small earrings and closed patterned flats. No headgear, armour or weapons.",
+  "status": "completed",
+  "descriptionSource": "agent_vision",
+  "retryEligible": false,
+  "error": "",
+  "updatedUtc": "2026-10-08T04:42:51.474Z"
 }

@@ -3,11 +3,11 @@
   "heroStringId": "reign_court_castle_S1_child_2",
   "characterName": "Drazava Belaevich",
   "imagePath": "portrait.png",
-  "imageSha256": "32A88E8D18F26DF701819E8E913233BBE53778EDBE7217E6CCCD600BB7954CB8",
-  "description": "Culturally appropriate everyday Sturgian minor-lord attire inspired by refined medieval Rus and Slavic noble clothing. Men should wear a well-made long shirt beneath a tailored wool kaftan or long belted coat, decorated with fine geometric embroidery and quality trim. Women should wear a long embroidered shift with an elegant wool overdress or noble coat-dress, secured with a richly woven sash. Include subtle fur trim around collars or cuffs, tasteful clasps, and better-quality fabric than a landowner would wear. The clothing should remain practical for a northern climate while clearly showing noble rank. No headgear of any kind. No armor, weapons, crowns, ceremonial robes, or oversized fur displays.",
-  "status": "failed",
-  "descriptionSource": "portrait_prompt_fallback",
-  "retryEligible": true,
-  "error": "{\"error\":{\"message\":\"Model \\\"zai-org/glm-5.2\\\" does not support image inputs. Remove image content or choose a multimodal model.\",\"type\":\"invalid_request_error\",\"param\":\"messages\",\"code\":\"image_input_not_supported\"}}",
-  "updatedUtc": "2026-07-18T22:03:27.7488760Z"
+  "imageSha256": "0E472E834EE5FF017217B9052B97ADE5F7D46200741EDAABDF945485043E0E14",
+  "description": "She wears a floor-length muted navy blue gown with a fitted structured bodice, low square neckline and elbow-length sleeves. Narrow gold and cream geometric woven borders follow the neckline, shoulder strips, sleeve ends, front and hem. Two circular brooches decorate the upper bodice and a patterned belt has a small round buckle and long fringed end. A cream underdress shows at the lower central opening. A blue-grey woven wrap with modest brown fur-like edging rests along both arms and hangs at the sides. Brown shoes appear below the opaque skirt. No headgear, armor or weapon appears; exact textile and fur materials cannot be verified.",
+  "status": "completed",
+  "descriptionSource": "agent_vision",
+  "retryEligible": false,
+  "error": "",
+  "updatedUtc": "2026-10-07T21:34:24.858Z"
 }

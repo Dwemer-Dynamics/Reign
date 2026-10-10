@@ -7,6 +7,7 @@ using Newtonsoft.Json.Linq;
 using ReignBeta.Campaign;
 using ReignBeta.Court;
 using ReignBeta.Integration;
+using ReignBeta.Runtime;
 using ReignBeta.Settings;
 using Reign.Core.Contracts.Dialogue;
 using TaleWorlds.CampaignSystem;
@@ -18,8 +19,14 @@ using TaleWorlds.Library;
 
 namespace ReignBeta.UI.ViewModels
 {
-    public sealed class ReignIndividualChatScreenVM : ViewModel
+    public sealed partial class ReignIndividualChatScreenVM : ViewModel, ReignBeta.UI.IReignActionHost
     {
+        public IReadOnlyList<Hero> ActionParticipants => new[] { _hero };
+        public bool ActionBusy => IsBusy || IsPregnancyWarningVisible || IsOutfitVisible || _calibrationMode;
+        private ReignActionComposerVM _composer;
+        public ReignActionComposerVM Composer => _composer ?? (_composer = new ReignActionComposerVM(() => OnPropertyChanged(nameof(InputText))));
+        [DataSourceProperty] public string ActionComposerId => Composer.Id;
+        public Reign.Core.Contracts.Actions.ActionAgreement ActionDraft => Composer.State.HasValidAttachment ? Composer.State.Draft : null;
         private readonly Hero _hero;
         internal Hero ConversationHero => _hero;
         private readonly Action _closeScreen;
@@ -47,7 +54,6 @@ namespace ReignBeta.UI.ViewModels
         private string _zoomPortraitId;
         private string _zoomPortraitAdditionalArgs;
         private string _zoomPortraitTextureProviderName;
-        private string _inputText;
         private string _busyText;
         private bool _isBusy;
         private bool _isPortraitZoomVisible;
@@ -59,7 +65,12 @@ namespace ReignBeta.UI.ViewModels
         private TaskCompletionSource<PregnancyDecisionReceipt> _pregnancyDecisionCompletion;
         private PregnancyDecisionReceipt _lastPregnancyDecisionReceipt;
         private bool _isFinalized;
-        private Task<string> _conversationSessionTask;
+        private Task<ConversationSessionStart> _conversationSessionTask;
+        private readonly ConversationSessionStartGate _conversationStartGate;
+        private Task<ReignConversationFinishResult> _conversationFinishTask;
+        private TaskCompletionSource<bool> _conversationTurnCompletion;
+        private string _finalizationReason = "screen_finalized";
+        internal string ConversationGeneration { get; } = Guid.NewGuid().ToString("N");
         private string _conversationSessionId;
         private bool _conversationFinishRequested;
         private readonly bool _initializePresentation;
@@ -92,6 +103,14 @@ namespace ReignBeta.UI.ViewModels
             _lookAtHero = lookAtHero;
             _initializePresentation = initializePresentation;
             _conversationContext = conversationContext == null ? new JObject() : (JObject)conversationContext.DeepClone();
+            // Stable request identity survives a transport retry. A caller carrying
+            // an explicit scene continuation also carries its logical/parent IDs.
+            if (string.IsNullOrWhiteSpace(_conversationContext.Value<string>("sessionId")))
+                _conversationContext["sessionId"] = "conversation_" + Guid.NewGuid().ToString("N");
+            _conversationContext["campaignId"] = ReignServerClient.GetCampaignId();
+            _conversationContext["timelineId"] = ReignWorldHistoryCampaignBehavior.Instance?.TimelineId ?? "main";
+            _conversationContext["playerId"] = Hero.MainHero?.StringId ?? string.Empty;
+            _conversationStartGate = new ConversationSessionStartGate(_conversationContext.Value<string>("sessionId"));
             _isOfficialAmbassadorMode = string.Equals(_conversationContext.Value<string>("conversationMode"), "ambassador_official", StringComparison.OrdinalIgnoreCase);
             _calibrationMode = calibrationMode;
             ChatLines = new MBBindingList<ReignChatLineVM>();
@@ -126,11 +145,12 @@ namespace ReignBeta.UI.ViewModels
             }
             else
             {
-                _conversationSessionTask = ReignServerClient.StartConversationSessionAsync(_hero, _conversationContext);
+                _conversationSessionTask = _conversationStartGate.EnsureAsync(
+                    StartConversationAsync, false);
                 if (_initializePresentation)
                 {
                     AddSystemLine("Loading previous conversation...");
-                    _ = LoadHistoryAsync();
+                    _ = OpenNpcInitiatedConversationAsync();
                 }
             }
         }
@@ -523,21 +543,14 @@ namespace ReignBeta.UI.ViewModels
         [DataSourceProperty]
         public string InputText
         {
-            get { return _inputText; }
-            set
-            {
-                if (value != _inputText)
-                {
-                    _inputText = value;
-                    OnPropertyChangedWithValue(value);
-                }
-            }
+            get { return Composer.State.Text; }
+            set { Composer.SetText(value); }
         }
 
         [DataSourceProperty]
         public bool InputEnabled
         {
-            get { return !IsBusy && !IsPregnancyWarningVisible; }
+            get { return !IsBusy && !IsPregnancyWarningVisible && !IsOutfitVisible; }
         }
 
         [DataSourceProperty]
@@ -726,18 +739,19 @@ namespace ReignBeta.UI.ViewModels
 
         public async void ExecuteSend()
         {
+            if (IsOutfitVisible) { if (IsOutfitInputVisible) ExecuteSubmitOutfit(); return; }
             if (_calibrationMode)
             {
                 BusyText = "Calibration mode does not send dialogue.";
                 return;
             }
-            string text = (InputText ?? string.Empty).Trim();
-            if (string.IsNullOrWhiteSpace(text) || IsBusy || IsPregnancyWarningVisible)
+            string text = InputText ?? string.Empty;
+            if ((string.IsNullOrWhiteSpace(text) && _conversationContext.Value<bool?>("approachOpening") != true) || IsBusy || IsPregnancyWarningVisible)
             {
                 return;
             }
 
-            await SendTextAsync(text, true);
+            await SendTextAsync(text, true, actionDraft: ActionDraft == null ? null : ReignBeta.Actions.ReignActionService.Copy(ActionDraft));
         }
 
         public Task<ReignDialogueReply> SendAutomationLineAsync(string text)
@@ -754,19 +768,35 @@ namespace ReignBeta.UI.ViewModels
             string text, string correlationId, string auditRunId, int sceneIndex,
             int turnIndex, bool guardedPromptOverride,
             string guardedPromptOverrideDirective,
-            string guardedPromptOverrideOwnerCommandId)
+            string guardedPromptOverrideOwnerCommandId,
+            Reign.Core.Contracts.Actions.ActionAgreement actionDraft = null)
         {
             return SendTextAsync(text, true, string.Empty, correlationId, auditRunId,
                 sceneIndex, turnIndex, guardedPromptOverride,
                 guardedPromptOverrideDirective,
-                guardedPromptOverrideOwnerCommandId);
+                guardedPromptOverrideOwnerCommandId, actionDraft);
+        }
+
+        internal string PrepareAutomationActionLine(
+            Reign.Core.Contracts.Actions.ActionAgreement draft, string template)
+        {
+            int marker = (template ?? "").IndexOf("{action}", StringComparison.Ordinal);
+            if (draft == null || marker < 0
+                || marker != template.LastIndexOf("{action}", StringComparison.Ordinal))
+                throw new InvalidOperationException("Supply one action insertion marker.");
+            ReignBeta.Actions.ReignActionWording.Render(draft);
+            Composer.SetText(template.Substring(0, marker));
+            Composer.Insert(draft);
+            Composer.Replace(Composer.State.Text.Length, 0, template.Substring(marker + 8));
+            if (!Composer.State.HasValidAttachment)
+                throw new InvalidOperationException("The production composer rejected the protected action attachment.");
+            return Composer.State.Text;
         }
 
         public async Task<ReignConversationFinishResult> FinishAutomationSceneAsync(string reason)
         {
-            _conversationFinishRequested = true;
-            string sessionId = await EnsureConversationSessionAsync().ConfigureAwait(false);
-            return await ReignServerClient.FinishConversationSessionAsync(_hero, sessionId, reason ?? "npc_dialogue_audit_scene", _conversationContext).ConfigureAwait(false);
+            RequestConversationFinish(reason ?? "npc_dialogue_audit_scene");
+            return _conversationFinishTask == null ? new ReignConversationFinishResult() : await _conversationFinishTask.ConfigureAwait(false);
         }
 
         public void AddAutomationSystemLine(string text)
@@ -784,13 +814,17 @@ namespace ReignBeta.UI.ViewModels
             int auditTurnIndex = -1,
             bool guardedPromptOverride = false,
             string guardedPromptOverrideDirective = "",
-            string guardedPromptOverrideOwnerCommandId = "")
+            string guardedPromptOverrideOwnerCommandId = "",
+            Reign.Core.Contracts.Actions.ActionAgreement actionDraft = null)
         {
             ReignDialogueReply reply = new ReignDialogueReply();
             if (_calibrationMode) return reply;
             if (string.IsNullOrWhiteSpace(correlationId)) correlationId = Guid.NewGuid().ToString("N");
-            text = (text ?? string.Empty).Trim();
-            if (string.IsNullOrWhiteSpace(text))
+            text = text ?? string.Empty;
+            // An accepted invitation has no fabricated player turn, including retries.
+            if (_conversationContext.Value<bool?>("approachOpening") == true) { text = string.Empty; actionDraft = null; clearInput = false; }
+            bool npcOpening = _conversationContext.Value<bool?>("approachOpening") == true && string.IsNullOrWhiteSpace(text);
+            if (string.IsNullOrWhiteSpace(text) && !npcOpening)
             {
                 reply.Error = "No text was supplied.";
                 return reply;
@@ -804,14 +838,21 @@ namespace ReignBeta.UI.ViewModels
                     return false;
                 }
 
-                if (IsBusy || IsPregnancyWarningVisible)
+                if (IsBusy || IsPregnancyWarningVisible || IsOutfitVisible)
                 {
                     reply.Error = "Chat is busy.";
                     return false;
                 }
 
                 string playerName = Hero.MainHero?.Name?.ToString() ?? "Player";
-                AddChatLine(playerName, text);
+                if (!npcOpening)
+                {
+                    try { ReignConversationInputJournal.Save(ReignServerClient.GetCampaignId(),
+                        ReignBeta.Campaign.ReignWorldHistoryCampaignBehavior.Instance?.TimelineId ?? "main",
+                        Hero.MainHero?.StringId ?? "", correlationId, text, _hero?.StringId ?? ""); }
+                    catch (Exception ex) { reply.Error = "Your message could not be saved locally: " + ex.Message; AddSystemLine(reply.Error); return false; }
+                }
+                if (!npcOpening) AddChatLine(playerName, text);
                 if (clearInput)
                 {
                     InputText = string.Empty;
@@ -819,6 +860,7 @@ namespace ReignBeta.UI.ViewModels
 
                 IsBusy = true;
                 BusyText = "Preparing response...";
+                _conversationTurnCompletion = new TaskCompletionSource<bool>(TaskCreationOptions.RunContinuationsAsynchronously);
                 return true;
             }).ConfigureAwait(false);
             if (!accepted)
@@ -831,6 +873,8 @@ namespace ReignBeta.UI.ViewModels
             try
             {
                 string sessionId = await EnsureConversationSessionAsync().ConfigureAwait(false);
+                if (string.IsNullOrWhiteSpace(sessionId))
+                    throw new InvalidOperationException("The conversation could not reconnect. Close and reopen chat to try again.");
                 ReignXpInteraction xp = await ReignServerClient.BeginXpInteractionAsync().ConfigureAwait(false);
                 reply = await ReignServerClient.RequestDialogueResponseAsync(
                     _hero,
@@ -845,7 +889,7 @@ namespace ReignBeta.UI.ViewModels
                     _conversationContext,
                     guardedPromptOverride,
                     guardedPromptOverrideDirective,
-                    guardedPromptOverrideOwnerCommandId);
+                    guardedPromptOverrideOwnerCommandId, actionDraft);
                 timer.Stop();
 
                 await ReignMainThread.InvokeAsync(() =>
@@ -899,8 +943,12 @@ namespace ReignBeta.UI.ViewModels
 
                     if (reply.Ok && !string.IsNullOrWhiteSpace(reply.Text))
                     {
+                        if (_conversationContext.Value<bool?>("rescueOpening") == true)
+                            ReignRescueConversationBehavior.Instance?.HeardRescue(_conversationContext["rescueContext"]?.Value<string>("eventId"), _hero);
+                        _conversationContext["approachOpening"] = false;
+                        _conversationContext["rescueOpening"] = false;
                         if (string.IsNullOrWhiteSpace(auditRunId))
-                            xp.Award("conversation:individual:" + correlationId, ReignXpSkill.Charm, ReignXpRules.ConversationXp);
+                            xp.Award("conversation:individual:" + correlationId, ReignXpSkill.Charm, ReignXpRules.ConversationXp, ReignXpReason.Conversation);
                         AddChatLine(_hero?.Name?.ToString() ?? "NPC", reply.Text, "npc");
                         if (!string.IsNullOrWhiteSpace(reply.ActionShadowPreview) && ReignBetaSettings.Instance?.DebugMessagesEnabled == true)
                         {
@@ -938,6 +986,7 @@ namespace ReignBeta.UI.ViewModels
             }
             finally
             {
+                _conversationTurnCompletion?.TrySetResult(true);
                 await ReignMainThread.InvokeAsync(() =>
                 {
                     if (!_isFinalized)
@@ -1055,6 +1104,7 @@ namespace ReignBeta.UI.ViewModels
 
         public void ExecuteClose()
         {
+            if (IsOutfitVisible) { HandleOutfitEscape(); return; }
             _pendingConceptionAttempt = null;
             _pendingConceptionActionText = string.Empty;
             _calibrationPregnancyFixtureActive = false;
@@ -1099,10 +1149,15 @@ namespace ReignBeta.UI.ViewModels
 
         public override void OnFinalize()
         {
+            ReignActionBuilder.CloseFor(this);
+            _composer?.Dispose();
+            _outfitCancellation?.Cancel();
+            _ = ReignOutfitClient.Cancel(_outfitAttempt);
+            FinishOutfit();
             _isFinalized = true;
             CompletePregnancyDecision("finalized", false, _calibrationPregnancyFixtureActive,
                 "The Individual Chat screen finalized before the pregnancy decision completed.");
-            RequestConversationFinish("screen_finalized");
+            RequestConversationFinish(_finalizationReason);
             ChatLines.Clear();
             PlayerPortrait = null;
             NpcPortrait = null;
@@ -1163,10 +1218,47 @@ namespace ReignBeta.UI.ViewModels
             {
                 return _conversationSessionId;
             }
-            Task<string> pending = _conversationSessionTask ?? ReignServerClient.StartConversationSessionAsync(_hero, _conversationContext);
+            Task<ConversationSessionStart> pending = _conversationStartGate.EnsureAsync(
+                StartConversationAsync, true);
             _conversationSessionTask = pending;
-            _conversationSessionId = await pending.ConfigureAwait(false) ?? string.Empty;
+            ConversationSessionStart result = await pending.ConfigureAwait(false);
+            _conversationSessionId = result.Ok ? result.SessionId : string.Empty;
             return _conversationSessionId;
+        }
+
+        private async Task<ConversationSessionStart> StartConversationAsync()
+        {
+            var owner = ReignIndividualConversationBehavior.Instance;
+            if (owner != null && !await owner.WaitForRecoveryAsync().ConfigureAwait(false))
+                return new ConversationSessionStart { Error = "Conversation recovery has not completed." };
+            return await ReignServerClient.StartConversationSessionWithIdentityAsync(_hero, _conversationContext).ConfigureAwait(false);
+        }
+
+        internal void SetFinalizationReason(string reason) { _finalizationReason = reason; }
+
+        internal ConversationContinuationToken CaptureContinuation(string reason)
+        {
+            if (_calibrationMode || _isOfficialAmbassadorMode || _conversationSessionTask?.Status != TaskStatus.RanToCompletion)
+                return null;
+            var session = _conversationSessionTask.Result;
+            if (!session.Ok || (_conversationFinishRequested && _finalizationReason != reason)) return null;
+            var token = new ConversationContinuationToken {
+                CampaignId = _conversationContext.Value<string>("campaignId"), TimelineId = _conversationContext.Value<string>("timelineId"),
+                PlayerId = _conversationContext.Value<string>("playerId"), NpcId = _hero?.StringId ?? string.Empty,
+                SessionId = session.SessionId, LogicalConversationId = session.LogicalConversationId,
+                Generation = ConversationGeneration, Reason = reason
+            };
+            return token.IsValid ? token : null;
+        }
+
+        internal async Task<ConversationContinuationToken> SuspendForContinuationAsync(string reason)
+        {
+            _finalizationReason = reason;
+            await EnsureConversationSessionAsync().ConfigureAwait(false);
+            var token = CaptureContinuation(reason);
+            RequestConversationFinish(reason);
+            var result = _conversationFinishTask == null ? null : await _conversationFinishTask.ConfigureAwait(false);
+            return result?.Ok == true ? token : null;
         }
 
         private void RequestConversationFinish(string reason)
@@ -1176,13 +1268,15 @@ namespace ReignBeta.UI.ViewModels
                 return;
             }
             _conversationFinishRequested = true;
-            _ = FinishConversationAsync(reason);
+            _conversationFinishTask = FinishConversationAsync(reason);
         }
 
-        private async Task FinishConversationAsync(string reason)
+        private async Task<ReignConversationFinishResult> FinishConversationAsync(string reason)
         {
+            var turn = _conversationTurnCompletion;
+            if (turn != null) await turn.Task.ConfigureAwait(false);
             string sessionId = await EnsureConversationSessionAsync().ConfigureAwait(false);
-            await ReignServerClient.FinishConversationSessionAsync(_hero, sessionId, reason, _conversationContext).ConfigureAwait(false);
+            return await ReignServerClient.FinishConversationSessionAsync(_hero, sessionId, reason, _conversationContext).ConfigureAwait(false);
         }
 
         private async Task LoadHistoryAsync()
@@ -1256,6 +1350,13 @@ namespace ReignBeta.UI.ViewModels
                     }
                 }).ConfigureAwait(false);
             }
+        }
+
+        private async Task OpenNpcInitiatedConversationAsync()
+        {
+            await LoadHistoryAsync().ConfigureAwait(false);
+            if (_conversationContext.Value<bool?>("approachOpening") == true && !_isFinalized)
+                await SendTextAsync(string.Empty, false).ConfigureAwait(false);
         }
 
         private void AddSystemLine(string text)

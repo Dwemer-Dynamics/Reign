@@ -3,11 +3,11 @@
   "heroStringId": "reign_court_town_K5_child_3",
   "characterName": "Boraigan Khargetai",
   "imagePath": "portrait.png",
-  "imageSha256": "BB20AF2F7F78A3D991806C1EB86EB39417D4767609C2274E21540E71984902B2",
-  "description": "Culturally appropriate everyday Khuzait high-noble attire inspired by elite medieval Turkic and Mongol aristocratic clothing. Use superb tailoring, layered fine wool and silk-like woven fabrics, elegant crossed-front closures, decorated sashes, refined edging, and subtle noble motifs. Men should wear a stately long noble deel or structured coat over richly made underlayers. Women should wear a luxurious robe or coat-dress with graceful lines, elaborate woven trim, and exceptionally high-quality textiles. Fur trim may be included sparingly along cuffs, collars, or garment edges. The clothing should feel wealthy, mobile, and commanding without becoming ceremonial. No headgear of any kind. No fur hats, caps, hoods, armor, weapons, crowns, or fantasy styling.",
-  "status": "failed",
-  "descriptionSource": "portrait_prompt_fallback",
-  "retryEligible": true,
-  "error": "{\"error\":{\"message\":\"Model \\\"zai-org/glm-5.2\\\" does not support image inputs. Remove image content or choose a multimodal model.\",\"type\":\"invalid_request_error\",\"param\":\"messages\",\"code\":\"image_input_not_supported\"}}",
-  "updatedUtc": "2026-07-18T22:03:25.7502610Z"
+  "imageSha256": "FEC5CAAE3955EB8286BF69ABE3110BF4FBEDD8909331F5EB87DBA2EEB22C433D",
+  "description": "An opaque dark teal long coat with full sleeves is layered over a gold-brown patterned crossed-front tunic. Wide gold-toned scrolling and geometric woven borders run down the front edges, cuffs, and hems. A broad teal and brown patterned sash with round metal clasps and fringed hanging ends secures the waist. Dark trousers and tall brown decorated boots are visible.",
+  "status": "completed",
+  "descriptionSource": "agent_vision",
+  "retryEligible": false,
+  "error": "",
+  "updatedUtc": "2026-10-07T20:49:29.037Z"
 }

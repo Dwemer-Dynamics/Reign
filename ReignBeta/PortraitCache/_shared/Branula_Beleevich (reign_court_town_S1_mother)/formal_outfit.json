@@ -3,11 +3,11 @@
   "heroStringId": "reign_court_town_S1_mother",
   "characterName": "Branula Beleevich",
   "imagePath": "portrait.png",
-  "imageSha256": "E50AA55ACA264FB98267104145AC6BC278589F7ACBCDCF8AE453FDC84A4FEB43",
-  "description": "Culturally appropriate everyday Sturgian high-noble attire inspired by wealthy medieval Rus aristocracy. Use richly woven wool, fine linen, elegant long coats or kaftans, tasteful embroidery, restrained fur trim, and expertly crafted belts or clasps. Men should wear a stately long noble coat layered over a fine embroidered shirt and tailored trousers. Women should wear a richly cut long dress or overdress with embroidered cuffs, collar, and hem, paired with a fitted outer garment or elegant shoulder layer. The outfit should feel imposing, expensive, and suited to the daily life of a powerful northern noble. No headgear of any kind. No armor, weapons, crowns, full ceremonial regalia, or extravagant fur mantles.",
-  "status": "failed",
-  "descriptionSource": "portrait_prompt_fallback",
-  "retryEligible": true,
-  "error": "{\"error\":{\"message\":\"Model \\\"zai-org/glm-5.2\\\" does not support image inputs. Remove image content or choose a multimodal model.\",\"type\":\"invalid_request_error\",\"param\":\"messages\",\"code\":\"image_input_not_supported\"}}",
-  "updatedUtc": "2026-07-18T22:03:26.0703004Z"
+  "imageSha256": "8389C339624796F8896BCE5AE392B6F7A0D63D9CF75B0AD0B716809C951D4A57",
+  "description": "She wears an opaque navy floor-length gown with a square neckline, fitted bodice, elbow-length sleeves and a full skirt. Tan-gold geometric woven borders decorate the neckline, shoulder straps, cuffs, vertical front bands and hem. A cream underdress shows through the modest front walking opening beneath the knee. A narrow brown belt carries round bronze-toned ornaments and a central buckle; round matching clasps sit near the shoulders. A navy patterned fringed wrap rests across her forearms. Brown leather shoes show beneath the hem. No headgear or weapon is visible.",
+  "status": "completed",
+  "descriptionSource": "agent_vision",
+  "retryEligible": false,
+  "error": "",
+  "updatedUtc": "2026-10-07T21:09:58.897Z"
 }

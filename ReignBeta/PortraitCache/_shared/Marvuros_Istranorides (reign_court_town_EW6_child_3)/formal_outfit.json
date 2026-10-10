@@ -3,11 +3,11 @@
   "heroStringId": "reign_court_town_EW6_child_3",
   "characterName": "Marvuros Istranorides",
   "imagePath": "portrait.png",
-  "imageSha256": "C3DB246EE08262F3E602FF8569230652F16F3290CDF317ED0607270F485F3037",
-  "description": "Culturally appropriate everyday Calradic Imperial minor-lord attire inspired by refined late Roman and Byzantine noble clothing. Men should wear a high-quality tunic or long tailored outer coat over fine linen, decorated with narrow woven borders, refined clasps, and a decorated belt. Women should wear a long elegant dress or layered tunic ensemble with shaped sleeves, graceful draping, and tasteful trim around the neckline, cuffs, and edges. The garments should feel polished, educated, urban, and wealthy without resembling full imperial ceremony. No headgear of any kind. No armor, weapons, crowns, imperial regalia, laurel wreaths, or ceremonial robes.",
-  "status": "failed",
-  "descriptionSource": "portrait_prompt_fallback",
-  "retryEligible": true,
-  "error": "{\"error\":{\"message\":\"Model \\\"zai-org/glm-5.2\\\" does not support image inputs. Remove image content or choose a multimodal model.\",\"type\":\"invalid_request_error\",\"param\":\"messages\",\"code\":\"image_input_not_supported\"}}",
-  "updatedUtc": "2026-07-18T22:03:32.2618635Z"
+  "imageSha256": "93AC8B4A0FE23C8EF804B20A6AB269FB11A85DF58473371316C2B5E3461354EB",
+  "description": "Marvuros wears a dark muted burgundy long open-front coat over a cream linen knee-length tunic. Narrow gold geometric woven borders edge the coat opening, hem and cuffs, with small circular decorative clasps near the upper front. The under-tunic has matching neckline and hem trim. A decorated brown belt with round gold-toned fittings and a long hanging end secures the waist. Cream trousers and tall brown leather boots finish the outfit. His arms rest naturally behind his back, so hands are obscured rather than visibly cropped. There is no headgear, armor, weapon or crown.",
+  "status": "completed",
+  "descriptionSource": "agent_vision",
+  "retryEligible": false,
+  "error": "",
+  "updatedUtc": "2026-10-08T00:20:38.707Z"
 }

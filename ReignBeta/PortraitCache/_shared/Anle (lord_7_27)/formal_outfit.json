@@ -3,11 +3,11 @@
   "heroStringId": "lord_7_27",
   "characterName": "Anle",
   "imagePath": "portrait.png",
-  "imageSha256": "15481830DFA50C9F18FA8393C6F2D575239A80D3D2CAC422F810F1FAD562D7E6",
-  "description": "Culturally appropriate everyday Nord landowner attire inspired by historically grounded early medieval Scandinavian civilian clothing. Men should wear a long-sleeved linen undershirt beneath a knee-length wool tunic, straight or loose trousers, a sturdy leather belt, and wrapped lower legs. Women should wear a long linen shift beneath a wool apron dress or layered overdress, secured with modest brooches and a woven belt. Include subtle tablet-woven trim and practical layered fabric. The garments should appear sturdy, clean, and modestly prosperous. No headgear of any kind. No helmets, caps, hoods, armor, weapons, crowns, ceremonial garments, horned helmets, or fantasy Viking styling.",
-  "status": "failed",
-  "descriptionSource": "portrait_prompt_fallback",
-  "retryEligible": true,
-  "error": "{\"error\":{\"message\":\"Model \\\"zai-org/glm-5.2\\\" does not support image inputs. Remove image content or choose a multimodal model.\",\"type\":\"invalid_request_error\",\"param\":\"messages\",\"code\":\"image_input_not_supported\"}}",
-  "updatedUtc": "2026-07-18T22:03:24.6346889Z"
+  "imageSha256": "7F0E59363DAB5391E8DF4D7CEC9F576E02BCBCB9C8C1956C5DF48C9CB83D99B7",
+  "description": "Opaque charcoal-brown knee-length wool tunic with narrow rust and gold geometric woven edging around a notched V neckline, sleeve ends and hem. A cream linen undershirt shows at the wrists and below the tunic hem. Plain brown leather waist belt with a small oval metal buckle, long loose strap and metal ring. Loose gray-brown trousers. Dark green-gray lower-leg wraps bound with crossing brown strips, and brown leather footwear. The clothing hangs naturally around an average adult frame. No helmet, head covering, armor or weapon is visible.",
+  "status": "completed",
+  "descriptionSource": "agent_vision",
+  "retryEligible": false,
+  "error": "",
+  "updatedUtc": "2026-10-07T20:35:38.660Z"
 }

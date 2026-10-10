@@ -1,16 +1,90 @@
 {
   "version": 1,
+  "schema": "reign-builtin-chat-reference-guided-image-generation-culture-v1",
   "cacheKey": "Phaea (lord_1_36)",
   "heroStringId": "lord_1_36",
   "characterObjectId": "lord_1_36",
   "characterName": "Phaea",
-  "provider": "AtlasCloud",
-  "model": "xai/grok-imagine-image/edit",
-  "adapter": "atlas upload/generate/poll",
-  "sourceSha256": "d3892520e649a97dbb7fe762bb7d9ef24169ce0355c7dc2db189964b543e8cdf",
-  "portraitSha256": "074a318835cd6f88e3b6874318087a329ae19dea13294ed37456f33a7041bc9c",
-  "portraitWidth": 832,
-  "portraitHeight": 1248,
+  "worker": "worker-3",
+  "generatedOriginalPath": "C:\\Users\\speed\\.codex\\generated_images\\01a11c35-ffed-7141-9578-6b68f5fc5978\\exec-b78e403f-0929-4e79-b691-ed04f11c6189.png",
+  "sourceFileCreationUtc": "2026-10-08T20:57:02.610Z",
+  "generationRequestId": "fc6700db-1ef4-4549-b757-ebbc1c0482a1",
+  "generationRequestSha256": "11bfa5d49bc2c90d54bf746bc5077192b4299dc3d743495340ac6d97f83b86f7",
+  "generationReturnSha256": "6073c1b3500f5d16f51aedd7166d931b65501d073af49ef0b927bf569f952fa4",
+  "provider": "Codex built-in image_gen",
+  "model": "unknown",
+  "adapter": "old-face-identity/new-style-reference-guided",
+  "generationMode": "reference_guided",
+  "inputImages": 2,
+  "references": [
+    {
+      "id": "lord_1_36",
+      "role": "old_identity",
+      "path": "D:\\Program Files (x86)\\Steam\\steamapps\\common\\Mount & Blade II Bannerlord\\Modules\\ReignBeta\\PortraitCache\\_shared\\Phaea (lord_1_36)\\portrait_chest.png",
+      "sha256": "e82c576f3be3394e59af9c445ca2cde837bffd3dd977215d1172cef0f25efbc9",
+      "originalReference": {
+        "path": "D:\\Program Files (x86)\\Steam\\steamapps\\common\\Mount & Blade II Bannerlord\\Modules\\ReignBeta\\PortraitCache\\_shared\\Phaea (lord_1_36)\\portrait_chest.png",
+        "sha256": "e82c576f3be3394e59af9c445ca2cde837bffd3dd977215d1172cef0f25efbc9"
+      }
+    },
+    {
+      "id": "lord_1_36",
+      "role": "new_style",
+      "path": "C:\\ReignPortraitRebuild\\2026-10-07-01a11741-culture-v2\\audit\\residual-correction-phase4-001\\lord_1_36\\predecessor-files\\_shared\\Phaea (lord_1_36)\\portrait.png",
+      "sha256": "328e0b53a2b6085bdb0c455db59412d63eca14070c019d86e683aa85028542d6",
+      "originalReference": {
+        "path": "C:\\ReignPortraitRebuild\\2026-10-07-01a11741-culture-v2\\_shared\\Phaea (lord_1_36)\\portrait.png",
+        "sha256": "328e0b53a2b6085bdb0c455db59412d63eca14070c019d86e683aa85028542d6"
+      }
+    }
+  ],
+  "referenceGuidedExecution": {
+    "schema": "reign-portrait-reference-guided-execution-v1",
+    "generationMode": "reference_guided",
+    "inputImages": 2,
+    "references": [
+      {
+        "id": "lord_1_36",
+        "role": "old_identity",
+        "path": "D:\\Program Files (x86)\\Steam\\steamapps\\common\\Mount & Blade II Bannerlord\\Modules\\ReignBeta\\PortraitCache\\_shared\\Phaea (lord_1_36)\\portrait_chest.png",
+        "sha256": "e82c576f3be3394e59af9c445ca2cde837bffd3dd977215d1172cef0f25efbc9",
+        "originalReference": {
+          "path": "D:\\Program Files (x86)\\Steam\\steamapps\\common\\Mount & Blade II Bannerlord\\Modules\\ReignBeta\\PortraitCache\\_shared\\Phaea (lord_1_36)\\portrait_chest.png",
+          "sha256": "e82c576f3be3394e59af9c445ca2cde837bffd3dd977215d1172cef0f25efbc9"
+        }
+      },
+      {
+        "id": "lord_1_36",
+        "role": "new_style",
+        "path": "C:\\ReignPortraitRebuild\\2026-10-07-01a11741-culture-v2\\audit\\residual-correction-phase4-001\\lord_1_36\\predecessor-files\\_shared\\Phaea (lord_1_36)\\portrait.png",
+        "sha256": "328e0b53a2b6085bdb0c455db59412d63eca14070c019d86e683aa85028542d6",
+        "originalReference": {
+          "path": "C:\\ReignPortraitRebuild\\2026-10-07-01a11741-culture-v2\\_shared\\Phaea (lord_1_36)\\portrait.png",
+          "sha256": "328e0b53a2b6085bdb0c455db59412d63eca14070c019d86e683aa85028542d6"
+        }
+      }
+    ],
+    "textCompositionImageInputs": 0,
+    "textVerificationSha256": "b42cc6c957cf012113114b1d2d5b2d40cae224af42a94028b1fc64e8e66bf690",
+    "textPromptSha256": "e5b2fa25a0bd8cde8a5efde7d5f35cd6341c0159d36ad9e8e3e3f621178c7c28",
+    "compositionProofSha256": "80e82fe66bd7e205cd5a6903c0afea2f71c846b22796f78f0baf4074cb6cccc4",
+    "rootCompositionReview": {
+      "path": "C:\\ReignPortraitRebuild\\2026-10-07-01a11741-culture-v2\\audit\\root-full32-prompt-composition-review-001\\lord_1_36\\root-hybrid-composition-review.json",
+      "sha256": "5e5e24d43b0bc619be244555bb047eb7086467f20c2313c9fa2a22cb8970a5b7"
+    }
+  },
+  "sourceSha256": "64e8b4cc58bfc42f26510e978b39c3f24223b8ec063e91c55c7f79ab0b83a9fb",
+  "portraitSha256": "089b32a71c6916b6f2f82cba2d44904b287476c1de3b17021385d18920c159a7",
+  "portraitWidth": 1086,
+  "portraitHeight": 1448,
+  "promptSha256": "3ece4c49bee5126fe95e232d10fee02b8c41d23b1f1f16ecefa3b24eafd2cba9",
+  "descriptionSha256": "6d5ba01ec3f57f8def44145300744a8710ae99e344ed0afe7de52f120e7044b1",
+  "cultureId": "empire",
+  "cultureReferenceKey": "empire",
+  "cultureReference": "Eastern Mediterranean regional appearance, drawing on Greek, Anatolian and neighboring populations.",
+  "cultureLayerFile": "portrait_facial_culture_empire.txt",
+  "cultureLayerFullText": "FACIAL CULTURAL APPEARANCE — IMPERIAL\nStored cultureId: empire.\nRegional reference: Eastern Mediterranean regional appearance, drawing on Greek, Anatolian and neighboring populations.\nCreate a believable real human face with this regional appearance. Apply the regional reference positively to facial appearance, facial structure and complexion; it is not only a clothing, setting or background instruction.\nBlend the regional reference with the individual facial description. Where simplified native geometry or game-renderer shading differs from this regional appearance, use a plausible natural blend while retaining recognizable individual traits: face outline, relative proportions, eyes, brows, nose, mouth, jaw and chin. Preserve the described hair identity, arrangement and texture, facial-hair pattern, eye character, visible scars and markings; do not invent new distinguishing marks.\nThese regional populations contain substantial individual variation. Do not give every member the same face, impose a universal skin, hair or eye color, or replace the written individual identity with a generic regional stereotype. Preserve source-grounded differences and natural human asymmetry.\nKeep the exact authored age and the independent native weight and build values. This layer applies to facial appearance and realistic complexion interpretation, not body size, muscularity, garment coverage or social rank. Every complete composition, clothing, confidence, photographic, output and physique modifier remains in effect. Do not print this reference or any metadata in the image.",
+  "cultureLayerSha256": "4ce99b540f2d8935b87d2f624a278f0c51678c9a26604ded18cf1d2eda40306e",
   "physicalConfidence": {
     "definition": "physical_confidence",
     "score": 46,
@@ -21,7 +95,10 @@
     "confidenceWeight": 0.25,
     "source": "shipped_profile_library"
   },
+  "confidenceCoverageOverride": "Corein opaque41–60 court variant",
   "derivativesReady": true,
   "derivativeError": "",
-  "generatedUtc": "2026-07-17T19:09:03.3489923Z"
+  "generatedUtc": "2026-10-08T20:58:09.083Z",
+  "serverSigned": false,
+  "derivativeReportSha256": "e8072c5b607479f72e4a2fbfc7ce9c06c26e139e2b5bf908bc3111a14d86643d"
 }

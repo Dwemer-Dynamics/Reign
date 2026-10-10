@@ -23,7 +23,7 @@ namespace ReignBeta.PartyAgency
 {
     public sealed partial class ReignTemporaryPartyGuestCampaignBehavior : CampaignBehaviorBase
     {
-        public const float OpenEndedReviewDays = 5f;
+        public const float OpenEndedReviewDays = 30f;
         public const float MaximumFixedTermDays = (float)ReignCalendarService.DaysPerYear;
         public const float MinimumFixedTermDays = 1f;
         public const float MinimumReturnHours = 1f;
@@ -114,6 +114,7 @@ namespace ReignBeta.PartyAgency
             bool armyExitAccepted = ReadBool(terms, "armyExitAccepted", false);
             MobileParty priorParty = hero.PartyBelongedTo;
             Settlement priorSettlement = hero.CurrentSettlement;
+            Town priorGovernorship = hero.GovernorOf;
             int residentPayment = 0;
             MobileParty sourceParty = priorParty != null && priorParty.LeaderHero == hero
                 ? priorParty
@@ -152,6 +153,15 @@ namespace ReignBeta.PartyAgency
 
             try
             {
+                // Accepting service includes stepping down, even in another kingdom.
+                // Deferred agreements leave the assignment intact until departure starts.
+                if (priorGovernorship != null)
+                {
+                    ChangeGovernorAction.RemoveGovernorOf(hero);
+                    if (hero.GovernorOf != null || priorGovernorship.Governor == hero)
+                        throw new InvalidOperationException("Bannerlord did not relinquish the consenting noble's governorship.");
+                }
+
                 if (priorParty?.Army != null)
                 {
                     if (priorParty.Army.LeaderParty == priorParty)
@@ -167,12 +177,22 @@ namespace ReignBeta.PartyAgency
                     CaptureAndProtectCamp(record, sourceParty, hero);
                 }
 
+                if (!hero.IsLord)
+                {
+                    var residents = ReignEncounteredResidentsCampaignBehavior.Instance
+                        ?? throw new InvalidOperationException("The civilian departure service is unavailable.");
+                    residents.RegisterCivilianDeparture(hero);
+                    if (hero.IsNotable && !ReignRecruitedNotableCampaignBehavior.ClearDepartingNotableRole(hero))
+                        throw new InvalidOperationException("The notable's businesses must be relinquished before joining your party.");
+                    hero.SetNewOccupation(Occupation.Special);
+                }
                 AddHeroToPartyAction.Apply(hero, MobileParty.MainParty, false);
                 if (hero.PartyBelongedTo != MobileParty.MainParty)
                     throw new InvalidOperationException("Bannerlord did not add the consenting noble to the player party.");
                 if (!IdentityMatches(record, hero))
                     throw new InvalidOperationException("The native party transfer changed a permanent noble affiliation.");
 
+                ReignTavernHouseCampaignBehavior.Instance?.CompleteTemporaryDeparture(hero);
                 if (pending != null) _records.Remove(pending);
                 _records.Add(record);
                 if (ReignEncounteredResidentsCampaignBehavior.Instance?.Find(hero) != null)
@@ -189,7 +209,8 @@ namespace ReignBeta.PartyAgency
                     hero.Name + " has joined your party temporarily for: " + purpose + "."));
                 return ReignActionResult.Done(hero.Name + " joined the player party as a temporary guest.")
                     .WithEffect("temporary_party_guest_joined", "hero", hero.StringId, hero.Name.ToString(),
-                        "agreementId=" + record.AgreementId + ";reviewDay=" + record.ReviewDueDay)
+                        "agreementId=" + record.AgreementId + ";reviewDay=" + record.ReviewDueDay
+                        + ";relinquishedGovernorship=" + (priorGovernorship?.Settlement.StringId ?? string.Empty))
                     .WithChangedEntity("hero", hero.StringId, hero.Name.ToString(), "party_membership_changed");
             }
             catch (Exception ex)
@@ -210,14 +231,16 @@ namespace ReignBeta.PartyAgency
                 else if (priorSettlement != null && hero.IsAlive && !hero.IsPrisoner)
                     EnterSettlementAction.ApplyForCharacterOnly(hero, priorSettlement);
                 ReleaseCamp(record, false);
+                if (priorGovernorship != null && priorGovernorship.Governor == null && hero.GovernorOf == null)
+                    ChangeGovernorAction.Apply(priorGovernorship, hero);
                 return ReignActionResult.FailTerminal(ex.Message, "temporary_guest_join_failed", "native_party_transfer");
             }
         }
 
-        public bool ValidateAction(ReignWorldActionRecord action, Hero hero, out string reason)
+        public bool ValidateAction(ReignWorldActionRecord action, Hero hero, out string reason, bool proposal = false)
         {
             if (action?.Type == ReignWorldActionType.RegularAcceptTemporaryPartyGuest)
-                return ValidateAcceptAction(action, hero, out reason);
+                return ValidateAcceptAction(action, hero, out reason, proposal);
             reason = string.Empty;
             ReignTemporaryPartyGuestRecord record = FindLiveRecord(hero?.StringId);
             if (record == null || hero == null)
@@ -237,7 +260,7 @@ namespace ReignBeta.PartyAgency
                     reason = "Only a guest who is still in the player party can renew the agreement.";
                     return false;
                 }
-                if (!ReadBool(terms, "consentConfirmed", false))
+                if (!proposal && !ReignActionValidator.HasOperatorAuthorization(action) && !ReadBool(terms, "consentConfirmed", false))
                 {
                     reason = "Renewal requires fresh, explicit NPC consent.";
                     return false;
@@ -259,7 +282,7 @@ namespace ReignBeta.PartyAgency
             if (action.Type == ReignWorldActionType.RegularAcknowledgeOwnFactionCombatRisk)
             {
                 if (string.IsNullOrWhiteSpace(record.HostileFactionStringId)
-                    || !ReadBool(ParseTerms(action.TermsJson), "consentConfirmed", false))
+                    || (!proposal && !ReignActionValidator.HasOperatorAuthorization(action) && !ReadBool(ParseTerms(action.TermsJson), "consentConfirmed", false)))
                 {
                     reason = "The guest must explicitly accept an active own-faction combat warning.";
                     return false;
@@ -276,7 +299,7 @@ namespace ReignBeta.PartyAgency
             JObject terms = ParseTerms(action.TermsJson);
             if (!ValidateRenewalTarget(record, terms, out string targetFailure))
                 return ReignActionResult.ValidationFailed(targetFailure);
-            if (!ReadBool(terms, "consentConfirmed", false))
+            if (!ReignActionValidator.HasOperatorAuthorization(action) && !ReadBool(terms, "consentConfirmed", false))
                 return ReignActionResult.ValidationFailed("The noble must explicitly consent to the renewed temporary-party agreement.");
             if (!string.IsNullOrWhiteSpace(record.HostileFactionStringId)
                 && !record.HostilityWarningAcknowledged)
@@ -347,7 +370,7 @@ namespace ReignBeta.PartyAgency
             ReignTemporaryPartyGuestRecord record = FindLiveRecord(hero?.StringId);
             if (record == null || string.IsNullOrWhiteSpace(record.HostileFactionStringId))
                 return ReignActionResult.ValidationFailed("There is no active own-faction combat warning for this guest.");
-            if (!ReadBool(ParseTerms(action.TermsJson), "consentConfirmed", false))
+            if (!ReignActionValidator.HasOperatorAuthorization(action) && !ReadBool(ParseTerms(action.TermsJson), "consentConfirmed", false))
                 return ReignActionResult.ValidationFailed("The guest must explicitly acknowledge the banishment risk.");
 
             record.HostilityWarningAcknowledged = true;
@@ -362,26 +385,22 @@ namespace ReignBeta.PartyAgency
                     hero.Name.ToString(), "factionId=" + record.HostileFactionStringId);
         }
 
-        public bool ValidateAcceptAction(ReignWorldActionRecord action, Hero hero, out string reason)
+        public bool ValidateAcceptAction(ReignWorldActionRecord action, Hero hero, out string reason, bool proposal = false)
         {
             reason = string.Empty;
             JObject terms = ParseTerms(action?.TermsJson);
-            bool resident = ReignEncounteredResidentsCampaignBehavior.Instance?.Find(hero) != null;
-            if (resident && !ReignEncounteredResidentsCampaignBehavior.Instance.ValidateDeparture(hero, out reason)) return false;
-            if (hero == null || hero == Hero.MainHero || (!resident && !hero.IsLord) || hero.CompanionOf != null
+            bool resident = hero != null && !hero.IsLord;
+            if (resident && (ReignEncounteredResidentsCampaignBehavior.Instance == null
+                || !ReignEncounteredResidentsCampaignBehavior.Instance.ValidateDeparture(hero, out reason))) return false;
+            if (hero == null || hero == Hero.MainHero || hero.CompanionOf != null
                 || !ReignConversationEligibility.IsAdultLivingNpc(hero) || hero.IsPrisoner)
             {
-                reason = "A temporary noble guest must be a living, adult, free NPC lord or lady.";
+                reason = "A temporary guest must be a living, adult, free noble or known civilian.";
                 return false;
             }
             if (!resident && (hero.Clan == null || hero.Clan == Clan.PlayerClan))
             {
                 reason = "Temporary noble guests must retain membership in a different clan.";
-                return false;
-            }
-            if (hero.GovernorOf != null)
-            {
-                reason = "A governor must relinquish the governorship before joining as a temporary guest.";
                 return false;
             }
             ReignTemporaryPartyGuestRecord existing = FindLiveRecord(hero.StringId);
@@ -409,7 +428,7 @@ namespace ReignBeta.PartyAgency
                 reason = "The exact agreed guest payment must be nonnegative and affordable.";
                 return false;
             }
-            if (!ReadBool(terms, "consentConfirmed", false))
+            if (!proposal && !ReignActionValidator.HasOperatorAuthorization(action) && !ReadBool(terms, "consentConfirmed", false))
             {
                 reason = "The noble must explicitly consent to the temporary-party agreement.";
                 return false;
@@ -881,7 +900,7 @@ namespace ReignBeta.PartyAgency
             _reviewInquirySessionId = inquirySessionId;
             string term = record.TermKind == ReignTemporaryGuestTermKind.Fixed
                 ? "Fixed term: " + record.FixedTermDays.ToString("0.#") + " days"
-                : "Open-ended; reviewed every five days";
+                : "Open-ended; reviewed every thirty days";
             string body = hero.Name + " wants to review the journey.\n\nPurpose: " + record.Purpose
                 + "\nElapsed: " + Math.Max(0f, CurrentDay() - record.StartedDay).ToString("0.0") + " days"
                 + "\n" + term + "\n\n" + record.LastReviewReason;

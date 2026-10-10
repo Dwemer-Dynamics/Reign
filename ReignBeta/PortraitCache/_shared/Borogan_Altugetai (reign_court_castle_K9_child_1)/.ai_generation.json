@@ -1,16 +1,90 @@
 {
   "version": 1,
+  "schema": "reign-builtin-chat-reference-guided-image-generation-culture-v1",
   "cacheKey": "Borogan_Altugetai (reign_court_castle_K9_child_1)",
   "heroStringId": "reign_court_castle_K9_child_1",
   "characterObjectId": "reign_court_castle_K9_child_1",
   "characterName": "Borogan Altugetai",
-  "provider": "AtlasCloud",
-  "model": "xai/grok-imagine-image/edit",
-  "adapter": "atlas upload/generate/poll",
+  "worker": "worker-3",
+  "generatedOriginalPath": "C:\\Users\\speed\\.codex\\generated_images\\01a11c35-b9ad-75f1-9c21-5742fde8069d\\exec-6b38e80b-6ae3-4e51-bcdf-ad8d80a1952b.png",
+  "sourceFileCreationUtc": "2026-10-08T21:19:33.393Z",
+  "generationRequestId": "4adefb02-a207-4aff-bbeb-6bb5355fc1b8",
+  "generationRequestSha256": "0fbcd9ae95e308988655b4d09230c4ab9df0d0119f5fb6d53f417bd33748694d",
+  "generationReturnSha256": "8dd8b77d9d44e4d85ce7d8ca9ea4f2e1a09c06aa92dade1928ac4acf2a8f873c",
+  "provider": "Codex built-in image_gen",
+  "model": "unknown",
+  "adapter": "old-face-identity/new-style-reference-guided",
+  "generationMode": "reference_guided",
+  "inputImages": 2,
+  "references": [
+    {
+      "id": "reign_court_castle_K9_child_1",
+      "role": "old_identity",
+      "path": "D:\\Program Files (x86)\\Steam\\steamapps\\common\\Mount & Blade II Bannerlord\\Modules\\ReignBeta\\PortraitCache\\_shared\\Borogan_Altugetai (reign_court_castle_K9_child_1)\\portrait_chest.png",
+      "sha256": "8287eba99d69c17d766bce42fc9da5297685ab4387082dd374b034b167a7d442",
+      "originalReference": {
+        "path": "D:\\Program Files (x86)\\Steam\\steamapps\\common\\Mount & Blade II Bannerlord\\Modules\\ReignBeta\\PortraitCache\\_shared\\Borogan_Altugetai (reign_court_castle_K9_child_1)\\portrait_chest.png",
+        "sha256": "8287eba99d69c17d766bce42fc9da5297685ab4387082dd374b034b167a7d442"
+      }
+    },
+    {
+      "id": "reign_court_castle_K9_child_1",
+      "role": "new_style",
+      "path": "C:\\ReignPortraitRebuild\\2026-10-07-01a11741-culture-v2\\audit\\residual-correction-phase4-001\\reign_court_castle_K9_child_1\\predecessor-files\\_shared\\Borogan_Altugetai (reign_court_castle_K9_child_1)\\portrait.png",
+      "sha256": "6e6dbf05abb915c7f1a0ec6107f77f9bba15ff7c90e6c276c17be485a883fc14",
+      "originalReference": {
+        "path": "C:\\ReignPortraitRebuild\\2026-10-07-01a11741-culture-v2\\_shared\\Borogan_Altugetai (reign_court_castle_K9_child_1)\\portrait.png",
+        "sha256": "6e6dbf05abb915c7f1a0ec6107f77f9bba15ff7c90e6c276c17be485a883fc14"
+      }
+    }
+  ],
+  "referenceGuidedExecution": {
+    "schema": "reign-portrait-reference-guided-execution-v1",
+    "generationMode": "reference_guided",
+    "inputImages": 2,
+    "references": [
+      {
+        "id": "reign_court_castle_K9_child_1",
+        "role": "old_identity",
+        "path": "D:\\Program Files (x86)\\Steam\\steamapps\\common\\Mount & Blade II Bannerlord\\Modules\\ReignBeta\\PortraitCache\\_shared\\Borogan_Altugetai (reign_court_castle_K9_child_1)\\portrait_chest.png",
+        "sha256": "8287eba99d69c17d766bce42fc9da5297685ab4387082dd374b034b167a7d442",
+        "originalReference": {
+          "path": "D:\\Program Files (x86)\\Steam\\steamapps\\common\\Mount & Blade II Bannerlord\\Modules\\ReignBeta\\PortraitCache\\_shared\\Borogan_Altugetai (reign_court_castle_K9_child_1)\\portrait_chest.png",
+          "sha256": "8287eba99d69c17d766bce42fc9da5297685ab4387082dd374b034b167a7d442"
+        }
+      },
+      {
+        "id": "reign_court_castle_K9_child_1",
+        "role": "new_style",
+        "path": "C:\\ReignPortraitRebuild\\2026-10-07-01a11741-culture-v2\\audit\\residual-correction-phase4-001\\reign_court_castle_K9_child_1\\predecessor-files\\_shared\\Borogan_Altugetai (reign_court_castle_K9_child_1)\\portrait.png",
+        "sha256": "6e6dbf05abb915c7f1a0ec6107f77f9bba15ff7c90e6c276c17be485a883fc14",
+        "originalReference": {
+          "path": "C:\\ReignPortraitRebuild\\2026-10-07-01a11741-culture-v2\\_shared\\Borogan_Altugetai (reign_court_castle_K9_child_1)\\portrait.png",
+          "sha256": "6e6dbf05abb915c7f1a0ec6107f77f9bba15ff7c90e6c276c17be485a883fc14"
+        }
+      }
+    ],
+    "textCompositionImageInputs": 0,
+    "textVerificationSha256": "d47ea341e602d2170398d30a19d1af9986973e0207646c64b0a441102d392f4d",
+    "textPromptSha256": "01688e8e0ee53dca7c14d6a9d5b22b6039ebd645646e56b8f340431e7931a21d",
+    "compositionProofSha256": "425dbfb95c624a9dc04084a7832d833d397c21215ae346e1c86d0b760a534542",
+    "rootCompositionReview": {
+      "path": "C:\\ReignPortraitRebuild\\2026-10-07-01a11741-culture-v2\\audit\\root-full32-prompt-composition-review-001\\reign_court_castle_K9_child_1\\root-hybrid-composition-review.json",
+      "sha256": "a039d857037c2c3aab85535566eab6b6ae619bcc7594e15d249683189a01ce45"
+    }
+  },
   "sourceSha256": "e2a2eaf6427f29329cdffaac9a69a57c043a776596e4f989720218e91d424512",
-  "portraitSha256": "d47c2f3aa7807a4085a26e0cd590a09b3aaec064f21181b2e67f0c848719d930",
-  "portraitWidth": 864,
-  "portraitHeight": 1152,
+  "portraitSha256": "419be746a6bce48623fc9e412bf900df358823ef22e79f98adc721a0b3e38ff0",
+  "portraitWidth": 1086,
+  "portraitHeight": 1448,
+  "promptSha256": "720f3083e9328430e445a36761397b40b0a88e68e9f3bc2863278df9089a66a3",
+  "descriptionSha256": "08a2e3f99058e983968909a5047150e1f902e2411aa75a6cdcb25d9a271e130c",
+  "cultureId": "khuzait",
+  "cultureReferenceKey": "khuzait",
+  "cultureReference": "Primarily Mongolian, blended with Central Asian regional appearance.",
+  "cultureLayerFile": "portrait_facial_culture_khuzait.txt",
+  "cultureLayerFullText": "FACIAL CULTURAL APPEARANCE — KHUZAIT\nStored cultureId: khuzait.\nRegional reference: Primarily Mongolian, blended with Central Asian regional appearance.\nCreate a believable real human face with this regional appearance. Apply the regional reference positively to facial appearance, facial structure and complexion; it is not only a clothing, setting or background instruction.\nBlend the regional reference with the individual facial description. Where simplified native geometry or game-renderer shading differs from this regional appearance, use a plausible natural blend while retaining recognizable individual traits: face outline, relative proportions, eyes, brows, nose, mouth, jaw and chin. Preserve the described hair identity, arrangement and texture, facial-hair pattern, eye character, visible scars and markings; do not invent new distinguishing marks.\nThese regional populations contain substantial individual variation. Do not give every member the same face, impose a universal skin, hair or eye color, or replace the written individual identity with a generic regional stereotype. Preserve source-grounded differences and natural human asymmetry.\nKeep the exact authored age and the independent native weight and build values. This layer applies to facial appearance and realistic complexion interpretation, not body size, muscularity, garment coverage or social rank. Every complete composition, clothing, confidence, photographic, output and physique modifier remains in effect. Do not print this reference or any metadata in the image.",
+  "cultureLayerSha256": "8021b483ac49323c920d9d6e899966a6be02ae6e6bd42441d6a3bac4420cbda6",
   "physicalConfidence": {
     "definition": "physical_confidence",
     "score": 61,
@@ -21,7 +95,10 @@
     "confidenceWeight": 0.25,
     "source": "shipped_profile_library"
   },
+  "confidenceCoverageOverride": null,
   "derivativesReady": true,
   "derivativeError": "",
-  "generatedUtc": "2026-07-17T18:18:12.0346714Z"
+  "generatedUtc": "2026-10-08T21:19:55.768Z",
+  "serverSigned": false,
+  "derivativeReportSha256": "0639edbb2f3872fca41c1930e261451ca9895019324222dd5ef6144d25db1038"
 }

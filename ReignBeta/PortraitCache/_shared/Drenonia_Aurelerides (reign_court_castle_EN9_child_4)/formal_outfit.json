@@ -3,11 +3,11 @@
   "heroStringId": "reign_court_castle_EN9_child_4",
   "characterName": "Drenonia Aurelerides",
   "imagePath": "portrait.png",
-  "imageSha256": "2D6AF467AD06CEEBBE8043D6A8C2A214FC14EB6A56A98697340C59E8FA6A4181",
-  "description": "Culturally appropriate everyday Calradic Imperial high-noble attire inspired by luxurious Byzantine aristocratic fashion, restrained enough for daily noble life. Use fine layered linen and wool, controlled flowing silhouettes, elegant draping, richly woven borders, small jeweled clasps, and sophisticated fabric textures. Men should wear a stately long tunic or structured noble coat over a fine undertunic, with refined belts and detailed edging. Women should wear a sophisticated layered noble dress with graceful drapery, tailored sleeves, and subtle aristocratic ornamentation. The outfit should communicate ancient prestige, wealth, and political importance. No headgear of any kind. No armor, weapons, crowns, laurel wreaths, or full ceremonial imperial regalia.",
-  "status": "failed",
-  "descriptionSource": "portrait_prompt_fallback",
-  "retryEligible": true,
-  "error": "{\"error\":{\"message\":\"Model \\\"zai-org/glm-5.2\\\" does not support image inputs. Remove image content or choose a multimodal model.\",\"type\":\"invalid_request_error\",\"param\":\"messages\",\"code\":\"image_input_not_supported\"}}",
-  "updatedUtc": "2026-07-18T22:03:28.0082229Z"
+  "imageSha256": "F02E81765069D7ACC5B802D753317A02C07843A8ECA7856C15EE293CD713AA78",
+  "description": "Purple opaque floor-length gown with low square neckline, fitted bodice, elbow sleeves and gold woven floral borders, cream central underlayer, paired round shoulder brooches and purple-stone girdle, cream gold-edged wrap on the arms and purple-brown closed shoes. No headgear, armour or weapons.",
+  "status": "completed",
+  "descriptionSource": "agent_vision",
+  "retryEligible": false,
+  "error": "",
+  "updatedUtc": "2026-10-08T04:40:44.195Z"
 }

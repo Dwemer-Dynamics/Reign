@@ -3,11 +3,11 @@
   "heroStringId": "reign_court_castle_S2_child_1",
   "characterName": "Miroavan Drovaevich",
   "imagePath": "portrait.png",
-  "imageSha256": "E6CE3746C9868C74B0D06F878FEB3F25EF8C84CD5072F7AF20C6B5FB164B1DDA",
-  "description": "Culturally appropriate everyday Sturgian high-noble attire inspired by wealthy medieval Rus aristocracy. Use richly woven wool, fine linen, elegant long coats or kaftans, tasteful embroidery, restrained fur trim, and expertly crafted belts or clasps. Men should wear a stately long noble coat layered over a fine embroidered shirt and tailored trousers. Women should wear a richly cut long dress or overdress with embroidered cuffs, collar, and hem, paired with a fitted outer garment or elegant shoulder layer. The outfit should feel imposing, expensive, and suited to the daily life of a powerful northern noble. No headgear of any kind. No armor, weapons, crowns, full ceremonial regalia, or extravagant fur mantles.",
-  "status": "failed",
-  "descriptionSource": "portrait_prompt_fallback",
-  "retryEligible": true,
-  "error": "{\"error\":{\"message\":\"Model \\\"zai-org/glm-5.2\\\" does not support image inputs. Remove image content or choose a multimodal model.\",\"type\":\"invalid_request_error\",\"param\":\"messages\",\"code\":\"image_input_not_supported\"}}",
-  "updatedUtc": "2026-07-18T22:03:32.6175100Z"
+  "imageSha256": "4B64F7B192FE7BFAF1264392A81DE9CE80E39088255D567DDB23CA1514A66838",
+  "description": "Miroavan wears a dark navy long wool noble coat over a cream linen shirt or tunic. Intricate gold scrolling and geometric borders trace the coat opening, cuffs and hem; dark blue embroidery decorates the under-shirt collar and vertical neckline. A dark brown leather belt with a round decorated metal buckle has a long hanging end bearing smaller circular ornaments. Dark trousers and tall brown leather boots complete the layered outfit. The blue coat sleeves are substantial but no armor is present. One hand rests near his belt while the other hangs naturally. His braided crown and shaved sides are uncovered; there is no weapon or crown.",
+  "status": "completed",
+  "descriptionSource": "agent_vision",
+  "retryEligible": false,
+  "error": "",
+  "updatedUtc": "2026-10-08T00:36:06.532Z"
 }

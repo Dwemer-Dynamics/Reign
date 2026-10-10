@@ -1,16 +1,90 @@
 {
   "version": 1,
+  "schema": "reign-builtin-chat-reference-guided-image-generation-culture-v1",
   "cacheKey": "Corysic_Gervecourt (reign_court_town_V8_father)",
   "heroStringId": "reign_court_town_V8_father",
   "characterObjectId": "reign_court_town_V8_father",
   "characterName": "Corysic Gervecourt",
-  "provider": "AtlasCloud",
-  "model": "xai/grok-imagine-image/edit",
-  "adapter": "atlas upload/generate/poll",
+  "worker": "worker-0",
+  "generatedOriginalPath": "C:\\Users\\speed\\.codex\\generated_images\\01a11c35-b9ad-75f1-9c21-5742fde8069d\\exec-a463c513-0e80-441e-937f-c49ee89714d3.png",
+  "sourceFileCreationUtc": "2026-10-08T21:24:57.977Z",
+  "generationRequestId": "348ddc51-190c-4113-a4a0-189b6618a5dc",
+  "generationRequestSha256": "9045160e4fdce1278ee4de143a8566bb461a124d087d2992567adf23ebf5c24c",
+  "generationReturnSha256": "92489d6047af45164774977be0bca34009bb0ef58dc1f4b67098e52e5d72fc3f",
+  "provider": "Codex built-in image_gen",
+  "model": "unknown",
+  "adapter": "old-face-identity/new-style-reference-guided",
+  "generationMode": "reference_guided",
+  "inputImages": 2,
+  "references": [
+    {
+      "id": "reign_court_town_V8_father",
+      "role": "old_identity",
+      "path": "D:\\Program Files (x86)\\Steam\\steamapps\\common\\Mount & Blade II Bannerlord\\Modules\\ReignBeta\\PortraitCache\\_shared\\Corysic_Gervecourt (reign_court_town_V8_father)\\portrait_chest.png",
+      "sha256": "34d9a80e052aa80dd11994304f782073383cf5ba4248bfcc03270723b95a494c",
+      "originalReference": {
+        "path": "D:\\Program Files (x86)\\Steam\\steamapps\\common\\Mount & Blade II Bannerlord\\Modules\\ReignBeta\\PortraitCache\\_shared\\Corysic_Gervecourt (reign_court_town_V8_father)\\portrait_chest.png",
+        "sha256": "34d9a80e052aa80dd11994304f782073383cf5ba4248bfcc03270723b95a494c"
+      }
+    },
+    {
+      "id": "reign_court_town_V8_father",
+      "role": "new_style",
+      "path": "C:\\ReignPortraitRebuild\\2026-10-07-01a11741-culture-v2\\audit\\residual-correction-phase4-001\\reign_court_town_V8_father\\predecessor-files\\_shared\\Corysic_Gervecourt (reign_court_town_V8_father)\\portrait.png",
+      "sha256": "48ec484eca26da61b2d248b32038eb3e52b1debbb7009b0e09c472464eb041df",
+      "originalReference": {
+        "path": "C:\\ReignPortraitRebuild\\2026-10-07-01a11741-culture-v2\\_shared\\Corysic_Gervecourt (reign_court_town_V8_father)\\portrait.png",
+        "sha256": "48ec484eca26da61b2d248b32038eb3e52b1debbb7009b0e09c472464eb041df"
+      }
+    }
+  ],
+  "referenceGuidedExecution": {
+    "schema": "reign-portrait-reference-guided-execution-v1",
+    "generationMode": "reference_guided",
+    "inputImages": 2,
+    "references": [
+      {
+        "id": "reign_court_town_V8_father",
+        "role": "old_identity",
+        "path": "D:\\Program Files (x86)\\Steam\\steamapps\\common\\Mount & Blade II Bannerlord\\Modules\\ReignBeta\\PortraitCache\\_shared\\Corysic_Gervecourt (reign_court_town_V8_father)\\portrait_chest.png",
+        "sha256": "34d9a80e052aa80dd11994304f782073383cf5ba4248bfcc03270723b95a494c",
+        "originalReference": {
+          "path": "D:\\Program Files (x86)\\Steam\\steamapps\\common\\Mount & Blade II Bannerlord\\Modules\\ReignBeta\\PortraitCache\\_shared\\Corysic_Gervecourt (reign_court_town_V8_father)\\portrait_chest.png",
+          "sha256": "34d9a80e052aa80dd11994304f782073383cf5ba4248bfcc03270723b95a494c"
+        }
+      },
+      {
+        "id": "reign_court_town_V8_father",
+        "role": "new_style",
+        "path": "C:\\ReignPortraitRebuild\\2026-10-07-01a11741-culture-v2\\audit\\residual-correction-phase4-001\\reign_court_town_V8_father\\predecessor-files\\_shared\\Corysic_Gervecourt (reign_court_town_V8_father)\\portrait.png",
+        "sha256": "48ec484eca26da61b2d248b32038eb3e52b1debbb7009b0e09c472464eb041df",
+        "originalReference": {
+          "path": "C:\\ReignPortraitRebuild\\2026-10-07-01a11741-culture-v2\\_shared\\Corysic_Gervecourt (reign_court_town_V8_father)\\portrait.png",
+          "sha256": "48ec484eca26da61b2d248b32038eb3e52b1debbb7009b0e09c472464eb041df"
+        }
+      }
+    ],
+    "textCompositionImageInputs": 0,
+    "textVerificationSha256": "2c799fc70049aff7be1a9f87f1c2e404c793f129ebb253dfb04d35e8f7b169ff",
+    "textPromptSha256": "eb7388c9c62cb13db7df89e105f46edd1816d305961124cd7419e893712f1b3b",
+    "compositionProofSha256": "63d6e19f845a782bff48b045555c2ccf3c342a2e5b83e9be676f8570dcc9a7a5",
+    "rootCompositionReview": {
+      "path": "C:\\ReignPortraitRebuild\\2026-10-07-01a11741-culture-v2\\audit\\root-full32-prompt-composition-review-001\\reign_court_town_V8_father\\root-hybrid-composition-review.json",
+      "sha256": "53a52581de1af571ea70bd1a6e36c05fd63d85860ebbe250c895ad99d53a1693"
+    }
+  },
   "sourceSha256": "94f179066e7597af49423cc68b229ed62473663d4a683c97874a3e96f1c46e32",
-  "portraitSha256": "c4246c463c6c0ef69fa32592fb40f50e6ee30d47fde02ab62eeaabc0ea0fcb14",
-  "portraitWidth": 864,
-  "portraitHeight": 1152,
+  "portraitSha256": "ba34db4e1a9e9c54afb6656c85aeec3aa1703ed856d8959c9e6c736c4b5dabbe",
+  "portraitWidth": 1086,
+  "portraitHeight": 1448,
+  "promptSha256": "a510bbc44620258520f38db89221ca0248609711c01b5089feca5c3601cdc56d",
+  "descriptionSha256": "dfa4a425e1b0064a488401465bacdeb2334dd446ec52324e1e9fae574b696728",
+  "cultureId": "vlandia",
+  "cultureReferenceKey": "vlandia",
+  "cultureReference": "Western European regional appearance, drawing on French, Norman and neighboring continental European populations.",
+  "cultureLayerFile": "portrait_facial_culture_vlandia.txt",
+  "cultureLayerFullText": "FACIAL CULTURAL APPEARANCE — VLANDIAN\nStored cultureId: vlandia.\nRegional reference: Western European regional appearance, drawing on French, Norman and neighboring continental European populations.\nCreate a believable real human face with this regional appearance. Apply the regional reference positively to facial appearance, facial structure and complexion; it is not only a clothing, setting or background instruction.\nBlend the regional reference with the individual facial description. Where simplified native geometry or game-renderer shading differs from this regional appearance, use a plausible natural blend while retaining recognizable individual traits: face outline, relative proportions, eyes, brows, nose, mouth, jaw and chin. Preserve the described hair identity, arrangement and texture, facial-hair pattern, eye character, visible scars and markings; do not invent new distinguishing marks.\nThese regional populations contain substantial individual variation. Do not give every member the same face, impose a universal skin, hair or eye color, or replace the written individual identity with a generic regional stereotype. Preserve source-grounded differences and natural human asymmetry.\nKeep the exact authored age and the independent native weight and build values. This layer applies to facial appearance and realistic complexion interpretation, not body size, muscularity, garment coverage or social rank. Every complete composition, clothing, confidence, photographic, output and physique modifier remains in effect. Do not print this reference or any metadata in the image.",
+  "cultureLayerSha256": "77a6dbb1bd314a24109b422f0915f72f039bc2b6dca67be010b5ea97720a4e88",
   "physicalConfidence": {
     "definition": "physical_confidence",
     "score": 71,
@@ -21,7 +95,10 @@
     "confidenceWeight": 0.25,
     "source": "shipped_profile_library"
   },
+  "confidenceCoverageOverride": null,
   "derivativesReady": true,
   "derivativeError": "",
-  "generatedUtc": "2026-07-17T18:24:20.2980394Z"
+  "generatedUtc": "2026-10-08T21:25:22.347Z",
+  "serverSigned": false,
+  "derivativeReportSha256": "15d274fa27248e032cbeca8cf121fbc8b3db8986f922a3828fdca2d6577aa760"
 }

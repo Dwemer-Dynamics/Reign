@@ -16,8 +16,13 @@ using TaleWorlds.Library;
 
 namespace ReignBeta.UI.ViewModels
 {
-    public sealed class ReignCourtNobleMatterScreenVM : ViewModel
+    public sealed class ReignCourtNobleMatterScreenVM : ViewModel, IReignActionHost
     {
+        private ReignActionComposerVM _composer;
+        public ReignActionComposerVM Composer => _composer ?? (_composer = new ReignActionComposerVM(() => { OnPropertyChanged(nameof(InputText)); OnPropertyChanged(nameof(CanSend)); }));
+        [DataSourceProperty] public string ActionComposerId => Composer.Id;
+        public IReadOnlyList<Hero> ActionParticipants => ActiveAudienceHeroes().ToList();
+        public bool ActionBusy => Busy || DecisionComplete;
         private const int MaxActiveParticipants = 4;
         private const int MaxCourtAttendees = 25;
 
@@ -184,14 +189,10 @@ namespace ReignBeta.UI.ViewModels
         }
         [DataSourceProperty] public string InputText
         {
-            get { return _inputText; }
+            get { return Composer.State.Text; }
             set
             {
-                string next = value ?? string.Empty;
-                if (_inputText == next) return;
-                _inputText = next;
-                OnPropertyChangedWithValue(next);
-                OnPropertyChanged(nameof(CanSend));
+                Composer.SetText(value);
             }
         }
         [DataSourceProperty] public int ChatScrollVersion
@@ -207,7 +208,7 @@ namespace ReignBeta.UI.ViewModels
         internal string ScenePreparationError => _scene.Error;
         internal string ScenePreparationStatus => _scene.Status;
         internal JObject ScenePreparationEvidence => _scene.Evidence;
-        public override void OnFinalize() { _scene.Close(); base.OnFinalize(); }
+        public override void OnFinalize() { ReignActionBuilder.CloseFor(this); _composer?.Dispose(); _scene.Close(); base.OnFinalize(); }
         internal string AutomationTranscript => string.Join("\n", Transcript.Select(x => x.Speaker + ": " + x.Text));
         internal int AutomationExpectedReplyCount => Math.Max(1, _matter.Participants.Count);
         internal bool AutomationNaturalConversationComplete => _conversationSendRevision > 0
@@ -250,15 +251,20 @@ namespace ReignBeta.UI.ViewModels
         public void ExecuteContinue() { if (CanContinue) _close?.Invoke(); }
         public void ExecuteSend()
         {
-            string text = (InputText ?? string.Empty).Trim();
-            if (!CanSend || text.Length == 0) return;
+            string text = InputText ?? string.Empty;
+            if (!CanSend || string.IsNullOrWhiteSpace(text)) return;
+            string contribution = "noble_input_" + Guid.NewGuid().ToString("N");
+            try { ReignBeta.Runtime.ReignConversationInputJournal.Save(ReignServerClient.GetCampaignId(),
+                ReignBeta.Campaign.ReignWorldHistoryCampaignBehavior.Instance?.TimelineId ?? "main", Hero.MainHero?.StringId ?? "", contribution, text); }
+            catch (Exception ex) { StatusText = "Your message could not be saved locally: " + ex.Message; return; }
+            var action = Composer.State.Draft == null ? null : ReignBeta.Actions.ReignActionService.Copy(Composer.State.Draft);
             InputText = string.Empty;
             int conversationRevision = ++_conversationSendRevision;
             _completedConversationRevision = 0;
             _conversationCompletedReplyCount = 0;
             _conversationExpectedReplyCount = Math.Max(1, ActiveAudienceHeroes().Count());
             AddTranscriptLine("You", text, "player");
-            _ = RequestReactionAsync("conversation", string.Empty, text, conversationRevision);
+            _ = RequestReactionAsync("conversation", string.Empty, text, conversationRevision, action, contribution);
         }
 
         internal bool TryAutomationAction(string action, string value, out string error)
@@ -318,7 +324,7 @@ namespace ReignBeta.UI.ViewModels
         }
 
         private async Task RequestReactionAsync(string phase, string outcome, string playerText,
-            int conversationRevision = 0)
+            int conversationRevision = 0, Reign.Core.Contracts.Actions.ActionAgreement action = null, string contributionId = "")
         {
             Busy = true;
             bool reactionCompleted = false;
@@ -342,10 +348,11 @@ namespace ReignBeta.UI.ViewModels
                     ReignNobleMatterParticipant participant = _matter.Participants.FirstOrDefault(x => x.HeroId == speaker.StringId);
                     JObject context = await ReignMainThread.InvokeAsync(() => BuildConversationContext(
                         phase, outcome, speaker, participant, speakers)).ConfigureAwait(false);
+                    if (contributionId.Length > 0) context["contributionId"] = contributionId;
                     ReignDialogueReply response = await ReignServerClient.RequestDialogueResponseAsync(
                         speaker, turn, string.Empty, string.Empty,
                         "noble_docket_" + _matter.MatterId + "_" + speaker.StringId + "_" + Guid.NewGuid().ToString("N"),
-                        applyNativeEncyclopediaText: false, conversationContext: context).ConfigureAwait(false);
+                        applyNativeEncyclopediaText: false, conversationContext: context, actionDraft: action?.NpcId == speaker.StringId ? action : null).ConfigureAwait(false);
                     await ReignMainThread.InvokeAsync(() =>
                     {
                         bool providerBacked = response.Ok && !string.IsNullOrWhiteSpace(response.Text);

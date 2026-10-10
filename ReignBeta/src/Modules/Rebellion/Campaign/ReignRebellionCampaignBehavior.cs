@@ -566,10 +566,31 @@ namespace ReignBeta.Campaign
         }
 
         /// <summary>
-        /// Records one lord's explicit, character-authored answer to a secret
-        /// request. The server/dialogue layer decides pledge, refusal, or report;
-        /// this method owns eligibility, idempotence, persistence, and consequences.
+        /// Checks the exact reviewed identities before the structured pledge can
+        /// enter the existing preparation system; this read never creates a plot.
         /// </summary>
+        public string StructuredPledgePreflightFailure(Hero player, Hero lord, string kingdomId, string rulerId)
+        {
+            Kingdom parent = Clan.PlayerClan?.Kingdom;
+            if (player != Hero.MainHero || Clan.PlayerClan?.Leader != player || parent == null
+                || Clan.PlayerClan == parent.RulingClan || player.IsDead || player.IsPrisoner)
+                return "Only a living, free player vassal clan leader may seek support for a rebellion.";
+            if (parent.StringId != kingdomId || parent.Leader?.StringId != rulerId)
+                return "The ruler or realm differs from the rebellion terms that were reviewed.";
+            if (lord == null || !lord.IsLord || lord.IsDead || lord.IsChild || lord.IsPrisoner
+                || lord.Clan == null || lord.Clan.IsEliminated || lord.Clan == Clan.PlayerClan || lord.Clan.Leader != lord || lord == parent.Leader)
+                return "Only the living, free leader of another noble clan can pledge support; the challenged ruler cannot.";
+            var plot = FindActivePlayerPlot();
+            if (plot == null) return "";
+            if (!Same(plot.ParentKingdomStringId, kingdomId) || !Same(plot.RulerHeroStringId, rulerId))
+                return "An unresolved preparation belongs to a different ruler or realm.";
+            if (!IsPreparationRecruitmentOpen(plot)) return "Secret recruitment is closed; use the current rebellion or summons actions.";
+            var prior = _pledges.LastOrDefault(x => x != null && Same(x.PlotId, plot.PlotId) && Same(x.ClanStringId, lord.Clan.StringId));
+            return prior != null && !Same(prior.Decision, "pledge")
+                ? "This clan has already refused or reported the current preparation; that saved decision has not changed." : "";
+        }
+
+        /// <summary>Records the lord's explicit pledge, refusal or report with native eligibility, persistence and idempotence.</summary>
         public bool TryRecordPreparationDecision(Hero player, Hero targetLord,
             string decision, string reason, string channel, string actionId,
             out string result)
@@ -1912,13 +1933,7 @@ namespace ReignBeta.Campaign
         public bool TryStartDirectedMovement(Kingdom kingdom, Clan leaderClan, IEnumerable<Clan> supporters, out string result)
         {
             result = string.Empty;
-            bool playerLeader = leaderClan == Clan.PlayerClan && leaderClan?.Leader == Hero.MainHero;
-            bool validVassal = kingdom != null && leaderClan?.Kingdom == kingdom
-                && leaderClan != kingdom.RulingClan && leaderClan.Leader != null
-                && !leaderClan.Leader.IsDead && !leaderClan.Leader.IsPrisoner;
-            result = DirectedMovementPreflightFailure(playerLeader, validVassal,
-                kingdom != null && HasActiveMovement(kingdom),
-                kingdom != null && IsRealmOnCooldown(kingdom, CurrentDay()));
+            result = DeclarationPreflightFailure(kingdom, leaderClan, kingdom?.Leader);
             if (!string.IsNullOrWhiteSpace(result))
             {
                 return false;
@@ -1947,6 +1962,23 @@ namespace ReignBeta.Campaign
             }
             result = "You challenged " + (kingdom.Leader?.Name?.ToString() ?? "the ruler") + " and began a rebellion for the throne.";
             return true;
+        }
+
+        public string DeclarationPreflightFailure(Kingdom kingdom, Clan leaderClan, Hero addressedRuler)
+        {
+            bool playerLeader = leaderClan == Clan.PlayerClan && leaderClan?.Leader == Hero.MainHero;
+            bool validVassal = kingdom != null && leaderClan?.Kingdom == kingdom
+                && leaderClan != kingdom.RulingClan && leaderClan.Leader != null
+                && !leaderClan.Leader.IsDead && !leaderClan.Leader.IsPrisoner;
+            string failure = DirectedMovementPreflightFailure(playerLeader, validVassal,
+                kingdom != null && HasActiveMovement(kingdom), kingdom != null && IsRealmOnCooldown(kingdom, CurrentDay()));
+            if (failure.Length > 0) return failure;
+            if (addressedRuler == null || addressedRuler != kingdom.Leader)
+                return "The declaration must address the current ruler of the challenged realm.";
+            var plot = FindActivePlayerPlot();
+            if (plot != null && (!Same(plot.ParentKingdomStringId, kingdom.StringId) || !Same(plot.RulerHeroStringId, addressedRuler.StringId)))
+                return "The saved rebellion preparation belongs to a different ruler or realm.";
+            return "";
         }
 
         private static string DirectedMovementPreflightFailure(bool playerLeader,

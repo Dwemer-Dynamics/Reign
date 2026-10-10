@@ -1,16 +1,90 @@
 {
   "version": 1,
+  "schema": "reign-builtin-chat-reference-guided-image-generation-culture-v1",
   "cacheKey": "Vulthir (lord_7_6)",
   "heroStringId": "lord_7_6",
   "characterObjectId": "lord_7_6",
   "characterName": "Vulthir",
-  "provider": "AtlasCloud",
-  "model": "xai/grok-imagine-image/edit",
-  "adapter": "atlas upload/generate/poll",
-  "sourceSha256": "16c5331d0741070edd2b4e087bed8c4d33ee07cef3b689ca603a8c8da70ced92",
-  "portraitSha256": "92279165975a12a364e7966ca37c1af55c53ab766f9ba5a6e231922931c31f42",
-  "portraitWidth": 832,
-  "portraitHeight": 1248,
+  "worker": "worker-3",
+  "generatedOriginalPath": "C:\\Users\\speed\\.codex\\generated_images\\01a11c35-ffed-7141-9578-6b68f5fc5978\\exec-c00e22c5-4192-4499-9f6b-1eff16cf03c8.png",
+  "sourceFileCreationUtc": "2026-10-08T21:12:16.075Z",
+  "generationRequestId": "a77b102a-5c22-4c20-b2fa-b748790d37a2",
+  "generationRequestSha256": "4f193964ff5617079a0238772f9e47d34551bfa24d02d98c43ead5fafa40f062",
+  "generationReturnSha256": "f3f49e5d1b84f4a155f6cf8bce4c28c24ae9a477323dd5853479a6b651ae27cc",
+  "provider": "Codex built-in image_gen",
+  "model": "unknown",
+  "adapter": "old-face-identity/new-style-reference-guided",
+  "generationMode": "reference_guided",
+  "inputImages": 2,
+  "references": [
+    {
+      "id": "lord_7_6",
+      "role": "old_identity",
+      "path": "D:\\Program Files (x86)\\Steam\\steamapps\\common\\Mount & Blade II Bannerlord\\Modules\\ReignBeta\\PortraitCache\\_shared\\Vulthir (lord_7_6)\\portrait_chest.png",
+      "sha256": "a2a22cda73668e79f8571fbb08aa04618d93424c442984c022cc446ebd543c9f",
+      "originalReference": {
+        "path": "D:\\Program Files (x86)\\Steam\\steamapps\\common\\Mount & Blade II Bannerlord\\Modules\\ReignBeta\\PortraitCache\\_shared\\Vulthir (lord_7_6)\\portrait_chest.png",
+        "sha256": "a2a22cda73668e79f8571fbb08aa04618d93424c442984c022cc446ebd543c9f"
+      }
+    },
+    {
+      "id": "lord_7_6",
+      "role": "new_style",
+      "path": "C:\\ReignPortraitRebuild\\2026-10-07-01a11741-culture-v2\\audit\\residual-correction-phase4-001\\lord_7_6\\predecessor-files\\_shared\\Vulthir (lord_7_6)\\portrait.png",
+      "sha256": "53a6c8385dca5876c2788a9fad9d65e84426eddecbb687d12ee75fe6754a6a9c",
+      "originalReference": {
+        "path": "C:\\ReignPortraitRebuild\\2026-10-07-01a11741-culture-v2\\_shared\\Vulthir (lord_7_6)\\portrait.png",
+        "sha256": "53a6c8385dca5876c2788a9fad9d65e84426eddecbb687d12ee75fe6754a6a9c"
+      }
+    }
+  ],
+  "referenceGuidedExecution": {
+    "schema": "reign-portrait-reference-guided-execution-v1",
+    "generationMode": "reference_guided",
+    "inputImages": 2,
+    "references": [
+      {
+        "id": "lord_7_6",
+        "role": "old_identity",
+        "path": "D:\\Program Files (x86)\\Steam\\steamapps\\common\\Mount & Blade II Bannerlord\\Modules\\ReignBeta\\PortraitCache\\_shared\\Vulthir (lord_7_6)\\portrait_chest.png",
+        "sha256": "a2a22cda73668e79f8571fbb08aa04618d93424c442984c022cc446ebd543c9f",
+        "originalReference": {
+          "path": "D:\\Program Files (x86)\\Steam\\steamapps\\common\\Mount & Blade II Bannerlord\\Modules\\ReignBeta\\PortraitCache\\_shared\\Vulthir (lord_7_6)\\portrait_chest.png",
+          "sha256": "a2a22cda73668e79f8571fbb08aa04618d93424c442984c022cc446ebd543c9f"
+        }
+      },
+      {
+        "id": "lord_7_6",
+        "role": "new_style",
+        "path": "C:\\ReignPortraitRebuild\\2026-10-07-01a11741-culture-v2\\audit\\residual-correction-phase4-001\\lord_7_6\\predecessor-files\\_shared\\Vulthir (lord_7_6)\\portrait.png",
+        "sha256": "53a6c8385dca5876c2788a9fad9d65e84426eddecbb687d12ee75fe6754a6a9c",
+        "originalReference": {
+          "path": "C:\\ReignPortraitRebuild\\2026-10-07-01a11741-culture-v2\\_shared\\Vulthir (lord_7_6)\\portrait.png",
+          "sha256": "53a6c8385dca5876c2788a9fad9d65e84426eddecbb687d12ee75fe6754a6a9c"
+        }
+      }
+    ],
+    "textCompositionImageInputs": 0,
+    "textVerificationSha256": "af0c72661d6921eb0123ca6047ad0d3ab3befa3b584eef621aea13fec6f1317d",
+    "textPromptSha256": "ffe0c089221526a577b754f2c13eb202bedba69c08ce3cd3abb4e6649643aa21",
+    "compositionProofSha256": "0523256850c05df76cf5fbf0d7cc76e2e4575b7067d7b23682d33a0c7dffaf62",
+    "rootCompositionReview": {
+      "path": "C:\\ReignPortraitRebuild\\2026-10-07-01a11741-culture-v2\\audit\\root-full32-prompt-composition-review-001\\lord_7_6\\root-hybrid-composition-review.json",
+      "sha256": "f1e3bde6fa7ac71019960805b1dc70f2930921ff457d110fd79608c43fc1f1a8"
+    }
+  },
+  "sourceSha256": "058c02b4ce2f6392ecfe89457253db9b4d3b76d79fc3d05e254f50ee80ec0468",
+  "portraitSha256": "a4eb1f9f25e169403b63469e779f1d0fee04e62774ca085ace0426a69090aba3",
+  "portraitWidth": 1086,
+  "portraitHeight": 1448,
+  "promptSha256": "619472bf7fbbe714304ffa61afe9e7cefaced9c5942cb4db84be0af51c85e6cc",
+  "descriptionSha256": "9029d75f77f8de172ebbc76960ec4e7fe3d2acaec4a2290430c7e6862021c92c",
+  "cultureId": "nord",
+  "cultureReferenceKey": "nord",
+  "cultureReference": "Scandinavian regional appearance, drawing on Norwegian, Swedish and Danish populations.",
+  "cultureLayerFile": "portrait_facial_culture_nord.txt",
+  "cultureLayerFullText": "FACIAL CULTURAL APPEARANCE — NORD\nStored cultureId: nord.\nRegional reference: Scandinavian regional appearance, drawing on Norwegian, Swedish and Danish populations.\nCreate a believable real human face with this regional appearance. Apply the regional reference positively to facial appearance, facial structure and complexion; it is not only a clothing, setting or background instruction.\nBlend the regional reference with the individual facial description. Where simplified native geometry or game-renderer shading differs from this regional appearance, use a plausible natural blend while retaining recognizable individual traits: face outline, relative proportions, eyes, brows, nose, mouth, jaw and chin. Preserve the described hair identity, arrangement and texture, facial-hair pattern, eye character, visible scars and markings; do not invent new distinguishing marks.\nThese regional populations contain substantial individual variation. Do not give every member the same face, impose a universal skin, hair or eye color, or replace the written individual identity with a generic regional stereotype. Preserve source-grounded differences and natural human asymmetry.\nKeep the exact authored age and the independent native weight and build values. This layer applies to facial appearance and realistic complexion interpretation, not body size, muscularity, garment coverage or social rank. Every complete composition, clothing, confidence, photographic, output and physique modifier remains in effect. Do not print this reference or any metadata in the image.",
+  "cultureLayerSha256": "0d23cf188ae643b2c440240e4641793e87b7bcb0fd682d5eb0ceaf5e2127ae0f",
   "physicalConfidence": {
     "definition": "physical_confidence",
     "score": 50,
@@ -21,7 +95,10 @@
     "confidenceWeight": 0.25,
     "source": "neutral_fallback"
   },
+  "confidenceCoverageOverride": null,
   "derivativesReady": true,
   "derivativeError": "",
-  "generatedUtc": "2026-07-17T19:21:48.4013902Z"
+  "generatedUtc": "2026-10-08T21:12:43.229Z",
+  "serverSigned": false,
+  "derivativeReportSha256": "42cb8728f129190257ed253e3125d390377e9f8a0476ff21ee8acd740ac50ed1"
 }

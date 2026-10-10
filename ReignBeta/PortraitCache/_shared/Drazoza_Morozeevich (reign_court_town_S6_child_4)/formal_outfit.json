@@ -3,11 +3,11 @@
   "heroStringId": "reign_court_town_S6_child_4",
   "characterName": "Drazoza Morozeevich",
   "imagePath": "portrait.png",
-  "imageSha256": "B7FCB814C9E1172292AD907F4080D1F82B26AC6D7B836CB936F6710292AA0D86",
-  "description": "Culturally appropriate everyday Sturgian minor-lord attire inspired by refined medieval Rus and Slavic noble clothing. Men should wear a well-made long shirt beneath a tailored wool kaftan or long belted coat, decorated with fine geometric embroidery and quality trim. Women should wear a long embroidered shift with an elegant wool overdress or noble coat-dress, secured with a richly woven sash. Include subtle fur trim around collars or cuffs, tasteful clasps, and better-quality fabric than a landowner would wear. The clothing should remain practical for a northern climate while clearly showing noble rank. No headgear of any kind. No armor, weapons, crowns, ceremonial robes, or oversized fur displays.",
-  "status": "failed",
-  "descriptionSource": "portrait_prompt_fallback",
-  "retryEligible": true,
-  "error": "{\"error\":{\"message\":\"Model \\\"zai-org/glm-5.2\\\" does not support image inputs. Remove image content or choose a multimodal model.\",\"type\":\"invalid_request_error\",\"param\":\"messages\",\"code\":\"image_input_not_supported\"}}",
-  "updatedUtc": "2026-07-18T22:03:27.8077363Z"
+  "imageSha256": "7E311350C926638BC0A97B2466836709062FF1D8C2B61B8C4654FF2114F18E61",
+  "description": "Opaque floor-length navy blue court gown with cream under-skirt panel, gold geometric embroidery along low square neckline, shoulder straps, bodice, belt and hems. Both outer gown sleeves end at the elbows with soft brown fur edging. Blue-grey gold-bordered fringed shawl drapes around the forearms independently of sleeves. Plain round brooches at the shoulder straps, tied patterned belt at waist, complete brown leather shoes below the hem. Both hands rest clearly in front and the face is uncovered. Background is plain softly blurred stone columns and simple dark wooden doorway, no banner or heraldic wall hanging.",
+  "status": "completed",
+  "descriptionSource": "agent_vision",
+  "retryEligible": false,
+  "error": "",
+  "updatedUtc": "2026-10-08T10:14:49.544Z"
 }

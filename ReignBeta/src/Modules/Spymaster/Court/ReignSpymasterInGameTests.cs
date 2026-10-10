@@ -102,6 +102,18 @@ namespace ReignBeta.Court
                         && immutable.Contains("DailyNetIncome") && immutable.Contains("Items"),
                         "The immutable land snapshot contains all economy-view-equivalent ownership, governor, food, loyalty, security, military, construction, income, and market fields.",
                         JObject.Parse(immutable));
+                    var constructionUnits = new ReignSettlementSupplySnapshot
+                    {
+                        Name = "Construction report unit fixture",
+                        CurrentConstruction = "Siege Workshop",
+                        CurrentConstructionProgress = 270.9f
+                    };
+                    string constructionReport = BuildSettlementReport(constructionUnits);
+                    AddSpyAssertion(assertions, "land_report_construction_units",
+                        constructionReport.Contains("construction points") && !constructionReport.Contains("%"),
+                        "Native building progress is an accumulated construction-point value, not a percentage.",
+                        new JObject { ["nativeProgress"] = constructionUnits.CurrentConstructionProgress,
+                            ["report"] = constructionReport });
                 }
 
                 EnsureGoldForSpyTest(100000);

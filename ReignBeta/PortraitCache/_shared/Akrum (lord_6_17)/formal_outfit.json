@@ -3,11 +3,11 @@
   "heroStringId": "lord_6_17",
   "characterName": "Akrum",
   "imagePath": "portrait.png",
-  "imageSha256": "E9BCC1FF126E1A647A3A5A0FF9F8F759DC3444FBEE76582121861E1558013AA1",
-  "description": "Culturally appropriate everyday Khuzait minor-lord attire inspired by refined medieval Turkic and Mongol steppe noble clothing. Men should wear a tailored crossed-front coat or deel with refined woven trim, a decorated sash, layered sleeves, and high-quality trousers. Women should wear an elegant long robe or fitted steppe coat over a fine underdress, with carefully worked edging and decorative textile details. Include restrained cloud, knot, or geometric patterns and a limited amount of practical fur trim. The clothing should remain mobile and functional while clearly showing noble status. No headgear of any kind. No fur hats, caps, hoods, armor, weapons, crowns, or ceremonial costume.",
-  "status": "failed",
-  "descriptionSource": "portrait_prompt_fallback",
-  "retryEligible": true,
-  "error": "{\"error\":{\"message\":\"Model \\\"zai-org/glm-5.2\\\" does not support image inputs. Remove image content or choose a multimodal model.\",\"type\":\"invalid_request_error\",\"param\":\"messages\",\"code\":\"image_input_not_supported\"}}",
-  "updatedUtc": "2026-07-18T22:03:24.2578203Z"
+  "imageSha256": "B978C0E6CDD736AE2F4C7FA31B9EAB2A286338ED907266EC76145D66317D675F",
+  "description": "An opaque dark teal crossed-front deel-style coat has broad brown and gold-toned woven borders, geometric or cloud-like embroidered shoulder details, and three-quarter outer sleeves over cream full-length undersleeves. A broad brown decorated sash with ornamental metal fastenings secures the waist. Brown loose trousers and tall brown leather boots are visible. No headgear, armor, or weapon is present.",
+  "status": "completed",
+  "descriptionSource": "agent_vision",
+  "retryEligible": false,
+  "error": "",
+  "updatedUtc": "2026-10-07T20:23:47.179Z"
 }

@@ -241,9 +241,7 @@
                             <Widget WidthSizePolicy="Fixed" HeightSizePolicy="CoverChildren"
                                     SuggestedWidth="845"
                                     HorizontalAlignment="Left"
-                                    IsVisible="@IsPlayerLine"
-                                    Sprite="BlankWhiteSquare_9"
-                                    Color="#1A1917FF">
+                                    IsVisible="@IsPlayerLine">
                               <Children>
                                 <TextWidget WidthSizePolicy="StretchToParent" HeightSizePolicy="Fixed"
                                         SuggestedHeight="28"
@@ -269,9 +267,7 @@
                             <Widget WidthSizePolicy="Fixed" HeightSizePolicy="CoverChildren"
                                     SuggestedWidth="915"
                                     HorizontalAlignment="Right"
-                                    IsVisible="@IsNpcLine"
-                                    Sprite="BlankWhiteSquare_9"
-                                    Color="#171717FF">
+                                    IsVisible="@IsNpcLine">
                               <Children>
                                 <TextWidget WidthSizePolicy="StretchToParent" HeightSizePolicy="Fixed"
                                         SuggestedHeight="28"
@@ -341,14 +337,14 @@
                     SuggestedWidth="808" SuggestedHeight="161"
                     MarginLeft="558" MarginTop="687">
               <Children>
-                <EditableTextWidget Id="CorrespondenceInput"
+                <ReignActionEditableTextWidget Id="CorrespondenceInput"
                         WidthSizePolicy="StretchToParent" HeightSizePolicy="StretchToParent"
                         MarginLeft="15" MarginRight="15" MarginTop="13" MarginBottom="14"
-                        Brush="DefaultText" Brush.Font="ReignSerifDynamic"
+                        Brush="Reign.Chat.Composer.18" Brush.Font="ReignSerifDynamic"
                         Brush.FontSize="18"
                         Brush.TextHorizontalAlignment="Left"
                         Brush.FontColor="#C5BDAFFF"
-                        Text="@InputText" MaxLength="2147483647" />
+                        Text="@InputText" ComposerId="@ActionComposerId" MaxLength="2147483647" />
               </Children>
             </Widget>
 

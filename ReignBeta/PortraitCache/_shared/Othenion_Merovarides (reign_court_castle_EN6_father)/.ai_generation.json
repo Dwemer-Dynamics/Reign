@@ -1,16 +1,90 @@
 {
   "version": 1,
+  "schema": "reign-builtin-chat-reference-guided-image-generation-culture-v1",
   "cacheKey": "Othenion_Merovarides (reign_court_castle_EN6_father)",
   "heroStringId": "reign_court_castle_EN6_father",
   "characterObjectId": "reign_court_castle_EN6_father",
   "characterName": "Othenion Merovarides",
-  "provider": "AtlasCloud",
-  "model": "xai/grok-imagine-image/edit",
-  "adapter": "atlas upload/generate/poll",
+  "worker": "worker-2",
+  "generatedOriginalPath": "C:\\Users\\speed\\.codex\\generated_images\\01a11c35-ffed-7141-9578-6b68f5fc5978\\exec-af1a07e8-959e-41cf-95a3-043a11e9e88d.png",
+  "sourceFileCreationUtc": "2026-10-08T21:17:18.591Z",
+  "generationRequestId": "babf462e-5d82-422c-be64-abb6f6578908",
+  "generationRequestSha256": "5dc535b4c7210ec8dc637c3d8e4d6ad0a9a377138a6d20b3048de3b0c4edaaa2",
+  "generationReturnSha256": "53b71555a13418346698b59152591dc4bbade279c1bbbabad53a8cdb4c61f78c",
+  "provider": "Codex built-in image_gen",
+  "model": "unknown",
+  "adapter": "old-face-identity/new-style-reference-guided",
+  "generationMode": "reference_guided",
+  "inputImages": 2,
+  "references": [
+    {
+      "id": "reign_court_castle_EN6_father",
+      "role": "old_identity",
+      "path": "D:\\Program Files (x86)\\Steam\\steamapps\\common\\Mount & Blade II Bannerlord\\Modules\\ReignBeta\\PortraitCache\\_shared\\Othenion_Merovarides (reign_court_castle_EN6_father)\\portrait_chest.png",
+      "sha256": "35c3b5d789879f91fd6579fb46529e8b93959d2057c0c79b4d60016eff1d1812",
+      "originalReference": {
+        "path": "D:\\Program Files (x86)\\Steam\\steamapps\\common\\Mount & Blade II Bannerlord\\Modules\\ReignBeta\\PortraitCache\\_shared\\Othenion_Merovarides (reign_court_castle_EN6_father)\\portrait_chest.png",
+        "sha256": "35c3b5d789879f91fd6579fb46529e8b93959d2057c0c79b4d60016eff1d1812"
+      }
+    },
+    {
+      "id": "reign_court_castle_EN6_father",
+      "role": "new_style",
+      "path": "C:\\ReignPortraitRebuild\\2026-10-07-01a11741-culture-v2\\audit\\residual-correction-phase4-001\\reign_court_castle_EN6_father\\predecessor-files\\_shared\\Othenion_Merovarides (reign_court_castle_EN6_father)\\portrait.png",
+      "sha256": "d8a38d698d6b4ff0fb683e3dfbf04ab5ad834ea141a9141a3cad5a94428e964d",
+      "originalReference": {
+        "path": "C:\\ReignPortraitRebuild\\2026-10-07-01a11741-culture-v2\\_shared\\Othenion_Merovarides (reign_court_castle_EN6_father)\\portrait.png",
+        "sha256": "d8a38d698d6b4ff0fb683e3dfbf04ab5ad834ea141a9141a3cad5a94428e964d"
+      }
+    }
+  ],
+  "referenceGuidedExecution": {
+    "schema": "reign-portrait-reference-guided-execution-v1",
+    "generationMode": "reference_guided",
+    "inputImages": 2,
+    "references": [
+      {
+        "id": "reign_court_castle_EN6_father",
+        "role": "old_identity",
+        "path": "D:\\Program Files (x86)\\Steam\\steamapps\\common\\Mount & Blade II Bannerlord\\Modules\\ReignBeta\\PortraitCache\\_shared\\Othenion_Merovarides (reign_court_castle_EN6_father)\\portrait_chest.png",
+        "sha256": "35c3b5d789879f91fd6579fb46529e8b93959d2057c0c79b4d60016eff1d1812",
+        "originalReference": {
+          "path": "D:\\Program Files (x86)\\Steam\\steamapps\\common\\Mount & Blade II Bannerlord\\Modules\\ReignBeta\\PortraitCache\\_shared\\Othenion_Merovarides (reign_court_castle_EN6_father)\\portrait_chest.png",
+          "sha256": "35c3b5d789879f91fd6579fb46529e8b93959d2057c0c79b4d60016eff1d1812"
+        }
+      },
+      {
+        "id": "reign_court_castle_EN6_father",
+        "role": "new_style",
+        "path": "C:\\ReignPortraitRebuild\\2026-10-07-01a11741-culture-v2\\audit\\residual-correction-phase4-001\\reign_court_castle_EN6_father\\predecessor-files\\_shared\\Othenion_Merovarides (reign_court_castle_EN6_father)\\portrait.png",
+        "sha256": "d8a38d698d6b4ff0fb683e3dfbf04ab5ad834ea141a9141a3cad5a94428e964d",
+        "originalReference": {
+          "path": "C:\\ReignPortraitRebuild\\2026-10-07-01a11741-culture-v2\\_shared\\Othenion_Merovarides (reign_court_castle_EN6_father)\\portrait.png",
+          "sha256": "d8a38d698d6b4ff0fb683e3dfbf04ab5ad834ea141a9141a3cad5a94428e964d"
+        }
+      }
+    ],
+    "textCompositionImageInputs": 0,
+    "textVerificationSha256": "f941d9de17a1ab9909d5e7757b42039bf0bdfa84c0707b00b24b755444081a3e",
+    "textPromptSha256": "e2b2e23a1c7c05f400ad8d4499414e056210e26967482a930004cfdede5bd97f",
+    "compositionProofSha256": "5cfcce975ec43101a1c9a5586ada73af46bba299f2b53fee92b197ee367b28b1",
+    "rootCompositionReview": {
+      "path": "C:\\ReignPortraitRebuild\\2026-10-07-01a11741-culture-v2\\audit\\root-full32-prompt-composition-review-001\\reign_court_castle_EN6_father\\root-hybrid-composition-review.json",
+      "sha256": "75cd2d1961bb37d7e0620bc1b6c2782ce7078fe3c307faf6b0e79d01a0a4bb83"
+    }
+  },
   "sourceSha256": "0e1ef27e9be5b4b4a0afceddeeee236debff030a534d6a87022e6ce4ae9abc51",
-  "portraitSha256": "ddbdc78ac32c631c483fb5b4997e29cf8ccf7d5a7d788ed4fc77a84efdbabe76",
-  "portraitWidth": 864,
-  "portraitHeight": 1152,
+  "portraitSha256": "27343c5d46e889a4efe12e7528b3a3ecb4913910d8cd5470a83dbd2de730b363",
+  "portraitWidth": 1086,
+  "portraitHeight": 1448,
+  "promptSha256": "819f2218c6acdb89b95f76969199fa744dcab0fa6fb17abc27997609cff529fe",
+  "descriptionSha256": "f70991137564f46dcf66d90ca20e41e8b4033abc30135c9d9121dc72f9adf3ef",
+  "cultureId": "empire",
+  "cultureReferenceKey": "empire",
+  "cultureReference": "Eastern Mediterranean regional appearance, drawing on Greek, Anatolian and neighboring populations.",
+  "cultureLayerFile": "portrait_facial_culture_empire.txt",
+  "cultureLayerFullText": "FACIAL CULTURAL APPEARANCE — IMPERIAL\nStored cultureId: empire.\nRegional reference: Eastern Mediterranean regional appearance, drawing on Greek, Anatolian and neighboring populations.\nCreate a believable real human face with this regional appearance. Apply the regional reference positively to facial appearance, facial structure and complexion; it is not only a clothing, setting or background instruction.\nBlend the regional reference with the individual facial description. Where simplified native geometry or game-renderer shading differs from this regional appearance, use a plausible natural blend while retaining recognizable individual traits: face outline, relative proportions, eyes, brows, nose, mouth, jaw and chin. Preserve the described hair identity, arrangement and texture, facial-hair pattern, eye character, visible scars and markings; do not invent new distinguishing marks.\nThese regional populations contain substantial individual variation. Do not give every member the same face, impose a universal skin, hair or eye color, or replace the written individual identity with a generic regional stereotype. Preserve source-grounded differences and natural human asymmetry.\nKeep the exact authored age and the independent native weight and build values. This layer applies to facial appearance and realistic complexion interpretation, not body size, muscularity, garment coverage or social rank. Every complete composition, clothing, confidence, photographic, output and physique modifier remains in effect. Do not print this reference or any metadata in the image.",
+  "cultureLayerSha256": "4ce99b540f2d8935b87d2f624a278f0c51678c9a26604ded18cf1d2eda40306e",
   "physicalConfidence": {
     "definition": "physical_confidence",
     "score": 57,
@@ -21,7 +95,10 @@
     "confidenceWeight": 0.25,
     "source": "shipped_profile_library"
   },
+  "confidenceCoverageOverride": null,
   "derivativesReady": true,
   "derivativeError": "",
-  "generatedUtc": "2026-07-17T19:07:21.3172680Z"
+  "generatedUtc": "2026-10-08T21:17:37.485Z",
+  "serverSigned": false,
+  "derivativeReportSha256": "f8710c00eb08b10965d06ef67e762d0f5a7a67354ed310972fa1a4234d0483d4"
 }

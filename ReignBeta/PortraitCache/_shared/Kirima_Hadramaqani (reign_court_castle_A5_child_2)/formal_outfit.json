@@ -3,11 +3,11 @@
   "heroStringId": "reign_court_castle_A5_child_2",
   "characterName": "Kirima Hadramaqani",
   "imagePath": "portrait.png",
-  "imageSha256": "C1AEFE1D2323CF55205A6248C084AF192931CB8AEC4DB1AF4EDA109EFAF85365",
-  "description": "Culturally appropriate everyday Aserai minor-lord attire inspired by refined medieval Arabian, North African, and limited Persian noble clothing. Men should wear a flowing robe or structured open-front coat over a fine lightweight tunic, secured with a decorated woven sash. Women should wear a long elegant dress with soft layered fabrics, shaped sleeves, graceful draping, and fine embroidery around the neckline, cuffs, and hem. Show rank through superior fabric, elegant borders, geometric embroidery, and subtle jewelry rather than excessive ornamentation. No headgear of any kind. No turbans, veils, hoods, armor, weapons, crowns, or ceremonial excess.",
-  "status": "failed",
-  "descriptionSource": "portrait_prompt_fallback",
-  "retryEligible": true,
-  "error": "{\"error\":{\"message\":\"Model \\\"zai-org/glm-5.2\\\" does not support image inputs. Remove image content or choose a multimodal model.\",\"type\":\"invalid_request_error\",\"param\":\"messages\",\"code\":\"image_input_not_supported\"}}",
-  "updatedUtc": "2026-07-18T22:03:31.3702737Z"
+  "imageSha256": "4E65175A13EAA2D0C2FF36BAAB3738ADD9103B2AF3C4D383BEDE8C4C4D333783",
+  "description": "Cream opaque low-square-neck court gown, fitted bodice, elbow-length shaped sleeves, long skirt with layered front opening below knee, warm gold-brown geometric borders at neckline, front, sleeve ends and hem. Wide decorated belt with metal medallions and small hanging chain, brown-gold fringed wrap resting along the arms, small pendant, earrings and bracelet. Both hands together in front; decorated shoes visible beneath hem, one partly covered. No headgear, armor, weapon or text.",
+  "status": "completed",
+  "descriptionSource": "agent_vision",
+  "retryEligible": false,
+  "error": "",
+  "updatedUtc": "2026-10-08T00:29:01.474Z"
 }

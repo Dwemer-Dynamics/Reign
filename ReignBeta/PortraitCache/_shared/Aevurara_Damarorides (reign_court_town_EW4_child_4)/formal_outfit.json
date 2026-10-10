@@ -3,11 +3,11 @@
   "heroStringId": "reign_court_town_EW4_child_4",
   "characterName": "Aevurara Damarorides",
   "imagePath": "portrait.png",
-  "imageSha256": "F0A29A95BFEC648FA4B36F78BAF6FF35144931786D28B4BC0B8BD2B00E0D758E",
-  "description": "Culturally appropriate everyday Calradic Imperial high-noble attire inspired by luxurious Byzantine aristocratic fashion, restrained enough for daily noble life. Use fine layered linen and wool, controlled flowing silhouettes, elegant draping, richly woven borders, small jeweled clasps, and sophisticated fabric textures. Men should wear a stately long tunic or structured noble coat over a fine undertunic, with refined belts and detailed edging. Women should wear a sophisticated layered noble dress with graceful drapery, tailored sleeves, and subtle aristocratic ornamentation. The outfit should communicate ancient prestige, wealth, and political importance. No headgear of any kind. No armor, weapons, crowns, laurel wreaths, or full ceremonial imperial regalia.",
-  "status": "failed",
-  "descriptionSource": "portrait_prompt_fallback",
-  "retryEligible": true,
-  "error": "{\"error\":{\"message\":\"Model \\\"zai-org/glm-5.2\\\" does not support image inputs. Remove image content or choose a multimodal model.\",\"type\":\"invalid_request_error\",\"param\":\"messages\",\"code\":\"image_input_not_supported\"}}",
-  "updatedUtc": "2026-07-18T22:03:24.1270134Z"
+  "imageSha256": "A2D0AA658A2B186D998B589C2EDA4F0D562E7F4A8FB238A3C49417CB54823206",
+  "description": "She wears an opaque deep plum-purple floor-length gown with a low square neckline, fitted bodice and elbow-length sleeves. Gold geometric and floral woven borders frame the neckline, bodice, sleeve ends, waist, vertical skirt opening and hem. Round gold clasps with purple centers sit at the neckline sides, and a matching jeweled round ornament centers the belt. The front opening reveals a cream patterned underdress below the waist. A broad cream wrap with gold decoration and plum-gold borders rests around her forearms and hangs at both sides. One plum closed-toe shoe with gold embroidery is visible beneath the skirt. Small earrings are visible; no headgear or weapon appears.",
+  "status": "completed",
+  "descriptionSource": "agent_vision",
+  "retryEligible": false,
+  "error": "",
+  "updatedUtc": "2026-10-07T20:22:58.913Z"
 }

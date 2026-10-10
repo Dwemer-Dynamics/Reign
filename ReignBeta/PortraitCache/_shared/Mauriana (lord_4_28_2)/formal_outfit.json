@@ -3,11 +3,11 @@
   "heroStringId": "lord_4_28_2",
   "characterName": "Mauriana",
   "imagePath": "portrait.png",
-  "imageSha256": "D640722F1A12CB84E469485959768E5A4D4EB13FBEF8F07695B0BA7F16F50F7C",
-  "description": "Culturally appropriate everyday Vlandian landowner attire inspired by practical high-medieval Norman and Frankish clothing. Use a well-made wool tunic over a linen underlayer, fitted sleeves, a sturdy leather belt, narrow trousers or chausses, and soft leather boots. For women, use a long fitted underdress with a simple but well-tailored overdress, narrow sleeves, a modest neckline, and a practical belt. The garments should appear prosperous, clean, and durable without looking aristocratic. No headgear of any kind. No armor, weapons, crowns, ceremonial robes, or fantasy elements.",
-  "status": "failed",
-  "descriptionSource": "portrait_prompt_fallback",
-  "retryEligible": true,
-  "error": "{\"error\":{\"message\":\"Model \\\"zai-org/glm-5.2\\\" does not support image inputs. Remove image content or choose a multimodal model.\",\"type\":\"invalid_request_error\",\"param\":\"messages\",\"code\":\"image_input_not_supported\"}}",
-  "updatedUtc": "2026-07-18T22:03:32.3744608Z"
+  "imageSha256": "9D9B5B8B11B1443CD65A4D56E70389C0C357B72826017A72A20A0BB4CB26B59C",
+  "description": "She wears an opaque dark reddish brown long gown with a low square neckline, fitted bodice, elbow-length sleeves and a full floor-length skirt. Narrow dark and gold floral woven borders decorate the neckline, cuffs, central skirt opening and hem. An ivory underdress shows through the skirt opening. A modest decorated belt with small round fittings marks the waist. An ivory textured wrap edged in matching brown and gold hangs around the forearms and down both sides. Plain brown leather closed shoes appear beneath the hem. Exact textile fiber is uncertain; the cloth appears substantial and woven.",
+  "status": "completed",
+  "descriptionSource": "agent_vision",
+  "retryEligible": false,
+  "error": "",
+  "updatedUtc": "2026-10-07T23:58:31.507Z"
 }

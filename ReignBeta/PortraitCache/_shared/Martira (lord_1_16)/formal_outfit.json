@@ -3,11 +3,11 @@
   "heroStringId": "lord_1_16",
   "characterName": "Martira",
   "imagePath": "portrait.png",
-  "imageSha256": "4AF1BCF6625060F60BAAF697AEB9E53521EDB2BFB61447CCFF0ACDF71F2F7C2C",
-  "description": "Culturally appropriate everyday Calradic Imperial minor-lord attire inspired by refined late Roman and Byzantine noble clothing. Men should wear a high-quality tunic or long tailored outer coat over fine linen, decorated with narrow woven borders, refined clasps, and a decorated belt. Women should wear a long elegant dress or layered tunic ensemble with shaped sleeves, graceful draping, and tasteful trim around the neckline, cuffs, and edges. The garments should feel polished, educated, urban, and wealthy without resembling full imperial ceremony. No headgear of any kind. No armor, weapons, crowns, imperial regalia, laurel wreaths, or ceremonial robes.",
-  "status": "failed",
-  "descriptionSource": "portrait_prompt_fallback",
-  "retryEligible": true,
-  "error": "{\"error\":{\"message\":\"Model \\\"zai-org/glm-5.2\\\" does not support image inputs. Remove image content or choose a multimodal model.\",\"type\":\"invalid_request_error\",\"param\":\"messages\",\"code\":\"image_input_not_supported\"}}",
-  "updatedUtc": "2026-07-18T22:03:32.0433399Z"
+  "imageSha256": "8920BDA30C242EFC69A1400F10562F7BE89E60E64268D71668EFCC0F02CE4EC7",
+  "description": "A floor-length plum-purple gown with a low square neckline, fitted opaque bodice, elbow-length sleeves and gold/red woven borders at neckline, sleeve hems, waist and vertical front. Two round shoulder brooches and a decorated round belt clasp are visible. A cream cloth wrap with matching woven borders rests around the forearms, and cream layered underskirt fabric and a patterned closed shoe show below the hem. No headgear, armor or weapon is visible.",
+  "status": "completed",
+  "descriptionSource": "agent_vision",
+  "retryEligible": false,
+  "error": "",
+  "updatedUtc": "2026-10-08T03:57:56.925Z"
 }

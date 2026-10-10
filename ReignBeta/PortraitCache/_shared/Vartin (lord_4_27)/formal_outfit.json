@@ -3,11 +3,11 @@
   "heroStringId": "lord_4_27",
   "characterName": "Vartin",
   "imagePath": "portrait.png",
-  "imageSha256": "82EA5AAEF6B0B2CAEF83905A13DF26A051F2CFC62D41D7799152DD59F2D0722D",
-  "description": "Culturally appropriate everyday Vlandian landowner attire inspired by practical high-medieval Norman and Frankish clothing. Use a well-made wool tunic over a linen underlayer, fitted sleeves, a sturdy leather belt, narrow trousers or chausses, and soft leather boots. For women, use a long fitted underdress with a simple but well-tailored overdress, narrow sleeves, a modest neckline, and a practical belt. The garments should appear prosperous, clean, and durable without looking aristocratic. No headgear of any kind. No armor, weapons, crowns, ceremonial robes, or fantasy elements.",
-  "status": "failed",
-  "descriptionSource": "portrait_prompt_fallback",
-  "retryEligible": true,
-  "error": "{\"error\":{\"message\":\"Model \\\"zai-org/glm-5.2\\\" does not support image inputs. Remove image content or choose a multimodal model.\",\"type\":\"invalid_request_error\",\"param\":\"messages\",\"code\":\"image_input_not_supported\"}}",
-  "updatedUtc": "2026-07-18T22:03:35.4565976Z"
+  "imageSha256": "EE4608441FDB2F1192C4CC2E6BC3BDDB022B3CB93216BF2BD0E96949A7C7E7BA",
+  "description": "Rust-red embroidered knee-length tunic over cream shirt, plain brown leather belt, gray-brown trousers and tall brown boots.",
+  "status": "completed",
+  "descriptionSource": "agent_vision",
+  "retryEligible": false,
+  "error": "",
+  "updatedUtc": "2026-10-08T01:12:53.839Z"
 }

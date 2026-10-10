@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Prefab>
+  <Window>
+    <Widget Id="BanterHost" WidthSizePolicy="StretchToParent" HeightSizePolicy="StretchToParent" DoNotAcceptEvents="true">
+      <Children>
+        <ReignBanterWindowWidget Type="ReignBeta.UI.Widgets.ReignBanterWindowWidget" Id="BanterPanel" WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="@PanelWidth" SuggestedHeight="@PanelHeight" HorizontalAlignment="Left" VerticalAlignment="Top" MarginLeft="@PanelLeft" MarginTop="@PanelTop" DoNotAcceptEvents="true">
+          <Children>
+            <ImageWidget Id="BanterArtwork" WidthSizePolicy="StretchToParent" HeightSizePolicy="StretchToParent" Sprite="reign_banter_panel" IsVisible="@Expanded" DoNotAcceptEvents="true" />
+            <ImageWidget Id="BanterCollapsedArtwork" WidthSizePolicy="StretchToParent" HeightSizePolicy="StretchToParent" Sprite="reign_banter_collapsed" IsVisible="@Collapsed" DoNotAcceptEvents="true" />
+            <ReignBanterWindowHandleWidget Type="ReignBeta.UI.Widgets.ReignBanterWindowHandleWidget" Id="BanterDragHandle" WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="@DragWidth" SuggestedHeight="34" MarginLeft="8" MarginTop="4" />
+            <TextWidget Id="BanterTitle" WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="@TitleWidth" SuggestedHeight="30" MarginLeft="16" MarginTop="5" Text="@Title" Brush="DefaultText" Brush.Font="ReignSerifDynamic" Brush.FontSize="20" Brush.FontColor="#A88A54FF" DoNotAcceptEvents="true" />
+            <ButtonWidget Id="MinimizeBanter" WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="80" SuggestedHeight="30" HorizontalAlignment="Right" MarginRight="64" MarginTop="6" Command.Click="ExecuteCollapse" Brush="ConversationItem.SoundBrush">
+              <Children><TextWidget WidthSizePolicy="StretchToParent" HeightSizePolicy="StretchToParent" Text="@CollapseText" Brush="DefaultText" Brush.Font="ReignSerifDynamic" Brush.FontSize="17" Brush.FontColor="#C5BDAFFF" Brush.TextHorizontalAlignment="Center" DoNotAcceptEvents="true" /></Children>
+            </ButtonWidget>
+            <ReignAutoScrollPanel Type="ReignBeta.UI.Widgets.ReignAutoScrollPanel" Id="BanterScroll" WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="@TranscriptWidth" SuggestedHeight="@TranscriptHeight" MarginLeft="15" MarginTop="40" InnerPanel="BanterClip\BanterLines" ClipRect="BanterClip" VerticalScrollbar="..\BanterScrollbar" ChatScrollVersion="@ChatScrollVersion" AutoHideScrollBars="true" MouseScrollAxis="Vertical" IsVisible="@Expanded">
+              <Children><Widget Id="BanterClip" WidthSizePolicy="StretchToParent" HeightSizePolicy="StretchToParent" MarginRight="8" ClipContents="true">
+                <Children><ListPanel Id="BanterLines" WidthSizePolicy="StretchToParent" HeightSizePolicy="CoverChildren" StackLayout.LayoutMethod="VerticalTopToBottom"><Children><TextWidget Id="BanterText" WidthSizePolicy="StretchToParent" HeightSizePolicy="CoverChildren" Text="@Transcript" Brush="DefaultText" Brush.Font="ReignSerifDynamic" Brush.FontSize="18" Brush.FontColor="#C5BDAFFF" Brush.TextHorizontalAlignment="Left" DoNotAcceptEvents="true" /></Children></ListPanel></Children>
+              </Widget></Children>
+            </ReignAutoScrollPanel>
+            <ScrollbarWidget Id="BanterScrollbar" WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="6" SuggestedHeight="@TranscriptHeight" HorizontalAlignment="Right" MarginRight="15" MarginTop="40" AlignmentAxis="Vertical" Handle="BanterScrollbarHandle" MaxValue="100" MinValue="0" IsVisible="@Expanded">
+              <Children><Widget Id="BanterScrollbarHandle" WidthSizePolicy="StretchToParent" HeightSizePolicy="Fixed" SuggestedHeight="20" Sprite="BlankWhiteSquare_9" Color="#7E6A4DFF" /></Children>
+            </ScrollbarWidget>
+            <TextWidget WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="@StatusWidth" SuggestedHeight="28" MarginLeft="16" VerticalAlignment="Bottom" MarginBottom="7" Text="@Status" IsVisible="@Expanded" Brush="DefaultText" Brush.Font="ReignSerifDynamic" Brush.FontSize="16" Brush.FontColor="#8A8883FF" DoNotAcceptEvents="true" />
+            <ButtonWidget Id="JoinBanter" WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="32" SuggestedHeight="32" HorizontalAlignment="Right" VerticalAlignment="Bottom" MarginRight="20" MarginBottom="5" IsEnabled="@CanJoin" Command.Click="ExecuteJoin" Brush="ConversationItem.SoundBrush" />
+            <ReignBanterWindowHandleWidget Type="ReignBeta.UI.Widgets.ReignBanterWindowHandleWidget" Id="BanterResizeHandle" Resize="true" WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="12" SuggestedHeight="18" HorizontalAlignment="Right" VerticalAlignment="Bottom" MarginRight="4" MarginBottom="3" IsVisible="@Expanded">
+              <Children><TextWidget WidthSizePolicy="StretchToParent" HeightSizePolicy="StretchToParent" Text="//" Brush="DefaultText" Brush.Font="ReignSerifDynamic" Brush.FontSize="12" Brush.FontColor="#7E6A4DFF" DoNotAcceptEvents="true" /></Children>
+            </ReignBanterWindowHandleWidget>
+          </Children>
+        </ReignBanterWindowWidget>
+      </Children>
+    </Widget>
+  </Window>
+</Prefab>

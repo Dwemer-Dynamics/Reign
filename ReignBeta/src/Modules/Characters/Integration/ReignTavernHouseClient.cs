@@ -40,7 +40,7 @@ namespace ReignBeta.Integration
                 ["sceneOpportunity"] = new JObject { ["private"] = true, ["exposure"] = 0.10d, ["witnessIds"] = new JArray() } };
         }
 
-        public static async Task<JObject> PostTavernHouseAsync(string operation, JObject payload)
+        public static async Task<JObject> PostTavernHouseAsync(string operation, JObject payload, Reign.Core.Contracts.Actions.ActionAgreement actionDraft = null)
         {
             try
             {
@@ -51,6 +51,7 @@ namespace ReignBeta.Integration
                     return new JObject { ["ok"] = false, ["error"] = "Local server is disabled." };
                 var request = (JObject)payload.DeepClone();
                 Hero speaker = null; var participants = new List<Hero>();
+                Action<JObject> completeAction = null;
                 if (operation == "respond")
                 {
                     await ReignMainThread.InvokeAsync(() => {
@@ -71,18 +72,30 @@ namespace ReignBeta.Integration
                             if (!new[] { "conversationSessionId", "sceneContext", "eventId", "turnId", "sceneTurnId", "groupTranscript", "transcript" }.Contains(property.Name, StringComparer.Ordinal))
                                 request[property.Name] = property.Value.DeepClone();
                         request["sceneTurnId"] = request.Value<string>("playerTurnId") ?? request.Value<string>("requestId");
+                        request["structuredActionRecipientId"] = payload.Value<string>("structuredActionRecipientId") ?? "";
                         request["turnId"] = request["sceneTurnId"]?.DeepClone();
                         var fresh = BuildTavernHousePayload(town, request.Value<string>("conversationSessionId"));
                         request["roster"] = fresh["roster"]; request["player"] = fresh["player"];
                         request["identityRoster"] = fresh["identityRoster"];
                         request["sceneOpportunity"] = fresh["sceneOpportunity"];
                         request["correlationId"] = request.Value<string>("correlationId") ?? NewCorrelationId("tavern_house", speaker.StringId);
+                        completeAction = BeginStructuredActionExchange(request, speaker, actionDraft);
                         request["channel"] = "party_chat"; request["phaseId"] = "tavern_house";
                         request["locationId"] = town.StringId; request["sceneInterface"] = "tavern_house";
                     }).ConfigureAwait(false);
-                    await AttachContextBundlesAsync(request, "party_chat", speaker, participants).ConfigureAwait(false);
+                    JObject floor = await PostJsonAsync("/tavern-house/turn-plan", request).ConfigureAwait(false);
+                    if (floor.Value<bool?>("ok") != true)
+                        return floor;
+                    if (floor.Value<bool?>("completedReplay") != true)
+                    {
+                        if (!(floor["responseOrder"] is JArray planned))
+                            throw new InvalidOperationException("The private conversation speaking plan is unavailable.");
+                        if (planned.Values<string>().Contains(speaker.StringId, StringComparer.OrdinalIgnoreCase))
+                            await AttachContextBundlesAsync(request, "party_chat", speaker, participants).ConfigureAwait(false);
+                    }
                 }
                 JObject response = await PostJsonAsync("/tavern-house/" + operation, request).ConfigureAwait(false);
+                if (completeAction != null) await ReignMainThread.InvokeAsync(() => completeAction(response)).ConfigureAwait(false);
                 if (operation == "respond" && response?.Value<bool?>("ok") == true)
                     await ReignMainThread.InvokeAsync(() => {
                         if (GetCampaignId() == request.Value<string>("campaignId") && (ReignWorldHistoryCampaignBehavior.Instance?.TimelineId ?? "main") == request.Value<string>("timelineId"))

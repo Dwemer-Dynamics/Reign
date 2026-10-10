@@ -219,7 +219,7 @@ export class GauntletRenderer {
 
     const isList = tag === "ListPanel";
     const isText = tag === "TextWidget" || tag === "RichTextWidget";
-    const isEditable = tag === "EditableTextWidget";
+    const isEditable = tag.endsWith("EditableTextWidget");
     const isButton = tag === "ButtonWidget";
     const buttonChildren = isButton ? firstChildElement(xmlNode, "Children") : null;
     const buttonTextNode = buttonChildren ? firstChildElement(buttonChildren, "TextWidget") : null;
@@ -291,6 +291,8 @@ export class GauntletRenderer {
       ) || id || tag;
       element.dataset.label = label;
       const asset = this.resolveImageAsset(xmlNode, scopedContext, label);
+      // The runtime outfit file provider draws nothing until a real PNG is ready.
+      if (tag === "ReignOutfitPortraitWidget" && !asset) element.style.visibility = "hidden";
       if (asset) {
         element.classList.add("has-asset");
         element.style.backgroundImage = cssUrl(asset);
@@ -299,7 +301,7 @@ export class GauntletRenderer {
             id,
             width: numeric(this.resolveText(xmlNode.getAttribute("SuggestedWidth"), scopedContext)),
             height: numeric(this.resolveText(xmlNode.getAttribute("SuggestedHeight"), scopedContext)),
-            useFullBody: xmlNode.getAttribute("UseFullBody") === "true"
+            useFullBody: xmlNode.getAttribute("UseFullBody") === "true" || tag === "ReignOutfitPortraitWidget"
           })}`);
         }
         if (id === "WarCouncilMap") {
@@ -418,7 +420,7 @@ export class GauntletRenderer {
       top: numeric(this.resolveText(node.getAttribute("MarginTop"), context)),
       bottom: numeric(this.resolveText(node.getAttribute("MarginBottom"), context))
     };
-    const isTextNode = node.nodeName === "TextWidget" || node.nodeName === "RichTextWidget" || node.nodeName === "EditableTextWidget";
+    const isTextNode = node.nodeName === "TextWidget" || node.nodeName === "RichTextWidget" || node.nodeName.endsWith("EditableTextWidget");
     if (isTextNode && widthPolicy === "CoverChildren") {
       element.style.whiteSpace = "pre";
       element.style.overflowWrap = "normal";
@@ -587,7 +589,7 @@ export class GauntletRenderer {
       element.style.left = `${margins.left}px`;
       element.style.right = `${margins.right}px`;
     } else if (widthPolicy === "CoverChildren") {
-      if (node.nodeName === "TextWidget" || node.nodeName === "RichTextWidget" || node.nodeName === "EditableTextWidget") {
+      if (node.nodeName === "TextWidget" || node.nodeName === "RichTextWidget" || node.nodeName.endsWith("EditableTextWidget")) {
         element.style.width = "max-content";
         element.style.minWidth = `${suggestedWidth || 1}px`;
       } else {
@@ -601,7 +603,7 @@ export class GauntletRenderer {
       element.style.top = `${margins.top}px`;
       element.style.bottom = `${margins.bottom}px`;
     } else if (heightPolicy === "CoverChildren") {
-      element.style.height = node.nodeName === "TextWidget" || node.nodeName === "RichTextWidget" || node.nodeName === "EditableTextWidget"
+      element.style.height = node.nodeName === "TextWidget" || node.nodeName === "RichTextWidget" || node.nodeName.endsWith("EditableTextWidget")
         ? "max-content"
         : "auto";
       element.style.minHeight = `${suggestedHeight || 1}px`;
@@ -678,7 +680,7 @@ export class GauntletRenderer {
     // Text uses the browser's intrinsic wrapping size. Inline action/offset spans
     // are formatting, not Gauntlet child widgets: measuring only those elements
     // discards adjacent text nodes and can freeze a multiline label to one line.
-    if (["TextWidget", "RichTextWidget", "EditableTextWidget"].includes(node.nodeName)) return;
+    if (["TextWidget", "RichTextWidget", "EditableTextWidget", "ReignActionEditableTextWidget"].includes(node.nodeName)) return;
     const children = Array.from(element.children);
     if (!children.length) return;
     const isFlow = element.classList.contains("flow");
@@ -808,6 +810,7 @@ export class GauntletRenderer {
   }
 
   resolveImageAsset(node, context, resolvedLabel) {
+    if (node.nodeName === "ReignOutfitPortraitWidget") return this.resolveText(node.getAttribute("ImagePath"), context) || "";
     const widgetAsset = this.assetByWidgetId[node.getAttribute("Id") || ""];
     if (widgetAsset) return widgetAsset;
     if (node.nodeName === "ReignEventArtWidget") return this.assetByImageId[resolvedLabel] || context.EventImageAsset || "";

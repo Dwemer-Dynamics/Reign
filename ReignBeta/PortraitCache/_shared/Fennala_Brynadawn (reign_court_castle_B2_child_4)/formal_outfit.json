@@ -3,11 +3,11 @@
   "heroStringId": "reign_court_castle_B2_child_4",
   "characterName": "Fennala Brynadawn",
   "imagePath": "portrait.png",
-  "imageSha256": "01D3F8F7C246D5834231BE645BFB00F1886D57213DE82213966E56F005754FAF",
-  "description": "Culturally appropriate everyday Battanian minor-lord attire inspired by refined Celtic and highland noble clothing. Use dense woven wool, quality linen, soft leather details, cleaner tailoring, decorative brooches, and more elaborate woven trim than ordinary landowners would possess. Men should wear a fitted tunic, practical trousers, a decorated belt, and a layered cloak fastened at the shoulder. Women should wear a long underdress with a tailored overdress, woven belt, elegant draped shawl, and restrained ornamental trim. Include subtle knotwork and geometric patterns without theatrical fantasy styling. No headgear of any kind. No armor, weapons, crowns, or ceremonial druid imagery.",
-  "status": "failed",
-  "descriptionSource": "portrait_prompt_fallback",
-  "retryEligible": true,
-  "error": "{\"error\":{\"message\":\"Model \\\"zai-org/glm-5.2\\\" does not support image inputs. Remove image content or choose a multimodal model.\",\"type\":\"invalid_request_error\",\"param\":\"messages\",\"code\":\"image_input_not_supported\"}}",
-  "updatedUtc": "2026-07-18T22:03:29.1790380Z"
+  "imageSha256": "FFDEA6D7BFADB5B2C7CD7D3ABD3A22F9CBE48734DD8307258FB910CB38896526",
+  "description": "Actual forest-green full-length opaque square-neck fitted wool overdress with gold knotwork woven trim around neckline, bodice sides, cuffs and vertical skirt edges, cream underdress visible through front walking opening, woven belt with round metal buckle, two round shoulder brooches, green-brown patterned fringed shawl resting along elbows and arms, dark plain shoes. No headgear, armor or weapon.",
+  "status": "completed",
+  "descriptionSource": "agent_vision",
+  "retryEligible": false,
+  "error": "",
+  "updatedUtc": "2026-10-08T04:21:29.830Z"
 }

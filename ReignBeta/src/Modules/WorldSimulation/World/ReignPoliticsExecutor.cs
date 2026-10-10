@@ -64,8 +64,13 @@ namespace ReignBeta.World
                         return ReignActionResult.FailTerminal(marriageFailure, "marriage_verification_failed", "state_verification");
                     }
 
-                    RecordAgreement(action, "marriage_alliance", ReadFloatTerm(action.TermsJson, "durationDays", 365f), true);
-                    marriageResult.WithEffect("treaty_recorded", "clan", claimant.StringId, claimant.Name.ToString(), "kind=marriage_alliance");
+                    // Personal marriage can include a clanless resident. A verified
+                    // marriage must not fail afterward while creating a clan receipt.
+                    if (claimant != null && kingdom != null)
+                    {
+                        RecordAgreement(action, "marriage_alliance", ReadFloatTerm(action.TermsJson, "durationDays", 365f), true);
+                        marriageResult.WithEffect("treaty_recorded", "clan", claimant.StringId, claimant.Name.ToString(), "kind=marriage_alliance");
+                    }
                     string marriageReceipt = ReignActionReceiptFormatter.BuildVerifiedReceipt(marriageResult);
                     return marriageResult.WithMessage("Verified alliance: " + marriageReceipt + ".");
 

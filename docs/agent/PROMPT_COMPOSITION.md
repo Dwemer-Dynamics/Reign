@@ -1,8 +1,14 @@
-# Conversation prompt composition, layout 9
+# Conversation prompt composition, layout 11
 
 2026-09-08. Character accuracy and attribution take precedence over token savings. This change covers the production dialogue/event envelopes used by individual, Homes/castle, party/social and office conversations, plus correspondence and the hidden action planner. Independent court-specific generators keep their own contracts; no similarity-based deletion is applied to them.
 
 ## Standing rules and applicability
+
+Layout 11 (2026-10-08) places the complete structured-action rules and catalog at the front of dialogue/event requests. All conversation-eligible action IDs, labels, movement flags, parameter keys/types/required flags and choices remain present; identical parameter definitions are stored once and actions reference zero-based parameter indexes. The main JSON example now always includes the full neutral `structuredActionDecision` on structured routes and disables the covered legacy action gate. Legacy routes retain their existing gate. Missing/malformed model output still uses bounded fail-closed recovery; prompt changes do not guarantee that a provider will never need repair.
+
+Fixed common rules precede conditional noble, room and office sections. The independently budgeted drinking packet inserts only fixed rules before character data and appends current physical state to the live suffix; core history is allocated first and retained intact. Its budget includes both portions, while aggregate preflight still measures the final messages. `drinkPromptBudget` retains core accounting and adds separate `rulesHash`/`stateHash`; `contentHash` binds both portions. The final live hash/size includes drink state.
+
+Life-event relevance still selects the same records, then renders them chronologically with source-ID tie breaking. Native history interpretation is stated once. Recent summary provenance and partial-view instructions are likewise stated once, attached to one protected summary so allocation cannot discard the policy separately. Each summary keeps its source identity, timestamps, compaction state and coverage metadata; the 30-message/30-summary windows and original storage remain unchanged. These are per-call text/layout changes; provider cache hits, billed tokens and end-to-end latency require later measurement.
 
 `PromptRuleComposition.cs` composes explicitly named requirements. A layer that needs a shared rule declares that dependency even when another layer also requires it. The rule renders once in a request. Missing rules, conflicting definitions, empty required templates and cycles fail before provider submission. Different observers, subjects, permissions, duties and exceptions retain separate content. This is not an automatic semantic deduplicator: overlapping prose in distinct character-type templates stays intact until an equivalence review and behavioral evidence justify extraction.
 
@@ -47,3 +53,11 @@ The social-signal instruction previously present only in the retired dialogue de
 
 The focused quick/offline prompt_efficiency suite explicitly executes contracts.dialogue_prompt_budget and pipeline.prompt_caching. It measures assembled commoner/noble system prefixes (45000-character bound), not a sum of selected template files. A catalog-only result is insufficient proof. The existing pipeline suite still runs the same caching contracts as part of its wider coverage.
 
+
+## Complete player narrative (2026-10-09)
+
+Ordinary player contributions preserve their complete narration, dialogue, formatting and order through current prompts, history, scene handoffs and recall. No keyword or semantic classification of inferred player thoughts may remove story text. NPC-authored private interpretations retain their separate observer rules. Explicit whispered words retain recipient restrictions; mixed narration keeps the surrounding physical action, and an unnamed whisper in a single-interlocutor chat reaches that interlocutor.
+
+The source journal/receipt remains immutable. Scene interpretation is annotation only, never a visibility gate or a prerequisite for narrative acceptance. The writer responds naturally without mandatory per-gesture actionResponses/replyQuote evidence or related repair calls. Drinking, structured action decisions, explicit scene movement, party membership and real commitments keep their specific authorities. Narrated attempts are not native execution or blanket consent. Repairs preserve required actionGate metadata and report schema completeness separately from remaining continuity violations. Retrospective asked/said claims use original speaker ownership, including an NPC's own introduced question. Historical venue callbacks do not establish a current relocation.
+
+Provider-free regression coverage is in the existing conversation input, observer, continuity and dialogue-claim suites. Captured empty provider responses still use bounded format recovery; this does not promise providers can never return empty output. Native acceptance and probabilistic response quality remain distinct from offline verification.

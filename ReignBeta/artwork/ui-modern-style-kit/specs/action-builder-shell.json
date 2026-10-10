@@ -1,0 +1,104 @@
+{
+  "schema": "reign-fixed-region-composite-v1",
+  "assetId": "action-builder",
+  "approvedReference": {
+    "path": "../concepts/action-builder-shell-2026-10-02.png",
+    "sha256": "7f0226da9fbe3b9c0f01de2377963f82d6c7f8583a1296b8fbcf74e21a9b8d41"
+  },
+  "approvalStatus": "candidate; human/native acceptance pending",
+  "canvas": {
+    "width": 1672,
+    "height": 941
+  },
+  "coordinateRule": "Declared owning artwork ActionBuilderShell is uniformly scaled to 80% inside the 1672x941 canvas. Dynamic rectangles are measured in source-art coordinates.",
+  "sceneDependentMasks": [
+    {
+      "id": "recipient-text",
+      "shape": "rectangle",
+      "x": 401,
+      "y": 207.375,
+      "width": 870,
+      "height": 30
+    },
+    {
+      "id": "sentence-reading-field",
+      "shape": "rectangle",
+      "x": 401,
+      "y": 257.375,
+      "width": 870,
+      "height": 105
+    },
+    {
+      "id": "step-title",
+      "shape": "rectangle",
+      "x": 401,
+      "y": 368.625,
+      "width": 870,
+      "height": 37.5
+    },
+    {
+      "id": "search-or-amount-state",
+      "shape": "rectangle",
+      "x": 401,
+      "y": 411.125,
+      "width": 850,
+      "height": 52.5
+    },
+    {
+      "id": "choices-list",
+      "shape": "rectangle",
+      "x": 401,
+      "y": 458.625,
+      "width": 850,
+      "height": 250
+    },
+    {
+      "id": "validation-error-text",
+      "shape": "rectangle",
+      "x": 401,
+      "y": 712.375,
+      "width": 870,
+      "height": 42.5
+    },
+    {
+      "id": "back-control-state",
+      "shape": "rectangle",
+      "x": 401,
+      "y": 754.875,
+      "width": 175,
+      "height": 50
+    },
+    {
+      "id": "cancel-control-state",
+      "shape": "rectangle",
+      "x": 593.5,
+      "y": 754.875,
+      "width": 175,
+      "height": 50
+    },
+    {
+      "id": "accept-continue-control-state",
+      "shape": "rectangle",
+      "x": 1096,
+      "y": 754.875,
+      "width": 175,
+      "height": 50
+    },
+    {
+      "id": "choices-scrollbar",
+      "shape": "rectangle",
+      "x": 1261,
+      "y": 458.625,
+      "width": 10,
+      "height": 250
+    },
+    {
+      "id": "sentence-scrollbar",
+      "shape": "rectangle",
+      "x": 1253.5,
+      "y": 269.875,
+      "width": 10,
+      "height": 80
+    }
+  ]
+}

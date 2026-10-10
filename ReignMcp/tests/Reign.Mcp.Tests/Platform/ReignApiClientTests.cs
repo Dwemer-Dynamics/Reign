@@ -37,6 +37,25 @@ public sealed class ReignApiClientTests
     }
 
     [Fact]
+    public async Task HistoricalSettingsLogCannotExposeNamedProviderCredentials()
+    {
+        var handler = new StubHandler(_ => new HttpResponseMessage(HttpStatusCode.OK)
+        {
+            Content = new StringContent("""
+                {"ok":true,"entries":[{"eventType":"settings.save","data":{"nanoGptApiKey":"nano-fixture","openRouterApiKey":"router-fixture","dialogueModel":"writer"}}]}
+                """, Encoding.UTF8, "application/json")
+        });
+        var options = TestOptions.Create();
+        using var http = new HttpClient(handler) { BaseAddress = options.ServerBaseUri };
+        var result = await new ReignApiClient(http, options, new SensitiveDataRedactor()).GetAsync("/api/logs");
+        Assert.True(result.Ok);
+        var text = result.Data!.Value.GetRawText();
+        Assert.DoesNotContain("nano-fixture", text, StringComparison.Ordinal);
+        Assert.DoesNotContain("router-fixture", text, StringComparison.Ordinal);
+        Assert.Contains("writer", text, StringComparison.Ordinal);
+    }
+
+    [Fact]
     public async Task RejectsOversizedResponse()
     {
         var handler = new StubHandler(_ => new HttpResponseMessage(HttpStatusCode.OK)

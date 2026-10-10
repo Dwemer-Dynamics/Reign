@@ -3,11 +3,11 @@
   "heroStringId": "reign_court_castle_S5_father",
   "characterName": "Miroenan Leshaevich",
   "imagePath": "portrait.png",
-  "imageSha256": "1CE018F54A9726414C0FCEE266B71038B0B1D8EADDC1EF094EC82D8E2A0BC144",
-  "description": "Culturally appropriate everyday Sturgian minor-lord attire inspired by refined medieval Rus and Slavic noble clothing. Men should wear a well-made long shirt beneath a tailored wool kaftan or long belted coat, decorated with fine geometric embroidery and quality trim. Women should wear a long embroidered shift with an elegant wool overdress or noble coat-dress, secured with a richly woven sash. Include subtle fur trim around collars or cuffs, tasteful clasps, and better-quality fabric than a landowner would wear. The clothing should remain practical for a northern climate while clearly showing noble rank. No headgear of any kind. No armor, weapons, crowns, ceremonial robes, or oversized fur displays.",
-  "status": "failed",
-  "descriptionSource": "portrait_prompt_fallback",
-  "retryEligible": true,
-  "error": "{\"error\":{\"message\":\"Model \\\"zai-org/glm-5.2\\\" does not support image inputs. Remove image content or choose a multimodal model.\",\"type\":\"invalid_request_error\",\"param\":\"messages\",\"code\":\"image_input_not_supported\"}}",
-  "updatedUtc": "2026-07-18T22:03:32.6286721Z"
+  "imageSha256": "F90E841E239D722690960735D338749C83010F439E41D759B43524CB1EA761BE",
+  "description": "A long dark blue patterned robe with gold woven borders and brown fur collar and cuffs, a cream inner tunic, decorated brown belt with metal roundels and hanging ends, dark loose trousers and tall brown boots. Both hands hang naturally in clear view beside the body.",
+  "status": "completed",
+  "descriptionSource": "agent_vision",
+  "retryEligible": false,
+  "error": "",
+  "updatedUtc": "2026-10-08T21:18:56.933Z"
 }

@@ -3,11 +3,11 @@
   "heroStringId": "reign_court_castle_V1_child_1",
   "characterName": "Beranic Auberacourt",
   "imagePath": "portrait.png",
-  "imageSha256": "7D9786C54033090A2120873B3E7EEA64FEE512148B2C547F6CDC1E7428A122DB",
-  "description": "Culturally appropriate everyday Vlandian landowner attire inspired by practical high-medieval Norman and Frankish clothing. Use a well-made wool tunic over a linen underlayer, fitted sleeves, a sturdy leather belt, narrow trousers or chausses, and soft leather boots. For women, use a long fitted underdress with a simple but well-tailored overdress, narrow sleeves, a modest neckline, and a practical belt. The garments should appear prosperous, clean, and durable without looking aristocratic. No headgear of any kind. No armor, weapons, crowns, ceremonial robes, or fantasy elements.",
-  "status": "failed",
-  "descriptionSource": "portrait_prompt_fallback",
-  "retryEligible": true,
-  "error": "{\"error\":{\"message\":\"Model \\\"zai-org/glm-5.2\\\" does not support image inputs. Remove image content or choose a multimodal model.\",\"type\":\"invalid_request_error\",\"param\":\"messages\",\"code\":\"image_input_not_supported\"}}",
-  "updatedUtc": "2026-07-18T22:03:25.4952775Z"
+  "imageSha256": "116AB2DCA538DAE56393945D7BE2D16AAE1645B9F92F8072ED8AD3CD3E85A0CF",
+  "description": "He wears a muted burgundy knee-length wool tunic with long sleeves and narrow gold-and-brown woven trim around its short open neckline, cuffs and hem. Cream linen appears at the collar and sleeve ends. A sturdy dark leather belt has an oval brass-colored buckle and a long hanging strap with modest embossed ornamentation and a pointed metal end. Dark brown fitted trousers are tucked into mid-calf brown leather boots.",
+  "status": "completed",
+  "descriptionSource": "agent_vision",
+  "retryEligible": false,
+  "error": "",
+  "updatedUtc": "2026-10-07T20:49:14.116Z"
 }

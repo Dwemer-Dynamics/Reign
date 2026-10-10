@@ -3,11 +3,11 @@
   "heroStringId": "lord_1_45_3",
   "characterName": "Nereida",
   "imagePath": "portrait.png",
-  "imageSha256": "E05628F99FC08585599C2926BD7A17185E6740B95B4D25511416615DB04B8C1E",
-  "description": "Culturally appropriate everyday Calradic Imperial minor-lord attire inspired by refined late Roman and Byzantine noble clothing. Men should wear a high-quality tunic or long tailored outer coat over fine linen, decorated with narrow woven borders, refined clasps, and a decorated belt. Women should wear a long elegant dress or layered tunic ensemble with shaped sleeves, graceful draping, and tasteful trim around the neckline, cuffs, and edges. The garments should feel polished, educated, urban, and wealthy without resembling full imperial ceremony. No headgear of any kind. No armor, weapons, crowns, imperial regalia, laurel wreaths, or ceremonial robes.",
-  "status": "failed",
-  "descriptionSource": "portrait_prompt_fallback",
-  "retryEligible": true,
-  "error": "{\"error\":{\"message\":\"Model \\\"zai-org/glm-5.2\\\" does not support image inputs. Remove image content or choose a multimodal model.\",\"type\":\"invalid_request_error\",\"param\":\"messages\",\"code\":\"image_input_not_supported\"}}",
-  "updatedUtc": "2026-07-18T22:03:32.8553675Z"
+  "imageSha256": "84F081C7648F60B17CD283BC29D3ACABF13EE51DEA1CBC13893F27CE90DB5DDA",
+  "description": "A plum court gown has a low square neckline, fitted bodice, shaped elbow sleeves and a floor-length skirt with a narrow below-knee opening. Gold woven geometric borders trim the neckline, front, cuffs, hem and belt, which has a round metal clasp. An ivory wrap edged in gold rests around both forearms. Small earrings, rings and dark shoes with gold embroidery are visible.",
+  "status": "completed",
+  "descriptionSource": "agent_vision",
+  "retryEligible": false,
+  "error": "",
+  "updatedUtc": "2026-10-08T01:37:04.112Z"
 }

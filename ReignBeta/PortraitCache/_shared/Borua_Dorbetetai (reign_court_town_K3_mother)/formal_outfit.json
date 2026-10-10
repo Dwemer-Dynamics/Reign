@@ -3,11 +3,11 @@
   "heroStringId": "reign_court_town_K3_mother",
   "characterName": "Borua Dorbetetai",
   "imagePath": "portrait.png",
-  "imageSha256": "99B7B03E2C25E1FFFFAD2729E47DA73762C35D88A485FBC884F3B64670F44705",
-  "description": "Culturally appropriate everyday Khuzait high-noble attire inspired by elite medieval Turkic and Mongol aristocratic clothing. Use superb tailoring, layered fine wool and silk-like woven fabrics, elegant crossed-front closures, decorated sashes, refined edging, and subtle noble motifs. Men should wear a stately long noble deel or structured coat over richly made underlayers. Women should wear a luxurious robe or coat-dress with graceful lines, elaborate woven trim, and exceptionally high-quality textiles. Fur trim may be included sparingly along cuffs, collars, or garment edges. The clothing should feel wealthy, mobile, and commanding without becoming ceremonial. No headgear of any kind. No fur hats, caps, hoods, armor, weapons, crowns, or fantasy styling.",
-  "status": "failed",
-  "descriptionSource": "portrait_prompt_fallback",
-  "retryEligible": true,
-  "error": "{\"error\":{\"message\":\"Model \\\"zai-org/glm-5.2\\\" does not support image inputs. Remove image content or choose a multimodal model.\",\"type\":\"invalid_request_error\",\"param\":\"messages\",\"code\":\"image_input_not_supported\"}}",
-  "updatedUtc": "2026-07-18T22:03:25.8536821Z"
+  "imageSha256": "18E98F1E8732499B5E39FBF4244C8FF0445405A72A863CE69682A2DD4E96B5D8",
+  "description": "She wears a floor-length muted teal gown with a square neckline, fitted bodice and elbow-length sleeves. Broad gold cloud-like and floral borders decorate the neckline, shoulders, sleeve ends and skirt front, and a cream-gold brocade panel fills the center skirt opening. A gold medallion belt with dark centered plaques has long hanging medallion and tassel ornaments. A cream wrap with teal-and-gold embroidered edging rests around her arms. Matching gold drop earrings and a round pendant necklace with teal drops complete the outfit. Dark embroidered closed shoes are visible below the hem.",
+  "status": "completed",
+  "descriptionSource": "agent_vision",
+  "retryEligible": false,
+  "error": "",
+  "updatedUtc": "2026-10-07T20:56:06.010Z"
 }

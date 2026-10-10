@@ -39,6 +39,55 @@ namespace Reign.Mcp.Tests
             Assert.False(ReignSceneTeamSafety.AreHostile(null!, null!));
             Assert.Equal(0, present.HostilityQueries);
         }
+
+        [Theory]
+        [InlineData(false, true)]
+        [InlineData(true, false)]
+        [InlineData(false, false)]
+        public void BattleSamplingRejectsInvalidTeamsWithoutNativeLookup(bool agentValid, bool playerValid)
+        {
+            var agentTeam = new Team(agentValid, true);
+            var playerTeam = new Team(playerValid, true);
+
+            Assert.False(ReignSceneTeamSafety.IsPlayerTeamOrEnemy(agentTeam, playerTeam));
+            Assert.Equal(0, agentTeam.HostilityQueries);
+            Assert.Equal(0, playerTeam.HostilityQueries);
+        }
+
+        [Theory]
+        [InlineData(false)]
+        [InlineData(true)]
+        public void SameTeamCountsOnlyWhenValidAndNeedsNoNativeLookup(bool valid)
+        {
+            var team = new Team(valid, true);
+
+            Assert.Equal(valid, ReignSceneTeamSafety.IsPlayerTeamOrEnemy(team, team));
+            Assert.Equal(0, team.HostilityQueries);
+        }
+
+        [Theory]
+        [InlineData(false)]
+        [InlineData(true)]
+        public void BattleSamplingCountsEnemiesAndRejectsNeutralTeams(bool hostile)
+        {
+            var agentTeam = new Team(true, hostile);
+            var playerTeam = new Team(true, false);
+
+            Assert.Equal(hostile, ReignSceneTeamSafety.IsPlayerTeamOrEnemy(agentTeam, playerTeam));
+            Assert.Equal(1, agentTeam.HostilityQueries);
+            Assert.Same(playerTeam, agentTeam.LastQueriedTeam);
+        }
+
+        [Fact]
+        public void BattleSamplingRejectsMissingTeamsWithoutNativeLookup()
+        {
+            var present = new Team(true, true);
+
+            Assert.False(ReignSceneTeamSafety.IsPlayerTeamOrEnemy(null!, present));
+            Assert.False(ReignSceneTeamSafety.IsPlayerTeamOrEnemy(present, null!));
+            Assert.False(ReignSceneTeamSafety.IsPlayerTeamOrEnemy(null!, null!));
+            Assert.Equal(0, present.HostilityQueries);
+        }
     }
 }
 

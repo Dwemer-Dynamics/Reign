@@ -40,7 +40,8 @@ namespace ReignBeta.Government
             int votesFor = 0;
             foreach (ReignGovernmentSeatRecord seat in seats)
             {
-                ReignGovernmentPartyRecord ownParty = FindParty(kingdom.StringId, seat.PartyId);
+                string promisedPlatform = AgreedPlatformParty(seat.HeroStringId);
+                ReignGovernmentPartyRecord ownParty = FindParty(kingdom.StringId, promisedPlatform.Length > 0 ? promisedPlatform : seat.PartyId);
                 List<ReignGovernmentPlank> ownPlanks = ParsePlanks(ownParty?.PlanksCsv);
                 int shared = ownPlanks.Count(supported.Contains);
                 bool ownSpeakerSupports = Same(ownParty?.PartyId, proposingParty?.PartyId) || shared > 0;

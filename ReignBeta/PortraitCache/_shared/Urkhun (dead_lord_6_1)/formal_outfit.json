@@ -3,11 +3,11 @@
   "heroStringId": "dead_lord_6_1",
   "characterName": "Urkhun",
   "imagePath": "portrait.png",
-  "imageSha256": "88F303C3C3060FAC7A2AA172F088A836851CA87536B1536E9D9D43FEE416E0B7",
-  "description": "Culturally appropriate everyday Khuzait high-noble attire inspired by elite medieval Turkic and Mongol aristocratic clothing. Use superb tailoring, layered fine wool and silk-like woven fabrics, elegant crossed-front closures, decorated sashes, refined edging, and subtle noble motifs. Men should wear a stately long noble deel or structured coat over richly made underlayers. Women should wear a luxurious robe or coat-dress with graceful lines, elaborate woven trim, and exceptionally high-quality textiles. Fur trim may be included sparingly along cuffs, collars, or garment edges. The clothing should feel wealthy, mobile, and commanding without becoming ceremonial. No headgear of any kind. No fur hats, caps, hoods, armor, weapons, crowns, or fantasy styling.",
-  "status": "failed",
-  "descriptionSource": "portrait_prompt_fallback",
-  "retryEligible": true,
-  "error": "{\"error\":{\"message\":\"Model \\\"zai-org/glm-5.2\\\" does not support image inputs. Remove image content or choose a multimodal model.\",\"type\":\"invalid_request_error\",\"param\":\"messages\",\"code\":\"image_input_not_supported\"}}",
-  "updatedUtc": "2026-07-18T22:03:35.3452994Z"
+  "imageSha256": "251473CDF3DD89EA09CFEA0B7B14FAEE10CB45E26D600FC7DF4396BED11B1FD4",
+  "description": "A full-length dark teal noble deel and layered wrap coat with broad bronze-gold floral and interlaced woven borders, long sleeves and ornamented cuffs. A matching dark patterned inner robe shows at the overlapping front and lower hem, with a pale inner collar. A wide dark sash and belt carry round engraved gold-toned discs and a long tassel. Dark patterned trousers and plain dark leather knee-high boots complete the outfit. No headgear, armor or weapons are visible.",
+  "status": "completed",
+  "descriptionSource": "agent_vision",
+  "retryEligible": false,
+  "error": "",
+  "updatedUtc": "2026-10-08T03:48:53.448Z"
 }

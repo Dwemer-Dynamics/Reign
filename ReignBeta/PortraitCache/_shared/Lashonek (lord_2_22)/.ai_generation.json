@@ -1,16 +1,90 @@
 {
   "version": 1,
+  "schema": "reign-builtin-chat-reference-guided-image-generation-culture-v1",
   "cacheKey": "Lashonek (lord_2_22)",
   "heroStringId": "lord_2_22",
   "characterObjectId": "lord_2_22",
   "characterName": "Lashonek",
-  "provider": "AtlasCloud",
-  "model": "xai/grok-imagine-image/edit",
-  "adapter": "atlas upload/generate/poll",
-  "sourceSha256": "9d2b1b3d7b7dc3abcd5cac418b3aa8e33a4ef92eccade62dca0da69cb2b5a85e",
-  "portraitSha256": "6049e64f237104a9e492bf7518efb295f06342e8a8ffa74232f447e25c822dcf",
-  "portraitWidth": 832,
-  "portraitHeight": 1248,
+  "worker": "worker-4",
+  "generatedOriginalPath": "C:\\Users\\speed\\.codex\\generated_images\\01a11c35-b9ad-75f1-9c21-5742fde8069d\\exec-dc025d9f-036a-4ce1-a989-ffe7a793d32d.png",
+  "sourceFileCreationUtc": "2026-10-08T21:01:57.503Z",
+  "generationRequestId": "98a8280c-41db-482d-aab1-4c7ae34280a5",
+  "generationRequestSha256": "ef593711dfe95550e7d541871bd804c909bf155a2aec1ab4590d3c0750fe0e84",
+  "generationReturnSha256": "e8b7b08cf6e4b384949590c6521c6eab11440ac578f5aca618807227f258262f",
+  "provider": "Codex built-in image_gen",
+  "model": "unknown",
+  "adapter": "old-face-identity/new-style-reference-guided",
+  "generationMode": "reference_guided",
+  "inputImages": 2,
+  "references": [
+    {
+      "id": "lord_2_22",
+      "role": "old_identity",
+      "path": "D:\\Program Files (x86)\\Steam\\steamapps\\common\\Mount & Blade II Bannerlord\\Modules\\ReignBeta\\PortraitCache\\_shared\\Lashonek (lord_2_22)\\portrait_chest.png",
+      "sha256": "f35045904d4ebc60c555dc82bcd8a8c4453ae26e783b69225ddc079c8d21265e",
+      "originalReference": {
+        "path": "D:\\Program Files (x86)\\Steam\\steamapps\\common\\Mount & Blade II Bannerlord\\Modules\\ReignBeta\\PortraitCache\\_shared\\Lashonek (lord_2_22)\\portrait_chest.png",
+        "sha256": "f35045904d4ebc60c555dc82bcd8a8c4453ae26e783b69225ddc079c8d21265e"
+      }
+    },
+    {
+      "id": "lord_2_22",
+      "role": "new_style",
+      "path": "C:\\ReignPortraitRebuild\\2026-10-07-01a11741-culture-v2\\audit\\residual-correction-phase4-001\\lord_2_22\\predecessor-files\\_shared\\Lashonek (lord_2_22)\\portrait.png",
+      "sha256": "e1ceb49121c0c5ed1823ddbdb9ece9859b40707a7138280910299d990c3aa58d",
+      "originalReference": {
+        "path": "C:\\ReignPortraitRebuild\\2026-10-07-01a11741-culture-v2\\_shared\\Lashonek (lord_2_22)\\portrait.png",
+        "sha256": "e1ceb49121c0c5ed1823ddbdb9ece9859b40707a7138280910299d990c3aa58d"
+      }
+    }
+  ],
+  "referenceGuidedExecution": {
+    "schema": "reign-portrait-reference-guided-execution-v1",
+    "generationMode": "reference_guided",
+    "inputImages": 2,
+    "references": [
+      {
+        "id": "lord_2_22",
+        "role": "old_identity",
+        "path": "D:\\Program Files (x86)\\Steam\\steamapps\\common\\Mount & Blade II Bannerlord\\Modules\\ReignBeta\\PortraitCache\\_shared\\Lashonek (lord_2_22)\\portrait_chest.png",
+        "sha256": "f35045904d4ebc60c555dc82bcd8a8c4453ae26e783b69225ddc079c8d21265e",
+        "originalReference": {
+          "path": "D:\\Program Files (x86)\\Steam\\steamapps\\common\\Mount & Blade II Bannerlord\\Modules\\ReignBeta\\PortraitCache\\_shared\\Lashonek (lord_2_22)\\portrait_chest.png",
+          "sha256": "f35045904d4ebc60c555dc82bcd8a8c4453ae26e783b69225ddc079c8d21265e"
+        }
+      },
+      {
+        "id": "lord_2_22",
+        "role": "new_style",
+        "path": "C:\\ReignPortraitRebuild\\2026-10-07-01a11741-culture-v2\\audit\\residual-correction-phase4-001\\lord_2_22\\predecessor-files\\_shared\\Lashonek (lord_2_22)\\portrait.png",
+        "sha256": "e1ceb49121c0c5ed1823ddbdb9ece9859b40707a7138280910299d990c3aa58d",
+        "originalReference": {
+          "path": "C:\\ReignPortraitRebuild\\2026-10-07-01a11741-culture-v2\\_shared\\Lashonek (lord_2_22)\\portrait.png",
+          "sha256": "e1ceb49121c0c5ed1823ddbdb9ece9859b40707a7138280910299d990c3aa58d"
+        }
+      }
+    ],
+    "textCompositionImageInputs": 0,
+    "textVerificationSha256": "6bc17053a0665fa661aa7b6578145177a1b15a31d2ebdd8ca218409f14ea269b",
+    "textPromptSha256": "a6ea7c4868abb4c9d85561e0ecb52575328d195c43742349ae3ee88d548afeab",
+    "compositionProofSha256": "683ea76795f2518e602113f060b881413428e2ba9bec29b2dfbcebb50305cd9d",
+    "rootCompositionReview": {
+      "path": "C:\\ReignPortraitRebuild\\2026-10-07-01a11741-culture-v2\\audit\\root-full32-prompt-composition-review-001\\lord_2_22\\root-hybrid-composition-review.json",
+      "sha256": "6720d92177ec4b5e9db9ccb5f37da04118b8023f2c1dbc4ffed3d80763096c89"
+    }
+  },
+  "sourceSha256": "581b52cb0243ff42c87762cf9499601acc9266c617f81c8f15b11bd49a73ebb8",
+  "portraitSha256": "d6294c7328a3e8742cb23c55210f7499c6787001e5bebedf1eb13fffc82f6c3c",
+  "portraitWidth": 1086,
+  "portraitHeight": 1448,
+  "promptSha256": "cced69c863e80f5749dcf99bea736ceaffe29af98aa7a77cd3d73fde38086ddc",
+  "descriptionSha256": "521fbe6a6614ff06907fc647e7508ee33fe51e3dfc098b17a166cc3878c1aca4",
+  "cultureId": "sturgia",
+  "cultureReferenceKey": "sturgia",
+  "cultureReference": "Eastern European and Slavic regional appearance.",
+  "cultureLayerFile": "portrait_facial_culture_sturgia.txt",
+  "cultureLayerFullText": "FACIAL CULTURAL APPEARANCE — STURGIAN\nStored cultureId: sturgia.\nRegional reference: Eastern European and Slavic regional appearance.\nCreate a believable real human face with this regional appearance. Apply the regional reference positively to facial appearance, facial structure and complexion; it is not only a clothing, setting or background instruction.\nBlend the regional reference with the individual facial description. Where simplified native geometry or game-renderer shading differs from this regional appearance, use a plausible natural blend while retaining recognizable individual traits: face outline, relative proportions, eyes, brows, nose, mouth, jaw and chin. Preserve the described hair identity, arrangement and texture, facial-hair pattern, eye character, visible scars and markings; do not invent new distinguishing marks.\nThese regional populations contain substantial individual variation. Do not give every member the same face, impose a universal skin, hair or eye color, or replace the written individual identity with a generic regional stereotype. Preserve source-grounded differences and natural human asymmetry.\nKeep the exact authored age and the independent native weight and build values. This layer applies to facial appearance and realistic complexion interpretation, not body size, muscularity, garment coverage or social rank. Every complete composition, clothing, confidence, photographic, output and physique modifier remains in effect. Do not print this reference or any metadata in the image.",
+  "cultureLayerSha256": "5fc312b4af9c990e2740af3573c1fc3cc244e24adae6636e66adea9d3b8155f6",
   "physicalConfidence": {
     "definition": "physical_confidence",
     "score": 56,
@@ -21,7 +95,10 @@
     "confidenceWeight": 0.25,
     "source": "shipped_profile_library"
   },
+  "confidenceCoverageOverride": null,
   "derivativesReady": true,
   "derivativeError": "",
-  "generatedUtc": "2026-07-17T20:07:39.0690862Z"
+  "generatedUtc": "2026-10-08T21:09:03.402Z",
+  "serverSigned": false,
+  "derivativeReportSha256": "03dc3b6e64ee73855c4466fd2fccc5055f73292361ecbaedb060696f319ab7ec"
 }

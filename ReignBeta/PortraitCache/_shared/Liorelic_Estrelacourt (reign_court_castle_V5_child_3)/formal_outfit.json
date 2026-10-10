@@ -3,11 +3,11 @@
   "heroStringId": "reign_court_castle_V5_child_3",
   "characterName": "Liorelic Estrelacourt",
   "imagePath": "portrait.png",
-  "imageSha256": "3C73784CA0024B49705D1B16B3B9F61E4782CC8DB0F2361047B78431E39942DB",
-  "description": "Culturally appropriate everyday Vlandian landowner attire inspired by practical high-medieval Norman and Frankish clothing. Use a well-made wool tunic over a linen underlayer, fitted sleeves, a sturdy leather belt, narrow trousers or chausses, and soft leather boots. For women, use a long fitted underdress with a simple but well-tailored overdress, narrow sleeves, a modest neckline, and a practical belt. The garments should appear prosperous, clean, and durable without looking aristocratic. No headgear of any kind. No armor, weapons, crowns, ceremonial robes, or fantasy elements.",
-  "status": "failed",
-  "descriptionSource": "portrait_prompt_fallback",
-  "retryEligible": true,
-  "error": "{\"error\":{\"message\":\"Model \\\"zai-org/glm-5.2\\\" does not support image inputs. Remove image content or choose a multimodal model.\",\"type\":\"invalid_request_error\",\"param\":\"messages\",\"code\":\"image_input_not_supported\"}}",
-  "updatedUtc": "2026-07-18T22:03:31.8869279Z"
+  "imageSha256": "C279352BA26E20CB9D343C60B1168CBD11B3B1C74073DF82F01744387A63DE96",
+  "description": "Practical burgundy long wool tunic with narrow warm geometric trim around neck opening, cuffs and hem, cream linen underlayer, plain sturdy brown leather belt with rectangular buckle and hanging end, fitted brown trousers and soft brown leather boots. Both hands visible at the sides, full hair and boots inside frame. No headgear, armor, weapon or text.",
+  "status": "completed",
+  "descriptionSource": "agent_vision",
+  "retryEligible": false,
+  "error": "",
+  "updatedUtc": "2026-10-08T00:47:57.705Z"
 }

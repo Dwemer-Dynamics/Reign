@@ -89,6 +89,9 @@ namespace ReignBeta.Events
         [SaveableField(27)]
         public string GeneratedVarietyKey;
 
+        [SaveableField(28)]
+        public string GeneratedInitiatorHeroStringId;
+
         public SocialEventRecord()
         {
             AttendeeHeroStringIds = new List<string>();
@@ -103,12 +106,18 @@ namespace ReignBeta.Events
 
         public bool IsOpen(float campaignDay)
         {
-            return Status == SocialEventStatus.Pending && campaignDay <= ExpiresDay;
+            return Status == SocialEventStatus.Pending && (IsDeferredWildernessEvent || campaignDay <= ExpiresDay);
         }
+
+        // This state uses the existing native-save fields; waiting in town must
+        // not consume the wilderness event's presentation window.
+        public bool IsDeferredWildernessEvent => IsGeneratedWildernessEvent
+            && Status == SocialEventStatus.Pending && !AnnouncementSent
+            && (EventId ?? string.Empty).StartsWith("reign_wilderness_", System.StringComparison.Ordinal);
 
         public bool HasTimedOut(float campaignDay)
         {
-            return Status == SocialEventStatus.Pending && campaignDay > ExpiresDay;
+            return Status == SocialEventStatus.Pending && !IsDeferredWildernessEvent && campaignDay > ExpiresDay;
         }
 
         public Settlement GetSettlement()

@@ -36,6 +36,8 @@ Group related edits before validating. Intermediate checks should reduce a concr
 
 Use MCP for builds and tests. Do not directly invoke `dotnet build`, `dotnet test`, `dotnet restore`, MSBuild, VSTest, project build scripts or verification executables. If MCP transport is unavailable, use `ReignMcp/scripts/reign-validate.ps1`; CI and automation use that same non-listening engine. A direct build is permitted only to repair `ReignMcp`, with `REIGN_MCP_REPAIR=1`, targeting only that project. A busy lease is not transport failure and is not permission to bypass it.
 
+The build-enforcement hook permits the literal canonical `ReignServer/scripts/Deploy-LocalWsl.ps1` path in either the paired sibling or verified workspace junction. That entry point requires successful canonical reports and verifies artifact inventories and hashes before activation; it does not rebuild. The exception is per literal path, so legacy deployment scripts, copies outside these roots, and chained direct builds remain blocked. `HookEnforcementTests` exercises these boundaries through isolated hook processes without deploying. This corrects the legacy deployment-name false positive approved on 2026-09-26; deployment still requires user authorization.
+
 The isolated test artifacts have no permission to mutate the visible server or a normal campaign. Continue authorized build/fix/retest cycles without another approval at each step; provider, campaign, destructive-action and tool-specific gates still apply. Select additional behavioral proof through the [testing guide](TESTING_TOOL_GUIDE.md). Compilation alone cannot prove testable behavior, and offline proof cannot establish required native or human acceptance.
 
 ## Evidence and deployment

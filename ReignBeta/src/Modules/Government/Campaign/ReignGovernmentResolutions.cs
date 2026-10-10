@@ -157,8 +157,35 @@ namespace ReignBeta.Government
         }
 
         public bool ContributeGoods(string resolutionId, int amount, out string result)
+            => ContributeGoods(resolutionId, amount, Hero.MainHero, false, out result);
+
+        internal string CheckGoodsContribution(string resolutionId, int amount, Hero actor, bool exact)
         {
-            result = string.Empty;
+            var record = _resolutions.FirstOrDefault(x => Same(x.ResolutionId, resolutionId));
+            var kingdom = FindKingdom(record?.KingdomStringId);
+            if (record == null || kingdom == null || record.Status != "active" || amount < 1)
+                return "Select an active resolution and a positive material contribution.";
+            if (actor?.Clan?.Kingdom != kingdom || actor.PartyBelongedTo == null
+                || actor != Hero.MainHero && actor.PartyBelongedTo.LeaderHero != actor)
+                return "The contributor must command their own party in this realm.";
+            int remaining = Math.Max(0, record.RequiredAmount - (int)record.CurrentValue);
+            if (remaining == 0 || exact && amount > remaining)
+                return "The exact promised contribution exceeds the resolution's remaining requirement.";
+            var action = (ReignGovernmentResolutionAction)record.RouteActionValue;
+            if (action != ReignGovernmentResolutionAction.FoodDelivery && action != ReignGovernmentResolutionAction.GoodsDelivery
+                && action != ReignGovernmentResolutionAction.SupplyArmy) return "This resolution does not accept material contributions.";
+            int available = actor.PartyBelongedTo.ItemRoster.Where(e => EligibleContribution(e.EquipmentElement.Item, action)).Sum(e => e.Amount);
+            return available >= Math.Min(amount, remaining) ? "" : "The contributing party does not carry enough eligible goods.";
+        }
+
+        private static bool EligibleContribution(ItemObject item, ReignGovernmentResolutionAction action) => item != null
+            && ((action == ReignGovernmentResolutionAction.FoodDelivery || action == ReignGovernmentResolutionAction.SupplyArmy)
+                ? item.IsFood : !item.IsFood && item.IsTradeGood);
+
+        internal bool ContributeGoods(string resolutionId, int amount, Hero actor, bool exact, out string result)
+        {
+            result = CheckGoodsContribution(resolutionId, amount, actor, exact);
+            if (result.Length > 0) return false;
             ReignGovernmentResolutionRecord record = _resolutions.FirstOrDefault(x => Same(x.ResolutionId, resolutionId));
             ReignGovernmentResolutionTemplate template = ReignGovernmentResolutionCatalog.Find(record?.TemplateId);
             Kingdom kingdom = FindKingdom(record?.KingdomStringId);
@@ -175,7 +202,7 @@ namespace ReignBeta.Government
                 result = "The selected route does not accept material contributions.";
                 return false;
             }
-            ItemRoster roster = MobileParty.MainParty?.ItemRoster;
+            ItemRoster roster = actor.PartyBelongedTo.ItemRoster;
             if (roster == null)
             {
                 result = "The ruler's party inventory is unavailable.";
@@ -210,7 +237,7 @@ namespace ReignBeta.Government
                     : !item.IsFood && item.IsTradeGood;
                 if (!matches) continue;
                 int remove = Math.Min(toRemove, element.Amount);
-                roster.AddToCounts(item, -remove);
+                roster.AddToCounts(element.EquipmentElement, -remove);
                 toRemove -= remove;
                 if (toRemove <= 0) break;
             }

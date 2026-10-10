@@ -3,11 +3,11 @@
   "heroStringId": "lord_4_28_1",
   "characterName": "Adalindis",
   "imagePath": "portrait.png",
-  "imageSha256": "48513337EB82BC39872DE0B2530C574EDEA15167702C41E56579F1AB24BF1E54",
-  "description": "Culturally appropriate everyday Vlandian landowner attire inspired by practical high-medieval Norman and Frankish clothing. Use a well-made wool tunic over a linen underlayer, fitted sleeves, a sturdy leather belt, narrow trousers or chausses, and soft leather boots. For women, use a long fitted underdress with a simple but well-tailored overdress, narrow sleeves, a modest neckline, and a practical belt. The garments should appear prosperous, clean, and durable without looking aristocratic. No headgear of any kind. No armor, weapons, crowns, ceremonial robes, or fantasy elements.",
-  "status": "failed",
-  "descriptionSource": "portrait_prompt_fallback",
-  "retryEligible": true,
-  "error": "{\"error\":{\"message\":\"Model \\\"zai-org/glm-5.2\\\" does not support image inputs. Remove image content or choose a multimodal model.\",\"type\":\"invalid_request_error\",\"param\":\"messages\",\"code\":\"image_input_not_supported\"}}",
-  "updatedUtc": "2026-07-18T22:03:23.8577291Z"
+  "imageSha256": "D2A2D7203A3D23CBA89BE2526FBDB26E34F02F407D81084E8AA1CE95C313AF8A",
+  "description": "She wears an opaque deep rust-burgundy floor-length gown with a square neckline, fitted bodice, elbow-length sleeves and a broad full skirt. Narrow cream-and-tan geometric borders frame the neckline, cuffs and a vertical front inset. A cream wrap edged with burgundy geometric bands lies across both forearms and hangs down each side. A brown leather belt closes with a round gold-toned clasp; its long hanging strap ends in a gold-toned ornament. Brown leather shoe toes appear beneath the skirt. No headgear or weapon is visible.",
+  "status": "completed",
+  "descriptionSource": "agent_vision",
+  "retryEligible": false,
+  "error": "",
+  "updatedUtc": "2026-10-07T21:03:46.501Z"
 }

@@ -3,11 +3,11 @@
   "heroStringId": "lord_1_30",
   "characterName": "Turiados",
   "imagePath": "portrait.png",
-  "imageSha256": "C95E0116B9354435EE00C3EE25E68A39A78B02AE8F369A9BB3C05D5B4A42FB3D",
-  "description": "Culturally appropriate everyday Calradic Imperial minor-lord attire inspired by refined late Roman and Byzantine noble clothing. Men should wear a high-quality tunic or long tailored outer coat over fine linen, decorated with narrow woven borders, refined clasps, and a decorated belt. Women should wear a long elegant dress or layered tunic ensemble with shaped sleeves, graceful draping, and tasteful trim around the neckline, cuffs, and edges. The garments should feel polished, educated, urban, and wealthy without resembling full imperial ceremony. No headgear of any kind. No armor, weapons, crowns, imperial regalia, laurel wreaths, or ceremonial robes.",
-  "status": "failed",
-  "descriptionSource": "portrait_prompt_fallback",
-  "retryEligible": true,
-  "error": "{\"error\":{\"message\":\"Model \\\"zai-org/glm-5.2\\\" does not support image inputs. Remove image content or choose a multimodal model.\",\"type\":\"invalid_request_error\",\"param\":\"messages\",\"code\":\"image_input_not_supported\"}}",
-  "updatedUtc": "2026-07-18T22:03:35.2030242Z"
+  "imageSha256": "B6B4E39DD69D31D67C306A2AC3210AB699D815B99A8E9655464CD9B187E6CCA3",
+  "description": "Burgundy long outer tunic with narrow gold woven borders, ivory linen underlayer, paired small round chest clasps and linking chain, decorated belt, dark trousers and tall brown leather boots. Hands behind torso.",
+  "status": "completed",
+  "descriptionSource": "agent_vision",
+  "retryEligible": false,
+  "error": "",
+  "updatedUtc": "2026-10-08T01:06:19.217Z"
 }

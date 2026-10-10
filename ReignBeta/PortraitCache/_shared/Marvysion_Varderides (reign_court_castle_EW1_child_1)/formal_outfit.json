@@ -3,11 +3,11 @@
   "heroStringId": "reign_court_castle_EW1_child_1",
   "characterName": "Marvysion Varderides",
   "imagePath": "portrait.png",
-  "imageSha256": "572F99A9E933ECD469054D85F6DF174AED2D8A931DD7257604E5EA7F83AD7294",
-  "description": "Culturally appropriate everyday Calradic Imperial high-noble attire inspired by luxurious Byzantine aristocratic fashion, restrained enough for daily noble life. Use fine layered linen and wool, controlled flowing silhouettes, elegant draping, richly woven borders, small jeweled clasps, and sophisticated fabric textures. Men should wear a stately long tunic or structured noble coat over a fine undertunic, with refined belts and detailed edging. Women should wear a sophisticated layered noble dress with graceful drapery, tailored sleeves, and subtle aristocratic ornamentation. The outfit should communicate ancient prestige, wealth, and political importance. No headgear of any kind. No armor, weapons, crowns, laurel wreaths, or full ceremonial imperial regalia.",
-  "status": "failed",
-  "descriptionSource": "portrait_prompt_fallback",
-  "retryEligible": true,
-  "error": "{\"error\":{\"message\":\"Model \\\"zai-org/glm-5.2\\\" does not support image inputs. Remove image content or choose a multimodal model.\",\"type\":\"invalid_request_error\",\"param\":\"messages\",\"code\":\"image_input_not_supported\"}}",
-  "updatedUtc": "2026-07-18T22:03:32.3446652Z"
+  "imageSha256": "51E68DC148D69463F54CB2FC4DA68175EF822B32A06CFAE016F977D948E1A637",
+  "description": "A dark plum noble outer robe with wide gold embroidered borders and an over-shoulder drape sits over a full-length ivory tunic. The tunic has fine patterned round collar, cuff and hem bands. A small jeweled shoulder clasp secures the drape; a brown belt with round buckle sits at the waist. Brown leather boots appear below the layered hems. One hand rests at the belt and the other hangs visibly at the side.",
+  "status": "completed",
+  "descriptionSource": "agent_vision",
+  "retryEligible": false,
+  "error": "",
+  "updatedUtc": "2026-10-08T01:17:37.694Z"
 }

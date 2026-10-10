@@ -3,11 +3,11 @@
   "heroStringId": "lord_1_49",
   "characterName": "Obron",
   "imagePath": "portrait.png",
-  "imageSha256": "A0D52F842A189DCE806AB5619124A149657E18CC8E65B6816A03463CDDDE7956",
-  "description": "Culturally appropriate everyday Calradic Imperial minor-lord attire inspired by refined late Roman and Byzantine noble clothing. Men should wear a high-quality tunic or long tailored outer coat over fine linen, decorated with narrow woven borders, refined clasps, and a decorated belt. Women should wear a long elegant dress or layered tunic ensemble with shaped sleeves, graceful draping, and tasteful trim around the neckline, cuffs, and edges. The garments should feel polished, educated, urban, and wealthy without resembling full imperial ceremony. No headgear of any kind. No armor, weapons, crowns, imperial regalia, laurel wreaths, or ceremonial robes.",
-  "status": "failed",
-  "descriptionSource": "portrait_prompt_fallback",
-  "retryEligible": true,
-  "error": "{\"error\":{\"message\":\"Model \\\"zai-org/glm-5.2\\\" does not support image inputs. Remove image content or choose a multimodal model.\",\"type\":\"invalid_request_error\",\"param\":\"messages\",\"code\":\"image_input_not_supported\"}}",
-  "updatedUtc": "2026-07-18T22:03:32.9952849Z"
+  "imageSha256": "83AC0166E2AE90EE3397A3253D24DA21B68E73786BF75F4A3EC74076A91BC3EE",
+  "description": "An ankle-length cream tunic is worn beneath a dark burgundy long outer robe with dense narrow gold woven borders around the opening, cuffs and hem. A gold clasp chain sits high on the chest and a decorated brown belt closes the waist. Brown trousers and tall fitted leather boots are visible below the robe.",
+  "status": "completed",
+  "descriptionSource": "agent_vision",
+  "retryEligible": false,
+  "error": "",
+  "updatedUtc": "2026-10-08T21:03:57.568Z"
 }

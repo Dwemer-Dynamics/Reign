@@ -3,11 +3,11 @@
   "heroStringId": "reign_court_castle_ES7_father",
   "characterName": "Calenes Elaranion",
   "imagePath": "portrait.png",
-  "imageSha256": "E1E7CA1C940AAEDDF166AAD64AA425A1B21005FD8DF122CB2DB39008D597960E",
-  "description": "Culturally appropriate everyday Calradic Imperial landowner attire inspired by practical late Roman and Byzantine civilian clothing adapted into a grounded medieval style. Men should wear a linen undertunic beneath a structured knee-length tunic or simple long coat, secured with a narrow belt. Women should wear a long tunic or underdress beneath a modest draped overdress with elegant but simple sleeves and a practical girdle. Include narrow woven borders or restrained geometric decoration. The garments should appear orderly, respectable, clean, and slightly prosperous. No headgear of any kind. No armor, weapons, laurel crowns, togas, ceremonial robes, or fantasy elements.",
-  "status": "failed",
-  "descriptionSource": "portrait_prompt_fallback",
-  "retryEligible": true,
-  "error": "{\"error\":{\"message\":\"Model \\\"zai-org/glm-5.2\\\" does not support image inputs. Remove image content or choose a multimodal model.\",\"type\":\"invalid_request_error\",\"param\":\"messages\",\"code\":\"image_input_not_supported\"}}",
-  "updatedUtc": "2026-07-18T22:03:26.3844651Z"
+  "imageSha256": "D25D90CA55366BCC758E132E255B14692D859B64E5133072484B2ED51BE020BD",
+  "description": "Opaque cream linen knee-length undertunic beneath a long plum-brown open outer coat. Narrow gold geometric woven borders edge the split neckline, coat front, cuffs and hem. Cream inner cuffs show at the wrists. The outer sleeves are wide and layered with an elbow-length outer section over full sleeves. A narrow brown leather waist belt closes with a small round gold clasp and has a long strap end. Cream loose trousers tuck into tall brown leather boots with diagonal bindings. Fabric is textured and orderly. No head covering, armor, weapon or shoulder mantle is present.",
+  "status": "completed",
+  "descriptionSource": "agent_vision",
+  "retryEligible": false,
+  "error": "",
+  "updatedUtc": "2026-10-07T21:16:54.323Z"
 }

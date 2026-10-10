@@ -32,7 +32,8 @@ namespace ReignBeta.Government
             typeof(ReignGovernmentNativeDecisionScreenPatch), typeof(ReignGovernmentNativePeaceOfferPatch),
             typeof(ReignGovernmentNativePeaceCallbackPatch), typeof(ReignGovernmentNativePeaceResolvedPatch),
             typeof(ReignGovernmentNativeRelationPrivacyPatch), typeof(ReignGovernmentNativeCallOfferPatch),
-            typeof(ReignGovernmentNativeTreatyOfferPatch)
+            typeof(ReignGovernmentNativeTreatyOfferPatch), typeof(ReignGovernmentRuralVolunteerPatch),
+            typeof(ReignGovernmentRuralIssueContextPatch)
         };
 
         internal static void Apply()

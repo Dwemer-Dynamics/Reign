@@ -3,11 +3,11 @@
   "heroStringId": "lord_7_5",
   "characterName": "Asgotha",
   "imagePath": "portrait.png",
-  "imageSha256": "49F788809A3C72538C18D20EECA29B47FF6A55C514B6215D49BB9E45929AC386",
-  "description": "Culturally appropriate everyday Nord minor-lord attire inspired by refined early medieval Scandinavian noble clothing. Men should wear a well-cut wool tunic over a fine linen underlayer, quality trousers, a decorated belt, and tasteful brooch fastenings. Women should wear a long fine-linen shift with an elegant apron dress or layered wool overdress, improved textile quality, decorative woven trim, and modest metal fittings. The clothing should look practical, prestigious, and exceptionally well made without becoming ceremonial. No headgear of any kind. No helmets, caps, hoods, armor, weapons, crowns, horned helmets, or fantasy costume elements.",
-  "status": "failed",
-  "descriptionSource": "portrait_prompt_fallback",
-  "retryEligible": true,
-  "error": "{\"error\":{\"message\":\"Model \\\"zai-org/glm-5.2\\\" does not support image inputs. Remove image content or choose a multimodal model.\",\"type\":\"invalid_request_error\",\"param\":\"messages\",\"code\":\"image_input_not_supported\"}}",
-  "updatedUtc": "2026-07-18T22:03:24.9567948Z"
+  "imageSha256": "3B5040D805C055AD6E69C46F9C27DAAA8EEAD2738DE676206645344DAC42D440",
+  "description": "A dark blue floor-length court dress with a low square neckline, opaque fitted bodice and elbow-length sleeves. Rust-red and pale gold knotwork-like borders decorate the neckline, central bodice and skirt, cuffs and hem. A cream inner skirt and cream fitted sleeve sections appear below the outer layers. Two round metal brooches joined by a small chain fasten the upper bodice. A brown belt with a large decorated round buckle and long studded hanging end secures the waist. A burgundy patterned fringed wrap drapes around the lower arms and down both sides. Brown shoes partly appear at the hem. Exact fibre composition is uncertain.",
+  "status": "completed",
+  "descriptionSource": "agent_vision",
+  "retryEligible": false,
+  "error": "",
+  "updatedUtc": "2026-10-07T20:42:27.959Z"
 }

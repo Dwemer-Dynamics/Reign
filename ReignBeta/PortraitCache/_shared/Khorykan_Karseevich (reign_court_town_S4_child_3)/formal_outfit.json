@@ -3,11 +3,11 @@
   "heroStringId": "reign_court_town_S4_child_3",
   "characterName": "Khorykan Karseevich",
   "imagePath": "portrait.png",
-  "imageSha256": "87B8806E273EDC7D3E38931C3F5788F4E2B20A24115E07FB3C5D3AFEF5DF5935",
-  "description": "Culturally appropriate everyday Sturgian minor-lord attire inspired by refined medieval Rus and Slavic noble clothing. Men should wear a well-made long shirt beneath a tailored wool kaftan or long belted coat, decorated with fine geometric embroidery and quality trim. Women should wear a long embroidered shift with an elegant wool overdress or noble coat-dress, secured with a richly woven sash. Include subtle fur trim around collars or cuffs, tasteful clasps, and better-quality fabric than a landowner would wear. The clothing should remain practical for a northern climate while clearly showing noble rank. No headgear of any kind. No armor, weapons, crowns, ceremonial robes, or oversized fur displays.",
-  "status": "failed",
-  "descriptionSource": "portrait_prompt_fallback",
-  "retryEligible": true,
-  "error": "{\"error\":{\"message\":\"Model \\\"zai-org/glm-5.2\\\" does not support image inputs. Remove image content or choose a multimodal model.\",\"type\":\"invalid_request_error\",\"param\":\"messages\",\"code\":\"image_input_not_supported\"}}",
-  "updatedUtc": "2026-07-18T22:03:31.3112789Z"
+  "imageSha256": "5F89011F42E6314F91643864AB7523B75E7B1C447DC7A63E7D29EF77971FF28D",
+  "description": "A dark blue wool Sturgian kaftan over a cream linen shirt, with restrained brown fur edging at the collar and cuffs. Fine pale geometric embroidery borders the front, sleeves and hem, and two small round metal brooches fasten the upper coat. A brown-and-cream woven sash ties the waist with hanging fringed ends. Loose brown wool trousers tuck into tall brown leather boots. The practical opaque layers show noble workmanship without headgear, armor or weapons.",
+  "status": "completed",
+  "descriptionSource": "agent_vision",
+  "retryEligible": false,
+  "error": "",
+  "updatedUtc": "2026-10-07T23:11:15.619Z"
 }

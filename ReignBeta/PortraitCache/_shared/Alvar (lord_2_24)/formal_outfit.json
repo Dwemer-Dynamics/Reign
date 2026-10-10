@@ -3,11 +3,11 @@
   "heroStringId": "lord_2_24",
   "characterName": "Alvar",
   "imagePath": "portrait.png",
-  "imageSha256": "AB586FF54D0409C7F2B76FCF9C9A2856EEE528A43771265F01980BB776AB8560",
-  "description": "Culturally appropriate everyday Sturgian minor-lord attire inspired by refined medieval Rus and Slavic noble clothing. Men should wear a well-made long shirt beneath a tailored wool kaftan or long belted coat, decorated with fine geometric embroidery and quality trim. Women should wear a long embroidered shift with an elegant wool overdress or noble coat-dress, secured with a richly woven sash. Include subtle fur trim around collars or cuffs, tasteful clasps, and better-quality fabric than a landowner would wear. The clothing should remain practical for a northern climate while clearly showing noble rank. No headgear of any kind. No armor, weapons, crowns, ceremonial robes, or oversized fur displays.",
-  "status": "failed",
-  "descriptionSource": "portrait_prompt_fallback",
-  "retryEligible": true,
-  "error": "{\"error\":{\"message\":\"Model \\\"zai-org/glm-5.2\\\" does not support image inputs. Remove image content or choose a multimodal model.\",\"type\":\"invalid_request_error\",\"param\":\"messages\",\"code\":\"image_input_not_supported\"}}",
-  "updatedUtc": "2026-07-18T22:03:24.4529132Z"
+  "imageSha256": "FF82FC72C149ADA3BA6A773C1FEAAE193CABA8886A8789D6FA4C9DF749D8DD53",
+  "description": "A long deep blue wool kaftan with narrow cream-and-blue geometric woven edging along the opening, cuffs and hem, a restrained brown fur collar and fur cuffs. A cream linen long shirt with dark woven neck, placket and hem trim is visible beneath. Pairs of small round metal clasps link across the upper coat. A blue-and-cream woven sash wraps the waist with long tasseled ends. Brown trousers, dark cloth calf wrappings and brown leather boots complete the outfit. No headgear, armor or weapons.",
+  "status": "completed",
+  "descriptionSource": "agent_vision",
+  "retryEligible": false,
+  "error": "",
+  "updatedUtc": "2026-10-08T04:19:46.820Z"
 }

@@ -1,0 +1,93 @@
+# Player attention and noble approaches
+
+Implementation specification, 2026-10-03. Implementation and verification must preserve the complete behavior below. Deployment is held until the user stops the game and server.
+
+## Web UI switches
+
+Added 2026-10-07: **Options → Player attention and NPC approaches** has a default-enabled master switch and six independently saved boolean preferences: witnessed attention tracking, jealousy/neglect approaches, keep invitations, friendly patrol interceptions, battle rescue dialogue and prison rescue dialogue. Missing fields in old settings default to enabled. The master pauses all six without changing their preferences. The section save posts only its seven booleans; global Save Changes also retains them. Settings are server-wide, persist in the existing settings store, and reject nonboolean switch values before writing.
+
+The public `/api/gameplay-options` response projects these seven booleans in `playerApproaches`, without provider or private settings. Application ticks poll every five seconds while the game is running, including while an invitation pauses campaign time. New approach/rescue initiations wait for a successful first settings read; a transient failure retains the last confirmed preferences. An older server without these fields uses enabled defaults. An unknown initial settings read preserves saved pending events until preferences are confirmed.
+
+Disabled evaluation consumes no cadence, roll, daily quota or cooldown. Pending invitations are cancelled without refusal affinity/native relation effects; re-enabling does not replay cancelled requests. A still-owned intercepted party returns to its patrol, and its special native-encounter suppression stops. A decision already committed retains its idempotent receipt/acknowledgment path. Already accepted conversations can finish. Turning off attention tracking stops new observations while retaining old history and successful-contact resets; jealousy may still use that history if left on. Existing percentages and calculations are unchanged.
+
+Battle/prison capture and the native **Listen to them.** line use their separate preferences. Pending optional rescue conversations disabled in this way are dismissed rather than accumulating a backlog. Original prison release, rewards and companion return continue through native consequences; toggling never executes those consequences. Already opened Reign rescue conversations may finish.
+
+Provider-free proof: the canonical policy tests exercise all 128 switch combinations and immutable preferences. `player_approach_options_*`, `player_approach_tracking_off_*` and `player_approach_disabled_*` cases use isolated settings dictionaries and disposable PostgreSQL schemas for legacy defaults, strict validation, JSON/partial merge persistence, no-roll evaluation and penalty-free cancellation/replay. The production Options browser runner covers independent switches, master preference retention, local/global saves, reload, saving/errors and keyboard access at 800/1280/1920 widths. No test changes live settings or the game. Real live polling/popup/patrol/release acceptance remains a deployment follow-up.
+
+## Attention and neglect
+
+Successful in-person Reign individual, party, castle and social-event exchanges produce a generic history event for every other living named hero in the same party, army or settlement. Deduplicate by timeline, observer, recipient and campaign day; use presence at the actual exchange. Never share conversation contents. Opening a screen, letters, failed replies and technical notices are excluded. Successful invited NPC openings count. Credit actual group participants and reset their neglect at the group's end so the exchange cannot itself manufacture exclusion among speakers.
+
+Acquainted, free adults may approach because of observed neglect. Each rival has a separate distinct-day counter since the observer's last successful player conversation. Successful conversation clears current counters and restarts cadence; history remains. Separation pauses cadence; it does not erase neglect. Repeated same-day conversations can reset neglect without duplicating daily observations.
+
+All traits are 0–100, unresolved values default to 50, integer halves round away from zero:
+
+- Sensitivity `F=(0.5+Jealousy/100)*(1.5-Patience/100)`, range 0.25–2.25.
+- Rival score `s_i=days_i*F`; aggregate `S=max(s_i)+0.25*(sum(s_i)-max(s_i))`.
+- Levels: 0 for S=0; slight for 0<S<3; moderate for 3<=S<6; strong for 6<=S<10; huge for S>=10.
+- Cadence `clamp(round(6+0.04*Patience-0.04*Jealousy),2,10)` unique shared days. Each due check consumes the interval, including no-neglect or missed checks.
+- Chance is zero without neglect; otherwise `clamp(round(20+0.25*Jealousy+0.15*Boldness-0.20*Patience+5*Level+0.10*max(Affinity,0)),5,80)%`. Roll d100 <= chance.
+- Refusal loss `clamp(round(base*F),1,8)`, with bases 1,2,4,6 by level.
+
+Concrete examples, all using Boldness 50 unless stated:
+
+| Jealousy / Patience | Cadence | Sensitivity | Witnessed days for one rival | Neglect | Affinity | Approach chance | Refusal loss |
+|---|---:|---:|---:|---|---:|---:|---:|
+| 0 / 100 | 10 shared days | 0.25 | 8 | slight (S=2) | 0 | 13% | 1 |
+| 50 / 50 | 6 shared days | 1 | 4 | moderate (S=4) | 20 | 42% | 2 |
+| 100 / 0, Boldness 75 | 2 shared days | 2.25 | 4 | strong (S=9) | 20 | 73% | 8 |
+| 100 / 0, Boldness 100 | 2 shared days | 2.25 | 5 | huge (S=11.25) | 100 | 80% cap | 8 cap |
+
+At neutral traits, four days with each of two rivals produce `S=4+0.25*4=5` (moderate); eight days with one rival produce `S=8` (strong). The prompt retains both individual four-day counts. Sharing a location on days 1 and 8 contributes two shared days, even after six absent days. Multiple hourly checks on one day contribute one day.
+
+Popup: `[Name] is asking to speak with you`. Choices: **Talk to them**, **Tell them another time**. Acceptance starts Individual Chat with the NPC speaking first; refusal preserves neglect and applies the loss exactly once.
+
+2026-10-08 individual-opening repair: The individual handler permits an empty player contribution only after binding the exact saved accepted invitation to its speaker, player and timeline, or validating the existing native rescue context. Already heard invitations cannot restart their opening. A separate meeting cue enters the writer prompt; no cue or empty player line enters the transcript. NPC-first turns cannot queue mechanical actions or infer player consent. All ten new provider-free PostgreSQL fixtures passed for invitation authority, rejected caller proof flags, ordinary player input, NPC-only accepted sources and the atomic heard/contact receipt, within 359/359 relationship boundary checks. Changed Tier 3, product Tier 4 and Linux packaging passed; [retained evidence](../../.codex-build/investigations/corein-banter-01a11dcf/RESULTS.md) identifies the reports and artifact hashes. Deployment and native/provider acceptance remain pending.
+
+## Mandatory jealousy opening
+
+Freeze a server-authoritative approach brief before opening acceptance. It includes last player contact, every rival's identity and distinct-day count, scores, aggregate severity, traits, relation and location, and original attention evidence. Primary rival is highest individual score, stable character-ID tie break.
+
+The NPC must speak first without fabricated player speech; immediately explain feeling overlooked; name the primary rival in spoken dialogue; connect the player's repeated attention to their own neglect; match severity through their personality; and invite a response to that concern. All rivals remain available in the prompt. Do not invent romance, an affair, a promise, private knowledge or additional neglected days. Do not substitute a generic greeting. Preserve the brief after counters reset and let subsequent discussion address/resolve the grievance rather than repeat it. Each rival also retains first/last witnessed days and up to 64 latest accepted source IDs, explicitly labeled as bounded source coverage with a full day count.
+
+Validate/repair before publication. Generic openings, absent primary rival, unsupported counts and materially wrong severity fail. Exhausted generation has no refusal penalty and does not reset neglect. An editable dedicated prompt must appear in the existing prompt inventory.
+
+## Keep groups
+
+2026-10-07 correction: Keep invitations exclude every main-party hero, including noble guests, by checking both native party ownership and actual member-roster membership. Recheck this eligibility for queued invitations and before opening the accepted conversation; an invalid group cancels without refusal penalties. The general Party Chat roster remains available for deliberate conversations.
+
+Keep-entry evaluation and all approach popup presentation wait for the native map screen to be active, report `IsReady`, and have global loading disabled. Recheck those conditions immediately before holding campaign time or pushing the popup. Campaign preparation readiness alone is insufficient: a popup can take map focus before the native scene clears its loading screen. Retain queued invitations without deciding, cancelling or consuming them while native loading continues; map subclasses such as the naval map use the same guard.
+
+Roll on actual keep entry for present adult nobles, including strangers. The native town landing menu is `town_keep`; castles use `castle` as their keep landing page. Returning from a lord's hall retains the same visit. `RenownBonus=min(10,2*floor(max(ClanRenown,0)/100))` percentage points. `Chance=clamp((Affinity>=20?Affinity:0)+RenownBonus,0,100)%`. Renown bands 0/100/200/300/400/500+ give bonuses 0/2/4/6/8/10. Letters remain unchanged.
+
+One roll per noble/day, one selected group across all keeps/day, at most four nobles. Uniform selection without replacement if more pass. Independent group probability `1-product(1-p_i)`; four 10% candidates give 34.39%, four 50% candidates give 93.75%.
+
+Popup names the group. **See what they want** opens Party Chat with those nobles selected and speaking first; strangers introduce themselves and motives use actual personality/renown. **Avoid them** applies independent persisted 1d5 losses per noble: 20% each result, mean 3 each. Listening has no avoidance cost even on generation failure. Successful heard openings count as attention.
+
+## Patrol interception
+
+Only actively patrolling native/Reign noble parties are eligible; exclude hostility, armies, battles, sieges, settled parties, protected temporary guests and other orders. Patrol anchor and player–noble distances must each be <=15 map units. Existing six-unit point-patrol route is retained. Hourly scans, one roll per noble/day. Healthy main-party members (including heroes, excluding wounded/prisoners/army attachments) yield chances: 0–19=5%,20–49=10%,50–99=15%,100–199=20%,200+=25%.
+
+One pursuit and one contact popup/day. Nearest successful party wins, stable ID tie break. Preserve patrol objective/order; use noncombat movement. Contact <=1.5 units; pursuit <=6 campaign hours; started pursuit grants 3-day noble cooldown. Leaving zone, hostility, battle, destruction or superseding orders cancels without penalty; restore only the still-owned, valid patrol objective. Suppress native dialogue only for this exact friendly social interception.
+
+Popup: `[Noble]'s party is approaching you`. **Stop and see what they want** starts an NPC-first Individual Chat with no refusal penalty. **Nod and pass** loses `clamp(round(1+0.03*Pride+0.02*Irritability-0.02*Patience),1,5)` and restores player movement/time. Modest/patient=1, neutral=3, proud/irritable=5. Persist the acknowledgement/refusal.
+
+## Battle and prison rescue: native Listen to them
+
+Battle qualification is deterministic: **100%** of qualifying successful rescues receive the native option; there is no additional chance roll. Capture the existing field battle immediately before the main party joins. For each troop stack, `healthy=max(0,Number-WoundedNumber)` and `stackPower=healthy*(1+max(0,Tier))^2`. Sum the existing friendly and enemy stacks while excluding the player's party. An NPC was outmatched when `enemyPower>friendlyPower>0`, equivalent to `friendlyPower/(friendlyPower+enemyPower)<50%`. This is a bounded strength estimate rather than a guarantee of defeat; terrain, tactics and manual combat are outside the estimate. Ten healthy tier-five troops contribute `10*6^2=360`; friendly power 900 versus enemy 1500 gives a 37.5% friendly share and qualifies; equal 1200 versus 1200 gives 50% and does not qualify.
+
+After that battle, require the player to be on the winning side, a positive native `ContributionToBattle`, no retreat ending, and a surviving free beneficiary. Each original friendly party leader receives one event-specific pending rescue conversation. The native window opens when safe and physically present. **Listen to them.** starts an NPC-first Reign reply with the exact pre-join powers, estimated share, event identity and actual victory/contribution facts. No automatic payment, romantic debt or separate rescue affinity roll is added; ordinary conversation adjudication remains responsible for any earned relationship effect.
+
+Prison qualification is also **100%** when the native successful prison-break continuation opens dialogue with its rescued hero. Ransom, unrelated release, failed breakouts and autonomous escape are excluded. Preserve the actual prison settlement, event identity and completion day; expose **Listen to them.** in that same native window. Selecting it completes the exact native successful-release consequence, including the native reward and companion rejoining where applicable, before opening the NPC-first Reign response. Ordinary native choices retain their consequences. The NPC speaks first about being freed, with gratitude, pride or restraint driven by their traits. Invalid or generic rescue openings get one repair; a failed repair publishes no rescue speech or successful-contact reset. Mark the event listened only after its accepted response. Licensed native source inspection established that release occurs after the mission in conversation consequences; native click-through timing still requires post-deployment acceptance.
+
+Pending rescues and pre-join battle evidence are saved. Mid-battle reload may rebind only the original saved prediction to the same battle start time and exact friendly/enemy party identities; a later strength snapshot cannot create a prediction. If those identities do not match, no rescue is asserted. Pending events remain accessible through the native option during a later ordinary conversation with that NPC.
+
+## Persistence, interfaces and evidence
+
+The canonical MCP suite includes `reign-player-approach-native-probe-v1`: a bounded 60-second Windows child loads the same-run client and licensed native assemblies, prepares approach/rescue methods and checks four prison/battle hook signatures without invoking callbacks or installing Harmony. Resolve installed game, `SandBox` and `Native` module binaries so `MapScreen`'s native view dependency is available; never copy native assemblies into the test artifact. Require successful preparation of both `CanPresentOnMap` and `TryPresentOnMap`. Its run-owned `mcp-tests/player-approach-native-probe/<id>/report.json` records the client hash, prepared methods and failures. It performs no provider, listener, game, campaign, save or deployment operation; only that child is terminated on timeout. This detects native binding errors but cannot replace real prison-window, patrol or rendered acceptance.
+
+Persist counters, accepted-sequence ordering, approach briefs, rolls, choices, cooldowns and patrol ownership in Save Sync. Existing saves have no fabricated past attention. Bounded evaluate/decision interfaces require campaign/timeline and request identity, context, participants, values and receipts. Penalties update directional affinity and request native relation loss once, clamped -100..100, recording actual native results. Attention alone has no relationship effect. No providers until explicit conversation acceptance. Preserve existing approved UI materials and layout.
+
+Required verification: dedupe, late arrivals, private scope, group end/reset ordering, each numeric boundary and personality extremes, independent rivals, NPC-first opening and complete prompt evidence, invalid/generic openings, refusal idempotency, save/rewind, four-noble selection, real patrol movement/contact/cancellation/restoration, hostility and ordinary encounters, full applicable preview matrix, input/time recovery and native/provider acceptance. Obtain exact-path canonical validation plan/status and use current task UUID; retain reports, fingerprints and hygiene evidence. Keep roadmap unchecked until required acceptance is complete.
+
+The `relationships` artifact-bound suite owns `player_approach_*` cases for accepted-source rollback, timeline isolation, shared-day pauses, four-noble daily selection, saved decline replay, clamped native observations, immutable acknowledgments and a real isolated PostgreSQL snapshot/restore with monotonic source ordering afterward. Its exact GUID-owned campaign and one snapshot are dropped during cleanup. MCP policy tests cover trait extremes, exact party thresholds and strict battle outmatch. `ui-open --target player-approach` uses the existing guarded UI calibration route and temporary choices with no provider, relationship, conversation, campaign save or time-advance effect. Real approach/rescue acceptance remains on an enrolled disposable campaign after deployment authorization. The current full browser matrix is 190 cases across 88 interface states and seven augmentations at two resolutions; it does not prove native gameplay or arbitrary provider tone.

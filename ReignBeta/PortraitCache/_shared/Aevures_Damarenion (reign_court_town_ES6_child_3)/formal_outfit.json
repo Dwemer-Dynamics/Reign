@@ -3,11 +3,11 @@
   "heroStringId": "reign_court_town_ES6_child_3",
   "characterName": "Aevures Damarenion",
   "imagePath": "portrait.png",
-  "imageSha256": "90CB2AB3D827498CC3894327E32725C809096D5A8B474F07AB761324957D3AFC",
-  "description": "Culturally appropriate everyday Calradic Imperial minor-lord attire inspired by refined late Roman and Byzantine noble clothing. Men should wear a high-quality tunic or long tailored outer coat over fine linen, decorated with narrow woven borders, refined clasps, and a decorated belt. Women should wear a long elegant dress or layered tunic ensemble with shaped sleeves, graceful draping, and tasteful trim around the neckline, cuffs, and edges. The garments should feel polished, educated, urban, and wealthy without resembling full imperial ceremony. No headgear of any kind. No armor, weapons, crowns, imperial regalia, laurel wreaths, or ceremonial robes.",
-  "status": "failed",
-  "descriptionSource": "portrait_prompt_fallback",
-  "retryEligible": true,
-  "error": "{\"error\":{\"message\":\"Model \\\"zai-org/glm-5.2\\\" does not support image inputs. Remove image content or choose a multimodal model.\",\"type\":\"invalid_request_error\",\"param\":\"messages\",\"code\":\"image_input_not_supported\"}}",
-  "updatedUtc": "2026-07-18T22:03:24.1494729Z"
+  "imageSha256": "362D0BB38B9F4581990680725F88AEB3913AD3D446BA8C154C4769963B0D29B9",
+  "description": "Actual original: opaque burgundy patterned long outer coat with short outer sleeves, gold geometric woven borders and paired round chest clasps over cream linen long-sleeve tunic with patterned collar/cuffs, decorated belt/hanging end, dark trousers and tall brown boots. Complete standing figure, plain stone doorway/paving; no headgear, armor, weapons or banner visible.",
+  "status": "completed",
+  "descriptionSource": "agent_vision",
+  "retryEligible": false,
+  "error": "",
+  "updatedUtc": "2026-10-08T06:32:48.605Z"
 }

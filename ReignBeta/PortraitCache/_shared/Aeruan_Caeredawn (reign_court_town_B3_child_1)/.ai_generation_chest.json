@@ -1,0 +1,132 @@
+{
+  "schema": "reign-portable-actual-portrait-origin-v1",
+  "id": "reign_court_town_B3_child_1",
+  "kind": "independent_chest",
+  "actualReceiptSha256": "725edbbb8fc38866c4e1814ccc272111b916855dd3c6c88c3cd1ffae17d37f9a",
+  "actualReceiptUtf8": "{\n  \"schema\": \"reign-standalone-focused-chest-actual-result-v1\",\n  \"requestId\": \"f5af2a40-d55f-4a28-8d63-f0193042de66\",\n  \"characterId\": \"reign_court_town_B3_child_1\",\n  \"executor\": \"review_route\",\n  \"release\": {\n    \"path\": \"C:\\\\ReignPortraitRebuild\\\\2026-10-07-01a11741-culture-v2\\\\audit\\\\root-focused-chest-quality-reign_court_town_B3_child_1-001\\\\root-release-001.json\",\n    \"sha256\": \"3a682266358681b351c25ce9ef5cdf86179b8a0a123073907b386ccd763cfe97\"\n  },\n  \"prompt\": {\n    \"path\": \"C:/ReignPortraitRebuild/2026-10-07-01a11741-culture-v2/audit/seven-clean-chest-drafts-gallery-001/reign_court_town_B3_child_1-chest-prompt-001.txt\",\n    \"sha256\": \"ad4c97891aa4611546caedde0392341d630a302e4aad3d8bcc748e979c2a84a9\",\n    \"bytes\": 10230\n  },\n  \"referenceOrder\": [\n    {\n      \"image\": 1,\n      \"purpose\": \"current_chest_edit_target\",\n      \"path\": \"C:\\\\ReignPortraitRebuild\\\\2026-10-07-01a11741-culture-v2\\\\_shared\\\\Aeruan_Caeredawn (reign_court_town_B3_child_1)\\\\portrait_chest.png\",\n      \"sha256\": \"f790cdb4a1933c0a3f1009efe7159e90c044f57ee683a6bcf77833ae7f383317\",\n      \"bytes\": 170060\n    },\n    {\n      \"image\": 2,\n      \"purpose\": \"old_shared_identity_only\",\n      \"path\": \"D:\\\\Program Files (x86)\\\\Steam\\\\steamapps\\\\common\\\\Mount & Blade II Bannerlord\\\\Modules\\\\ReignBeta\\\\PortraitCache\\\\_shared\\\\Aeruan_Caeredawn (reign_court_town_B3_child_1)\\\\portrait_chest.png\",\n      \"sha256\": \"7acdc6a624fbaf39d35a2e5051a5171c1bbda9c8ff3095c240a49edfc3a9466c\",\n      \"bytes\": 216510\n    },\n    {\n      \"image\": 3,\n      \"purpose\": \"native_identity_override_only\",\n      \"path\": \"C:\\\\Users\\\\speed\\\\Desktop\\\\sourcegen\\\\Reign Shared Portrait Source Cache - 20260716-200950\\\\_shared\\\\Aeruan_Caeredawn (reign_court_town_B3_child_1)\\\\source.png\",\n      \"sha256\": \"2f353d8d99e3f3831c2c97abfcd7966ac8f77152f6e432c96bb7c15b933f6bb9\",\n      \"bytes\": 1011622\n    }\n  ],\n  \"suppliedStringLedger\": {\n    \"path\": \"C:\\\\ReignPortraitRebuild\\\\2026-10-07-01a11741-culture-v2\\\\audit\\\\root-focused-chest-quality-reign_court_town_B3_child_1-001\\\\supplied-string-ledger.json\",\n    \"sha256\": \"7953128df354c66aa780c0efefe474af13bea640b378a77d76c4bef270818733\"\n  },\n  \"actualTool\": \"image_gen.imagegen\",\n  \"actualCalls\": 1,\n  \"inputImages\": 3,\n  \"observedToolReturnUtc\": \"2026-10-08 23:35:18 UTC\",\n  \"actualReturnMetadata\": {\n    \"output_hint\": \"Generated images are saved to C:\\\\Users\\\\speed\\\\.codex\\\\generated_images\\\\01a11c35-ffed-7141-9578-6b68f5fc5978 as C:\\\\Users\\\\speed\\\\.codex\\\\generated_images\\\\01a11c35-ffed-7141-9578-6b68f5fc5978\\\\exec-a67aba72-44d6-4626-b951-7aaa7405d28c.png by default.\\nIf you need to use a generated image at another path, copy it and leave the original in place unless the user explicitly asks you to delete it.\\nThe generated image is already displayed to the user. There is no need to render it in the final response as a Markdown image or file link.\",\n    \"returnedKeys\": [\n      \"image_url\",\n      \"output_hint\"\n    ],\n    \"backendModelVerified\": false\n  },\n  \"output\": {\n    \"path\": \"C:\\\\Users\\\\speed\\\\.codex\\\\generated_images\\\\01a11c35-ffed-7141-9578-6b68f5fc5978\\\\exec-a67aba72-44d6-4626-b951-7aaa7405d28c.png\",\n    \"sha256\": \"407711e48019fd1b7cee05d3ee7b4eaafddff56e6a68014cd4d9f960099ec1de\",\n    \"bytes\": 2497878,\n    \"width\": 1086,\n    \"height\": 1448\n  },\n  \"afterGuard\": {\n    \"allInputsUnchanged\": true,\n    \"inputs\": [\n      {\n        \"path\": \"C:\\\\ReignPortraitRebuild\\\\2026-10-07-01a11741-culture-v2\\\\audit\\\\seven-clean-chest-drafts-gallery-001\\\\reign_court_town_B3_child_1-chest-prompt-001.txt\",\n        \"sha256\": \"ad4c97891aa4611546caedde0392341d630a302e4aad3d8bcc748e979c2a84a9\",\n        \"bytes\": 10230\n      },\n      {\n        \"path\": \"C:\\\\ReignPortraitRebuild\\\\2026-10-07-01a11741-culture-v2\\\\audit\\\\seven-clean-chest-drafts-gallery-001\\\\reign_court_town_B3_child_1-replacement-ledger-001.json\",\n        \"sha256\": \"3de964f6483f59ec59499820a9b9020e13fb958af39c3c954cf9aa16587389d7\",\n        \"bytes\": 8995\n      },\n      {\n        \"path\": \"C:\\\\ReignPortraitRebuild\\\\2026-10-07-01a11741-culture-v2\\\\audit\\\\seven-clean-chest-drafts-gallery-001\\\\reign_court_town_B3_child_1-proposal-001.json\",\n        \"sha256\": \"53d7acad7dd06cb5c8ec459cbfbca51ea7fe2106afb02b832db7da5d6546282e\",\n        \"bytes\": 9948\n      },\n      {\n        \"path\": \"C:\\\\ReignPortraitRebuild\\\\2026-10-07-01a11741-culture-v2\\\\work\\\\reign_court_town_B3_child_1\\\\prompt.txt\",\n        \"sha256\": \"e6342facdeaaff81e0ad67a6567f28b013b88a3be3479b71d1191d9606308174\",\n        \"bytes\": 7517\n      },\n      {\n        \"path\": \"C:\\\\ReignPortraitRebuild\\\\2026-10-07-01a11741-culture-v2\\\\_shared\\\\Aeruan_Caeredawn (reign_court_town_B3_child_1)\\\\portrait_chest.png\",\n        \"sha256\": \"f790cdb4a1933c0a3f1009efe7159e90c044f57ee683a6bcf77833ae7f383317\",\n        \"bytes\": 170060\n      },\n      {\n        \"path\": \"D:\\\\Program Files (x86)\\\\Steam\\\\steamapps\\\\common\\\\Mount & Blade II Bannerlord\\\\Modules\\\\ReignBeta\\\\PortraitCache\\\\_shared\\\\Aeruan_Caeredawn (reign_court_town_B3_child_1)\\\\portrait_chest.png\",\n        \"sha256\": \"7acdc6a624fbaf39d35a2e5051a5171c1bbda9c8ff3095c240a49edfc3a9466c\",\n        \"bytes\": 216510\n      },\n      {\n        \"path\": \"C:\\\\Users\\\\speed\\\\Desktop\\\\sourcegen\\\\Reign Shared Portrait Source Cache - 20260716-200950\\\\_shared\\\\Aeruan_Caeredawn (reign_court_town_B3_child_1)\\\\source.png\",\n        \"sha256\": \"2f353d8d99e3f3831c2c97abfcd7966ac8f77152f6e432c96bb7c15b933f6bb9\",\n        \"bytes\": 1011622\n      },\n      {\n        \"path\": \"C:\\\\ReignPortraitRebuild\\\\2026-10-07-01a11741-culture-v2\\\\work\\\\reign_court_town_B3_child_1\\\\description.txt\",\n        \"sha256\": \"1ff743cfdef57ef2bc0a943c0bfeeef5fcffac3b96806de9332177bf3de2eed8\",\n        \"bytes\": 1131\n      },\n      {\n        \"path\": \"C:\\\\ReignPortraitRebuild\\\\2026-10-07-01a11741-culture-v2\\\\work\\\\reign_court_town_B3_child_1\\\\verification.json\",\n        \"sha256\": \"3f51d71e981d498edc998d203f954a31c02f8d79fc21bc5d76f766d6561378ca\",\n        \"bytes\": 5711\n      },\n      {\n        \"path\": \"C:\\\\Users\\\\speed\\\\Desktop\\\\sourcegen\\\\Reign Shared Portrait Source Cache - 20260716-200950\\\\_shared\\\\Aeruan_Caeredawn (reign_court_town_B3_child_1)\\\\portrait_input.json\",\n        \"sha256\": \"7afd20b6fa167fbb41a8a6e5e3c3bb2b0e420b47ff390794f1a3529281fef071\",\n        \"bytes\": 2520\n      },\n      {\n        \"path\": \"D:\\\\Projects\\\\Reign\\\\ReignBeta\\\\PortraitCache\\\\_shared\\\\Aeruan_Caeredawn (reign_court_town_B3_child_1)\\\\portrait_input.json\",\n        \"sha256\": \"97861c42134411a3d7f7b471be8e144ac1134c83f343133e459d0a089e2becf8\",\n        \"bytes\": 3093\n      },\n      {\n        \"path\": \"C:\\\\ReignPortraitRebuild\\\\2026-10-07-01a11741-culture-v2\\\\work\\\\reign_court_town_B3_child_1\\\\portrait_facial_culture_battania.txt\",\n        \"sha256\": \"61f429edd007ef5f69ea3a5970444551f95a48e02abb297a5c4aa7c0e6e1f66a\",\n        \"bytes\": 1576\n      },\n      {\n        \"path\": \"C:\\\\ReignPortraitRebuild\\\\2026-10-07-01a11741-culture-v2\\\\work\\\\reign_court_town_B3_child_1\\\\portrait_composition.txt\",\n        \"sha256\": \"384ee07d33c5524f196708540484f3e385cc1229abdee4963d04d946b6e6b14a\",\n        \"bytes\": 798\n      },\n      {\n        \"path\": \"C:\\\\ReignPortraitRebuild\\\\2026-10-07-01a11741-culture-v2\\\\work\\\\reign_court_town_B3_child_1\\\\portrait_clothing_battanian_minor_lord.txt\",\n        \"sha256\": \"d051796142cc9ee256c793b23ec6477a144aab9d17a03111372b0c94183b436e\",\n        \"bytes\": 693\n      },\n      {\n        \"path\": \"C:\\\\ReignPortraitRebuild\\\\2026-10-07-01a11741-culture-v2\\\\work\\\\reign_court_town_B3_child_1\\\\portrait_prompt_style.txt\",\n        \"sha256\": \"7bff0b5b19b885a768b49d3ef98b85cd6e5faa6077c723f2e5fee1c76ac24197\",\n        \"bytes\": 453\n      },\n      {\n        \"path\": \"C:\\\\ReignPortraitRebuild\\\\2026-10-07-01a11741-culture-v2\\\\work\\\\reign_court_town_B3_child_1\\\\portrait_output_rules.txt\",\n        \"sha256\": \"aa36e74b4cc175d24ba49dbc9b0be4bdcbe7b94e4beb26c14593c4bb67fe2269\",\n        \"bytes\": 588\n      },\n      {\n        \"path\": \"C:\\\\ReignPortraitRebuild\\\\2026-10-07-01a11741-culture-v2\\\\work\\\\reign_court_town_B3_child_1\\\\portrait_body_appearance.txt\",\n        \"sha256\": \"3de3568a8fe9279ea2cff8be77cfacdd501a3c81621ab1d0a93998780cfd9523\",\n        \"bytes\": 1389\n      },\n      {\n        \"path\": \"C:\\\\ReignPortraitRebuild\\\\2026-10-07-01a11741-culture-v2\\\\work\\\\reign_court_town_B3_child_1\\\\visual-review.json\",\n        \"sha256\": \"93c1190895df7bca4523d12e5ea685167c00719a52a049e00063480e86cce682\",\n        \"bytes\": 980\n      },\n      {\n        \"path\": \"C:\\\\ReignPortraitRebuild\\\\2026-10-07-01a11741-culture-v2\\\\_shared\\\\Aeruan_Caeredawn (reign_court_town_B3_child_1)\\\\.ai_generation.json\",\n        \"sha256\": \"2420a50c36808c920faab95684c11854ae080976c2ce07776ec8a9b3259abea3\",\n        \"bytes\": 3831\n      },\n      {\n        \"path\": \"C:\\\\ReignPortraitRebuild\\\\2026-10-07-01a11741-culture-v2\\\\_shared\\\\Aeruan_Caeredawn (reign_court_town_B3_child_1)\\\\.portrait_derivatives.json\",\n        \"sha256\": \"119deff79c12f3a5ebc6f91cdf5b17d06e0cdfc5f33d84ac72b8a5d935945082\",\n        \"bytes\": 1212\n      },\n      {\n        \"path\": \"C:\\\\ReignPortraitRebuild\\\\2026-10-07-01a11741-culture-v2\\\\_shared\\\\Aeruan_Caeredawn (reign_court_town_B3_child_1)\\\\formal_outfit.json\",\n        \"sha256\": \"373b0f6ff9b52c8db68b367f7e6e95f93781df2075cba3763ce65fa517dbf25e\",\n        \"bytes\": 873\n      },\n      {\n        \"path\": \"C:\\\\ReignPortraitRebuild\\\\2026-10-07-01a11741-culture-v2\\\\_shared\\\\Aeruan_Caeredawn (reign_court_town_B3_child_1)\\\\portrait.png\",\n        \"sha256\": \"28f1bc43e24cd35e928ea0ddd1cd353cec1f4d29b7d719b613cdd9b3b3ccaa77\",\n        \"bytes\": 2339772\n      },\n      {\n        \"path\": \"C:\\\\ReignPortraitRebuild\\\\2026-10-07-01a11741-culture-v2\\\\_shared\\\\Aeruan_Caeredawn (reign_court_town_B3_child_1)\\\\portrait_input.json\",\n        \"sha256\": \"97861c42134411a3d7f7b471be8e144ac1134c83f343133e459d0a089e2becf8\",\n        \"bytes\": 3093\n      },\n      {\n        \"path\": \"C:\\\\ReignPortraitRebuild\\\\2026-10-07-01a11741-culture-v2\\\\_shared\\\\Aeruan_Caeredawn (reign_court_town_B3_child_1)\\\\prompt.txt\",\n        \"sha256\": \"e6342facdeaaff81e0ad67a6567f28b013b88a3be3479b71d1191d9606308174\",\n        \"bytes\": 7517\n      },\n      {\n        \"path\": \"C:\\\\ReignPortraitRebuild\\\\2026-10-07-01a11741-culture-v2\\\\_shared\\\\Aeruan_Caeredawn (reign_court_town_B3_child_1)\\\\thumbnail.png\",\n        \"sha256\": \"f790cdb4a1933c0a3f1009efe7159e90c044f57ee683a6bcf77833ae7f383317\",\n        \"bytes\": 170060\n      },\n      {\n        \"path\": \"C:\\\\ReignPortraitRebuild\\\\2026-10-07-01a11741-culture-v2\\\\_shared\\\\Aeruan_Caeredawn (reign_court_town_B3_child_1)\\\\thumbnail_wide.png\",\n        \"sha256\": \"fc2315c151699b40f436367d3dd126cb30e7fa7c243a7ca2744efa7dd152ff1c\",\n        \"bytes\": 252652\n      },\n      {\n        \"path\": \"C:\\\\ReignPortraitRebuild\\\\2026-10-07-01a11741-culture-v2\\\\_shared\\\\Aeruan_Caeredawn (reign_court_town_B3_child_1)\\\\zoom.png\",\n        \"sha256\": \"5ee97a45ec6c3701596868acb06a6becea78c5352431520ead273756d2ab94ea\",\n        \"bytes\": 3241570\n      },\n      {\n        \"path\": \"C:\\\\ReignPortraitRebuild\\\\2026-10-07-01a11741-culture-v2\\\\tools\\\\templates\\\\manifest.json\",\n        \"sha256\": \"c7c0678ce42a5ab15e19fc2fb32b6de7351e7a74f558f8506f935000db56dbad\",\n        \"bytes\": 21876\n      },\n      {\n        \"path\": \"C:\\\\ReignPortraitRebuild\\\\2026-10-07-01a11741-culture-v2\\\\audit\\\\root-ten-next-face-source-personal-views-001.json\",\n        \"sha256\": \"f66da001930700637e64bbe5fb1cfaec7efc46d9ceae9bba37b1361f9f5eccf3\",\n        \"bytes\": 13570\n      }\n    ]\n  },\n  \"personalReview\": {\n    \"personallyViewedBy\": \"review_route\",\n    \"referencesPersonallyViewed\": true,\n    \"providerOriginalPersonallyViewed\": true,\n    \"quality\": \"Detailed natural-looking skin, lids, hair strands and woven cloak with recognizable current central facial arrangement.\",\n    \"sourceTargetOutcomes\": \"A broader softly rounded lower nasal tip/base and fuller exposed lower-lip cushion are visible in the resulting candidate. Those are plausible source-supported directions, but the slight turned/tilted head complicates width comparison with the native front view.\",\n    \"framingAndAnatomy\": \"Complete crown with headroom and upper chest/cloak are present. Lateral shoulders meet image boundaries. Neck is slightly tilted as in current. Beard-covered chin/jaw remain unspecified.\",\n    \"uncertainties\": [\n      \"No fresh comparison with near neighbor has established two independent robust structural differences.\",\n      \"Nose width comparison is partly confounded by the retained small head angle.\",\n      \"Moustache obscures upper-lip contours; beard-covered structures are not evidence.\"\n    ]\n  },\n  \"adopted\": false,\n  \"packed\": false,\n  \"currentWrites\": 0,\n  \"productWrites\": 0,\n  \"notSwapApproval\": true,\n  \"generationStopped\": true,\n  \"imageCallsInFlight\": 0\n}\n",
+  "originalReceiptEncoding": "UTF-8; BOM retained if present",
+  "localFiles": [
+    {
+      "name": "portrait_chest.png",
+      "sha256": "1374ae3bf1ab20ded84b63a5ff33a998441f00f3d67385aabf80bcf5ec364dae",
+      "bytes": 1732344
+    },
+    {
+      "name": "thumbnail.png",
+      "sha256": "562cdf885c241e6a54ea4d254238c955a1d9d7974693f4703d839eb06da500f7",
+      "bytes": 123968
+    },
+    {
+      "name": "thumbnail_wide.png",
+      "sha256": "66b9b24cf6b96730151fc4c69176030e7d27be5586341d89863910ad91c15f71",
+      "bytes": 197987
+    },
+    {
+      "name": "portrait_chest_source.png",
+      "sha256": "407711e48019fd1b7cee05d3ee7b4eaafddff56e6a68014cd4d9f960099ec1de",
+      "bytes": 2497878
+    },
+    {
+      "name": "prompt_chest.txt",
+      "sha256": "ad4c97891aa4611546caedde0392341d630a302e4aad3d8bcc748e979c2a84a9",
+      "bytes": 10230
+    },
+    {
+      "name": "portrait.png",
+      "sha256": "28f1bc43e24cd35e928ea0ddd1cd353cec1f4d29b7d719b613cdd9b3b3ccaa77",
+      "bytes": 2339772
+    },
+    {
+      "name": "zoom.png",
+      "sha256": "5ee97a45ec6c3701596868acb06a6becea78c5352431520ead273756d2ab94ea",
+      "bytes": 3241570
+    }
+  ],
+  "historicalParent": {
+    "record": {
+      "path": "C:\\ReignPortraitRebuild\\2026-10-07-01a11741-culture-v2\\_shared\\Aeruan_Caeredawn (reign_court_town_B3_child_1)\\.ai_generation.json",
+      "sha256": "2420a50c36808c920faab95684c11854ae080976c2ce07776ec8a9b3259abea3",
+      "bytes": 3831
+    },
+    "prompt": {
+      "path": "C:\\ReignPortraitRebuild\\2026-10-07-01a11741-culture-v2\\_shared\\Aeruan_Caeredawn (reign_court_town_B3_child_1)\\prompt.txt",
+      "sha256": "e6342facdeaaff81e0ad67a6567f28b013b88a3be3479b71d1191d9606308174",
+      "bytes": 7517
+    },
+    "role": "Original fullbody generation; not the new independent chest/edit producer."
+  },
+  "authenticRawReceiptNotRewritten": true,
+  "rawAbsolutePathsRole": "Historical tool/provider locations only. Current pixel source and prompt are bound by localFiles.",
+  "actualOriginAdapter": {
+    "schema": "reign-authentic-chest-result-case-adapter-v1",
+    "rawSchema": "reign-standalone-focused-chest-actual-result-v1",
+    "fieldMapping": {
+      "id": "characterId",
+      "source": "output",
+      "prompt": "prompt",
+      "references": "referenceOrder",
+      "actualCalls": "actualCalls",
+      "rawRetries": null,
+      "preservedInputs": "original generation release.inputs + actual afterGuard.inputs + suppliedStringLedger"
+    },
+    "rawActualCalls": 1,
+    "rawRetries": null,
+    "generationReleaseRetryBudget": 0,
+    "originalReceiptUnmodified": true
+  },
+  "globalFaceAcceptance": false,
+  "nativeUIAcceptance": false,
+  "notSwapApproval": true,
+  "ManualWideThumbnailCorrection": {
+    "schema": "reign-manual-wide-thumbnail-correction-v1",
+    "characterId": "reign_court_town_B3_child_1",
+    "nativeDisplayName": "Elidric",
+    "createdUtc": "2026-10-09T14:32:08.982305+00:00",
+    "reason": "Independent generated chest top crop overfills native roster and clips chin/shoulders. Restore full head and shoulders using approved full-body source.",
+    "source": {
+      "name": "portrait.png",
+      "sha256": "28f1bc43e24cd35e928ea0ddd1cd353cec1f4d29b7d719b613cdd9b3b3ccaa77",
+      "bytes": 2339772,
+      "mtime_ns": 1791404392626152200
+    },
+    "rect": {
+      "x": 294,
+      "y": 12,
+      "width": 448,
+      "height": 320
+    },
+    "output": {
+      "name": "thumbnail_wide.png",
+      "width": 448,
+      "height": 320,
+      "sha256": "66b9b24cf6b96730151fc4c69176030e7d27be5586341d89863910ad91c15f71",
+      "bytes": 197987
+    },
+    "priorOutput": {
+      "sha256": "096a07a12b6770458e4523e97bbfd2bb06998376bea0547587a8a95c169b43f8",
+      "bytes": 34793,
+      "mtime_ns": 1791505228578140100
+    },
+    "priorProduct": {
+      "source": {
+        "path": "C:\\Users\\speed\\.codex\\generated_images\\01a11c35-ffed-7141-9578-6b68f5fc5978\\exec-a67aba72-44d6-4626-b951-7aaa7405d28c.png",
+        "sha256": "407711e48019fd1b7cee05d3ee7b4eaafddff56e6a68014cd4d9f960099ec1de"
+      },
+      "rect": {
+        "x": 0,
+        "y": 0,
+        "width": 1086,
+        "height": 815
+      },
+      "height": 96,
+      "bytes": 34793,
+      "sha256": "096a07a12b6770458e4523e97bbfd2bb06998376bea0547587a8a95c169b43f8",
+      "width": 128,
+      "path": "C:\\ReignPortraitRebuild\\2026-10-07-01a11741-culture-v2\\audit\\independent-generated-chest-ten-candidate-pack-component-001\\reign_court_town_B3_child_1\\candidate-pack-001\\thumbnail_wide.png",
+      "name": "thumbnail_wide.png"
+    },
+    "preserved": "Every other portrait pixel and exact original generation receipt unchanged.",
+    "nativeUiAcceptance": false,
+    "forcedRegenerationMayOverwrite": true
+  }
+}

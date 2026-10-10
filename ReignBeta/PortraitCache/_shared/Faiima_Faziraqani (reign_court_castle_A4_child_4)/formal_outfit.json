@@ -3,11 +3,11 @@
   "heroStringId": "reign_court_castle_A4_child_4",
   "characterName": "Faiima Faziraqani",
   "imagePath": "portrait.png",
-  "imageSha256": "BE93200706BD63A6827AAC7ABC1EAB2F6BEF842A880342160301DF03FD5AD632",
-  "description": "Culturally appropriate everyday Aserai minor-lord attire inspired by refined medieval Arabian, North African, and limited Persian noble clothing. Men should wear a flowing robe or structured open-front coat over a fine lightweight tunic, secured with a decorated woven sash. Women should wear a long elegant dress with soft layered fabrics, shaped sleeves, graceful draping, and fine embroidery around the neckline, cuffs, and hem. Show rank through superior fabric, elegant borders, geometric embroidery, and subtle jewelry rather than excessive ornamentation. No headgear of any kind. No turbans, veils, hoods, armor, weapons, crowns, or ceremonial excess.",
-  "status": "failed",
-  "descriptionSource": "portrait_prompt_fallback",
-  "retryEligible": true,
-  "error": "{\"error\":{\"message\":\"Model \\\"zai-org/glm-5.2\\\" does not support image inputs. Remove image content or choose a multimodal model.\",\"type\":\"invalid_request_error\",\"param\":\"messages\",\"code\":\"image_input_not_supported\"}}",
-  "updatedUtc": "2026-07-18T22:03:29.0976677Z"
+  "imageSha256": "1EB0DF037DD124AECAB0B3364F0290F66907876A08524BD84F77DAFC7E10814C",
+  "description": "Opaque cream floor-length gown with a low square neckline, fitted bodice, elbow sleeves and gold-brown geometric borders, rust-brown central layer and loosely draped arm wrap, round metal waist fastening with hanging tassels, small gold earrings, pendant, wrist bracelets and closed patterned flats. No headgear, armour or weapons.",
+  "status": "completed",
+  "descriptionSource": "agent_vision",
+  "retryEligible": false,
+  "error": "",
+  "updatedUtc": "2026-10-08T04:35:33.284Z"
 }

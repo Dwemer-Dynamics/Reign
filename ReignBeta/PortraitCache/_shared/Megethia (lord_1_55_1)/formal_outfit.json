@@ -3,11 +3,11 @@
   "heroStringId": "lord_1_55_1",
   "characterName": "Megethia",
   "imagePath": "portrait.png",
-  "imageSha256": "3F94C2D304BEF22AC8AA2DCF72CFA5EDC2178F068E7D548B1B425CE4E01C3DC7",
-  "description": "Culturally appropriate everyday Calradic Imperial minor-lord attire inspired by refined late Roman and Byzantine noble clothing. Men should wear a high-quality tunic or long tailored outer coat over fine linen, decorated with narrow woven borders, refined clasps, and a decorated belt. Women should wear a long elegant dress or layered tunic ensemble with shaped sleeves, graceful draping, and tasteful trim around the neckline, cuffs, and edges. The garments should feel polished, educated, urban, and wealthy without resembling full imperial ceremony. No headgear of any kind. No armor, weapons, crowns, imperial regalia, laurel wreaths, or ceremonial robes.",
-  "status": "failed",
-  "descriptionSource": "portrait_prompt_fallback",
-  "retryEligible": true,
-  "error": "{\"error\":{\"message\":\"Model \\\"zai-org/glm-5.2\\\" does not support image inputs. Remove image content or choose a multimodal model.\",\"type\":\"invalid_request_error\",\"param\":\"messages\",\"code\":\"image_input_not_supported\"}}",
-  "updatedUtc": "2026-07-18T22:03:32.5030949Z"
+  "imageSha256": "25DE40260A3A1CAFC90AE3FE0F42823A56C8EB3C624AF37E1110D564060315F8",
+  "description": "Megethia wears an opaque burgundy floor-length court gown with a low square neckline, naturally fitted bodice and elbow-length sleeves. Narrow gold geometric and scrolling embroidered borders trace the neckline, front bodice seams, cuffs, waist and vertical skirt opening. Decorative round brooches sit near the shoulder corners. A thin decorated girdle with a large circular clasp secures the waist. A pale cream wrap with burgundy and gold borders rests around her forearms. A narrow cream underdress panel is visible down the lower front. A small pendant and bracelet provide modest jewelry. Dark embroidered flat shoes peek beneath the hem; her head is uncovered.",
+  "status": "completed",
+  "descriptionSource": "agent_vision",
+  "retryEligible": false,
+  "error": "",
+  "updatedUtc": "2026-10-08T00:27:08.465Z"
 }

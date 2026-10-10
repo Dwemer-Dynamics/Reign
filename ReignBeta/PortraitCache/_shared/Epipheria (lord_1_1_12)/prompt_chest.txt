@@ -1,0 +1,69 @@
+FRAMING-ONLY EDIT - PRESERVE THE IMPROVED FACE IN IMAGE 1
+This edit changes framing only. Image 1 is the improved chest candidate, not the older staged chest. Preserve its existing facial identity, exact eye/nose/lip proportions, apparent age, expression, skin texture, freckles and other existing skin detail, hair identity, lighting and photographic finish. Preserve its upright head and torso, shoulder/chest proportions, garment design and coverage, jewelry and material context. Do not apply any further facial restoration, reshaping or beautification.
+Image 2 remains the old shared identity reference and Image 3 remains the native identity reference. Their roles and the complete original guidance below remain documented, but they must not replace or revise the improved face of Image 1 during this framing-only edit. The source-supported facial correction wording below describes the already-created candidate; do not perform it again.
+Pull the camera back just enough to include the entire hairstyle, including every bun, crown and flyaway, with approximately 8% of the image height as visible natural background above the highest hair. Include both complete shoulders with clear natural background margins beyond their outer contours and retain the upper-chest garment. Maintain a vertical 3:4 chest portrait. Keep the same subject proportions and realistic lens perspective; do not shrink only the head or alter the anatomy.
+Expand the actual photographed scene consistently where needed. Do not create padding, tinted bars, blank bands, rendered borders, frames or artificial strips. Extend the same soft background and visible clothing naturally. The sole requested change is the wider complete-crown-and-shoulders framing.
+
+REFERENCE-GUIDED CHEST PORTRAIT EDIT: INDIVIDUAL FACIAL IDENTITY WITH PHOTOGRAPHIC REFINEMENT
+Image 1 is the CURRENT CHEST PORTRAIT. Edit it into one high-detail chest portrait. Preserve its photographic finish, soft daylight, upright head and torso posture, visible shoulder and chest proportions, clothing craftsmanship, background and chest composition. Preserve the existing garment, jewelry and visible hair context. Use the exact authored age and independent physique guidance below.
+Image 2 is the OLD SHARED CHEST PORTRAIT. Use its supported individual eye, nose and mouth proportions as identity guidance only, subject to the native-source description. Do not copy its clothing, body proportions, posture, framing or older rendering finish. Avoid generic beautification.
+Image 3 is the NATIVE SOURCE. Use its exposed facial anatomy to resolve the source-supported structures specified below where the old portrait simplified them. The complete written description governs age, hair and facial-hair identity, eye-color family, skin details and visible marks. Do not copy game-render surfaces, clothing, pose or body proportions. Blend the cultural appearance with recognizable individual proportions.
+Improve eyes, skin and anatomical transitions into resolved natural photographic detail. Keep authentic pores, coherent eyelid edges and natural lip surfaces. Create one vertical chest portrait with complete crown, shoulders and upper chest.
+
+I want you to create a picture of a 19-year-old woman who looks like the description below. Create one photographic chest portrait showing complete crown, shoulders and upper chest. Clothing follows Imperial lesser lord fashion, with the craftsmanship and social station of clan tier 4. These values are generation guidance and must never be printed in the image.
+Use a vertical 3:4 portrait canvas. Use the three supplied images according to their separate reference roles above, together with the complete written guidance below.
+
+FACIAL APPEARANCE AND HAIR
+Epipheria has a youthful softly oval face, broad through the upper cheeks and gently tapering to a small rounded chin. Her forehead is medium high, with a slightly uneven hairline. Her skin is fair warm peach with golden undertones, fine freckles over the nose and upper cheeks, slight reddish warmth around the eyes, and natural uneven texture. The cheek contours are softly rounded rather than deeply sculpted. Her eyebrows are medium brown, narrow, almost straight at the inner ends and gently arched outward. Her eyes are pale green-grey with dark rims, medium large and almond shaped, under lightly folded upper lids and shallow lower-lid shadows. Their precise grey tint is uncertain. Her nose is medium short, narrow through its straight softly raised bridge, with a small rounded tip and modest nostril wings. Her mouth is medium wide with a thin curved upper lip, fuller muted rosy lower lip, and closed relaxed corners. Her hair is sandy medium brown with dark blonde golden strands and darker roots. An off-center part and loose swept waves frame the forehead; the longer hair is gathered into a low side ponytail over her right shoulder, on the viewer's left, reaching the upper chest. Thin irregular strands hang around her opposite cheek and neck. Preserve this asymmetrical long ponytail, youthful soft cheeks, understated lips and fair freckles. No definite scar, tattoo or facial hair is visible.
+
+FACIAL CULTURAL APPEARANCE — IMPERIAL
+Stored cultureId: empire.
+Regional reference: Eastern Mediterranean regional appearance, drawing on Greek, Anatolian and neighboring populations.
+Create a believable real human face with this regional appearance. Apply the regional reference positively to facial appearance, facial structure and complexion; it is not only a clothing, setting or background instruction.
+Blend the regional reference with the individual facial description. Where simplified native geometry or game-renderer shading differs from this regional appearance, use a plausible natural blend while retaining recognizable individual traits: face outline, relative proportions, eyes, brows, nose, mouth, jaw and chin. Preserve the described hair identity, arrangement and texture, facial-hair pattern, eye character, visible scars and markings; do not invent new distinguishing marks.
+These regional populations contain substantial individual variation. Do not give every member the same face, impose a universal skin, hair or eye color, or replace the written individual identity with a generic regional stereotype. Preserve source-grounded differences and natural human asymmetry.
+Keep the exact authored age and the independent native weight and build values. This layer applies to facial appearance and realistic complexion interpretation, not body size, muscularity, garment coverage or social rank. Every complete composition, clothing, confidence, photographic, output and physique modifier remains in effect. Do not print this reference or any metadata in the image.
+
+COMPOSITION AND FRAMING
+Create a high-detail chest portrait framed from a little above the complete hairstyle to the upper chest. Keep the face large and readable while including both complete shoulders and visible upper-chest garment.
+Keep the head and torso upright and centered on the vertical axis in a relaxed natural pose consistent with Image 1.
+Use a vertical 3:4 portrait canvas. Leave clear headroom above every hair strand and comfortable margins outside both shoulders. Place the complete crown near the upper margin, the face across the upper and central image, and the upper-chest garment across the lower image.
+Keep the complete forehead, hairstyle, chin and both shoulders visible. Give facial detail enough image area to resolve naturally with realistic portrait-lens perspective.
+Use a softly blurred, historically appropriate stone doorway or architectural background that does not compete with the subject.
+
+Culturally appropriate everyday Calradic Imperial minor-lord attire inspired by refined late Roman and Byzantine noble clothing. Men should wear a high-quality tunic or long tailored outer coat over fine linen, decorated with narrow woven borders, refined clasps, and a decorated belt. Women should wear a long elegant dress or layered tunic ensemble with shaped sleeves, graceful draping, and tasteful trim around the neckline, cuffs, and edges. The garments should feel polished, educated, urban, and wealthy without resembling full imperial ceremony. No headgear of any kind. No armor, weapons, crowns, imperial regalia, laurel wreaths, or ceremonial robes.
+
+FEMALE PHYSICAL CONFIDENCE MODIFIER - 21 TO 40
+Computed physical_confidence score: 36 out of 100.
+Respect and fully incorporate every other prompt’s clothing style, fabrics, cultural descriptions, ornamentation, and overall design for the woman. Apply this override only to revealingness. Tailor the outfit (within the given style and culture) to near-full modest coverage with the mildest possible opening: neckline at or just below the base of the throat/collarbones (soft square, boat, or high-V), full length sleeves to the wrists that may sit slightly closer to the arm, opaque fabrics that allow only a soft natural silhouette to show under structured or draped layers, floor-length skirts with no openings. Face, minimal neck, and hands only. Proper court coverage with slight shape awareness allowed. All other elements remain free and must be used.
+
+PHOTOGRAPHIC STYLE
+Make the subject look like a real human being photographed candidly, not a game render or fantasy illustration.
+Use authentic skin texture, visible pores, natural imperfections, slight asymmetry, natural lips, believable eyes, realistic hair, and restrained age-appropriate detail.
+Use soft natural daylight, shallow depth of field, a realistic 85mm portrait-lens perspective, subtle film grain, and a grounded photographic finish.
+
+OUTPUT EXCLUSIONS
+Return only the portrait image itself.
+Do not render words, letters, numbers, captions, labels, names, ages, cultures, subtitles, signatures, logos, watermarks, interface elements, portrait cards, decorative title blocks, borders, banners, blank caption areas, white strips, white footer panels, or metadata panels anywhere in the image.
+No extreme close-up, face-only crop, cropped head, cropped shoulders, armor, weapons, shields, quivers, chainmail, helmets, fur war gear, plastic skin, over-smoothed face, CGI, cartoon, anime, painterly style, or modern clothing.
+
+NATIVE BODY APPEARANCE — AUTHORITATIVE PHYSIQUE
+Native weight: 0.5 on a 0–1 scale: Medium body-fat level.
+Native build: 0.5 on a 0–1 scale: Moderately toned.
+These are independent native appearance sliders, not kilograms, BMI, clinical classifications or body-fat percentages. Respect the exact position within each range, without abrupt changes at descriptive boundaries.
+Weight controls body-fat fullness. For women, build controls natural muscle tone, firmness, and athletic definition, not added muscle mass, bulky shoulders, thick arms, or masculine bodybuilder proportions. For men, build controls muscle mass. High weight does not imply muscle. High build does not imply extra fat or automatically visible abdominal definition; body fat and clothing can obscure definition.
+Match these native proportions even if another prompt or the supplied AI portrait conflicts. Preserve native age, sex, skeletal proportions, face and identity. Do not infer breast size, enlarge curves, beautify, slim or bulk up the person beyond these values.
+Garments must fit this physique. Revealingness and physical confidence change clothing coverage only, never body size. Covered muscles need not be exposed. During a clothing edit, correct conflicting AI physique to these native values while preserving the person's face and identity. Never print these instructions or values in the image.
+
+CHEST PREVIEW FRAMING CHECK
+Keep the complete crown with clear headroom, both shoulders, chin and upper-chest clothing in the finished chest portrait. Give the face substantially more of the image than in a distant standing composition. Preserve written identity, independent native physique values, complete clothing and coverage guidance, soft daylight and photographic finish. This is an experimental chest preview, not a canonical crop specification.
+
+FOCUSED SOURCE-SUPPORTED FACIAL GUIDANCE
+1. Restore the source-supported thin gently curved upper lip while retaining the fuller lower lip, moderate mouth width and relaxed closed seam. Avoid inflated upper-lip central volume or an exaggerated bow.
+2. Keep the existing youthful softly oval cheek anatomy within the full written description. Do not introduce an additional cheek reshaping for this focused candidate; the proposed convex-upper-cheek contrast is lighting-sensitive and requires a separate matched-view assessment.
+
+Keep any facial-hair-covered jaw or chin anatomy unspecified. Do not invent distinguishing marks or use hair, beard, color, pose, expression or lighting as facial structural differences. Preserve the exact authored age, independent body values, full clothing/confidence coverage, cultural blend and current photographic finish. Resolve natural eyes, skin and lips without generic beautification. Output one complete-crown, shoulders-and-upper-chest portrait. Improved detail or one clearer feature does not establish two independent differences from any neighbor.
+
+
+FINAL FRAMING-ONLY CHECK
+Freeze the improved face, expression, age, skin, light and visible styling from Image 1. Make no further facial identity changes. Show the full bun/crown and all hair with about 8% natural background above it, both complete shoulders with background margins, and upper-chest clothing. Pull back the composition rather than changing the head/body proportions. No padding, tint, bars or rendered borders. The complete original clothing, culture, confidence, age and independent weight/tone guidance remains in effect. Return only the corrected chest portrait image.

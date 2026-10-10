@@ -3,11 +3,11 @@
   "heroStringId": "lord_7_1",
   "characterName": "Halthdar",
   "imagePath": "portrait.png",
-  "imageSha256": "8253DF165813E3B805E9F27DCA7FF090DFBF61135BF19A33D14393931CD78BD4",
-  "description": "Culturally appropriate everyday Nord high-noble attire inspired by luxurious but historically grounded elite Scandinavian clothing. Use fine wool, exceptionally high-quality linen, elegant layering, intricate tablet-woven trim, tasteful brooches, decorated belts, and rich but believable textile detail. Men should wear a stately knee-length or slightly longer noble tunic with excellent tailoring, refined fastenings, and finely woven borders. Women should wear a richly made long dress or layered apron-dress arrangement over fine linen, with graceful draping, ornamental weaving, and restrained jewelry. The clothing should communicate high rank through craftsmanship and fabric quality rather than excessive ornamentation. No headgear of any kind. No helmets, caps, hoods, armor, weapons, crowns, horned helmets, or fantasy Viking styling.",
-  "status": "failed",
-  "descriptionSource": "portrait_prompt_fallback",
-  "retryEligible": true,
-  "error": "{\"error\":{\"message\":\"Model \\\"zai-org/glm-5.2\\\" does not support image inputs. Remove image content or choose a multimodal model.\",\"type\":\"invalid_request_error\",\"param\":\"messages\",\"code\":\"image_input_not_supported\"}}",
-  "updatedUtc": "2026-07-18T22:03:30.0455353Z"
+  "imageSha256": "E2DDC8CB0C20888E5CD1BDF312137234489741364B88CC71D16DB8B5B011A271",
+  "description": "A stately deep blue knee-length wool tunic with intricate gold tablet-woven geometric borders at the neck, front placket, cuffs and hem, over fine cream linen visible at the collar and wrists. A rich muted burgundy cloak with woven edging is fastened by two round metal shoulder brooches linked by a chain. A wide dark decorated belt with engraved round fittings and a long hanging strap secures the waist. Brown trousers and brown leather knee-high boots with woven strap edging complete the clothing. No headgear, armor or weapons.",
+  "status": "completed",
+  "descriptionSource": "agent_vision",
+  "retryEligible": false,
+  "error": "",
+  "updatedUtc": "2026-10-08T04:25:55.704Z"
 }

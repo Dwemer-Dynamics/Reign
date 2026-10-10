@@ -1,0 +1,80 @@
+{
+  "schema": "reign-portable-actual-portrait-origin-v1",
+  "id": "reign_court_castle_ES1_child_2",
+  "kind": "independent_chest",
+  "actualReceiptSha256": "fb2672fc26c63c795e4728c23ed645f273b64e8db6cdf90c6be903df56c8c4c2",
+  "actualReceiptUtf8": "{\r\n  \"schema\": \"reign-actual-independent-generated-chest-result-v1\",\r\n  \"requestId\": \"0e66fce5-986b-46f2-b110-d2861a9b9259\",\r\n  \"createdUtc\": \"2026-10-08T23:06:49.619364+00:00\",\r\n  \"characterId\": \"reign_court_castle_ES1_child_2\",\r\n  \"executor\": \"root\",\r\n  \"release\": {\r\n    \"path\": \"C:\\\\ReignPortraitRebuild\\\\2026-10-07-01a11741-culture-v2\\\\audit\\\\root-focused-chest-quality-reign_court_castle_ES1_child_2-001\\\\root-release-001.json\",\r\n    \"sha256\": \"8211b6c73e7d01d38dfe5cb3570babc95f76c82a60165068ea887f861364d40b\"\r\n  },\r\n  \"actualImageCalls\": 1,\r\n  \"actualRetryCalls\": 0,\r\n  \"tool\": \"image_gen.imagegen\",\r\n  \"actualOutputIdentifier\": \"exec-b9678262-d330-4010-8f21-d1b66ef3abb3.png\",\r\n  \"actualOutput\": {\r\n    \"path\": \"C:\\\\Users\\\\speed\\\\.codex\\\\generated_images\\\\01a11741-4ac1-7cd2-9aca-e03d81313445\\\\exec-b9678262-d330-4010-8f21-d1b66ef3abb3.png\",\r\n    \"sha256\": \"50c4a5b531e560d681c2f8856308e2f97a602d9e9147c7d524d4c4a9f6a93051\",\r\n    \"bytes\": 2099640,\r\n    \"width\": 1086,\r\n    \"height\": 1448\r\n  },\r\n  \"exactPrompt\": {\r\n    \"path\": \"C:/ReignPortraitRebuild/2026-10-07-01a11741-culture-v2/audit/phase4-clean-chest-three-drafts-gallery-001/reign_court_castle_ES1_child_2-chest-prompt-001.txt\",\r\n    \"sha256\": \"f74b2bc29edcbea9957ab42c6d3954c79267de333dba0fb5ecb2930fb840412c\",\r\n    \"bytes\": 12394\r\n  },\r\n  \"referenceOrder\": [\r\n    {\r\n      \"image\": 1,\r\n      \"purpose\": \"current_chest_edit_target\",\r\n      \"path\": \"C:\\\\ReignPortraitRebuild\\\\2026-10-07-01a11741-culture-v2\\\\_shared\\\\Aevysara_Merovorides (reign_court_castle_ES1_child_2)/portrait_chest.png\",\r\n      \"sha256\": \"db5dfae3998da37ca1c611a7c570a915ce1a38a29e7b98b0837224e180111410\",\r\n      \"bytes\": 161539\r\n    },\r\n    {\r\n      \"image\": 2,\r\n      \"purpose\": \"old_shared_identity_only\",\r\n      \"path\": \"D:\\\\Program Files (x86)\\\\Steam\\\\steamapps\\\\common\\\\Mount & Blade II Bannerlord\\\\Modules\\\\ReignBeta\\\\PortraitCache\\\\_shared\\\\Aevysara_Merovorides (reign_court_castle_ES1_child_2)\\\\portrait_chest.png\",\r\n      \"sha256\": \"b44e1de688f6e3c37990269ea1a86cda5459738c68b8beac89491159c9d2be96\",\r\n      \"bytes\": 92336\r\n    },\r\n    {\r\n      \"image\": 3,\r\n      \"purpose\": \"native_identity_override_only\",\r\n      \"path\": \"C:\\\\Users\\\\speed\\\\Desktop\\\\sourcegen\\\\Reign Shared Portrait Source Cache - 20260716-200950\\\\_shared\\\\Aevysara_Merovorides (reign_court_castle_ES1_child_2)\\\\source.png\",\r\n      \"sha256\": \"bd6a66fafbcfd54c68b2a4000210284da929dcbda33c3c5387bde76b0cf99132\",\r\n      \"bytes\": 727066\r\n    }\r\n  ],\r\n  \"inputsBeforeAfterUnchanged\": true,\r\n  \"verifiedInputCount\": 22,\r\n  \"canonicalWrites\": 0,\r\n  \"productWrites\": 0,\r\n  \"adopted\": false,\r\n  \"review\": {\r\n    \"reviewer\": \"root\",\r\n    \"actualCandidatePersonallyViewed\": true,\r\n    \"currentAndNativePersonallyReViewedAfterGeneration\": true,\r\n    \"quality\": \"Clearly improved facial pixel detail, coherent eyelids and irises, resolved pores and natural transitions across cheeks and lower nose. Full crown retained with headroom.\",\r\n    \"identity\": \"Recognizably current Aevysara, with broader blunt lower nose and similar source-supported eye shape. Source interpretation remains a culture blend.\",\r\n    \"limitations\": [\r\n      \"Lower lip remains fuller and upper lip more bowed than the requested restrained near-horizontal source mouth; this instruction was only partially achieved.\",\r\n      \"Chest image cannot independently establish whole-body weight and muscle tone.\",\r\n      \"Visible jewelry placement and embroidery microdetail are regenerated rather than pixel-identical.\",\r\n      \"No new neighbor-distinctness, source-fidelity or global acceptance decision.\"\r\n    ],\r\n    \"verdict\": \"quality_improved_candidate_review_required\"\r\n  }\r\n}\r\n",
+  "originalReceiptEncoding": "UTF-8; BOM retained if present",
+  "localFiles": [
+    {
+      "name": "portrait_chest.png",
+      "sha256": "319e4cb1b6f5baf678a91663a70673e75a444094773ceb867360fe6de1254d6d",
+      "bytes": 1618122
+    },
+    {
+      "name": "thumbnail.png",
+      "sha256": "a4af7441584ba78527a77427901430694df1d1b0cad86c5cf0dc2c591087fad4",
+      "bytes": 121470
+    },
+    {
+      "name": "thumbnail_wide.png",
+      "sha256": "22ef18868d745a13caca3a547200f3a6fe9687eabefbafc5afa7bdccf95a7be9",
+      "bytes": 33371
+    },
+    {
+      "name": "portrait_chest_source.png",
+      "sha256": "50c4a5b531e560d681c2f8856308e2f97a602d9e9147c7d524d4c4a9f6a93051",
+      "bytes": 2099640
+    },
+    {
+      "name": "prompt_chest.txt",
+      "sha256": "f74b2bc29edcbea9957ab42c6d3954c79267de333dba0fb5ecb2930fb840412c",
+      "bytes": 12394
+    },
+    {
+      "name": "portrait.png",
+      "sha256": "c53cd18bddb59d3071299d9db4a361c7b192e8b2efa62dc5221b2ea242c77e3b",
+      "bytes": 2128722
+    },
+    {
+      "name": "zoom.png",
+      "sha256": "85338459c986571487f208d072e3c575bcf6338c73e49a2349c3fe4e359ef1f0",
+      "bytes": 3038329
+    }
+  ],
+  "historicalParent": {
+    "record": {
+      "path": "C:\\ReignPortraitRebuild\\2026-10-07-01a11741-culture-v2\\_shared\\Aevysara_Merovorides (reign_court_castle_ES1_child_2)\\.ai_generation.json",
+      "sha256": "2aa619f6f7340f837b80f6372717f49b3be143433cd1c089f77a40dd7c48cefd",
+      "bytes": 7626
+    },
+    "prompt": {
+      "path": "C:\\ReignPortraitRebuild\\2026-10-07-01a11741-culture-v2\\_shared\\Aevysara_Merovorides (reign_court_castle_ES1_child_2)\\prompt.txt",
+      "sha256": "8cc73ad5c978291097e7f024152f0c87c6d386f49d82d6d50541ba632a3d12a6",
+      "bytes": 11193
+    },
+    "role": "Original fullbody generation; not the new independent chest/edit producer."
+  },
+  "authenticRawReceiptNotRewritten": true,
+  "rawAbsolutePathsRole": "Historical tool/provider locations only. Current pixel source and prompt are bound by localFiles.",
+  "actualOriginAdapter": {
+    "schema": "reign-authentic-chest-result-case-adapter-v1",
+    "rawSchema": "reign-actual-independent-generated-chest-result-v1",
+    "fieldMapping": {
+      "id": "characterId",
+      "source": "actualOutput",
+      "prompt": "exactPrompt",
+      "references": "referenceOrder",
+      "actualCalls": "actualImageCalls",
+      "retries": "actualRetryCalls",
+      "preservedInputs": "original generation release.inputs (22 actual pins); original result reports verifiedInputCount only"
+    },
+    "rawActualCalls": 1,
+    "rawRetries": 0,
+    "generationReleaseRetryBudget": 0,
+    "originalReceiptUnmodified": true
+  },
+  "globalFaceAcceptance": false,
+  "nativeUIAcceptance": false,
+  "notSwapApproval": true
+}

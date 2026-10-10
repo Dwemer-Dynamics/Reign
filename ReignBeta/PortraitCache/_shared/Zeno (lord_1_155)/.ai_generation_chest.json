@@ -1,0 +1,80 @@
+{
+  "schema": "reign-portable-actual-portrait-origin-v1",
+  "id": "lord_1_155",
+  "kind": "independent_chest",
+  "actualReceiptSha256": "00c6171aeeca2652ebb2c2165139d71af47e6397a8f29bcba83000601f037905",
+  "actualReceiptUtf8": "{\n  \"schema\": \"reign-bounded-chat-image-result-v1\",\n  \"requestId\": \"c2e0f9ba-be1a-489d-b704-62f3bf2aad89\",\n  \"characterId\": \"lord_1_155\",\n  \"executor\": \"gallery_prepare\",\n  \"release\": {\n    \"path\": \"C:/ReignPortraitRebuild/2026-10-07-01a11741-culture-v2/audit/root-focused-chest-quality-lord_1_155-001/root-release-001.json\",\n    \"sha256\": \"1b49ada0114cd8380022d476aa4d94fcd195decb9457eb98a15bed4024150ec5\"\n  },\n  \"prompt\": {\n    \"path\": \"C:/ReignPortraitRebuild/2026-10-07-01a11741-culture-v2/audit/phase4-clean-chest-three-drafts-gallery-001/lord_1_155-chest-prompt-001.txt\",\n    \"sha256\": \"cb5d865ab26bed27d11d077bd488213664254dd86c56132d7e95ce34496dfdc7\",\n    \"bytes\": 11036\n  },\n  \"suppliedStringLedger\": {\n    \"path\": \"C:/ReignPortraitRebuild/2026-10-07-01a11741-culture-v2/audit/root-focused-chest-quality-lord_1_155-001/supplied-string-ledger-001.json\",\n    \"sha256\": \"9c6510cd67aac259ff7deec924641db62aca542c51f717926bfa871191739938\",\n    \"callStartedUtc\": \"2026-10-08T23:06:51.621Z\",\n    \"toolArgumentsSha256\": \"29c08c7b26c2477ddaa733332c28b737378f9dd76679f24476dc5eea2b8e4ca1\"\n  },\n  \"actualCallOccurred\": true,\n  \"actualCallCount\": 1,\n  \"actualInputImages\": 3,\n  \"referenceOrder\": [\n    {\n      \"image\": 1,\n      \"purpose\": \"current_chest_edit_target\",\n      \"path\": \"C:\\\\ReignPortraitRebuild\\\\2026-10-07-01a11741-culture-v2\\\\_shared\\\\Zeno (lord_1_155)/portrait_chest.png\",\n      \"sha256\": \"e8be1e9f1173454c78e3604a8cb18730afa580bcb0ed2bd0457297cfaca7c6fa\",\n      \"bytes\": 179903\n    },\n    {\n      \"image\": 2,\n      \"purpose\": \"old_shared_identity_only\",\n      \"path\": \"D:\\\\Program Files (x86)\\\\Steam\\\\steamapps\\\\common\\\\Mount & Blade II Bannerlord\\\\Modules\\\\ReignBeta\\\\PortraitCache\\\\_shared\\\\Zeno (lord_1_155)\\\\portrait_chest.png\",\n      \"sha256\": \"0aba4d365dd390535ff3a95c57aff0ecfe61892fc08308dec96b6245d977474b\",\n      \"bytes\": 145239\n    },\n    {\n      \"image\": 3,\n      \"purpose\": \"native_identity_override_only\",\n      \"path\": \"C:\\\\Users\\\\speed\\\\Desktop\\\\sourcegen\\\\Reign Shared Portrait Source Cache - 20260716-200950\\\\_shared\\\\Zeno (lord_1_155)\\\\source.png\",\n      \"sha256\": \"2f4160c39108963739c247aa9f06b83e262dbd33a9996636545d656d71909c46\",\n      \"bytes\": 561334\n    }\n  ],\n  \"status\": \"returned_candidate_only\",\n  \"returnedUtc\": \"2026-10-08 23:07:21 UTC\",\n  \"exactProviderInvocationStartedUtc\": null,\n  \"timingLimit\": \"Precall ledger UTC is a real before-invocation boundary; exact provider invocation start was not separately exposed. Return UTC is an actual clock reading after tool return at second precision.\",\n  \"providerReturn\": {\n    \"keys\": [\n      \"image_url\",\n      \"output_hint\"\n    ],\n    \"output_hint\": \"Generated images are saved to C:\\\\Users\\\\speed\\\\.codex\\\\generated_images\\\\01a11c35-b9ad-75f1-9c21-5742fde8069d as C:\\\\Users\\\\speed\\\\.codex\\\\generated_images\\\\01a11c35-b9ad-75f1-9c21-5742fde8069d\\\\exec-71508c4e-d119-47e8-ba19-3d6a3c7de940.png by default.\\nIf you need to use a generated image at another path, copy it and leave the original in place unless the user explicitly asks you to delete it.\\nThe generated image is already displayed to the user. There is no need to render it in the final response as a Markdown image or file link.\",\n    \"tool\": \"image_gen.imagegen\",\n    \"exactBackendModel\": null,\n    \"exactBackendModelReason\": \"Built-in provider return contains only image_url and output_hint; backend model not exposed.\",\n    \"imageDataOmittedFromReceipt\": true\n  },\n  \"output\": {\n    \"path\": \"C:/Users/speed/.codex/generated_images/01a11c35-b9ad-75f1-9c21-5742fde8069d/exec-71508c4e-d119-47e8-ba19-3d6a3c7de940.png\",\n    \"sha256\": \"fb2fa16e66b9ed2f36aecfe76471a985f889ab1371d2ba6c334b0cc510daf894\",\n    \"bytes\": 2283222,\n    \"width\": 1086,\n    \"height\": 1448\n  },\n  \"retainedOriginalProviderOutput\": true,\n  \"duplicatePngCopies\": 0,\n  \"afterguard\": {\n    \"checkedUtc\": \"2026-10-08T23:08:26.075Z\",\n    \"passed\": true,\n    \"count\": 22,\n    \"inputs\": [\n      {\n        \"path\": \"C:\\\\ReignPortraitRebuild\\\\2026-10-07-01a11741-culture-v2\\\\audit\\\\phase4-clean-chest-three-drafts-gallery-001\\\\lord_1_155-chest-prompt-001.txt\",\n        \"sha256\": \"cb5d865ab26bed27d11d077bd488213664254dd86c56132d7e95ce34496dfdc7\",\n        \"bytes\": 11036\n      },\n      {\n        \"path\": \"C:\\\\ReignPortraitRebuild\\\\2026-10-07-01a11741-culture-v2\\\\audit\\\\phase4-clean-chest-three-drafts-gallery-001\\\\lord_1_155-replacement-ledger-001.json\",\n        \"sha256\": \"9b34b27d3af23e6692aedc43e364199eb07b15dbd725d9f395ed831f325eea51\",\n        \"bytes\": 10627\n      },\n      {\n        \"path\": \"C:\\\\ReignPortraitRebuild\\\\2026-10-07-01a11741-culture-v2\\\\audit\\\\phase4-clean-chest-three-drafts-gallery-001\\\\lord_1_155-proposal-001.json\",\n        \"sha256\": \"3564b7f6af0321d89bda8c54ff566b3a4c98a52b3ab1678473aac7883e2d6f13\",\n        \"bytes\": 8423\n      },\n      {\n        \"path\": \"C:\\\\ReignPortraitRebuild\\\\2026-10-07-01a11741-culture-v2\\\\work\\\\lord_1_155\\\\prompt.txt\",\n        \"sha256\": \"c4369c1f3c538feffdd959dd6198a380f6275a1ba0a636a2e1d3e6669f746325\",\n        \"bytes\": 9939\n      },\n      {\n        \"path\": \"C:\\\\ReignPortraitRebuild\\\\2026-10-07-01a11741-culture-v2\\\\_shared\\\\Zeno (lord_1_155)\\\\portrait_chest.png\",\n        \"sha256\": \"e8be1e9f1173454c78e3604a8cb18730afa580bcb0ed2bd0457297cfaca7c6fa\",\n        \"bytes\": 179903\n      },\n      {\n        \"path\": \"D:\\\\Program Files (x86)\\\\Steam\\\\steamapps\\\\common\\\\Mount & Blade II Bannerlord\\\\Modules\\\\ReignBeta\\\\PortraitCache\\\\_shared\\\\Zeno (lord_1_155)\\\\portrait_chest.png\",\n        \"sha256\": \"0aba4d365dd390535ff3a95c57aff0ecfe61892fc08308dec96b6245d977474b\",\n        \"bytes\": 145239\n      },\n      {\n        \"path\": \"C:\\\\Users\\\\speed\\\\Desktop\\\\sourcegen\\\\Reign Shared Portrait Source Cache - 20260716-200950\\\\_shared\\\\Zeno (lord_1_155)\\\\source.png\",\n        \"sha256\": \"2f4160c39108963739c247aa9f06b83e262dbd33a9996636545d656d71909c46\",\n        \"bytes\": 561334\n      },\n      {\n        \"path\": \"C:\\\\ReignPortraitRebuild\\\\2026-10-07-01a11741-culture-v2\\\\audit\\\\phase4-focused-face-edit-drafts-gallery-001\\\\four-face-edit-drafts-report-001.json\",\n        \"sha256\": \"92083963c6dd0700a3ee23b53a564f1aa9f7260093d5e4104632bc5169d55676\",\n        \"bytes\": 33447\n      },\n      {\n        \"path\": \"C:\\\\Users\\\\speed\\\\Desktop\\\\sourcegen\\\\Reign Shared Portrait Source Cache - 20260716-200950\\\\_shared\\\\Zeno (lord_1_155)\\\\portrait_input.json\",\n        \"sha256\": \"28e4924c1a19565fe6c25559a1b542243cd8059bbe796d28091f0a39971fe250\",\n        \"bytes\": 2457\n      },\n      {\n        \"path\": \"D:\\\\Projects\\\\Reign\\\\ReignBeta\\\\PortraitCache\\\\_shared\\\\Zeno (lord_1_155)\\\\portrait_input.json\",\n        \"sha256\": \"3c9d7ed5a07383bd24920f0ab8c63e23e68d002f88f1ba30c5862c5939c3b11a\",\n        \"bytes\": 3020\n      },\n      {\n        \"path\": \"C:\\\\ReignPortraitRebuild\\\\2026-10-07-01a11741-culture-v2\\\\work\\\\lord_1_155\\\\verification.json\",\n        \"sha256\": \"dcd68e2f542230efaf41b404691d7ce204c3c3adfd28609ef428a07a0693d3ff\",\n        \"bytes\": 21126\n      },\n      {\n        \"path\": \"C:\\\\ReignPortraitRebuild\\\\2026-10-07-01a11741-culture-v2\\\\work\\\\lord_1_155\\\\description.txt\",\n        \"sha256\": \"9e2bf2d620ab4fedcecc09d270947b5c329d2f0874c8d6b6294e106a3ebbd936\",\n        \"bytes\": 1590\n      },\n      {\n        \"path\": \"C:\\\\ReignPortraitRebuild\\\\2026-10-07-01a11741-culture-v2\\\\work\\\\lord_1_155\\\\visual-review.json\",\n        \"sha256\": \"412a7efeae371eccb82111fcf2387c5c8a9b9eec304c4880dabb5581a57b3c08\",\n        \"bytes\": 4560\n      },\n      {\n        \"path\": \"C:\\\\ReignPortraitRebuild\\\\2026-10-07-01a11741-culture-v2\\\\_shared\\\\Zeno (lord_1_155)\\\\.ai_generation.json\",\n        \"sha256\": \"5bf43bc0d88c1063b4060fdf9233e54e8ba37d3970caa10f9fb0c895f64b9e39\",\n        \"bytes\": 7106\n      },\n      {\n        \"path\": \"C:\\\\ReignPortraitRebuild\\\\2026-10-07-01a11741-culture-v2\\\\_shared\\\\Zeno (lord_1_155)\\\\.portrait_derivatives.json\",\n        \"sha256\": \"aca281fb38db3aca14b0fe8a54ae8d0445ac6ed3298d82d46e0ae5e15fa1294e\",\n        \"bytes\": 1180\n      },\n      {\n        \"path\": \"C:\\\\ReignPortraitRebuild\\\\2026-10-07-01a11741-culture-v2\\\\_shared\\\\Zeno (lord_1_155)\\\\formal_outfit.json\",\n        \"sha256\": \"9402d05e1c142bd78706eea61d08c91dcb1d362eb6b89f6d4c872dd907426606\",\n        \"bytes\": 672\n      },\n      {\n        \"path\": \"C:\\\\ReignPortraitRebuild\\\\2026-10-07-01a11741-culture-v2\\\\_shared\\\\Zeno (lord_1_155)\\\\portrait.png\",\n        \"sha256\": \"7458d15acbd1c5132be3994344029c2f0f7f1b45f29bd694a154d7e6a00c986b\",\n        \"bytes\": 2175335\n      },\n      {\n        \"path\": \"C:\\\\ReignPortraitRebuild\\\\2026-10-07-01a11741-culture-v2\\\\_shared\\\\Zeno (lord_1_155)\\\\portrait_input.json\",\n        \"sha256\": \"3c9d7ed5a07383bd24920f0ab8c63e23e68d002f88f1ba30c5862c5939c3b11a\",\n        \"bytes\": 3020\n      },\n      {\n        \"path\": \"C:\\\\ReignPortraitRebuild\\\\2026-10-07-01a11741-culture-v2\\\\_shared\\\\Zeno (lord_1_155)\\\\prompt.txt\",\n        \"sha256\": \"c4369c1f3c538feffdd959dd6198a380f6275a1ba0a636a2e1d3e6669f746325\",\n        \"bytes\": 9939\n      },\n      {\n        \"path\": \"C:\\\\ReignPortraitRebuild\\\\2026-10-07-01a11741-culture-v2\\\\_shared\\\\Zeno (lord_1_155)\\\\thumbnail.png\",\n        \"sha256\": \"e8be1e9f1173454c78e3604a8cb18730afa580bcb0ed2bd0457297cfaca7c6fa\",\n        \"bytes\": 179903\n      },\n      {\n        \"path\": \"C:\\\\ReignPortraitRebuild\\\\2026-10-07-01a11741-culture-v2\\\\_shared\\\\Zeno (lord_1_155)\\\\thumbnail_wide.png\",\n        \"sha256\": \"db939ba7720d106f474d94efec82899d89774d6a429cdfa5396c220ecbbb8e0e\",\n        \"bytes\": 284377\n      },\n      {\n        \"path\": \"C:\\\\ReignPortraitRebuild\\\\2026-10-07-01a11741-culture-v2\\\\_shared\\\\Zeno (lord_1_155)\\\\zoom.png\",\n        \"sha256\": \"642eaccb4ad7ee77fc9efea9f4e3a4349167eec059d17957bfbac8a3b3409be3\",\n        \"bytes\": 3182039\n      }\n    ]\n  },\n  \"notSwapApproval\": true,\n  \"adopted\": false,\n  \"packed\": false,\n  \"currentWrites\": 0,\n  \"productWrites\": 0,\n  \"imageCallsInFlight\": 0\n}\n",
+  "originalReceiptEncoding": "UTF-8; BOM retained if present",
+  "localFiles": [
+    {
+      "name": "portrait_chest.png",
+      "sha256": "9c966a0edbfc545e4e0309fbe6fcbc88e9f6c8e4a8a15692b9f543e4d0430055",
+      "bytes": 1600929
+    },
+    {
+      "name": "thumbnail.png",
+      "sha256": "314bd94baf151e6b0b1f10d1f0ea70c3d9fd1be30ea108f0c5e968e692da2014",
+      "bytes": 117418
+    },
+    {
+      "name": "thumbnail_wide.png",
+      "sha256": "74bf078211a9d9deb7d10680c20959f52db5e43d3c2d021b1bc167aa36fd4757",
+      "bytes": 30367
+    },
+    {
+      "name": "portrait_chest_source.png",
+      "sha256": "fb2fa16e66b9ed2f36aecfe76471a985f889ab1371d2ba6c334b0cc510daf894",
+      "bytes": 2283222
+    },
+    {
+      "name": "prompt_chest.txt",
+      "sha256": "cb5d865ab26bed27d11d077bd488213664254dd86c56132d7e95ce34496dfdc7",
+      "bytes": 11036
+    },
+    {
+      "name": "portrait.png",
+      "sha256": "7458d15acbd1c5132be3994344029c2f0f7f1b45f29bd694a154d7e6a00c986b",
+      "bytes": 2175335
+    },
+    {
+      "name": "zoom.png",
+      "sha256": "642eaccb4ad7ee77fc9efea9f4e3a4349167eec059d17957bfbac8a3b3409be3",
+      "bytes": 3182039
+    }
+  ],
+  "historicalParent": {
+    "record": {
+      "path": "C:\\ReignPortraitRebuild\\2026-10-07-01a11741-culture-v2\\_shared\\Zeno (lord_1_155)\\.ai_generation.json",
+      "sha256": "5bf43bc0d88c1063b4060fdf9233e54e8ba37d3970caa10f9fb0c895f64b9e39",
+      "bytes": 7106
+    },
+    "prompt": {
+      "path": "C:\\ReignPortraitRebuild\\2026-10-07-01a11741-culture-v2\\_shared\\Zeno (lord_1_155)\\prompt.txt",
+      "sha256": "c4369c1f3c538feffdd959dd6198a380f6275a1ba0a636a2e1d3e6669f746325",
+      "bytes": 9939
+    },
+    "role": "Original fullbody generation; not the new independent chest/edit producer."
+  },
+  "authenticRawReceiptNotRewritten": true,
+  "rawAbsolutePathsRole": "Historical tool/provider locations only. Current pixel source and prompt are bound by localFiles.",
+  "actualOriginAdapter": {
+    "schema": "reign-authentic-chest-result-case-adapter-v1",
+    "rawSchema": "reign-bounded-chat-image-result-v1",
+    "fieldMapping": {
+      "id": "characterId",
+      "source": "output",
+      "prompt": "prompt",
+      "references": "referenceOrder",
+      "actualCalls": "actualCallCount",
+      "retries": null,
+      "preservedInputs": "afterguard.inputs"
+    },
+    "rawActualCalls": 1,
+    "rawRetries": null,
+    "generationReleaseRetryBudget": 0,
+    "originalReceiptUnmodified": true
+  },
+  "globalFaceAcceptance": false,
+  "nativeUIAcceptance": false,
+  "notSwapApproval": true
+}

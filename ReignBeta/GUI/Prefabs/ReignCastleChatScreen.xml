@@ -93,7 +93,7 @@
               </Children>
             </ScrollbarWidget>
 
-            <EditableTextWidget Id="CastleChatInput" WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="806" SuggestedHeight="52" MarginLeft="469" MarginTop="813" Brush="DefaultText" Brush.Font="ReignSerifDynamic" Brush.FontSize="19" Brush.FontColor="#C5BDAFFF" Text="@InputText" IsEnabled="@InputEnabled" MaxLength="2147483647" />
+            <ReignActionEditableTextWidget Id="CastleChatInput" WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="806" SuggestedHeight="52" MarginLeft="469" MarginTop="813" Brush="Reign.Chat.Composer.19" Brush.Font="ReignSerifDynamic" Brush.FontSize="19" Brush.FontColor="#C5BDAFFF" Text="@InputText" ComposerId="@ActionComposerId" IsEnabled="@InputEnabled" MaxLength="2147483647" />
             <!-- SEND is fixed approved artwork; only the interactive hitbox remains live. -->
             <ButtonWidget WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="208" SuggestedHeight="78" MarginLeft="1357" MarginTop="801" Brush="ConversationItem.SoundBrush" Command.Click="ExecuteSend" IsEnabled="@InputEnabled" UpdateChildrenStates="true" />
             <TextWidget IsVisible="@IsBusy" WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="850" SuggestedHeight="28" MarginLeft="467" MarginTop="772" Brush="DefaultText" Brush.Font="ReignSerifDynamic" Brush.FontSize="15" Brush.FontColor="#A88A54FF" Brush.TextHorizontalAlignment="Center" Text="@BusyText" />

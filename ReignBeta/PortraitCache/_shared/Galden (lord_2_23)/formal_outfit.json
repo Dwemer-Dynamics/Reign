@@ -3,11 +3,11 @@
   "heroStringId": "lord_2_23",
   "characterName": "Galden",
   "imagePath": "portrait.png",
-  "imageSha256": "23D4B7B3BACEDDCB54FF0E79ECA30E836E69050ACDF2CE1403058D085273CD05",
-  "description": "Culturally appropriate everyday Sturgian minor-lord attire inspired by refined medieval Rus and Slavic noble clothing. Men should wear a well-made long shirt beneath a tailored wool kaftan or long belted coat, decorated with fine geometric embroidery and quality trim. Women should wear a long embroidered shift with an elegant wool overdress or noble coat-dress, secured with a richly woven sash. Include subtle fur trim around collars or cuffs, tasteful clasps, and better-quality fabric than a landowner would wear. The clothing should remain practical for a northern climate while clearly showing noble rank. No headgear of any kind. No armor, weapons, crowns, ceremonial robes, or oversized fur displays.",
-  "status": "failed",
-  "descriptionSource": "portrait_prompt_fallback",
-  "retryEligible": true,
-  "error": "{\"error\":{\"message\":\"Model \\\"zai-org/glm-5.2\\\" does not support image inputs. Remove image content or choose a multimodal model.\",\"type\":\"invalid_request_error\",\"param\":\"messages\",\"code\":\"image_input_not_supported\"}}",
-  "updatedUtc": "2026-07-18T22:03:29.3619509Z"
+  "imageSha256": "A2134E9B481BB6E4A05915884B34AB714F2B20B496F3A52467D600AC8B992D9D",
+  "description": "Galden wears a blue wool long coat with a restrained fur collar and gold geometric woven borders over an ivory embroidered shirt. Round clasps and a short chain join the upper coat, while a brown belt and patterned sash hold its waist. Dark trousers and tall brown leather boots are fully visible.",
+  "status": "completed",
+  "descriptionSource": "agent_vision",
+  "retryEligible": false,
+  "error": "",
+  "updatedUtc": "2026-10-07T22:10:34.698Z"
 }

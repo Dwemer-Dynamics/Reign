@@ -2,38 +2,102 @@
   "Version": 3,
   "CropAlgorithmVersion": 2,
   "SourceFileName": "portrait.png",
-  "SourcePath": "portrait.png",
-  "SourceLength": 1491256,
-  "SourceLastWriteUtcTicks": 639199118486965567,
-  "SourceWidth": 864,
-  "SourceHeight": 1152,
-  "CropX": 324,
-  "CropY": 81,
-  "CropWidth": 210,
-  "CropHeight": 262,
-  "WideCropX": 246,
-  "WideCropY": 81,
-  "WideCropWidth": 367,
-  "WideCropHeight": 262,
+  "SourcePath": "C:\\ReignPortraitRebuild\\2026-10-07-01a11741-culture-v2\\_shared\\Miroykan_Lesheevich (reign_court_town_S5_father)\\portrait.png",
+  "SourceLength": 2350614,
+  "SourceLastWriteUtcTicks": 639271113070587048,
+  "SourceWidth": 1086,
+  "SourceHeight": 1448,
+  "CropX": 368,
+  "CropY": 0,
+  "CropWidth": 294,
+  "CropHeight": 367,
+  "WideCropX": 258,
+  "WideCropY": 0,
+  "WideCropWidth": 514,
+  "WideCropHeight": 367,
   "FocusMethod": "ultraface",
   "FocusModel": "version-RFB-320",
-  "FocusConfidence": 0.9995126724243164,
+  "FocusConfidence": 0.9998455047607422,
   "FaceCandidateCount": 1,
-  "FaceX": 0.4431225657463074,
-  "FaceY": 0.09657522290945053,
-  "FaceWidth": 0.10740363597869873,
-  "FaceHeight": 0.1056828573346138,
+  "FaceX": 0.423397958278656,
+  "FaceY": 0.06182518228888512,
+  "FaceWidth": 0.10095351934432983,
+  "FaceHeight": 0.10073118284344673,
   "NeedsReview": false,
   "ThumbnailFileName": "thumbnail.png",
-  "ThumbnailWidth": 210,
-  "ThumbnailHeight": 262,
+  "ThumbnailWidth": 256,
+  "ThumbnailHeight": 320,
   "PartyThumbnailFileName": "thumbnail_wide.png",
-  "PartyThumbnailWidth": 367,
-  "PartyThumbnailHeight": 262,
+  "PartyThumbnailWidth": 448,
+  "PartyThumbnailHeight": 320,
   "PortraitFileName": "portrait_chest.png",
-  "PortraitWidth": 210,
-  "PortraitHeight": 262,
+  "PortraitWidth": 294,
+  "PortraitHeight": 367,
   "ZoomFileName": "zoom.png",
-  "ZoomWidth": 864,
-  "ZoomHeight": 1152
+  "ZoomWidth": 1024,
+  "ZoomHeight": 1365,
+  "ManualCropProvenance": {
+    "schema": "reign-manual-crown-crop-provenance-v1",
+    "producer": "C-only adapter selected y=0 rectangles; frozen native Decode/CropRgba/ResizeBilinear/EncodeRgba",
+    "sourceSha256": "0c5f833ac51f8a506fe5ca2bd4be955bb7b75d7e3b7ca143b7b2ce412b5ff22f",
+    "originalNativeMetadata": {
+      "path": "C:\\ReignPortraitRebuild\\2026-10-07-01a11741-culture-v2\\audit\\remaining-sixteen-identity-source-review-route-001\\miroykan-own-old-face-edit-001\\native-pack-001\\.portrait_derivatives.json",
+      "sha256": "56f3acc6e45f312465077d31c88977c97e453fec5df6421a965f5d29deea6e44",
+      "bytes": 1262
+    },
+    "planSha256": "24a868d237e1e680a69307dd76a319b108a77ceb6c22a35e80949e513533c3a6",
+    "rawFocusPreserved": true,
+    "nativeBuildV2Invoked": false,
+    "nativeIsCurrentV2Invoked": false,
+    "forcedRegenerationMayOverwriteManualCrop": true
+  },
+  "StagedAssetProvenance": {
+    "schema": "reign-staged-effective-portrait-origin-v1",
+    "id": "reign_court_town_S5_father",
+    "kind": "edited_fullbody",
+    "currentLocalFiles": [
+      {
+        "name": "portrait_chest.png",
+        "sha256": "ffa3fa2e05890035865f27412bdec5a67bc1f6b9d4408bda578ae6b3e92d0784",
+        "bytes": 255660
+      },
+      {
+        "name": "thumbnail.png",
+        "sha256": "4ba131c627ef99241cd70ca8195741aae117dab785d796b429d7fb2428a1c2a3",
+        "bytes": 192511
+      },
+      {
+        "name": "thumbnail_wide.png",
+        "sha256": "97b79262c6bbb1f98a3969a94f15c16b00f4a798ad86e8dd74942169f8741827",
+        "bytes": 310969
+      },
+      {
+        "name": "portrait.png",
+        "sha256": "0c5f833ac51f8a506fe5ca2bd4be955bb7b75d7e3b7ca143b7b2ce412b5ff22f",
+        "bytes": 2350614
+      },
+      {
+        "name": "zoom.png",
+        "sha256": "fdb6c2baece35b73efe6c6efd50eda1964553d19addf0ddf30222d0d5372d9f3",
+        "bytes": 3345831
+      },
+      {
+        "name": "prompt_edit.txt",
+        "sha256": "fdb2f31a2a0a0b3b42b249fae590939a7f70c9305c522b50e06e4fab24b37b47",
+        "bytes": 10798
+      }
+    ],
+    "nativeAlgorithmProducedRectangle": false,
+    "priorProducerExtensionsRetainedVerbatim": true,
+    "absolutePriorReferencesRole": "Historical/candidate references; current module pixels/provenance use the relative currentLocalFiles.",
+    "sourcePathProjection": {
+      "from": "C:\\ReignPortraitRebuild\\2026-10-07-01a11741-culture-v2\\audit\\remaining-sixteen-identity-source-review-route-001\\miroykan-own-old-face-edit-001\\native-pack-001\\portrait.png",
+      "to": "C:\\ReignPortraitRebuild\\2026-10-07-01a11741-culture-v2\\_shared\\Miroykan_Lesheevich (reign_court_town_S5_father)\\portrait.png",
+      "reason": "Same actual fullbody bytes/stat at canonical C-stage anchor"
+    },
+    "independentChestNativeForcedRegenerationCanOverwrite": false,
+    "globalFaceAcceptance": false,
+    "nativeUIAcceptance": false,
+    "notSwapApproval": true
+  }
 }

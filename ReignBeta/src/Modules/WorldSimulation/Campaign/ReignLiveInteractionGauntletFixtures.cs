@@ -2,7 +2,9 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
+using Reign.Core.Contracts.Actions;
 using ReignBeta.Integration;
 using ReignBeta.World;
 using TaleWorlds.CampaignSystem;
@@ -479,6 +481,9 @@ namespace ReignBeta.Campaign
                 ["heroes"] = heroRows,
                 ["relations"] = relations,
                 ["actions"] = actions,
+                ["pendingNpcOffers"] = ObservePendingNpcOffers(
+                    ReignBeta.Actions.ReignAgreementBehavior.Instance?.Offers,
+                    Hero.MainHero?.StringId ?? string.Empty, heroes.Select(h => h.StringId)),
                 ["playerGold"] = Hero.MainHero?.Gold ?? 0,
                 ["playerClanId"] = Clan.PlayerClan?.StringId ?? string.Empty,
                 ["playerClanTier"] = Clan.PlayerClan?.Tier ?? 0,
@@ -487,6 +492,29 @@ namespace ReignBeta.Campaign
                 ["saveSync"] =
                     ReignSaveSyncCampaignBehavior.NativeSaveObservation()
             };
+        }
+
+        // The client creates fresh proposal/clause identities after native validation.
+        // Read those saved objects without rendering, signing or executing anything.
+        internal static JObject ObservePendingNpcOffers(IEnumerable<ActionAgreement> offers,
+            string playerId, IEnumerable<string> participantIds)
+        {
+            var participants = new HashSet<string>((participantIds ?? Enumerable.Empty<string>()).Take(16), StringComparer.Ordinal);
+            var pending = (offers ?? Enumerable.Empty<ActionAgreement>()).Where(a => a != null
+                && a.State == AgreementState.Counteroffered && a.PlayerId == playerId
+                && a.ProposerId == a.NpcId && participants.Contains(a.NpcId))
+                .OrderByDescending(a => a.CreatedDay).ThenBy(a => a.Id, StringComparer.Ordinal).ToList();
+            var rows = new JArray();
+            int oversized = 0;
+            foreach (var offer in pending.Take(8))
+            {
+                var value = JObject.FromObject(offer);
+                if (System.Text.Encoding.UTF8.GetByteCount(value.ToString(Formatting.None)) > 65536)
+                { oversized++; continue; }
+                rows.Add(new JObject { ["agreement"] = value, ["termsHash"] = offer.TermsHash() });
+            }
+            return new JObject { ["total"] = pending.Count, ["rows"] = rows,
+                ["oversized"] = oversized, ["truncated"] = pending.Count > 8 || oversized > 0 };
         }
 
         private static JObject BuildObservedInventory(

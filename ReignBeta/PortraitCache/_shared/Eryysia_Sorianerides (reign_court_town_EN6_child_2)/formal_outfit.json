@@ -3,11 +3,11 @@
   "heroStringId": "reign_court_town_EN6_child_2",
   "characterName": "Eryysia Sorianerides",
   "imagePath": "portrait.png",
-  "imageSha256": "D6DEE0A081404BC6FB5EF5258618605FFC23F10532C572E249435ED84D70DF9B",
-  "description": "Culturally appropriate everyday Calradic Imperial minor-lord attire inspired by refined late Roman and Byzantine noble clothing. Men should wear a high-quality tunic or long tailored outer coat over fine linen, decorated with narrow woven borders, refined clasps, and a decorated belt. Women should wear a long elegant dress or layered tunic ensemble with shaped sleeves, graceful draping, and tasteful trim around the neckline, cuffs, and edges. The garments should feel polished, educated, urban, and wealthy without resembling full imperial ceremony. No headgear of any kind. No armor, weapons, crowns, imperial regalia, laurel wreaths, or ceremonial robes.",
-  "status": "failed",
-  "descriptionSource": "portrait_prompt_fallback",
-  "retryEligible": true,
-  "error": "{\"error\":{\"message\":\"Model \\\"zai-org/glm-5.2\\\" does not support image inputs. Remove image content or choose a multimodal model.\",\"type\":\"invalid_request_error\",\"param\":\"messages\",\"code\":\"image_input_not_supported\"}}",
-  "updatedUtc": "2026-07-18T22:03:28.8766737Z"
+  "imageSha256": "52B76096E7721E1FBAAEAFBC1E6845E62332481ACEDEED2648D9F3D5CC1C68C8",
+  "description": "Actual second full image: one upright young adult woman with low short brown near-centre waves, head margin, both relaxed hands and gold/brown shoes visible beneath floor-length opaque plum square-neck gown. Gold woven borders, brooch, decorated belt, cream underdress and loose cream arm wrap; plain stone doorway, no text/banner/headgear/armour/weapons. Pale blue-grey eyes, light tan rosy freckles and natural medium feminine physique.",
+  "status": "completed",
+  "descriptionSource": "agent_vision",
+  "retryEligible": false,
+  "error": "",
+  "updatedUtc": "2026-10-08T06:37:43.795Z"
 }

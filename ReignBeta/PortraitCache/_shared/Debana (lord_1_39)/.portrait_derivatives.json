@@ -2,38 +2,102 @@
   "Version": 3,
   "CropAlgorithmVersion": 2,
   "SourceFileName": "portrait.png",
-  "SourcePath": "portrait.png",
-  "SourceLength": 2045528,
-  "SourceLastWriteUtcTicks": 639211247863352744,
-  "SourceWidth": 1254,
-  "SourceHeight": 1254,
-  "CropX": 521,
-  "CropY": 111,
-  "CropWidth": 209,
-  "CropHeight": 261,
-  "WideCropX": 443,
-  "WideCropY": 111,
-  "WideCropWidth": 365,
-  "WideCropHeight": 261,
+  "SourcePath": "C:\\ReignPortraitRebuild\\2026-10-07-01a11741-culture-v2\\_shared\\Debana (lord_1_39)\\portrait.png",
+  "SourceLength": 2409352,
+  "SourceLastWriteUtcTicks": 639271106561702675,
+  "SourceWidth": 1086,
+  "SourceHeight": 1448,
+  "CropX": 375,
+  "CropY": 0,
+  "CropWidth": 278,
+  "CropHeight": 348,
+  "WideCropX": 270,
+  "WideCropY": 0,
+  "WideCropWidth": 487,
+  "WideCropHeight": 348,
   "FocusMethod": "ultraface",
   "FocusModel": "version-RFB-320",
-  "FocusConfidence": 0.9997029900550842,
+  "FocusConfidence": 0.999819815158844,
   "FaceCandidateCount": 1,
-  "FaceX": 0.46086034178733826,
-  "FaceY": 0.11298779398202896,
-  "FaceWidth": 0.07530853152275085,
-  "FaceHeight": 0.09662475436925888,
+  "FaceX": 0.4224663972854614,
+  "FaceY": 0.0703120231628418,
+  "FaceWidth": 0.10137015581130981,
+  "FaceHeight": 0.08921131491661072,
   "NeedsReview": false,
   "ThumbnailFileName": "thumbnail.png",
-  "ThumbnailWidth": 209,
-  "ThumbnailHeight": 261,
+  "ThumbnailWidth": 256,
+  "ThumbnailHeight": 320,
   "PartyThumbnailFileName": "thumbnail_wide.png",
-  "PartyThumbnailWidth": 365,
-  "PartyThumbnailHeight": 261,
+  "PartyThumbnailWidth": 448,
+  "PartyThumbnailHeight": 320,
   "PortraitFileName": "portrait_chest.png",
-  "PortraitWidth": 209,
-  "PortraitHeight": 261,
+  "PortraitWidth": 278,
+  "PortraitHeight": 348,
   "ZoomFileName": "zoom.png",
   "ZoomWidth": 1024,
-  "ZoomHeight": 1024
+  "ZoomHeight": 1365,
+  "ManualCropProvenance": {
+    "schema": "reign-manual-crown-crop-provenance-v1",
+    "producer": "C-only adapter selected y=0 rectangles; frozen native Decode/CropRgba/ResizeBilinear/EncodeRgba",
+    "sourceSha256": "e916f7ab8ad7d37940a6efc1c1c8e1c77bae94f2e68ab8e5c98c33db9809d241",
+    "originalNativeMetadata": {
+      "path": "C:\\ReignPortraitRebuild\\2026-10-07-01a11741-culture-v2\\audit\\debana-old-face-restyle-preparation-001\\native-pack-001\\.portrait_derivatives.json",
+      "sha256": "32a1dd9d88733c9df241dee658f5a6060970edbd57f654b094eb3f7faab74e90",
+      "bytes": 1218
+    },
+    "planSha256": "92e22a0aef6beb6b119b02acb08ac9f55f86cba129552aa81d995a6e96b6ff7a",
+    "rawFocusPreserved": true,
+    "nativeBuildV2Invoked": false,
+    "nativeIsCurrentV2Invoked": false,
+    "forcedRegenerationMayOverwriteManualCrop": true
+  },
+  "StagedAssetProvenance": {
+    "schema": "reign-staged-effective-portrait-origin-v1",
+    "id": "lord_1_39",
+    "kind": "edited_fullbody",
+    "currentLocalFiles": [
+      {
+        "name": "portrait_chest.png",
+        "sha256": "d02f255ab0cbaa566b5e60b280ce429716195e58b48d30ae1336e9246bd5cd89",
+        "bytes": 229309
+      },
+      {
+        "name": "thumbnail.png",
+        "sha256": "e39d08504c70cbbe20588f24fe3a5ac9235dce3c90441d227ebd160cc40a2bc5",
+        "bytes": 191546
+      },
+      {
+        "name": "thumbnail_wide.png",
+        "sha256": "7447b4089ceb5e4910b91eb17f55f4e7c87c76fbe4da97e6c405ec6a8cf31748",
+        "bytes": 307196
+      },
+      {
+        "name": "portrait.png",
+        "sha256": "e916f7ab8ad7d37940a6efc1c1c8e1c77bae94f2e68ab8e5c98c33db9809d241",
+        "bytes": 2409352
+      },
+      {
+        "name": "zoom.png",
+        "sha256": "161e551c71b9632bb0c7f9af6669d266a3e5bd60985392994b9b0be8149f2b20",
+        "bytes": 3702587
+      },
+      {
+        "name": "prompt_edit.txt",
+        "sha256": "4d3809919cc990a9e31aacda3799c38e6c0ce9375fee5d14143b40d66e7767c9",
+        "bytes": 12112
+      }
+    ],
+    "nativeAlgorithmProducedRectangle": false,
+    "priorProducerExtensionsRetainedVerbatim": true,
+    "absolutePriorReferencesRole": "Historical/candidate references; current module pixels/provenance use the relative currentLocalFiles.",
+    "sourcePathProjection": {
+      "from": "C:\\ReignPortraitRebuild\\2026-10-07-01a11741-culture-v2\\audit\\debana-old-face-restyle-preparation-001\\native-pack-001\\portrait.png",
+      "to": "C:\\ReignPortraitRebuild\\2026-10-07-01a11741-culture-v2\\_shared\\Debana (lord_1_39)\\portrait.png",
+      "reason": "Same actual fullbody bytes/stat at canonical C-stage anchor"
+    },
+    "independentChestNativeForcedRegenerationCanOverwrite": false,
+    "globalFaceAcceptance": false,
+    "nativeUIAcceptance": false,
+    "notSwapApproval": true
+  }
 }

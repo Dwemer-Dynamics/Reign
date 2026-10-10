@@ -3,11 +3,11 @@
   "heroStringId": "lord_3_3",
   "characterName": "Adram",
   "imagePath": "portrait.png",
-  "imageSha256": "408714E7725E3032ADB0D57F04FB9646E1DBD89F0EB076A7455FB1A14A6B7EAC",
-  "description": "Culturally appropriate everyday Aserai minor-lord attire inspired by refined medieval Arabian, North African, and limited Persian noble clothing. Men should wear a flowing robe or structured open-front coat over a fine lightweight tunic, secured with a decorated woven sash. Women should wear a long elegant dress with soft layered fabrics, shaped sleeves, graceful draping, and fine embroidery around the neckline, cuffs, and hem. Show rank through superior fabric, elegant borders, geometric embroidery, and subtle jewelry rather than excessive ornamentation. No headgear of any kind. No turbans, veils, hoods, armor, weapons, crowns, or ceremonial excess.",
-  "status": "failed",
-  "descriptionSource": "portrait_prompt_fallback",
-  "retryEligible": true,
-  "error": "{\"error\":{\"message\":\"Model \\\"zai-org/glm-5.2\\\" does not support image inputs. Remove image content or choose a multimodal model.\",\"type\":\"invalid_request_error\",\"param\":\"messages\",\"code\":\"image_input_not_supported\"}}",
-  "updatedUtc": "2026-07-18T22:03:23.8660377Z"
+  "imageSha256": "7C07D104AC6D3E5A6C12B1D57E476B2C5A5B0A544F7B08E98A9FC37D4F231CEF",
+  "description": "A full-length dark brown open robe with broad gold geometric woven-looking borders along both front edges, cuffs and lower hem. A cream long-sleeved full-length tunic underneath has a short open collar and restrained tan-gold neck and cuff decoration. A wide ochre-brown patterned sash secures the waist, with one long fringed end hanging down the front. The opaque layered fabrics have a matte textured surface; exact fibres are uncertain. Dark brown boots are visible beneath the garments. No headgear, armor or weapons appear.",
+  "status": "completed",
+  "descriptionSource": "agent_vision",
+  "retryEligible": false,
+  "error": "",
+  "updatedUtc": "2026-10-07T20:26:07.189Z"
 }

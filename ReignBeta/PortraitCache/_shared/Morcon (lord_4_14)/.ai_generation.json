@@ -1,16 +1,90 @@
 {
   "version": 1,
+  "schema": "reign-builtin-chat-reference-guided-image-generation-culture-v1",
   "cacheKey": "Morcon (lord_4_14)",
   "heroStringId": "lord_4_14",
   "characterObjectId": "lord_4_14",
   "characterName": "Morcon",
-  "provider": "AtlasCloud",
-  "model": "xai/grok-imagine-image/edit",
-  "adapter": "atlas upload/generate/poll",
-  "sourceSha256": "1649270f4b196a58871e0fe189e4942b36f5dce97e1878061ef3eb5a6ab6802d",
-  "portraitSha256": "e3a41bb4dd4f258d4ad340b1f7b731f26bf58fa9f64f4c7020c325fb379bac2e",
-  "portraitWidth": 832,
-  "portraitHeight": 1248,
+  "worker": "worker-3",
+  "generatedOriginalPath": "C:\\Users\\speed\\.codex\\generated_images\\01a11c35-ffed-7141-9578-6b68f5fc5978\\exec-8fcb1e9c-fd46-4798-876c-3de9d42a17a3.png",
+  "sourceFileCreationUtc": "2026-10-08T21:08:56.808Z",
+  "generationRequestId": "9d479170-81c7-439a-be34-f59d49e2565b",
+  "generationRequestSha256": "97fe9591cfbc78c482c4e17006c25d973c85e1e51f7cc7d3596b70ba4a3dc630",
+  "generationReturnSha256": "68496c6acb312516365f89c696668ec9812864fe17dfd9a758185e0d1f52523e",
+  "provider": "Codex built-in image_gen",
+  "model": "unknown",
+  "adapter": "old-face-identity/new-style-reference-guided",
+  "generationMode": "reference_guided",
+  "inputImages": 2,
+  "references": [
+    {
+      "id": "lord_4_14",
+      "role": "old_identity",
+      "path": "D:\\Program Files (x86)\\Steam\\steamapps\\common\\Mount & Blade II Bannerlord\\Modules\\ReignBeta\\PortraitCache\\_shared\\Morcon (lord_4_14)\\portrait_chest.png",
+      "sha256": "1238d5a139b3cbc8bbcb9466e6ff2aaa1b187db410553e7d9d181c1078e75ca7",
+      "originalReference": {
+        "path": "D:\\Program Files (x86)\\Steam\\steamapps\\common\\Mount & Blade II Bannerlord\\Modules\\ReignBeta\\PortraitCache\\_shared\\Morcon (lord_4_14)\\portrait_chest.png",
+        "sha256": "1238d5a139b3cbc8bbcb9466e6ff2aaa1b187db410553e7d9d181c1078e75ca7"
+      }
+    },
+    {
+      "id": "lord_4_14",
+      "role": "new_style",
+      "path": "C:\\ReignPortraitRebuild\\2026-10-07-01a11741-culture-v2\\audit\\residual-correction-phase4-001\\lord_4_14\\predecessor-files\\_shared\\Morcon (lord_4_14)\\portrait.png",
+      "sha256": "9d1b4dde789dc471f8de79a432f7b02930b35cfa76ccafa961523fecf5209beb",
+      "originalReference": {
+        "path": "C:\\ReignPortraitRebuild\\2026-10-07-01a11741-culture-v2\\_shared\\Morcon (lord_4_14)\\portrait.png",
+        "sha256": "9d1b4dde789dc471f8de79a432f7b02930b35cfa76ccafa961523fecf5209beb"
+      }
+    }
+  ],
+  "referenceGuidedExecution": {
+    "schema": "reign-portrait-reference-guided-execution-v1",
+    "generationMode": "reference_guided",
+    "inputImages": 2,
+    "references": [
+      {
+        "id": "lord_4_14",
+        "role": "old_identity",
+        "path": "D:\\Program Files (x86)\\Steam\\steamapps\\common\\Mount & Blade II Bannerlord\\Modules\\ReignBeta\\PortraitCache\\_shared\\Morcon (lord_4_14)\\portrait_chest.png",
+        "sha256": "1238d5a139b3cbc8bbcb9466e6ff2aaa1b187db410553e7d9d181c1078e75ca7",
+        "originalReference": {
+          "path": "D:\\Program Files (x86)\\Steam\\steamapps\\common\\Mount & Blade II Bannerlord\\Modules\\ReignBeta\\PortraitCache\\_shared\\Morcon (lord_4_14)\\portrait_chest.png",
+          "sha256": "1238d5a139b3cbc8bbcb9466e6ff2aaa1b187db410553e7d9d181c1078e75ca7"
+        }
+      },
+      {
+        "id": "lord_4_14",
+        "role": "new_style",
+        "path": "C:\\ReignPortraitRebuild\\2026-10-07-01a11741-culture-v2\\audit\\residual-correction-phase4-001\\lord_4_14\\predecessor-files\\_shared\\Morcon (lord_4_14)\\portrait.png",
+        "sha256": "9d1b4dde789dc471f8de79a432f7b02930b35cfa76ccafa961523fecf5209beb",
+        "originalReference": {
+          "path": "C:\\ReignPortraitRebuild\\2026-10-07-01a11741-culture-v2\\_shared\\Morcon (lord_4_14)\\portrait.png",
+          "sha256": "9d1b4dde789dc471f8de79a432f7b02930b35cfa76ccafa961523fecf5209beb"
+        }
+      }
+    ],
+    "textCompositionImageInputs": 0,
+    "textVerificationSha256": "523bd7ac1813267132a74db50858acbcadd63f67d6f5c833d5938f1fde73952a",
+    "textPromptSha256": "777506928dd93d9fb608ad0f00f2903043d37f0c6882affdfe24ea4bf639f86c",
+    "compositionProofSha256": "2e50c5bda1ad05fba476c6778567ed8a44bec014fb61a3a0b37c39c1e3043445",
+    "rootCompositionReview": {
+      "path": "C:\\ReignPortraitRebuild\\2026-10-07-01a11741-culture-v2\\audit\\root-full32-prompt-composition-review-001\\lord_4_14\\root-hybrid-composition-review.json",
+      "sha256": "fefc3e1a13e4112fc2437418dabd12fe0a993ee42115076b7ed96682ed65cedb"
+    }
+  },
+  "sourceSha256": "2333de5d784fc9bf00faa067e918529448b4e84d88e3a3b3efbe822d202ce9c8",
+  "portraitSha256": "5c3a52454fd2c7aee2ec8a0fff24e0423ce33bdd01265e9c690fa76695bca5d6",
+  "portraitWidth": 1086,
+  "portraitHeight": 1448,
+  "promptSha256": "65430402590a582cba28da078b4f937d690b710785d79b7b9dfe12b1d9ed8f99",
+  "descriptionSha256": "3e8e9013a6499077c6343b0d22f13873fe1f6a9279bffa6ee2d78fb83897a68b",
+  "cultureId": "vlandia",
+  "cultureReferenceKey": "vlandia",
+  "cultureReference": "Western European regional appearance, drawing on French, Norman and neighboring continental European populations.",
+  "cultureLayerFile": "portrait_facial_culture_vlandia.txt",
+  "cultureLayerFullText": "FACIAL CULTURAL APPEARANCE — VLANDIAN\nStored cultureId: vlandia.\nRegional reference: Western European regional appearance, drawing on French, Norman and neighboring continental European populations.\nCreate a believable real human face with this regional appearance. Apply the regional reference positively to facial appearance, facial structure and complexion; it is not only a clothing, setting or background instruction.\nBlend the regional reference with the individual facial description. Where simplified native geometry or game-renderer shading differs from this regional appearance, use a plausible natural blend while retaining recognizable individual traits: face outline, relative proportions, eyes, brows, nose, mouth, jaw and chin. Preserve the described hair identity, arrangement and texture, facial-hair pattern, eye character, visible scars and markings; do not invent new distinguishing marks.\nThese regional populations contain substantial individual variation. Do not give every member the same face, impose a universal skin, hair or eye color, or replace the written individual identity with a generic regional stereotype. Preserve source-grounded differences and natural human asymmetry.\nKeep the exact authored age and the independent native weight and build values. This layer applies to facial appearance and realistic complexion interpretation, not body size, muscularity, garment coverage or social rank. Every complete composition, clothing, confidence, photographic, output and physique modifier remains in effect. Do not print this reference or any metadata in the image.",
+  "cultureLayerSha256": "77a6dbb1bd314a24109b422f0915f72f039bc2b6dca67be010b5ea97720a4e88",
   "physicalConfidence": {
     "definition": "physical_confidence",
     "score": 39,
@@ -21,7 +95,10 @@
     "confidenceWeight": 0.25,
     "source": "shipped_profile_library"
   },
+  "confidenceCoverageOverride": null,
   "derivativesReady": true,
   "derivativeError": "",
-  "generatedUtc": "2026-07-17T19:04:28.5092527Z"
+  "generatedUtc": "2026-10-08T21:09:36.364Z",
+  "serverSigned": false,
+  "derivativeReportSha256": "2be579f995779d1f2a60a3e9e1bdd9cedb894cc5157e4dd07d692962d9fe13c6"
 }

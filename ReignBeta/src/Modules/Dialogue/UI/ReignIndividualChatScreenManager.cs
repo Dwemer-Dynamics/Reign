@@ -1,6 +1,7 @@
 using System;
 using Newtonsoft.Json.Linq;
 using ReignBeta.Integration;
+using ReignBeta.Campaign;
 using ReignBeta.Runtime;
 using ReignBeta.UI.ViewModels;
 using ReignBeta.UI.Widgets;
@@ -110,10 +111,20 @@ namespace ReignBeta.UI
 
             if (_hostScreen == null || _gauntletLayer == null || ScreenManager.TopScreen != _hostScreen)
             {
-                Close();
+                // Only the active controller can issue a handoff. The next chat
+                // remains a fresh conversation unless the player explicitly resumes.
+                var previous = _dataSource;
+                var owner = ReignIndividualConversationBehavior.Instance;
+                if (previous != null && !previous.IsCalibrationMode && string.IsNullOrEmpty(_officialPostingId))
+                {
+                    _ = RetainAfterTransitionAsync(previous, owner);
+                    Close(false, "ui_continuation", true);
+                }
+                else Close(false, "host_screen_changed");
                 return;
             }
 
+            if (ReignActionBuilder.Handle(_hostScreen, _dataSource)) return;
             if (!TryApplyInputLock())
             {
                 return;
@@ -135,6 +146,7 @@ namespace ReignBeta.UI
 
             if (IsEscapeReleased())
             {
+                if (_dataSource?.HandleOutfitEscape() == true) return;
                 if (_dataSource == null || !_dataSource.IsPregnancyWarningVisible)
                 {
                     Close();
@@ -146,6 +158,11 @@ namespace ReignBeta.UI
                 && IsSubmitReleased())
             {
                 _dataSource.ExecuteSend();
+            }
+            if (_openOutfitWhenReady && _dataSource != null && !_dataSource.IsBusy)
+            {
+                _openOutfitWhenReady = false;
+                _dataSource.ExecuteChangeClothes();
             }
         }
 
@@ -161,6 +178,14 @@ namespace ReignBeta.UI
         public static void OpenForHero(Hero hero)
         {
             OpenForHero(hero, null, null);
+        }
+
+        private static bool _openOutfitWhenReady;
+        public static void OpenForOutfit(Hero hero)
+        {
+            if (!ReignOutfitClient.Eligible(hero)) return;
+            OpenForHero(hero);
+            _openOutfitWhenReady = IsOpen;
         }
 
         public static void OpenForCalibration(Hero hero)
@@ -204,6 +229,7 @@ namespace ReignBeta.UI
                 _officialPostingId = conversationContext?.Value<string>("postingId") ?? string.Empty;
                 _dataSource = new ReignIndividualChatScreenVM(
                     hero, Close, OpenPortraitRequestOverlay, true, conversationContext, calibrationMode);
+                if (!calibrationMode) ReignIndividualConversationBehavior.Instance?.BeginConversation(_dataSource.ConversationGeneration);
                 _gauntletLayer = new GauntletLayer("ReignIndividualChatScreen", ModalInputLayerOrder, true);
                 _gauntletLayer.LoadMovie("ReignIndividualChatScreen", _dataSource);
                 _gauntletLayer.IsFocusLayer = true;
@@ -243,8 +269,25 @@ namespace ReignBeta.UI
             Close();
         }
 
-        private static void Close(bool invokeReturnCallback)
+        private static async System.Threading.Tasks.Task RetainAfterTransitionAsync(
+            ReignIndividualChatScreenVM previous, ReignIndividualConversationBehavior owner)
         {
+            try
+            {
+                var token = await previous.SuspendForContinuationAsync("ui_continuation").ConfigureAwait(false);
+                // Begin/close invalidates the generation, including a late finish
+                // acknowledgment arriving after the player chose another NPC.
+                if (token != null) owner?.RetainContinuation(token);
+            }
+            catch (Exception ex) { ReignLog.Warn("Conversation transition handoff failed: " + ex.Message); }
+        }
+
+        private static void Close(bool invokeReturnCallback, string reason = "closed_by_player", bool retainContinuation = false)
+        {
+            if (!retainContinuation && _dataSource?.IsCalibrationMode != true)
+                ReignIndividualConversationBehavior.Instance?.EndConversation();
+            _dataSource?.SetFinalizationReason(reason);
+            _openOutfitWhenReady = false;
             Action returnCallback = invokeReturnCallback ? _returnCallback : null;
             _returnCallback = null;
             _officialPostingId = string.Empty;

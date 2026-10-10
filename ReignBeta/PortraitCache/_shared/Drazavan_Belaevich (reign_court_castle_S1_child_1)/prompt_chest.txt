@@ -1,0 +1,55 @@
+REFERENCE-GUIDED CHEST PORTRAIT EDIT: INDIVIDUAL FACIAL IDENTITY WITH PHOTOGRAPHIC REFINEMENT
+Image 1 is the CURRENT CHEST PORTRAIT. Edit it into one high-detail chest portrait. Preserve its photographic finish, soft daylight, upright head and torso posture, visible shoulder and chest proportions, clothing craftsmanship, background and chest composition. Preserve the existing garment, jewelry and visible hair context. Use the exact authored age and independent physique guidance below.
+Image 2 is the OLD SHARED CHEST PORTRAIT. Use its supported individual eye, nose and mouth proportions as identity guidance only, subject to the native-source description. Do not copy its clothing, body proportions, posture, framing or older rendering finish. Avoid generic beautification.
+Image 3 is the NATIVE SOURCE. Use its exposed facial anatomy to resolve the source-supported structures specified below where the old portrait simplified them. The complete written description governs age, hair and facial-hair identity, eye-color family, skin details and visible marks. Do not copy game-render surfaces, clothing, pose or body proportions. Blend the cultural appearance with recognizable individual proportions.
+Improve eyes, skin and anatomical transitions into resolved natural photographic detail. Keep authentic pores, coherent eyelid edges and natural lip surfaces. Create one vertical chest portrait with complete crown, shoulders and upper chest.
+
+I want you to create a picture of a 25-year-old man who looks like the description below. Create one photographic chest portrait showing complete crown, shoulders and upper chest. Clothing follows Sturgian lesser lord fashion, with the craftsmanship and social station of clan tier 3. These values are generation guidance and must never be printed in the image.
+Use a vertical 3:4 portrait canvas. Use the three supplied images according to their separate reference roles above, together with the complete written guidance below.
+
+FACIAL APPEARANCE AND HAIR
+Create Drazavan Belaevich, exact adult age25, preserving native broad fairly long oval, high forehead, wide cheekbones and substantial exposed upper cheeks. His nose is a LARGE LONG natural blunt nose, LOW and WIDE at the nasal root, THICK and convex along the long ridge, ending in a HEAVY BROAD ROUNDED DROOPING BULB that extends clearly below the substantial rounded nostril wings. This is a visibly broad blunt long nasal structure at normal portrait size, not a fine high straight bridge with small compact tip. His pale blue-gray irises with dark outer rings sit in ordinary adult horizontal almond-oval eye apertures with moderate spacing and relaxed upper and lower lids. Preserve their current placement and a natural neutral aperture without narrowing, close-setting or expression-driven squint. Thick medium-brown mostly straight brows have shallow outer bends. Upper cheeks are broad and softly convex, not lean angular hollows. The small pink-brown mouth has a shallow upper bow and full rounded lower lip partly beneath moustache. Keep native fair warm peach-beige skin with red cheek/nose tones, ordinary pores and unevenness, youthful adult skin, no invented marks or aging. Preserve medium-to-long rough sandy golden-brown waves swept back from central downward hairline point and high temples, sides around ears, and native very long coarse dense golden-brown beard, broad across lowercheeks/jaw and tapering into long loosely bundled or simple braided end at upperchest, no metal ornaments. Beard hides lowerjaw; use no hiddenjaw invention, beard/age/expression distinction. The visible long broad blunt nose, ordinary horizontal almond-oval eyes with moderate spacing and relaxed lids, and broad convex cheeks supply natural readable individual anatomy while every exact native body/cultural/clothing modifier remains fixed.
+
+FACIAL CULTURAL APPEARANCE — STURGIAN
+Stored cultureId: sturgia.
+Regional reference: Eastern European and Slavic regional appearance.
+Create a believable real human face with this regional appearance. Apply the regional reference positively to facial appearance, facial structure and complexion; it is not only a clothing, setting or background instruction.
+Blend the regional reference with the individual facial description. Where simplified native geometry or game-renderer shading differs from this regional appearance, use a plausible natural blend while retaining recognizable individual traits: face outline, relative proportions, eyes, brows, nose, mouth, jaw and chin. Preserve the described hair identity, arrangement and texture, facial-hair pattern, eye character, visible scars and markings; do not invent new distinguishing marks.
+These regional populations contain substantial individual variation. Do not give every member the same face, impose a universal skin, hair or eye color, or replace the written individual identity with a generic regional stereotype. Preserve source-grounded differences and natural human asymmetry.
+Keep the exact authored age and the independent native weight and build values. This layer applies to facial appearance and realistic complexion interpretation, not body size, muscularity, garment coverage or social rank. Every complete composition, clothing, confidence, photographic, output and physique modifier remains in effect. Do not print this reference or any metadata in the image.
+
+COMPOSITION AND FRAMING
+Create a high-detail chest portrait framed from a little above the complete hairstyle to the upper chest. Keep the face large and readable while including both complete shoulders and visible upper-chest garment.
+Keep the head and torso upright and centered on the vertical axis in a relaxed natural pose consistent with Image 1.
+Use a vertical 3:4 portrait canvas. Leave clear headroom above every hair strand and comfortable margins outside both shoulders. Place the complete crown near the upper margin, the face across the upper and central image, and the upper-chest garment across the lower image.
+Keep the complete forehead, hairstyle, chin and both shoulders visible. Give facial detail enough image area to resolve naturally with realistic portrait-lens perspective.
+Use a softly blurred, historically appropriate stone doorway or architectural background that does not compete with the subject.
+
+Culturally appropriate everyday Sturgian minor-lord attire inspired by refined medieval Rus and Slavic noble clothing. Men should wear a well-made long shirt beneath a tailored wool kaftan or long belted coat, decorated with fine geometric embroidery and quality trim. Women should wear a long embroidered shift with an elegant wool overdress or noble coat-dress, secured with a richly woven sash. Include subtle fur trim around collars or cuffs, tasteful clasps, and better-quality fabric than a landowner would wear. The clothing should remain practical for a northern climate while clearly showing noble rank. No headgear of any kind. No armor, weapons, crowns, ceremonial robes, or oversized fur displays.
+
+PHOTOGRAPHIC STYLE
+Make the subject look like a real human being photographed candidly, not a game render or fantasy illustration.
+Use authentic skin texture, visible pores, natural imperfections, slight asymmetry, natural lips, believable eyes, realistic hair, and restrained age-appropriate detail.
+Use soft natural daylight, shallow depth of field, a realistic 85mm portrait-lens perspective, subtle film grain, and a grounded photographic finish.
+
+OUTPUT EXCLUSIONS
+Return only the portrait image itself.
+Do not render words, letters, numbers, captions, labels, names, ages, cultures, subtitles, signatures, logos, watermarks, interface elements, portrait cards, decorative title blocks, borders, banners, blank caption areas, white strips, white footer panels, or metadata panels anywhere in the image.
+No extreme close-up, face-only crop, cropped head, cropped shoulders, armor, weapons, shields, quivers, chainmail, helmets, fur war gear, plastic skin, over-smoothed face, CGI, cartoon, anime, painterly style, or modern clothing.
+
+NATIVE BODY APPEARANCE — AUTHORITATIVE PHYSIQUE
+Native weight: 0.5 on a 0–1 scale: Medium body-fat level.
+Native build: 0.5 on a 0–1 scale: Moderate musculature.
+These are independent native appearance sliders, not kilograms, BMI, clinical classifications or body-fat percentages. Respect the exact position within each range, without abrupt changes at descriptive boundaries.
+Weight controls body-fat fullness. For women, build controls natural muscle tone, firmness, and athletic definition, not added muscle mass, bulky shoulders, thick arms, or masculine bodybuilder proportions. For men, build controls muscle mass. High weight does not imply muscle. High build does not imply extra fat or automatically visible abdominal definition; body fat and clothing can obscure definition.
+Match these native proportions even if another prompt or the supplied AI portrait conflicts. Preserve native age, sex, skeletal proportions, face and identity. Do not infer breast size, enlarge curves, beautify, slim or bulk up the person beyond these values.
+Garments must fit this physique. Revealingness and physical confidence change clothing coverage only, never body size. Covered muscles need not be exposed. During a clothing edit, correct conflicting AI physique to these native values while preserving the person's face and identity. Never print these instructions or values in the image.
+
+CHEST PREVIEW FRAMING CHECK
+Keep the complete crown with clear headroom, both shoulders, chin and upper-chest clothing in the finished chest portrait. Give the face substantially more of the image than in a distant standing composition. Preserve written identity, independent native physique values, complete clothing and coverage guidance, soft daylight and photographic finish. This is an experimental chest preview, not a canonical crop specification.
+
+FOCUSED SOURCE-SUPPORTED FACIAL GUIDANCE
+1. Restore the long substantial broad blunt nasal shaft and heavy rounded terminal lobe with substantial rounded nostril wings, using plausible natural human anatomy rather than a caricature.
+2. Restore the visible full rounded lower-lip cushion beneath the moustache at a quiet closed seam, keeping the small mouth width. No additional narrowing or close-setting of the eyes is requested in this focused correction.
+
+Keep any facial-hair-covered jaw or chin anatomy unspecified. Do not invent distinguishing marks or use hair, beard, color, pose, expression or lighting as facial structural differences. Preserve the exact authored age, independent body values, full clothing/confidence coverage, cultural blend and current photographic finish. Resolve natural eyes, skin and lips without generic beautification. Output one complete-crown, shoulders-and-upper-chest portrait. Improved detail or one clearer feature does not establish two independent differences from any neighbor.

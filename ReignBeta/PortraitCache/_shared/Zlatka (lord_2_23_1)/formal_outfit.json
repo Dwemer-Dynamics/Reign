@@ -3,11 +3,11 @@
   "heroStringId": "lord_2_23_1",
   "characterName": "Zlatka",
   "imagePath": "portrait.png",
-  "imageSha256": "8B092421EE62C8D8AA8778C54DA94C1EFCF96EAEB46D8A5C5E6619E2E03ACD49",
-  "description": "Culturally appropriate everyday Sturgian minor-lord attire inspired by refined medieval Rus and Slavic noble clothing. Men should wear a well-made long shirt beneath a tailored wool kaftan or long belted coat, decorated with fine geometric embroidery and quality trim. Women should wear a long embroidered shift with an elegant wool overdress or noble coat-dress, secured with a richly woven sash. Include subtle fur trim around collars or cuffs, tasteful clasps, and better-quality fabric than a landowner would wear. The clothing should remain practical for a northern climate while clearly showing noble rank. No headgear of any kind. No armor, weapons, crowns, ceremonial robes, or oversized fur displays.",
-  "status": "failed",
-  "descriptionSource": "portrait_prompt_fallback",
-  "retryEligible": true,
-  "error": "{\"error\":{\"message\":\"Model \\\"zai-org/glm-5.2\\\" does not support image inputs. Remove image content or choose a multimodal model.\",\"type\":\"invalid_request_error\",\"param\":\"messages\",\"code\":\"image_input_not_supported\"}}",
-  "updatedUtc": "2026-07-18T22:03:35.9036038Z"
+  "imageSha256": "D113116AFDD7133DD1BEAA9AC46B81BC49296B76341B435772B25ADE65C986AB",
+  "description": "An opaque full-length dark blue wool Sturgian coat-dress over a cream linen shift, restrained pale geometric embroidery along the standing collar, front edges, cuffs and hem, a matching woven waist sash with hanging ends, light functional brown fur trim at neck and wrists, and plain closed brown leather shoes. No headgear or weapons.",
+  "status": "completed",
+  "descriptionSource": "agent_vision",
+  "retryEligible": false,
+  "error": "",
+  "updatedUtc": "2026-10-08T04:18:40.881Z"
 }

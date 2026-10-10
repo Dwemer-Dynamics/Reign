@@ -3,11 +3,11 @@
   "heroStringId": "reign_court_town_S7_mother",
   "characterName": "Gnevoza Rudeevich",
   "imagePath": "portrait.png",
-  "imageSha256": "7EF0EAC90AA1CF764AFE0B9910F7AFA67AD28B9594031F3C512818628A9A7893",
-  "description": "Culturally appropriate everyday Sturgian minor-lord attire inspired by refined medieval Rus and Slavic noble clothing. Men should wear a well-made long shirt beneath a tailored wool kaftan or long belted coat, decorated with fine geometric embroidery and quality trim. Women should wear a long embroidered shift with an elegant wool overdress or noble coat-dress, secured with a richly woven sash. Include subtle fur trim around collars or cuffs, tasteful clasps, and better-quality fabric than a landowner would wear. The clothing should remain practical for a northern climate while clearly showing noble rank. No headgear of any kind. No armor, weapons, crowns, ceremonial robes, or oversized fur displays.",
-  "status": "failed",
-  "descriptionSource": "portrait_prompt_fallback",
-  "retryEligible": true,
-  "error": "{\"error\":{\"message\":\"Model \\\"zai-org/glm-5.2\\\" does not support image inputs. Remove image content or choose a multimodal model.\",\"type\":\"invalid_request_error\",\"param\":\"messages\",\"code\":\"image_input_not_supported\"}}",
-  "updatedUtc": "2026-07-18T22:03:29.6411612Z"
+  "imageSha256": "EFE4B3E9222235D1AD7B2A75621272B2B8F9389911C37351AFA697C8FF1F8774",
+  "description": "Gnevoza Rudeevich wears a blue floor-length court gown with a low square neckline, elbow-length sleeves and pale geometric woven embroidery around the neckline, bodice seams, cuffs, centre and hem. Round shoulder and sleeve clasps and a red-brown decorated woven sash with a round buckle and long tasselled ends secure the layers. A grey-beige fringed wrap with blue geometric borders lies around her forearms. An ivory underdress and brown closed shoes show at the lower opening. A pendant and finger ring are visible. Her crown braids are uncovered.",
+  "status": "completed",
+  "descriptionSource": "agent_vision",
+  "retryEligible": false,
+  "error": "",
+  "updatedUtc": "2026-10-07T22:29:06.753Z"
 }

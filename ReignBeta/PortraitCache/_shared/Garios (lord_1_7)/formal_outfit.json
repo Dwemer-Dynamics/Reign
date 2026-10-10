@@ -3,11 +3,11 @@
   "heroStringId": "lord_1_7",
   "characterName": "Garios",
   "imagePath": "portrait.png",
-  "imageSha256": "BB389B529F735633EAD9E60BACD16FBE6CD2A68A7D4B77057FFB97245CB4016D",
-  "description": "Culturally appropriate everyday Calradic Imperial high-noble attire inspired by luxurious Byzantine aristocratic fashion, restrained enough for daily noble life. Use fine layered linen and wool, controlled flowing silhouettes, elegant draping, richly woven borders, small jeweled clasps, and sophisticated fabric textures. Men should wear a stately long tunic or structured noble coat over a fine undertunic, with refined belts and detailed edging. Women should wear a sophisticated layered noble dress with graceful drapery, tailored sleeves, and subtle aristocratic ornamentation. The outfit should communicate ancient prestige, wealth, and political importance. No headgear of any kind. No armor, weapons, crowns, laurel wreaths, or full ceremonial imperial regalia.",
-  "status": "failed",
-  "descriptionSource": "portrait_prompt_fallback",
-  "retryEligible": true,
-  "error": "{\"error\":{\"message\":\"Model \\\"zai-org/glm-5.2\\\" does not support image inputs. Remove image content or choose a multimodal model.\",\"type\":\"invalid_request_error\",\"param\":\"messages\",\"code\":\"image_input_not_supported\"}}",
-  "updatedUtc": "2026-07-18T22:03:29.4953112Z"
+  "imageSha256": "1DC8A0BE9BBC4249A5F2080A6E304A646D47D80BF57B8FE6596EE5D6C61EE2EB",
+  "description": "The man wears a cream long tunic with a round dark-and-gold bordered collar, broad central woven decoration and gold-trimmed cuffs and hem. Plum-purple outer panels frame the front, while a matching large gold-bordered purple drape lies over his left shoulder and arm, hanging low with a fringed patterned end. Two round purple-stone gold brooches decorate the shoulder area. A dark leather belt has a large decorated round gold buckle and a long strap with small gold fittings and a tasselled tip. Tall dark brown leather boots and a purple-stone ring are visible. Head and hands remain uncovered.",
+  "status": "completed",
+  "descriptionSource": "agent_vision",
+  "retryEligible": false,
+  "error": "",
+  "updatedUtc": "2026-10-07T22:42:05.446Z"
 }

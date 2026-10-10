@@ -210,6 +210,12 @@ namespace ReignBeta.Campaign
             PromoteMadam(Settlement.Find(person.TownId));
         }
 
+        internal void CompleteTemporaryDeparture(Hero hero)
+        {
+            var person = GetPerson(hero);
+            if (person != null) Depart(person, false, "temporary_guest");
+        }
+
         private void PromoteMadam(Settlement town)
         {
             if (town == null) return;
@@ -368,7 +374,7 @@ namespace ReignBeta.Campaign
             return true;
         }
 
-        public bool TryRecruit(Hero hero, int agreedGold, string agreementId, bool consentConfirmed, out string reason)
+        internal bool ValidateRecruitment(Hero hero, int agreedGold, string agreementId, bool consentConfirmed, out string reason)
         {
             reason = "";
             var person = GetPerson(hero);
@@ -388,6 +394,14 @@ namespace ReignBeta.Campaign
             { reason = "Your clan has reached its native companion limit."; return false; }
             if (!person.RecruitmentGoldPaid && Hero.MainHero.Gold < agreedGold)
             { reason = "You do not have the agreed recruitment payment."; return false; }
+            return true;
+        }
+
+        public bool TryRecruit(Hero hero, int agreedGold, string agreementId, bool consentConfirmed, out string reason)
+        {
+            if (!ValidateRecruitment(hero, agreedGold, agreementId, consentConfirmed, out reason)) return false;
+            var person = GetPerson(hero);
+            if (person.RecruitmentComplete) return true;
             person.RecruitmentReceipt = agreementId; person.RecruitmentGold = agreedGold;
             try
             {
@@ -398,6 +412,7 @@ namespace ReignBeta.Campaign
                 { reason = "The native companion transfer did not complete; the agreement is saved for recovery."; return false; }
                 Depart(person, true, "recruited");
                 hero.SetNewOccupation(Occupation.Wanderer);
+                ReignEncounteredResidentsCampaignBehavior.Instance?.DetachDepartingRole(hero);
                 if (!person.RecruitmentGoldPaid)
                 {
                     int before = Hero.MainHero.Gold;

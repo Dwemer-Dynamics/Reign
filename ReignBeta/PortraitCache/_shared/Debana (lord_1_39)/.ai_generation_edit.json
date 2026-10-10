@@ -1,0 +1,70 @@
+{
+  "schema": "reign-portable-actual-portrait-origin-v1",
+  "id": "lord_1_39",
+  "kind": "edited_fullbody",
+  "actualReceiptSha256": "200f92cecf9ac859d885fa9c8ea79f2d91e4eda7f7e36ae2d42c29fa0d970dce",
+  "actualReceiptUtf8": "{\n  \"schema\": \"reign-debana-old-face-restyle-actual-result-v1\",\n  \"createdUtc\": \"2026-10-09T02:47:25.197171+00:00\",\n  \"id\": \"lord_1_39\",\n  \"provider\": \"Codex built-in image_gen\",\n  \"model\": \"unknown\",\n  \"actualBuiltinImageCalls\": 1,\n  \"actualRetries\": 0,\n  \"executedBy\": \"root\",\n  \"rootActualCallReceipt\": {\n    \"path\": \"C:\\\\ReignPortraitRebuild\\\\2026-10-07-01a11741-culture-v2\\\\audit\\\\debana-old-face-restyle-preparation-001\\\\root-actual-call-001.json\",\n    \"sha256\": \"27c0b6d0346a7ad2c7d449cc1a130e1b350984949a3d67ac73c3e4650be303f6\",\n    \"bytes\": 2172\n  },\n  \"prompt\": {\n    \"path\": \"C:\\\\ReignPortraitRebuild\\\\2026-10-07-01a11741-culture-v2\\\\audit\\\\debana-old-face-restyle-preparation-001\\\\full-prompt.txt\",\n    \"sha256\": \"4d3809919cc990a9e31aacda3799c38e6c0ce9375fee5d14143b40d66e7767c9\",\n    \"bytes\": 12112\n  },\n  \"request\": {\n    \"path\": \"C:\\\\ReignPortraitRebuild\\\\2026-10-07-01a11741-culture-v2\\\\audit\\\\debana-old-face-restyle-preparation-001\\\\image-request-ascii.json\",\n    \"sha256\": \"d2e99272bce588930be17144b12914d73c6ed607d6e7f1d6a9d23b0f627900cd\",\n    \"bytes\": 12564\n  },\n  \"referenceImages\": [\n    {\n      \"path\": \"D:\\\\Program Files (x86)\\\\Steam\\\\steamapps\\\\common\\\\Mount & Blade II Bannerlord\\\\Modules\\\\ReignBeta\\\\PortraitCache\\\\_shared\\\\Debana (lord_1_39)\\\\portrait_chest.png\",\n      \"sha256\": \"5979f6857a31896eb92192e77609d4abd7c314fbc1efb987854346a1e481e608\",\n      \"bytes\": 135753,\n      \"width\": 209,\n      \"height\": 261,\n      \"role\": \"primary old own facial identity\"\n    },\n    {\n      \"path\": \"C:\\\\ReignPortraitRebuild\\\\2026-10-07-01a11741-culture-v2\\\\_shared\\\\Debana (lord_1_39)\\\\portrait.png\",\n      \"sha256\": \"a3ccae37406c1d22061353618741f6dde5423bb7f67dee02e696b9c20ab25956\",\n      \"bytes\": 2369340,\n      \"width\": 1086,\n      \"height\": 1448,\n      \"role\": \"current full-body layout, pose, clothing, lighting and photographic style; not face authority\"\n    }\n  ],\n  \"providerOutput\": {\n    \"path\": \"C:\\\\Users\\\\speed\\\\.codex\\\\generated_images\\\\01a11741-4ac1-7cd2-9aca-e03d81313445\\\\exec-bd1137f4-448a-4bc6-82d8-d91c4b8674ba.png\",\n    \"sha256\": \"e916f7ab8ad7d37940a6efc1c1c8e1c77bae94f2e68ab8e5c98c33db9809d241\",\n    \"bytes\": 2409352\n  },\n  \"nativePackReport\": {\n    \"path\": \"C:\\\\ReignPortraitRebuild\\\\2026-10-07-01a11741-culture-v2\\\\audit\\\\debana-old-face-restyle-preparation-001\\\\derivative-report-001.json\",\n    \"sha256\": \"83e03b1445b4a1f3d17e5a3a319a4604302b400fedf174b4699bdc1490110f31\",\n    \"bytes\": 3833\n  },\n  \"nativePackToolExitCode\": 0,\n  \"nativePackToolDurationSeconds\": 1.9134939,\n  \"nativePackReportedDurationSeconds\": 1.012,\n  \"sourceTicksDecimal\": \"639271106561702675\",\n  \"personalReview\": {\n    \"path\": \"C:\\\\ReignPortraitRebuild\\\\2026-10-07-01a11741-culture-v2\\\\audit\\\\debana-old-face-restyle-preparation-001\\\\post-generation-personal-review-001.json\",\n    \"sha256\": \"40460ddd7324d568908c473c5dfc87b3cb6ea2788b51117a0a0f96cfe6daf6e4\",\n    \"bytes\": 3169\n  },\n  \"sharedWrites\": 0,\n  \"status\": \"native_pack_ready_manual_crown_candidate_preparation_only\",\n  \"humanAcceptance\": false\n}\n",
+  "originalReceiptEncoding": "UTF-8; BOM retained if present",
+  "localFiles": [
+    {
+      "name": "portrait_chest.png",
+      "sha256": "d02f255ab0cbaa566b5e60b280ce429716195e58b48d30ae1336e9246bd5cd89",
+      "bytes": 229309
+    },
+    {
+      "name": "thumbnail.png",
+      "sha256": "e39d08504c70cbbe20588f24fe3a5ac9235dce3c90441d227ebd160cc40a2bc5",
+      "bytes": 191546
+    },
+    {
+      "name": "thumbnail_wide.png",
+      "sha256": "7447b4089ceb5e4910b91eb17f55f4e7c87c76fbe4da97e6c405ec6a8cf31748",
+      "bytes": 307196
+    },
+    {
+      "name": "portrait.png",
+      "sha256": "e916f7ab8ad7d37940a6efc1c1c8e1c77bae94f2e68ab8e5c98c33db9809d241",
+      "bytes": 2409352
+    },
+    {
+      "name": "zoom.png",
+      "sha256": "161e551c71b9632bb0c7f9af6669d266a3e5bd60985392994b9b0be8149f2b20",
+      "bytes": 3702587
+    },
+    {
+      "name": "prompt_edit.txt",
+      "sha256": "4d3809919cc990a9e31aacda3799c38e6c0ce9375fee5d14143b40d66e7767c9",
+      "bytes": 12112
+    }
+  ],
+  "historicalParent": {
+    "record": {
+      "path": "C:\\ReignPortraitRebuild\\2026-10-07-01a11741-culture-v2\\_shared\\Debana (lord_1_39)\\.ai_generation.json",
+      "sha256": "4c0688bc4293fc1c8be8e139a2aa3458c98f84fabd6ded563de4099d3d744d92",
+      "bytes": 3806
+    },
+    "prompt": {
+      "path": "C:\\ReignPortraitRebuild\\2026-10-07-01a11741-culture-v2\\_shared\\Debana (lord_1_39)\\prompt.txt",
+      "sha256": "fab8a057566d17a97217e1540263089b4482b2c26c0afed707b9cf21322ea4c8",
+      "bytes": 8806
+    },
+    "role": "Original fullbody generation; not the new own-old-face edit producer."
+  },
+  "authenticRawReceiptNotRewritten": true,
+  "rawAbsolutePathsRole": "Historical tool/provider locations only. Current pixel source and prompt are bound by localFiles.",
+  "actualOriginAdapter": {
+    "rawSchema": "reign-debana-old-face-restyle-actual-result-v1",
+    "actualCallsField": "actualBuiltinImageCalls",
+    "actualRetriesField": "actualRetries",
+    "rawActualCalls": 1,
+    "rawRetries": 0,
+    "fieldMapping": {
+      "id": "id",
+      "source": "providerOutput",
+      "prompt": "prompt"
+    }
+  },
+  "globalFaceAcceptance": false,
+  "nativeUIAcceptance": false,
+  "notSwapApproval": true
+}

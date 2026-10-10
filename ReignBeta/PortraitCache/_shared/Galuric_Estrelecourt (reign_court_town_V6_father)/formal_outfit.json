@@ -3,11 +3,11 @@
   "heroStringId": "reign_court_town_V6_father",
   "characterName": "Galuric Estrelecourt",
   "imagePath": "portrait.png",
-  "imageSha256": "3C408F2A8F42ACF48E69475CBE76AD06E81EC9EEADD73303AC38B2B6323AD643",
-  "description": "Culturally appropriate everyday Vlandian minor-lord attire inspired by refined high-medieval Norman and Frankish noble dress. Use a fitted wool tunic or cote over a fine linen shirt, high-quality chausses, a decorated leather belt, and an optional short mantle or shoulder drape with restrained embroidery. For women, use a long underdress with an elegant tailored overdress, shaped sleeves, fine woven fabric, and decorative trim around the cuffs, hem, and neckline. Include modest clasps, brooches, or small jewelry details. No headgear of any kind. No armor, weapons, crowns, royal regalia, or ceremonial robes.",
-  "status": "failed",
-  "descriptionSource": "portrait_prompt_fallback",
-  "retryEligible": true,
-  "error": "{\"error\":{\"message\":\"Model \\\"zai-org/glm-5.2\\\" does not support image inputs. Remove image content or choose a multimodal model.\",\"type\":\"invalid_request_error\",\"param\":\"messages\",\"code\":\"image_input_not_supported\"}}",
-  "updatedUtc": "2026-07-18T22:03:29.4494919Z"
+  "imageSha256": "9ED4078B82D88E75BD9B3F072A02A6DD2FAB4A6816E212AD8C861B4ED955992F",
+  "description": "A fitted rust-red knee-length wool cote with narrow gold woven borders at the placket, cuffs and hem over a cream linen shirt showing at neckline and wrists. Dark brown shoulder mantle with gold leaflike woven edge fastened by a round metal brooch. Decorated brown leather belt with several metal mounts and hanging end; brown fitted trousers and tall worn brown leather boots. Both hands exposed at his sides. No headgear, armor or weapon.",
+  "status": "completed",
+  "descriptionSource": "agent_vision",
+  "retryEligible": false,
+  "error": "",
+  "updatedUtc": "2026-10-07T23:22:18.143Z"
 }

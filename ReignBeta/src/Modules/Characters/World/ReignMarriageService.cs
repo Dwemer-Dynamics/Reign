@@ -38,7 +38,7 @@ namespace ReignBeta.World
                 || text.IndexOf("dowry", StringComparison.OrdinalIgnoreCase) >= 0;
         }
 
-        public static bool TryResolveCouple(ReignWorldActionRecord action, out Hero first, out Hero second, out string reason)
+        public static bool TryResolveCouple(ReignWorldActionRecord action, out Hero first, out Hero second, out string reason, bool proposal = false)
         {
             first = null;
             second = null;
@@ -50,6 +50,8 @@ namespace ReignBeta.World
             }
 
             JObject terms = ReignValueService.ParseTerms(action);
+            if (ReignActionValidator.IsStructuredAction(action))
+                return TryResolveStructuredCouple(action, terms, proposal, out first, out second, out reason);
             if (action.Type == ReignWorldActionType.PoliticsMarriageAlliance
                 && (ReignActionValidator.IsDialogueActionSource(action.Source)
                     || string.Equals(action.AuthorizationMode, "dialogue_acceptance", StringComparison.OrdinalIgnoreCase)))
@@ -209,6 +211,26 @@ namespace ReignBeta.World
             return false;
         }
 
+        private static bool TryResolveStructuredCouple(ReignWorldActionRecord action, JObject terms, bool proposal,
+            out Hero first, out Hero second, out string reason)
+        {
+            first = ReignObjectResolver.FindHero(terms.Value<string>("marriageHero1StringId"));
+            second = ReignObjectResolver.FindHero(terms.Value<string>("marriageHero2StringId"));
+            reason = string.Empty;
+            if (first == null || second == null || first == second || !first.IsAlive || !second.IsAlive || first.IsChild || second.IsChild)
+                reason = "Marriage requires two exact, living, adult heroes.";
+            else if (action.Source != "reign_console" && !((first.StringId == action.ActorHeroStringId && second.StringId == action.TargetHeroStringId)
+                || (second.StringId == action.ActorHeroStringId && first.StringId == action.TargetHeroStringId)))
+                reason = "A personal marriage agreement can bind only its two participants.";
+            else if (!proposal && ReignBeta.Actions.ReignAgreementBehavior.Instance?.Authorizes(action) != true)
+                reason = "Marriage requires the exact accepted agreement or saved operator instruction.";
+            else if (first.Spouse == second && second.Spouse == first) return true;
+            else if (first.Spouse != null || second.Spouse != null
+                || !global::TaleWorlds.CampaignSystem.Campaign.Current.Models.MarriageModel.IsCoupleSuitableForMarriage(first, second))
+                reason = "The exact couple is not currently eligible for marriage.";
+            return reason.Length == 0;
+        }
+
         private static bool TryResolveConsentingCouple(ReignWorldActionRecord action, JObject terms,
             out Hero first, out Hero second, out string reason)
         {
@@ -263,7 +285,7 @@ namespace ReignBeta.World
 
             // A dialogue receipt hashes the agreed terms. Keep that signed payload
             // stable across retries; the result effect carries resolved display names.
-            if (!string.Equals(action.AuthorizationMode, "dialogue_acceptance", StringComparison.OrdinalIgnoreCase))
+            if (!ReignActionValidator.IsStructuredAction(action) && !string.Equals(action.AuthorizationMode, "dialogue_acceptance", StringComparison.OrdinalIgnoreCase))
                 StampResolvedCouple(action, first, second);
             result.WithEffect("marriage_completed", "hero", second.StringId, secondName,
                     "alreadyMarried=" + alreadyMarried + ";hero1=" + first.StringId + ";hero1Name=" + firstName + ";hero1Clan=" + firstClanId

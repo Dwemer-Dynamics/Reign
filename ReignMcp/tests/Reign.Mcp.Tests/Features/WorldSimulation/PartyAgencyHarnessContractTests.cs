@@ -6,6 +6,33 @@ namespace Reign.Mcp.Tests;
 public sealed class PartyAgencyHarnessContractTests
 {
     [Fact]
+    public void GuestInvitationRelinquishesGovernorshipOnlyAfterConsentAndAtActualDeparture()
+    {
+        string source = File.ReadAllText(Path.Combine(TestOptions.FindWorkspace(), "ReignBeta", "src",
+            "Modules", "WorldSimulation", "PartyAgency", "ReignTemporaryPartyGuestCampaignBehavior.cs"));
+        string accept = source[source.IndexOf("public ReignActionResult AcceptGuest(", StringComparison.Ordinal)
+            ..source.IndexOf("public bool ValidateAction(", StringComparison.Ordinal)];
+        int validation = accept.IndexOf("if (!ValidateAcceptAction(action, hero, out string reason))", StringComparison.Ordinal);
+        int deferred = accept.IndexOf("if (ReadBool(terms, \"deferStart\", false))", StringComparison.Ordinal);
+        int removal = accept.IndexOf("ChangeGovernorAction.RemoveGovernorOf(hero)", StringComparison.Ordinal);
+        int transfer = accept.IndexOf("AddHeroToPartyAction.Apply(hero, MobileParty.MainParty, false)", StringComparison.Ordinal);
+        int rollback = accept.IndexOf("catch (Exception ex)", StringComparison.Ordinal);
+        int restore = accept.IndexOf("ChangeGovernorAction.Apply(priorGovernorship, hero)", StringComparison.Ordinal);
+        Assert.True(validation >= 0 && deferred > validation && removal > deferred && transfer > removal);
+        Assert.True(rollback > transfer && restore > rollback);
+        Assert.Contains("priorGovernorship.Governor == null && hero.GovernorOf == null", accept, StringComparison.Ordinal);
+        Assert.Contains("hero.GovernorOf != null || priorGovernorship.Governor == hero", accept, StringComparison.Ordinal);
+        Assert.Contains("IdentityMatches(record, hero)", accept, StringComparison.Ordinal);
+        Assert.Contains("relinquishedGovernorship=", accept, StringComparison.Ordinal);
+        string preflight = source[source.IndexOf("public bool ValidateAcceptAction(", StringComparison.Ordinal)
+            ..source.IndexOf("public void ApplicationTick()", StringComparison.Ordinal)];
+        Assert.DoesNotContain("hero.GovernorOf", preflight, StringComparison.Ordinal);
+        Assert.DoesNotContain("ChangeGovernorAction.", preflight, StringComparison.Ordinal);
+        Assert.Contains("!proposal && !ReignActionValidator.HasOperatorAuthorization(action)", preflight, StringComparison.Ordinal);
+        Assert.Contains("!ReadBool(terms, \"consentConfirmed\", false)", preflight, StringComparison.Ordinal);
+    }
+
+    [Fact]
     public void NativeReturnTimingReceiptSurvivesCompletedReturnAndUsesManifestVariants()
     {
         string root = TestOptions.FindWorkspace();
@@ -590,7 +617,7 @@ public sealed class PartyAgencyHarnessContractTests
             StringComparison.Ordinal);
         Assert.Contains("never use temporary_party_guest", server,
             StringComparison.Ordinal);
-        Assert.Contains("set reviewIntervalDays=5, and omit durationDays", server,
+        Assert.Contains("set reviewIntervalDays=30, and omit durationDays", server,
             StringComparison.Ordinal);
         Assert.Contains("terms.Remove(\"durationDays\")", server,
             StringComparison.Ordinal);
@@ -600,7 +627,7 @@ public sealed class PartyAgencyHarnessContractTests
         string manifestPath = Path.Combine(root, "ReignServer", "tests", "ReignLiveTest", "scenarios", "party-agency-manifest.json");
         string manifest = File.ReadAllText(manifestPath);
         Assert.Contains("There is no fixed end date", manifest, StringComparison.Ordinal);
-        Assert.Contains("review every five days", manifest, StringComparison.Ordinal);
+        Assert.Contains("review every thirty days", manifest, StringComparison.Ordinal);
     }
 
     [Fact]
@@ -732,7 +759,7 @@ public sealed class PartyAgencyHarnessContractTests
             Path.Combine(root, "ReignServer"), "DialogueActionReliability.cs", "/src/Modules/Dialogue/"));
         Assert.Contains("ExtractItemAmount(text, \"days?\")", reliability, StringComparison.Ordinal);
         Assert.Contains("days > MaximumGuestTermDays", reliability, StringComparison.Ordinal);
-        Assert.Contains("terms[\"reviewIntervalDays\"] = 5", reliability, StringComparison.Ordinal);
+        Assert.Contains("terms[\"reviewIntervalDays\"] = 30", reliability, StringComparison.Ordinal);
         Assert.Contains("[\"actorHeroStringId\"] = speakerHeroId", server,
             StringComparison.Ordinal);
     }

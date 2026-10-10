@@ -26,6 +26,37 @@ public sealed class RoyalCouncilScenarioContractTests
     }
 
     [Fact]
+    public void EnrolledRoyalCouncilNavigationHasCampaignScopedClockIsolation()
+    {
+        string root = TestOptions.FindWorkspace();
+        using JsonDocument catalog = JsonDocument.Parse(File.ReadAllText(Path.Combine(root, "reign.testing.json")));
+        string contract = catalog.RootElement.GetProperty("royalCouncil").GetProperty("clockIsolation").GetString()!;
+        Assert.Contains("ui_back", contract, StringComparison.Ordinal);
+        Assert.Contains("ui_close", contract, StringComparison.Ordinal);
+        Assert.Contains("campaign replacement fails", contract, StringComparison.Ordinal);
+        string source = File.ReadAllText(TestSourceLocator.Unique(Path.Combine(root, "ReignBeta"),
+            "ReignLiveInteractionUiCalibrationHost.cs", "/src/"));
+        string open = source[source.IndexOf("bool docketClockIsolation", StringComparison.Ordinal)..
+            source.IndexOf("double docketWorldDayBefore", StringComparison.Ordinal)];
+        Assert.Contains("target == \"royal-council\"", open, StringComparison.Ordinal);
+        Assert.Contains("campaignTestRunId", open, StringComparison.Ordinal);
+        Assert.Contains("expectedSaveName", open, StringComparison.Ordinal);
+        Assert.Contains("disposableSaveName", open, StringComparison.Ordinal);
+        string cleanup = source[source.IndexOf("private static async Task<LiveCommandResult> UiCloseAsync", StringComparison.Ordinal)..
+            source.IndexOf("private static string RestoreSettlementMenuAfterCalibration()", StringComparison.Ordinal)];
+        Assert.Contains("PreserveCalibrationClock(() =>", cleanup, StringComparison.Ordinal);
+        Assert.Contains("PreserveCalibrationClock(RestoreSettlementMenuAfterCalibration)", cleanup, StringComparison.Ordinal);
+        Assert.Equal(2, System.Text.RegularExpressions.Regex.Matches(cleanup, "ClearCalibrationClockGuard\\(\\);").Count);
+        string guard = source[source.IndexOf("private static T PreserveCalibrationClock", StringComparison.Ordinal)..
+            source.IndexOf("private static void CloseCalibrationScreensCore", StringComparison.Ordinal)];
+        Assert.Contains("finally", guard, StringComparison.Ordinal);
+        Assert.Contains("ReferenceEquals(_uiCalibrationClockCampaign, TaleWorlds.CampaignSystem.Campaign.Current)", guard, StringComparison.Ordinal);
+        Assert.Contains("dayAfter == _uiCalibrationClockDayBefore", guard, StringComparison.Ordinal);
+        Assert.Contains("_uiCalibrationClockCampaign = null", guard, StringComparison.Ordinal);
+        Assert.DoesNotContain("Advance", guard, StringComparison.Ordinal);
+    }
+
+    [Fact]
     public void AdviceBoundaryAndLegacyOfficeAliasesAreExplicit()
     {
         string root = TestOptions.FindWorkspace();

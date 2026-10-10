@@ -3,11 +3,11 @@
   "heroStringId": "reign_court_town_V3_mother",
   "characterName": "Lioroma Corvecourt",
   "imagePath": "portrait.png",
-  "imageSha256": "638B932A69C2C4CE92632AAA4618D555FB01663C103F442A5FFA3CA335078455",
-  "description": "Culturally appropriate everyday Vlandian minor-lord attire inspired by refined high-medieval Norman and Frankish noble dress. Use a fitted wool tunic or cote over a fine linen shirt, high-quality chausses, a decorated leather belt, and an optional short mantle or shoulder drape with restrained embroidery. For women, use a long underdress with an elegant tailored overdress, shaped sleeves, fine woven fabric, and decorative trim around the cuffs, hem, and neckline. Include modest clasps, brooches, or small jewelry details. No headgear of any kind. No armor, weapons, crowns, royal regalia, or ceremonial robes.",
-  "status": "failed",
-  "descriptionSource": "portrait_prompt_fallback",
-  "retryEligible": true,
-  "error": "{\"error\":{\"message\":\"Model \\\"zai-org/glm-5.2\\\" does not support image inputs. Remove image content or choose a multimodal model.\",\"type\":\"invalid_request_error\",\"param\":\"messages\",\"code\":\"image_input_not_supported\"}}",
-  "updatedUtc": "2026-07-18T22:03:31.9130752Z"
+  "imageSha256": "88AD1C901AE94CC6D1F608DE9AAC94D04AD4CBEE511A47BEFEDAEDC7ED722B06",
+  "description": "Lioroma wears a full-length muted red textured gown with a low square neckline, fitted structured bodice and elbow-length shaped sleeves. Cream-and-gold floral-geometric trim decorates the neckline, waist, sleeves and lower hem. A cream patterned underlayer is visible down the skirt center. A brown-grey mantle with matching decorative borders rests loosely along the arms. The waist belt has small metal fittings and a round clasp with a hanging end. A small pendant, earrings and ring provide restrained jewelry. Dark closed shoes show under the skirt. Fabric appears wool-like or plush over woven undercloth, with exact fibers uncertain. No headgear, armor or weapon appears.",
+  "status": "completed",
+  "descriptionSource": "agent_vision",
+  "retryEligible": false,
+  "error": "",
+  "updatedUtc": "2026-10-07T23:39:14.760Z"
 }

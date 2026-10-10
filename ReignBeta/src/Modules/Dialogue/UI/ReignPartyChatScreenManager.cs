@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using ReignBeta.Integration;
 using ReignBeta.Settings;
 using ReignBeta.UI.ViewModels;
@@ -40,6 +41,15 @@ namespace ReignBeta.UI
         private static Func<bool> _pendingReviewStillValid;
         private static Settlement _pendingHomesSettlement;
         private static Hero _pendingHomeResident;
+        private static List<Hero> _pendingApproachHeroes;
+        private static JObject _pendingApproach;
+        private static JObject _pendingBanter;
+
+        internal static void OpenBanter(JObject banter)
+        {
+            if (banter == null || IsOpenOrPending) return;
+            _pendingBanter = (JObject)banter.DeepClone(); Open();
+        }
 
         public static bool IsOpen { get; private set; }
         public static bool IsOpenOrPending => IsOpen || _pendingOpen;
@@ -83,6 +93,13 @@ namespace ReignBeta.UI
             }
 
             OpenOnHost(host);
+        }
+
+        public static void OpenApproach(List<Hero> heroes, JObject approach)
+        {
+            if (heroes == null || heroes.Count == 0 || IsOpenOrPending) return;
+            _pendingApproachHeroes = heroes; _pendingApproach = approach;
+            Open();
         }
 
         public static void OpenCastle(CastleRoomSessionRecord session)
@@ -165,6 +182,7 @@ namespace ReignBeta.UI
                 return;
             }
 
+            if (ReignActionBuilder.Handle(_hostScreen, _dataSource)) return;
             ApplyInputLock();
             _dataSource?.RefreshCastleArt();
             _dataSource?.RefreshTargetedReviewReceipt();
@@ -222,6 +240,7 @@ namespace ReignBeta.UI
             _pendingReviewStillValid = null;
             _pendingHomesSettlement = null;
             _pendingHomeResident = null;
+            _pendingApproachHeroes = null; _pendingApproach = null; _pendingBanter = null;
             _dataSource = null;
             _gauntletLayer = null;
             _hostScreen = null;
@@ -265,7 +284,11 @@ namespace ReignBeta.UI
                 _hostScreen = host;
                 bool castle = _pendingCastleSession != null;
                 bool targeted = !castle && _pendingTargetedHero != null;
-                _dataSource = castle
+                _dataSource = _pendingBanter != null
+                    ? new ReignPartyChatScreenVM(Close, _pendingBanter, OpenEncyclopediaOverlay, OpenPortraitRequestOverlay)
+                    : _pendingApproach != null
+                    ? new ReignPartyChatScreenVM(Close, _pendingApproachHeroes, _pendingApproach, OpenEncyclopediaOverlay, OpenPortraitRequestOverlay)
+                    : castle
                     ? new ReignPartyChatScreenVM(Close, _pendingCastleSession, OpenEncyclopediaOverlay, OpenPortraitRequestOverlay)
                     : targeted
                         ? new ReignPartyChatScreenVM(Close, _pendingTargetedHero, _pendingTargetedContext,

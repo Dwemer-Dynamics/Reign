@@ -1,11 +1,16 @@
-IDENTITY AND SUBJECT
-Use the provided source image as the visual identity reference, not as a style reference.
-Create a portrait of Garios, a man of Imperial culture who is 43 years old.
-Their clan is tier 6, placing them socially among the high noble class. Use this status to guide the refinement, expense, materials, and ornament of their clothing without turning it into fantasy costume.
-Use the source face image as the primary visual reference for the subject’s appearance and identity. Preserve the recognizable facial features, apparent age, expression, eye shape, eye color, hair color, hairstyle, skin tone, facial proportions, bone structure, scars, facial hair, and other distinguishing characteristics as closely as possible.
-The source image may depict a stylized or simplified video-game character model. Do not reproduce the artificial game-model appearance, low-detail geometry, rigid facial structure, plastic skin, exaggerated proportions, or computer-rendered texture. Instead, reinterpret the character as a believable real human being while retaining the same recognizable identity.
-Translate simplified game features into natural human anatomy and realistic detail, including authentic skin texture, visible pores, subtle wrinkles, natural facial asymmetry, realistic eyes, individually defined hair, believable facial hair, and physically plausible facial proportions. The final face should look like a real person photographed in real life, not a game model, digital avatar, illustration, or CGI render.
-Treat the name, age, gender, culture, clan tier, and social station as private generation guidance. They describe the subject and must never be printed, captioned, labeled, written, or otherwise rendered anywhere in the image.
+I want you to create a picture of a 43-year-old man who looks like the description below. Create one photographic full-body portrait. Clothing follows Imperial high noble fashion, with the craftsmanship and social station of clan tier 6. These values are generation guidance and must never be printed in the image.
+Use a vertical 3:4 portrait canvas. Generate from the written traits alone.
+
+FACIAL APPEARANCE AND HAIR
+Create Garios at his exact stored age 43. His source face is a long broad oval with a tall forehead, prominent wide cheekbones, substantial cheeks and a strong broad rounded-square jaw and chin. Skin is light warm beige with reddish nose and cheeks, horizontal forehead lines, mild eye creases and mature uneven texture. Preserve his substantial mid-forties face rather than slimming it into a narrow model jaw. Eyes are distinctly muted green with dark outer rings, medium almond shapes beneath heavy upper lids and nearly level corners. Brows are black, thick and mostly straight with shallow outward bends. His nose is prominent and long, with a narrow straight bridge, broad rounded tip and large visible nostrils. Lips are medium width and muted pink-brown, upper lip thin and lower lip fuller, held neutrally closed. Facial hair is black and deliberately uneven: a sparse thin moustache above the upper lip, a dense short chin beard surrounding the lower chin and a small central tuft below the lower lip. Most cheeks are bare with slight ordinary stubble. Do not replace the sparse moustache with a thick handlebar or long full cheek beard. Hair is black, short and closely wavy, with a low shallow uneven front fringe and sides close around the upper ears. No definite scar or paint is visible. Combine this individual identity with exact native weight 0.70 and build 0.90 independently.
+
+FACIAL CULTURAL APPEARANCE — IMPERIAL
+Stored cultureId: empire.
+Regional reference: Eastern Mediterranean regional appearance, drawing on Greek, Anatolian and neighboring populations.
+Create a believable real human face with this regional appearance. Apply the regional reference positively to facial appearance, facial structure and complexion; it is not only a clothing, setting or background instruction.
+Blend the regional reference with the individual facial description. Where simplified native geometry or game-renderer shading differs from this regional appearance, use a plausible natural blend while retaining recognizable individual traits: face outline, relative proportions, eyes, brows, nose, mouth, jaw and chin. Preserve the described hair identity, arrangement and texture, facial-hair pattern, eye character, visible scars and markings; do not invent new distinguishing marks.
+These regional populations contain substantial individual variation. Do not give every member the same face, impose a universal skin, hair or eye color, or replace the written individual identity with a generic regional stereotype. Preserve source-grounded differences and natural human asymmetry.
+Keep the exact authored age and the independent native weight and build values. This layer applies to facial appearance and realistic complexion interpretation, not body size, muscularity, garment coverage or social rank. Every complete composition, clothing, confidence, photographic, output and physique modifier remains in effect. Do not print this reference or any metadata in the image.
 
 COMPOSITION AND FRAMING
 Create a full head-to-toe body portrait showing the entire figure from the top of the head down to the feet
@@ -25,3 +30,22 @@ OUTPUT EXCLUSIONS
 Return only the portrait image itself.
 Do not render words, letters, numbers, captions, labels, names, ages, cultures, subtitles, signatures, logos, watermarks, interface elements, portrait cards, decorative title blocks, borders, banners, blank caption areas, white strips, white footer panels, or metadata panels anywhere in the image.
 No extreme close-up, face-only crop, cropped head, cropped shoulders, armor, weapons, shields, quivers, chainmail, helmets, fur war gear, plastic skin, over-smoothed face, CGI, cartoon, anime, painterly style, or modern clothing.
+
+NATIVE BODY APPEARANCE — AUTHORITATIVE PHYSIQUE
+Native weight: 0.7 on a 0–1 scale: Heavyset, increased body fat.
+Native build: 0.9 on a 0–1 scale: Very muscular.
+These are independent native appearance sliders, not kilograms, BMI, clinical classifications or body-fat percentages. Respect the exact position within each range, without abrupt changes at descriptive boundaries.
+Weight controls body-fat fullness. For women, build controls natural muscle tone, firmness, and athletic definition, not added muscle mass, bulky shoulders, thick arms, or masculine bodybuilder proportions. For men, build controls muscle mass. High weight does not imply muscle. High build does not imply extra fat or automatically visible abdominal definition; body fat and clothing can obscure definition.
+Match these native proportions even if another prompt or the supplied AI portrait conflicts. Preserve native age, sex, skeletal proportions, face and identity. Do not infer breast size, enlarge curves, beautify, slim or bulk up the person beyond these values.
+Garments must fit this physique. Revealingness and physical confidence change clothing coverage only, never body size. Covered muscles need not be exposed. During a clothing edit, correct conflicting AI physique to these native values while preserving the person's face and identity. Never print these instructions or values in the image.
+
+COMPOSITION CORRECTION FOR CANONICAL CROPS
+Leave clear stone architecture above the entire hairstyle. Place the very top of the hair at roughly 6% of total canvas height and the chin at roughly 18% of total canvas height. Keep the complete body and both feet inside the canvas with floor visible below the shoes. Do not enlarge the face or crop the hair. Preserve the written identity and all preceding appearance, clothing, light and style instructions.
+
+IDENTITY CORRECTION AFTER SOURCE AND RESULT REVIEW
+Keep Garios's broad substantial mature face, short black hair and dense compact chin beard. BOTH irises must visibly be MUTED GREEN with dark rings and small natural reflections, not brown or gray. Upper-lip hair must be a THIN SPARSE moustache with small bare-skin gaps, much less dense than the solid chin beard; leave most cheeks bare. Preserve exact age43, independent weight0.70/build0.90 and all full prompt layers.
+Preserve every preceding complete cultural, photographic, composition, clothing and physique layer. Change only the reviewed identity details; do not invent distinguishing features.
+
+IDENTITY CORRECTION AFTER SOURCE AND RESULT REVIEW
+Eye color is the unresolved identity detail: BOTH irises should be clearly natural OLIVE-GREEN, with a distinctly visible green iris ring around each black pupil and a dark outer limbal rim. Illuminate the face with soft frontal daylight so the green iris hue can be seen in the chest crop. Avoid brown or gray iris coloration. Keep this eye color natural, not glowing or luminous. Preserve Garios's broad mature face, short black waves, thin sparse moustache and compact chin beard, exact age43 and independent weight0.70/build0.90, plus ALL complete preceding modifiers.
+Preserve every preceding complete cultural, photographic, composition, clothing and physique layer. Change only the reviewed identity details; do not invent distinguishing features.

@@ -3,11 +3,11 @@
   "heroStringId": "lord_1_21",
   "characterName": "Ascyron",
   "imagePath": "portrait.png",
-  "imageSha256": "83A6DE9372407C306FB72325F37ABD893F12B4084C4DB0537E6343AABF7346AE",
-  "description": "Culturally appropriate everyday Calradic Imperial high-noble attire inspired by luxurious Byzantine aristocratic fashion, restrained enough for daily noble life. Use fine layered linen and wool, controlled flowing silhouettes, elegant draping, richly woven borders, small jeweled clasps, and sophisticated fabric textures. Men should wear a stately long tunic or structured noble coat over a fine undertunic, with refined belts and detailed edging. Women should wear a sophisticated layered noble dress with graceful drapery, tailored sleeves, and subtle aristocratic ornamentation. The outfit should communicate ancient prestige, wealth, and political importance. No headgear of any kind. No armor, weapons, crowns, laurel wreaths, or full ceremonial imperial regalia.",
-  "status": "failed",
-  "descriptionSource": "portrait_prompt_fallback",
-  "retryEligible": true,
-  "error": "{\"error\":{\"message\":\"Model \\\"zai-org/glm-5.2\\\" does not support image inputs. Remove image content or choose a multimodal model.\",\"type\":\"invalid_request_error\",\"param\":\"messages\",\"code\":\"image_input_not_supported\"}}",
-  "updatedUtc": "2026-07-18T22:03:24.9244854Z"
+  "imageSha256": "3AAD5445594FB618F9CC3091C35030488C94F19A2B0B4B20FF5A954B819E9092",
+  "description": "He wears an ivory ankle-length tunic with a small round neckline, long sleeves and gold-and-dark embroidered bands down the front, at the cuffs and around the hem. A deep plum outer robe and broad draped shoulder fabric have richly woven circular and geometric gold borders. Round gold clasps fasten the robe near both shoulders. A dark embroidered belt with a round clasp and hanging medallion ornament defines the waist. Dark trousers show beneath the hem, tucked into dark brown ankle-height leather boots with gold embroidered upper trim.",
+  "status": "completed",
+  "descriptionSource": "agent_vision",
+  "retryEligible": false,
+  "error": "",
+  "updatedUtc": "2026-10-07T20:40:17.406Z"
 }

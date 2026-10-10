@@ -3,11 +3,11 @@
   "heroStringId": "lord_5_6",
   "characterName": "Alcaea",
   "imagePath": "portrait.png",
-  "imageSha256": "645247668EBA8D54B7B86A3398D871B222223EA6B49B012D181A0F49841F76CA",
-  "description": "Culturally appropriate everyday Calradic Imperial minor-lord attire inspired by refined late Roman and Byzantine noble clothing. Men should wear a high-quality tunic or long tailored outer coat over fine linen, decorated with narrow woven borders, refined clasps, and a decorated belt. Women should wear a long elegant dress or layered tunic ensemble with shaped sleeves, graceful draping, and tasteful trim around the neckline, cuffs, and edges. The garments should feel polished, educated, urban, and wealthy without resembling full imperial ceremony. No headgear of any kind. No armor, weapons, crowns, imperial regalia, laurel wreaths, or ceremonial robes.",
-  "status": "failed",
-  "descriptionSource": "portrait_prompt_fallback",
-  "retryEligible": true,
-  "error": "{\"error\":{\"message\":\"Model \\\"zai-org/glm-5.2\\\" does not support image inputs. Remove image content or choose a multimodal model.\",\"type\":\"invalid_request_error\",\"param\":\"messages\",\"code\":\"image_input_not_supported\"}}",
-  "updatedUtc": "2026-07-18T22:03:24.2661317Z"
+  "imageSha256": "4BE8C6CFCA520136A535C8B913B30530C297D0B84F2821D04D7C5CFF46C0420A",
+  "description": "She wears a deep plum floor-length gown with a straight square neckline, fitted waist and elbow-length sleeves. Gold geometric embroidery borders the neckline, shoulders and sleeve ends and forms a central vertical panel. Round gold shoulder ornaments and a linked gold belt accent the dress. A cream patterned underdress shows through the skirt front, while a broad cream brocade shawl edged with matching dark and gold embroidery drapes around both arms. Small gold earrings, a ring and a gold embroidered closed shoe are visible.",
+  "status": "completed",
+  "descriptionSource": "agent_vision",
+  "retryEligible": false,
+  "error": "",
+  "updatedUtc": "2026-10-07T20:29:34.953Z"
 }

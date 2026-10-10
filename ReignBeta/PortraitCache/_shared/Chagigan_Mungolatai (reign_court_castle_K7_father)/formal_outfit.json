@@ -3,11 +3,11 @@
   "heroStringId": "reign_court_castle_K7_father",
   "characterName": "Chagigan Mungolatai",
   "imagePath": "portrait.png",
-  "imageSha256": "9E1B75F602AE4F3B1A817233035AAFE0EED2998C20581630396B3E07693AF421",
-  "description": "Culturally appropriate everyday Khuzait minor-lord attire inspired by refined medieval Turkic and Mongol steppe noble clothing. Men should wear a tailored crossed-front coat or deel with refined woven trim, a decorated sash, layered sleeves, and high-quality trousers. Women should wear an elegant long robe or fitted steppe coat over a fine underdress, with carefully worked edging and decorative textile details. Include restrained cloud, knot, or geometric patterns and a limited amount of practical fur trim. The clothing should remain mobile and functional while clearly showing noble status. No headgear of any kind. No fur hats, caps, hoods, armor, weapons, crowns, or ceremonial costume.",
-  "status": "failed",
-  "descriptionSource": "portrait_prompt_fallback",
-  "retryEligible": true,
-  "error": "{\"error\":{\"message\":\"Model \\\"zai-org/glm-5.2\\\" does not support image inputs. Remove image content or choose a multimodal model.\",\"type\":\"invalid_request_error\",\"param\":\"messages\",\"code\":\"image_input_not_supported\"}}",
-  "updatedUtc": "2026-07-18T22:03:26.7161181Z"
+  "imageSha256": "AA04346D1ED5418F0D97CAA347C3063A80EAE59FAD17092C425C0BA1BCD8A10F",
+  "description": "He wears an opaque teal crossed-front deel reaching below the knee. Tan-gold woven knot/cloud motifs decorate panels and borders at the opening, short outer sleeves and hem. Brown long under-sleeves show at the forearms with teal-and-gold patterned cuffs. A decorated brown sash and belt have round metal clasps and a long patterned tasseled end. Loose brown trousers tuck into dark brown calf-high leather boots with tan-gold shaft decoration. No headgear or weapon is visible.",
+  "status": "completed",
+  "descriptionSource": "agent_vision",
+  "retryEligible": false,
+  "error": "",
+  "updatedUtc": "2026-10-07T21:47:09.005Z"
 }

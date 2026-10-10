@@ -3,11 +3,11 @@
   "heroStringId": "reign_court_town_B5_mother",
   "characterName": "Fennua Emrysedawn",
   "imagePath": "portrait.png",
-  "imageSha256": "4BCBE4A8E16D318128261D8BE6342FEE24DCEB64BAEA822B1802300ED67D5838",
-  "description": "Culturally appropriate everyday Battanian minor-lord attire inspired by refined Celtic and highland noble clothing. Use dense woven wool, quality linen, soft leather details, cleaner tailoring, decorative brooches, and more elaborate woven trim than ordinary landowners would possess. Men should wear a fitted tunic, practical trousers, a decorated belt, and a layered cloak fastened at the shoulder. Women should wear a long underdress with a tailored overdress, woven belt, elegant draped shawl, and restrained ornamental trim. Include subtle knotwork and geometric patterns without theatrical fantasy styling. No headgear of any kind. No armor, weapons, crowns, or ceremonial druid imagery.",
-  "status": "failed",
-  "descriptionSource": "portrait_prompt_fallback",
-  "retryEligible": true,
-  "error": "{\"error\":{\"message\":\"Model \\\"zai-org/glm-5.2\\\" does not support image inputs. Remove image content or choose a multimodal model.\",\"type\":\"invalid_request_error\",\"param\":\"messages\",\"code\":\"image_input_not_supported\"}}",
-  "updatedUtc": "2026-07-18T22:03:29.2577526Z"
+  "imageSha256": "89FEEF1FE291C3E63B2C7EC5BCF410680B6F2CEFA31F3E7B08D935DC9BCF1C7F",
+  "description": "The woman wears an opaque dark forest-green floor-length gown with a low square neckline, fitted bodice and elbow-length sleeves. Muted gold-brown knotwork borders trace the neckline, bodice edges, cuffs, front panels and hem. A decorated belt has a round knotwork clasp and a long patterned fringed end. A cream underdress shows between the front panels. A green-brown patterned wool shawl rests over the shoulders, secured by two small round brooches, and falls down the sides with fringed edges. Small earrings and a ring are visible, along with brown leather shoes beneath the hem.",
+  "status": "completed",
+  "descriptionSource": "agent_vision",
+  "retryEligible": false,
+  "error": "",
+  "updatedUtc": "2026-10-07T22:39:31.315Z"
 }

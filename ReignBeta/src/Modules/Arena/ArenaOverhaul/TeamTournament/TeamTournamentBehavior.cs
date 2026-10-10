@@ -11,6 +11,7 @@ using System.Linq;
 using TaleWorlds.CampaignSystem;
 using TaleWorlds.CampaignSystem.Actions;
 using TaleWorlds.CampaignSystem.CharacterDevelopment;
+using TaleWorlds.CampaignSystem.Party;
 using TaleWorlds.CampaignSystem.Settlements;
 using TaleWorlds.CampaignSystem.TournamentGames;
 using TaleWorlds.Core;
@@ -52,10 +53,10 @@ namespace ArenaOverhaul.TeamTournament
             Settlement = settlement;
             TournamentGame = tournamentGame;
             MissionBehavior = (gameBehavior as TeamTournamentMissionController)!;
+            IsPlayerParticipating = isPlayerParticipating;
             CreateTeams();
             LastMatch = null;
             Winner = null;
-            IsPlayerParticipating = isPlayerParticipating;
         }
 
         private void CreateTeams()
@@ -70,11 +71,6 @@ namespace ArenaOverhaul.TeamTournament
 
             // create rest
             CreateTournamentTeams();
-        }
-
-        private bool IsAlreadySelected(CharacterObject c)
-        {
-            return _teams!.TrueForAll(x => x.Members.All(y => y.Character == c));
         }
 
         private void AddTournamentTeam(IEnumerable<TeamTournamentMember> members, Banner? teamBanner = null, uint teamColor = 0, TeamTournamentMember? leader = null)
@@ -106,13 +102,13 @@ namespace ArenaOverhaul.TeamTournament
             //Primary sort by isLord - non-party leader lords (player companions)
             //Secondary sort is by battle power
             var combatantHeroes = Settlement.GetCombatantHeroesInSettlement().
-                Where(x => !IsAlreadySelected(x) && !CurrentInfo.SelectedRoster!.Contains(x)).
-                OrderByDescending(x => x.GetBattlePower()).
-                OrderByDescending(x => x.HeroObject.IsLord).
-                OrderByDescending(x => x.HeroObject.IsPartyLeader);
+                OrderByDescending(x => x.HeroObject.IsPartyLeader).
+                ThenByDescending(x => x.HeroObject.IsLord).
+                ThenByDescending(x => x.GetBattlePower());
 
             //All Regular Troops
-            //ownership of troops will not be taken into account when generating teams
+            //Use the garrison and visiting parties, excluding the player's party
+            //while the player competes. Regular troop templates are shared.
             var garrisonTroops = Settlement.Town.GarrisonParty?.MemberRoster.GetTroopRoster().
                 Where(x => !x.Character.IsHero && x.WoundedNumber < x.Number && x.Character.CanBeAParticipant(true)).
                 Select(x => x.Character).ToList()
@@ -121,7 +117,9 @@ namespace ArenaOverhaul.TeamTournament
             foreach (var hero in Settlement.GetHeroesInSettlement().
                 Where(x => x.HeroObject.IsPartyLeader && !x.HeroObject.IsPrisoner))
             {
-                garrisonTroops.AddRange(hero.HeroObject.PartyBelongedTo.MemberRoster.GetTroopRoster().
+                var party = hero.HeroObject.PartyBelongedTo;
+                if (party == null || (IsPlayerParticipating && party == MobileParty.MainParty)) continue;
+                garrisonTroops.AddRange(party.MemberRoster.GetTroopRoster().
                     Where(y => !y.Character.IsHero && y.WoundedNumber < y.Number && y.Character.CanBeAParticipant(true)).
                     Select(y => y.Character));
             }
@@ -129,14 +127,17 @@ namespace ArenaOverhaul.TeamTournament
                 Distinct().
                 OrderByDescending(x => x.GetBattlePower());
 
-            //Create list of combatants
-            var charsToUse = combatantHeroes.
-                Take(totalTroopsNeeded).
-                Concat(distinctTroops.Take(totalTroopsNeeded - combatantHeroes.Count()));
-
-            //Keep adding troops until we have enough to fill the tournament
-            while (charsToUse.Count() < totalTroopsNeeded)
-                charsToUse = charsToUse.Concat(distinctTroops.Take(totalTroopsNeeded - charsToUse.Count()));
+            //The complete member roster excludes unselected companions and guests
+            //from rival teams too. Include the native party pointer defensively
+            //for heroes still entering/leaving the roster during a transition.
+            var playerPartyMembers = MobileParty.MainParty.MemberRoster.GetTroopRoster().Select(x => x.Character).
+                Concat(combatantHeroes.Where(x => x.HeroObject.PartyBelongedTo == MobileParty.MainParty));
+            var selectedMembers = _teams!.SelectMany(x => x.Members).Select(x => x.Character);
+            var fallbackTroops = CharacterObject.All.Where(x => !x.IsHero && x.Occupation == Occupation.Soldier).
+                OrderByDescending(x => x.Culture == Settlement.Culture).
+                ThenByDescending(x => x.GetBattlePower());
+            var charsToUse = TeamTournamentRosterPolicy.BuildOpponents(combatantHeroes, distinctTroops,
+                fallbackTroops, playerPartyMembers, selectedMembers, IsPlayerParticipating, totalTroopsNeeded);
 
             //Now create the Teams
             List<List<TeamTournamentMember>> teams = new();

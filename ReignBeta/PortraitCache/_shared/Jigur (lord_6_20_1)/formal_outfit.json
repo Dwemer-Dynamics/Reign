@@ -3,11 +3,11 @@
   "heroStringId": "lord_6_20_1",
   "characterName": "Jigur",
   "imagePath": "portrait.png",
-  "imageSha256": "E89BDBC359BCDEF232F532912CDFAA14669049418819CE17AF9253FCCA75BB21",
-  "description": "Culturally appropriate everyday Khuzait landowner attire inspired by practical medieval Turkic and Mongol steppe clothing suited to riding, travel, wind, and changing weather. Men should wear a crossed-front deel or caftan with an overlapping closure, a broad woven or leather sash, loose trousers, and practical layered sleeves. Women should wear a long crossed-front robe or fitted steppe coat over a simple underdress, secured with a woven sash. Fabrics should include wool, felt, linen, and restrained leather edging. Add simple woven geometric trim. No headgear of any kind. No fur hats, caps, hoods, armor, weapons, oversized fur displays, crowns, or fantasy elements.",
-  "status": "failed",
-  "descriptionSource": "portrait_prompt_fallback",
-  "retryEligible": true,
-  "error": "{\"error\":{\"message\":\"Model \\\"zai-org/glm-5.2\\\" does not support image inputs. Remove image content or choose a multimodal model.\",\"type\":\"invalid_request_error\",\"param\":\"messages\",\"code\":\"image_input_not_supported\"}}",
-  "updatedUtc": "2026-07-18T22:03:30.9619715Z"
+  "imageSha256": "1A317ABA422330544C527BF4AA9E822B29649CF909122D19EAB2C65100DF7C81",
+  "description": "Dark muted teal woven court gown with a low square neckline and fitted opaque bodice, elbow-length sleeves, broad brown geometric woven sash with round metal clasp, gold and muted red patterned borders down the center and around the hem, floor-length skirt with a modest front underlayer opening, and a taupe fringed shoulder wrap resting along both arms. Brown leather shoes, round shoulder brooches and small hanging earrings. Both hands rest together at the waist; full hair and shoes remain inside the canvas. No headgear, armor or weapon. The garment follows the full court-coverage modifier but is more richly ornamented than minimal landowner edging.",
+  "status": "completed",
+  "descriptionSource": "agent_vision",
+  "retryEligible": false,
+  "error": "",
+  "updatedUtc": "2026-10-08T00:14:02.926Z"
 }

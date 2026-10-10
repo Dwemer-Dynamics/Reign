@@ -3,11 +3,11 @@
   "heroStringId": "reign_court_castle_A5_mother",
   "characterName": "Hazima Hadramaqani",
   "imagePath": "portrait.png",
-  "imageSha256": "06392C60BA8FECBF4960895D784F4F61152B2A02896FAC68075781FAF8BF4D7A",
-  "description": "Culturally appropriate everyday Aserai minor-lord attire inspired by refined medieval Arabian, North African, and limited Persian noble clothing. Men should wear a flowing robe or structured open-front coat over a fine lightweight tunic, secured with a decorated woven sash. Women should wear a long elegant dress with soft layered fabrics, shaped sleeves, graceful draping, and fine embroidery around the neckline, cuffs, and hem. Show rank through superior fabric, elegant borders, geometric embroidery, and subtle jewelry rather than excessive ornamentation. No headgear of any kind. No turbans, veils, hoods, armor, weapons, crowns, or ceremonial excess.",
-  "status": "failed",
-  "descriptionSource": "portrait_prompt_fallback",
-  "retryEligible": true,
-  "error": "{\"error\":{\"message\":\"Model \\\"zai-org/glm-5.2\\\" does not support image inputs. Remove image content or choose a multimodal model.\",\"type\":\"invalid_request_error\",\"param\":\"messages\",\"code\":\"image_input_not_supported\"}}",
-  "updatedUtc": "2026-07-18T22:03:30.1812849Z"
+  "imageSha256": "DBFC76C34D43B653E88C6A3215D221331961425B9E7D3CF3B9150F6761D01FF3",
+  "description": "She wears a rust-red floor-length gown with a low square neckline, shaped bodice and elbow sleeves, edged with gold geometric embroidered borders. A decorated woven belt with round clasp and hanging ornamental ends secures the waist; a cream-gold fringed wrap rests along the arms. A pendant, small earrings, wrist cuff and embroidered gold-brown shoes are visible. An opaque cream underdress shows at the central lower opening. No headgear, armor or weapons are visible.",
+  "status": "completed",
+  "descriptionSource": "agent_vision",
+  "retryEligible": false,
+  "error": "",
+  "updatedUtc": "2026-10-07T22:49:53.975Z"
 }

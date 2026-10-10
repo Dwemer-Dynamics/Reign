@@ -294,6 +294,8 @@ WorkshopTypeChangedEvent"
 
         private static readonly HashSet<string> Captured = new HashSet<string>(StringComparer.Ordinal)
         {
+            "OnHeroJoinedPartyEvent","OnPartySizeChangedEvent","NewCompanionAdded","CompanionRemoved",
+            "OnNewItemCraftedEvent","HeroOrPartyGaveItem","OnMobilePartyNavigationStateChangedEvent",
             "MapEventStarted","MapEventEnded","RaidCompletedEvent","VillageBeingRaided","VillageLooted","VillageStateChanged",
             "WarDeclared","MakePeace","OnAllianceStartedEvent","OnAllianceEndedEvent","OnSettlementOwnerChangedEvent","OnGovernorChangedEvent",
             "HeroPrisonerTaken","HeroPrisonerReleased","HeroKilledEvent","HeroWounded","BeforeHeroesMarried","OnChildConceivedEvent","OnGivenBirthEvent",

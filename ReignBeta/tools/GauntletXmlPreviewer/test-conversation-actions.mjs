@@ -14,6 +14,13 @@ test("mixed_actions", () => assert.equal(previewActionRichText("*He nods.* Yes. 
 test("unmatched_and_escaped", () => { assert.equal(previewActionRichText("*unfinished"), "*unfinished"); assert.equal(previewActionRichText("\\*literal\\*"), "*literal*"); });
 test("paragraphs_and_unicode", () => assert.equal(previewActionRichText("*Él hoche la tête.*\n\nOui."), '<span style="Action">Él hoche la tête.</span>\n\nOui.'));
 test("historical_text_and_player", () => { assert.equal(previewActionRichText("He nods. Yes."), "He nods. Yes."); assert.equal(previewActionRichText("*I nod.*", false), "*I nod.*"); });
+for (const length of [3999, 4000, 4001, 5528, 16000]) test(`complete_reply_${length}`, () => {
+  const text = '*She listens carefully. ' + 'A remembered evening. '.repeat(Math.ceil(length / 22)).trimEnd() + '* The final answer remains here.';
+  const formatted = previewActionRichText(text);
+  assert(formatted.endsWith('</span> The final answer remains here.'));
+  assert.equal(formatted.replace('<span style="Action">', '*').replace('</span>', '*'), text);
+  assert.equal(previewActionRichText(text, false), text);
+});
 test("safe_dom", () => {
   const node = (tag, text = "") => ({ tag, textContent: text, dataset: {}, children: [], replaceChildren() { this.children = []; }, appendChild(child) { this.children.push(child); } });
   globalThis.document = { createTextNode: (text) => node("#text", text), createElement: (tag) => node(tag) };
@@ -52,7 +59,7 @@ test("catalog_drift", () => {
   const server = read("ReignServer/src/Modules/Dialogue/ConversationIntoxication.cs");
   assert(server.includes(catalog.stateSchema) && server.includes(catalog.receiptSchema));
   assert(read(catalog.guide).includes("conversation_intoxication"));
-  assert(read("docs/agent/TESTING_TOOL_GUIDE.md").includes("conversation_intoxication"));
+  assert(read("docs/agent/TESTING_TOOL_GUIDE.md").includes("testing/DIALOGUE_AND_PROVIDERS.md"));
   assert(read("ReignServer/src/Modules/Platform/VerificationLab.cs").includes('"contracts.conversation_intoxication"'));
 });
 const result = { schema: "reign-conversation-action-preview-contract-v1", ok: cases.every(x => x.passed), cases };

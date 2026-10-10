@@ -89,7 +89,7 @@ namespace ReignBeta.Campaign
             _promptOpen = true;
             _promptActionId = intent.ActionId;
 
-            string mode = intent.Lethal ? "duel of honor" : "training duel";
+            string mode = ReignDuelModePolicy.DisplayName(intent.Mode);
             string text = intent.OpponentName + " has accepted a " + mode + ". Start the duel now?";
             ReignLog.Info("Showing duel launch prompt action=" + intent.ActionId + " opponent=" + intent.OpponentHeroStringId + " mode=" + intent.Mode);
 
@@ -170,7 +170,7 @@ namespace ReignBeta.Campaign
 
                 ReignDuelService.MarkActive(intent.ActionId);
                 float health = Math.Max(intent.PlayerHealth, intent.OpponentHealth);
-                CampaignMission.OpenArenaDuelMission(
+                Mission duelMission = (Mission)CampaignMission.OpenArenaDuelMission(
                     scene,
                     arena,
                     opponent.CharacterObject,
@@ -178,6 +178,9 @@ namespace ReignBeta.Campaign
                     false,
                     character => OnNativeArenaDuelEnded(intent, character),
                     health);
+                duelMission.AddMissionBehavior(new ReignArenaDuelEquipmentBehavior(
+                    opponent.CharacterObject,
+                    arenaSettlement.Culture?.DuelPresetEquipmentRoster?.AllEquipments));
 
                 InformationManager.DisplayMessage(new InformationMessage("[Bannerlord Reign] The duel begins in the arena at " + arenaSettlement.Name + ".", Color.FromUint(0xFFFFD36A)));
                 ReignLog.Info("Native arena duel launched action=" + intent.ActionId + " opponent=" + opponent.StringId + " settlement=" + arenaSettlement.StringId + " scene=" + scene + " temporarySettlementContext=" + temporarySettlementContext);

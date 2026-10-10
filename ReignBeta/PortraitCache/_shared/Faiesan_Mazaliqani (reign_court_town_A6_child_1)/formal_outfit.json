@@ -3,11 +3,11 @@
   "heroStringId": "reign_court_town_A6_child_1",
   "characterName": "Faiesan Mazaliqani",
   "imagePath": "portrait.png",
-  "imageSha256": "9802492232E30B0F5811D4635A06221C4384EE83C3560338CB5171E13EC75B21",
-  "description": "Culturally appropriate everyday Aserai high-noble attire inspired by elite medieval Arabian and Persian-influenced aristocratic dress. Use exceptionally fine layered fabrics, graceful draping, richly stitched borders, elegant geometric embroidery, and luxurious but believable textile textures. Men should wear a noble robe or long structured outer coat over a fine tunic, secured with an ornate sash and refined clasps. Women should wear a richly layered long dress with flowing outer fabric, carefully tailored sleeves, elegant embroidery, and tasteful jewelry integrated into the outfit. The clothing should feel cultured, powerful, and extremely wealthy without becoming full ceremonial regalia. No headgear of any kind. No turbans, veils, hoods, armor, weapons, or crowns.",
-  "status": "failed",
-  "descriptionSource": "portrait_prompt_fallback",
-  "retryEligible": true,
-  "error": "{\"error\":{\"message\":\"Model \\\"zai-org/glm-5.2\\\" does not support image inputs. Remove image content or choose a multimodal model.\",\"type\":\"invalid_request_error\",\"param\":\"messages\",\"code\":\"image_input_not_supported\"}}",
-  "updatedUtc": "2026-07-18T22:03:29.0886686Z"
+  "imageSha256": "359AF52BC8988C134A0426E9DFB8C0B99DF6A0D257631BC6F0DC135AAE499F61",
+  "description": "He wears a cream long fine linen tunic with gold-tan geometric collar, front, cuff and hem borders beneath a long dark brown patterned open robe with wide sleeves and rich gold worked edging. A broad gold-brown woven sash wraps the waist with a long patterned fringed hanging end. Low brown leather boots with gold-tan worked trim show beneath the tunic. No headgear, armor or weapons appear.",
+  "status": "completed",
+  "descriptionSource": "agent_vision",
+  "retryEligible": false,
+  "error": "",
+  "updatedUtc": "2026-10-07T23:11:49.394Z"
 }

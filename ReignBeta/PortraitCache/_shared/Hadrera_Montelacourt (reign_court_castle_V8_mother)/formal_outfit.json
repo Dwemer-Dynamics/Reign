@@ -3,11 +3,11 @@
   "heroStringId": "reign_court_castle_V8_mother",
   "characterName": "Hadrera Montelacourt",
   "imagePath": "portrait.png",
-  "imageSha256": "DBB243A6D35D4FBE4DA63160C2B1857F280F41B154030F3F39539731A9CB9072",
-  "description": "Culturally appropriate everyday Vlandian minor-lord attire inspired by refined high-medieval Norman and Frankish noble dress. Use a fitted wool tunic or cote over a fine linen shirt, high-quality chausses, a decorated leather belt, and an optional short mantle or shoulder drape with restrained embroidery. For women, use a long underdress with an elegant tailored overdress, shaped sleeves, fine woven fabric, and decorative trim around the cuffs, hem, and neckline. Include modest clasps, brooches, or small jewelry details. No headgear of any kind. No armor, weapons, crowns, royal regalia, or ceremonial robes.",
-  "status": "failed",
-  "descriptionSource": "portrait_prompt_fallback",
-  "retryEligible": true,
-  "error": "{\"error\":{\"message\":\"Model \\\"zai-org/glm-5.2\\\" does not support image inputs. Remove image content or choose a multimodal model.\",\"type\":\"invalid_request_error\",\"param\":\"messages\",\"code\":\"image_input_not_supported\"}}",
-  "updatedUtc": "2026-07-18T22:03:29.9577924Z"
+  "imageSha256": "047F27A7D9D1C2D70DEDA4BF4ECB857D4F5E976543F0FE01FD32FE23ED9CE097",
+  "description": "The woman wears a fully opaque burgundy-red floor-length gown over a cream high-collared underdress. The cream collar closes high at the neck, and long cream cuffs reach her wrists below the full burgundy sleeves. Gold floral woven borders decorate the central front, sleeve edges and closed skirt hem. A dark blue mantle covers the shoulders and hangs down both sides, secured by two small round brooches linked with a short chain. A decorated leather belt has a round gold buckle and small fittings. Only face and hands are exposed; dark leather shoes appear beneath the hem.",
+  "status": "completed",
+  "descriptionSource": "agent_vision",
+  "retryEligible": false,
+  "error": "",
+  "updatedUtc": "2026-10-07T22:50:10.847Z"
 }

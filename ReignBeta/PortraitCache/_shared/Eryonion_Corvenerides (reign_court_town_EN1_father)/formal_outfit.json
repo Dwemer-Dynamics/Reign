@@ -3,11 +3,11 @@
   "heroStringId": "reign_court_town_EN1_father",
   "characterName": "Eryonion Corvenerides",
   "imagePath": "portrait.png",
-  "imageSha256": "A1F0A3FEF16DC24663936C23D0559A6B06443949741F502D2E90E241848CBD0C",
-  "description": "Culturally appropriate everyday Calradic Imperial high-noble attire inspired by luxurious Byzantine aristocratic fashion, restrained enough for daily noble life. Use fine layered linen and wool, controlled flowing silhouettes, elegant draping, richly woven borders, small jeweled clasps, and sophisticated fabric textures. Men should wear a stately long tunic or structured noble coat over a fine undertunic, with refined belts and detailed edging. Women should wear a sophisticated layered noble dress with graceful drapery, tailored sleeves, and subtle aristocratic ornamentation. The outfit should communicate ancient prestige, wealth, and political importance. No headgear of any kind. No armor, weapons, crowns, laurel wreaths, or full ceremonial imperial regalia.",
-  "status": "failed",
-  "descriptionSource": "portrait_prompt_fallback",
-  "retryEligible": true,
-  "error": "{\"error\":{\"message\":\"Model \\\"zai-org/glm-5.2\\\" does not support image inputs. Remove image content or choose a multimodal model.\",\"type\":\"invalid_request_error\",\"param\":\"messages\",\"code\":\"image_input_not_supported\"}}",
-  "updatedUtc": "2026-07-18T22:03:28.7286359Z"
+  "imageSha256": "B8817E132FE789145DBE25B1D9B22618EB2DC623EAB8A96CD621F5C5A42F6650",
+  "description": "He wears a cream long linen tunic with purple-and-gold geometric neckline, front and cuff details beneath a plum-purple noble outer coat with broad gold-tan floral/geometric edging and wide sleeves. A matching shoulder drape crosses the torso from a small round jeweled brooch. A decorated dark belt closes with a large worked round clasp and hanging metal ornaments. Dark trousers and tall brown leather boots are visible. No headgear, armor or weapons appear.",
+  "status": "completed",
+  "descriptionSource": "agent_vision",
+  "retryEligible": false,
+  "error": "",
+  "updatedUtc": "2026-10-07T23:11:47.423Z"
 }

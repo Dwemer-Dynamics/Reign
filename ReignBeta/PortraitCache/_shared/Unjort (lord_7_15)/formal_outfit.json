@@ -3,11 +3,11 @@
   "heroStringId": "lord_7_15",
   "characterName": "Unjort",
   "imagePath": "portrait.png",
-  "imageSha256": "E55EADF75B471E48B1B3DE0AB76BA4F452C0576CE36C8B8C7B9AEACBD1E2FF5B",
-  "description": "Culturally appropriate everyday Nord minor-lord attire inspired by refined early medieval Scandinavian noble clothing. Men should wear a well-cut wool tunic over a fine linen underlayer, quality trousers, a decorated belt, and tasteful brooch fastenings. Women should wear a long fine-linen shift with an elegant apron dress or layered wool overdress, improved textile quality, decorative woven trim, and modest metal fittings. The clothing should look practical, prestigious, and exceptionally well made without becoming ceremonial. No headgear of any kind. No helmets, caps, hoods, armor, weapons, crowns, horned helmets, or fantasy costume elements.",
-  "status": "failed",
-  "descriptionSource": "portrait_prompt_fallback",
-  "retryEligible": true,
-  "error": "{\"error\":{\"message\":\"Model \\\"zai-org/glm-5.2\\\" does not support image inputs. Remove image content or choose a multimodal model.\",\"type\":\"invalid_request_error\",\"param\":\"messages\",\"code\":\"image_input_not_supported\"}}",
-  "updatedUtc": "2026-07-18T22:03:35.3126853Z"
+  "imageSha256": "8AFC227562D7A04ACD08F7CA5633556CCCFA7CC65E0067F7430B2A166B28E1EA",
+  "description": "Dark blue wool court tunic with gold trimmed neckline, cuffs and borders, gray plaid cloak and round bronze shoulder brooches, leather belt, brown trousers and boots. Both hands are visible.",
+  "status": "completed",
+  "descriptionSource": "agent_vision",
+  "retryEligible": false,
+  "error": "",
+  "updatedUtc": "2026-10-07T23:56:26.308Z"
 }

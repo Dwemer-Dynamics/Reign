@@ -1,16 +1,90 @@
 {
   "version": 1,
+  "schema": "reign-builtin-chat-reference-guided-image-generation-culture-v1",
   "cacheKey": "Hadruric_Estrelecourt (reign_court_town_V6_child_1)",
   "heroStringId": "reign_court_town_V6_child_1",
   "characterObjectId": "reign_court_town_V6_child_1",
   "characterName": "Hadruric Estrelecourt",
-  "provider": "AtlasCloud",
-  "model": "xai/grok-imagine-image/edit",
-  "adapter": "atlas upload/generate/poll",
+  "worker": "worker-0",
+  "generatedOriginalPath": "C:\\Users\\speed\\.codex\\generated_images\\01a11c35-9331-7471-a03c-9fcc53956ad3\\exec-7c73e239-69c4-4d3c-8efa-6ac76861dc1a.png",
+  "sourceFileCreationUtc": "2026-10-08T21:22:02.122Z",
+  "generationRequestId": "571a6837-fa4c-41ee-9c0b-35e3a8c873a8",
+  "generationRequestSha256": "e0f8407513e57e7c21bfe1f924bcc1d403acd94f0e64778bdeefa83e41055f1b",
+  "generationReturnSha256": "57b545b7c08d375accc9dc53f0f3e10de1466ef078efbf65d4144f52fe2ded63",
+  "provider": "Codex built-in image_gen",
+  "model": "unknown",
+  "adapter": "old-face-identity/new-style-reference-guided",
+  "generationMode": "reference_guided",
+  "inputImages": 2,
+  "references": [
+    {
+      "id": "reign_court_town_V6_child_1",
+      "role": "old_identity",
+      "path": "D:\\Program Files (x86)\\Steam\\steamapps\\common\\Mount & Blade II Bannerlord\\Modules\\ReignBeta\\PortraitCache\\_shared\\Hadruric_Estrelecourt (reign_court_town_V6_child_1)\\portrait_chest.png",
+      "sha256": "0a571a173c3211c2cb929964ecd4c45772dfd21d17efd1dd04850ea2db4a013f",
+      "originalReference": {
+        "path": "D:\\Program Files (x86)\\Steam\\steamapps\\common\\Mount & Blade II Bannerlord\\Modules\\ReignBeta\\PortraitCache\\_shared\\Hadruric_Estrelecourt (reign_court_town_V6_child_1)\\portrait_chest.png",
+        "sha256": "0a571a173c3211c2cb929964ecd4c45772dfd21d17efd1dd04850ea2db4a013f"
+      }
+    },
+    {
+      "id": "reign_court_town_V6_child_1",
+      "role": "new_style",
+      "path": "C:\\ReignPortraitRebuild\\2026-10-07-01a11741-culture-v2\\audit\\residual-correction-phase4-001\\reign_court_town_V6_child_1\\predecessor-files\\_shared\\Hadruric_Estrelecourt (reign_court_town_V6_child_1)\\portrait.png",
+      "sha256": "9c3a196294aa236db0d05973dc1243a2909860d963bd17ea2a8754b26bd727cf",
+      "originalReference": {
+        "path": "C:\\ReignPortraitRebuild\\2026-10-07-01a11741-culture-v2\\_shared\\Hadruric_Estrelecourt (reign_court_town_V6_child_1)\\portrait.png",
+        "sha256": "9c3a196294aa236db0d05973dc1243a2909860d963bd17ea2a8754b26bd727cf"
+      }
+    }
+  ],
+  "referenceGuidedExecution": {
+    "schema": "reign-portrait-reference-guided-execution-v1",
+    "generationMode": "reference_guided",
+    "inputImages": 2,
+    "references": [
+      {
+        "id": "reign_court_town_V6_child_1",
+        "role": "old_identity",
+        "path": "D:\\Program Files (x86)\\Steam\\steamapps\\common\\Mount & Blade II Bannerlord\\Modules\\ReignBeta\\PortraitCache\\_shared\\Hadruric_Estrelecourt (reign_court_town_V6_child_1)\\portrait_chest.png",
+        "sha256": "0a571a173c3211c2cb929964ecd4c45772dfd21d17efd1dd04850ea2db4a013f",
+        "originalReference": {
+          "path": "D:\\Program Files (x86)\\Steam\\steamapps\\common\\Mount & Blade II Bannerlord\\Modules\\ReignBeta\\PortraitCache\\_shared\\Hadruric_Estrelecourt (reign_court_town_V6_child_1)\\portrait_chest.png",
+          "sha256": "0a571a173c3211c2cb929964ecd4c45772dfd21d17efd1dd04850ea2db4a013f"
+        }
+      },
+      {
+        "id": "reign_court_town_V6_child_1",
+        "role": "new_style",
+        "path": "C:\\ReignPortraitRebuild\\2026-10-07-01a11741-culture-v2\\audit\\residual-correction-phase4-001\\reign_court_town_V6_child_1\\predecessor-files\\_shared\\Hadruric_Estrelecourt (reign_court_town_V6_child_1)\\portrait.png",
+        "sha256": "9c3a196294aa236db0d05973dc1243a2909860d963bd17ea2a8754b26bd727cf",
+        "originalReference": {
+          "path": "C:\\ReignPortraitRebuild\\2026-10-07-01a11741-culture-v2\\_shared\\Hadruric_Estrelecourt (reign_court_town_V6_child_1)\\portrait.png",
+          "sha256": "9c3a196294aa236db0d05973dc1243a2909860d963bd17ea2a8754b26bd727cf"
+        }
+      }
+    ],
+    "textCompositionImageInputs": 0,
+    "textVerificationSha256": "904933902b04b309f6cd183708645033328a1afb35f81a5d39b6319382f5baa1",
+    "textPromptSha256": "0aa7641b0118534eace0a159c29094a84c5faa2be7989cbaca5738ce38272444",
+    "compositionProofSha256": "4ddf3e73e582b56f8465a15d19887098e9fd1128a437c714ba1f61357ccc3571",
+    "rootCompositionReview": {
+      "path": "C:\\ReignPortraitRebuild\\2026-10-07-01a11741-culture-v2\\audit\\root-full32-prompt-composition-review-001\\reign_court_town_V6_child_1\\root-hybrid-composition-review.json",
+      "sha256": "012df3b53037e2618b735256ff6c9e73b9a90ec5b4b2bd0b5cab1ce5a56c0ac0"
+    }
+  },
   "sourceSha256": "5f272975af1194e9cb59eac5bac767af4c2e5c3a4b2d980199cf1ec8ba220060",
-  "portraitSha256": "3d63b2144d2d6f770afb6bb7464f8de6a721c1fb0107496fa0673aea10605b49",
-  "portraitWidth": 864,
-  "portraitHeight": 1152,
+  "portraitSha256": "28761970f97e9ac22c8758840dbb3a580881663d187f6dbd3fb7df25b47d88c4",
+  "portraitWidth": 1086,
+  "portraitHeight": 1448,
+  "promptSha256": "64e857c28a7a9b2be21275de7b0a075c3b4e1a85189cc567690159254061e6a4",
+  "descriptionSha256": "39d52c01d4b111dfbb245e53b6046ade41835e5bc1b461df785d00ee33366d8d",
+  "cultureId": "vlandia",
+  "cultureReferenceKey": "vlandia",
+  "cultureReference": "Western European regional appearance, drawing on French, Norman and neighboring continental European populations.",
+  "cultureLayerFile": "portrait_facial_culture_vlandia.txt",
+  "cultureLayerFullText": "FACIAL CULTURAL APPEARANCE — VLANDIAN\nStored cultureId: vlandia.\nRegional reference: Western European regional appearance, drawing on French, Norman and neighboring continental European populations.\nCreate a believable real human face with this regional appearance. Apply the regional reference positively to facial appearance, facial structure and complexion; it is not only a clothing, setting or background instruction.\nBlend the regional reference with the individual facial description. Where simplified native geometry or game-renderer shading differs from this regional appearance, use a plausible natural blend while retaining recognizable individual traits: face outline, relative proportions, eyes, brows, nose, mouth, jaw and chin. Preserve the described hair identity, arrangement and texture, facial-hair pattern, eye character, visible scars and markings; do not invent new distinguishing marks.\nThese regional populations contain substantial individual variation. Do not give every member the same face, impose a universal skin, hair or eye color, or replace the written individual identity with a generic regional stereotype. Preserve source-grounded differences and natural human asymmetry.\nKeep the exact authored age and the independent native weight and build values. This layer applies to facial appearance and realistic complexion interpretation, not body size, muscularity, garment coverage or social rank. Every complete composition, clothing, confidence, photographic, output and physique modifier remains in effect. Do not print this reference or any metadata in the image.",
+  "cultureLayerSha256": "77a6dbb1bd314a24109b422f0915f72f039bc2b6dca67be010b5ea97720a4e88",
   "physicalConfidence": {
     "definition": "physical_confidence",
     "score": 46,
@@ -21,7 +95,10 @@
     "confidenceWeight": 0.25,
     "source": "shipped_profile_library"
   },
+  "confidenceCoverageOverride": null,
   "derivativesReady": true,
   "derivativeError": "",
-  "generatedUtc": "2026-07-17T18:41:41.2502582Z"
+  "generatedUtc": "2026-10-08T21:22:26.851Z",
+  "serverSigned": false,
+  "derivativeReportSha256": "271f77d7009718cc916f13eac9054a899633d1e446f7d2cb6ce6ffcd18494b69"
 }

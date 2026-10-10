@@ -3,11 +3,11 @@
   "heroStringId": "reign_court_castle_B8_child_3",
   "characterName": "Aeronan Trevadawn",
   "imagePath": "portrait.png",
-  "imageSha256": "64741409E854A35B1B3322BA88A1F7A590BC8FE5FEC81912C4C7BAFEB73C2085",
-  "description": "Culturally appropriate everyday Battanian high-noble attire inspired by elite Celtic and highland aristocratic clothing. Use fine woven wool, linen, soft leather accents, sophisticated layering, ornate brooches, and carefully worked borders featuring tasteful knotwork or geometric designs. Men should wear a richly made noble tunic with a broad decorated belt and an exceptionally well-crafted draped cloak. Women should wear a long fitted noble dress beneath a richly layered overdress, with elegant woven borders, decorative brooch fastenings, and a graceful shoulder wrap. The outfit should communicate power through craftsmanship and rich textiles rather than excessive decoration. No headgear of any kind. No armor, weapons, crowns, or fantasy druid elements.",
-  "status": "failed",
-  "descriptionSource": "portrait_prompt_fallback",
-  "retryEligible": true,
-  "error": "{\"error\":{\"message\":\"Model \\\"zai-org/glm-5.2\\\" does not support image inputs. Remove image content or choose a multimodal model.\",\"type\":\"invalid_request_error\",\"param\":\"messages\",\"code\":\"image_input_not_supported\"}}",
-  "updatedUtc": "2026-07-18T22:03:23.9462580Z"
+  "imageSha256": "F6513F745565D5AE1030A49DEB255F21E1A81DCE203C4D3431FC2DEA11E0958E",
+  "description": "Photographed full-length upright with feet visible: richly woven dark forest-green long tunic edged with gold geometric/knot borders, cream linen collar/cuffs, broad dark leather belt with round worked fittings, dark checked draped wool cloak fastened at one shoulder with a large ornate brooch, brown trousers and wrapped brown leather boots. No headgear, weapon or armor. Medium body fullness and moderate male mass; youthful freckled curly-haired man.",
+  "status": "completed",
+  "descriptionSource": "agent_vision",
+  "retryEligible": false,
+  "error": "",
+  "updatedUtc": "2026-10-08T04:47:17.608Z"
 }

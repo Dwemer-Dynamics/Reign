@@ -5,7 +5,6 @@ namespace ReignBeta.UI.ViewModels
 {
     public sealed class ReignChatLineVM : ViewModel
     {
-        private const int MaxDisplayTextChars = 4000;
         private const int MaxUnbrokenRunChars = 64;
         private string _speaker;
         private string _text;
@@ -99,20 +98,13 @@ namespace ReignBeta.UI.ViewModels
                 return string.Empty;
             }
 
-            StringBuilder builder = new StringBuilder(value.Length > MaxDisplayTextChars ? MaxDisplayTextChars + 3 : value.Length);
+            StringBuilder builder = new StringBuilder(value.Length);
             int unbrokenRun = 0;
             int newlineRun = 0;
             bool lastWasSpace = false;
-            bool truncated = false;
 
             for (int i = 0; i < value.Length; i++)
             {
-                if (builder.Length >= MaxDisplayTextChars)
-                {
-                    truncated = true;
-                    break;
-                }
-
                 char ch = value[i];
                 if (ch == '\r')
                 {
@@ -169,11 +161,6 @@ namespace ReignBeta.UI.ViewModels
             while (builder.Length > 0 && builder[builder.Length - 1] == '\n')
             {
                 builder.Length--;
-            }
-
-            if (truncated)
-            {
-                builder.Append("...");
             }
 
             return builder.ToString();

@@ -319,19 +319,8 @@ namespace ReignBeta.World
         private static ReignActionResult GiveGoldToPlayer(ReignWorldActionRecord action, Hero actor)
         {
             int amount = ReadIntTerm(action.TermsJson, "gold", ReadIntTerm(action.TermsJson, "GoldAmount", ReadIntTerm(action.TermsJson, "goldAmount", 0)));
-            int actorBefore = actor.Gold;
-            int playerBefore = Hero.MainHero.Gold;
-            GiveGoldAction.ApplyBetweenCharacters(actor, Hero.MainHero, amount, false);
-            if (actor.Gold != actorBefore - amount || Hero.MainHero.Gold != playerBefore + amount)
-            {
-                return ReignActionResult.FailTerminal("Gold transfer verification failed; no success was recorded.", "gold_verification_failed", "state_verification");
-            }
-
-            ReignActionResult result = ReignActionResult.Done(actor.Name + " gave " + amount + " denars to the player.")
-                .WithEffect("gold_transfer", "hero", Hero.MainHero.StringId, Hero.MainHero.Name.ToString(), "from=" + actor.StringId + ";amount=" + amount)
-                .WithChangedEntity("hero", actor.StringId, actor.Name.ToString(), "gold_changed")
-                .WithChangedEntity("hero", Hero.MainHero.StringId, Hero.MainHero.Name.ToString(), "gold_changed");
-            return WithVerifiedReceipt(result);
+            return ReignGoldTransferService.Instance?.Transfer(action, actor, Hero.MainHero, amount)
+                ?? ReignActionResult.ValidationFailed("The payment service is unavailable.");
         }
 
         private static ReignActionResult TransferGold(ReignWorldActionRecord action, Hero actor, Hero target)
@@ -339,19 +328,8 @@ namespace ReignBeta.World
             int amount = ReadIntTerm(action.TermsJson, "gold", ReadIntTerm(action.TermsJson, "GoldAmount", ReadIntTerm(action.TermsJson, "goldAmount", 0)));
             Hero from = ReignObjectResolver.FindHero(ReadStringTerm(action.TermsJson, "fromHeroStringId", string.Empty)) ?? actor;
             Hero to = ReignObjectResolver.FindHero(ReadStringTerm(action.TermsJson, "toHeroStringId", string.Empty)) ?? target ?? Hero.MainHero;
-            int fromBefore = from.Gold;
-            int toBefore = to.Gold;
-            GiveGoldAction.ApplyBetweenCharacters(from, to, amount, false);
-            if (from.Gold != fromBefore - amount || to.Gold != toBefore + amount)
-            {
-                return ReignActionResult.FailTerminal("Gold transfer verification failed; no success was recorded.", "gold_verification_failed", "state_verification");
-            }
-
-            ReignActionResult result = ReignActionResult.Done(from.Name + " transferred " + amount + " denars to " + to.Name + ".")
-                .WithEffect("gold_transfer", "hero", to.StringId, to.Name.ToString(), "from=" + from.StringId + ";amount=" + amount)
-                .WithChangedEntity("hero", from.StringId, from.Name.ToString(), "gold_changed")
-                .WithChangedEntity("hero", to.StringId, to.Name.ToString(), "gold_changed");
-            return WithVerifiedReceipt(result);
+            return ReignGoldTransferService.Instance?.Transfer(action, from, to, amount)
+                ?? ReignActionResult.ValidationFailed("The payment service is unavailable.");
         }
 
         private static ReignActionResult WithVerifiedReceipt(ReignActionResult result)
@@ -469,6 +447,11 @@ namespace ReignBeta.World
             Clan targetClan = ReignObjectResolver.FindClan(action.TargetClanStringId);
             Clan previousClan = actor.Clan;
             actor.Clan = targetClan;
+            var residents = ReignEncounteredResidentsCampaignBehavior.Instance;
+            if (residents?.UsesCompanionMembership(actor, targetClan) == true
+                && !residents.RegisterResidentClanMember(actor, out string registrationReason))
+                return ReignActionResult.FailTerminal(registrationReason,
+                    "resident_companion_registration_incomplete", "state_verification");
             ReignRecruitedNotableCampaignBehavior.ClearRecruitedRole(actor);
             if (actor.IsNotable)
                 return ReignActionResult.FailTerminal("Clan membership changed, but the notable's business transfer is incomplete.",

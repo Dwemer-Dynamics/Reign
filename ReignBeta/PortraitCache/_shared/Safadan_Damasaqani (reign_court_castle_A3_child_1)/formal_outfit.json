@@ -3,11 +3,11 @@
   "heroStringId": "reign_court_castle_A3_child_1",
   "characterName": "Safadan Damasaqani",
   "imagePath": "portrait.png",
-  "imageSha256": "A71AACF0FEFDA5A2918C0A1B638E9420AF1856EC60CA3812B5ECF70CB5554645",
-  "description": "Culturally appropriate everyday Aserai minor-lord attire inspired by refined medieval Arabian, North African, and limited Persian noble clothing. Men should wear a flowing robe or structured open-front coat over a fine lightweight tunic, secured with a decorated woven sash. Women should wear a long elegant dress with soft layered fabrics, shaped sleeves, graceful draping, and fine embroidery around the neckline, cuffs, and hem. Show rank through superior fabric, elegant borders, geometric embroidery, and subtle jewelry rather than excessive ornamentation. No headgear of any kind. No turbans, veils, hoods, armor, weapons, crowns, or ceremonial excess.",
-  "status": "failed",
-  "descriptionSource": "portrait_prompt_fallback",
-  "retryEligible": true,
-  "error": "{\"error\":{\"message\":\"Model \\\"zai-org/glm-5.2\\\" does not support image inputs. Remove image content or choose a multimodal model.\",\"type\":\"invalid_request_error\",\"param\":\"messages\",\"code\":\"image_input_not_supported\"}}",
-  "updatedUtc": "2026-07-18T22:03:33.9285898Z"
+  "imageSha256": "819063FDCFE666BFFCBABE6B743485287214D1999D56B51A4E332E696C34497D",
+  "description": "He wears a long brown textured open front robe over a cream ankle length tunic with fine embroidery at the neck opening. Gold geometric woven borders edge the outer front, cuffs and hem. A broad brown and gold patterned sash wraps the waist and hangs down one side with fringed ends. Long sleeves reach his wrists and both hands hang naturally at his sides. Brown leather shoes show below the tunic; both feet are complete and floor remains visible. His head is bare, without a turban, hood, armor or weapon.",
+  "status": "completed",
+  "descriptionSource": "agent_vision",
+  "retryEligible": false,
+  "error": "",
+  "updatedUtc": "2026-10-08T01:22:10.685Z"
 }

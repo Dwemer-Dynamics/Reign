@@ -51,31 +51,31 @@ namespace ReignBeta.World
                         .WithEffect("peace_made", "kingdom", target.StringId, target.InformalName.ToString(), "dailyTribute=" + offeredDailyTribute + ";durationDays=" + offeredTributeDays);
 
                 case ReignWorldActionType.DiplomacyDemandReparationsPeace:
-                    ApplyReparationsAndPeace(actor, target, action);
+                    string reparationsObservation = ApplyReparationsAndPeace(actor, target, action);
                     return WithPeaceAndReparations(
                         ReignActionResult.Done(target.InformalName + " accepted reparations demanded by " + actor.InformalName + "."),
                         actor,
                         target,
-                        action);
+                        action, reparationsObservation);
 
                 case ReignWorldActionType.DiplomacyDemandSettlementPeace:
                     List<Settlement> transferredSettlements = new List<Settlement>();
                     int transferred = TransferDemandedSettlements(actor, target, action, transferredSettlements);
-                    ApplyReparationsAndPeace(actor, target, action);
+                    string settlementPeaceObservation = ApplyReparationsAndPeace(actor, target, action);
                     RecordAgreement(action, "settlement_surrender_peace", 0f, true);
                     return WithTransferredSettlements(
                         WithPeaceAndReparations(
                             ReignActionResult.Done(target.InformalName + " surrendered " + transferred + " settlement(s) to " + actor.InformalName + " for peace."),
                             actor,
                             target,
-                            action)
+                            action, settlementPeaceObservation)
                             .WithEffect("treaty_recorded", "kingdom", target.StringId, target.InformalName.ToString(), "kind=settlement_surrender_peace"),
                         transferredSettlements);
 
                 case ReignWorldActionType.DiplomacyDemandSurrenderPeace:
                     List<Settlement> surrenderedSettlements = new List<Settlement>();
                     int surrendered = TransferDemandedSettlements(actor, target, action, surrenderedSettlements);
-                    ApplyReparationsAndPeace(actor, target, action);
+                    string surrenderObservation = ApplyReparationsAndPeace(actor, target, action);
                     bool destroyed = DestroyTargetKingdomIfLandless(target);
                     RecordAgreement(action, "full_surrender_peace", 0f, true);
                     return WithTransferredSettlements(
@@ -83,7 +83,7 @@ namespace ReignBeta.World
                             ReignActionResult.Done(target.InformalName + " accepted surrender terms from " + actor.InformalName + ", including " + surrendered + " settlement(s)" + (destroyed ? ", and the kingdom was dissolved." : ".")),
                             actor,
                             target,
-                            action)
+                            action, surrenderObservation)
                             .WithEffect("treaty_recorded", "kingdom", target.StringId, target.InformalName.ToString(), "kind=full_surrender_peace")
                             .WithEffect(destroyed ? "kingdom_destroyed" : "kingdom_not_destroyed", "kingdom", target.StringId, target.InformalName.ToString(), destroyed ? "target became landless" : "target still has land or was already eliminated"),
                         surrenderedSettlements);
@@ -136,10 +136,10 @@ namespace ReignBeta.World
 
                 case ReignWorldActionType.DiplomacyWarIndemnity:
                     int indemnityGold = ReadIntTerm(action.TermsJson, "gold", ReadIntTerm(action.TermsJson, "indemnityGold", 0));
-                    ApplyGoldTransfer(target.Leader, actor.Leader, indemnityGold);
+                    string indemnityGoldObservation = ApplyGoldTransfer(target.Leader, actor.Leader, indemnityGold);
                     RecordAgreement(action, "war_indemnity", ReadFloatTerm(action.TermsJson, "durationDays", 0f), true);
                     return ReignActionResult.Done(target.InformalName + " paid a war indemnity to " + actor.InformalName + ".")
-                        .WithEffect("gold_transfer", "hero", actor.Leader?.StringId ?? string.Empty, actor.Leader?.Name?.ToString() ?? string.Empty, "from=" + (target.Leader?.StringId ?? string.Empty) + ";amount=" + indemnityGold)
+                        .WithEffect("gold_transfer", "hero", actor.Leader?.StringId ?? string.Empty, actor.Leader?.Name?.ToString() ?? string.Empty, indemnityGoldObservation)
                         .WithEffect("treaty_recorded", "kingdom", target.StringId, target.InformalName.ToString(), "kind=war_indemnity");
 
                 case ReignWorldActionType.DiplomacyRecognizeConquest:
@@ -170,26 +170,26 @@ namespace ReignBeta.World
                     }
 
                     int supplyGold = ReadIntTerm(action.TermsJson, "gold", 0);
-                    ApplyGoldTransfer(actor.Leader, target.Leader, supplyGold);
+                    string supplyGoldObservation = ApplyGoldTransfer(actor.Leader, target.Leader, supplyGold);
                     RecordAgreement(action, "supply_agreement", ReadFloatTerm(action.TermsJson, "durationDays", 60f), true);
                     return ReignActionResult.Done(actor.InformalName + " signed a supply agreement with " + target.InformalName + ".")
-                        .WithEffect("gold_transfer", "hero", target.Leader?.StringId ?? string.Empty, target.Leader?.Name?.ToString() ?? string.Empty, "from=" + (actor.Leader?.StringId ?? string.Empty) + ";amount=" + supplyGold)
+                        .WithEffect("gold_transfer", "hero", target.Leader?.StringId ?? string.Empty, target.Leader?.Name?.ToString() ?? string.Empty, supplyGoldObservation)
                         .WithEffect("treaty_recorded", "kingdom", target.StringId, target.InformalName.ToString(), "kind=supply_agreement");
 
                 case ReignWorldActionType.DiplomacyLoanOrSubsidy:
                     int loanGold = ReadIntTerm(action.TermsJson, "gold", ReadIntTerm(action.TermsJson, "loanGold", 0));
-                    ApplyGoldTransfer(actor.Leader, target.Leader, loanGold);
+                    string loanGoldObservation = ApplyGoldTransfer(actor.Leader, target.Leader, loanGold);
                     RecordAgreement(action, "loan_or_subsidy", ReadFloatTerm(action.TermsJson, "durationDays", 120f), ReadBoolTerm(action.TermsJson, "isPublic", true));
                     return ReignActionResult.Done(actor.InformalName + " sent a loan or subsidy to " + target.InformalName + ".")
-                        .WithEffect("gold_transfer", "hero", target.Leader?.StringId ?? string.Empty, target.Leader?.Name?.ToString() ?? string.Empty, "from=" + (actor.Leader?.StringId ?? string.Empty) + ";amount=" + loanGold)
+                        .WithEffect("gold_transfer", "hero", target.Leader?.StringId ?? string.Empty, target.Leader?.Name?.ToString() ?? string.Empty, loanGoldObservation)
                         .WithEffect("treaty_recorded", "kingdom", target.StringId, target.InformalName.ToString(), "kind=loan_or_subsidy");
 
                 case ReignWorldActionType.DiplomacyPayToStayNeutral:
                     int neutralGold = ReadIntTerm(action.TermsJson, "gold", 0);
-                    ApplyGoldTransfer(actor.Leader, target.Leader, neutralGold);
+                    string neutralGoldObservation = ApplyGoldTransfer(actor.Leader, target.Leader, neutralGold);
                     RecordAgreement(action, "paid_neutrality", ReadFloatTerm(action.TermsJson, "durationDays", 60f), ReadBoolTerm(action.TermsJson, "isPublic", false));
                     return ReignActionResult.Done(actor.InformalName + " paid " + target.InformalName + " to stay neutral.")
-                        .WithEffect("gold_transfer", "hero", target.Leader?.StringId ?? string.Empty, target.Leader?.Name?.ToString() ?? string.Empty, "from=" + (actor.Leader?.StringId ?? string.Empty) + ";amount=" + neutralGold)
+                        .WithEffect("gold_transfer", "hero", target.Leader?.StringId ?? string.Empty, target.Leader?.Name?.ToString() ?? string.Empty, neutralGoldObservation)
                         .WithEffect("treaty_recorded", "kingdom", target.StringId, target.InformalName.ToString(), "kind=paid_neutrality");
 
                 case ReignWorldActionType.DiplomacyPayToJoinWar:
@@ -253,7 +253,7 @@ namespace ReignBeta.World
                     "kind=rebellion_backing");
         }
 
-        private static ReignActionResult WithPeaceAndReparations(ReignActionResult result, Kingdom actor, Kingdom target, ReignWorldActionRecord action)
+        private static ReignActionResult WithPeaceAndReparations(ReignActionResult result, Kingdom actor, Kingdom target, ReignWorldActionRecord action, string goldObservation)
         {
             int lumpGold = ReadIntTerm(action.TermsJson, "reparationsGold", 0);
             int dailyTribute = ReadIntTerm(action.TermsJson, "dailyTribute", ReadIntTerm(action.TermsJson, "reparationsDailyTribute", 0));
@@ -262,7 +262,7 @@ namespace ReignBeta.World
             result.WithEffect("peace_made", "kingdom", target.StringId, target.InformalName.ToString(), "actorKingdomId=" + actor.StringId);
             if (lumpGold > 0)
             {
-                result.WithEffect("gold_transfer", "hero", actor.Leader?.StringId ?? string.Empty, actor.Leader?.Name?.ToString() ?? string.Empty, "from=" + (target.Leader?.StringId ?? string.Empty) + ";amount=" + lumpGold);
+                result.WithEffect("gold_transfer", "hero", actor.Leader?.StringId ?? string.Empty, actor.Leader?.Name?.ToString() ?? string.Empty, goldObservation);
             }
 
             if (dailyTribute > 0)
@@ -296,12 +296,13 @@ namespace ReignBeta.World
             return result;
         }
 
-        private static void ApplyReparationsAndPeace(Kingdom actor, Kingdom target, ReignWorldActionRecord action)
+        private static string ApplyReparationsAndPeace(Kingdom actor, Kingdom target, ReignWorldActionRecord action)
         {
             int lumpGold = ReadIntTerm(action.TermsJson, "reparationsGold", 0);
+            string goldObservation = "";
             if (lumpGold > 0 && target.Leader != null && actor.Leader != null)
             {
-                GiveGoldAction.ApplyBetweenCharacters(target.Leader, actor.Leader, lumpGold, true);
+                goldObservation = ApplyGoldTransfer(target.Leader, actor.Leader, lumpGold);
             }
 
             int dailyTribute = ReadIntTerm(action.TermsJson, "dailyTribute", ReadIntTerm(action.TermsJson, "reparationsDailyTribute", 0));
@@ -309,10 +310,11 @@ namespace ReignBeta.World
             if (dailyTribute > 0)
             {
                 MakePeaceAction.ApplyByKingdomDecision(target, actor, dailyTribute, durationDays);
-                return;
+                return goldObservation;
             }
 
             MakePeaceAction.ApplyByKingdomDecision(actor, target, 0, 0);
+            return goldObservation;
         }
 
         private static int TransferDemandedSettlements(Kingdom actor, Kingdom target, ReignWorldActionRecord action, List<Settlement> transferredSettlements)
@@ -399,12 +401,21 @@ namespace ReignBeta.World
                 throw new System.InvalidOperationException("The native alliance system is unavailable; no alliance was recorded.");
             }
 
-            if (!behavior.IsAllyWithKingdom(actor, target))
+            float days = ReadFloatTerm(action.TermsJson, "durationDays", 180f);
+            if (float.IsNaN(days) || float.IsInfinity(days) || days <= 0)
+                throw new System.InvalidOperationException("The accepted alliance duration must be finite and positive.");
+            if (behavior.IsAllyWithKingdom(actor, target))
             {
-                behavior.StartAlliance(actor, target);
+                double remainingDays = behavior.GetAllianceEndDate(actor, target).ToDays - CampaignTime.Now.ToDays;
+                if (System.Math.Abs(remainingDays - days) > 0.001d)
+                    throw new System.InvalidOperationException("An existing native alliance has a different duration; the proposed renewal has not been executed.");
+                return;
             }
+            ReignBeta.Runtime.ReignDiplomacyPatches.StartAcceptedAlliance(behavior, actor, target, days);
             if (!behavior.IsAllyWithKingdom(actor, target))
                 throw new System.InvalidOperationException("The native alliance action did not establish the accepted alliance.");
+            if (System.Math.Abs(behavior.GetAllianceEndDate(actor, target).ToDays - CampaignTime.Now.ToDays - days) > 0.001d)
+                throw new System.InvalidOperationException("The native alliance duration does not match the accepted terms; no successful agreement was recorded.");
         }
 
         private static ReignActionResult BreakTreaties(Kingdom actor, Kingdom target, ReignWorldActionRecord action)
@@ -466,10 +477,10 @@ namespace ReignBeta.World
                 released = ReleasePrisoners(target, actor, maxPrisoners, true);
             }
             int gold = ReadIntTerm(action.TermsJson, "gold", ReadIntTerm(action.TermsJson, "ransomGold", released * 10000));
-            ApplyGoldTransfer(target.Leader, actor.Leader, gold);
+            string goldObservation = ApplyGoldTransfer(target.Leader, actor.Leader, gold);
             RecordAgreement(action, "ransom_package", 0f, true);
             ReignActionResult result = ReignActionResult.Done(target.InformalName + " paid ransom for " + released + " noble prisoner(s).")
-                .WithEffect("gold_transfer", "hero", actor.Leader?.StringId ?? string.Empty, actor.Leader?.Name?.ToString() ?? string.Empty, "from=" + (target.Leader?.StringId ?? string.Empty) + ";amount=" + gold)
+                .WithEffect("gold_transfer", "hero", actor.Leader?.StringId ?? string.Empty, actor.Leader?.Name?.ToString() ?? string.Empty, goldObservation)
                 .WithEffect("prisoners_released", "kingdom", target.StringId, target.InformalName.ToString(), "released=" + released)
                 .WithEffect("treaty_recorded", "kingdom", target.StringId, target.InformalName.ToString(), "kind=ransom_package");
             if (releasedPrisoner != null)
@@ -517,7 +528,7 @@ namespace ReignBeta.World
             }
 
             int gold = ReadIntTerm(action.TermsJson, "gold", 0);
-            ApplyGoldTransfer(actor.Leader, target.Leader, gold);
+            string goldObservation = ApplyGoldTransfer(actor.Leader, target.Leader, gold);
             if (!target.IsAtWarWith(enemy))
             {
                 DeclareWarAction.ApplyByKingdomDecision(target, enemy);
@@ -525,7 +536,7 @@ namespace ReignBeta.World
 
             RecordAgreement(action, "paid_join_war", ReadFloatTerm(action.TermsJson, "durationDays", 30f), ReadBoolTerm(action.TermsJson, "isPublic", false));
             return ReignActionResult.Done(actor.InformalName + " paid " + target.InformalName + " to join war against " + enemy.InformalName + ".")
-                .WithEffect("gold_transfer", "hero", target.Leader?.StringId ?? string.Empty, target.Leader?.Name?.ToString() ?? string.Empty, "from=" + (actor.Leader?.StringId ?? string.Empty) + ";amount=" + gold)
+                .WithEffect("gold_transfer", "hero", target.Leader?.StringId ?? string.Empty, target.Leader?.Name?.ToString() ?? string.Empty, goldObservation)
                 .WithEffect("war_declared", "kingdom", enemy.StringId, enemy.InformalName.ToString(), "actorKingdomId=" + target.StringId)
                 .WithEffect("treaty_recorded", "kingdom", target.StringId, target.InformalName.ToString(), "kind=paid_join_war");
         }
@@ -693,12 +704,37 @@ namespace ReignBeta.World
             return released;
         }
 
-        private static void ApplyGoldTransfer(Hero from, Hero to, int amount)
+        private static string ApplyGoldTransfer(Hero from, Hero to, int amount)
         {
-            if (amount > 0 && to != null)
+            // Read on the same campaign-thread invocation, before any later native tick.
+            int fromBefore = from?.Gold ?? 0, toBefore = to?.Gold ?? 0;
+            bool invoked = amount > 0 && to != null;
+            if (invoked)
             {
                 GiveGoldAction.ApplyBetweenCharacters(from, to, amount, true);
             }
+            string observation = ObserveGoldTransferBalances(amount, fromBefore, from?.Gold ?? 0,
+                toBefore, to?.Gold ?? 0, invoked, from != null && to != null && from != to)
+                .ToString(Newtonsoft.Json.Formatting.None);
+            return "from=" + (from?.StringId ?? string.Empty) + ";amount="
+                + amount.ToString(CultureInfo.InvariantCulture) + ";observation=" + observation;
+        }
+
+        internal static JObject ObserveGoldTransferBalances(int requestedAmount, int fromBefore, int fromAfter,
+            int toBefore, int toAfter, bool invoked, bool distinctHeroes)
+        {
+            // Long arithmetic prevents a wrapped balance difference from looking conserved.
+            long debit = (long)fromBefore - fromAfter, credit = (long)toAfter - toBefore;
+            bool conserved = distinctHeroes && debit >= 0 && debit == credit;
+            return new JObject
+            {
+                ["schema"] = "reign-diplomacy-gold-observation-v1", ["requestedAmount"] = requestedAmount,
+                ["fromBefore"] = fromBefore, ["fromAfter"] = fromAfter,
+                ["toBefore"] = toBefore, ["toAfter"] = toAfter,
+                ["debited"] = debit, ["credited"] = credit, ["invoked"] = invoked,
+                ["conserved"] = conserved,
+                ["exactPayment"] = invoked && requestedAmount > 0 && conserved && debit == requestedAmount
+            };
         }
 
         private static bool IsNavalSupplyAgreement(ReignWorldActionRecord action)

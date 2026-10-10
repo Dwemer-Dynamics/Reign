@@ -3,11 +3,11 @@
   "heroStringId": "reign_court_town_V7_child_2",
   "characterName": "Aldysa Fauconecourt",
   "imagePath": "portrait.png",
-  "imageSha256": "FE8C0B6A268F20CDBB41676141F85B1450E74321E8F351BDD9281436DB3B201E",
-  "description": "Culturally appropriate everyday Vlandian high-noble attire inspired by wealthy Norman and Frankish aristocratic dress. Use luxurious fine wool and linen, expertly tailored layers, richly cut outer tunics or gowns, refined belts, decorative borders, subtle heraldic embroidery, and elegant fastenings. Men should wear a long tailored tunic or refined surcoat-style outer layer over fine linen and well-fitted chausses. Women should wear a fitted noble gown layered over a high-quality underdress, with graceful sleeves, refined trim, and tasteful jewelry. The outfit should feel expensive and powerful while remaining believable everyday noble wear. No headgear of any kind. No armor, weapons, crowns, or ceremonial regalia.",
-  "status": "failed",
-  "descriptionSource": "portrait_prompt_fallback",
-  "retryEligible": true,
-  "error": "{\"error\":{\"message\":\"Model \\\"zai-org/glm-5.2\\\" does not support image inputs. Remove image content or choose a multimodal model.\",\"type\":\"invalid_request_error\",\"param\":\"messages\",\"code\":\"image_input_not_supported\"}}",
-  "updatedUtc": "2026-07-18T22:03:24.3786583Z"
+  "imageSha256": "5F9E097E33E22AD47780A4B6C6AF8BBBC7132DF894430A5AC1262A5E442761DA",
+  "description": "Opaque deep-red floor-length fitted court gown with low square neckline, structured bodice, narrow decorated waist belt and elbow-length red sleeves with gold woven/embroidered border at their hems. Both sleeves end around the elbows, above exposed forearms. Rich gold floral and geometric borders line neckline, center panel and skirt hem; small round brooches at the upper bodice, restrained pendant necklace. Ivory patterned underdress panel and cream-gold wrap loosely draped along forearms, separate from red sleeves; brown shoes visible below the skirt. No headgear, armor, weapon or banner; plain stone doorway with climbing ivy at one side.",
+  "status": "completed",
+  "descriptionSource": "agent_vision",
+  "retryEligible": false,
+  "error": "",
+  "updatedUtc": "2026-10-08T09:52:32.068Z"
 }

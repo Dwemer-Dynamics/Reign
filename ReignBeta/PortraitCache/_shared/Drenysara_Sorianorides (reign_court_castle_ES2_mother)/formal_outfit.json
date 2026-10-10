@@ -3,11 +3,11 @@
   "heroStringId": "reign_court_castle_ES2_mother",
   "characterName": "Drenysara Sorianorides",
   "imagePath": "portrait.png",
-  "imageSha256": "33F5897C5811E16EEA028766A1E5FE8DEF33682C77756149C2C8A0AD07E106B0",
-  "description": "Culturally appropriate everyday Calradic Imperial minor-lord attire inspired by refined late Roman and Byzantine noble clothing. Men should wear a high-quality tunic or long tailored outer coat over fine linen, decorated with narrow woven borders, refined clasps, and a decorated belt. Women should wear a long elegant dress or layered tunic ensemble with shaped sleeves, graceful draping, and tasteful trim around the neckline, cuffs, and edges. The garments should feel polished, educated, urban, and wealthy without resembling full imperial ceremony. No headgear of any kind. No armor, weapons, crowns, imperial regalia, laurel wreaths, or ceremonial robes.",
-  "status": "failed",
-  "descriptionSource": "portrait_prompt_fallback",
-  "retryEligible": true,
-  "error": "{\"error\":{\"message\":\"Model \\\"zai-org/glm-5.2\\\" does not support image inputs. Remove image content or choose a multimodal model.\",\"type\":\"invalid_request_error\",\"param\":\"messages\",\"code\":\"image_input_not_supported\"}}",
-  "updatedUtc": "2026-07-18T22:03:28.0620278Z"
+  "imageSha256": "F85B28A7E68027F8F357DDEE5FC7A502940D131EB5C2B4D4BBC45AA646588DD1",
+  "description": "She wears a burgundy full-length gown with a low square neckline, fitted bodice and elbow-length sleeves. Narrow gold-and-cream patterned woven borders outline the neckline, bodice sides, sleeve cuffs and skirt hem. Round gold-toned fittings decorate the bodice straps and the waist belt. A cream fabric wrap with burgundy-and-gold border bands rests around the forearms and hangs beside the skirt. A cream underdress panel shows through a small lower front opening, with embroidered burgundy closed shoes beneath the hem. Small metal drop earrings and a dark ring are visible. The fabrics are opaque and textured; exact fibers are uncertain. Upper chest and forearms are exposed while bust, abdomen and pelvis remain covered.",
+  "status": "completed",
+  "descriptionSource": "agent_vision",
+  "retryEligible": false,
+  "error": "",
+  "updatedUtc": "2026-10-07T21:46:46.087Z"
 }

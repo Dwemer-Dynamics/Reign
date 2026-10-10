@@ -46,7 +46,20 @@ namespace ReignBeta.Save
                 AssertSafeChunk(chunk);
                 envelope.Append(chunk);
             }
-            string value = envelope.ToString();
+            return DecodeEnvelope(envelope.ToString());
+        }
+
+        // One-time recovery for legacy unchunked entries that Bannerlord can read but
+        // that exceed our smaller per-chunk limit. New saves always use Encode chunks.
+        public static string DecodeLegacyArchiveEntry(string envelope)
+        {
+            if (envelope == null || Encoding.UTF8.GetByteCount(envelope) + sizeof(int) > short.MaxValue)
+                throw new InvalidDataException("The legacy Reign save entry exceeds the Bannerlord archive limit.");
+            return DecodeEnvelope(envelope);
+        }
+
+        private static string DecodeEnvelope(string value)
+        {
             if (!value.StartsWith(EnvelopePrefix, StringComparison.Ordinal))
                 throw new InvalidDataException("The Reign save payload format is not supported.");
 

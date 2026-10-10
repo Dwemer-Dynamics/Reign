@@ -16,8 +16,19 @@ public sealed partial class SensitiveDataRedactor
     [GeneratedRegex(@"(?i)\b(Bearer\s+)[A-Za-z0-9._~+/=-]{8,}")]
     private static partial Regex BearerPattern();
 
-    [GeneratedRegex(@"(?i)\b(api[_-]?key|token|password|secret)\s*[:=]\s*([^\s,;""']{6,})")]
+    [GeneratedRegex("""(?i)\b([A-Za-z0-9_-]*(?:api[_-]?key|access[_-]?token|refresh[_-]?token|client[_-]?secret|password)|token|secret)(["']?\s*[:=]\s*)(?:"[^"]*"|'[^']*'|[^\s,;}"']+)""")]
     private static partial Regex LabeledSecretPattern();
+
+    [GeneratedRegex(@"\b(?:sk-[A-Za-z0-9_-]{12,}|AIza[A-Za-z0-9_-]{20,})\b")]
+    private static partial Regex KnownCredentialPattern();
+
+    private static bool IsSensitiveKey(string name)
+    {
+        if (SensitiveKeys.Contains(name)) return true;
+        var normalized = name.Replace("_", "").Replace("-", "");
+        return new[] { "apiKey", "accessToken", "refreshToken", "clientSecret", "password" }
+            .Any(suffix => normalized.EndsWith(suffix, StringComparison.OrdinalIgnoreCase));
+    }
 
     public JsonElement Redact(JsonElement input)
     {
@@ -38,7 +49,8 @@ public sealed partial class SensitiveDataRedactor
         }
 
         var result = BearerPattern().Replace(input, "$1[REDACTED]");
-        return LabeledSecretPattern().Replace(result, "$1=[REDACTED]");
+        result = LabeledSecretPattern().Replace(result, "$1$2\"[REDACTED]\"");
+        return KnownCredentialPattern().Replace(result, "[REDACTED]");
     }
 
     // This single endpoint returns immutable, credential-redacted text from the
@@ -56,7 +68,7 @@ public sealed partial class SensitiveDataRedactor
                 writer.WritePropertyName(property.Name);
                 if (property.Name == "content" && property.Value.ValueKind == JsonValueKind.String)
                     property.Value.WriteTo(writer);
-                else if (SensitiveKeys.Contains(property.Name)) writer.WriteStringValue("[REDACTED]");
+                else if (IsSensitiveKey(property.Name)) writer.WriteStringValue("[REDACTED]");
                 else WriteElement(writer, property.Value, property.Name);
             }
             writer.WriteEndObject();
@@ -74,7 +86,7 @@ public sealed partial class SensitiveDataRedactor
                 foreach (var property in element.EnumerateObject())
                 {
                     writer.WritePropertyName(property.Name);
-                    if (SensitiveKeys.Contains(property.Name))
+                    if (IsSensitiveKey(property.Name))
                     {
                         writer.WriteStringValue("[REDACTED]");
                     }

@@ -2,38 +2,185 @@
   "Version": 3,
   "CropAlgorithmVersion": 2,
   "SourceFileName": "portrait.png",
-  "SourcePath": "portrait.png",
-  "SourceLength": 1315504,
-  "SourceLastWriteUtcTicks": 639199099960551485,
-  "SourceWidth": 864,
-  "SourceHeight": 1152,
-  "CropX": 313,
-  "CropY": 73,
-  "CropWidth": 210,
-  "CropHeight": 262,
-  "WideCropX": 235,
-  "WideCropY": 73,
-  "WideCropWidth": 367,
-  "WideCropHeight": 262,
+  "SourcePath": "C:\\ReignPortraitRebuild\\2026-10-07-01a11741-culture-v2\\_shared\\Eryares_Corvenanion (reign_court_castle_ES5_father)\\portrait.png",
+  "SourceLength": 2287461,
+  "SourceLastWriteUtcTicks": 639271108546309512,
+  "SourceWidth": 1086,
+  "SourceHeight": 1448,
+  "CropX": 388,
+  "CropY": 0,
+  "CropWidth": 292,
+  "CropHeight": 365,
+  "WideCropX": 279,
+  "WideCropY": 0,
+  "WideCropWidth": 511,
+  "WideCropHeight": 365,
   "FocusMethod": "ultraface",
   "FocusModel": "version-RFB-320",
-  "FocusConfidence": 0.9998453855514526,
+  "FocusConfidence": 0.9998992681503296,
   "FaceCandidateCount": 1,
-  "FaceX": 0.4293292164802551,
-  "FaceY": 0.08987630158662796,
-  "FaceWidth": 0.10953265428543091,
-  "FaceHeight": 0.10559900850057602,
+  "FaceX": 0.4406619966030121,
+  "FaceY": 0.059544723480939865,
+  "FaceWidth": 0.10219243168830872,
+  "FaceHeight": 0.1011098362505436,
   "NeedsReview": false,
   "ThumbnailFileName": "thumbnail.png",
-  "ThumbnailWidth": 210,
-  "ThumbnailHeight": 262,
+  "ThumbnailWidth": 256,
+  "ThumbnailHeight": 320,
   "PartyThumbnailFileName": "thumbnail_wide.png",
-  "PartyThumbnailWidth": 367,
-  "PartyThumbnailHeight": 262,
+  "PartyThumbnailWidth": 448,
+  "PartyThumbnailHeight": 320,
   "PortraitFileName": "portrait_chest.png",
-  "PortraitWidth": 210,
-  "PortraitHeight": 262,
+  "PortraitWidth": 292,
+  "PortraitHeight": 365,
   "ZoomFileName": "zoom.png",
-  "ZoomWidth": 864,
-  "ZoomHeight": 1152
+  "ZoomWidth": 1024,
+  "ZoomHeight": 1365,
+  "ManualCropProvenance": {
+    "schema": "reign-manual-crop-provenance-v1",
+    "actualCropPolicy": "manual-crown-expansion-v1",
+    "nativeAlgorithmProducedRectangle": false,
+    "actualProducer": {
+      "path": "C:\\ReignPortraitRebuild\\2026-10-07-01a11741-culture-v2\\audit\\remaining-sixteen-identity-source-review-route-001\\eryares-own-old-face-edit-001\\native-crown-codec-001.ps1",
+      "sha256": "feda67075d2246784dc06f3769a3b3e52b5de317bdfc4e63d6ec4bb64fd972c7",
+      "bytes": 5947
+    },
+    "codecAssembly": {
+      "path": "D:\\Projects\\Reign\\.codex-build\\reign-mcp\\validation\\20261007-181216-5bee7061\\client\\out\\ReignBeta.dll",
+      "sha256": "498c5d8e7af24226dbf5b9d37147fd562cf0e42b6477b6f4607f6011905ac5b8",
+      "bytes": 5388800
+    },
+    "baselineMetadata": {
+      "path": "C:\\ReignPortraitRebuild\\2026-10-07-01a11741-culture-v2\\audit\\remaining-sixteen-identity-source-review-route-001\\eryares-own-old-face-edit-001\\native-pack-001\\.portrait_derivatives.json",
+      "sha256": "47806d0af08f5c8935e42f96e207a020a30d68b60bc485adc08476ae0013be39",
+      "bytes": 1262
+    },
+    "master": {
+      "path": "C:\\ReignPortraitRebuild\\2026-10-07-01a11741-culture-v2\\audit\\remaining-sixteen-identity-source-review-route-001\\eryares-own-old-face-edit-001\\native-pack-001\\portrait.png",
+      "sha256": "b81ce2719fe708cc35a4ffbbed9983f363cf17f140ef674b7357b26caaabceca",
+      "bytes": 2287461
+    },
+    "zoomUnchanged": {
+      "path": "C:\\ReignPortraitRebuild\\2026-10-07-01a11741-culture-v2\\audit\\remaining-sixteen-identity-source-review-route-001\\eryares-own-old-face-edit-001\\native-pack-001\\zoom.png",
+      "sha256": "b7a1d50bb2877fe97c041cdb364ce1ab6f88de55313b0bb1075d1f0a2309368f",
+      "bytes": 3393756
+    },
+    "rawFocusUnchanged": true,
+    "sourceLastWriteUtcTicksExactDecimal": "639271108546309512",
+    "rectangleXYWH": [
+      388,
+      0,
+      292,
+      365
+    ],
+    "wideRectangleXYWH": [
+      279,
+      0,
+      511,
+      365
+    ],
+    "productBytes": [
+      {
+        "file": {
+          "path": "C:\\ReignPortraitRebuild\\2026-10-07-01a11741-culture-v2\\audit\\remaining-sixteen-identity-source-review-route-001\\eryares-own-old-face-edit-001\\crown-pack-001\\portrait_chest.png",
+          "sha256": "59e74a37c24701e3ad8f6696a545d08635acd4ad8ca53ca9284acc990731cd40",
+          "bytes": 240746
+        },
+        "dimensions": [
+          292,
+          365
+        ],
+        "rectangleXYWH": [
+          388,
+          0,
+          292,
+          365
+        ]
+      },
+      {
+        "file": {
+          "path": "C:\\ReignPortraitRebuild\\2026-10-07-01a11741-culture-v2\\audit\\remaining-sixteen-identity-source-review-route-001\\eryares-own-old-face-edit-001\\crown-pack-001\\thumbnail.png",
+          "sha256": "f7dd393b8b88bc873686a924783672acb1244d13ef182dbffe630ff7b6ff5277",
+          "bytes": 184303
+        },
+        "dimensions": [
+          256,
+          320
+        ],
+        "rectangleXYWH": [
+          388,
+          0,
+          292,
+          365
+        ]
+      },
+      {
+        "file": {
+          "path": "C:\\ReignPortraitRebuild\\2026-10-07-01a11741-culture-v2\\audit\\remaining-sixteen-identity-source-review-route-001\\eryares-own-old-face-edit-001\\crown-pack-001\\thumbnail_wide.png",
+          "sha256": "a7442578c24aadb722f215d0b92af7b7dcaf809cfac7e81e5c14fa4c49da2240",
+          "bytes": 309333
+        },
+        "dimensions": [
+          448,
+          320
+        ],
+        "rectangleXYWH": [
+          279,
+          0,
+          511,
+          365
+        ]
+      }
+    ],
+    "forcedRebuildLimitation": "Native forced regeneration can replace these manual crops and metadata extension."
+  },
+  "StagedAssetProvenance": {
+    "schema": "reign-staged-effective-portrait-origin-v1",
+    "id": "reign_court_castle_ES5_father",
+    "kind": "edited_fullbody",
+    "currentLocalFiles": [
+      {
+        "name": "portrait_chest.png",
+        "sha256": "59e74a37c24701e3ad8f6696a545d08635acd4ad8ca53ca9284acc990731cd40",
+        "bytes": 240746
+      },
+      {
+        "name": "thumbnail.png",
+        "sha256": "f7dd393b8b88bc873686a924783672acb1244d13ef182dbffe630ff7b6ff5277",
+        "bytes": 184303
+      },
+      {
+        "name": "thumbnail_wide.png",
+        "sha256": "a7442578c24aadb722f215d0b92af7b7dcaf809cfac7e81e5c14fa4c49da2240",
+        "bytes": 309333
+      },
+      {
+        "name": "portrait.png",
+        "sha256": "b81ce2719fe708cc35a4ffbbed9983f363cf17f140ef674b7357b26caaabceca",
+        "bytes": 2287461
+      },
+      {
+        "name": "zoom.png",
+        "sha256": "b7a1d50bb2877fe97c041cdb364ce1ab6f88de55313b0bb1075d1f0a2309368f",
+        "bytes": 3393756
+      },
+      {
+        "name": "prompt_edit.txt",
+        "sha256": "6bafd77352e609a2550ed673c501ee91a2b82a13e55854c3ee0211b88768f165",
+        "bytes": 12893
+      }
+    ],
+    "nativeAlgorithmProducedRectangle": false,
+    "priorProducerExtensionsRetainedVerbatim": true,
+    "absolutePriorReferencesRole": "Historical/candidate references; current module pixels/provenance use the relative currentLocalFiles.",
+    "sourcePathProjection": {
+      "from": "C:\\ReignPortraitRebuild\\2026-10-07-01a11741-culture-v2\\audit\\remaining-sixteen-identity-source-review-route-001\\eryares-own-old-face-edit-001\\native-pack-001\\portrait.png",
+      "to": "C:\\ReignPortraitRebuild\\2026-10-07-01a11741-culture-v2\\_shared\\Eryares_Corvenanion (reign_court_castle_ES5_father)\\portrait.png",
+      "reason": "Same actual fullbody bytes/stat at canonical C-stage anchor"
+    },
+    "independentChestNativeForcedRegenerationCanOverwrite": false,
+    "globalFaceAcceptance": false,
+    "nativeUIAcceptance": false,
+    "notSwapApproval": true
+  }
 }

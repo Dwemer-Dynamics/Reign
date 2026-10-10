@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using Newtonsoft.Json.Linq;
 using ArenaOverhaul.TeamTournament;
 using ReignBeta.Integration;
+using ReignBeta.World;
 #if !REIGN_EXCLUDE_COURT
 using ReignBeta.Court;
 #endif
@@ -23,6 +24,8 @@ using TaleWorlds.CampaignSystem.Settlements.Buildings;
 using TaleWorlds.CampaignSystem.Settlements.Workshops;
 using TaleWorlds.CampaignSystem.Siege;
 using TaleWorlds.Core;
+using TaleWorlds.MountAndBlade;
+using SandBox.Missions.MissionLogics.Arena;
 
 namespace ReignBeta.Campaign
 {
@@ -31,6 +34,8 @@ namespace ReignBeta.Campaign
         private sealed class BattleSnapshot
         {
             public string CorrelationId;
+            public JArray StartEntities = new JArray();
+            public readonly HashSet<string> MissionHeroes = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
             public readonly Dictionary<string, List<Hero>> PrisonerHeroesByParty = new Dictionary<string, List<Hero>>(StringComparer.OrdinalIgnoreCase);
         }
 
@@ -45,6 +50,12 @@ namespace ReignBeta.Campaign
         private readonly HashSet<string> _observedEntities = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
         private readonly Dictionary<string, float> _recentEventKeys = new Dictionary<string, float>(StringComparer.Ordinal);
         private bool _reconciliationInitialized;
+        private double _contactSampleDay;
+        private string _contactPartyId = string.Empty;
+        private string _contactRoster = string.Empty;
+        private double _seaTravelStartedDay;
+        private double _waitingStartedDay;
+        private string _waitingRoster = string.Empty;
 
         public static ReignWorldHistoryCampaignBehavior Instance { get; private set; }
         public string TimelineId => _timelineId;
@@ -52,11 +63,19 @@ namespace ReignBeta.Campaign
         public string HeadEventId => _headEventId;
         public float HistoryCompleteFromDay => _historyCompleteFromDay;
         internal bool TimelineReady => _timelineReady;
+        internal string SharedActivityGeneration { get; private set; } = string.Empty;
 
         public override void RegisterEvents()
         {
             Instance = this;
             CampaignEvents.OnSessionLaunchedEvent.AddNonSerializedListener(this, OnSessionLaunched);
+            CampaignEvents.OnHeroJoinedPartyEvent.AddNonSerializedListener(this, OnSharedHeroJoinedParty);
+            CampaignEvents.OnPartySizeChangedEvent.AddNonSerializedListener(this, OnSharedPartySizeChanged);
+            CampaignEvents.NewCompanionAdded.AddNonSerializedListener(this, OnSharedCompanionAdded);
+            CampaignEvents.CompanionRemoved.AddNonSerializedListener(this, OnSharedCompanionRemoved);
+            CampaignEvents.OnNewItemCraftedEvent.AddNonSerializedListener(this, OnSharedItemCrafted);
+            CampaignEvents.HeroOrPartyGaveItem.AddNonSerializedListener(this, OnSharedItemGiven);
+            CampaignEvents.OnMobilePartyNavigationStateChangedEvent.AddNonSerializedListener(this, OnSharedNavigationChanged);
             CampaignEvents.OnBeforeSaveEvent.AddNonSerializedListener(this, OnBeforeSave);
             CampaignEvents.HourlyTickEvent.AddNonSerializedListener(this, OnHourlyTick);
             CampaignEvents.MapEventStarted.AddNonSerializedListener(this, OnMapEventStarted);
@@ -137,6 +156,12 @@ namespace ReignBeta.Campaign
             dataStore.SyncData("_reign_worldHistoryHeadEventId", ref _headEventId);
             dataStore.SyncData("_reign_worldHistorySequence", ref _sequence);
             dataStore.SyncData("_reign_worldHistoryCompleteFromDay", ref _historyCompleteFromDay);
+            dataStore.SyncData("_reign_contactSampleDay", ref _contactSampleDay);
+            dataStore.SyncData("_reign_contactPartyId", ref _contactPartyId);
+            dataStore.SyncData("_reign_contactRoster", ref _contactRoster);
+            dataStore.SyncData("_reign_seaTravelStartedDay", ref _seaTravelStartedDay);
+            dataStore.SyncData("_reign_waitingStartedDay", ref _waitingStartedDay);
+            dataStore.SyncData("_reign_waitingRoster", ref _waitingRoster);
             if (string.IsNullOrWhiteSpace(_timelineId)) _timelineId = "main_" + Guid.NewGuid().ToString("N").Substring(0, 12);
         }
 
@@ -182,6 +207,7 @@ namespace ReignBeta.Campaign
                 if (string.IsNullOrWhiteSpace(opened))
                     throw new InvalidOperationException("World-history timeline response omitted its timeline id.");
                 _timelineId = opened;
+                SharedActivityGeneration = response.Value<string>("sharedActivityGeneration") ?? string.Empty;
                 float serverCompleteFrom =
                     response.Value<float?>("historyCompleteFromWorldDay") ?? _historyCompleteFromDay;
                 if (serverCompleteFrom > 0f) _historyCompleteFromDay = serverCompleteFrom;
@@ -196,6 +222,7 @@ namespace ReignBeta.Campaign
                 }
                 _deferred.Clear();
                 CaptureReconciliationBaseline();
+                CaptureSharedPartyContact();
             }).ConfigureAwait(false);
             return response;
         }
@@ -208,6 +235,7 @@ namespace ReignBeta.Campaign
         private void OnMapEventStarted(MapEvent mapEvent, PartyBase attacker, PartyBase defender)
         {
             if (mapEvent == null) return;
+            CaptureSharedPartyContact();
             string correlation = BattleCorrelation(mapEvent);
             BattleSnapshot snapshot = new BattleSnapshot { CorrelationId = correlation };
             foreach (PartyBase party in mapEvent.InvolvedParties ?? Enumerable.Empty<PartyBase>())
@@ -216,6 +244,7 @@ namespace ReignBeta.Campaign
             }
             _battleSnapshots[mapEvent.GetHashCode()] = snapshot;
             JArray entities = BuildMapEventEntities(mapEvent, false);
+            snapshot.StartEntities = (JArray)entities.DeepClone();
             Emit("battle_started", "started", DescribeMapEvent(mapEvent, "started"), correlation, mapEvent.MapEventSettlement, entities, true, "ordinary",
                 new JObject { ["battleType"] = mapEvent.EventType.ToString(), ["positionX"] = mapEvent.Position.X, ["positionY"] = mapEvent.Position.Y });
         }
@@ -226,6 +255,18 @@ namespace ReignBeta.Campaign
             _battleSnapshots.TryGetValue(mapEvent.GetHashCode(), out BattleSnapshot snapshot);
             string correlation = snapshot?.CorrelationId ?? BattleCorrelation(mapEvent);
             JArray entities = BuildMapEventEntities(mapEvent, true);
+            if (snapshot != null)
+            {
+                foreach (JObject original in snapshot.StartEntities.OfType<JObject>())
+                {
+                    string id = original.Value<string>("entityId");
+                    if (!entities.OfType<JObject>().Any(e => e.Value<string>("entityId") == id))
+                        entities.Add(original.DeepClone());
+                }
+                foreach (JObject entity in entities.OfType<JObject>())
+                    if (snapshot.MissionHeroes.Contains(entity.Value<string>("entityId") ?? string.Empty))
+                        entity["missionParticipant"] = true;
+            }
             AddRescueEvidence(mapEvent, snapshot, entities);
             Emit("battle_completed", "completed", DescribeMapEvent(mapEvent, "completed"), correlation, mapEvent.MapEventSettlement, entities, true, "ordinary",
                 new JObject
@@ -494,6 +535,9 @@ namespace ReignBeta.Campaign
             new JArray(Entity(clan, "mercenary clan actor"), Entity(clan?.Leader, "mercenary leader actor"), Entity(clan?.Kingdom, "former employing kingdom")), true, "major_world", new JObject { ["detail"] = detail.ToString() });
         private void OnHeroChangedClan(Hero hero, Clan oldClan)
         {
+            // Clearing a companion's stale family field leaves the effective
+            // clan unchanged. It is cache repair, not a new migration event.
+            if (hero?.Clan == oldClan) return;
 #if !REIGN_EXCLUDE_COURT
             if (ReignCourtNobleCampaignBehavior.IsHouseholdClanMigrationInProgress) return;
 #endif
@@ -543,7 +587,118 @@ namespace ReignBeta.Campaign
         {
             if (ReignCampaignInitializationGate.IsPending) return;
             ReconcileWorldState();
+            CaptureSharedPartyContact();
             ReignWorldHistoryTransport.Flush();
+        }
+
+        internal void RecordMissionParticipant(Hero hero)
+        {
+            MapEvent battle = PartyBase.MainParty?.MapEvent;
+            if (hero != null && battle != null && _battleSnapshots.TryGetValue(battle.GetHashCode(), out BattleSnapshot snapshot))
+                snapshot.MissionHeroes.Add(hero.StringId);
+        }
+
+        private void OnSharedPartySizeChanged(PartyBase party)
+        {
+            if (party == PartyBase.MainParty) CaptureSharedPartyContact();
+        }
+
+        private void OnSharedHeroJoinedParty(Hero hero, MobileParty party)
+        {
+            if (party != MobileParty.MainParty) return;
+            CaptureSharedPartyContact();
+            Emit("hero_joined_party", "completed", Name(hero) + " joined the player's traveling party.", string.Empty,
+                party.CurrentSettlement, new JArray(Entity(hero, "joining traveler"), Entity(Hero.MainHero, "party leader")), true, "participant_only");
+        }
+
+        private void OnSharedCompanionAdded(Hero hero) => Emit("companion_added", "completed", Name(hero) + " became a companion.",
+            string.Empty, hero?.CurrentSettlement, new JArray(Entity(hero, "companion"), Entity(Hero.MainHero, "recruiter")), true, "participant_only");
+
+        private void OnSharedCompanionRemoved(Hero hero, RemoveCompanionAction.RemoveCompanionDetail detail)
+        {
+            CaptureSharedPartyContact();
+            Emit("companion_removed", "completed", Name(hero) + " left companion service.", string.Empty, hero?.CurrentSettlement,
+                new JArray(Entity(hero, "departing companion"), Entity(Hero.MainHero, "former clan leader")), true, "participant_only", new JObject { ["detail"] = detail.ToString() });
+        }
+
+        private void OnSharedItemCrafted(ItemObject item, ItemModifier modifier, bool orderItem)
+        {
+            if (item == null || Hero.MainHero == null) return;
+            Emit("crafting_completed", "completed", "The player's smithing session produced " + item.Name + ".", string.Empty,
+                Hero.MainHero.CurrentSettlement, new JArray(Entity(Hero.MainHero, "crafting session observer")), true, "participant_only",
+                new JObject { ["itemId"] = item.StringId, ["itemName"] = item.Name.ToString(), ["quantity"] = 1, ["isOrderItem"] = orderItem });
+        }
+
+        private void OnSharedItemGiven((Hero, PartyBase) giver, (Hero, PartyBase) receiver, ItemRosterElement item, bool notification)
+        {
+            if (giver.Item1 != Hero.MainHero && receiver.Item1 != Hero.MainHero && giver.Item2 != PartyBase.MainParty && receiver.Item2 != PartyBase.MainParty) return;
+            Emit("item_given", "completed", "An item transfer was completed: " + item.Amount + " " + item.EquipmentElement.Item?.Name + ".",
+                string.Empty, Hero.MainHero?.CurrentSettlement,
+                new JArray(Entity(giver.Item1, "giver"), Entity(receiver.Item1, "recipient"), Entity(giver.Item2, "giving party"), Entity(receiver.Item2, "receiving party")),
+                true, "participant_only", new JObject { ["itemId"] = item.EquipmentElement.Item?.StringId ?? string.Empty, ["quantity"] = item.Amount });
+        }
+
+        private void OnSharedNavigationChanged(MobileParty party)
+        {
+            if (party != MobileParty.MainParty) return;
+            CaptureSharedPartyContact();
+            bool sea = party.IsCurrentlyAtSea;
+            if (sea) _seaTravelStartedDay = CampaignTime.Now.ToDays;
+            if (!sea && _seaTravelStartedDay <= 0d) return;
+            Emit(sea ? "sea_travel_started" : "sea_travel_ended", sea ? "started" : "completed",
+                sea ? "The player's party began sea travel." : "The player's party ended its sea travel; destination and losses follow the separate native records.",
+                string.Empty, party.CurrentSettlement, new JArray(PartyHeroes(party.Party).Select(h => Entity(h, "traveling participant"))),
+                true, "participant_only", new JObject { ["startedDay"] = _seaTravelStartedDay });
+            if (!sea) _seaTravelStartedDay = 0d;
+        }
+
+        internal void CaptureSharedPartyContact()
+        {
+            if (!_timelineReady || ReignCampaignInitializationGate.IsPending) return;
+            double now = CampaignTime.Now.ToDays;
+            string partyId = PartyBase.MainParty?.Id ?? string.Empty;
+            string[] present = PartyHeroes(PartyBase.MainParty).Where(h => h.IsAlive && !h.IsPrisoner && h.HitPoints > 0)
+                .Select(h => h.StringId).OrderBy(id => id, StringComparer.Ordinal).ToArray();
+            bool available = Hero.MainHero != null && Hero.MainHero.HitPoints > 0 && !Hero.MainHero.IsPrisoner && PartyBase.MainParty?.MapEvent == null;
+            bool stationary = available && MobileParty.MainParty != null && !MobileParty.MainParty.IsMoving;
+            if (_waitingStartedDay > 0d)
+                _waitingRoster = string.Join("|", (_waitingRoster ?? string.Empty).Split('|').Intersect(present, StringComparer.Ordinal));
+            if (stationary && _waitingStartedDay <= 0d)
+            {
+                _waitingStartedDay = now;
+                _waitingRoster = string.Join("|", present);
+            }
+            else if (!stationary && _waitingStartedDay > 0d)
+            {
+                if (available && now - _waitingStartedDay >= 0.125d)
+                    Emit("party_wait_ended", "completed", "The player's party resumed movement after waiting. This does not establish sleep, camping, lodging or a meal.",
+                        string.Empty, MobileParty.MainParty?.CurrentSettlement,
+                        new JArray(PartyHeroes(PartyBase.MainParty).Where(h => (_waitingRoster ?? string.Empty).Split('|').Contains(h.StringId)).Select(h => Entity(h, "waiting traveler"))),
+                        true, "participant_only", new JObject { ["fromDay"] = _waitingStartedDay, ["untilDay"] = now });
+                _waitingStartedDay = 0d;
+                _waitingRoster = string.Empty;
+            }
+            if (available && _contactSampleDay > 0d && now > _contactSampleDay && now - _contactSampleDay <= 0.09d && _contactPartyId == partyId)
+            {
+                string[] together = present.Intersect((_contactRoster ?? string.Empty).Split('|'), StringComparer.Ordinal).ToArray();
+                if (together.Contains(Hero.MainHero.StringId) && together.Length > 1)
+                    Emit("party_contact_interval", "completed", "The player and accompanying heroes shared ordinary travel contact.",
+                        string.Empty, null, new JArray(Entity(Hero.MainHero, "traveler actor")), true, "participant_only",
+                        new JObject { ["fromDay"] = _contactSampleDay, ["partyId"] = partyId,
+                            ["playerHeroId"] = Hero.MainHero.StringId, ["eligibleHeroIds"] = new JArray(together) });
+            }
+            _contactSampleDay = now;
+            _contactPartyId = partyId;
+            _contactRoster = available ? string.Join("|", present) : string.Empty;
+        }
+
+        internal void RecordArenaPracticeEnd(IEnumerable<string> participants, int opponentsBeaten, bool survived, bool interrupted)
+        {
+            var ids = new HashSet<string>(participants ?? Enumerable.Empty<string>(), StringComparer.Ordinal);
+            var entities = new JArray(Hero.AllAliveHeroes.Where(h => ids.Contains(h.StringId)).Select(h => Entity(h, "arena practice participant")));
+            Emit("arena_practice_ended", "completed", interrupted ? "The player's arena practice was interrupted." : "The player's arena practice ended.",
+                string.Empty, Hero.MainHero?.CurrentSettlement, entities, true, "participant_only",
+                new JObject { ["opponentsBeaten"] = opponentsBeaten, ["survived"] = survived, ["interrupted"] = interrupted });
         }
 
         private void ReconcileWorldState()
@@ -720,6 +875,33 @@ namespace ReignBeta.Campaign
             if (!ReignWorldHistoryFlushPolicy.ShouldPersistEvent(eventType))
                 return;
             double worldDay = CampaignTime.Now.ToDays;
+            entities = entities ?? new JArray();
+            payload = payload ?? new JObject();
+            bool playerActivity = entities.OfType<JObject>().Any(e => e.Value<bool?>("isPlayer") == true);
+            if (playerActivity && Hero.MainHero != null)
+            {
+                payload["playerHeroId"] = Hero.MainHero.StringId;
+                // Companion awareness of an outcome is distinct from witnessing
+                // every action. Restricted battle squads use mission evidence.
+                if (eventType == "settlement_entered" || eventType == "settlement_left"
+                    || eventType == "quest_completed" || eventType == "troops_recruited"
+                    || eventType == "item_sold" || eventType == "barter_accepted" || eventType == "loot_distributed"
+                    || eventType == "items_looted" || eventType == "prisoners_sold" || eventType == "troops_given_to_settlement"
+                    || eventType == "troops_deserted" || eventType == "party_joined_army" || eventType == "party_removed_from_army"
+                    || eventType == "army_gathered" || eventType == "army_dispersed" || eventType == "ship_repaired"
+                    || eventType == "ship_created" || eventType == "ship_destroyed" || eventType == "ship_owner_changed"
+                    || eventType == "hero_joined_party" || eventType == "companion_added" || eventType == "companion_removed")
+                {
+                    var observers = new JArray();
+                    foreach (Hero companion in PartyHeroes(PartyBase.MainParty).Where(h => h.IsAlive && !h.IsPrisoner))
+                    {
+                        JObject observer = Entity(companion, "accompanying party member");
+                        observer["activityAccompanying"] = true;
+                        observers.Add(observer);
+                    }
+                    payload["activityObservers"] = observers;
+                }
+            }
             if (IsDuplicateHighFrequencyEvent(eventType, summary, location, entities, (float)worldDay)) return;
             long sequence = ++_sequence;
             string eventId = _timelineId + "_" + sequence.ToString("D12") + "_" + Guid.NewGuid().ToString("N").Substring(0, 8);
@@ -912,6 +1094,50 @@ namespace ReignBeta.Campaign
             if (value is Clan clan) return clan.Name?.ToString() ?? clan.StringId;
             if (value is IFaction faction) return faction.Name?.ToString() ?? "faction";
             return value.ToString();
+        }
+    }
+
+    internal sealed class ReignSharedActivityMissionBehavior : MissionLogic
+    {
+        private readonly HashSet<string> _seenHeroes = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+        private float _nextSample;
+        private bool _practiceActive;
+        private readonly HashSet<string> _practiceHeroes = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+        public override void OnMissionTick(float dt)
+        {
+            base.OnMissionTick(dt);
+            _nextSample -= dt;
+            if (_nextSample > 0f) return;
+            _nextSample = 0.25f;
+            Mission mission = Mission;
+            if (mission == null) return;
+            ArenaPracticeFightMissionController practice = mission.GetMissionBehavior<ArenaPracticeFightMissionController>();
+            bool practicing = practice?.IsPlayerPracticing == true;
+            if (_practiceActive && !practicing)
+            {
+                ReignWorldHistoryCampaignBehavior.Instance?.RecordArenaPracticeEnd(_practiceHeroes, practice?.OpponentCountBeatenByPlayer ?? 0, practice?.IsPlayerSurvived ?? false, false);
+                _practiceHeroes.Clear();
+            }
+            _practiceActive = practicing;
+            if (PartyBase.MainParty?.MapEvent == null && !practicing) return;
+            Team playerTeam = mission.PlayerTeam;
+            foreach (Agent agent in mission.Agents)
+            {
+                if (agent == null) continue;
+                Hero hero = (agent.Character as CharacterObject)?.HeroObject;
+                if (hero == null) continue;
+                bool combatant = ReignSceneTeamSafety.IsPlayerTeamOrEnemy(agent.Team, playerTeam);
+                if (combatant && _seenHeroes.Add(hero.StringId))
+                    ReignWorldHistoryCampaignBehavior.Instance?.RecordMissionParticipant(hero);
+                if (practicing && combatant) _practiceHeroes.Add(hero.StringId);
+            }
+        }
+
+        protected override void OnEndMission()
+        {
+            if (_practiceActive)
+                ReignWorldHistoryCampaignBehavior.Instance?.RecordArenaPracticeEnd(_practiceHeroes, 0, false, true);
+            base.OnEndMission();
         }
     }
 }

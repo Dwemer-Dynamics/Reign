@@ -70,7 +70,7 @@ namespace ReignBeta.Campaign
                     action.ActionId);
             }
 
-            string modeText = intent.Lethal ? "honor duel" : "training duel";
+            string modeText = ReignDuelModePolicy.DisplayName(intent.Mode);
             InformationManager.DisplayMessage(new InformationMessage("[Bannerlord Reign] " + opponent.Name + " is ready for a " + modeText + ".", Color.FromUint(0xFFFFD36A)));
             ReignLog.Info("Conversation duel armed action=" + action.ActionId + " opponent=" + opponent.StringId + " mode=" + intent.Mode + " capturedAgent=" + (intent.CapturedOpponentAgent != null) + " state=" + DescribePendingState(Mission.Current));
 
@@ -274,6 +274,7 @@ namespace ReignBeta.Campaign
             ReignActionResult result = ReignActionResult.Done(message)
                 .WithResultCode(arrestDuel
                     ? playerWon ? "arrest_duel_capture_completed" : "arrest_duel_escape_completed"
+                    : ReignDuelModePolicy.IsPractice(intent.Mode) ? "practice_duel_completed"
                     : intent.Lethal ? "lethal_duel_completed" : "training_duel_completed")
                 .WithEffect("duel_completed", "hero", intent.OpponentHeroStringId, intent.OpponentName, "mode=" + intent.Mode + ";winner=" + winnerName + ";loser=" + loserName + ";reason=" + finishReason)
                 .WithChangedEntity("hero", intent.OpponentHeroStringId, intent.OpponentName, playerWon ? "lost_duel_to_player" : "won_duel_against_player")
@@ -295,7 +296,9 @@ namespace ReignBeta.Campaign
 
         internal static void RecordDuelSocialOutcome(ReignDuelIntent intent, Hero winnerHero, Hero loserHero, string finishReason)
         {
-            if (intent == null) return;
+            // Practice is remembered by the opponent through the private action
+            // receipt only. Never emit social/world-history evidence for it.
+            if (intent == null || ReignDuelModePolicy.IsPractice(intent.Mode)) return;
             string source = "duel|" + intent.ActionId;
             JObject evidence = new JObject
             {
@@ -397,18 +400,12 @@ namespace ReignBeta.Campaign
         private static ReignDuelIntent BuildIntent(ReignWorldActionRecord action, Hero opponent)
         {
             JObject terms = ParseTerms(action.TermsJson);
-            string mode = ReadString(terms, "duelMode", ReadString(terms, "mode", "training")).Trim().ToLowerInvariant();
-            bool lethal = ReadBool(terms, "lethal",
-                mode == "lethal" || mode == "death" || mode == "to_the_death" || mode == "honor" || mode == "honour");
-            if (lethal)
-            {
-                mode = "lethal";
-            }
-            else
-            {
-                mode = "training";
-            }
-            string purpose = ResolvePurpose(terms, action, opponent, lethal);
+            string mode = ReignDuelModePolicy.Resolve(
+                ReadString(terms, "duelMode", ReadString(terms, "mode", string.Empty)),
+                ReadBool(terms, "lethal", false));
+            bool lethal = ReignDuelModePolicy.IsLethal(mode);
+            string purpose = ReignDuelModePolicy.IsPractice(mode)
+                ? "practice" : ResolvePurpose(terms, action, opponent, lethal);
 
             return new ReignDuelIntent
             {
@@ -420,9 +417,9 @@ namespace ReignBeta.Campaign
                 ArrestCaseId = ReadString(terms, "caseId", string.Empty),
                 Reason = action.Reason ?? string.Empty,
                 Lethal = lethal,
-                AllowPlayerDeath = ReadBool(terms, "allowPlayerDeath", false),
-                TargetDeathRiskPercent = Clamp(ReadInt(terms, "targetDeathRiskPercent", lethal ? 100 : 0), 0, 100),
-                PlayerDeathRiskPercent = Clamp(ReadInt(terms, "playerDeathRiskPercent", 0), 0, 100),
+                AllowPlayerDeath = lethal && ReadBool(terms, "allowPlayerDeath", false),
+                TargetDeathRiskPercent = lethal ? Clamp(ReadInt(terms, "targetDeathRiskPercent", 100), 0, 100) : 0,
+                PlayerDeathRiskPercent = lethal ? Clamp(ReadInt(terms, "playerDeathRiskPercent", 0), 0, 100) : 0,
                 PauseNearbyAgents = ReadBool(terms, "pauseNearbyAgents", true),
                 PauseRadius = Clamp(ReadFloat(terms, "pauseRadius", 18f), 8f, 45f),
                 PlayerHealth = Clamp(ReadFloat(terms, "playerHealth", 100f), 20f, 500f),
@@ -533,8 +530,11 @@ namespace ReignBeta.Campaign
         {
             if (intent.Lethal)
             {
-                return winnerName + " defeated " + loserName + " in a duel of honor" + (killed ? ", and the matter ended in death." : ".");
+                return winnerName + " defeated " + loserName + " in a duel to the death" + (killed ? ", and the matter ended in death." : ".");
             }
+
+            if (intent.Mode == "honor") return winnerName + " bested " + loserName + " in a duel of honor.";
+            if (ReignDuelModePolicy.IsPractice(intent.Mode)) return winnerName + " bested " + loserName + " in a private practice duel.";
 
             if (string.Equals(intent.Purpose, "hostile", StringComparison.OrdinalIgnoreCase))
             {
@@ -559,6 +559,7 @@ namespace ReignBeta.Campaign
 
             return result
                 .WithDiagnostic("lethal", intent.Lethal.ToString())
+                .WithDiagnostic("duelMode", intent.Mode ?? string.Empty)
                 .WithDiagnostic("duelPurpose", string.IsNullOrWhiteSpace(intent.Purpose) ? (intent.Lethal ? "lethal" : "friendly") : intent.Purpose)
                 .WithDiagnostic("playerWon", playerWon.ToString())
                 .WithDiagnostic("winnerHeroId", winnerHero?.StringId ?? (playerWon ? Hero.MainHero?.StringId : intent.OpponentHeroStringId) ?? string.Empty)

@@ -3,11 +3,11 @@
   "heroStringId": "reign_court_castle_ES8_child_1",
   "characterName": "Lethenes Istrananion",
   "imagePath": "portrait.png",
-  "imageSha256": "F01A6387620145995108B101108DCF4F0E74B6A0E84E6A8220AE524D33DBF598",
-  "description": "Culturally appropriate everyday Calradic Imperial high-noble attire inspired by luxurious Byzantine aristocratic fashion, restrained enough for daily noble life. Use fine layered linen and wool, controlled flowing silhouettes, elegant draping, richly woven borders, small jeweled clasps, and sophisticated fabric textures. Men should wear a stately long tunic or structured noble coat over a fine undertunic, with refined belts and detailed edging. Women should wear a sophisticated layered noble dress with graceful drapery, tailored sleeves, and subtle aristocratic ornamentation. The outfit should communicate ancient prestige, wealth, and political importance. No headgear of any kind. No armor, weapons, crowns, laurel wreaths, or full ceremonial imperial regalia.",
-  "status": "failed",
-  "descriptionSource": "portrait_prompt_fallback",
-  "retryEligible": true,
-  "error": "{\"error\":{\"message\":\"Model \\\"zai-org/glm-5.2\\\" does not support image inputs. Remove image content or choose a multimodal model.\",\"type\":\"invalid_request_error\",\"param\":\"messages\",\"code\":\"image_input_not_supported\"}}",
-  "updatedUtc": "2026-07-18T22:03:31.5748699Z"
+  "imageSha256": "E039DD6BCE97BE3211252BF3531BDE50FDA2A65F062D091B022604896DA8CBC8",
+  "description": "Lethenes wears a cream ankle-length tunic with narrow gold-brown patterned borders along the collar, front, cuffs and lower hem. A dark burgundy-purple long outer coat or mantle has richer matching woven borders and drapes over one shoulder, fastened by a small round red-centered gold-toned brooch. A broad decorated belt with round buckle and a long studded hanging end defines the waist. Brown trousers and tall closed brown boots show below the tunic. Garments appear finely woven and opaque, with linen-like inner cloth and wool-like outer cloth; exact fibers uncertain. No headgear, armor, weapon or crown appears.",
+  "status": "completed",
+  "descriptionSource": "agent_vision",
+  "retryEligible": false,
+  "error": "",
+  "updatedUtc": "2026-10-07T23:34:32.352Z"
 }

@@ -1,0 +1,70 @@
+{
+  "schema": "reign-portable-actual-portrait-origin-v1",
+  "id": "reign_court_town_S5_father",
+  "kind": "edited_fullbody",
+  "actualReceiptSha256": "ddc24c549c206c77d3915c6465938defa551169c8347e343c7763c52f5955200",
+  "actualReceiptUtf8": "{\n  \"schema\": \"reign-root-old-face-restyle-actual-v1\",\n  \"createdUtc\": \"2026-10-09T02:57:27.596622+00:00\",\n  \"id\": \"reign_court_town_S5_father\",\n  \"actualCaller\": \"/root/old_face_followup\",\n  \"authorizedBy\": \"/root\",\n  \"actualBuiltinImageCalls\": 1,\n  \"actualRetries\": 0,\n  \"paidApiCalls\": 0,\n  \"exactPrompt\": {\n    \"path\": \"C:\\\\ReignPortraitRebuild\\\\2026-10-07-01a11741-culture-v2\\\\audit\\\\remaining-sixteen-identity-source-review-route-001\\\\miroykan-own-old-face-edit-001\\\\full-prompt.txt\",\n    \"sha256\": \"fdb2f31a2a0a0b3b42b249fae590939a7f70c9305c522b50e06e4fab24b37b47\",\n    \"bytes\": 10798\n  },\n  \"exactToolRequest\": {\n    \"path\": \"C:\\\\ReignPortraitRebuild\\\\2026-10-07-01a11741-culture-v2\\\\audit\\\\remaining-sixteen-identity-source-review-route-001\\\\miroykan-own-old-face-edit-001\\\\tool-request.json\",\n    \"sha256\": \"90f0af03178f743f4212e112e9fd51cf605196a18b2201ec2db3c4d97b701018\",\n    \"bytes\": 11299\n  },\n  \"preparation\": {\n    \"path\": \"C:\\\\ReignPortraitRebuild\\\\2026-10-07-01a11741-culture-v2\\\\audit\\\\remaining-sixteen-identity-source-review-route-001\\\\miroykan-own-old-face-edit-001\\\\preparation.json\",\n    \"sha256\": \"131eb7c72f38735ca67fa87925ca279605ff39fd8286a384e67d882bd137d716\",\n    \"bytes\": 2362\n  },\n  \"providerOutput\": {\n    \"path\": \"C:\\\\Users\\\\speed\\\\.codex\\\\generated_images\\\\01a11e87-eb28-7fa1-8c35-4dea6c643a64\\\\exec-ce00c826-edb3-4a06-ab2c-f7a7593a2663.png\",\n    \"sha256\": \"0c5f833ac51f8a506fe5ca2bd4be955bb7b75d7e3b7ca143b7b2ce412b5ff22f\",\n    \"bytes\": 2350614,\n    \"dimensions\": [\n      1086,\n      1448\n    ]\n  },\n  \"referenceImages\": [\n    {\n      \"role\": \"current full-body edit target; photographic quality/body/posture/garment/composition\",\n      \"path\": \"C:\\\\ReignPortraitRebuild\\\\2026-10-07-01a11741-culture-v2\\\\_shared\\\\Miroykan_Lesheevich (reign_court_town_S5_father)\\\\portrait.png\",\n      \"sha256\": \"7f6683229392a59d0174a9724ac8bcb469d4706cb44aa7e6218971babdf84770\",\n      \"bytes\": 2408018\n    },\n    {\n      \"role\": \"own old shared portrait; facial identity only\",\n      \"path\": \"D:\\\\Program Files (x86)\\\\Steam\\\\steamapps\\\\common\\\\Mount & Blade II Bannerlord\\\\Modules\\\\ReignBeta\\\\PortraitCache\\\\_shared\\\\Miroykan_Lesheevich (reign_court_town_S5_father)\\\\portrait_chest.png\",\n      \"sha256\": \"2b1ae126c8f10eecb2942ae0fc26fb879fa74d5a8b846ae01a05ce3a3a3928c3\",\n      \"bytes\": 120168\n    }\n  ],\n  \"provider\": \"Codex built-in image_gen\",\n  \"backendModel\": \"unknown\",\n  \"personallyReviewedBy\": \"/root/old_face_followup\",\n  \"actualVisualObservations\": \"New face closely follows own old compact blunt rounded nasal end and broad restrained closed mouth with fuller lower lip. Current photographic texture, natural upright adult44 body proportions, formal blue Sturgian garment and complete hands/shoes remain coherent. Hair became somewhat shorter around sides and beard reads darker: this minor generative grooming drift is recorded and receives no facial-distinction credit. No pixel-lock or exact geometric equivalence is claimed.\",\n  \"nativePackReport\": {\n    \"path\": \"C:\\\\ReignPortraitRebuild\\\\2026-10-07-01a11741-culture-v2\\\\audit\\\\remaining-sixteen-identity-source-review-route-001\\\\miroykan-own-old-face-edit-001\\\\native-pack-report-001.json\",\n    \"sha256\": \"81497456e93e196710fcbb4e1e1c826abf71aedac5fa765580a400f2b403b382\",\n    \"bytes\": 3921\n  },\n  \"nativePackExecution\": {\n    \"path\": \"C:\\\\ReignPortraitRebuild\\\\2026-10-07-01a11741-culture-v2\\\\audit\\\\remaining-sixteen-identity-source-review-route-001\\\\miroykan-own-old-face-edit-001\\\\native-pack-execution-001.json\",\n    \"sha256\": \"8b9748f30213d8923deef6678632786f3b90aa3bb63c9e63028d709752b9c11e\",\n    \"bytes\": 508\n  },\n  \"manualCrownPackReceipt\": {\n    \"path\": \"C:\\\\ReignPortraitRebuild\\\\2026-10-07-01a11741-culture-v2\\\\audit\\\\remaining-sixteen-identity-source-review-route-001\\\\miroykan-own-old-face-edit-001\\\\crown-pack-001\\\\pack-receipt.json\",\n    \"sha256\": \"94c9cdb34ef09ccd9b44bdee7c0884f0200cf60090956ad1684d628428a7e0e1\",\n    \"bytes\": 3138\n  },\n  \"manualCrownPackExecution\": {\n    \"path\": \"C:\\\\ReignPortraitRebuild\\\\2026-10-07-01a11741-culture-v2\\\\audit\\\\remaining-sixteen-identity-source-review-route-001\\\\miroykan-own-old-face-edit-001\\\\crown-pack-execution-001.json\",\n    \"sha256\": \"9707d08ef5d8befb8a02588ca35b8b84868a8c26da53809d93704f5fe49d3b95\",\n    \"bytes\": 325\n  },\n  \"manualCrownPlan\": {\n    \"path\": \"C:\\\\ReignPortraitRebuild\\\\2026-10-07-01a11741-culture-v2\\\\audit\\\\remaining-sixteen-identity-source-review-route-001\\\\miroykan-own-old-face-edit-001\\\\crown-plan-001.json\",\n    \"sha256\": \"24a868d237e1e680a69307dd76a319b108a77ceb6c22a35e80949e513533c3a6\",\n    \"bytes\": 4014\n  },\n  \"manualCrownWorker\": {\n    \"path\": \"C:\\\\ReignPortraitRebuild\\\\2026-10-07-01a11741-culture-v2\\\\audit\\\\remaining-sixteen-identity-source-review-route-001\\\\miroykan-own-old-face-edit-001\\\\pack-crown-001.ps1\",\n    \"sha256\": \"f81d4a800fe1e9b210f3e058578ac0d66e517c402e924495c22d4c7a4995f847\",\n    \"bytes\": 7067\n  },\n  \"manualCrownWorkerDiff\": {\n    \"path\": \"C:\\\\ReignPortraitRebuild\\\\2026-10-07-01a11741-culture-v2\\\\audit\\\\remaining-sixteen-identity-source-review-route-001\\\\miroykan-own-old-face-edit-001\\\\pack-crown-diff-001.txt\",\n    \"sha256\": \"b263abc0f0921fa97186de28a324d42cd5d77fe5942e2626a6c24bb0d4fb6f7c\",\n    \"bytes\": 4710\n  },\n  \"nativeMetadataUntouchedExcept14CropDimensionFields\": true,\n  \"actualRasterReview\": \"Personally viewed builtin full result and all3 original native products, then all3 final manual-crown products. Final complete main crown has clear background margin; natural face and collar context retained.\",\n  \"finalFiles\": [\n    {\n      \"path\": \"C:\\\\ReignPortraitRebuild\\\\2026-10-07-01a11741-culture-v2\\\\audit\\\\remaining-sixteen-identity-source-review-route-001\\\\miroykan-own-old-face-edit-001\\\\native-pack-001\\\\portrait.png\",\n      \"sha256\": \"0c5f833ac51f8a506fe5ca2bd4be955bb7b75d7e3b7ca143b7b2ce412b5ff22f\",\n      \"bytes\": 2350614\n    },\n    {\n      \"path\": \"C:\\\\ReignPortraitRebuild\\\\2026-10-07-01a11741-culture-v2\\\\audit\\\\remaining-sixteen-identity-source-review-route-001\\\\miroykan-own-old-face-edit-001\\\\native-pack-001\\\\zoom.png\",\n      \"sha256\": \"fdb6c2baece35b73efe6c6efd50eda1964553d19addf0ddf30222d0d5372d9f3\",\n      \"bytes\": 3345831\n    },\n    {\n      \"path\": \"C:\\\\ReignPortraitRebuild\\\\2026-10-07-01a11741-culture-v2\\\\audit\\\\remaining-sixteen-identity-source-review-route-001\\\\miroykan-own-old-face-edit-001\\\\crown-pack-001\\\\portrait_chest.png\",\n      \"sha256\": \"ffa3fa2e05890035865f27412bdec5a67bc1f6b9d4408bda578ae6b3e92d0784\",\n      \"bytes\": 255660\n    },\n    {\n      \"path\": \"C:\\\\ReignPortraitRebuild\\\\2026-10-07-01a11741-culture-v2\\\\audit\\\\remaining-sixteen-identity-source-review-route-001\\\\miroykan-own-old-face-edit-001\\\\crown-pack-001\\\\thumbnail.png\",\n      \"sha256\": \"4ba131c627ef99241cd70ca8195741aae117dab785d796b429d7fb2428a1c2a3\",\n      \"bytes\": 192511\n    },\n    {\n      \"path\": \"C:\\\\ReignPortraitRebuild\\\\2026-10-07-01a11741-culture-v2\\\\audit\\\\remaining-sixteen-identity-source-review-route-001\\\\miroykan-own-old-face-edit-001\\\\crown-pack-001\\\\thumbnail_wide.png\",\n      \"sha256\": \"97b79262c6bbb1f98a3969a94f15c16b00f4a798ad86e8dd74942169f8741827\",\n      \"bytes\": 310969\n    },\n    {\n      \"path\": \"C:\\\\ReignPortraitRebuild\\\\2026-10-07-01a11741-culture-v2\\\\audit\\\\remaining-sixteen-identity-source-review-route-001\\\\miroykan-own-old-face-edit-001\\\\crown-pack-001\\\\.portrait_derivatives.json\",\n      \"sha256\": \"b6e7f9019190c907607cecdbd625a4fa8455c2825576057408af0b985b9130e4\",\n      \"bytes\": 2163\n    }\n  ],\n  \"currentWrites\": 0,\n  \"productWrites\": 0,\n  \"humanAccepted\": false,\n  \"rootRasterApprovalPending\": true,\n  \"neighborIdentityReview\": \"pending root practical comparison\",\n  \"notSwapApproval\": true\n}\n",
+  "originalReceiptEncoding": "UTF-8; BOM retained if present",
+  "localFiles": [
+    {
+      "name": "portrait_chest.png",
+      "sha256": "ffa3fa2e05890035865f27412bdec5a67bc1f6b9d4408bda578ae6b3e92d0784",
+      "bytes": 255660
+    },
+    {
+      "name": "thumbnail.png",
+      "sha256": "4ba131c627ef99241cd70ca8195741aae117dab785d796b429d7fb2428a1c2a3",
+      "bytes": 192511
+    },
+    {
+      "name": "thumbnail_wide.png",
+      "sha256": "97b79262c6bbb1f98a3969a94f15c16b00f4a798ad86e8dd74942169f8741827",
+      "bytes": 310969
+    },
+    {
+      "name": "portrait.png",
+      "sha256": "0c5f833ac51f8a506fe5ca2bd4be955bb7b75d7e3b7ca143b7b2ce412b5ff22f",
+      "bytes": 2350614
+    },
+    {
+      "name": "zoom.png",
+      "sha256": "fdb6c2baece35b73efe6c6efd50eda1964553d19addf0ddf30222d0d5372d9f3",
+      "bytes": 3345831
+    },
+    {
+      "name": "prompt_edit.txt",
+      "sha256": "fdb2f31a2a0a0b3b42b249fae590939a7f70c9305c522b50e06e4fab24b37b47",
+      "bytes": 10798
+    }
+  ],
+  "historicalParent": {
+    "record": {
+      "path": "C:\\ReignPortraitRebuild\\2026-10-07-01a11741-culture-v2\\_shared\\Miroykan_Lesheevich (reign_court_town_S5_father)\\.ai_generation.json",
+      "sha256": "7e7ebc9fb70b8416b385f5428d1861add4d48e14a8574f10e13984cf7b919b92",
+      "bytes": 3781
+    },
+    "prompt": {
+      "path": "C:\\ReignPortraitRebuild\\2026-10-07-01a11741-culture-v2\\_shared\\Miroykan_Lesheevich (reign_court_town_S5_father)\\prompt.txt",
+      "sha256": "4f44545d23a47c890c3ed77cda6c625026ed1fe869431a786d843c110144e996",
+      "bytes": 7638
+    },
+    "role": "Original fullbody generation; not the new own-old-face edit producer."
+  },
+  "authenticRawReceiptNotRewritten": true,
+  "rawAbsolutePathsRole": "Historical tool/provider locations only. Current pixel source and prompt are bound by localFiles.",
+  "actualOriginAdapter": {
+    "rawSchema": "reign-root-old-face-restyle-actual-v1",
+    "actualCallsField": "actualBuiltinImageCalls",
+    "actualRetriesField": "actualRetries",
+    "rawActualCalls": 1,
+    "rawRetries": 0,
+    "fieldMapping": {
+      "id": "id",
+      "source": "providerOutput",
+      "prompt": "exactPrompt"
+    }
+  },
+  "globalFaceAcceptance": false,
+  "nativeUIAcceptance": false,
+  "notSwapApproval": true
+}

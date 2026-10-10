@@ -11,6 +11,8 @@ TICKS_EPOCH = 621355968000000000
 ALLOWED = {
     "portrait.png", "portrait_chest.png", "thumbnail_wide.png", "thumbnail.png", "zoom.png",
     "portrait_input.json", ".portrait_derivatives.json", ".ai_generation.json", "formal_outfit.json", "prompt.txt",
+    "portrait_chest_source.png", "prompt_chest.txt", ".ai_generation_chest.json",
+    "prompt_edit.txt", ".ai_generation_edit.json",
 }
 
 

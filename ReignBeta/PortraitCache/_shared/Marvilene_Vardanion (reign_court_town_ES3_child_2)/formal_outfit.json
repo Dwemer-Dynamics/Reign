@@ -3,11 +3,11 @@
   "heroStringId": "reign_court_town_ES3_child_2",
   "characterName": "Marvilene Vardanion",
   "imagePath": "portrait.png",
-  "imageSha256": "CBD629CA144F6133293808693CB2AE25B2D143C07F6B7E144D2067B775DBE848",
-  "description": "Culturally appropriate everyday Calradic Imperial minor-lord attire inspired by refined late Roman and Byzantine noble clothing. Men should wear a high-quality tunic or long tailored outer coat over fine linen, decorated with narrow woven borders, refined clasps, and a decorated belt. Women should wear a long elegant dress or layered tunic ensemble with shaped sleeves, graceful draping, and tasteful trim around the neckline, cuffs, and edges. The garments should feel polished, educated, urban, and wealthy without resembling full imperial ceremony. No headgear of any kind. No armor, weapons, crowns, imperial regalia, laurel wreaths, or ceremonial robes.",
-  "status": "failed",
-  "descriptionSource": "portrait_prompt_fallback",
-  "retryEligible": true,
-  "error": "{\"error\":{\"message\":\"Model \\\"zai-org/glm-5.2\\\" does not support image inputs. Remove image content or choose a multimodal model.\",\"type\":\"invalid_request_error\",\"param\":\"messages\",\"code\":\"image_input_not_supported\"}}",
-  "updatedUtc": "2026-07-18T22:03:32.1547175Z"
+  "imageSha256": "3FF2616840AEACCDC3A6E903040ABEC5E80994496C5B481ADB48B08DDEF6AB63",
+  "description": "Marvilene wears an opaque deep burgundy floor-length court gown with a low square neckline, fitted bodice and elbow-length sleeves. Gold and burgundy woven trim borders the neckline, front bodice seams, cuffs, waist and long skirt edges. A pale cream underdress appears through the narrow lower-front walking opening, below the knee. A cream brocade shoulder wrap with decorative gold borders rests loosely around her arms. A small gold pendant, modest earrings, bracelet and decorated waist clasp provide restrained ornaments. Brown embroidered flat shoes are visible beneath the dress. The garment covers bust, abdomen, hips and pelvis; there is no headgear or armor.",
+  "status": "completed",
+  "descriptionSource": "agent_vision",
+  "retryEligible": false,
+  "error": "",
+  "updatedUtc": "2026-10-08T00:08:06.212Z"
 }

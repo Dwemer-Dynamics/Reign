@@ -3,11 +3,11 @@
   "heroStringId": "reign_court_town_ES2_father",
   "characterName": "Dreniles Soriananion",
   "imagePath": "portrait.png",
-  "imageSha256": "929A417171902ED1FF8A8318138C1E87FB9D506E7917CCDD05B14E34574F5349",
-  "description": "Culturally appropriate everyday Calradic Imperial minor-lord attire inspired by refined late Roman and Byzantine noble clothing. Men should wear a high-quality tunic or long tailored outer coat over fine linen, decorated with narrow woven borders, refined clasps, and a decorated belt. Women should wear a long elegant dress or layered tunic ensemble with shaped sleeves, graceful draping, and tasteful trim around the neckline, cuffs, and edges. The garments should feel polished, educated, urban, and wealthy without resembling full imperial ceremony. No headgear of any kind. No armor, weapons, crowns, imperial regalia, laurel wreaths, or ceremonial robes.",
-  "status": "failed",
-  "descriptionSource": "portrait_prompt_fallback",
-  "retryEligible": true,
-  "error": "{\"error\":{\"message\":\"Model \\\"zai-org/glm-5.2\\\" does not support image inputs. Remove image content or choose a multimodal model.\",\"type\":\"invalid_request_error\",\"param\":\"messages\",\"code\":\"image_input_not_supported\"}}",
-  "updatedUtc": "2026-07-18T22:03:27.9619199Z"
+  "imageSha256": "0CE86DD9EEE6BC9C12E84FF96C5E9702BF9C91D4D297BC8EE2117CC297C1BBB3",
+  "description": "He wears a muted burgundy long coat over an ivory long tunic, with narrow gold geometric woven borders at the neckline, front edges, cuffs and hem. A burgundy shoulder mantle is held by a round brooch, and a broad decorated belt gathers the waist. Brown trousers and tall brown leather boots complete the outfit. His head is bare.",
+  "status": "completed",
+  "descriptionSource": "agent_vision",
+  "retryEligible": false,
+  "error": "",
+  "updatedUtc": "2026-10-07T21:42:12.338Z"
 }

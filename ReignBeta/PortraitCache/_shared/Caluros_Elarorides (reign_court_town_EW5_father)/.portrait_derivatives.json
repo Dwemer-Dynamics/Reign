@@ -2,38 +2,261 @@
   "Version": 3,
   "CropAlgorithmVersion": 2,
   "SourceFileName": "portrait.png",
-  "SourcePath": "portrait.png",
-  "SourceLength": 1448451,
-  "SourceLastWriteUtcTicks": 639199093130848042,
-  "SourceWidth": 864,
-  "SourceHeight": 1152,
-  "CropX": 285,
-  "CropY": 91,
-  "CropWidth": 284,
-  "CropHeight": 355,
-  "WideCropX": 179,
-  "WideCropY": 91,
-  "WideCropWidth": 497,
-  "WideCropHeight": 355,
+  "SourcePath": "C:\\ReignPortraitRebuild\\2026-10-07-01a11741-culture-v2\\_shared\\Caluros_Elarorides (reign_court_town_EW5_father)\\portrait.png",
+  "SourceLength": 2193314,
+  "SourceLastWriteUtcTicks": 639270045314021692,
+  "SourceWidth": 1086,
+  "SourceHeight": 1448,
+  "CropX": 391,
+  "CropY": 36,
+  "CropWidth": 253,
+  "CropHeight": 316,
+  "WideCropX": 296,
+  "WideCropY": 36,
+  "WideCropWidth": 442,
+  "WideCropHeight": 316,
   "FocusMethod": "ultraface",
   "FocusModel": "version-RFB-320",
-  "FocusConfidence": 0.9999197721481323,
+  "FocusConfidence": 0.9996044039726257,
   "FaceCandidateCount": 1,
-  "FaceX": 0.423511266708374,
-  "FaceY": 0.11472766101360321,
-  "FaceWidth": 0.14182788133621216,
-  "FaceHeight": 0.143379345536232,
+  "FaceX": 0.43015000224113464,
+  "FaceY": 0.05017102509737015,
+  "FaceWidth": 0.09249880909919739,
+  "FaceHeight": 0.10157199949026108,
   "NeedsReview": false,
   "ThumbnailFileName": "thumbnail.png",
-  "ThumbnailWidth": 256,
-  "ThumbnailHeight": 320,
+  "ThumbnailWidth": 192,
+  "ThumbnailHeight": 240,
   "PartyThumbnailFileName": "thumbnail_wide.png",
-  "PartyThumbnailWidth": 448,
-  "PartyThumbnailHeight": 320,
+  "PartyThumbnailWidth": 128,
+  "PartyThumbnailHeight": 96,
   "PortraitFileName": "portrait_chest.png",
-  "PortraitWidth": 284,
-  "PortraitHeight": 355,
+  "PortraitWidth": 768,
+  "PortraitHeight": 960,
   "ZoomFileName": "zoom.png",
-  "ZoomWidth": 864,
-  "ZoomHeight": 1152
+  "ZoomWidth": 1024,
+  "ZoomHeight": 1365,
+  "IndependentGeneratedChestProvenance": {
+    "schema": "reign-independent-generated-chest-provenance-v1",
+    "kind": "independent_generated_chest",
+    "id": "reign_court_town_EW5_father",
+    "generatedChestSource": {
+      "path": "C:/Users/speed/.codex/generated_images/01a11c35-b9ad-75f1-9c21-5742fde8069d/exec-d3bd5759-42fa-4aa5-b88a-014710cd028c.png",
+      "sha256": "9d5cc63a7ae72a5c8ee7eecbe50dcd4ebbc3e4e5db381b343decdcd279e9affe"
+    },
+    "sourceDimensions": [
+      1086,
+      1448
+    ],
+    "requestId": "1191b060-1582-4d40-be8e-56bea85e4020",
+    "exactPrompt": {
+      "path": "C:/ReignPortraitRebuild/2026-10-07-01a11741-culture-v2/audit/intentional-face-variation-drafts-gallery-001/reign_court_town_EW5_father-intentional-prompt-001.txt",
+      "sha256": "7e1e0a04a0a365973d45f84a73fa43d7de4db3471a3035fc8989f7499d4495ec"
+    },
+    "actualGenerationResult": {
+      "path": "C:\\ReignPortraitRebuild\\2026-10-07-01a11741-culture-v2\\audit\\root-focused-chest-quality-reign_court_town_EW5_father-002\\actual-result-001.json",
+      "sha256": "b89e8f90a99012b0f4c38b4ccd7e12736d51ef251bfbe6cdcf6d24b6681af121"
+    },
+    "generationRootRelease": {
+      "path": "C:/ReignPortraitRebuild/2026-10-07-01a11741-culture-v2/audit/root-focused-chest-quality-reign_court_town_EW5_father-002/root-release-001.json",
+      "sha256": "1fb8376ce67b610d3c1b22f2c366c4ca2e69129a13c806035a7f0b9c279a26b5"
+    },
+    "priorActualExperimentResults": [
+      {
+        "path": "C:\\ReignPortraitRebuild\\2026-10-07-01a11741-culture-v2\\audit\\root-focused-chest-quality-reign_court_town_EW5_father-001\\actual-result-001.json",
+        "sha256": "eb66efb1f8d6a8897ad0366d5e27b0e9dd48f99f75130c41dd5bd5066f969c7d"
+      }
+    ],
+    "authenticCaseAdapter": {
+      "schema": "reign-authentic-chest-result-case-adapter-v1",
+      "rawSchema": "reign-bounded-chat-image-actual-result-v1",
+      "fieldMapping": {
+        "id": "id",
+        "source": "output",
+        "prompt": "prompt",
+        "references": "referenceOrder",
+        "actualCalls": "actualImageCalls",
+        "rawRetries": "retryCount",
+        "preservedInputs": "original generation release.inputs + actual postCallChecks + suppliedStringLedger + exact prior001 receipt"
+      },
+      "rawActualCalls": 1,
+      "rawRetries": 0,
+      "generationReleaseRetryBudget": 0,
+      "originalReceiptUnmodified": true
+    },
+    "rootActualSourceReview": {
+      "path": "C:\\ReignPortraitRebuild\\2026-10-07-01a11741-culture-v2\\audit\\root-two-intentional-candidates-personal-review-001.json",
+      "sha256": "a81b615ba69d0c5143856dd42b46785ef835057ab703a11778e1b53ae2c15b5a"
+    },
+    "originalFullbodyMaster": {
+      "path": "C:\\ReignPortraitRebuild\\2026-10-07-01a11741-culture-v2\\_shared\\Caluros_Elarorides (reign_court_town_EW5_father)\\portrait.png",
+      "sha256": "1834ec2566c85e3ad6c8d14096c9f6667cc514f2c93bd2bf9aaed635fdd001b5"
+    },
+    "originalZoom": {
+      "path": "C:\\ReignPortraitRebuild\\2026-10-07-01a11741-culture-v2\\_shared\\Caluros_Elarorides (reign_court_town_EW5_father)\\zoom.png",
+      "sha256": "128ac9ca020abe3595a3b3321ccae8072aa64b2d2ef8e30ee49adb7e31fc50be"
+    },
+    "originalNativeMetadata": {
+      "path": "C:\\ReignPortraitRebuild\\2026-10-07-01a11741-culture-v2\\_shared\\Caluros_Elarorides (reign_court_town_EW5_father)\\.portrait_derivatives.json",
+      "sha256": "922a323683b16b9235e2f71102a36574dfa3167db78afd53dfcce64f9ef89702"
+    },
+    "originalGenerationReceipt": {
+      "path": "C:\\ReignPortraitRebuild\\2026-10-07-01a11741-culture-v2\\_shared\\Caluros_Elarorides (reign_court_town_EW5_father)\\.ai_generation.json",
+      "sha256": "74a06505900428a1eaba8ea1534677851312b8e67c60ff902d7293d246caf924"
+    },
+    "legacyCropFieldRole": "Retained fullbody reference windows; NOT new chest pixel derivation.",
+    "originalFullbodyTicksExactDecimal": "639270045314021692",
+    "chestFocus": {
+      "method": "ultraface",
+      "model": "version-RFB-320",
+      "confidence": 0.9999997615814209,
+      "candidateCount": 1,
+      "x": 0.2902553975582123,
+      "y": 0.1272670179605484,
+      "width": 0.39718034863471985,
+      "height": 0.4149787276983261,
+      "modelSha256": "34cd7e60aeff28744c657de7a3dc64e872d506741de66987f3426f2b79f88017",
+      "onnxruntimeVersion": "1.24.2",
+      "inputSha256": "a97dabe44ee473989f7cfc489dcf75251a88c9c872bf97966c2500b765ee9002"
+    },
+    "actualProducts": [
+      {
+        "sha256": "452f3f56da070c5ff64e5d84dbb7635e30754c63961bb7ec91d341648c858a23",
+        "bytes": 1653936,
+        "height": 960,
+        "source": {
+          "path": "C:/Users/speed/.codex/generated_images/01a11c35-b9ad-75f1-9c21-5742fde8069d/exec-d3bd5759-42fa-4aa5-b88a-014710cd028c.png",
+          "sha256": "9d5cc63a7ae72a5c8ee7eecbe50dcd4ebbc3e4e5db381b343decdcd279e9affe"
+        },
+        "path": "C:\\ReignPortraitRebuild\\2026-10-07-01a11741-culture-v2\\audit\\independent-generated-chest-ten-candidate-pack-component-001\\reign_court_town_EW5_father\\candidate-pack-001\\portrait_chest.png",
+        "name": "portrait_chest.png",
+        "rect": {
+          "x": 0,
+          "y": 0,
+          "width": 1086,
+          "height": 1358
+        },
+        "width": 768
+      },
+      {
+        "sha256": "413419da98d0e08e1bd390d339d419358504ce8d4f267dc1e8a408b90cd2e89a",
+        "bytes": 121361,
+        "height": 240,
+        "source": {
+          "path": "C:/Users/speed/.codex/generated_images/01a11c35-b9ad-75f1-9c21-5742fde8069d/exec-d3bd5759-42fa-4aa5-b88a-014710cd028c.png",
+          "sha256": "9d5cc63a7ae72a5c8ee7eecbe50dcd4ebbc3e4e5db381b343decdcd279e9affe"
+        },
+        "path": "C:\\ReignPortraitRebuild\\2026-10-07-01a11741-culture-v2\\audit\\independent-generated-chest-ten-candidate-pack-component-001\\reign_court_town_EW5_father\\candidate-pack-001\\thumbnail.png",
+        "name": "thumbnail.png",
+        "rect": {
+          "x": 0,
+          "y": 0,
+          "width": 1086,
+          "height": 1358
+        },
+        "width": 192
+      },
+      {
+        "sha256": "2befd4fa4a2f9596b6dcc7d9799c197e1cc99a7f47904418cffb9cc4e696f0a6",
+        "bytes": 31767,
+        "height": 96,
+        "source": {
+          "path": "C:/Users/speed/.codex/generated_images/01a11c35-b9ad-75f1-9c21-5742fde8069d/exec-d3bd5759-42fa-4aa5-b88a-014710cd028c.png",
+          "sha256": "9d5cc63a7ae72a5c8ee7eecbe50dcd4ebbc3e4e5db381b343decdcd279e9affe"
+        },
+        "path": "C:\\ReignPortraitRebuild\\2026-10-07-01a11741-culture-v2\\audit\\independent-generated-chest-ten-candidate-pack-component-001\\reign_court_town_EW5_father\\candidate-pack-001\\thumbnail_wide.png",
+        "name": "thumbnail_wide.png",
+        "rect": {
+          "x": 0,
+          "y": 0,
+          "width": 1086,
+          "height": 815
+        },
+        "width": 128
+      }
+    ],
+    "actualAdapter": {
+      "path": "C:\\ReignPortraitRebuild\\2026-10-07-01a11741-culture-v2\\audit\\independent-generated-chest-ten-candidate-pack-component-001\\candidate-pack-001.py",
+      "sha256": "47274989bffa7a2cc9c0b6d1376f5cde84fe7d78fca82624c35567ff9c253e57"
+    },
+    "nativeWorker": {
+      "path": "C:\\ReignPortraitRebuild\\2026-10-07-01a11741-culture-v2\\audit\\independent-generated-chest-ten-candidate-pack-component-001\\native-worker-001.ps1",
+      "sha256": "90c444d9eb77b6839588ec85e33f2a6fbde0fc0bd1acb4f15dc1be64292c7a51"
+    },
+    "nativeCodecAssembly": {
+      "path": "D:\\Projects\\Reign\\.codex-build\\reign-mcp\\validation\\20261007-181216-5bee7061\\client\\out\\ReignBeta.dll",
+      "sha256": "498c5d8e7af24226dbf5b9d37147fd562cf0e42b6477b6f4607f6011905ac5b8"
+    },
+    "candidateRootRelease": {
+      "path": "C:\\ReignPortraitRebuild\\2026-10-07-01a11741-culture-v2\\audit\\independent-generated-chest-ten-candidate-pack-component-001\\root-pack-release-reign_court_town_EW5_father-001.json",
+      "sha256": "cbaa7926338ccfb75a9f8988280a61957fbb5e0f5a8edbe511f822a3ad55a494"
+    },
+    "nativeBuildV2Invoked": false,
+    "nativeCommitV2Invoked": false,
+    "nativeAlgorithmProducedRectangle": false,
+    "fullbodyCompositionGateApplied": false,
+    "chestFramingCriterion": "Authentic finite one-face focus, source-valid centered face; actual root preview must judge full crown/chest and wide lower-beard limitation.",
+    "effectiveFaceIdentity": {
+      "path": "C:/Users/speed/.codex/generated_images/01a11c35-b9ad-75f1-9c21-5742fde8069d/exec-d3bd5759-42fa-4aa5-b88a-014710cd028c.png",
+      "sha256": "9d5cc63a7ae72a5c8ee7eecbe50dcd4ebbc3e4e5db381b343decdcd279e9affe"
+    },
+    "oldFullbodyMasterEqualityDoesNotTransferGeometryOrFamily": true,
+    "nativeCompatibilityOnly": true,
+    "nativeUIAcceptance": false,
+    "notSwapApproval": true
+  },
+  "StagedAssetProvenance": {
+    "schema": "reign-staged-effective-portrait-origin-v1",
+    "id": "reign_court_town_EW5_father",
+    "kind": "independent_chest",
+    "currentLocalFiles": [
+      {
+        "name": "portrait_chest.png",
+        "sha256": "452f3f56da070c5ff64e5d84dbb7635e30754c63961bb7ec91d341648c858a23",
+        "bytes": 1653936
+      },
+      {
+        "name": "thumbnail.png",
+        "sha256": "413419da98d0e08e1bd390d339d419358504ce8d4f267dc1e8a408b90cd2e89a",
+        "bytes": 121361
+      },
+      {
+        "name": "thumbnail_wide.png",
+        "sha256": "2befd4fa4a2f9596b6dcc7d9799c197e1cc99a7f47904418cffb9cc4e696f0a6",
+        "bytes": 31767
+      },
+      {
+        "name": "portrait_chest_source.png",
+        "sha256": "9d5cc63a7ae72a5c8ee7eecbe50dcd4ebbc3e4e5db381b343decdcd279e9affe",
+        "bytes": 2310527
+      },
+      {
+        "name": "prompt_chest.txt",
+        "sha256": "7e1e0a04a0a365973d45f84a73fa43d7de4db3471a3035fc8989f7499d4495ec",
+        "bytes": 12740
+      },
+      {
+        "name": "portrait.png",
+        "sha256": "1834ec2566c85e3ad6c8d14096c9f6667cc514f2c93bd2bf9aaed635fdd001b5",
+        "bytes": 2193314
+      },
+      {
+        "name": "zoom.png",
+        "sha256": "128ac9ca020abe3595a3b3321ccae8072aa64b2d2ef8e30ee49adb7e31fc50be",
+        "bytes": 3273010
+      }
+    ],
+    "nativeAlgorithmProducedRectangle": false,
+    "priorProducerExtensionsRetainedVerbatim": true,
+    "absolutePriorReferencesRole": "Historical/candidate references; current module pixels/provenance use the relative currentLocalFiles.",
+    "sourcePathProjection": {
+      "from": "C:\\ReignPortraitRebuild\\2026-10-07-01a11741-culture-v2\\_shared\\Caluros_Elarorides (reign_court_town_EW5_father)\\portrait.png",
+      "to": "C:\\ReignPortraitRebuild\\2026-10-07-01a11741-culture-v2\\_shared\\Caluros_Elarorides (reign_court_town_EW5_father)\\portrait.png",
+      "reason": "Unchanged current fullbody cache anchor"
+    },
+    "independentChestNativeForcedRegenerationCanOverwrite": true,
+    "globalFaceAcceptance": false,
+    "nativeUIAcceptance": false,
+    "notSwapApproval": true
+  }
 }

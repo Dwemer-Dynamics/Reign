@@ -3,11 +3,11 @@
   "heroStringId": "lord_6_2",
   "characterName": "Anat",
   "imagePath": "portrait.png",
-  "imageSha256": "245E322D7AAF7F15B1BD0A6B6F4847A1E633E74FDB99CDAD91BA1075C9D9CB8D",
-  "description": "Culturally appropriate everyday Khuzait high-noble attire inspired by elite medieval Turkic and Mongol aristocratic clothing. Use superb tailoring, layered fine wool and silk-like woven fabrics, elegant crossed-front closures, decorated sashes, refined edging, and subtle noble motifs. Men should wear a stately long noble deel or structured coat over richly made underlayers. Women should wear a luxurious robe or coat-dress with graceful lines, elaborate woven trim, and exceptionally high-quality textiles. Fur trim may be included sparingly along cuffs, collars, or garment edges. The clothing should feel wealthy, mobile, and commanding without becoming ceremonial. No headgear of any kind. No fur hats, caps, hoods, armor, weapons, crowns, or fantasy styling.",
-  "status": "failed",
-  "descriptionSource": "portrait_prompt_fallback",
-  "retryEligible": true,
-  "error": "{\"error\":{\"message\":\"Model \\\"zai-org/glm-5.2\\\" does not support image inputs. Remove image content or choose a multimodal model.\",\"type\":\"invalid_request_error\",\"param\":\"messages\",\"code\":\"image_input_not_supported\"}}",
-  "updatedUtc": "2026-07-18T22:03:24.5953265Z"
+  "imageSha256": "8F76DF7112417124592DF6050C87E483349E98D2FE52D1A7CA5F47D5D1BEF9D5",
+  "description": "She wears an opaque teal-blue floor-length fitted gown with a low square neckline and elbow-length sleeves, richly edged with gold knot and animal-motif woven borders. A narrow cream underdress shows through the front skirt opening. A broad cream wrap with gold animal motifs and teal-gold borders lies loosely around her forearms. The waist is belted with decorated gold-colored discs and a long hanging chain of round medallions, ending in elongated ornaments and a tassel. Gold chandelier earrings hang beside her cheeks. Dark brown closed-toe leather shoes are visible under the skirt. No headgear, armor or weapon appears.",
+  "status": "completed",
+  "descriptionSource": "agent_vision",
+  "retryEligible": false,
+  "error": "",
+  "updatedUtc": "2026-10-07T20:32:49.937Z"
 }

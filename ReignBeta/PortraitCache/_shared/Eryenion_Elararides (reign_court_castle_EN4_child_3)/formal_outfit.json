@@ -3,11 +3,11 @@
   "heroStringId": "reign_court_castle_EN4_child_3",
   "characterName": "Eryenion Elararides",
   "imagePath": "portrait.png",
-  "imageSha256": "AACB88E95CDC4B18C14999797F7BAAAD10975C781B5E1CD46B5458A4B3C5D481",
-  "description": "Culturally appropriate everyday Calradic Imperial minor-lord attire inspired by refined late Roman and Byzantine noble clothing. Men should wear a high-quality tunic or long tailored outer coat over fine linen, decorated with narrow woven borders, refined clasps, and a decorated belt. Women should wear a long elegant dress or layered tunic ensemble with shaped sleeves, graceful draping, and tasteful trim around the neckline, cuffs, and edges. The garments should feel polished, educated, urban, and wealthy without resembling full imperial ceremony. No headgear of any kind. No armor, weapons, crowns, imperial regalia, laurel wreaths, or ceremonial robes.",
-  "status": "failed",
-  "descriptionSource": "portrait_prompt_fallback",
-  "retryEligible": true,
-  "error": "{\"error\":{\"message\":\"Model \\\"zai-org/glm-5.2\\\" does not support image inputs. Remove image content or choose a multimodal model.\",\"type\":\"invalid_request_error\",\"param\":\"messages\",\"code\":\"image_input_not_supported\"}}",
-  "updatedUtc": "2026-07-18T22:03:28.6328127Z"
+  "imageSha256": "3CC76610084D81AED99F317D0AE89EB5DC40C06A16CC9EC182898BE26B3C374A",
+  "description": "He wears an ivory long tunic with narrow gold patterned borders under a dark plum tailored outer coat with matching cuffs and hem, two round chest clasps joined by a chain, a decorated brown belt, brown trousers and tall brown leather boots. Both hands are held visibly together in front of his waist.",
+  "status": "completed",
+  "descriptionSource": "agent_vision",
+  "retryEligible": false,
+  "error": "",
+  "updatedUtc": "2026-10-08T13:18:00.308Z"
 }

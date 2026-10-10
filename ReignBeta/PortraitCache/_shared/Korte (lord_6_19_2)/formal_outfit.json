@@ -3,11 +3,11 @@
   "heroStringId": "lord_6_19_2",
   "characterName": "Korte",
   "imagePath": "portrait.png",
-  "imageSha256": "1E60CAFC42EE2D4BC499A136B941DC42A6E5A089239651341977A0118F350496",
-  "description": "Culturally appropriate everyday Khuzait minor-lord attire inspired by refined medieval Turkic and Mongol steppe noble clothing. Men should wear a tailored crossed-front coat or deel with refined woven trim, a decorated sash, layered sleeves, and high-quality trousers. Women should wear an elegant long robe or fitted steppe coat over a fine underdress, with carefully worked edging and decorative textile details. Include restrained cloud, knot, or geometric patterns and a limited amount of practical fur trim. The clothing should remain mobile and functional while clearly showing noble status. No headgear of any kind. No fur hats, caps, hoods, armor, weapons, crowns, or ceremonial costume.",
-  "status": "failed",
-  "descriptionSource": "portrait_prompt_fallback",
-  "retryEligible": true,
-  "error": "{\"error\":{\"message\":\"Model \\\"zai-org/glm-5.2\\\" does not support image inputs. Remove image content or choose a multimodal model.\",\"type\":\"invalid_request_error\",\"param\":\"messages\",\"code\":\"image_input_not_supported\"}}",
-  "updatedUtc": "2026-07-18T22:03:31.4249247Z"
+  "imageSha256": "CC1DA6A192BC69E4F02A8ABE50C042A3A4EAD8D43CE71608E1C23FD2ED9E961E",
+  "description": "Opaque blue-grey floor-length coat-gown with a low square neckline, fitted bodice, elbow-length sleeves, gold cloud and knot borders, cream central underpanel, round shoulder brooches, a metal-decorated waist sash with tassels, cream gold-edged wrap on the arms, brown closed boots and small gold earrings. No headgear, armour or weapons.",
+  "status": "completed",
+  "descriptionSource": "agent_vision",
+  "retryEligible": false,
+  "error": "",
+  "updatedUtc": "2026-10-08T04:28:32.360Z"
 }

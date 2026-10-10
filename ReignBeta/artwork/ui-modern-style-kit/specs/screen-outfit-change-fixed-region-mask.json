@@ -1,0 +1,47 @@
+{
+  "schema": "reign-fixed-region-composite-v1",
+  "assetId": "outfit-change",
+  "approvedReference": {
+    "path": "../generated-sources/outfit-change/shell-alpha.png",
+    "sha256": "6e4d012135b2a22f1656416d336c781e3a9b549ce2d0aaaa8033a81d77270b85"
+  },
+  "approvalStatus": "candidate; human/native acceptance pending",
+  "canvas": {
+    "width": 1672,
+    "height": 941
+  },
+  "sceneDependentMasks": [
+    {
+      "id": "before-portrait",
+      "shape": "rectangle",
+      "x": 269,
+      "y": 138,
+      "width": 465,
+      "height": 588
+    },
+    {
+      "id": "after-portrait",
+      "shape": "rectangle",
+      "x": 940,
+      "y": 138,
+      "width": 467,
+      "height": 588
+    },
+    {
+      "id": "confirmation-state",
+      "shape": "rectangle",
+      "x": 900,
+      "y": 824,
+      "width": 422,
+      "height": 62
+    },
+    {
+      "id": "status-text",
+      "shape": "rectangle",
+      "x": 90,
+      "y": 824,
+      "width": 710,
+      "height": 64
+    }
+  ]
+}

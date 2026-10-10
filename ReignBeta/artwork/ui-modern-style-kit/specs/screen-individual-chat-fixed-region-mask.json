@@ -38,6 +38,7 @@
     {"id": "conversation-list", "shape": "rectangle", "x": 88, "y": 516, "width": 1490, "height": 258},
     {"id": "conversation-scroll-handle", "shape": "rectangle", "x": 1582, "y": 519, "width": 14, "height": 252},
     {"id": "message-input-text", "shape": "rectangle", "x": 190, "y": 827, "width": 956, "height": 52},
-    {"id": "send-button-typography", "shape": "rectangle", "x": 1348, "y": 829, "width": 95, "height": 45}
+    {"id": "send-button-typography", "shape": "rectangle", "x": 1348, "y": 829, "width": 95, "height": 45},
+    {"id":"conditional-new-clothes-action","shape":"rectangle","x":624,"y":263,"width":422,"height":62}
   ]
 }

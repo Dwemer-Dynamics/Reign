@@ -3,11 +3,11 @@
   "heroStringId": "lord_A9_c",
   "characterName": "Dhila",
   "imagePath": "portrait.png",
-  "imageSha256": "4E1FCA5E06FDF67710556F62337461379290598BA7EBC42A23E5524E58F4D051",
-  "description": "Culturally appropriate everyday Aserai landowner attire inspired by practical medieval Arabian and North African civilian clothing suited to a hot desert climate. Men should wear a light linen or cotton undertunic beneath a loose ankle-length robe, open-front outer garment, or wrapped coat, secured with a woven sash. Women should wear a long breathable dress with layered flowing fabric, fitted or gathered sleeves, and a light draped outer layer around the shoulders. Include simple geometric borders or restrained embroidery. The outfit should appear prosperous, breathable, practical, and well maintained. No headgear of any kind. No turbans, veils, hoods, armor, weapons, crowns, ceremonial robes, or fantasy elements.",
-  "status": "failed",
-  "descriptionSource": "portrait_prompt_fallback",
-  "retryEligible": true,
-  "error": "{\"error\":{\"message\":\"Model \\\"zai-org/glm-5.2\\\" does not support image inputs. Remove image content or choose a multimodal model.\",\"type\":\"invalid_request_error\",\"param\":\"messages\",\"code\":\"image_input_not_supported\"}}",
-  "updatedUtc": "2026-07-18T22:03:27.4166749Z"
+  "imageSha256": "A6BA391BB8135FB204970EDDB98F6653E66840436C11296A9EEB6303E4D69600",
+  "description": "Cream floor-length opaque court dress with low square neckline and elbow sleeves, substantial gold woven borders along bodice and skirt, broad ornate sash belt with round clasp, gold-brown patterned wrap around forearms with long hanging ends, patterned brown shoes.",
+  "status": "completed",
+  "descriptionSource": "agent_vision",
+  "retryEligible": false,
+  "error": "",
+  "updatedUtc": "2026-10-07T21:33:57.125Z"
 }

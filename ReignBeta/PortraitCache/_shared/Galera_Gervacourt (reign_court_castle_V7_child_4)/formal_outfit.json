@@ -3,11 +3,11 @@
   "heroStringId": "reign_court_castle_V7_child_4",
   "characterName": "Galera Gervacourt",
   "imagePath": "portrait.png",
-  "imageSha256": "EF8546C67C0052A1BA87408FD282F784356CE0D29E98C317F35EEEF294698020",
-  "description": "Culturally appropriate everyday Vlandian high-noble attire inspired by wealthy Norman and Frankish aristocratic dress. Use luxurious fine wool and linen, expertly tailored layers, richly cut outer tunics or gowns, refined belts, decorative borders, subtle heraldic embroidery, and elegant fastenings. Men should wear a long tailored tunic or refined surcoat-style outer layer over fine linen and well-fitted chausses. Women should wear a fitted noble gown layered over a high-quality underdress, with graceful sleeves, refined trim, and tasteful jewelry. The outfit should feel expensive and powerful while remaining believable everyday noble wear. No headgear of any kind. No armor, weapons, crowns, or ceremonial regalia.",
-  "status": "failed",
-  "descriptionSource": "portrait_prompt_fallback",
-  "retryEligible": true,
-  "error": "{\"error\":{\"message\":\"Model \\\"zai-org/glm-5.2\\\" does not support image inputs. Remove image content or choose a multimodal model.\",\"type\":\"invalid_request_error\",\"param\":\"messages\",\"code\":\"image_input_not_supported\"}}",
-  "updatedUtc": "2026-07-18T22:03:29.3962391Z"
+  "imageSha256": "4A94689280AA99BD9902167286FD4AB48E2271B44027E46AC72D66008D92CA9B",
+  "description": "Burgundy floor-length square-neck gown with gold embroidery, elbow sleeves and hanging sleeve drapes, patterned belt with round buckle, cream embroidered underskirt, small pendant and dark closed shoes.",
+  "status": "completed",
+  "descriptionSource": "agent_vision",
+  "retryEligible": false,
+  "error": "",
+  "updatedUtc": "2026-10-07T21:47:05.073Z"
 }

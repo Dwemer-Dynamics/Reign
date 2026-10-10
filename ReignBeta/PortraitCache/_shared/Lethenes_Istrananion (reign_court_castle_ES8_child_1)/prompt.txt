@@ -1,11 +1,18 @@
-IDENTITY AND SUBJECT
-Use the provided source image as the visual identity reference, not as a style reference.
-Create a portrait of Lethenes Istrananion, a man of Imperial culture who is 25 years old.
-Their clan is tier 6, placing them socially among the high noble class. Use this status to guide the refinement, expense, materials, and ornament of their clothing without turning it into fantasy costume.
-Use the source face image as the primary visual reference for the subject’s appearance and identity. Preserve the recognizable facial features, apparent age, expression, eye shape, eye color, hair color, hairstyle, skin tone, facial proportions, bone structure, scars, facial hair, and other distinguishing characteristics as closely as possible.
-The source image may depict a stylized or simplified video-game character model. Do not reproduce the artificial game-model appearance, low-detail geometry, rigid facial structure, plastic skin, exaggerated proportions, or computer-rendered texture. Instead, reinterpret the character as a believable real human being while retaining the same recognizable identity.
-Translate simplified game features into natural human anatomy and realistic detail, including authentic skin texture, visible pores, subtle wrinkles, natural facial asymmetry, realistic eyes, individually defined hair, believable facial hair, and physically plausible facial proportions. The final face should look like a real person photographed in real life, not a game model, digital avatar, illustration, or CGI render.
-Treat the name, age, gender, culture, clan tier, and social station as private generation guidance. They describe the subject and must never be printed, captioned, labeled, written, or otherwise rendered anywhere in the image.
+I want you to create a picture of a 25-year-old man who looks like the description below. Create one photographic full-body portrait. Clothing follows Imperial high noble fashion, with the craftsmanship and social station of clan tier 6. These values are generation guidance and must never be printed in the image.
+Use a vertical 3:4 portrait canvas. Generate from the written traits alone.
+
+FACIAL APPEARANCE AND HAIR
+Create Lethenes with the particular native facial proportions, stored age 25. His face is a long oval with an exposed broad forehead, relatively flat cheeks and a gently narrowing jaw ending in a blunt rounded chin. Eyes are muted green, medium almond shapes with relaxed upper lids. Brows are dark brown, moderately thick, largely straight with a gentle outer arch, heavier than the nearby Lethonion source's fine brows. The nose is fairly long, with a straight-to-slightly convex bridge and fleshy rounded tip. Nostril wings are moderately broad. Lips are medium width and muted tan-rose, with a restrained upper lip and fuller lower lip. Skin is warm light-to-medium beige with fine texture, modest under-eye shading and gentle nasolabial folds. Facial hair is a sparse dark moustache, a small separate dark tuft beneath the lower lip, and short patchy chin/lower-jaw stubble. Upper cheeks are mainly bare rather than densely bearded. No confidently distinct scar or tattoo appears; native crease shading should not become a dramatic marking.
+
+Hair is dark brown, short-to-ear length, with a low offset side part and strands swept BACK and diagonally from the front. The crown lies close to the scalp, leaving a high forehead visible. The frontal hairline has small uneven peaks and a shallow indentation rather than a long forward fringe. Sides lie close by the ears. Do not replace this low swept-back side-part style with a raised curly quiff or center-parted long waves. Preserve the darker substantial brows, muted green eyes, long rounded nose, nearly bare upper cheeks and patchy chin pattern. Those source distinctions should remain visible among similar young Imperial men; never create arbitrary scars or change eye color merely to make him different.
+
+FACIAL CULTURAL APPEARANCE — IMPERIAL
+Stored cultureId: empire.
+Regional reference: Eastern Mediterranean regional appearance, drawing on Greek, Anatolian and neighboring populations.
+Create a believable real human face with this regional appearance. Apply the regional reference positively to facial appearance, facial structure and complexion; it is not only a clothing, setting or background instruction.
+Blend the regional reference with the individual facial description. Where simplified native geometry or game-renderer shading differs from this regional appearance, use a plausible natural blend while retaining recognizable individual traits: face outline, relative proportions, eyes, brows, nose, mouth, jaw and chin. Preserve the described hair identity, arrangement and texture, facial-hair pattern, eye character, visible scars and markings; do not invent new distinguishing marks.
+These regional populations contain substantial individual variation. Do not give every member the same face, impose a universal skin, hair or eye color, or replace the written individual identity with a generic regional stereotype. Preserve source-grounded differences and natural human asymmetry.
+Keep the exact authored age and the independent native weight and build values. This layer applies to facial appearance and realistic complexion interpretation, not body size, muscularity, garment coverage or social rank. Every complete composition, clothing, confidence, photographic, output and physique modifier remains in effect. Do not print this reference or any metadata in the image.
 
 COMPOSITION AND FRAMING
 Create a full head-to-toe body portrait showing the entire figure from the top of the head down to the feet
@@ -25,3 +32,18 @@ OUTPUT EXCLUSIONS
 Return only the portrait image itself.
 Do not render words, letters, numbers, captions, labels, names, ages, cultures, subtitles, signatures, logos, watermarks, interface elements, portrait cards, decorative title blocks, borders, banners, blank caption areas, white strips, white footer panels, or metadata panels anywhere in the image.
 No extreme close-up, face-only crop, cropped head, cropped shoulders, armor, weapons, shields, quivers, chainmail, helmets, fur war gear, plastic skin, over-smoothed face, CGI, cartoon, anime, painterly style, or modern clothing.
+
+NATIVE BODY APPEARANCE — AUTHORITATIVE PHYSIQUE
+Native weight: 0.5 on a 0–1 scale: Medium body-fat level.
+Native build: 0.5 on a 0–1 scale: Moderate musculature.
+These are independent native appearance sliders, not kilograms, BMI, clinical classifications or body-fat percentages. Respect the exact position within each range, without abrupt changes at descriptive boundaries.
+Weight controls body-fat fullness. For women, build controls natural muscle tone, firmness, and athletic definition, not added muscle mass, bulky shoulders, thick arms, or masculine bodybuilder proportions. For men, build controls muscle mass. High weight does not imply muscle. High build does not imply extra fat or automatically visible abdominal definition; body fat and clothing can obscure definition.
+Match these native proportions even if another prompt or the supplied AI portrait conflicts. Preserve native age, sex, skeletal proportions, face and identity. Do not infer breast size, enlarge curves, beautify, slim or bulk up the person beyond these values.
+Garments must fit this physique. Revealingness and physical confidence change clothing coverage only, never body size. Covered muscles need not be exposed. During a clothing edit, correct conflicting AI physique to these native values while preserving the person's face and identity. Never print these instructions or values in the image.
+
+COMPOSITION CORRECTION FOR CANONICAL CROPS
+Leave clear stone architecture above the entire hairstyle. Place the very top of the hair at roughly 6% of total canvas height and the chin at roughly 18% of total canvas height. Keep the complete body and both feet inside the canvas with floor visible below the shoes. Do not enlarge the face or crop the hair. Preserve the written identity and all preceding appearance, clothing, light and style instructions.
+
+IDENTITY CORRECTION AFTER SOURCE AND RESULT REVIEW
+Preserve the source eye and hair anchors: irises are MUTED GREEN, with a green/grey-green iris surface visible in daylight and dark outer rims, not brown or amber. His dark brown hair lies LOW AND CLOSE TO SCALP, side-parted and combed backward diagonally from forehead; crown follows the head contour with very little height, no rolled front wave, quiff or tall curled crest. Keep exposed high forehead, long oval face, long softly rounded nose and mostly bare upper cheeks with sparse moustache/chin stubble. Retain every full original culture/physique/clothing/composition modifier.
+Preserve every preceding complete cultural, photographic, composition, clothing and physique layer. Change only the reviewed identity details; do not invent distinguishing features.

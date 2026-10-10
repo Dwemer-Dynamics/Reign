@@ -3,11 +3,11 @@
   "heroStringId": "reign_court_town_V5_father",
   "characterName": "Beruric Demerecourt",
   "imagePath": "portrait.png",
-  "imageSha256": "FCB69D176C7A1E51FB2AE0E2EBE34A3D3ED0AE91A1ECB2B44F78B3D7A176F805",
-  "description": "Culturally appropriate everyday Vlandian high-noble attire inspired by wealthy Norman and Frankish aristocratic dress. Use luxurious fine wool and linen, expertly tailored layers, richly cut outer tunics or gowns, refined belts, decorative borders, subtle heraldic embroidery, and elegant fastenings. Men should wear a long tailored tunic or refined surcoat-style outer layer over fine linen and well-fitted chausses. Women should wear a fitted noble gown layered over a high-quality underdress, with graceful sleeves, refined trim, and tasteful jewelry. The outfit should feel expensive and powerful while remaining believable everyday noble wear. No headgear of any kind. No armor, weapons, crowns, or ceremonial regalia.",
-  "status": "failed",
-  "descriptionSource": "portrait_prompt_fallback",
-  "retryEligible": true,
-  "error": "{\"error\":{\"message\":\"Model \\\"zai-org/glm-5.2\\\" does not support image inputs. Remove image content or choose a multimodal model.\",\"type\":\"invalid_request_error\",\"param\":\"messages\",\"code\":\"image_input_not_supported\"}}",
-  "updatedUtc": "2026-07-18T22:03:25.5953049Z"
+  "imageSha256": "1B8275B55421383F518C5A0264968A272A1EAD08E00DD122B9762C37FFCB21A6",
+  "description": "Opaque burgundy knee-to-calf-length tailored noble tunic with broad gold floral woven borders down the front, at the high split neckline, around the wide cuffs and hem. Cream linen underlayer shows at the neck and long wrist cuffs. A matching burgundy mantle hangs from the shoulders, fastened by two round ornate gold brooches joined with a short chain. A brown leather waist belt has a small buckle, metal ornaments and a long hanging decorated strap. Dark fitted trousers and tall brown leather boots complete the outfit. No crown, helmet, other headgear, armor or weapon is visible.",
+  "status": "completed",
+  "descriptionSource": "agent_vision",
+  "retryEligible": false,
+  "error": "",
+  "updatedUtc": "2026-10-07T20:49:22.060Z"
 }
