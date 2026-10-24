@@ -19,13 +19,26 @@ namespace ReignBeta.Actions
                 .FirstOrDefault(j => j.Agreement.Id == a.Id);
             if (AgreementRules.IsExactCompletedReplay(a, completed)) return;
             ReignActionService.BindGuestReviews(a);
+            ReignSpouseSeparationAction.Bind(a);
+            ReignBeta.Government.ReignGovernmentCampaignBehavior.Instance?.BindPetitionRevisions(a);
+            ReignBeta.Campaign.ReignNpcLivesBehavior.Instance?.BindMeetingArrival(a);
             for (int i = 0; i < a.Clauses.Count; i++)
             {
                 var c = a.Clauses[i]; var d = ReignActionCatalog.Find(c.ActionId)
                     ?? throw new InvalidOperationException("Unknown action: " + c.ActionId);
                 bool player = c.ActorId == a.PlayerId;
                 string subject = ReignActionLanguage.Subject(player, i);
-                if (c.ActionId == "start_ruling_clan_rebellion")
+                string political = ReignBeta.Government.ReignGovernmentCampaignBehavior.Instance?.GovernmentActionSentence(c, subject) ?? "";
+                if (political.Length > 0) c.DisplayText = political;
+                else if (c.ActionId.StartsWith("npc_life.", StringComparison.Ordinal))
+                    c.DisplayText = ReignBeta.Campaign.ReignNpcLivesBehavior.Instance.LifeActionSentence(a, c);
+                else if (c.ActionId == ReignSpouseSeparation.ActionId)
+                    c.DisplayText = subject + "write to " + ReignActionService.HeroById(ReignActionService.Arg(c, "spouseId"))?.Name
+                        + " that your marriage is over and end it";
+                else if (c.ActionId == "expose_concealed_pregnancy")
+                    c.DisplayText = ReignBeta.Campaign.ReignFamilyCampaignBehavior.Instance.PregnancyExposureSentence(
+                        ReignActionService.Arg(c, "pregnancyId"), ReignActionService.Arg(c, "disclosure") == "name_father");
+                else if (c.ActionId == "start_ruling_clan_rebellion")
                     c.DisplayText = "I declare rebellion against your rule of " + Label(d.Parameters.First(p => p.Key == "actorKingdomId"), c)
                         + ", as leader of " + Label(d.Parameters.First(p => p.Key == "actorClanId"), c);
                 else if (c.ActionId == "pledge_rebellion_support")

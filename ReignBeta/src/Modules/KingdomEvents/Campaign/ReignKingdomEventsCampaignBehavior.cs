@@ -95,8 +95,6 @@ namespace ReignBeta.Campaign
         // kingdom_event_test command and consumed before the selected daily tick executes.
         private int _testOrganicTriggerDay = -1;
         private string _testOrganicTriggerRunId = string.Empty;
-        private static readonly Queue<string> PendingAnnouncementEventIds =
-            new Queue<string>();
 
         public static ReignKingdomEventsCampaignBehavior Instance { get; private set; }
         public IReadOnlyList<ReignKingdomEventRecord> Events => _events;
@@ -105,7 +103,6 @@ namespace ReignBeta.Campaign
         public ReignKingdomEventsCampaignBehavior()
         {
             Instance = this;
-            PendingAnnouncementEventIds.Clear();
         }
 
         public override void RegisterEvents()
@@ -593,9 +590,7 @@ namespace ReignBeta.Campaign
                     ? record.Title + " ended after " + TimedEventDurationDays.ToString("0") + " days."
                     : record.Title + " ended because its kingdom no longer exists.";
                 RecordHistory(record, kingdom, null, kingdom?.Leader, null, "ended");
-                InformationManager.DisplayMessage(new InformationMessage(
-                    "[Bannerlord Reign] " + record.Outcome,
-                    Color.FromUint(0xFFFFD36A)));
+                ReignNewsCampaignBehavior.Instance?.KingdomEvent(record, kingdom, null, kingdom?.Leader, null, true);
             }
         }
 
@@ -646,58 +641,14 @@ namespace ReignBeta.Campaign
             Hero oldRuler,
             Hero heir)
         {
-            string body = record.IsTimed
-                ? KingdomName(kingdom) + " is now experiencing " + record.Title + ".\n\n"
-                    + record.Description + "\n\nThe effects last until campaign day "
-                    + record.EndDay.ToString("0") + "."
-                : record.Outcome;
-            if (secondary != null)
-            {
-                body += "\n\nOther kingdom: " + KingdomName(secondary) + ".";
-            }
-            if (heir != null)
-            {
-                body += "\n\nFormer ruler: " + (oldRuler?.Name?.ToString() ?? "Unknown")
-                    + "\nNew ruler: " + heir.Name + ".";
-            }
-            InformationManager.DisplayMessage(new InformationMessage(
-                "[Bannerlord Reign] " + record.Title + " — " + KingdomName(kingdom),
-                Color.FromUint(record.Polarity == "beneficial" ? 0xFF66FF99u : 0xFFFF7777u)));
-            string announcementEventId = record.EventId ?? string.Empty;
-            if (announcementEventId.Length > 0
-                && !PendingAnnouncementEventIds.Contains(announcementEventId))
-            {
-                PendingAnnouncementEventIds.Enqueue(announcementEventId);
-            }
-            InformationManager.ShowInquiry(new InquiryData(
-                record.Title + " — " + KingdomName(kingdom), body,
-                true, false, "Acknowledge", string.Empty,
-                () => ClearActiveAnnouncement(record.EventId), null), true);
+            ReignNewsCampaignBehavior.Instance?.KingdomEvent(record, kingdom, secondary, oldRuler, heir);
         }
 
         internal static bool TryAcknowledgeAnnouncementForLiveHarness(out string eventId)
         {
-            eventId = PendingAnnouncementEventIds.Count > 0
-                ? PendingAnnouncementEventIds.Peek()
-                : string.Empty;
-            if (eventId.Length == 0 || !InformationManager.IsAnyInquiryActive())
-                return false;
-            InformationManager.HideInquiry();
-            PendingAnnouncementEventIds.Dequeue();
-            return true;
-        }
-
-        private static void ClearActiveAnnouncement(string eventId)
-        {
-            if (string.IsNullOrWhiteSpace(eventId)
-                || PendingAnnouncementEventIds.Count == 0)
-                return;
-            Queue<string> retained = new Queue<string>(
-                PendingAnnouncementEventIds.Where(candidate =>
-                    !string.Equals(candidate, eventId, StringComparison.Ordinal)));
-            PendingAnnouncementEventIds.Clear();
-            while (retained.Count > 0)
-                PendingAnnouncementEventIds.Enqueue(retained.Dequeue());
+            // The shared announcement manager now owns this presentation and its guarded harness acknowledgment.
+            eventId = string.Empty;
+            return false;
         }
 
         private void PruneHistory()

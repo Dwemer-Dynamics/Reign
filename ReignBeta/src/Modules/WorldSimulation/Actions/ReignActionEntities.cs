@@ -35,6 +35,7 @@ namespace ReignBeta.Actions
         public static IReadOnlyList<ReignActionOption> Find(string kind, string ownerId, string query = "", string category = "", ActionClause clause = null)
         {
             var rows = new List<ReignActionOption>();
+            if (kind == "pregnancy") return ReignFamilyCampaignBehavior.Instance?.PregnancyExposureOptions(clause?.RecipientId ?? "") ?? rows;
             Hero owner = Hero.AllAliveHeroes.FirstOrDefault(h => h.StringId == ownerId);
             MobileParty party = owner?.PartyBelongedTo;
             string governmentId = ReignGovernmentCampaignBehavior.Instance?.Seats.FirstOrDefault(x => x.HeroStringId == ownerId)?.KingdomStringId
@@ -43,6 +44,12 @@ namespace ReignBeta.Actions
                 => rows.Add(new ReignActionOption { Id = id, Label = label, Available = available, Reason = reason, Quantity = quantity });
             switch (kind)
             {
+                case "npcMeetingPlace":
+                    rows.AddRange(ReignNpcLivesBehavior.Instance?.MeetingPlaceOptions(clause) ?? Array.Empty<ReignActionOption>());
+                    break;
+                case "npcMeeting":
+                    rows.AddRange(ReignNpcLivesBehavior.Instance?.MeetingOptions(ownerId) ?? Array.Empty<ReignActionOption>());
+                    break;
 #if !REIGN_EXCLUDE_COURT
                 case "spySocialItem":
                     if (clause != null && ReignCourtCampaignBehavior.Instance != null)
@@ -164,14 +171,47 @@ namespace ReignBeta.Actions
                         foreach (var p in ReignGovernmentCampaignBehavior.Instance.Parties.Where(p => p.KingdomStringId == governmentId))
                             Add(p.PartyId, p.Name);
                     break;
+                case "governmentPetition":
+                    var government = ReignGovernmentCampaignBehavior.Instance;
+                    if (government != null)
+                    foreach (var petition in government.Participation.Petitions.Where(x => x.AuthorId == clause?.RecipientId || GovernmentParticipationRules.CanRead(x, ownerId)))
+                    {
+                        string operation = ReignGovernmentCampaignBehavior.PetitionOperation(clause?.ActionId ?? "");
+                        bool allowed = government.CheckPetitionAction(operation, petition.Id, petition.Revision, owner,
+                            ReignActionService.HeroById(clause?.RecipientId), out string reason);
+                        rows.Add(new ReignActionOption { Id = petition.Id, Label = petition.Title, Available = allowed, Reason = allowed ? petition.Terms : reason,
+                            Arguments = new Dictionary<string, string> { ["petitionRevision"] = petition.Revision.ToString() } });
+                    }
+                    break;
+                case "governmentNomination":
+                    var nominationGovernment = ReignGovernmentCampaignBehavior.Instance;
+                    if (nominationGovernment != null)
+                    foreach (var caucus in nominationGovernment.Participation.Caucuses.Where(c => !c.Closed && c.Roll.Contains(ownerId)))
+                    foreach (var petition in nominationGovernment.Participation.Petitions.Where(p => caucus.Nominations.Contains(p.Id)
+                        && GovernmentParticipationRules.CanRead(p, ownerId)))
+                    {
+                        string caucusId = GovernmentParticipationRules.CaucusId(caucus);
+                        bool allowed = nominationGovernment.CheckNominationSupport(ownerId, petition.Id, petition.Revision, caucusId, out string reason);
+                        rows.Add(new ReignActionOption { Id = petition.Id, Label = petition.Title + " — "
+                            + nominationGovernment.GetParties(caucus.KingdomId).FirstOrDefault(p => p.PartyId == caucus.PartyId)?.Name
+                            + " · " + ReignGovernmentCampaignBehavior.CaucusSessionLabel(caucus), Available = allowed,
+                            Reason = allowed ? "Your own nomination vote; a majority and a later chamber vote remain separate." : reason,
+                            Arguments = new Dictionary<string, string> { ["petitionRevision"] = petition.Revision.ToString(), ["caucusId"] = caucusId } });
+                    }
+                    break;
+                case "governmentPartyMember":
+                    var ownSeat = ReignGovernmentCampaignBehavior.Instance?.Seats.FirstOrDefault(x => x.HeroStringId == ownerId);
+                    if (ownSeat != null) foreach (var member in ReignGovernmentCampaignBehavior.Instance.GetSeats(ownSeat.KingdomStringId).Where(x => x.PartyId == ownSeat.PartyId))
+                        Add(member.HeroStringId, ReignActionService.HeroById(member.HeroStringId)?.Name?.ToString() ?? "Unavailable member");
+                    break;
                 case "governmentBusiness":
                     if (ReignGovernmentCampaignBehavior.Instance != null)
                         foreach (var b in ReignGovernmentCampaignBehavior.Instance.AgreementBusinesses.Where(b => b.KingdomStringId == governmentId))
                         {
                             bool active = !GovernmentBusinessRules.IsClosed(b.Status);
                             bool memberVote = clause?.ActionId == "government.support_vote";
-                            bool available = active && (!memberVote || b.Status == "hearing" || b.Status == "recess" || b.Status == "postponed");
-                            Add(b.BusinessId, b.Title, available, available ? "" : "This business is not awaiting the requested decision.");
+                            bool available = active && (!memberVote || ReignGovernmentCampaignBehavior.Instance.GetParticipationAccess(b.KingdomStringId, owner, b.BusinessId).Ballot);
+                            Add(b.BusinessId, ReignGovernmentCampaignBehavior.Instance.DocketLabel(b.BusinessId) + " — " + b.Title, available, available ? "" : "This business is not awaiting this member's vote.");
                         }
                     break;
                 case "governmentResolution":

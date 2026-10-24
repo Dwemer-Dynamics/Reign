@@ -43,6 +43,8 @@ const errors = [];
 const warnings = [];
 const interfaceReports = [];
 const intentionalEmptyScopes = new Map([
+  ["ReignGovernmentScreen.xml:DecisionObligations", "The default selected policy has no delivery obligation. The relief archive variant owns matching work; the separately populated kingdom ledger also retains unrelated work. The empty-state label is rendered only for an empty selected record."],
+  ["ReignDiplomacyAnnouncementScreen.xml:NewsKingdoms", "Ordinary Town Crier notices do not contain government sections. The four government-news variants exercise populated, filtered, long and empty edition states."],
   ["ReignCourtScreen.xml:DailyAgenda", "The current Court view has no player-facing daily docket items; the empty list is the production empty state."],
   ["ReignSpymasterScreen.xml:SocialItems", "The default Spymaster social archive is intentionally empty until an operation produces social intelligence."],
   ["ReignSpymasterScreen.xml:Reports", "The default Spymaster report archive is intentionally empty until an operation produces a report."]

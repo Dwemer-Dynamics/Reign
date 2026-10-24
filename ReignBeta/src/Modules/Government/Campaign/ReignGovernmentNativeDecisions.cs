@@ -53,7 +53,7 @@ namespace ReignBeta.Government
             string adapterError = string.Empty;
             try
             {
-                candidates = decision.DetermineInitialCandidates().ToList();
+                candidates = GovernmentNativeCandidates(decision).ToList();
                 options = new JArray(candidates.Select((x, i) => NativeOption(x, i)));
                 if (options.Count == 0 || options.OfType<JObject>().Select(x => x.Value<string>("id")).Distinct().Count() != options.Count)
                     throw new InvalidOperationException("The adapter did not produce unique valid choices.");
@@ -64,7 +64,8 @@ namespace ReignBeta.Government
             var record = new ReignGovernmentBusinessRecord
             {
                 KingdomStringId = decision.Kingdom.StringId, Kind = kind,
-                Title = decision.GetGeneralTitle()?.ToString() ?? kind, Summary = decision.GetChooseDescription()?.ToString() ?? string.Empty,
+                Title = decision.GetGeneralTitle()?.ToString() ?? kind,
+                Summary = GovernmentBusinessRules.PublicMatterSummary(kind, decision.GetChooseDescription()?.ToString()),
                 NativeDecisionType = decision.GetType().Name, NativeFingerprint = fingerprint, TargetId = target,
                 NativeCaptureVersion = ReignGovernmentNativeSafety.CaptureVersion, NativeCaptureSource = captureSource,
                 NativeCapturedOwnerClanId = NativeSettlementOwnerClanId(decision),
@@ -161,6 +162,8 @@ namespace ReignBeta.Government
         private void OnGovernmentSettlementOwnerChanged(Settlement settlement, bool openToClaim, Hero newOwner,
             Hero oldOwner, Hero capturer, ChangeOwnerOfSettlementAction.ChangeOwnerOfSettlementDetail detail)
         {
+            foreach (var kingdom in new[] { newOwner?.Clan?.Kingdom, oldOwner?.Clan?.Kingdom }.Where(x => x != null).Distinct())
+            { var state = GetGovernment(kingdom); if (state != null) ReconcileMembership(kingdom, state, false); }
             if (_executingGovernmentBusiness != null && Same(_executingGovernmentBusiness.TargetId, settlement?.StringId))
                 _executingGovernmentBusiness.NativeOwnerChangeEventCount++;
             foreach (var record in _business.Where(x => !GovernmentBusinessRules.IsClosed(x.Status)
@@ -173,6 +176,8 @@ namespace ReignBeta.Government
         private bool ValidateNativeBusiness(ReignGovernmentBusinessRecord record, out string result)
         {
             result = string.Empty;
+            if (record.Kind == "admission" || record.Kind == "recall") return ValidateMandateBusiness(record, out result);
+            if (record.Kind == "edict") return ValidateEdictBusiness(record, out result);
             if (record.Kind == "seasonal") return ValidateSeasonalBusiness(record, out result);
             if (record.Kind == "world_action") return ValidateWorldBusiness(record, out result);
             KingdomDecision decision = NativeBusinessDecision(record);
@@ -212,12 +217,14 @@ namespace ReignBeta.Government
                 record.DecisionRulerHeroStringId = FindKingdom(record.KingdomStringId)?.Leader?.StringId ?? string.Empty;
                 record.AuthorityLevelAtDecision = GetGovernment(record.KingdomStringId)?.Level ?? 1;
             }
+            if (record.Kind == "admission" || record.Kind == "recall") return ExecuteMandateBusiness(record, optionId, out result);
+            if (record.Kind == "edict") return ExecuteEdictBusiness(record, optionId, overridden, out result);
             if (record.Kind == "seasonal") return ExecuteSeasonalBusiness(record, optionId, overridden, out result);
             if (record.Kind == "world_action") return ExecuteWorldBusiness(record, optionId, overridden, out result);
             KingdomDecision decision = NativeBusinessDecision(record);
             if (optionId == "accept" && string.IsNullOrEmpty(record.CounterpartOfBusinessId)
                 && TryCreateCounterpartHearing(record, overridden, out result)) return true;
-            var candidate = decision.DetermineInitialCandidates().Select((x, i) => new { Outcome = x, Option = NativeOption(x, i) })
+            var candidate = GovernmentNativeCandidates(decision).Select((x, i) => new { Outcome = x, Option = NativeOption(x, i) })
                 .FirstOrDefault(x => Same(x.Option.Value<string>("id"), optionId));
             if (candidate == null)
             { CloseInvalidBusiness(record, result = "The selected candidate is no longer eligible; a new proposal is required."); return false; }
@@ -233,7 +240,7 @@ namespace ReignBeta.Government
                 {
                     var appliedPeace = new MakePeaceKingdomDecision(acceptedPeace.ProposerClan, acceptedPeace.FactionToMakePeaceWith,
                         acceptedPeace.DailyTributeToBePaid, acceptedPeace.DailyTributeDurationInDays, true, true);
-                    ApplyAuthorizedNativeOutcome(record, appliedPeace, appliedPeace.DetermineInitialCandidates().First(NativeOutcomeEnforced));
+                    ApplyAuthorizedNativeOutcome(record, appliedPeace, GovernmentNativeCandidates(appliedPeace).First(NativeOutcomeEnforced));
                 }
                 else ApplyAuthorizedNativeOutcome(record, decision, candidate.Outcome);
                 VerifyNativeBusinessEffect(record, decision, optionId);
@@ -261,9 +268,12 @@ namespace ReignBeta.Government
             record.ExecutionApplied = true; record.ExecutedOptionId = optionId; record.RulerOverrode = overridden;
             ApplyBusinessConsequences(record);
             record.Status = "decided"; record.ResolvedDay = CurrentDay();
+            RecordPoliticalWorldEffect(record, optionId);
+            CompleteParticipationPetition(record);
             string label = BusinessOptions(record).FirstOrDefault(x => Same(x.Value<string>("id"), optionId))?.Value<string>("label") ?? optionId;
             record.Outcome = (record.AuthorityLevelAtDecision == 5 ? "The binding government decision: " : "The recorded decision: ") + label + ".";
             CompleteCounterpartRefusal(record);
+            if (!record.DecisionNewsRecorded) { RecordGovernmentDecisionNews(record); record.DecisionNewsRecorded = true; }
             NotifyGovernmentBusinessClosed(record); ChangedBusiness(record);
         }
 
@@ -275,44 +285,29 @@ namespace ReignBeta.Government
             Hero responsibleRuler = FindHero(record.DecisionRulerHeroStringId);
             // Legacy pending saves lack attribution; never invent a predecessor's responsibility.
             if (authority == 0 || responsibleRuler == null) { record.ConsequencesApplied = true; return; }
-            bool granted = record.Kind == "seasonal"
-                ? BusinessOptions(record).FirstOrDefault(x => Same(x.Value<string>("id"), record.ExecutedOptionId))?.Value<bool>("affirmative") == true
-                : Same(record.ExecutedOptionId, record.RequestedOptionId);
-            bool rulerRecommendedRequest = record.Kind == "seasonal"
-                ? BusinessOptions(record).FirstOrDefault(x => Same(x.Value<string>("id"), record.RecommendedOptionId))?.Value<bool>("affirmative") == true
-                : Same(record.RecommendedOptionId, record.RequestedOptionId);
             var participants = JArray.Parse(record.ParticipantsJson ?? "[]").OfType<JObject>().ToList();
+            var ballots = JArray.Parse(record.VotesJson ?? "[]").OfType<JObject>().Where(x => x.Value<string>("memberHeroId") != "crown").ToList();
             var receipts = JArray.Parse(record.ConsequenceReceiptsJson ?? "[]");
             var ids = participants.Select(x => x.Value<string>("heroId")).Concat(new[] { record.PetitionerHeroStringId, record.SponsorHeroStringId })
-                .Where(x => !string.IsNullOrEmpty(x)).Distinct(StringComparer.OrdinalIgnoreCase).ToList();
+                .Concat(ballots.Select(x => x.Value<string>("memberHeroId"))).Where(x => !string.IsNullOrEmpty(x)).Distinct(StringComparer.OrdinalIgnoreCase).ToList();
             foreach (string id in ids)
             {
                 if (receipts.Values<string>().Contains(id, StringComparer.OrdinalIgnoreCase)) continue;
                 var roles = participants.Where(x => Same(x.Value<string>("heroId"), id)).ToList();
-                bool claimant = !Same(id, record.PetitionerHeroStringId) && !Same(id, record.SponsorHeroStringId)
-                    && roles.Any(x => !string.IsNullOrEmpty(x.Value<string>("optionId")));
-                int delta = GovernmentBusinessRules.ParticipantRelationDelta(claimant ? roles.Any(x => Same(x.Value<string>("optionId"), record.ExecutedOptionId)) : granted,
-                    claimant ? roles.Any(x => Same(x.Value<string>("optionId"), record.RecommendedOptionId)) : rulerRecommendedRequest,
-                    authority == 5, Same(id, record.PetitionerHeroStringId), Same(id, record.SponsorHeroStringId), claimant,
-                    roles.Any(x => x.Value<string>("role") == "target"));
+                bool advocate = Same(id, record.PetitionerHeroStringId) || Same(id, record.SponsorHeroStringId);
+                string preferred = advocate ? record.RequestedOptionId : roles.FirstOrDefault(x => !string.IsNullOrEmpty(x.Value<string>("optionId")))?.Value<string>("optionId")
+                    ?? ballots.FirstOrDefault(x => Same(x.Value<string>("memberHeroId"), id))?.Value<string>("optionId");
+                if (roles.Any(x => x.Value<string>("role") == "target")) preferred = record.StatusQuoOptionId;
+                else if (string.IsNullOrEmpty(preferred) && roles.Any(x => x.Value<string>("role") == "beneficiary"))
+                    preferred = record.RequestedOptionId;
+                bool lost = !Same(preferred, record.ExecutedOptionId);
+                bool crownSpoke = record.CrownVoteStatus == "recorded" && !string.IsNullOrEmpty(record.CrownOptionId);
+                bool opposed = crownSpoke && !Same(preferred, record.CrownOptionId);
+                int delta = string.IsNullOrEmpty(preferred) ? 0 : opposed
+                    ? GovernmentSessionRules.OppositionRelationDelta(authority, true, lost)
+                    : crownSpoke && !lost ? advocate ? 4 : 2 : 0;
                 ApplyRelation(responsibleRuler, FindHero(id), delta);
-                receipts.Add(id);
-                record.ConsequenceReceiptsJson = receipts.ToString(Formatting.None);
-            }
-            if (record.RulerOverrode && authority > 1)
-            {
-                int loss = authority >= 4 ? 5 : authority == 3 ? 2 : 1;
-                foreach (var ballot in JArray.Parse(record.VotesJson).OfType<JObject>().Where(x => !Same(x.Value<string>("optionId"), record.ExecutedOptionId)))
-                {
-                    string memberId = ballot.Value<string>("memberHeroId");
-                    if (!ids.Contains(memberId, StringComparer.OrdinalIgnoreCase) && !receipts.Values<string>().Contains(memberId, StringComparer.OrdinalIgnoreCase))
-                    {
-                        ApplyRelation(responsibleRuler, FindHero(memberId), -loss);
-                        receipts.Add(memberId); record.ConsequenceReceiptsJson = receipts.ToString(Formatting.None);
-                    }
-                }
-                if (authority >= 3 && !record.OverrideSettlementConsequenceApplied)
-                { ApplySettlementChange(kingdom, authority == 4 ? -3 : -1, 0, 0); record.OverrideSettlementConsequenceApplied = true; }
+                receipts.Add(id); record.ConsequenceReceiptsJson = receipts.ToString(Formatting.None);
             }
             record.ConsequencesApplied = true;
         }
@@ -421,10 +416,26 @@ namespace ReignBeta.Government
             }
             return identity.ToString(Formatting.None);
         }
+        private static IEnumerable<DecisionOutcome> GovernmentNativeCandidates(KingdomDecision decision)
+        {
+            var candidates = decision.DetermineInitialCandidates().ToList();
+            if (decision is SettlementClaimantDecision allocation)
+            {
+                Clan ruler = decision.Kingdom.RulingClan;
+                if (ruler != null && ruler != allocation.ClanToExclude && ruler.Kingdom == decision.Kingdom && !ruler.IsEliminated
+                    && !ruler.IsUnderMercenaryService && ruler.Leader?.IsAlive == true
+                    && !candidates.OfType<SettlementClaimantDecision.ClanAsDecisionOutcome>().Any(x => x.Clan == ruler))
+                    candidates.Add(new SettlementClaimantDecision.ClanAsDecisionOutcome(ruler));
+                candidates = candidates.OfType<SettlementClaimantDecision.ClanAsDecisionOutcome>().GroupBy(x => x.Clan.StringId)
+                    .Select(x => (DecisionOutcome)x.First()).ToList();
+            }
+            return candidates;
+        }
+
         private static float NativeClanPreference(KingdomDecision decision, Clan clan, JObject option)
         {
             if (decision == null || clan == null) return option.Value<bool>("affirmative") ? 1f : 0f;
-            var candidate = decision.DetermineInitialCandidates().Select((x, i) => new { Outcome = x, Id = NativeOption(x, i).Value<string>("id") })
+            var candidate = GovernmentNativeCandidates(decision).Select((x, i) => new { Outcome = x, Id = NativeOption(x, i).Value<string>("id") })
                 .FirstOrDefault(x => Same(x.Id, option.Value<string>("id")));
             return candidate == null ? float.MinValue : decision.DetermineSupport(clan, candidate.Outcome);
         }
@@ -478,7 +489,9 @@ namespace ReignBeta.Government
     // Village issue predicates assume headmen and rural notables have a bound village.
     // Visiting the capital for government business does not make that notable a
     // town quest giver. Defer new issue discovery until village context returns;
-    // existing issue updates, ordinary village issues and urban notables stay native.
+    // existing issue updates and ordinary village issues stay native. Gang-leader
+    // predicates also dereference town data before checking settlement context.
+    // Defer their new issue discovery while travelling or visiting a non-town.
     [HarmonyPatch]
     internal static class ReignGovernmentRuralIssueContextPatch
     {
@@ -492,7 +505,8 @@ namespace ReignBeta.Government
             Settlement settlement = __0?.CurrentSettlement;
             return ReignGovernmentNativeSafety.AllowNativeIssueDiscovery(
                 __0?.IsHeadman == true, __0?.IsRuralNotable == true,
-                settlement != null, settlement?.Village?.Bound?.Town != null);
+                settlement != null, settlement?.Village?.Bound?.Town != null,
+                __0?.IsGangLeader == true, settlement?.IsTown == true && settlement.Town != null);
         }
     }
 

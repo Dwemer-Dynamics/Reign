@@ -15,6 +15,21 @@ const thumbnailPatch = fs.readFileSync(path.join(moduleRoot,
 const portraitWidget = fs.readFileSync(path.join(moduleRoot,
   "src/Modules/Portraits/UI/Widgets/ReignPortraitWidget.cs"), "utf8");
 
+// Native ScrollbarWidget follows Handle.IsPressed in OnLateUpdate. A track can
+// receive mouse down/up while a decorative, non-interactive handle never drags.
+const scrollbarDeclarations = [...governmentXml.matchAll(/<ScrollbarWidget\b([^>]*)>([\s\S]*?)<\/ScrollbarWidget>/g)];
+assert.ok(scrollbarDeclarations.length > 0, "Government must expose its declared scroll controls");
+for (const [, attributes, body] of scrollbarDeclarations) {
+  const handleId = attributes.match(/\bHandle="([^"]+)"/)?.[1];
+  assert.ok(handleId, "each scrollbar needs a native pressed handle");
+  const handle = [...body.matchAll(/<\w+\b[^>]*>/g)]
+    .map((match) => match[0])
+    .find((tag) => tag.includes(`Id="${handleId}"`));
+  assert.ok(handle, `${handleId}: the referenced handle must exist within its scrollbar`);
+  assert.doesNotMatch(handle, /\bDoNotAcceptEvents="true"|\bIsEnabled="false"/,
+    `${handleId}: native dragging requires the handle to receive its own press`);
+}
+
 assert.match(governmentXml,
   /<ReignGovernmentMemberScrollPanel[^>]*Type="ReignBeta\.UI\.ReignGovernmentMemberScrollPanel"[^>]*ItemCount="@MemberCount"[^>]*>/,
   "government members must use the card-boundary snap panel with a live item count");
@@ -22,8 +37,8 @@ assert.match(governmentVm, /\[DataSourceProperty\]\s+public int MemberCount => M
   "government must expose its current member count");
 assert.match(governmentVm, /OnPropertyChanged\(nameof\(MemberCount\)\)/,
   "government refreshes must notify the snap panel");
-assert.match(governmentWidget, /private const int VisibleMemberRows = 2;/,
-  "the 141-pixel viewport must treat both complete 65-pixel member rows and their gap as visible");
+assert.match(governmentWidget, /public int VisibleRows/,
+  "the snap panel must accept the complete row count declared by each view");
 assert.match(governmentWidget, /maximum \/ ScrollableRowCount/,
   "member positions must divide the complete scrollbar range evenly");
 assert.match(governmentWidget, /int nextIndex = ClampRowIndex\(_currentRowIndex \+ direction\)/,

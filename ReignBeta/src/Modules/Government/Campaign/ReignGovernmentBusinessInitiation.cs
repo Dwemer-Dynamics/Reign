@@ -32,16 +32,19 @@ namespace ReignBeta.Government
                     ["available"] = decision.IsAllowed() && !_business.Any(x => Same(x.KingdomStringId, kingdomId) && x.Kind == "expulsion"
                         && Same(x.TargetId, clan.StringId) && !GovernmentBusinessRules.IsClosed(x.Status)) });
             }
+            foreach (var edict in GetEdictProposalChoices(kingdomId)) choices.Add(edict);
             return choices;
         }
 
         public bool CreateGovernmentBusiness(string kingdomId, string proposalId, Hero actor, out string businessId, out string result)
         {
+            if (proposalId?.StartsWith("edict:", StringComparison.Ordinal) == true || proposalId?.StartsWith("edict_repeal:", StringComparison.Ordinal) == true)
+                return CreateEdictBusiness(kingdomId, proposalId, actor, out businessId, out result);
             if (proposalId?.StartsWith("policy:", StringComparison.Ordinal) == true)
                 return CreatePolicyBusiness(kingdomId, proposalId.Substring(7), actor, out businessId, out result);
             businessId = string.Empty;
             var kingdom = FindKingdom(kingdomId);
-            if (actor == null || actor != kingdom?.Leader || EnsureGovernment(kingdom) == null)
+            if (!CanFileGovernmentPetition(kingdomId, actor) || IsCharterPending(kingdomId) || EnsureGovernment(kingdom) == null)
             { result = "Only this realm's ruler may introduce this government recommendation."; return false; }
             var choice = GetGovernmentProposalChoices(kingdomId).OfType<JObject>().FirstOrDefault(x => x.Value<string>("proposalId") == proposalId);
             if (choice?.Value<bool>("available") != true) { result = "That proposal is no longer available."; return false; }
@@ -54,7 +57,9 @@ namespace ReignBeta.Government
             if (!TryCaptureNativeDecision(decision)) { result = "The government could not register the proposal."; return false; }
             var record = _business.First(x => NativeBusinessDecision(x) == decision);
             businessId = record.BusinessId;
-            return RecommendBusiness(businessId, "accept", actor, out result);
+            record.IntroductionPartyId = "crown";
+            result = "The motion is queued for presentation; declare the Crown position when attending its hearing.";
+            return true;
         }
 
         public JArray GetPolicyBusinessChoices(string kingdomId)
@@ -65,17 +70,29 @@ namespace ReignBeta.Government
             return new JArray(PolicyObject.All.OrderBy(x => x.Name.ToString(), StringComparer.CurrentCulture).Select(policy =>
                 new JObject { ["policyId"] = policy.StringId,
                     ["label"] = (kingdom.HasPolicy(policy) ? "Repeal " : "Enact ") + policy.Name,
-                    ["description"] = policy.Description + "\n" + policy.SecondaryEffects,
+                    ["description"] = PolicyGovernmentDescription(policy),
+                    ["payload"] = new JObject { ["kingdomId"] = kingdomId, ["policyId"] = policy.StringId, ["isRepeal"] = kingdom.HasPolicy(policy) },
                     ["isRepeal"] = kingdom.HasPolicy(policy),
                     ["available"] = !_business.Any(x => x.Kind == "policy" && Same(x.KingdomStringId, kingdomId)
                         && Same(x.TargetId, policy.StringId) && !GovernmentBusinessRules.IsClosed(x.Status)) }));
+        }
+
+        public static string PolicyGovernmentDescription(PolicyObject policy)
+        {
+            if (policy == null) return string.Empty;
+            string text = policy.Description + "\n" + policy.SecondaryEffects;
+            if (policy == DefaultPolicies.RoyalPrivilege)
+                text += "\nReign: this native influence discount has no effect on the government voting process and grants no override or veto.";
+            if (policy == DefaultPolicies.PrecarialLandTenure)
+                text += "\nReign: this native annexation-proposal influence discount has no effect on the government voting process and grants no additional power to reassign fiefs.";
+            return text;
         }
 
         public bool CreatePolicyBusiness(string kingdomId, string policyId, Hero actor, out string businessId, out string result)
         {
             businessId = string.Empty;
             Kingdom kingdom = FindKingdom(kingdomId);
-            if (actor == null || actor != kingdom?.Leader || EnsureGovernment(kingdom) == null)
+            if (!CanFileGovernmentPetition(kingdomId, actor) || IsCharterPending(kingdomId) || EnsureGovernment(kingdom) == null)
             { result = "Only this realm's ruler may introduce a government policy recommendation."; return false; }
             PolicyObject policy = PolicyObject.All.FirstOrDefault(x => Same(x.StringId, policyId));
             if (policy == null) { result = "That policy is no longer available."; return false; }
@@ -87,7 +104,9 @@ namespace ReignBeta.Government
             if (!TryCaptureNativeDecision(decision)) { result = "The government could not register this policy hearing."; return false; }
             var record = _business.First(x => NativeBusinessDecision(x) == decision);
             businessId = record.BusinessId;
-            return RecommendBusiness(businessId, "accept", actor, out result);
+            record.IntroductionPartyId = "crown";
+            result = "The motion is queued for presentation; declare the Crown position when attending its hearing.";
+            return true;
         }
     }
 }

@@ -51,6 +51,7 @@ namespace ReignBeta.Court
         private string _serverStatus = "Court server has not connected.";
         private int _advanceToDocketDay = -1;
         private string _economicReportStateJson = string.Empty;
+        private List<string> _economicReportStateChunks = new List<string>();
         private ReignEconomicReportState _economicReportState = new ReignEconomicReportState();
         private string _spymasterStateJson = string.Empty;
         private List<string> _spymasterStateChunks = new List<string>();
@@ -122,8 +123,9 @@ namespace ReignBeta.Court
                     if (session == null || string.IsNullOrWhiteSpace(session.TranscriptJson)) continue;
                     session.WriteTranscriptJson(session.TranscriptJson);
                 }
-                _economicReportStateJson = JsonConvert.SerializeObject(
-                    _economicReportState ?? new ReignEconomicReportState(), Formatting.None);
+                _economicReportStateJson = string.Empty;
+                _economicReportStateChunks = ReignSavePayloadCodec.Encode(JsonConvert.SerializeObject(
+                    _economicReportState ?? new ReignEconomicReportState(), Formatting.None));
                 _spymasterStateJson = string.Empty;
                 _spymasterStateChunks = ReignSavePayloadCodec.Encode(JsonConvert.SerializeObject(
                     EnsureSpymasterState(), Formatting.None));
@@ -152,6 +154,7 @@ namespace ReignBeta.Court
             dataStore.SyncData("_reignCourt_lastServerTickDay", ref _lastServerTickDay);
             dataStore.SyncData("_reignCourt_advanceToDocketDay", ref _advanceToDocketDay);
             dataStore.SyncData("_reignCourt_economicReportState", ref _economicReportStateJson);
+            dataStore.SyncData("_reignCourt_economicReportStateChunks_v2", ref _economicReportStateChunks);
             dataStore.SyncData("_reignCourt_spymasterState", ref _spymasterStateJson);
             dataStore.SyncData("_reignCourt_spymasterStateChunks_v2", ref _spymasterStateChunks);
             dataStore.SyncData("_reignCourt_rulerDocketState", ref _rulerDocketStateJson);
@@ -164,15 +167,21 @@ namespace ReignBeta.Court
                 _castleBathHistory = _castleBathHistory ?? new List<CastleBathHistoryRecord>();
                 try
                 {
-                    _economicReportState = string.IsNullOrWhiteSpace(_economicReportStateJson)
+                    string economicReportJson = _economicReportStateJson;
+                    if (_economicReportStateChunks != null && _economicReportStateChunks.Count > 0)
+                        economicReportJson = ReignSavePayloadCodec.Decode(_economicReportStateChunks);
+                    else if (economicReportJson?.StartsWith("reign-gzip-v1:", StringComparison.Ordinal) == true)
+                        economicReportJson = ReignSavePayloadCodec.DecodeLegacyArchiveEntry(economicReportJson);
+                    _economicReportState = string.IsNullOrWhiteSpace(economicReportJson)
                         ? new ReignEconomicReportState()
-                        : JsonConvert.DeserializeObject<ReignEconomicReportState>(_economicReportStateJson)
-                          ?? new ReignEconomicReportState();
+                        : JsonConvert.DeserializeObject<ReignEconomicReportState>(economicReportJson)
+                          ?? throw new InvalidOperationException("Economic report save payload is null.");
                 }
                 catch (Exception ex)
                 {
                     ReignLog.Warn("Economic report save state could not be restored: " + ex.Message);
-                    _economicReportState = new ReignEconomicReportState();
+                    // Pending and delivered shipment records must not disappear on load.
+                    throw new InvalidOperationException("Economic report save state could not be restored safely.", ex);
                 }
                 try
                 {

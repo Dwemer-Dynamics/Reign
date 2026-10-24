@@ -20,6 +20,7 @@ namespace ReignBeta.Government
         public string HostSettlementStringId { get; set; } = "";
         public string OriginalSettlementStringId { get; set; } = "";
         public string HomeSettlementStringId { get; set; } = "";
+        public string ConstituencySettlementStringId { get; set; } = "";
         public string RulerHeroStringId { get; set; } = "";
         public bool Moved { get; set; }
         public bool Released { get; set; }
@@ -33,6 +34,34 @@ namespace ReignBeta.Government
         public long GovernmentAttendanceRevision { get; private set; }
         public bool IsGovernmentAttendanceReserved(Hero hero) => hero != null && _governmentAttendance.Any(x => !x.Released && !x.Returning
             && Same(x.HeroStringId, hero.StringId) && Same(x.HostSettlementStringId, hero.CurrentSettlement?.StringId));
+
+        private bool QualifiesAsConstituencyResident(Hero hero, Settlement settlement, Kingdom kingdom)
+        {
+            if (hero == null || settlement == null || kingdom == null) return false;
+            bool nativeResident = settlement.Notables.Contains(hero);
+            if (!hero.IsNotable) return nativeResident;
+            var visits = new List<GovernmentResidenceLease>();
+            foreach (var lease in _governmentAttendance.Where(x => !x.Released && Same(x.HeroStringId, hero.StringId)))
+            {
+                var business = _business.FirstOrDefault(x => Same(x.BusinessId, lease.BusinessId));
+                if (business == null) continue;
+                string constituency = lease.ConstituencySettlementStringId;
+                if (string.IsNullOrEmpty(constituency))
+                {
+                    // Older saves did not capture the seat explicitly. Recover it
+                    // only from the same incumbent's recorded original/home place.
+                    var homes = _participation.Constituencies.Where(x => x.KingdomId == business.KingdomStringId
+                        && x.IncumbentId == hero.StringId && x.SettlementId.Length > 0
+                        && (x.SettlementId == lease.OriginalSettlementStringId || x.SettlementId == lease.HomeSettlementStringId))
+                        .Select(x => x.SettlementId).Distinct(StringComparer.Ordinal).ToList();
+                    constituency = homes.Count == 1 ? homes[0] : "";
+                }
+                visits.Add(new GovernmentResidenceLease { HeroId = lease.HeroStringId, KingdomId = business.KingdomStringId,
+                    HostSettlementId = lease.HostSettlementStringId, ConstituencySettlementId = constituency });
+            }
+            return GovernmentAttendanceResidencePolicy.Qualifies(hero.StringId, kingdom.StringId, settlement.StringId,
+                hero.CurrentSettlement?.StringId ?? "", nativeResident, visits);
+        }
 
         public IReadOnlyList<Hero> GetAttendingGovernmentHeroes(Settlement settlement)
         {
@@ -138,7 +167,7 @@ namespace ReignBeta.Government
             if (record == null) return false;
             string blocked = GovernmentAttendanceBlock(hero, false);
             bool eligible = GovernmentPrivateConversationEligibility.CanDiscuss(
-                !GovernmentBusinessRules.IsClosed(record.Status),
+                GovernmentBusinessRules.CanRecommend(record.Status),
                 !string.IsNullOrEmpty(record.VotesJson) && record.VotesJson != "[]",
                 FindKingdom(record.KingdomStringId)?.Leader == Hero.MainHero,
                 GetSeats(record.KingdomStringId).Any(x => Same(x.HeroStringId, heroId)),
@@ -151,7 +180,7 @@ namespace ReignBeta.Government
         private void OnAttendanceBusinessChanged(ReignGovernmentBusinessRecord record)
         {
             if (GovernmentBusinessRules.IsClosed(record.Status)) { NotifyGovernmentBusinessClosed(record); return; }
-            if (record.Status != "postponed") return;
+            if (record.Status != "presented" && record.Status != "hearing") return;
             Kingdom kingdom = FindKingdom(record.KingdomStringId);
             Settlement capital = GovernmentCapital(kingdom);
             if (capital == null) return;
@@ -164,7 +193,8 @@ namespace ReignBeta.Government
                 var shared = _governmentAttendance.FirstOrDefault(x => !x.Released && x.Moved && Same(x.HeroStringId, seat.HeroStringId));
                 var lease = new ReignGovernmentAttendanceRecord { BusinessId = record.BusinessId, HeroStringId = hero.StringId,
                     HostSettlementStringId = capital.StringId, OriginalSettlementStringId = shared?.OriginalSettlementStringId ?? hero.CurrentSettlement?.StringId ?? "",
-                    HomeSettlementStringId = shared?.HomeSettlementStringId ?? hero.HomeSettlement?.StringId ?? "", RulerHeroStringId = kingdom.Leader?.StringId ?? "" };
+                    HomeSettlementStringId = shared?.HomeSettlementStringId ?? hero.HomeSettlement?.StringId ?? "",
+                    ConstituencySettlementStringId = seat.SettlementStringId ?? "", RulerHeroStringId = kingdom.Leader?.StringId ?? "" };
                 _governmentAttendance.Add(lease);
                 GovernmentAttendanceRevision++;
                 try
@@ -173,7 +203,7 @@ namespace ReignBeta.Government
                     if (requiresMove) TeleportHeroAction.ApplyImmediateTeleportToSettlement(hero, capital);
                     lease.Moved = shared?.Moved == true || requiresMove && hero.CurrentSettlement == capital;
                     lease.Status = hero.CurrentSettlement == capital ? "present" : "absent";
-                    lease.Reason = lease.Status == "present" ? "Attending during the recess" : "Native arrival could not be confirmed";
+                    lease.Reason = lease.Status == "present" ? "Attending the government session" : "Native arrival could not be confirmed";
                 }
                 catch (Exception ex) { lease.Moved = hero.CurrentSettlement == capital; lease.Reason = "Arrival failed: " + ex.Message; }
             }
@@ -209,8 +239,15 @@ namespace ReignBeta.Government
             GovernmentAttendanceRevision++;
             lease.Returning = true;
             Hero hero = FindHero(lease.HeroStringId);
-            if (!lease.Moved || hero == null || GovernmentAttendanceBlock(hero).Length > 0 || hero.CurrentSettlement?.StringId != lease.HostSettlementStringId)
+            string blocked = GovernmentAttendanceBlock(hero);
+            var action = GovernmentAttendanceReturnPolicy.Decide(lease.Moved,
+                hero != null && hero.IsAlive && hero.IsActive && !hero.IsDisabled,
+                hero?.CurrentSettlement != null && !string.IsNullOrWhiteSpace(lease.HostSettlementStringId)
+                    && Same(hero.CurrentSettlement.StringId, lease.HostSettlementStringId), blocked.Length > 0);
+            if (action == GovernmentAttendanceReturnAction.Release)
             { lease.Released = true; lease.Reason = "Released to current duties"; return; }
+            if (action == GovernmentAttendanceReturnAction.Defer)
+            { lease.Reason = "Return deferred: " + blocked; return; }
             if (_governmentAttendance.Any(x => x != lease && !x.Released && !x.Returning && Same(x.HeroStringId, lease.HeroStringId)
                 && !GovernmentBusinessRules.IsClosed(_business.FirstOrDefault(b => Same(b.BusinessId, x.BusinessId))?.Status ?? "cancelled")))
             { lease.Released = true; lease.Reason = "Remaining for another hearing"; return; }

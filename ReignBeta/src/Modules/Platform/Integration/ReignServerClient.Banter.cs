@@ -22,6 +22,8 @@ namespace ReignBeta.Integration
                 JObject full = BuildHeroProfile(h), profile = new JObject();
                 foreach (string key in new[] { "heroStringId", "name", "isFemale", "cultureId", "clanId", "clanName", "kingdomId", "kingdomName", "occupation", "age", "isAlive", "isPrisoner", "isChild", "isLord", "isRuler", "isClanLeader", "isNotable", "isWanderer", "currentPartyId", "partyId", "sovereignHeroStringId", "governorOfSettlementId", "governorOfSettlementName" }) profile[key] = full[key]?.DeepClone();
                 profile["banterPartyRole"] = h == MobileParty.MainParty?.LeaderHero ? "party leader" : h.IsPlayerCompanion ? "companion" : "family member or guest";
+                profile["isPregnant"] = full["isPregnant"]?.DeepClone();
+                profile["pregnancyContexts"] = full["pregnancyContexts"]?.DeepClone();
                 return profile;
             }));
             var pairs = new JArray();

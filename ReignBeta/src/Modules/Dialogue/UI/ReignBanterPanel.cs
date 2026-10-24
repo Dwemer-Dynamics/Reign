@@ -53,9 +53,10 @@ namespace ReignBeta.UI
                 _layer = new GauntletLayer("ReignBanterPanel", 9998, false);
                 try
                 {
-                    var root = _layer.UIContext.Root;
+                    // Root.Size includes Gauntlet's own root scaling; PageSize is the rendered viewport in pixels.
+                    var viewport = _layer.UIContext.EventManager.PageSize;
                     float scale = _layer.UIContext.CustomInverseScale;
-                    _window = new ReignBanterWindowState(root.Size.X * scale, root.Size.Y * scale);
+                    _window = new ReignBanterWindowState(viewport.X * scale, viewport.Y * scale);
                     _calibration = calibration;
                     if (!_calibration) LoadPreferences();
                     _vm = new BanterPanelVM(_window, ToggleCollapsed, join);
@@ -76,9 +77,9 @@ namespace ReignBeta.UI
             if (_layer == null || _window == null || _host != ScreenManager.TopScreen) return;
             if (!_calibration && !ReignGovernmentScreenManager.CanPresentOnMap(_layer))
             { EndManipulation(); ReleaseInput(); return; }
-            var root = _layer.UIContext.Root;
+            var viewport = _layer.UIContext.EventManager.PageSize;
             float scale = _layer.UIContext.CustomInverseScale;
-            if (_window.SetViewport(root.Size.X * scale, root.Size.Y * scale)) { _vm?.RefreshGeometry(); _preferencesDirty = true; }
+            if (_window.SetViewport(viewport.X * scale, viewport.Y * scale)) { _vm?.RefreshGeometry(); _preferencesDirty = true; }
             var pointer = _layer.Input.GetMousePositionPixel();
             float x = pointer.X * scale, y = pointer.Y * scale;
             if (_window.IsManipulating)

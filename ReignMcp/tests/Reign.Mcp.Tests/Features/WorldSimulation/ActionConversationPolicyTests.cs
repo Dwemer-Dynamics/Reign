@@ -4,6 +4,58 @@ namespace Reign.Mcp.Tests.Features.WorldSimulation;
 
 public sealed class ActionConversationPolicyTests
 {
+    private static ActionAgreement SignedPersonalOffer()
+    {
+        var offer = new ActionAgreement { Id = "personal-offer", Revision = 3, PlayerId = "player", NpcId = "companion",
+            ProposerId = "companion", Origin = ActionOrigin.Conversation, State = AgreementState.Counteroffered,
+            ConversationId = ReignActionConversationPolicy.ConversationContextId("campaign", "timeline", "companion") };
+        offer.Clauses.Add(new() { Id = "personal-term", ActionId = "npc_life.accept_story", ActorId = "companion", RecipientId = "player",
+            Arguments = new() { ["matterId"] = "story", ["revision"] = "1" }, DisplayText = "We agree to share this personal experience." });
+        Assert.True(AgreementRules.Accept(offer, "companion", offer.TermsHash()));
+        Assert.False(offer.HasRequiredConsents);
+        return offer;
+    }
+
+    [Fact]
+    public void ReopenedPersonalOfferCanBeAcceptedInTheNormalActionScope()
+    {
+        var offer = SignedPersonalOffer();
+        string signedHash = offer.NpcAcceptedHash;
+        // The normal action exchange independently binds the current native
+        // identity, regardless of the newly opened transcript session.
+        offer.ConversationId = ReignActionConversationPolicy.ConversationContextId("campaign", "timeline", "companion");
+        Assert.Equal(signedHash, offer.TermsHash());
+        Assert.True(AgreementRules.Accept(offer, "player", signedHash));
+        Assert.True(offer.HasRequiredConsents);
+        Assert.Equal(AgreementState.Accepted, offer.State);
+    }
+
+    [Theory]
+    [InlineData("another-campaign", "timeline", "companion")]
+    [InlineData("campaign", "another-timeline", "companion")]
+    [InlineData("campaign", "timeline", "another-companion")]
+    public void PersonalConsentCannotCrossNativeConversationScopes(string campaign, string timeline, string npc)
+    {
+        var offer = SignedPersonalOffer();
+        string signedHash = offer.NpcAcceptedHash;
+        offer.ConversationId = ReignActionConversationPolicy.ConversationContextId(campaign, timeline, npc);
+        Assert.NotEqual(signedHash, offer.TermsHash());
+        Assert.False(AgreementRules.Accept(offer, "player", signedHash));
+        Assert.False(offer.HasRequiredConsents);
+        Assert.Empty(offer.PlayerAcceptedHash);
+    }
+
+    [Fact]
+    public void StableConversationScopeDoesNotAuthorizeChangedPersonalTerms()
+    {
+        var offer = SignedPersonalOffer();
+        string signedHash = offer.NpcAcceptedHash;
+        offer.Clauses[0].Arguments["revision"] = "2";
+        Assert.False(AgreementRules.Accept(offer, "player", signedHash));
+        Assert.False(offer.HasRequiredConsents);
+        Assert.Empty(offer.PlayerAcceptedHash);
+    }
+
     public static IEnumerable<object[]> EveryDefinition() => ReignActionCatalog.All.Select(d => new object[] { d.Id });
 
     [Theory, MemberData(nameof(EveryDefinition))]

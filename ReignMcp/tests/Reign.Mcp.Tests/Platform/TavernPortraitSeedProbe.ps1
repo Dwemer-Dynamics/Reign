@@ -2,6 +2,7 @@ param(
     [Parameter(Mandatory = $true)][string]$ClientAssembly,
     [Parameter(Mandatory = $true)][string]$Workspace,
     [Parameter(Mandatory = $true)][string]$EvidenceDirectory,
+    [Parameter(Mandatory = $true)][string]$ScratchDirectory,
     [string]$BannerlordPath
 )
 $ErrorActionPreference = 'Stop'
@@ -10,7 +11,12 @@ trap { [Console]::Error.WriteLine($_.Exception.ToString() + [Environment]::NewLi
 if ($env:REIGN_VALIDATION_MODE -ne '1') { throw 'This probe requires canonical isolated validation.' }
 $probeRoot = [IO.Path]::GetFullPath($EvidenceDirectory)
 [IO.Directory]::CreateDirectory($probeRoot) | Out-Null
-$scratch = Join-Path $probeRoot 'scratch'
+$scratch = [IO.Path]::GetFullPath($ScratchDirectory)
+$temporaryRoot = [IO.Path]::GetFullPath([IO.Path]::GetTempPath()).TrimEnd('\')
+if (-not [string]::Equals([IO.Path]::GetDirectoryName($scratch), $temporaryRoot, [StringComparison]::OrdinalIgnoreCase) -or
+    [IO.Path]::GetFileName($scratch) -notmatch '^reign-tavern-seed-[a-f0-9]{32}$') {
+    throw 'The portrait probe requires its parent-owned temporary scratch directory.'
+}
 [IO.Directory]::CreateDirectory($scratch) | Out-Null
 function Progress([string]$Stage) {
     [IO.File]::WriteAllText((Join-Path $probeRoot 'progress.json'),
@@ -146,6 +152,7 @@ $report = [ordered]@{
     oldTimestampCheckRejections = $oldRejections; firstVisitPassed = $firstVisit; repairPassed = $repair
     relocatedTimestampCasePassed = $true; corruptionCasesRejectedWithoutCacheChanges = $corruptionCases
     sourcePackUnchanged = $true; towns = $townReports
+    scratchRoot = $scratch
 }
 $report | ConvertTo-Json -Depth 8 | Set-Content -LiteralPath (Join-Path $probeRoot 'report.json') -Encoding UTF8
 Progress 'complete'

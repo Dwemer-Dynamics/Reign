@@ -1,0 +1,4 @@
+OpenAI built-in image generation, 2026-10-15. User requested a larger, readable news field and the same repair for ruler-to-ruler diplomacy.
+Edit target: previous-runtime-shell.png, exactly 1672 by 941 pixels.
+Change only the large central reading panel's interior. Remove its horizontal gold divider, central diamond and circular compass/astrolabe markings. Replace these with continuous quiet near-black marble matching the existing charcoal-black material, with subtle neutral veining. Keep all surrounding frames, crest, header, side portrait panels, banner frames and acknowledge button. Preserve composition, dimensions, positions and restrained antique gold. No text, portraits, extra ornaments, boxes, white panels or transparency.
+The generated source is a creative input. materialize.ps1 copies only the central interior (444,232,782,531); every pixel outside it remains identical to the prior reference/runtime source. No portrait image is edited.

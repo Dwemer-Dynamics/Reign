@@ -403,9 +403,7 @@ namespace ReignBeta.Integration
             lock (FileLock)
             {
                 if (!File.Exists(path)) return;
-                string temp = path + ".save_sync_" + Guid.NewGuid().ToString("N");
-                using (StreamReader reader = new StreamReader(path, Encoding.UTF8, true))
-                using (StreamWriter writer = new StreamWriter(temp, false, new UTF8Encoding(false)))
+                ReignWorldHistoryOutbox.Rewrite(path, (reader, writer) =>
                 {
                     string line;
                     while ((line = reader.ReadLine()) != null)
@@ -417,8 +415,7 @@ namespace ReignBeta.Integration
                         }
                         catch { }
                     }
-                }
-                File.Replace(temp, path, null);
+                });
             }
         }
 
@@ -677,11 +674,8 @@ namespace ReignBeta.Integration
             FileInfo info = new FileInfo(path);
             if (!info.Exists || info.Length <= MaximumOutboxBytes) return;
 
-            string temp = path + ".bounded_" + Guid.NewGuid().ToString("N");
             long start = Math.Max(0L, info.Length - RetainedOutboxBytes);
-            using (FileStream input = new FileStream(path, FileMode.Open, FileAccess.Read, FileShare.Read))
-            using (StreamReader reader = new StreamReader(input, Encoding.UTF8, true))
-            using (StreamWriter writer = new StreamWriter(temp, false, new UTF8Encoding(false)))
+            ReignWorldHistoryOutbox.Rewrite(path, (reader, writer) =>
             {
                 // Personal outcomes are not disposable world noise. Retain them
                 // even if an extended outage exceeds the ordinary outbox bound.
@@ -694,7 +688,7 @@ namespace ReignBeta.Integration
                     }
                     catch { }
                 }
-                input.Seek(start, SeekOrigin.Begin);
+                reader.BaseStream.Seek(start, SeekOrigin.Begin);
                 if (start > 0L) reader.ReadLine();
                 string line;
                 while ((line = reader.ReadLine()) != null)
@@ -702,8 +696,7 @@ namespace ReignBeta.Integration
                     try { if (!string.IsNullOrWhiteSpace(JObject.Parse(line)["payload"]?.Value<string>("playerHeroId"))) continue; } catch { }
                     writer.WriteLine(line);
                 }
-            }
-            File.Replace(temp, path, null);
+            });
             ReignLog.Warn("World-history outbox exceeded 32 MB; personal activity evidence was preserved alongside the newest 16 MB of ordinary events.");
         }
 
@@ -744,9 +737,7 @@ namespace ReignBeta.Integration
             lock (FileLock)
             {
                 if (!File.Exists(path)) return;
-                string temp = path + ".tmp";
-                using (StreamReader reader = new StreamReader(path, Encoding.UTF8, true))
-                using (StreamWriter writer = new StreamWriter(temp, false, new UTF8Encoding(false)))
+                ReignWorldHistoryOutbox.Rewrite(path, (reader, writer) =>
                 {
                     string line;
                     while ((line = reader.ReadLine()) != null)
@@ -758,9 +749,7 @@ namespace ReignBeta.Integration
                         }
                         catch { }
                     }
-                }
-                if (File.Exists(path)) File.Replace(temp, path, null);
-                else File.Move(temp, path);
+                });
             }
         }
 

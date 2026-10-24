@@ -6,6 +6,14 @@ namespace ReignBeta.Integration
 {
     public static partial class ReignServerClient
     {
+        internal static Task<JObject> RequestGovernmentCrownDecisionAsync(JObject context)
+        {
+            var payload = (JObject)context.DeepClone();
+            payload["campaignId"] = GetCampaignId();
+            payload["timelineId"] = ReignBeta.Campaign.ReignWorldHistoryCampaignBehavior.Instance?.TimelineId ?? "main";
+            return PostJsonAsync("/government/crown/decision", payload);
+        }
+
         internal static Task<JObject> RequestGovernmentHearingDiscussionAsync(JObject context)
         {
             var payload = (JObject)context.DeepClone();

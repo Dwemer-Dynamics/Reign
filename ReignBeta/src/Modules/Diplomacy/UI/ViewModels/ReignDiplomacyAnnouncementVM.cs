@@ -1,6 +1,9 @@
 using System;
+using System.Linq;
+using Reign.Core.Contracts.Government;
 using AIPortraits;
 using ReignBeta.World;
+using Reign.Core.Contracts.World;
 using TaleWorlds.CampaignSystem;
 using TaleWorlds.Core;
 using TaleWorlds.Core.ViewModelCollection.ImageIdentifiers;
@@ -11,22 +14,32 @@ namespace ReignBeta.UI.ViewModels
     public sealed class ReignDiplomacyAnnouncementVM : ViewModel
     {
         private readonly Action _acknowledge;
+        private readonly GovernmentNewsEdition _governmentNews;
 
         public ReignDiplomacyAnnouncementVM(ReignDiplomacyAnnouncement announcement, Action acknowledge)
         {
             _acknowledge = acknowledge;
             announcement = announcement ?? new ReignDiplomacyAnnouncement();
+            _governmentNews = announcement.GovernmentNews;
+            if (_governmentNews != null)
+            {
+                foreach (var kingdom in _governmentNews.Kingdoms.OrderBy(k => k.KingdomName, StringComparer.Ordinal))
+                    NewsKingdoms.Add(new ReignGovernmentNewsKingdomVM(kingdom, () => SelectNewsKingdom(kingdom)));
+                ExecuteAllKingdoms();
+            }
             Title = announcement.Title;
             Outcome = announcement.Outcome;
             Summary = announcement.Summary;
-            Terms = string.IsNullOrWhiteSpace(announcement.Terms) ? "No additional terms were announced." : announcement.Terms;
+            Terms = string.IsNullOrWhiteSpace(announcement.Terms) ? (announcement.IsNews ? string.Empty : "No additional terms were announced.") : announcement.Terms;
+            ReportText = ReignNewsCopy.AnnouncementReport(Summary, Terms, announcement.ActorName, announcement.ActorPublicReason,
+                announcement.TargetName, announcement.TargetPublicReason, announcement.IsNews);
             ActorName = announcement.ActorName;
             ActorKingdom = announcement.ActorKingdomName;
-            ActorReason = announcement.ActorPublicReason;
+            ActorReason = announcement.IsNews ? announcement.ActorPublicReason : "Announcing ruler";
             TargetName = announcement.TargetName;
             TargetKingdom = announcement.TargetKingdomName;
-            TargetReason = announcement.TargetPublicReason;
-            DateText = "Day " + announcement.WorldDay.ToString("0");
+            TargetReason = announcement.IsNews ? announcement.TargetPublicReason : "Responding ruler";
+            DateText = _governmentNews == null ? "Day " + announcement.WorldDay.ToString("0") : "Proceedings of " + _governmentNews.DateLabel;
             ShowTarget = !string.IsNullOrWhiteSpace(TargetName) || !string.IsNullOrWhiteSpace(TargetKingdom);
             SetPortrait(ReignObjectResolver.FindHero(announcement.ActorHeroStringId), true);
             SetPortrait(ReignObjectResolver.FindHero(announcement.TargetHeroStringId), false);
@@ -38,6 +51,7 @@ namespace ReignBeta.UI.ViewModels
         [DataSourceProperty] public string Outcome { get; }
         [DataSourceProperty] public string Summary { get; }
         [DataSourceProperty] public string Terms { get; }
+        [DataSourceProperty] public string ReportText { get; }
         [DataSourceProperty] public string ActorName { get; }
         [DataSourceProperty] public string ActorKingdom { get; }
         [DataSourceProperty] public string ActorReason { get; }
@@ -46,6 +60,12 @@ namespace ReignBeta.UI.ViewModels
         [DataSourceProperty] public string TargetReason { get; }
         [DataSourceProperty] public string DateText { get; }
         [DataSourceProperty] public bool ShowTarget { get; }
+        [DataSourceProperty] public bool IsGovernmentNews => _governmentNews != null;
+        [DataSourceProperty] public bool IsStandardAnnouncement => !IsGovernmentNews;
+        [DataSourceProperty] public MBBindingList<ReignGovernmentNewsKingdomVM> NewsKingdoms { get; } = new MBBindingList<ReignGovernmentNewsKingdomVM>();
+        [DataSourceProperty] public int NewsKingdomCount => NewsKingdoms.Count;
+        [DataSourceProperty] public string GovernmentNewsBody { get; private set; } = "";
+        [DataSourceProperty] public string GovernmentNewsHeading { get; private set; } = "";
         [DataSourceProperty] public string ActorPortraitId { get; private set; } = string.Empty;
         [DataSourceProperty] public string ActorPortraitArgs { get; private set; } = string.Empty;
         [DataSourceProperty] public string ActorPortraitProvider { get; private set; } = string.Empty;
@@ -64,6 +84,21 @@ namespace ReignBeta.UI.ViewModels
         public void ExecuteAcknowledge()
         {
             _acknowledge?.Invoke();
+        }
+
+        public void ExecuteAllKingdoms()
+        {
+            if (_governmentNews == null) return;
+            GovernmentNewsHeading = "All kingdoms";
+            GovernmentNewsBody = _governmentNews.Body;
+            OnPropertyChanged(nameof(GovernmentNewsHeading)); OnPropertyChanged(nameof(GovernmentNewsBody));
+        }
+
+        private void SelectNewsKingdom(GovernmentNewsSection section)
+        {
+            GovernmentNewsHeading = section.KingdomName + " — " + section.InstitutionName;
+            GovernmentNewsBody = section.Body;
+            OnPropertyChanged(nameof(GovernmentNewsHeading)); OnPropertyChanged(nameof(GovernmentNewsBody));
         }
 
         private void SetPortrait(Hero hero, bool actor)
@@ -114,5 +149,18 @@ namespace ReignBeta.UI.ViewModels
                 TargetBannerProvider = banner?.TextureProviderName ?? string.Empty;
             }
         }
+    }
+
+    public sealed class ReignGovernmentNewsKingdomVM : ViewModel
+    {
+        private readonly Action _select;
+        public ReignGovernmentNewsKingdomVM(GovernmentNewsSection section, Action select)
+        {
+            _select = select; Name = section.KingdomName;
+            Summary = section.PresentedCount + " presented · " + section.DecidedCount + " decided";
+        }
+        [DataSourceProperty] public string Name { get; }
+        [DataSourceProperty] public string Summary { get; }
+        public void ExecuteSelect() => _select?.Invoke();
     }
 }

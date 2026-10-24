@@ -19,6 +19,14 @@ namespace ReignBeta.Campaign
         internal static bool IsLethal(string mode) => string.Equals(mode, "lethal", StringComparison.Ordinal);
         internal static bool IsPractice(string mode) => string.Equals(mode, "practice", StringComparison.Ordinal);
 
+        internal static bool IsExperiencePair(string player, string opponent, string attacker, string target)
+        {
+            if (string.IsNullOrWhiteSpace(player) || string.IsNullOrWhiteSpace(opponent)
+                || string.Equals(player, opponent, StringComparison.Ordinal)) return false;
+            return (string.Equals(attacker, player, StringComparison.Ordinal) && string.Equals(target, opponent, StringComparison.Ordinal))
+                || (string.Equals(attacker, opponent, StringComparison.Ordinal) && string.Equals(target, player, StringComparison.Ordinal));
+        }
+
         internal static string DisplayName(string mode)
         {
             if (IsLethal(mode)) return "duel to the death";

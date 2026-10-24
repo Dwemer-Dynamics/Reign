@@ -64,6 +64,7 @@ namespace ReignBeta.PartyAgency
         public bool IsProtectedCamp(MobileParty party)
         {
             if (party == null || string.IsNullOrWhiteSpace(party.StringId)) return false;
+            if (ReignNpcLivesBehavior.Instance?.IsSummonsCamp(party) == true) return true;
             return (_records ?? new List<ReignTemporaryPartyGuestRecord>()).Any(record =>
                 record != null
                 && record.IsLive
@@ -645,7 +646,10 @@ namespace ReignBeta.PartyAgency
                     PayGuestWages(record, hero, now);
                 if (record.Phase == ReignTemporaryGuestPhase.Active)
                 {
-                    if (hero.PartyBelongedTo != MobileParty.MainParty && !record.TemporarilyExcludedFromBattle)
+                    // Personal leave/meeting attendance temporarily changes physical
+                    // presence, never the guest's service agreement or protected camp.
+                    bool personalAbsence = ReignBeta.Campaign.ReignNpcLivesBehavior.Instance?.IsAwayOnPersonalBusiness(hero.StringId) == true;
+                    if (!personalAbsence && hero.PartyBelongedTo != MobileParty.MainParty && !record.TemporarilyExcludedFromBattle)
                     {
                         CompleteUnavailable(record);
                         continue;
@@ -799,16 +803,21 @@ namespace ReignBeta.PartyAgency
                 record.ProtectedCampMorale = party.Morale;
                 record.ProtectedCampMoraleCaptured = true;
             }
+            ProtectWaitingCamp(party, new CampaignVec2(new Vec2(record.CampX, record.CampY), record.CampIsOnLand), record.ProtectedCampMorale);
+        }
+
+        internal static void ProtectWaitingCamp(MobileParty party, CampaignVec2 fixedPosition, float protectedMorale)
+        {
+            if (party == null || !party.IsActive) return;
             party.IsVisible = true;
             party.IsDisbanding = false;
             party.SetPartyUsedByQuest(true);
             party.Ai.SetDoNotMakeNewDecisions(true);
             party.SetMoveModeHold();
             party.IgnoreByOtherPartiesTill(CampaignTime.Never);
-            float moraleDelta = record.ProtectedCampMorale - party.Morale;
+            float moraleDelta = protectedMorale - party.Morale;
             if (Math.Abs(moraleDelta) >= 0.001f)
                 party.RecentEventsMorale += moraleDelta;
-            CampaignVec2 fixedPosition = new CampaignVec2(new Vec2(record.CampX, record.CampY), record.CampIsOnLand);
             if (party.Position != fixedPosition) party.Position = fixedPosition;
         }
 

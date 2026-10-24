@@ -83,10 +83,6 @@
       "fixedRegionSpec": "../../../artwork/ui-modern-style-kit/specs/screen-economic-report-fixed-region-mask.json"
     },
     {
-      "id": "government",
-      "fixedRegionSpec": "../../../artwork/ui-modern-style-kit/specs/screen-government-fixed-region-mask.json"
-    },
-    {
       "id": "individual-chat",
       "fixedRegionSpec": "../../../artwork/ui-modern-style-kit/specs/screen-individual-chat-fixed-region-mask.json"
     },
@@ -304,6 +300,205 @@
     {
       "id": "portrait-refresh",
       "fixedRegionSpec": "../../../artwork/ui-modern-style-kit/specs/screen-portrait-refresh-fixed-region-mask.json"
+    },
+    {
+      "id": "government",
+      "fixedRegionSpec": "../../../artwork/ui-modern-style-kit/specs/screen-government-sessions-fixed-region-mask.json"
+    },
+    {
+      "id": "government-authority",
+      "fixedRegionSpec": "../../../artwork/ui-modern-style-kit/specs/screen-government-sessions-fixed-region-mask.json",
+      "componentComposition": "government-participation-approved-composition.json"
+    },
+    {
+      "id": "government-proposals",
+      "fixedRegionSpec": "../../../artwork/ui-modern-style-kit/specs/screen-government-sessions-fixed-region-mask.json",
+      "componentComposition": "government-participation-approved-composition.json"
+    },
+    {
+      "id": "government-readonly",
+      "fixedRegionSpec": "../../../artwork/ui-modern-style-kit/specs/screen-government-sessions-fixed-region-mask.json"
+    },
+    {
+      "id": "government-empty",
+      "fixedRegionSpec": "../../../artwork/ui-modern-style-kit/specs/screen-government-sessions-fixed-region-mask.json",
+      "componentComposition": "government-participation-approved-composition.json"
+    },
+    {
+      "id": "government-long",
+      "fixedRegionSpec": "../../../artwork/ui-modern-style-kit/specs/screen-government-sessions-fixed-region-mask.json"
+    },
+    {
+      "id": "government-hearing",
+      "fixedRegionSpec": "../../../artwork/ui-modern-style-kit/specs/screen-government-hearing-sessions-fixed-region-mask.json"
+    },
+    {
+      "id": "government-urgent",
+      "fixedRegionSpec": "../../../artwork/ui-modern-style-kit/specs/screen-government-hearing-sessions-fixed-region-mask.json"
+    },
+    {
+      "id": "government-delegated",
+      "fixedRegionSpec": "../../../artwork/ui-modern-style-kit/specs/screen-government-hearing-sessions-fixed-region-mask.json"
+    },
+    {
+      "id": "government-level1",
+      "fixedRegionSpec": "../../../artwork/ui-modern-style-kit/specs/screen-government-hearing-sessions-fixed-region-mask.json"
+    },
+    {
+      "id": "government-level5",
+      "fixedRegionSpec": "../../../artwork/ui-modern-style-kit/specs/screen-government-hearing-sessions-fixed-region-mask.json"
+    },
+    {
+      "id": "government-members",
+      "fixedRegionSpec": "../../../artwork/ui-modern-style-kit/specs/screen-government-members-sessions-fixed-region-mask.json"
+    },
+    {
+      "id": "government-member-long",
+      "fixedRegionSpec": "../../../artwork/ui-modern-style-kit/specs/screen-government-members-sessions-fixed-region-mask.json"
+    },
+    {
+      "id": "government-changed-roster",
+      "fixedRegionSpec": "../../../artwork/ui-modern-style-kit/specs/screen-government-members-sessions-fixed-region-mask.json"
+    },
+    {
+      "id": "government-records",
+      "fixedRegionSpec": "../../../artwork/ui-modern-style-kit/specs/screen-government-records-sessions-fixed-region-mask.json"
+    },
+    {
+      "id": "government-archive",
+      "fixedRegionSpec": "../../../artwork/ui-modern-style-kit/specs/screen-government-records-sessions-fixed-region-mask.json"
+    },
+    {
+      "id": "government-laws",
+      "fixedRegionSpec": "../../../artwork/ui-modern-style-kit/specs/screen-government-records-sessions-fixed-region-mask.json",
+      "componentComposition": "government-participation-approved-composition.json"
+    },
+    {
+      "id": "government-obligations",
+      "fixedRegionSpec": "../../../artwork/ui-modern-style-kit/specs/screen-government-records-sessions-fixed-region-mask.json",
+      "componentComposition": "government-participation-approved-composition.json"
+    },
+    {
+      "id": "government-news",
+      "fixedRegionSpec": "../../../artwork/ui-modern-style-kit/specs/screen-government-records-sessions-fixed-region-mask.json",
+      "componentComposition": "government-participation-approved-composition.json"
+    },
+    {
+      "id": "government-news-edition",
+      "fixedRegionSpec": "../../../artwork/ui-modern-style-kit/specs/screen-government-news-edition-sessions-fixed-region-mask.json"
+    },
+    {
+      "id": "government-news-all",
+      "fixedRegionSpec": "../../../artwork/ui-modern-style-kit/specs/screen-government-news-edition-sessions-fixed-region-mask.json"
+    },
+    {
+      "id": "government-news-kingdom",
+      "fixedRegionSpec": "../../../artwork/ui-modern-style-kit/specs/screen-government-news-edition-sessions-fixed-region-mask.json"
+    },
+    {
+      "id": "government-news-long",
+      "fixedRegionSpec": "../../../artwork/ui-modern-style-kit/specs/screen-government-news-edition-sessions-fixed-region-mask.json"
+    },
+    {
+      "id": "government-news-empty",
+      "fixedRegionSpec": "../../../artwork/ui-modern-style-kit/specs/screen-government-news-edition-sessions-fixed-region-mask.json"
+    },
+    {
+      "id": "government-charter-institution",
+      "fixedRegionSpec": "../../../artwork/ui-modern-style-kit/specs/screen-government-sessions-fixed-region-mask.json",
+      "componentComposition": "government-participation-approved-composition.json"
+    },
+    {
+      "id": "government-charter-authority",
+      "fixedRegionSpec": "../../../artwork/ui-modern-style-kit/specs/screen-government-sessions-fixed-region-mask.json",
+      "componentComposition": "government-participation-approved-composition.json"
+    },
+    {
+      "id": "government-charter-empty",
+      "fixedRegionSpec": "../../../artwork/ui-modern-style-kit/specs/screen-government-sessions-fixed-region-mask.json",
+      "componentComposition": "government-participation-approved-composition.json"
+    },
+    {
+      "id": "government-charter-review",
+      "fixedRegionSpec": "../../../artwork/ui-modern-style-kit/specs/screen-government-sessions-fixed-region-mask.json",
+      "componentComposition": "government-participation-approved-composition.json"
+    },
+    {
+      "id": "government-petition-review",
+      "fixedRegionSpec": "../../../artwork/ui-modern-style-kit/specs/screen-government-sessions-fixed-region-mask.json",
+      "componentComposition": "government-participation-approved-composition.json"
+    },
+    {
+      "id": "government-petition-draft",
+      "fixedRegionSpec": "../../../artwork/ui-modern-style-kit/specs/screen-government-sessions-fixed-region-mask.json",
+      "componentComposition": "government-participation-approved-composition.json"
+    },
+    {
+      "id": "government-petition-support",
+      "fixedRegionSpec": "../../../artwork/ui-modern-style-kit/specs/screen-government-sessions-fixed-region-mask.json",
+      "componentComposition": "government-participation-approved-composition.json"
+    },
+    {
+      "id": "government-mandate",
+      "fixedRegionSpec": "../../../artwork/ui-modern-style-kit/specs/screen-government-sessions-fixed-region-mask.json",
+      "componentComposition": "government-participation-approved-composition.json"
+    },
+    {
+      "id": "government-party-member",
+      "fixedRegionSpec": "../../../artwork/ui-modern-style-kit/specs/screen-government-sessions-fixed-region-mask.json",
+      "componentComposition": "government-participation-approved-composition.json"
+    },
+    {
+      "id": "government-party-speaker",
+      "fixedRegionSpec": "../../../artwork/ui-modern-style-kit/specs/screen-government-sessions-fixed-region-mask.json",
+      "componentComposition": "government-participation-approved-composition.json"
+    },
+    {
+      "id": "government-priorities",
+      "fixedRegionSpec": "../../../artwork/ui-modern-style-kit/specs/screen-government-sessions-fixed-region-mask.json",
+      "componentComposition": "government-participation-approved-composition.json"
+    },
+    {
+      "id": "government-participation-blocked",
+      "fixedRegionSpec": "../../../artwork/ui-modern-style-kit/specs/screen-government-sessions-fixed-region-mask.json",
+      "componentComposition": "government-participation-approved-composition.json"
+    },
+    {
+      "id": "government-participation-expired",
+      "fixedRegionSpec": "../../../artwork/ui-modern-style-kit/specs/screen-government-sessions-fixed-region-mask.json",
+      "componentComposition": "government-participation-approved-composition.json"
+    },
+    {
+      "id": "government-participation-sync",
+      "fixedRegionSpec": "../../../artwork/ui-modern-style-kit/specs/screen-government-sessions-fixed-region-mask.json",
+      "componentComposition": "government-participation-approved-composition.json"
+    },
+    {
+      "id": "government-participation-long",
+      "fixedRegionSpec": "../../../artwork/ui-modern-style-kit/specs/screen-government-sessions-fixed-region-mask.json",
+      "componentComposition": "government-participation-approved-composition.json"
+    },
+    {
+      "id": "government-member-ballot",
+      "fixedRegionSpec": "../../../artwork/ui-modern-style-kit/specs/screen-government-hearing-sessions-fixed-region-mask.json"
+    },
+    {
+      "id": "government-absentee-ballot",
+      "fixedRegionSpec": "../../../artwork/ui-modern-style-kit/specs/screen-government-hearing-sessions-fixed-region-mask.json"
+    },
+    {
+      "id": "government-former-member",
+      "fixedRegionSpec": "../../../artwork/ui-modern-style-kit/specs/screen-government-members-sessions-fixed-region-mask.json"
+    },
+    {
+      "id": "government-representation",
+      "fixedRegionSpec": "../../../artwork/ui-modern-style-kit/specs/screen-government-sessions-fixed-region-mask.json",
+      "componentComposition": "government-participation-approved-composition.json"
+    },
+    {
+      "id": "government-petition-revision",
+      "fixedRegionSpec": "../../../artwork/ui-modern-style-kit/specs/screen-government-sessions-fixed-region-mask.json",
+      "componentComposition": "government-participation-approved-composition.json"
     }
   ]
 }

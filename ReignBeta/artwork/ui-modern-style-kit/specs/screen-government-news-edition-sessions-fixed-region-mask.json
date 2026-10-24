@@ -1,0 +1,168 @@
+{
+  "schema": "reign-fixed-region-composite-v1",
+  "assetId": "government-news-edition",
+  "approvedReference": {
+    "path": "../generated-sources/government-sessions-v3/approved-news.png",
+    "sha256": "c2d765a3f6770f40f4881e8b5e060d56694d540908fb42a8bfd9d05e7bdeae5f"
+  },
+  "canvas": {
+    "width": 1672,
+    "height": 941
+  },
+  "policy": "Only declared live text and native graphic regions are excluded; complete frames and material remain compared to immutable approved pixels. No whole-card masks.",
+  "sceneDependentMasks": [
+    {
+      "id": "live-0-TextWidget",
+      "shape": "rectangle",
+      "x": 486.0,
+      "y": 64.0,
+      "width": 700.0,
+      "height": 38.0
+    },
+    {
+      "id": "live-1-TextWidget",
+      "shape": "rectangle",
+      "x": 486.0,
+      "y": 106.0,
+      "width": 700.0,
+      "height": 24.0
+    },
+    {
+      "id": "live-2-TextWidget",
+      "shape": "rectangle",
+      "x": 110.0,
+      "y": 185.0,
+      "width": 272.0,
+      "height": 28.0
+    },
+    {
+      "id": "live-3-TextWidget",
+      "shape": "rectangle",
+      "x": 110.0,
+      "y": 220.0,
+      "width": 272.0,
+      "height": 44.0
+    },
+    {
+      "id": "live-4-TextWidget",
+      "shape": "rectangle",
+      "x": 124.0,
+      "y": 290.0,
+      "width": 244.0,
+      "height": 40.0
+    },
+    {
+      "id": "live-5-TextWidget",
+      "shape": "rectangle",
+      "x": 124.0,
+      "y": 332.0,
+      "width": 244.0,
+      "height": 24.0
+    },
+    {
+      "id": "live-6-TextWidget",
+      "shape": "rectangle",
+      "x": 124.0,
+      "y": 378.0,
+      "width": 244.0,
+      "height": 40.0
+    },
+    {
+      "id": "live-7-TextWidget",
+      "shape": "rectangle",
+      "x": 124.0,
+      "y": 420.0,
+      "width": 244.0,
+      "height": 24.0
+    },
+    {
+      "id": "live-8-TextWidget",
+      "shape": "rectangle",
+      "x": 124.0,
+      "y": 466.0,
+      "width": 244.0,
+      "height": 40.0
+    },
+    {
+      "id": "live-9-TextWidget",
+      "shape": "rectangle",
+      "x": 124.0,
+      "y": 508.0,
+      "width": 244.0,
+      "height": 24.0
+    },
+    {
+      "id": "live-10-TextWidget",
+      "shape": "rectangle",
+      "x": 124.0,
+      "y": 554.0,
+      "width": 244.0,
+      "height": 40.0
+    },
+    {
+      "id": "live-11-TextWidget",
+      "shape": "rectangle",
+      "x": 124.0,
+      "y": 596.0,
+      "width": 244.0,
+      "height": 24.0
+    },
+    {
+      "id": "live-12-TextWidget",
+      "shape": "rectangle",
+      "x": 124.0,
+      "y": 642.0,
+      "width": 244.0,
+      "height": 40.0
+    },
+    {
+      "id": "live-13-TextWidget",
+      "shape": "rectangle",
+      "x": 124.0,
+      "y": 684.0,
+      "width": 244.0,
+      "height": 24.0
+    },
+    {
+      "id": "live-14-TextWidget",
+      "shape": "rectangle",
+      "x": 124.0,
+      "y": 730.0,
+      "width": 244.0,
+      "height": 40.0
+    },
+    {
+      "id": "live-15-TextWidget",
+      "shape": "rectangle",
+      "x": 124.0,
+      "y": 772.0,
+      "width": 244.0,
+      "height": 24.0
+    },
+    {
+      "id": "live-16-TextWidget",
+      "shape": "rectangle",
+      "x": 452.0,
+      "y": 207.0,
+      "width": 1074.0,
+      "height": 33.75
+    },
+    {
+      "id": "live-17-TextWidget",
+      "shape": "rectangle",
+      "x": 452.0,
+      "y": 207.0,
+      "width": 1074.0,
+      "height": 600.0
+    },
+    {
+      "id": "live-18-TextWidget",
+      "shape": "rectangle",
+      "x": 672.0,
+      "y": 845.0,
+      "width": 327.0,
+      "height": 44.0
+    }
+  ],
+  "compositionContract": "../generated-sources/government-sessions-v3/composition-contract.json"
+}

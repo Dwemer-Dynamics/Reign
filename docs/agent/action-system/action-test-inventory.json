@@ -6,6 +6,74 @@
   "acceptance": "Each row needs one exact valid-case native effect assertion, bounded inputs, before/after state, receipt, artifact identity and saved campaign identity. Negative/replay/consent/persistence coverage remains separate. A command returning is not an effect assertion.",
   "actions": [
     {
+      "actionId": "leave_spouse",
+      "surface": "agreement",
+      "source": "ReignServer/shared/Reign.Core.Contracts/Actions/ReignSpouseSeparation.cs",
+      "nativeStatus": "pending",
+      "evidence": [],
+      "proof": "2026-10-23: Native genuine agreement/refusal, bound spouse/clan, private letter, reciprocal spouse/romance cleanup, -50 spouse/clan relations, exact replay and saved checkpoint/reload require acceptance. No implied player courtship, movement or clan transfer. Offline contracts alone do not close this row."
+    },
+    {
+      "actionId": "npc_life.change_meeting",
+      "surface": "agreement",
+      "source": "ReignServer/shared/Reign.Core.Contracts/Actions/ReignNpcLifeActionCatalog.cs",
+      "nativeStatus": "pending",
+      "evidence": [],
+      "proof": "2026-10-11: Exact revision and mutual acceptance, fixed destination, fresh arrival-linked stay, original unfulfilled journal retirement and native save/load need acceptance."
+    },
+    {
+      "actionId": "npc_life.cancel_meeting",
+      "surface": "agreement",
+      "source": "ReignServer/shared/Reign.Core.Contracts/Actions/ReignNpcLifeActionCatalog.cs",
+      "nativeStatus": "pending",
+      "evidence": [],
+      "proof": "2026-10-11: Exact mutual cancellation must release only this meeting's holds and retain other commitments and native duties. Native acceptance pending."
+    },
+    {
+      "actionId": "npc_life.accept_story",
+      "surface": "agreement",
+      "source": "ReignServer/shared/Reign.Core.Contracts/Actions/ReignNpcLifeActionCatalog.cs",
+      "nativeStatus": "passed",
+      "evidence": [
+        {
+          "date": "2026-10-19",
+          "path": ".codex-build/action-system-01a0ff71/resume-20261019/npc-life-story-leave-functional-completion-proof.json",
+          "scope": "Functional walkthrough: natural acceptance, two ordinary story contributions, completed story, one retained native Steward XP receipt, exact signed replay and fresh-process save/reload. Numeric XP delta and comprehensive story-library launch certification are not claimed."
+        }
+      ],
+      "proof": "2026-10-19: Ulpia's brief_cooking_01 story completed with two accepted contributions and one native skill-reward receipt. Original signed agreement terms hashes matched; exact replay and fresh-process reload preserved story, reward receipts and roster without duplicates. Functional valid-case pass. Historical 2026-10-11 note: implementation and native acceptance were pending."
+    },
+    {
+      "actionId": "npc_life.personal_leave",
+      "surface": "agreement",
+      "source": "ReignServer/shared/Reign.Core.Contracts/Actions/ReignNpcLifeActionCatalog.cs",
+      "nativeStatus": "passed",
+      "evidence": [
+        {
+          "date": "2026-10-19",
+          "path": ".codex-build/action-system-01a0ff71/resume-20261019/npc-life-story-leave-functional-completion-proof.json",
+          "scope": "Functional walkthrough: natural agreement, distinct 0.05-day waiting and 0.25-day actual absence, native departure, Amprela arrival, exact return, original signed replay and fresh-process persistence. Separate guest-contract and broad interruption matrices remain outside this valid-case pass."
+        }
+      ],
+      "proof": "2026-10-19: Cassian remained in the party before the waiting deadline, actually departed (89 to 88 members), visited Amprela while absent, then returned after the full arrival-independent absence (88 to 89 once). Exact original signed replay and fresh-process save/reload preserved leave, roster and receipts. Historical 2026-10-11 note: native acceptance, guest-contract retention and save/load were pending; guest-specific retention remains separate follow-up."
+    },
+    {
+      "actionId": "npc_life.summon_meeting",
+      "surface": "agreement",
+      "source": "ReignServer/shared/Reign.Core.Contracts/Actions/ReignNpcLifeActionCatalog.cs",
+      "nativeStatus": "pending",
+      "evidence": [],
+      "proof": "2026-10-12: User replaced physical travel with a signed fixed arrival wait, defaulting to 80% of estimated normal travel. Due-day native relocation must preserve the noble and their own party; no early movement, captivity/unavailability interruption, battle/transition delay, both participants holding from actual arrival, revision/cancellation and reload need native acceptance."
+    },
+    {
+      "actionId": "expose_concealed_pregnancy",
+      "surface": "agreement",
+      "source": "ReignServer/shared/Reign.Core.Contracts/Actions/ReignActionCatalog.cs",
+      "nativeStatus": "pending",
+      "evidence": [],
+      "proof": "2026-10-10: offline PregnancyContextTests and pregnancy_context_* fixtures cover knowledge, private paternity, immediate -50/-5 penalties, replay and verified snapshot recovery. Current-save native composer/reload acceptance follows deployment."
+    },
+    {
       "actionId": "accept_temporary_party_guest",
       "surface": "agreement",
       "source": "ReignServer/shared/Reign.Core.Contracts/Actions/ReignActionCatalog.cs",
@@ -13,13 +81,13 @@
       "evidence": [
         {
           "date": "2026-10-06",
-        "path": ".codex-build/action-system-01a0ff71/native-all-actions-20261004/unpaid-guest-natural-accept-assertions.json",
-        "scope": "BaseThree enrolled disposable native all-actions goal; exact per-command proof and residual limits are recorded in the linked evidence."
-      },
-      {
-        "date": "2026-10-08",
-        "path": "C:/Users/speed/.codex/action-system-01a0ff71/resume-20261008/TAVERN_1199_PROOF.json",
-        "scope": "64 scoped native checks: actual-speaker meeting guard, Madam temporary guest, safe party dialogue, real resident return, permanent companion recruitment, direct active house-worker recruitment, exact payments/replay and fresh-process persistence."
+          "path": ".codex-build/action-system-01a0ff71/native-all-actions-20261004/unpaid-guest-natural-accept-assertions.json",
+          "scope": "BaseThree enrolled disposable native all-actions goal; exact per-command proof and residual limits are recorded in the linked evidence."
+        },
+        {
+          "date": "2026-10-08",
+          "path": "C:/Users/speed/.codex/action-system-01a0ff71/resume-20261008/TAVERN_1199_PROOF.json",
+          "scope": "64 scoped native checks: actual-speaker meeting guard, Madam temporary guest, safe party dialogue, real resident return, permanent companion recruitment, direct active house-worker recruitment, exact payments/replay and fresh-process persistence."
         }
       ],
       "proof": "Natural unpaid open-ended guest acceptance with reason outside sentence, no purpose/wage/recipient field; hidden exact consent; actual native Lucon player-party membership one troop, foreign clan/allegiance and both wallets retained."
@@ -683,13 +751,13 @@
       "evidence": [
         {
           "date": "2026-10-06",
-        "path": ".codex-build/action-system-01a0ff71/native-all-actions-20261004/guest-end-arrival-assertions.json",
-        "scope": "BaseThree enrolled disposable native all-actions goal; exact per-command proof and residual limits are recorded in the linked evidence."
-      },
-      {
-        "date": "2026-10-08",
-        "path": "C:/Users/speed/.codex/action-system-01a0ff71/resume-20261008/TAVERN_1199_PROOF.json",
-        "scope": "Natural Madam guest ending1184 bound the exact current revision and review deadline; native return1188 completed as a free clanless resident, with completed guest/end journals retained after fresh-process reload1199."
+          "path": ".codex-build/action-system-01a0ff71/native-all-actions-20261004/guest-end-arrival-assertions.json",
+          "scope": "BaseThree enrolled disposable native all-actions goal; exact per-command proof and residual limits are recorded in the linked evidence."
+        },
+        {
+          "date": "2026-10-08",
+          "path": "C:/Users/speed/.codex/action-system-01a0ff71/resume-20261008/TAVERN_1199_PROOF.json",
+          "scope": "Natural Madam guest ending1184 bound the exact current revision and review deadline; native return1188 completed as a free clanless resident, with completed guest/end journals retained after fresh-process reload1199."
         }
       ],
       "proof": "Natural exact mutual end consent bound to renewed guest revision/deadline, removed from player roster, timed Returning->Completed, independently observed Active in Diathma at first due native hour, original clan/kingdom intact, no immediate payments or duplicate receipt."
@@ -1189,6 +1257,14 @@
         }
       ],
       "proof": "Real natural agreement with matching mutual consent and hidden acceptance; independent native snapshots verify reconvening and honoring an expired reconsideration refusal without opposition override; preserved ballots, actual applied receipts and one installment/one completion receipt with native time stopped."
+    },
+    {
+      "actionId": "government.support_nomination",
+      "surface": "agreement",
+      "source": "ReignServer/shared/Reign.Core.Contracts/Actions/ReignActionCatalog.cs",
+      "nativeStatus": "pending",
+      "evidence": [],
+      "proof": "2026-10-17: Exact party/session and petition revision, genuine NPC consent, conflict and cancellation handling, immutable eligible selection vote, fulfilled losing motion, and cold reload require native acceptance. Early endorsement, sponsorship or entering selection alone are not final-vote proof."
     },
     {
       "actionId": "government.support_vote",
@@ -4973,12 +5049,12 @@
         {
           "date": "2026-10-08",
           "path": "C:/Users/speed/.codex/action-system-01a0ff71/resume-20261008/CIVILIAN_1162_PROOF.json",
-        "scope": "40 native effect, consent, exact-payment, identity, replay and fresh-process persistence checks for Chara's notable-to-guest-to-returned-resident-to-permanent-companion lifecycle; tavern and military branches remain separate."
-      },
-      {
-        "date": "2026-10-08",
-        "path": "C:/Users/speed/.codex/action-system-01a0ff71/resume-20261008/TAVERN_1199_PROOF.json",
-        "scope": "Returned former Madam Ulpia recruited naturally for exactly777denars; active worker Cassian recruited directly for exactly333denars. Native Clan/CompanionOf, Wanderer/nonnotable status and one party row each persist; exact natural replay leaves journals and wallets unchanged."
+          "scope": "40 native effect, consent, exact-payment, identity, replay and fresh-process persistence checks for Chara's notable-to-guest-to-returned-resident-to-permanent-companion lifecycle; tavern and military branches remain separate."
+        },
+        {
+          "date": "2026-10-08",
+          "path": "C:/Users/speed/.codex/action-system-01a0ff71/resume-20261008/TAVERN_1199_PROOF.json",
+          "scope": "Returned former Madam Ulpia recruited naturally for exactly777denars; active worker Cassian recruited directly for exactly333denars. Native Clan/CompanionOf, Wanderer/nonnotable status and one party row each persist; exact natural replay leaves journals and wallets unchanged."
         }
       ],
       "proof": "Natural permanent companion recruitment1157 accepted exact1111denars. Native Clan and CompanionOf both player_faction, Wanderer/nonnotable, exactly one party row and visible native companion entry. Skills, traits, identity and appearance preserved. Exact natural replay1159 returned valid none with byte-identical journal and no second payment. Guarded Current1160 and actual new-process restart1161/reload1162 retained effects and all three guest/recruitment journals."
@@ -5590,6 +5666,62 @@
         }
       ],
       "proof": "D:\\Projects\\Reign\\.codex-build\\action-system-01a0ff71\\action-language-filter-20261006\\diplomatic-payments-400-native-proof.json"
+    },
+    {
+      "actionId": "government.endorse_petition",
+      "surface": "agreement",
+      "source": "ReignServer/shared/Reign.Core.Contracts/Actions/ReignActionCatalog.cs",
+      "nativeStatus": "pending",
+      "evidence": [],
+      "proof": "Requires the government participation player scenario after deployment; offline contracts do not establish native execution."
+    },
+    {
+      "actionId": "government.sponsor_petition",
+      "surface": "agreement",
+      "source": "ReignServer/shared/Reign.Core.Contracts/Actions/ReignActionCatalog.cs",
+      "nativeStatus": "pending",
+      "evidence": [],
+      "proof": "Requires the government participation player scenario after deployment; offline contracts do not establish native execution."
+    },
+    {
+      "actionId": "government.seek_petition_adoption",
+      "surface": "agreement",
+      "source": "ReignServer/shared/Reign.Core.Contracts/Actions/ReignActionCatalog.cs",
+      "nativeStatus": "pending",
+      "evidence": [],
+      "proof": "Requires the government participation player scenario after deployment; offline contracts do not establish native execution."
+    },
+    {
+      "actionId": "government.present_petition",
+      "surface": "agreement",
+      "source": "ReignServer/shared/Reign.Core.Contracts/Actions/ReignActionCatalog.cs",
+      "nativeStatus": "pending",
+      "evidence": [],
+      "proof": "Requires the government participation player scenario after deployment; offline contracts do not establish native execution."
+    },
+    {
+      "actionId": "government.transfer_mandate",
+      "surface": "agreement",
+      "source": "ReignServer/shared/Reign.Core.Contracts/Actions/ReignActionCatalog.cs",
+      "nativeStatus": "pending",
+      "evidence": [],
+      "proof": "Requires the government participation player scenario after deployment; offline contracts do not establish native execution."
+    },
+    {
+      "actionId": "government.nominate_leader",
+      "surface": "agreement",
+      "source": "ReignServer/shared/Reign.Core.Contracts/Actions/ReignActionCatalog.cs",
+      "nativeStatus": "pending",
+      "evidence": [],
+      "proof": "Requires the government participation player scenario after deployment; offline contracts do not establish native execution."
+    },
+    {
+      "actionId": "government.vote_leader",
+      "surface": "agreement",
+      "source": "ReignServer/shared/Reign.Core.Contracts/Actions/ReignActionCatalog.cs",
+      "nativeStatus": "pending",
+      "evidence": [],
+      "proof": "Requires the government participation player scenario after deployment; offline contracts do not establish native execution."
     }
   ],
   "progressNotes": [
@@ -5816,9 +5948,17 @@
     {
       "date": "2026-10-08",
       "taskId": "01a0ff71-2957-7eb1-9995-6868f21a4143",
-      "counts": { "passed": 282, "pending": 75, "limited_native_defect": 1 },
+      "counts": {
+        "passed": 282,
+        "pending": 75,
+        "limited_native_defect": 1
+      },
       "note": "Tavern actual-speaker meeting hotfix deployed from Product Release Tier4 report20261008-071428-735a2054. Native Madam guest/end/return/permanent and direct active-worker permanent recruitment pass64 checks1199, including native party Talk, exact777/333 payments, natural replay, replacement madam and actual fresh-process persistence. Guarded Current1197 finalized after quiescence; protected baselines unchanged;12/15 Save Sync states. Additional branches of already credited capabilities do not increase the action count; resumed testing continues.",
       "evidence": "C:/Users/speed/.codex/action-system-01a0ff71/resume-20261008/TAVERN_1199_PROOF.json"
+    },
+    {
+      "date": "2026-10-15",
+      "note": "Government participation adds seven exact-revision petition and party-office actions. Native acceptance is pending deployment; previous unrelated passing actions retain their evidence."
     }
   ]
 }

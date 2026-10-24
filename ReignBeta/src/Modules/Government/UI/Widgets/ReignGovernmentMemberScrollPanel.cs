@@ -19,6 +19,14 @@ namespace ReignBeta.UI
         private int _visibleRows = 2;
         private int _itemCount;
         private int _currentRowIndex;
+        private int _resetRevision;
+        private bool _resetPending;
+
+        public int ResetRevision
+        {
+            get => _resetRevision;
+            set { if (_resetRevision != value) { _resetRevision = value; _resetPending = true; } }
+        }
 
         public ReignGovernmentMemberScrollPanel(UIContext context) : base(context) { }
 
@@ -54,6 +62,12 @@ namespace ReignBeta.UI
         {
             base.OnLateUpdate(dt);
             if (VerticalScrollbar == null) return;
+            if (_resetPending)
+            {
+                _resetPending = false;
+                ApplyRowIndex(0);
+                return;
+            }
 
             // Preserve continuous dragging, then normalize the released resting
             // position so a partially shifted member card cannot remain visible.

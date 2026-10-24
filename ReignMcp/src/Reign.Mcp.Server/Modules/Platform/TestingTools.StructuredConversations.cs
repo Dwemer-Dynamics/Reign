@@ -26,7 +26,7 @@ public static class StructuredConversationTools
         campaignTestRunId = Required(campaignTestRunId, nameof(campaignTestRunId));
         batchId = Required(batchId, nameof(batchId));
         var cases = ParseCases(casesJson);
-        CampaignTestAuthorization auth = await campaignTests.RequireArmedOwnedSaveAsync(
+        CampaignTestAuthorization auth = await campaignTests.RequireArmedOwnedPausedActionSaveAsync(
             campaignTestRunId, campaignId, cancellationToken).ConfigureAwait(false);
         string liveRunId = "action-chat-" + batchId + "-" + Guid.NewGuid().ToString("N")[..8];
         ApiEnvelope started = await api.PostAsync("/tests/live/run/start",

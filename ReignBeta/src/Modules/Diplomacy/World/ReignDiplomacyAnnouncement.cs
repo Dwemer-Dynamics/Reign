@@ -22,6 +22,8 @@ namespace ReignBeta.World
         public string TargetPublicReason = string.Empty;
         public float WorldDay;
         public bool Accepted;
+        public bool IsNews;
+        public Reign.Core.Contracts.Government.GovernmentNewsEdition GovernmentNews;
 
         public bool IsValid => !string.IsNullOrWhiteSpace(EventId) && !string.IsNullOrWhiteSpace(Title);
     }

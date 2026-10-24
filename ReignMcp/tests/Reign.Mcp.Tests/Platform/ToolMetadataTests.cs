@@ -1,4 +1,4 @@
-﻿using System.ComponentModel;
+using System.ComponentModel;
 using System.Reflection;
 using ModelContextProtocol.Server;
 using Reign.Mcp.Server;
@@ -122,7 +122,11 @@ public sealed class ToolMetadataTests
         destructive.Add("reign_control_spymaster_action_test");
         writes.Add("reign_control_spymaster_destructive_action_test");
         destructive.Add("reign_control_spymaster_destructive_action_test");
-        Assert.Equal(121, tools.Length);
+        writes.Add("reign_test_npc_lives");
+        destructive.Add("reign_test_npc_lives");
+        writes.Add("reign_test_personal_gossip");
+        destructive.Add("reign_test_personal_gossip");
+        Assert.Equal(126, tools.Length);
         Assert.All(tools, item =>
         {
             Assert.StartsWith("reign_", item.Tool!.Name, StringComparison.Ordinal);

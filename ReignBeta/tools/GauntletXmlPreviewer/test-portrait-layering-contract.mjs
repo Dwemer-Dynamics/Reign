@@ -2,7 +2,8 @@ import assert from "node:assert/strict";
 import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
-import { classifyPortraitPresentation, resolvePortraitComposition } from "./js/renderer.js";
+import { classifyPortraitPresentation, resolvePortraitComposition, resolvePortraitPreviewAsset } from "./js/renderer.js";
+import { createHash } from "node:crypto";
 import { ASSETS, getNativeAugmentationSampleData, getSampleDataForPrefab } from "./js/sample-data.js";
 
 const moduleRoot = path.dirname(fileURLToPath(import.meta.url));
@@ -58,11 +59,34 @@ assert.equal(direct.clip, directContainer, "a clip with a direct portrait source
 assert.equal(direct.aperture, directPlate, "a direct source still resolves the following aperture plate");
 assert.deepEqual(direct.sources, [directSource], "a direct portrait source is never mistaken for its aperture");
 
-assert.equal(classifyPortraitPresentation({ id: "ActorNativePortrait", width: 244, height: 244 }), "headshot");
+assert.equal(classifyPortraitPresentation({ id: "ActorNativePortrait", width: 143, height: 143 }), "headshot");
+assert.equal(classifyPortraitPresentation({ id: "ActorAIPortrait", width: 143, height: 240, useFramedBust: true }), "framed-bust");
 assert.equal(classifyPortraitPresentation({ id: "AIPortraitsNpcPortrait", width: 168, height: 168 }), "headshot");
 assert.equal(classifyPortraitPresentation({ id: "ReignChatZoomPortrait", width: 560, height: 680 }), "full-body");
 assert.equal(classifyPortraitPresentation({ id: "", width: 430, height: 645, useFullBody: true }), "full-body");
 assert.equal(classifyPortraitPresentation({ id: "AIPortraitsAIInfluenceMemoryImage", width: 516, height: 296 }), "scene");
+
+const sharedRoot = path.resolve(moduleRoot, "../../PortraitCache/_shared");
+const portraitInventory = JSON.parse(fs.readFileSync(path.resolve(sharedRoot, "../shared-portrait-inventory.json"), "utf8"));
+for (const asset of Object.values(ASSETS).filter(value => value.includes("/PortraitCache/_shared/"))) {
+  const headshot = resolvePortraitPreviewAsset(asset, "headshot");
+  assert.match(headshot, /\/portrait_chest\.png$/, "headshots use the shipped face/chest crop");
+  assert.equal(resolvePortraitPreviewAsset(asset, "full-body"), asset, "zoom and outfit images retain the full source");
+  assert.equal(resolvePortraitPreviewAsset(asset, "framed-bust"), asset, "announcement busts frame the full source, never a second crop of the chest derivative");
+  assert.equal(resolvePortraitPreviewAsset(asset, "scene"), asset, "scene presentation never substitutes a portrait crop");
+  for (const image of [asset, headshot]) {
+    const absolute = path.resolve(moduleRoot, image);
+    const bytes = fs.readFileSync(absolute);
+    assert.equal(bytes.subarray(0, 8).toString("hex"), "89504e470d0a1a0a", "preview images must be hydrated PNGs");
+    const relative = path.relative(sharedRoot, absolute).replaceAll("\\", "/");
+    const expected = portraitInventory.files.find(file => file.path === relative);
+    assert.ok(expected, `${relative} must belong to the shipped inventory`);
+    assert.equal(createHash("sha256").update(bytes).digest("hex"), expected.sha256, `${relative} must match its shipped hash`);
+  }
+}
+for (const asset of ["assets/spymaster-full-body-preview.png", "assets/portrait.png", ASSETS.eventArt]) {
+  assert.equal(resolvePortraitPreviewAsset(asset, "headshot"), asset, "only known shared portraits have a crop substituted");
+}
 
 const conversationSample = getNativeAugmentationSampleData("SPConversation");
 assert.equal(conversationSample.AIInfluenceMemoryAsset, ASSETS.eventArt, "the conversation memory panel previews scene art, not a portrait source");

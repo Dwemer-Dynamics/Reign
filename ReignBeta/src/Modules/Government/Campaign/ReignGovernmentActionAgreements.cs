@@ -47,6 +47,8 @@ namespace ReignBeta.Government
             if (actor == null || realm == null || realm.Leader != actor || state == null)
             { errors.Add("Only this realm's current ruler may commit its government to this action."); return errors; }
             string id = c.ActionId.Substring("government.".Length);
+            if (id == "resolve" || id == "postpone" || id == "reconvene" || id == "fulfill_resolution" || id == "decline_resolution")
+            { errors.Add("This former ruler-disposition command is retired. Recommend an exact option and call its scheduled weighted vote; active obligations retain their separate completion actions."); return errors; }
             if (id == "introduce_proposal")
             {
                 string proposal = ProposalState(c);

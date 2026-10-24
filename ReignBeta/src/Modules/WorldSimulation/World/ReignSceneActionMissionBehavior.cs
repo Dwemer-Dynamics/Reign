@@ -9,6 +9,7 @@ using SandBox;
 using SandBox.Missions.AgentBehaviors;
 using SandBox.Objects.Usables;
 using TaleWorlds.CampaignSystem;
+using TaleWorlds.CampaignSystem.Party;
 using TaleWorlds.Core;
 using TaleWorlds.Engine;
 using TaleWorlds.Library;
@@ -16,11 +17,14 @@ using TaleWorlds.MountAndBlade;
 
 namespace ReignBeta.World
 {
-    // Scene orders own one NPC's movement behavior, never the player's controls.
+        // Production scene orders own one NPC's movement, never player controls.
     // A scene Follow completes after its native behavior binds to the actual
     // target; guidance still requires observed arrival at its destination.
     public sealed class ReignSceneActionMissionBehavior : MissionBehavior
     {
+        // Large town routes can take several minutes at the guide's walking pace.
+        // Keep a finite recovery boundary without cutting off a progressing walk.
+        private const float GuidanceTimeoutSeconds = 600f;
         // A distinct type lets Stop remove only the behavior added by this order.
         public sealed class AcceptedFollowBehavior : FollowAgentBehavior
         {
@@ -127,6 +131,50 @@ namespace ReignBeta.World
                 ["destinations"] = new JArray(behavior._cachedDestinations.Select(x => x.DeepClone())),
                 ["followAgreements"] = ReignFollowCampaignBehavior.RuntimeSnapshot()
             };
+        }
+
+        // Test-only player movement after exact accepted-journal authorization in
+        // the guarded host. This never changes an NPC, destination or order result.
+        internal JObject StepPlayerToAcceptedGuideForTest(string actionId, string actorId, bool apply)
+        {
+            Mission mission = ActiveMission;
+            var settlement = Hero.MainHero?.CurrentSettlement;
+            if (mission == null || mission != TaleWorlds.MountAndBlade.Mission.Current
+                || mission.GetMissionBehavior<ReignSceneActionMissionBehavior>() != this || ConversationOpen(mission)
+                || mission.Mode == MissionMode.Battle || settlement == null || !settlement.IsTown || settlement.IsUnderSiege
+                || MobileParty.MainParty == null || MobileParty.MainParty.MapEvent != null || Hero.MainHero.IsPrisoner
+                || Hero.MainHero.IsDead || FactionManager.IsAtWarAgainstFaction(Hero.MainHero.MapFaction, settlement.MapFaction)
+                || !_orders.TryGetValue(actionId, out var order) || !order.Guide || order.Reported
+                || !order.Bound || order.ActorHero?.StringId != actorId || order.TargetHero != Hero.MainHero)
+                throw new InvalidOperationException("Player following requires the exact active peaceful accepted guide order.");
+            Agent player = ResolvePlayerAgent(mission), guide = order.Actor;
+            if (player == null || guide == null || player == guide || player.Mission != mission || guide.Mission != mission
+                || !player.HasBeenBuilt || !guide.HasBeenBuilt || !player.IsActive() || !guide.IsActive()
+                || !player.IsHuman || !guide.IsHuman || player.MountAgent != null
+                || player.Controller != AgentControllerType.Player || ReignSceneTeamSafety.AreHostile(guide.Team, player.Team))
+                throw new InvalidOperationException("Both real live peaceful on-foot player and guide agents must be present.");
+            Vec3 before = player.Position, destination = guide.Position;
+            float distance = (destination - before).Length;
+            if (float.IsNaN(distance) || float.IsInfinity(distance) || distance > 20f)
+                throw new InvalidOperationException("A following step cannot move the player more than twenty scene metres.");
+            bool requested = apply && distance > 1.5f;
+            if (requested) player.TeleportToPosition(destination);
+            Vec3 after = player.Position;
+            float distanceAfter = (destination - after).Length;
+            if (requested && (float.IsNaN(distanceAfter) || float.IsInfinity(distanceAfter) || distanceAfter > 1.5f))
+                throw new InvalidOperationException("The native player catch-up movement was not independently observed.");
+            return new JObject { ["worldActionId"] = actionId, ["guideHeroId"] = actorId,
+                ["playerAgentIndex"] = player.Index, ["guideAgentIndex"] = guide.Index,
+                ["distanceBefore"] = distance, ["distanceAfter"] = distanceAfter,
+                ["movementRequested"] = requested, ["movedPlayer"] = (after - before).Length > 0.01f,
+                ["playerBefore"] = new JObject { ["x"] = before.x, ["y"] = before.y, ["z"] = before.z },
+                ["guidePosition"] = new JObject { ["x"] = destination.x, ["y"] = destination.y, ["z"] = destination.z },
+                ["playerAfter"] = new JObject { ["x"] = after.x, ["y"] = after.y, ["z"] = after.z },
+                ["guideElapsedSeconds"] = order.Elapsed, ["guideMovementApplied"] = order.MovementApplied,
+                ["guideTimeoutSeconds"] = GuidanceTimeoutSeconds,
+                ["guideDestination"] = new JObject { ["x"] = order.Destination.x, ["y"] = order.Destination.y, ["z"] = order.Destination.z },
+                ["guideDistanceToDestination"] = guide.Position.Distance(order.Target?.Position ?? order.Destination),
+                ["maximumStepMetres"] = 20, ["guideCompleted"] = false };
         }
 
         private void CacheDestinations(Mission mission)
@@ -372,7 +420,7 @@ namespace ReignBeta.World
                     Complete(order, ReignActionResult.Done("The NPC is following the selected scene participant.")
                         .WithResultCode("scene_follow_active").WithEffect("scene_follow_started", "action", order.ActionId, "Scene follow", "native_follow=active;target=bound"));
                 }
-                if ((!order.Reported && order.Elapsed >= (order.Guide ? 180f : 20f)))
+                if ((!order.Reported && order.Elapsed >= (order.Guide ? GuidanceTimeoutSeconds : 20f)))
                 { Finish(order, false, "The NPC could not complete the scene movement in time.", "scene_path_timeout"); continue; }
                 // Native FollowAgentBehavior owns pursuit, stopping distance and speed.
                 // Guidance continues to use an explicit destination below.

@@ -71,7 +71,7 @@ namespace ReignBeta.World
                 case ReignWorldActionType.RegularAttackPlayerParty:
                     return AttackPlayerParty(actor, actorParty);
                 case ReignWorldActionType.RegularSurrenderToPlayer:
-                    return SurrenderToPlayer(actor, actorParty);
+                    return ReignSurrenderService.Queue(action, actor, actorParty);
                 case ReignWorldActionType.RegularLeavePlayerAlone:
                     return LeavePlayerAlone(actor, actorParty);
                 case ReignWorldActionType.RegularKillCharacter:
@@ -264,38 +264,6 @@ namespace ReignBeta.World
                 .WithChangedEntity("party", actorParty.StringId, PartyName(actorParty), "movement_order_changed"));
         }
 
-        private static ReignActionResult SurrenderToPlayer(Hero actor, MobileParty actorParty)
-        {
-            MapEvent mapEvent = actorParty?.MapEvent;
-            MapEventSide actorSide = actorParty?.Party?.MapEventSide;
-            if (mapEvent == null || actorSide == null || !mapEvent.IsPlayerMapEvent || PartyBase.MainParty?.MapEvent != mapEvent)
-            {
-                return ReignActionResult.ValidationFailed("SurrenderToPlayer requires an active player encounter with the surrendering party.");
-            }
-
-            if (PlayerEncounter.Current != null && actorParty.Party.Side == PartyBase.MainParty.OpponentSide)
-            {
-                PlayerEncounter.EnemySurrender = true;
-            }
-            else
-            {
-                mapEvent.DoSurrender(actorParty.Party.Side);
-            }
-
-            BattleState expectedState = actorParty.Party.Side == BattleSideEnum.Defender
-                ? BattleState.AttackerVictory
-                : BattleState.DefenderVictory;
-            if (mapEvent.BattleState != expectedState)
-            {
-                return ReignActionResult.FailTerminal("Native encounter surrender did not mark the actor side as surrendered.", "surrender_verification_failed", "state_verification");
-            }
-
-            return ReignActionResult.Done(actor.Name + " surrendered to the player in the active encounter.")
-                .WithResultCode("encounter_surrender_completed")
-                .WithEffect("party_surrendered", "party", actorParty.StringId, PartyName(actorParty), "captorPartyId=" + (MobileParty.MainParty?.StringId ?? string.Empty))
-                .WithChangedEntity("party", actorParty.StringId, PartyName(actorParty), "party_surrendered");
-        }
-
         private static ReignActionResult LeavePlayerAlone(Hero actor, MobileParty actorParty)
         {
             actorParty.SetMoveModeHold();
@@ -446,7 +414,9 @@ namespace ReignBeta.World
         {
             Clan targetClan = ReignObjectResolver.FindClan(action.TargetClanStringId);
             Clan previousClan = actor.Clan;
-            actor.Clan = targetClan;
+            if (ReignRulerCampaignBehavior.Instance?.CanRecruitFugitiveMember(actor, targetClan) == true)
+                ReignRulerCampaignBehavior.Instance.RecruitFugitiveMember(actor, targetClan);
+            else actor.Clan = targetClan;
             var residents = ReignEncounteredResidentsCampaignBehavior.Instance;
             if (residents?.UsesCompanionMembership(actor, targetClan) == true
                 && !residents.RegisterResidentClanMember(actor, out string registrationReason))

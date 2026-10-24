@@ -56,7 +56,7 @@ namespace ReignBeta.Government
                 var response = _business.FirstOrDefault(x => Same(x.CounterpartOfBusinessId, record.BusinessId));
                 if (response == null) throw new InvalidOperationException("The counterpart hearing was not recorded.");
                 response.PetitionerHeroStringId = original.Kingdom.Leader?.StringId ?? string.Empty;
-                response.Status = "hearing";
+                response.Status = response.FrozenAuthorityLevel > 0 ? "hearing" : "queued";
                 response.SponsorHeroStringId = string.Empty;
                 response.SponsorReason = "A request from the counterpart government requires no domestic sponsor.";
                 record.CounterpartBusinessId = response.BusinessId;

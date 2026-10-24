@@ -3,6 +3,10 @@ using Xunit.Abstractions;
 
 namespace Reign.Mcp.Tests;
 
+[CollectionDefinition("WSL portrait filesystem", DisableParallelization = true)]
+public sealed class WslPortraitFilesystemCollection { }
+
+[Collection("WSL portrait filesystem")]
 public sealed class PortraitProductTransactionTests
 {
     private readonly ITestOutputHelper output;
@@ -10,6 +14,15 @@ public sealed class PortraitProductTransactionTests
 
     private static void Unsupported(string source, string destination, string backup) =>
         throw new IOException("The request is not supported.", unchecked((int)0x80070032));
+
+    [Theory]
+    [InlineData(@"\\wsl.localhost\ReignServer\tmp\portrait.png", true)]
+    [InlineData(@"\\WSL$\ReignServer\tmp\portrait.png", true)]
+    [InlineData(@"\\fileserver\share\portrait.png", false)]
+    [InlineData(@"\\wsl.localhost.example\share\portrait.png", false)]
+    [InlineData(@"C:\portraits\portrait.png", false)]
+    public void OnlyKnownWslSharesBypassUnsupportedReplaceFile(string path, bool expected)
+        => Assert.Equal(expected, PortraitProductTransaction.UsesWslRename(path));
 
     [Theory]
     [InlineData(false)]
@@ -163,6 +176,13 @@ public sealed class PortraitProductTransactionTests
             Path.GetFullPath(root));
         Directory.CreateDirectory(root);
         try { action(root); }
-        finally { Directory.Delete(root, true); } // Only this fresh test-owned directory.
+        finally
+        {
+            // WSL UNC deletion can report missing after removing the directory.
+            // Accept only verified absence; never hide a remaining fixture or
+            // replace an assertion failure from the test body with cleanup noise.
+            try { Directory.Delete(root, true); }
+            catch (DirectoryNotFoundException) when (!Directory.Exists(root)) { }
+        } // Only this fresh, boundary-checked test-owned directory.
     }
 }

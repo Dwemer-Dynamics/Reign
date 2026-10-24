@@ -57,6 +57,11 @@ namespace ReignBeta.UI
                 _vm = new ReignCorrespondenceScreenVM(RequestClose, preselected, calibrationMode);
                 _layer = new GauntletLayer("ReignCorrespondenceScreen", LayerOrder, true);
                 _layer.LoadMovie("ReignCorrespondenceScreen", _vm);
+                var editor = _layer.UIContext.Root.FindChild("CorrespondenceInput", true) as ReignActionEditableTextWidget;
+                if (editor == null) throw new InvalidOperationException("Correspondence input widget is unavailable.");
+                // Wire the actual instantiated editor before it can accept keys.
+                // Do not leave protected editing dependent on a silent ID lookup.
+                editor.BindComposer(_vm.Composer);
                 _host.AddLayer(_layer);
                 _layer.IsFocusLayer = true;
                 _layer.ActiveCursor = CursorType.Default;
@@ -118,6 +123,8 @@ namespace ReignBeta.UI
 
         public static void Close()
         {
+            _vm?.CancelPendingLoads();
+            ReignPortraitWidget.CancelThumbnailLoads(_layer?.UIContext);
             IsOpen = false;
             _closeRequested = false;
             _pending = false;
@@ -151,6 +158,8 @@ namespace ReignBeta.UI
 
         private static void RequestClose()
         {
+            _vm?.CancelPendingLoads();
+            ReignPortraitWidget.CancelThumbnailLoads(_layer?.UIContext);
             _closeRequested = true;
         }
 

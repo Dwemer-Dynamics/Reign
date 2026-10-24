@@ -33,7 +33,8 @@ namespace ReignBeta.Integration
             string playerId = Hero.MainHero?.StringId ?? "", npcId = npc?.StringId ?? "";
             payload["playerHeroStringId"] = playerId;
             payload["speakerHeroStringId"] = npcId;
-            string contextId = GetCampaignId() + ":" + (ReignWorldHistoryCampaignBehavior.Instance?.TimelineId ?? "main") + ":" + npcId;
+            string contextId = ReignActionConversationPolicy.ConversationContextId(GetCampaignId(),
+                ReignWorldHistoryCampaignBehavior.Instance?.TimelineId ?? "main", npcId);
             if (draft != null && npc?.IsChild == true) throw new InvalidOperationException("Gameplay bargaining requires an adult participant.");
             var behavior = ReignAgreementBehavior.Instance ?? throw new InvalidOperationException("The explicit action service is unavailable.");
             var offer = behavior.PrepareOffer(draft, playerId, npcId, contextId, out var receipt);
@@ -41,12 +42,52 @@ namespace ReignBeta.Integration
                 ["worldDay"] = ReignActionService.Now, ["adultParticipant"] = npc?.IsChild != true };
             if (offer != null) { context["proposal"] = JObject.FromObject(offer); context["termsHash"] = offer.TermsHash(); }
             if (receipt != null) context["nativeReceipt"] = JObject.FromObject(receipt);
+            context["fulfilledPaymentHistory"] = CaptureFulfilledPaymentHistory(playerId, npcId);
+            if (ReignSpouseSeparationAction.Available(npc)) context["currentMarriage"] = new JObject {
+                ["actorId"] = npcId, ["spouseId"] = npc.Spouse.StringId,
+                ["spouseName"] = npc.Spouse.Name.ToString(), ["spouseClanId"] = npc.Spouse.Clan?.StringId ?? "",
+                ["spouseClanName"] = npc.Spouse.Clan?.Name.ToString() ?? "", ["relationLoss"] = ReignSpouseSeparation.RelationLoss
+            };
             if (draft != null && AgreementRules.IsPlayerDeclaration(draft) && receipt != null)
                 context["playerDeclaration"] = draft.Sentence;
             if (npc?.IsChild != true) context["appraisals"] = ReignActionQuotes.Context(playerId, npcId, offer,
                 payload.Value<string>("playerText") ?? payload.Value<string>("text") ?? payload.Value<string>("message") ?? "");
+            if (npc?.IsChild != true)
+                context["governmentPetitions"] = ReignBeta.Government.ReignGovernmentCampaignBehavior.Instance
+                    ?.PetitionNegotiationContext(npc, Hero.MainHero, offer);
             payload["structuredActionProtocolVersion"] = ActionNegotiation.ProtocolVersion;
             payload["structuredActionContext"] = context;
+        }
+
+        // Arrival is observation, not a bargaining turn. Supply the same verified
+        // payment facts without preparing offers or enabling action decisions.
+        private static void AttachReadOnlyAgreementPaymentHistory(JObject payload, Hero npc)
+        {
+            string playerId = Hero.MainHero?.StringId ?? "", npcId = npc?.StringId ?? "";
+            payload["structuredActionContext"] = new JObject {
+                ["playerId"] = playerId, ["npcId"] = npcId,
+                ["fulfilledPaymentHistory"] = CaptureFulfilledPaymentHistory(playerId, npcId)
+            };
+        }
+
+        private static JObject CaptureFulfilledPaymentHistory(string playerId, string npcId)
+        {
+            var payments = ReignAgreementPaymentFacts.Capture(ReignAgreementBehavior.Instance?.Agreements, playerId, npcId);
+            return new JObject {
+                ["schema"] = AgreementPaymentHistory.Schema, ["source"] = "native_agreement_journal",
+                ["total"] = payments.Total, ["truncated"] = payments.Truncated,
+                ["rows"] = new JArray(System.Linq.Enumerable.Select(payments.Rows, payment => new JObject {
+                    ["agreementId"] = payment.AgreementId, ["clauseId"] = payment.ClauseId,
+                    ["termsHash"] = payment.TermsHash, ["status"] = "applied",
+                    ["fromHeroStringId"] = payment.FromHeroId, ["toHeroStringId"] = payment.ToHeroId,
+                    ["amount"] = payment.Amount, ["quantityPerInstallment"] = payment.QuantityPerInstallment,
+                    ["fulfilledInstallments"] = payment.FulfilledInstallments,
+                    ["scheduledInstallments"] = payment.ScheduledInstallments,
+                    ["stepStartedDay"] = payment.StepStartedDay,
+                    ["unusedReservationReturned"] = payment.UnusedReservationReturned,
+                    ["associatedActionIds"] = new JArray(payment.AssociatedActionIds)
+                }))
+            };
         }
 
         private static void ProcessStructuredActionDecision(JObject request, JObject response, Hero npc, string responseId = "")

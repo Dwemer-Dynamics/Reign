@@ -564,7 +564,12 @@
         "toolVersion": "1.7.0",
         "runtimePath": "ReignBeta/GUI/SpriteParts/ui_reignbeta_court/reign_court_petition_attendee_card_modern.png",
         "runtimeSha256": "2457b8c50047cbf2d51a9c55d29fa85793c6b29714648b83c8cb30d386bd151e",
-        "portraitAperture": [15, 11, 93, 92],
+        "portraitAperture": [
+          15,
+          11,
+          93,
+          92
+        ],
         "apertureCenterAlpha": 0,
         "bodyAlpha": 255,
         "evidencePath": ".codex-build/ui-modern-assets/20260903/ruler-docket-control-fix/court-assets-evidence.json"
@@ -581,7 +586,12 @@
       "artifactRole": "approved actual modern Court shell containing the lower navigation-button authority",
       "runtimeDerivation": {
         "method": "Exact RGB crop of the actual modern center lower Court button body with true alpha materialized outside its approved clipped-corner geometry; the two small side diamonds are reconstructed cleanly from the frozen interactive-control palette because the left source diamond overlaps throne-floor linework.",
-        "sourceBox": [700, 774, 970, 834],
+        "sourceBox": [
+          700,
+          774,
+          970,
+          834
+        ],
         "buttonBodyRgbPixelTransformationCount": 0,
         "sideDiamondsUseFrozenPaletteGeometry": true,
         "toolPath": "ReignBeta/artwork/ui-modern-style-kit/tools/prepare_ruler_docket_interface_assets.py",
@@ -589,7 +599,10 @@
         "toolSha256": "fb2ccb67ee96d43009a2230e242d91cc42c7367ec288eafc198cea0e7667aaa5",
         "runtimePath": "ReignBeta/GUI/SpriteParts/ui_reignbeta_court/reign_court_navigation_button_modern.png",
         "runtimeSha256": "88fca0c1b29dea8b3c86a395b9f9f6eba1d9d6bb27b508cd21471aeb5a2e6f8c",
-        "runtimeDimensions": [270, 60],
+        "runtimeDimensions": [
+          270,
+          60
+        ],
         "evidencePath": ".codex-build/ui-modern-assets/20260903/ruler-docket-control-fix/court-assets-evidence.json",
         "evidenceSha256": "3af44b997c2de72b1ecf490ba37cd00cced8f9d1878607b1009e943067c6be50"
       },
@@ -614,14 +627,41 @@
       "promptPath": "generated-sources/ruler-docket/scrollbar/reign-court-scroll-handle-imagegen-prompt.txt",
       "promptSha256": "3db6a589d801e78996e55b161d69dbd3493c4ba7b4aa8ee00869fa08f2d274fd",
       "runtimeDerivation": {
-        "sourceAlphaCrop": [241, 511, 311, 847],
-        "runtimeCanvas": [18, 80],
-        "visiblePlacement": [1, 10, 16, 60],
+        "sourceAlphaCrop": [
+          241,
+          511,
+          311,
+          847
+        ],
+        "runtimeCanvas": [
+          18,
+          80
+        ],
+        "visiblePlacement": [
+          1,
+          10,
+          16,
+          60
+        ],
         "interpolation": "high-quality bicubic",
         "runtimePath": "ReignBeta/GUI/SpriteParts/ui_reignbeta_court/reign_court_scroll_handle.png",
         "runtimeSha256": "25925eb10e10cb9bb3008cfde56a7947c9b8893434fec2c9a7fca16a878a760e"
       },
       "acceptance": "Compact grip silhouette, true alpha, restrained border, and centered diamond remained legible at the exact runtime size."
+    },
+    {
+      "id": "diplomacy-news-readable-interior-20261015",
+      "path": "generated-sources/news-reading/source.png",
+      "sha256": "2381599406bcf8db9c0c6288745afaa3918eff0e766bcc3036cc6aa35d760d95",
+      "date": "2026-10-15",
+      "provider": "OpenAI built-in image generation",
+      "promptPath": "generated-sources/news-reading/prompt.txt",
+      "materializer": "generated-sources/news-reading/materialize.ps1",
+      "runtimeSha256": "921e90b7105724b169c0e4994ac15f65d0016a34cad3d8cbb3fe1ba40d1ad82a",
+      "approvedReferenceSha256": "1a80ede7b3033814fbd494e7e9bbb7e195683430f461205133c7da6b17bbf736",
+      "productionUse": "Only central 444,232,782,531 interior replaces the divider/compass; all 1158110 exterior pixels remain exact. Ruler diplomacy and town-crier news use the same reading surface.",
+      "status": "materialized; native acceptance pending",
+      "evidencePath": ".codex-build/ruler-01a12855/news-20261015/reading-art-evidence.json"
     }
   ],
   "runtimeDerivations": [
@@ -841,16 +881,46 @@
           "categoryCount": 22,
           "portraitFrameRegistrationCount": 25,
           "affectedSheets": [
-            {"path": "ReignBeta/GUI/RuntimeSpriteSheets/ui_reignbeta_court/ui_reignbeta_court_5.png", "sha256": "cc65f5f2c806c7f161824b9052be3aa7aed1f72d19199d804036fd81266cf394"},
-            {"path": "ReignBeta/GUI/RuntimeSpriteSheets/ui_reignbeta_family_chambers/ui_reignbeta_family_chambers_1.png", "sha256": "76e3473ccedfa94e77bafe87842b1d0e3db771987a4ef39b60a7be967138158c"},
-            {"path": "ReignBeta/GUI/RuntimeSpriteSheets/ui_reignbeta_correspondence/ui_reignbeta_correspondence_3.png", "sha256": "abb0fef776a091bb53e89bb6884b239c92a010739e3975af71a89d9bbc5cb161"},
-            {"path": "ReignBeta/GUI/RuntimeSpriteSheets/ui_reignbeta_diplomacy/ui_reignbeta_diplomacy_3.png", "sha256": "3b9f85315c72119d2a272b430aeae878196791e36087f893b7da264b284d0a9d"},
-            {"path": "ReignBeta/GUI/RuntimeSpriteSheets/ui_reignbeta_individual/ui_reignbeta_individual_3.png", "sha256": "20f98bb7a2074e111a2beb88b8ce99714362a341ef5f2cb956f62fbda0b42ea4"},
-            {"path": "ReignBeta/GUI/RuntimeSpriteSheets/ui_reignbeta_party_chat/ui_reignbeta_party_chat_8.png", "sha256": "470a6cac4d6e389899553366087923e82b315862b18e2f6a5f78c15ac8989075"},
-            {"path": "ReignBeta/GUI/RuntimeSpriteSheets/ui_reignbeta_royal_council/ui_reignbeta_royal_council_1.png", "sha256": "df3bead8ccaeff3e83a201b153f887abedbe9f6837a12866d6ac1879c07a59da"},
-            {"path": "ReignBeta/GUI/RuntimeSpriteSheets/ui_reignbeta_shared/ui_reignbeta_shared_1.png", "sha256": "7025522065095ff0f75e63e3a842c39c069ca78d669af39eb164ef9d09ced471"},
-            {"path": "ReignBeta/GUI/RuntimeSpriteSheets/ui_reignbeta_social_event/ui_reignbeta_social_event_4.png", "sha256": "7fa51f910ce527a535387eb44aec52cb54be1e7f55224202f0ab7e350cfcdcf1"},
-            {"path": "ReignBeta/GUI/RuntimeSpriteSheets/ui_reignbeta_war_council/ui_reignbeta_war_council_2.png", "sha256": "ec9c6262c8118d0be8a57a41f21f2bffaec06eff4464bbef828e8a7bb9305d36"}
+            {
+              "path": "ReignBeta/GUI/RuntimeSpriteSheets/ui_reignbeta_court/ui_reignbeta_court_5.png",
+              "sha256": "cc65f5f2c806c7f161824b9052be3aa7aed1f72d19199d804036fd81266cf394"
+            },
+            {
+              "path": "ReignBeta/GUI/RuntimeSpriteSheets/ui_reignbeta_family_chambers/ui_reignbeta_family_chambers_1.png",
+              "sha256": "76e3473ccedfa94e77bafe87842b1d0e3db771987a4ef39b60a7be967138158c"
+            },
+            {
+              "path": "ReignBeta/GUI/RuntimeSpriteSheets/ui_reignbeta_correspondence/ui_reignbeta_correspondence_3.png",
+              "sha256": "abb0fef776a091bb53e89bb6884b239c92a010739e3975af71a89d9bbc5cb161"
+            },
+            {
+              "path": "ReignBeta/GUI/RuntimeSpriteSheets/ui_reignbeta_diplomacy/ui_reignbeta_diplomacy_3.png",
+              "sha256": "3b9f85315c72119d2a272b430aeae878196791e36087f893b7da264b284d0a9d"
+            },
+            {
+              "path": "ReignBeta/GUI/RuntimeSpriteSheets/ui_reignbeta_individual/ui_reignbeta_individual_3.png",
+              "sha256": "20f98bb7a2074e111a2beb88b8ce99714362a341ef5f2cb956f62fbda0b42ea4"
+            },
+            {
+              "path": "ReignBeta/GUI/RuntimeSpriteSheets/ui_reignbeta_party_chat/ui_reignbeta_party_chat_8.png",
+              "sha256": "470a6cac4d6e389899553366087923e82b315862b18e2f6a5f78c15ac8989075"
+            },
+            {
+              "path": "ReignBeta/GUI/RuntimeSpriteSheets/ui_reignbeta_royal_council/ui_reignbeta_royal_council_1.png",
+              "sha256": "df3bead8ccaeff3e83a201b153f887abedbe9f6837a12866d6ac1879c07a59da"
+            },
+            {
+              "path": "ReignBeta/GUI/RuntimeSpriteSheets/ui_reignbeta_shared/ui_reignbeta_shared_1.png",
+              "sha256": "7025522065095ff0f75e63e3a842c39c069ca78d669af39eb164ef9d09ced471"
+            },
+            {
+              "path": "ReignBeta/GUI/RuntimeSpriteSheets/ui_reignbeta_social_event/ui_reignbeta_social_event_4.png",
+              "sha256": "7fa51f910ce527a535387eb44aec52cb54be1e7f55224202f0ab7e350cfcdcf1"
+            },
+            {
+              "path": "ReignBeta/GUI/RuntimeSpriteSheets/ui_reignbeta_war_council/ui_reignbeta_war_council_2.png",
+              "sha256": "ec9c6262c8118d0be8a57a41f21f2bffaec06eff4464bbef828e8a7bb9305d36"
+            }
           ]
         },
         "remainingGates": [
@@ -935,8 +1005,22 @@
           "evidencePath": ".codex-build/ui-modern-assets/20260829/individual-chat-shell-aperture-final/overlay-evidence.json",
           "evidenceSha256": "e02d3a77ce9fbde0b9f2ff811cefd85314cfe1721da864ff4aeba487c2079792",
           "apertures": [
-            {"id": "player-portrait", "shape": "oval", "x": 98, "y": 51, "width": 222, "height": 322},
-            {"id": "npc-portrait", "shape": "oval", "x": 1350, "y": 51, "width": 222, "height": 322}
+            {
+              "id": "player-portrait",
+              "shape": "oval",
+              "x": 98,
+              "y": 51,
+              "width": 222,
+              "height": 322
+            },
+            {
+              "id": "npc-portrait",
+              "shape": "oval",
+              "x": 1350,
+              "y": 51,
+              "width": 222,
+              "height": 322
+            }
           ],
           "transparentPixelCount": 109464,
           "partiallyTransparentPixelCount": 2760,
@@ -1123,55 +1207,55 @@
           ]
         }
       },
-    {
-      "id": "castle-layout",
-      "status": "fixed-composite-passed; runtime-source-sprite-byte-identical; atlas-built-native-human-pending",
-      "approvedReference": {
-        "path": "ReignBeta/artwork/ui-modern-style-kit/approved-references/castle-layout.png",
-        "sha256": "e274878fb6dc9a4f13114a8a4f9f4e256f26e07146bb9653e22d57c1aeeb848c"
-      },
-      "imageToImageCandidate": {
-        "path": "ReignBeta/artwork/ui-modern-style-kit/generated-sources/screen-shells/castle-layout-shell-source.png",
-        "sha256": "ef4fe9d3157edfaf62e1ce7cc7c808c8f88b2cb5946e5405be1d2e5da00aff4b",
-        "dynamicFillPath": "ReignBeta/artwork/ui-modern-style-kit/generated-sources/screen-shells/castle-layout-dynamic-fill-source.png",
-        "dynamicFillSha256": "7a728366591efec5c460349c5c7d18ded8965483a3c361d09c5e244ff06ed77c"
-      },
-      "fixedComposite": {
-        "status": "passed",
-        "specPath": "ReignBeta/artwork/ui-modern-style-kit/specs/screen-castle-layout-fixed-region-mask.json",
-        "specSha256": "3549a6f9c8c5bbd2f4e155bb5adc7f793620cc1b3ae387a6c79555ccf939eb51",
-        "sourcePath": "ReignBeta/artwork/ui-modern-style-kit/generated-sources/screen-shells/castle-layout-modern-shell-exact-fixed-source.png",
-        "sourceSha256": "5643ef30ba00702835ba91a89b8d264e35768db3637c502dadaf11d43c676cf8",
-        "compositionFillPath": "ReignBeta/artwork/ui-modern-style-kit/generated-sources/screen-shells/castle-layout-dynamic-fill-clean-source.png",
-        "compositionFillSha256": "a1bda06da44be30629e7edfb4cbbde5411860f1992fba347ea710e63ce0368b3",
-        "compositionFillLineage": {
-          "normalizedPath": "ReignBeta/artwork/ui-modern-style-kit/generated-sources/screen-shells/castle-layout-dynamic-fill-normalized-source.png",
-          "normalizedSha256": "d1bb4545b5b922bf80b83f1f1f9355f1b5b39561ca86ea33e117dde39fb9b738",
-          "normalizationSpecPath": "ReignBeta/artwork/ui-modern-style-kit/specs/source-castle-layout-dynamic-fill-normalize.json",
-          "normalizationSpecSha256": "969d93a43ef913f3fff3ce0bd95b6957b96bfbfe91cba0038cabced9b0455914",
-          "normalizationEvidencePath": ".codex-build/ui-modern-assets/20260828/castle-layout-fill-normalize-v1/fixed-region-composite-evidence.json",
-          "normalizationEvidenceSha256": "83f760aaac0e8f5e08b508b82ccffc0e669e6d11c989463fc47059ed55bf810f",
-          "cleaningSpecPath": "ReignBeta/artwork/ui-modern-style-kit/specs/source-castle-layout-dynamic-fill-clean.json",
-          "cleaningSpecSha256": "4862140676433e999784e44c729506a07e764b9fe606bb0d8d2e1e8e193e50c5",
-          "cleaningEvidencePath": ".codex-build/ui-modern-assets/20260828/castle-layout-fill-clean-v1/fixed-region-composite-evidence.json",
-          "cleaningEvidenceSha256": "8ac25fa176c44b6ee847017efccc59f6d1fa67ecb20c718e819b2d8898f3b118"
+      {
+        "id": "castle-layout",
+        "status": "fixed-composite-passed; runtime-source-sprite-byte-identical; atlas-built-native-human-pending",
+        "approvedReference": {
+          "path": "ReignBeta/artwork/ui-modern-style-kit/approved-references/castle-layout.png",
+          "sha256": "e274878fb6dc9a4f13114a8a4f9f4e256f26e07146bb9653e22d57c1aeeb848c"
         },
-        "evidencePath": ".codex-build/ui-modern-assets/20260828/castle-layout-fixed-region-clean-v6/fixed-region-composite-evidence.json",
-        "evidenceSha256": "720d00fe9be45d2193e16fd2f16f91b8bc6b9d7786a22291ad73e25ab796b2b2",
-        "fixedPixelCount": 734551,
-        "exactFixedPixelRatio": 1.0,
-        "maximumFixedChannelDifference": 0
+        "imageToImageCandidate": {
+          "path": "ReignBeta/artwork/ui-modern-style-kit/generated-sources/screen-shells/castle-layout-shell-source.png",
+          "sha256": "ef4fe9d3157edfaf62e1ce7cc7c808c8f88b2cb5946e5405be1d2e5da00aff4b",
+          "dynamicFillPath": "ReignBeta/artwork/ui-modern-style-kit/generated-sources/screen-shells/castle-layout-dynamic-fill-source.png",
+          "dynamicFillSha256": "7a728366591efec5c460349c5c7d18ded8965483a3c361d09c5e244ff06ed77c"
+        },
+        "fixedComposite": {
+          "status": "passed",
+          "specPath": "ReignBeta/artwork/ui-modern-style-kit/specs/screen-castle-layout-fixed-region-mask.json",
+          "specSha256": "3549a6f9c8c5bbd2f4e155bb5adc7f793620cc1b3ae387a6c79555ccf939eb51",
+          "sourcePath": "ReignBeta/artwork/ui-modern-style-kit/generated-sources/screen-shells/castle-layout-modern-shell-exact-fixed-source.png",
+          "sourceSha256": "5643ef30ba00702835ba91a89b8d264e35768db3637c502dadaf11d43c676cf8",
+          "compositionFillPath": "ReignBeta/artwork/ui-modern-style-kit/generated-sources/screen-shells/castle-layout-dynamic-fill-clean-source.png",
+          "compositionFillSha256": "a1bda06da44be30629e7edfb4cbbde5411860f1992fba347ea710e63ce0368b3",
+          "compositionFillLineage": {
+            "normalizedPath": "ReignBeta/artwork/ui-modern-style-kit/generated-sources/screen-shells/castle-layout-dynamic-fill-normalized-source.png",
+            "normalizedSha256": "d1bb4545b5b922bf80b83f1f1f9355f1b5b39561ca86ea33e117dde39fb9b738",
+            "normalizationSpecPath": "ReignBeta/artwork/ui-modern-style-kit/specs/source-castle-layout-dynamic-fill-normalize.json",
+            "normalizationSpecSha256": "969d93a43ef913f3fff3ce0bd95b6957b96bfbfe91cba0038cabced9b0455914",
+            "normalizationEvidencePath": ".codex-build/ui-modern-assets/20260828/castle-layout-fill-normalize-v1/fixed-region-composite-evidence.json",
+            "normalizationEvidenceSha256": "83f760aaac0e8f5e08b508b82ccffc0e669e6d11c989463fc47059ed55bf810f",
+            "cleaningSpecPath": "ReignBeta/artwork/ui-modern-style-kit/specs/source-castle-layout-dynamic-fill-clean.json",
+            "cleaningSpecSha256": "4862140676433e999784e44c729506a07e764b9fe606bb0d8d2e1e8e193e50c5",
+            "cleaningEvidencePath": ".codex-build/ui-modern-assets/20260828/castle-layout-fill-clean-v1/fixed-region-composite-evidence.json",
+            "cleaningEvidenceSha256": "8ac25fa176c44b6ee847017efccc59f6d1fa67ecb20c718e819b2d8898f3b118"
+          },
+          "evidencePath": ".codex-build/ui-modern-assets/20260828/castle-layout-fixed-region-clean-v6/fixed-region-composite-evidence.json",
+          "evidenceSha256": "720d00fe9be45d2193e16fd2f16f91b8bc6b9d7786a22291ad73e25ab796b2b2",
+          "fixedPixelCount": 734551,
+          "exactFixedPixelRatio": 1.0,
+          "maximumFixedChannelDifference": 0
+        },
+        "runtimeMaterialization": {
+          "assets": [
+            {
+              "path": "ReignBeta/GUI/SpriteParts/ui_reignbeta_castle_layout/reign_castle_layout_modern_shell.png",
+              "sha256": "5643ef30ba00702835ba91a89b8d264e35768db3637c502dadaf11d43c676cf8",
+              "lineage": "byte-identical to fixedComposite.sourceSha256"
+            }
+          ]
+        }
       },
-      "runtimeMaterialization": {
-        "assets": [
-          {
-            "path": "ReignBeta/GUI/SpriteParts/ui_reignbeta_castle_layout/reign_castle_layout_modern_shell.png",
-            "sha256": "5643ef30ba00702835ba91a89b8d264e35768db3637c502dadaf11d43c676cf8",
-            "lineage": "byte-identical to fixedComposite.sourceSha256"
-          }
-        ]
-      }
-    },
       {
         "id": "correspondence",
         "status": "fixed-composite-passed; runtime-source-sprite-recorded; atlas-built-native-human-pending",
@@ -1303,7 +1387,8 @@
               "lineage": "byte-identical to fixedComposite.sourceSha256"
             }
           ]
-        }
+        },
+        "supersededBy": "diplomacy-news-readable-interior-20261015"
       },
       {
         "id": "economic-report",
@@ -1394,41 +1479,41 @@
           ]
         }
       },
-    {
-      "id": "government",
-      "status": "fixed-composite-passed; runtime-source-sprite-byte-identical; atlas-built-native-human-pending",
-      "approvedReference": {
-        "path": "ReignBeta/artwork/ui-modern-style-kit/approved-references/government.png",
-        "sha256": "276480912e5b00996355db5d3e114b43e9807404b0f4df5a9f1b02ecbbb15004"
+      {
+        "id": "government",
+        "status": "fixed-composite-passed; runtime-source-sprite-byte-identical; atlas-built-native-human-pending",
+        "approvedReference": {
+          "path": "ReignBeta/artwork/ui-modern-style-kit/approved-references/government.png",
+          "sha256": "276480912e5b00996355db5d3e114b43e9807404b0f4df5a9f1b02ecbbb15004"
+        },
+        "imageToImageCandidate": {
+          "path": "ReignBeta/artwork/ui-modern-style-kit/generated-sources/screen-shells/government-shell-source.png",
+          "sha256": "ba4451a1f64024734c31dd80d196d02c6b02cb81ec205b8c63dcf051a2fb54d1"
+        },
+        "fixedComposite": {
+          "status": "passed",
+          "specPath": "ReignBeta/artwork/ui-modern-style-kit/specs/screen-government-fixed-region-mask.json",
+          "specSha256": "404477723e7350965959faf6868e5cae5203679890466e3c62f8fd36214bab13",
+          "sourcePath": "ReignBeta/artwork/ui-modern-style-kit/generated-sources/screen-shells/government-shell-exact-fixed-source.png",
+          "sourceSha256": "4373bd700d7576c2cc4197dd59cba41f92f6e06aaaafb1f937b48c1ec360d852",
+          "compositionFillPath": "ReignBeta/artwork/ui-modern-style-kit/generated-sources/screen-shells/government-shell-source.png",
+          "compositionFillSha256": "ba4451a1f64024734c31dd80d196d02c6b02cb81ec205b8c63dcf051a2fb54d1",
+          "evidencePath": ".codex-build/ui-modern-assets/20260828/government-fixed-region-clean-v2/fixed-region-composite-evidence.json",
+          "evidenceSha256": "e93f8b26c2232cdb0842ea508e7a3acc89f182caf7dac305bdbb08346f3e841b",
+          "fixedPixelCount": 986645,
+          "exactFixedPixelRatio": 1.0,
+          "maximumFixedChannelDifference": 0
+        },
+        "runtimeMaterialization": {
+          "assets": [
+            {
+              "path": "ReignBeta/GUI/SpriteParts/ui_reignbeta_government/reign_government_modern_shell.png",
+              "sha256": "4373bd700d7576c2cc4197dd59cba41f92f6e06aaaafb1f937b48c1ec360d852",
+              "lineage": "byte-identical to fixedComposite.sourceSha256"
+            }
+          ]
+        }
       },
-      "imageToImageCandidate": {
-        "path": "ReignBeta/artwork/ui-modern-style-kit/generated-sources/screen-shells/government-shell-source.png",
-        "sha256": "ba4451a1f64024734c31dd80d196d02c6b02cb81ec205b8c63dcf051a2fb54d1"
-      },
-      "fixedComposite": {
-        "status": "passed",
-        "specPath": "ReignBeta/artwork/ui-modern-style-kit/specs/screen-government-fixed-region-mask.json",
-        "specSha256": "404477723e7350965959faf6868e5cae5203679890466e3c62f8fd36214bab13",
-        "sourcePath": "ReignBeta/artwork/ui-modern-style-kit/generated-sources/screen-shells/government-shell-exact-fixed-source.png",
-        "sourceSha256": "4373bd700d7576c2cc4197dd59cba41f92f6e06aaaafb1f937b48c1ec360d852",
-        "compositionFillPath": "ReignBeta/artwork/ui-modern-style-kit/generated-sources/screen-shells/government-shell-source.png",
-        "compositionFillSha256": "ba4451a1f64024734c31dd80d196d02c6b02cb81ec205b8c63dcf051a2fb54d1",
-        "evidencePath": ".codex-build/ui-modern-assets/20260828/government-fixed-region-clean-v2/fixed-region-composite-evidence.json",
-        "evidenceSha256": "e93f8b26c2232cdb0842ea508e7a3acc89f182caf7dac305bdbb08346f3e841b",
-        "fixedPixelCount": 986645,
-        "exactFixedPixelRatio": 1.0,
-        "maximumFixedChannelDifference": 0
-      },
-      "runtimeMaterialization": {
-        "assets": [
-          {
-            "path": "ReignBeta/GUI/SpriteParts/ui_reignbeta_government/reign_government_modern_shell.png",
-            "sha256": "4373bd700d7576c2cc4197dd59cba41f92f6e06aaaafb1f937b48c1ec360d852",
-            "lineage": "byte-identical to fixedComposite.sourceSha256"
-          }
-        ]
-      }
-    },
       {
         "id": "individual-chat",
         "status": "integrated-oval-aperture-shell-passed; untouched rectangular portrait sources layered beneath one current runtime overlay; atlas-built-static-passed-native-human-pending",
@@ -1742,14 +1827,14 @@
         },
         "runtimeMaterialization": {
           "assets": [
-      {
-        "path": "ReignBeta/GUI/SpriteParts/ui_reignbeta_war_council/reign_war_council_modern_shell.png",
-        "sha256": "7d4bdfcc7604983045a81b31618bc16c0bdcf9b5fe6a3bffc99e6933f80d2d76",
-        "specPath": "ReignBeta/artwork/ui-modern-style-kit/specs/war-council-modern-shell.json",
-        "specSha256": "32e3e89c2c13cf525f90134c37a8c42118340b9fc4f046df3487be0e635dd58c",
-        "evidencePath": ".codex-build/ui-modern-assets/20260828/inward-aperture-aa/war-council-modern-shell.evidence.json",
-        "evidenceSha256": "f4fe7edfe70f820337592c3a92277d61da84f86340d7004fa471efefe2992b50"
-      },
+            {
+              "path": "ReignBeta/GUI/SpriteParts/ui_reignbeta_war_council/reign_war_council_modern_shell.png",
+              "sha256": "7d4bdfcc7604983045a81b31618bc16c0bdcf9b5fe6a3bffc99e6933f80d2d76",
+              "specPath": "ReignBeta/artwork/ui-modern-style-kit/specs/war-council-modern-shell.json",
+              "specSha256": "32e3e89c2c13cf525f90134c37a8c42118340b9fc4f046df3487be0e635dd58c",
+              "evidencePath": ".codex-build/ui-modern-assets/20260828/inward-aperture-aa/war-council-modern-shell.evidence.json",
+              "evidenceSha256": "f4fe7edfe70f820337592c3a92277d61da84f86340d7004fa471efefe2992b50"
+            },
             {
               "path": "ReignBeta/GUI/SpriteParts/ui_reignbeta_war_council/reign_war_council_calradia.png",
               "sha256": "e9aeb15807953280e596f189b05bc61e9812af434eafcac3c116af873d632887",

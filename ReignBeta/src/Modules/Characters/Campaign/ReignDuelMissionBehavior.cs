@@ -6,6 +6,9 @@ using ReignBeta.UI;
 using ReignBeta.World;
 using TaleWorlds.CampaignSystem;
 using TaleWorlds.CampaignSystem.Actions;
+using TaleWorlds.CampaignSystem.CharacterDevelopment;
+using TaleWorlds.CampaignSystem.ComponentInterfaces;
+using SandBox.Missions.MissionLogics;
 using TaleWorlds.Core;
 using TaleWorlds.Library;
 using TaleWorlds.MountAndBlade;
@@ -16,6 +19,7 @@ namespace ReignBeta.Campaign
     {
         private readonly List<Agent> _pausedAgents = new List<Agent>();
         private ReignDuelIntent _intent;
+        private ReignDuelIntent _experienceIntent;
         private Agent _playerAgent;
         private Agent _opponentAgent;
         private Formation _opponentFormation;
@@ -29,6 +33,45 @@ namespace ReignBeta.Campaign
         public override MissionBehaviorType BehaviorType
         {
             get { return (MissionBehaviorType)1; }
+        }
+
+        internal static void EnableCombatExperience(Mission mission, ReignDuelIntent intent)
+        {
+            var behavior = mission.GetMissionBehavior<ReignDuelMissionBehavior>();
+            if (behavior == null)
+            {
+                behavior = new ReignDuelMissionBehavior();
+                mission.AddMissionBehavior(behavior);
+            }
+            behavior._experienceIntent = intent;
+        }
+
+        public override void OnScoreHit(Agent affectedAgent, Agent affectorAgent, WeaponComponentData attackerWeapon,
+            bool isBlocked, bool isSiegeEngineHit, in Blow blow, in AttackCollisionData collisionData,
+            float damagedHp, float hitDistance, float shotDifficulty)
+        {
+            // Arena/custom duels have no native combat XP listener. Battle scenes already
+            // award full XP through BattleAgentLogic, so leave those hits to that listener.
+            if (_experienceIntent == null || !ReignDuelService.IsActiveDuel(_experienceIntent.ActionId)
+                || Mission.GetMissionBehavior<BattleAgentLogic>() != null || isBlocked || blow.InflictedDamage <= 0)
+                return;
+
+            Agent attacker = affectorAgent?.IsMount == true ? affectorAgent.RiderAgent : affectorAgent;
+            var attackingCharacter = attacker?.Character as CharacterObject;
+            var targetCharacter = affectedAgent?.Character as CharacterObject;
+            if (attackingCharacter?.HeroObject == null || targetCharacter?.HeroObject == null
+                || !ReignDuelModePolicy.IsExperiencePair(Hero.MainHero?.StringId, _experienceIntent.OpponentHeroStringId,
+                    attackingCharacter.StringId, targetCharacter.StringId)) return;
+
+            float damage = Math.Min(blow.InflictedDamage, affectedAgent.HealthLimit);
+            if (damage <= 0 || affectedAgent.HealthLimit <= 0) return;
+            // Use native weapon, Athletics/Riding, perks and hero learning rates, with
+            // the Battle (1.0) multiplier even for private nonlethal companion practice.
+            SkillLevelingManager.OnCombatHit(attackingCharacter, targetCharacter, null, null,
+                blow.MovementSpeedDamageModifier, shotDifficulty, attackerWeapon,
+                0.5f * damage / affectedAgent.HealthLimit, CombatXpModel.MissionTypeEnum.Battle,
+                attacker.MountAgent != null, false, false, damage, affectedAgent.Health < 1f,
+                isSiegeEngineHit, affectorAgent?.IsMount == true, collisionData.IsSneakAttack);
         }
 
         public static bool TryStartFromCurrentMission(string source)
@@ -170,6 +213,7 @@ namespace ReignBeta.Campaign
             _active = true;
             ReignDuelService.MarkActive(intent.ActionId);
 
+            EnableCombatExperience(Mission, intent);
             ApplyDuelSetup(player, opponent);
             InformationManager.DisplayMessage(new InformationMessage("[Bannerlord Reign] " + intent.OpponentName + " steps into a " + ReignDuelModePolicy.DisplayName(intent.Mode) + ".", Color.FromUint(0xFFFFD36A)));
             ReignLog.Info("Conversation duel started fallback action=" + intent.ActionId + " opponent=" + intent.OpponentHeroStringId + " mode=" + intent.Mode + " source=" + source);
@@ -249,6 +293,7 @@ namespace ReignBeta.Campaign
                 try
                 {
                     ReignDuelService.MarkActive(intent.ActionId);
+                    EnableCombatExperience(Mission, intent);
                     method.Invoke(fightHandler, args);
                     InformationManager.DisplayMessage(new InformationMessage("[Bannerlord Reign] " + intent.OpponentName + " steps into a " + ReignDuelModePolicy.DisplayName(intent.Mode) + ".", Color.FromUint(0xFFFFD36A)));
                     ReignLog.Info("Conversation duel started native action=" + intent.ActionId + " opponent=" + intent.OpponentHeroStringId + " mode=" + intent.Mode + " source=" + source);

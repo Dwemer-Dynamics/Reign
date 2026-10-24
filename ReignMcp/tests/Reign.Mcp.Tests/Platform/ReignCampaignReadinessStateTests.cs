@@ -5,6 +5,24 @@ namespace Reign.Mcp.Tests;
 public sealed class ReignCampaignReadinessStateTests
 {
     [Fact]
+    public void EveryReleasePathRestoresRuntimeCalendarBeforeIssuingReadinessSeal()
+    {
+        var source = File.ReadAllText(Path.Combine(TestOptions.FindWorkspace(),
+            "ReignBeta/src/Modules/Platform/Campaign/ReignCampaignPreparationCampaignBehavior.cs"));
+        var start = source.IndexOf("private async Task ReleaseCampaignAsync()", StringComparison.Ordinal);
+        var end = source.IndexOf("private void PrepareNativeFoundations()", start, StringComparison.Ordinal);
+        Assert.True(start >= 0 && end > start);
+        var release = source.Substring(start, end - start);
+        var restore = release.IndexOf("ReignCalendarService.InitializeForCurrentCampaign()", StringComparison.Ordinal);
+        var migrate = release.IndexOf("RestoreSessionCalendar()", StringComparison.Ordinal);
+        var seal = release.IndexOf("TryCreateReleaseToken", StringComparison.Ordinal);
+        Assert.True(restore >= 0 && migrate > restore && seal > migrate,
+            "A durable initialization seal must never skip process-local calendar restoration or session migration.");
+        Assert.Contains("await ReignMainThread.InvokeAsync", release);
+        Assert.Contains("if (!ReignCalendarService.IsReady)", release);
+    }
+
+    [Fact]
     public void Campaign_preparation_can_start_before_the_map_screen_exists()
     {
         Assert.True(ReignCampaignPreparationStartPolicy.CanStart(

@@ -24,8 +24,13 @@ namespace ReignBeta.UI
         private static Action _onAcknowledged;
         private static Action _onClosedWithoutAcknowledgement;
         private static string _activeEventId = string.Empty;
+        private static bool _dismissKeysArmed;
+        private static bool _isNews;
 
         public static bool IsOpen { get; private set; }
+
+        public static bool IsGovernmentNewsOpen => IsOpen && _isNews && _vm?.IsGovernmentNews == true;
+        public static string ActiveGovernmentNewsEventId => IsGovernmentNewsOpen ? _activeEventId : string.Empty;
 
         public static void Open(ReignDiplomacyAnnouncement announcement, Action onAcknowledged, Action onClosedWithoutAcknowledgement)
         {
@@ -39,6 +44,8 @@ namespace ReignBeta.UI
                 _onAcknowledged = onAcknowledged;
                 _onClosedWithoutAcknowledgement = onClosedWithoutAcknowledgement;
                 _activeEventId = announcement.EventId ?? string.Empty;
+                _dismissKeysArmed = false;
+                _isNews = announcement.IsNews;
                 _hostScreen = ScreenManager.TopScreen;
                 _vm = new ReignDiplomacyAnnouncementVM(announcement, Acknowledge);
                 _layer = new GauntletLayer("ReignDiplomacyAnnouncementScreen", LayerOrder, true);
@@ -85,6 +92,12 @@ namespace ReignBeta.UI
                     ScreenManager.TrySetFocus(_layer);
                 }
 
+                if (!_dismissKeysArmed)
+                {
+                    _dismissKeysArmed = !Input.IsKeyDown(InputKey.Enter) && !Input.IsKeyDown(InputKey.NumpadEnter)
+                        && !Input.IsKeyDown(InputKey.Escape);
+                    return;
+                }
                 if (Input.IsKeyReleased(InputKey.Enter)
                     || Input.IsKeyReleased(InputKey.NumpadEnter)
                     || _layer.Input.IsKeyReleased(InputKey.Enter)
@@ -110,7 +123,8 @@ namespace ReignBeta.UI
             Close(true);
         }
 
-        public static bool TryAcknowledgeForLiveHarness(bool restoreInterruptedTime, out string eventId)
+        public static bool TryAcknowledgeForLiveHarness(bool restoreInterruptedTime, out string eventId,
+            bool observeGovernmentNews = false)
         {
             eventId = _activeEventId ?? string.Empty;
             if (!IsOpen || _layer == null || _vm == null)
@@ -119,9 +133,22 @@ namespace ReignBeta.UI
             }
 
             if (!restoreInterruptedTime)
-                _priorTimeMode = CampaignTimeControlMode.Stop;
+                KeepCampaignPausedForLiveHarness();
+
+            if (!Reign.Core.Contracts.World.PassiveWorldAnnouncementPolicy.ShouldAcknowledge(
+                observeGovernmentNews, IsGovernmentNewsOpen))
+                return false;
+
             Acknowledge();
             return true;
+        }
+
+        public static void KeepCampaignPausedForLiveHarness()
+        {
+            // A test boundary can stop time without acknowledging this screen.
+            // Later manual dismissal must not restore its interrupted fast-forward.
+            if (IsOpen && _restoreTime)
+                _priorTimeMode = CampaignTimeControlMode.Stop;
         }
 
         public static bool TryCloseCalibrationFixture()
@@ -134,6 +161,18 @@ namespace ReignBeta.UI
 
             Close(false);
             return true;
+        }
+
+        internal static bool TryCloseOwnedAnnouncement(string eventId)
+        {
+            if (!IsOpen || string.IsNullOrEmpty(eventId) || _activeEventId != eventId) return false;
+            Close(false);
+            return true;
+        }
+
+        internal static void TryAcknowledgeDisabledDiplomacy()
+        {
+            if (IsOpen && !_isNews && _activeEventId != "ui_calibration_diplomacy") Acknowledge();
         }
 
         private static void Close(bool acknowledged)

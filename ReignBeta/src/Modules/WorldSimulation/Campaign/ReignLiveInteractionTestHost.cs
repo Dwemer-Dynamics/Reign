@@ -26,7 +26,7 @@ namespace ReignBeta.Campaign
     public static partial class ReignLiveInteractionTestHost
     {
         private static readonly string[] CoreSupportedModes =
-            { "individual_chat", "party_chat", "social_event", "wilderness_event", "social_balance", "passive_world", "campaign_command", "government", "party_agency", "structured_actions" };
+            { "individual_chat", "party_chat", "social_event", "wilderness_event", "social_balance", "passive_world", "campaign_command", "government", "party_agency", "structured_actions", "npc_lives", "personal_gossip" };
         private static TaleWorlds.CampaignSystem.Campaign _observedCampaign;
         private static string _gameInstanceId = string.Empty;
         private static DateTime _nextHeartbeatUtc = DateTime.MinValue;
@@ -38,6 +38,7 @@ namespace ReignBeta.Campaign
         private static volatile bool _commandInFlight;
         private static volatile bool _sessionCleanupInFlight;
         private static bool _autoAcknowledgeDiplomacyAnnouncements;
+        private static bool _observeGovernmentNews;
         private static bool _armed;
         private static string _activeRunId = string.Empty;
         private static string _activeMode = string.Empty;
@@ -73,6 +74,8 @@ namespace ReignBeta.Campaign
         public static string GameInstanceId => _gameInstanceId;
         public static bool IsBusy => _commandInFlight || _sessionCleanupInFlight;
         internal static bool OwnsAutomationSession => IsBusy || (_armed && !string.IsNullOrWhiteSpace(_activeRunId));
+        internal static bool OwnsPassiveWorldSession => _armed && _activeMode == "passive_world"
+            && !string.IsNullOrWhiteSpace(_activeRunId);
         public static int CompletedCommandCacheCount => CompletedCommandResults.Count;
 
         public static string[] GetSupportedModes()
@@ -97,8 +100,10 @@ namespace ReignBeta.Campaign
         {
             ReignBetaSettings settings = ReignBetaSettings.Instance;
             TaleWorlds.CampaignSystem.Campaign campaign = TaleWorlds.CampaignSystem.Campaign.Current;
+            EnforcePassiveWorldAdvanceBoundary(campaign);
             bool playerReady = campaign != null
                 && CharacterObject.PlayerCharacter != null;
+            PauseNpcLivesEncounterCleanup(campaign);
             // MCM can expose its singleton after the native campaign has already
             // loaded. Reign's production endpoint uses the local-server defaults
             // while that singleton is unavailable; the recovery bridge must do
@@ -132,7 +137,8 @@ namespace ReignBeta.Campaign
                     || string.Equals(_activeMode, "passive_world", StringComparison.OrdinalIgnoreCase))
                 && ReignDiplomacyAnnouncementScreenManager.TryAcknowledgeForLiveHarness(
                     true,
-                    out string eventId))
+                    out string eventId, _observeGovernmentNews
+                        && string.Equals(_activeMode, "passive_world", StringComparison.OrdinalIgnoreCase)))
             {
                 if (string.Equals(_activeMode, "social_balance", StringComparison.OrdinalIgnoreCase))
                 {
@@ -305,6 +311,8 @@ namespace ReignBeta.Campaign
 
             _activeRunId = command.Value<string>("runId") ?? string.Empty;
             _activeMode = passiveWorld ? "passive_world" : "social_balance";
+            // Every command carries its own choice; never inherit observation from another run.
+            _observeGovernmentNews = passiveWorld && command.Value<bool?>("observeGovernmentNews") == true;
             if ((operation.Equals("social_time_control", StringComparison.OrdinalIgnoreCase)
                     || operation.Equals("world_time_control", StringComparison.OrdinalIgnoreCase))
                 && command.Property("autoAcknowledgeDiplomacyAnnouncements") != null)
@@ -360,6 +368,8 @@ namespace ReignBeta.Campaign
                 case "gauntlet_snapshot": return await GauntletSnapshotAsync(command).ConfigureAwait(false);
                 case "action_probe_wait": return await ActionProbeWaitAsync(command).ConfigureAwait(false);
                 case "structured_action_test": return await StructuredActionTestAsync(command).ConfigureAwait(false);
+                case "personal_gossip_test": return await PersonalGossipTestAsync(command).ConfigureAwait(false);
+                case "npc_lives_test": return await NpcLivesTestAsync(command).ConfigureAwait(false);
                 case "gauntlet_apply_fixture": return await GauntletApplyFixtureAsync(command).ConfigureAwait(false);
                 case "gauntlet_restore_fixture": return await GauntletRestoreFixtureAsync(command).ConfigureAwait(false);
                 case "gauntlet_advance_time": return await GauntletAdvanceTimeAsync(command).ConfigureAwait(false);
@@ -469,11 +479,11 @@ namespace ReignBeta.Campaign
             snapshot["contractAssertions"] = new JObject
             {
                 ["openEndedReviewIsThirtyDays"] = ReignTemporaryPartyGuestCampaignBehavior.OpenEndedReviewDays == 30f,
-                ["fixedTermRangeIsOneToThirtyDays"] = ReignTemporaryPartyGuestCampaignBehavior.MinimumFixedTermDays == 1f
-                    && ReignTemporaryPartyGuestCampaignBehavior.MaximumFixedTermDays == 30f,
+                ["fixedTermRangeIsOneToOneHundredTwentySixDays"] = ReignTemporaryPartyGuestCampaignBehavior.MinimumFixedTermDays == 1f
+                    && ReignTemporaryPartyGuestCampaignBehavior.MaximumFixedTermDays == 126f,
                 ["returnRangeIsOneToTwelveHours"] = ReignTemporaryPartyGuestCampaignBehavior.MinimumReturnHours == 1f
                     && ReignTemporaryPartyGuestCampaignBehavior.MaximumReturnHours == 12f,
-                ["allLifecyclePhasesPresent"] = Enum.GetValues(typeof(ReignTemporaryGuestPhase)).Length == 6,
+                ["allLifecyclePhasesPresent"] = Enum.GetValues(typeof(ReignTemporaryGuestPhase)).Length == 7,
                 ["campHooksActive"] = patches.Value<bool?>("active") == true
                     && (patches.Value<int?>("patchedHookCount") ?? 0) >= 10
             };
@@ -1958,6 +1968,8 @@ namespace ReignBeta.Campaign
             }
             if ((_activeMode == "individual_chat" || _activeMode == "ambassador_official") && _individualVm != null)
             {
+                if (!await WaitForIndividualPresentationAsync(_activeRunId, _individualVm, _individualVm.ConversationHero).ConfigureAwait(false))
+                    return LiveCommandResult.Failed("The conversation opening did not finish for this run and NPC.");
                 Reign.Core.Contracts.Actions.ActionAgreement attachedAction = null;
                 if (command["structuredActionDraft"] != null)
                 {
@@ -1979,7 +1991,9 @@ namespace ReignBeta.Campaign
                                 || enrollment.Value<string>("timelineId") != (ReignWorldHistoryCampaignBehavior.Instance?.TimelineId ?? "main")
                                 || command.Value<string>("gameInstanceId") != _gameInstanceId
                                 || TaleWorlds.CampaignSystem.Campaign.Current?.TimeControlMode != CampaignTimeControlMode.Stop
-                                || command.Value<string>("structuredActionActorHeroId") != _individualVm.ConversationHero?.StringId)
+                                || command.Value<string>("structuredActionActorHeroId") != _individualVm.ConversationHero?.StringId
+                                || _individualVm.ActionBusy
+                                || (_presentation == "visible" && !ReferenceEquals(_individualVm, ReignIndividualChatScreenManager.ActiveViewModel)))
                                 throw new InvalidOperationException("Typed conversations require the exact paused, armed, enrolled Current and open NPC.");
                             var draft = (command["structuredActionDraft"] as JObject)?.ToObject<Reign.Core.Contracts.Actions.ActionAgreement>()
                                 ?? throw new InvalidOperationException("Missing typed proposal.");
@@ -2397,6 +2411,7 @@ namespace ReignBeta.Campaign
             ResetCorrespondenceSession();
             ResetCourtSession();
             _autoAcknowledgeDiplomacyAnnouncements = false;
+            _observeGovernmentNews = false;
             _activeMode = string.Empty; _presentation = "headless";
             if (!preserveRun) _activeRunId = string.Empty;
         }
@@ -2595,6 +2610,20 @@ namespace ReignBeta.Campaign
                 ["skills"] = skills,
                 ["currentSettlementId"] = hero?.CurrentSettlement?.StringId ?? string.Empty
             };
+        }
+
+        private static async Task<bool> WaitForIndividualPresentationAsync(
+            string runId, ReignIndividualChatScreenVM viewModel, Hero hero)
+        {
+            // Await the existing history/opener operation, never a second provider request.
+            Task<bool> opening = viewModel.PresentationInitialization;
+            if (await Task.WhenAny(opening, Task.Delay(TimeSpan.FromSeconds(300))).ConfigureAwait(false) != opening
+                || !await opening.ConfigureAwait(false)) return false;
+            return await ReignMainThread.InvokeAsync(() =>
+                _armed && _activeRunId == runId && ReferenceEquals(_individualVm, viewModel)
+                && viewModel.ConversationHero == hero && !viewModel.ActionBusy && viewModel.InputEnabled
+                && (_presentation != "visible" || ReferenceEquals(viewModel, ReignIndividualChatScreenManager.ActiveViewModel)))
+                .ConfigureAwait(false);
         }
 
         private static async Task<T> WaitForAsync<T>(Func<T> getter) where T : class

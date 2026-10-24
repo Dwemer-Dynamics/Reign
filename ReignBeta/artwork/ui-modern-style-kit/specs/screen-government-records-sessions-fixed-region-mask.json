@@ -1,0 +1,560 @@
+{
+  "schema": "reign-fixed-region-composite-v1",
+  "assetId": "government-records",
+  "approvedReference": {
+    "path": "../generated-sources/government-sessions-v3/approved-records.png",
+    "sha256": "3b6d09bd0df85d77a944af26c564c23d396763be4186437de009a21bc1e4bc49"
+  },
+  "canvas": {
+    "width": 1672,
+    "height": 941
+  },
+  "policy": "Only declared live text and native graphic regions are excluded; complete frames and material remain compared to immutable approved pixels. No whole-card masks.",
+  "sceneDependentMasks": [
+    {
+      "id": "live-0-ImageIdentifierWidget",
+      "shape": "rectangle",
+      "x": 49.0,
+      "y": 0.0,
+      "width": 75.0,
+      "height": 115.0
+    },
+    {
+      "id": "live-1-TextWidget",
+      "shape": "rectangle",
+      "x": 160.0,
+      "y": 10.0,
+      "width": 351.0,
+      "height": 40.0
+    },
+    {
+      "id": "live-2-TextWidget",
+      "shape": "rectangle",
+      "x": 160.0,
+      "y": 48.0,
+      "width": 350.0,
+      "height": 27.0
+    },
+    {
+      "id": "live-3-TextWidget",
+      "shape": "rectangle",
+      "x": 1200.0,
+      "y": 16.0,
+      "width": 380.0,
+      "height": 25.0
+    },
+    {
+      "id": "live-4-TextWidget",
+      "shape": "rectangle",
+      "x": 1200.0,
+      "y": 45.0,
+      "width": 380.0,
+      "height": 25.0
+    },
+    {
+      "id": "live-5-TextWidget",
+      "shape": "rectangle",
+      "x": 528.0,
+      "y": 48.0,
+      "width": 129.0,
+      "height": 29.0
+    },
+    {
+      "id": "live-6-TextWidget",
+      "shape": "rectangle",
+      "x": 667.0,
+      "y": 48.0,
+      "width": 117.0,
+      "height": 29.0
+    },
+    {
+      "id": "live-7-TextWidget",
+      "shape": "rectangle",
+      "x": 794.0,
+      "y": 48.0,
+      "width": 183.0,
+      "height": 29.0
+    },
+    {
+      "id": "live-8-TextWidget",
+      "shape": "rectangle",
+      "x": 987.0,
+      "y": 48.0,
+      "width": 183.0,
+      "height": 29.0
+    },
+    {
+      "id": "live-9-TextWidget",
+      "shape": "rectangle",
+      "x": 1628.0,
+      "y": 32.0,
+      "width": 20.0,
+      "height": 22.0
+    },
+    {
+      "id": "live-10-TextWidget",
+      "shape": "rectangle",
+      "x": 468.0,
+      "y": 97.0,
+      "width": 168.0,
+      "height": 28.0
+    },
+    {
+      "id": "live-11-TextWidget",
+      "shape": "rectangle",
+      "x": 648.0,
+      "y": 97.0,
+      "width": 182.0,
+      "height": 28.0
+    },
+    {
+      "id": "live-12-TextWidget",
+      "shape": "rectangle",
+      "x": 842.0,
+      "y": 97.0,
+      "width": 172.0,
+      "height": 28.0
+    },
+    {
+      "id": "live-13-TextWidget",
+      "shape": "rectangle",
+      "x": 1026.0,
+      "y": 97.0,
+      "width": 182.0,
+      "height": 28.0
+    },
+    {
+      "id": "live-14-TextWidget",
+      "shape": "rectangle",
+      "x": 31.0,
+      "y": 149.0,
+      "width": 338.0,
+      "height": 29.0
+    },
+    {
+      "id": "live-15-TextWidget",
+      "shape": "rectangle",
+      "x": 113.0,
+      "y": 268.0,
+      "width": 241.0,
+      "height": 35.0
+    },
+    {
+      "id": "live-16-TextWidget",
+      "shape": "rectangle",
+      "x": 113.0,
+      "y": 306.0,
+      "width": 241.0,
+      "height": 27.0
+    },
+    {
+      "id": "live-17-TextWidget",
+      "shape": "rectangle",
+      "x": 113.0,
+      "y": 374.0,
+      "width": 241.0,
+      "height": 35.0
+    },
+    {
+      "id": "live-18-TextWidget",
+      "shape": "rectangle",
+      "x": 113.0,
+      "y": 412.0,
+      "width": 241.0,
+      "height": 27.0
+    },
+    {
+      "id": "live-19-TextWidget",
+      "shape": "rectangle",
+      "x": 44.0,
+      "y": 205.0,
+      "width": 310.0,
+      "height": 33.0
+    },
+    {
+      "id": "live-20-ImageIdentifierWidget",
+      "shape": "rectangle",
+      "x": 1306.0,
+      "y": 211.0,
+      "width": 124.0,
+      "height": 140.0
+    },
+    {
+      "id": "live-21-ReignPortraitWidget",
+      "shape": "rectangle",
+      "x": 1306.0,
+      "y": 211.0,
+      "width": 124.0,
+      "height": 140.0
+    },
+    {
+      "id": "live-22-TextWidget",
+      "shape": "rectangle",
+      "x": 1440.0,
+      "y": 224.0,
+      "width": 191.0,
+      "height": 35.0
+    },
+    {
+      "id": "live-23-TextWidget",
+      "shape": "rectangle",
+      "x": 1440.0,
+      "y": 266.0,
+      "width": 191.0,
+      "height": 72.0
+    },
+    {
+      "id": "live-24-TextWidget",
+      "shape": "rectangle",
+      "x": 1297.0,
+      "y": 149.0,
+      "width": 343.0,
+      "height": 31.0
+    },
+    {
+      "id": "live-25-ImageIdentifierWidget",
+      "shape": "rectangle",
+      "x": 1301.0,
+      "y": 464.0,
+      "width": 88.0,
+      "height": 88.0
+    },
+    {
+      "id": "live-26-ReignPortraitWidget",
+      "shape": "rectangle",
+      "x": 1301.0,
+      "y": 464.0,
+      "width": 88.0,
+      "height": 88.0
+    },
+    {
+      "id": "live-27-TextWidget",
+      "shape": "rectangle",
+      "x": 1409.0,
+      "y": 472.0,
+      "width": 210.0,
+      "height": 31.0
+    },
+    {
+      "id": "live-28-ImageIdentifierWidget",
+      "shape": "rectangle",
+      "x": 1410.0,
+      "y": 513.0,
+      "width": 26.0,
+      "height": 34.0
+    },
+    {
+      "id": "live-29-TextWidget",
+      "shape": "rectangle",
+      "x": 1444.0,
+      "y": 514.0,
+      "width": 174.0,
+      "height": 37.0
+    },
+    {
+      "id": "live-30-ImageIdentifierWidget",
+      "shape": "rectangle",
+      "x": 1301.0,
+      "y": 585.0,
+      "width": 88.0,
+      "height": 88.0
+    },
+    {
+      "id": "live-31-ReignPortraitWidget",
+      "shape": "rectangle",
+      "x": 1301.0,
+      "y": 585.0,
+      "width": 88.0,
+      "height": 88.0
+    },
+    {
+      "id": "live-32-TextWidget",
+      "shape": "rectangle",
+      "x": 1409.0,
+      "y": 593.0,
+      "width": 210.0,
+      "height": 31.0
+    },
+    {
+      "id": "live-33-ImageIdentifierWidget",
+      "shape": "rectangle",
+      "x": 1410.0,
+      "y": 634.0,
+      "width": 26.0,
+      "height": 34.0
+    },
+    {
+      "id": "live-34-TextWidget",
+      "shape": "rectangle",
+      "x": 1444.0,
+      "y": 635.0,
+      "width": 174.0,
+      "height": 37.0
+    },
+    {
+      "id": "live-35-TextWidget",
+      "shape": "rectangle",
+      "x": 1401.0,
+      "y": 789.0,
+      "width": 200.0,
+      "height": 37.0
+    },
+    {
+      "id": "live-36-TextWidget",
+      "shape": "rectangle",
+      "x": 148.0,
+      "y": 851.0,
+      "width": 200.0,
+      "height": 37.0
+    },
+    {
+      "id": "live-37-TextWidget",
+      "shape": "rectangle",
+      "x": 417.0,
+      "y": 151.0,
+      "width": 829.0,
+      "height": 25.0
+    },
+    {
+      "id": "live-38-TextWidget",
+      "shape": "rectangle",
+      "x": 417.0,
+      "y": 183.0,
+      "width": 829.0,
+      "height": 51.0
+    },
+    {
+      "id": "live-39-TextWidget",
+      "shape": "rectangle",
+      "x": 418.0,
+      "y": 238.0,
+      "width": 828.0,
+      "height": 30.0
+    },
+    {
+      "id": "live-40-TextWidget",
+      "shape": "rectangle",
+      "x": 417.0,
+      "y": 283.0,
+      "width": 827.0,
+      "height": 27.0
+    },
+    {
+      "id": "live-41-TextWidget",
+      "shape": "rectangle",
+      "x": 421.0,
+      "y": 319.0,
+      "width": 522.5,
+      "height": 28.0
+    },
+    {
+      "id": "live-42-TextWidget",
+      "shape": "rectangle",
+      "x": 943.5,
+      "y": 319.0,
+      "width": 313.5,
+      "height": 28.0
+    },
+    {
+      "id": "live-43-TextWidget",
+      "shape": "rectangle",
+      "x": 417.0,
+      "y": 369.0,
+      "width": 827.0,
+      "height": 26.0
+    },
+    {
+      "id": "live-44-TextWidget",
+      "shape": "rectangle",
+      "x": 417.0,
+      "y": 411.0,
+      "width": 821.0,
+      "height": 52.5
+    },
+    {
+      "id": "live-45-TextWidget",
+      "shape": "rectangle",
+      "x": 417.0,
+      "y": 467.0,
+      "width": 827.0,
+      "height": 26.0
+    },
+    {
+      "id": "live-46-TextWidget",
+      "shape": "rectangle",
+      "x": 435.0,
+      "y": 514.0,
+      "width": 787.0,
+      "height": 49.0
+    },
+    {
+      "id": "live-47-TextWidget",
+      "shape": "rectangle",
+      "x": 435.0,
+      "y": 571.0,
+      "width": 787.0,
+      "height": 45.0
+    },
+    {
+      "id": "live-48-TextWidget",
+      "shape": "rectangle",
+      "x": 1003.0,
+      "y": 635.0,
+      "width": 200.0,
+      "height": 37.0
+    },
+    {
+      "id": "live-49-TextWidget",
+      "shape": "rectangle",
+      "x": 417.0,
+      "y": 714.0,
+      "width": 827.0,
+      "height": 28.0
+    },
+    {
+      "id": "live-50-TextWidget",
+      "shape": "rectangle",
+      "x": 496.0,
+      "y": 755.0,
+      "width": 102.0,
+      "height": 35.0
+    },
+    {
+      "id": "live-51-TextWidget",
+      "shape": "rectangle",
+      "x": 621.0,
+      "y": 755.0,
+      "width": 605.0,
+      "height": 35.0
+    },
+    {
+      "id": "live-52-TextWidget",
+      "shape": "rectangle",
+      "x": 496.0,
+      "y": 807.0,
+      "width": 102.0,
+      "height": 35.0
+    },
+    {
+      "id": "live-53-TextWidget",
+      "shape": "rectangle",
+      "x": 621.0,
+      "y": 807.0,
+      "width": 605.0,
+      "height": 35.0
+    },
+    {
+      "id": "live-54-TextWidget",
+      "shape": "rectangle",
+      "x": 415.0,
+      "y": 920.0,
+      "width": 835.0,
+      "height": 18.0
+    },
+    {
+      "id": "approved-record-wording-0",
+      "shape": "rectangle",
+      "x": 86,
+      "y": 208,
+      "width": 242,
+      "height": 24
+    },
+    {
+      "id": "approved-record-wording-1",
+      "shape": "rectangle",
+      "x": 116,
+      "y": 280,
+      "width": 220,
+      "height": 56
+    },
+    {
+      "id": "approved-record-wording-2",
+      "shape": "rectangle",
+      "x": 116,
+      "y": 384,
+      "width": 220,
+      "height": 56
+    },
+    {
+      "id": "approved-record-wording-3",
+      "shape": "rectangle",
+      "x": 116,
+      "y": 490,
+      "width": 220,
+      "height": 56
+    },
+    {
+      "id": "approved-record-wording-4",
+      "shape": "rectangle",
+      "x": 505,
+      "y": 519,
+      "width": 470,
+      "height": 34
+    },
+    {
+      "id": "approved-record-wording-5",
+      "shape": "rectangle",
+      "x": 1040,
+      "y": 520,
+      "width": 170,
+      "height": 30
+    },
+    {
+      "id": "approved-record-wording-6",
+      "shape": "rectangle",
+      "x": 430,
+      "y": 582,
+      "width": 794,
+      "height": 22
+    },
+    {
+      "id": "approved-record-wording-7",
+      "shape": "rectangle",
+      "x": 430,
+      "y": 631,
+      "width": 182,
+      "height": 44
+    },
+    {
+      "id": "approved-record-wording-8",
+      "shape": "rectangle",
+      "x": 687,
+      "y": 631,
+      "width": 180,
+      "height": 44
+    },
+    {
+      "id": "approved-record-wording-9",
+      "shape": "rectangle",
+      "x": 1011,
+      "y": 631,
+      "width": 194,
+      "height": 44
+    },
+    {
+      "id": "approved-record-wording-10",
+      "shape": "rectangle",
+      "x": 1374,
+      "y": 803,
+      "width": 218,
+      "height": 26
+    },
+    {
+      "id": "approved-record-wording-11",
+      "shape": "rectangle",
+      "x": 1307,
+      "y": 857,
+      "width": 315,
+      "height": 22
+    },
+    {
+      "id": "approved-record-wording-12",
+      "shape": "rectangle",
+      "x": 590,
+      "y": 886,
+      "width": 503,
+      "height": 23
+    }
+  ],
+  "compositionContract": "../generated-sources/government-sessions-v3/composition-contract.json"
+}

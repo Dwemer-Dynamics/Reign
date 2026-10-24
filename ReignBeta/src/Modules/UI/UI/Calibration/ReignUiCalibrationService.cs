@@ -453,6 +453,10 @@ namespace ReignBeta.UI.Calibration
             Dictionary<string, object> changes = new Dictionary<string, object>();
             if (_originalStates.TryGetValue(widget, out WidgetGeometry original)) changes = current.ChangesFrom(original);
             TextWidget textWidget = widget as TextWidget;
+            var textBrush = textWidget?.ReadOnlyBrush;
+            var resolvedFont = textWidget == null ? null : _context.FontFactory.GetMappedFontForLocalization(
+                textBrush?.Font?.Name ?? _context.FontFactory.DefaultFont.Name);
+            var textStyle = textBrush?.GetStyleOrDefault(widget.CurrentState);
             return new
             {
                 id = widget.Id ?? string.Empty,
@@ -470,8 +474,17 @@ namespace ReignBeta.UI.Calibration
                 isConnected = widget.ConnectedToRoot,
                 textureProvider = (widget as TextureWidget)?.TextureProviderName ?? string.Empty,
                 text = textWidget?.Text ?? string.Empty,
-                brush = textWidget?.Brush?.Name ?? string.Empty,
-                fontSize = textWidget?.Brush?.FontSize ?? 0,
+                brush = textBrush?.Name ?? string.Empty,
+                fontSize = textBrush?.FontSize ?? 0,
+                font = textBrush?.Font?.Name ?? string.Empty,
+                mappedFont = resolvedFont?.Name ?? string.Empty,
+                fontLanguage = _context.FontFactory.CurrentLanguage?.LanguageID ?? string.Empty,
+                fontSprite = resolvedFont?.FontSprite?.Name ?? string.Empty,
+                fontTextureReady = resolvedFont?.FontSprite?.Texture?.IsValid == true,
+                textOutlineAmount = textStyle?.TextOutlineAmount ?? 0f,
+                textGlowRadius = textStyle?.TextGlowRadius ?? 0f,
+                textBlur = textStyle?.TextBlur ?? 0f,
+                textShadowOffset = textStyle?.TextShadowOffset ?? 0f,
                 positionXOffset = textWidget?.PositionXOffset ?? 0f,
                 positionYOffset = textWidget?.PositionYOffset ?? 0f,
                 changes

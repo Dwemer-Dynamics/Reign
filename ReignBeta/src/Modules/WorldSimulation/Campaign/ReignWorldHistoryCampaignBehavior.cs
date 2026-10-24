@@ -406,7 +406,7 @@ namespace ReignBeta.Campaign
         private void OnHeroWounded(Hero hero) => EmitSimpleHero("hero_wounded", hero, "wounded hero target", Name(hero) + " was wounded.", "ordinary");
         private void OnBeforeHeroesMarried(Hero first, Hero second, bool showNotification) => Emit("heroes_married", "completed", Name(first) + " married " + Name(second) + ".", string.Empty, first?.CurrentSettlement,
             new JArray(Entity(first, "spouse participant"), Entity(second, "spouse participant")), true, "major_world");
-        private void OnChildConceived(Hero mother) => EmitSimpleHero("child_conceived", mother, "pregnant mother participant", Name(mother) + " conceived a child.", "ordinary");
+        private void OnChildConceived(Hero mother) => EmitSimpleHero("child_conceived", mother, "pregnant mother participant", Name(mother) + " conceived a child.", "participants");
         private void OnGivenBirth(Hero mother, List<Hero> children, int stillborn)
         {
             JArray entities = new JArray(Entity(mother, "mother participant"));

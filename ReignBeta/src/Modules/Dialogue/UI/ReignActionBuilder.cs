@@ -33,6 +33,12 @@ namespace ReignBeta.UI
             if (IsOpen) return true;
             if (owner == null || owner.ActionBusy || screen == null || screen != ScreenManager.TopScreen) return false;
             if (!(Input.IsKeyDown(InputKey.LeftAlt) || Input.IsKeyDown(InputKey.RightAlt)) || !Input.IsKeyReleased(InputKey.A)) return false;
+            return TryOpenForHost(screen, owner);
+        }
+
+        internal static bool TryOpenForHost(ScreenBase screen, IReignActionHost owner)
+        {
+            if (IsOpen || owner == null || owner.ActionBusy || screen == null || screen != ScreenManager.TopScreen) return false;
             var participants = owner.ActionParticipants.Where(h => h != null && !h.IsDead && !h.IsChild && h != Hero.MainHero).ToList();
             if (participants.Count == 0) return false;
             if (!Widgets.ReignActionEditableTextWidget.IsNativeTextCompatible)

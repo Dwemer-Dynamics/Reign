@@ -11,8 +11,13 @@
         <!-- The approved modern composition is authored on a fixed 1672x941 logical surface. -->
         <Widget WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="1672" SuggestedHeight="941" HorizontalAlignment="Center" VerticalAlignment="Center" ClipContents="true" DoNotUseCustomScaleAndChildren="true">
           <Children>
-            <Widget Id="PartyChatShell" DoNotAcceptEvents="true" WidthSizePolicy="StretchToParent" HeightSizePolicy="StretchToParent" Sprite="reign_party_chat_modern_shell" />
-
+            <Widget Id="PartyChatShell" DoNotAcceptEvents="true" WidthSizePolicy="StretchToParent" HeightSizePolicy="StretchToParent" Sprite="reign_party_chat_announcement_shell" IsVisible="@ShowLifeControls" />
+            <Widget Id="PartyChatStandardShell" DoNotAcceptEvents="true" WidthSizePolicy="StretchToParent" HeightSizePolicy="StretchToParent" Sprite="reign_party_chat_modern_shell" IsVisible="@ShowStandardComposer" />
+            <ButtonWidget Id="PersonalLivesControl" WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="180" SuggestedHeight="36" MarginLeft="238" MarginTop="36" Brush="ConversationItem.SoundBrush" Command.Click="ExecutePersonalLives" IsVisible="@ShowLifeControls">
+              <Children>
+                <TextWidget DoNotAcceptEvents="true" WidthSizePolicy="StretchToParent" HeightSizePolicy="StretchToParent" Brush="DefaultText" Brush.Font="ReignSerifDynamic" Brush.FontSize="15" Brush.FontColor="#C5BDAFFF" Text="Personal lives" />
+              </Children>
+            </ButtonWidget>
             <Widget Id="PartyChatHeader" WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="760" SuggestedHeight="120" HorizontalAlignment="Center" MarginTop="26">
               <Children>
                 <TextWidget WidthSizePolicy="StretchToParent" HeightSizePolicy="Fixed" SuggestedHeight="39" MarginTop="15" Brush="DefaultText" Brush.Font="ReignSerifDynamic" Brush.FontSize="30" Brush.TextHorizontalAlignment="Center" Brush.FontColor="#C5BDAFFF" Text="@Title" />
@@ -151,15 +156,20 @@
             </Widget>
 
             <TextWidget WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="520" SuggestedHeight="22" HorizontalAlignment="Center" MarginTop="801" Brush="DefaultText" Brush.Font="ReignSerifDynamic" Brush.FontSize="14" Brush.TextHorizontalAlignment="Center" Brush.FontColor="#8A8883FF" Text="@BusyText" />
-            <Widget WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="1192" SuggestedHeight="66" HorizontalAlignment="Left" MarginLeft="183" MarginTop="830">
+            <Widget Id="PartyChatComposer" WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="@ComposerWidth" SuggestedHeight="66" HorizontalAlignment="Left" MarginLeft="183" MarginTop="830">
               <Children>
                 <ReignActionEditableTextWidget WidthSizePolicy="StretchToParent" HeightSizePolicy="Fixed" SuggestedHeight="42" MarginLeft="34" MarginRight="70" MarginTop="12" Brush="Reign.Chat.Composer.18" Brush.Font="ReignSerifDynamic" Brush.FontSize="18" Brush.TextHorizontalAlignment="Left" Brush.FontColor="#C5BDAFFF" Text="@InputText" ComposerId="@ActionComposerId" IsEnabled="@InputEnabled" MaxLength="2147483647" />
               </Children>
             </Widget>
-            <ButtonWidget WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="202" SuggestedHeight="66" MarginLeft="1388" MarginTop="830" HorizontalAlignment="Left" Brush="ConversationItem.SoundBrush" Command.Click="ExecuteSend" UpdateChildrenStates="true" IsEnabled="@InputEnabled">
+            <ButtonWidget Id="PartyChatSend" WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="@SendButtonWidth" SuggestedHeight="66" MarginLeft="@SendButtonLeft" MarginTop="830" HorizontalAlignment="Left" Brush="ConversationItem.SoundBrush" Command.Click="ExecuteSend" UpdateChildrenStates="true" IsEnabled="@InputEnabled">
               <Children>
                 <Widget DoNotAcceptEvents="true" WidthSizePolicy="StretchToParent" HeightSizePolicy="StretchToParent" />
-                <TextWidget DoNotAcceptEvents="true" WidthSizePolicy="StretchToParent" HeightSizePolicy="StretchToParent" Brush="DefaultText" Brush.Font="ReignSerifDynamic" Brush.FontSize="20" Brush.FontColor="#C5BDAFFF" Text="Send" />
+                <TextWidget DoNotAcceptEvents="true" WidthSizePolicy="StretchToParent" HeightSizePolicy="StretchToParent" Brush="DefaultText" Brush.Font="ReignSerifDynamic" Brush.FontSize="20" Brush.FontColor="#C5BDAFFF" Text="@SendLabel" />
+              </Children>
+            </ButtonWidget>
+            <ButtonWidget Id="PartyAnnouncementControl" WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="240" SuggestedHeight="66" MarginLeft="1348" MarginTop="830" HorizontalAlignment="Left" Brush="ConversationItem.SoundBrush" Command.Click="ExecuteAnnounce" UpdateChildrenStates="true" IsEnabled="@CanAnnounce" IsVisible="@ShowLifeControls">
+              <Children>
+                <TextWidget DoNotAcceptEvents="true" WidthSizePolicy="StretchToParent" HeightSizePolicy="StretchToParent" Brush="DefaultText" Brush.Font="ReignSerifDynamic" Brush.FontSize="20" Brush.FontColor="#C5BDAFFF" Text="Announce" />
               </Children>
             </ButtonWidget>
           </Children>

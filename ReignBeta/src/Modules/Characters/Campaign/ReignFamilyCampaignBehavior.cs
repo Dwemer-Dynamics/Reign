@@ -17,7 +17,7 @@ using TaleWorlds.Localization;
 
 namespace ReignBeta.Campaign
 {
-    public sealed class ReignFamilyCampaignBehavior : CampaignBehaviorBase
+    public sealed partial class ReignFamilyCampaignBehavior : CampaignBehaviorBase
     {
         private List<ReignConceptionRecord> _conceptions = new List<ReignConceptionRecord>();
         private List<ReignParentageRecord> _parentage = new List<ReignParentageRecord>();
@@ -45,6 +45,8 @@ namespace ReignBeta.Campaign
             if (dataStore.IsSaving) PruneConceptionHistory();
             dataStore.SyncData("_reign_conceptions", ref _conceptions);
             dataStore.SyncData("_reign_parentage", ref _parentage);
+            dataStore.SyncData("_reign_native_pregnancy_contexts", ref _nativePregnancyContexts);
+            _nativePregnancyContexts = _nativePregnancyContexts ?? new List<ReignConceptionRecord>();
             _conceptions = _conceptions ?? new List<ReignConceptionRecord>();
             _parentage = _parentage ?? new List<ReignParentageRecord>();
             if (dataStore.IsLoading) PruneConceptionHistory();
@@ -83,9 +85,9 @@ namespace ReignBeta.Campaign
         {
             if (parent == null) return new List<Hero>();
             return (_parentage ?? new List<ReignParentageRecord>())
-                .Where(record => record != null && record.IsIllegitimate && record.Revealed
-                    && (string.Equals(record.MotherId, parent.StringId, StringComparison.OrdinalIgnoreCase)
-                        || string.Equals(record.BiologicalFatherId, parent.StringId, StringComparison.OrdinalIgnoreCase)))
+                .Where(record => record != null && record.IsIllegitimate
+                    && (string.Equals(record.MotherId, parent.StringId, StringComparison.OrdinalIgnoreCase) && (record.Revealed || record.MotherExposed)
+                        || string.Equals(record.BiologicalFatherId, parent.StringId, StringComparison.OrdinalIgnoreCase) && (record.Revealed || record.FatherExposed)))
                 .Select(record => ReignObjectResolver.FindHero(record.ChildId))
                 .Where(child => child != null && child.IsAlive)
                 .GroupBy(child => child.StringId, StringComparer.OrdinalIgnoreCase)
@@ -175,6 +177,9 @@ namespace ReignBeta.Campaign
                 Secrecy = secrecy,
                 PlayerInvolved = playerInvolved,
                 IsIllegitimate = mother.Spouse == null || (legalFather ?? biologicalFather) != biologicalFather,
+                SpouseAtConceptionId = mother.Spouse?.StringId ?? string.Empty,
+                MarriageAtConceptionKnown = true,
+                ContextSource = "reign_managed",
                 Status = "active"
             };
             _conceptions.Add(record);
@@ -270,6 +275,7 @@ namespace ReignBeta.Campaign
 
         private void OnGameLoaded(CampaignGameStarter starter)
         {
+            ReconcileNativePregnancyContexts();
             // A sealed campaign skips PrepareInitialState on subsequent loads.
             // Repair legacy placement before native daily settlement events can run.
             RestoreDisplacedPregnantRuralNotables();
@@ -277,6 +283,7 @@ namespace ReignBeta.Campaign
 
         internal void PrepareInitialState()
         {
+            ReconcileNativePregnancyContexts();
             RestoreDisplacedPregnantRuralNotables();
             ReconcilePregnancyRestrictions("campaign_preparation");
         }
@@ -305,11 +312,24 @@ namespace ReignBeta.Campaign
 
         private void OnChildConceived(Hero mother)
         {
+            ReconcileNativePregnancyContexts(mother);
             NotifyPregnancyStateChanged(mother);
         }
 
         private void OnGivenBirth(Hero mother, List<Hero> children, int stillborn)
         {
+            var native = _nativePregnancyContexts.FirstOrDefault(r => r.MotherId == mother?.StringId && r.Status == "active");
+            if (native != null)
+            {
+                native.Status = "born";
+                native.ChildId = children?.FirstOrDefault()?.StringId ?? "";
+                foreach (Hero child in children ?? new List<Hero>())
+                    _parentage.Add(new ReignParentageRecord { ChildId = child.StringId, MotherId = native.MotherId,
+                        BiologicalFatherId = native.BiologicalFatherId, LegalFatherId = native.LegalFatherId,
+                        IsIllegitimate = native.IsIllegitimate, Revealed = native.FatherExposed,
+                        MotherExposed = native.MotherExposed, FatherExposed = native.FatherExposed, ConceptionId = native.ConceptionId });
+                _ = ReignServerClient.ReportConceptionAsync(native, "born", native.ChildId);
+            }
             // Birth clears Hero.IsPregnant in both native and Reign-managed flows.
             // Eligibility is intentionally returned to Bannerlord without creating a new party.
         }
@@ -564,7 +584,7 @@ namespace ReignBeta.Campaign
                 mother.IsPregnant = false;
                 record.Status = "born";
                 record.ChildId = child?.StringId ?? string.Empty;
-                bool illegitimate = legalFather != bioFather || mother.Spouse == null;
+                bool illegitimate = record.IsIllegitimate;
                 ReignParentageRecord parentage = new ReignParentageRecord
                 {
                     ChildId = record.ChildId,
@@ -572,12 +592,14 @@ namespace ReignBeta.Campaign
                     BiologicalFatherId = bioFather.StringId,
                     LegalFatherId = legalFather.StringId,
                     IsIllegitimate = illegitimate,
-                    Revealed = legalFather == bioFather,
-                    BastardSurname = mother.Spouse == null ? "Baseborn" : string.Empty,
+                    Revealed = record.FatherExposed || !record.MotherExposed && legalFather == bioFather,
+                    MotherExposed = record.MotherExposed,
+                    FatherExposed = record.FatherExposed,
+                    BastardSurname = illegitimate && mother.Spouse == null ? "Baseborn" : string.Empty,
                     ConceptionId = record.ConceptionId
                 };
                 _parentage.Add(parentage);
-                if (mother.Spouse == null && child != null) ApplyBastardName(child, parentage.BastardSurname);
+                if (illegitimate && mother.Spouse == null && child != null) ApplyBastardName(child, parentage.BastardSurname);
                 if (child != null)
                 {
                     CampaignEventDispatcher.Instance.OnGivenBirth(mother, new List<Hero> { child }, 0);

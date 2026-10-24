@@ -150,12 +150,16 @@ namespace ReignBeta.Economy
 #endif
             ReignBeta.ClanAccords.ReignClanAccordModelMath.AddFinalDelta(ref result, accordSecurity,
                 new TextObject("{=!}Clan Accords: mutual watch"));
+            ReignBeta.ClanAccords.ReignClanAccordModelMath.AddFinalDelta(ref result,
+                (float)(ReignRulerCampaignBehavior.Instance?.Modifiers(town).Security ?? 0),
+                new TextObject("{=!}Ruler judgment consequences"));
             return result;
         }
     }
 
     internal sealed class ReignSettlementLoyaltyModel : DefaultSettlementLoyaltyModel
     {
+        public override float GovernorDifferentCultureLoyaltyEffect => ReignRulerCampaignBehavior.Enabled(ReignBeta.Shared.Rulers.RulerOptions.GovernorCulture) ? 0f : base.GovernorDifferentCultureLoyaltyEffect;
         public override ExplainedNumber CalculateLoyaltyChange(Town town, bool includeDescriptions = false)
         {
             ExplainedNumber result = base.CalculateLoyaltyChange(town, includeDescriptions);
@@ -182,6 +186,9 @@ namespace ReignBeta.Economy
             if (spyDelta != 0f)
                 result.Add(spyDelta, new TextObject("{=!}Covert agitation"));
 #endif
+            ReignBeta.ClanAccords.ReignClanAccordModelMath.AddFinalDelta(ref result,
+                (float)(ReignRulerCampaignBehavior.Instance?.Modifiers(town).Loyalty ?? 0),
+                new TextObject("{=!}Ruler judgment consequences"));
             return result;
         }
     }
@@ -207,6 +214,9 @@ namespace ReignBeta.Economy
                 result.Add(governmentDelta, new TextObject("{=!}Representative government authority"));
             ReignBeta.ClanAccords.ReignClanAccordModelMath.AddFinalDelta(ref result, accordProsperity,
                 new TextObject("{=!}Clan Accords: artisan exchange"));
+            ReignBeta.ClanAccords.ReignClanAccordModelMath.AddFinalDelta(ref result,
+                (float)(ReignRulerCampaignBehavior.Instance?.Modifiers(fortification).Prosperity ?? 0),
+                new TextObject("{=!}Ruler judgment consequences"));
             return result;
         }
 

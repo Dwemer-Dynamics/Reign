@@ -55,7 +55,7 @@
   },
   "portraitFrameOverlaySpec": {
     "path": "../../artwork/ui-modern-style-kit/specs/portrait-frame-only-overlays.json",
-    "expectedSha256": "287e43a2ec2bd5f3c9c0f540aff68268caa9bbb3d7902bd58bc24a1af8af5244"
+    "expectedSha256": "0069b9b1a55a98cf5ff33d9098996f2813e3d8edd65065db84e16e94f9bc3974"
   },
   "runtimeAtlas": {
     "manifestPath": "../RuntimeSpriteSheets/manifest.json",
@@ -887,6 +887,419 @@
         "height": 154
       },
       "backdrop": "Complete black-marble card with integrated true-alpha portrait aperture; moves above shell."
+    },
+    {
+      "id": "reign_government_v3_agenda_shell",
+      "path": "../SpriteParts/ui_reignbeta_government/reign_government_v3_agenda_shell.png",
+      "shape": "compound",
+      "presentation": "opaque-aperture-plate",
+      "expectedSha256": "971b0f96abf3256b17566b1caafe3263572d97e83b284d8329e44b816ba166f7",
+      "apertures": [
+        {
+          "shape": "polygon",
+          "aperture": {
+            "units": "pixels",
+            "x": 49,
+            "y": 0,
+            "width": 75,
+            "height": 115,
+            "points": [
+              [
+                49,
+                0
+              ],
+              [
+                124,
+                0
+              ],
+              [
+                124,
+                94
+              ],
+              [
+                86.5,
+                115
+              ],
+              [
+                49,
+                94
+              ]
+            ]
+          }
+        },
+        {
+          "shape": "rectangle",
+          "aperture": {
+            "units": "pixels",
+            "x": 950,
+            "y": 104,
+            "width": 320,
+            "height": 294
+          },
+          "alphaFade": {
+            "fromX": 950,
+            "toX": 1090,
+            "opaqueToTransparent": true
+          }
+        }
+      ],
+      "backdrop": "Complete owning card or shell; exact union of native graphic openings; all exterior pixels opaque."
+    },
+    {
+      "id": "reign_government_v3_hearing_shell",
+      "path": "../SpriteParts/ui_reignbeta_government/reign_government_v3_hearing_shell.png",
+      "shape": "compound",
+      "presentation": "opaque-aperture-plate",
+      "expectedSha256": "470898b98842ab475a2f416220e2e7a0881fcfcc67d6cd79c9927ff51f9fbd55",
+      "apertures": [
+        {
+          "shape": "polygon",
+          "aperture": {
+            "units": "pixels",
+            "x": 49,
+            "y": 0,
+            "width": 75,
+            "height": 115,
+            "points": [
+              [
+                49,
+                0
+              ],
+              [
+                124,
+                0
+              ],
+              [
+                124,
+                94
+              ],
+              [
+                86.5,
+                115
+              ],
+              [
+                49,
+                94
+              ]
+            ]
+          }
+        }
+      ],
+      "backdrop": "Complete owning card or shell; exact union of native graphic openings; all exterior pixels opaque."
+    },
+    {
+      "id": "reign_government_v3_members_shell",
+      "path": "../SpriteParts/ui_reignbeta_government/reign_government_v3_members_shell.png",
+      "shape": "compound",
+      "presentation": "opaque-aperture-plate",
+      "expectedSha256": "44bcc2a86b840da2db00b41519a14708c6ecef5c572a3abea46a19957560907c",
+      "apertures": [
+        {
+          "shape": "polygon",
+          "aperture": {
+            "units": "pixels",
+            "x": 49,
+            "y": 0,
+            "width": 75,
+            "height": 115,
+            "points": [
+              [
+                49,
+                0
+              ],
+              [
+                124,
+                0
+              ],
+              [
+                124,
+                94
+              ],
+              [
+                86.5,
+                115
+              ],
+              [
+                49,
+                94
+              ]
+            ]
+          }
+        },
+        {
+          "shape": "circle",
+          "aperture": {
+            "units": "pixels",
+            "x": 1216.5,
+            "y": 181.5,
+            "width": 169,
+            "height": 169
+          }
+        }
+      ],
+      "backdrop": "Complete owning card or shell; exact union of native graphic openings; all exterior pixels opaque."
+    },
+    {
+      "id": "reign_government_v3_records_shell",
+      "path": "../SpriteParts/ui_reignbeta_government/reign_government_v3_records_shell.png",
+      "shape": "compound",
+      "presentation": "opaque-aperture-plate",
+      "expectedSha256": "5ff915d1187b4ed29fd08aa2bf4aca2cae9e9efeae3b305d83d29c0776901144",
+      "apertures": [
+        {
+          "shape": "polygon",
+          "aperture": {
+            "units": "pixels",
+            "x": 49,
+            "y": 0,
+            "width": 75,
+            "height": 115,
+            "points": [
+              [
+                49,
+                0
+              ],
+              [
+                124,
+                0
+              ],
+              [
+                124,
+                94
+              ],
+              [
+                86.5,
+                115
+              ],
+              [
+                49,
+                94
+              ]
+            ]
+          }
+        }
+      ],
+      "backdrop": "Complete owning card or shell; exact union of native graphic openings; all exterior pixels opaque."
+    },
+    {
+      "id": "reign_government_v3_member",
+      "path": "../SpriteParts/ui_reignbeta_government/reign_government_v3_member.png",
+      "shape": "compound",
+      "presentation": "opaque-aperture-plate",
+      "expectedSha256": "e74c103576a6e2d12880cfb3b0f74c7f4745d336c35717b79a6cfedf51f6cdda",
+      "apertures": [
+        {
+          "shape": "circle",
+          "aperture": {
+            "units": "pixels",
+            "x": 17,
+            "y": 15,
+            "width": 86,
+            "height": 86
+          }
+        }
+      ],
+      "backdrop": "Complete owning card or shell; exact union of native graphic openings; all exterior pixels opaque."
+    },
+    {
+      "id": "reign_government_v3_member_selected",
+      "path": "../SpriteParts/ui_reignbeta_government/reign_government_v3_member_selected.png",
+      "shape": "compound",
+      "presentation": "opaque-aperture-plate",
+      "expectedSha256": "ad473126256a848a9286a522c7a55eaa4e752d0aa1a18a5de847d53ae96f7d04",
+      "apertures": [
+        {
+          "shape": "circle",
+          "aperture": {
+            "units": "pixels",
+            "x": 17,
+            "y": 15,
+            "width": 86,
+            "height": 86
+          }
+        }
+      ],
+      "backdrop": "Complete owning card or shell; exact union of native graphic openings; all exterior pixels opaque."
+    },
+    {
+      "id": "reign_government_v3_issue",
+      "path": "../SpriteParts/ui_reignbeta_government/reign_government_v3_issue.png",
+      "shape": "compound",
+      "presentation": "opaque-aperture-plate",
+      "expectedSha256": "36d669f1ce4dbeb6ec9a5e275b69467cefcca76572de98bc227b4ecbe598a666",
+      "apertures": [
+        {
+          "shape": "circle",
+          "aperture": {
+            "units": "pixels",
+            "x": 20,
+            "y": 12,
+            "width": 86,
+            "height": 86
+          }
+        }
+      ],
+      "backdrop": "Complete owning card or shell; exact union of native graphic openings; all exterior pixels opaque."
+    },
+    {
+      "id": "reign_government_v3_sponsor",
+      "path": "../SpriteParts/ui_reignbeta_government/reign_government_v3_sponsor.png",
+      "shape": "compound",
+      "presentation": "opaque-aperture-plate",
+      "expectedSha256": "18c55339a12c6028c3995ecb6b2ba6d2348ea47879b4d9ca9de209ba208aaaaf",
+      "apertures": [
+        {
+          "shape": "circle",
+          "aperture": {
+            "units": "pixels",
+            "x": 17,
+            "y": 12,
+            "width": 86,
+            "height": 86
+          }
+        }
+      ],
+      "backdrop": "Complete owning card or shell; exact union of native graphic openings; all exterior pixels opaque."
+    },
+    {
+      "id": "reign_government_v3_position",
+      "path": "../SpriteParts/ui_reignbeta_government/reign_government_v3_position.png",
+      "shape": "compound",
+      "presentation": "opaque-aperture-plate",
+      "expectedSha256": "28f9cb42ec90c87e4e5a675e1b6d17420e8cfb5b54989fde1a4ca73e8bcfa9a0",
+      "apertures": [
+        {
+          "shape": "circle",
+          "aperture": {
+            "units": "pixels",
+            "x": 19,
+            "y": 9,
+            "width": 60,
+            "height": 60
+          }
+        }
+      ],
+      "backdrop": "Complete owning card or shell; exact union of native graphic openings; all exterior pixels opaque."
+    },
+    {
+      "id": "reign_government_v3_participant",
+      "path": "../SpriteParts/ui_reignbeta_government/reign_government_v3_participant.png",
+      "shape": "compound",
+      "presentation": "opaque-aperture-plate",
+      "expectedSha256": "0d63310e92ebe258138305a5d72b5e671f758e79827269aaa637a9810ec1148b",
+      "apertures": [
+        {
+          "shape": "circle",
+          "aperture": {
+            "units": "pixels",
+            "x": 11,
+            "y": 12,
+            "width": 86,
+            "height": 86
+          }
+        }
+      ],
+      "backdrop": "Complete owning card or shell; exact union of native graphic openings; all exterior pixels opaque."
+    },
+    {
+      "id": "reign_government_v3_crown",
+      "path": "../SpriteParts/ui_reignbeta_government/reign_government_v3_crown.png",
+      "shape": "compound",
+      "presentation": "opaque-aperture-plate",
+      "expectedSha256": "ad0e2223e8b7ac54a026a7e07b23aaf6d5f0a26f87c7d5dce689d6cdaf88344f",
+      "apertures": [
+        {
+          "shape": "circle",
+          "aperture": {
+            "units": "pixels",
+            "x": 14,
+            "y": 13,
+            "width": 98,
+            "height": 98
+          }
+        }
+      ],
+      "backdrop": "Complete owning card or shell; exact union of native graphic openings; all exterior pixels opaque."
+    },
+    {
+      "id": "reign_government_v3_transcript",
+      "path": "../SpriteParts/ui_reignbeta_government/reign_government_v3_transcript.png",
+      "shape": "compound",
+      "presentation": "opaque-aperture-plate",
+      "expectedSha256": "1866dd509813c4bbed32e6c740ba95d61b1ca182afffd729a7edcd4583861d96",
+      "apertures": [
+        {
+          "shape": "circle",
+          "aperture": {
+            "units": "pixels",
+            "x": 18,
+            "y": 6,
+            "width": 58,
+            "height": 58
+          }
+        }
+      ],
+      "backdrop": "Complete owning card or shell; exact union of native graphic openings; all exterior pixels opaque."
+    },
+    {
+      "id": "reign_government_v3_record_crown",
+      "path": "../SpriteParts/ui_reignbeta_government/reign_government_v3_record_crown.png",
+      "shape": "compound",
+      "presentation": "opaque-aperture-plate",
+      "expectedSha256": "7ef00f2c3dd12708fbf472ece07c1b7f60bdf736534c5ef4fb69cd1d1fc58a8b",
+      "apertures": [
+        {
+          "shape": "oval",
+          "aperture": {
+            "units": "pixels",
+            "x": 16,
+            "y": 15,
+            "width": 124,
+            "height": 140
+          }
+        }
+      ],
+      "backdrop": "Complete owning card or shell; exact union of native graphic openings; all exterior pixels opaque."
+    },
+    {
+      "id": "reign_government_v3_candidate",
+      "path": "../SpriteParts/ui_reignbeta_government/reign_government_v3_candidate.png",
+      "shape": "compound",
+      "presentation": "opaque-aperture-plate",
+      "expectedSha256": "5826c1b8fd9202fb3f49d45979a44edf8bc2a1d3f21f4635ae6d2cf993a43b2d",
+      "apertures": [
+        {
+          "shape": "rectangle",
+          "aperture": {
+            "units": "pixels",
+            "x": 12,
+            "y": 10,
+            "width": 140,
+            "height": 130
+          }
+        }
+      ],
+      "backdrop": "Complete owning card or shell; exact union of native graphic openings; all exterior pixels opaque."
+    },
+    {
+      "id": "reign_government_v3_candidate_selected",
+      "path": "../SpriteParts/ui_reignbeta_government/reign_government_v3_candidate_selected.png",
+      "shape": "compound",
+      "presentation": "opaque-aperture-plate",
+      "expectedSha256": "d06315418d67a8a02e7baf26f48bca639b36d4558c30dbec2ac32d27c4c1aaaf",
+      "apertures": [
+        {
+          "shape": "rectangle",
+          "aperture": {
+            "units": "pixels",
+            "x": 12,
+            "y": 10,
+            "width": 140,
+            "height": 130
+          }
+        }
+      ],
+      "backdrop": "Complete owning card or shell; exact union of native graphic openings; all exterior pixels opaque."
     }
   ],
   "supportAssets": [
@@ -1050,5 +1463,73 @@
     },
     "dynamicFont": "ReignSerifDynamic",
     "rule": "Unchanged approved notable-generation shell; three independent choice hitboxes remain inside its status plate. Native acceptance pending."
+  },
+  "partyChatAnnouncements": {
+    "authority": "User requested a matching Announce button immediately to the right of Send, using the current input and actual party-only audience. User also requested image capabilities for clean final artwork.",
+    "owningSprite": "reign_party_chat_announcement_shell",
+    "originalSpecialConversationSprite": "reign_party_chat_modern_shell",
+    "canvas": {
+      "width": 1672,
+      "height": 941
+    },
+    "composer": {
+      "x": 183,
+      "y": 830,
+      "width": 890,
+      "height": 66
+    },
+    "send": {
+      "x": 1084,
+      "y": 830,
+      "width": 240,
+      "height": 66
+    },
+    "announce": {
+      "x": 1348,
+      "y": 830,
+      "width": 240,
+      "height": 66
+    },
+    "font": "ReignSerifDynamic",
+    "fontSize": 20,
+    "textColor": "#C5BDAFFF",
+    "fixedRegionSpec": "../../artwork/ui-modern-style-kit/specs/screen-party-chat-fixed-region-mask.json",
+    "nativeAcceptance": "pending",
+    "rule": "Announce sends the existing draft directly to the captured actual party roster; selected location NPCs do not define recipients. No immediate reply or normal conversation dispatch. Use the original single-button shell outside ordinary party chat."
+  },
+  "announcementReading": {
+    "authority": "User request, 2026-10-15: give news and existing ruler-to-ruler diplomacy comfortable reading space.",
+    "movie": "ReignDiplomacyAnnouncementScreen",
+    "fixedRegionSpec": "../../artwork/ui-modern-style-kit/specs/screen-diplomacy-announcement-fixed-region-mask.json",
+    "viewport": {
+      "x": 470,
+      "y": 260,
+      "width": 732,
+      "height": 480,
+      "contentWidth": 708
+    },
+    "headingFontSize": 27,
+    "bodyFontSize": 24,
+    "dynamicFont": "ReignSerifDynamic",
+    "bodyToken": "textPrimary",
+    "headingToken": "goldHighlight",
+    "rule": "One vertically flowing, left-aligned report with paragraph separation and no text shortening or auto-shrinking. Headline, summary, terms and public ruler explanations share the same scroll viewport. Side captions contain only short roles. Full long reports must be reachable with the wheel and scrollbar while the acknowledge control remains available. Native acceptance required.",
+    "portraitFraming": {
+      "authority": "User correction, 2026-10-15: ruler portraits are too close and cut off the hair.",
+      "widget": "UseFramedBust",
+      "width": 143,
+      "height": 240,
+      "aspect": 0.5958333333333333,
+      "source": "Full uncropped zoom portrait and validated normalized face metadata; source and shipped derivatives remain intact.",
+      "cropHeightInFaceHeights": 3.6,
+      "headroomAboveFaceInFaceHeights": 0.85,
+      "rule": "Frame the original once, with the full head, hair and shoulder context inside the existing oval. No second square crop of the chest portrait; no stretching or new portrait files. Missing focus retains the original height from its top. Native fallback and framing acceptance remain required.",
+      "nativeFallback": {
+        "width": 143,
+        "height": 143,
+        "alignment": "Center",
+        "rule": "The original square native character portrait fits entirely inside the 143-wide aperture. Center it vertically to leave headroom beneath the oval crown; never enlarge it beyond the clipping width."
+      }
+    }
   }
 }

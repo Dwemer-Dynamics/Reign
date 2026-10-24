@@ -28,6 +28,7 @@ namespace ReignBeta.Government
         public int GoldPaid { get; set; }
         public float AcceptedDay { get; set; }
         public float ExpiresDay { get; set; }
+        public bool DeclarationApplied { get; set; }
     }
 
     public sealed partial class ReignGovernmentCampaignBehavior
@@ -51,7 +52,7 @@ namespace ReignBeta.Government
                 ["businessId"] = b.BusinessId, ["title"] = b.Title, ["summary"] = b.Summary,
                 ["options"] = GetPublicBusinessOptions(b),
                 ["rulerRecommendation"] = b.RecommendedOptionId, ["stage"] = b.Status,
-                ["expiresDay"] = b.Postponed ? b.RecessUntilDay : CurrentDay() + 7f
+                ["expiresDay"] = b.DecisionDay, ["decisionDate"] = FormatGovernmentDate(b.DecisionDay)
             }));
             var obligations = new JArray(_resolutions.Where(x => cases.Any(b => Same(b.KingdomStringId, x.KingdomStringId))
                 && (x.Status == "active" || x.Status == "completed")).Take(24).Select(x => new JObject
@@ -167,10 +168,12 @@ namespace ReignBeta.Government
             var commitment = new ReignGovernmentCommitmentRecord { ReceiptId = consentReceiptId, SessionId = receipt.Value<string>("sessionId") ?? "", BusinessId = businessId,
                 MemberHeroStringId = member.StringId, RulerHeroStringId = ruler.StringId, OptionId = optionId, Method = method,
                 ObligationId = method == "deal" ? obligationId : "", AcceptedDay = CurrentDay(),
-                ExpiresDay = business.Postponed ? business.RecessUntilDay : CurrentDay() + 7f };
+                ExpiresDay = business.DecisionDay };
             if (method == "bribe") { GiveGoldAction.ApplyBetweenCharacters(ruler, member, gold, false); commitment.GoldPaid = gold; }
             foreach (var old in _governmentCommitments.Where(x => x.Status == "active" && Same(x.BusinessId, businessId) && Same(x.MemberHeroStringId, member.StringId))) old.Status = "superseded";
             _governmentCommitments.Add(commitment);
+            if (method != "deal" || _resolutions.Any(x => Same(x.ResolutionId, obligationId) && x.Status == "completed"))
+                commitment.DeclarationApplied = DeclareBusinessPosition(businessId, member.StringId, optionId, out _);
             result = method == "deal" ? "The conditional promise is recorded; support depends on the obligation being fulfilled before the vote."
                 : "The member's promise is recorded for this matter. The vote remains their own.";
             ChangedBusiness(business);
@@ -179,11 +182,25 @@ namespace ReignBeta.Government
 
         public int GetGovernmentCommitmentShift(string businessId, string memberId, string optionId)
         {
+            var business = _business.FirstOrDefault(x => Same(x.BusinessId, businessId));
+            if (business == null || GovernmentBusinessRules.IsClosed(business.Status)) return 0;
             var record = _governmentCommitments.LastOrDefault(x => x.Status == "active" && Same(x.BusinessId, businessId)
-                && Same(x.MemberHeroStringId, memberId) && Same(x.OptionId, optionId) && CurrentDay() <= x.ExpiresDay);
+                && Same(x.MemberHeroStringId, memberId) && Same(x.OptionId, optionId));
             if (record == null || FindKingdom(_business.FirstOrDefault(x => Same(x.BusinessId, businessId))?.KingdomStringId)?.Leader?.StringId != record.RulerHeroStringId) return 0;
             if (record.Method == "deal" && !_resolutions.Any(x => Same(x.ResolutionId, record.ObligationId) && x.Status == "completed")) return 0;
             return record.Method == "bribe" ? 25 : record.Method == "deal" ? 20 : 15;
+        }
+
+        private void ApplyDueGovernmentDeclarations(ReignGovernmentBusinessRecord business)
+        {
+            if (business.FrozenAuthorityLevel == 0 || !GovernmentBusinessRules.CanRecommend(business.Status)) return;
+            foreach (var commitment in _governmentCommitments.Where(x => x.Status == "active" && !x.DeclarationApplied && Same(x.BusinessId, business.BusinessId)))
+            {
+                if (FindKingdom(business.KingdomStringId)?.Leader?.StringId != commitment.RulerHeroStringId) continue;
+                if (commitment.Method == "deal" && !_resolutions.Any(x => Same(x.ResolutionId, commitment.ObligationId) && x.Status == "completed")) continue;
+                commitment.ExpiresDay = business.DecisionDay;
+                commitment.DeclarationApplied = DeclareBusinessPosition(business.BusinessId, commitment.MemberHeroStringId, commitment.OptionId, out _);
+            }
         }
 
         public async Task<JObject> SubmitHearingMessageAsync(string businessId, string message)
@@ -200,8 +217,11 @@ namespace ReignBeta.Government
 
         private JObject ReservePublicHearingTurn(string businessId, string message)
         {
-            var business = AuthorizedBusiness(businessId, Hero.MainHero, out _);
-            if (business == null || business.Status != "hearing" || string.IsNullOrWhiteSpace(message) || !_governmentPublicTurns.Add(businessId)) return null;
+            var business = _business.FirstOrDefault(x => x.BusinessId == businessId);
+            bool present = business != null && (IsGovernmentRulerPresent(businessId) && FindKingdom(business.KingdomStringId)?.Leader == Hero.MainHero
+                || GetParticipationAccess(business.KingdomStringId, Hero.MainHero, businessId).Ballot && GetBusinessAttendance(businessId).Any(x => x.HeroStringId == Hero.MainHero.StringId && x.Status == "present"));
+            if (business == null || business.Status != "hearing" && business.Status != "presented" || !present
+                || string.IsNullOrWhiteSpace(message) || !_governmentPublicTurns.Add(businessId)) return null;
             string boundedMessage = message.Trim();
             var transcript = JArray.Parse(string.IsNullOrEmpty(business.TranscriptJson) ? "[]" : business.TranscriptJson);
             var speakerIds = new[] { business.SponsorHeroStringId, business.PetitionerHeroStringId }
@@ -212,9 +232,11 @@ namespace ReignBeta.Government
             return new JObject { ["businessId"] = businessId, ["revision"] = business.Revision,
                 ["institutionName"] = GetGovernment(business.KingdomStringId)?.InstitutionName ?? "Government", ["authorityLevel"] = GetGovernment(business.KingdomStringId)?.Level ?? 1,
                 ["title"] = business.Title, ["summary"] = business.Summary, ["options"] = GetPublicBusinessOptions(business),
+                ["playerOffice"] = FindKingdom(business.KingdomStringId)?.Leader == Hero.MainHero ? "ruler" : GovernmentOfficeTitle(Hero.MainHero.StringId),
                 ["recommendation"] = business.RecommendedOptionId, ["playerMessage"] = boundedMessage,
                 ["transcript"] = new JArray(transcript.Skip(Math.Max(0, transcript.Count - 12))),
                 ["speakers"] = new JArray(speakerIds.Select(id => new JObject { ["heroId"] = id, ["name"] = FindHero(id).Name.ToString(),
+                    ["profile"] = ReignServerClient.BuildGovernmentPoliticalHero(FindHero(id)),
                     ["role"] = Same(id, business.SponsorHeroStringId) ? "sponsor" : Same(id, business.PetitionerHeroStringId) ? "petitioner" : "member" })) };
         }
 
@@ -222,7 +244,8 @@ namespace ReignBeta.Government
         {
             _governmentPublicTurns.Remove(businessId);
             var business = _business.FirstOrDefault(x => Same(x.BusinessId, businessId));
-            if (business == null || business.Status != "hearing" || business.Revision != payload.Value<long>("revision"))
+            if (business == null || business.Status != "hearing" && business.Status != "presented" || !CanPlayerSpeakAtHearing(businessId)
+                || business.Revision != payload.Value<long>("revision"))
                 return new JObject { ["ok"] = false, ["error"] = "The hearing changed while the response was being prepared. No statement was applied." };
             if (response?.Value<bool?>("ok") != true) return response ?? new JObject { ["ok"] = false };
             var transcript = JArray.Parse(string.IsNullOrEmpty(business.TranscriptJson) ? "[]" : business.TranscriptJson);
@@ -240,6 +263,13 @@ namespace ReignBeta.Government
             // Public language never applies actions, votes, money, commitments or relationship effects.
             return new JObject { ["ok"] = true, ["message"] = response.Value<string>("message") ?? "The public record has been updated.",
                 ["nativeActions"] = new JArray(), ["governmentCommitments"] = new JArray() };
+        }
+        public bool CanPlayerSpeakAtHearing(string businessId)
+        {
+            var business = _business.FirstOrDefault(x => x.BusinessId == businessId);
+            return business != null && Hero.MainHero != null && (IsGovernmentRulerPresent(businessId) && FindKingdom(business.KingdomStringId)?.Leader == Hero.MainHero
+                || GetParticipationAccess(business.KingdomStringId, Hero.MainHero, businessId).Ballot
+                && GetBusinessAttendance(businessId).Any(x => x.HeroStringId == Hero.MainHero.StringId && x.Status == "present"));
         }
     }
 }

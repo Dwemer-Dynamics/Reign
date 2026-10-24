@@ -62,11 +62,7 @@ namespace ReignBeta.Government
                 resolutions.Add(publicResolution);
             }
 
-            string authority = state.Level == 1 ? "advisory"
-                : state.Level == 2 ? "formal_pressure"
-                : state.Level == 3 ? "reconsideration_and_costly_override"
-                : state.Level == 4 ? "approval_or_costly_override_for_major_actions"
-                : "binding_individual_government_vote";
+            string authority = "binding_weighted_plurality";
             List<ReignGovernmentSeatRecord> seats = GetSeats(kingdom.StringId).ToList();
             int lordSeats = seats.Count(x => (ReignGovernmentSeatSource)x.SeatSourceValue
                 == ReignGovernmentSeatSource.LandholdingClanLeader);
@@ -86,6 +82,8 @@ namespace ReignBeta.Government
                 ["institutionKind"] = ((ReignGovernmentInstitutionKind)state.InstitutionKindValue).ToString(),
                 ["authorityLevel"] = state.Level,
                 ["authorityMeaning"] = authority,
+                ["crownVotingWeight"] = GovernmentSessionRules.CrownWeight(state.Level),
+                ["sessionSchedule"] = GetBusinessSessionSummary(kingdom.StringId),
                 ["dominantPartyId"] = state.DominantPartyId,
                 ["dominantPartyName"] = dominant?.Name ?? string.Empty,
                 ["governingCoalitionPartyIds"] = new JArray(GetGoverningCoalition(kingdom.StringId)
@@ -110,6 +108,9 @@ namespace ReignBeta.Government
                 {
                     ["businessId"] = record.BusinessId, ["title"] = record.Title, ["summary"] = record.Summary,
                     ["status"] = record.Status, ["urgent"] = record.IsUrgent,
+                    ["createdDay"] = record.CreatedDay, ["presentationDay"] = record.PresentationDay,
+                    ["decisionDay"] = record.DecisionDay, ["resolvedDay"] = record.ResolvedDay,
+                    ["decisionDate"] = record.DecisionDay >= 0 ? FormatGovernmentDate(record.DecisionDay) : "",
                     ["petitionerHeroId"] = record.PetitionerHeroStringId,
                     ["petitionerName"] = FindHero(record.PetitionerHeroStringId)?.Name?.ToString() ?? string.Empty,
                     ["sponsorHeroId"] = record.SponsorHeroStringId,
@@ -125,10 +126,11 @@ namespace ReignBeta.Government
                         { ["heroId"] = person.Value<string>("heroId"), ["name"] = FindHero(person.Value<string>("heroId"))?.Name?.ToString() ?? string.Empty,
                           ["role"] = (person.Value<string>("role") ?? string.Empty).Replace('_', ' ') })),
                     ["ballots"] = JArray.Parse(record.VotesJson), ["outcome"] = record.Outcome,
-                    ["recessUntilDay"] = record.RecessUntilDay, ["reconsiderUntilDay"] = record.ReconsiderUntilDay
+                    ["forecast"] = GetBusinessForecast(record.BusinessId),
+                    ["publicPositions"] = GetBusinessPublicPositions(record.BusinessId)
                 })),
                 ["speakerRule"] = "Only each party's recorded speaker gives the party's final public position; individual members still cast saved mechanical votes.",
-                ["decisionRule"] = "Follow the stated authority meaning. Where the government holds binding authority, the ruler recommends and individual members decide; there is no later ruler veto. Private political attitudes are not public knowledge.",
+                ["decisionRule"] = "Regular motions are introduced at one session and decided at the next. The frozen Crown share and equal frozen occupied-seat shares decide by largest cast weight, with no later veto or runoff. Vacated seats abstain without redistribution. Crown votes require the ruler's presence or an active Chancellor deputy; absolute Crown authority requires the ruler's personal attendance and approval. Public declarations can change. Private political attitudes are not public knowledge.",
                 ["privateFieldsWithheld"] = new JArray("memberLoyalty", "memberVoteScores", "bribes", "lobbyingDeals")
             };
         }

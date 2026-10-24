@@ -60,6 +60,37 @@ namespace ReignBeta.Actions
         { if (_agreements.TryGetValue(id, out var journal)) ReignAgreementEngine.Advance(journal, this, ReignActionService.Now); }
         internal void RecheckPendingAgreements() => Advance();
 
+        // Engine-created NPC offers exist before their prose. They use the same
+        // signed review/accept/counter path as every other explicit action.
+        internal void RegisterNpcLifeOffer(ActionAgreement offer)
+        {
+            if (offer == null || !offer.Clauses.All(c => c.ActionId.StartsWith("npc_life.", StringComparison.Ordinal))
+                || offer.ProposerId != offer.NpcId || offer.ConversationId.Length == 0)
+                throw new InvalidOperationException("Invalid personal-story offer.");
+            if (_agreements.ContainsKey(offer.Id)) return;
+            if (_offers.TryGetValue(offer.Id, out var existing) &&
+                existing.Clauses.Count == offer.Clauses.Count &&
+                existing.Clauses.Zip(offer.Clauses, (a, b) => a.ActionId == b.ActionId
+                    && ReignActionService.Arg(a, "matterId") == ReignActionService.Arg(b, "matterId")
+                    && ReignActionService.Arg(a, "revision") == ReignActionService.Arg(b, "revision")).All(same => same))
+            {
+                // Reopening may rebind a still-pending offer, but must never replace
+                // negotiated waits/absences with the initial defaults.
+                if (existing.ConversationId == offer.ConversationId) return;
+                bool npcSigned = existing.NpcAcceptedHash == existing.TermsHash();
+                existing.ConversationId = offer.ConversationId;
+                existing.Revision++;
+                existing.NpcAcceptedHash = npcSigned ? existing.TermsHash() : "";
+                existing.PlayerAcceptedHash = "";
+                return;
+            }
+            var errors = ReignActionService.Preview(offer);
+            if (errors.Count > 0) throw new InvalidOperationException(string.Join(" ", errors));
+            ReignActionWording.Render(offer);
+            offer.State = AgreementState.Counteroffered; offer.PlayerAcceptedHash = ""; offer.NpcAcceptedHash = offer.TermsHash();
+            _offers[offer.Id] = ReignActionService.Copy(offer);
+        }
+
         public ActionAgreement PrepareOffer(ActionAgreement draft, string playerId, string npcId, string conversationId, out ActionReceipt receipt)
         {
             receipt = null;
@@ -152,7 +183,11 @@ namespace ReignBeta.Actions
         public void DeclineOffer(string id, string reviewedHash)
         {
             if (_offers.TryGetValue(id, out var a) && a.State == AgreementState.Counteroffered && a.TermsHash() == reviewedHash)
+            {
                 a.State = AgreementState.Rejected;
+                if (a.Clauses.Any(c => c.ActionId.StartsWith("npc_life.", StringComparison.Ordinal)))
+                    ReignNpcLivesBehavior.Instance?.DeclineLifeOffer(a);
+            }
         }
 
         public ActionReceipt Commit(ActionAgreement agreement, bool operatorAuthorized)
@@ -177,7 +212,7 @@ namespace ReignBeta.Actions
             foreach (var step in j.Steps.Where(s => s.Reserved && !s.Returned && !s.Completed))
             {
                 var clause = j.Agreement.Clauses.Single(c => c.Id == step.ClauseId);
-                if (clause.ActionId.StartsWith("give.") || clause.ActionId.StartsWith("government.")) continue;
+                if (clause.ActionId.StartsWith("give.") || clause.ActionId.StartsWith("government.") || clause.ActionId.StartsWith("npc_life.") || clause.ActionId == "expose_concealed_pregnancy") continue;
                 var expected = CapturedRecord(j.Agreement, clause, step.Snapshot, step.Installment);
                 if (JToken.DeepEquals(AuthorityFields(expected), AuthorityFields(record))) return true;
             }
@@ -198,12 +233,8 @@ namespace ReignBeta.Actions
             {
                 var clause = journal.Agreement.Clauses.SingleOrDefault(c => c.Id == step.ClauseId);
                 if (clause == null) continue;
-                string prefix = "sa_" + journal.Agreement.Id + "_"
-                    + clause.Id.Substring(0, Math.Min(16, clause.Id.Length)) + "_";
-                if (!(record.ActionId ?? "").StartsWith(prefix, StringComparison.Ordinal)
-                    || !int.TryParse(record.ActionId.Substring(prefix.Length),
-                        System.Globalization.NumberStyles.None, System.Globalization.CultureInfo.InvariantCulture,
-                        out int installment) || installment < 0 || installment >= clause.Installments) continue;
+                if (!WorldActionExecutionIdentity.TryGetInstallment(record.ActionId, journal.Agreement.Id, clause.Id,
+                    out int installment) || installment >= clause.Installments) continue;
                 ReignWorldActionRecord expected;
                 try { expected = CapturedRecord(journal.Agreement, clause, step.Snapshot, installment); }
                 catch (JsonException) { continue; }
@@ -231,7 +262,7 @@ namespace ReignBeta.Actions
         {
             var record = JObject.Parse(snapshot)["worldAction"]?.ToObject<ReignWorldActionRecord>()
                 ?? throw new InvalidOperationException("The native action snapshot is missing.");
-            record.ActionId = "sa_" + a.Id + "_" + c.Id.Substring(0, Math.Min(16, c.Id.Length)) + "_" + installment;
+            record.ActionId = WorldActionExecutionIdentity.RebindCaptured(record.ActionId, a.Id, c.Id, installment);
             return record;
         }
         public ActionReceipt Status(string id)
@@ -322,6 +353,7 @@ namespace ReignBeta.Actions
 
         private void Advance()
         {
+            ReignNpcLivesBehavior.Instance?.ReconcileMeetingAgreements();
             foreach (var j in _agreements.Values.Where(j => j.Agreement.State == AgreementState.Waiting || j.Agreement.State == AgreementState.InTransit).ToList())
             {
                 var cancelled = ReignAICampaignBehavior.Instance?.Actions.FirstOrDefault(a =>
@@ -332,6 +364,11 @@ namespace ReignBeta.Actions
             }
         }
         public IReadOnlyList<string> Preflight(ActionAgreement a) => ReignActionService.Preview(a);
+        internal void RetireMeetingAgreement(string originalId, string controlId, string meetingId, int revision)
+        {
+            if (_agreements.TryGetValue(originalId, out var original) && _agreements.TryGetValue(controlId, out var control))
+                ReignAgreementEngine.RetireObservedMeeting(original, control, meetingId, revision, true, this, ReignActionService.Now);
+        }
         internal IEnumerable<string> CheckAssetReservations(ActionAgreement a)
         {
             foreach (var clause in a.Clauses.Where(c => new[] { "give.settlement", "give.workshop", "give.ship" }.Contains(c.ActionId)
@@ -344,7 +381,13 @@ namespace ReignBeta.Actions
                         && j.Steps.Any(s => s.ClauseId == c.Id && s.Reserved && !s.Returned && !s.Completed))))
                     yield return "This owned asset or prisoner is already reserved by another agreement.";
         }
-        public string Capture(ActionAgreement a, ActionClause c) => c.ActionId.StartsWith("give.", StringComparison.Ordinal)
+        public string Capture(ActionAgreement a, ActionClause c) => c.ActionId == ReignSpouseSeparation.ActionId
+            ? ReignSpouseSeparationAction.Capture(a, c)
+            : c.ActionId.StartsWith("npc_life.", StringComparison.Ordinal)
+            ? JObject.FromObject(c).ToString(Formatting.None)
+            : c.ActionId == "expose_concealed_pregnancy"
+            ? new JObject { ["pregnancyId"] = ReignActionService.Arg(c, "pregnancyId"), ["disclosure"] = ReignActionService.Arg(c, "disclosure") }.ToString(Formatting.None)
+            : c.ActionId.StartsWith("give.", StringComparison.Ordinal)
             ? ReignAssetTransfer.Capture(a, c).ToString(Formatting.None)
             : c.ActionId.StartsWith("government.", StringComparison.Ordinal) ? ReignGovernmentCampaignBehavior.Instance.CaptureGovernmentAgreement(c).ToString(Formatting.None)
 #if !REIGN_EXCLUDE_COURT
@@ -363,7 +406,11 @@ namespace ReignBeta.Actions
         public void Apply(ActionAgreement a, ActionClause c, string snapshot, int installment)
         {
             string key = Key(a, c, installment); if (_applied.Contains(key)) return;
-            if (c.ActionId.StartsWith("give.", StringComparison.Ordinal)) ReignAssetTransfer.Deliver(c, JObject.Parse(snapshot));
+            if (c.ActionId == ReignSpouseSeparation.ActionId) ReignSpouseSeparationAction.Apply(a, c, snapshot, key);
+            else if (c.ActionId.StartsWith("npc_life.", StringComparison.Ordinal)) ReignNpcLivesBehavior.Instance.ApplyLifeAction(a, c, key);
+            else if (c.ActionId == "expose_concealed_pregnancy") ReignFamilyCampaignBehavior.Instance.ExposePregnancy(
+                ReignActionService.Arg(c, "pregnancyId"), c.RecipientId, ReignActionService.Arg(c, "disclosure") == "name_father");
+            else if (c.ActionId.StartsWith("give.", StringComparison.Ordinal)) ReignAssetTransfer.Deliver(c, JObject.Parse(snapshot));
             else if (c.ActionId.StartsWith("government.", StringComparison.Ordinal)) ReignGovernmentCampaignBehavior.Instance.ApplyAgreementClause(a.Id, c,
                 _agreements[a.Id].Steps.Single(s => s.ClauseId == c.Id));
 #if !REIGN_EXCLUDE_COURT
@@ -384,6 +431,10 @@ namespace ReignBeta.Actions
         public bool Observe(ActionAgreement a, ActionClause c, string snapshot, int installment)
         {
             if (!_applied.Contains(Key(a, c, installment))) return false;
+            if (c.ActionId == ReignSpouseSeparation.ActionId) return ReignSpouseSeparationAction.Observe(c, Key(a, c, installment));
+            if (c.ActionId.StartsWith("npc_life.", StringComparison.Ordinal))
+                return ReignNpcLivesBehavior.Instance.ObserveLifeAction(a, c, Key(a, c, installment));
+            if (c.ActionId == "expose_concealed_pregnancy") return true;
             if (c.ActionId.StartsWith("give.", StringComparison.Ordinal)) return true;
             if (c.ActionId.StartsWith("government.", StringComparison.Ordinal))
                 return ReignGovernmentCampaignBehavior.Instance.ObserveAgreementClause(c, _agreements[a.Id].Steps.Single(s => s.ClauseId == c.Id));

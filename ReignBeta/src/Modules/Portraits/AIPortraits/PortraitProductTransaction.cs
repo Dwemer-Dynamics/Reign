@@ -27,7 +27,7 @@ namespace AIPortraits
                 Path = path;
                 TemporaryPath = path + ".tmp." + token;
                 BackupPath = path + ".bak." + token;
-                this.replace = replace ?? ((source, destination, backup) => File.Replace(source, destination, backup));
+                this.replace = replace ?? ReplacePreservingOriginal;
                 this.move = move ?? ((source, destination) => File.Move(source, destination));
             }
 
@@ -129,6 +129,22 @@ namespace AIPortraits
             if (!(ex is IOException)) return false;
             int error = ex.HResult & 0xffff;
             return error == 1 || error == 50; // ERROR_INVALID_FUNCTION / ERROR_NOT_SUPPORTED
+        }
+
+        internal static bool UsesWslRename(string path) => path.StartsWith(@"\\wsl.localhost\", StringComparison.OrdinalIgnoreCase)
+            || path.StartsWith(@"\\wsl$\", StringComparison.OrdinalIgnoreCase);
+
+        private static void ReplacePreservingOriginal(string source, string destination, string backup)
+        {
+            // ReplaceFile is unsupported on WSL's 9P share and can partially
+            // create its backup before failing. Use the existing recoverable
+            // rename transaction directly on that known filesystem.
+            if (UsesWslRename(destination))
+            {
+                File.Move(destination, backup);
+                File.Move(source, destination);
+            }
+            else File.Replace(source, destination, backup);
         }
     }
 }

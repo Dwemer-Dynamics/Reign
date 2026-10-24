@@ -485,7 +485,7 @@ namespace ReignBeta.Court
             }
             if (_internationalRefreshInFlight || DateTime.UtcNow < _internationalRefreshAfterUtc) return;
             _internationalRefreshInFlight = true;
-            _internationalRefreshAfterUtc = DateTime.UtcNow.AddSeconds(30);
+            _internationalRefreshAfterUtc = DateTime.UtcNow.AddSeconds(60);
             JObject world = ReignServerClient.BuildDiplomacyWorldSnapshot();
             _ = RefreshInternationalCourtAsync(world, state);
         }
@@ -537,7 +537,19 @@ namespace ReignBeta.Court
                 }
             }
             catch (Exception ex) { ReignLog.Warn("International court synchronization deferred: " + ex.Message); }
-            finally { await ReignMainThread.InvokeAsync(() => _internationalRefreshInFlight = false).ConfigureAwait(false); }
+            finally
+            {
+                await ReignMainThread.InvokeAsync(() =>
+                {
+                    _internationalRefreshInFlight = false;
+                    // Leave an actual idle interval after slow refreshes. Starting
+                    // the cooldown before the request lets repeated reads keep a
+                    // paused campaign perpetually busy. Decisions that explicitly
+                    // invalidate the deadline must still request a fresh snapshot.
+                    if (_internationalRefreshAfterUtc != DateTime.MinValue)
+                        _internationalRefreshAfterUtc = DateTime.UtcNow.AddSeconds(60);
+                }).ConfigureAwait(false);
+            }
         }
 
         private static bool InternationalReplyDue(JObject data, int day) => data.Value<bool?>("replyPromoted") != true

@@ -56,6 +56,19 @@ namespace ReignBeta.Government
         public bool ExecutionApplied;
         public bool RulerOverrode;
         public bool IsRepeal;
+        public int SessionProtocolVersion;
+        public float PresentationDay = -1;
+        public float DecisionDay = -1;
+        public int FrozenAuthorityLevel;
+        public string FrozenSeatsJson = "[]";
+        public string PublicPositionsJson = "[]";
+        public string IntroductionPartyId = "";
+        public string CrownActorHeroId = "";
+        public string CrownOptionId = "";
+        public string CrownVoteSource = "";
+        public string CrownVoteStatus = "unrecorded";
+        public bool DecisionNewsRecorded;
+        public bool LegacySessionMigration;
         public long Revision = 1;
     }
 }

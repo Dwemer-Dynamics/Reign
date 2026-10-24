@@ -1,7 +1,9 @@
 using System;
+using System.Runtime.CompilerServices;
 using HarmonyLib;
 using ReignBeta.Integration;
 using TaleWorlds.CampaignSystem;
+using TaleWorlds.CampaignSystem.ViewModelCollection.Map.MapBar;
 
 namespace ReignBeta.Runtime
 {
@@ -33,7 +35,8 @@ namespace ReignBeta.Runtime
                     typeof(ElapsedYearsPatch),
                     typeof(RemainingYearsPatch),
                     typeof(YearsPatch),
-                    typeof(YearsFromNowPatch)
+                    typeof(YearsFromNowPatch),
+                    typeof(MapDatePatch)
                 };
 
                 foreach (Type patch in patches)
@@ -47,6 +50,32 @@ namespace ReignBeta.Runtime
             catch (Exception ex)
             {
                 ReignLog.Warn("Reign calendar Harmony setup failed: " + ex);
+            }
+        }
+
+        // Native StringSameAs compares whole native days. Reign's anchored days can change
+        // at half-day season boundaries, and the calendar becomes ready after the map VM.
+        [HarmonyPatch(typeof(MapTimeControlVM), "Refresh")]
+        public static class MapDatePatch
+        {
+            private sealed class DateState
+            {
+                internal int Year, Season, Day;
+                internal string Expected;
+            }
+            private static readonly ConditionalWeakTable<MapTimeControlVM, DateState> Dates = new ConditionalWeakTable<MapTimeControlVM, DateState>();
+
+            public static void Postfix(MapTimeControlVM __instance)
+            {
+                CampaignTime now = CampaignTime.Now;
+                if (!ReignCalendarService.TryGetCalendarPosition(now, out int year, out _, out int season, out int day, out _)) return;
+                DateState state = Dates.GetValue(__instance, _ => new DateState());
+                if (state.Expected == null || state.Year != year || state.Season != season || state.Day != day || __instance.Date != state.Expected)
+                {
+                    state.Year = year; state.Season = season; state.Day = day;
+                    state.Expected = now.ToString();
+                    __instance.Date = state.Expected;
+                }
             }
         }
 

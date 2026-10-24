@@ -31,12 +31,21 @@ namespace ReignBeta.UI.ViewModels
         public List<ReignPartyChatReply> Replies { get; } = new List<ReignPartyChatReply>();
     }
 
-    public sealed class ReignPartyChatScreenVM : ViewModel, ReignBeta.UI.IReignActionHost
+    public sealed partial class ReignPartyChatScreenVM : ViewModel, ReignBeta.UI.IReignActionHost
     {
         public IReadOnlyList<Hero> ActionParticipants => GetSelectedHeroes();
         public bool ActionBusy => IsBusy || !InputEnabled;
+        [DataSourceProperty] public bool ShowLifeControls => !IsHomesMode && !_castleMode && !_targetedReviewMode && !_banterReadOnly;
+        [DataSourceProperty] public bool ShowStandardComposer => !ShowLifeControls;
+        [DataSourceProperty] public float ComposerWidth => ShowLifeControls ? 890f : 1192f;
+        [DataSourceProperty] public float SendButtonLeft => ShowLifeControls ? 1084f : 1388f;
+        [DataSourceProperty] public float SendButtonWidth => ShowLifeControls ? 240f : 202f;
+        [DataSourceProperty] public bool CanAnnounce => ShowLifeControls && InputEnabled && !IsBusy && !_isFinalized
+            && ReignServerClient.NpcLivesOptions.Allows("announcement") && !string.IsNullOrWhiteSpace(InputText);
+        [DataSourceProperty] public string SendLabel =>
+            string.IsNullOrWhiteSpace(InputText) && ReignServerClient.NpcLivesOptions.Allows("approach") ? "Approach" : "Send";
         private ReignActionComposerVM _composer;
-        public ReignActionComposerVM Composer => _composer ?? (_composer = new ReignActionComposerVM(() => OnPropertyChanged(nameof(InputText))));
+        public ReignActionComposerVM Composer => _composer ?? (_composer = new ReignActionComposerVM(() => { OnPropertyChanged(nameof(InputText)); OnPropertyChanged(nameof(SendLabel)); OnPropertyChanged(nameof(CanAnnounce)); }));
         [DataSourceProperty] public string ActionComposerId => Composer.Id;
         public Reign.Core.Contracts.Actions.ActionAgreement ActionDraft => Composer.State.HasValidAttachment ? Composer.State.Draft : null;
         private readonly ReignPartyChatSession _session;
@@ -163,9 +172,9 @@ namespace ReignBeta.UI.ViewModels
                 AddSystemLine("The " + _castleRoomName + " is quiet.", true);
                 InputEnabled = false;
             }
-            else if (ChatLines.Count == 0)
+            else if (ChatLines.Count == 0 || ReignServerClient.NpcLivesOptions.Allows("approach"))
             {
-                _activeBatchTask = RequestLiveNpcTurns(GetSelectedHeroes(), string.Empty,
+                _activeBatchTask = ReignServerClient.NpcLivesOptions.Allows("approach") ? RequestLifeOpening(GetSelectedHeroes()) : RequestLiveNpcTurns(GetSelectedHeroes(), string.Empty,
                     requireStillSelected: false, castleOpening: true,
                     suppressRelationshipAssessment: true);
             }
@@ -249,7 +258,7 @@ namespace ReignBeta.UI.ViewModels
             {
                 AddSystemLine("You visit " + _homeResident.Name + " at home.", false);
                 _session.BeginOpeningTurn();
-                _activeBatchTask = RequestLiveNpcTurns(new List<Hero> { _homeResident }, string.Empty,
+                _activeBatchTask = ReignServerClient.NpcLivesOptions.Allows("approach") ? RequestLifeOpening(new List<Hero> { _homeResident }) : RequestLiveNpcTurns(new List<Hero> { _homeResident }, string.Empty,
                     requireStillSelected: true, openingTurn: true);
             }
         }
@@ -280,7 +289,7 @@ namespace ReignBeta.UI.ViewModels
         }
         [DataSourceProperty] public bool HasCastleArt => !string.IsNullOrWhiteSpace(_castleArtImageId);
         [DataSourceProperty] public bool ShowCastleApprovedFallback => !HasCastleArt;
-        [DataSourceProperty] public bool InputEnabled { get => _inputEnabled; private set { if (_inputEnabled == value) return; _inputEnabled = value; OnPropertyChangedWithValue(value); } }
+        [DataSourceProperty] public bool InputEnabled { get => _inputEnabled; private set { if (_inputEnabled == value) return; _inputEnabled = value; OnPropertyChangedWithValue(value); OnPropertyChanged(nameof(CanAnnounce)); } }
 
         [DataSourceProperty]
         public string BackgroundImageId
@@ -420,7 +429,7 @@ namespace ReignBeta.UI.ViewModels
         public string InputText
         {
             get { return Composer.State.Text; }
-            set { Composer.SetText(value); }
+            set { Composer.SetText(value); OnPropertyChanged(nameof(SendLabel)); }
         }
 
         [DataSourceProperty]
@@ -447,6 +456,7 @@ namespace ReignBeta.UI.ViewModels
                 {
                     _isBusy = value;
                     OnPropertyChangedWithValue(value);
+                    OnPropertyChanged(nameof(CanAnnounce));
                 }
             }
         }
@@ -591,9 +601,51 @@ namespace ReignBeta.UI.ViewModels
             }
         }
 
+        public async void ExecuteAnnounce()
+        {
+            if (!ShowLifeControls || _isFinalized || IsBusy || !InputEnabled) return;
+            if (!ReignServerClient.NpcLivesOptions.Allows("announcement"))
+            { AddSystemLine("Party announcements are disabled in Options.", false); return; }
+            string text = InputText ?? string.Empty;
+            if (string.IsNullOrWhiteSpace(text)) return;
+            if (ActionDraft != null) { AddSystemLine("Remove the action before making an announcement.", false); return; }
+            if (text.Length > 6000) { AddSystemLine("Keep the announcement within 6,000 characters.", false); return; }
+            var party = TaleWorlds.CampaignSystem.Party.MobileParty.MainParty;
+            if (party == null || !party.MemberRoster.GetTroopRoster().Any(r => r.Number > 0 && r.Character.IsHero
+                && r.Character.HeroObject != Hero.MainHero && r.Character.HeroObject.IsAlive
+                && !r.Character.HeroObject.IsPrisoner && r.Character.HeroObject.PartyBelongedTo == party))
+            { AddSystemLine("No party members are gathered to hear this announcement.", false); return; }
+            IsBusy = true;
+            try
+            {
+                string id = "announcement_" + Guid.NewGuid().ToString("N");
+                ReignConversationInputJournal.Save(ReignServerClient.GetCampaignId(), ReignWorldHistoryCampaignBehavior.Instance?.TimelineId ?? "main",
+                    Hero.MainHero.StringId, id, text, session: id);
+                var owner = ReignNpcLivesBehavior.Instance ?? throw new InvalidOperationException("Party information is unavailable.");
+                // This captures the actual native party roster, never the location list or selected speakers.
+                await owner.AnnounceAsync(text, id);
+                InputText = "";
+                AddSystemLine("Announcement queued for your party. Members may share their thoughts when you approach them later.", false);
+            }
+            catch (Exception ex) { AddSystemLine(ex.Message, false); }
+            finally { IsBusy = false; }
+        }
+        public void ExecutePersonalLives()
+        {
+            if (IsBusy || !ShowLifeControls) return;
+            ExecuteClose(); ReignNpcLivesBehavior.Instance?.OpenLifeJournal();
+        }
         public async void ExecuteSend()
         {
             string text = InputText ?? string.Empty;
+            if (!_targetedReviewMode && !_banterReadOnly && !_isFinalized && !IsBusy && InputEnabled
+                && ReignServerClient.NpcLivesOptions.Allows("approach") && string.IsNullOrWhiteSpace(_session.ApproachRequestId)
+                && (string.IsNullOrWhiteSpace(text) || _lifeApproachedKey != LifeAudienceKey(GetSelectedHeroes())))
+            {
+                var opening = RequestLifeOpening(GetSelectedHeroes()); _activeBatchTask = opening;
+                var opened = await opening;
+                if (_isFinalized || !opened.Ok || string.IsNullOrWhiteSpace(text)) return;
+            }
             if (_isFinalized || string.IsNullOrWhiteSpace(text) || IsBusy || !InputEnabled)
             {
                 return;
@@ -1204,6 +1256,7 @@ namespace ReignBeta.UI.ViewModels
         {
             foreach (Hero hero in heroes ?? Enumerable.Empty<Hero>())
             {
+                if (!_banterReadOnly) ReignHeroKnowledge.MarkMet(hero);
                 if (hero != null && !_conversationHeroes.Any(existing => existing?.StringId == hero.StringId))
                 {
                     _conversationHeroes.Add(hero);

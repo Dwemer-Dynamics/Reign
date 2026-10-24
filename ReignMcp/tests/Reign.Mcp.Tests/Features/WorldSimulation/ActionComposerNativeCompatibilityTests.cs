@@ -42,22 +42,29 @@ public sealed class ActionComposerNativeCompatibilityTests
         using var report = JsonDocument.Parse(File.ReadAllText(Path.Combine(evidence, "report.json")));
         Assert.True(report.RootElement.GetProperty("ok").GetBoolean());
         Assert.True(report.RootElement.GetProperty("visibleTextFieldsCompatible").GetBoolean());
+        Assert.Equal(6, report.RootElement.GetProperty("mailboxEditorChecks").GetInt32());
+        Assert.Equal(10, report.RootElement.GetProperty("mailboxPortraitChecks").GetInt32());
+        Assert.Equal(4, report.RootElement.GetProperty("heroKnowledgeChecks").GetInt32());
         Assert.Equal(29, report.RootElement.GetProperty("managedSelectionChecks").GetInt32());
         Assert.Equal(2, report.RootElement.GetProperty("custodySnapshotChecks").GetInt32());
         Assert.Equal(4, report.RootElement.GetProperty("nativeObservationChecks").GetInt32());
         Assert.Equal(2, report.RootElement.GetProperty("bribeObservationChecks").GetInt32());
         Assert.Equal(4, report.RootElement.GetProperty("nativeFaultChecks").GetInt32());
         Assert.Equal(6, report.RootElement.GetProperty("pendingOfferChecks").GetInt32());
-        Assert.Equal(6, report.RootElement.GetProperty("nativeSafetyChecks").GetInt32());
+        Assert.Equal(11, report.RootElement.GetProperty("nativeSafetyChecks").GetInt32());
         Assert.Equal(16, report.RootElement.GetProperty("allianceDurationChecks").GetInt32());
         Assert.Equal(8, report.RootElement.GetProperty("goldObservationChecks").GetInt32());
         Assert.Equal(16, report.RootElement.GetProperty("tributeObservationChecks").GetInt32());
         Assert.Equal(10, report.RootElement.GetProperty("romanceObservationChecks").GetInt32());
+        Assert.Equal(10, report.RootElement.GetProperty("rebellionPreparationLifecycleChecks").GetInt32());
+        Assert.Equal(2, report.RootElement.GetProperty("rebellionSavedLoadChecks").GetInt32());
         Assert.Equal("System.Numerics.Vectors", report.RootElement.GetProperty("nativeVectorAssemblyName").GetString());
         Assert.Contains(report.RootElement.GetProperty("preparedMethods").EnumerateArray(),
             method => method.GetString() == "ReignBeta.UI.Widgets.ReignActionEditableTextWidget.OnLateUpdate");
         Assert.Contains(report.RootElement.GetProperty("preparedMethods").EnumerateArray(),
             method => method.GetString() == "ReignBeta.Actions.ReignNativeActionConsole.ObserveFactionPair");
+        Assert.Contains(report.RootElement.GetProperty("preparedMethods").EnumerateArray(),
+            method => method.GetString() == "ReignBeta.Campaign.ReignLiveInteractionTestHost.ApplyStructuredPlayerSettlementEncounterFixture");
     }
 
     [Fact]

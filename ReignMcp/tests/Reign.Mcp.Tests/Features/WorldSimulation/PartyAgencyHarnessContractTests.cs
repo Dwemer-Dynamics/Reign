@@ -6,6 +6,47 @@ namespace Reign.Mcp.Tests;
 public sealed class PartyAgencyHarnessContractTests
 {
     [Fact]
+    public void ObservationalPolicyContractsMatchThePersistedGuestLifecycle()
+    {
+        string root = TestOptions.FindWorkspace();
+        string guestRoot = Path.Combine(root, "ReignBeta", "src", "Modules", "WorldSimulation");
+        string host = File.ReadAllText(Path.Combine(guestRoot, "Campaign", "ReignLiveInteractionTestHost.cs"));
+        string behavior = File.ReadAllText(Path.Combine(guestRoot, "PartyAgency", "ReignTemporaryPartyGuestCampaignBehavior.cs"));
+        string record = File.ReadAllText(Path.Combine(guestRoot, "PartyAgency", "ReignTemporaryPartyGuestRecord.cs"));
+        using JsonDocument catalog = JsonDocument.Parse(File.ReadAllText(Path.Combine(root, "reign.testing.json")));
+        string[] rules = catalog.RootElement.GetProperty("partyAgency").GetProperty("deterministicAssertions")
+            .EnumerateArray().Select(rule => rule.GetString()!).ToArray();
+
+        // Keep the native observation gate consistent with the shipped timing policy and save values.
+        foreach ((string constant, string value) in new[]
+        {
+            ("OpenEndedReviewDays", "30"), ("MinimumFixedTermDays", "1"),
+            ("MinimumReturnHours", "1"), ("MaximumReturnHours", "12")
+        })
+        {
+            Assert.Contains($"{constant} = {value}f", behavior, StringComparison.Ordinal);
+            Assert.Contains($"ReignTemporaryPartyGuestCampaignBehavior.{constant} == {value}f", host,
+                StringComparison.Ordinal);
+        }
+        string calendar = File.ReadAllText(Path.Combine(guestRoot, "Runtime", "ReignCalendarService.cs"));
+        Assert.Contains("DaysPerYear = 126d", calendar, StringComparison.Ordinal);
+        Assert.Contains("MaximumFixedTermDays = (float)ReignCalendarService.DaysPerYear", behavior,
+            StringComparison.Ordinal);
+        Assert.Contains("ReignTemporaryPartyGuestCampaignBehavior.MaximumFixedTermDays == 126f", host,
+            StringComparison.Ordinal);
+        string[] phases = { "Active", "ReviewDue", "Departing", "Returning", "Completed", "HostileBanishmentPending", "AwaitingStart" };
+        for (int index = 0; index < phases.Length; index++)
+            Assert.Contains($"{phases[index]} = {index}", record, StringComparison.Ordinal);
+        Assert.Contains($"Enum.GetValues(typeof(ReignTemporaryGuestPhase)).Length == {phases.Length}", host,
+            StringComparison.Ordinal);
+        Assert.Contains("fixedTermRangeIsOneToOneHundredTwentySixDays", host, StringComparison.Ordinal);
+        Assert.DoesNotContain("fixedTermRangeIsOneToThirtyDays", host, StringComparison.Ordinal);
+        Assert.Contains(rules, rule => rule == "open-ended review interval is exactly 30 campaign days");
+        Assert.Contains(rules, rule => rule.Contains("1 through 126 campaign days", StringComparison.Ordinal));
+        Assert.Contains(rules, rule => rule.Contains("all seven persistent lifecycle phases", StringComparison.Ordinal));
+    }
+
+    [Fact]
     public void GuestInvitationRelinquishesGovernorshipOnlyAfterConsentAndAtActualDeparture()
     {
         string source = File.ReadAllText(Path.Combine(TestOptions.FindWorkspace(), "ReignBeta", "src",
@@ -501,11 +542,16 @@ public sealed class PartyAgencyHarnessContractTests
             Path.Combine(root, "ReignMcp"), "CampaignTestTools.cs"));
         Assert.Contains("if (!snapshot.FindBoolean(\"safeSettlement\"))",
             campaignTest, StringComparison.Ordinal);
-        Assert.Single(System.Text.RegularExpressions.Regex.Matches(campaignTest,
+        Assert.Equal(2, System.Text.RegularExpressions.Regex.Matches(campaignTest,
             "requireSafeSettlement: false",
-            System.Text.RegularExpressions.RegexOptions.CultureInvariant).Cast<System.Text.RegularExpressions.Match>());
+            System.Text.RegularExpressions.RegexOptions.CultureInvariant).Count);
         Assert.Contains("ValidateSnapshot(state, activeSnapshot, allowBaseline: false,\n            requireSafeSettlement: false);",
             campaignTest, StringComparison.Ordinal);
+        Assert.Contains("ValidateSnapshot(state, snapshot, allowBaseline: false, requireSafeSettlement: false);",
+            campaignTest, StringComparison.Ordinal);
+        Assert.Contains("ValidatePausedActionSnapshot(state, snapshot);", campaignTest, StringComparison.Ordinal);
+        Assert.Contains("Paused action tests require the exact enrolled Current save.", campaignTest, StringComparison.Ordinal);
+        Assert.Contains("Paused action tests require stopped native campaign time.", campaignTest, StringComparison.Ordinal);
     }
 
     [Fact]

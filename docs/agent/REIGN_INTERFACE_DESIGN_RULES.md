@@ -174,10 +174,11 @@ Authority: `ReignBeta/artwork/ui-modern-style-kit/approved-references/memories-b
 
 ### Diplomacy announcement
 
-Authority: `ReignBeta/artwork/ui-modern-style-kit/approved-references/diplomacy-announcement.png` (`6ee8dd4623033e226b50815b8fbd95b269673b908942edc7061728398674dd12`).
+Authority: `ReignBeta/artwork/ui-modern-style-kit/approved-references/diplomacy-announcement-readable.png` (`1a80ede7b3033814fbd494e7e9bbb7e195683430f461205133c7da6b17bbf736`). The prior reference is retained as history.
 
 - Ceremonial symmetry: actor card left, recipient card right, declaration centered.
-- Large vertical oval portraits, banners below, and a restrained central geometric watermark/divider.
+- Large vertical oval portraits, banners below, and one uninterrupted reading column; the 2026-10-15 user request removes the central divider and watermark behind long reports.
+- Announcement busts frame the full portrait with its recorded face position, retaining hair and shoulder context. Do not square-crop the already tight chest derivative or enlarge it inside the narrow oval. The complete frame and aperture remain unchanged.
 - One centered acknowledgement action anchors the bottom.
 
 ### Family Chambers

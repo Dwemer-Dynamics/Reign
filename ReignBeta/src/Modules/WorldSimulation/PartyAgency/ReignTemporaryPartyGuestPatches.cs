@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using HarmonyLib;
 using Newtonsoft.Json.Linq;
 using ReignBeta.Integration;
@@ -18,6 +19,7 @@ namespace ReignBeta.PartyAgency
     {
         private const string HarmonyId = "com.bannerlordreign.reignbeta.temporary-party-guests";
         private static readonly HashSet<string> PatchedHooks = new HashSet<string>(StringComparer.Ordinal);
+        private static readonly List<MethodBase> HookTargets = new List<MethodBase>();
         private static Harmony _harmony;
         private static string _lastPatchError = string.Empty;
 
@@ -27,6 +29,7 @@ namespace ReignBeta.PartyAgency
             try
             {
                 PatchedHooks.Clear();
+                HookTargets.Clear();
                 _lastPatchError = string.Empty;
                 _harmony = new Harmony(HarmonyId);
                 Patch(typeof(DisbandPartyAction), nameof(DisbandPartyAction.StartDisband),
@@ -73,6 +76,8 @@ namespace ReignBeta.PartyAgency
             return new JObject
             {
                 ["active"] = _harmony != null,
+                ["ready"] = VerifyReady(),
+                ["requiredHookCount"] = 20,
                 ["patchedHookCount"] = PatchedHooks.Count,
                 ["patchedHooks"] = new JArray(PatchedHooks.OrderBy(x => x)),
                 ["lastPatchError"] = _lastPatchError ?? string.Empty
@@ -127,7 +132,11 @@ namespace ReignBeta.PartyAgency
             if (target == null) throw new MissingMethodException(targetType.FullName, targetName);
             _harmony.Patch(target, prefix: new HarmonyMethod(typeof(ReignTemporaryPartyGuestPatches), patchName));
             PatchedHooks.Add(targetType.Name + "." + targetName);
+            HookTargets.Add(target);
         }
+
+        internal static bool VerifyReady() => _harmony != null && PatchedHooks.Count == 20 && HookTargets.Count == 20
+            && HookTargets.All(t => Harmony.GetPatchInfo(t)?.Prefixes.Any(p => p.owner == HarmonyId) == true);
 
         private static bool ProtectedPartyPrefix(MobileParty __0)
         {
@@ -196,7 +205,8 @@ namespace ReignBeta.PartyAgency
         private static bool ShouldSuppressLeaderPartyExpense(Clan clan)
         {
             return ReignTemporaryPartyGuestCampaignBehavior.Instance
-                ?.IsGuestClanLeaderInMainParty(clan) == true;
+                ?.IsGuestClanLeaderInMainParty(clan) == true
+                || ReignBeta.Campaign.ReignNpcLivesBehavior.Instance?.IsSummonedClanLeader(clan) == true;
         }
 
         private static bool ShouldSuppressProtectedPartyExpense(MobileParty party)

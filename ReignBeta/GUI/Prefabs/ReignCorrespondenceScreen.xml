@@ -61,6 +61,7 @@
                                         SuggestedWidth="79" SuggestedHeight="79"
                                         MarginLeft="21" MarginTop="5"
                                         ClipContents="true"
+                                        IsVisible="@IsUnselected"
                                         DoNotAcceptEvents="true">
                                   <Children>
                                     <Widget WidthSizePolicy="Fixed" HeightSizePolicy="Fixed"
@@ -69,18 +70,17 @@
                                             ClipContents="true"
                                             DoNotAcceptEvents="true">
                                       <Children>
-                                        <ImageIdentifierWidget
+                                        <Widget
                                                 WidthSizePolicy="Fixed" HeightSizePolicy="Fixed"
                                                 SuggestedWidth="75" SuggestedHeight="75"
                                                 HorizontalAlignment="Center" VerticalAlignment="Center"
-                                                ImageId="@PortraitId"
-                                                AdditionalArgs="@PortraitAdditionalArgs"
-                                                TextureProviderName="@PortraitTextureProviderName"
+                                                Sprite="reign_modern_portrait_empty_fill"
                                                 DoNotAcceptEvents="true" />
                                         <ReignPortraitWidget Type="ReignBeta.UI.Widgets.ReignPortraitWidget"
                                                 WidthSizePolicy="Fixed" HeightSizePolicy="Fixed"
                                                 SuggestedWidth="75" SuggestedHeight="75"
                                                 HorizontalAlignment="Center" VerticalAlignment="Center"
+                                                VisibleThumbnailOnly="true"
                                                 PortraitCacheKey="@PortraitCacheKey"
                                                 DoNotAcceptEvents="true" />
                                       </Children>
@@ -145,18 +145,17 @@
                                     IsVisible="@IsSelected"
                                     DoNotAcceptEvents="true">
                               <Children>
-                                <ImageIdentifierWidget
+                                <Widget
                                         WidthSizePolicy="Fixed" HeightSizePolicy="Fixed"
                                         SuggestedWidth="94" SuggestedHeight="96"
                                         HorizontalAlignment="Center" VerticalAlignment="Center"
-                                        ImageId="@PortraitId"
-                                        AdditionalArgs="@PortraitAdditionalArgs"
-                                        TextureProviderName="@PortraitTextureProviderName"
+                                        Sprite="reign_modern_portrait_empty_fill"
                                         DoNotAcceptEvents="true" />
                                 <ReignPortraitWidget Type="ReignBeta.UI.Widgets.ReignPortraitWidget"
                                         WidthSizePolicy="Fixed" HeightSizePolicy="Fixed"
                                         SuggestedWidth="94" SuggestedHeight="96"
                                         HorizontalAlignment="Center" VerticalAlignment="Center"
+                                        VisibleThumbnailOnly="true"
                                         PortraitCacheKey="@PortraitCacheKey"
                                         DoNotAcceptEvents="true" />
                               </Children>

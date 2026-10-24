@@ -76,8 +76,10 @@ public sealed class GovernmentTestingToolsTests
         Assert.Contains(root.GetProperty("profiles").EnumerateArray(), value => value.GetString() == "hearing_compose");
         Assert.Equal(104, root.GetProperty("contracts").GetProperty("resolutionTemplateCount").GetInt32());
         JsonElement hearing = root.GetProperty("contracts").GetProperty("hearingIntegration");
-        Assert.Equal(7, hearing.GetProperty("recessDays").GetInt32());
-        Assert.Equal(1, hearing.GetProperty("maximumPostponements").GetInt32());
+        Assert.Equal(0, hearing.GetProperty("maximumPostponements").GetInt32());
+        Assert.Equal(new[] { 15, 30 }, hearing.GetProperty("regularSessionDays").EnumerateArray().Select(x => x.GetInt32()));
+        Assert.Equal(31.5, hearing.GetProperty("seasonLengthDays").GetDouble());
+        Assert.Equal(new[] { 100, 75, 50, 25, 0 }, hearing.GetProperty("crownWeights").EnumerateArray().Select(x => x.GetInt32()));
         Assert.Equal(21, hearing.GetProperty("unsponsoredPetitionExpiryDays").GetInt32());
         Assert.True(hearing.GetProperty("absenteeVoting").GetBoolean());
         Assert.Contains("binding individual vote", hearing.GetProperty("levelFive").GetString());

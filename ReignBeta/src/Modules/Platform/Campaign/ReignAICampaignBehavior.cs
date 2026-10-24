@@ -151,6 +151,13 @@ namespace ReignBeta.Campaign
                 || TaleWorlds.CampaignSystem.Campaign.Current == null || Hero.MainHero == null)
                 return;
 
+            ReignSurrenderService.Tick();
+            if (IsEnabled() && !ReignSaveSyncCoordinator.IsAlignmentPending)
+            {
+                ReignServerClient.PulsePersonalGossip();
+                ReignServerClient.PulseCommunications();
+            }
+
             if (!_governmentRefusalsReconciled && ReignGovernmentCampaignBehavior.Instance != null)
             {
                 _governmentRefusalsReconciled = true;

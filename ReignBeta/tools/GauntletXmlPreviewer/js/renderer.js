@@ -1,4 +1,5 @@
 import { appendActionRichText, previewActionRichText } from "./action-text.js";
+import { applyFramedBustPreview } from "./portrait-framing.js";
 import {
   attributesToObject,
   childElements,
@@ -292,18 +293,25 @@ export class GauntletRenderer {
       element.dataset.label = label;
       const asset = this.resolveImageAsset(xmlNode, scopedContext, label);
       // The runtime outfit file provider draws nothing until a real PNG is ready.
-      if (tag === "ReignOutfitPortraitWidget" && !asset) element.style.visibility = "hidden";
+      if ((tag === "ReignOutfitPortraitWidget" || xmlNode.getAttribute("VisibleThumbnailOnly") === "true") && !asset)
+        element.style.visibility = "hidden";
       if (asset) {
         element.classList.add("has-asset");
-        element.style.backgroundImage = cssUrl(asset);
+        let presentation = "";
         if (isPortrait) {
-          element.classList.add(`portrait-presentation--${classifyPortraitPresentation({
+          presentation = classifyPortraitPresentation({
             id,
             width: numeric(this.resolveText(xmlNode.getAttribute("SuggestedWidth"), scopedContext)),
             height: numeric(this.resolveText(xmlNode.getAttribute("SuggestedHeight"), scopedContext)),
-            useFullBody: xmlNode.getAttribute("UseFullBody") === "true" || tag === "ReignOutfitPortraitWidget"
-          })}`);
+            useFullBody: xmlNode.getAttribute("UseFullBody") === "true" || tag === "ReignOutfitPortraitWidget",
+            useFramedBust: xmlNode.getAttribute("UseFramedBust") === "true"
+          });
+          element.classList.add(`portrait-presentation--${presentation}`);
         }
+        element.style.backgroundImage = cssUrl(resolvePortraitPreviewAsset(asset, presentation));
+        if (presentation === "framed-bust") applyFramedBustPreview(element, asset,
+          numeric(this.resolveText(xmlNode.getAttribute("SuggestedWidth"), scopedContext)),
+          numeric(this.resolveText(xmlNode.getAttribute("SuggestedHeight"), scopedContext)));
         if (id === "WarCouncilMap") {
           ensurePreviewBgrToRgbFilter();
           element.style.filter = "url(#reign-preview-bgr-to-rgb)";
@@ -810,6 +818,8 @@ export class GauntletRenderer {
   }
 
   resolveImageAsset(node, context, resolvedLabel) {
+    if (node.getAttribute("VisibleThumbnailOnly") === "true"
+        && !this.resolveText(node.getAttribute("PortraitCacheKey"), context)) return "";
     if (node.nodeName === "ReignOutfitPortraitWidget") return this.resolveText(node.getAttribute("ImagePath"), context) || "";
     const widgetAsset = this.assetByWidgetId[node.getAttribute("Id") || ""];
     if (widgetAsset) return widgetAsset;
@@ -1077,12 +1087,21 @@ export function resolvePortraitComposition(container) {
   };
 }
 
-export function classifyPortraitPresentation({ id = "", width = 0, height = 0, useFullBody = false } = {}) {
+export function classifyPortraitPresentation({ id = "", width = 0, height = 0, useFullBody = false, useFramedBust = false } = {}) {
   if (/AIInfluenceMemoryImage|MemoryBookScene/i.test(id)) return "scene";
+  if (useFramedBust) return "framed-bust";
   if (useFullBody || /(?:ZoomPortrait|PortraitPreview)/i.test(id) || (height > width * 1.2 && /preview/i.test(id))) {
     return "full-body";
   }
   return "headshot";
+}
+
+export function resolvePortraitPreviewAsset(asset, presentation) {
+  // Use the shipped chest crop for the native headshot presentation. Keep the
+  // original rectangular source for full-body/zoom, scenes, and outfit previews.
+  return presentation === "headshot" && /\/PortraitCache\/_shared\/[^/]+\/portrait\.png$/.test(asset)
+    ? asset.replace(/\/portrait\.png$/, "/portrait_chest.png")
+    : asset;
 }
 
 function decorateAttendeeCard(card) {

@@ -7,6 +7,62 @@ namespace Reign.Mcp.Tests;
 
 public sealed class GovernmentNativeSafetyTests
 {
+    [Fact]
+    public void NewlyOpenedUrgentHearingCanBeVotedAtTheSamePausedNativeInstant()
+    {
+        const double now = 91154.05328340741;
+        var hearing = new ReignGovernmentBusinessRecord
+        {
+            IsUrgent = true, Status = "hearing", PresentationDay = (float)now, DecisionDay = (float)now,
+            FrozenAuthorityLevel = 1
+        };
+        Assert.True(hearing.DecisionDay > now); // The actual native first-fief award regression.
+        Assert.True(ReignGovernmentNativeSafety.IsDecisionDue(hearing, now));
+        var restored = JsonSerializer.Deserialize<ReignGovernmentBusinessRecord>(JsonSerializer.Serialize(hearing, SaveOptions), SaveOptions)!;
+        Assert.True(ReignGovernmentNativeSafety.IsDecisionDue(restored, now));
+        Assert.False(ReignGovernmentNativeSafety.IsDecisionDue(hearing, now - .01));
+    }
+
+    [Theory]
+    [InlineData(false, "hearing", false, false)]
+    [InlineData(false, "presented", false, false)]
+    [InlineData(true, "queued", false, false)]
+    [InlineData(true, "presented", false, false)]
+    [InlineData(true, "hearing", true, false)]
+    [InlineData(true, "hearing", false, true)]
+    public void RoundedUrgentClockAllowanceCannotBringAnotherSessionForward(bool urgent, string status, bool legacy, bool deferred)
+    {
+        const double now = 91154.05328340741;
+        var hearing = new ReignGovernmentBusinessRecord
+        {
+            IsUrgent = urgent, Status = status, LegacySessionMigration = legacy,
+            PresentationDay = deferred ? 91139 : (float)now, DecisionDay = (float)now
+        };
+        Assert.False(ReignGovernmentNativeSafety.IsDecisionDue(hearing, now));
+        Assert.True(ReignGovernmentNativeSafety.IsDecisionDue(hearing, hearing.DecisionDay));
+    }
+
+    [Theory]
+    [InlineData(-1)]
+    [InlineData(double.NaN)]
+    [InlineData(double.PositiveInfinity)]
+    [InlineData(double.NegativeInfinity)]
+    public void InvalidNativeClockCannotAuthorizeARecordedDeadline(double now)
+    {
+        var hearing = new ReignGovernmentBusinessRecord { DecisionDay = 91154, PresentationDay = 91154, IsUrgent = true };
+        Assert.False(ReignGovernmentNativeSafety.IsDecisionDue(hearing, now));
+    }
+
+    [Theory]
+    [InlineData(-1)]
+    [InlineData(float.NaN)]
+    [InlineData(float.PositiveInfinity)]
+    public void MissingOrInvalidDeadlineCannotAuthorizeAVote(float due)
+    {
+        Assert.False(ReignGovernmentNativeSafety.IsDecisionDue(new ReignGovernmentBusinessRecord { DecisionDay = due }, 91154));
+        Assert.False(ReignGovernmentNativeSafety.IsDecisionDue(null!, 91154));
+    }
+
     private static (ReignGovernmentBusinessRecord Source, ReignGovernmentBusinessRecord Response) CounterpartRefusal()
     {
         var source = new ReignGovernmentBusinessRecord
@@ -113,14 +169,16 @@ public sealed class GovernmentNativeSafetyTests
     }
 
     [Theory]
-    [InlineData("proposed", null, false, true)] // Legacy proposals have no hearing.
+    [InlineData("proposed", null, false, false)] // Legacy proposals must migrate into a session.
     [InlineData("debate", null, false, false)]
-    [InlineData("proposed", "awaiting_ruler", true, true)]
-    [InlineData("debate", "awaiting_ruler", true, true)] // Recorded native seasonal vote.
-    [InlineData("debate", "reconsideration", true, true)] // Timing/opposition guards remain separate.
-    [InlineData("proposed", "reconsideration", true, true)]
-    [InlineData("debate", "hearing", true, false)]
-    [InlineData("proposed", "hearing", true, false)]
+    [InlineData("proposed", "awaiting_ruler", true, false)]
+    [InlineData("debate", "awaiting_ruler", true, false)]
+    [InlineData("debate", "reconsideration", true, false)]
+    [InlineData("proposed", "reconsideration", true, false)]
+    [InlineData("debate", "hearing", true, true)] // Weighted execution still requires its own due-date and permit guards.
+    [InlineData("proposed", "hearing", true, true)]
+    [InlineData("proposed", "presented", true, false)]
+    [InlineData("proposed", "queued", true, false)]
     [InlineData("debate", "postponed", true, false)]
     [InlineData("debate", "awaiting_sponsorship", true, false)]
     [InlineData("debate", "decided", true, false)]
@@ -159,7 +217,7 @@ public sealed class GovernmentNativeSafetyTests
     }
 
     [Fact]
-    public void RuralVisitorIssueDiscoveryGuardDoesNotDisableVillageIssuesOrMutateAttendance()
+    public void VisitorIssueDiscoveryGuardPreservesValidQuestsAndDoesNotMutateAttendance()
     {
         string source = File.ReadAllText(Path.Combine(TestOptions.FindWorkspace(), "ReignBeta", "src", "Modules",
             "Government", "Campaign", "ReignGovernmentNativeDecisions.cs"));
@@ -169,6 +227,7 @@ public sealed class GovernmentNativeSafetyTests
         Assert.Contains("ReignGovernmentNativeSafety.AllowNativeIssueDiscovery(", guard);
         Assert.Contains("__0?.IsHeadman == true, __0?.IsRuralNotable == true", guard);
         Assert.Contains("settlement != null, settlement?.Village?.Bound?.Town != null", guard);
+        Assert.Contains("__0?.IsGangLeader == true, settlement?.IsTown == true && settlement.Town != null", guard);
         foreach (string mutation in new[] { "Teleport", "OnIssueUpdated", "RemoveIssue", "IssueManager", "TryCommit", "_governmentAttendance" })
             Assert.DoesNotContain(mutation, guard);
     }
@@ -190,7 +249,23 @@ public sealed class GovernmentNativeSafetyTests
         bool isHeadman, bool isRuralNotable, bool hasCurrentSettlement, bool hasVillageContext, bool expected)
     {
         Assert.Equal(expected, ReignGovernmentNativeSafety.AllowNativeIssueDiscovery(
-            isHeadman, isRuralNotable, hasCurrentSettlement, hasVillageContext));
+            isHeadman, isRuralNotable, hasCurrentSettlement, hasVillageContext, false, false));
+    }
+
+    [Theory]
+    [InlineData(true, true, true, true)] // A gang leader in a town keeps native quest discovery.
+    [InlineData(true, true, false, false)] // Village or castle visits lack the required town context.
+    [InlineData(true, false, false, false)] // Travelling gang leaders cannot dereference a settlement.
+    [InlineData(true, false, true, false)] // Inconsistent context must also fail closed.
+    [InlineData(false, true, true, true)]
+    [InlineData(false, true, false, true)] // Other occupations retain their existing rules.
+    [InlineData(false, false, false, true)]
+    [InlineData(false, false, true, true)]
+    public void GangLeaderQuestDiscoveryRequiresTownContextWithoutBlockingOtherOccupations(
+        bool isGangLeader, bool hasCurrentSettlement, bool hasTownContext, bool expected)
+    {
+        Assert.Equal(expected, ReignGovernmentNativeSafety.AllowNativeIssueDiscovery(
+            false, false, hasCurrentSettlement, false, isGangLeader, hasTownContext));
     }
 
     private static readonly JsonSerializerOptions SaveOptions = new() { IncludeFields = true };
@@ -297,8 +372,8 @@ public sealed class GovernmentNativeSafetyTests
     {
         string root = TestOptions.FindWorkspace();
         string folder = Path.Combine(root, "ReignBeta", "src", "Modules", "Government", "Campaign");
-        var classes = new[] { "ReignGovernmentNativeDecisions.cs", "ReignGovernmentNativeControls.cs", "ReignGovernmentNativeOffers.cs" }
-            .SelectMany(file => Regex.Matches(File.ReadAllText(Path.Combine(folder, file)), @"internal static class (ReignGovernment\w+Patch)\b")
+        var classes = Directory.EnumerateFiles(folder, "*.cs", SearchOption.AllDirectories)
+            .SelectMany(file => Regex.Matches(File.ReadAllText(file), @"internal static class (ReignGovernment\w+Patch)\b")
                 .Select(match => match.Groups[1].Value)).OrderBy(x => x).ToArray();
         string lifecycle = File.ReadAllText(Path.Combine(folder, "ReignGovernmentPatches.cs"));
         string registry = lifecycle[lifecycle.IndexOf("Type[] PatchClasses", StringComparison.Ordinal)..lifecycle.IndexOf("internal static void Apply()", StringComparison.Ordinal)];

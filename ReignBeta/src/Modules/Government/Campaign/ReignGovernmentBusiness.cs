@@ -43,6 +43,7 @@ namespace ReignBeta.Government
                     : JsonConvert.DeserializeObject<List<ReignGovernmentBusinessRecord>>(ReignSavePayloadCodec.Decode(_businessChunks))
                         ?? new List<ReignGovernmentBusinessRecord>();
                 _ownedNativeDecisions = _ownedNativeDecisions ?? new List<KingdomDecision>();
+                foreach (var record in _business.Where(x => x.SessionProtocolVersion == 0)) record.LegacySessionMigration = true;
             }
         }
 
@@ -69,6 +70,7 @@ namespace ReignBeta.Government
 
         private void ChangedBusiness(ReignGovernmentBusinessRecord record)
         {
+            InitializeBusinessSchedule(record);
             record.Revision++;
             BusinessChanged?.Invoke(record);
         }
@@ -79,6 +81,9 @@ namespace ReignBeta.Government
             if (record == null) return false;
             if (!GovernmentBusinessRules.CanRecommend(record.Status) || !BusinessOptions(record).Any(x => Same(x.Value<string>("id"), optionId)))
             { result = "That recommendation is not available at this stage."; return false; }
+            if (!IsGovernmentRulerPresent(businessId)) { result = "The ruler must attend at the capital to declare the Crown position."; return false; }
+            record.CrownActorHeroId = actor.StringId; record.CrownOptionId = optionId;
+            record.CrownVoteSource = "ruler"; record.CrownVoteStatus = "recorded";
             record.RecommendedOptionId = optionId;
             record.RecommendationRulerHeroStringId = actor.StringId;
             ChangedBusiness(record);
@@ -90,7 +95,8 @@ namespace ReignBeta.Government
         {
             var record = AuthorizedBusiness(businessId, actor, out result);
             if (record == null || record.Status != "awaiting_sponsorship") return false;
-            record.Status = "hearing";
+            record.Status = "queued";
+            record.IntroductionPartyId = "crown";
             record.SponsorReason = "The ruler adopted this petition for government consideration.";
             ChangedBusiness(record);
             result = "The petition is now before the government.";
@@ -98,95 +104,103 @@ namespace ReignBeta.Government
         }
 
         public bool PostponeBusiness(string businessId, Hero actor, out string result)
-        {
-            var record = AuthorizedBusiness(businessId, actor, out result);
-            if (record == null) return false;
-            if (!GovernmentBusinessRules.CanPostpone(record.Status, record.IsUrgent, record.Postponed))
-            { result = "Only a nonurgent hearing may take its one seven-day recess."; return false; }
-            record.Postponed = true;
-            record.RecessUntilDay = CurrentDay() + GovernmentBusinessRules.RecessDays;
-            record.Status = "postponed";
-            ChangedBusiness(record);
-            result = "The hearing is postponed for seven days. Available members will attend at the capital.";
-            return true;
-        }
+        { result = "Regular business is decided at its next scheduled session; urgent business cannot be recessed."; return false; }
 
         public bool ReconveneBusiness(string businessId, Hero actor, out string result)
-        {
-            var record = AuthorizedBusiness(businessId, actor, out result);
-            if (record == null || record.Status != "postponed") return false;
-            record.Status = "hearing";
-            ChangedBusiness(record);
-            result = "The hearing has reconvened; the recess cannot be repeated.";
-            return true;
-        }
+        { result = "Government sessions follow the published calendar."; return false; }
 
         public bool VoteBusiness(string businessId, Hero actor, out string result)
         {
             var record = AuthorizedBusiness(businessId, actor, out result);
             if (record == null) return false;
-            if (!GovernmentBusinessRules.CanVote(record.Status))
-            { result = "This matter is not awaiting a vote."; return false; }
-            if (!ValidateNativeBusiness(record, out result)) return false;
-            Kingdom kingdom = FindKingdom(record.KingdomStringId);
-            ReignGovernmentStateRecord state = EnsureGovernment(kingdom);
-            var options = BusinessOptions(record);
-            var ballots = new JArray();
-            foreach (var seat in GetSeats(record.KingdomStringId))
-            {
-                Hero member = FindHero(seat.HeroStringId);
-                if (member == null || !member.IsAlive) continue;
-                string agreedOption = AgreedVoteOption(record.BusinessId, member.StringId);
-                var selected = options.FirstOrDefault(x => x.Value<string>("id") == agreedOption)
-                    ?? options.OrderByDescending(x => BusinessOptionScore(record, seat, member, x, true))
-                    .ThenBy(x => x.Value<string>("id"), StringComparer.Ordinal).FirstOrDefault();
-                if (selected == null) continue;
-                var attendance = GetBusinessAttendance(record.BusinessId).FirstOrDefault(x => Same(x.HeroStringId, member.StringId));
-                ballots.Add(new JObject { ["memberHeroId"] = member.StringId, ["partyId"] = seat.PartyId,
-                    ["optionId"] = selected.Value<string>("id"), ["absentee"] = attendance == null || attendance.Status != "present" });
-            }
-            string winner = GovernmentBusinessRules.SelectWinner(ballots.OfType<JObject>().Select(x => x.Value<string>("optionId")),
-                options.Select(x => x.Value<string>("id")), record.StatusQuoOptionId);
-            if (string.IsNullOrEmpty(winner))
-            { result = "There are no eligible voting members. The hearing remains pending until representation is restored."; return false; }
-            record.VotesJson = ballots.ToString(Formatting.None);
-            record.WinningOptionId = winner;
-            if (state.Level == 5) return ExecuteBusiness(record, winner, false, out result);
-            bool opposed = !string.IsNullOrEmpty(record.RecommendedOptionId) && !Same(winner, record.RecommendedOptionId);
-            record.Status = state.Level == 3 && opposed ? "reconsideration" : "awaiting_ruler";
-            if (record.Status == "reconsideration") record.ReconsiderUntilDay = record.IsUrgent ? CurrentDay() : CurrentDay() + 7f;
-            ChangedBusiness(record);
-            result = record.Status == "reconsideration"
-                ? record.IsUrgent ? "Members oppose the recommendation. Reconsider now, or explicitly uphold it with consequences."
-                    : "Members oppose the recommendation. The seven-day reconsideration period has begun."
-                : "Individual votes are recorded. The ruler may now respond under the current authority level.";
-            return true;
+            if (!CanPlayerVoteBusiness(businessId) && (actor == Hero.MainHero || !IsGovernmentRulerPresent(businessId)))
+            { result = "Attend the capital when this matter is due for decision."; return false; }
+            return CastGovernmentWeightedVote(record, true, out result);
         }
 
         public bool ResolveBusiness(string businessId, string optionId, Hero actor, bool overrideOpposition, out string result)
         {
-            var record = AuthorizedBusiness(businessId, actor, out result);
-            if (record == null) return false;
-            var state = GetGovernment(record.KingdomStringId);
-            if (state == null || state.Level == 5)
-            { result = "Under binding government authority the vote decides; the ruler cannot replace it."; return false; }
-            if (record.Status != "awaiting_ruler" && record.Status != "reconsideration")
-            { result = "Record the government vote before making the ruler's decision."; return false; }
-            bool opposed = !Same(record.WinningOptionId, optionId);
-            if (opposed && state.Level == 3 && record.Status == "awaiting_ruler")
+            result = "The weighted vote is final; ordinary government decisions have no later override.";
+            return false;
+        }
+
+        private bool CastGovernmentWeightedVote(ReignGovernmentBusinessRecord record, bool rulerRequested, out string result)
+        {
+            result = "This matter is not due for a decision.";
+            if (record.FrozenAuthorityLevel == 0 || !ReignGovernmentNativeSafety.IsDecisionDue(record, CampaignTime.Now.ToDays)
+                || !GovernmentSessionRules.CanRecordBallots(record.Status, JArray.Parse(record.VotesJson ?? "[]").Count > 0, record.ExecutionApplied)) return false;
+            if (WaitForPlayerMemberBallot(record)) { result = "The attending player must vote or explicitly abstain."; return false; }
+            var frozenIds = JArray.Parse(record.FrozenSeatsJson).Select(x => x.Value<string>("memberHeroId")).ToList();
+            if (GetSeats(record.KingdomStringId).Any(x => frozenIds.Contains(x.HeroStringId) && x.HeroStringId != Hero.MainHero?.StringId && AppliedPoliticalProfile(x.HeroStringId) == null))
+            { QueuePoliticalProfileSync(); result = "Awaiting the members' saved political profiles before deciding."; return false; }
+            if (!ValidateNativeBusiness(record, out result)) return false;
+            var kingdom = FindKingdom(record.KingdomStringId);
+            bool present = IsGovernmentRulerPresent(record.BusinessId);
+            if (record.FrozenAuthorityLevel == 1 && (!present || !rulerRequested))
+            { result = "The ruler must attend and personally approve this matter."; return false; }
+            if (present && rulerRequested)
             {
-                record.Status = "reconsideration";
-                record.ReconsiderUntilDay = record.IsUrgent ? CurrentDay() : CurrentDay() + 7f;
-                ChangedBusiness(record);
-                result = record.IsUrgent ? "Reconsider the government's objection before explicitly upholding this decision."
-                    : "The government opposed this outcome. Its seven-day reconsideration period has begun.";
-                return false;
+                if (string.IsNullOrEmpty(record.RecommendedOptionId) && record.FrozenAuthorityLevel < 5)
+                { result = "Declare the Crown's choice before calling the vote."; return false; }
+                if (!string.IsNullOrEmpty(record.RecommendedOptionId))
+                    RecordGovernmentCrownPosition(record.BusinessId, kingdom.Leader.StringId, record.RecommendedOptionId, "ruler", out result);
+                else { record.CrownVoteStatus = "abstained"; record.CrownOptionId = ""; record.CrownVoteSource = "ruler"; record.CrownActorHeroId = kingdom.Leader.StringId; }
             }
-            if (opposed && state.Level >= 3 && !overrideOpposition)
-            { result = "Upholding an opposed decision requires an explicit override."; return false; }
-            if (opposed && state.Level == 3 && CurrentDay() < record.ReconsiderUntilDay)
-            { result = "The reconsideration period has not ended."; return false; }
-            return ExecuteBusiness(record, optionId, opposed, out result);
+            else if (!present)
+            {
+                if (record.CrownVoteSource == "ruler" || record.CrownVoteSource == "chancellor"
+                    && !IsActiveGovernmentChancellor(record.KingdomStringId, record.CrownActorHeroId))
+                { record.CrownOptionId = ""; record.CrownActorHeroId = ""; record.CrownVoteStatus = "unrecorded"; record.CrownVoteSource = ""; }
+                if (record.FrozenAuthorityLevel >= 2 && (record.CrownVoteStatus == "unrecorded" || record.CrownVoteStatus == "pending")) RequestGovernmentCrownDeputy(record);
+                if (record.CrownVoteStatus == "pending") { result = "Awaiting the Chancellor's recorded decision."; return false; }
+            }
+            var options = BusinessOptions(record);
+            var ballots = new JArray();
+            var currentSeats = GetSeats(record.KingdomStringId);
+            foreach (var frozen in JArray.Parse(record.FrozenSeatsJson).OfType<JObject>())
+            {
+                string memberId = frozen.Value<string>("memberHeroId");
+                var seat = currentSeats.FirstOrDefault(x => Same(x.HeroStringId, memberId));
+                var member = FindHero(memberId);
+                string option = "";
+                if (seat != null && member?.IsAlive == true && member == Hero.MainHero)
+                {
+                    var submitted = _participation.Ballots.FirstOrDefault(x => x.BusinessId == record.BusinessId && x.HeroId == memberId);
+                    option = submitted != null && !submitted.Abstain && options.Any(x => x.Value<string>("id") == submitted.OptionId) ? submitted.OptionId : "";
+                }
+                else if (seat != null && member?.IsAlive == true && !member.IsPrisoner && AppliedPoliticalProfile(memberId) != null)
+                {
+                    option = AgreedVoteOption(record.BusinessId, memberId);
+                    if (string.IsNullOrEmpty(option)) option = options.OrderByDescending(x => BusinessOptionScore(record, seat, member, x, true))
+                        .ThenBy(x => x.Value<string>("id"), StringComparer.Ordinal).FirstOrDefault()?.Value<string>("id") ?? "";
+                }
+                ballots.Add(new JObject { ["memberHeroId"] = memberId, ["partyId"] = frozen.Value<string>("partyId"),
+                    ["optionId"] = option, ["weight"] = frozen.Value<decimal>("weight"),
+                    ["eligible"] = seat != null && member?.IsAlive == true, ["castDay"] = CurrentDay(),
+                    ["name"] = member?.Name?.ToString() ?? "Vacant seat",
+                    ["absentee"] = !GetBusinessAttendance(record.BusinessId).Any(x => Same(x.HeroStringId, memberId) && x.Status == "present") });
+            }
+            if (record.CrownVoteStatus == "recorded") ballots.Add(new JObject { ["memberHeroId"] = "crown", ["actorHeroId"] = record.CrownActorHeroId,
+                ["optionId"] = record.CrownOptionId, ["weight"] = GovernmentSessionRules.CrownWeight(record.FrozenAuthorityLevel), ["source"] = record.CrownVoteSource });
+            var weighted = ballots.OfType<JObject>().Select(x => new GovernmentWeightedBallot { VoterId = x.Value<string>("memberHeroId"), OptionId = x.Value<string>("optionId"), Weight = x.Value<decimal>("weight") });
+            string winner = GovernmentSessionRules.Winner(weighted, options.Select(x => x.Value<string>("id")), record.StatusQuoOptionId);
+            if (string.IsNullOrEmpty(winner)) { result = "Every voting share abstained; the matter remains pending."; return false; }
+            record.VotesJson = ballots.ToString(Formatting.None); record.WinningOptionId = winner;
+            record.AuthorityLevelAtDecision = record.FrozenAuthorityLevel; record.DecisionRulerHeroStringId = kingdom.Leader.StringId;
+            bool executed = ExecuteBusiness(record, winner, false, out result);
+            if (!executed && (record.Status == "hearing" || record.Status == "presented"))
+            {
+                record.Status = "execution_failed";
+                record.Outcome = "The recorded vote could not be implemented: " + GovernmentBusinessRules.PublicText(result)
+                    + " The vote is preserved for review; it will not be retallied or retried automatically.";
+                ChangedBusiness(record);
+                result = record.Outcome;
+            }
+            // Adapters can enter quarantine themselves. Release hearing attendance and
+            // private commitments in either path without retrying uncertain effects.
+            if (!executed && record.Status == "execution_failed") NotifyGovernmentBusinessClosed(record);
+            RecordGovernmentVoteNews(record);
+            return executed;
         }
 
         private ReignGovernmentBusinessRecord AuthorizedBusiness(string businessId, Hero actor, out string result)
@@ -208,6 +222,8 @@ namespace ReignBeta.Government
             ReignGovernmentPatches.VerifyReady();
             foreach (var record in _business.Where(x => !GovernmentBusinessRules.IsClosed(x.Status)).ToList())
             {
+                InitializeBusinessSchedule(record);
+                if (record.SessionProtocolVersion == 0) continue;
                 if (!string.IsNullOrEmpty(record.NativeDecisionType) && !record.ExecutionApplied
                     && !ValidateNativeBusiness(record, out _)) continue;
                 ObserveGovernmentActionQueue(record);
@@ -215,7 +231,9 @@ namespace ReignBeta.Government
                 Kingdom kingdom = FindKingdom(record.KingdomStringId);
                 if (kingdom == null || !IsEligibleKingdom(kingdom))
                 { CloseInvalidBusiness(record, "The kingdom no longer has an eligible government."); continue; }
+                if (IsCharterPending(kingdom.StringId)) continue;
                 RefreshBusinessRuler(record, kingdom);
+                ApplyDueGovernmentDeclarations(record);
                 ObserveCounterpartBusiness(record);
                 if (record.Status == "awaiting_sponsorship")
                 {
@@ -223,29 +241,25 @@ namespace ReignBeta.Government
                     if (record.Status == "awaiting_sponsorship" && CurrentDay() >= record.CreatedDay + GovernmentBusinessRules.PetitionExpiryDays)
                     { record.Status = "expired"; record.Outcome = "The petition expired without sponsorship; no ruler refusal occurred."; NotifyGovernmentBusinessClosed(record); ChangedBusiness(record); }
                 }
-                if (record.Status == "postponed" && CurrentDay() >= record.RecessUntilDay)
+                if (record.Status == "queued" && record.IsUrgent && !record.LegacySessionMigration)
+                    PresentGovernmentBusiness(record, CurrentDay(), true);
+                if (record.Status == "presented" && ReignGovernmentNativeSafety.IsDecisionDue(record, CampaignTime.Now.ToDays))
                 { record.Status = "hearing"; ChangedBusiness(record); }
-                if (kingdom.Leader == null || kingdom.Leader == Hero.MainHero) continue;
-                if (record.Status == "hearing")
+                if (record.Status != "hearing" || kingdom.Leader == null) continue;
+                bool present = IsGovernmentRulerPresent(record.BusinessId);
+                if (present && kingdom.Leader == Hero.MainHero) continue;
+                if (present)
                 {
-                    // NPC rulers recommend independently; members still cast their own ballots.
-                    var options = BusinessOptions(record);
+                    if (AppliedPoliticalProfile(kingdom.Leader.StringId) == null) { QueuePoliticalProfileSync(); continue; }
                     var decision = NativeBusinessDecision(record);
-                    var choice = options.OrderByDescending(x => NativeClanPreference(decision, kingdom.RulingClan, x))
+                    var rulerSeat = GetSeats(record.KingdomStringId).FirstOrDefault(x => Same(x.HeroStringId, kingdom.Leader.StringId))
+                        ?? new ReignGovernmentSeatRecord { HeroStringId = kingdom.Leader.StringId, PartyId = GetGovernment(kingdom)?.DominantPartyId ?? "" };
+                    var choice = BusinessOptions(record).OrderByDescending(x => decision != null ? NativeClanPreference(decision, kingdom.RulingClan, x) + PersonalBusinessAlignment(record, kingdom.Leader, x)
+                        : BusinessOptionScore(record, rulerSeat, kingdom.Leader, x, false))
                         .ThenBy(x => x.Value<string>("id"), StringComparer.Ordinal).FirstOrDefault();
-                    if (choice == null) continue;
-                    record.RecommendedOptionId = choice.Value<string>("id");
-                    record.RecommendationRulerHeroStringId = kingdom.Leader.StringId;
-                    VoteBusiness(record.BusinessId, kingdom.Leader, out _);
+                    if (choice != null) RecordGovernmentCrownPosition(record.BusinessId, kingdom.Leader.StringId, choice.Value<string>("id"), "ruler", out _);
                 }
-                if (record.Status == "awaiting_ruler" || record.Status == "reconsideration" && CurrentDay() >= record.ReconsiderUntilDay)
-                {
-                    var state = GetGovernment(kingdom);
-                    bool overrideVote = state.Level < 5 && !Same(record.WinningOptionId, record.RecommendedOptionId)
-                        && (kingdom.Leader.GetTraitLevel(DefaultTraits.Calculating) + kingdom.Leader.GetTraitLevel(DefaultTraits.Valor)) > 1;
-                    ResolveBusiness(record.BusinessId, overrideVote ? record.RecommendedOptionId : record.WinningOptionId,
-                        kingdom.Leader, overrideVote, out _);
-                }
+                CastGovernmentWeightedVote(record, present, out _);
             }
         }
 
@@ -255,17 +269,19 @@ namespace ReignBeta.Government
                 || Same(record.RecommendationRulerHeroStringId, kingdom?.Leader?.StringId)) return;
             record.RecommendedOptionId = string.Empty;
             record.RecommendationRulerHeroStringId = string.Empty;
+            record.CrownActorHeroId = ""; record.CrownOptionId = "";
+            record.CrownVoteSource = ""; record.CrownVoteStatus = "unrecorded";
             ChangedBusiness(record);
         }
 
         private void FindBusinessSponsor(ReignGovernmentBusinessRecord record)
         {
-            if (string.IsNullOrEmpty(record.PetitionerHeroStringId)) { record.Status = "hearing"; return; }
+            if (string.IsNullOrEmpty(record.PetitionerHeroStringId)) { record.Status = "queued"; return; }
             Kingdom kingdom = FindKingdom(record.KingdomStringId);
             Hero petitioner = FindHero(record.PetitionerHeroStringId);
             if (petitioner == null || !petitioner.IsAlive) { CloseInvalidBusiness(record, "The petitioner is no longer available."); return; }
             var seats = GetSeats(record.KingdomStringId);
-            if (petitioner == kingdom?.Leader) { record.Status = "hearing"; return; }
+            if (petitioner == kingdom?.Leader) { record.Status = "queued"; return; }
             if (seats.Any(x => Same(x.HeroStringId, petitioner.StringId))) record.SponsorHeroStringId = petitioner.StringId;
             else
             {
@@ -276,13 +292,13 @@ namespace ReignBeta.Government
                     Hero member = FindHero(seat.HeroStringId);
                     int support = member == null || requested == null ? -1000 : BusinessOptionScore(record, seat, member, requested, false)
                         - (alternatives.Count == 0 ? 0 : alternatives.Max(x => BusinessOptionScore(record, seat, member, x, false)));
-                    return new GovernmentSponsorCandidate { HeroId = seat.HeroStringId, Eligible = member?.IsAlive == true,
+                    return new GovernmentSponsorCandidate { HeroId = seat.HeroStringId, Eligible = member?.IsAlive == true && member != Hero.MainHero && AppliedPoliticalProfile(member.StringId) != null,
                         IssueSupport = support, PetitionerRelation = member?.GetRelation(petitioner) ?? 0 };
                 }));
             }
             if (!string.IsNullOrEmpty(record.SponsorHeroStringId))
             {
-                record.Status = "hearing";
+                record.Status = "queued";
                 record.SponsorReason = "A seated representative supports the requested outcome and has agreed to introduce it.";
                 ChangedBusiness(record);
             }
@@ -298,6 +314,8 @@ namespace ReignBeta.Government
             int alignment = ActionPlankAlignment(MapNativeDecisionKind(NativeBusinessDecision(record)), planks);
             int interest = 0;
             int personality = 0;
+            if (record.Kind == "edict") { alignment = ActionPlankAlignment(ReignGovernmentActionKind.Policy, planks); interest = EdictOptionInterest(record, member); }
+            if (record.Kind == "admission" || record.Kind == "recall") { alignment = 0; interest = MandateOptionInterest(record, member); }
             if (record.Kind == "world_action") alignment = ActionPlankAlignment((ReignGovernmentActionKind)record.ActionKindValue, planks);
             if (record.Kind == "seasonal")
             {
@@ -344,7 +362,7 @@ namespace ReignBeta.Government
                 int direction = affirmative ? 1 : -1;
                 interest *= direction; alignment *= direction; personality *= direction;
             }
-            return GovernmentBusinessRules.OptionScore(interest, alignment,
+            return PersonalBusinessAlignment(record, member, option) + GovernmentBusinessRules.OptionScore(interest, alignment,
                 kingdom?.Leader == null ? 0 : member.GetRelation(kingdom.Leader),
                 includeRecommendation && Same(record.RecommendedOptionId, optionId),
                 includeRecommendation ? GetGovernmentCommitmentShift(record.BusinessId, member.StringId, optionId) : 0,

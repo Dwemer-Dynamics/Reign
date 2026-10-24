@@ -862,8 +862,15 @@ public sealed class TestingCatalogContractTests
         Assert.Contains("bakes its rolled-scroll edges", raw, StringComparison.OrdinalIgnoreCase);
         Assert.Contains("temporary unsaved controller", raw, StringComparison.OrdinalIgnoreCase);
         Assert.Contains("passiveWorldAnnouncementHandling", raw, StringComparison.Ordinal);
-        Assert.Contains("tracked queued Reign kingdom-event inquiry", raw,
+        Assert.Contains("Default passive-world advancement acknowledges queued Reign announcements", raw,
             StringComparison.OrdinalIgnoreCase);
+        var newsObservation = catalogDocument.RootElement.GetProperty("campaignTest")
+            .GetProperty("passiveWorldGovernmentNewsObservation");
+        Assert.False(newsObservation.GetProperty("default").GetBoolean());
+        Assert.True(newsObservation.GetProperty("requiresUnsavedBoundary").GetBoolean());
+        Assert.True(newsObservation.GetProperty("preservesGovernmentNewsOnly").GetBoolean());
+        Assert.True(newsObservation.GetProperty("holdsClockWhileOpen").GetBoolean());
+        Assert.True(newsObservation.GetProperty("manualDismissalRetainsStoppedBoundary").GetBoolean());
         Assert.Contains("controlledAgentAction", raw, StringComparison.Ordinal);
         Assert.Contains("production 58% threshold", raw, StringComparison.OrdinalIgnoreCase);
         Assert.Contains("controlledCounterintelligence", raw, StringComparison.Ordinal);
@@ -1066,6 +1073,8 @@ public sealed class TestingCatalogContractTests
         Assert.Equal("reign-government-input-observation-v1", governmentInput.GetProperty("schema").GetString());
         Assert.Equal("ui-status", governmentInput.GetProperty("route").GetString());
         Assert.Contains("never opens a fixture", governmentInput.GetProperty("contract").GetString(), StringComparison.Ordinal);
+        Assert.Equal(32, governmentInput.GetProperty("maxScrollbarSamples").GetInt32());
+        Assert.Contains("actual handle identity", governmentInput.GetProperty("contract").GetString(), StringComparison.Ordinal);
         string openReadiness = interaction.GetProperty("openReadinessContract").GetString()!;
         Assert.Contains("15-second", openReadiness, StringComparison.Ordinal);
         Assert.Contains("120-second", openReadiness, StringComparison.Ordinal);

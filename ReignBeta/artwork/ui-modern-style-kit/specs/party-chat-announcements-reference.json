@@ -1,0 +1,68 @@
+{
+  "schema": "reign-fixed-region-composite-v1",
+  "assetId": "party-chat-announcements-reference",
+  "approvedReference": {
+    "path": "../approved-references/party-chat.png",
+    "sha256": "21454261b37e00073aec60731b551155f7933b9c7541950fa1ba27c0b118cdb1"
+  },
+  "imageToImageFill": {
+    "path": "../generated-sources/screen-shells/party-chat-announcements-imagegen.png",
+    "sha256": "e6f9feb89d322bde913c8f17c4168828149a9a137c7b0447777a62cfce16d4e1",
+    "normalization": "exact 1672x941"
+  },
+  "canvas": {
+    "width": 1672,
+    "height": 941
+  },
+  "policy": "User requested Announce immediately right of Send on 2026-10-11. Imagegen edits the single owning composer artwork. Preserve every pixel outside the bounded composer region. Native labels, hitboxes and textbox follow the rendered artwork. Keep the original shell for Homes and special conversations.",
+  "generation": {
+    "tool": "built-in image_gen",
+    "source": "GUI/SpriteParts/ui_reignbeta_party_chat/reign_party_chat_modern_shell.png",
+    "prompt": "Preserve the exact 1672x941 black marble and antique gold Reign shell outside the bottom composer. Keep the crest. Shorten the input from the right; place two identical empty clipped-corner antique-gold buttons after it, for runtime Send and Announce. No words on the texture. Preserve all other frame, panel, material, ornament and line-weight details.",
+    "acceptedGeometry": {
+      "input": [
+        183,
+        830,
+        890,
+        66
+      ],
+      "send": [
+        1084,
+        830,
+        240,
+        66
+      ],
+      "announce": [
+        1348,
+        830,
+        240,
+        66
+      ]
+    },
+    "nativeAcceptance": "pending"
+  },
+  "sceneDependentMasks": [
+    {
+      "id": "requested-composer-replacement",
+      "shape": "polygon",
+      "points": [
+        [
+          178,
+          822
+        ],
+        [
+          1598,
+          822
+        ],
+        [
+          1598,
+          902
+        ],
+        [
+          178,
+          902
+        ]
+      ]
+    }
+  ]
+}

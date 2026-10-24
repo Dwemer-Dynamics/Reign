@@ -19,6 +19,7 @@ namespace ReignBeta.Runtime
         public string SessionId { get; private set; } = "party_chat_" + Guid.NewGuid().ToString("N");
         public string CurrentSceneTurnId { get; private set; } = string.Empty;
         public string ApproachRequestId { get; set; } = string.Empty;
+        public string NpcLifeContext { get; set; } = "party";
 
         public IReadOnlyList<string> RecentTranscriptLines => _recentTranscriptLines
             .Select(line => line.Speaker + ": " + line.Text).ToList();

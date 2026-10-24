@@ -5,6 +5,7 @@ import fs from "node:fs";
 import path from "node:path";
 import zlib from "node:zlib";
 import { fileURLToPath } from "node:url";
+import { composeApprovedComponents } from './js/approved-component-composition.mjs';
 
 const TOOL_VERSION = "2026.09.06.1";
 const REPORT_SCHEMA = "reign-ui-approved-reference-fidelity-audit-v1";
@@ -79,9 +80,7 @@ const SCREEN_PROFILES = Object.freeze({
       rect("right-runtime-banner", "unprovided-state", 1375, 596, 72, 78),
       rect("left-runtime-motive", "dynamic-text", 150, 701, 218, 78),
       rect("right-runtime-motive", "dynamic-text", 1303, 701, 217, 78),
-      rect("proclamation-heading", "dynamic-text", 470, 278, 732, 49),
-      rect("proclamation-body", "dynamic-text", 478, 351, 716, 102),
-      rect("proclamation-terms", "dynamic-text", 478, 596, 716, 111),
+      rect("proclamation-reading-column", "dynamic-text", 470, 260, 742, 480),
       rect("acknowledge-label", "dynamic-text", 665, 804, 342, 37)
     ]
   },
@@ -187,11 +186,11 @@ function runAudit({ manifestPath, renderReportPath, contractPath, targetIds, vie
 
   const screens = [];
   for (const id of targetIds) {
-    // A declared state inherits its parent's approved art and exact mask. It does
-    // not create a new approval or widen the dynamic regions for the variant.
+    // States retain their parent's approved art. An explicitly registered component
+    // layout reuses those approved pixels and keeps every owning frame compared.
     const variant = (manifest.referenceVariants || []).find((entry) => entry.id === id);
     const referenceId = variant?.referenceId || id;
-    const profile = mergeProfile(SCREEN_PROFILES[referenceId], contractOverrides.screens[referenceId]);
+    const profile = mergeProfile(SCREEN_PROFILES[referenceId], contractOverrides.screens[id] || contractOverrides.screens[referenceId]);
     const manifestEntry = manifest.references.find((entry) => entry.id === referenceId);
     const renderCases = renderReport.cases.filter((entry) => entry.interfaceId === id && entry.viewport === viewport);
     if (variant && renderCases.some((entry) => entry.fileName !== variant.fileName)) {
@@ -213,6 +212,7 @@ function runAudit({ manifestPath, renderReportPath, contractPath, targetIds, vie
         profile,
         thresholds: mergeThresholds(DEFAULT_THRESHOLDS, profile.thresholds),
         manifestEntry,
+        manifest,
         manifestRoot,
         renderCase: renderCases[0],
         renderReportRoot: path.dirname(renderReportPath),
@@ -232,6 +232,7 @@ function runAudit({ manifestPath, renderReportPath, contractPath, targetIds, vie
 
   const hashes = {
     toolSha256: sha256File(toolPath),
+    componentCompositorSha256: sha256File(path.join(toolRoot,'js/approved-component-composition.mjs')),
     manifestSha256: sha256File(manifestPath),
     renderReportSha256: sha256File(renderReportPath),
     paletteSha256: sha256File(palettePath),
@@ -253,6 +254,7 @@ function runAudit({ manifestPath, renderReportPath, contractPath, targetIds, vie
     targets: screens.map((screen) => ({
       id: screen.id,
       referenceSha256: screen.reference?.actualSha256 || null,
+      componentCompositionSha256: screen.reference?.componentComposition?.compositionSha256 || null,
       screenshotSha256: screen.rendered?.actualSha256 || null,
       maskSha256: screen.mask?.sha256 || null
     }))
@@ -281,7 +283,7 @@ function runAudit({ manifestPath, renderReportPath, contractPath, targetIds, vie
   };
 }
 
-function auditScreen({ id, viewport, profile, thresholds, manifestEntry, manifestRoot, renderCase, renderReportRoot, referenceCanvas, palette, artifactsRoot }) {
+function auditScreen({ id, viewport, profile, thresholds, manifestEntry, manifest, manifestRoot, renderCase, renderReportRoot, referenceCanvas, palette, artifactsRoot }) {
   validateProfile(id, profile, referenceCanvas);
   const referencePath = resolveInside(manifestRoot, manifestEntry.path, "approved reference");
   const screenshotPath = path.isAbsolute(renderCase.screenshotPath)
@@ -298,7 +300,9 @@ function auditScreen({ id, viewport, profile, thresholds, manifestEntry, manifes
     throw new Error(`Rendered screenshot hash mismatch: report ${renderCase.screenshotSha256}, actual ${screenshotSha256}.`);
   }
 
-  const reference = decodePng(fs.readFileSync(referencePath));
+  const composed = profile.componentComposition ? composeApprovedComponents({spec:profile.componentComposition,stateId:id,
+    manifest,workspaceRoot,decodePng,paletteTokens:palette.tokens}) : null;
+  const reference = composed?.image || decodePng(fs.readFileSync(referencePath));
   const screenshot = decodePng(fs.readFileSync(screenshotPath));
   if (reference.width !== Number(referenceCanvas.width) || reference.height !== Number(referenceCanvas.height)) {
     throw new Error(`Approved reference is ${reference.width}x${reference.height}; manifest requires ${referenceCanvas.width}x${referenceCanvas.height}.`);
@@ -306,7 +310,7 @@ function auditScreen({ id, viewport, profile, thresholds, manifestEntry, manifes
   const registration = registerRenderedSurface(reference, screenshot, renderCase.referenceSurfaceBounds);
   const normalized = resampleRegistered(screenshot, reference.width, reference.height, registration);
   const effectiveExclusions = [
-    ...profile.exclusions,
+    ...(composed?.exclusions || profile.exclusions),
     ...mapReportedDynamicExclusions(renderCase.fidelityDynamicExclusions, registration, reference.width, reference.height)
   ];
   const mask = buildStaticMask(reference.width, reference.height, effectiveExclusions);
@@ -336,7 +340,7 @@ function auditScreen({ id, viewport, profile, thresholds, manifestEntry, manifes
     artifactFiles[name] = { path: artifactPath, sha256: sha256File(artifactPath) };
   }
   const excludedByCategory = summarizeExclusions(effectiveExclusions, reference.width, reference.height);
-  const profileFingerprintSha256 = sha256Text(stableStringify({ exclusions: effectiveExclusions, thresholds }));
+  const profileFingerprintSha256 = sha256Text(stableStringify({ exclusions: effectiveExclusions, thresholds, composition:composed?.evidence || null }));
   return {
     id,
     status: failures.length ? "failed" : "passed",
@@ -346,7 +350,8 @@ function auditScreen({ id, viewport, profile, thresholds, manifestEntry, manifes
       width: reference.width,
       height: reference.height,
       expectedSha256: manifestEntry.sha256 || null,
-      actualSha256: referenceSha256
+      actualSha256: referenceSha256,
+      componentComposition: composed?.evidence || null
     },
     rendered: {
       caseId: renderCase.caseId,
@@ -1088,6 +1093,12 @@ function normalizeContractOverrides(contract) {
       ...screen,
       exclusions: [...fixedRegionExclusions, ...(screen.exclusions || [])]
     };
+    if(screen.componentComposition) {
+      const compositionPath=path.resolve(path.dirname(contract.__path),screen.componentComposition);
+      const relative=path.relative(workspaceRoot,compositionPath);
+      if(relative.startsWith('..') || path.isAbsolute(relative)) throw new Error('A component composition must stay inside the workspace.');
+      screens[screen.id].componentComposition=readJson(compositionPath,'approved component state composition');
+    }
   }
   return { screens };
 }
@@ -1154,9 +1165,11 @@ function mergeProfile(base, override) {
   if (!base && !override) return null;
   return {
     exclusions: override?.exclusions || base?.exclusions || [],
+    componentComposition: override?.componentComposition || null,
     thresholds: mergeThresholds(base?.thresholds || {}, override?.thresholds || {})
   };
 }
+
 
 function mergeThresholds(base, override) {
   const output = {};

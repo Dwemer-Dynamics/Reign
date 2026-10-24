@@ -1,0 +1,896 @@
+{
+  "schema": "reign-fixed-region-composite-v1",
+  "assetId": "government",
+  "approvedReference": {
+    "path": "../generated-sources/government-sessions-v3/approved-agenda.png",
+    "sha256": "16a238150bfaf01917f6cf68f7f66d3731514565e4f7f257225b36f5d9a223f2"
+  },
+  "canvas": {
+    "width": 1672,
+    "height": 941
+  },
+  "policy": "Only declared live text and native graphic regions are excluded; complete frames and material remain compared to immutable approved pixels. No whole-card masks.",
+  "sceneDependentMasks": [
+    {
+      "id": "live-0-ImageIdentifierWidget",
+      "shape": "rectangle",
+      "x": 49.0,
+      "y": 0.0,
+      "width": 75.0,
+      "height": 115.0
+    },
+    {
+      "id": "live-1-ReignEventArtWidget",
+      "shape": "rectangle",
+      "x": 950.0,
+      "y": 104.0,
+      "width": 323.0,
+      "height": 298.0
+    },
+    {
+      "id": "live-2-TextWidget",
+      "shape": "rectangle",
+      "x": 160.0,
+      "y": 10.0,
+      "width": 351.0,
+      "height": 40.0
+    },
+    {
+      "id": "live-3-TextWidget",
+      "shape": "rectangle",
+      "x": 160.0,
+      "y": 48.0,
+      "width": 350.0,
+      "height": 27.0
+    },
+    {
+      "id": "live-4-TextWidget",
+      "shape": "rectangle",
+      "x": 1200.0,
+      "y": 16.0,
+      "width": 380.0,
+      "height": 25.0
+    },
+    {
+      "id": "live-5-TextWidget",
+      "shape": "rectangle",
+      "x": 1200.0,
+      "y": 45.0,
+      "width": 380.0,
+      "height": 25.0
+    },
+    {
+      "id": "live-6-TextWidget",
+      "shape": "rectangle",
+      "x": 528.0,
+      "y": 48.0,
+      "width": 129.0,
+      "height": 29.0
+    },
+    {
+      "id": "live-7-TextWidget",
+      "shape": "rectangle",
+      "x": 667.0,
+      "y": 48.0,
+      "width": 117.0,
+      "height": 29.0
+    },
+    {
+      "id": "live-8-TextWidget",
+      "shape": "rectangle",
+      "x": 794.0,
+      "y": 48.0,
+      "width": 183.0,
+      "height": 29.0
+    },
+    {
+      "id": "live-9-TextWidget",
+      "shape": "rectangle",
+      "x": 987.0,
+      "y": 48.0,
+      "width": 183.0,
+      "height": 29.0
+    },
+    {
+      "id": "live-10-TextWidget",
+      "shape": "rectangle",
+      "x": 1628.0,
+      "y": 32.0,
+      "width": 20.0,
+      "height": 22.0
+    },
+    {
+      "id": "live-11-TextWidget",
+      "shape": "rectangle",
+      "x": 35.0,
+      "y": 124.0,
+      "width": 330.0,
+      "height": 30.0
+    },
+    {
+      "id": "live-12-TextWidget",
+      "shape": "rectangle",
+      "x": 35.0,
+      "y": 174.0,
+      "width": 330.0,
+      "height": 25.0
+    },
+    {
+      "id": "live-13-TextWidget",
+      "shape": "rectangle",
+      "x": 113.0,
+      "y": 212.0,
+      "width": 241.0,
+      "height": 35.0
+    },
+    {
+      "id": "live-14-TextWidget",
+      "shape": "rectangle",
+      "x": 113.0,
+      "y": 250.0,
+      "width": 241.0,
+      "height": 27.0
+    },
+    {
+      "id": "live-15-TextWidget",
+      "shape": "rectangle",
+      "x": 113.0,
+      "y": 298.0,
+      "width": 241.0,
+      "height": 35.0
+    },
+    {
+      "id": "live-16-TextWidget",
+      "shape": "rectangle",
+      "x": 113.0,
+      "y": 336.0,
+      "width": 241.0,
+      "height": 27.0
+    },
+    {
+      "id": "live-17-TextWidget",
+      "shape": "rectangle",
+      "x": 35.0,
+      "y": 399.0,
+      "width": 330.0,
+      "height": 26.0
+    },
+    {
+      "id": "live-18-TextWidget",
+      "shape": "rectangle",
+      "x": 49.0,
+      "y": 441.0,
+      "width": 305.0,
+      "height": 28.0
+    },
+    {
+      "id": "live-19-TextWidget",
+      "shape": "rectangle",
+      "x": 49.0,
+      "y": 471.0,
+      "width": 305.0,
+      "height": 22.0
+    },
+    {
+      "id": "live-20-TextWidget",
+      "shape": "rectangle",
+      "x": 49.0,
+      "y": 493.0,
+      "width": 305.0,
+      "height": 19.0
+    },
+    {
+      "id": "live-21-TextWidget",
+      "shape": "rectangle",
+      "x": 49.0,
+      "y": 535.0,
+      "width": 305.0,
+      "height": 28.0
+    },
+    {
+      "id": "live-22-TextWidget",
+      "shape": "rectangle",
+      "x": 49.0,
+      "y": 565.0,
+      "width": 305.0,
+      "height": 22.0
+    },
+    {
+      "id": "live-23-TextWidget",
+      "shape": "rectangle",
+      "x": 49.0,
+      "y": 587.0,
+      "width": 305.0,
+      "height": 19.0
+    },
+    {
+      "id": "live-24-TextWidget",
+      "shape": "rectangle",
+      "x": 49.0,
+      "y": 629.0,
+      "width": 305.0,
+      "height": 28.0
+    },
+    {
+      "id": "live-25-TextWidget",
+      "shape": "rectangle",
+      "x": 49.0,
+      "y": 659.0,
+      "width": 305.0,
+      "height": 22.0
+    },
+    {
+      "id": "live-26-TextWidget",
+      "shape": "rectangle",
+      "x": 49.0,
+      "y": 681.0,
+      "width": 305.0,
+      "height": 19.0
+    },
+    {
+      "id": "live-27-TextWidget",
+      "shape": "rectangle",
+      "x": 149.0,
+      "y": 742.0,
+      "width": 200.0,
+      "height": 37.0
+    },
+    {
+      "id": "live-28-TextWidget",
+      "shape": "rectangle",
+      "x": 44.0,
+      "y": 831.0,
+      "width": 320.0,
+      "height": 65.0
+    },
+    {
+      "id": "live-29-TextWidget",
+      "shape": "rectangle",
+      "x": 417.0,
+      "y": 109.0,
+      "width": 640.0,
+      "height": 25.0
+    },
+    {
+      "id": "live-30-TextWidget",
+      "shape": "rectangle",
+      "x": 417.0,
+      "y": 137.0,
+      "width": 835.0,
+      "height": 48.0
+    },
+    {
+      "id": "live-31-TextWidget",
+      "shape": "rectangle",
+      "x": 473.0,
+      "y": 202.0,
+      "width": 210.0,
+      "height": 29.0
+    },
+    {
+      "id": "live-32-TextWidget",
+      "shape": "rectangle",
+      "x": 755.0,
+      "y": 202.0,
+      "width": 167.0,
+      "height": 29.0
+    },
+    {
+      "id": "live-33-TextWidget",
+      "shape": "rectangle",
+      "x": 1011.0,
+      "y": 202.0,
+      "width": 233.0,
+      "height": 29.0
+    },
+    {
+      "id": "live-34-TextWidget",
+      "shape": "rectangle",
+      "x": 419.0,
+      "y": 249.0,
+      "width": 830.0,
+      "height": 23.75
+    },
+    {
+      "id": "live-35-ImageIdentifierWidget",
+      "shape": "rectangle",
+      "x": 435.0,
+      "y": 297.0,
+      "width": 88.0,
+      "height": 88.0
+    },
+    {
+      "id": "live-36-ReignPortraitWidget",
+      "shape": "rectangle",
+      "x": 435.0,
+      "y": 297.0,
+      "width": 88.0,
+      "height": 88.0
+    },
+    {
+      "id": "live-37-TextWidget",
+      "shape": "rectangle",
+      "x": 554.0,
+      "y": 296.0,
+      "width": 207.0,
+      "height": 21.0
+    },
+    {
+      "id": "live-38-TextWidget",
+      "shape": "rectangle",
+      "x": 554.0,
+      "y": 320.0,
+      "width": 207.0,
+      "height": 54.0
+    },
+    {
+      "id": "live-39-ImageIdentifierWidget",
+      "shape": "rectangle",
+      "x": 803.0,
+      "y": 297.0,
+      "width": 88.0,
+      "height": 88.0
+    },
+    {
+      "id": "live-40-ReignPortraitWidget",
+      "shape": "rectangle",
+      "x": 803.0,
+      "y": 297.0,
+      "width": 88.0,
+      "height": 88.0
+    },
+    {
+      "id": "live-41-TextWidget",
+      "shape": "rectangle",
+      "x": 916.0,
+      "y": 296.0,
+      "width": 158.0,
+      "height": 21.0
+    },
+    {
+      "id": "live-42-TextWidget",
+      "shape": "rectangle",
+      "x": 916.0,
+      "y": 320.0,
+      "width": 158.0,
+      "height": 54.0
+    },
+    {
+      "id": "live-43-TextWidget",
+      "shape": "rectangle",
+      "x": 417.0,
+      "y": 407.0,
+      "width": 835.0,
+      "height": 26.0
+    },
+    {
+      "id": "live-44-TextWidget",
+      "shape": "rectangle",
+      "x": 421.0,
+      "y": 443.0,
+      "width": 365.75,
+      "height": 28.0
+    },
+    {
+      "id": "live-45-TextWidget",
+      "shape": "rectangle",
+      "x": 786.75,
+      "y": 443.0,
+      "width": 209.0,
+      "height": 28.0
+    },
+    {
+      "id": "live-46-TextWidget",
+      "shape": "rectangle",
+      "x": 995.75,
+      "y": 443.0,
+      "width": 261.25,
+      "height": 28.0
+    },
+    {
+      "id": "live-47-TextWidget",
+      "shape": "rectangle",
+      "x": 419.0,
+      "y": 485.0,
+      "width": 834.0,
+      "height": 26.0
+    },
+    {
+      "id": "live-48-TextWidget",
+      "shape": "rectangle",
+      "x": 419.0,
+      "y": 518.0,
+      "width": 834.0,
+      "height": 25.0
+    },
+    {
+      "id": "live-49-TextWidget",
+      "shape": "rectangle",
+      "x": 417.0,
+      "y": 558.0,
+      "width": 835.0,
+      "height": 24.0
+    },
+    {
+      "id": "live-50-TextWidget",
+      "shape": "rectangle",
+      "x": 529.0,
+      "y": 590.0,
+      "width": 292.0,
+      "height": 25.0
+    },
+    {
+      "id": "live-51-TextWidget",
+      "shape": "rectangle",
+      "x": 529.0,
+      "y": 616.0,
+      "width": 292.0,
+      "height": 23.0
+    },
+    {
+      "id": "live-52-TextWidget",
+      "shape": "rectangle",
+      "x": 958.0,
+      "y": 590.0,
+      "width": 292.0,
+      "height": 25.0
+    },
+    {
+      "id": "live-53-TextWidget",
+      "shape": "rectangle",
+      "x": 958.0,
+      "y": 616.0,
+      "width": 292.0,
+      "height": 23.0
+    },
+    {
+      "id": "live-54-TextWidget",
+      "shape": "rectangle",
+      "x": 417.0,
+      "y": 654.0,
+      "width": 835.0,
+      "height": 24.0
+    },
+    {
+      "id": "live-55-ImageIdentifierWidget",
+      "shape": "rectangle",
+      "x": 429.0,
+      "y": 684.0,
+      "width": 60.0,
+      "height": 60.0
+    },
+    {
+      "id": "live-56-ReignPortraitWidget",
+      "shape": "rectangle",
+      "x": 429.0,
+      "y": 684.0,
+      "width": 60.0,
+      "height": 60.0
+    },
+    {
+      "id": "live-57-TextWidget",
+      "shape": "rectangle",
+      "x": 517.0,
+      "y": 684.0,
+      "width": 722.0,
+      "height": 24.0
+    },
+    {
+      "id": "live-58-TextWidget",
+      "shape": "rectangle",
+      "x": 517.0,
+      "y": 708.0,
+      "width": 727.0,
+      "height": 37.0
+    },
+    {
+      "id": "live-59-ImageIdentifierWidget",
+      "shape": "rectangle",
+      "x": 429.0,
+      "y": 758.0,
+      "width": 60.0,
+      "height": 60.0
+    },
+    {
+      "id": "live-60-ReignPortraitWidget",
+      "shape": "rectangle",
+      "x": 429.0,
+      "y": 758.0,
+      "width": 60.0,
+      "height": 60.0
+    },
+    {
+      "id": "live-61-TextWidget",
+      "shape": "rectangle",
+      "x": 517.0,
+      "y": 758.0,
+      "width": 722.0,
+      "height": 24.0
+    },
+    {
+      "id": "live-62-TextWidget",
+      "shape": "rectangle",
+      "x": 517.0,
+      "y": 782.0,
+      "width": 727.0,
+      "height": 37.0
+    },
+    {
+      "id": "live-63-TextWidget",
+      "shape": "rectangle",
+      "x": 596.0,
+      "y": 868.0,
+      "width": 200.0,
+      "height": 37.0
+    },
+    {
+      "id": "live-64-TextWidget",
+      "shape": "rectangle",
+      "x": 871.0,
+      "y": 870.0,
+      "width": 373.0,
+      "height": 34.0
+    },
+    {
+      "id": "live-65-TextWidget",
+      "shape": "rectangle",
+      "x": 1303.0,
+      "y": 120.0,
+      "width": 337.0,
+      "height": 30.0
+    },
+    {
+      "id": "live-66-TextWidget",
+      "shape": "rectangle",
+      "x": 1303.0,
+      "y": 162.0,
+      "width": 337.0,
+      "height": 25.0
+    },
+    {
+      "id": "live-67-ImageIdentifierWidget",
+      "shape": "rectangle",
+      "x": 1319.0,
+      "y": 199.0,
+      "width": 62.0,
+      "height": 62.0
+    },
+    {
+      "id": "live-68-ReignPortraitWidget",
+      "shape": "rectangle",
+      "x": 1319.0,
+      "y": 199.0,
+      "width": 62.0,
+      "height": 62.0
+    },
+    {
+      "id": "live-69-TextWidget",
+      "shape": "rectangle",
+      "x": 1397.0,
+      "y": 201.0,
+      "width": 232.0,
+      "height": 27.0
+    },
+    {
+      "id": "live-70-TextWidget",
+      "shape": "rectangle",
+      "x": 1543.0,
+      "y": 235.0,
+      "width": 88.0,
+      "height": 22.0
+    },
+    {
+      "id": "live-71-ImageIdentifierWidget",
+      "shape": "rectangle",
+      "x": 1399.0,
+      "y": 233.0,
+      "width": 24.0,
+      "height": 28.0
+    },
+    {
+      "id": "live-72-TextWidget",
+      "shape": "rectangle",
+      "x": 1431.0,
+      "y": 236.0,
+      "width": 111.0,
+      "height": 23.0
+    },
+    {
+      "id": "live-73-ImageIdentifierWidget",
+      "shape": "rectangle",
+      "x": 1319.0,
+      "y": 275.0,
+      "width": 62.0,
+      "height": 62.0
+    },
+    {
+      "id": "live-74-ReignPortraitWidget",
+      "shape": "rectangle",
+      "x": 1319.0,
+      "y": 275.0,
+      "width": 62.0,
+      "height": 62.0
+    },
+    {
+      "id": "live-75-TextWidget",
+      "shape": "rectangle",
+      "x": 1397.0,
+      "y": 277.0,
+      "width": 232.0,
+      "height": 27.0
+    },
+    {
+      "id": "live-76-TextWidget",
+      "shape": "rectangle",
+      "x": 1543.0,
+      "y": 311.0,
+      "width": 88.0,
+      "height": 22.0
+    },
+    {
+      "id": "live-77-ImageIdentifierWidget",
+      "shape": "rectangle",
+      "x": 1399.0,
+      "y": 309.0,
+      "width": 24.0,
+      "height": 28.0
+    },
+    {
+      "id": "live-78-TextWidget",
+      "shape": "rectangle",
+      "x": 1431.0,
+      "y": 312.0,
+      "width": 111.0,
+      "height": 23.0
+    },
+    {
+      "id": "live-79-TextWidget",
+      "shape": "rectangle",
+      "x": 1309.0,
+      "y": 350.0,
+      "width": 324.0,
+      "height": 28.0
+    },
+    {
+      "id": "live-80-TextWidget",
+      "shape": "rectangle",
+      "x": 1303.0,
+      "y": 397.0,
+      "width": 337.0,
+      "height": 25.0
+    },
+    {
+      "id": "live-81-ImageIdentifierWidget",
+      "shape": "rectangle",
+      "x": 1319.0,
+      "y": 434.0,
+      "width": 62.0,
+      "height": 62.0
+    },
+    {
+      "id": "live-82-ReignPortraitWidget",
+      "shape": "rectangle",
+      "x": 1319.0,
+      "y": 434.0,
+      "width": 62.0,
+      "height": 62.0
+    },
+    {
+      "id": "live-83-TextWidget",
+      "shape": "rectangle",
+      "x": 1397.0,
+      "y": 436.0,
+      "width": 232.0,
+      "height": 27.0
+    },
+    {
+      "id": "live-84-TextWidget",
+      "shape": "rectangle",
+      "x": 1543.0,
+      "y": 470.0,
+      "width": 88.0,
+      "height": 22.0
+    },
+    {
+      "id": "live-85-ImageIdentifierWidget",
+      "shape": "rectangle",
+      "x": 1399.0,
+      "y": 468.0,
+      "width": 24.0,
+      "height": 28.0
+    },
+    {
+      "id": "live-86-TextWidget",
+      "shape": "rectangle",
+      "x": 1431.0,
+      "y": 471.0,
+      "width": 111.0,
+      "height": 23.0
+    },
+    {
+      "id": "live-87-ImageIdentifierWidget",
+      "shape": "rectangle",
+      "x": 1319.0,
+      "y": 510.0,
+      "width": 62.0,
+      "height": 62.0
+    },
+    {
+      "id": "live-88-ReignPortraitWidget",
+      "shape": "rectangle",
+      "x": 1319.0,
+      "y": 510.0,
+      "width": 62.0,
+      "height": 62.0
+    },
+    {
+      "id": "live-89-TextWidget",
+      "shape": "rectangle",
+      "x": 1397.0,
+      "y": 512.0,
+      "width": 232.0,
+      "height": 27.0
+    },
+    {
+      "id": "live-90-TextWidget",
+      "shape": "rectangle",
+      "x": 1543.0,
+      "y": 546.0,
+      "width": 88.0,
+      "height": 22.0
+    },
+    {
+      "id": "live-91-ImageIdentifierWidget",
+      "shape": "rectangle",
+      "x": 1399.0,
+      "y": 544.0,
+      "width": 24.0,
+      "height": 28.0
+    },
+    {
+      "id": "live-92-TextWidget",
+      "shape": "rectangle",
+      "x": 1431.0,
+      "y": 547.0,
+      "width": 111.0,
+      "height": 23.0
+    },
+    {
+      "id": "live-93-TextWidget",
+      "shape": "rectangle",
+      "x": 1309.0,
+      "y": 587.0,
+      "width": 324.0,
+      "height": 28.0
+    },
+    {
+      "id": "live-94-TextWidget",
+      "shape": "rectangle",
+      "x": 1303.0,
+      "y": 638.0,
+      "width": 337.0,
+      "height": 25.0
+    },
+    {
+      "id": "live-95-ImageIdentifierWidget",
+      "shape": "rectangle",
+      "x": 1319.0,
+      "y": 675.0,
+      "width": 62.0,
+      "height": 62.0
+    },
+    {
+      "id": "live-96-ReignPortraitWidget",
+      "shape": "rectangle",
+      "x": 1319.0,
+      "y": 675.0,
+      "width": 62.0,
+      "height": 62.0
+    },
+    {
+      "id": "live-97-TextWidget",
+      "shape": "rectangle",
+      "x": 1397.0,
+      "y": 677.0,
+      "width": 232.0,
+      "height": 27.0
+    },
+    {
+      "id": "live-98-TextWidget",
+      "shape": "rectangle",
+      "x": 1543.0,
+      "y": 711.0,
+      "width": 88.0,
+      "height": 22.0
+    },
+    {
+      "id": "live-99-ImageIdentifierWidget",
+      "shape": "rectangle",
+      "x": 1399.0,
+      "y": 709.0,
+      "width": 24.0,
+      "height": 28.0
+    },
+    {
+      "id": "live-100-TextWidget",
+      "shape": "rectangle",
+      "x": 1431.0,
+      "y": 712.0,
+      "width": 111.0,
+      "height": 23.0
+    },
+    {
+      "id": "live-101-ImageIdentifierWidget",
+      "shape": "rectangle",
+      "x": 1319.0,
+      "y": 751.0,
+      "width": 62.0,
+      "height": 62.0
+    },
+    {
+      "id": "live-102-ReignPortraitWidget",
+      "shape": "rectangle",
+      "x": 1319.0,
+      "y": 751.0,
+      "width": 62.0,
+      "height": 62.0
+    },
+    {
+      "id": "live-103-TextWidget",
+      "shape": "rectangle",
+      "x": 1397.0,
+      "y": 753.0,
+      "width": 232.0,
+      "height": 27.0
+    },
+    {
+      "id": "live-104-TextWidget",
+      "shape": "rectangle",
+      "x": 1543.0,
+      "y": 787.0,
+      "width": 88.0,
+      "height": 22.0
+    },
+    {
+      "id": "live-105-ImageIdentifierWidget",
+      "shape": "rectangle",
+      "x": 1399.0,
+      "y": 785.0,
+      "width": 24.0,
+      "height": 28.0
+    },
+    {
+      "id": "live-106-TextWidget",
+      "shape": "rectangle",
+      "x": 1431.0,
+      "y": 788.0,
+      "width": 111.0,
+      "height": 23.0
+    },
+    {
+      "id": "live-107-TextWidget",
+      "shape": "rectangle",
+      "x": 1309.0,
+      "y": 826.0,
+      "width": 324.0,
+      "height": 28.0
+    },
+    {
+      "id": "live-108-TextWidget",
+      "shape": "rectangle",
+      "x": 1325.0,
+      "y": 889.0,
+      "width": 304.0,
+      "height": 22.0
+    },
+    {
+      "id": "live-109-TextWidget",
+      "shape": "rectangle",
+      "x": 415.0,
+      "y": 920.0,
+      "width": 835.0,
+      "height": 18.0
+    }
+  ],
+  "compositionContract": "../generated-sources/government-sessions-v3/composition-contract.json"
+}

@@ -2,10 +2,10 @@ import { getGovernmentHearingSampleData, GOVERNMENT_ROOT_KEYS } from "./governme
 import { getClanAccordsSampleData, CLAN_ACCORDS_ROOT_KEYS } from "./clan-accords-sample-data.js";
 import { getTavernHouseSampleData as getTavernHouseBaseData, TAVERN_HOUSE_ROOT_KEYS } from "./tavern-house-sample-data.js";
 import { previewActionRichText } from "./action-text.js";
-// Shared source portraits are always present. Generated chest/zoom derivatives
-// are optional, so using source.png keeps the preview deterministic instead of
-// silently rendering empty portrait frames on a fresh workspace.
-const portrait = (folder) => `../../PortraitCache/_shared/${folder}/source.png`;
+// The shipped inventory contains these originals and their chest derivatives.
+// The renderer selects the chest image only for headshots; zoom/full-body views
+// keep this original. Contracts verify both hydrated files against the inventory.
+const portrait = (folder) => `../../PortraitCache/_shared/${folder}/portrait.png`;
 
 export const ASSETS = {
   mengus: portrait("Mengus (lord_5_7)"),
@@ -41,6 +41,9 @@ const portraitFields = (id, asset, status = "Available") => ({
   PortraitCropImageHeight: 126,
   Status: status
 });
+
+const correspondencePortraitFields = (id, asset, status) =>
+  portraitFields(id, asset.replace(/\/source\.png$/, "/thumbnail.png"), status);
 
 const emptyCastleSlots = (count) => Array.from({ length: count }, () => ({
   PortraitCacheKey: "",
@@ -166,6 +169,7 @@ export const SAMPLE_DATA = {
   InputEnabled: true,
   ActionComposerId: "preview-action-composer",
   InputText: "",
+  SendButtonText: "Send",
   ChatScrollVersion: 7,
   IsPortraitZoomVisible: false,
   IsPregnancyWarningVisible: false,
@@ -340,10 +344,12 @@ export const SAMPLE_DATA = {
     { Name: "High King Caladog fen Gruffendoc", Subtitle: "Battania · Royal House", IsActive: false, ...portraitFields("caladog_portrait", ASSETS.caladog, "Available") }
   ],
   Contacts: [
-    { Name: "Mengus fen Gruffendoc", Subtitle: "Battanian lord · last met at Marunath", IsSelected: true, HasUnread: true, UnreadText: "2 unread", ...portraitFields("mengus_portrait", ASSETS.mengus, "Friendly · 42") },
-    { Name: "Empress Rhagaea Pethros", Subtitle: "Southern Empire · diplomatic correspondence", IsSelected: false, HasUnread: false, UnreadText: "", ...portraitFields("rhagaea_portrait", ASSETS.rhagaea, "Cordial · 18") },
-    { Name: "Corein, Daughter of High King Caladog", Subtitle: "Battania · trusted correspondent", IsSelected: false, HasUnread: true, UnreadText: "1 unread", ...portraitFields("corein_portrait", ASSETS.corein, "Friendly · 51") },
-    { Name: "Lady Adalindis of Ocs Hall", Subtitle: "Vlandia · court and trade matters", IsSelected: false, HasUnread: false, UnreadText: "", ...portraitFields("adalindis_portrait", ASSETS.adalindis, "Neutral · 4") }
+    { Name: "Mengus fen Gruffendoc", Subtitle: "Battanian lord · last met at Marunath", IsSelected: true, IsUnselected: false, HasUnread: true, UnreadText: "2 unread", ...correspondencePortraitFields("mengus_portrait", ASSETS.mengus, "Friendly · 42") },
+    { Name: "Empress Rhagaea Pethros", Subtitle: "Southern Empire · diplomatic correspondence", IsSelected: false, IsUnselected: true, HasUnread: false, UnreadText: "", ...correspondencePortraitFields("rhagaea_portrait", ASSETS.rhagaea, "Cordial · 18") },
+    { Name: "Corein, Daughter of High King Caladog", Subtitle: "Battania · trusted correspondent", IsSelected: false, IsUnselected: true, HasUnread: true, UnreadText: "1 unread", ...correspondencePortraitFields("corein_portrait", ASSETS.corein, "Friendly · 51") },
+    { Name: "Lady Adalindis of Ocs Hall", Subtitle: "Vlandia · court and trade matters", IsSelected: false, IsUnselected: true, HasUnread: false, UnreadText: "", ...correspondencePortraitFields("adalindis_portrait", ASSETS.adalindis, "Neutral · 4") },
+    { Name: "An unmet correspondent", Subtitle: "Introduced by letter", IsSelected: false, IsUnselected: true, HasUnread: false, UnreadText: "", PortraitCacheKey: "", PortraitAsset: "", Status: "Not yet met" },
+    { Name: "A known resident", Subtitle: "No AI portrait available", IsSelected: false, IsUnselected: true, HasUnread: false, UnreadText: "", PortraitCacheKey: "preview_missing_ai", PortraitAsset: "", Status: "No correspondence" }
   ],
   SelectedName: "Mengus fen Gruffendoc",
   SelectedSubtitle: "Battanian lord · correspondence carried by trusted courier",
@@ -382,6 +388,9 @@ export const ASSET_BY_IMAGE_ID = {
   ira_portrait: ASSETS.ira,
   corein_portrait: ASSETS.corein,
   caladog_portrait: ASSETS.caladog,
+  derthert_portrait: ASSETS.derthert,
+  diplomacy_actor_aeric: ASSETS.aeron,
+  diplomacy_target_rhagaea: ASSETS.rhagaea,
   aeron_portrait: ASSETS.aeron,
   rhagaea_portrait: ASSETS.rhagaea,
   abagai_portrait: ASSETS.abagai,
@@ -411,9 +420,7 @@ export const ASSET_BY_IMAGE_ID = {
 // visible portrait asset in the browser.
 export const ASSET_BY_WIDGET_ID = {
   ReignIndividualChatBackground: ASSETS.individualChatBackground,
-  WarCouncilMap: "../../GUI/SpriteParts/ui_reignbeta_war_council/reign_war_council_calradia.png",
-  ActorAIPortrait: ASSETS.aeron,
-  TargetAIPortrait: ASSETS.rhagaea
+  WarCouncilMap: "../../GUI/SpriteParts/ui_reignbeta_war_council/reign_war_council_calradia.png"
 };
 
 const PREVIEW_PRESET_OVERRIDES = {
@@ -461,6 +468,28 @@ const PREVIEW_PRESET_OVERRIDES = {
     InputEnabled: false,
     IsBusy: true,
     BusyText: "Choose whether to proceed."
+  },
+  "generation-failed": {
+    IsBusy: false, InputEnabled: true, InputText: "", SendButtonText: "Retry",
+    BusyText: "Codex temporarily limited this request (429). Your message is saved. Select Retry.",
+    ChatLines: [
+      { Speaker: "Michael", Text: "I will meet you at the eastern gate.", RichText: "I will meet you at the eastern gate.", Role: "player", IsPlayerLine: true, IsNpcLine: false, IsSystemLine: false },
+      { Speaker: "Bannerlord Reign", Text: "Codex temporarily limited this request (429). Your message is saved. Select Retry to try this turn again, or write a new message.", RichText: "Codex temporarily limited this request (429). Your message is saved. Select Retry to try this turn again, or write a new message.", Role: "system", IsPlayerLine: false, IsNpcLine: false, IsSystemLine: true }
+    ]
+  },
+  "recovery-available": {
+    IsBusy: false, InputEnabled: true, InputText: "", SendButtonText: "Recover", BusyText: "",
+    ChatLines: [
+      { Speaker: "Councillor", Text: "What brings you here today?", RichText: "What brings you here today?", Role: "npc", IsPlayerLine: false, IsNpcLine: true, IsSystemLine: false },
+      { Speaker: "Bannerlord Reign", Text: "1 saved message(s) have unconfirmed delivery. With an empty message box, select Recover to review the newest draft. Nothing is sent automatically.", RichText: "1 saved message(s) have unconfirmed delivery. With an empty message box, select Recover to review the newest draft. Nothing is sent automatically.", Role: "system", IsPlayerLine: false, IsNpcLine: false, IsSystemLine: true }
+    ]
+  },
+  "recovery-review": {
+    IsBusy: false, InputEnabled: true, InputText: "Good morning.", SendButtonText: "Send",
+    BusyText: "Earlier delivery is unconfirmed. Review the draft; Send submits a new message and can repeat actions.",
+    ChatLines: [
+      { Speaker: "Bannerlord Reign", Text: "A saved message is being reviewed in the message box. It has not been submitted in this conversation.", RichText: "A saved message is being reviewed in the message box. It has not been submitted in this conversation.", Role: "system", IsPlayerLine: false, IsNpcLine: false, IsSystemLine: true }
+    ]
   },
   "outfit-input": { IsOutfitVisible: true, IsOutfitInputVisible: true, InputEnabled: false },
   "outfit-changing": { IsOutfitVisible: true, IsOutfitComparisonVisible: true, IsOutfitChanging: true, InputEnabled: false },
@@ -1146,6 +1175,8 @@ const PREFAB_SAMPLE_OVERRIDES = {
     ]
   },
   "ReignPartyChatScreen.xml": {
+    ShowLifeControls: true, ShowStandardComposer: false, ComposerWidth: 890, SendButtonLeft: 1084, SendButtonWidth: 240,
+    CanAnnounce: true, InputText: "We leave at dawn. Gather by the eastern gate.", SendLabel: "Send",
     IsHomesMode: false, IsHomeDirectory: false, HasChatSession: true, AllowGroupSelection: true,
     RosterTitle: "Available Characters", ClearSelectionText: "Clear", HomeDirectoryText: "", InputEnabled: true,
     Title: "Council Before the Lords of Calradia",
@@ -1284,11 +1315,11 @@ const PREFAB_ROOT_KEYS = {
   "ReignCourtEconomicReportScreen.xml": ["SourceName", "TargetName", "GoodsName", "AvailableText", "AmountText", "ArrivalText", "Notes", "IsSourceDropdownOpen", "IsTargetDropdownOpen", "SourceOptions", "TargetOptions", "ReportDateText", "StatusText", "TreasuryText", "DailyIncomeText", "DailyExpensesText", "NetDailyChangeText", "TariffsTradeText", "VillageManorText", "TradeBalanceText", "OutstandingDebtsText", "GrainTotalText", "MeatTotalText", "TimberTotalText", "IronTotalText", "TotalMilitiaText", "TotalGarrisonText", "GarrisonUpkeepText", "WarInventoryText", "NetDailyPositive", "NetDailyNegative", "TradeBalancePositive", "TradeBalanceNegative", "CanSubmit", "HasSettlementOverflow", "EconomicAdvisor", "Settlements", "SurplusRows"],
   "ReignCourtScreen.xml": ["CourtTitle", "DocketTitle", "PlayerName", "PlayerBannerId", "PlayerBannerAsset", "PlayerBannerArgs", "PlayerBannerProvider", "HomeVisible", "LargeHomeVisible", "ReferenceHomeVisible", "TabContentVisible", "DetailVisible", "AudienceVisible", "ActionsVisible", "ScreenTitle", "ScreenSubtitle", "StatusText", "DetailTitle", "DetailBody", "DetailMeta", "AudienceSpeaker", "AudienceText", "AudienceEmotion", "AudienceInput", "AudienceHasPortrait", "AudiencePortraitId", "AudiencePortraitAsset", "AudiencePortraitAdditionalArgs", "AudiencePortraitTextureProviderName", "AudiencePortraitCacheKey", "Tabs", "Counters", "Lands", "DailyAgenda", "DocketItemCount", "DocketScrollVisible", "People", "DiplomaticStatus", "AmbassadorCards", "Rumors", "TabRows", "Actions", "RoyalCommandsVisible", "LocalModeNoticeVisible", "HasChancellor", "ChancellorName", "ChancellorPortraitCacheKey", "ChancellorStateText", "ChancellorSalaryText", "ChancellorToggleVisible"],
   "ReignCourtPetitionScreen.xml": ["ActionComposerId", "Title", "PetitionerName", "PetitionerRole", "SeverityText", "ProblemText", "RequestTypeText", "RequestedResourceText", "PurposeText", "NeedFacts", "RequestTerms", "BenefitText", "DangerText", "WarningText", "EventImageId", "EventImageAsset", "ActiveParticipants", "AvailableAttendees", "DirectGrantVisible", "GoldGrantVisible", "CanGrantDirect", "CanGrantWithGold", "CanRefuse", "DecisionComplete", "DecisionControlsVisible", "PostponeVisible", "CanPostpone", "CanContinue", "DirectGrantLabel", "GoldGrantLabel", "RefuseLabel", "StatusText", "Transcript", "InputText", "ChatScrollVersion", "CanSend", "ConversationEnabled"],
-  "ReignDiplomacyAnnouncementScreen.xml": ["Title", "DateText", "ShowTarget", "Outcome", "Summary", "Terms", "ActorName", "ActorKingdom", "ActorReason", "ActorPortraitId", "ActorPortraitAsset", "ActorPortraitArgs", "ActorPortraitProvider", "ActorPortraitCacheKey", "ActorBannerId", "ActorBannerArgs", "ActorBannerProvider", "TargetName", "TargetKingdom", "TargetReason", "TargetPortraitId", "TargetPortraitAsset", "TargetPortraitArgs", "TargetPortraitProvider", "TargetPortraitCacheKey", "TargetBannerId", "TargetBannerArgs", "TargetBannerProvider"],
+  "ReignDiplomacyAnnouncementScreen.xml": ["Title", "DateText", "ShowTarget", "Outcome", "Summary", "Terms", "ReportText", "ActorName", "ActorKingdom", "ActorReason", "ActorPortraitId", "ActorPortraitAsset", "ActorPortraitArgs", "ActorPortraitProvider", "ActorPortraitCacheKey", "ActorBannerId", "ActorBannerArgs", "ActorBannerProvider", "TargetName", "TargetKingdom", "TargetReason", "TargetPortraitId", "TargetPortraitAsset", "TargetPortraitArgs", "TargetPortraitProvider", "TargetPortraitCacheKey", "TargetBannerId", "TargetBannerArgs", "TargetBannerProvider"],
   "ReignFamilyChambersScreen.xml": ["Title", "Subtitle", "Adults", "Children", "SelectionText", "StatusText", "IsBusy", "CanEnterScene"],
   "ReignTrainingYardScreen.xml": ["Title", "TrainerHeading", "TroopHeading", "SelectedTrainerName", "SelectedTrainerDetail", "LeadershipText", "WeaponText", "RateText", "ElapsedText", "DeliveredText", "StatusText", "IsTraining", "CanTrain", "CanStop", "HasSelectedTrainer", "HasSelectedGeneratedPortrait", "SelectedPortraitCacheKey", "SelectedPortraitId", "SelectedPortraitAdditionalArgs", "SelectedPortraitTextureProviderName", "PortraitAsset", "TrainerCount", "TroopCount", "Trainers", "Troops"],
   "ReignGovernmentScreen.xml": GOVERNMENT_ROOT_KEYS,
-  "ReignIndividualChatScreen.xml": ["ActionComposerId", "CanChangeOutfit", "IsOutfitVisible", "IsOutfitInputVisible", "IsOutfitComparisonVisible", "IsOutfitReady", "IsOutfitChanging", "CanCancelOutfit", "OutfitDescription", "OutfitStatus", "OutfitBeforePath", "OutfitAfterPath", "OutfitBeforeWidth", "OutfitBeforeHeight", "OutfitAfterWidth", "OutfitAfterHeight", "PlayerName", "PlayerSubtitle", "PlayerInfo", "PlayerPortraitId", "PlayerPortraitAsset", "PlayerPortraitAdditionalArgs", "PlayerPortraitTextureProviderName", "PlayerPortraitCropImageWidth", "PlayerPortraitCropImageHeight", "NpcName", "NpcSubtitle", "NpcInfo", "NpcPortraitId", "NpcPortraitAsset", "NpcPortraitAdditionalArgs", "NpcPortraitTextureProviderName", "NpcPortraitCropImageWidth", "NpcPortraitCropImageHeight", "LocationText", "IsBusy", "BusyText", "InputEnabled", "InputText", "ChatLines", "ChatScrollVersion", "IsPortraitZoomVisible", "IsPregnancyWarningVisible", "ZoomFrameWidth", "ZoomFrameHeight", "ZoomPortraitImageWidth", "ZoomPortraitImageHeight", "ZoomPortraitId", "ZoomPortraitAsset", "ZoomPortraitAdditionalArgs", "ZoomPortraitTextureProviderName"],
+  "ReignIndividualChatScreen.xml": ["ActionComposerId", "CanChangeOutfit", "IsOutfitVisible", "IsOutfitInputVisible", "IsOutfitComparisonVisible", "IsOutfitReady", "IsOutfitChanging", "CanCancelOutfit", "OutfitDescription", "OutfitStatus", "OutfitBeforePath", "OutfitAfterPath", "OutfitBeforeWidth", "OutfitBeforeHeight", "OutfitAfterWidth", "OutfitAfterHeight", "PlayerName", "PlayerSubtitle", "PlayerInfo", "PlayerPortraitId", "PlayerPortraitAsset", "PlayerPortraitAdditionalArgs", "PlayerPortraitTextureProviderName", "PlayerPortraitCropImageWidth", "PlayerPortraitCropImageHeight", "NpcName", "NpcSubtitle", "NpcInfo", "NpcPortraitId", "NpcPortraitAsset", "NpcPortraitAdditionalArgs", "NpcPortraitTextureProviderName", "NpcPortraitCropImageWidth", "NpcPortraitCropImageHeight", "LocationText", "IsBusy", "BusyText", "InputEnabled", "InputText", "SendButtonText", "ChatLines", "ChatScrollVersion", "IsPortraitZoomVisible", "IsPregnancyWarningVisible", "ZoomFrameWidth", "ZoomFrameHeight", "ZoomPortraitImageWidth", "ZoomPortraitImageHeight", "ZoomPortraitId", "ZoomPortraitAsset", "ZoomPortraitAdditionalArgs", "ZoomPortraitTextureProviderName"],
   "ReignPortraitRefreshPopup.xml": ["Title", "Detail", "LookAgainText", "ReflectText", "CancelText", "CanReflect"],
   "ReignPlayerApproachPopup.xml": ["Title", "Detail", "AcceptText", "DeclineText"],
   "ReignBanterPanel.xml": ["Title", "Collapsed", "Expanded", "PanelHeight", "CollapseText", "CanJoin", "ChatScrollVersion", "Status", "Transcript"],
@@ -1487,6 +1518,49 @@ export function getSampleDataForPrefab(fileName, preset = "") {
     ...(PREFAB_SAMPLE_OVERRIDES[normalizedName] || {}),
     ...(PREVIEW_PRESET_OVERRIDES[preset] || {})
   };
+  if (normalizedName === "ReignDiplomacyAnnouncementScreen.xml" && preset.startsWith("news-")) {
+    Object.assign(result, { Title: "News of the Realm", DateText: "Day 130", ActorName: "Caladog", ActorKingdom: "Battania", ActorReason: "The ruling authority", ActorPortraitId: "caladog_portrait", ActorPortraitCacheKey: "caladog_portrait", ActorPortraitAsset: ASSETS.caladog, TargetName: "Derthert", TargetKingdom: "Vlandia", TargetReason: "The other ruler", TargetPortraitId: "derthert_portrait", TargetPortraitCacheKey: "derthert_portrait", TargetPortraitAsset: ASSETS.derthert, ShowTarget: true });
+    const news = {
+      "news-capture": ["A Leader Taken Captive", "News of a capture", "Derthert, ruler of Vlandia, has been taken prisoner by Caladog.", "No sentence has yet been announced."],
+      "news-sentence": ["A Sentence of Death", "Fifteen days until execution", "Caladog has condemned Derthert to death. The execution is to take place fifteen days after this sentence, without torture or humiliation.", "No ransom will be accepted. Escape or rescue would void this sentence and leave the war unresolved."],
+      "news-execution": ["An Execution Announced", "The sentence is carried out", "Derthert has been executed on the orders of Caladog.", ""],
+      "news-clan": ["News from the Royal Court", "A Dispute over Pasture Rights", "Caladog of Battania has heard a dispute between Fen Gruffendoc and Fen Uvain. Both houses claim seasonal grazing rights over the same uplands.", "Caladog has ruled in favor of Fen Gruffendoc. Fen Uvain leaves court embittered, and the feud between the houses remains unresolved."],
+      "news-foreign": ["News Between the Realms", "Smuggling Crisis", "Caladog of Battania rejected the demand for stronger action against protected smugglers put forward by nobles in Battania. The petition concerned relations with Vlandia.\n\nDerthert of Vlandia rejected the demand for stronger action against protected smugglers put forward by nobles in Vlandia. The petition concerned relations with Battania.\n\nThe petition: Border magnates demand stronger action against protected smugglers. Settlement notables add their voices to the noble petition.", "Both refusals angered the petitioning nobles, damaging their relations with their own ruler.\n\nIn Battania, calls for confrontation or cooperation with Vlandia are unchanged.\n\nIn Vlandia, calls for confrontation or cooperation with Battania are unchanged.\n\nThese rulings did not launch enforcement action or change a treaty. Any further action remains a separate decision."],
+      "news-world": ["A Turn in the Realm's Fortune", "Famine", "Famine has struck Battania. Its villages are producing less food, placing the realm's supplies under strain.", "These conditions will last for 30 days."],
+      "news-golden-age": ["A Turn in the Realm's Fortune", "Golden Age", "A golden age of building has begun in Battania. Construction is advancing more swiftly throughout its towns and castles.", "These conditions will last for 30 days."]
+    }[preset];
+    if (news) [result.Title, result.Outcome, result.Summary, result.Terms] = news;
+    if (preset === "news-world" || preset === "news-golden-age") Object.assign(result, { ShowTarget: false, TargetName: "", TargetKingdom: "", TargetReason: "", ActorReason: "The affected realm" });
+  }
+  if (normalizedName === "ReignDiplomacyAnnouncementScreen.xml") {
+    Object.assign(result, { IsStandardAnnouncement: !preset.startsWith("government-news-"), IsGovernmentNews: preset.startsWith("government-news-"),
+      NewsKingdoms: [], NewsKingdomCount: 0, GovernmentNewsHeading: "", GovernmentNewsBody: "" });
+    if (preset.startsWith("government-news-")) {
+      const names = ["Southern Empire", "Northern Empire", "Western Empire", "Vlandia", "Battania", "Sturgia", "Aserai", "Khuzait"];
+      const articles = names.map((name, i) => `${name} — ${i < 3 ? "Senate" : "Council"}\n\nDECIDED — ${i % 2 ? "Village relief" : "Trial by Jury"}: ${i % 2 ? "Approved. Grain deliveries remain outstanding and will be recorded when received." : "Enacted by the weighted vote. The law is now in force."}\n\nPRESENTED — ${i % 2 ? "Charter of Local Customs" : "Castle-Guard Service"}. The government heard the proposal and its costs. The next decision is scheduled for Spring 30. Members may change their declared positions before that session.`);
+      Object.assign(result, { Title: "The Reign Herald", DateText: "Proceedings of Spring 15, 1088", GovernmentNewsHeading: "All kingdoms",
+        NewsKingdoms: names.map(Name => ({ Name, Summary: "1 presented · 1 decided" })), NewsKingdomCount: names.length,
+        GovernmentNewsBody: articles.join("\n\n") });
+      if (preset === "government-news-kingdom") Object.assign(result, { GovernmentNewsHeading: "Southern Empire — Senate", GovernmentNewsBody: articles[0] });
+      if (preset === "government-news-long") result.GovernmentNewsBody = articles.map(article => article + "\n\n" + "The petitioners named the affected villages and explained the obligations that remain to be fulfilled. The Crown's representative recorded a public reason, while the detailed terms remain available in the government archive. ".repeat(8)).join("\n\n");
+      if (preset === "government-news-empty") Object.assign(result, { NewsKingdoms: [], NewsKingdomCount: 0, GovernmentNewsBody: "No proceedings have been published yet. The next edition follows the next government session." });
+    }
+    if (preset === "diplomacy-long") Object.assign(result, {
+      Outcome: "Envoys return with terms for a lasting settlement along the disputed border",
+      Summary: "The envoys have returned from the border with the terms of a proposed settlement. Both courts have heard the accounts of merchants, village elders and the commanders responsible for guarding the roads. The agreement sets out how disputes will be heard and how ordinary traffic can resume without further seizures.\n\nThe disputed crossing will remain open to caravans from either realm. Its watchmen will record the goods that pass through, and no additional toll may be collected without the consent of both courts. Traders who can prove that their goods were taken during the dispute will be allowed to present their claims before the next gathering of the council.\n\nThe frontier villages will receive notice before either side moves troops through their fields. Patrol commanders must respect the harvest and keep their soldiers away from stored grain. Any complaint against a patrol will be delivered to both rulers, together with the names of those who witnessed the incident.",
+      Terms: "Prisoners covered by the agreement will be exchanged at the crossing. Each court will name an envoy to witness their return and record any claim that remains unsettled. Families waiting for news will be informed before the escorts depart.\n\nThe settlement will be read aloud in the market towns along the route. Copies will be sent to the noble houses responsible for the border, so that their stewards and garrisons receive the same instructions. Neither court will treat an unverified rumor as grounds for breaking the agreement.",
+      ActorReason: "The people of the frontier have paid dearly for this quarrel. Our merchants need open roads and our farmers need to bring in their harvest without fear of another patrol taking the grain. I have accepted these terms so that both courts can answer future grievances before they become another cause for war.",
+      TargetReason: "The agreement protects the crossing without giving either side the right to seize it by force. I expect every commander under my banner to honor the settlement, and I will hear the families whose losses have yet to be answered."
+    });
+    const paragraphs = [result.Summary, result.Terms];
+    if (!preset.startsWith("news-")) {
+      if (result.ActorReason?.trim()) paragraphs.push(`${result.ActorName} gave this reason: “${result.ActorReason.trim()}”`);
+      if (result.TargetReason?.trim()) paragraphs.push(`${result.TargetName} gave this reason: “${result.TargetReason.trim()}”`);
+      result.ActorReason = "Announcing ruler";
+      result.TargetReason = "Responding ruler";
+    }
+    result.ReportText = paragraphs.filter(value => value?.trim()).map(value => value.trim()).join("\n\n");
+  }
   if (normalizedName === "ReignPlayerApproachPopup.xml" && preset === "approach-keep") Object.assign(result, {
     Detail: "Lucon, Rhagaea, Caladog and Mesui wish to speak with you.", AcceptText: "See what they want", DeclineText: "Avoid them"
   });
@@ -1513,6 +1587,7 @@ export function getSampleDataForPrefab(fileName, preset = "") {
     ];
     Object.assign(result, {
       IsHomesMode: true, IsHomeDirectory: !atHome, HasChatSession: atHome, AllowGroupSelection: false,
+      ShowLifeControls: false, ShowStandardComposer: true, ComposerWidth: 1192, SendButtonLeft: 1388, SendButtonWidth: 202, CanAnnounce: false,
       Title: "Homes — Zeonica", LocationText: atHome ? "At home with Livia Bellori" : "People you have met here",
       RosterTitle: "Known residents", ClearSelectionText: "Homes", InputEnabled: atHome,
       SelectedSummary: atHome ? "Private visit · only you and Livia Bellori can hear" : `${empty ? 0 : people.length} known residents at home`,
@@ -1538,7 +1613,8 @@ export function getSampleDataForPrefab(fileName, preset = "") {
     ].map((Text) => ({ Speaker: "Gwydan", Text, Role: "assistant", IsNpcLine: true, IsPlayerLine: false, IsSystemLine: false }))
   ];
   if (Array.isArray(result.ChatLines)) result.ChatLines = result.ChatLines.map((line) => ({
-    ...line, RichText: previewActionRichText(line.Text, line.IsNpcLine || line.Role === "npc" || line.Role === "assistant")
+    ...line, IsNonPlayerLine: !line.IsPlayerLine,
+    RichText: previewActionRichText(line.Text, line.IsNpcLine || line.Role === "npc" || line.Role === "assistant")
   }));
   return result;
 }

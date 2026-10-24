@@ -55,20 +55,45 @@ namespace ReignBeta.Government
             CampaignEvents.OnSettlementOwnerChangedEvent.AddNonSerializedListener(this, OnGovernmentSettlementOwnerChanged);
             RegisterResolutionProgressEvents();
             RegisterGovernmentAttendanceEvents();
+            RegisterEdictEvents();
+            RegisterParticipationEvents();
+            CampaignEvents.HourlyTickEvent.AddNonSerializedListener(this, OnGovernmentSessionClock);
             CampaignEvents.OnSessionLaunchedEvent.AddNonSerializedListener(this, OnGovernmentSessionLaunched);
         }
 
         private void OnGovernmentSessionLaunched(CampaignGameStarter starter)
         {
             PruneIneligibleGovernments();
+            foreach (var state in _governments) EnsureConstitution(state);
+            MigrateGovernmentSessions();
+            foreach (var business in _business.Where(x => x.FrozenAuthorityLevel > 0)) AssignDocket(business);
             MigrateNativeGovernmentBusiness();
             ImportSeasonalBusiness();
+            CaptureGovernmentLoadFingerprintPhase("session_launched");
+            starter.AddGameMenuOption("town", "reign_government_records_town", "{=!}Government records and petitions",
+                GovernmentRecordsCondition, GovernmentRecordsConsequence, false, 6);
+            starter.AddGameMenuOption("castle", "reign_government_records_castle", "{=!}Government records and petitions",
+                GovernmentRecordsCondition, GovernmentRecordsConsequence, false, 6);
 #if !REIGN_EXCLUDE_COURT
             starter.AddGameMenuOption(ReignKeepAccessPolicy.TownMenuId, "reign_explore_town_keep", "{=!}Explore the keep",
                 ExploreKeepCondition, ExploreKeepConsequence, false, 1);
             starter.AddGameMenuOption(ReignKeepAccessPolicy.CastleMenuId, "reign_explore_castle_keep", "{=!}Explore the keep",
                 ExploreKeepCondition, ExploreKeepConsequence, false, 1);
 #endif
+        }
+        private bool GovernmentRecordsCondition(MenuCallbackArgs args)
+        {
+            var kingdom = Settlement.CurrentSettlement?.MapFaction as Kingdom;
+            args.optionLeaveType = GameMenuOption.LeaveType.Wait;
+            args.IsEnabled = kingdom != null && GetGovernment(kingdom) != null && Hero.MainHero?.IsPrisoner != true;
+            return args.IsEnabled;
+        }
+        private void GovernmentRecordsConsequence(MenuCallbackArgs args)
+        {
+            var kingdom = Settlement.CurrentSettlement?.MapFaction as Kingdom;
+            if (kingdom == null) return;
+            args.MapState?.ExitMenuMode();
+            ReignGovernmentScreenManager.Open(kingdom, kingdom.Leader == Hero.MainHero, null);
         }
 
 #if !REIGN_EXCLUDE_COURT
@@ -93,8 +118,14 @@ namespace ReignBeta.Government
 
         public override void SyncData(IDataStore dataStore)
         {
+            // The native store keeps the collection references passed to SyncData.
+            // Bound history before handing them off, so serialized and live state agree.
+            if (dataStore.IsSaving) PruneHistory();
             SyncGovernmentBusiness(dataStore);
             SyncGovernmentHearingData(dataStore);
+            SyncGovernmentSessionNews(dataStore);
+            SyncEdicts(dataStore);
+            SyncParticipation(dataStore);
             dataStore.SyncData("_reignGovernment_governments", ref _governments);
             dataStore.SyncData("_reignGovernment_parties", ref _parties);
             dataStore.SyncData("_reignGovernment_seats", ref _seats);
@@ -103,6 +134,7 @@ namespace ReignBeta.Government
             dataStore.SyncData("_reignGovernment_lobbyRecords", ref _lobbyRecords);
             dataStore.SyncData("_reignGovernment_meetings", ref _meetings);
             dataStore.SyncData("_reignGovernment_lastDailyTick", ref _lastDailyTick);
+            if (dataStore.IsLoading) CaptureGovernmentLoadFingerprintPhase("sync_loaded_before_prune", true);
             _governments = Clean(_governments, x => !string.IsNullOrWhiteSpace(x.KingdomStringId));
             _parties = Clean(_parties, x => !string.IsNullOrWhiteSpace(x.KingdomStringId) && !string.IsNullOrWhiteSpace(x.PartyId));
             _seats = Clean(_seats, x => !string.IsNullOrWhiteSpace(x.KingdomStringId) && !string.IsNullOrWhiteSpace(x.HeroStringId));
@@ -110,7 +142,8 @@ namespace ReignBeta.Government
             _pressures = Clean(_pressures, x => !string.IsNullOrWhiteSpace(x.PressureId));
             _lobbyRecords = Clean(_lobbyRecords, x => !string.IsNullOrWhiteSpace(x.LobbyId));
             _meetings = Clean(_meetings, x => !string.IsNullOrWhiteSpace(x.MeetingId));
-            if (dataStore.IsSaving || dataStore.IsLoading) PruneHistory();
+            if (dataStore.IsLoading) PruneHistory();
+            if (dataStore.IsLoading) CaptureGovernmentLoadFingerprintPhase("sync_loaded_after_prune");
         }
 
         public ReignGovernmentStateRecord GetGovernment(Kingdom kingdom)
@@ -176,7 +209,8 @@ namespace ReignBeta.Government
                     Trust = 50,
                     InitializedDay = day,
                     LastMeetingDay = -1f,
-                    NextMeetingDay = day + 1f + ReignGovernmentRules.StableHash("meeting|" + kingdom.StringId) % ReignGovernmentRules.SeasonalMeetingDays,
+                    NextMeetingDay = NextGovernmentSessionDay(day),
+                    SessionProtocolVersion = NextGovernmentSessionDay(day) < 0 ? 0 : GovernmentSessionRules.ProtocolVersion,
                     RulerHeroStringId = kingdom.Leader?.StringId ?? string.Empty,
                     InitialBenefitsSuppressed = true,
                     Revision = 1
@@ -194,15 +228,16 @@ namespace ReignBeta.Government
                 }
                 if (!Same(state.CultureStringId, kingdom.Culture?.StringId))
                 {
-                    ReignGovernmentInstitutionProfile profile = ReignGovernmentRules.InstitutionForCulture(kingdom.Culture?.StringId);
                     state.CultureStringId = kingdom.Culture?.StringId ?? string.Empty;
-                    state.InstitutionName = profile.Name;
-                    state.InstitutionKindValue = (int)profile.Kind;
                     changed = true;
                 }
                 state.Level = Clamp(state.Level, ReignGovernmentRules.MinimumLevel, ReignGovernmentRules.MaximumLevel);
                 if (changed) state.Revision++;
             }
+            ReconcileFoundingConstitution(kingdom, EnsureConstitution(state));
+            if (IsCharterPending(kingdom.StringId))
+            { state.InstitutionName = "Founding charter pending"; state.Level = 1; }
+            else EnsureSessionCalendar(state);
             return state;
         }
 
@@ -391,6 +426,8 @@ namespace ReignBeta.Government
 
         private void OnDailyTick()
         {
+            ReconcileConstitutions();
+            TickParticipation();
             ImportSeasonalBusiness();
             TickGovernmentBusiness();
             int day = (int)Math.Floor(CurrentDay());
@@ -400,7 +437,8 @@ namespace ReignBeta.Government
             foreach (Kingdom kingdom in Kingdom.All.Where(IsEligibleKingdom).OrderBy(x => x.StringId, StringComparer.Ordinal).ToList())
             {
                 ReignGovernmentStateRecord state = EnsureGovernment(kingdom);
-                if (state == null) continue;
+                if (state == null || IsCharterPending(kingdom.StringId)) continue;
+                EnsureSessionCalendar(state);
                 if (state.TemporaryBenefitEndDay >= 0f && CurrentDay() >= state.TemporaryBenefitEndDay)
                 {
                     state.TemporaryBenefitEndDay = -1f;
@@ -409,12 +447,14 @@ namespace ReignBeta.Government
                     state.TemporaryHearthPerDay = 0f;
                     state.Revision++;
                 }
-                if (day % 7 == 0) ReconcileMembership(kingdom, state, false);
+                ReconcileMembership(kingdom, state, false);
                 EvaluateResolutions(kingdom, state);
                 EvaluateLobbyRecords(kingdom, state);
-                if (state.NextMeetingDay < 0f || CurrentDay() >= state.NextMeetingDay)
+                if (state.SessionProtocolVersion > 0 && state.NextMeetingDay >= 0f && CampaignTime.Now.ToDays >= state.NextMeetingDay)
                     RunSeasonalMeeting(kingdom, state, false);
             }
+            TickGovernmentBusiness();
+            TickGovernmentSessionNews();
             PruneHistory();
         }
 
@@ -438,66 +478,7 @@ namespace ReignBeta.Government
 
         private void ReconcileMembership(Kingdom kingdom, ReignGovernmentStateRecord state, bool initializeParties)
         {
-            ReignGovernmentInstitutionProfile profile = ReignGovernmentRules.InstitutionForCulture(state.CultureStringId);
-            List<SeatCandidate> candidates = SelectSeatCandidates(kingdom, profile);
-            List<ReignGovernmentSeatRecord> current = _seats.Where(x => Same(x.KingdomStringId, kingdom.StringId)).ToList();
-            HashSet<string> candidateIds = new HashSet<string>(candidates.Select(x => x.Hero.StringId), StringComparer.OrdinalIgnoreCase);
-            _seats.RemoveAll(x => Same(x.KingdomStringId, kingdom.StringId) && !candidateIds.Contains(x.HeroStringId));
-
-            List<ReignGovernmentPartyRecord> kingdomParties = _parties.Where(x => Same(x.KingdomStringId, kingdom.StringId)).ToList();
-            if (initializeParties || kingdomParties.Count == 0)
-            {
-                _parties.RemoveAll(x => Same(x.KingdomStringId, kingdom.StringId));
-                foreach (ReignGovernmentPartyBlueprint blueprint in ReignGovernmentRules.SelectParties(kingdom.StringId, candidates.Count))
-                {
-                    _parties.Add(new ReignGovernmentPartyRecord
-                    {
-                        KingdomStringId = kingdom.StringId,
-                        PartyId = blueprint.Id,
-                        Name = blueprint.Name,
-                        PlanksCsv = string.Join(",", blueprint.Planks),
-                        PartyLoyalty = 50,
-                        Revision = 1
-                    });
-                }
-                kingdomParties = _parties.Where(x => Same(x.KingdomStringId, kingdom.StringId)).ToList();
-            }
-
-            foreach (SeatCandidate candidate in candidates)
-            {
-                ReignGovernmentSeatRecord seat = current.FirstOrDefault(x => Same(x.HeroStringId, candidate.Hero.StringId));
-                if (seat == null)
-                {
-                    ReignGovernmentPartyBlueprint selected = ReignGovernmentRules.SelectPartyForMember(
-                        candidate.Hero.StringId,
-                        Personality(candidate.Hero),
-                        kingdomParties.Select(ToBlueprint).ToList());
-                    int relation = kingdom.Leader == null ? 0 : candidate.Hero.GetRelation(kingdom.Leader);
-                    seat = new ReignGovernmentSeatRecord
-                    {
-                        KingdomStringId = kingdom.StringId,
-                        HeroStringId = candidate.Hero.StringId,
-                        SettlementStringId = candidate.Settlement?.StringId ?? string.Empty,
-                        ClanStringId = candidate.Hero.Clan?.StringId ?? string.Empty,
-                        SeatSourceValue = (int)candidate.Source,
-                        PartyId = selected?.Id ?? kingdomParties.FirstOrDefault()?.PartyId ?? string.Empty,
-                        PartyLoyalty = Clamp(55 + StableOffset(candidate.Hero.StringId, "party-loyalty", 16), 20, 90),
-                        GovernmentLoyalty = Clamp(50 + relation / 4 + StableOffset(candidate.Hero.StringId, "government-loyalty", 11), 10, 90),
-                        Revision = 1
-                    };
-                    _seats.Add(seat);
-                }
-                else
-                {
-                    seat.SettlementStringId = candidate.Settlement?.StringId ?? string.Empty;
-                    seat.ClanStringId = candidate.Hero.Clan?.StringId ?? string.Empty;
-                    seat.SeatSourceValue = (int)candidate.Source;
-                    if (!kingdomParties.Any(x => Same(x.PartyId, seat.PartyId)))
-                        seat.PartyId = kingdomParties.FirstOrDefault()?.PartyId ?? string.Empty;
-                    seat.Revision++;
-                }
-            }
-            RecalculatePartyState(kingdom, state);
+            ReconcileParticipationSeats(kingdom, state, initializeParties);
         }
 
         private void RecalculatePartyState(Kingdom kingdom, ReignGovernmentStateRecord state)
@@ -508,19 +489,21 @@ namespace ReignBeta.Government
             {
                 List<ReignGovernmentSeatRecord> partySeats = seats.Where(x => Same(x.PartyId, party.PartyId)).ToList();
                 party.SeatCount = partySeats.Count;
-                party.SpeakerHeroStringId = partySeats
+                string previousSpeaker = party.SpeakerHeroStringId;
+                if (!partySeats.Any(x => Same(x.HeroStringId, party.SpeakerHeroStringId))) party.SpeakerHeroStringId = partySeats
                     .Select(x => new { Seat = x, Hero = FindHero(x.HeroStringId) })
                     .Where(x => x.Hero != null)
                     .OrderByDescending(x => ReignGovernmentRules.SpeakerScore(Personality(x.Hero), x.Seat.GovernmentLoyalty,
                         kingdom.Leader == null ? 0 : x.Hero.GetRelation(kingdom.Leader)))
                     .ThenBy(x => x.Hero.StringId, StringComparer.Ordinal)
                     .Select(x => x.Hero.StringId).FirstOrDefault() ?? string.Empty;
+                if (!Same(previousSpeaker, party.SpeakerHeroStringId)) OpenVacantSpeakerElection(party, previousSpeaker);
                 party.PartyLoyalty = partySeats.Count == 0 ? 0 : Clamp((int)Math.Round(partySeats.Average(x => x.PartyLoyalty)), 0, 100);
                 party.IsDominant = false;
                 party.IsGoverningCoalition = false;
                 party.Revision++;
             }
-            ReignGovernmentPartyRecord dominant = parties.OrderByDescending(x => x.SeatCount)
+            ReignGovernmentPartyRecord dominant = parties.Where(x => x.SeatCount > 0).OrderByDescending(x => x.SeatCount)
                 .ThenBy(x => x.PartyId, StringComparer.Ordinal).FirstOrDefault();
             if (dominant != null)
             {
@@ -682,7 +665,7 @@ namespace ReignBeta.Government
             };
         }
 
-        private static List<SeatCandidate> SelectSeatCandidates(Kingdom kingdom, ReignGovernmentInstitutionProfile profile)
+        private List<SeatCandidate> SelectSeatCandidates(Kingdom kingdom, ReignGovernmentInstitutionProfile profile)
         {
             var rows = new Dictionary<string, SeatCandidate>(StringComparer.OrdinalIgnoreCase);
             foreach (ReignGovernmentSeatSource source in profile.SeatSources)
@@ -702,7 +685,7 @@ namespace ReignBeta.Government
                 foreach (Settlement settlement in settlements.OrderBy(x => x.StringId, StringComparer.Ordinal))
                 {
                     Hero notable = settlement.Notables.Where(IsEligibleMember)
-                        .Where(x => OccupationMatches(x, source))
+                        .Where(x => OccupationMatches(x, source) && QualifiesAsConstituencyResident(x, settlement, kingdom))
                         .OrderByDescending(x => x.Power).ThenBy(x => x.StringId, StringComparer.Ordinal).FirstOrDefault();
                     if (notable != null) rows[notable.StringId] = new SeatCandidate(notable, settlement, source);
                 }
@@ -724,7 +707,7 @@ namespace ReignBeta.Government
 
         private static bool IsEligibleMember(Hero hero)
         {
-            return hero != null && hero.IsAlive && !hero.IsChild && !hero.IsPrisoner && hero.HeroState != Hero.CharacterStates.Disabled;
+            return hero != null && hero.IsAlive && !hero.IsChild && hero.HeroState != Hero.CharacterStates.Disabled;
         }
 
         private static bool IsEligibleKingdom(Kingdom kingdom)
@@ -867,13 +850,27 @@ namespace ReignBeta.Government
             _resolutions = _resolutions.Where(x => Same(x.Status, "debate") || Same(x.Status, "proposed") || Same(x.Status, "active"))
                 .Concat(_resolutions.Where(x => !Same(x.Status, "debate") && !Same(x.Status, "proposed") && !Same(x.Status, "active"))
                     .OrderByDescending(x => x.ResolvedDay).Take(RetainedResolvedResolutions)).ToList();
-            _meetings = _meetings.OrderByDescending(x => x.MeetingDay).Take(RetainedMeetings).ToList();
+            _meetings = RetainGovernmentMeetingHistory(_meetings);
             _pressures = _pressures.Where(x => Same(x.Status, "pending") || Same(x.Status, "delayed"))
                 .Concat(_pressures.Where(x => !Same(x.Status, "pending") && !Same(x.Status, "delayed"))
                     .OrderByDescending(x => x.RequestedDay).Take(RetainedPressures)).ToList();
             _lobbyRecords = _lobbyRecords.Where(x => !x.Fulfilled && x.ExpiresDay >= CurrentDay())
                 .Concat(_lobbyRecords.Where(x => x.Fulfilled || x.ExpiresDay < CurrentDay())
                     .OrderByDescending(x => x.CreatedDay).Take(RetainedLobbyRecords)).ToList();
+        }
+
+        private void RecordGovernmentMeeting(ReignGovernmentMeetingRecord meeting)
+        {
+            _meetings.Add(meeting);
+            // Hourly sessions can run after the day's maintenance. Enforce the same
+            // saved-history limit immediately, not for the first time on reload.
+            _meetings = RetainGovernmentMeetingHistory(_meetings);
+        }
+
+        private static List<ReignGovernmentMeetingRecord> RetainGovernmentMeetingHistory(
+            IEnumerable<ReignGovernmentMeetingRecord> meetings)
+        {
+            return meetings.OrderByDescending(x => x.MeetingDay).Take(RetainedMeetings).ToList();
         }
 
         private sealed class SeatCandidate

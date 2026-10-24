@@ -27,6 +27,15 @@ namespace ReignBeta.UI.Widgets
         private bool _styledReady;
         public static bool IsNativeTextCompatible => VisibleStart?.FieldType == typeof(int) && VisibleText?.FieldType == typeof(string);
         public string ComposerId { get; set; }
+        private bool _missingComposerReported;
+
+        public void BindComposer(ReignActionComposerVM composer)
+        {
+            if (composer == null || ReignActionComposerVM.Find(composer.Id) != composer)
+                throw new ArgumentException("A registered action composer is required.", nameof(composer));
+            ComposerId = composer.Id;
+            _missingComposerReported = false;
+        }
 
         public ReignActionEditableTextWidget(UIContext context) : base(context)
         {
@@ -37,7 +46,15 @@ namespace ReignBeta.UI.Widgets
         {
             if (IsDisabled) return;
             var composer = ReignActionComposerVM.Find(ComposerId);
-            if (composer == null) return;
+            if (composer == null)
+            {
+                if (!_missingComposerReported)
+                {
+                    ReignBeta.Integration.ReignLog.Warn("Action editor has no registered composer: widget=" + Id);
+                    _missingComposerReported = true;
+                }
+                return;
+            }
             CaptureSelection(composer);
             bool control = Input.IsKeyDown(InputKey.LeftControl) || Input.IsKeyDown(InputKey.RightControl);
             bool alt = Input.IsKeyDown(InputKey.LeftAlt) || Input.IsKeyDown(InputKey.RightAlt);

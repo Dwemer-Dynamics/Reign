@@ -132,7 +132,7 @@ namespace ReignBeta.Campaign
             ReignDuelService.CancelPendingDuel(actionId);
         }
 
-        private static bool TryLaunchNativeArenaDuel(ReignDuelIntent intent, out string error)
+        internal static bool TryLaunchNativeArenaDuel(ReignDuelIntent intent, out string error)
         {
             error = string.Empty;
             Hero opponent = intent.OpponentHero;
@@ -178,6 +178,7 @@ namespace ReignBeta.Campaign
                     false,
                     character => OnNativeArenaDuelEnded(intent, character),
                     health);
+                ReignDuelMissionBehavior.EnableCombatExperience(duelMission, intent);
                 duelMission.AddMissionBehavior(new ReignArenaDuelEquipmentBehavior(
                     opponent.CharacterObject,
                     arenaSettlement.Culture?.DuelPresetEquipmentRoster?.AllEquipments));

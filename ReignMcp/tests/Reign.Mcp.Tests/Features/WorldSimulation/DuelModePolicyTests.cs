@@ -5,6 +5,47 @@ namespace Reign.Mcp.Tests;
 public sealed class DuelModePolicyTests
 {
     [Theory]
+    [InlineData("player", "companion", true)]
+    [InlineData("companion", "player", true)]
+    [InlineData("player", "bystander", false)]
+    [InlineData("bystander", "player", false)]
+    [InlineData("companion", "bystander", false)]
+    [InlineData("player", "player", false)]
+    [InlineData("companion", "companion", false)]
+    [InlineData(null, "player", false)]
+    [InlineData("companion", null, false)]
+    public void DuelExperienceBelongsOnlyToHitsBetweenBothParticipants(string? attacker, string? target, bool expected)
+    {
+        Assert.Equal(expected, ReignDuelModePolicy.IsExperiencePair("player", "companion", attacker!, target!));
+        Assert.False(ReignDuelModePolicy.IsExperiencePair("player", "player", attacker!, target!));
+        Assert.False(ReignDuelModePolicy.IsExperiencePair("player", "", attacker!, target!));
+        Assert.False(ReignDuelModePolicy.IsExperiencePair(null!, "companion", attacker!, target!));
+    }
+
+    [Fact]
+    public void EveryDuelLaunchEnablesNativeFullCombatExperienceWithoutASecondBattleAward()
+    {
+        string root = TestOptions.FindWorkspace();
+        string mission = File.ReadAllText(Path.Combine(root, "ReignBeta/src/Modules/Characters/Campaign/ReignDuelMissionBehavior.cs"));
+        string launch = File.ReadAllText(Path.Combine(root, "ReignBeta/src/Modules/Dialogue/Campaign/ReignDuelLaunchPromptService.cs"));
+        string service = File.ReadAllText(Path.Combine(root, "ReignBeta/src/Modules/Characters/Campaign/ReignDuelService.cs"));
+        Assert.Contains("ReignDuelMissionBehavior.EnableCombatExperience(duelMission, intent);", launch);
+        Assert.Equal(2, mission.Split("EnableCombatExperience(Mission, intent);").Length - 1);
+        string hit = mission.Substring(mission.IndexOf("public override void OnScoreHit", StringComparison.Ordinal));
+        hit = hit.Substring(0, hit.IndexOf("public static bool TryStartFromCurrentMission", StringComparison.Ordinal));
+        Assert.Contains("ReignDuelService.IsActiveDuel(_experienceIntent.ActionId)", hit);
+        Assert.Contains("Mission.GetMissionBehavior<BattleAgentLogic>() != null", hit);
+        Assert.Contains("isBlocked || blow.InflictedDamage <= 0", hit);
+        Assert.Contains("ReignDuelModePolicy.IsExperiencePair(", hit);
+        Assert.Contains("CombatXpModel.MissionTypeEnum.Battle", hit);
+        Assert.Equal(1, hit.Split("SkillLevelingManager.OnCombatHit(").Length - 1);
+        Assert.DoesNotContain("MissionTypeEnum.PracticeFight", hit);
+        Assert.DoesNotContain("AddSkillXp(", hit);
+        Assert.DoesNotContain("IsPractice(", hit);
+        Assert.Contains("Active.Contains(actionId) && Pending.ContainsKey(actionId)", service);
+    }
+
+    [Theory]
     [InlineData("practice", false)]
     [InlineData("practice", true)]
     [InlineData(" PRACTICE ", true)]

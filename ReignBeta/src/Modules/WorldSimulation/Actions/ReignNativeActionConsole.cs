@@ -12,6 +12,7 @@ using Reign.Core.Contracts.Actions;
 using ReignBeta.World;
 using TaleWorlds.CampaignSystem;
 using TaleWorlds.CampaignSystem.CampaignBehaviors;
+using TaleWorlds.CampaignSystem.Encounters;
 using TaleWorlds.CampaignSystem.Map;
 using TaleWorlds.CampaignSystem.Naval;
 using TaleWorlds.CampaignSystem.Party;
@@ -229,6 +230,11 @@ namespace ReignBeta.Actions
                     && SandBox.Conversation.ConversationMission.OneToOneConversationAgent != null);
             string limitation = KnownInvocationLimitation(d.Id, inSettlement, conversationAgent, assemblyHash);
             if (limitation.Length > 0) throw new InvalidOperationException(limitation);
+            if (d.Id == "native.EnterSettlement.ApplyForParty"
+                && !CanInvokePartySettlementEntry(values.OfType<MobileParty>().FirstOrDefault() == MobileParty.MainParty,
+                    values.OfType<Settlement>().FirstOrDefault() == PlayerEncounter.EncounterSettlement,
+                    PlayerEncounter.Current != null && PlayerEncounter.LocationEncounter != null))
+                throw new InvalidOperationException("Player party entry requires matching native settlement and location encounters; use the guarded player settlement encounter fixture.");
             if (d.Type.EndsWith("BreakInOutBesiegedSettlementAction", StringComparison.Ordinal)
                 && Settlement.CurrentSettlement?.SiegeEvent == null)
                 throw new InvalidOperationException("A current besieged settlement is required for this encounter operation.");
@@ -239,6 +245,9 @@ namespace ReignBeta.Actions
                 || d.Type.EndsWith("MakePregnantAction", StringComparison.Ordinal)))
                 throw new InvalidOperationException("This native relationship operation requires adults.");
         }
+
+        internal static bool CanInvokePartySettlementEntry(bool isPlayerParty, bool matchesEncounterSettlement,
+            bool locationEncounterReady) => !isPlayerParty || (matchesEncounterSettlement && locationEncounterReady);
 
         internal static string KnownInvocationLimitation(string id, bool playerInSettlement,
             bool hasConversationAgent, string nativeAssemblySha256)
@@ -336,6 +345,7 @@ namespace ReignBeta.Actions
             if (value is Hero hero) state["clanState"] = State(hero.CompanionOf ?? hero.Clan);
             if (value is MobileParty party)
             {
+                state["combat"] = ObserveCombat(party.Party);
                 state["members"] = Roster(party.MemberRoster); state["prisoners"] = Roster(party.PrisonRoster); state["items"] = Items(party.ItemRoster); state["clanState"] = State(party.ActualClan);
                 try
                 {
@@ -344,13 +354,36 @@ namespace ReignBeta.Actions
                 }
                 catch { state["IsWaitingForDisband"] = "unavailable"; }
             }
-            if (value is PartyBase partyBase) { state["members"] = Roster(partyBase.MemberRoster); state["prisoners"] = Roster(partyBase.PrisonRoster); state["items"] = Items(partyBase.ItemRoster); state["goldHolder"] = State((object)partyBase.MobileParty ?? partyBase.Settlement?.SettlementComponent); }
-            if (value is Settlement settlement) { state["componentState"] = State(settlement.SettlementComponent); }
+            if (value is PartyBase partyBase) { state["combat"] = ObserveCombat(partyBase); state["members"] = Roster(partyBase.MemberRoster); state["prisoners"] = Roster(partyBase.PrisonRoster); state["items"] = Items(partyBase.ItemRoster); state["goldHolder"] = State((object)partyBase.MobileParty ?? partyBase.Settlement?.SettlementComponent); }
+            if (value is Settlement settlement) { state["combat"] = ObserveCombat(settlement.Party); state["componentState"] = State(settlement.SettlementComponent); }
             if (value is Kingdom kingdom) state["activePolicyIds"] = new JArray(kingdom.ActivePolicies.Select(p => p.StringId));
             if (value is TroopRoster roster) state["troops"] = Roster(roster);
             if (value is ItemRosterElement element) { state["item"] = element.EquipmentElement.Item?.StringId; state["modifier"] = element.EquipmentElement.ItemModifier?.StringId; state["count"] = element.Amount; }
             return state;
         }
+        internal static JObject ObserveCombat(PartyBase party)
+        {
+            var map = party?.MapEvent;
+            var siege = party?.MobileParty?.SiegeEvent ?? party?.Settlement?.SiegeEvent;
+            string PartyId(PartyBase p) => p?.MobileParty?.StringId ?? p?.Settlement?.StringId ?? "";
+            var participants = map?.InvolvedParties.ToList() ?? new List<PartyBase>();
+            return new JObject { ["schema"] = "reign-native-combat-observation-v1", ["available"] = party != null,
+                ["mapEvent"] = map == null ? null : new JObject { ["type"] = map.EventType.ToString(),
+                    ["startDay"] = map.BattleStartTime.ToDays, ["settlementId"] = map.MapEventSettlement?.StringId,
+                    ["isPlayerMapEvent"] = map.IsPlayerMapEvent, ["isNaval"] = map.IsNavalMapEvent,
+                    ["state"] = map.BattleState.ToString(), ["hasWinner"] = map.HasWinner,
+                    ["winningSide"] = map.HasWinner ? (JToken)new JValue(map.WinningSide.ToString()) : JValue.CreateNull(),
+                    ["finalized"] = map.IsFinalized, ["attackerPartyId"] = PartyId(map.AttackerSide?.LeaderParty),
+                    ["defenderPartyId"] = PartyId(map.DefenderSide?.LeaderParty),
+                    ["participantTotal"] = participants.Count, ["participantsTruncated"] = participants.Count > 64,
+                    ["participantPartyIds"] = new JArray(participants.Take(64).Select(PartyId)) },
+                ["siegeEvent"] = siege == null ? null : new JObject { ["settlementId"] = siege.BesiegedSettlement?.StringId,
+                    ["startDay"] = siege.SiegeStartTime.ToDays, ["besiegerPartyId"] = siege.BesiegerCamp?.LeaderParty?.StringId,
+                    ["isPlayerSiegeEvent"] = siege.IsPlayerSiegeEvent, ["readyToBeRemoved"] = siege.ReadyToBeRemoved,
+                    ["preparationComplete"] = siege.BesiegerCamp?.IsPreparationComplete,
+                    ["settlementUnderSiege"] = siege.BesiegedSettlement?.IsUnderSiege } };
+        }
+
         private static JToken ObservePublicMember(object value, string name)
         {
             // Only the fixed observation allowlist can expose native fields or getters.

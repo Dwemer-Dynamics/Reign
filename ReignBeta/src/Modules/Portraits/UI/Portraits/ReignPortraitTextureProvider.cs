@@ -9,17 +9,19 @@ namespace ReignBeta.UI.Portraits
         private readonly string _cacheKey;
         private readonly float _targetAspect;
         private readonly PortraitQualityTier _qualityTier;
+        private readonly bool _framedBust;
 
         public ReignPortraitTextureProvider(string cacheKey, float targetAspect, bool useZoomQuality)
             : this(cacheKey, targetAspect, useZoomQuality ? PortraitQualityTier.Portrait : PortraitQualityTier.Thumbnail)
         {
         }
 
-        public ReignPortraitTextureProvider(string cacheKey, float targetAspect, PortraitQualityTier qualityTier)
+        public ReignPortraitTextureProvider(string cacheKey, float targetAspect, PortraitQualityTier qualityTier, bool framedBust = false)
         {
             _cacheKey = cacheKey;
             _targetAspect = targetAspect;
             _qualityTier = qualityTier;
+            _framedBust = framedBust;
         }
 
         protected override Texture OnGetTextureForRender(TwoDimensionContext twoDimensionContext, string name)
@@ -28,6 +30,9 @@ namespace ReignBeta.UI.Portraits
             {
                 return null;
             }
+
+            if (_framedBust)
+                return TextureFactory.GetOrBuildFramedBust(_cacheKey, _targetAspect);
 
             // Normalize the rectangular source to the destination slot before
             // Gauntlet renders it so wide and square native thumbnails cannot

@@ -43,7 +43,9 @@ namespace ReignBeta.Integration
                 var values = response["playerApproaches"] as JObject;
                 // Older servers have no approach preferences and retain enabled defaults.
                 var options = new PlayerApproachOptions(key => values?[key]?.Type != JTokenType.Boolean || values.Value<bool>(key));
-                await ReignMainThread.InvokeAsync(() => { _approachOptions = options; _approachOptionsConfirmed = true; }).ConfigureAwait(false);
+                await ReignMainThread.InvokeAsync(() => { _approachOptions = options; _approachOptionsConfirmed = true;
+                    SetNpcLivesOptions(response["npcLives"] as JObject); SetRulerOptions(response["rulers"] as JObject);
+                    SetNewsOptions(response["announcements"] as JObject); }).ConfigureAwait(false);
             }
             catch (Exception ex) { ReignLog.Warn("Approach options refresh failed; retaining confirmed preferences: " + ex.Message); }
             finally { await ReignMainThread.InvokeAsync(() => _approachOptionsRefreshing = false).ConfigureAwait(false); }

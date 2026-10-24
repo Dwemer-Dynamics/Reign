@@ -130,6 +130,7 @@ namespace ReignBeta.UI
                 ScreenManager.TrySetFocus(_gauntletLayer);
                 RegisterActiveStateDisableRequest();
                 MouseVisible = true;
+                if (!_calibrationMode) ReignBeta.Campaign.ReignHeroKnowledge.MarkMet(_session.Record.GetAttendees());
                 Integration.ReignLog.Info("Opened social event screen eventId=" + _session.Record.EventId + ".");
             }
             catch (Exception ex)

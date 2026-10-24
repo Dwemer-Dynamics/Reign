@@ -475,54 +475,15 @@ namespace ReignBeta.Campaign
 
             if (!displayNotice) return receipts;
 
-            string originChoice = string.Equals(notice.OriginStance, "support_lords",
-                StringComparison.OrdinalIgnoreCase) ? "sided publicly with the involved lords"
-                : "refused the court and preserved foreign relations";
-            string targetChoice = string.Equals(notice.TargetStance, "support_lords",
-                StringComparison.OrdinalIgnoreCase) ? "sided publicly with the involved lords"
-                : "refused the court and preserved foreign relations";
-            string text = "[Bannerlord Reign — Political Pressure] " + notice.Headline
-                + "\n" + notice.Narrative + "\n"
-                + notice.OriginRulerName + " of " + notice.OriginKingdomName + " " + originChoice
-                + "; " + DescribePoliticalPressureShift(notice.OriginPressureBefore,
-                    notice.OriginPressureAfter) + ". "
-                + notice.TargetRulerName + " of " + notice.TargetKingdomName + " " + targetChoice
-                + "; " + DescribePoliticalPressureShift(notice.TargetPressureBefore,
-                    notice.TargetPressureAfter) + ".";
-            InformationManager.DisplayMessage(new InformationMessage(text,
-                string.Equals(notice.Polarity, "hostile", StringComparison.OrdinalIgnoreCase)
-                    ? Colors.Red : Colors.Green));
+            ReignNewsCampaignBehavior.Instance?.ForeignRuling(notice);
             AddBoundedProcessedId(_processedPressureNoticeIds, notice.IncidentId);
             return receipts;
         }
 
         private void ApplyClanConflictNotice(ReignClanConflictNotice notice)
         {
-            string winner = string.Equals(notice.WinningSide, "a",
-                StringComparison.OrdinalIgnoreCase) ? notice.ClanAName : notice.ClanBName;
-            string resolution = notice.MediationSucceeded
-                ? "The ruler's mediation brought the clans to an accord."
-                : "The ruler found for " + winner
-                    + "; the losing clan departed embittered by the judgment.";
-            string participants = "Petitioners for " + notice.ClanAName + ": "
-                + string.Join(", ", notice.InvolvedA) + ". Petitioners for "
-                + notice.ClanBName + ": " + string.Join(", ", notice.InvolvedB) + ".";
-            string text = "[Bannerlord Reign — Clan Conflict] " + notice.Headline
-                + "\n" + notice.Narrative + "\n"
-                + notice.RulerName + " of " + notice.KingdomName + " heard "
-                + notice.ClanAName + " against " + notice.ClanBName + ". "
-                + participants + " "
-                + resolution;
-            InformationManager.DisplayMessage(new InformationMessage(text,
-                notice.MediationSucceeded ? Colors.Green : Colors.Red));
+            ReignNewsCampaignBehavior.Instance?.ClanRuling(notice);
             AddBoundedProcessedId(_processedClanConflictNoticeIds, notice.IncidentId);
-        }
-
-        private static string DescribePoliticalPressureShift(int before, int after)
-        {
-            if (after > before) return "political pressure mounted";
-            if (after < before) return "political pressure eased";
-            return "political pressure held steady";
         }
 
         private static void AddBoundedProcessedId(List<string> values, string id)
@@ -578,7 +539,7 @@ namespace ReignBeta.Campaign
         private void TryShowNextAnnouncement()
         {
             if (ReignSaveSyncCampaignBehavior.IsNativeSaveInProgress
-                || ReignDiplomacyAnnouncementScreenManager.IsOpen || !CanOpenOnCampaignMap())
+                || !ReignServerClient.NewsOptionsConfirmed || ReignDiplomacyAnnouncementScreenManager.IsOpen || !CanOpenOnCampaignMap())
             {
                 return;
             }
@@ -594,6 +555,12 @@ namespace ReignBeta.Campaign
 
             if (next != null)
             {
+                InformationManager.DisplayMessage(new InformationMessage("[Reign Herald] " + next.Title + ": " + next.Summary + "\n" + next.Terms));
+                if (ReignServerClient.NewsOptionsConfirmed && !ReignServerClient.NewsOptions.Allows(Reign.Core.Contracts.World.ReignNewsCategories.Diplomacy))
+                {
+                    _ = AcknowledgeDiplomacyAnnouncementAndContinueAsync(next.EventId);
+                    return;
+                }
                 ReignDiplomacyAnnouncementScreenManager.Open(
                     next,
                     () => _ = AcknowledgeDiplomacyAnnouncementAndContinueAsync(

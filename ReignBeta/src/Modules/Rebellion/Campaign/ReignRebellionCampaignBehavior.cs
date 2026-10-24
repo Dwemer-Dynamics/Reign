@@ -7,6 +7,7 @@ using Newtonsoft.Json.Linq;
 using ReignBeta.Integration;
 using ReignBeta.Runtime;
 using ReignBeta.World;
+using ReignBeta.Shared.Rulers;
 using TaleWorlds.CampaignSystem;
 using TaleWorlds.CampaignSystem.Actions;
 using TaleWorlds.CampaignSystem.CharacterDevelopment;
@@ -105,6 +106,9 @@ namespace ReignBeta.Campaign
             _pledges = (_pledges ?? new List<ReignRebellionPledgeRecord>()).Where(x => x != null).ToList();
             _summonses = (_summonses ?? new List<ReignRebellionSummonsRecord>()).Where(x => x != null).ToList();
             _negotiations = (_negotiations ?? new List<ReignNegotiatedActionRecord>()).Where(x => x != null).ToList();
+            // Sealed saves skip initial world preparation. Repair their loaded
+            // history here as well, before any new preparation request is read.
+            if (dataStore.IsLoading) CloseResolvedPreparationPlots(_plots, _movements);
         }
 
         private void OnSessionLaunched(CampaignGameStarter starter)
@@ -121,6 +125,7 @@ namespace ReignBeta.Campaign
         {
             MigrateLegacyMovements();
             ReconcileAllMovements();
+            CloseResolvedPreparationPlots(_plots, _movements);
             TryShowNextPlayerJudgment();
         }
 
@@ -563,6 +568,32 @@ namespace ReignBeta.Campaign
             return _plots.LastOrDefault(x => x != null
                 && Same(x.PlayerHeroStringId, playerId)
                 && !IsTerminalPlotStatus(x.Status));
+        }
+
+        // Keep the preparation history, but do not let an already concluded war
+        // permanently block the player's next preparation. Also repairs old saves.
+        internal static int CloseResolvedPreparationPlots(
+            IEnumerable<ReignRebellionPlotRecord> plots,
+            IEnumerable<ReignRebellionMovementRecord> movements)
+        {
+            var resolved = (movements ?? Enumerable.Empty<ReignRebellionMovementRecord>())
+                .Where(x => x != null && (x.ResolutionApplied || Same(x.Stage, "resolved"))).ToList();
+            int closed = 0;
+            foreach (var plot in plots ?? Enumerable.Empty<ReignRebellionPlotRecord>())
+            {
+                if (plot == null || !Same(plot.Status, "active_rebellion")
+                    || string.IsNullOrWhiteSpace(plot.MovementId)) continue;
+                var movement = resolved.FirstOrDefault(x => Same(x.MovementId, plot.MovementId)
+                    && Same(x.LeaderHeroStringId, plot.PlayerHeroStringId)
+                    && Same(x.LeaderClanStringId, plot.PlayerClanStringId));
+                if (movement == null) continue;
+                plot.Status = "resolved";
+                plot.Resolution = !string.IsNullOrWhiteSpace(movement.Resolution)
+                    ? movement.Resolution : "rebellion_resolved";
+                plot.UpdatedDay = Math.Max(plot.UpdatedDay, movement.UpdatedDay);
+                closed++;
+            }
+            return closed;
         }
 
         /// <summary>
@@ -2168,6 +2199,13 @@ namespace ReignBeta.Campaign
             movement.ExecutionSnapshotJson = BuildExecutionSnapshot(movement, parent).ToString(Newtonsoft.Json.Formatting.None);
             movement.OriginalParentStrongholdIdsCsv = string.Join(",", Settlement.All
                 .Where(x => x?.IsFortification == true && x.MapFaction == parent).Select(x => x.StringId));
+            // Plan against final clan allegiance before native clan-change and
+            // war-declaration handlers can imprison newly hostile residents.
+            if (!EvacuateResidentsBeforeOutbreak(movement, parent))
+            {
+                ResolveWithoutMutation(movement, "failed_resident_escape");
+                return;
+            }
             Kingdom rebels = CreateRebelKingdom(movement);
             if (rebels == null)
             {
@@ -2201,6 +2239,110 @@ namespace ReignBeta.Campaign
                 + rebels.InformalName + " has begun a rebellion against " + parent.InformalName + "."));
         }
 
+        private bool EvacuateResidentsBeforeOutbreak(ReignRebellionMovementRecord movement, Kingdom parent)
+        {
+            var rebelClans = new HashSet<string>(MembersOf(movement)
+                .Where(x => Same(x.Side, "rebel")).Select(x => x.ClanStringId), StringComparer.OrdinalIgnoreCase);
+            List<Settlement> holdings = Settlement.All.Where(x => x?.IsFortification == true
+                && x.MapFaction == parent).ToList();
+            List<Hero> residents = holdings.SelectMany(x => x.HeroesWithoutParty).Where(x => x != null).Distinct().ToList();
+            List<ReignRebellionResidentEscape.Escape> plan = ReignRebellionResidentEscape.Plan(movement.MovementId,
+                residents.Select(hero => new ReignRebellionResidentEscape.Resident
+                {
+                    HeroId = hero.StringId,
+                    ClanId = hero.Clan?.StringId,
+                    SettlementId = hero.CurrentSettlement?.StringId,
+                    HomeSettlementId = hero.HomeSettlement?.StringId,
+                    IsRebel = rebelClans.Contains(hero.Clan?.StringId ?? string.Empty),
+                    IsParticipant = hero.Clan?.Kingdom == parent,
+                    IsNoble = hero.IsLord && !hero.IsWanderer && !hero.IsNotable,
+                    IsAlive = hero.IsAlive,
+                    IsPrisoner = hero.IsPrisoner || hero.PartyBelongedToAsPrisoner != null,
+                    HasParty = hero.PartyBelongedTo != null,
+                    IsPlayer = hero == Hero.MainHero
+                }), holdings.Select(settlement => new ReignRebellionResidentEscape.Stronghold
+                {
+                    SettlementId = settlement.StringId,
+                    OwnerClanId = settlement.OwnerClan?.StringId,
+                    IsRebel = rebelClans.Contains(settlement.OwnerClan?.StringId ?? string.Empty),
+                    IsSafe = settlement.SiegeEvent == null && settlement.Party.MapEvent == null
+                }));
+            var outcomes = new JArray();
+            bool success = true;
+            foreach (ReignRebellionResidentEscape.Escape escape in plan)
+            {
+                var outcome = new JObject
+                {
+                    ["heroId"] = escape.HeroId,
+                    ["originSettlementId"] = escape.OriginSettlementId,
+                    ["destinationSettlementId"] = escape.DestinationSettlementId,
+                    ["side"] = escape.IsRebel ? "rebel" : "loyalist",
+                    ["roll"] = escape.Roll,
+                    ["escaped"] = false
+                };
+                outcomes.Add(outcome);
+                if (!escape.Escapes) continue; // The native declaration owns capture.
+                Hero hero = FindHero(escape.HeroId);
+                if (hero == null || !hero.IsAlive || hero.IsPrisoner || hero.PartyBelongedToAsPrisoner != null
+                    || hero.PartyBelongedTo != null || hero == Hero.MainHero
+                    || !Same(hero.CurrentSettlement?.StringId, escape.OriginSettlementId))
+                {
+                    ReignLog.Warn("Rebellion resident escape preflight changed for " + escape.HeroId + ".");
+                    outcome["error"] = "resident_preflight_changed";
+                    success = false;
+                    break;
+                }
+                try
+                {
+                    Hero.CharacterStates previousState = hero.HeroState;
+                    bool preserveDormantState = hero.IsNotSpawned || hero.IsDisabled;
+                    if (hero.GovernorOf != null) ChangeGovernorAction.RemoveGovernorOf(hero);
+                    Settlement destination = holdings.FirstOrDefault(x => Same(x.StringId, escape.DestinationSettlementId)
+                        && x.MapFaction == parent && x.SiegeEvent == null && x.Party.MapEvent == null
+                        && rebelClans.Contains(x.OwnerClan?.StringId ?? string.Empty) == escape.IsRebel);
+                    if (destination != null && preserveDormantState)
+                    {
+                        // Native TeleportHeroAction activates dormant heroes.
+                        // Move resident children without changing their lifecycle.
+                        LeaveSettlementAction.ApplyForCharacterOnly(hero);
+                        EnterSettlementAction.ApplyForCharacterOnly(hero, destination);
+                    }
+                    else if (destination != null) TeleportHeroAction.ApplyImmediateTeleportToSettlement(hero, destination);
+                    else MakeHeroFugitiveAction.Apply(hero);
+                    bool escaped = hero.IsAlive && !hero.IsPrisoner && hero.PartyBelongedToAsPrisoner == null
+                        && hero.PartyBelongedTo == null && hero.GovernorOf == null
+                        && (destination == null ? hero.CurrentSettlement == null && hero.HeroState == Hero.CharacterStates.Fugitive
+                            : hero.CurrentSettlement == destination && (!preserveDormantState || hero.HeroState == previousState));
+                    if (!escaped) throw new InvalidOperationException("Native resident relocation was not applied.");
+                    outcome["escaped"] = true;
+                    outcome["destinationSettlementId"] = destination?.StringId ?? string.Empty;
+                    outcome["wentIntoHiding"] = destination == null;
+                    outcome["previousHeroState"] = previousState.ToString();
+                    outcome["heroState"] = hero.HeroState.ToString();
+                }
+                catch (Exception ex)
+                {
+                    // Never knowingly declare war over a failed planned escape.
+                    ReignLog.Warn("Rebellion resident escape failed for " + escape.HeroId + ": " + ex.Message);
+                    outcome["error"] = ex.Message;
+                    success = false;
+                    break;
+                }
+            }
+            JObject snapshot = ParseObject(movement.ExecutionSnapshotJson);
+            snapshot["residentEscape"] = new JObject
+            {
+                ["loyalistEscapePercent"] = ReignRebellionResidentEscape.LoyalistEscapePercent,
+                ["completed"] = success,
+                ["outcomes"] = outcomes
+            };
+            movement.ExecutionSnapshotJson = snapshot.ToString(Newtonsoft.Json.Formatting.None);
+            ReignLog.Info("Rebellion " + movement.MovementId + " evacuated "
+                + outcomes.Count(x => x.Value<bool>("escaped")) + " of " + plan.Count
+                + " threatened residents before declaration.");
+            return success;
+        }
+
         private Kingdom CreateRebelKingdom(ReignRebellionMovementRecord movement)
         {
             Kingdom parent = FindKingdom(movement.ParentKingdomStringId);
@@ -2228,6 +2370,9 @@ namespace ReignBeta.Campaign
         private void ReconcileCivilWar(ReignRebellionMovementRecord movement)
         {
             if (!IsCivilWar(movement)) return;
+            // A native heir transition may complete death before the judgment's
+            // political resolution resumes on the application tick.
+            if (ReignRulerCampaignBehavior.HoldsCivilWar(movement.MovementId)) return;
             Kingdom parent = FindKingdom(movement.ParentKingdomStringId);
             Kingdom rebels = FindKingdom(movement.RebelKingdomStringId);
             Hero rebelLeader = FindHero(movement.LeaderHeroStringId);
@@ -2253,13 +2398,13 @@ namespace ReignBeta.Campaign
             bool challengedRulerHeld = IsHeldByFaction(challengedRuler, rebels);
             UpdateLeadershipCaptureState(movement, rebelLeaderHeld,
                 challengedRulerHeld, now);
-            if (rebelLeaderHeld && LeadershipCaptureExpired(
+            if (!ReignRulerCampaignBehavior.Enabled(RulerOptions.CivilWars) && rebelLeaderHeld && LeadershipCaptureExpired(
                 movement.RebelLeaderCapturedDay, now))
             {
                 ResolveCivilWar(movement, false, "rebel_leader_captured");
                 return;
             }
-            if (challengedRulerHeld && LeadershipCaptureExpired(
+            if (!ReignRulerCampaignBehavior.Enabled(RulerOptions.CivilWars) && challengedRulerHeld && LeadershipCaptureExpired(
                 movement.ChallengedRulerCapturedDay, now))
             {
                 ResolveCivilWar(movement, true, "challenged_ruler_captured");
@@ -2276,6 +2421,57 @@ namespace ReignBeta.Campaign
                         "Civil war resumed after external peace.", movement.MovementId, string.Empty, true);
                 else DeclareWarAction.ApplyByRebellion(rebels, parent);
             }
+        }
+
+        internal void DescribeRulerJudgment(RulerJudgment judgment)
+        {
+            var movement = _movements.FirstOrDefault(m => IsCivilWar(m)
+                && ((m.LeaderHeroStringId == judgment.PrisonerId && m.ParentKingdomStringId == judgment.VictorKingdomId)
+                || (m.OriginalRulerHeroStringId == judgment.PrisonerId && m.RebelKingdomStringId == judgment.VictorKingdomId)));
+            if (movement == null) return;
+            judgment.CivilWar = true; judgment.MovementId = movement.MovementId;
+            judgment.RebelVictory = movement.OriginalRulerHeroStringId == judgment.PrisonerId;
+        }
+        internal void CompleteRulerJudgment(RulerJudgment judgment)
+        {
+            var movement = _movements.FirstOrDefault(m => m.MovementId == judgment.MovementId);
+            if (movement == null || movement.ResolutionApplied) return;
+            var parent = FindKingdom(movement.ParentKingdomStringId);
+            var rebels = FindKingdom(movement.RebelKingdomStringId);
+            var oldRuler = ReignRulerCampaignBehavior.HeroById(movement.OriginalRulerHeroStringId);
+            if (!judgment.RebelVictory)
+            {
+                foreach (var member in MembersOf(movement).Where(m => m.ClanStringId == ReignRulerCampaignBehavior.HeroById(judgment.PrisonerId)?.Clan?.StringId))
+                { member.FateApplied = true; member.FateOutcome = judgment.Verdict.ToString(); }
+                ResolveCivilWar(movement, false, "ruler_judgment"); return;
+            }
+            movement.ExecutionPhase = "resolving_ruler_judgment";
+            if (judgment.Verdict == RulerVerdict.Reunification)
+            {
+                if (oldRuler?.IsAlive == true)
+                {
+                    if (oldRuler.IsPrisoner) EndCaptivityAction.ApplyByReleasedAfterBattle(oldRuler);
+                    var heir = oldRuler.Clan.AliveLords.Where(h => h != oldRuler && !h.IsChild).OrderByDescending(h => h.Age).ThenBy(h => h.StringId).FirstOrDefault();
+                    if (heir != null) ChangeClanLeaderAction.ApplyWithSelectedNewLeader(oldRuler.Clan, heir);
+                }
+                if (parent.IsAtWarWith(rebels)) MakePeaceAction.Apply(parent, rebels);
+                foreach (var clan in rebels.Clans.ToList()) MoveClanToKingdom(clan, parent);
+                var claimant = FindClan(movement.LeaderClanStringId);
+                ChangeRulingClanAction.Apply(parent, claimant);
+                if (rebels.Clans.Count == 0) DestroyKingdomAction.Apply(rebels);
+                movement.Resolution = "reunification";
+            }
+            else
+            {
+                if (judgment.Verdict == RulerVerdict.Independence)
+                {
+                    if (oldRuler?.IsPrisoner == true) EndCaptivityAction.ApplyByReleasedAfterBattle(oldRuler);
+                    if (parent.IsAtWarWith(rebels)) MakePeaceAction.Apply(parent, rebels);
+                }
+                movement.Resolution = judgment.Verdict == RulerVerdict.RebelExecution ? "independence_execution" : "recognized_independence";
+            }
+            movement.WinningSide = "rebel"; movement.WinningLeaderHeroStringId = movement.LeaderHeroStringId;
+            movement.ResolutionCause = "ruler_judgment"; FinalizeResolution(movement);
         }
 
         private void OnHeroPrisonerTaken(PartyBase captor, Hero prisoner)
@@ -2346,14 +2542,20 @@ namespace ReignBeta.Campaign
             if (rebelLeader) movement.RebelLeaderCapturedDay = next;
             else movement.ChallengedRulerCapturedDay = next;
             movement.UpdatedDay = now;
+            Hero capturedLeader = FindHero(rebelLeader ? movement.LeaderHeroStringId : movement.OriginalRulerHeroStringId);
+            ReignNewsCampaignBehavior.Instance?.Capture(capturedLeader, capturedLeader?.PartyBelongedToAsPrisoner, rebelLeader);
             EmitHistory(movement,
                 rebelLeader ? "civil_war_leader_captured" : "civil_war_ruler_captured",
                 "civil_war",
                 rebelLeader ? movement.LeaderHeroStringId
                     : movement.OriginalRulerHeroStringId,
-                rebelLeader
-                    ? "The rebel leader was captured; the rebellion has three campaign days to secure a rescue or escape."
-                    : "The challenged ruler was captured; the loyalists have three campaign days to secure a rescue or escape.",
+                ReignRulerCampaignBehavior.Enabled(RulerOptions.CivilWars)
+                    ? (rebelLeader
+                        ? "The rebel leader was captured; an escape or rescue may still change the outcome of the civil war."
+                        : "The challenged ruler was captured; an escape or rescue may still change the outcome of the civil war.")
+                    : (rebelLeader
+                        ? "The rebel leader was captured; the rebellion has three campaign days to secure a rescue or escape."
+                        : "The challenged ruler was captured; the loyalists have three campaign days to secure a rescue or escape."),
                 false);
         }
 
@@ -2367,6 +2569,7 @@ namespace ReignBeta.Campaign
         private void OnHeroKilled(Hero victim, Hero killer, KillCharacterAction.KillCharacterActionDetail detail, bool showNotification)
         {
             if (victim == null) return;
+            if (ReignRulerCampaignBehavior.Instance?.ApplyingNative == true) return;
             foreach (ReignRebellionMovementRecord movement in _movements.Where(IsCivilWar).ToList())
             {
                 if (Same(movement.LeaderHeroStringId, victim.StringId))
@@ -2569,7 +2772,13 @@ namespace ReignBeta.Campaign
             }
             else
             {
-                if (!CampaignOptions.IsLifeDeathCycleDisabled)
+                if (ReignRulerCampaignBehavior.Enabled(RulerOptions.CivilWars) && !CampaignOptions.IsLifeDeathCycleDisabled)
+                {
+                    ImprisonByVictor(victor, defeated);
+                    ReignRulerCampaignBehavior.Instance.ScheduleDefeatedLord(defeated, victor, movement.MovementId);
+                    outcome = "execution_scheduled";
+                }
+                else if (!CampaignOptions.IsLifeDeathCycleDisabled)
                 {
                     if (defeated.IsPrisoner) EndCaptivityAction.ApplyByReleasedAfterBattle(defeated);
                     KillCharacterAction.ApplyByExecution(defeated, victor, true, defeated != Hero.MainHero);
@@ -2632,6 +2841,7 @@ namespace ReignBeta.Campaign
             movement.ExecutionPhase = "verified";
             movement.UpdatedDay = CurrentDay();
             movement.CooldownUntilDay = Math.Max(movement.CooldownUntilDay, CurrentDay() + RealmCooldownDays);
+            CloseResolvedPreparationPlots(_plots, _movements);
             EmitHistory(movement, "civil_war_resolved", "completed", movement.WinningLeaderHeroStringId,
                 "The rebellion ended in " + movement.Resolution.Replace('_', ' ')
                     + " because " + (movement.ResolutionCause ?? string.Empty).Replace('_', ' ') + ".", false);
@@ -2648,6 +2858,7 @@ namespace ReignBeta.Campaign
             movement.ResolutionApplied = true;
             movement.ExecutionPhase = "failed";
             movement.CooldownUntilDay = CurrentDay() + RealmCooldownDays;
+            CloseResolvedPreparationPlots(_plots, _movements);
         }
 
         private void MigrateLegacyMovements()

@@ -3,6 +3,7 @@ using System;
 using System.Threading.Tasks;
 using Newtonsoft.Json.Linq;
 using ReignBeta.Integration;
+using ReignBeta.Runtime;
 using ReignBeta.UI;
 #if !REIGN_EXCLUDE_COURT
 using ReignBeta.Court;
@@ -649,6 +650,18 @@ namespace ReignBeta.Campaign
 
         private async Task ReleaseCampaignAsync()
         {
+            // A saved readiness seal skips one-time foundations, but the calendar is
+            // process-local and Save Sync resets it while restoring the snapshot.
+            // Rehydrate only after the load/timeline barriers, before releasing time.
+            await ReignMainThread.InvokeAsync(() =>
+            {
+                if (!ReignCalendarService.IsReady)
+                    ReignCalendarService.InitializeForCurrentCampaign();
+                if (!ReignCalendarService.IsReady)
+                    throw new InvalidOperationException("The restored campaign calendar is not ready.");
+                ReignBeta.Government.ReignGovernmentCampaignBehavior.Instance?.RestoreSessionCalendar();
+                return true;
+            }).ConfigureAwait(false);
             ReignInitializationReleaseToken token;
             if (!ReignCampaignInitializationGate.TryCreateReleaseToken(
                 _generationId, _state, out token)

@@ -85,10 +85,12 @@ public static class CampaignTestTools
         int timeoutSeconds = 7200,
         [Description("Queue catch-up timeout in seconds, from 60 through 3600.")]
         int catchUpTimeoutSeconds = 900,
+        [Description("Preserve automatic government news for player observation. Default false; requires checkpointMode none and manual reading/acknowledgment before advancement can continue.")]
+        bool observeGovernmentNews = false,
         CancellationToken cancellationToken = default)
     {
         return service.AdvanceAsync(runId, confirmation, days, targetDay,
-            checkpointMode, timeoutSeconds, catchUpTimeoutSeconds, cancellationToken);
+            checkpointMode, timeoutSeconds, catchUpTimeoutSeconds, cancellationToken, observeGovernmentNews);
     }
 
     [McpServerTool(Name = "reign_stop_campaign_test", ReadOnly = false,
@@ -217,6 +219,57 @@ public sealed class CampaignTestService
             throw new InvalidOperationException("The feature test campaign does not match the guarded campaign-test enrollment.");
         await VerifyActiveOwnedSaveAsync(state, cancellationToken).ConfigureAwait(false);
         return CampaignTestAuthorization.From(state);
+    }
+
+    // Paused action fixtures may need a field encounter. Autonomous advancement
+    // continues to use RequireArmedOwnedSaveAsync and its safe-settlement gate.
+    public async Task<CampaignTestAuthorization> RequireArmedOwnedPausedActionSaveAsync(string runId,
+        string expectedCampaignId, CancellationToken cancellationToken)
+    {
+        CampaignTestState state = RequireArmed(runId);
+        expectedCampaignId = RequiredId(expectedCampaignId, nameof(expectedCampaignId));
+        if (!string.Equals(state.CampaignId, expectedCampaignId, StringComparison.OrdinalIgnoreCase))
+            throw new InvalidOperationException("The feature test campaign does not match the guarded campaign-test enrollment.");
+        ControllerCall snapshot = await SnapshotAsync(state, cancellationToken).ConfigureAwait(false);
+        ValidatePausedActionSnapshot(state, snapshot);
+        return CampaignTestAuthorization.From(state);
+    }
+
+    internal static void ValidatePausedActionSnapshot(CampaignTestState state, ControllerCall snapshot)
+    {
+        ValidateSnapshot(state, snapshot, allowBaseline: false, requireSafeSettlement: false);
+        if (!string.Equals(snapshot.FindString("activeSaveName"), state.CurrentSaveName, StringComparison.Ordinal))
+            throw new InvalidOperationException("Paused action tests require the exact enrolled Current save.");
+        if (!string.Equals(snapshot.FindString("timeMode"), "Stop", StringComparison.Ordinal))
+            throw new InvalidOperationException("Paused action tests require stopped native campaign time.");
+    }
+
+    public void RequireRetainedRecoveryCheckpoint(CampaignTestAuthorization authorization)
+    {
+        lock (StateGate)
+            RequireRetainedRecoveryCheckpoint(ReadState(authorization.CampaignTestRunId), authorization);
+    }
+
+    internal static void RequireRetainedRecoveryCheckpoint(CampaignTestState state,
+        CampaignTestAuthorization authorization)
+    {
+        if (!state.Armed || CampaignTestAuthorization.From(state) != authorization
+            || string.IsNullOrWhiteSpace(state.SavePrefix)
+            || state.CurrentSaveName != state.SavePrefix + "_Current"
+            || string.Equals(state.CurrentSaveName, state.BaselineSaveName, StringComparison.OrdinalIgnoreCase)
+            || !state.Checkpoints.Contains(state.CurrentSaveName, StringComparer.OrdinalIgnoreCase))
+            throw new InvalidOperationException("Siege setup requires the exact armed run-owned Current recovery checkpoint.");
+        bool saved = state.Events.Any(e =>
+        {
+            if (e.Operation != "checkpoint" || e.Evidence is null) return false;
+            JsonElement evidence = JsonSerializer.SerializeToElement(e.Evidence);
+            return evidence.ValueKind == JsonValueKind.Object
+                && evidence.TryGetProperty("ok", out var ok) && ok.ValueKind == JsonValueKind.True
+                && evidence.TryGetProperty("activeSaveName", out var name) && name.ValueKind == JsonValueKind.String
+                && string.Equals(name.GetString(), state.CurrentSaveName, StringComparison.OrdinalIgnoreCase);
+        });
+        if (!saved)
+            throw new InvalidOperationException("Save a drained Current checkpoint before preparing a siege fixture.");
     }
 
     public IReadOnlyDictionary<string, object?> Prepare(string campaignId, string timelineId,
@@ -427,7 +480,8 @@ public sealed class CampaignTestService
 
     public async Task<IReadOnlyDictionary<string, object?>> AdvanceAsync(string runId,
         string confirmation, double? days, double? targetDay, string checkpointMode,
-        int timeoutSeconds, int catchUpTimeoutSeconds, CancellationToken cancellationToken)
+        int timeoutSeconds, int catchUpTimeoutSeconds, CancellationToken cancellationToken,
+        bool observeGovernmentNews = false)
     {
         RequireControl(confirmation, "advance Reign campaign test on disposable save");
         if (days.HasValue == targetDay.HasValue)
@@ -437,6 +491,8 @@ public sealed class CampaignTestService
         checkpointMode = (checkpointMode ?? string.Empty).Trim().ToLowerInvariant();
         if (checkpointMode is not "none" and not "rolling")
             throw new ArgumentException("checkpointMode must be none or rolling.", nameof(checkpointMode));
+        if (observeGovernmentNews && checkpointMode == "rolling")
+            throw new ArgumentException("Government-news observation requires checkpointMode none (--no-save).");
         timeoutSeconds = InputGuard.Range(timeoutSeconds, nameof(timeoutSeconds), 120, 21600);
         catchUpTimeoutSeconds = InputGuard.Range(catchUpTimeoutSeconds, nameof(catchUpTimeoutSeconds), 60, 3600);
         CampaignTestState state = RequireArmed(runId);
@@ -450,6 +506,7 @@ public sealed class CampaignTestService
         else { args.Add("--target-day"); args.Add(targetDay!.Value.ToString(System.Globalization.CultureInfo.InvariantCulture)); }
         if (checkpointMode == "rolling") { args.Add("--save"); args.Add(state.CurrentSaveName); }
         else args.Add("--no-save");
+        if (observeGovernmentNews) args.Add("--observe-government-news");
         ControllerCall result;
         IReadOnlyDictionary<string, object?>? safetyRecovery = null;
         try
@@ -461,7 +518,7 @@ public sealed class CampaignTestService
         catch (OperationCanceledException)
         {
             safetyRecovery = await RecoverInterruptedAdvanceAsync(state,
-                catchUpTimeoutSeconds).ConfigureAwait(false);
+                catchUpTimeoutSeconds, observeGovernmentNews).ConfigureAwait(false);
             lock (StateGate)
             {
                 state = ReadState(runId);
@@ -478,7 +535,7 @@ public sealed class CampaignTestService
         if (!result.Ok)
         {
             safetyRecovery = await RecoverInterruptedAdvanceAsync(state,
-                catchUpTimeoutSeconds).ConfigureAwait(false);
+                catchUpTimeoutSeconds, observeGovernmentNews).ConfigureAwait(false);
         }
         lock (StateGate)
         {
@@ -754,7 +811,7 @@ public sealed class CampaignTestService
             "--timeline", state.TimelineId }, 180, cancellationToken);
     }
 
-    private static void ValidateSnapshot(CampaignTestState state, ControllerCall snapshot,
+    internal static void ValidateSnapshot(CampaignTestState state, ControllerCall snapshot,
         bool allowBaseline, bool requireSafeSettlement = true)
     {
         if (!snapshot.Ok) throw new InvalidOperationException("The native campaign snapshot failed.");
@@ -845,7 +902,7 @@ public sealed class CampaignTestService
     }
 
     private async Task<IReadOnlyDictionary<string, object?>> RecoverInterruptedAdvanceAsync(
-        CampaignTestState state, int catchUpTimeoutSeconds)
+        CampaignTestState state, int catchUpTimeoutSeconds, bool observeGovernmentNews = false)
     {
         IReadOnlyDictionary<string, object?> cancellation =
             await CancelActivePassiveWorldRunAsync(state).ConfigureAwait(false);
@@ -859,9 +916,11 @@ public sealed class CampaignTestService
             };
         }
 
-        ControllerCall drain = await RunControllerAsync(new[] { "world-test", "drain",
+        var drainArgs = new List<string> { "world-test", "drain",
             "--campaign", state.CampaignId, "--timeline", state.TimelineId,
-            "--catch-up-timeout", catchUpTimeoutSeconds.ToString() },
+            "--catch-up-timeout", catchUpTimeoutSeconds.ToString() };
+        if (observeGovernmentNews) drainArgs.Add("--observe-government-news");
+        ControllerCall drain = await RunControllerAsync(drainArgs,
             catchUpTimeoutSeconds + 180, CancellationToken.None).ConfigureAwait(false);
         return new Dictionary<string, object?>
         {

@@ -584,7 +584,8 @@
           "id": "harness",
           "ownership": [
             "ReignServer/tests/ReignLiveTest/Features/Dialogue/**",
-            "ReignServer/tests/ReignLiveTest/scenarios/sovereign-demeanor-*.json"
+            "ReignServer/tests/ReignLiveTest/scenarios/sovereign-demeanor-*.json",
+            "ReignServer/tests/ReignLiveTest/scenarios/personal-gossip-*.json"
           ],
           "projects": [
             "live-test",

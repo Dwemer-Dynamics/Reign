@@ -1,6 +1,8 @@
 # Personal NPC gossip: autonomous launch acceptance
 
-Status: proposed for user acceptance on 2026-10-04. Execution and goal creation begin after acceptance. This document is an execution contract, not a claim that native testing has passed.
+Status: accepted and goal active on 2026-10-19. The user selected the exact save `test` as the protected baseline and authorized bounded environment modification for efficient native testing. This document is an execution contract, not a claim that native testing has passed.
+
+2026-10-20 execution clarification: `highMemoryMode` has been retired by the shipping provider settings. Preserve the memory-coverage intent using ordinary versus accumulated-history workloads on the actual shipping retrieval path; a retired/no-op toggle cannot count as a separate variant. Keep the 24-instance risk-based schedule, source-audience/future filtering requirements and all required assertions. Record effective retrieval settings and history depth per instance. Native progress and failures are retained under `.codex-build/personal-gossip-launch/gossip_launch_20261019_01a0e0a2/`; no readiness claim follows from policy-probe passes.
 
 ## Objective and completion condition
 
@@ -14,7 +16,7 @@ The goal has no inferred token budget. It continues across ordinary interruption
 
 ## Acceptance parameters and standing authority
 
-Recommended immutable baseline: **`BaseThree`**, physically present and matched to campaign `l0jMsyposuhg` in the read-only inventory inspected on 2026-10-04. Accepting this plan selects that exact baseline unless the user names another save. Recheck the physical file, campaign, timeline, safety and backup at execution; do not substitute a different save if it disappeared or changed identity. The selected timeline comes from the actual baseline load, not another save's telemetry. Do not use another task's `ReignTest_*_Current` as the baseline.
+Accepted immutable baseline: **`test`**, explicitly selected by the user on 2026-10-19, superseding the October 4 `BaseThree` proposal. Recheck the physical file, campaign, timeline, safety and backup at execution; do not substitute a different save if it disappeared or changed identity. The selected timeline comes from the actual baseline load, not another save's telemetry. Do not use another task's `ReignTest_*_Current` as the baseline.
 
 Acceptance authorizes the following within that disposable campaign: native and provider-backed testing, bounded fixture setup, production conversations, campaign advancement, game/server stop/start/restart, scoped fault injection, code/harness fixes, canonical validation, local deployment and rollback, and exact run-owned fixture/save cleanup. No further routine approval is needed for those steps. Preserve campaign, provider-cost and shared-resource guards.
 
@@ -95,7 +97,7 @@ Hearing itself creates **zero** relationship, intimacy, consent, action or reput
 
 ## Phase 5: natural conversations and varied playstyles
 
-Run **96 base real-provider cases**: eight story families × six playstyles × normal/High Memory. If preflight discovers another supported user-selectable memory mode, expand its relevant cases rather than claiming coverage from these two. Each base case owns its required subepisodes and variants; multiple episodes never share a rerolled topic.
+The full catalog contains **96 candidate real-provider variants**: eight story families × six playstyles × normal/High Memory. The user's 2026-10-19 pass-once instruction supersedes running that entire Cartesian product. Start with 24 balanced risk-based instances: for story index s=0..7 and variant v=0..2, choose playstyle index (s+2v)%6 and memory-mode index (s+v)%2. This covers every story in both modes and every playstyle in both modes. Coalesce assertions from each successful flow. Add a candidate only for a concrete uncovered interaction, relevant failure or worthwhile different behavior; record that reason first. If another supported user-selectable memory mode exists, test its materially different evidence path. Cases own their required subepisodes; multiple episodes never share a rerolled topic.
 
 | Playstyle | How the simulated player behaves |
 |---|---|
@@ -123,7 +125,7 @@ The player never says “output gossipSignals,” supplies stage rolls, names a 
 
 Use neutral recipient probes before arrival (“Good afternoon. How has your day been?”), not leading questions that reveal the source fact. Separate sender and recipient perspectives. Player behavior cannot establish private NPC knowledge just by guessing a rumor. Some cases must allow spontaneous discussion after delivery; others ask explicitly. Correct silence under a failed raise roll is not a failure.
 
-Real-provider cases may control an otherwise permitted branch to avoid waiting for chance; they must retain real extraction and wording. Also run three default-setting journeys—sociable court visitor, private family/romance player, and mobile pragmatic player—without roll overrides. At least 12 substantive conversations per journey, with prescribed ordinary activities and valid no-gossip controls, are recorded. Inspect every accepted topic's predicted versus actual outcome rather than requiring a lucky number of gossip messages.
+Real-provider cases may control an otherwise permitted branch to avoid waiting for chance; they must retain real extraction and wording. The three default-setting journeys—sociable court visitor, private family/romance player, and mobile pragmatic player—are the same runs as the three soaks below, not additional copies. Include at least 12 substantive conversations in each journey, ordinary activities and valid no-gossip controls. Inspect each accepted topic's predicted versus actual outcome rather than requiring a lucky number of messages.
 
 ## Phase 6: native controls and visible player experience
 
@@ -159,16 +161,20 @@ The feature's readiness evaluator returns true only when:
 2. Critical safety/correctness is **100%**: no premature/private knowledge, wrong or ineligible recipient, unauthorized disclosure/fabrication, factual/source corruption, duplicate delivery/effect, invalid identity/timeline write, or unprotected save mutation.
 3. Real-provider contextual/extraction correctness is **≥98%** across required instances; naturalness/personality/relevance rubric is **≥95%** overall, with every playstyle ≥90%. Noncritical failures are retained individually; no averaging hides a critical failure. All three gossip types, impression signs, named family consultation and rare distortion severities have real-provider evidence.
 4. Default journeys, soaks, native input and performance gates pass with actual production histories. No fixture output or override is counted as a default observation.
-5. Final canonical validation/hygiene and local deployment hashes/health pass. Every source/dependency change invalidates affected certificates. Final critical Ira/Rhagaea, locality, confidentiality/fabrication, outbound/return timing and fresh-process save/reload flows rerun on the final deployed candidate. Carry forward other passes only through an explicit verified dependency compatibility check; absent that capability, rerun them.
+5. Final canonical validation/hygiene and local deployment hashes/health pass. Every source/dependency change invalidates affected certificates. Critical Ira/Rhagaea, locality, confidentiality/fabrication, outbound/return timing and fresh-process save/reload flows must have valid evidence for the final deployed candidate. Reuse their existing passes when the tested candidate or verified dependency fingerprints are compatible; do not repeat a final flow merely to call it final. A deployment change may justify one targeted startup/integration smoke, not automatic repetition of every feature case. Every retest names its changed dependency, missing evidence or distinct worthwhile variation.
 6. Temporary fixtures/overrides, provider/model overrides, UI probes, auto-save changes and run leases are removed/restored; baseline and unrelated saves/portraits are unchanged; full evidence and replay report are retained; final runtime state matches this plan.
 
 This is measured launch acceptance, not a guarantee of every future generated sentence. Report tested models/configurations and residual noncritical limits explicitly. Mark the existing roadmap item complete only when these feature requirements actually pass; create separate residual follow-up notes rather than deleting history.
 
 ## Autonomous execution and repair loop
 
+2026-10-23 execution checkpoint: 133/233 required native assertions passed. Retain `loaded206-certificate.json` for the actual mild malicious branch and `unavailable213-certificate.json` for active Ira's exclusion of her mentioned, travelling mother at family affinity0. Teleporting characters and temporarily keeping them available is explicitly authorized by the user for efficient setup; preserve exact fixture ownership and recovery. Setup cannot fabricate accepted dialogue, motives, consent or replies, and cannot replace campaign delivery delays. The known-answer family consultation and remaining launch gates are still in progress.
+
 Execution order: preparation → missing harness/contracts → validated deployment → deterministic native cases → real-provider/playstyle matrix → native input → persistence/faults → default journeys/soaks/performance → final-candidate regressions → restore/cleanup → readiness report.
 
 Checkpoint the durable case ledger and Project Memory after every material milestone and before any restart. A checkpoint names completed IDs, failures, exact fingerprints/evidence, current runtime/save state, used/remaining provider budget and next action. Goal continuation resumes the same run and skips compatible completed cases; it does not reset the campaign or rerun passed work merely because the chat restarted.
+
+The user's 2026-10-19 instruction makes pass-once scheduling authoritative: prove a function, retain its certificate and move on. Each expanded case declares the function/requirement and dependencies it proves. Coalesce cases that establish the same assertion under identical prerequisites; retain additional runs only for distinct boundaries, audiences, routes, privacy/intent branches, persistence/fault states or materially different playstyles. A source, fixture, oracle or provider change invalidates only the demonstrated dependency closure. Record the reason before every retest and reuse sufficient canonical suite evidence instead of launching a duplicate focused suite. Unchanged successes are never rerun to consume a target case count, improve a sampled percentage, compensate for a later chat turn, or wait for a different random outcome.
 
 For a failure: pause native time, retain the smallest complete reproduction, distinguish harness/infrastructure failure from product/model failure, repair the responsible code or capability, obtain its exact-path validation plan, run canonical checks, deploy validated artifacts under managed lifecycle, invalidate affected certificates, and rerun the failing case plus dependent controls. A revised fixture, prompt or oracle must retain the old failure and explain the corrected requirement. Do not force a passing response or relax an acceptance assertion to finish.
 

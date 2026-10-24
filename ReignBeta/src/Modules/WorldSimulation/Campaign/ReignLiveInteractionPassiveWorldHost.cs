@@ -20,6 +20,29 @@ namespace ReignBeta.Campaign
     public static partial class ReignLiveInteractionTestHost
     {
         private const int RestoreWindowCommand = 9;
+        private static ReignPassiveWorldAdvanceBoundary _passiveWorldAdvanceBoundary;
+
+        private static void EnforcePassiveWorldAdvanceBoundary(TaleWorlds.CampaignSystem.Campaign campaign)
+        {
+            var boundary = _passiveWorldAdvanceBoundary;
+            if (boundary == null) return;
+            if (!boundary.Owns(campaign, _activeRunId))
+            {
+                _passiveWorldAdvanceBoundary = null;
+                return;
+            }
+            // ApplicationTick runs even while an HTTP cancellation/status request waits.
+            // Keep the clock stopped until this exact command has finished its cleanup.
+            if (boundary.Observe(campaign, _activeRunId, CampaignTime.Now.ToDays, DateTime.UtcNow))
+                PausePassiveWorldCampaign(campaign);
+        }
+
+        private static void PausePassiveWorldCampaign(TaleWorlds.CampaignSystem.Campaign campaign)
+        {
+            if (campaign == null) return;
+            campaign.TimeControlMode = CampaignTimeControlMode.Stop;
+            ReignDiplomacyAnnouncementScreenManager.KeepCampaignPausedForLiveHarness();
+        }
         private const string NativeDiplomacyNoticeConfirmation =
             "acknowledge Bannerlord diplomacy notices on disposable save";
         private static readonly FieldInfo NativeMapNoticesField =
@@ -55,7 +78,7 @@ namespace ReignBeta.Campaign
             if (operation == "world_advance")
                 return await PassiveWorldAdvanceAsync(command).ConfigureAwait(false);
             if (operation == "world_acknowledge_diplomacy_announcement")
-                return await PassiveWorldAcknowledgeDiplomacyAnnouncementAsync()
+                return await PassiveWorldAcknowledgeDiplomacyAnnouncementAsync(command)
                     .ConfigureAwait(false);
             if (operation == "world_acknowledge_native_diplomacy_notices")
                 return await PassiveWorldAcknowledgeNativeDiplomacyNoticesAsync(command)
@@ -73,7 +96,13 @@ namespace ReignBeta.Campaign
                     switch (operation)
                     {
                         case "world_time_control":
-                            return SocialBalanceTimeControl(command, "passive-world test campaign");
+                        {
+                            LiveCommandResult result = SocialBalanceTimeControl(command, "passive-world test campaign");
+                            var campaign = TaleWorlds.CampaignSystem.Campaign.Current;
+                            if (result.Status == "completed" && campaign?.TimeControlMode == CampaignTimeControlMode.Stop)
+                                PausePassiveWorldCampaign(campaign);
+                            return result;
+                        }
                         case "world_snapshot":
                             return PassiveWorldSnapshot();
                         default:
@@ -99,193 +128,238 @@ namespace ReignBeta.Campaign
             int timeoutSeconds = Math.Max(30,
                 Math.Min(21600, command.Value<int?>("timeoutSeconds") ?? 7200));
             DateTime deadline = DateTime.UtcNow.AddSeconds(timeoutSeconds);
+            ReignPassiveWorldAdvanceBoundary boundary = null;
 
-            int focusAttempts = 1;
-            int focusSuccesses = TryFocusBannerlordWindowForLiveAdvance() ? 1 : 0;
-            int escapeMenuRecoveryCount = 0;
+            try
+            {
+                int focusAttempts = 1;
+                int focusSuccesses = TryFocusBannerlordWindowForLiveAdvance() ? 1 : 0;
+                int escapeMenuRecoveryCount = 0;
 
-            _activeMode = "passive_world";
-            _autoAcknowledgeDiplomacyAnnouncements = true;
-            JObject startCommand = new JObject(command)
-            {
-                ["timeMode"] = "fast",
-                ["settlementWait"] = true,
-                ["autoAcknowledgeDiplomacyAnnouncements"] = true
-            };
-            LiveCommandResult started = await ReignMainThread.InvokeAsync(() =>
-            {
-                if (CloseNativeMapEscapeMenuIfOpen()) escapeMenuRecoveryCount++;
-                return SocialBalanceTimeControl(startCommand,
-                    "passive-world test campaign");
-            }).ConfigureAwait(false);
-            if (started.Status != "completed") return started;
-
-            double currentDay = startDay;
-            int announcementsAcknowledged = 0;
-            int kingdomEventAnnouncementsAcknowledged = 0;
-            int nativeDiplomacyNoticesAcknowledged = 0;
-            int mailInquiriesAcknowledged = 0;
-            int timeModeReassertions = 0;
-            double lastProgressDay = startDay;
-            DateTime lastProgressUtc = DateTime.UtcNow;
-            DateTime nextFocusRecoveryUtc = DateTime.UtcNow.AddSeconds(2);
-            DateTime nextCancellationCheckUtc = DateTime.MinValue;
-            while (currentDay + 0.000001d < targetDay)
-            {
-                if (DateTime.UtcNow >= nextCancellationCheckUtc)
+                _activeMode = "passive_world";
+                _autoAcknowledgeDiplomacyAnnouncements = true;
+                JObject startCommand = new JObject(command)
                 {
-                    nextCancellationCheckUtc = DateTime.UtcNow.AddMilliseconds(500);
-                    string runId = command.Value<string>("runId") ?? string.Empty;
-                    try
+                    ["timeMode"] = "fast",
+                    ["settlementWait"] = true,
+                    ["autoAcknowledgeDiplomacyAnnouncements"] = true
+                };
+                LiveCommandResult started = await ReignMainThread.InvokeAsync(() =>
+                {
+                    if (CloseNativeMapEscapeMenuIfOpen()) escapeMenuRecoveryCount++;
+                    LiveCommandResult startResult = SocialBalanceTimeControl(startCommand,
+                        "passive-world test campaign");
+                    if (startResult.Status == "completed")
                     {
-                        JObject status = await ReignServerClient
-                            .GetLiveTestRunStatusAsync(runId).ConfigureAwait(false);
-                        if (status.Value<bool?>("cancelRequested") == true
-                            || string.Equals(status.Value<string>("status"),
-                                "cancelled", StringComparison.OrdinalIgnoreCase))
+                        // Arm only after the existing disposable-campaign checks pass,
+                        // in the same main-thread callback that starts native waiting.
+                        boundary = new ReignPassiveWorldAdvanceBoundary(
+                            TaleWorlds.CampaignSystem.Campaign.Current,
+                            command.Value<string>("runId"), targetDay, deadline);
+                        _passiveWorldAdvanceBoundary = boundary;
+                        EnforcePassiveWorldAdvanceBoundary(TaleWorlds.CampaignSystem.Campaign.Current);
+                    }
+                    return startResult;
+                }).ConfigureAwait(false);
+                if (started.Status != "completed") return started;
+
+                double currentDay = startDay;
+                int announcementsAcknowledged = 0;
+                int kingdomEventAnnouncementsAcknowledged = 0;
+                int nativeDiplomacyNoticesAcknowledged = 0;
+                int mailInquiriesAcknowledged = 0;
+                int timeModeReassertions = 0;
+                var governmentNewsObserved = new HashSet<string>(StringComparer.Ordinal);
+                double lastProgressDay = startDay;
+                DateTime lastProgressUtc = DateTime.UtcNow;
+                DateTime nextFocusRecoveryUtc = DateTime.UtcNow.AddSeconds(2);
+                DateTime nextCancellationCheckUtc = DateTime.MinValue;
+                while (currentDay + 0.000001d < targetDay)
+                {
+                    if (DateTime.UtcNow >= nextCancellationCheckUtc)
+                    {
+                        nextCancellationCheckUtc = DateTime.UtcNow.AddMilliseconds(500);
+                        string runId = command.Value<string>("runId") ?? string.Empty;
+                        try
                         {
-                            await ReignMainThread.InvokeAsync(() =>
+                            JObject status = await ReignServerClient
+                                .GetLiveTestRunStatusAsync(runId).ConfigureAwait(false);
+                            if (status.Value<bool?>("cancelRequested") == true
+                                || string.Equals(status.Value<string>("status"),
+                                    "cancelled", StringComparison.OrdinalIgnoreCase))
                             {
-                                TaleWorlds.CampaignSystem.Campaign campaign =
-                                    TaleWorlds.CampaignSystem.Campaign.Current;
-                                if (campaign != null)
-                                    campaign.TimeControlMode = CampaignTimeControlMode.Stop;
-                                return true;
-                            }).ConfigureAwait(false);
-                            return LiveCommandResult.Cancelled(
-                                "Passive-world advancement was cancelled and campaign time was paused.",
-                                new JObject
+                                await ReignMainThread.InvokeAsync(() =>
                                 {
-                                    ["startWorldDay"] = startDay,
-                                    ["targetWorldDay"] = targetDay,
-                                    ["worldDay"] = currentDay
-                                });
+                                    TaleWorlds.CampaignSystem.Campaign campaign =
+                                        TaleWorlds.CampaignSystem.Campaign.Current;
+                                    PausePassiveWorldCampaign(campaign);
+                                    return true;
+                                }).ConfigureAwait(false);
+                                return LiveCommandResult.Cancelled(
+                                    "Passive-world advancement was cancelled and campaign time was paused.",
+                                    new JObject
+                                    {
+                                        ["startWorldDay"] = startDay,
+                                        ["targetWorldDay"] = targetDay,
+                                        ["worldDay"] = currentDay
+                                    });
+                            }
+                        }
+                        catch (Exception ex)
+                        {
+                            ReignLog.Warn("Passive-world cancellation check deferred: "
+                                + ex.Message);
                         }
                     }
-                    catch (Exception ex)
-                    {
-                        ReignLog.Warn("Passive-world cancellation check deferred: "
-                            + ex.Message);
-                    }
-                }
 
-                if (DateTime.UtcNow >= deadline)
-                {
-                    await ReignMainThread.InvokeAsync(() =>
+                    if (DateTime.UtcNow >= deadline)
                     {
+                        await ReignMainThread.InvokeAsync(() =>
+                        {
+                            TaleWorlds.CampaignSystem.Campaign campaign =
+                                TaleWorlds.CampaignSystem.Campaign.Current;
+                            PausePassiveWorldCampaign(campaign);
+                            return true;
+                        }).ConfigureAwait(false);
+                        return LiveCommandResult.Failed(
+                            "Timed out while advancing the passive-world campaign at day "
+                            + currentDay.ToString("0.###") + ".");
+                    }
+
+                    JObject observation = await ReignMainThread.InvokeAsync(() =>
+                    {
+                        bool escapeMenuRecovered = CloseNativeMapEscapeMenuIfOpen();
+                        bool acknowledged = ReignDiplomacyAnnouncementScreenManager
+                            .TryAcknowledgeForLiveHarness(true, out string eventId, _observeGovernmentNews);
+                        string governmentNewsEventId = ReignDiplomacyAnnouncementScreenManager.ActiveGovernmentNewsEventId;
+                        bool holdForGovernmentNews = Reign.Core.Contracts.World.PassiveWorldAnnouncementPolicy
+                            .ShouldHoldClock(_observeGovernmentNews, ReignDiplomacyAnnouncementScreenManager.IsGovernmentNewsOpen);
+                        bool kingdomEventAcknowledged = ReignKingdomEventsCampaignBehavior
+                            .TryAcknowledgeAnnouncementForLiveHarness(out string kingdomEventId);
+                        bool mailInquiryAcknowledged = ReignRelationshipCampaignBehavior
+                            .TryAcknowledgeMailInquiryForLiveHarness();
+                        int nativeDiplomacyNotices =
+                            AcknowledgeNativeDiplomacyMapNotices();
                         TaleWorlds.CampaignSystem.Campaign campaign =
                             TaleWorlds.CampaignSystem.Campaign.Current;
-                        if (campaign != null)
+                        EnforcePassiveWorldAdvanceBoundary(campaign);
+                        bool boundaryStopped = boundary.TargetReached || boundary.TimedOut;
+                        bool timeModeReasserted = false;
+                        GameMenu waitMenu = campaign?.CurrentMenuContext?.GameMenu;
+                        if (holdForGovernmentNews && campaign != null)
                             campaign.TimeControlMode = CampaignTimeControlMode.Stop;
-                        return true;
+                        if (!boundaryStopped && campaign != null && !holdForGovernmentNews && waitMenu?.IsWaitMenu == true
+                            && campaign.TimeControlMode != CampaignTimeControlMode.UnstoppableFastForward)
+                        {
+                            // Native settlement waiting owns UnstoppableFastForward.
+                            // Production announcements and menus can pause it while
+                            // leaving IsWaitActive set, so restart the native wait
+                            // instead of replacing its mode with a stoppable mode.
+                            waitMenu.StartWait();
+                            timeModeReasserted = true;
+                        }
+                        else if (!boundaryStopped && campaign != null && !holdForGovernmentNews && waitMenu?.IsWaitMenu != true
+                            && campaign.TimeControlMode != CampaignTimeControlMode.StoppableFastForward)
+                        {
+                            campaign.TimeControlMode = CampaignTimeControlMode.StoppableFastForward;
+                            timeModeReasserted = true;
+                        }
+                        return new JObject
+                        {
+                            ["worldDay"] = CampaignTime.Now.ToDays,
+                            ["acknowledged"] = acknowledged,
+                            ["governmentNewsHeld"] = holdForGovernmentNews,
+                            ["governmentNewsEventId"] = holdForGovernmentNews ? governmentNewsEventId : string.Empty,
+                            ["kingdomEventAcknowledged"] = kingdomEventAcknowledged,
+                            ["kingdomEventId"] = kingdomEventId,
+                            ["mailInquiryAcknowledged"] = mailInquiryAcknowledged,
+                            ["nativeDiplomacyNoticesAcknowledged"] =
+                                nativeDiplomacyNotices,
+                            ["eventId"] = eventId,
+                            ["escapeMenuRecovered"] = escapeMenuRecovered,
+                            ["timeModeReasserted"] = timeModeReasserted
+                        };
                     }).ConfigureAwait(false);
-                    return LiveCommandResult.Failed(
-                        "Timed out while advancing the passive-world campaign at day "
-                        + currentDay.ToString("0.###") + ".");
+                    currentDay = observation.Value<double?>("worldDay") ?? currentDay;
+                    string observedGovernmentNewsId = observation.Value<string>("governmentNewsEventId") ?? string.Empty;
+                    if (!string.IsNullOrWhiteSpace(observedGovernmentNewsId) && governmentNewsObserved.Count < 32)
+                        governmentNewsObserved.Add(observedGovernmentNewsId);
+                    if (currentDay > lastProgressDay + 0.000001d)
+                    {
+                        lastProgressDay = currentDay;
+                        lastProgressUtc = DateTime.UtcNow;
+                    }
+                    if (observation.Value<bool?>("acknowledged") == true)
+                        announcementsAcknowledged++;
+                    if (observation.Value<bool?>("kingdomEventAcknowledged") == true)
+                        kingdomEventAnnouncementsAcknowledged++;
+                    if (observation.Value<bool?>("mailInquiryAcknowledged") == true)
+                        mailInquiriesAcknowledged++;
+                    nativeDiplomacyNoticesAcknowledged += Math.Max(0,
+                        observation.Value<int?>("nativeDiplomacyNoticesAcknowledged") ?? 0);
+                    if (observation.Value<bool?>("timeModeReasserted") == true)
+                        timeModeReassertions++;
+                    if (observation.Value<bool?>("escapeMenuRecovered") == true)
+                        escapeMenuRecoveryCount++;
+                    if (DateTime.UtcNow >= nextFocusRecoveryUtc
+                        && DateTime.UtcNow - lastProgressUtc >= TimeSpan.FromSeconds(2))
+                    {
+                        nextFocusRecoveryUtc = DateTime.UtcNow.AddSeconds(2);
+                        focusAttempts++;
+                        if (TryFocusBannerlordWindowForLiveAdvance()) focusSuccesses++;
+                    }
+                    await Task.Delay(50).ConfigureAwait(false);
                 }
 
-                JObject observation = await ReignMainThread.InvokeAsync(() =>
+                LiveCommandResult stopped = await ReignMainThread.InvokeAsync(() =>
                 {
-                    bool escapeMenuRecovered = CloseNativeMapEscapeMenuIfOpen();
-                    bool acknowledged = ReignDiplomacyAnnouncementScreenManager
-                        .TryAcknowledgeForLiveHarness(true, out string eventId);
-                    bool kingdomEventAcknowledged = ReignKingdomEventsCampaignBehavior
-                        .TryAcknowledgeAnnouncementForLiveHarness(out string kingdomEventId);
-                    bool mailInquiryAcknowledged = ReignRelationshipCampaignBehavior
-                        .TryAcknowledgeMailInquiryForLiveHarness();
-                    int nativeDiplomacyNotices =
-                        AcknowledgeNativeDiplomacyMapNotices();
                     TaleWorlds.CampaignSystem.Campaign campaign =
                         TaleWorlds.CampaignSystem.Campaign.Current;
-                    bool timeModeReasserted = false;
-                    GameMenu waitMenu = campaign?.CurrentMenuContext?.GameMenu;
-                    if (campaign != null && waitMenu?.IsWaitMenu == true
-                        && campaign.TimeControlMode != CampaignTimeControlMode.UnstoppableFastForward)
-                    {
-                        // Native settlement waiting owns UnstoppableFastForward.
-                        // Production announcements and menus can pause it while
-                        // leaving IsWaitActive set, so restart the native wait
-                        // instead of replacing its mode with a stoppable mode.
-                        waitMenu.StartWait();
-                        timeModeReasserted = true;
-                    }
-                    else if (campaign != null && waitMenu?.IsWaitMenu != true
-                        && campaign.TimeControlMode != CampaignTimeControlMode.StoppableFastForward)
-                    {
-                        campaign.TimeControlMode = CampaignTimeControlMode.StoppableFastForward;
-                        timeModeReasserted = true;
-                    }
-                    return new JObject
-                    {
-                        ["worldDay"] = CampaignTime.Now.ToDays,
-                        ["acknowledged"] = acknowledged,
-                        ["kingdomEventAcknowledged"] = kingdomEventAcknowledged,
-                        ["kingdomEventId"] = kingdomEventId,
-                        ["mailInquiryAcknowledged"] = mailInquiryAcknowledged,
-                        ["nativeDiplomacyNoticesAcknowledged"] =
-                            nativeDiplomacyNotices,
-                        ["eventId"] = eventId,
-                        ["escapeMenuRecovered"] = escapeMenuRecovered,
-                        ["timeModeReasserted"] = timeModeReasserted
-                    };
+                    if (campaign == null)
+                        return LiveCommandResult.Failed("The campaign closed during passive-world advancement.");
+                    PausePassiveWorldCampaign(campaign);
+                    return LiveCommandResult.Completed(
+                        "Reached and paused at the passive-world checkpoint.",
+                        new JObject
+                        {
+                            ["startWorldDay"] = startDay,
+                            ["targetWorldDay"] = targetDay,
+                            ["worldDay"] = CampaignTime.Now.ToDays,
+                            ["announcementsAcknowledged"] = announcementsAcknowledged,
+                            ["observeGovernmentNews"] = _observeGovernmentNews,
+                            ["governmentNewsObservedEventIds"] = new JArray(governmentNewsObserved),
+                            ["governmentNewsObservedLimit"] = 32,
+                            ["kingdomEventAnnouncementsAcknowledged"] =
+                                kingdomEventAnnouncementsAcknowledged,
+                            ["nativeDiplomacyNoticesAcknowledged"] =
+                                nativeDiplomacyNoticesAcknowledged,
+                            ["mailInquiriesAcknowledged"] = mailInquiriesAcknowledged,
+                            ["timeModeReassertions"] = timeModeReassertions,
+                            ["focusAttempts"] = focusAttempts,
+                            ["focusSuccesses"] = focusSuccesses,
+                            ["escapeMenuRecoveryCount"] = escapeMenuRecoveryCount,
+                            ["localBoundaryReached"] = boundary.TargetReached,
+                            ["localBoundaryTimedOut"] = boundary.TimedOut,
+                            ["timeMode"] = campaign.TimeControlMode.ToString(),
+                            ["settlementId"] = Hero.MainHero?.CurrentSettlement?.StringId ?? string.Empty
+                        });
                 }).ConfigureAwait(false);
-                currentDay = observation.Value<double?>("worldDay") ?? currentDay;
-                if (currentDay > lastProgressDay + 0.000001d)
-                {
-                    lastProgressDay = currentDay;
-                    lastProgressUtc = DateTime.UtcNow;
-                }
-                if (observation.Value<bool?>("acknowledged") == true)
-                    announcementsAcknowledged++;
-                if (observation.Value<bool?>("kingdomEventAcknowledged") == true)
-                    kingdomEventAnnouncementsAcknowledged++;
-                if (observation.Value<bool?>("mailInquiryAcknowledged") == true)
-                    mailInquiriesAcknowledged++;
-                nativeDiplomacyNoticesAcknowledged += Math.Max(0,
-                    observation.Value<int?>("nativeDiplomacyNoticesAcknowledged") ?? 0);
-                if (observation.Value<bool?>("timeModeReasserted") == true)
-                    timeModeReassertions++;
-                if (observation.Value<bool?>("escapeMenuRecovered") == true)
-                    escapeMenuRecoveryCount++;
-                if (DateTime.UtcNow >= nextFocusRecoveryUtc
-                    && DateTime.UtcNow - lastProgressUtc >= TimeSpan.FromSeconds(2))
-                {
-                    nextFocusRecoveryUtc = DateTime.UtcNow.AddSeconds(2);
-                    focusAttempts++;
-                    if (TryFocusBannerlordWindowForLiveAdvance()) focusSuccesses++;
-                }
-                await Task.Delay(50).ConfigureAwait(false);
+                return stopped;
             }
-
-            LiveCommandResult stopped = await ReignMainThread.InvokeAsync(() =>
+            finally
             {
-                TaleWorlds.CampaignSystem.Campaign campaign =
-                    TaleWorlds.CampaignSystem.Campaign.Current;
-                if (campaign == null)
-                    return LiveCommandResult.Failed("The campaign closed during passive-world advancement.");
-                campaign.TimeControlMode = CampaignTimeControlMode.Stop;
-                return LiveCommandResult.Completed(
-                    "Reached and paused at the passive-world checkpoint.",
-                    new JObject
+                await ReignMainThread.InvokeAsync(() =>
+                {
+                    if (ReferenceEquals(_passiveWorldAdvanceBoundary, boundary))
                     {
-                        ["startWorldDay"] = startDay,
-                        ["targetWorldDay"] = targetDay,
-                        ["worldDay"] = CampaignTime.Now.ToDays,
-                        ["announcementsAcknowledged"] = announcementsAcknowledged,
-                        ["kingdomEventAnnouncementsAcknowledged"] =
-                            kingdomEventAnnouncementsAcknowledged,
-                        ["nativeDiplomacyNoticesAcknowledged"] =
-                            nativeDiplomacyNoticesAcknowledged,
-                        ["mailInquiriesAcknowledged"] = mailInquiriesAcknowledged,
-                        ["timeModeReassertions"] = timeModeReassertions,
-                        ["focusAttempts"] = focusAttempts,
-                        ["focusSuccesses"] = focusSuccesses,
-                        ["escapeMenuRecoveryCount"] = escapeMenuRecoveryCount,
-                        ["timeMode"] = campaign.TimeControlMode.ToString(),
-                        ["settlementId"] = Hero.MainHero?.CurrentSettlement?.StringId ?? string.Empty
-                    });
-            }).ConfigureAwait(false);
-            return stopped;
+                        var campaign = TaleWorlds.CampaignSystem.Campaign.Current;
+                        if (boundary != null && boundary.Owns(campaign, _activeRunId))
+                            PausePassiveWorldCampaign(campaign);
+                        _passiveWorldAdvanceBoundary = null;
+                    }
+                    return true;
+                }).ConfigureAwait(false);
+            }
         }
 
         private static bool CloseNativeMapEscapeMenuIfOpen()
@@ -362,7 +436,7 @@ namespace ReignBeta.Campaign
         }
 
         private static async Task<LiveCommandResult>
-            PassiveWorldAcknowledgeDiplomacyAnnouncementAsync()
+            PassiveWorldAcknowledgeDiplomacyAnnouncementAsync(JObject command)
         {
             ReignWorldDiplomacyCampaignBehavior behavior =
                 ReignWorldDiplomacyCampaignBehavior.Instance;
@@ -372,14 +446,20 @@ namespace ReignBeta.Campaign
             return await ReignMainThread.InvokeAsync(() =>
             {
                 bool acknowledged = ReignDiplomacyAnnouncementScreenManager
-                    .TryAcknowledgeForLiveHarness(false, out string eventId);
+                    .TryAcknowledgeForLiveHarness(false, out string eventId,
+                        command.Value<bool?>("observeGovernmentNews") == true);
+                bool governmentNewsHeld = command.Value<bool?>("observeGovernmentNews") == true
+                    && ReignDiplomacyAnnouncementScreenManager.IsGovernmentNewsOpen;
                 return LiveCommandResult.Completed(
                     acknowledged
                         ? "Acknowledged the active Reign diplomacy announcement."
+                        : governmentNewsHeld ? "Government news is open for manual observation."
                         : "No Reign diplomacy announcement was open.",
                     new JObject
                     {
                         ["acknowledged"] = acknowledged,
+                        ["governmentNewsHeld"] = governmentNewsHeld,
+                        ["governmentNewsEventId"] = ReignDiplomacyAnnouncementScreenManager.ActiveGovernmentNewsEventId,
                         ["eventId"] = eventId
                     });
             }).ConfigureAwait(false);

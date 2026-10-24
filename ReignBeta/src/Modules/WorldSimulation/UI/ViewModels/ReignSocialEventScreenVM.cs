@@ -21,9 +21,11 @@ namespace ReignBeta.UI.ViewModels
         public IReadOnlyList<Hero> ActionParticipants => _session.ActiveHeroes().ToList();
         public bool ActionBusy => IsBusy;
         private ReignActionComposerVM _composer;
+        private bool _personalSceneClosed;
         public ReignActionComposerVM Composer => _composer ?? (_composer = new ReignActionComposerVM(() => OnPropertyChanged(nameof(InputText))));
         public override void OnFinalize()
         {
+            _personalSceneClosed = true;
             ReignActionBuilder.CloseFor(this);
             _composer?.Dispose();
             base.OnFinalize();
@@ -82,6 +84,11 @@ namespace ReignBeta.UI.ViewModels
             AddOpeningLines();
             if (_calibrationMode)
                 AddSystemLine("Provider-free UI calibration fixture.");
+            else if (_session.PersonalStory != null)
+            {
+                _session.PersonalStoryReady = ReignServerClient.StartNpcStorySceneAsync(_session);
+                _ = RestorePersonalStoryAsync();
+            }
             else
                 _ = ReignServerClient.StartSocialEventAsync(_session);
         }
@@ -466,7 +473,7 @@ namespace ReignBeta.UI.ViewModels
                 if (actionDraft != null && !activeHeroes.Any(h => h.StringId == actionDraft.NpcId)) { rejected.Error = "Activate the character addressed by your action."; return false; }
                 try { ReignConversationInputJournal.Save(ReignServerClient.GetCampaignId(),
                     ReignBeta.Campaign.ReignWorldHistoryCampaignBehavior.Instance?.TimelineId ?? "main", Hero.MainHero?.StringId ?? "",
-                    correlationId, text, session: "social_event_" + _session.Record.EventId); }
+                    correlationId, text, session: _session.PersonalStory == null ? "social_event_" + _session.Record.EventId : ReignServerClient.StorySceneSessionId(_session)); }
                 catch (Exception ex) { rejected.Error = "Your message could not be saved locally: " + ex.Message; AddSystemLine(rejected.Error); return false; }
                 string playerName = Hero.MainHero?.Name?.ToString() ?? "Player";
                 AddChatLine(playerName, text, "player");
@@ -491,6 +498,7 @@ namespace ReignBeta.UI.ViewModels
 
         public async Task<bool> AdvanceAutomationPhaseAsync()
         {
+            if (_session.PersonalStory != null) return false;
             if (IsBusy) return false;
             await ReignServerClient.FinishSocialEventPhaseAsync(_session).ConfigureAwait(false);
             bool advanced = await ReignMainThread.InvokeAsync(() => _session.AdvancePhase()).ConfigureAwait(false);
@@ -500,6 +508,7 @@ namespace ReignBeta.UI.ViewModels
 
         public async Task<JObject> FinishAutomationAsync()
         {
+            if (_session.PersonalStory != null) return new JObject { ["ok"] = true, ["status"] = "closed_without_advancing_story" };
             if (IsBusy) return new JObject { ["ok"] = false, ["error"] = "Social-event conversation is busy." };
             bool phase = await ReignServerClient.FinishSocialEventPhaseAsync(_session).ConfigureAwait(false);
             JObject resolution = await ReignServerClient.ResolveSocialEventDetailedAsync(_session).ConfigureAwait(false);
@@ -582,6 +591,7 @@ namespace ReignBeta.UI.ViewModels
 
         public async void ExecuteNextPhase()
         {
+            if (_session.PersonalStory != null) return;
             if (_calibrationMode)
             {
                 if (_session.AdvancePhase())
@@ -609,6 +619,11 @@ namespace ReignBeta.UI.ViewModels
 
         public async void ExecuteEndEvent()
         {
+            if (_session.PersonalStory != null)
+            {
+                if (!IsBusy) _closeScreen?.Invoke();
+                return;
+            }
             if (_calibrationMode)
             {
                 _closeScreen?.Invoke();
@@ -689,6 +704,7 @@ namespace ReignBeta.UI.ViewModels
 
         private async Task<ReignSocialEventTurnReply> RequestGroupTurnAsync(List<Hero> activeHeroes, string playerText, string correlationId = "", Reign.Core.Contracts.Actions.ActionAgreement actionDraft = null)
         {
+            if (_session.PersonalStory != null) return await RequestPersonalStoryAsync(playerText, correlationId, actionDraft).ConfigureAwait(false);
             if (_calibrationMode) return new ReignSocialEventTurnReply { Error = "Calibration does not send dialogue or award XP." };
             IsBusy = true;
             BusyText = "Waiting for Bannerlord Reign...";
@@ -771,6 +787,7 @@ namespace ReignBeta.UI.ViewModels
 
         private void ToggleAttendee(ReignSocialEventAttendeeVM attendee)
         {
+            if (_session.PersonalStory != null) return;
             if (attendee?.Hero == null)
             {
                 return;
@@ -819,6 +836,50 @@ namespace ReignBeta.UI.ViewModels
                 EventBackgroundImageId = string.Empty;
             }
             RefreshAttendees();
+        }
+
+        private async Task RestorePersonalStoryAsync()
+        {
+            IsBusy = true; BusyText = "Restoring this story...";
+            try
+            {
+                var history = await _session.PersonalStoryReady.ConfigureAwait(false);
+                await ReignMainThread.InvokeAsync(() => {
+                    if (_personalSceneClosed) return;
+                    foreach (var line in (history["lines"] as JArray ?? new JArray()).OfType<JObject>())
+                        AddChatLine(line.Value<string>("speaker") ?? "", line.Value<string>("text") ?? "", line.Value<string>("role") ?? "npc");
+                }).ConfigureAwait(false);
+            }
+            catch (Exception ex) { await ReignMainThread.InvokeAsync(() => AddSystemLine(ex.Message)).ConfigureAwait(false); }
+            finally { await ReignMainThread.InvokeAsync(() => { IsBusy = false; BusyText = ""; }).ConfigureAwait(false); }
+        }
+        private async Task<ReignSocialEventTurnReply> RequestPersonalStoryAsync(string text, string correlation, Reign.Core.Contracts.Actions.ActionAgreement action)
+        {
+            IsBusy = true; BusyText = "Listening...";
+            try
+            {
+                var reply = await ReignServerClient.RequestNpcStoryTurnAsync(_session, text,
+                    string.IsNullOrWhiteSpace(correlation) ? Guid.NewGuid().ToString("N") : correlation, action).ConfigureAwait(false);
+                await ReignMainThread.InvokeAsync(() => {
+                    if (_personalSceneClosed) return;
+                    if (!reply.Ok) { AddSystemLine(reply.Error); return; }
+                    foreach (var line in reply.ParticipantResults)
+                    {
+                        string name = ReignObjectResolver.FindHero(line.HeroStringId)?.Name?.ToString() ?? "Companion";
+                        AddChatLine(name, line.Text, "npc"); _session.RecordTranscriptLine(name, line.Text);
+                    }
+                    var current = ReignBeta.Campaign.ReignNpcLivesBehavior.Instance?.State.Stories.FirstOrDefault(s => s.Id == _session.PersonalStory.Id);
+                    if (current != null && current.Revision != _session.PersonalStory.Revision)
+                        AddSystemLine("This chapter is complete. Your shared experience has been recorded.");
+                }).ConfigureAwait(false);
+                return reply;
+            }
+            catch (Exception ex)
+            {
+                await ReignMainThread.InvokeAsync(() => AddSystemLine(ex.Message)).ConfigureAwait(false);
+                return new ReignSocialEventTurnReply { Error = ex.Message };
+            }
+            finally { await ReignMainThread.InvokeAsync(() => { IsBusy = false; BusyText = ""; }).ConfigureAwait(false); }
         }
 
         private string BuildWildernessImageCaption(string terrain)

@@ -144,7 +144,9 @@ namespace ReignBeta.UI.ViewModels
                 if (available.Any(d => ActionGroup(d) == category[0]))
                     Choice(category[1] + "…", () => Forward(() => ShowFamily(category[0], category[1]), ShowVerbs));
         });
-        private static readonly string[] SupportActions = { "government.join_party", "government.back_platform", "government.support_vote", "pledge_rebellion_support" };
+        private static readonly string[] SupportActions = { "government.join_party", "government.back_platform", "government.support_vote", "government.support_nomination",
+            "government.endorse_petition", "government.sponsor_petition", "government.seek_petition_adoption", "government.present_petition",
+            "government.transfer_mandate", "government.nominate_leader", "government.vote_leader", "pledge_rebellion_support" };
         private bool IsAvailable(ActionDefinition definition) => ReignActionService.CanBuild(definition, _agreement, _playerActs);
         private static string ActionGroup(ActionDefinition d)
         {
@@ -184,6 +186,11 @@ namespace ReignBeta.UI.ViewModels
             if (!IsAvailable(d)) { ShowVerbs(); ShowError("This action is no longer available for the selected person."); return; }
             _editIndex = -1;
             _clause = new ActionClause { ActionId = d.Id, ActorId = _playerActs ? _agreement.PlayerId : _agreement.NpcId, RecipientId = _playerActs ? _agreement.NpcId : _agreement.PlayerId };
+            if (d.Id == ReignSpouseSeparation.ActionId)
+            {
+                var spouse = ReignActionService.HeroById(_clause.ActorId)?.Spouse;
+                ReignSpouseSeparation.Bind(_agreement, _clause, spouse?.StringId ?? "", spouse?.Clan?.StringId ?? "");
+            }
             bool boundRebellion = d.Id == "start_ruling_clan_rebellion" || d.Id == "pledge_rebellion_support";
             if (boundRebellion)
             {
@@ -208,7 +215,7 @@ namespace ReignBeta.UI.ViewModels
             var p = _parameters[_parameterIndex];
             if (p.Choices.Length > 0)
             {
-                Step("Select " + p.Label.ToLowerInvariant(), () => { Choices.Clear(); UnspecifiedChoice(p); foreach (string choice in p.Choices) Choice(ChoiceLabel(choice), () => Pick(p, choice, ChoiceLabel(choice))); });
+                Step("Select " + p.Label.ToLowerInvariant(), () => { Choices.Clear(); UnspecifiedChoice(p); foreach (string choice in p.Choices.Where(v => ReignActionService.CanSelect(_clause, p, v))) Choice(ChoiceLabel(choice), () => Pick(p, choice, ChoiceLabel(choice))); });
                 return;
             }
             if (p.Kind == "settlement" && _category.Length == 0)
@@ -224,11 +231,15 @@ namespace ReignBeta.UI.ViewModels
                 }); return;
             }
             bool value = AgreementRules.IsNumericKind(p.Kind) || p.Kind == "text";
-            if (value) { Entry = ReignActionService.Arg(_clause, p.Key, p.Kind == "quantity" ? "1" : ""); Step(p.Label, () => { Choices.Clear(); UnspecifiedChoice(p); }, true); return; }
+            if (value) { Entry = ReignActionService.Arg(_clause, p.Key, _clause.ActionId.StartsWith("npc_life.", StringComparison.Ordinal)
+                ? p.Key == "stayDays" ? "3" : p.Key == "awayDays" ? "5" : p.Key == "waitDays" ? "0" : ""
+                : p.Kind == "quantity" ? "1" : ""); Step(p.Label, () => { Choices.Clear(); UnspecifiedChoice(p); }, true); return; }
             Step("Select " + p.Label.ToLowerInvariant(), () =>
             {
                 Choices.Clear();
                 UnspecifiedChoice(p);
+                if (p.Kind == "governmentPetition") Choice("Prepare a new petition…", () => Forward(() => PrepareInlinePetition(p), ShowParameter), true,
+                    "Review a real law or civic mandate and return to this unsent conversation.");
                 var rows = ReignActionEntities.Find(p.Kind, _clause.ActorId, _search, _category, _clause);
                 foreach (var r in rows.Where(r => r.Available && ReignActionService.CanSelect(_clause, p, r.Id)))
                     Choice(r.Label, () => { if (p.Kind == "item") foreach (string key in new[] { "variantId", "equipmentSet", "equipmentSlot" }) _clause.Arguments.Remove(key); foreach (var kv in r.Arguments) _clause.Arguments[kv.Key] = kv.Value; Pick(p, r.Id, r.Label); }, r.Available,
@@ -244,6 +255,38 @@ namespace ReignBeta.UI.ViewModels
             // This navigation option stays first even when the entity search has no matches.
             if (!parameter.Required)
                 Choices.Add(new ReignActionChoiceVM("Leave unspecified", "", true, () => Pick(parameter, "", "")));
+        }
+
+        private void PrepareInlinePetition(ActionParameter parameter)
+        {
+            var government = ReignBeta.Government.ReignGovernmentCampaignBehavior.Instance;
+            Step("Which kingdom will receive your petition?", () => {
+                Choices.Clear();
+                foreach (var kingdom in Kingdom.All.Where(k => government?.GetParticipationAccess(k.StringId, Hero.MainHero).Prepare == true))
+                    Choice(kingdom.Name.ToString(), () => Forward(() => SelectInlineProposal(parameter, kingdom.StringId), () => PrepareInlinePetition(parameter)));
+            });
+        }
+        private void SelectInlineProposal(ActionParameter parameter, string kingdomId)
+        {
+            var government = ReignBeta.Government.ReignGovernmentCampaignBehavior.Instance;
+            Step("Choose the exact measure and target", () => {
+                Choices.Clear();
+                foreach (var row in government.GetParticipationProposalChoices(kingdomId, Hero.MainHero).OfType<Newtonsoft.Json.Linq.JObject>())
+                {
+                    string id = row.Value<string>("proposalId"), title = row.Value<string>("label"), detail = row.Value<string>("description");
+                    Choice(title, () => Forward(() => {
+                        Step("Review petition · " + title, () => {
+                            Choices.Clear(); Choice("Save and submit for sponsorship", () => {
+                                if (!government.PrepareGovernmentPetition(kingdomId, id, "", Hero.MainHero, out string petitionId, out string reason)
+                                    || !government.SubmitGovernmentPetition(petitionId, Hero.MainHero, out reason)) { ShowError(reason); return; }
+                                var petition = government.Participation.Petitions.Single(x => x.Id == petitionId);
+                                _clause.Arguments["petitionRevision"] = petition.Revision.ToString();
+                                Pick(parameter, petitionId, petition.Title);
+                            }, true, detail + " No money is spent and no public slot is reserved.");
+                        });
+                    }, () => SelectInlineProposal(parameter, kingdomId)), row.Value<bool?>("available") == true, detail);
+                }
+            });
         }
         private bool IsUnusedWageDetail(ActionParameter parameter)
         {
@@ -288,6 +331,7 @@ namespace ReignBeta.UI.ViewModels
         }
         private void FinishClause()
         {
+            if (_clause.ActionId == "npc_life.summon_meeting" || _clause.ActionId == "npc_life.change_meeting") _clause.Arguments.Remove("arrivalDays");
             if (_editIndex >= 0) _agreement.Clauses[_editIndex] = _clause; else _agreement.Clauses.Add(_clause);
             _clause = null; _editIndex = -1;
             _agreement.Revise(); ReignActionWording.Render(_agreement);
@@ -336,7 +380,8 @@ namespace ReignBeta.UI.ViewModels
                 _parameters = ReignActionCatalog.Find(term.ActionId).Parameters.Where(p => !p.Automatic && !new[] { "variantId", "equipmentSet", "equipmentSlot", "terms.purpose" }.Contains(p.Key)).ToList();
                 _parameterIndex = 0; _labels.Clear(); _category = ""; ShowParameter();
             }, () => TermOptions(index)));
-            Choice("Set when it happens…", () => Forward(() => TimingOptions(index), () => TermOptions(index)));
+            if (term.ActionId != ReignSpouseSeparation.ActionId)
+                Choice("Set when it happens…", () => Forward(() => TimingOptions(index), () => TermOptions(index)));
             if (new[] { "give.gold", "give.item", "give.troop", "give.prisoner" }.Contains(term.ActionId))
                 Choice("Split into installments…", () => Forward(() => NumberEntry("Number of installments (1–365)", term.Installments, count =>
                 {

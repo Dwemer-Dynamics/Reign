@@ -29,6 +29,7 @@ namespace ReignBeta.Government
         [SaveableField(22)] public int ReductionConsentFromLevel;
         [SaveableField(23)] public string ReductionConsentHeroIdsCsv;
         [SaveableField(24)] public string ReductionConsentClanIdsCsv;
+        [SaveableField(25)] public int SessionProtocolVersion;
 
         public ReignGovernmentStateRecord()
         {

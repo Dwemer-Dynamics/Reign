@@ -47,6 +47,7 @@ namespace ReignBeta.UI.ViewModels
                     OnPropertyChangedWithValue(normalized);
                     OnPropertyChanged(nameof(IsPlayerLine));
                     OnPropertyChanged(nameof(IsNpcLine));
+                    OnPropertyChanged(nameof(IsNonPlayerLine));
                     OnPropertyChanged(nameof(IsSystemLine));
                     OnPropertyChanged(nameof(RichText));
                 }
@@ -70,6 +71,9 @@ namespace ReignBeta.UI.ViewModels
         {
             get { return !IsPlayerLine && !IsNpcLine; }
         }
+
+        [DataSourceProperty]
+        public bool IsNonPlayerLine => !IsPlayerLine;
 
         [DataSourceProperty]
         public string Text

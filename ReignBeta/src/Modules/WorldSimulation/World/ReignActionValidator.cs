@@ -42,6 +42,50 @@ namespace ReignBeta.World
                 return false;
             }
 
+            string releasePrisonerId = RulerReleaseActionPolicy.PrisonerId(action.Type,
+                ReadStringTerm(action.TermsJson, "prisonerHeroStringId", string.Empty),
+                ReadStringTerm(action.TermsJson, "prisonerHero", string.Empty), action.TargetHeroStringId);
+            if (!string.IsNullOrWhiteSpace(releasePrisonerId)
+                && ReignRulerCampaignBehavior.BlocksRelease(ReignObjectResolver.FindHero(releasePrisonerId)))
+            { reason = "This ruler is sentenced to execution and cannot be ransomed, exchanged or released by agreement."; return false; }
+            var rulerTarget = ReignObjectResolver.FindHero(ReadStringTerm(action.TermsJson, "prisonerHeroStringId", action.TargetHeroStringId));
+            if (action.Type == ReignWorldActionType.RegularKillCharacter
+                && (ReignRulerCampaignBehavior.BlocksRelease(rulerTarget)
+                    || ReignRulerCampaignBehavior.Instance?.AwaitsDecision(rulerTarget) == true))
+            { reason = "This captured ruler awaits sovereign judgment. Use the captivity judgment to choose their fate; execution takes fifteen days."; return false; }
+            if ((action.Type.ToString().IndexOf("Peace", StringComparison.OrdinalIgnoreCase) >= 0
+                || action.Type == ReignWorldActionType.PoliticsResolveCivilWar || action.Type == ReignWorldActionType.PoliticsSurrenderRebellion)
+                && ReignRulerCampaignBehavior.BlocksPeace(ReignObjectResolver.FindKingdom(action.ActorKingdomStringId), ReignObjectResolver.FindKingdom(action.TargetKingdomStringId)))
+            { reason = "Peace must wait while the captured ruler is under sentence."; return false; }
+            if (action.Type == ReignWorldActionType.DiplomacyRansomPackage || action.Type == ReignWorldActionType.DiplomacyExchangePrisoners)
+            {
+                Kingdom actorRealm = ReignObjectResolver.FindKingdom(action.ActorKingdomStringId), targetRealm = ReignObjectResolver.FindKingdom(action.TargetKingdomStringId);
+                bool SelectedSentence(Kingdom prisoners, Kingdom holder, int limit) => prisoners != null && holder != null && Hero.AllAliveHeroes
+                    .Where(h => h.IsPrisoner && h.Clan?.Kingdom == prisoners && h.PartyBelongedToAsPrisoner?.MapFaction == holder)
+                    .Take(limit <= 0 ? int.MaxValue : limit).Any(ReignRulerCampaignBehavior.BlocksRelease);
+                int limit = ReadIntTerm(action.TermsJson, action.Type == ReignWorldActionType.DiplomacyRansomPackage ? "maxPrisoners" : "maxEachSide", action.Type == ReignWorldActionType.DiplomacyRansomPackage ? 5 : 3);
+                bool bulk = action.Type == ReignWorldActionType.DiplomacyExchangePrisoners || string.IsNullOrWhiteSpace(ReadStringTerm(action.TermsJson, "prisonerHeroStringId", string.Empty));
+                if (bulk && (SelectedSentence(targetRealm, actorRealm, limit) || (action.Type == ReignWorldActionType.DiplomacyExchangePrisoners && SelectedSentence(actorRealm, targetRealm, limit))))
+                { reason = "This prisoner package includes a sentenced ruler; no payment or release may proceed."; return false; }
+            }
+            Clan joiningClan = null; Kingdom joiningRealm = null;
+            switch (action.Type)
+            {
+                case ReignWorldActionType.RegularHirePlayerAsMercenary:
+                case ReignWorldActionType.RegularOfferPlayerVassalage:
+                    joiningClan = Clan.PlayerClan; joiningRealm = ReignObjectResolver.FindKingdom(action.TargetKingdomStringId) ?? ReignObjectResolver.FindKingdom(action.ActorKingdomStringId); break;
+                case ReignWorldActionType.RegularJoinKingdom:
+                    joiningClan = ReignObjectResolver.FindClan(action.ActorClanStringId) ?? ReignObjectResolver.FindHero(action.ActorHeroStringId)?.Clan;
+                    joiningRealm = ReignObjectResolver.FindKingdom(action.TargetKingdomStringId); break;
+                case ReignWorldActionType.RegularHireMercenaryClan:
+                case ReignWorldActionType.PoliticsEncourageClanDefection:
+                case ReignWorldActionType.PoliticsRestoreExiledClan:
+                    joiningClan = ReignObjectResolver.FindClan(action.TargetClanStringId) ?? ReignObjectResolver.FindClan(action.ActorClanStringId);
+                    joiningRealm = ReignObjectResolver.FindKingdom(action.TargetKingdomStringId) ?? ReignObjectResolver.FindKingdom(action.ActorKingdomStringId); break;
+            }
+            if (ReignRulerCampaignBehavior.Restricted(joiningClan, joiningRealm))
+            { reason = "This clan's exile prevents kingdom membership or mercenary service until its term ends."; return false; }
+
             if (!ValidateActionShape(action, out reason))
             {
                 return false;
@@ -1403,7 +1447,7 @@ namespace ReignBeta.World
                         return false;
                     }
 
-                    if (hero.Clan?.Leader == hero)
+                    if (hero.Clan?.Leader == hero && ReignRulerCampaignBehavior.Instance?.CanRecruitFugitiveMember(hero, targetClan) != true)
                     {
                         reason = "A clan leader cannot join another clan until native leadership succession is resolved.";
                         return false;

@@ -10,6 +10,7 @@ using TaleWorlds.CampaignSystem.MapEvents;
 using TaleWorlds.CampaignSystem.Party;
 using TaleWorlds.Core;
 using TaleWorlds.Engine.GauntletUI;
+using TaleWorlds.GauntletUI.BaseTypes;
 using TaleWorlds.InputSystem;
 using TaleWorlds.Library;
 using TaleWorlds.MountAndBlade;
@@ -32,8 +33,12 @@ namespace ReignBeta.UI
         private static ReignGovernmentCampaignBehavior _presentationBehavior;
         private static float _scanDelay;
         private static bool _ownsTimeLock;
+        private static bool _closeRequested;
         private static long _inputTicks, _globalMousePresses, _globalMouseReleases;
         private static long _layerMousePresses, _layerMouseReleases, _globalEscapes, _layerEscapes;
+        private const int MaximumScrollbarSamples = 32;
+        private static readonly Queue<object> ScrollbarSamples = new Queue<object>();
+        private static bool _scrollbarMouseWasDown;
 
         public static bool IsOpen { get; private set; }
         internal static string AutomationKingdomId => _kingdom?.StringId ?? string.Empty;
@@ -57,6 +62,16 @@ namespace ReignBeta.UI
             keysAllowed = _layer?.Input.IsKeysAllowed == true,
             mouseButtonsAllowed = _layer?.Input.IsMouseButtonAllowed == true,
             mouseWheelAllowed = _layer?.Input.IsMouseWheelAllowed == true,
+            mouseHitOwned = _layer?.IsHitThisFrame == true,
+            firstHitLayer = ScreenManager.FirstHitLayer?.Name ?? string.Empty,
+            customScale = _layer?.UIContext?.CustomScale ?? 0f,
+            hoveredWidget = DescribeWidget(_layer?.UIContext?.EventManager?.HoveredWidget),
+            mouseDownWidget = DescribeWidget(_layer?.UIContext?.EventManager?.LatestMouseDownWidget),
+            mouseUpWidget = DescribeWidget(_layer?.UIContext?.EventManager?.LatestMouseUpWidget),
+            scrollbar = DescribeScrollbar(_layer?.UIContext?.EventManager?.LatestMouseDownWidget),
+            scrollbarSamples = ScrollbarSamples.ToArray(),
+            activeLayers = ScreenManager.SortedLayers.Where(x => x != null && x.IsActive).Take(24)
+                .Select(x => new { x.Name, x.ScreenOrderInLastFrame, x.IsHitThisFrame, x.IsFocusLayer }).ToArray(),
             inputTicks = _inputTicks,
             globalMousePresses = _globalMousePresses,
             globalMouseReleases = _globalMouseReleases,
@@ -65,6 +80,61 @@ namespace ReignBeta.UI
             globalEscapes = _globalEscapes,
             layerEscapes = _layerEscapes
         };
+
+        private static object DescribeWidget(Widget widget)
+        {
+            if (widget == null) return null;
+            var ancestors = new List<string>();
+            for (Widget current = widget; current != null && ancestors.Count < 10; current = current.ParentWidget)
+                ancestors.Add(current.GetType().Name + ":" + (current.Id ?? string.Empty));
+            return new { path = string.Join(" <- ", ancestors), widget.IsVisible, widget.IsEnabled,
+                widget.DoNotAcceptEvents, widget.IsPressed, x = widget.GlobalPosition.X, y = widget.GlobalPosition.Y,
+                width = widget.Size.X, height = widget.Size.Y };
+        }
+
+        private static object DescribeScrollbar(Widget pressedWidget)
+        {
+            Widget current = pressedWidget;
+            for (int depth = 0; current != null && depth < 10; depth++, current = current.ParentWidget)
+            {
+                if (!(current is ScrollbarWidget scrollbar)) continue;
+                Widget handle = scrollbar.Handle;
+                return new
+                {
+                    id = scrollbar.Id,
+                    scrollbar.ValueFloat, scrollbar.MinValue, scrollbar.MaxValue, scrollbar.Locked,
+                    x = scrollbar.GlobalPosition.X, y = scrollbar.GlobalPosition.Y,
+                    width = scrollbar.Size.X, height = scrollbar.Size.Y,
+                    scrollbar.Top, scrollbar.Bottom,
+                    parentY = scrollbar.ParentWidget?.GlobalPosition.Y ?? 0f,
+                    handleIsPressedWidget = ReferenceEquals(handle, pressedWidget),
+                    handleOwnedByScrollbar = handle != null && ReferenceEquals(handle.ParentWidget, scrollbar),
+                    handle = DescribeWidget(handle)
+                };
+            }
+            return null;
+        }
+
+        private static void ObserveScrollbarInput()
+        {
+            bool down = Input.IsKeyDown(InputKey.LeftMouseButton);
+            if (down || _scrollbarMouseWasDown)
+            {
+                var events = _layer?.UIContext?.EventManager;
+                object scrollbar = DescribeScrollbar(events?.LatestMouseDownWidget);
+                if (scrollbar != null)
+                {
+                    while (ScrollbarSamples.Count >= MaximumScrollbarSamples) ScrollbarSamples.Dequeue();
+                    ScrollbarSamples.Enqueue(new
+                    {
+                        tick = _inputTicks, mouseDown = down,
+                        mouseX = events.MousePosition.X, mouseY = events.MousePosition.Y,
+                        scrollbar
+                    });
+                }
+            }
+            _scrollbarMouseWasDown = down;
+        }
 
         public static void Open(Kingdom kingdom, bool interactive, Action returnAction)
         {
@@ -95,9 +165,12 @@ namespace ReignBeta.UI
                 _interactive = request.Interactive && request.Kingdom.Leader == Hero.MainHero;
                 _returnAction = request.ReturnAction;
                 _host = host;
+                _closeRequested = false;
                 _inputTicks = _globalMousePresses = _globalMouseReleases = 0;
                 _layerMousePresses = _layerMouseReleases = _globalEscapes = _layerEscapes = 0;
-                _vm = new ReignGovernmentScreenVM(ReignGovernmentCampaignBehavior.Instance, _kingdom, _interactive, ReturnToOrigin);
+                ScrollbarSamples.Clear();
+                _scrollbarMouseWasDown = false;
+                _vm = new ReignGovernmentScreenVM(ReignGovernmentCampaignBehavior.Instance, _kingdom, _interactive, () => _closeRequested = true);
                 if (!string.IsNullOrWhiteSpace(request.BusinessId)) _vm.SelectBusinessById(request.BusinessId);
                 _layer = new GauntletLayer("ReignGovernmentScreen", LayerOrder, false);
                 _layer.LoadMovie("ReignGovernmentScreen", _vm);
@@ -128,6 +201,7 @@ namespace ReignBeta.UI
 
         public static void ApplicationTick(float dt)
         {
+            ReignGovernmentCampaignBehavior.Instance?.TickPoliticalProfileSync();
             if (_pendingReturn != null && !IsOpen)
             {
                 Action callback = _pendingReturn;
@@ -158,10 +232,18 @@ namespace ReignBeta.UI
                 if (_layer.Input.IsKeyReleased(InputKey.LeftMouseButton)) _layerMouseReleases++;
                 if (Input.IsKeyReleased(InputKey.Escape)) _globalEscapes++;
                 if (_layer.Input.IsKeyReleased(InputKey.Escape)) _layerEscapes++;
+                ObserveScrollbarInput();
                 _vm?.Tick();
                 RememberPresentedStage();
+                // A confirmation owns native focus until it is answered. Never
+                // steal its mouse/keyboard input back into the hearing below it.
+                if (InformationManager.IsAnyInquiryActive()) return;
+                // Finalize the movie outside Gauntlet's button event dispatch.
+                if (_closeRequested) { _closeRequested = false; ReturnToOrigin(); return; }
                 _layer.InputRestrictions.SetInputRestrictions(true, InputUsageMask.All);
                 _layer.Input.IsKeysAllowed = true;
+                _layer.Input.IsMouseButtonAllowed = true;
+                _layer.Input.IsMouseWheelAllowed = true;
                 if (ScreenManager.FocusedLayer != _layer) ScreenManager.TrySetFocus(_layer);
                 if (Input.IsKeyReleased(InputKey.Escape) || _layer.Input.IsKeyReleased(InputKey.Escape)) ReturnToOrigin();
             }
@@ -187,11 +269,17 @@ namespace ReignBeta.UI
             _scanDelay = 0.5f;
             var behavior = ReignGovernmentCampaignBehavior.Instance;
             if (!ReferenceEquals(behavior, _presentationBehavior)) { PresentedStages.Clear(); _presentationBehavior = behavior; }
-            Kingdom kingdom = Clan.PlayerClan?.Kingdom;
-            if (behavior == null || kingdom?.Leader != Hero.MainHero || !CanPresentOnMap()) return;
+            Kingdom kingdom = Clan.PlayerClan?.Kingdom ?? Kingdom.All.FirstOrDefault(k => behavior?.GetSeats(k.StringId).Any(x => x.HeroStringId == Hero.MainHero?.StringId) == true);
+            if (behavior == null || kingdom == null || !CanPresentOnMap()) return;
+            if (behavior.IsCharterPending(kingdom.StringId))
+            {
+                string charterKey = "charter:" + kingdom.StringId;
+                if (!PresentedStages.ContainsKey(charterKey)) { PresentedStages[charterKey] = "shown"; OpenNow(new OpenRequest { Kingdom = kingdom, Interactive = true }); }
+                return;
+            }
             var next = behavior.GetBusiness(kingdom.StringId).FirstOrDefault(x =>
-                (x.Status == "hearing" || x.Status == "reconsideration" || x.Status == "awaiting_ruler")
-                && (!PresentedStages.TryGetValue(x.BusinessId, out string shown) || shown != x.Status + "|" + x.Postponed + "|" + x.RecessUntilDay));
+                (kingdom.Leader == Hero.MainHero && (x.Status == "presented" || x.Status == "hearing") || behavior.NeedsPlayerMemberBallot(x.BusinessId))
+                && (!PresentedStages.TryGetValue(x.BusinessId, out string shown) || shown != x.Status + "|" + x.PresentationDay + "|" + x.DecisionDay));
             if (next == null) return;
             OpenNow(new OpenRequest { Kingdom = kingdom, Interactive = true, BusinessId = next.BusinessId });
         }
@@ -229,6 +317,7 @@ namespace ReignBeta.UI
 
         private static void ReturnToOrigin()
         {
+            if (_vm != null && !_vm.ConfirmCloseForMemberBallot(() => _closeRequested = true)) return;
             Action callback = _returnAction;
             Close(false);
             _pendingReturn = callback;
@@ -263,6 +352,7 @@ namespace ReignBeta.UI
             _kingdom = null;
             _returnAction = null;
             _interactive = false;
+            _closeRequested = false;
             IsOpen = false;
             if (callback != null) _pendingReturn = callback;
         }

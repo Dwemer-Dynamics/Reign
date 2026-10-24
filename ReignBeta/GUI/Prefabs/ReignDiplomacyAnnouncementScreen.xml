@@ -7,7 +7,7 @@
   <Window>
     <Widget Id="DiplomacyDimmer" WidthSizePolicy="StretchToParent" HeightSizePolicy="StretchToParent" Sprite="BlankWhiteSquare" Color="#030303FF" PositionYOffset="-1">
       <Children>
-        <Widget Id="DiplomacyAnnouncement" DoNotUseCustomScaleAndChildren="true" WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="!PanelWidth" SuggestedHeight="!PanelHeight" HorizontalAlignment="Center" VerticalAlignment="Center" Sprite="reign_diplomacy_modern_shell">
+        <Widget Id="DiplomacyAnnouncement" IsVisible="@IsStandardAnnouncement" DoNotUseCustomScaleAndChildren="true" WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="!PanelWidth" SuggestedHeight="!PanelHeight" HorizontalAlignment="Center" VerticalAlignment="Center" Sprite="reign_diplomacy_modern_shell">
           <Children>
             <Widget Id="DiplomacyHeaderTextRegion" WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="862" SuggestedHeight="68" HorizontalAlignment="Center" MarginTop="136" ClipContents="true">
               <Children>
@@ -20,8 +20,8 @@
               <Children>
                 <Widget Id="ActorPortraitClip" WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="143" SuggestedHeight="240" MarginLeft="10" MarginTop="11" ClipContents="true">
                   <Children>
-                    <ImageIdentifierWidget Id="ActorNativePortrait" DoNotAcceptEvents="true" WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="244" SuggestedHeight="244" HorizontalAlignment="Center" VerticalAlignment="Center" ImageId="@ActorPortraitId" AdditionalArgs="@ActorPortraitArgs" TextureProviderName="@ActorPortraitProvider" />
-                    <ReignPortraitWidget Id="ActorAIPortrait" Type="ReignBeta.UI.Widgets.ReignPortraitWidget" DoNotAcceptEvents="true" WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="244" SuggestedHeight="244" HorizontalAlignment="Center" VerticalAlignment="Center" PortraitCacheKey="@ActorPortraitCacheKey" />
+                    <ImageIdentifierWidget Id="ActorNativePortrait" DoNotAcceptEvents="true" WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="143" SuggestedHeight="143" HorizontalAlignment="Center" VerticalAlignment="Center" ImageId="@ActorPortraitId" AdditionalArgs="@ActorPortraitArgs" TextureProviderName="@ActorPortraitProvider" />
+                    <ReignPortraitWidget Id="ActorAIPortrait" Type="ReignBeta.UI.Widgets.ReignPortraitWidget" DoNotAcceptEvents="true" WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="143" SuggestedHeight="240" HorizontalAlignment="Center" VerticalAlignment="Center" PortraitCacheKey="@ActorPortraitCacheKey" TargetAspect="0.5958333" UseFramedBust="true" />
                   </Children>
                 </Widget>
                 <ImageWidget Id="ActorPortraitFrame" DoNotAcceptEvents="true" WidthSizePolicy="StretchToParent" HeightSizePolicy="StretchToParent" Sprite="reign_diplomacy_actor_portrait_mask" />
@@ -43,8 +43,8 @@
                   <Children>
                     <Widget Id="TargetPortraitClip" WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="143" SuggestedHeight="240" MarginLeft="10" MarginTop="11" ClipContents="true">
                       <Children>
-                        <ImageIdentifierWidget Id="TargetNativePortrait" DoNotAcceptEvents="true" WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="244" SuggestedHeight="244" HorizontalAlignment="Center" VerticalAlignment="Center" ImageId="@TargetPortraitId" AdditionalArgs="@TargetPortraitArgs" TextureProviderName="@TargetPortraitProvider" />
-                        <ReignPortraitWidget Id="TargetAIPortrait" Type="ReignBeta.UI.Widgets.ReignPortraitWidget" DoNotAcceptEvents="true" WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="244" SuggestedHeight="244" HorizontalAlignment="Center" VerticalAlignment="Center" PortraitCacheKey="@TargetPortraitCacheKey" />
+                        <ImageIdentifierWidget Id="TargetNativePortrait" DoNotAcceptEvents="true" WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="143" SuggestedHeight="143" HorizontalAlignment="Center" VerticalAlignment="Center" ImageId="@TargetPortraitId" AdditionalArgs="@TargetPortraitArgs" TextureProviderName="@TargetPortraitProvider" />
+                        <ReignPortraitWidget Id="TargetAIPortrait" Type="ReignBeta.UI.Widgets.ReignPortraitWidget" DoNotAcceptEvents="true" WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="143" SuggestedHeight="240" HorizontalAlignment="Center" VerticalAlignment="Center" PortraitCacheKey="@TargetPortraitCacheKey" TargetAspect="0.5958333" UseFramedBust="true" />
                       </Children>
                     </Widget>
                     <ImageWidget Id="TargetPortraitFrame" DoNotAcceptEvents="true" WidthSizePolicy="StretchToParent" HeightSizePolicy="StretchToParent" Sprite="reign_diplomacy_target_portrait_mask" />
@@ -62,16 +62,76 @@
               </Children>
             </Widget>
 
-            <TextWidget Id="DiplomacyOutcome" WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="732" SuggestedHeight="49" HorizontalAlignment="Center" MarginTop="278" Brush="DefaultText" Brush.Font="ReignSerifDynamic" Brush.FontSize="26" Brush.TextHorizontalAlignment="Center" Brush.FontColor="#A88A54FF" Text="@Outcome" />
-            <TextWidget Id="DiplomacySummary" WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="716" SuggestedHeight="102" HorizontalAlignment="Center" MarginTop="351" Brush="DefaultText" Brush.Font="ReignSerifDynamic" Brush.FontSize="19" Brush.TextHorizontalAlignment="Center" Brush.FontColor="#C5BDAFFF" Text="@Summary" />
-            <Widget Id="DiplomacyDivider" DoNotAcceptEvents="true" IsVisible="false" WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="716" SuggestedHeight="20" HorizontalAlignment="Center" MarginTop="540" />
-            <TextWidget Id="DiplomacyTerms" WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="716" SuggestedHeight="111" HorizontalAlignment="Center" MarginTop="596" Brush="DefaultText" Brush.Font="ReignSerifDynamic" Brush.FontSize="18" Brush.TextHorizontalAlignment="Center" Brush.FontColor="#C5BDAFFF" Text="@Terms" />
+            <ScrollablePanel Id="DiplomacyReportViewport" WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="732" SuggestedHeight="480" MarginLeft="470" MarginTop="260" ClipRect="ReportClip" InnerPanel="ReportClip\ReportFlow" VerticalScrollbar="..\DiplomacyReportScrollbar" AutoHideScrollBars="true" OnlyAcceptScrollEventIfCanScroll="true" MouseScrollAxis="Vertical">
+              <Children>
+                <Widget Id="ReportClip" WidthSizePolicy="StretchToParent" HeightSizePolicy="StretchToParent" ClipContents="true">
+                  <Children>
+                    <ListPanel Id="ReportFlow" WidthSizePolicy="Fixed" HeightSizePolicy="CoverChildren" SuggestedWidth="708" StackLayout.LayoutMethod="VerticalTopToBottom">
+                      <Children>
+                        <TextWidget Id="DiplomacyOutcome" WidthSizePolicy="Fixed" HeightSizePolicy="CoverChildren" SuggestedWidth="708" MarginBottom="24" Brush="DefaultText" Brush.Font="ReignSerifDynamic" Brush.FontSize="27" Brush.TextHorizontalAlignment="Left" Brush.FontColor="#A88A54FF" Text="@Outcome" />
+                        <TextWidget Id="DiplomacyReportText" WidthSizePolicy="Fixed" HeightSizePolicy="CoverChildren" SuggestedWidth="708" Brush="DefaultText" Brush.Font="ReignSerifDynamic" Brush.FontSize="24" Brush.TextHorizontalAlignment="Left" Brush.FontColor="#C5BDAFFF" Text="@ReportText" />
+                      </Children>
+                    </ListPanel>
+                  </Children>
+                </Widget>
+              </Children>
+            </ScrollablePanel>
+            <ScrollbarWidget Id="DiplomacyReportScrollbar" WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="8" SuggestedHeight="480" MarginLeft="1204" MarginTop="260" AlignmentAxis="Vertical" Handle="ReportHandle" MaxValue="100" MinValue="0">
+              <Children><Widget Id="ReportHandle" WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="6" SuggestedHeight="40" HorizontalAlignment="Center" Sprite="BlankWhiteSquare_9" Color="#A88A54FF" /></Children>
+            </ScrollbarWidget>
 
             <ButtonWidget Id="DiplomacyAcknowledge" WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="431" SuggestedHeight="68" HorizontalAlignment="Center" MarginTop="788" UpdateChildrenStates="true" DoNotPassEventsToChildren="true" Command.Click="ExecuteAcknowledge">
               <Children>
                 <Widget Id="DiplomacyAcknowledgeArt" DoNotAcceptEvents="true" IsVisible="false" WidthSizePolicy="StretchToParent" HeightSizePolicy="StretchToParent" />
                 <TextWidget Id="DiplomacyAcknowledgeLabel" DoNotAcceptEvents="true" WidthSizePolicy="StretchToParent" HeightSizePolicy="StretchToParent" Brush="DefaultText" Brush.Font="ReignSerifDynamic" Brush.FontSize="22" Brush.TextHorizontalAlignment="Center" Brush.FontColor="#C5AC83FF" Text="A C K N O W L E D G E" />
               </Children>
+            </ButtonWidget>
+          </Children>
+        </Widget>
+        <Widget Id="GovernmentNewsAnnouncement" IsVisible="@IsGovernmentNews" DoNotUseCustomScaleAndChildren="true" WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="!PanelWidth" SuggestedHeight="!PanelHeight" HorizontalAlignment="Center" VerticalAlignment="Center" Sprite="reign_government_news_shell">
+          <Children>
+            <TextWidget Id="GovernmentNewsTitle" WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="700" SuggestedHeight="38" MarginLeft="486" MarginTop="64" Brush="DefaultText" Brush.TextOutlineAmount="0" Brush.TextGlowRadius="0" Brush.TextBlur="0" Brush.Font="ReignSerifDynamic" Brush.FontSize="29" Brush.TextHorizontalAlignment="Center" Brush.FontColor="#A88A54FF" Text="THE REIGN HERALD" />
+            <TextWidget Id="GovernmentNewsDate" WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="700" SuggestedHeight="24" MarginLeft="486" MarginTop="106" Brush="DefaultText" Brush.TextOutlineAmount="0" Brush.TextGlowRadius="0" Brush.TextBlur="0" Brush.Font="ReignSerifDynamic" Brush.FontSize="16" Brush.TextHorizontalAlignment="Center" Brush.FontColor="#7E6A4DFF" Text="@DateText" />
+            <TextWidget Id="GovernmentNewsRailTitle" WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="272" SuggestedHeight="28" MarginLeft="110" MarginTop="185" Brush="DefaultText" Brush.TextOutlineAmount="0" Brush.TextGlowRadius="0" Brush.TextBlur="0" Brush.Font="ReignSerifDynamic" Brush.FontSize="20" Brush.TextHorizontalAlignment="Center" Brush.FontColor="#A88A54FF" Text="THE KINGDOMS" />
+            <ButtonWidget Id="GovernmentNewsAll" WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="272" SuggestedHeight="44" MarginLeft="110" MarginTop="220" Command.Click="ExecuteAllKingdoms" DoNotPassEventsToChildren="true">
+              <Children><TextWidget WidthSizePolicy="StretchToParent" HeightSizePolicy="StretchToParent" DoNotAcceptEvents="true" Brush="DefaultText" Brush.TextOutlineAmount="0" Brush.TextGlowRadius="0" Brush.TextBlur="0" Brush.Font="ReignSerifDynamic" Brush.FontSize="21" Brush.TextHorizontalAlignment="Center" Brush.FontColor="#C5AC83FF" Text="All kingdoms" /></Children>
+            </ButtonWidget>
+            <ReignGovernmentMemberScrollPanel Id="GovernmentNewsKingdomViewport" Type="ReignBeta.UI.ReignGovernmentMemberScrollPanel" WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="282" SuggestedHeight="528" MarginLeft="110" MarginTop="282" VisibleRows="6" ItemCount="@NewsKingdomCount" ClipRect="KingdomClip" InnerPanel="KingdomClip\KingdomFlow" VerticalScrollbar="..\GovernmentNewsKingdomScrollbar" AutoHideScrollBars="true" OnlyAcceptScrollEventIfCanScroll="true" MouseScrollAxis="Vertical">
+              <Children>
+                <Widget Id="KingdomClip" WidthSizePolicy="StretchToParent" HeightSizePolicy="StretchToParent" ClipContents="true">
+                  <Children>
+                    <ListPanel Id="KingdomFlow" DataSource="{NewsKingdoms}" WidthSizePolicy="StretchToParent" HeightSizePolicy="CoverChildren" StackLayout.LayoutMethod="VerticalTopToBottom">
+                      <ItemTemplate>
+                        <ButtonWidget WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="272" SuggestedHeight="84" MarginBottom="4" Sprite="reign_government_news_kingdom_card" Command.Click="ExecuteSelect" DoNotPassEventsToChildren="true">
+                          <Children>
+                            <TextWidget WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="244" SuggestedHeight="40" MarginLeft="14" MarginTop="8" DoNotAcceptEvents="true" Brush="DefaultText" Brush.TextOutlineAmount="0" Brush.TextGlowRadius="0" Brush.TextBlur="0" Brush.Font="ReignSerifDynamic" Brush.FontSize="20" Brush.FontColor="#A88A54FF" Text="@Name" />
+                            <TextWidget WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="244" SuggestedHeight="24" MarginLeft="14" MarginTop="50" DoNotAcceptEvents="true" Brush="DefaultText" Brush.TextOutlineAmount="0" Brush.TextGlowRadius="0" Brush.TextBlur="0" Brush.Font="ReignSerifDynamic" Brush.FontSize="16" Brush.FontColor="#8A8883FF" Text="@Summary" />
+                          </Children>
+                        </ButtonWidget>
+                      </ItemTemplate>
+                    </ListPanel>
+                  </Children>
+                </Widget>
+              </Children>
+            </ReignGovernmentMemberScrollPanel>
+            <ScrollbarWidget Id="GovernmentNewsKingdomScrollbar" WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="6" SuggestedHeight="528" MarginLeft="386" MarginTop="282" AlignmentAxis="Vertical" Handle="KingdomHandle" MaxValue="100" MinValue="0"><Children><Widget Id="KingdomHandle" WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="4" SuggestedHeight="38" Sprite="BlankWhiteSquare" Color="#7E6A4DFF" /></Children></ScrollbarWidget>
+            <ScrollablePanel Id="GovernmentNewsReportViewport" WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="1098" SuggestedHeight="600" MarginLeft="452" MarginTop="207" ClipRect="GovernmentReportClip" InnerPanel="GovernmentReportClip\GovernmentReportFlow" VerticalScrollbar="..\GovernmentNewsReportScrollbar" AutoHideScrollBars="true" OnlyAcceptScrollEventIfCanScroll="true" MouseScrollAxis="Vertical">
+              <Children>
+                <Widget Id="GovernmentReportClip" WidthSizePolicy="StretchToParent" HeightSizePolicy="StretchToParent" ClipContents="true">
+                  <Children>
+                    <ListPanel Id="GovernmentReportFlow" WidthSizePolicy="Fixed" HeightSizePolicy="CoverChildren" SuggestedWidth="1074" StackLayout.LayoutMethod="VerticalTopToBottom">
+                      <Children>
+                        <TextWidget Id="GovernmentNewsHeading" Brush.TextHorizontalAlignment="Left" WidthSizePolicy="Fixed" HeightSizePolicy="CoverChildren" SuggestedWidth="1074" MarginBottom="26" Brush="DefaultText" Brush.TextOutlineAmount="0" Brush.TextGlowRadius="0" Brush.TextBlur="0" Brush.Font="ReignSerifDynamic" Brush.FontSize="27" Brush.FontColor="#A88A54FF" Text="@GovernmentNewsHeading" />
+                        <TextWidget Id="GovernmentNewsBody" Brush.TextHorizontalAlignment="Left" WidthSizePolicy="Fixed" HeightSizePolicy="CoverChildren" SuggestedWidth="1074" Brush="DefaultText" Brush.TextOutlineAmount="0" Brush.TextGlowRadius="0" Brush.TextBlur="0" Brush.Font="ReignSerifDynamic" Brush.FontSize="24" Brush.FontColor="#C5BDAFFF" Text="@GovernmentNewsBody" />
+                      </Children>
+                    </ListPanel>
+                  </Children>
+                </Widget>
+              </Children>
+            </ScrollablePanel>
+            <ScrollbarWidget Id="GovernmentNewsReportScrollbar" WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="8" SuggestedHeight="600" MarginLeft="1552" MarginTop="207" AlignmentAxis="Vertical" Handle="GovernmentReportHandle" MaxValue="100" MinValue="0"><Children><Widget Id="GovernmentReportHandle" WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="6" SuggestedHeight="40" Sprite="BlankWhiteSquare" Color="#A88A54FF" /></Children></ScrollbarWidget>
+            <ButtonWidget Id="GovernmentNewsAcknowledge" WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="327" SuggestedHeight="44" MarginLeft="672" MarginTop="845" Command.Click="ExecuteAcknowledge" DoNotPassEventsToChildren="true">
+              <Children><TextWidget WidthSizePolicy="StretchToParent" HeightSizePolicy="StretchToParent" DoNotAcceptEvents="true" Brush="DefaultText" Brush.TextOutlineAmount="0" Brush.TextGlowRadius="0" Brush.TextBlur="0" Brush.Font="ReignSerifDynamic" Brush.FontSize="21" Brush.TextHorizontalAlignment="Center" Brush.FontColor="#C5AC83FF" Text="ACKNOWLEDGE" /></Children>
             </ButtonWidget>
           </Children>
         </Widget>

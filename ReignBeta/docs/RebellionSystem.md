@@ -27,6 +27,16 @@ The declaration is unilateral. The ruler cannot refuse it. A mailed declaration 
 
 The player starts alone in a real `reign_rebels_*` kingdom. After declaration, the player may ask any living, free lord from any realm to join through direct conversation or mail. The server queues recruitment only after the NPC's LLM response unambiguously accepts. Because Bannerlord kingdom membership is clan-based, the accepting lord's entire clan transfers to the player rebel kingdom and remains committed until resolution, then returns to its recorded origin when possible.
 
+## Outbreak Resident Escape (2026-10-10)
+
+Before any outbreak clan transfer or war declaration, Reign checks free noble family members without mobile parties in the parent realm's towns and castles against each holding's final allegiance. Rebel residents in future loyalist holdings escape automatically. Loyalist residents in future rebel holdings receive one **25% escape chance per noble**; failed rolls remain for Bannerlord's normal settlement capture.
+
+Successful escape teleports the noble to a safe town or castle on their side, preferring their home, then their clan's holding, then stable settlement ordering. Besieged holdings and active battles are excluded. If no safe holding exists, the noble goes into hiding through the native fugitive action. A departing governor is removed from office before relocation. Children and other noble family members have the same protection as adult residents. Dormant residents use native leave/enter actions to preserve their lifecycle state when moved to a holding; the general teleport action would activate them.
+
+The loyalist roll is derived from the movement and hero identities, so retries of the same outbreak cannot reroll it. The existing saved execution snapshot records origins, destinations, rolls and outcomes without adding native save fields. Existing prisoners, the player hero, mobile parties, unrelated kingdoms, wanderers and notables are excluded. Army splitting and field combat continue through native behavior. This applies to new NPC and player outbreaks; it does not release prisoners from an already-declared war.
+
+Offline resident-policy contracts and licensed client compilation establish planning and API compatibility. Actual relocation, governor cleanup, capture outcomes and save/load still require guarded disposable-campaign acceptance after deployment; see `docs/agent/testing/FEATURE_HARNESSES.md`.
+
 ## Leadership-Bound Resolution
 
 The sole objective is the throne. There are no grievance, conspiracy, coalition, ultimatum, viability, territorial-score, strategic-advantage, succession, or automatic-stalemate stages.

@@ -51,6 +51,9 @@ namespace ReignBeta.Integration
 
     public sealed class ReignPoliticalPressureNotice
     {
+        public string NewsDescription = string.Empty;
+        public string OriginKingdomId = string.Empty, TargetKingdomId = string.Empty;
+        public string OriginRulerId = string.Empty, TargetRulerId = string.Empty;
         public string IncidentId = string.Empty;
         public string TimelineId = string.Empty;
         public string Headline = string.Empty;
@@ -64,6 +67,7 @@ namespace ReignBeta.Integration
         public string TargetRulerName = string.Empty;
         public string OriginStance = string.Empty;
         public string TargetStance = string.Empty;
+        public string[] OriginPetitioners = new string[0], TargetPetitioners = new string[0];
         public int OriginPressureBefore;
         public int OriginPressureAfter;
         public int TargetPressureBefore;
@@ -75,6 +79,8 @@ namespace ReignBeta.Integration
 
     public sealed class ReignClanConflictNotice
     {
+        public string NewsDescription = string.Empty;
+        public string KingdomId = string.Empty, RulerId = string.Empty, LeaderAId = string.Empty, LeaderBId = string.Empty;
         public string IncidentId = string.Empty;
         public string TimelineId = string.Empty;
         public string Headline = string.Empty;
@@ -225,6 +231,11 @@ namespace ReignBeta.Integration
             {
                 ReignPoliticalPressureNotice notice = new ReignPoliticalPressureNotice
                 {
+                    NewsDescription = ReadString(item, "news_description", string.Empty),
+                    OriginKingdomId = ReadString(item, "origin_kingdom_id", string.Empty),
+                    TargetKingdomId = ReadString(item, "target_kingdom_id", string.Empty),
+                    OriginRulerId = ReadString(item, "origin_ruler_id", string.Empty),
+                    TargetRulerId = ReadString(item, "target_ruler_id", string.Empty),
                     IncidentId = ReadString(item, "incident_id", string.Empty),
                     TimelineId = ReadString(item, "timeline_id", timelineId),
                     Headline = ReadString(item, "headline", "Political Pressure"),
@@ -238,6 +249,8 @@ namespace ReignBeta.Integration
                     TargetRulerName = ReadString(item, "target_ruler_name", string.Empty),
                     OriginStance = ReadString(item, "origin_stance", string.Empty),
                     TargetStance = ReadString(item, "target_stance", string.Empty),
+                    OriginPetitioners = ReadPoliticalPressurePetitioners(item, "origin_lords_json"),
+                    TargetPetitioners = ReadPoliticalPressurePetitioners(item, "target_lords_json"),
                     OriginPressureBefore = item.Value<int?>("origin_pressure_before") ?? 0,
                     OriginPressureAfter = item.Value<int?>("origin_pressure_after") ?? 0,
                     TargetPressureBefore = item.Value<int?>("target_pressure_before") ?? 0,
@@ -258,6 +271,19 @@ namespace ReignBeta.Integration
                 results.Add(notice);
             }
             return results;
+        }
+
+        private static string[] ReadPoliticalPressurePetitioners(JObject item, string key)
+        {
+            try
+            {
+                JToken value = item[key];
+                if (!(value is JArray) && value?.Type != JTokenType.String) return new string[0];
+                JArray names = value as JArray ?? JArray.Parse(value.Value<string>());
+                return names.Where(n => n.Type == JTokenType.String).Select(n => ((string)n).Trim())
+                    .Where(n => n.Length > 0).Distinct(StringComparer.Ordinal).ToArray();
+            }
+            catch (JsonException) { return new string[0]; }
         }
 
         public static async Task AcknowledgePoliticalPressureNoticeAsync(string incidentId,
@@ -285,6 +311,11 @@ namespace ReignBeta.Integration
             {
                 ReignClanConflictNotice notice = new ReignClanConflictNotice
                 {
+                    NewsDescription = ReadString(item, "news_description", string.Empty),
+                    KingdomId = ReadString(item, "kingdom_id", string.Empty),
+                    RulerId = ReadString(item, "ruler_id", string.Empty),
+                    LeaderAId = ReadString(item, "leader_a_id", string.Empty),
+                    LeaderBId = ReadString(item, "leader_b_id", string.Empty),
                     IncidentId = ReadString(item, "incident_id", string.Empty),
                     TimelineId = ReadString(item, "timeline_id", timelineId),
                     Headline = ReadString(item, "headline", "Clan Conflict"),

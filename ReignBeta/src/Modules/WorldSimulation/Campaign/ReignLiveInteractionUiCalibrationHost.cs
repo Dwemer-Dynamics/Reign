@@ -30,6 +30,7 @@ namespace ReignBeta.Campaign
         private static string _uiCalibrationMovie = string.Empty;
         private static TaleWorlds.CampaignSystem.Campaign _uiCalibrationClockCampaign;
         private static double _uiCalibrationClockDayBefore;
+        private static bool _uiCalibrationOpenedFromMap;
 
         private static async Task<LiveCommandResult> UiOpenAsync(JObject command)
         {
@@ -41,6 +42,7 @@ namespace ReignBeta.Campaign
 
             ReignUiCalibrationService.AcquireAutomationLease(UiCalibrationAutomationLeaseOwner);
             bool keepAutomationLease = false;
+            _uiCalibrationOpenedFromMap = false;
             try
             {
                 if (IsNativeUiTarget(target))
@@ -51,23 +53,39 @@ namespace ReignBeta.Campaign
                 }
 
                 ReignCourtCampaignBehavior court = ReignCourtCampaignBehavior.Instance;
-                if (court == null)
+                if (court == null && target != "government")
                     return LiveCommandResult.Failed("The production court controller is unavailable.");
 
             JObject uiEnrollment = command["enrollment"] as JObject;
-            bool docketClockIsolation = (target == "court" || target == "family-chambers" || target == "royal-council")
+            // Standalone announcement previews also exit the native wait menu.
+            // Their public CLI carries no docket enrollment fields, but preview
+            // navigation must still preserve the paused day through cleanup.
+            bool docketClockIsolation = target == "diplomacy-announcement"
+                || ((target == "court" || target == "family-chambers" || target == "royal-council")
                 && ((!string.IsNullOrWhiteSpace(command.Value<string>("campaignTestRunId"))
                     && !string.IsNullOrWhiteSpace(command.Value<string>("expectedSaveName")))
                     || (!string.IsNullOrWhiteSpace(uiEnrollment?.Value<string>("campaignTestRunId"))
-                        && !string.IsNullOrWhiteSpace(uiEnrollment?.Value<string>("disposableSaveName"))));
+                        && !string.IsNullOrWhiteSpace(uiEnrollment?.Value<string>("disposableSaveName")))));
             double docketWorldDayBefore = -1;
 
             string sessionError = await ReignMainThread.InvokeAsync(() =>
             {
+                // Government is also a public/member interface. Opening it must
+                // not require becoming a ruler, starting court, or exiting town.
+                if (target == "government")
+                {
+                    if (TaleWorlds.CampaignSystem.Campaign.Current?.TimeControlMode != CampaignTimeControlMode.Stop)
+                        return "Pause and drain the campaign before opening Government.";
+                    _uiCalibrationClockCampaign = TaleWorlds.CampaignSystem.Campaign.Current;
+                    _uiCalibrationClockDayBefore = CampaignTime.Now.ToDays;
+                    _uiCalibrationOpenedFromMap = Settlement.CurrentSettlement == null
+                        && MobileParty.MainParty?.CurrentSettlement == null;
+                    return Clan.PlayerClan?.Kingdom == null ? "Join or found a kingdom before opening this Government target." : string.Empty;
+                }
                 if (docketClockIsolation)
                 {
                     if (TaleWorlds.CampaignSystem.Campaign.Current?.TimeControlMode != CampaignTimeControlMode.Stop)
-                        return "Pause and drain the enrolled campaign before opening a docket test.";
+                        return "Pause and drain the campaign before opening this calibration test.";
                     docketWorldDayBefore = CampaignTime.Now.ToDays;
                     _uiCalibrationClockCampaign = TaleWorlds.CampaignSystem.Campaign.Current;
                     _uiCalibrationClockDayBefore = docketWorldDayBefore;
@@ -262,7 +280,7 @@ namespace ReignBeta.Campaign
                 if (clock.Value<bool>("timePaused") != true || clock.Value<double>("worldDayAfter") != docketWorldDayBefore)
                 {
                     await ReignMainThread.InvokeAsync(court.PauseTime).ConfigureAwait(false);
-                    return LiveCommandResult.Failed("Docket opening did not preserve the paused campaign day.", openedState);
+                    return LiveCommandResult.Failed("Calibration opening did not preserve the paused campaign day.", openedState);
                 }
             }
             keepAutomationLease = true;
@@ -486,9 +504,12 @@ namespace ReignBeta.Campaign
                 {
                     ReignGovernmentScreenManager.Close(false);
                     ReignCourtCampaignBehavior court = ReignCourtCampaignBehavior.Instance;
-                    if (court != null)
+                    if (court?.IsRuleModeActive == true)
+                    {
                         ReignCourtScreenManager.Open(court);
-                    return true;
+                        return true;
+                    }
+                    return false;
                 }
                 if (ReignSpymasterScreenManager.IsOpen)
                 {
@@ -575,6 +596,16 @@ namespace ReignBeta.Campaign
         private static async Task<LiveCommandResult> RestoreSettlementMenuAfterCalibrationAsync(
             string successMessage)
         {
+            if (_uiCalibrationOpenedFromMap)
+                return await ReignMainThread.InvokeAsync(() => PreserveCalibrationClock(() =>
+                {
+                    if (!ReferenceEquals(_uiCalibrationClockCampaign, TaleWorlds.CampaignSystem.Campaign.Current)
+                        || !(Game.Current?.GameStateManager?.ActiveState is MapState)
+                        || Settlement.CurrentSettlement != null || MobileParty.MainParty?.CurrentSettlement != null)
+                        return LiveCommandResult.Failed("The original campaign map context is unavailable after closing Government.", UiStateJson());
+                    return CalibrationClockResult(successMessage, UiStateJson());
+                })).ConfigureAwait(false);
+
             string restoreError = await ReignMainThread.InvokeAsync(() =>
                 PreserveCalibrationClock(RestoreSettlementMenuAfterCalibration)).ConfigureAwait(false);
             if (!string.IsNullOrWhiteSpace(restoreError))
@@ -660,6 +691,7 @@ namespace ReignBeta.Campaign
 
         private static void ClearCalibrationClockGuard()
         {
+            _uiCalibrationOpenedFromMap = false;
             _uiCalibrationClockCampaign = null;
             _uiCalibrationClockDayBefore = 0;
         }
@@ -1233,8 +1265,12 @@ namespace ReignBeta.Campaign
                 ActionId = "ui_calibration",
                 Title = "A FORMAL DECLARATION",
                 Outcome = "Envoys exchange sealed terms before the assembled court.",
-                Summary = "This temporary announcement verifies native portrait, banner, and text geometry without changing diplomacy.",
-                Terms = "No campaign action, relation, pressure, or reputation value is changed.",
+                Summary = "The envoys have returned from the border with the terms of a proposed settlement. Both courts have heard the accounts of merchants, village elders and the commanders responsible for guarding the roads. The agreement sets out how disputes will be heard and how ordinary traffic can resume without further seizures.\n\n"
+                    + "The disputed crossing will remain open to caravans from either realm. Its watchmen will record the goods that pass through, and no additional toll may be collected without the consent of both courts. Traders who can prove that their goods were taken during the dispute will be allowed to present their claims before the next gathering of the council.\n\n"
+                    + "The frontier villages will receive notice before either side moves troops through their fields. Patrol commanders must respect the harvest and keep their soldiers away from stored grain. Any complaint against a patrol will be delivered to both rulers, together with the names of those who witnessed the incident.",
+                Terms = "Prisoners covered by the agreement will be exchanged at the crossing. Each court will name an envoy to witness their return and record any claim that remains unsettled. Families waiting for news will be informed before the escorts depart.\n\n"
+                    + "The settlement will be read aloud in the market towns along the route. Copies will be sent to the noble houses responsible for the border, so that their stewards and garrisons receive the same instructions. Neither court will treat an unverified rumor as grounds for breaking the agreement.\n\n"
+                    + "This is a temporary presentation fixture. No campaign action, relation, pressure, reputation, prisoner or settlement state is changed. The final paragraph must remain reachable by scrolling, with the acknowledge button available throughout.",
                 ActorHeroStringId = actor?.StringId ?? string.Empty,
                 ActorName = actor?.Name?.ToString() ?? "Foreign Envoy",
                 ActorKingdomName = actorKingdom?.Name?.ToString() ?? "A Foreign Realm",

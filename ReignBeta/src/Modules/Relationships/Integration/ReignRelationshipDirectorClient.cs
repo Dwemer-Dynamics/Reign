@@ -8,6 +8,7 @@ using System.Text;
 using System.Threading.Tasks;
 using Newtonsoft.Json.Linq;
 using ReignBeta.Family;
+using ReignBeta.Campaign;
 using TaleWorlds.CampaignSystem;
 using TaleWorlds.CampaignSystem.Party;
 using TaleWorlds.CampaignSystem.Settlements;
@@ -112,6 +113,11 @@ namespace ReignBeta.Integration
                 await PostJsonAsync("/family/conception/report", new JObject
                 {
                     ["campaignId"] = GetCampaignId(),["conceptionId"] = record.ConceptionId,["status"] = status ?? record.Status,
+                    ["timelineId"] = ReignWorldHistoryCampaignBehavior.Instance?.TimelineId ?? "main",
+                    ["conceptionDay"] = record.ConceptionDay, ["dueDay"] = record.DueDay, ["secrecy"] = record.Secrecy,
+                    ["motherExposed"] = record.MotherExposed, ["fatherExposed"] = record.FatherExposed,
+                    ["spouseAtConceptionId"] = record.SpouseAtConceptionId, ["marriageAtConceptionKnown"] = record.MarriageAtConceptionKnown,
+                    ["contextSource"] = record.ContextSource,
                     ["childId"] = childId ?? string.Empty,["motherId"] = record.MotherId,["biologicalFatherId"] = record.BiologicalFatherId,
                     ["legalFatherId"] = record.LegalFatherId,["worldDay"] = CurrentDirectorDay(),["isIllegitimate"] = record.IsIllegitimate
                 }).ConfigureAwait(false);

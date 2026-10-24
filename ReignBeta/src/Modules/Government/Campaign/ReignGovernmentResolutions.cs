@@ -26,7 +26,9 @@ namespace ReignBeta.Government
         {
             ReignGovernmentStateRecord state = EnsureGovernment(kingdom);
             if (state == null) return null;
-            if (state.NextMeetingDay >= 0f && CurrentDay() + 0.01f < state.NextMeetingDay)
+            EnsureSessionCalendar(state);
+            if (state.SessionProtocolVersion == 0) return null;
+            if (state.NextMeetingDay >= 0f && CampaignTime.Now.ToDays < state.NextMeetingDay)
             {
                 return _meetings.Where(x => Same(x.KingdomStringId, kingdom.StringId))
                     .OrderByDescending(x => x.MeetingDay).FirstOrDefault();
@@ -282,26 +284,11 @@ namespace ReignBeta.Government
             ReignGovernmentStateRecord state,
             bool playerAttended)
         {
-            ReconcileMembership(kingdom, state, false);
-            float day = CurrentDay();
-            HashSet<string> evidenceTags = CollectEvidenceTags(kingdom);
-            var proposed = new List<ReignGovernmentResolutionRecord>();
-            HashSet<string> usedTemplates = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
-            foreach (ReignGovernmentPartyRecord party in GetParties(kingdom.StringId).Where(x => x.SeatCount > 0))
-            {
-                List<ReignGovernmentPlank> planks = ParsePlanks(party.PlanksCsv);
-                ReignGovernmentResolutionTemplate template = ReignGovernmentResolutionCatalog.Templates
-                    .Where(x => !usedTemplates.Contains(x.Id)
-                        && ReignGovernmentResolutionCatalog.IsEligible(x, evidenceTags, planks))
-                    .OrderBy(x => ReignGovernmentRules.StableHash("resolution|" + kingdom.StringId + "|" + party.PartyId
-                        + "|" + (int)Math.Floor(day / ReignGovernmentRules.SeasonalMeetingDays) + "|" + x.Id))
-                    .FirstOrDefault();
-                if (template == null) continue;
-                usedTemplates.Add(template.Id);
-                ReignGovernmentResolutionRecord record = CreateResolution(kingdom, state, party, template, day);
-                _resolutions.Add(record);
-                proposed.Add(record);
-            }
+            EnsureSessionCalendar(state);
+            float day = state.NextMeetingDay;
+            ProcessParticipationSession(kingdom, state, day);
+            var proposed = _resolutions.Where(x => x.KingdomStringId == kingdom.StringId
+                && Math.Abs(x.ProposedDay - CurrentDay()) < .01f).ToList();
 
             var meeting = new ReignGovernmentMeetingRecord
             {
@@ -313,7 +300,7 @@ namespace ReignBeta.Government
                 ProviderCallCount = 0,
                 PlayerAttended = playerAttended,
                 Summary = proposed.Count == 0
-                    ? state.InstitutionName + " found no evidence-backed demand to advance this season."
+                    ? state.InstitutionName + " found no evidence-backed demand to advance this session."
                     : state.InstitutionName + " advanced " + proposed.Count + " evidence-backed resolutions through party speakers.",
                 Revision = 1
             };
@@ -333,13 +320,12 @@ namespace ReignBeta.Government
                 }
             }
             meeting.SpeakerStatementsJson = statements.ToString(Newtonsoft.Json.Formatting.None);
-            _meetings.Add(meeting);
+            RecordGovernmentMeeting(meeting);
             state.LastMeetingDay = day;
-            state.NextMeetingDay = day + ReignGovernmentRules.SeasonalMeetingDays;
+            state.NextMeetingDay = NextGovernmentSessionDay(day);
             state.LastMeetingSummary = meeting.Summary;
             state.Revision++;
-            if (!playerAttended && kingdom.Leader != Hero.MainHero)
-                ApplyNpcMeetingDisposition(kingdom, state, proposed);
+            AdvanceRegularGovernmentSession(kingdom, state, day);
             return meeting;
         }
 
@@ -396,6 +382,25 @@ namespace ReignBeta.Government
             }
             return true;
         }
+
+        private static bool RequiresRecordedPrisoner(ReignGovernmentResolutionTemplate template) => template != null
+            && new[] { template.FirstRoute.Action, template.SecondRoute.Action }.Any(action =>
+                action == ReignGovernmentResolutionAction.ReleasePrisoners
+                || action == ReignGovernmentResolutionAction.RansomPrisoners
+                || action == ReignGovernmentResolutionAction.ExchangePrisoners);
+
+        private static bool CanPrepareSeasonalPrisonerTarget(Kingdom kingdom, ReignGovernmentResolutionTemplate template)
+        {
+            if (!RequiresRecordedPrisoner(template)) return true;
+            if (kingdom == null) return false;
+            var settlement = SelectTargetSettlement(kingdom, template.EvidenceTag);
+            var hero = SelectTargetHero(kingdom, template.EvidenceTag, settlement, SelectTargetClan(kingdom));
+            return hero?.IsAlive == true && hero.IsPrisoner;
+        }
+
+        private static bool HasRecordedSeasonalPrisonerTarget(ReignGovernmentResolutionRecord resolution,
+            ReignGovernmentResolutionTemplate template) => !RequiresRecordedPrisoner(template)
+                || FindHero(resolution?.TargetHeroStringId)?.IsAlive == true;
 
         private ReignGovernmentResolutionRecord CreateResolution(
             Kingdom kingdom,
@@ -469,6 +474,15 @@ namespace ReignBeta.Government
                     continue;
                 }
                 ReignGovernmentResolutionAction action = (ReignGovernmentResolutionAction)record.RouteActionValue;
+                if (!HasRecordedSeasonalPrisonerTarget(record, template))
+                {
+                    // A legacy targetless obligation cannot become a penalty or be
+                    // silently rebound to a different prisoner's release.
+                    record.Status = "invalidated";
+                    record.Outcome = "The recorded prisoner is unavailable. This obligation is closed without a failure penalty.";
+                    record.ResolvedDay = CurrentDay(); record.Revision++;
+                    continue;
+                }
 #if !REIGN_EXCLUDE_COURT
                 ApplySpymasterResolutionProgress(kingdom, record, action);
 #endif
@@ -783,7 +797,10 @@ namespace ReignBeta.Government
             bool atWar = Kingdom.All.Any(x => x != kingdom && !x.IsEliminated && kingdom.GetStanceWith(x).IsAtWar);
             if (fiefs.Any(x => x.Loyalty < 40f)) Add(tags, "low_loyalty", "low_castle_loyalty", "realmwide_low_loyalty", "low_loyalty_tax", "rebellious_state");
             if (fiefs.Any(x => x.Prosperity < 3000f)) Add(tags, "low_prosperity", "realm_stagnation", "trade_growth");
-            if (fiefs.Any(x => x.Security < 40f)) Add(tags, "low_security", "criminal_activity", "extortion_history");
+            if (fiefs.Any(x => x.Security < 40f)) Add(tags, "low_security", "extortion_history");
+            if (SelectTownCrimeTargetId(fiefs.Where(x => x.Settlement.IsTown)
+                .Select(x => new KeyValuePair<string, float>(x.Settlement.StringId, x.Security))) != null)
+                tags.Add("criminal_activity");
             if (fiefs.Any(x => x.FoodChange < 0f || x.FoodStocks < 20f)) Add(tags, "low_food", "crop_failure", "high_food_price", "food_shortage_project");
             if (fiefs.Any(x => (x.GarrisonParty?.MemberRoster?.TotalManCount ?? 0) < 75)) Add(tags, "weak_garrison", "enemy_border", "siege_risk", "border_hardship");
             if (fiefs.Any(x => (x.GarrisonParty?.MemberRoster?.TotalManCount ?? 0) > 300)) Add(tags, "garrison_excess", "peace_garrison_cost");
@@ -815,6 +832,12 @@ namespace ReignBeta.Government
         private static Settlement SelectTargetSettlement(Kingdom kingdom, string tag)
         {
             IEnumerable<Settlement> owned = Settlement.All.Where(x => x != null && x.MapFaction == kingdom && (x.IsTown || x.IsCastle || x.IsVillage));
+            if (Same(tag, "criminal_activity"))
+            {
+                string targetId = SelectTownCrimeTargetId(owned.Where(x => x.IsTown && x.Town != null)
+                    .Select(x => new KeyValuePair<string, float>(x.StringId, x.Town.Security)));
+                return owned.FirstOrDefault(x => Same(x.StringId, targetId));
+            }
             if ((tag ?? string.Empty).IndexOf("village", StringComparison.OrdinalIgnoreCase) >= 0
                 || (tag ?? string.Empty).IndexOf("raid", StringComparison.OrdinalIgnoreCase) >= 0
                 || (tag ?? string.Empty).IndexOf("hearth", StringComparison.OrdinalIgnoreCase) >= 0
@@ -825,6 +848,17 @@ namespace ReignBeta.Government
                 return owned.Where(x => x.IsTown).OrderBy(x => x.Town?.Prosperity ?? float.MaxValue).FirstOrDefault();
             return owned.Where(x => x.IsFortification).OrderBy(x => x.Town?.Loyalty ?? float.MaxValue).FirstOrDefault()
                 ?? owned.FirstOrDefault();
+        }
+
+        // Callers supply owned towns only. Evidence and target selection share the
+        // same threshold; a castle or a recovered town cannot supply R029's need.
+        private static string SelectTownCrimeTargetId(IEnumerable<KeyValuePair<string, float>> towns)
+        {
+            return (towns ?? Enumerable.Empty<KeyValuePair<string, float>>())
+                .Where(x => !string.IsNullOrWhiteSpace(x.Key) && !float.IsNaN(x.Value)
+                    && !float.IsInfinity(x.Value) && x.Value < 40f)
+                .OrderBy(x => x.Value).ThenBy(x => x.Key, StringComparer.Ordinal)
+                .Select(x => x.Key).FirstOrDefault();
         }
 
         private static Kingdom SelectTargetKingdom(Kingdom kingdom)

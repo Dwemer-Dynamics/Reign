@@ -78,13 +78,13 @@ namespace ReignBeta.Campaign
                 "reignbeta_speak_with_them",
                 "hero_main_options",
                 OutputToken,
-                "Speak with them.",
+                "Approach.",
                 CanSpeakWithThem,
                 SpeakWithThem,
                 108);
             starter.AddDialogLine("reignbeta_speak_with_them_return", OutputToken, "hero_main_options", "{=*}...", null, null);
             _residentOption = starter.AddPlayerLine("reignbeta_meet_resident", "reignbeta_resident_input",
-                "reignbeta_resident_chat_done", "Speak with them.", CanMeetResident, SpeakWithResident, 108);
+                "reignbeta_resident_chat_done", "Approach.", CanMeetResident, SpeakWithResident, 108);
             _residentResume = starter.AddPlayerLine("reignbeta_resume_resident", "reignbeta_resident_input",
                 "reignbeta_resident_chat_done", "Continue our conversation.",
                 () => CanMeetResident() && CanResume(GetConversationHero()), () => ResumeConversation(GetConversationHero()), 109);

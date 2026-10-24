@@ -170,6 +170,11 @@ namespace ReignBeta.Campaign
         {
             RepairAttendeeRosters();
             RepairTournamentCelebrationPresentation();
+            // A saved invitation is not evidence of meeting its guest list.
+            // Only sessions the player actually attended may repair native knowledge.
+            foreach (SocialEventRecord record in _events.Where(record => record != null
+                && (record.Status == SocialEventStatus.Attended || record.Status == SocialEventStatus.Resolved)))
+                ReignHeroKnowledge.MarkMet(record.GetAttendees());
         }
 
         private void OnDailyTick()

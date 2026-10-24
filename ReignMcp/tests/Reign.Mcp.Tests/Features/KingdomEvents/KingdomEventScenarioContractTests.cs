@@ -2,11 +2,35 @@ using System.Net;
 using System.Text;
 using System.Text.Json;
 using Reign.Mcp.Server;
+using Reign.Core.Contracts.World;
 
 namespace Reign.Mcp.Tests;
 
 public sealed class KingdomEventScenarioContractTests
 {
+    [Fact]
+    public void StackedWorldAnnouncementsAcknowledgeOnlyTheirCurrentHeadWithoutReplay()
+    {
+        var state = new ReignNewsState();
+        var options = new ReignNewsOptions();
+        foreach (string id in new[] { "crier:world:famine:began", "crier:world:prosperity:began", "crier:world:famine:ended" })
+            Assert.True(state.Publish(new ReignNewsArticle { Id = id, Category = ReignNewsCategories.WorldEvents,
+                Title = "News from the realm", Body = "The full account and its consequences." }, options, true));
+        Assert.False(state.Acknowledge("a foreign inquiry"));
+        Assert.False(state.Acknowledge("crier:world:prosperity:began"));
+        Assert.Equal(3, state.Pending.Count);
+        Assert.True(state.Acknowledge("crier:world:famine:began"));
+        Assert.False(state.Acknowledge("crier:world:famine:began"));
+        Assert.Equal(new[] { "crier:world:prosperity:began", "crier:world:famine:ended" }, state.Pending.Select(x => x.Id));
+        Assert.True(state.Acknowledge("crier:world:prosperity:began"));
+        Assert.True(state.Acknowledge("crier:world:famine:ended"));
+        Assert.Empty(state.Pending);
+        var repeated = new ReignNewsArticle { Id = "crier:world:famine:began", Category = ReignNewsCategories.WorldEvents,
+            Title = "News from the realm", Body = "The same valid notice must not replay." };
+        Assert.True(repeated.IsValid);
+        Assert.False(state.Publish(repeated, options, true));
+    }
+
     [Fact]
     public async Task McpKingdomEventToolRefusesAnUnarmedCampaignTestEnrollment()
     {

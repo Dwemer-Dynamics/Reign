@@ -4,6 +4,25 @@
     <IsPackable>false</IsPackable>
   </PropertyGroup>
   <ItemGroup>
+    <Compile Include="..\..\..\ReignBeta\src\Modules\Platform\Integration\ReignPartyChatSessionRequest.cs"
+             Link="Shared\ReignPartyChatSessionRequest.cs" />
+    <Compile Include="..\..\..\ReignBeta\src\Modules\Dialogue\Runtime\ReignConversationInputJournal.cs"
+             Link="Shared\ReignConversationInputJournal.cs" />
+    <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
+    <Compile Include="..\..\..\ReignBeta\src\Modules\Characters\Domain\NpcMeetingMovementEvidence.cs"
+             Link="Shared\NpcMeetingMovementEvidence.cs" />
+    <Compile Include="..\..\..\ReignBeta\src\Modules\WorldSimulation\Domain\ReignPassiveWorldAdvanceBoundary.cs"
+             Link="Shared\ReignPassiveWorldAdvanceBoundary.cs" />
+    <Compile Include="..\..\..\ReignBeta\src\Modules\WorldSimulation\Domain\RulerReleaseActionPolicy.cs"
+             Link="Shared\RulerReleaseActionPolicy.cs" />
+    <Compile Include="..\..\..\ReignBeta\src\Modules\WorldSimulation\World\ReignWorldActionType.cs"
+             Link="Shared\ReignWorldActionType.cs" />
+    <Compile Include="..\..\..\ReignBeta\src\Modules\Portraits\UI\Portraits\ReignPortraitBustFraming.cs"
+             Link="Shared\ReignPortraitBustFraming.cs" />
+    <Compile Include="..\..\..\ReignBeta\src\Modules\WorldSimulation\World\ReignSurrenderHandoff.cs"
+             Link="Shared\ReignSurrenderHandoff.cs" />
+    <Compile Include="..\..\..\ReignBeta\src\Modules\Rebellion\Campaign\ReignRebellionResidentEscape.cs"
+             Link="Shared\ReignRebellionResidentEscape.cs" />
     <Compile Include="..\..\..\ReignBeta\src\Modules\Dialogue\UI\ReignBanterWindowState.cs"
              Link="Shared\ReignBanterWindowState.cs" />
     <Compile Include="..\..\..\ReignBeta\src\Modules\Arena\ArenaOverhaul\Tournament\TournamentHeroEligibility.cs"
@@ -20,6 +39,8 @@
              Link="Shared\ReignSavePayloadCodec.cs" />
     <Compile Include="..\..\..\ReignBeta\src\Modules\WorldSimulation\Integration\ReignWorldHistoryFlushPolicy.cs"
              Link="Shared\ReignWorldHistoryFlushPolicy.cs" />
+    <Compile Include="..\..\..\ReignBeta\src\Modules\WorldSimulation\Integration\ReignWorldHistoryOutbox.cs"
+             Link="Shared\ReignWorldHistoryOutbox.cs" />
     <Compile Include="..\..\..\ReignBeta\src\Modules\Platform\Integration\ReignCampaignReadinessState.cs"
              Link="Shared\ReignCampaignReadinessState.cs" />
     <Compile Include="..\..\..\ReignBeta\src\Modules\Relationships\UI\ReignPlayerApproachPresentationPolicy.cs"
@@ -35,6 +56,12 @@
              Link="Shared\ReignGovernmentBusinessRecord.cs" />
     <Compile Include="..\..\..\ReignBeta\src\Modules\Government\Domain\ReignGovernmentNativeSafety.cs"
              Link="Shared\ReignGovernmentNativeSafety.cs" />
+    <Compile Include="..\..\..\ReignBeta\src\Modules\Government\Domain\GovernmentAttendanceResidencePolicy.cs"
+             Link="Shared\GovernmentAttendanceResidencePolicy.cs" />
+    <Compile Include="..\..\..\ReignBeta\src\Modules\Government\Domain\GovernmentVoteEvidence.cs"
+             Link="Shared\GovernmentVoteEvidence.cs" />
+    <Compile Include="..\..\..\ReignBeta\src\Modules\Government\Domain\GovernmentPoliticalRefreshCycle.cs"
+             Link="Shared\GovernmentPoliticalRefreshCycle.cs" />
     <Compile Include="..\..\..\ReignBeta\src\Modules\WorldSimulation\PartyAgency\ReignGuestWagePolicy.cs"
              Link="Shared\ReignGuestWagePolicy.cs" />
     <Compile Include="..\..\..\ReignBeta\src\Modules\WorldSimulation\Actions\ReignCompletedOrderPolicy.cs"

@@ -99,6 +99,14 @@ namespace ReignBeta.World
         public static ReignActionResult DiplomacyValidationFailed(ReignWorldActionRecord action, string message)
         {
             string reason = message ?? string.Empty;
+            if (action != null
+                && string.Equals(action.Source, "world_diplomacy_director", System.StringComparison.OrdinalIgnoreCase)
+                && reason == "A ruler named by the diplomatic proposal has been replaced.")
+            {
+                // A pending proposal cannot bind a successor. Close it without
+                // execution; the existing obsolete path records cancellation.
+                return Obsolete(reason, "diplomatic_ruler_obsolete");
+            }
             if (action != null && action.Type == ReignWorldActionType.DiplomacyRansomPackage
                 && (reason.Contains("is no longer a prisoner")
                     || reason.Contains("is not held by either involved kingdom")))

@@ -13,7 +13,10 @@ using ReignBeta.Integration;
 using ReignBeta.World;
 using TaleWorlds.CampaignSystem;
 using TaleWorlds.CampaignSystem.CampaignBehaviors;
+using TaleWorlds.CampaignSystem.Encounters;
+using TaleWorlds.CampaignSystem.GameMenus;
 using TaleWorlds.CampaignSystem.Party;
+using TaleWorlds.CampaignSystem.Settlements;
 using TaleWorlds.Core;
 using TaleWorlds.MountAndBlade;
 
@@ -58,7 +61,19 @@ namespace ReignBeta.Campaign
                     case "entities":
                         int offset = c.Value<int?>("offset") ?? 0;
                         if (offset < 0 || offset > 100000 || (c.Value<string>("query") ?? "").Length > 128) throw new InvalidOperationException("Invalid search bounds.");
-                        var rows = ReignActionEntities.Find(c.Value<string>("entityKind"), c.Value<string>("ownerHeroId"), c.Value<string>("query") ?? "");
+                        string entityKind = c.Value<string>("entityKind") ?? "";
+                        string counterpartHeroId = c.Value<string>("counterpartHeroId") ?? "";
+                        ActionClause entityClause = null;
+                        if (entityKind == "pregnancy")
+                        {
+                            if (counterpartHeroId.Length == 0 || counterpartHeroId.Length > 128
+                                || ReignActionService.HeroById(counterpartHeroId) == null)
+                                throw new InvalidOperationException("Pregnancy discovery requires an exact current counterpartHeroId.");
+                            entityClause = new ActionClause { RecipientId = counterpartHeroId };
+                        }
+                        else if (counterpartHeroId.Length > 0)
+                            throw new InvalidOperationException("counterpartHeroId is supported only for pregnancy discovery.");
+                        var rows = ReignActionEntities.Find(entityKind, c.Value<string>("ownerHeroId"), c.Value<string>("query") ?? "", clause: entityClause);
                         result = new JObject { ["offset"] = offset, ["total"] = rows.Count, ["rows"] = JArray.FromObject(rows.Skip(offset).Take(64)) }; break;
                     case "status":
                         if (kind == "native" || kind == "fixture") result = ReignAgreementBehavior.Instance.NativeOperation(id) ?? throw new InvalidOperationException("No retained native operation has that identity.");
@@ -66,9 +81,40 @@ namespace ReignBeta.Campaign
                         else throw new InvalidOperationException("Choose native or agreement.");
                         break;
                     case "fixture":
-                        if (kind != "fixture" || c.Value<string>("actionId") != "fixture.ship_damage")
-                            throw new InvalidOperationException("Only the fixed ship damage fixture is available.");
-                        result = ApplyStructuredShipDamageFixture(c, id);
+                        if (kind != "fixture") throw new InvalidOperationException("Choose a fixed fixture.");
+                        if (c.Value<string>("actionId") == "fixture.ship_damage") result = ApplyStructuredShipDamageFixture(c, id);
+                        else if (c.Value<string>("actionId") == "fixture.siege_setup")
+                        {
+                            if (enrollment.Value<bool?>("recoveryCheckpointVerified") != true)
+                                throw new InvalidOperationException("Siege setup requires a verified retained recovery checkpoint.");
+                            result = ApplyStructuredSiegeFixture(c, id);
+                        }
+                        else if (c.Value<string>("actionId") == "fixture.player_settlement_encounter")
+                        {
+                            if (enrollment.Value<bool?>("recoveryCheckpointVerified") != true)
+                                throw new InvalidOperationException("Player settlement encounter setup requires a verified retained recovery checkpoint.");
+                            result = ApplyStructuredPlayerSettlementEncounterFixture(c, id);
+                        }
+                        else if (c.Value<string>("actionId") == "fixture.ruler_setup")
+                        {
+                            if (enrollment.Value<bool?>("recoveryCheckpointVerified") != true) throw new InvalidOperationException("Ruler setup requires a verified recovery checkpoint.");
+                            result = (ReignRulerCampaignBehavior.Instance ?? throw new InvalidOperationException("Ruler system unavailable.")).PrepareFixture(c, id, RulerFixtureEnrollment(enrollment));
+                        }
+                        else if (c.Value<string>("actionId") == "fixture.follow_accepted_guide_step")
+                        {
+                            if (enrollment.Value<bool?>("recoveryCheckpointVerified") != true)
+                                throw new InvalidOperationException("Guide following requires a verified retained recovery checkpoint.");
+                            result = ApplyStructuredAcceptedGuideStepFixture(c, id);
+                        }
+                        else if (c.Value<string>("actionId") == "fixture.government_capital_visit"
+                            || c.Value<string>("actionId") == "fixture.government_action_composer")
+                        {
+                            if (enrollment.Value<bool?>("recoveryCheckpointVerified") != true)
+                                throw new InvalidOperationException("Government player-flow fixtures require a verified retained recovery checkpoint.");
+                            result = (ReignBeta.Government.ReignGovernmentCampaignBehavior.Instance
+                                ?? throw new InvalidOperationException("Government system unavailable.")).PrepareGovernmentPlayerFlowFixture(c, id);
+                        }
+                        else throw new InvalidOperationException("Choose a registered fixed structured fixture.");
                         break;
                     case "preview": case "run":
                         if (kind == "native")
@@ -99,8 +145,223 @@ namespace ReignBeta.Campaign
                 }
                 return LiveCommandResult.Completed("Production adapter evidence captured. Apply a case-specific native effect assertion before recording a pass.", evidence);
             }
-            catch (Exception ex) { return LiveCommandResult.Failed("Structured action case failed: " + ex.Message); }
+            catch (Exception ex)
+            {
+                string detail = ex.ToString();
+                return LiveCommandResult.Failed("Structured action case failed: " + detail.Substring(0, Math.Min(detail.Length, 4096)));
+            }
         });
+
+        private static JObject ApplyStructuredAcceptedGuideStepFixture(JObject c, string id)
+        {
+            var args = c["arguments"] as JObject ?? throw new InvalidOperationException("Missing accepted-guide fixture identifiers.");
+            string[] fields = { "agreementId", "clauseId" };
+            if (args.Count != fields.Length || args.Properties().Any(p => !fields.Contains(p.Name)
+                || p.Value.Type != JTokenType.String || string.IsNullOrWhiteSpace((string)p.Value)
+                || ((string)p.Value).Length > 80 || ((string)p.Value).Any(ch => ch > 127 || !char.IsLetterOrDigit(ch) && ch != '_' && ch != '-')))
+                throw new InvalidOperationException("Supply exactly the bounded agreementId and clauseId; destinations and coordinates are not accepted.");
+            string hash;
+            using (var sha = SHA256.Create()) hash = BitConverter.ToString(sha.ComputeHash(Encoding.UTF8.GetBytes(
+                "fixture.follow_accepted_guide_step\n" + JsonConvert.SerializeObject(new SortedDictionary<string, string>(
+                    args.Properties().ToDictionary(p => p.Name, p => (string)p.Value), StringComparer.Ordinal)))))
+                .Replace("-", "").ToLowerInvariant();
+            var behavior = ReignAgreementBehavior.Instance ?? throw new InvalidOperationException("Agreement system unavailable.");
+            var retained = behavior.NativeOperation(id);
+            if (retained != null)
+            {
+                if (retained.Value<string>("requestHash") != hash) throw new InvalidOperationException("Fixture identity already belongs to different guide terms.");
+                return retained;
+            }
+            var journal = behavior.Agreements.FirstOrDefault(j => j.Agreement.Id == args.Value<string>("agreementId"));
+            var agreement = journal?.Agreement;
+            if (agreement == null || journal.OperatorAuthorized || agreement.Origin != ActionOrigin.Conversation
+                || agreement.PlayerId != Hero.MainHero?.StringId || !agreement.HasBothConsents
+                || agreement.State != AgreementState.Waiting || journal.CommittedHash != agreement.TermsHash())
+                throw new InvalidOperationException("An exact mutually accepted ordinary-chat guide must still be awaiting native fulfillment.");
+            var clause = agreement.Clauses.SingleOrDefault(t => t.Id == args.Value<string>("clauseId"));
+            var step = journal.Steps.SingleOrDefault(s => s.ClauseId == clause?.Id && s.Installment == 0);
+            if (clause?.ActionId != "show_the_way" || clause.ActorId != agreement.NpcId || clause.RecipientId != agreement.PlayerId
+                || step == null || !step.Started || step.Completed || step.FulfilledInstallments != 0)
+                throw new InvalidOperationException("Choose the exact unfulfilled accepted guide clause.");
+            var world = JObject.Parse(step.Snapshot ?? "{}")["worldAction"] as JObject;
+            if (world == null || world.Value<string>("Source") != "structured_agreement"
+                || world.Value<string>("NegotiationId") != agreement.Id || world.Value<string>("TermsHash") != journal.CommittedHash
+                || world.Value<string>("ActorHeroStringId") != clause.ActorId || world.Value<string>("TargetHeroStringId") != agreement.PlayerId
+                || world.Value<int?>("TypeValue") != (int)ReignWorldActionType.RegularShowTheWay)
+                throw new InvalidOperationException("The accepted clause has no matching native guide identity.");
+            var scene = Mission.Current?.GetMissionBehavior<ReignSceneActionMissionBehavior>()
+                ?? throw new InvalidOperationException("An actual active native guide scene is required.");
+            string worldId = world.Value<string>("ActionId");
+            var before = scene.StepPlayerToAcceptedGuideForTest(worldId, clause.ActorId, false);
+            var receipt = new JObject { ["schema"] = "reign-accepted-guide-player-step-fixture-v1",
+                ["operationId"] = id, ["actionId"] = "fixture.follow_accepted_guide_step", ["requestHash"] = hash,
+                ["origin"] = "operator_fixture", ["agreementId"] = agreement.Id, ["clauseId"] = clause.Id,
+                ["worldActionId"] = worldId, ["status"] = "started", ["invocations"] = 1, ["before"] = before };
+            behavior.SaveNativeOperation(id, receipt);
+            try { receipt["after"] = scene.StepPlayerToAcceptedGuideForTest(worldId, clause.ActorId, true); receipt["status"] = "returned"; }
+            catch (Exception ex) { receipt["status"] = "uncertain"; receipt["error"] = ex.GetType().Name + ": " + ex.Message; }
+            behavior.SaveNativeOperation(id, receipt);
+            return receipt;
+        }
+
+        private static JObject ApplyStructuredPlayerSettlementEncounterFixture(JObject c, string id)
+        {
+            var args = c["arguments"] as JObject ?? throw new InvalidOperationException("Missing player encounter fixture arguments.");
+            string[] fields = { "settlementId", "expectedOwnerClanId", "expectedBesiegerPartyId" };
+            if (args.Count != fields.Length || args.Properties().Any(p => !fields.Contains(p.Name)
+                || p.Value.Type != JTokenType.String || string.IsNullOrWhiteSpace((string)p.Value)
+                || ((string)p.Value).Length > 80))
+                throw new InvalidOperationException("Supply exactly three bounded player encounter fixture identifiers.");
+            string hash;
+            using (var sha = SHA256.Create()) hash = BitConverter.ToString(sha.ComputeHash(Encoding.UTF8.GetBytes(
+                "fixture.player_settlement_encounter\n" + JsonConvert.SerializeObject(new SortedDictionary<string, string>(
+                    args.Properties().ToDictionary(p => p.Name, p => (string)p.Value), StringComparer.Ordinal)))))
+                .Replace("-", "").ToLowerInvariant();
+            var behavior = ReignAgreementBehavior.Instance;
+            var retained = behavior.NativeOperation(id);
+            if (retained != null)
+            {
+                if (retained.Value<string>("requestHash") != hash)
+                    throw new InvalidOperationException("Fixture operation identity already has different arguments.");
+                return retained;
+            }
+            var party = MobileParty.MainParty;
+            var settlement = Settlement.Find(args.Value<string>("settlementId"));
+            var siege = settlement?.SiegeEvent;
+            var besieger = siege?.BesiegerCamp?.LeaderParty;
+            if (party == null || !party.IsActive || party.IsDisbanding || party.LeaderHero != Hero.MainHero
+                || Hero.MainHero.IsDead || Hero.MainHero.IsPrisoner || Hero.MainHero.IsChild
+                || party.Army != null || party.MapEvent != null || party.SiegeEvent != null
+                || party.IsCurrentlyAtSea || party.IsTransitionInProgress || Mission.Current != null
+                || (PlayerEncounter.Current != null && PlayerEncounter.EncounterSettlement == null))
+                throw new InvalidOperationException("Player encounter setup requires a free active independent land player outside missions and combat.");
+            if (settlement == null || !settlement.IsTown || settlement.Party.MapEvent != null
+                || settlement.OwnerClan?.StringId != args.Value<string>("expectedOwnerClanId")
+                || siege == null || besieger == null || !besieger.IsActive || besieger.LeaderHero == null
+                || besieger.LeaderHero.IsDead || besieger == party
+                || besieger.StringId != args.Value<string>("expectedBesiegerPartyId")
+                || besieger.MapEvent != null || !ReferenceEquals(besieger.SiegeEvent, siege)
+                || FactionManager.IsAtWarAgainstFaction(party.MapFaction, settlement.MapFaction)
+                || !FactionManager.IsAtWarAgainstFaction(party.MapFaction, besieger.MapFaction))
+                throw new InvalidOperationException("Player encounter setup requires the exact friendly besieged town, owner and hostile besieger without a battle.");
+            var receipt = new JObject { ["schema"] = "reign-player-settlement-encounter-fixture-v1", ["operationId"] = id,
+                ["actionId"] = "fixture.player_settlement_encounter", ["requestHash"] = hash, ["origin"] = "operator_fixture",
+                ["status"] = "started", ["invocations"] = 1, ["campaignDay"] = CampaignTime.Now.ToDays,
+                ["settlementId"] = settlement.StringId, ["ownerClanId"] = settlement.OwnerClan.StringId,
+                ["besiegerPartyId"] = besieger.StringId, ["before"] = ObserveStructuredPlayerSettlementEncounter(),
+                ["semanticVerification"] = "fixture_only" };
+            behavior.SaveNativeOperation(id, receipt);
+            try
+            {
+                if (PlayerEncounter.Current != null) PlayerEncounter.Finish();
+                else if (party.CurrentSettlement != null) TaleWorlds.CampaignSystem.Actions.LeaveSettlementAction.ApplyForParty(party);
+                party.SetPositionAfterMapChange(settlement.GatePosition);
+                party.SetMoveModeHold();
+                EncounterManager.StartSettlementEncounter(party, settlement);
+                if (PlayerEncounter.Current == null || PlayerEncounter.EncounterSettlement != settlement)
+                    throw new InvalidOperationException("Native settlement encounter did not initialize for the requested target.");
+                if (party.CurrentSettlement != settlement || PlayerEncounter.LocationEncounter == null)
+                    PlayerEncounter.EnterSettlement();
+                GameMenu.ActivateGameMenu("town");
+                TaleWorlds.CampaignSystem.Campaign.Current.TimeControlMode = CampaignTimeControlMode.Stop;
+                bool prepared = party.CurrentSettlement == settlement && PlayerEncounter.EncounterSettlement == settlement
+                    && PlayerEncounter.LocationEncounter != null && party.MapEvent == null
+                    && ReferenceEquals(settlement.SiegeEvent, siege) && ReferenceEquals(besieger.SiegeEvent, siege);
+                receipt["status"] = prepared ? "prepared" : "uncertain";
+                if (!prepared) receipt["error"] = "Native player encounter or siege membership did not match the requested fixture.";
+                receipt["after"] = ObserveStructuredPlayerSettlementEncounter();
+                receipt["settlementAfter"] = ReignNativeActionConsole.ObserveCombat(settlement.Party);
+            }
+            catch (Exception ex)
+            {
+                receipt["status"] = "uncertain";
+                foreach (var fault in ReignNativeActionConsole.ObserveExceptionFault(ex).Properties()) receipt[fault.Name] = fault.Value;
+            }
+            finally
+            {
+                if (TaleWorlds.CampaignSystem.Campaign.Current != null)
+                    TaleWorlds.CampaignSystem.Campaign.Current.TimeControlMode = CampaignTimeControlMode.Stop;
+            }
+            behavior.SaveNativeOperation(id, receipt);
+            return receipt;
+        }
+
+        private static JObject ObserveStructuredPlayerSettlementEncounter() => new JObject
+        {
+            ["partyId"] = MobileParty.MainParty?.StringId,
+            ["currentSettlementId"] = MobileParty.MainParty?.CurrentSettlement?.StringId,
+            ["encounterSettlementId"] = PlayerEncounter.EncounterSettlement?.StringId,
+            ["encounterActive"] = PlayerEncounter.Current != null,
+            ["locationEncounterReady"] = PlayerEncounter.LocationEncounter != null,
+            ["position"] = MobileParty.MainParty?.Position.ToString(),
+            ["combat"] = ReignNativeActionConsole.ObserveCombat(MobileParty.MainParty?.Party)
+        };
+
+        private static JObject ApplyStructuredSiegeFixture(JObject c, string id)
+        {
+            var args = c["arguments"] as JObject ?? throw new InvalidOperationException("Missing siege fixture arguments.");
+            string[] fields = { "attackerPartyId", "settlementId", "expectedOwnerClanId", "expectedAttackerFactionId" };
+            if (args.Count != fields.Length || args.Properties().Any(p => !fields.Contains(p.Name)
+                || p.Value.Type != JTokenType.String || string.IsNullOrWhiteSpace((string)p.Value)
+                || ((string)p.Value).Length > 80))
+                throw new InvalidOperationException("Supply exactly four bounded siege fixture identifiers.");
+            string hash;
+            using (var sha = SHA256.Create()) hash = BitConverter.ToString(sha.ComputeHash(Encoding.UTF8.GetBytes(
+                "fixture.siege_setup\n" + JsonConvert.SerializeObject(new SortedDictionary<string, string>(
+                    args.Properties().ToDictionary(p => p.Name, p => (string)p.Value), StringComparer.Ordinal)))))
+                .Replace("-", "").ToLowerInvariant();
+            var behavior = ReignAgreementBehavior.Instance;
+            var retained = behavior.NativeOperation(id);
+            if (retained != null)
+            {
+                if (retained.Value<string>("requestHash") != hash)
+                    throw new InvalidOperationException("Fixture operation identity already has different arguments.");
+                return retained;
+            }
+            var attacker = MobileParty.All.SingleOrDefault(p => p.StringId == args.Value<string>("attackerPartyId"));
+            var settlement = Settlement.Find(args.Value<string>("settlementId"));
+            if (attacker == null || attacker == MobileParty.MainParty || !attacker.IsActive
+                || attacker.LeaderHero == null || !attacker.LeaderHero.IsLord || attacker.LeaderHero.IsDead
+                || attacker.LeaderHero.IsChild || attacker.LeaderHero.IsPrisoner || attacker.Army != null
+                || attacker.CurrentSettlement != null || attacker.MapEvent != null || attacker.SiegeEvent != null
+                || attacker.IsCurrentlyAtSea || attacker.IsTransitionInProgress
+                || attacker.MapFaction?.StringId != args.Value<string>("expectedAttackerFactionId"))
+                throw new InvalidOperationException("Siege setup requires the exact free, active, independent land NPC lord party and faction.");
+            if (settlement == null || !settlement.IsFortification || settlement.IsUnderSiege
+                || settlement.SiegeEvent != null || settlement.Party.MapEvent != null
+                || settlement.OwnerClan?.StringId != args.Value<string>("expectedOwnerClanId")
+                || !FactionManager.IsAtWarAgainstFaction(attacker.MapFaction, settlement.MapFaction)
+                || MobileParty.MainParty?.MapEvent != null || MobileParty.MainParty?.CurrentSettlement == settlement)
+                throw new InvalidOperationException("Siege setup requires the exact idle hostile fortification and owner, outside player combat.");
+            var receipt = new JObject { ["schema"] = "reign-siege-setup-fixture-v1", ["operationId"] = id,
+                ["actionId"] = "fixture.siege_setup", ["requestHash"] = hash, ["origin"] = "operator_fixture",
+                ["status"] = "started", ["invocations"] = 1, ["campaignDay"] = CampaignTime.Now.ToDays,
+                ["attackerPartyId"] = attacker.StringId, ["settlementId"] = settlement.StringId,
+                ["ownerClanId"] = settlement.OwnerClan.StringId, ["beforePosition"] = attacker.Position.ToString(),
+                ["before"] = ReignNativeActionConsole.ObserveCombat(attacker.Party),
+                ["semanticVerification"] = "fixture_only" };
+            behavior.SaveNativeOperation(id, receipt);
+            try
+            {
+                attacker.Position = settlement.GatePosition;
+                var siege = TaleWorlds.CampaignSystem.Campaign.Current.SiegeEventManager.StartSiegeEvent(settlement, attacker);
+                bool prepared = siege != null && ReferenceEquals(settlement.SiegeEvent, siege)
+                    && ReferenceEquals(attacker.SiegeEvent, siege) && siege.BesiegerCamp?.LeaderParty == attacker;
+                receipt["status"] = prepared ? "prepared" : "uncertain";
+                if (!prepared) receipt["error"] = "Native siege membership did not match the requested fixture.";
+                receipt["afterPosition"] = attacker.Position.ToString();
+                receipt["after"] = ReignNativeActionConsole.ObserveCombat(attacker.Party);
+                receipt["settlementAfter"] = ReignNativeActionConsole.ObserveCombat(settlement.Party);
+            }
+            catch (Exception ex)
+            {
+                receipt["status"] = "uncertain";
+                foreach (var fault in ReignNativeActionConsole.ObserveExceptionFault(ex).Properties())
+                    receipt[fault.Name] = fault.Value;
+            }
+            behavior.SaveNativeOperation(id, receipt);
+            return receipt;
+        }
 
         // This fixture is separate from the action catalog and never represents NPC consent.
         private static JObject ApplyStructuredShipDamageFixture(JObject c, string id)
@@ -150,9 +411,22 @@ namespace ReignBeta.Campaign
             return receipt;
         }
 
+        private static JObject RulerFixtureEnrollment(JObject enrollment)
+        { var copy = (JObject)enrollment.DeepClone(); copy["nativeGameInstanceId"] = _gameInstanceId; return copy; }
+        internal static bool MatchesRulerFixture(JObject enrollment) => _armed && enrollment != null
+            && enrollment.Value<string>("source") == "reign_mcp_structured_actions"
+            && enrollment.Value<bool?>("recoveryCheckpointVerified") == true
+            && enrollment.Value<string>("nativeGameInstanceId") == _gameInstanceId
+            && enrollment.Value<string>("disposableSaveName") != enrollment.Value<string>("protectedBaselineSaveName")
+            && ActiveSaveName() == enrollment.Value<string>("disposableSaveName")
+            && ReignCampaignIdentity.CurrentCampaignId() == enrollment.Value<string>("campaignId")
+            && (ReignWorldHistoryCampaignBehavior.Instance?.TimelineId ?? "main") == enrollment.Value<string>("timelineId")
+            && ReferenceEquals(_observedCampaign, TaleWorlds.CampaignSystem.Campaign.Current);
+
         private static JObject BuildStructuredActionNativeSnapshot(JObject testCase)
         {
             var snapshot = BuildGauntletNativeSnapshot(testCase);
+            snapshot["rulers"] = ReignRulerCampaignBehavior.Instance?.Diagnostics();
             var rows = new JArray();
             foreach (string heroId in (testCase["heroIds"] as JArray ?? new JArray()).Values<string>()
                 .Where(id => !string.IsNullOrWhiteSpace(id)).Distinct(StringComparer.Ordinal).Take(16))
@@ -407,30 +681,64 @@ namespace ReignBeta.Campaign
         private static JObject BuildStructuredMissionObservation(HashSet<string> ids)
         {
             var mission = Mission.Current;
-            var agents = mission == null ? new List<Agent>() : mission.AllAgents
+            var agents = ReadStructuredMissionField(null, "agent-selection", () => mission == null ? new List<Agent>() : mission.AllAgents
                 .Where(a => a?.Character != null && ids.Contains(a.Character.StringId))
-                .OrderBy(a => a.Index).ToList();
+                .OrderBy(a => a.Index).ToList());
+            var playerTeam = ReadStructuredMissionField(null, "player-team", () => mission?.PlayerTeam);
+            bool playerTeamValid = ReadStructuredMissionField(null, "player-team-valid", () => playerTeam?.IsValid == true);
             var agentRows = new JArray();
             foreach (var agent in agents.Take(32))
             {
+                // AllAgents retains cleared wrappers whose managed identity still
+                // exists after Clear zeros the native state/controller/position
+                // pointers. Keep those rows, but never dereference their pointers.
+                bool nativeStateAvailable = ReadStructuredMissionField(agent, "native-state-availability",
+                    () => agent.Mission == mission && agent.HasBeenBuilt);
+                var equipment = nativeStateAvailable ? ReadStructuredMissionField(agent, "equipment", () => agent.Equipment) : null;
+                var team = nativeStateAvailable ? ReadStructuredMissionField(agent, "team", () => agent.Team) : null;
+                bool teamValid = nativeStateAvailable && ReadStructuredMissionField(agent, "team-valid", () => team?.IsValid == true);
+                bool? hasMeleeWeapon = equipment == null ? (bool?)null : false;
                 var weapons = new JArray();
-                for (int slot = 0; slot < 4; slot++)
+                // Empty native MissionWeapon structs need not have initialized
+                // usage caches. Inspect public item metadata without asking the
+                // native equipment cache to traverse those empty structs.
+                for (int slot = 0; equipment != null && slot < 5; slot++)
                 {
-                    string itemId = agent.Equipment?[(EquipmentIndex)slot].Item?.StringId;
-                    if (!string.IsNullOrWhiteSpace(itemId))
-                        weapons.Add(new JObject { ["slot"] = slot, ["itemId"] = itemId });
+                    var item = ReadStructuredMissionField(agent, "equipment-item-" + slot,
+                        () => equipment[(EquipmentIndex)slot].Item);
+                    if (ReadStructuredMissionField(agent, "equipment-usages-" + slot,
+                        () => item?.Weapons?.Any(usage => usage != null && usage.IsMeleeWeapon) == true))
+                        hasMeleeWeapon = true;
+                    // The fifth slot participates in the melee observation, as
+                    // it does natively; retain the existing four-slot output bound.
+                    if (slot < 4 && !string.IsNullOrWhiteSpace(item?.StringId))
+                        weapons.Add(new JObject { ["slot"] = slot, ["itemId"] = item.StringId });
                 }
-                agentRows.Add(new JObject { ["heroId"] = agent.Character.StringId,
+                agentRows.Add(new JObject { ["heroId"] = ReadStructuredMissionField(agent, "hero-id", () => agent.Character.StringId),
                     ["agentIndex"] = agent.Index, ["isMainAgent"] = agent == mission.MainAgent,
-                    ["active"] = agent.IsActive(), ["state"] = agent.State.ToString(),
-                    ["controller"] = agent.Controller.ToString(), ["aiControlled"] = agent.IsAIControlled,
-                    ["watchState"] = agent.CurrentWatchState.ToString(), ["aiState"] = agent.AIStateFlags.ToString(),
-                    ["mortality"] = agent.CurrentMortalityState.ToString(), ["health"] = agent.Health,
-                    ["healthLimit"] = agent.HealthLimit, ["hasMeleeWeapon"] = agent.HasMeleeWeaponCached,
-                    ["teamIndex"] = agent.Team?.TeamIndex, ["teamSide"] = agent.Team?.Side.ToString(),
-                    ["enemyOfPlayer"] = agent.Team != null && mission.PlayerTeam != null
-                        ? (JToken)new JValue(agent.Team.IsEnemyOf(mission.PlayerTeam)) : JValue.CreateNull(),
-                    ["position"] = new JObject { ["x"] = agent.Position.x, ["y"] = agent.Position.y, ["z"] = agent.Position.z },
+                    ["nativeStateAvailable"] = nativeStateAvailable,
+                    ["active"] = nativeStateAvailable ? JToken.FromObject(ReadStructuredMissionField(agent, "active", () => agent.IsActive())) : JValue.CreateNull(),
+                    ["state"] = nativeStateAvailable ? JToken.FromObject(ReadStructuredMissionField(agent, "state", () => agent.State.ToString())) : JValue.CreateNull(),
+                    ["controller"] = nativeStateAvailable ? JToken.FromObject(ReadStructuredMissionField(agent, "controller", () => agent.Controller.ToString())) : JValue.CreateNull(),
+                    ["aiControlled"] = nativeStateAvailable ? JToken.FromObject(ReadStructuredMissionField(agent, "ai-controlled", () => agent.IsAIControlled)) : JValue.CreateNull(),
+                    ["watchState"] = nativeStateAvailable ? JToken.FromObject(ReadStructuredMissionField(agent, "watch-state", () => agent.CurrentWatchState.ToString())) : JValue.CreateNull(),
+                    ["aiState"] = nativeStateAvailable ? JToken.FromObject(ReadStructuredMissionField(agent, "ai-state", () => agent.AIStateFlags.ToString())) : JValue.CreateNull(),
+                    ["mortality"] = nativeStateAvailable ? JToken.FromObject(ReadStructuredMissionField(agent, "mortality", () => agent.CurrentMortalityState.ToString())) : JValue.CreateNull(),
+                    ["health"] = nativeStateAvailable ? JToken.FromObject(ReadStructuredMissionField(agent, "health", () => agent.Health)) : JValue.CreateNull(),
+                    ["healthLimit"] = nativeStateAvailable ? JToken.FromObject(ReadStructuredMissionField(agent, "health-limit", () => agent.HealthLimit)) : JValue.CreateNull(),
+                    ["equipmentAvailable"] = equipment != null,
+                    // Missing equipment remains unknown, rather than unarmed.
+                    ["hasMeleeWeapon"] = hasMeleeWeapon.HasValue
+                        ? new JValue(hasMeleeWeapon.Value) : JValue.CreateNull(),
+                    ["teamIndex"] = nativeStateAvailable && team != null ? new JValue(ReadStructuredMissionField(agent, "team-index", () => team.TeamIndex)) : JValue.CreateNull(),
+                    ["teamSide"] = nativeStateAvailable && team != null ? new JValue(ReadStructuredMissionField(agent, "team-side", () => team.Side.ToString())) : JValue.CreateNull(),
+                    // Civilian agents can retain Team.Invalid: its native handle
+                    // has index -1 and no mission. Hostility is unknown there.
+                    ["teamValid"] = teamValid,
+                    ["enemyOfPlayer"] = teamValid && playerTeamValid
+                        ? (JToken)new JValue(ReadStructuredMissionField(agent, "enemy-of-player", () => team.IsEnemyOf(playerTeam))) : JValue.CreateNull(),
+                    ["position"] = nativeStateAvailable ? (JToken)ReadStructuredMissionField(agent, "position",
+                        () => new JObject { ["x"] = agent.Position.x, ["y"] = agent.Position.y, ["z"] = agent.Position.z }) : JValue.CreateNull(),
                     ["weapons"] = weapons });
             }
             var removals = mission?.GetMissionBehavior<ReignArenaDuelEquipmentBehavior>()?.Removals;
@@ -443,11 +751,24 @@ namespace ReignBeta.Campaign
             return new JObject { ["schema"] = "reign-structured-mission-observation-v1",
                 ["available"] = mission != null, ["mode"] = mission?.Mode.ToString(),
                 ["mainAgentIndex"] = mission?.MainAgent?.Index, ["playerTeamIndex"] = mission?.PlayerTeam?.TeamIndex,
+                ["playerTeamValid"] = playerTeamValid,
                 ["nativeArenaDuelControllerPresent"] = mission?.MissionBehaviors.Any(b =>
                     b.GetType().FullName == "SandBox.Missions.MissionLogics.Arena.ArenaDuelMissionController") == true,
                 ["duelAgentRemovals"] = removalRows,
                 ["requestedHeroIdsOnly"] = true, ["maximumRows"] = 32, ["total"] = agents.Count,
                 ["truncated"] = agents.Count > 32, ["rows"] = agentRows };
+        }
+
+        private static T ReadStructuredMissionField<T>(Agent agent, string field, Func<T> observe)
+        {
+            try { return observe(); }
+            catch (Exception ex)
+            {
+                // Preserve a failed observation, identifying its exact read without
+                // inventing a default, dropping the actor, or rereading a bad field.
+                throw new InvalidOperationException("Native mission observation field '" + field
+                    + "' failed for agent " + (agent == null ? "none" : agent.Index.ToString(CultureInfo.InvariantCulture)) + ".", ex);
+            }
         }
     }
 }

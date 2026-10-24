@@ -85,6 +85,7 @@ namespace ReignBeta.Court
                 _capitalDesignations.Add(record);
             }
             ApplyCapitalDesignation(record, kingdom.StringId, settlement.StringId, CurrentDayFloat());
+            ReignBeta.Campaign.ReignRulerCampaignBehavior.Instance?.DesignateCapital(kingdom, settlement);
 
             if (HasOpenSession)
             {
@@ -101,8 +102,23 @@ namespace ReignBeta.Court
         private KingdomCapitalDesignation CurrentCapitalDesignation()
         {
             string kingdomId = Clan.PlayerClan?.Kingdom?.StringId;
-            return string.IsNullOrWhiteSpace(kingdomId) ? null : _capitalDesignations
-                .FirstOrDefault(x => string.Equals(x.KingdomStringId, kingdomId, StringComparison.OrdinalIgnoreCase));
+            if (string.IsNullOrWhiteSpace(kingdomId)) return null;
+            var record = _capitalDesignations.FirstOrDefault(x => string.Equals(x.KingdomStringId, kingdomId, StringComparison.OrdinalIgnoreCase));
+            var rulers = ReignBeta.Campaign.ReignRulerCampaignBehavior.Instance;
+            if (!ReignBeta.Campaign.ReignRulerCampaignBehavior.Enabled(ReignBeta.Shared.Rulers.RulerOptions.Capitals) || rulers == null) return record;
+            var kingdom = Clan.PlayerClan.Kingdom;
+            if (record?.EverDesignated == true && !string.IsNullOrWhiteSpace(record.SettlementStringId))
+            {
+                var manual = Settlement.All.FirstOrDefault(x => x.StringId == record.SettlementStringId && x.IsTown && x.OwnerClan?.Kingdom == kingdom);
+                if (manual != null) rulers.DesignateCapital(kingdom, manual);
+            }
+            var capital = rulers.Capital(kingdom);
+            if (capital?.IsTown == true && record?.SettlementStringId != capital.StringId)
+            {
+                if (record == null) { record = new KingdomCapitalDesignation(); _capitalDesignations.Add(record); }
+                ApplyCapitalDesignation(record, kingdomId, capital.StringId, CurrentDayFloat());
+            }
+            return record;
         }
 
         private static bool IsCapitalDesignationEligible(bool courtEnabled, bool playerRuler,

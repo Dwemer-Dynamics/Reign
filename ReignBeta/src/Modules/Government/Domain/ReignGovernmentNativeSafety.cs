@@ -8,6 +8,18 @@ namespace ReignBeta.Government
     {
         internal const int CaptureVersion = 1;
 
+        internal static bool IsDecisionDue(ReignGovernmentBusinessRecord record, double nativeDay)
+        {
+            if (record == null || nativeDay < 0 || double.IsNaN(nativeDay) || double.IsInfinity(nativeDay)
+                || record.DecisionDay < 0 || float.IsNaN(record.DecisionDay) || float.IsInfinity(record.DecisionDay)) return false;
+            if (nativeDay >= record.DecisionDay) return true;
+            // Saved days are floats; a hearing opened while paused can round above the exact
+            // native clock. Only an already-open extraordinary hearing shares that same bucket.
+            // Regular sessions and urgent matters deferred to a later session retain exact deadlines.
+            return record.IsUrgent && !record.LegacySessionMigration && record.Status == "hearing"
+                && record.PresentationDay == record.DecisionDay && (float)nativeDay == record.DecisionDay;
+        }
+
         // Old saves may close the initiating hearing without copying the counterpart's
         // rejection. Derive that outcome only from the linked, identical, effect-free record.
         internal static bool IsRecordedCounterpartRefusal(ReignGovernmentBusinessRecord source,
@@ -35,8 +47,9 @@ namespace ReignBeta.Government
             && string.IsNullOrEmpty(response.NativeQuarantineReason);
 
         internal static bool AllowNativeIssueDiscovery(bool isHeadman, bool isRuralNotable,
-            bool hasCurrentSettlement, bool hasVillageContext) =>
-            (!isHeadman && !isRuralNotable) || !hasCurrentSettlement || hasVillageContext;
+            bool hasCurrentSettlement, bool hasVillageContext, bool isGangLeader, bool hasTownContext) =>
+            (!isGangLeader || hasCurrentSettlement && hasTownContext)
+            && ((!isHeadman && !isRuralNotable) || !hasCurrentSettlement || hasVillageContext);
 
         internal static bool IsTrustedCapture(ReignGovernmentBusinessRecord record) => record != null
             && record.NativeCaptureVersion == CaptureVersion

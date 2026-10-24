@@ -57,6 +57,26 @@ public sealed class RoyalCouncilScenarioContractTests
     }
 
     [Fact]
+    public void StandaloneAnnouncementPreviewProtectsClockWithoutDocketEnrollment()
+    {
+        string root = TestOptions.FindWorkspace();
+        string source = File.ReadAllText(TestSourceLocator.Unique(Path.Combine(root, "ReignBeta"),
+            "ReignLiveInteractionUiCalibrationHost.cs", "/src/"));
+        string open = source[source.IndexOf("bool docketClockIsolation", StringComparison.Ordinal)..
+            source.IndexOf("double docketWorldDayBefore", StringComparison.Ordinal)];
+        Assert.Matches("bool docketClockIsolation = target == \\\"diplomacy-announcement\\\"\\s*\\|\\|", open);
+        using JsonDocument catalog = JsonDocument.Parse(File.ReadAllText(Path.Combine(root, "reign.testing.json")));
+        string contract = catalog.RootElement.GetProperty("gauntletXmlPreviewer")
+            .GetProperty("announcementClockIsolation").GetString()!;
+        Assert.Contains("without docket enrollment", contract, StringComparison.Ordinal);
+        Assert.Contains("docketClock", contract, StringComparison.Ordinal);
+        Assert.Contains("ui_close", contract, StringComparison.Ordinal);
+        Assert.Contains("never advances", contract, StringComparison.Ordinal);
+        Assert.Contains("announcement calibration", File.ReadAllText(Path.Combine(root, "ReignMcp", "README.md")),
+            StringComparison.Ordinal);
+    }
+
+    [Fact]
     public void AdviceBoundaryAndLegacyOfficeAliasesAreExplicit()
     {
         string root = TestOptions.FindWorkspace();

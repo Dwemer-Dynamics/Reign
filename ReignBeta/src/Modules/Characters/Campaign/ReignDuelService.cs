@@ -18,6 +18,18 @@ namespace ReignBeta.Campaign
     {
         private static readonly Dictionary<string, ReignDuelIntent> Pending = new Dictionary<string, ReignDuelIntent>(StringComparer.OrdinalIgnoreCase);
         private static readonly HashSet<string> Active = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+        internal static bool StartStoryPractice(string encounter, Hero opponent, out string error)
+        {
+            error = "";
+            if (Mission.Current != null || opponent == null || opponent.IsWounded || opponent.IsPrisoner || !opponent.IsAlive || Pending.Count > 0)
+            { error = "A practice duel cannot begin while either participant or another duel is unavailable."; return false; }
+            var intent = new ReignDuelIntent { ActionId = encounter, OpponentHeroStringId = opponent.StringId, OpponentName = opponent.Name.ToString(),
+                Mode = "practice", Purpose = "npc_personal_story", PlayerHealth = 100, OpponentHealth = 100, TrainingStopHealth = 20,
+                PauseNearbyAgents = true, PauseRadius = 30, CreatedDay = (float)CampaignTime.Now.ToDays, Reason = "Agreed personal training" };
+            Pending.Add(encounter, intent);
+            if (ReignDuelLaunchPromptService.TryLaunchNativeArenaDuel(intent, out error)) return true;
+            Complete(encounter); return false;
+        }
 
         public static ReignActionResult QueueConversationDuel(ReignWorldActionRecord action, Hero actorHero, Hero targetHero)
         {
@@ -165,6 +177,9 @@ namespace ReignBeta.Campaign
             }
         }
 
+        internal static bool IsActiveDuel(string actionId) => !string.IsNullOrWhiteSpace(actionId)
+            && Active.Contains(actionId) && Pending.ContainsKey(actionId);
+
         public static void MarkInactive(string actionId)
         {
             if (!string.IsNullOrWhiteSpace(actionId))
@@ -257,6 +272,14 @@ namespace ReignBeta.Campaign
             }
 
             Hero opponent = intent.OpponentHero;
+            if (intent.Purpose == "npc_personal_story")
+            {
+                if (!Pending.ContainsKey(intent.ActionId)) return;
+                string outcome = winnerHero == Hero.MainHero ? "won" : winnerHero == opponent ? "lost" : "withdrawn";
+                Complete(intent.ActionId);
+                ReignNpcLivesBehavior.Instance?.ResolveStoryEncounter(intent.ActionId, outcome);
+                return;
+            }
             bool playerWon = winnerHero == null || winnerHero == Hero.MainHero || (winnerHero.StringId == Hero.MainHero?.StringId);
             Hero loserHero = playerWon ? opponent : Hero.MainHero;
             Hero resolvedWinner = playerWon ? Hero.MainHero : opponent;

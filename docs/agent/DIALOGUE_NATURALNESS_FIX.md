@@ -1,5 +1,13 @@
 # Conversation naturalness and accepted item gifts
 
+## 2026-10-22 cross-turn expression follow-up
+
+The Rhagaea audit (`.codex-build/rhagaea-repetition-20261022/evidence.json`) showed that three gesture cleanups and eleven unchanged continuity passes retained a sustained spoken loop. Repetition-only warnings had deliberately bypassed rewriting. `ConversationRepetition.cs` now supplies a bounded transient expression ledger to individual/group prompts, distinctive sentence containment and recurring salient pairs with conservative English semantic equivalences. New passage/theme findings and existing sustained accounting/wording lectures take one configured-provider wording repair. It returns only visible text; gameplay metadata remains the original. Exact evidence/quantity/refusal checks and the existing role-play/continuity checks reject unsafe or still-repetitive repairs. Failed style attempts preserve the original dialogue/effects and explicit uncleared diagnostic findings. Genuine safety failures retain their existing handling.
+
+Claude consultation recommended prompt prevention, sentence-level containment, distinct-source recurrence, one existing provider repair rather than an extra semantic judge, and preserving effects when a style repair fails. The implementation applies those recommendations with a bounded local English matcher; it does not add a corpus, embeddings service, new configuration toggle or an arbitrary semantic-equivalence guarantee. See the [current verification procedure](testing/DIALOGUE_AND_PROVIDERS.md#cross-turn-expression-safeguards-2026-10-22). The user subsequently authorized the continuity repair and deployment of both fixes after validation; native/provider acceptance remains separate.
+
+The continuity error was a missing rendered link, not a missing original: an active, matching-hash party turn was retained as a pending concurrent update, but the recovery prompt required its ID without rendering it. The fix adds that validated source turn ID to the pending body. Claude reviewed the repair plan; source hashes stay server-side, required-content integrity remains enforced, and regression controls preserve pending status and original/current records. No data repair or migration is required. Evidence and limits: `.codex-build/rhagaea-repetition-20261022/continuity-incident-observation.json` and the [pending-source procedure](testing/DIALOGUE_AND_PROVIDERS.md#pending-continuity-source-recovery-2026-10-22).
+
 Implementation scope, 2026-09-14. User authorized investigation, implementation, build, validation and coordinated deployment. Dialogue source belongs to task `01a09e90-9715-7d10-b735-eeb3f6d591fa`; the active relationship task owns the single shared deployment.
 
 ## Evidence and failure

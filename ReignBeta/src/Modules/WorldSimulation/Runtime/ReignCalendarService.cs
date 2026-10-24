@@ -99,6 +99,31 @@ namespace ReignBeta.Runtime
             }
         }
 
+        public static bool TryGetAbsoluteCalendarDay(CampaignTime time, out double day)
+        {
+            lock (Gate)
+            {
+                day = 0;
+                if (!_ready || _state == null) return false;
+                day = _state.CalendarDayAnchor + (time.ToDays - _state.NativeDayAnchor);
+                return !double.IsNaN(day) && !double.IsInfinity(day);
+            }
+        }
+
+        public static bool TryFromAbsoluteCalendarDay(double day, out CampaignTime time)
+        {
+            lock (Gate)
+            {
+                time = CampaignTime.Never;
+                if (!_ready || _state == null || double.IsNaN(day) || double.IsInfinity(day)) return false;
+                double nativeDay = _state.NativeDayAnchor + (day - _state.CalendarDayAnchor);
+                // Days(float) also multiplies in single precision. Preserve the anchor through the
+                // native millisecond factory so half-day season boundaries do not drift a day in UI.
+                time = CampaignTime.Milliseconds((long)Math.Round(nativeDay * CampaignTime.Days(1f).ToMilliseconds));
+                return true;
+            }
+        }
+
         public static bool TryGetCalendarPosition(CampaignTime time, out int year, out int dayOfYear, out int season, out int dayOfSeason, out int weekOfSeason)
         {
             lock (Gate)

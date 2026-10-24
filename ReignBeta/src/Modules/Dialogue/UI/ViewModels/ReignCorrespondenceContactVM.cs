@@ -1,8 +1,6 @@
 using System;
 using AIPortraits;
 using TaleWorlds.CampaignSystem;
-using TaleWorlds.Core;
-using TaleWorlds.Core.ViewModelCollection.ImageIdentifiers;
 using TaleWorlds.Library;
 
 namespace ReignBeta.UI.ViewModels
@@ -20,21 +18,18 @@ namespace ReignBeta.UI.ViewModels
             _select = select;
             Name = hero?.Name?.ToString() ?? "Unknown";
             Subtitle = BuildSubtitle(hero);
-            PortraitCacheKey = CharacterCacheId.ForHero(hero) ?? string.Empty;
-            ImageIdentifierVM portrait = BuildPortrait(hero);
-            PortraitId = portrait?.Id ?? string.Empty;
-            PortraitAdditionalArgs = portrait?.AdditionalArgs ?? string.Empty;
-            PortraitTextureProviderName = portrait?.TextureProviderName ?? string.Empty;
+            // An introduction by letter does not reveal an unmet person's face.
+            // Never construct a native character tableau for the contact rail.
+            PortraitCacheKey = hero?.HasMet == true ? CharacterCacheId.ForHero(hero) ?? string.Empty : string.Empty;
         }
 
         public Hero Hero { get; }
+        public bool HasCorrespondence { get; set; }
 
         [DataSourceProperty] public string Name { get; }
         [DataSourceProperty] public string Subtitle { get; }
         [DataSourceProperty] public string PortraitCacheKey { get; }
-        [DataSourceProperty] public string PortraitId { get; }
-        [DataSourceProperty] public string PortraitAdditionalArgs { get; }
-        [DataSourceProperty] public string PortraitTextureProviderName { get; }
+        [DataSourceProperty] public bool IsUnselected => !IsSelected;
 
         [DataSourceProperty]
         public bool IsSelected
@@ -46,6 +41,7 @@ namespace ReignBeta.UI.ViewModels
                 {
                     _isSelected = value;
                     OnPropertyChangedWithValue(value);
+                    OnPropertyChanged(nameof(IsUnselected));
                 }
             }
         }
@@ -87,19 +83,6 @@ namespace ReignBeta.UI.ViewModels
         public void ExecuteSelect()
         {
             _select?.Invoke(this);
-        }
-
-        private static ImageIdentifierVM BuildPortrait(Hero hero)
-        {
-            try
-            {
-                CharacterCode code = hero?.CharacterObject == null ? null : CharacterCode.CreateFrom(hero.CharacterObject);
-                return string.IsNullOrWhiteSpace(code?.Code) ? null : new CharacterImageIdentifierVM(code);
-            }
-            catch
-            {
-                return null;
-            }
         }
 
         private static string BuildSubtitle(Hero hero)

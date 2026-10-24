@@ -52,11 +52,14 @@ namespace ReignBeta
             ReignHiddenInformationPatches.Apply();
             ReignSaveSyncDeletionPatch.Apply();
             ReignEconomyPatches.Apply();
+            ReignBeta.World.ReignRulerNativePatches.Apply();
             ReignTemporaryPartyGuestPatches.Apply();
+            ReignNpcLivesPatches.Apply();
             ReignRescueConversationBehavior.Install();
             ReignWorkshopDialoguePatches.Apply();
             ReignMainMenuVideoPatches.Apply();
             ReignPopupKeyboardPatches.Apply();
+            ReignDeclaredTypographyPatch.Apply();
 #if !REIGN_EXCLUDE_COURT
             ReignCourtNobleSafetyPatches.Apply();
 #endif
@@ -134,6 +137,8 @@ namespace ReignBeta
                 campaignStarter.AddModel(new ReignBeta.ClanAccords.ReignClanAccordsWageModel());
                 campaignStarter.AddBehavior(new ReignBeta.ClanAccords.ReignClanAccordsCampaignBehavior());
                 campaignStarter.AddBehavior(new ReignEconomyCampaignBehavior());
+                campaignStarter.AddBehavior(new ReignRulerCampaignBehavior());
+                campaignStarter.AddBehavior(new ReignNewsCampaignBehavior());
                 campaignStarter.AddBehavior(new ReignKingdomEventsCampaignBehavior());
                 campaignStarter.AddBehavior(new ReignGovernmentCampaignBehavior());
                 campaignStarter.AddBehavior(new ReignCampaignPreparationCampaignBehavior());
@@ -163,6 +168,7 @@ namespace ReignBeta
                 campaignStarter.AddBehavior(new ReignRelationshipCampaignBehavior());
                 campaignStarter.AddBehavior(new ReignPlayerApproachCampaignBehavior());
                 campaignStarter.AddBehavior(new ReignBanterCampaignBehavior());
+                campaignStarter.AddBehavior(new ReignNpcLivesBehavior());
                 campaignStarter.AddBehavior(new ReignRescueConversationBehavior());
                 campaignStarter.AddBehavior(new ReignFamilyCampaignBehavior());
                 campaignStarter.AddBehavior(new ReignCourtPersonalityReputationCampaignBehavior());
@@ -222,6 +228,9 @@ namespace ReignBeta
 
             RunTickStage("continuous relationship outbox", () => ReignServerClient.RelationshipRealtimeTick(dt));
             RunTickStage("player approach options", () => ReignServerClient.PlayerApproachOptionsTick(dt));
+            RunTickStage("ruler system", () => ReignRulerCampaignBehavior.Instance?.ApplicationTick(dt));
+            RunTickStage("town-crier news", () => ReignNewsCampaignBehavior.Instance?.ApplicationTick(dt));
+            RunTickStage("NPC lives", () => ReignNpcLivesBehavior.Instance?.ApplicationTick(dt));
             RunTickStage("continuous native relationship projection", () => ReignRelationshipCampaignBehavior.Instance?.ApplicationTick(dt));
             RunTickStage("continuous server action execution", () => ReignAICampaignBehavior.Instance?.ApplicationTick(dt));
 
@@ -288,6 +297,7 @@ namespace ReignBeta
             mission.AddMissionBehavior(new ReignSceneActionMissionBehavior());
             mission.AddMissionBehavior(new ReignEncounteredResidentMissionBehavior());
             mission.AddMissionBehavior(new ReignBeta.Campaign.ReignSharedActivityMissionBehavior());
+            mission.AddMissionBehavior(new ReignBeta.Campaign.NpcStoryMissionWitness());
         }
 
         protected override void OnSubModuleUnloaded()
@@ -295,6 +305,7 @@ namespace ReignBeta
             base.OnSubModuleUnloaded();
             _portraitHarmony?.UnpatchAll(_portraitHarmony.Id);
             ReignPregnancyPatches.Unapply();
+            ReignNpcLivesPatches.Unapply();
             ReignMarriagePatches.Unapply();
             ReignDiplomacyPatches.Unapply();
             ReignGovernmentPatches.Unapply();
@@ -304,9 +315,11 @@ namespace ReignBeta
             ReignHiddenInformationPatches.Unapply();
             ReignSaveSyncDeletionPatch.Unapply();
             ReignEconomyPatches.Unapply();
+            ReignBeta.World.ReignRulerNativePatches.Unapply();
             ReignWorkshopDialoguePatches.Unapply();
             ReignMainMenuVideoPatches.Unapply();
             ReignPopupKeyboardPatches.Unapply();
+            ReignDeclaredTypographyPatch.Unapply();
             ReignMapBarInputSafetyPatch.Unapply();
 #if !REIGN_EXCLUDE_COURT
             ReignCourtNobleSafetyPatches.Unapply();

@@ -7,7 +7,9 @@ $ErrorActionPreference = 'Stop'
 Set-StrictMode -Version Latest
 
 # Canonical test child only: compile the actual managed methods without invoking
-# a widget, engine callback, provider, campaign, listener or game process.
+# an engine callback, provider, campaign, listener or game process. The mailbox
+# editor fixture invokes managed input on constructor-free, isolated text state;
+# it never renders, polls real keyboard input, attaches a screen or calls native code.
 $probeRoot = [IO.Path]::GetFullPath($EvidenceDirectory)
 $working = Join-Path $probeRoot 'sandbox\bin\Win64_Shipping_Client'
 [IO.Directory]::CreateDirectory($working) | Out-Null
@@ -45,6 +47,11 @@ $allianceDurationChecks = 0
 $goldObservationChecks = 0
 $tributeObservationChecks = 0
 $romanceObservationChecks = 0
+$rebellionPreparationLifecycleChecks = 0
+$rebellionSavedLoadChecks = 0
+$mailboxEditorChecks = 0
+$mailboxPortraitChecks = 0
+$heroKnowledgeChecks = 0
 try {
     $native = [Reflection.Assembly]::LoadFrom((Join-Path $gameBin 'TaleWorlds.GauntletUI.dll'))
     $widget = $native.GetType('TaleWorlds.GauntletUI.BaseTypes.Widget', $true)
@@ -61,7 +68,89 @@ try {
         throw 'Compiled client does not reference the exact installed native vector assembly.'
     }
     $flags = [Reflection.BindingFlags]'Instance,Static,NonPublic,Public,DeclaredOnly'
+    # Invoke only the compiled managed lifecycle helper. These are isolated saved
+    # records: no campaign, government, native clan mutation or live save exists.
+    $rebellionType = $client.GetType('ReignBeta.Campaign.ReignRebellionCampaignBehavior', $true)
+    $closePlots = $rebellionType.GetMethod('CloseResolvedPreparationPlots', $flags)
+    $plotType = $client.GetType('ReignBeta.World.ReignRebellionPlotRecord', $true)
+    $movementType = $client.GetType('ReignBeta.World.ReignRebellionMovementRecord', $true)
+    foreach ($case in @(
+        @('applied', 'active_rebellion', 'civil_war', $true, 'movement', 'hero', 'clan', 10, $true),
+        @('resolved_stage', 'active_rebellion', 'resolved', $false, 'movement', 'hero', 'clan', 10, $true),
+        @('active_war', 'active_rebellion', 'civil_war', $false, 'movement', 'hero', 'clan', 10, $false),
+        @('wrong_movement', 'active_rebellion', 'resolved', $true, 'other', 'hero', 'clan', 10, $false),
+        @('wrong_hero', 'active_rebellion', 'resolved', $true, 'movement', 'other', 'clan', 10, $false),
+        @('wrong_clan', 'active_rebellion', 'resolved', $true, 'movement', 'hero', 'other', 10, $false),
+        @('already_terminal', 'resolved', 'resolved', $true, 'movement', 'hero', 'clan', 10, $false),
+        @('planning', 'planning', 'resolved', $true, 'movement', 'hero', 'clan', 10, $false),
+        @('missing_link', 'active_rebellion', 'resolved', $true, '', 'hero', 'clan', 10, $false),
+        @('newer_plot_date', 'active_rebellion', 'resolved', $true, 'movement', 'hero', 'clan', 50, $true))) {
+        $plot = [Activator]::CreateInstance($plotType)
+        $plot.Status = $case[1]; $plot.MovementId = $case[4]
+        $plot.PlayerHeroStringId = $case[5]; $plot.PlayerClanStringId = $case[6]
+        $plot.UpdatedDay = [single]$case[7]; $plot.Resolution = 'original_history'
+        $movement = [Activator]::CreateInstance($movementType)
+        $movement.MovementId = 'movement'; $movement.Stage = $case[2]
+        $movement.ResolutionApplied = $case[3]; $movement.LeaderHeroStringId = 'hero'
+        $movement.LeaderClanStringId = 'clan'; $movement.Resolution = 'recognized_independence'
+        $movement.UpdatedDay = [single]20; $movement.CooldownUntilDay = [single]83
+        $plots = [Array]::CreateInstance($plotType, 1); $plots.SetValue($plot, 0)
+        $movements = [Array]::CreateInstance($movementType, 1); $movements.SetValue($movement, 0)
+        $count = $closePlots.Invoke($null, @($plots, $movements))
+        if ($count -ne [int]$case[8]) { throw "Wrong resolved preparation count: $($case[0])" }
+        if ($case[8]) {
+            if ($plot.Status -ne 'resolved' -or $plot.Resolution -ne 'recognized_independence' -or
+                $plot.UpdatedDay -ne [Math]::Max([single]$case[7], [single]20)) {
+                throw "Resolved preparation history/date lost: $($case[0])"
+            }
+        } elseif ($plot.Status -ne $case[1] -or $plot.Resolution -ne 'original_history' -or $plot.UpdatedDay -ne $case[7]) {
+            throw "Unrelated or active preparation mutated: $($case[0])"
+        }
+        if ($movement.Stage -ne $case[2] -or $movement.ResolutionApplied -ne $case[3] -or $movement.CooldownUntilDay -ne 83) {
+            throw 'Preparation cleanup altered the war or its cooldown.'
+        }
+        if ($closePlots.Invoke($null, @($plots, $movements)) -ne 0) { throw 'Preparation cleanup is not idempotent.' }
+        $rebellionPreparationLifecycleChecks++
+    }
+    # Exercise the actual save-load entry point, which sealed campaigns still
+    # execute even though they skip initial world preparation. No native state.
+    Add-Type -TypeDefinition @'
+public sealed class ReignRebellionSavedRecordDataStore : TaleWorlds.CampaignSystem.IDataStore
+{
+    public bool IsLoading { get { return true; } }
+    public bool IsSaving { get { return false; } }
+    public bool SyncData<T>(string key, ref T value) { return true; }
+}
+'@ -ReferencedAssemblies (Join-Path $gameBin 'TaleWorlds.CampaignSystem.dll')
+    foreach ($resolved in @($true, $false)) {
+        $behavior = [Runtime.Serialization.FormatterServices]::GetUninitializedObject($rebellionType)
+        $plot = [Activator]::CreateInstance($plotType)
+        $plot.Status = 'active_rebellion'; $plot.MovementId = 'loaded_movement'
+        $plot.PlayerHeroStringId = 'loaded_hero'; $plot.PlayerClanStringId = 'loaded_clan'
+        $movement = [Activator]::CreateInstance($movementType)
+        $movement.MovementId = 'loaded_movement'; $movement.Stage = 'civil_war'
+        $movement.LeaderHeroStringId = 'loaded_hero'; $movement.LeaderClanStringId = 'loaded_clan'
+        $movement.ResolutionApplied = $resolved; $movement.Resolution = 'recognized_independence'
+        $movement.CooldownUntilDay = [single]83
+        $plots = [Activator]::CreateInstance([Collections.Generic.List[object]].GetGenericTypeDefinition().MakeGenericType($plotType))
+        $plots.Add($plot)
+        $movements = [Activator]::CreateInstance([Collections.Generic.List[object]].GetGenericTypeDefinition().MakeGenericType($movementType))
+        $movements.Add($movement)
+        $rebellionType.GetField('_plots', $flags).SetValue($behavior, $plots)
+        $rebellionType.GetField('_movements', $flags).SetValue($behavior, $movements)
+        $store = [ReignRebellionSavedRecordDataStore]::new()
+        $rebellionType.GetMethod('SyncData', $flags).Invoke($behavior, @($store)) | Out-Null
+        $expected = if ($resolved) { 'resolved' } else { 'active_rebellion' }
+        if ($plot.Status -ne $expected -or $plots.Count -ne 1 -or $movements.Count -ne 1 -or
+            $movement.CooldownUntilDay -ne 83 -or $movement.ResolutionApplied -ne $resolved) {
+            throw 'Saved preparation cleanup missed a resolved war or altered an active one.'
+        }
+        $rebellionType.GetMethod('SyncData', $flags).Invoke($behavior, @($store)) | Out-Null
+        if ($plot.Status -ne $expected) { throw 'Saved preparation cleanup is not idempotent.' }
+        $rebellionSavedLoadChecks++
+    }
     foreach ($typeName in @('ReignBeta.UI.Widgets.ReignActionEditableTextWidget',
+        'ReignBeta.UI.Widgets.ReignPortraitWidget', 'ReignBeta.Campaign.ReignHeroKnowledge',
         'ReignBeta.UI.Calibration.ReignUiCalibrationSession', 'ReignBeta.UI.Calibration.ReignUiCalibrationSession+WidgetGeometry')) {
         $type = $client.GetType($typeName, $true)
         $members = @($type.GetMethods($flags) | Where-Object { !$_.ContainsGenericParameters }) + @($type.GetConstructors($flags))
@@ -75,6 +164,141 @@ try {
     $editor = $client.GetType('ReignBeta.UI.Widgets.ReignActionEditableTextWidget', $true)
     $fieldsCompatible = $editor.GetProperty('IsNativeTextCompatible').GetValue($null, $null)
     if (!$fieldsCompatible) { throw 'Native visible text fields are incompatible.' }
+    # Execute the actual managed key path, with the game's empty input manager
+    # and text implementation. No platform, renderer, event loop or live UI exists.
+    $contextType = $native.GetType('TaleWorlds.GauntletUI.UIContext', $true)
+    $context = [Runtime.Serialization.FormatterServices]::GetUninitializedObject($contextType)
+    $fontFactoryType = $native.GetType('TaleWorlds.GauntletUI.FontFactory', $true)
+    $fontFactory = [Runtime.Serialization.FormatterServices]::GetUninitializedObject($fontFactoryType)
+    $language = [Runtime.Serialization.FormatterServices]::GetUninitializedObject($native.GetType('TaleWorlds.GauntletUI.Language', $true))
+    $fontFactoryType.GetField('_currentLangugage', $flags).SetValue($fontFactory, $language)
+    $contextType.GetField('<FontFactory>k__BackingField', $flags).SetValue($context, $fontFactory)
+    $events = [Runtime.Serialization.FormatterServices]::GetUninitializedObject($native.GetType('TaleWorlds.GauntletUI.EventManager', $true))
+    $contextType.GetField('<EventManager>k__BackingField', $flags).SetValue($context, $events)
+    $inputAssembly = [Reflection.Assembly]::LoadFrom((Join-Path $gameBin 'TaleWorlds.InputSystem.dll'))
+    $inputType = $inputAssembly.GetType('TaleWorlds.InputSystem.Input', $true)
+    $inputField = $inputType.GetField('_inputManager', $flags)
+    $priorInput = $inputField.GetValue($null)
+    $emptyInput = [Activator]::CreateInstance($inputAssembly.GetType('TaleWorlds.InputSystem.EmptyInputManager', $true), $true)
+    $inputField.SetValue($null, $emptyInput)
+    $composerType = $client.GetType('ReignBeta.UI.ViewModels.ReignActionComposerVM', $true)
+    $composer = [Activator]::CreateInstance($composerType, @([Action] {}))
+    try {
+        $textWidget = [Runtime.Serialization.FormatterServices]::GetUninitializedObject($editor)
+        $widget.GetField('<Context>k__BackingField', $flags).SetValue($textWidget, $context)
+        $nativeText = [Activator]::CreateInstance($twoDimension.GetType('TaleWorlds.TwoDimension.EditableText', $true), @(0, 0, $null, $null))
+        $editableWidget = $native.GetType('TaleWorlds.GauntletUI.BaseTypes.EditableTextWidget', $true)
+        $editableWidget.GetField('_editableText', $flags).SetValue($textWidget, $nativeText)
+        $textWidget.MaxLength = [int]::MaxValue
+        $textWidget.ComposerId = 'missing-binding'
+        $editor.GetMethod('BindComposer').Invoke($textWidget, @($composer)) | Out-Null
+        if ($textWidget.ComposerId -ne $composer.Id) { throw 'Mailbox explicit composer binding failed.' }
+        $mailboxEditorChecks++
+        $textWidget.HandleInput([int[]]@(72, 105))
+        if ($textWidget.Text -ne 'Hi' -or $composer.State.Text -ne 'Hi' -or $nativeText.CursorPosition -ne 2) { throw 'Actual editor dropped typed text.' }
+        $mailboxEditorChecks++
+        $nativeText.SetCursor(1, $false, $false)
+        $textWidget.HandleInput([int[]]@(33, 60, 62, 10))
+        if ($composer.State.Text -ne 'H!i') { throw 'Caret insertion or markup/control filtering failed.' }
+        $mailboxEditorChecks++
+        $nativeText.SelectAll()
+        $textWidget.HandleInput([int[]]@(82, 101, 112, 108, 121))
+        if ($composer.State.Text -ne 'Reply') { throw 'Selection replacement failed.' }
+        $mailboxEditorChecks++
+        $composer.Dispose()
+        $rejected = $false
+        try { $editor.GetMethod('BindComposer').Invoke($textWidget, @($composer)) | Out-Null }
+        catch { $rejected = $true }
+        if (!$rejected) { throw 'Disposed mailbox composer was accepted.' }
+        $mailboxEditorChecks++
+        $mailboxType = $client.GetType('ReignBeta.UI.ViewModels.ReignCorrespondenceScreenVM', $true)
+        $mailbox = [Runtime.Serialization.FormatterServices]::GetUninitializedObject($mailboxType)
+        $cancellation = [Threading.CancellationTokenSource]::new()
+        $mailboxType.GetField('_loadCancellation', $flags).SetValue($mailbox, $cancellation)
+        $mailbox.CancelPendingLoads()
+        $mailbox.CancelPendingLoads()
+        if (!$cancellation.IsCancellationRequested -or !$mailboxType.GetField('_finalized', $flags).GetValue($mailbox)) { throw 'Cancel did not invalidate mailbox loads immediately.' }
+        $mailboxEditorChecks++
+        $cancellation.Dispose()
+    } finally {
+        $composer.Dispose()
+        $inputField.SetValue($null, $priorInput)
+    }
+    # Actual compiled clipping, lazy binding and cancellation; no engine upload.
+    $portraitType = $client.GetType('ReignBeta.UI.Widgets.ReignPortraitWidget', $true)
+    $intersects = $portraitType.GetMethod('Intersects', $flags)
+    foreach ($case in @(
+        @(0, 0, 75, 75, $true), @(0, 619, 75, 75, $false),
+        @(0, 610, 75, 75, $true), @([single]::NaN, 0, 75, 75, $false))) {
+        $arguments = [object[]]@([single]$case[0], [single]$case[1], [single]$case[2], [single]$case[3],
+            [single]0, [single]0, [single]389, [single]619)
+        if ($intersects.Invoke($null, $arguments) -ne $case[4]) { throw 'Portrait clipping guard failed.' }
+        $mailboxPortraitChecks++
+    }
+    foreach ($scrollTop in @([single]0, [single](600 * 84 - 619))) {
+        $visible = 0
+        for ($row = 0; $row -lt 600; $row++) {
+            if ($intersects.Invoke($null, [object[]]@([single]0, [single]($row * 84), [single]75, [single]75,
+                [single]0, $scrollTop, [single]389, [single]619))) { $visible++ }
+        }
+        if ($visible -ne 8) { throw 'Portrait work was not bounded to the visible contact rail.' }
+        $mailboxPortraitChecks++
+    }
+    $portraitFixture = [Runtime.Serialization.FormatterServices]::GetUninitializedObject($portraitType)
+    # XML may bind the key before its behavior flag. Neither order may do IO.
+    for ($row = 0; $row -lt 1000; $row++) { $portraitFixture.PortraitCacheKey = 'isolated_unloaded_' + $row }
+    if ($null -ne $portraitType.GetField('_thumbnailPending', $flags).GetValue($portraitFixture)) { throw 'Binding eagerly prepared a portrait.' }
+    $mailboxPortraitChecks++
+    $portraitFixture.VisibleThumbnailOnly = $true
+    $portraitFixture.PortraitCacheKey = ''
+    $portraitType.GetMethod('RenderVisibleThumbnail', $flags).Invoke($portraitFixture, @($null, $null)) | Out-Null
+    if ($null -ne $portraitType.GetField('_thumbnailPending', $flags).GetValue($portraitFixture)) { throw 'An unknown contact requested a portrait.' }
+    $mailboxPortraitChecks++
+    $ownerTable = $portraitType.GetField('ThumbnailOwners', $flags).GetValue($null)
+    $otherContext = [Runtime.Serialization.FormatterServices]::GetUninitializedObject($contextType)
+    $firstOwner = [Threading.CancellationTokenSource]::new()
+    $secondOwner = [Threading.CancellationTokenSource]::new()
+    $ownerTable.Add($context, $firstOwner); $ownerTable.Add($otherContext, $secondOwner)
+    $cancelPortraits = $portraitType.GetMethod('CancelThumbnailLoads', $flags)
+    $cancelPortraits.Invoke($null, @($context)) | Out-Null
+    $cancelPortraits.Invoke($null, @($context)) | Out-Null
+    if (!$firstOwner.IsCancellationRequested -or $secondOwner.IsCancellationRequested) { throw 'Closing one mailbox cancelled another UI owner or failed to cancel.' }
+    $mailboxPortraitChecks++
+    $factoryType = $client.GetType('AIPortraits.TextureFactory', $true)
+    $cancelledThumbnail = $factoryType.GetMethod('GetOrBuildThumbnailAsync').Invoke($null,
+        @('isolated_cancelled_portrait', [single]1, $firstOwner.Token))
+    if (!$cancelledThumbnail.IsCompleted -or $null -ne $cancelledThumbnail.GetAwaiter().GetResult()) { throw 'Cancelled thumbnail work did not finish before IO/upload.' }
+    $mailboxPortraitChecks++
+    $firstOwner.Dispose(); $secondOwner.Dispose()
+    # Native HasMet and IsKnownToPlayer are independent. Exercise the actual
+    # compiled decision against isolated callbacks, retaining existing meeting dates.
+    Add-Type -TypeDefinition @'
+public sealed class ReignKnownHeroProbeState
+{
+    public bool Met, Known;
+    public int Date = 7, Reveals, Meetings;
+    public void Reveal() { Known = true; Reveals++; }
+    public void Meet() { Met = true; Meetings++; Date = 999; }
+}
+'@
+    $knowledgeType = $client.GetType('ReignBeta.Campaign.ReignHeroKnowledge', $true)
+    $applyKnowledge = $knowledgeType.GetMethod('ApplyKnownState', $flags)
+    foreach ($met in @($false, $true)) { foreach ($known in @($false, $true)) {
+        $knowledgeState = [ReignKnownHeroProbeState]::new()
+        $knowledgeState.Met = $met; $knowledgeState.Known = $known
+        $reveal = [Action]{ $knowledgeState.Reveal() }
+        $meet = [Action]{ $knowledgeState.Meet() }
+        $applyKnowledge.Invoke($null, @($met, $known, $reveal, $meet)) | Out-Null
+        $expectedReveals = if ($known) { 0 } else { 1 }
+        $expectedMeetings = if ($met) { 0 } else { 1 }
+        $expectedDate = if ($met) { 7 } else { 999 }
+        if (!$knowledgeState.Met -or !$knowledgeState.Known -or $knowledgeState.Reveals -ne $expectedReveals -or
+            $knowledgeState.Meetings -ne $expectedMeetings -or $knowledgeState.Date -ne $expectedDate) { throw 'Native hero knowledge/date decision failed.' }
+        $applyKnowledge.Invoke($null, @($knowledgeState.Met, $knowledgeState.Known, $reveal, $meet)) | Out-Null
+        if ($knowledgeState.Reveals -ne $expectedReveals -or $knowledgeState.Meetings -ne $expectedMeetings -or
+            $knowledgeState.Date -ne $expectedDate) { throw 'Repeated interaction rewrote an existing meeting.' }
+        $heroKnowledgeChecks++
+    } }
     # Exercise only managed selector helpers on an uninitialized fixture: no
     # campaign constructor, entity lookup, selection callback or widget runs.
     $builderType = $client.GetType('ReignBeta.UI.ViewModels.ReignActionBuilderVM', $true)
@@ -331,6 +555,21 @@ try {
         if (($reason.Length -gt 0) -ne $input[4]) { throw 'Known native invocation safety guard selected the wrong context.' }
         $nativeSafetyChecks++
     }
+    $partyEntryGuard = $nativeConsole.GetMethod('CanInvokePartySettlementEntry', $flags)
+    foreach ($input in @(
+        @($false, $false, $false, $true),
+        @($true, $true, $true, $true),
+        @($true, $false, $true, $false),
+        @($true, $true, $false, $false),
+        @($true, $false, $false, $false))) {
+        if ([bool]$partyEntryGuard.Invoke($null, @($input[0], $input[1], $input[2])) -ne $input[3]) {
+            throw 'Player party entry accepted a missing/mismatched native encounter or blocked ordinary NPC entry.'
+        }
+        $nativeSafetyChecks++
+    }
+    $playerEncounterFixture = $hostType.GetMethod('ApplyStructuredPlayerSettlementEncounterFixture', $flags)
+    [Runtime.CompilerServices.RuntimeHelpers]::PrepareMethod($playerEncounterFixture.MethodHandle)
+    $prepared.Add($hostType.FullName + '.' + $playerEncounterFixture.Name)
     $contextGuard = $nativeConsole.GetMethod('ValidateContext', $flags)
     [Runtime.CompilerServices.RuntimeHelpers]::PrepareMethod($contextGuard.MethodHandle)
     $prepared.Add('ReignBeta.Actions.ReignNativeActionConsole.ValidateContext')
@@ -464,6 +703,11 @@ $report = [ordered]@{
     goldObservationChecks = $goldObservationChecks
     tributeObservationChecks = $tributeObservationChecks
     romanceObservationChecks = $romanceObservationChecks
+    rebellionPreparationLifecycleChecks = $rebellionPreparationLifecycleChecks
+    rebellionSavedLoadChecks = $rebellionSavedLoadChecks
+    mailboxEditorChecks = $mailboxEditorChecks
+    mailboxPortraitChecks = $mailboxPortraitChecks
+    heroKnowledgeChecks = $heroKnowledgeChecks
     preparedMethods = @($prepared.ToArray())
     error = $failure
     nativeRenderedAcceptance = 'not-run'

@@ -13,6 +13,19 @@ namespace ReignBeta.Actions
 {
     public static class ReignActionQuotes
     {
+        public static int PoliticalServiceReference(Hero actor, bool sponsorship)
+            => PoliticalServiceReference(actor, sponsorship ? "government.sponsor_petition" : "government.endorse_petition");
+
+        public static int PoliticalServiceReference(Hero actor, string actionId, Kingdom petitionKingdom = null)
+        {
+            int income = actor?.Clan?.Leader == actor && actor != null
+                ? Math.Max(0, (int)TaleWorlds.CampaignSystem.Campaign.Current.Models.ClanFinanceModel.CalculateClanGoldChange(actor.Clan, false, false, false).ResultNumber)
+                : 0;
+            // Reserved gold is already removed from the native balance by ReserveCore.
+            var kingdom = petitionKingdom ?? actor?.Clan?.Kingdom ?? actor?.HomeSettlement?.OwnerClan?.Kingdom;
+            return Reign.Core.Contracts.Government.GovernmentParticipationBalance.PoliticalServiceReference(
+                income, actor?.Gold ?? 0, kingdom?.Fiefs.Count ?? 0, actionId);
+        }
         public static long Value(ActionClause c, out string source)
         {
             var actor = ReignActionService.HeroById(c.ActorId); var recipient = ReignActionService.HeroById(c.RecipientId);
@@ -51,6 +64,15 @@ namespace ReignBeta.Actions
                     var ship = actor?.PartyBelongedTo?.Ships.SingleOrDefault(x => ReignAssetTransfer.ShipId(x) == id)
                         ?? throw new InvalidOperationException("Ship appraisal is unavailable.");
                     unit = models.ShipCostModel.GetShipTradeValue(ship, actor.PartyBelongedTo.Party, recipient?.PartyBelongedTo?.Party); break;
+                case "government.endorse_petition":
+                case "government.sponsor_petition":
+                case "government.seek_petition_adoption":
+                case "government.present_petition":
+                case "government.transfer_mandate":
+                case "government.support_nomination":
+                    source = "political_service_reference_v2";
+                    unit = ReignBeta.Government.ReignGovernmentCampaignBehavior.Instance?.PetitionServiceReference(actor, c)
+                        ?? PoliticalServiceReference(actor, c.ActionId); break;
                 default: throw new InvalidOperationException("This service has no native asset appraisal.");
             }
             double total = Math.Ceiling(unit * count * c.Installments);
@@ -62,9 +84,10 @@ namespace ReignBeta.Actions
         public static IReadOnlyList<string> ValidateNpcQuote(ActionAgreement a)
         {
             var errors = new List<string>();
-            // Gifts need no exchange rate. Mixed service bargains cannot be valued as if
-            // their service were free; their terms are still explicitly reviewed.
-            if (!a.Clauses.All(c => c.ActionId.StartsWith("give.")) || !a.Clauses.Any(c => c.ActorId == a.PlayerId)
+            // These political services have explicit reference values. Other mixed
+            // services retain their own review; zero-price principled consent is allowed.
+            var pricedPolitical = new[] { "government.endorse_petition", "government.sponsor_petition", "government.seek_petition_adoption", "government.present_petition", "government.transfer_mandate", "government.support_nomination" };
+            if (!a.Clauses.All(c => c.ActionId.StartsWith("give.") || pricedPolitical.Contains(c.ActionId)) || !a.Clauses.Any(c => c.ActorId == a.PlayerId)
                 || !a.Clauses.Any(c => c.ActorId == a.NpcId)) return errors;
             try
             {
@@ -75,7 +98,7 @@ namespace ReignBeta.Actions
                     if (c.ActorId == a.PlayerId) player = checked(player + value); else npc = checked(npc + value);
                 }
                 if (!AgreementRules.IsReasonableQuote(player, npc, 0.5, 2.0))
-                    errors.Add("The NPC's proposed asset exchange is outside the native appraisal range (50% to 200%).");
+                    errors.Add("The NPC's proposed exchange is outside the verified asset or political-service reference range (50% to 200%).");
             }
             catch (Exception ex) { errors.Add("The NPC quote cannot be verified: " + ex.Message); }
             return errors;

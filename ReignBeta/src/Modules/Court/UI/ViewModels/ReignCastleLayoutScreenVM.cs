@@ -24,7 +24,7 @@ namespace ReignBeta.UI.ViewModels
         {
             _close = close; _leaveForChat = leaveForChat; _openFamily = openFamily;
             _openGovernment = openGovernment; _court = court;
-            GovernmentButtonText = readOnlyGovernment ? "GOVERNMENT — READ-ONLY" : "GOVERNMENT — RULER ACCESS";
+            GovernmentButtonText = "GOVERNMENT — RECORDS & PARTICIPATION";
             PlayerPortraitCacheKey = CharacterCacheId.ForHero(Hero.MainHero) ?? string.Empty;
             IReadOnlyList<CastleRoomSessionRecord> schedule = court?.EnsureCastleSchedule() ?? Array.Empty<CastleRoomSessionRecord>();
             CastleMapImageId = ReignEventArtTextureFactory.BuildCastleMapImageId(

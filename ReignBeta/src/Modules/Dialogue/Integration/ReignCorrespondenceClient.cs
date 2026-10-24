@@ -100,22 +100,35 @@ namespace ReignBeta.Integration
                 .ToList();
         }
 
-        public static async Task<ReignCorrespondenceSnapshot> GetCorrespondenceAsync(IEnumerable<Hero> contacts)
+        public static async Task<ReignCorrespondenceSnapshot> GetCorrespondenceAsync(IEnumerable<Hero> contacts, string correspondentId = "", bool summaryOnly = false, Func<Task<bool>> isCurrentRequest = null)
         {
             ReignCorrespondenceSnapshot snapshot = new ReignCorrespondenceSnapshot();
             try
             {
-                JObject payload = new JObject
+                JObject payload = await ReignMainThread.InvokeAsync(() => new JObject
                 {
                     ["campaignId"] = GetCampaignId(),
                     ["playerId"] = Hero.MainHero?.StringId ?? string.Empty,
+                    ["correspondentId"] = correspondentId,
+                    ["summaryOnly"] = summaryOnly,
                     ["contactIds"] = new JArray((contacts ?? Enumerable.Empty<Hero>()).Where(x => x != null).Select(x => x.StringId))
-                };
-                JObject response = await PostJsonAsync("/correspondence/threads", payload).ConfigureAwait(false);
+                }).ConfigureAwait(false);
+                JObject response = await PostJsonAsync("/correspondence/threads", payload, isCurrentRequest).ConfigureAwait(false);
                 snapshot.Ok = response.Value<bool?>("ok") == true;
                 snapshot.Error = response.Value<string>("error") ?? string.Empty;
                 snapshot.UnreadCount = response.Value<int?>("unreadCount") ?? 0;
                 snapshot.Letters = ParseLetters(response["letters"] as JArray);
+                foreach (JObject state in (response["contactStates"] as JArray ?? new JArray()).OfType<JObject>())
+                {
+                    string id = state.Value<string>("contactId") ?? string.Empty;
+                    if (id.Length == 0) continue;
+                    snapshot.ContactStates[id] = new ReignCorrespondenceContactState
+                    {
+                        HasCorrespondence = state.Value<bool?>("hasCorrespondence") == true,
+                        UnreadCount = state.Value<int?>("unreadCount") ?? 0,
+                        Status = state.Value<string>("status") ?? string.Empty
+                    };
+                }
             }
             catch (Exception ex)
             {
@@ -368,6 +381,19 @@ namespace ReignBeta.Integration
             return response.Value<bool?>("ok") == true;
         }
 
+        public static async Task<bool> MarkLettersReadAsync(IEnumerable<string> letterIds, Func<Task<bool>> isCurrentRequest)
+        {
+            var ids = (letterIds ?? Enumerable.Empty<string>()).Where(id => !string.IsNullOrWhiteSpace(id)).Distinct().Take(1000).ToList();
+            if (ids.Count == 0) return true;
+            JObject payload = await ReignMainThread.InvokeAsync(() => new JObject
+            {
+                ["campaignId"] = GetCampaignId(), ["playerId"] = Hero.MainHero?.StringId ?? string.Empty,
+                ["letterIds"] = new JArray(ids), ["worldDay"] = CurrentWorldDay()
+            }).ConfigureAwait(false);
+            JObject response = await PostJsonAsync("/correspondence/read", payload, isCurrentRequest).ConfigureAwait(false);
+            return response.Value<bool?>("ok") == true;
+        }
+
         public static async Task<ReignRelationshipDevelopment> PollRelationshipDevelopmentAsync(IEnumerable<string> presentHeroIds)
         {
             try
@@ -517,94 +543,106 @@ namespace ReignBeta.Integration
             string correlationId = "")
         {
             JObject empty = new JObject { ["ok"] = true, ["skipped"] = true, ["reason"] = "Conversation relationship changes are disabled or no assessments were supplied." };
-            if (ReignBetaSettings.Instance?.EventRelationshipChangesEnabled == false || Hero.MainHero == null)
+            List<Hero> heroes = null;
+            JObject payload = null;
+            TaleWorlds.CampaignSystem.Campaign relationCampaign = null;
+            ReignBeta.Campaign.ReignRelationshipCampaignBehavior relationBehavior = null;
+            string relationTimeline = "";
+            // Provider completion resumes on a worker thread. Capture the whole
+            // native input together before political sync can replace its lists.
+            await ReignMainThread.InvokeAsync(() =>
             {
-                return empty;
-            }
+                if (ReignBetaSettings.Instance?.EventRelationshipChangesEnabled == false || Hero.MainHero == null)
+                    return;
 
-            List<Hero> heroes = (conversationHeroes ?? Enumerable.Empty<Hero>())
-                .Concat(new[] { Hero.MainHero })
-                .Where(x => x != null && !string.IsNullOrWhiteSpace(x.StringId))
-                .GroupBy(x => x.StringId, StringComparer.OrdinalIgnoreCase)
-                .Select(x => x.First())
-                .ToList();
-            List<JObject> completedResults = (resultRows ?? Enumerable.Empty<JObject>())
-                .Where(x => x != null && x.Value<bool?>("ok") != false)
-                .ToList();
-            JArray assessments = new JArray();
-            JArray speakerResults = new JArray();
-            bool sequentialParty = string.Equals(mode, "party_chat", StringComparison.OrdinalIgnoreCase);
-            HashSet<string> priorPartySpeakers = new HashSet<string>(StringComparer.OrdinalIgnoreCase) { Hero.MainHero.StringId };
-            foreach (JObject result in completedResults)
-            {
-                string currentObserver = result.Value<string>("heroStringId")
-                    ?? result.Value<string>("speakerHeroStringId")
-                    ?? string.Empty;
-                Hero currentHero = heroes.FirstOrDefault(x => string.Equals(x.StringId, currentObserver, StringComparison.OrdinalIgnoreCase));
-                speakerResults.Add(new JObject
+                heroes = (conversationHeroes ?? Enumerable.Empty<Hero>())
+                    .Concat(new[] { Hero.MainHero })
+                    .Where(x => x != null && !string.IsNullOrWhiteSpace(x.StringId))
+                    .GroupBy(x => x.StringId, StringComparer.OrdinalIgnoreCase)
+                    .Select(x => x.First())
+                    .ToList();
+                List<JObject> completedResults = (resultRows ?? Enumerable.Empty<JObject>())
+                    .Where(x => x != null && x.Value<bool?>("ok") != false)
+                    .ToList();
+                JArray assessments = new JArray();
+                JArray speakerResults = new JArray();
+                bool sequentialParty = string.Equals(mode, "party_chat", StringComparison.OrdinalIgnoreCase);
+                HashSet<string> priorPartySpeakers = new HashSet<string>(StringComparer.OrdinalIgnoreCase) { Hero.MainHero.StringId };
+                foreach (JObject result in completedResults)
                 {
-                    ["ok"] = true,
-                    ["heroStringId"] = currentObserver,
-                    ["heroName"] = currentHero?.Name?.ToString() ?? currentObserver,
-                    ["reply"] = result.Value<string>("reply") ?? string.Empty,
-                    ["participation"] = result.Value<string>("participation") ?? "speak",
-                    ["reactionTargetHeroStringId"] = result.Value<string>("reactionTargetHeroStringId") ?? string.Empty,
-                    ["relationshipSignal"] = result.Value<string>("relationshipSignal") ?? string.Empty
-                });
-                foreach (JObject assessment in (result?["relationshipAssessments"] as JArray ?? new JArray()).OfType<JObject>())
-                {
-                    string targetId = assessment.Value<string>("targetHeroStringId") ?? string.Empty;
-                    if (sequentialParty && !priorPartySpeakers.Contains(targetId)) continue;
-                    JObject normalized = (JObject)assessment.DeepClone();
-                    if (sequentialParty) normalized["eligibleTargetIds"] = new JArray(priorPartySpeakers);
-                    assessments.Add(normalized);
-                }
-                if (sequentialParty && !string.IsNullOrWhiteSpace(currentObserver)) priorPartySpeakers.Add(currentObserver);
-            }
-            if (assessments.Count == 0 && (!sequentialParty || speakerResults.Count == 0)) return empty;
-
-            JArray pairs = new JArray();
-            HashSet<string> pairKeys = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
-            for (int i = 0; i < heroes.Count; i++)
-            {
-                for (int j = i + 1; j < heroes.Count; j++)
-                {
-                    Hero observer = heroes[i];
-                    Hero target = heroes[j];
-                    if (observer == null || target == null || observer == target) continue;
-                    string key = string.Compare(observer.StringId, target.StringId, StringComparison.OrdinalIgnoreCase) <= 0
-                        ? observer.StringId + "|" + target.StringId
-                        : target.StringId + "|" + observer.StringId;
-                    if (!pairKeys.Add(key)) continue;
-                    pairs.Add(new JObject
+                    string currentObserver = result.Value<string>("heroStringId")
+                        ?? result.Value<string>("speakerHeroStringId")
+                        ?? string.Empty;
+                    Hero currentHero = heroes.FirstOrDefault(x => string.Equals(x.StringId, currentObserver, StringComparison.OrdinalIgnoreCase));
+                    speakerResults.Add(new JObject
                     {
-                        ["subjectId"] = observer.StringId,
-                        ["targetId"] = target.StringId,
-                        ["nativeRelation"] = observer.GetRelation(target),
-                        ["subject"] = BuildHeroProfile(observer),
-                        ["target"] = BuildHeroProfile(target)
+                        ["ok"] = true,
+                        ["heroStringId"] = currentObserver,
+                        ["heroName"] = currentHero?.Name?.ToString() ?? currentObserver,
+                        ["reply"] = result.Value<string>("reply") ?? string.Empty,
+                        ["participation"] = result.Value<string>("participation") ?? "speak",
+                        ["reactionTargetHeroStringId"] = result.Value<string>("reactionTargetHeroStringId") ?? string.Empty,
+                        ["relationshipSignal"] = result.Value<string>("relationshipSignal") ?? string.Empty
                     });
+                    foreach (JObject assessment in (result?["relationshipAssessments"] as JArray ?? new JArray()).OfType<JObject>())
+                    {
+                        string targetId = assessment.Value<string>("targetHeroStringId") ?? string.Empty;
+                        if (sequentialParty && !priorPartySpeakers.Contains(targetId)) continue;
+                        JObject normalized = (JObject)assessment.DeepClone();
+                        if (sequentialParty) normalized["eligibleTargetIds"] = new JArray(priorPartySpeakers);
+                        assessments.Add(normalized);
+                    }
+                    if (sequentialParty && !string.IsNullOrWhiteSpace(currentObserver)) priorPartySpeakers.Add(currentObserver);
                 }
-            }
+                if (assessments.Count == 0 && (!sequentialParty || speakerResults.Count == 0)) return;
 
-            JObject payload = new JObject
-            {
-                ["campaignId"] = GetCampaignId(),
-                ["exchangeId"] = string.IsNullOrWhiteSpace(exchangeId) ? "conversation_" + Guid.NewGuid().ToString("N") : exchangeId,
-                ["mode"] = mode ?? "conversation",
-                ["playerHeroStringId"] = Hero.MainHero.StringId,
-                ["worldDay"] = CurrentWorldDay(),
-                ["participants"] = new JArray(heroes.Select(x => x.StringId)),
-                ["assessments"] = assessments,
-                ["relationshipPairs"] = pairs,
-                ["participantProfiles"] = new JArray(heroes.Select(BuildHeroProfile)),
-                ["speakerResults"] = speakerResults
-            };
-            if (!string.IsNullOrWhiteSpace(correlationId)) payload["correlationId"] = correlationId;
-            var relationCampaign = TaleWorlds.CampaignSystem.Campaign.Current;
-            payload["nativeReceiptProtocol"] = "reign-native-relationship-receipt-v2";
-            var relationBehavior = ReignBeta.Campaign.ReignRelationshipCampaignBehavior.Instance;
-            string relationTimeline = ReignBeta.Campaign.ReignWorldHistoryCampaignBehavior.Instance?.TimelineId ?? "main";
+                JArray pairs = new JArray();
+                HashSet<string> pairKeys = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+                var profiles = heroes.ToDictionary(x => x.StringId, BuildHeroProfile, StringComparer.OrdinalIgnoreCase);
+                for (int i = 0; i < heroes.Count; i++)
+                {
+                    for (int j = i + 1; j < heroes.Count; j++)
+                    {
+                        Hero observer = heroes[i];
+                        Hero target = heroes[j];
+                        if (observer == null || target == null || observer == target) continue;
+                        string key = string.Compare(observer.StringId, target.StringId, StringComparison.OrdinalIgnoreCase) <= 0
+                            ? observer.StringId + "|" + target.StringId
+                            : target.StringId + "|" + observer.StringId;
+                        if (!pairKeys.Add(key)) continue;
+                        pairs.Add(new JObject
+                        {
+                            ["subjectId"] = observer.StringId,
+                            ["targetId"] = target.StringId,
+                            ["nativeRelation"] = observer.GetRelation(target),
+                            ["subject"] = profiles[observer.StringId].DeepClone(),
+                            ["target"] = profiles[target.StringId].DeepClone()
+                        });
+                    }
+                }
+
+                payload = new JObject
+                {
+                    ["campaignId"] = GetCampaignId(),
+                    ["exchangeId"] = string.IsNullOrWhiteSpace(exchangeId) ? "conversation_" + Guid.NewGuid().ToString("N") : exchangeId,
+                    ["mode"] = mode ?? "conversation",
+                    ["playerHeroStringId"] = Hero.MainHero.StringId,
+                    ["worldDay"] = CurrentWorldDay(),
+                    ["participants"] = new JArray(heroes.Select(x => x.StringId)),
+                    ["assessments"] = assessments,
+                    ["relationshipPairs"] = pairs,
+                    ["participantProfiles"] = new JArray(heroes.Select(x => profiles[x.StringId].DeepClone())),
+                    ["speakerResults"] = speakerResults
+                };
+                if (!string.IsNullOrWhiteSpace(correlationId)) payload["correlationId"] = correlationId;
+                relationCampaign = TaleWorlds.CampaignSystem.Campaign.Current;
+                payload["nativeReceiptProtocol"] = "reign-native-relationship-receipt-v2";
+                relationBehavior = ReignBeta.Campaign.ReignRelationshipCampaignBehavior.Instance;
+                relationTimeline = ReignBeta.Campaign.ReignWorldHistoryCampaignBehavior.Instance?.TimelineId ?? "main";
+                ReignLog.Info("Conversation relationship input captured on game thread correlation=" + correlationId
+                    + " participants=" + heroes.Count);
+            }).ConfigureAwait(false);
+            if (payload == null) return empty;
             JObject response = await PostJsonAsync("/relationships/conversation/evaluate", payload).ConfigureAwait(false);
             if (response.Value<bool?>("ok") != true) return response;
             foreach (JObject change in (response["nativeChanges"] as JArray ?? new JArray()).OfType<JObject>())
@@ -764,6 +802,15 @@ namespace ReignBeta.Integration
         public string Error { get; set; } = string.Empty;
         public int UnreadCount { get; set; }
         public List<ReignLetter> Letters { get; set; } = new List<ReignLetter>();
+        public Dictionary<string, ReignCorrespondenceContactState> ContactStates { get; set; }
+            = new Dictionary<string, ReignCorrespondenceContactState>(StringComparer.OrdinalIgnoreCase);
+    }
+
+    public sealed class ReignCorrespondenceContactState
+    {
+        public bool HasCorrespondence { get; set; }
+        public int UnreadCount { get; set; }
+        public string Status { get; set; } = string.Empty;
     }
 
     public sealed class ReignCorrespondenceTickResult

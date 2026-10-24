@@ -136,6 +136,8 @@ namespace ReignBeta.Integration
                     ["saveFinalization"] = ReignSaveSyncCoordinator.SaveFinalizationSnapshot()
                 },
                 ["diplomacy"] = BuildDiplomacyDiagnostics(),
+                ["government"] = ReignBeta.Government.ReignGovernmentCampaignBehavior.Instance?.PoliticalRuntimeStatus() ?? new JObject(),
+                ["rulers"] = ReignRulerCampaignBehavior.Instance?.RuntimeStatus() ?? new JObject(),
                 ["clanAccords"] = new JObject
                 {
                     ["schema"] = "reign-clan-accords-runtime-v1",
@@ -154,6 +156,7 @@ namespace ReignBeta.Integration
                     ["familyVisitOutbox"] = ReignBeta.Court.ReignCourtCampaignBehavior.Instance?.RulerDocketState.FamilyVisitOutbox?.Count ?? 0
                 },
                 ["relationshipClient"] = BuildRelationshipOutboxDiagnostics(),
+                ["personalGossip"] = PersonalGossipRuntimeStatus(),
                 ["worldHistory"] = new JObject
                 {
                     ["pendingCount"] = ReignWorldHistoryTransport.PendingCount(),

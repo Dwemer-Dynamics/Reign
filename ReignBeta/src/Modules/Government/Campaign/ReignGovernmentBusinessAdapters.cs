@@ -1,10 +1,13 @@
 using System;
+using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using Reign.Core.Contracts.Government;
 using ReignBeta.World;
 using TaleWorlds.CampaignSystem;
+using TaleWorlds.CampaignSystem.Settlements;
 
 namespace ReignBeta.Government
 {
@@ -32,7 +35,11 @@ namespace ReignBeta.Government
                         new JObject { ["id"] = "reject", ["label"] = "Reject the proposed remedies", ["description"] = "The resolution will not become an obligation.", ["affirmative"] = false }).ToString(Formatting.None)
                 });
             }
-            foreach (var record in _business.Where(x => x.Kind == "seasonal")) NormalizeBusinessPublicText(record);
+            foreach (var record in _business.Where(x => x.Kind == "seasonal"))
+            {
+                NormalizeBusinessPublicText(record);
+                InitializeBusinessSchedule(record);
+            }
         }
         private static bool IsPrivateRelationProgress(ReignGovernmentResolutionAction action) =>
             action == ReignGovernmentResolutionAction.ImproveClanRelation || action == ReignGovernmentResolutionAction.ImproveForeignRelation;
@@ -57,27 +64,105 @@ namespace ReignBeta.Government
                     {
                         option["label"] = route.Action == ReignGovernmentResolutionAction.ImproveClanRelation
                             ? "Seek reconciliation with the affected clan" : "Seek diplomatic reconciliation";
-                        option["description"] = "Completion is verified privately; deadline: " + route.DeadlineDays + " days.";
+                        option["description"] = SeasonalTargetDescription(resolution, route.Action)
+                            + " Completion is verified privately; deadline: " + route.DeadlineDays + " days after acceptance.";
                     }
                     else
                     {
                         option["label"] = GovernmentBusinessRules.PublicText(route.Description);
-                        option["description"] = "Required: " + route.Target + "; deadline: " + route.DeadlineDays + " days.";
+                        option["description"] = SeasonalTargetDescription(resolution, route.Action) + " "
+                            + SeasonalRequirementDescription(route, template.Scale);
                     }
                 }
                 else
                 {
                     option["label"] = GovernmentBusinessRules.PublicText(option.Value<string>("label"));
-                    option["description"] = GovernmentBusinessRules.PublicText(option.Value<string>("description"));
+                    var policy = record.Kind == "policy" ? PolicyObject.All.FirstOrDefault(x => x.StringId == record.TargetId) : null;
+                    option["description"] = policy != null && id == "accept" ? PolicyGovernmentDescription(policy)
+                        : record.Kind == "edict" && id == "accept" ? PublicEdictDescription(record)
+                        : GovernmentBusinessRules.PublicText(option.Value<string>("description"));
                 }
             }
             return options;
         }
 
+        private static string SeasonalTargetDescription(ReignGovernmentResolutionRecord resolution, ReignGovernmentResolutionAction action)
+        {
+            var details = new List<string>();
+            var settlement = Settlement.Find(resolution.TargetSettlementStringId);
+            details.Add("Recorded local target: " + (settlement?.Name?.ToString() ?? "unavailable; verify before undertaking this remedy") + ".");
+            switch (action)
+            {
+                case ReignGovernmentResolutionAction.MakePeace:
+                case ReignGovernmentResolutionAction.DeclareWar:
+                case ReignGovernmentResolutionAction.WinEnemyEngagements:
+                case ReignGovernmentResolutionAction.ImproveForeignRelation:
+                case ReignGovernmentResolutionAction.SignTradeAgreement:
+                case ReignGovernmentResolutionAction.SignNonAggressionPact:
+                case ReignGovernmentResolutionAction.ExchangePrisoners:
+                    details.Add("Foreign realm: " + (FindKingdom(resolution.TargetKingdomStringId)?.Name?.ToString() ?? "unavailable") + "."); break;
+                case ReignGovernmentResolutionAction.CompensateClan:
+                case ReignGovernmentResolutionAction.ImproveClanRelation:
+                case ReignGovernmentResolutionAction.GrantFief:
+                case ReignGovernmentResolutionAction.ReturnFief:
+                    details.Add("Affected clan: " + (Clan.FindFirst(x => Same(x.StringId, resolution.TargetClanStringId))?.Name?.ToString() ?? "unavailable") + "."); break;
+                case ReignGovernmentResolutionAction.HuntRaiderLord:
+                case ReignGovernmentResolutionAction.CaptureCulprit:
+                case ReignGovernmentResolutionAction.ReplaceGovernor:
+                case ReignGovernmentResolutionAction.ReleasePrisoners:
+                case ReignGovernmentResolutionAction.RansomPrisoners:
+                    details.Add("Recorded character: " + (FindHero(resolution.TargetHeroStringId)?.Name?.ToString() ?? "unavailable") + "."); break;
+                case ReignGovernmentResolutionAction.EnactPolicy:
+                case ReignGovernmentResolutionAction.RepealPolicy:
+                    details.Add("Recorded policy: " + (PolicyObject.All.FirstOrDefault(x => x.StringId == resolution.TargetPolicyStringId)?.Name?.ToString() ?? "unavailable") + "."); break;
+            }
+            return GovernmentBusinessRules.PublicText(string.Join(" ", details));
+        }
+
+        private static string SeasonalRequirementDescription(ReignGovernmentResolutionRoute route, ReignGovernmentResolutionScale scale)
+        {
+            if (IsPrivateRelationProgress(route.Action))
+                return "Completion is verified privately; deadline: " + route.DeadlineDays + " days after acceptance.";
+            string amount = route.Target.ToString("N0", CultureInfo.InvariantCulture);
+            string requirement;
+            if (UsesImmediateGold(route.Action)) requirement = "The ruler pays " + amount + " denars immediately on acceptance.";
+            else if (route.Action == ReignGovernmentResolutionAction.GarrisonMinimum)
+                requirement = "Reach a garrison of at least " + amount + " troops.";
+            else if (route.Action == ReignGovernmentResolutionAction.GarrisonMaximum)
+                requirement = "Reduce the garrison to at most " + amount + " troops.";
+            else if (route.Action == ReignGovernmentResolutionAction.FieldArmyMinimum)
+                requirement = "Reach at least " + amount + " troops in the realm's field armies.";
+            else if (route.Action == ReignGovernmentResolutionAction.CreateMilitia)
+                requirement = "Reach at least " + amount + " militia.";
+            else if (UsesWorldMeasurement(route.Action))
+                requirement = "Increase " + SeasonalUnitLabel(route.Unit) + " by " + amount + " from its value at acceptance.";
+            else requirement = "Required: " + amount + " " + SeasonalUnitLabel(route.Unit) + ".";
+            int dailyCost = DailyCommitmentGoldCost(route.Action, scale);
+            if (dailyCost > 0) requirement += " The ruler pays " + dailyCost.ToString("N0", CultureInfo.InvariantCulture)
+                + " denars for each honored commitment day; an unfunded day earns no progress.";
+            return requirement + " Deadline: " + route.DeadlineDays + " days after acceptance.";
+        }
+
+        private static string SeasonalUnitLabel(ReignGovernmentResolutionUnit unit)
+        {
+            switch (unit)
+            {
+                case ReignGovernmentResolutionUnit.Gold: return "denars";
+                case ReignGovernmentResolutionUnit.Goods: return "goods units";
+                case ReignGovernmentResolutionUnit.Troops: return "troops";
+                case ReignGovernmentResolutionUnit.Days: return "honored days";
+                case ReignGovernmentResolutionUnit.Parties: return "parties defeated";
+                case ReignGovernmentResolutionUnit.Engagements: return "engagements won";
+                case ReignGovernmentResolutionUnit.Actions: return "verified actions";
+                case ReignGovernmentResolutionUnit.Issues: return "issues completed";
+                default: return unit.ToString().ToLowerInvariant();
+            }
+        }
+
         private void NormalizeBusinessPublicText(ReignGovernmentBusinessRecord record)
         {
             record.Title = GovernmentBusinessRules.PublicText(record.Title);
-            record.Summary = GovernmentBusinessRules.PublicText(record.Summary);
+            record.Summary = record.Kind == "edict" ? PublicEdictDescription(record) : GovernmentBusinessRules.PublicText(record.Summary);
             record.Outcome = GovernmentBusinessRules.PublicText(record.Outcome);
             record.OptionsJson = GetPublicBusinessOptions(record).ToString(Formatting.None);
         }
@@ -86,7 +171,13 @@ namespace ReignBeta.Government
         {
             result = string.Empty;
             var resolution = _resolutions.FirstOrDefault(x => Same(x.ResolutionId, record.TargetId));
-            if (resolution != null && (resolution.Status == "debate" || resolution.Status == "proposed")) return true;
+            if (resolution != null && (resolution.Status == "debate" || resolution.Status == "proposed"))
+            {
+                var template = ReignGovernmentResolutionCatalog.Find(resolution.TemplateId);
+                if (HasRecordedSeasonalPrisonerTarget(resolution, template)) return true;
+                CloseInvalidBusiness(record, result = "The recorded prisoner is unavailable. This proposal is closed without imposing an obligation.");
+                return false;
+            }
             CloseInvalidBusiness(record, result = "This seasonal resolution is no longer awaiting a decision.");
             return false;
         }
@@ -114,6 +205,22 @@ namespace ReignBeta.Government
                 }
                 else
                 {
+                    var template = ReignGovernmentResolutionCatalog.Find(resolution.TemplateId);
+                    var route = optionId == "route:0" ? template?.FirstRoute : template?.SecondRoute;
+                    // This refusal occurs before AcceptResolution changes the obligation,
+                    // transfers gold, or applies any fulfillment consequences.
+                    if (route != null && kingdom?.Leader != null && UsesImmediateGold(route.Action)
+                        && kingdom.Leader.Gold < route.Target)
+                    {
+                        result = "The recorded vote was not implemented because the ruler could not fund the required "
+                            + route.Target + " denars. No payment or obligation was created. The motion is closed; a fresh proposal may be introduced at a regular session.";
+                        resolution.Status = "cancelled";
+                        resolution.ResolvedDay = CurrentDay();
+                        resolution.Outcome = result;
+                        resolution.Revision++;
+                        CloseInvalidBusiness(record, result);
+                        return false;
+                    }
                     resolution.Status = "proposed";
                     if (!AcceptResolution(resolution.ResolutionId, optionId == "route:0" ? 0 : 1, kingdom.Leader, out result))
                     { record.Status = "execution_failed"; record.Outcome = result; ChangedBusiness(record); return false; }
@@ -142,7 +249,6 @@ namespace ReignBeta.Government
                     PetitionerHeroStringId = string.IsNullOrWhiteSpace(action.ActorHeroStringId) ? kingdom.Leader.StringId : action.ActorHeroStringId,
                     CreatedDay = CurrentDay(), RequestedOptionId = "accept", StatusQuoOptionId = "reject",
                     IsUrgent = kind == ReignGovernmentActionKind.War || kind == ReignGovernmentActionKind.Peace,
-                    RecommendedOptionId = "accept", RecommendationRulerHeroStringId = kingdom.Leader.StringId,
                     OptionsJson = new JArray(new JObject { ["id"] = "accept", ["label"] = "Authorize the proposed action", ["description"] = GovernmentActionSummary(action), ["affirmative"] = true },
                         new JObject { ["id"] = "reject", ["label"] = "Refuse authorization", ["affirmative"] = false }).ToString(Formatting.None)
                 };

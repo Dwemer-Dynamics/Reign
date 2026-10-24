@@ -336,6 +336,29 @@ public sealed class ActionNegotiationTests
         Assert.Equal(a.Id, counter.Id); Assert.Equal(a.Revision + 1, counter.Revision);
         Assert.Empty(counter.PlayerAcceptedHash); Assert.Empty(counter.NpcAcceptedHash); Assert.NotEqual(a.TermsHash(), counter.TermsHash());
     }
+    [Fact] public void SpokenPriceCannotMakeAnUnchangedEndorsementABindingCounteroffer()
+    {
+        var offer = Offer();
+        offer.Clauses = new() { new() { ActionId = "government.endorse_petition", ActorId = "npc", RecipientId = "player",
+            Arguments = new() { ["petitionId"] = "petition", ["petitionRevision"] = "1" } } };
+        offer.PlayerAcceptedHash = offer.TermsHash();
+        var decision = Accept(offer); decision.Kind = "counter"; decision.Reason = "Two hundred denars buys my endorsement.";
+        decision.Clauses.Add(new() { ActionId = "government.endorse_petition", ActorId = "npc", RecipientId = "player",
+            Arguments = new() { new() { Key = "petitionRevision", Value = "1" }, new() { Key = "petitionId", Value = "petition" } } });
+        string original = System.Text.Json.JsonSerializer.Serialize(offer);
+        Assert.Contains(Check(offer, decision), error => error.Contains("counteroffer must change"));
+        Assert.Equal(original, System.Text.Json.JsonSerializer.Serialize(offer));
+        Assert.Empty(offer.NpcAcceptedHash);
+
+        decision.Clauses.Add(new() { ActionId = "give.gold", ActorId = "player", RecipientId = "npc",
+            Arguments = new() { new() { Key = "quantity", Value = "200" } } });
+        Assert.Empty(Check(offer, decision));
+        var counter = ActionNegotiation.CreateProposal(offer, decision, "player", "npc", "conversation", 0);
+        Assert.Equal("200", counter.Clauses[1].Arguments["quantity"]);
+        Assert.Empty(counter.PlayerAcceptedHash);
+        Assert.Empty(counter.NpcAcceptedHash);
+    }
+
     [Fact] public void NpcCannotForcePlayerMovementOrUseUnknownArguments()
     {
         var travel = ReignActionCatalog.All.First(d => d.MovesActor && d.ConversationEligible);

@@ -34,8 +34,8 @@ namespace ReignBeta.ClanAccords
                 }
             };
 
-            float[] factors = { 0f, 0.5f, -0.5f, -1f };
-            float[] deltas = { 50f, 0.1f, 0.2f };
+            float[] factors = { 0f, 0.5f, -0.5f, -1f, 0.04f, 0.08f, 0.12f };
+            float[] deltas = { 50f, 0.1f, 0.2f, 2f, 1f, 0.5f, -3.5f, -2.5f, -2f, -0.75f, -0.25f };
             for (int factorIndex = 0; factorIndex < factors.Length; factorIndex++)
             for (int deltaIndex = 0; deltaIndex < deltas.Length; deltaIndex++)
             foreach (bool descriptions in new[] { false, true })
@@ -129,9 +129,10 @@ namespace ReignBeta.ClanAccords
                     ["nativeSaveReloadProven"] = false };
             });
 
-            return new JObject { ["ok"] = assertions.Count == 38 && assertions.All(x => x.Value<bool>("passed")),
+            int expectedAssertions = factors.Length * deltas.Length * 2 + factors.Length * 3 + 2;
+            return new JObject { ["ok"] = assertions.Count == expectedAssertions && assertions.All(x => x.Value<bool>("passed")),
                 ["schema"] = "reign-clan-accord-native-contract-v1", ["runId"] = runId, ["profile"] = "contracts",
-                ["assertions"] = assertions, ["assertionCount"] = assertions.Count, ["providerCalls"] = 0,
+                ["assertions"] = assertions, ["assertionCount"] = assertions.Count, ["expectedAssertionCount"] = expectedAssertions, ["providerCalls"] = 0,
                 ["campaignMutations"] = 0, ["coverage"] = "Native ExplainedNumber and isolated saved-state JSON only.",
                 ["remainingCoverage"] = new JArray("Installed model selection and real daily campaign effects",
                     "Actual SyncData save/checkpoint and fresh-process reload", "Paused outbox retry and timeline isolation",

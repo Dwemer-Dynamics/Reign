@@ -208,6 +208,7 @@ namespace ReignBeta.Integration
                     ["agreements"] = agreements,
                     ["actions"] = actions
                 },
+                ["rulers"] = ReignRulerCampaignBehavior.Instance?.Diagnostics() ?? new JObject(),
                 ["warEconomy"] = BuildWorldTestWarEconomy(),
                 ["clanAccords"] = ReignBeta.ClanAccords.ReignClanAccordsCampaignBehavior.Instance?.Snapshot() ?? new JObject(),
                 ["rebellions"] = new JObject

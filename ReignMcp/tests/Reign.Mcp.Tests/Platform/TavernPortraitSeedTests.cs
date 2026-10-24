@@ -12,6 +12,9 @@ public sealed class TavernPortraitSeedTests
         string evidence = Path.Combine(new DirectoryInfo(AppContext.BaseDirectory).Parent!.FullName,
             "tavern-portrait-probe", Guid.NewGuid().ToString("N"));
         Directory.CreateDirectory(evidence);
+        // net472 File.Replace cannot safely use the deep worktree/report path.
+        // Keep evidence durable while this exact test owns a short scratch root.
+        string scratch = Path.Combine(Path.GetTempPath(), "reign-tavern-seed-" + Guid.NewGuid().ToString("N"));
         string shellRoot = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.System), "WindowsPowerShell", "v1.0");
         var start = new ProcessStartInfo(Path.Combine(shellRoot, "powershell.exe"))
         {
@@ -22,7 +25,7 @@ public sealed class TavernPortraitSeedTests
         start.Environment["REIGN_VALIDATION_MODE"] = "1";
         foreach (string argument in new[] { "-NoProfile", "-NonInteractive", "-ExecutionPolicy", "Bypass", "-File",
             Path.Combine(TestOptions.FindWorkspace(), "ReignMcp/tests/Reign.Mcp.Tests/Platform/TavernPortraitSeedProbe.ps1"),
-            "-ClientAssembly", client, "-Workspace", TestOptions.FindWorkspace(), "-EvidenceDirectory", evidence,
+            "-ClientAssembly", client, "-Workspace", TestOptions.FindWorkspace(), "-EvidenceDirectory", evidence, "-ScratchDirectory", scratch,
             "-BannerlordPath", Environment.GetEnvironmentVariable("REIGN_BANNERLORD_PATH") ?? "" })
             start.ArgumentList.Add(argument);
         using var process = Process.Start(start) ?? throw new InvalidOperationException("Could not start tavern portrait probe.");
@@ -39,6 +42,15 @@ public sealed class TavernPortraitSeedTests
             throw new TimeoutException("Tavern portrait probe timed out: "
                 + (File.Exists(progress) ? File.ReadAllText(progress) : "no progress") + ". Evidence: " + evidence);
         }
+        finally
+        {
+            string absolute = Path.GetFullPath(scratch);
+            string temporaryRoot = Path.GetFullPath(Path.GetTempPath()).TrimEnd(Path.DirectorySeparatorChar);
+            if (!string.Equals(Path.GetDirectoryName(absolute), temporaryRoot, StringComparison.OrdinalIgnoreCase)
+                || !string.Equals(Path.GetFileName(absolute), Path.GetFileName(scratch), StringComparison.Ordinal))
+                throw new InvalidOperationException("Portrait probe cleanup escaped its owned temporary directory.");
+            if (Directory.Exists(absolute)) Directory.Delete(absolute, recursive: true);
+        }
         Assert.True(process.ExitCode == 0, (await output) + (await error) + " Evidence: " + evidence);
         using var report = JsonDocument.Parse(File.ReadAllText(Path.Combine(evidence, "report.json")));
         var result = report.RootElement;
@@ -49,6 +61,8 @@ public sealed class TavernPortraitSeedTests
         Assert.True(result.GetProperty("relocatedTimestampCasePassed").GetBoolean());
         Assert.Equal(3, result.GetProperty("corruptionCasesRejectedWithoutCacheChanges").GetInt32());
         Assert.True(result.GetProperty("sourcePackUnchanged").GetBoolean());
+        Assert.Equal(scratch, result.GetProperty("scratchRoot").GetString());
+        Assert.False(Directory.Exists(scratch));
     }
 
     private sealed class ClientArtifactFactAttribute : FactAttribute

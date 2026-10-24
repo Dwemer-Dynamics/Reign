@@ -35,6 +35,9 @@ namespace ReignBeta.Runtime
         }
 
         public SocialEventRecord Record { get; }
+        public ReignBeta.Shared.Characters.NpcStoryInstance PersonalStory { get; set; }
+        public Newtonsoft.Json.Linq.JObject PersonalStoryContext { get; set; }
+        public System.Threading.Tasks.Task<Newtonsoft.Json.Linq.JObject> PersonalStoryReady { get; set; }
         public SocialEventTemplate Template { get; }
         public int CurrentPhaseIndex { get; private set; }
         public SocialEventPhase CurrentPhase => Template.Phases[CurrentPhaseIndex];
@@ -91,6 +94,7 @@ namespace ReignBeta.Runtime
 
         public bool AdvancePhase()
         {
+            if (PersonalStory != null) return false;
             if (CurrentPhaseIndex >= Template.Phases.Count - 1)
             {
                 return false;
@@ -106,6 +110,7 @@ namespace ReignBeta.Runtime
 
         public bool RegisterCompletedExchange()
         {
+            if (PersonalStory != null) return false;
             PhaseExchangeCount = System.Math.Min(TurnsPerAutomaticPhase, PhaseExchangeCount + 1);
             if (CurrentPhaseIndex >= Template.Phases.Count - 1)
             {

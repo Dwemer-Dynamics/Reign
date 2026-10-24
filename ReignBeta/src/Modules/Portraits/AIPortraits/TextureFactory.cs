@@ -3,6 +3,7 @@ using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.IO;
 using System.Threading;
+using System.Threading.Tasks;
 using ReignBeta.Integration;
 using TaleWorlds.Engine;
 using TaleWorlds.Engine.GauntletUI;
@@ -365,6 +366,87 @@ public static class TextureFactory
 			Debug.Print("[AIPortraits] TextureFactory.GetOrBuildForAspect failed for " + id + ": " + ex.Message);
 			return GetOrBuild(id, tier);
 		}
+	}
+
+	public static TaleWorlds.TwoDimension.Texture GetOrBuildFramedBust(string id, float targetAspect)
+	{
+		if (string.IsNullOrEmpty(id))
+			return null;
+		if (targetAspect <= 0.01f || float.IsNaN(targetAspect) || float.IsInfinity(targetAspect)) targetAspect = 1f;
+		string key = id + "|framed-bust-v1:" + (int)Math.Round(targetAspect * 1000f);
+		if (_portraitCache.TryGet(key, out var cached)) return cached;
+		if (!PortraitDerivativeService.TryGetDerivativePath(id, PortraitQualityTier.Zoom, out string path)) return null;
+		try
+		{
+			var manifestPath = System.IO.Path.Combine(System.IO.Path.GetDirectoryName(path), PortraitDerivativeService.ManifestFileName);
+			var focus = File.Exists(manifestPath)
+				? Newtonsoft.Json.JsonConvert.DeserializeObject<ReignPortraits.PortraitDerivativeManifestV2>(File.ReadAllText(manifestPath)) : null;
+			byte[] rgba = PngReencode.DecodeToRgba(File.ReadAllBytes(path), out int width, out int height);
+			if (rgba == null || width <= 0 || height <= 0) return null;
+			bool validFocus = focus != null && focus.FaceCandidateCount == 1 && focus.FocusConfidence > 0;
+			var crop = ReignBeta.UI.Portraits.ReignPortraitBustFraming.Calculate(width, height, targetAspect,
+				validFocus ? focus.FaceX : -1, validFocus ? focus.FaceY : -1,
+				validFocus ? focus.FaceWidth : 0, validFocus ? focus.FaceHeight : 0);
+			byte[] pixels = new byte[crop.Width * crop.Height * 4];
+			for (int row = 0; row < crop.Height; row++)
+				Buffer.BlockCopy(rgba, ((crop.Y + row) * width + crop.X) * 4, pixels, row * crop.Width * 4, crop.Width * 4);
+			var texture = BuildTexture(key, PngEncoder.EncodeRgba(pixels, crop.Width, crop.Height), "GetOrBuildFramedBust");
+			if (texture != null) _portraitCache.Add(key, texture);
+			return texture;
+		}
+		catch (Exception ex)
+		{
+			Debug.Print("[AIPortraits] Framed bust unavailable for " + id + ": " + ex.Message);
+			return GetOrBuildForAspect(id, targetAspect, true, PortraitQualityTier.Zoom);
+		}
+	}
+
+	private static readonly SemaphoreSlim _thumbnailPreparationGate = new SemaphoreSlim(2, 2);
+
+	public static bool TryGetThumbnail(string id, float targetAspect, out TaleWorlds.TwoDimension.Texture texture)
+	{
+		return _thumbnailCache.TryGet(ThumbnailKey(id, targetAspect), out texture);
+	}
+
+	private static string ThumbnailKey(string id, float targetAspect) =>
+		id + "|tier:" + PortraitQualityTier.Thumbnail + "|aspect:" + (int)Math.Round(targetAspect * 1000f);
+
+	/// <summary>Smallest portrait derivative only. File IO and PNG work stay off the UI thread.</summary>
+	public static async Task<TaleWorlds.TwoDimension.Texture> GetOrBuildThumbnailAsync(
+		string id, float targetAspect, CancellationToken cancellation)
+	{
+		if (string.IsNullOrWhiteSpace(id) || cancellation.IsCancellationRequested) return null;
+		string key = ThumbnailKey(id, targetAspect);
+		if (_thumbnailCache.TryGet(key, out var cached)) return cached;
+		bool entered = false;
+		try
+		{
+			await _thumbnailPreparationGate.WaitAsync(cancellation).ConfigureAwait(false);
+			entered = true;
+			byte[] bytes = await Task.Run(() =>
+			{
+				if (cancellation.IsCancellationRequested) return null;
+				byte[] source = GetBytes(id, PortraitQualityTier.Thumbnail);
+				if (source == null || cancellation.IsCancellationRequested) return null;
+				return CenterCropToAspect(source, targetAspect) ?? source;
+			}, cancellation).ConfigureAwait(false);
+			if (bytes == null || cancellation.IsCancellationRequested) return null;
+			return await ReignMainThread.InvokeAsync(() =>
+			{
+				if (cancellation.IsCancellationRequested) return null;
+				if (_thumbnailCache.TryGet(key, out var existing)) return existing;
+				var texture = BuildTexture(key, bytes, "GetOrBuildThumbnailAsync");
+				if (texture != null) _thumbnailCache.Add(key, texture);
+				return texture;
+			}).ConfigureAwait(false);
+		}
+		catch (OperationCanceledException) { return null; }
+		catch (Exception ex)
+		{
+			Debug.Print("[AIPortraits] Thumbnail preparation failed: " + ex.Message);
+			return null;
+		}
+		finally { if (entered) _thumbnailPreparationGate.Release(); }
 	}
 
 	private static byte[] ContainToAspect(byte[] pngBytes, float targetAspect, float borderReduction)

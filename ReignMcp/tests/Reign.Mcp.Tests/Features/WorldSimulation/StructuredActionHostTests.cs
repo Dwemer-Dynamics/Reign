@@ -45,9 +45,33 @@ public sealed class StructuredActionHostTests
         Assert.Contains("agents.Count > 32", observer);
         Assert.Contains("slot < 4", observer);
         Assert.Contains("reign-structured-mission-observation-v1", observer);
-        Assert.Contains("agent.Team.IsEnemyOf(mission.PlayerTeam)", observer);
+        Assert.Contains("team.IsEnemyOf(playerTeam)", observer);
+        Assert.Contains("ReadStructuredMissionField(null, \"player-team-valid\", () => playerTeam?.IsValid == true)", observer);
+        Assert.Contains("ReadStructuredMissionField(agent, \"team-valid\", () => team?.IsValid == true)", observer);
+        Assert.Contains("[\"enemyOfPlayer\"] = teamValid && playerTeamValid", observer);
+        Assert.Contains("[\"teamValid\"] = teamValid", observer);
+        Assert.Contains("[\"playerTeamValid\"] = playerTeamValid", observer);
         Assert.Contains("agent.CurrentWatchState", observer);
         Assert.Contains("agent.CurrentMortalityState", observer);
+        Assert.Contains("agent.Mission == mission && agent.HasBeenBuilt", observer);
+        Assert.Contains("[\"nativeStateAvailable\"] = nativeStateAvailable", observer);
+        Assert.Contains("[\"active\"] = nativeStateAvailable ? JToken.FromObject(ReadStructuredMissionField(agent, \"active\", () => agent.IsActive())) : JValue.CreateNull()", observer);
+        Assert.Contains("[\"controller\"] = nativeStateAvailable ?", observer);
+        Assert.Contains("[\"position\"] = nativeStateAvailable ?", observer);
+        Assert.Contains("nativeStateAvailable ? ReadStructuredMissionField(agent, \"equipment\", () => agent.Equipment) : null", observer);
+        Assert.Contains("[\"equipmentAvailable\"] = equipment != null", observer);
+        Assert.Contains("bool? hasMeleeWeapon = equipment == null ? (bool?)null : false", observer);
+        Assert.Contains("equipment != null && slot < 5", observer);
+        Assert.Contains("item?.Weapons?.Any(usage => usage != null && usage.IsMeleeWeapon)", observer);
+        Assert.Contains("[\"hasMeleeWeapon\"] = hasMeleeWeapon.HasValue", observer);
+        Assert.DoesNotContain("HasMeleeWeaponCached", observer);
+        Assert.DoesNotContain("ContainsMeleeWeapon(", observer);
+        Assert.Contains("ReadStructuredMissionField(null, \"agent-selection\"", observer);
+        Assert.Contains("ReadStructuredMissionField(agent, \"watch-state\"", observer);
+        Assert.Contains("ReadStructuredMissionField(agent, \"team-side\"", observer);
+        Assert.Contains("ReadStructuredMissionField(agent, \"position\"", observer);
+        Assert.Contains("throw new InvalidOperationException(\"Native mission observation field '\"", observer);
+        Assert.Contains("catch (Exception ex)", observer);
         Assert.Contains("ArenaDuelMissionController", observer);
         Assert.Contains("removals.Where(r => ids.Contains(r.HeroId)).Take(2)", observer);
         Assert.Contains("ids.Contains(removal.AffectorHeroId)", observer);
@@ -56,6 +80,48 @@ public sealed class StructuredActionHostTests
         foreach (var mutation in new[] { "SetMissionMode(", "SetWatchState(", "SetTeam(", "SpawnAgent(",
             "EndMission(", "RegisterBlow(", "SetTarget", "CompleteDuel", "RunOperator", "ChatWith", "GetField(", "SetValue(" })
             Assert.DoesNotContain(mutation, observer);
+    }
+
+    [Fact] public void GuideFixtureRequiresRealConsentAndCannotMoveNpcOrCompleteTheOrder()
+    {
+        string root = TestOptions.FindWorkspace();
+        string source = File.ReadAllText(Path.Combine(root, "ReignBeta/src/Modules/WorldSimulation/Campaign/ReignLiveInteractionStructuredActionHost.cs"));
+        int start = source.IndexOf("private static JObject ApplyStructuredAcceptedGuideStepFixture", StringComparison.Ordinal);
+        string fixture = source.Substring(start, source.IndexOf("private static JObject ApplyStructuredPlayerSettlementEncounterFixture", start, StringComparison.Ordinal) - start);
+        foreach (string gate in new[] { "journal.OperatorAuthorized", "agreement.Origin != ActionOrigin.Conversation",
+            "!agreement.HasBothConsents", "AgreementState.Waiting", "journal.CommittedHash != agreement.TermsHash()",
+            "clause?.ActionId != \"show_the_way\"", "!step.Started", "step.Completed", "step.FulfilledInstallments != 0",
+            "world.Value<string>(\"NegotiationId\") != agreement.Id", "retained.Value<string>(\"requestHash\") != hash" })
+            Assert.Contains(gate, fixture);
+        foreach (string forbidden in new[] { "RunOperator(", "Commit(", ".Completed =", ".State =", "Complete(" })
+            Assert.DoesNotContain(forbidden, fixture);
+        string mission = File.ReadAllText(Path.Combine(root, "ReignBeta/src/Modules/WorldSimulation/World/ReignSceneActionMissionBehavior.cs"));
+        start = mission.IndexOf("internal JObject StepPlayerToAcceptedGuideForTest", StringComparison.Ordinal);
+        string step = mission.Substring(start, mission.IndexOf("private void CacheDestinations", start, StringComparison.Ordinal) - start);
+        foreach (string gate in new[] { "mission != TaleWorlds.MountAndBlade.Mission.Current", "ConversationOpen(mission)",
+            "settlement.IsUnderSiege", "!order.Guide || order.Reported", "!order.Bound", "order.TargetHero != Hero.MainHero",
+            "distance > 20f", "distance > 1.5f", "player.TeleportToPosition(destination)", "distanceAfter > 1.5f" })
+            Assert.Contains(gate, step);
+        foreach (string forbidden in new[] { "guide.TeleportToPosition", "order.Destination =", "Complete(", "SetScriptedPosition", "order.Reported =" })
+            Assert.DoesNotContain(forbidden, step);
+    }
+
+    [Fact] public void PregnancyDiscoveryRequiresItsRealCounterpartAndFaultsRemainBoundedFailures()
+    {
+        string source = File.ReadAllText(Path.Combine(TestOptions.FindWorkspace(),
+            "ReignBeta/src/Modules/WorldSimulation/Campaign/ReignLiveInteractionStructuredActionHost.cs"));
+        int start = source.IndexOf("case \"entities\":", StringComparison.Ordinal);
+        string discovery = source.Substring(start, source.IndexOf("case \"status\":", start, StringComparison.Ordinal) - start);
+        Assert.Contains("counterpartHeroId.Length == 0 || counterpartHeroId.Length > 128", discovery);
+        Assert.Contains("ReignActionService.HeroById(counterpartHeroId) == null", discovery);
+        Assert.Contains("new ActionClause { RecipientId = counterpartHeroId }", discovery);
+        Assert.Contains("clause: entityClause", discovery);
+        Assert.Contains("supported only for pregnancy discovery", discovery);
+        foreach (string forbidden in new[] { "ExposePregnancy(", "RunOperator(", "SaveNativeOperation(", "KnownPregnancy(" })
+            Assert.DoesNotContain(forbidden, discovery);
+        Assert.Contains("string detail = ex.ToString()", source);
+        Assert.Contains("detail.Substring(0, Math.Min(detail.Length, 4096))", source);
+        Assert.Contains("LiveCommandResult.Failed(\"Structured action case failed: \"", source);
     }
 
     [Fact] public void CourtAndMissionObserversKeepParticipantBoundsAndDoNotExecuteOrExposePrivateProse()
@@ -104,6 +170,42 @@ public sealed class StructuredActionHostTests
             Assert.Contains(schema, observer);
         foreach (var privateField in new[] { ".TermsJson", ".Reason", ".HistoryJson", ".PendingReportText", ".LlmReason" })
             Assert.DoesNotContain(privateField, observer);
+    }
+    [Fact] public void PlayerEncounterFixtureRequiresNativeContextAndPreservesUncertainReplay()
+    {
+        string source = File.ReadAllText(Path.Combine(TestOptions.FindWorkspace(),
+            "ReignBeta/src/Modules/WorldSimulation/Campaign/ReignLiveInteractionStructuredActionHost.cs"));
+        int start = source.IndexOf("private static JObject ApplyStructuredPlayerSettlementEncounterFixture", StringComparison.Ordinal);
+        string fixture = source.Substring(start, source.IndexOf("private static JObject ApplyStructuredSiegeFixture", start, StringComparison.Ordinal) - start);
+        foreach (string safety in new[] { "party.LeaderHero != Hero.MainHero", "party.Army != null", "party.MapEvent != null",
+            "party.SiegeEvent != null", "party.IsCurrentlyAtSea", "party.IsTransitionInProgress", "Mission.Current != null",
+            "!settlement.IsTown", "settlement.OwnerClan?.StringId", "besieger.StringId", "besieger.MapEvent != null",
+            "ReferenceEquals(besieger.SiegeEvent, siege)", "FactionManager.IsAtWarAgainstFaction" }) Assert.Contains(safety, fixture);
+        Assert.True(fixture.IndexOf("behavior.NativeOperation(id)", StringComparison.Ordinal) < fixture.IndexOf("var party", StringComparison.Ordinal));
+        Assert.True(fixture.IndexOf("behavior.SaveNativeOperation(id, receipt)", StringComparison.Ordinal) < fixture.IndexOf("PlayerEncounter.Finish()", StringComparison.Ordinal));
+        Assert.Contains("EncounterManager.StartSettlementEncounter(party, settlement)", fixture);
+        Assert.Contains("PlayerEncounter.EnterSettlement()", fixture);
+        Assert.Contains("PlayerEncounter.LocationEncounter != null", fixture);
+        Assert.Contains("GameMenu.ActivateGameMenu(\"town\")", fixture);
+        Assert.Contains("[\"status\"] = \"uncertain\"", fixture);
+        foreach (string forbidden in new[] { "GetProperty(", "GetMethod(", "SetValue(", "KillCharacter", "SetWinner", "ApplyBreakIn", "ApplyBreakOut" }) Assert.DoesNotContain(forbidden, fixture);
+    }
+    [Fact] public void SiegeFixtureRechecksNativeSafetyAndRetainsReceiptBeforeMutation()
+    {
+        string source = File.ReadAllText(Path.Combine(TestOptions.FindWorkspace(),
+            "ReignBeta/src/Modules/WorldSimulation/Campaign/ReignLiveInteractionStructuredActionHost.cs"));
+        int start = source.IndexOf("private static JObject ApplyStructuredSiegeFixture", StringComparison.Ordinal);
+        string fixture = source.Substring(start, source.IndexOf("private static JObject ApplyStructuredShipDamageFixture", start, StringComparison.Ordinal) - start);
+        Assert.Contains("recoveryCheckpointVerified", source);
+        foreach (string safety in new[] { "attacker == MobileParty.MainParty", "attacker.Army != null", "attacker.MapEvent != null",
+            "attacker.SiegeEvent != null", "attacker.IsCurrentlyAtSea", "!settlement.IsFortification", "settlement.OwnerClan?.StringId",
+            "FactionManager.IsAtWarAgainstFaction", "MobileParty.MainParty?.CurrentSettlement == settlement" }) Assert.Contains(safety, fixture);
+        Assert.True(fixture.IndexOf("behavior.NativeOperation(id)", StringComparison.Ordinal) < fixture.IndexOf("var attacker", StringComparison.Ordinal));
+        Assert.True(fixture.IndexOf("behavior.SaveNativeOperation(id, receipt)", StringComparison.Ordinal) < fixture.IndexOf("attacker.Position =", StringComparison.Ordinal));
+        Assert.Contains("StartSiegeEvent(settlement, attacker)", fixture);
+        Assert.Contains("ReferenceEquals(settlement.SiegeEvent, siege)", fixture);
+        Assert.Contains("[\"status\"] = \"uncertain\"", fixture);
+        foreach (string forbidden in new[] { "GetProperty", "GetMethod", "SetValue", "AdvanceTime", "KillCharacter", "SetWinner" }) Assert.DoesNotContain(forbidden, fixture);
     }
     [Fact] public void ShipFixtureRechecksNativeSafetyAndRetainsReceiptBeforeMutation()
     {

@@ -29,12 +29,18 @@ namespace ReignBeta.Actions
             Hero actor = HeroById(playerActs ? agreement.PlayerId : agreement.NpcId);
             Hero counterpart = HeroById(playerActs ? agreement.NpcId : agreement.PlayerId);
             if (actor == null || counterpart == null || actor == counterpart || actor.IsDead || counterpart.IsDead || actor.IsChild || counterpart.IsChild) return false;
+            if (definition.Id == ReignSpouseSeparation.ActionId) return ReignSpouseSeparationAction.Available(actor);
+            if (definition.Adapter.StartsWith("npc_life:", StringComparison.Ordinal))
+                return ReignNpcLivesBehavior.Instance?.CanBuildLifeAction(definition.Id, actor, counterpart) == true;
+            if (definition.Id == "expose_concealed_pregnancy")
+                return ReignFamilyCampaignBehavior.Instance?.PregnancyExposureOptions(counterpart.StringId).Count > 0;
             if (definition.Adapter.StartsWith("asset:", StringComparison.Ordinal))
                 return definition.Id == "give.gold" ? actor.Gold > 0
                     : ReignActionEntities.Find(definition.Id.Substring(5), actor.StringId, clause: new ActionClause { ActionId = definition.Id, ActorId = actor.StringId, RecipientId = counterpart.StringId }).Any(r => r.Available);
             if (definition.Adapter.StartsWith("government:", StringComparison.Ordinal))
                 return ReignGovernmentCampaignBehavior.Instance != null && (actor.Clan?.Kingdom != null
-                    || ReignGovernmentCampaignBehavior.Instance.Seats.Any(s => s.HeroStringId == actor.StringId));
+                    || ReignGovernmentCampaignBehavior.Instance.Seats.Any(s => s.HeroStringId == actor.StringId)
+                    || definition.Id == "government.endorse_petition" && actor.IsNotable);
             if (definition.Family == "court")
             {
 #if !REIGN_EXCLUDE_COURT
@@ -97,7 +103,14 @@ namespace ReignBeta.Actions
 
         public static bool CanSelect(ActionClause clause, ActionParameter parameter, string value)
         {
+            if (clause.ActionId == "expose_concealed_pregnancy" && parameter.Key == "disclosure")
+                return ReignFamilyCampaignBehavior.Instance?.CheckPregnancyExposure(Arg(clause, "pregnancyId"), clause.RecipientId, value == "name_father") == "";
             Hero actor = HeroById(clause.ActorId), counterpart = HeroById(clause.RecipientId);
+            if (clause.ActionId == "npc_life.summon_meeting")
+            {
+                if (parameter.Key == "targetHeroId") return ReignNpcLivesBehavior.CanSummon(actor, HeroById(value));
+                if (parameter.Key == "destinationId") return ReignNpcLivesBehavior.Instance?.MeetingPlaceOptions(clause).Any(o => o.Id == value && o.Available) == true;
+            }
             if (!ReignActionConversationPolicy.AllowsParticipantSelection(clause.ActionId, parameter.Key, value, clause.ActorId, clause.RecipientId)) return false;
             if (parameter.Kind == "hero" && parameter.Key != "terms.wageRecipientHeroStringId")
             {
@@ -135,6 +148,7 @@ namespace ReignBeta.Actions
 
         public static List<string> Preview(ActionAgreement agreement)
         {
+            ReignNpcLivesBehavior.Instance?.BindMeetingArrival(agreement);
             var errors = AgreementRules.Validate(agreement, ReignActionCatalog.Find, Now);
             if (errors.Count > 0) return errors;
             try { BindGuestReviews(agreement); }
@@ -143,7 +157,18 @@ namespace ReignBeta.Actions
             foreach (var c in agreement.Clauses)
             {
                 var d = ReignActionCatalog.Find(c.ActionId); if (d == null) continue;
-                if (d.Adapter.StartsWith("asset:", StringComparison.Ordinal))
+                if (c.ActionId == ReignSpouseSeparation.ActionId) errors.AddRange(ReignSpouseSeparationAction.Check(agreement, c));
+                else if (c.ActionId == "expose_concealed_pregnancy")
+                {
+                    string error = ReignFamilyCampaignBehavior.Instance?.CheckPregnancyExposure(Arg(c, "pregnancyId"), c.RecipientId, Arg(c, "disclosure") == "name_father") ?? "Family services are unavailable.";
+                    if (error.Length > 0) errors.Add(error);
+                }
+                else if (d.Adapter.StartsWith("npc_life:", StringComparison.Ordinal))
+                {
+                    if (ReignNpcLivesBehavior.Instance == null) errors.Add("NPC Lives is unavailable.");
+                    else errors.AddRange(ReignNpcLivesBehavior.Instance.CheckLifeAction(agreement, c));
+                }
+                else if (d.Adapter.StartsWith("asset:", StringComparison.Ordinal))
                 {
                     try { ReignAssetTransfer.Check(agreement, c); } catch (Exception ex) { errors.Add(ex.Message); }
                 }
@@ -172,6 +197,14 @@ namespace ReignBeta.Actions
             if (ReignCourtCampaignBehavior.Instance != null) errors.AddRange(ReignCourtCampaignBehavior.Instance.CheckCourtAgreementPackage(agreement));
 #endif
             if (ReignAgreementBehavior.Instance != null) errors.AddRange(ReignAgreementBehavior.Instance.CheckAssetReservations(agreement));
+            if (errors.Count == 0 && agreement.Clauses.Any(c => c.ActionId == "government.support_nomination" || c.ActionId == "government.support_vote"))
+            {
+                if (ReignAgreementBehavior.Instance == null || ReignGovernmentCampaignBehavior.Instance == null)
+                    errors.Add("The vote bargain's delivery timing is unavailable.");
+                else
+                    errors.AddRange(ReignGovernmentCampaignBehavior.Instance.CheckVoteAgreementTiming(agreement,
+                        ReignAgreementBehavior.Instance.DeliveryDays(agreement)));
+            }
             return errors.Distinct().ToList();
         }
 
@@ -226,7 +259,7 @@ namespace ReignBeta.Actions
             { terms["marriageHero1StringId"] = c.ActorId; terms["marriageHero2StringId"] = c.RecipientId; }
             return new ReignWorldActionRecord
             {
-                ActionId = "sa_" + agreement.Id + "_" + c.Id.Substring(0, Math.Min(16, c.Id.Length)) + "_" + installment,
+                ActionId = WorldActionExecutionIdentity.Create(agreement.Id, c.Id, installment),
                 Type = type, Source = agreement.Origin == ActionOrigin.Console ? "reign_console" : "structured_agreement",
                 AuthorizationMode = agreement.Origin == ActionOrigin.Console ? "operator" : "explicit_agreement",
                 NegotiationId = agreement.Id, TermsHash = agreement.TermsHash(), NegotiatedCommand = c.ActionId,

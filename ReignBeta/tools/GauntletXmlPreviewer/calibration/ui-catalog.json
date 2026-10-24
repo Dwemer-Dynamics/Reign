@@ -462,21 +462,13 @@
       "prefab": "GUI/Prefabs/ReignGovernmentScreen.xml",
       "manager": "ReignGovernmentScreenManager",
       "viewModel": "ReignGovernmentScreenVM",
-      "entry": "Court > Government or native town keep > Explore the keep > Government",
+      "entry": "Court or native town/castle menu > Government records and petitions",
       "liveAction": "ui-open --target government",
       "previewStates": [
         {
           "id": "government-urgent",
           "label": "government-urgent",
           "variant": "government-urgent",
-          "entry": "Government",
-          "previewOnly": true,
-          "liveAction": "previewer preset only"
-        },
-        {
-          "id": "government-postponed",
-          "label": "government-postponed",
-          "variant": "government-postponed",
           "entry": "Government",
           "previewOnly": true,
           "liveAction": "previewer preset only"
@@ -490,6 +482,14 @@
           "liveAction": "previewer preset only"
         },
         {
+          "id": "government-member-long",
+          "label": "government-member-long",
+          "variant": "government-member-long",
+          "entry": "Government",
+          "previewOnly": true,
+          "liveAction": "previewer preset only"
+        },
+        {
           "id": "government-archive",
           "label": "government-archive",
           "variant": "government-archive",
@@ -498,9 +498,41 @@
           "liveAction": "previewer preset only"
         },
         {
+          "id": "government-laws",
+          "label": "government-laws",
+          "variant": "government-laws",
+          "entry": "Government",
+          "previewOnly": true,
+          "liveAction": "previewer preset only"
+        },
+        {
+          "id": "government-obligations",
+          "label": "government-obligations",
+          "variant": "government-obligations",
+          "entry": "Government",
+          "previewOnly": true,
+          "liveAction": "previewer preset only"
+        },
+        {
+          "id": "government-news",
+          "label": "government-news",
+          "variant": "government-news",
+          "entry": "Government",
+          "previewOnly": true,
+          "liveAction": "previewer preset only"
+        },
+        {
           "id": "government-authority",
           "label": "government-authority",
           "variant": "government-authority",
+          "entry": "Government",
+          "previewOnly": true,
+          "liveAction": "previewer preset only"
+        },
+        {
+          "id": "government-proposals",
+          "label": "government-proposals",
+          "variant": "government-proposals",
           "entry": "Government",
           "previewOnly": true,
           "liveAction": "previewer preset only"
@@ -522,18 +554,202 @@
           "liveAction": "previewer preset only"
         },
         {
-          "id": "government-level3",
-          "label": "government-level3",
-          "variant": "government-level3",
+          "id": "government-delegated",
+          "label": "government-delegated",
+          "variant": "government-delegated",
           "entry": "Government",
           "previewOnly": true,
           "liveAction": "previewer preset only"
         },
         {
-          "id": "government-proposals",
-          "label": "government-proposals",
-          "variant": "government-proposals",
+          "id": "government-level1",
+          "label": "government-level1",
+          "variant": "government-level1",
           "entry": "Government",
+          "previewOnly": true,
+          "liveAction": "previewer preset only"
+        },
+        {
+          "id": "government-level5",
+          "label": "government-level5",
+          "variant": "government-level5",
+          "entry": "Government",
+          "previewOnly": true,
+          "liveAction": "previewer preset only"
+        },
+        {
+          "id": "government-long",
+          "label": "government-long",
+          "variant": "government-long",
+          "entry": "Government",
+          "previewOnly": true,
+          "liveAction": "previewer preset only"
+        },
+        {
+          "id": "government-changed-roster",
+          "label": "government-changed-roster",
+          "variant": "government-changed-roster",
+          "entry": "Government",
+          "previewOnly": true,
+          "liveAction": "previewer preset only"
+        },
+        {
+          "id": "government-charter-institution",
+          "label": "government-charter-institution",
+          "variant": "government-charter-institution",
+          "entry": "Government",
+          "previewOnly": true,
+          "liveAction": "previewer preset only"
+        },
+        {
+          "id": "government-charter-authority",
+          "label": "government-charter-authority",
+          "variant": "government-charter-authority",
+          "entry": "Government",
+          "previewOnly": true,
+          "liveAction": "previewer preset only"
+        },
+        {
+          "id": "government-charter-empty",
+          "label": "government-charter-empty",
+          "variant": "government-charter-empty",
+          "entry": "Government",
+          "previewOnly": true,
+          "liveAction": "previewer preset only"
+        },
+        {
+          "id": "government-charter-review",
+          "label": "government-charter-review",
+          "variant": "government-charter-review",
+          "entry": "Government",
+          "previewOnly": true,
+          "liveAction": "previewer preset only"
+        },
+        {
+          "id": "government-petition-review",
+          "label": "government-petition-review",
+          "variant": "government-petition-review",
+          "entry": "Government",
+          "previewOnly": true,
+          "liveAction": "previewer preset only"
+        },
+        {
+          "id": "government-petition-draft",
+          "label": "government-petition-draft",
+          "variant": "government-petition-draft",
+          "entry": "Government",
+          "previewOnly": true,
+          "liveAction": "previewer preset only"
+        },
+        {
+          "id": "government-petition-support",
+          "label": "government-petition-support",
+          "variant": "government-petition-support",
+          "entry": "Government",
+          "previewOnly": true,
+          "liveAction": "previewer preset only"
+        },
+        {
+          "id": "government-mandate",
+          "label": "government-mandate",
+          "variant": "government-mandate",
+          "entry": "Government",
+          "previewOnly": true,
+          "liveAction": "previewer preset only"
+        },
+        {
+          "id": "government-party-member",
+          "label": "government-party-member",
+          "variant": "government-party-member",
+          "entry": "Government",
+          "previewOnly": true,
+          "liveAction": "previewer preset only"
+        },
+        {
+          "id": "government-party-speaker",
+          "label": "government-party-speaker",
+          "variant": "government-party-speaker",
+          "entry": "Government",
+          "previewOnly": true,
+          "liveAction": "previewer preset only"
+        },
+        {
+          "id": "government-priorities",
+          "label": "government-priorities",
+          "variant": "government-priorities",
+          "entry": "Government",
+          "previewOnly": true,
+          "liveAction": "previewer preset only"
+        },
+        {
+          "id": "government-participation-blocked",
+          "label": "government-participation-blocked",
+          "variant": "government-participation-blocked",
+          "entry": "Government",
+          "previewOnly": true,
+          "liveAction": "previewer preset only"
+        },
+        {
+          "id": "government-participation-expired",
+          "label": "government-participation-expired",
+          "variant": "government-participation-expired",
+          "entry": "Government",
+          "previewOnly": true,
+          "liveAction": "previewer preset only"
+        },
+        {
+          "id": "government-participation-sync",
+          "label": "government-participation-sync",
+          "variant": "government-participation-sync",
+          "entry": "Government",
+          "previewOnly": true,
+          "liveAction": "previewer preset only"
+        },
+        {
+          "id": "government-participation-long",
+          "label": "government-participation-long",
+          "variant": "government-participation-long",
+          "entry": "Government",
+          "previewOnly": true,
+          "liveAction": "previewer preset only"
+        },
+        {
+          "id": "government-member-ballot",
+          "label": "government-member-ballot",
+          "variant": "government-member-ballot",
+          "entry": "Government",
+          "previewOnly": true,
+          "liveAction": "previewer preset only"
+        },
+        {
+          "id": "government-absentee-ballot",
+          "label": "government-absentee-ballot",
+          "variant": "government-absentee-ballot",
+          "entry": "Government",
+          "previewOnly": true,
+          "liveAction": "previewer preset only"
+        },
+        {
+          "id": "government-former-member",
+          "label": "government-former-member",
+          "variant": "government-former-member",
+          "entry": "Government",
+          "previewOnly": true,
+          "liveAction": "previewer preset only"
+        },
+        {
+          "id": "government-representation",
+          "label": "government-representation",
+          "variant": "government-representation",
+          "entry": "Government > My participation",
+          "previewOnly": true,
+          "liveAction": "previewer preset only"
+        },
+        {
+          "id": "government-petition-revision",
+          "label": "government-petition-revision",
+          "variant": "government-petition-revision",
+          "entry": "Government > My participation",
           "previewOnly": true,
           "liveAction": "previewer preset only"
         }
@@ -704,6 +920,33 @@
           "entry": "Conversation > Reign individual chat",
           "liveAction": "previewer preset only",
           "previewOnly": true
+        },
+        {
+          "id": "individual-chat-generation-failed",
+          "label": "Conversation failed: explicit retry",
+          "variant": "generation-failed",
+          "entry": "Conversation > failed response",
+          "liveAction": "previewer preset only",
+          "previewOnly": true,
+          "nativeInjection": false
+        },
+        {
+          "id": "individual-chat-recovery-available",
+          "label": "Saved input: separate draft recovery",
+          "variant": "recovery-available",
+          "entry": "Conversation > saved input",
+          "liveAction": "previewer preset only",
+          "previewOnly": true,
+          "nativeInjection": false
+        },
+        {
+          "id": "individual-chat-recovery-review",
+          "label": "Recovered draft: review before Send",
+          "variant": "recovery-review",
+          "entry": "Conversation > Recover",
+          "liveAction": "previewer preset only",
+          "previewOnly": true,
+          "nativeInjection": false
         },
         {
           "id": "individual-chat-outfit-input",
@@ -953,7 +1196,81 @@
       "manager": "ReignDiplomacyAnnouncementScreenManager",
       "viewModel": "ReignDiplomacyAnnouncementVM",
       "entry": "World diplomacy announcement queue",
-      "liveAction": "ui-open --target diplomacy-announcement"
+      "liveAction": "ui-open --target diplomacy-announcement",
+      "previewStates": [
+        {
+          "id": "news-capture",
+          "label": "Ruler capture news",
+          "variant": "news-capture"
+        },
+        {
+          "id": "news-sentence",
+          "label": "Execution sentence news",
+          "variant": "news-sentence"
+        },
+        {
+          "id": "news-execution",
+          "label": "Execution news",
+          "variant": "news-execution"
+        },
+        {
+          "id": "news-clan",
+          "label": "Noble ruling news",
+          "variant": "news-clan"
+        },
+        {
+          "id": "news-foreign",
+          "label": "Long neighboring-realm ruling",
+          "variant": "news-foreign"
+        },
+        {
+          "id": "news-world",
+          "label": "Famine news",
+          "variant": "news-world"
+        },
+        {
+          "id": "news-golden-age",
+          "label": "Golden age news",
+          "variant": "news-golden-age"
+        },
+        {
+          "id": "diplomacy-long",
+          "label": "Long ruler-to-ruler declaration",
+          "variant": "diplomacy-long"
+        },
+        {
+          "id": "government-news-all",
+          "label": "government-news-all",
+          "variant": "government-news-all",
+          "entry": "The Reign Herald",
+          "previewOnly": true,
+          "liveAction": "previewer preset only"
+        },
+        {
+          "id": "government-news-kingdom",
+          "label": "government-news-kingdom",
+          "variant": "government-news-kingdom",
+          "entry": "The Reign Herald",
+          "previewOnly": true,
+          "liveAction": "previewer preset only"
+        },
+        {
+          "id": "government-news-long",
+          "label": "government-news-long",
+          "variant": "government-news-long",
+          "entry": "The Reign Herald",
+          "previewOnly": true,
+          "liveAction": "previewer preset only"
+        },
+        {
+          "id": "government-news-empty",
+          "label": "government-news-empty",
+          "variant": "government-news-empty",
+          "entry": "The Reign Herald",
+          "previewOnly": true,
+          "liveAction": "previewer preset only"
+        }
+      ]
     },
     {
       "id": "notable-generation",

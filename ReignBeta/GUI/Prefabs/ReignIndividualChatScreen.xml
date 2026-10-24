@@ -87,7 +87,7 @@
                               </Children>
                             </Widget>
 
-                            <Widget WidthSizePolicy="Fixed" HeightSizePolicy="CoverChildren" SuggestedWidth="720" HorizontalAlignment="Right" MarginRight="8" IsVisible="@IsNpcLine">
+                            <Widget WidthSizePolicy="Fixed" HeightSizePolicy="CoverChildren" SuggestedWidth="720" HorizontalAlignment="Right" MarginRight="8" IsVisible="@IsNonPlayerLine">
                               <Children>
                                 <TextWidget WidthSizePolicy="StretchToParent" HeightSizePolicy="Fixed" SuggestedHeight="21" MarginLeft="16" MarginRight="16" MarginTop="8" Brush="DefaultText" Brush.Font="ReignSerifDynamic" Brush.FontSize="14" Brush.TextHorizontalAlignment="Left" Brush.FontColor="#C5AC83FF" Text="@Speaker" />
                                 <RichTextWidget WidthSizePolicy="StretchToParent" HeightSizePolicy="CoverChildren" MarginLeft="16" MarginRight="16" MarginTop="31" MarginBottom="9" Brush="Reign.Chat.ActionText.16" Brush.Font="ReignSerifDynamic" Brush.FontSize="16" Brush.TextHorizontalAlignment="Left" Brush.FontColor="#C5BDAFFF" Text="@RichText" />
@@ -117,7 +117,7 @@
 
             <ButtonWidget DoNotPassEventsToChildren="true" UpdateChildrenStates="true" WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="200" SuggestedHeight="76" HorizontalAlignment="Right" MarginRight="177" MarginTop="814" Command.Click="ExecuteSend">
               <Children>
-                <TextWidget DoNotAcceptEvents="true" WidthSizePolicy="StretchToParent" HeightSizePolicy="StretchToParent" Brush="DefaultText" Brush.Font="ReignSerifDynamic" Brush.FontSize="24" Brush.FontColor="#C5BDAFFF" Text="Send" />
+                <TextWidget DoNotAcceptEvents="true" WidthSizePolicy="StretchToParent" HeightSizePolicy="StretchToParent" Brush="DefaultText" Brush.Font="ReignSerifDynamic" Brush.FontSize="24" Brush.FontColor="#C5BDAFFF" Text="@SendButtonText" />
               </Children>
             </ButtonWidget>
           </Children>
