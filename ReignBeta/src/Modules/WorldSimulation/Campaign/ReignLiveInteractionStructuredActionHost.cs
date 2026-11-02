@@ -131,7 +131,8 @@ namespace ReignBeta.Campaign
                             a.Id = id; a.Origin = ActionOrigin.Console; a.State = AgreementState.Draft;
                             a.PlayerAcceptedHash = ""; a.NpcAcceptedHash = "";
                             result = phase == "run" ? JObject.FromObject(ReignActionService.RunOperator(a))
-                                : new JObject { ["errors"] = JArray.FromObject(ReignActionService.Preview(a)), ["termsHash"] = a.TermsHash() };
+                                : new JObject { ["errors"] = JArray.FromObject(ReignActionService.Preview(a)),
+                                    ["termsHash"] = a.TermsHash(), ["agreement"] = JObject.FromObject(a) };
                         }
                         else throw new InvalidOperationException("Choose native or agreement.");
                         break;

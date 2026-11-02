@@ -146,6 +146,7 @@ namespace ReignBeta.UI
 
             if (IsEscapeReleased())
             {
+                if (_dataSource?.View.HandleEscape() == true) return;
                 if (_dataSource?.HandleOutfitEscape() == true) return;
                 if (_dataSource == null || !_dataSource.IsPregnancyWarningVisible)
                 {
@@ -154,6 +155,7 @@ namespace ReignBeta.UI
             }
             else if (_dataSource != null
                 && !_dataSource.IsPortraitZoomVisible
+                && !_dataSource.View.IsEnlarged
                 && !_dataSource.IsPregnancyWarningVisible
                 && IsSubmitReleased())
             {

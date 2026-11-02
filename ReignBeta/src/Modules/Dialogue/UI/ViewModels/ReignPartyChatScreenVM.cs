@@ -130,6 +130,7 @@ namespace ReignBeta.UI.ViewModels
             : this(closeScreen, openEncyclopediaOverlay, requestPortraitOverlay)
         {
             ChatLines.Clear();
+            _banterHandoff = true;
             _banterReadOnly = banter.Value<bool?>("readOnly") == true;
             _conversationSessionId = _banterReadOnly ? "" : banter.Value<string>("handoffSessionId") ?? banter.Value<string>("sessionId") ?? "";
             _session.RestoreIdentity(_conversationSessionId.Length > 0 ? _conversationSessionId : banter.Value<string>("sessionId"));
@@ -141,7 +142,7 @@ namespace ReignBeta.UI.ViewModels
                 Speaker = x.Value<string>("speaker") ?? "Traveler", Text = x.Value<string>("text") ?? "", Role = x.Value<string>("role") ?? "npc"
             }).ToList();
             _session.RestoreTranscript(lines);
-            foreach (var line in lines) AddChatLine(line.Speaker, line.Text, line.Role);
+            foreach (var line in lines) AddChatLine(line.Speaker, line.Text, line.Role, line.ExchangeId);
             RememberConversationHeroes(GetSelectedHeroes());
             InputEnabled = !_banterReadOnly && _conversationSessionId.Length > 0;
             if (!InputEnabled) AddSystemLine("This exchange can be read here. One or more original travelers are no longer available.", false);
@@ -455,6 +456,9 @@ namespace ReignBeta.UI.ViewModels
                 if (value != _isBusy)
                 {
                     _isBusy = value;
+                    _view?.RefreshAvailability();
+                    RefreshContinueAvailability();
+                    if (!value && _view != null) _ = _view.RestoreAsync();
                     OnPropertyChangedWithValue(value);
                     OnPropertyChanged(nameof(CanAnnounce));
                 }
@@ -637,10 +641,12 @@ namespace ReignBeta.UI.ViewModels
         }
         public async void ExecuteSend()
         {
+            if (!CheckContinuedPartyPresence()) return;
             string text = InputText ?? string.Empty;
             if (!_targetedReviewMode && !_banterReadOnly && !_isFinalized && !IsBusy && InputEnabled
                 && ReignServerClient.NpcLivesOptions.Allows("approach") && string.IsNullOrWhiteSpace(_session.ApproachRequestId)
-                && (string.IsNullOrWhiteSpace(text) || _lifeApproachedKey != LifeAudienceKey(GetSelectedHeroes())))
+                // In ordinary Party Chat, typed input is the player's opening; only the empty Approach button requests an NPC opening.
+                && (string.IsNullOrWhiteSpace(text) || !ShowLifeControls && _lifeApproachedKey != LifeAudienceKey(GetSelectedHeroes())))
             {
                 var opening = RequestLifeOpening(GetSelectedHeroes()); _activeBatchTask = opening;
                 var opened = await opening;
@@ -705,7 +711,7 @@ namespace ReignBeta.UI.ViewModels
             List<Hero> activeHeroes = null;
             bool accepted = await ReignMainThread.InvokeAsync(() =>
             {
-                if (_isFinalized || _banterReadOnly || !InputEnabled)
+                if (_isFinalized || _banterReadOnly || !InputEnabled || !CheckContinuedPartyPresence())
                 {
                     rejected.Error = "Party chat closed.";
                     return false;
@@ -853,6 +859,7 @@ namespace ReignBeta.UI.ViewModels
         public void ExecuteClose()
         {
             ReignLog.Info("Party chat close clicked.");
+            PersistPartyChat();
             RequestConversationFinish("closed_by_player");
             _closeScreen?.Invoke();
         }
@@ -890,7 +897,9 @@ namespace ReignBeta.UI.ViewModels
             ReignActionBuilder.CloseFor(this);
             _composer?.Dispose();
             if (_isFinalized) return;
+            PersistPartyChat();
             _isFinalized = true;
+            _view?.Close();
             try { PersistCastleTranscript(); }
             finally
             {
@@ -908,6 +917,8 @@ namespace ReignBeta.UI.ViewModels
             Reign.Core.Contracts.Actions.ActionAgreement actionDraft = null)
         {
             if (_isFinalized) return new ReignPartyChatBatchResult { Error = "Conversation closed." };
+            if (!await ReignMainThread.InvokeAsync(CheckContinuedPartyPresence).ConfigureAwait(false))
+                return new ReignPartyChatBatchResult { Error = "The previous party chat is no longer available here." };
             await ReignMainThread.InvokeAsync(() =>
             {
                 _guestReviewSession?.BeginTurn();
@@ -937,6 +948,7 @@ namespace ReignBeta.UI.ViewModels
                     if (_isFinalized) return;
                     if (_targetedReviewMode) TargetedReviewProviderFailed = result?.Ok != true;
                     RefreshTargetedReviewReceipt();
+                    PersistPartyChat();
                     // The core owns ordinary chat's busy state. Only the review tracker defers its reset.
                     if (_guestReviewSession != null)
                     {
@@ -1238,7 +1250,7 @@ namespace ReignBeta.UI.ViewModels
                     _castleSession.ReadTranscriptJson())
                     ?? new List<ReignPartyChatTranscriptLine>();
                 _session.RestoreTranscript(lines);
-                foreach (ReignPartyChatTranscriptLine line in lines) AddChatLine(line.Speaker, line.Text, line.Role);
+                foreach (ReignPartyChatTranscriptLine line in lines) AddChatLine(line.Speaker, line.Text, line.Role, line.ExchangeId);
             }
             catch (Exception ex) { ReignLog.Warn("Castle Chat transcript restore failed: " + ex.Message); }
         }
@@ -1254,6 +1266,7 @@ namespace ReignBeta.UI.ViewModels
 
         private void RememberConversationHeroes(IEnumerable<Hero> heroes)
         {
+            CapturePartyOrigin();
             foreach (Hero hero in heroes ?? Enumerable.Empty<Hero>())
             {
                 if (!_banterReadOnly) ReignHeroKnowledge.MarkMet(hero);
@@ -1471,6 +1484,7 @@ namespace ReignBeta.UI.ViewModels
 
         private void RefreshLabels()
         {
+            RefreshContinueAvailability();
             if (IsHomesMode)
             {
                 LocationText = _homeResident == null ? "People you have met here" : "At home with " + _homeResident.Name;
@@ -1630,10 +1644,10 @@ namespace ReignBeta.UI.ViewModels
             }
         }
 
-        private void AddChatLine(string speaker, string text, string role)
+        private void AddChatLine(string speaker, string text, string role, string exchangeId = null)
         {
             if (_isFinalized) return;
-            ChatLines.Add(new ReignChatLineVM(speaker, text, role));
+            ChatLines.Add(new ReignChatLineVM(speaker, text, role) { ExchangeId = exchangeId ?? _session?.CurrentSceneTurnId ?? "" });
             ChatScrollVersion++;
         }
 
@@ -1667,7 +1681,7 @@ namespace ReignBeta.UI.ViewModels
             _session.RestoreTranscript(recovered);
             foreach (ReignPartyChatTranscriptLine line in recovered)
             {
-                AddChatLine(line.Speaker, line.Text, line.Role);
+                AddChatLine(line.Speaker, line.Text, line.Role, line.ExchangeId);
             }
             PersistCastleTranscript();
             ReignLog.Info("Castle Chat transcript recovered from server session="

@@ -1309,7 +1309,7 @@ const PREFAB_ROOT_KEYS = {
   "ReignClanAccordsScreen.xml": CLAN_ACCORDS_ROOT_KEYS,
   "AIPortraitsMemoriesBook.xml": ["MemoryItems", "MemoryBookImageId", "TitleText", "CaptionText", "CounterText", "HasMemories"],
   "ReignAmbassadorScreen.xml": ["PlayerBannerId", "PlayerBannerAsset", "PlayerBannerArgs", "PlayerBannerProvider", "ForeignAdvisor", "Ambassadors", "ShowEmptyState", "StatusText"],
-  "ReignCastleChatScreen.xml": ["ActionComposerId", "CastleRoomName", "HasCastleArt", "CastleArtImageId", "CastleTavernArtImageId", "ShowCastleTavernArt", "ShowCastleApprovedFallback", "EventImageAsset", "PlayerDisplayName", "PlayerPortraitId", "PlayerPortraitAdditionalArgs", "PlayerPortraitTextureProviderName", "PlayerPortraitCacheKey", "IsBusy", "BusyText", "InputEnabled", "InputText", "PartyMembers", "ChatLines", "ChatScrollVersion", "IsOverlayVisible", "IsPortraitPreviewVisible", "PortraitPreviewId", "PortraitPreviewAsset", "PortraitPreviewAdditionalArgs", "PortraitPreviewTextureProviderName", "PortraitPreviewCacheKey", "PortraitPreviewName"],
+  "ReignCastleChatScreen.xml": ["View", "ActionComposerId", "CastleRoomName", "HasCastleArt", "CastleArtImageId", "CastleTavernArtImageId", "ShowCastleTavernArt", "ShowCastleApprovedFallback", "EventImageAsset", "PlayerDisplayName", "PlayerPortraitId", "PlayerPortraitAdditionalArgs", "PlayerPortraitTextureProviderName", "PlayerPortraitCacheKey", "IsBusy", "BusyText", "InputEnabled", "InputText", "PartyMembers", "ChatLines", "ChatScrollVersion", "IsOverlayVisible", "IsPortraitPreviewVisible", "PortraitPreviewId", "PortraitPreviewAsset", "PortraitPreviewAdditionalArgs", "PortraitPreviewTextureProviderName", "PortraitPreviewCacheKey", "PortraitPreviewName"],
   "ReignCastleLayoutScreen.xml": ["CastleMapImageId", "GovernmentButtonText", "CastleGardenSlots", "TrainingYardSlots", "StableCourtyardSlots", "GuestBedroomRow1", "GuestBedroomRow2", "GuestBedroomRow3", "GuestBedroomRow4", "NobleSolarSlots", "InnerCourtyardSlots", "MainHallSlots", "RoyalBedroomSlots", "ThroneRoomSlots", "LibrarySlots", "DiningChamberSlots", "PortraitGallerySlots", "ChapelSlots", "BathsSlots", "BattlementSlots"],
   "ReignCorrespondenceScreen.xml": ["ActionComposerId", "Contacts", "SelectedName", "SelectedSubtitle", "ChatLines", "ChatScrollVersion", "BusyText", "InputText"],
   "ReignCourtEconomicReportScreen.xml": ["SourceName", "TargetName", "GoodsName", "AvailableText", "AmountText", "ArrivalText", "Notes", "IsSourceDropdownOpen", "IsTargetDropdownOpen", "SourceOptions", "TargetOptions", "ReportDateText", "StatusText", "TreasuryText", "DailyIncomeText", "DailyExpensesText", "NetDailyChangeText", "TariffsTradeText", "VillageManorText", "TradeBalanceText", "OutstandingDebtsText", "GrainTotalText", "MeatTotalText", "TimberTotalText", "IronTotalText", "TotalMilitiaText", "TotalGarrisonText", "GarrisonUpkeepText", "WarInventoryText", "NetDailyPositive", "NetDailyNegative", "TradeBalancePositive", "TradeBalanceNegative", "CanSubmit", "HasSettlementOverflow", "EconomicAdvisor", "Settlements", "SurplusRows"],
@@ -1319,12 +1319,12 @@ const PREFAB_ROOT_KEYS = {
   "ReignFamilyChambersScreen.xml": ["Title", "Subtitle", "Adults", "Children", "SelectionText", "StatusText", "IsBusy", "CanEnterScene"],
   "ReignTrainingYardScreen.xml": ["Title", "TrainerHeading", "TroopHeading", "SelectedTrainerName", "SelectedTrainerDetail", "LeadershipText", "WeaponText", "RateText", "ElapsedText", "DeliveredText", "StatusText", "IsTraining", "CanTrain", "CanStop", "HasSelectedTrainer", "HasSelectedGeneratedPortrait", "SelectedPortraitCacheKey", "SelectedPortraitId", "SelectedPortraitAdditionalArgs", "SelectedPortraitTextureProviderName", "PortraitAsset", "TrainerCount", "TroopCount", "Trainers", "Troops"],
   "ReignGovernmentScreen.xml": GOVERNMENT_ROOT_KEYS,
-  "ReignIndividualChatScreen.xml": ["ActionComposerId", "CanChangeOutfit", "IsOutfitVisible", "IsOutfitInputVisible", "IsOutfitComparisonVisible", "IsOutfitReady", "IsOutfitChanging", "CanCancelOutfit", "OutfitDescription", "OutfitStatus", "OutfitBeforePath", "OutfitAfterPath", "OutfitBeforeWidth", "OutfitBeforeHeight", "OutfitAfterWidth", "OutfitAfterHeight", "PlayerName", "PlayerSubtitle", "PlayerInfo", "PlayerPortraitId", "PlayerPortraitAsset", "PlayerPortraitAdditionalArgs", "PlayerPortraitTextureProviderName", "PlayerPortraitCropImageWidth", "PlayerPortraitCropImageHeight", "NpcName", "NpcSubtitle", "NpcInfo", "NpcPortraitId", "NpcPortraitAsset", "NpcPortraitAdditionalArgs", "NpcPortraitTextureProviderName", "NpcPortraitCropImageWidth", "NpcPortraitCropImageHeight", "LocationText", "IsBusy", "BusyText", "InputEnabled", "InputText", "SendButtonText", "ChatLines", "ChatScrollVersion", "IsPortraitZoomVisible", "IsPregnancyWarningVisible", "ZoomFrameWidth", "ZoomFrameHeight", "ZoomPortraitImageWidth", "ZoomPortraitImageHeight", "ZoomPortraitId", "ZoomPortraitAsset", "ZoomPortraitAdditionalArgs", "ZoomPortraitTextureProviderName"],
+  "ReignIndividualChatScreen.xml": ["View", "ActionComposerId", "CanChangeOutfit", "IsOutfitVisible", "IsOutfitInputVisible", "IsOutfitComparisonVisible", "IsOutfitReady", "IsOutfitChanging", "CanCancelOutfit", "OutfitDescription", "OutfitStatus", "OutfitBeforePath", "OutfitAfterPath", "OutfitBeforeWidth", "OutfitBeforeHeight", "OutfitAfterWidth", "OutfitAfterHeight", "PlayerName", "PlayerSubtitle", "PlayerInfo", "PlayerPortraitId", "PlayerPortraitAsset", "PlayerPortraitAdditionalArgs", "PlayerPortraitTextureProviderName", "PlayerPortraitCropImageWidth", "PlayerPortraitCropImageHeight", "NpcName", "NpcSubtitle", "NpcInfo", "NpcPortraitId", "NpcPortraitAsset", "NpcPortraitAdditionalArgs", "NpcPortraitTextureProviderName", "NpcPortraitCropImageWidth", "NpcPortraitCropImageHeight", "LocationText", "IsBusy", "BusyText", "InputEnabled", "InputText", "SendButtonText", "ChatLines", "ChatScrollVersion", "IsPortraitZoomVisible", "IsPregnancyWarningVisible", "ZoomFrameWidth", "ZoomFrameHeight", "ZoomPortraitImageWidth", "ZoomPortraitImageHeight", "ZoomPortraitId", "ZoomPortraitAsset", "ZoomPortraitAdditionalArgs", "ZoomPortraitTextureProviderName"],
   "ReignPortraitRefreshPopup.xml": ["Title", "Detail", "LookAgainText", "ReflectText", "CancelText", "CanReflect"],
   "ReignPlayerApproachPopup.xml": ["Title", "Detail", "AcceptText", "DeclineText"],
   "ReignBanterPanel.xml": ["Title", "Collapsed", "Expanded", "PanelHeight", "CollapseText", "CanJoin", "ChatScrollVersion", "Status", "Transcript"],
   "ReignNotableGenerationPopup.xml": ["Title", "Detail", "Progress", "HasError"],
-  "ReignPartyChatScreen.xml": ["ActionComposerId", "Title", "LocationText", "SelectedSummary", "BusyText", "InputText", "ChatLines", "PartyMembers", "IsOverlayVisible", "IsPortraitPreviewVisible", "PortraitPreviewId", "PortraitPreviewAsset", "PortraitPreviewAdditionalArgs", "PortraitPreviewTextureProviderName", "PortraitPreviewName"],
+  "ReignPartyChatScreen.xml": ["ShowPartyContinuation", "CanContinuePartyChat", "PartyContinuationUnavailable", "View", "ActionComposerId", "Title", "LocationText", "SelectedSummary", "BusyText", "InputText", "ChatLines", "PartyMembers", "IsOverlayVisible", "IsPortraitPreviewVisible", "PortraitPreviewId", "PortraitPreviewAsset", "PortraitPreviewAdditionalArgs", "PortraitPreviewTextureProviderName", "PortraitPreviewName"],
   "ReignRoyalCouncilScreen.xml": ["ActionComposerId", "WarSeat", "SpymasterSeat", "EconomicSeat", "ForeignSeat", "Transcript", "InputText", "CanSend", "IsBusy", "StatusText"],
   "ReignSocialEventScreen.xml": ["ActionComposerId", "IsOverlayVisible", "ShowPhaseControls", "ShowWildernessArt", "EventTitle", "PhaseTitle", "PhaseStatus", "PhaseDescription", "EventImageId", "EventImageAsset", "EventImageText", "EventArtSize", "EventArtRowHeight", "AttendeeListTopMargin", "AttendeeListBottomMargin", "AttendeeTitleTopMargin", "EventArtTopMargin", "EventBackgroundImageId", "BackgroundImageId", "BackgroundAsset", "BackgroundAdditionalArgs", "BackgroundTextureProviderName", "CultureTint", "BusyText", "InputText", "ChatLines", "ChatScrollVersion", "ActiveParticipants", "AvailableAttendees", "IsPortraitPreviewVisible", "PortraitPreviewFrameWidth", "PortraitPreviewFrameHeight", "PortraitPreviewImageWidth", "PortraitPreviewImageHeight", "PortraitPreviewId", "PortraitPreviewAsset", "PortraitPreviewAdditionalArgs", "PortraitPreviewTextureProviderName", "PortraitPreviewName"],
   "ReignSpymasterScreen.xml": ["SpymasterName", "PortraitCacheKey", "PortraitId", "PortraitArgs", "PortraitProvider", "HasPortrait", "HasSpymaster", "ShowSpymasterAiPortrait", "ShowSpymasterTableauFallback", "ShowAppointmentPrompt", "AppointmentPending", "SpymasterModel", "IsIntelligence", "IsSubterfuge", "IsReputation", "IsArchive", "ShowOperationPanel", "IsLands", "IsPeople", "ShowPeopleGroups", "ShowSocialItem", "PeopleGroupText", "SocialScopeText", "TargetName", "TargetDetail", "ActionName", "OperationDetail", "AssessmentText", "IsOrdinaryAssessment", "IsChallengingAssessment", "SocialItemName", "TargetDropdownOpen", "ActionDropdownOpen", "SocialDropdownOpen", "CanBegin", "CanBreakout", "BreakoutText", "StatusText", "ReportText", "TargetOptions", "ActionOptions", "SocialItems", "Reports"],
@@ -1612,8 +1612,39 @@ export function getSampleDataForPrefab(fileName, preset = "") {
       '*Their eyes drift shut. Too sick to sit upright, they stir and mumble.* "No more..."'
     ].map((Text) => ({ Speaker: "Gwydan", Text, Role: "assistant", IsNpcLine: true, IsPlayerLine: false, IsSystemLine: false }))
   ];
+  if (["ReignIndividualChatScreen.xml", "ReignPartyChatScreen.xml", "ReignCastleChatScreen.xml"].includes(fileName)) {
+    result.ChatScrollVersion = 1;
+    result.View = { CanView: true, ButtonText: "View", IsEnlarged: false, EnlargedImageId: "", EventImageAsset: "" };
+    if (preset.startsWith("view-")) {
+      const state = preset.slice(5), ready = ["ready", "enlarged", "long"].includes(state);
+      const asset = "assets/chat-view-fixture.svg";
+      result.View = { CanView: state !== "pending", ButtonText: state === "pending" ? "Viewing…" : "View", IsEnlarged: state === "enlarged", EnlargedImageId: ready ? "view-fixture" : "", EventImageAsset: asset };
+      result.IsBusy = false; result.InputEnabled = true; result.BusyText = "";
+      // Put the image card in the visible viewport for deterministic geometry proof.
+      result.ChatLines = ready ? [] : (result.ChatLines || []).slice(-1);
+      if (state === "long") result.ChatLines = Array.from({length: 20}, (_, index) => ({ Speaker: index % 2 ? "Ira" : "You", Text: "The party exchanges news as dusk falls across the camp. ".repeat(8), IsPlayerLine: index % 2 === 0, IsNpcLine: index % 2 === 1 }));
+      result.ChatLines = [...(result.ChatLines || []).slice(-8), { Speaker: "View", Text: state === "failed" ? "A full-body reference is missing. Use the portrait control first." : ready ? "A letter changes hands at dusk." : "Preparing a view of this scene…", IsViewLine: true, HasSceneImage: ready, SceneImageId: ready ? "view-fixture" : "", EventImageAsset: asset, SceneCaptionTop: ready ? 220 : 12, SceneCompactCaptionTop: ready ? 112 : 12 }];
+    }
+  }
+  if (normalizedName === "ReignPartyChatScreen.xml") {
+    result.ShowPartyContinuation = !result.IsHomesMode;
+    result.CanContinuePartyChat = false;
+    if (preset.startsWith("continue-")) {
+      const available = preset === "continue-available", restored = preset === "continue-restored";
+      Object.assign(result, { ShowPartyContinuation: true, CanContinuePartyChat: available, InputText: "", SendLabel: "Approach", IsBusy: false,
+        SelectedSummary: restored ? "Selected: Ira, Rhagaea" : "No characters selected",
+        ChatLines: restored ? [
+          { Speaker: "You", Text: "We agreed to meet at dawn. Shall we continue with the eastern road?", IsPlayerLine: true, IsNpcLine: false },
+          { Speaker: "Rhagaea", Text: "The eastern road, then. We were deciding who should ride ahead.", IsPlayerLine: false, IsNpcLine: true }
+        ] : [{ Speaker: "Party", Text: "Select characters above, then speak to them as a group.", IsSystemLine: true }]
+      });
+    }
+    result.PartyContinuationUnavailable = !result.CanContinuePartyChat;
+  }
+  if (result.View) result.View.IsUnavailable = !result.View.CanView;
   if (Array.isArray(result.ChatLines)) result.ChatLines = result.ChatLines.map((line) => ({
-    ...line, IsNonPlayerLine: !line.IsPlayerLine,
+    HasSceneImage: false, SceneImageId: "", SceneCaptionTop: 12, SceneCompactCaptionTop: 12, SceneCaption: line.Text,
+    ...line, IsViewLine: !!line.IsViewLine, IsTextLine: !line.IsViewLine, IsNonPlayerLine: !line.IsPlayerLine && !line.IsViewLine,
     RichText: previewActionRichText(line.Text, line.IsNpcLine || line.Role === "npc" || line.Role === "assistant")
   }));
   return result;

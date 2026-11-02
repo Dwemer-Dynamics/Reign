@@ -25,6 +25,14 @@ namespace ReignBeta.Runtime
             .Select(line => line.Speaker + ": " + line.Text).ToList();
         public IReadOnlyList<ReignPartyChatTranscriptLine> RecentTranscriptEntries => _recentTranscriptLines;
         public int PlayerInputCount { get; private set; }
+        internal int TranscriptSequence => _transcriptSequence;
+
+        internal void RestoreTurnState(int inputCount, int sequence)
+        {
+            PlayerInputCount = Math.Max(PlayerInputCount, inputCount);
+            _transcriptSequence = Math.Max(_transcriptSequence, sequence);
+            CurrentSceneTurnId = "";
+        }
 
         public void RestoreIdentity(string sessionId)
         {
@@ -117,7 +125,11 @@ namespace ReignBeta.Runtime
                 + "This is a living group conversation. Each NPC should answer only as themselves, aware that others may hear them.";
         }
 
-        public static List<Hero> GetAvailableConversationHeroes()
+        public static List<Hero> GetAvailableConversationHeroes() => BuildAvailableConversationHeroes(true);
+
+        internal static List<Hero> GetAvailableConversationHeroesQuietly() => BuildAvailableConversationHeroes(false);
+
+        private static List<Hero> BuildAvailableConversationHeroes(bool logRoster)
         {
             List<Hero> result = new List<Hero>();
             HashSet<string> seen = new HashSet<string>();
@@ -148,7 +160,7 @@ namespace ReignBeta.Runtime
                 .ThenBy(x => x.Name?.ToString() ?? string.Empty)
                 .ToList();
 
-            ReignLog.Info("Party chat roster total=" + ordered.Count
+            if (logRoster) ReignLog.Info("Party chat roster total=" + ordered.Count
                 + " party=" + partyCount
                 + " keep=" + keepCount
                 + " notables=" + notableCount

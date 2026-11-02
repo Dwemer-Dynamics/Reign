@@ -184,6 +184,7 @@ namespace ReignBeta.UI
 
             if (ReignActionBuilder.Handle(_hostScreen, _dataSource)) return;
             ApplyInputLock();
+            _dataSource?.RefreshPartyContinuation(dt);
             _dataSource?.RefreshCastleArt();
             _dataSource?.RefreshTargetedReviewReceipt();
             if (ScreenManager.FocusedLayer != _gauntletLayer)
@@ -199,6 +200,7 @@ namespace ReignBeta.UI
 
             if (IsEscapePressedOrReleased())
             {
+                if (_dataSource?.View.HandleEscape() == true) return;
                 if (_dataSource != null && _dataSource.IsPortraitPreviewVisible)
                 {
                     _dataSource.ExecuteClosePortraitPreview();
@@ -210,6 +212,7 @@ namespace ReignBeta.UI
             }
             else if (_dataSource != null
                 && !_dataSource.IsPortraitPreviewVisible
+                && !_dataSource.View.IsEnlarged
                 && IsSubmitReleased())
             {
                 _dataSource.ExecuteSend();

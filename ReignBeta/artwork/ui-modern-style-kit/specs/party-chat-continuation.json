@@ -1,0 +1,48 @@
+{
+  "schema": "reign-party-chat-continuation-v1",
+  "date": "2026-10-30",
+  "authority": "User requested Continue below ALL and View identical to Clear centered below Clear.",
+  "sprite": "reign_party_chat_compact_button",
+  "asset": "../../../GUI/SpriteParts/ui_reignbeta_party_chat/reign_party_chat_compact_button.png",
+  "sha256": "d00d8903b5abf8be6637948cb046d06dee95ceda10d7729072fc49278bb87f88",
+  "source": "../../../GUI/SpriteParts/ui_reignbeta_party_chat/reign_party_chat_announcement_shell.png",
+  "sourceSha256": "87cb30da7dd2c6bdeb871c436f0d4a7d6186394a56572d632d925d7f64665ad0",
+  "sourceCrop": [
+    1354,
+    34,
+    126,
+    40
+  ],
+  "composition": "Unresampled complete label-free Clear plate, including its original opaque marble and integrated frame. No separate frame, painting, alpha cut, recoloring or guessed replacement art. Two pixels of intact surrounding material retained.",
+  "controls": {
+    "continue": [
+      1218,
+      98,
+      120,
+      36
+    ],
+    "view": [
+      1358,
+      98,
+      120,
+      36
+    ]
+  },
+  "artOffset": [
+    -4,
+    -2
+  ],
+  "artSize": [
+    126,
+    40
+  ],
+  "text": {
+    "font": "ReignSerifDynamic",
+    "size": 15,
+    "color": "#C5BDAFFF",
+    "disabledColor": "#4A4945FF",
+    "alignment": "same centered default as Clear"
+  },
+  "states": "Identical owning art and geometry in idle/hover/pressed/disabled; sound-only behavioral brush matches Clear. Disabled live label uses disabledNeutral. No oversized legacy plate, eye icon or hitbox.",
+  "proof": "prepare-party-chat-continuation-assets.py compares every decoded RGBA pixel to Clear and the native atlas; test-party-chat-continuation-contract.mjs checks geometry/fixtures. Complete previews, fixed-shell fidelity and native acceptance remain separate gates."
+}

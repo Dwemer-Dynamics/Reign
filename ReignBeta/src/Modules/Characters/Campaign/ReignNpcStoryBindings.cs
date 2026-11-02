@@ -89,6 +89,8 @@ namespace ReignBeta.Campaign
                 throw new InvalidOperationException("The story's supporting identities are still being established.");
             if (row.Value<string>("requiredOutcome") == "rescued")
             {
+                if (!ReignNpcLivesPatches.VerifyReady())
+                    throw new InvalidOperationException("The native story rescue interception is unavailable; the captive has not been moved.");
                 Hero contact = ReignObjectResolver.FindHero(bindings.Value<string>("heroId"));
                 var holder = hideout.Parties.FirstOrDefault(p => p.IsBandit)?.Party;
                 if (contact == null || !contact.IsAlive || holder == null) throw new InvalidOperationException("The bound rescue target or hideout party is unavailable.");
@@ -97,6 +99,9 @@ namespace ReignBeta.Campaign
                 if (!contact.IsPrisoner) TakePrisonerAction.Apply(holder, contact);
                 if (contact.PartyBelongedToAsPrisoner != holder) throw new InvalidOperationException("The native rescue target was not placed with the captors.");
                 row["rescueHeroId"] = contact.StringId;
+                row["rescueCaptureWitnessed"] = contact.IsAlive && contact.IsPrisoner;
+                row["rescueCaptorPartyId"] = holder.MobileParty?.StringId ?? "";
+                _storyRescueCaptors[encounter] = holder;
             }
             else row["itemId"] = bindings["itemId"]?.DeepClone() ?? throw new InvalidOperationException("The stolen item is unbound.");
         }

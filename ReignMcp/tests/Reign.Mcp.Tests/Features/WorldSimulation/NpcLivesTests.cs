@@ -7,6 +7,52 @@ namespace Reign.Mcp.Tests.Features.WorldSimulation;
 public sealed class NpcLivesTests
 {
     [Fact]
+    public void SoloLeaveUsesTheGuestsOwnSafetyWithoutChangingOtherTravelBindings()
+    {
+        var npc = new NpcLifeCandidate { HeroId = "guest", Affinity = 100, Available = true,
+            UnsafeLeaveLocationIds = new() { "hostile" } };
+        var places = new[] {
+            new NpcStoryLocation { Id = "hostile", Kind = "town", TravelDays = .25 },
+            new NpcStoryLocation { Id = "safe", Kind = "town", TravelDays = .25 },
+            new NpcStoryLocation { Id = "sieged", Kind = "town", Available = false },
+            new NpcStoryLocation { Id = "hideout", Kind = "hideout" } };
+        var restoredNpc = JsonSerializer.Deserialize<NpcLifeCandidate>(JsonSerializer.Serialize(npc))!;
+        Assert.Equal(new[] { "safe" }, NpcLivesEngine.LeaveDestinations(restoredNpc, places).Select(p => p.Id));
+        Assert.Equal(2, NpcLivesEngine.LeaveDestinations(new NpcLifeCandidate(), places).Count);
+        Assert.True(places[0].Available); // It can still be valid for the player or another NPC.
+        var options = Options(new() { ["npcLivesChance100"] = 100, ["npcLivesFrequencyPercent"] = 500 },
+            "npcLivesBriefEnabled", "npcLivesOutingsEnabled", "npcLivesMajorEnabled", "npcLivesIndependentEnabled");
+        var definition = NpcStoryCatalog.All.Single(d => d.Id == "outing_bookbinder");
+        for (int seed = 0; seed < 64; seed++)
+        {
+            var state = new NpcLivesState { CampaignId = "safety_" + seed, TimelineId = "main" };
+            Assert.NotEmpty(NpcLivesEngine.Evaluate(state, new[] { restoredNpc }, new[] { definition }, places, options, 10, "origin"));
+            Assert.Equal("safe", Assert.Single(state.Leaves).DestinationId);
+            Assert.Empty(state.Effects);
+            var blocked = new NpcLivesState { CampaignId = "blocked_" + seed, TimelineId = "main" };
+            Assert.Empty(NpcLivesEngine.Evaluate(blocked, new[] { restoredNpc }, new[] { definition },
+                new[] { places[0] }, options, 10, "origin"));
+            Assert.Empty(blocked.Leaves); Assert.Empty(blocked.Effects);
+        }
+    }
+
+    [Fact]
+    public void FreshPersonalInvitationKeepsTheAcceptedClockAndCannotBypassPendingOrRewind()
+    {
+        var encounter = new NpcConversationEncounter { LastAcceptedDay = 20 };
+        Assert.False(encounter.BeginOpening("ordinary", 20, 1));
+        Assert.False(encounter.BeginOpening("rewound", 19, 1, freshInvitation: true));
+        Assert.False(encounter.BeginOpening("invalid", double.NaN, 1, freshInvitation: true));
+        Assert.True(encounter.BeginOpening("invitation", 20, 1, freshInvitation: true));
+        Assert.Equal(20, encounter.LastAcceptedDay);
+        Assert.False(encounter.BeginOpening("duplicate", 20, 1, freshInvitation: true));
+        Assert.True(encounter.AcceptOpening("invitation", "May I ask you something?", "considering a verse", 20));
+        var restored = JsonSerializer.Deserialize<NpcConversationEncounter>(JsonSerializer.Serialize(encounter))!;
+        Assert.False(restored.BeginOpening("immediate", 20, 1));
+        Assert.True(restored.BeginOpening("after_time", 20 + 1d / 24, 1));
+    }
+
+    [Fact]
     public void DurationRevisionKeepsActualArrivalHoldsAndSavedAttendance()
     {
         var meeting = new NpcSummonedMeeting { Id = "meeting", IssuerId = "leader", TargetId = "noble",

@@ -31,6 +31,7 @@ namespace ReignBeta.UI.ViewModels
                     _session.RestoreIdentity("party_chat_" + Guid.NewGuid().ToString("N"));
                     _session.RestoreTranscript(Array.Empty<ReignPartyChatTranscriptLine>());
                     ChatLines.Clear();
+                    _partyOrigin = null; _continuedPartyChat = false;
                 }
                 _session.NpcLifeContext = LifeChatContext;
                 string session = await EnsureConversationSessionAsync(heroes).ConfigureAwait(false);

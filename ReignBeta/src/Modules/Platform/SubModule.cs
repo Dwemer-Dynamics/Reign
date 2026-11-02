@@ -55,6 +55,7 @@ namespace ReignBeta
             ReignBeta.World.ReignRulerNativePatches.Apply();
             ReignTemporaryPartyGuestPatches.Apply();
             ReignNpcLivesPatches.Apply();
+            ReignShipTradeGovernorPatch.Apply();
             ReignRescueConversationBehavior.Install();
             ReignWorkshopDialoguePatches.Apply();
             ReignMainMenuVideoPatches.Apply();
@@ -168,6 +169,7 @@ namespace ReignBeta
                 campaignStarter.AddBehavior(new ReignRelationshipCampaignBehavior());
                 campaignStarter.AddBehavior(new ReignPlayerApproachCampaignBehavior());
                 campaignStarter.AddBehavior(new ReignBanterCampaignBehavior());
+                campaignStarter.AddBehavior(new ReignPartyChatHistoryBehavior());
                 campaignStarter.AddBehavior(new ReignNpcLivesBehavior());
                 campaignStarter.AddBehavior(new ReignRescueConversationBehavior());
                 campaignStarter.AddBehavior(new ReignFamilyCampaignBehavior());
@@ -191,6 +193,7 @@ namespace ReignBeta
         public override void OnGameEnd(Game game)
         {
             ReignBanterCampaignBehavior.Instance?.CampaignEnded();
+            ReignPartyChatHistoryBehavior.Instance?.EndCampaign();
             base.OnGameEnd(game);
         }
 
@@ -306,6 +309,7 @@ namespace ReignBeta
             _portraitHarmony?.UnpatchAll(_portraitHarmony.Id);
             ReignPregnancyPatches.Unapply();
             ReignNpcLivesPatches.Unapply();
+            ReignShipTradeGovernorPatch.Unapply();
             ReignMarriagePatches.Unapply();
             ReignDiplomacyPatches.Unapply();
             ReignGovernmentPatches.Unapply();

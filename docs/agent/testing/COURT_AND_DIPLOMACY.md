@@ -2,6 +2,12 @@
 
 Read only the procedure relevant to the current task. Existing provider, campaign, and deployment gates remain authoritative. Dated procedure history was retained during the 2026-09-12 guide split.
 
+## Virtual patronage speaker profiles (2026-10-26)
+
+Patronage creators are persistent court identities without native Bannerlord heroes. The dialogue route derives their political-author profile only for a known Patronage template and its exact catalog role, matching capital/host and ruler context, a patronage matter, and the campaign/capital/role-derived creator ID. They receive canonical timeline-scoped political beliefs without a native profile, noble status or office. Native nobles and ambassadors retain their existing profile requirement; arbitrary actor IDs or a source label alone cannot use this path.
+
+`CourtLifeCreatorProfileSelfTests` exercises the real dialogue adapter with an isolated responder, canonical belief persistence, replay without another provider call, mismatched scope/role/identity rejection and the unchanged missing-native-profile gate. Native acceptance resumes the same failed patronage audience through the existing technical-return/open/converse controls, verifies no charge or commission before a genuine decision, and checks normal paid delivery and reload. The change adds no endpoint, fixture override or confirmation phrase.
+
 ## Court audience artwork (2026-09-09)
 
 Cache identity uses whole-year appearance age; ordinary fractional aging does not trigger another scene. The native portrait maturity guard is preserved: unsupported infant/toddler references fail before a partial-cast request rather than borrowing an adult face. Missing references remain a distinct, observable artwork failure.

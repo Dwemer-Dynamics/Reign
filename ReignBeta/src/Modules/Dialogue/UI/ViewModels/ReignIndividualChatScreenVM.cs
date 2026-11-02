@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Linq;
 using System.Threading.Tasks;
 using AIPortraits;
 using Newtonsoft.Json.Linq;
@@ -567,6 +568,8 @@ namespace ReignBeta.UI.ViewModels
                 if (value != _isBusy)
                 {
                     _isBusy = value;
+                    _view?.RefreshAvailability();
+                    if (!value && _view != null) _ = _view.RestoreAsync();
                     OnPropertyChangedWithValue(value);
                     OnPropertyChanged(nameof(InputEnabled));
                     OnPropertyChanged(nameof(SendButtonText));
@@ -993,7 +996,10 @@ namespace ReignBeta.UI.ViewModels
                         _conversationContext["rescueOpening"] = false;
                         if (string.IsNullOrWhiteSpace(auditRunId))
                             xp.Award("conversation:individual:" + correlationId, ReignXpSkill.Charm, ReignXpRules.ConversationXp, ReignXpReason.Conversation);
-                        AddChatLine(_hero?.Name?.ToString() ?? "NPC", reply.Text, "npc");
+                        string viewExchange = reply.ExchangeId ?? "";
+                        var viewPlayerLine = ChatLines.LastOrDefault(line => line.IsPlayerLine && string.IsNullOrEmpty(line.ExchangeId));
+                        if (viewPlayerLine != null) viewPlayerLine.ExchangeId = viewExchange;
+                        AddChatLine(_hero?.Name?.ToString() ?? "NPC", reply.Text, "npc", viewExchange);
                         if (!string.IsNullOrWhiteSpace(reply.ActionShadowPreview) && ReignBetaSettings.Instance?.DebugMessagesEnabled == true)
                         {
                             AddSystemLine(reply.ActionShadowPreview);
@@ -1203,6 +1209,7 @@ namespace ReignBeta.UI.ViewModels
             _ = ReignOutfitClient.Cancel(_outfitAttempt);
             FinishOutfit();
             _isFinalized = true;
+            _view?.Close();
             CompletePregnancyDecision("finalized", false, _calibrationPregnancyFixtureActive,
                 "The Individual Chat screen finalized before the pregnancy decision completed.");
             RequestConversationFinish(_finalizationReason);
@@ -1373,7 +1380,7 @@ namespace ReignBeta.UI.ViewModels
                     {
                         foreach (ReignDialogueLine line in history)
                         {
-                            AddChatLine(line.DisplaySpeaker, line.Text, line.Role);
+                            AddChatLine(line.DisplaySpeaker, line.Text, line.Role, line.ExchangeId);
                         }
                     }
                     if (_isOfficialAmbassadorMode) AddOfficialOpeningNotice();
@@ -1475,9 +1482,9 @@ namespace ReignBeta.UI.ViewModels
                 "I acknowledge my charge. I will faithfully convey everything said in this audience to " + ruler + ", and I cannot promise secrecy here.", "npc");
         }
 
-        private void AddChatLine(string speaker, string text, string role = "player")
+        private void AddChatLine(string speaker, string text, string role = "player", string exchangeId = "")
         {
-            ChatLines.Add(new ReignChatLineVM(speaker, text, role));
+            ChatLines.Add(new ReignChatLineVM(speaker, text, role) { ExchangeId = exchangeId });
             ChatScrollVersion++;
         }
 

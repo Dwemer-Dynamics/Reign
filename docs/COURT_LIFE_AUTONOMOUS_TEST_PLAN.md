@@ -1,6 +1,6 @@
 # Court life autonomous player acceptance plan
 
-Status: testing authorized on BaseTwo and underway. Created 2026-09-05; revised 2026-09-07 to follow the user's instruction against repetitive live tests.
+Status: current-release audit and scenario preparation resumed 2026-10-25. Section 14 is the expanded release goal and current execution authority. Earlier BaseTwo/BaseThree runs and the 180-day soak remain historical evidence. Native execution awaits the exact current baseline and shared-runtime handoff. Created 2026-09-05; non-repetition policy revised 2026-09-07.
 
 This plan covers international affairs, family visits and neglect, favor expiration and jealousy, patronage, noble visitor stays, and their integration into the ruler docket. Canonical build and deterministic validation are part of implementation and deployment. **Do not start the provider-backed or native campaign runs in this document until the user supplies the exact baseline save and asks to begin testing.** The user intends to change the reasoning effort first. No acceptance result is implied by this plan or by a successful build.
 
@@ -25,13 +25,13 @@ A fixture may arrange an eligible family, visitor, grievance, treasury, ruler pe
 
 ## 2. Baseline, isolation and unattended operation
 
-1. Record the user-provided save's exact name/path, campaign and timeline identities, native game version, Reign source fingerprint, deployed artifact hashes and canonical validation report. Verify the visible installed Control Center is on `http://127.0.0.1:5101`; the installed launcher is the authoritative runtime path. The workspace developer cache must not be substituted for installed portrait/runtime data.
+1. Record the user-provided save's exact name/path, campaign and timeline identities, native game version, Reign source fingerprint, deployed artifact hashes and canonical validation report. Verify the dedicated managed `ReignServer` WSL through the launcher-facing `http://127.0.0.1:8089/health`; resolve the exact installed runtime and hashes through the current paired-repository deployment contract. The workspace developer cache must not be substituted for installed portrait/runtime data.
 2. Enroll that exact baseline through the guarded campaign-test MCP tools with this objective. Create and verify a task-named disposable copy before any time advancement or mutation. A suggestive save filename is not authorization or isolation proof. Never overwrite, rename or delete the baseline.
 3. Record native and server starting snapshots: ruler identity/marriage/family/ages; kingdom/capital/war state; gold; directional relations; favor/contact timestamps; family attention rows; diplomatic pressure and pending actions; native loyalty; parties/offices/quests; existing visitors, commissions and docket. Redact credentials and provider secrets from reports.
 4. Use one overwritten rolling checkpoint by default. The Save Sync unique-state limit is 15; inspect capacity before a milestone save. Clean up only exact run-owned saves through the documented confirmation-gated cleanup route. Never delete another task's state.
 5. At every checkpoint pause native time, wait for the campaign-test quiescence gate, inspect pending network/native actions and failures, then save. A save made before required queues drain fails that checkpoint. Record any intentionally pending long-term object, such as a commission or referral, separately from in-flight transport.
 6. Use existing bounded campaign advancement tools. Never start a second server for tests. Recover ordinary acknowledgements, stale handles and transient transport errors by re-observing state and trying another supported MCP/harness/native control route. Do not repeat an uncertain payment or decision blindly; inspect its receipt first.
-7. After a fix, rebuild through `reign_validate`, deploy those exact artifacts through the visible lifecycle, re-observe the disposable state, and rerun the failing case plus its affected regression boundary. Source or schema changes invalidate the old fingerprint's acceptance where relevant.
+7. After a fix, rebuild through `reign_validate`, deploy those exact artifacts through the current managed launcher/WSL lifecycle, re-observe the disposable state, and rerun the failing case plus its affected regression boundary. Source or schema changes invalidate the old fingerprint's acceptance where relevant.
 8. Finish with native time paused, queues drained, the rolling disposable saved, the original baseline untouched, and the visible installed server/game state described in the report.
 
 ## 3. Scenario ledger and execution order
@@ -197,7 +197,7 @@ Include restrained, honorable, shy, bold and jealous individuals. A cooperative 
 Run these at a small number of deliberately chosen state boundaries where they expose a distinct failure mode, rather than repeating every scenario blindly:
 
 - Server failure before a reply, after a reply before local acknowledgement, after local payment before server receipt, after a relation adjustment but before commission completion, and after a foreign decision before docket queue closure.
-- Native process restart with pending family registration/turn outbox, foreign referral, visitor in transit/resident, patronage commission, expired favor migration and an active neglect decay pair.
+- Native process restart with pending family registration/turn outbox, foreign referral, visitor immediately placed/resident, patronage commission, expired favor migration and an active neglect decay pair.
 - Load the exact disposable checkpoint into a **different native game instance**, not merely reopen the screen. Verify Save Sync restored the corresponding server state and timeline; no replay into a mismatched save.
 - Same command/turn delivered twice; two confirmation clicks; old response arriving after screen closure; stale decision terms; incompatible ruler/capital/kingdom identity; missing participant; malformed model JSON; empty/repaired fallback reply.
 - Concurrent due patronage delivery, family deadline, foreign reply and visitor departure at08:00. Each receives its own once-only transition; maximum new docket entries remains5; no hidden family penalty because transport was unavailable.
@@ -235,3 +235,68 @@ The final report must list the deployed source fingerprint and artifact hashes, 
 
 ### 2026-09-07 visitor timing revision
 The user replaced scheduled noble travel with immediate placement when a visit is rolled. Earlier transit/arrival-delay evidence is retained as superseded history, not current acceptance. V09/V14 now require immediate placement, full-stay timing, failed-placement cleanup, safe return to the original location (or a safe home), and reload continuity. Other passed tests remain valid unless affected by this change.
+
+## 14. Current release acceptance goal — 2026-10-25
+
+This section expands the existing unfinished goal and supersedes obsolete workspace, runtime and execution-order assumptions above. It preserves all original requirements and previously observed results. The current source authorities are the paired `D:/Projects/Reign` and `D:/Projects/ReignServer` checkouts. The release audit and declarative scenario recipes are [COURT_LIFE_RELEASE_AUDIT.md](testing/COURT_LIFE_RELEASE_AUDIT.md) and [court-life-release-scenarios.json](testing/court-life-release-scenarios.json).
+
+**Goal:** Complete full end-to-end Court Life release acceptance against an explicitly identified current client/server release candidate. Recover and audit previous passes, retain compatible evidence, finish every applicable incomplete requirement, exercise changed integration paths through natural player language and production controls, repair failures, validate and deploy exact artifacts, and verify affected regressions. Complete only when the final release evidence accounts for every requirement, catalog template and supported outcome, with no unresolved required acceptance gap. A report containing blockers is a checkpoint, not goal completion. No roadmap changes or publication are authorized by this plan.
+
+Image generation remains disabled for this task. Verify existing portrait presentation, all cast slots, complete responsive UI and disabled/loading/failure states without paid images. Preserve the historical full-body composition defect as unverified provider rendering if its corrected output lacks evidence; a prompt contract alone cannot close it. Report this visual limit separately and do not quietly re-enable generation.
+
+### 14.1 Historical proof and dependency audit
+
+- Historical checkpoint: 137 positive, 59 partial, 4 blocked out of 200 ledger rows, plus the completed 180-day native soak and final independent-process reload. These are historical results, not current-candidate certification.
+- The retired workspace is recovery-only. Recover evidence from the hash-pinned retirement archives and linked task history. Do not recreate old paths as the working source or search unrelated projects' memory.
+- The audit recovered 1,949 Court Life evidence files whose bytes match the retirement manifest, including 70 case summaries and native reports. The original scenario-ledger and detailed soak-progress files were not present in that report archive. Retain this provenance gap, resolve referenced evidence where possible, and never reconstruct an invented pass ledger from summaries.
+- Source comparison against the 2026-09-14 recovery snapshot found all 11 current Court contract files text-identical, 18 of 83 client Court files changed, two client files without old-path matches, and four of 22 server Court files changed. Shared dialogue, diplomacy, relationships, reputation, Government and movement also changed. Path misses are relocation/new-file uncertainty, not automatically semantic changes.
+- Current source has 75 international catalog templates (30 petty, 15 serious, 15 grave, 15 exceptional) and 40 patronage templates. Historical reports also contain generated `international-npc-proposal` and `international-political-incident` routes; preserve and test them separately, and reconcile the old 76-row international grouping by exact IDs before reusing its total. Match IDs and exact template contents, not just the old total. Reconcile the 84 named matrix requirements independently.
+- Each old case receives one current status: `reuse_candidate`, `retest_required`, `evidence_incomplete`, or `superseded`. A reviewer must bind transcript, native effect, receipt and any required reload evidence before accepting reuse. Source text equality supports reuse but never establishes unchanged dependency behavior by itself.
+- Regenerate fingerprints after any code repair or final concurrent-task integration. Reopen only the affected acceptance rows; do not replay unchanged successful templates merely because an unrelated binary changed.
+
+### 14.2 Mandatory fresh regression journeys
+
+Use the incomplete cases to satisfy these regressions wherever possible; do not add an equivalent duplicate journey.
+
+1. International audience with actual domestic/foreign identities and reported-vs-witnessed evidence; exact payment or ruling, real directional effects, and later acknowledgement that the matter is settled. Include the historical Asta defects: informed extortion briefing, believable envoy demeanor and no request for payment proof after authoritative completion.
+2. Sovereign referral through a real accept/counter/refuse and any required Government hearing, with no false treaty completion. Reopen after actual completion and verify one action/receipt.
+3. Young child, teenager, spouse and adult child through natural roleplay. Opening/failed/partial replies do not count; two completed turns do. Prove dismissal, neglect, decay, accepted/refused reconciliation and child-to-adult identity transition with isolated boundary setup.
+4. Actual spoken and written contact, exact 30-day favored expiry, two-favorite reduction and one-tag expiry, knowledge-gated spouse/noble jealousy, and attention-only child prompting. Complete one eligible domestic jealousy petition rather than repeat chance-based favor acquisition.
+5. Historically grounded patronage with actual public facts; exact commissioned prose/objective/reach/cost, regional three-destination delivery and loyalty cap, insufficient funds, and changed recipient eligibility.
+6. Domestic/foreign solo visitors and the remaining family group sizes, real married/unmarried personality gates, private invitation consent, immediate whole-group placement and native residence/return. Check Guest Bedrooms, Family Chambers and ordinary individual/group chat follow-up for correct room/scene and remembered terms.
+7. Reopen/retry/failure and save/load through current original-input and route-memory delivery: unchanged player text, no duplicate NPC line, no false completed turn, no repeated debit or relation adjustment. Cover thin child/creator routes as well as adult noble routes.
+8. Integrate NPC Lives reservations, assignments, summon/meeting travel and Court visitor leases without stealing or stranding characters. Court visitor generation must retain immediate placement; generic summons travel must not silently replace this rule. Protect offices, quests, captives and parties.
+9. Verify current post-request international refresh cooldown leaves a true idle boundary while paused, explicit invalidations still refresh, due foreign replies remain available, and queue drain cannot be held busy by repeated reads. Record wait time by subsystem; final pipeline health alone does not establish throughput.
+10. Existing local noble/notable petitions, investigations/reversals, direct gold/resources/soldiers, Chancellor suppression/salary, Government authority and simultaneous daily source deadlines retain real working controls and effects.
+
+### 14.3 Efficient scenario preparation
+
+The companion recipe file assigns all 84 named requirements exactly once to 15 execution packs and inventories every current international/patronage template. These are reviewed declarative setup/oracle recipes, not a new live API or a claim that missing fixture controls already exist. The existing guarded Court profiles remain the execution route.
+
+Create a small set of run-owned disposable scenario families from the exact user-selected protected baseline:
+
+- **Court and family:** ruler safely at capital, spouse, young child, teen and a separately prepared adult-child branch; real household identities, office access and available nobles. Existing household setup remains idempotent. Use near-boundary age and contact inputs rather than advancing years or waiting a month per case.
+- **Diplomacy:** real peaceful foreign principals and available envoys, defined strength/personality boundaries, actual prisoner custody and exact charter/terms; coherent foreign reply due times. Preserve all Government checks.
+- **Patronage:** three actual player-kingdom holdings, multiple recipient nobles, independently recorded public settlement transfer/release/death/reconciliation facts, and an adult-child branch. Use native actions and actual public-news eligibility, never insert fictional historical proof.
+- **Visitors and jealousy:** actual eligible solo and family groups with known roles/traits, domestic favorite/rival and observer knowledge; separate ordinary-courtesy and positive-initiative branches. Select eligible individuals directly through bounded supported fixture input instead of repeated seeds until a desired NPC appears.
+- **Commit/recovery:** a finalized checkpoint containing several independently pending feature objects; exercise one failure per distinct commit seam. Different failure seams remain separate tests even if they share the same prepared campaign.
+
+Before any new preparation hook, inventory the current catalog. Implement only missing bounded controls that materially reduce waiting or enable an otherwise unavailable branch. Keep them behind exact armed-Current checks, task scope, confirmation, input bounds and rollback records. Update the runtime testing catalog, owning guide, security/help docs and contract coverage with an actual hook change. Setup must not grant NPC assent, mint outcome receipts, complete turns, pre-apply tested rewards, waive authority or weaken production eligibility.
+
+Schedule compatible commissions/referrals/visitor departures/family deadlines into one controlled time window. Pause during provider conversations. Advance only to the next required production boundary; observe effects and drain before checkpointing. When testing one expiry, shift its legitimate pre-state near the boundary through a guarded setup rather than replay a whole month. Preserve the distinction between fixture preconditions and observed production transitions.
+
+Use one restart with multiple pending systems and one after committed results, adding more only for a different failure seam. Use one rolling Current and report capacity before any retained scenario milestone. Dispose only exact run-owned branches. A failed setup returns to the verified checkpoint before another attempt.
+
+### 14.4 Execution and final release gate
+
+1. Resolve current source/deployment/provider identities and same-project task ownership. Use the current dedicated `ReignServer` WSL and launcher-facing `http://127.0.0.1:8089/health`; verify actual managed runtime and database. The former Skyrim WSL defect is historical, not an assumed current blocker.
+   Verify the current local native-advance boundary with one short exact-target probe before using any expiry fixture. The October campaign guide records earlier target overrun and the repair161 stop latch; a later paused day cannot pass a before-expiry assertion. Record localBoundaryReached/localBoundaryTimedOut and actual elapsed world day. A wrapper transport error requires re-observation, never automatic repetition of an already reached interval.
+2. Bind the exact user-provided baseline. Historical BaseThree authorization does not authorize the other task's current `test.sav` or NPC Lives Current. Build and independently verify a disposable copy before mutation.
+3. Audit retained pass evidence and freeze the reuse list; run canonical provider-free contracts first, reusing successful compatible validation artifacts. Broader product confidence and Linux artifacts follow the current manifest and managed deployment workflow.
+4. Run the smallest end-to-end journey per source on the current provider/candidate, using outstanding branches where possible. Fail fast on systemic blockers before the wider catalog queue. A provider/model change is recorded; do not silently restore the September model or token settings.
+5. Execute incomplete branches and changed-path regressions from the 15 prepared packs. Every fresh test states its unique coverage purpose. Every catalog template must have valid applicable evidence; missing proof requires that exact template, not a representative substitute.
+6. Preserve historical long-run proof. Decide in writing whether changed daily scheduling, persistence, queue behavior or unavailable evidence requires another 180-day run. A focused combined lifecycle window can cover bounded changed deadlines, but cannot be mislabeled as a new 180-day soak. Do not automatically repeat the full soak solely because time passed since the old test.
+7. Repair confirmed defects, canonical-validate the smallest safe scope, deploy exact validated artifacts, then rerun the failed branch and its affected boundary. A full matrix rerun requires demonstrated shared impact.
+8. Final acceptance binds source commits and dirty hashes, validation reports/hygiene, deployed hashes, provider/config fingerprint, all evidence/reuse decisions, native UI checks, exact save/timeline scope, no unexplained queue work, and safe finalized Current. Report any image-generation-related visual gap explicitly. Release readiness is not claimed while a required row remains partial/failed/blocked/evidence-incomplete.
+
+The goal API currently supports status updates but rejects replacing an unfinished objective. This authoritative section expands the test plan already named by the existing goal, preserving its accumulated progress. Do not mark the old goal complete merely to replace its text.

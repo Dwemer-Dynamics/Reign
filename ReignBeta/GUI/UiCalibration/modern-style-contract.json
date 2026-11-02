@@ -1531,5 +1531,82 @@
         "rule": "The original square native character portrait fits entirely inside the 143-wide aperture. Center it vertically to leave headroom beneath the oval crown; never enlarge it beyond the clipping width."
       }
     }
+  },
+  "chatView": {
+    "authority": "User-requested View scene images, 2026-10-29; implementation review 2026-10-30",
+    "status": "implemented using existing approved components; native and human acceptance pending",
+    "assets": [
+      {
+        "sprite": "reign_outfit_action_button",
+        "path": "GUI/SpriteParts/ui_reignbeta_individual/reign_outfit_action_button.png",
+        "sha256": "549af12c8bc98d2fe01271d8326327d8b0692d68a62c36c76352c558b336b0c1"
+      },
+      {
+        "sprite": "reign_tavern_house_eye",
+        "path": "GUI/SpriteParts/ui_reignbeta_tavern_house/reign_tavern_house_eye.png",
+        "sha256": "e17428bafb02991e333ba3bed9a907685ee3b743cf0fc0c3696188afbab6e9b3"
+      },
+      {
+        "sprite": "reign_modern_memory_scene_overlay",
+        "path": "GUI/SpriteParts/ui_reignbeta_shared/reign_modern_memory_scene_overlay.png",
+        "sha256": "e87f8cb99dd4c745347252ca249cd83226ec20ebc68c9deb9e7eba0232c86f92"
+      }
+    ],
+    "controls": {
+      "individual": [
+        624,
+        344,
+        422,
+        62
+      ],
+      "party": [
+        1358,
+        98,
+        120,
+        36
+      ],
+      "castle": [
+        50,
+        800,
+        312,
+        45.839
+      ]
+    },
+    "inlineImage": "3:2, centered, contained within complete approved memory aperture. Castle uses a compact 192x108 owning card to fit its 190px transcript. No source image is resampled for the enlarged view.",
+    "enlargedImage": "Centered 1280x720 complete memory aperture with undistorted 941.25x627.5 scene; click or Escape closes.",
+    "caption": "ReignSerifDynamic, 16px, textPrimary; compact castle caption is bounded to 96 display characters while archive retains complete caption.",
+    "conditionalControlMasks": "Party uses two bounded Clear-identical controls registered in partyChatContinuation; individual/castle retain their existing approved View assets. Every conditional control is separately pixel/geometry checked.",
+    "proof": "ChatViewTests, test-chat-view-contract.mjs, complete rendered preview matrix, fixed-shell fidelity; native acceptance deferred"
+  },
+  "partyChatContinuation": {
+    "authority": "User requested Continue below ALL and View identical to Clear centered below Clear.",
+    "spec": "../../artwork/ui-modern-style-kit/specs/party-chat-continuation.json",
+    "controls": {
+      "continue": [
+        1218,
+        98,
+        120,
+        36
+      ],
+      "view": [
+        1358,
+        98,
+        120,
+        36
+      ]
+    },
+    "asset": {
+      "path": "../SpriteParts/ui_reignbeta_party_chat/reign_party_chat_compact_button.png",
+      "sha256": "d00d8903b5abf8be6637948cb046d06dee95ceda10d7729072fc49278bb87f88"
+    },
+    "text": {
+      "font": "ReignSerifDynamic",
+      "size": 15,
+      "color": "#C5BDAFFF",
+      "disabledColor": "#4A4945FF",
+      "alignment": "same centered default as Clear"
+    },
+    "states": "Identical owning art and geometry in idle/hover/pressed/disabled; sound-only behavioral brush matches Clear. Disabled live label uses disabledNeutral. No oversized legacy plate, eye icon or hitbox.",
+    "nativeAcceptance": "pending"
   }
 }

@@ -330,7 +330,24 @@ public sealed class TestingCatalogContractTests
             $"Catalog drift. Missing: {string.Join(", ", reflected.Except(cataloged))}; extra: {string.Join(", ", cataloged.Except(reflected))}");
         string raw = File.ReadAllText(Path.Combine(TestOptions.FindWorkspace(), "reign.testing.json"));
         using JsonDocument catalogDocument = JsonDocument.Parse(raw);
-        Assert.Equal("2026.09.12.1", catalogDocument.RootElement.GetProperty("version").GetString());
+        Assert.Equal("2026.11.01.1", catalogDocument.RootElement.GetProperty("version").GetString());
+        var clothingCoverage = catalogDocument.RootElement.GetProperty("chatView").GetProperty("wardrobe").GetProperty("coverageContract");
+        Assert.Equal("chat-scene-clothing-coverage-v1", clothingCoverage.GetProperty("version").GetString());
+        Assert.Equal("wardrobeCoverage", clothingCoverage.GetProperty("selectorField").GetString());
+        Assert.True(clothingCoverage.GetProperty("requiresEveryDepictedActor").GetBoolean());
+        Assert.Equal(256, clothingCoverage.GetProperty("maximumEvidenceItems").GetInt32());
+        Assert.Equal("fail-before-image-provider", clothingCoverage.GetProperty("unresolvedDecision").GetString());
+        Assert.Equal("reign-party-chat-continuation-v1", catalogDocument.RootElement.GetProperty("partyChatContinuation").GetProperty("schema").GetString());
+        JsonElement narrativeTime = catalogDocument.RootElement.GetProperty("conversationNaturalness")
+            .GetProperty("correctionAndNarrativeTime");
+        Assert.Equal("reign-narrative-clock-v1", narrativeTime.GetProperty("schema").GetString());
+        Assert.Equal("prompt_efficiency", narrativeTime.GetProperty("suite").GetString());
+        Assert.False(narrativeTime.GetProperty("providerCalls").GetBoolean());
+        Assert.Contains("Does not change worldDay", narrativeTime.GetProperty("effects").GetString());
+        Assert.Contains("GUID-owned correction_fixture_ campaign", narrativeTime.GetProperty("isolation").GetString());
+        Assert.Contains("Server-local receipt", narrativeTime.GetProperty("authority").GetString());
+        Assert.Contains("reign-narrative-clock-v1", catalogDocument.RootElement
+            .GetProperty("conversationIntoxication").GetProperty("recoveryClock").GetString());
         var castlePromptFixes = catalogDocument.RootElement.GetProperty("sovereignCastlePromptFixes");
         Assert.Contains("contracts.castle_scene_context", castlePromptFixes.GetProperty("quick").GetString());
         Assert.Contains("contracts.sovereign_identity", castlePromptFixes.GetProperty("identity").GetString());

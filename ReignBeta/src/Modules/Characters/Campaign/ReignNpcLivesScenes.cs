@@ -135,7 +135,8 @@ namespace ReignBeta.Campaign
             Hero hero = ReignActionService.HeroById(story.HeroId);
             if (!WithPlayer(story.HeroId)) { ShowLifeNote(story.Definition.Title, "Your companion must be present to continue."); return; }
             if (story.Status == "invited")
-            { ReignIndividualChatScreenManager.OpenForHero(hero, new JObject { ["npcStoryId"] = story.Id, ["npcLifeRequestId"] = story.Id }, null); return; }
+            { ReignIndividualChatScreenManager.OpenForHero(hero, new JObject { ["npcStoryId"] = story.Id, ["npcLifeRequestId"] = story.Id,
+                ["npcLivesRevision"] = story.Revision, ["npcLifeInvitationEntry"] = true }, null); return; }
             if (story.Status != "active" || story.PhaseIndex >= story.Definition.Phases.Count)
             { ShowLifeNote(story.Definition.Title, "Status: " + story.Status.Replace('_', ' ') + ". Completed chapters: " + story.CompletedPhaseIds.Count + "."); return; }
             if (!StoriesAtCurrentPlace().Contains(story))

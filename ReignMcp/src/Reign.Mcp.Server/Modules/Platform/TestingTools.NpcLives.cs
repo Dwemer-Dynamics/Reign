@@ -8,7 +8,7 @@ namespace Reign.Mcp.Server;
 public static class NpcLivesTestTools
 {
     [McpServerTool(Name = "reign_test_npc_lives", ReadOnly = false, Destructive = true, Idempotent = false, UseStructuredContent = true)]
-    [Description("Snapshot one NPC, prepare an unaccepted authored story or leave invitation, place the player at an accepted story's bound destination through native encounter setup, observe/start its encounter, or resolve its real native duel/hideout with bounded win/loss/withdraw. encounter waits for both actual agents before applying that outcome. place accepts no destination override and journals one movement per case identity. Requires the exact armed paused verified campaign-test Current and retained recovery checkpoint. Setup grants no consent/rewards or arbitrary personality. No provider calls, time advance or save. Verify production callbacks afterward; command success alone is not proof.")]
+    [Description("Open an unsent real party action builder with composer (two distinct actual party heroId/otherHeroId and stable operationId only), snapshot one NPC, prepare an unaccepted authored story or leave invitation, decline its exact existing NPC-signed offer through production refusal, place the player at an accepted story's bound destination, or resolve its real native duel/hideout with bounded win/loss/withdraw. decline requires heroId, matterId, proposalId, its observed termsHash and a positive decimal revision; it cannot accept an offer or invent terms. encounter witnesses both actual agents and the bound native captive; controlled-win cleanup may acknowledge only that captive's owned conversation at most once, with no dialogue choice or rescue credit. place journals one movement with no destination override. composer journals before opening; identical replay only observes the retained receipt/current UI, changed terms fail and partial/uncertain attempts never reopen. It submits no action, consent, text or announcement; use the real UI to insert/cancel and independently verify conservation. announcement_transport accepts only caseId, phase, two actual party heroId/otherHeroId, operationId and control arm/observe/release. It holds only original announcement dispatch for at most 180 monotonic seconds; only the actual UI queues text and native hearers. It never sends, edits, retargets or acknowledges a payload; replay never rearms. Release or expiry resumes ordinary transport. Prove original outbox drained before time/save. Requires the exact armed paused verified campaign-test Current and retained recovery checkpoint. No provider calls, time advance or save. Verify production outcomes and exactly-once effects independently.")]
     public static async Task<IReadOnlyDictionary<string, object?>> TestNpcLives(
         ReignApiClient api, ReignMcpOptions options, CampaignTestService campaignTests,
         string campaignId, string campaignTestRunId, string batchId, string casesJson,
@@ -51,16 +51,42 @@ public static class NpcLivesTestTools
             if (item.ValueKind != JsonValueKind.Object) throw new ArgumentException("Each case is an object.");
             var fields = new HashSet<string>(StringComparer.Ordinal);
             foreach (var field in item.EnumerateObject())
-                if (!new[] { "caseId", "phase", "storyId", "objectiveId", "encounterId", "outcome", "heroId", "templateId", "chapterId", "locationId", "invitationKind" }.Contains(field.Name)
+                if (!new[] { "caseId", "phase", "storyId", "objectiveId", "encounterId", "outcome", "heroId", "otherHeroId", "operationId", "control", "templateId", "chapterId", "locationId", "invitationKind", "matterId", "proposalId", "revision", "termsHash" }.Contains(field.Name)
                     || !fields.Add(field.Name) || field.Value.ValueKind != JsonValueKind.String)
                     throw new ArgumentException("Unknown, duplicate or non-string case field.");
             string Get(string name) => item.TryGetProperty(name, out var v) ? v.GetString() ?? "" : "";
             if (!ids.Add(Id(Get("caseId")))) throw new ArgumentException("Case identities must be distinct.");
             string phase = Get("phase");
-            if (!new[] { "snapshot", "prepare", "place", "observe", "start", "finish", "encounter" }.Contains(phase)) throw new ArgumentException("Choose snapshot, prepare, place, observe, start, finish or encounter.");
+            if (!new[] { "snapshot", "prepare", "decline", "composer", "announcement_transport", "place", "observe", "start", "finish", "encounter" }.Contains(phase)) throw new ArgumentException("Choose snapshot, prepare, decline, composer, announcement_transport, place, observe, start, finish or encounter.");
             var allowed = new HashSet<string>(new[] { "caseId", "phase" }, StringComparer.Ordinal);
-            if (phase is "prepare" or "snapshot") { Id(Get("heroId")); allowed.Add("heroId"); }
+            if (phase is "prepare" or "snapshot" or "decline" or "composer" or "announcement_transport") { Id(Get("heroId")); allowed.Add("heroId"); }
             else { Id(Get("storyId")); allowed.Add("storyId"); }
+            if (phase is "composer" or "announcement_transport")
+            {
+                Id(Get("otherHeroId")); Id(Get("operationId"));
+                if (Get("heroId") == Get("otherHeroId")) throw new ArgumentException("Choose two distinct actual party NPCs.");
+                allowed.UnionWith(new[] { "otherHeroId", "operationId" });
+            }
+            if (phase == "announcement_transport")
+            {
+                if (!new[] { "arm", "observe", "release" }.Contains(Get("control")))
+                    throw new ArgumentException("Choose arm, observe or release for the announcement delivery control.");
+                allowed.Add("control");
+            }
+            if (phase == "decline")
+            {
+                Id(Get("matterId")); Id(Get("proposalId"));
+                string revision = Get("revision");
+                if (revision.Length == 0 || revision.Any(c => c < '0' || c > '9')
+                    || !int.TryParse(revision, System.Globalization.NumberStyles.None,
+                        System.Globalization.CultureInfo.InvariantCulture, out int parsedRevision) || parsedRevision < 1
+                    || revision != parsedRevision.ToString(System.Globalization.CultureInfo.InvariantCulture))
+                    throw new ArgumentException("Decline requires a positive decimal revision.");
+                string termsHash = Get("termsHash");
+                if (termsHash.Length != 64 || termsHash.Any(c => !(c >= '0' && c <= '9' || c >= 'a' && c <= 'f')))
+                    throw new ArgumentException("Decline requires the observed lowercase SHA-256 terms hash.");
+                allowed.UnionWith(new[] { "matterId", "proposalId", "revision", "termsHash" });
+            }
             if (phase == "prepare") { Id(Get("templateId")); Id(Get("chapterId")); allowed.UnionWith(new[] { "templateId", "chapterId" });
                 if (fields.Contains("invitationKind")) { if (!new[] { "story", "leave" }.Contains(Get("invitationKind")))
                     throw new ArgumentException("Choose story or leave invitation setup."); allowed.Add("invitationKind"); }

@@ -12,6 +12,7 @@ using ReignBeta.World;
 using TaleWorlds.CampaignSystem;
 using TaleWorlds.CampaignSystem.Actions;
 using TaleWorlds.CampaignSystem.CampaignBehaviors;
+using TaleWorlds.CampaignSystem.Encounters;
 using TaleWorlds.CampaignSystem.Party;
 using TaleWorlds.CampaignSystem.Party.PartyComponents;
 using TaleWorlds.CampaignSystem.Settlements;
@@ -125,10 +126,21 @@ namespace ReignBeta.Campaign
                     if (State.Stories.Any(s => s.Id == entry.Value.Value<string>("storyId") && s.NativeEncounterId == entry.Key))
                         ResolveStoryEncounter(entry.Key, "withdrawn");
                     else if (!_outbox.Any(o => o.Value<string>("operationId") == entry.Key + ":started")) entry.Value["status"] = "resolved";
-            foreach (var leave in State.Leaves.Where(l => l.Status == "waiting" && l.DepartureDay.HasValue && now >= l.DepartureDay.Value).ToList())
+            foreach (var leave in State.Leaves.Where(l => l.Status == "waiting" && l.DepartureDay.HasValue).ToList())
             {
                 if (_personalTravel.ContainsKey(leave.Id)) continue;
                 Hero hero = ReignActionService.HeroById(leave.HeroId); Settlement destination = Settlement.Find(leave.DestinationId);
+                if (hero == null || !hero.IsAlive || hero.IsPrisoner || hero.PartyBelongedTo != MobileParty.MainParty
+                    || !MobileParty.MainParty.MemberRoster.Contains(hero.CharacterObject))
+                {
+                    // A captured or departed guest no longer owes a future absence
+                    // from this party. A receipt cancels only this leave; it never
+                    // releases captivity, moves the hero or invents a departure.
+                    QueueLeaveReceipt(new NpcPersonalJourney { Id = leave.Id, HeroId = leave.HeroId,
+                        Revision = leave.Revision }, "interrupted", now);
+                    continue;
+                }
+                if (now < leave.DepartureDay.Value) continue;
                 if (!Free(hero) || !SafePlace(hero, destination) || hero.PartyBelongedTo != MobileParty.MainParty || IsMeetingHeld(hero.StringId)) continue;
                 double outbound = TripDays(hero, destination);
                 var journey = new NpcPersonalJourney { Id = leave.Id, HeroId = leave.HeroId, DestinationId = leave.DestinationId, Revision = leave.Revision,
@@ -536,7 +548,7 @@ namespace ReignBeta.Campaign
     internal static class ReignNpcLivesPatches
     {
         private const string Owner = "com.bannerlordreign.reignbeta.npc_lives";
-        private const int RequiredHookCount = 12;
+        private const int RequiredHookCount = 13;
         private static Harmony _harmony;
         private static string _lastError = "";
         private sealed class Hook
@@ -567,6 +579,7 @@ namespace ReignBeta.Campaign
                 Install(typeof(PartiesBuyFoodCampaignBehavior), "OnSettlementEntered", typeof(NpcMeetingEntryCommercePatch), "Prefix", true);
                 Install(typeof(PartiesBuyHorseCampaignBehavior), "OnSettlementEntered", typeof(NpcMeetingEntryCommercePatch), "Prefix", true);
                 Install(typeof(GarrisonTroopsCampaignBehavior), "OnSettlementEntered", typeof(NpcMeetingEntryCommercePatch), "Prefix", true);
+                Install(typeof(PlayerEncounter), "DoFreeOrCapturePrisonerHeroes", typeof(ReignNpcStoryRescuePrisonerPatch), "Prefix", true);
                 if (!VerifyReady()) throw new InvalidOperationException("The native meeting hook inventory is incomplete or duplicated.");
                 _lastError = "";
                 ReignLog.Info("NPC Lives native meeting interception ready: " + RequiredHookCount + " verified hooks.");

@@ -2,6 +2,7 @@ using System;
 using System.Linq;
 using System.Threading.Tasks;
 using Newtonsoft.Json.Linq;
+using Reign.Core.Contracts.Actions;
 using ReignBeta.Integration;
 using ReignBeta.World;
 using ReignBeta.Save;
@@ -66,12 +67,30 @@ namespace ReignBeta.Campaign
                 }).ConfigureAwait(false);
                 var owner = ReignNpcLivesBehavior.Instance ?? throw new InvalidOperationException("NPC Lives is not initialized.");
                 await owner.RefreshLifeSnapshotAsync().ConfigureAwait(false);
+                if (c.Value<string>("phase") == "announcement_transport")
+                    return await ReignMainThread.InvokeAsync(() => LiveCommandResult.Completed(
+                        "Observed the exact bounded announcement delivery control. Only the actual UI can queue an announcement; verify original hearers and native roster changes independently.",
+                        owner.ControlNativeAnnouncementDelivery(c, command))).ConfigureAwait(false);
+                if (c.Value<string>("phase") == "composer")
+                    return await ReignMainThread.InvokeAsync(() => {
+                        var fixture = owner.PrepareNativePartyComposerCase(c);
+                        return fixture.Value<string>("status") == "prepared"
+                            ? LiveCommandResult.Completed("Opened an unsent real party action builder, or observed its retained operation. No action, consent or announcement was submitted.", fixture)
+                            : LiveCommandResult.Failed("Party composer preparation is uncertain; inspect the retained receipt and clean up before another operation.", fixture);
+                    }).ConfigureAwait(false);
                 if (c.Value<string>("phase") == "prepare")
                     return LiveCommandResult.Completed("Created an unaccepted authored invitation. No consent, progress or reward was granted.",
                         await owner.PrepareNativeLifeCaseAsync(command).ConfigureAwait(false));
+                if (c.Value<string>("phase") == "decline")
+                    return LiveCommandResult.Completed("Declined the exact saved NPC offer through production. Inspect the actual refusal effects and reconsideration state.",
+                        await owner.DeclineNativeLifeOfferAsync(c).ConfigureAwait(false));
                 if (c.Value<string>("phase") == "encounter")
-                    return LiveCommandResult.Completed("Observed both real native participants and requested the bounded outcome. Verify the production callback and rewards.",
-                        await owner.RunNativeLifeEncounterCaseAsync(c).ConfigureAwait(false));
+                {
+                    var encounter = await owner.RunNativeLifeEncounterCaseAsync(c).ConfigureAwait(false);
+                    return encounter.Value<bool?>("ok") == false
+                        ? LiveCommandResult.Failed(encounter.Value<string>("error"), encounter)
+                        : LiveCommandResult.Completed("Observed both real native participants and requested the bounded outcome. Verify the production callback and rewards.", encounter);
+                }
                 return await ReignMainThread.InvokeAsync(() => {
                     var evidence = owner.RunNativeLifeCase(c);
                     return LiveCommandResult.Completed("Native fixture requested. Inspect the production receipt and resulting story phase before recording a pass.", evidence);
@@ -82,6 +101,65 @@ namespace ReignBeta.Campaign
     }
     public sealed partial class ReignNpcLivesBehavior
     {
+        internal async Task<JObject> DeclineNativeLifeOfferAsync(JObject test)
+        {
+            var campaign = TaleWorlds.CampaignSystem.Campaign.Current; int epoch = _epoch;
+            string heroId = test.Value<string>("heroId") ?? "", matterId = test.Value<string>("matterId") ?? "";
+            string proposalId = test.Value<string>("proposalId") ?? "", revisionText = test.Value<string>("revision") ?? "";
+            string reviewedHash = test.Value<string>("termsHash") ?? "";
+            string operationId = "";
+            var before = await ReignMainThread.InvokeAsync(() => {
+                if (!ReignLiveInteractionTestHost.OwnsNpcLivesSession || !Current(campaign, epoch) || !_initialized
+                    || campaign.TimeControlMode != CampaignTimeControlMode.Stop || ReignSaveSyncCampaignBehavior.IsNativeSaveInProgress
+                    || Mission.Current != null || MobileParty.MainParty?.MapEvent != null || _busy || _outbox.Count != 0
+                    || !WithPlayer(heroId) || !int.TryParse(revisionText, System.Globalization.NumberStyles.None,
+                        System.Globalization.CultureInfo.InvariantCulture, out int revision) || revision < 1)
+                    throw new InvalidOperationException("Decline requires an idle paused NPC Lives session and the actual available party NPC.");
+                var story = State.Stories.FirstOrDefault(s => s.Id == matterId && s.HeroId == heroId
+                    && s.Status == "invited" && s.Revision == revision && s.ProposalId == proposalId);
+                var leave = State.Leaves.FirstOrDefault(l => l.Id == matterId && l.HeroId == heroId
+                    && l.Status == "discussing" && l.Revision == revision && l.ProposalId == proposalId);
+                if ((story == null) == (leave == null)) throw new InvalidOperationException("Review the exact current personal invitation and revision.");
+                var agreements = ReignAgreementBehavior.Instance ?? throw new InvalidOperationException("Action offers are unavailable.");
+                var offer = agreements.Offers.SingleOrDefault(a => a.Id == proposalId);
+                string expectedAction = story != null ? "npc_life.accept_story" : "npc_life.personal_leave";
+                if (offer == null || offer.State != AgreementState.Counteroffered || offer.NpcId != heroId
+                    || offer.ProposerId != heroId || offer.PlayerId != Hero.MainHero.StringId || offer.TermsHash() != reviewedHash
+                    || offer.ConversationId != ReignActionConversationPolicy.ConversationContextId(_campaign, _timeline, heroId)
+                    || offer.PlayerAcceptedHash.Length != 0 || offer.NpcAcceptedHash != offer.TermsHash()
+                    || offer.Clauses.Count != 1 || offer.Clauses[0].ActionId != expectedAction
+                    || offer.Clauses[0].ActorId != heroId || offer.Clauses[0].RecipientId != Hero.MainHero.StringId
+                    || ReignActionService.Arg(offer.Clauses[0], "matterId") != matterId
+                    || ReignActionService.Arg(offer.Clauses[0], "revision") != revisionText)
+                    throw new InvalidOperationException("An exact saved, unaccepted NPC-signed personal offer is required; no terms or signatures are manufactured.");
+                var evidence = NativeLifeCharacterEvidence(heroId);
+                operationId = proposalId + ":decline:" + offer.Revision;
+                if (_acceptedOperations.Contains(operationId) || _failedOperations.ContainsKey(operationId))
+                    throw new InvalidOperationException("This refusal already has a recorded outcome. Inspect it rather than submitting another choice.");
+                agreements.DeclineOffer(offer.Id, offer.TermsHash());
+                if (offer.State != AgreementState.Rejected || !_outbox.Any(row => row.Value<string>("operationId") == operationId))
+                    throw new InvalidOperationException("Production refusal did not queue its exact decision; inspect before retrying.");
+                return evidence;
+            }).ConfigureAwait(false);
+            for (int poll = 0; poll < 240; poll++)
+            {
+                var result = await ReignMainThread.InvokeAsync(() => {
+                    if (!Current(campaign, epoch) || !ReignLiveInteractionTestHost.OwnsNpcLivesSession)
+                        throw new InvalidOperationException("The native refusal no longer owns its campaign-test session.");
+                    if (_failedOperations.TryGetValue(operationId, out var error)) throw new InvalidOperationException(error);
+                    if (!State.OperationReceipts.ContainsKey(operationId) || _outbox.Any(row => row.Value<string>("operationId") == operationId)) return null;
+                    return new JObject { ["schema"] = "reign-npc-lives-decline-evidence-v1", ["origin"] = "operator_offer_decline",
+                        ["caseId"] = test["caseId"], ["matterId"] = matterId, ["proposalId"] = proposalId,
+                        ["revision"] = revisionText, ["operationId"] = operationId, ["consentGranted"] = false,
+                        ["termsHash"] = reviewedHash,
+                        ["before"] = before, ["after"] = NativeLifeCharacterEvidence(heroId) };
+                }).ConfigureAwait(false);
+                if (result != null) return result;
+                await Task.Delay(250).ConfigureAwait(false);
+            }
+            throw new InvalidOperationException("The production refusal is still unsettled; inspect its saved operation before retrying.");
+        }
+
         internal async Task<JObject> RunNativeLifeEncounterCaseAsync(JObject c)
         {
             string storyId = c.Value<string>("storyId") ?? "", objectiveId = c.Value<string>("objectiveId") ?? "";
@@ -89,6 +167,7 @@ namespace ReignBeta.Campaign
             if (!new[] { "won", "lost", "withdrawn" }.Contains(outcome)) throw new InvalidOperationException("Choose a bounded native outcome.");
             var campaign = TaleWorlds.CampaignSystem.Campaign.Current; int epoch = _epoch;
             var priorEncounters = new System.Collections.Generic.HashSet<string>();
+            PartyBase witnessedRescueCaptor = null;
             var before = await ReignMainThread.InvokeAsync(() => {
                 if (!ReignLiveInteractionTestHost.OwnsNpcLivesSession || !_initialized || Mission.Current != null)
                     throw new InvalidOperationException("A verified NPC Lives session without an existing mission is required.");
@@ -120,6 +199,20 @@ namespace ReignBeta.Campaign
                     var participantEvidence = new JObject { ["encounterId"] = entry.Key, ["playerAgentIndex"] = mission.MainAgent.Index,
                         ["companionAgentIndex"] = mission.AllAgents.First(a => a.IsActive()
                             && a.Character is CharacterObject ch && ch.HeroObject?.StringId == story.HeroId).Index };
+                    if (entry.Value.Value<string>("requiredOutcome") == "rescued")
+                    {
+                        var captive = ReignObjectResolver.FindHero(entry.Value.Value<string>("rescueHeroId"));
+                        var captor = captive?.PartyBelongedToAsPrisoner;
+                        if (captive == null || !captive.IsAlive || !captive.IsPrisoner || captor == null
+                            || !_storyBattles.TryGetValue(entry.Key, out var rescueBattle)
+                            || !ReferenceEquals(captor.MapEvent, rescueBattle) || string.IsNullOrEmpty(captor.MobileParty?.StringId))
+                            throw new InvalidOperationException("The actual bound captive and its captor must be witnessed in this hideout battle before a controlled outcome.");
+                        var capture = new JObject { ["heroId"] = captive.StringId, ["alive"] = true,
+                            ["prisoner"] = true, ["captorPartyId"] = captor.MobileParty.StringId };
+                        entry.Value["testRescueCapture"] = capture;
+                        witnessedRescueCaptor = captor;
+                        participantEvidence["rescueBefore"] = capture.DeepClone();
+                    }
                     // Native defeat may resume captive fast-forward during mission
                     // teardown. Keep the clock paused after the mission exits until
                     // the ordinary callback and its queued receipt have settled.
@@ -138,6 +231,7 @@ namespace ReignBeta.Campaign
                             if (!Current(campaign, epoch) || !ReignLiveInteractionTestHost.OwnsNpcLivesSession)
                                 throw new InvalidOperationException("The native test session changed during encounter cleanup.");
                             ReignLiveInteractionTestHost.HoldNpcLivesEncounterCleanup(campaign);
+                            TryAcknowledgeControlledRescueConversation(encounterId, witnessedRescueCaptor);
                             string status = _storyEncounters.TryGetValue(encounterId, out var record) ? record.Value<string>("status") : "";
                             if (!ReignBeta.Shared.Characters.NpcLivesPolicy.NativeEncounterSettled(Mission.Current != null,
                                 MobileParty.MainParty?.MapEvent != null, status) || _outbox.Count != 0 || _busy
@@ -153,7 +247,13 @@ namespace ReignBeta.Campaign
                         }
                         await Task.Delay(50).ConfigureAwait(false);
                     }
-                    throw new InvalidOperationException("The native encounter callback, mission/battle teardown and receipts did not settle within 120 seconds. Campaign time was paused; inspect before retrying.");
+                    result["ok"] = false;
+                    result["error"] = "The native encounter callback, mission/battle teardown and receipts did not settle within 120 seconds. Campaign time was paused; inspect before retrying.";
+                    result["lastObserved"] = await ReignMainThread.InvokeAsync(() => {
+                        if (!Current(campaign, epoch)) return new JObject { ["scopeChanged"] = true };
+                        return NativeLifeEvidence(storyId);
+                    }).ConfigureAwait(false);
+                    return result;
                 }
                 await Task.Delay(50).ConfigureAwait(false);
               }
@@ -165,6 +265,48 @@ namespace ReignBeta.Campaign
             }
         }
 
+        private void TryAcknowledgeControlledRescueConversation(string encounterId, PartyBase witnessedRescueCaptor)
+        {
+            if (!_storyEncounters.TryGetValue(encounterId, out var row) || row["testConversationAcknowledgement"] != null) return;
+            var story = State.Stories.FirstOrDefault(s => s.Id == row.Value<string>("storyId"));
+            var manager = TaleWorlds.CampaignSystem.Campaign.Current?.ConversationManager;
+            var captive = ReignObjectResolver.FindHero(row.Value<string>("rescueHeroId"));
+            var holder = captive?.PartyBelongedToAsPrisoner;
+            var capture = row["testRescueCapture"] as JObject;
+            bool hasOwnedBattle = _storyBattles.TryGetValue(encounterId, out var battle);
+            bool sameActiveBattle = hasOwnedBattle && ReferenceEquals(MobileParty.MainParty?.MapEvent, battle);
+            bool ownedScope = ReignLiveInteractionTestHost.OwnsNpcLivesSession && story != null
+                && story.Status == "active" && story.NativeEncounterId == encounterId && story.Revision == row.Value<int>("revision")
+                && row.Value<string>("status") == "active" && row.Value<string>("kind") == "hideout"
+                && row.Value<string>("campaignId") == _campaign && row.Value<string>("timelineId") == _timeline
+                && row.Value<string>("generation") == Generation && hasOwnedBattle
+                && (MobileParty.MainParty?.MapEvent == null || sameActiveBattle);
+            bool captureWitnessed = witnessedRescueCaptor != null && capture?.Value<bool?>("prisoner") == true;
+            bool sameCapturedHero = captive != null && capture?.Value<string>("heroId") == captive.StringId;
+            bool holderMatches = holder != null && (ReferenceEquals(holder, witnessedRescueCaptor)
+                || ReferenceEquals(holder, MobileParty.MainParty?.Party));
+            bool captiveOwned = NpcLivesPolicy.ControlledRescueCustodyMatches(captureWitnessed, sameCapturedHero,
+                captive != null && captive.IsAlive && captive.IsPrisoner, holderMatches, holder == null, sameActiveBattle);
+            if (manager?.IsConversationInProgress == true && Mission.Current == null)
+                row["testConversationInspection"] = new JObject { ["ownedScope"] = ownedScope,
+                    ["sameActiveBattle"] = sameActiveBattle, ["captureWitnessed"] = captureWitnessed,
+                    ["sameCapturedHero"] = sameCapturedHero, ["holderPresent"] = holder != null,
+                    ["holderMatches"] = holderMatches, ["captiveOwned"] = captiveOwned,
+                    ["speakerHeroId"] = CharacterObject.OneToOneConversationCharacter?.HeroObject?.StringId ?? "" };
+            if (!NpcLivesPolicy.CanAcknowledgeControlledRescueConversation(ownedScope, Mission.Current != null,
+                manager?.IsConversationInProgress == true, row.Value<bool?>("participantWitnessed") == true,
+                captiveOwned, row.Value<string>("requiredOutcome"), row.Value<string>("testOutcome"),
+                captive?.StringId, CharacterObject.OneToOneConversationCharacter?.HeroObject?.StringId)) return;
+            // Only the controlled test's witnessed captive can interrupt this
+            // teardown. Closing its conversation grants no choice or rescue credit;
+            // the normal hideout callback still has to release it and settle.
+            var acknowledgement = new JObject { ["heroId"] = captive.StringId,
+                ["origin"] = "operator_native_acknowledgement", ["attempts"] = 1 };
+            row["testConversationAcknowledgement"] = acknowledgement; // Never blindly repeat an uncertain native close.
+            try { manager.EndConversation(); acknowledgement["requested"] = true; }
+            catch (Exception ex) { acknowledgement["error"] = ex.GetBaseException().Message; }
+        }
+
         internal async Task<JObject> PrepareNativeLifeCaseAsync(JObject command)
         {
             var campaign = TaleWorlds.CampaignSystem.Campaign.Current; int epoch = _epoch;
@@ -172,7 +314,7 @@ namespace ReignBeta.Campaign
                 if (!ReignLiveInteractionTestHost.OwnsNpcLivesSession || !Current(campaign, epoch)
                     || campaign.TimeControlMode != CampaignTimeControlMode.Stop || ReignSaveSyncCampaignBehavior.IsNativeSaveInProgress)
                     throw new InvalidOperationException("The invitation fixture no longer owns a paused native campaign.");
-                var request = ReignServerClient.CaptureNpcLivesContext(Generation, true);
+                var request = ReignServerClient.CaptureNpcLivesContext(Generation, true, leaveDestinations: true);
                 request["locations"] = ReignServerClient.CaptureNpcStoryLocations();
                 foreach (string key in new[] { "runId", "commandId", "leaseId", "gameInstanceId", "testCase" }) request[key] = command[key]?.DeepClone();
                 request["activeSaveName"] = ReignServerClient.ActiveNativeSaveName();
@@ -270,7 +412,10 @@ namespace ReignBeta.Campaign
             return new JObject { ["schema"] = "reign-npc-lives-character-evidence-v1", ["heroId"] = heroId,
                 ["native"] = new JObject { ["name"] = hero.Name.ToString(), ["alive"] = hero.IsAlive, ["prisoner"] = hero.IsPrisoner,
                     ["wounded"] = hero.IsWounded, ["partyId"] = hero.PartyBelongedTo?.StringId ?? "", ["settlementId"] = hero.CurrentSettlement?.StringId ?? "",
-                    ["active"] = hero.IsActive, ["travelling"] = hero.IsTraveling,
+                ["active"] = hero.IsActive, ["travelling"] = hero.IsTraveling,
+                ["prisonerPartyId"] = hero.PartyBelongedToAsPrisoner?.MobileParty?.StringId ?? "",
+                ["prisonerPartySettlementId"] = hero.PartyBelongedToAsPrisoner?.Settlement?.StringId ?? "",
+                ["prisonerHolderPresent"] = hero.PartyBelongedToAsPrisoner != null,
                     ["canMoveToSettlement"] = hero.CanMoveToSettlement(), ["isPregnant"] = hero.IsPregnant,
                     ["partyLeaderId"] = party?.LeaderHero?.StringId ?? "",
                     ["partyActive"] = party?.IsActive ?? false, ["partyDecisionLock"] = party?.Ai.DoNotMakeNewDecisions ?? false,
@@ -278,6 +423,14 @@ namespace ReignBeta.Campaign
                     ["partyTargetSettlementId"] = party?.TargetSettlement?.StringId ?? "",
                     ["partyPosition"] = party == null ? null : new JObject { ["x"] = party.Position.ToVec2().X,
                         ["y"] = party.Position.ToVec2().Y, ["onLand"] = party.Position.IsOnLand },
+                    ["partySpeed"] = party == null ? null : (JToken)new JValue(party.Speed),
+                    ["settlementGatePosition"] = hero.CurrentSettlement == null ? null : new JObject {
+                        ["x"] = hero.CurrentSettlement.GatePosition.ToVec2().X, ["y"] = hero.CurrentSettlement.GatePosition.ToVec2().Y,
+                        ["onLand"] = hero.CurrentSettlement.GatePosition.IsOnLand },
+                    ["homeSettlementId"] = hero.HomeSettlement?.StringId ?? "",
+                    ["homeSettlementGatePosition"] = hero.HomeSettlement == null ? null : new JObject {
+                        ["x"] = hero.HomeSettlement.GatePosition.ToVec2().X, ["y"] = hero.HomeSettlement.GatePosition.ToVec2().Y,
+                        ["onLand"] = hero.HomeSettlement.GatePosition.IsOnLand },
                     ["inMainParty"] = MobileParty.MainParty.MemberRoster.Contains(hero.CharacterObject), ["nativeRelation"] = hero.GetRelation(Hero.MainHero),
                     ["skills"] = new JObject(typeof(DefaultSkills).GetProperties(System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.Static)
                         .Where(p => p.PropertyType == typeof(SkillObject)).Select(p => (SkillObject)p.GetValue(null))
@@ -285,6 +438,24 @@ namespace ReignBeta.Campaign
                 ["character"] = character, ["factCount"] = person?.Facts.Count ?? 0,
                 ["stories"] = JArray.FromObject(stories.Take(64)), ["storyCount"] = stories.Count,
                 ["leaves"] = JArray.FromObject(State.Leaves.Where(l => l.HeroId == heroId).Take(64)),
+                ["personalJourneys"] = JArray.FromObject(_personalTravel.Values.Where(j => j.HeroId == heroId).Take(16)),
+                ["personalJourneyCount"] = _personalTravel.Values.Count(j => j.HeroId == heroId),
+                ["personalJourneysTruncated"] = _personalTravel.Values.Count(j => j.HeroId == heroId) > 16,
+                ["leaveDepartureReadinessCount"] = State.Leaves.Count(l => l.HeroId == heroId && l.Status == "waiting"),
+                ["leaveDepartureReadinessTruncated"] = State.Leaves.Count(l => l.HeroId == heroId && l.Status == "waiting") > 16,
+                ["leaveDepartureReadiness"] = new JArray(State.Leaves.Where(l => l.HeroId == heroId && l.Status == "waiting").Take(16).Select(l => {
+                    var destination = Settlement.Find(l.DestinationId);
+                    bool member = hero.PartyBelongedTo == MobileParty.MainParty && MobileParty.MainParty.MemberRoster.Contains(hero.CharacterObject);
+                    bool safe = SafePlace(hero, destination), due = l.DepartureDay.HasValue && CampaignTime.Now.ToDays >= l.DepartureDay.Value;
+                    string reason = !member || !hero.IsAlive || hero.IsPrisoner ? "participant_unavailable"
+                        : !safe ? "destination_unsafe" : IsMeetingHeld(heroId) ? "meeting_commitment"
+                        : !due ? "agreed_wait" : !TravelSafe() || !Free(hero) ? "scene_or_battle" : "ready";
+                    return new JObject { ["leaveId"] = l.Id, ["destinationId"] = l.DestinationId, ["due"] = due,
+                        ["inMainParty"] = member, ["destinationExists"] = destination != null,
+                        ["destinationUnderSiege"] = destination?.IsUnderSiege ?? false,
+                        ["destinationHostileToNpc"] = destination != null && FactionManager.IsAtWarAgainstFaction(hero.MapFaction, destination.MapFaction),
+                        ["destinationSafeForNpc"] = safe, ["blockedReason"] = reason };
+                })),
                 ["announcements"] = JArray.FromObject(State.Announcements.Where(a => a.CanRead(heroId)).Reverse().Take(64).Reverse()),
                 ["meetings"] = JArray.FromObject(State.Meetings.Where(m => m.IssuerId == heroId || m.TargetId == heroId).Take(64)),
                 ["meetingHeld"] = IsMeetingHeld(heroId), ["meetingSettlementHeld"] = MustStayInMeetingSettlement(heroId),
@@ -310,7 +481,10 @@ namespace ReignBeta.Campaign
             ["effects"] = JArray.FromObject(State.Effects.Where(e => e.StoryId == storyId)),
             ["outboxCount"] = _outbox.Count, ["failures"] = JObject.FromObject(_failedOperations),
             ["campaignId"] = _campaign, ["timelineId"] = _timeline, ["generation"] = Generation,
-            ["missionActive"] = Mission.Current != null, ["worldDay"] = CampaignTime.Now.ToDays };
+            ["missionActive"] = Mission.Current != null, ["battleActive"] = MobileParty.MainParty?.MapEvent != null,
+            ["conversationActive"] = TaleWorlds.CampaignSystem.Campaign.Current?.ConversationManager?.IsConversationInProgress == true,
+            ["conversationHeroId"] = CharacterObject.OneToOneConversationCharacter?.HeroObject?.StringId ?? "",
+            ["worldDay"] = CampaignTime.Now.ToDays };
 
         private JObject PrepareNativeStoryPlace(JObject c)
         {

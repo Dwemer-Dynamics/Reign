@@ -99,6 +99,25 @@ namespace ReignBeta.Runtime
             }
         }
 
+        public static void OnHeroBirthDayChanged(Hero hero, CampaignTime birthDay)
+        {
+            lock (Gate)
+            {
+                if (!_ready || _state == null || hero == null || string.IsNullOrWhiteSpace(hero.StringId)
+                    || TaleWorlds.CampaignSystem.Campaign.Current == null)
+                    return;
+
+                // Explicit native age edits must replace the migration anchor as well as the
+                // birthday. Ordinary aging still advances from this point at 126 days per year.
+                float age = birthDay.ElapsedYearsUntilNow;
+                if (float.IsNaN(age) || float.IsInfinity(age) || age < 0f || age >= 200f)
+                    return;
+                _state.AgeAnchors[hero.StringId] = new ReignAgeAnchor { Day = CampaignTime.Now.ToDays, Age = age };
+                _dirty = true;
+                SaveIfDirty(false);
+            }
+        }
+
         public static bool TryGetAbsoluteCalendarDay(CampaignTime time, out double day)
         {
             lock (Gate)

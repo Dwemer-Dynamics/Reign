@@ -10,6 +10,7 @@ public sealed class MemoriesBookVM : ViewModel
 	private readonly Action _close;
 
 	private readonly bool _calibrationMode;
+	private bool _closed;
 
 	private static readonly string[] CalibrationFiles =
 	{
@@ -147,8 +148,20 @@ public sealed class MemoriesBookVM : ViewModel
 		}
 		else
 		{
+			ReignBeta.Integration.ReignChatViewClient.ClearArchive();
 			Refresh();
+			_ = LoadViewArchiveAsync();
 		}
+	}
+
+	private async System.Threading.Tasks.Task LoadViewArchiveAsync()
+	{
+		try
+		{
+			await ReignBeta.Integration.ReignChatViewClient.RefreshArchiveAsync().ConfigureAwait(false);
+			await ReignBeta.Integration.ReignMainThread.InvokeAsync(() => { if (!_closed) Refresh(); }).ConfigureAwait(false);
+		}
+		catch (Exception ex) { ReignBeta.Integration.ReignLog.Warn("View memories unavailable: " + ex.GetType().Name); }
 	}
 
 	public void ExecuteNext()
@@ -171,7 +184,14 @@ public sealed class MemoriesBookVM : ViewModel
 
 	public void ExecuteClose()
 	{
+		_closed = true;
 		_close?.Invoke();
+	}
+
+	public override void OnFinalize()
+	{
+		_closed = true;
+		base.OnFinalize();
 	}
 
 	internal void SelectMemory(MemoryBookItemVM item)

@@ -435,6 +435,41 @@
           "entry": "Castle Layout > occupied room",
           "liveAction": "previewer preset only",
           "previewOnly": true
+        },
+        {
+          "id": "castle-chat-view-pending",
+          "label": "View pending",
+          "variant": "view-pending",
+          "previewOnly": true,
+          "nativeInjection": false
+        },
+        {
+          "id": "castle-chat-view-ready",
+          "label": "View ready",
+          "variant": "view-ready",
+          "previewOnly": true,
+          "nativeInjection": false
+        },
+        {
+          "id": "castle-chat-view-enlarged",
+          "label": "View enlarged",
+          "variant": "view-enlarged",
+          "previewOnly": true,
+          "nativeInjection": false
+        },
+        {
+          "id": "castle-chat-view-failed",
+          "label": "View failed",
+          "variant": "view-failed",
+          "previewOnly": true,
+          "nativeInjection": false
+        },
+        {
+          "id": "castle-chat-view-long",
+          "label": "View long",
+          "variant": "view-long",
+          "previewOnly": true,
+          "nativeInjection": false
         }
       ]
     },
@@ -992,6 +1027,41 @@
           "nativeInjection": false,
           "liveAction": "previewer preset only",
           "entry": "Conversation > New clothes"
+        },
+        {
+          "id": "individual-chat-view-pending",
+          "label": "View pending",
+          "variant": "view-pending",
+          "previewOnly": true,
+          "nativeInjection": false
+        },
+        {
+          "id": "individual-chat-view-ready",
+          "label": "View ready",
+          "variant": "view-ready",
+          "previewOnly": true,
+          "nativeInjection": false
+        },
+        {
+          "id": "individual-chat-view-enlarged",
+          "label": "View enlarged",
+          "variant": "view-enlarged",
+          "previewOnly": true,
+          "nativeInjection": false
+        },
+        {
+          "id": "individual-chat-view-failed",
+          "label": "View failed",
+          "variant": "view-failed",
+          "previewOnly": true,
+          "nativeInjection": false
+        },
+        {
+          "id": "individual-chat-view-long",
+          "label": "View long",
+          "variant": "view-long",
+          "previewOnly": true,
+          "nativeInjection": false
         }
       ]
     },
@@ -1145,6 +1215,65 @@
           "variant": "intoxication-actions",
           "entry": "Campaign party-chat action",
           "liveAction": "previewer preset only",
+          "previewOnly": true
+        },
+        {
+          "id": "party-chat-view-pending",
+          "label": "View pending",
+          "variant": "view-pending",
+          "previewOnly": true,
+          "nativeInjection": false
+        },
+        {
+          "id": "party-chat-view-ready",
+          "label": "View ready",
+          "variant": "view-ready",
+          "previewOnly": true,
+          "nativeInjection": false
+        },
+        {
+          "id": "party-chat-view-enlarged",
+          "label": "View enlarged",
+          "variant": "view-enlarged",
+          "previewOnly": true,
+          "nativeInjection": false
+        },
+        {
+          "id": "party-chat-view-failed",
+          "label": "View failed",
+          "variant": "view-failed",
+          "previewOnly": true,
+          "nativeInjection": false
+        },
+        {
+          "id": "party-chat-view-long",
+          "label": "View long",
+          "variant": "view-long",
+          "previewOnly": true,
+          "nativeInjection": false
+        },
+        {
+          "id": "party-chat-continue-available",
+          "label": "Continue available",
+          "variant": "continue-available",
+          "entry": "Party chat > Continue",
+          "liveAction": "previewer preset only; native save/reload acceptance required",
+          "previewOnly": true
+        },
+        {
+          "id": "party-chat-continue-unavailable",
+          "label": "Continue unavailable",
+          "variant": "continue-unavailable",
+          "entry": "Party chat > Continue",
+          "liveAction": "previewer preset only; native save/reload acceptance required",
+          "previewOnly": true
+        },
+        {
+          "id": "party-chat-continue-restored",
+          "label": "Continued party chat",
+          "variant": "continue-restored",
+          "entry": "Party chat > Continue",
+          "liveAction": "previewer preset only; native save/reload acceptance required",
           "previewOnly": true
         }
       ]

@@ -374,6 +374,21 @@
       "id": "government-former-member",
       "referenceId": "government-members",
       "fileName": "ReignGovernmentScreen.xml"
+    },
+    {
+      "id": "party-chat-continue-available",
+      "referenceId": "party-chat",
+      "fileName": "ReignPartyChatScreen.xml"
+    },
+    {
+      "id": "party-chat-continue-unavailable",
+      "referenceId": "party-chat",
+      "fileName": "ReignPartyChatScreen.xml"
+    },
+    {
+      "id": "party-chat-continue-restored",
+      "referenceId": "party-chat",
+      "fileName": "ReignPartyChatScreen.xml"
     }
   ],
   "conversationActions": {
@@ -2077,5 +2092,14 @@
     "runtimeSpec": "specs/party-chat-announcements-runtime.json",
     "referenceSpec": "specs/party-chat-announcements-reference.json",
     "rule": "Single owning shell variant; identical fixed pixels outside the bounded composer patch. Original shell remains for Homes and special conversations. No overlay covers an old button or input border. Labels are native serif 20px, on matching 240x66 button hitboxes."
+  },
+  "partyChatContinuation": {
+    "date": "2026-10-30",
+    "authority": "User requested Continue below ALL and View identical to Clear centered below Clear.",
+    "spec": "specs/party-chat-continuation.json",
+    "runtime": "../../GUI/SpriteParts/ui_reignbeta_party_chat/reign_party_chat_compact_button.png",
+    "runtimeSha256": "d00d8903b5abf8be6637948cb046d06dee95ceda10d7729072fc49278bb87f88",
+    "rule": "Unresampled complete label-free Clear plate, including its original opaque marble and integrated frame. No separate frame, painting, alpha cut, recoloring or guessed replacement art. Two pixels of intact surrounding material retained.",
+    "nativeAcceptance": "pending"
   }
 }

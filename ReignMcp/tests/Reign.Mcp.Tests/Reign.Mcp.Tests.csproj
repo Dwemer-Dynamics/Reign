@@ -4,6 +4,7 @@
     <IsPackable>false</IsPackable>
   </PropertyGroup>
   <ItemGroup>
+    <Compile Include="..\..\..\ReignBeta\src\Modules\Dialogue\Runtime\ReignPartyChatContinuation.cs" Link="Shared\ReignPartyChatContinuation.cs" />
     <Compile Include="..\..\..\ReignBeta\src\Modules\Platform\Integration\ReignPartyChatSessionRequest.cs"
              Link="Shared\ReignPartyChatSessionRequest.cs" />
     <Compile Include="..\..\..\ReignBeta\src\Modules\Dialogue\Runtime\ReignConversationInputJournal.cs"

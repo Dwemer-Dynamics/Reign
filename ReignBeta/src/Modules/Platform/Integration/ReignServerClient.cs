@@ -1654,7 +1654,7 @@ namespace ReignBeta.Integration
                         obj.Value<string>("letterId") ?? string.Empty,
                         obj.Value<string>("threadId") ?? string.Empty,
                         obj.Value<string>("direction") ?? string.Empty,
-                        obj.Value<double?>("worldDay") ?? 0d));
+                        obj.Value<double?>("worldDay") ?? 0d) { ExchangeId = obj.Value<string>("exchangeId") ?? "" });
                 }
             }
             catch (Exception ex)
@@ -3727,6 +3727,8 @@ namespace ReignBeta.Integration
                     ["heroStringId"] = hero.StringId,
                     ["name"] = hero.Name?.ToString() ?? hero.StringId,
                     ["role"] = hero == Hero.MainHero ? "player" : "npc",
+                    ["age"] = Math.Round(hero.Age, 2),
+                    ["isChild"] = hero.IsChild,
                     ["isFemale"] = hero.IsFemale,
                     ["isRuler"] = sovereign == hero,
                     ["clanId"] = hero.Clan?.StringId ?? string.Empty,
@@ -6001,6 +6003,7 @@ namespace ReignBeta.Integration
 
     public sealed class ReignDialogueLine
     {
+        public string ExchangeId { get; set; } = "";
         public ReignDialogueLine(string speaker, string text, string role, string channel = "in_person", string letterId = "", string threadId = "", string direction = "", double worldDay = 0d)
         {
             Speaker = speaker ?? string.Empty;

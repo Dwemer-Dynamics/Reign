@@ -24,6 +24,18 @@
 
             <TextWidget WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="930" SuggestedHeight="42" MarginLeft="474" MarginTop="46" Brush="DefaultText" Brush.Font="ReignSerifDynamic" Brush.FontSize="27" Brush.TextHorizontalAlignment="Center" Brush.TextVerticalAlignment="Center" Brush.FontColor="#A88A54FF" Text="@CastleRoomName" />
 
+            <Widget Id="ChatViewControl" DataSource="{View}" WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="312" SuggestedHeight="45.839" MarginLeft="50" MarginTop="800">
+              <Children>
+                <ButtonWidget Id="ChatViewButton" WidthSizePolicy="StretchToParent" HeightSizePolicy="StretchToParent" Brush="ConversationItem.SoundBrush" Command.Click="ExecuteView" IsEnabled="@CanView" DoNotPassEventsToChildren="true" UpdateChildrenStates="true">
+                  <Children>
+                    <Widget DoNotAcceptEvents="true" WidthSizePolicy="StretchToParent" HeightSizePolicy="StretchToParent" Sprite="reign_outfit_action_button" />
+                    <ImageWidget DoNotAcceptEvents="true" WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="32.53" SuggestedHeight="17.745" MarginLeft="105" VerticalAlignment="Center" Sprite="reign_tavern_house_eye" />
+                    <TextWidget DoNotAcceptEvents="true" WidthSizePolicy="Fixed" HeightSizePolicy="StretchToParent" SuggestedWidth="100" MarginLeft="140" Brush="DefaultText" Brush.Font="ReignSerifDynamic" Brush.FontSize="16" Brush.FontColor="#C5BDAFFF" Text="@ButtonText" />
+                  </Children>
+                </ButtonWidget>
+              </Children>
+            </Widget>
+
             <!-- Headshots use untouched sources beneath circular aperture plates; full-body preview remains rectangular. -->
             <Widget WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="312" SuggestedHeight="116" MarginLeft="50" MarginTop="158">
               <Children>
@@ -76,8 +88,24 @@
                       <ItemTemplate>
                         <Widget WidthSizePolicy="StretchToParent" HeightSizePolicy="CoverChildren" MinHeight="36" MarginBottom="8">
                           <Children>
+                                <Widget Id="ChatViewImageEntry" WidthSizePolicy="Fixed" HeightSizePolicy="CoverChildren" SuggestedWidth="384" HorizontalAlignment="Center" IsVisible="@IsViewLine">
+                                  <Children>
+                                    <ButtonWidget Id="ChatViewInlineImage" WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="192" SuggestedHeight="108" HorizontalAlignment="Center" Brush="ConversationItem.SoundBrush" IsVisible="@HasSceneImage" Command.Click="ExecuteOpenScene" DoNotPassEventsToChildren="true" UpdateChildrenStates="true">
+                                      <Children>
+                                        <Widget DoNotAcceptEvents="true" WidthSizePolicy="StretchToParent" HeightSizePolicy="StretchToParent" Sprite="BlankWhiteSquare" Color="#070808FF" />
+                                        <ReignEventArtWidget Id="ChatViewInlineArt" Type="ReignBeta.UI.Widgets.ReignEventArtWidget" DoNotAcceptEvents="true" WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="141.1875" SuggestedHeight="94.125" MarginTop="6.9375" HorizontalAlignment="Center" EventImageId="@SceneImageId" />
+                                        <ImageWidget DoNotAcceptEvents="true" WidthSizePolicy="StretchToParent" HeightSizePolicy="StretchToParent" Sprite="reign_modern_memory_scene_overlay" />
+                                      </Children>
+                                    </ButtonWidget>
+                                    <TextWidget DoNotAcceptEvents="true" WidthSizePolicy="StretchToParent" HeightSizePolicy="CoverChildren" MarginTop="@SceneCompactCaptionTop" MarginBottom="8" Brush="DefaultText" Brush.Font="ReignSerifDynamic" Brush.FontSize="16" Brush.FontColor="#C5BDAFFF" Brush.TextHorizontalAlignment="Center" Text="@SceneCaption" />
+                                  </Children>
+                                </Widget>
+                            <Widget IsVisible="@IsTextLine" WidthSizePolicy="StretchToParent" HeightSizePolicy="CoverChildren" MinHeight="36">
+                          <Children>
                             <TextWidget WidthSizePolicy="Fixed" HeightSizePolicy="CoverChildren" SuggestedWidth="190" MinHeight="32" VerticalAlignment="Top" Brush="DefaultText" Brush.Font="ReignSerifDynamic" Brush.FontSize="17" Brush.TextHorizontalAlignment="Right" Brush.FontColor="#C5AC83FF" Text="@Speaker" />
                             <RichTextWidget WidthSizePolicy="StretchToParent" HeightSizePolicy="CoverChildren" MinHeight="32" MarginLeft="216" MarginRight="24" VerticalAlignment="Top" Brush="Reign.Chat.ActionText.17" Brush.Font="ReignSerifDynamic" Brush.FontSize="17" Brush.TextHorizontalAlignment="Left" Brush.FontColor="#C5BDAFFF" Text="@RichText" />
+                          </Children>
+                            </Widget>
                           </Children>
                         </Widget>
                       </ItemTemplate>
@@ -115,6 +143,20 @@
                 </Widget>
               </Children>
             </ButtonWidget>
+        <Widget Id="ChatViewEnlargedLayer" DataSource="{View}" WidthSizePolicy="StretchToParent" HeightSizePolicy="StretchToParent" IsVisible="@IsEnlarged" RenderLate="true">
+          <Children>
+            <ButtonWidget Id="ChatViewBackdrop" WidthSizePolicy="StretchToParent" HeightSizePolicy="StretchToParent" Brush="ConversationItem.SoundBrush" Command.Click="ExecuteCloseImage" DoNotPassEventsToChildren="true" UpdateChildrenStates="true">
+              <Children><Widget DoNotAcceptEvents="true" WidthSizePolicy="StretchToParent" HeightSizePolicy="StretchToParent" Sprite="BlankWhiteSquare" Color="#030303FF" /></Children>
+            </ButtonWidget>
+            <ButtonWidget Id="ChatViewEnlargedImage" WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="1280" SuggestedHeight="720" HorizontalAlignment="Center" VerticalAlignment="Center" Brush="ConversationItem.SoundBrush" Command.Click="ExecuteCloseImage" DoNotPassEventsToChildren="true" UpdateChildrenStates="true">
+              <Children>
+                <Widget DoNotAcceptEvents="true" WidthSizePolicy="StretchToParent" HeightSizePolicy="StretchToParent" Sprite="BlankWhiteSquare" Color="#070808FF" />
+                <ReignEventArtWidget Id="ChatViewEnlargedArt" Type="ReignBeta.UI.Widgets.ReignEventArtWidget" DoNotAcceptEvents="true" WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="941.25" SuggestedHeight="627.5" MarginTop="46.25" HorizontalAlignment="Center" EventImageId="@EnlargedImageId" />
+                <ImageWidget DoNotAcceptEvents="true" WidthSizePolicy="StretchToParent" HeightSizePolicy="StretchToParent" Sprite="reign_modern_memory_scene_overlay" />
+              </Children>
+            </ButtonWidget>
+          </Children>
+        </Widget>
           </Children>
         </Widget>
       </Children>
