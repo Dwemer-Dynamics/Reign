@@ -2,6 +2,7 @@ using System;
 using AIEventsAndIntrigue.Settings;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using TaleWorlds.CampaignSystem;
@@ -132,6 +133,7 @@ public static class MemoryService
 			}
 		}
 		Array.Resize(ref array, newSize);
+		array = array.Concat(ReignBeta.Integration.ReignChatViewClient.ArchiveFiles).Distinct(StringComparer.OrdinalIgnoreCase).ToArray();
 		Array.Sort(array, (IComparer<string>)StringComparer.OrdinalIgnoreCase);
 		return array;
 	}
@@ -169,14 +171,7 @@ public static class MemoryService
 	{
 		try
 		{
-			if (GetMemoryFiles().Length == 0)
-			{
-				Msg("No memories have been created yet.", 4294945280u);
-			}
-			else
-			{
-				MemoriesBookOverlay.Open();
-			}
+			MemoriesBookOverlay.Open();
 		}
 		catch (Exception ex)
 		{

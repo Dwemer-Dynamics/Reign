@@ -1,0 +1,13 @@
+{
+  "version": 1,
+  "heroStringId": "reign_court_town_N3_mother",
+  "characterName": "Gydeva Tingalund",
+  "imagePath": "portrait.png",
+  "imageSha256": "71801DF0BB5343E16971FBB4CB63B83D236431697471AD15BF44E183476B1852",
+  "description": "Blue wool apron dress over opaque cream linen with a small high V opening and long sleeves, round strap brooches, red-and-cream woven borders and waist tie, full layered skirt and brown shoes. No headgear, armor or weapons.",
+  "status": "completed",
+  "descriptionSource": "agent_vision",
+  "retryEligible": false,
+  "error": "",
+  "updatedUtc": "2026-11-07T03:30:14.730435+00:00"
+}

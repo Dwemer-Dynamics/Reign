@@ -1,3 +1,4 @@
+using System;
 using System.Text;
 using TaleWorlds.Library;
 
@@ -10,6 +11,27 @@ namespace ReignBeta.UI.ViewModels
         private string _text;
         private string _role;
         private string _rawText;
+        private string _sceneImageId = "";
+        private Action _openScene;
+        public string ExchangeId { get; set; } = "";
+        internal string OriginalText => _rawText ?? "";
+        internal string InlineScenePath { get; set; } = "";
+        internal string FullScenePath { get; set; } = "";
+        [DataSourceProperty] public bool IsViewLine => _role == "view";
+        [DataSourceProperty] public bool IsTextLine => !IsViewLine;
+        [DataSourceProperty] public bool HasSceneImage => !string.IsNullOrEmpty(_sceneImageId);
+        [DataSourceProperty] public string SceneImageId => _sceneImageId;
+        [DataSourceProperty] public float SceneCaptionTop => HasSceneImage ? 220f : 12f;
+        [DataSourceProperty] public float SceneCompactCaptionTop => HasSceneImage ? 112f : 12f;
+        [DataSourceProperty] public string SceneCaption => _text != null && _text.Length > 96 ? _text.Substring(0, 93) + "..." : _text;
+        public void ExecuteOpenScene() => _openScene?.Invoke();
+        internal void SetScene(string imageId, string caption, Action open)
+        {
+            _sceneImageId = imageId ?? ""; _openScene = open; Text = caption;
+            OnPropertyChanged(nameof(SceneImageId)); OnPropertyChanged(nameof(HasSceneImage));
+            OnPropertyChanged(nameof(SceneCaptionTop));
+            OnPropertyChanged(nameof(SceneCompactCaptionTop));
+        }
 
         public ReignChatLineVM(string speaker, string text, string role)
         {
@@ -49,6 +71,8 @@ namespace ReignBeta.UI.ViewModels
                     OnPropertyChanged(nameof(IsNpcLine));
                     OnPropertyChanged(nameof(IsNonPlayerLine));
                     OnPropertyChanged(nameof(IsSystemLine));
+                    OnPropertyChanged(nameof(IsViewLine));
+                    OnPropertyChanged(nameof(IsTextLine));
                     OnPropertyChanged(nameof(RichText));
                 }
             }
@@ -69,11 +93,11 @@ namespace ReignBeta.UI.ViewModels
         [DataSourceProperty]
         public bool IsSystemLine
         {
-            get { return !IsPlayerLine && !IsNpcLine; }
+            get { return !IsPlayerLine && !IsNpcLine && !IsViewLine; }
         }
 
         [DataSourceProperty]
-        public bool IsNonPlayerLine => !IsPlayerLine;
+        public bool IsNonPlayerLine => !IsPlayerLine && !IsViewLine;
 
         [DataSourceProperty]
         public string Text
@@ -88,6 +112,7 @@ namespace ReignBeta.UI.ViewModels
                 {
                     _text = clean;
                     OnPropertyChangedWithValue(clean);
+                    OnPropertyChanged(nameof(SceneCaption));
                 }
             }
         }

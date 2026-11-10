@@ -1,0 +1,91 @@
+{
+  "version": 1,
+  "inputHash": "db097a92e9dbc19f0500bd43f5dd086ac60f07da39790ed80a1dde4daa98b99f",
+  "catalogHash": "b6d4023f598cea7d6dbdaa9a43fd3d28c1128d529c54b453c04bee5d373de03c",
+  "renderContractHash": "cc3b941e7d47057de9b4220f1473336e6f908719812bb2653b83bd3545cfbd2f",
+  "cacheKey": "Ottmar_Bjornholt (reign_court_castle_N4_child_3)",
+  "heroStringId": "reign_court_castle_N4_child_3",
+  "characterObjectId": "reign_court_castle_N4_child_3",
+  "characterName": "Ottmar Bjornholt",
+  "ageYears": 20,
+  "cultureId": "nord",
+  "cultureName": "Nord",
+  "gender": "man",
+  "clanId": "reign_house_castle_N4",
+  "clanTier": 1,
+  "clanProvenance": "authored_nord_household_xml_and_foundation",
+  "socialStation": "landowner",
+  "occupation": "Lord",
+  "archetype": "lord",
+  "isLord": true,
+  "isNotable": false,
+  "isWanderer": false,
+  "isAlive": true,
+  "sourceModule": "ReignBeta",
+  "sourceFile": "Modules/ReignBeta/ModuleData/reign_court_lords.xml",
+  "profileSource": "reign_court",
+  "profilePackVersion": "reign_profiles_v4",
+  "bodyKey": "00060C04670014CA6697969868669669966968986699668966688666899996790378766607986786000000000000000000000000000000000000000028F47083",
+  "bodyWeight": 0.5,
+  "bodyBuild": 0.5,
+  "faceTemplateId": "townsman_nord",
+  "faceGenerationVersion": "reign_court_shared_v1",
+  "civilianTemplate": "nord_civ_template_default",
+  "civilianEquipment": [
+    {
+      "slot": "Body",
+      "itemId": "decorated_short_tunic"
+    },
+    {
+      "slot": "Cape",
+      "itemId": "northman_raider_shoulder"
+    },
+    {
+      "slot": "Leg",
+      "itemId": "leather_cavalier_boots"
+    }
+  ],
+  "headgearSuppressed": true,
+  "physicalConfidence": {
+    "definition": "physical_confidence",
+    "score": 66,
+    "profile": "61-80",
+    "flirtatiousnessPercentage": 78,
+    "confidencePercentage": 29,
+    "flirtatiousnessWeight": 0.75,
+    "confidenceWeight": 0.25,
+    "source": "reign_profile_library"
+  },
+  "renderPreset": "ai_source_wan_portrait_v5",
+  "renderWidth": 1536,
+  "renderHeight": 2048,
+  "sourceWidth": 768,
+  "sourceHeight": 1024,
+  "cropScale": 0.24,
+  "cropWidthRatio": 0.75,
+  "cropCenterYRatio": 0.324,
+  "cameraPitchDegrees": 4,
+  "sourceSha256": "57c60e4407de50d830445f80869b786ff2ca281a6992ae836ced318d03722414",
+  "sourceFileName": "source.png",
+  "generationEndpoint": "/portraits/generate",
+  "campaignIdSource": "shared_authored_new_campaign_content",
+  "promptDeferred": true,
+  "sourceImageBase64From": "source.png",
+  "outputSizeOverride": "",
+  "promptPurpose": "portrait",
+  "physique": {
+    "schema": "reign-native-physique-v1",
+    "weight": 0.5,
+    "build": 0.5,
+    "weightSource": "native_engine_resolved",
+    "buildSource": "native_engine_resolved",
+    "sourceSha256": "57c60e4407de50d830445f80869b786ff2ca281a6992ae836ced318d03722414"
+  },
+  "nativeBatchProvenance": {
+    "batch": "nord-01a1b3c6-v1",
+    "requestVersion": 4,
+    "appearanceInputCount": 798,
+    "nativeStatusSha256": "66b4fda3c7c90dd87578ba208d918cf134b2699ca136cd31baf3ba51e6886e57",
+    "metadataAuthoring": "task batch adapter mirroring PortraitGenerationInputV1; inputHash hashes the exact version4 request; catalogHash hashes input-receipt file inventory"
+  }
+}

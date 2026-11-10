@@ -290,6 +290,15 @@
           "y": 820,
           "width": 150,
           "height": 42
+        },
+        {
+          "id": "conditional-chat-view-control",
+          "category": "unprovided-state",
+          "shape": "rectangle",
+          "x": 50,
+          "y": 800,
+          "width": 312,
+          "height": 46
         }
       ]
     },
@@ -499,6 +508,18 @@
       "id": "government-petition-revision",
       "fixedRegionSpec": "../../../artwork/ui-modern-style-kit/specs/screen-government-sessions-fixed-region-mask.json",
       "componentComposition": "government-participation-approved-composition.json"
+    },
+    {
+      "id": "party-chat-continue-available",
+      "fixedRegionSpec": "../../../artwork/ui-modern-style-kit/specs/screen-party-chat-fixed-region-mask.json"
+    },
+    {
+      "id": "party-chat-continue-unavailable",
+      "fixedRegionSpec": "../../../artwork/ui-modern-style-kit/specs/screen-party-chat-fixed-region-mask.json"
+    },
+    {
+      "id": "party-chat-continue-restored",
+      "fixedRegionSpec": "../../../artwork/ui-modern-style-kit/specs/screen-party-chat-fixed-region-mask.json"
     }
   ]
 }

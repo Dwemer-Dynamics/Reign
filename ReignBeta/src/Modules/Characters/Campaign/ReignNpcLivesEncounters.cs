@@ -8,7 +8,9 @@ using ReignBeta.Integration;
 using ReignBeta.Shared.Characters;
 using ReignBeta.World;
 using TaleWorlds.CampaignSystem;
+using TaleWorlds.CampaignSystem.Actions;
 using TaleWorlds.CampaignSystem.CampaignBehaviors;
+using TaleWorlds.CampaignSystem.Encounters;
 using TaleWorlds.CampaignSystem.MapEvents;
 using TaleWorlds.CampaignSystem.Party;
 using TaleWorlds.CampaignSystem.Roster;
@@ -23,6 +25,7 @@ namespace ReignBeta.Campaign
     {
         private bool _startingStoryEncounter;
         private readonly Dictionary<string, MapEvent> _storyBattles = new Dictionary<string, MapEvent>();
+        private readonly Dictionary<string, PartyBase> _storyRescueCaptors = new Dictionary<string, PartyBase>();
         private async void StartStoryEncounter(string storyId, string objectiveId)
         {
             if (_startingStoryEncounter) return;
@@ -127,6 +130,59 @@ namespace ReignBeta.Campaign
                     && mission.AllAgents.Any(a => a.IsActive() && a.Character is CharacterObject c && c.HeroObject?.StringId == row.Value<string>("heroId")))
                     row["participantWitnessed"] = true;
         }
+        internal void ReleaseBoundRescueCaptives(PlayerEncounter encounter)
+        {
+            // Native FreeHeroes runs before HideoutEventComponent.OnBeforeFinalize.
+            // Its lord-only release conversation cannot handle our Special contact,
+            // so leaving that captive imprisoned would reopen the same conversation.
+            // Release only this accepted rescue's witnessed captive at the native
+            // prisoner-resolution boundary; the ordinary final callback owns credit.
+            if (encounter == null || !ReferenceEquals(encounter, PlayerEncounter.Current) || Mission.Current != null) return;
+            var battle = MobileParty.MainParty?.MapEvent;
+            if (battle == null || !battle.IsHideoutBattle) return;
+            foreach (var entry in _storyBattles.Where(e => ReferenceEquals(e.Value, battle)).ToList())
+            {
+                if (!_storyEncounters.TryGetValue(entry.Key, out var row)) continue;
+                var story = State.Stories.FirstOrDefault(s => s.Id == row.Value<string>("storyId"));
+                Hero friend = ReignObjectResolver.FindHero(row.Value<string>("rescueHeroId"));
+                var holder = friend?.PartyBelongedToAsPrisoner;
+                bool currentScope = _initialized && Generation.Length > 0 && row.Value<string>("generation") == Generation
+                    && _campaign == ReignServerClient.GetCampaignId() && row.Value<string>("campaignId") == _campaign
+                    && _timeline == (ReignWorldHistoryCampaignBehavior.Instance?.TimelineId ?? "main")
+                    && row.Value<string>("timelineId") == _timeline;
+                bool activeRescue = row.Value<string>("status") == "active" && row.Value<string>("kind") == "hideout"
+                    && row.Value<string>("requiredOutcome") == "rescued" && story?.Status == "active"
+                    && story.Revision == row.Value<int>("revision") && story.NativeEncounterId == entry.Key
+                    && story.LocationId == row.Value<string>("locationId");
+                bool sameHero = friend != null && story != null && story.Bindings.TryGetValue("heroId", out string bound)
+                    && bound == friend.StringId && row.Value<string>("rescueHeroId") == friend.StringId;
+                _storyRescueCaptors.TryGetValue(entry.Key, out var capturedHolder);
+                bool ownedCustody = holder == null || ReferenceEquals(holder, MobileParty.MainParty.Party)
+                    || capturedHolder != null && ReferenceEquals(holder, capturedHolder);
+                bool nativeVictory = battle.HasWinner && battle.WinningSide == battle.PlayerSide;
+                bool captureWitnessed = capturedHolder != null && row.Value<bool?>("rescueCaptureWitnessed") == true
+                    && !string.IsNullOrEmpty(row.Value<string>("rescueCaptorPartyId"));
+                row["nativeRescueHandoffInspection"] = new JObject { ["currentScope"] = currentScope,
+                    ["nativeVictory"] = nativeVictory, ["activeRescue"] = activeRescue,
+                    ["captureWitnessed"] = captureWitnessed, ["sameBoundHero"] = sameHero,
+                    ["ownedCustody"] = ownedCustody, ["holderPresent"] = holder != null };
+                if (!NpcLivesPolicy.CanReleaseBoundRescueCaptive(currentScope, nativeVictory, activeRescue,
+                    row.Value<bool?>("participantWitnessed") == true,
+                    captureWitnessed,
+                    sameHero, friend?.IsAlive == true && friend.IsPrisoner, ownedCustody, row["nativeRescueHandoff"] != null)) continue;
+                var receipt = new JObject { ["heroId"] = friend.StringId, ["origin"] = "native_hideout_prisoner_handoff",
+                    ["status"] = "attempted", ["attempts"] = 1, ["nativeVictory"] = true,
+                    ["holderPresent"] = holder != null };
+                row["nativeRescueHandoff"] = receipt;
+                try
+                {
+                    EndCaptivityAction.ApplyByReleasedByChoice(friend, Hero.MainHero);
+                    receipt["aliveAndFree"] = friend.IsAlive && !friend.IsPrisoner;
+                    receipt["status"] = friend.IsAlive && !friend.IsPrisoner ? "released" : "uncertain";
+                }
+                catch (Exception ex) { receipt["status"] = "uncertain"; receipt["error"] = ex.GetBaseException().Message; }
+            }
+        }
         private void OnStoryHideoutCompleted(BattleSideEnum winner, HideoutEventComponent component, HideoutEventComponent.HideoutBattleEndState end)
         {
             foreach (var entry in _storyBattles.Where(e => ReferenceEquals(e.Value, component?.MapEvent)).ToList())
@@ -150,6 +206,7 @@ namespace ReignBeta.Campaign
             if (row.Value<string>("campaignId") != _campaign || row.Value<string>("timelineId") != _timeline) return;
             if (outcome != "won" && outcome != "lost" && outcome != "withdrawn") throw new ArgumentException("A native encounter outcome is required.");
             row["status"] = "resolved"; row["outcome"] = outcome;
+            _storyRescueCaptors.Remove(encounter);
             var p = ReignServerClient.CaptureNpcLivesContext(Generation);
             foreach (string key in new[] { "heroId", "revision", "objectiveId", "kind", "locationId" }) p[key] = row[key].DeepClone();
             p["id"] = row["storyId"].DeepClone(); p["encounterId"] = encounter;
@@ -162,5 +219,14 @@ namespace ReignBeta.Campaign
     internal sealed class NpcStoryMissionWitness : MissionLogic
     {
         public override void OnMissionTick(float dt) => ReignNpcLivesBehavior.Instance?.WitnessStoryParticipants(Mission);
+    }
+    [HarmonyPatch(typeof(PlayerEncounter), "DoFreeOrCapturePrisonerHeroes")]
+    internal static class ReignNpcStoryRescuePrisonerPatch
+    {
+        private static void Prefix(PlayerEncounter __instance)
+        {
+            try { ReignNpcLivesBehavior.Instance?.ReleaseBoundRescueCaptives(__instance); }
+            catch (Exception ex) { ReignLog.Exception("Bound story captive handoff", ex); }
+        }
     }
 }

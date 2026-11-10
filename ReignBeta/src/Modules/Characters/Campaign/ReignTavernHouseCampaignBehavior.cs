@@ -29,7 +29,7 @@ namespace ReignBeta.Campaign
         public static ReignTavernHouseCampaignBehavior Instance { get; private set; }
         private TavernHouseState _state = new TavernHouseState();
         private TavernHouseCastCatalog _catalog;
-        private float _seconds;
+        private readonly RealTimeMaintenanceCadence _maintenanceCadence = new RealTimeMaintenanceCadence();
         private DateTime _nextPortraitUtc;
         private DateTime _nextRecruitmentRecoveryUtc;
         private int _recruitmentRecoveryIndex;
@@ -37,6 +37,45 @@ namespace ReignBeta.Campaign
         private string _authorizedRecruitId;
         private string _lastError = "";
         private bool _ready;
+        private readonly TavernHouseHeroLookup<Hero> _passHeroes = new TavernHouseHeroLookup<Hero>(Hero.Find);
+        private readonly Dictionary<string, List<TavernHousePerson>> _passPeople = new Dictionary<string, List<TavernHousePerson>>(StringComparer.Ordinal);
+        private bool _populationPassActive;
+        private long _lookupPassCount;
+        private int _lastLookupCount, _lastLookupFallbackHits, _lastLookupDuplicateIds;
+
+        private bool BeginPopulationPass()
+        {
+            if (_populationPassActive) return false;
+            try
+            {
+                _passHeroes.Refresh(_state.People.Select(p => p.HeroId), Hero.DeadOrDisabledHeroes, Hero.AllAliveHeroes, h => h.StringId);
+                foreach (var person in _state.People)
+                {
+                    if (!_passPeople.TryGetValue(person.TownId, out var people))
+                        _passPeople.Add(person.TownId, people = new List<TavernHousePerson>());
+                    people.Add(person);
+                }
+                _populationPassActive = true;
+                _lookupPassCount++;
+                return true;
+            }
+            catch { _passHeroes.Clear(); _passPeople.Clear(); throw; }
+        }
+        private void EndPopulationPass()
+        {
+            _lastLookupCount = _passHeroes.Count; _lastLookupFallbackHits = _passHeroes.FallbackHits;
+            _lastLookupDuplicateIds = _passHeroes.DuplicateIds;
+            _populationPassActive = false; _passHeroes.Clear(); _passPeople.Clear();
+        }
+        private Hero PopulationHero(string id) => _populationPassActive ? _passHeroes.Find(id) : Hero.Find(id);
+        private IEnumerable<TavernHousePerson> PeopleInTown(string townId) => _populationPassActive
+            ? (_passPeople.TryGetValue(townId, out var people) ? people : Enumerable.Empty<TavernHousePerson>())
+            : _state.People.Where(p => p.TownId == townId);
+        internal JObject RuntimeStatus() => new JObject { ["ready"] = _ready, ["lookupPassCount"] = _lookupPassCount,
+            ["lookupCount"] = _lastLookupCount, ["lookupFallbackHits"] = _lastLookupFallbackHits,
+            ["lookupDuplicateIds"] = _lastLookupDuplicateIds, ["maintenanceInFlight"] = _populationPassActive,
+            ["error"] = _lastError };
+
         private double Day => CampaignTime.Now.ToDays;
         private string Timeline => ReignWorldHistoryCampaignBehavior.Instance?.TimelineId ?? "main";
         public bool Ready => _ready;
@@ -47,7 +86,7 @@ namespace ReignBeta.Campaign
             ReignTavernHousePatches.Install();
             CampaignEvents.OnSessionLaunchedEvent.AddNonSerializedListener(this, OnSession);
             CampaignEvents.TickEvent.AddNonSerializedListener(this, OnTick);
-            CampaignEvents.DailyTickEvent.AddNonSerializedListener(this, Maintain);
+            CampaignEvents.DailyTickEvent.AddNonSerializedListener(this, MaintainDaily);
         }
 
         public override void SyncData(IDataStore store)
@@ -59,6 +98,7 @@ namespace ReignBeta.Campaign
                 : JsonConvert.DeserializeObject<TavernHouseState>(ReignSavePayloadCodec.Decode(chunks));
             TavernHouseRules.ValidateState(_state);
             _ready = false; _authorizedRecruitId = null; _portraitRetryUtc.Clear();
+            _populationPassActive = false; _passHeroes.Clear(); _passPeople.Clear();
             _nextRecruitmentRecoveryUtc = DateTime.MinValue; _recruitmentRecoveryIndex = 0;
         }
 
@@ -96,11 +136,11 @@ namespace ReignBeta.Campaign
         internal bool IsOwnedIdentity(Hero hero) => GetPerson(hero) != null;
         internal bool AllowsRecruitment(Hero hero) => !IsActiveStaff(hero) || _authorizedRecruitId == hero?.StringId;
         public IReadOnlyList<Hero> GetStaff(Settlement town) => town?.IsTown != true ? Array.Empty<Hero>()
-            : _state.People.Where(p => p.TownId == town.StringId && TavernHouseRules.IsActive(p)).OrderByDescending(p => p.Madam)
-                .ThenBy(p => p.Slot).Select(p => Hero.Find(p.HeroId)).Where(h => h != null && h.IsAlive).ToArray();
+            : PeopleInTown(town.StringId).Where(TavernHouseRules.IsActive).OrderByDescending(p => p.Madam)
+                .ThenBy(p => p.Slot).Select(p => PopulationHero(p.HeroId)).Where(h => h != null && h.IsAlive).ToArray();
         public Hero GetMadam(Settlement town) => town?.IsTown != true ? null
             : _state.People.Where(p => p.TownId == town.StringId && p.Madam && TavernHouseRules.IsActive(p))
-                .Select(p => Hero.Find(p.HeroId)).FirstOrDefault(h => h != null && h.IsAlive && !h.IsChild);
+                .Select(p => PopulationHero(p.HeroId)).FirstOrDefault(h => h != null && h.IsAlive && !h.IsChild);
         public bool IsAvailable(Hero hero, Settlement town) => IsActiveStaff(hero) && town?.IsTown == true
             && GetPerson(hero).TownId == town.StringId && hero.IsAlive && !hero.IsChild && hero.Age < TavernHouseRules.RetirementAge
             && !hero.IsPrisoner && hero.CompanionOf == null && hero.Clan == null && hero.PartyBelongedTo == null
@@ -109,8 +149,10 @@ namespace ReignBeta.Campaign
         public bool EnsureTown(Settlement town)
         {
             if (!_ready || town?.IsTown != true || ReignCampaignInitializationGate.IsPending) return false;
+            bool ownsPass = false;
             try
             {
+                ownsPass = BeginPopulationPass();
                 ResumeRecruitment();
                 ReserveTown(town);
                 MaintainTown(town, int.MaxValue);
@@ -118,6 +160,7 @@ namespace ReignBeta.Campaign
                 return GetMadam(town) != null;
             }
             catch (Exception ex) { _lastError = ex.Message; ReignLog.Exception("Tavern house creation", ex); return false; }
+            finally { if (ownsPass) EndPopulationPass(); }
         }
 
         private void ReserveTown(Settlement town)
@@ -132,17 +175,18 @@ namespace ReignBeta.Campaign
 
         private void OnTick(float dt)
         {
-            _seconds += dt;
-            if (_seconds < 1f) return;
-            _seconds = 0;
-            Maintain();
+            if (!_maintenanceCadence.TryTake(System.Diagnostics.Stopwatch.GetTimestamp(),
+                    System.Diagnostics.Stopwatch.Frequency, dt > 0f)) return;
+            using (ReignLog.MeasureWork("population.tavern", dt)) Maintain();
         }
 
         private void Maintain()
         {
             if (!_ready || ReignCampaignInitializationGate.IsPending || Hero.MainHero == null || Mission.Current != null) return;
+            bool ownsPass = false;
             try
             {
+                ownsPass = BeginPopulationPass();
                 ResumeRecruitment();
                 foreach (var visit in _state.Visits.Where(v => v.Paid && !v.Ended && v.ServerConfirmed))
                     if (Hero.MainHero.CurrentSettlement?.StringId != visit.TownId) visit.Ended = true;
@@ -151,14 +195,18 @@ namespace ReignBeta.Campaign
                 {
                     ReserveTown(town.Settlement);
                     // Initial preparation is bounded. Local entry finishes its own roster synchronously.
-                    int before = _state.People.Count(p => p.Initialized);
-                    MaintainTown(town.Settlement, remainingCreations);
-                    remainingCreations -= _state.People.Count(p => p.Initialized) - before;
+                    remainingCreations -= MaintainTown(town.Settlement, remainingCreations);
                 }
                 QueuePortrait();
                 _lastError = "";
             }
             catch (Exception ex) { _lastError = ex.Message; ReignLog.Exception("Tavern house maintenance", ex); }
+            finally { if (ownsPass) EndPopulationPass(); }
+        }
+
+        private void MaintainDaily()
+        {
+            using (ReignLog.MeasureWork("population.tavern", 0f)) Maintain();
         }
 
         private void ResumeRecruitment()
@@ -171,15 +219,16 @@ namespace ReignBeta.Campaign
             _nextRecruitmentRecoveryUtc = DateTime.UtcNow.AddSeconds(5);
             // The saved receipt was written only after explicit consent and price validation.
             // Resume one agreement at a time, even if native clan/party transfer already removed its roster card.
-            TryRecruit(Hero.Find(person.HeroId), person.RecruitmentGold, person.RecruitmentReceipt, true, out string reason);
+            TryRecruit(PopulationHero(person.HeroId), person.RecruitmentGold, person.RecruitmentReceipt, true, out string reason);
         }
 
-        private void MaintainTown(Settlement town, int budget)
+        private int MaintainTown(Settlement town, int budget)
         {
-            if (town.IsUnderSiege || town.SiegeEvent != null) return;
-            foreach (var person in _state.People.Where(p => p.TownId == town.StringId && TavernHouseRules.IsActive(p)).ToArray())
+            if (town.IsUnderSiege || town.SiegeEvent != null) return 0;
+            int created = 0;
+            foreach (var person in PeopleInTown(town.StringId).Where(TavernHouseRules.IsActive).ToArray())
             {
-                Hero hero = Hero.Find(person.HeroId);
+                Hero hero = PopulationHero(person.HeroId);
                 if (hero == null) throw new InvalidOperationException("Saved tavern hero is missing; refusing to substitute: " + person.HeroId);
                 if (hero.CompanionOf != null || hero.Clan != null || hero.PartyBelongedTo != null) Depart(person, true, "recruited");
                 else if (!hero.IsAlive || hero.Age >= TavernHouseRules.RetirementAge)
@@ -193,10 +242,11 @@ namespace ReignBeta.Campaign
             {
                 if (budget <= 0) break;
                 var reserved = string.IsNullOrEmpty(slot.PersonId) ? null : _state.People.Single(p => p.Id == slot.PersonId);
-                if (reserved != null && !reserved.Initialized) { CreatePerson(town, slot, reserved); if (--budget == 0) break; }
-                else if (TavernHouseRules.ReplacementDue(slot, Day)) { CreatePerson(town, slot, null); if (--budget == 0) break; }
+                if (reserved != null && !reserved.Initialized) { CreatePerson(town, slot, reserved); created++; if (--budget == 0) break; }
+                else if (TavernHouseRules.ReplacementDue(slot, Day)) { CreatePerson(town, slot, null); created++; if (--budget == 0) break; }
             }
             PromoteMadam(town);
+            return created;
         }
 
         private void Depart(TavernHousePerson person, bool recruited, string reason)
@@ -219,10 +269,10 @@ namespace ReignBeta.Campaign
         private void PromoteMadam(Settlement town)
         {
             if (town == null) return;
-            var eligible = _state.People.Where(p => p.TownId == town.StringId && TavernHouseRules.IsActive(p))
-                .Where(p => Hero.Find(p.HeroId)?.IsAlive == true && Hero.Find(p.HeroId)?.IsChild == false).ToArray();
+            var eligible = PeopleInTown(town.StringId).Where(TavernHouseRules.IsActive)
+                .Where(p => PopulationHero(p.HeroId)?.IsAlive == true && PopulationHero(p.HeroId)?.IsChild == false).ToArray();
             TavernHousePerson successor = TavernHouseRules.SelectMadam(eligible,
-                p => Hero.Find(p.HeroId).GetSkillValue(DefaultSkills.Charm), p => Hero.Find(p.HeroId).GetSkillValue(DefaultSkills.Roguery));
+                p => PopulationHero(p.HeroId).GetSkillValue(DefaultSkills.Charm), p => PopulationHero(p.HeroId).GetSkillValue(DefaultSkills.Roguery));
             if (successor != null) successor.Madam = true;
         }
 
@@ -258,14 +308,21 @@ namespace ReignBeta.Campaign
                     CivilianEquipment = authored.CivilianEquipment.Select(e => new TavernHouseEquipmentPart { Slot = e.Slot, ItemId = e.ItemId }).ToList(),
                     Biography = biography, Personality = authored.Personality, CreatedDay = Day };
                 _state.People.Add(person); slot.PersonId = person.Id;
+                if (_populationPassActive)
+                {
+                    if (!_passPeople.TryGetValue(person.TownId, out var people))
+                        _passPeople.Add(person.TownId, people = new List<TavernHousePerson>());
+                    people.Add(person);
+                }
             }
             if (!BodyProperties.FromString(person.Body, out var savedBody)) throw new InvalidOperationException("Saved tavern appearance is invalid: " + person.Id);
-            Hero hero = string.IsNullOrEmpty(person.HeroId) ? null : Hero.Find(person.HeroId);
+            Hero hero = string.IsNullOrEmpty(person.HeroId) ? null : PopulationHero(person.HeroId);
             if (hero == null && !string.IsNullOrEmpty(person.HeroId)) throw new InvalidOperationException("Reserved tavern Hero disappeared: " + person.HeroId);
             if (hero == null)
             {
                 hero = HeroCreator.CreateSpecialHero(donor, town, null, null, (int)savedBody.Age);
                 person.HeroId = hero.StringId;
+                if (_populationPassActive) _passHeroes.Created(person.HeroId, hero);
             }
             if (person.Initialized) return;
             hero.Clan = null; hero.Father = null; hero.Mother = null; hero.Spouse = null;
@@ -306,7 +363,7 @@ namespace ReignBeta.Campaign
             _nextPortraitUtc = DateTime.UtcNow.AddSeconds(3);
             foreach (var person in _state.People.Where(p => TavernHouseRules.IsActive(p) && p.Generation > 0 && !p.PortraitComplete))
             {
-                Hero hero = Hero.Find(person.HeroId);
+                Hero hero = PopulationHero(person.HeroId);
                 if (hero == null) continue;
                 string key = CharacterCacheId.ForHero(hero);
                 if (PortraitCache.ExistsOnDisk(key)) { person.PortraitComplete = true; continue; }
@@ -346,7 +403,7 @@ namespace ReignBeta.Campaign
             { reason = "You must be at this town's tavern house."; return false; }
             if (GetOpenVisit(town) is TavernHouseVisitReceipt active && active != receipt)
             { reason = "Finish the current visit before accepting another agreement."; return false; }
-            if (quote.Charges.Any(c => !IsAvailable(Hero.Find(c.HeroId), town)))
+            if (quote.Charges.Any(c => !IsAvailable(PopulationHero(c.HeroId), town)))
             { reason = "An agreed participant is no longer available. Negotiate a new agreement."; return false; }
             Hero madam = GetMadam(town);
             if (madam == null || !IsAvailable(madam, town)) { reason = "The madam is unavailable."; return false; }
@@ -355,7 +412,7 @@ namespace ReignBeta.Campaign
             {
                 receipt = new TavernHouseVisitReceipt { VisitId = Guid.NewGuid().ToString("N"), AgreementId = quote.AgreementId,
                     CampaignId = quote.CampaignId, TimelineId = quote.TimelineId, TownId = quote.TownId, PlayerHeroId = quote.PlayerHeroId,
-                    Charges = quote.Charges.Select(c => new TavernHouseVisitCharge { HeroId = c.HeroId, DisplayName = Hero.Find(c.HeroId).Name.ToString(), Gold = c.Gold }).ToList(),
+                    Charges = quote.Charges.Select(c => new TavernHouseVisitCharge { HeroId = c.HeroId, DisplayName = PopulationHero(c.HeroId).Name.ToString(), Gold = c.Gold }).ToList(),
                     ParticipantHeroIds = quote.Charges.Select(c => c.HeroId).ToList(), QuoteRevision = quote.QuoteRevision,
                     PaidGold = quote.TotalGold, StartedDay = Day };
                 _state.Visits.Add(receipt);

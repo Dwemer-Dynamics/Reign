@@ -578,6 +578,10 @@ namespace ReignBeta.Integration
                     || Volatile.Read(ref _communicationInFlight) != 0 || ReignBeta.Campaign.ReignNpcLivesBehavior.Instance?.HasPendingCommunicationReceipts == true,
                 ["campaignId"] = pump?.CampaignId ?? _communicationCampaign, ["timelineId"] = pump?.Timeline ?? _communicationTimeline,
                 ["lastError"] = pump?.LastError ?? "", ["readiness"] = pump?.Readiness?.DeepClone(),
+                ["periodicCommunicationHoldVersion"] = 1,
+                ["periodicCommunicationHoldActive"] = CommunicationPollHold.HasLease
+                    && CommunicationPollHold.Active(TaleWorlds.CampaignSystem.Campaign.Current, CommunicationPollScope(), DateTime.UtcNow),
+                ["periodicCommunicationHoldUntilUtc"] = CommunicationPollHold.UntilUtc,
                 ["watchUntilUtc"] = pump?.Wake.UntilUtc, ["knownWork"] = pump?.Wake.HasKnownWork ?? false,
                 ["disabledSettingsWatch"] = pump?.Wake.IsDisabled ?? false,
                 ["nextBackgroundPollUtc"] = pump?.Wake.NextBackgroundPollUtc,

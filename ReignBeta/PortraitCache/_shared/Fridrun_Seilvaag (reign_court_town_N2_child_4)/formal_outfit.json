@@ -1,0 +1,13 @@
+{
+  "version": 1,
+  "heroStringId": "reign_court_town_N2_child_4",
+  "characterName": "Fridrun Seilvaag",
+  "imagePath": "portrait.png",
+  "imageSha256": "C002ADD5E47F083BEB33F81B919D5C12A0A0B15DBF8ACF12C5A37AC4956F75F0",
+  "description": "Dark moss-green wool apron dress over cream linen with modest high collar and full sleeves, two round strap brooches, narrow red/cream woven trim and belt, full layered skirt and brown lace-up shoes. No headgear, armor or weapons.",
+  "status": "completed",
+  "descriptionSource": "agent_vision",
+  "retryEligible": false,
+  "error": "",
+  "updatedUtc": "2026-11-07T03:30:14.652962+00:00"
+}

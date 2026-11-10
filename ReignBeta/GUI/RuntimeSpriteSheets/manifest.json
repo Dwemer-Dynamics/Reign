@@ -1,8 +1,8 @@
 {
     "version":  1,
-    "generatedUtc":  "2026-10-17T01:18:21.7218505Z",
+    "generatedUtc":  "2026-11-04T20:54:59.5015862Z",
     "spriteDataPath":  "GUI/ReignBetaSpriteData.xml",
-    "spriteDataSha256":  "02930a8fb28a6bfb9fa117c5221b664e4bb085fa1691d7a612c3f4979bbda311",
+    "spriteDataSha256":  "fa825d1defded9862df44e19cc24bdcee03408ac614cfe04c0ee575a932b8f95",
     "categories":  {
                        "ui_reignbeta_main_menu":  {
                                                       "sheets":  [
@@ -242,7 +242,7 @@
                                                                           "width":  2048,
                                                                           "height":  1024,
                                                                           "path":  "GUI/RuntimeSpriteSheets/ui_reignbeta_party_chat/ui_reignbeta_party_chat_10.png",
-                                                                          "sha256":  "46b121278781ef844dc4ef09f308063b5443ce546db3e8d476668ee4a58e499d"
+                                                                          "sha256":  "7071a83458d9d7ff2bde765cfb7aa12d4ab1cae83e6d9554b315f84486ba7244"
                                                                       }
                                                                   ],
                                                        "parts":  {
@@ -542,7 +542,16 @@
                                                                                                                  "height":  941,
                                                                                                                  "sourcePath":  "GUI/SpriteParts/ui_reignbeta_party_chat/reign_party_chat_announcement_shell.png",
                                                                                                                  "sourceSha256":  "87cb30da7dd2c6bdeb871c436f0d4a7d6186394a56572d632d925d7f64665ad0"
-                                                                                                             }
+                                                                                                             },
+                                                                     "reign_party_chat_compact_button":  {
+                                                                                                             "sheetId":  10,
+                                                                                                             "x":  4,
+                                                                                                             "y":  953,
+                                                                                                             "width":  126,
+                                                                                                             "height":  40,
+                                                                                                             "sourcePath":  "GUI/SpriteParts/ui_reignbeta_party_chat/reign_party_chat_compact_button.png",
+                                                                                                             "sourceSha256":  "d00d8903b5abf8be6637948cb046d06dee95ceda10d7729072fc49278bb87f88"
+                                                                                                         }
                                                                  }
                                                    },
                        "ui_reignbeta_court":  {
@@ -3235,6 +3244,37 @@
                                                                                                 "sourceSha256":  "e7a3d1b173d19f982880b4c10b2e744fbd0931c9a721b97018169ac750e6e2dd"
                                                                                             }
                                                              }
-                                               }
+                                               },
+                       "ui_reignbeta_war_standing":  {
+                                                         "sheets":  [
+                                                                        {
+                                                                            "id":  1,
+                                                                            "width":  4096,
+                                                                            "height":  2048,
+                                                                            "path":  "GUI/RuntimeSpriteSheets/ui_reignbeta_war_standing/ui_reignbeta_war_standing_1.png",
+                                                                            "sha256":  "ae2f6cc2bb7c2f4a623582e8c7364b4b796b0027c17fde7a79abb8b1de6e7783"
+                                                                        }
+                                                                    ],
+                                                         "parts":  {
+                                                                       "reign_war_standing_tabs":  {
+                                                                                                       "sheetId":  1,
+                                                                                                       "x":  4,
+                                                                                                       "y":  4,
+                                                                                                       "width":  2172,
+                                                                                                       "height":  724,
+                                                                                                       "sourcePath":  "GUI/SpriteParts/ui_reignbeta_war_standing/reign_war_standing_tabs.png",
+                                                                                                       "sourceSha256":  "73f1fcefd6202a58975af8f324068c28e6b7ae7da7a588642f4514aee37d7238"
+                                                                                                   },
+                                                                       "reign_war_standing_popup":  {
+                                                                                                        "sheetId":  1,
+                                                                                                        "x":  2184,
+                                                                                                        "y":  4,
+                                                                                                        "width":  1254,
+                                                                                                        "height":  1254,
+                                                                                                        "sourcePath":  "GUI/SpriteParts/ui_reignbeta_war_standing/reign_war_standing_popup.png",
+                                                                                                        "sourceSha256":  "2cbb69f56afd18f19e45fce42a22157efb7d534c08ad4d9d07c825af0114577e"
+                                                                                                    }
+                                                                   }
+                                                     }
                    }
 }

@@ -1,0 +1,95 @@
+{
+  "version": 1,
+  "inputHash": "018462ee5bc56e5e44eb6870a1b4f928a71625edbf6e10eb0ce61ba80006b6e6",
+  "catalogHash": "b6d4023f598cea7d6dbdaa9a43fd3d28c1128d529c54b453c04bee5d373de03c",
+  "renderContractHash": "cc3b941e7d47057de9b4220f1473336e6f908719812bb2653b83bd3545cfbd2f",
+  "cacheKey": "Gunnveig_Elverdal (reign_court_town_N4_child_4)",
+  "heroStringId": "reign_court_town_N4_child_4",
+  "characterObjectId": "reign_court_town_N4_child_4",
+  "characterName": "Gunnveig Elverdal",
+  "ageYears": 19,
+  "cultureId": "nord",
+  "cultureName": "Nord",
+  "gender": "woman",
+  "clanId": "reign_house_town_N4",
+  "clanTier": 1,
+  "clanProvenance": "authored_nord_household_xml_and_foundation",
+  "socialStation": "landowner",
+  "occupation": "Lord",
+  "archetype": "lord",
+  "isLord": true,
+  "isNotable": false,
+  "isWanderer": false,
+  "isAlive": true,
+  "sourceModule": "ReignBeta",
+  "sourceFile": "Modules/ReignBeta/ModuleData/reign_court_lords.xml",
+  "profileSource": "reign_court",
+  "profilePackVersion": "reign_profiles_v4",
+  "bodyKey": "0001F402400010056779897866976866999666686996667966666696789796990368766606666867000000000000000000000000000000000000000002BC5000",
+  "bodyWeight": 0.5,
+  "bodyBuild": 0.5,
+  "faceTemplateId": "townswoman_nord",
+  "faceGenerationVersion": "reign_court_shared_v1",
+  "civilianTemplate": "nord_noncom_template_default",
+  "civilianEquipment": [
+    {
+      "slot": "Body",
+      "itemId": "nordic_civilian_dress"
+    },
+    {
+      "slot": "Cape",
+      "itemId": "cape_norse_lady"
+    },
+    {
+      "slot": "Leg",
+      "itemId": "highland_leg_wrappings"
+    },
+    {
+      "slot": "Gloves",
+      "itemId": "nord_casual_bracers"
+    }
+  ],
+  "headgearSuppressed": true,
+  "physicalConfidence": {
+    "definition": "physical_confidence",
+    "score": 55,
+    "profile": "41-60",
+    "flirtatiousnessPercentage": 59,
+    "confidencePercentage": 42,
+    "flirtatiousnessWeight": 0.75,
+    "confidenceWeight": 0.25,
+    "source": "reign_profile_library"
+  },
+  "renderPreset": "ai_source_wan_portrait_v5",
+  "renderWidth": 1536,
+  "renderHeight": 2048,
+  "sourceWidth": 768,
+  "sourceHeight": 1024,
+  "cropScale": 0.24,
+  "cropWidthRatio": 0.75,
+  "cropCenterYRatio": 0.324,
+  "cameraPitchDegrees": 4,
+  "sourceSha256": "a7eb365367677e2489e3234735cc70d7c8c84261216fbc9ac148791d3f8298d1",
+  "sourceFileName": "source.png",
+  "generationEndpoint": "/portraits/generate",
+  "campaignIdSource": "shared_authored_new_campaign_content",
+  "promptDeferred": true,
+  "sourceImageBase64From": "source.png",
+  "outputSizeOverride": "",
+  "promptPurpose": "portrait",
+  "physique": {
+    "schema": "reign-native-physique-v1",
+    "weight": 0.5,
+    "build": 0.5,
+    "weightSource": "native_engine_resolved",
+    "buildSource": "native_engine_resolved",
+    "sourceSha256": "a7eb365367677e2489e3234735cc70d7c8c84261216fbc9ac148791d3f8298d1"
+  },
+  "nativeBatchProvenance": {
+    "batch": "nord-01a1b3c6-v1",
+    "requestVersion": 4,
+    "appearanceInputCount": 798,
+    "nativeStatusSha256": "72cd88ddfc0ff27504cfb1d26a6e61bd35d6c9a866d0332f94e726e467f6632d",
+    "metadataAuthoring": "task batch adapter mirroring PortraitGenerationInputV1; inputHash hashes the exact version4 request; catalogHash hashes input-receipt file inventory"
+  }
+}

@@ -1,0 +1,45 @@
+Use case: photorealistic-natural. Asset type: final Reign NPC full-body portrait.
+Create exactly one photographic full-body portrait of the 44-year-old man described below. Clothing follows everyday Nord landowner fashion for clan tier 1; these are private guidance values and must not be printed. Use a vertical 3:4 portrait canvas. Generate from written traits alone.
+
+FACIAL APPEARANCE AND HAIR
+Ulfgeir Eikenvard is a real 44-year-old man with a long broad-foreheaded face, firm exposed cheek planes, a straight prominent nose with a rounded reddish tip and a softly square lower jaw concealed by beard. His eyes are muted blue-grey, naturally almond-shaped and fairly deep-set beneath straight sandy-brown brows with gentle outer arches. His warm fair peach complexion has rosy cheeks and nose, subtle forehead lines, fine lower-eye folds and natural pores appropriate to 44. His warm medium-brown hair is swept neatly backward from a strong central pointed V hairline, showing the whole high forehead and the ears, with longer hair gathered low behind the nape. His moustache is thick and golden-brown, drops beside the mouth and joins a compact lower-jaw and chin beard with relatively bare upper cheeks; the beard ends in a short thick twisted taper below the chin, not a long full chest beard. A full muted-pink lower lip remains visible. Preserve the high V hairline, back-swept brown hair, blue-grey eyes, long straight nose and compact golden beard as his identity. No definite scars or tattoos are visible. Exact native weight 0.5 and independent male build 0.5 mean medium body-fat fullness and moderate muscle mass, not a fantasy warrior physique.
+
+FACIAL CULTURAL APPEARANCE â€” NORD
+Stored cultureId: nord.
+Regional reference: Scandinavian regional appearance, drawing on Norwegian, Swedish and Danish populations.
+Create a believable real human face with this regional appearance. Apply the regional reference positively to facial appearance, facial structure and complexion; it is not only a clothing, setting or background instruction.
+Blend the regional reference with the individual facial description. Where simplified native geometry or game-renderer shading differs from this regional appearance, use a plausible natural blend while retaining recognizable individual traits: face outline, relative proportions, eyes, brows, nose, mouth, jaw and chin. Preserve the described hair identity, arrangement and texture, facial-hair pattern, eye character, visible scars and markings; do not invent new distinguishing marks.
+These regional populations contain substantial individual variation. Do not give every member the same face, impose a universal skin, hair or eye color, or replace the written individual identity with a generic regional stereotype. Preserve source-grounded differences and natural human asymmetry.
+Keep the exact authored age and the independent native weight and build values. This layer applies to facial appearance and realistic complexion interpretation, not body size, muscularity, garment coverage or social rank. Every complete composition, clothing, confidence, photographic, output and physique modifier remains in effect. Do not print this reference or any metadata in the image.
+
+COMPOSITION AND FRAMING
+Create a full head-to-toe body portrait showing the entire figure from the top of the head down to the feet
+Keep the standing figure upright and centered on the image's vertical axis, using a natural relaxed pose without leaning, crouching, sitting, or shifting toward an edge.
+Leave a small clear margin above the hair and around both sides of the body, with enough space below the feet so no part of the figure feels cramped or cropped. Use a natural full-body portrait distance rather than a close-up.
+Do not crop the forehead, top of the head, chin, shoulders, hands, legs, or feet. Keep the full body visible in frame from head to toe.
+Use a softly blurred, historically appropriate stone doorway or architectural background that does not compete with the subject.
+
+Culturally appropriate everyday Nord landowner attire inspired by historically grounded early medieval Scandinavian civilian clothing. Men should wear a long-sleeved linen undershirt beneath a knee-length wool tunic, straight or loose trousers, a sturdy leather belt, and wrapped lower legs. Women should wear a long linen shift beneath a wool apron dress or layered overdress, secured with modest brooches and a woven belt. Include subtle tablet-woven trim and practical layered fabric. The garments should appear sturdy, clean, and modestly prosperous. No headgear of any kind. No helmets, caps, hoods, armor, weapons, crowns, ceremonial garments, horned helmets, or fantasy Viking styling.
+
+PHOTOGRAPHIC STYLE
+Make the subject look like a real human being photographed candidly, not a game render or fantasy illustration.
+Use authentic skin texture, visible pores, natural imperfections, slight asymmetry, natural lips, believable eyes, realistic hair, and restrained age-appropriate detail.
+Use soft natural daylight, shallow depth of field, a realistic 85mm portrait-lens perspective, subtle film grain, and a grounded photographic finish.
+
+OUTPUT EXCLUSIONS
+Return only the portrait image itself.
+Do not render words, letters, numbers, captions, labels, names, ages, cultures, subtitles, signatures, logos, watermarks, interface elements, portrait cards, decorative title blocks, borders, banners, blank caption areas, white strips, white footer panels, or metadata panels anywhere in the image.
+No extreme close-up, face-only crop, cropped head, cropped shoulders, armor, weapons, shields, quivers, chainmail, helmets, fur war gear, plastic skin, over-smoothed face, CGI, cartoon, anime, painterly style, or modern clothing.
+
+NATIVE BODY APPEARANCE â€” AUTHORITATIVE PHYSIQUE
+Native weight: 0.5 on a 0â€“1 scale: Medium body-fat level.
+Native build: 0.5 on a 0â€“1 scale: Moderate musculature.
+These are independent native appearance sliders, not kilograms, BMI, clinical classifications or body-fat percentages. Respect the exact position within each range, without abrupt changes at descriptive boundaries.
+Weight controls body-fat fullness. For women, build controls natural muscle tone, firmness, and athletic definition, not added muscle mass, bulky shoulders, thick arms, or masculine bodybuilder proportions. For men, build controls muscle mass. High weight does not imply muscle. High build does not imply extra fat or automatically visible abdominal definition; body fat and clothing can obscure definition.
+Match these native proportions even if another prompt or the supplied AI portrait conflicts. Preserve native age, sex, skeletal proportions, face and identity. Do not infer breast size, enlarge curves, beautify, slim or bulk up the person beyond these values.
+Garments must fit this physique. Revealingness and physical confidence change clothing coverage only, never body size. Covered muscles need not be exposed. During a clothing edit, correct conflicting AI physique to these native values while preserving the person's face and identity. Never print these instructions or values in the image.
+
+COMPOSITION CORRECTION FOR CANONICAL CROPS
+Leave clear stone architecture above the entire hairstyle. Place the very top of the hair at roughly 6% of total canvas height and the chin at roughly 18% of total canvas height. Keep the complete body and both feet inside the canvas with floor visible below the shoes. Do not enlarge the face or crop the hair. Preserve the written identity and all preceding appearance, clothing, light and style instructions.
+CURRENT MATERIAL AND BACKGROUND REQUIREMENTS
+Use a plain softly blurred stone wall and a simple dark wooden doorway with unadorned architecture. Keep the background free of banners and heraldic displays. Preserve the complete cultural court garment, opaque coverage, woven borders, modest brooches and practical layered fabric.

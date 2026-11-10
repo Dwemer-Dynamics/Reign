@@ -1,0 +1,13 @@
+{
+  "version": 1,
+  "heroStringId": "reign_court_town_N4_child_2",
+  "characterName": "Odhild Elverdal",
+  "imagePath": "portrait.png",
+  "imageSha256": "F41B2873D637FFF4E0369D1B1015C6DC96658F379DBB6775E4814DF8EE578FE9",
+  "description": "Blue wool apron dress with round strap brooches and red/pale woven trim over cream linen with high split neck and full sleeves, matching woven waist tie, full layered cream-edged skirt and brown shoes. No headgear, armor or weapons.",
+  "status": "completed",
+  "descriptionSource": "agent_vision",
+  "retryEligible": false,
+  "error": "",
+  "updatedUtc": "2026-11-07T03:30:14.992091+00:00"
+}

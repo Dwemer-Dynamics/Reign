@@ -10,6 +10,13 @@ namespace ReignBeta.Events
 
         public static IReadOnlyList<SocialEventTemplate> All => Templates;
 
+        internal static SocialEventTemplate WeddingForCulture(string cultureId)
+        {
+            string culture = (cultureId ?? "").ToLowerInvariant();
+            if (culture.Contains("empire")) culture = "empire";
+            return GetById("wedding_" + culture) ?? GetById("wedding_neutral");
+        }
+
         public static SocialEventTemplate GetById(string templateId)
         {
             return Templates.FirstOrDefault(x => x.TemplateId == templateId) ?? Templates[0];
@@ -24,12 +31,12 @@ namespace ReignBeta.Events
         {
             string normalizedCulture = NormalizeCulture(cultureId);
             List<SocialEventTemplate> matches = Templates
-                .Where(x => x.TemplateId.EndsWith("_" + normalizedCulture))
+                .Where(x => x.TemplateId.EndsWith("_" + normalizedCulture) && !x.TemplateId.StartsWith("wedding_"))
                 .ToList();
 
             if (matches.Count == 0)
             {
-                matches = Templates.Where(x => x.TemplateId.EndsWith("_empire")).ToList();
+                matches = Templates.Where(x => x.TemplateId.EndsWith("_empire") && !x.TemplateId.StartsWith("wedding_")).ToList();
             }
 
             return matches[MBRandom.RandomInt(matches.Count)];
@@ -144,6 +151,25 @@ namespace ReignBeta.Events
                 30,
                 BuildGeneratedWildernessPhases()));
 
+            var customs = new Dictionary<string, string[]>
+            {
+                ["empire"] = new[] { "Households at the villa", "The families read their pledges before the witnesses.", "The witnesses acclaim the vows and the new household." },
+                ["vlandia"] = new[] { "The hall receives the banners", "The two houses present their tokens and name their witnesses.", "The couple gives their vows before the gathered hall." },
+                ["sturgia"] = new[] { "Hearth welcome", "The elders offer bread and speak their blessings at the hearth.", "The households hear the vows and share the closing toast." },
+                ["battania"] = new[] { "Procession to the green", "The kin exchange gifts while a bard names the two houses.", "The witnesses hear the vows and close the gathering with song." },
+                ["aserai"] = new[] { "Welcome in the courtyard", "The families exchange gifts and the elders give their blessings.", "The couple speaks before the witnesses and receives the farewell." },
+                ["khuzait"] = new[] { "Welcome under the canopy", "The families share the welcome cup and honor both lines of kin.", "The vows are witnessed and the musicians play the farewell." },
+                ["nord"] = new[] { "Arrival at the longhouse", "The elders pass the cup and recite the houses' pledges.", "The couple gives their vows and the guests raise the final toast." },
+                ["neutral"] = new[] { "Arrival of both families", "The families exchange greetings, gifts, and blessings.", "The couple gives their vows before the witnesses." }
+            };
+            foreach (var row in customs)
+                templates.Add(new SocialEventTemplate("wedding_" + row.Key, "Wedding ceremony", "wedding", 1f, 30,
+                    new List<SocialEventPhase>
+                    {
+                        new SocialEventPhase("wedding_arrivals", row.Value[0], "Both households arrive and the guests are introduced.", 4, 8, 0, 0, 0),
+                        new SocialEventPhase("wedding_rites", "Family rites", row.Value[1], 4, 8, 0, 0, 0),
+                        new SocialEventPhase("wedding_vows", "Vows and farewell", row.Value[2], 4, 8, 0, 0, 0)
+                    }));
             return templates;
         }
 

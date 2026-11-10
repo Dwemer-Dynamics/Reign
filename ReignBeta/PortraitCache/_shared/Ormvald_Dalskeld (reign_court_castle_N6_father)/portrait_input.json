@@ -1,0 +1,95 @@
+{
+  "version": 1,
+  "inputHash": "0bc7e543470ce61b687a6eb153e4ec56d00a2ef9c54845e61b0d6037582e52f4",
+  "catalogHash": "b6d4023f598cea7d6dbdaa9a43fd3d28c1128d529c54b453c04bee5d373de03c",
+  "renderContractHash": "cc3b941e7d47057de9b4220f1473336e6f908719812bb2653b83bd3545cfbd2f",
+  "cacheKey": "Ormvald_Dalskeld (reign_court_castle_N6_father)",
+  "heroStringId": "reign_court_castle_N6_father",
+  "characterObjectId": "reign_court_castle_N6_father",
+  "characterName": "Ormvald Dalskeld",
+  "ageYears": 44,
+  "cultureId": "nord",
+  "cultureName": "Nord",
+  "gender": "man",
+  "clanId": "reign_house_castle_N6",
+  "clanTier": 1,
+  "clanProvenance": "authored_nord_household_xml_and_foundation",
+  "socialStation": "landowner",
+  "occupation": "Lord",
+  "archetype": "lord",
+  "isLord": true,
+  "isNotable": false,
+  "isWanderer": false,
+  "isAlive": true,
+  "sourceModule": "ReignBeta",
+  "sourceFile": "Modules/ReignBeta/ModuleData/reign_court_lords.xml",
+  "profileSource": "reign_court",
+  "profilePackVersion": "reign_profiles_v4",
+  "bodyKey": "0004A4046700045D978789678778876897989988787667976689998979768876056C99670688878800000000000000000000000000000000000000001AD83000",
+  "bodyWeight": 0.5,
+  "bodyBuild": 0.5,
+  "faceTemplateId": "townsman_nord",
+  "faceGenerationVersion": "reign_court_shared_v1",
+  "civilianTemplate": "nord_civ_template_default",
+  "civilianEquipment": [
+    {
+      "slot": "Body",
+      "itemId": "sturgia_light_tunic"
+    },
+    {
+      "slot": "Cape",
+      "itemId": "nord_casual_cloak"
+    },
+    {
+      "slot": "Leg",
+      "itemId": "leather_cavalier_boots"
+    },
+    {
+      "slot": "Gloves",
+      "itemId": "leather_gloves"
+    }
+  ],
+  "headgearSuppressed": true,
+  "physicalConfidence": {
+    "definition": "physical_confidence",
+    "score": 55,
+    "profile": "41-60",
+    "flirtatiousnessPercentage": 56,
+    "confidencePercentage": 51,
+    "flirtatiousnessWeight": 0.75,
+    "confidenceWeight": 0.25,
+    "source": "reign_profile_library"
+  },
+  "renderPreset": "ai_source_wan_portrait_v5",
+  "renderWidth": 1536,
+  "renderHeight": 2048,
+  "sourceWidth": 768,
+  "sourceHeight": 1024,
+  "cropScale": 0.24,
+  "cropWidthRatio": 0.75,
+  "cropCenterYRatio": 0.324,
+  "cameraPitchDegrees": 4,
+  "sourceSha256": "5e7731a41cbb186bef34db0ab09b86dfee9477c585e3a41dfd28dff0027fa221",
+  "sourceFileName": "source.png",
+  "generationEndpoint": "/portraits/generate",
+  "campaignIdSource": "shared_authored_new_campaign_content",
+  "promptDeferred": true,
+  "sourceImageBase64From": "source.png",
+  "outputSizeOverride": "",
+  "promptPurpose": "portrait",
+  "physique": {
+    "schema": "reign-native-physique-v1",
+    "weight": 0.5,
+    "build": 0.5,
+    "weightSource": "native_engine_resolved",
+    "buildSource": "native_engine_resolved",
+    "sourceSha256": "5e7731a41cbb186bef34db0ab09b86dfee9477c585e3a41dfd28dff0027fa221"
+  },
+  "nativeBatchProvenance": {
+    "batch": "nord-01a1b3c6-v1",
+    "requestVersion": 4,
+    "appearanceInputCount": 798,
+    "nativeStatusSha256": "d404076a9fe7395777aa9b730c54a8c8c0801d9c0ed582d36b8e383253af4132",
+    "metadataAuthoring": "task batch adapter mirroring PortraitGenerationInputV1; inputHash hashes the exact version4 request; catalogHash hashes input-receipt file inventory"
+  }
+}

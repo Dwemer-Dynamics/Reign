@@ -374,6 +374,21 @@
       "id": "government-former-member",
       "referenceId": "government-members",
       "fileName": "ReignGovernmentScreen.xml"
+    },
+    {
+      "id": "party-chat-continue-available",
+      "referenceId": "party-chat",
+      "fileName": "ReignPartyChatScreen.xml"
+    },
+    {
+      "id": "party-chat-continue-unavailable",
+      "referenceId": "party-chat",
+      "fileName": "ReignPartyChatScreen.xml"
+    },
+    {
+      "id": "party-chat-continue-restored",
+      "referenceId": "party-chat",
+      "fileName": "ReignPartyChatScreen.xml"
     }
   ],
   "conversationActions": {
@@ -2077,5 +2092,73 @@
     "runtimeSpec": "specs/party-chat-announcements-runtime.json",
     "referenceSpec": "specs/party-chat-announcements-reference.json",
     "rule": "Single owning shell variant; identical fixed pixels outside the bounded composer patch. Original shell remains for Homes and special conversations. No overlay covers an old button or input border. Labels are native serif 20px, on matching 240x66 button hitboxes."
+  },
+  "partyChatContinuation": {
+    "date": "2026-10-30",
+    "authority": "User requested Continue below ALL and View identical to Clear centered below Clear.",
+    "spec": "specs/party-chat-continuation.json",
+    "runtime": "../../GUI/SpriteParts/ui_reignbeta_party_chat/reign_party_chat_compact_button.png",
+    "runtimeSha256": "d00d8903b5abf8be6637948cb046d06dee95ceda10d7729072fc49278bb87f88",
+    "rule": "Unresampled complete label-free Clear plate, including its original opaque marble and integrated frame. No separate frame, painting, alpha cut, recoloring or guessed replacement art. Two pixels of intact surrounding material retained.",
+    "nativeAcceptance": "pending"
+  },
+  "warCouncilMilitaryStanding": {
+    "dated": "2026-11-04",
+    "userRequested": "Peace Standing left and War Standing right of the crowned R; selected marker and peace target dropdown40..90percent in5point steps. Player peace choice persists during war; NPC war mobilization is automatic.",
+    "sourceRequestSha256": "22371f1d769a810f20dc2487fc10c1bb585c16fed0684c1da150c9c97c6b4955",
+    "completeAssetUniformScale": true,
+    "referenceCanvas": [
+      1920,
+      1080
+    ],
+    "peaceControl": [
+      218,
+      107,
+      226,
+      36
+    ],
+    "warControl": [
+      546,
+      107,
+      226,
+      36
+    ],
+    "peacePopup": [
+      189,
+      145,
+      304,
+      304
+    ],
+    "selectedColor": "#C5AC83FF",
+    "unselectedColor": "#8A8883FF",
+    "selectedMarker": "bullet",
+    "nativeAcceptance": "pending; candidate control composition does not assert a new approved full-screen reference",
+    "fixedMapAndShellBytesChanged": false,
+    "sourceAssets": [
+      {
+        "path": "ReignBeta/GUI/SpriteParts/ui_reignbeta_war_standing/reign_war_standing_tabs.png",
+        "sha256": "73f1fcefd6202a58975af8f324068c28e6b7ae7da7a588642f4514aee37d7238"
+      },
+      {
+        "path": "ReignBeta/GUI/SpriteParts/ui_reignbeta_war_standing/reign_war_standing_popup.png",
+        "sha256": "2cbb69f56afd18f19e45fce42a22157efb7d534c08ad4d9d07c825af0114577e"
+      }
+    ],
+    "revision": 2,
+    "supersedes": "Rejected rectangular button composition,2026-11-04",
+    "wingImage": [
+      205,
+      30,
+      580,
+      193.333333
+    ],
+    "popupImage": [
+      189,
+      145,
+      304,
+      304
+    ],
+    "productionRule": "Render complete generated image rectangles at uniform scale, with alpha transparency and live labels/selections. No clipping, image resampling, replacement map/shell/portraits, separate decorative overlays or per-row frames.",
+    "provenance": "ReignBeta/artwork/ui-modern-style-kit/generated-sources/war-council-standing-v2.json"
   }
 }

@@ -78,7 +78,7 @@ namespace ReignBeta.UI
                 if (ScreenManager.FocusedLayer != _layer) ScreenManager.TrySetFocus(_layer);
                 _vm?.OnFrameTick(dt);
                 ApplyScale();
-                if (Input.IsKeyReleased(InputKey.Escape)) Close(true);
+                if (Input.IsKeyReleased(InputKey.Escape) && _vm?.HandleStandingEscape() != true) Close(true);
             }
             catch (Exception ex)
             {
@@ -97,6 +97,12 @@ namespace ReignBeta.UI
             string arg = separator >= 0 ? raw.Substring(separator + 1).Trim() : (value ?? string.Empty).Trim();
             switch (verb)
             {
+                case "standing-peace": return FailUnless(_vm.SetStanding("peace"), "Military standing authority is unavailable.", out error);
+                case "standing-war": return FailUnless(_vm.SetStanding("war"), "Military standing authority is unavailable.", out error);
+                case "standing-dropdown":
+                    if (!_vm.CanChoosePeaceForce) { error = "Peace standing and current sovereign authority are required."; return false; }
+                    _vm.ExecuteTogglePeaceForce(); return true;
+                case "standing-percent": return FailUnless(_vm.ChoosePeaceForceForAutomation(arg), "Choose Automatic or 40-90 in five-point steps from the open peace dropdown.", out error);
                 case "select-lord": return FailUnless(_vm.SelectLord(arg), "Unknown War Council lord.", out error);
                 case "open-raven": return FailUnless(_vm.OpenMessengerForAutomation(arg), "Unknown War Council lord.", out error);
                 case "set-raven-text": return FailUnless(_vm.SetMessengerTextForAutomation(arg), "Open a raven message and provide non-empty text.", out error);
@@ -123,6 +129,10 @@ namespace ReignBeta.UI
         public static float AutomationMapOffsetX => _vm?.MapOffsetX ?? 0f;
         public static float AutomationMapOffsetY => _vm?.MapOffsetY ?? 0f;
         public static string AutomationStatus => _vm?.StatusText ?? string.Empty;
+        public static bool AutomationPeaceStanding => _vm?.PeaceStandingSelected == true;
+        public static bool AutomationStandingCanChange => _vm?.CanChangeStanding == true;
+        public static bool AutomationStandingDropdown => _vm?.StandingDropdownVisible == true;
+        public static string AutomationPeaceForce => _vm?.PeaceForceText ?? "";
         public static int AutomationClanPartyCount => _vm?.Markers.Count(x => x.IsPlayerClan) ?? 0;
         public static int AutomationKingdomPartyCount => _vm?.Markers.Count(x => x.IsPlayerRealm && !x.IsPlayerClan) ?? 0;
         public static int AutomationPlayerRealmPartyCount => _vm?.Markers.Count(x => x.IsPlayerRealm) ?? 0;

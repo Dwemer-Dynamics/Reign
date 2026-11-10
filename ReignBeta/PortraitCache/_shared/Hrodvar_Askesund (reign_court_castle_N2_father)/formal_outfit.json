@@ -1,0 +1,13 @@
+{
+  "version": 1,
+  "heroStringId": "reign_court_castle_N2_father",
+  "characterName": "Hrodvar Askesund",
+  "imagePath": "portrait.png",
+  "imageSha256": "241286B7F137C6CA5198CF837268C1344C828270909FB979DE8262C21E3B63A7",
+  "description": "A dark blue knee-length long-sleeved wool tunic with restrained pale-gold geometric tablet-woven trim at the split neckline, cuffs and hem, over a cream linen underlayer. A plain brown leather belt with a modest brass buckle, loose brown trousers, beige-brown wrapped lower legs with dark ties and simple brown leather ankle shoes. No headgear, armor or weapons.",
+  "status": "completed",
+  "descriptionSource": "agent_vision",
+  "retryEligible": false,
+  "error": "",
+  "updatedUtc": "2026-11-07T03:15:05.023761+00:00"
+}

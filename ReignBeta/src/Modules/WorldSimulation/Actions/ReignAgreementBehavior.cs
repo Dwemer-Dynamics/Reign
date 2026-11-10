@@ -117,6 +117,17 @@ namespace ReignBeta.Actions
             a.ConversationId = conversationId; a.ProposerId = playerId;
             ReignActionService.BindGuestReviews(a);
             a.State = AgreementState.Offered; a.PlayerAcceptedHash = a.TermsHash(); a.NpcAcceptedHash = "";
+            if (a.Clauses.Any(c => c.ActionId == "marriage.propose" || c.ActionId == "marriage.appeal")
+                && _decisions.TryGetValue("marriage:" + a.Id, out var priorMarriage))
+            {
+                var prior = JObject.Parse(priorMarriage);
+                if (prior.Value<string>("hash") != a.TermsHash())
+                    throw new InvalidOperationException("The marriage action is already resolved under different terms.");
+                receipt = new ActionReceipt { OperationId = a.Id, TermsHash = a.TermsHash(),
+                    State = prior.Value<string>("kind") == "accept" ? AgreementState.Accepted : AgreementState.Rejected,
+                    Message = prior.Value<string>("message") ?? "", Day = ReignActionService.Now };
+                return null;
+            }
             var errors = ReignActionService.Preview(a);
             if (errors.Count > 0) throw new InvalidOperationException(string.Join(" ", errors));
             if (_offers.TryGetValue(a.Id, out var old) && (a.Revision < old.Revision
@@ -128,6 +139,8 @@ namespace ReignBeta.Actions
                 receipt = Commit(a, false);
                 return null;
             }
+            if (a.Clauses.Any(c => c.ActionId == "marriage.propose" || c.ActionId == "marriage.appeal"))
+                ReignBeta.Campaign.ReignRelationshipCampaignBehavior.Instance?.RecordPlayerMarriageProposal(a);
             _offers[a.Id] = ReignActionService.Copy(a);
             return a;
         }
@@ -158,6 +171,22 @@ namespace ReignBeta.Actions
                     return Status(offered.Id).Message;
                 if (!_offers.TryGetValue(offered.Id, out var saved) || saved.State != AgreementState.Offered || saved.TermsHash() != offered.TermsHash())
                     throw new InvalidOperationException("This response no longer matches the saved pending offer.");
+            }
+            if (offered?.Clauses.Any(c => c.ActionId == "marriage.propose" || c.ActionId == "marriage.appeal") == true)
+            {
+                string marriageKey = "marriage:" + offered.Id;
+                if (_decisions.TryGetValue(marriageKey, out var previous))
+                {
+                    var saved = JObject.Parse(previous);
+                    if (saved.Value<string>("hash") != offered.TermsHash())
+                        throw new InvalidOperationException("The marriage action is already resolved under different terms.");
+                    return saved.Value<string>("message");
+                }
+                string message = ReignBeta.Campaign.ReignRelationshipCampaignBehavior.Instance?.ReceiveMarriageDecision(offered, decision.Kind)
+                    ?? "Marriage services are unavailable.";
+                if (decision.Kind == "accept" || decision.Kind == "reject")
+                    _decisions[marriageKey] = new JObject { ["hash"] = offered.TermsHash(), ["message"] = message, ["kind"] = decision.Kind }.ToString(Formatting.None);
+                return message;
             }
             switch (decision.Kind)
             {

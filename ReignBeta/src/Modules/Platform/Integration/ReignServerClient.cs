@@ -1654,7 +1654,7 @@ namespace ReignBeta.Integration
                         obj.Value<string>("letterId") ?? string.Empty,
                         obj.Value<string>("threadId") ?? string.Empty,
                         obj.Value<string>("direction") ?? string.Empty,
-                        obj.Value<double?>("worldDay") ?? 0d));
+                        obj.Value<double?>("worldDay") ?? 0d) { ExchangeId = obj.Value<string>("exchangeId") ?? "" });
                 }
             }
             catch (Exception ex)
@@ -2506,7 +2506,16 @@ namespace ReignBeta.Integration
 
             List<Hero> participants = (activeHeroes ?? Enumerable.Empty<Hero>()).Where(x => x != null).Distinct().ToList();
             payload["opportunitySnapshot"] = await ReignMainThread.InvokeAsync(() =>
-                BuildConversationOpportunitySnapshot(speaker, mode, participants)).ConfigureAwait(false);
+            {
+                if (mode == "dialogue" && participants.Count == 1 && participants[0] == speaker)
+                {
+                    string marriageHistory = ReignRelationshipCampaignBehavior.Instance?.PrivateMarriageHistory(speaker) ?? "";
+                    if (marriageHistory.Length != 0)
+                        payload["sceneContext"] = (payload.Value<string>("sceneContext") ?? "")
+                            + "\nPrivate arranged marriage history for the addressed character\n" + marriageHistory;
+                }
+                return BuildConversationOpportunitySnapshot(speaker, mode, participants);
+            }).ConfigureAwait(false);
 
             Stopwatch selectorTimer = Stopwatch.StartNew();
             try
@@ -3727,6 +3736,8 @@ namespace ReignBeta.Integration
                     ["heroStringId"] = hero.StringId,
                     ["name"] = hero.Name?.ToString() ?? hero.StringId,
                     ["role"] = hero == Hero.MainHero ? "player" : "npc",
+                    ["age"] = Math.Round(hero.Age, 2),
+                    ["isChild"] = hero.IsChild,
                     ["isFemale"] = hero.IsFemale,
                     ["isRuler"] = sovereign == hero,
                     ["clanId"] = hero.Clan?.StringId ?? string.Empty,
@@ -6001,6 +6012,7 @@ namespace ReignBeta.Integration
 
     public sealed class ReignDialogueLine
     {
+        public string ExchangeId { get; set; } = "";
         public ReignDialogueLine(string speaker, string text, string role, string channel = "in_person", string letterId = "", string threadId = "", string direction = "", double worldDay = 0d)
         {
             Speaker = speaker ?? string.Empty;

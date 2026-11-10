@@ -7,6 +7,29 @@ namespace Reign.Mcp.Tests;
 public sealed class TestingToolsCampaignCommandTests
 {
     [Fact]
+    public void EnrollmentPreservesLongRealTimelineIdentityWithoutRelaxingPathOrOwnershipChecks()
+    {
+        string temporary = Path.Combine(Path.GetTempPath(), "reign-timeline-test-" + Guid.NewGuid().ToString("N"));
+        Directory.CreateDirectory(temporary);
+        try
+        {
+            var options = TestOptions.Create(temporary);
+            var service = new CampaignTestService(options, null!, null!, new TestingCatalogService(options));
+            string timeline = "main_0123456789ab_recovered_0123456789" + string.Concat(Enumerable.Repeat("_branch_0123456789", 8));
+            service.Prepare("campaign", timeline, "Immutable", "owned-run", "War economy");
+            Assert.Equal(timeline, service.RequireEnrollment("owned-run", "campaign").TimelineId);
+            var resumed = new CampaignTestService(options, null!, null!, new TestingCatalogService(options));
+            Assert.Equal(timeline, resumed.RequireEnrollment("owned-run", "campaign").TimelineId);
+            resumed.Prepare("campaign", timeline, "Immutable", "owned-run", "War economy");
+            Assert.Throws<InvalidOperationException>(() => resumed.Prepare("campaign", timeline + "_other", "Immutable", "owned-run", "War economy"));
+            Assert.Throws<ArgumentException>(() => resumed.Prepare("campaign", new string('a', 513), "Immutable", "long-run", "War economy"));
+            Assert.Throws<ArgumentException>(() => resumed.Prepare("campaign", "../other", "Immutable", "unsafe-run", "War economy"));
+            Assert.Throws<ArgumentException>(() => resumed.Prepare("campaign", timeline, "Immutable", "../other", "War economy"));
+        }
+        finally { Directory.Delete(temporary, recursive: true); }
+    }
+
+    [Fact]
     public async Task PreparationUsesGuardedCampaignEnrollmentInsteadOfSaveNameInference()
     {
         string temporary = Path.Combine(Path.GetTempPath(), "reign-campaign-command-test-" + Guid.NewGuid().ToString("N"));

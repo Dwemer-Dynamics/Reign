@@ -1,0 +1,2938 @@
+{
+  "schema": "reign-court-life-release-recipe-v1",
+  "date": "2026-10-25",
+  "purpose": "Declarative acceptance recipes, not a new executable live command or runtime testing capability. Bind supported tools only after current catalog/gates; missing preparation remains explicit.",
+  "goal": "Full current-release end-to-end acceptance, preserve compatible prior passes, close every partial/blocked branch, add impacted dependency regressions, fix/validate/deploy and retest affected paths.",
+  "imageGeneration": "disabled",
+  "baseline": "Await exact user selection; never use NPC Lives protected baseline or Current.",
+  "historicalCounts": {
+    "positive": 137,
+    "partial": 59,
+    "blocked": 4,
+    "total": 200,
+    "proof": "conversation checkpoint; original ledger not yet recovered"
+  },
+  "requirements": [
+    {
+      "id": "D01",
+      "setup": "Load at 07:59, wait across 08:00, open court",
+      "requiredObservations": "One stable daily roll; maximum five new entries; no repeat on hourly ticks or reopen",
+      "historicalReportedStatus": "partial",
+      "historicalStatusProvenance": "Earlier task conversation and archived final checkpoint; original scenario ledger not recovered. Requires per-assertion evidence review, not current acceptance.",
+      "currentCandidateStatus": "not_run_or_reuse_review_pending"
+    },
+    {
+      "id": "D02",
+      "setup": "Repeated deterministic seeds with all sources eligible",
+      "requiredObservations": "Weights 6 notable, 6 visitor, 5 domestic, 5 international, 5 family, 3 patronage out of 30; patronage is least frequent",
+      "historicalReportedStatus": "positive",
+      "historicalStatusProvenance": "Earlier task conversation and archived final checkpoint; original scenario ledger not recovered. Requires per-assertion evidence review, not current acceptance.",
+      "currentCandidateStatus": "not_run_or_reuse_review_pending"
+    },
+    {
+      "id": "D03",
+      "setup": "Due foreign replies of 0, 1, 4, 5 and more than 5",
+      "requiredObservations": "Oldest due replies reserve up to five slots; remaining ordinary roll is 1d(5-R); excess replies remain pending",
+      "historicalReportedStatus": "partial",
+      "historicalStatusProvenance": "Earlier task conversation and archived final checkpoint; original scenario ledger not recovered. Requires per-assertion evidence review, not current acceptance.",
+      "currentCandidateStatus": "not_run_or_reuse_review_pending"
+    },
+    {
+      "id": "D04",
+      "setup": "Enable Chancellor before the roll, then disable later",
+      "requiredObservations": "All new sources suppressed while active; no family dismissal for a suppressed/invalidated opportunity; no double generation on resume",
+      "historicalReportedStatus": "partial",
+      "historicalStatusProvenance": "Earlier task conversation and archived final checkpoint; original scenario ledger not recovered. Requires per-assertion evidence review, not current acceptance.",
+      "currentCandidateStatus": "not_run_or_reuse_review_pending"
+    },
+    {
+      "id": "D05",
+      "setup": "Accumulate more than five pending nonexpired entries",
+      "requiredObservations": "Every entry remains accessible in the existing scroll area; daily creation cap still holds; expiration order is correct",
+      "historicalReportedStatus": "partial",
+      "historicalStatusProvenance": "Earlier task conversation and archived final checkpoint; original scenario ledger not recovered. Requires per-assertion evidence review, not current acceptance.",
+      "currentCandidateStatus": "not_run_or_reuse_review_pending"
+    },
+    {
+      "id": "D06",
+      "setup": "Open and return without a decision, then reopen",
+      "requiredObservations": "Same matter, people, terms, transcript and completed-turn receipts; no reroll or free duplicate reward",
+      "historicalReportedStatus": "positive",
+      "historicalStatusProvenance": "Earlier task conversation and archived final checkpoint; original scenario ledger not recovered. Requires per-assertion evidence review, not current acceptance.",
+      "currentCandidateStatus": "not_run_or_reuse_review_pending"
+    },
+    {
+      "id": "D07",
+      "setup": "Send a question with one, two and four participants",
+      "requiredObservations": "Correct portraits/names; every actual speaker uses their own knowledge/personality; no one speaks the ruler's words",
+      "historicalReportedStatus": "partial",
+      "historicalStatusProvenance": "Earlier task conversation and archived final checkpoint; original scenario ledger not recovered. Requires per-assertion evidence review, not current acceptance.",
+      "currentCandidateStatus": "not_run_or_reuse_review_pending"
+    },
+    {
+      "id": "D08",
+      "setup": "Disconnect provider before opening, midway through a multi-NPC beat, and after a visible reply but before its agreement interpretation",
+      "requiredObservations": "Clear recoverable failure, no effect, no false completed family turn; successful earlier replies are retained; retry reuses the exact saved reply and does not duplicate speech, acceptance, counteroffers or completed turns",
+      "historicalReportedStatus": "partial",
+      "historicalStatusProvenance": "Earlier task conversation and archived final checkpoint; original scenario ledger not recovered. Requires per-assertion evidence review, not current acceptance.",
+      "currentCandidateStatus": "not_run_or_reuse_review_pending"
+    },
+    {
+      "id": "D09",
+      "setup": "Close/reopen after a reply, repeat callback and confirm twice",
+      "requiredObservations": "Single receipt and single effect; opening is not counted as a spoken player turn",
+      "historicalReportedStatus": "positive",
+      "historicalStatusProvenance": "Earlier task conversation and archived final checkpoint; original scenario ledger not recovered. Requires per-assertion evidence review, not current acceptance.",
+      "currentCandidateStatus": "not_run_or_reuse_review_pending"
+    },
+    {
+      "id": "D10",
+      "setup": "Lose capital, ruler office, kingdom, or become captive during a pending matter",
+      "requiredObservations": "Authority revalidated; no stale court execution or visit punishment for technical unavailability",
+      "historicalReportedStatus": "partial",
+      "historicalStatusProvenance": "Earlier task conversation and archived final checkpoint; original scenario ledger not recovered. Requires per-assertion evidence review, not current acceptance.",
+      "currentCandidateStatus": "not_run_or_reuse_review_pending"
+    },
+    {
+      "id": "D11",
+      "setup": "Participant dies, becomes captive, leaves eligible kingdom, receives a party/office or becomes hostile",
+      "requiredObservations": "Event/visit revalidates safely; unrelated party/quest/office remains intact; clear reason in evidence",
+      "historicalReportedStatus": "partial",
+      "historicalStatusProvenance": "Earlier task conversation and archived final checkpoint; original scenario ledger not recovered. Requires per-assertion evidence review, not current acceptance.",
+      "currentCandidateStatus": "not_run_or_reuse_review_pending"
+    },
+    {
+      "id": "D12",
+      "setup": "Save before a decision, after a confirmed decision, and with a pending delivery",
+      "requiredObservations": "State and stable IDs survive a different game process and server restart; already-applied effects do not repeat",
+      "historicalReportedStatus": "positive",
+      "historicalStatusProvenance": "Earlier task conversation and archived final checkpoint; original scenario ledger not recovered. Requires per-assertion evidence review, not current acceptance.",
+      "currentCandidateStatus": "not_run_or_reuse_review_pending"
+    },
+    {
+      "id": "I01",
+      "setup": "Own noble complains of a foreign lord: \u201cTell me your losses and what redress you seek.\u201d",
+      "requiredObservations": "Real eligible principals; substantiated facts separated from claims; severity and offered remedies consistent",
+      "historicalReportedStatus": "positive",
+      "historicalStatusProvenance": "Earlier task conversation and archived final checkpoint; original scenario ledger not recovered. Requires per-assertion evidence review, not current acceptance.",
+      "currentCandidateStatus": "not_run_or_reuse_review_pending"
+    },
+    {
+      "id": "I02",
+      "setup": "Foreign ambassador complains of own lord: \u201cBring me the evidence before I accept that accusation.\u201d",
+      "requiredObservations": "Actual foreign representation and charter; own lord can answer; no default admission by ruler",
+      "historicalReportedStatus": "positive",
+      "historicalStatusProvenance": "Earlier task conversation and archived final checkpoint; original scenario ledger not recovered. Requires per-assertion evidence review, not current acceptance.",
+      "currentCandidateStatus": "not_run_or_reuse_review_pending"
+    },
+    {
+      "id": "I03",
+      "setup": "NPC ruler hears a complaint involving the player's lord and supports their own lord",
+      "requiredObservations": "NPC-to-player pressure changes exactly once by the severity rule; no AI decision on behalf of the player",
+      "historicalReportedStatus": "partial",
+      "historicalStatusProvenance": "Earlier task conversation and archived final checkpoint; original scenario ledger not recovered. Requires per-assertion evidence review, not current acceptance.",
+      "currentCandidateStatus": "not_run_or_reuse_review_pending"
+    },
+    {
+      "id": "I04",
+      "setup": "NPC ruler rules against their own lord in favor of player's lord",
+      "requiredObservations": "Their pressure toward player decreases by 6/10/16/24 as applicable, clamped by existing pressure bounds; no player pressure meter invented",
+      "historicalReportedStatus": "partial",
+      "historicalStatusProvenance": "Earlier task conversation and archived final checkpoint; original scenario ledger not recovered. Requires per-assertion evidence review, not current acceptance.",
+      "currentCandidateStatus": "not_run_or_reuse_review_pending"
+    },
+    {
+      "id": "I05",
+      "setup": "Player sides with own lord, foreign lord, or agreed compromise at each severity",
+      "requiredObservations": "Correct directional winner/loser relation deltas and acceptance mitigation; foreign ruler quarter effect with midpoint away-from-zero rounding; no reversed pair",
+      "historicalReportedStatus": "partial",
+      "historicalStatusProvenance": "Earlier task conversation and archived final checkpoint; original scenario ledger not recovered. Requires per-assertion evidence review, not current acceptance.",
+      "currentCandidateStatus": "not_run_or_reuse_review_pending"
+    },
+    {
+      "id": "I06",
+      "setup": "\u201cI will pay the stated compensation.\u201d Review and confirm",
+      "requiredObservations": "Real payer balance decreases and recipient/ledger increases exactly once; insufficient funds prevents execution",
+      "historicalReportedStatus": "partial",
+      "historicalStatusProvenance": "Earlier task conversation and archived final checkpoint; original scenario ledger not recovered. Requires per-assertion evidence review, not current acceptance.",
+      "currentCandidateStatus": "not_run_or_reuse_review_pending"
+    },
+    {
+      "id": "I07",
+      "setup": "\u201cI will pay half, provided your ruler considers the matter closed.\u201d",
+      "requiredObservations": "Conditional counteroffer is not payment or settlement; only exact accepted supported terms can be confirmed",
+      "historicalReportedStatus": "partial",
+      "historicalStatusProvenance": "Earlier task conversation and archived final checkpoint; original scenario ledger not recovered. Requires per-assertion evidence review, not current acceptance.",
+      "currentCandidateStatus": "not_run_or_reuse_review_pending"
+    },
+    {
+      "id": "I08",
+      "setup": "\u201cApologize and withdraw the allegation.\u201d",
+      "requiredObservations": "Only supported apology/withdrawal/history/pressure effects; no nonexistent arrest or compensation",
+      "historicalReportedStatus": "positive",
+      "historicalStatusProvenance": "Earlier task conversation and archived final checkpoint; original scenario ledger not recovered. Requires per-assertion evidence review, not current acceptance.",
+      "currentCandidateStatus": "not_run_or_reuse_review_pending"
+    },
+    {
+      "id": "I09",
+      "setup": "Real trade/gift/prisoner/alliance opportunity",
+      "requiredObservations": "Native agreement/action adapter reports actual completion; unavailable native support cannot be described as success",
+      "historicalReportedStatus": "partial",
+      "historicalStatusProvenance": "Earlier task conversation and archived final checkpoint; original scenario ledger not recovered. Requires per-assertion evidence review, not current acceptance.",
+      "currentCandidateStatus": "not_run_or_reuse_review_pending"
+    },
+    {
+      "id": "I10",
+      "setup": "\u201cTake those terms to your sovereign.\u201d",
+      "requiredObservations": "Persisted referral, actual travel/reply delay, no premature execution; guaranteed reply occupies a reserved slot",
+      "historicalReportedStatus": "positive",
+      "historicalStatusProvenance": "Earlier task conversation and archived final checkpoint; original scenario ledger not recovered. Requires per-assertion evidence review, not current acceptance.",
+      "currentCandidateStatus": "not_run_or_reuse_review_pending"
+    },
+    {
+      "id": "I11",
+      "setup": "Sovereign accepts, counters, refuses, or charter limits the envoy",
+      "requiredObservations": "Reply displays the exact returned terms; confirming old/superseded terms is rejected; counteroffer requires review",
+      "historicalReportedStatus": "partial",
+      "historicalStatusProvenance": "Earlier task conversation and archived final checkpoint; original scenario ledger not recovered. Requires per-assertion evidence review, not current acceptance.",
+      "currentCandidateStatus": "not_run_or_reuse_review_pending"
+    },
+    {
+      "id": "I12",
+      "setup": "Rival at power ratios 1.49, 1.50 and 3.0; bold/dishonorable versus honorable/cautious ruler",
+      "requiredObservations": "Extortion only when personality and relative strength support it; strong kingdoms can still choose legitimate offers",
+      "historicalReportedStatus": "partial",
+      "historicalStatusProvenance": "Earlier task conversation and archived final checkpoint; original scenario ledger not recovered. Requires per-assertion evidence review, not current acceptance.",
+      "currentCandidateStatus": "not_run_or_reuse_review_pending"
+    },
+    {
+      "id": "I13",
+      "setup": "\u201cI will not pay. Leave my court.\u201d",
+      "requiredObservations": "Refusal recorded; any escalation follows real pressure and diplomatic action rules, not narrator fiat",
+      "historicalReportedStatus": "positive",
+      "historicalStatusProvenance": "Earlier task conversation and archived final checkpoint; original scenario ledger not recovered. Requires per-assertion evidence review, not current acceptance.",
+      "currentCandidateStatus": "not_run_or_reuse_review_pending"
+    },
+    {
+      "id": "I14",
+      "setup": "NPC diplomacy targets player kingdom through pressure, peace/war and supported unilateral actions",
+      "requiredObservations": "Player treated as a world participant; no leftover player-target exclusion; AI still cannot act as player ruler",
+      "historicalReportedStatus": "partial",
+      "historicalStatusProvenance": "Earlier task conversation and archived final checkpoint; original scenario ledger not recovered. Requires per-assertion evidence review, not current acceptance.",
+      "currentCandidateStatus": "not_run_or_reuse_review_pending"
+    },
+    {
+      "id": "I15",
+      "setup": "Existing/new event envoy selection at Charm49/50/99/100/149/150/199/200",
+      "requiredObservations": "Highest nonempty allowed band; exclusions for assignments/captivity/war and event-posting relation exception enforced",
+      "historicalReportedStatus": "partial",
+      "historicalStatusProvenance": "Earlier task conversation and archived final checkpoint; original scenario ledger not recovered. Requires per-assertion evidence review, not current acceptance.",
+      "currentCandidateStatus": "not_run_or_reuse_review_pending"
+    },
+    {
+      "id": "I16",
+      "setup": "War, capture, kingdom elimination, envoy replacement or home loss during referral",
+      "requiredObservations": "Proper posting/reply invalidation or fallback lifecycle; no duplicated envoy, trapped noble or stale agreement",
+      "historicalReportedStatus": "partial",
+      "historicalStatusProvenance": "Earlier task conversation and archived final checkpoint; original scenario ledger not recovered. Requires per-assertion evidence review, not current acceptance.",
+      "currentCandidateStatus": "not_run_or_reuse_review_pending"
+    },
+    {
+      "id": "I17",
+      "setup": "Retry/restore between native effect and server receipt, and between pressure adjustment and queue close",
+      "requiredObservations": "Exactly-once effect or explicit unresolved receipt requiring reconciliation; never silently apply again",
+      "historicalReportedStatus": "partial",
+      "historicalStatusProvenance": "Earlier task conversation and archived final checkpoint; original scenario ledger not recovered. Requires per-assertion evidence review, not current acceptance.",
+      "currentCandidateStatus": "not_run_or_reuse_review_pending"
+    },
+    {
+      "id": "F01",
+      "setup": "Young child shows an insect: \u201cWhat did you discover? Show me.\u201d then \u201cWhere did you find it?\u201d",
+      "requiredObservations": "Age-appropriate language and interests; two distinct successful player turns; no adult construction, politics or romance targeting",
+      "historicalReportedStatus": "positive",
+      "historicalStatusProvenance": "Earlier task conversation and archived final checkpoint; original scenario ledger not recovered. Requires per-assertion evidence review, not current acceptance.",
+      "currentCandidateStatus": "not_run_or_reuse_review_pending"
+    },
+    {
+      "id": "F02",
+      "setup": "Teen asks for arena visit: \u201cWhat would you like to watch?\u201d then \u201cWe can talk about going after court.\u201d",
+      "requiredObservations": "Plausible teen response; later activity remains a Family Chambers roleplay opportunity",
+      "historicalReportedStatus": "positive",
+      "historicalStatusProvenance": "Earlier task conversation and archived final checkpoint; original scenario ledger not recovered. Requires per-assertion evidence review, not current acceptance.",
+      "currentCandidateStatus": "not_run_or_reuse_review_pending"
+    },
+    {
+      "id": "F03",
+      "setup": "Spouse shares a worry; adult child seeks advice",
+      "requiredObservations": "Correct family identity, actual relationship and own personality; two completed turns satisfy visit",
+      "historicalReportedStatus": "partial",
+      "historicalStatusProvenance": "Earlier task conversation and archived final checkpoint; original scenario ledger not recovered. Requires per-assertion evidence review, not current acceptance.",
+      "currentCandidateStatus": "not_run_or_reuse_review_pending"
+    },
+    {
+      "id": "F04",
+      "setup": "Never open the visit; open with zero turns; leave after one turn",
+      "requiredObservations": "Exactly one hidden dismissal at the next 08:00 deadline in each case, including reopening before deadline",
+      "historicalReportedStatus": "positive",
+      "historicalStatusProvenance": "Earlier task conversation and archived final checkpoint; original scenario ledger not recovered. Requires per-assertion evidence review, not current acceptance.",
+      "currentCandidateStatus": "not_run_or_reuse_review_pending"
+    },
+    {
+      "id": "F05",
+      "setup": "Two and three successful turns, including across two openings",
+      "requiredObservations": "Successful visit; only one attendance result; remove one previous dismissal, floor at zero",
+      "historicalReportedStatus": "positive",
+      "historicalStatusProvenance": "Earlier task conversation and archived final checkpoint; original scenario ledger not recovered. Requires per-assertion evidence review, not current acceptance.",
+      "currentCandidateStatus": "not_run_or_reuse_review_pending"
+    },
+    {
+      "id": "F06",
+      "setup": "Repeat same callback/turn ID; opening speeches; blank input; failed reply; partial multi-speaker response",
+      "requiredObservations": "None adds an extra completed player turn; successful repeated wording in a genuinely new turn remains a real turn",
+      "historicalReportedStatus": "partial",
+      "historicalStatusProvenance": "Earlier task conversation and archived final checkpoint; original scenario ledger not recovered. Requires per-assertion evidence review, not current acceptance.",
+      "currentCandidateStatus": "not_run_or_reuse_review_pending"
+    },
+    {
+      "id": "F07",
+      "setup": "Patience 0, 1, 10, 11, 40, 41 and 100; missing trait",
+      "requiredObservations": "Threshold is ceil(percent/10), neutral50 for missing; zero begins neglect on first actual dismissal, not before any visit",
+      "historicalReportedStatus": "positive",
+      "historicalStatusProvenance": "Earlier task conversation and archived final checkpoint; original scenario ledger not recovered. Requires per-assertion evidence review, not current acceptance.",
+      "currentCandidateStatus": "not_run_or_reuse_review_pending"
+    },
+    {
+      "id": "F08",
+      "setup": "Reach threshold, inspect next day's docket and social conversation",
+      "requiredObservations": "No more visits from that member; strong private neglect prompting; hidden counter never exposed as game statistics in dialogue/UI",
+      "historicalReportedStatus": "positive",
+      "historicalStatusProvenance": "Earlier task conversation and archived final checkpoint; original scenario ledger not recovered. Requires per-assertion evidence review, not current acceptance.",
+      "currentCandidateStatus": "not_run_or_reuse_review_pending"
+    },
+    {
+      "id": "F09",
+      "setup": "Advance one day, several missed days and to relation0; include positive/negative public-standing offsets and a +100 capped attitude",
+      "requiredObservations": "Actual effective family-to-player relation falls1/day beginning following cycle and stops at0 by changing only personal affinity; public standing and opposite direction remain unchanged; existing negative values are not raised toward0",
+      "historicalReportedStatus": "partial",
+      "historicalStatusProvenance": "Earlier task conversation and archived final checkpoint; original scenario ledger not recovered. Requires per-assertion evidence review, not current acceptance.",
+      "currentCandidateStatus": "not_run_or_reuse_review_pending"
+    },
+    {
+      "id": "F10",
+      "setup": "Technical error, unavailable/dead/captive member, capital/rulership loss, Chancellor suppression",
+      "requiredObservations": "Visit invalidates appropriately without neglect penalty; merely ignoring a valid visit while away is still assessed correctly",
+      "historicalReportedStatus": "partial",
+      "historicalStatusProvenance": "Earlier task conversation and archived final checkpoint; original scenario ledger not recovered. Requires per-assertion evidence review, not current acceptance.",
+      "currentCandidateStatus": "not_run_or_reuse_review_pending"
+    },
+    {
+      "id": "F11",
+      "setup": "In Family Chambers: \u201cI have neglected you. I want to make time for you again.\u201d NPC actually accepts",
+      "requiredObservations": "Neglect and dismissal counter clear only after accepted reconciliation; lost relation is not refunded; future visits can resume",
+      "historicalReportedStatus": "positive",
+      "historicalStatusProvenance": "Earlier task conversation and archived final checkpoint; original scenario ledger not recovered. Requires per-assertion evidence review, not current acceptance.",
+      "currentCandidateStatus": "not_run_or_reuse_review_pending"
+    },
+    {
+      "id": "F12",
+      "setup": "Thanks, ordinary affection, gift, \u201cI am not apologizing,\u201d quoted apology, hypothetical/conditional reconciliation or NPC refusal",
+      "requiredObservations": "No false reconciliation or counter reset",
+      "historicalReportedStatus": "partial",
+      "historicalStatusProvenance": "Earlier task conversation and archived final checkpoint; original scenario ledger not recovered. Requires per-assertion evidence review, not current acceptance.",
+      "currentCandidateStatus": "not_run_or_reuse_review_pending"
+    },
+    {
+      "id": "F13",
+      "setup": "Same reconciliation callback twice, reconnect during response, save/load before acceptance",
+      "requiredObservations": "One receipt and no duplicate mutation; uncertain response re-observed before retry",
+      "historicalReportedStatus": "partial",
+      "historicalStatusProvenance": "Earlier task conversation and archived final checkpoint; original scenario ledger not recovered. Requires per-assertion evidence review, not current acceptance.",
+      "currentCandidateStatus": "not_run_or_reuse_review_pending"
+    },
+    {
+      "id": "F14",
+      "setup": "Child neglected, then matures to adult",
+      "requiredObservations": "Dedicated child directional value actually controls child response band; exact value migrates once into adult relationship; no shadow value or duplicate decay",
+      "historicalReportedStatus": "partial",
+      "historicalStatusProvenance": "Earlier task conversation and archived final checkpoint; original scenario ledger not recovered. Requires per-assertion evidence review, not current acceptance.",
+      "currentCandidateStatus": "not_run_or_reuse_review_pending"
+    },
+    {
+      "id": "F15",
+      "setup": "Family member dies, spouse changes, ruler succeeds, kingdom/campaign timeline changes",
+      "requiredObservations": "Correct pair identity and lifecycle; no inheritance of another ruler's hidden neglect or unsupported cross-timeline receipts",
+      "historicalReportedStatus": "partial",
+      "historicalStatusProvenance": "Earlier task conversation and archived final checkpoint; original scenario ledger not recovered. Requires per-assertion evidence review, not current acceptance.",
+      "currentCandidateStatus": "not_run_or_reuse_review_pending"
+    },
+    {
+      "id": "J01",
+      "setup": "Favored by ruler; no real contact for29.999 then30days",
+      "requiredObservations": "Current favored tag expires at30; history remains; rumor/history alone cannot keep current favor alive",
+      "historicalReportedStatus": "positive",
+      "historicalStatusProvenance": "Earlier task conversation and archived final checkpoint; original scenario ledger not recovered. Requires per-assertion evidence review, not current acceptance.",
+      "currentCandidateStatus": "not_run_or_reuse_review_pending"
+    },
+    {
+      "id": "J02",
+      "setup": "Actual spoken conversation and completed personal correspondence in both pair directions",
+      "requiredObservations": "Correct ruler-subject contact clock refreshed once per successful receipt; works for NPC rulers and the player",
+      "historicalReportedStatus": "partial",
+      "historicalStatusProvenance": "Earlier task conversation and archived final checkpoint; original scenario ledger not recovered. Requires per-assertion evidence review, not current acceptance.",
+      "currentCandidateStatus": "not_run_or_reuse_review_pending"
+    },
+    {
+      "id": "J03",
+      "setup": "Passive proximity, opening cue, failed reply, unanswered letter, reading old history, duplicate callback",
+      "requiredObservations": "No contact reset; stale counters cannot immediately recreate expired favor",
+      "historicalReportedStatus": "partial",
+      "historicalStatusProvenance": "Earlier task conversation and archived final checkpoint; original scenario ledger not recovered. Requires per-assertion evidence review, not current acceptance.",
+      "currentCandidateStatus": "not_run_or_reuse_review_pending"
+    },
+    {
+      "id": "J04",
+      "setup": "Legacy favored pair missing contact timestamp",
+      "requiredObservations": "One30day migration grace; save/reload does not restart grace indefinitely",
+      "historicalReportedStatus": "partial",
+      "historicalStatusProvenance": "Earlier task conversation and archived final checkpoint; original scenario ledger not recovered. Requires per-assertion evidence review, not current acceptance.",
+      "currentCandidateStatus": "not_run_or_reuse_review_pending"
+    },
+    {
+      "id": "J05",
+      "setup": "Fresh actual contact after expiry",
+      "requiredObservations": "Existing legitimate favor acquisition can operate again; no permanent lockout",
+      "historicalReportedStatus": "partial",
+      "historicalStatusProvenance": "Earlier task conversation and archived final checkpoint; original scenario ledger not recovered. Requires per-assertion evidence review, not current acceptance.",
+      "currentCandidateStatus": "not_run_or_reuse_review_pending"
+    },
+    {
+      "id": "J06",
+      "setup": "Jealous observer vs one current favorite; both observer and rival current favorites",
+      "requiredObservations": "Shared-favorite encounter weight halves; jealousy trait and directional standing do not change merely because of the reduction",
+      "historicalReportedStatus": "partial",
+      "historicalStatusProvenance": "Earlier task conversation and archived final checkpoint; original scenario ledger not recovered. Requires per-assertion evidence review, not current acceptance.",
+      "currentCandidateStatus": "not_run_or_reuse_review_pending"
+    },
+    {
+      "id": "J07",
+      "setup": "One of two favored tags expires",
+      "requiredObservations": "Reduction stops; correct current tag/pair owner, not stale reputation history",
+      "historicalReportedStatus": "partial",
+      "historicalStatusProvenance": "Earlier task conversation and archived final checkpoint; original scenario ledger not recovered. Requires per-assertion evidence review, not current acceptance.",
+      "currentCandidateStatus": "not_run_or_reuse_review_pending"
+    },
+    {
+      "id": "J08",
+      "setup": "Neglected spouse knows an adult opposite-sex NPC is favored",
+      "requiredObservations": "Prompt allows proportionate jealousy based on actual trait and known evidence; does not assert an affair as fact",
+      "historicalReportedStatus": "positive",
+      "historicalStatusProvenance": "Earlier task conversation and archived final checkpoint; original scenario ledger not recovered. Requires per-assertion evidence review, not current acceptance.",
+      "currentCandidateStatus": "not_run_or_reuse_review_pending"
+    },
+    {
+      "id": "J09",
+      "setup": "Spouse does not know favor; rival wrong category; child observer",
+      "requiredObservations": "Knowledge gate respected; children receive attention jealousy only",
+      "historicalReportedStatus": "partial",
+      "historicalStatusProvenance": "Earlier task conversation and archived final checkpoint; original scenario ledger not recovered. Requires per-assertion evidence review, not current acceptance.",
+      "currentCandidateStatus": "not_run_or_reuse_review_pending"
+    },
+    {
+      "id": "J10",
+      "setup": "Low/high jealousy, honor, boldness and existing relationship variants",
+      "requiredObservations": "Plausible differences in private hurt, open complaint, rivalry, restraint or direct questioning; deterministic eligibility and stochastic weights separately verified",
+      "historicalReportedStatus": "partial",
+      "historicalStatusProvenance": "Earlier task conversation and archived final checkpoint; original scenario ledger not recovered. Requires per-assertion evidence review, not current acceptance.",
+      "currentCandidateStatus": "not_run_or_reuse_review_pending"
+    },
+    {
+      "id": "J11",
+      "setup": "Domestic jealous noble raises concern: \u201cWhat have you actually seen?\u201d",
+      "requiredObservations": "Complaint fits the domestic source slot; hearsay stays hearsay; no fabricated punishment or romantic consent",
+      "historicalReportedStatus": "blocked",
+      "historicalStatusProvenance": "Earlier task conversation and archived final checkpoint; original scenario ledger not recovered. Requires per-assertion evidence review, not current acceptance.",
+      "currentCandidateStatus": "not_run_or_reuse_review_pending"
+    },
+    {
+      "id": "J12",
+      "setup": "Player reassures, challenges rumor, openly favors both, refuses accusation or escalates verbally",
+      "requiredObservations": "Natural response, truthful known evidence, supported social effects; no forced resolution or automatic allegation proof",
+      "historicalReportedStatus": "blocked",
+      "historicalStatusProvenance": "Earlier task conversation and archived final checkpoint; original scenario ledger not recovered. Requires per-assertion evidence review, not current acceptance.",
+      "currentCandidateStatus": "not_run_or_reuse_review_pending"
+    },
+    {
+      "id": "P01",
+      "setup": "\u201cPerform something for the court today.\u201d 500denars",
+      "requiredObservations": "Actual debit; immediate bounded performance/cultural record; no kingdom-wide reward",
+      "historicalReportedStatus": "positive",
+      "historicalStatusProvenance": "Earlier task conversation and archived final checkpoint; original scenario ledger not recovered. Requires per-assertion evidence review, not current acceptance.",
+      "currentCandidateStatus": "not_run_or_reuse_review_pending"
+    },
+    {
+      "id": "P02",
+      "setup": "\u201cMake a small work for my household.\u201d 500denars",
+      "requiredObservations": "One-day durable work with named creator; only a real supported native item can appear as an inventory object",
+      "historicalReportedStatus": "positive",
+      "historicalStatusProvenance": "Earlier task conversation and archived final checkpoint; original scenario ledger not recovered. Requires per-assertion evidence review, not current acceptance.",
+      "currentCandidateStatus": "not_run_or_reuse_review_pending"
+    },
+    {
+      "id": "P03",
+      "setup": "Praise funding500/2000/5000/8000",
+      "requiredObservations": "Correct court/local/three-settlement/kingdom reach and0/1/3/7day delivery; +3 eligible nobles toward ruler once",
+      "historicalReportedStatus": "partial",
+      "historicalStatusProvenance": "Earlier task conversation and archived final checkpoint; original scenario ledger not recovered. Requires per-assertion evidence review, not current acceptance.",
+      "currentCandidateStatus": "not_run_or_reuse_review_pending"
+    },
+    {
+      "id": "P04",
+      "setup": "Loyalty objective at2000/5000/8000",
+      "requiredObservations": "Actual supported town/castle loyalty +5 once at delivery, capped by native bounds; wrong/foreign settlements excluded",
+      "historicalReportedStatus": "positive",
+      "historicalStatusProvenance": "Earlier task conversation and archived final checkpoint; original scenario ledger not recovered. Requires per-assertion evidence review, not current acceptance.",
+      "currentCandidateStatus": "not_run_or_reuse_review_pending"
+    },
+    {
+      "id": "P05",
+      "setup": "Ask for loyalty at500 or kingdom reach for a small keepsake",
+      "requiredObservations": "Unavailable option rejected; explanation matches available scope",
+      "historicalReportedStatus": "partial",
+      "historicalStatusProvenance": "Earlier task conversation and archived final checkpoint; original scenario ledger not recovered. Requires per-assertion evidence review, not current acceptance.",
+      "currentCandidateStatus": "not_run_or_reuse_review_pending"
+    },
+    {
+      "id": "P06",
+      "setup": "\u201cTake this work to these three towns\u2026\u201d with real named choices",
+      "requiredObservations": "Exact validated regional recipients reviewed; unknown, duplicate, hostile or excess destinations rejected; no silent redirect after agreement",
+      "historicalReportedStatus": "partial",
+      "historicalStatusProvenance": "Earlier task conversation and archived final checkpoint; original scenario ledger not recovered. Requires per-assertion evidence review, not current acceptance.",
+      "currentCandidateStatus": "not_run_or_reuse_review_pending"
+    },
+    {
+      "id": "P07",
+      "setup": "Insufficient funds, exact funds, repeated confirm and callback",
+      "requiredObservations": "No negative money or free work; debit/effect once; amount and schedule remain visible",
+      "historicalReportedStatus": "partial",
+      "historicalStatusProvenance": "Earlier task conversation and archived final checkpoint; original scenario ledger not recovered. Requires per-assertion evidence review, not current acceptance.",
+      "currentCandidateStatus": "not_run_or_reuse_review_pending"
+    },
+    {
+      "id": "P08",
+      "setup": "Start second active praise commission or second active loyalty commission",
+      "requiredObservations": "One active per objective enforced; different supported objective may coexist",
+      "historicalReportedStatus": "positive",
+      "historicalStatusProvenance": "Earlier task conversation and archived final checkpoint; original scenario ledger not recovered. Requires per-assertion evidence review, not current acceptance.",
+      "currentCandidateStatus": "not_run_or_reuse_review_pending"
+    },
+    {
+      "id": "P09",
+      "setup": "Recipient noble dies/leaves kingdom; town captured before delivery",
+      "requiredObservations": "Snapshot and delivery eligibility reconciled; invalid recipients skipped with explicit evidence; no reward to newly unrelated kingdom",
+      "historicalReportedStatus": "partial",
+      "historicalStatusProvenance": "Earlier task conversation and archived final checkpoint; original scenario ledger not recovered. Requires per-assertion evidence review, not current acceptance.",
+      "currentCandidateStatus": "not_run_or_reuse_review_pending"
+    },
+    {
+      "id": "P10",
+      "setup": "Server unavailable at relation delivery, then reconnect",
+      "requiredObservations": "Commission waits for authoritative directional adjustment receipts; no false completion/free reopened objective",
+      "historicalReportedStatus": "partial",
+      "historicalStatusProvenance": "Earlier task conversation and archived final checkpoint; original scenario ledger not recovered. Requires per-assertion evidence review, not current acceptance.",
+      "currentCandidateStatus": "not_run_or_reuse_review_pending"
+    },
+    {
+      "id": "P11",
+      "setup": "Deliver after a multi-day jump and reload immediately",
+      "requiredObservations": "Exact once; delay uses campaign time; record and history survive different game process",
+      "historicalReportedStatus": "positive",
+      "historicalStatusProvenance": "Earlier task conversation and archived final checkpoint; original scenario ledger not recovered. Requires per-assertion evidence review, not current acceptance.",
+      "currentCandidateStatus": "not_run_or_reuse_review_pending"
+    },
+    {
+      "id": "P12",
+      "setup": "Finish a commission",
+      "requiredObservations": "Completion report/history appears without consuming an extra docket slot; creator identity remains stable across repeat appearances",
+      "historicalReportedStatus": "positive",
+      "historicalStatusProvenance": "Earlier task conversation and archived final checkpoint; original scenario ledger not recovered. Requires per-assertion evidence review, not current acceptance.",
+      "currentCandidateStatus": "not_run_or_reuse_review_pending"
+    },
+    {
+      "id": "P13",
+      "setup": "\u201cI may fund you later,\u201d \u201cWould8000be enough?\u201d, \u201cI refuse to pay,\u201d and NPC counteroffer",
+      "requiredObservations": "Discussion does not spend funds; confirmation matches exact reviewed terms",
+      "historicalReportedStatus": "partial",
+      "historicalStatusProvenance": "Earlier task conversation and archived final checkpoint; original scenario ledger not recovered. Requires per-assertion evidence review, not current acceptance.",
+      "currentCandidateStatus": "not_run_or_reuse_review_pending"
+    },
+    {
+      "id": "V01",
+      "setup": "Domestic solo courtesy/business traveler; peaceful foreign traveler",
+      "requiredObservations": "Genuine available noble identity, reasonable independent purpose, respectful introduction and announced stay",
+      "historicalReportedStatus": "partial",
+      "historicalStatusProvenance": "Earlier task conversation and archived final checkpoint; original scenario ledger not recovered. Requires per-assertion evidence review, not current acceptance.",
+      "currentCandidateStatus": "not_run_or_reuse_review_pending"
+    },
+    {
+      "id": "V02",
+      "setup": "One parent+one adult child; two parents+one child; one/two parents+two adult children, maximum4",
+      "requiredObservations": "Correct relationships/roles and portraits; shared goal with individual private context; every member cooperates according to their own personality",
+      "historicalReportedStatus": "partial",
+      "historicalStatusProvenance": "Earlier task conversation and archived final checkpoint; original scenario ledger not recovered. Requires per-assertion evidence review, not current acceptance.",
+      "currentCandidateStatus": "not_run_or_reuse_review_pending"
+    },
+    {
+      "id": "V03",
+      "setup": "Bold opposite-sex solo adult seeks ruler's attention",
+      "requiredObservations": "Native romance eligibility, age and kinship gates preserved; initiative reflects character, no automatic consent",
+      "historicalReportedStatus": "partial",
+      "historicalStatusProvenance": "Earlier task conversation and archived final checkpoint; original scenario ledger not recovered. Requires per-assertion evidence review, not current acceptance.",
+      "currentCandidateStatus": "not_run_or_reuse_review_pending"
+    },
+    {
+      "id": "V04",
+      "setup": "Married ruler; initiating Boldness60/61 and Honor40/41 crossed",
+      "requiredObservations": "Private-meeting initiative only at required derived personality threshold; otherwise respectful visit remains possible",
+      "historicalReportedStatus": "partial",
+      "historicalStatusProvenance": "Earlier task conversation and archived final checkpoint; original scenario ledger not recovered. Requires per-assertion evidence review, not current acceptance.",
+      "currentCandidateStatus": "not_run_or_reuse_review_pending"
+    },
+    {
+      "id": "V05",
+      "setup": "Unmarried/married, different sex combinations, close kin and minor boundaries",
+      "requiredObservations": "Correct eligible romantic candidate; relatives/minors cannot become courtship targets; ordinary social visits remain appropriate",
+      "historicalReportedStatus": "partial",
+      "historicalStatusProvenance": "Earlier task conversation and archived final checkpoint; original scenario ledger not recovered. Requires per-assertion evidence review, not current acceptance.",
+      "currentCandidateStatus": "not_run_or_reuse_review_pending"
+    },
+    {
+      "id": "V06",
+      "setup": "Parents try to arrange time alone: \u201cWhat brings your family to my court?\u201d",
+      "requiredObservations": "Shared purpose visible through distinct natural responses; no character knows another's private thoughts without evidence",
+      "historicalReportedStatus": "positive",
+      "historicalStatusProvenance": "Earlier task conversation and archived final checkpoint; original scenario ledger not recovered. Requires per-assertion evidence review, not current acceptance.",
+      "currentCandidateStatus": "not_run_or_reuse_review_pending"
+    },
+    {
+      "id": "V07",
+      "setup": "\u201cI would like to speak privately later,\u201d accepted vs refused/conditional",
+      "requiredObservations": "Only a mutual later-meeting context is recorded; no teleport, marriage, sex, conception or completed rendezvous",
+      "historicalReportedStatus": "positive",
+      "historicalStatusProvenance": "Earlier task conversation and archived final checkpoint; original scenario ledger not recovered. Requires per-assertion evidence review, not current acceptance.",
+      "currentCandidateStatus": "not_run_or_reuse_review_pending"
+    },
+    {
+      "id": "V08",
+      "setup": "Later ordinary social/private conversation during the stay",
+      "requiredObservations": "Same visitor identity, purpose, planned duration and accepted invitation context are available; reply respects current relationship and consent",
+      "historicalReportedStatus": "positive",
+      "historicalStatusProvenance": "Earlier task conversation and archived final checkpoint; original scenario ledger not recovered. Requires per-assertion evidence review, not current acceptance.",
+      "currentCandidateStatus": "not_run_or_reuse_review_pending"
+    },
+    {
+      "id": "V09",
+      "setup": "Roll a visit at paused time; stay3\u20137days and departure boundary; failed or partial placement",
+      "requiredObservations": "Entire group teleports to court immediately before its docket entry is published, with no travel schedule or time advancement. Full stay starts immediately. Failed placement cancels and unwinds completed moves; no remote audience, wandering or duplicate arrival",
+      "historicalReportedStatus": "partial",
+      "historicalStatusProvenance": "Earlier task conversation and archived final checkpoint; original scenario ledger not recovered. Requires per-assertion evidence review, not current acceptance.",
+      "currentCandidateStatus": "not_run_or_reuse_review_pending"
+    },
+    {
+      "id": "V10",
+      "setup": "Party leader/member, governor, court officer, regent, ambassador, quest giver/target, companion mission",
+      "requiredObservations": "Excluded from visitor selection; no stolen party member, broken quest or office disruption",
+      "historicalReportedStatus": "partial",
+      "historicalStatusProvenance": "Earlier task conversation and archived final checkpoint; original scenario ledger not recovered. Requires per-assertion evidence review, not current acceptance.",
+      "currentCandidateStatus": "not_run_or_reuse_review_pending"
+    },
+    {
+      "id": "V11",
+      "setup": "Native AI tries to create party/move settlement during reserved stay",
+      "requiredObservations": "Reservation guards preserve residence without disabling unrelated AI",
+      "historicalReportedStatus": "partial",
+      "historicalStatusProvenance": "Earlier task conversation and archived final checkpoint; original scenario ledger not recovered. Requires per-assertion evidence review, not current acceptance.",
+      "currentCandidateStatus": "not_run_or_reuse_review_pending"
+    },
+    {
+      "id": "V12",
+      "setup": "External assignment/capture/war/death/capital loss wins during stay",
+      "requiredObservations": "Revalidation safely releases/invalidates; never pulls a captive or newly assigned hero away",
+      "historicalReportedStatus": "partial",
+      "historicalStatusProvenance": "Earlier task conversation and archived final checkpoint; original scenario ledger not recovered. Requires per-assertion evidence review, not current acceptance.",
+      "currentCandidateStatus": "not_run_or_reuse_review_pending"
+    },
+    {
+      "id": "V13",
+      "setup": "Normal departure; original home captured or unavailable",
+      "requiredObservations": "Safe eligible home fallback, reservation removed, ordinary AI resumes; no permanently trapped guest",
+      "historicalReportedStatus": "partial",
+      "historicalStatusProvenance": "Earlier task conversation and archived final checkpoint; original scenario ledger not recovered. Requires per-assertion evidence review, not current acceptance.",
+      "currentCandidateStatus": "not_run_or_reuse_review_pending"
+    },
+    {
+      "id": "V14",
+      "setup": "Save immediately after creation, during stay, after invitation and after departure; load an older queued visit",
+      "requiredObservations": "Stable members/start/departure/invitation receipts in another native process; no reset of duration or repeated move. Legacy queued visits revalidate and place on their next processing pass without waiting for the old travel date",
+      "historicalReportedStatus": "partial",
+      "historicalStatusProvenance": "Earlier task conversation and archived final checkpoint; original scenario ledger not recovered. Requires per-assertion evidence review, not current acceptance.",
+      "currentCandidateStatus": "not_run_or_reuse_review_pending"
+    },
+    {
+      "id": "V15",
+      "setup": "End introduction without two turns or ignore guest",
+      "requiredObservations": "No family-dismissal stat; visitor and ruler's actual family are separate concepts",
+      "historicalReportedStatus": "positive",
+      "historicalStatusProvenance": "Earlier task conversation and archived final checkpoint; original scenario ledger not recovered. Requires per-assertion evidence review, not current acceptance.",
+      "currentCandidateStatus": "not_run_or_reuse_review_pending"
+    }
+  ],
+  "packs": [
+    {
+      "id": "R00",
+      "title": "Readiness, recovery and current contracts",
+      "requirementIds": [],
+      "purposeAndActions": "Hash-pin archived evidence, exact current source, deployed binaries and provider configuration. Run canonical product and selected Court/diplomacy/family/reputation/persistence contracts once; reuse compatible reports.",
+      "fixtureContract": "No native mutation; current task source hashes and exact protected baseline required.",
+      "status": "not_run_current_candidate",
+      "independentOracle": "Authoritative native/server pre-state and post-state, exact balances/custody/treaties/directional pair/loyalty, immutable receipt and world-history IDs, visible transcript and production controls. Never fixture expected values alone.",
+      "rollback": "Restore exact finalized run-owned checkpoint before conflicting/destructive variant; never overwrite protected baseline.",
+      "completion": "Every listed requirement individually passed, compatible evidence attached, or explicit unresolved gap; pack completion does not imply unchecked variants passed."
+    },
+    {
+      "id": "R01",
+      "title": "Daily docket and Chancellor",
+      "requirementIds": [
+        "D01",
+        "D02",
+        "D03",
+        "D04",
+        "D05"
+      ],
+      "purposeAndActions": "Place the clock just before 08:00 on a disposable scenario. Exercise 0/1/4/5/6 due replies, oldest-first overflow, all-source eligibility, suppression/resume and expiration in one bounded timeline. Read all scroll cards.",
+      "fixtureContract": "Clock/deadline/foreign-reply setup must use guarded fixtures; no test inserts completed effects.",
+      "status": "not_run_current_candidate",
+      "independentOracle": "Authoritative native/server pre-state and post-state, exact balances/custody/treaties/directional pair/loyalty, immutable receipt and world-history IDs, visible transcript and production controls. Never fixture expected values alone.",
+      "rollback": "Restore exact finalized run-owned checkpoint before conflicting/destructive variant; never overwrite protected baseline.",
+      "completion": "Every listed requirement individually passed, compatible evidence attached, or explicit unresolved gap; pack completion does not imply unchecked variants passed."
+    },
+    {
+      "id": "R02",
+      "title": "Audience and catalog continuity",
+      "requirementIds": [
+        "D06",
+        "D07",
+        "D09",
+        "I01",
+        "I02",
+        "I08",
+        "I13"
+      ],
+      "purposeAndActions": "Use distinct current catalog cases for one/two/four speakers, reopen, allegations vs evidence, refusal, apology and no-decision language. Challenge exact facts, then review and confirm a real supported result.",
+      "fixtureContract": "Catalog loop prepares exact templates within production eligibility. Reuse prior template acceptance only after evidence/dependency review.",
+      "status": "not_run_current_candidate",
+      "independentOracle": "Authoritative native/server pre-state and post-state, exact balances/custody/treaties/directional pair/loyalty, immutable receipt and world-history IDs, visible transcript and production controls. Never fixture expected values alone.",
+      "rollback": "Restore exact finalized run-owned checkpoint before conflicting/destructive variant; never overwrite protected baseline.",
+      "completion": "Every listed requirement individually passed, compatible evidence attached, or explicit unresolved gap; pack completion does not imply unchecked variants passed."
+    },
+    {
+      "id": "R03",
+      "title": "Judgment and money",
+      "requirementIds": [
+        "I05",
+        "I06",
+        "I07"
+      ],
+      "purposeAndActions": "Rotate domestic/foreign/compromise judgments through severities. Test hypothetical vs committed payment, exact payer/recipient, accepted losing-party mitigation, no funds/exact funds and stale changed terms.",
+      "fixtureContract": "Current prepare supports real disposable gold. A distinct accepted settlement proves each payment direction; arithmetic matrix runs offline.",
+      "status": "not_run_current_candidate",
+      "independentOracle": "Authoritative native/server pre-state and post-state, exact balances/custody/treaties/directional pair/loyalty, immutable receipt and world-history IDs, visible transcript and production controls. Never fixture expected values alone.",
+      "rollback": "Restore exact finalized run-owned checkpoint before conflicting/destructive variant; never overwrite protected baseline.",
+      "completion": "Every listed requirement individually passed, compatible evidence attached, or explicit unresolved gap; pack completion does not imply unchecked variants passed."
+    },
+    {
+      "id": "R04",
+      "title": "Foreign authority and native diplomacy",
+      "requirementIds": [
+        "I09",
+        "I10",
+        "I11",
+        "I14"
+      ],
+      "purposeAndActions": "Trade/alliance/gift/release/ransom: exact charter, sovereign accept/counter/refuse, no premature settlement while Government pending, actual treaty/custody completion, completion acknowledged later.",
+      "fixtureContract": "Create actual prisoner via existing captive fixture; foreign answer must come from production provider. Place legitimate referral near due boundary; never invent assent.",
+      "status": "not_run_current_candidate",
+      "independentOracle": "Authoritative native/server pre-state and post-state, exact balances/custody/treaties/directional pair/loyalty, immutable receipt and world-history IDs, visible transcript and production controls. Never fixture expected values alone.",
+      "rollback": "Restore exact finalized run-owned checkpoint before conflicting/destructive variant; never overwrite protected baseline.",
+      "completion": "Every listed requirement individually passed, compatible evidence attached, or explicit unresolved gap; pack completion does not imply unchecked variants passed."
+    },
+    {
+      "id": "R05",
+      "title": "NPC incidents, pressure and extortion",
+      "requirementIds": [
+        "I03",
+        "I04",
+        "I12",
+        "I15"
+      ],
+      "purposeAndActions": "Use four severities and both NPC judgments against player-owned lords; test bounds and opposite directions. Cross power 1.49/1.50/3.0 and boldness60/61/honor40/41. Verify Charm bands, highest-nonempty fallback and exclusions.",
+      "fixtureContract": "Missing power/personality/roster controls require a guarded fixture extension and contracts, rather than seed hunting. Actual traits and force composition must be reflected in native/server snapshots.",
+      "status": "not_run_current_candidate",
+      "independentOracle": "Authoritative native/server pre-state and post-state, exact balances/custody/treaties/directional pair/loyalty, immutable receipt and world-history IDs, visible transcript and production controls. Never fixture expected values alone.",
+      "rollback": "Restore exact finalized run-owned checkpoint before conflicting/destructive variant; never overwrite protected baseline.",
+      "completion": "Every listed requirement individually passed, compatible evidence attached, or explicit unresolved gap; pack completion does not imply unchecked variants passed."
+    },
+    {
+      "id": "R06",
+      "title": "Family roleplay and attendance",
+      "requirementIds": [
+        "F01",
+        "F02",
+        "F03",
+        "F04",
+        "F05",
+        "F06",
+        "F08",
+        "F11",
+        "F12"
+      ],
+      "purposeAndActions": "Age-appropriate young-child, teen, spouse and adult-child visits; 0/1/2+ successful turns; exact dismissal threshold; sincere apology accepted or refused; gifts/negation/quotes/hypotheticals never auto-reset.",
+      "fixtureContract": "Reuse authorized native household fixture if needed. Counts/neglect cannot be prewritten to satisfy threshold; preparatory visits can run under controlled deadlines.",
+      "status": "not_run_current_candidate",
+      "independentOracle": "Authoritative native/server pre-state and post-state, exact balances/custody/treaties/directional pair/loyalty, immutable receipt and world-history IDs, visible transcript and production controls. Never fixture expected values alone.",
+      "rollback": "Restore exact finalized run-owned checkpoint before conflicting/destructive variant; never overwrite protected baseline.",
+      "completion": "Every listed requirement individually passed, compatible evidence attached, or explicit unresolved gap; pack completion does not imply unchecked variants passed."
+    },
+    {
+      "id": "R07",
+      "title": "Family decay and identity lifecycle",
+      "requirementIds": [
+        "F07",
+        "F09",
+        "F10",
+        "F13",
+        "F14",
+        "F15"
+      ],
+      "purposeAndActions": "Patience0/1/10/11/99/100 rounding; effective relation with negative/positive standing and +100 cap; actual child-to-adult migration; spouse change, succession, captivity and invalid opportunities.",
+      "fixtureContract": "Boundary setup can set starting relation/age on disposable branch; the transition must run production and be independently observed. Never advance years waiting for adulthood.",
+      "status": "not_run_current_candidate",
+      "independentOracle": "Authoritative native/server pre-state and post-state, exact balances/custody/treaties/directional pair/loyalty, immutable receipt and world-history IDs, visible transcript and production controls. Never fixture expected values alone.",
+      "rollback": "Restore exact finalized run-owned checkpoint before conflicting/destructive variant; never overwrite protected baseline.",
+      "completion": "Every listed requirement individually passed, compatible evidence attached, or explicit unresolved gap; pack completion does not imply unchecked variants passed."
+    },
+    {
+      "id": "R08",
+      "title": "Favor contact and expiry",
+      "requirementIds": [
+        "J01",
+        "J02",
+        "J03",
+        "J04",
+        "J05",
+        "J07"
+      ],
+      "purposeAndActions": "Set last legitimate contact just below 30 days and cross the boundary once. Compare actual conversation/correspondence vs proximity/opening/failure/old history. Verify legacy grace, re-earning favor and expiry of one of two favorites.",
+      "fixtureContract": "Use source-bound contact/favor setup with authentic acquisition receipts. A fixture may establish pre-state but cannot count as the test contact or manufacture expected expiry receipt.",
+      "status": "not_run_current_candidate",
+      "independentOracle": "Authoritative native/server pre-state and post-state, exact balances/custody/treaties/directional pair/loyalty, immutable receipt and world-history IDs, visible transcript and production controls. Never fixture expected values alone.",
+      "rollback": "Restore exact finalized run-owned checkpoint before conflicting/destructive variant; never overwrite protected baseline.",
+      "completion": "Every listed requirement individually passed, compatible evidence attached, or explicit unresolved gap; pack completion does not imply unchecked variants passed."
+    },
+    {
+      "id": "R09",
+      "title": "Jealousy and court complaint",
+      "requirementIds": [
+        "J06",
+        "J08",
+        "J09",
+        "J10",
+        "J11",
+        "J12"
+      ],
+      "purposeAndActions": "Domestic adult favorite with a known rival; one vs two favored participants, high/low jealousy and honor/boldness, unknown-rumor control, spouse private hurt, child attention-only reaction, domestic petitioner and different ruler replies.",
+      "fixtureContract": "Prepare a genuine eligible domestic relationship/rumor using the production acquisition path; do not repeat chance rolls or assign membership after an ineligible draw.",
+      "status": "not_run_current_candidate",
+      "independentOracle": "Authoritative native/server pre-state and post-state, exact balances/custody/treaties/directional pair/loyalty, immutable receipt and world-history IDs, visible transcript and production controls. Never fixture expected values alone.",
+      "rollback": "Restore exact finalized run-owned checkpoint before conflicting/destructive variant; never overwrite protected baseline.",
+      "completion": "Every listed requirement individually passed, compatible evidence attached, or explicit unresolved gap; pack completion does not imply unchecked variants passed."
+    },
+    {
+      "id": "R10",
+      "title": "Historically grounded patronage",
+      "requirementIds": [],
+      "purposeAndActions": "Arrange actual native settlement transfer, adulthood, death and public house reconciliation once on isolated branches; wait only their public-news boundary. Hear recovered-town, coming-of-age, memorial, reconciled-houses and honest-chronicle with true named subjects.",
+      "fixtureContract": "No fabricated history/proclamation as independent fact; setup actions are separate from tested commission. Lethal/ownership branches restore before other packs.",
+      "status": "not_run_current_candidate",
+      "independentOracle": "Authoritative native/server pre-state and post-state, exact balances/custody/treaties/directional pair/loyalty, immutable receipt and world-history IDs, visible transcript and production controls. Never fixture expected values alone.",
+      "rollback": "Restore exact finalized run-owned checkpoint before conflicting/destructive variant; never overwrite protected baseline.",
+      "completion": "Every listed requirement individually passed, compatible evidence attached, or explicit unresolved gap; pack completion does not imply unchecked variants passed."
+    },
+    {
+      "id": "R11",
+      "title": "Patronage commissioning and delivery",
+      "requirementIds": [
+        "P01",
+        "P02",
+        "P03",
+        "P04",
+        "P05",
+        "P06",
+        "P07",
+        "P08",
+        "P09",
+        "P10",
+        "P11",
+        "P12",
+        "P13"
+      ],
+      "purposeAndActions": "Use a three-holding kingdom. Pair praise/loyalty/keepsake with 500/2000/5000/8000 funding, 0/1/3/7-day delivery, exact/insufficient funds, valid and invalid named routes, recipients leaving/dying and captured destinations.",
+      "fixtureContract": "Prepare gold/loyalty through existing inputs. Add an actual third eligible holding in guarded setup; do not lower the production regional requirement. Run all due commissions in one bounded delivery interval.",
+      "status": "not_run_current_candidate",
+      "independentOracle": "Authoritative native/server pre-state and post-state, exact balances/custody/treaties/directional pair/loyalty, immutable receipt and world-history IDs, visible transcript and production controls. Never fixture expected values alone.",
+      "rollback": "Restore exact finalized run-owned checkpoint before conflicting/destructive variant; never overwrite protected baseline.",
+      "completion": "Every listed requirement individually passed, compatible evidence attached, or explicit unresolved gap; pack completion does not imply unchecked variants passed."
+    },
+    {
+      "id": "R12",
+      "title": "Visitors, households and consent",
+      "requirementIds": [
+        "V01",
+        "V02",
+        "V03",
+        "V04",
+        "V05",
+        "V06",
+        "V07",
+        "V08",
+        "V09",
+        "V10",
+        "V11",
+        "V12",
+        "V13",
+        "V14",
+        "V15"
+      ],
+      "purposeAndActions": "Domestic and peaceful foreign business visitor; household sizes2/3/4, adult solo initiative and married personality boundary; minor/kin/sex exclusions; instant whole-group placement, 3\u20137-day residence, private invitation and return.",
+      "fixtureContract": "Select known eligible actual characters rather than repeated random preparations. Positive married initiative uses boldness61+/honor40-; no acceptance/consent override. Movement/office/quest exclusions remain production checks.",
+      "status": "not_run_current_candidate",
+      "independentOracle": "Authoritative native/server pre-state and post-state, exact balances/custody/treaties/directional pair/loyalty, immutable receipt and world-history IDs, visible transcript and production controls. Never fixture expected values alone.",
+      "rollback": "Restore exact finalized run-owned checkpoint before conflicting/destructive variant; never overwrite protected baseline.",
+      "completion": "Every listed requirement individually passed, compatible evidence attached, or explicit unresolved gap; pack completion does not imply unchecked variants passed."
+    },
+    {
+      "id": "R13",
+      "title": "Failures, invalidation and save/load",
+      "requirementIds": [
+        "D08",
+        "D10",
+        "D11",
+        "D12",
+        "I16",
+        "I17"
+      ],
+      "purposeAndActions": "One outage at each unique commit seam: before opening, partial multi-speaker reply, saved reply before interpretation, native payment before receipt, relation before delivery completion and foreign judgment before queue closure. Bundle pending referral, commission, family outbox, visitor invitation and favor grace in a restart.",
+      "fixtureContract": "Fault injection must be request-scoped and disabled outside armed run; never interrupt another task globally. Record starting receipt IDs and inspect uncertain effects before retry.",
+      "status": "not_run_current_candidate",
+      "independentOracle": "Authoritative native/server pre-state and post-state, exact balances/custody/treaties/directional pair/loyalty, immutable receipt and world-history IDs, visible transcript and production controls. Never fixture expected values alone.",
+      "rollback": "Restore exact finalized run-owned checkpoint before conflicting/destructive variant; never overwrite protected baseline.",
+      "completion": "Every listed requirement individually passed, compatible evidence attached, or explicit unresolved gap; pack completion does not imply unchecked variants passed."
+    },
+    {
+      "id": "R14",
+      "title": "Integrated release gate and focused longevity",
+      "requirementIds": [],
+      "purposeAndActions": "Run all-source 08:00 collision, native UI/scroll/layout/Guest Bedrooms/Family Chambers, ordinary noble/notable petition and Chancellor regressions, current-provider follow-ups acknowledging completed actions, then one bounded combined clock run covering longest changed deadline.",
+      "fixtureContract": "Reuse the historical180-day soak as historical proof. A new180-day soak is required only if retained evidence is insufficient for the stability requirement or changed daily scheduling/persistence/queue behavior invalidates it. Decide with written impact evidence, never silently waive it.",
+      "status": "not_run_current_candidate",
+      "independentOracle": "Authoritative native/server pre-state and post-state, exact balances/custody/treaties/directional pair/loyalty, immutable receipt and world-history IDs, visible transcript and production controls. Never fixture expected values alone.",
+      "rollback": "Restore exact finalized run-owned checkpoint before conflicting/destructive variant; never overwrite protected baseline.",
+      "completion": "Every listed requirement individually passed, compatible evidence attached, or explicit unresolved gap; pack completion does not imply unchecked variants passed."
+    }
+  ],
+  "templateQueue": [
+    {
+      "id": "international-petty-grazing",
+      "source": "International",
+      "status": "evidence_review_required",
+      "pack": "R02",
+      "historicalPhaseEntries": [
+        ".codex-build/court-life-acceptance/20260907/i-grazing-open-report.json",
+        ".codex-build/court-life-acceptance/20260907/i-grazing-payment-confirm-report.json",
+        ".codex-build/court-life-acceptance/20260907/i-grazing-payment-open-report.json",
+        ".codex-build/court-life-acceptance/20260907/i-grazing-payment-resume-report.json",
+        ".codex-build/court-life-acceptance/20260907/i-grazing-payment-resumed-turn-report.json",
+        ".codex-build/court-life-acceptance/20260907/i-grazing-payment-save-prepare-report.json",
+        ".codex-build/court-life-acceptance/20260907/i-grazing-payment-save-verify-report.json",
+        ".codex-build/court-life-acceptance/20260907/i-grazing-payment-turn3-report.json",
+        ".codex-build/court-life-acceptance/20260907/i-grazing-prepare-report.json",
+        ".codex-build/court-life-acceptance/20260907/i-grazing-turn1-report.json",
+        ".codex-build/court-life-acceptance/20260907/i-grazing-turn2-report.json"
+      ],
+      "historicalCaseManifests": [],
+      "reuseRule": "Recover complete transcript and independent effects/persistence; match unchanged template semantics and relevant dependency contracts. Current changed shared paths require fresh branch regression. Missing or inadequate proof schedules this exact template, never a duplicate by default."
+    },
+    {
+      "id": "international-petty-hunt",
+      "source": "International",
+      "status": "evidence_review_required",
+      "pack": "R02",
+      "historicalPhaseEntries": [
+        ".codex-build/court-life-acceptance/20260907/i-hunt-confirm-report.json",
+        ".codex-build/court-life-acceptance/20260907/i-hunt-open-report.json",
+        ".codex-build/court-life-acceptance/20260907/i-hunt-prepare-report.json",
+        ".codex-build/court-life-acceptance/20260907/i-hunt-question-report.json",
+        ".codex-build/court-life-acceptance/20260907/i-hunt-ruling-report.json"
+      ],
+      "historicalCaseManifests": [],
+      "reuseRule": "Recover complete transcript and independent effects/persistence; match unchanged template semantics and relevant dependency contracts. Current changed shared paths require fresh branch regression. Missing or inadequate proof schedules this exact template, never a duplicate by default."
+    },
+    {
+      "id": "international-petty-toll",
+      "source": "International",
+      "status": "evidence_review_required",
+      "pack": "R02",
+      "historicalPhaseEntries": [
+        ".codex-build/court-life-acceptance/20260907/i-toll-confirm-report.json",
+        ".codex-build/court-life-acceptance/20260907/i-toll-open-failure-report.json",
+        ".codex-build/court-life-acceptance/20260907/i-toll-open-retry-report.json",
+        ".codex-build/court-life-acceptance/20260907/i-toll-prepare-report.json",
+        ".codex-build/court-life-acceptance/20260907/i-toll-resolved-report.json",
+        ".codex-build/court-life-acceptance/20260907/i-toll-turn1-native-report.json",
+        ".codex-build/court-life-acceptance/20260907/i-toll-turn2-report.json",
+        ".codex-build/court-life-acceptance/20260907/i-toll-turn3-report.json",
+        ".codex-build/court-life-acceptance/20260907/i-toll02-confirm-report.json",
+        ".codex-build/court-life-acceptance/20260907/i-toll02-open-report.json",
+        ".codex-build/court-life-acceptance/20260907/i-toll02-prepare-report.json",
+        ".codex-build/court-life-acceptance/20260907/i-toll02-turn1-report.json",
+        ".codex-build/court-life-acceptance/20260907/i-toll02-turn2-report.json",
+        ".codex-build/court-life-acceptance/20260907/i-toll03-confirm-report.json",
+        ".codex-build/court-life-acceptance/20260907/i-toll03-open-report.json",
+        ".codex-build/court-life-acceptance/20260907/i-toll03-prepare-report.json",
+        ".codex-build/court-life-acceptance/20260907/i-toll03-turn1-report.json",
+        ".codex-build/court-life-acceptance/20260907/i-toll03-turn2-report.json",
+        ".codex-build/court-life-acceptance/20260907/i-toll03-turn3-report.json",
+        ".codex-build/court-life-acceptance/20260909-resume/toll03-after-two-days-report.json",
+        ".codex-build/court-life-acceptance/20260909-resume/toll03-drained-native-report.json",
+        ".codex-build/court-life-acceptance/20260909-resume/toll03-due-morning-report.json",
+        ".codex-build/court-life-acceptance/20260909-resume/toll03-final-authorization-report.json",
+        ".codex-build/court-life-acceptance/20260909-resume/toll03-final-confirm-report.json",
+        ".codex-build/court-life-acceptance/20260909-resume/toll03-returned-review-report.json",
+        ".codex-build/court-life-acceptance/20260909-resume/toll03-sovereign-reply-report.json"
+      ],
+      "historicalCaseManifests": [],
+      "reuseRule": "Recover complete transcript and independent effects/persistence; match unchanged template semantics and relevant dependency contracts. Current changed shared paths require fresh branch regression. Missing or inadequate proof schedules this exact template, never a duplicate by default."
+    },
+    {
+      "id": "international-petty-mill",
+      "source": "International",
+      "status": "evidence_review_required",
+      "pack": "R02",
+      "historicalPhaseEntries": [
+        ".codex-build/court-life-acceptance/20260907/i-mill-confirm-report.json",
+        ".codex-build/court-life-acceptance/20260907/i-mill-open-report.json",
+        ".codex-build/court-life-acceptance/20260907/i-mill-prepare-report.json",
+        ".codex-build/court-life-acceptance/20260907/i-mill-resolved-report.json",
+        ".codex-build/court-life-acceptance/20260907/i-mill-turn1-report.json",
+        ".codex-build/court-life-acceptance/20260907/i-mill-turn2-report.json",
+        ".codex-build/court-life-acceptance/20260907/i-mill-turn3-report.json",
+        ".codex-build/court-life-acceptance/20260909-resume/mill02-drained-native-report.json",
+        ".codex-build/court-life-acceptance/20260909-resume/mill02-evidence-question-report.json",
+        ".codex-build/court-life-acceptance/20260909-resume/mill02-first-question-report.json",
+        ".codex-build/court-life-acceptance/20260909-resume/mill02-reopen-report.json",
+        ".codex-build/court-life-acceptance/20260909-resume/mill02-ruling-report.json"
+      ],
+      "historicalCaseManifests": [],
+      "reuseRule": "Recover complete transcript and independent effects/persistence; match unchanged template semantics and relevant dependency contracts. Current changed shared paths require fresh branch regression. Missing or inadequate proof schedules this exact template, never a duplicate by default."
+    },
+    {
+      "id": "international-petty-fishing",
+      "source": "International",
+      "status": "evidence_review_required",
+      "pack": "R02",
+      "historicalPhaseEntries": [
+        ".codex-build/court-life-acceptance/20260909-resume/fishing01-assent-clarification-report.json",
+        ".codex-build/court-life-acceptance/20260909-resume/fishing01-confirm-report.json",
+        ".codex-build/court-life-acceptance/20260909-resume/fishing01-drained-native-report.json",
+        ".codex-build/court-life-acceptance/20260909-resume/fishing01-first-question-report.json",
+        ".codex-build/court-life-acceptance/20260909-resume/fishing01-initial-ruling-report.json",
+        ".codex-build/court-life-acceptance/20260909-resume/fishing01-open-report.json",
+        ".codex-build/court-life-acceptance/20260909-resume/fishing01-opening-prior-audience-block-report.json",
+        ".codex-build/court-life-acceptance/20260909-resume/fishing01-opinion-referral-failure-report.json",
+        ".codex-build/court-life-acceptance/20260909-resume/fishing01-prepare-report.json",
+        ".codex-build/court-life-acceptance/20260909-resume/fishing01-reloaded-native-report.json"
+      ],
+      "historicalCaseManifests": [],
+      "reuseRule": "Recover complete transcript and independent effects/persistence; match unchanged template semantics and relevant dependency contracts. Current changed shared paths require fresh branch regression. Missing or inadequate proof schedules this exact template, never a duplicate by default."
+    },
+    {
+      "id": "international-petty-wood",
+      "source": "International",
+      "status": "evidence_review_required",
+      "pack": "R02",
+      "historicalPhaseEntries": [
+        ".codex-build/court-life-acceptance/20260909-resume/wood01-confirm-report.json",
+        ".codex-build/court-life-acceptance/20260909-resume/wood01-drained-native-report.json",
+        ".codex-build/court-life-acceptance/20260909-resume/wood01-first-question-report.json",
+        ".codex-build/court-life-acceptance/20260909-resume/wood01-opinion-referral-repair-report.json",
+        ".codex-build/court-life-acceptance/20260909-resume/wood01-prepare-report.json",
+        ".codex-build/court-life-acceptance/20260909-resume/wood01-ruling-report.json"
+      ],
+      "historicalCaseManifests": [],
+      "reuseRule": "Recover complete transcript and independent effects/persistence; match unchanged template semantics and relevant dependency contracts. Current changed shared paths require fresh branch regression. Missing or inadequate proof schedules this exact template, never a duplicate by default."
+    },
+    {
+      "id": "international-petty-bridge",
+      "source": "International",
+      "status": "evidence_review_required",
+      "pack": "R02",
+      "historicalPhaseEntries": [
+        ".codex-build/court-life-acceptance/20260909-resume/bridge01-authorization-report.json",
+        ".codex-build/court-life-acceptance/20260909-resume/bridge01-conditional-question-report.json",
+        ".codex-build/court-life-acceptance/20260909-resume/bridge01-confirm-report.json",
+        ".codex-build/court-life-acceptance/20260909-resume/bridge01-drained-native-report.json",
+        ".codex-build/court-life-acceptance/20260909-resume/bridge01-first-question-report.json",
+        ".codex-build/court-life-acceptance/20260909-resume/bridge01-prepare-report.json"
+      ],
+      "historicalCaseManifests": [],
+      "reuseRule": "Recover complete transcript and independent effects/persistence; match unchanged template semantics and relevant dependency contracts. Current changed shared paths require fresh branch regression. Missing or inadequate proof schedules this exact template, never a duplicate by default."
+    },
+    {
+      "id": "international-petty-ferry",
+      "source": "International",
+      "status": "evidence_review_required",
+      "pack": "R02",
+      "historicalPhaseEntries": [
+        ".codex-build/court-life-acceptance/20260909-resume/ferry01-confirm-status-report.json",
+        ".codex-build/court-life-acceptance/20260909-resume/ferry01-observe-status-report.json",
+        ".codex-build/court-life-acceptance/20260909-resume/ferry01-open-status-report.json",
+        ".codex-build/court-life-acceptance/20260909-resume/ferry01-prepare-status-report.json",
+        ".codex-build/court-life-acceptance/20260909-resume/ferry01-question1-status-report.json",
+        ".codex-build/court-life-acceptance/20260909-resume/ferry01-question2-status-report.json",
+        ".codex-build/court-life-acceptance/20260909-resume/ferry01-ruling-status-report.json",
+        ".codex-build/court-life-acceptance/20260909-resume/ferry01-save-prepare-status-report.json",
+        ".codex-build/court-life-acceptance/20260909-resume/ferry01-save-verify-status-report.json"
+      ],
+      "historicalCaseManifests": [],
+      "reuseRule": "Recover complete transcript and independent effects/persistence; match unchanged template semantics and relevant dependency contracts. Current changed shared paths require fresh branch regression. Missing or inadequate proof schedules this exact template, never a duplicate by default."
+    },
+    {
+      "id": "international-petty-market",
+      "source": "International",
+      "status": "evidence_review_required",
+      "pack": "R02",
+      "historicalPhaseEntries": [
+        ".codex-build/court-life-acceptance/20260909-resume/market01-confirm-status-report.json",
+        ".codex-build/court-life-acceptance/20260909-resume/market01-open-status-report.json",
+        ".codex-build/court-life-acceptance/20260909-resume/market01-prepare-status-report.json",
+        ".codex-build/court-life-acceptance/20260909-resume/market01-question1-status-report.json",
+        ".codex-build/court-life-acceptance/20260909-resume/market01-ruling-status-report.json",
+        ".codex-build/court-life-acceptance/20260909-resume/market01-save-prepare-status-report.json",
+        ".codex-build/court-life-acceptance/20260909-resume/market01-save-verify-status-report.json"
+      ],
+      "historicalCaseManifests": [],
+      "reuseRule": "Recover complete transcript and independent effects/persistence; match unchanged template semantics and relevant dependency contracts. Current changed shared paths require fresh branch regression. Missing or inadequate proof schedules this exact template, never a duplicate by default."
+    },
+    {
+      "id": "international-petty-lodging",
+      "source": "International",
+      "status": "evidence_review_required",
+      "pack": "R02",
+      "historicalPhaseEntries": [
+        ".codex-build/court-life-acceptance/20260909-resume/lodging01-bind-report.json",
+        ".codex-build/court-life-acceptance/20260909-resume/lodging01-confirm-report.json",
+        ".codex-build/court-life-acceptance/20260909-resume/lodging01-drained-native-report.json",
+        ".codex-build/court-life-acceptance/20260909-resume/lodging01-open-report.json",
+        ".codex-build/court-life-acceptance/20260909-resume/lodging01-question1-report.json",
+        ".codex-build/court-life-acceptance/20260909-resume/lodging01-question2-report.json",
+        ".codex-build/court-life-acceptance/20260909-resume/lodging01-ruling-report.json",
+        ".codex-build/court-life-acceptance/20260909-resume/lodging01-save-prepare-report.json",
+        ".codex-build/court-life-acceptance/20260909-resume/lodging01-save-verify-report.json"
+      ],
+      "historicalCaseManifests": [],
+      "reuseRule": "Recover complete transcript and independent effects/persistence; match unchanged template semantics and relevant dependency contracts. Current changed shared paths require fresh branch regression. Missing or inadequate proof schedules this exact template, never a duplicate by default."
+    },
+    {
+      "id": "international-petty-seat",
+      "source": "International",
+      "status": "evidence_review_required",
+      "pack": "R02",
+      "historicalPhaseEntries": [],
+      "historicalCaseManifests": [],
+      "reuseRule": "Recover complete transcript and independent effects/persistence; match unchanged template semantics and relevant dependency contracts. Current changed shared paths require fresh branch regression. Missing or inadequate proof schedules this exact template, never a duplicate by default."
+    },
+    {
+      "id": "international-petty-title",
+      "source": "International",
+      "status": "evidence_review_required",
+      "pack": "R02",
+      "historicalPhaseEntries": [
+        ".codex-build/court-life-acceptance/20260909-resume/title01-confirm-status-report.json",
+        ".codex-build/court-life-acceptance/20260909-resume/title01-group-save-prepare-status-report.json",
+        ".codex-build/court-life-acceptance/20260909-resume/title01-group-save-verify-status-report.json",
+        ".codex-build/court-life-acceptance/20260909-resume/title01-open-status-report.json",
+        ".codex-build/court-life-acceptance/20260909-resume/title01-prepare-status-report.json",
+        ".codex-build/court-life-acceptance/20260909-resume/title01-question1-status-report.json",
+        ".codex-build/court-life-acceptance/20260909-resume/title01-ruling-status-report.json",
+        ".codex-build/court-life-acceptance/20260909-resume/title01-snapshot-status-report.json"
+      ],
+      "historicalCaseManifests": [],
+      "reuseRule": "Recover complete transcript and independent effects/persistence; match unchanged template semantics and relevant dependency contracts. Current changed shared paths require fresh branch regression. Missing or inadequate proof schedules this exact template, never a duplicate by default."
+    },
+    {
+      "id": "international-petty-banner",
+      "source": "International",
+      "status": "evidence_review_required",
+      "pack": "R02",
+      "historicalPhaseEntries": [
+        ".codex-build/court-life-acceptance/20260909-resume/banner01-bind-status-report.json",
+        ".codex-build/court-life-acceptance/20260909-resume/banner01-confirm-status-report.json",
+        ".codex-build/court-life-acceptance/20260909-resume/banner01-offer-status-report.json",
+        ".codex-build/court-life-acceptance/20260909-resume/banner01-open-status-report.json",
+        ".codex-build/court-life-acceptance/20260909-resume/banner01-persistence-verify-status-report.json",
+        ".codex-build/court-life-acceptance/20260909-resume/banner01-post-observe-status-report.json",
+        ".codex-build/court-life-acceptance/20260909-resume/banner01-question1-status-report.json",
+        ".codex-build/court-life-acceptance/20260909-resume/banner01-question2-status-report.json",
+        ".codex-build/court-life-acceptance/20260909-resume/banner01-save-prepare-status-report.json"
+      ],
+      "historicalCaseManifests": [],
+      "reuseRule": "Recover complete transcript and independent effects/persistence; match unchanged template semantics and relevant dependency contracts. Current changed shared paths require fresh branch regression. Missing or inadequate proof schedules this exact template, never a duplicate by default."
+    },
+    {
+      "id": "international-petty-gift",
+      "source": "International",
+      "status": "evidence_review_required",
+      "pack": "R02",
+      "historicalPhaseEntries": [
+        ".codex-build/court-life-acceptance/20260909-resume/gift01-confirm-status-report.json",
+        ".codex-build/court-life-acceptance/20260909-resume/gift01-observe-status-report.json",
+        ".codex-build/court-life-acceptance/20260909-resume/gift01-open-recovery-status-report.json",
+        ".codex-build/court-life-acceptance/20260909-resume/gift01-open-status-report.json",
+        ".codex-build/court-life-acceptance/20260909-resume/gift01-opening-snapshot-status-report.json",
+        ".codex-build/court-life-acceptance/20260909-resume/gift01-prepare-status-report.json",
+        ".codex-build/court-life-acceptance/20260909-resume/gift01-question1-status-report.json",
+        ".codex-build/court-life-acceptance/20260909-resume/gift01-reload-observe-status-report.json",
+        ".codex-build/court-life-acceptance/20260909-resume/gift01-ruling-status-report.json"
+      ],
+      "historicalCaseManifests": [],
+      "reuseRule": "Recover complete transcript and independent effects/persistence; match unchanged template semantics and relevant dependency contracts. Current changed shared paths require fresh branch regression. Missing or inadequate proof schedules this exact template, never a duplicate by default."
+    },
+    {
+      "id": "international-petty-letter",
+      "source": "International",
+      "status": "evidence_review_required",
+      "pack": "R02",
+      "historicalPhaseEntries": [
+        ".codex-build/court-life-acceptance/20260909-resume/letter01-bind-status-report.json",
+        ".codex-build/court-life-acceptance/20260909-resume/letter01-confirm-status-report.json",
+        ".codex-build/court-life-acceptance/20260909-resume/letter01-offer-status-report.json",
+        ".codex-build/court-life-acceptance/20260909-resume/letter01-open-status-report.json",
+        ".codex-build/court-life-acceptance/20260909-resume/letter01-persistence-verify-status-report.json",
+        ".codex-build/court-life-acceptance/20260909-resume/letter01-post-observe-status-report.json",
+        ".codex-build/court-life-acceptance/20260909-resume/letter01-question1-status-report.json",
+        ".codex-build/court-life-acceptance/20260909-resume/letter01-question2-status-report.json",
+        ".codex-build/court-life-acceptance/20260909-resume/letter01-save-prepare-status-report.json"
+      ],
+      "historicalCaseManifests": [],
+      "reuseRule": "Recover complete transcript and independent effects/persistence; match unchanged template semantics and relevant dependency contracts. Current changed shared paths require fresh branch regression. Missing or inadequate proof schedules this exact template, never a duplicate by default."
+    },
+    {
+      "id": "international-petty-retainer",
+      "source": "International",
+      "status": "evidence_review_required",
+      "pack": "R02",
+      "historicalPhaseEntries": [
+        ".codex-build/court-life-acceptance/20260909-resume/retainer01-bind-status-report.json",
+        ".codex-build/court-life-acceptance/20260909-resume/retainer01-confirm-status-report.json",
+        ".codex-build/court-life-acceptance/20260909-resume/retainer01-offer-status-report.json",
+        ".codex-build/court-life-acceptance/20260909-resume/retainer01-open-recovered-status-report.json",
+        ".codex-build/court-life-acceptance/20260909-resume/retainer01-open-status-report.json",
+        ".codex-build/court-life-acceptance/20260909-resume/retainer01-persistence-verify-status-report.json",
+        ".codex-build/court-life-acceptance/20260909-resume/retainer01-post-observe-status-report.json",
+        ".codex-build/court-life-acceptance/20260909-resume/retainer01-question1-status-report.json",
+        ".codex-build/court-life-acceptance/20260909-resume/retainer01-question2-status-report.json",
+        ".codex-build/court-life-acceptance/20260909-resume/retainer01-save-prepare-status-report.json"
+      ],
+      "historicalCaseManifests": [],
+      "reuseRule": "Recover complete transcript and independent effects/persistence; match unchanged template semantics and relevant dependency contracts. Current changed shared paths require fresh branch regression. Missing or inadequate proof schedules this exact template, never a duplicate by default."
+    },
+    {
+      "id": "international-petty-falcon",
+      "source": "International",
+      "status": "evidence_review_required",
+      "pack": "R02",
+      "historicalPhaseEntries": [
+        ".codex-build/court-life-acceptance/20260909-resume/falcon01-confirm-status-report.json",
+        ".codex-build/court-life-acceptance/20260909-resume/falcon01-group-save-prepare-status-report.json",
+        ".codex-build/court-life-acceptance/20260909-resume/falcon01-group-save-verify-status-report.json",
+        ".codex-build/court-life-acceptance/20260909-resume/falcon01-offer-status-report.json",
+        ".codex-build/court-life-acceptance/20260909-resume/falcon01-open-status-report.json",
+        ".codex-build/court-life-acceptance/20260909-resume/falcon01-prepare-status-report.json",
+        ".codex-build/court-life-acceptance/20260909-resume/falcon01-question1-status-report.json"
+      ],
+      "historicalCaseManifests": [],
+      "reuseRule": "Recover complete transcript and independent effects/persistence; match unchanged template semantics and relevant dependency contracts. Current changed shared paths require fresh branch regression. Missing or inadequate proof schedules this exact template, never a duplicate by default."
+    },
+    {
+      "id": "international-petty-horse",
+      "source": "International",
+      "status": "evidence_review_required",
+      "pack": "R02",
+      "historicalPhaseEntries": [
+        ".codex-build/court-life-acceptance/20260909-resume/horse01-confirm-status-report.json",
+        ".codex-build/court-life-acceptance/20260909-resume/horse01-images-off-snapshot-status-report.json",
+        ".codex-build/court-life-acceptance/20260909-resume/horse01-observe-status-report.json",
+        ".codex-build/court-life-acceptance/20260909-resume/horse01-open-status-report.json",
+        ".codex-build/court-life-acceptance/20260909-resume/horse01-prepare-status-report.json",
+        ".codex-build/court-life-acceptance/20260909-resume/horse01-question1-status-report.json",
+        ".codex-build/court-life-acceptance/20260909-resume/horse01-ruling-status-report.json",
+        ".codex-build/court-life-acceptance/20260909-resume/horse01-save-prepare-status-report.json"
+      ],
+      "historicalCaseManifests": [],
+      "reuseRule": "Recover complete transcript and independent effects/persistence; match unchanged template semantics and relevant dependency contracts. Current changed shared paths require fresh branch regression. Missing or inadequate proof schedules this exact template, never a duplicate by default."
+    },
+    {
+      "id": "international-petty-hounds",
+      "source": "International",
+      "status": "evidence_review_required",
+      "pack": "R02",
+      "historicalPhaseEntries": [],
+      "historicalCaseManifests": [],
+      "reuseRule": "Recover complete transcript and independent effects/persistence; match unchanged template semantics and relevant dependency contracts. Current changed shared paths require fresh branch regression. Missing or inadequate proof schedules this exact template, never a duplicate by default."
+    },
+    {
+      "id": "international-petty-artisan",
+      "source": "International",
+      "status": "evidence_review_required",
+      "pack": "R02",
+      "historicalPhaseEntries": [],
+      "historicalCaseManifests": [],
+      "reuseRule": "Recover complete transcript and independent effects/persistence; match unchanged template semantics and relevant dependency contracts. Current changed shared paths require fresh branch regression. Missing or inadequate proof schedules this exact template, never a duplicate by default."
+    },
+    {
+      "id": "international-petty-musician",
+      "source": "International",
+      "status": "evidence_review_required",
+      "pack": "R02",
+      "historicalPhaseEntries": [],
+      "historicalCaseManifests": [],
+      "reuseRule": "Recover complete transcript and independent effects/persistence; match unchanged template semantics and relevant dependency contracts. Current changed shared paths require fresh branch regression. Missing or inadequate proof schedules this exact template, never a duplicate by default."
+    },
+    {
+      "id": "international-petty-credit",
+      "source": "International",
+      "status": "evidence_review_required",
+      "pack": "R02",
+      "historicalPhaseEntries": [],
+      "historicalCaseManifests": [],
+      "reuseRule": "Recover complete transcript and independent effects/persistence; match unchanged template semantics and relevant dependency contracts. Current changed shared paths require fresh branch regression. Missing or inadequate proof schedules this exact template, never a duplicate by default."
+    },
+    {
+      "id": "international-petty-translation",
+      "source": "International",
+      "status": "evidence_review_required",
+      "pack": "R02",
+      "historicalPhaseEntries": [
+        ".codex-build/court-life-acceptance/20260907/i-translation-confirm-report.json",
+        ".codex-build/court-life-acceptance/20260907/i-translation-effects-report.json",
+        ".codex-build/court-life-acceptance/20260907/i-translation-open-report.json",
+        ".codex-build/court-life-acceptance/20260907/i-translation-prepare-report.json",
+        ".codex-build/court-life-acceptance/20260907/i-translation-question-report.json",
+        ".codex-build/court-life-acceptance/20260907/i-translation-ruling-report.json"
+      ],
+      "historicalCaseManifests": [],
+      "reuseRule": "Recover complete transcript and independent effects/persistence; match unchanged template semantics and relevant dependency contracts. Current changed shared paths require fresh branch regression. Missing or inadequate proof schedules this exact template, never a duplicate by default."
+    },
+    {
+      "id": "international-petty-escort",
+      "source": "International",
+      "status": "evidence_review_required",
+      "pack": "R02",
+      "historicalPhaseEntries": [
+        ".codex-build/court-life-acceptance/20260909-resume/escort01-confirm-report.json",
+        ".codex-build/court-life-acceptance/20260909-resume/escort01-evidence-question-report.json",
+        ".codex-build/court-life-acceptance/20260909-resume/escort01-observe-report.json",
+        ".codex-build/court-life-acceptance/20260909-resume/escort01-open-report.json",
+        ".codex-build/court-life-acceptance/20260909-resume/escort01-opening-snapshot-report.json",
+        ".codex-build/court-life-acceptance/20260909-resume/escort01-prepare-report.json"
+      ],
+      "historicalCaseManifests": [],
+      "reuseRule": "Recover complete transcript and independent effects/persistence; match unchanged template semantics and relevant dependency contracts. Current changed shared paths require fresh branch regression. Missing or inadequate proof schedules this exact template, never a duplicate by default."
+    },
+    {
+      "id": "international-petty-boundary-marker",
+      "source": "International",
+      "status": "evidence_review_required",
+      "pack": "R02",
+      "historicalPhaseEntries": [
+        ".codex-build/court-life-acceptance/20260909-resume/boundary01-bind-status-report.json",
+        ".codex-build/court-life-acceptance/20260909-resume/boundary01-confirm-status-report.json",
+        ".codex-build/court-life-acceptance/20260909-resume/boundary01-offer-status-report.json",
+        ".codex-build/court-life-acceptance/20260909-resume/boundary01-open-status-report.json",
+        ".codex-build/court-life-acceptance/20260909-resume/boundary01-post-observe-status-report.json",
+        ".codex-build/court-life-acceptance/20260909-resume/boundary01-question1-status-report.json",
+        ".codex-build/court-life-acceptance/20260909-resume/boundary01-question2-status-report.json"
+      ],
+      "historicalCaseManifests": [],
+      "reuseRule": "Recover complete transcript and independent effects/persistence; match unchanged template semantics and relevant dependency contracts. Current changed shared paths require fresh branch regression. Missing or inadequate proof schedules this exact template, never a duplicate by default."
+    },
+    {
+      "id": "international-petty-watering",
+      "source": "International",
+      "status": "evidence_review_required",
+      "pack": "R02",
+      "historicalPhaseEntries": [
+        ".codex-build/court-life-acceptance/20260909-resume/watering01-confirm-report.json",
+        ".codex-build/court-life-acceptance/20260909-resume/watering01-evidence-question-report.json",
+        ".codex-build/court-life-acceptance/20260909-resume/watering01-observe-report.json",
+        ".codex-build/court-life-acceptance/20260909-resume/watering01-open-report.json",
+        ".codex-build/court-life-acceptance/20260909-resume/watering01-opening-snapshot-report.json",
+        ".codex-build/court-life-acceptance/20260909-resume/watering01-prepare-report.json"
+      ],
+      "historicalCaseManifests": [],
+      "reuseRule": "Recover complete transcript and independent effects/persistence; match unchanged template semantics and relevant dependency contracts. Current changed shared paths require fresh branch regression. Missing or inadequate proof schedules this exact template, never a duplicate by default."
+    },
+    {
+      "id": "international-petty-welcome-gift",
+      "source": "International",
+      "status": "evidence_review_required",
+      "pack": "R02",
+      "historicalPhaseEntries": [
+        ".codex-build/court-life-acceptance/20260907/i-welcome-accept-report.json",
+        ".codex-build/court-life-acceptance/20260907/i-welcome-confirm-report.json",
+        ".codex-build/court-life-acceptance/20260907/i-welcome-open-report.json",
+        ".codex-build/court-life-acceptance/20260907/i-welcome-prepare-report.json",
+        ".codex-build/court-life-acceptance/20260907/i-welcome-question-report.json"
+      ],
+      "historicalCaseManifests": [],
+      "reuseRule": "Recover complete transcript and independent effects/persistence; match unchanged template semantics and relevant dependency contracts. Current changed shared paths require fresh branch regression. Missing or inadequate proof schedules this exact template, never a duplicate by default."
+    },
+    {
+      "id": "international-petty-scribe",
+      "source": "International",
+      "status": "evidence_review_required",
+      "pack": "R02",
+      "historicalPhaseEntries": [],
+      "historicalCaseManifests": [],
+      "reuseRule": "Recover complete transcript and independent effects/persistence; match unchanged template semantics and relevant dependency contracts. Current changed shared paths require fresh branch regression. Missing or inadequate proof schedules this exact template, never a duplicate by default."
+    },
+    {
+      "id": "international-petty-fair",
+      "source": "International",
+      "status": "evidence_review_required",
+      "pack": "R02",
+      "historicalPhaseEntries": [
+        ".codex-build/court-life-acceptance/20260909-resume/fair01-confirm-report.json",
+        ".codex-build/court-life-acceptance/20260909-resume/fair01-migrated-open-report.json",
+        ".codex-build/court-life-acceptance/20260909-resume/fair01-natural-question-report.json",
+        ".codex-build/court-life-acceptance/20260909-resume/fair01-observe-report.json",
+        ".codex-build/court-life-acceptance/20260909-resume/fair01-opening-snapshot-report.json",
+        ".codex-build/court-life-acceptance/20260909-resume/fair01-prefixed-failure-report.json"
+      ],
+      "historicalCaseManifests": [],
+      "reuseRule": "Recover complete transcript and independent effects/persistence; match unchanged template semantics and relevant dependency contracts. Current changed shared paths require fresh branch regression. Missing or inadequate proof schedules this exact template, never a duplicate by default."
+    },
+    {
+      "id": "international-petty-condolence",
+      "source": "International",
+      "status": "evidence_review_required",
+      "pack": "R02",
+      "historicalPhaseEntries": [
+        ".codex-build/court-life-acceptance/20260909-resume/condolence01-confirm-report.json",
+        ".codex-build/court-life-acceptance/20260909-resume/condolence01-converse-report.json",
+        ".codex-build/court-life-acceptance/20260909-resume/condolence01-observe-report.json",
+        ".codex-build/court-life-acceptance/20260909-resume/condolence01-open-report.json",
+        ".codex-build/court-life-acceptance/20260909-resume/condolence01-prepare-report.json",
+        ".codex-build/court-life-acceptance/20260909-resume/condolence01-snapshot-report.json"
+      ],
+      "historicalCaseManifests": [],
+      "reuseRule": "Recover complete transcript and independent effects/persistence; match unchanged template semantics and relevant dependency contracts. Current changed shared paths require fresh branch regression. Missing or inadequate proof schedules this exact template, never a duplicate by default."
+    },
+    {
+      "id": "international-serious-cargo-account",
+      "source": "International",
+      "status": "evidence_review_required",
+      "pack": "R02",
+      "historicalPhaseEntries": [],
+      "historicalCaseManifests": [
+        {
+          "entry": ".codex-build/court-life-acceptance/20260909-resume/international-serious-cargo-account-role-retest-16/evidence-manifest.json",
+          "outcome": "failed_opening_grounding_direct_role_answer_passed"
+        },
+        {
+          "entry": ".codex-build/court-life-acceptance/20260909-resume/international-serious-cargo-account-full-retest-17/evidence-manifest.json",
+          "outcome": "pass"
+        },
+        {
+          "entry": ".codex-build/court-life-acceptance/20260909-resume/international-serious-cargo-account-15/evidence-manifest.json",
+          "outcome": "failed_dialogue_grounding_mechanical_resolution_passed"
+        }
+      ],
+      "reuseRule": "Recover complete transcript and independent effects/persistence; match unchanged template semantics and relevant dependency contracts. Current changed shared paths require fresh branch regression. Missing or inadequate proof schedules this exact template, never a duplicate by default."
+    },
+    {
+      "id": "international-serious-estate-damage",
+      "source": "International",
+      "status": "evidence_review_required",
+      "pack": "R02",
+      "historicalPhaseEntries": [],
+      "historicalCaseManifests": [
+        {
+          "entry": ".codex-build/court-life-acceptance/20260909-resume/international-serious-estate-damage-full-retest-19/evidence-manifest.json",
+          "outcome": "pass"
+        },
+        {
+          "entry": ".codex-build/court-life-acceptance/20260909-resume/international-serious-estate-damage-18/evidence-manifest.json",
+          "outcome": "failed_visible_location_header"
+        }
+      ],
+      "reuseRule": "Recover complete transcript and independent effects/persistence; match unchanged template semantics and relevant dependency contracts. Current changed shared paths require fresh branch regression. Missing or inadequate proof schedules this exact template, never a duplicate by default."
+    },
+    {
+      "id": "international-serious-loan",
+      "source": "International",
+      "status": "evidence_review_required",
+      "pack": "R02",
+      "historicalPhaseEntries": [
+        ".codex-build/court-life-acceptance/20260909-resume/loan01-confirm-report.json",
+        ".codex-build/court-life-acceptance/20260909-resume/loan01-evidence-question-report.json",
+        ".codex-build/court-life-acceptance/20260909-resume/loan01-observe-report.json",
+        ".codex-build/court-life-acceptance/20260909-resume/loan01-open-report.json",
+        ".codex-build/court-life-acceptance/20260909-resume/loan01-opening-snapshot-report.json",
+        ".codex-build/court-life-acceptance/20260909-resume/loan01-prepare-report.json"
+      ],
+      "historicalCaseManifests": [],
+      "reuseRule": "Recover complete transcript and independent effects/persistence; match unchanged template semantics and relevant dependency contracts. Current changed shared paths require fresh branch regression. Missing or inadequate proof schedules this exact template, never a duplicate by default."
+    },
+    {
+      "id": "international-serious-public-accusation",
+      "source": "International",
+      "status": "evidence_review_required",
+      "pack": "R02",
+      "historicalPhaseEntries": [],
+      "historicalCaseManifests": [],
+      "reuseRule": "Recover complete transcript and independent effects/persistence; match unchanged template semantics and relevant dependency contracts. Current changed shared paths require fresh branch regression. Missing or inadequate proof schedules this exact template, never a duplicate by default."
+    },
+    {
+      "id": "international-serious-safe-conduct-fee",
+      "source": "International",
+      "status": "evidence_review_required",
+      "pack": "R02",
+      "historicalPhaseEntries": [],
+      "historicalCaseManifests": [
+        {
+          "entry": ".codex-build/court-life-acceptance/20260909-resume/international-serious-safe-conduct-fee-20/evidence-manifest.json",
+          "outcome": "pass"
+        }
+      ],
+      "reuseRule": "Recover complete transcript and independent effects/persistence; match unchanged template semantics and relevant dependency contracts. Current changed shared paths require fresh branch regression. Missing or inadequate proof schedules this exact template, never a duplicate by default."
+    },
+    {
+      "id": "international-serious-inheritance-payment",
+      "source": "International",
+      "status": "evidence_review_required",
+      "pack": "R02",
+      "historicalPhaseEntries": [],
+      "historicalCaseManifests": [
+        {
+          "entry": ".codex-build/court-life-acceptance/20260909-resume/international-serious-inheritance-payment-22/evidence-manifest.json",
+          "outcome": "pass"
+        }
+      ],
+      "reuseRule": "Recover complete transcript and independent effects/persistence; match unchanged template semantics and relevant dependency contracts. Current changed shared paths require fresh branch regression. Missing or inadequate proof schedules this exact template, never a duplicate by default."
+    },
+    {
+      "id": "international-serious-marriage-gift",
+      "source": "International",
+      "status": "evidence_review_required",
+      "pack": "R02",
+      "historicalPhaseEntries": [],
+      "historicalCaseManifests": [
+        {
+          "entry": ".codex-build/court-life-acceptance/20260909-resume/international-serious-marriage-gift-23/evidence-manifest.json",
+          "outcome": "pass_with_formatting_followup"
+        }
+      ],
+      "reuseRule": "Recover complete transcript and independent effects/persistence; match unchanged template semantics and relevant dependency contracts. Current changed shared paths require fresh branch regression. Missing or inadequate proof schedules this exact template, never a duplicate by default."
+    },
+    {
+      "id": "international-serious-merchant-patron",
+      "source": "International",
+      "status": "evidence_review_required",
+      "pack": "R02",
+      "historicalPhaseEntries": [],
+      "historicalCaseManifests": [
+        {
+          "entry": ".codex-build/court-life-acceptance/20260909-resume/international-serious-merchant-patron-24/evidence-manifest.json",
+          "outcome": "pass"
+        }
+      ],
+      "reuseRule": "Recover complete transcript and independent effects/persistence; match unchanged template semantics and relevant dependency contracts. Current changed shared paths require fresh branch regression. Missing or inadequate proof schedules this exact template, never a duplicate by default."
+    },
+    {
+      "id": "international-serious-slander",
+      "source": "International",
+      "status": "evidence_review_required",
+      "pack": "R02",
+      "historicalPhaseEntries": [],
+      "historicalCaseManifests": [],
+      "reuseRule": "Recover complete transcript and independent effects/persistence; match unchanged template semantics and relevant dependency contracts. Current changed shared paths require fresh branch regression. Missing or inadequate proof schedules this exact template, never a duplicate by default."
+    },
+    {
+      "id": "international-serious-grain-offer",
+      "source": "International",
+      "status": "evidence_review_required",
+      "pack": "R02",
+      "historicalPhaseEntries": [],
+      "historicalCaseManifests": [],
+      "reuseRule": "Recover complete transcript and independent effects/persistence; match unchanged template semantics and relevant dependency contracts. Current changed shared paths require fresh branch regression. Missing or inadequate proof schedules this exact template, never a duplicate by default."
+    },
+    {
+      "id": "international-serious-trade",
+      "source": "International",
+      "status": "evidence_review_required",
+      "pack": "R02",
+      "historicalPhaseEntries": [
+        ".codex-build/court-life-acceptance/20260907/fingerprint-trade-prepare-report.json",
+        ".codex-build/court-life-acceptance/20260907/fingerprint-trade-verify-report.json",
+        ".codex-build/court-life-acceptance/20260907/i-trade-completed-native-observe-report.json",
+        ".codex-build/court-life-acceptance/20260907/i-trade-completed-receipt-confirm-report.json",
+        ".codex-build/court-life-acceptance/20260907/i-trade-execution-observe-report.json",
+        ".codex-build/court-life-acceptance/20260907/i-trade-final-acceptance-report.json",
+        ".codex-build/court-life-acceptance/20260907/i-trade-final-confirm-report.json",
+        ".codex-build/court-life-acceptance/20260907/i-trade-pending-observe-report.json",
+        ".codex-build/court-life-acceptance/20260907/i-trade-prepare-report.json",
+        ".codex-build/court-life-acceptance/20260907/i-trade-question-report.json",
+        ".codex-build/court-life-acceptance/20260907/i-trade-refer-confirm-report.json",
+        ".codex-build/court-life-acceptance/20260907/i-trade-referral-report.json",
+        ".codex-build/court-life-acceptance/20260907/i-trade-reply-observe-report.json"
+      ],
+      "historicalCaseManifests": [
+        {
+          "entry": ".codex-build/court-life-acceptance/20260909-resume/international-serious-trade-referral-timing-12/evidence-manifest.json",
+          "outcome": null
+        }
+      ],
+      "reuseRule": "Recover complete transcript and independent effects/persistence; match unchanged template semantics and relevant dependency contracts. Current changed shared paths require fresh branch regression. Missing or inadequate proof schedules this exact template, never a duplicate by default."
+    },
+    {
+      "id": "international-serious-festival-aid",
+      "source": "International",
+      "status": "evidence_review_required",
+      "pack": "R02",
+      "historicalPhaseEntries": [],
+      "historicalCaseManifests": [
+        {
+          "entry": ".codex-build/court-life-acceptance/20260909-resume/international-serious-festival-aid-69/evidence-manifest.json",
+          "outcome": "pass"
+        }
+      ],
+      "reuseRule": "Recover complete transcript and independent effects/persistence; match unchanged template semantics and relevant dependency contracts. Current changed shared paths require fresh branch regression. Missing or inadequate proof schedules this exact template, never a duplicate by default."
+    },
+    {
+      "id": "international-serious-prisoner",
+      "source": "International",
+      "status": "evidence_review_required",
+      "pack": "R02",
+      "historicalPhaseEntries": [],
+      "historicalCaseManifests": [
+        {
+          "entry": ".codex-build/court-life-acceptance/20260909-resume/international-serious-prisoner-21/evidence-manifest.json",
+          "outcome": "blocked"
+        }
+      ],
+      "reuseRule": "Recover complete transcript and independent effects/persistence; match unchanged template semantics and relevant dependency contracts. Current changed shared paths require fresh branch regression. Missing or inadequate proof schedules this exact template, never a duplicate by default."
+    },
+    {
+      "id": "international-serious-ransom",
+      "source": "International",
+      "status": "evidence_review_required",
+      "pack": "R02",
+      "historicalPhaseEntries": [
+        ".codex-build/court-life-acceptance/20260907/fingerprint-ransom-prepare-report.json",
+        ".codex-build/court-life-acceptance/20260907/fingerprint-ransom-verify-report.json",
+        ".codex-build/court-life-acceptance/20260907/i-ransom-acceptance-report.json",
+        ".codex-build/court-life-acceptance/20260907/i-ransom-captive-prepare-report.json",
+        ".codex-build/court-life-acceptance/20260907/i-ransom-daily-reply-observe-report.json",
+        ".codex-build/court-life-acceptance/20260907/i-ransom-final-confirm-report.json",
+        ".codex-build/court-life-acceptance/20260907/i-ransom-pending-observe-report.json",
+        ".codex-build/court-life-acceptance/20260907/i-ransom-promoted-observe-report.json",
+        ".codex-build/court-life-acceptance/20260907/i-ransom-question-report.json",
+        ".codex-build/court-life-acceptance/20260907/i-ransom-refer-confirm-report.json",
+        ".codex-build/court-life-acceptance/20260907/i-ransom-referral-report.json",
+        ".codex-build/court-life-acceptance/20260907/i-ransom-reply-observe-report.json",
+        ".codex-build/court-life-acceptance/20260907/i-ransom-reply-open-report.json",
+        ".codex-build/court-life-acceptance/20260907/i-ransom-save-prepare-report.json",
+        ".codex-build/court-life-acceptance/20260907/i-ransom-save-verify-report.json"
+      ],
+      "historicalCaseManifests": [],
+      "reuseRule": "Recover complete transcript and independent effects/persistence; match unchanged template semantics and relevant dependency contracts. Current changed shared paths require fresh branch regression. Missing or inadequate proof schedules this exact template, never a duplicate by default."
+    },
+    {
+      "id": "international-serious-tribute-demand",
+      "source": "International",
+      "status": "evidence_review_required",
+      "pack": "R02",
+      "historicalPhaseEntries": [
+        ".codex-build/court-life-acceptance/20260907/i-tribute-confirm-report.json",
+        ".codex-build/court-life-acceptance/20260907/i-tribute-open-recovery-report.json",
+        ".codex-build/court-life-acceptance/20260907/i-tribute-open-report.json",
+        ".codex-build/court-life-acceptance/20260907/i-tribute-prepare-report.json",
+        ".codex-build/court-life-acceptance/20260907/i-tribute-question-report.json",
+        ".codex-build/court-life-acceptance/20260907/i-tribute-refusal-report.json",
+        ".codex-build/court-life-acceptance/20260909-resume/extortion-accept-report.json",
+        ".codex-build/court-life-acceptance/20260909-resume/extortion-hospitality-incomplete-report.json",
+        ".codex-build/court-life-acceptance/20260909-resume/extortion-open-report.json",
+        ".codex-build/court-life-acceptance/20260909-resume/extortion-paid-native-report.json",
+        ".codex-build/court-life-acceptance/20260909-resume/extortion-prepare-report.json",
+        ".codex-build/court-life-acceptance/20260909-resume/extortion-question-report.json",
+        ".codex-build/court-life-acceptance/20260909-resume/extortion-recovery-snapshot-report.json",
+        ".codex-build/court-life-acceptance/20260909-resume/extortion-reloaded-native-report.json"
+      ],
+      "historicalCaseManifests": [],
+      "reuseRule": "Recover complete transcript and independent effects/persistence; match unchanged template semantics and relevant dependency contracts. Current changed shared paths require fresh branch regression. Missing or inadequate proof schedules this exact template, never a duplicate by default."
+    },
+    {
+      "id": "international-grave-repeated-exactions",
+      "source": "International",
+      "status": "evidence_review_required",
+      "pack": "R02",
+      "historicalPhaseEntries": [],
+      "historicalCaseManifests": [
+        {
+          "entry": ".codex-build/court-life-acceptance/20260909-resume/international-grave-repeated-exactions-70/evidence-manifest.json",
+          "outcome": "pass"
+        }
+      ],
+      "reuseRule": "Recover complete transcript and independent effects/persistence; match unchanged template semantics and relevant dependency contracts. Current changed shared paths require fresh branch regression. Missing or inadequate proof schedules this exact template, never a duplicate by default."
+    },
+    {
+      "id": "international-grave-warehouse",
+      "source": "International",
+      "status": "evidence_review_required",
+      "pack": "R02",
+      "historicalPhaseEntries": [],
+      "historicalCaseManifests": [
+        {
+          "entry": ".codex-build/court-life-acceptance/20260909-resume/international-grave-warehouse-67/evidence-manifest.json",
+          "outcome": "pass"
+        }
+      ],
+      "reuseRule": "Recover complete transcript and independent effects/persistence; match unchanged template semantics and relevant dependency contracts. Current changed shared paths require fresh branch regression. Missing or inadequate proof schedules this exact template, never a duplicate by default."
+    },
+    {
+      "id": "international-grave-envoy-insult",
+      "source": "International",
+      "status": "evidence_review_required",
+      "pack": "R02",
+      "historicalPhaseEntries": [],
+      "historicalCaseManifests": [
+        {
+          "entry": ".codex-build/court-life-acceptance/20260909-resume/international-envoy-insult-65/evidence-manifest.json",
+          "outcome": "pass"
+        }
+      ],
+      "reuseRule": "Recover complete transcript and independent effects/persistence; match unchanged template semantics and relevant dependency contracts. Current changed shared paths require fresh branch regression. Missing or inadequate proof schedules this exact template, never a duplicate by default."
+    },
+    {
+      "id": "international-grave-estate-restitution",
+      "source": "International",
+      "status": "evidence_review_required",
+      "pack": "R02",
+      "historicalPhaseEntries": [],
+      "historicalCaseManifests": [
+        {
+          "entry": ".codex-build/court-life-acceptance/20260909-resume/international-grave-estate-restitution-72/evidence-manifest.json",
+          "outcome": "pass"
+        }
+      ],
+      "reuseRule": "Recover complete transcript and independent effects/persistence; match unchanged template semantics and relevant dependency contracts. Current changed shared paths require fresh branch regression. Missing or inadequate proof schedules this exact template, never a duplicate by default."
+    },
+    {
+      "id": "international-grave-road-claims",
+      "source": "International",
+      "status": "evidence_review_required",
+      "pack": "R02",
+      "historicalPhaseEntries": [],
+      "historicalCaseManifests": [
+        {
+          "entry": ".codex-build/court-life-acceptance/20260909-resume/international-grave-road-claims-74-evidence-manifest.json",
+          "outcome": "pass"
+        }
+      ],
+      "reuseRule": "Recover complete transcript and independent effects/persistence; match unchanged template semantics and relevant dependency contracts. Current changed shared paths require fresh branch regression. Missing or inadequate proof schedules this exact template, never a duplicate by default."
+    },
+    {
+      "id": "international-grave-broken-guarantee",
+      "source": "International",
+      "status": "evidence_review_required",
+      "pack": "R02",
+      "historicalPhaseEntries": [],
+      "historicalCaseManifests": [
+        {
+          "entry": ".codex-build/court-life-acceptance/20260909-resume/international-grave-broken-guarantee-75-evidence-manifest.json",
+          "outcome": "pass"
+        }
+      ],
+      "reuseRule": "Recover complete transcript and independent effects/persistence; match unchanged template semantics and relevant dependency contracts. Current changed shared paths require fresh branch regression. Missing or inadequate proof schedules this exact template, never a duplicate by default."
+    },
+    {
+      "id": "international-grave-collective-debt",
+      "source": "International",
+      "status": "evidence_review_required",
+      "pack": "R02",
+      "historicalPhaseEntries": [],
+      "historicalCaseManifests": [],
+      "reuseRule": "Recover complete transcript and independent effects/persistence; match unchanged template semantics and relevant dependency contracts. Current changed shared paths require fresh branch regression. Missing or inadequate proof schedules this exact template, never a duplicate by default."
+    },
+    {
+      "id": "international-grave-captured-relative",
+      "source": "International",
+      "status": "evidence_review_required",
+      "pack": "R02",
+      "historicalPhaseEntries": [],
+      "historicalCaseManifests": [
+        {
+          "entry": ".codex-build/court-life-acceptance/20260909-resume/international-grave-captured-relative-68/evidence-manifest.json",
+          "outcome": "pass"
+        }
+      ],
+      "reuseRule": "Recover complete transcript and independent effects/persistence; match unchanged template semantics and relevant dependency contracts. Current changed shared paths require fresh branch regression. Missing or inadequate proof schedules this exact template, never a duplicate by default."
+    },
+    {
+      "id": "international-grave-ransom-intercession",
+      "source": "International",
+      "status": "evidence_review_required",
+      "pack": "R02",
+      "historicalPhaseEntries": [],
+      "historicalCaseManifests": [
+        {
+          "entry": ".codex-build/court-life-acceptance/20260909-resume/international-grave-ransom-intercession-73-evidence-manifest.json",
+          "outcome": "blocked_provider_response_unavailable"
+        }
+      ],
+      "reuseRule": "Recover complete transcript and independent effects/persistence; match unchanged template semantics and relevant dependency contracts. Current changed shared paths require fresh branch regression. Missing or inadequate proof schedules this exact template, never a duplicate by default."
+    },
+    {
+      "id": "international-grave-trade-renewal",
+      "source": "International",
+      "status": "evidence_review_required",
+      "pack": "R02",
+      "historicalPhaseEntries": [],
+      "historicalCaseManifests": [
+        {
+          "entry": ".codex-build/court-life-acceptance/20260909-resume/international-grave-trade-renewal-authority-13/evidence-manifest.json",
+          "outcome": null
+        }
+      ],
+      "reuseRule": "Recover complete transcript and independent effects/persistence; match unchanged template semantics and relevant dependency contracts. Current changed shared paths require fresh branch regression. Missing or inadequate proof schedules this exact template, never a duplicate by default."
+    },
+    {
+      "id": "international-grave-relief-fund",
+      "source": "International",
+      "status": "evidence_review_required",
+      "pack": "R02",
+      "historicalPhaseEntries": [],
+      "historicalCaseManifests": [
+        {
+          "entry": ".codex-build/court-life-acceptance/20260909-resume/international-relief-fund-stale-sovereign-fix/evidence-manifest.json",
+          "outcome": "pass"
+        }
+      ],
+      "reuseRule": "Recover complete transcript and independent effects/persistence; match unchanged template semantics and relevant dependency contracts. Current changed shared paths require fresh branch regression. Missing or inadequate proof schedules this exact template, never a duplicate by default."
+    },
+    {
+      "id": "international-grave-peaceful-recognition",
+      "source": "International",
+      "status": "evidence_review_required",
+      "pack": "R02",
+      "historicalPhaseEntries": [],
+      "historicalCaseManifests": [
+        {
+          "entry": ".codex-build/court-life-acceptance/20260909-resume/international-grave-peaceful-recognition-76-evidence-manifest.json",
+          "outcome": "pass"
+        }
+      ],
+      "reuseRule": "Recover complete transcript and independent effects/persistence; match unchanged template semantics and relevant dependency contracts. Current changed shared paths require fresh branch regression. Missing or inadequate proof schedules this exact template, never a duplicate by default."
+    },
+    {
+      "id": "international-grave-protection-demand",
+      "source": "International",
+      "status": "evidence_review_required",
+      "pack": "R02",
+      "historicalPhaseEntries": [
+        ".codex-build/court-life-acceptance/20260909-resume/protection01-confirm-report.json",
+        ".codex-build/court-life-acceptance/20260909-resume/protection01-converse-report.json",
+        ".codex-build/court-life-acceptance/20260909-resume/protection01-observe-report.json",
+        ".codex-build/court-life-acceptance/20260909-resume/protection01-open-report.json",
+        ".codex-build/court-life-acceptance/20260909-resume/protection01-prepare-report.json",
+        ".codex-build/court-life-acceptance/20260909-resume/protection01-snapshot-report.json"
+      ],
+      "historicalCaseManifests": [
+        {
+          "entry": ".codex-build/court-life-acceptance/20260909-resume/extortion-matter-isolation-02/acceptance-summary.json",
+          "outcome": "refuse"
+        }
+      ],
+      "reuseRule": "Recover complete transcript and independent effects/persistence; match unchanged template semantics and relevant dependency contracts. Current changed shared paths require fresh branch regression. Missing or inadequate proof schedules this exact template, never a duplicate by default."
+    },
+    {
+      "id": "international-grave-compelled-gift",
+      "source": "International",
+      "status": "evidence_review_required",
+      "pack": "R02",
+      "historicalPhaseEntries": [],
+      "historicalCaseManifests": [
+        {
+          "entry": ".codex-build/court-life-acceptance/20260909-resume/international-grave-compelled-gift-25/evidence-manifest.json",
+          "outcome": "pass_with_harness_diagnostic_followup"
+        }
+      ],
+      "reuseRule": "Recover complete transcript and independent effects/persistence; match unchanged template semantics and relevant dependency contracts. Current changed shared paths require fresh branch regression. Missing or inadequate proof schedules this exact template, never a duplicate by default."
+    },
+    {
+      "id": "international-grave-border-ultimatum",
+      "source": "International",
+      "status": "evidence_review_required",
+      "pack": "R02",
+      "historicalPhaseEntries": [],
+      "historicalCaseManifests": [
+        {
+          "entry": ".codex-build/court-life-acceptance/20260909-resume/international-grave-border-ultimatum-71/evidence-manifest.json",
+          "outcome": "blocked"
+        }
+      ],
+      "reuseRule": "Recover complete transcript and independent effects/persistence; match unchanged template semantics and relevant dependency contracts. Current changed shared paths require fresh branch regression. Missing or inadequate proof schedules this exact template, never a duplicate by default."
+    },
+    {
+      "id": "international-exceptional-royal-reparations",
+      "source": "International",
+      "status": "evidence_review_required",
+      "pack": "R02",
+      "historicalPhaseEntries": [],
+      "historicalCaseManifests": [
+        {
+          "entry": ".codex-build/court-life-acceptance/20260909-resume/international-exceptional-royal-reparations-77-evidence-manifest.json",
+          "outcome": "pass"
+        }
+      ],
+      "reuseRule": "Recover complete transcript and independent effects/persistence; match unchanged template semantics and relevant dependency contracts. Current changed shared paths require fresh branch regression. Missing or inadequate proof schedules this exact template, never a duplicate by default."
+    },
+    {
+      "id": "international-exceptional-dynastic-debt",
+      "source": "International",
+      "status": "evidence_review_required",
+      "pack": "R02",
+      "historicalPhaseEntries": [],
+      "historicalCaseManifests": [
+        {
+          "entry": ".codex-build/court-life-acceptance/20260911-template-art-repair-deployment/international-exceptional-dynastic-debt-83-evidence-manifest.json",
+          "outcome": "pass"
+        },
+        {
+          "entry": ".codex-build/court-life-acceptance/20260909-resume/international-exceptional-dynastic-debt-82-evidence-manifest.json",
+          "outcome": "partial"
+        }
+      ],
+      "reuseRule": "Recover complete transcript and independent effects/persistence; match unchanged template semantics and relevant dependency contracts. Current changed shared paths require fresh branch regression. Missing or inadequate proof schedules this exact template, never a duplicate by default."
+    },
+    {
+      "id": "international-exceptional-frontier-crisis",
+      "source": "International",
+      "status": "evidence_review_required",
+      "pack": "R02",
+      "historicalPhaseEntries": [],
+      "historicalCaseManifests": [
+        {
+          "entry": ".codex-build/court-life-acceptance/20260909-resume/international-exceptional-frontier-crisis-78-evidence-manifest.json",
+          "outcome": "pass"
+        }
+      ],
+      "reuseRule": "Recover complete transcript and independent effects/persistence; match unchanged template semantics and relevant dependency contracts. Current changed shared paths require fresh branch regression. Missing or inadequate proof schedules this exact template, never a duplicate by default."
+    },
+    {
+      "id": "international-exceptional-honor-crisis",
+      "source": "International",
+      "status": "evidence_review_required",
+      "pack": "R02",
+      "historicalPhaseEntries": [],
+      "historicalCaseManifests": [
+        {
+          "entry": ".codex-build/court-life-acceptance/20260911-template-art-repair-deployment/international-exceptional-honor-crisis-84-evidence-manifest.json",
+          "outcome": "pass"
+        }
+      ],
+      "reuseRule": "Recover complete transcript and independent effects/persistence; match unchanged template semantics and relevant dependency contracts. Current changed shared paths require fresh branch regression. Missing or inadequate proof schedules this exact template, never a duplicate by default."
+    },
+    {
+      "id": "international-exceptional-treaty-redress",
+      "source": "International",
+      "status": "evidence_review_required",
+      "pack": "R02",
+      "historicalPhaseEntries": [],
+      "historicalCaseManifests": [
+        {
+          "entry": ".codex-build/court-life-acceptance/20260911-template-art-repair-deployment/international-exceptional-treaty-redress-85-evidence-manifest.json",
+          "outcome": "pass"
+        }
+      ],
+      "reuseRule": "Recover complete transcript and independent effects/persistence; match unchanged template semantics and relevant dependency contracts. Current changed shared paths require fresh branch regression. Missing or inadequate proof schedules this exact template, never a duplicate by default."
+    },
+    {
+      "id": "international-exceptional-great-house-captive",
+      "source": "International",
+      "status": "evidence_review_required",
+      "pack": "R02",
+      "historicalPhaseEntries": [],
+      "historicalCaseManifests": [
+        {
+          "entry": ".codex-build/court-life-acceptance/20260911-captive-context-repair-deployment/international-exceptional-great-house-captive-87-evidence-manifest.json",
+          "outcome": "pass"
+        }
+      ],
+      "reuseRule": "Recover complete transcript and independent effects/persistence; match unchanged template semantics and relevant dependency contracts. Current changed shared paths require fresh branch regression. Missing or inadequate proof schedules this exact template, never a duplicate by default."
+    },
+    {
+      "id": "international-exceptional-royal-ransom",
+      "source": "International",
+      "status": "evidence_review_required",
+      "pack": "R02",
+      "historicalPhaseEntries": [],
+      "historicalCaseManifests": [
+        {
+          "entry": ".codex-build/court-life-acceptance/20260911-captive-context-repair-deployment/international-exceptional-royal-ransom-88-evidence-manifest.json",
+          "outcome": "pass"
+        }
+      ],
+      "reuseRule": "Recover complete transcript and independent effects/persistence; match unchanged template semantics and relevant dependency contracts. Current changed shared paths require fresh branch regression. Missing or inadequate proof schedules this exact template, never a duplicate by default."
+    },
+    {
+      "id": "international-exceptional-shared-future",
+      "source": "International",
+      "status": "evidence_review_required",
+      "pack": "R02",
+      "historicalPhaseEntries": [],
+      "historicalCaseManifests": [
+        {
+          "entry": ".codex-build/court-life-acceptance/20260909-resume/international-exceptional-shared-future-authority-14/evidence-manifest.json",
+          "outcome": null
+        }
+      ],
+      "reuseRule": "Recover complete transcript and independent effects/persistence; match unchanged template semantics and relevant dependency contracts. Current changed shared paths require fresh branch regression. Missing or inadequate proof schedules this exact template, never a duplicate by default."
+    },
+    {
+      "id": "international-exceptional-royal-endowment",
+      "source": "International",
+      "status": "evidence_review_required",
+      "pack": "R02",
+      "historicalPhaseEntries": [],
+      "historicalCaseManifests": [
+        {
+          "entry": ".codex-build/court-life-acceptance/20260909-resume/international-exceptional-royal-endowment-79-evidence-manifest.json",
+          "outcome": "pass"
+        }
+      ],
+      "reuseRule": "Recover complete transcript and independent effects/persistence; match unchanged template semantics and relevant dependency contracts. Current changed shared paths require fresh branch regression. Missing or inadequate proof schedules this exact template, never a duplicate by default."
+    },
+    {
+      "id": "international-exceptional-public-reconciliation",
+      "source": "International",
+      "status": "evidence_review_required",
+      "pack": "R02",
+      "historicalPhaseEntries": [],
+      "historicalCaseManifests": [
+        {
+          "entry": ".codex-build/court-life-acceptance/20260909-resume/international-exceptional-public-reconciliation-80-evidence-manifest.json",
+          "outcome": "pass"
+        }
+      ],
+      "reuseRule": "Recover complete transcript and independent effects/persistence; match unchanged template semantics and relevant dependency contracts. Current changed shared paths require fresh branch regression. Missing or inadequate proof schedules this exact template, never a duplicate by default."
+    },
+    {
+      "id": "international-exceptional-national-debt",
+      "source": "International",
+      "status": "evidence_review_required",
+      "pack": "R02",
+      "historicalPhaseEntries": [],
+      "historicalCaseManifests": [
+        {
+          "entry": ".codex-build/court-life-acceptance/20260909-resume/international-national-debt-61/evidence-manifest.json",
+          "outcome": "pass"
+        }
+      ],
+      "reuseRule": "Recover complete transcript and independent effects/persistence; match unchanged template semantics and relevant dependency contracts. Current changed shared paths require fresh branch regression. Missing or inadequate proof schedules this exact template, never a duplicate by default."
+    },
+    {
+      "id": "international-exceptional-command-responsibility",
+      "source": "International",
+      "status": "evidence_review_required",
+      "pack": "R02",
+      "historicalPhaseEntries": [],
+      "historicalCaseManifests": [
+        {
+          "entry": ".codex-build/court-life-acceptance/20260909-resume/international-exceptional-command-responsibility-81-evidence-manifest.json",
+          "outcome": "pass"
+        }
+      ],
+      "reuseRule": "Recover complete transcript and independent effects/persistence; match unchanged template semantics and relevant dependency contracts. Current changed shared paths require fresh branch regression. Missing or inadequate proof schedules this exact template, never a duplicate by default."
+    },
+    {
+      "id": "international-exceptional-submission-payment",
+      "source": "International",
+      "status": "evidence_review_required",
+      "pack": "R02",
+      "historicalPhaseEntries": [],
+      "historicalCaseManifests": [
+        {
+          "entry": ".codex-build/court-life-acceptance/20260911-captive-context-repair-deployment/international-exceptional-submission-payment-89-evidence-manifest.json",
+          "outcome": "pass"
+        }
+      ],
+      "reuseRule": "Recover complete transcript and independent effects/persistence; match unchanged template semantics and relevant dependency contracts. Current changed shared paths require fresh branch regression. Missing or inadequate proof schedules this exact template, never a duplicate by default."
+    },
+    {
+      "id": "international-exceptional-price-of-peace",
+      "source": "International",
+      "status": "evidence_review_required",
+      "pack": "R02",
+      "historicalPhaseEntries": [],
+      "historicalCaseManifests": [
+        {
+          "entry": ".codex-build/court-life-acceptance/20260911-captive-context-repair-deployment/international-exceptional-price-of-peace-90-evidence-manifest.json",
+          "outcome": "pass"
+        }
+      ],
+      "reuseRule": "Recover complete transcript and independent effects/persistence; match unchanged template semantics and relevant dependency contracts. Current changed shared paths require fresh branch regression. Missing or inadequate proof schedules this exact template, never a duplicate by default."
+    },
+    {
+      "id": "international-exceptional-final-demand",
+      "source": "International",
+      "status": "evidence_review_required",
+      "pack": "R02",
+      "historicalPhaseEntries": [],
+      "historicalCaseManifests": [
+        {
+          "entry": ".codex-build/court-life-acceptance/20260911-captive-context-repair-deployment/international-exceptional-final-demand-91-evidence-manifest.json",
+          "outcome": "pass"
+        }
+      ],
+      "reuseRule": "Recover complete transcript and independent effects/persistence; match unchanged template semantics and relevant dependency contracts. Current changed shared paths require fresh branch regression. Missing or inadequate proof schedules this exact template, never a duplicate by default."
+    },
+    {
+      "id": "patronage-victory-ballad",
+      "source": "Patronage",
+      "status": "evidence_review_required",
+      "pack": "R11",
+      "historicalPhaseEntries": [
+        ".codex-build/court-life-acceptance/20260909-resume/patronage-victory-ballad-01/victoryballad01-converse-report.json",
+        ".codex-build/court-life-acceptance/20260909-resume/patronage-victory-ballad-01/victoryballad01-open-report.json",
+        ".codex-build/court-life-acceptance/20260909-resume/patronage-victory-ballad-01/victoryballad01-opening-snapshot-report.json",
+        ".codex-build/court-life-acceptance/20260909-resume/patronage-victory-ballad-01/victoryballad01-post-deployment-resolved-observe-report.json",
+        ".codex-build/court-life-acceptance/20260909-resume/patronage-victory-ballad-01/victoryballad01-post-mutation-snapshot-report.json",
+        ".codex-build/court-life-acceptance/20260909-resume/patronage-victory-ballad-01/victoryballad01-prepare-report.json"
+      ],
+      "historicalCaseManifests": [],
+      "reuseRule": "Recover complete transcript and independent effects/persistence; match unchanged template semantics and relevant dependency contracts. Current changed shared paths require fresh branch regression. Missing or inadequate proof schedules this exact template, never a duplicate by default."
+    },
+    {
+      "id": "patronage-generous-crown",
+      "source": "Patronage",
+      "status": "evidence_review_required",
+      "pack": "R11",
+      "historicalPhaseEntries": [],
+      "historicalCaseManifests": [],
+      "reuseRule": "Recover complete transcript and independent effects/persistence; match unchanged template semantics and relevant dependency contracts. Current changed shared paths require fresh branch regression. Missing or inadequate proof schedules this exact template, never a duplicate by default."
+    },
+    {
+      "id": "patronage-ruler-biography",
+      "source": "Patronage",
+      "status": "evidence_review_required",
+      "pack": "R11",
+      "historicalPhaseEntries": [
+        ".codex-build/court-life-acceptance/20260907/p-biography-decline-report.json",
+        ".codex-build/court-life-acceptance/20260907/p-biography-open-report.json",
+        ".codex-build/court-life-acceptance/20260907/p-biography-prepare-report.json",
+        ".codex-build/court-life-acceptance/20260907/p-biography-turn1-report.json",
+        ".codex-build/court-life-acceptance/20260907/p-biography-turn2-report.json"
+      ],
+      "historicalCaseManifests": [],
+      "reuseRule": "Recover complete transcript and independent effects/persistence; match unchanged template semantics and relevant dependency contracts. Current changed shared paths require fresh branch regression. Missing or inadequate proof schedules this exact template, never a duplicate by default."
+    },
+    {
+      "id": "patronage-roadside-storyteller",
+      "source": "Patronage",
+      "status": "evidence_review_required",
+      "pack": "R11",
+      "historicalPhaseEntries": [],
+      "historicalCaseManifests": [],
+      "reuseRule": "Recover complete transcript and independent effects/persistence; match unchanged template semantics and relevant dependency contracts. Current changed shared paths require fresh branch regression. Missing or inadequate proof schedules this exact template, never a duplicate by default."
+    },
+    {
+      "id": "patronage-captive-homecoming",
+      "source": "Patronage",
+      "status": "evidence_review_required",
+      "pack": "R11",
+      "historicalPhaseEntries": [
+        ".codex-build/court-life-acceptance/20260907/p-homecoming-confirm-report.json",
+        ".codex-build/court-life-acceptance/20260907/p-homecoming-delivery-report.json",
+        ".codex-build/court-life-acceptance/20260907/p-homecoming-open-report.json",
+        ".codex-build/court-life-acceptance/20260907/p-homecoming-prepare-report.json",
+        ".codex-build/court-life-acceptance/20260907/p-homecoming-turn1-report.json",
+        ".codex-build/court-life-acceptance/20260907/p-homecoming-turn2-report.json"
+      ],
+      "historicalCaseManifests": [],
+      "reuseRule": "Recover complete transcript and independent effects/persistence; match unchanged template semantics and relevant dependency contracts. Current changed shared paths require fresh branch regression. Missing or inadequate proof schedules this exact template, never a duplicate by default."
+    },
+    {
+      "id": "patronage-recovered-town",
+      "source": "Patronage",
+      "status": "evidence_review_required",
+      "pack": "R11",
+      "historicalPhaseEntries": [],
+      "historicalCaseManifests": [],
+      "reuseRule": "Recover complete transcript and independent effects/persistence; match unchanged template semantics and relevant dependency contracts. Current changed shared paths require fresh branch regression. Missing or inadequate proof schedules this exact template, never a duplicate by default."
+    },
+    {
+      "id": "patronage-peace-verse",
+      "source": "Patronage",
+      "status": "evidence_review_required",
+      "pack": "R11",
+      "historicalPhaseEntries": [],
+      "historicalCaseManifests": [
+        {
+          "entry": ".codex-build/court-life-acceptance/20260909-resume/patronage-peace-verse-recovery-51/evidence-manifest.json",
+          "outcome": "pass"
+        }
+      ],
+      "reuseRule": "Recover complete transcript and independent effects/persistence; match unchanged template semantics and relevant dependency contracts. Current changed shared paths require fresh branch regression. Missing or inadequate proof schedules this exact template, never a duplicate by default."
+    },
+    {
+      "id": "patronage-honest-chronicle",
+      "source": "Patronage",
+      "status": "evidence_review_required",
+      "pack": "R11",
+      "historicalPhaseEntries": [
+        ".codex-build/court-life-acceptance/20260907/p-honest-bind-existing-report.json",
+        ".codex-build/court-life-acceptance/20260907/p-honest-confirm-report.json",
+        ".codex-build/court-life-acceptance/20260907/p-honest-delivery-report.json",
+        ".codex-build/court-life-acceptance/20260907/p-honest-description-migration-report.json",
+        ".codex-build/court-life-acceptance/20260907/p-honest-open-report.json",
+        ".codex-build/court-life-acceptance/20260907/p-honest-turn1-report.json",
+        ".codex-build/court-life-acceptance/20260907/p-honest-turn2-report.json",
+        ".codex-build/court-life-acceptance/20260907/p-honest-turn3-report.json"
+      ],
+      "historicalCaseManifests": [],
+      "reuseRule": "Recover complete transcript and independent effects/persistence; match unchanged template semantics and relevant dependency contracts. Current changed shared paths require fresh branch regression. Missing or inadequate proof schedules this exact template, never a duplicate by default."
+    },
+    {
+      "id": "patronage-spouse-portrait",
+      "source": "Patronage",
+      "status": "evidence_review_required",
+      "pack": "R11",
+      "historicalPhaseEntries": [],
+      "historicalCaseManifests": [
+        {
+          "entry": ".codex-build/court-life-acceptance/20260909-resume/patronage-spouse-portrait-33/evidence-manifest.json",
+          "outcome": "pass"
+        }
+      ],
+      "reuseRule": "Recover complete transcript and independent effects/persistence; match unchanged template semantics and relevant dependency contracts. Current changed shared paths require fresh branch regression. Missing or inadequate proof schedules this exact template, never a duplicate by default."
+    },
+    {
+      "id": "patronage-spouse-poem",
+      "source": "Patronage",
+      "status": "evidence_review_required",
+      "pack": "R11",
+      "historicalPhaseEntries": [
+        ".codex-build/court-life-acceptance/20260907/p-spouse-poem-confirm-report.json",
+        ".codex-build/court-life-acceptance/20260907/p-spouse-poem-delivery-report.json",
+        ".codex-build/court-life-acceptance/20260907/p-spouse-poem-open-report.json",
+        ".codex-build/court-life-acceptance/20260907/p-spouse-poem-prepare-report.json",
+        ".codex-build/court-life-acceptance/20260907/p-spouse-poem-turn1-report.json",
+        ".codex-build/court-life-acceptance/20260907/p-spouse-poem-turn2-report.json"
+      ],
+      "historicalCaseManifests": [],
+      "reuseRule": "Recover complete transcript and independent effects/persistence; match unchanged template semantics and relevant dependency contracts. Current changed shared paths require fresh branch regression. Missing or inadequate proof schedules this exact template, never a duplicate by default."
+    },
+    {
+      "id": "patronage-child-discovery-book",
+      "source": "Patronage",
+      "status": "evidence_review_required",
+      "pack": "R11",
+      "historicalPhaseEntries": [
+        ".codex-build/court-life-acceptance/20260907/p-child-book-confirm-report.json",
+        ".codex-build/court-life-acceptance/20260907/p-child-book-delivery-report.json",
+        ".codex-build/court-life-acceptance/20260907/p-child-book-open-report.json",
+        ".codex-build/court-life-acceptance/20260907/p-child-book-prepare-report.json",
+        ".codex-build/court-life-acceptance/20260907/p-child-book-save-prepare-report.json",
+        ".codex-build/court-life-acceptance/20260907/p-child-book-save-verify-report.json",
+        ".codex-build/court-life-acceptance/20260907/p-child-book-turn1-report.json",
+        ".codex-build/court-life-acceptance/20260907/p-child-book-turn2-report.json"
+      ],
+      "historicalCaseManifests": [],
+      "reuseRule": "Recover complete transcript and independent effects/persistence; match unchanged template semantics and relevant dependency contracts. Current changed shared paths require fresh branch regression. Missing or inadequate proof schedules this exact template, never a duplicate by default."
+    },
+    {
+      "id": "patronage-coming-of-age",
+      "source": "Patronage",
+      "status": "evidence_review_required",
+      "pack": "R11",
+      "historicalPhaseEntries": [],
+      "historicalCaseManifests": [
+        {
+          "entry": ".codex-build/court-life-acceptance/20260909-resume/patronage-coming-of-age-prerequisite-34/evidence-manifest.json",
+          "outcome": "partial"
+        }
+      ],
+      "reuseRule": "Recover complete transcript and independent effects/persistence; match unchanged template semantics and relevant dependency contracts. Current changed shared paths require fresh branch regression. Missing or inadequate proof schedules this exact template, never a duplicate by default."
+    },
+    {
+      "id": "patronage-family-chronicle",
+      "source": "Patronage",
+      "status": "evidence_review_required",
+      "pack": "R11",
+      "historicalPhaseEntries": [],
+      "historicalCaseManifests": [
+        {
+          "entry": ".codex-build/court-life-acceptance/20260909-resume/patronage-family-chronicle-35/evidence-manifest.json",
+          "outcome": "pass"
+        }
+      ],
+      "reuseRule": "Recover complete transcript and independent effects/persistence; match unchanged template semantics and relevant dependency contracts. Current changed shared paths require fresh branch regression. Missing or inadequate proof schedules this exact template, never a duplicate by default."
+    },
+    {
+      "id": "patronage-memorial-work",
+      "source": "Patronage",
+      "status": "evidence_review_required",
+      "pack": "R11",
+      "historicalPhaseEntries": [],
+      "historicalCaseManifests": [],
+      "reuseRule": "Recover complete transcript and independent effects/persistence; match unchanged template semantics and relevant dependency contracts. Current changed shared paths require fresh branch regression. Missing or inadequate proof schedules this exact template, never a duplicate by default."
+    },
+    {
+      "id": "patronage-reconciliation-gift",
+      "source": "Patronage",
+      "status": "evidence_review_required",
+      "pack": "R11",
+      "historicalPhaseEntries": [],
+      "historicalCaseManifests": [
+        {
+          "entry": ".codex-build/court-life-acceptance/20260909-resume/patronage-reconciliation-gift-39/evidence-manifest.json",
+          "outcome": "pass"
+        }
+      ],
+      "reuseRule": "Recover complete transcript and independent effects/persistence; match unchanged template semantics and relevant dependency contracts. Current changed shared paths require fresh branch regression. Missing or inadequate proof schedules this exact template, never a duplicate by default."
+    },
+    {
+      "id": "patronage-shared-family-story",
+      "source": "Patronage",
+      "status": "evidence_review_required",
+      "pack": "R11",
+      "historicalPhaseEntries": [],
+      "historicalCaseManifests": [
+        {
+          "entry": ".codex-build/court-life-acceptance/20260909-resume/patronage-shared-family-story-43/evidence-manifest.json",
+          "outcome": "pass"
+        }
+      ],
+      "reuseRule": "Recover complete transcript and independent effects/persistence; match unchanged template semantics and relevant dependency contracts. Current changed shared paths require fresh branch regression. Missing or inadequate proof schedules this exact template, never a duplicate by default."
+    },
+    {
+      "id": "patronage-unknown-singer",
+      "source": "Patronage",
+      "status": "evidence_review_required",
+      "pack": "R11",
+      "historicalPhaseEntries": [],
+      "historicalCaseManifests": [],
+      "reuseRule": "Recover complete transcript and independent effects/persistence; match unchanged template semantics and relevant dependency contracts. Current changed shared paths require fresh branch regression. Missing or inadequate proof schedules this exact template, never a duplicate by default."
+    },
+    {
+      "id": "patronage-noble-protege",
+      "source": "Patronage",
+      "status": "evidence_review_required",
+      "pack": "R11",
+      "historicalPhaseEntries": [],
+      "historicalCaseManifests": [
+        {
+          "entry": ".codex-build/court-life-acceptance/20260909-resume/patronage-noble-protege-zero-audience-46/evidence-manifest.json",
+          "outcome": "pass"
+        }
+      ],
+      "reuseRule": "Recover complete transcript and independent effects/persistence; match unchanged template semantics and relevant dependency contracts. Current changed shared paths require fresh branch regression. Missing or inadequate proof schedules this exact template, never a duplicate by default."
+    },
+    {
+      "id": "patronage-competing-performers",
+      "source": "Patronage",
+      "status": "evidence_review_required",
+      "pack": "R11",
+      "historicalPhaseEntries": [],
+      "historicalCaseManifests": [
+        {
+          "entry": ".codex-build/court-life-acceptance/20260909-resume/patronage-competing-performers-36/evidence-manifest.json",
+          "outcome": "pass"
+        }
+      ],
+      "reuseRule": "Recover complete transcript and independent effects/persistence; match unchanged template semantics and relevant dependency contracts. Current changed shared paths require fresh branch regression. Missing or inadequate proof schedules this exact template, never a duplicate by default."
+    },
+    {
+      "id": "patronage-apprentice-sponsorship",
+      "source": "Patronage",
+      "status": "evidence_review_required",
+      "pack": "R11",
+      "historicalPhaseEntries": [],
+      "historicalCaseManifests": [
+        {
+          "entry": ".codex-build/court-life-acceptance/20260909-resume/patronage-apprentice-sponsorship-37/evidence-manifest.json",
+          "outcome": "pass"
+        }
+      ],
+      "reuseRule": "Recover complete transcript and independent effects/persistence; match unchanged template semantics and relevant dependency contracts. Current changed shared paths require fresh branch regression. Missing or inadequate proof schedules this exact template, never a duplicate by default."
+    },
+    {
+      "id": "patronage-master-commission",
+      "source": "Patronage",
+      "status": "evidence_review_required",
+      "pack": "R11",
+      "historicalPhaseEntries": [],
+      "historicalCaseManifests": [
+        {
+          "entry": ".codex-build/court-life-acceptance/20260909-resume/patronage-master-inventory-boundary-38/evidence-manifest.json",
+          "outcome": "pass"
+        }
+      ],
+      "reuseRule": "Recover complete transcript and independent effects/persistence; match unchanged template semantics and relevant dependency contracts. Current changed shared paths require fresh branch regression. Missing or inadequate proof schedules this exact template, never a duplicate by default."
+    },
+    {
+      "id": "patronage-instrument-funding",
+      "source": "Patronage",
+      "status": "evidence_review_required",
+      "pack": "R11",
+      "historicalPhaseEntries": [
+        ".codex-build/court-life-acceptance/20260907/p-instrument-confirm-report.json",
+        ".codex-build/court-life-acceptance/20260907/p-instrument-delivery-report.json",
+        ".codex-build/court-life-acceptance/20260907/p-instrument-description-migration-report.json",
+        ".codex-build/court-life-acceptance/20260907/p-instrument-open-report.json",
+        ".codex-build/court-life-acceptance/20260907/p-instrument-prepare-report.json",
+        ".codex-build/court-life-acceptance/20260907/p-instrument-save-prepare-report.json",
+        ".codex-build/court-life-acceptance/20260907/p-instrument-save-verify-report.json",
+        ".codex-build/court-life-acceptance/20260907/p-instrument-turn1-report.json",
+        ".codex-build/court-life-acceptance/20260907/p-instrument-turn2-report.json"
+      ],
+      "historicalCaseManifests": [],
+      "reuseRule": "Recover complete transcript and independent effects/persistence; match unchanged template semantics and relevant dependency contracts. Current changed shared paths require fresh branch regression. Missing or inadequate proof schedules this exact template, never a duplicate by default."
+    },
+    {
+      "id": "patronage-visiting-translator",
+      "source": "Patronage",
+      "status": "evidence_review_required",
+      "pack": "R11",
+      "historicalPhaseEntries": [],
+      "historicalCaseManifests": [],
+      "reuseRule": "Recover complete transcript and independent effects/persistence; match unchanged template semantics and relevant dependency contracts. Current changed shared paths require fresh branch regression. Missing or inadequate proof schedules this exact template, never a duplicate by default."
+    },
+    {
+      "id": "patronage-patron-dedication",
+      "source": "Patronage",
+      "status": "evidence_review_required",
+      "pack": "R11",
+      "historicalPhaseEntries": [],
+      "historicalCaseManifests": [],
+      "reuseRule": "Recover complete transcript and independent effects/persistence; match unchanged template semantics and relevant dependency contracts. Current changed shared paths require fresh branch regression. Missing or inadequate proof schedules this exact template, never a duplicate by default."
+    },
+    {
+      "id": "patronage-forgotten-commander",
+      "source": "Patronage",
+      "status": "evidence_review_required",
+      "pack": "R11",
+      "historicalPhaseEntries": [],
+      "historicalCaseManifests": [
+        {
+          "entry": ".codex-build/court-life-acceptance/20260909-resume/patronage-forgotten-commander-grounding-47/evidence-manifest.json",
+          "outcome": "pass"
+        }
+      ],
+      "reuseRule": "Recover complete transcript and independent effects/persistence; match unchanged template semantics and relevant dependency contracts. Current changed shared paths require fresh branch regression. Missing or inadequate proof schedules this exact template, never a duplicate by default."
+    },
+    {
+      "id": "patronage-rival-house-praise",
+      "source": "Patronage",
+      "status": "evidence_review_required",
+      "pack": "R11",
+      "historicalPhaseEntries": [],
+      "historicalCaseManifests": [
+        {
+          "entry": ".codex-build/court-life-acceptance/20260909-resume/patronage-rival-house-praise-grounding-41/evidence-manifest.json",
+          "outcome": "pass"
+        }
+      ],
+      "reuseRule": "Recover complete transcript and independent effects/persistence; match unchanged template semantics and relevant dependency contracts. Current changed shared paths require fresh branch regression. Missing or inadequate proof schedules this exact template, never a duplicate by default."
+    },
+    {
+      "id": "patronage-loyal-retainer",
+      "source": "Patronage",
+      "status": "evidence_review_required",
+      "pack": "R11",
+      "historicalPhaseEntries": [],
+      "historicalCaseManifests": [
+        {
+          "entry": ".codex-build/court-life-acceptance/20260909-resume/patronage-loyal-retainer-authenticity-48/evidence-manifest.json",
+          "outcome": "pass"
+        }
+      ],
+      "reuseRule": "Recover complete transcript and independent effects/persistence; match unchanged template semantics and relevant dependency contracts. Current changed shared paths require fresh branch regression. Missing or inadequate proof schedules this exact template, never a duplicate by default."
+    },
+    {
+      "id": "patronage-shared-achievement",
+      "source": "Patronage",
+      "status": "evidence_review_required",
+      "pack": "R11",
+      "historicalPhaseEntries": [],
+      "historicalCaseManifests": [
+        {
+          "entry": ".codex-build/court-life-acceptance/20260909-resume/patronage-shared-achievement-credit-50/evidence-manifest.json",
+          "outcome": "pass"
+        }
+      ],
+      "reuseRule": "Recover complete transcript and independent effects/persistence; match unchanged template semantics and relevant dependency contracts. Current changed shared paths require fresh branch regression. Missing or inadequate proof schedules this exact template, never a duplicate by default."
+    },
+    {
+      "id": "patronage-welcome-clan",
+      "source": "Patronage",
+      "status": "evidence_review_required",
+      "pack": "R11",
+      "historicalPhaseEntries": [],
+      "historicalCaseManifests": [
+        {
+          "entry": ".codex-build/court-life-acceptance/20260909-resume/patronage-welcome-clan-belonging-49/evidence-manifest.json",
+          "outcome": "pass"
+        }
+      ],
+      "reuseRule": "Recover complete transcript and independent effects/persistence; match unchanged template semantics and relevant dependency contracts. Current changed shared paths require fresh branch regression. Missing or inadequate proof schedules this exact template, never a duplicate by default."
+    },
+    {
+      "id": "patronage-reconciled-houses",
+      "source": "Patronage",
+      "status": "evidence_review_required",
+      "pack": "R11",
+      "historicalPhaseEntries": [],
+      "historicalCaseManifests": [],
+      "reuseRule": "Recover complete transcript and independent effects/persistence; match unchanged template semantics and relevant dependency contracts. Current changed shared paths require fresh branch regression. Missing or inadequate proof schedules this exact template, never a duplicate by default."
+    },
+    {
+      "id": "patronage-soldiers-dedication",
+      "source": "Patronage",
+      "status": "evidence_review_required",
+      "pack": "R11",
+      "historicalPhaseEntries": [
+        ".codex-build/court-life-acceptance/20260909-resume/patronage-soldiers-loyalty-02/soldiersloyalty02-confirm-report.json",
+        ".codex-build/court-life-acceptance/20260909-resume/patronage-soldiers-loyalty-02/soldiersloyalty02-converse-report.json",
+        ".codex-build/court-life-acceptance/20260909-resume/patronage-soldiers-loyalty-02/soldiersloyalty02-delivery-observe-report.json",
+        ".codex-build/court-life-acceptance/20260909-resume/patronage-soldiers-loyalty-02/soldiersloyalty02-open-report.json",
+        ".codex-build/court-life-acceptance/20260909-resume/patronage-soldiers-loyalty-02/soldiersloyalty02-opening-snapshot-report.json",
+        ".codex-build/court-life-acceptance/20260909-resume/patronage-soldiers-loyalty-02/soldiersloyalty02-prepare-report.json"
+      ],
+      "historicalCaseManifests": [],
+      "reuseRule": "Recover complete transcript and independent effects/persistence; match unchanged template semantics and relevant dependency contracts. Current changed shared paths require fresh branch regression. Missing or inadequate proof schedules this exact template, never a duplicate by default."
+    },
+    {
+      "id": "patronage-popular-performer",
+      "source": "Patronage",
+      "status": "evidence_review_required",
+      "pack": "R11",
+      "historicalPhaseEntries": [],
+      "historicalCaseManifests": [
+        {
+          "entry": ".codex-build/court-life-acceptance/20260909-resume/patronage-popular-performer-loyalty-44/evidence-manifest.json",
+          "outcome": "pass"
+        }
+      ],
+      "reuseRule": "Recover complete transcript and independent effects/persistence; match unchanged template semantics and relevant dependency contracts. Current changed shared paths require fresh branch regression. Missing or inadequate proof schedules this exact template, never a duplicate by default."
+    },
+    {
+      "id": "patronage-excess-flattery",
+      "source": "Patronage",
+      "status": "evidence_review_required",
+      "pack": "R11",
+      "historicalPhaseEntries": [
+        ".codex-build/court-life-acceptance/20260907/p-flattery-loyalty-before-delivery-report.json",
+        ".codex-build/court-life-acceptance/20260907/p-flattery-loyalty-confirm-report.json",
+        ".codex-build/court-life-acceptance/20260907/p-flattery-loyalty-delivery-report.json",
+        ".codex-build/court-life-acceptance/20260907/p-flattery-loyalty-open-report.json",
+        ".codex-build/court-life-acceptance/20260907/p-flattery-loyalty-prepare-report.json",
+        ".codex-build/court-life-acceptance/20260907/p-flattery-loyalty-turn1-report.json",
+        ".codex-build/court-life-acceptance/20260907/p-flattery-loyalty-turn2-report.json",
+        ".codex-build/court-life-acceptance/20260907/p-flattery-loyalty-turn3-report.json"
+      ],
+      "historicalCaseManifests": [],
+      "reuseRule": "Recover complete transcript and independent effects/persistence; match unchanged template semantics and relevant dependency contracts. Current changed shared paths require fresh branch regression. Missing or inadequate proof schedules this exact template, never a duplicate by default."
+    },
+    {
+      "id": "patronage-insult-in-verse",
+      "source": "Patronage",
+      "status": "evidence_review_required",
+      "pack": "R11",
+      "historicalPhaseEntries": [],
+      "historicalCaseManifests": [
+        {
+          "entry": ".codex-build/court-life-acceptance/20260909-resume/patronage-insult-in-verse-26/evidence-manifest.json",
+          "outcome": "partial_prompt_isolation_defect"
+        }
+      ],
+      "reuseRule": "Recover complete transcript and independent effects/persistence; match unchanged template semantics and relevant dependency contracts. Current changed shared paths require fresh branch regression. Missing or inadequate proof schedules this exact template, never a duplicate by default."
+    },
+    {
+      "id": "patronage-foreign-artist",
+      "source": "Patronage",
+      "status": "evidence_review_required",
+      "pack": "R11",
+      "historicalPhaseEntries": [],
+      "historicalCaseManifests": [
+        {
+          "entry": ".codex-build/court-life-acceptance/20260909-resume/patronage-foreign-artist-isolation-29/evidence-manifest.json",
+          "outcome": "pass"
+        }
+      ],
+      "reuseRule": "Recover complete transcript and independent effects/persistence; match unchanged template semantics and relevant dependency contracts. Current changed shared paths require fresh branch regression. Missing or inadequate proof schedules this exact template, never a duplicate by default."
+    },
+    {
+      "id": "patronage-disputed-authorship",
+      "source": "Patronage",
+      "status": "evidence_review_required",
+      "pack": "R11",
+      "historicalPhaseEntries": [
+        ".codex-build/court-life-acceptance/20260907/p-authorship-confirm-report.json",
+        ".codex-build/court-life-acceptance/20260907/p-authorship-open-report.json",
+        ".codex-build/court-life-acceptance/20260907/p-authorship-prepare-report.json",
+        ".codex-build/court-life-acceptance/20260907/p-authorship-turn1-report.json",
+        ".codex-build/court-life-acceptance/20260907/p-authorship-turn2-report.json",
+        ".codex-build/court-life-acceptance/20260907/p-authorship02-confirm-report.json",
+        ".codex-build/court-life-acceptance/20260907/p-authorship02-delivery-report.json",
+        ".codex-build/court-life-acceptance/20260907/p-authorship02-open-report.json",
+        ".codex-build/court-life-acceptance/20260907/p-authorship02-prepare-report.json",
+        ".codex-build/court-life-acceptance/20260907/p-authorship02-turn1-report.json",
+        ".codex-build/court-life-acceptance/20260907/p-authorship02-turn2-report.json"
+      ],
+      "historicalCaseManifests": [],
+      "reuseRule": "Recover complete transcript and independent effects/persistence; match unchanged template semantics and relevant dependency contracts. Current changed shared paths require fresh branch regression. Missing or inadequate proof schedules this exact template, never a duplicate by default."
+    },
+    {
+      "id": "patronage-unwanted-dedication",
+      "source": "Patronage",
+      "status": "evidence_review_required",
+      "pack": "R11",
+      "historicalPhaseEntries": [],
+      "historicalCaseManifests": [
+        {
+          "entry": ".codex-build/court-life-acceptance/20260909-resume/patronage-unwanted-dedication-migration-27/evidence-manifest.json",
+          "outcome": "pass"
+        }
+      ],
+      "reuseRule": "Recover complete transcript and independent effects/persistence; match unchanged template semantics and relevant dependency contracts. Current changed shared paths require fresh branch regression. Missing or inadequate proof schedules this exact template, never a duplicate by default."
+    },
+    {
+      "id": "patronage-smaller-counteroffer",
+      "source": "Patronage",
+      "status": "evidence_review_required",
+      "pack": "R11",
+      "historicalPhaseEntries": [],
+      "historicalCaseManifests": [
+        {
+          "entry": ".codex-build/court-life-acceptance/20260909-resume/patronage-smaller-counteroffer-32/evidence-manifest.json",
+          "outcome": "pass"
+        }
+      ],
+      "reuseRule": "Recover complete transcript and independent effects/persistence; match unchanged template semantics and relevant dependency contracts. Current changed shared paths require fresh branch regression. Missing or inadequate proof schedules this exact template, never a duplicate by default."
+    },
+    {
+      "id": "patronage-change-subject",
+      "source": "Patronage",
+      "status": "evidence_review_required",
+      "pack": "R11",
+      "historicalPhaseEntries": [],
+      "historicalCaseManifests": [
+        {
+          "entry": ".codex-build/court-life-acceptance/20260909-resume/patronage-change-subject-personalwork-30/evidence-manifest.json",
+          "outcome": "pass"
+        }
+      ],
+      "reuseRule": "Recover complete transcript and independent effects/persistence; match unchanged template semantics and relevant dependency contracts. Current changed shared paths require fresh branch regression. Missing or inadequate proof schedules this exact template, never a duplicate by default."
+    },
+    {
+      "id": "patronage-returning-artist",
+      "source": "Patronage",
+      "status": "evidence_review_required",
+      "pack": "R11",
+      "historicalPhaseEntries": [],
+      "historicalCaseManifests": [
+        {
+          "entry": ".codex-build/court-life-acceptance/20260909-resume/patronage-returning-artist-31/evidence-manifest.json",
+          "outcome": "pass"
+        }
+      ],
+      "reuseRule": "Recover complete transcript and independent effects/persistence; match unchanged template semantics and relevant dependency contracts. Current changed shared paths require fresh branch regression. Missing or inadequate proof schedules this exact template, never a duplicate by default."
+    }
+  ],
+  "toolRecipes": {
+    "prepare": {
+      "tool": "reign_start_ruler_docket_test",
+      "args": {
+        "campaignId": "${campaignId}",
+        "campaignTestRunId": "${runId}",
+        "confirmation": "start Reign ruler docket test on disposable save",
+        "profile": "court_life_prepare",
+        "fixtureRunId": "${uniqueFixtureId}",
+        "courtLifeSource": "${source}",
+        "courtLifeTemplateId": "${exactRuntimeTemplateId}"
+      },
+      "precondition": "Exact armed owned Current, production eligibility, checkpoint established, no other live operation; optional existing matter only where catalog supports it."
+    },
+    "open": {
+      "tool": "reign_start_ruler_docket_test",
+      "args": {
+        "campaignId": "${campaignId}",
+        "campaignTestRunId": "${runId}",
+        "confirmation": "start Reign ruler docket test on disposable save",
+        "profile": "court_life_open",
+        "fixtureRunId": "${uniqueFixtureId}"
+      }
+    },
+    "converse": {
+      "tool": "reign_start_ruler_docket_test",
+      "args": {
+        "campaignId": "${campaignId}",
+        "campaignTestRunId": "${runId}",
+        "confirmation": "start Reign ruler docket test on disposable save",
+        "profile": "court_life_converse",
+        "fixtureRunId": "${uniqueFixtureId}",
+        "rulerQuestion": "${naturalPlayerWords}",
+        "courtLifeExpectedTurns": "${expectedCompletedTurns}"
+      }
+    },
+    "confirm": {
+      "tool": "reign_start_ruler_docket_test",
+      "args": {
+        "campaignId": "${campaignId}",
+        "campaignTestRunId": "${runId}",
+        "confirmation": "start Reign ruler docket test on disposable save",
+        "profile": "court_life_choose_confirm",
+        "fixtureRunId": "${uniqueFixtureId}",
+        "courtLifeOptionId": "${actualReviewedOptionId}",
+        "courtLifeExpectation": "${pendingOrResolved}"
+      },
+      "precondition": "Real unassisted dialogue and exact current reviewed terms. Pending native action is not completion."
+    },
+    "observe": {
+      "tool": "reign_start_ruler_docket_test",
+      "args": {
+        "campaignId": "${campaignId}",
+        "campaignTestRunId": "${runId}",
+        "confirmation": "start Reign ruler docket test on disposable save",
+        "profile": "court_life_observe",
+        "fixtureRunId": "${uniqueFixtureId}",
+        "courtLifeExpectation": "${exactExpectation}"
+      }
+    }
+  },
+  "efficiency": {
+    "noEquivalentReruns": true,
+    "useExistingEligibleCharactersBeforeFixtures": true,
+    "noChanceHunting": true,
+    "groupCompatibleDeadlines": true,
+    "pauseBetweenProviderTurns": true,
+    "restartPolicy": "One restart with multiple pending features and a second after committed results; add a restart only for a distinct failure boundary.",
+    "soakPolicy": "No automatic repeat of completed180-day soak. Written applicability review first; changed daily/persistence behavior or unrecoverable evidence may require it.",
+    "providerPolicy": "One substantive response per distinct semantic branch; do not replay accepted speech to repair an observer/report failure. Provider/config change is recorded and warrants scoped language regressions."
+  },
+  "harnessGaps": [
+    "Existing-matter binding for Visitor/Family currently unsupported: use native UI or proportionate guarded extension.",
+    "Exact clock/deadline, personality/power, adulthood/succession, rumor/known observer, public history and per-request fault seams must be inventoried/implemented where absent. No fictional fixture result may close a requirement."
+  ],
+  "releaseGate": "No critical failures, unexplained mutations, unobserved effects, unchecked current template, or unresolved required native acceptance. Blocked is not passed. A doc/recipe validation is not game acceptance.",
+  "variantMatrices": {
+    "dailyReplyReservations": {
+      "dueReplyCounts": [
+        0,
+        1,
+        4,
+        5,
+        6
+      ],
+      "nativeObservation": "Oldest due IDs and excess pending IDs; stable daily-roll identity, not just total count."
+    },
+    "pressure": {
+      "severities": [
+        "Petty",
+        "Serious",
+        "Grave",
+        "Exceptional"
+      ],
+      "npcJudgments": [
+        "favor_own_lord",
+        "favor_player_lord"
+      ],
+      "hostility": [
+        "peaceful",
+        "hostile"
+      ],
+      "expectedMagnitudes": [
+        6,
+        10,
+        16,
+        24
+      ],
+      "execution": "Exhaust arithmetic/direction/clamp matrix offline. Native case per distinct required severity/judgment branch; reuse compatible receipts, never invent player pressure."
+    },
+    "extortion": {
+      "strengthRatios": [
+        1.49,
+        1.5,
+        3.0
+      ],
+      "boldness": [
+        60,
+        61
+      ],
+      "honor": [
+        40,
+        41
+      ],
+      "execution": "All eligibility combinations offline; native minimal branches covering each threshold plus actual qualifying demand and honorable/cautious legitimate offer."
+    },
+    "ambassador": {
+      "charm": [
+        49,
+        50,
+        99,
+        100,
+        149,
+        150,
+        199,
+        200
+      ],
+      "nativeObservation": "Selected highest nonempty eligible band, fallback and exact excluded hero reasons."
+    },
+    "attendance": {
+      "completedPlayerTurns": [
+        0,
+        1,
+        2,
+        3
+      ],
+      "interruptions": [
+        "opening_only",
+        "failed_reply",
+        "partial_multispeaker",
+        "reopen_same_turn"
+      ],
+      "patiencePercent": [
+        0,
+        1,
+        10,
+        11,
+        40,
+        41,
+        99,
+        100,
+        "missing"
+      ],
+      "execution": "Contracts exhaust integer arithmetic; actual family visit transitions prove threshold/dismissal counts independently. Missing uses50; zero cannot neglect before a real dismissal."
+    },
+    "favorExpiry": {
+      "contactAgeDays": [
+        29.999,
+        30.0,
+        30.001
+      ],
+      "contexts": [
+        "actual_spoken_contact",
+        "completed_correspondence",
+        "opening_only",
+        "failed_response",
+        "unanswered_letter",
+        "passive_proximity",
+        "old_history",
+        "duplicate_callback"
+      ],
+      "execution": "Group contact/noncontact branches and inspect exact stored contact source/timestamp; cross deadline once per legitimate pre-state."
+    },
+    "patronage": {
+      "funding": [
+        500,
+        2000,
+        5000,
+        8000
+      ],
+      "dueDays": [
+        0,
+        1,
+        3,
+        7
+      ],
+      "funds": [
+        "insufficient",
+        "exact",
+        "ample"
+      ],
+      "objectives": [
+        "Praise",
+        "Loyalty",
+        "Keepsake"
+      ],
+      "execution": "Only production-supported objective/reach combinations. Combine real3-settlement regional case with named-route proof and delivery; never count one scope as another."
+    },
+    "visitors": {
+      "households": [
+        "one_parent_one_adult_child",
+        "two_parents_one_adult_child",
+        "one_parent_two_adult_children",
+        "two_parents_two_adult_children"
+      ],
+      "maxMembers": 4,
+      "stayDayBoundaries": [
+        3,
+        7
+      ],
+      "marriedInitiatorBoldness": [
+        60,
+        61
+      ],
+      "marriedInitiatorHonor": [
+        40,
+        41
+      ],
+      "execution": "Each positive group and excluded kin/minor branch is distinct; production consent only. No transit wait before immediate Court arrival."
+    },
+    "faults": {
+      "seams": [
+        "before_opening",
+        "between_multispeaker_replies",
+        "after_visible_reply_before_interpretation",
+        "after_native_payment_before_receipt",
+        "after_relation_before_commission_completion",
+        "after_foreign_pressure_before_queue_close"
+      ],
+      "execution": "One scoped fault per unique commit seam; preserve partial receipts and reobserve before retry. No global provider shutdown during another task."
+    },
+    "releaseObservations": {
+      "fields": [
+        "sourceCommits",
+        "dirtySourceHashes",
+        "installedArtifactHashes",
+        "providerModelAndSettingsHash",
+        "campaignAndTimeline",
+        "preAndPostNativeState",
+        "originalPlayerTextAndHash",
+        "speakerRepliesAndReceiptIds",
+        "visibleControls",
+        "queueBlockerSamples",
+        "nativeReloadInstanceIds"
+      ],
+      "extraFlows": [
+        "international-npc-proposal",
+        "international-political-incident",
+        "local-noble-disputes",
+        "notable-resource-petitions"
+      ],
+      "execution": "Runtime catalog/preflight reconciles source enumeration before any template is certified."
+    }
+  }
+}

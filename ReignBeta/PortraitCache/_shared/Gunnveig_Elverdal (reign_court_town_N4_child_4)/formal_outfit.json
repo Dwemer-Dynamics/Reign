@@ -1,0 +1,13 @@
+{
+  "version": 1,
+  "heroStringId": "reign_court_town_N4_child_4",
+  "characterName": "Gunnveig Elverdal",
+  "imagePath": "portrait.png",
+  "imageSha256": "0580890919535820F8A0F779B14A21835125BD95D15858A4773BD6A7E0FF4A38",
+  "description": "Reddish-brown wool apron-style dress with round strap brooches, fine woven borders and waist tie over cream linen with moderate square neckline and elbow sleeves, full layered skirt and dark brown shoes. No headgear, armor or weapons.",
+  "status": "completed",
+  "descriptionSource": "agent_vision",
+  "retryEligible": false,
+  "error": "",
+  "updatedUtc": "2026-11-07T03:30:15.045042+00:00"
+}

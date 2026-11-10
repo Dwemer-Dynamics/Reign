@@ -1,0 +1,13 @@
+{
+  "version": 1,
+  "heroStringId": "reign_court_castle_N7_child_2",
+  "characterName": "Hildrun Hrafnvik",
+  "imagePath": "portrait.png",
+  "imageSha256": "1DFBBF828FF78FA130033842FAD6DB2FE9693EEE5FA912CB64D90E65A13885AA",
+  "description": "Blue-grey wool apron gown with narrow rust-and-cream woven trim and modest round clasps, opaque cream linen shift, woven belt and plain practical brown leather boots; normal tier1 landowner outfit.",
+  "status": "completed",
+  "descriptionSource": "agent_vision",
+  "retryEligible": false,
+  "error": "",
+  "updatedUtc": "2026-11-07T03:35:06.128668+00:00"
+}

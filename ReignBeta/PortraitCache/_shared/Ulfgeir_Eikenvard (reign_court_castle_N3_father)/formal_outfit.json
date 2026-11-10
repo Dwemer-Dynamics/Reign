@@ -1,0 +1,13 @@
+{
+  "version": 1,
+  "heroStringId": "reign_court_castle_N3_father",
+  "characterName": "Ulfgeir Eikenvard",
+  "imagePath": "portrait.png",
+  "imageSha256": "0E60103AAF7FAF3108D4EA9A2FC492421EB93F9BCA61FEE025E55AC727BE392A",
+  "description": "A dark blue long-sleeved knee-length wool tunic with restrained russet-and-cream geometric woven borders at the split neckline, cuffs and hem, over a cream linen shirt. A plain brown leather belt with a modest round metal buckle supports a small ordinary brown leather pouch. Loose brown trousers, grey-beige lower-leg wraps and brown soft leather ankle shoes complete the outfit. No headgear, armor or weapons.",
+  "status": "completed",
+  "descriptionSource": "agent_vision",
+  "retryEligible": false,
+  "error": "",
+  "updatedUtc": "2026-11-07T03:24:37.434726+00:00"
+}

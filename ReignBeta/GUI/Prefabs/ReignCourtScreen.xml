@@ -5,10 +5,10 @@
          native campaign HUD and exposed map interactive. -->
     <Widget DoNotAcceptEvents="true" WidthSizePolicy="StretchToParent" HeightSizePolicy="StretchToParent">
       <Children>
-        <!-- 1518x854 is the measured 16:9 workspace inside a 1920x1080 logical
-             canvas. MarginTop 150 reserves the native top HUD; the remaining
-             76 pixels reserve the native date and time-control bar. -->
-        <Widget Id="CompactCourtHome" WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="1518" SuggestedHeight="854" HorizontalAlignment="Center" VerticalAlignment="Top" MarginTop="150" IsVisible="@HomeVisible" DoNotUseCustomScaleAndChildren="true">
+        <!-- Keep the authored artwork and card ratio intact. The manager fits
+             both workspaces uniformly between the native HUD reservations and
+             binds their top inset in the resulting authored coordinate space. -->
+        <Widget Id="CompactCourtHome" WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="1518" SuggestedHeight="854" HorizontalAlignment="Center" VerticalAlignment="Top" MarginTop="@CourtWorkspaceTopInset" IsVisible="@HomeVisible">
           <Children>
             <ImageWidget DoNotAcceptEvents="true" WidthSizePolicy="StretchToParent" HeightSizePolicy="StretchToParent" Sprite="reign_court_modern_shell" />
 
@@ -44,25 +44,25 @@
                 <!-- The complete card owns the portrait frame and transparent
                      aperture; all portrait pixels are deliberately behind it. -->
                 <ImageWidget DoNotAcceptEvents="true" WidthSizePolicy="StretchToParent" HeightSizePolicy="StretchToParent" Sprite="reign_court_chancellor_card_modern" />
-                <TextWidget DoNotAcceptEvents="true" WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="176" SuggestedHeight="21" MarginLeft="101" MarginTop="39" Brush="DefaultText" Brush.Font="ReignSerifDynamic" Brush.FontSize="12" Brush.FontColor="#C5BDAFFF" Brush.TextHorizontalAlignment="Left" Text="@ChancellorName" />
-                <TextWidget DoNotAcceptEvents="true" WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="176" SuggestedHeight="18" MarginLeft="101" MarginTop="62" Brush="DefaultText" Brush.Font="ReignSerifDynamic" Brush.FontSize="8" Brush.FontColor="#A88A54FF" Brush.TextHorizontalAlignment="Left" Text="@ChancellorStateText" />
-                <TextWidget DoNotAcceptEvents="true" WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="176" SuggestedHeight="22" MarginLeft="101" MarginTop="82" Brush="DefaultText" Brush.Font="ReignSerifDynamic" Brush.FontSize="8" Brush.FontColor="#8A8883FF" Brush.TextHorizontalAlignment="Left" Text="@ChancellorSalaryText" />
+                <TextWidget DoNotAcceptEvents="true" WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="176" SuggestedHeight="21" MarginLeft="101" MarginTop="39" Brush="DefaultText" Brush.Font="ReignSerifDynamic" Brush.FontSize="14" Brush.FontColor="#C5BDAFFF" Brush.TextHorizontalAlignment="Left" Text="@ChancellorName" />
+                <TextWidget DoNotAcceptEvents="true" WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="176" SuggestedHeight="18" MarginLeft="101" MarginTop="62" Brush="DefaultText" Brush.Font="ReignSerifDynamic" Brush.FontSize="11" Brush.FontColor="#A88A54FF" Brush.TextHorizontalAlignment="Left" Text="@ChancellorStateText" />
+                <TextWidget DoNotAcceptEvents="true" WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="176" SuggestedHeight="22" MarginLeft="101" MarginTop="82" Brush="DefaultText" Brush.Font="ReignSerifDynamic" Brush.FontSize="11" Brush.FontColor="#8A8883FF" Brush.TextHorizontalAlignment="Left" Text="@ChancellorSalaryText" />
                 <ButtonWidget WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="80" SuggestedHeight="20" MarginLeft="11" MarginTop="117" Command.Click="ExecuteOpenCourtHistory">
                   <Children>
                     <ImageWidget DoNotAcceptEvents="true" WidthSizePolicy="StretchToParent" HeightSizePolicy="StretchToParent" Sprite="reign_court_navigation_button_modern" />
-                    <TextWidget DoNotAcceptEvents="true" WidthSizePolicy="StretchToParent" HeightSizePolicy="StretchToParent" Brush="DefaultText" Brush.Font="ReignSerifDynamic" Brush.FontSize="8" Brush.FontColor="#C5AC83FF" Brush.TextHorizontalAlignment="Center" Brush.TextVerticalAlignment="Center" Text="HISTORY" />
+                    <TextWidget DoNotAcceptEvents="true" WidthSizePolicy="StretchToParent" HeightSizePolicy="StretchToParent" Brush="DefaultText" Brush.Font="ReignSerifDynamic" Brush.FontSize="11" Brush.FontColor="#C5AC83FF" Brush.TextHorizontalAlignment="Center" Brush.TextVerticalAlignment="Center" Text="HISTORY" />
                   </Children>
                 </ButtonWidget>
                 <ButtonWidget IsVisible="@ChancellorToggleVisible" WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="80" SuggestedHeight="20" MarginLeft="106" MarginTop="117" Command.Click="ExecuteChancellorActive">
                   <Children>
                     <ImageWidget DoNotAcceptEvents="true" WidthSizePolicy="StretchToParent" HeightSizePolicy="StretchToParent" Sprite="reign_court_navigation_button_modern" />
-                    <TextWidget DoNotAcceptEvents="true" WidthSizePolicy="StretchToParent" HeightSizePolicy="StretchToParent" Brush="DefaultText" Brush.Font="ReignSerifDynamic" Brush.FontSize="8" Brush.FontColor="#C5AC83FF" Brush.TextHorizontalAlignment="Center" Brush.TextVerticalAlignment="Center" Text="ACTIVE" />
+                    <TextWidget DoNotAcceptEvents="true" WidthSizePolicy="StretchToParent" HeightSizePolicy="StretchToParent" Brush="DefaultText" Brush.Font="ReignSerifDynamic" Brush.FontSize="11" Brush.FontColor="#C5AC83FF" Brush.TextHorizontalAlignment="Center" Brush.TextVerticalAlignment="Center" Text="ACTIVE" />
                   </Children>
                 </ButtonWidget>
                 <ButtonWidget IsVisible="@ChancellorToggleVisible" WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="80" SuggestedHeight="20" MarginLeft="201" MarginTop="117" Command.Click="ExecuteChancellorInactive">
                   <Children>
                     <ImageWidget DoNotAcceptEvents="true" WidthSizePolicy="StretchToParent" HeightSizePolicy="StretchToParent" Sprite="reign_court_navigation_button_modern" />
-                    <TextWidget DoNotAcceptEvents="true" WidthSizePolicy="StretchToParent" HeightSizePolicy="StretchToParent" Brush="DefaultText" Brush.Font="ReignSerifDynamic" Brush.FontSize="8" Brush.FontColor="#C5AC83FF" Brush.TextHorizontalAlignment="Center" Brush.TextVerticalAlignment="Center" Text="INACTIVE" />
+                    <TextWidget DoNotAcceptEvents="true" WidthSizePolicy="StretchToParent" HeightSizePolicy="StretchToParent" Brush="DefaultText" Brush.Font="ReignSerifDynamic" Brush.FontSize="11" Brush.FontColor="#C5AC83FF" Brush.TextHorizontalAlignment="Center" Brush.TextVerticalAlignment="Center" Text="INACTIVE" />
                   </Children>
                 </ButtonWidget>
               </Children>
@@ -78,8 +78,8 @@
                           <Children>
                             <ImageWidget DoNotAcceptEvents="true" WidthSizePolicy="StretchToParent" HeightSizePolicy="StretchToParent" Sprite="reign_court_petition_card_modern" />
                             <ImageWidget DoNotAcceptEvents="true" WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="34" SuggestedHeight="34" MarginLeft="12" MarginTop="47" Sprite="@IconSprite" />
-                            <TextWidget DoNotAcceptEvents="true" WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="208" SuggestedHeight="27" MarginLeft="57" MarginTop="22" Brush="DefaultText" Brush.Font="ReignSerifDynamic" Brush.FontSize="12" Brush.FontColor="#C5AC83FF" Brush.TextHorizontalAlignment="Left" Text="@Title" />
-                            <TextWidget DoNotAcceptEvents="true" WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="208" SuggestedHeight="56" MarginLeft="57" MarginTop="54" Brush="DefaultText" Brush.Font="ReignSerifDynamic" Brush.FontSize="9" Brush.FontColor="#C5BDAFFF" Brush.TextHorizontalAlignment="Left" Text="@Subtitle" />
+                            <TextWidget DoNotAcceptEvents="true" WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="208" SuggestedHeight="34" MarginLeft="57" MarginTop="17" Brush="DefaultText" Brush.Font="ReignSerifDynamic" Brush.FontSize="15" Brush.FontColor="#C5AC83FF" Brush.TextHorizontalAlignment="Left" Text="@Title" />
+                            <TextWidget DoNotAcceptEvents="true" WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="208" SuggestedHeight="56" MarginLeft="57" MarginTop="54" Brush="DefaultText" Brush.Font="ReignSerifDynamic" Brush.FontSize="12" Brush.FontColor="#C5BDAFFF" Brush.TextHorizontalAlignment="Left" Text="@Subtitle" />
                           </Children>
                         </ButtonWidget>
                       </ItemTemplate>
@@ -143,7 +143,7 @@
 
         <!-- Office detail pages occupy the identical compact footprint so moving
              between Court functions never obscures native campaign controls. -->
-        <Widget Id="CompactCourtOffice" WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="1518" SuggestedHeight="854" HorizontalAlignment="Center" VerticalAlignment="Top" MarginTop="150" IsVisible="@TabContentVisible" DoNotUseCustomScaleAndChildren="true">
+        <Widget Id="CompactCourtOffice" WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="1518" SuggestedHeight="854" HorizontalAlignment="Center" VerticalAlignment="Top" MarginTop="@CourtWorkspaceTopInset" IsVisible="@TabContentVisible">
           <Children>
             <!-- One dedicated current-style shell owns every fixed office/history
                  panel and return-control boundary. No legacy rectangles or frames

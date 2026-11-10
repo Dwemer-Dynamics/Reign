@@ -1,0 +1,13 @@
+{
+  "version": 1,
+  "heroStringId": "reign_court_castle_N5_mother",
+  "characterName": "Helgrun Frostenga",
+  "imagePath": "portrait.png",
+  "imageSha256": "44DBFDE916945F5575F04EA64D7B67B82BD7EBBD7A7456DA3F5CBD0887DC8837",
+  "description": "Muted deep-blue wool apron dress with two modest round brooches and cream/rust woven borders, narrow woven belt, long cream linen underdress with moderate lowered neckline and elbow sleeves, and brown soft-leather shoes. No headgear, armor or weapons.",
+  "status": "completed",
+  "descriptionSource": "agent_vision",
+  "retryEligible": false,
+  "error": "",
+  "updatedUtc": "2026-11-07T03:19:40.874198+00:00"
+}

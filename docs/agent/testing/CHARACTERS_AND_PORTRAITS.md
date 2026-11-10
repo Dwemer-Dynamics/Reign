@@ -2,6 +2,33 @@
 
 Read only the procedure relevant to the current task. Existing provider, campaign, and deployment gates remain authoritative. Dated procedure history was retained during the 2026-09-12 guide split.
 
+## Nord household content extension (2026-11-06)
+
+The new-campaign roster adds 13 landless tier-1 Nord households (four town homes
+and nine castle homes), with 78 adults, bringing the authored court to 133 houses
+and 798 nobles. Clan tiers may grow normally. Homes grant no fiefs or resources.
+The current and preserved-v4 profile catalogs both contain 1,195 identities;
+the original 1,117 profile objects and narratives remain preserved. DLC skill
+sets augment individual base skills rather than replacing entire templates.
+
+Use the guarded authoring and packaging procedures in
+`ReignBeta/tools/CourtNobles/README.md`. Accepted normal portraits use built-in
+Codex text-only generation after inspection of each real native source. The
+Nord cultural layer includes Scandinavian facial appearance as well as clothing.
+Each selected master remains unchanged, with four production-derived images,
+one measured face, visual review and hash-bound native/generation provenance.
+All ten per-character product files belong in the tracked `_shared` library and
+its inventory; a partially generated roster must not publish a final inventory.
+
+Manifest-selected validation includes `NordHouseholdContentTests`. Follow it
+with artifact-bound `character_narrative` and portrait contracts, and the
+provider-free portrait-layering check. These establish content, preservation,
+compatibility and packaged product integrity. Native new-campaign creation,
+actual household/party behavior, in-game portraits and dialogue acceptance
+remain separate; no older-save backfill is supported. Do not use a protected
+active economy campaign to manufacture that acceptance or infer native proof
+from the background portrait-source renderer.
+
 ## Native thumbnail identity regression (2026-09-15)
 
 Itaria (`lord_SE8_c`) and Abalytos (`lord_1_72`) share a native BodyProperties key. An ambiguous legacy appearance-index entry must remain unresolved; do not clear the collision marker, choose the first matching hero, or regenerate accepted artwork to mask this lookup failure.
@@ -89,6 +116,10 @@ The portrait contracts export the actual rendered HTML to the run's data/tests/v
 
 
 ## Wanderer population (2026-09-08)
+
+The tavern-staff and wanderer population maintenance polls use a monotonic real-time one-second interval. Native `CampaignEvents.TickEvent` receives campaign-speed-scaled delta time; it must not drive host maintenance frequency. The shared `RealTimeMaintenanceCadence` contracts cover accelerated repeated polling, exact interval boundaries, long stalls without a catch-up burst and clock reset. Existing creation budgets, population rules, protection/history gates, replacement campaign dates and synchronous local-entry preparation remain authoritative. Native acceptance must compare same-checkpoint fast-forward frame timing and verify staff/wanderer upkeep after activation; the cadence unit tests alone do not establish a freezing fix.
+
+Zero/paused native delta cannot run maintenance; each behavior owns an independent clock. Passes use `ReignLog.MeasureWork` with the fixed operation keys `population.tavern` and `population.wanderer`. A window containing a pass of at least 16 ms logs passes since the last log, elapsed window, total/maximum/latest duration and native delta, at most once per operation per 15 real seconds. Ready campaign map frames also retain a fixed 1,024-interval ring; an interval of at least 100 ms permits a p95/maximum report, at most once per 15 seconds. Initialization and mission transitions reset the frame sampler. These bounded diagnostics have no campaign-control or provider authority. Use timings to distinguish amplified poll frequency from a single expensive pass; do not attribute every frame stall to population work. Missing timing lines do not prove the new assembly is installed: verify deployed artifact hashes.
 
 Run the artifact-bound Verification Lab quick/offline suite `wanderer_population` (also `contracts.wanderer_population` in contracts). It exercises production name/shape uniqueness, every template/culture combination, population balancing, safe current-town-menu priority, active-mission/siege mutation gates, rotation eligibility, contact idempotence, death policy, JSON save roundtrip, profile preservation and isolated contact-history scope. No providers or native campaign mutations.
 

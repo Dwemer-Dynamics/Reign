@@ -41,6 +41,8 @@ namespace ReignBeta.Court
         private List<CastleRoomSessionRecord> _castleRoomSessions = new List<CastleRoomSessionRecord>();
         private List<CastleBathHistoryRecord> _castleBathHistory = new List<CastleBathHistoryRecord>();
         private List<string> _appliedNativeCommandIds = new List<string>();
+        private List<string> _courtWeddingReceipts = new List<string>();
+        private bool _courtWeddingReportInFlight;
         private CourtSession _session;
         private long _serverRevision;
         private bool _serverSessionOpened;
@@ -149,6 +151,8 @@ namespace ReignBeta.Court
             dataStore.SyncData("_reignCourt_castleRoomSessions", ref _castleRoomSessions);
             dataStore.SyncData("_reignCourt_castleBathHistory", ref _castleBathHistory);
             dataStore.SyncData("_reignCourt_appliedNativeCommandIds", ref _appliedNativeCommandIds);
+            dataStore.SyncData("_reignCourt_weddingReceiptsV1", ref _courtWeddingReceipts);
+            if (dataStore.IsLoading && _courtWeddingReceipts == null) _courtWeddingReceipts = new List<string>();
             dataStore.SyncData("_reignCourt_serverRevision", ref _serverRevision);
             dataStore.SyncData("_reignCourt_serverSessionOpened", ref _serverSessionOpened);
             dataStore.SyncData("_reignCourt_lastServerTickDay", ref _lastServerTickDay);
@@ -550,8 +554,27 @@ namespace ReignBeta.Court
             _serverMatterRevisions[matterId] = response.Revision;
             if (response.NativeActions.Count > 0)
             {
-                NativeCourtExecution execution = await ExecuteNativeActionsAsync(response.NativeActions).ConfigureAwait(false);
                 string reportCommandId = commandId + "_native_report";
+                var weddingReceipt = new JObject
+                {
+                    ["matterId"] = matterId, ["optionId"] = optionId, ["termsHash"] = termsHash,
+                    ["revision"] = response.Revision, ["commandId"] = reportCommandId,
+                    ["timelineId"] = ReignWorldHistoryCampaignBehavior.Instance?.TimelineId ?? "main",
+                    ["campaignId"] = ReignCampaignIdentity.CurrentCampaignId()
+                };
+                NativeCourtExecution execution = await ExecuteNativeActionsAsync(response.NativeActions, weddingReceipt).ConfigureAwait(false);
+                if (execution.PendingWedding)
+                {
+                    await ReignMainThread.InvokeAsync(() =>
+                    {
+                        matter.State = ReignCourtMatterState.Resolving;
+                        matter.SelectedOptionId = optionId;
+                        matter.TermsHash = termsHash ?? string.Empty;
+                        matter.LastCommandId = commandId;
+                        StateChanged?.Invoke();
+                    }).ConfigureAwait(false);
+                    return string.Empty;
+                }
                 ReignCourtServerResponse report = await ReignCourtServerClient.ResolveMatterAsync(matterId, optionId, termsHash, response.Revision,
                     reportCommandId, execution.Success ? "completed" : "failed", execution.Receipt).ConfigureAwait(false);
                 if (!report.Ok) return "Native execution was " + (execution.Success ? "completed" : "rejected") + ", but the court receipt could not be recorded: " + report.Error;
@@ -979,14 +1002,18 @@ namespace ReignBeta.Court
             return false;
         }
 
-        private async Task<NativeCourtExecution> ExecuteNativeActionsAsync(JArray actions)
+        private async Task<NativeCourtExecution> ExecuteNativeActionsAsync(JArray actions, JObject weddingReceipt = null)
         {
             return await ReignMainThread.InvokeAsync(() =>
             {
                 JArray receipts = new JArray();
                 try
                 {
-                    foreach (JObject action in (actions ?? new JArray()).OfType<JObject>())
+                    var commands = (actions ?? new JArray()).OfType<JObject>().ToList();
+                    if (commands.Count > 1 && commands.Any(a => a.Value<string>("type") == "marriage_response"
+                        || ReignMarriageService.HasMarriageIntent(ReignServerClient.ParseCourtWorldAction(a["action"] as JObject ?? a["worldAction"] as JObject))))
+                        throw new InvalidOperationException("A marriage decision must bind its consideration inside one signed wedding package.");
+                    foreach (JObject action in commands)
                     {
                         string type = action.Value<string>("type") ?? string.Empty;
                         string nativeCommandId = action.Value<string>("commandId") ?? string.Empty;
@@ -1009,9 +1036,19 @@ namespace ReignBeta.Court
                                 worldAction.Source = "court_decision";
                                 worldAction.RequiresAcceptance = false;
                                 if (!ReignActionValidator.Validate(worldAction, out string validationError)) throw new InvalidOperationException(validationError);
+                                bool weddingAction = ReignMarriageService.HasMarriageIntent(worldAction);
+                                if (weddingAction && weddingReceipt == null)
+                                    throw new InvalidOperationException("The marriage must have an exact court receipt before scheduling.");
                                 if (ReignAICampaignBehavior.Instance?.EnqueueAndExecuteServerActions(new[] { worldAction }) != 1) throw new InvalidOperationException("The authoritative world action queue rejected the plan.");
                                 ReignActionResult result = ReignAICampaignBehavior.Instance.GetLastActionResult(worldAction.ActionId);
                                 if (result != null && !result.Success) throw new InvalidOperationException(result.Message);
+                                if (weddingAction && result?.Completed != true)
+                                {
+                                    weddingReceipt["worldActionId"] = worldAction.ActionId;
+                                    weddingReceipt["weddingId"] = ReignMarriageService.WeddingId(worldAction);
+                                    _courtWeddingReceipts.Add(weddingReceipt.ToString(Formatting.None));
+                                    return new NativeCourtExecution { PendingWedding = true };
+                                }
                                 receipt["actionId"] = worldAction.ActionId;
                                 receipt["result"] = result?.ResultCode ?? "queued";
                                 break;
@@ -1125,13 +1162,22 @@ namespace ReignBeta.Court
                             }
                             case "marriage_response":
                             {
-                                Hero first = FindHero(action.Value<string>("heroAId"));
-                                Hero second = FindHero(action.Value<string>("heroBId"));
-                                if (first == null || second == null || TaleWorlds.CampaignSystem.Campaign.Current?.Models?.MarriageModel?.IsCoupleSuitableForMarriage(first, second) != true)
-                                    throw new InvalidOperationException("The marriage proposal no longer passes the native marriage model.");
-                                MarriageAction.Apply(first, second, true);
-                                receipt["heroAId"] = first.StringId;
-                                receipt["heroBId"] = second.StringId;
+                                if (weddingReceipt == null)
+                                    throw new InvalidOperationException("The marriage must have an exact court receipt before scheduling.");
+                                string weddingId = "court_marriage_" + action.Value<string>("evaluationId");
+                                var execution=ReignRelationshipCampaignBehavior.Instance?.ApplyArrangedMarriage(new ReignDirectorAction {
+                                    DirectorActionId=weddingId, ActionType="marriage",
+                                    ActorId=action.Value<string>("heroAId"),TargetId=action.Value<string>("heroBId"),
+                                    Payload=new JObject { ["route"]="arranged",["timelineId"]=action.Value<string>("timelineId"),["marriageTerms"]=action["marriageTerms"]?.DeepClone() }
+                                },true);
+                                if (execution?.Value<string>("status") == "wedding_pending")
+                                {
+                                    weddingReceipt["weddingId"] = weddingId;
+                                    _courtWeddingReceipts.Add(weddingReceipt.ToString(Formatting.None));
+                                    return new NativeCourtExecution { PendingWedding = true };
+                                }
+                                if(execution?.Value<string>("status")!="completed")throw new InvalidOperationException(execution?.Value<string>("error")??"Marriage executor unavailable.");
+                                receipt["marriageVerified"]=true;receipt["paymentVerified"]=true;receipt["marriageReceipt"]=execution;
                                 break;
                             }
                             default:
@@ -1152,6 +1198,66 @@ namespace ReignBeta.Court
                     return new NativeCourtExecution { Success = false, Error = ex.Message, Receipt = new JObject { ["ok"] = false, ["error"] = ex.Message, ["actions"] = receipts } };
                 }
             }).ConfigureAwait(false);
+        }
+
+        internal void PumpCourtWeddingReports()
+        {
+            if (_courtWeddingReportInFlight || ReignSaveSyncCoordinator.IsAlignmentPending
+                || ReignSaveSyncCampaignBehavior.IsNativeSaveInProgress) return;
+            string timeline = ReignWorldHistoryCampaignBehavior.Instance?.TimelineId ?? "main";
+            string campaign = ReignCampaignIdentity.CurrentCampaignId();
+            foreach (string encoded in _courtWeddingReceipts)
+            {
+                var link = JObject.Parse(encoded);
+                if (link.Value<string>("campaignId") != campaign || link.Value<string>("timelineId") != timeline) continue;
+                var wedding = ReignRelationshipCampaignBehavior.Instance?.Wedding(link.Value<string>("weddingId"));
+                var action = ReignAICampaignBehavior.Instance?.Actions.FirstOrDefault(a => a.ActionId == link.Value<string>("worldActionId"));
+                if (action != null && !action.IsTerminal || action == null && wedding?.Terminal != true) continue;
+                bool success = wedding?.State == WeddingState.Completed
+                    && (action == null || action.Status == ReignWorldActionStatus.Completed);
+                string status = success ? "completed" : wedding?.State == WeddingState.Cancelled ? "wedding_cancelled" : "failed";
+                var receipt = new JObject
+                {
+                    ["ok"] = success, ["error"] = wedding?.Reason ?? action?.FailureReason ?? "",
+                    ["actions"] = new JArray(new JObject
+                    {
+                        ["type"] = action == null ? "marriage_response" : "world_action",
+                        ["weddingId"] = wedding?.Id ?? "", ["actionId"] = action?.ActionId ?? "",
+                        ["marriageVerified"] = success, ["paymentVerified"] = success
+                    })
+                };
+                _courtWeddingReportInFlight = true;
+                _ = ReportCourtWeddingAsync(encoded, link, status, receipt);
+                break;
+            }
+        }
+
+        private async Task ReportCourtWeddingAsync(string encoded, JObject link, string status, JObject receipt)
+        {
+            ReignCourtServerResponse response = null;
+            try
+            {
+                response = await ReignCourtServerClient.ResolveMatterAsync(link.Value<string>("matterId"), link.Value<string>("optionId"),
+                    link.Value<string>("termsHash"), link.Value<long>("revision"), link.Value<string>("commandId"), status, receipt)
+                    .ConfigureAwait(false);
+            }
+            finally
+            {
+                await ReignMainThread.InvokeAsync(() =>
+                {
+                    _courtWeddingReportInFlight = false;
+                    if (response?.Ok != true || !ReferenceEquals(Instance, this)) return;
+                    _courtWeddingReceipts.Remove(encoded);
+                    string matterId = link.Value<string>("matterId");
+                    _serverMatterRevisions[matterId] = response.Revision;
+                    var matter = _matters.FirstOrDefault(m => m.MatterId == matterId);
+                    if (matter == null) return;
+                    matter.State = status == "completed" ? ReignCourtMatterState.Resolved
+                        : status == "wedding_cancelled" ? ReignCourtMatterState.Invalidated : ReignCourtMatterState.AwaitingDecision;
+                    matter.ResolutionReceiptJson = receipt.ToString(Formatting.None);
+                    StateChanged?.Invoke();
+                }).ConfigureAwait(false);
+            }
         }
 
         private JObject NativeHeroEligibility(Hero hero)
@@ -1180,6 +1286,7 @@ namespace ReignBeta.Court
 
         private sealed class NativeCourtExecution
         {
+            public bool PendingWedding;
             public bool Success;
             public string Error = string.Empty;
             public JObject Receipt = new JObject();
@@ -1220,6 +1327,7 @@ namespace ReignBeta.Court
         private void OnHourlyTick()
         {
             if (ReignCampaignInitializationGate.IsPending) return;
+            PumpCourtWeddingReports();
             if (!ReignBetaSettings.IsCourtSystemAvailable)
             {
                 if (HasOpenSession) InterruptAndClose("The Court System option was disabled.");
@@ -1234,7 +1342,7 @@ namespace ReignBeta.Court
             ResetAuthorityFailures();
             EnsureRoyalDocket();
             EnsureEconomicReportState();
-            ProcessEconomicShipments();
+            // Shipment arrivals are processed hourly by the economy coordinator, including after a ruler change.
             ProcessForeignAmbassadorTick();
             EnforceResidentAdvisorLocations();
             int day = CurrentDay();
@@ -1281,6 +1389,8 @@ namespace ReignBeta.Court
             Settlement target = FindEconomicSettlement(targetId);
             if (source == null || target == null || source == target || source.Town == null || target.Town == null)
                 throw new InvalidOperationException("Choose two different current towns or castles.");
+            if (source.Town.IsUnderSiege || target.Town.IsUnderSiege)
+                throw new InvalidOperationException("Food shipments cannot be dispatched through a siege.");
             Kingdom playerKingdom = Clan.PlayerClan?.Kingdom;
             if (playerKingdom == null || source.OwnerClan?.Kingdom != playerKingdom)
                 throw new InvalidOperationException("The origin must belong to the player's kingdom.");
@@ -1334,6 +1444,8 @@ namespace ReignBeta.Court
             return shipment;
         }
 
+        internal void ProcessEconomyShipmentArrivals() => ProcessEconomicShipments();
+
         private void ProcessEconomicShipments()
         {
             List<ReignEconomicShipment> shipments = (_economicReportState?.Shipments ?? new List<ReignEconomicShipment>())
@@ -1350,7 +1462,8 @@ namespace ReignBeta.Court
                     changed |= ProcessLegacyEconomicShipment(shipment, now);
                     continue;
                 }
-                if (!string.Equals(shipment.Status, "In transit", StringComparison.OrdinalIgnoreCase) || now < shipment.ArrivalDay)
+                if ((!string.Equals(shipment.Status, "In transit", StringComparison.OrdinalIgnoreCase)
+                    && !string.Equals(shipment.Status, "Blocked by siege", StringComparison.OrdinalIgnoreCase)) || now < shipment.ArrivalDay)
                     continue;
                 Settlement source = FindEconomicSettlement(shipment.SourceSettlementStringId);
                 Settlement target = FindEconomicSettlement(shipment.TargetSettlementStringId);
@@ -1360,6 +1473,22 @@ namespace ReignBeta.Court
                     shipment.Error = "The destination no longer exists; the dispatched food was lost.";
                     RecordFoodShipmentKnowledge(shipment, "failed", "source", source, target);
                     RecordFoodShipmentKnowledge(shipment, "failed", "destination", source, target);
+                    changed = true;
+                    continue;
+                }
+                if (shipment.BlockedSpoilageLastDay > 0)
+                {
+                    float before = shipment.SurvivingFood;
+                    shipment.SurvivingFood = (float)ReignBeta.Economy.ReignWarEconomyPolicy.BlockedCargo(before, now - shipment.BlockedSpoilageLastDay);
+                    shipment.SiegeSpoilage += before - shipment.SurvivingFood;
+                    shipment.BlockedSpoilageLastDay = now;
+                    changed = true;
+                }
+                if (target.Town.IsUnderSiege)
+                {
+                    shipment.Status = "Blocked by siege";
+                    if (shipment.BlockedSpoilageLastDay <= 0) shipment.BlockedSpoilageLastDay = now;
+                    shipment.Error = "Cargo is waiting outside the siege and loses 2% of remaining food each blocked day.";
                     changed = true;
                     continue;
                 }

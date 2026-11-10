@@ -1713,6 +1713,13 @@ namespace ReignBeta.World
 
         private static bool ValidateDiplomaticPackage(ReignWorldActionRecord action, Kingdom actor, Kingdom target, out string reason)
         {
+            var wedding = ReignMarriageService.LinkedWedding(action);
+            if (wedding != null)
+            {
+                bool exact = ReignMarriageService.MatchesLinkedTerms(wedding, action);
+                reason = exact ? string.Empty : "The wedding no longer matches the signed diplomatic package.";
+                return exact;
+            }
             bool alliancePackage = string.Equals(ReadStringTerm(action.TermsJson, "treatyKind", string.Empty), "alliance_package", StringComparison.OrdinalIgnoreCase);
             if (alliancePackage && actor.IsAtWarWith(target))
             {

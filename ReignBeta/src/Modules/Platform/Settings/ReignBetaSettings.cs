@@ -10,6 +10,7 @@ namespace ReignBeta.Settings
     public sealed class ReignBetaSettings : AttributeGlobalSettings<ReignBetaSettings>
     {
         private bool _enabled = true;
+        private bool _fundLocalHouseholdStipends;
         private bool _debugMessagesEnabled = true;
         private bool _executeDiplomacyActions = true;
         private bool _executeStrategyPlans = true;
@@ -89,6 +90,20 @@ namespace ReignBeta.Settings
                     OnPropertyChanged();
                     ReignFamilyCampaignBehavior.Instance?.OnPregnancyRestrictionSettingsChanged();
                 }
+            }
+        }
+
+        [SettingPropertyBool("Fund Local Household Stipends", Order = 1, RequireRestart = false,
+            HintText = "Allow your clan to pay small living stipends to eligible landless households at holdings you own. Uses your personal gold.")]
+        [SettingPropertyGroup("General", GroupOrder = 0)]
+        public bool FundLocalHouseholdStipends
+        {
+            get { return _fundLocalHouseholdStipends; }
+            set
+            {
+                if (value == _fundLocalHouseholdStipends) return;
+                _fundLocalHouseholdStipends = value;
+                OnPropertyChanged();
             }
         }
 

@@ -45,7 +45,10 @@ namespace ReignBeta.UI.Widgets
                 if (value != _chatScrollVersion)
                 {
                     _chatScrollVersion = value;
-                    _pendingScrollFrames = 4;
+                    // Preserve a reader's position when an image finishes or another
+                    // message arrives; follow only a viewport already at the bottom.
+                    _pendingScrollFrames = VerticalScrollbar == null
+                        || VerticalScrollbar.MaxValue - VerticalScrollbar.ValueFloat <= MouseWheelStep ? 4 : 0;
                 }
             }
         }

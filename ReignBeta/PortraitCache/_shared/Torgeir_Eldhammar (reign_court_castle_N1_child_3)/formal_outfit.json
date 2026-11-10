@@ -1,0 +1,13 @@
+{
+  "version": 1,
+  "heroStringId": "reign_court_castle_N1_child_3",
+  "characterName": "Torgeir Eldhammar",
+  "imagePath": "portrait.png",
+  "imageSha256": "9EF3958F8A3EABE8D89483AF104A02A995CF8C6D0237FB836260EEB95291762F",
+  "description": "A dark blue knee-length wool tunic with restrained pale gold geometric edging at the split collar, cuffs and hem over a cream linen shirt. A plain brown leather belt with a modest brass buckle, brown trousers, blue-grey lower-leg wraps and brown soft leather ankle shoes. No headgear, armor or weapons.",
+  "status": "completed",
+  "descriptionSource": "agent_vision",
+  "retryEligible": false,
+  "error": "",
+  "updatedUtc": "2026-11-07T03:08:12.981405+00:00"
+}

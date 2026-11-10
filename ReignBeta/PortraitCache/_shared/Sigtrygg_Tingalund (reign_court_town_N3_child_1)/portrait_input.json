@@ -1,0 +1,95 @@
+{
+  "version": 1,
+  "inputHash": "ce9054247baa738ab2d4b91886cc0c729faecfd52eaa3d036ddc16101d212a49",
+  "catalogHash": "b6d4023f598cea7d6dbdaa9a43fd3d28c1128d529c54b453c04bee5d373de03c",
+  "renderContractHash": "cc3b941e7d47057de9b4220f1473336e6f908719812bb2653b83bd3545cfbd2f",
+  "cacheKey": "Sigtrygg_Tingalund (reign_court_town_N3_child_1)",
+  "heroStringId": "reign_court_town_N3_child_1",
+  "characterObjectId": "reign_court_town_N3_child_1",
+  "characterName": "Sigtrygg Tingalund",
+  "ageYears": 25,
+  "cultureId": "nord",
+  "cultureName": "Nord",
+  "gender": "man",
+  "clanId": "reign_house_town_N3",
+  "clanTier": 1,
+  "clanProvenance": "authored_nord_household_xml_and_foundation",
+  "socialStation": "landowner",
+  "occupation": "Lord",
+  "archetype": "lord",
+  "isLord": true,
+  "isNotable": false,
+  "isWanderer": false,
+  "isAlive": true,
+  "sourceModule": "ReignBeta",
+  "sourceFile": "Modules/ReignBeta/ModuleData/reign_court_lords.xml",
+  "profileSource": "reign_court",
+  "profilePackVersion": "reign_profiles_v4",
+  "bodyKey": "00018002E500399F879876978986966666678996769896669666866678998697037879660796669600000000000000000000000000000000000000006CF41080",
+  "bodyWeight": 0.5,
+  "bodyBuild": 0.5,
+  "faceTemplateId": "townsman_nord",
+  "faceGenerationVersion": "reign_court_shared_v1",
+  "civilianTemplate": "nord_civ_template_default",
+  "civilianEquipment": [
+    {
+      "slot": "Body",
+      "itemId": "nord_casual_tunic"
+    },
+    {
+      "slot": "Cape",
+      "itemId": "nord_fur_shoulder"
+    },
+    {
+      "slot": "Leg",
+      "itemId": "leather_cavalier_boots"
+    },
+    {
+      "slot": "Gloves",
+      "itemId": "leather_gloves"
+    }
+  ],
+  "headgearSuppressed": true,
+  "physicalConfidence": {
+    "definition": "physical_confidence",
+    "score": 52,
+    "profile": "41-60",
+    "flirtatiousnessPercentage": 61,
+    "confidencePercentage": 24,
+    "flirtatiousnessWeight": 0.75,
+    "confidenceWeight": 0.25,
+    "source": "reign_profile_library"
+  },
+  "renderPreset": "ai_source_wan_portrait_v5",
+  "renderWidth": 1536,
+  "renderHeight": 2048,
+  "sourceWidth": 768,
+  "sourceHeight": 1024,
+  "cropScale": 0.24,
+  "cropWidthRatio": 0.75,
+  "cropCenterYRatio": 0.324,
+  "cameraPitchDegrees": 4,
+  "sourceSha256": "8d671fffeb3977c9097db8b2836721e8e67bce153dd3c1e56263dad8cf0c1d2d",
+  "sourceFileName": "source.png",
+  "generationEndpoint": "/portraits/generate",
+  "campaignIdSource": "shared_authored_new_campaign_content",
+  "promptDeferred": true,
+  "sourceImageBase64From": "source.png",
+  "outputSizeOverride": "",
+  "promptPurpose": "portrait",
+  "physique": {
+    "schema": "reign-native-physique-v1",
+    "weight": 0.5,
+    "build": 0.5,
+    "weightSource": "native_engine_resolved",
+    "buildSource": "native_engine_resolved",
+    "sourceSha256": "8d671fffeb3977c9097db8b2836721e8e67bce153dd3c1e56263dad8cf0c1d2d"
+  },
+  "nativeBatchProvenance": {
+    "batch": "nord-01a1b3c6-v1",
+    "requestVersion": 4,
+    "appearanceInputCount": 798,
+    "nativeStatusSha256": "06fcec8463d15523f9bc79b700ea6c0010115987a57052c4366dee0e2c1d8ab1",
+    "metadataAuthoring": "task batch adapter mirroring PortraitGenerationInputV1; inputHash hashes the exact version4 request; catalogHash hashes input-receipt file inventory"
+  }
+}

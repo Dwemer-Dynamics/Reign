@@ -252,6 +252,23 @@
       "y": 840,
       "width": 158,
       "height": 42
+    },
+    {
+      "id": "conditional-party-continue-control",
+      "shape": "rectangle",
+      "x": 1214,
+      "y": 96,
+      "width": 126,
+      "height": 40
+    },
+    {
+      "id": "conditional-chat-view-control",
+      "shape": "rectangle",
+      "x": 1354,
+      "y": 96,
+      "width": 126,
+      "height": 40
     }
-  ]
+  ],
+  "chatViewControl": "2026-10-30 explicit continuation layout: complete unmodified Clear plate pixels at the two exact rectangles; separate sprite/atlas RGBA and geometry contract prevents masking arbitrary replacement art. The former 422x62 View region is no longer excluded."
 }

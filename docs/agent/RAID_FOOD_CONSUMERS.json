@@ -1,0 +1,26 @@
+{
+  "schema": "reign-raid-food-consumers-v1",
+  "status": "implementation inventory; Claude review and native acceptance tracked separately",
+  "effectiveFood": [
+    {"path":"ReignBeta/src/Modules/WorldSimulation/Economy/ReignEconomyModels.cs","symbols":["CalculateDailyFoodProductionAmount","CalculateDailyProductionAmount:Item.IsFood","CalculateTownFoodStocksChange"],"rule":"minimum legacy/new recovery once; DLC outer food modifiers precede recovery"},
+    {"path":"ReignBeta/src/Modules/WorldSimulation/Economy/ReignRaidFoodDisruption.cs","symbols":["AddCatch","FishingDeparture","FishingHourly"],"rule":"new physical catch only; one existing voyage; post-unload home hold at zero; no cargo loss"},
+    {"path":"ReignBeta/src/Modules/Court/Court/ReignRulerDocketCampaignBehavior.cs","symbols":["CaptureSettlementSamples","HealthyVillageProduction"],"rule":"actual/potential model observations per recipe; no second recovery multiplication"},
+    {"path":"ReignBeta/src/Modules/Court/UI/ViewModels/ReignCourtEconomicReportVM.cs","symbols":["FoodDetails"],"rule":"show effective food, capacity and legacy recovery separately"},
+    {"path":"ReignBeta/src/Modules/Reputation/Campaign/ReignRulerReputationCampaignBehavior.cs","symbols":["village agriculture observation"],"rule":"recovery credit requires effective full recovery plus existing stability and observed hearth conditions"},
+    {"path":"ReignBeta/src/Modules/WorldSimulation/Integration/ReignWorldTestClient.cs","symbols":["war economy food penalty","daily town/castle food census"],"rule":"food uses effective recovery; security/recruitment remain legacy"},
+    {"path":"ReignBeta/src/Modules/WorldSimulation/Economy/ReignWarEconomyTestHost.cs","symbols":["VillageObservation","production probes"],"rule":"shared actual and potential recipe calculation; source-specific evidence"}
+  ],
+  "legacyOnly": [
+    {"path":"ReignBeta/src/Modules/WorldSimulation/Economy/ReignEconomyCampaignBehavior.cs","symbols":["GetRecoveryStep","GetRecoveryModifier","GetRecruitCapacity","OnDailyTickSettlement"],"reason":"existing eligibility, security, non-food and full-raid recovery semantics"},
+    {"path":"ReignBeta/src/Modules/WorldSimulation/Economy/ReignEconomyModels.cs","symbols":["CalculateSecurityChange","CalculateHearthChange","CalculateDailyProductionAmount:!Item.IsFood"],"reason":"no new direct military, security, hearth or unrelated commodity penalty"},
+    {"path":"ReignBeta/src/Modules/WorldSimulation/Economy/ReignWarEconomyTransactions.cs","symbols":["Stress:recruitment"],"reason":"existing recruitment stress definition retained; food stress uses real reserves"}
+  ],
+  "aidAudit": {
+    "scope":["ReignGovernmentCampaignBehavior","ReignGovernmentEdicts","ReignGovernmentResolutions","ReignCourtCampaignBehavior","ReignRulerDocketCampaignBehavior"],
+    "observedRecoveryWriters":"Legacy Recovery dictionary writers are economy full-loot/daily recovery and controlled fixtures. No authored assistance currently writes an explicit agricultural-recovery fraction.",
+    "integration":"Production support stays a production modifier before food recovery; seed/hearth/prosperity grants retain authored resources, costs, duration and receipts. Food delivery, granary distribution and relief remain stock transfers. No grain-to-boat repair conversion or invented new aid promise.",
+    "futureExplicitRecovery":"Any newly authored promise to restore food capacity must use a dedicated accounted capacity grant, rather than silently treating grain or hearths as boat repairs."
+  },
+  "excluded":["workshop output multipliers","caravan/fishing crew population costs","existing cargo and market stocks","relief/granary/manual-shipment accounting","native siege destruction and security shocks","ship purchase/resale/capture/sinking economics"],
+  "verification":"Policy tests; licensed exact-hook/JIT probe; controlled native food/fishing scenarios pending user game launch. Missing hooks, stale schemas and unsupported identities cannot certify coverage."
+}

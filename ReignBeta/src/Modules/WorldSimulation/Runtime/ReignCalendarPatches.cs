@@ -24,6 +24,7 @@ namespace ReignBeta.Runtime
                 Type[] patches =
                 {
                     typeof(HeroAgePatch),
+                    typeof(HeroBirthDayPatch),
                     typeof(DaysInYearPatch),
                     typeof(DaysInSeasonPatch),
                     typeof(GetYearPatch),
@@ -85,6 +86,15 @@ namespace ReignBeta.Runtime
             public static void Postfix(Hero __instance, ref float __result)
             {
                 __result = ReignCalendarService.AdjustHeroAge(__instance, __result);
+            }
+        }
+
+        [HarmonyPatch(typeof(Hero), nameof(Hero.SetBirthDay))]
+        public static class HeroBirthDayPatch
+        {
+            public static void Postfix(Hero __instance, CampaignTime __0)
+            {
+                ReignCalendarService.OnHeroBirthDayChanged(__instance, __0);
             }
         }
 

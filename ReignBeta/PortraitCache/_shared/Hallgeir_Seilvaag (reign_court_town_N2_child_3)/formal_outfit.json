@@ -1,0 +1,13 @@
+{
+  "version": 1,
+  "heroStringId": "reign_court_town_N2_child_3",
+  "characterName": "Hallgeir Seilvaag",
+  "imagePath": "portrait.png",
+  "imageSha256": "36920DC8670B8A9A0BF2A840D01802170831E7850015FE5D9DAECCEA1EC24D7A",
+  "description": "Warm brown knee-length wool tunic with pale woven borders around split neck, cuffs and hem, cream linen underlayer, plain brown belt with a rounded brass buckle, brown trousers, dark lower-leg wraps and brown leather shoes. No headgear, armor or weapons.",
+  "status": "completed",
+  "descriptionSource": "agent_vision",
+  "retryEligible": false,
+  "error": "",
+  "updatedUtc": "2026-11-07T03:30:14.621499+00:00"
+}

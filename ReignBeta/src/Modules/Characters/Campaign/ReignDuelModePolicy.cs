@@ -4,6 +4,24 @@ namespace ReignBeta.Campaign
 {
     internal static class ReignDuelModePolicy
     {
+        internal const float DamageMultiplier = 0.05f;
+        internal const float BlockedXpMultiplier = 0.05f;
+        internal const float HitXpMultiplier = 0.15f;
+
+        internal static float ScaleExperience(float normalXp, bool blocked)
+            => IsPositiveFinite(normalXp) ? normalXp * (blocked ? BlockedXpMultiplier : HitXpMultiplier) : 0f;
+
+        internal static float HealthAfterHit(float health, float nativeNextHealth, float normalDamage)
+        {
+            // Preserve native invulnerability/no-damage decisions. Scale before the
+            // remaining-health cap, and keep fractional damage for light strikes.
+            if (!IsPositiveFinite(health) || !IsPositiveFinite(normalDamage)
+                || float.IsNaN(nativeNextHealth) || nativeNextHealth >= health) return nativeNextHealth;
+            return Math.Max(0f, health - normalDamage * DamageMultiplier);
+        }
+
+        private static bool IsPositiveFinite(float value) => value > 0f && !float.IsInfinity(value);
+
         internal static string Resolve(string requestedMode, bool legacyLethal)
         {
             string mode = (requestedMode ?? string.Empty).Trim().ToLowerInvariant()

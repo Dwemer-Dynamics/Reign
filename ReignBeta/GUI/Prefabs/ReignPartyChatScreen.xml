@@ -18,6 +18,28 @@
                 <TextWidget DoNotAcceptEvents="true" WidthSizePolicy="StretchToParent" HeightSizePolicy="StretchToParent" Brush="DefaultText" Brush.Font="ReignSerifDynamic" Brush.FontSize="15" Brush.FontColor="#C5BDAFFF" Text="Personal lives" />
               </Children>
             </ButtonWidget>
+            <Widget Id="ChatViewControl" DataSource="{View}" WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="120" SuggestedHeight="36" MarginLeft="1358" MarginTop="98">
+              <Children>
+                <ButtonWidget Id="ChatViewButton" WidthSizePolicy="StretchToParent" HeightSizePolicy="StretchToParent" Brush="ConversationItem.SoundBrush" Command.Click="ExecuteView" IsEnabled="@CanView" DoNotPassEventsToChildren="true" UpdateChildrenStates="true">
+                  <Children>
+                    <Widget DoNotAcceptEvents="true" WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="126" SuggestedHeight="40" MarginLeft="-4" MarginTop="-2" Sprite="reign_party_chat_compact_button" />
+                    <TextWidget DoNotAcceptEvents="true" WidthSizePolicy="StretchToParent" HeightSizePolicy="StretchToParent" Brush="DefaultText" Brush.Font="ReignSerifDynamic" Brush.FontSize="15" Brush.FontColor="#C5BDAFFF" IsVisible="@CanView" Text="@ButtonText" />
+                    <TextWidget DoNotAcceptEvents="true" WidthSizePolicy="StretchToParent" HeightSizePolicy="StretchToParent" Brush="DefaultText" Brush.Font="ReignSerifDynamic" Brush.FontSize="15" Brush.FontColor="#4A4945FF" IsVisible="@IsUnavailable" Text="@ButtonText" />
+                  </Children>
+                </ButtonWidget>
+              </Children>
+            </Widget>
+            <Widget Id="PartyChatContinueControl" WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="120" SuggestedHeight="36" MarginLeft="1218" MarginTop="98" IsVisible="@ShowPartyContinuation">
+              <Children>
+                <ButtonWidget Id="PartyChatContinueButton" WidthSizePolicy="StretchToParent" HeightSizePolicy="StretchToParent" Brush="ConversationItem.SoundBrush" Command.Click="ExecuteContinuePartyChat" IsEnabled="@CanContinuePartyChat" DoNotPassEventsToChildren="true" UpdateChildrenStates="true">
+                  <Children>
+                    <Widget DoNotAcceptEvents="true" WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="126" SuggestedHeight="40" MarginLeft="-4" MarginTop="-2" Sprite="reign_party_chat_compact_button" />
+                    <TextWidget DoNotAcceptEvents="true" WidthSizePolicy="StretchToParent" HeightSizePolicy="StretchToParent" Brush="DefaultText" Brush.Font="ReignSerifDynamic" Brush.FontSize="15" Brush.FontColor="#C5BDAFFF" IsVisible="@CanContinuePartyChat" Text="Continue" />
+                    <TextWidget DoNotAcceptEvents="true" WidthSizePolicy="StretchToParent" HeightSizePolicy="StretchToParent" Brush="DefaultText" Brush.Font="ReignSerifDynamic" Brush.FontSize="15" Brush.FontColor="#4A4945FF" IsVisible="@PartyContinuationUnavailable" Text="Continue" />
+                  </Children>
+                </ButtonWidget>
+              </Children>
+            </Widget>
             <Widget Id="PartyChatHeader" WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="760" SuggestedHeight="120" HorizontalAlignment="Center" MarginTop="26">
               <Children>
                 <TextWidget WidthSizePolicy="StretchToParent" HeightSizePolicy="Fixed" SuggestedHeight="39" MarginTop="15" Brush="DefaultText" Brush.Font="ReignSerifDynamic" Brush.FontSize="30" Brush.TextHorizontalAlignment="Center" Brush.FontColor="#C5BDAFFF" Text="@Title" />
@@ -112,7 +134,7 @@
                     <TextWidget WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="900" SuggestedHeight="48" HorizontalAlignment="Center" MarginTop="342" Brush="DefaultText" Brush.Font="ReignSerifDynamic" Brush.FontSize="19" Brush.TextHorizontalAlignment="Center" Brush.FontColor="#C5BDAFFF" Text="@HomeDirectoryText" DoNotAcceptEvents="true" />
                   </Children>
                 </Widget>
-                <ScrollablePanel WidthSizePolicy="StretchToParent" HeightSizePolicy="StretchToParent" MarginLeft="34" MarginRight="52" MarginTop="34" MarginBottom="32" AutoHideScrollBars="false" MouseScrollAxis="Vertical" InnerPanel="PartyChatClip\PartyChatList" ClipRect="PartyChatClip" VerticalScrollbar="..\PartyChatScrollbar" IsVisible="@HasChatSession">
+                <ReignAutoScrollPanel Type="ReignBeta.UI.Widgets.ReignAutoScrollPanel" ChatScrollVersion="@ChatScrollVersion" WidthSizePolicy="StretchToParent" HeightSizePolicy="StretchToParent" MarginLeft="34" MarginRight="52" MarginTop="34" MarginBottom="32" AutoHideScrollBars="false" MouseScrollAxis="Vertical" InnerPanel="PartyChatClip\PartyChatList" ClipRect="PartyChatClip" VerticalScrollbar="..\PartyChatScrollbar" IsVisible="@HasChatSession">
                   <Children>
                     <Widget Id="PartyChatClip" WidthSizePolicy="StretchToParent" HeightSizePolicy="StretchToParent" ClipContents="true">
                       <Children>
@@ -120,6 +142,18 @@
                           <ItemTemplate>
                             <Widget WidthSizePolicy="StretchToParent" HeightSizePolicy="CoverChildren" MarginBottom="10">
                               <Children>
+                                <Widget Id="ChatViewImageEntry" WidthSizePolicy="Fixed" HeightSizePolicy="CoverChildren" SuggestedWidth="384" HorizontalAlignment="Center" IsVisible="@IsViewLine">
+                                  <Children>
+                                    <ButtonWidget Id="ChatViewInlineImage" WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="384" SuggestedHeight="216" Brush="ConversationItem.SoundBrush" IsVisible="@HasSceneImage" Command.Click="ExecuteOpenScene" DoNotPassEventsToChildren="true" UpdateChildrenStates="true">
+                                      <Children>
+                                        <Widget DoNotAcceptEvents="true" WidthSizePolicy="StretchToParent" HeightSizePolicy="StretchToParent" Sprite="BlankWhiteSquare" Color="#070808FF" />
+                                        <ReignEventArtWidget Id="ChatViewInlineArt" Type="ReignBeta.UI.Widgets.ReignEventArtWidget" DoNotAcceptEvents="true" WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="282.375" SuggestedHeight="188.25" MarginTop="13.875" HorizontalAlignment="Center" EventImageId="@SceneImageId" />
+                                        <ImageWidget DoNotAcceptEvents="true" WidthSizePolicy="StretchToParent" HeightSizePolicy="StretchToParent" Sprite="reign_modern_memory_scene_overlay" />
+                                      </Children>
+                                    </ButtonWidget>
+                                    <TextWidget DoNotAcceptEvents="true" WidthSizePolicy="StretchToParent" HeightSizePolicy="CoverChildren" MarginTop="@SceneCaptionTop" MarginBottom="8" Brush="DefaultText" Brush.Font="ReignSerifDynamic" Brush.FontSize="16" Brush.FontColor="#C5BDAFFF" Brush.TextHorizontalAlignment="Center" Text="@Text" />
+                                  </Children>
+                                </Widget>
                                 <Widget WidthSizePolicy="Fixed" HeightSizePolicy="CoverChildren" SuggestedWidth="760" HorizontalAlignment="Left" MarginRight="300" IsVisible="@IsPlayerLine">
                                   <Children>
                                     <TextWidget WidthSizePolicy="StretchToParent" HeightSizePolicy="Fixed" SuggestedHeight="22" MarginLeft="32" MarginRight="32" MarginTop="16" Brush="DefaultText" Brush.Font="ReignSerifDynamic" Brush.FontSize="15" Brush.TextHorizontalAlignment="Left" Brush.FontColor="#C5AC83FF" Text="@Speaker" />
@@ -144,7 +178,7 @@
                       </Children>
                     </Widget>
                   </Children>
-                </ScrollablePanel>
+                </ReignAutoScrollPanel>
 
                 <ScrollbarWidget Id="PartyChatScrollbar" WidthSizePolicy="Fixed" HeightSizePolicy="StretchToParent" SuggestedWidth="12" HorizontalAlignment="Right" MarginRight="18" MarginTop="30" MarginBottom="28" AlignmentAxis="Vertical" Handle="PartyChatScrollbarHandle" MaxValue="100" MinValue="0" IsVisible="@HasChatSession">
                   <Children>
@@ -190,6 +224,20 @@
             </Widget>
           </Children>
         </ButtonWidget>
+        <Widget Id="ChatViewEnlargedLayer" DataSource="{View}" WidthSizePolicy="StretchToParent" HeightSizePolicy="StretchToParent" IsVisible="@IsEnlarged" RenderLate="true">
+          <Children>
+            <ButtonWidget Id="ChatViewBackdrop" WidthSizePolicy="StretchToParent" HeightSizePolicy="StretchToParent" Brush="ConversationItem.SoundBrush" Command.Click="ExecuteCloseImage" DoNotPassEventsToChildren="true" UpdateChildrenStates="true">
+              <Children><Widget DoNotAcceptEvents="true" WidthSizePolicy="StretchToParent" HeightSizePolicy="StretchToParent" Sprite="BlankWhiteSquare" Color="#030303FF" /></Children>
+            </ButtonWidget>
+            <ButtonWidget Id="ChatViewEnlargedImage" WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="1280" SuggestedHeight="720" HorizontalAlignment="Center" VerticalAlignment="Center" Brush="ConversationItem.SoundBrush" Command.Click="ExecuteCloseImage" DoNotPassEventsToChildren="true" UpdateChildrenStates="true">
+              <Children>
+                <Widget DoNotAcceptEvents="true" WidthSizePolicy="StretchToParent" HeightSizePolicy="StretchToParent" Sprite="BlankWhiteSquare" Color="#070808FF" />
+                <ReignEventArtWidget Id="ChatViewEnlargedArt" Type="ReignBeta.UI.Widgets.ReignEventArtWidget" DoNotAcceptEvents="true" WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="941.25" SuggestedHeight="627.5" MarginTop="46.25" HorizontalAlignment="Center" EventImageId="@EnlargedImageId" />
+                <ImageWidget DoNotAcceptEvents="true" WidthSizePolicy="StretchToParent" HeightSizePolicy="StretchToParent" Sprite="reign_modern_memory_scene_overlay" />
+              </Children>
+            </ButtonWidget>
+          </Children>
+        </Widget>
       </Children>
     </Widget>
   </Window>

@@ -49,7 +49,7 @@ namespace ReignBeta.Campaign
         {
             if (store.IsSaving) _chunks = ReignSavePayloadCodec.Encode(JsonConvert.SerializeObject(new {
                 version = 1, state = State, outbox = _outbox, nativeEffects = _nativeEffects, acceptedOperations = _acceptedOperations, failedOperations = _failedOperations,
-                shownUntil = _shownUntil, travel = _personalTravel, meetings = _meetingTravel, duties = _lifeDuties, encounters = _storyEncounters, bindings = _storyBindings,
+                shownUntil = _shownUntil, travel = _personalTravel, meetings = _meetingTravel, duties = _lifeDuties, weddingAttendance = _weddingAttendance, encounters = _storyEncounters, bindings = _storyBindings,
                 communicationHosts = _communicationHosts
             }));
             store.SyncData("ReignNpcLivesV1", ref _chunks);
@@ -93,7 +93,9 @@ namespace ReignBeta.Campaign
             ApplyLifeRewards();
             if (_outbox.Count > 0)
             {
-                var row = _outbox[0]; var p = (JObject)row["payload"].DeepClone();
+                var row = _outbox[0];
+                if (HoldAnnouncementDeliveryForNativeTest(row)) return;
+                var p = (JObject)row["payload"].DeepClone();
                 p["generation"] = Generation;
                 Request(row.Value<string>("route"), p, row.Value<string>("operationId")); return;
             }
@@ -101,7 +103,7 @@ namespace ReignBeta.Campaign
             if (QuietMap() && ReignServerClient.NpcLivesOptionsConfirmed && day >= _nextEvaluation)
             {
                 _nextEvaluation = day + 1d / 24;
-                var p = ReignServerClient.CaptureNpcLivesContext(Generation, true); p["locations"] = ReignServerClient.CaptureNpcStoryLocations();
+                var p = ReignServerClient.CaptureNpcLivesContext(Generation, true, leaveDestinations: true); p["locations"] = ReignServerClient.CaptureNpcStoryLocations();
                 Request("evaluate", p); return;
             }
             Request("state", ReignServerClient.CaptureNpcLivesContext(Generation));
@@ -219,7 +221,8 @@ namespace ReignBeta.Campaign
                         Release(); if (!Current(owner, epoch)) return;
                         _shownUntil[displayKey] = CampaignTime.Now.ToDays + NpcLivesPolicy.ReaskDelay(ReignServerClient.NpcLivesOptions);
                         if (accept) ReignIndividualChatScreenManager.OpenForHero(hero,
-                            new JObject { ["npcLifeRequestId"] = id, ["npcStoryId"] = story?.Id ?? "", ["npcLivesRevision"] = revision }, null);
+                            new JObject { ["npcLifeRequestId"] = id, ["npcStoryId"] = story?.Id ?? "", ["npcLivesRevision"] = revision,
+                                ["npcLifeInvitationEntry"] = true }, null);
                     }, () => { Release(); if (Current(owner, epoch)) _shownUntil[displayKey] = CampaignTime.Now.ToDays + NpcLivesPolicy.ReaskDelay(ReignServerClient.NpcLivesOptions); });
                 ScreenManager.PushScreen(popup);
                 if (!popup.Initialized) { ScreenManager.PopScreen(); Release(); }

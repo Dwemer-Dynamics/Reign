@@ -1,0 +1,13 @@
+{
+  "version": 1,
+  "heroStringId": "reign_court_town_N3_child_2",
+  "characterName": "Ragnhildra Tingalund",
+  "imagePath": "portrait.png",
+  "imageSha256": "00B0A3FF8D547691AA4DD3CF881D119C583F9200730359C9500247E6C05B9BDD",
+  "description": "Burgundy wool apron-style dress with restrained pale/red woven borders and round strap brooches over cream linen with moderate lowered square neckline and elbow sleeves, matching woven waist tie, full layered skirt and brown shoes. No headgear, armor or weapons.",
+  "status": "completed",
+  "descriptionSource": "agent_vision",
+  "retryEligible": false,
+  "error": "",
+  "updatedUtc": "2026-11-07T03:30:14.806010+00:00"
+}

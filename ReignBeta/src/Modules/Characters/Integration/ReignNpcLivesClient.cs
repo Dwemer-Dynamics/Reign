@@ -20,7 +20,7 @@ namespace ReignBeta.Integration
                 k => values?[k]?.Type == JTokenType.Integer || values?[k]?.Type == JTokenType.Float ? values.Value<double?>(k) : null);
             NpcLivesOptionsConfirmed = values != null;
         }
-        internal static JObject CaptureNpcLivesContext(string generation, bool roster = false)
+        internal static JObject CaptureNpcLivesContext(string generation, bool roster = false, bool leaveDestinations = false)
         {
             var main = MobileParty.MainParty;
             var settlement = Settlement.CurrentSettlement ?? main?.CurrentSettlement;
@@ -40,6 +40,9 @@ namespace ReignBeta.Integration
                     .Distinct().Select(h => {
                         var row = BuildApproachCandidate(h);
                         row["inMainParty"] = main.MemberRoster.Contains(h.CharacterObject) && h.PartyBelongedTo == main && !h.IsPrisoner;
+                        if (leaveDestinations)
+                            row["unsafeLeaveLocationIds"] = new JArray(Settlement.All.Where(s => !s.IsHideout
+                                && FactionManager.IsAtWarAgainstFaction(h.MapFaction, s.MapFaction)).Take(2048).Select(s => s.StringId));
                         return row;
                     }));
             }
@@ -66,7 +69,7 @@ namespace ReignBeta.Integration
                 value["profile"] = value["hero"].DeepClone();
                 value["locationId"] = ResolveDialogueLocationId(hero);
                 value["npcLifeContext"] = context?.Value<string>("npcLifeContext") ?? "in_person";
-                foreach (string key in new[] { "npcStoryId", "npcLifeRequestId", "npcLivesRevision", "npcLifeContext", "npcLifeAudienceIds" })
+                foreach (string key in new[] { "npcStoryId", "npcLifeRequestId", "npcLivesRevision", "npcLifeInvitationEntry", "npcLifeContext", "npcLifeAudienceIds" })
                     if (context?[key] != null) value[key] = context[key].DeepClone();
                 var audienceIds = (value["npcLifeAudienceIds"] as JArray ?? new JArray(hero.StringId)).Values<string>().ToList();
                 var audience = Hero.AllAliveHeroes.Where(h => h != Hero.MainHero && audienceIds.Contains(h.StringId)).ToList();

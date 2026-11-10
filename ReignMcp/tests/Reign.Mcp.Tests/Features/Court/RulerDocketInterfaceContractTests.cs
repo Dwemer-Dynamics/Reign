@@ -190,7 +190,7 @@ public sealed class RulerDocketInterfaceContractTests
             StringComparison.Ordinal);
         Assert.Contains("courtNavigationBodyRgbPixelTransformationCount\": 0", assetTool,
             StringComparison.Ordinal);
-        Assert.Contains("$expectedUiAuthorityFileCount = 385", deployUi,
+        Assert.Contains("$expectedUiAuthorityFileCount = 389", deployUi,
             StringComparison.Ordinal);
         Assert.Contains("validated-native-portrait-generator", deployUi, StringComparison.Ordinal);
         Assert.Contains("$nativePortraitGeneratorFileCount", deployUi, StringComparison.Ordinal);

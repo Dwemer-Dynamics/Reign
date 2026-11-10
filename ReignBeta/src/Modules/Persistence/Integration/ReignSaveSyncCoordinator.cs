@@ -35,6 +35,11 @@ namespace ReignBeta.Integration
         private static readonly System.Collections.Generic.HashSet<string> CapacityWarningsShown =
             new System.Collections.Generic.HashSet<string>(StringComparer.OrdinalIgnoreCase);
 
+        internal static int CampaignGeneration
+        {
+            get { lock (Gate) return _generation; }
+        }
+
         internal static bool IsAlignmentPending
         {
             get

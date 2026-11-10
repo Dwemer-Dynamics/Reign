@@ -1,0 +1,13 @@
+{
+  "version": 1,
+  "heroStringId": "reign_court_castle_N3_child_3",
+  "characterName": "Bjarnulf Eikenvard",
+  "imagePath": "portrait.png",
+  "imageSha256": "CC5583291452D01880B5E5E4FCD257FE844493AB00F1B3D3DF7599F642BF8680",
+  "description": "A muted brown-burgundy long-sleeved knee-length wool tunic with narrow pale geometric woven edging at the split collar, cuffs and hem, over a cream linen underlayer at the neckline and wrists. A broad plain brown leather belt with a modest brass buckle, loose brown trousers, dark grey lower-leg wraps and simple brown leather shoes. No headgear, armor or weapons.",
+  "status": "completed",
+  "descriptionSource": "agent_vision",
+  "retryEligible": false,
+  "error": "",
+  "updatedUtc": "2026-11-07T03:24:37.516260+00:00"
+}

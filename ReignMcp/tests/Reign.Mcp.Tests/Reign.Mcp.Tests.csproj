@@ -1,9 +1,19 @@
 <Project Sdk="Microsoft.NET.Sdk">
+  <ItemGroup><Compile Include="..\..\..\ReignBeta\src\Modules\WorldSimulation\Economy\ReignMedicalDischargePolicy.cs" Link="Shared\ReignMedicalDischargePolicy.cs" /></ItemGroup>
   <PropertyGroup>
     <TargetFramework>net10.0</TargetFramework>
     <IsPackable>false</IsPackable>
   </PropertyGroup>
   <ItemGroup>
+    <Compile Include="..\..\..\ReignBeta\src\Modules\Court\UI\ReignCourtLayout.cs" Link="Shared\ReignCourtLayout.cs" />
+    <Compile Include="..\..\..\ReignBeta\src\Modules\Dialogue\Integration\ReignCommunicationPollHold.cs" Link="Shared\ReignCommunicationPollHold.cs" />
+    <Compile Include="..\..\..\ReignBeta\src\Modules\WorldSimulation\Economy\ReignWarEconomyPolicy.cs" Link="Shared\ReignWarEconomyPolicy.cs" />
+    <Compile Include="..\..\..\ReignBeta\src\Modules\WorldSimulation\Economy\ReignRaidFoodPolicy.cs" Link="Shared\ReignRaidFoodPolicy.cs" />
+    <Compile Include="..\..\..\ReignBeta\src\Modules\WorldSimulation\Economy\ReignNpcFoodSabotagePolicy.cs" Link="Shared\ReignNpcFoodSabotagePolicy.cs" />
+    <Compile Include="..\..\..\ReignServer\shared\Reign.Shared.Source\Core\ReignKingdomEventCore.cs" Link="Shared\ReignKingdomEventCore.cs" />
+    <Compile Include="..\..\..\ReignBeta\src\Modules\WorldSimulation\Economy\ReignWarEconomyLedger.cs" Link="Shared\ReignWarEconomyLedger.cs" />
+    <Compile Include="..\..\..\ReignServer\src\Modules\Platform\NativeProviderTestGuard.cs" Link="Shared\NativeProviderTestGuard.cs" />
+    <Compile Include="..\..\..\ReignBeta\src\Modules\Dialogue\Runtime\ReignPartyChatContinuation.cs" Link="Shared\ReignPartyChatContinuation.cs" />
     <Compile Include="..\..\..\ReignBeta\src\Modules\Platform\Integration\ReignPartyChatSessionRequest.cs"
              Link="Shared\ReignPartyChatSessionRequest.cs" />
     <Compile Include="..\..\..\ReignBeta\src\Modules\Dialogue\Runtime\ReignConversationInputJournal.cs"
@@ -62,6 +72,8 @@
              Link="Shared\GovernmentVoteEvidence.cs" />
     <Compile Include="..\..\..\ReignBeta\src\Modules\Government\Domain\GovernmentPoliticalRefreshCycle.cs"
              Link="Shared\GovernmentPoliticalRefreshCycle.cs" />
+    <Compile Include="..\..\..\ReignBeta\src\Modules\Reputation\Domain\ReignRulerSampleIndex.cs"
+             Link="Shared\ReignRulerSampleIndex.cs" />
     <Compile Include="..\..\..\ReignBeta\src\Modules\WorldSimulation\PartyAgency\ReignGuestWagePolicy.cs"
              Link="Shared\ReignGuestWagePolicy.cs" />
     <Compile Include="..\..\..\ReignBeta\src\Modules\WorldSimulation\Actions\ReignCompletedOrderPolicy.cs"

@@ -36,6 +36,8 @@ namespace ReignBeta.Campaign
         }
         private static double LifeNumber(ActionClause c, string key, double fallback) => double.TryParse(ReignActionService.Arg(c, key),
             NumberStyles.Float, CultureInfo.InvariantCulture, out var number) ? number : fallback;
+        internal static bool MeetingFeatureAllows(bool enabled, ActionAgreement agreement)
+            => enabled || agreement != null && agreement.HasBothConsents;
         internal void BindMeetingArrival(ActionAgreement agreement)
         {
             if (agreement == null || agreement.PlayerAcceptedHash.Length > 0 || agreement.NpcAcceptedHash.Length > 0) return;
@@ -80,6 +82,10 @@ namespace ReignBeta.Campaign
             if (MeetingControl(c.ActionId)) { CheckMeetingControl(a, c, errors); return errors; }
             if (c.ActionId == "npc_life.summon_meeting")
             {
+                // Hide the builder and reject unsigned/stale proposals consistently.
+                // A settings change must still honor previously accepted exact terms.
+                if (!MeetingFeatureAllows(ReignServerClient.NpcLivesOptions.Allows("meeting"), a))
+                    errors.Add("New summoned meetings are disabled.");
                 Hero issuer = ReignActionService.HeroById(c.ActorId), target = ReignActionService.HeroById(ReignActionService.Arg(c, "targetHeroId"));
                 Settlement destination = Settlement.Find(ReignActionService.Arg(c, "destinationId"));
                 foreach (string problem in new[] { MeetingParticipantProblem(issuer, "The issuer"), MeetingParticipantProblem(target, "The summoned person") })
@@ -117,6 +123,8 @@ namespace ReignBeta.Campaign
                 {
                     var leave = State.Leaves.FirstOrDefault(l => l.Id == id && l.HeroId == c.ActorId && l.Status == "discussing");
                     if (leave == null || leave.Revision != revision) errors.Add("The personal-leave offer has changed.");
+                    if (leave != null && !SafePlace(ReignActionService.HeroById(c.ActorId), Settlement.Find(leave.DestinationId)))
+                        errors.Add("The personal-leave destination is currently unsafe for this NPC. The visit cannot be agreed until it is safe.");
                     double wait = LifeNumber(c, "waitDays", double.NaN), away = LifeNumber(c, "awayDays", double.NaN);
                     if (!NpcLivesPolicy.Finite(wait) || wait < 0 || wait > 31.5 || !NpcLivesPolicy.Finite(away) || away < .25 || away > 31.5)
                         errors.Add("Choose separate finite terms for the wait and time away.");

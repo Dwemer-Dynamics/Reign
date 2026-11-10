@@ -200,6 +200,22 @@
       "liveAction": "ui-open --target action-builder",
       "previewStates": [
         {
+          "id": "action-builder-marriage-offer",
+          "label": "Arranged marriage offer",
+          "variant": "action-builder-marriage-offer",
+          "entry": "Correspondence > Alt+A",
+          "liveAction": "previewer preset only",
+          "previewOnly": true
+        },
+        {
+          "id": "action-builder-wedding-towns",
+          "label": "Prospect meeting town picker",
+          "variant": "action-builder-wedding-towns",
+          "entry": "Correspondence > Alt+A > Request a meeting",
+          "liveAction": "previewer preset only",
+          "previewOnly": true
+        },
+        {
           "id": "action-builder-selection",
           "label": "Action selector",
           "variant": "action-builder-selection",
@@ -358,6 +374,14 @@
           "entry": "Court > Royal Docket > History",
           "liveAction": "previewer preset only",
           "previewOnly": true
+        },
+        {
+          "id": "court-military-standing",
+          "label": "Military Standing",
+          "variant": "court-military-standing",
+          "entry": "Court > Royal Docket > Kingdom Military Standing",
+          "liveAction": "previewer preset only",
+          "previewOnly": true
         }
       ]
     },
@@ -435,6 +459,41 @@
           "entry": "Castle Layout > occupied room",
           "liveAction": "previewer preset only",
           "previewOnly": true
+        },
+        {
+          "id": "castle-chat-view-pending",
+          "label": "View pending",
+          "variant": "view-pending",
+          "previewOnly": true,
+          "nativeInjection": false
+        },
+        {
+          "id": "castle-chat-view-ready",
+          "label": "View ready",
+          "variant": "view-ready",
+          "previewOnly": true,
+          "nativeInjection": false
+        },
+        {
+          "id": "castle-chat-view-enlarged",
+          "label": "View enlarged",
+          "variant": "view-enlarged",
+          "previewOnly": true,
+          "nativeInjection": false
+        },
+        {
+          "id": "castle-chat-view-failed",
+          "label": "View failed",
+          "variant": "view-failed",
+          "previewOnly": true,
+          "nativeInjection": false
+        },
+        {
+          "id": "castle-chat-view-long",
+          "label": "View long",
+          "variant": "view-long",
+          "previewOnly": true,
+          "nativeInjection": false
         }
       ]
     },
@@ -851,7 +910,49 @@
       "manager": "ReignWarCouncilScreenManager",
       "viewModel": "ReignWarCouncilScreenVM",
       "entry": "Court > War Council",
-      "liveAction": "ui-open --target war-council"
+      "liveAction": "ui-open --target war-council",
+      "previewStates": [
+        {
+          "id": "war-council-peace-40",
+          "label": "Peace40%",
+          "variant": "war-council-peace-40",
+          "entry": "Court > War Council > Military Standing",
+          "liveAction": "previewer preset only",
+          "previewOnly": true
+        },
+        {
+          "id": "war-council-peace-90",
+          "label": "Peace90%",
+          "variant": "war-council-peace-90",
+          "entry": "Court > War Council > Military Standing",
+          "liveAction": "previewer preset only",
+          "previewOnly": true
+        },
+        {
+          "id": "war-council-peace-dropdown",
+          "label": "Peace force dropdown",
+          "variant": "war-council-peace-dropdown",
+          "entry": "Court > War Council > Military Standing",
+          "liveAction": "previewer preset only",
+          "previewOnly": true
+        },
+        {
+          "id": "war-council-standing-readonly",
+          "label": "Standing read only",
+          "variant": "war-council-standing-readonly",
+          "entry": "Court > War Council > Military Standing",
+          "liveAction": "previewer preset only",
+          "previewOnly": true
+        },
+        {
+          "id": "war-council-no-realm",
+          "label": "No kingdom standing",
+          "variant": "war-council-no-realm",
+          "entry": "War Council > Independent clan",
+          "liveAction": "previewer preset only",
+          "previewOnly": true
+        }
+      ]
     },
     {
       "id": "correspondence",
@@ -860,7 +961,17 @@
       "manager": "ReignCorrespondenceScreenManager",
       "viewModel": "ReignCorrespondenceScreenVM",
       "entry": "Court matter/contact > Correspond",
-      "liveAction": "ui-open --target correspondence"
+      "liveAction": "ui-open --target correspondence",
+      "previewStates": [
+        {
+          "id": "correspondence-marriage-letter",
+          "label": "Arranged marriage letter",
+          "variant": "marriage-letter",
+          "entry": "Correspondence > Clan leader",
+          "liveAction": "previewer preset only",
+          "previewOnly": true
+        }
+      ]
     },
     {
       "id": "individual-chat",
@@ -992,6 +1103,41 @@
           "nativeInjection": false,
           "liveAction": "previewer preset only",
           "entry": "Conversation > New clothes"
+        },
+        {
+          "id": "individual-chat-view-pending",
+          "label": "View pending",
+          "variant": "view-pending",
+          "previewOnly": true,
+          "nativeInjection": false
+        },
+        {
+          "id": "individual-chat-view-ready",
+          "label": "View ready",
+          "variant": "view-ready",
+          "previewOnly": true,
+          "nativeInjection": false
+        },
+        {
+          "id": "individual-chat-view-enlarged",
+          "label": "View enlarged",
+          "variant": "view-enlarged",
+          "previewOnly": true,
+          "nativeInjection": false
+        },
+        {
+          "id": "individual-chat-view-failed",
+          "label": "View failed",
+          "variant": "view-failed",
+          "previewOnly": true,
+          "nativeInjection": false
+        },
+        {
+          "id": "individual-chat-view-long",
+          "label": "View long",
+          "variant": "view-long",
+          "previewOnly": true,
+          "nativeInjection": false
         }
       ]
     },
@@ -1125,7 +1271,7 @@
         },
         {
           "id": "settlement-homes-empty",
-          "label": "Homes — No known residents",
+          "label": "Homes \u2014 No known residents",
           "variant": "homes-empty",
           "entry": "Settlement without met residents",
           "liveAction": "settlement Homes native acceptance",
@@ -1146,6 +1292,65 @@
           "entry": "Campaign party-chat action",
           "liveAction": "previewer preset only",
           "previewOnly": true
+        },
+        {
+          "id": "party-chat-view-pending",
+          "label": "View pending",
+          "variant": "view-pending",
+          "previewOnly": true,
+          "nativeInjection": false
+        },
+        {
+          "id": "party-chat-view-ready",
+          "label": "View ready",
+          "variant": "view-ready",
+          "previewOnly": true,
+          "nativeInjection": false
+        },
+        {
+          "id": "party-chat-view-enlarged",
+          "label": "View enlarged",
+          "variant": "view-enlarged",
+          "previewOnly": true,
+          "nativeInjection": false
+        },
+        {
+          "id": "party-chat-view-failed",
+          "label": "View failed",
+          "variant": "view-failed",
+          "previewOnly": true,
+          "nativeInjection": false
+        },
+        {
+          "id": "party-chat-view-long",
+          "label": "View long",
+          "variant": "view-long",
+          "previewOnly": true,
+          "nativeInjection": false
+        },
+        {
+          "id": "party-chat-continue-available",
+          "label": "Continue available",
+          "variant": "continue-available",
+          "entry": "Party chat > Continue",
+          "liveAction": "previewer preset only; native save/reload acceptance required",
+          "previewOnly": true
+        },
+        {
+          "id": "party-chat-continue-unavailable",
+          "label": "Continue unavailable",
+          "variant": "continue-unavailable",
+          "entry": "Party chat > Continue",
+          "liveAction": "previewer preset only; native save/reload acceptance required",
+          "previewOnly": true
+        },
+        {
+          "id": "party-chat-continue-restored",
+          "label": "Continued party chat",
+          "variant": "continue-restored",
+          "entry": "Party chat > Continue",
+          "liveAction": "previewer preset only; native save/reload acceptance required",
+          "previewOnly": true
         }
       ]
     },
@@ -1159,6 +1364,14 @@
       "liveAction": "ui-open --target social-event",
       "variant": "social",
       "previewStates": [
+        {
+          "id": "social-event-wedding-vows",
+          "label": "Wedding vows and farewell",
+          "variant": "wedding-vows",
+          "entry": "Town > Attend the wedding ceremony",
+          "liveAction": "previewer preset only",
+          "previewOnly": true
+        },
         {
           "id": "social-event-intoxication-actions",
           "label": "social-event Actions",

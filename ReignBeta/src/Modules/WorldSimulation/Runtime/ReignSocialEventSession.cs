@@ -24,6 +24,8 @@ namespace ReignBeta.Runtime
         {
             Record = record;
             Template = SocialEventTemplateCatalog.GetById(record.TemplateId);
+            if (!string.IsNullOrEmpty(record.WeddingId))
+                CurrentPhaseIndex = ReignBeta.Campaign.ReignRelationshipCampaignBehavior.Instance?.Wedding(record.WeddingId)?.Phase ?? 0;
 
             if (record.IsGeneratedWildernessEvent)
             {
@@ -101,6 +103,11 @@ namespace ReignBeta.Runtime
             }
 
             CurrentPhaseIndex++;
+            if (!string.IsNullOrEmpty(Record.WeddingId))
+            {
+                var wedding = ReignBeta.Campaign.ReignRelationshipCampaignBehavior.Instance?.Wedding(Record.WeddingId);
+                if (wedding != null) wedding.Phase = CurrentPhaseIndex;
+            }
             _currentPhaseTranscriptStartIndex = _transcriptLines.Count;
             PhaseExchangeCount = 0;
             _approachedHeroStringIds.Clear();
@@ -219,6 +226,9 @@ namespace ReignBeta.Runtime
                 + "\nHost: " + (Record.GetHost()?.Name?.ToString() ?? "unknown")
                 + "\nAttendees: " + string.Join(", ", Record.GetAttendees().Select(x => x.Name?.ToString()).Where(x => !string.IsNullOrWhiteSpace(x)));
 
+            if (Record.WeddingId.Length != 0)
+                context += "\nThis is a pending marriage ceremony. The couple is still unmarried. "
+                    + Record.WeddingCustoms;
             if (Record.IsGeneratedWildernessEvent)
             {
                 context += "\nGenerated wilderness terrain: " + (Record.GeneratedTerrainKey ?? "")

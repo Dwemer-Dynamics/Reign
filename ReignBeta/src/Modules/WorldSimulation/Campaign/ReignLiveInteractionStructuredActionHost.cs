@@ -95,6 +95,14 @@ namespace ReignBeta.Campaign
                                 throw new InvalidOperationException("Player settlement encounter setup requires a verified retained recovery checkpoint.");
                             result = ApplyStructuredPlayerSettlementEncounterFixture(c, id);
                         }
+                        else if (c.Value<string>("actionId") == "fixture.arranged_wedding")
+                        {
+                            if (enrollment.Value<bool?>("recoveryCheckpointVerified") != true
+                                || ReignSaveSyncCoordinator.IsAlignmentPending || ReignSaveSyncCampaignBehavior.IsNativeSaveInProgress)
+                                throw new InvalidOperationException("Wedding fixtures require a retained checkpoint and an aligned idle native save.");
+                            result = (ReignRelationshipCampaignBehavior.Instance ?? throw new InvalidOperationException("Wedding coordinator unavailable."))
+                                .ExerciseWeddingFixture(c["arguments"] as JObject, id);
+                        }
                         else if (c.Value<string>("actionId") == "fixture.ruler_setup")
                         {
                             if (enrollment.Value<bool?>("recoveryCheckpointVerified") != true) throw new InvalidOperationException("Ruler setup requires a verified recovery checkpoint.");
@@ -131,7 +139,8 @@ namespace ReignBeta.Campaign
                             a.Id = id; a.Origin = ActionOrigin.Console; a.State = AgreementState.Draft;
                             a.PlayerAcceptedHash = ""; a.NpcAcceptedHash = "";
                             result = phase == "run" ? JObject.FromObject(ReignActionService.RunOperator(a))
-                                : new JObject { ["errors"] = JArray.FromObject(ReignActionService.Preview(a)), ["termsHash"] = a.TermsHash() };
+                                : new JObject { ["errors"] = JArray.FromObject(ReignActionService.Preview(a)),
+                                    ["termsHash"] = a.TermsHash(), ["agreement"] = JObject.FromObject(a) };
                         }
                         else throw new InvalidOperationException("Choose native or agreement.");
                         break;

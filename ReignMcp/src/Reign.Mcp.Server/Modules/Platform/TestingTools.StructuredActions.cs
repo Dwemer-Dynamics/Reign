@@ -12,7 +12,7 @@ public static class StructuredActionTools
 
     [McpServerTool(Name = "reign_test_structured_actions", ReadOnly = false,
         Destructive = true, Idempotent = false, UseStructuredContent = true)]
-    [Description("Runs 1–8 bounded structured action catalog/entity, preview, operator-run, fixed ship-damage, siege-setup, player-settlement-encounter, ruler, government-player-flow or accepted-guide-player-step fixture, or status cases on the exact paused, armed, verified campaign-test Current. Stable IDs prevent replay; bounded native observations include combat, orders and treaties. Siege, player encounter, ruler, government and guide fixtures require a retained recovery checkpoint. Government fixtures visit the actual safe friendly capital or open the real unsent builder in an already-open ordinary member chat. Guide steps only catch the on-foot player up to the exact live mutually accepted ordinary-chat guide, at most twenty metres; no coordinates, NPC movement, destination change or completion. No provider, time advance or save. Fixture preparation and execution are not semantic proof or NPC consent.")]
+    [Description("Runs 1–8 bounded structured action catalog/entity, preview, operator-run, fixed ship-damage, siege-setup, player-settlement-encounter, ruler, government-player-flow, arranged-wedding or accepted-guide-player-step fixture, or status cases on the exact paused, armed, verified campaign-test Current. Stable IDs prevent replay; bounded native observations include combat, orders and treaties. Siege, player encounter, ruler, government and guide fixtures require a retained recovery checkpoint. Wedding fixtures observe native state or stage one exact eligible pair through the ordinary offer evaluator. Government fixtures visit the actual safe friendly capital or open the real unsent builder in an already-open ordinary member chat. Guide steps only catch the on-foot player up to the exact live mutually accepted ordinary-chat guide, at most twenty metres; no coordinates, NPC movement, destination change or completion. No provider, time advance or save. Fixture preparation and execution are not semantic proof or NPC consent.")]
     public static async Task<IReadOnlyDictionary<string, object?>> TestStructuredActions(
         ReignApiClient api, ReignMcpOptions options, CampaignTestService campaignTests,
         string campaignId, string campaignTestRunId, string batchId, string casesJson,
@@ -83,6 +83,7 @@ public static class StructuredActionTools
                     else if (Text("actionId") == "fixture.siege_setup") ValidateSiegeFixtureArguments(fixtureArgs);
                     else if (Text("actionId") == "fixture.player_settlement_encounter") ValidatePlayerEncounterFixtureArguments(fixtureArgs);
                     else if (Text("actionId") == "fixture.ruler_setup") ValidateRulerFixtureArguments(fixtureArgs);
+                    else if (Text("actionId") == "fixture.arranged_wedding") ValidateWeddingFixtureArguments(fixtureArgs);
                     else if (Text("actionId") == "fixture.follow_accepted_guide_step") ValidateAcceptedGuideStepArguments(fixtureArgs);
                     else if (Text("actionId") is "fixture.government_capital_visit" or "fixture.government_action_composer")
                         ValidateGovernmentFixtureArguments(Text("actionId"), fixtureArgs);
@@ -132,7 +133,28 @@ public static class StructuredActionTools
         testCase.TryGetProperty("phase", out var phase) && phase.ValueKind == JsonValueKind.String && phase.GetString() == "fixture"
         && testCase.TryGetProperty("actionId", out var id) && id.ValueKind == JsonValueKind.String
         && id.GetString() is "fixture.siege_setup" or "fixture.player_settlement_encounter" or "fixture.ruler_setup"
-            or "fixture.government_capital_visit" or "fixture.government_action_composer" or "fixture.follow_accepted_guide_step";
+            or "fixture.government_capital_visit" or "fixture.government_action_composer" or "fixture.follow_accepted_guide_step"
+            or "fixture.arranged_wedding";
+
+    private static void ValidateWeddingFixtureArguments(JsonElement args)
+    {
+        if (args.ValueKind != JsonValueKind.Object || !args.TryGetProperty("profile", out var value) || value.ValueKind != JsonValueKind.String)
+            throw new ArgumentException("The wedding fixture requires a profile.");
+        string profile = value.GetString()!;
+        string[] fields = profile switch
+        {
+            "discover" or "observe" => ["profile"],
+            "stage" => ["profile", "playerMatchId", "prospectId", "leaderId"],
+            _ => throw new ArgumentException("Choose discover, stage, or observe.")
+        };
+        var seen = new HashSet<string>(StringComparer.Ordinal);
+        foreach (var field in args.EnumerateObject())
+            if (!fields.Contains(field.Name) || !seen.Add(field.Name) || field.Value.ValueKind != JsonValueKind.String
+                || string.IsNullOrWhiteSpace(field.Value.GetString()) || field.Value.GetString()!.Length > 128)
+                throw new ArgumentException("The wedding fixture accepts only its exact profile and hero identifiers.");
+        if (seen.Count != fields.Length)
+            throw new ArgumentException("The wedding fixture is missing an exact hero identifier.");
+    }
 
     private static void ValidateAcceptedGuideStepArguments(JsonElement args)
     {

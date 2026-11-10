@@ -1,0 +1,13 @@
+{
+  "version": 1,
+  "heroStringId": "reign_court_castle_N6_child_3",
+  "characterName": "Oddrik Dalskeld",
+  "imagePath": "portrait.png",
+  "imageSha256": "C1A5D5AE4990BA76D563583BE56DA6D60CCBA116B35AA849EE648C3F0BE12BDC",
+  "description": "Olive-brown wool knee-length tunic with narrow rust and cream geometric trim, cream linen undertunic, leather belt, brown trousers and simple lace-up leather boots with cloth leg wraps.",
+  "status": "completed",
+  "descriptionSource": "agent_vision",
+  "retryEligible": false,
+  "error": "",
+  "updatedUtc": "2026-11-07T03:30:09.679772+00:00"
+}
