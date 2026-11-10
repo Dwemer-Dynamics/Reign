@@ -8,7 +8,6 @@ using TaleWorlds.CampaignSystem;
 using TaleWorlds.CampaignSystem.Actions;
 using TaleWorlds.CampaignSystem.CharacterDevelopment;
 using TaleWorlds.CampaignSystem.ComponentInterfaces;
-using SandBox.Missions.MissionLogics;
 using TaleWorlds.Core;
 using TaleWorlds.Library;
 using TaleWorlds.MountAndBlade;
@@ -37,6 +36,7 @@ namespace ReignBeta.Campaign
 
         internal static void EnableCombatExperience(Mission mission, ReignDuelIntent intent)
         {
+            ReignDuelCombatPatches.Apply();
             var behavior = mission.GetMissionBehavior<ReignDuelMissionBehavior>();
             if (behavior == null)
             {
@@ -46,32 +46,46 @@ namespace ReignBeta.Campaign
             behavior._experienceIntent = intent;
         }
 
+        internal bool HasActiveCombatDuel => _experienceIntent != null
+            && ReignDuelService.IsActiveDuel(_experienceIntent.ActionId);
+
+        internal bool OwnsCombatHit(Agent target, Agent affector)
+        {
+            Agent attacker = affector?.IsMount == true ? affector.RiderAgent : affector;
+            return HasActiveCombatDuel
+                && target?.Mission == Mission && attacker?.Mission == Mission
+                && (attacker?.Character as CharacterObject)?.HeroObject != null
+                && (target?.Character as CharacterObject)?.HeroObject != null
+                && ReignDuelModePolicy.IsExperiencePair(CharacterObject.PlayerCharacter?.HeroObject?.StringId,
+                    _experienceIntent.OpponentHeroStringId, ((CharacterObject)attacker.Character).HeroObject.StringId,
+                    ((CharacterObject)target.Character).HeroObject.StringId);
+        }
+
         public override void OnScoreHit(Agent affectedAgent, Agent affectorAgent, WeaponComponentData attackerWeapon,
             bool isBlocked, bool isSiegeEngineHit, in Blow blow, in AttackCollisionData collisionData,
             float damagedHp, float hitDistance, float shotDifficulty)
         {
-            // Arena/custom duels have no native combat XP listener. Battle scenes already
-            // award full XP through BattleAgentLogic, so leave those hits to that listener.
-            if (_experienceIntent == null || !ReignDuelService.IsActiveDuel(_experienceIntent.ActionId)
-                || Mission.GetMissionBehavior<BattleAgentLogic>() != null || isBlocked || blow.InflictedDamage <= 0)
-                return;
+            if (!OwnsCombatHit(affectedAgent, affectorAgent)) return;
 
             Agent attacker = affectorAgent?.IsMount == true ? affectorAgent.RiderAgent : affectorAgent;
             var attackingCharacter = attacker?.Character as CharacterObject;
             var targetCharacter = affectedAgent?.Character as CharacterObject;
-            if (attackingCharacter?.HeroObject == null || targetCharacter?.HeroObject == null
-                || !ReignDuelModePolicy.IsExperiencePair(Hero.MainHero?.StringId, _experienceIntent.OpponentHeroStringId,
-                    attackingCharacter.StringId, targetCharacter.StringId)) return;
-
-            float damage = Math.Min(blow.InflictedDamage, affectedAgent.HealthLimit);
+            float movementSpeedDamageModifier = blow.MovementSpeedDamageModifier;
+            float normalDamage = isBlocked
+                ? ReignDuelCombatPatches.BlockedReferenceDamage(attacker, affectedAgent, in collisionData,
+                    out movementSpeedDamageModifier)
+                : blow.InflictedDamage;
+            float damage = Math.Min(normalDamage, affectedAgent.HealthLimit);
             if (damage <= 0 || affectedAgent.HealthLimit <= 0) return;
-            // Use native weapon, Athletics/Riding, perks and hero learning rates, with
-            // the Battle (1.0) multiplier even for private nonlethal companion practice.
+            // The native blow retains normal damage for XP; actual health damage is
+            // reduced separately. Scale final weapon/Athletics/Riding awards once,
+            // before native focus/learning factors, including fractional XP.
+            using (new ReignDuelCombatPatches.ExperienceScope(attackingCharacter.HeroObject, isBlocked))
             SkillLevelingManager.OnCombatHit(attackingCharacter, targetCharacter, null, null,
-                blow.MovementSpeedDamageModifier, shotDifficulty, attackerWeapon,
+                movementSpeedDamageModifier, shotDifficulty, attackerWeapon,
                 0.5f * damage / affectedAgent.HealthLimit, CombatXpModel.MissionTypeEnum.Battle,
-                attacker.MountAgent != null, false, false, damage, affectedAgent.Health < 1f,
-                isSiegeEngineHit, affectorAgent?.IsMount == true, collisionData.IsSneakAttack);
+                attacker.MountAgent != null, false, false, damage, !isBlocked && affectedAgent.Health < 1f,
+                isSiegeEngineHit, affectorAgent?.IsMount == true, !isBlocked && collisionData.IsSneakAttack);
         }
 
         public static bool TryStartFromCurrentMission(string source)

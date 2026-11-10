@@ -158,7 +158,46 @@ namespace ReignBeta.Campaign
                 false,
                 4);
 
+            starter.AddGameMenuOption("town", "reign_attend_wedding", "{=!}Attend the wedding ceremony",
+                args => { args.optionLeaveType = GameMenuOption.LeaveType.Submenu; return WeddingHere() != null; },
+                args => OpenWeddingHere(), false, 4);
+            starter.AddGameMenuOption("town", "reign_choose_wedding", "{=!}Choose wedding plans",
+                args => { args.optionLeaveType = GameMenuOption.LeaveType.Submenu; return ReignRelationshipCampaignBehavior.Instance?.HasWeddingChoice == true; },
+                args => ReignRelationshipCampaignBehavior.Instance?.ShowWeddingChoice(), false, 4);
             // Loaded-session repair is owned by the readiness coordinator.
+        }
+
+        private static ReignWedding WeddingHere() => ReignRelationshipCampaignBehavior.Instance?.AvailableWedding(
+            Settlement.CurrentSettlement ?? MobileParty.MainParty?.CurrentSettlement);
+
+        private void OpenWeddingHere()
+        {
+            var wedding = WeddingHere();
+            if (wedding == null) return;
+            var venue = Settlement.Find(wedding.VenueId);
+            var clans = new[] { wedding.FirstClanId, wedding.SecondClanId }
+                .Select(id => Clan.All.FirstOrDefault(c => c.StringId == id)).Where(c => c != null).ToList();
+            var receiving = clans.FirstOrDefault(c => c.StringId == wedding.ReceivingClanId);
+            var template = SocialEventTemplateCatalog.WeddingForCulture(receiving?.Culture?.StringId ?? venue?.Culture?.StringId);
+            var visiting = clans.FirstOrDefault(c => c != receiving);
+            var visitingCustoms = SocialEventTemplateCatalog.WeddingForCulture(visiting?.Culture?.StringId);
+            string mixedCustoms = visiting == null || visitingCustoms.TemplateId == template.TemplateId ? ""
+                : "The visiting " + visiting.Name + " kin observe their own custom as well. " + visitingCustoms.Phases[1].SettingSummary;
+            var guests = wedding.Guests.Select(id => Hero.AllAliveHeroes.FirstOrDefault(h => h.StringId == id))
+                .Where(h => h != null && !h.IsChild && !h.IsPrisoner && h.CurrentSettlement == venue).ToList();
+            var record = new SocialEventRecord
+            {
+                WeddingId = wedding.Id, WeddingCustoms = mixedCustoms, WeddingRosterCount = wedding.Guests.Count,
+                EventId = "wedding_" + wedding.Id, TemplateId = template.TemplateId,
+                DisplayName = template.DisplayName, SettlementStringId = wedding.VenueId,
+                HostHeroStringId = wedding.LeaderId, AttendeeHeroStringIds = guests.Select(h => h.StringId).ToList(),
+                Status = SocialEventStatus.Attended
+            };
+            wedding.Attended = true;
+            var session = new ReignSocialEventSession(record);
+            foreach (var spouse in guests.Where(h => h.StringId == wedding.FirstId || h.StringId == wedding.SecondId))
+                session.ActivateHero(spouse, true);
+            ReignSocialEventScreenManager.Open(session, null);
         }
 
         internal void PrepareInitialState()

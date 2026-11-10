@@ -1,0 +1,13 @@
+{
+  "version": 1,
+  "heroStringId": "reign_court_castle_N8_child_1",
+  "characterName": "Haraldin Skeldring",
+  "imagePath": "portrait.png",
+  "imageSha256": "BE6EC0A56C10B4DBDE8AA8EADFB1B333606D3D8E2F2113325B2114BFF71ED0B7",
+  "description": "A muted dark indigo-blue knee-length wool tunic over an undyed pale linen long-sleeved shirt, narrow pale geometric tablet-woven borders at neck and cuffs, a plain charcoal wool shoulder cloak fastened with one modest iron brooch, a sturdy brown leather belt with simple buckle, brown wool trousers, grey leg wraps and plain soft brown leather shoes. Everyday modestly prosperous early medieval Scandinavian civilian clothing, no fur, armor, weapons, headgear, crowns or heraldic symbols.",
+  "status": "completed",
+  "descriptionSource": "agent_vision",
+  "retryEligible": false,
+  "error": "",
+  "updatedUtc": "2026-11-07T03:17:08.328299+00:00"
+}

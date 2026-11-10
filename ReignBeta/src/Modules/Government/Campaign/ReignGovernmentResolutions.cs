@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -522,7 +522,9 @@ namespace ReignBeta.Government
             }
             else if (settlement?.Village != null)
             {
+                float beforeHearth = settlement.Village.Hearth;
                 settlement.Village.Hearth = MathF.Max(0f, settlement.Village.Hearth + reward.HearthOrSecurity);
+                ReignBeta.Economy.ReignWarEconomyTransactions.RecordHearthGrant("government_resolution", settlement.Village, beforeHearth);
             }
             ApplyRelation(kingdom.Leader, FindHero(record.SpeakerHeroStringId), reward.SpeakerRelation);
             state.Revision++;
@@ -552,7 +554,9 @@ namespace ReignBeta.Government
             }
             else if (settlement?.Village != null)
             {
+                float beforeHearth = settlement.Village.Hearth;
                 settlement.Village.Hearth = MathF.Max(0f, settlement.Village.Hearth + local);
+                ReignBeta.Economy.ReignWarEconomyTransactions.RecordHearthGrant("government_resolution", settlement.Village, beforeHearth);
             }
             ApplyRelation(kingdom.Leader, FindHero(record.SpeakerHeroStringId), relation);
             state.Revision++;
@@ -644,7 +648,11 @@ namespace ReignBeta.Government
                     settlement.Town.Loyalty = MBMath.ClampFloat(settlement.Town.Loyalty + 0.1f, 0f, 100f);
             }
             if (settlement?.Village != null && action == ReignGovernmentResolutionAction.WaiveObligationDays)
+            {
+                float beforeHearth = settlement.Village.Hearth;
                 settlement.Village.Hearth = MathF.Max(0f, settlement.Village.Hearth + 0.5f);
+                ReignBeta.Economy.ReignWarEconomyTransactions.RecordHearthGrant("government_resolution", settlement.Village, beforeHearth);
+            }
 
             record.CurrentValue += 1f;
             evidence["lastCommitmentResult"] = "honored";

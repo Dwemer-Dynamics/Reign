@@ -1,0 +1,13 @@
+{
+  "version": 1,
+  "heroStringId": "reign_court_castle_N9_child_3",
+  "characterName": "Vigdar Lindeskar",
+  "imagePath": "portrait.png",
+  "imageSha256": "4CE61A1BA64CE4F8B9BBAE4380BB6D7893C315338D87EB14550257057E6854D3",
+  "description": "A muted moss-green knee-length wool tunic with narrow brown-and-cream tablet-woven edge trim, a plain natural linen undershirt, a sturdy simple leather belt with a small bronze buckle, medium-brown wool trousers, oatmeal leg wraps and plain dark-brown leather shoes. Practical early medieval Scandinavian tier1 landowner clothing with modest quality woven fabric, no fur collar or martial shoulders. No headgear, armor, weapon, crowns, heraldry or decorated military belt.",
+  "status": "completed",
+  "descriptionSource": "agent_vision",
+  "retryEligible": false,
+  "error": "",
+  "updatedUtc": "2026-11-07T03:32:37.218118+00:00"
+}

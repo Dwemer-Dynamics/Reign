@@ -1,0 +1,13 @@
+{
+  "version": 1,
+  "heroStringId": "reign_court_castle_N3_child_4",
+  "characterName": "Alvheid Eikenvard",
+  "imagePath": "portrait.png",
+  "imageSha256": "6A647215A646BA5B5D9BFC2F9859C1EC4FE4CFDDF393A14F35F9E999956EF6D9",
+  "description": "A muted rust-red wool apron dress with restrained cream-and-red geometric woven borders and two modest round metal shoulder brooches over a cream linen shift with elbow-length sleeves and a moderately open neckline. A patterned woven belt has long tasselled ends; the ankle-length layered skirt leaves brown soft leather shoes visible. No headgear, armor or weapons.",
+  "status": "completed",
+  "descriptionSource": "agent_vision",
+  "retryEligible": false,
+  "error": "",
+  "updatedUtc": "2026-11-07T03:24:37.544421+00:00"
+}

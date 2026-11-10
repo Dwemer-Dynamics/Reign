@@ -29,7 +29,14 @@ namespace ReignBeta.Actions
                 bool player = c.ActorId == a.PlayerId;
                 string subject = ReignActionLanguage.Subject(player, i);
                 string political = ReignBeta.Government.ReignGovernmentCampaignBehavior.Instance?.GovernmentActionSentence(c, subject) ?? "";
-                if (political.Length > 0) c.DisplayText = political;
+                if (c.ActionId == "marriage.propose")
+                    c.DisplayText = "I propose that " + ReignActionService.HeroById(ReignActionService.Arg(c, "playerMatchId"))?.Name
+                        + " marry " + ReignActionService.HeroById(ReignActionService.Arg(c, "prospectId"))?.Name;
+                else if (c.ActionId == "marriage.appeal")
+                    c.DisplayText = "I ask " + ReignActionService.HeroById(c.RecipientId)?.Name + " to call off the wedding because " + ReignActionService.Arg(c, "reason");
+                else if (c.ActionId == "marriage.release_prisoner")
+                    c.DisplayText = subject + "release " + ReignActionService.HeroById(ReignActionService.Arg(c, "assetId"))?.Name;
+                else if (political.Length > 0) c.DisplayText = political;
                 else if (c.ActionId.StartsWith("npc_life.", StringComparison.Ordinal))
                     c.DisplayText = ReignBeta.Campaign.ReignNpcLivesBehavior.Instance.LifeActionSentence(a, c);
                 else if (c.ActionId == ReignSpouseSeparation.ActionId)

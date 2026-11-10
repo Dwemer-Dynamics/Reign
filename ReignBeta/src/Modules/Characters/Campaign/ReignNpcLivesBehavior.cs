@@ -49,7 +49,7 @@ namespace ReignBeta.Campaign
         {
             if (store.IsSaving) _chunks = ReignSavePayloadCodec.Encode(JsonConvert.SerializeObject(new {
                 version = 1, state = State, outbox = _outbox, nativeEffects = _nativeEffects, acceptedOperations = _acceptedOperations, failedOperations = _failedOperations,
-                shownUntil = _shownUntil, travel = _personalTravel, meetings = _meetingTravel, duties = _lifeDuties, encounters = _storyEncounters, bindings = _storyBindings,
+                shownUntil = _shownUntil, travel = _personalTravel, meetings = _meetingTravel, duties = _lifeDuties, weddingAttendance = _weddingAttendance, encounters = _storyEncounters, bindings = _storyBindings,
                 communicationHosts = _communicationHosts
             }));
             store.SyncData("ReignNpcLivesV1", ref _chunks);

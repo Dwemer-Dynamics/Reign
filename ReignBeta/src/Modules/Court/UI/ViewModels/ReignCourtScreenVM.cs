@@ -117,6 +117,18 @@ namespace ReignBeta.UI.ViewModels
         [DataSourceProperty] public string PlayerBannerArgs => _playerBannerArgs;
         [DataSourceProperty] public string PlayerBannerProvider => _playerBannerProvider;
         [DataSourceProperty] public string NextDocketText { get { return _nextDocketText; } set { if (_nextDocketText != value) { _nextDocketText = value; OnPropertyChangedWithValue(value); } } }
+        private float _courtWorkspaceTopInset = ReignCourtLayout.TopHudInset;
+        [DataSourceProperty]
+        public float CourtWorkspaceTopInset
+        {
+            get => _courtWorkspaceTopInset;
+            set
+            {
+                if (Math.Abs(_courtWorkspaceTopInset - value) < 0.001f) return;
+                _courtWorkspaceTopInset = value;
+                OnPropertyChangedWithValue(value);
+            }
+        }
         [DataSourceProperty] public bool UseLargeCourtLayout => _useLargeCourtLayout;
         [DataSourceProperty] public bool HasChancellor => _chancellorCard?.HasPortrait == true;
         [DataSourceProperty] public string ChancellorName => _court.Chancellor?.IsVacant == false ? _court.Chancellor.HeroName : "Office vacant";
@@ -551,6 +563,16 @@ namespace ReignBeta.UI.ViewModels
                     "Prosperity " + land.Prosperity.ToString("0") + "  " + land.FoodChange.ToString("+0.0;-0.0;0.0") + "/day", SelectCard, land));
 
             DailyAgenda.Clear();
+            if (_court.HasRoyalCommandAccess && Clan.PlayerClan?.Kingdom?.Leader == Hero.MainHero)
+            {
+                var standingKingdom = Clan.PlayerClan.Kingdom;
+                DailyAgenda.Add(new ReignCourtCardVM("military_standing", "military", "Kingdom Military Standing",
+                    "Peace standing keeps smaller field forces and releases a proportional share from each troop tier. "
+                        + "Hostile political pressure raises readiness on the relevant frontier. The sovereign's selected peace target remains in force during war.\n"
+                        + "Garrison targets remain full. Quartered regulars cost less in wages and supplies. A fixed share of discharged manpower returns to functioning villages.",
+                    ReignBeta.Economy.ReignMilitaryReadiness.EffectiveMode(standingKingdom).ToUpperInvariant() + " STANDING",
+                    "Review the kingdom's military readiness", SelectCard, standingKingdom, iconSprite: "reign_court_docket_military"));
+            }
             foreach (ReignCourtLifeMatter matter in _court.DocketCourtLifeMatters)
             {
                 Hero lead = FindHero(matter.Participants.FirstOrDefault()?.HeroId);
@@ -787,6 +809,13 @@ namespace ReignBeta.UI.ViewModels
                     break;
                 case "military":
                     Kingdom realm = Clan.PlayerClan?.Kingdom;
+                    if (realm != null)
+                        TabRows.Add(new ReignCourtCardVM("military_standing", tabId, "KINGDOM MILITARY STANDING",
+                            "Peace standing keeps smaller field retinues and raises frontier readiness as hostile political pressure grows. "
+                                + "War standing permits full field forces. The player sovereign may retain Peace Standing during war.\n"
+                                + "Garrison targets stay full in both standings. Quartered regulars receive lower wages and use fewer supplies through reduced spoilage and handling losses.",
+                            ReignBeta.Economy.ReignMilitaryReadiness.EffectiveMode(realm).ToUpperInvariant() + " STANDING",
+                            "Mobilization requires actual recruits, provisions and clan funding.", SelectCard, realm));
                     foreach (MobileParty party in MobileParty.AllLordParties.Where(x => x?.ActualClan?.Kingdom == realm).OrderByDescending(x => x.Party.EstimatedStrength))
                         TabRows.Add(new ReignCourtCardVM(party.StringId, tabId, party.Name.ToString(), "Commander " + (party.LeaderHero?.Name?.ToString() ?? "Vacant")
                             + "  •  Men " + party.MemberRoster.TotalManCount + "  •  Wounded " + party.MemberRoster.TotalWounded
@@ -804,6 +833,24 @@ namespace ReignBeta.UI.ViewModels
         {
             Actions.Clear();
             if (card == null) return;
+            if (card.TabId == "military" && card.Id == "military_standing" && card.Payload is Kingdom standingRealm)
+            {
+                bool sovereign = standingRealm.Leader == Hero.MainHero;
+                foreach (string mode in new[] { "peace", "war" })
+                    Actions.Add(new ReignCourtActionVM("ORDER " + mode.ToUpperInvariant() + " STANDING",
+                        mode == "war" ? "Permit full field recruitment before war. Every soldier still needs local manpower, food and funding."
+                            : "Restore the saved peace field target, including during war. Garrisons keep full targets.",
+                        sovereign, sovereign ? string.Empty : "Only the current sovereign may issue this order.", () => {
+                            if (Hero.MainHero?.Clan?.Kingdom != standingRealm || standingRealm.Leader != Hero.MainHero)
+                            { StatusText = "The kingdom or its sovereign changed; reopen military standing."; return; }
+                            ReignBeta.Economy.ReignMilitaryReadiness.Order(Hero.MainHero, mode, out string message);
+                            RefreshAll();
+                            var updated = TabRows.FirstOrDefault(x => x.Id == "military_standing");
+                            if (updated != null) SelectCard(updated);
+                            StatusText = message;
+                        }));
+                return;
+            }
             if (card.Payload is ReignDocketHistoryRecord docketHistory)
             {
                 ReignNobleDocketMatter noble = _court.DocketNobleMatters.FirstOrDefault(x =>

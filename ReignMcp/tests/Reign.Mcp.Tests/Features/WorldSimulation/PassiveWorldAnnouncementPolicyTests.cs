@@ -65,7 +65,7 @@ public sealed class PassiveWorldAnnouncementPolicyTests
         Assert.Contains("!holdForGovernmentNews && waitMenu?.IsWaitMenu == true", advance);
         Assert.Contains("!holdForGovernmentNews && waitMenu?.IsWaitMenu != true", advance);
         Assert.Contains("step[\"observeGovernmentNews\"] = _observeGovernmentNewsForPassiveWorldControl", controller);
-        Assert.Contains("finally { _observeGovernmentNewsForPassiveWorldControl = previous; }", controller);
+        Assert.Contains("_checkpointPeriodicPollToken = null; _checkpointPeriodicPollRuntime = null;\n                    _observeGovernmentNewsForPassiveWorldControl = previous;", controller.Replace("\r\n", "\n"));
         Assert.Contains("if (observeGovernmentNews) drainArgs.Add(\"--observe-government-news\")", mcp);
         Assert.Equal(false, typeof(CampaignTestTools).GetMethod("AdvanceCampaignTest")!
             .GetParameters().Single(p => p.Name == "observeGovernmentNews").DefaultValue);

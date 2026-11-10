@@ -10,6 +10,7 @@ using ReignBeta.World;
 using ReignBeta.Shared;
 using TaleWorlds.CampaignSystem;
 using TaleWorlds.Library;
+using TaleWorlds.ScreenSystem;
 
 namespace ReignBeta.UI.ViewModels
 {
@@ -77,15 +78,39 @@ namespace ReignBeta.UI.ViewModels
         [DataSourceProperty]
         public string BusyText
         {
-            get { return _busyText; }
-            set { if (value != _busyText) { _busyText = value; OnPropertyChangedWithValue(value); } }
+            get { return string.IsNullOrEmpty(_busyText) && CanOpenMarriageOffer ? "View marriage offer (or select the sender again)" : _busyText; }
+            set
+            {
+                if (value == _busyText) return;
+                _busyText = value;
+                OnPropertyChanged(nameof(BusyText));
+                OnPropertyChanged(nameof(CanOpenMarriageOffer));
+            }
+        }
+
+        [DataSourceProperty]
+        public bool CanOpenMarriageOffer => !_finalized && !ActionBusy
+            && ReignRelationshipCampaignBehavior.WeddingFeatureReady
+            && ReignRelationshipCampaignBehavior.Instance.OpenMarriageOffers(ActionParticipants).Any();
+
+        public void ExecuteOpenMarriageOffer()
+        {
+            if (CanOpenMarriageOffer && ReignActionBuilder.RequestOpenForHost(ScreenManager.TopScreen, this))
+                ReignLog.Info("Correspondence requested marriage offer actions.");
         }
 
         [DataSourceProperty]
         public bool IsBusy
         {
             get { return _isBusy; }
-            set { if (value != _isBusy) { _isBusy = value; OnPropertyChangedWithValue(value); } }
+            set
+            {
+                if (value == _isBusy) return;
+                _isBusy = value;
+                OnPropertyChangedWithValue(value);
+                OnPropertyChanged(nameof(BusyText));
+                OnPropertyChanged(nameof(CanOpenMarriageOffer));
+            }
         }
 
         [DataSourceProperty]
@@ -269,7 +294,12 @@ namespace ReignBeta.UI.ViewModels
 
         private void SelectContact(ReignCorrespondenceContactVM contact)
         {
-            if (_finalized || contact == null || contact == _selected) return;
+            if (_finalized || contact == null) return;
+            if (contact == _selected)
+            {
+                ExecuteOpenMarriageOffer();
+                return;
+            }
             foreach (ReignCorrespondenceContactVM row in Contacts) row.IsSelected = row == contact;
             _selected = contact;
             SelectedName = contact.Name;

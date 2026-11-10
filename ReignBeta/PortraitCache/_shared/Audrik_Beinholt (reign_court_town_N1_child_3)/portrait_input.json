@@ -1,0 +1,95 @@
+{
+  "version": 1,
+  "inputHash": "10b9376ce445e0d4c94da3046af70f7bb1e2abae2f17fb78b2683ac63f9ea4c4",
+  "catalogHash": "b6d4023f598cea7d6dbdaa9a43fd3d28c1128d529c54b453c04bee5d373de03c",
+  "renderContractHash": "cc3b941e7d47057de9b4220f1473336e6f908719812bb2653b83bd3545cfbd2f",
+  "cacheKey": "Audrik_Beinholt (reign_court_town_N1_child_3)",
+  "heroStringId": "reign_court_town_N1_child_3",
+  "characterObjectId": "reign_court_town_N1_child_3",
+  "characterName": "Audrik Beinholt",
+  "ageYears": 20,
+  "cultureId": "nord",
+  "cultureName": "Nord",
+  "gender": "man",
+  "clanId": "reign_house_town_N1",
+  "clanTier": 1,
+  "clanProvenance": "authored_nord_household_xml_and_foundation",
+  "socialStation": "landowner",
+  "occupation": "Lord",
+  "archetype": "lord",
+  "isLord": true,
+  "isNotable": false,
+  "isWanderer": false,
+  "isAlive": true,
+  "sourceModule": "ReignBeta",
+  "sourceFile": "Modules/ReignBeta/ModuleData/reign_court_lords.xml",
+  "profileSource": "reign_court",
+  "profilePackVersion": "reign_profiles_v4",
+  "bodyKey": "00056800DC000993979976676676966996678997776678769669766677869698037876660799678600000000000000000000000000000000000000001EF44001",
+  "bodyWeight": 0.5,
+  "bodyBuild": 0.5,
+  "faceTemplateId": "townsman_nord",
+  "faceGenerationVersion": "reign_court_shared_v1",
+  "civilianTemplate": "nord_civ_template_default",
+  "civilianEquipment": [
+    {
+      "slot": "Body",
+      "itemId": "heavy_gambeson_armor"
+    },
+    {
+      "slot": "Cape",
+      "itemId": "scarf"
+    },
+    {
+      "slot": "Leg",
+      "itemId": "leather_cavalier_boots"
+    },
+    {
+      "slot": "Gloves",
+      "itemId": "leather_gloves"
+    }
+  ],
+  "headgearSuppressed": true,
+  "physicalConfidence": {
+    "definition": "physical_confidence",
+    "score": 58,
+    "profile": "41-60",
+    "flirtatiousnessPercentage": 69,
+    "confidencePercentage": 24,
+    "flirtatiousnessWeight": 0.75,
+    "confidenceWeight": 0.25,
+    "source": "reign_profile_library"
+  },
+  "renderPreset": "ai_source_wan_portrait_v5",
+  "renderWidth": 1536,
+  "renderHeight": 2048,
+  "sourceWidth": 768,
+  "sourceHeight": 1024,
+  "cropScale": 0.24,
+  "cropWidthRatio": 0.75,
+  "cropCenterYRatio": 0.324,
+  "cameraPitchDegrees": 4,
+  "sourceSha256": "cc98c97da8677331e5f66b7a9386ead37d479177f8ee35296ba0e9bf9e6dbc99",
+  "sourceFileName": "source.png",
+  "generationEndpoint": "/portraits/generate",
+  "campaignIdSource": "shared_authored_new_campaign_content",
+  "promptDeferred": true,
+  "sourceImageBase64From": "source.png",
+  "outputSizeOverride": "",
+  "promptPurpose": "portrait",
+  "physique": {
+    "schema": "reign-native-physique-v1",
+    "weight": 0.5,
+    "build": 0.5,
+    "weightSource": "native_engine_resolved",
+    "buildSource": "native_engine_resolved",
+    "sourceSha256": "cc98c97da8677331e5f66b7a9386ead37d479177f8ee35296ba0e9bf9e6dbc99"
+  },
+  "nativeBatchProvenance": {
+    "batch": "nord-01a1b3c6-v1",
+    "requestVersion": 4,
+    "appearanceInputCount": 798,
+    "nativeStatusSha256": "ac559007c3e293468f1c723f13f5e41e84a0b5eb755f46af6999925e78ed0318",
+    "metadataAuthoring": "task batch adapter mirroring PortraitGenerationInputV1; inputHash hashes the exact version4 request; catalogHash hashes input-receipt file inventory"
+  }
+}

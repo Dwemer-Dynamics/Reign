@@ -1184,6 +1184,10 @@ namespace ReignBeta.Campaign
                 state["warCouncilPanelFrameImageAvailable"] = ReignWarCouncilScreenManager.AutomationPanelFrameImageAvailable;
                 state["warCouncilTallPanelFrameImageAvailable"] = ReignWarCouncilScreenManager.AutomationTallPanelFrameImageAvailable;
                 state["warCouncilMessengerVisible"] = ReignWarCouncilScreenManager.AutomationMessengerVisible;
+                state["warCouncilPeaceStanding"] = ReignWarCouncilScreenManager.AutomationPeaceStanding;
+                state["warCouncilStandingCanChange"] = ReignWarCouncilScreenManager.AutomationStandingCanChange;
+                state["warCouncilStandingDropdown"] = ReignWarCouncilScreenManager.AutomationStandingDropdown;
+                state["warCouncilPeaceForce"] = ReignWarCouncilScreenManager.AutomationPeaceForce;
                 state["warCouncilMessengerBusy"] = ReignWarCouncilScreenManager.AutomationMessengerBusy;
                 state["warCouncilMessengerRecipient"] = ReignWarCouncilScreenManager.AutomationMessengerRecipient;
                 state["warCouncilMessengerStatus"] = ReignWarCouncilScreenManager.AutomationMessengerStatus;

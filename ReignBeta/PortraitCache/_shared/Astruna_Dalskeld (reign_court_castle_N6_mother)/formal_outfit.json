@@ -1,0 +1,13 @@
+{
+  "version": 1,
+  "heroStringId": "reign_court_castle_N6_mother",
+  "characterName": "Astruna Dalskeld",
+  "imagePath": "portrait.png",
+  "imageSha256": "2E5844105AC748AE9730B5FCB1E912A937094B5BEF3F88EB7A198280B962A90D",
+  "description": "Warm-brown wool apron dress with restrained multicolor woven edging and two small round brooches, narrow woven belt, long pale linen shift with full sleeves and modest split neckline, and soft brown leather shoes. No headgear, armor or weapons.",
+  "status": "completed",
+  "descriptionSource": "agent_vision",
+  "retryEligible": false,
+  "error": "",
+  "updatedUtc": "2026-11-07T03:24:28.362390+00:00"
+}

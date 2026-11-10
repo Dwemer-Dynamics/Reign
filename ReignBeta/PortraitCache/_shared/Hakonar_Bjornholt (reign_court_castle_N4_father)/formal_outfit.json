@@ -1,0 +1,13 @@
+{
+  "version": 1,
+  "heroStringId": "reign_court_castle_N4_father",
+  "characterName": "Hakonar Bjornholt",
+  "imagePath": "portrait.png",
+  "imageSha256": "636EC0717A94A327CC60767AC493E79432E926B34FE8225C034FC553199522DA",
+  "description": "A dark blue long-sleeved knee-length wool tunic with pale-gold geometric woven trim at the split collar, cuffs and hem, over cream linen visible at the neck and wrists. A broad plain brown leather belt with a modest oval brass buckle, loose brown trousers, dark grey-brown lower-leg wraps bound with thin leather ties, and brown leather ankle shoes. No headgear, armor or weapons.",
+  "status": "completed",
+  "descriptionSource": "agent_vision",
+  "retryEligible": false,
+  "error": "",
+  "updatedUtc": "2026-11-07T03:24:37.649993+00:00"
+}

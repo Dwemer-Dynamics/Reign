@@ -1434,6 +1434,27 @@
       "evidence": []
     },
     {
+      "actionId": "marriage.appeal",
+      "surface": "agreement",
+      "source": "ReignServer/shared/Reign.Core.Contracts/Actions/ReignActionCatalog.cs",
+      "nativeStatus": "pending",
+      "evidence": []
+    },
+    {
+      "actionId": "marriage.propose",
+      "surface": "agreement",
+      "source": "ReignServer/shared/Reign.Core.Contracts/Actions/ReignActionCatalog.cs",
+      "nativeStatus": "pending",
+      "evidence": []
+    },
+    {
+      "actionId": "marriage.release_prisoner",
+      "surface": "agreement",
+      "source": "ReignServer/shared/Reign.Core.Contracts/Actions/ReignActionCatalog.cs",
+      "nativeStatus": "pending",
+      "evidence": []
+    },
+    {
       "actionId": "marriage_alliance",
       "surface": "agreement",
       "source": "ReignServer/shared/Reign.Core.Contracts/Actions/ReignActionCatalog.cs",

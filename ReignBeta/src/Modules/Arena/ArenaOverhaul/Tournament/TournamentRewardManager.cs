@@ -123,8 +123,12 @@ namespace ArenaOverhaul.Tournament
         }
 
         public static int GetTournamentGoldPrize(Town tournamentTown)
+            => GetTournamentGoldPrize(tournamentTown, Hero.MainHero);
+
+        private static int GetTournamentGoldPrize(Town tournamentTown, Hero winner)
         {
-            return (int) (Math.Floor((Settings.Instance!.EnableTournamentGoldPrizes ? MathHelper.GetSoftCappedValue(tournamentTown.Settlement.Town.Prosperity) + (Settings.Instance!.EnableTournamentPrizeScaling ? MathHelper.GetSoftCappedValue(Clan.PlayerClan.Renown) : 0.0) : 0.0) / 50.0) * 50.0);
+            // Player renown remains part of the advertised player prize, not every NPC's cash award.
+            return (int) (Math.Floor((Settings.Instance!.EnableTournamentGoldPrizes ? MathHelper.GetSoftCappedValue(tournamentTown.Settlement.Town.Prosperity) + (winner == Hero.MainHero && Settings.Instance!.EnableTournamentPrizeScaling ? MathHelper.GetSoftCappedValue(Clan.PlayerClan.Renown) : 0.0) : 0.0) / 50.0) * 50.0);
         }
 
         public static void ResolveTournament(CharacterObject winner, MBReadOnlyList<CharacterObject> participants, Town town)
@@ -133,7 +137,7 @@ namespace ArenaOverhaul.Tournament
             if (winner.IsHero)
             {
                 Hero winnerHero = winner.HeroObject;
-                int goldPrize = GetTournamentGoldPrize(town) + RoundPrizeWinners[town].FirstOrDefault(x => x.Participant == winnerHero).Winnings;
+                int goldPrize = GetTournamentGoldPrize(town, winnerHero) + RoundPrizeWinners[town].FirstOrDefault(x => x.Participant == winnerHero).Winnings;
                 if (goldPrize > 0)
                 {
                     GiveGoldAction.ApplyBetweenCharacters(null, winnerHero, goldPrize);

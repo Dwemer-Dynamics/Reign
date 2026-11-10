@@ -319,6 +319,90 @@ namespace ReignBeta.Actions
             }
         }
 
+        internal static void DeliverWeddingReversible(IReadOnlyList<ActionClause> clauses, Dictionary<string, JObject> captures,
+            Action marry, Func<bool> nativeChanged, Action<ActionClause, JObject> observe)
+        {
+            var reserved = new List<ActionClause>();
+            var delivered = new List<Tuple<ActionClause, JObject>>();
+            try
+            {
+                foreach (var clause in clauses)
+                {
+                    var capture = captures[clause.Id];
+                    var source = SourceState(clause, capture);
+                    capture["sourceBefore"] = source;
+                    Reserve(clause, capture);
+                    capture["sourceAfter"] = SourceState(clause, capture);
+                    reserved.Add(clause);
+                }
+                foreach (var clause in clauses)
+                {
+                    var capture = captures[clause.Id];
+                    var before = DeliveryState(clause, capture);
+                    delivered.Add(Tuple.Create(clause, before));
+                    Deliver(clause, capture);
+                    var after = DeliveryState(clause, capture);
+                    if (after.Value<int>("count") != before.Value<int>("count") + Quantity(clause))
+                        throw new InvalidOperationException("The agreed consideration did not reach the recipient.");
+                    observe(clause, new JObject { ["sourceBefore"] = capture["sourceBefore"], ["sourceAfter"] = capture["sourceAfter"],
+                        ["recipientBefore"] = before, ["recipientAfter"] = after, ["verified"] = true });
+                }
+                marry();
+            }
+            catch (Exception original) when (!nativeChanged())
+            {
+                try
+                {
+                    foreach (var row in delivered.AsEnumerable().Reverse())
+                        RestoreDeliveryState(row.Item1, row.Item2, captures[row.Item1.Id]);
+                    foreach (var clause in reserved.AsEnumerable().Reverse())
+                        Return(clause, captures[clause.Id], 0);
+                }
+                catch (Exception rollback)
+                {
+                    throw new AgreementRecoveryException("Wedding rollback needs recovery: " + rollback.Message,
+                        new JArray(reserved.Select(c => new JObject { ["clauseId"] = c.Id, ["custody"] = captures[c.Id] })).ToString(), original);
+                }
+                throw;
+            }
+        }
+
+        internal static void DeliverWeddingCustody(ActionClause clause, JObject capture, JObject receipt)
+        {
+            string kind = Kind(clause);
+            var before = DeliveryState(clause, capture);
+            var sourceBefore = SourceState(clause, capture);
+            receipt["recipientBefore"] = before;
+            receipt["sourceBefore"] = sourceBefore;
+            string expectedOwner = kind == "settlement" ? Receiver(clause).Clan.Leader.StringId : clause.RecipientId;
+            bool Verified()
+            {
+                var after = DeliveryState(clause, capture);
+                var sourceAfter = SourceState(clause, capture);
+                receipt["recipientAfter"] = after;
+                receipt["sourceAfter"] = sourceAfter;
+                bool transferred = kind == "settlement" || kind == "ship"
+                    ? after.Value<string>("owner") == expectedOwner
+                    : after.Value<int>("count") == before.Value<int>("count") + Quantity(clause)
+                        && sourceAfter.Value<int>("count") == sourceBefore.Value<int>("count") - Quantity(clause);
+                receipt["verified"] = transferred;
+                return transferred;
+            }
+            try
+            {
+                Reserve(clause, capture);
+                receipt["reserved"] = true;
+                Deliver(clause, capture);
+            }
+            catch (Exception ex)
+            {
+                receipt["callbackError"] = ex.Message;
+                if (!Verified()) throw;
+                return;
+            }
+            if (!Verified()) throw new InvalidOperationException("The wedding transfer did not reach the agreed custodian.");
+        }
+
         internal static void DeliverBatch(ActionAgreement agreement, IReadOnlyList<AgreementStep> steps)
         {
             var completed = new List<Tuple<ActionClause, JObject, JObject>>();

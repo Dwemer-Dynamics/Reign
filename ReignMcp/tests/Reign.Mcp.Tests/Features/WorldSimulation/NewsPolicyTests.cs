@@ -7,6 +7,24 @@ namespace Reign.Mcp.Tests.Features.WorldSimulation;
 public sealed class NewsPolicyTests
 {
     [Fact]
+    public void StandingNewsUsesNormalDiplomacyPreferenceAndRevisionDeduplicationAcrossReload()
+    {
+        var queue = new ReignNewsState();
+        var notice = Article("crier:military-standing:realm:2", ReignNewsCategories.Diplomacy);
+        notice.Headline = "The realm moves to War Standing";
+        notice.Body = "Field parties may mobilise using local recruits, supplies and clan funds.";
+        Assert.True(queue.Publish(notice, new ReignNewsOptions(), true));
+        var serializer = new JsonSerializerOptions { IncludeFields = true };
+        var saved = JsonSerializer.Deserialize<ReignNewsState>(JsonSerializer.Serialize(queue, serializer), serializer)!;
+        saved.NormalizeAfterLoad();
+        Assert.False(saved.Publish(notice, new ReignNewsOptions(), true));
+        Assert.Single(saved.Pending);
+        var peace = Article("crier:military-standing:realm:3", ReignNewsCategories.Diplomacy);
+        Assert.True(saved.Publish(peace, new ReignNewsOptions(k => k != ReignNewsCategories.Diplomacy), true));
+        Assert.Single(saved.Pending);
+        Assert.False(saved.Publish(peace, new ReignNewsOptions(), true));
+    }
+    [Fact]
     public void Announcement_reading_column_preserves_long_text_and_both_rulers_statements()
     {
         string summary = string.Concat(Enumerable.Repeat("The terms remain binding throughout the coming winter. ", 100));

@@ -17,7 +17,7 @@ public sealed class TavernHouseUiContractTests
         Assert.True(inventoryStart >= 0 && inventoryEnd > inventoryStart);
         Assert.Contains(mapping, deployment.Substring(inventoryStart, inventoryEnd - inventoryStart), StringComparison.Ordinal);
         Assert.Equal(1, deployment.Split(new[] { mapping }, StringSplitOptions.None).Length - 1);
-        Assert.Contains("$expectedUiAuthorityFileCount = 386", deployment, StringComparison.Ordinal);
+        Assert.Contains("$expectedUiAuthorityFileCount = 389", deployment, StringComparison.Ordinal);
         Assert.Contains("$validatedSupportMappings.Count +", deployment, StringComparison.Ordinal);
         var project = XDocument.Load(Path.Combine(root, "ReignBeta/ReignBeta.csproj"));
         var content = project.Descendants().Single(item => item.Name.LocalName == "Content"

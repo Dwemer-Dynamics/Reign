@@ -1,0 +1,13 @@
+{
+  "version": 1,
+  "heroStringId": "reign_court_castle_N8_child_2",
+  "characterName": "Vigdis Skeldring",
+  "imagePath": "portrait.png",
+  "imageSha256": "3D7BCFCB00073D2C734426216AD58B945824E7DE4E0E4905228233B41ABEB096",
+  "description": "A muted forest-green wool apron dress over an opaque natural cream linen shift with a simple neckline at the collarbones and full sleeves to the wrists. Small plain bronze brooches, restrained warm-grey tablet-woven edging, a narrow woven belt and a closed long skirt; practical brown leather shoes visible below. Near-full modest coverage follows the stated normal physical-confidence layer. Clean, sturdy, modestly prosperous Scandinavian civilian cloth, no heraldry, headwear, armor, fur war gear or weapons.",
+  "status": "completed",
+  "descriptionSource": "agent_vision",
+  "retryEligible": false,
+  "error": "",
+  "updatedUtc": "2026-11-07T03:18:19.930493+00:00"
+}

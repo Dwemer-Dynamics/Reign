@@ -1,0 +1,13 @@
+{
+  "version": 1,
+  "heroStringId": "reign_court_castle_N2_child_3",
+  "characterName": "Finnvald Askesund",
+  "imagePath": "portrait.png",
+  "imageSha256": "B85B1CCD341085B06EAB2869266439C56B03EB5D979E2BAEF5DD5E75CC00E706",
+  "description": "A dark brown long-sleeved knee-length wool tunic with restrained pale cream-and-russet woven borders at the split neck, cuffs and hem, over cream linen. A broad plain brown leather belt with a modest oval brass buckle, loose brown trousers, light beige lower-leg wraps bound with dark leather ties, and brown soft leather ankle shoes. No headgear, armor or weapons.",
+  "status": "completed",
+  "descriptionSource": "agent_vision",
+  "retryEligible": false,
+  "error": "",
+  "updatedUtc": "2026-11-07T03:15:05.410377+00:00"
+}

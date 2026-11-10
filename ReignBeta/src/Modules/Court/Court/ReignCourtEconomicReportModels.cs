@@ -26,6 +26,8 @@ namespace ReignBeta.Court
         public int SpoilagePercent;
         public float RoadSpoilage;
         public float SurvivingFood;
+        public float SiegeSpoilage;
+        public float BlockedSpoilageLastDay;
         public float CapacityOverflow;
         public float DeliveredFood;
         public float SourceFoodBefore;

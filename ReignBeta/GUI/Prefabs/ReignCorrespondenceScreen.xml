@@ -319,17 +319,26 @@
               </Children>
             </ScrollbarWidget>
 
-            <TextWidget Id="CorrespondenceBusyText"
+            <ButtonWidget Id="CorrespondenceMarriageOfferAction"
                     WidthSizePolicy="Fixed" HeightSizePolicy="Fixed"
-                    SuggestedWidth="850" SuggestedHeight="18"
-                    MarginLeft="650" MarginTop="646"
-                    Brush="DefaultText" Brush.Font="ReignSerifDynamic"
-                    Brush.FontSize="13"
-                    Brush.TextHorizontalAlignment="Center"
-                    Brush.TextVerticalAlignment="Center"
-                    Brush.FontColor="#A88A54FF"
-                    Text="@BusyText"
-                    DoNotAcceptEvents="true" />
+                    SuggestedWidth="850" SuggestedHeight="25"
+                    MarginLeft="650" MarginTop="643"
+                    Brush="ConversationItem.SoundBrush" DoNotAcceptEvents="true"
+                    HoveredCursorState="RightClickLink"
+                    DoNotPassEventsToChildren="true">
+              <Children>
+                <TextWidget Id="CorrespondenceBusyText"
+                        WidthSizePolicy="StretchToParent" HeightSizePolicy="Fixed"
+                        SuggestedHeight="18" MarginTop="3"
+                        Brush="DefaultText" Brush.Font="ReignSerifDynamic"
+                        Brush.FontSize="13"
+                        Brush.TextHorizontalAlignment="Center"
+                        Brush.TextVerticalAlignment="Center"
+                        Brush.FontColor="#A88A54FF"
+                        Text="@BusyText"
+                        DoNotAcceptEvents="true" />
+              </Children>
+            </ButtonWidget>
 
             <Widget Id="CorrespondenceInputFrame"
                     WidthSizePolicy="Fixed" HeightSizePolicy="Fixed"

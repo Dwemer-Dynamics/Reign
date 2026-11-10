@@ -21,7 +21,7 @@ using TaleWorlds.Library;
 
 namespace ReignBeta.Campaign
 {
-    public sealed class ReignRelationshipCampaignBehavior : CampaignBehaviorBase
+    public sealed partial class ReignRelationshipCampaignBehavior : CampaignBehaviorBase
     {
         public static ReignRelationshipCampaignBehavior Instance { get; private set; }
 
@@ -82,6 +82,7 @@ namespace ReignBeta.Campaign
         public void ApplicationTick(float deltaTime)
         {
             TryScheduleRealtimeDirectorActionPoll();
+            if (ReignBetaSettings.Instance?.PassiveRelationshipDirectorEnabled != false) _ = UploadDirectorPeriodAsync();
             OnTick(deltaTime);
         }
 
@@ -112,6 +113,7 @@ namespace ReignBeta.Campaign
                 JArray receipts = new JArray();
                 await ReignMainThread.InvokeAsync(() =>
                 {
+                    if(!ReferenceEquals(Instance,this))return;
                     foreach (ReignDirectorAction action in actions)
                         receipts.Add(ApplyDirectorAction(action));
                 }).ConfigureAwait(false);
@@ -266,6 +268,16 @@ namespace ReignBeta.Campaign
 
         public override void SyncData(IDataStore dataStore)
         {
+            dataStore.SyncData("_reignMarriageJournalV1", ref _marriageJournal);
+            SyncWeddings(dataStore);
+            SyncMarriageOffers(dataStore);
+            SyncMarriageOutbox(dataStore);
+            dataStore.SyncData("_reignMarriageCapturePeriodV1", ref _lastDirectorCapturePeriod);
+            dataStore.SyncData("_reignMarriageCaptureTimelineV1", ref _directorCaptureTimeline);
+            dataStore.SyncData("_reignMarriageCaptureGapsV1", ref _directorCaptureGaps);
+            dataStore.SyncData("_reignMarriageCompletedPeriodV1",ref _lastDirectorCompletedPeriod);
+            if(_marriageJournal==null)_marriageJournal=new List<string>();
+            if(_directorOutbox==null)_directorOutbox=new List<string>();
             dataStore.SyncData("_reignRelationship_lastTickDay", ref _lastTickDay);
             dataStore.SyncData("_reignRelationship_appliedMailRelationEffects", ref _appliedMailRelationEffects);
             dataStore.SyncData("_reignRelationship_announcedLetterIds", ref _announcedLetterIds);
@@ -400,6 +412,7 @@ namespace ReignBeta.Campaign
         {
             if (ReignCampaignInitializationGate.IsPending && !_initializationProjectionAllowed) return;
             if (TaleWorlds.CampaignSystem.Campaign.Current == null) return;
+            TickWeddings(deltaTime);
             string currentPlanId;
             int queuedTargetCount;
             lock (_nativeSyncLock)
@@ -607,6 +620,7 @@ namespace ReignBeta.Campaign
                     }
                     foreach (ReignLetter letter in result.DeliveredLetters ?? new List<ReignLetter>())
                     {
+                        if (letter.RecipientId != Hero.MainHero?.StringId) continue;
                         if (_announcedLetterIds.Contains(letter.LetterId)) continue;
                         _announcedLetterIds.Add(letter.LetterId);
                         _pendingMail.Enqueue(letter);
@@ -691,36 +705,13 @@ namespace ReignBeta.Campaign
                     ReignLog.Warn("Ambient relationship daily input capture failed: " + ex.Message);
                 }
             }
-            bool ambientEnabled = ReignBetaSettings.Instance?.AmbientRelationshipDriftEnabled != false;
-            bool ambientHasConfirmedRun = _lastAmbientSnapshotDay > -900f;
-            bool ambientDue = ambientEnabled && day - _lastAmbientSnapshotDay >= 0.9f;
-            bool directorDue = day - _lastDirectorSnapshotDay >= 6.9f;
-
-            // The initial ambient snapshot establishes authoritative Reign
-            // affinity before the political-marriage director evaluates the
-            // world. After that first confirmed run, a due weekly director gets
-            // priority. At high campaign speed the daily request can span more
-            // than one game day; starting it first on every completion used to
-            // starve arranged-marriage rolls forever.
-            if (!_ambientSnapshotInFlight && !_directorSnapshotInFlight
-                && directorDue && (!ambientEnabled || ambientHasConfirmedRun))
+            // Capture observed weekly state independently of uploads and ambient processing.
+            CaptureDirectorPeriod(CampaignTime.Now.ToDays);
+            bool ambientDue=ReignBetaSettings.Instance?.AmbientRelationshipDriftEnabled!=false && day-_lastAmbientSnapshotDay>=0.9f;
+            if(!_ambientSnapshotInFlight&&ambientDue)
             {
-                _directorSnapshotInFlight = true;
-                _ = SubmitDirectorSnapshotAsync(day);
-                return;
-            }
-
-            if (!_ambientSnapshotInFlight && !_directorSnapshotInFlight && ambientDue)
-            {
-                _ambientSnapshotInFlight = true;
-                _ = SubmitAmbientSnapshotAsync(day);
-                return;
-            }
-
-            if (!_ambientSnapshotInFlight && !_directorSnapshotInFlight && directorDue)
-            {
-                _directorSnapshotInFlight = true;
-                _ = SubmitDirectorSnapshotAsync(day);
+                _ambientSnapshotInFlight=true;
+                _=SubmitAmbientSnapshotAsync(day);
             }
         }
 
@@ -821,24 +812,6 @@ namespace ReignBeta.Campaign
             }
         }
 
-        private async Task SubmitDirectorSnapshotAsync(float scheduledDay)
-        {
-            try
-            {
-                ReignDirectorRunResult result = await ReignServerClient.SubmitNobleRelationshipSnapshotAsync().ConfigureAwait(false);
-                if (!result.Ok)
-                {
-                    ReignLog.Warn("Passive relationship director failed: "
-                        + (!string.IsNullOrWhiteSpace(result.Error) ? result.Error : "The server did not accept the snapshot."));
-                    return;
-                }
-                _lastDirectorSnapshotDay = scheduledDay;
-                ReignLog.Info("Passive relationship director run=" + result.RunId + " candidates=" + result.CandidateCount + " events=" + result.EventCount + " skipped=" + result.Skipped + " reason=" + result.Reason + ".");
-            }
-            catch (Exception ex) { ReignLog.Warn("Passive relationship director failed: " + ex.Message); }
-            finally { _directorSnapshotInFlight = false; }
-        }
-
         private static bool IsObsoleteManagedConceptionError(string error,
             Hero mother, Hero biologicalFather)
         {
@@ -854,6 +827,32 @@ namespace ReignBeta.Campaign
         private JObject ApplyDirectorAction(ReignDirectorAction action)
         {
             if (action == null) return new JObject();
+            if (action.ActionType == "player_marriage_offer")
+            {
+                bool offered = WeddingFeatureReady && PreparePlayerMarriageOffer(action.DirectorActionId,
+                    FindHero(action.ActorId), FindHero(action.TargetId), FindHero(action.Payload?.Value<string>("leaderAId")));
+                return new JObject
+                {
+                    ["directorActionId"] = action.DirectorActionId, ["worldDay"] = CampaignTime.Now.ToDays,
+                    ["status"] = offered ? "wedding_offer_pending" : "obsolete", ["timelineId"] = WeddingTimeline
+                };
+            }
+            if(action.ActionType=="marriage"&&action.Payload?.Value<string>("route")=="arranged") return ApplyArrangedMarriage(action);
+            if (action.ActionType == "marriage" && WeddingFeatureReady)
+            {
+                var match = Wedding(action.DirectorActionId);
+                if (match != null) return WeddingDirectorReceipt(match);
+                var first = FindHero(action.ActorId);
+                var second = FindHero(action.TargetId);
+                if (first != Hero.MainHero && second != Hero.MainHero
+                    && RequestWedding(action.DirectorActionId, first, second, null, "", 0, out match))
+                {
+                    match.DirectorAction = true;
+                    return WeddingDirectorReceipt(match);
+                }
+                return new JObject { ["directorActionId"] = action.DirectorActionId, ["status"] = "obsolete",
+                    ["timelineId"] = WeddingTimeline, ["worldDay"] = CampaignTime.Now.ToDays };
+            }
             string status = "completed", error = string.Empty;
             try
             {

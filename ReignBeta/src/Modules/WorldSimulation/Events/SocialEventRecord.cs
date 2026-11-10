@@ -92,6 +92,10 @@ namespace ReignBeta.Events
         [SaveableField(28)]
         public string GeneratedInitiatorHeroStringId;
 
+        public string WeddingId { get; set; } = "";
+        public string WeddingCustoms = "";
+        public int WeddingRosterCount;
+
         public SocialEventRecord()
         {
             AttendeeHeroStringIds = new List<string>();

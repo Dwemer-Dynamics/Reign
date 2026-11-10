@@ -1,5 +1,10 @@
 # Proof selection and evidence
 
+The same isolated check covers cold and stale campaign schema lock ordering, a warm connection while another thread owns FileLock, a deliberate bounded old-inversion negative control, reverse-entry rejection and cancellation/disposal/retry before settings, before initialization and after partial memory schema setup. Run `reign_run_offline_verification` on the exact successful Release run, tier quick with an empty suite or suite contracts. The Save Sync boundary command does not invoke it. Require every campaignProviderWait catalog case ID in the at-most64 caseResults, all passed, with neither truncation nor invalid IDs. These fixtures use only unique internal campaigns in ReignValidation; they grant no production, provider, save, native time or deployment authority.
+
+
+The provider-free `contracts.campaign_provider_wait` check also covers helper lock diagnostics: a real contending thread observes the wait-start owner; nested/exceptional scopes restore owner and stage; wrong-thread disposal is rejected without clearing ownership; repeated disposal is harmless. It uses no sleeps or providers and retains the existing isolated non-listening database gate. Slow lock records are emitted only once the current thread has fully released that monitor. Wait time includes HTTP read-lease resumption and cannot be treated as pure monitor contention.
+
 Read only the procedure relevant to the current task. Existing provider, campaign, and deployment gates remain authoritative. Dated procedure history was retained during the 2026-09-12 guide split.
 
 ## Choose the lowest proof layer
@@ -130,7 +135,7 @@ For performance acceptance, deploy the exact canonical validated artifact, reope
 - Query `reign_get_testing_catalog` and the affected feature manifest.
 - Inspect `reign_get_workspace_status`, `reign_get_status`, and `reign_get_live_test_status` before starting processes or runs.
 - Use bounded MCP world, log, audit, correlation, and readiness tools instead of downloading large raw HTTP responses.
-- Preserve the userâ€™s unrelated worktree changes and original saves.
+- Preserve the user’s unrelated worktree changes and original saves.
 
 ## Repository hygiene evidence
 

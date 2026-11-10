@@ -223,10 +223,15 @@ namespace ReignBeta.Integration
         {
             List<ReignPoliticalPressureNotice> results = new List<ReignPoliticalPressureNotice>();
             string timelineId = ReignWorldHistoryCampaignBehavior.Instance?.TimelineId ?? "main";
-            string route = "/political-pressure/notices?campaignId=" + Uri.EscapeDataString(GetCampaignId())
+            string pressureCampaignId = GetCampaignId();
+            double pressureRequestedDay = CampaignTime.Now.ToDays;
+            string route = "/political-pressure/notices?campaignId=" + Uri.EscapeDataString(pressureCampaignId)
                 + "&timelineId=" + Uri.EscapeDataString(timelineId) + "&limit=5";
             JObject response = await GetJsonAsync(route).ConfigureAwait(false);
             if (response.Value<bool?>("ok") != true || !(response["notices"] is JArray notices)) return results;
+            if (response["readinessPressure"] is JObject pressureSnapshot)
+                await ReignMainThread.InvokeAsync(() => ReignBeta.Economy.ReignMilitaryReadiness.AcceptPressure(
+                    pressureSnapshot, pressureCampaignId, timelineId, pressureRequestedDay)).ConfigureAwait(false);
             foreach (JObject item in notices.OfType<JObject>())
             {
                 ReignPoliticalPressureNotice notice = new ReignPoliticalPressureNotice
@@ -478,6 +483,7 @@ namespace ReignBeta.Integration
                     ["strength"] = kingdom.CurrentTotalStrength,
                     ["treasury"] = treasury,
                     ["leaderGold"] = ruler.Gold,
+                    ["economicStress"] = ReignBeta.Economy.ReignWarEconomyTransactions.Stress(kingdom),
                     ["dailyGoldChange"] = dailyGoldChange,
                     ["settlementProsperity"] = settlementProsperity,
                     ["garrisonStrength"] = garrisonStrength,
@@ -711,6 +717,10 @@ namespace ReignBeta.Integration
                     ["isClanLeader"] = hero.Clan?.Leader == hero,
                     ["clanTier"] = hero.Clan?.Tier ?? 0,
                     ["relationToRuler"] = kingdom.Leader == null ? 0 : hero.GetRelation(kingdom.Leader),
+                    ["leaderId"] = hero.Clan?.Leader?.StringId ?? "",
+                    ["fiefCount"] = hero.Clan?.Fiefs.Count ?? 0,
+                    ["nativeYear"] = CampaignTime.Now.GetYear,
+                    ["leaderGold"] = hero.Clan?.Leader?.Gold ?? 0,
                     ["eligibleForPoliticalMarriage"] = true
                 });
             }

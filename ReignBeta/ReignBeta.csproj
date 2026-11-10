@@ -158,6 +158,7 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="$(ReignServerRoot)\shared\Reign.Relationships\ArrangedMarriagePolicy.cs" Link="Shared\ArrangedMarriagePolicy.cs" />
     <ProjectReference Include="$(ReignServerRoot)\shared\Reign.Core.Contracts\Reign.Core.Contracts.csproj" />
     <ProjectReference Include="src\Modules\Arena\ArenaOverhaul\ArenaOverhaul.csproj" />
   </ItemGroup>

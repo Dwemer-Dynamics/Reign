@@ -101,6 +101,7 @@ namespace ReignBeta.Campaign
             ReignBetaSettings settings = ReignBetaSettings.Instance;
             TaleWorlds.CampaignSystem.Campaign campaign = TaleWorlds.CampaignSystem.Campaign.Current;
             EnforcePassiveWorldAdvanceBoundary(campaign);
+            ReignBeta.Economy.ReignWarEconomyCohortControl.Update(_gameInstanceId);
             bool playerReady = campaign != null
                 && CharacterObject.PlayerCharacter != null;
             PauseNpcLivesEncounterCleanup(campaign);
@@ -804,6 +805,10 @@ namespace ReignBeta.Campaign
 
             bool queued = await ReignMainThread.InvokeAsync(() =>
             {
+                // A periodic scheduling hold never grants permission to save over real work.
+                // Recheck at the native SaveAs boundary after the external quiet window.
+                if (ReignServerClient.PersonalGossipRuntimeStatus().Value<bool?>("inFlight") != false)
+                    return false;
                 if (TaleWorlds.CampaignSystem.Campaign.Current?.SaveHandler == null
                     || TaleWorlds.CampaignSystem.Campaign.Current.SaveHandler.IsSaving)
                     return false;
@@ -826,7 +831,7 @@ namespace ReignBeta.Campaign
             if (!queued)
             {
                 return LiveCommandResult.Failed(
-                    "Bannerlord is already saving or no campaign save handler is available.",
+                    "Communication work is in flight, Bannerlord is already saving, or no campaign save handler is available.",
                     SaveDiagnostics(saveName, "queue_rejected"));
             }
 

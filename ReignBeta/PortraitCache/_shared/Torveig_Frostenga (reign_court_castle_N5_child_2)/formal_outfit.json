@@ -1,0 +1,13 @@
+{
+  "version": 1,
+  "heroStringId": "reign_court_castle_N5_child_2",
+  "characterName": "Torveig Frostenga",
+  "imagePath": "portrait.png",
+  "imageSha256": "07D3B21178BBA68F211C3404979177DC78FDF9D6C0ABDF0248A820294AEAFDD4",
+  "description": "Muted moss-grey wool apron dress with restrained rust/cream woven edging and two small round brooches, narrow woven belt, cream linen underdress with a moderate lowered neckline and elbow sleeves, and brown soft-leather shoes. No headgear, armor or weapons.",
+  "status": "completed",
+  "descriptionSource": "agent_vision",
+  "retryEligible": false,
+  "error": "",
+  "updatedUtc": "2026-11-07T03:19:41.576989+00:00"
+}

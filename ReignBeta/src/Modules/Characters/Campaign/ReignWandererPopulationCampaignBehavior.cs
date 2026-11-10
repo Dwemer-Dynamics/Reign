@@ -28,7 +28,7 @@ namespace ReignBeta.Campaign
         private bool _ready, _historyBusy;
         private DateTime _nextHistoryUtc, _nextMaintenanceUtc;
         private int _historyCursor;
-        private float _seconds;
+        private readonly RealTimeMaintenanceCadence _maintenanceCadence = new RealTimeMaintenanceCadence();
         private string _lastError = "", _historyError = "";
         private int _creationFailures;
         internal bool OwnsPopulation => _ready && ReignWandererPatches.Ready;
@@ -145,10 +145,10 @@ namespace ReignBeta.Campaign
 
         private void OnTick(float dt)
         {
-            _seconds += dt;
-            if (_seconds < 1f) return;
-            _seconds = 0;
+            if (!_maintenanceCadence.TryTake(System.Diagnostics.Stopwatch.GetTimestamp(),
+                    System.Diagnostics.Stopwatch.Frequency, dt > 0f)) return;
             if (!_ready || ReignCampaignInitializationGate.IsPending || Mission.Current != null || Hero.MainHero == null) return;
+            using var timing = ReignLog.MeasureWork("population.wanderer", dt);
             try
             {
                 AdoptExisting();
@@ -184,6 +184,7 @@ namespace ReignBeta.Campaign
             double today = Math.Floor(Day);
             if (_state.LastDailyDay >= today) return;
             _state.LastDailyDay = today;
+            using var timing = ReignLog.MeasureWork("population.wanderer", 0f);
             try
             {
                 AdoptExisting();

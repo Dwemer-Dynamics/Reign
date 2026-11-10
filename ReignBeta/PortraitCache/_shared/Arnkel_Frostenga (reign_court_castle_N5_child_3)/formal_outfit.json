@@ -1,0 +1,13 @@
+{
+  "version": 1,
+  "heroStringId": "reign_court_castle_N5_child_3",
+  "characterName": "Arnkel Frostenga",
+  "imagePath": "portrait.png",
+  "imageSha256": "445C694C5C00C86DE5E6F0E830364C402282F1199D5847B9DDC1B427EECE7CE2",
+  "description": "Taupe-brown knee-length wool tunic with narrow cream woven borders over ivory linen, brown leather belt, loose brown trousers, beige wool leg wraps and soft brown leather shoes. No headgear, armor or weapons.",
+  "status": "completed",
+  "descriptionSource": "agent_vision",
+  "retryEligible": false,
+  "error": "",
+  "updatedUtc": "2026-11-07T03:24:27.088344+00:00"
+}

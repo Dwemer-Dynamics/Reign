@@ -25,6 +25,7 @@ namespace ReignBeta.Actions
         // preview and commit; browsing the composer never reserves or executes.
         public static bool CanBuild(ActionDefinition definition, ActionAgreement agreement, bool playerActs)
         {
+            if (definition.Id.StartsWith("marriage.", StringComparison.Ordinal)) return false;
             if (!ReignActionConversationPolicy.Allows(definition, playerActs, agreement.Clauses.Count)) return false;
             Hero actor = HeroById(playerActs ? agreement.PlayerId : agreement.NpcId);
             Hero counterpart = HeroById(playerActs ? agreement.NpcId : agreement.PlayerId);
@@ -151,6 +152,9 @@ namespace ReignBeta.Actions
             ReignNpcLivesBehavior.Instance?.BindMeetingArrival(agreement);
             var errors = AgreementRules.Validate(agreement, ReignActionCatalog.Find, Now);
             if (errors.Count > 0) return errors;
+            if (agreement.Clauses.Any(c => c.ActionId.StartsWith("marriage.", StringComparison.Ordinal)))
+                return ReignRelationshipCampaignBehavior.Instance?.CheckMarriageAction(agreement)
+                    ?? new List<string> { "Marriage services are unavailable." };
             try { BindGuestReviews(agreement); }
             catch (ArgumentException ex) { return new List<string> { ex.Message }; }
             if (HeroById(agreement.PlayerId) == null || HeroById(agreement.NpcId) == null) errors.Add("Both participants must be alive and available.");

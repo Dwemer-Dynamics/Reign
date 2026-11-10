@@ -1,0 +1,13 @@
+{
+  "version": 1,
+  "heroStringId": "reign_court_castle_N8_child_3",
+  "characterName": "Holmgeir Skeldring",
+  "imagePath": "portrait.png",
+  "imageSha256": "477F362A1846AB9C884797CB97182587899F81C30860287C1310DC2D3CDD357B",
+  "description": "A muted charcoal-grey knee-length wool tunic with narrow rust-brown woven trim at the neckline, wrists and lower hem, over an ivory linen long-sleeved underlayer. A sturdy dark-brown leather belt with plain buckle, dusty-brown wool trousers, dark burgundy-brown lower-leg wraps and simple brown leather shoes. Clean practical early medieval Scandinavian landowner clothing with restrained good workmanship; no headgear, armor, weapons, fur war gear or heraldic devices.",
+  "status": "completed",
+  "descriptionSource": "agent_vision",
+  "retryEligible": false,
+  "error": "",
+  "updatedUtc": "2026-11-07T03:19:49.224755+00:00"
+}

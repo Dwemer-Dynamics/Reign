@@ -204,9 +204,10 @@ namespace ReignBeta.UI
             base.OnLateUpdate(dt);
             AutomationLateUpdateCount++;
             ReignWarCouncilScreenVM vm = ReignWarCouncilScreenManager.ActiveViewModel;
-            if (vm == null)
+            if (vm == null || vm.StandingDropdownVisible)
             {
                 _trackingPointer = false;
+                _leftWasDown = Input.IsKeyDown(InputKey.LeftMouseButton);
                 return;
             }
 

@@ -1,0 +1,1188 @@
+{
+  "schema": "reign-nord-editorial-v1",
+  "households": [
+    {
+      "settlement": "castle_N1",
+      "house": "Eldhammar",
+      "history": "A fire in an ancestral timber hall cost the family its estate; they retained kin and oath-service at Agilting.",
+      "people": [
+        {
+          "name": "Stenrik",
+          "life": "Kept the evacuation orderly when his hall burned and still measures every promise against what can actually be carried out.",
+          "hobby": "repairing water barrels",
+          "dream": "earn stewardship through reliable service",
+          "traits": [
+            1,
+            0,
+            1,
+            0,
+            1
+          ],
+          "appearanceFamily": "long oval face, broad cheekbones and grey-green eyes"
+        },
+        {
+          "name": "Rannveig",
+          "life": "Saved the household tally sticks from the fire and has since distrusted impressive words unsupported by an account.",
+          "hobby": "tablet weaving",
+          "dream": "teach her daughters independent accounts",
+          "traits": [
+            -1,
+            1,
+            1,
+            0,
+            1
+          ],
+          "appearanceFamily": "long oval face, broad cheekbones and grey-green eyes"
+        },
+        {
+          "name": "Halvdan",
+          "life": "Led carts carrying the family dependents to Agilting and resents that his caution was mistaken for cowardice.",
+          "hobby": "wrestling",
+          "dream": "win a reputation beyond his father",
+          "traits": [
+            1,
+            -1,
+            0,
+            -1,
+            -1
+          ],
+          "appearanceFamily": "long oval face, broad cheekbones and grey-green eyes"
+        },
+        {
+          "name": "Yrdis",
+          "life": "Lost her woven marriage cloth in the fire and now sells small commissions rather than accept a match arranged from pity.",
+          "hobby": "pattern drawing",
+          "dream": "choose a marriage on equal terms",
+          "traits": [
+            0,
+            1,
+            1,
+            -1,
+            1
+          ],
+          "appearanceFamily": "long oval face, broad cheekbones and grey-green eyes"
+        },
+        {
+          "name": "Torgeir",
+          "life": "Was sent to learn gate duty after repeatedly gambling away small allowances; he now keeps his debts in plain view.",
+          "hobby": "board games",
+          "dream": "repay a debt before seeking office",
+          "traits": [
+            1,
+            0,
+            -1,
+            0,
+            -1
+          ],
+          "appearanceFamily": "long oval face, broad cheekbones and grey-green eyes"
+        },
+        {
+          "name": "Svanfrid",
+          "life": "Learned to carry messages between scattered relatives and notices more of a household dispute than elders expect.",
+          "hobby": "bird calls",
+          "dream": "travel to the great northern ports",
+          "traits": [
+            0,
+            1,
+            0,
+            1,
+            0
+          ],
+          "appearanceFamily": "long oval face, broad cheekbones and grey-green eyes"
+        }
+      ]
+    },
+    {
+      "settlement": "castle_N2",
+      "house": "Askesund",
+      "history": "A disputed inheritance left the Askesund family without farms; their claim rests with kin rather than a royal grant.",
+      "people": [
+        {
+          "name": "Hrodvar",
+          "life": "Accepted an unfavorable inheritance settlement to prevent a feud and still wonders whether restraint merely rewarded a liar.",
+          "hobby": "genealogies",
+          "dream": "clear his family name before the Thing",
+          "traits": [
+            -1,
+            1,
+            1,
+            -1,
+            1
+          ],
+          "appearanceFamily": "square jaw, straight brows and grey-blue eyes"
+        },
+        {
+          "name": "Sigruna",
+          "life": "Brokered food and lodging while her husband argued the inheritance and has little patience for pride that neglects supper.",
+          "hobby": "bread making",
+          "dream": "keep the family out of another feud",
+          "traits": [
+            1,
+            -1,
+            0,
+            1,
+            -1
+          ],
+          "appearanceFamily": "square jaw, straight brows and grey-blue eyes"
+        },
+        {
+          "name": "Ketilmar",
+          "life": "Copied witness accounts for the inheritance dispute and became fascinated by the distance between law and persuasion.",
+          "hobby": "reciting judgments",
+          "dream": "become a respected law-speaker",
+          "traits": [
+            0,
+            1,
+            1,
+            1,
+            1
+          ],
+          "appearanceFamily": "square jaw, straight brows and grey-blue eyes"
+        },
+        {
+          "name": "Eydisa",
+          "life": "Stayed with the victorious branch of the family for one winter and refuses to call every relative there an enemy.",
+          "hobby": "amber beadwork",
+          "dream": "restore contact with estranged cousins",
+          "traits": [
+            1,
+            0,
+            -1,
+            -1,
+            -1
+          ],
+          "appearanceFamily": "square jaw, straight brows and grey-blue eyes"
+        },
+        {
+          "name": "Finnvald",
+          "life": "Trained on the cliff paths around Tharklif and hides a fear of deep water behind jokes about sailors.",
+          "hobby": "cliff walking",
+          "dream": "prove useful without pretending to be a seaman",
+          "traits": [
+            0,
+            1,
+            0,
+            -1,
+            0
+          ],
+          "appearanceFamily": "square jaw, straight brows and grey-blue eyes"
+        },
+        {
+          "name": "Thyrdis",
+          "life": "Learned to keep the family correspondence after a messenger misquoted her mother and now reads every letter aloud twice.",
+          "hobby": "ink making",
+          "dream": "master letters without losing her blunt voice",
+          "traits": [
+            1,
+            0,
+            1,
+            -1,
+            1
+          ],
+          "appearanceFamily": "square jaw, straight brows and grey-blue eyes"
+        }
+      ]
+    },
+    {
+      "settlement": "castle_N3",
+      "house": "Eikenvard",
+      "history": "The family once supervised woodland cutting rights; the rights passed elsewhere, while their household remained at Ykerslund.",
+      "people": [
+        {
+          "name": "Ulfgeir",
+          "life": "Settled repeated woodland boundary arguments by walking them himself and values a witnessed boundary over an inherited boast.",
+          "hobby": "wood carving",
+          "dream": "regain responsibility for woodland stewardship",
+          "traits": [
+            1,
+            -1,
+            0,
+            -1,
+            -1
+          ],
+          "appearanceFamily": "heart-shaped face, narrow nose and hazel eyes"
+        },
+        {
+          "name": "Ingvora",
+          "life": "Kept seed grain apart from feast stores during a hard winter and is praised as prudent by some and miserly by others.",
+          "hobby": "seed keeping",
+          "dream": "secure a dependable winter reserve",
+          "traits": [
+            0,
+            1,
+            1,
+            -1,
+            1
+          ],
+          "appearanceFamily": "heart-shaped face, narrow nose and hazel eyes"
+        },
+        {
+          "name": "Asvald",
+          "life": "Oversaw timber carts until a broken axle injured a carter; he now checks fittings with an intensity that irritates companions.",
+          "hobby": "joinery",
+          "dream": "be trusted with a difficult building project",
+          "traits": [
+            1,
+            0,
+            -1,
+            0,
+            -1
+          ],
+          "appearanceFamily": "heart-shaped face, narrow nose and hazel eyes"
+        },
+        {
+          "name": "Ragnel",
+          "life": "Learned healing dressings from an elderly attendant and quietly argues that good service deserves proper payment.",
+          "hobby": "herbal gardens",
+          "dream": "build a modest practice of her own",
+          "traits": [
+            0,
+            1,
+            0,
+            1,
+            0
+          ],
+          "appearanceFamily": "heart-shaped face, narrow nose and hazel eyes"
+        },
+        {
+          "name": "Bjarnulf",
+          "life": "Won local wrestling contests before a younger rival exposed his poor endurance; he has begun running instead of making excuses.",
+          "hobby": "distance running",
+          "dream": "earn a victory that cannot be dismissed as luck",
+          "traits": [
+            1,
+            0,
+            1,
+            0,
+            1
+          ],
+          "appearanceFamily": "heart-shaped face, narrow nose and hazel eyes"
+        },
+        {
+          "name": "Alvheid",
+          "life": "Collects songs from visiting households and carefully records who actually taught each verse.",
+          "hobby": "song collecting",
+          "dream": "preserve the voices of overlooked singers",
+          "traits": [
+            -1,
+            1,
+            1,
+            0,
+            1
+          ],
+          "appearanceFamily": "heart-shaped face, narrow nose and hazel eyes"
+        }
+      ]
+    },
+    {
+      "settlement": "castle_N4",
+      "house": "Bjornholt",
+      "history": "An old marriage alliance brought the Bjornholt family to Brunmark; they hold standing in the hall but own no fief.",
+      "people": [
+        {
+          "name": "Hakonar",
+          "life": "Served as an intermediary between suspicious marriage kin and learned that silence can postpone a quarrel without settling it.",
+          "hobby": "training hounds",
+          "dream": "be remembered as more than a useful in-law",
+          "traits": [
+            0,
+            1,
+            1,
+            -1,
+            1
+          ],
+          "appearanceFamily": "broad face, heavy brows and brown eyes"
+        },
+        {
+          "name": "Gudnyra",
+          "life": "Arrived with fewer marriage goods than promised and built influence through knowing exactly who had helped her.",
+          "hobby": "fine embroidery",
+          "dream": "give her children choices she lacked",
+          "traits": [
+            1,
+            0,
+            -1,
+            0,
+            -1
+          ],
+          "appearanceFamily": "broad face, heavy brows and brown eyes"
+        },
+        {
+          "name": "Skegvar",
+          "life": "Was refused a place in a prestigious retinue and conceals the rejection beneath exaggerated judgments of other men.",
+          "hobby": "spear practice",
+          "dream": "earn a command on his own merits",
+          "traits": [
+            0,
+            1,
+            0,
+            1,
+            0
+          ],
+          "appearanceFamily": "broad face, heavy brows and brown eyes"
+        },
+        {
+          "name": "Brynveig",
+          "life": "Organizes the family visits with painstaking attention to seating and dislikes being thanked only for looking gracious.",
+          "hobby": "competitive riddles",
+          "dream": "receive credit for her political judgment",
+          "traits": [
+            1,
+            0,
+            1,
+            0,
+            1
+          ],
+          "appearanceFamily": "broad face, heavy brows and brown eyes"
+        },
+        {
+          "name": "Ottmar",
+          "life": "Spent a season assisting a smith and prefers the honesty of a visible flaw to the hall practice of concealing one.",
+          "hobby": "metal repair",
+          "dream": "make something worthy of lasting use",
+          "traits": [
+            -1,
+            1,
+            1,
+            0,
+            1
+          ],
+          "appearanceFamily": "broad face, heavy brows and brown eyes"
+        },
+        {
+          "name": "Eirhild",
+          "life": "Befriended servants who carried news between the kitchens and the hall, but once repeated a confidence she should have kept.",
+          "hobby": "listening to stories",
+          "dream": "become someone a confidence can safely reach",
+          "traits": [
+            1,
+            -1,
+            0,
+            -1,
+            -1
+          ],
+          "appearanceFamily": "broad face, heavy brows and brown eyes"
+        }
+      ]
+    },
+    {
+      "settlement": "castle_N5",
+      "house": "Frostenga",
+      "history": "The family lost its grazing estate through successive divisions; Fimbulgard gives them residence, not ownership.",
+      "people": [
+        {
+          "name": "Vemund",
+          "life": "Sold the last inherited grazing rights to settle an obligation and is determined that his children will not inherit the debt.",
+          "hobby": "judging livestock",
+          "dream": "leave a clear account instead of a grand claim",
+          "traits": [
+            1,
+            0,
+            -1,
+            -1,
+            -1
+          ],
+          "appearanceFamily": "angular cheekbones, rounded chin and green eyes"
+        },
+        {
+          "name": "Helgrun",
+          "life": "Managed the divided household stores and remembers which relations offered help without demanding public gratitude.",
+          "hobby": "wool sorting",
+          "dream": "keep her children close without binding their lives",
+          "traits": [
+            0,
+            1,
+            0,
+            -1,
+            0
+          ],
+          "appearanceFamily": "angular cheekbones, rounded chin and green eyes"
+        },
+        {
+          "name": "Sigvard",
+          "life": "Served on winter watches and discovered that he is better at steady routines than the heroic speeches he once admired.",
+          "hobby": "tracking in snow",
+          "dream": "be chosen for dependable service",
+          "traits": [
+            1,
+            0,
+            1,
+            -1,
+            1
+          ],
+          "appearanceFamily": "angular cheekbones, rounded chin and green eyes"
+        },
+        {
+          "name": "Torveig",
+          "life": "Exchanged woven work for books and has begun questioning claims about distant lands that no traveler confirms.",
+          "hobby": "reading travel accounts",
+          "dream": "see a southern city for herself",
+          "traits": [
+            -1,
+            1,
+            1,
+            -1,
+            1
+          ],
+          "appearanceFamily": "angular cheekbones, rounded chin and green eyes"
+        },
+        {
+          "name": "Arnkel",
+          "life": "Trained with an older retainer whose injury ended his prospects and worries that one accident could erase every plan.",
+          "hobby": "archery",
+          "dream": "find a useful trade alongside fighting",
+          "traits": [
+            1,
+            -1,
+            0,
+            1,
+            -1
+          ],
+          "appearanceFamily": "angular cheekbones, rounded chin and green eyes"
+        },
+        {
+          "name": "Ylfruna",
+          "life": "Took over tending an elderly relative during a winter illness and discovered that kindness did not make her endlessly patient.",
+          "hobby": "dye experiments",
+          "dream": "make room for her own life without abandoning kin",
+          "traits": [
+            0,
+            1,
+            1,
+            1,
+            1
+          ],
+          "appearanceFamily": "angular cheekbones, rounded chin and green eyes"
+        }
+      ]
+    },
+    {
+      "settlement": "castle_N6",
+      "house": "Dalskeld",
+      "history": "The Dalskeld household came upriver as oath-bound retainers; their place at Haugr depends on service, not land revenue.",
+      "people": [
+        {
+          "name": "Ormvald",
+          "life": "Escorted river cargo in his youth and will walk away from a profitable undertaking if its promises cannot be checked.",
+          "hobby": "river maps",
+          "dream": "be entrusted with a difficult negotiation",
+          "traits": [
+            0,
+            1,
+            0,
+            1,
+            0
+          ],
+          "appearanceFamily": "soft oval face, straight nose and blue-grey eyes"
+        },
+        {
+          "name": "Astruna",
+          "life": "Learned weights and measures from river merchants and can enjoy a hard bargain without treating the other party as a fool.",
+          "hobby": "weighing silver",
+          "dream": "secure modest independent household earnings",
+          "traits": [
+            1,
+            0,
+            1,
+            0,
+            1
+          ],
+          "appearanceFamily": "soft oval face, straight nose and blue-grey eyes"
+        },
+        {
+          "name": "Hrolgeir",
+          "life": "Lost a race after choosing a reckless crossing and now studies water levels before boasting about speed.",
+          "hobby": "boat handling",
+          "dream": "command respect without needless risks",
+          "traits": [
+            -1,
+            1,
+            1,
+            0,
+            1
+          ],
+          "appearanceFamily": "soft oval face, straight nose and blue-grey eyes"
+        },
+        {
+          "name": "Sigrild",
+          "life": "Learned two neighboring dialects while staying with river kin and is tired of being treated as a mouthpiece without opinions.",
+          "hobby": "languages",
+          "dream": "negotiate in her own name",
+          "traits": [
+            1,
+            -1,
+            0,
+            -1,
+            -1
+          ],
+          "appearanceFamily": "soft oval face, straight nose and blue-grey eyes"
+        },
+        {
+          "name": "Oddrik",
+          "life": "Avoided a brawl by making an apology he did not believe and still struggles with whether survival justified it.",
+          "hobby": "carving game pieces",
+          "dream": "learn when a concession protects dignity",
+          "traits": [
+            0,
+            1,
+            1,
+            -1,
+            1
+          ],
+          "appearanceFamily": "soft oval face, straight nose and blue-grey eyes"
+        },
+        {
+          "name": "Hervora",
+          "life": "Counts the boats entering the river when she needs quiet and keeps a private ledger of seasons and weather.",
+          "hobby": "weather observation",
+          "dream": "make a useful record others will consult",
+          "traits": [
+            1,
+            0,
+            -1,
+            0,
+            -1
+          ],
+          "appearanceFamily": "soft oval face, straight nose and blue-grey eyes"
+        }
+      ]
+    },
+    {
+      "settlement": "castle_N7",
+      "house": "Hrafnvik",
+      "history": "A wreck ended the family share in an island trading venture; the household found a permanent place at Hakarshus.",
+      "people": [
+        {
+          "name": "Gudbrand",
+          "life": "Survived the wreck that consumed the family venture and resents easy promises that fortune always rewards courage.",
+          "hobby": "repairing nets",
+          "dream": "rebuild a reputation for sound judgment",
+          "traits": [
+            1,
+            0,
+            1,
+            0,
+            1
+          ],
+          "appearanceFamily": "long oval face, broad cheekbones and grey-green eyes"
+        },
+        {
+          "name": "Thorve",
+          "life": "Had to bargain for winter lodging after the wreck and now keeps practical friendships beyond noble company.",
+          "hobby": "fish curing",
+          "dream": "ensure hospitality never becomes dependence",
+          "traits": [
+            -1,
+            1,
+            1,
+            0,
+            1
+          ],
+          "appearanceFamily": "long oval face, broad cheekbones and grey-green eyes"
+        },
+        {
+          "name": "Kolbein",
+          "life": "Was ashore when the trading boat was lost and is weary of being asked to explain an accident he never witnessed.",
+          "hobby": "seal carving",
+          "dream": "find work separate from the wreck story",
+          "traits": [
+            1,
+            -1,
+            0,
+            -1,
+            -1
+          ],
+          "appearanceFamily": "long oval face, broad cheekbones and grey-green eyes"
+        },
+        {
+          "name": "Hildrun",
+          "life": "Copied the names of the drowned for their relatives and distinguishes speaking for the dead from speaking over the living.",
+          "hobby": "memorial verses",
+          "dream": "give bereaved families a careful hearing",
+          "traits": [
+            0,
+            1,
+            1,
+            -1,
+            1
+          ],
+          "appearanceFamily": "long oval face, broad cheekbones and grey-green eyes"
+        },
+        {
+          "name": "Eilvard",
+          "life": "Took ordinary harbor work to help the family and bristles when guests describe honest labor as an amusing disguise.",
+          "hobby": "rope work",
+          "dream": "receive respect without concealing his past work",
+          "traits": [
+            1,
+            0,
+            -1,
+            0,
+            -1
+          ],
+          "appearanceFamily": "long oval face, broad cheekbones and grey-green eyes"
+        },
+        {
+          "name": "Svanlaug",
+          "life": "Learned to swim from fisher children and does not share the family habit of treating the sea only as a source of grief.",
+          "hobby": "shore swimming",
+          "dream": "travel freely while honoring her family losses",
+          "traits": [
+            0,
+            1,
+            0,
+            1,
+            0
+          ],
+          "appearanceFamily": "long oval face, broad cheekbones and grey-green eyes"
+        }
+      ]
+    },
+    {
+      "settlement": "castle_N8",
+      "house": "Skeldring",
+      "history": "A younger branch of a divided lineage, the Skeldrings retain court standing at Skarthness but no separate estate.",
+      "people": [
+        {
+          "name": "Ragnvald",
+          "life": "Yielded seniority in a contested lineage to preserve peace and carefully separates courtesy from submission.",
+          "hobby": "chesslike board games",
+          "dream": "win recognition for service rather than ancestry",
+          "traits": [
+            -1,
+            1,
+            1,
+            -1,
+            1
+          ],
+          "appearanceFamily": "square jaw, straight brows and grey-blue eyes"
+        },
+        {
+          "name": "Yrveig",
+          "life": "Made a respected household from gifts that richer relatives considered scraps and dislikes unnecessary display.",
+          "hobby": "clothing repair",
+          "dream": "make prosperity durable instead of visible",
+          "traits": [
+            1,
+            -1,
+            0,
+            1,
+            -1
+          ],
+          "appearanceFamily": "square jaw, straight brows and grey-blue eyes"
+        },
+        {
+          "name": "Haraldin",
+          "life": "Carried a ceremonial banner before learning how little ceremonial precedence decides in a hungry camp.",
+          "hobby": "marching songs",
+          "dream": "prove capable of practical command",
+          "traits": [
+            0,
+            1,
+            1,
+            1,
+            1
+          ],
+          "appearanceFamily": "square jaw, straight brows and grey-blue eyes"
+        },
+        {
+          "name": "Vigdis",
+          "life": "Refused to repeat a convenient accusation against a rival branch and has paid for the refusal in lost invitations.",
+          "hobby": "legal riddles",
+          "dream": "hold influence without trading away fair dealing",
+          "traits": [
+            1,
+            0,
+            -1,
+            -1,
+            -1
+          ],
+          "appearanceFamily": "square jaw, straight brows and grey-blue eyes"
+        },
+        {
+          "name": "Holmgeir",
+          "life": "Enjoys praise too readily and once claimed credit for a companion plan; the companion has not forgotten it.",
+          "hobby": "horse care",
+          "dream": "earn a compliment he does not have to steal",
+          "traits": [
+            0,
+            1,
+            0,
+            -1,
+            0
+          ],
+          "appearanceFamily": "square jaw, straight brows and grey-blue eyes"
+        },
+        {
+          "name": "Estruna",
+          "life": "Keeps pressed plants from visits to relatives and associates each with the person who showed her the place.",
+          "hobby": "plant collecting",
+          "dream": "maintain friendships beyond the family faction",
+          "traits": [
+            1,
+            0,
+            1,
+            -1,
+            1
+          ],
+          "appearanceFamily": "square jaw, straight brows and grey-blue eyes"
+        }
+      ]
+    },
+    {
+      "settlement": "castle_N9",
+      "house": "Lindeskar",
+      "history": "The Lindeskars relinquished an unworkable hill claim and entered service at Ulikshorn, bringing their family together.",
+      "people": [
+        {
+          "name": "Thorgest",
+          "life": "Abandoned a costly hill claim before it ruined the household and is willing to look cautious when others demand a gesture.",
+          "hobby": "stone boundary marks",
+          "dream": "leave his children useful standing rather than a lawsuit",
+          "traits": [
+            1,
+            -1,
+            0,
+            -1,
+            -1
+          ],
+          "appearanceFamily": "heart-shaped face, narrow nose and hazel eyes"
+        },
+        {
+          "name": "Jorhild",
+          "life": "Kept peace between her husband and resentful cousins after the abandoned claim and no longer mistakes harmony for agreement.",
+          "hobby": "spinning fine thread",
+          "dream": "speak plainly without breaking every bond",
+          "traits": [
+            0,
+            1,
+            1,
+            -1,
+            1
+          ],
+          "appearanceFamily": "heart-shaped face, narrow nose and hazel eyes"
+        },
+        {
+          "name": "Arnbjorn",
+          "life": "Mapped the poor hill ground his father relinquished and privately agrees that keeping it would have been folly.",
+          "hobby": "land sketching",
+          "dream": "be consulted for what he knows",
+          "traits": [
+            1,
+            0,
+            -1,
+            0,
+            -1
+          ],
+          "appearanceFamily": "heart-shaped face, narrow nose and hazel eyes"
+        },
+        {
+          "name": "Freydisa",
+          "life": "Learned provisioning by comparing extravagant feast promises with the actual stores behind the kitchen door.",
+          "hobby": "preserving berries",
+          "dream": "manage a household without hidden shortages",
+          "traits": [
+            0,
+            1,
+            0,
+            1,
+            0
+          ],
+          "appearanceFamily": "heart-shaped face, narrow nose and hazel eyes"
+        },
+        {
+          "name": "Vigdar",
+          "life": "Became close to a low-born practice partner and refuses suggestions that their friendship should stop at the hall threshold.",
+          "hobby": "staff fencing",
+          "dream": "keep a friendship despite social pressure",
+          "traits": [
+            1,
+            0,
+            1,
+            0,
+            1
+          ],
+          "appearanceFamily": "heart-shaped face, narrow nose and hazel eyes"
+        },
+        {
+          "name": "Rannlaug",
+          "life": "Spent childhood hearing that a recovered claim would solve everything and now asks what people intend to do afterward.",
+          "hobby": "story criticism",
+          "dream": "build a future that does not depend on old grievances",
+          "traits": [
+            -1,
+            1,
+            1,
+            0,
+            1
+          ],
+          "appearanceFamily": "heart-shaped face, narrow nose and hazel eyes"
+        }
+      ]
+    },
+    {
+      "settlement": "town_N1",
+      "house": "Beinholt",
+      "history": "The Beinholts came to Hvalvik with an island settlement venture; surviving kin now maintain a landless court household.",
+      "people": [
+        {
+          "name": "Hrafngeir",
+          "life": "Helped survey a northern landing place but lost his investment when supplies failed; he distrusts ventures without winter plans.",
+          "hobby": "coastal charts",
+          "dream": "organize one venture that repays its obligations",
+          "traits": [
+            0,
+            1,
+            1,
+            -1,
+            1
+          ],
+          "appearanceFamily": "broad face, heavy brows and brown eyes"
+        },
+        {
+          "name": "Ingvelda",
+          "life": "Bargained for shelter during the venture collapse and learned which forms of generosity carry an unspoken price.",
+          "hobby": "candle making",
+          "dream": "offer help without purchasing obedience",
+          "traits": [
+            1,
+            0,
+            -1,
+            0,
+            -1
+          ],
+          "appearanceFamily": "broad face, heavy brows and brown eyes"
+        },
+        {
+          "name": "Skarvald",
+          "life": "Returned from an unsuccessful voyage with more practical knowledge than profit and is tired of treating that as a disgrace.",
+          "hobby": "sail stitching",
+          "dream": "earn respect as an experienced voyager",
+          "traits": [
+            0,
+            1,
+            0,
+            1,
+            0
+          ],
+          "appearanceFamily": "broad face, heavy brows and brown eyes"
+        },
+        {
+          "name": "Thorlaug",
+          "life": "Records island family births and marriages to correct quarrels that begin with conveniently shortened memories.",
+          "hobby": "family records",
+          "dream": "make an account both feuding branches accept",
+          "traits": [
+            1,
+            0,
+            1,
+            0,
+            1
+          ],
+          "appearanceFamily": "broad face, heavy brows and brown eyes"
+        },
+        {
+          "name": "Audrik",
+          "life": "Apprenticed briefly to a bone carver and values the patient finish of a small object more than loud ambition.",
+          "hobby": "bone carving",
+          "dream": "sell work on the strength of its quality",
+          "traits": [
+            -1,
+            1,
+            1,
+            0,
+            1
+          ],
+          "appearanceFamily": "broad face, heavy brows and brown eyes"
+        },
+        {
+          "name": "Eydlaug",
+          "life": "Learned court manners while sharing crowded lodging with distant kin and still seeks quiet when a hall becomes overfull.",
+          "hobby": "shore bird watching",
+          "dream": "find a place that feels hers without shutting out kin",
+          "traits": [
+            1,
+            -1,
+            0,
+            -1,
+            -1
+          ],
+          "appearanceFamily": "broad face, heavy brows and brown eyes"
+        }
+      ]
+    },
+    {
+      "settlement": "town_N2",
+      "house": "Seilvaag",
+      "history": "Long associated with visiting merchants, the Seilvaags hold noble standing at Gretysfjord without owning harbor dues or land.",
+      "people": [
+        {
+          "name": "Eirikmar",
+          "life": "Witnessed trade agreements for visiting captains and has lost friendships by insisting that the spoken terms be written down.",
+          "hobby": "comparing measures",
+          "dream": "be trusted by people who otherwise distrust each other",
+          "traits": [
+            1,
+            0,
+            -1,
+            -1,
+            -1
+          ],
+          "appearanceFamily": "angular cheekbones, rounded chin and green eyes"
+        },
+        {
+          "name": "Borghild",
+          "life": "Built a network of small favors while managing visiting kin and fears turning every friendship into another obligation.",
+          "hobby": "hosting quiet suppers",
+          "dream": "enjoy companionship without bargaining",
+          "traits": [
+            0,
+            1,
+            0,
+            -1,
+            0
+          ],
+          "appearanceFamily": "angular cheekbones, rounded chin and green eyes"
+        },
+        {
+          "name": "Torstenar",
+          "life": "Failed to impress a rich captain by boasting and learned that asking a useful question can carry more weight.",
+          "hobby": "navigation problems",
+          "dream": "be invited aboard for skill rather than connections",
+          "traits": [
+            1,
+            0,
+            1,
+            -1,
+            1
+          ],
+          "appearanceFamily": "angular cheekbones, rounded chin and green eyes"
+        },
+        {
+          "name": "Solveira",
+          "life": "Keeps patterns copied from foreign textiles and insists that appreciating another fashion need not make her ashamed of her own.",
+          "hobby": "textile collecting",
+          "dream": "design a distinctive woven border",
+          "traits": [
+            -1,
+            1,
+            1,
+            -1,
+            1
+          ],
+          "appearanceFamily": "angular cheekbones, rounded chin and green eyes"
+        },
+        {
+          "name": "Hallgeir",
+          "life": "Once passed along an exaggerated price rumor and saw it harm a supplier he liked; he now checks stories before repeating them.",
+          "hobby": "market observation",
+          "dream": "repair trust with people he misled",
+          "traits": [
+            1,
+            -1,
+            0,
+            1,
+            -1
+          ],
+          "appearanceFamily": "angular cheekbones, rounded chin and green eyes"
+        },
+        {
+          "name": "Fridrun",
+          "life": "Enjoys hearing visiting speakers disagree and has begun noting the moments when a joke conceals an insult.",
+          "hobby": "dialogue games",
+          "dream": "learn to speak sharply without becoming cruel",
+          "traits": [
+            0,
+            1,
+            1,
+            1,
+            1
+          ],
+          "appearanceFamily": "angular cheekbones, rounded chin and green eyes"
+        }
+      ]
+    },
+    {
+      "settlement": "town_N3",
+      "house": "Tingalund",
+      "history": "The Tingalunds trace their service to assembly gatherings; their residence at Thronderlag conveys neither a fief nor a council seat.",
+      "people": [
+        {
+          "name": "Aunvald",
+          "life": "Served as a witness at difficult settlements and dislikes the tendency to remember only the loudest man in the circle.",
+          "hobby": "remembering judgments",
+          "dream": "be heard for careful judgment in old age",
+          "traits": [
+            0,
+            1,
+            0,
+            1,
+            0
+          ],
+          "appearanceFamily": "soft oval face, straight nose and blue-grey eyes"
+        },
+        {
+          "name": "Gydeva",
+          "life": "Learned how ceremonial hospitality can turn a poor host into a debtor and quietly scales gatherings to what can be afforded.",
+          "hobby": "arranging feasts",
+          "dream": "preserve dignity without buying applause",
+          "traits": [
+            1,
+            0,
+            1,
+            0,
+            1
+          ],
+          "appearanceFamily": "soft oval face, straight nose and blue-grey eyes"
+        },
+        {
+          "name": "Sigtrygg",
+          "life": "Memorized ancestral speeches before realizing that repeating them could conceal the absence of a present answer.",
+          "hobby": "formal speaking",
+          "dream": "find words that answer the actual dispute",
+          "traits": [
+            -1,
+            1,
+            1,
+            0,
+            1
+          ],
+          "appearanceFamily": "soft oval face, straight nose and blue-grey eyes"
+        },
+        {
+          "name": "Ragnhildra",
+          "life": "Challenges a family account that erases an inconvenient marriage and will not sacrifice an absent woman reputation for a neat story.",
+          "hobby": "genealogy research",
+          "dream": "produce an honest family chronicle",
+          "traits": [
+            1,
+            -1,
+            0,
+            -1,
+            -1
+          ],
+          "appearanceFamily": "soft oval face, straight nose and blue-grey eyes"
+        },
+        {
+          "name": "Ulfrik",
+          "life": "Was praised for courage after obeying an order he barely understood and now asks questions that senior men find impertinent.",
+          "hobby": "tactical games",
+          "dream": "deserve trust for judgment as well as nerve",
+          "traits": [
+            0,
+            1,
+            1,
+            -1,
+            1
+          ],
+          "appearanceFamily": "soft oval face, straight nose and blue-grey eyes"
+        },
+        {
+          "name": "Asveiga",
+          "life": "Volunteered to help guests find lodging and discovered how quickly a minor slight can become a public grievance.",
+          "hobby": "memorizing names",
+          "dream": "make overlooked people feel accurately remembered",
+          "traits": [
+            1,
+            0,
+            -1,
+            0,
+            -1
+          ],
+          "appearanceFamily": "soft oval face, straight nose and blue-grey eyes"
+        }
+      ]
+    },
+    {
+      "settlement": "town_N4",
+      "house": "Elverdal",
+      "history": "The Elverdals moved between river kin before settling at Hargard; they remain a noble household without taxable holdings.",
+      "people": [
+        {
+          "name": "Bjarngrim",
+          "life": "Mediated disputes between river traders and insists on hearing an account in the speaker own words before accepting a translation.",
+          "hobby": "learning river terms",
+          "dream": "be useful across communities without owning their voices",
+          "traits": [
+            1,
+            0,
+            1,
+            0,
+            1
+          ],
+          "appearanceFamily": "long oval face, broad cheekbones and grey-green eyes"
+        },
+        {
+          "name": "Ragnora",
+          "life": "Maintained ties on both sides of an old marriage dispute and keeps private grief separate from public hospitality.",
+          "hobby": "woven band making",
+          "dream": "keep family ties from becoming rival camps",
+          "traits": [
+            -1,
+            1,
+            1,
+            0,
+            1
+          ],
+          "appearanceFamily": "long oval face, broad cheekbones and grey-green eyes"
+        },
+        {
+          "name": "Steinkel",
+          "life": "Helped carry a stranded cargo inland and discovered a talent for organizing tired people without shouting at them.",
+          "hobby": "route planning",
+          "dream": "earn responsibility for a real logistical task",
+          "traits": [
+            1,
+            -1,
+            0,
+            -1,
+            -1
+          ],
+          "appearanceFamily": "long oval face, broad cheekbones and grey-green eyes"
+        },
+        {
+          "name": "Odhild",
+          "life": "Learned medicinal preparation from women in several river households and is careful to say when a remedy may not help.",
+          "hobby": "preparing salves",
+          "dream": "be trusted for honesty about her limits",
+          "traits": [
+            0,
+            1,
+            1,
+            -1,
+            1
+          ],
+          "appearanceFamily": "long oval face, broad cheekbones and grey-green eyes"
+        },
+        {
+          "name": "Haldorik",
+          "life": "Resents being called provincial and once pretended to understand a foreign joke; he has since begun learning the language properly.",
+          "hobby": "language practice",
+          "dream": "be confident without pretending knowledge",
+          "traits": [
+            1,
+            0,
+            -1,
+            0,
+            -1
+          ],
+          "appearanceFamily": "long oval face, broad cheekbones and grey-green eyes"
+        },
+        {
+          "name": "Gunnveig",
+          "life": "Traded small carved tokens with childhood friends from different river communities and worries that court loyalties will divide them.",
+          "hobby": "token carving",
+          "dream": "keep friendships intact as public loyalties harden",
+          "traits": [
+            0,
+            1,
+            0,
+            1,
+            0
+          ],
+          "appearanceFamily": "long oval face, broad cheekbones and grey-green eyes"
+        }
+      ]
+    }
+  ]
+}

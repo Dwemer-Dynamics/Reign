@@ -1,0 +1,13 @@
+{
+  "version": 1,
+  "heroStringId": "reign_court_town_N2_child_1",
+  "characterName": "Torstenar Seilvaag",
+  "imagePath": "portrait.png",
+  "imageSha256": "F5085B5A3DBC1D314BD162C3692390860725E883D613853C72F802DA877857AF",
+  "description": "Brown knee-length wool tunic with narrow pale geometric woven neck/cuff/hem borders over cream linen, plain brown belt with small metal buckle, loose light-brown trousers, dark wool lower-leg wraps and soft brown shoes. No headgear, armor or weapons.",
+  "status": "completed",
+  "descriptionSource": "agent_vision",
+  "retryEligible": false,
+  "error": "",
+  "updatedUtc": "2026-11-07T03:30:14.555583+00:00"
+}

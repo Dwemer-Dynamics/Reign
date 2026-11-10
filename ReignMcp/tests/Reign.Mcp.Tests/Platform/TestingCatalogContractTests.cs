@@ -9,6 +9,44 @@ namespace Reign.Mcp.Tests;
 public sealed class TestingCatalogContractTests
 {
     [Fact]
+    public void WeddingFixtureBindsOneExactPairAndRequiresRecovery()
+    {
+        string Case(string arguments) => """
+            [{"caseId":"wedding","phase":"fixture","kind":"fixture","operationId":"wedding-run",
+              "actionId":"fixture.arranged_wedding","arguments":ARGUMENTS}]
+            """.Replace("ARGUMENTS", arguments, StringComparison.Ordinal);
+        var stage = Assert.Single(StructuredActionTools.ParseCases(Case(
+            """{"profile":"stage","playerMatchId":"player","prospectId":"prospect","leaderId":"leader"}""")));
+        Assert.True(StructuredActionTools.RequiresRecoveryCheckpoint(stage));
+        Assert.True(StructuredActionTools.RequiresRecoveryCheckpoint(Assert.Single(
+            StructuredActionTools.ParseCases(Case("""{"profile":"observe"}""")))));
+        Assert.Throws<ArgumentException>(() => StructuredActionTools.ParseCases(Case("""{"profile":"accept"}""")));
+        Assert.Throws<ArgumentException>(() => StructuredActionTools.ParseCases(Case("""{"profile":"stage","leaderId":"leader"}""")));
+        Assert.Throws<ArgumentException>(() => StructuredActionTools.ParseCases(Case("""{"profile":"observe","venueId":"town"}""")));
+    }
+
+    [Fact]
+    public async Task MilitaryStandingPreviewPreservesArtworkCrestAndDropdownBoundaryCases()
+    {
+        string workspace = TestOptions.FindWorkspace();
+        var start = new ProcessStartInfo("node") { WorkingDirectory = workspace, UseShellExecute = false,
+            CreateNoWindow = true, RedirectStandardOutput = true, RedirectStandardError = true };
+        start.ArgumentList.Add(Path.Combine(workspace, "ReignBeta/tools/GauntletXmlPreviewer/test-military-standing-contract.mjs"));
+        using var process = Process.Start(start);
+        Assert.NotNull(process);
+        var outputTask = process.StandardOutput.ReadToEndAsync();
+        var errorTask = process.StandardError.ReadToEndAsync();
+        using var deadline = new CancellationTokenSource(TimeSpan.FromSeconds(30));
+        try { await process.WaitForExitAsync(deadline.Token); }
+        catch (OperationCanceledException)
+        {
+            process.Kill(entireProcessTree: true);
+            throw new TimeoutException("Military standing preview contract timed out.");
+        }
+        string stdout = await outputTask, stderr = await errorTask;
+        Assert.True(process.ExitCode == 0, $"Military standing preview contract failed: {stderr}\n{stdout}");
+    }
+    [Fact]
     public void ValidationCoordinationIsDiscoverableAndReadOnly()
     {
         string workspace = TestOptions.FindWorkspace();
@@ -330,7 +368,37 @@ public sealed class TestingCatalogContractTests
             $"Catalog drift. Missing: {string.Join(", ", reflected.Except(cataloged))}; extra: {string.Join(", ", cataloged.Except(reflected))}");
         string raw = File.ReadAllText(Path.Combine(TestOptions.FindWorkspace(), "reign.testing.json"));
         using JsonDocument catalogDocument = JsonDocument.Parse(raw);
-        Assert.Equal("2026.11.01.1", catalogDocument.RootElement.GetProperty("version").GetString());
+        Assert.Equal("2026.11.08.9", catalogDocument.RootElement.GetProperty("version").GetString());
+        var performance = catalogDocument.RootElement.GetProperty("campaignPerformance");
+        Assert.Equal("reign-campaign-performance-report-v1", performance.GetProperty("schema").GetString());
+        Assert.Equal("reign_monitor_campaign_performance", performance.GetProperty("mcpTools")[0].GetString());
+        var providerPolicies = performance.GetProperty("providerObservationPolicies");
+        Assert.Equal("provider_free", providerPolicies.GetProperty("default").GetString());
+        Assert.Equal(2, providerPolicies.GetProperty("allowed").GetArrayLength());
+        Assert.Equal("provider_free", providerPolicies.GetProperty("allowed")[0].GetString());
+        Assert.Equal("observe_configured", providerPolicies.GetProperty("allowed")[1].GetString());
+        Assert.Contains("never releases a marker", providerPolicies.GetProperty("contract").GetString());
+        Assert.Equal(120, performance.GetProperty("bounds").GetProperty("windows").GetInt32());
+        Assert.Equal(3078, performance.GetProperty("bounds").GetProperty("projectedCountersIncludingTruncationFlags").GetInt32());
+        Assert.Equal(6, performance.GetProperty("bounds").GetProperty("projectionSources").GetInt32());
+        Assert.Equal(4, performance.GetProperty("bounds").GetProperty("queueRequestDeadlineSeconds").GetInt32());
+        Assert.Contains("read-only transaction", performance.GetProperty("readinessReadContract").GetString());
+        Assert.Contains("single-flight", performance.GetProperty("politicalBatchContract").GetString());
+        Assert.Contains("OBSERVATIONS_ONLY", performance.GetProperty("evidence").GetString());
+        var courtFit = catalogDocument.RootElement.GetProperty("uiInteractionCalibration").GetProperty("courtWorkspaceFit");
+        Assert.Contains("UIContext.Scale", courtFit.GetProperty("nativeAdapter").GetString());
+        var courtObservation = courtFit.GetProperty("observation");
+        Assert.Equal("reign-court-layout-observation-v1", courtObservation.GetProperty("schema").GetString());
+        Assert.Equal("reign_get_live_test_status -> runtime.courtUi", courtObservation.GetProperty("route").GetString());
+        var courtFields = courtObservation.GetProperty("fields").EnumerateArray().Select(x => x.GetString()).ToArray();
+        Assert.InRange(courtFields.Length, 1, 24);
+        foreach (string field in new[] { "nativeBaseScale", "customScale", "expectedScale", "expectedBottom", "bottom" })
+            Assert.Contains(field, courtFields);
+        Assert.Contains("No UI opening/input", courtObservation.GetProperty("safety").GetString());
+        var checkpointHold = catalogDocument.RootElement.GetProperty("campaignTest").GetProperty("periodicCommunicationCheckpointHold");
+        Assert.Equal(1, checkpointHold.GetProperty("version").GetInt32());
+        Assert.Equal(60, checkpointHold.GetProperty("maximumSeconds").GetInt32());
+        Assert.Equal(20, checkpointHold.GetProperty("renewAfterSeconds").GetInt32());
         var clothingCoverage = catalogDocument.RootElement.GetProperty("chatView").GetProperty("wardrobe").GetProperty("coverageContract");
         Assert.Equal("chat-scene-clothing-coverage-v1", clothingCoverage.GetProperty("version").GetString());
         Assert.Equal("wardrobeCoverage", clothingCoverage.GetProperty("selectorField").GetString());
