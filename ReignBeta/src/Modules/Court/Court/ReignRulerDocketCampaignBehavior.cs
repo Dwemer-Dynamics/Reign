@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using Reign.Core.Contracts.Dialogue;
 using System.Collections.Generic;
 using System.Linq;
