@@ -1498,7 +1498,7 @@ namespace ReignBeta.Integration
             string baseUrl = ReignBetaSettings.Instance?.LocalServerUrl;
             if (string.IsNullOrWhiteSpace(baseUrl))
             {
-                baseUrl = "http://127.0.0.1:5101";
+                baseUrl = ReignServerEndpoint.DefaultBaseUrl;
             }
 
             if (details.IndexOf("actively refused", StringComparison.OrdinalIgnoreCase) >= 0

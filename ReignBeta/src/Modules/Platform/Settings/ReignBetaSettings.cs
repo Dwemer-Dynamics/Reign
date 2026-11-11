@@ -3,6 +3,7 @@ using MCM.Abstractions.Attributes.v2;
 using MCM.Abstractions.Base.Global;
 using AIPortraits;
 using ReignBeta.Campaign;
+using ReignBeta.Integration;
 using System;
 
 namespace ReignBeta.Settings
@@ -41,7 +42,7 @@ namespace ReignBeta.Settings
         private bool _revealAllCharacterStatsAndRelationships;
         private bool _mcmTestModeEnabled;
         private bool _dialogueComplianceTestModeEnabled;
-        private string _localServerUrl = "http://127.0.0.1:8089";
+        private string _localServerUrl = ReignServerEndpoint.DefaultBaseUrl;
 
         private Action _openPartyChatAction = ReignBetaDebugActions.OpenPartyChat;
         private Action _openCorrespondenceAction = ReignBetaDebugActions.OpenCorrespondence;
@@ -399,14 +400,14 @@ namespace ReignBeta.Settings
             }
         }
 
-        [SettingPropertyText("Local Server URL", -1, false, "", Order = 1, RequireRestart = false, HintText = "Default: http://127.0.0.1:8089")]
+        [SettingPropertyText("Local Server URL", -1, false, "", Order = 1, RequireRestart = false, HintText = "Default: " + ReignServerEndpoint.DefaultBaseUrl)]
         [SettingPropertyGroup("Local Server", GroupOrder = 2)]
         public string LocalServerUrl
         {
             get { return _localServerUrl; }
             set
             {
-                string next = string.IsNullOrWhiteSpace(value) ? "http://127.0.0.1:8089" : value.Trim();
+                string next = ReignServerEndpoint.MigratePreviousDefault(value);
                 if (next != _localServerUrl)
                 {
                     _localServerUrl = next;

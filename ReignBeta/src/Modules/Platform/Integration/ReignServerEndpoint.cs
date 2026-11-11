@@ -8,7 +8,8 @@ namespace ReignBeta.Integration
 {
     internal static class ReignServerEndpoint
     {
-        internal const string DefaultBaseUrl = "http://127.0.0.1:8089";
+        internal const string DefaultBaseUrl = "http://127.0.0.1:8091";
+        internal const string PreviousDefaultBaseUrl = "http://127.0.0.1:8089";
         private static readonly object Gate = new object();
         private static string _successfulBaseUrl;
         private static DateTime _unavailableUntilUtc;
@@ -110,7 +111,15 @@ namespace ReignBeta.Integration
 
         private static string NormalizeBaseUrl(string value)
         {
-            return string.IsNullOrWhiteSpace(value) ? DefaultBaseUrl : value.Trim().TrimEnd('/');
+            return string.IsNullOrWhiteSpace(value) ? DefaultBaseUrl : MigratePreviousDefault(value).TrimEnd('/');
+        }
+
+        // Settings saved with the previous default loopback URL move to the current default; custom endpoints are kept.
+        internal static string MigratePreviousDefault(string value)
+        {
+            if (string.IsNullOrWhiteSpace(value)) return DefaultBaseUrl;
+            string trimmed = value.Trim();
+            return string.Equals(trimmed.TrimEnd('/'), PreviousDefaultBaseUrl, StringComparison.OrdinalIgnoreCase) ? DefaultBaseUrl : trimmed;
         }
 
         private static string NormalizeRoute(string route)
