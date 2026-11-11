@@ -1,0 +1,1283 @@
+{
+  "schema": "reign-player-manual-coverage-v1",
+  "edition": "2026-11-09",
+  "meaning": "Editorial coverage of reviewed behavior, not certification of every source file or native feature",
+  "chapters": [
+    {
+      "id": "requirements-and-resource-use",
+      "title": "Requirements and resource use",
+      "sources": [
+        "ReignBeta/SubModule.xml",
+        "ReignServer/AGENTS.md",
+        "docs/user-guide/requirements-evidence.json"
+      ],
+      "notes": "Only published base-game RAM requirements are displayed. The initial 32 GB planning recommendation was withdrawn after the user's correction; the retained historical snapshot is not normal-use or capacity evidence.",
+      "topics": [
+        "what-you-need-before-playing",
+        "ram-plan-for-the-game-and-the-server-together",
+        "processor-graphics-storage-and-connection"
+      ]
+    },
+    {
+      "id": "start-here",
+      "title": "Start here",
+      "sources": [
+        "AGENTS.md",
+        "ReignBeta/SubModule.xml",
+        "ReignBeta/src/Modules/Platform/Settings/ReignBetaSettings.cs",
+        "ReignBeta/src/Modules/Platform/Campaign/ReignCampaignPreparationCampaignBehavior.cs"
+      ],
+      "notes": "Current managed WSL lifecycle/8089 overrides stale Windows/5101 instructions in the legacy player guide.",
+      "topics": [
+        "how-to-use-this-guide",
+        "what-reign-changes",
+        "your-first-session",
+        "the-controls-worth-knowing-first"
+      ]
+    },
+    {
+      "id": "your-first-conversation",
+      "title": "Your first conversation",
+      "sources": [
+        "ReignServer/shared/Reign.Core.Contracts/Actions/ReignActionCatalog.cs",
+        "ReignServer/shared/Reign.Core.Contracts/Actions/ReignNpcLifeActionCatalog.cs",
+        "ReignBeta/src/Modules/Dialogue/UI/ReignActionBuilder.cs",
+        "ReignBeta/src/Modules/Dialogue/UI/ReignIndividualChatScreenManager.cs",
+        "ReignBeta/src/Modules/Dialogue/UI/Widgets/ReignActionEditableTextWidget.cs",
+        "ReignBeta/src/Modules/Dialogue/UI/ViewModels/ReignActionBuilderVM.cs",
+        "ReignBeta/src/Modules/Dialogue/UI/ViewModels/ReignActionComposerVM.cs",
+        "docs/agent/ACTION_SYSTEM.md"
+      ],
+      "notes": "Alt+A, Enter and Escape are grounded in the builder/host source, with text-edit shortcuts from the protected editor.",
+      "topics": [
+        "approach-speak-and-listen",
+        "asking-for-a-real-action",
+        "agreement-is-the-beginning-not-the-result",
+        "terms-conditions-and-ongoing-agreements",
+        "what-you-can-ask-people-to-do"
+      ]
+    },
+    {
+      "id": "action-sentence-system",
+      "title": "Action sentence system",
+      "sources": [
+        "docs/user-guide/action-reference.json",
+        "ReignServer/shared/Reign.Core.Contracts/Actions/ReignActionCatalog.cs",
+        "ReignServer/shared/Reign.Core.Contracts/Actions/ReignActionParameters.cs",
+        "ReignServer/shared/Reign.Core.Contracts/Actions/ReignActionConversationPolicy.cs",
+        "ReignBeta/src/Modules/Dialogue/UI/ViewModels/ReignActionBuilderVM.cs",
+        "ReignBeta/src/Modules/WorldSimulation/Actions/ReignActionService.cs",
+        "docs/agent/ACTION_SYSTEM.md"
+      ],
+      "notes": "Covers all IDs from the separately hash-verified integration action registry. Groups aliases and identifies event, wedding, follow-up, and legacy routes. The native operator console is separate.",
+      "topics": [
+        "build-and-send-an-action-sentence",
+        "bargains-and-timing",
+        "gifts-and-exchanges",
+        "personal-and-family-actions",
+        "marriage-actions-and-wedding-choices",
+        "arrests-and-direct-conflict",
+        "following-and-guiding",
+        "party-and-military-orders",
+        "clan-and-kingdom-actions",
+        "rebellions-and-internal-politics",
+        "realm-diplomacy",
+        "government-support-and-petitions",
+        "government-hearings-and-decisions",
+        "court-offices-and-ambassadors",
+        "spymaster-missions",
+        "follow-up-controls-and-older-action-entries"
+      ]
+    },
+    {
+      "id": "getting-to-know-people",
+      "title": "Getting to know people",
+      "sources": [
+        "docs/REIGN_PLAYER_GUIDE.md",
+        "docs/agent/CHARACTER_NARRATIVE_V5.md",
+        "docs/agent/WANDERER_POPULATION.md",
+        "ReignBeta/src/Modules/Characters/Campaign/ReignRecruitedNotableCampaignBehavior.cs",
+        "ReignBeta/src/Modules/Characters/Campaign/ReignWorkshopDialoguePatches.cs",
+        "ReignBeta/ModuleData/reign_nord_households.json"
+      ],
+      "topics": [
+        "personalities-interests-and-private-concerns",
+        "what-npcs-know-believe-and-keep-secret",
+        "relationships-visible-status-and-skills",
+        "added-nobles-and-wanderers"
+      ]
+    },
+    {
+      "id": "group-chat-letters-and-everyday-communication",
+      "title": "Group chat, letters, and everyday communication",
+      "preview": true,
+      "sources": [
+        "docs/agent/PARTY_CHAT_CONTINUATION.md",
+        "docs/agent/PARTY_BANTER.md",
+        "docs/agent/CONVERSATION_COMMUNICATION.md",
+        "ReignBeta/src/Modules/Dialogue/UI/ViewModels/ReignPartyChatScreenVM.cs",
+        "ReignBeta/src/Modules/Dialogue/UI/ViewModels/ReignPartyChatLives.cs",
+        "ReignBeta/src/Modules/Dialogue/UI/ViewModels/ReignCorrespondenceScreenVM.cs",
+        "docs/agent/NPC_LIVES_AND_STORYLINES_PLAN.md",
+        "ReignBeta/src/Modules/Dialogue/UI/ReignPartyChatScreenManager.cs",
+        "ReignBeta/src/Modules/Dialogue/UI/ReignCorrespondenceScreenManager.cs"
+      ],
+      "topics": [
+        "party-chat-and-private-audiences",
+        "travel-banter",
+        "correspondence-sending-and-receiving-letters",
+        "promises-to-inform-someone-or-send-for-them",
+        "party-announcements"
+      ]
+    },
+    {
+      "id": "events-and-npc-personal-lives",
+      "title": "Events and NPC personal lives",
+      "preview": true,
+      "sources": [
+        "docs/REIGN_PLAYER_GUIDE.md",
+        "docs/agent/NPC_LIVES_AND_STORYLINES_PLAN.md",
+        "docs/agent/PLAYER_ATTENTION_AND_APPROACHES.md",
+        "ReignBeta/src/Modules/WorldSimulation/Campaign/ReignSocialEventsCampaignBehavior.cs"
+      ],
+      "topics": [
+        "town-events-and-tournament-celebrations",
+        "wilderness-encounters-and-personal-matters",
+        "approach-invitations-and-personal-stories",
+        "personal-leave-and-changing-plans",
+        "attention-jealousy-invitations-and-rescues"
+      ]
+    },
+    {
+      "id": "town-life-residents-and-tavern-visits",
+      "title": "Town life, residents, and tavern visits",
+      "preview": true,
+      "sources": [
+        "docs/agent/ENCOUNTERED_RESIDENTS_IMPLEMENTATION.md",
+        "docs/agent/TAVERN_HOUSE_IMPLEMENTATION.md",
+        "ReignBeta/src/Modules/Dialogue/UI/ViewModels/ReignIndividualChatOutfit.cs",
+        "REIGN_ROADMAP.md"
+      ],
+      "notes": "Roadmap supplements feature discovery; implementation documentation and source control current behavior. Unchecked roadmap entries are not treated as completion proof.",
+      "topics": [
+        "people-you-meet-can-become-persistent",
+        "visit-the-homes",
+        "visit-the-madam",
+        "clothing-drinking-and-firm-refusals"
+      ]
+    },
+    {
+      "id": "relationships-and-starting-a-family",
+      "title": "Relationships and starting a family",
+      "sources": [
+        "docs/REIGN_PLAYER_GUIDE.md",
+        "ReignBeta/src/Modules/Characters/Family/ReignPregnancyPatches.cs",
+        "ReignBeta/src/Modules/Characters/Family/ReignPregnancyRestrictionPolicy.cs",
+        "ReignBeta/src/Modules/Dialogue/UI/ViewModels/ReignIndividualChatScreenVM.cs",
+        "ReignServer/shared/Reign.Core.Contracts/Actions/ReignActionCatalog.cs",
+        "ReignBeta/src/Modules/WorldSimulation/Actions/ReignSpouseSeparationAction.cs",
+        "docs/user-guide/action-reference.json",
+        "ReignServer/shared/Reign.Relationships/ArrangedMarriagePolicy.cs",
+        "ReignBeta/src/Modules/Relationships/Campaign/ReignArrangedMarriage.cs"
+      ],
+      "topics": [
+        "friendship-romance-and-long-memories",
+        "marriage-and-npc-matchmaking",
+        "arranged-marriage-offers-and-cultural-weddings",
+        "having-a-baby-the-important-change",
+        "pregnancy-parentage-and-pregnant-companions",
+        "children-and-family-chambers"
+      ]
+    },
+    {
+      "id": "gossip-reputation-and-public-standing",
+      "title": "Gossip, reputation, and Public Standing",
+      "preview": true,
+      "sources": [
+        "docs/REIGN_PLAYER_GUIDE.md",
+        "docs/agent/PERSONAL_GOSSIP_PLAN_2026-09-26.md",
+        "docs/agent/testing/PERSONAL_GOSSIP_LAUNCH_PLAN_2026-10-04.md",
+        "docs/agent/TAVERN_HOUSE_IMPLEMENTATION.md"
+      ],
+      "topics": [
+        "gossip-is-not-proof",
+        "what-your-reputation-changes",
+        "reputation-names-you-may-see",
+        "managing-a-damaged-name"
+      ]
+    },
+    {
+      "id": "keeps-households-and-training",
+      "title": "Keeps, households, and training",
+      "sources": [
+        "docs/REIGN_PLAYER_GUIDE.md",
+        "ReignBeta/src/Modules/Court/TrainingYard/ReignTrainingYardCampaignBehavior.cs",
+        "ReignBeta/src/Modules/Court/TrainingYard/ReignTrainingYardScreenVM.cs",
+        "REIGN_ROADMAP.md"
+      ],
+      "topics": [
+        "castle-layout-and-room-conversations",
+        "training-yard",
+        "household-pictures-and-privacy"
+      ]
+    },
+    {
+      "id": "ruling-a-kingdom",
+      "title": "Ruling a kingdom",
+      "preview": true,
+      "sources": [
+        "docs/REIGN_PLAYER_GUIDE.md",
+        "docs/NOBLE_DOCKET_EVENT_CATALOG.md",
+        "docs/agent/COURT_LIFE_IMPLEMENTATION.md",
+        "ReignBeta/src/Modules/Court/Court/ReignCourtCampaignBehavior.cs",
+        "ReignBeta/src/Modules/Court/Court/ReignPatronageCampaignBehavior.cs",
+        "ReignBeta/src/Modules/Court/Court/ReignNobleVisitorCampaignBehavior.cs",
+        "ReignBeta/src/Modules/Court/Court/ReignNobleDocketCampaignBehavior.cs"
+      ],
+      "topics": [
+        "capitals-and-rule-mode",
+        "hearing-and-deciding-petitions",
+        "noble-disputes-visitors-and-patronage",
+        "chancellor-and-delegation",
+        "offices-and-the-royal-council",
+        "economic-reports-and-court-supply"
+      ]
+    },
+    {
+      "id": "government-and-political-participation",
+      "title": "Government and political participation",
+      "preview": true,
+      "sources": [
+        "docs/agent/GOVERNMENT_PARTICIPATION_IMPLEMENTATION.md",
+        "docs/agent/GOVERNMENT_HEARING_IMPLEMENTATION.md",
+        "docs/agent/GOVERNMENT_SESSIONS_20261015.md",
+        "ReignBeta/src/Modules/Government/Campaign/ReignGovernmentCampaignBehavior.cs",
+        "ReignServer/shared/Reign.Core.Contracts/Actions/ReignActionCatalog.cs"
+      ],
+      "notes": "Updated participation/hearing policy takes precedence over legacy per-method hearing buttons and simple member-headcount claims.",
+      "topics": [
+        "your-kingdoms-institution",
+        "authority-and-the-rulers-limits",
+        "joining-government-without-a-crown",
+        "proposals-sponsors-parties-and-sessions",
+        "hearings-recess-and-political-bargains",
+        "resolutions-edicts-and-follow-through"
+      ]
+    },
+    {
+      "id": "diplomacy-ambassadors-and-clan-accords",
+      "title": "Diplomacy, ambassadors, and Clan Accords",
+      "preview": true,
+      "sources": [
+        "docs/REIGN_PLAYER_GUIDE.md",
+        "docs/agent/CLAN_ACCORDS.md",
+        "ReignServer/shared/Reign.Core.Contracts/Actions/ReignActionCatalog.cs",
+        "ReignBeta/src/Modules/Diplomacy/ClanAccords/ReignClanAccordsModels.cs"
+      ],
+      "topics": [
+        "talking-to-the-right-authority",
+        "what-agreements-can-do",
+        "outbound-and-resident-ambassadors",
+        "clan-accords"
+      ]
+    },
+    {
+      "id": "spymaster-and-covert-work",
+      "title": "Spymaster and covert work",
+      "sources": [
+        "docs/REIGN_PLAYER_GUIDE.md",
+        "ReignBeta/src/Modules/Spymaster/Court/ReignSpymasterCampaignBehavior.cs"
+      ],
+      "topics": [
+        "appointing-and-using-a-spymaster",
+        "intelligence-and-sabotage",
+        "social-manipulation-and-lethal-missions"
+      ]
+    },
+    {
+      "id": "war-armies-and-temporary-guests",
+      "title": "War, armies, and temporary guests",
+      "preview": true,
+      "sources": [
+        "docs/REIGN_PLAYER_GUIDE.md",
+        "docs/agent/REIGN_MILITARY_READINESS.md",
+        "ReignBeta/src/Modules/WorldSimulation/PartyAgency/ReignTemporaryPartyGuestCampaignBehavior.cs",
+        "ReignBeta/src/Modules/WorldSimulation/CampaignCommands/ReignCampaignCommandBehavior.cs",
+        "ReignBeta/src/Modules/Court/WarCouncil/ReignWarCouncilCampaignBehavior.cs"
+      ],
+      "topics": [
+        "giving-a-clear-campaign-order",
+        "campaign-objectives-you-can-combine",
+        "war-council-map-and-intelligence",
+        "peace-standing-war-standing-and-garrisons",
+        "inviting-a-noble-to-travel-with-you"
+      ]
+    },
+    {
+      "id": "duels-arrests-rulers-and-civil-war",
+      "title": "Duels, arrests, rulers, and civil war",
+      "preview": true,
+      "sources": [
+        "docs/REIGN_PLAYER_GUIDE.md",
+        "docs/agent/RULER_JUDGMENTS.md",
+        "ReignBeta/src/Modules/Characters/Campaign/ReignDuelModePolicy.cs",
+        "ReignBeta/src/Modules/Characters/Campaign/ReignDuelCombatPatches.cs",
+        "ReignBeta/src/Modules/WorldSimulation/Arrests/ReignArrestCampaignBehavior.cs",
+        "ReignBeta/src/Modules/Rebellion/Campaign/ReignRebellionCampaignBehavior.cs"
+      ],
+      "topics": [
+        "choosing-a-duel",
+        "arrests-accusation-confirmation-and-custody",
+        "captured-rulers-and-sovereign-judgment",
+        "rebellion-and-civil-war"
+      ]
+    },
+    {
+      "id": "economy-and-survival",
+      "title": "Economy and survival",
+      "preview": true,
+      "sources": [
+        "docs/agent/REIGN_MILITARY_READINESS.md",
+        "docs/agent/testing/WAR_ECONOMY.md",
+        "ReignBeta/src/Modules/WorldSimulation/Economy/ReignWarEconomyPolicy.cs",
+        "ReignBeta/src/Modules/WorldSimulation/Economy/ReignWarEconomyTransactions.cs",
+        "ReignBeta/src/Modules/WorldSimulation/Economy/ReignWarEconomyFoodMarket.cs",
+        "ReignBeta/src/Modules/WorldSimulation/Economy/ReignWarEconomyTariffs.cs",
+        "ReignBeta/src/Modules/WorldSimulation/Economy/ReignWarEconomyNaval.cs",
+        "ReignBeta/src/Modules/WorldSimulation/Economy/ReignMilitaryReadiness.cs",
+        "ReignBeta/src/Modules/WorldSimulation/Economy/ReignEconomyModels.cs",
+        "ReignBeta/src/Modules/WorldSimulation/Economy/ReignMedicalDischarge.cs",
+        "ReignBeta/src/Modules/WorldSimulation/Economy/ReignMedicalDischargePolicy.cs",
+        "ReignServer/shared/Reign.Core.Contracts/Economy/WarEconomyOptions.cs"
+      ],
+      "notes": "Active balance work; prose deliberately omits unstable numeric tuning. Current source and acceptance limits retained.",
+      "topics": [
+        "troops-cost-more-than-in-native-bannerlord",
+        "recruitment-uses-people-not-an-endless-pool",
+        "household-stipends-and-npc-trade",
+        "raids-population-and-recovery",
+        "food-markets-settlement-stocks-and-relief",
+        "garrisons-patrols-and-demobilization",
+        "battle-medical-discharge",
+        "ships-ports-and-military-purchases"
+      ]
+    },
+    {
+      "id": "time-news-and-world-events",
+      "title": "Time, news, and world events",
+      "sources": [
+        "docs/REIGN_PLAYER_GUIDE.md",
+        "docs/agent/RULER_JUDGMENTS.md",
+        "ReignBeta/src/Modules/WorldSimulation/Runtime/ReignCalendarPatches.cs",
+        "ReignBeta/src/Modules/Characters/Campaign/ReignNativeStartingAgeCampaignBehavior.cs",
+        "ReignBeta/src/Modules/Characters/Campaign/ReignStartingChildrenCampaignBehavior.cs",
+        "ReignBeta/src/Modules/WorldSimulation/News/ReignNewsCampaignBehavior.cs",
+        "ReignBeta/src/Modules/KingdomEvents/Campaign/ReignKingdomEventsCampaignBehavior.cs"
+      ],
+      "topics": [
+        "a-longer-calendar-and-new-campaign-differences",
+        "kingdom-catastrophes-and-boons",
+        "news-and-announcements"
+      ]
+    },
+    {
+      "id": "arenas-tournaments-and-participation-xp",
+      "title": "Arenas, tournaments, and participation XP",
+      "preview": true,
+      "sources": [
+        "ReignBeta/src/Modules/Arena/ArenaOverhaul/README.md",
+        "ReignBeta/src/Modules/Arena/ArenaOverhaul/ModSettings/Settings.cs",
+        "ReignBeta/src/Modules/Arena/ArenaOverhaul/ModSettings/HeroPracticeSettings.cs",
+        "ReignBeta/src/Modules/Arena/ArenaOverhaul/ModSettings/CompanionPracticeSettings.cs",
+        "ReignBeta/src/Modules/Arena/ArenaOverhaul/TeamTournament/TeamTournamentRosterPolicy.cs",
+        "docs/agent/REIGN_XP_REWARDS.md"
+      ],
+      "topics": [
+        "arena-overhaul-is-included",
+        "practice-modes-and-companions",
+        "tournaments-and-team-victories",
+        "participation-xp"
+      ]
+    },
+    {
+      "id": "pictures-appearance-and-memories",
+      "title": "Pictures, appearance, and memories",
+      "sources": [
+        "docs/REIGN_PLAYER_GUIDE.md",
+        "docs/agent/AI_ART_DIALOGUE_FLOW_AUDIT_2026-09-06.md",
+        "ReignBeta/GUI/Prefabs/ReignIndividualChatScreen.xml",
+        "ReignBeta/src/Modules/Dialogue/UI/ViewModels/ReignChatViewVM.cs",
+        "ReignBeta/src/Modules/Dialogue/UI/ViewModels/ReignIndividualChatOutfit.cs",
+        "docs/agent/REIGN_INTERFACE_DESIGN_RULES.md",
+        "ReignBeta/src/Modules/WorldSimulation/Runtime/ReignDungeonEscapePatches.cs",
+        "ReignBeta/src/Modules/WorldSimulation/Rulers/ReignRulerNativePatches.cs"
+      ],
+      "topics": [
+        "portraits-and-look-at-them",
+        "view-scenes-and-outfit-previews",
+        "the-memory-book",
+        "small-interface-and-native-behavior-changes"
+      ]
+    },
+    {
+      "id": "saving-loading-and-backups",
+      "title": "Saving, loading, and backups",
+      "sources": [
+        "docs/REIGN_PLAYER_GUIDE.md",
+        "ReignBeta/src/Modules/Persistence/Campaign/ReignSaveSyncCampaignBehavior.cs",
+        "ReignBeta/src/Modules/Persistence/Integration/ReignSaveSyncDeletionPatch.cs",
+        "AGENTS.md",
+        "ReignServer/src/Modules/Persistence/CampaignBackups.cs",
+        "ReignServer/ui/index.html"
+      ],
+      "topics": [
+        "a-bannerlord-save-and-reign-memory-belong-together",
+        "capacity-and-safe-housekeeping",
+        "exporting-and-restoring-a-campaign",
+        "updating-moving-computers-and-removing-the-mod"
+      ]
+    },
+    {
+      "id": "settings-and-the-control-center",
+      "title": "Settings and the Control Center",
+      "sources": [
+        "AGENTS.md",
+        "docs/REIGN_PLAYER_GUIDE.md",
+        "ReignBeta/src/Modules/Platform/Settings/ReignBetaSettings.cs",
+        "docs/agent/REIGN_XP_REWARDS.md",
+        "docs/agent/PLAYER_ATTENTION_AND_APPROACHES.md",
+        "docs/agent/NPC_LIVES_AND_STORYLINES_PLAN.md",
+        "ReignServer/src/Modules/Platform/WarEconomyOptions.cs"
+      ],
+      "topics": [
+        "which-settings-window-to-use",
+        "reign-mcm-feature-switches",
+        "execution-and-server-connection-switches",
+        "control-center-areas",
+        "war-economy-and-clan-trade-settings",
+        "provider-choices-costs-and-privacy"
+      ]
+    },
+    {
+      "id": "help-glossary-and-edition-notes",
+      "title": "Help, glossary, and edition notes",
+      "sources": [
+        "AGENTS.md",
+        "docs/REIGN_PLAYER_GUIDE.md",
+        "docs/agent/ACTION_SYSTEM.md",
+        "docs/agent/CLAN_ACCORDS.md",
+        "docs/agent/RULER_JUDGMENTS.md",
+        "docs/agent/testing/WAR_ECONOMY.md"
+      ],
+      "topics": [
+        "chat-is-slow-or-not-answering",
+        "the-npc-agreed-but-nothing-happened",
+        "a-menu-person-or-picture-is-missing",
+        "saving-warns-preparation-stalls-or-a-rollback-seems-wrong",
+        "quick-glossary",
+        "what-is-still-being-verified"
+      ]
+    }
+  ],
+  "sources": [
+    {
+      "path": "AGENTS.md",
+      "sha256": "1cae72ea430cf5e5a0d03b84617e4cbc6bb6691bfc44d41e6ead6d9ef52aeb3b"
+    },
+    {
+      "path": "REIGN_ROADMAP.md",
+      "sha256": "7cc3ecb94feb73953e0bf851e791390fc9992a228391525b773cbdcce0821b54"
+    },
+    {
+      "path": "ReignBeta/GUI/Prefabs/ReignIndividualChatScreen.xml",
+      "sha256": "c4a991fe0775ede70dcc6bc92d2743f0c51a670666857eac3dd87bcd7fd1e2d3"
+    },
+    {
+      "path": "ReignBeta/ModuleData/reign_nord_households.json",
+      "sha256": "e0b533aa18e2f5108e687b350e6c85c382718e9604ba44b8ada683f874dec2c4"
+    },
+    {
+      "path": "ReignBeta/SubModule.xml",
+      "sha256": "97ba40772a0a65b7e92cb1f28009ea2aea59e44930ae01680540a728d3a9c8f7"
+    },
+    {
+      "path": "ReignBeta/src/Modules/Arena/ArenaOverhaul/ModSettings/CompanionPracticeSettings.cs",
+      "sha256": "a523b9d707f59f7fb2c9da0cdea10ac815bc31b4e21291d8092ff108c4f2130f"
+    },
+    {
+      "path": "ReignBeta/src/Modules/Arena/ArenaOverhaul/ModSettings/HeroPracticeSettings.cs",
+      "sha256": "4203e91196e4896891d559c2ce49655bd447bd6e72e2b30f84e8ace48df4e694"
+    },
+    {
+      "path": "ReignBeta/src/Modules/Arena/ArenaOverhaul/ModSettings/Settings.cs",
+      "sha256": "9a31e341e7ef0d2ba5b7495c3904b580d16dc09fc075075c37d658d1dbef5d66"
+    },
+    {
+      "path": "ReignBeta/src/Modules/Arena/ArenaOverhaul/README.md",
+      "sha256": "a4d0891dfa28898f56aad03c617cd78af5afa30325cb0543cb437c6d46475242"
+    },
+    {
+      "path": "ReignBeta/src/Modules/Arena/ArenaOverhaul/TeamTournament/TeamTournamentRosterPolicy.cs",
+      "sha256": "ef32a504e6315ea0a47d8aa23db327a54a89790fa8fa12a9526742b34008d602"
+    },
+    {
+      "path": "ReignBeta/src/Modules/Characters/Campaign/ReignDuelCombatPatches.cs",
+      "sha256": "b8c44ddca90f915d1828db2851f4c171200dc1eaad88ba7f7d05e5c9316957cb"
+    },
+    {
+      "path": "ReignBeta/src/Modules/Characters/Campaign/ReignDuelModePolicy.cs",
+      "sha256": "e9cc0dcd89119f17a7daa8bee3b3cd08e61808bbc192c65d54cd65da2780b067"
+    },
+    {
+      "path": "ReignBeta/src/Modules/Characters/Campaign/ReignNativeStartingAgeCampaignBehavior.cs",
+      "sha256": "4dfbd76f5e2e7219039e543f3a9c2da0aab8bcd24d6126e4395f4b444c83b0af"
+    },
+    {
+      "path": "ReignBeta/src/Modules/Characters/Campaign/ReignRecruitedNotableCampaignBehavior.cs",
+      "sha256": "90920896e6b1833bcc9771ad41f4b800f025afcab46bf68ab091784b0579d87d"
+    },
+    {
+      "path": "ReignBeta/src/Modules/Characters/Campaign/ReignStartingChildrenCampaignBehavior.cs",
+      "sha256": "efe75f72ea948a803aeb1c051933bcfe0e2ff94271c054db9bce73bafa98ea5c"
+    },
+    {
+      "path": "ReignBeta/src/Modules/Characters/Campaign/ReignWorkshopDialoguePatches.cs",
+      "sha256": "7a253f0480935f6098c557742468a58cd636236e4d59f19ed441ad2182fa58c1"
+    },
+    {
+      "path": "ReignBeta/src/Modules/Characters/Family/ReignPregnancyPatches.cs",
+      "sha256": "111713da8fae4e308371d6bcf996934575791f68225e57833fa7a791f11fd6cb"
+    },
+    {
+      "path": "ReignBeta/src/Modules/Characters/Family/ReignPregnancyRestrictionPolicy.cs",
+      "sha256": "ebb28518db89f7c39bf2a7dcd25fc23507c5d85e3d87b1e47898bfce798579fd"
+    },
+    {
+      "path": "ReignBeta/src/Modules/Court/Court/ReignCourtCampaignBehavior.cs",
+      "sha256": "0b8714a7306d355c22d87e1f8e45005dd46dddce54761ca852663334cefe1cae"
+    },
+    {
+      "path": "ReignBeta/src/Modules/Court/Court/ReignNobleDocketCampaignBehavior.cs",
+      "sha256": "c7f01c6b3ae27cd6dc30e4618b7d8d0c0fd9057b99b6802c665bf6bfeb13d3e5"
+    },
+    {
+      "path": "ReignBeta/src/Modules/Court/Court/ReignNobleVisitorCampaignBehavior.cs",
+      "sha256": "7a261a638054f07c7c1c4a9fc28c08b1455705dde465f4495c6374d3300cb01f"
+    },
+    {
+      "path": "ReignBeta/src/Modules/Court/Court/ReignPatronageCampaignBehavior.cs",
+      "sha256": "bfacdd16fa3f9ad780780e93a10394725d65f19b55975bfe600f6f1fa81febc9"
+    },
+    {
+      "path": "ReignBeta/src/Modules/Court/TrainingYard/ReignTrainingYardCampaignBehavior.cs",
+      "sha256": "111fb552c036b421e19b8b69b4fc99c670507f2054ade3f614b24ea3a95555ff"
+    },
+    {
+      "path": "ReignBeta/src/Modules/Court/TrainingYard/ReignTrainingYardScreenVM.cs",
+      "sha256": "ec751b6997c86cfd8069ceac6ace46a84d24e919b9b10ef28c85a4f3989f847d"
+    },
+    {
+      "path": "ReignBeta/src/Modules/Court/WarCouncil/ReignWarCouncilCampaignBehavior.cs",
+      "sha256": "850e4db7cfd09c2118d2614a07b61e547cc0c026878a8c86fdbdaad2b25f7082"
+    },
+    {
+      "path": "ReignBeta/src/Modules/Dialogue/UI/ReignActionBuilder.cs",
+      "sha256": "fca322df25e4e8808461419953bef0da486024afa206a955016516f766a09ea6"
+    },
+    {
+      "path": "ReignBeta/src/Modules/Dialogue/UI/ReignCorrespondenceScreenManager.cs",
+      "sha256": "e851ced2524696228b1a4fe2cab4841110b5bf23650241ba51f3d6a92284eae2"
+    },
+    {
+      "path": "ReignBeta/src/Modules/Dialogue/UI/ReignIndividualChatScreenManager.cs",
+      "sha256": "acd996ff70af81800710ea91ffd3f41616e9f0d010a569c76e7d8545543b9847"
+    },
+    {
+      "path": "ReignBeta/src/Modules/Dialogue/UI/ReignPartyChatScreenManager.cs",
+      "sha256": "8b482f411ebcd0a0b3c2bbacf72a0b6ec273a03cb17575e4457ea1313fc7da42"
+    },
+    {
+      "path": "ReignBeta/src/Modules/Dialogue/UI/ViewModels/ReignActionBuilderVM.cs",
+      "sha256": "903d545790e186184a24726f6a1e01338b1eaa59b284ae88a941cf805e9c9d13"
+    },
+    {
+      "path": "ReignBeta/src/Modules/Dialogue/UI/ViewModels/ReignActionComposerVM.cs",
+      "sha256": "ac3d6eccde8231404570e42778b0054fa8ee4b3627ef70296b81116cda13eee6"
+    },
+    {
+      "path": "ReignBeta/src/Modules/Dialogue/UI/ViewModels/ReignChatViewVM.cs",
+      "sha256": "3de996f05d64cc9dc3ff6ee71e8f213169b36cd521f0256d7a5c4ef4ee4bd9ba"
+    },
+    {
+      "path": "ReignBeta/src/Modules/Dialogue/UI/ViewModels/ReignCorrespondenceScreenVM.cs",
+      "sha256": "c296f00692d7d4700a6e15c51d2296d1f73c38e92f8ac21cca02e25d2f4481ec"
+    },
+    {
+      "path": "ReignBeta/src/Modules/Dialogue/UI/ViewModels/ReignIndividualChatOutfit.cs",
+      "sha256": "6f7ab770deb5ddfbba9d315829791f7e112c3078e7a6e51d25f273fb260edefd"
+    },
+    {
+      "path": "ReignBeta/src/Modules/Dialogue/UI/ViewModels/ReignIndividualChatScreenVM.cs",
+      "sha256": "6b4d193e0ae57574341676b65b52879a97f658a7b1c28432cedc79a4868214bb"
+    },
+    {
+      "path": "ReignBeta/src/Modules/Dialogue/UI/ViewModels/ReignPartyChatLives.cs",
+      "sha256": "f25ef023032b7d1f2d0eb7acf8a6b64332e1ffb952573057e1f11a4e0af88763"
+    },
+    {
+      "path": "ReignBeta/src/Modules/Dialogue/UI/ViewModels/ReignPartyChatScreenVM.cs",
+      "sha256": "4e12b5d445b2d42790710787e4963ef69ef436208b509f01d9c625b8d5cd444b"
+    },
+    {
+      "path": "ReignBeta/src/Modules/Dialogue/UI/Widgets/ReignActionEditableTextWidget.cs",
+      "sha256": "76fdb21d6f5e3129885ff6f7996994ded55f21d45cdfa84db6a5139f43458e61"
+    },
+    {
+      "path": "ReignBeta/src/Modules/Diplomacy/ClanAccords/ReignClanAccordsModels.cs",
+      "sha256": "25e46a42c36f5029807c0af2389174273407387e34051dd8cef7dc5693094a06"
+    },
+    {
+      "path": "ReignBeta/src/Modules/Government/Campaign/ReignGovernmentCampaignBehavior.cs",
+      "sha256": "92382b24dccf206fc6ddfbc93b249e3e7c974c49ac29c11ae21ab1b1521ab4f9"
+    },
+    {
+      "path": "ReignBeta/src/Modules/KingdomEvents/Campaign/ReignKingdomEventsCampaignBehavior.cs",
+      "sha256": "7753ccfe7717b35bab775b923c0f8776098e3170736999152b87d00bdde63229"
+    },
+    {
+      "path": "ReignBeta/src/Modules/Persistence/Campaign/ReignSaveSyncCampaignBehavior.cs",
+      "sha256": "05faebbd6fc58d51c8651eb0f277c1d7e1711f8082901f07a65534fea4d46607"
+    },
+    {
+      "path": "ReignBeta/src/Modules/Persistence/Integration/ReignSaveSyncDeletionPatch.cs",
+      "sha256": "5113b8316bb114fe48480504f9173b4d94b73df53ac6ff749d811ab7611ebff9"
+    },
+    {
+      "path": "ReignBeta/src/Modules/Platform/Campaign/ReignCampaignPreparationCampaignBehavior.cs",
+      "sha256": "f9ff8c9f9e9afd3e78c65f04e4a471138ed4d705fe23408674654fe6ea84e9e9"
+    },
+    {
+      "path": "ReignBeta/src/Modules/Platform/Settings/ReignBetaSettings.cs",
+      "sha256": "c8530da8d8d7a7efba27280fd67d3ba196832c8de84270b6250d6d136b236d34"
+    },
+    {
+      "path": "ReignBeta/src/Modules/Rebellion/Campaign/ReignRebellionCampaignBehavior.cs",
+      "sha256": "5fa5f1c1ccb3602cfe55543db16686fa8e30af0331ec80dcc23c87be0983b858"
+    },
+    {
+      "path": "ReignBeta/src/Modules/Relationships/Campaign/ReignArrangedMarriage.cs",
+      "sha256": "eb9ceb11b729bde05f6f5bf7c1f4e0abad0eaf6f69afcd375f88da893a3ff921"
+    },
+    {
+      "path": "ReignBeta/src/Modules/Spymaster/Court/ReignSpymasterCampaignBehavior.cs",
+      "sha256": "4f5f49511b9e5a3df5ecbef4b7d1feee493ba87c83f86944283849ad292ae2af"
+    },
+    {
+      "path": "ReignBeta/src/Modules/WorldSimulation/Actions/ReignActionService.cs",
+      "sha256": "48e05a7663693b9a8759e0efcc2d18cc1142266a2d89827cbf22b6b4b4a32a7b"
+    },
+    {
+      "path": "ReignBeta/src/Modules/WorldSimulation/Actions/ReignSpouseSeparationAction.cs",
+      "sha256": "8cfa2d7a18d45746123231a362fcf37ccdc340d16eea2b645e9cdbf502314eab"
+    },
+    {
+      "path": "ReignBeta/src/Modules/WorldSimulation/Arrests/ReignArrestCampaignBehavior.cs",
+      "sha256": "dd15c6ff2bcfd943927cf6f18252b74b417c48de7bfe71b6247cd2faf687adc7"
+    },
+    {
+      "path": "ReignBeta/src/Modules/WorldSimulation/Campaign/ReignSocialEventsCampaignBehavior.cs",
+      "sha256": "1c6567ad94e4ffddfd84f338ccfbcce29587771bb28963d862ed7ddb54bd7c08"
+    },
+    {
+      "path": "ReignBeta/src/Modules/WorldSimulation/CampaignCommands/ReignCampaignCommandBehavior.cs",
+      "sha256": "20f3da04e62e17f9456fec20dbc04b7a770a6b6b12ae3e43eddefc7886719863"
+    },
+    {
+      "path": "ReignBeta/src/Modules/WorldSimulation/Economy/ReignEconomyModels.cs",
+      "sha256": "b4a677af3d03253bacce420e75293e99876c1f6850d0b6e6eb60fc1ae7849ce0"
+    },
+    {
+      "path": "ReignBeta/src/Modules/WorldSimulation/Economy/ReignMedicalDischarge.cs",
+      "sha256": "8c8581dcc197a9765965159584b672924e4f757ed9fee88427d19c215c15c450"
+    },
+    {
+      "path": "ReignBeta/src/Modules/WorldSimulation/Economy/ReignMedicalDischargePolicy.cs",
+      "sha256": "d69719569fcb3b06eae605ae98e94076f48e873ff4df7c02755ac2f7e7bb67df"
+    },
+    {
+      "path": "ReignBeta/src/Modules/WorldSimulation/Economy/ReignMilitaryReadiness.cs",
+      "sha256": "3a836111794402ab2e6c51b1b66615b39a175a59079b818eff66981acf24a9cc"
+    },
+    {
+      "path": "ReignBeta/src/Modules/WorldSimulation/Economy/ReignWarEconomyFoodMarket.cs",
+      "sha256": "eb3aee6dd70707f8b60cb563de67876abb53a7666a6e0e90beb20548e82035e9"
+    },
+    {
+      "path": "ReignBeta/src/Modules/WorldSimulation/Economy/ReignWarEconomyNaval.cs",
+      "sha256": "83ff048cdf9d343b42e8b94194d332a0ebbe88d3205224e4116c02c3e1bcec1f"
+    },
+    {
+      "path": "ReignBeta/src/Modules/WorldSimulation/Economy/ReignWarEconomyPolicy.cs",
+      "sha256": "9eb09fd619cc60ce8083b76b702a3ae043466c37fb5463aa245f4c11dc29947b"
+    },
+    {
+      "path": "ReignBeta/src/Modules/WorldSimulation/Economy/ReignWarEconomyTariffs.cs",
+      "sha256": "c874b54b900d98a6a25881a6f02df4f5515b83f324d8be0c061769c5fd4c17c5"
+    },
+    {
+      "path": "ReignBeta/src/Modules/WorldSimulation/Economy/ReignWarEconomyTransactions.cs",
+      "sha256": "f62f8e893090db326ba6ff0b34a8d60aec2dd9617a271a98bea7e887fc1ca27b"
+    },
+    {
+      "path": "ReignBeta/src/Modules/WorldSimulation/News/ReignNewsCampaignBehavior.cs",
+      "sha256": "4c65d24e4c114abf84f6e8a8921237692c98e5db2b74290bafa9ba29847b15d8"
+    },
+    {
+      "path": "ReignBeta/src/Modules/WorldSimulation/PartyAgency/ReignTemporaryPartyGuestCampaignBehavior.cs",
+      "sha256": "72f2b5a4df80036459f4f6bd9d2978e2af1bb14c2bc4129472dca3ddb909d37d"
+    },
+    {
+      "path": "ReignBeta/src/Modules/WorldSimulation/Rulers/ReignRulerNativePatches.cs",
+      "sha256": "b41b500ed87ba6f9d2603841554cdd6392b9a578febb69cfc9145cfc8065ed6e"
+    },
+    {
+      "path": "ReignBeta/src/Modules/WorldSimulation/Runtime/ReignCalendarPatches.cs",
+      "sha256": "f5f33ab31479e00cfb7fa3baae65292074c8088e4e79da7e5f56cfd4668f45e7"
+    },
+    {
+      "path": "ReignBeta/src/Modules/WorldSimulation/Runtime/ReignDungeonEscapePatches.cs",
+      "sha256": "68f2be4ffc4541b6bebf00f9ee7a0d435c9ed953523baeaa586cff9149a9fc7b"
+    },
+    {
+      "path": "ReignServer/AGENTS.md",
+      "sha256": "67099504b4c4f65ac03ae78dd82c2202fc3e88bf28f93a76425c8b7c5114ace8"
+    },
+    {
+      "path": "ReignServer/shared/Reign.Core.Contracts/Actions/ReignActionCatalog.cs",
+      "sha256": "34a6946753693e806e293336247a685a567d61a405e20c50cf734bfa8ca5a516"
+    },
+    {
+      "path": "ReignServer/shared/Reign.Core.Contracts/Actions/ReignActionConversationPolicy.cs",
+      "sha256": "720348794bb31f3a997d49d8a852becbcd422753ec019dd8c4c80cd15daeeca8"
+    },
+    {
+      "path": "ReignServer/shared/Reign.Core.Contracts/Actions/ReignActionParameters.cs",
+      "sha256": "f41691d74ae3529d591d6b5a3f87add1ddf4ae84ee8069a7b2b39b7c0b6d58fc"
+    },
+    {
+      "path": "ReignServer/shared/Reign.Core.Contracts/Actions/ReignNpcLifeActionCatalog.cs",
+      "sha256": "6efcfbd4c2adbee5ce4d998ade874e81fd776bf63f3c6a66d284006e9beeb86f"
+    },
+    {
+      "path": "ReignServer/shared/Reign.Core.Contracts/Economy/WarEconomyOptions.cs",
+      "sha256": "5493014eb163d68a082de5b269c5bd646183aeba0462568594167a80f9cf2c42"
+    },
+    {
+      "path": "ReignServer/shared/Reign.Relationships/ArrangedMarriagePolicy.cs",
+      "sha256": "2c94521dc9c0b6626819e0af1ae3321455f6300316fd037b25d560e50af98c99"
+    },
+    {
+      "path": "ReignServer/src/Modules/Persistence/CampaignBackups.cs",
+      "sha256": "c1561dbafa00f42ca5e0865d80b4e1539bad3c7c8935c52fc3773eaccf4043cf"
+    },
+    {
+      "path": "ReignServer/src/Modules/Platform/WarEconomyOptions.cs",
+      "sha256": "bcf3db3a0d4df79c027b76198aeacc688328b6371cb107f7567b07b3279068e1"
+    },
+    {
+      "path": "ReignServer/ui/index.html",
+      "sha256": "d089a96e20cd27a5df0b8ca6066099588725bb11c81780e3ca28a8483c0e0fac"
+    },
+    {
+      "path": "docs/NOBLE_DOCKET_EVENT_CATALOG.md",
+      "sha256": "4f42c908b6f615558a608de67ab49613ccd367712a9a63d6184ed5db3fd22720"
+    },
+    {
+      "path": "docs/REIGN_PLAYER_GUIDE.md",
+      "sha256": "75ad239b092c193ac90556d8aa6c36fa87d88aa1842366bbebf697232556269e"
+    },
+    {
+      "path": "docs/agent/ACTION_SYSTEM.md",
+      "sha256": "b87243fb143d4caf4e3fa7395d988d88c407ad5f7269a01a018e22072ae1a20a"
+    },
+    {
+      "path": "docs/agent/AI_ART_DIALOGUE_FLOW_AUDIT_2026-09-06.md",
+      "sha256": "fc09ca06529d3df7a4de8b9f61fba2af3eb86d6f60acca5b63b2c107ad28748c"
+    },
+    {
+      "path": "docs/agent/CHARACTER_NARRATIVE_V5.md",
+      "sha256": "01ad13c8ef9212c94d7933a83d83a118a50ac6ba4398f023603c44c3509e4ae3"
+    },
+    {
+      "path": "docs/agent/CLAN_ACCORDS.md",
+      "sha256": "18d0e05f8e3e675b3bf59858c3af4042e143696862ac18697a89da5a6374a2c1"
+    },
+    {
+      "path": "docs/agent/CONVERSATION_COMMUNICATION.md",
+      "sha256": "19da711f57e14af9b5b46b6c1e2770ee8b2f22857c157b78e5396bb0c42cc232"
+    },
+    {
+      "path": "docs/agent/COURT_LIFE_IMPLEMENTATION.md",
+      "sha256": "6b63a9cc8d4bcfad84b4f0adff73e05e3e9f41ef8b3d61f9b7488abf1ffd286f"
+    },
+    {
+      "path": "docs/agent/ENCOUNTERED_RESIDENTS_IMPLEMENTATION.md",
+      "sha256": "d784690c7fb6017b3ba36bc01a0c8b10805194b30f5a6218c0c314ae1fceca35"
+    },
+    {
+      "path": "docs/agent/GOVERNMENT_HEARING_IMPLEMENTATION.md",
+      "sha256": "13ad88f3ec2e27edbd7b80310861efd6141de40b1f1c77de03936b4687613cfa"
+    },
+    {
+      "path": "docs/agent/GOVERNMENT_PARTICIPATION_IMPLEMENTATION.md",
+      "sha256": "d7a479076220e29bbab5b0977f7e85073c0da18d6d6a146a0b3998a6afd1a819"
+    },
+    {
+      "path": "docs/agent/GOVERNMENT_SESSIONS_20261015.md",
+      "sha256": "292286a46f299f0370944bc968546331ad57c6653ccf3107ad198cbf1b2adb5d"
+    },
+    {
+      "path": "docs/agent/NPC_LIVES_AND_STORYLINES_PLAN.md",
+      "sha256": "43683fd42b4a76f59f3f1d78a67cb20c7c4e49490e75c253f89e08c31e2813a7"
+    },
+    {
+      "path": "docs/agent/PARTY_BANTER.md",
+      "sha256": "44d161f97a477a935cdf2988d41ca4c7ee15ece3bec486beec3bd757e601e899"
+    },
+    {
+      "path": "docs/agent/PARTY_CHAT_CONTINUATION.md",
+      "sha256": "17a8a9fc60783482d56a8418c339546303a431d49d8082cbbd798f2cbfa505c6"
+    },
+    {
+      "path": "docs/agent/PERSONAL_GOSSIP_PLAN_2026-09-26.md",
+      "sha256": "40ae60f88aedadf450edaa5f6695a7181676f3f1291f476e9ca1aa2ee720f70f"
+    },
+    {
+      "path": "docs/agent/PLAYER_ATTENTION_AND_APPROACHES.md",
+      "sha256": "9b956ae53361b6ba12fef9197df6135bd2476b54b13c83b7329537982596ec0a"
+    },
+    {
+      "path": "docs/agent/REIGN_INTERFACE_DESIGN_RULES.md",
+      "sha256": "f7b01e6a8b7a0a0e469848fa7c050a7f37365fa649b8851f5dca8ac21d27acc1"
+    },
+    {
+      "path": "docs/agent/REIGN_MILITARY_READINESS.md",
+      "sha256": "55e7aff61fbb8db546efe83478bac7b1c5e4411da5d78f91eed999a7e671deb4"
+    },
+    {
+      "path": "docs/agent/REIGN_XP_REWARDS.md",
+      "sha256": "37165bc6b662c8fb987a124935d9b5a75e9afdb6696e6ff9bd2b21ab10682c9e"
+    },
+    {
+      "path": "docs/agent/RULER_JUDGMENTS.md",
+      "sha256": "6b39adecee0226e45aeaf80294cecf04a8730439391a8514597a0a9110c9faa8"
+    },
+    {
+      "path": "docs/agent/TAVERN_HOUSE_IMPLEMENTATION.md",
+      "sha256": "f2ecc0ef3403d5888ffe32675d3fe6d0c5639ea8b548350d34f345da305cad42"
+    },
+    {
+      "path": "docs/agent/WANDERER_POPULATION.md",
+      "sha256": "a4adf13f1f47d829abd9b81bdc1178110e2853e2dc0f8ece7804c88477c9bb59"
+    },
+    {
+      "path": "docs/agent/testing/PERSONAL_GOSSIP_LAUNCH_PLAN_2026-10-04.md",
+      "sha256": "29e70262c4eb163fac63eea8cd57b0dfcc4884332d1f229d1d2740c653f76d3d"
+    },
+    {
+      "path": "docs/agent/testing/WAR_ECONOMY.md",
+      "sha256": "92c75de9526eac8515d090ff3b4758852c6e9be40275d05aa06693ca9f8c3af9"
+    },
+    {
+      "path": "docs/user-guide/action-reference.json",
+      "sha256": "0eb91066ed4267cb23b87c8a67c7e6bf380b4f9b0d048be840ff08494bb5e4a7"
+    },
+    {
+      "path": "docs/user-guide/requirements-evidence.json",
+      "sha256": "af69700ae5cb7109ba0c247fcc4fae2bcced139681923146710809302b1100dd"
+    }
+  ],
+  "illustrations": [
+    {
+      "file": "assets/party-chat.png",
+      "type": "approved-layout-reference",
+      "source": "ReignBeta/artwork/ui-modern-style-kit/approved-references/party-chat.png",
+      "sha256": "21454261b37e00073aec60731b551155f7933b9c7541950fa1ba27c0b118cdb1",
+      "liveGameplayEvidence": false
+    },
+    {
+      "file": "assets/castle-layout.png",
+      "type": "approved-layout-reference",
+      "source": "ReignBeta/artwork/ui-modern-style-kit/approved-references/castle-layout.png",
+      "sha256": "e274878fb6dc9a4f13114a8a4f9f4e256f26e07146bb9653e22d57c1aeeb848c",
+      "liveGameplayEvidence": false
+    },
+    {
+      "file": "assets/training-yard.png",
+      "type": "approved-layout-reference",
+      "source": "ReignBeta/artwork/ui-modern-style-kit/approved-references/training-yard.png",
+      "sha256": "c1321b30d7b85da6e7091a070b78570984c4f56a3e91fcda55ebedc36d21ced5",
+      "liveGameplayEvidence": false
+    },
+    {
+      "file": "assets/court.png",
+      "type": "approved-layout-reference",
+      "source": "ReignBeta/artwork/ui-modern-style-kit/approved-references/court.png",
+      "sha256": "f170711b207ee95b186c3bf4640cc251b32c48d6905880c49a6c156e26a527bb",
+      "liveGameplayEvidence": false
+    },
+    {
+      "file": "assets/royal-council.png",
+      "type": "approved-layout-reference",
+      "source": "ReignBeta/artwork/ui-modern-style-kit/approved-references/royal-council.png",
+      "sha256": "1b08360102f624d2051371db436ed356ea0b0297c9eab32f05deaac771f7c1bb",
+      "liveGameplayEvidence": false
+    },
+    {
+      "file": "assets/clan-accords.png",
+      "type": "approved-layout-reference",
+      "source": "ReignBeta/artwork/ui-modern-style-kit/approved-references/clan-accords.png",
+      "sha256": "b114aa6425220de96891bda673f6f3d393a9996b846fb0ea6ec907a73f7602b9",
+      "liveGameplayEvidence": false
+    },
+    {
+      "file": "assets/diplomacy-announcement-readable.png",
+      "type": "approved-layout-reference",
+      "source": "ReignBeta/artwork/ui-modern-style-kit/approved-references/diplomacy-announcement-readable.png",
+      "sha256": "1a80ede7b3033814fbd494e7e9bbb7e195683430f461205133c7da6b17bbf736",
+      "liveGameplayEvidence": false
+    },
+    {
+      "file": "assets/memories-book.png",
+      "type": "approved-layout-reference",
+      "source": "ReignBeta/artwork/ui-modern-style-kit/approved-references/memories-book.png",
+      "sha256": "ab16c728c6a01749a7d51db01d82fc734767fc22077fed5ce250b7a84d166858",
+      "liveGameplayEvidence": false
+    },
+    {
+      "file": "assets/individual-chat.png",
+      "originalPath": "E:/CodexStorage/Projects/Reign/UserGuide/2026-11-06-01a1b1c8/captures/individual-chat-original.png",
+      "sha256": "47908c55292b054a4314592ae6598d02bbc3049e0d5dc2c6453b055e0037e290",
+      "width": 2559,
+      "height": 1599,
+      "receivedDate": "2026-11-06",
+      "captureDate": null,
+      "gameVersion": null,
+      "replaces": "approved-layout-reference",
+      "evidenceScope": "Visible individual-chat layout, portraits, transcript, location, writing area and controls. Narrated training does not prove execution of a native action.",
+      "transformations": "none",
+      "type": "native-game-screenshot",
+      "source": "E:/CodexStorage/Projects/Reign/UserGuide/2026-11-06-01a1b1c8/captures/individual-chat-original.png",
+      "provenance": "User-supplied in-game capture, byte-identical copy",
+      "liveGameplayEvidence": true,
+      "certifiesFeatureBehavior": false
+    },
+    {
+      "file": "assets/travel-banter.png",
+      "originalPath": "E:/CodexStorage/Projects/Reign/UserGuide/2026-11-06-01a1b1c8/captures/travel-banter-original.png",
+      "sha256": "4dafe13d76dd56a7f9aadfcf636333f3a709f6b2c7ddc05f72eb24b76f028151",
+      "width": 2559,
+      "height": 1599,
+      "receivedDate": "2026-11-06",
+      "captureDate": null,
+      "gameVersion": null,
+      "replaces": null,
+      "evidenceScope": "Visible map banter panel, transcript, Minimize, scrollbar and speech-bubble control. The map is paused in this capture; this does not establish that banter pauses campaign time.",
+      "transformations": "none",
+      "type": "native-game-screenshot",
+      "source": "E:/CodexStorage/Projects/Reign/UserGuide/2026-11-06-01a1b1c8/captures/travel-banter-original.png",
+      "provenance": "User-supplied in-game capture, byte-identical copy",
+      "liveGameplayEvidence": true,
+      "certifiesFeatureBehavior": false
+    },
+    {
+      "file": "assets/correspondence.png",
+      "originalPath": "E:/CodexStorage/Projects/Reign/UserGuide/2026-11-06-01a1b1c8/captures/correspondence-original.png",
+      "sha256": "9b13df8503fdbf4dd088c15e9198c191db2b381aa5cabcc310daecbc04858a2e",
+      "width": 2559,
+      "height": 1599,
+      "receivedDate": "2026-11-06",
+      "captureDate": null,
+      "gameVersion": null,
+      "replaces": "approved-layout-reference",
+      "evidenceScope": "Visible correspondence layout, contact delivery/read states and Leonilla letter inviting Michael to become acquainted after tournament successes. One example does not establish a fixed reputation threshold.",
+      "transformations": "none",
+      "type": "native-game-screenshot",
+      "source": "E:/CodexStorage/Projects/Reign/UserGuide/2026-11-06-01a1b1c8/captures/correspondence-original.png",
+      "provenance": "User-supplied in-game capture, byte-identical copy",
+      "liveGameplayEvidence": true,
+      "certifiesFeatureBehavior": false
+    },
+    {
+      "file": "assets/wilderness-event.png",
+      "originalPath": "E:/CodexStorage/Projects/Reign/UserGuide/2026-11-06-01a1b1c8/captures/wilderness-event-original.png",
+      "sha256": "f9fa1b7190ea480dcebc00c14338429fdae865f1bd089751e07bf3ec39af0f10",
+      "width": 2406,
+      "height": 1374,
+      "receivedDate": "2026-11-06",
+      "captureDate": null,
+      "gameVersion": null,
+      "replaces": "approved-layout-reference",
+      "evidenceScope": "Visible wilderness roleplay event, active attendees, scene, narration, reply and End Event controls; does not establish a completed consequence.",
+      "transformations": "none",
+      "type": "native-game-screenshot",
+      "source": "E:/CodexStorage/Projects/Reign/UserGuide/2026-11-06-01a1b1c8/captures/wilderness-event-original.png",
+      "provenance": "User-supplied in-game capture, byte-identical copy",
+      "liveGameplayEvidence": true,
+      "certifiesFeatureBehavior": false
+    },
+    {
+      "file": "assets/court-audience.png",
+      "originalPath": "E:/CodexStorage/Projects/Reign/UserGuide/2026-11-06-01a1b1c8/captures/court-audience-original.png",
+      "sha256": "5198b34ca4f373a7621a214720ac0edb595525b5032dc9f47aeb4f4822c78982",
+      "width": 2409,
+      "height": 1342,
+      "receivedDate": "2026-11-06",
+      "captureDate": null,
+      "gameVersion": null,
+      "replaces": null,
+      "evidenceScope": "Visible International Audience, ambassador, request details, transcript and separate decision controls; does not prove funding transferred or confirmation accepted.",
+      "transformations": "none",
+      "type": "native-game-screenshot",
+      "source": "E:/CodexStorage/Projects/Reign/UserGuide/2026-11-06-01a1b1c8/captures/court-audience-original.png",
+      "provenance": "User-supplied in-game capture, byte-identical copy",
+      "liveGameplayEvidence": true,
+      "certifiesFeatureBehavior": false
+    },
+    {
+      "file": "assets/social-event.png",
+      "originalPath": "E:/CodexStorage/Projects/Reign/UserGuide/2026-11-06-01a1b1c8/captures/social-event-original.png",
+      "sha256": "a2a7f48489728c194a9451790d7693ef6ee4f7191ebd7c974bd3cb55a4ababef",
+      "width": 2402,
+      "height": 1366,
+      "receivedDate": "2026-11-06",
+      "captureDate": null,
+      "gameVersion": null,
+      "replaces": "approved-layout-reference",
+      "evidenceScope": "Visible Courtyard Dance, active and available attendees, Arrival phase, transcript and phase/approach/end controls; does not certify a full event lifecycle.",
+      "transformations": "none",
+      "type": "native-game-screenshot",
+      "source": "E:/CodexStorage/Projects/Reign/UserGuide/2026-11-06-01a1b1c8/captures/social-event-original.png",
+      "provenance": "User-supplied in-game capture, byte-identical copy",
+      "liveGameplayEvidence": true,
+      "certifiesFeatureBehavior": false
+    },
+    {
+      "file": "assets/family-chambers.png",
+      "originalPath": "E:/CodexStorage/Projects/Reign/UserGuide/2026-11-06-01a1b1c8/captures/family-chambers-original.png",
+      "sha256": "de5d7375e3057bf62a74c1585e366d43e98a15adcf0c92c08294ace943f087c6",
+      "width": 1672,
+      "height": 941,
+      "receivedDate": "2026-11-06",
+      "captureDate": null,
+      "gameVersion": null,
+      "replaces": "approved-layout-reference",
+      "evidenceScope": "User-supplied Family Chambers selection screen, nobles, children, empty scene preview, selection count and Enter Scene/Return to Court controls. This is the selection step, not an active family conversation; capture edition is unknown.",
+      "transformations": "none",
+      "type": "native-game-screenshot",
+      "source": "E:/CodexStorage/Projects/Reign/UserGuide/2026-11-06-01a1b1c8/captures/family-chambers-original.png",
+      "provenance": "User-supplied in-game capture, byte-identical copy",
+      "liveGameplayEvidence": true,
+      "certifiesFeatureBehavior": false
+    },
+    {
+      "file": "assets/spymaster.png",
+      "originalPath": "E:/CodexStorage/Projects/Reign/UserGuide/2026-11-06-01a1b1c8/captures/spymaster-original.png",
+      "sha256": "e014f23186069a635c199af9d7a3b65ded83fa4865c875caa0f653c87c6dbac1",
+      "width": 2559,
+      "height": 1536,
+      "receivedDate": "2026-11-06",
+      "captureDate": null,
+      "gameVersion": null,
+      "replaces": "approved-layout-reference",
+      "evidenceScope": "Visible Spymaster screen with Cadanara, mission categories, target, operation assessment, commitment control and empty report/archive area; does not establish an operation was launched or completed.",
+      "transformations": "none",
+      "type": "native-game-screenshot",
+      "source": "E:/CodexStorage/Projects/Reign/UserGuide/2026-11-06-01a1b1c8/captures/spymaster-original.png",
+      "provenance": "User-supplied in-game capture, byte-identical copy",
+      "liveGameplayEvidence": true,
+      "certifiesFeatureBehavior": false
+    },
+    {
+      "file": "assets/war-council.png",
+      "originalPath": "E:/CodexStorage/Projects/Reign/UserGuide/2026-11-06-01a1b1c8/captures/war-council-original.png",
+      "sha256": "c2cec1a1b9ab2e7b174ab9aabe6b8fc23e0098bd7579542238e9b0c76d479d35",
+      "width": 2559,
+      "height": 1538,
+      "receivedDate": "2026-11-06",
+      "captureDate": null,
+      "gameVersion": null,
+      "replaces": "approved-layout-reference",
+      "evidenceScope": "Visible War Council map, Peace Standing and War Standing controls, strength and recent report panels, settlement directory and lord roster; does not establish a map order or standing change was executed.",
+      "transformations": "none",
+      "type": "native-game-screenshot",
+      "source": "E:/CodexStorage/Projects/Reign/UserGuide/2026-11-06-01a1b1c8/captures/war-council-original.png",
+      "provenance": "User-supplied in-game capture, byte-identical copy",
+      "liveGameplayEvidence": true,
+      "certifiesFeatureBehavior": false
+    },
+    {
+      "file": "assets/ambassador.png",
+      "originalPath": "E:/CodexStorage/Projects/Reign/UserGuide/2026-11-06-01a1b1c8/captures/ambassador-original.png",
+      "sha256": "090984bdb4dc3e54be2ab3ef88acb224a40ee149778b502f0f1028476780106c",
+      "width": 2554,
+      "height": 1521,
+      "receivedDate": "2026-11-06",
+      "captureDate": null,
+      "gameVersion": null,
+      "replaces": "approved-layout-reference",
+      "evidenceScope": "Visible Ambassadors directory, separate Foreign Advisor and foreign envoys, travel statuses, appointment/replacement, dismissal and Establish Relations controls; no completed diplomatic agreement is established.",
+      "transformations": "none",
+      "type": "native-game-screenshot",
+      "source": "E:/CodexStorage/Projects/Reign/UserGuide/2026-11-06-01a1b1c8/captures/ambassador-original.png",
+      "provenance": "User-supplied in-game capture, byte-identical copy",
+      "liveGameplayEvidence": true,
+      "certifiesFeatureBehavior": false
+    },
+    {
+      "file": "assets/economic-report.png",
+      "originalPath": "E:/CodexStorage/Projects/Reign/UserGuide/2026-11-06-01a1b1c8/captures/economic-report-original.png",
+      "sha256": "f87b640a3f369239771bc81aa2f7c52d3399f18654c66bb73c78d17aeac028bc",
+      "width": 2559,
+      "height": 1530,
+      "receivedDate": "2026-11-06",
+      "captureDate": null,
+      "gameVersion": null,
+      "replaces": "approved-layout-reference",
+      "evidenceScope": "Visible Economic Report with settlement panels, food transfer request, treasury/economy/resources, military/logistics and advisor. Example report values and game date are campaign-specific; no transfer execution or universal balance values are established.",
+      "transformations": "none",
+      "type": "native-game-screenshot",
+      "source": "E:/CodexStorage/Projects/Reign/UserGuide/2026-11-06-01a1b1c8/captures/economic-report-original.png",
+      "provenance": "User-supplied in-game capture, byte-identical copy",
+      "liveGameplayEvidence": true,
+      "certifiesFeatureBehavior": false
+    },
+    {
+      "file": "assets/government.png",
+      "originalPath": "E:/CodexStorage/Projects/Reign/UserGuide/2026-11-06-01a1b1c8/captures/government-original.png",
+      "sha256": "6bf1fdb96a100fe468aebc811d2b160ade75ca95adfb73667547e25bce6aec74",
+      "width": 2559,
+      "height": 1516,
+      "receivedDate": "2026-11-06",
+      "captureDate": null,
+      "gameVersion": null,
+      "replaces": "approved-layout-reference",
+      "evidenceScope": "Visible Government Agenda during a lobbying interval: session agenda, petitioner/sponsor, proposal terms, declared positions, member lists and Record my position. Does not establish a final vote, enactment, fulfilled obligation or newly drafted proposal.",
+      "transformations": "none",
+      "type": "native-game-screenshot",
+      "source": "E:/CodexStorage/Projects/Reign/UserGuide/2026-11-06-01a1b1c8/captures/government-original.png",
+      "provenance": "User-supplied in-game capture, byte-identical copy",
+      "liveGameplayEvidence": true,
+      "certifiesFeatureBehavior": false
+    },
+    {
+      "file": "assets/homes-directory.png",
+      "originalPath": "E:/CodexStorage/Projects/Reign/UserGuide/2026-11-06-01a1b1c8/captures/homes-directory-original.png",
+      "sha256": "fc6b4572b4080ca3f823e756bd122d15dbd40ff0a5cdf92d0f005c8cbb771610",
+      "width": 2530,
+      "height": 1484,
+      "receivedDate": "2026-11-06",
+      "captureDate": null,
+      "gameVersion": null,
+      "replaces": null,
+      "evidenceScope": "Visible Homes directory for Zeonica, one known resident at home, resident card, Visit in person and empty home-conversation panel. Does not establish that a visit or recruitment was completed.",
+      "transformations": "none",
+      "type": "native-game-screenshot",
+      "source": "E:/CodexStorage/Projects/Reign/UserGuide/2026-11-06-01a1b1c8/captures/homes-directory-original.png",
+      "provenance": "User-supplied in-game capture, byte-identical copy",
+      "liveGameplayEvidence": true,
+      "certifiesFeatureBehavior": false
+    },
+    {
+      "file": "assets/tavern-house.png",
+      "originalPath": "E:/CodexStorage/Projects/Reign/UserGuide/2026-11-06-01a1b1c8/captures/tavern-house-original.png",
+      "sha256": "d540beb24c278810ceeb7cd79fe832b6ddb889a5f9e7d1e92b01004f614ea8dd",
+      "width": 2369,
+      "height": 1378,
+      "receivedDate": "2026-11-06",
+      "captureDate": null,
+      "gameVersion": null,
+      "replaces": "approved-layout-reference",
+      "evidenceScope": "Visible Visit the Madam opening screen with madam and worker cards, scene images OFF, waiting-for-reply state, Retry/Look Again and Leave. No visit, payment, scene generation or model reply completion is established.",
+      "transformations": "none",
+      "type": "native-game-screenshot",
+      "source": "E:/CodexStorage/Projects/Reign/UserGuide/2026-11-06-01a1b1c8/captures/tavern-house-original.png",
+      "provenance": "User-supplied in-game capture, byte-identical copy",
+      "liveGameplayEvidence": true,
+      "certifiesFeatureBehavior": false
+    },
+    {
+      "file": "assets/action-flow.svg",
+      "type": "original-explanatory-vector",
+      "source": "docs/user-guide/build.py",
+      "sha256": "8b48f854bb226e82fc5036d15cc95906256ee11db5498c49b871181aa517253e",
+      "liveGameplayEvidence": false
+    },
+    {
+      "file": "assets/arrest-flow.svg",
+      "type": "original-explanatory-vector",
+      "source": "docs/user-guide/build.py",
+      "sha256": "f0aecce76d882b9d5da1ca77366a5124f871b8a9e45ccad19df169005f5961bd",
+      "liveGameplayEvidence": false
+    },
+    {
+      "file": "assets/economy-cycle.svg",
+      "type": "original-explanatory-vector",
+      "source": "docs/user-guide/build.py",
+      "sha256": "851f69002f8336f5047051625a4be5456da2252e907a043405cb730476189c8a",
+      "liveGameplayEvidence": false
+    },
+    {
+      "file": "assets/family-flow.svg",
+      "type": "original-explanatory-vector",
+      "source": "docs/user-guide/build.py",
+      "sha256": "df338fc36bea8a8c18f0968ca19587fdc0d7a9df7c3ca7c2f0cbe24aa49ddfa6",
+      "liveGameplayEvidence": false
+    },
+    {
+      "file": "assets/government-flow.svg",
+      "type": "original-explanatory-vector",
+      "source": "docs/user-guide/build.py",
+      "sha256": "3dc13f51271e336fcba940dfdd31c05d8e0400c1db06caae63bba720bb7b7351",
+      "liveGameplayEvidence": false
+    },
+    {
+      "file": "assets/guest-cycle.svg",
+      "type": "original-explanatory-vector",
+      "source": "docs/user-guide/build.py",
+      "sha256": "301b61639ae2f5dadec5eaefaea41af79b5bce42f39772f439998128313ff73f",
+      "liveGameplayEvidence": false
+    },
+    {
+      "file": "assets/knowledge.svg",
+      "type": "original-explanatory-vector",
+      "source": "docs/user-guide/build.py",
+      "sha256": "9dee4bb51e2a35b9b4bd80c1c35731be76346aff7ae2893ad08b3ceca6185c32",
+      "liveGameplayEvidence": false
+    },
+    {
+      "file": "assets/requirements.svg",
+      "type": "original-explanatory-vector",
+      "source": "docs/user-guide/build.py",
+      "sha256": "723bf67bd20c5a6b056ce0f40da64d82b6d62d8d3005b923755cdd8d966cbe86",
+      "liveGameplayEvidence": false
+    },
+    {
+      "file": "assets/save-pair.svg",
+      "type": "original-explanatory-vector",
+      "source": "docs/user-guide/build.py",
+      "sha256": "18f45986b13279cfaf75d2fe1a163c640a5c386bb04fa4d84d4086dd5d9fe39b",
+      "liveGameplayEvidence": false
+    }
+  ],
+  "explicitLimits": [
+    "The manual is a source-reviewed player guide, not a native full-mod release certificate.",
+    "Source coverage is topic/chapter based; no claim that every line of code or authored scenario is separately described.",
+    "The existing technical guide is retained untouched because it has unrelated active economy edits.",
+    "Only hardware requirements retain necessary numeric planning information. Gameplay tuning percentages and formulas are intentionally omitted.",
+    "A representative typical RAM range, peak-memory benchmark and clean-machine Reign minimum specification are not established.",
+    "Remaining approved-reference pictures are temporary layout examples. User-supplied in-game captures establish visible presentation only; they do not certify a complete feature lifecycle.",
+    "No gameplay providers, native campaign changes, game launches, deployment, commits or publication are performed for manual production. External editorial consultations are separately authorized.",
+    "The November 9 additions distinguish deployed behavior from the NPC Clan Trade candidate. Marriage native evidence covers a single Aserai route. The action reference accounts for all conversation catalog IDs, including conditional and legacy entries, without claiming every route has native acceptance."
+  ]
+}

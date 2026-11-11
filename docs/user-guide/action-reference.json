@@ -1,0 +1,1464 @@
+{
+  "schema": "reign-guide-action-reference-v1",
+  "edition": "2026-11-09",
+  "scope": "Conversation action registry, including current menu choices, special flows, older aliases and follow-up entries.",
+  "catalogVersion": 1,
+  "catalogArchive": {
+    "path": "E:\\CodexStorage\\Projects\\reign\\UserGuide\\updates\\2026-11-09-evidence\\action-catalog-source-e7a45305df0df84b.zip",
+    "sha256": "b38573ec3328c17c713ba45e5d7933cdb13de37a905e287c252c738f3c516692",
+    "entries": {
+      "ReignServer/shared/Reign.Core.Contracts/Actions/ReignActionCatalog.cs": "a3b8916292d1688869fe7e47d7876a5d305df2245e06519ad6a77381f7695022",
+      "ReignServer/shared/Reign.Core.Contracts/Actions/ReignActionParameters.cs": "f41691d74ae3529d591d6b5a3f87add1ddf4ae84ee8069a7b2b39b7c0b6d58fc",
+      "ReignServer/shared/Reign.Core.Contracts/Actions/ReignNpcLifeActionCatalog.cs": "6efcfbd4c2adbee5ce4d998ade874e81fd776bf63f3c6a66d284006e9beeb86f",
+      "ReignServer/shared/Reign.Core.Contracts/Actions/ReignActionConversationPolicy.cs": "720348794bb31f3a997d49d8a852becbcd422753ec019dd8c4c80cd15daeeca8",
+      "ReignServer/shared/Reign.Core.Contracts/Actions/ReignActionContracts.cs": "fa76af3b884227f0c04aea8ed44b9d1abe9f829cc7b6fd52cdd41beca1d24e9b",
+      "ReignServer/shared/Reign.Core.Contracts/Actions/ReignSpouseSeparation.cs": "adcf7dbacd13981b5a24c6a7df38df8849379ea437fe2a375ddc0c12d198825c",
+      "ReignBeta/src/Modules/Dialogue/UI/ReignActionBuilder.cs": "c16051a9d956d330e5f1141c227cc7607a555f2f21974f8f4376a7cdb2fe98c4",
+      "ReignBeta/src/Modules/Dialogue/UI/ViewModels/ReignActionBuilderVM.cs": "1cc1fc74d04c191954d1c869d7492f1f0b512786d0191f8e41b2de8da8b38c0a",
+      "ReignBeta/src/Modules/Dialogue/UI/ViewModels/ReignCorrespondenceScreenVM.cs": "ec2f57a782f65a51e86ba7d243303879fab86fce21abb52d0cb603fb9dfea625",
+      "ReignBeta/src/Modules/WorldSimulation/Actions/ReignActionService.cs": "7d28c1d8b6678e5e8ec795030790d8cdb4534110e2cb03f48ba4d438c78a9a44",
+      "ReignBeta/src/Modules/Relationships/Campaign/ReignPlayerMarriageOffers.cs": "06fe55a3d790bec4205718049ab122d507d01d5c6ce5c8c5ef5efeb57ec8ac87",
+      "ReignBeta/src/Modules/Relationships/Campaign/ReignWeddings.cs": "45eb313882ba89432c89b9a28f897c3fb416c68111d9361ea5979f2a90478d52"
+    }
+  },
+  "definitionGroups": {
+    "legacy": [
+      "declare_war",
+      "back_rebellion",
+      "resolve_civil_war",
+      "make_peace",
+      "offer_tribute_peace",
+      "record_promise",
+      "demand_reparations_peace",
+      "demand_settlement_peace",
+      "demand_surrender_peace",
+      "sign_trade_agreement",
+      "sign_non_aggression_pact",
+      "sign_alliance",
+      "sign_defensive_pact",
+      "break_treaty",
+      "exchange_prisoners",
+      "ransom_package",
+      "hostage_guarantee",
+      "war_indemnity",
+      "recognize_conquest",
+      "return_occupied_settlement",
+      "demilitarized_border",
+      "caravan_protection_agreement",
+      "supply_agreement",
+      "loan_or_subsidy",
+      "pay_to_stay_neutral",
+      "pay_to_join_war",
+      "guarantee_independence",
+      "protectorate_or_vassalage",
+      "diplomatic_package",
+      "trade_package",
+      "follow",
+      "stop_following",
+      "go_to_settlement",
+      "patrol_around_settlement",
+      "wait_near_settlement",
+      "raid_village",
+      "besiege_settlement",
+      "create_party",
+      "show_the_way",
+      "attack_party",
+      "attack_player_party",
+      "surrender_to_player",
+      "leave_player_alone",
+      "kill_character",
+      "duel_player",
+      "prepare_arrest",
+      "confirm_arrest",
+      "release_arrested_character",
+      "rescind_arrest_accusation",
+      "player_attack_party",
+      "issue_campaign_order",
+      "revise_campaign_order",
+      "respond_to_order_report",
+      "cancel_campaign_order",
+      "recruit_encountered_resident",
+      "create_clan_accord",
+      "cancel_clan_accord",
+      "release_resident_from_duty",
+      "accept_temporary_party_guest",
+      "renew_temporary_party_guest",
+      "end_temporary_party_guest",
+      "acknowledge_own_faction_combat_risk",
+      "give_gold_to_player",
+      "transfer_gold",
+      "transfer_item",
+      "transfer_workshop",
+      "transfer_prisoner",
+      "hire_player_as_mercenary",
+      "dismiss_player_mercenary",
+      "offer_player_vassalage",
+      "dismiss_player_vassal",
+      "join_clan",
+      "leave_clan",
+      "join_kingdom",
+      "leave_kingdom",
+      "hire_mercenary_clan",
+      "recruit_and_recover",
+      "form_army",
+      "attack_settlement",
+      "capture_settlement_plan",
+      "start_ruling_clan_rebellion",
+      "pledge_rebellion_support",
+      "recruit_lord_to_rebellion",
+      "join_rebellion",
+      "surrender_rebellion",
+      "resolve_rebellion_pledge",
+      "resolve_rebellion_summons",
+      "consent_government_reduction",
+      "install_ruling_clan",
+      "marriage_alliance",
+      "support_claimant",
+      "encourage_clan_defection",
+      "exile_clan",
+      "restore_exiled_clan",
+      "mediate_clan_dispute"
+    ],
+    "gifts": [
+      "give.gold",
+      "give.item",
+      "give.troop",
+      "give.prisoner",
+      "give.settlement",
+      "give.workshop",
+      "give.ship"
+    ],
+    "government": [
+      "government.join_party",
+      "government.back_platform",
+      "government.support_vote",
+      "government.support_nomination",
+      "government.endorse_petition",
+      "government.sponsor_petition",
+      "government.seek_petition_adoption",
+      "government.present_petition",
+      "government.transfer_mandate",
+      "government.nominate_leader",
+      "government.vote_leader",
+      "government.recommend",
+      "government.introduce_proposal",
+      "government.contribute_goods",
+      "government.adopt_petition",
+      "government.postpone",
+      "government.reconvene",
+      "government.call_vote",
+      "government.resolve",
+      "government.increase_authority",
+      "government.reduce_authority",
+      "government.fulfill_resolution",
+      "government.decline_resolution"
+    ],
+    "special": [
+      "expose_concealed_pregnancy",
+      "marriage.propose",
+      "marriage.appeal",
+      "marriage.release_prisoner",
+      "leave_spouse"
+    ],
+    "campaign": [
+      "campaign.establish_party",
+      "campaign.move",
+      "campaign.hold_position",
+      "campaign.timed_hold",
+      "campaign.patrol",
+      "campaign.scout_report",
+      "campaign.escort",
+      "campaign.recruit_resupply",
+      "campaign.form_army",
+      "campaign.join_army",
+      "campaign.leave_army",
+      "campaign.disband_army",
+      "campaign.raid",
+      "campaign.besiege_capture",
+      "campaign.defend",
+      "campaign.relieve_siege",
+      "campaign.hunt_enemy_parties",
+      "campaign.engage_party",
+      "campaign.withdraw",
+      "campaign.return_home"
+    ],
+    "court": [
+      "court.serve_office",
+      "court.leave_office",
+      "court.serve_regent",
+      "court.leave_regent",
+      "court.serve_ambassador",
+      "court.recall_ambassador",
+      "court.set_ambassador_mission",
+      "court.serve_chancellor",
+      "court.leave_chancellor",
+      "court.set_chancellor_active"
+    ],
+    "intelligence": [
+      "spymaster.land_intelligence",
+      "spymaster.counterintelligence",
+      "spymaster.person_skills",
+      "spymaster.person_relationships",
+      "spymaster.person_rumors",
+      "spymaster.disrupt_food",
+      "spymaster.disrupt_construction",
+      "spymaster.disrupt_security",
+      "spymaster.disrupt_loyalty",
+      "spymaster.assassinate_governor",
+      "spymaster.assassinate_person",
+      "spymaster.mitigate_own_rumor",
+      "spymaster.mitigate_own_reputation",
+      "spymaster.mitigate_target_rumor",
+      "spymaster.mitigate_target_reputation",
+      "spymaster.fabricate_positive",
+      "spymaster.fabricate_moderate",
+      "spymaster.fabricate_severe"
+    ],
+    "npc-life": [
+      "npc_life.accept_story",
+      "npc_life.personal_leave",
+      "npc_life.summon_meeting",
+      "npc_life.change_meeting",
+      "npc_life.cancel_meeting"
+    ]
+  },
+  "entries": [
+    {
+      "ids": [
+        "give.gold"
+      ],
+      "label": "Give gold",
+      "topicId": "gifts-and-exchanges"
+    },
+    {
+      "ids": [
+        "give.item"
+      ],
+      "label": "Give an item",
+      "topicId": "gifts-and-exchanges"
+    },
+    {
+      "ids": [
+        "give.troop"
+      ],
+      "label": "Give troops",
+      "topicId": "gifts-and-exchanges"
+    },
+    {
+      "ids": [
+        "give.prisoner"
+      ],
+      "label": "Give prisoners",
+      "topicId": "gifts-and-exchanges"
+    },
+    {
+      "ids": [
+        "give.settlement"
+      ],
+      "label": "Give land",
+      "topicId": "gifts-and-exchanges"
+    },
+    {
+      "ids": [
+        "give.workshop"
+      ],
+      "label": "Give a workshop",
+      "topicId": "gifts-and-exchanges"
+    },
+    {
+      "ids": [
+        "give.ship"
+      ],
+      "label": "Give a ship",
+      "topicId": "gifts-and-exchanges"
+    },
+    {
+      "ids": [
+        "leave_spouse"
+      ],
+      "label": "Leave your spouse by letter",
+      "topicId": "personal-and-family-actions"
+    },
+    {
+      "ids": [
+        "expose_concealed_pregnancy"
+      ],
+      "label": "Expose their concealed pregnancy",
+      "topicId": "personal-and-family-actions"
+    },
+    {
+      "ids": [
+        "npc_life.accept_story"
+      ],
+      "label": "Share this personal experience",
+      "topicId": "personal-and-family-actions"
+    },
+    {
+      "ids": [
+        "npc_life.personal_leave"
+      ],
+      "label": "Take personal leave",
+      "topicId": "personal-and-family-actions"
+    },
+    {
+      "ids": [
+        "npc_life.summon_meeting"
+      ],
+      "label": "Summon a subordinate for a meeting",
+      "topicId": "personal-and-family-actions"
+    },
+    {
+      "ids": [
+        "npc_life.change_meeting"
+      ],
+      "label": "Change an agreed meeting",
+      "topicId": "personal-and-family-actions"
+    },
+    {
+      "ids": [
+        "npc_life.cancel_meeting"
+      ],
+      "label": "Cancel an agreed meeting",
+      "topicId": "personal-and-family-actions"
+    },
+    {
+      "ids": [
+        "recruit_encountered_resident"
+      ],
+      "label": "Join my party as a permanent companion",
+      "topicId": "personal-and-family-actions"
+    },
+    {
+      "ids": [
+        "release_resident_from_duty"
+      ],
+      "label": "Release resident from duty",
+      "topicId": "personal-and-family-actions"
+    },
+    {
+      "ids": [
+        "accept_temporary_party_guest"
+      ],
+      "label": "Join my party as a temporary guest",
+      "topicId": "personal-and-family-actions"
+    },
+    {
+      "ids": [
+        "renew_temporary_party_guest"
+      ],
+      "label": "Extend your stay in my party",
+      "topicId": "personal-and-family-actions"
+    },
+    {
+      "ids": [
+        "end_temporary_party_guest"
+      ],
+      "label": "Leave my party",
+      "topicId": "personal-and-family-actions"
+    },
+    {
+      "ids": [
+        "acknowledge_own_faction_combat_risk"
+      ],
+      "label": "Accept the risks of fighting your own faction",
+      "topicId": "personal-and-family-actions"
+    },
+    {
+      "ids": [
+        "marriage.propose"
+      ],
+      "label": "Propose an arranged marriage",
+      "topicId": "marriage-actions-and-wedding-choices"
+    },
+    {
+      "ids": [
+        "marriage.release_prisoner"
+      ],
+      "label": "Release a captive",
+      "topicId": "marriage-actions-and-wedding-choices"
+    },
+    {
+      "ids": [
+        "marriage.appeal"
+      ],
+      "label": "Ask the prospective spouse to call off the wedding",
+      "topicId": "marriage-actions-and-wedding-choices"
+    },
+    {
+      "ids": [
+        "marriage_alliance"
+      ],
+      "label": "Marriage alliance",
+      "topicId": "marriage-actions-and-wedding-choices"
+    },
+    {
+      "ids": [
+        "duel_player"
+      ],
+      "label": "Duel me",
+      "topicId": "arrests-and-direct-conflict"
+    },
+    {
+      "ids": [
+        "prepare_arrest"
+      ],
+      "label": "Prepare arrest",
+      "topicId": "arrests-and-direct-conflict"
+    },
+    {
+      "ids": [
+        "release_arrested_character"
+      ],
+      "label": "Release arrested character",
+      "topicId": "arrests-and-direct-conflict"
+    },
+    {
+      "ids": [
+        "rescind_arrest_accusation"
+      ],
+      "label": "Rescind arrest accusation",
+      "topicId": "arrests-and-direct-conflict"
+    },
+    {
+      "ids": [
+        "player_attack_party"
+      ],
+      "label": "Attack your party",
+      "topicId": "arrests-and-direct-conflict"
+    },
+    {
+      "ids": [
+        "attack_player_party"
+      ],
+      "label": "Attack my party",
+      "topicId": "arrests-and-direct-conflict"
+    },
+    {
+      "ids": [
+        "surrender_to_player"
+      ],
+      "label": "Surrender to me",
+      "topicId": "arrests-and-direct-conflict"
+    },
+    {
+      "ids": [
+        "leave_player_alone"
+      ],
+      "label": "Leave me alone",
+      "topicId": "arrests-and-direct-conflict"
+    },
+    {
+      "ids": [
+        "kill_character"
+      ],
+      "label": "Kill character",
+      "topicId": "arrests-and-direct-conflict"
+    },
+    {
+      "ids": [
+        "follow"
+      ],
+      "label": "Follow",
+      "topicId": "following-and-guiding"
+    },
+    {
+      "ids": [
+        "stop_following"
+      ],
+      "label": "Stop following",
+      "topicId": "following-and-guiding"
+    },
+    {
+      "ids": [
+        "show_the_way"
+      ],
+      "label": "Show the way",
+      "topicId": "following-and-guiding"
+    },
+    {
+      "ids": [
+        "issue_campaign_order"
+      ],
+      "label": "Issue campaign order",
+      "topicId": "party-and-military-orders"
+    },
+    {
+      "ids": [
+        "revise_campaign_order"
+      ],
+      "label": "Revise campaign order",
+      "topicId": "party-and-military-orders"
+    },
+    {
+      "ids": [
+        "cancel_campaign_order"
+      ],
+      "label": "Cancel campaign order",
+      "topicId": "party-and-military-orders"
+    },
+    {
+      "ids": [
+        "campaign.establish_party",
+        "create_party"
+      ],
+      "label": "Create party",
+      "topicId": "party-and-military-orders"
+    },
+    {
+      "ids": [
+        "campaign.move",
+        "go_to_settlement"
+      ],
+      "label": "Go to",
+      "topicId": "party-and-military-orders"
+    },
+    {
+      "ids": [
+        "campaign.hold_position"
+      ],
+      "label": "Hold position",
+      "topicId": "party-and-military-orders"
+    },
+    {
+      "ids": [
+        "campaign.timed_hold",
+        "wait_near_settlement"
+      ],
+      "label": "Wait near settlement",
+      "topicId": "party-and-military-orders"
+    },
+    {
+      "ids": [
+        "campaign.patrol",
+        "patrol_around_settlement"
+      ],
+      "label": "Patrol around settlement",
+      "topicId": "party-and-military-orders"
+    },
+    {
+      "ids": [
+        "campaign.scout_report"
+      ],
+      "label": "Scout report",
+      "topicId": "party-and-military-orders"
+    },
+    {
+      "ids": [
+        "campaign.escort"
+      ],
+      "label": "Escort",
+      "topicId": "party-and-military-orders"
+    },
+    {
+      "ids": [
+        "campaign.recruit_resupply",
+        "recruit_and_recover"
+      ],
+      "label": "Recruit and recover",
+      "topicId": "party-and-military-orders"
+    },
+    {
+      "ids": [
+        "campaign.form_army",
+        "form_army"
+      ],
+      "label": "Form army",
+      "topicId": "party-and-military-orders"
+    },
+    {
+      "ids": [
+        "campaign.join_army"
+      ],
+      "label": "Join army",
+      "topicId": "party-and-military-orders"
+    },
+    {
+      "ids": [
+        "campaign.leave_army"
+      ],
+      "label": "Leave army",
+      "topicId": "party-and-military-orders"
+    },
+    {
+      "ids": [
+        "campaign.disband_army"
+      ],
+      "label": "Disband army",
+      "topicId": "party-and-military-orders"
+    },
+    {
+      "ids": [
+        "campaign.raid",
+        "raid_village"
+      ],
+      "label": "Raid village",
+      "topicId": "party-and-military-orders"
+    },
+    {
+      "ids": [
+        "campaign.besiege_capture",
+        "besiege_settlement"
+      ],
+      "label": "Besiege settlement",
+      "topicId": "party-and-military-orders"
+    },
+    {
+      "ids": [
+        "attack_settlement"
+      ],
+      "label": "Attack settlement",
+      "topicId": "party-and-military-orders"
+    },
+    {
+      "ids": [
+        "capture_settlement_plan"
+      ],
+      "label": "Capture settlement plan",
+      "topicId": "party-and-military-orders"
+    },
+    {
+      "ids": [
+        "campaign.defend"
+      ],
+      "label": "Defend",
+      "topicId": "party-and-military-orders"
+    },
+    {
+      "ids": [
+        "campaign.relieve_siege"
+      ],
+      "label": "Relieve siege",
+      "topicId": "party-and-military-orders"
+    },
+    {
+      "ids": [
+        "campaign.hunt_enemy_parties"
+      ],
+      "label": "Hunt enemy parties",
+      "topicId": "party-and-military-orders"
+    },
+    {
+      "ids": [
+        "campaign.engage_party",
+        "attack_party"
+      ],
+      "label": "Attack party",
+      "topicId": "party-and-military-orders"
+    },
+    {
+      "ids": [
+        "campaign.withdraw"
+      ],
+      "label": "Withdraw",
+      "topicId": "party-and-military-orders"
+    },
+    {
+      "ids": [
+        "campaign.return_home"
+      ],
+      "label": "Return home",
+      "topicId": "party-and-military-orders"
+    },
+    {
+      "ids": [
+        "hire_player_as_mercenary"
+      ],
+      "label": "Hire me as a mercenary",
+      "topicId": "clan-and-kingdom-actions"
+    },
+    {
+      "ids": [
+        "dismiss_player_mercenary"
+      ],
+      "label": "Release me from mercenary service",
+      "topicId": "clan-and-kingdom-actions"
+    },
+    {
+      "ids": [
+        "offer_player_vassalage"
+      ],
+      "label": "Accept my oath of vassalage",
+      "topicId": "clan-and-kingdom-actions"
+    },
+    {
+      "ids": [
+        "dismiss_player_vassal"
+      ],
+      "label": "Release me from vassalage",
+      "topicId": "clan-and-kingdom-actions"
+    },
+    {
+      "ids": [
+        "join_clan"
+      ],
+      "label": "Join clan",
+      "topicId": "clan-and-kingdom-actions"
+    },
+    {
+      "ids": [
+        "leave_clan"
+      ],
+      "label": "Leave clan",
+      "topicId": "clan-and-kingdom-actions"
+    },
+    {
+      "ids": [
+        "join_kingdom"
+      ],
+      "label": "Join kingdom",
+      "topicId": "clan-and-kingdom-actions"
+    },
+    {
+      "ids": [
+        "leave_kingdom"
+      ],
+      "label": "Leave kingdom",
+      "topicId": "clan-and-kingdom-actions"
+    },
+    {
+      "ids": [
+        "hire_mercenary_clan"
+      ],
+      "label": "Hire mercenary clan",
+      "topicId": "clan-and-kingdom-actions"
+    },
+    {
+      "ids": [
+        "create_clan_accord"
+      ],
+      "label": "Create clan accord",
+      "topicId": "clan-and-kingdom-actions"
+    },
+    {
+      "ids": [
+        "cancel_clan_accord"
+      ],
+      "label": "Cancel clan accord",
+      "topicId": "clan-and-kingdom-actions"
+    },
+    {
+      "ids": [
+        "start_ruling_clan_rebellion"
+      ],
+      "label": "Declare rebellion against your rule",
+      "topicId": "rebellions-and-internal-politics"
+    },
+    {
+      "ids": [
+        "pledge_rebellion_support"
+      ],
+      "label": "Support me when I declare rebellion",
+      "topicId": "rebellions-and-internal-politics"
+    },
+    {
+      "ids": [
+        "recruit_lord_to_rebellion"
+      ],
+      "label": "Recruit lord to rebellion",
+      "topicId": "rebellions-and-internal-politics"
+    },
+    {
+      "ids": [
+        "join_rebellion"
+      ],
+      "label": "Join rebellion",
+      "topicId": "rebellions-and-internal-politics"
+    },
+    {
+      "ids": [
+        "surrender_rebellion"
+      ],
+      "label": "Surrender rebellion",
+      "topicId": "rebellions-and-internal-politics"
+    },
+    {
+      "ids": [
+        "resolve_civil_war"
+      ],
+      "label": "Resolve civil war",
+      "topicId": "rebellions-and-internal-politics"
+    },
+    {
+      "ids": [
+        "consent_government_reduction"
+      ],
+      "label": "Consent government reduction",
+      "topicId": "rebellions-and-internal-politics"
+    },
+    {
+      "ids": [
+        "install_ruling_clan"
+      ],
+      "label": "Install ruling clan",
+      "topicId": "rebellions-and-internal-politics"
+    },
+    {
+      "ids": [
+        "support_claimant"
+      ],
+      "label": "Support claimant",
+      "topicId": "rebellions-and-internal-politics"
+    },
+    {
+      "ids": [
+        "encourage_clan_defection"
+      ],
+      "label": "Encourage clan defection",
+      "topicId": "rebellions-and-internal-politics"
+    },
+    {
+      "ids": [
+        "exile_clan"
+      ],
+      "label": "Exile clan",
+      "topicId": "rebellions-and-internal-politics"
+    },
+    {
+      "ids": [
+        "restore_exiled_clan"
+      ],
+      "label": "Restore exiled clan",
+      "topicId": "rebellions-and-internal-politics"
+    },
+    {
+      "ids": [
+        "mediate_clan_dispute"
+      ],
+      "label": "Mediate clan dispute",
+      "topicId": "rebellions-and-internal-politics"
+    },
+    {
+      "ids": [
+        "declare_war"
+      ],
+      "label": "Declare war",
+      "topicId": "realm-diplomacy"
+    },
+    {
+      "ids": [
+        "back_rebellion"
+      ],
+      "label": "Back rebellion",
+      "topicId": "realm-diplomacy"
+    },
+    {
+      "ids": [
+        "make_peace"
+      ],
+      "label": "Make peace",
+      "topicId": "realm-diplomacy"
+    },
+    {
+      "ids": [
+        "offer_tribute_peace"
+      ],
+      "label": "Offer tribute peace",
+      "topicId": "realm-diplomacy"
+    },
+    {
+      "ids": [
+        "record_promise"
+      ],
+      "label": "Record promise",
+      "topicId": "realm-diplomacy"
+    },
+    {
+      "ids": [
+        "demand_reparations_peace"
+      ],
+      "label": "Demand reparations peace",
+      "topicId": "realm-diplomacy"
+    },
+    {
+      "ids": [
+        "demand_settlement_peace"
+      ],
+      "label": "Demand settlement peace",
+      "topicId": "realm-diplomacy"
+    },
+    {
+      "ids": [
+        "demand_surrender_peace"
+      ],
+      "label": "Demand surrender peace",
+      "topicId": "realm-diplomacy"
+    },
+    {
+      "ids": [
+        "sign_trade_agreement"
+      ],
+      "label": "Sign trade agreement",
+      "topicId": "realm-diplomacy"
+    },
+    {
+      "ids": [
+        "sign_non_aggression_pact"
+      ],
+      "label": "Sign non-aggression pact",
+      "topicId": "realm-diplomacy"
+    },
+    {
+      "ids": [
+        "sign_alliance"
+      ],
+      "label": "Sign alliance",
+      "topicId": "realm-diplomacy"
+    },
+    {
+      "ids": [
+        "sign_defensive_pact"
+      ],
+      "label": "Sign defensive pact",
+      "topicId": "realm-diplomacy"
+    },
+    {
+      "ids": [
+        "break_treaty"
+      ],
+      "label": "Break treaty",
+      "topicId": "realm-diplomacy"
+    },
+    {
+      "ids": [
+        "exchange_prisoners"
+      ],
+      "label": "Exchange prisoners",
+      "topicId": "realm-diplomacy"
+    },
+    {
+      "ids": [
+        "ransom_package"
+      ],
+      "label": "Ransom package",
+      "topicId": "realm-diplomacy"
+    },
+    {
+      "ids": [
+        "hostage_guarantee"
+      ],
+      "label": "Hostage guarantee",
+      "topicId": "realm-diplomacy"
+    },
+    {
+      "ids": [
+        "war_indemnity"
+      ],
+      "label": "War indemnity",
+      "topicId": "realm-diplomacy"
+    },
+    {
+      "ids": [
+        "recognize_conquest"
+      ],
+      "label": "Recognize conquest",
+      "topicId": "realm-diplomacy"
+    },
+    {
+      "ids": [
+        "return_occupied_settlement"
+      ],
+      "label": "Return occupied settlement",
+      "topicId": "realm-diplomacy"
+    },
+    {
+      "ids": [
+        "demilitarized_border"
+      ],
+      "label": "Demilitarized border",
+      "topicId": "realm-diplomacy"
+    },
+    {
+      "ids": [
+        "caravan_protection_agreement"
+      ],
+      "label": "Caravan protection agreement",
+      "topicId": "realm-diplomacy"
+    },
+    {
+      "ids": [
+        "supply_agreement"
+      ],
+      "label": "Supply agreement",
+      "topicId": "realm-diplomacy"
+    },
+    {
+      "ids": [
+        "loan_or_subsidy"
+      ],
+      "label": "Loan or subsidy",
+      "topicId": "realm-diplomacy"
+    },
+    {
+      "ids": [
+        "pay_to_stay_neutral"
+      ],
+      "label": "Pay to stay neutral",
+      "topicId": "realm-diplomacy"
+    },
+    {
+      "ids": [
+        "pay_to_join_war"
+      ],
+      "label": "Pay to join war",
+      "topicId": "realm-diplomacy"
+    },
+    {
+      "ids": [
+        "guarantee_independence"
+      ],
+      "label": "Guarantee independence",
+      "topicId": "realm-diplomacy"
+    },
+    {
+      "ids": [
+        "protectorate_or_vassalage"
+      ],
+      "label": "Protectorate or vassalage",
+      "topicId": "realm-diplomacy"
+    },
+    {
+      "ids": [
+        "diplomatic_package"
+      ],
+      "label": "Diplomatic package",
+      "topicId": "realm-diplomacy"
+    },
+    {
+      "ids": [
+        "government.join_party"
+      ],
+      "label": "Join political party",
+      "topicId": "government-support-and-petitions"
+    },
+    {
+      "ids": [
+        "government.back_platform"
+      ],
+      "label": "Back a party platform",
+      "topicId": "government-support-and-petitions"
+    },
+    {
+      "ids": [
+        "government.support_vote"
+      ],
+      "label": "Support a proposal",
+      "topicId": "government-support-and-petitions"
+    },
+    {
+      "ids": [
+        "government.support_nomination"
+      ],
+      "label": "Support a party nomination",
+      "topicId": "government-support-and-petitions"
+    },
+    {
+      "ids": [
+        "government.endorse_petition"
+      ],
+      "label": "Endorse a petition",
+      "topicId": "government-support-and-petitions"
+    },
+    {
+      "ids": [
+        "government.sponsor_petition"
+      ],
+      "label": "Sponsor a petition",
+      "topicId": "government-support-and-petitions"
+    },
+    {
+      "ids": [
+        "government.seek_petition_adoption"
+      ],
+      "label": "Seek party adoption of a petition",
+      "topicId": "government-support-and-petitions"
+    },
+    {
+      "ids": [
+        "government.present_petition"
+      ],
+      "label": "Present an adopted petition",
+      "topicId": "government-support-and-petitions"
+    },
+    {
+      "ids": [
+        "government.transfer_mandate"
+      ],
+      "label": "Consent to transfer a civic mandate",
+      "topicId": "government-support-and-petitions"
+    },
+    {
+      "ids": [
+        "government.nominate_leader"
+      ],
+      "label": "Nominate a party speaker",
+      "topicId": "government-support-and-petitions"
+    },
+    {
+      "ids": [
+        "government.vote_leader"
+      ],
+      "label": "Vote for a party speaker",
+      "topicId": "government-support-and-petitions"
+    },
+    {
+      "ids": [
+        "government.recommend"
+      ],
+      "label": "Recommend an outcome",
+      "topicId": "government-hearings-and-decisions"
+    },
+    {
+      "ids": [
+        "government.introduce_proposal"
+      ],
+      "label": "Introduce a government proposal",
+      "topicId": "government-hearings-and-decisions"
+    },
+    {
+      "ids": [
+        "government.contribute_goods"
+      ],
+      "label": "Supply a government resolution",
+      "topicId": "government-hearings-and-decisions"
+    },
+    {
+      "ids": [
+        "government.adopt_petition"
+      ],
+      "label": "Sponsor a petition",
+      "topicId": "government-hearings-and-decisions"
+    },
+    {
+      "ids": [
+        "government.postpone"
+      ],
+      "label": "Postpone a hearing",
+      "topicId": "government-hearings-and-decisions"
+    },
+    {
+      "ids": [
+        "government.reconvene"
+      ],
+      "label": "Reconvene a hearing",
+      "topicId": "government-hearings-and-decisions"
+    },
+    {
+      "ids": [
+        "government.call_vote"
+      ],
+      "label": "Call a government vote",
+      "topicId": "government-hearings-and-decisions"
+    },
+    {
+      "ids": [
+        "government.resolve"
+      ],
+      "label": "Decide a government hearing",
+      "topicId": "government-hearings-and-decisions"
+    },
+    {
+      "ids": [
+        "government.increase_authority"
+      ],
+      "label": "Grant more governing authority",
+      "topicId": "government-hearings-and-decisions"
+    },
+    {
+      "ids": [
+        "government.reduce_authority"
+      ],
+      "label": "Reduce governing authority",
+      "topicId": "government-hearings-and-decisions"
+    },
+    {
+      "ids": [
+        "government.fulfill_resolution"
+      ],
+      "label": "Fulfill a government resolution",
+      "topicId": "government-hearings-and-decisions"
+    },
+    {
+      "ids": [
+        "government.decline_resolution"
+      ],
+      "label": "Decline a government resolution",
+      "topicId": "government-hearings-and-decisions"
+    },
+    {
+      "ids": [
+        "court.serve_office"
+      ],
+      "label": "Serve as a court officer",
+      "topicId": "court-offices-and-ambassadors"
+    },
+    {
+      "ids": [
+        "court.leave_office"
+      ],
+      "label": "Leave your court office",
+      "topicId": "court-offices-and-ambassadors"
+    },
+    {
+      "ids": [
+        "court.serve_ambassador"
+      ],
+      "label": "Serve as ambassador",
+      "topicId": "court-offices-and-ambassadors"
+    },
+    {
+      "ids": [
+        "court.recall_ambassador"
+      ],
+      "label": "Return from your ambassador posting",
+      "topicId": "court-offices-and-ambassadors"
+    },
+    {
+      "ids": [
+        "court.set_ambassador_mission"
+      ],
+      "label": "Change your ambassador mission",
+      "topicId": "court-offices-and-ambassadors"
+    },
+    {
+      "ids": [
+        "court.serve_chancellor"
+      ],
+      "label": "Serve as Chancellor",
+      "topicId": "court-offices-and-ambassadors"
+    },
+    {
+      "ids": [
+        "court.leave_chancellor"
+      ],
+      "label": "Relinquish the Chancellorship",
+      "topicId": "court-offices-and-ambassadors"
+    },
+    {
+      "ids": [
+        "court.set_chancellor_active"
+      ],
+      "label": "Change your Chancellor duties",
+      "topicId": "court-offices-and-ambassadors"
+    },
+    {
+      "ids": [
+        "court.serve_regent"
+      ],
+      "label": "Serve as regent",
+      "topicId": "court-offices-and-ambassadors"
+    },
+    {
+      "ids": [
+        "court.leave_regent"
+      ],
+      "label": "Relinquish the regency",
+      "topicId": "court-offices-and-ambassadors"
+    },
+    {
+      "ids": [
+        "spymaster.land_intelligence"
+      ],
+      "label": "Gather settlement intelligence",
+      "topicId": "spymaster-missions"
+    },
+    {
+      "ids": [
+        "spymaster.counterintelligence"
+      ],
+      "label": "Conduct a counterintelligence sweep",
+      "topicId": "spymaster-missions"
+    },
+    {
+      "ids": [
+        "spymaster.person_skills"
+      ],
+      "label": "Investigate a person's skills",
+      "topicId": "spymaster-missions"
+    },
+    {
+      "ids": [
+        "spymaster.person_relationships"
+      ],
+      "label": "Investigate a person's relationships",
+      "topicId": "spymaster-missions"
+    },
+    {
+      "ids": [
+        "spymaster.person_rumors"
+      ],
+      "label": "Investigate rumors about a person",
+      "topicId": "spymaster-missions"
+    },
+    {
+      "ids": [
+        "spymaster.disrupt_food"
+      ],
+      "label": "Disrupt a settlement's food supply",
+      "topicId": "spymaster-missions"
+    },
+    {
+      "ids": [
+        "spymaster.disrupt_construction"
+      ],
+      "label": "Disrupt construction",
+      "topicId": "spymaster-missions"
+    },
+    {
+      "ids": [
+        "spymaster.disrupt_security"
+      ],
+      "label": "Disrupt security",
+      "topicId": "spymaster-missions"
+    },
+    {
+      "ids": [
+        "spymaster.disrupt_loyalty"
+      ],
+      "label": "Disrupt loyalty",
+      "topicId": "spymaster-missions"
+    },
+    {
+      "ids": [
+        "spymaster.assassinate_governor"
+      ],
+      "label": "Attempt to assassinate a governor",
+      "topicId": "spymaster-missions"
+    },
+    {
+      "ids": [
+        "spymaster.assassinate_person"
+      ],
+      "label": "Attempt to assassinate a person",
+      "topicId": "spymaster-missions"
+    },
+    {
+      "ids": [
+        "spymaster.mitigate_own_rumor"
+      ],
+      "label": "Mitigate a rumor about me",
+      "topicId": "spymaster-missions"
+    },
+    {
+      "ids": [
+        "spymaster.mitigate_own_reputation"
+      ],
+      "label": "Mitigate my reputation",
+      "topicId": "spymaster-missions"
+    },
+    {
+      "ids": [
+        "spymaster.mitigate_target_rumor"
+      ],
+      "label": "Mitigate a rumor about a person",
+      "topicId": "spymaster-missions"
+    },
+    {
+      "ids": [
+        "spymaster.mitigate_target_reputation"
+      ],
+      "label": "Mitigate a person's reputation",
+      "topicId": "spymaster-missions"
+    },
+    {
+      "ids": [
+        "spymaster.fabricate_positive"
+      ],
+      "label": "Promote a positive reputation",
+      "topicId": "spymaster-missions"
+    },
+    {
+      "ids": [
+        "spymaster.fabricate_moderate"
+      ],
+      "label": "Circulate a harmful rumor",
+      "topicId": "spymaster-missions"
+    },
+    {
+      "ids": [
+        "spymaster.fabricate_severe"
+      ],
+      "label": "Circulate a severe reputation",
+      "topicId": "spymaster-missions"
+    },
+    {
+      "ids": [
+        "confirm_arrest"
+      ],
+      "label": "Confirm arrest",
+      "topicId": "follow-up-controls-and-older-action-entries"
+    },
+    {
+      "ids": [
+        "respond_to_order_report"
+      ],
+      "label": "Respond to order report",
+      "topicId": "follow-up-controls-and-older-action-entries"
+    },
+    {
+      "ids": [
+        "resolve_rebellion_pledge"
+      ],
+      "label": "Resolve rebellion pledge",
+      "topicId": "follow-up-controls-and-older-action-entries"
+    },
+    {
+      "ids": [
+        "resolve_rebellion_summons"
+      ],
+      "label": "Resolve rebellion summons",
+      "topicId": "follow-up-controls-and-older-action-entries"
+    },
+    {
+      "ids": [
+        "trade_package"
+      ],
+      "label": "Older trade package",
+      "topicId": "follow-up-controls-and-older-action-entries"
+    },
+    {
+      "ids": [
+        "give_gold_to_player",
+        "transfer_gold"
+      ],
+      "label": "Older gold transfer entries",
+      "topicId": "follow-up-controls-and-older-action-entries"
+    },
+    {
+      "ids": [
+        "transfer_item"
+      ],
+      "label": "Older item transfer entry",
+      "topicId": "follow-up-controls-and-older-action-entries"
+    },
+    {
+      "ids": [
+        "transfer_workshop"
+      ],
+      "label": "Older workshop transfer entry",
+      "topicId": "follow-up-controls-and-older-action-entries"
+    },
+    {
+      "ids": [
+        "transfer_prisoner"
+      ],
+      "label": "Older prisoner transfer entry",
+      "topicId": "follow-up-controls-and-older-action-entries"
+    }
+  ],
+  "specialMarriageControls": [
+    "View marriage offer",
+    "Accept this marriage proposal",
+    "Refuse this marriage proposal",
+    "Request a meeting with",
+    "Marry now",
+    "Hold a ceremony",
+    "Withdraw from my wedding"
+  ],
+  "exclusions": [
+    "Unknown sentinel",
+    "Temporary Truce retired",
+    "Trade Embargo retired",
+    "scene follow uses Follow",
+    "Native operator console catalog and test setup are separate"
+  ]
+}

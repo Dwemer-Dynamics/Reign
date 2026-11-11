@@ -1,0 +1,33 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="description" content="An illustrated, searchable, plain-language guide to Bannerlord Reign. Works offline.">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; img-src 'self' data: file:; style-src 'unsafe-inline'; script-src 'unsafe-inline'; base-uri 'none'; form-action 'none'; connect-src 'none'; object-src 'none'">
+<title>Reign — The Player's Companion</title>
+<style>{{CSS}}</style>
+</head>
+<body>
+<a class="skip" href="#main">Skip to the guide</a>
+<header class="topbar">
+  <a class="brand" href="#welcome" aria-label="Reign manual home"><span class="monogram" aria-hidden="true">R</span><span>REIGN<small>The Player's Companion</small></span></a>
+  <div class="search-area"><label for="search">Search the whole guide</label><div class="search-row"><input id="search" type="search" placeholder="Try: expensive troops, have a baby, letter…" autocomplete="off" spellcheck="false" aria-controls="results"><button id="clear-search" type="button" hidden aria-label="Clear search">Clear</button><kbd class="search-hint">Ctrl K</kbd></div></div>
+  <nav class="top-actions" aria-label="Guide tools"><a href="#topic-index">A–Z index</a><button type="button" id="print">Print</button><button type="button" id="menu" aria-controls="sidebar" aria-expanded="false">Contents</button></nav>
+</header>
+<aside id="sidebar"><nav aria-label="Contents"><div class="nav-title"><span>CONTENTS</span><button type="button" id="expand-contents" aria-pressed="false">Expand all</button></div><a class="start-link" href="#welcome">Choose a starting point</a>{{NAV}}<a class="start-link" href="#topic-index">A–Z topic index</a></nav></aside>
+<main id="main" tabindex="-1">
+<section id="results" hidden aria-label="Search results"><div class="results-heading"><div><p class="eyebrow">Find your answer</p><h1>Search results</h1></div><button type="button" id="back-to-reading">Back to reading</button></div><p id="search-status" role="status" aria-live="polite"></p><ol id="result-list"></ol><p id="search-tip">Use ordinary words or a screen name. Try a shorter query, or browse the A–Z index.</p></section>
+<div id="reading">
+<section id="welcome" class="welcome" tabindex="-1"><p class="eyebrow">BANNERLORD REIGN · USER MANUAL</p><h1>The Player's<br>Companion</h1><p class="lede">Find your way through Reign.<br>Learn what to do, where to go, and what changes around you.</p><p class="edition">Source-reviewed {{EDITION_DATE}} · Works offline</p><p class="counts">{{COUNTS}}</p><nav class="starting-points" aria-label="Starting points"><a href="#requirements-and-resource-use"><span>Before you play</span><strong>Requirements &amp; setup</strong><small>Hardware, cloud providers, first load</small></a><a href="#your-first-conversation"><span>Learn by doing</span><strong>Have your first conversation</strong><small>Speak, build an action, check the result</small></a><a href="#ruling-a-kingdom"><span>Already a ruler?</span><strong>Run your realm</strong><small>Court, Government, war, and supply</small></a><a href="#topic-index"><span>Looking for something?</span><strong>Browse A–Z</strong><small>Everyday terms and exact screen names</small></a></nav><div class="quick-note"><strong>Pictures explain; the game decides.</strong> In-game screenshots show actual player captures. Layout examples show temporary screen references; diagrams explain processes. Preview notices identify implemented features with open acceptance or edition differences.</div></section>
+<noscript><div class="callout"><p>JavaScript is disabled. The full guide, contents, index, and browser Find still work. Interactive keyword search needs JavaScript.</p></div></noscript>
+{{BODY}}
+<section id="topic-index" class="chapter" tabindex="-1"><div class="chapter-heading"><p class="eyebrow">REFERENCE</p><h2>A–Z topic index</h2><p>Use the name you know. Everyday terms link to the relevant explanation.</p></div>{{INDEX}}</section>
+<footer><p>Reign — The Player's Companion · {{EDITION_DATE}}</p><p>Editorially reviewed with Claude, Grok, and Gemini. Gameplay claims follow the reviewed project sources; consultations are not gameplay certification.</p><p><a href="#welcome">Back to the beginning</a> · <a href="#what-is-still-being-verified">Edition and coverage notes</a></p></footer>
+</div>
+</main>
+<button type="button" id="top" aria-label="Back to top">↑ Top</button>
+<script id="search-data" type="application/json">{{SEARCH_DATA}}</script>
+<script>{{JS}}</script>
+</body>
+</html>
