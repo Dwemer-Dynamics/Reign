@@ -6,6 +6,29 @@ namespace ReignBeta.Integration
 {
     internal static class ReignCampaignPreparationStartPolicy
     {
+        internal static TimeSpan? RetryDelay(Exception error, ReignInitializationStage stage,
+            int retriesScheduled)
+        {
+            if (error is AggregateException aggregate)
+            {
+                var failures = aggregate.Flatten().InnerExceptions;
+                if (failures.Count == 1) error = failures[0];
+            }
+            // Only repeat drain/readiness operations: never replay native creation,
+            // identity assignment or an unclassified application/authority failure.
+            bool safeStage = stage == ReignInitializationStage.ServerAcknowledgement
+                || stage == ReignInitializationStage.InitialSocialWorld;
+            bool transient = error is TimeoutException
+                || error is System.Net.Http.HttpRequestException
+                || error is System.Threading.Tasks.TaskCanceledException;
+            if (!safeStage || !transient || retriesScheduled < 0 || retriesScheduled >= 3)
+                return null;
+            return TimeSpan.FromSeconds(2 << retriesScheduled);
+        }
+
+        internal static bool CanPresentPopup(bool mapActive, bool mapReady, bool loading)
+            => mapActive && mapReady && !loading;
+
         internal static bool CanStart(
             bool sessionLaunched,
             bool campaignAvailable,
