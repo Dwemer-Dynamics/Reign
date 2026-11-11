@@ -417,6 +417,14 @@ Run canonical exact-path Release validation, then its artifact-bound non-listeni
 
 The existing artifact-bound `memory_evidence_replay` now accepts up to three bounded `writerReplay.continuation` steps (four accepted turns total). Each consumes the preceding prepared writer request and a separately captured response, uses the production memory publisher, and captures subsequent retrieval in the same disposable campaign. Missing stages remain pending, and execution completeness requires the full requested chain. There are no provider calls, new tool routes or runtime/campaign permissions. Exact fields, limits and evidence are in `docs/agent/testing/DIALOGUE_AND_PROVIDERS.md` and `reign.testing.json`.
 
+For imported accepted sequences, the isolated publisher advances the run-owned allocator before committing the captured response. The next-read cutoff follows the newly stored turns.
+
+An accepted `reviewedFactReplay` case can also export `reviewedFactFollowUp` alongside its stock next request. The compact diagnostic rechecks the selected sources and the exact authored window at the new cutoff. It records its own blocked or captured status and has no publication step.
+
+The optional reviewed writer plan captures a strict response schema for verified derived facts followed by free NPC prose. Captured replies must bind to that wire and match the planned fields before ordinary grounding and isolated publication.
+
+The guarded delivery treatment captures a short style schema and retains two independently reviewed lines outside the writer request. A captured response must match both the exact wire and the delivery receipt before the selected speech can enter isolated publication.
+
 
 ## Retired remote memory calls (2026-10-01)
 

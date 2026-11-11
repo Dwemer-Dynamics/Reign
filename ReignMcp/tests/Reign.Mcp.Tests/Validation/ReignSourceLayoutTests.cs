@@ -88,9 +88,23 @@ public sealed class ReignSourceLayoutTests
     private sealed class Fixture : IDisposable
     {
         private readonly List<string> links = [];
-        private readonly string root = Path.Combine(TestOptions.FindWorkspace(), ".codex-build", "source-layout-tests", Guid.NewGuid().ToString("N"));
+        private readonly string root = CreateRoot();
         public string Client => Path.Combine(root, "Reign");
         public string Server => Path.Combine(root, "ReignServer");
+
+        private static string CreateRoot()
+        {
+            // Worktrees can share a canonical build lane through a junction.
+            // Construct sibling fixture identities under its physical target so
+            // the production exact-sibling guard compares the same paths that
+            // ResolveLinkTarget returns, without weakening that guard.
+            var build = Directory.CreateDirectory(Path.Combine(TestOptions.FindWorkspace(), ".codex-build"));
+            string physical = (build.Attributes & FileAttributes.ReparsePoint) != 0
+                ? (build.ResolveLinkTarget(true)
+                    ?? throw new InvalidDataException("The test build junction has no target.")).FullName
+                : build.FullName;
+            return Path.Combine(physical, "source-layout-tests", Guid.NewGuid().ToString("N"));
+        }
 
         public Fixture()
         {

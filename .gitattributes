@@ -8,6 +8,8 @@
 *.ps1 text eol=crlf
 *.cmd text eol=crlf
 *.xml text eol=lf
+# The generated runtime manifest hashes the sprite XML producer's exact CRLF bytes.
+ReignBeta/GUI/ReignBetaSpriteData.xml text eol=crlf
 *.fnt text eol=lf
 ReignBeta/artwork/ui-modern-style-kit/font-sources/*.txt text eol=lf
 ReignBeta/GUI/Fonts/**/*.txt text eol=lf
