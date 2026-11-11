@@ -1,0 +1,13 @@
+{
+  "version": 1,
+  "heroStringId": "reign_court_castle_N3_child_2",
+  "characterName": "Ragnel Eikenvard",
+  "imagePath": "portrait.png",
+  "imageSha256": "4346CE1ADFFAB10F40773C74C9B292BD167FCBD070B1D51D31C9D9ACB2560C9E",
+  "description": "A dark brown wool apron dress with restrained red-and-cream geometric borders along the straps, sides and hem, secured by two modest round metal shoulder brooches, over a cream linen shift with sleeves rolled below the elbows and a moderately open curved neckline. A matching woven belt has long tasselled ends; the full long skirt partly covers brown soft leather shoes. No headgear, armor or weapons.",
+  "status": "completed",
+  "descriptionSource": "agent_vision",
+  "retryEligible": false,
+  "error": "",
+  "updatedUtc": "2026-11-07T03:24:37.489759+00:00"
+}

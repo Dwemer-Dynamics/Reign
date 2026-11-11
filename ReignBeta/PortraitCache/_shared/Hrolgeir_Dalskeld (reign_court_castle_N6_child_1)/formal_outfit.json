@@ -1,0 +1,13 @@
+{
+  "version": 1,
+  "heroStringId": "reign_court_castle_N6_child_1",
+  "characterName": "Hrolgeir Dalskeld",
+  "imagePath": "portrait.png",
+  "imageSha256": "D0F16ECE2D784269DE0D535C55AEF586F3807DE81AB0BC1DBBC8F947389681BD",
+  "description": "Muted grey-blue wool knee-length tunic with narrow cream geometric seam trim, cream linen undertunic, brown trousers and belt, plain leather boots with lower-leg wraps; no armor, weapons or headgear.",
+  "status": "completed",
+  "descriptionSource": "agent_vision",
+  "retryEligible": false,
+  "error": "",
+  "updatedUtc": "2026-11-07T03:28:29.012502+00:00"
+}

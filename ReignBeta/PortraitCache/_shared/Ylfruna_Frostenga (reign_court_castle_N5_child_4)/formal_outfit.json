@@ -1,0 +1,13 @@
+{
+  "version": 1,
+  "heroStringId": "reign_court_castle_N5_child_4",
+  "characterName": "Ylfruna Frostenga",
+  "imagePath": "portrait.png",
+  "imageSha256": "56D3F0A40DEE14C57C2B920407D99FB9B32BA68B29698D93FBB8016B78B6EA87",
+  "description": "Muted indigo wool apron dress with cream/rust woven borders and two modest round brooches, narrow woven belt over a long opaque cream linen shift with a small split neckline and wrist sleeves, and brown soft-leather shoes. No headgear, armor or weapons.",
+  "status": "completed",
+  "descriptionSource": "agent_vision",
+  "retryEligible": false,
+  "error": "",
+  "updatedUtc": "2026-11-07T03:24:27.765529+00:00"
+}

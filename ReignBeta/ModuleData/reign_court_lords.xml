@@ -13992,4 +13992,1638 @@
       <EquipmentSet id="khu_noncom_template_default" equipmentType="Civilian" />
     </Equipments>
   </NPCCharacter>
+  <NPCCharacter id="reign_court_castle_N1_father" name="Stenrik Eldhammar" age="44" voice="softspoken" default_group="Infantry" is_hero="true" culture="Culture.nord" skill_template="SkillSet.spc_naval_trader_skills" occupation="Lord" face_mesh_cache="true">
+    <face>
+      <face_key_template value="BodyProperty.townsman_nord" />
+    </face>
+    <skills />
+    <Traits>
+      <Trait id="BalancedFightingSkills" value="4" />
+      <Trait id="Commander" value="10" />
+      <Trait id="Politician" value="12" />
+      <Trait id="Manager" value="8" />
+      <Trait id="Valor" value="1" />
+      <Trait id="Mercy" value="0" />
+      <Trait id="Honor" value="1" />
+      <Trait id="Generosity" value="0" />
+      <Trait id="Calculating" value="1" />
+    </Traits>
+    <Equipments>
+      <EquipmentRoster />
+      <EquipmentSet id="nord_bat_template_heavy" />
+      <EquipmentSet id="nord_civ_template_default" equipmentType="Civilian" />
+    </Equipments>
+  </NPCCharacter>
+  <NPCCharacter id="reign_court_castle_N1_mother" name="Rannveig Eldhammar" age="42" voice="curt" is_female="true" default_group="Infantry" is_hero="true" culture="Culture.nord" skill_template="SkillSet.spc_sailor_skills" occupation="Lord" face_mesh_cache="true">
+    <face>
+      <face_key_template value="BodyProperty.townswoman_nord" />
+    </face>
+    <skills />
+    <Traits>
+      <Trait id="BalancedFightingSkills" value="3" />
+      <Trait id="Commander" value="10" />
+      <Trait id="Politician" value="4" />
+      <Trait id="Manager" value="8" />
+      <Trait id="Valor" value="-1" />
+      <Trait id="Mercy" value="1" />
+      <Trait id="Honor" value="1" />
+      <Trait id="Generosity" value="0" />
+      <Trait id="Calculating" value="1" />
+    </Traits>
+    <Equipments>
+      <EquipmentRoster />
+      <EquipmentSet id="nord_bat_template_lady" />
+      <EquipmentSet id="nord_noncom_template_default" equipmentType="Civilian" />
+    </Equipments>
+  </NPCCharacter>
+  <NPCCharacter id="reign_court_castle_N1_child_1" name="Halvdan Eldhammar" age="25" voice="ironic" default_group="Infantry" is_hero="true" culture="Culture.nord" skill_template="SkillSet.spc_sailor_skills_viking" occupation="Lord" face_mesh_cache="true">
+    <face>
+      <face_key_template value="BodyProperty.townsman_nord" />
+    </face>
+    <skills />
+    <Traits>
+      <Trait id="BalancedFightingSkills" value="8" />
+      <Trait id="Commander" value="10" />
+      <Trait id="Politician" value="4" />
+      <Trait id="Manager" value="6" />
+      <Trait id="Valor" value="1" />
+      <Trait id="Mercy" value="-1" />
+      <Trait id="Honor" value="0" />
+      <Trait id="Generosity" value="-1" />
+      <Trait id="Calculating" value="-1" />
+    </Traits>
+    <Equipments>
+      <EquipmentRoster />
+      <EquipmentSet id="nord_bat_template_medium" />
+      <EquipmentSet id="nord_civ_template_default" equipmentType="Civilian" />
+    </Equipments>
+  </NPCCharacter>
+  <NPCCharacter id="reign_court_castle_N1_child_2" name="Yrdis Eldhammar" age="23" voice="curt" is_female="true" default_group="Infantry" is_hero="true" culture="Culture.nord" skill_template="SkillSet.spc_naval_trader_skills" occupation="Lord" face_mesh_cache="true">
+    <face>
+      <face_key_template value="BodyProperty.townswoman_nord" />
+    </face>
+    <skills />
+    <Traits>
+      <Trait id="Politician" value="12" />
+      <Trait id="Manager" value="8" />
+      <Trait id="Valor" value="0" />
+      <Trait id="Mercy" value="1" />
+      <Trait id="Honor" value="1" />
+      <Trait id="Generosity" value="-1" />
+      <Trait id="Calculating" value="1" />
+    </Traits>
+    <Equipments>
+      <EquipmentRoster />
+      <EquipmentSet id="nord_bat_template_lady" />
+      <EquipmentSet id="nord_noncom_template_default" equipmentType="Civilian" />
+    </Equipments>
+  </NPCCharacter>
+  <NPCCharacter id="reign_court_castle_N1_child_3" name="Torgeir Eldhammar" age="20" voice="softspoken" default_group="Infantry" is_hero="true" culture="Culture.nord" skill_template="SkillSet.spc_sailor_skills_viking" occupation="Lord" face_mesh_cache="true">
+    <face>
+      <face_key_template value="BodyProperty.townsman_nord" />
+    </face>
+    <skills />
+    <Traits>
+      <Trait id="BalancedFightingSkills" value="8" />
+      <Trait id="Commander" value="10" />
+      <Trait id="Politician" value="4" />
+      <Trait id="Manager" value="6" />
+      <Trait id="Valor" value="1" />
+      <Trait id="Mercy" value="0" />
+      <Trait id="Honor" value="-1" />
+      <Trait id="Generosity" value="0" />
+      <Trait id="Calculating" value="-1" />
+    </Traits>
+    <Equipments>
+      <EquipmentRoster />
+      <EquipmentSet id="nord_bat_template_medium" />
+      <EquipmentSet id="nord_civ_template_default" equipmentType="Civilian" />
+    </Equipments>
+  </NPCCharacter>
+  <NPCCharacter id="reign_court_castle_N1_child_4" name="Svanfrid Eldhammar" is_female="true" age="19" voice="ironic" default_group="Infantry" is_hero="true" culture="Culture.nord" skill_template="SkillSet.spc_sailor_skills_rookie_viking" occupation="Lord" face_mesh_cache="true">
+    <face>
+      <face_key_template value="BodyProperty.townswoman_nord" />
+    </face>
+    <skills />
+    <Traits>
+      <Trait id="Commander" value="4" />
+      <Trait id="Politician" value="4" />
+      <Trait id="Manager" value="8" />
+      <Trait id="Valor" value="0" />
+      <Trait id="Mercy" value="1" />
+      <Trait id="Honor" value="0" />
+      <Trait id="Generosity" value="1" />
+      <Trait id="Calculating" value="0" />
+    </Traits>
+    <Equipments>
+      <EquipmentRoster />
+      <EquipmentSet id="nord_bat_template_lady" />
+      <EquipmentSet id="nord_noncom_template_default" equipmentType="Civilian" />
+    </Equipments>
+  </NPCCharacter>
+  <NPCCharacter id="reign_court_castle_N2_father" name="Hrodvar Askesund" age="44" voice="softspoken" is_hero="true" default_group="Infantry" culture="Culture.nord" skill_template="SkillSet.spc_quartermaster_skills" occupation="Lord" face_mesh_cache="true">
+    <face>
+      <face_key_template value="BodyProperty.townsman_nord" />
+    </face>
+    <Traits>
+      <Trait id="HuscarlFightingSkills" value="7" />
+      <Trait id="Commander" value="14" />
+      <Trait id="Politician" value="14" />
+      <Trait id="Manager" value="10" />
+      <Trait id="Valor" value="-1" />
+      <Trait id="Mercy" value="1" />
+      <Trait id="Honor" value="1" />
+      <Trait id="Generosity" value="-1" />
+      <Trait id="Calculating" value="1" />
+    </Traits>
+    <Equipments>
+      <EquipmentRoster />
+      <EquipmentSet id="nord_bat_template_medium" />
+      <EquipmentSet id="nord_civ_template_default" equipmentType="Civilian" />
+    </Equipments>
+  </NPCCharacter>
+  <NPCCharacter id="reign_court_castle_N2_mother" name="Sigruna Askesund" age="42" voice="ironic" default_group="Infantry" is_hero="true" is_female="true" culture="Culture.nord" skill_template="SkillSet.spc_sailor_skills_rookie_viking" occupation="Lord" face_mesh_cache="true">
+    <face>
+      <face_key_template value="BodyProperty.townswoman_nord" />
+    </face>
+    <skills />
+    <Traits>
+      <Trait id="PeltastFightingSkills" value="4" />
+      <Trait id="Commander" value="6" />
+      <Trait id="Politician" value="6" />
+      <Trait id="Manager" value="4" />
+      <Trait id="Valor" value="1" />
+      <Trait id="Mercy" value="-1" />
+      <Trait id="Honor" value="0" />
+      <Trait id="Generosity" value="1" />
+      <Trait id="Calculating" value="-1" />
+    </Traits>
+    <Equipments>
+      <EquipmentRoster />
+      <EquipmentSet id="nord_bat_template_lady" />
+      <EquipmentSet id="nord_noncom_template_default" equipmentType="Civilian" />
+    </Equipments>
+  </NPCCharacter>
+  <NPCCharacter id="reign_court_castle_N2_child_1" name="Ketilmar Askesund" voice="ironic" default_group="Infantry" age="25" is_hero="true" culture="Culture.nord" skill_template="SkillSet.spc_sailor_skills_viking" occupation="Lord" face_mesh_cache="true">
+    <face>
+      <face_key_template value="BodyProperty.townsman_nord" />
+    </face>
+    <skills />
+    <Traits>
+      <Trait id="HuscarlFightingSkills" value="8" />
+      <Trait id="Commander" value="12" />
+      <Trait id="Politician" value="10" />
+      <Trait id="Manager" value="6" />
+      <Trait id="Oligarchic" value="1" />
+      <Trait id="Valor" value="0" />
+      <Trait id="Mercy" value="1" />
+      <Trait id="Honor" value="1" />
+      <Trait id="Generosity" value="1" />
+      <Trait id="Calculating" value="1" />
+    </Traits>
+    <Equipments>
+      <EquipmentSet id="nord_bat_template_heavy" />
+      <EquipmentSet id="nord_civ_template_default" equipmentType="Civilian" />
+    </Equipments>
+  </NPCCharacter>
+  <NPCCharacter id="reign_court_castle_N2_child_2" name="Eydisa Askesund" age="23" voice="curt" default_group="Infantry" is_hero="true" is_female="true" culture="Culture.nord" skill_template="SkillSet.spc_sailor_skills" occupation="Lord" face_mesh_cache="true">
+    <face>
+      <face_key_template value="BodyProperty.townswoman_nord" />
+    </face>
+    <skills />
+    <Traits>
+      <Trait id="PeltastFightingSkills" value="9" />
+      <Trait id="Commander" value="12" />
+      <Trait id="Politician" value="4" />
+      <Trait id="Manager" value="6" />
+      <Trait id="Valor" value="1" />
+      <Trait id="Mercy" value="0" />
+      <Trait id="Honor" value="-1" />
+      <Trait id="Generosity" value="-1" />
+      <Trait id="Calculating" value="-1" />
+    </Traits>
+    <Equipments>
+      <EquipmentRoster />
+      <EquipmentSet id="nord_bat_template_lady" />
+      <EquipmentSet id="nord_noncom_template_default" equipmentType="Civilian" />
+    </Equipments>
+  </NPCCharacter>
+  <NPCCharacter id="reign_court_castle_N2_child_3" name="Finnvald Askesund" voice="softspoken" default_group="Infantry" age="20" is_hero="true" culture="Culture.nord" skill_template="SkillSet.spc_naval_trader_skills_rookie" occupation="Lord" face_mesh_cache="true">
+    <face>
+      <face_key_template value="BodyProperty.townsman_nord" />
+    </face>
+    <skills />
+    <Traits>
+      <Trait id="HuscarlFightingSkills" value="5" />
+      <Trait id="Commander" value="2" />
+      <Trait id="Politician" value="2" />
+      <Trait id="Manager" value="2" />
+      <Trait id="Valor" value="0" />
+      <Trait id="Mercy" value="1" />
+      <Trait id="Honor" value="0" />
+      <Trait id="Generosity" value="-1" />
+      <Trait id="Calculating" value="0" />
+    </Traits>
+    <Equipments>
+      <EquipmentSet id="nord_bat_template_medium" />
+      <EquipmentSet id="nord_civ_template_default" equipmentType="Civilian" />
+    </Equipments>
+  </NPCCharacter>
+  <NPCCharacter id="reign_court_castle_N2_child_4" name="Thyrdis Askesund" voice="softspoken" default_group="Infantry" age="19" is_hero="true" is_female="true" culture="Culture.nord" skill_template="SkillSet.spc_naval_trader_skills_rookie" occupation="Lord" face_mesh_cache="true">
+    <face>
+      <face_key_template value="BodyProperty.townswoman_nord" />
+    </face>
+    <skills />
+    <Traits>
+      <Trait id="Politician" value="6" />
+      <Trait id="Manager" value="10" />
+      <Trait id="Valor" value="1" />
+      <Trait id="Mercy" value="0" />
+      <Trait id="Honor" value="1" />
+      <Trait id="Generosity" value="-1" />
+      <Trait id="Calculating" value="1" />
+    </Traits>
+    <Equipments>
+      <EquipmentSet id="nord_bat_template_lady" />
+      <EquipmentSet id="nord_noncom_template_default" equipmentType="Civilian" />
+    </Equipments>
+  </NPCCharacter>
+  <NPCCharacter id="reign_court_castle_N3_father" name="Ulfgeir Eikenvard" age="44" voice="curt" default_group="Infantry" is_hero="true" culture="Culture.nord" skill_template="SkillSet.spc_sailor_skills_viking" occupation="Lord" face_mesh_cache="true">
+    <face>
+      <face_key_template value="BodyProperty.townsman_nord" />
+    </face>
+    <skills />
+    <Traits>
+      <Trait id="BalancedFightingSkills" value="6" />
+      <Trait id="Commander" value="10" />
+      <Trait id="Politician" value="8" />
+      <Trait id="Manager" value="6" />
+      <Trait id="Valor" value="1" />
+      <Trait id="Mercy" value="-1" />
+      <Trait id="Honor" value="0" />
+      <Trait id="Generosity" value="-1" />
+      <Trait id="Calculating" value="-1" />
+    </Traits>
+    <Equipments>
+      <EquipmentRoster />
+      <EquipmentSet id="nord_bat_template_medium" />
+      <EquipmentSet id="nord_civ_template_default" equipmentType="Civilian" />
+    </Equipments>
+  </NPCCharacter>
+  <NPCCharacter id="reign_court_castle_N3_mother" name="Ingvora Eikenvard" age="42" voice="ironic" is_female="true" default_group="Infantry" is_hero="true" culture="Culture.nord" skill_template="SkillSet.spc_huntress_skills_rookie" occupation="Lord" face_mesh_cache="true">
+    <face>
+      <face_key_template value="BodyProperty.townswoman_nord" />
+    </face>
+    <skills />
+    <Traits>
+      <Trait id="Manager" value="6" />
+      <Trait id="Politician" value="8" />
+      <Trait id="Valor" value="0" />
+      <Trait id="Mercy" value="1" />
+      <Trait id="Honor" value="1" />
+      <Trait id="Generosity" value="-1" />
+      <Trait id="Calculating" value="1" />
+    </Traits>
+    <Equipments>
+      <EquipmentRoster />
+      <EquipmentSet id="nord_bat_template_lady" />
+      <EquipmentSet id="nord_noncom_template_default" equipmentType="Civilian" />
+    </Equipments>
+  </NPCCharacter>
+  <NPCCharacter id="reign_court_castle_N3_child_1" name="Asvald Eikenvard" age="25" voice="curt" default_group="Infantry" is_hero="true" culture="Culture.nord" skill_template="SkillSet.spc_sailor_skills_viking" occupation="Lord" face_mesh_cache="true">
+    <face>
+      <face_key_template value="BodyProperty.townsman_nord" />
+    </face>
+    <skills />
+    <Traits>
+      <Trait id="BalancedFightingSkills" value="6" />
+      <Trait id="Commander" value="10" />
+      <Trait id="Politician" value="8" />
+      <Trait id="Manager" value="6" />
+      <Trait id="Valor" value="1" />
+      <Trait id="Mercy" value="0" />
+      <Trait id="Honor" value="-1" />
+      <Trait id="Generosity" value="0" />
+      <Trait id="Calculating" value="-1" />
+    </Traits>
+    <Equipments>
+      <EquipmentRoster />
+      <EquipmentSet id="nord_bat_template_medium" />
+      <EquipmentSet id="nord_civ_template_default" equipmentType="Civilian" />
+    </Equipments>
+  </NPCCharacter>
+  <NPCCharacter id="reign_court_castle_N3_child_2" name="Ragnel Eikenvard" age="23" voice="earnest" is_female="true" default_group="Infantry" is_hero="true" culture="Culture.nord" skill_template="SkillSet.spc_sailor_skills" occupation="Lord" face_mesh_cache="true">
+    <face>
+      <face_key_template value="BodyProperty.townswoman_nord" />
+    </face>
+    <skills />
+    <Traits>
+      <Trait id="Commander" value="10" />
+      <Trait id="Politician" value="2" />
+      <Trait id="Manager" value="2" />
+      <Trait id="Valor" value="0" />
+      <Trait id="Mercy" value="1" />
+      <Trait id="Honor" value="0" />
+      <Trait id="Generosity" value="1" />
+      <Trait id="Calculating" value="0" />
+    </Traits>
+    <Equipments>
+      <EquipmentRoster />
+      <EquipmentSet id="nord_bat_template_lady" />
+      <EquipmentSet id="nord_noncom_template_default" equipmentType="Civilian" />
+    </Equipments>
+  </NPCCharacter>
+  <NPCCharacter id="reign_court_castle_N3_child_3" name="Bjarnulf Eikenvard" age="20" voice="curt" default_group="Infantry" is_hero="true" culture="Culture.nord" skill_template="SkillSet.spc_sailor_skills_viking" occupation="Lord" face_mesh_cache="true">
+    <face>
+      <face_key_template value="BodyProperty.townsman_nord" />
+    </face>
+    <skills />
+    <Traits>
+      <Trait id="BalancedFightingSkills" value="6" />
+      <Trait id="Commander" value="10" />
+      <Trait id="Politician" value="8" />
+      <Trait id="Manager" value="6" />
+      <Trait id="Valor" value="1" />
+      <Trait id="Mercy" value="0" />
+      <Trait id="Honor" value="1" />
+      <Trait id="Generosity" value="0" />
+      <Trait id="Calculating" value="1" />
+    </Traits>
+    <Equipments>
+      <EquipmentRoster />
+      <EquipmentSet id="nord_bat_template_medium" />
+      <EquipmentSet id="nord_civ_template_default" equipmentType="Civilian" />
+    </Equipments>
+  </NPCCharacter>
+  <NPCCharacter id="reign_court_castle_N3_child_4" name="Alvheid Eikenvard" age="19" voice="curt" is_female="true" default_group="Infantry" is_hero="true" culture="Culture.nord" skill_template="SkillSet.spc_tactician_skills" occupation="Lord" face_mesh_cache="true">
+    <face>
+      <face_key_template value="BodyProperty.townswoman_nord" />
+    </face>
+    <skills />
+    <Traits>
+      <Trait id="BalancedFightingSkills" value="8" />
+      <Trait id="Commander" value="10" />
+      <Trait id="Politician" value="4" />
+      <Trait id="Manager" value="6" />
+      <Trait id="Valor" value="-1" />
+      <Trait id="Mercy" value="1" />
+      <Trait id="Honor" value="1" />
+      <Trait id="Generosity" value="0" />
+      <Trait id="Calculating" value="1" />
+    </Traits>
+    <Equipments>
+      <EquipmentRoster />
+      <EquipmentSet id="nord_bat_template_lady" />
+      <EquipmentSet id="nord_noncom_template_default" equipmentType="Civilian" />
+    </Equipments>
+  </NPCCharacter>
+  <NPCCharacter id="reign_court_castle_N4_father" name="Hakonar Bjornholt" age="44" voice="earnest" default_group="Infantry" is_hero="true" culture="Culture.nord" skill_template="SkillSet.spc_sailor_skills_viking" occupation="Lord" face_mesh_cache="true">
+    <face>
+      <face_key_template value="BodyProperty.townsman_nord" />
+    </face>
+    <skills />
+    <Traits>
+      <Trait id="BalancedFightingSkills" value="8" />
+      <Trait id="Commander" value="10" />
+      <Trait id="Politician" value="4" />
+      <Trait id="Manager" value="6" />
+      <Trait id="Valor" value="0" />
+      <Trait id="Mercy" value="1" />
+      <Trait id="Honor" value="1" />
+      <Trait id="Generosity" value="-1" />
+      <Trait id="Calculating" value="1" />
+    </Traits>
+    <Equipments>
+      <EquipmentRoster />
+      <EquipmentSet id="nord_bat_template_heavy" />
+      <EquipmentSet id="nord_civ_template_default" equipmentType="Civilian" />
+    </Equipments>
+  </NPCCharacter>
+  <NPCCharacter id="reign_court_castle_N4_mother" name="Gudnyra Bjornholt" age="42" voice="earnest" is_female="true" default_group="Infantry" is_hero="true" culture="Culture.nord" skill_template="SkillSet.spc_archer_skills_rookie" occupation="Lord" face_mesh_cache="true">
+    <face>
+      <face_key_template value="BodyProperty.townswoman_nord" />
+    </face>
+    <skills />
+    <Traits>
+      <Trait id="Manager" value="6" />
+      <Trait id="Valor" value="1" />
+      <Trait id="Mercy" value="0" />
+      <Trait id="Honor" value="-1" />
+      <Trait id="Generosity" value="0" />
+      <Trait id="Calculating" value="-1" />
+    </Traits>
+    <Equipments>
+      <EquipmentRoster />
+      <EquipmentSet id="nord_bat_template_lady" />
+      <EquipmentSet id="nord_noncom_template_default" equipmentType="Civilian" />
+    </Equipments>
+  </NPCCharacter>
+  <NPCCharacter id="reign_court_castle_N4_child_1" name="Skegvar Bjornholt" age="25" voice="earnest" default_group="Infantry" is_hero="true" culture="Culture.nord" skill_template="SkillSet.spc_sailor_skills_viking" occupation="Lord" face_mesh_cache="true">
+    <face>
+      <face_key_template value="BodyProperty.townsman_nord" />
+    </face>
+    <skills />
+    <Traits>
+      <Trait id="BalancedFightingSkills" value="8" />
+      <Trait id="Commander" value="10" />
+      <Trait id="Politician" value="4" />
+      <Trait id="Manager" value="6" />
+      <Trait id="Valor" value="0" />
+      <Trait id="Mercy" value="1" />
+      <Trait id="Honor" value="0" />
+      <Trait id="Generosity" value="1" />
+      <Trait id="Calculating" value="0" />
+    </Traits>
+    <Equipments>
+      <EquipmentRoster />
+      <EquipmentSet id="nord_bat_template_heavy" />
+      <EquipmentSet id="nord_civ_template_default" equipmentType="Civilian" />
+    </Equipments>
+  </NPCCharacter>
+  <NPCCharacter id="reign_court_castle_N4_child_2" name="Brynveig Bjornholt" age="23" voice="earnest" is_female="true" default_group="Infantry" is_hero="true" culture="Culture.nord" skill_template="SkillSet.spc_archer_skills_rookie" occupation="Lord" face_mesh_cache="true">
+    <face>
+      <face_key_template value="BodyProperty.townswoman_nord" />
+    </face>
+    <skills />
+    <Traits>
+      <Trait id="Manager" value="6" />
+      <Trait id="Valor" value="1" />
+      <Trait id="Mercy" value="0" />
+      <Trait id="Honor" value="1" />
+      <Trait id="Generosity" value="0" />
+      <Trait id="Calculating" value="1" />
+    </Traits>
+    <Equipments>
+      <EquipmentRoster />
+      <EquipmentSet id="nord_bat_template_lady" />
+      <EquipmentSet id="nord_noncom_template_default" equipmentType="Civilian" />
+    </Equipments>
+  </NPCCharacter>
+  <NPCCharacter id="reign_court_castle_N4_child_3" name="Ottmar Bjornholt" age="20" voice="earnest" default_group="Infantry" is_hero="true" culture="Culture.nord" skill_template="SkillSet.spc_sailor_skills_viking" occupation="Lord" face_mesh_cache="true">
+    <face>
+      <face_key_template value="BodyProperty.townsman_nord" />
+    </face>
+    <skills />
+    <Traits>
+      <Trait id="BalancedFightingSkills" value="8" />
+      <Trait id="Commander" value="10" />
+      <Trait id="Politician" value="4" />
+      <Trait id="Manager" value="6" />
+      <Trait id="Valor" value="-1" />
+      <Trait id="Mercy" value="1" />
+      <Trait id="Honor" value="1" />
+      <Trait id="Generosity" value="0" />
+      <Trait id="Calculating" value="1" />
+    </Traits>
+    <Equipments>
+      <EquipmentRoster />
+      <EquipmentSet id="nord_bat_template_heavy" />
+      <EquipmentSet id="nord_civ_template_default" equipmentType="Civilian" />
+    </Equipments>
+  </NPCCharacter>
+  <NPCCharacter id="reign_court_castle_N4_child_4" name="Eirhild Bjornholt" age="19" voice="earnest" is_female="true" default_group="Infantry" is_hero="true" culture="Culture.nord" skill_template="SkillSet.spc_archer_skills_rookie" occupation="Lord" face_mesh_cache="true">
+    <face>
+      <face_key_template value="BodyProperty.townswoman_nord" />
+    </face>
+    <skills />
+    <Traits>
+      <Trait id="Manager" value="6" />
+      <Trait id="Valor" value="1" />
+      <Trait id="Mercy" value="-1" />
+      <Trait id="Honor" value="0" />
+      <Trait id="Generosity" value="-1" />
+      <Trait id="Calculating" value="-1" />
+    </Traits>
+    <Equipments>
+      <EquipmentRoster />
+      <EquipmentSet id="nord_bat_template_lady" />
+      <EquipmentSet id="nord_noncom_template_default" equipmentType="Civilian" />
+    </Equipments>
+  </NPCCharacter>
+  <NPCCharacter id="reign_court_castle_N5_father" name="Vemund Frostenga" age="44" voice="earnest" default_group="Infantry" is_hero="true" culture="Culture.nord" skill_template="SkillSet.spc_sailor_skills_viking" occupation="Lord" face_mesh_cache="true">
+    <face>
+      <face_key_template value="BodyProperty.townsman_nord" />
+    </face>
+    <Traits>
+      <Trait id="BalancedFightingSkills" value="8" />
+      <Trait id="Commander" value="8" />
+      <Trait id="Politician" value="6" />
+      <Trait id="Manager" value="8" />
+      <Trait id="Valor" value="1" />
+      <Trait id="Mercy" value="0" />
+      <Trait id="Honor" value="-1" />
+      <Trait id="Generosity" value="-1" />
+      <Trait id="Calculating" value="-1" />
+    </Traits>
+    <Equipments>
+      <EquipmentRoster />
+      <EquipmentSet id="nord_bat_template_medium" />
+      <EquipmentSet id="nord_civ_template_default" equipmentType="Civilian" />
+    </Equipments>
+  </NPCCharacter>
+  <NPCCharacter id="reign_court_castle_N5_mother" name="Helgrun Frostenga" is_female="true" age="42" voice="softspoken" default_group="Infantry" is_hero="true" culture="Culture.nord" skill_template="SkillSet.spc_naval_trader_skills_rookie" occupation="Lord" face_mesh_cache="true">
+    <face>
+      <face_key_template value="BodyProperty.townswoman_nord" />
+    </face>
+    <Traits>
+      <Trait id="Commander" value="8" />
+      <Trait id="Politician" value="7" />
+      <Trait id="Manager" value="4" />
+      <Trait id="Valor" value="0" />
+      <Trait id="Mercy" value="1" />
+      <Trait id="Honor" value="0" />
+      <Trait id="Generosity" value="-1" />
+      <Trait id="Calculating" value="0" />
+    </Traits>
+    <Equipments>
+      <EquipmentRoster />
+      <EquipmentSet id="nord_bat_template_lady" />
+      <EquipmentSet id="nord_noncom_template_default" equipmentType="Civilian" />
+    </Equipments>
+  </NPCCharacter>
+  <NPCCharacter id="reign_court_castle_N5_child_1" name="Sigvard Frostenga" age="25" voice="ironic" default_group="Infantry" is_hero="true" culture="Culture.nord" skill_template="SkillSet.spc_quartermaster_skills" occupation="Lord" face_mesh_cache="true">
+    <face>
+      <face_key_template value="BodyProperty.townsman_nord" />
+    </face>
+    <Traits>
+      <Trait id="BalancedFightingSkills" value="6" />
+      <Trait id="Commander" value="12" />
+      <Trait id="Politician" value="6" />
+      <Trait id="Manager" value="8" />
+      <Trait id="Oligarchic" value="1" />
+      <Trait id="Valor" value="1" />
+      <Trait id="Mercy" value="0" />
+      <Trait id="Honor" value="1" />
+      <Trait id="Generosity" value="-1" />
+      <Trait id="Calculating" value="1" />
+    </Traits>
+    <Equipments>
+      <EquipmentRoster />
+      <EquipmentSet id="nord_bat_template_medium" />
+      <EquipmentSet id="nord_civ_template_default" equipmentType="Civilian" />
+    </Equipments>
+  </NPCCharacter>
+  <NPCCharacter id="reign_court_castle_N5_child_2" name="Torveig Frostenga" is_female="true" age="23" voice="softspoken" default_group="Infantry" is_hero="true" culture="Culture.nord" skill_template="SkillSet.spc_naval_trader_skills_rookie" occupation="Lord" face_mesh_cache="true">
+    <face>
+      <face_key_template value="BodyProperty.townswoman_nord" />
+    </face>
+    <Traits>
+      <Trait id="Commander" value="8" />
+      <Trait id="Politician" value="7" />
+      <Trait id="Manager" value="4" />
+      <Trait id="Valor" value="-1" />
+      <Trait id="Mercy" value="1" />
+      <Trait id="Honor" value="1" />
+      <Trait id="Generosity" value="-1" />
+      <Trait id="Calculating" value="1" />
+    </Traits>
+    <Equipments>
+      <EquipmentRoster />
+      <EquipmentSet id="nord_bat_template_lady" />
+      <EquipmentSet id="nord_noncom_template_default" equipmentType="Civilian" />
+    </Equipments>
+  </NPCCharacter>
+  <NPCCharacter id="reign_court_castle_N5_child_3" name="Arnkel Frostenga" age="20" voice="softspoken" default_group="Infantry" is_hero="true" culture="Culture.nord" skill_template="SkillSet.spc_sailor_skills_viking" occupation="Lord" face_mesh_cache="true">
+    <face>
+      <face_key_template value="BodyProperty.townsman_nord" />
+    </face>
+    <Traits>
+      <Trait id="HuscarlFightingSkills" value="8" />
+      <Trait id="Commander" value="8" />
+      <Trait id="Politician" value="4" />
+      <Trait id="Manager" value="6" />
+      <Trait id="Valor" value="1" />
+      <Trait id="Mercy" value="-1" />
+      <Trait id="Honor" value="0" />
+      <Trait id="Generosity" value="1" />
+      <Trait id="Calculating" value="-1" />
+    </Traits>
+    <Equipments>
+      <EquipmentRoster />
+      <EquipmentSet id="nord_bat_template_medium" />
+      <EquipmentSet id="nord_civ_template_default" equipmentType="Civilian" />
+    </Equipments>
+  </NPCCharacter>
+  <NPCCharacter id="reign_court_castle_N5_child_4" name="Ylfruna Frostenga" is_female="true" age="19" voice="softspoken" default_group="Infantry" is_hero="true" culture="Culture.nord" skill_template="SkillSet.spc_naval_trader_skills_rookie" occupation="Lord" face_mesh_cache="true">
+    <face>
+      <face_key_template value="BodyProperty.townswoman_nord" />
+    </face>
+    <Traits>
+      <Trait id="Commander" value="8" />
+      <Trait id="Politician" value="7" />
+      <Trait id="Manager" value="4" />
+      <Trait id="Valor" value="0" />
+      <Trait id="Mercy" value="1" />
+      <Trait id="Honor" value="1" />
+      <Trait id="Generosity" value="1" />
+      <Trait id="Calculating" value="1" />
+    </Traits>
+    <Equipments>
+      <EquipmentRoster />
+      <EquipmentSet id="nord_bat_template_lady" />
+      <EquipmentSet id="nord_noncom_template_default" equipmentType="Civilian" />
+    </Equipments>
+  </NPCCharacter>
+  <NPCCharacter id="reign_court_castle_N6_father" name="Ormvald Dalskeld" age="44" voice="ironic" default_group="Infantry" is_hero="true" culture="Culture.nord" skill_template="SkillSet.spc_sailor_skills_viking" occupation="Lord" face_mesh_cache="true">
+    <face>
+      <face_key_template value="BodyProperty.townsman_nord" />
+    </face>
+    <skills />
+    <Traits>
+      <Trait id="BalancedFightingSkills" value="6" />
+      <Trait id="Commander" value="12" />
+      <Trait id="Politician" value="8" />
+      <Trait id="Manager" value="10" />
+      <Trait id="Valor" value="0" />
+      <Trait id="Mercy" value="1" />
+      <Trait id="Honor" value="0" />
+      <Trait id="Generosity" value="1" />
+      <Trait id="Calculating" value="0" />
+    </Traits>
+    <Equipments>
+      <EquipmentRoster />
+      <EquipmentSet id="nord_bat_template_medium" />
+      <EquipmentSet id="nord_civ_template_default" equipmentType="Civilian" />
+    </Equipments>
+  </NPCCharacter>
+  <NPCCharacter id="reign_court_castle_N6_mother" name="Astruna Dalskeld" voice="earnest" age="42" is_female="true" default_group="Infantry" is_hero="true" culture="Culture.nord" skill_template="SkillSet.spc_huntress_skills_rookie" occupation="Lord" face_mesh_cache="true">
+    <face>
+      <face_key_template value="BodyProperty.townswoman_nord" />
+    </face>
+    <skills />
+    <Traits>
+      <Trait id="Politician" value="4" />
+      <Trait id="Manager" value="4" />
+      <Trait id="Valor" value="1" />
+      <Trait id="Mercy" value="0" />
+      <Trait id="Honor" value="1" />
+      <Trait id="Generosity" value="0" />
+      <Trait id="Calculating" value="1" />
+    </Traits>
+    <Equipments>
+      <EquipmentRoster />
+      <EquipmentSet id="nord_bat_template_lady" />
+      <EquipmentSet id="nord_noncom_template_default" equipmentType="Civilian" />
+    </Equipments>
+  </NPCCharacter>
+  <NPCCharacter id="reign_court_castle_N6_child_1" name="Hrolgeir Dalskeld" voice="earnest" default_group="Infantry" age="25" is_hero="true" culture="Culture.nord" skill_template="SkillSet.spc_quartermaster_skills" occupation="Lord" face_mesh_cache="true">
+    <face>
+      <face_key_template value="BodyProperty.townsman_nord" />
+    </face>
+    <skills />
+    <Traits>
+      <Trait id="BalancedFightingSkills" value="6" />
+      <Trait id="Commander" value="10" />
+      <Trait id="Politician" value="8" />
+      <Trait id="Manager" value="4" />
+      <Trait id="Valor" value="-1" />
+      <Trait id="Mercy" value="1" />
+      <Trait id="Honor" value="1" />
+      <Trait id="Generosity" value="0" />
+      <Trait id="Calculating" value="1" />
+    </Traits>
+    <Equipments>
+      <EquipmentRoster />
+      <EquipmentSet id="nord_bat_template_medium" />
+      <EquipmentSet id="nord_civ_template_default" equipmentType="Civilian" />
+    </Equipments>
+  </NPCCharacter>
+  <NPCCharacter id="reign_court_castle_N6_child_2" name="Sigrild Dalskeld" voice="earnest" default_group="Infantry" age="23" is_hero="true" is_female="true" culture="Culture.nord" skill_template="SkillSet.spc_dandy_skills_rookie" occupation="Lord" face_mesh_cache="true">
+    <face>
+      <face_key_template value="BodyProperty.townswoman_nord" />
+    </face>
+    <skills />
+    <Traits>
+      <Trait id="Politician" value="8" />
+      <Trait id="Manager" value="4" />
+      <Trait id="Valor" value="1" />
+      <Trait id="Mercy" value="-1" />
+      <Trait id="Honor" value="0" />
+      <Trait id="Generosity" value="-1" />
+      <Trait id="Calculating" value="-1" />
+    </Traits>
+    <Equipments>
+      <EquipmentRoster />
+      <EquipmentSet id="nord_bat_template_lady" />
+      <EquipmentSet id="nord_noncom_template_default" equipmentType="Civilian" />
+    </Equipments>
+  </NPCCharacter>
+  <NPCCharacter id="reign_court_castle_N6_child_3" name="Oddrik Dalskeld" voice="earnest" age="20" default_group="Infantry" is_hero="true" culture="Culture.nord" skill_template="SkillSet.spc_naval_trader_skills_rookie" occupation="Lord" face_mesh_cache="true">
+    <face>
+      <face_key_template value="BodyProperty.townsman_nord" />
+    </face>
+    <skills />
+    <Traits>
+      <Trait id="BalancedFightingSkills" value="8" />
+      <Trait id="Commander" value="8" />
+      <Trait id="Politician" value="6" />
+      <Trait id="Manager" value="6" />
+      <Trait id="Valor" value="0" />
+      <Trait id="Mercy" value="1" />
+      <Trait id="Honor" value="1" />
+      <Trait id="Generosity" value="-1" />
+      <Trait id="Calculating" value="1" />
+    </Traits>
+    <Equipments>
+      <EquipmentRoster />
+      <EquipmentSet id="nord_bat_template_heavy" />
+      <EquipmentSet id="nord_civ_template_default" equipmentType="Civilian" />
+    </Equipments>
+  </NPCCharacter>
+  <NPCCharacter id="reign_court_castle_N6_child_4" name="Hervora Dalskeld" voice="earnest" age="19" is_female="true" default_group="Infantry" is_hero="true" culture="Culture.nord" skill_template="SkillSet.spc_sailor_skills" occupation="Lord" face_mesh_cache="true">
+    <face>
+      <face_key_template value="BodyProperty.townswoman_nord" />
+    </face>
+    <skills />
+    <Traits>
+      <Trait id="Politician" value="2" />
+      <Trait id="Manager" value="10" />
+      <Trait id="Valor" value="1" />
+      <Trait id="Mercy" value="0" />
+      <Trait id="Honor" value="-1" />
+      <Trait id="Generosity" value="0" />
+      <Trait id="Calculating" value="-1" />
+    </Traits>
+    <Equipments>
+      <EquipmentRoster />
+      <EquipmentSet id="nord_bat_template_lady" />
+      <EquipmentSet id="nord_noncom_template_default" equipmentType="Civilian" />
+    </Equipments>
+  </NPCCharacter>
+  <NPCCharacter id="reign_court_castle_N7_father" name="Gudbrand Hrafnvik" voice="earnest" default_group="Infantry" age="44" is_hero="true" culture="Culture.nord" skill_template="SkillSet.spc_chatelaine_skills" occupation="Lord" face_mesh_cache="true">
+    <face>
+      <face_key_template value="BodyProperty.townsman_nord" />
+    </face>
+    <Traits>
+      <Trait id="Politician" value="10" />
+      <Trait id="Manager" value="14" />
+      <Trait id="Valor" value="1" />
+      <Trait id="Mercy" value="0" />
+      <Trait id="Honor" value="1" />
+      <Trait id="Generosity" value="0" />
+      <Trait id="Calculating" value="1" />
+    </Traits>
+    <Equipments>
+      <EquipmentSet id="nord_bat_template_medium" />
+      <EquipmentSet id="nord_civ_template_default" equipmentType="Civilian" />
+    </Equipments>
+  </NPCCharacter>
+  <NPCCharacter id="reign_court_castle_N7_mother" name="Thorve Hrafnvik" age="42" voice="curt" default_group="Infantry" is_hero="true" is_female="true" culture="Culture.nord" skill_template="SkillSet.spc_sailor_skills_viking" occupation="Lord" face_mesh_cache="true">
+    <face>
+      <face_key_template value="BodyProperty.townswoman_nord" />
+    </face>
+    <skills />
+    <Traits>
+      <Trait id="BalancedFightingSkills" value="6" />
+      <Trait id="Commander" value="10" />
+      <Trait id="Politician" value="8" />
+      <Trait id="Manager" value="10" />
+      <Trait id="Valor" value="-1" />
+      <Trait id="Mercy" value="1" />
+      <Trait id="Honor" value="1" />
+      <Trait id="Generosity" value="0" />
+      <Trait id="Calculating" value="1" />
+    </Traits>
+    <Equipments>
+      <EquipmentRoster />
+      <EquipmentSet id="nord_bat_template_lady" />
+      <EquipmentSet id="nord_noncom_template_default" equipmentType="Civilian" />
+    </Equipments>
+  </NPCCharacter>
+  <NPCCharacter id="reign_court_castle_N7_child_1" name="Kolbein Hrafnvik" age="25" voice="curt" default_group="Infantry" is_hero="true" culture="Culture.nord" skill_template="SkillSet.spc_sailor_skills_rookie_viking" occupation="Lord" face_mesh_cache="true">
+    <face>
+      <face_key_template value="BodyProperty.townsman_nord" />
+    </face>
+    <skills />
+    <Traits>
+      <Trait id="BalancedFightingSkills" value="5" />
+      <Trait id="Commander" value="6" />
+      <Trait id="Politician" value="4" />
+      <Trait id="Manager" value="4" />
+      <Trait id="Valor" value="1" />
+      <Trait id="Mercy" value="-1" />
+      <Trait id="Honor" value="0" />
+      <Trait id="Generosity" value="-1" />
+      <Trait id="Calculating" value="-1" />
+    </Traits>
+    <Equipments>
+      <EquipmentRoster />
+      <EquipmentSet id="nord_bat_template_medium" />
+      <EquipmentSet id="nord_civ_template_default" equipmentType="Civilian" />
+    </Equipments>
+  </NPCCharacter>
+  <NPCCharacter id="reign_court_castle_N7_child_2" name="Hildrun Hrafnvik" age="23" voice="curt" default_group="Infantry" is_hero="true" is_female="true" culture="Culture.nord" skill_template="SkillSet.spc_sailor_skills_viking" occupation="Lord" face_mesh_cache="true">
+    <face>
+      <face_key_template value="BodyProperty.townswoman_nord" />
+    </face>
+    <skills />
+    <Traits>
+      <Trait id="BalancedFightingSkills" value="6" />
+      <Trait id="Commander" value="10" />
+      <Trait id="Politician" value="8" />
+      <Trait id="Manager" value="10" />
+      <Trait id="Valor" value="0" />
+      <Trait id="Mercy" value="1" />
+      <Trait id="Honor" value="1" />
+      <Trait id="Generosity" value="-1" />
+      <Trait id="Calculating" value="1" />
+    </Traits>
+    <Equipments>
+      <EquipmentRoster />
+      <EquipmentSet id="nord_bat_template_lady" />
+      <EquipmentSet id="nord_noncom_template_default" equipmentType="Civilian" />
+    </Equipments>
+  </NPCCharacter>
+  <NPCCharacter id="reign_court_castle_N7_child_3" name="Eilvard Hrafnvik" default_group="Infantry" age="20" voice="ironic" is_hero="true" culture="Culture.nord" skill_template="SkillSet.spc_sailor_skills" occupation="Lord" face_mesh_cache="true">
+    <face>
+      <face_key_template value="BodyProperty.townsman_nord" />
+    </face>
+    <skills />
+    <Traits>
+      <Trait id="PeltastFightingSkills" value="5" />
+      <Trait id="Commander" value="14" />
+      <Trait id="Politician" value="12" />
+      <Trait id="Manager" value="16" />
+      <Trait id="Valor" value="1" />
+      <Trait id="Mercy" value="0" />
+      <Trait id="Honor" value="-1" />
+      <Trait id="Generosity" value="0" />
+      <Trait id="Calculating" value="-1" />
+    </Traits>
+    <Equipments>
+      <EquipmentRoster />
+      <EquipmentSet id="nord_bat_template_medium" />
+      <EquipmentSet id="nord_civ_template_default" equipmentType="Civilian" />
+    </Equipments>
+  </NPCCharacter>
+  <NPCCharacter id="reign_court_castle_N7_child_4" name="Svanlaug Hrafnvik" age="19" voice="curt" default_group="Infantry" is_hero="true" is_female="true" culture="Culture.nord" skill_template="SkillSet.spc_sailor_skills_viking" occupation="Lord" face_mesh_cache="true">
+    <face>
+      <face_key_template value="BodyProperty.townswoman_nord" />
+    </face>
+    <skills />
+    <Traits>
+      <Trait id="BalancedFightingSkills" value="6" />
+      <Trait id="Commander" value="10" />
+      <Trait id="Politician" value="8" />
+      <Trait id="Manager" value="10" />
+      <Trait id="Valor" value="0" />
+      <Trait id="Mercy" value="1" />
+      <Trait id="Honor" value="0" />
+      <Trait id="Generosity" value="1" />
+      <Trait id="Calculating" value="0" />
+    </Traits>
+    <Equipments>
+      <EquipmentRoster />
+      <EquipmentSet id="nord_bat_template_lady" />
+      <EquipmentSet id="nord_noncom_template_default" equipmentType="Civilian" />
+    </Equipments>
+  </NPCCharacter>
+  <NPCCharacter id="reign_court_castle_N8_father" name="Ragnvald Skeldring" age="44" voice="curt" default_group="Infantry" is_hero="true" culture="Culture.nord" skill_template="SkillSet.spc_sailor_skills_viking" occupation="Lord" face_mesh_cache="true">
+    <face>
+      <face_key_template value="BodyProperty.townsman_nord" />
+    </face>
+    <Traits>
+      <Trait id="BalancedFightingSkills" value="7" />
+      <Trait id="Commander" value="5" />
+      <Trait id="Valor" value="-1" />
+      <Trait id="Mercy" value="1" />
+      <Trait id="Honor" value="1" />
+      <Trait id="Generosity" value="-1" />
+      <Trait id="Calculating" value="1" />
+    </Traits>
+    <Equipments>
+      <EquipmentRoster />
+      <EquipmentSet id="nord_bat_template_medium" />
+      <EquipmentSet id="nord_civ_template_default" equipmentType="Civilian" />
+    </Equipments>
+  </NPCCharacter>
+  <NPCCharacter id="reign_court_castle_N8_mother" name="Yrveig Skeldring" age="42" is_female="true" voice="curt" default_group="Infantry" is_hero="true" culture="Culture.nord" skill_template="SkillSet.spc_quartermaster_skills_rookie" occupation="Lord" face_mesh_cache="true">
+    <face>
+      <face_key_template value="BodyProperty.townswoman_nord" />
+    </face>
+    <skills />
+    <Traits>
+      <Trait id="Politician" value="6" />
+      <Trait id="Manager" value="4" />
+      <Trait id="Valor" value="1" />
+      <Trait id="Mercy" value="-1" />
+      <Trait id="Honor" value="0" />
+      <Trait id="Generosity" value="1" />
+      <Trait id="Calculating" value="-1" />
+    </Traits>
+    <Equipments>
+      <EquipmentRoster />
+      <EquipmentSet id="nord_bat_template_lady" />
+      <EquipmentSet id="nord_noncom_template_default" equipmentType="Civilian" />
+    </Equipments>
+  </NPCCharacter>
+  <NPCCharacter id="reign_court_castle_N8_child_1" name="Haraldin Skeldring" age="25" voice="earnest" default_group="Infantry" is_hero="true" culture="Culture.nord" skill_template="SkillSet.spc_quartermaster_skills" occupation="Lord" face_mesh_cache="true">
+    <face>
+      <face_key_template value="BodyProperty.townsman_nord" />
+    </face>
+    <Traits>
+      <Trait id="HopliteFightingSkills" value="9" />
+      <Trait id="Commander" value="10" />
+      <Trait id="Politician" value="8" />
+      <Trait id="Manager" value="16" />
+      <Trait id="Valor" value="0" />
+      <Trait id="Mercy" value="1" />
+      <Trait id="Honor" value="1" />
+      <Trait id="Generosity" value="1" />
+      <Trait id="Calculating" value="1" />
+    </Traits>
+    <Equipments>
+      <EquipmentRoster />
+      <EquipmentSet id="nord_bat_template_medium" />
+      <EquipmentSet id="nord_civ_template_default" equipmentType="Civilian" />
+    </Equipments>
+  </NPCCharacter>
+  <NPCCharacter id="reign_court_castle_N8_child_2" name="Vigdis Skeldring" age="23" voice="curt" is_female="true" default_group="Infantry" is_hero="true" culture="Culture.nord" skill_template="SkillSet.spc_politician_skills" occupation="Lord" face_mesh_cache="true">
+    <face>
+      <face_key_template value="BodyProperty.townswoman_nord" />
+    </face>
+    <Traits>
+      <Trait id="Politician" value="16" />
+      <Trait id="Manager" value="12" />
+      <Trait id="Authoritarian" value="1" />
+      <Trait id="Valor" value="1" />
+      <Trait id="Mercy" value="0" />
+      <Trait id="Honor" value="-1" />
+      <Trait id="Generosity" value="-1" />
+      <Trait id="Calculating" value="-1" />
+    </Traits>
+    <Equipments>
+      <EquipmentRoster />
+      <EquipmentSet id="nord_bat_template_lady" />
+      <EquipmentSet id="nord_noncom_template_default" equipmentType="Civilian" />
+    </Equipments>
+  </NPCCharacter>
+  <NPCCharacter id="reign_court_castle_N8_child_3" name="Holmgeir Skeldring" age="20" voice="earnest" default_group="Infantry" is_hero="true" culture="Culture.nord" skill_template="SkillSet.spc_quartermaster_skills" occupation="Lord" face_mesh_cache="true">
+    <face>
+      <face_key_template value="BodyProperty.townsman_nord" />
+    </face>
+    <skills />
+    <Traits>
+      <Trait id="BalancedFightingSkills" value="7" />
+      <Trait id="Commander" value="8" />
+      <Trait id="Politician" value="4" />
+      <Trait id="Manager" value="10" />
+      <Trait id="Valor" value="0" />
+      <Trait id="Mercy" value="1" />
+      <Trait id="Honor" value="0" />
+      <Trait id="Generosity" value="-1" />
+      <Trait id="Calculating" value="0" />
+    </Traits>
+    <Equipments>
+      <EquipmentRoster />
+      <EquipmentSet id="nord_bat_template_heavy" />
+      <EquipmentSet id="nord_civ_template_default" equipmentType="Civilian" />
+    </Equipments>
+  </NPCCharacter>
+  <NPCCharacter id="reign_court_castle_N8_child_4" age="19" name="Estruna Skeldring" voice="ironic" is_female="true" is_hero="true" default_group="Infantry" culture="Culture.nord" skill_template="SkillSet.spc_quartermaster_skills_rookie" occupation="Lord" face_mesh_cache="true">
+    <face>
+      <face_key_template value="BodyProperty.townswoman_nord" />
+    </face>
+    <skills />
+    <Traits>
+      <Trait id="Politician" value="8" />
+      <Trait id="Manager" value="8" />
+      <Trait id="Valor" value="1" />
+      <Trait id="Mercy" value="0" />
+      <Trait id="Honor" value="1" />
+      <Trait id="Generosity" value="-1" />
+      <Trait id="Calculating" value="1" />
+    </Traits>
+    <Equipments>
+      <EquipmentSet id="nord_bat_template_lady" />
+      <EquipmentSet id="nord_noncom_template_default" equipmentType="Civilian" />
+    </Equipments>
+  </NPCCharacter>
+  <NPCCharacter id="reign_court_castle_N9_father" name="Thorgest Lindeskar" age="44" voice="softspoken" default_group="Infantry" is_hero="true" culture="Culture.nord" skill_template="SkillSet.spc_naval_trader_skills" occupation="Lord" face_mesh_cache="true">
+    <face>
+      <face_key_template value="BodyProperty.townsman_nord" />
+    </face>
+    <skills />
+    <Traits>
+      <Trait id="BalancedFightingSkills" value="3" />
+      <Trait id="Commander" value="10" />
+      <Trait id="Politician" value="8" />
+      <Trait id="Manager" value="14" />
+      <Trait id="Valor" value="1" />
+      <Trait id="Mercy" value="-1" />
+      <Trait id="Honor" value="0" />
+      <Trait id="Generosity" value="-1" />
+      <Trait id="Calculating" value="-1" />
+    </Traits>
+    <Equipments>
+      <EquipmentRoster />
+      <EquipmentSet id="nord_bat_template_medium" />
+      <EquipmentSet id="nord_civ_template_default" equipmentType="Civilian" />
+    </Equipments>
+  </NPCCharacter>
+  <NPCCharacter id="reign_court_castle_N9_mother" name="Jorhild Lindeskar" age="42" voice="softspoken" is_female="true" default_group="Infantry" is_hero="true" culture="Culture.nord" skill_template="SkillSet.spc_quartermaster_skills" occupation="Lord" face_mesh_cache="true">
+    <face>
+      <face_key_template value="BodyProperty.townswoman_nord" />
+    </face>
+    <skills />
+    <Traits>
+      <Trait id="Politician" value="4" />
+      <Trait id="Manager" value="8" />
+      <Trait id="Valor" value="0" />
+      <Trait id="Mercy" value="1" />
+      <Trait id="Honor" value="1" />
+      <Trait id="Generosity" value="-1" />
+      <Trait id="Calculating" value="1" />
+    </Traits>
+    <Equipments>
+      <EquipmentRoster />
+      <EquipmentSet id="nord_bat_template_lady" />
+      <EquipmentSet id="nord_noncom_template_default" equipmentType="Civilian" />
+    </Equipments>
+  </NPCCharacter>
+  <NPCCharacter id="reign_court_castle_N9_child_1" name="Arnbjorn Lindeskar" age="25" voice="earnest" default_group="Infantry" is_hero="true" culture="Culture.nord" skill_template="SkillSet.spc_sailor_skills_rookie_viking" occupation="Lord" face_mesh_cache="true">
+    <face>
+      <face_key_template value="BodyProperty.townsman_nord" />
+    </face>
+    <skills />
+    <Traits>
+      <Trait id="BalancedFightingSkills" value="6" />
+      <Trait id="Commander" value="8" />
+      <Trait id="Politician" value="6" />
+      <Trait id="Manager" value="6" />
+      <Trait id="Valor" value="1" />
+      <Trait id="Mercy" value="0" />
+      <Trait id="Honor" value="-1" />
+      <Trait id="Generosity" value="0" />
+      <Trait id="Calculating" value="-1" />
+    </Traits>
+    <Equipments>
+      <EquipmentRoster />
+      <EquipmentSet id="nord_bat_template_heavy" />
+      <EquipmentSet id="nord_civ_template_default" equipmentType="Civilian" />
+    </Equipments>
+  </NPCCharacter>
+  <NPCCharacter id="reign_court_castle_N9_child_2" name="Freydisa Lindeskar" age="23" voice="softspoken" is_female="true" default_group="Infantry" is_hero="true" culture="Culture.nord" skill_template="SkillSet.spc_politician_skills" occupation="Lord" face_mesh_cache="true">
+    <face>
+      <face_key_template value="BodyProperty.townswoman_nord" />
+    </face>
+    <skills />
+    <Traits>
+      <Trait id="Politician" value="10" />
+      <Trait id="Manager" value="8" />
+      <Trait id="Valor" value="0" />
+      <Trait id="Mercy" value="1" />
+      <Trait id="Honor" value="0" />
+      <Trait id="Generosity" value="1" />
+      <Trait id="Calculating" value="0" />
+    </Traits>
+    <Equipments>
+      <EquipmentRoster />
+      <EquipmentSet id="nord_bat_template_lady" />
+      <EquipmentSet id="nord_noncom_template_default" equipmentType="Civilian" />
+    </Equipments>
+  </NPCCharacter>
+  <NPCCharacter id="reign_court_castle_N9_child_3" name="Vigdar Lindeskar" age="20" voice="softspoken" default_group="Infantry" is_hero="true" culture="Culture.nord" skill_template="SkillSet.spc_naval_trader_skills" occupation="Lord" face_mesh_cache="true">
+    <face>
+      <face_key_template value="BodyProperty.townsman_nord" />
+    </face>
+    <skills />
+    <Traits>
+      <Trait id="BalancedFightingSkills" value="3" />
+      <Trait id="Commander" value="10" />
+      <Trait id="Politician" value="8" />
+      <Trait id="Manager" value="14" />
+      <Trait id="Valor" value="1" />
+      <Trait id="Mercy" value="0" />
+      <Trait id="Honor" value="1" />
+      <Trait id="Generosity" value="0" />
+      <Trait id="Calculating" value="1" />
+    </Traits>
+    <Equipments>
+      <EquipmentRoster />
+      <EquipmentSet id="nord_bat_template_medium" />
+      <EquipmentSet id="nord_civ_template_default" equipmentType="Civilian" />
+    </Equipments>
+  </NPCCharacter>
+  <NPCCharacter id="reign_court_castle_N9_child_4" name="Rannlaug Lindeskar" age="19" voice="softspoken" is_female="true" default_group="Infantry" is_hero="true" culture="Culture.nord" skill_template="SkillSet.spc_quartermaster_skills_rookie" occupation="Lord" face_mesh_cache="true">
+    <face>
+      <face_key_template value="BodyProperty.townswoman_nord" />
+    </face>
+    <skills />
+    <Traits>
+      <Trait id="Politician" value="4" />
+      <Trait id="Manager" value="8" />
+      <Trait id="Valor" value="-1" />
+      <Trait id="Mercy" value="1" />
+      <Trait id="Honor" value="1" />
+      <Trait id="Generosity" value="0" />
+      <Trait id="Calculating" value="1" />
+    </Traits>
+    <Equipments>
+      <EquipmentRoster />
+      <EquipmentSet id="nord_bat_template_lady" />
+      <EquipmentSet id="nord_noncom_template_default" equipmentType="Civilian" />
+    </Equipments>
+  </NPCCharacter>
+  <NPCCharacter id="reign_court_town_N1_father" name="Hrafngeir Beinholt" voice="earnest" default_group="Infantry" age="44" is_hero="true" culture="Culture.nord" skill_template="SkillSet.spc_chatelaine_skills" occupation="Lord" face_mesh_cache="true">
+    <face>
+      <face_key_template value="BodyProperty.townsman_nord" />
+    </face>
+    <Traits>
+      <Trait id="Politician" value="10" />
+      <Trait id="Manager" value="14" />
+      <Trait id="Valor" value="0" />
+      <Trait id="Mercy" value="1" />
+      <Trait id="Honor" value="1" />
+      <Trait id="Generosity" value="-1" />
+      <Trait id="Calculating" value="1" />
+    </Traits>
+    <Equipments>
+      <EquipmentSet id="nord_bat_template_medium" />
+      <EquipmentSet id="nord_civ_template_default" equipmentType="Civilian" />
+    </Equipments>
+  </NPCCharacter>
+  <NPCCharacter id="reign_court_town_N1_mother" name="Ingvelda Beinholt" default_group="Infantry" age="42" voice="softspoken" is_hero="true" is_female="true" culture="Culture.nord" skill_template="SkillSet.spc_naval_trader_skills" occupation="Lord" face_mesh_cache="true">
+    <face>
+      <face_key_template value="BodyProperty.townswoman_nord" />
+    </face>
+    <skills />
+    <Traits>
+      <Trait id="HopliteFightingSkills" value="5" />
+      <Trait id="Commander" value="14" />
+      <Trait id="Politician" value="10" />
+      <Trait id="Manager" value="16" />
+      <Trait id="Valor" value="1" />
+      <Trait id="Mercy" value="0" />
+      <Trait id="Honor" value="-1" />
+      <Trait id="Generosity" value="0" />
+      <Trait id="Calculating" value="-1" />
+    </Traits>
+    <Equipments>
+      <EquipmentRoster />
+      <EquipmentSet id="nord_bat_template_lady" />
+      <EquipmentSet id="nord_noncom_template_default" equipmentType="Civilian" />
+    </Equipments>
+  </NPCCharacter>
+  <NPCCharacter id="reign_court_town_N1_child_1" name="Skarvald Beinholt" age="25" voice="curt" default_group="Infantry" is_hero="true" culture="Culture.nord" skill_template="SkillSet.spc_sailor_skills_rookie_viking" occupation="Lord" face_mesh_cache="true">
+    <face>
+      <face_key_template value="BodyProperty.townsman_nord" />
+    </face>
+    <skills />
+    <Traits>
+      <Trait id="BalancedFightingSkills" value="5" />
+      <Trait id="Commander" value="6" />
+      <Trait id="Politician" value="4" />
+      <Trait id="Manager" value="4" />
+      <Trait id="Valor" value="0" />
+      <Trait id="Mercy" value="1" />
+      <Trait id="Honor" value="0" />
+      <Trait id="Generosity" value="1" />
+      <Trait id="Calculating" value="0" />
+    </Traits>
+    <Equipments>
+      <EquipmentRoster />
+      <EquipmentSet id="nord_bat_template_medium" />
+      <EquipmentSet id="nord_civ_template_default" equipmentType="Civilian" />
+    </Equipments>
+  </NPCCharacter>
+  <NPCCharacter id="reign_court_town_N1_child_2" name="Thorlaug Beinholt" default_group="Infantry" age="23" voice="softspoken" is_hero="true" is_female="true" culture="Culture.nord" skill_template="SkillSet.spc_naval_trader_skills" occupation="Lord" face_mesh_cache="true">
+    <face>
+      <face_key_template value="BodyProperty.townswoman_nord" />
+    </face>
+    <skills />
+    <Traits>
+      <Trait id="HopliteFightingSkills" value="5" />
+      <Trait id="Commander" value="14" />
+      <Trait id="Politician" value="10" />
+      <Trait id="Manager" value="16" />
+      <Trait id="Valor" value="1" />
+      <Trait id="Mercy" value="0" />
+      <Trait id="Honor" value="1" />
+      <Trait id="Generosity" value="0" />
+      <Trait id="Calculating" value="1" />
+    </Traits>
+    <Equipments>
+      <EquipmentRoster />
+      <EquipmentSet id="nord_bat_template_lady" />
+      <EquipmentSet id="nord_noncom_template_default" equipmentType="Civilian" />
+    </Equipments>
+  </NPCCharacter>
+  <NPCCharacter id="reign_court_town_N1_child_3" name="Audrik Beinholt" default_group="Infantry" age="20" voice="ironic" is_hero="true" culture="Culture.nord" skill_template="SkillSet.spc_sailor_skills" occupation="Lord" face_mesh_cache="true">
+    <face>
+      <face_key_template value="BodyProperty.townsman_nord" />
+    </face>
+    <skills />
+    <Traits>
+      <Trait id="PeltastFightingSkills" value="5" />
+      <Trait id="Commander" value="14" />
+      <Trait id="Politician" value="12" />
+      <Trait id="Manager" value="16" />
+      <Trait id="Valor" value="-1" />
+      <Trait id="Mercy" value="1" />
+      <Trait id="Honor" value="1" />
+      <Trait id="Generosity" value="0" />
+      <Trait id="Calculating" value="1" />
+    </Traits>
+    <Equipments>
+      <EquipmentRoster />
+      <EquipmentSet id="nord_bat_template_medium" />
+      <EquipmentSet id="nord_civ_template_default" equipmentType="Civilian" />
+    </Equipments>
+  </NPCCharacter>
+  <NPCCharacter id="reign_court_town_N1_child_4" name="Eydlaug Beinholt" default_group="Infantry" age="19" voice="softspoken" is_hero="true" is_female="true" culture="Culture.nord" skill_template="SkillSet.spc_naval_trader_skills" occupation="Lord" face_mesh_cache="true">
+    <face>
+      <face_key_template value="BodyProperty.townswoman_nord" />
+    </face>
+    <skills />
+    <Traits>
+      <Trait id="HopliteFightingSkills" value="5" />
+      <Trait id="Commander" value="14" />
+      <Trait id="Politician" value="10" />
+      <Trait id="Manager" value="16" />
+      <Trait id="Valor" value="1" />
+      <Trait id="Mercy" value="-1" />
+      <Trait id="Honor" value="0" />
+      <Trait id="Generosity" value="-1" />
+      <Trait id="Calculating" value="-1" />
+    </Traits>
+    <Equipments>
+      <EquipmentRoster />
+      <EquipmentSet id="nord_bat_template_lady" />
+      <EquipmentSet id="nord_noncom_template_default" equipmentType="Civilian" />
+    </Equipments>
+  </NPCCharacter>
+  <NPCCharacter id="reign_court_town_N2_father" name="Eirikmar Seilvaag" age="44" voice="softspoken" is_hero="true" default_group="Infantry" culture="Culture.nord" skill_template="SkillSet.spc_quartermaster_skills" occupation="Lord" face_mesh_cache="true">
+    <face>
+      <face_key_template value="BodyProperty.townsman_nord" />
+    </face>
+    <Traits>
+      <Trait id="HuscarlFightingSkills" value="7" />
+      <Trait id="Commander" value="14" />
+      <Trait id="Politician" value="14" />
+      <Trait id="Manager" value="10" />
+      <Trait id="Valor" value="1" />
+      <Trait id="Mercy" value="0" />
+      <Trait id="Honor" value="-1" />
+      <Trait id="Generosity" value="-1" />
+      <Trait id="Calculating" value="-1" />
+    </Traits>
+    <Equipments>
+      <EquipmentRoster />
+      <EquipmentSet id="nord_bat_template_medium" />
+      <EquipmentSet id="nord_civ_template_default" equipmentType="Civilian" />
+    </Equipments>
+  </NPCCharacter>
+  <NPCCharacter id="reign_court_town_N2_mother" name="Borghild Seilvaag" age="42" voice="ironic" default_group="Infantry" is_hero="true" is_female="true" culture="Culture.nord" skill_template="SkillSet.spc_sailor_skills_rookie_viking" occupation="Lord" face_mesh_cache="true">
+    <face>
+      <face_key_template value="BodyProperty.townswoman_nord" />
+    </face>
+    <skills />
+    <Traits>
+      <Trait id="PeltastFightingSkills" value="4" />
+      <Trait id="Commander" value="6" />
+      <Trait id="Politician" value="6" />
+      <Trait id="Manager" value="4" />
+      <Trait id="Valor" value="0" />
+      <Trait id="Mercy" value="1" />
+      <Trait id="Honor" value="0" />
+      <Trait id="Generosity" value="-1" />
+      <Trait id="Calculating" value="0" />
+    </Traits>
+    <Equipments>
+      <EquipmentRoster />
+      <EquipmentSet id="nord_bat_template_lady" />
+      <EquipmentSet id="nord_noncom_template_default" equipmentType="Civilian" />
+    </Equipments>
+  </NPCCharacter>
+  <NPCCharacter id="reign_court_town_N2_child_1" name="Torstenar Seilvaag" voice="ironic" default_group="Infantry" age="25" is_hero="true" culture="Culture.nord" skill_template="SkillSet.spc_sailor_skills_viking" occupation="Lord" face_mesh_cache="true">
+    <face>
+      <face_key_template value="BodyProperty.townsman_nord" />
+    </face>
+    <skills />
+    <Traits>
+      <Trait id="HuscarlFightingSkills" value="8" />
+      <Trait id="Commander" value="12" />
+      <Trait id="Politician" value="10" />
+      <Trait id="Manager" value="6" />
+      <Trait id="Oligarchic" value="1" />
+      <Trait id="Valor" value="1" />
+      <Trait id="Mercy" value="0" />
+      <Trait id="Honor" value="1" />
+      <Trait id="Generosity" value="-1" />
+      <Trait id="Calculating" value="1" />
+    </Traits>
+    <Equipments>
+      <EquipmentSet id="nord_bat_template_heavy" />
+      <EquipmentSet id="nord_civ_template_default" equipmentType="Civilian" />
+    </Equipments>
+  </NPCCharacter>
+  <NPCCharacter id="reign_court_town_N2_child_2" name="Solveira Seilvaag" age="23" voice="curt" default_group="Infantry" is_hero="true" is_female="true" culture="Culture.nord" skill_template="SkillSet.spc_sailor_skills" occupation="Lord" face_mesh_cache="true">
+    <face>
+      <face_key_template value="BodyProperty.townswoman_nord" />
+    </face>
+    <skills />
+    <Traits>
+      <Trait id="PeltastFightingSkills" value="9" />
+      <Trait id="Commander" value="12" />
+      <Trait id="Politician" value="4" />
+      <Trait id="Manager" value="6" />
+      <Trait id="Valor" value="-1" />
+      <Trait id="Mercy" value="1" />
+      <Trait id="Honor" value="1" />
+      <Trait id="Generosity" value="-1" />
+      <Trait id="Calculating" value="1" />
+    </Traits>
+    <Equipments>
+      <EquipmentRoster />
+      <EquipmentSet id="nord_bat_template_lady" />
+      <EquipmentSet id="nord_noncom_template_default" equipmentType="Civilian" />
+    </Equipments>
+  </NPCCharacter>
+  <NPCCharacter id="reign_court_town_N2_child_3" name="Hallgeir Seilvaag" voice="softspoken" default_group="Infantry" age="20" is_hero="true" culture="Culture.nord" skill_template="SkillSet.spc_naval_trader_skills_rookie" occupation="Lord" face_mesh_cache="true">
+    <face>
+      <face_key_template value="BodyProperty.townsman_nord" />
+    </face>
+    <skills />
+    <Traits>
+      <Trait id="HuscarlFightingSkills" value="5" />
+      <Trait id="Commander" value="2" />
+      <Trait id="Politician" value="2" />
+      <Trait id="Manager" value="2" />
+      <Trait id="Valor" value="1" />
+      <Trait id="Mercy" value="-1" />
+      <Trait id="Honor" value="0" />
+      <Trait id="Generosity" value="1" />
+      <Trait id="Calculating" value="-1" />
+    </Traits>
+    <Equipments>
+      <EquipmentSet id="nord_bat_template_medium" />
+      <EquipmentSet id="nord_civ_template_default" equipmentType="Civilian" />
+    </Equipments>
+  </NPCCharacter>
+  <NPCCharacter id="reign_court_town_N2_child_4" name="Fridrun Seilvaag" voice="softspoken" default_group="Infantry" age="19" is_hero="true" is_female="true" culture="Culture.nord" skill_template="SkillSet.spc_naval_trader_skills_rookie" occupation="Lord" face_mesh_cache="true">
+    <face>
+      <face_key_template value="BodyProperty.townswoman_nord" />
+    </face>
+    <skills />
+    <Traits>
+      <Trait id="Politician" value="6" />
+      <Trait id="Manager" value="10" />
+      <Trait id="Valor" value="0" />
+      <Trait id="Mercy" value="1" />
+      <Trait id="Honor" value="1" />
+      <Trait id="Generosity" value="1" />
+      <Trait id="Calculating" value="1" />
+    </Traits>
+    <Equipments>
+      <EquipmentSet id="nord_bat_template_lady" />
+      <EquipmentSet id="nord_noncom_template_default" equipmentType="Civilian" />
+    </Equipments>
+  </NPCCharacter>
+  <NPCCharacter id="reign_court_town_N3_father" name="Aunvald Tingalund" age="44" voice="earnest" default_group="Infantry" is_hero="true" culture="Culture.nord" skill_template="SkillSet.spc_quartermaster_skills" occupation="Lord" face_mesh_cache="true">
+    <face>
+      <face_key_template value="BodyProperty.townsman_nord" />
+    </face>
+    <skills />
+    <Traits>
+      <Trait id="BalancedFightingSkills" value="7" />
+      <Trait id="Commander" value="8" />
+      <Trait id="Politician" value="4" />
+      <Trait id="Manager" value="10" />
+      <Trait id="Valor" value="0" />
+      <Trait id="Mercy" value="1" />
+      <Trait id="Honor" value="0" />
+      <Trait id="Generosity" value="1" />
+      <Trait id="Calculating" value="0" />
+    </Traits>
+    <Equipments>
+      <EquipmentRoster />
+      <EquipmentSet id="nord_bat_template_heavy" />
+      <EquipmentSet id="nord_civ_template_default" equipmentType="Civilian" />
+    </Equipments>
+  </NPCCharacter>
+  <NPCCharacter id="reign_court_town_N3_mother" age="42" name="Gydeva Tingalund" voice="ironic" is_female="true" is_hero="true" default_group="Infantry" culture="Culture.nord" skill_template="SkillSet.spc_quartermaster_skills_rookie" occupation="Lord" face_mesh_cache="true">
+    <face>
+      <face_key_template value="BodyProperty.townswoman_nord" />
+    </face>
+    <skills />
+    <Traits>
+      <Trait id="Politician" value="8" />
+      <Trait id="Manager" value="8" />
+      <Trait id="Valor" value="1" />
+      <Trait id="Mercy" value="0" />
+      <Trait id="Honor" value="1" />
+      <Trait id="Generosity" value="0" />
+      <Trait id="Calculating" value="1" />
+    </Traits>
+    <Equipments>
+      <EquipmentSet id="nord_bat_template_lady" />
+      <EquipmentSet id="nord_noncom_template_default" equipmentType="Civilian" />
+    </Equipments>
+  </NPCCharacter>
+  <NPCCharacter id="reign_court_town_N3_child_1" name="Sigtrygg Tingalund" age="25" voice="curt" default_group="Infantry" is_hero="true" culture="Culture.nord" skill_template="SkillSet.spc_sailor_skills_rookie" occupation="Lord" face_mesh_cache="true">
+    <face>
+      <face_key_template value="BodyProperty.townsman_nord" />
+    </face>
+    <skills />
+    <Traits>
+      <Trait id="HuscarlFightingSkills" value="5" />
+      <Trait id="Commander" value="10" />
+      <Trait id="Politician" value="10" />
+      <Trait id="Valor" value="-1" />
+      <Trait id="Mercy" value="1" />
+      <Trait id="Honor" value="1" />
+      <Trait id="Generosity" value="0" />
+      <Trait id="Calculating" value="1" />
+    </Traits>
+    <Equipments>
+      <EquipmentRoster />
+      <EquipmentSet id="nord_bat_template_heavy" />
+      <EquipmentSet id="nord_civ_template_default" equipmentType="Civilian" />
+    </Equipments>
+  </NPCCharacter>
+  <NPCCharacter id="reign_court_town_N3_child_2" name="Ragnhildra Tingalund" age="23" is_female="true" voice="curt" default_group="Infantry" is_hero="true" culture="Culture.nord" skill_template="SkillSet.spc_chatelaine_skills_rookie" occupation="Lord" face_mesh_cache="true">
+    <face>
+      <face_key_template value="BodyProperty.townswoman_nord" />
+    </face>
+    <skills />
+    <Traits>
+      <Trait id="Politician" value="6" />
+      <Trait id="Manager" value="6" />
+      <Trait id="Valor" value="1" />
+      <Trait id="Mercy" value="-1" />
+      <Trait id="Honor" value="0" />
+      <Trait id="Generosity" value="-1" />
+      <Trait id="Calculating" value="-1" />
+    </Traits>
+    <Equipments>
+      <EquipmentRoster />
+      <EquipmentSet id="nord_bat_template_lady" />
+      <EquipmentSet id="nord_noncom_template_default" equipmentType="Civilian" />
+    </Equipments>
+  </NPCCharacter>
+  <NPCCharacter id="reign_court_town_N3_child_3" name="Ulfrik Tingalund" age="20" voice="earnest" is_hero="true" default_group="Infantry" culture="Culture.nord" skill_template="SkillSet.spc_naval_trader_skills_ruler" occupation="Lord" face_mesh_cache="true">
+    <face>
+      <face_key_template value="BodyProperty.townsman_nord" />
+    </face>
+    <skills />
+    <Traits>
+      <Trait id="HuscarlFightingSkills" value="6" />
+      <Trait id="Commander" value="14" />
+      <Trait id="Politician" value="16" />
+      <Trait id="Manager" value="12" />
+      <Trait id="Authoritarian" value="1" />
+      <Trait id="Valor" value="0" />
+      <Trait id="Mercy" value="1" />
+      <Trait id="Honor" value="1" />
+      <Trait id="Generosity" value="-1" />
+      <Trait id="Calculating" value="1" />
+    </Traits>
+    <Equipments>
+      <EquipmentSet id="nord_king_template_bat_m" />
+      <EquipmentSet id="nord_king_template_civ_m" equipmentType="Civilian" />
+    </Equipments>
+  </NPCCharacter>
+  <NPCCharacter id="reign_court_town_N3_child_4" name="Asveiga Tingalund" age="19" voice="earnest" default_group="Infantry" is_hero="true" is_female="true" culture="Culture.nord" skill_template="SkillSet.spc_chatelaine_skills" occupation="Lord" face_mesh_cache="true">
+    <face>
+      <face_key_template value="BodyProperty.townswoman_nord" />
+    </face>
+    <Traits>
+      <Trait id="Politician" value="14" />
+      <Trait id="Manager" value="14" />
+      <Trait id="Valor" value="1" />
+      <Trait id="Mercy" value="0" />
+      <Trait id="Honor" value="-1" />
+      <Trait id="Generosity" value="0" />
+      <Trait id="Calculating" value="-1" />
+    </Traits>
+    <Equipments>
+      <EquipmentSet id="nord_bat_template_lady" />
+      <EquipmentSet id="nord_noncom_template_default" equipmentType="Civilian" />
+    </Equipments>
+  </NPCCharacter>
+  <NPCCharacter id="reign_court_town_N4_father" name="Bjarngrim Elverdal" voice="earnest" age="44" default_group="Infantry" is_hero="true" culture="Culture.nord" skill_template="SkillSet.spc_naval_trader_skills_rookie" occupation="Lord" face_mesh_cache="true">
+    <face>
+      <face_key_template value="BodyProperty.townsman_nord" />
+    </face>
+    <skills />
+    <Traits>
+      <Trait id="BalancedFightingSkills" value="8" />
+      <Trait id="Commander" value="8" />
+      <Trait id="Politician" value="6" />
+      <Trait id="Manager" value="6" />
+      <Trait id="Valor" value="1" />
+      <Trait id="Mercy" value="0" />
+      <Trait id="Honor" value="1" />
+      <Trait id="Generosity" value="0" />
+      <Trait id="Calculating" value="1" />
+    </Traits>
+    <Equipments>
+      <EquipmentRoster />
+      <EquipmentSet id="nord_bat_template_heavy" />
+      <EquipmentSet id="nord_civ_template_default" equipmentType="Civilian" />
+    </Equipments>
+  </NPCCharacter>
+  <NPCCharacter id="reign_court_town_N4_mother" name="Ragnora Elverdal" voice="earnest" default_group="Infantry" age="42" is_hero="true" is_female="true" culture="Culture.nord" skill_template="SkillSet.spc_dandy_skills_rookie" occupation="Lord" face_mesh_cache="true">
+    <face>
+      <face_key_template value="BodyProperty.townswoman_nord" />
+    </face>
+    <skills />
+    <Traits>
+      <Trait id="Politician" value="8" />
+      <Trait id="Manager" value="4" />
+      <Trait id="Valor" value="-1" />
+      <Trait id="Mercy" value="1" />
+      <Trait id="Honor" value="1" />
+      <Trait id="Generosity" value="0" />
+      <Trait id="Calculating" value="1" />
+    </Traits>
+    <Equipments>
+      <EquipmentRoster />
+      <EquipmentSet id="nord_bat_template_lady" />
+      <EquipmentSet id="nord_noncom_template_default" equipmentType="Civilian" />
+    </Equipments>
+  </NPCCharacter>
+  <NPCCharacter id="reign_court_town_N4_child_1" name="Steinkel Elverdal" age="25" voice="ironic" default_group="Infantry" is_hero="true" culture="Culture.nord" skill_template="SkillSet.spc_sailor_skills_viking" occupation="Lord" face_mesh_cache="true">
+    <face>
+      <face_key_template value="BodyProperty.townsman_nord" />
+    </face>
+    <skills />
+    <Traits>
+      <Trait id="BalancedFightingSkills" value="6" />
+      <Trait id="Commander" value="12" />
+      <Trait id="Politician" value="8" />
+      <Trait id="Manager" value="10" />
+      <Trait id="Valor" value="1" />
+      <Trait id="Mercy" value="-1" />
+      <Trait id="Honor" value="0" />
+      <Trait id="Generosity" value="-1" />
+      <Trait id="Calculating" value="-1" />
+    </Traits>
+    <Equipments>
+      <EquipmentRoster />
+      <EquipmentSet id="nord_bat_template_medium" />
+      <EquipmentSet id="nord_civ_template_default" equipmentType="Civilian" />
+    </Equipments>
+  </NPCCharacter>
+  <NPCCharacter id="reign_court_town_N4_child_2" name="Odhild Elverdal" voice="earnest" age="23" is_female="true" default_group="Infantry" is_hero="true" culture="Culture.nord" skill_template="SkillSet.spc_sailor_skills" occupation="Lord" face_mesh_cache="true">
+    <face>
+      <face_key_template value="BodyProperty.townswoman_nord" />
+    </face>
+    <skills />
+    <Traits>
+      <Trait id="Politician" value="2" />
+      <Trait id="Manager" value="10" />
+      <Trait id="Valor" value="0" />
+      <Trait id="Mercy" value="1" />
+      <Trait id="Honor" value="1" />
+      <Trait id="Generosity" value="-1" />
+      <Trait id="Calculating" value="1" />
+    </Traits>
+    <Equipments>
+      <EquipmentRoster />
+      <EquipmentSet id="nord_bat_template_lady" />
+      <EquipmentSet id="nord_noncom_template_default" equipmentType="Civilian" />
+    </Equipments>
+  </NPCCharacter>
+  <NPCCharacter id="reign_court_town_N4_child_3" name="Haldorik Elverdal" voice="earnest" default_group="Infantry" age="20" is_hero="true" culture="Culture.nord" skill_template="SkillSet.spc_quartermaster_skills" occupation="Lord" face_mesh_cache="true">
+    <face>
+      <face_key_template value="BodyProperty.townsman_nord" />
+    </face>
+    <skills />
+    <Traits>
+      <Trait id="BalancedFightingSkills" value="6" />
+      <Trait id="Commander" value="10" />
+      <Trait id="Politician" value="8" />
+      <Trait id="Manager" value="4" />
+      <Trait id="Valor" value="1" />
+      <Trait id="Mercy" value="0" />
+      <Trait id="Honor" value="-1" />
+      <Trait id="Generosity" value="0" />
+      <Trait id="Calculating" value="-1" />
+    </Traits>
+    <Equipments>
+      <EquipmentRoster />
+      <EquipmentSet id="nord_bat_template_medium" />
+      <EquipmentSet id="nord_civ_template_default" equipmentType="Civilian" />
+    </Equipments>
+  </NPCCharacter>
+  <NPCCharacter id="reign_court_town_N4_child_4" name="Gunnveig Elverdal" voice="earnest" age="19" is_female="true" default_group="Infantry" is_hero="true" culture="Culture.nord" skill_template="SkillSet.spc_matriarch_skills_rookie" occupation="Lord" face_mesh_cache="true">
+    <face>
+      <face_key_template value="BodyProperty.townswoman_nord" />
+    </face>
+    <skills />
+    <Traits>
+      <Trait id="Valor" value="0" />
+      <Trait id="Mercy" value="1" />
+      <Trait id="Honor" value="0" />
+      <Trait id="Generosity" value="1" />
+      <Trait id="Calculating" value="0" />
+    </Traits>
+    <Equipments>
+      <EquipmentRoster />
+      <EquipmentSet id="nord_bat_template_lady" />
+      <EquipmentSet id="nord_noncom_template_default" equipmentType="Civilian" />
+    </Equipments>
+  </NPCCharacter>
 </NPCCharacters>

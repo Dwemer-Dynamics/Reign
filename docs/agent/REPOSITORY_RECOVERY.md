@@ -1,11 +1,11 @@
 # Reign repository recovery
 
-All development and testing stay local. The authoritative publishing destinations are [Reign](https://github.com/Dwemer-Dynamics/Reign) (private client and integration tooling) and [ReignServer](https://github.com/Dwemer-Dynamics/ReignServer) (public server and shared source). Both develop through unstable -> dev -> reign, with reign as the default branch. Create feature branches from unstable and promote paired revisions through reviewed PRs. Do not resume publishing to the retired workspace repository.
+All development and testing stay local. The authoritative publishing destinations are [Reign](https://github.com/Dwemer-Dynamics/Reign) (public client and integration tooling) and [ReignServer](https://github.com/Dwemer-Dynamics/ReignServer) (public server and shared source). The user made Reign public on 2026-11-10. Both develop through unstable -> dev -> reign, with reign as the default branch. Create feature branches from unstable and promote paired revisions through reviewed PRs. Do not resume publishing to the retired workspace repository.
 
 ## Restore the two local checkouts
 
 1. Clone https://github.com/Dwemer-Dynamics/Reign.git as Reign and https://github.com/Dwemer-Dynamics/ReignServer.git as ReignServer under the same parent directory. On this development machine use D:/Projects; keep package/build/test state on D:.
-2. Read both AGENTS.md files and confirm their fetch and push origins match exactly. Keep Reign private and ReignServer public.
+2. Read both AGENTS.md files and confirm their fetch and push origins match exactly. Both Reign and ReignServer are public; keep runtime data and credentials outside Git.
 3. Run ReignServer/ReignServer/scripts/Connect-Repositories.ps1. It creates five verified source junctions in Reign and refuses conflicting directories. Existing integration paths keep working while every source file has one Git owner.
 4. Configure Reign MCP with the local Reign checkout as REIGN_WORKSPACE_ROOT. Machine-local .codex/config.toml is excluded; use the MCP activation template. Do not copy credentials or old machine paths.
 5. Supply a licensed Bannerlord installation and documented developer prerequisites. Set REIGN_BANNERLORD_PATH for builds. End-user packages supply redistributable dependencies; source recovery excludes game-owned binaries and third-party downloads.
@@ -16,7 +16,7 @@ Obtain the canonical all/Release validation plan after a fresh restore. Query th
 
 Edit client/UI/integration tooling in Reign. Edit the server, shared source, native generator and release tools in ReignServer. Use explicit reviewed Git paths in the owning repository. Shared files are not copied between repositories. Releases record both commit IDs and file hashes so compatible versions can be restored together.
 
-Campaigns, saves, database clusters, API credentials, logs, campaign-generated portraits, writable caches, build output and deployment backups are external state. Keep them out of Git. The approved shared portrait seed library and complete 284-person Tavern House portrait pack are required first-party module content in the private Reign repository. Store their PNGs through Git LFS and verify their tracked inventories at `ReignBeta/PortraitCache/shared-portrait-inventory.json` and `ReignBeta/TavernHousePortraits/portrait-inventory.json`. A clean checkout and local deployment must include both libraries; neither can depend on task staging or a previous installation. Campaign recovery uses its separate database/Save Sync backup procedure. Source snapshots are not campaign backups.
+Campaigns, saves, database clusters, API credentials, logs, campaign-generated portraits, writable caches, build output and deployment backups are external state. Keep them out of Git. The approved shared portrait seed library and complete 284-person Tavern House portrait pack are required first-party module content in the public Reign repository. Store their PNGs through Git LFS and verify their tracked inventories at `ReignBeta/PortraitCache/shared-portrait-inventory.json` and `ReignBeta/TavernHousePortraits/portrait-inventory.json`. A clean checkout and local deployment must include both libraries; neither can depend on task staging or a previous installation. Campaign recovery uses its separate database/Save Sync backup procedure. Source snapshots are not campaign backups.
 
 ## Initial launch cutover
 

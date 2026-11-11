@@ -544,6 +544,22 @@ namespace ReignBeta.World
         private static ReignActionResult DiplomaticPackage(Kingdom actor, Kingdom target, ReignWorldActionRecord action)
         {
             JObject terms = ReignValueService.ParseTerms(action);
+            ReignActionResult result = ReignActionResult.Done(actor.InformalName + " recorded a compound diplomatic package with " + target.InformalName + ".");
+            bool arranged=ReignMarriageService.IsNpcWorldAlliance(action)&&ReignMarriageService.HasMarriageIntent(action);
+            if(arranged)
+            {
+                // Reserve both outgoing commitments before either marriage money or package assets move.
+                var quote=terms["marriageTerms"] as JObject;
+                Hero payer=ReignValueService.ResolveHero(quote?.Value<string>("payerId"));
+                int fee=quote?.Value<int>("fee")??0;
+                int gift=ReignValueService.ReadIntTerm(terms,"gold",ReignValueService.ReadIntTerm(terms,"GoldAmount",ReignValueService.ReadIntTerm(terms,"goldAmount",0)));
+                Hero giftFrom=ReignValueService.ResolveHero(ReignValueService.ReadStringTerm(terms,"goldFromHeroStringId",ReignValueService.ReadStringTerm(terms,"fromHeroStringId",action.ActorHeroStringId)));
+                if(payer==null||fee<0||payer.Gold<(long)fee+(giftFrom==payer?System.Math.Max(0,gift):0)
+                    ||gift>0&&(giftFrom==null||giftFrom.Gold<gift))
+                    return ReignActionResult.ValidationFailed("The marriage fee and package payment are not jointly affordable.");
+                if(!ReignMarriageService.TryApplyMarriage(action,result,out string arrangedFailure))
+                    return ReignActionResult.FailTerminal(arrangedFailure,"marriage_verification_failed","state_verification");
+            }
             int shipsTransferred = 0;
             ReignActionResult packageAssetResult = null;
             if (IsNavalPackage(action))
@@ -555,7 +571,6 @@ namespace ReignBeta.World
                 }
             }
 
-            ReignActionResult result = ReignActionResult.Done(actor.InformalName + " recorded a compound diplomatic package with " + target.InformalName + ".");
             ReignTradePackageExecutor.ApplyMaterialTerms(action, terms, result);
             int goldApplied = ReadIntTerm(action.TermsJson, "gold", ReadIntTerm(action.TermsJson, "GoldAmount", 0));
             List<Settlement> settlements = new List<Settlement>();
@@ -566,7 +581,7 @@ namespace ReignBeta.World
                 result.WithEffect("prisoner_release", "hero", releasedPrisoner.StringId, releasedPrisoner.Name.ToString(), "facilitator=package")
                     .WithChangedEntity("hero", releasedPrisoner.StringId, releasedPrisoner.Name.ToString(), "released_from_captivity");
             }
-            if (ReignMarriageService.HasMarriageIntent(action)
+            if (!arranged && ReignMarriageService.HasMarriageIntent(action)
                 && !ReignMarriageService.TryApplyMarriage(action, result, out string marriageFailure))
             {
                 return ReignActionResult.FailTerminal(marriageFailure, "marriage_verification_failed", "state_verification");

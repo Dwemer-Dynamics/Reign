@@ -358,6 +358,14 @@
           "entry": "Court > Royal Docket > History",
           "liveAction": "previewer preset only",
           "previewOnly": true
+        },
+        {
+          "id": "court-military-standing",
+          "label": "Military Standing",
+          "variant": "court-military-standing",
+          "entry": "Court > Royal Docket > Kingdom Military Standing",
+          "liveAction": "previewer preset only",
+          "previewOnly": true
         }
       ]
     },
@@ -886,7 +894,49 @@
       "manager": "ReignWarCouncilScreenManager",
       "viewModel": "ReignWarCouncilScreenVM",
       "entry": "Court > War Council",
-      "liveAction": "ui-open --target war-council"
+      "liveAction": "ui-open --target war-council",
+      "previewStates": [
+        {
+          "id": "war-council-peace-40",
+          "label": "Peace40%",
+          "variant": "war-council-peace-40",
+          "entry": "Court > War Council > Military Standing",
+          "liveAction": "previewer preset only",
+          "previewOnly": true
+        },
+        {
+          "id": "war-council-peace-90",
+          "label": "Peace90%",
+          "variant": "war-council-peace-90",
+          "entry": "Court > War Council > Military Standing",
+          "liveAction": "previewer preset only",
+          "previewOnly": true
+        },
+        {
+          "id": "war-council-peace-dropdown",
+          "label": "Peace force dropdown",
+          "variant": "war-council-peace-dropdown",
+          "entry": "Court > War Council > Military Standing",
+          "liveAction": "previewer preset only",
+          "previewOnly": true
+        },
+        {
+          "id": "war-council-standing-readonly",
+          "label": "Standing read only",
+          "variant": "war-council-standing-readonly",
+          "entry": "Court > War Council > Military Standing",
+          "liveAction": "previewer preset only",
+          "previewOnly": true
+        },
+        {
+          "id": "war-council-no-realm",
+          "label": "No kingdom standing",
+          "variant": "war-council-no-realm",
+          "entry": "War Council > Independent clan",
+          "liveAction": "previewer preset only",
+          "previewOnly": true
+        }
+      ]
     },
     {
       "id": "correspondence",
@@ -1195,7 +1245,7 @@
         },
         {
           "id": "settlement-homes-empty",
-          "label": "Homes — No known residents",
+          "label": "Homes \u2014 No known residents",
           "variant": "homes-empty",
           "entry": "Settlement without met residents",
           "liveAction": "settlement Homes native acceptance",

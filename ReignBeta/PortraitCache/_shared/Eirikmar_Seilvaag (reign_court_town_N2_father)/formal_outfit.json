@@ -1,0 +1,13 @@
+{
+  "version": 1,
+  "heroStringId": "reign_court_town_N2_father",
+  "characterName": "Eirikmar Seilvaag",
+  "imagePath": "portrait.png",
+  "imageSha256": "05C4BBA210548EDE263BF9837DC21410302E3CA092EE1558018352DE12055212",
+  "description": "Charcoal-green knee-length wool tunic with red and pale-gold tablet-woven borders at split neck, cuffs and hem, cream linen undershirt with a short neck tie, brown leather belt with plain buckle and small pouch, brown trousers, taupe leg wraps and brown shoes. No headgear, armor or weapons.",
+  "status": "completed",
+  "descriptionSource": "agent_vision",
+  "retryEligible": false,
+  "error": "",
+  "updatedUtc": "2026-11-07T03:30:14.515592+00:00"
+}

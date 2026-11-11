@@ -1,5 +1,7 @@
 # Reign Testing Tool Guide
 
+War-economy/funding/replacement: [procedure](testing/WAR_ECONOMY.md).
+
 Select a proof layer and read its procedure. `reign.testing.json` owns capability names, gates, evidence schemas and this document index. Query `reign_get_testing_catalog` with a relevant filter when the route is uncertain.
 
 For current-turn source speaker normalization, use `dialogueMemoryAccuracy.sourceSpeakerAliases` and the [dialogue procedure](testing/DIALOGUE_AND_PROVIDERS.md). The `prompt_efficiency` suite checks event-scoped current aliases, canonical stored ownership and next-read continuity; passing citation checks does not establish semantic accuracy.
@@ -33,6 +35,7 @@ Pass the current Codex task UUID as `requestingTaskId` to `reign_validate`. Busy
 - [Dialogue and provider testing](testing/DIALOGUE_AND_PROVIDERS.md)
 - [Interface proof and deployment](testing/UI_AND_DEPLOYMENT.md)
 - [Feature harness procedures](testing/FEATURE_HARNESSES.md)
+- [War economy, recruitment and recovery](testing/WAR_ECONOMY.md)
 - [Personal gossip launch proof](testing/PERSONAL_GOSSIP_LAUNCH_PLAN_2026-10-04.md)
 - [Recovery and continuity](testing/RECOVERY.md)
 - [Launch packaging and clean-install proof](testing/RELEASE_PACKAGING.md)

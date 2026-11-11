@@ -1,0 +1,13 @@
+{
+  "version": 1,
+  "heroStringId": "reign_court_castle_N2_child_4",
+  "characterName": "Thyrdis Askesund",
+  "imagePath": "portrait.png",
+  "imageSha256": "21B92DFF1E7140C4550F10C85B93CA8453AD0A3AAF3AB8D8D10DC0FD94AE4BC1",
+  "description": "A warm brown wool apron dress with red-and-cream woven borders and two modest round metal shoulder brooches, over a cream linen long-sleeved shift with a nearly closed short slit collar and narrow patterned cuffs. A matching woven belt has long tasselled ends; the ankle-length layers leave plain brown leather shoes visible. No headgear, armor or weapons.",
+  "status": "completed",
+  "descriptionSource": "agent_vision",
+  "retryEligible": false,
+  "error": "",
+  "updatedUtc": "2026-11-07T03:15:05.427748+00:00"
+}

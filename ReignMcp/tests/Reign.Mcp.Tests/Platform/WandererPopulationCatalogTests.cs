@@ -1,10 +1,64 @@
 using System.Text.Json;
 using Reign.Mcp.Server;
+using ReignBeta.Shared.Characters;
 
 namespace Reign.Mcp.Tests;
 
 public sealed class WandererPopulationCatalogTests
 {
+    [Theory]
+    [InlineData(1)]
+    [InlineData(4)]
+    [InlineData(16)]
+    [InlineData(256)]
+    public void FasterCampaignPollingDoesNotMultiplyRealTimeMaintenance(int pollsPerObservation)
+    {
+        var cadence = new RealTimeMaintenanceCadence();
+        int passes = 0;
+        for (long milliseconds = 0; milliseconds <= 10000; milliseconds += 10)
+            for (int poll = 0; poll < pollsPerObservation; poll++)
+                if (cadence.TryTake(milliseconds, 1000)) passes++;
+        Assert.Equal(10, passes);
+    }
+
+    [Fact]
+    public void PausedTicksDoNoMaintenanceAndBehaviorsKeepIndependentSlots()
+    {
+        var tavern = new RealTimeMaintenanceCadence();
+        var wanderer = new RealTimeMaintenanceCadence();
+        Assert.False(tavern.TryTake(0, 1000));
+        Assert.False(wanderer.TryTake(0, 1000));
+        Assert.False(tavern.TryTake(60000, 1000, false));
+        Assert.False(wanderer.TryTake(60000, 1000, false));
+        Assert.True(tavern.TryTake(60000, 1000));
+        Assert.True(wanderer.TryTake(60000, 1000));
+        Assert.False(tavern.TryTake(60000, 1000));
+        Assert.False(wanderer.TryTake(60000, 1000));
+    }
+
+    [Fact]
+    public void ResumingAfterLongDelayDoesOnePassAndKeepsFullNextInterval()
+    {
+        var cadence = new RealTimeMaintenanceCadence();
+        Assert.False(cadence.TryTake(0, 1000));
+        Assert.True(cadence.TryTake(60000, 1000));
+        Assert.False(cadence.TryTake(60000, 1000));
+        Assert.False(cadence.TryTake(60999, 1000));
+        Assert.True(cadence.TryTake(61000, 1000));
+    }
+
+    [Fact]
+    public void ClockResetStartsANewIntervalAndInvalidClockUnitsAreRejected()
+    {
+        var cadence = new RealTimeMaintenanceCadence();
+        Assert.False(cadence.TryTake(10000, 1000));
+        Assert.False(cadence.TryTake(0, 1000));
+        Assert.False(cadence.TryTake(999, 1000));
+        Assert.True(cadence.TryTake(1000, 1000));
+        Assert.Throws<ArgumentOutOfRangeException>(() => cadence.TryTake(1000, 0));
+        Assert.Throws<ArgumentOutOfRangeException>(() => cadence.TryTake(-1, 1000));
+    }
+
     [Fact]
     public void CatalogDeclaresPopulationEvidenceAndSeparateNativeAcceptance()
     {

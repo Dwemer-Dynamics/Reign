@@ -64,6 +64,24 @@ namespace ReignBeta.ClanAccords
 
     internal sealed class ReignClanAccordsWageModel : DefaultPartyWageModel
     {
+        public override int GetCharacterWage(CharacterObject character)
+        {
+            int native = base.GetCharacterWage(character);
+            return character.IsHero ? native : TaleWorlds.Library.MathF.Round((float)(native * ReignBeta.Economy.ReignWarEconomyPolicy.WageMultiplier(character.Tier)));
+        }
+
+        public override ExplainedNumber GetTroopRecruitmentCost(CharacterObject troop, Hero buyerHero, bool withoutItemCost = false)
+        {
+            var result = base.GetTroopRecruitmentCost(troop, buyerHero, withoutItemCost);
+            // Native ransom prices reuse this quote. The enlistment premium pays for
+            // mobilization/training; it must not multiply the cash awarded for captives.
+            if (!troop.IsHero && !ReignBeta.Economy.ReignEconomyPatches.IsRansomQuote)
+                ReignClanAccordModelMath.AddFinalDelta(ref result,
+                    (float)(System.Math.Max(0, result.ResultNumber) * (ReignBeta.Economy.ReignWarEconomyPolicy.HireMultiplier(troop.Tier) - 1)),
+                    new TextObject("{=!}Regular troop enlistment cost"));
+            return result;
+        }
+
         public override ExplainedNumber GetTotalWage(MobileParty mobileParty, TroopRoster troopRoster, bool includeDescriptions = false)
         {
             var result = base.GetTotalWage(mobileParty, troopRoster, includeDescriptions);

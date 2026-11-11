@@ -1,0 +1,13 @@
+{
+  "version": 1,
+  "heroStringId": "reign_court_castle_N6_father",
+  "characterName": "Ormvald Dalskeld",
+  "imagePath": "portrait.png",
+  "imageSha256": "835C3FA6EC67C34CE95B71DDD27E48CD313979D6B868B251F8DD3B7A1AAFBEA0",
+  "description": "Charcoal-grey knee-length wool tunic with restrained cream woven neckline, cuff and hem borders over ivory linen, broad brown leather belt, loose brown trousers, beige leg wraps and soft leather ankle shoes. No headgear, armor or weapons.",
+  "status": "completed",
+  "descriptionSource": "agent_vision",
+  "retryEligible": false,
+  "error": "",
+  "updatedUtc": "2026-11-07T03:24:28.049044+00:00"
+}

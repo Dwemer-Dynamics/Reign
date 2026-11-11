@@ -466,6 +466,7 @@ namespace ReignBeta.World
 
             PrepareTimedHold(order, party);
             if (ObserveCompletion(order, party, target, targetParty)) return;
+            if (order.Objective == "recruit_resupply" && !ReassessRecruitmentResources(order, party, ref target)) return;
             string before = NativeSignature(party);
             if (!ApplyNativeOrder(order, party, target, targetParty, out string failure))
             {
@@ -491,7 +492,7 @@ namespace ReignBeta.World
         {
             double now = CurrentDay();
             if (order.DeadlineDay > 0d && now >= order.DeadlineDay
-                && order.Objective != "besiege_capture" && order.Objective != "relieve_siege")
+                && order.Objective != "besiege_capture" && order.Objective != "relieve_siege" && order.Objective != "recruit_resupply")
             {
                 if (order.Objective == "scout_report")
                 {
@@ -1681,6 +1682,76 @@ namespace ReignBeta.World
             }
             failure = string.Empty;
             return true;
+        }
+
+        private bool ReassessRecruitmentResources(ReignCampaignOrderRecord order, MobileParty party, ref Settlement target)
+        {
+            var terms = ParseTerms(order.TermsJson);
+            double now = CurrentDay();
+            if (ReadDouble(terms, "economyReviewDay", -1) == Math.Floor(now))
+            {
+                string anchor = terms.Value<string>("economyRecruitAnchor");
+                target = string.IsNullOrEmpty(anchor) ? null : ReignObjectResolver.FindSettlement(anchor);
+                if (target != null) return true;
+                order.NextReviewDay = Math.Floor(now) + 1;
+                return false;
+            }
+            CountTroopRoles(party, out int regulars, out int infantry, out int archers, out int cavalry);
+            bool needTroops = regulars < ResolveRecruitmentTarget(order, party, terms)
+                || infantry < ReadDouble(terms, "minimumInfantry", 0) || archers < ReadDouble(terms, "minimumArchers", 0)
+                || cavalry < ReadDouble(terms, "minimumCavalry", 0);
+            bool needFood = party.GetNumDaysForFoodToLast() < ReadDouble(terms, "minimumFoodDays", 3);
+            var payer = party.LeaderHero;
+            var model = TaleWorlds.CampaignSystem.Campaign.Current.Models;
+            var economy = ReignBeta.Economy.ReignEconomyCampaignBehavior.Instance;
+            Func<Settlement, bool> eligible = settlement => {
+                if (settlement.MapFaction != party.MapFaction || settlement.IsUnderSiege || settlement.IsUnderRaid || settlement.IsRaided
+                    || (!settlement.IsTown && !settlement.IsVillage)) return false;
+                if (needFood && !settlement.ItemRoster.Any(x => x.Amount > 0 && x.EquipmentElement.Item?.IsFood == true
+                    && settlement.SettlementComponent.GetItemPrice(x.EquipmentElement, party) <= payer.Gold)) return false;
+                if (!needTroops) return payer.Gold > 0;
+                if ((economy?.GetRecruitCapacity(settlement) ?? 0) <= 0) return false;
+                return settlement.Notables.Where(x => x.IsAlive).Any(notable => notable.VolunteerTypes
+                    .Take(model.VolunteerModel.MaximumIndexHeroCanRecruitFromHero(payer, notable))
+                    .Where(troop => troop != null).Any(troop => ReignBeta.Economy.ReignWarEconomyTransactions.Allow(
+                        ReignBeta.Economy.ReignWarEconomyTransactions.Ai, settlement, party, payer, troop, 1, true, recordBlocked: false) > 0));
+            };
+            target = Settlement.All.Where(eligible).OrderBy(x => x.GetPosition2D.DistanceSquared(party.GetPosition2D))
+                .ThenBy(x => x.StringId, StringComparer.Ordinal).FirstOrDefault();
+            terms["economyReviewDay"] = Math.Floor(now);
+            terms["economyRecruitAnchor"] = target?.StringId ?? "";
+            order.TermsJson = terms.ToString(Formatting.None);
+            if (target != null)
+            {
+                order.TargetSettlementStringId = target.StringId;
+                order.AnchorSettlementIdsCsv = target.StringId;
+                order.LastFailure = "";
+                return true;
+            }
+            const string reason = "Waiting for accessible volunteers of the requested types, party space, recovered village households, affordable food, or seven days of military funding. The requested force is unchanged; resources will be reassessed daily.";
+            bool firstWait = order.Stage != "waiting_for_resources";
+            order.Status = "active";
+            order.Stage = "waiting_for_resources";
+            order.LastFailure = reason;
+            order.NextReviewDay = Math.Floor(now) + 1;
+            party.SetMoveModeHold();
+            if (firstWait) { AppendHistory(order, "waiting_for_resources", reason); Publish(order, "waiting_for_resources"); }
+            return false;
+        }
+
+        internal static bool RecruitmentFitsActiveOrder(MobileParty party, CharacterObject troop)
+        {
+            var order = Instance?.ActiveOrderFor(party?.LeaderHero?.StringId);
+            if (order == null || order.Objective != "recruit_resupply" || order.AwaitingGuidance
+                || order.Status != "active") return true;
+            var terms = ParseTerms(order.TermsJson);
+            CountTroopRoles(party, out int regulars, out int infantry, out int archers, out int cavalry);
+            bool needInfantry = infantry < ReadDouble(terms, "minimumInfantry", 0);
+            bool needArchers = archers < ReadDouble(terms, "minimumArchers", 0);
+            bool needCavalry = cavalry < ReadDouble(terms, "minimumCavalry", 0);
+            if (needInfantry || needArchers || needCavalry)
+                return troop.IsMounted ? needCavalry : troop.IsRanged ? needArchers : needInfantry;
+            return regulars < ResolveRecruitmentTarget(order, party, terms);
         }
 
         private static void CountTroopRoles(MobileParty party, out int regulars, out int infantry,

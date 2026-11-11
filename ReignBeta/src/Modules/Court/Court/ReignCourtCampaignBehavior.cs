@@ -1125,13 +1125,13 @@ namespace ReignBeta.Court
                             }
                             case "marriage_response":
                             {
-                                Hero first = FindHero(action.Value<string>("heroAId"));
-                                Hero second = FindHero(action.Value<string>("heroBId"));
-                                if (first == null || second == null || TaleWorlds.CampaignSystem.Campaign.Current?.Models?.MarriageModel?.IsCoupleSuitableForMarriage(first, second) != true)
-                                    throw new InvalidOperationException("The marriage proposal no longer passes the native marriage model.");
-                                MarriageAction.Apply(first, second, true);
-                                receipt["heroAId"] = first.StringId;
-                                receipt["heroBId"] = second.StringId;
+                                var execution=ReignRelationshipCampaignBehavior.Instance?.ApplyArrangedMarriage(new ReignDirectorAction {
+                                    DirectorActionId="court_marriage_"+action.Value<string>("evaluationId"), ActionType="marriage",
+                                    ActorId=action.Value<string>("heroAId"),TargetId=action.Value<string>("heroBId"),
+                                    Payload=new JObject { ["route"]="arranged",["timelineId"]=action.Value<string>("timelineId"),["marriageTerms"]=action["marriageTerms"]?.DeepClone() }
+                                },true);
+                                if(execution?.Value<string>("status")!="completed")throw new InvalidOperationException(execution?.Value<string>("error")??"Marriage executor unavailable.");
+                                receipt["marriageVerified"]=true;receipt["paymentVerified"]=true;receipt["marriageReceipt"]=execution;
                                 break;
                             }
                             default:
@@ -1234,7 +1234,7 @@ namespace ReignBeta.Court
             ResetAuthorityFailures();
             EnsureRoyalDocket();
             EnsureEconomicReportState();
-            ProcessEconomicShipments();
+            // Shipment arrivals are processed hourly by the economy coordinator, including after a ruler change.
             ProcessForeignAmbassadorTick();
             EnforceResidentAdvisorLocations();
             int day = CurrentDay();
@@ -1281,6 +1281,8 @@ namespace ReignBeta.Court
             Settlement target = FindEconomicSettlement(targetId);
             if (source == null || target == null || source == target || source.Town == null || target.Town == null)
                 throw new InvalidOperationException("Choose two different current towns or castles.");
+            if (source.Town.IsUnderSiege || target.Town.IsUnderSiege)
+                throw new InvalidOperationException("Food shipments cannot be dispatched through a siege.");
             Kingdom playerKingdom = Clan.PlayerClan?.Kingdom;
             if (playerKingdom == null || source.OwnerClan?.Kingdom != playerKingdom)
                 throw new InvalidOperationException("The origin must belong to the player's kingdom.");
@@ -1334,6 +1336,8 @@ namespace ReignBeta.Court
             return shipment;
         }
 
+        internal void ProcessEconomyShipmentArrivals() => ProcessEconomicShipments();
+
         private void ProcessEconomicShipments()
         {
             List<ReignEconomicShipment> shipments = (_economicReportState?.Shipments ?? new List<ReignEconomicShipment>())
@@ -1350,7 +1354,8 @@ namespace ReignBeta.Court
                     changed |= ProcessLegacyEconomicShipment(shipment, now);
                     continue;
                 }
-                if (!string.Equals(shipment.Status, "In transit", StringComparison.OrdinalIgnoreCase) || now < shipment.ArrivalDay)
+                if ((!string.Equals(shipment.Status, "In transit", StringComparison.OrdinalIgnoreCase)
+                    && !string.Equals(shipment.Status, "Blocked by siege", StringComparison.OrdinalIgnoreCase)) || now < shipment.ArrivalDay)
                     continue;
                 Settlement source = FindEconomicSettlement(shipment.SourceSettlementStringId);
                 Settlement target = FindEconomicSettlement(shipment.TargetSettlementStringId);
@@ -1360,6 +1365,22 @@ namespace ReignBeta.Court
                     shipment.Error = "The destination no longer exists; the dispatched food was lost.";
                     RecordFoodShipmentKnowledge(shipment, "failed", "source", source, target);
                     RecordFoodShipmentKnowledge(shipment, "failed", "destination", source, target);
+                    changed = true;
+                    continue;
+                }
+                if (shipment.BlockedSpoilageLastDay > 0)
+                {
+                    float before = shipment.SurvivingFood;
+                    shipment.SurvivingFood = (float)ReignBeta.Economy.ReignWarEconomyPolicy.BlockedCargo(before, now - shipment.BlockedSpoilageLastDay);
+                    shipment.SiegeSpoilage += before - shipment.SurvivingFood;
+                    shipment.BlockedSpoilageLastDay = now;
+                    changed = true;
+                }
+                if (target.Town.IsUnderSiege)
+                {
+                    shipment.Status = "Blocked by siege";
+                    if (shipment.BlockedSpoilageLastDay <= 0) shipment.BlockedSpoilageLastDay = now;
+                    shipment.Error = "Cargo is waiting outside the siege and loses 2% of remaining food each blocked day.";
                     changed = true;
                     continue;
                 }

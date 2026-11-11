@@ -1,0 +1,13 @@
+{
+  "version": 1,
+  "heroStringId": "reign_court_castle_N1_child_4",
+  "characterName": "Svanfrid Eldhammar",
+  "imagePath": "portrait.png",
+  "imageSha256": "8EA150344CC4DCC74D075AF88870388A835466A8F04DDE11BAB6F0EFA7DCFC99",
+  "description": "A muted rust-red wool apron dress with restrained cream-and-red woven borders and two modest round bronze shoulder brooches over a cream linen shift. The shift has sleeves ending below the elbows and a moderately open curved neckline; a woven belt has long tasselled ends. The full ankle-length skirt and plain brown soft leather shoes complete the outfit. No headgear, armor or weapons.",
+  "status": "completed",
+  "descriptionSource": "agent_vision",
+  "retryEligible": false,
+  "error": "",
+  "updatedUtc": "2026-11-07T03:08:13.002763+00:00"
+}

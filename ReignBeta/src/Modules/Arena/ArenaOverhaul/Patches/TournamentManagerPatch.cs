@@ -36,7 +36,9 @@ namespace ArenaOverhaul.Patches
                 {
                     return false;
                 }
-                GiveGoldAction.ApplyBetweenCharacters(null, winner.Clan.Leader, tournament.Town.MarketData.GetPrice(prizeEquipmentElement));
+                // NPC cash-out represents selling the prize, not buying a replacement.
+                GiveGoldAction.ApplyBetweenCharacters(null, winner.Clan.Leader,
+                    tournament.Town.MarketData.GetPrice(prizeEquipmentElement, isSelling: true));
             }
 
             return false;

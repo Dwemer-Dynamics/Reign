@@ -1,0 +1,13 @@
+{
+  "version": 1,
+  "heroStringId": "reign_court_castle_N8_father",
+  "characterName": "Ragnvald Skeldring",
+  "imagePath": "portrait.png",
+  "imageSha256": "76DAAB238C125F1E4582652122D4BC8605CEDA53C1A15AEAA20206B01B5D1687",
+  "description": "A warm muted brown knee-length wool tunic over an undyed ivory long-sleeved linen shirt, narrow dark-blue tablet-woven trim along the cuffs and split neckline, a practical dark leather belt with a simple bronze buckle, charcoal wool trousers, restrained grey-brown leg wraps and worn but well-kept brown leather shoes. Clean everyday early medieval Scandinavian landowner dress with modest workmanship; no fur war gear, armor, weapons, head covering or heraldic emblems.",
+  "status": "completed",
+  "descriptionSource": "agent_vision",
+  "retryEligible": false,
+  "error": "",
+  "updatedUtc": "2026-11-07T03:13:49.358393+00:00"
+}

@@ -1,0 +1,13 @@
+{
+  "version": 1,
+  "heroStringId": "reign_court_castle_N9_father",
+  "characterName": "Thorgest Lindeskar",
+  "imagePath": "portrait.png",
+  "imageSha256": "7E6F002AC6B69011A9C9319A3B8CE68B049C033AA1EDE8DA101CA7671FAADCAC",
+  "description": "A muted faded teal-blue knee-length wool tunic over a natural cream linen long-sleeved shirt, restrained grey tablet-woven trim at the collar and cuffs, a sturdy plain dark-brown leather belt, dark olive-brown wool trousers, beige lower-leg wraps and dark-brown soft leather shoes. Clean practical early medieval Scandinavian landowner clothing of modest prosperous quality. No fur war gear, armor, weapons, head covering, crowns or heraldic emblems.",
+  "status": "completed",
+  "descriptionSource": "agent_vision",
+  "retryEligible": false,
+  "error": "",
+  "updatedUtc": "2026-11-07T03:24:58.107974+00:00"
+}

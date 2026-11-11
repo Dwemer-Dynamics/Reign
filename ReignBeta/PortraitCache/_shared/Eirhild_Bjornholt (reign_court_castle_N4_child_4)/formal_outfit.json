@@ -1,0 +1,13 @@
+{
+  "version": 1,
+  "heroStringId": "reign_court_castle_N4_child_4",
+  "characterName": "Eirhild Bjornholt",
+  "imagePath": "portrait.png",
+  "imageSha256": "1227E13ACCE29B78D3CBB10A32F35B2DA87D1B76D206A3AE41EB8B0A7ADD74FC",
+  "description": "Muted grey-green wool apron dress with rust and cream woven edging, two small round brooches and a narrow woven belt, over a near-high square-neck long ivory linen shift with full wrist sleeves; brown soft-leather shoes. No headgear, armor or weapons.",
+  "status": "completed",
+  "descriptionSource": "agent_vision",
+  "retryEligible": false,
+  "error": "",
+  "updatedUtc": "2026-11-07T03:14:07.754548+00:00"
+}

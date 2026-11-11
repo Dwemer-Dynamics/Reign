@@ -9,6 +9,7 @@ using System.Threading.Tasks;
 using Newtonsoft.Json.Linq;
 using ReignBeta.Family;
 using ReignBeta.Campaign;
+using Reign.Core.Contracts.Relationships;
 using TaleWorlds.CampaignSystem;
 using TaleWorlds.CampaignSystem.Party;
 using TaleWorlds.CampaignSystem.Settlements;
@@ -21,6 +22,8 @@ namespace ReignBeta.Integration
     {
         private static readonly object AmbientInputLock = new object();
         private const int AmbientInputUploadBatchSize = 8;
+        private static readonly RelationshipUploadGate<ReignAmbientRelationshipRunResult> AmbientUploadGate = new RelationshipUploadGate<ReignAmbientRelationshipRunResult>();
+        private static JObject _ambientUploadDiagnostics = new JObject(); // Published immutable values only.
 
         public static Task<ReignConceptionAttemptResult> PreviewPlayerConceptionAttemptAsync(Hero partner, string actionText, string attemptId)
         {
@@ -125,6 +128,10 @@ namespace ReignBeta.Integration
             catch (Exception ex) { ReignLog.Warn("Conception report failed: " + ex.Message); }
         }
 
+        internal static JObject CaptureMarriageDirectorSnapshot() => BuildRelationshipDirectorSnapshot();
+        internal static Task<JObject> UploadMarriageDirectorSnapshotAsync(JObject snapshot)
+            => PostJsonAsync("/relationships/director/snapshot",snapshot);
+
         public static async Task<ReignDirectorRunResult> SubmitNobleRelationshipSnapshotAsync(bool force = false)
         {
             ReignDirectorRunResult result = new ReignDirectorRunResult();
@@ -145,17 +152,41 @@ namespace ReignBeta.Integration
 
         public static async Task<ReignAmbientRelationshipRunResult> SubmitAmbientRelationshipSnapshotAsync()
         {
+            try
+            {
+                var scope = await ReignMainThread.InvokeAsync(() => {
+                    string campaign = GetCampaignId();
+                    string timeline = ReignWorldHistoryCampaignBehavior.Instance?.TimelineId ?? "main";
+                    return new[] { campaign, timeline, AmbientInputDirectory(campaign, timeline) };
+                }).ConfigureAwait(false);
+                return await AmbientUploadGate.Run(scope[0] + "\0" + scope[1],
+                    () => SubmitAmbientRelationshipSnapshotCoreAsync(scope[0], scope[1], scope[2])).ConfigureAwait(false);
+            }
+            catch (Exception ex)
+            {
+                ReignLog.Warn("Ambient relationship snapshot failed: " + ex.Message);
+                return new ReignAmbientRelationshipRunResult { Error = ex.Message };
+            }
+        }
+
+        private static async Task<ReignAmbientRelationshipRunResult> SubmitAmbientRelationshipSnapshotCoreAsync(string campaignId, string timelineId, string directory)
+        {
             ReignAmbientRelationshipRunResult result = new ReignAmbientRelationshipRunResult();
             try
             {
-                List<string> pendingPaths;
                 JArray dailyInputs;
-                lock (AmbientInputLock)
-                {
-                    pendingPaths = PendingAmbientInputPaths()
-                        .Take(AmbientInputUploadBatchSize).ToList();
-                    dailyInputs = new JArray(pendingPaths.Select(path => JObject.Parse(File.ReadAllText(path, Encoding.UTF8))));
-                }
+                bool onMainThread = ReignMainThread.IsMainThread;
+                var stageTimer = Stopwatch.StartNew();
+                var batch = RelationshipInputOutbox.Capture(directory, AmbientInputLock, AmbientInputUploadBatchSize);
+                double readMs = stageTimer.Elapsed.TotalMilliseconds;
+                stageTimer.Restart();
+                dailyInputs = new JArray(batch.Parse(JObject.Parse));
+                // Parsing is detached worker work and retains the original
+                // whole-batch failure behavior for malformed durable inputs.
+                System.Threading.Volatile.Write(ref _ambientUploadDiagnostics, new JObject {
+                    ["onMainThread"] = onMainThread, ["inputCount"] = batch.Texts.Count,
+                    ["inputChars"] = batch.Texts.Sum(x => (long)x.Length),
+                    ["readDurationMs"] = readMs, ["parseDurationMs"] = stageTimer.Elapsed.TotalMilliseconds });
                 if (dailyInputs.Count == 0)
                 {
                     result.Ok = true;
@@ -164,8 +195,8 @@ namespace ReignBeta.Integration
                 }
                 JObject envelope = new JObject
                 {
-                    ["campaignId"] = GetCampaignId(),
-                    ["timelineId"] = ReignBeta.Campaign.ReignWorldHistoryCampaignBehavior.Instance?.TimelineId ?? "main",
+                    ["campaignId"] = campaignId,
+                    ["timelineId"] = timelineId,
                     ["dailyInputs"] = dailyInputs
                 };
                 JObject response = await PostJsonAsync("/relationships/ambient/snapshot", envelope).ConfigureAwait(false);
@@ -200,14 +231,7 @@ namespace ReignBeta.Integration
                 }
                 if (result.Ok)
                 {
-                    lock (AmbientInputLock)
-                    {
-                        foreach (string path in pendingPaths)
-                        {
-                            try { if (File.Exists(path)) File.Delete(path); }
-                            catch (Exception ex) { ReignLog.Warn("Could not retire uploaded relationship input: " + ex.Message); }
-                        }
-                    }
+                    batch.RetireAccepted(ex => ReignLog.Warn("Could not retire uploaded relationship input: " + ex.Message));
                 }
             }
             catch (Exception ex) { result.Error = ex.Message; ReignLog.Warn("Ambient relationship snapshot failed: " + ex.Message); }
@@ -290,6 +314,7 @@ namespace ReignBeta.Integration
 
         public static void CaptureAmbientRelationshipDailyInput()
         {
+            using var timing = ReignLog.MeasureWork("relationships.capture", 0f);
             Stopwatch timer = Stopwatch.StartNew();
             JObject payload = BuildAmbientRelationshipPresenceSnapshot();
             string campaignId = payload.Value<string>("campaignId") ?? GetCampaignId();
@@ -313,11 +338,14 @@ namespace ReignBeta.Integration
                 + " buildMs=" + timer.ElapsedMilliseconds + ".");
         }
 
-        private static IEnumerable<string> PendingAmbientInputPaths()
+        private static IEnumerable<string> PendingAmbientInputPaths(string directory = null)
         {
-            string campaignId = GetCampaignId();
-            string timelineId = ReignBeta.Campaign.ReignWorldHistoryCampaignBehavior.Instance?.TimelineId ?? "main";
-            string directory = AmbientInputDirectory(campaignId, timelineId);
+            if (directory == null)
+            {
+                string campaignId = GetCampaignId();
+                string timelineId = ReignBeta.Campaign.ReignWorldHistoryCampaignBehavior.Instance?.TimelineId ?? "main";
+                directory = AmbientInputDirectory(campaignId, timelineId);
+            }
             return Directory.Exists(directory)
                 ? Directory.GetFiles(directory, "*.json").OrderBy(path => path, StringComparer.OrdinalIgnoreCase)
                 : Enumerable.Empty<string>();
@@ -331,7 +359,11 @@ namespace ReignBeta.Integration
         private static JObject BuildRelationshipOutboxDiagnostics()
         {
             List<string> paths;
-            lock (AmbientInputLock) paths = PendingAmbientInputPaths().ToList();
+            // A heartbeat cannot wait behind a bulk upload's file reads. Unknown
+            // state is a conservative pending sentinel, never a zero/drain pass.
+            bool known = System.Threading.Monitor.TryEnter(AmbientInputLock);
+            try { paths = known ? PendingAmbientInputPaths().ToList() : new List<string>(); }
+            finally { if (known) System.Threading.Monitor.Exit(AmbientInputLock); }
             List<int> days = paths.Select(path =>
             {
                 int.TryParse(Path.GetFileNameWithoutExtension(path), NumberStyles.Integer,
@@ -340,10 +372,13 @@ namespace ReignBeta.Integration
             }).Where(value => value > 0).ToList();
             return new JObject
             {
-                ["clientOutboxDays"] = paths.Count,
+                ["marriages"] = ReignRelationshipCampaignBehavior.Instance?.ArrangedMarriageDiagnostics(),
+                ["clientOutboxDays"] = known ? paths.Count : 1,
+                ["clientOutboxDaysKnown"] = known,
                 ["oldestClientOutboxDay"] = days.Count == 0 ? -1 : days.Min(),
                 ["latestClientOutboxDay"] = days.Count == 0 ? -1 : days.Max(),
-                ["uploadInFlight"] = RelationshipOutboxUploadInFlight
+                ["uploadInFlight"] = RelationshipOutboxUploadInFlight || !known,
+                ["uploadStages"] = System.Threading.Volatile.Read(ref _ambientUploadDiagnostics).DeepClone()
             };
         }
 
@@ -518,8 +553,10 @@ namespace ReignBeta.Integration
 
         private static JObject BuildRelationshipDirectorSnapshot()
         {
-            List<Hero> participants = Hero.AllAliveHeroes.Where(IsAmbientRelationshipParticipant).ToList();
-            List<JObject> groups = BuildRelationshipPresenceGroups(participants, true);
+            int ambientHeroCount = Hero.AllAliveHeroes.Count(IsAmbientRelationshipParticipant);
+            // This endpoint evaluates political marriages only. Ambient presence,
+            // pair relations and non-noble profiles have their own daily input path;
+            // constructing them here created a multi-megabyte unused social graph.
             JArray nobleRows = new JArray(Hero.AllAliveHeroes.Where(x => x != null && x.IsAlive && x.IsLord && !x.IsChild && x.Age >= 18f).Select(BuildDirectorHero));
             JArray clans = new JArray(Clan.All.Where(c => c != null && !c.IsEliminated && !c.IsBanditFaction && !c.IsRebelClan).Select(c => new JObject
             {
@@ -529,6 +566,8 @@ namespace ReignBeta.Integration
                 ["kingdomId"] = c.Kingdom?.StringId ?? string.Empty,
                 ["cultureId"] = c.Culture?.StringId ?? string.Empty,
                 ["tier"] = c.Tier,
+                ["fiefCount"] = c.Fiefs.Count,
+                ["leaderGold"] = c.Leader?.Gold ?? 0,
                 ["renown"] = c.Renown,
                 ["gold"] = c.Gold,
                 ["influence"] = c.Influence,
@@ -561,7 +600,10 @@ namespace ReignBeta.Integration
             {
                 ["campaignId"] = GetCampaignId(),["timelineId"] = ReignBeta.Campaign.ReignWorldHistoryCampaignBehavior.Instance?.TimelineId ?? "main",
                 ["worldDay"] = CurrentDirectorDay(),["playerId"] = Hero.MainHero?.StringId ?? string.Empty,["playerClanId"] = Clan.PlayerClan?.StringId ?? string.Empty,
-                ["presenceGroups"] = new JArray(groups),["heroes"] = new JArray(participants.Select(BuildDirectorHero)),["nobles"] = nobleRows,["clans"] = clans,
+                ["nativeYear"] = CampaignTime.Now.GetYear,
+                ["periodIndex"] = Reign.Relationships.ArrangedMarriagePolicy.Period(CurrentDirectorDay()),
+                ["snapshotKind"] = "political_marriage_only_v1", ["ambientHeroCount"] = ambientHeroCount,
+                ["presenceGroups"] = new JArray(),["heroes"] = new JArray(),["nobles"] = nobleRows,["clans"] = clans,
                 ["kingdoms"] = kingdoms
             };
         }

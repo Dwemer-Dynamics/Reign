@@ -1,0 +1,13 @@
+{
+  "version": 1,
+  "heroStringId": "reign_court_town_N4_father",
+  "characterName": "Bjarngrim Elverdal",
+  "imagePath": "portrait.png",
+  "imageSha256": "CA85E302EADE93CA360BF8E05BACD81FE3B7C855A4717F3B92632C100AD186B9",
+  "description": "Dark olive-brown wool tunic with muted red/pale geometric borders at split neck, cuff and hem, cream linen underlayer, brown leather belt with rectangular metal buckle, dark brown trousers and leg wraps, soft brown shoes. No headgear, armor or weapons.",
+  "status": "completed",
+  "descriptionSource": "agent_vision",
+  "retryEligible": false,
+  "error": "",
+  "updatedUtc": "2026-11-07T03:30:14.896849+00:00"
+}

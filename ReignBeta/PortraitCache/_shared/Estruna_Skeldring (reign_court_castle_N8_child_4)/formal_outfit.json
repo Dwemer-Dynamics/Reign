@@ -1,0 +1,13 @@
+{
+  "version": 1,
+  "heroStringId": "reign_court_castle_N8_child_4",
+  "characterName": "Estruna Skeldring",
+  "imagePath": "portrait.png",
+  "imageSha256": "88B1D760C1DABABDAB7AD91C120D357D72F7365EDB4BC1D75B2974B8E6C75E69",
+  "description": "A muted ochre-brown wool apron dress over a cream linen shift with long sleeves and a simple modest round neckline, small plain bronze brooches, narrow dark-green woven trim and a practical woven belt. The long closed skirt leaves plain brown leather shoes visible. Normal everyday Scandinavian civilian dress, opaque sturdy cloth, clean and modestly prosperous rather than royal. No armor, weapons, head covering, regalia, heraldic symbols or modern accessories.",
+  "status": "completed",
+  "descriptionSource": "agent_vision",
+  "retryEligible": false,
+  "error": "",
+  "updatedUtc": "2026-11-07T03:21:17.546826+00:00"
+}

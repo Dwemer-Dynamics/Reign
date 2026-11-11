@@ -1,0 +1,13 @@
+{
+  "version": 1,
+  "heroStringId": "reign_court_castle_N4_mother",
+  "characterName": "Gudnyra Bjornholt",
+  "imagePath": "portrait.png",
+  "imageSha256": "30E406874476107EF2EF7A5CC4643CEC78FE7E9688C95E1BCB63B63BFE035240",
+  "description": "A slate-blue wool apron dress with restrained red-and-ochre geometric woven borders at the straps, neckline and hem, fastened with two modest round metal shoulder brooches, over a cream linen shift with sleeves ending below the elbows and a modestly open neckline. A multicolored woven belt has long tasselled ends; the layered long skirt leaves brown soft leather shoes visible. No headgear, armor or weapons.",
+  "status": "completed",
+  "descriptionSource": "agent_vision",
+  "retryEligible": false,
+  "error": "",
+  "updatedUtc": "2026-11-07T03:24:37.671718+00:00"
+}

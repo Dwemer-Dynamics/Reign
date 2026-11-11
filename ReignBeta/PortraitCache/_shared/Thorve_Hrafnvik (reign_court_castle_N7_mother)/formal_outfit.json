@@ -1,0 +1,13 @@
+{
+  "version": 1,
+  "heroStringId": "reign_court_castle_N7_mother",
+  "characterName": "Thorve Hrafnvik",
+  "imagePath": "portrait.png",
+  "imageSha256": "FFDEB4F0005D768C59DC45E6C07E73F13BB7605E3804E37AD8CD126192CE13C4",
+  "description": "Warm-brown wool apron gown with narrow rust-and-cream woven trim, modest round clasps and woven waist tie, cream linen shift with moderate scoop neckline and below-elbow sleeves, practical brown leather shoes; fully opaque normal portrait.",
+  "status": "completed",
+  "descriptionSource": "agent_vision",
+  "retryEligible": false,
+  "error": "",
+  "updatedUtc": "2026-11-07T03:33:37.649240+00:00"
+}

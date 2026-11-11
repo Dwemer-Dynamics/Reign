@@ -51,7 +51,6 @@ namespace ReignBeta
             ReignArrestCustodyPatches.Apply();
             ReignHiddenInformationPatches.Apply();
             ReignSaveSyncDeletionPatch.Apply();
-            ReignEconomyPatches.Apply();
             ReignBeta.World.ReignRulerNativePatches.Apply();
             ReignTemporaryPartyGuestPatches.Apply();
             ReignNpcLivesPatches.Apply();
@@ -126,6 +125,11 @@ namespace ReignBeta
         {
             if (starterObject is CampaignGameStarter campaignStarter)
             {
+                // Finance patches reference native static text fields. Installing them during
+                // module discovery can poison DefaultClanFinanceModel before Game exists.
+                if (Game.Current?.GameTextManager == null)
+                    throw new InvalidOperationException("The native game text manager must be ready before economy hooks.");
+                ReignEconomyPatches.Apply();
                 campaignStarter.AddBehavior(new ReignSaveSyncCampaignBehavior());
                 campaignStarter.AddBehavior(new ReignXpCampaignBehavior());
                 campaignStarter.AddModel(new ReignVillageProductionCalculatorModel());
@@ -200,6 +204,9 @@ namespace ReignBeta
         protected override void OnApplicationTick(float dt)
         {
             base.OnApplicationTick(dt);
+            RunTickStage("frame interval diagnostics", () => ReignLog.ObserveFrameInterval(
+                TaleWorlds.CampaignSystem.Campaign.Current != null && CharacterObject.PlayerCharacter != null
+                && Mission.Current == null && !ReignCampaignInitializationGate.IsPending));
             RunTickStage("runtime sprite loading", () => ReignRuntimeSpriteSheets.EnsureLoaded());
             RunTickStage("main-thread dispatch", ReignMainThread.DrainOnMainThread);
             RunTickStage("Save Sync campaign lifecycle", ReignSaveSyncCoordinator.ObserveCampaignLifecycle);
@@ -306,6 +313,7 @@ namespace ReignBeta
         protected override void OnSubModuleUnloaded()
         {
             base.OnSubModuleUnloaded();
+            ReignDuelCombatPatches.Unapply();
             _portraitHarmony?.UnpatchAll(_portraitHarmony.Id);
             ReignPregnancyPatches.Unapply();
             ReignNpcLivesPatches.Unapply();

@@ -1,5 +1,9 @@
 # Bannerlord Reign: Complete Player and Feature Guide
 
+2026-11-05 civilian crews: fishing crews and caravan crews consume no village hearths when created or replenished. Fishing boats retain native production, crew sizes and normal activity. Standing regular military recruits still use the military population rules. The client correction is deployed; the full forced native crew test batch remains pending.
+
+2026-11-05 naval funding rules, with native acceptance pending: player ship purchases, repairs and upgrades retain native prices. NPCs retain native1% procurement costs. A cheaply bought NPC ship also resells on the1% scale; friendly transfers preserve that origin. Captured ships retain normal native resale, approximately30% of equivalent purchase value before damage deductions. Selling requires actual port funds; an empty market cannot create the payment. Sunk ships and hulls discarded during battle cleanup or party removal pay no compensation. Governor ship commissions come from port funds, require outside-clan paid business and cannot exceed the transaction value. Tracking persists across saves. Existing NPC ships with unknown histories use discounted resale; existing player ships retain normal resale, without inventing past purchase or capture records. The rejected shared1%,40% and25% price proposals are not the final rules.
+
 > Living source-reviewed edition: 2026-09-03
 > Canonical scope: every player-visible or player-relevant behavior shipped by the Reign client, local server, campaign simulation, persistence layer, Control Center, and authored game data.
 
@@ -1205,7 +1209,7 @@ Reign keeps the newest **128 completed kingdom-event records**.
 
 ## Village devastation and recovery
 
-A looted village begins at recovery step 0 of 10. Its effective contribution is `step / 10`. Each normal daily village tick has a 30% chance to advance one step, so recovery is gradual and uncertain rather than immediate.
+A completed raid resets agricultural recovery to zero. Functioning villages recover 2.5 percentage points daily, or 1.25 points when the bound settlement is losing food or has security below 50. Non-functioning villages make no recovery progress. Output receives the recovery modifier once; recruitment resumes at 30%.
 
 Each damaged bound village contributes its own persistent, recovery-scaled **-2 security** penalty to the linked town. Reign removes Bannerlord's single non-stacking looted-village penalty before adding these per-village effects, so multiple devastated villages matter independently.
 
@@ -1217,36 +1221,50 @@ Siege aftermath applies an immediate security shock:
 
 ## Recruitment consumes population
 
-Ordinary volunteer recruitment consumes **0.5 village hearth per troop**. A village cannot be reduced below **10 hearth**, and a recovering village must be at least 30% recovered before it can supply recruits. The available recruit capacity shown to AI and player recruitment is derived from the total safe hearth reserve of eligible source villages.
+The revised economy applies immediately to existing campaigns when installed; existing soldiers and wealth are not reset or retrospectively charged. Native testing has advanced disposable Michael/test and fresh NewBase campaigns. The November5 deployed candidate passed controlled NPC purchases, civilian food allocation and a distinct-process persistence check. Sustainable peace, roughly63-day war resilience, full recovery/stability and human acceptance remain pending. See [the verification record](agent/testing/WAR_ECONOMY.md) for exact revisions, partial results and outstanding acceptance.
 
-Recruitment source is weighted by available hearth, spreading the burden among villages. Prisoners, mercenary/map recruitment, and other recruitment without a notable village source do not consume hearth.
+Each newly enlisted regular consumes **0.5 village hearth**, preserving a **10-hearth floor** and requiring **30% agricultural recovery**. Player and AI volunteers, automatic garrison recruitment, base garrison growth, Castle-Guard Service and post-start household retinues use the same population and affordability rules. Failed recruitment costs nothing. Native recruitment debts remain debts rather than a second cash charge.
 
-Mobilization strain also reduces food contribution while it remains large relative to village hearth:
+Transfers, returning expeditions, patrol replenishment, upgrades and prisoner recruitment are not new enlistments. Native tavern mercenaries, explicit minor-faction map recruitment, quest routes and initial-campaign exceptions remain separately identified. An unknown route is not automatically exempt.
 
-| Strain / hearth | Daily food penalty |
-|---:|---:|
-| below 10% | 0 |
-| 10%–19.99% | -1 |
-| 20%–34.99% | -2 |
-| 35% or more | -4 |
+Each enlistment adds one mobilization-strain point. Daily strain becomes `max(0, 0.95 × strain − 0.5)`. It slows natural household growth rather than adding another food penalty. Natural daily growth is `2 / (1 + (hearths / 250)²) / (1 + strain / 10)`, halved under the food/security stress above. Native losses and pestilence still apply. Authored government, accord and funded assistance benefits retain their amounts and terms. Government hearth benefits apply after native cultural growth modifiers, preserving the stated flat amount.
 
-Strain decays daily by multiplying it by 0.95 and then subtracting 0.5.
+## Population and production
 
-## Real household retinues and patrol manpower
+Healthy village output is `12 * (H / 300)^(ln(6) / ln(30))` through 300 hearths, `12 + 0.02 * (H - 300)` through 600, then `18 + 0.01 * (H - 600)`. This gives 2 at 10 hearths, 12 at 300, 18 at 600, 24 at 1,200 and 32 at 2,000; output is zero at zero hearths and keeps growing without a cap. Native bound food uses bands of 6 below 200 hearths, 12 from 200 through below 600, and 18 from 600 onward. Commodity recipes use that value divided by 12, and supplementary village food uses it divided by 6. Agricultural recovery reduces actual output once. Non-functioning villages produce nothing. Native fractional production, perks, buildings, culture and issue effects remain applicable.
 
-When an NPC lord party is created, Reign removes magically spawned non-hero troops and gives it a **10–15 troop** culture-appropriate household retinue of tier 3 or lower. Duplicate initialization is blocked.
+Unsieged towns prioritise available food when current reserves, or seven-day reserves projected from ordinary purchases, fall below20%. They use the existing civilian purchasing budget and preserve food already funded by ordinary purchases. Food must be available for sale: empty markets and insufficient purchasing power can still leave people short. This purchasing rule does not change production, recruitment or military costs.
 
-Settlement patrols are not free troops. A patrol can form only when its home garrison has at least **5 healthy troops**. Its roster is transferred from the garrison, favoring lower tiers, and replenishment returns surviving patrol troops before transferring a new roster. When a patrol is removed outside combat, its troops return to the garrison.
+## Military costs and funded retinues
+
+| Troop tier | Wage multiplier | Recruitment multiplier |
+|---|---:|---:|
+| 0–1 | 1.00 | 2.00 |
+| 2 | 1.15 | 2.40 |
+| 3 | 1.50 | 3.00 |
+| 4 | 2.00 | 4.00 |
+| 5 | 3.00 | 5.50 |
+| 6+ | 4.00 | 7.00 |
+
+Native discounts, rounding, accord reductions and Billeting retain their order. Negotiated hero/guest salaries retain their terms. Enlistment prices are twice the previous Reign schedule; daily wage multipliers are unchanged. Upgrade prices derive from the difference between revised recruitment prices, with no second upgrade multiplier; equipment and experience remain required.
+
+Current source awaiting certification: prisoner ransoms retain native prices and seller perks. The enlistment premium no longer increases ransom awards.
+
+Automatic recruitment must leave seven days of the payer clan's military wages; automatic upgrades must leave fourteen days. Outstanding recruitment debts are counted once. Manual player spending requires the actual resources without the automatic cash buffer.
+
+A post-start lord party, including a player-clan party, requests 10–15 cultural tier-1-to-3 household troops and receives only the portion its spawning locality and payer support. No resources means no free replacement retinue. Party-generation receipts prevent duplicate creation. Native militia remains local defence.
+
+Patrols transfer real troops from their home garrison, requiring at least five healthy troops to form. Replenishment returns survivors before transferring a replacement roster; removal outside combat returns troops to the garrison.
 
 ## Realm food relief network
 
-Every day, towns and castles in the same kingdom—or the same independent clan—can move food to endangered holdings.
+Daily relief uses actual stocks in the current kingdom or independent clan. With aggregate food decline, the capacity-weighted seven-day projected reserve ratio sets a donor floor between 20% and 60% and a recipient target between 20% and 50%. Otherwise the floor remains 60% and the target 50%. Declining donors can contribute if both current and projected stocks remain above the floor. A shipment never leaves a donor's projected reserve ratio below its recipient's.
 
-A donor must be outside siege, have nonnegative food change, and hold more than 70% of capacity. It keeps a 60% reserve and ships at most **10 food per day**. A recipient is below 30% capacity or is projected to fall below that threshold within 7 days. Reign tries to raise it toward 50% capacity, with at most **15 delivered food per recipient per day**.
+The worst projected shortages receive priority. Eligible donors share demand proportionally. The November5 relief candidate scales donor transport to7.5% of storage capacity, between10 and30 food shipped per day. Recipient transport covers its daily deficit plus seven-day rebuilding of its current reserve shortfall, with a15-food minimum and a ceiling of25% of storage capacity (or15 for very small stores). The180-map-unit route limit,70–90% efficiency, destination capacity and siege access still apply. Every delivery consumes existing donor stock, including transport loss. Received aid cannot be shipped onward in the same allocation pass. Existing relief loyalty effects remain. Native balance certification of these transport values is pending.
 
-Routes over 180 map units are invalid. Base efficiency is 90% within 60 units, 80% from 60–120, and 70% from 120–180. Low endpoint security can reduce efficiency, but it remains within 70%–90%. A successful receipt gives +0.05 daily loyalty; an unfed, empty, declining holding gets -0.1. Total relief loyalty is clamped to -0.2 through +0.2. Besieged recipients cannot receive relief.
+Granaries buy and distribute before automatic relief. Siege blocks new purchases, while stored grain inside the settlement remains available. Manual shipments debit once at dispatch, retain normal travel and road spoilage, and reject besieged endpoints. A siege beginning later holds arriving cargo outside; it loses 2% of its remaining amount per blocked day until access reopens. Cargo in transit belongs to neither settlement's available stock.
 
-Economic reports expose donor, recipient, shipment, delivery, loss, blocked request, mobilization, recovery, and security-shock evidence to court and diagnostics.
+The Economic Report uses native wages and recruitment liabilities. Hover food for reserves, seven-day projection, actual/healthy village contribution and household growth; hover garrison wages for military funding requirements. Separate workshop/caravan trade profit is marked unmeasured where the native ledger does not expose it. Operator-only World Test diagnostics add source receipts, blocked recruitment, sponsored hearth changes, production, relief losses, unmet demand and stale/unsupported evidence.
 
 ---
 
@@ -1677,11 +1695,11 @@ This chapter collects Reign's most consequential numeric rules in one place for 
 | Kingdom-event natural roll | 1% daily |
 | Kingdom-event duration | 30 days |
 | Recruit hearth cost / floor | 0.5 per troop / 10 hearth |
-| Village recovery | 10 steps, 30% chance per normal day |
+| Village agricultural recovery | +2.5 percentage points per normal day; +1.25 under food/security stress; recruitment resumes at30% |
 | NPC household retinue | 10–15 troops |
 | Minimum patrol source | 5 healthy garrison troops |
 | Relief route limit | 180 map units |
-| Relief donor / recipient limits | 10 shipped / 15 delivered per day |
+| Relief donor / recipient limits | Donor7.5% of capacity, clamped10–30 shipped daily; recipient deficit plus seven-day reserve rebuilding, minimum15 and ceiling max(15,25% of capacity); native balance acceptance pending |
 | Protected Save Sync states | 15; warning at 10 |
 | Petition opportunities | 1–5 deterministic opportunities daily; only real need creates a petition |
 | Refused-petition repeat cooldown | 3 days for that settlement and petition kind |
@@ -1810,3 +1828,35 @@ This chapter is the discovery index for subtle or easily missed behavior. The lo
 ## Maintaining this guide
 
 This file is intended to remain the single canonical player and feature guide. Future feature work should update the relevant chapter, exact-value table, MCM reference, executable-action reference, and feature locator in the same change whenever behavior, availability, naming, defaults, or player discovery changes. Retired behavior should be labeled as retired rather than silently removed, preserving the guide's usefulness across campaign versions.
+
+Household replacement receipts now follow the permanent native party identity assigned after creation. Recreating a destroyed party requires fresh funded recruitment; a duplicate callback cannot issue another retinue. Existing parties are retained without retroactive charges.
+
+
+Automatic military provisioning (2026-11-04): when a lord party automatically buys food or mounts at a town in its payer clan's current kingdom, or its own independent clan, it pays the full market price and the market retains that payment. The purchase no longer generates a tariff payment back into that kingdom through tariffs. Ordinary trading and purchases in another kingdom use their existing rules. Current kingdom membership governs after conquest, defection or civil war. Existing collected tariffs, settlement benefits and saved wealth remain valid. This targeted change is undergoing campaign balance verification.
+
+
+### Military standing and quartering (2026-11-04)
+
+The current balance target is sustainable food supplies in peaceful, supplied kingdoms and roughly half a Reign year of resilience when a well-supplied kingdom goes to war. Reign uses126-day years, so this means about63 days. Heavy raiding, sieges and existing shortages can shorten survival. This is a testing target, not a guaranteed food grant or a starvation timer; campaign acceptance remains incomplete.
+
+A sovereign can use Peace Standing to the left of the crowned R and War Standing to its right in the War Council. The peace selector offers Automatic or40–90% field strength in5point steps. Explicit percentages stay selected during war; Automatic uses current foreign political pressure. Court > Royal Docket > Kingdom Military Standing provides the same standing orders. Players without a kingdom see neutral, unavailable controls. Peace limits automatic field recruitment while hostile foreign political pressure raises frontier readiness; a player sovereign may keep the chosen peace target during actual war. Mobilisation still needs local manpower, provisions and the actual clan’s funds. NPC rulers automatically mobilise for actual war and use pressure-based peace targets otherwise. Their standing changes appear in enabled news interfaces, without repeating unchanged orders or announcing initialisation. Oversized field parties gradually release the least experienced healthy regulars in peace, stopping at their current target. Heroes, wounded, the main party, garrisons and active armies/battles are protected, and explicit player recruitment orders retain their requested force. Each actual discharge returns up to0.25hearth from a fixed kingdom-wide budget divided among functioning villages; towns benefit indirectly. No cash or prosperity is granted, and raid recovery/strain remain.
+
+Garrisons keep their normal full defensive targets in either standing. Stationary garrison regulars receive a nominal25% wage reduction (native rounding applies) and use20% less food at baseline, representing lower spoilage, handling and transport losses. Existing governor, building, cultural, Clan Accord and Billeting effects retain their rules and costs. Visiting field parties receive no new discount; troops transferred out return to field costs. These are starting test values; healthy peacetime food and long-term balance have not yet passed native acceptance.
+
+
+2026-11-05 economy revision3: village food output is slightly lower (10hearths=2,300=11,600=16.5,1200=22); healthy large villages continue gaining output. Recruitment and native-derived upgrades cost50% more than revision2, with daily wages unchanged. NPC tournament prize cash uses the normal resale quote, and NPC champion gold no longer depends on player renown. Player prize variety and rewards remain intact. Long-run native balance verification is pending.
+
+## Raid food disruption (2026-11-07)
+
+Raids now disrupt food capacity separately from population. There is no additional hearth loss or recruitment/security penalty. Existing native raid destruction still applies.
+
+- Actual10% raid damage leaves a healthy village at60% food capacity;25% shuts new food production down. Real repeat raids compound the disruption.
+- Partial damage recovers gradually at1/40 of full capacity per functioning day. Full looting uses1/60. Food shortage or security below50 halves recovery speed, making recovery from zero80/120 functioning days. Time spent non-functioning earns no recovery.
+- Food uses the lower of household recovery and food capacity, once. Your healthy village curve and military prices remain unchanged. Stored food, aid and paid assistance retain their existing rules.
+- Fishing capacity represents damaged boats, nets and shore facilities. New catches fall; existing cargo remains intact. Boats already on a productive voyage can finish once at their pre-damage rate. A repeat raid cannot improve that rate. At zero capacity, boats unload before waiting ashore; recovery permits another departure. Fishing and caravan crews still consume no hearths.
+
+Options > War economy > Raid food disruption contains its switch, shutdown threshold and recovery settings. Switching off retains damage while restoring the previous production rules and native fishing movement/catches. Re-enabling applies remaining damage. Settings pages with an old revision must refresh before changing prices; your entered values are not replaced with defaults.
+
+Food tooltips distinguish household recovery, food capacity, actual output and healthy potential at current hearths. A recovered productive capacity does not restore lost population. Native gameplay and long-run balance acceptance for this revision remain pending.
+
+Local verification (2026-11-07): code, deterministic and licensed adapter checks, isolated server checks, Options browser checks and exact-artifact deployment passed. Your existing prices and healthy food curve were preserved. Native gameplay and campaign balance testing remain pending; see the roadmap for the retained verification evidence.

@@ -1,0 +1,13 @@
+{
+  "version": 1,
+  "heroStringId": "reign_court_castle_N2_child_2",
+  "characterName": "Eydisa Askesund",
+  "imagePath": "portrait.png",
+  "imageSha256": "103E85D7C5AEBF032C0EC9145203F39C25F82CE0FCD2E78ED1CD3257DA93BF5D",
+  "description": "A dark olive wool apron dress with restrained red-and-cream woven borders and two modest round metal shoulder brooches, over a cream linen shift with elbow-length sleeves and a moderately open curved neckline. A matching woven belt with long tasselled ends secures the waist; layered long skirts partly cover plain dark brown soft leather shoes. No headgear, armor or weapons.",
+  "status": "completed",
+  "descriptionSource": "agent_vision",
+  "retryEligible": false,
+  "error": "",
+  "updatedUtc": "2026-11-07T03:15:05.392729+00:00"
+}

@@ -282,14 +282,14 @@ namespace ReignBeta.Integration
                     ?? ReignEconomyCampaignBehavior.MaximumRecoveryStep;
                 string key = step.ToString();
                 recoveryStages[key] = (recoveryStages.Value<int?>(key) ?? 0) + 1;
-                double modifier = step / (double)ReignEconomyCampaignBehavior.MaximumRecoveryStep;
+                double modifier = behavior?.GetRecoveryModifier(village) ?? 1;
                 if (village.VillageState == Village.VillageStates.Normal && modifier < 1d)
-                    foodPenalty += (village.GetHearthLevel() + 1) * 6d * (1d - modifier);
+                    foodPenalty += ReignWarEconomyPolicy.HealthyFood(village.Hearth) * (1d - modifier);
                 if (modifier < 1d) securityPenalty += 2d * (1d - modifier);
                 double strain = behavior?.GetMobilizationStrain(village) ?? 0d;
                 mobilizationStrain += strain;
                 double strainPenalty = behavior?.GetMobilizationFoodPenalty(village) ?? 0d;
-                if (strainPenalty > 0d)
+                if (strain > 0d)
                 {
                     mobilizationStrainedVillages++;
                     mobilizationFoodPenalty += Math.Min(strainPenalty,
@@ -301,6 +301,12 @@ namespace ReignBeta.Integration
             }
 
             JObject result = ReignEconomyPatches.BuildDiagnostics();
+            result["schemaVersion"] = ReignWarEconomyPolicy.Version;
+            result["observedDay"] = CampaignTime.Now.ToDays;
+            result["observedUtc"] = DateTime.UtcNow.ToString("O");
+            result["observation"] = ReignWarEconomyTestHost.Capture(false);
+            result["accounting"] = ReignWarEconomyTransactions.Diagnostics(false);
+            result["currentUnmetFood"] = behavior?.EconomyState.UnmetReliefFood ?? 0;
             result["villageCount"] = villages.Count;
             result["lootedVillages"] = villages.Count(x => x.VillageState == Village.VillageStates.Looted);
             result["recoveringVillages"] = behavior == null ? 0 : villages.Count(x => behavior.GetRecoveryStep(x) < ReignEconomyCampaignBehavior.MaximumRecoveryStep);
@@ -327,6 +333,12 @@ namespace ReignBeta.Integration
             result["patrolTroopsReturned"] = behavior?.PatrolTroopsReturned ?? 0;
             result["patrolConservationMismatches"] = behavior?.PatrolConservationMismatches ?? 0;
             result["reliefShipmentCount"] = behavior?.ReliefShipmentCount ?? 0;
+            result["reliefPolicyVersion"] = ReignWarEconomyPolicy.ReliefVersion;
+            result["reliefDonorCapacityFraction"] = ReignWarEconomyPolicy.ReliefDonorCapacityFraction;
+            result["reliefDonorMinimumDailyShipment"] = ReignWarEconomyPolicy.ReliefDonorMinimum;
+            result["reliefDonorMaximumDailyShipment"] = ReignWarEconomyPolicy.ReliefDonorMaximum;
+            result["reliefRecipientMaximumCapacityFraction"] = ReignWarEconomyPolicy.ReliefRecipientCapacityFraction;
+            result["reliefRecipientMinimumDailyDelivery"] = ReignWarEconomyPolicy.ReliefRecipientMinimum;
             result["reliefFoodShipped"] = behavior?.ReliefFoodShipped ?? 0f;
             result["reliefFoodDelivered"] = behavior?.ReliefFoodDelivered ?? 0f;
             result["reliefFoodLost"] = behavior?.ReliefFoodLost ?? 0f;

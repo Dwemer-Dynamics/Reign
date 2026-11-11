@@ -12,6 +12,7 @@ import {
   SAMPLE_DATA
 } from "./sample-data.js";
 import { loadRuntimeSpriteState } from "./sprite-runtime.js";
+import { computeCourtLayout } from "./court-layout.js";
 
 const elements = {
   stage: document.getElementById("stage"),
@@ -841,6 +842,7 @@ function applyStageGeometry() {
 
 function updateViewportDerivedSampleData(fileName) {
   if (fileName === "ReignCourtScreen.xml") {
+    SAMPLE_DATA.CourtWorkspaceTopInset = computeCourtLayout(...getViewport()).topInset;
     SAMPLE_DATA.UseLargeCourtLayout = false;
     SAMPLE_DATA.LargeHomeVisible = false;
     SAMPLE_DATA.ReferenceHomeVisible = SAMPLE_DATA.HomeVisible;
@@ -866,6 +868,7 @@ function getNativeGauntletScale(width, height) {
 function getRuntimeScaleProfile(fileName = currentFileName) {
   const selectedProfile = elements.runtimeScaleSelect.value;
   if (selectedProfile !== "auto") return selectedProfile;
+  if (fileName === "ReignCourtScreen.xml") return "court-fit";
   if (prefabIgnoresCustomScale(currentXmlText)) return "custom-scale-locked";
   return PREFAB_RUNTIME_SCALE_PROFILES.get(fileName) || "native";
 }
@@ -885,6 +888,7 @@ function prefabIgnoresCustomScale(xmlText) {
 function getEffectiveRenderScale(width, height, runtimeProfile = getRuntimeScaleProfile()) {
   const nativeScale = getNativeGauntletScale(width, height);
   if (runtimeProfile === "custom-scale-locked") return nativeScale;
+  if (runtimeProfile === "court-fit") return computeCourtLayout(width, height).scale;
   const evidenceScale = getNativeEvidenceScale(width, height);
   if (evidenceScale) return evidenceScale;
   const runtimeScaleModifier = runtimeProfile === "reference-locked" ? 1 / nativeScale : 1;
@@ -905,6 +909,7 @@ function getNativeEvidenceScale(width, height) {
 }
 
 function formatRuntimeScaleProfile(profile) {
+  if (profile === "court-fit") return "court HUD fit";
   if (profile === "custom-scale-locked") return "player-scale locked";
   if (profile === "reference-locked") return "fixed reference";
   return "native sizing";

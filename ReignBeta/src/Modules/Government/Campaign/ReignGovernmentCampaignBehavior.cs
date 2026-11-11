@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using Reign.Core.Contracts.Government;
@@ -773,7 +773,11 @@ namespace ReignBeta.Government
             foreach (Village village in Settlement.All.Where(x => x?.IsVillage == true && x.MapFaction == kingdom)
                 .Select(x => x.Village).Where(x => x != null))
             {
-                if (hearth != 0) village.Hearth = MathF.Max(0f, village.Hearth + hearth);
+                if (hearth != 0) {
+                    float beforeHearth = village.Hearth;
+                    village.Hearth = MathF.Max(0f, village.Hearth + hearth);
+                    ReignBeta.Economy.ReignWarEconomyTransactions.RecordHearthGrant("government_authority", village, beforeHearth);
+                }
             }
         }
 

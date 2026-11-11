@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using Reign.Core.Contracts.Dialogue;
 using System.Collections.Generic;
 using System.Linq;
@@ -1364,7 +1364,8 @@ namespace ReignBeta.Court
                 int recruit = (int)Math.Ceiling(Math.Max(0f, TaleWorlds.CampaignSystem.Campaign.Current.Models.PartyWageModel
                     .GetTroopRecruitmentCost(element.Character, Hero.MainHero, false).ResultNumber));
                 replacementValue = SaturatingAdd(replacementValue, recruit * count);
-                fullTermWages = SaturatingAdd(fullTermWages, element.Character.TroopWage * count * petition.DurationDays);
+                fullTermWages = SaturatingAdd(fullTermWages, TaleWorlds.CampaignSystem.Campaign.Current.Models.PartyWageModel
+                    .GetCharacterWage(element.Character) * count * petition.DurationDays);
                 remaining -= count;
                 if (remaining == 0) break;
             }
@@ -1470,7 +1471,11 @@ namespace ReignBeta.Court
             switch (commitment.Kind)
             {
                 case ReignPetitionKind.Food:
-                    if (target.Village != null) target.Village.Hearth = MathF.Max(0f, target.Village.Hearth + (float)commitment.DailyEffect);
+                    if (target.Village != null) {
+                        float beforeHearth = target.Village.Hearth;
+                        target.Village.Hearth = MathF.Max(0f, target.Village.Hearth + (float)commitment.DailyEffect);
+                        ReignBeta.Economy.ReignWarEconomyTransactions.RecordHearthGrant("paid_petition", target.Village, beforeHearth);
+                    }
                     break;
                 case ReignPetitionKind.TownGold:
                     if (target.Town != null) target.Town.Prosperity = MathF.Max(0f, target.Town.Prosperity + (float)commitment.DailyEffect);
@@ -1554,8 +1559,7 @@ namespace ReignBeta.Court
             foreach (ValueTuple<ItemObject, float> production in village.VillageType.Productions)
             {
                 if (production.Item1 == null) continue;
-                total += Math.Max(0f, TaleWorlds.CampaignSystem.Campaign.Current.Models.VillageProductionCalculatorModel
-                    .CalculateDailyProductionAmount(village, production.Item1).ResultNumber);
+                total += Math.Max(0f, ReignVillageProductionCalculatorModel.PotentialProduction(village, production.Item1));
             }
             return total;
         }

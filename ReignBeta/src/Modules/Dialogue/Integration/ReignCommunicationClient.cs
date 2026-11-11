@@ -13,7 +13,33 @@ namespace ReignBeta.Integration
         private static DateTime _communicationNextPoll;
         private static string _communicationScope = "", _communicationGeneration = "";
         private static string _communicationCampaign = "", _communicationTimeline = "";
-        public static void RequestCommunicationPulse() { _communicationNextPoll = DateTime.MinValue; PulseCommunications(); }
+        private static readonly ReignCommunicationPollHold CommunicationPollHold = new ReignCommunicationPollHold();
+        private static int _communicationPulseRequested;
+        private static string CommunicationPollScope() => GetCampaignId() + "|"
+            + (ReignWorldHistoryCampaignBehavior.Instance?.TimelineId ?? "main") + "|"
+            + (ReignCampaignInitializationGate.Snapshot().Value<string>("generationId") ?? "");
+
+        internal static JObject CheckpointCommunicationPollHold(string token, int seconds, bool pulse)
+        {
+            var campaign = TaleWorlds.CampaignSystem.Campaign.Current;
+            if (seconds != 0 && (campaign == null || campaign.TimeControlMode != CampaignTimeControlMode.Stop))
+                throw new InvalidOperationException("Periodic poll holds require a paused campaign.");
+            string scope = campaign == null ? "" : CommunicationPollScope();
+            bool released = false;
+            if (seconds == 0) released = CommunicationPollHold.Release(campaign, scope, token, DateTime.UtcNow);
+            else CommunicationPollHold.Acquire(campaign, scope, token, seconds, DateTime.UtcNow);
+            if (campaign != null && (pulse || released)) RequestCommunicationPulse();
+            return new JObject { ["version"] = 1, ["held"] = CommunicationPollHold.Active(campaign, scope, DateTime.UtcNow),
+                ["untilUtc"] = CommunicationPollHold.UntilUtc, ["released"] = released,
+                ["inFlightClearedByHold"] = false, ["queuesCleared"] = false };
+        }
+
+        public static void RequestCommunicationPulse()
+        {
+            Interlocked.Exchange(ref _communicationPulseRequested, 1);
+            _communicationNextPoll = DateTime.MinValue;
+            PulseCommunications();
+        }
         private static void ApplyCommunicationCloseWork(JObject response)
         {
             var lives = ReignNpcLivesBehavior.Instance;
@@ -28,9 +54,14 @@ namespace ReignBeta.Integration
         // The game thread freezes presence; encoding and HTTP run on a worker.
         public static void PulseCommunications()
         {
-            if (DateTime.UtcNow < _communicationNextPoll || ReignSaveSyncCoordinator.IsAlignmentPending
+            bool requested = Volatile.Read(ref _communicationPulseRequested) != 0;
+            if (CommunicationPollHold.HasLease && CommunicationPollHold.Suppresses(TaleWorlds.CampaignSystem.Campaign.Current,
+                CommunicationPollScope(), DateTime.UtcNow, requested,
+                ReignNpcLivesBehavior.Instance?.HasPendingCommunicationReceipts == true)) return;
+            if ((!requested && DateTime.UtcNow < _communicationNextPoll) || ReignSaveSyncCoordinator.IsAlignmentPending
                 || ReignSaveSyncCampaignBehavior.IsNativeSaveInProgress || ReignCampaignInitializationGate.IsPending
                 || TaleWorlds.CampaignSystem.Campaign.Current == null || Hero.MainHero == null || Interlocked.CompareExchange(ref _communicationInFlight, 1, 0) != 0) return;
+            Interlocked.Exchange(ref _communicationPulseRequested, 0);
             PersonalGossipPresenceSnapshot snapshot = null;
             try
             {

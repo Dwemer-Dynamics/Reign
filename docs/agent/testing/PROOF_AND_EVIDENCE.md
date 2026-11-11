@@ -1,5 +1,10 @@
 # Proof selection and evidence
 
+The same isolated check covers cold and stale campaign schema lock ordering, a warm connection while another thread owns FileLock, a deliberate bounded old-inversion negative control, reverse-entry rejection and cancellation/disposal/retry before settings, before initialization and after partial memory schema setup. Run `reign_run_offline_verification` on the exact successful Release run, tier quick with an empty suite or suite contracts. The Save Sync boundary command does not invoke it. Require every campaignProviderWait catalog case ID in the at-most64 caseResults, all passed, with neither truncation nor invalid IDs. These fixtures use only unique internal campaigns in ReignValidation; they grant no production, provider, save, native time or deployment authority.
+
+
+The provider-free `contracts.campaign_provider_wait` check also covers helper lock diagnostics: a real contending thread observes the wait-start owner; nested/exceptional scopes restore owner and stage; wrong-thread disposal is rejected without clearing ownership; repeated disposal is harmless. It uses no sleeps or providers and retains the existing isolated non-listening database gate. Slow lock records are emitted only once the current thread has fully released that monitor. Wait time includes HTTP read-lease resumption and cannot be treated as pure monitor contention.
+
 Read only the procedure relevant to the current task. Existing provider, campaign, and deployment gates remain authoritative. Dated procedure history was retained during the 2026-09-12 guide split.
 
 ## Choose the lowest proof layer
@@ -130,7 +135,7 @@ For performance acceptance, deploy the exact canonical validated artifact, reope
 - Query `reign_get_testing_catalog` and the affected feature manifest.
 - Inspect `reign_get_workspace_status`, `reign_get_status`, and `reign_get_live_test_status` before starting processes or runs.
 - Use bounded MCP world, log, audit, correlation, and readiness tools instead of downloading large raw HTTP responses.
-- Preserve the userâ€™s unrelated worktree changes and original saves.
+- Preserve the user’s unrelated worktree changes and original saves.
 
 ## Repository hygiene evidence
 
@@ -151,3 +156,9 @@ Any change to a tool, command, feature profile, scenario, confirmation phrase, s
 Government certification retries preserve failure evidence. Starting an already-recorded case instance creates a fresh bounded `-attempt-N` live-run ID, and release readiness evaluates the newest execution first without deleting or overwriting earlier reports.
 
 Government soak recovery preserves completed advancement evidence across process restarts. Retain the passed `GOV-NATIVE-030` live-run report and its exact feature fingerprint; when Bannerlord, the client, or Codex restarts before `GOV-NATIVE-031`, pass that report id as `soakPreparationLiveRunId`. The MCP requires a completed preparation assertion and exact fingerprint match, then rehydrates only the bounded start day and collection counts into `soak_verify`. It must never substitute a new preparation snapshot or repeat the 210-day soak.
+
+## MCP API path portability
+
+The MCP host accepts fixed root-relative API paths on Windows and Linux. Linux may classify a leading slash as an absolute file URI, so that classification cannot distinguish an allowed API path from an external target. Require a relative URI with exactly one leading slash, reject network authorities, backslashes, control characters, traversal, inline query strings and fragments, and retain the configured numeric HTTP loopback address. Query values continue through the separately escaped dictionary.
+
+Run the manifest-selected canonical validation for the changed MCP paths. `ReignApiClientTests` observes actual fake-handler request URIs for `/health`, `/verification/status` and ordinary API routes, and proves invalid paths never dispatch. `TestingCatalogContractTests` binds the transport contract and catalog version. A Linux canonical test report is required to establish the reported Linux regression is fixed; Windows-only success is insufficient. Real offline context capture still uses `reign_run_offline_verification` with an exact successful Release server report, the existing active-run probe and confirmation, isolated run-owned data and no provider calls. No direct verification executable, service startup or production state is authorized by this repair.

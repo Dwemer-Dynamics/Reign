@@ -1,4 +1,39 @@
 {
+  "mcpApiTransport": {
+    "schema": "reign-mcp-api-transport-v1",
+    "procedure": "docs/agent/testing/PROOF_AND_EVIDENCE.md#mcp-api-path-portability",
+    "pathKind": "root_relative",
+    "authority": "configured numeric HTTP loopback only",
+    "rejects": [
+      "absolute_uri",
+      "network_authority",
+      "backslash",
+      "control_character",
+      "traversal",
+      "inline_query",
+      "fragment"
+    ],
+    "contracts": "ReignApiClientTests: actual HttpMessageHandler dispatch preserves configured authority for root-relative paths, including /verification/status; invalid paths fail before dispatch on Windows and Linux.",
+    "isolation": "Fake HTTP handler for contracts; provider-free canonical offline verification remains artifact-bound and preserves its active-run probe and confirmation gate."
+  },
+  "arrangedMarriage": {
+    "schema": "reign-arranged-marriage-v1",
+    "procedure": "docs/agent/testing/FEATURE_HARNESSES.md#arranged-marriage-2026-11-07",
+    "offlineSuite": "relationships",
+    "activeHarness": "RunCurrentRelationshipSelfTests explicitly invokes RunArrangedMarriageSelfTests. Product quick/source checks do not substitute for a focused relationships CLI report.",
+    "requiredPerformanceCases": ["arranged_compact_snapshot_mechanical_parity", "arranged_compact_snapshot_accepted_parity", "arranged_unknown_snapshot_kind_rejected"],
+    "contracts": "ArrangedMarriagePolicyTests and arranged_ server self-tests: tier fees, royal annual roll distribution/stability, bilateral leader effects, refusal direction/idempotency, weekly periods, native transaction delegates and failure recovery.",
+    "isolation": "Canonical validator run-owned data only; no visible campaign, provider calls, native time, save, runtime control or deployment.",
+    "acceptance": "After separately authorized deployment and runtime ownership handoff, verify genuine native marriage, wallet receipts, leader relations, accelerated weekly capture, pause drain and Save Sync rewind in an enrolled disposable Current. Offline results never replace native acceptance."
+  },
+  "duelTraining": {
+    "schema": "reign-duel-combat-hook-probe-v1",
+    "entry": "reign_validate; changed paths select Tier 3 client and MCP tests",
+    "procedure": "docs/agent/testing/FEATURE_HARNESSES.md#duel-training-2026-11-02",
+    "contracts": "DuelModePolicyTests and DuelCombatHookProbe.ps1: five-percent fractional health damage, unreduced normal-hit XP reference, fifteen-percent unblocked/five-percent blocked attacker awards, participant boundaries, compiled native hook binding, exact health-setter IL replacement, copied blocked collision, nested/foreign/cleared XP scopes and unpatching",
+    "isolation": "Same-run compiled client and licensed assemblies in a fresh subprocess. No Bannerlord launch, campaign/native time/save changes, providers, listeners or deployment.",
+    "acceptance": "After separately authorized deployment, observe both duelists with blocked/unblocked hits, actual health and before/after HeroDeveloper XP; ordinary combat controls, private/nonlethal return and native save/reload remain required. Offline hooks do not establish native gameplay acceptance."
+  },
   "conversationCommunications": {
     "guide": "docs/agent/CONVERSATION_COMMUNICATION.md",
     "offlineSuite": "communications",
@@ -231,7 +266,7 @@
     "spouseLetter": {
       "actionId": "leave_spouse",
       "procedure": "docs/agent/testing/DIALOGUE_AND_PROVIDERS.md#spouse-letter-agreement-acceptance-2026-10-23",
-      "contracts": "SpouseSeparationTests; artifact-bound contracts.structured_actions private-prompt, isolated transactional notice/affinity/lifecycle/replay/rollback/reopen checks.",
+      "contracts": "SpouseSeparationTests; artifact-bound contracts.structured_actions private-prompt, isolated transactional notice/affinity/lifecycle/replay/rollback/reopen checks. Lock-order probes retain the deliberately inverted negative control, use a dedicated worker for the wait handshake, assert legacy JSON source recognition and retain separate wait/advisory/table-lock diagnostics without query text.",
       "effects": "Immediate private letter ends the exact current marriage; native reciprocal spouse/romance cleanup; -50 relation with spouse and each other living adult spouse-clan member, excluding leaver and duplicates. Both authoritative affinities lose 50 with native floor -100. No movement, clan transfer or commitment to player.",
       "gates": "Ordinary exact structured mutual consent. Existing authorized provider, paused armed disposable Current, drain/save/reload and baseline protection gates. No new endpoint, mutation fixture or consent override.",
       "nativeAcceptancePending": true
@@ -704,7 +739,7 @@
     "longTermRecallRecovery": {
       "schema": "reign-long-term-recall-testing-v1",
       "ordinaryRecallAuthority": "MEMORY RECALL AUTHORITY is included in production dialogue/group/event and correspondence system rules before prompt budgeting. Supplied originals support ordinary recall; prior failed recall alone cannot justify lost/reconstructed-memory prose or lasting mood/plan/belief/continuity state. Independent story evidence and narrow uncertainty remain valid. memory_recall_ordinary_recall_authority_in_system_* checks the complete rule in actual serialized provider messages across both modes and all four routes; fresh model prose remains a separate gate.",
-      "publicationGrounding": "Captured replay invokes production final scene-heading rendering and deterministic grounding before accepted-unit publication. It reports capturedProse, groundingAccepted, grounding issues/replyHash and acceptedProse. Unresolved grounding retains marked speech but suppresses new memory/effects and reports memoryUpdateComplete=false. Follow-ups discard prior grounding results. prompt_efficiency contracts writer_replay_final_grounding_binds_accepted_prose and writer_replay_unresolved_grounding_retains_prose_and_suppresses_memory fence the boundary. Remote endpoint repairs remain excluded; unresolved output cannot certify model acceptance.",
+      "publicationGrounding": "Captured replay invokes production final scene-heading rendering and deterministic grounding before accepted-unit publication. It reports capturedProse, groundingAccepted, grounding issues/replyHash and acceptedProse. Unresolved grounding normally retains marked speech, suppresses new memory/effects and reports memoryUpdateComplete=false. An unresolved reply that adopts the player's first-person action and adjoining speech uses the no-effects fallback with that reply withheld. The input_grounding_failed_player_voice_repair_hides_echo_and_clears_writes assertion covers this case. Follow-ups discard prior grounding results. prompt_efficiency contracts writer_replay_final_grounding_binds_accepted_prose and writer_replay_unresolved_grounding_retains_prose_and_suppresses_memory fence the boundary. Remote endpoint repairs remain excluded; unresolved output cannot certify model acceptance.",
       "revisionBoundary": "RunTemporalRecallRevisionAssertions restores an actual parent snapshot, then proves child corrections replace only the same fact even when searching old wording. Day/time/accepted-sequence, original-source audience, hidden/future/sibling controls and unchanged parent hashes remain authoritative. Sentence-group term rarity and length normalization prioritize spoken answers; action-only input remains searchable. Recall attempts are fallback even within mixed sessions. Retain up to 24 lexical originals plus 8 independently discovered sources through final serialization; fusion cannot displace the original pool with broad topic hits. Complete anchor pairs and preceding visible NPC context preserve callbacks without skipping unheard/future/other-branch neighbors. Foundation projection policy v8 invalidates old cached absence content.",
       "writerBudgetParity": "writerReplay defers source allocation to the production envelope and sets the exact query for the initial and every follow-up turn; standalone packet replay retains compact allocation. Follow-ups reset stale query/source hints and receipts, pin the new accepted sequence, and carry active player/NPC turns with source metadata while excluding author-only source_only originals. The prompt_efficiency contracts memory_evidence_replay_writer_replay_uses_shared_allocation_and_exact_query, writer_next_turn_uses_fresh_shared_allocation and writer_next_transcript_excludes_author_only_original fence the distinction. fresh_writer_keeps_eligible_peer_name covers empty recent transcripts using the exact peer's eligible source name, excluding future/unheard attribution and preserving current transcript precedence. No new input field, provider permission or live write is introduced.",
       "allocationAndAttempts": "Protect selected target records through final serialization even when their IDs appear in the reducible legacy recent block; the zero-growth single-session case fences this handoff. Clause-aware recall priority defers ordinary remembering questions and off-topic mixed probes while preserving topical new statements in the same contribution. Label-only query echoes followed by a recall request also remain fallback; explicit mixed identity assertions retain answer priority. Exercise story-again requests and can/still/did/please framing, excluding auxiliary words from topical evidence. Growth coverage includes more than 24 such failed exchanges. Original speech remains available as fallback and audit history.",
@@ -924,6 +959,7 @@
   "campaignProviderWait": {
     "suite": "contracts",
     "check": "contracts.campaign_provider_wait",
+    "caseEvidence": "At most64 caseResults; require all catalog case IDs present/passed, caseResultsTruncated=false and caseResultsInvalidIds=false. Save Sync boundary CLI alone does not run this check. Run quick with suite empty or contracts from the exact successful validation artifact.",
     "providerCalls": false,
     "isolation": "Non-listening Verification Lab CLI, ReignValidation database, uniquely named disposable campaign and snapshots.",
     "invariants": [
@@ -938,7 +974,18 @@
       "restore_during_success",
       "restore_during_failure",
       "snapshot_during_failure",
-      "writer_and_background_leases_are_never_suspended"
+      "writer_and_background_leases_are_never_suspended",
+      "work_lock_diagnostics_restore_nested_owner",
+      "work_lock_diagnostics_attribute_wait_start",
+      "schema_cold_open_uses_safe_lock_order",
+      "schema_stale_revision_uses_safe_lock_order",
+      "schema_warm_open_ignores_other_thread_file_lock",
+      "schema_old_lock_inversion_negative_control",
+      "schema_reverse_nested_entry_rejected",
+      "schema_failure_opened_disposes_and_retries",
+      "schema_failure_settings_disposes_and_retries",
+      "schema_failure_initializing_disposes_and_retries",
+      "schema_failure_after_memory_disposes_and_retries"
     ],
     "procedure": "docs/agent/testing/PROOF_AND_EVIDENCE.md"
   },
@@ -1581,7 +1628,7 @@
     "contract": "All character portrait actions use the background coordinator. Current facial data and civilian clothing travel in an immutable campaign snapshot; missing equipment uses renderer defaults. No captured image, encyclopedia, Clan screen, or chat closure is required. Shared sources are reused only with matching source hash and render provenance. Scenery keeps its own source pipeline.",
     "acceptance": "User tests native Look, social-event eye, individual-chat Look, party-chat eye, player creation, debug conversation request, and Control Center generation after deployment. Petition manual retest deferred by user; automated entrypoint coverage retained. No paid diagnostic without the existing provider gate."
   },
-  "version": "2026.11.01.1",
+  "version": "2026.11.08.8",
   "portraitClothingEdit": {
     "schema": "reign-portrait-clothing-edit-v1",
     "verification": "contracts.image_generation_profiles in Verification Lab quick/offline; portrait-profile-ui-contract.mjs renders the exported control-center.html in isolated Playwright; --run-portrait-provider-adapter-tests --json through canonical validation only",
@@ -1854,6 +1901,11 @@
       "id": "character-narrative-authoring",
       "entry": "reign_author_character_narratives",
       "risk": "provider-consuming isolated authoring"
+    },
+    {
+      "id": "war-economy",
+      "entry": "reign_get_war_economy_test_manifest",
+      "risk": "disposable-campaign"
     }
   ],
   "liveTestCommands": [
@@ -1972,10 +2024,10 @@
     "nativeVisualReviewContract": "A reviewed native case must contain a reign-ui-native-visual-review-attestation-v1 receipt created only by accept-native-case --reviewed with the exact confirmation 'I confirm this native capture matches the approved Reign reference for all fixed visuals and typography'. All nine criteria must be present, known, and true: approved fixed visuals exact; differences confined to declared dynamic regions; packaged ReignSerifDynamic/Cormorant Garamond face and weight; typography size hierarchy; capitalization and tracking; gold/gray semantic text colors; alignment, baseline, and wrapping; native glyph hinting and rasterization; and no unexpected colors or shapes. Dynamic text content, portraits, and scene art may differ only in their declared regions; their fixed framing and typography remain governed. Missing, false, unknown, legacy, or unreviewed attestations remain pending and cannot pass native parity.",
     "catalog": "ReignBeta/tools/GauntletXmlPreviewer/calibration/ui-catalog.json",
     "currentPrefabCount": 26,
-    "currentInterfaceStateCount": 155,
+    "currentInterfaceStateCount": 161,
     "nativeAugmentationTargetCount": 7,
     "nativePatchApplicationCount": 9,
-    "providerFreeRenderCaseCount": 324,
+    "providerFreeRenderCaseCount": 336,
     "approvedComponentComposition": {
       "schema": "reign-approved-component-composition-v1",
       "spec": "ReignBeta/tools/GauntletXmlPreviewer/calibration/government-participation-approved-composition.json",
@@ -1993,7 +2045,7 @@
       "matrix": "inherit-parent",
       "acceptanceManifestPath": "<evidence-root>/individual-chat/states/individual-chat-pregnancy-warning/acceptance.json",
       "stateReceiptPath": "<evidence-root>/individual-chat/states/individual-chat-pregnancy-warning/<matrix-case>/state-receipt.json",
-      "captureBehavior": "For every exact Individual Chat parent matrix case, open the existing provider-free native target with ReignLiveTest ui-open --target individual-chat, invoke ui-action --target individual-chat --text show-pregnancy-warning, require the native snapshot to report warningVisible=true, inputEnabled=false, individualChatModalFocusOwned=true, and individualChatActiveStateBlocked=true, then stage a separate exact foreground screenshot and state-receipt.json as reviewed=false before closing the fixture without advancing or saving. The state receipt inherits the parent matrix case, loaded-prefab and installed hashes, runtime snapshot, window-capture receipt, and visual-review criteria; the state acceptance manifest aggregates those inherited cases. This nested state is not a new movie, calibration target, or native surface and does not change the 155 browser states, 324 provider-free renders, or 33 native surfaces."
+      "captureBehavior": "For every exact Individual Chat parent matrix case, open the existing provider-free native target with ReignLiveTest ui-open --target individual-chat, invoke ui-action --target individual-chat --text show-pregnancy-warning, require the native snapshot to report warningVisible=true, inputEnabled=false, individualChatModalFocusOwned=true, and individualChatActiveStateBlocked=true, then stage a separate exact foreground screenshot and state-receipt.json as reviewed=false before closing the fixture without advancing or saving. The state receipt inherits the parent matrix case, loaded-prefab and installed hashes, runtime snapshot, window-capture receipt, and visual-review criteria; the state acceptance manifest aggregates those inherited cases. This nested state is not a new movie, calibration target, or native surface and does not change the 161 browser states, 336 provider-free renders, or 33 native surfaces."
     },
     "providerFreeRenderMatrix": [
       "1920x1080",
@@ -2050,14 +2102,47 @@
     "fixtureContract": "Interface-specific coherent sample content is the default preview state. Captured game-state text and list shape are a separate explicit opt-in and are disabled whenever the snapshot prefab SHA-256 does not match current workspace source, preventing stale native text from contaminating another interface or revision.",
     "nativeFixtureSafetyContract": "Every runtime Reign movie and every campaign-backed native augmentation has a shared ui-open target. The pre-campaign native InitialScreen uses the visible game start-menu route. Calibration-only Court Petition, correspondence, dialogue, social-event, diplomacy, notable-generation, Memories Book, Royal Council, and native-augmentation fixtures are temporary and provider-free and never save the campaign; Royal Council receives a non-persistent four-domain transcript, reports calibration-fixture identity, and must remain at zero provider calls. Standalone fixtures cannot write conversations, letters, social events, memories or memory images, relationship, reputation, political-pressure, or campaign-action state, including official council records. Native production screens may temporarily change bounded in-memory UI/conversation state but are closed without advancing or saving. ReignUiCalibrationOverlay remains previewer-only with nativeInjection=false and is never opened, attached, actioned, or included in a native snapshot.",
     "nativeAugmentationContract": "The previewer composes each source-discovered Reign PrefabExtension into the exact allowlisted installed Bannerlord base prefab, preserves patch class/source/XPath attribution for click-to-Codex editing, resolves installed brush/sprite-derived constants, and scopes diagnostics to the Reign-modified subtree. Virtual native compositions never use direct XML apply/install; Codex changes the authoritative C# patch source. Provider-free composition is preflight and never substitutes for native screenshots.",
-    "parityContract": "The provider-free rendered audit must capture all 95 cataloged browser interface states (26 unique XML prefabs, including distinct Social Event and Wilderness Event fixtures, normal and pregnancy-warning Individual Chat states, and the previewer-only Calibration Overlay) and all 7 composed native augmentation targets at 1920x1080 and 3440x1440 with zero browser diagnostics and retained screenshot hashes, yielding 204 cases. Native release confidence covers 26 runtime interface states plus 7 native augmentation targets and requires runtime-snapshot bounds and exact native captures through ReignLiveTest ui-open/ui-snapshot at every resolution and UI scale in the catalog target matrix; the pregnancy warning is additionally exercised and accepted as the nested provider-free modal state declared by nativeRuntimeStateAcceptance beneath the native Individual Chat target. The first native acceptance pass is 2560x1600, and every defect found there must be corrected and revalidated before another resolution is attempted. Each snapshot retains the prefab SHA-256 from movie-load time and records the currently installed hash separately, so a live install cannot falsely relabel an already-open movie. Workspace, installed, and loaded-snapshot hashes must agree before native comparison. ReignUiCalibrationOverlay remains browser-preview support only and never contributes a native movie, payload, action, or acceptance surface. Native augmentation preflight additionally requires an in-game screenshot of the patched native screen before parity can pass.",
+    "parityContract": "The provider-free rendered audit must capture all 161 cataloged browser interface states (26 unique XML prefabs, including distinct Social Event and Wilderness Event fixtures, normal and pregnancy-warning Individual Chat states, and the previewer-only Calibration Overlay) and all 7 composed native augmentation targets at 1920x1080 and 3440x1440 with zero browser diagnostics and retained screenshot hashes, yielding 336 cases. Native release confidence covers 26 runtime interface states plus 7 native augmentation targets and requires runtime-snapshot bounds and exact native captures through ReignLiveTest ui-open/ui-snapshot at every resolution and UI scale in the catalog target matrix; the pregnancy warning is additionally exercised and accepted as the nested provider-free modal state declared by nativeRuntimeStateAcceptance beneath the native Individual Chat target. The first native acceptance pass is 2560x1600, and every defect found there must be corrected and revalidated before another resolution is attempted. Each snapshot retains the prefab SHA-256 from movie-load time and records the currently installed hash separately, so a live install cannot falsely relabel an already-open movie. Workspace, installed, and loaded-snapshot hashes must agree before native comparison. ReignUiCalibrationOverlay remains browser-preview support only and never contributes a native movie, payload, action, or acceptance surface. Native augmentation preflight additionally requires an in-game screenshot of the patched native screen before parity can pass.",
     "nativeAcceptanceContract": "audit-native-parity.mjs evaluates all 33 native surfaces (26 runtime interface states and 7 native augmentations) fail-closed. Each surface needs a reign-ui-native-parity-acceptance-v1 manifest for every catalog resolution/UI-scale case, a reviewed exact-resolution native screenshot bound to its reign-ui-window-capture-v1 verified-foreground Bannerlord receipt, zero diagnostics, and current source/installed or patch/base-prefab hashes. Runtime interfaces additionally require a matching non-empty headless runtime snapshot containing no calibration-overlay movie, widget, action, or supportUi payload. ReignUiCalibrationOverlay is excluded from native acceptance. The pregnancy-warning browser state does not add a separate surface: the existing Individual Chat surface additionally requires its nested reign-ui-native-runtime-state-acceptance-v1 manifest at <evidence-root>/individual-chat/states/individual-chat-pregnancy-warning/acceptance.json, with one inherited-matrix state receipt per exact parent case. Native Bannerlord augmentations use the reviewed in-game screenshot as rendering authority and may include an optional runtime snapshot when the host movie exposes one. capture-native-matrix.ps1 opens every runtime interface state provider-free at one required resolution/UI-scale case, captures exact foreground pixels plus runtime geometry, records every case and required nested state as unreviewed, emits a contact sheet, closes each live run, and stops Bannerlord without saving. calibration_workflow.py accept-native-case validates and records one reviewed matrix case without weakening these gates. Missing, partial, stale, unreviewed, or hash-mismatched surface or nested-state evidence remains pending; --require-pass exits nonzero until all surfaces and required nested states pass.",
     "nativeBatchContract": "The standalone batch runner refuses an already-running game, requires an explicit save name and one catalog matrix case, verifies that the requested UI scale equals Bannerlord's configured UIScale, records the separate positive snapshot UIContext.CustomScale without comparing it to the configuration value, uses only provider-free ui-open/ui-snapshot routes, waits for capture-ready UI state, and fails closed unless Royal Council reports its calibration fixture, a non-empty transcript, and zero provider calls. The verified screenshot helper uses a per-monitor-DPI-aware capture thread plus bounded attached-input-thread retries to acquire Bannerlord foreground ownership when another desktop window has focus, proves the target before copying pixels, and restores the prior foreground window afterward. When the verified engine snapshot exceeds the desktop and Windows reports clamped client bounds, the helper triggers Steam's foreground DirectX backbuffer screenshot, requires the exact requested pixel dimensions, converts that image into the evidence PNG, copies the source JPEG into the exact case evidence directory, verifies its SHA-256, and removes only the exact run-created Steam screenshot and same-name thumbnail while retaining original-path and cleanup receipts plus the distinct verified-foreground-steam-backbuffer mode. PrintWindow full-content capture remains available only for an exact off-screen client; blank output is rejected, and virtualized and physical client bounds are recorded separately. Both batch runners record acceptance manifests directly beneath the same evidence root consumed by audit-native-parity.mjs; each runner never advances or saves the campaign, stages all evidence as reviewed=false, and emits reign-ui-native-capture-batch-v1 plus reign-ui-native-contact-sheet-v1 evidence for explicit visual review. A zero-stage failure retains the complete per-case evidence and exits nonzero without replacing the original error with a contact-sheet error. capture-native-augmentation.ps1 verifies one already-open production Bannerlord screen and exact foreground-client dimensions. capture-native-augmentation-batch.ps1 opens all 7 cataloged production augmentation targets through bounded provider-free routes, requires game start-menu to return the process-log-backed GauntletInitialScreen::HandleActivate readiness evidence defined by initialScreenReadinessContract before capturing InitialScreen, uses one no-save test2 campaign session for the remaining native screens, records ready target identity and fixture evidence, closes each screen, and stops Bannerlord without saving.",
     "nativeDisplayMatrixContract": "The display-matrix orchestrator requires exact confirmation, refuses a running game, and selects only catalog resolution/UI-scale cases. Release support starts at 1920x1080 and covers 1080p, 1440p, 1600p, 3440x1440 and 3840x1600 ultrawide, and 3840x2160 4K; lower resolutions are intentionally unsupported. It creates byte-for-byte backups of BannerlordConfig.txt and engine_config.txt beneath the workspace evidence root, changes only UIScale, display_width, display_height, and an explicit validated capture display_mode while Bannerlord is stopped, delegates each case to the provider-free standalone batch or, when -NativeAugmentations is explicit, the production native-augmentation batch, and stops Bannerlord after every case. A finally block restores both original files and verifies their SHA-256 hashes even after capture failure. Its reign-ui-native-display-matrix-v1 checkpoint report retains the surface type, child batch/contact-sheet paths, configuration backup path, restoration proof, game-stop proof, and failure without advancing or saving the campaign; every child screenshot remains reviewed=false until explicit visual review.",
     "readinessUiContract": "The previewer displays provider-preview coverage for all 95 browser interface states while installed-runtime and reviewed-native readiness cover all 33 native surfaces (26 runtime interface states and 7 native augmentations). It lists exact deployment/native pending targets and includes the same bounded readiness state in selected-widget Codex context. Provider-free capture runs disable this endpoint to avoid multiplying audits.",
-    "announcementReadingContract": "News and ruler-to-ruler diplomacy share a 732x480 scrolling reading column with 24-unit left-aligned body text. No shrinking or truncation. Long public explanations move from portrait captions into the report; native ui-open diplomacy-announcement exercises a multi-paragraph long fixture without effects. Announcement portraits use the full original with recorded face focus and 143x240 aspect-matched framing to retain hair and shoulders. PortraitBustFramingTests, ten preview focus fixtures and the compact-portrait quick contract cover framing; six negative cases reject mismatched, invalid and unframed rectangles. Native hairline, fallback and scrolling proof remain required."
+    "announcementReadingContract": "News and ruler-to-ruler diplomacy share a 732x480 scrolling reading column with 24-unit left-aligned body text. No shrinking or truncation. Long public explanations move from portrait captions into the report; native ui-open diplomacy-announcement exercises a multi-paragraph long fixture without effects. Announcement portraits use the full original with recorded face focus and 143x240 aspect-matched framing to retain hair and shoulders. PortraitBustFramingTests, ten preview focus fixtures and the compact-portrait quick contract cover framing; six negative cases reject mismatched, invalid and unframed rectangles. Native hairline, fallback and scrolling proof remain required.",
+    "militaryStandingContract": "ReignBeta/tools/GauntletXmlPreviewer/test-military-standing-contract.mjs"
   },
   "uiInteractionCalibration": {
+    "courtWorkspaceFit": {
+      "contract": "ReignBeta/tools/GauntletXmlPreviewer/test-court-layout-contract.mjs",
+      "unitTests": "ReignCourtLayoutTests",
+      "policy": "ReignBeta/src/Modules/Court/UI/ReignCourtLayout.cs",
+      "behavior": "Provider-free uniform fit at all supported resolutions, base HUD reservations, unchanged four-card scroll geometry and deliberately larger docket text. Run existing complete preview, typography and fixed-reference audits. Native HUD/input/glyph acceptance remains pending deployment.",
+      "procedure": "docs/agent/testing/UI_AND_DEPLOYMENT.md",
+      "nativeAdapter": "ComputeNativeLayout(width,height,UIContext.Scale); CustomScale must equal the fitted physical scale. Never substitute height/1080 or multiply the player layer scale.",
+      "observation": {
+        "schema": "reign-court-layout-observation-v1",
+        "route": "reign_get_live_test_status -> runtime.courtUi",
+        "fields": [
+          "open",
+          "panelVisible",
+          "physicalWidth",
+          "physicalHeight",
+          "nativeBaseScale",
+          "layerScale",
+          "scaleModifier",
+          "customScale",
+          "expectedScale",
+          "scaleError",
+          "expectedTop",
+          "expectedBottom",
+          "x",
+          "y",
+          "width",
+          "height",
+          "bottom"
+        ],
+        "safety": "Bounded game-thread heartbeat observation only. No UI opening/input, game-time/save/provider operations or calibration ownership changes. Closed court reports open=false. Check settled scale and panel bounds after native layout, not just intended geometry."
+      }
+    },
     "nativeTextObservation": {
       "route": "ui-snapshot",
       "fields": [
@@ -2134,7 +2219,32 @@
     "evidence": "Live report preserves each unchanged player text, NPC reply, override authorization receipt, queued action IDs/types, bounded native terminal wait, before/after gauntlet snapshots, action ledger status, result codes and effects. Exact observed item IDs add bounded native party-roster amount and modifier identity rows for the speaker and player. Passing a mechanical case additionally requires an action-specific independent native state oracle; queued or completed_no_effect alone is insufficient.",
     "procedure": "docs/agent/testing/FEATURE_HARNESSES.md"
   },
+  "campaignPerformance": {
+    "schema": "reign-campaign-performance-report-v1",
+    "providerObservationPolicies": {"default": "provider_free", "allowed": ["provider_free", "observe_configured"], "contract": "The default `providerPolicy=provider_free` still requires the clean existing tripwire. For an independently authorized real workload, `providerPolicy=observe_configured` observes a healthy unarmed guard, zero blocked attempts, one stable provider-server instance and nondecreasing process dispatch counters; armed, malformed, missing, restarted or reset evidence fails collection. Reports explicitly identify the policy and observed dispatch delta. These counters include nonbillable upload/retrieval stages and all process users, so they are neither billable-call totals nor spend accounting. This read-only option never releases a marker, changes settings, dispatches a provider or grants generation/budget authority. Resolve ownership and funding separately before enabling producers; a successful observation is not full-feature or performance acceptance."},
+    "mcpTools": ["reign_monitor_campaign_performance"],
+    "guide": "docs/agent/testing/CAMPAIGN_AND_RUNTIME.md#performance-and-queue-observation",
+    "runtimeSchema": "reign-native-performance-v1",
+    "readinessRetryContract": "Readiness uses a synchronous connection-specific retry-suppression scope. A PostgreSQL statement error exits and rolls back the whole read-only transaction; neither contention nor stale-plan recovery reissues a statement in that aborted transaction. Nested scopes restore their predecessor and do not affect other connections. Stale plans are unprepared after rollback for a later observation. Actual exclusive-lock contracts require the original55P03 with zero generic retries, normal autocommit retry remains a negative control, and a following readiness is healthy.",
+    "relationshipCaseEvidence": "The focused relationships aggregate retains at most512 caseResults with bounded192-character code IDs, suite-qualified duplicate checks, passed flags, total count, invalid-ID and truncation flags. Other aggregates retain their existing default output. The task proof requires complete valid evidence, exact required case IDs, all cases passed, process exit0 and the exact successful artifact identity; no new native or provider authority.",
+    "publicationContract": "The worker serializes the detached timing DTO directly without an intermediate JSON DOM, preserving identical windows and host publication identity. Direct-vs-DOM contracts require semantic JSON parity and less than half the allocation. Native main-thread callbacks expose slowItemCount and lastSlowItemDurationMs; callbacks at least16ms log a code-only caller name at most once per five seconds. These include wall-time GC interference and do not prove causality.",
+    "marriageSnapshotContract": "political_marriage_only_v1 retains unchanged nobles/clans/kingdoms and native header values, ambientHeroCount for telemetry, and empty legacy heroes/presenceGroups arrays. The marriage endpoint accepts old full inputs and the known compact kind, rejecting unknown kinds. Ambient daily input is unchanged. Isolated production processor contracts compare deterministic decisions, quotes, roll rows, refusals and chemistry deltas under rollback; generated receipt IDs and timestamps are excluded. This is synthetic parity, not a real native snapshot equivalence claim.",
+    "campaignLockDiagnostics": "campaign.work_lock_slow logs helper scopes held or waiting at least1000ms after ownership is released. Code-only owner/stage, heldMs and waitMs are bounded scalars; ownerAtWaitStart is not attribution for the whole wait. Direct Monitor owners are unknown. Reentrant/exceptional ownership restoration and real contention are isolated provider-wait contracts. Marriage stage logs candidate/eligible counts, maximum leader time and total time. Neither diagnostics nor timing grants runtime/provider authority.",
+    "bounds": { "windows": 120, "fixedPhases": 8, "histogramBuckets": 7, "durationSeconds": [30, 3600], "pollSeconds": [2, 30], "projectedCountersPerSource": 512, "projectionSources": 6, "projectedCountersIncludingTruncationFlags": 3078, "queueRequestDeadlineSeconds": 4, "closingBoundaryGraceSeconds": 15, "minimumTemporalCoverage": 0.9, "minimumForegroundCoverage": 0.95 },
+    "queueFailurePolicy": "Five independent fixed GET queue sources plus native scalar projection. Each queue request has a four-second client deadline. A failed or scope-rejected source is disabled for the rest of that run to avoid stacking abandoned server work; timing backfill continues with explicit failed observations and an overall failed collection. Caller cancellation remains cancellation. Readiness requires fresh unique observation and stable campaign generation. Native identity, shape, sequence or explicit provider-tripwire failures abort.",
+    "readinessReadContract": "The fresh World Test readiness view performs no schema migration. PostgreSQL reads use a read-only transaction with 200ms lock and 3000ms per-statement deadlines; these are not a whole-request server deadline. File-store reads occur before retaining database table locks. Missing schema fails closed until normal heartbeat/worker initialization. Contracts cover active writers, access-exclusive timeout, missing index without repair and missing table rejection.",
+    "politicalBatchContract": "Keep single-flight wire batches of at most64. Select in one frame, capture full native rows in later frames with4ms between-row and8-row bounds, prepare and compare detached DTOs on a worker, then commit in one native callback guarded by campaign instance/state/timeline, interval and captured profile reference/revision. Individual native operations and commit are not preemptible or rollback transactions. FIFO dispatch drains at least one item with4ms between-item and200-item limits. Runtime counters expose captured/acknowledged heroes, completed batches/sweeps and refresh age. Retain cadence, fairness and saved political revisions.",
+    "relationshipStatusContract": "Marriage queue diagnostics read one cached immutable document header, never parse the full queued snapshot. Upload and acknowledgement parsing run on workers; exact head and period acknowledgement guards remain. Ambient uploads capture campaign/timeline on the native thread, join one bounded worker task per scope, parse detached durable texts outside the publisher lock and retire only the exact accepted text. A contended native outbox observation returns clientOutboxDaysKnown=false with a conservative pending sentinel1; it never produces an unknown zero. Preparation retains its authoritative locked read. Existing stable observations and clock gates remain. Native heartbeat publishes at most13 named section duration/collection/thread records; these are wall time and all-process GC counts, not pause durations or causal proof.",
+    "populationLookupContract": "Tavern maintenance keeps its real cadence, atomic full-pass order, four-creation budget, daily work and synchronous local entry. A pass-scoped own-ID lookup replaces repeated global Native Hero.Find scans. Duplicate/missing identities still use Native authority; missing saved identities still fail rather than regenerate. Live status is read from the same objects. Buffers are cleared on pass exit/load. Town grouping retains insertion order and creation updates. Daily tavern/wanderer work uses the existing population phases; global wanderer10% chance and native RNG order remain unchanged. No new population work queue.",
+    "diagnosticProjection": "Numeric due/transit/clock/blocked/duration/wait/known/chars/thread scalars are retained, including bounded heartbeat sections and upload stage evidence. Strings keep the existing narrow UTC/status/presence-only policy; raw documents, narratives, IDs in arrays and credential bodies are excluded. Six sources and3078 total-entry ceiling remain unchanged.",
+    "windowSemantics": "Monotonic actual-span windows close on the next application tick after one second. A long interval is counted once in a longer window; no fabricated empty windows or repeated rolling maxima. Sequence and retention reveal missed data. GC deltas are collection counts, not pause time. Foreground requires both sampled interval endpoints to belong to the game process. Native/render waits are included; GPU present time is not measured.",
+    "isolation": "Read-only cached HTTP observations of the exact enrolled run-owned Current, current campaign/timeline, aligned Save Sync, armed bridge and fresh heartbeat. No native command, provider request, time/save control, settings changes or queue clearing. Existing provider-free guard must report clean; prior marker ownership is not changed. Evidence uses new run-owned files under the canonical build working root; archive completed evidence according to storage policy.",
+    "evidence": "observations.jsonl retains numbered timing windows, fixed phase aggregates, bounded scalar queue counters, native module MVID, instance/save identity and poll self-time. Report is OBSERVATIONS_ONLY: successful collection alone never establishes smoothness or bounded eligible backlog. Freeze acceptance criteria before holdout; inspect missing windows, foreground coverage, observer A/B overhead, eligible versus future work, queue slope during advance and post-stop drain separately.",
+    "contracts": "NativePerformanceWindowTests: bucket boundaries, window max reset, huge intervals, retention/backfill, detached snapshots, disabled/clock-regression scopes, allocation-free steady-state recording and bounded snapshot allocation, native Newtonsoft-to-STJ round-trip with required-field shape checks, malformed evidence, exact Current and fresh-runtime/publication gates, private-body exclusion, queue deadline/disable/error isolation and freshness/scope checks, insufficient coverage and retained failed reports after injected exceptions/cancellation. PopulationLookupAndUploadTests cover duplicate/missing/live identity, immutable header invalidation, off-caller single-flight/retry/scope bounds, ordered durable input selection, malformed-input retention, same-day rewrite safety and parsing outside the publisher lock. GovernmentParticipationContractTests covers complete sixteen-plank political-profile validity and zero per-scan allocation.",
+    "acceptance": "Pending native validation, observer on/off comparison, sustained fastest fast-forward and aging, queue stability, game-only restart, and independent visual evidence. Collection does not replace these requirements."
+  },
   "campaignTest": {
+    "timelineIdentity": "Exact ASCII letter/digit/hyphen/underscore identity retained up to 512 characters for native recovered/branched timelines; campaign/run IDs remain bounded to 100 and save names to 64. No truncation or substitute timeline.",
     "baseline": "An exact user-provided save name enrolled as immutable.",
     "savePattern": "ReignTest_<TaskSlug>_<RunSuffix>_Current or an enrolled milestone label.",
     "saveNameLimit": 64,
@@ -2182,7 +2292,26 @@
     "restartGate": "reign_restart_campaign_test requires the exact armed run-owned Current save to be the active save and immediately checkpointed/drained. It visibly restarts Bannerlord on that save and issues a durable reload receipt.",
     "restoreGate": "reign_restore_campaign_test_checkpoint discards only unsaved transient fixture state by visibly reloading an existing exact run-owned Current checkpoint with --no-save. Its pre-reload gate still proves the enrolled campaign, timeline, exact owned active save, and finalized Save Sync but intentionally permits an unsafe encounter/menu location; it refuses the baseline, a missing or foreign checkpoint, and any reload that does not return to a safe settlement. Its recovery receipt is not save-roundtrip evidence.",
     "clanAccordsQuiescence": "Require runtime.clanAccords schema reign-clan-accords-runtime-v1, available=true and pending=false before advancement checkpoint and save completion; missing/stale runtime fails closed.",
-    "governmentQuiescence": "Require runtime.government schema reign-government-runtime-v1, available=true, calendarReady=true, syncInFlight=false, missingProfiles=0, pendingEvidence=0 and empty syncError before checkpoint drain and post-save completion. Missing telemetry fails closed. The release path restores the process-local calendar after Save Sync/timeline barriers even when the saved foundations seal skips one-time setup. PassiveWorldCheckpointPolicyTests cover missing, busy, failed and ready states. Counters expose no private beliefs."
+    "governmentQuiescence": "Require runtime.government schema reign-government-runtime-v1, available=true, calendarReady=true, syncInFlight=false, missingProfiles=0, pendingEvidence=0 and empty syncError before checkpoint drain and post-save completion. Missing telemetry fails closed. The release path restores the process-local calendar after Save Sync/timeline barriers even when the saved foundations seal skips one-time setup. PassiveWorldCheckpointPolicyTests cover missing, busy, failed and ready states. Counters expose no private beliefs.",
+    "periodicCommunicationCheckpointHold": {
+      "version": 1,
+      "nativeOperation": "world_time_control",
+      "fields": [
+        "timeMode=stop",
+        "periodicCommunicationHoldToken",
+        "periodicCommunicationHoldSeconds",
+        "communicationPulse",
+        "periodicCommunicationExpectedSaveName",
+        "periodicCommunicationExpectedTimeline"
+      ],
+      "maximumSeconds": 60,
+      "renewAfterSeconds": 20,
+      "scope": "Acquisition/renewal requires armed exact native game instance and expected active save/timeline; lease additionally binds actual campaign object and initialization generation. Release is matching-token idempotent and may run after unpause; closed campaigns invalidate the lease.",
+      "lifecycle": "Controller acquires after native pause, renews every twenty seconds in catch-up and immediately before SaveGame, keeps ownership through save/post-save and releases in outer finally without masking primary failures. Every native grant expires within sixty UTC seconds or on scope change; a slow operation may exhaust the grant and must still pass unchanged gates. Native saving independently blocks periodic starts. Missing version fails closed.",
+      "effect": "Suppress only NEW periodic communication starts. Keep in-flight work, explicit pulse requests and pending native communication receipts. Due server work requests an explicit pulse. Release requests a prompt poll. No queue clearing, native clock advancement, persisted state or provider calls.",
+      "quiescence": "All existing eight stable observations and subsystem gates remain. Native SaveAs also refuses in-flight communication work.",
+      "acceptance": "Prepared; current validation found nullable-link compile errors, corrected under the same plan; new canonical validation/native acceptance pending."
+    }
   },
   "bannerlordEditor": {
     "mcpServer": "Bannerlord.EditorMcp.Server",
@@ -3018,7 +3147,8 @@
     "docs/agent/testing/PROOF_AND_EVIDENCE.md",
     "docs/agent/testing/RECOVERY.md",
     "docs/agent/testing/RELEASE_PACKAGING.md",
-    "docs/agent/testing/UI_AND_DEPLOYMENT.md"
+    "docs/agent/testing/UI_AND_DEPLOYMENT.md",
+    "docs/agent/testing/WAR_ECONOMY.md"
   ],
   "dialogueMemoryAccuracy": {
     "selfTestIsolation": "MemoryEvidenceReplaySelfTests gives contract-only case identities one per-invocation nonce shared by cold repeats. Actual fixture world identity remains stable_replay_world_v1. Interrupted contract worlds are not reused or deleted; production advisory leases and existing/orphan/snapshot refusal controls remain enforced.",
@@ -3100,6 +3230,10 @@
       "isolation": "Exact successful Release artifact; injected responders and run-owned PostgreSQL campaigns only; no provider, production settings, campaign history edits or native advancement.",
       "acceptanceGap": "Native input unlock, close/reopen and save/load require separate approved deployment and disposable-save acceptance."
     },
+    "relationshipReceiptQuote": {
+      "suite": "prompt_efficiency",
+      "contracts": "RunConversationContinuitySelfTests builds the final in-person writer envelope. The summary, receipt ID and exact protected player quote survive with one copy of the quote. A published exchange resolves the native scene-turn identifier and checks older receipts with blank timeline against the active timeline. Different source, exchange, session or speaker, optional history and identity projection preserve the receipt's quote under the ordinary identity projection. continuity_foundation_* covers the legacy pair-history anchors and exchange bodies at the request cutoff, including active and blank legacy sources, foreign timelines, future time and sequence, an unheard turn in the same exchange, exact restored membership and a changed restored body."
+    },
     "providerWireCapture": {
       "schema": "reign-memory-provider-wire-capture-v1",
       "nativeProfileBinding": "2026-10-16: ReplayEvidenceWriter binds the supplied fixture profile to its mapped campaign,heroStringId and political timeline, then attaches it as the internal prepared request hero and each captured repair request hero. Initial, follow-up and repair requests retain this isolated identity. RequiredPoliticalMessages retains the ordinary political guard and required block; no production profile lookup, provider dispatch or native authority is bypassed. memory_evidence_replay_writer_native_profile_* and continuation_repair_native_profile_keeps_required_politics_* prompt_efficiency contracts cover isolated identity, mandatory political content, named/pronoun continuation repairs, zero calls and non-certification. The profile is fixture data, not proof of live native traits or political acceptance.",
@@ -3136,7 +3270,15 @@
       "execution": "Artifact-bound non-listening CLI in ReignValidation. stable_replay_world_v1 derives isolated world identity from source/query fixtures, excluding future response captures. Seeded session timestamps use the minimum/maximum supplied source sequences, matching existing turn timestamps; an opposing-name-order contract verifies actual archive chronology without new fixture fields. A PostgreSQL advisory lease refuses concurrent ownership and pre-existing state; finally cleanup deletes only the run-owned world. Cold repeatability and ownership contracts run in the isolated artifact; listening/live routes verify refusal. Delivered-recall controls bind real in-person, letter-formatted and event canonical transcripts with server-projected roles, exact source membership and delivered bodies; recent-only and mixed recent/historical conflicts, omitted/foreign sources and legitimate narrow uncertainty are covered. All canonical speaker-ID aliases and trusted unknown-name projection preserve complete delivered recall without changing original captures or accepting omitted content. Recursive continuation replay preserves the production server-only receipt across its clone; recent-only source conflicts must request correction before publication without altering the preceding request bytes. Same-turn split-sentence recall context preserves literal books, causal events and speaker/turn fences. Recent closed-history ties remain stable under reversed insertion and physical row updates, retain timestamp precedence and render each session together. The memory_precision scale contract checks conflict detection and reviewed-reply acceptance over 32 records, 2048 ordinary NPC clauses and an 80-clause reply within five seconds and retains reign-recall-guard-scale-v1 metrics in tests/memory-accuracy/recall-guard-scale-*.json; evidence vocabulary is reused per check and inapplicable causal searches are skipped. Correction proof retains every eligible actually delivered original without a second keyword-overlap filter or record/character cutoff; 73-record, oversized-record, buried-answer and name-free paired-context controls exclude undelivered sources. Sampled source terms may order proof but cannot discard a delivered record. A dedicated plain evidence message binds trusted source IDs and content hashes independently of serialization. ID-only deletion, content mutation and insufficient capacity must block without clipping or dispatch. providerWireCapture.providerPreflight records final aggregate capacity/source checks after adapters; blocked initial or correction requests report writer_preflight_blocked and publish no dependent turn, and blocked prepared follow-ups report next_writer_preflight_blocked, preserve only prior accepted publication and cannot count as fullyReplayed/allRequestedTurnsReplayed. Strict offline blocked-repair stopping does not certify production marked-reply fallback. Local helper captures and writer/repair replay retain exact request hashes. Missing captures stay pending. Neither replay completion nor source coverage certifies generated accuracy or native behavior.",
       "writerReplay": {
         "safety": "No provider, active campaign, action dispatch, relationship numbers, scene/social/identity effects or listening runtime. The writer uses complete memory text plus precisionEvidence in the real envelopes; accepted captures publish only to the disposable fixture. Native group progression and human voice remain separate.",
-        "input": "Bounded writerReplay.model, snapshotAsOfSequence, profile/characteristics/state/relationships, sceneContext, nextContribution, response, contextCapacity, generationSettings and up to three continuations. Optional repairResponses enables captured production format/continuity repair: at most four requestSha256/response pairs, exact exported provider JSON hash, response content at most96000characters, existing256000character writer bound. Empty array exports missing repairs without publication. Captures do not carry across continuations. Disabled legacy finalCheck is compatibility only, never a checker call.",
+        "input": "Bounded writerReplay.model, snapshotAsOfSequence, profile/characteristics/state/relationships, sceneContext, nextContribution, response, contextCapacity, generationSettings and up to three continuations. Optional peerDisplayName is a trimmed single-line fixture label of 1 to 160 UTF-16 code units. It fills a missing eligible authored peer name before the legacy Player default and carries across continuations. Optional repairResponses enables captured production format/continuity repair: at most four requestSha256/response pairs, exact exported provider JSON hash, response content at most96000characters, existing256000character writer bound. Empty array exports missing repairs without publication. Captures do not carry across continuations. Disabled legacy finalCheck is compatibility only, never a checker call.",
+        "responseBinding": "New captured writer turns supply response.requestSha256 from that turn's providerWireCapture.requestSha256. Use nextWriterWireCapture.requestSha256 for the captured continuation. The replay checks 64 hexadecimal characters and matches the final serialized provider request before any accepted speech or memory write. A mismatch returns writer_response_request_mismatch. Inspect responseRequestBinding.status for verified or legacy_unbound. An unbound capture remains readable for compatibility. Before matched publication, advance the run-owned accepted sequence to the imported cutoff so both stored turns and nextAsOfAcceptedSequence follow the imported history. Writer cutoffs reserve 1000000 sequence values below the integer limit. Contracts cover malformed hashes, internal request hashes, preceding-turn hashes, matching publication, high archived sequence cutoffs and idempotent retry.",
+        "reviewedFactReplay": "Optional isolated precision comparison. Imports one to eight independently reviewed facts bound to their eligible original speaker, sequence, exact observer-projected text hash and quote. The initial request removes only declared older reported-exchange carriers. It must preserve 29 prior authored bodies and current contribution in role and order, deliver reviewed facts without IDs, and omit known older original bodies before a bound response can publish. Inspect reviewedFactProjection. After publication, ordinary reviewed-fact cases also capture reviewedFactFollowUp beside the stock next read. The diagnostic rechecks reviewed sources at the fresh cutoff, drops superseded facts, removes reported exchanges and recent recap records from the reference packet, and checks the newest 29 prior authored roles, bodies and IDs plus current contribution on the final wire. A blocked diagnostic is recorded independently. It cannot dispatch, publish a follow-up or alter the stock next read. Recovery, detached party, durable later-scene and continuation fixtures remain separate.",
+        "reviewedDeterministicCleanup": "Ordinary reviewed-fact free-prose dialogue and event fixtures with a hash-bound initial response can set writerReplay.repairResponses to an empty array. The replay runs native deterministic format and continuity cleanup. A provider-bound repair stops with writer_reviewed_deterministic_repair_requires_provider before exporting a repair request or publishing. Contracts cover native cleanup of a fabricated continuity quote, provider-required blocking and rejection of supplied generic repair responses. Reviewed writer plans, detached party, durable reads and bound reviewed recovery retain their own gates.",
+        "reviewedWriterPlan": "Optional reviewedFactReplay.writerPlan accepts reviewed_basis, reviewed_basis_with_player_report, reviewed_bound_delivery or reviewed_bound_delivery_with_player_report. The basis treatments put the source-bound recallBasis before a free reply. Guarded delivery takes independently reviewed direct and conversational strings in deliveryChoices and sends only their identifiers in the response schema. Bind the response to the exact request hash and its reviewedDeliverySha256, copied from reviewedWriterPlan.deliveryChoicesSha256. The selected line is rendered locally. Both mixed treatments require the exact current player report write. A trusted structured window, source joins and normal authority preflight are required. Changed fields, choices or receipts block publication. Approved speech goes through ordinary grounding and accepted-unit publication. Isolated dialogue and event fixtures only. No live request, detached party, recovery, durable later-scene or continuation. Independently count finalized serving input and decoder scope.",
+        "reviewedRecoveryReplay": "Optional isolated dialogue or event continuation of reviewedFactReplay with mode derived_retry or eligible_repair, one trialId, an exact hash-bound first draft and zero or one bound repairResponses capture. Only the current authored correction about earlier speech can open a fresh lookup. A short complete eligible exchange must match the pinned facts, full audience, older cutoff and visible source revision policy. Denial and format-only recovery use the derived-only body. Compare the complete native wire by the recorded insert position and independently enforce the finalized serving-template token ceiling before any local generation. Captured replies must match both the request and trial/arm binding hashes. No detached party binding, continuations, network or live runtime.",
+        "sceneFormationReplay": "A separate source-only reign-scene-formation-replay-input-v1 manifest stages through the same non-listening suite. It accepts 1–16 scoped cases and at most 512 accepted attributed rows total. It excludes query, labels, captured responses, workers and settings. It invokes the native closed-scene summarizer in disposable storage with generation disabled at 1800 and 5000 characters, captures identical attributed source options, and reopens the persisted summary, links and lexical row. Whole-source fallback may exceed the recap budget because it preserves originals in storage. Keep originals out of compact first-pass writer requests. Independently score coverage after replay and distinguish actual closed scenes from excerpt sizing controls. This route measures formation and persistence only.",
+        "durableReadReplay": "Optional isolated later-scene proof for one precision dialogue or event case with a bound captured response. Advance the run-owned sequence, publish the ordinary accepted unit and commit the reviewed projection on its matching active memory row. Seed 29 later authored rows in a fresh session. A fresh reader obtains the paraphrase from a normally ranked persisted record, checks its digest and uses canonical source metadata for revision, restore generation, recipient and cutoff eligibility. Export persistedReviewedProjection, stock and compact wires, authored rows, and early, foreign and tampered-source and projection checks. Same-text revision and narrower-audience controls require the unchanged stored row and lexical index to rank and record the exact denial reasons and finalized wires. Pair against identical speech with the explicit write omitted. Independently verify final authority, roles and token limits. No continuations, detached party, specialist or dense workers, provider, game or live storage.",
+        "publishedPartyViewSha256": "Optional detached publication receipt for one isolated initial precision party_chat case. Stage the pinned evidence-party-publication.json beside evidence-input.json. Independently bind case, cutoff, query, party audience, recent selection and exact authored row identities and bodies. The replay verifies the stored sources and uses the receipt only for the initial precision read and writer envelope. The final wire guard covers both arms and fails closed on changed history. The stock next read uses ordinary projection.",
         "evidence": "Actual request, providerWireCapture, initialCapturedProse, repairRequests, repairResponsesConsumed, conversationRepairEvidence, capturedProse, groundingAccepted, grounding issues/replyHash, acceptedProse, stored sources/memory layers, nextPacket, nextAsOfAcceptedSequence, nextWriterRequest/nextWriterWireCapture and publication receipts. Missing repair captures stay writer_repair_pending; mismatched hashes fail closed; production retry limits remain. Unresolved final grounding suppresses new memory/effects and reports an incomplete memory update. Other endpoint repairs and live transport remain excluded; replay never dispatches a provider or grants semantic qualification."
       },
       "ui": "chat-provider-ui-contract.mjs verifies absent retired controls and save keys, independent ordinary summary model profiles and three-width rendered Models pages.",
@@ -3284,5 +3426,579 @@
       "Homes/castle/review/approach/banter handoff excluded"
     ],
     "nativeAcceptance": "Save, quit, reload, click Continue; confirm transcript/image scroll, restored selection/counters and next ordinary typed reply. Repeat missing/dead/captured/moved member, changed place, added bystander, old-save rollback and campaign change. Native acceptance pending."
+  },
+  "warEconomy": {
+    "schema": "reign-war-economy-native-test-v2",
+    "manifest": "ReignServer/tests/ReignLiveTest/Features/WorldSimulation/war-economy-manifest.json",
+    "guide": "docs/agent/testing/WAR_ECONOMY.md",
+    "mcpTools": [
+      "reign_get_war_economy_test_manifest",
+      "reign_start_war_economy_test",
+      "reign_get_war_economy_provider_guard",
+      "reign_set_war_economy_provider_guard"
+    ],
+    "nativeOperation": "world_economy_test",
+    "modelRoutes": [
+      "direct",
+      "reviewed_naval_base",
+      "unsupported"
+    ],
+    "observedNonEnlistment": [
+      "native_ai_prisoner_transfer"
+    ],
+    "observedNativeFinance": [
+      "clan_daily_payout",
+      "kingdom_budget_credit",
+      "kingdom_support_withdrawal",
+      "caravan_remittance",
+      "military_party_remittance",
+      "town_market_wallet_adjustment",
+      "lord_purse_top_up",
+      "field_lord_purses",
+      "native_prisoner_awards",
+      "lord_loot_sale_proceeds",
+      "payer_identity",
+      "actual_wallet_mutations",
+      "native_finance_components",
+      "gold_barter_transfers",
+      "civilian_market_cash_component",
+      "horse_and_nonfood_market_sales"
+    ],
+    "observedNativeFood": [
+      "native_explanation",
+      "market_contribution",
+      "market_inventory",
+      "prosperity",
+      "garrison",
+      "event_and_espionage",
+      "civilian_consumption"
+    ],
+    "profiles": [
+      "snapshot",
+      "cohort_control",
+      "recruitment",
+      "production_probe",
+      "relief_probe",
+      "funding_probe",
+      "market_food_probe",
+      "household_probe",
+      "raid_food_probe",
+      "raid_partial_setup",
+      "raid_setup",
+      "readiness_probe",
+      "funding_trace",
+      "save_prepare",
+      "save_verify",
+      "civilian_crew_probe",
+      "ship_funding_probe",
+      "replacement_setup"
+    ],
+    "sources": [
+      "ai_volunteer",
+      "native_auto_garrison",
+      "native_base_garrison",
+      "native_naval_garrison"
+    ],
+    "gates": [
+      "verification control",
+      "exact paused armed enrolled disposable Current",
+      "retained drained checkpoint for recruitment and controlled probes",
+      "invalid economy steps rejected before live run creation",
+      "provider and time/save authority remain separate"
+    ],
+    "providerIsolation": "Prepare the run-owned guard with verification control and exact confirmation while game and managed server are stopped; the selected WSL distro must already be running. Configure producers separately and reversibly. Generation is blocked before dispatch, including streams, subscription generation, reference uploads and image retrieval. Blocked attempts fail the test precondition. Require fresh runtime evidence from every process, retain attempt files across restarts, then stop game/server and release only the same task/run marker. No simulated provider responses or zero-dispatch claims from the marker alone.",
+    "controlledFixtures": "Production quotes19 fixed hearth inputs at0/30/100-percent recovery through actual loaded models and restores inputs in finally. Relief arranges bounded stocks in2-64 current-realm holdings, uses one declining45-percent donor and the production transfer adapter, reports setup adjustments separately, and restores stocks/counters/loyalty in finally. Both need exact paused armed Current plus a retained checkpoint. Snapshot discovers exact native candidates; callbacks recheck eligibility. Interrupted probes require checkpoint restore. Relief2 additionally compares current native chronic deficits against the legacy10/15 forecast on identical arranged inputs (at most2 adapter passes,64 holdings,10000food capacity/holding and100000total); restores all stocks/counters/loyalty and excludes synthetic calls from actual-pass evidence. Unavailable chronic routes do not satisfy that coverage.",
+    "providerGuardSnapshot": "Owner identity and SHA-256 use the same bounded snapshot, with an actual-read maximum of 16384 bytes and exact distro-name matching. Replacement and byte-limit contracts do not arm the runtime guard.",
+    "nativeProbeOracle": "Native proceeds rewrites require exact original and replacement MethodInfo identities and call opcode, preserve every branch label/exception boundary and array operand, and use unrelated/same-name/null/no-op/lost-boundary negative controls. Current displayed behavioralCoverageComplete is false for stale or legacy evidence while original telemetry remains unchanged. Pressure limits accept 1024 unique directed pairs and reject 1025 independently of duplicate rejection. The standing Node contract drains both redirected pipes concurrently and enforces a 30-second process deadline. The isolated compiled government-hearth oracle checks the actual model call path and48 native ExplainedNumber cases across negative/zero/positive factors, signed/zero authored deltas, descriptions and native floors/ceilings. Additive governmentHearthFlat/governmentHearthFlatCases evidence is required; this does not certify native campaign bonus application.",
+    "medicalDischarge": {
+      "version": 1,
+      "procedure": "docs/agent/testing/WAR_ECONOMY.md#medical-discharge",
+      "contracts": "MedicalDischargeTests; WarEconomyNativeHookTests compiled binding probe",
+      "scope": "Uniform hard cap per original surviving free military party: maximum60/45/30/15/5percent at Medicine0/75/150/225/300. Captured/hero/militia/civilian exclusions; no retroactive wound scan.",
+      "evidence": "snapshot.medicalDischarge version1 exposes binding errors, discharged/hearth/excluded counters, active count and bounded detailed recent receipts; no new live mutation command.",
+      "isolation": "Offline policy and fresh-process compiled hook checks only. No game, campaign, providers, deployment or listener. Native acceptance requires separately authorized deployment and guarded disposable Current.",
+      "acceptance": "Pending real mission/simulation, captured-prisoner invariance, siege/naval/retreat, save-reference roundtrip, exact roster/XP/hearth deltas and replacement/readiness measurements. Binding alone is not acceptance."
+    },
+    "contracts": "ReignWarEconomyPolicyTests, ReignWarEconomyLedgerTests, WarEconomyNativeHookTests, WarEconomyScenarioContractTests and NativeProviderTestGuardTests",
+    "evidence": "Native before/after resources and source receipts, exact save/game-instance identity, reign-war-economy-persistence-v3 distinct-process reload fingerprint including active aid/expeditions, shipments, court obligations/receipts, authority benefits, resolutions, edict escrow and accords; installed hooks and old telemetry never imply complete coverage. Detailed reports export outside the save.",
+    "cleanup": "Restore the exact run-owned checkpoint via campaign-test; only confirmation-gated exact run-owned saves may be deleted.",
+    "acceptance": "Pending source-specific native/UI/persistence proof, fresh matched63-daypeace/war plus64-dayrecovery, declining-donor conservation, provider-free126-daystability andhumanacceptance. Earlier32-daystartingprotocol remains historical; it does not satisfy the newer63-dayrequest.",
+    "fundingProbeSources": [
+      "lord_purse",
+      "kingdom_support",
+      "market_balance",
+      "loot_sale",
+      "horse_sale",
+      "prisoner_sale",
+      "gold_barter",
+      "market_purchase"
+    ],
+    "fundingTraceControls": [
+      "trace_begin",
+      "trace_observe",
+      "trace_end"
+    ],
+    "fundingAudit": "Exact armed paused owned Current and retained recovery. Funding probes use closed native components, explicit synthetic inputs and finally-restored wallets/rosters/inventories/counters. Restore Current afterwards to discard native event/skill side effects before saving, advancing or measuring a natural campaign. Trace controls observe a fixed current-realm clan cohort, distinct hero/kingdom/market wallets, exact transfer counterparties and applied native finance components. No provider, time, consent or political-decision authority. Process-local evidence expires after three native days or one real hour, caps32768 wallets,8192 shared mutation/component/origin/population rows and8192 transfer rows, and fails on missing/dropped/error/unexplained evidence. Export before ending/reloading. Prisoner sale tests one regular at each tier1-6 and reports actual null-payer counter deltas plus default/loaded recruitment prices. Loot tests one funded item and two partial stacks of20 each against limited market cash. Purse tests include hero wages and actual clan debit at50000/250/0 cash. Select a living free current leader with a unique active party; cleanup never clears hero rosters. Trace6 records all alive/dead/disabled hero wallets, native generation identity and opening/closing/per-mutation clan/kingdom ownership. Nonzero newly discovered wallet openings remain an explicit unknown-history gap; exact observed cash reconciliation is not full source or national-origin acceptance. Attribute ownership changes separately from earned cash. Keep bounded traces under8192 rows, three native days and one wall hour; use shorter windows and export every segment. Replacement_setup removes half the healthy regulars, at most100, proportionally from one exact free NPC kingdom lord party. It preserves all protected resources, grants nothing, quotes100 culture-basic recruits without promising stock/upgrades/equipment, does not simulate full native combat, and requires Current restore after the measurement branch.",
+    "subsistenceConsumption": "Subsistence version3 forecasts seven days from the original native spendable category budgets, actual inventory-capped food units and loaded no-market food net, never yesterday's redirected SoldItems. Below20-percent current or counterfactual projected reserves, reallocate only existing nonfood purchasing power to the total subsistence target without reducing native food allocations. Finite linear negative demand still contributes zero purchasing power. Preserve original demand when no redirect occurs; never write persistent market demand. Native prices, rounding, goods removal and market credits remain. Eight native baseline/priority pairs cover supplied, empty, poor budget, funded healthy, negative demand, negative grain with funded alternative fish, projected shortage and projected-empty inputs. One NPC town, at most450 grain,150 alternative fish,200 nonfood units,150 required food units,100000 spendable budget per call and16 native consumption calls. Restore resources/RNG/latest observations and reload exact Current before advancement/save. Native abstract food-category definitions remain unchanged.",
+    "householdGeneration": "Registration version2: native assigns MBGUID after InitializeLordPartyProperties. Unique saved monotonic provisional tokens distinguish unregistered object instances; MobilePartyCreated finalizes only matching receipts to real native IDs. Existing parties are seeded on load without retroactive charges; legacy zero-ID evidence remains historical. household_probe requires a safe NPC fortification with thirty available recruits and an actual funded free NPC lord. It creates at most three parties, verifies duplicate initialization, destroy/recreate with reused string ID and distinct native ID, and zero troops from an empty payer. No cash or population is injected. Restore exact Current before natural advancement/save; numeric payer/population cleanup does not erase native side effects. Native cancellation trials (at most two transient single recruits) verify rollback restores payer cash, roster, Village-component-keyed hearths and strain, with zero committed expense. Finally restores numeric fixture inputs; full Current reload remains mandatory. Temporary maps use CLR reference identity because MBObjectBase.GetHashCode changes with native Id assignment; native registration2 evidence is required. Cancellation assertions compare their own immediate before-state independently from duplicate-callback assertions.",
+    "readOnlyBalanceCensus": [
+      "village_settlement_and_bound_ids",
+      "holding_security_loyalty_prosperity",
+      "holding_garrison_and_militia_members",
+      "clan_active_field_parties_and_members"
+    ],
+    "wageObservation": {
+      "version": 2,
+      "garrisonPayer": "current_settlement_owner",
+      "historicalCoverageComplete": false,
+      "unattributedPayments": "explicit counter; no inferred payer or fabricated historical payments",
+      "components": [
+        "field",
+        "garrison"
+      ],
+      "resourceWrites": 0
+    },
+    "unsupportedBudgetQuote": "One bounded failing native category reports actual demand, unit/zero/half/whole quotes and model identity; unsupported shapes still fail closed without changing native purchasing inputs.",
+    "persistenceComponentFingerprints": {
+      "schema": "reign-war-economy-persistence-components-v1",
+      "unchangedPrimaryDigest": "reign-war-economy-persistence-v3",
+      "objectKeysCanonical": true,
+      "arrayOrderPreserved": true,
+      "privateValuesExported": false,
+      "acceptance": "Unequal primary digests remain a persistence gap; component hashes identify evidence to investigate."
+    },
+    "nativeMarketSales": "Native horse behavior non-food and surplus-mount sales share exact current-wallet affordability with the loot route. Unsold items remain. Buying horses retains native behavior. The guarded horse_sale probe covers funded non-food, partial multi-stack, empty-wallet mounts and partial mount sales; two synthetic mounts maximum. Additive paid-sale counters do not invent prior income. Native trace8192-row budget remains bounded; large report reads can use the existing supported16MiB API cap.",
+    "nativeConsumptionCashObserver": "Funding trace2/consumption observer1 records actual native MakeConsumption market gold before/after and the already observed hook net. Only an unobserved nonnegative remainder is added to the observational net; physical gold is never written. Negative, excessive or overflowing overlap fails evidence instead of masking double counting. cashComponent rows retain actual before/after, overlap and supplemental amounts separately. Hook counts alone are not coverage; older trace1 evidence remains readable but cannot certify this observer. Natural native proof requires no residual/drops/errors/expiry plus exercised observer rows.",
+    "navalRecruitment": {
+      "version": 1,
+      "source": "native_naval_garrison",
+      "nativeTarget": "NavalDLC.CampaignBehaviors.ShipTradeCampaignBehavior.OnSettlementEntered",
+      "maxNativeIncrement": 20,
+      "arrivalReceiptLimit": 8192,
+      "arrivalReceiptRetentionDays": 3,
+      "fullCurrentRestoreAfterProbe": true,
+      "fixture": "Existing NPC governor and garrison, two actual naval caravans; thread-local ShipwrightsHand override only during two synthetic arrivals and duplicate callback. Temporarily empty actual payer for second arrival, restoring that wallet in finally. No persisted perks, cash grants, party creation, providers or time advancement. Full Current restore before natural measurement or saving.",
+      "transferScope": "Kings Pardon pirates remain transfers. Civilian fishing/caravan crews consume zero hearths by user request2026-11-05. New standing garrison soldiers created by ShipwrightsHand remain a separate military enlistment route.",
+      "initialCampaign": "explicit_native_exception_no_charge"
+    },
+    "fiscalObservation": {
+      "version": 2,
+      "readOnly": true,
+      "fields": [
+        "settlementTaxModel",
+        "nativeTownTaxRatio",
+        "nativeVillageTaxRatio",
+        "tradeTaxAccumulated",
+        "settlementEconomyModel"
+      ],
+      "interpretation": "Effective native model coefficients and accumulated tariff are game observations, not literal historical tax rates. Applied clan components overlap wallet changes."
+    },
+    "tariffCollection": {
+      "version": 3,
+      "rule": "same_realm_native_food_and_horse_provisioning",
+      "nativeTargets": [
+        "PartiesBuyFoodCampaignBehavior.BuyFoodInternal",
+        "PartiesBuyHorseCampaignBehavior.BuyHorses",
+        "SellItemsAction.ApplyInternal",
+        "Town.set_TradeTaxAccumulated"
+      ],
+      "scope": "Actual military-leader payer and current town owner share the same nonempty current kingdom, or are the same independent clan, inside exact native food/horse buying scope with matching party/locality/item. Foreign/allied kingdoms, caravans, manual and unscoped commercial purchases keep the loaded native rate. Current membership governs after conquest, defection or civil war. Public aid already purchasing directly keeps its existing accounting. Initial campaign retains native treatment.",
+      "collection": "Actual native per-unit quotes and native commission rounding retained. Post-start NPC purchases from towns and villages receive only units affordable by the exact native caravan or leader payer; both stock writes and cost accumulation are gated together. Main-party and initial-campaign behavior remains native. Qualifying internal military town commission ratio stays zero. Version3 receipts separate attempted quotes from fulfilled native price, paid cash and blocked units; legacy receipts remain readable and are not reclassified.",
+      "historyLimits": {
+        "sources": 8192,
+        "pools": 8192,
+        "recent": 128
+      },
+      "observations": [
+        "actual_payer_and_party_clans",
+        "town_owner_at_purchase",
+        "buyer_class_and_native_purpose",
+        "item_quantities_and_wallet_changes",
+        "native_model_and_ratio",
+        "commission_debit_and_pool_credit",
+        "all_pool_changes_and_outside_sale_credits",
+        "current_process_counts_and_unsupported_evidence"
+      ],
+      "countersOverlap": true,
+      "nativeAcceptance": "Pending real owned/non-owned military provisioning, commercial controls, accrued-pool withdrawals, bonus composition, save/reload, peace/war/recovery and stability. Structural hooks are not gameplay proof."
+    },
+    "raidSetup": {
+      "version": 1,
+      "maximumVillages": 1,
+      "candidateLimit": 32,
+      "nativeAction": "ChangeVillageStateAction.ApplyBySettingToLooted",
+      "setsSettlementHitPoints": 0,
+      "simulatesCombat": false,
+      "createsLootOrCasualties": false,
+      "syntheticHearthDestruction": false,
+      "existingEnemyNpcPartyRequired": true,
+      "scenarioLeftActive": true,
+      "fullCurrentRestoreAfterBranchRequired": true,
+      "acceptance": "pending native raid callbacks and recovery days"
+    },
+    "financeSnapshot": {
+      "version": 1,
+      "heartbeatField": "financeObservationClans",
+      "values": "actual clan cash, liabilities, wage/income/net quotes and last observed cash change; quotes are not payments",
+      "resourceWrites": 0,
+      "realmWealthSpendableByRuler": false
+    },
+    "militaryReadiness": {
+      "version": 1,
+      "guide": "docs/agent/REIGN_MILITARY_READINESS.md",
+      "peaceBase": 0.45,
+      "hostilePressureStoredSign": "positive",
+      "pressureRampFrom": 10,
+      "pressureRampTo": 100,
+      "frontierMaximum": 0.75,
+      "interiorMaximum": 0.6,
+      "frontierDistance": 90,
+      "snapshotTtlDays": 1,
+      "snapshotMaxPairs": 1024,
+      "snapshotSource": "current directed campaign/timeline political_pressure_state including consumed zeros; existing notices response",
+      "snapshotValidation": "strict complete version1 types, matching campaign/timeline, at most1024 unique directed pairs, integer pressure -100..100; reject malformed and oversized integers before cache replacement",
+      "compiledProbeEvidence": "pressureParsingBounded: bounded invariant parser including custom negative-sign culture; upgradePayerBinding: native living-owner/leader payment shape and isolated Hero states in the validated client; no campaign mutation or provider",
+      "atWarTarget": 1,
+      "garrisonTarget": 1,
+      "garrisonWageFactor": 0.75,
+      "garrisonMenPerFood": 25,
+      "visitingFieldPartyDiscount": false,
+      "heroOrGuestSalaryDiscount": false,
+      "automaticRecruitmentOnly": true,
+      "manualPlayerAndExplicitPlayerForceOrder": "ordinary resource gates, no peace ceiling",
+      "legacyOversizedParties": "real daily least-tier then mean-XP healthy regular drawdown:5percent native capacity,minimum1 maximum10,stop at peace target; defer active battles/armies/sea/player mainparty/explicit player force orders",
+      "nativeAcceptance": "pending",
+      "drawdown": {
+        "dailyNativeCapacityFraction": 0.05,
+        "dailyMinimum": 1,
+        "dailyMaximum": 10,
+        "sort": [
+          "tier_ascending",
+          "mean_xp_ascending",
+          "troop_id"
+        ],
+        "hearthReturnPerActualDischarge": 0.25,
+        "hearthBudgetScope": "one fixed realm budget split among current functioning kingdom villages; no town prosperity, cash, strain or recovery reset",
+        "receiptRecentLimit": 128,
+        "partyGenerationDayLimit": 8192,
+        "pendingLimit": 128,
+        "noReplayOfUncertainOperations": true,
+        "fixture": "readiness_probe; exact existing safe NPC peace field party; same paused armed Current/recovery gates; full Current reload after branch",
+        "nativeAcceptance": "pending actual drawdown, wounded/elite retention, realm changes and save/reload"
+      }
+    },
+    "purchaseAffordability": {
+      "version": 1,
+      "nativeTarget": "SellItemsAction.ApplyInternal",
+      "quoteCalls": "one per attempted unit",
+      "commissionCalls": "one per original sale",
+      "stockSites": 2,
+      "mainPartyUnchanged": true,
+      "initialCampaignUnchanged": true,
+      "exactPayer": "native IsCaravan party wallet, otherwise LeaderHero.Gold; no fictional payer",
+      "villageReceiptCoverage": "guarded with process-local counts; detailed tariff receipts remain town-only",
+      "probe": "funding_probe source market_purchase; two actual existing NPC buyers (lord and caravan), five fixed cases each, zero market cash, at most10 synthetic market units and100000 payer cash per case, exact stock/cash/pool/RNG restoration; full Current reload required"
+    },
+    "balanceTargets": {
+      "reignDaysPerYear": 126,
+      "wellSuppliedWarResilienceDays": 63,
+      "requiresForcedStarvation": false,
+      "peaceStanding": "Supplied peaceful holdings must sustain food without starvation; severe raids and sieges are separately attributed exceptions.",
+      "status": "Requested target; not yet native acceptance."
+    },
+    "nativeFoodCensus": {
+      "version": 2,
+      "maximumSettlements": 256,
+      "processLocal": true,
+      "excludesCivilianFixtures": true,
+      "fields": [
+        "first_last_day",
+        "maximum_gap",
+        "time_regression",
+        "minimum_food",
+        "zero_observations",
+        "first_zero_day",
+        "raid_siege_exposure",
+        "owner_and_realm_changes",
+        "distinct_day_zero_streak",
+        "maximum_consecutive_zero_days",
+        "duplicate_day_samples",
+        "subsistence_eligibility_redirects_observed_transitions"
+      ],
+      "samplePhase": "native consumption; stock update and starvation casualties remain native",
+      "coverage": "Not a balance certificate or casualty count. First native sample owns each distinct day; duplicate calls cannot advance a zero streak and missing days break it. Require all expected town IDs, full first/last window, acceptable internal/trailing gaps, no drops/errors/regression, plus native raid/siege/ownership/clan-membership history. Castles without native consumption callbacks require separate observation. Reload resets observations; version1 cannot satisfy version2 streak checks.",
+      "subsistencePolicyVersion": 3
+    },
+    "reliefAllocation": {
+      "version": 2,
+      "donorCapacityFraction": 0.075,
+      "donorMinimumShippedPerDay": 10,
+      "donorMaximumShippedPerDay": 30,
+      "recipientMinimumDeliveredPerDay": 15,
+      "recipientMaximumCapacityFraction": 0.25,
+      "refillDays": 7,
+      "refillUses": "current_stock_not_projected_stock",
+      "nativeNetExcludesIncomingRelief": true,
+      "routeDistanceLimit": 180,
+      "deliveryEfficiencyRange": [
+        0.7,
+        0.9
+      ],
+      "existingStockOnly": true,
+      "samePassReexport": false,
+      "diagnosticMaximumNetworks": 64,
+      "diagnosticMaximumHoldingsPerView": 256,
+      "diagnosticMaximumShipmentsPerView": 2048,
+      "diagnosticMaximumRecipientDecisionsPerView": 256,
+      "actualEvidence": "process-local last daily passes with exact inputs, native coordinates, planned shipments, actual after-stocks and native-float conservation residuals; cumulative capture errors/drops",
+      "counterfactualEvidence": "current-input active and legacy10/15 plans are read-only forecasts, never actual dispatch receipts",
+      "fixtureEvidence": "one declining-donor native pass plus a chronic-recipient pass when actual deficit and routes support it; require chronicRecipientCoverageComplete, exact stock restoration and unchanged actual-pass diagnostics; unavailable is not chronic coverage",
+      "coverage": "Check source version, day/window, cumulative errors/drops, stale/truncated rows, ownership and current realm membership. Last-pass evidence does not certify every historical route."
+    },
+    "subsistencePriority": {
+      "version": 3,
+      "forecastDays": 7,
+      "reserveRatio": 0.2,
+      "forecastBasis": "original_native_budget_and_available_inventory",
+      "usesPreviousSellLog": false,
+      "createsPurchasingPower": false,
+      "inventoryCapped": true,
+      "hysteresisState": false,
+      "minimumTarget": "max(base_deficit_plus_current_reserve_rebuilding,native_planned_food)",
+      "trigger": "current_reserves_below20percent_or_original_native_plan_projected_reserves_below20percent",
+      "diagnostics": "Counterfactual native-plan net/projection are distinct from actual native food change and actual relief. Additive census eligibility/redirect/unsupported days and observed transitions require policy3 evidence; duplicate native calls do not add days.",
+      "acceptance": "Pending native projected-shortage/healthy/empty/poor-budget pairs, exact Current reload, multi-day transition observations, fresh63-daypeace/war and stability. No grace or automatic food replenishment."
+    },
+    "populationObservation": {
+      "version": 1,
+      "fundingTraceVersion": 6,
+      "nativeTarget": "Village.set_Hearth",
+      "scope": "fixed realm village IDs captured with the existing funding trace",
+      "fields": [
+        "opening_closing_hearths",
+        "actual_setter_before_after_delta",
+        "native_call_route",
+        "unexplained_balance"
+      ],
+      "cashAccounting": "Separate hearthBalances and populationVillage rows never enter currency balances. Fractional native hearths retained; absolute residual must not exceed0.0001. No hearth, strain, troop, inventory, wallet or production writes.",
+      "bounds": "Existing process-local8192 shared rows,3 native days and1 real hour; overflow/error fails trace. Old trace2 contains no population coverage.",
+      "acceptance": "Native binding/oracle plus deterministic contracts and real trace/reconciliation pending. A hook count does not establish causal source totals."
+    },
+    "civilianCrewPopulation": {
+      "version": 1,
+      "policy": "zero_hearth_cost_for_fishing_and_caravan_crews",
+      "nativeFishingType": "NavalDLC.CampaignBehaviors.FishingPartyCampaignBehavior",
+      "nativeFishingCallbacks": [
+        "OnDailySettlementTick",
+        "TryReinforceParty"
+      ],
+      "scope": "Replace only each fishing callback's one direct Village.Hearth write. Keep native crew creation/reinforcement, fishing output, cadence, ships and all other resources. Caravan factory/crew initialization already has no native hearth write; validate actual callbacks. Actual regular military enlistment into garrisons remains accounted separately.",
+      "fixtureProfile": "civilian_crew_probe",
+      "fixtureBounds": {
+        "maximumCreatedParties": 2,
+        "maximumTroopsPerParty": 100,
+        "maximumWarehouseUnits": 2000,
+        "minimumVillageHearths": 80
+      },
+      "fixture": "One safe native coastal NPC village and bound NPC merchant town. Temporarily empty/restore bounded warehouse and override fishing chance/capacity only for one native callback. Create one fishing party, leave1 crew and invoke real reinforcement. Create one native land caravan, then invoke its crew initializer with its real template. Measure every village's hearths unchanged after each source. Destroy only exact returned fixture parties. No player assets or hearth/cash grants. Native caravan initial trade wallet is a temporary factory effect, not a funding acceptance test. Partial callbacks require retained Current recovery.",
+      "acceptance": "Pending canonical validation, native forced4-case probe and full Current restore."
+    },
+    "fundingOriginObservation": {
+      "version": 2,
+      "fundingTraceVersion": 6,
+      "walletScope": "All native hero wallets, non-aliased party cash storage, settlement markets, kingdom budgets, clan/kingdom tribute wallets, town/village accumulated tax pools and workshop capital. Reference identity retains unregistered/reused native identities. Lord PartyTradeGold aliases Hero.Gold and is counted once. Primary clan cohort remains explicitly fixed; other accounts are counterparties.",
+      "boundaries": [
+        "actual ClanVariablesCampaignBehavior.DailyTickClan flow",
+        "ordinary plunder allocation",
+        "naval prize cash allocation",
+        "actual MapEventParty.CommitGoldChanges before resets"
+      ],
+      "rule": "Allocation/finance quotes and actual currency mutations are separate and correlated by flow IDs. Compare actual battle payout/loss against assigned amounts; do not call a null-giver payout new currency without following loser debits. Record source model types. Opening wealth is observed, never assigned invented historical provenance.",
+      "limits": "32768 distinct wallets;8192 shared mutation/component/origin/population rows and8192 transfer rows; three native days or one real hour. Use eighth-day segments and export each. Every registered wallet remains in closing reconciliation; no zero/poor/dead wallet exclusion. Missing/dropped/error/unexplained evidence fails.",
+      "acceptance": "Pending exact loaded binding tests, closed native source fixtures and a whole-day segmented trace/reconciliation/source classification.",
+      "walletLimit": 32768,
+      "historyRowLimit": 8192,
+      "transferLimit": 8192,
+      "leaderlessWageStoreObserverVersion": 1,
+      "leaderlessWageStores": "Replace only the single native Hero.Gold write in DefaultClanFinanceModel.AddPartyExpense and the loaded NavalDLC copy. Invoke the same setter exactly once; compare actual before/after against already-recorded changes for that same payer. Count setter callbacks and record any unobserved debit without double-counting. Unexpected positive corrections/errors/drops/residuals fail. This observer does not alter money, prices, troops or wages."
+    },
+    "navalFunding": {
+      "version": 1,
+      "fixtureProfile": "ship_funding_probe",
+      "rule": "native_player_prices_discounted_npc_purchases_acquisition_resale_real_market_funding",
+      "hookCount": 15,
+      "nativeCostType": "NavalDLC.GameComponents.NavalDLCShipCostModel",
+      "nativePriceMethods": [
+        "GetShipBaseValue",
+        "GetShipUpgradePieceValueInternal"
+      ],
+      "sourceGuards": "Exactly one0.01factor per private base and upgrade price method; one unclaimed-ship valuation;4hero,2party-debit,2party-credit and1quote call sites in ChangeShipOwnerAction.ApplyInternal. Exact15 owned bindings, native save container and preserved IL boundaries are required.",
+      "costs": "Player purchase, repair and upgrade prices remain native. NPC purchases, repairs and upgrades retain native1% economics. Resale first uses normal hull/upgrade/repair values, then applies1% for NPC-purchased hulls. Captured ships retain native30% resale less damage deductions. Native perks, policies and rounding remain.",
+      "losses": "Native sibling-ship transfers and captured hulls remain real transfers. Remaining hulls destroyed by party removal and unclaimed prize hulls destroyed by native battle cleanup yield zero cash. No retrocharge or wealth reset.",
+      "trades": "Fund actual mobile/clan wallet and settlement market transfers. Require full quoted funds and destination capacity before mutation. Duplicate same-owner callbacks charge zero. Governor trade/repair perks require outside-clan paid business, capped by authored bonus, actual transaction value and real port funds; no deferred commission claims.",
+      "persistence": "Additive navalVersion1,32 pending and128 recent receipts,8192 live acquisition records, plus two versioned native ship-reference save keys. Mismatched references/IDs/receipts fail closed. Interrupted payments never replay. Dead references are pruned before saving.",
+      "fixtureBounds": {
+        "syntheticHulls": 5,
+        "auxiliaryParties": 2,
+        "seededWallets": 4,
+        "maximumGoldPerWallet": 1000000,
+        "cases": 17,
+        "maximumSeededWallets": 4,
+        "temporaryExistingGovernor": 1,
+        "temporaryExactHeroPerkOverrides": 2
+      },
+      "fixture": "Exact paused armed disposable Current and retained checkpoint, existing free NPC lord party/friendly port with ordinary hull, one free same-realm existing hero and safe friendly/hostile NPC parties. Fixed5 synthetic hulls,2 auxiliary parties and4 seeded wallets<=1M each. Temporary governor assignment and2 exact-hero perk overrides manufacture paid/poor/self/free cases. Native capture action is tested separately from full combat. Restore prior governor, hero/market/party cash, remove only fixture hulls/parties and exact fixture hooks; mandatory full Current reload before save or natural advancement. Fixtures never establish historical funding.",
+      "acceptance": "Pending canonical source/binding contracts,17 forced native trade/loss/transfer/capture/perk cases, native save-reference proof and full Current restore; direct capture-action/helper checks alone do not establish native battle capture acceptance.",
+      "acquisitions": "Persist native List<Ship> references and parallel receipt IDs, linked to JSON acquisition records. Friendly transfers preserve acquisition; native ApplyByLooting including deferred player battle loot promotes captured status; actual purchases replace basis. Existing unknown NPC ships use an explicit discounted owner-class fallback; historical captures and prices are not invented. Player legacy ships retain native valuation. Maximum8192 live records; no silent eviction.",
+      "npcPurchaseFactor": 0.01,
+      "purchasedNpcResaleFactor": 0.01,
+      "capturedResale": "native_30_percent_less_repairs",
+      "playerPurchase": "native",
+      "admissionVersion": 1,
+      "serverAdmission": "LiveInteractionTest.NormalizeLiveTestCommand admits ship_funding_probe only for passive_world with enrolled run/save, exact party and settlement, and empty selectable source. Its isolated contract rejects each missing identity, another mode and a money source. Initial native rejection created no run or resource mutation."
+    },
+    "criminalPressureAcceptance": {
+      "version": 1,
+      "scope": [
+        "bandits",
+        "looters",
+        "deserters",
+        "pirates"
+      ],
+      "required": "Measure party counts, troop strength/tier mix, attacks and losses to villagers/caravans/patrols, suppression by kingdom forces, fleet availability and recovery. Compare war and peace; inability to police is failed balance. No blanket outlaw nerf or guaranteed navy-size claim.",
+      "status": "Native baseline/corrected observation pending."
+    },
+    "cohortControl": {
+      "schema": "reign-war-economy-cohort-control-v1",
+      "profile": "cohort_control",
+      "sources": [
+        "cohort_enable",
+        "cohort_disable"
+      ],
+      "gates": "Existing verification-control, exact paused armed task-owned Current, retained recovery checkpoint; reject active rebellions and require actual peace and war controls.",
+      "scope": "Ephemeral exact Campaign reference/native instance/Current/run. Captures currently peaceful NPC kingdoms, excluding player kingdom. Blocks their war declarations at action and FactionManager boundaries; suppresses native town and Reign weekly/civil-war outbreaks before asset creation. Ordinary loyalty, economy and other wars remain native.",
+      "bounds": {
+        "nativeDays": 61,
+        "wallHours": 6,
+        "sampleCount": 256,
+        "sampleIntervalDays": 0.25,
+        "requiredHooks": 5,
+        "kingdoms": 64,
+        "probeHeroes": 32768,
+        "probeClans": 4096,
+        "probeSettlements": 4096,
+        "activationAttempts": 5
+      },
+      "evidence": "Independent actual kingdom war matrix and peace-cohort clan/holding IDs each quarter day; blocked-call counters and source-specific exact hook binding. A violation or expired/lost ownership pauses native time and removes only owned hooks. No persisted test flags, resource edits or providers.",
+      "continuity": "Same-owner duplicate enable cannot extend expiry. Reload ends continuity; fresh enable and a separate run are required. Actual war duration and clan/holding changes remain reported confounders; this does not force ongoing wars.",
+      "cleanup": "cohort_disable while paused exports final evidence and removes only this owner. Automatic expiry/ownership change also pauses/unpatches. Do not use the controlled save as ordinary gameplay acceptance.",
+      "guardProof": "At activation, five explicit native callback attempts while paused must each hit the guard exactly once and leave actual war stances, hero wallets, clan allegiance/influence, settlement ownership/food/hearths, economy operation and native time unchanged. Synthetic hits are separate from natural blocked attempts. Any failed proof invalidates activation; restore Current before retrying."
+    },
+    "balanceRevision": {
+      "version": 3,
+      "productionCurveVersion": 3,
+      "recruitmentPriceVersion": 3,
+      "healthyOutput": {
+        "low": "2 * (H / 10) ^ (ln(5.5) / ln(30)) for 10 < H <= 300",
+        "middle": "11 + (5.5 / 300) * (H - 300) for 300 < H <= 600",
+        "high": "16.5 + (5.5 / 600) * (H - 600) for H > 600",
+        "anchors": {
+          "0": 0,
+          "10": 2,
+          "300": 11,
+          "600": 16.5,
+          "1200": 22,
+          "2000": 29.333333333333332
+        },
+        "commodityDivisor": 12,
+        "supplementaryFoodDivisor": 6,
+        "nativeHearthThresholds": [
+          200,
+          600
+        ],
+        "nativeBoundFood": [
+          6,
+          12,
+          18
+        ],
+        "nativeCommodityMultipliers": [
+          0.5,
+          1,
+          1.5
+        ],
+        "nativeSupplementaryFood": [
+          1,
+          2,
+          3
+        ],
+        "recoveryApplications": 1,
+        "nonFunctioningOutput": 0,
+        "subsistence": "12 * (H / 300) ^ (ln(6) / ln(30)) for 0 <= H <= 10"
+      },
+      "hireMultipliers": [
+        3,
+        3.6,
+        4.5,
+        6,
+        8.25,
+        10.5
+      ],
+      "tierBands": [
+        "0-1",
+        "2",
+        "3",
+        "4",
+        "5",
+        "6+"
+      ],
+      "dailyWageMultipliers": [
+        1,
+        1.15,
+        1.5,
+        2,
+        3,
+        4
+      ],
+      "hireIncreaseRelativeToPrevious": 1.5,
+      "upgrade": "native_repriced_recruit_difference_no_extra_multiplier",
+      "ransom": "existing_native_quote_exclusion",
+      "savePayloadMigration": "none_no_resource_reset_or_retrocharge",
+      "requiredEvidence": [
+        "productionCurveVersion=3",
+        "recruitmentPriceVersion=3",
+        "native controlled production and paid recruitment/upgrade observations",
+        "unchanged wages and native ransom prices",
+        "versions require healthy installed hooks and loaded model owners; version labels alone are not coverage"
+      ],
+      "nativeAcceptance": false,
+      "priceComparisonBaseline": "previous_Reign_revision2_not_native"
+    },
+    "walletOwnershipObservation": {
+      "version": 1,
+      "fundingTraceVersion": 6,
+      "scope": "all_alive_dead_disabled_and_clan_heroes_plus_distinct_native_accounts",
+      "perMutationOwner": true,
+      "openingAndClosingOwners": true,
+      "nativeGenerationIdentity": true,
+      "unknownEntryBlocksOriginAcceptance": true,
+      "observationClosureIsNotOriginClosure": true,
+      "physicalResourceWrites": 0
+    },
+    "replacementSetup": {
+      "version": 1,
+      "profile": "replacement_setup",
+      "minimumHealthyRegulars": 20,
+      "maximumHealthyRegulars": 32768,
+      "maximumRegularLoss": 100,
+      "healthyLossFraction": 0.5,
+      "allocation": "proportional_largest_remainder_stable_troop_id",
+      "simulatesFullNativeBattle": false,
+      "preserveHeroesWoundedPrisonersGarrisonsMilitiaCashInventoryFoodHearthsStrainLiabilities": true,
+      "standardForce": "100_culture_basic_recruits_hire_quote_only",
+      "restoreAfterBranch": true,
+      "resourceGrants": 0,
+      "timeAdvancement": false,
+      "providerCalls": 0
+    }
   }
 }

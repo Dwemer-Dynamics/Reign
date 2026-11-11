@@ -218,6 +218,7 @@ export const SAMPLE_DATA = {
   PlayerBannerProvider: "BannerTableauTextureProvider",
   NextDocketText: "Next docket: 8:00 AM",
   UseLargeCourtLayout: false,
+  CourtWorkspaceTopInset: 150,
   LargeHomeVisible: false,
   ReferenceHomeVisible: true,
   HomeVisible: true,
@@ -423,7 +424,15 @@ export const ASSET_BY_WIDGET_ID = {
   WarCouncilMap: "../../GUI/SpriteParts/ui_reignbeta_war_council/reign_war_council_calradia.png"
 };
 
+const peaceForceOptions = selected => [null, ...Array.from({ length: 11 }, (_, i) => 40 + 5 * i)].map(percent => ({
+  IsSelected: percent === selected, Label: (percent == null ? 'Automatic' : `${percent}%`) + (percent === selected ? ' •' : '')
+}));
 const PREVIEW_PRESET_OVERRIDES = {
+  "war-council-peace-40": { PeaceStandingSelected: true, WarStandingSelected: false, PeaceStandingUnselected: false, WarStandingUnselected: true, CanChoosePeaceForce: true, PeaceForceText: "40% v", PeaceForceOptions: peaceForceOptions(40) },
+  "war-council-peace-90": { PeaceStandingSelected: true, WarStandingSelected: false, PeaceStandingUnselected: false, WarStandingUnselected: true, CanChoosePeaceForce: true, PeaceForceText: "90% v", PeaceForceOptions: peaceForceOptions(90) },
+  "war-council-peace-dropdown": { PeaceStandingSelected: true, WarStandingSelected: false, PeaceStandingUnselected: false, WarStandingUnselected: true, CanChoosePeaceForce: true, PeaceForceText: "60% v", StandingDropdownVisible: true, PeaceForceOptions: peaceForceOptions(60) },
+  "war-council-standing-readonly": { CanChangeStanding: false, CanChoosePeaceForce: false },
+  "war-council-no-realm": { CanChangeStanding: false, CanChoosePeaceForce: false, PeaceStandingSelected: false, WarStandingSelected: false, PeaceStandingUnselected: true, WarStandingUnselected: true, PeaceForceText: "--" },
   "court-life-international": courtLifePreview("INTERNATIONAL", "A Border Complaint", [
     { Name: "Lady Adalindis", Subtitle: "Your noble", ...portraitFields("adalindis_portrait", ASSETS.adalindis) },
     { Name: "Rhagaea's Envoy", Subtitle: "Foreign ambassador", ...portraitFields("rhagaea_portrait", ASSETS.rhagaea) }
@@ -443,6 +452,18 @@ const PREVIEW_PRESET_OVERRIDES = {
     { Name: "Lady Corein", Subtitle: "Adult child, age 23", ...portraitFields("corein_portrait", ASSETS.corein) },
     { Name: "Lady Abagai", Subtitle: "Adult child, age 21", ...portraitFields("abagai_portrait", ASSETS.abagai) }
   ], "We thank you for receiving our household. We will remain in the city for five days, and hope to attend your court again.", "Welcome the household or conclude the audience."),
+  "court-military-standing": {
+    HomeVisible: false, LargeHomeVisible: false, ReferenceHomeVisible: false,
+    TabContentVisible: true, DetailVisible: true, AudienceVisible: false, ActionsVisible: true,
+    ScreenTitle: "MILITARY", ScreenSubtitle: "ARMIES, PARTIES, READINESS AND SUPPLIES",
+    DetailTitle: "Kingdom Military Standing", DetailMeta: "PEACE STANDING",
+    DetailBody: "Peace standing keeps smaller field forces and releases the least experienced healthy surplus troops. Hostile political pressure raises readiness on the relevant frontier. The sovereign's selected peace target remains in force during war.\nGarrison targets remain full. Quartered regulars cost less in wages and supplies. A fixed share of discharged manpower returns to functioning villages.",
+    TabRows: [{ Title: "Kingdom Military Standing", Subtitle: "Review field readiness and permanent defence.", Status: "PEACE STANDING", Meta: "Sovereign order", HasPortrait: false, ...portraitFields("", "") }],
+    Actions: [
+      { Label: "ORDER PEACE STANDING", Description: "Restore the saved peace target, including during war; garrisons keep full targets.", IsEnabled: true, StateText: "READY" },
+      { Label: "ORDER WAR STANDING", Description: "Permit full field recruitment. Actual recruits, provisions and clan funding are required.", IsEnabled: true, StateText: "READY" }
+    ]
+  },
   "court-history": {
     HomeVisible: false,
     LargeHomeVisible: false,
@@ -970,6 +991,9 @@ const PREFAB_SAMPLE_OVERRIDES = {
   },
   "ReignWarCouncilScreen.xml": {
     ActionComposerId: "preview-action-composer",
+    CanChangeStanding: true, PeaceStandingSelected: false, WarStandingSelected: true,
+    PeaceStandingUnselected: true, WarStandingUnselected: false, CanChoosePeaceForce: false,
+    PeaceForceText: "Auto v", StandingDropdownVisible: false, PeaceForceOptions: peaceForceOptions(null), PeaceForceLeftOptions: peaceForceOptions(null).slice(0, 6), PeaceForceRightOptions: peaceForceOptions(null).slice(6),
     MapWidth: 820,
     MapHeight: 820,
     MapOffsetX: 0,
@@ -1160,11 +1184,11 @@ const PREFAB_SAMPLE_OVERRIDES = {
       PortraitTextureProviderName: "ReignPortraitProvider"
     },
     Settlements: [
-      { Name: "Pravend", GovernorName: "Eadfrid of the Oak", ProsperityText: "78", FoodText: "82", SecurityText: "76", LoyaltyText: "88", MilitiaText: "330", GarrisonText: "210", GarrisonFoodText: "120", GarrisonWageText: "420", GrainText: "1,210", FishText: "680", MeatText: "420", OlivesText: "360", BeerText: "240", ButterText: "220", GrapesText: "310", DatesText: "180" },
-      { Name: "Sargot", GovernorName: "Lanthos of Vostrum", ProsperityText: "64", FoodText: "58", SecurityText: "62", LoyaltyText: "70", MilitiaText: "270", GarrisonText: "180", GarrisonFoodText: "100", GarrisonWageText: "360", GrainText: "1,110", FishText: "410", MeatText: "380", OlivesText: "320", BeerText: "200", ButterText: "190", GrapesText: "280", DatesText: "150" },
-      { Name: "Ocs Hall", GovernorName: "Dionor of Ocs", ProsperityText: "72", FoodText: "74", SecurityText: "70", LoyaltyText: "75", MilitiaText: "290", GarrisonText: "190", GarrisonFoodText: "110", GarrisonWageText: "400", GrainText: "1,260", FishText: "560", MeatText: "330", OlivesText: "330", BeerText: "210", ButterText: "200", GrapesText: "330", DatesText: "170" },
-      { Name: "Jaculan", GovernorName: "Meritor of Jaculan", ProsperityText: "56", FoodText: "65", SecurityText: "50", LoyaltyText: "60", MilitiaText: "290", GarrisonText: "160", GarrisonFoodText: "110", GarrisonWageText: "320", GrainText: "960", FishText: "330", MeatText: "340", OlivesText: "240", BeerText: "160", ButterText: "160", GrapesText: "260", DatesText: "120" },
-      { Name: "Charas", GovernorName: "Belithor of Charas", ProsperityText: "68", FoodText: "71", SecurityText: "74", LoyaltyText: "68", MilitiaText: "260", GarrisonText: "170", GarrisonFoodText: "110", GarrisonWageText: "340", GrainText: "1,090", FishText: "440", MeatText: "280", OlivesText: "260", BeerText: "180", ButterText: "170", GrapesText: "240", DatesText: "140" }
+      { Name: "Pravend", GovernorName: "Eadfrid of the Oak", ProsperityText: "78", FoodText: "82", FoodHint: { HintText: "Reserves: 82 / 200; projected in seven days: 54. Village hearths: 300; agricultural recovery: 75%; actual / potential food: 6.75 / 9.00." }, SecurityText: "76", LoyaltyText: "88", MilitiaText: "330", GarrisonText: "210", GarrisonFoodText: "120", GarrisonWageText: "420", WageHint: { HintText: "Garrison wages: 420 per day; clan military wages: 1,682; seven-day reserve: 11,774; recruitment liabilities: 340." }, GrainText: "1,210", FishText: "680", MeatText: "420", OlivesText: "360", BeerText: "240", ButterText: "220", GrapesText: "310", DatesText: "180" },
+      { Name: "Sargot", GovernorName: "Lanthos of Vostrum", ProsperityText: "64", FoodText: "58", FoodHint: { HintText: "Reserves: 82 / 200; projected in seven days: 54. Village hearths: 300; agricultural recovery: 75%; actual / potential food: 6.75 / 9.00." }, SecurityText: "62", LoyaltyText: "70", MilitiaText: "270", GarrisonText: "180", GarrisonFoodText: "100", GarrisonWageText: "360", WageHint: { HintText: "Garrison wages: 420 per day; clan military wages: 1,682; seven-day reserve: 11,774; recruitment liabilities: 340." }, GrainText: "1,110", FishText: "410", MeatText: "380", OlivesText: "320", BeerText: "200", ButterText: "190", GrapesText: "280", DatesText: "150" },
+      { Name: "Ocs Hall", GovernorName: "Dionor of Ocs", ProsperityText: "72", FoodText: "74", FoodHint: { HintText: "Reserves: 82 / 200; projected in seven days: 54. Village hearths: 300; agricultural recovery: 75%; actual / potential food: 6.75 / 9.00." }, SecurityText: "70", LoyaltyText: "75", MilitiaText: "290", GarrisonText: "190", GarrisonFoodText: "110", GarrisonWageText: "400", WageHint: { HintText: "Garrison wages: 420 per day; clan military wages: 1,682; seven-day reserve: 11,774; recruitment liabilities: 340." }, GrainText: "1,260", FishText: "560", MeatText: "330", OlivesText: "330", BeerText: "210", ButterText: "200", GrapesText: "330", DatesText: "170" },
+      { Name: "Jaculan", GovernorName: "Meritor of Jaculan", ProsperityText: "56", FoodText: "65", FoodHint: { HintText: "Reserves: 82 / 200; projected in seven days: 54. Village hearths: 300; agricultural recovery: 75%; actual / potential food: 6.75 / 9.00." }, SecurityText: "50", LoyaltyText: "60", MilitiaText: "290", GarrisonText: "160", GarrisonFoodText: "110", GarrisonWageText: "320", WageHint: { HintText: "Garrison wages: 420 per day; clan military wages: 1,682; seven-day reserve: 11,774; recruitment liabilities: 340." }, GrainText: "960", FishText: "330", MeatText: "340", OlivesText: "240", BeerText: "160", ButterText: "160", GrapesText: "260", DatesText: "120" },
+      { Name: "Charas", GovernorName: "Belithor of Charas", ProsperityText: "68", FoodText: "71", FoodHint: { HintText: "Reserves: 82 / 200; projected in seven days: 54. Village hearths: 300; agricultural recovery: 75%; actual / potential food: 6.75 / 9.00." }, SecurityText: "74", LoyaltyText: "68", MilitiaText: "260", GarrisonText: "170", GarrisonFoodText: "110", GarrisonWageText: "340", WageHint: { HintText: "Garrison wages: 420 per day; clan military wages: 1,682; seven-day reserve: 11,774; recruitment liabilities: 340." }, GrainText: "1,090", FishText: "440", MeatText: "280", OlivesText: "260", BeerText: "180", ButterText: "170", GrapesText: "240", DatesText: "140" }
     ],
     SurplusRows: [
       { SettlementName: "Pravend", ItemName: "Grain", AmountText: "+1,210", IsSurplus: true, IsShortage: false },
@@ -1313,7 +1337,7 @@ const PREFAB_ROOT_KEYS = {
   "ReignCastleLayoutScreen.xml": ["CastleMapImageId", "GovernmentButtonText", "CastleGardenSlots", "TrainingYardSlots", "StableCourtyardSlots", "GuestBedroomRow1", "GuestBedroomRow2", "GuestBedroomRow3", "GuestBedroomRow4", "NobleSolarSlots", "InnerCourtyardSlots", "MainHallSlots", "RoyalBedroomSlots", "ThroneRoomSlots", "LibrarySlots", "DiningChamberSlots", "PortraitGallerySlots", "ChapelSlots", "BathsSlots", "BattlementSlots"],
   "ReignCorrespondenceScreen.xml": ["ActionComposerId", "Contacts", "SelectedName", "SelectedSubtitle", "ChatLines", "ChatScrollVersion", "BusyText", "InputText"],
   "ReignCourtEconomicReportScreen.xml": ["SourceName", "TargetName", "GoodsName", "AvailableText", "AmountText", "ArrivalText", "Notes", "IsSourceDropdownOpen", "IsTargetDropdownOpen", "SourceOptions", "TargetOptions", "ReportDateText", "StatusText", "TreasuryText", "DailyIncomeText", "DailyExpensesText", "NetDailyChangeText", "TariffsTradeText", "VillageManorText", "TradeBalanceText", "OutstandingDebtsText", "GrainTotalText", "MeatTotalText", "TimberTotalText", "IronTotalText", "TotalMilitiaText", "TotalGarrisonText", "GarrisonUpkeepText", "WarInventoryText", "NetDailyPositive", "NetDailyNegative", "TradeBalancePositive", "TradeBalanceNegative", "CanSubmit", "HasSettlementOverflow", "EconomicAdvisor", "Settlements", "SurplusRows"],
-  "ReignCourtScreen.xml": ["CourtTitle", "DocketTitle", "PlayerName", "PlayerBannerId", "PlayerBannerAsset", "PlayerBannerArgs", "PlayerBannerProvider", "HomeVisible", "LargeHomeVisible", "ReferenceHomeVisible", "TabContentVisible", "DetailVisible", "AudienceVisible", "ActionsVisible", "ScreenTitle", "ScreenSubtitle", "StatusText", "DetailTitle", "DetailBody", "DetailMeta", "AudienceSpeaker", "AudienceText", "AudienceEmotion", "AudienceInput", "AudienceHasPortrait", "AudiencePortraitId", "AudiencePortraitAsset", "AudiencePortraitAdditionalArgs", "AudiencePortraitTextureProviderName", "AudiencePortraitCacheKey", "Tabs", "Counters", "Lands", "DailyAgenda", "DocketItemCount", "DocketScrollVisible", "People", "DiplomaticStatus", "AmbassadorCards", "Rumors", "TabRows", "Actions", "RoyalCommandsVisible", "LocalModeNoticeVisible", "HasChancellor", "ChancellorName", "ChancellorPortraitCacheKey", "ChancellorStateText", "ChancellorSalaryText", "ChancellorToggleVisible"],
+  "ReignCourtScreen.xml": ["CourtWorkspaceTopInset", "CourtTitle", "DocketTitle", "PlayerName", "PlayerBannerId", "PlayerBannerAsset", "PlayerBannerArgs", "PlayerBannerProvider", "HomeVisible", "LargeHomeVisible", "ReferenceHomeVisible", "TabContentVisible", "DetailVisible", "AudienceVisible", "ActionsVisible", "ScreenTitle", "ScreenSubtitle", "StatusText", "DetailTitle", "DetailBody", "DetailMeta", "AudienceSpeaker", "AudienceText", "AudienceEmotion", "AudienceInput", "AudienceHasPortrait", "AudiencePortraitId", "AudiencePortraitAsset", "AudiencePortraitAdditionalArgs", "AudiencePortraitTextureProviderName", "AudiencePortraitCacheKey", "Tabs", "Counters", "Lands", "DailyAgenda", "DocketItemCount", "DocketScrollVisible", "People", "DiplomaticStatus", "AmbassadorCards", "Rumors", "TabRows", "Actions", "RoyalCommandsVisible", "LocalModeNoticeVisible", "HasChancellor", "ChancellorName", "ChancellorPortraitCacheKey", "ChancellorStateText", "ChancellorSalaryText", "ChancellorToggleVisible"],
   "ReignCourtPetitionScreen.xml": ["ActionComposerId", "Title", "PetitionerName", "PetitionerRole", "SeverityText", "ProblemText", "RequestTypeText", "RequestedResourceText", "PurposeText", "NeedFacts", "RequestTerms", "BenefitText", "DangerText", "WarningText", "EventImageId", "EventImageAsset", "ActiveParticipants", "AvailableAttendees", "DirectGrantVisible", "GoldGrantVisible", "CanGrantDirect", "CanGrantWithGold", "CanRefuse", "DecisionComplete", "DecisionControlsVisible", "PostponeVisible", "CanPostpone", "CanContinue", "DirectGrantLabel", "GoldGrantLabel", "RefuseLabel", "StatusText", "Transcript", "InputText", "ChatScrollVersion", "CanSend", "ConversationEnabled"],
   "ReignDiplomacyAnnouncementScreen.xml": ["Title", "DateText", "ShowTarget", "Outcome", "Summary", "Terms", "ReportText", "ActorName", "ActorKingdom", "ActorReason", "ActorPortraitId", "ActorPortraitAsset", "ActorPortraitArgs", "ActorPortraitProvider", "ActorPortraitCacheKey", "ActorBannerId", "ActorBannerArgs", "ActorBannerProvider", "TargetName", "TargetKingdom", "TargetReason", "TargetPortraitId", "TargetPortraitAsset", "TargetPortraitArgs", "TargetPortraitProvider", "TargetPortraitCacheKey", "TargetBannerId", "TargetBannerArgs", "TargetBannerProvider"],
   "ReignFamilyChambersScreen.xml": ["Title", "Subtitle", "Adults", "Children", "SelectionText", "StatusText", "IsBusy", "CanEnterScene"],
@@ -1329,7 +1353,7 @@ const PREFAB_ROOT_KEYS = {
   "ReignSocialEventScreen.xml": ["ActionComposerId", "IsOverlayVisible", "ShowPhaseControls", "ShowWildernessArt", "EventTitle", "PhaseTitle", "PhaseStatus", "PhaseDescription", "EventImageId", "EventImageAsset", "EventImageText", "EventArtSize", "EventArtRowHeight", "AttendeeListTopMargin", "AttendeeListBottomMargin", "AttendeeTitleTopMargin", "EventArtTopMargin", "EventBackgroundImageId", "BackgroundImageId", "BackgroundAsset", "BackgroundAdditionalArgs", "BackgroundTextureProviderName", "CultureTint", "BusyText", "InputText", "ChatLines", "ChatScrollVersion", "ActiveParticipants", "AvailableAttendees", "IsPortraitPreviewVisible", "PortraitPreviewFrameWidth", "PortraitPreviewFrameHeight", "PortraitPreviewImageWidth", "PortraitPreviewImageHeight", "PortraitPreviewId", "PortraitPreviewAsset", "PortraitPreviewAdditionalArgs", "PortraitPreviewTextureProviderName", "PortraitPreviewName"],
   "ReignSpymasterScreen.xml": ["SpymasterName", "PortraitCacheKey", "PortraitId", "PortraitArgs", "PortraitProvider", "HasPortrait", "HasSpymaster", "ShowSpymasterAiPortrait", "ShowSpymasterTableauFallback", "ShowAppointmentPrompt", "AppointmentPending", "SpymasterModel", "IsIntelligence", "IsSubterfuge", "IsReputation", "IsArchive", "ShowOperationPanel", "IsLands", "IsPeople", "ShowPeopleGroups", "ShowSocialItem", "PeopleGroupText", "SocialScopeText", "TargetName", "TargetDetail", "ActionName", "OperationDetail", "AssessmentText", "IsOrdinaryAssessment", "IsChallengingAssessment", "SocialItemName", "TargetDropdownOpen", "ActionDropdownOpen", "SocialDropdownOpen", "CanBegin", "CanBreakout", "BreakoutText", "StatusText", "ReportText", "TargetOptions", "ActionOptions", "SocialItems", "Reports"],
   "ReignUiCalibrationOverlay.xml": ["IsLauncherVisible", "IsExpanded", "SelectionVisible", "SelectionX", "SelectionY", "SelectionWidth", "SelectionHeight", "MovieText", "SelectedText", "GeometryText", "ModeText", "StatusText"],
-  "ReignWarCouncilScreen.xml": ["ActionComposerId", "MapWidth", "MapHeight", "MapOffsetX", "MapOffsetY", "MarkerRevision", "SelectedLordIndex", "LordCount", "StatusText", "MapImageId", "OuterFrameImageId", "RavenImageId", "PanelFrameImageId", "TallPanelFrameImageId", "PanelFrameOverlayImageId", "CouncilorName", "CouncilorTitle", "CouncilorSkillText", "CouncilorPortraitId", "CouncilorPortraitArgs", "CouncilorPortraitProvider", "CouncilorDropdownOpen", "MessengerVisible", "MessengerTitle", "MessengerInputText", "MessengerStatus", "Kingdoms", "Reports", "Settlements", "Lords", "CouncilorCandidates"]
+  "ReignWarCouncilScreen.xml": ["CanChangeStanding", "PeaceStandingSelected", "WarStandingSelected", "PeaceStandingUnselected", "WarStandingUnselected", "CanChoosePeaceForce", "PeaceForceText", "StandingDropdownVisible", "PeaceForceOptions", "PeaceForceLeftOptions", "PeaceForceRightOptions", "ActionComposerId", "MapWidth", "MapHeight", "MapOffsetX", "MapOffsetY", "MarkerRevision", "SelectedLordIndex", "LordCount", "StatusText", "MapImageId", "OuterFrameImageId", "RavenImageId", "PanelFrameImageId", "TallPanelFrameImageId", "PanelFrameOverlayImageId", "CouncilorName", "CouncilorTitle", "CouncilorSkillText", "CouncilorPortraitId", "CouncilorPortraitArgs", "CouncilorPortraitProvider", "CouncilorDropdownOpen", "MessengerVisible", "MessengerTitle", "MessengerInputText", "MessengerStatus", "Kingdoms", "Reports", "Settlements", "Lords", "CouncilorCandidates"]
 };
 
 export function getNativeAugmentationSampleData(target) {
@@ -1647,6 +1671,10 @@ export function getSampleDataForPrefab(fileName, preset = "") {
     ...line, IsViewLine: !!line.IsViewLine, IsTextLine: !line.IsViewLine, IsNonPlayerLine: !line.IsPlayerLine && !line.IsViewLine,
     RichText: previewActionRichText(line.Text, line.IsNpcLine || line.Role === "npc" || line.Role === "assistant")
   }));
+  if (normalizedName === "ReignWarCouncilScreen.xml") {
+    result.PeaceForceLeftOptions = result.PeaceForceOptions.slice(0, 6);
+    result.PeaceForceRightOptions = result.PeaceForceOptions.slice(6);
+  }
   return result;
 }
 

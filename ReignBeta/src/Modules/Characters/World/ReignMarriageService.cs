@@ -271,6 +271,21 @@ namespace ReignBeta.World
                 return false;
             }
 
+            if(IsNpcWorldAlliance(action))
+            {
+                var terms=ReignValueService.ParseTerms(action);
+                var quote=terms["marriageTerms"] as JObject;
+                if(first.Clan?.StringId!=quote?.Value<string>("clanAId") && second.Clan?.StringId==quote?.Value<string>("clanAId"))
+                { Hero swap=first;first=second;second=swap; }
+                var receipt=ReignBeta.Campaign.ReignRelationshipCampaignBehavior.Instance?.ApplyArrangedMarriage(new ReignBeta.Integration.ReignDirectorAction {
+                    DirectorActionId="diplomatic_marriage_"+action.ActionId,ActionType="marriage",ActorId=first.StringId,TargetId=second.StringId,
+                    Payload=new JObject { ["route"]="arranged",["timelineId"]=ReignBeta.Campaign.ReignWorldHistoryCampaignBehavior.Instance?.TimelineId??"main",["marriageTerms"]=terms["marriageTerms"]?.DeepClone() }
+                },action.AcceptedByHeroStringId==Hero.MainHero?.StringId);
+                if(receipt?.Value<string>("status")!="completed") { reason=receipt?.Value<string>("error")??"Arranged marriage executor unavailable."; return false; }
+                result.WithEffect("marriage_completed","hero",second.StringId,second.Name.ToString(),"hero1="+first.StringId+";hero2="+second.StringId+";arrangedFee="+receipt.Value<int>("fee"));
+                reason=string.Empty;return true;
+            }
+
             string firstClanId = first.Clan?.StringId ?? string.Empty;
             string secondClanId = second.Clan?.StringId ?? string.Empty;
             string firstName = first.Name?.ToString() ?? first.StringId;
@@ -384,7 +399,7 @@ namespace ReignBeta.World
             }
         }
 
-        private static bool IsNpcWorldAlliance(ReignWorldActionRecord action)
+        internal static bool IsNpcWorldAlliance(ReignWorldActionRecord action)
         {
             if (!string.Equals(action?.Source, "world_diplomacy_director", StringComparison.OrdinalIgnoreCase)) return false;
             JObject terms = ReignValueService.ParseTerms(action);

@@ -1,0 +1,1440 @@
+{
+  "referenceImages": [
+    "party-chat",
+    "castle-layout",
+    "training-yard",
+    "court",
+    "royal-council",
+    "clan-accords",
+    "diplomacy-announcement-readable",
+    "memories-book"
+  ],
+  "chapters": {
+    "requirements-and-resource-use": {
+      "sources": [
+        "ReignBeta/SubModule.xml",
+        "ReignServer/AGENTS.md",
+        "docs/user-guide/requirements-evidence.json"
+      ],
+      "notes": "Only published base-game RAM requirements are displayed. The initial 32 GB planning recommendation was withdrawn after the user's correction; the retained historical snapshot is not normal-use or capacity evidence."
+    },
+    "start-here": {
+      "sources": [
+        "AGENTS.md",
+        "ReignBeta/SubModule.xml",
+        "ReignBeta/src/Modules/Platform/Settings/ReignBetaSettings.cs",
+        "ReignBeta/src/Modules/Platform/Campaign/ReignCampaignPreparationCampaignBehavior.cs"
+      ],
+      "notes": "Current managed WSL lifecycle/8089 overrides stale Windows/5101 instructions in the legacy player guide."
+    },
+    "your-first-conversation": {
+      "sources": [
+        "ReignServer/shared/Reign.Core.Contracts/Actions/ReignActionCatalog.cs",
+        "ReignServer/shared/Reign.Core.Contracts/Actions/ReignNpcLifeActionCatalog.cs",
+        "ReignBeta/src/Modules/Dialogue/UI/ReignActionBuilder.cs",
+        "ReignBeta/src/Modules/Dialogue/UI/ReignIndividualChatScreenManager.cs",
+        "ReignBeta/src/Modules/Dialogue/UI/Widgets/ReignActionEditableTextWidget.cs",
+        "ReignBeta/src/Modules/Dialogue/UI/ViewModels/ReignActionBuilderVM.cs",
+        "ReignBeta/src/Modules/Dialogue/UI/ViewModels/ReignActionComposerVM.cs",
+        "docs/agent/ACTION_SYSTEM.md"
+      ],
+      "notes": "Alt+A, Enter and Escape are grounded in the builder/host source, with text-edit shortcuts from the protected editor."
+    },
+    "action-sentence-system": {
+      "sources": [
+        "docs/user-guide/action-reference.json",
+        "ReignServer/shared/Reign.Core.Contracts/Actions/ReignActionCatalog.cs",
+        "ReignServer/shared/Reign.Core.Contracts/Actions/ReignActionParameters.cs",
+        "ReignServer/shared/Reign.Core.Contracts/Actions/ReignActionConversationPolicy.cs",
+        "ReignBeta/src/Modules/Dialogue/UI/ViewModels/ReignActionBuilderVM.cs",
+        "ReignBeta/src/Modules/WorldSimulation/Actions/ReignActionService.cs",
+        "docs/agent/ACTION_SYSTEM.md"
+      ],
+      "notes": "Covers all IDs from the separately hash-verified integration action registry. Groups aliases and identifies event, wedding, follow-up, and legacy routes. The native operator console is separate."
+    },
+    "getting-to-know-people": {
+      "sources": [
+        "docs/REIGN_PLAYER_GUIDE.md",
+        "docs/agent/CHARACTER_NARRATIVE_V5.md",
+        "docs/agent/WANDERER_POPULATION.md",
+        "ReignBeta/src/Modules/Characters/Campaign/ReignRecruitedNotableCampaignBehavior.cs",
+        "ReignBeta/src/Modules/Characters/Campaign/ReignWorkshopDialoguePatches.cs",
+        "ReignBeta/ModuleData/reign_nord_households.json"
+      ]
+    },
+    "group-chat-letters-and-everyday-communication": {
+      "preview": true,
+      "sources": [
+        "docs/agent/PARTY_CHAT_CONTINUATION.md",
+        "docs/agent/PARTY_BANTER.md",
+        "docs/agent/CONVERSATION_COMMUNICATION.md",
+        "ReignBeta/src/Modules/Dialogue/UI/ViewModels/ReignPartyChatScreenVM.cs",
+        "ReignBeta/src/Modules/Dialogue/UI/ViewModels/ReignPartyChatLives.cs",
+        "ReignBeta/src/Modules/Dialogue/UI/ViewModels/ReignCorrespondenceScreenVM.cs",
+        "docs/agent/NPC_LIVES_AND_STORYLINES_PLAN.md",
+        "ReignBeta/src/Modules/Dialogue/UI/ReignPartyChatScreenManager.cs",
+        "ReignBeta/src/Modules/Dialogue/UI/ReignCorrespondenceScreenManager.cs"
+      ]
+    },
+    "events-and-npc-personal-lives": {
+      "preview": true,
+      "sources": [
+        "docs/REIGN_PLAYER_GUIDE.md",
+        "docs/agent/NPC_LIVES_AND_STORYLINES_PLAN.md",
+        "docs/agent/PLAYER_ATTENTION_AND_APPROACHES.md",
+        "ReignBeta/src/Modules/WorldSimulation/Campaign/ReignSocialEventsCampaignBehavior.cs"
+      ]
+    },
+    "town-life-residents-and-tavern-visits": {
+      "preview": true,
+      "sources": [
+        "docs/agent/ENCOUNTERED_RESIDENTS_IMPLEMENTATION.md",
+        "docs/agent/TAVERN_HOUSE_IMPLEMENTATION.md",
+        "ReignBeta/src/Modules/Dialogue/UI/ViewModels/ReignIndividualChatOutfit.cs",
+        "REIGN_ROADMAP.md"
+      ],
+      "notes": "Roadmap supplements feature discovery; implementation documentation and source control current behavior. Unchecked roadmap entries are not treated as completion proof."
+    },
+    "relationships-and-starting-a-family": {
+      "sources": [
+        "docs/REIGN_PLAYER_GUIDE.md",
+        "ReignBeta/src/Modules/Characters/Family/ReignPregnancyPatches.cs",
+        "ReignBeta/src/Modules/Characters/Family/ReignPregnancyRestrictionPolicy.cs",
+        "ReignBeta/src/Modules/Dialogue/UI/ViewModels/ReignIndividualChatScreenVM.cs",
+        "ReignServer/shared/Reign.Core.Contracts/Actions/ReignActionCatalog.cs",
+        "ReignBeta/src/Modules/WorldSimulation/Actions/ReignSpouseSeparationAction.cs",
+        "docs/user-guide/action-reference.json",
+        "ReignServer/shared/Reign.Relationships/ArrangedMarriagePolicy.cs",
+        "ReignBeta/src/Modules/Relationships/Campaign/ReignArrangedMarriage.cs"
+      ]
+    },
+    "gossip-reputation-and-public-standing": {
+      "preview": true,
+      "sources": [
+        "docs/REIGN_PLAYER_GUIDE.md",
+        "docs/agent/PERSONAL_GOSSIP_PLAN_2026-09-26.md",
+        "docs/agent/testing/PERSONAL_GOSSIP_LAUNCH_PLAN_2026-10-04.md",
+        "docs/agent/TAVERN_HOUSE_IMPLEMENTATION.md"
+      ]
+    },
+    "keeps-households-and-training": {
+      "sources": [
+        "docs/REIGN_PLAYER_GUIDE.md",
+        "ReignBeta/src/Modules/Court/TrainingYard/ReignTrainingYardCampaignBehavior.cs",
+        "ReignBeta/src/Modules/Court/TrainingYard/ReignTrainingYardScreenVM.cs",
+        "REIGN_ROADMAP.md"
+      ]
+    },
+    "ruling-a-kingdom": {
+      "preview": true,
+      "sources": [
+        "docs/REIGN_PLAYER_GUIDE.md",
+        "docs/NOBLE_DOCKET_EVENT_CATALOG.md",
+        "docs/agent/COURT_LIFE_IMPLEMENTATION.md",
+        "ReignBeta/src/Modules/Court/Court/ReignCourtCampaignBehavior.cs",
+        "ReignBeta/src/Modules/Court/Court/ReignPatronageCampaignBehavior.cs",
+        "ReignBeta/src/Modules/Court/Court/ReignNobleVisitorCampaignBehavior.cs",
+        "ReignBeta/src/Modules/Court/Court/ReignNobleDocketCampaignBehavior.cs"
+      ]
+    },
+    "government-and-political-participation": {
+      "preview": true,
+      "sources": [
+        "docs/agent/GOVERNMENT_PARTICIPATION_IMPLEMENTATION.md",
+        "docs/agent/GOVERNMENT_HEARING_IMPLEMENTATION.md",
+        "docs/agent/GOVERNMENT_SESSIONS_20261015.md",
+        "ReignBeta/src/Modules/Government/Campaign/ReignGovernmentCampaignBehavior.cs",
+        "ReignServer/shared/Reign.Core.Contracts/Actions/ReignActionCatalog.cs"
+      ],
+      "notes": "Updated participation/hearing policy takes precedence over legacy per-method hearing buttons and simple member-headcount claims."
+    },
+    "diplomacy-ambassadors-and-clan-accords": {
+      "preview": true,
+      "sources": [
+        "docs/REIGN_PLAYER_GUIDE.md",
+        "docs/agent/CLAN_ACCORDS.md",
+        "ReignServer/shared/Reign.Core.Contracts/Actions/ReignActionCatalog.cs",
+        "ReignBeta/src/Modules/Diplomacy/ClanAccords/ReignClanAccordsModels.cs"
+      ]
+    },
+    "spymaster-and-covert-work": {
+      "sources": [
+        "docs/REIGN_PLAYER_GUIDE.md",
+        "ReignBeta/src/Modules/Spymaster/Court/ReignSpymasterCampaignBehavior.cs"
+      ]
+    },
+    "war-armies-and-temporary-guests": {
+      "preview": true,
+      "sources": [
+        "docs/REIGN_PLAYER_GUIDE.md",
+        "docs/agent/REIGN_MILITARY_READINESS.md",
+        "ReignBeta/src/Modules/WorldSimulation/PartyAgency/ReignTemporaryPartyGuestCampaignBehavior.cs",
+        "ReignBeta/src/Modules/WorldSimulation/CampaignCommands/ReignCampaignCommandBehavior.cs",
+        "ReignBeta/src/Modules/Court/WarCouncil/ReignWarCouncilCampaignBehavior.cs"
+      ]
+    },
+    "duels-arrests-rulers-and-civil-war": {
+      "preview": true,
+      "sources": [
+        "docs/REIGN_PLAYER_GUIDE.md",
+        "docs/agent/RULER_JUDGMENTS.md",
+        "ReignBeta/src/Modules/Characters/Campaign/ReignDuelModePolicy.cs",
+        "ReignBeta/src/Modules/Characters/Campaign/ReignDuelCombatPatches.cs",
+        "ReignBeta/src/Modules/WorldSimulation/Arrests/ReignArrestCampaignBehavior.cs",
+        "ReignBeta/src/Modules/Rebellion/Campaign/ReignRebellionCampaignBehavior.cs"
+      ]
+    },
+    "economy-and-survival": {
+      "preview": true,
+      "sources": [
+        "docs/agent/REIGN_MILITARY_READINESS.md",
+        "docs/agent/testing/WAR_ECONOMY.md",
+        "ReignBeta/src/Modules/WorldSimulation/Economy/ReignWarEconomyPolicy.cs",
+        "ReignBeta/src/Modules/WorldSimulation/Economy/ReignWarEconomyTransactions.cs",
+        "ReignBeta/src/Modules/WorldSimulation/Economy/ReignWarEconomyFoodMarket.cs",
+        "ReignBeta/src/Modules/WorldSimulation/Economy/ReignWarEconomyTariffs.cs",
+        "ReignBeta/src/Modules/WorldSimulation/Economy/ReignWarEconomyNaval.cs",
+        "ReignBeta/src/Modules/WorldSimulation/Economy/ReignMilitaryReadiness.cs",
+        "ReignBeta/src/Modules/WorldSimulation/Economy/ReignEconomyModels.cs",
+        "ReignBeta/src/Modules/WorldSimulation/Economy/ReignMedicalDischarge.cs",
+        "ReignBeta/src/Modules/WorldSimulation/Economy/ReignMedicalDischargePolicy.cs",
+        "ReignServer/shared/Reign.Core.Contracts/Economy/WarEconomyOptions.cs"
+      ],
+      "notes": "Active balance work; prose deliberately omits unstable numeric tuning. Current source and acceptance limits retained."
+    },
+    "time-news-and-world-events": {
+      "sources": [
+        "docs/REIGN_PLAYER_GUIDE.md",
+        "docs/agent/RULER_JUDGMENTS.md",
+        "ReignBeta/src/Modules/WorldSimulation/Runtime/ReignCalendarPatches.cs",
+        "ReignBeta/src/Modules/Characters/Campaign/ReignNativeStartingAgeCampaignBehavior.cs",
+        "ReignBeta/src/Modules/Characters/Campaign/ReignStartingChildrenCampaignBehavior.cs",
+        "ReignBeta/src/Modules/WorldSimulation/News/ReignNewsCampaignBehavior.cs",
+        "ReignBeta/src/Modules/KingdomEvents/Campaign/ReignKingdomEventsCampaignBehavior.cs"
+      ]
+    },
+    "arenas-tournaments-and-participation-xp": {
+      "preview": true,
+      "sources": [
+        "ReignBeta/src/Modules/Arena/ArenaOverhaul/README.md",
+        "ReignBeta/src/Modules/Arena/ArenaOverhaul/ModSettings/Settings.cs",
+        "ReignBeta/src/Modules/Arena/ArenaOverhaul/ModSettings/HeroPracticeSettings.cs",
+        "ReignBeta/src/Modules/Arena/ArenaOverhaul/ModSettings/CompanionPracticeSettings.cs",
+        "ReignBeta/src/Modules/Arena/ArenaOverhaul/TeamTournament/TeamTournamentRosterPolicy.cs",
+        "docs/agent/REIGN_XP_REWARDS.md"
+      ]
+    },
+    "pictures-appearance-and-memories": {
+      "sources": [
+        "docs/REIGN_PLAYER_GUIDE.md",
+        "docs/agent/AI_ART_DIALOGUE_FLOW_AUDIT_2026-09-06.md",
+        "ReignBeta/GUI/Prefabs/ReignIndividualChatScreen.xml",
+        "ReignBeta/src/Modules/Dialogue/UI/ViewModels/ReignChatViewVM.cs",
+        "ReignBeta/src/Modules/Dialogue/UI/ViewModels/ReignIndividualChatOutfit.cs",
+        "docs/agent/REIGN_INTERFACE_DESIGN_RULES.md",
+        "ReignBeta/src/Modules/WorldSimulation/Runtime/ReignDungeonEscapePatches.cs",
+        "ReignBeta/src/Modules/WorldSimulation/Rulers/ReignRulerNativePatches.cs"
+      ]
+    },
+    "saving-loading-and-backups": {
+      "sources": [
+        "docs/REIGN_PLAYER_GUIDE.md",
+        "ReignBeta/src/Modules/Persistence/Campaign/ReignSaveSyncCampaignBehavior.cs",
+        "ReignBeta/src/Modules/Persistence/Integration/ReignSaveSyncDeletionPatch.cs",
+        "AGENTS.md",
+        "ReignServer/src/Modules/Persistence/CampaignBackups.cs",
+        "ReignServer/ui/index.html"
+      ]
+    },
+    "settings-and-the-control-center": {
+      "sources": [
+        "AGENTS.md",
+        "docs/REIGN_PLAYER_GUIDE.md",
+        "ReignBeta/src/Modules/Platform/Settings/ReignBetaSettings.cs",
+        "docs/agent/REIGN_XP_REWARDS.md",
+        "docs/agent/PLAYER_ATTENTION_AND_APPROACHES.md",
+        "docs/agent/NPC_LIVES_AND_STORYLINES_PLAN.md",
+        "ReignServer/src/Modules/Platform/WarEconomyOptions.cs"
+      ]
+    },
+    "help-glossary-and-edition-notes": {
+      "sources": [
+        "AGENTS.md",
+        "docs/REIGN_PLAYER_GUIDE.md",
+        "docs/agent/ACTION_SYSTEM.md",
+        "docs/agent/CLAN_ACCORDS.md",
+        "docs/agent/RULER_JUDGMENTS.md",
+        "docs/agent/testing/WAR_ECONOMY.md"
+      ]
+    }
+  },
+  "aliases": {
+    "what-you-need-before-playing": [
+      "cloud provider",
+      "LLM provider",
+      "image provider",
+      "API key",
+      "internet",
+      "Windows",
+      "WSL",
+      "dependencies",
+      "ButterLib",
+      "system requirements",
+      "offline AI"
+    ],
+    "ram-plan-for-the-game-and-the-server-together": [
+      "RAM",
+      "memory usage",
+      "16 GB",
+      "32 GB",
+      "computer requirements",
+      "paging",
+      "stuttering",
+      "typical usage"
+    ],
+    "processor-graphics-storage-and-connection": [
+      "CPU",
+      "GPU",
+      "VRAM",
+      "SSD",
+      "disk space",
+      "graphics card",
+      "free space",
+      "storage requirements"
+    ],
+    "how-to-use-this-guide": [
+      "manual",
+      "search",
+      "pictures",
+      "guide index"
+    ],
+    "what-reign-changes": [
+      "base game changes",
+      "native differences",
+      "what does Reign do"
+    ],
+    "your-first-session": [
+      "install",
+      "setup",
+      "launcher",
+      "local server",
+      "first load",
+      "preparation",
+      "Retry",
+      "8089",
+      "start playing"
+    ],
+    "the-controls-worth-knowing-first": [
+      "hotkeys",
+      "keyboard",
+      "backslash",
+      "Ctrl+M",
+      "Enter",
+      "Escape",
+      "shortcuts",
+      "Numpad Enter",
+      "Ctrl+C",
+      "Ctrl+V"
+    ],
+    "approach-speak-and-listen": [
+      "Approach",
+      "talk",
+      "conversation",
+      "greeting",
+      "silent resume",
+      "NPC response"
+    ],
+    "asking-for-a-real-action": [
+      "action builder",
+      "action selector",
+      "action composer",
+      "give a gift",
+      "I wish to",
+      "I would like you",
+      "structured action",
+      "Alt+A",
+      "action hotkey"
+    ],
+    "agreement-is-the-beginning-not-the-result": [
+      "NPC agreed but nothing happened",
+      "action failed",
+      "nothing happens",
+      "receipt",
+      "native validation",
+      "refusal",
+      "consent"
+    ],
+    "terms-conditions-and-ongoing-agreements": [
+      "instalments",
+      "installments",
+      "conditions",
+      "cancel agreement",
+      "counteroffer",
+      "payment plan",
+      "ongoing agreement",
+      "revise terms"
+    ],
+    "what-you-can-ask-people-to-do": [
+      "trade",
+      "gifts",
+      "transfer item",
+      "transfer workshop",
+      "transfer land",
+      "transfer ship",
+      "mercenary",
+      "vassalage",
+      "follow me",
+      "show the way",
+      "guide me"
+    ],
+    "personalities-interests-and-private-concerns": [
+      "personality",
+      "MBTI",
+      "hobbies",
+      "dreams",
+      "fears",
+      "interests",
+      "character background"
+    ],
+    "what-npcs-know-believe-and-keep-secret": [
+      "memory",
+      "NPC forgot",
+      "knowledge",
+      "lying",
+      "secrets",
+      "who knows",
+      "world history",
+      "recognition"
+    ],
+    "relationships-visible-status-and-skills": [
+      "hidden relationships",
+      "relation numbers",
+      "skill values",
+      "status",
+      "wealth",
+      "directional relationship",
+      "reveal relationships"
+    ],
+    "added-nobles-and-wanderers": [
+      "court nobles",
+      "landless clans",
+      "wanderers",
+      "new characters",
+      "recruit notable",
+      "workshop owner"
+    ],
+    "party-chat-and-private-audiences": [
+      "party chat",
+      "group chat",
+      "whisper",
+      "private conversation",
+      "All",
+      "Clear",
+      "Continue",
+      "resume party chat",
+      "PM"
+    ],
+    "travel-banter": [
+      "banter",
+      "travel dialogue",
+      "map chat",
+      "resize chat",
+      "minimize chat",
+      "join banter"
+    ],
+    "correspondence-sending-and-receiving-letters": [
+      "letters",
+      "courier",
+      "mail",
+      "correspondence",
+      "write letter",
+      "letter delivery",
+      "reply",
+      "letter frequency",
+      "house invitations",
+      "letters from nobles",
+      "reputation invitations",
+      "become acquainted"
+    ],
+    "promises-to-inform-someone-or-send-for-them": [
+      "send for",
+      "summon",
+      "meeting",
+      "inform someone",
+      "pass on a message",
+      "NPC messages",
+      "stay duration"
+    ],
+    "party-announcements": [
+      "Announce",
+      "party announcement",
+      "tell everyone",
+      "later reactions"
+    ],
+    "town-events-and-tournament-celebrations": [
+      "social events",
+      "feast",
+      "fair",
+      "dance",
+      "performance",
+      "contest",
+      "outing",
+      "celebration"
+    ],
+    "wilderness-encounters-and-personal-matters": [
+      "wilderness event",
+      "random encounter",
+      "personal matter",
+      "rivalry",
+      "favor debt"
+    ],
+    "approach-invitations-and-personal-stories": [
+      "NPC Lives",
+      "story",
+      "Story Location",
+      "pet",
+      "hideout",
+      "personal invitation",
+      "major arc"
+    ],
+    "personal-leave-and-changing-plans": [
+      "personal leave",
+      "time away",
+      "companion leaving",
+      "leave request",
+      "returning companion",
+      "departure delay"
+    ],
+    "attention-jealousy-invitations-and-rescues": [
+      "jealousy",
+      "neglect",
+      "attention",
+      "keep invitation",
+      "patrol interception",
+      "rescue dialogue",
+      "asking to speak"
+    ],
+    "people-you-meet-can-become-persistent": [
+      "residents",
+      "townsfolk",
+      "commoners",
+      "guards",
+      "soldiers",
+      "persistent NPC",
+      "meet civilians"
+    ],
+    "visit-the-homes": [
+      "Homes",
+      "home visit",
+      "Visit in person",
+      "recruit civilian",
+      "resident recruitment",
+      "hometown"
+    ],
+    "visit-the-madam": [
+      "Madam",
+      "tavern house",
+      "brothel",
+      "workers",
+      "Whoremonger",
+      "Look Again",
+      "tavern visit"
+    ],
+    "clothing-drinking-and-firm-refusals": [
+      "clothing",
+      "wardrobe",
+      "outfit",
+      "drinking",
+      "drunk",
+      "intoxication",
+      "hard refusal",
+      "persuasion"
+    ],
+    "friendship-romance-and-long-memories": [
+      "friendship",
+      "romance",
+      "lover",
+      "flirt",
+      "affair",
+      "fling",
+      "marital conflict",
+      "relationship stories"
+    ],
+    "marriage-and-npc-matchmaking": [
+      "marriage",
+      "wife",
+      "husband",
+      "spouse",
+      "divorce",
+      "leave spouse by letter",
+      "matchmaking",
+      "courtship"
+    ],
+    "having-a-baby-the-important-change": [
+      "have a baby",
+      "kids",
+      "children through roleplay",
+      "conception",
+      "Proceed",
+      "Pull Out",
+      "spouse not pregnant",
+      "no babies",
+      "player pregnancy"
+    ],
+    "pregnancy-parentage-and-pregnant-companions": [
+      "pregnant companion",
+      "pregnancy protection",
+      "biological father",
+      "legal father",
+      "paternity",
+      "Baseborn",
+      "concealed pregnancy",
+      "expose pregnancy"
+    ],
+    "children-and-family-chambers": [
+      "Family Chambers",
+      "children",
+      "parents",
+      "childhood",
+      "education",
+      "family conversation"
+    ],
+    "gossip-is-not-proof": [
+      "gossip",
+      "rumors",
+      "rumours",
+      "false allegation",
+      "malicious gossip"
+    ],
+    "what-your-reputation-changes": [
+      "Public Standing",
+      "reputation",
+      "scandal",
+      "favoritism",
+      "social consequences"
+    ],
+    "reputation-names-you-may-see": [
+      "Attentive Lord",
+      "Absent Lord",
+      "Court Pariah",
+      "Champion of the Pit",
+      "Starving Crown",
+      "Infertile",
+      "Dynasty Secure",
+      "Duelist"
+    ],
+    "managing-a-damaged-name": [
+      "remove rumor",
+      "repair reputation",
+      "clear my name",
+      "mitigate reputation"
+    ],
+    "castle-layout-and-room-conversations": [
+      "Castle Layout",
+      "Explore the keep",
+      "rooms",
+      "library",
+      "baths",
+      "royal bedroom",
+      "gardens",
+      "throne room"
+    ],
+    "training-yard": [
+      "Training Yard",
+      "troop XP",
+      "train troops",
+      "trainer",
+      "stop training"
+    ],
+    "household-pictures-and-privacy": [
+      "Castle Chat",
+      "room image",
+      "private home"
+    ],
+    "capitals-and-rule-mode": [
+      "capital",
+      "Designate Capital",
+      "Enter Rule Mode",
+      "Royal Court",
+      "Local Docket",
+      "Court System"
+    ],
+    "hearing-and-deciding-petitions": [
+      "petitions",
+      "food aid",
+      "grant aid",
+      "Fund Instead",
+      "refuse petition",
+      "soldier expedition",
+      "Court History"
+    ],
+    "noble-disputes-visitors-and-patronage": [
+      "noble dispute",
+      "court life",
+      "patronage",
+      "artist",
+      "commission",
+      "noble visitor",
+      "family introduction",
+      "international court matter"
+    ],
+    "chancellor-and-delegation": [
+      "Chancellor",
+      "delegate",
+      "Regent",
+      "salary",
+      "captured ruler delegation"
+    ],
+    "offices-and-the-royal-council": [
+      "Royal Council",
+      "councillor",
+      "councilor",
+      "advisor",
+      "Steward",
+      "Marshal",
+      "Economic Advisor",
+      "Foreign Advisor",
+      "War Councilor"
+    ],
+    "economic-reports-and-court-supply": [
+      "Economic Report",
+      "hover food",
+      "realm finances",
+      "court supply",
+      "unmeasured income"
+    ],
+    "your-kingdoms-institution": [
+      "Government",
+      "Senate",
+      "Veche",
+      "Oenach",
+      "Majlis",
+      "Kurultai",
+      "Great Thing",
+      "Council of Peers",
+      "Founding Charter",
+      "constitution"
+    ],
+    "authority-and-the-rulers-limits": [
+      "authority",
+      "override",
+      "government approval",
+      "reduce authority",
+      "consent to reduction",
+      "political limits"
+    ],
+    "joining-government-without-a-crown": [
+      "become senator",
+      "join government",
+      "seat",
+      "mandate",
+      "endorsement",
+      "recall",
+      "membership",
+      "not ruler politics"
+    ],
+    "proposals-sponsors-parties-and-sessions": [
+      "proposal",
+      "sponsor",
+      "nomination",
+      "adoption",
+      "party speaker",
+      "coalition",
+      "vote",
+      "My Proposals",
+      "Prepare a proposal",
+      "political party"
+    ],
+    "hearings-recess-and-political-bargains": [
+      "hearing",
+      "recess",
+      "bribe",
+      "political bargain",
+      "deal",
+      "lobbying",
+      "ballot"
+    ],
+    "resolutions-edicts-and-follow-through": [
+      "resolution",
+      "edict",
+      "policy",
+      "taxes",
+      "repeal",
+      "obligation",
+      "deadline"
+    ],
+    "talking-to-the-right-authority": [
+      "diplomacy",
+      "foreign ruler",
+      "Political Pressure",
+      "war declaration"
+    ],
+    "what-agreements-can-do": [
+      "treaty",
+      "alliance",
+      "non aggression",
+      "defensive pact",
+      "peace",
+      "tribute",
+      "reparations",
+      "surrender",
+      "hostage",
+      "loan",
+      "subsidy",
+      "trade embargo",
+      "temporary truce",
+      "protectorate"
+    ],
+    "outbound-and-resident-ambassadors": [
+      "ambassador",
+      "envoy",
+      "diplomatic charter",
+      "resident envoy",
+      "recall ambassador"
+    ],
+    "clan-accords": [
+      "Clan Accords",
+      "Mutual Watch",
+      "agricultural exchange",
+      "artisan exchange",
+      "garrison cooperation",
+      "trade cooperation",
+      "Economy button"
+    ],
+    "appointing-and-using-a-spymaster": [
+      "Spymaster",
+      "covert work",
+      "mission slots",
+      "Roguery"
+    ],
+    "intelligence-and-sabotage": [
+      "sabotage",
+      "counterintelligence",
+      "foreign agent",
+      "disrupt food",
+      "disrupt loyalty",
+      "land intelligence"
+    ],
+    "social-manipulation-and-lethal-missions": [
+      "assassination",
+      "breakout",
+      "captured spy",
+      "fabricate rumor",
+      "promote reputation"
+    ],
+    "giving-a-clear-campaign-order": [
+      "Campaign Command",
+      "orders",
+      "commander",
+      "order report",
+      "cancel order",
+      "main party control"
+    ],
+    "campaign-objectives-you-can-combine": [
+      "patrol",
+      "scout",
+      "escort",
+      "form army",
+      "recruit and resupply",
+      "hold position",
+      "relieve siege",
+      "raid",
+      "besiege"
+    ],
+    "war-council-map-and-intelligence": [
+      "War Council",
+      "map",
+      "Raven",
+      "Remove Order",
+      "battle ledger",
+      "enemy not visible",
+      "zoom",
+      "pan map"
+    ],
+    "peace-standing-war-standing-and-garrisons": [
+      "Peace Standing",
+      "War Standing",
+      "Automatic",
+      "readiness",
+      "mobilize",
+      "demobilize",
+      "drawdown",
+      "field strength"
+    ],
+    "inviting-a-noble-to-travel-with-you": [
+      "Temporary Party Guest",
+      "guest",
+      "waiting camp",
+      "Let Them Depart",
+      "Speak Now",
+      "NPC wont leave",
+      "guest departure",
+      "own faction combat",
+      "banishment"
+    ],
+    "choosing-a-duel": [
+      "duel",
+      "practice duel",
+      "honor duel",
+      "lethal duel",
+      "sparring",
+      "duel XP",
+      "blocked hits",
+      "training damage"
+    ],
+    "arrests-accusation-confirmation-and-custody": [
+      "arrest",
+      "accusation",
+      "confirm arrest",
+      "jurisdiction",
+      "release",
+      "rescind",
+      "prisoner",
+      "custody"
+    ],
+    "captured-rulers-and-sovereign-judgment": [
+      "captured ruler",
+      "judgment",
+      "execution sentence",
+      "exile",
+      "submission",
+      "annexation",
+      "ruler handover",
+      "life and death"
+    ],
+    "rebellion-and-civil-war": [
+      "rebellion",
+      "civil war",
+      "secret pledge",
+      "reunification",
+      "independence",
+      "rebel surrender",
+      "informers"
+    ],
+    "troops-cost-more-than-in-native-bannerlord": [
+      "troops expensive",
+      "troop costs",
+      "wages",
+      "elite troops",
+      "upgrades",
+      "recruitment cost",
+      "ransom price",
+      "military budget"
+    ],
+    "recruitment-uses-people-not-an-endless-pool": [
+      "no recruits",
+      "recruitment population",
+      "hearths",
+      "mobilization strain",
+      "household retinue",
+      "replacement army",
+      "civilian crews",
+      "fishing crews"
+    ],
+    "raids-population-and-recovery": [
+      "village recovery",
+      "raid damage",
+      "agricultural recovery",
+      "pillage",
+      "devastate",
+      "mercy",
+      "village production"
+    ],
+    "food-markets-settlement-stocks-and-relief": [
+      "food shortage",
+      "famine relief",
+      "granary",
+      "food reserve",
+      "shipment",
+      "siege blocks food",
+      "food in market",
+      "starvation"
+    ],
+    "garrisons-patrols-and-demobilization": [
+      "garrison wages",
+      "garrison food",
+      "quartering",
+      "Billeting",
+      "patrol manpower",
+      "release soldiers"
+    ],
+    "ships-ports-and-military-purchases": [
+      "ships",
+      "naval",
+      "War Sails",
+      "port funds",
+      "resale",
+      "captured ship",
+      "ship repair",
+      "governor commission",
+      "tariff loop"
+    ],
+    "a-longer-calendar-and-new-campaign-differences": [
+      "calendar",
+      "aging",
+      "longer year",
+      "younger generation",
+      "starting children",
+      "Rhagaea",
+      "Ira",
+      "new campaign",
+      "startup grace"
+    ],
+    "kingdom-catastrophes-and-boons": [
+      "catastrophes",
+      "boons",
+      "Famine",
+      "Pestilence",
+      "Crime Wave",
+      "Trade Collapse",
+      "Construction Stagnation",
+      "Political Unrest",
+      "Bountiful Harvest",
+      "Population Boom",
+      "Law and Order",
+      "Trade Boom",
+      "Golden Age",
+      "National Unity",
+      "Border Crisis",
+      "Grand Reconciliation",
+      "Orderly Succession"
+    ],
+    "news-and-announcements": [
+      "news",
+      "town crier",
+      "popup",
+      "announcement settings",
+      "tournament news",
+      "scroll report"
+    ],
+    "arena-overhaul-is-included": [
+      "Arena Overhaul",
+      "arena master",
+      "standalone arena mod"
+    ],
+    "practice-modes-and-companions": [
+      "arena practice",
+      "Expansive Practice",
+      "Parry Practice",
+      "Team Practice",
+      "play as companion",
+      "loadout",
+      "weapon choice",
+      "viewing XP"
+    ],
+    "tournaments-and-team-victories": [
+      "tournament",
+      "Team Tournament",
+      "betting",
+      "prizes",
+      "renown",
+      "influence",
+      "party teammates",
+      "NPC prize money"
+    ],
+    "participation-xp": [
+      "participation XP",
+      "Charm XP",
+      "Leadership XP",
+      "event skill bonus",
+      "XP options",
+      "learning rate"
+    ],
+    "portraits-and-look-at-them": [
+      "portraits",
+      "Look at them",
+      "portrait refresh",
+      "portrait zoom",
+      "shared portraits",
+      "native portrait"
+    ],
+    "view-scenes-and-outfit-previews": [
+      "View",
+      "scene image",
+      "AI artwork",
+      "outfit preview",
+      "Keep",
+      "Revert",
+      "before and after"
+    ],
+    "the-memory-book": [
+      "Memory Book",
+      "illustrated memories",
+      "quest interface"
+    ],
+    "small-interface-and-native-behavior-changes": [
+      "italic actions",
+      "main menu",
+      "logo",
+      "dungeon security",
+      "prison escape",
+      "foreign governor",
+      "stability fixes",
+      "map bar input"
+    ],
+    "a-bannerlord-save-and-reign-memory-belong-together": [
+      "Save Sync",
+      "protected save",
+      "unprotected save",
+      "save warning",
+      "timeline",
+      "rewind",
+      "renamed save"
+    ],
+    "capacity-and-safe-housekeeping": [
+      "save capacity",
+      "too many saves",
+      "delete save",
+      "rolling save",
+      "snapshot limit"
+    ],
+    "exporting-and-restoring-a-campaign": [
+      "backup",
+      "export campaign",
+      "import campaign",
+      "restore backup",
+      "reignbackup",
+      "delete campaign"
+    ],
+    "updating-moving-computers-and-removing-the-mod": [
+      "update",
+      "move computer",
+      "uninstall",
+      "remove mod",
+      "existing save",
+      "compatibility"
+    ],
+    "which-settings-window-to-use": [
+      "settings",
+      "MCM",
+      "Control Center",
+      "server on off"
+    ],
+    "reign-mcm-feature-switches": [
+      "feature switches",
+      "turn off feature",
+      "AI World toggle"
+    ],
+    "execution-and-server-connection-switches": [
+      "execution settings",
+      "action commands",
+      "server URL",
+      "debug controls",
+      "Open Party Chat",
+      "Open Correspondence"
+    ],
+    "control-center-areas": [
+      "Character Editor",
+      "revision",
+      "Prompting",
+      "Diagnostics",
+      "Logging",
+      "Audit Viewer",
+      "Character Memory",
+      "Story Editor",
+      "Test Lab",
+      "Verification Lab"
+    ],
+    "provider-choices-costs-and-privacy": [
+      "provider cost",
+      "subscription",
+      "privacy",
+      "cloud context",
+      "OpenRouter",
+      "NanoGPT",
+      "AtlasCloud",
+      "Reign Image Generator",
+      "Qdrant"
+    ],
+    "chat-is-slow-or-not-answering": [
+      "chat not responding",
+      "slow chat",
+      "connection error",
+      "provider unavailable",
+      "retry response"
+    ],
+    "the-npc-agreed-but-nothing-happened": [
+      "agreed no action",
+      "agreement blocked",
+      "delayed action"
+    ],
+    "a-menu-person-or-picture-is-missing": [
+      "menu missing",
+      "missing portrait",
+      "cant open court",
+      "NPC missing",
+      "image failed"
+    ],
+    "saving-warns-preparation-stalls-or-a-rollback-seems-wrong": [
+      "save sync failure",
+      "stuck preparation",
+      "wrong memories after load",
+      "timeline problem"
+    ],
+    "quick-glossary": [
+      "glossary",
+      "terminology",
+      "what is native"
+    ],
+    "what-is-still-being-verified": [
+      "preview features",
+      "edition notes",
+      "acceptance",
+      "known limitations",
+      "coverage"
+    ],
+    "build-and-send-an-action-sentence": [
+      "action sentence",
+      "action system",
+      "action builder hotkey",
+      "why is an action missing",
+      "counteroffer",
+      "alt+a"
+    ],
+    "bargains-and-timing": [
+      "action payment timing",
+      "pay after success",
+      "installments",
+      "conditional agreement"
+    ],
+    "arranged-marriage-offers-and-cultural-weddings": [
+      "arranged marriage letter",
+      "marry now",
+      "hold a ceremony",
+      "wedding",
+      "request a marriage meeting"
+    ],
+    "household-stipends-and-npc-trade": [
+      "household stipend",
+      "NPC caravan",
+      "landless clan trade",
+      "caravan pilot"
+    ],
+    "battle-medical-discharge": [
+      "battle injury retirement",
+      "medical discharge",
+      "wounded soldiers retire",
+      "surgeon medicine"
+    ],
+    "war-economy-and-clan-trade-settings": [
+      "NPC Clan Trade",
+      "caravan and convoy switches",
+      "sea convoy price",
+      "war economy options",
+      "garrison savings"
+    ],
+    "gifts-and-exchanges": [
+      "Give gold",
+      "Give an item",
+      "Give troops",
+      "Give prisoners",
+      "Give land",
+      "Give a workshop",
+      "Give a ship"
+    ],
+    "personal-and-family-actions": [
+      "Leave your spouse by letter",
+      "Expose their concealed pregnancy",
+      "Share this personal experience",
+      "Take personal leave",
+      "Summon a subordinate for a meeting",
+      "Change an agreed meeting",
+      "Cancel an agreed meeting",
+      "Join my party as a permanent companion",
+      "Release resident from duty",
+      "Join my party as a temporary guest",
+      "Extend your stay in my party",
+      "Leave my party",
+      "Accept the risks of fighting your own faction"
+    ],
+    "marriage-actions-and-wedding-choices": [
+      "Propose an arranged marriage",
+      "Release a captive",
+      "Ask the prospective spouse to call off the wedding",
+      "Marriage alliance"
+    ],
+    "arrests-and-direct-conflict": [
+      "Duel me",
+      "Prepare arrest",
+      "Release arrested character",
+      "Rescind arrest accusation",
+      "Attack your party",
+      "Attack my party",
+      "Surrender to me",
+      "Leave me alone",
+      "Kill character"
+    ],
+    "following-and-guiding": [
+      "Follow",
+      "Stop following",
+      "Show the way"
+    ],
+    "party-and-military-orders": [
+      "Issue campaign order",
+      "Revise campaign order",
+      "Cancel campaign order",
+      "Create party",
+      "Go to",
+      "Hold position",
+      "Wait near settlement",
+      "Patrol around settlement",
+      "Scout report",
+      "Escort",
+      "Recruit and recover",
+      "Form army",
+      "Join army",
+      "Leave army",
+      "Disband army",
+      "Raid village",
+      "Besiege settlement",
+      "Attack settlement",
+      "Capture settlement plan",
+      "Defend",
+      "Relieve siege",
+      "Hunt enemy parties",
+      "Attack party",
+      "Withdraw",
+      "Return home"
+    ],
+    "clan-and-kingdom-actions": [
+      "Hire me as a mercenary",
+      "Release me from mercenary service",
+      "Accept my oath of vassalage",
+      "Release me from vassalage",
+      "Join clan",
+      "Leave clan",
+      "Join kingdom",
+      "Leave kingdom",
+      "Hire mercenary clan",
+      "Create clan accord",
+      "Cancel clan accord"
+    ],
+    "rebellions-and-internal-politics": [
+      "Declare rebellion against your rule",
+      "Support me when I declare rebellion",
+      "Recruit lord to rebellion",
+      "Join rebellion",
+      "Surrender rebellion",
+      "Resolve civil war",
+      "Consent government reduction",
+      "Install ruling clan",
+      "Support claimant",
+      "Encourage clan defection",
+      "Exile clan",
+      "Restore exiled clan",
+      "Mediate clan dispute"
+    ],
+    "realm-diplomacy": [
+      "Declare war",
+      "Back rebellion",
+      "Make peace",
+      "Offer tribute peace",
+      "Record promise",
+      "Demand reparations peace",
+      "Demand settlement peace",
+      "Demand surrender peace",
+      "Sign trade agreement",
+      "Sign non-aggression pact",
+      "Sign alliance",
+      "Sign defensive pact",
+      "Break treaty",
+      "Exchange prisoners",
+      "Ransom package",
+      "Hostage guarantee",
+      "War indemnity",
+      "Recognize conquest",
+      "Return occupied settlement",
+      "Demilitarized border",
+      "Caravan protection agreement",
+      "Supply agreement",
+      "Loan or subsidy",
+      "Pay to stay neutral",
+      "Pay to join war",
+      "Guarantee independence",
+      "Protectorate or vassalage",
+      "Diplomatic package"
+    ],
+    "government-support-and-petitions": [
+      "Join political party",
+      "Back a party platform",
+      "Support a proposal",
+      "Support a party nomination",
+      "Endorse a petition",
+      "Sponsor a petition",
+      "Seek party adoption of a petition",
+      "Present an adopted petition",
+      "Consent to transfer a civic mandate",
+      "Nominate a party speaker",
+      "Vote for a party speaker"
+    ],
+    "government-hearings-and-decisions": [
+      "Recommend an outcome",
+      "Introduce a government proposal",
+      "Supply a government resolution",
+      "Sponsor a petition",
+      "Postpone a hearing",
+      "Reconvene a hearing",
+      "Call a government vote",
+      "Decide a government hearing",
+      "Grant more governing authority",
+      "Reduce governing authority",
+      "Fulfill a government resolution",
+      "Decline a government resolution"
+    ],
+    "court-offices-and-ambassadors": [
+      "Serve as a court officer",
+      "Leave your court office",
+      "Serve as ambassador",
+      "Return from your ambassador posting",
+      "Change your ambassador mission",
+      "Serve as Chancellor",
+      "Relinquish the Chancellorship",
+      "Change your Chancellor duties",
+      "Serve as regent",
+      "Relinquish the regency"
+    ],
+    "spymaster-missions": [
+      "Gather settlement intelligence",
+      "Conduct a counterintelligence sweep",
+      "Investigate a person's skills",
+      "Investigate a person's relationships",
+      "Investigate rumors about a person",
+      "Disrupt a settlement's food supply",
+      "Disrupt construction",
+      "Disrupt security",
+      "Disrupt loyalty",
+      "Attempt to assassinate a governor",
+      "Attempt to assassinate a person",
+      "Mitigate a rumor about me",
+      "Mitigate my reputation",
+      "Mitigate a rumor about a person",
+      "Mitigate a person's reputation",
+      "Promote a positive reputation",
+      "Circulate a harmful rumor",
+      "Circulate a severe reputation"
+    ],
+    "follow-up-controls-and-older-action-entries": [
+      "Confirm arrest",
+      "Respond to order report",
+      "Resolve rebellion pledge",
+      "Resolve rebellion summons",
+      "Older trade package",
+      "Older gold transfer entries",
+      "Older item transfer entry",
+      "Older workshop transfer entry",
+      "Older prisoner transfer entry"
+    ]
+  },
+  "explicitLimits": [
+    "The manual is a source-reviewed player guide, not a native full-mod release certificate.",
+    "Source coverage is topic/chapter based; no claim that every line of code or authored scenario is separately described.",
+    "The existing technical guide is retained untouched because it has unrelated active economy edits.",
+    "Only hardware requirements retain necessary numeric planning information. Gameplay tuning percentages and formulas are intentionally omitted.",
+    "A representative typical RAM range, peak-memory benchmark and clean-machine Reign minimum specification are not established.",
+    "Remaining approved-reference pictures are temporary layout examples. User-supplied in-game captures establish visible presentation only; they do not certify a complete feature lifecycle.",
+    "No gameplay providers, native campaign changes, game launches, deployment, commits or publication are performed for manual production. External editorial consultations are separately authorized.",
+    "The November 9 additions distinguish deployed behavior from the NPC Clan Trade candidate. Marriage native evidence covers a single Aserai route. The action reference accounts for all conversation catalog IDs, including conditional and legacy entries, without claiming every route has native acceptance."
+  ],
+  "captureManifest": "captures.json",
+  "edition": "2026-11-09"
+}

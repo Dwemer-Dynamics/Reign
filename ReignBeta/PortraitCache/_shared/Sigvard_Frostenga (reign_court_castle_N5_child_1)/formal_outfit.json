@@ -1,0 +1,13 @@
+{
+  "version": 1,
+  "heroStringId": "reign_court_castle_N5_child_1",
+  "characterName": "Sigvard Frostenga",
+  "imagePath": "portrait.png",
+  "imageSha256": "994439027A69C8C0CAC08F40E9EA6F89BFF7B7C2802E35BFA034866F381FFE3D",
+  "description": "Rust-brown knee-length wool tunic with narrow cream woven trim over ivory linen, broad brown leather belt, loose grey-brown trousers, dark leg wraps and soft brown leather ankle shoes. No headgear, armor or weapons.",
+  "status": "completed",
+  "descriptionSource": "agent_vision",
+  "retryEligible": false,
+  "error": "",
+  "updatedUtc": "2026-11-07T03:19:41.227543+00:00"
+}

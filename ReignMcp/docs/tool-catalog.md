@@ -1,3 +1,15 @@
+## Native performance and queue observation (2026-11-08)
+
+Readiness returns original transaction errors after rollback; it does not retry within an aborted transaction. Focused offline relationships output retains bounded caseResults and completeness flags so required parity cases can be verified against the exact artifact. See catalog version2026.11.08.6.
+
+Publication now serializes detached timing DTOs directly, preserving the same fields with lower allocation. Runtime dispatch counters include callbacks at least16ms; code-only caller labels are retained locally, while the scalar monitor keeps only count/duration. Server helper lock scopes log long holds/waits after release, including the owner observed at wait start; direct Monitor owners remain unknown. Marriage stage logs expose counts/timings without candidate bodies. Compact marriage snapshots preserve noble/clan/kingdom inputs and legacy request compatibility. See `campaignPerformance` in the testing catalog for parity contracts and attribution limits.
+
+Marriage queue telemetry reads bounded cached header metadata; it never reparses a full queued document. Ambient and marriage upload parsing executes on workers. Scope-specific single-flight work is capped at4 concurrent scopes; a saturated gate fails for retry. Durable input selection remains8 ordered documents, and retirement checks exact accepted text so a same-day replacement survives. A contended native filename observation publishes `clientOutboxDaysKnown=false` and pending sentinel1, which cannot satisfy a zero-debt gate. The ordinary authoritative preparation read remains locked. At most13 named heartbeat section records expose duration, GC-count deltas and thread placement; these are diagnostic observations, not GC pause times. Numeric due/transit/clock/blocked and timing fields are retained within the existing6-source/3078-entry bound. Daily population and relationship capture phases expose previously uncovered work.
+
+Queue collection uses five independent fixed GET probes plus native scalar projection (3078 maximum projected entries), fresh readiness identity/generation and four-second client deadlines. Failed sources are disabled for that run while timing continues; faults remain a failed collection. No retry can stack abandoned server work. The World Test readiness GET performs no DDL and uses a read-only transaction with bounded lock/statement waits; missing schema is an unavailable observation. See the catalog and campaign procedure for exact limits.
+
+`reign_monitor_campaign_performance(campaignId, campaignTestRunId, durationSeconds=120, pollSeconds=5)` is read-only toward the game/server, with30–3600 seconds and2–30-second polls. It requires fresh aligned runtime for the exact enrolled run-owned Current and current native module/instance. Cached timing windows and scalar queue counters are retained in new run-owned working evidence files. It does not advance/pause/save, invoke a native snapshot, modify settings, clear jobs or use providers. The report is `OBSERVATIONS_ONLY`; collection success does not certify smoothness or catch-up. Catalog `campaignPerformance` and [the procedure](../../docs/agent/testing/CAMPAIGN_AND_RUNTIME.md#performance-and-queue-observation) own the limits, coverage and pending acceptance.
+
 ## View actor clothing coverage (2026-11-01)
 
 The `chat_view` suite checks a mandatory wardrobe decision for every depicted character, source-nomination accounting, explicit defaults, contradictions/uncertainty, temporal/actor fences and guarded final prompt composition using nonsexual fixtures. Catalog `chatView.wardrobe.coverageContract` owns fields, limits and version. No new MCP tool or provider call is added; use canonical changed-path validation and the existing artifact-bound offline `chat_view` suite. Stop before deployment and do not start the installed server/game for this repair.
@@ -404,6 +416,14 @@ Run canonical exact-path Release validation, then its artifact-bound non-listeni
 ## Captured writer continuations (2026-09-30)
 
 The existing artifact-bound `memory_evidence_replay` now accepts up to three bounded `writerReplay.continuation` steps (four accepted turns total). Each consumes the preceding prepared writer request and a separately captured response, uses the production memory publisher, and captures subsequent retrieval in the same disposable campaign. Missing stages remain pending, and execution completeness requires the full requested chain. There are no provider calls, new tool routes or runtime/campaign permissions. Exact fields, limits and evidence are in `docs/agent/testing/DIALOGUE_AND_PROVIDERS.md` and `reign.testing.json`.
+
+For imported accepted sequences, the isolated publisher advances the run-owned allocator before committing the captured response. The next-read cutoff follows the newly stored turns.
+
+An accepted `reviewedFactReplay` case can also export `reviewedFactFollowUp` alongside its stock next request. The compact diagnostic rechecks the selected sources and the exact authored window at the new cutoff. It records its own blocked or captured status and has no publication step.
+
+The optional reviewed writer plan captures a strict response schema for verified derived facts followed by free NPC prose. Captured replies must bind to that wire and match the planned fields before ordinary grounding and isolated publication.
+
+The guarded delivery treatment captures a short style schema and retains two independently reviewed lines outside the writer request. A captured response must match both the exact wire and the delivery receipt before the selected speech can enter isolated publication.
 
 
 ## Retired remote memory calls (2026-10-01)

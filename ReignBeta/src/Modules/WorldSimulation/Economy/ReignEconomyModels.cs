@@ -1,4 +1,5 @@
 using System;
+using System.Reflection;
 using ReignBeta.Campaign;
 using ReignBeta.Government;
 #if !REIGN_EXCLUDE_COURT
@@ -15,20 +16,61 @@ namespace ReignBeta.Economy
 {
     internal sealed class ReignVillageProductionCalculatorModel : DefaultVillageProductionCalculatorModel
     {
+        [ThreadStatic] private static int _potentialDepth;
+        internal static bool IsPotential => _potentialDepth > 0;
+        internal static float PotentialProduction(Village village, ItemObject item)
+        {
+            _potentialDepth++;
+            try { return ObserveWithoutRandomAdvance(() => TaleWorlds.CampaignSystem.Campaign.Current.Models.VillageProductionCalculatorModel.CalculateDailyProductionAmount(village, item).ResultNumber); }
+            finally { _potentialDepth--; }
+        }
+        private static readonly PropertyInfo NativeRandom = typeof(MBRandom).GetProperty("Random", BindingFlags.Static | BindingFlags.NonPublic);
+        private static readonly FieldInfo[] NativeRandomState = Array.ConvertAll(new[] { "_x", "_y", "_z", "_w" },
+            name => typeof(MBFastRandom).GetField(name, BindingFlags.Instance | BindingFlags.NonPublic));
+        // Native Shepherd production draws from the campaign RNG. Model quotations must only peek.
+        // Calls and restoration are synchronous on the campaign thread, including nested quotations.
+        internal static float ObserveWithoutRandomAdvance(Func<float> observe)
+        {
+            var random = NativeRandom?.GetValue(null, null) as MBFastRandom
+                ?? throw new InvalidOperationException("Native production observation RNG unavailable.");
+            if (Array.Exists(NativeRandomState, field => field == null || field.FieldType != typeof(uint)))
+                throw new InvalidOperationException("Native production observation RNG state changed.");
+            var before = Array.ConvertAll(NativeRandomState, field => field.GetValue(random));
+            try { return observe(); }
+            finally { for (int i = 0; i < NativeRandomState.Length; i++) NativeRandomState[i].SetValue(random, before[i]); }
+        }
+        internal static float CommodityBaseline(Village village) => (float)ReignWarEconomyPolicy.HealthyFood(village.Hearth) / 12f;
+
+        public override float CalculateDailyFoodProductionAmount(Village village)
+        {
+            if (village == null || village.VillageState != Village.VillageStates.Normal) return 0f;
+            // The supplementary native channel has only a hearth baseline and multiplicative issue effects.
+            float native = base.CalculateDailyFoodProductionAmount(village);
+            float recovery = IsPotential ? 1f : ReignEconomyCampaignBehavior.Instance?.GetRecoveryModifier(village) ?? 1f;
+            return Math.Max(0, native / (village.GetHearthLevel() + 1) * (float)ReignWarEconomyPolicy.HealthyFood(village.Hearth) / 6f * recovery);
+        }
         public override ExplainedNumber CalculateDailyProductionAmount(Village village, ItemObject item)
         {
+            if (village == null || village.VillageState != Village.VillageStates.Normal)
+                return new ExplainedNumber(0f);
             ExplainedNumber result = base.CalculateDailyProductionAmount(village, item);
 #if !REIGN_EXCLUDE_COURT
             float factor = ReignCourtCampaignBehavior.Instance?.GetDocketVillageProductionFactor(village) ?? 0f;
             if (factor != 0f)
                 result.AddFactor(factor, new TextObject("{=!}Royal petition production support"));
 #endif
+            float recovery = IsPotential ? 1f : ReignEconomyCampaignBehavior.Instance?.GetRecoveryModifier(village) ?? 1f;
+            ReignBeta.ClanAccords.ReignClanAccordModelMath.AddFinalDelta(ref result,
+                -Math.Max(0, result.ResultNumber) * (1 - recovery), new TextObject("{=!}Agricultural recovery"));
+            result.LimitMin(0);
             return result;
         }
     }
 
     internal sealed class ReignSettlementFoodModel : DefaultSettlementFoodModel
     {
+        // Native consumption still applies siege, governor and building modifiers to this baseline.
+        public override int NumberOfMenOnGarrisonToEatOneFood => ReignEconomyPatches.QuarteringCounterfactual ? 20 : ReignWarEconomyPolicy.GarrisonMenPerFood;
         public override ExplainedNumber CalculateTownFoodStocksChange(
             Town town,
             bool includeMarketStocks = true,
@@ -51,41 +93,23 @@ namespace ReignBeta.Economy
 
                 float modifier = behavior?.GetRecoveryModifier(village) ?? 1f;
                 float nativeContribution = (village.GetHearthLevel() + 1) * 6f;
-                if (modifier < 1f)
-                {
-                    TextObject recoveryExplanation = new TextObject("{=!}{VILLAGE} agricultural recovery");
-                    recoveryExplanation.SetTextVariable("VILLAGE", village.Name);
-                    result.Add(-nativeContribution * (1f - modifier), recoveryExplanation);
-                }
-
-                float mobilizationPenalty = MathF.Min(
-                    behavior?.GetMobilizationFoodPenalty(village) ?? 0f, nativeContribution * modifier);
-                if (mobilizationPenalty > 0f)
-                {
-                    TextObject mobilizationExplanation = new TextObject("{=!}{VILLAGE} manpower shortage");
-                    mobilizationExplanation.SetTextVariable("VILLAGE", village.Name);
-                    result.Add(-mobilizationPenalty, mobilizationExplanation);
-                }
-                effectiveVillageContribution += MathF.Max(0f,
-                    nativeContribution * modifier - mobilizationPenalty);
+                float actual = (float)ReignWarEconomyPolicy.HealthyFood(village.Hearth) * modifier;
+                result.Add(actual - nativeContribution,
+                    new TextObject("{=!}{VILLAGE}: households and agricultural recovery").SetTextVariable("VILLAGE", village.Name));
+                effectiveVillageContribution += actual;
             }
 
             float eventFactor = ReignKingdomEventsCampaignBehavior.Instance
                 ?.GetFoodProductionFactor(town) ?? 0f;
-            if (eventFactor != 0f && effectiveVillageContribution > 0f)
-            {
-                result.Add(effectiveVillageContribution * eventFactor,
-                    new TextObject(eventFactor < 0f
-                        ? "{=!}Kingdom-wide famine"
-                        : "{=!}Kingdom-wide bountiful harvest"));
-            }
-
 #if !REIGN_EXCLUDE_COURT
             float spyFactor = ReignCourtCampaignBehavior.Instance?.GetSpymasterFoodFactor(town) ?? 0f;
-            if (spyFactor != 0f && effectiveVillageContribution > 0f)
-                result.Add(effectiveVillageContribution * spyFactor,
-                    new TextObject("{=!}Covert disruption of food distribution"));
+#else
+            float spyFactor = 0f;
 #endif
+            // Clamp the affected production, never the final production-minus-consumption total.
+            float combined = Math.Max(-1f, eventFactor + spyFactor);
+            if (combined != 0)
+                result.Add(effectiveVillageContribution * combined, new TextObject("{=!}Harvest conditions and food disruption"));
 
             return result;
         }
@@ -225,6 +249,14 @@ namespace ReignBeta.Economy
             bool includeDescriptions = false)
         {
             ExplainedNumber result = base.CalculateHearthChange(village, includeDescriptions);
+            if (village.VillageState == Village.VillageStates.Normal)
+            {
+                float nativeBaseline = village.Hearth < 300 ? 4f : village.Hearth < 600 ? 1.2f : .2f;
+                float natural = ReignEconomyCampaignBehavior.Instance?.GetNaturalGrowth(village)
+                    ?? (float)ReignWarEconomyPolicy.NaturalGrowth(village.Hearth, 0, ReignEconomyCampaignBehavior.IsAgricultureStressed(village));
+                // Add changes the baseline under existing native factors; unrelated perk/building flats remain intact.
+                result.Add(natural - nativeBaseline, new TextObject("{=!}Household recovery after mobilization"));
+            }
             float accordHearths = (float)(ReignBeta.ClanAccords.ReignClanAccordsCampaignBehavior.Instance?.GetBonuses(village?.Settlement?.OwnerClan).HearthGrowth ?? 0d);
             float eventDelta = ReignKingdomEventsCampaignBehavior.Instance
                 ?.GetHearthDelta(village) ?? 0f;
@@ -251,8 +283,8 @@ namespace ReignBeta.Economy
                 }
             }
             float governmentDelta = ReignGovernmentCampaignBehavior.Instance?.GetHearthDelta(village) ?? 0f;
-            if (governmentDelta != 0f)
-                result.Add(governmentDelta, new TextObject("{=!}Representative government authority"));
+            ReignBeta.ClanAccords.ReignClanAccordModelMath.AddFinalDelta(ref result, governmentDelta,
+                new TextObject("{=!}Representative government authority"));
             ReignBeta.ClanAccords.ReignClanAccordModelMath.AddFinalDelta(ref result, accordHearths,
                 new TextObject("{=!}Clan Accords: agricultural exchange"));
             return result;

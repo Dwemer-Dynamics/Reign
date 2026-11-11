@@ -39,6 +39,8 @@ public sealed class ToolMetadataTests
             "reign_start_ruler_docket_test",
             "reign_start_kingdom_event_test",
             "reign_start_government_test",
+            "reign_start_war_economy_test",
+            "reign_set_war_economy_provider_guard",
             "reign_build",
             "reign_validate",
             "reign_run_offline_verification",
@@ -93,6 +95,8 @@ public sealed class ToolMetadataTests
             "reign_start_ruler_docket_test",
             "reign_start_kingdom_event_test"
             ,"reign_start_government_test"
+            ,"reign_start_war_economy_test"
+            ,"reign_set_war_economy_provider_guard"
             ,"reign_start_social_reputation_test"
             ,"reign_start_campaign_command_profile"
             ,"reign_verify_campaign_command_save_roundtrip"
@@ -126,7 +130,7 @@ public sealed class ToolMetadataTests
         destructive.Add("reign_test_npc_lives");
         writes.Add("reign_test_personal_gossip");
         destructive.Add("reign_test_personal_gossip");
-        Assert.Equal(126, tools.Length);
+        Assert.Equal(131, tools.Length);
         Assert.All(tools, item =>
         {
             Assert.StartsWith("reign_", item.Tool!.Name, StringComparison.Ordinal);

@@ -1,0 +1,13 @@
+{
+  "version": 1,
+  "heroStringId": "reign_court_castle_N3_child_1",
+  "characterName": "Asvald Eikenvard",
+  "imagePath": "portrait.png",
+  "imageSha256": "C54F1C6470FB37E9A62CD79CAA9DE345D17E5669DEBA27D6B3BF459CDE82CE25",
+  "description": "A dark olive short-sleeved knee-length wool outer tunic with red-and-cream geometric woven trim at the split neck, sleeve ends and hem, over a long-sleeved cream linen shirt. A plain brown leather belt with a modest metal buckle, loose brown trousers, khaki-grey lower-leg wraps with dark ties and brown leather ankle shoes. No headgear, armor or weapons.",
+  "status": "completed",
+  "descriptionSource": "agent_vision",
+  "retryEligible": false,
+  "error": "",
+  "updatedUtc": "2026-11-07T03:24:37.467203+00:00"
+}
