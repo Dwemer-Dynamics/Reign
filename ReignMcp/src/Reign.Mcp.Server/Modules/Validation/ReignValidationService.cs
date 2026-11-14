@@ -119,6 +119,7 @@ public sealed partial class ReignValidationService(
                     "dotnet",
                     arguments,
                     options.WorkspaceRoot,
+                    timeout: Timeout.InfiniteTimeSpan,
                     artifactDirectory: Path.Combine(runRoot, project.Id),
                     cancellationToken: cancellationToken).ConfigureAwait(false);
                 results.Add(new ProjectValidationResult
@@ -179,6 +180,7 @@ public sealed partial class ReignValidationService(
                                 "--results-directory", Path.Combine(runRoot, project.Id, "test-results")
                             ],
                             options.WorkspaceRoot,
+                            timeout: Timeout.InfiniteTimeSpan,
                             artifactDirectory: Path.Combine(runRoot, project.Id),
                             cancellationToken: cancellationToken).ConfigureAwait(false);
                         results.Add(new ProjectValidationResult
@@ -203,6 +205,7 @@ public sealed partial class ReignValidationService(
                         executable,
                         operation.Arguments,
                         Path.GetDirectoryName(executable)!,
+                        timeout: Timeout.InfiniteTimeSpan,
                         artifactDirectory: Path.Combine(runRoot, project.Id, "out", "data", "tests"),
                         environment: new Dictionary<string, string>
                         {
@@ -254,6 +257,7 @@ public sealed partial class ReignValidationService(
                             "--json"
                         ],
                         Path.GetDirectoryName(serverExecutable)!,
+                        timeout: Timeout.InfiniteTimeSpan,
                         artifactDirectory: Path.Combine(runRoot, "server", "out", "data", "tests"),
                         environment: new Dictionary<string, string>
                         {
@@ -277,7 +281,7 @@ public sealed partial class ReignValidationService(
         var report = new ValidationReport
         {
             Schema = "reign-validation-report-v4",
-            ValidatorVersion = "0.7.1",
+            ValidatorVersion = "0.7.2",
             RunId = runId,
             SourceFingerprintSha256 = sourceFingerprint,
             StartedUtc = started.ToString("O"),

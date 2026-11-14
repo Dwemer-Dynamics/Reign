@@ -17,6 +17,7 @@ public sealed class ReignProcessRunner(
         IReadOnlyDictionary<string, string>? environment = null,
         CancellationToken cancellationToken = default)
     {
+        var effectiveTimeout = timeout ?? options.ProcessTimeout;
         var startInfo = new ProcessStartInfo
         {
             FileName = executable,
@@ -51,7 +52,7 @@ public sealed class ReignProcessRunner(
                 ["REIGN_DB_USER"] = "reign"
             };
             linuxInput = JsonSerializer.Serialize(new { executable, arguments, workingDirectory, environment = linuxEnvironment, pidFile = linuxPidFile,
-                timeout = Math.Max(1, (timeout ?? options.ProcessTimeout).TotalSeconds - 2) });
+                timeout = GetLinuxChildTimeout(effectiveTimeout) });
             startInfo.FileName = "wsl.exe";
             startInfo.RedirectStandardInput = true;
             startInfo.ArgumentList.Clear();
@@ -73,8 +74,8 @@ public sealed class ReignProcessRunner(
         }
         if (linuxInput is not null)
         {
-            await process.StandardInput.WriteAsync(linuxInput.AsMemory(), cancellationToken).ConfigureAwait(false);
-            process.StandardInput.Close();
+            await process.StandardInput.WriteLineAsync(linuxInput.AsMemory(), cancellationToken).ConfigureAwait(false);
+            await process.StandardInput.FlushAsync(cancellationToken).ConfigureAwait(false);
         }
 
         var outputTask = DrainAsync(
@@ -87,7 +88,7 @@ public sealed class ReignProcessRunner(
             cancellationToken);
         var timedOut = false;
         using var timeoutSource = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken);
-        timeoutSource.CancelAfter(timeout ?? options.ProcessTimeout);
+        timeoutSource.CancelAfter(effectiveTimeout);
         try
         {
             await process.WaitForExitAsync(timeoutSource.Token).ConfigureAwait(false);
@@ -149,10 +150,14 @@ public sealed class ReignProcessRunner(
         };
     }
 
-    // The Linux child owns a separate process group and a bounded lifetime, including after WSL relay loss.
+    internal static double? GetLinuxChildTimeout(TimeSpan timeout) =>
+        timeout == Timeout.InfiniteTimeSpan ? null : Math.Max(1, timeout.TotalSeconds - 2);
+
+    // The Linux child owns a separate process group; cancellation and relay-loss signals clean it up.
+    // JSON null maps to Python timeout=None, so validation has no elapsed-time cutoff.
     private const string LinuxVerificationRunner = """
-        import json,os,pathlib,re,shutil,signal,subprocess,sys,tempfile
-        request=json.load(sys.stdin)
+        import json,os,pathlib,re,shutil,signal,subprocess,sys,tempfile,threading
+        request=json.loads(sys.stdin.readline())
         def mapped(value):
             if len(value)>2 and value[1]==':' and value[2] in (chr(92),'/'):
                 return subprocess.check_output(['wslpath','-a','-u',value.replace(chr(92),'/')],text=True).strip()
@@ -167,14 +172,26 @@ public sealed class ReignProcessRunner(
         data_root=tempfile.mkdtemp(prefix='reign-validation-')
         environment['REIGN_DATA_ROOT']=data_root
         process=subprocess.Popen(['dotnet',mapped(request['executable']),*[mapped(a) for a in request['arguments']]],
-            cwd=working,env=environment,start_new_session=True)
+            cwd=working,env=environment,start_new_session=True,stdin=subprocess.DEVNULL)
         started=(pathlib.Path('/proc')/str(process.pid)/'stat').read_text().split(') ',1)[1].split()[19]
         pathlib.Path(mapped(request['pidFile'])).write_text(json.dumps({'pid':process.pid,'started':started}))
+        def kill_owned_group():
+            try:
+                identity=(pathlib.Path('/proc')/str(process.pid)/'stat').read_text().split(') ',1)[1].split()[19]
+                if identity==started and os.getsid(process.pid)==process.pid:
+                    os.killpg(process.pid,signal.SIGKILL)
+            except (ProcessLookupError,FileNotFoundError): pass
         def stop(signum,frame):
-            try: os.killpg(process.pid,signal.SIGKILL)
-            except ProcessLookupError: pass
+            kill_owned_group()
             raise SystemExit(128+signum)
         for sig in (signal.SIGTERM,signal.SIGINT,signal.SIGHUP): signal.signal(sig,stop)
+        def watch_relay():
+            # Read the raw descriptor: a daemon must not hold Python stdin's buffered lock at shutdown.
+            try:
+                while os.read(sys.stdin.fileno(),4096): pass
+            except OSError: pass
+            if process.poll() is None: kill_owned_group()
+        threading.Thread(target=watch_relay,daemon=True).start()
         try:
             try: exit_code=process.wait(timeout=request['timeout'])
             except subprocess.TimeoutExpired: stop(signal.SIGTERM,None)

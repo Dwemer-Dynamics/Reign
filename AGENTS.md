@@ -8,6 +8,8 @@ Complete authorized implementation through appropriate verification and requeste
 
 ## Validation and behavioral proof
 
+Full validations routinely take forty minutes or longer. Do not impose an elapsed-time deadline on validation. Retain task ownership, observation, explicit cancellation and cleanup; a healthy run is allowed to finish.
+
 - `reign.modules.json` owns module/dependency/facet routing; `reign-projects.json` owns active projects. Obtain `reign_get_validation_plan` before code edits and use `reign_validate` afterward. Use exact changed paths and the lowest manifest-selected tier; see [validation guidance](docs/agent/VALIDATION.md) when selecting scope or handling failures.
 - Use `changed` for ordinary work, `product` for explicit product-wide confidence, and `all` for ecosystem release or manifest-required ownership, routing, shared-build or validator changes. Documentation/roadmap/policy-only changes are Tier 1 no-build plans. Read-only audits need no product build. Missing, unknown or ambiguous paths block; classify them before continuing.
 - Query `reign_get_validation_status` before validation and pass the current task UUID as `requestingTaskId`. A snapshot is not a reservation. Never bypass or delete the OS build lease.

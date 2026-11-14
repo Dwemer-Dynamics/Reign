@@ -1876,6 +1876,7 @@
     }
   ],
   "validation": {
+    "executionLifetime": "Canonical validation, Linux publication and isolated offline verification have no elapsed-time process cutoff. Full runs routinely exceed40minutes; retain explicit caller cancellation, OS lease/task attribution, isolated data, owned process cleanup and contract-specific behavior limits. ReignProcessRunnerTests covers unlimited lifetime and cancellation.",
     "profiles": [
       "changed",
       "core",

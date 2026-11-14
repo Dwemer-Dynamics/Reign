@@ -1,3 +1,7 @@
+## Validation lifetime (2026-11-14)
+
+Canonical validation and Linux publication pass an unlimited process lifetime explicitly. Windows cancellation remains linked to the caller; Linux receives JSON null/Python timeout=None. A newline-delimited request leaves stdin open as a live ownership channel; a raw-descriptor EOF watcher cleans up the exact child group on relay loss without an elapsed deadline or buffered-reader shutdown race. The isolated database, PID/start-time checks, signal handlers, bounded output capture and cleanup remain. Healthy full runs have no elapsed-time cutoff. Generic API and unrelated tool limits and individual behavioral contract limits remain unchanged. ReignProcessRunnerTests checks survival beyond a tiny generic limit, actual started-child cancellation, unrelated limit preservation and Linux relay timeout encoding. Explicit reign-validation-relay-proof-v1 acceptance uses only a fake executable in a task-owned fixture to prove normal completion, stdin EOF and abrupt relay loss; it starts no product services or providers.
+
 ## Tester distribution boundary (2026-11-14)
 
 Canonical source fingerprints include Linux `.sh` bootstrap scripts, `.service` units and the extensionless `reignctl` controller alongside PowerShell modules. Both All and Linux qualification must use the fresh engine after this coverage extension; `ReignDeploymentSourceTests` proves each script/control form invalidates prior qualification when changed.

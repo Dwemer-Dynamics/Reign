@@ -36,7 +36,7 @@ public sealed partial class ReignValidationService
         };
         if (!restore) arguments.Add("--no-restore");
         var process = await runner.RunAsync("dotnet", arguments, options.WorkspaceRoot,
-            artifactDirectory: root, timeout: TimeSpan.FromMinutes(15),
+            artifactDirectory: root, timeout: Timeout.InfiniteTimeSpan,
             cancellationToken: cancellationToken).ConfigureAwait(false);
         if (process.Ok)
         {

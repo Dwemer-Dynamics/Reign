@@ -87,6 +87,7 @@ public sealed class ReignBuildService(
                 "dotnet",
                 arguments,
                 options.WorkspaceRoot,
+                timeout: Timeout.InfiniteTimeSpan,
                 artifactDirectory: output,
                 cancellationToken: cancellationToken).ConfigureAwait(false);
             results.Add(result);
@@ -164,6 +165,7 @@ public sealed class ReignBuildService(
             executable,
             arguments,
             Path.GetDirectoryName(executable)!,
+            timeout: Timeout.InfiniteTimeSpan,
             artifactDirectory: Path.Combine(Path.GetDirectoryName(executable)!, "data", "tests"),
             environment: new Dictionary<string, string>
             {

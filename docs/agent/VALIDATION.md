@@ -32,6 +32,8 @@ Each plan reports status, nullable selected tier, non-code classification, path 
 
 ## Run and coordinate
 
+Canonical validation, Linux publishing and isolated offline verification have no elapsed-time process deadline. Full runs can readily take forty minutes or longer. Do not stop a healthy run because of its duration or replace this with a larger fixed cap. Preserve the OS lease, task attribution, explicit caller cancellation, owned-process cleanup and contract-specific behavioral limits. The generic API/tool process limits do not apply to validation orchestration.
+
 Before validation, call `reign_get_validation_status`. Supply the current task UUID as `requestingTaskId` to `reign_validate`. The OS lease serializes heavy validation; a status snapshot does not reserve it. See [task coordination](TASK_COORDINATION.md) for busy or unknown ownership. Reuse only a successful report whose source fingerprint, configuration, scope, verification tier, exact project set and retained artifacts cover the requested plan.
 
 Group related edits before validating. Intermediate checks should reduce a concrete debugging risk. Do not repeat a successful covered validation for unchanged source. Keep long scale, stress and acceptance runs separate unless the change affects performance, concurrency, persistence or deployment behavior.
