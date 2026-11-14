@@ -553,7 +553,7 @@ public sealed class TestingCatalogContractTests
             $"Catalog drift. Missing: {string.Join(", ", reflected.Except(cataloged))}; extra: {string.Join(", ", cataloged.Except(reflected))}");
         string raw = File.ReadAllText(Path.Combine(TestOptions.FindWorkspace(), "reign.testing.json"));
         using JsonDocument catalogDocument = JsonDocument.Parse(raw);
-        Assert.Equal("2026.11.13.8", catalogDocument.RootElement.GetProperty("version").GetString());
+        Assert.Equal("2026.11.14.1", catalogDocument.RootElement.GetProperty("version").GetString());
         var tavernActions = catalogDocument.RootElement.GetProperty("tavernHouse").GetProperty("visitActions");
         Assert.Contains("Only dedicated Visit the Madam", tavernActions.GetProperty("scope").GetString());
         Assert.Contains("TavernHouseVisitActionTests", tavernActions.GetProperty("contracts").GetString());

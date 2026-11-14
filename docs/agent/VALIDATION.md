@@ -1,5 +1,7 @@
 # Tiered validation
 
+The source fingerprint covers Linux `.sh` scripts, `.service` units and the extensionless `reignctl` controller as well as PowerShell modules. Installer/controller changes cannot reuse a report that predates this coverage extension; qualify the final source with the current canonical engine and use its exact verifier for packaging.
+
 ## Dedicated ReignServer Linux component
 
 Use `reign_build_linux_server` or `ReignMcp/scripts/reign-validate.ps1 -LinuxServer -Restore -RequestingTaskId <task UUID>` to cross-publish the WSL server. The same canonical OS lease, ownership plan, source fingerprint, and paired hygiene gates apply. This produces `reign-linux-build-v1` and a complete SHA-256 `reign-linux-artifact-v1` file inventory under `.codex-build/reign-mcp/linux-server/<run>`. It does not start services, access campaigns, or call providers. Retain both reports; full manifest-selected validation and Linux runtime checks are separate proof.

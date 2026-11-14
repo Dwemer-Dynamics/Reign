@@ -8,6 +8,30 @@ namespace Reign.Mcp.Tests;
 public sealed class ReignDeploymentSourceTests
 {
     [Theory]
+    [InlineData("scripts/tester-package/initialize-server.sh")]
+    [InlineData("scripts/reignserver.service")]
+    [InlineData("scripts/reignctl")]
+    [InlineData("scripts/ReignDeploymentAuthority.psm1")]
+    public void LinuxInstallationAndControlChangesInvalidateQualifiedSource(string relative)
+    {
+        using var fixture = new ReportFixture();
+        string root = Path.Combine(fixture.BuildRoot, "isolated-source");
+        string path = Path.Combine(root, "ReignServer", relative.Replace('/', Path.DirectorySeparatorChar));
+        Directory.CreateDirectory(Path.GetDirectoryName(path)!);
+        File.WriteAllText(path, "original qualified installation behavior");
+        var options = TestOptions.Create(root) with { BuildRoot = Path.Combine(root, ".codex-build"), AllowBuild = true };
+        var service = new ReignValidationService(options, new ReignProjectCatalog(options),
+            new ReignProcessRunner(options, new SensitiveDataRedactor()), new CleanAudit(root));
+        var plan = fixture.Service.GetPlan("all", "Release", false);
+        var method = typeof(ReignValidationService).GetMethod("ComputeSourceFingerprint", BindingFlags.Instance | BindingFlags.NonPublic)!;
+        string before = (string)method.Invoke(service, [plan])!;
+        File.WriteAllText(path, "changed installation or lifecycle behavior");
+        string after = (string)method.Invoke(service, [plan])!;
+        Assert.NotEqual(before, after);
+        Assert.Equal(after, (string)method.Invoke(service, [plan])!);
+    }
+
+    [Theory]
     [InlineData("unchanged", true)]
     [InlineData("source-fingerprint", false)]
     [InlineData("artifact-swap", false)]

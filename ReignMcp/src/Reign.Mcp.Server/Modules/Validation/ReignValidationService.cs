@@ -277,7 +277,7 @@ public sealed partial class ReignValidationService(
         var report = new ValidationReport
         {
             Schema = "reign-validation-report-v4",
-            ValidatorVersion = "0.7.0",
+            ValidatorVersion = "0.7.1",
             RunId = runId,
             SourceFingerprintSha256 = sourceFingerprint,
             StartedUtc = started.ToString("O"),
@@ -397,7 +397,7 @@ public sealed partial class ReignValidationService(
         var extensions = new HashSet<string>(StringComparer.OrdinalIgnoreCase)
         {
             ".cs", ".csproj", ".props", ".targets", ".json", ".xml", ".md",
-            ".ps1", ".psm1", ".cmd", ".toml", ".sln", ".slnx", ".yml", ".yaml", ".py", ".iss", ".js", ".mjs", ".txt", ".html", ".css"
+            ".ps1", ".psm1", ".cmd", ".toml", ".sln", ".slnx", ".yml", ".yaml", ".py", ".iss", ".js", ".mjs", ".txt", ".html", ".css", ".sh", ".service"
         };
         var excluded = new HashSet<string>(StringComparer.OrdinalIgnoreCase)
         {
@@ -448,7 +448,7 @@ public sealed partial class ReignValidationService(
                 }
                 foreach (var file in directory.EnumerateFiles())
                 {
-                    if (extensions.Contains(file.Extension))
+                    if (extensions.Contains(file.Extension) || file.Name.Equals("reignctl", StringComparison.OrdinalIgnoreCase))
                     {
                         files.Add(file.FullName);
                     }
