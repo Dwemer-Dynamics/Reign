@@ -1,0 +1,13 @@
+{
+  "version": 1,
+  "heroStringId": "reign_court_town_N4_mother",
+  "characterName": "Ragnora Elverdal",
+  "imagePath": "portrait.png",
+  "imageSha256": "1677A99A96A06B75CACFE2F59DCD2B9D048D30E717ACAA94CB97CD710896156F",
+  "description": "Rust-brown wool apron dress with two round modest metal strap brooches over a cream linen long-sleeved shift, high round neckline with short buttoned placket, red-and-cream woven waist belt, subtle patterned trim around the full skirt and brown leather shoes. No headgear, armor or weapons.",
+  "status": "completed",
+  "descriptionSource": "agent_vision",
+  "retryEligible": false,
+  "error": "",
+  "updatedUtc": "2026-11-07T03:39:56.872228+00:00"
+}

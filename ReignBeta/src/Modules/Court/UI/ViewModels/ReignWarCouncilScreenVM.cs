@@ -63,10 +63,75 @@ namespace ReignBeta.UI.ViewModels
         private string _messengerRecipientName = string.Empty;
         private string _messengerStatus = string.Empty;
         private bool _finalized;
+        private bool _standingDropdownVisible;
+        private readonly Kingdom _standingRealm;
+        private string _standingViewStamp = "";
+        public MBBindingList<ReignPeaceForceOptionVM> PeaceForceOptions { get; } = new MBBindingList<ReignPeaceForceOptionVM>();
+        public MBBindingList<ReignPeaceForceOptionVM> PeaceForceLeftOptions { get; } = new MBBindingList<ReignPeaceForceOptionVM>();
+        public MBBindingList<ReignPeaceForceOptionVM> PeaceForceRightOptions { get; } = new MBBindingList<ReignPeaceForceOptionVM>();
+        private Kingdom StandingKingdom => _standingRealm;
+        [DataSourceProperty] public bool CanChangeStanding => StandingKingdom?.Leader == Hero.MainHero
+            && Hero.MainHero != null && Clan.PlayerClan?.Kingdom == _standingRealm
+            && ReignCourtCampaignBehavior.Instance?.HasRoyalCommandAccess == true;
+        [DataSourceProperty] public bool PeaceStandingSelected => StandingKingdom != null && ReignBeta.Economy.ReignMilitaryReadiness.EffectiveMode(StandingKingdom) == "peace";
+        [DataSourceProperty] public bool WarStandingSelected => StandingKingdom != null && ReignBeta.Economy.ReignMilitaryReadiness.EffectiveMode(StandingKingdom) == "war";
+        [DataSourceProperty] public bool PeaceStandingUnselected => !PeaceStandingSelected;
+        [DataSourceProperty] public bool WarStandingUnselected => !WarStandingSelected;
+        [DataSourceProperty] public bool CanChoosePeaceForce => CanChangeStanding && PeaceStandingSelected && !MessengerVisible;
+        [DataSourceProperty] public string PeaceForceText => StandingKingdom == null ? "--" : (ReignBeta.Economy.ReignMilitaryReadiness.PeacePercent(StandingKingdom)?.ToString(CultureInfo.InvariantCulture) is string percent ? percent + "%" : "Auto") + " v";
+        [DataSourceProperty] public bool StandingDropdownVisible { get => _standingDropdownVisible; private set {
+            if (_standingDropdownVisible == value) return; _standingDropdownVisible = value; _pointerDown = false;
+            OnPropertyChangedWithValue(value); } }
+
+        private void RefreshStanding()
+        {
+            foreach (string property in new[] { nameof(CanChangeStanding), nameof(PeaceStandingSelected), nameof(WarStandingSelected),
+                nameof(PeaceStandingUnselected), nameof(WarStandingUnselected), nameof(CanChoosePeaceForce), nameof(PeaceForceText) }) OnPropertyChanged(property);
+            PeaceForceOptions.Clear();
+            PeaceForceOptions.Add(new ReignPeaceForceOptionVM(null, ChoosePeaceForce, ReignBeta.Economy.ReignMilitaryReadiness.PeacePercent(StandingKingdom) == null));
+            for (int percent = 40; percent <= 90; percent += 5)
+                PeaceForceOptions.Add(new ReignPeaceForceOptionVM(percent, ChoosePeaceForce,
+                    ReignBeta.Economy.ReignMilitaryReadiness.PeacePercent(StandingKingdom) == percent));
+            PeaceForceLeftOptions.Clear(); PeaceForceRightOptions.Clear();
+            for (int index = 0; index < PeaceForceOptions.Count; index++)
+                (index < 6 ? PeaceForceLeftOptions : PeaceForceRightOptions).Add(PeaceForceOptions[index]);
+        }
+        public bool SetStanding(string mode)
+        {
+            if (!CanChangeStanding || MessengerVisible) { StatusText = "Only the current sovereign may change military standing. Close the messenger first."; return false; }
+            StandingDropdownVisible = false;
+            bool ok = ReignBeta.Economy.ReignMilitaryReadiness.Order(Hero.MainHero, mode, out string message);
+            StatusText = message; RefreshStanding(); return ok;
+        }
+        public void ExecutePeaceStanding() => SetStanding("peace");
+        public void ExecuteWarStanding() => SetStanding("war");
+        public void ExecuteTogglePeaceForce() { if (CanChoosePeaceForce) { RefreshStanding(); StandingDropdownVisible = !StandingDropdownVisible; } }
+        public void ExecuteClosePeaceForce() => StandingDropdownVisible = false;
+        public bool HandleStandingEscape() { if (!StandingDropdownVisible) return false; ExecuteClosePeaceForce(); return true; }
+        private void ChoosePeaceForce(int? percent)
+        {
+            if (!StandingDropdownVisible || !CanChoosePeaceForce) { ExecuteClosePeaceForce(); return; }
+            var realm = StandingKingdom;
+            if (realm == null || realm.Leader != Hero.MainHero) { ExecuteClosePeaceForce(); return; }
+            bool ok = ReignBeta.Economy.ReignMilitaryReadiness.Order(Hero.MainHero, "peace", out string message, percent, false);
+            StatusText = message; ExecuteClosePeaceForce(); if (ok) RefreshStanding();
+        }
+        public bool ChoosePeaceForceForAutomation(string value)
+        {
+            int? percent = null;
+            if (!string.Equals(value, "automatic", StringComparison.OrdinalIgnoreCase))
+            {
+                if (!int.TryParse(value, NumberStyles.Integer, CultureInfo.InvariantCulture, out int parsed) || parsed < 40 || parsed > 90 || parsed % 5 != 0) return false;
+                percent = parsed;
+            }
+            if (!StandingDropdownVisible || !CanChoosePeaceForce) return false;
+            ChoosePeaceForce(percent); return ReignBeta.Economy.ReignMilitaryReadiness.PeacePercent(StandingKingdom) == percent;
+        }
 
         public ReignWarCouncilScreenVM(Action close)
         {
             _close = close;
+            _standingRealm = Clan.PlayerClan?.Kingdom;
             Lords = new MBBindingList<ReignWarCouncilLordVM>();
             CouncilorCandidates = new MBBindingList<ReignWarCouncilLordVM>();
             Kingdoms = new MBBindingList<ReignWarCouncilKingdomVM>();
@@ -141,6 +206,10 @@ namespace ReignBeta.UI.ViewModels
 
         public void OnFrameTick(float dt)
         {
+            if (StandingDropdownVisible && !CanChoosePeaceForce) ExecuteClosePeaceForce();
+            string stamp = StandingKingdom?.StringId + ":" + StandingKingdom?.Leader?.StringId + ":"
+                + ReignBeta.Economy.ReignMilitaryReadiness.EffectiveMode(StandingKingdom) + ":" + PeaceForceText + ":" + CanChangeStanding + ":" + MessengerVisible;
+            if (stamp != _standingViewStamp) { _standingViewStamp = stamp; RefreshStanding(); }
             // Campaign time is paused while this screen is open. Rebuilding all
             // portrait and roster VMs on a timer caused visible flicker and reset
             // panel scroll positions. Explicit successful mutations refresh once.
@@ -155,6 +224,7 @@ namespace ReignBeta.UI.ViewModels
 
         public void PointerPressed(float screenX, float screenY, float localX, float localY)
         {
+            if (StandingDropdownVisible) return;
             _pointerDown = true;
             _lastPointerX = screenX;
             _lastPointerY = screenY;
@@ -170,6 +240,7 @@ namespace ReignBeta.UI.ViewModels
 
         private void SelectMarkerAt(float localX, float localY)
         {
+            if (StandingDropdownVisible) return;
             ReignWarCouncilMarker marker = MarkerAt(localX, localY);
             bool selectable = marker?.IsPlayerRealm == true;
             if (selectable)
@@ -185,6 +256,7 @@ namespace ReignBeta.UI.ViewModels
 
         public void PointerMoved(float screenX, float screenY)
         {
+            if (StandingDropdownVisible) return;
             if (!_pointerDown) return;
             float deltaX = screenX - _lastPointerX;
             float deltaY = screenY - _lastPointerY;
@@ -201,17 +273,20 @@ namespace ReignBeta.UI.ViewModels
 
         public void PointerRightReleased(float localX, float localY)
         {
+            if (StandingDropdownVisible) return;
             ReignWarCouncilMarker marker = MarkerAt(localX, localY);
             if (marker?.IsPlayerRealm == true) SelectLord(marker.HeroId);
         }
 
         public void PointerScrolled(float delta, float localX, float localY)
         {
+            if (StandingDropdownVisible) return;
             StatusText = "Use click-and-drag to move across the close strategic map.";
         }
 
         public bool PanForAutomation(string value)
         {
+            if (StandingDropdownVisible) return false;
             string[] parts = (value ?? string.Empty).Split(',');
             if (parts.Length != 2
                 || !float.TryParse(parts[0].Trim(), NumberStyles.Float, CultureInfo.InvariantCulture, out float deltaX)
@@ -294,6 +369,7 @@ namespace ReignBeta.UI.ViewModels
 
         private void RefreshAll()
         {
+            RefreshStanding();
             RefreshMarkersAndLords();
             RefreshCouncilor();
             RefreshKingdoms();
@@ -653,6 +729,17 @@ namespace ReignBeta.UI.ViewModels
             return true;
         }
 
+    }
+
+    public sealed class ReignPeaceForceOptionVM : ViewModel
+    {
+        private readonly int? _percent;
+        private readonly Action<int?> _choose;
+        public ReignPeaceForceOptionVM(int? percent, Action<int?> choose, bool selected)
+        { _percent = percent; _choose = choose; IsSelected = selected; Label = (percent.HasValue ? percent.Value + "%" : "Automatic") + (selected ? " •" : ""); }
+        [DataSourceProperty] public string Label { get; }
+        [DataSourceProperty] public bool IsSelected { get; }
+        public void ExecuteChoose() => _choose?.Invoke(_percent);
     }
 
     public sealed class ReignWarCouncilLordVM : ViewModel

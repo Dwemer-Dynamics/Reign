@@ -1,0 +1,13 @@
+{
+  "version": 1,
+  "heroStringId": "reign_court_castle_N4_child_3",
+  "characterName": "Ottmar Bjornholt",
+  "imagePath": "portrait.png",
+  "imageSha256": "E52BDE9E9CCE100E44C8E28BB2C83988B57D834EA727E9C8EAE0D63A0353CDE7",
+  "description": "Rust-brown knee-length wool tunic with restrained cream tablet-woven trim, ivory linen undershirt, broad brown leather belt, loose grey-brown trousers, beige leg wraps and soft brown ankle shoes. No armor, weapons or headgear.",
+  "status": "completed",
+  "descriptionSource": "agent_vision",
+  "retryEligible": false,
+  "error": "",
+  "updatedUtc": "2026-11-07T03:15:01.390626+00:00"
+}

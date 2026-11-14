@@ -1,0 +1,13 @@
+{
+  "version": 1,
+  "heroStringId": "reign_court_town_N2_mother",
+  "characterName": "Borghild Seilvaag",
+  "imagePath": "portrait.png",
+  "imageSha256": "30DE6423DC99C1EBDB7A58D8119EFA48226E27E89E9C7E4BD4C3B8772B1A19B8",
+  "description": "Burgundy wool apron-style overdress with restrained woven borders and round metal strap brooches over cream linen, moderate square neckline and elbow sleeves, woven waist cord, full skirt and brown shoes. No headgear, armor or weapons.",
+  "status": "completed",
+  "descriptionSource": "agent_vision",
+  "retryEligible": false,
+  "error": "",
+  "updatedUtc": "2026-11-07T03:30:14.536753+00:00"
+}

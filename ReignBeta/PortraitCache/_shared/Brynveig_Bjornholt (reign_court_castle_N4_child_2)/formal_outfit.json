@@ -1,0 +1,13 @@
+{
+  "version": 1,
+  "heroStringId": "reign_court_castle_N4_child_2",
+  "characterName": "Brynveig Bjornholt",
+  "imagePath": "portrait.png",
+  "imageSha256": "AB8294A59984F17E01E8F1D3EE5BF499FE5DE432001D44440BE86511327F249A",
+  "description": "Brown wool apron dress with restrained rust and cream woven edging, two modest round brooches and a narrow tasseled woven belt, over a long ivory linen shift with a small split neckline and long sleeves; soft brown leather shoes. No headgear, armor or weapons.",
+  "status": "completed",
+  "descriptionSource": "agent_vision",
+  "retryEligible": false,
+  "error": "",
+  "updatedUtc": "2026-11-07T03:14:07.497737+00:00"
+}

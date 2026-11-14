@@ -59,10 +59,8 @@ namespace ReignBeta.World
 
                 case ReignWorldActionType.PoliticsMarriageAlliance:
                     ReignActionResult marriageResult = ReignActionResult.Done("Marriage alliance completed.");
-                    if (!ReignMarriageService.TryApplyMarriage(action, marriageResult, out string marriageFailure))
-                    {
-                        return ReignActionResult.FailTerminal(marriageFailure, "marriage_verification_failed", "state_verification");
-                    }
+                    marriageResult = ReignMarriageService.SettleMarriage(action, marriageResult);
+                    if (!marriageResult.Success || !marriageResult.Completed) return marriageResult;
 
                     // Personal marriage can include a clanless resident. A verified
                     // marriage must not fail afterward while creating a clan receipt.

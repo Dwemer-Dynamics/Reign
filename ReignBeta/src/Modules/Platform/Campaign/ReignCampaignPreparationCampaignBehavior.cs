@@ -36,6 +36,9 @@ namespace ReignBeta.Campaign
         private string _statusDetail = "Waiting for the campaign map to finish opening.";
         private string _statusProgress = string.Empty;
         private string _lastError = string.Empty;
+        private DateTime? _automaticRetryUtc;
+        private int _automaticRetries;
+        private bool _householdsPrepared;
 
         // This is the complete persisted readiness journal. Do not add large
         // snapshots or response bodies here.
@@ -112,6 +115,16 @@ namespace ReignBeta.Campaign
                 return;
             }
 
+            bool retryDue;
+            lock (_stateLock)
+                retryDue = _automaticRetryUtc.HasValue && DateTime.UtcNow >= _automaticRetryUtc.Value
+                    && _pipelineTask?.IsCompleted == true;
+            if (retryDue)
+            {
+                RetryPreparation(automatic: true);
+                return;
+            }
+
             if (!ReignCampaignPreparationStartPolicy.CanStart(
                 _sessionLaunched,
                 campaignAvailable,
@@ -141,6 +154,8 @@ namespace ReignBeta.Campaign
                 snapshot["statusDetail"] = _statusDetail;
                 snapshot["statusProgress"] = _statusProgress;
                 snapshot["error"] = _lastError;
+                snapshot["automaticRetries"] = _automaticRetries;
+                snapshot["automaticRetryUtc"] = _automaticRetryUtc?.ToString("o") ?? string.Empty;
                 return snapshot;
             }
         }
@@ -222,15 +237,21 @@ namespace ReignBeta.Campaign
 
         private void BeginGeneration()
         {
-            _generationId = Guid.NewGuid().ToString("N");
-            _state = null;
-            _pipelineTask = null;
-            _sessionLaunched = false;
-            _sealedForCurrentCampaign = false;
-            _mapScreenStableSeconds = 0f;
-            _relationshipPlanId = string.Empty;
-            _lastError = string.Empty;
-            ReignCampaignInitializationGate.BeginGeneration(_generationId);
+            lock (_stateLock)
+            {
+                _generationId = Guid.NewGuid().ToString("N");
+                _state = null;
+                _pipelineTask = null;
+                _sessionLaunched = false;
+                _sealedForCurrentCampaign = false;
+                _mapScreenStableSeconds = 0f;
+                _relationshipPlanId = string.Empty;
+                _lastError = string.Empty;
+                _automaticRetryUtc = null;
+                _automaticRetries = 0;
+                _householdsPrepared = false;
+                ReignCampaignInitializationGate.BeginGeneration(_generationId);
+            }
         }
 
         private void InitializeReadinessState(string campaignId)
@@ -304,18 +325,27 @@ namespace ReignBeta.Campaign
 
         private async Task RunPipelineAsync()
         {
+            string generationId = _generationId;
             try
             {
 #if !REIGN_EXCLUDE_COURT
-                SetStatus("Restoring Noble Houses",
-                    "Moving the existing court families into their independent landless clans.",
-                    string.Empty);
-                await ReignMainThread.InvokeAsync(() =>
-                    Require(
-                        ReignCourtNobleCampaignBehavior.Instance,
-                        "court-house migration")
-                    .EnsureHouseholdClansMigrated()).ConfigureAwait(false);
+                if (!_householdsPrepared)
+                {
+                    SetStatus("Restoring Noble Houses",
+                        "Moving the existing court families into their independent landless clans.",
+                        string.Empty);
+                    await ReignMainThread.InvokeAsync(() =>
+                    {
+                        EnsureCurrentGeneration(generationId);
+                        Require(
+                            ReignCourtNobleCampaignBehavior.Instance,
+                            "court-house migration")
+                        .EnsureHouseholdClansMigrated();
+                        _householdsPrepared = true;
+                    }).ConfigureAwait(false);
+                }
 #endif
+                EnsureCurrentGeneration(generationId);
                 if (_state.RequiresTimelineHandshake)
                 {
                     SetStatus("Reopening Campaign Timeline",
@@ -461,18 +491,33 @@ namespace ReignBeta.Campaign
             }
             catch (Exception ex)
             {
-                lock (_stateLock)
-                {
-                    if (_state != null && _state.RequiredStage != ReignInitializationStage.Failed)
-                        _state.Fail(ex.Message);
-                    _lastError = ex.Message;
-                    _statusTitle = "Bannerlord Reign Preparation Needs Attention";
-                    _statusDetail = ex.Message;
-                    _statusProgress = "Select Retry to continue from the last completed stage.";
-                }
-                ReignCampaignInitializationGate.ReportProgress("failed_waiting_for_retry", 0, 0);
-                ReignLog.Exception("Campaign preparation failed.", ex);
+                HandlePipelineFailure(ex, generationId);
             }
+        }
+
+        private void HandlePipelineFailure(Exception ex, string generationId)
+        {
+            if (!IsCurrentGeneration(generationId)) return;
+            lock (_stateLock)
+            {
+                if (!IsCurrentGeneration(generationId) || _state == null) return;
+                TimeSpan? retryDelay = ReignCampaignPreparationStartPolicy.RetryDelay(
+                    ex, _state.RequiredStage, _automaticRetries);
+                _automaticRetryUtc = retryDelay.HasValue
+                    ? DateTime.UtcNow + retryDelay.Value : (DateTime?)null;
+                if (retryDelay.HasValue) _automaticRetries++;
+                if (_state.RequiredStage != ReignInitializationStage.Failed)
+                    _state.Fail(ex.Message);
+                _lastError = ex.Message;
+                _statusTitle = "Bannerlord Reign Preparation Needs Attention";
+                _statusDetail = ex.Message;
+                _statusProgress = retryDelay.HasValue
+                    ? "Automatic retry " + _automaticRetries + " / 3 in "
+                        + retryDelay.Value.TotalSeconds + " seconds. Select Retry to try now."
+                    : "Select Retry to continue from the last completed stage.";
+            }
+            ReignCampaignInitializationGate.ReportProgress("failed_waiting_for_retry", 0, 0);
+            ReignLog.Exception("Campaign preparation failed.", ex);
         }
 
         private async Task PrepareRelationshipsAsync()
@@ -526,12 +571,32 @@ namespace ReignBeta.Campaign
 
         private async Task SealWithServerAsync()
         {
+            string generationId = _generationId;
             SetStatus("Verifying Readiness",
                 "Confirming that every critical queue is durably idle.", string.Empty);
             ReignRelationshipCampaignBehavior relationships =
                 Require(ReignRelationshipCampaignBehavior.Instance, "relationship readiness");
-            for (int observationNumber = 0; observationNumber < 2; observationNumber++)
+            var timer = System.Diagnostics.Stopwatch.StartNew();
+            TimeSpan budget = TimeSpan.FromMinutes(1);
+            bool quiescent = false;
+            while (timer.Elapsed < budget)
             {
+                EnsureCurrentGeneration(generationId);
+                // Social-world projection and native transitions can append history
+                // after CriticalDrain. Drain again inside the initialization scope;
+                // ordinary upload ticks deliberately remain gated until release.
+                // Short flush slices allow abandoned generations to stop promptly.
+                await Task.Run(() => ReignWorldHistoryTransport.FlushAndWait(
+                    TimeSpan.FromSeconds(1))).ConfigureAwait(false);
+                EnsureCurrentGeneration(generationId);
+                await ReignMainThread.InvokeAsync(() =>
+                {
+                    EnsureCurrentGeneration(generationId);
+                    relationships.ProcessInitializationProjectionFrame();
+                }).ConfigureAwait(false);
+                EnsureCurrentGeneration(generationId);
+                await ReignServerClient.PumpInitializationNativeReceiptsAsync().ConfigureAwait(false);
+                EnsureCurrentGeneration(generationId);
                 ReignNativeRelationSyncProgress progress = relationships.InitializationProgress();
                 ReignInitializationQueueObservation observation =
                     new ReignInitializationQueueObservation
@@ -545,12 +610,23 @@ namespace ReignBeta.Campaign
                         HistorySequence =
                             ReignWorldHistoryCampaignBehavior.Instance?.Sequence ?? 0L
                     };
-                if (!_state.ObserveQuiescence(observation) && observationNumber == 1)
+                if (observation.NativeProjectionFailureCount > 0)
                     throw new InvalidOperationException(
-                        "Critical initialization queues changed during readiness verification.");
+                        "Native relationship projection failed during readiness verification.");
+                if (_state.ObserveQuiescence(observation))
+                {
+                    quiescent = true;
+                    break;
+                }
                 await ReignMainThread.InvokeAsync(() => { }).ConfigureAwait(false);
                 await Task.Delay(50).ConfigureAwait(false);
             }
+            if (!quiescent)
+                throw new TimeoutException(
+                    "Critical initialization queues did not become durably idle within one minute."
+                    + " History=" + ReignWorldHistoryTransport.PendingCount()
+                    + ", relationship inputs=" + ReignServerClient.PendingAmbientInputCount()
+                    + ", native receipts=" + relationships.PendingNativeReceiptCount + ".");
 
             long expectedSequence = _state.SealedHistorySequence;
             JObject acknowledged = await ReignInitializationServerClient.AcknowledgeSealAsync(
@@ -559,6 +635,7 @@ namespace ReignBeta.Campaign
                 _generationId,
                 expectedSequence,
                 _relationshipPlanId).ConfigureAwait(false);
+            EnsureCurrentGeneration(generationId);
             if (!string.Equals(
                     acknowledged.Value<string>("campaignId"),
                     _state.CampaignId,
@@ -585,6 +662,7 @@ namespace ReignBeta.Campaign
 
         private async Task PrepareInitialSocialWorldAsync()
         {
+            string generationId = _generationId;
             SetStatus("Generating Background Rumors",
                 "Processing initial rumors, reputations, Public Standing, and their native relationship projections.",
                 string.Empty);
@@ -596,9 +674,11 @@ namespace ReignBeta.Campaign
             int stableReadyObservations = 0;
             while (DateTime.UtcNow < deadline)
             {
+                EnsureCurrentGeneration(generationId);
                 JObject status = await ReignInitializationServerClient.ReadStatusAsync(
                     _state.CampaignId, _state.TimelineId, _generationId)
                     .ConfigureAwait(false);
+                EnsureCurrentGeneration(generationId);
                 if (status?.Value<bool?>("ok") != true)
                     throw new InvalidOperationException(status?.Value<string>("error")
                         ?? "Initial social-world status was unavailable.");
@@ -644,7 +724,7 @@ namespace ReignBeta.Campaign
                 if (stableReadyObservations >= 2) return;
                 await Task.Delay(50).ConfigureAwait(false);
             }
-            throw new InvalidOperationException(
+            throw new TimeoutException(
                 "Initial rumor and reputation preparation did not finish within ten minutes.");
         }
 
@@ -727,16 +807,69 @@ namespace ReignBeta.Campaign
 
         private void Retry()
         {
-            if (_state == null || _state.RequiredStage != ReignInitializationStage.Failed) return;
-            _state.Retry();
-            _pipelineTask = null;
-            _lastError = string.Empty;
-            _ = ReignInitializationServerClient.RetryAsync(_state.CampaignId,
-                _state.TimelineId, _generationId);
-            SetStatus("Retrying Bannerlord Reign Preparation",
-                "Continuing from the last completed stage.", string.Empty);
-            ReignLog.Info("Retrying campaign preparation generation=" + _generationId
-                + " stage=" + _state.RequiredStage + ".");
+            RetryPreparation(automatic: false);
+        }
+
+        private bool IsCurrentGeneration(string generationId)
+            => Instance == this && TaleWorlds.CampaignSystem.Campaign.Current != null
+                && string.Equals(_generationId, generationId, StringComparison.Ordinal)
+                && ReignCampaignInitializationGate.IsActiveGeneration(generationId);
+
+        private void EnsureCurrentGeneration(string generationId)
+        {
+            if (!IsCurrentGeneration(generationId))
+                throw new OperationCanceledException("Campaign preparation generation was superseded.");
+        }
+
+        private void RetryPreparation(bool automatic)
+        {
+            lock (_stateLock)
+            {
+                if (_state == null || _state.RequiredStage != ReignInitializationStage.Failed) return;
+                if (_pipelineTask != null && !_pipelineTask.IsCompleted) return;
+                if (!IsCurrentGeneration(_generationId)) return;
+                _automaticRetryUtc = null;
+                if (!automatic) _automaticRetries = 0;
+                _state.Retry();
+                _lastError = string.Empty;
+                SetStatus("Retrying Bannerlord Reign Preparation",
+                    "Continuing from the last completed stage.", string.Empty);
+                ReignLog.Info("Retrying campaign preparation generation=" + _generationId
+                    + " stage=" + _state.RequiredStage + ".");
+                string generationId = _generationId;
+                _pipelineTask = RunRetryAsync(generationId, automatic);
+            }
+        }
+
+        private async Task RunRetryAsync(string generationId, bool automatic)
+        {
+            try
+            {
+                await ReignCampaignInitializationGate.RunInitializationRequestAsync(
+                    generationId, async () =>
+                    {
+                        // Automatic retries do not reset server-side permanent failures.
+                        // The explicit manual Retry retains that existing recovery route.
+                        if (!automatic)
+                        {
+                            try
+                            {
+                                await ReignInitializationServerClient.RetryAsync(_state.CampaignId,
+                                    _state.TimelineId, generationId).ConfigureAwait(false);
+                            }
+                            catch (Exception ex)
+                            {
+                                ReignLog.Warn("Server retry notification deferred: " + ex.Message);
+                            }
+                        }
+                        if (IsCurrentGeneration(generationId))
+                            await RunPipelineAsync().ConfigureAwait(false);
+                    }).ConfigureAwait(false);
+            }
+            catch (Exception ex)
+            {
+                HandlePipelineFailure(ex, generationId);
+            }
         }
 
         private void SetStatus(string title, string detail, string progress)

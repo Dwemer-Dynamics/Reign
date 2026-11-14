@@ -1,0 +1,13 @@
+{
+  "version": 1,
+  "heroStringId": "reign_court_town_N1_child_2",
+  "characterName": "Thorlaug Beinholt",
+  "imagePath": "portrait.png",
+  "imageSha256": "AB72F4A77BBE925BCF9AFAFB217EE9C67A700D2B7861B79BFFD1F6E46EE7F571",
+  "description": "A muted ochre-brown ankle-length wool apron dress fastened with two small plain oval bronze clasps over a cream linen long-sleeved underdress, narrow dark-brown-and-cream geometric tablet-woven edging at the upper apron and cuffs, a simple brown leather waist belt and practical plain brown leather ankle shoes completely visible below the hem. Early medieval Scandinavian landowner textile craft of modest prosperous quality, real softly worn weave. No headgear, armor, weapon, fur war gear, crowns, heraldic emblem or ornate jewelry.",
+  "status": "completed",
+  "descriptionSource": "agent_vision",
+  "retryEligible": false,
+  "error": "",
+  "updatedUtc": "2026-11-07T03:39:10.550277+00:00"
+}

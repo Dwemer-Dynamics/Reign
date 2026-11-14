@@ -1,0 +1,27 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1120 300" role="img" aria-labelledby="title desc"><title id="title">Accusation and custody are separate decisions</title><desc id="desc">Prepare: State the accusation within real jurisdiction.. Confirm: Give the second explicit arrest decision.. Custody: Surrender or a real duel/battle determines capture.. Later choice: Release keeps the charge. Rescind clears that charge.</desc>
+<defs><marker id="arrow" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8" fill="#A88A54"/></marker></defs>
+<rect width="1120" height="300" rx="8" fill="#121211"/>
+<text x="32" y="38" fill="#C5BDAF" font-family="Georgia,serif" font-size="22">Accusation and custody are separate decisions</text>
+<rect x="28" y="70" width="230" height="194" rx="6" fill="#171717" stroke="#7E6A4D"/>
+<text x="46" y="103" fill="#C5AC83" font-family="Georgia,serif" font-size="19">Prepare</text>
+<text x="46" y="134" fill="#C5BDAF" font-family="Arial,sans-serif" font-size="16">State the accusation</text>
+<text x="46" y="157" fill="#C5BDAF" font-family="Arial,sans-serif" font-size="16">within real</text>
+<text x="46" y="180" fill="#C5BDAF" font-family="Arial,sans-serif" font-size="16">jurisdiction.</text>
+<path d="M264,163 H295" fill="none" stroke="#A88A54" stroke-width="2" marker-end="url(#arrow)"/>
+<rect x="306" y="70" width="230" height="194" rx="6" fill="#171717" stroke="#7E6A4D"/>
+<text x="324" y="103" fill="#C5AC83" font-family="Georgia,serif" font-size="19">Confirm</text>
+<text x="324" y="134" fill="#C5BDAF" font-family="Arial,sans-serif" font-size="16">Give the second explicit</text>
+<text x="324" y="157" fill="#C5BDAF" font-family="Arial,sans-serif" font-size="16">arrest decision.</text>
+<path d="M542,163 H573" fill="none" stroke="#A88A54" stroke-width="2" marker-end="url(#arrow)"/>
+<rect x="584" y="70" width="230" height="194" rx="6" fill="#171717" stroke="#7E6A4D"/>
+<text x="602" y="103" fill="#C5AC83" font-family="Georgia,serif" font-size="19">Custody</text>
+<text x="602" y="134" fill="#C5BDAF" font-family="Arial,sans-serif" font-size="16">Surrender or a real</text>
+<text x="602" y="157" fill="#C5BDAF" font-family="Arial,sans-serif" font-size="16">duel/battle determines</text>
+<text x="602" y="180" fill="#C5BDAF" font-family="Arial,sans-serif" font-size="16">capture.</text>
+<path d="M820,163 H851" fill="none" stroke="#A88A54" stroke-width="2" marker-end="url(#arrow)"/>
+<rect x="862" y="70" width="230" height="194" rx="6" fill="#171717" stroke="#7E6A4D"/>
+<text x="880" y="103" fill="#C5AC83" font-family="Georgia,serif" font-size="19">Later choice</text>
+<text x="880" y="134" fill="#C5BDAF" font-family="Arial,sans-serif" font-size="16">Release keeps the</text>
+<text x="880" y="157" fill="#C5BDAF" font-family="Arial,sans-serif" font-size="16">charge. Rescind clears</text>
+<text x="880" y="180" fill="#C5BDAF" font-family="Arial,sans-serif" font-size="16">that charge.</text>
+</svg>

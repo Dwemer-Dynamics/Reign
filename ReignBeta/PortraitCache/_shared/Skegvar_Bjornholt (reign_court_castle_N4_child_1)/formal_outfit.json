@@ -1,0 +1,13 @@
+{
+  "version": 1,
+  "heroStringId": "reign_court_castle_N4_child_1",
+  "characterName": "Skegvar Bjornholt",
+  "imagePath": "portrait.png",
+  "imageSha256": "CF7A2670CC51C5155E8FB703A1C5A4550E41CFA57D8FCDA9613E14FD0CE4FE3E",
+  "description": "Olive-grey knee-length wool tunic with restrained rust and cream tablet-woven borders at the split neckline, cuffs and hem, over an ivory linen undershirt; broad brown leather belt, loose brown trousers, beige wool leg wraps with dark ties, and brown soft-leather ankle shoes. No headgear, armor or weapons.",
+  "status": "completed",
+  "descriptionSource": "agent_vision",
+  "retryEligible": false,
+  "error": "",
+  "updatedUtc": "2026-11-07T03:07:48.941278+00:00"
+}

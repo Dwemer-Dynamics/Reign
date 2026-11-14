@@ -57,6 +57,10 @@ public sealed class MapBarInputSafetyTests
         Assert.True(report.RootElement.GetProperty("baseMapBarPassed").GetBoolean());
         Assert.True(report.RootElement.GetProperty("pendingRoundTripPassed").GetBoolean());
         Assert.True(report.RootElement.GetProperty("nativeSaveFieldContractPassed").GetBoolean());
+        Assert.True(report.RootElement.GetProperty("legacySocialInitializationCases").GetInt32() >= 9);
+        Assert.True(report.RootElement.GetProperty("legacyWeddingInitializationCases").GetInt32() >= 18);
+        Assert.True(report.RootElement.GetProperty("constructorBypassedSceneContextPassed").GetBoolean());
+        Assert.True(report.RootElement.GetProperty("unloadedCampaignCallbacksPassed").GetBoolean());
         if (File.Exists(Path.Combine(game, "Modules/NavalDLC/bin/Win64_Shipping_Client/NavalDLC.GauntletUI.dll")))
             Assert.True(report.RootElement.GetProperty("navalMapBarPassed").GetBoolean());
     }

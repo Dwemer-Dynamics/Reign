@@ -346,6 +346,21 @@ namespace ReignBeta.Court
                 if (divorceA == null || divorceB == null || divorceA.Spouse != divorceB || divorceB.Spouse != divorceA)
                 { error = "The divorce no longer names a reciprocal married pair."; return false; }
             }
+            if (marryA != null && ReignRelationshipCampaignBehavior.WeddingFeatureReady)
+            {
+                string weddingId = "noble_docket_wedding_" + matter.MatterId;
+                var package = new Reign.Core.Contracts.Actions.ActionAgreement { Id = weddingId };
+                if (gold > 0) package.Clauses.Add(ReignWeddingBargain.Asset("give.gold", payer, recipient, gold));
+                if (!ReignRelationshipCampaignBehavior.Instance.RequestWedding(weddingId, marryA, marryB, package, "", 0, out _,
+                    trustedConsideration: true))
+                {
+                    error = "The signed marriage could not be reserved for a wedding.";
+                    return false;
+                }
+                matter.ImmediateTermsJson = terms.ToString(Formatting.None);
+                matter.AppliedEffectsHash = ReignCourtTerms.Hash(matter.MatterId + "|" + matter.ImmediateTermsJson);
+                return true;
+            }
             // Commit native family state before fungible transfers. Every predicate
             // above is checked first, so a failed family action cannot spend gold.
             if (marryA != null)

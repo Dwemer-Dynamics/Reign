@@ -36,13 +36,13 @@ $validationReportPath = Join-Path $validationRoot 'validation-report.json'
 $catalogPath = Join-Path $moduleRoot 'tools\GauntletXmlPreviewer\calibration\ui-catalog.json'
 $atlasManifestPath = Join-Path $moduleRoot 'GUI\RuntimeSpriteSheets\manifest.json'
 $styleManifestPath = Join-Path $moduleRoot 'artwork\ui-modern-style-kit\asset-manifest.json'
-$expectedUiAuthorityFileCount = 386
+$expectedUiAuthorityFileCount = 389
 $expectedAuxiliaryUiAuthorityFileCount = 11
 $expectedProtectedMapFileCount = 17
 $expectedTotalUiRuntimeAuthorityFileCount = $expectedUiAuthorityFileCount + $expectedAuxiliaryUiAuthorityFileCount + 2
 $fixedRuntimeUiContractSha256 = [ordered]@{
     'GUI\Brushes\ReignPortraitMasks.xml' = 'b389e1a7f6bd8c5ec2cbaa50e166b57739c54b6fb6213d29b459ccc0a43725af'
-    'GUI\UiCalibration\modern-style-contract.json' = 'ec0ff88f3f2d44d7d0070d7f06cebca6046365cd07a18b2250cf109890f8c5b5'
+    'GUI\UiCalibration\modern-style-contract.json' = '5d40071581e557142b59e86401e45ea14b1f475f6cbc7f4751a94d4f5ee0abf9'
 }
 $approvedProtectedTileSha256 = [ordered]@{
     'reign_war_council_tile_0_0.png' = '24fe538ca063966c6b17064d05b8d7a964dd90f404567aa88b827594b9cce07e'

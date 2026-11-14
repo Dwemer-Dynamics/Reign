@@ -136,10 +136,13 @@ public sealed class ReignApiClient(
     {
         if (string.IsNullOrWhiteSpace(path)
             || !path.StartsWith("/", StringComparison.Ordinal)
+            || path.StartsWith("//", StringComparison.Ordinal)
+            || path.Contains('\\', StringComparison.Ordinal)
+            || path.Any(char.IsControl)
             || path.Contains("..", StringComparison.Ordinal)
             || path.Contains('?', StringComparison.Ordinal)
             || path.Contains('#', StringComparison.Ordinal)
-            || Uri.TryCreate(path, UriKind.Absolute, out _))
+            || !Uri.TryCreate(path, UriKind.Relative, out _))
         {
             throw new ArgumentException("The Reign API path must be a fixed relative path.", nameof(path));
         }

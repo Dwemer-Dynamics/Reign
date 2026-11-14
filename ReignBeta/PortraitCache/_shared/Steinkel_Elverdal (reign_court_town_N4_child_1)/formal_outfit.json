@@ -1,0 +1,13 @@
+{
+  "version": 1,
+  "heroStringId": "reign_court_town_N4_child_1",
+  "characterName": "Steinkel Elverdal",
+  "imagePath": "portrait.png",
+  "imageSha256": "0D98790B8F27F44750711B817413A66E4702990EF75F1D9D3AEF98D12E9CCC23",
+  "description": "Brown knee-length wool tunic with pale red-and-cream woven neck/cuff/hem borders over cream linen, brown leather belt with oval brass buckle and long strap, loose brown trousers, pale taupe lower-leg wraps and brown shoes. No headgear, armor or weapons.",
+  "status": "completed",
+  "descriptionSource": "agent_vision",
+  "retryEligible": false,
+  "error": "",
+  "updatedUtc": "2026-11-07T03:30:14.964850+00:00"
+}

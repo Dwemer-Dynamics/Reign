@@ -1,0 +1,13 @@
+{
+  "version": 1,
+  "heroStringId": "reign_court_castle_N7_child_3",
+  "characterName": "Eilvard Hrafnvik",
+  "imagePath": "portrait.png",
+  "imageSha256": "CE92CC11C7509DFD1F7F93A0E315228B04BF7EC13F4A569E2BCCE03EE6B9F934",
+  "description": "A muted moss-green knee-length wool tunic over a cream long-sleeved linen undershirt, restrained dark woven edging at the neckline and cuffs, a sturdy brown leather belt with a plain buckle, dark wool trousers, tidy taupe lower-leg wraps and brown soft leather ankle shoes. Clean, practical, modestly prosperous early medieval Scandinavian civilian clothing. No head covering, armor, weapons, ceremonial regalia or heraldic symbols.",
+  "status": "completed",
+  "descriptionSource": "agent_vision",
+  "retryEligible": false,
+  "error": "",
+  "updatedUtc": "2026-11-07T03:10:33.107821+00:00"
+}

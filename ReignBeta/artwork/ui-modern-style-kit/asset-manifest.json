@@ -588,7 +588,7 @@
       "id": "tavern-house",
       "kind": "runtime",
       "path": "approved-references/tavern-house.png",
-      "sha256": "f40be141c633ccd67526a8ae13c5887df0ac278a44c5bc8c158672eed448de8e"
+      "sha256": "77ae1f847128ee6bdf38b6ac2b7b4c403740c61778776c39d491baa94c6811f2"
     },
     {
       "id": "action-builder",
@@ -2051,8 +2051,15 @@
     "shellSpec": "specs/tavern-house-shell.json",
     "workerCardSpec": "specs/tavern-house-worker-card.json",
     "madamCardSpec": "specs/tavern-house-madam-card.json",
-    "materializer": "tools/materialize_tavern_house.py",
-    "rule": "Dedicated town tavern screen; complete cards scroll above shell. Portraits and scenes stay unchanged inside their apertures."
+    "materializer": "tools/materialize_tavern_house.ps1",
+    "rule": "Dedicated town tavern screen; complete cards scroll above shell. Portraits and scenes stay unchanged inside their apertures.",
+    "visualRefinement": {
+      "date": "2026-11-12",
+      "authority": "User approved the Claude-led image-model proposal for implementation/build/validation; deployment explicitly withheld.",
+      "source": "generated-sources/tavern-house-v2/provenance.json",
+      "rule": "Exact existing geometry and apertures; complete integrated stepped artwork, generated natural marble, quiet worker edges and clean transcript.",
+      "nativeAcceptance": "Pending deployment and native/human acceptance."
+    }
   },
   "conversationOutfitChange": {
     "schema": "reign-outfit-ui-v1",
@@ -2101,5 +2108,64 @@
     "runtimeSha256": "d00d8903b5abf8be6637948cb046d06dee95ceda10d7729072fc49278bb87f88",
     "rule": "Unresampled complete label-free Clear plate, including its original opaque marble and integrated frame. No separate frame, painting, alpha cut, recoloring or guessed replacement art. Two pixels of intact surrounding material retained.",
     "nativeAcceptance": "pending"
+  },
+  "warCouncilMilitaryStanding": {
+    "dated": "2026-11-04",
+    "userRequested": "Peace Standing left and War Standing right of the crowned R; selected marker and peace target dropdown40..90percent in5point steps. Player peace choice persists during war; NPC war mobilization is automatic.",
+    "sourceRequestSha256": "22371f1d769a810f20dc2487fc10c1bb585c16fed0684c1da150c9c97c6b4955",
+    "completeAssetUniformScale": true,
+    "referenceCanvas": [
+      1920,
+      1080
+    ],
+    "peaceControl": [
+      218,
+      107,
+      226,
+      36
+    ],
+    "warControl": [
+      546,
+      107,
+      226,
+      36
+    ],
+    "peacePopup": [
+      189,
+      145,
+      304,
+      304
+    ],
+    "selectedColor": "#C5AC83FF",
+    "unselectedColor": "#8A8883FF",
+    "selectedMarker": "bullet",
+    "nativeAcceptance": "pending; candidate control composition does not assert a new approved full-screen reference",
+    "fixedMapAndShellBytesChanged": false,
+    "sourceAssets": [
+      {
+        "path": "ReignBeta/GUI/SpriteParts/ui_reignbeta_war_standing/reign_war_standing_tabs.png",
+        "sha256": "73f1fcefd6202a58975af8f324068c28e6b7ae7da7a588642f4514aee37d7238"
+      },
+      {
+        "path": "ReignBeta/GUI/SpriteParts/ui_reignbeta_war_standing/reign_war_standing_popup.png",
+        "sha256": "2cbb69f56afd18f19e45fce42a22157efb7d534c08ad4d9d07c825af0114577e"
+      }
+    ],
+    "revision": 2,
+    "supersedes": "Rejected rectangular button composition,2026-11-04",
+    "wingImage": [
+      205,
+      30,
+      580,
+      193.333333
+    ],
+    "popupImage": [
+      189,
+      145,
+      304,
+      304
+    ],
+    "productionRule": "Render complete generated image rectangles at uniform scale, with alpha transparency and live labels/selections. No clipping, image resampling, replacement map/shell/portraits, separate decorative overlays or per-row frames.",
+    "provenance": "ReignBeta/artwork/ui-modern-style-kit/generated-sources/war-council-standing-v2.json"
   }
 }

@@ -1,0 +1,24 @@
+{
+  "schema": "reign-tavern-artwork-provenance-v2",
+  "approvalDate": "2026-11-12",
+  "implementationDate": "2026-11-13",
+  "generationMode": "built-in image_gen",
+  "materialPrompt": "Generate a production material texture for the approved Reign VISIT THE MADAM interface redesign. A flat front-facing seamless-looking natural BLACK MARBLE surface only, 1672 by 941 pixel landscape aspect ratio. Uniform dark charcoal black base #121211, shadow range #0C0C0B, rare thin irregular branching natural dark stone veins, warm neutral dark gray vein maxima #23211D blended at no more than36%opacity over base. Match the subtle marble visible in the provided approved design. Rich restrained natural stone craftsmanship, almost black at normal scale, not a photograph of a room. Low frequency sparse irregular mineral veins. Even illumination. No bright cracks, no white veins, no gold veins, no shine, no glare, no brown/tan material, no noise grain, no vignette. Absolutely NO borders, frames, people, portraits, lettering, interface elements, medallions, symbols, watermarks or objects. This is a uniform reusable matte material surface, with very restrained natural low contrast veins. The precise integrated UI linework will be authored at the locked production coordinates separately.",
+  "material": "marble.png",
+  "materialSha256": "7d0031456dbff59f1a72c1045f235e1edb51dee3fa5c1bb65e32d74e7d819015",
+  "materialDimensions": [
+    1672,
+    940
+  ],
+  "proposal": "E:\\CodexStorage\\Projects\\Reign\\Design\\2026-11-12-madam-interface-01a1d360\\visit-the-madam-proposal-v2.png",
+  "proposalSha256": "f4fd9566fda4a24f8114311d1102b4a4b18e71d7ea40aadf32b7ac7071487484",
+  "production": "Generated stone luminance is bounded by frozen marbleBase/marbleVein. Native-coordinate stepped vector linework and exact prior aperture alpha form complete owning artwork. Material is sampled at native size, never stretched. Portraits and scenes remain unchanged.",
+  "alphaMasks": "aperture-masks.json",
+  "alphaMasksSha256": "afb5f3f3ba9c5b5cfbe9ae645fd2e235e92641e4c1857265cb13a7827d064e76",
+  "nativeAcceptance": "Pending; deployment explicitly withheld.",
+  "sharedEyeGlyph": {
+    "path": "GUI/SpriteParts/ui_reignbeta_tavern_house/reign_tavern_house_eye.png",
+    "sha256": "e17428bafb02991e333ba3bed9a907685ee3b743cf0fc0c3696188afbab6e9b3",
+    "rule": "Shared approved glyph remains byte-identical for other interfaces. Tavern renders at uniform0.5scale, centered in the original hit targets."
+  }
+}

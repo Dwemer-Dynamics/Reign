@@ -1,0 +1,13 @@
+{
+  "version": 1,
+  "heroStringId": "reign_court_town_N1_child_1",
+  "characterName": "Skarvald Beinholt",
+  "imagePath": "portrait.png",
+  "imageSha256": "672213B413A8E079C5866AF8A34E24565DD0D6A6DE26AEF8BDA195429172D252",
+  "description": "A muted warm taupe-brown knee-length wool tunic over an oatmeal linen shirt with long sleeves, narrow dark slate-and-cream woven trim at neckline and cuffs, a simple dark-brown leather belt with a modest bronze buckle, charcoal wool trousers, beige-grey leg wraps and plain sturdy brown leather shoes. Civilian early medieval Scandinavian landowner clothing of modest prosperous craft, lightly worn woven texture. No headgear, armor, weapon, crowns, heraldic emblem, fur war gear or expensive jewelry.",
+  "status": "completed",
+  "descriptionSource": "agent_vision",
+  "retryEligible": false,
+  "error": "",
+  "updatedUtc": "2026-11-07T03:37:45.643868+00:00"
+}

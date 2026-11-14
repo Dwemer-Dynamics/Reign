@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
@@ -97,6 +97,23 @@ namespace ReignBeta.Campaign
                     {
                         case "world_time_control":
                         {
+                            if (command["periodicCommunicationHoldSeconds"] != null)
+                            {
+                                // Existing armed passive-world command and exact Current gates still apply.
+                                if (command.Value<string>("timeMode") != "stop")
+                                    throw new InvalidOperationException("A checkpoint hold cannot advance campaign time.");
+                                int holdSeconds = command.Value<int>("periodicCommunicationHoldSeconds");
+                                if (!_armed || command.Value<string>("gameInstanceId") != GameInstanceId
+                                    || (holdSeconds != 0 && (command.Value<string>("periodicCommunicationExpectedSaveName") != ActiveSaveName()
+                                        || string.IsNullOrEmpty(command.Value<string>("periodicCommunicationExpectedSaveName"))
+                                        || command.Value<string>("periodicCommunicationExpectedTimeline") != (ReignWorldHistoryCampaignBehavior.Instance?.TimelineId ?? "main"))))
+                                    throw new InvalidOperationException("A checkpoint hold requires the armed exact native instance, save and timeline.");
+                                var hold = ReignServerClient.CheckpointCommunicationPollHold(
+                                    command.Value<string>("periodicCommunicationHoldToken"),
+                                    holdSeconds,
+                                    command.Value<bool?>("communicationPulse") == true);
+                                return LiveCommandResult.Completed("Periodic communication checkpoint scheduling updated.", hold);
+                            }
                             LiveCommandResult result = SocialBalanceTimeControl(command, "passive-world test campaign");
                             var campaign = TaleWorlds.CampaignSystem.Campaign.Current;
                             if (result.Status == "completed" && campaign?.TimeControlMode == CampaignTimeControlMode.Stop)
@@ -105,6 +122,13 @@ namespace ReignBeta.Campaign
                         }
                         case "world_snapshot":
                             return PassiveWorldSnapshot();
+                        case "world_economy_test":
+                        {
+                            var evidence = ReignBeta.Economy.ReignWarEconomyTestHost.Run(command, GameInstanceId);
+                            return evidence.Value<bool?>("ok") == true
+                                ? LiveCommandResult.Completed("Economy evidence captured.", evidence)
+                                : LiveCommandResult.Failed("Economy evidence did not satisfy the requested assertion.", evidence);
+                        }
                         default:
                             return LiveCommandResult.Failed(
                                 "Unsupported passive-world operation '" + operation + "'.");
@@ -112,6 +136,8 @@ namespace ReignBeta.Campaign
                 }
                 catch (Exception ex)
                 {
+                    if (operation == "world_economy_test")
+                        ReignBeta.Integration.ReignLog.Exception("Native war economy observation", ex);
                     return LiveCommandResult.Failed(
                         "Passive-world native command failed: " + ex.Message);
                 }

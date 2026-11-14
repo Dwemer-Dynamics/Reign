@@ -1,8 +1,11 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
 using ReignBeta.Court;
+using ReignBeta.Economy;
+using TaleWorlds.Core.ViewModelCollection.Information;
+using TaleWorlds.Localization;
 using TaleWorlds.CampaignSystem;
 using TaleWorlds.CampaignSystem.Settlements;
 using TaleWorlds.Library;
@@ -273,7 +276,8 @@ namespace ReignBeta.UI.ViewModels
             _travelDays = sourceSettlement == null || targetSettlement == null ? 0f
                 : Math.Max(0.175f, (float)Math.Sqrt(sourceSettlement.GetPosition2D.DistanceSquared(targetSettlement.GetPosition2D)) / 50f);
             ArrivalText = "ARRIVES IN: " + _travelDays.ToString("0.0") + " DAYS";
-            CanSubmit = !SameEndpoint() && available >= _amount && _amount > 0;
+            CanSubmit = !SameEndpoint() && available >= _amount && _amount > 0
+                && sourceSettlement?.IsUnderSiege != true && targetSettlement?.IsUnderSiege != true;
         }
 
         private void RefreshAmount() => AmountText = _amount.ToString(CultureInfo.InvariantCulture);
@@ -286,9 +290,13 @@ namespace ReignBeta.UI.ViewModels
         private void BuildKingdomBook()
         {
             int treasury = Hero.MainHero?.Gold ?? 0;
-            int income = _settlements.Sum(x => x.DailyTaxIncome);
-            int expense = _settlements.Sum(x => x.GarrisonCount * 6);
-            int balance = income - expense;
+            var nativeSettlements = _settlements.Select(x => Settlement.Find(x.SettlementStringId)).Where(x => x?.Town != null).ToList();
+            var clans = nativeSettlements.Select(x => x.OwnerClan).Where(x => x != null).Distinct().ToList();
+            var finance = TaleWorlds.CampaignSystem.Campaign.Current.Models.ClanFinanceModel;
+            int income = (int)clans.Sum(x => finance.CalculateClanIncome(x).ResultNumber);
+            int balance = (int)clans.Sum(x => finance.CalculateClanGoldChange(x).ResultNumber);
+            int expense = income - balance;
+            int garrisonWages = nativeSettlements.Sum(x => x.Town.GarrisonParty?.TotalWage ?? 0);
             int militia = (int)_settlements.Sum(x => x.Militia);
             int garrison = _settlements.Sum(x => x.GarrisonCount);
             int food = _settlements.Sum(x => x.StrategicSupplyUnits);
@@ -301,19 +309,21 @@ namespace ReignBeta.UI.ViewModels
             NetDailyChangeText = FormatSigned(balance);
             NetDailyPositive = balance >= 0;
             NetDailyNegative = balance < 0;
-            TariffsTradeText = Format(income / 3);
-            VillageManorText = Format(income * 2 / 3);
-            TradeBalanceText = FormatSigned(balance);
-            TradeBalancePositive = balance >= 0;
-            TradeBalanceNegative = balance < 0;
-            OutstandingDebtsText = "0";
+            TariffsTradeText = Format((int)nativeSettlements.Where(x => x.IsTown)
+                .Sum(x => finance.CalculateTownIncomeFromTariffs(x.OwnerClan, x.Town, false).ResultNumber));
+            VillageManorText = Format(_settlements.Sum(x => x.DailyTaxIncome));
+            // Native clan balance also contains wages, taxes and transfers; it is not trade profit.
+            TradeBalanceText = "Unmeasured";
+            TradeBalancePositive = true;
+            TradeBalanceNegative = false;
+            OutstandingDebtsText = Format(clans.Sum(x => x.AutoRecruitmentExpenses));
             GrainTotalText = Format(SumItem("grain"));
             MeatTotalText = Format(SumItem("meat"));
             TimberTotalText = Format(SumItem("hardwood"));
             IronTotalText = Format(SumItem("iron"));
             TotalMilitiaText = Format(militia);
             TotalGarrisonText = Format(garrison);
-            GarrisonUpkeepText = Format(expense);
+            GarrisonUpkeepText = Format(garrisonWages);
             WarInventoryText = food > garrison * 5 ? "Adequate" : "Low";
             OverallStabilityText = ((loyalty + security) / 2f).ToString("0");
             AverageLoyaltyText = loyalty.ToString("0");
@@ -360,7 +370,7 @@ namespace ReignBeta.UI.ViewModels
             if (string.Equals(latest.Status, "Delivered", StringComparison.OrdinalIgnoreCase))
             {
                 StatusText = "DELIVERED: requested " + latest.RequestedFood.ToString("0.#")
-                    + ", spoiled " + latest.RoadSpoilage.ToString("0.#")
+                    + ", spoiled " + (latest.RoadSpoilage + latest.SiegeSpoilage).ToString("0.#")
                     + ", overflow " + latest.CapacityOverflow.ToString("0.#")
                     + ", received " + latest.DeliveredFood.ToString("0.#") + ".";
             }
@@ -430,8 +440,15 @@ namespace ReignBeta.UI.ViewModels
             LoyaltyText = snapshot.Loyalty.ToString("0");
             MilitiaText = snapshot.Militia.ToString("0");
             GarrisonText = snapshot.GarrisonCount.ToString("N0");
-            GarrisonFoodText = Math.Max(1, snapshot.GarrisonCount / 20).ToString("N0");
-            GarrisonWageText = (snapshot.GarrisonCount * 6).ToString("N0");
+            GarrisonFoodText = (snapshot.GarrisonCount / 20f).ToString("0.#");
+            var town = Settlement.Find(snapshot.SettlementStringId)?.Town;
+            GarrisonWageText = (town?.GarrisonParty?.TotalWage ?? 0).ToString("N0");
+            FoodHint = new HintViewModel(new TextObject("{=!}" + FoodDetails(town)));
+            double wages = ReignWarEconomyTransactions.ClanWages(town?.OwnerClan);
+            WageHint = new HintViewModel(new TextObject("{=!}Daily garrison wages: " + GarrisonWageText
+                + "\nClan military wages: " + wages.ToString("N0")
+                + "\nSeven-day recruitment reserve: " + (7 * wages).ToString("N0")
+                + "\nOutstanding recruitment expenses: " + (town?.OwnerClan?.AutoRecruitmentExpenses ?? 0).ToString("N0")));
             GrainText = CountItem(snapshot, "Grain");
             FishText = CountItem(snapshot, "Fish");
             MeatText = CountItem(snapshot, "Meat");
@@ -446,6 +463,8 @@ namespace ReignBeta.UI.ViewModels
         [DataSourceProperty] public string GovernorName { get; }
         [DataSourceProperty] public string ProsperityText { get; }
         [DataSourceProperty] public string FoodText { get; }
+        [DataSourceProperty] public HintViewModel FoodHint { get; }
+        [DataSourceProperty] public HintViewModel WageHint { get; }
         [DataSourceProperty] public string SecurityText { get; }
         [DataSourceProperty] public string LoyaltyText { get; }
         [DataSourceProperty] public string MilitiaText { get; }
@@ -460,6 +479,30 @@ namespace ReignBeta.UI.ViewModels
         [DataSourceProperty] public string ButterText { get; }
         [DataSourceProperty] public string GrapesText { get; }
         [DataSourceProperty] public string DatesText { get; }
+
+        private static string FoodDetails(Town town)
+        {
+            if (town == null) return "Settlement food information unavailable.";
+            var behavior = ReignEconomyCampaignBehavior.Instance;
+            var lines = new List<string> { "Food reserves: " + town.FoodStocks.ToString("0.#") + " / " + town.FoodStocksUpperLimit().ToString("0.#"),
+                "Daily food change: " + town.FoodChange.ToString("+0.#;-0.#;0"),
+                "Seven-day projection: " + Math.Max(0, town.FoodStocks + 7 * town.FoodChange).ToString("0.#") };
+            foreach (var village in town.Settlement.BoundVillages)
+            {
+                double recovery = behavior?.GetFoodRecoveryModifier(village) ?? 1;
+                double potential = ReignWarEconomyPolicy.Production(village.Hearth, 1, true);
+                double actual = ReignWarEconomyPolicy.Production(village.Hearth, recovery, village.VillageState == Village.VillageStates.Normal);
+                double government = ReignBeta.Government.ReignGovernmentCampaignBehavior.Instance?.GetHearthDelta(village) ?? 0;
+                double accord = ReignBeta.ClanAccords.ReignClanAccordsCampaignBehavior.Instance?.GetBonuses(village.Settlement.OwnerClan).HearthGrowth ?? 0;
+                lines.Add(village.Name + ": " + village.Hearth.ToString("0.#") + " hearths, " + (100 * recovery).ToString("0.#") + "% recovered"
+                    + "; food capacity " + (100 * ReignRaidFoodDisruption.Capacity(village)).ToString("0.#") + "%"
+                    + "; household recovery " + (100 * (behavior?.GetRecoveryModifier(village) ?? 1)).ToString("0.#") + "%"
+                    + "\nFood: " + actual.ToString("0.##") + " / " + potential.ToString("0.##") + " before harvest conditions (healthy potential at current hearths)"
+                    + "; natural growth " + (behavior?.GetNaturalGrowth(village) ?? 0).ToString("0.##")
+                    + "; government/accord " + (government + accord).ToString("+0.##;-0.##;0"));
+            }
+            return string.Join("\n", lines);
+        }
 
         private static string CountItem(ReignSettlementSupplySnapshot snapshot, string name)
         {

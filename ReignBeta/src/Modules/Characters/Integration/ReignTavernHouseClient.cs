@@ -79,7 +79,7 @@ namespace ReignBeta.Integration
                         request["identityRoster"] = fresh["identityRoster"];
                         request["sceneOpportunity"] = fresh["sceneOpportunity"];
                         request["correlationId"] = request.Value<string>("correlationId") ?? NewCorrelationId("tavern_house", speaker.StringId);
-                        completeAction = BeginStructuredActionExchange(request, speaker, actionDraft);
+                        completeAction = BeginStructuredActionExchange(request, speaker, actionDraft, receipt == null);
                         request["channel"] = "party_chat"; request["phaseId"] = "tavern_house";
                         request["locationId"] = town.StringId; request["sceneInterface"] = "tavern_house";
                     }).ConfigureAwait(false);
@@ -95,7 +95,10 @@ namespace ReignBeta.Integration
                     }
                 }
                 JObject response = await PostJsonAsync("/tavern-house/" + operation, request).ConfigureAwait(false);
-                if (completeAction != null) await ReignMainThread.InvokeAsync(() => completeAction(response)).ConfigureAwait(false);
+                if (completeAction != null) await ReignMainThread.InvokeAsync(() => {
+                    ReignBeta.Actions.ReignTavernHouseAction.RegisterPrepared(response);
+                    completeAction(response);
+                }).ConfigureAwait(false);
                 if (operation == "respond" && response?.Value<bool?>("ok") == true)
                     await ReignMainThread.InvokeAsync(() => {
                         if (GetCampaignId() == request.Value<string>("campaignId") && (ReignWorldHistoryCampaignBehavior.Instance?.TimelineId ?? "main") == request.Value<string>("timelineId"))

@@ -21,6 +21,8 @@ namespace ReignBeta.Court
         private const int HouseholdClanMigrationVersion = 1;
         private const int ArmorMigrationVersion = 1;
         private const int EquipmentMigrationVersion = 2;
+        private const int AuthoredHouseholdCount = 133;
+        private const int AuthoredCourtNobleCount = AuthoredHouseholdCount * 6;
         private const int MinimumFaceSliderValue = -25;
         private const int MaximumFaceSliderValue = 24;
         private const float MinimumFaceWeight = 0.375f;
@@ -125,20 +127,20 @@ namespace ReignBeta.Court
                 .Select(group => group.First())
                 .OrderBy(hero => hero.StringId, StringComparer.Ordinal)
                 .ToList();
-            if (roster.Count != 720)
+            if (roster.Count != AuthoredCourtNobleCount)
             {
                 throw new InvalidOperationException(
-                    "Court-house migration expected 720 existing heroes but found " + roster.Count + ".");
+                    "Court-house migration expected " + AuthoredCourtNobleCount + " existing heroes but found " + roster.Count + ".");
             }
 
             Dictionary<string, Clan> expectedClans = Clan.All
                 .Where(clan => clan != null
                     && clan.StringId.StartsWith(HouseholdClanPrefix, StringComparison.Ordinal))
                 .ToDictionary(clan => clan.StringId, clan => clan, StringComparer.OrdinalIgnoreCase);
-            if (expectedClans.Count != 120)
+            if (expectedClans.Count != AuthoredHouseholdCount)
             {
                 throw new InvalidOperationException(
-                    "Court-house migration expected 120 landless clans but found "
+                    "Court-house migration expected " + AuthoredHouseholdCount + " landless clans but found "
                     + expectedClans.Count + ".");
             }
             if (OriginClanField == null)
@@ -224,7 +226,7 @@ namespace ReignBeta.Court
                 ApplyAuthoredNames(roster);
                 _householdClanMigrationVersion = HouseholdClanMigrationVersion;
                 ReignBeta.Integration.ReignLog.Info(
-                    "Migrated 720 existing court nobles into 120 independent landless clans.");
+                    "Established " + AuthoredCourtNobleCount + " court nobles in " + AuthoredHouseholdCount + " independent landless clans.");
             }
             catch
             {
@@ -285,6 +287,11 @@ namespace ReignBeta.Court
             GenerateCourtNobleFaces(Hero.AllAliveHeroes.Where(IsCourtNoble).ToList());
         }
 
+        private sealed class ArmorCatalogGapException : InvalidOperationException
+        {
+            internal ArmorCatalogGapException(string message) : base(message) { }
+        }
+
         private sealed class ArmorChange
         {
             internal Equipment Equipment;
@@ -305,8 +312,8 @@ namespace ReignBeta.Court
                 .Select(group => group.First())
                 .OrderBy(hero => hero.StringId, StringComparer.Ordinal)
                 .ToList();
-            if (nobles.Count != 720)
-                throw new InvalidOperationException("Court noble armor expected 720 heroes, found " + nobles.Count + ".");
+            if (nobles.Count != AuthoredCourtNobleCount)
+                throw new InvalidOperationException("Court noble armor expected " + AuthoredCourtNobleCount + " heroes, found " + nobles.Count + ".");
 
             ItemObject[] armorItems = MBObjectManager.Instance.GetObjectTypeList<ItemObject>()
                 .Where(item => item != null && item.ArmorComponent != null && item.Culture != null
@@ -323,6 +330,7 @@ namespace ReignBeta.Court
             var cache = new Dictionary<string, List<ItemObject>>(StringComparer.Ordinal);
             var changes = new List<ArmorChange>();
             var coverageFallbacks = new Dictionary<string, int>(StringComparer.Ordinal);
+            int deferredNobles = 0;
             foreach (Hero hero in nobles)
             {
                 Clan clan = hero.Clan ?? hero.OriginClan;
@@ -330,33 +338,51 @@ namespace ReignBeta.Court
                 if (hero.Culture == null || clan == null)
                     throw new InvalidOperationException("Court noble armor lacks culture or clan for " + hero.StringId + ".");
                 int clanTier = clan.Tier;
-                if (_armorMigrationVersion < ArmorMigrationVersion)
+                var heroChanges = new List<ArmorChange>();
+                var heroCoverage = new Dictionary<string, int>(StringComparer.Ordinal);
+                try
                 {
-                    bool exceptionalFour = clanTier < 5 && StableHash(hero.StringId + ":tier") % 10u == 0u;
-                    bool exceptionalSix = clanTier >= 6 && clan.Leader == hero
-                        && StableHash(hero.StringId + ":armor") % 20u == 0u;
-                    int exceptionalTier = exceptionalSix ? 6 : exceptionalFour ? 4 : 0;
-                    EquipmentIndex exceptionalSlot = EquipmentIndex.None;
-                    if (exceptionalTier != 0)
+                    if (_armorMigrationVersion < ArmorMigrationVersion)
                     {
-                        EquipmentIndex[] eligible = ArmorSlots.Where(slot =>
-                            hero.BattleEquipment?[slot].Item?.ArmorComponent != null
-                            && Candidates(hero, slot, exceptionalTier, false, armorItems, cache).Count > 0).ToArray();
-                        if (eligible.Length == 0)
-                            throw new InvalidOperationException("No culture-valid tier " + exceptionalTier
-                                + " battle armor for " + hero.StringId + " (" + hero.Culture.StringId + ").");
-                        exceptionalSlot = eligible[StableHash(hero.StringId + ":rare-slot") % (uint)eligible.Length];
-                    }
+                        bool exceptionalFour = clanTier < 5 && StableHash(hero.StringId + ":tier") % 10u == 0u;
+                        bool exceptionalSix = clanTier >= 6 && clan.Leader == hero
+                            && StableHash(hero.StringId + ":armor") % 20u == 0u;
+                        int exceptionalTier = exceptionalSix ? 6 : exceptionalFour ? 4 : 0;
+                        EquipmentIndex exceptionalSlot = EquipmentIndex.None;
+                        if (exceptionalTier != 0)
+                        {
+                            EquipmentIndex[] eligible = ArmorSlots.Where(slot =>
+                                hero.BattleEquipment?[slot].Item?.ArmorComponent != null
+                                && Candidates(hero, slot, exceptionalTier, false, armorItems, cache).Count > 0).ToArray();
+                            if (eligible.Length == 0)
+                                throw new ArmorCatalogGapException("No culture-valid tier " + exceptionalTier
+                                    + " battle armor for " + hero.StringId + " (" + hero.Culture.StringId + ").");
+                            exceptionalSlot = eligible[StableHash(hero.StringId + ":rare-slot") % (uint)eligible.Length];
+                        }
 
-                    PlanArmorSet(hero, hero.BattleEquipment, false, clanTier, exceptionalSlot,
-                        exceptionalTier, armorItems, cache, changes, coverageFallbacks);
-                    PlanArmorSet(hero, hero.CivilianEquipment, true, clanTier, EquipmentIndex.None,
-                        0, armorItems, cache, changes, coverageFallbacks);
+                        PlanArmorSet(hero, hero.BattleEquipment, false, clanTier, exceptionalSlot,
+                            exceptionalTier, armorItems, cache, heroChanges, heroCoverage);
+                        PlanArmorSet(hero, hero.CivilianEquipment, true, clanTier, EquipmentIndex.None,
+                            0, armorItems, cache, heroChanges, heroCoverage);
+                    }
+                    PlanOtherGearSet(hero, hero.BattleEquipment, false, clanTier, gearItems,
+                        cache, heroChanges, heroCoverage);
+                    PlanOtherGearSet(hero, hero.CivilianEquipment, true, clanTier, gearItems,
+                        cache, heroChanges, heroCoverage);
                 }
-                PlanOtherGearSet(hero, hero.BattleEquipment, false, clanTier, gearItems,
-                    cache, changes, coverageFallbacks);
-                PlanOtherGearSet(hero, hero.CivilianEquipment, true, clanTier, gearItems,
-                    cache, changes, coverageFallbacks);
+                catch (ArmorCatalogGapException ex)
+                {
+                    deferredNobles++;
+                    ReignBeta.Integration.ReignLog.Warn("Court noble equipment migration deferred for "
+                        + hero.StringId + "; previous equipment preserved: " + ex.Message);
+                    continue;
+                }
+                changes.AddRange(heroChanges);
+                foreach (var pair in heroCoverage)
+                {
+                    coverageFallbacks.TryGetValue(pair.Key, out int count);
+                    coverageFallbacks[pair.Key] = count + pair.Value;
+                }
             }
 
             var applied = new List<ArmorChange>();
@@ -367,7 +393,7 @@ namespace ReignBeta.Court
                     change.Equipment[change.Slot] = change.Replacement;
                     applied.Add(change);
                 }
-                _armorMigrationVersion = EquipmentMigrationVersion;
+                if (deferredNobles == 0) _armorMigrationVersion = EquipmentMigrationVersion;
                 string tierCounts = string.Join(", ", changes
                     .Where(change => change.Replacement.Item != null)
                     .GroupBy(change => (int)change.Replacement.Item.Tier + 1)
@@ -381,7 +407,7 @@ namespace ReignBeta.Court
                     + nobles.Count + " Reign court nobles (" + changes.Count + " equipment slots; "
                     + tierCounts + "; cleared uncovered slots=" + clearedSlots
                     + "; lower-tier slot fallbacks=" + lowerTierFallbacks
-                    + "; catalog coverage=" + coverage + ").");
+                    + "; deferred nobles=" + deferredNobles + "; catalog coverage=" + coverage + ").");
             }
             catch
             {
@@ -437,7 +463,22 @@ namespace ReignBeta.Court
                             coverageFallbacks);
                         continue;
                     }
-                    throw new InvalidOperationException("Missing culture-valid tier " + desired
+                    // Missing optional armor should not make a save unloadable.
+                    // Preserve mandatory clothing and exceptional armor as a set.
+                    if (slot != EquipmentIndex.Body && slot != exceptionalSlot)
+                    {
+                        RecordMissingCoverage(hero, slot, civilian, selectedTier, previous.Item,
+                            coverageFallbacks);
+                        changes.Add(new ArmorChange
+                        {
+                            Equipment = equipment,
+                            Slot = slot,
+                            Previous = previous,
+                            Replacement = default(EquipmentElement)
+                        });
+                        continue;
+                    }
+                    throw new ArmorCatalogGapException("Missing culture-valid tier " + selectedTier
                         + " armor for " + hero.StringId + ", slot " + slot
                         + (civilian ? " civilian" : " battle") + ".");
                 }

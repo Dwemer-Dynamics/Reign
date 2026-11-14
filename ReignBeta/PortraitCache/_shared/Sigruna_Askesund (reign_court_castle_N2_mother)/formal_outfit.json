@@ -1,0 +1,13 @@
+{
+  "version": 1,
+  "heroStringId": "reign_court_castle_N2_mother",
+  "characterName": "Sigruna Askesund",
+  "imagePath": "portrait.png",
+  "imageSha256": "19169EA75B519B4F1BFCC5F4D9D015259D6965497DA4EB89186649BDAE9D4E46",
+  "description": "A muted burgundy wool apron dress with pale cream woven borders and two modest round metal shoulder brooches, over a cream linen shift with elbow-length sleeves and a moderately open curved neckline. A patterned cream-and-burgundy woven belt hangs in long tasselled ends over the full layered skirt; brown soft leather shoes are visible. No headgear, armor or weapons.",
+  "status": "completed",
+  "descriptionSource": "agent_vision",
+  "retryEligible": false,
+  "error": "",
+  "updatedUtc": "2026-11-07T03:15:05.042424+00:00"
+}

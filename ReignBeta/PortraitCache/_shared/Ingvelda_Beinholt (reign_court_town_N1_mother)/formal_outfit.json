@@ -1,0 +1,13 @@
+{
+  "version": 1,
+  "heroStringId": "reign_court_town_N1_mother",
+  "characterName": "Ingvelda Beinholt",
+  "imagePath": "portrait.png",
+  "imageSha256": "331798874476924FDB8AE36D150B279C67DA391D9768FA5239BCBA5EBBFAA18E",
+  "description": "A muted soft olive-grey ankle-length wool apron dress over a cream linen long-sleeved underdress, two modest small oval bronze fasteners at the upper apron, restrained narrow dark green-and-cream woven edging at the collar and cuffs, a plain brown leather belt and sturdy brown leather ankle shoes fully visible below the hem. Practical prosperous early medieval Scandinavian landowner textiles, modest civilian clothing with real fabric texture. No headgear, armor, weapons, fur war gear, crowns, heraldry or ornate jewelry.",
+  "status": "completed",
+  "descriptionSource": "agent_vision",
+  "retryEligible": false,
+  "error": "",
+  "updatedUtc": "2026-11-07T03:36:22.085210+00:00"
+}

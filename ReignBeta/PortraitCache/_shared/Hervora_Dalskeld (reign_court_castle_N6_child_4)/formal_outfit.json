@@ -1,0 +1,13 @@
+{
+  "version": 1,
+  "heroStringId": "reign_court_castle_N6_child_4",
+  "characterName": "Hervora Dalskeld",
+  "imagePath": "portrait.png",
+  "imageSha256": "5995DC51078DE3B96436AB9FA42073CEDEF30AEEBE3DD43EA7B0CD1FF1715DE8",
+  "description": "Grey-green wool apron gown with narrow rust-and-cream woven trim and round simple clasps, high opaque cream linen shift, woven belt and simple brown leather shoes; modest normal tier1 landowner clothing.",
+  "status": "completed",
+  "descriptionSource": "agent_vision",
+  "retryEligible": false,
+  "error": "",
+  "updatedUtc": "2026-11-07T03:31:03.359180+00:00"
+}

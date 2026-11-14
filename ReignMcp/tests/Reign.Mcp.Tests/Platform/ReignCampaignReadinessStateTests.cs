@@ -4,6 +4,86 @@ namespace Reign.Mcp.Tests;
 
 public sealed class ReignCampaignReadinessStateTests
 {
+    [Theory]
+    [InlineData(false, false, true, false)]
+    [InlineData(false, false, false, false)]
+    [InlineData(false, true, true, false)]
+    [InlineData(true, false, true, false)]
+    [InlineData(true, false, false, false)]
+    [InlineData(true, true, true, false)]
+    [InlineData(false, true, false, false)]
+    [InlineData(true, true, false, true)]
+    public void Preparation_popup_cannot_disable_a_loading_map(
+        bool active, bool ready, bool loading, bool expected)
+    {
+        Assert.Equal(expected,
+            ReignCampaignPreparationStartPolicy.CanPresentPopup(active, ready, loading));
+    }
+
+    [Fact]
+    public void Late_history_requires_a_fresh_stable_drain_before_release()
+    {
+        var state = ReadyThroughCriticalDrain();
+        Assert.False(state.ObserveQuiescence(ReignInitializationQueueObservation.Idle(42)));
+        Assert.False(state.ObserveQuiescence(new ReignInitializationQueueObservation
+        {
+            WorldHistoryCount = 5, HistorySequence = 47
+        }));
+        Assert.False(state.CanRelease);
+        Assert.False(state.ObserveQuiescence(ReignInitializationQueueObservation.Idle(47)));
+        Assert.True(state.ObserveQuiescence(ReignInitializationQueueObservation.Idle(47)));
+        state.AcceptServerAcknowledgement("campaign-a", "main-a", 47,
+            ReignCampaignReadinessState.CurrentSealVersion);
+        Assert.True(state.CanRelease);
+    }
+
+    [Fact]
+    public void Transient_readiness_retries_back_off_and_stop_after_three()
+    {
+        var transient = new TimeoutException("drain timeout");
+        for (int attempt = 0; attempt < 3; attempt++)
+            Assert.Equal(TimeSpan.FromSeconds(2 << attempt),
+                ReignCampaignPreparationStartPolicy.RetryDelay(transient,
+                    ReignInitializationStage.ServerAcknowledgement, attempt));
+        Assert.Null(ReignCampaignPreparationStartPolicy.RetryDelay(transient,
+            ReignInitializationStage.ServerAcknowledgement, 3));
+        Assert.Null(ReignCampaignPreparationStartPolicy.RetryDelay(
+            new InvalidOperationException("seal mismatch"),
+            ReignInitializationStage.ServerAcknowledgement, 0));
+        Assert.Null(ReignCampaignPreparationStartPolicy.RetryDelay(transient,
+            ReignInitializationStage.NativeFoundations, 0));
+        Assert.NotNull(ReignCampaignPreparationStartPolicy.RetryDelay(
+            new System.Net.Http.HttpRequestException("offline"),
+            ReignInitializationStage.InitialSocialWorld, 0));
+        Assert.NotNull(ReignCampaignPreparationStartPolicy.RetryDelay(
+            new AggregateException(new System.Net.Http.HttpRequestException("offline")),
+            ReignInitializationStage.ServerAcknowledgement, 0));
+        Assert.Null(ReignCampaignPreparationStartPolicy.RetryDelay(
+            new InvalidOperationException("native failure", new TimeoutException()),
+            ReignInitializationStage.ServerAcknowledgement, 0));
+    }
+
+    [Fact]
+    public void Retry_keeps_completed_stages_but_requires_fresh_observations()
+    {
+        var state = ReadyThroughCriticalDrain();
+        var completed = state.CompletedStageMask;
+        var idle = ReignInitializationQueueObservation.Idle(47);
+        Assert.False(state.ObserveQuiescence(idle));
+        state.Fail("timeout");
+        state.Retry();
+        Assert.Equal(completed, state.CompletedStageMask);
+        Assert.Equal(ReignInitializationStage.ServerAcknowledgement, state.RequiredStage);
+        state.AcceptServerAcknowledgement("campaign-a", "main-a", 47,
+            ReignCampaignReadinessState.CurrentSealVersion);
+        Assert.False(state.CanRelease);
+        Assert.False(state.ObserveQuiescence(idle));
+        Assert.True(state.ObserveQuiescence(idle));
+        state.AcceptServerAcknowledgement("campaign-a", "main-a", 47,
+            ReignCampaignReadinessState.CurrentSealVersion);
+        Assert.True(state.CanRelease);
+    }
+
     [Fact]
     public void EveryReleasePathRestoresRuntimeCalendarBeforeIssuingReadinessSeal()
     {

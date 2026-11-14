@@ -22,6 +22,7 @@ namespace ReignBeta.Integration
         // Never start new invitations before the first successful settings read.
         internal static void PlayerApproachOptionsTick(float dt)
         {
+            ReignBeta.Economy.ReignWarEconomyOptions.EnsureLoaded();
             if (Settings.ReignBetaSettings.Instance?.UseLocalServer == false)
             { _approachOptionsConfirmed = false; return; }
             _approachOptionsDelay = Math.Max(0, _approachOptionsDelay - dt);
@@ -45,7 +46,8 @@ namespace ReignBeta.Integration
                 var options = new PlayerApproachOptions(key => values?[key]?.Type != JTokenType.Boolean || values.Value<bool>(key));
                 await ReignMainThread.InvokeAsync(() => { _approachOptions = options; _approachOptionsConfirmed = true;
                     SetNpcLivesOptions(response["npcLives"] as JObject); SetRulerOptions(response["rulers"] as JObject);
-                    SetNewsOptions(response["announcements"] as JObject); }).ConfigureAwait(false);
+                    SetNewsOptions(response["announcements"] as JObject);
+                    ReignBeta.Economy.ReignWarEconomyOptions.Apply(response["warEconomy"] as JObject); }).ConfigureAwait(false);
             }
             catch (Exception ex) { ReignLog.Warn("Approach options refresh failed; retaining confirmed preferences: " + ex.Message); }
             finally { await ReignMainThread.InvokeAsync(() => _approachOptionsRefreshing = false).ConfigureAwait(false); }

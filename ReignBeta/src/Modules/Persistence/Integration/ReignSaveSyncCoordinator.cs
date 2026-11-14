@@ -35,12 +35,22 @@ namespace ReignBeta.Integration
         private static readonly System.Collections.Generic.HashSet<string> CapacityWarningsShown =
             new System.Collections.Generic.HashSet<string>(StringComparer.OrdinalIgnoreCase);
 
+        internal static int CampaignGeneration
+        {
+            get { lock (Gate) return _generation; }
+        }
+
         internal static bool IsAlignmentPending
         {
             get
             {
                 lock (Gate) return !_ready.Task.IsCompleted;
             }
+        }
+
+        internal static bool IsSaveFinalizationPending
+        {
+            get { lock (Gate) return _saveFinalizationsInFlight > 0; }
         }
 
         internal static bool IsReadyForCampaign(string campaignId)

@@ -220,6 +220,8 @@ namespace ReignBeta.World
 
         private static ReignActionResult CreateParty(ReignWorldActionRecord action, Hero actor, Settlement settlement)
         {
+            if (!Economy.ReignMilitaryServiceEligibility.CanEstablishNpcParty(actor))
+                return ReignActionResult.ValidationFailed("The named NPC commander is not eligible to establish a military party.");
             if (actor.PartyBelongedTo != null)
             {
                 return ReignActionResult.NoOp(actor.Name + " already has a party.")

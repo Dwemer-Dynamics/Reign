@@ -1,0 +1,13 @@
+{
+  "version": 1,
+  "heroStringId": "reign_court_castle_N9_mother",
+  "characterName": "Jorhild Lindeskar",
+  "imagePath": "portrait.png",
+  "imageSha256": "454359BBCBF7F2BF4EEC9C8DF697D3F2132834B18B83E312EB75ECA9C5B36D2E",
+  "description": "A muted madder-russet ankle-length wool apron dress with two simple small oval bronze clasps over a cream linen underdress with long sleeves, a narrow plain brown leather waist belt, restrained cream geometric tablet-woven edging at the upper apron and sleeve ends, and practical brown leather ankle shoes fully visible below the hem. Modest prosperous early medieval Scandinavian landowner craftsmanship, softly worn fabrics. No armor, weapons, headgear, crowns, fur war gear or heraldic emblems.",
+  "status": "completed",
+  "descriptionSource": "agent_vision",
+  "retryEligible": false,
+  "error": "",
+  "updatedUtc": "2026-11-07T03:26:27.728032+00:00"
+}

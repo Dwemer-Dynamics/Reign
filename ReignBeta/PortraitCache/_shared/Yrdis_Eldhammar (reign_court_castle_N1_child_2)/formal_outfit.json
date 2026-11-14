@@ -1,0 +1,13 @@
+{
+  "version": 1,
+  "heroStringId": "reign_court_castle_N1_child_2",
+  "characterName": "Yrdis Eldhammar",
+  "imagePath": "portrait.png",
+  "imageSha256": "8BA9FD16083CFB111C3D9A29937E3447BE071F9CDC3D134EA1C295870F5202CD",
+  "description": "A dark olive wool apron dress with restrained red-and-cream geometric borders, two modest round bronze brooches, over a cream linen long-sleeved shift with a short slit collar. A matching woven belt with long tasselled ends secures the waist; the layered ankle-length skirt partly covers brown soft leather shoes. No headgear, armor or weapons.",
+  "status": "completed",
+  "descriptionSource": "agent_vision",
+  "retryEligible": false,
+  "error": "",
+  "updatedUtc": "2026-11-07T03:08:12.961596+00:00"
+}

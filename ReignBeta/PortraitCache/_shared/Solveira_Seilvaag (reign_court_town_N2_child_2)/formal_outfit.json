@@ -1,0 +1,13 @@
+{
+  "version": 1,
+  "heroStringId": "reign_court_town_N2_child_2",
+  "characterName": "Solveira Seilvaag",
+  "imagePath": "portrait.png",
+  "imageSha256": "F53C88B301ADB458537CF6A65AF065F08D44A1280505B63B065B671A339E7C71",
+  "description": "Blue wool apron dress with round strap brooches and red/pale woven borders over opaque cream linen with a small high neck opening and full sleeves, red-and-cream woven belt, layered full skirt and brown shoes. No headgear, armor or weapons.",
+  "status": "completed",
+  "descriptionSource": "agent_vision",
+  "retryEligible": false,
+  "error": "",
+  "updatedUtc": "2026-11-07T03:30:14.586860+00:00"
+}

@@ -46,6 +46,7 @@ namespace ReignBeta.UI
                 // shouldClear=true paints the exposed campaign area black.
                 _layer = new GauntletLayer("ReignCourtScreen", LayerOrder, false);
                 _vm.SetLargeCourtLayout(false);
+                ApplyScale();
                 _layer.LoadMovie("ReignCourtScreen", _vm);
                 // The Court needs focus for its mouse controls, but keyboard input
                 // stays with the game/OS so native shortcuts such as Win+Shift+S
@@ -81,6 +82,7 @@ namespace ReignBeta.UI
             if (_host == null || _layer == null || ScreenManager.TopScreen != _host || !_host.HasLayer(_layer)) { Close(); return; }
             try
             {
+                ApplyScale();
                 _vm?.OnFrameTick(dt);
                 if (IsPointerInsideCourt())
                 {
@@ -96,6 +98,48 @@ namespace ReignBeta.UI
             {
                 ReignLog.Warn("Rule Mode screen tick failed: " + ex.Message);
                 Close();
+            }
+        }
+
+        private static void ApplyScale()
+        {
+            if (_layer?.UIContext == null || _vm == null) return;
+            float width = Screen.RealScreenResolutionWidth, height = Screen.RealScreenResolutionHeight;
+            if (width <= 0f || height <= 0f) return;
+            var layout = ReignCourtLayout.ComputeNativeLayout(width, height, _layer.UIContext.Scale);
+            if (Math.Abs(_layer.UIContext.ScaleModifier - layout.ScaleModifier) > 0.0001f)
+                _layer.UIContext.ScaleModifier = layout.ScaleModifier;
+            _vm.CourtWorkspaceTopInset = layout.TopInset;
+        }
+
+        // Called synchronously by the existing game-thread heartbeat. Observation
+        // only: no UI opening, input, calibration ownership or campaign mutation.
+        internal static object AutomationLayoutSnapshot
+        {
+            get
+            {
+                const string schema = "reign-court-layout-observation-v1";
+                var context = _layer?.UIContext;
+                if (!IsOpen || context?.Root == null) return new { schema, open = false };
+                var home = context.Root.FindChild("CompactCourtHome", true);
+                var office = context.Root.FindChild("CompactCourtOffice", true);
+                var panel = home?.IsVisible == true ? home : office?.IsVisible == true ? office : null;
+                float width = Screen.RealScreenResolutionWidth, height = Screen.RealScreenResolutionHeight;
+                var expected = ReignCourtLayout.Compute(width, height);
+                float expectedTop = expected.TopInset * expected.Scale;
+                return new
+                {
+                    schema, open = true, panelVisible = panel != null,
+                    physicalWidth = width, physicalHeight = height,
+                    nativeBaseScale = context.Scale, layerScale = _layer.Scale,
+                    scaleModifier = context.ScaleModifier, customScale = context.CustomScale,
+                    expectedScale = expected.Scale,
+                    scaleError = context.CustomScale - expected.Scale,
+                    expectedTop, expectedBottom = expectedTop + ReignCourtLayout.Height * expected.Scale,
+                    x = panel?.GlobalPosition.X ?? 0f, y = panel?.GlobalPosition.Y ?? 0f,
+                    width = panel?.Size.X ?? 0f, height = panel?.Size.Y ?? 0f,
+                    bottom = (panel?.GlobalPosition.Y ?? 0f) + (panel?.Size.Y ?? 0f)
+                };
             }
         }
 

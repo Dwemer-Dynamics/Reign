@@ -1,0 +1,13 @@
+{
+  "version": 1,
+  "heroStringId": "reign_court_castle_N1_child_1",
+  "characterName": "Halvdan Eldhammar",
+  "imagePath": "portrait.png",
+  "imageSha256": "0F413E3404C72550BA0BB95647A7D1A1649942C63E015B69EDE519C3292DA645",
+  "description": "A dark olive wool knee-length tunic with restrained red-and-cream tablet-woven borders at the split neckline, cuffs and hem, with cream linen showing at the neck and wrists. A plain brown leather belt, loose brown trousers, grey lower-leg wraps and simple brown leather shoes. No headgear, armor or weapons.",
+  "status": "completed",
+  "descriptionSource": "agent_vision",
+  "retryEligible": false,
+  "error": "",
+  "updatedUtc": "2026-11-07T03:08:12.940813+00:00"
+}

@@ -1,0 +1,13 @@
+{
+  "version": 1,
+  "heroStringId": "reign_court_town_N3_child_4",
+  "characterName": "Asveiga Tingalund",
+  "imagePath": "portrait.png",
+  "imageSha256": "68A0213768EB9BB330A263C7AA86D516E3439F2B0DD2348265AF54BCB6D6DFA6",
+  "description": "Blue wool apron dress with round strap brooches, fine red-and-cream woven borders and waist tie over opaque cream linen with moderate square neckline and elbow sleeves, layered full-length skirt and brown shoes. No headgear, armor or weapons.",
+  "status": "completed",
+  "descriptionSource": "agent_vision",
+  "retryEligible": false,
+  "error": "",
+  "updatedUtc": "2026-11-07T03:30:14.867672+00:00"
+}

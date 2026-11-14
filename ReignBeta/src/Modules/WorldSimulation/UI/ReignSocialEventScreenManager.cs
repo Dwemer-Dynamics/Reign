@@ -58,7 +58,7 @@ namespace ReignBeta.UI
             catch (Exception ex)
             {
                 _activeScreen = null;
-                Integration.ReignLog.Warn("Social event screen failed to open: " + ex.Message);
+                Integration.ReignLog.Warn("Social event screen failed to open: " + ex);
                 InformationManager.DisplayMessage(new InformationMessage("[Bannerlord Reign] Event screen could not open: " + ex.Message, Color.FromUint(0xFFFFCC66)));
             }
         }
@@ -135,7 +135,7 @@ namespace ReignBeta.UI
             }
             catch (Exception ex)
             {
-                Integration.ReignLog.Warn("Social event screen initialization failed: " + ex.Message);
+                Integration.ReignLog.Warn("Social event screen initialization failed: " + ex);
                 _closeRequested = true;
             }
         }

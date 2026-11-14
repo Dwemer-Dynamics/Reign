@@ -1,5 +1,5 @@
 <Project>
-  <!-- This file belongs to private Reign. It is absent from the public server
+  <!-- This file belongs to the Reign client repository. It is absent from the server
        checkout. The canonical integration build retains source-based proofs;
        the release packager excludes verification_contracts entirely. -->
   <PropertyGroup Condition="Exists('$(MSBuildThisFileDirectory)ReignBeta\ReignBeta.csproj')">

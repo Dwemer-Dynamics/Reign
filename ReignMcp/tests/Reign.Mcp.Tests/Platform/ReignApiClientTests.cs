@@ -105,6 +105,76 @@ public sealed class ReignApiClientTests
         Assert.NotEqual(true, observedChunked);
     }
 
+    [Theory]
+    [InlineData("/")]
+    [InlineData("/health")]
+    [InlineData("/verification/status")]
+    [InlineData("/world-test/details")]
+    [InlineData("/api/diagnostics/conversations/payload")]
+    public async Task RootRelativePathsKeepConfiguredLoopbackAuthority(string path)
+    {
+        Uri? observed = null;
+        var handler = new StubHandler(request =>
+        {
+            observed = request.RequestUri;
+            return new HttpResponseMessage(HttpStatusCode.OK)
+            {
+                Content = new StringContent("{\"ok\":true}", Encoding.UTF8, "application/json")
+            };
+        });
+        var options = TestOptions.Create();
+        using var http = new HttpClient(handler);
+        var client = new ReignApiClient(http, options, new SensitiveDataRedactor());
+
+        var result = await client.GetAsync(path);
+
+        Assert.True(result.Ok);
+        Assert.NotNull(observed);
+        Assert.Equal(options.ServerBaseUri.Scheme, observed.Scheme);
+        Assert.Equal(options.ServerBaseUri.Authority, observed.Authority);
+        Assert.Equal(path, observed.AbsolutePath);
+        Assert.Empty(observed.Query);
+        Assert.Empty(observed.Fragment);
+    }
+
+    [Theory]
+    [InlineData(null)]
+    [InlineData("")]
+    [InlineData(" ")]
+    [InlineData("health")]
+    [InlineData("http://example.invalid/health")]
+    [InlineData("https://example.invalid/health")]
+    [InlineData("file:///tmp/health")]
+    [InlineData("//example.invalid/health")]
+    [InlineData("///example.invalid/health")]
+    [InlineData("/\\example.invalid/health")]
+    [InlineData("/health\\status")]
+    [InlineData("/\n/example.invalid/health")]
+    [InlineData("/\r/example.invalid/health")]
+    [InlineData("/\t/example.invalid/health")]
+    [InlineData("/health\0")]
+    [InlineData("/../health")]
+    [InlineData("/health/../status")]
+    [InlineData("/health?target=other")]
+    [InlineData("/health#fragment")]
+    public async Task InvalidPathsAreRejectedBeforeHttpDispatch(string? path)
+    {
+        var dispatches = 0;
+        var handler = new StubHandler(_ =>
+        {
+            dispatches++;
+            return new HttpResponseMessage(HttpStatusCode.OK);
+        });
+        var options = TestOptions.Create();
+        using var http = new HttpClient(handler);
+        var client = new ReignApiClient(http, options, new SensitiveDataRedactor());
+
+        var exception = await Assert.ThrowsAsync<ArgumentException>(() => client.GetAsync(path!));
+
+        Assert.Equal("path", exception.ParamName);
+        Assert.Equal(0, dispatches);
+    }
+
     private sealed class StubHandler(
         Func<HttpRequestMessage, HttpResponseMessage> response)
         : HttpMessageHandler

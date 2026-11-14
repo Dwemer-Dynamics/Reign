@@ -74,6 +74,14 @@ namespace ReignBeta.Campaign
     {
         private Dictionary<string, NpcPersonalJourney> _personalTravel = new Dictionary<string, NpcPersonalJourney>(StringComparer.Ordinal);
         private Dictionary<string, NpcMeetingJourney> _meetingTravel = new Dictionary<string, NpcMeetingJourney>(StringComparer.Ordinal);
+        private sealed class WeddingAttendanceLease
+        {
+            public string OwnerId = "", TownId = "", ChildOrigin = "";
+            public bool BackgroundChild;
+        }
+
+        private Dictionary<string, WeddingAttendanceLease> _weddingAttendance = new Dictionary<string, WeddingAttendanceLease>();
+
         private Dictionary<string, NpcLifeDuty> _lifeDuties = new Dictionary<string, NpcLifeDuty>(StringComparer.Ordinal);
         private Dictionary<string, JObject> _storyEncounters = new Dictionary<string, JObject>(StringComparer.Ordinal);
         private double _travelTickDay = -1;
@@ -85,6 +93,8 @@ namespace ReignBeta.Campaign
             _personalTravel = saved["travel"]?.ToObject<Dictionary<string, NpcPersonalJourney>>() ?? new Dictionary<string, NpcPersonalJourney>();
             _meetingTravel = saved["meetings"]?.ToObject<Dictionary<string, NpcMeetingJourney>>() ?? new Dictionary<string, NpcMeetingJourney>();
             _communicationHosts = saved["communicationHosts"]?.ToObject<Dictionary<string, CommunicationHostReservation>>() ?? new Dictionary<string, CommunicationHostReservation>();
+            _weddingAttendance = saved["weddingAttendance"]?.ToObject<Dictionary<string, WeddingAttendanceLease>>()
+                ?? new Dictionary<string, WeddingAttendanceLease>();
             _lifeDuties = saved["duties"]?.ToObject<Dictionary<string, NpcLifeDuty>>() ?? new Dictionary<string, NpcLifeDuty>();
             _storyEncounters = saved["encounters"]?.ToObject<Dictionary<string, JObject>>() ?? new Dictionary<string, JObject>();
             _storyBindings = saved["bindings"]?.ToObject<Dictionary<string, JObject>>() ?? new Dictionary<string, JObject>();
@@ -175,6 +185,7 @@ namespace ReignBeta.Campaign
                 }
             }
             foreach (var meeting in _meetingTravel.Values.Where(m => !m.Terminal).ToList()) AdvanceMeeting(meeting, now);
+            RefreshWeddingAttendance();
             RestoreReleasedMeetingDuties(now);
         }
         private void QueueLeaveReceipt(NpcPersonalJourney journey, string kind, double day)
@@ -411,11 +422,11 @@ namespace ReignBeta.Campaign
         internal bool IsMeetingHeld(string hero) => _meetingTravel.Values.Any(j => !j.Terminal
             && j.Meeting.NeedsHold(hero, CampaignTime.Now.ToDays)
             && CanSummon(ReignActionService.HeroById(j.Meeting.IssuerId), ReignActionService.HeroById(j.Meeting.TargetId))
-            && SafeMeetingPlace(ReignActionService.HeroById(hero), j.Meeting.DestinationId)) || IsCommunicationHostHeld(hero);
+            && SafeMeetingPlace(ReignActionService.HeroById(hero), j.Meeting.DestinationId)) || IsCommunicationHostHeld(hero) || _weddingAttendance.ContainsKey(hero);
         internal bool MustStayInMeetingSettlement(string hero) => _meetingTravel.Values.Any(j => !j.Terminal
             && j.Meeting.NeedsHold(hero, CampaignTime.Now.ToDays) && AtMeetingPlace(ReignActionService.HeroById(hero), j.Meeting.DestinationId)
             && CanSummon(ReignActionService.HeroById(j.Meeting.IssuerId), ReignActionService.HeroById(j.Meeting.TargetId))
-            && Settlement.Find(j.Meeting.DestinationId)?.IsUnderSiege == false) || IsCommunicationHostHeld(hero);
+            && Settlement.Find(j.Meeting.DestinationId)?.IsUnderSiege == false) || IsCommunicationHostHeld(hero) || _weddingAttendance.ContainsKey(hero);
         private void OnMeetingCanMoveToSettlement(Hero hero, ref bool result)
         {
             if (result && hero != Hero.MainHero && Free(hero) && MustStayInMeetingSettlement(hero.StringId))
@@ -453,12 +464,117 @@ namespace ReignBeta.Campaign
             }
             QueueLifeOperation(journey.CommunicationId.Length > 0 ? "communication_receipt" : "native", p, receipt);
         }
+        internal string WeddingAttendanceProblem(Hero hero, Settlement town)
+        {
+            if (!ReignNpcLivesPatches.VerifyReady() || !TravelSafe()) return "Native attendance is not safe right now.";
+            if (hero == null || hero == Hero.MainHero || !Free(hero) || !hero.IsChild && (!hero.IsActive || hero.IsWounded))
+                return "Unavailable to attend.";
+            if (!SafePlace(hero, town)) return "The town is unsafe for this guest.";
+            if (hero.PartyBelongedTo?.Army != null) return "On army duty.";
+            if (_lifeDuties.ContainsKey(hero.StringId) || IsMeetingHeld(hero.StringId)) return "Committed elsewhere.";
+            if (hero.IsChild && (hero.PartyBelongedTo != null || hero.CurrentSettlement == null))
+                return "No safe family residence to return to.";
+            return hero.IsChild ? "" : SoloDepartureProblem(hero);
+        }
+
+        internal string BeginWeddingAttendance(string ownerId, Hero hero, Settlement town)
+        {
+            if (hero != null && _weddingAttendance.TryGetValue(hero.StringId, out var existing))
+                return existing.OwnerId == ownerId && existing.TownId == town?.StringId
+                    && hero.CurrentSettlement == town ? "" : "Committed to a different attendance.";
+            string problem = WeddingAttendanceProblem(hero, town);
+            if (problem.Length != 0) return problem;
+            var hold = new WeddingAttendanceLease
+            {
+                OwnerId = ownerId, TownId = town.StringId, BackgroundChild = hero.IsChild,
+                ChildOrigin = hero.IsChild ? hero.CurrentSettlement.StringId : ""
+            };
+            try
+            {
+                if (hold.BackgroundChild)
+                {
+                    var originalState = hero.HeroState;
+                    if (hero.CurrentSettlement != town)
+                    {
+                        LeaveSettlementAction.ApplyForCharacterOnly(hero);
+                        EnterSettlementAction.ApplyForCharacterOnly(hero, town);
+                    }
+                    if (hero.HeroState != originalState)
+                    {
+                        hero.ChangeState(originalState);
+                        throw new InvalidOperationException("The child cannot attend without changing native state.");
+                    }
+                    _weddingAttendance.Add(hero.StringId, hold);
+                }
+                else
+                {
+                    CaptureMeetingDuty(hero);
+                    // Store the original duty before changing the roster. Only the
+                    // selected character moves; an independent party is safely camped.
+                    var journey = new NpcMeetingJourney { Meeting = new NpcSummonedMeeting { DestinationId = town.StringId } };
+                    BeginSoloAttendance(journey, hero);
+                    RelocateMeetingParticipant(hero, town.StringId);
+                    if (hero.CurrentSettlement != town || hero.PartyBelongedTo != null)
+                        throw new InvalidOperationException("The guest did not arrive on their own.");
+                    HoldMeetingHero(hero, town);
+                    _weddingAttendance.Add(hero.StringId, hold);
+                }
+                if (hero.CurrentSettlement != town) throw new InvalidOperationException("The guest did not arrive.");
+                return "";
+            }
+            catch (Exception ex)
+            {
+                ReleaseWeddingGuest(hero.StringId, hold);
+                RestoreReleasedMeetingDuties(CampaignTime.Now.ToDays);
+                ReignLog.Warn("Wedding guest could not attend: " + ex.Message);
+                return ex.Message;
+            }
+        }
+
+        internal void EndWeddingAttendance(string ownerId)
+        {
+            foreach (var row in _weddingAttendance.Where(kv => kv.Value.OwnerId == ownerId).ToList())
+                ReleaseWeddingGuest(row.Key, row.Value);
+            RestoreReleasedMeetingDuties(CampaignTime.Now.ToDays);
+        }
+
+        private void ReleaseWeddingGuest(string heroId, WeddingAttendanceLease hold)
+        {
+            _weddingAttendance.Remove(heroId);
+            if (!hold.BackgroundChild) return;
+            var hero = ReignActionService.HeroById(heroId);
+            var home = Settlement.Find(hold.ChildOrigin);
+            if (!Free(hero) || hero.PartyBelongedTo != null || hero.CurrentSettlement?.StringId != hold.TownId
+                || hero.CurrentSettlement == home || !SafePlace(hero, home)) return;
+            LeaveSettlementAction.ApplyForCharacterOnly(hero);
+            EnterSettlementAction.ApplyForCharacterOnly(hero, home);
+        }
+
+        private void RefreshWeddingAttendance()
+        {
+            foreach (var row in _weddingAttendance.ToList())
+            {
+                var hero = ReignActionService.HeroById(row.Key);
+                var town = Settlement.Find(row.Value.TownId);
+                if (ReignRelationshipCampaignBehavior.Instance?.OwnsWeddingAttendance(row.Value.OwnerId) != true
+                    || !Free(hero) || hero.CurrentSettlement != town || !SafePlace(hero, town))
+                {
+                    ReleaseWeddingGuest(row.Key, row.Value);
+                    continue;
+                }
+                if (row.Value.BackgroundChild) continue;
+                NormalizePresentMeetingAttendee(hero, row.Value.TownId);
+                HoldMeetingHero(hero, town);
+            }
+        }
+
         private void RestoreReleasedMeetingDuties(double now)
         {
             foreach (var duty in _lifeDuties.Values.ToList())
             {
                 if (_meetingTravel.Values.Any(m => !m.Terminal && (m.Meeting.IssuerId == duty.HeroId || m.Meeting.TargetId == duty.HeroId))) continue;
                 if (_communicationHosts.Values.Any(h => h.HostId == duty.HeroId)) continue;
+                if (_weddingAttendance.ContainsKey(duty.HeroId)) continue;
                 Hero hero = ReignActionService.HeroById(duty.HeroId);
                 if (duty.SoloAttendance)
                 {

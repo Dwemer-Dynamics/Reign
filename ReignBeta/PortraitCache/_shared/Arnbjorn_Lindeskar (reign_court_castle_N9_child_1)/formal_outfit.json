@@ -1,0 +1,13 @@
+{
+  "version": 1,
+  "heroStringId": "reign_court_castle_N9_child_1",
+  "characterName": "Arnbjorn Lindeskar",
+  "imagePath": "portrait.png",
+  "imageSha256": "0E7DB793F76C55EC0E36BCFC5B33165D46999B74FD783AB038CD2EE94EBD7917",
+  "description": "A muted earthy brick-red knee-length wool tunic with simple narrow dark ochre tablet-woven neckline and cuff trim, an oatmeal linen undershirt visible at the neck and wrists, plain brown leather belt, charcoal-brown wool trousers, grey-beige leg wraps and sturdy soft brown leather ankle shoes. Prosperous but practical tier1 Scandinavian landowner craftsmanship. Civilian clothing only, no head covering, armor, weapon, fur war gear, crowns, emblems or jewelry.",
+  "status": "completed",
+  "descriptionSource": "agent_vision",
+  "retryEligible": false,
+  "error": "",
+  "updatedUtc": "2026-11-07T03:29:44.087695+00:00"
+}

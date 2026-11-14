@@ -295,7 +295,8 @@ public sealed partial class ReignValidationService(
             ArtifactRoot = runRoot,
             ReportPath = reportPath,
             RepositoryHygiene = repositoryHygiene,
-            Results = results
+            Results = results,
+            DeploymentArtifactHashes = CaptureDeploymentArtifactHashes(runRoot)
         };
         await File.WriteAllTextAsync(
             reportPath,
@@ -338,6 +339,8 @@ public sealed partial class ReignValidationService(
                     || !string.Equals(candidate.Plan.VerificationTier, plan.VerificationTier,
                         StringComparison.OrdinalIgnoreCase)
                     || !Directory.Exists(candidate.ArtifactRoot)
+                    || (candidate.Plan.Profile is "product" or "all"
+                        && candidate.DeploymentArtifactHashes.Count == 0)
                     || candidate.Results.Any(result => !result.Process.Ok))
                 {
                     continue;
@@ -345,7 +348,12 @@ public sealed partial class ReignValidationService(
                 var candidateProjects = candidate.Plan.Projects
                     .Select(project => project.Id)
                     .ToHashSet(StringComparer.OrdinalIgnoreCase);
-                if (plannedProjects.SetEquals(candidateProjects)) return candidate;
+                if (plannedProjects.SetEquals(candidateProjects))
+                {
+                    if (candidate.DeploymentArtifactHashes.Count > 0)
+                        VerifyArtifactHashes(candidate.ArtifactRoot, candidate.DeploymentArtifactHashes);
+                    return candidate;
+                }
             }
             catch (JsonException)
             {
@@ -354,6 +362,10 @@ public sealed partial class ReignValidationService(
             catch (IOException)
             {
                 // A concurrently observed report may still be flushing; it is not reusable yet.
+            }
+            catch (InvalidDataException)
+            {
+                // An altered recorded artifact is not reusable qualification.
             }
         }
         return null;
@@ -385,7 +397,7 @@ public sealed partial class ReignValidationService(
         var extensions = new HashSet<string>(StringComparer.OrdinalIgnoreCase)
         {
             ".cs", ".csproj", ".props", ".targets", ".json", ".xml", ".md",
-            ".ps1", ".cmd", ".toml", ".sln", ".slnx", ".yml", ".yaml", ".py", ".iss", ".js", ".mjs", ".txt", ".html", ".css"
+            ".ps1", ".psm1", ".cmd", ".toml", ".sln", ".slnx", ".yml", ".yaml", ".py", ".iss", ".js", ".mjs", ".txt", ".html", ".css"
         };
         var excluded = new HashSet<string>(StringComparer.OrdinalIgnoreCase)
         {

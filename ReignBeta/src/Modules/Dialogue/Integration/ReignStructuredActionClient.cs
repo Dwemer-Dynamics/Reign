@@ -11,11 +11,13 @@ namespace ReignBeta.Integration
     {
         // Prepare and complete on the campaign thread. Alternate conversation hosts
         // use this same boundary without granting a response from an older load authority.
-        internal static Action<JObject> BeginStructuredActionExchange(JObject payload, Hero npc, ActionAgreement draft = null)
+        internal static Action<JObject> BeginStructuredActionExchange(JObject payload, Hero npc, ActionAgreement draft = null, bool tavernActions = false)
         {
             var campaign = TaleWorlds.CampaignSystem.Campaign.Current;
             var behavior = ReignAgreementBehavior.Instance;
             string campaignId = GetCampaignId(), timeline = ReignWorldHistoryCampaignBehavior.Instance?.TimelineId ?? "main";
+            if (TavernHouseVisitAction.Contains(draft) && !tavernActions)
+                throw new InvalidOperationException("This visit action belongs only to the Tavern House conversation.");
             ConfigureStructuredActions(payload, npc, draft);
             return response =>
             {
@@ -23,7 +25,7 @@ namespace ReignBeta.Integration
                     || campaignId != GetCampaignId() || timeline != (ReignWorldHistoryCampaignBehavior.Instance?.TimelineId ?? "main"))
                 { response["ok"] = false; response["error"] = "The campaign changed before the action response arrived."; return; }
                 ProcessStructuredActionDecision(payload, response, npc,
-                    payload.Value<string>("requestId") ?? payload.Value<string>("turnId") ?? payload.Value<string>("commandId") ?? "");
+                    payload.Value<string>("requestId") ?? payload.Value<string>("turnId") ?? payload.Value<string>("commandId") ?? "", tavernActions);
             };
         }
         // Called on the campaign thread. Only the locally attached composer draft
@@ -90,9 +92,9 @@ namespace ReignBeta.Integration
             };
         }
 
-        private static void ProcessStructuredActionDecision(JObject request, JObject response, Hero npc, string responseId = "")
+        private static void ProcessStructuredActionDecision(JObject request, JObject response, Hero npc, string responseId = "", bool tavernActions = false)
         {
-            if (response == null || response.Value<bool?>("ok") != true) return;
+            if (response == null || response.Value<bool?>("ok") != true || response.Value<bool?>("historicalReplay") == true) return;
             var context = request["structuredActionContext"] as JObject;
             if (context == null) return;
             string message;
@@ -108,7 +110,22 @@ namespace ReignBeta.Integration
                 if (npc?.IsChild == true && decision.Kind != "none") throw new InvalidOperationException("This participant cannot authorize gameplay bargains.");
                 if (context.Value<string>("playerId") != Hero.MainHero?.StringId || context.Value<string>("npcId") != npc?.StringId)
                     throw new InvalidOperationException("The conversation participants changed.");
-                message = ReignAgreementBehavior.Instance.ReceiveDecision(context["proposal"]?.ToObject<ActionAgreement>(), decision,
+                var pendingTavern = context["proposal"]?.ToObject<ActionAgreement>();
+                var candidate = decision.Kind == "propose" || decision.Kind == "counter"
+                    ? ActionNegotiation.CreateProposal(pendingTavern, decision, context.Value<string>("playerId"), context.Value<string>("npcId"), context.Value<string>("conversationId"), ReignActionService.Now)
+                    : pendingTavern;
+                if ((TavernHouseVisitAction.Contains(candidate) || TavernHouseVisitAction.Contains(pendingTavern)) && !tavernActions)
+                    throw new InvalidOperationException("Visit actions are unavailable outside the dedicated Tavern House conversation.");
+                if (response.Value<string>("preparedVisitError") is string preparationError && preparationError.Length > 0)
+                {
+                    ReignAgreementBehavior.Instance.InvalidateUnpaidTavernOffer(pendingTavern);
+                    throw new InvalidOperationException(preparationError);
+                }
+                if (TavernHouseVisitAction.Contains(pendingTavern) && pendingTavern.HasBothConsents && (decision.Kind == "none" || decision.Kind == "accept"))
+                {
+                    message = ReignAgreementBehavior.Instance.CommitPreparedTavern(pendingTavern).Message;
+                }
+                else message = ReignAgreementBehavior.Instance.ReceiveDecision(context["proposal"]?.ToObject<ActionAgreement>(), decision,
                     context.Value<string>("playerId"), context.Value<string>("npcId"), context.Value<string>("conversationId"),
                     string.IsNullOrEmpty(responseId) ? request.Value<string>("correlationId") ?? request.Value<string>("sceneTurnId") : responseId);
             }

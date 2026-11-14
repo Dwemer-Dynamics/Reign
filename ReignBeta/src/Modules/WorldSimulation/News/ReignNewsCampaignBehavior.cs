@@ -152,6 +152,20 @@ namespace ReignBeta.Campaign
                 WorldDay = CampaignTime.Now.ToDays
             }, killer, victim, "Ordered the execution", "Executed"));
         }
+        internal void MilitaryStanding(Kingdom kingdom, string mode, long revision)
+        {
+            if (kingdom?.Leader == null || kingdom.Leader == Hero.MainHero || (mode != "peace" && mode != "war")) return;
+            Publish(WithPeople(new ReignNewsArticle {
+                Id = "crier:military-standing:" + kingdom.StringId + ":" + revision,
+                Category = ReignNewsCategories.Diplomacy, Title = "News from " + kingdom.Name,
+                Headline = kingdom.Name + (mode == "war" ? " Moves to War Standing" : " Returns to Peace Standing"),
+                Body = kingdom.Leader.Name + (mode == "war"
+                    ? " has ordered the kingdom's field parties to mobilise. Recruitment still depends on available people, provisions and clan funds."
+                    : " has ordered smaller standing field forces. Surplus troops will be released gradually, beginning with the least experienced healthy soldiers."),
+                Consequences = "Permanent garrison targets remain at full strength.", WorldDay = CampaignTime.Now.ToDays, Positive = mode == "peace"
+            }, kingdom.Leader, null, "Issued the standing order", ""));
+        }
+
         private static ReignNewsArticle WithPeople(ReignNewsArticle news, Hero actor, Hero target, string actorCaption, string targetCaption)
         {
             news.ActorId = actor?.StringId ?? ""; news.ActorName = actor?.Name?.ToString() ?? "";

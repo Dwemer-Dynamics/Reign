@@ -1,0 +1,34 @@
+{
+  "edition": "2026-11-06",
+  "baseGameSpecifications": {
+    "source": "https://store.steampowered.com/app/261550/Mount__Blade_II_Bannerlord/",
+    "checkedDate": "2026-11-06",
+    "minimumSystemRamGB": 6,
+    "recommendedSystemRamGB": 8,
+    "baseStorageGB": 60,
+    "recommendedCpu": ["Intel Core i5-9600K", "AMD Ryzen 5 3600X"],
+    "recommendedGpu": ["NVIDIA GeForce GTX 1060 3GB", "AMD Radeon RX 580"],
+    "scope": "Base-game published system requirements; excludes Reign and DLC"
+  },
+  "observedSnapshot": {
+    "date": "2026-11-06",
+    "context": "Already-running long-lived development/test campaign; read-only sampling. No battle, fresh-campaign comparison or peak benchmark was run.",
+    "installedPhysicalGiB": 31.5,
+    "gameProcess": "Bannerlord.BLSE.Standalone",
+    "gamePrivateCommittedGiB": 16.24,
+    "gameWorkingSetGiB": 2.27,
+    "reignServerDistroUsedBytes": 5738881024,
+    "reignServerDistroTotalBytes": 12539564032,
+    "reignServerDistroSwapUsedBytes": 556711936,
+    "memoryWorkerRssKiB": 3756560,
+    "serverRssKiB": 1019780,
+    "methods": ["Get-CimInstance Win32_ComputerSystem TotalPhysicalMemory", "Get-Process WorkingSet64 and PrivateMemorySize64", "wsl -d ReignServer -- free -b", "wsl -d ReignServer -- ps -eo comm,rss --sort=-rss"],
+    "limits": "Private commit, working set, Linux used memory and process RSS are different views. Do not sum Linux per-process RSS with shared PostgreSQL pages or add host vmmem usage to the guest again. A rough combined burden is not an exact physical-RAM total or typical range."
+  },
+  "planningRecommendations": {
+    "systemRamGB": null,
+    "status": "The earlier 32 GB planning recommendation was withdrawn on 2026-11-06. A single development snapshot and mixed memory views cannot establish ordinary use or a hardware requirement. The user reports repeatedly running the game and Reign with substantially less RAM.",
+    "storage": "Additional SSD space and several tens of GB of free update/backup headroom; no measured universal installed-size claim",
+    "remainingWork": "Representative fresh/mature campaign and battle/load/save memory sampling on supported release artifacts"
+  }
+}

@@ -2506,7 +2506,16 @@ namespace ReignBeta.Integration
 
             List<Hero> participants = (activeHeroes ?? Enumerable.Empty<Hero>()).Where(x => x != null).Distinct().ToList();
             payload["opportunitySnapshot"] = await ReignMainThread.InvokeAsync(() =>
-                BuildConversationOpportunitySnapshot(speaker, mode, participants)).ConfigureAwait(false);
+            {
+                if (mode == "dialogue" && participants.Count == 1 && participants[0] == speaker)
+                {
+                    string marriageHistory = ReignRelationshipCampaignBehavior.Instance?.PrivateMarriageHistory(speaker) ?? "";
+                    if (marriageHistory.Length != 0)
+                        payload["sceneContext"] = (payload.Value<string>("sceneContext") ?? "")
+                            + "\nPrivate arranged marriage history for the addressed character\n" + marriageHistory;
+                }
+                return BuildConversationOpportunitySnapshot(speaker, mode, participants);
+            }).ConfigureAwait(false);
 
             Stopwatch selectorTimer = Stopwatch.StartNew();
             try

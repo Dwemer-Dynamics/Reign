@@ -23,8 +23,12 @@ namespace ReignBeta.Actions
 
         // Read-only menu eligibility. Parameter-dependent checks still run at
         // preview and commit; browsing the composer never reserves or executes.
-        public static bool CanBuild(ActionDefinition definition, ActionAgreement agreement, bool playerActs)
+        public static bool CanBuild(ActionDefinition definition, ActionAgreement agreement, bool playerActs, TavernHouseActionContext tavernContext = null)
         {
+            if (definition.Id == TavernHouseVisitAction.Id)
+                return TavernHouseVisitAction.Visible(definition, tavernContext, playerActs, agreement.Clauses.Count)
+                    && ReignTavernHouseAction.ContextMatches(tavernContext, agreement);
+            if (definition.Id.StartsWith("marriage.", StringComparison.Ordinal)) return false;
             if (!ReignActionConversationPolicy.Allows(definition, playerActs, agreement.Clauses.Count)) return false;
             Hero actor = HeroById(playerActs ? agreement.PlayerId : agreement.NpcId);
             Hero counterpart = HeroById(playerActs ? agreement.NpcId : agreement.PlayerId);
@@ -151,13 +155,17 @@ namespace ReignBeta.Actions
             ReignNpcLivesBehavior.Instance?.BindMeetingArrival(agreement);
             var errors = AgreementRules.Validate(agreement, ReignActionCatalog.Find, Now);
             if (errors.Count > 0) return errors;
+            if (agreement.Clauses.Any(c => c.ActionId.StartsWith("marriage.", StringComparison.Ordinal)))
+                return ReignRelationshipCampaignBehavior.Instance?.CheckMarriageAction(agreement)
+                    ?? new List<string> { "Marriage services are unavailable." };
             try { BindGuestReviews(agreement); }
             catch (ArgumentException ex) { return new List<string> { ex.Message }; }
             if (HeroById(agreement.PlayerId) == null || HeroById(agreement.NpcId) == null) errors.Add("Both participants must be alive and available.");
             foreach (var c in agreement.Clauses)
             {
                 var d = ReignActionCatalog.Find(c.ActionId); if (d == null) continue;
-                if (c.ActionId == ReignSpouseSeparation.ActionId) errors.AddRange(ReignSpouseSeparationAction.Check(agreement, c));
+                if (c.ActionId == TavernHouseVisitAction.Id) errors.AddRange(ReignTavernHouseAction.Check(agreement));
+                else if (c.ActionId == ReignSpouseSeparation.ActionId) errors.AddRange(ReignSpouseSeparationAction.Check(agreement, c));
                 else if (c.ActionId == "expose_concealed_pregnancy")
                 {
                     string error = ReignFamilyCampaignBehavior.Instance?.CheckPregnancyExposure(Arg(c, "pregnancyId"), c.RecipientId, Arg(c, "disclosure") == "name_father") ?? "Family services are unavailable.";

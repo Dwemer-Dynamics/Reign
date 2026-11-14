@@ -1,0 +1,13 @@
+{
+  "version": 1,
+  "heroStringId": "reign_court_town_N3_father",
+  "characterName": "Aunvald Tingalund",
+  "imagePath": "portrait.png",
+  "imageSha256": "7384825DCF3AD72D21F28F7B55740283C9189D9F45B8F0E1F1B0608BC189B90C",
+  "description": "Olive-brown wool tunic with red and muted-gold geometric borders at split neck/cuffs/hem over cream linen, brown leather belt with rectangular metal buckle, dark trousers, dark woven lower-leg wraps and brown shoes. No headgear, armor or weapons.",
+  "status": "completed",
+  "descriptionSource": "agent_vision",
+  "retryEligible": false,
+  "error": "",
+  "updatedUtc": "2026-11-07T03:30:14.694666+00:00"
+}

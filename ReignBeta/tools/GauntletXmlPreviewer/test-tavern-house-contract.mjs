@@ -15,6 +15,11 @@ const selected = selectRenderedPreviewTargets(catalog, "tavern-house");
 assert.equal(selected.partialScope, true, "A feature-only render must never claim a complete product matrix.");
 assert.equal(selected.interfaces.length, TAVERN_HOUSE_STATES.length + 1);
 const fixture = (state = "") => getSampleDataForPrefab("ReignTavernHouseScreen.xml", state && `tavern-house-${state}`);
+for (const person of [...fixture().Madam, ...fixture().Workers]) {
+  assert.match(person.PortraitAsset, /\/portrait\.png$/);
+  assert.ok(fs.existsSync(new URL(person.PortraitAsset, import.meta.url)), "Portrait fixture must resolve a tracked original.");
+  assert.ok(fs.existsSync(new URL(person.PortraitAsset.replace(/\/portrait\.png$/, "/portrait_chest.png"), import.meta.url)), "Headshot fixture must resolve its unchanged chest derivative.");
+}
 for (const state of TAVERN_HOUSE_STATES) {
   const variant = entry.previewStates.find(item => item.id === `tavern-house-${state}`);
   assert.ok(variant?.previewOnly && variant.nativeInjection === false);
@@ -27,8 +32,8 @@ for (const state of TAVERN_HOUSE_STATES) {
 }
 assert.equal(fixture().IsVisiting, false);
 assert.equal(fixture().CanLookAgain, false);
-assert.equal(fixture("quote").HasQuote, true);
-assert.match(fixture("quote").QuoteText, /Beatrice Voss.*140[\s\S]+Oren Mercato.*160[\s\S]+Total: 300/);
+assert.equal(fixture("quote").HasQuote, false, "A visit draft uses the protected sentence, not the old payment popup.");
+assert.match(fixture("quote").InputText, /pay you 300 denars[\s\S]+Beatrice Voss: 140[\s\S]+Oren Mercato: 160/);
 assert.equal(fixture("payment-pending").HasQuote, false);
 assert.equal(fixture("payment-pending").PaymentConfirmationPending, true);
 assert.equal(fixture("payment-pending").CanSend, false);
@@ -51,6 +56,19 @@ assert.match(fixture("recruitment-offer").QuoteText, /Oren Mercato[\s\S]+500 den
 assert.equal(fixture("image-pending").HasImageStatus, true);
 assert.equal(fixture("image-failed").HasImageStatus, true);
 assert.throws(() => fixture("unregistered-state"));
+
+for (const state of ["names", "price", "free", "offer"]) {
+  const id = `action-builder-tavern-${state}`;
+  assert.ok(catalog.interfaces.find(item => item.id === "action-builder").previewStates.some(item => item.id === id && item.previewOnly));
+  const data = getSampleDataForPrefab("ReignActionBuilder.xml", id);
+  assert.ok(data.Title && data.Sentence);
+  assert.equal(data.Recipient, "To Livia Bellori");
+  if (state === "offer") {
+    assert.match(data.Sentence, /Livia Bellori: 450.*Beatrice Voss: 140.*Oren Mercato: 0.*Tobias Marin: 160/);
+    assert.equal(data.Choices.length, 2);
+    assert.ok(data.Choices.every(choice => !/another action|timing|installments|give…/.test(choice.Label)));
+  }
+}
 
 const xml = fs.readFileSync(new URL("../../GUI/Prefabs/ReignTavernHouseScreen.xml", import.meta.url), "utf8");
 const node = (id) => xml.match(new RegExp(`<[^>]+\\bId="${id}"[^>]*>`))?.[0] || "";

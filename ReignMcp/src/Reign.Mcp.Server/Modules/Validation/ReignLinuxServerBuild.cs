@@ -54,7 +54,11 @@ public sealed partial class ReignValidationService
         var report = new LinuxServerBuildReport("reign-linux-build-v1",
             process.Ok && File.Exists(Path.Combine(publish, "ReignServer"))
                 && fingerprint == ComputeSourceFingerprint(plan),
-            runId, fingerprint, publish, reportPath, hygiene, process);
+            runId, fingerprint, publish, reportPath, hygiene, process)
+        {
+            ArtifactManifestSha256 = File.Exists(Path.Combine(publish, "reign-linux-artifact.json"))
+                ? FileSha256(Path.Combine(publish, "reign-linux-artifact.json")) : null
+        };
         await File.WriteAllTextAsync(reportPath, JsonSerializer.Serialize(report, JsonOptions), cancellationToken);
         lease.CompleteOperation(report.Ok, runId, reportPath, fingerprint);
         return report;
@@ -64,4 +68,7 @@ public sealed partial class ReignValidationService
 // A build report intentionally does not claim Linux runtime, full-product, or in-game validation.
 public sealed record LinuxServerBuildReport(string Schema, bool Ok, string RunId,
     string SourceFingerprintSha256, string ArtifactRoot, string ReportPath,
-    RepositoryHygieneReport RepositoryHygiene, ProcessResult Process);
+    RepositoryHygieneReport RepositoryHygiene, ProcessResult Process)
+{
+    public string? ArtifactManifestSha256 { get; init; }
+}

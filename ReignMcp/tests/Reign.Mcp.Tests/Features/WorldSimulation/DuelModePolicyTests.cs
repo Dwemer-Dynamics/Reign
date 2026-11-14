@@ -23,7 +23,7 @@ public sealed class DuelModePolicyTests
     }
 
     [Fact]
-    public void EveryDuelLaunchEnablesNativeFullCombatExperienceWithoutASecondBattleAward()
+    public void EveryDuelLaunchEnablesTrainingWithOneNativeExperienceAward()
     {
         string root = TestOptions.FindWorkspace();
         string mission = File.ReadAllText(Path.Combine(root, "ReignBeta/src/Modules/Characters/Campaign/ReignDuelMissionBehavior.cs"));
@@ -33,16 +33,90 @@ public sealed class DuelModePolicyTests
         Assert.Equal(2, mission.Split("EnableCombatExperience(Mission, intent);").Length - 1);
         string hit = mission.Substring(mission.IndexOf("public override void OnScoreHit", StringComparison.Ordinal));
         hit = hit.Substring(0, hit.IndexOf("public static bool TryStartFromCurrentMission", StringComparison.Ordinal));
-        Assert.Contains("ReignDuelService.IsActiveDuel(_experienceIntent.ActionId)", hit);
-        Assert.Contains("Mission.GetMissionBehavior<BattleAgentLogic>() != null", hit);
-        Assert.Contains("isBlocked || blow.InflictedDamage <= 0", hit);
-        Assert.Contains("ReignDuelModePolicy.IsExperiencePair(", hit);
+        Assert.Contains("if (!OwnsCombatHit(affectedAgent, affectorAgent)) return;", hit);
+        Assert.Contains("BlockedReferenceDamage(attacker, affectedAgent", hit);
+        Assert.Contains("out movementSpeedDamageModifier)", hit);
+        Assert.Contains("movementSpeedDamageModifier, shotDifficulty, attackerWeapon,", hit);
+        Assert.Contains("new ReignDuelCombatPatches.ExperienceScope(attackingCharacter.HeroObject, isBlocked)", hit);
+        Assert.Contains("ReignDuelCombatPatches.Apply();", mission);
+        Assert.Contains("ReignDuelService.IsActiveDuel(_experienceIntent.ActionId)", mission);
         Assert.Contains("CombatXpModel.MissionTypeEnum.Battle", hit);
         Assert.Equal(1, hit.Split("SkillLevelingManager.OnCombatHit(").Length - 1);
         Assert.DoesNotContain("MissionTypeEnum.PracticeFight", hit);
         Assert.DoesNotContain("AddSkillXp(", hit);
         Assert.DoesNotContain("IsPractice(", hit);
         Assert.Contains("Active.Contains(actionId) && Pending.ContainsKey(actionId)", service);
+    }
+
+    [Theory]
+    [InlineData(100, false, 15)]
+    [InlineData(100, true, 5)]
+    [InlineData(1, false, 0.15)]
+    [InlineData(1, true, 0.05)]
+    [InlineData(0, false, 0)]
+    [InlineData(-100, true, 0)]
+    public void ExperienceUsesTheNormalAwardOnceAndRetainsSmallGains(float normalXp, bool blocked, float expected)
+        => Assert.Equal(expected, ReignDuelModePolicy.ScaleExperience(normalXp, blocked), 4);
+
+    [Theory]
+    [InlineData(100, 0, 100, 95)]
+    [InlineData(100, 90, 10, 99.5)]
+    [InlineData(100, 99, 1, 99.95)]
+    [InlineData(3, 0, 100, 0)]
+    [InlineData(5, 0, 100, 0)]
+    [InlineData(6, 0, 100, 1)]
+    [InlineData(100, 100, 100, 100)]
+    [InlineData(100, 105, 100, 105)]
+    [InlineData(100, 90, 0, 90)]
+    public void DamageIsFivePercentBeforeTheHealthCapWithoutIntegerRounding(
+        float health, float nativeNextHealth, float normalDamage, float expected)
+        => Assert.Equal(expected, ReignDuelModePolicy.HealthAfterHit(health, nativeNextHealth, normalDamage), 4);
+
+    [Fact]
+    public void MalformedExperienceNeverProducesANonfiniteAward()
+    {
+        foreach (float value in new[] { float.NaN, float.PositiveInfinity, float.NegativeInfinity })
+            Assert.Equal(0, ReignDuelModePolicy.ScaleExperience(value, false));
+    }
+
+    [ValidatedDuelClientFact]
+    public async Task CompiledNativeHooksPreserveTheHealthBoundaryAndIsolateXpScopes()
+    {
+        string client = MapBarInputSafetyTests.CurrentClientArtifact()!;
+        string game = Environment.GetEnvironmentVariable("REIGN_BANNERLORD_PATH")!;
+        string evidence = Path.Combine(new DirectoryInfo(AppContext.BaseDirectory).Parent!.FullName,
+            "duel-combat-probe", Guid.NewGuid().ToString("N"));
+        string shellRoot = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.System), "WindowsPowerShell", "v1.0");
+        var start = new System.Diagnostics.ProcessStartInfo(Path.Combine(shellRoot, "powershell.exe"))
+        { UseShellExecute = false, CreateNoWindow = true, RedirectStandardOutput = true, RedirectStandardError = true };
+        start.Environment["PSModulePath"] = Path.Combine(shellRoot, "Modules");
+        foreach (string arg in new[] { "-NoProfile", "-NonInteractive", "-ExecutionPolicy", "Bypass", "-File",
+            Path.Combine(TestOptions.FindWorkspace(), "ReignMcp/tests/Reign.Mcp.Tests/Features/WorldSimulation/DuelCombatHookProbe.ps1"),
+            "-ClientAssembly", client, "-BannerlordPath", game, "-EvidenceDirectory", evidence })
+            start.ArgumentList.Add(arg);
+        using var process = System.Diagnostics.Process.Start(start)!;
+        var output = process.StandardOutput.ReadToEndAsync(); var error = process.StandardError.ReadToEndAsync();
+        using var timeout = new CancellationTokenSource(TimeSpan.FromSeconds(60));
+        try { await process.WaitForExitAsync(timeout.Token); }
+        catch (OperationCanceledException) { process.Kill(true); throw new TimeoutException("Duel combat probe timed out: " + evidence); }
+        Assert.True(process.ExitCode == 0, (await output) + (await error));
+        using var report = System.Text.Json.JsonDocument.Parse(File.ReadAllText(Path.Combine(evidence, "report.json")));
+        Assert.True(report.RootElement.GetProperty("ok").GetBoolean());
+        Assert.Equal(4, report.RootElement.GetProperty("boundHooks").GetInt32());
+        Assert.Equal(6, report.RootElement.GetProperty("scopeChecks").GetInt32());
+        Assert.True(report.RootElement.GetProperty("transpilerPreservedNativeInstructions").GetBoolean());
+        Assert.True(report.RootElement.GetProperty("collisionCopyOnly").GetBoolean());
+        Assert.True(report.RootElement.GetProperty("unpatched").GetBoolean());
+    }
+
+    private sealed class ValidatedDuelClientFactAttribute : FactAttribute
+    {
+        public ValidatedDuelClientFactAttribute()
+        {
+            if (!OperatingSystem.IsWindows() || MapBarInputSafetyTests.CurrentClientArtifact() == null
+                || string.IsNullOrWhiteSpace(Environment.GetEnvironmentVariable("REIGN_BANNERLORD_PATH")))
+                Skip = "Requires the same-run client artifact and licensed Bannerlord assemblies.";
+        }
     }
 
     [Theory]

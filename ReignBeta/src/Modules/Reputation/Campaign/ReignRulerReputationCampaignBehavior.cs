@@ -25,6 +25,10 @@ namespace ReignBeta.Campaign
         private JObject _state = NewState();
         private JObject _governanceSettings = new JObject();
         private JObject _warScoreSettings = new JObject();
+        private readonly ReignRulerSampleIndex _settlementSampleIndex =
+            new ReignRulerSampleIndex(row => Text(row, "settlementId"), row => Number(row, "day"));
+        private readonly ReignRulerSampleIndex _villageSampleIndex =
+            new ReignRulerSampleIndex(row => Text(row, "villageId"), row => Number(row, "day"));
 
         public override void RegisterEvents()
         {
@@ -70,6 +74,8 @@ namespace ReignBeta.Campaign
                 }
                 catch { _state = NewState(); }
                 EnsureStateShape();
+                _settlementSampleIndex.Invalidate();
+                _villageSampleIndex.Invalidate();
             }
         }
 
@@ -149,10 +155,10 @@ namespace ReignBeta.Campaign
             if (term == null) return;
             string id = town.Settlement.StringId;
             JArray samples = (JArray)_state["settlementSamples"];
-            if (samples.OfType<JObject>().Any(x => Text(x, "settlementId") == id && Number(x, "day") == day)) return;
+            if (_settlementSampleIndex.Contains(samples, id, day)) return;
             bool excluded = town.IsUnderSiege || IntegrationActive(id)
                 || Number((JObject)_state["siegeRecoveryUntil"], id) > day;
-            samples.Add(new JObject
+            _settlementSampleIndex.Add(samples, new JObject
             {
                 ["day"] = day, ["settlementId"] = id, ["kingdomId"] = kingdom.StringId,
                 ["termId"] = Text(term, "termId"), ["isTown"] = town.IsTown, ["isCastle"] = town.IsCastle,
@@ -165,7 +171,7 @@ namespace ReignBeta.Campaign
                 ["securityChange"] = town.SecurityChange, ["underSiege"] = town.IsUnderSiege,
                 ["rebellious"] = town.InRebelliousState, ["ownerClanId"] = town.OwnerClan?.StringId ?? "",
                 ["excluded"] = excluded
-            });
+            }, day);
         }
 
         private void OnDailyTickSettlement(Settlement settlement)
@@ -178,15 +184,23 @@ namespace ReignBeta.Campaign
             JObject term = CurrentTerm(kingdom);
             if (term == null) return;
             JArray samples = (JArray)_state["villageSamples"];
-            if (samples.OfType<JObject>().Any(x => Text(x, "villageId") == settlement.StringId && Number(x, "day") == day)) return;
-            samples.Add(new JObject
+            if (_villageSampleIndex.Contains(samples, settlement.StringId, day)) return;
+            var previous = _villageSampleIndex.Previous(samples, settlement.StringId, day);
+            double agriculture = ReignBeta.Economy.ReignEconomyCampaignBehavior.Instance?.GetFoodRecoveryModifier(village) ?? 0;
+            var episode = ((JObject)_state["villageEpisodes"])[settlement.StringId] as JObject;
+            if (episode != null && agriculture >= .999999 && village.VillageState == Village.VillageStates.Normal
+                && Number(episode, "agricultureRecoveredDay") <= 0)
+                episode["agricultureRecoveredDay"] = day;
+            _villageSampleIndex.Add(samples, new JObject
             {
                 ["day"] = day, ["villageId"] = settlement.StringId, ["kingdomId"] = kingdom.StringId,
                 ["termId"] = Text(term, "termId"), ["state"] = village.VillageState.ToString(),
-                ["hearth"] = village.Hearth, ["hearthChange"] = village.HearthChange,
+                ["hearth"] = village.Hearth,
+                ["hearthChange"] = previous == null ? 0 : (village.Hearth - Number(previous, "hearth")) / Math.Max(1, day - Number(previous, "day")),
+                ["observedHearthChange"] = previous != null, ["agriculturalRecovery"] = agriculture,
                 ["deserted"] = village.IsDeserted, ["boundSettlementId"] = village.Bound?.StringId ?? "",
                 ["excluded"] = IntegrationActive(village.Bound?.StringId ?? "")
-            });
+            }, day);
         }
 
         private void OnWeeklyTick()
@@ -338,11 +352,14 @@ namespace ReignBeta.Campaign
             List<IGrouping<string, JObject>> groups = VillageWindow(kingdom, term, day, 14d)
                 .GroupBy(x => Text(x, "villageId")).ToList();
             bool recovery = currentEpisodes.Any(x => Flag(x, "recovered") && !Flag(x, "credited")
-                && day - Number(x, "recoveredDay") >= 7d
+                && Number(x, "agricultureRecoveredDay") > 0 && day - Number(x, "agricultureRecoveredDay") >= 7d
                 && groups.Any(g => g.Key == Text(x, "villageId")
-                    && Number(Latest(g), "hearth") >= 200d && LastRows(g, 7).All(r => Number(r, "hearthChange") >= 0d)));
+                    && Number(Latest(g), "hearth") >= 200d && LastRows(g, 7).Count() >= 7
+                    && LastRows(g, 7).All(r => Flag(r, "observedHearthChange") && Number(r, "agriculturalRecovery") >= .999999
+                        && Number(r, "hearthChange") >= 0d)));
             var parentGroups = groups.GroupBy(g => Text(Latest(g), "boundSettlementId")).ToList();
             bool broad = parentGroups.Count > 0
+                && groups.All(g => LastRows(g, 7).Count() >= 7 && LastRows(g, 7).All(r => Flag(r, "observedHearthChange") && Number(r, "agriculturalRecovery") >= .999999))
                 && parentGroups.Count(pg => pg.Average(g => Number(Latest(g), "hearth")) >= 600d) / (double)parentGroups.Count >= 0.75d
                 && parentGroups.SelectMany(pg => pg).SelectMany(g => g).Average(x => Number(x, "hearthChange")) >= 0d;
             string archetype = negative ? "lord_of_empty_fields" : recovery || broad ? "guardian_of_the_commons" : "";
@@ -860,6 +877,8 @@ namespace ReignBeta.Campaign
             double retention = GovernanceSetting("sampleRetentionDays", 35d);
             PruneArray((JArray)_state["settlementSamples"], x => Number(x, "day") < day - retention);
             PruneArray((JArray)_state["villageSamples"], x => Number(x, "day") < day - retention);
+            _settlementSampleIndex.Invalidate();
+            _villageSampleIndex.Invalidate();
         }
 
         private void PruneWeeklyKeys(double day)

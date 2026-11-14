@@ -20,7 +20,9 @@ namespace ReignBeta.Government
         private List<string> _edictChunks = new List<string>();
         private static Settlement FindSettlement(string id) => ReignObjectResolver.FindSettlement(id);
         private static Clan FindClan(string id) => ReignObjectResolver.FindClan(id);
-        private void RegisterEdictEvents() => CampaignEvents.DailyTickEvent.AddNonSerializedListener(this, TickEdicts);
+        // Economy owns the daily aid order: granaries, then automatic relief. No second daily callback.
+        private void RegisterEdictEvents() { }
+        internal void ProcessEconomyAidDaily() => TickEdicts();
         private void SyncEdicts(IDataStore store)
         {
             if (store.IsSaving)
@@ -54,7 +56,7 @@ namespace ReignBeta.Government
                 bool project = definition.Id != "public_works" || EdictProjectAvailable(settlement.Town);
                 result.Add(new JObject { ["proposalId"] = proposal, ["category"] = "edict",
                     ["payload"] = EdictPetitionPayload(definition.Id, settlement, active),
-                    ["label"] = (active == null ? "Enact " : "Repeal ") + definition.Name + " — " + settlement.Name,
+                    ["label"] = (active == null ? "Enact " : "Repeal ") + definition.Name + " â€” " + settlement.Name,
                     ["description"] = definition.Terms + "\nSettlement: " + settlement.Name + ". Beneficiary and payer: " + settlement.OwnerClan?.Name
                         + ". Regular government session; no immediate execution."
                         + (definition.Id == "public_works" ? " Named construction: " + settlement.Town?.CurrentBuilding?.BuildingType?.Name + ", current level " + (settlement.Town?.CurrentBuilding?.CurrentLevel ?? 0) + "." : "")
@@ -91,17 +93,17 @@ namespace ReignBeta.Government
             if (petition == null || petition.Kind != "edict" || petition.Status != "active") return string.Empty;
             var state = string.IsNullOrEmpty(petition.BusinessId) ? null : _edicts.FirstOrDefault(x =>
                 x.BusinessId == petition.BusinessId && x.KingdomId == petition.KingdomId);
-            if (state == null) return "Enacted · effect record unavailable";
+            if (state == null) return "Enacted Â· effect record unavailable";
             string status = state.Status == "active" && CurrentDay() >= state.ExpiresDay ? "expired" : state.Status;
             switch (status)
             {
-                case "active": return "Enacted · effects active";
-                case "expired": return "Enacted · effects expired";
-                case "repealed": return "Enacted · later repealed";
-                case "ownership_changed": return "Enacted · ended after ownership changed";
-                case "project_ended": return "Enacted · project ended";
-                case "superseded_by_native_policy": return "Enacted · superseded by kingdom policy";
-                default: return "Enacted · effect record unavailable";
+                case "active": return "Enacted Â· effects active";
+                case "expired": return "Enacted Â· effects expired";
+                case "repealed": return "Enacted Â· later repealed";
+                case "ownership_changed": return "Enacted Â· ended after ownership changed";
+                case "project_ended": return "Enacted Â· project ended";
+                case "superseded_by_native_policy": return "Enacted Â· superseded by kingdom policy";
+                default: return "Enacted Â· effect record unavailable";
             }
         }
 
@@ -305,11 +307,10 @@ namespace ReignBeta.Government
 
         private void TickEdictGranary(GovernmentEdictState state, Town town, int day)
         {
-            if (town.IsUnderSiege) return;
             var grain = TaleWorlds.CampaignSystem.Campaign.Current?.ObjectManager?.GetObject<ItemObject>("grain");
             if (grain == null) return;
             int price = Math.Max(1, town.GetItemPrice(grain));
-            int buy = GovernmentEdictRules.GrainPurchase(state.BudgetRemaining, price, town.Settlement.ItemRoster.GetItemNumber(grain), state.GrainStock);
+            int buy = town.IsUnderSiege ? 0 : GovernmentEdictRules.GrainPurchase(state.BudgetRemaining, price, town.Settlement.ItemRoster.GetItemNumber(grain), state.GrainStock);
             if (buy > 0)
             {
                 town.Settlement.ItemRoster.AddToCounts(grain, -buy);
@@ -346,15 +347,14 @@ namespace ReignBeta.Government
                 // villages recruit the regular base. Never invent a replacement volunteer.
                 var basic = village.Bound?.IsCastle == true ? village.Settlement.Culture?.EliteBasicTroop : village.Settlement.Culture?.BasicTroop;
                 if (basic == null) continue;
-                int wage = TaleWorlds.CampaignSystem.Campaign.Current.Models.PartyWageModel.GetCharacterWage(basic);
-                int cost = Math.Max(1, TaleWorlds.CampaignSystem.Campaign.Current.Models.PartyWageModel.GetTroopRecruitmentCost(basic, payer).RoundedResultNumber);
+                double wage = ReignBeta.Economy.ReignWarEconomyTransactions.AdditionalWages(garrison, basic, 1);
+                int cost = Math.Max(0, TaleWorlds.CampaignSystem.Campaign.Current.Models.PartyWageModel.GetTroopRecruitmentCost(basic, payer).RoundedResultNumber);
                 if (garrison.GetAvailableWageBudget() < wage || payer.Gold < cost + wage * 3) continue;
                 Hero source = village.Settlement.Notables.FirstOrDefault(x => x.VolunteerTypes != null && x.VolunteerTypes.Any(t => t == basic));
                 if (source == null) continue;
                 int index = Array.IndexOf(source.VolunteerTypes, basic);
-                source.VolunteerTypes[index] = null;
-                GiveGoldAction.ApplyBetweenCharacters(payer, source, cost, true);
-                garrison.MemberRoster.AddToCounts(basic, 1);
+                if (!ReignBeta.Economy.ReignWarEconomyTransactions.Enlist(ReignBeta.Economy.ReignWarEconomyTransactions.Guard,
+                    village.Settlement, garrison, payer, basic, source, index)) continue;
                 state.ServiceRecruitsIssued++; recruited = true;
                 state.ServiceTroops[basic.StringId] = (state.ServiceTroops.TryGetValue(basic.StringId, out int old) ? old : 0) + 1;
             }

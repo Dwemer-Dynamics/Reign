@@ -1,0 +1,28 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1120 300" role="img" aria-labelledby="title desc"><title id="title">War puts pressure on a connected economy</title><desc id="desc">Village households: People support production and military enlistment.. Food and recruits: Healthy villages supply more; damage limits output.. Military burden: Recruitment, wages and supplies use real resources.. Recovery: Peace and protection help; raids and losses leave damage.</desc>
+<defs><marker id="arrow" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8" fill="#A88A54"/></marker></defs>
+<rect width="1120" height="300" rx="8" fill="#121211"/>
+<text x="32" y="38" fill="#C5BDAF" font-family="Georgia,serif" font-size="22">War puts pressure on a connected economy</text>
+<rect x="28" y="70" width="230" height="194" rx="6" fill="#171717" stroke="#7E6A4D"/>
+<text x="46" y="103" fill="#C5AC83" font-family="Georgia,serif" font-size="19">Village households</text>
+<text x="46" y="134" fill="#C5BDAF" font-family="Arial,sans-serif" font-size="16">People support</text>
+<text x="46" y="157" fill="#C5BDAF" font-family="Arial,sans-serif" font-size="16">production and military</text>
+<text x="46" y="180" fill="#C5BDAF" font-family="Arial,sans-serif" font-size="16">enlistment.</text>
+<path d="M264,163 H295" fill="none" stroke="#A88A54" stroke-width="2" marker-end="url(#arrow)"/>
+<rect x="306" y="70" width="230" height="194" rx="6" fill="#171717" stroke="#7E6A4D"/>
+<text x="324" y="103" fill="#C5AC83" font-family="Georgia,serif" font-size="19">Food and recruits</text>
+<text x="324" y="134" fill="#C5BDAF" font-family="Arial,sans-serif" font-size="16">Healthy villages supply</text>
+<text x="324" y="157" fill="#C5BDAF" font-family="Arial,sans-serif" font-size="16">more; damage limits</text>
+<text x="324" y="180" fill="#C5BDAF" font-family="Arial,sans-serif" font-size="16">output.</text>
+<path d="M542,163 H573" fill="none" stroke="#A88A54" stroke-width="2" marker-end="url(#arrow)"/>
+<rect x="584" y="70" width="230" height="194" rx="6" fill="#171717" stroke="#7E6A4D"/>
+<text x="602" y="103" fill="#C5AC83" font-family="Georgia,serif" font-size="19">Military burden</text>
+<text x="602" y="134" fill="#C5BDAF" font-family="Arial,sans-serif" font-size="16">Recruitment, wages and</text>
+<text x="602" y="157" fill="#C5BDAF" font-family="Arial,sans-serif" font-size="16">supplies use real</text>
+<text x="602" y="180" fill="#C5BDAF" font-family="Arial,sans-serif" font-size="16">resources.</text>
+<path d="M820,163 H851" fill="none" stroke="#A88A54" stroke-width="2" marker-end="url(#arrow)"/>
+<rect x="862" y="70" width="230" height="194" rx="6" fill="#171717" stroke="#7E6A4D"/>
+<text x="880" y="103" fill="#C5AC83" font-family="Georgia,serif" font-size="19">Recovery</text>
+<text x="880" y="134" fill="#C5BDAF" font-family="Arial,sans-serif" font-size="16">Peace and protection</text>
+<text x="880" y="157" fill="#C5BDAF" font-family="Arial,sans-serif" font-size="16">help; raids and losses</text>
+<text x="880" y="180" fill="#C5BDAF" font-family="Arial,sans-serif" font-size="16">leave damage.</text>
+</svg>

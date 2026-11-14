@@ -1,0 +1,13 @@
+{
+  "version": 1,
+  "heroStringId": "reign_court_castle_N1_father",
+  "characterName": "Stenrik Eldhammar",
+  "imagePath": "portrait.png",
+  "imageSha256": "8E446E07D9DAC55F8A5A41139C65A514C5A915E67D857F290F94D0E837415724",
+  "description": "A brown long-sleeved knee-length wool tunic with restrained pale red-and-cream woven geometric trim at the split collar, cuffs and hem, over a cream linen underlayer at the neck and wrists. A plain brown leather belt with a modest metal buckle and long hanging end, brown trousers, grey-beige wrapped lower legs and brown leather ankle shoes complete the outfit. No headgear, armor or weapons.",
+  "status": "completed",
+  "descriptionSource": "agent_vision",
+  "retryEligible": false,
+  "error": "",
+  "updatedUtc": "2026-11-07T03:08:12.801760+00:00"
+}

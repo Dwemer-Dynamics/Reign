@@ -116,6 +116,8 @@ namespace ReignBeta.Save
 #endif
             ConstructContainerDefinition(typeof(List<string>));
             ConstructContainerDefinition(typeof(List<int>));
+            ConstructContainerDefinition(typeof(List<long>));
+            ConstructContainerDefinition(typeof(List<TaleWorlds.CampaignSystem.MapEvents.MapEvent>));
         }
     }
 }

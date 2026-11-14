@@ -173,6 +173,7 @@
     </SpriteCategory>
   <SpriteCategory><Name>ui_reignbeta_clan_accords</Name><AlwaysLoad /><SpriteSheetCount>1</SpriteSheetCount><SpriteSheetSize ID="1" Width="2048" Height="2048" /></SpriteCategory>
     <SpriteCategory><Name>ui_reignbeta_tavern_house</Name><AlwaysLoad /><SpriteSheetCount>1</SpriteSheetCount><SpriteSheetSize ID="1" Width="2048" Height="2048" /></SpriteCategory>
+    <SpriteCategory><Name>ui_reignbeta_war_standing</Name><AlwaysLoad /><SpriteSheetCount>1</SpriteSheetCount><SpriteSheetSize ID="1" Width="4096" Height="2048" /></SpriteCategory>
   </SpriteCategories>
   <SpriteParts>
     <SpritePart><SheetID>1</SheetID><Name>reign_banter_panel</Name><Width>420</Width><Height>220</Height><SheetX>4</SheetX><SheetY>4</SheetY><CategoryName>ui_reignbeta_banter</CategoryName></SpritePart>
@@ -1785,7 +1786,9 @@
 <SpritePart><SheetID>2</SheetID><Name>reign_government_v3_record_tab_news_selected</Name><Width>194</Width><Height>43</Height><SheetX>1230</SheetX><SheetY>3200</SheetY><CategoryName>ui_reignbeta_government</CategoryName></SpritePart>
 <SpritePart><SheetID>2</SheetID><Name>reign_government_v3_record_tab_obligations_selected</Name><Width>184</Width><Height>43</Height><SheetX>1428</SheetX><SheetY>3200</SheetY><CategoryName>ui_reignbeta_government</CategoryName></SpritePart>
 <SpritePart><SheetID>10</SheetID><Name>reign_party_chat_compact_button</Name><Width>126</Width><Height>40</Height><SheetX>4</SheetX><SheetY>953</SheetY><CategoryName>ui_reignbeta_party_chat</CategoryName></SpritePart>
-  </SpriteParts>
+  <SpritePart><SheetID>1</SheetID><Name>reign_war_standing_tabs</Name><Width>2172</Width><Height>724</Height><SheetX>4</SheetX><SheetY>4</SheetY><CategoryName>ui_reignbeta_war_standing</CategoryName></SpritePart>
+<SpritePart><SheetID>1</SheetID><Name>reign_war_standing_popup</Name><Width>1254</Width><Height>1254</Height><SheetX>2184</SheetX><SheetY>4</SheetY><CategoryName>ui_reignbeta_war_standing</CategoryName></SpritePart>
+</SpriteParts>
   <Sprites>
     <NineRegionSprite><Name>reign_banter_panel</Name><SpritePartName>reign_banter_panel</SpritePartName><LeftWidth>15</LeftWidth><RightWidth>60</RightWidth><TopHeight>40</TopHeight><BottomHeight>36</BottomHeight></NineRegionSprite>
     <NineRegionSprite><Name>reign_banter_collapsed</Name><SpritePartName>reign_banter_collapsed</SpritePartName><LeftWidth>15</LeftWidth><RightWidth>60</RightWidth><TopHeight>8</TopHeight><BottomHeight>8</BottomHeight></NineRegionSprite>
@@ -2746,5 +2749,7 @@
 <GenericSprite><Name>reign_government_v3_record_tab_news_selected</Name><SpritePartName>reign_government_v3_record_tab_news_selected</SpritePartName></GenericSprite>
 <GenericSprite><Name>reign_government_v3_record_tab_obligations_selected</Name><SpritePartName>reign_government_v3_record_tab_obligations_selected</SpritePartName></GenericSprite>
 <GenericSprite><Name>reign_party_chat_compact_button</Name><SpritePartName>reign_party_chat_compact_button</SpritePartName></GenericSprite>
-  </Sprites>
+  <GenericSprite><Name>reign_war_standing_tabs</Name><SpritePartName>reign_war_standing_tabs</SpritePartName></GenericSprite>
+<GenericSprite><Name>reign_war_standing_popup</Name><SpritePartName>reign_war_standing_popup</SpritePartName></GenericSprite>
+</Sprites>
 </SpriteData>

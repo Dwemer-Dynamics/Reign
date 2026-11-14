@@ -6,6 +6,14 @@
   "acceptance": "Each row needs one exact valid-case native effect assertion, bounded inputs, before/after state, receipt, artifact identity and saved campaign identity. Negative/replay/consent/persistence coverage remains separate. A command returning is not an effect assertion.",
   "actions": [
     {
+      "actionId": "tavern.visit.pay",
+      "surface": "agreement",
+      "source": "ReignServer/shared/Reign.Core.Contracts/Actions/TavernHouseVisitAction.cs",
+      "nativeStatus": "pending",
+      "evidence": [],
+      "proof": "2026-11-13: Dedicated Visit the Madam negotiation only. Native acceptance requires an exact mutually accepted one-to-four-person booking, individual prices/free offers and total, one transfer to the current madam, matching preparation/receipt, once-only visit/reputation activation and save/reload/confirmation recovery. Generic menus/search/pending offers and forged outside contexts must remain unavailable. TavernHouseVisitActionTests, tavern_house visit_action_* and the compiled-client scope/preparation probe provide isolated offline coverage; they do not establish real campaign payment, native UI or image-provider acceptance."
+    },
+    {
       "actionId": "leave_spouse",
       "surface": "agreement",
       "source": "ReignServer/shared/Reign.Core.Contracts/Actions/ReignSpouseSeparation.cs",
@@ -1428,6 +1436,27 @@
     },
     {
       "actionId": "make_peace",
+      "surface": "agreement",
+      "source": "ReignServer/shared/Reign.Core.Contracts/Actions/ReignActionCatalog.cs",
+      "nativeStatus": "pending",
+      "evidence": []
+    },
+    {
+      "actionId": "marriage.appeal",
+      "surface": "agreement",
+      "source": "ReignServer/shared/Reign.Core.Contracts/Actions/ReignActionCatalog.cs",
+      "nativeStatus": "pending",
+      "evidence": []
+    },
+    {
+      "actionId": "marriage.propose",
+      "surface": "agreement",
+      "source": "ReignServer/shared/Reign.Core.Contracts/Actions/ReignActionCatalog.cs",
+      "nativeStatus": "pending",
+      "evidence": []
+    },
+    {
+      "actionId": "marriage.release_prisoner",
       "surface": "agreement",
       "source": "ReignServer/shared/Reign.Core.Contracts/Actions/ReignActionCatalog.cs",
       "nativeStatus": "pending",

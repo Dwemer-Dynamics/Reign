@@ -7,6 +7,7 @@ using TaleWorlds.CampaignSystem;
 using TaleWorlds.CampaignSystem.Party;
 using TaleWorlds.Core;
 using TaleWorlds.Engine.GauntletUI;
+using TaleWorlds.GauntletUI.BaseTypes;
 using TaleWorlds.InputSystem;
 using TaleWorlds.Library;
 using TaleWorlds.ScreenSystem;
@@ -62,6 +63,19 @@ namespace ReignBeta.UI
                 // Wire the actual instantiated editor before it can accept keys.
                 // Do not leave protected editing dependent on a silent ID lookup.
                 editor.BindComposer(_vm.Composer);
+                var offer = _layer.UIContext.Root.FindChild("CorrespondenceMarriageOfferAction", true) as ButtonWidget;
+                if (offer != null)
+                {
+                    var viewModel = _vm;
+                    offer.DoNotAcceptEvents = !viewModel.CanOpenMarriageOffer;
+                    offer.ClickEventHandlers.Add(_ => viewModel.ExecuteOpenMarriageOffer());
+                    viewModel.PropertyChanged += (_, changed) =>
+                    {
+                        if (changed.PropertyName == nameof(ReignCorrespondenceScreenVM.CanOpenMarriageOffer))
+                            offer.DoNotAcceptEvents = !viewModel.CanOpenMarriageOffer;
+                    };
+                }
+                else ReignLog.Warn("Correspondence marriage offer control was not found in the loaded prefab.");
                 _host.AddLayer(_layer);
                 _layer.IsFocusLayer = true;
                 _layer.ActiveCursor = CursorType.Default;

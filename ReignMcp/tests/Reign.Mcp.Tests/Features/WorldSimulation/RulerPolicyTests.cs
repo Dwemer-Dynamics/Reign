@@ -170,6 +170,13 @@ public sealed class RulerPolicyTests
     }
     [Theory] [InlineData(0,0)] [InlineData(3,0)] [InlineData(100,25)] [InlineData(-1,0)]
     public void Reparations_never_create_debt(long wealth,long payment)=>Assert.Equal(payment,ReignRulerPolicy.Reparations(wealth));
+    [Fact] public void Native_removed_governor_culture_penalty_is_not_an_active_option()
+    {
+        var options = new RulerOptions(_ => true);
+        Assert.DoesNotContain(RulerOptions.GovernorCulture, RulerOptions.Switches.Keys);
+        Assert.False(options.Preference(RulerOptions.GovernorCulture));
+        Assert.False(options.Enabled(RulerOptions.GovernorCulture));
+    }
     [Fact] public void Fixed_ruler_fixture_rejects_arbitrary_mutation_targets_and_invalid_amounts()
     {
         var args = new Dictionary<string,string>{{"profile","army"},{"heroId","ruler"},{"settlementId","capital"},{"otherHeroId",""},{"amount","1000"}};

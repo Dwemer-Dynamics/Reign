@@ -282,14 +282,15 @@ namespace ReignBeta.Integration
                     ?? ReignEconomyCampaignBehavior.MaximumRecoveryStep;
                 string key = step.ToString();
                 recoveryStages[key] = (recoveryStages.Value<int?>(key) ?? 0) + 1;
-                double modifier = step / (double)ReignEconomyCampaignBehavior.MaximumRecoveryStep;
-                if (village.VillageState == Village.VillageStates.Normal && modifier < 1d)
-                    foodPenalty += (village.GetHearthLevel() + 1) * 6d * (1d - modifier);
+                double modifier = behavior?.GetRecoveryModifier(village) ?? 1;
+                double foodModifier = behavior?.GetFoodRecoveryModifier(village) ?? 1;
+                if (village.VillageState == Village.VillageStates.Normal && foodModifier < 1d)
+                    foodPenalty += ReignWarEconomyPolicy.HealthyFood(village.Hearth) * (1d - foodModifier);
                 if (modifier < 1d) securityPenalty += 2d * (1d - modifier);
                 double strain = behavior?.GetMobilizationStrain(village) ?? 0d;
                 mobilizationStrain += strain;
                 double strainPenalty = behavior?.GetMobilizationFoodPenalty(village) ?? 0d;
-                if (strainPenalty > 0d)
+                if (strain > 0d)
                 {
                     mobilizationStrainedVillages++;
                     mobilizationFoodPenalty += Math.Min(strainPenalty,
@@ -301,6 +302,26 @@ namespace ReignBeta.Integration
             }
 
             JObject result = ReignEconomyPatches.BuildDiagnostics();
+            result["schemaVersion"] = ReignWarEconomyPolicy.Version;
+            result["observedDay"] = CampaignTime.Now.ToDays;
+            result["observedUtc"] = DateTime.UtcNow.ToString("O");
+            result["raidFoodEvidenceVersion"] = 1;
+            result["raidFoodVillages"] = new JArray(villages.Where(x => ReignRaidFoodDisruption.Capacity(x) < 1)
+                .OrderBy(x => x.StringId, StringComparer.Ordinal).Take(256).Select(x => {
+                    var row = ReignRaidFoodDisruption.Describe(x); row["villageId"] = x.StringId; return row;
+                }));
+            result["raidFoodVillagesTruncated"] = villages.Count(x => ReignRaidFoodDisruption.Capacity(x) < 1) > 256;
+            var foodHoldings = Settlement.All.Where(x => x.Town != null).OrderBy(x => x.StringId, StringComparer.Ordinal).ToList();
+            result["raidFoodHoldingsTruncated"] = foodHoldings.Count > 1024;
+            result["raidFoodHoldings"] = new JArray(foodHoldings.Take(1024).Select(x => new JObject {
+                ["settlementId"] = x.StringId, ["kind"] = x.IsCastle ? "castle" : "town",
+                ["kingdomId"] = x.OwnerClan?.Kingdom?.StringId, ["foodStocks"] = x.Town.FoodStocks,
+                ["capacity"] = x.Town.FoodStocksUpperLimit(), ["foodChange"] = x.Town.FoodChange,
+                ["garrison"] = x.Town.GarrisonParty?.MemberRoster.TotalManCount ?? 0,
+                ["underSiege"] = x.IsUnderSiege }));
+            result["observation"] = ReignWarEconomyTestHost.Capture(false);
+            result["accounting"] = ReignWarEconomyTransactions.Diagnostics(false);
+            result["currentUnmetFood"] = behavior?.EconomyState.UnmetReliefFood ?? 0;
             result["villageCount"] = villages.Count;
             result["lootedVillages"] = villages.Count(x => x.VillageState == Village.VillageStates.Looted);
             result["recoveringVillages"] = behavior == null ? 0 : villages.Count(x => behavior.GetRecoveryStep(x) < ReignEconomyCampaignBehavior.MaximumRecoveryStep);
@@ -327,6 +348,12 @@ namespace ReignBeta.Integration
             result["patrolTroopsReturned"] = behavior?.PatrolTroopsReturned ?? 0;
             result["patrolConservationMismatches"] = behavior?.PatrolConservationMismatches ?? 0;
             result["reliefShipmentCount"] = behavior?.ReliefShipmentCount ?? 0;
+            result["reliefPolicyVersion"] = ReignWarEconomyPolicy.ReliefVersion;
+            result["reliefDonorCapacityFraction"] = ReignWarEconomyPolicy.ReliefDonorCapacityFraction;
+            result["reliefDonorMinimumDailyShipment"] = ReignWarEconomyPolicy.ReliefDonorMinimum;
+            result["reliefDonorMaximumDailyShipment"] = ReignWarEconomyPolicy.ReliefDonorMaximum;
+            result["reliefRecipientMaximumCapacityFraction"] = ReignWarEconomyPolicy.ReliefRecipientCapacityFraction;
+            result["reliefRecipientMinimumDailyDelivery"] = ReignWarEconomyPolicy.ReliefRecipientMinimum;
             result["reliefFoodShipped"] = behavior?.ReliefFoodShipped ?? 0f;
             result["reliefFoodDelivered"] = behavior?.ReliefFoodDelivered ?? 0f;
             result["reliefFoodLost"] = behavior?.ReliefFoodLost ?? 0f;

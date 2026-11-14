@@ -86,7 +86,10 @@ namespace ReignBeta.Campaign
         }
 
         internal IEnumerable<ReignConceptionRecord> PregnancyRecords => _conceptions.Concat(_nativePregnancyContexts)
-            .Where(x => x != null && x.Status == "active" && ReignActionService.HeroById(x.MotherId)?.IsPregnant == true);
+            .Where(IsActivePregnancyRecord);
+
+        private static bool IsActivePregnancyRecord(ReignConceptionRecord record) => record != null
+            && record.Status == "active" && ReignActionService.HeroById(record.MotherId)?.IsPregnant == true;
 
         internal PregnancyFacts PregnancyFactsFor(ReignConceptionRecord record)
         {
@@ -109,9 +112,16 @@ namespace ReignBeta.Campaign
             ReconcileNativePregnancyContexts();
             return new JArray(PregnancyRecords.Select(r => JObject.FromObject(PregnancyFactsFor(r), PregnancySerializer)));
         }
-        internal JArray PregnancyContextsFor(Hero hero) => new JArray(PregnancyRecords
-            .Where(r => r.MotherId == hero?.StringId || r.BiologicalFatherId == hero?.StringId || r.LegalFatherId == hero?.StringId)
-            .Select(r => JObject.FromObject(PregnancyFactsFor(r), PregnancySerializer)));
+        internal JArray PregnancyContextsFor(Hero hero)
+        {
+            string heroId = hero?.StringId;
+            // Filter identity before resolving native mothers: profile refreshes must not
+            // repeat every unrelated pregnancy's hero search for each character.
+            return new JArray(_conceptions.Concat(_nativePregnancyContexts)
+                .Where(r => r != null && (r.MotherId == heroId || r.BiologicalFatherId == heroId || r.LegalFatherId == heroId))
+                .Where(IsActivePregnancyRecord)
+                .Select(r => JObject.FromObject(PregnancyFactsFor(r), PregnancySerializer)));
+        }
 
         internal PregnancyKnowledge KnownPregnancy(ReignConceptionRecord record, string observer)
         {

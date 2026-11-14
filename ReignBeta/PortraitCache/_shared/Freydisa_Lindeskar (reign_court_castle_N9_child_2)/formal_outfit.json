@@ -1,0 +1,13 @@
+{
+  "version": 1,
+  "heroStringId": "reign_court_castle_N9_child_2",
+  "characterName": "Freydisa Lindeskar",
+  "imagePath": "portrait.png",
+  "imageSha256": "88495B2930D309D00482A4DF39A867C4CE95E816889BB94759B456083CA6A2DE",
+  "description": "A faded slate-blue ankle-length wool apron dress over a natural oatmeal linen long-sleeved underdress, two small plain oval bronze clasps at the upper apron, narrow cream-and-grey tablet-woven edging at neckline and cuffs, a simple brown leather belt and plain brown leather ankle shoes visibly extending below the hem. Modest early medieval Scandinavian landowner quality, gently worn real woven textures. No head covering, armor, weapons, fur war gear, crowns, elaborate jewelry or heraldry.",
+  "status": "completed",
+  "descriptionSource": "agent_vision",
+  "retryEligible": false,
+  "error": "",
+  "updatedUtc": "2026-11-07T03:31:19.991680+00:00"
+}

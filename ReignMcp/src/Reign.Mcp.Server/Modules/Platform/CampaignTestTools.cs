@@ -276,7 +276,7 @@ public sealed class CampaignTestService
         string baselineSaveName, string runId, string testName)
     {
         campaignId = RequiredId(campaignId, nameof(campaignId));
-        timelineId = RequiredId(timelineId, nameof(timelineId));
+        timelineId = RequiredId(timelineId, nameof(timelineId), 512);
         runId = RequiredId(runId, nameof(runId));
         baselineSaveName = RequiredSaveName(baselineSaveName, nameof(baselineSaveName));
         testName = InputGuard.BoundedText(testName, nameof(testName), 80);
@@ -1153,9 +1153,9 @@ public sealed class CampaignTestService
         if (state.Events.Count > 100) state.Events.RemoveRange(0, state.Events.Count - 100);
     }
 
-    private static string RequiredId(string value, string name)
+    private static string RequiredId(string value, string name, int maximumLength = 100)
     {
-        value = InputGuard.BoundedText(value, name, 100);
+        value = InputGuard.BoundedText(value, name, maximumLength);
         if (value.Length == 0 || value.Any(character => !char.IsAsciiLetterOrDigit(character) && character is not '-' and not '_'))
             throw new ArgumentException($"{name} must contain only ASCII letters, digits, hyphen, or underscore.", name);
         return value;

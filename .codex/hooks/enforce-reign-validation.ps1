@@ -50,17 +50,30 @@ $directVerification =
 # each literal path separately so mentioning it cannot exempt another legacy
 # script or a direct build elsewhere in the command.
 $workspaceRoot = [IO.Path]::GetFullPath((Join-Path $PSScriptRoot '..\..'))
-$canonicalDeploymentPaths = @(
-    [IO.Path]::GetFullPath((Join-Path $workspaceRoot 'ReignServer\scripts\Deploy-LocalWsl.ps1')),
-    [IO.Path]::GetFullPath((Join-Path $workspaceRoot '..\ReignServer\scripts\Deploy-LocalWsl.ps1'))
-)
+$primaryServerRoot = [IO.Path]::GetFullPath((Join-Path $workspaceRoot '..\ReignServer'))
+$canonicalDeploymentPaths = @()
+try {
+    $serverDirectory = Get-Item -LiteralPath $primaryServerRoot
+    if (-not ($serverDirectory.Attributes -band [IO.FileAttributes]::ReparsePoint)) {
+        $canonicalDeploymentPaths += Join-Path $primaryServerRoot 'scripts\Deploy-LocalWsl.ps1'
+        $projection = Get-Item -LiteralPath (Join-Path $workspaceRoot 'ReignServer') -ErrorAction SilentlyContinue
+        if ($projection -and ($projection.Attributes -band [IO.FileAttributes]::ReparsePoint) -and
+            @($projection.Target).Count -eq 1 -and
+            [IO.Path]::GetFullPath([string](@($projection.Target)[0])) -eq $primaryServerRoot) {
+            $canonicalDeploymentPaths += Join-Path $workspaceRoot 'ReignServer\scripts\Deploy-LocalWsl.ps1'
+        }
+    }
+} catch { } # Missing or redirected primary roots never acquire a deployment exception.
 $commandDirectory = $workspaceRoot
 if ($payload.tool_input.workdir) {
     $commandDirectory = [string]$payload.tool_input.workdir
 } elseif ($payload.cwd) {
     $commandDirectory = [string]$payload.cwd
 }
+# Retained worktrees are recovery sources. Their old deployment scripts do not
+# contain today's source/artifact gates and never receive a deploy exception.
 $deploymentLiterals = @()
+$tree = $null
 try {
     $parseTokens = $null
     $parseErrors = $null
@@ -78,6 +91,19 @@ try {
 } catch { $deploymentLiterals = @() }
 $legacyBuildScript = $false
 foreach ($match in [regex]::Matches($command, '(?i)(?:scripts[\\/])(?:build|prepare-deployment|test-deployment|deploy[^\\/]*)\.ps1')) {
+    # A path argument to a read operation is not a script invocation. Keep this
+    # exemption local to its AST extent so a chained deployment/build stays gated.
+    $commands = if ($tree) { @($tree.FindAll({ param($node) $node -is [Management.Automation.Language.CommandAst] }, $true)) } else { @() }
+    $read = @($commands | Where-Object {
+        $name = $_.GetCommandName()
+        $isRead = $name -in @('Get-Content','gc','cat','type','Select-String','rg')
+        if ($name -eq 'git') {
+            $words = @($_.CommandElements | Where-Object { $_ -is [Management.Automation.Language.StringConstantExpressionAst] } | ForEach-Object Value)
+            $isRead = @($words | Where-Object { $_ -in @('diff','show','status','log','ls-files') }).Count -gt 0
+        }
+        $isRead -and $_.Extent.StartOffset -le $match.Index -and $_.Extent.EndOffset -ge ($match.Index + $match.Length)
+    })
+    if ($read.Count -gt 0) { continue }
     $canonicalLiteral = @($deploymentLiterals | Where-Object {
         $_.Extent.StartOffset -le $match.Index -and
         $_.Extent.EndOffset -ge ($match.Index + $match.Length)

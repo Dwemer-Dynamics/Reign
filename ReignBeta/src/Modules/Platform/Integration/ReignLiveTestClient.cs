@@ -20,9 +20,14 @@ namespace ReignBeta.Integration
         private static int _cachedLivePartyTargetCount;
         private static int _cachedLiveEventCount;
 
-        public static Task<JObject> SubmitLiveTestHeartbeatAsync(string gameInstanceId, string activeRunId, string activeMode, bool busy)
+        public static async Task<JObject> SubmitLiveTestHeartbeatAsync(string gameInstanceId, string activeRunId, string activeMode, bool busy)
         {
-            return PostJsonAsync("/tests/live/game/heartbeat", BuildLiveTestHeartbeat(gameInstanceId, activeRunId, activeMode, busy));
+            long performanceGeneration = ReignLog.CapturePerformanceGeneration(TaleWorlds.CampaignSystem.Campaign.Current);
+            JObject heartbeat;
+            using (ReignLog.MeasureWork("diagnostics.heartbeat", 0f))
+                heartbeat = BuildLiveTestHeartbeat(gameInstanceId, activeRunId, activeMode, busy);
+            heartbeat["performance"] = await ReignLog.PerformanceSnapshotAsync(performanceGeneration).ConfigureAwait(false);
+            return await PostJsonAsync("/tests/live/game/heartbeat", heartbeat).ConfigureAwait(false);
         }
 
         public static Task<JObject> PollLiveTestCommandAsync(string gameInstanceId)
@@ -70,15 +75,32 @@ namespace ReignBeta.Integration
             });
         }
 
+        private static T HeartbeatSection<T>(JObject sections, string name, Func<T> build)
+        {
+            var timer = Stopwatch.StartNew();
+            int g0 = GC.CollectionCount(0), g1 = GC.CollectionCount(1), g2 = GC.CollectionCount(2);
+            try { return build(); }
+            finally
+            {
+                sections[name] = new JObject { ["durationMs"] = timer.Elapsed.TotalMilliseconds,
+                    ["gen0Collections"] = GC.CollectionCount(0) - g0, ["gen1Collections"] = GC.CollectionCount(1) - g1,
+                    ["gen2Collections"] = GC.CollectionCount(2) - g2, ["mainThread"] = ReignMainThread.IsMainThread };
+            }
+        }
+
         private static JObject BuildLiveTestHeartbeat(string gameInstanceId, string activeRunId, string activeMode, bool busy)
         {
+            var sections = new JObject();
             Settlement settlement = Settlement.CurrentSettlement ?? MobileParty.MainParty?.CurrentSettlement;
             ReignSocialEventsCampaignBehavior events = ReignSocialEventsCampaignBehavior.Instance;
             DateTime now = DateTime.UtcNow;
             if (now >= _nextLiveTargetCountRefreshUtc)
             {
-                _cachedLivePartyTargetCount = ReignPartyChatSession.GetAvailableConversationHeroes().Count;
-                _cachedLiveEventCount = events?.GetLiveTestEventRecords().Count ?? 0;
+                HeartbeatSection(sections, "capabilityHints", () => {
+                    _cachedLivePartyTargetCount = ReignPartyChatSession.GetAvailableConversationHeroes().Count;
+                    _cachedLiveEventCount = events?.GetLiveTestEventRecords().Count ?? 0;
+                    return 0;
+                });
                 _nextLiveTargetCountRefreshUtc = now.AddSeconds(30);
             }
             Process process = Process.GetCurrentProcess();
@@ -133,20 +155,21 @@ namespace ReignBeta.Integration
                     ["alignmentPending"] = ReignSaveSyncCoordinator.IsAlignmentPending,
                     ["ready"] = ReignSaveSyncCoordinator.IsReadyForCampaign(GetCampaignId()),
                     ["timelineId"] = ReignWorldHistoryCampaignBehavior.Instance?.TimelineId ?? "main",
-                    ["saveFinalization"] = ReignSaveSyncCoordinator.SaveFinalizationSnapshot()
+                    ["saveFinalization"] = HeartbeatSection(sections, "saveFinalization", () => ReignSaveSyncCoordinator.SaveFinalizationSnapshot())
                 },
                 ["diplomacy"] = BuildDiplomacyDiagnostics(),
-                ["government"] = ReignBeta.Government.ReignGovernmentCampaignBehavior.Instance?.PoliticalRuntimeStatus() ?? new JObject(),
-                ["rulers"] = ReignRulerCampaignBehavior.Instance?.RuntimeStatus() ?? new JObject(),
+                ["government"] = HeartbeatSection(sections, "government", () => ReignBeta.Government.ReignGovernmentCampaignBehavior.Instance?.PoliticalRuntimeStatus() ?? new JObject()),
+                ["rulers"] = HeartbeatSection(sections, "rulers", () => ReignRulerCampaignBehavior.Instance?.RuntimeStatus() ?? new JObject()),
                 ["clanAccords"] = new JObject
                 {
                     ["schema"] = "reign-clan-accords-runtime-v1",
                     ["available"] = ReignBeta.ClanAccords.ReignClanAccordsCampaignBehavior.Instance != null,
                     ["pending"] = ReignBeta.ClanAccords.ReignClanAccordsCampaignBehavior.Instance?.HasPendingWork == true,
-                    ["snapshot"] = ReignBeta.ClanAccords.ReignClanAccordsCampaignBehavior.Instance?.Snapshot() ?? new JObject()
+                    ["snapshot"] = HeartbeatSection(sections, "clanAccords", () => ReignBeta.ClanAccords.ReignClanAccordsCampaignBehavior.Instance?.Snapshot() ?? new JObject())
                 },
-                ["encounteredResidents"] = ReignEncounteredResidentsCampaignBehavior.Instance?.RuntimeSnapshot() ?? new JObject(),
-                ["wandererPopulation"] = ReignWandererPopulationCampaignBehavior.Instance?.RuntimeSnapshot() ?? new JObject(),
+                ["encounteredResidents"] = HeartbeatSection(sections, "residents", () => ReignEncounteredResidentsCampaignBehavior.Instance?.RuntimeSnapshot() ?? new JObject()),
+                ["wandererPopulation"] = HeartbeatSection(sections, "wanderers", () => ReignWandererPopulationCampaignBehavior.Instance?.RuntimeSnapshot() ?? new JObject()),
+                ["tavernHousePopulation"] = ReignTavernHouseCampaignBehavior.Instance?.RuntimeStatus() ?? new JObject(),
                 ["courtLife"] = new JObject
                 {
                     ["schema"] = "reign-court-life-runtime-v1",
@@ -155,23 +178,27 @@ namespace ReignBeta.Integration
                     ["familyAttentionPending"] = ReignBeta.Court.ReignCourtCampaignBehavior.Instance?.HasPendingFamilyVisitWork == true,
                     ["familyVisitOutbox"] = ReignBeta.Court.ReignCourtCampaignBehavior.Instance?.RulerDocketState.FamilyVisitOutbox?.Count ?? 0
                 },
-                ["relationshipClient"] = BuildRelationshipOutboxDiagnostics(),
-                ["personalGossip"] = PersonalGossipRuntimeStatus(),
+                ["courtUi"] = HeartbeatSection(sections, "courtUi", () => JObject.FromObject(ReignBeta.UI.ReignCourtScreenManager.AutomationLayoutSnapshot)),
+                ["relationshipClient"] = HeartbeatSection(sections, "relationships", () => BuildRelationshipOutboxDiagnostics()),
+                ["personalGossip"] = HeartbeatSection(sections, "gossip", () => PersonalGossipRuntimeStatus()),
                 ["worldHistory"] = new JObject
                 {
                     ["pendingCount"] = ReignWorldHistoryTransport.PendingCount(),
                     ["uploadInFlight"] = ReignWorldHistoryTransport.UploadInFlight,
                     ["sequence"] =
                         ReignWorldHistoryCampaignBehavior.Instance?.Sequence ?? 0L,
-                    ["upload"] = ReignWorldHistoryTransport.UploadDiagnostics()
+                    ["upload"] = HeartbeatSection(sections, "worldHistory", () => ReignWorldHistoryTransport.UploadDiagnostics())
                 },
-                ["nativeSave"] = BuildNativeSaveDiagnostics(),
+                ["nativeSave"] = HeartbeatSection(sections, "nativeSave", () => BuildNativeSaveDiagnostics()),
                 ["mainThreadDispatch"] = new JObject
                 {
                     ["pendingCount"] = ReignMainThread.PendingCount,
                     ["executedCount"] = ReignMainThread.ExecutedCount,
                     ["lastDrainUtc"] = UtcText(ReignMainThread.LastDrainUtc),
-                    ["lastExecutedUtc"] = UtcText(ReignMainThread.LastExecutedUtc)
+                    ["lastExecutedUtc"] = UtcText(ReignMainThread.LastExecutedUtc),
+                    ["slowItemCount"] = ReignMainThread.SlowItemCount,
+                    ["lastSlowItemDurationMs"] = ReignMainThread.LastSlowItemDurationMs,
+                    ["lastSlowItemSource"] = ReignMainThread.LastSlowItemSource
                 },
                 ["processMemory"] = new JObject
                 {
@@ -186,7 +213,7 @@ namespace ReignBeta.Integration
                 ["httpTransport"] = HttpTransportDiagnostics(),
                 ["characterInitialization"] = new JObject
                 {
-                    ["startingChildren"] = ReignStartingChildrenCampaignBehavior.Instance?.Snapshot() ?? new JObject(),
+                    ["startingChildren"] = HeartbeatSection(sections, "startingChildren", () => ReignStartingChildrenCampaignBehavior.Instance?.Snapshot() ?? new JObject()),
                     ["notableBackgroundReady"] =
                         ReignCharacterEditorCampaignBehavior.Instance?.NotableBackgroundInitializationComplete == true,
                     ["notableBackgroundInFlight"] =
@@ -206,6 +233,7 @@ namespace ReignBeta.Integration
                 ["eventCount"] = _cachedLiveEventCount,
                 ["capabilities"] = new JArray(
                     ReignLiveInteractionTestHost.GetSupportedModes()),
+                ["diagnosticSections"] = sections,
                 ["headlessSupported"] = true,
                 ["visibleSupported"] = true
             };

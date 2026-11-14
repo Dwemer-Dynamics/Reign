@@ -7,6 +7,45 @@ namespace Reign.Mcp.Tests;
 public sealed class GovernmentParticipationContractTests
 {
     [Fact]
+    public void PoliticalProfileValidationPreservesTheCompleteModelWithoutPerScanAllocation()
+    {
+        Assert.Equal(Enumerable.Range(0, 16), Enum.GetValues<ReignGovernmentPlank>().Select(x => (int)x));
+        Assert.Equal(typeof(int), Enum.GetUnderlyingType(typeof(ReignGovernmentPlank)));
+        var profile = new GovernmentPoliticalProfile { CampaignId = "campaign", HeroId = "hero", Revision = 1, ModelVersion = GovernmentPoliticalBeliefs.ModelVersion,
+            Values = Enum.GetValues<ReignGovernmentPlank>().Reverse().Select(x => new GovernmentPoliticalValue {
+                Value = x, Stance = (int)x % 2 == 0 ? -100 : 100, Importance = (int)x % 2 == 0 ? 1 : 100 }).ToList() };
+        Assert.True(GovernmentPoliticalBeliefs.Valid(profile));
+        // Warm the same fixed kernel before measuring; keep test assertions and
+        // tier-zero/OSR compilation outside the measured caller.
+        MeasurePoliticalValidationAllocations(profile);
+        MeasurePoliticalValidationAllocations(profile);
+        Assert.Equal(0, MeasurePoliticalValidationAllocations(profile));
+        var first = profile.Values[0];
+        ReignGovernmentPlank original = first.Value;
+        foreach (int invalid in new[] { -1, 16, 32, int.MinValue, int.MaxValue, (int)profile.Values[1].Value })
+        { first.Value = (ReignGovernmentPlank)invalid; Assert.False(GovernmentPoliticalBeliefs.Valid(profile)); }
+        first.Value = original;
+        foreach (int invalid in new[] { -101, 101 }) { first.Stance = invalid; Assert.False(GovernmentPoliticalBeliefs.Valid(profile)); }
+        first.Stance = 0;
+        foreach (int invalid in new[] { 0, 101 }) { first.Importance = invalid; Assert.False(GovernmentPoliticalBeliefs.Valid(profile)); }
+        first.Importance = 50;
+        profile.Values[0] = null!;
+        Assert.False(GovernmentPoliticalBeliefs.Valid(profile));
+        profile.Values[0] = first;
+        Assert.True(GovernmentPoliticalBeliefs.Valid(profile));
+        profile.Revision = 0; Assert.False(GovernmentPoliticalBeliefs.Valid(profile));
+        profile.Revision = 1; profile.ModelVersion++; Assert.False(GovernmentPoliticalBeliefs.Valid(profile));
+        profile.ModelVersion = GovernmentPoliticalBeliefs.ModelVersion;
+        profile.Values.RemoveAt(0); Assert.False(GovernmentPoliticalBeliefs.Valid(profile));
+        profile.Values.Insert(0, first); profile.Values.Add(first); Assert.False(GovernmentPoliticalBeliefs.Valid(profile));
+        profile.Values.RemoveAt(16);
+        profile.HeroId = " "; Assert.False(GovernmentPoliticalBeliefs.Valid(profile));
+        profile.HeroId = "hero"; profile.CampaignId = ""; Assert.False(GovernmentPoliticalBeliefs.Valid(profile));
+        profile.CampaignId = "campaign"; profile.Changes = null!; Assert.False(GovernmentPoliticalBeliefs.Valid(profile));
+        profile.Changes = new(); profile.SeenEvidence = null!; Assert.False(GovernmentPoliticalBeliefs.Valid(profile));
+    }
+
+    [Fact]
     public void PlayerFlowFixturesAreDocumentedGuardedProductionPreparationWithoutVotesOrProviders()
     {
         string root = TestOptions.FindWorkspace();
@@ -161,10 +200,22 @@ public sealed class GovernmentParticipationContractTests
         string refresh = source[source.IndexOf("private async Task CompletePoliticalProfileSync", StringComparison.Ordinal)..
             source.IndexOf("private int PersonalBusinessAlignment", StringComparison.Ordinal)];
         Assert.DoesNotContain("Profiles.RemoveAll", refresh);
-        Assert.Contains("!JToken.DeepEquals(JObject.FromObject(current), JObject.FromObject(profile))", refresh);
+        Assert.Contains("GovernmentPoliticalBatchPreparation.Prepare(payload, response)", refresh);
+        Assert.Contains("else if (item.ChangedFromSent)", refresh);
+        Assert.DoesNotContain("JToken.DeepEquals", refresh);
+        Assert.DoesNotContain("ToObject<GovernmentPoliticalProfile>", refresh);
         Assert.Contains("Profiles[_participation.Profiles.IndexOf(current)] = profile", refresh);
         Assert.Contains("if (politicalStateChanged)", refresh);
         Assert.Contains("_politicalLastSync[profile.HeroId] = DateTime.UtcNow", refresh);
+    }
+
+    [System.Runtime.CompilerServices.MethodImpl(System.Runtime.CompilerServices.MethodImplOptions.NoInlining
+        | System.Runtime.CompilerServices.MethodImplOptions.AggressiveOptimization)]
+    private static long MeasurePoliticalValidationAllocations(GovernmentPoliticalProfile profile)
+    {
+        long before = GC.GetAllocatedBytesForCurrentThread();
+        for (int i = 0; i < 100000; i++) GovernmentPoliticalBeliefs.Valid(profile);
+        return GC.GetAllocatedBytesForCurrentThread() - before;
     }
 
     [Fact]

@@ -52,3 +52,8 @@ In the paired layout, the private `Reign` checkout is the MCP workspace and the 
 ## Linux-only server
 
 ReignServer targets net10.0/linux-x64. On Windows the canonical runner executes its DLL in the selected WSL distro as dwemer with ReignValidation and run-owned data. Set REIGN_WSL_DISTRO only to select a different local distro. Windows client and portrait renderer artifacts are built separately; the helper is under client/out/native-portrait-generator. Linux publishing explicitly excludes private verification source. The legacy Windows server installer and vector-worker packaging commands are retired.
+# Deployment source binding
+
+Successful product/all reports include `DeploymentArtifactHashes` for client and MCP verifier output; Linux reports pin `ArtifactManifestSha256`. Source fingerprints include PowerShell modules (`.psm1`). Reuse verifies recorded artifact hashes; deployment additionally requires the reviewed machine source checkpoint. Use `reign_check_deployment_source` or its qualified read-only CLI to compare original canonical reports with current source through the same fingerprint implementation. Foreign/copied reports, stale source and altered output fail closed.
+
+The primary hook allows only the primary paired deployment entry point. It does not exempt retained worktree scripts. Reading a deployment path through bounded read commands or `git diff` is allowed without exempting another chained invocation. See [the checkpoint procedure](testing/UI_AND_DEPLOYMENT.md#reviewed-deployment-source). Hook/validator changes require all/Tier4 qualification; deployment still uses the exact validated artifacts and requires existing user authorization.

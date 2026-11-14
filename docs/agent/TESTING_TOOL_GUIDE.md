@@ -1,5 +1,7 @@
 # Reign Testing Tool Guide
 
+War-economy/funding/replacement: [procedure](testing/WAR_ECONOMY.md).
+
 Select a proof layer and read its procedure. `reign.testing.json` owns capability names, gates, evidence schemas and this document index. Query `reign_get_testing_catalog` with a relevant filter when the route is uncertain.
 
 For current-turn source speaker normalization, use `dialogueMemoryAccuracy.sourceSpeakerAliases` and the [dialogue procedure](testing/DIALOGUE_AND_PROVIDERS.md). The `prompt_efficiency` suite checks event-scoped current aliases, canonical stored ownership and next-read continuity; passing citation checks does not establish semantic accuracy.
@@ -33,6 +35,7 @@ Pass the current Codex task UUID as `requestingTaskId` to `reign_validate`. Busy
 - [Dialogue and provider testing](testing/DIALOGUE_AND_PROVIDERS.md)
 - [Interface proof and deployment](testing/UI_AND_DEPLOYMENT.md)
 - [Feature harness procedures](testing/FEATURE_HARNESSES.md)
+- [War economy, recruitment and recovery](testing/WAR_ECONOMY.md)
 - [Personal gossip launch proof](testing/PERSONAL_GOSSIP_LAUNCH_PLAN_2026-10-04.md)
 - [Recovery and continuity](testing/RECOVERY.md)
 - [Launch packaging and clean-install proof](testing/RELEASE_PACKAGING.md)
@@ -154,3 +157,4 @@ Shadow is the default and makes no additional helper/provider calls. A helper ca
 Memory replay transport evidence: [initial provider JSON capture](testing/DIALOGUE_AND_PROVIDERS.md#initial-provider-json-capture-2026-09-29) records shared-builder NanoGPT JSON/hash and bounded fixture generation settings. Live and replay generation share dialogue/event request defaults, including dialogue's 0.5 temperature cap and production output budget; party chat uses the event participation contract. Explicit quiet is distinguished from malformed empty speech, with quiet publication/next-read coverage excluded. Disabled checking sends explicit reasoning `none`. Reader packing protects current speech citations and retains independently valid findings after rejecting invented aliases. Use these contracts to distinguish production settings from private prompt/reasoning variants; capture does not dispatch HTTP, reproduce live queue/retry state or authorize provider spend.
 
 `reign_test_structured_actions`: [procedure](testing/FEATURE_HARNESSES.md#guarded-structured-action-tests).
+`reign_check_deployment_source`: [procedure](testing/UI_AND_DEPLOYMENT.md#reviewed-deployment-source).

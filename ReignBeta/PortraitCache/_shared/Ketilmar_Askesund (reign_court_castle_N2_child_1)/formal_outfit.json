@@ -1,0 +1,13 @@
+{
+  "version": 1,
+  "heroStringId": "reign_court_castle_N2_child_1",
+  "characterName": "Ketilmar Askesund",
+  "imagePath": "portrait.png",
+  "imageSha256": "F7057D98665792FA87A0A7A37F559EA55001C73A1E4BB66DDBEF055A956D17B5",
+  "description": "A dark grey-brown knee-length wool tunic with red-and-cream geometric woven edging at the short split collar, cuffs and hem, over a cream linen shirt at the neck and wrists. A plain brown leather belt, brown trousers, dark grey wrapped lower legs and ordinary brown leather ankle shoes. No headgear, armor or weapons.",
+  "status": "completed",
+  "descriptionSource": "agent_vision",
+  "retryEligible": false,
+  "error": "",
+  "updatedUtc": "2026-11-07T03:15:05.152409+00:00"
+}

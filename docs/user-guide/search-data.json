@@ -1,0 +1,2133 @@
+[
+  {
+    "id": "what-you-need-before-playing",
+    "title": "What you need before playing",
+    "chapter": "Requirements and resource use",
+    "chapterId": "requirements-and-resource-use",
+    "text": "Reign is a Windows PC single-player mod with a local companion server. You need a licensed Bannerlord installation compatible with your Reign package, its required native modules and installed dependencies, and the launcher's dedicated ReignServer WSL environment. Use a current supported 64-bit Windows installation with WSL 2 and virtualization available. Check the package's supported game version before updating Bannerlord; this guide is not a promise of compatibility with every future release or other mod. A cloud LLM provider is required for Reign's AI dialogue and generated character responses. Configure a supported provider/account and its credentials in the Control Center, with internet access and sufficient provider allowance or credit. The local Reign server manages the game connection, data, memory, and requests; it is not a replacement for the cloud language model. Some background rules run locally, but that does not make the full AI experience offline. A cloud image provider is also required if you enable optional AI-generated portraits or scene images. It is configured separately from dialogue. Working chat does not prove image generation is configured. Existing bundled or cached images can display without generating a new one; new image requests need the selected image route to be available. You can play with optional image generation disabled. Provider charges and subscription limits belong to the selected service. More conversations, longer exchanges, events, and new images can use more allowance. Never put an API key into NPC chat; save credentials only in the provider settings intended for them. Diagram — Your PC runs Bannerlord, the Reign server, and memory services; dialogue and optional new images use separately configured cloud providers.",
+    "aliases": [
+      "cloud provider",
+      "LLM provider",
+      "image provider",
+      "API key",
+      "internet",
+      "Windows",
+      "WSL",
+      "dependencies",
+      "ButterLib",
+      "system requirements",
+      "offline AI"
+    ],
+    "preview": false
+  },
+  {
+    "id": "ram-plan-for-the-game-and-the-server-together",
+    "title": "RAM: plan for the game and the server together",
+    "chapter": "Requirements and resource use",
+    "chapterId": "requirements-and-resource-use",
+    "text": "Reign does not have a verified RAM minimum or typical-use range yet. Use the published base-game requirements below as base-game figures, leave room for the local Reign services, and assess memory pressure during your actual session. A single development session's allocated memory cannot establish a hardware requirement. Component What we can currently say Base Bannerlord, published requirement The Steam listing gives 6 GB minimum and 8 GB recommended for the base game. These are system requirements, not measured process usage. Reign alongside the game The local server, database and memory worker need additional resources. Their ordinary and peak usage has not been measured well enough to publish a reliable extra-RAM figure. Your actual session Campaign age, battle size, settings, other mods and background applications affect memory use. Judge the complete session, including Reign's local services, rather than one process in isolation. We will add a typical-use range only after representative measurements during ordinary play, loading, saving and battles. Until then, the base game's figures are identified as base-game figures, and there is no separately certified Reign RAM requirement in this guide. If you check Task Manager, remember that committed memory is not the same as RAM currently resident in use. Do not count the Windows WSL process and Linux's own memory as two separate copies. If play stutters, inspect actual memory pressure and paging as well as CPU and graphics load.",
+    "aliases": [
+      "RAM",
+      "memory usage",
+      "16 GB",
+      "32 GB",
+      "computer requirements",
+      "paging",
+      "stuttering",
+      "typical usage"
+    ],
+    "preview": false
+  },
+  {
+    "id": "processor-graphics-storage-and-connection",
+    "title": "Processor, graphics, storage, and connection",
+    "chapter": "Requirements and resource use",
+    "chapterId": "requirements-and-resource-use",
+    "text": "Requirement Practical guidance CPU Start with hardware that comfortably runs your intended Bannerlord battles. The published recommended base-game CPUs are Core i5-9600K or Ryzen 5 3600X. Reign adds local simulation and services; no separate Reign minimum CPU has been benchmark-certified. GPU and VRAM Meet the game/DLC requirements for your chosen settings. The base-game listing recommends GTX 1060 3 GB or Radeon RX 580. Cloud AI generation does not require you to load a large language or image model onto your own GPU, but the game and native portrait rendering still use it. Game storage Steam lists 60 GB available for base Bannerlord. DLC and other mods can add to this. Reign storage Keep additional SSD space for the module, shipped portraits, dedicated server environment, database, generated images, saves, backups, and updates. Their size grows with use; a fixed small download size is not the full installed budget. Update and backup headroom Keep several tens of gigabytes free beyond the installed game as a planning allowance, then monitor actual growth. This is headroom advice, not a measured Reign install-size requirement. A full drive can interrupt saving, database work, or updates. Internet Required while cloud dialogue or new cloud images are requested. Cloud latency, service outages, and provider limits affect response time even on a fast PC. Local services Keep the launcher-managed server, database, and memory worker healthy. WSL must have enough memory available; giving all system RAM to the game leaves no room for Reign's services. Base-game figures were checked against the official Steam system requirements on November 6, 2026. They do not include Reign or replace the requirements of any DLC you use. Reign-specific RAM measurements remain a follow-up; no new hardware requirement is inferred from a single development snapshot.",
+    "aliases": [
+      "CPU",
+      "GPU",
+      "VRAM",
+      "SSD",
+      "disk space",
+      "graphics card",
+      "free space",
+      "storage requirements"
+    ],
+    "preview": false
+  },
+  {
+    "id": "how-to-use-this-guide",
+    "title": "How to use this guide",
+    "chapter": "Start here",
+    "chapterId": "start-here",
+    "text": "New to Reign? Read Your first session , then Your first conversation . After that, follow whatever interests you: ordinary adventuring, relationships, running a household, or ruling a kingdom. You do not need a crown to enjoy most social features. Use the contents to browse, the A–Z index to find a topic, or search in your own words: wife , have a baby , NPC won't leave , troops expensive , letters , save warning , or become senator . Search includes the whole manual, not just headings. Clear search to return to your place. Your browser's Find command also works. This guide describes effects rather than balance formulas. Where the game asks you to choose an amount, duration, price, or setting, read the current terms on screen. An example sentence is a suggestion for what to ask, never a guaranteed answer or a cheat code. Pictures marked In-game screenshot are actual captures supplied by a player. Click a picture to open it at full size. Pictures marked Layout example are temporary Reign design references with illustrative people, text, and values. Pictures marked Diagram explain a process. Text instructions describe current source behavior where an older reference differs. Edition note: This is a guide to the reviewed development checkout, including implemented previews. A Preview notice means native or final release acceptance remains open, or the installed edition may differ. It does not mean every part is broken. See What is still being verified for the main areas. This guide itself does not certify the mod's gameplay.",
+    "aliases": [
+      "manual",
+      "search",
+      "pictures",
+      "guide index"
+    ],
+    "preview": false
+  },
+  {
+    "id": "what-reign-changes",
+    "title": "What Reign changes",
+    "chapter": "Start here",
+    "chapterId": "start-here",
+    "text": "Reign adds a remembered social and political world to Bannerlord. NPCs have personalities, interests, relationships, private concerns, and different knowledge. Conversations can lead to genuine agreements and game actions. Letters travel, stories continue, families develop, councils deliberate, and rulers face consequences. It also changes things outside chat: the calendar is longer, exact NPC relationship scores are hidden, recruitment draws on village population, advanced troops are more expensive, raids leave lasting damage, garrisons and field armies have different burdens, and important world events reach you as news. Arena Overhaul is bundled into the Reign module. You still play Bannerlord. A description of a gift does not create an item, a boast does not win a battle, and council advice does not automatically issue an order. Real effects depend on the actual people, resources, authority, and game situation.",
+    "aliases": [
+      "base game changes",
+      "native differences",
+      "what does Reign do"
+    ],
+    "preview": false
+  },
+  {
+    "id": "your-first-session",
+    "title": "Your first session",
+    "chapter": "Start here",
+    "chapterId": "start-here",
+    "text": "Use the installed Reign launcher and its managed server controls. Start the local server and open the Control Center. Check its health before loading a campaign. In the Bannerlord launcher, enable ReignBeta and the required installed dependencies: Harmony, ButterLib, UIExtenderEx, and Mod Configuration Menu, alongside the required native modules. Use the dependency ordering shown by your installed package. Arena Overhaul belongs to Reign's module; avoid enabling a second standalone copy alongside it. In the Control Center, confirm your selected dialogue provider is configured. Configure image generation separately if you want it. A local server does not by itself make cloud AI requests free or offline. Load your campaign. Let Reign finish its preparation screen. If a stage fails, use Retry ; the preparation records completed work. Approach an available adult NPC and have a short conversation. Press backslash (\\) or use MCM → Utilities → Open Party Chat if you want a group conversation. Ctrl+M opens Correspondence from a suitable campaign-map screen. Save with the server running. Pay attention to any Save Sync warning. Keep a matching campaign backup and native save before major changes. The current launcher-facing local address is http://127.0.0.1:8089 . Keep the URL selected by your installation; older instructions referring to a standalone Windows server or a different port may be out of date. The server now runs in its dedicated ReignServer WSL environment, managed by the launcher. Ordinary players do not need to run development commands. The preparation process connects the native save with Reign's matching history, prepares characters and households, and restores ongoing systems. New campaigns have an opening grace period before the autonomous world becomes busy. An initially quiet world does not mean the mod has failed.",
+    "aliases": [
+      "install",
+      "setup",
+      "launcher",
+      "local server",
+      "first load",
+      "preparation",
+      "Retry",
+      "8089",
+      "start playing"
+    ],
+    "preview": false
+  },
+  {
+    "id": "the-controls-worth-knowing-first",
+    "title": "The controls worth knowing first",
+    "chapter": "Start here",
+    "chapterId": "start-here",
+    "text": "You want to… Start here Talk to one person Their Reign conversation/Approach option Talk to your group Party Chat; backslash (\\) Write or read letters Correspondence; Ctrl+M Build an explicit conversation action Alt+A in a supported, ready Reign conversation Send a ready chat message or letter Enter or Numpad Enter in individual chat, Party Chat, or Correspondence Advance or accept a ready builder step Enter inside the action builder Cancel the action builder Escape ; this returns to the conversation Find settings inside Bannerlord Mod Configuration Menu, usually called MCM Change AI providers or back up Reign data The launcher-opened Control Center Meet known local residents Visit the homes in a settlement menu Explore a household Explore the keep → Castle Layout Rule your realm Designate a capital, then Enter Rule Mode Review illustrated memories Memory Book in the quest interface These are the bindings in the reviewed source; the guide does not assume that an in-game rebinding control exists. If a key conflicts with another mod or your keyboard layout, the MCM Party Chat and Correspondence utility buttons provide alternatives. For Reign popups, Enter or Numpad Enter accepts an enabled affirmative choice and Escape normally cancels or acknowledges. Read the choice before pressing it, especially for arrests, payments, and lethal decisions. A key can operate the current popup rather than the screen underneath it.",
+    "aliases": [
+      "hotkeys",
+      "keyboard",
+      "backslash",
+      "Ctrl+M",
+      "Enter",
+      "Escape",
+      "shortcuts",
+      "Numpad Enter",
+      "Ctrl+C",
+      "Ctrl+V"
+    ],
+    "preview": false
+  },
+  {
+    "id": "approach-speak-and-listen",
+    "title": "Approach, speak, and listen",
+    "chapter": "Your first conversation",
+    "chapterId": "your-first-conversation",
+    "text": "Open an eligible person's Reign conversation. With NPC Lives enabled, Approach can begin with what they are doing and how receptive they are. Speak naturally and be specific. “Could you tell me about your work?” is a useful first question. You can ask about their interests, recent events they might know, your relationship, or a practical request. Use Enter or Numpad Enter to send a ready message. Alt+A opens the action builder when this conversation has an eligible participant and is not busy. Escape first backs out of a supported open image or outfit layer, or closes the conversation when no protected decision is in the way. A pregnancy choice has its own controls; do not assume Escape answers it. NPCs can refuse, negotiate, misunderstand, conceal something, or ask for clarification. Their rank, duties, personality, relationship with you, and the people present matter. An adult civilian and a reigning monarch do not have the same authority. Reopening a recent conversation can restore it silently instead of producing another greeting. An unfinished reply may still be running; reopening is not a reason to send the same request again. If you see a clear failure with a retry control, use that control and inspect the result. In-game screenshot — Individual Chat with Istiona the Thorn: portraits identify the speakers, the transcript shows their exchange, and the writing area and Send control are below. Look for the writing area, the person you are addressing, and any action or pending-agreement controls. The current screen also has Look at them and View features described under Pictures and appearance.",
+    "aliases": [
+      "Approach",
+      "talk",
+      "conversation",
+      "greeting",
+      "silent resume",
+      "NPC response"
+    ],
+    "preview": false
+  },
+  {
+    "id": "asking-for-a-real-action",
+    "title": "Asking for a real action",
+    "chapter": "Your first conversation",
+    "chapterId": "your-first-conversation",
+    "text": "For an explicit mechanical request, press Alt+A in a supported, ready Reign conversation to open the action selector. Its builder starts with I would like you… for the other person to act or I wish to… for your own offer. Choose the person, action, target, and requested terms. Review the resulting sentence before sending it with your speech. Inside the builder, Enter advances a text-entry step or accepts the completed action when its accept control is ready. Escape cancels the builder and returns to chat. Inserting the sentence does not send it: use the chat's Send button, Enter , or Numpad Enter after reviewing the full message. Alt+A is unavailable while the conversation is busy or has no eligible action participant. The available choices depend on the person and situation. You may see Give… , Go to… , Support… , Government decisions… , Court and intelligence… , Party and military orders… , Diplomacy… , Clan and kingdom… , or Personal requests… . Search inside the builder if you know what you want. The attached action sentence is kept as one meaningful unit. Editing the surrounding speech is different from changing the action's terms. If you change the agreement, review the new version and obtain fresh acceptance. A counteroffer is a new set of terms, not acceptance of the earlier offer. In the focused message editor, Ctrl+A selects all, Ctrl+C copies, Ctrl+X cuts, and Ctrl+V pastes. Backspace/Delete remove selected text; their Ctrl variants delete by word. An attached action keeps its protected boundaries. Copying ordinary sentence text does not supply fresh agreement—use Alt+A to build the actual action again where needed. Try this: offer a small, affordable gift to a willing person using I wish to… → Give… . Name the actual item or gold amount. Check your inventory or money afterward. This teaches the difference between discussing a gift and completing one. Diagram — A real agreement passes from a clear proposal to acceptance, game checks, and an observed result.",
+    "aliases": [
+      "action builder",
+      "action selector",
+      "action composer",
+      "give a gift",
+      "I wish to",
+      "I would like you",
+      "structured action",
+      "Alt+A",
+      "action hotkey"
+    ],
+    "preview": false
+  },
+  {
+    "id": "agreement-is-the-beginning-not-the-result",
+    "title": "Agreement is the beginning, not the result",
+    "chapter": "Your first conversation",
+    "chapterId": "your-first-conversation",
+    "text": "After a request, distinguish three things: what you asked, what the NPC accepted, and what actually happened. A journey can be accepted but still take time. A transfer can be blocked by ownership, missing funds, distance, captivity, a changed target, or another active duty. An unsupported request cannot become real merely because the reply sounds enthusiastic. Check the action status and the native result: did the gold move, did the item change hands, did the party leave, did the treaty appear? A failure message is useful information. Correct the stated problem before trying again; repeatedly asking does not grant authority or multiply resources. Ordinary roleplay can still matter to relationships and memories. Treating someone kindly, insulting them, making a serious promise, or betraying trust can have social consequences even when no inventory transfer occurs.",
+    "aliases": [
+      "NPC agreed but nothing happened",
+      "action failed",
+      "nothing happens",
+      "receipt",
+      "native validation",
+      "refusal",
+      "consent"
+    ],
+    "preview": false
+  },
+  {
+    "id": "terms-conditions-and-ongoing-agreements",
+    "title": "Terms, conditions, and ongoing agreements",
+    "chapter": "Your first conversation",
+    "chapterId": "your-first-conversation",
+    "text": "The action builder ( Alt+A ) can describe supported future timing, conditions, repeated payments, and exchanges with more than one term. Read who acts first, what triggers the next step, and what is still owed. “Give me this now and I will pay later” is different from an immediate exchange. Only the agreed revision binds the participants. Countering an amount, recipient, location, or date needs fresh acceptance. A pending, waiting, failed, cancelled, or recovery-required agreement is not completed work. Use its supported revise or cancel route and inspect any terms already fulfilled; cancellation does not imply that history or a real transfer is undone. Do not assume every conceivable condition is supported. The builder's actual choices and validation determine what the installed edition can do.",
+    "aliases": [
+      "instalments",
+      "installments",
+      "conditions",
+      "cancel agreement",
+      "counteroffer",
+      "payment plan",
+      "ongoing agreement",
+      "revise terms"
+    ],
+    "preview": false
+  },
+  {
+    "id": "what-you-can-ask-people-to-do",
+    "title": "What you can ask people to do",
+    "chapter": "Your first conversation",
+    "chapterId": "your-first-conversation",
+    "text": "Supported action families include giving or trading gold, possessions, equipped gear, troops, prisoners, workshops, land, and ships where applicable; following, guiding, traveling, waiting, and patrolling; party and army orders; mercenary service, clan or kingdom membership; court and intelligence work; diplomacy; political support; meetings; and personal experiences. Each has its own restrictions. Someone cannot give away another person's workshop, command an army they do not lead, or promise a government's vote on everyone else's behalf. A ruler's request and a peer's request are different. Ask the actual decision-maker and keep the purpose and terms clear. If a guide agrees to Show the way , follow them in the scene. Their agreement does not teleport you to the destination. If you leave them behind, the task can remain waiting or require recovery. Open the Action sentence system chapter for the full action list, timing, and when each choice appears.",
+    "aliases": [
+      "trade",
+      "gifts",
+      "transfer item",
+      "transfer workshop",
+      "transfer land",
+      "transfer ship",
+      "mercenary",
+      "vassalage",
+      "follow me",
+      "show the way",
+      "guide me"
+    ],
+    "preview": false
+  },
+  {
+    "id": "build-and-send-an-action-sentence",
+    "title": "Build and send an action sentence",
+    "chapter": "Action sentence system",
+    "chapterId": "action-sentence-system",
+    "text": "Open a supported Reign conversation with an eligible adult and press Alt+A once it is ready. Individual Chat, Party Chat, Correspondence, social events, the tavern house, supported court audiences, Royal Council, and a selected War Council messenger can host the builder. Select the actual participant. In Correspondence, Ctrl+M opens the inbox from the campaign map. Choose I would like you… to ask the other person to act, or I wish to… to offer or declare an action of your own. Choose the action, then fill in the people, destination, quantity, or other terms. Use the builder's search for a named action or target. Review the sentence. Use Back to change a choice. Enter advances an entry or accepts a ready draft, and Escape closes the builder. Accept inserts the protected sentence in your message. Review any ordinary speech around it and then use the host's Send control. In Individual Chat, Party Chat, and Correspondence, Enter or Numpad Enter also sends a ready message. Read the answer and check the outcome. An offer may be refused or countered. A counteroffer changes the terms and needs fresh approval. Look for the actual transfer, arrival, report, or other effect. The lists below group actions by purpose. They include menu choices, offers that arrive through events, and follow-up controls. A choice can depend on the opening direction, eligible people and assets, current duties, location, authority, and feature settings. The chosen conversation may have further restrictions. Each row explains the situation and the choices or result. Some names in search may vary with the direction of the sentence. Use Review offer from… when an NPC has made an actionable offer. Inspect its exact terms before accepting or choosing Decline this offer . To counter, change the term in review and send the revised sentence. To stop a running order, use its cancellation route. The protected sentence is one attached action. Reopen it through Alt+A to edit the draft, or remove it as a unit. Plain copied text carries no attached terms. Once focus returns to chat, pressing Enter can send the message. If a choice is missing, check who acts, whom you addressed, whether they are free to act, and whether the feature and target are available. Some offers appear only when an event raises them. Try the exact action name in the builder's search.",
+    "aliases": [
+      "action sentence",
+      "action system",
+      "action builder hotkey",
+      "why is an action missing",
+      "counteroffer",
+      "alt+a"
+    ],
+    "preview": false
+  },
+  {
+    "id": "bargains-and-timing",
+    "title": "Bargains and timing",
+    "chapter": "Action sentence system",
+    "chapterId": "action-sentence-system",
+    "text": "A gift or request can end after one complete term. To negotiate an exchange, choose and I will give… or and you will give… in review. Add another action… combines compatible actions, and Edit a term or its timing… changes a selected term. A marriage proposal limits the consideration to the supported marriage assets. Where the term allows it, choose execution as soon as delivery and the bargain allow, after a number of days, on arrival at a settlement, on release of a prisoner, on ownership of a settlement, or on peace or war with a named realm. Installments repeat the displayed amount at the chosen interval. Read the total before agreeing. Payment can be made in advance or after verified fulfillment where the builder offers that choice. Remote terms can take time to deliver. Authority, stock, funds, and world state are checked before execution. Rebellion declarations and public pregnancy disclosures have their own immediate player declaration flow. For a negotiated action, check both consent and fulfillment.",
+    "aliases": [
+      "action payment timing",
+      "pay after success",
+      "installments",
+      "conditional agreement"
+    ],
+    "preview": false
+  },
+  {
+    "id": "gifts-and-exchanges",
+    "title": "Gifts and exchanges",
+    "chapter": "Action sentence system",
+    "chapterId": "action-sentence-system",
+    "text": "Open Give… or use a give option in bargain review. The person supplying the term must own or lawfully control the selected asset. These actions can be gifts or pieces of a larger exchange. Action When and how to use it Give gold Choose the payer, recipient, and amount. The payer must be able to fund the transfer. Give an item Choose the owned item, exact variant or eligible equipment slot, and quantity where applicable. Give troops Choose the troop type and number from an eligible roster. Check the parties and their available troops. Give prisoners Select captives in the giver's lawful custody. This hands them to the recipient. Give land Select an eligible town or castle the giver can lawfully transfer. The transaction changes its ownership. Give a workshop Select a workshop owned by the giver. The recipient must qualify to take it over. Give a ship Select an eligible owned ship in a campaign that supports ships. Check transfer restrictions and location.",
+    "aliases": [
+      "Give gold",
+      "Give an item",
+      "Give troops",
+      "Give prisoners",
+      "Give land",
+      "Give a workshop",
+      "Give a ship"
+    ],
+    "preview": false
+  },
+  {
+    "id": "personal-and-family-actions",
+    "title": "Personal and family actions",
+    "chapter": "Action sentence system",
+    "chapterId": "action-sentence-system",
+    "text": "Use an eligible conversation with the people concerned. An NPC's personal offer can surface through its own interaction, with a review step for the agreed terms. Action When and how to use it Leave your spouse by letter Under I would like you… , ask a married adult NPC to send their current spouse a private separation notice. If agreed, it ends that marriage and can badly damage relations with the spouse's clan. The letter is the notice produced by the action. Expose their concealed pregnancy Use I wish to… as the only action in the draft when your character has the required verified knowledge. Choose the confirmed case and whether to name the known father. Share this personal experience Review an NPC's current personal-story offer when that event presents it. Acceptance applies to that specific offer. Take personal leave When the NPC offers personal leave, review their proposed departure and time away before agreeing. Summon a subordinate for a meeting Ask a qualifying clan leader or ruler to summon their subordinate. Select the person, place, reason, and stay. Review the quoted arrival and any army release. Change an agreed meeting In a conversation eligible to control the live meeting, select it and agree to the new place and duration. The arrival time is recalculated. Cancel an agreed meeting Choose the current meeting and agree to cancel. Reign releases the movement commitments made for that meeting. Join my party as a permanent companion Ask an eligible known resident. Agree the exact payment, if any, and check companion capacity. Soldiers need duty release first. Release resident from duty Ask the eligible commander or home-owning clan leader to release the named military resident before recruitment. Join my party as a temporary guest Agree in person with an eligible foreign noble or known resident. Set the purpose, fixed or open-ended stay, and any payment or army exit terms shown. Extend your stay in my party Ask a live guest who is still in your main party. Agree the revised term and relevant payment. Leave my party End the specific live guest agreement. The noble begins the return to their home party or other eligible destination. Accept the risks of fighting your own faction Ask a current guest under I would like you… when they face this risk. Fighting their own faction can replace them in their old role, banish them, and move them into your clan.",
+    "aliases": [
+      "Leave your spouse by letter",
+      "Expose their concealed pregnancy",
+      "Share this personal experience",
+      "Take personal leave",
+      "Summon a subordinate for a meeting",
+      "Change an agreed meeting",
+      "Cancel an agreed meeting",
+      "Join my party as a permanent companion",
+      "Release resident from duty",
+      "Join my party as a temporary guest",
+      "Extend your stay in my party",
+      "Leave my party",
+      "Accept the risks of fighting your own faction"
+    ],
+    "preview": false
+  },
+  {
+    "id": "marriage-actions-and-wedding-choices",
+    "title": "Marriage actions and wedding choices",
+    "chapter": "Action sentence system",
+    "chapterId": "action-sentence-system",
+    "text": "Open the exact offer through View marriage offer or address the issuing clan leader through Alt+A . The dedicated wedding choices appear only with a relevant offer or ceremony. See Arranged marriage offers and cultural weddings for the delivery window, town visit, and settlement sequence. Action When and how to use it Propose an arranged marriage Choose an eligible leader, select your clan's prospect and theirs, and review the exact consideration before sending. Release a captive In marriage bargain review, select a captive held by the side providing that term. The person goes free when the marriage settles. Ask the prospective spouse to call off the wedding During the exact active ceremony, ask an eligible prospective spouse directly. The decision belongs to that person. Marriage alliance Use the marriage action with the exact eligible consenting couple. In personal conversation this binds the actual participants. Clan offers for relatives use the dedicated proposal route. For an incoming offer choose Accept this marriage proposal , Refuse this marriage proposal , or Request a meeting with… when offered. Select a safe town for the meeting and confirm the response to the issuing leader. Once the agreement is ready to book, the applicable choice is Marry now or Hold a ceremony . The ceremony also offers Withdraw from my wedding… for a participating player who chooses to end it.",
+    "aliases": [
+      "Propose an arranged marriage",
+      "Release a captive",
+      "Ask the prospective spouse to call off the wedding",
+      "Marriage alliance"
+    ],
+    "preview": false
+  },
+  {
+    "id": "arrests-and-direct-conflict",
+    "title": "Arrests and direct conflict",
+    "chapter": "Action sentence system",
+    "chapterId": "action-sentence-system",
+    "text": "Address the accused for the arrest actions. Choose I wish to… to prepare an arrest, release a person, or rescind the case. A prepared arrest can lead to explicit confirmation, surrender, a duel, or a fight. See Arrests, confirmation, and custody . Action When and how to use it Duel me Ask the current NPC to duel. Select the available duel mode and play out the fight. Prepare arrest Use I wish to… with the accused present. Enter the accusation, category, and severity. Confirm through the next arrest step. Release arrested character As the player, select an applicable arrest case in custody. Release the person while leaving the accusation on record. Rescind arrest accusation As the player, select the case to withdraw. Custody ends if that case is what holds the person. Attack your party Use I wish to… after the accused refuses surrender in the prepared arrest. Select the case and eligible current party. Attack my party Ask a party leader to attack the player's party where the game permits the conflict. Surrender to me Ask the current NPC to surrender their eligible party. Resolve any subsequent custody or surrender step in the game. Leave me alone Ask the actor to stop pursuing or threatening your party. This affects the current behavior. Kill character Choose the living character targeted by the execution and review who will carry it out. The game excludes the player character and can block execution through campaign protections.",
+    "aliases": [
+      "Duel me",
+      "Prepare arrest",
+      "Release arrested character",
+      "Rescind arrest accusation",
+      "Attack your party",
+      "Attack my party",
+      "Surrender to me",
+      "Leave me alone",
+      "Kill character"
+    ],
+    "preview": false
+  },
+  {
+    "id": "following-and-guiding",
+    "title": "Following and guiding",
+    "chapter": "Action sentence system",
+    "chapterId": "action-sentence-system",
+    "text": "These requests use the available scene or campaign context. A guide leads the way in the world and waits for observed arrival. Action When and how to use it Follow Ask an eligible actor to follow a person present in the scene or to follow the specified party on the campaign map. Stop following Ask the actor to end their current scene follow or campaign escort. Show the way Select a present person or recognized passage. Walk with the guide and allow them to register your arrival.",
+    "aliases": [
+      "Follow",
+      "Stop following",
+      "Show the way"
+    ],
+    "preview": false
+  },
+  {
+    "id": "party-and-military-orders",
+    "title": "Party and military orders",
+    "chapter": "Action sentence system",
+    "chapterId": "action-sentence-system",
+    "text": "Use Party and military orders… with the eligible commander, including via the War Council's messenger or a supported conversation. An order is supervised over campaign time. Check the chosen objective, targets, food, troops, army authority, and safe route. These orders command eligible NPC parties. Your main party can be an escort target, while you retain control of its movement. Identical objectives with alternate labels share a row. Attack settlement and Capture settlement plan have their own choices. Action When and how to use it Issue campaign order Build a supervised order with a single objective or combine stages. Set each stage's target and requirements, then confirm with the commander. Revise campaign order Choose the active order and agree the new objective, destination, area, or timing. The same order keeps its history. Cancel campaign order Choose the active order and agree to stop it. Its previous accomplishments remain recorded. Create party Ask an eligible lord without a party to establish one. Creation still depends on authority, local troops and funding. Go to Choose the town, castle, or village and have the commander travel there. Hold position Enter the campaign-map position to hold and confirm the coordinates before dispatch. Wait near settlement Pick the area and waiting time. The party waits under the order's safety rules. Patrol around settlement Choose a center and patrol duration. Use for a bounded local patrol. Scout report Select the settlement and time to scout. Read the report when the scout observes the area. Escort Choose the party to accompany and the duration. This can include the player's party as the target where eligible. Recruit and recover Set a troop goal and food goal where offered. Choose a supply location or let the commander find an eligible one. Form army Select the gathering area and intended strength where offered. The commander needs authority, influence, and eligible contributors. Join army Choose an active army the commander is eligible to join. Leave army Ask a commander currently serving in an army to detach with the required consent and authority. Disband army Ask an authorized commander to disband the army they lead. Raid village Select a hostile village and issue the raid order. Review the relationship and war consequences. Besiege settlement Choose a hostile town or castle. The force must be able to reach and prosecute the siege. Attack settlement Choose a hostile village to raid or a hostile fortification to besiege. The target type determines the order. Capture settlement plan Choose a hostile fortification and the relevant force goals. Use this for the capture plan and review its required stages and supplies. Defend Choose a settlement and how long the commander should defend it. Relieve siege Choose an eligible besieged settlement and send a suitable force to relieve it. Hunt enemy parties Set a bounded period to hunt eligible enemies in the applicable campaign area. Attack party Select the exact enemy party. The commander must have a party and authority to engage it. Withdraw Order the party to disengage or move toward an eligible withdrawal point. Return home Send the party back to its eligible home or a named destination where the order permits it.",
+    "aliases": [
+      "Issue campaign order",
+      "Revise campaign order",
+      "Cancel campaign order",
+      "Create party",
+      "Go to",
+      "Hold position",
+      "Wait near settlement",
+      "Patrol around settlement",
+      "Scout report",
+      "Escort",
+      "Recruit and recover",
+      "Form army",
+      "Join army",
+      "Leave army",
+      "Disband army",
+      "Raid village",
+      "Besiege settlement",
+      "Attack settlement",
+      "Capture settlement plan",
+      "Defend",
+      "Relieve siege",
+      "Hunt enemy parties",
+      "Attack party",
+      "Withdraw",
+      "Return home"
+    ],
+    "preview": false
+  },
+  {
+    "id": "clan-and-kingdom-actions",
+    "title": "Clan and kingdom actions",
+    "chapter": "Action sentence system",
+    "chapterId": "action-sentence-system",
+    "text": "Start with the party who can perform the action. Clan changes, service and accords require the relevant authority, an eligible counterpart and the terms the game accepts. Action When and how to use it Hire me as a mercenary Ask an authorized ruler to hire your clan. Select the kingdom and review the terms of service. Release me from mercenary service Ask the responsible ruler to end your clan's current mercenary service. Accept my oath of vassalage Ask the eligible ruler to accept your clan as a vassal. Review the kingdom and any agreed terms. Release me from vassalage Ask the responsible ruler to release your clan from its current oath. Join clan Choose the eligible receiving clan whose leader is the counterpart. This moves the person selected to act into that clan. Leave clan Ask or offer to leave the actor's current clan when the native rules permit the change. Join kingdom Choose the joining clan and eligible ruler's kingdom. The action changes clan allegiance. Leave kingdom Choose the actor's clan when it can leave its kingdom under the current rules. Hire mercenary clan Arrange another clan's service with its leader and the hiring ruler. Select the clan and the hiring kingdom, then check the service terms. Create clan accord As a qualifying ruler, ask a willing noble to establish an available type of accord with their clan. Cancel clan accord Select the exact active accord and confirm ending it. Its benefits end. See Clan Accords for cancellation and relationship effects.",
+    "aliases": [
+      "Hire me as a mercenary",
+      "Release me from mercenary service",
+      "Accept my oath of vassalage",
+      "Release me from vassalage",
+      "Join clan",
+      "Leave clan",
+      "Join kingdom",
+      "Leave kingdom",
+      "Hire mercenary clan",
+      "Create clan accord",
+      "Cancel clan accord"
+    ],
+    "preview": false
+  },
+  {
+    "id": "rebellions-and-internal-politics",
+    "title": "Rebellions and internal politics",
+    "chapter": "Action sentence system",
+    "chapterId": "action-sentence-system",
+    "text": "Use the actual claimant, clan leader, ruler, or member involved. A pledge, an active rebellion and a completed political settlement are separate states. See Rebellion and civil war . Action When and how to use it Declare rebellion against your rule As clan leader, address your ruler and use I wish to… in a draft of its own. Select the realm and your claimant clan. Seek any pledges before declaring. Support me when I declare rebellion Seek an eligible clan leader's pledge before declaring. Name the challenged ruler. Their allegiance changes only if that rebellion begins. Recruit lord to rebellion Ask the addressed lord to commit their clan to your active rebellion. Join rebellion Use the player's side with the eligible NPC rebel leader to join their active movement. Surrender rebellion An eligible participant surrenders the named active conflict. Review the exact movement and the resulting state. Resolve civil war Use the rebel and parent rulers to agree a negotiated end to their active civil war with recognition of rebel independence. The surrender action handles capitulation. Consent government reduction Seek consent for the ruler's next reduction. A leader can speak for their clan. A clanless notable speaks for themself. See Government hearings and decisions for the separate reduction step. Install ruling clan Select the qualifying claimant clan after an internal challenge with the authority to install it. Support claimant Record support for the named claimant clan or pretender in the relevant kingdom. Encourage clan defection Name the clan and destination realm when the eligible parties can agree to its transfer. Exile clan Select the affected clan under the realm authority that can expel it. Restore exiled clan Select an eligible exiled or independent clan and the realm restoring it. Mediate clan dispute Identify the clans in the dispute. An agreed mediation becomes a recorded political obligation or outcome.",
+    "aliases": [
+      "Declare rebellion against your rule",
+      "Support me when I declare rebellion",
+      "Recruit lord to rebellion",
+      "Join rebellion",
+      "Surrender rebellion",
+      "Resolve civil war",
+      "Consent government reduction",
+      "Install ruling clan",
+      "Support claimant",
+      "Encourage clan defection",
+      "Exile clan",
+      "Restore exiled clan",
+      "Mediate clan dispute"
+    ],
+    "preview": false
+  },
+  {
+    "id": "realm-diplomacy",
+    "title": "Realm diplomacy",
+    "chapter": "Action sentence system",
+    "chapterId": "action-sentence-system",
+    "text": "Open Diplomacy… with the ruler who can act for the realm. Most bargains also require the other participating ruler. The authority rules for a declaration, treaty breach, promise, or support for an active rebellion depend on that particular action. Choose the actual realms and check the completed treaty, transfer, or decision. Some actions record a commitment to fulfill later. Action When and how to use it Declare war Select the foreign realm and give a reason. The acting ruler must have authority to declare war for their own realm. Back rebellion Use the sponsoring ruler and participating rebel leader in an active civil war. Name the movement and parent realm. The sponsor enters war with the parent. Make peace Use eligible opposing rulers to end their existing war on ordinary peace terms. Offer tribute peace Set the daily tribute and duration for peace. Check which realm pays before sending. Record promise The acting ruler records a promise, the other realm, and the reason for future memory and obligations. Demand reparations peace Set the gold or tribute the other realm would pay for peace. Demand settlement peace Select the enemy towns or castles to be surrendered for peace. Demand surrender peace Review the capitulation package with holdings, reparations or tribute. A defeated realm can lose its remaining land. Sign trade agreement Set the trading parties and duration. Check the native agreement and Reign's treaty record after acceptance. Sign non-aggression pact Agree a duration of restraint from attacks, raids, and hostile support. Sign alliance Use the participating rulers and set the alliance term. Check that the game records the alliance. Sign defensive pact Set a term of defensive support between the named realms. Break treaty Use the acting ruler, name the other kingdom, and review the treaty breach and affected native ties. Exchange prisoners Choose opposing realms with eligible noble captives. Both sides release captives under the agreed terms. Ransom package Agree the gold paid by one kingdom for its nobles held by the other. Hostage guarantee Record an eligible diplomatic security obligation. Check the exact terms before treating anyone as transferred. War indemnity Set the gold one kingdom pays the other for the war obligation. Recognize conquest Have the eligible realm formally recognize another's conquest or claim. Return occupied settlement Select the occupied town or castle the acting realm currently holds and can return. Demilitarized border Set the term for border restraint against raids or sieges. Caravan protection agreement Set a period for the two kingdoms to protect each other's caravans. Supply agreement Name the eligible resource or support, amount, and recipient realm. Check the recorded obligation and later delivery. Loan or subsidy Agree the amount, payer, and receiving realm. Check whether the terms record a debt or a subsidy. Pay to stay neutral Specify the payment and period for the recipient realm to stay out of the dispute. Pay to join war Name the third realm and compensation. The receiving ruler must be able to enter that war. Guarantee independence Set the term of an eligible pledge to defend another realm's independence. Protectorate or vassalage Record the participating kingdoms' protectorate or dependency terms. Diplomatic package Combine compatible sovereign terms such as gold, captives, settlements, and peace. Review the exact package and available assets.",
+    "aliases": [
+      "Declare war",
+      "Back rebellion",
+      "Make peace",
+      "Offer tribute peace",
+      "Record promise",
+      "Demand reparations peace",
+      "Demand settlement peace",
+      "Demand surrender peace",
+      "Sign trade agreement",
+      "Sign non-aggression pact",
+      "Sign alliance",
+      "Sign defensive pact",
+      "Break treaty",
+      "Exchange prisoners",
+      "Ransom package",
+      "Hostage guarantee",
+      "War indemnity",
+      "Recognize conquest",
+      "Return occupied settlement",
+      "Demilitarized border",
+      "Caravan protection agreement",
+      "Supply agreement",
+      "Loan or subsidy",
+      "Pay to stay neutral",
+      "Pay to join war",
+      "Guarantee independence",
+      "Protectorate or vassalage",
+      "Diplomatic package"
+    ],
+    "preview": false
+  },
+  {
+    "id": "government-support-and-petitions",
+    "title": "Government support and petitions",
+    "chapter": "Action sentence system",
+    "chapterId": "action-sentence-system",
+    "text": "Use Support… with an eligible filer, member, sponsor, or other person who can supply the particular commitment. The controls resolve a real government, current party, petition revision, proposal or election. Supporting one step gives the commitment for that step. Action When and how to use it Join political party Choose an eligible party for the actor's political membership. Back a party platform Choose the party and period of support for its platform. Support a proposal Choose the active government matter and the exact vote option the member should support. Support a party nomination Choose the nomination petition and party route. The builder binds the current revision and party selection. Endorse a petition Ask the eligible person to endorse the current petition. The exact revision matters. Sponsor a petition Choose the current petition draft and seek the eligible sponsor's support for that revision. Seek party adoption of a petition Choose the petition and obtain adoption through the applicable party route before presentation. Present an adopted petition Use the eligible presenter to submit the adopted petition to the appropriate government. Consent to transfer a civic mandate Choose the eligible mandate petition and secure the exact participant's consent. Nominate a party speaker Select an eligible party candidate in the current speaker election. Vote for a party speaker Choose the eligible candidate in the current speaker ballot. A petition selector can offer Prepare a new petition… . Choose the realm and proposal, then use Save and submit for sponsorship . Follow the petition's later endorsement, adoption, or presentation steps where required.",
+    "aliases": [
+      "Join political party",
+      "Back a party platform",
+      "Support a proposal",
+      "Support a party nomination",
+      "Endorse a petition",
+      "Sponsor a petition",
+      "Seek party adoption of a petition",
+      "Present an adopted petition",
+      "Consent to transfer a civic mandate",
+      "Nominate a party speaker",
+      "Vote for a party speaker"
+    ],
+    "preview": false
+  },
+  {
+    "id": "government-hearings-and-decisions",
+    "title": "Government hearings and decisions",
+    "chapter": "Action sentence system",
+    "chapterId": "action-sentence-system",
+    "text": "Open Government decisions… with the person authorized for the exact hearing, decision, or contribution. A recommendation and a vote have separate effects. See Government and political participation . Action When and how to use it Recommend an outcome The ruler selects a hearing and recommends a specific option. Members still cast their ballots. Introduce a government proposal Choose the government and an available policy, fief review, or clan-expulsion proposal. It enters the hearing process. Supply a government resolution Choose the active resolution and quantity of eligible goods from the acting character's travelling party inventory. Sponsor a petition Select the pending government business entry. This is the docket sponsorship route. The separate Support menu uses the petition draft and its current revision. Postpone a hearing Choose an eligible hearing with its permitted recess available. Reconvene a hearing Choose the postponed hearing when it can reopen. Call a government vote Choose the hearing when the responsible official can call its actual member vote. Decide a government hearing Choose the recorded option after the vote and applicable reconsideration period. Explicitly review an override if permitted. Grant more governing authority Select the eligible kingdom and approve an increase in its government's authority. Reduce governing authority Select the eligible kingdom and the reduction route. A forced reduction is a separate explicit choice where allowed. Fulfill a government resolution Select an active resolution and an available route. Any agreed reward waits for recorded fulfillment. Decline a government resolution Choose the pending resolution and decline under the current decision rules.",
+    "aliases": [
+      "Recommend an outcome",
+      "Introduce a government proposal",
+      "Supply a government resolution",
+      "Sponsor a petition",
+      "Postpone a hearing",
+      "Reconvene a hearing",
+      "Call a government vote",
+      "Decide a government hearing",
+      "Grant more governing authority",
+      "Reduce governing authority",
+      "Fulfill a government resolution",
+      "Decline a government resolution"
+    ],
+    "preview": false
+  },
+  {
+    "id": "court-offices-and-ambassadors",
+    "title": "Court offices and ambassadors",
+    "chapter": "Action sentence system",
+    "chapterId": "action-sentence-system",
+    "text": "Use Court and intelligence… with the consenting NPC and the relevant royal authority. Appointments depend on the office, the person's availability, current duties and court access. Action When and how to use it Serve as a court officer Select Steward, Economic Advisor, Foreign Advisor, Marshal or Spymaster for an eligible person. Leave your court office Ask the current officer to end their appointment. An active Spymaster can have outstanding work that blocks departure. Serve as ambassador Choose another active kingdom and either public information or improving relations. The posting is fulfilled on arrival. Return from your ambassador posting Ask the current envoy to return from an active posting. Change your ambassador mission Choose public information or improving relations for the envoy's current posting. Serve as Chancellor Agree the active-day salary with an eligible NPC. A new appointment begins inactive. Relinquish the Chancellorship Ask your current Chancellor to end the existing appointment through its court procedure. Change your Chancellor duties Ask your current Chancellor to take active or inactive duties from the next day, subject to salary and court conditions. Emergency and handoff coverage have their own rules. Serve as regent Legacy appointment entry. It uses royal court eligibility. For current court duties use the Chancellor route. Relinquish the regency Legacy departure entry that requires an active assignment. Current courts use Chancellor duties.",
+    "aliases": [
+      "Serve as a court officer",
+      "Leave your court office",
+      "Serve as ambassador",
+      "Return from your ambassador posting",
+      "Change your ambassador mission",
+      "Serve as Chancellor",
+      "Relinquish the Chancellorship",
+      "Change your Chancellor duties",
+      "Serve as regent",
+      "Relinquish the regency"
+    ],
+    "preview": false
+  },
+  {
+    "id": "spymaster-missions",
+    "title": "Spymaster missions",
+    "chapter": "Action sentence system",
+    "chapterId": "action-sentence-system",
+    "text": "Use Court and intelligence… with your appointed Spymaster while the service has capacity. Choose the exact target and maximum operation cost. The ruler's available funds must cover the operation. Dispatch, detection, and success are recorded separately. Payment promised for success waits for the recorded result. A rumor is a reported claim. A reputation is an established label. Select the record you want to address. Action When and how to use it Gather settlement intelligence Choose an eligible settlement for an intelligence report. Conduct a counterintelligence sweep Choose the settlement to check for covert interference. Investigate a person's skills Choose the person whose abilities you want assessed. Investigate a person's relationships Choose the person whose social ties you want investigated. Investigate rumors about a person Choose the person and await the report on their rumors. Disrupt a settlement's food supply Select the eligible settlement to target with food disruption. Disrupt construction Select the settlement whose construction you want to impede. Disrupt security Select the settlement whose security you want to undermine. Disrupt loyalty Select the settlement whose loyalty you want to weaken. Attempt to assassinate a governor Select the settlement with the eligible governor. Review the cost and risks of a lethal operation. Attempt to assassinate a person Select an eligible living adult target. Review the cost and risks before dispatch. Mitigate a rumor about me Select the specific rumor about your character to counter. Mitigate my reputation Choose the specific reputation on your character's record to mitigate. Mitigate a rumor about a person Choose the person and the exact rumor to counter. Mitigate a person's reputation Choose the person and the exact reputation to mitigate. Promote a positive reputation Choose a person and enter the exact favorable statement to circulate. Circulate a harmful rumor Choose a person and enter the exact damaging claim to spread. Circulate a severe reputation Choose a person and enter the exact severe allegation to circulate.",
+    "aliases": [
+      "Gather settlement intelligence",
+      "Conduct a counterintelligence sweep",
+      "Investigate a person's skills",
+      "Investigate a person's relationships",
+      "Investigate rumors about a person",
+      "Disrupt a settlement's food supply",
+      "Disrupt construction",
+      "Disrupt security",
+      "Disrupt loyalty",
+      "Attempt to assassinate a governor",
+      "Attempt to assassinate a person",
+      "Mitigate a rumor about me",
+      "Mitigate my reputation",
+      "Mitigate a rumor about a person",
+      "Mitigate a person's reputation",
+      "Promote a positive reputation",
+      "Circulate a harmful rumor",
+      "Circulate a severe reputation"
+    ],
+    "preview": false
+  },
+  {
+    "id": "follow-up-controls-and-older-action-entries",
+    "title": "Follow-up controls and older action entries",
+    "chapter": "Action sentence system",
+    "chapterId": "action-sentence-system",
+    "text": "The action system keeps separate entries for follow-up controls and older adapters. Follow-ups appear in their case or report flow. For the older transfer entries, the current conversation route is Give… . Action When and how to use it Confirm arrest Use the explicit follow-up after preparing a case. This step checks current custody and surrender eligibility. Respond to order report Use an urgent commander report to continue, adapt, hold, withdraw, or cancel the named order. Resolve rebellion pledge The secret preparation flow records a pledge, refusal, or report when the relevant decision occurs. Resolve rebellion summons The delivered summons flow records the player's response and the ruler's verdict. Older trade package Use Give… and add the other side's terms for a compound barter in conversation. Older gold transfer entries Use Give gold with the correct payer, recipient, and amount. Older item transfer entry Use Give an item with the exact item and quantity. Older workshop transfer entry Use Give a workshop for an eligible owned workshop. Older prisoner transfer entry Use Give prisoners for custody transfer, or the relevant release, exchange, or ransom action. The earlier Temporary Truce and Trade Embargo entries are retired. Use a supported non-aggression or trade agreement where it fits. Scene following uses Follow . Developer console and test commands have their own catalog and authority.",
+    "aliases": [
+      "Confirm arrest",
+      "Respond to order report",
+      "Resolve rebellion pledge",
+      "Resolve rebellion summons",
+      "Older trade package",
+      "Older gold transfer entries",
+      "Older item transfer entry",
+      "Older workshop transfer entry",
+      "Older prisoner transfer entry"
+    ],
+    "preview": false
+  },
+  {
+    "id": "personalities-interests-and-private-concerns",
+    "title": "Personalities, interests, and private concerns",
+    "chapter": "Getting to know people",
+    "chapterId": "getting-to-know-people",
+    "text": "Characters have lasting personalities rather than a fresh personality each time you open chat. They can have hobbies, hopes, fears, values, attachments, a public manner, and private concerns. Compassion, honor, loyalty, responsibility, courage, judgment, and social boldness help shape their choices. Boldness in conversation does not necessarily mean courage in battle. Newer campaigns use richer authored backgrounds and stronger individual interests. Older campaigns retain their established profiles instead of silently replacing everyone's life story. Interests give you subjects to explore; they do not guarantee that every conversation will return to the same hobby or that an interest grants a mechanical skill. Personality can develop through meaningful experiences over time. Repeating the same compliment in one sitting is not a reliable way to rewrite someone's beliefs.",
+    "aliases": [
+      "personality",
+      "MBTI",
+      "hobbies",
+      "dreams",
+      "fears",
+      "interests",
+      "character background"
+    ],
+    "preview": false
+  },
+  {
+    "id": "what-npcs-know-believe-and-keep-secret",
+    "title": "What NPCs know, believe, and keep secret",
+    "chapter": "Getting to know people",
+    "chapterId": "getting-to-know-people",
+    "text": "Reign separates actual world events from what each person has learned. A participant may know a battle immediately, while a distant court hears about it later. A private conversation is not automatically public. Someone may know your name or deeds without recognizing your face. An NPC can repeat a mistaken report or deliberately lie. You can ask who told them, challenge a claim, or provide evidence. Persuasive speech can affect belief without changing what really happened. Conflicting accounts are not automatically a continuity bug. Memory follows participants and context. People can recall shared conversation, commitments, important events, and experiences. They should not inherit the private contents of an unrelated person's conversation simply because they live in the same town. Diagram — An event, a witness's knowledge, a traveling report, and a rumor are separate things.",
+    "aliases": [
+      "memory",
+      "NPC forgot",
+      "knowledge",
+      "lying",
+      "secrets",
+      "who knows",
+      "world history",
+      "recognition"
+    ],
+    "preview": false
+  },
+  {
+    "id": "relationships-visible-status-and-skills",
+    "title": "Relationships, visible status, and skills",
+    "chapter": "Getting to know people",
+    "chapterId": "getting-to-know-people",
+    "text": "Relationships are directional: you may like a person more than they like you. Time together, compatible personalities, conversation, shared obligations, and major actions can change that relationship. A lasting favor or betrayal can matter beyond one exchange. Reign hides exact NPC relationship scores throughout much of Bannerlord's interface. Read behavior, known history, and social clues rather than treating everyone as a visible score. Reveal All Character Relationships in MCM is an optional cheat. Skills remain visible in their normal mechanical interfaces. Clothing, equipment, holdings, reputation, and visible position affect how others perceive you. NPCs do not automatically know the exact amount in your purse. Dressing like a courtier and possessing a courtier's actual power are different things.",
+    "aliases": [
+      "hidden relationships",
+      "relation numbers",
+      "skill values",
+      "status",
+      "wealth",
+      "directional relationship",
+      "reveal relationships"
+    ],
+    "preview": false
+  },
+  {
+    "id": "added-nobles-and-wanderers",
+    "title": "Added nobles and wanderers",
+    "chapter": "Getting to know people",
+    "chapterId": "getting-to-know-people",
+    "text": "Reign adds landless noble households to deepen local courts and expands the world of persistent characters. A landless court household is not automatically a field army; acquiring land can change its opportunities. Younger family members, local residents, and wandering adults serve different roles. Wanderers have individual identities and culture-appropriate backgrounds. Recruitment and companion limits still matter. Once someone is a persistent Reign character, their established identity and conversation history should not be treated as a disposable tavern extra. Eligible notables and encountered residents can use supported recruitment routes too. A recruited notable's former service and workshop dialogue need to follow their real current status; a former job does not grant you ownership of the town's business. Use an actual workshop-transfer agreement for a change of ownership. With War Sails , the Nord towns and castles have 13 additional tier-one court households and 78 authored nobles, with family ties, biographies, and shared portraits. Start a new campaign to meet these households. Their clans can gain rank normally. The content is installed and broader new-campaign acceptance is still open.",
+    "aliases": [
+      "court nobles",
+      "landless clans",
+      "wanderers",
+      "new characters",
+      "recruit notable",
+      "workshop owner"
+    ],
+    "preview": false
+  },
+  {
+    "id": "party-chat-and-private-audiences",
+    "title": "Party Chat and private audiences",
+    "chapter": "Group chat, letters, and everyday communication",
+    "chapterId": "group-chat-letters-and-everyday-communication",
+    "text": "Press backslash (\\) or use MCM → Utilities → Open Party Chat , select the people you want, then send your contribution to that audience. Enter or Numpad Enter sends a ready contribution. Alt+A opens the action builder for eligible selected participants. Escape closes an open image/portrait layer first or leaves Party Chat. All selects the available group and Clear clears selection. Eligible people depend on your party and safe location; availability is not permission to speak to someone across the world. Replies come from individuals, and later speakers can respond to earlier contributions. Each person speaks for themselves. Supported private or whisper conversations have a narrower audience than the whole group. Check the selected recipients before sharing something sensitive; merely being listed in a directory should not make someone a participant in a private Homes conversation. Changing a group can create a different conversation context. Where Continue is available, it resumes a retained group only when the original members and location are still eligible. A remembered transcript is not proof that an absent person has returned. Layout example — Party Chat: use the character roster to choose who participates, then read the shared exchange.",
+    "aliases": [
+      "party chat",
+      "group chat",
+      "whisper",
+      "private conversation",
+      "All",
+      "Clear",
+      "Continue",
+      "resume party chat",
+      "PM"
+    ],
+    "preview": true
+  },
+  {
+    "id": "travel-banter",
+    "title": "Travel banter",
+    "chapter": "Group chat, letters, and everyday communication",
+    "chapterId": "group-chat-letters-and-everyday-communication",
+    "text": "Named adults actually traveling in your main party may talk among themselves in a small map window. Waiting in place does not start travel banter. Prisoners are not conversational party members for this feature. You can move the window by its title bar, resize it with the corner grip, and minimize it. Its dialogue control lets you join the selected speakers in Party Chat. Joining continues the exchange instead of asking the AI to invent a second opening. If the original speakers are unavailable, an old transcript may remain readable without becoming a live conversation. Window position and size are local interface preferences. They are separate from your campaign's memories and relationships. In-game screenshot — Party banter on the campaign map. Minimize is at the panel’s upper right; the speech-bubble control for joining is at its lower right. Here Niasen and Hularan are talking while accompanying the party. Scroll within the panel to read more of the exchange. The map happens to be paused in this picture; the banter window does not itself control campaign time.",
+    "aliases": [
+      "banter",
+      "travel dialogue",
+      "map chat",
+      "resize chat",
+      "minimize chat",
+      "join banter"
+    ],
+    "preview": true
+  },
+  {
+    "id": "correspondence-sending-and-receiving-letters",
+    "title": "Correspondence: sending and receiving letters",
+    "chapter": "Group chat, letters, and everyday communication",
+    "chapterId": "group-chat-letters-and-everyday-communication",
+    "text": "Press Ctrl+M from a suitable campaign-map screen, or use MCM → Utilities → Open Correspondence . Choose a known living contact, read the thread, and write your message. Enter or Numpad Enter sends a ready letter; Escape closes the screen. Alt+A opens the action builder for an eligible selected correspondent when it is not busy. The shortcut may wait for a suitable screen; do not expect it to open over a battle, inventory, native conversation, save/load dialog, or another blocking interface. The list can also surface commanders who send order reports. A sent letter first travels, then arrives, then can be marked read. A reply has its own journey. Letters are faster in the revised system than in older editions, but they are not instant long-distance chat. Nearby letters arrive sooner than distant ones. Delivery-time and unsolicited-letter frequency adjustments live in the Control Center's Options. Changes affect future dispatches rather than rewriting a letter already in transit. Characters can write first, including an eligible introduction. You do not have to start every relationship by finding its owner in a keep. An introduction is delivered before the new correspondent becomes an ordinary contact. As your reputation grows, people from other houses may reach out and invite you to become acquainted. In the screenshot below, Leonilla mentions Michael’s tournament successes before welcoming a visit. Treat the invitation as an opening to meet or reply, rather than a guaranteed alliance or romance. In-game screenshot — Correspondence: Leonilla invites Michael to become acquainted after hearing of his tournament successes. Contacts and letter states are on the left; the letter and reply area are on the right. If a reply seems late, check whether the outgoing letter has arrived and allow campaign time to pass. Repeatedly sending the same question creates more correspondence, not a faster courier. An arranged marriage proposal can arrive as a signed letter. Open View marriage offer on the sender's thread to inspect or respond. See Arranged marriage offers and cultural weddings for the choices and deadline.",
+    "aliases": [
+      "letters",
+      "courier",
+      "mail",
+      "correspondence",
+      "write letter",
+      "letter delivery",
+      "reply",
+      "letter frequency",
+      "house invitations",
+      "letters from nobles",
+      "reputation invitations",
+      "become acquainted"
+    ],
+    "preview": true
+  },
+  {
+    "id": "promises-to-inform-someone-or-send-for-them",
+    "title": "Promises to inform someone or send for them",
+    "chapter": "Group chat, letters, and everyday communication",
+    "chapterId": "group-chat-letters-and-everyday-communication",
+    "text": "Preview: source-backed message commitments and summoned meetings have substantial implementation and partial native evidence, with further acceptance open. An NPC's clear promise to inform another named person can become a real message. While the conversation is still open, the promise can be corrected or withdrawn. Explicitly closing the conversation releases accepted outgoing commitments; a temporary screen handoff is not the same as finishing the talk. The recipient learns the delivered message, not everything you privately discussed. Asking an NPC to pass on an offer does not make the recipient accept it. A question needs a real answer and return delivery. A summons is an invitation that can be refused; acceptance still needs a safe location, travel, and an agreed stay. For a direct subordinate meeting, state the person, place, purpose, and length of stay. Keep the distinction between waiting for arrival and time spent together after arrival . A promised arrival is not evidence that the NPC is already present. Use Alt+A in the ready individual or group conversation to find the supported meeting action and review its terms.",
+    "aliases": [
+      "send for",
+      "summon",
+      "meeting",
+      "inform someone",
+      "pass on a message",
+      "NPC messages",
+      "stay duration"
+    ],
+    "preview": true
+  },
+  {
+    "id": "party-announcements",
+    "title": "Party announcements",
+    "chapter": "Group chat, letters, and everyday communication",
+    "chapterId": "group-chat-letters-and-everyday-communication",
+    "text": "Preview: party announcements and later individual reactions are part of NPC Lives; broader acceptance remains open. Use Announce for a statement intended for your actual traveling party. It records what eligible party members heard without generating an immediate round of group replies. It does not address every person in the settlement, every member of your clan, or another party in your army. People who heard it may react individually when you later approach them. An announcement such as “We leave for the coast tomorrow” is remembered speech, not an order that moves the main party or creates an agreement. Use the action builder for a mechanical commitment. The action builder shortcut is Alt+A . Announce itself is the labeled screen control; it is different from the normal Enter send action.",
+    "aliases": [
+      "Announce",
+      "party announcement",
+      "tell everyone",
+      "later reactions"
+    ],
+    "preview": true
+  },
+  {
+    "id": "town-events-and-tournament-celebrations",
+    "title": "Town events and tournament celebrations",
+    "chapter": "Events and NPC personal lives",
+    "chapterId": "events-and-npc-personal-lives",
+    "text": "When a social event is announced, visit the named town and use Attend the announced Bannerlord Reign social event . If you leave an active event, its Return option can reopen it while available. These are opportunities with closing windows; an announcement is not a permanent quest marker. Culture shapes the gathering. You may encounter feasts, fairs, dances, performances, contests, or outings. Events proceed through phases, giving different opportunities for introductions, group conversation, competition, or quieter exchanges. Tournament celebrations connect the local social scene with the winner and prize. Participation can develop relationships and award modest player skill experience. A real exchange matters; repeatedly opening a screen does not count as participation. See Participation XP for its settings. In-game screenshot - Courtyard Dance: Zotyra is Active while other guests are Available. The current phase is shown at the top; Wait Approach, Next Phase and End Event are on the right.",
+    "aliases": [
+      "social events",
+      "feast",
+      "fair",
+      "dance",
+      "performance",
+      "contest",
+      "outing",
+      "celebration"
+    ],
+    "preview": true
+  },
+  {
+    "id": "wilderness-encounters-and-personal-matters",
+    "title": "Wilderness encounters and personal matters",
+    "chapter": "Events and NPC personal lives",
+    "chapterId": "events-and-npc-personal-lives",
+    "text": "While traveling outside settlements, you may encounter a contextual scene involving eligible party heroes. Terrain, time, and companions affect its presentation. You can investigate, talk, apologize, challenge, avoid the issue, or end the exchange according to the situation. These scenes can also bring a developing rivalry, romance, shared secret, or obligation into the open. A private concern is different from a public court matter. Events do not need to occur during every journey, and the game avoids opening them over battles, sieges, or other unsafe interfaces. In-game screenshot - Wilderness roleplay: Morning Shade and Unfinished Weave shows Ulagara and Temurtai as active attendees, with the forest scene, encounter, narration and reply area beside them. Use End Event to leave.",
+    "aliases": [
+      "wilderness event",
+      "random encounter",
+      "personal matter",
+      "rivalry",
+      "favor debt"
+    ],
+    "preview": true
+  },
+  {
+    "id": "approach-invitations-and-personal-stories",
+    "title": "Approach, invitations, and personal stories",
+    "chapter": "Events and NPC personal lives",
+    "chapterId": "events-and-npc-personal-lives",
+    "text": "Preview: NPC Lives has implemented stories and partial native tests. Meeting travel, leave/return, some mission outcomes, and final acceptance remain in progress. With NPC Lives enabled, people have activities and may be busy, relaxed, worried, or ready to ask for help. Companions and eligible guests actually accompanying you can invite you into personal experiences. Being in the same kingdom is not enough to receive every private invitation. Brief moments, outings, personal leave, independent activities, and longer story arcs have different purposes. Trust affects what someone is willing to share. Follow the stated objective, the agreed people, and any revealed Story Location in the relevant settlement. Meaningful conversation and actual activities move a story forward; repeating a password or praise does not guarantee progress. Some stories involve a practice duel, a hideout, an item, or travel. Those require the real game outcome. A story describing success cannot grant a victory, a reward, or a completed mission by itself. Lasting experiences, belongings, pets, and character development are intended to remain part of later conversation when actually established.",
+    "aliases": [
+      "NPC Lives",
+      "story",
+      "Story Location",
+      "pet",
+      "hideout",
+      "personal invitation",
+      "major arc"
+    ],
+    "preview": true
+  },
+  {
+    "id": "personal-leave-and-changing-plans",
+    "title": "Personal leave and changing plans",
+    "chapter": "Events and NPC personal lives",
+    "chapterId": "events-and-npc-personal-lives",
+    "text": "An NPC asking for leave may have a private reason. You can discuss it, ask them to wait, or negotiate the arrangement. Repeating the same argument does not create unlimited persuasion credit. They can remain unwilling to disclose a concern or accept your request. Agree separately on any delay before departure and the time away after departure . Accepting time away does not permanently dismiss the character or recruit a replacement. Native return and duty restoration belong to the agreement's lifecycle, so inspect its status if the person seems overdue. Turning off new NPC Lives invitations stops new starts; existing commitments and safe recovery may still need to finish. It does not erase memories or make an accepted journey vanish.",
+    "aliases": [
+      "personal leave",
+      "time away",
+      "companion leaving",
+      "leave request",
+      "returning companion",
+      "departure delay"
+    ],
+    "preview": true
+  },
+  {
+    "id": "attention-jealousy-invitations-and-rescues",
+    "title": "Attention, jealousy, invitations, and rescues",
+    "chapter": "Events and NPC personal lives",
+    "chapterId": "events-and-npc-personal-lives",
+    "text": "People can notice you giving attention to others without overhearing the private contents. Neglected acquaintances may ask to talk; their temperament and what they actually witnessed affect the complaint. An approach is not proof of romance or wrongdoing. You may also receive invitations from local nobles, friendly patrol interceptions, or a chance to speak after a battle or prison rescue. These use the actual people and circumstances. Rescue conversation is separate from the native release or reward. Options → Player attention and NPC approaches has a master switch and separate preferences for attention, jealousy/neglect, keep invitations, patrol interceptions, and battle or prison rescue dialogue. Turning them off changes new approaches rather than undoing completed rescues.",
+    "aliases": [
+      "jealousy",
+      "neglect",
+      "attention",
+      "keep invitation",
+      "patrol interception",
+      "rescue dialogue",
+      "asking to speak"
+    ],
+    "preview": true
+  },
+  {
+    "id": "people-you-meet-can-become-persistent",
+    "title": "People you meet can become persistent",
+    "chapter": "Town life, residents, and tavern visits",
+    "chapterId": "town-life-residents-and-tavern-visits",
+    "text": "Preview: persistent residents and Homes are implemented, with remaining native recruitment and reload acceptance work. Beginning an explicit Reign conversation with an eligible peaceful adult civilian, guard, or soldier can make that exact person a persistent character. Their encountered appearance and original work matter. Ordinary native shopping or asking directions does not need to turn every passerby into a new biography. The same person can be recognized later instead of being replaced with a generic extra. Their hometown and earlier life remain relevant after recruitment. A narrative family is not automatically a set of native Hero relatives; ask naturally rather than assuming empty native family links mean they have no household.",
+    "aliases": [
+      "residents",
+      "townsfolk",
+      "commoners",
+      "guards",
+      "soldiers",
+      "persistent NPC",
+      "meet civilians"
+    ],
+    "preview": true
+  },
+  {
+    "id": "visit-the-homes",
+    "title": "Visit the homes",
+    "chapter": "Town life, residents, and tavern visits",
+    "chapterId": "town-life-residents-and-tavern-visits",
+    "text": "Use Visit the homes in a town, castle, or village. The directory lists known residents who belong there and are currently available. Select a resident to enter the private home conversation. Directory neighbors are not automatically listeners. Visit in person takes you to the actual resident's scene and conversation, where available. It complements the private chat shortcut. If someone has left, changed duty, or joined you, recheck where they actually are rather than assuming their old card guarantees presence. To recruit a resident, ask for voluntary agreement and review any price, companion capacity, and duty-release conditions. A soldier leaving service needs lawful release and real manpower accounting. Permanent recruitment is different from inviting a temporary visitor. In-game screenshot - Homes directory: known residents at home appear as cards above the conversation area. Select a resident for home chat, or use Visit in person for the native settlement visit.",
+    "aliases": [
+      "Homes",
+      "home visit",
+      "Visit in person",
+      "recruit civilian",
+      "resident recruitment",
+      "hometown"
+    ],
+    "preview": true
+  },
+  {
+    "id": "visit-the-madam",
+    "title": "Visit the Madam",
+    "chapter": "Town life, residents, and tavern visits",
+    "chapterId": "town-life-residents-and-tavern-visits",
+    "text": "Preview: the town tavern venue is implemented and deployed in its recorded edition; full native acceptance remains open. In a town's tavern submenu, Visit the Madam opens a staffed venue with a madam, worker cards, conversation, and optional scenes. Adults have persistent identities; they are not newly invented for each visit. Discuss the people and payment with the madam, then review the exact participant and price confirmation. Only the confirmed participants join the private visit. Choosing a card or discussing a price is not payment. Campaign time stays paused until you leave the visit. Enter sends a ready contribution in this venue; Escape closes a portrait preview first or leaves the venue. Alt+A opens supported actions when the current conversation is ready. The scene-image switch is separate from portrait generation. Arrival and Look Again images illustrate the confirmed cast. Missing AI portraits can use native presentation; they are not permission for an automatic bulk image purchase. Repeated confirmed visits can produce Whoremonger gossip and a lasting reputation, with particular consequences for a spouse. A quiet period can let an active rumor subside; an established reputation is harder to lose. Staff can be recruited only through voluntary, supported agreement, and the venue replaces departed or retired workers with distinct people. In-game screenshot - Visit the Madam opening screen: the madam and worker cards are above the scene and conversation areas. No visit is agreed yet; scene images are OFF and a reply is pending in this example.",
+    "aliases": [
+      "Madam",
+      "tavern house",
+      "brothel",
+      "workers",
+      "Whoremonger",
+      "Look Again",
+      "tavern visit"
+    ],
+    "preview": true
+  },
+  {
+    "id": "clothing-drinking-and-firm-refusals",
+    "title": "Clothing, drinking, and firm refusals",
+    "chapter": "Town life, residents, and tavern visits",
+    "chapterId": "town-life-residents-and-tavern-visits",
+    "text": "Characters can change outfits through a supported conversation request. A preview lets you compare the old and proposed appearance before keeping or reverting a change. Equipment, ownership, and eligible clothing still matter. Mounts and horse equipment are not wearable clothing props. Narrated drinking can build a persistent level of intoxication through an actual shared activity. A mention of a drink is different from a completed drink. Intoxication can affect how someone speaks and later recovers; it should not reset simply because you close the chat. NPCs can maintain firm refusals and negotiate for their own reasons. A prior gift does not purchase universal consent. A serious new reason or different terms can be relevant, but endless repetition is not a guaranteed way around a refusal.",
+    "aliases": [
+      "clothing",
+      "wardrobe",
+      "outfit",
+      "drinking",
+      "drunk",
+      "intoxication",
+      "hard refusal",
+      "persuasion"
+    ],
+    "preview": true
+  },
+  {
+    "id": "friendship-romance-and-long-memories",
+    "title": "Friendship, romance, and long memories",
+    "chapter": "Relationships and starting a family",
+    "chapterId": "relationships-and-starting-a-family",
+    "text": "You can build affection through shared time, conversation, help, and compatible interests. Background relationship processing can also bring people closer or create friction. One person may feel more strongly than the other. Romance can progress from flirtation to a closer and more serious bond. Same-sex romance is supported. Rivalries, favor debts, marital conflict, and shared secrets can become ongoing stories rather than temporary mood changes. A life-changing act carries more weight than a routine compliment, especially when the benefit actually reached the recipient. Affairs and flings depend on the people involved and can lead to jealousy, rumors, pregnancy, estrangement, and public consequences. One willing person cannot supply the other's agreement. A marriage can deteriorate or end; its consequences can extend beyond the couple.",
+    "aliases": [
+      "friendship",
+      "romance",
+      "lover",
+      "flirt",
+      "affair",
+      "fling",
+      "marital conflict",
+      "relationship stories"
+    ],
+    "preview": false
+  },
+  {
+    "id": "marriage-and-npc-matchmaking",
+    "title": "Marriage and NPC matchmaking",
+    "chapter": "Relationships and starting a family",
+    "chapterId": "relationships-and-starting-a-family",
+    "text": "Native player courtship remains available. Use the arranged marriage flow to negotiate a named couple through their clan leaders. A match and its final marriage can happen at different times. With Use Reign-Controlled NPC Marriage enabled in Reign's MCM, background matchmaking favors clans of comparable standing. A lower-standing clan may need to pay compensation. Royal matches with landless houses require a rare opportunity as well as approval and funding. A completed match can improve both leaders' relations. A formal refusal can damage the proposer's view of the other leader, and identical refused terms are remembered. Changing the matchmaking setting preserves existing marriages. Leave your spouse by letter asks an eligible married NPC to end their existing marriage. The NPC must consent to the exact terms. Separation takes effect with a private notice and can badly damage relations with the former spouse's clan. A later marriage needs its own agreement.",
+    "aliases": [
+      "marriage",
+      "wife",
+      "husband",
+      "spouse",
+      "divorce",
+      "leave spouse by letter",
+      "matchmaking",
+      "courtship"
+    ],
+    "preview": false
+  },
+  {
+    "id": "arranged-marriage-offers-and-cultural-weddings",
+    "title": "Arranged marriage offers and cultural weddings",
+    "chapter": "Relationships and starting a family",
+    "chapterId": "relationships-and-starting-a-family",
+    "text": "A clan leader can propose a match for you or an eligible member of your clan. To start a proposal, open Alt+A with the eligible clan leader and select Propose an arranged marriage… . Confirm both names, which clan a spouse would join, and the agreed gold, items, captive release or transfer, and eligible land. The exact accepted terms carry forward to settlement. Open Correspondence with Ctrl+M . Select the issuing leader, then choose View marriage offer . You can also use the action builder with that leader in an eligible conversation. Choose Accept this marriage proposal , Refuse this marriage proposal , or Request a meeting with… when available. You have 30 campaign days from delivery to respond. A timely sent acceptance or refusal stays on record while the courier travels. An unanswered offer can expire. Refusal and expiration have different relationship consequences. For a meeting, choose an eligible town and check the arrival estimate before sending the request. There is one timed visit for the offer. Speak privately with the prospective spouse to learn their answer. For an agreed player-clan match, select Marry now or Hold a ceremony when the choice becomes available. For a ceremony, choose from the towns the couple can safely enter. The booking gives you a date and attendance window. Other eligible NPC matches can schedule a wedding automatically. Attend the scheduled ceremony and complete its cultural stages. During the ceremony, an eligible player can open Alt+A and choose Withdraw from my wedding… . At finalization, check the spouses, clan move, and completed transfers. Guests return to their ordinary duties afterward. Installed. One Aserai playthrough in Bannerlord on a disposable save verified the courier, meeting, all three stages, settlement, guest release, and reload. Other cultures and interruption paths have more limited acceptance evidence. See Marriage actions and wedding choices for the exact builder routes.",
+    "aliases": [
+      "arranged marriage letter",
+      "marry now",
+      "hold a ceremony",
+      "wedding",
+      "request a marriage meeting"
+    ],
+    "preview": false
+  },
+  {
+    "id": "having-a-baby-the-important-change",
+    "title": "Having a baby: the important change",
+    "chapter": "Relationships and starting a family",
+    "chapterId": "relationships-and-starting-a-family",
+    "text": "A new player-parented pregnancy can begin only through a qualifying intimate event in an individual Reign conversation. Bannerlord's background spouse-visit pregnancy system is disabled for the player and their spouse. Simply marrying, waiting together, traveling with your spouse, or sharing a settlement will not create a new child parented by the player. This applies whether the player would be the mother or the father. A group conversation, a letter, or an announcement is not the individual-chat conception route. The relationship, adult eligibility, reproductive age, biological pairing, and family restrictions still apply. A qualifying scene creates an opportunity, not a guaranteed pregnancy. When the qualifying scene reaches its reproductive choice, read the actual inquiry. Proceed allows the conception opportunity to resolve. Pull Out prevents that opportunity and returns the choice to the conversation. Reopening or repeating a cancelled choice does not create another roll for the same event. Diagram — Player family route: eligible individual roleplay leads to a real choice; pregnancy is possible only after proceeding and valid game checks.",
+    "aliases": [
+      "have a baby",
+      "kids",
+      "children through roleplay",
+      "conception",
+      "Proceed",
+      "Pull Out",
+      "spouse not pregnant",
+      "no babies",
+      "player pregnancy"
+    ],
+    "preview": false
+  },
+  {
+    "id": "pregnancy-parentage-and-pregnant-companions",
+    "title": "Pregnancy, parentage, and pregnant companions",
+    "chapter": "Relationships and starting a family",
+    "chapterId": "relationships-and-starting-a-family",
+    "text": "Reign distinguishes biological and legal parentage. A pregnancy can be private, and revealed illegitimate parentage can bring social consequences. A child's recorded history is not just whatever someone last claimed in dialogue. The action selector can also expose a confirmed concealed illicit pregnancy when the required knowledge exists, with optional known paternity. That is a public disclosure with consequences, not a guess based on a rumor or an omniscient way to discover a secret. With Restrict Pregnant NPCs From Combat enabled, pregnant NPCs withdraw from field duties and cannot start normal combat or military orders. They seek a safe fortification; party command may transfer or the party may be handled safely. This setting excludes the player character. Birth restores ordinary eligibility, but it does not magically recreate an old party. Switching the setting off likewise does not reconstruct a party that was already disbanded. If your pregnant companion is unavailable for a patrol or duel, check this setting before treating it as a broken order.",
+    "aliases": [
+      "pregnant companion",
+      "pregnancy protection",
+      "biological father",
+      "legal father",
+      "paternity",
+      "Baseborn",
+      "concealed pregnancy",
+      "expose pregnancy"
+    ],
+    "preview": false
+  },
+  {
+    "id": "children-and-family-chambers",
+    "title": "Children and Family Chambers",
+    "chapter": "Relationships and starting a family",
+    "chapterId": "relationships-and-starting-a-family",
+    "text": "Use Family Chambers from Royal Court or Explore the keep → Castle Layout to find eligible adults and children present in that household. Adult cards and child cards are connected: selecting a parent helps you find their children, and selecting a child helps identify available parents. Use Escape to return from the Family Chambers screen. It is a screen-navigation key, not a decision about the family. Children receive age-appropriate family conversation, not adult romance or military orders. They can remember childhood interaction, with very early memories treated differently as they grow up. Education and normal skill information remain visible in the appropriate native interfaces. In-game screenshot - Family Chambers before entering a scene: choose eligible household members from the noble and child lists, then use Enter Scene. Return to Court leaves this screen.",
+    "aliases": [
+      "Family Chambers",
+      "children",
+      "parents",
+      "childhood",
+      "education",
+      "family conversation"
+    ],
+    "preview": false
+  },
+  {
+    "id": "gossip-is-not-proof",
+    "title": "Gossip is not proof",
+    "chapter": "Gossip, reputation, and Public Standing",
+    "chapterId": "gossip-reputation-and-public-standing",
+    "text": "Personal gossip is information moving between people. It can be delayed, private, mistaken, selectively repeated, or maliciously exaggerated. A speaker needs a reason to know something; the entire map does not instantly hear every private incident. Rumors are temporary public suspicions. Repeated or decisive evidence can establish a longer-lasting reputation. A correction can disprove an active rumor without instantly erasing what society already regards as settled. Neither a fabricated rumor nor a forceful accusation rewrites the actual event history. Preview: the expanded personal-gossip and delivered-message systems have continuing acceptance work. Their privacy and travel rules matter when interpreting what an NPC should know.",
+    "aliases": [
+      "gossip",
+      "rumors",
+      "rumours",
+      "false allegation",
+      "malicious gossip"
+    ],
+    "preview": true
+  },
+  {
+    "id": "what-your-reputation-changes",
+    "title": "What your reputation changes",
+    "chapter": "Gossip, reputation, and Public Standing",
+    "chapterId": "gossip-reputation-and-public-standing",
+    "text": "Public Standing reflects how active rumors and reputations shape your social position. It affects existing social connections rather than making every stranger a close acquaintance. Charm can soften negative reactions; it does not undo the underlying conduct. The same event can have personal and public consequences. A spouse's reaction to an affair is not the same as a distant courtier's. Favoring one courtier can create jealousy in others. Public judgment is also shaped by the setting's unequal social norms, including different treatment of some men and women.",
+    "aliases": [
+      "Public Standing",
+      "reputation",
+      "scandal",
+      "favoritism",
+      "social consequences"
+    ],
+    "preview": true
+  },
+  {
+    "id": "reputation-names-you-may-see",
+    "title": "Reputation names you may see",
+    "chapter": "Gossip, reputation, and Public Standing",
+    "chapterId": "gossip-reputation-and-public-standing",
+    "text": "Area Common signals and what they mean Family and conduct Disloyal , Promiscuous , Marital Strife , Divorcee , Flirt , The Unchaste , Infertile , Dynasty Secure , Whoremonger concern relationships, family, and public conduct. A social accusation is not a medical diagnosis. Combat Strong/Weak Captain , Tactician/Failed Tactician , Siege Commander , Inept Besieger , Siege Breaker , Champion of the Pit , Duelist , Fallen Challenger , Coward , War Crowned , Defeated Crown , Battlemaster , The Frail reflect credited performance. Rule and welfare Realm Builder/Realm in Decline , Provider of the Realm/Starving Crown , Unifier/Fractured Crown , Keeper of Order/Lawless Crown , Guardian of Commons/Lord of Empty Fields concern the realm you govern. Distribution and command Consolidator/Overextended Crown , Fair Hand of Crown/Hoarder of Titles , Gatherer/Scatterer of Banners , Steward of the Realm/Ruinous Crown reflect patterns of leadership. Court Well Regarded , Court Favorite , Beloved of Court , Ill Regarded , Shunned at Court , Court Pariah , Favors [person] , Attentive Lord , Absent Lord concern public position, favoritism, and presence. Some broad titles summarize several underlying signals. Presence at court, neglect, wars, food security, village recovery, and actual outcomes can all contribute. You do not have to discuss your reputation in chat for the world to notice your rule.",
+    "aliases": [
+      "Attentive Lord",
+      "Absent Lord",
+      "Court Pariah",
+      "Champion of the Pit",
+      "Starving Crown",
+      "Infertile",
+      "Dynasty Secure",
+      "Duelist"
+    ],
+    "preview": true
+  },
+  {
+    "id": "managing-a-damaged-name",
+    "title": "Managing a damaged name",
+    "chapter": "Gossip, reputation, and Public Standing",
+    "chapterId": "gossip-reputation-and-public-standing",
+    "text": "First identify whether the problem is a rumor, an established reputation, a personal relationship, or a real unresolved act. They need different remedies. Correct false information, fulfill promises, address the cause, or use a Spymaster's supported social mission. Removing gossip does not release a prisoner or repair a betrayed relationship by itself. A successful reputation mission may weaken a signal rather than erase it. Cancellation or a failed mission does not refund all spent resources. Read its result before commissioning another operation.",
+    "aliases": [
+      "remove rumor",
+      "repair reputation",
+      "clear my name",
+      "mitigate reputation"
+    ],
+    "preview": true
+  },
+  {
+    "id": "castle-layout-and-room-conversations",
+    "title": "Castle Layout and room conversations",
+    "chapter": "Keeps, households, and training",
+    "chapterId": "keeps-households-and-training",
+    "text": "Choose Explore the keep → Castle Layout to see the household's rooms and available people. Room placement reflects time of day, roles, and current availability. A courtier may be in the library in one part of the day and dining later. Escape returns from Castle Layout to its origin. Room choices themselves use the displayed controls. Rooms include the gardens, noble solar, library, training yard, inner and stable courtyards, small dining chamber, portrait gallery, main hall, chapel, throne room, baths, guest bedrooms, royal bedroom, and battlements. Selecting a room opens its supported conversation context. The people shown are the people available for that session; a bedroom assignment does not itself establish an affair. Castles have the keep exploration and household routes as well as towns. Court authority, ordinary household access, and government access are separate permissions. You need not own a kingdom just to understand what a public room or household interface is showing. Layout example — Castle Layout: choose an occupied room to find its people instead of searching an entire native scene.",
+    "aliases": [
+      "Castle Layout",
+      "Explore the keep",
+      "rooms",
+      "library",
+      "baths",
+      "royal bedroom",
+      "gardens",
+      "throne room"
+    ],
+    "preview": false
+  },
+  {
+    "id": "training-yard",
+    "title": "Training Yard",
+    "chapter": "Keeps, households, and training",
+    "chapterId": "keeps-households-and-training",
+    "text": "Use Visit the training yard from the supported keep menu. Select an eligible adult traveling with your party as trainer, review the troops and displayed training rate, then choose Train . The trainer's Leadership and weapon expertise affect the work. Training advances campaign time. It awards experience to eligible regular party troops; it does not directly upgrade them or provide free upgrade equipment. Troops already ready to upgrade cannot keep banking unlimited training through this screen. Use Stop when finished. The status can say that all eligible troops are ready while time continues until you stop it. Training belongs to the currently open visit; it is not an invisible permanent training order left behind after departure. Escape closes the training visit. Use the visible Train and Stop controls to manage training deliberately. Layout example — Training Yard: choose a trainer, inspect party troops, and watch the training status before stopping.",
+    "aliases": [
+      "Training Yard",
+      "troop XP",
+      "train troops",
+      "trainer",
+      "stop training"
+    ],
+    "preview": false
+  },
+  {
+    "id": "household-pictures-and-privacy",
+    "title": "Household pictures and privacy",
+    "chapter": "Keeps, households, and training",
+    "chapterId": "keeps-households-and-training",
+    "text": "Castle Chat Image Generation controls room scenes independently of general portrait replacement. A room picture illustrates the chosen people and setting; it is not a substitute for their actual presence or a completed action. Family Chambers, Homes, and room chat have different audiences. Before discussing a private matter, check which session you entered and who is selected. Someone else's nearby room is not automatically part of your conversation.",
+    "aliases": [
+      "Castle Chat",
+      "room image",
+      "private home"
+    ],
+    "preview": false
+  },
+  {
+    "id": "capitals-and-rule-mode",
+    "title": "Capitals and Rule Mode",
+    "chapter": "Ruling a kingdom",
+    "chapterId": "ruling-a-kingdom",
+    "text": "As ruler, use Designate Capital in an eligible town of your kingdom. At a safe kingdom town or castle, Enter Rule Mode opens court business. The capital provides Royal Court with full royal scope; another eligible holding provides a reduced Local Docket . Captivity, siege, and unsafe conditions can interrupt access. Enable Court System in MCM if the menu is unavailable. A saved setting that turned it off stays off after an update. Owning a castle without ruling a kingdom does not automatically grant full royal authority. The Royal Court's main areas include Court, Court History, Lands, Subjects, Diplomacy, Ambassadors, Spymaster, and Military, with entrances to Government, Royal Council, Family Chambers, and Castle Layout. Use Lands and the Economic Report to investigate a shortage before deciding how to spend the treasury. Escape closes the main Court screen. In a supported conversation opened from court, Alt+A opens actions; it is not a shortcut for every Court tab. The Court window fits itself to your display while keeping its proportions. Recent development work corrects its size on taller displays; check the installed version if yours looks different. Layout example — Royal Court: tabs lead to different kinds of business; your current location and office determine your authority.",
+    "aliases": [
+      "capital",
+      "Designate Capital",
+      "Enter Rule Mode",
+      "Royal Court",
+      "Local Docket",
+      "Court System"
+    ],
+    "preview": true
+  },
+  {
+    "id": "hearing-and-deciding-petitions",
+    "title": "Hearing and deciding petitions",
+    "chapter": "Ruling a kingdom",
+    "chapterId": "ruling-a-kingdom",
+    "text": "Petitions come from actual needs rather than a queue filled with invented emergencies. Core petitions concern food, town funds, village recovery, and soldiers for security. Read the petitioner, settlement, requested aid, and proposed commitment. Talk with the petitioner, then use the explicit decision: grant direct aid, fund a supported alternative, or refuse. Conversational sympathy alone does not spend the treasury or send soldiers. If you lack the resources, a pending case does not count as fulfilled. Direct soldier aid detaches real troops while protecting a minimum home defence. An expedition can suffer losses and returns through its recorded route or a safe fallback. Gold alternatives can be costly because they fund the replacement work, not merely the face value of a few items. Petitions do not simply vanish because you postponed them. Try this: open a food petition, inspect the affected holding, and compare direct aid with the funded alternative before deciding. Check Court History afterward for the recorded result. In-game screenshot - Court audience: an ambassador presents an International request. Read the request and conversation, then use the separate Review Decisions, Confirm, Refuse Request or Postpone controls. This audience concerns an envoy's offer to fund a friendship ceremony. Talking through an offer and confirming a decision are separate steps; read the final terms before confirming.",
+    "aliases": [
+      "petitions",
+      "food aid",
+      "grant aid",
+      "Fund Instead",
+      "refuse petition",
+      "soldier expedition",
+      "Court History"
+    ],
+    "preview": true
+  },
+  {
+    "id": "noble-disputes-visitors-and-patronage",
+    "title": "Noble disputes, visitors, and patronage",
+    "chapter": "Ruling a kingdom",
+    "chapterId": "ruling-a-kingdom",
+    "text": "Preview: broader noble, international, household, visitor, and patronage business exists in the court implementation; it is separate from the certified core relief-petition slice and has further acceptance work. Court life also includes noble disagreements over precedence, insult, scandal, family affairs, property, and more serious misconduct. Hear each actual principal, consider the known evidence, and read the available ruling. A losing side can accept, resent, or resist your judgment. An accusation does not automatically establish the accused behavior or its reputation. Foreign court matters use the relevant international participants and authority. A local household quarrel is not permission to commit another kingdom to a treaty. Native marriage, custody, imprisonment, or death still needs its actual supported game action; conversation cannot bypass it. Noble visitors can make courtesy calls, introduce themselves, or bring family introductions. A reserved visit can temporarily make someone unavailable for an office or other duty. A social introduction is not an accepted marriage. Patronage brings artists and supported commissions into court life. Review the named work, price, and delivery before funding it. Discussion alone does not grant a commissioned work or its benefits; only a properly paid supported commission does. Some audiences provide characterization without a mechanical reward.",
+    "aliases": [
+      "noble dispute",
+      "court life",
+      "patronage",
+      "artist",
+      "commission",
+      "noble visitor",
+      "family introduction",
+      "international court matter"
+    ],
+    "preview": true
+  },
+  {
+    "id": "chancellor-and-delegation",
+    "title": "Chancellor and delegation",
+    "chapter": "Ruling a kingdom",
+    "chapterId": "ruling-a-kingdom",
+    "text": "Ask an eligible person in direct conversation to become Chancellor, agree on pay, and review the appointment. The Chancellor is a capital-resident docket office, separate from the Royal Council seats. It may require leaving an incompatible governorship or field command. Appointment begins inactive. Activation and deactivation take effect at the next scheduled morning docket boundary, rather than immediately rewriting the day. Active service costs its agreed daily salary and suppresses ordinary petitions. Unpaid service cannot continue indefinitely. Delegating often can give you the social appearance of an absent ruler. Captivity has an emergency Chancellor lifecycle and a handoff after release. The old Regent is retired; historical Regent entries do not mean that office still governs your current court.",
+    "aliases": [
+      "Chancellor",
+      "delegate",
+      "Regent",
+      "salary",
+      "captured ruler delegation"
+    ],
+    "preview": true
+  },
+  {
+    "id": "offices-and-the-royal-council",
+    "title": "Offices and the Royal Council",
+    "chapter": "Ruling a kingdom",
+    "chapterId": "ruling-a-kingdom",
+    "text": "Court work depends on capable, loyal, trustworthy people as well as skill. Steward, Economic Advisor, Foreign Advisor, Marshal, and Spymaster duties use different talents. Absence and conflicting duties matter. Do not assume appointing the highest visible skill guarantees the best outcome. The Royal Council has War Councilor, Spymaster, Economic Advisor, and Foreign Advisor seats. One person cannot occupy every major seat. Select the War Councilor through the War Council. Economic and Foreign Advisors must be eligible and available for residence at the capital. Ask the relevant advisor for a briefing or a fuller explanation. Advice is advisory: it does not issue a war order, pay a grant, change a treaty, or secretly settle a relationship. Only present participants share that council conversation. Preview: Royal Council residence, briefings, routing, and capital changes have implementation and interface evidence, but their full native/provider acceptance remains open. Layout example — Royal Council: occupied advisor stations surround the shared transcript; advice still needs your separate decision.",
+    "aliases": [
+      "Royal Council",
+      "councillor",
+      "councilor",
+      "advisor",
+      "Steward",
+      "Marshal",
+      "Economic Advisor",
+      "Foreign Advisor",
+      "War Councilor"
+    ],
+    "preview": true
+  },
+  {
+    "id": "economic-reports-and-court-supply",
+    "title": "Economic reports and court supply",
+    "chapter": "Ruling a kingdom",
+    "chapterId": "ruling-a-kingdom",
+    "text": "Open the Economic Report to inspect the realm's condition, including food and military burdens. Hover food information for reserve and projected-shortage explanations. Compare actual village output with healthy output; a town's full market is not the same as its settlement food reserve. Court transfers require actual stock, money, a valid route, and the necessary ownership or consent. A negotiated shipment is not free food. Spent resources and incoming cargo must be accounted for before you assume another grant is affordable. If workshop or caravan profit is marked unmeasured, read that as unavailable ledger information rather than zero earnings. See Economy and survival for how population, relief, and military costs interact. In-game screenshot - Economic Report: compare settlement information on the left, prepare a transfer request in the middle, and review the kingdom overview, military logistics and Economic Advisor on the right. Read the report date; displayed amounts belong to this campaign.",
+    "aliases": [
+      "Economic Report",
+      "hover food",
+      "realm finances",
+      "court supply",
+      "unmeasured income"
+    ],
+    "preview": true
+  },
+  {
+    "id": "your-kingdoms-institution",
+    "title": "Your kingdom's institution",
+    "chapter": "Government and political participation",
+    "chapterId": "government-and-political-participation",
+    "text": "Government represents organized political members and constituencies alongside the ruler and noble pressures. Its parties have platforms, members, speakers, coalitions, and differing interests. Government trust is different from personal friendship or Public Standing. Institution Typical representation Imperial Senate Town and village notable constituencies Great Council of Peers Qualifying landholding clans Grand Veche Landholding clans and town merchant/artisan constituencies Oenach Landholding clans and village headman/landowner constituencies Majlis al-Shura Landholding clans and town merchant constituencies Great Kurultai Qualifying landholding clans Great Thing Landholding clans and town/village notable constituencies Council of Estates Landholding clans and town notable constituencies Use Royal Court → Government for the ruler view. Castle Layout → Government also provides the supported public view; viewing it does not make you ruler. A new kingdom's Founding Charter lets the player review the institution and its starting authority. Confirming a charter is a constitutional choice, not a cosmetic culture selector. Existing kingdoms retain their recorded constitution. Preview: Government's expanded participation, hearings, proposals, consent, and persistence have reopened acceptance work. Follow the installed edition's actual screens and current recorded decisions. In-game screenshot - Government Agenda: choose a matter on the left, read its stage, sponsor and proposal terms in the middle, and inspect member positions on the right. Record my position declares your choice; the scheduled decision comes later.",
+    "aliases": [
+      "Government",
+      "Senate",
+      "Veche",
+      "Oenach",
+      "Majlis",
+      "Kurultai",
+      "Great Thing",
+      "Council of Peers",
+      "Founding Charter",
+      "constitution"
+    ],
+    "preview": true
+  },
+  {
+    "id": "authority-and-the-rulers-limits",
+    "title": "Authority and the ruler's limits",
+    "chapter": "Government and political participation",
+    "chapterId": "government-and-political-participation",
+    "text": "Government authority ranges from advice, through political pressure and reconsideration, to required approval for important decisions. At stronger levels the ruler may need a conscious override or a constitutional change; at the strongest level major actions can be blocked until approval is obtained. War, peace, treaties, policy, taxation, major spending, fiefs, and serious justice can fall within that authority. A valid military or diplomatic action is not permission to bypass Government. Relief and espionage have different classifications, but parties can still care about them. Increasing authority gives the institution a stronger role and brings public benefits. Reducing it through agreement differs sharply from forcing it down. Forced reduction can damage trust and relationships across the realm. An NPC's explicit consent protects only the person or clan they can actually represent, for the exact proposed change; it is not a permanent blank cheque.",
+    "aliases": [
+      "authority",
+      "override",
+      "government approval",
+      "reduce authority",
+      "consent to reduction",
+      "political limits"
+    ],
+    "preview": true
+  },
+  {
+    "id": "joining-government-without-a-crown",
+    "title": "Joining Government without a crown",
+    "chapter": "Government and political participation",
+    "chapterId": "government-and-political-participation",
+    "text": "You can read public records, prepare proposals, approach members, and seek support before holding a seat. Admission depends on the institution. A noble seat needs actual qualifying clan leadership and land. A civic mandate needs an eligible constituency, endorsements, and the supported adoption and decision process. If a seat is occupied, its holder does not lose it merely because you ask. Transfer consent or a lawful recall route may be required. Political sponsorship cannot invent an extra seat, give you someone else's vote, or make you a vassal by implication. A member can vote, support proposals, join political work, and seek party responsibility. Membership does not grant treasury access, military command, or a Royal Council seat. A title such as Senator describes a real recorded office, not permission to direct the kingdom.",
+    "aliases": [
+      "become senator",
+      "join government",
+      "seat",
+      "mandate",
+      "endorsement",
+      "recall",
+      "membership",
+      "not ruler politics"
+    ],
+    "preview": true
+  },
+  {
+    "id": "proposals-sponsors-parties-and-sessions",
+    "title": "Proposals, sponsors, parties, and sessions",
+    "chapter": "Government and political participation",
+    "chapterId": "government-and-political-participation",
+    "text": "Use Prepare a proposal and My Proposals where available. Choose the real kingdom, action or policy, target, and enactment or repeal terms. A draft is not a law. Changing its terms can require renewed support. In a supported conversation, Alt+A opens the action selector for political requests and the proposal route. Escape returns from the Government screen; inside the action builder it cancels that builder instead. Seek an eligible sponsor or party adoption. A willing member's personal support, a party's nomination, formal presentation, a vote, and actual enactment are separate stages. Speakers coordinate party work; they cannot turn their personal opinion into every member's ballot. An unused or unsupported nomination can expire rather than silently becoming law. Seats and future voting shares follow actual constituencies and territorial changes. A new holding can add representation; losing one can suspend it. Existing matters preserve their recorded voter roll rather than handing an absent member's vote to a newcomer. Crown and member weight also depend on the constitution, so do not assume every decision is a simple equal headcount. Diagram — Political route: draft, obtain support, secure adoption, present, vote, then verify enactment.",
+    "aliases": [
+      "proposal",
+      "sponsor",
+      "nomination",
+      "adoption",
+      "party speaker",
+      "coalition",
+      "vote",
+      "My Proposals",
+      "Prepare a proposal",
+      "political party"
+    ],
+    "preview": true
+  },
+  {
+    "id": "hearings-recess-and-political-bargains",
+    "title": "Hearings, recess, and political bargains",
+    "chapter": "Government and political participation",
+    "chapterId": "government-and-political-participation",
+    "text": "Public hearing speech enters the record but does not by itself spend gold, enact a policy, change a ballot, or create a private deal. Check attendance: absent members are not silently present in the conversation. For persuasion or a political bargain, speak with the actual available member in the supported individual conversation, including during a recess. There are no magical hearing buttons that guarantee a bought vote. Any accepted payment needs clear mutual terms, actual funds, and the right recipient. A deal depends on the promised obligation really being fulfilled. Political promises affect consideration; they do not guarantee every final vote. Read the recorded position and outcome. Changing your mind, missing a deadline, or failing an obligation can have consequences even if the original conversation sounded friendly.",
+    "aliases": [
+      "hearing",
+      "recess",
+      "bribe",
+      "political bargain",
+      "deal",
+      "lobbying",
+      "ballot"
+    ],
+    "preview": true
+  },
+  {
+    "id": "resolutions-edicts-and-follow-through",
+    "title": "Resolutions, edicts, and follow-through",
+    "chapter": "Government and political participation",
+    "chapterId": "government-and-political-participation",
+    "text": "Government business spans relief, food and agriculture, trade, security, defence, war and peace, raids, espionage, diplomacy, justice, construction, prisoners and households, and taxes or obligations. An edict or policy can benefit one area while burdening another. Read the current target, completion route, deadline, and tradeoffs. Paying money is not always the same as supplying goods or improving an actual settlement condition. A promising speech does not complete a resolution; check the requirement and whether the game recorded it as fulfilled.",
+    "aliases": [
+      "resolution",
+      "edict",
+      "policy",
+      "taxes",
+      "repeal",
+      "obligation",
+      "deadline"
+    ],
+    "preview": true
+  },
+  {
+    "id": "talking-to-the-right-authority",
+    "title": "Talking to the right authority",
+    "chapter": "Diplomacy, ambassadors, and Clan Accords",
+    "chapterId": "diplomacy-ambassadors-and-clan-accords",
+    "text": "Rulers can negotiate war, peace, tribute, and longer agreements. NPC rulers also pursue their own policies according to personality, relationships, domestic pressures, current wars, and realm condition. You are not the only person capable of making the map change. A courtier can discuss an alliance without having power to grant it. An ambassador can negotiate only within their actual mandate. Ask who can decide, agree on the exact terms, and inspect the resulting agreement or native change. Use Alt+A in an eligible conversation to build a supported diplomatic action. For a written approach, open Correspondence with Ctrl+M , select the contact, then use Alt+A when the letter composer is ready. Political Pressure reflects friction or cooperation between realms and domestic lords. It can lead to peace, aid, trade, threats, or war. A ruler choosing foreign friendship may disappoint domestic supporters; supporting an angry noble faction may damage foreign relations.",
+    "aliases": [
+      "diplomacy",
+      "foreign ruler",
+      "Political Pressure",
+      "war declaration"
+    ],
+    "preview": true
+  },
+  {
+    "id": "what-agreements-can-do",
+    "title": "What agreements can do",
+    "chapter": "Diplomacy, ambassadors, and Clan Accords",
+    "chapterId": "diplomacy-ambassadors-and-clan-accords",
+    "text": "Supported diplomacy includes ordinary and tribute peace, reparations, settlement concessions, surrender, trade, non-aggression, alliances, defensive pacts, independence guarantees, prisoner exchanges, ransoms, hostage guarantees, border restraint, caravan protection, supply, loans or subsidies, paid neutrality, paid war entry, and dependent political arrangements. Compound packages can link several terms. Review who pays, who gives up territory or prisoners, which enemy is named, the duration, and whether it is public. Some arrangements directly alter Bannerlord state; others record obligations enforced when relevant events occur. A promise of supplies is not an already completed shipment. An incompatible war can break treaties and damage trust. Peace does not necessarily recreate an agreement that ended. Temporary Truce and Trade Embargo are retired legacy action names; use the supported alternatives instead of assuming those old labels execute.",
+    "aliases": [
+      "treaty",
+      "alliance",
+      "non aggression",
+      "defensive pact",
+      "peace",
+      "tribute",
+      "reparations",
+      "surrender",
+      "hostage",
+      "loan",
+      "subsidy",
+      "trade embargo",
+      "temporary truce",
+      "protectorate"
+    ],
+    "preview": true
+  },
+  {
+    "id": "outbound-and-resident-ambassadors",
+    "title": "Outbound and resident ambassadors",
+    "chapter": "Diplomacy, ambassadors, and Clan Accords",
+    "chapterId": "diplomacy-ambassadors-and-clan-accords",
+    "text": "From Court's Ambassadors area, post an eligible ambassador, assign supported information, relations, or trade work, and recall them when appropriate. Postings occupy limited capacity and persist over time. A resident foreign envoy comes from another peaceful ruler to your capital. They travel, arrive, and reside there rather than appearing instantly. Capital movement can relocate the posting; war can recall it. An envoy's conversation and authority can pass to a successor without wiping the state's diplomatic history. An official envoy cannot grant something outside their charter, regardless of how persuasive you are. Refer an unauthorized request to the foreign ruler. Distinguish an ambassador's personal feelings from the terms they can officially approve. In-game screenshot - Ambassadors: your Foreign Advisor is on the left; foreign envoys have separate cards with their realm, location and travel status. Appointment, dismissal and Establish Relations are distinct controls.",
+    "aliases": [
+      "ambassador",
+      "envoy",
+      "diplomatic charter",
+      "resident envoy",
+      "recall ambassador"
+    ],
+    "preview": true
+  },
+  {
+    "id": "clan-accords",
+    "title": "Clan Accords",
+    "chapter": "Diplomacy, ambassadors, and Clan Accords",
+    "chapterId": "diplomacy-ambassadors-and-clan-accords",
+    "text": "Preview: Clan Accords have source and contract evidence; their complete installed native lifecycle still needs acceptance. Clan Accords are smaller cooperative arrangements between the player ruler's clan and an NPC clan. They are not kingdom treaties. A lesser eligible adult noble can arrange an accord for their clan through explicit agreement; it does not always require the clan leader to negotiate personally. Use Alt+A in the ready conversation to find the supported Clan Accord action. Escape closes the Clan Accords management screen. Accord Practical benefit Trade cooperation A modest continuing income benefit Mutual Watch Better security in owned towns and castles Agricultural exchange Help with village household growth Artisan exchange Help with town prosperity Garrison cooperation Lower garrison wage burden Available slots grow with clan tier separately for each accord type. Benefits can stack, and a valid accord can begin helping new holdings acquired later. Review capacities, partners, arrangers, and benefits through the Economy entry beside the campaign date and its Clan Accords screen. Peaceful allegiance changes or an arranger's death need not end an accord. War with the partner's faction or clan elimination ends incompatible arrangements. Voluntary cancellation can hurt relationships; wartime termination has different rules. Peace afterward does not automatically sign them again. Accords can build goodwill but do not grant votes, military authority, or Spymaster access. Mutual Watch is cooperation, not a hidden unlimited intelligence-report service. Layout example — Clan Accords: inspect each partner and accord type, then confirm deliberately before cancelling.",
+    "aliases": [
+      "Clan Accords",
+      "Mutual Watch",
+      "agricultural exchange",
+      "artisan exchange",
+      "garrison cooperation",
+      "trade cooperation",
+      "Economy button"
+    ],
+    "preview": true
+  },
+  {
+    "id": "appointing-and-using-a-spymaster",
+    "title": "Appointing and using a Spymaster",
+    "chapter": "Spymaster and covert work",
+    "chapterId": "spymaster-and-covert-work",
+    "text": "Appoint an eligible Spymaster, then use Court's Spymaster tab. Roguery matters, alongside the person's overall fitness for office. There are limited concurrent missions, and an officeholder with active work cannot simply be replaced to erase its consequences. Choose the mission, actual target, and shown terms. Read cost, duration, difficulty, and risk of detection before starting. A routine mission and an assassination are very different commitments. An unavailable target can invalidate work, and spent money is not automatically refunded. In-game screenshot - Spymaster: choose a mission tab, target and operation, read its assessment, then use Commit the Operation when ready. Reports and report details appear below; Archive is a separate tab.",
+    "aliases": [
+      "Spymaster",
+      "covert work",
+      "mission slots",
+      "Roguery"
+    ],
+    "preview": false
+  },
+  {
+    "id": "intelligence-and-sabotage",
+    "title": "Intelligence and sabotage",
+    "chapter": "Spymaster and covert work",
+    "chapterId": "spymaster-and-covert-work",
+    "text": "Intelligence work can investigate land, skills, relationships, rumors, and reputations. Counterintelligence searches for foreign agents. Sabotage can disrupt food contribution, construction, security, or loyalty for a period of time. Better expertise helps but does not guarantee success or secrecy. Important and well-protected targets are harder. Read the returned report: an attempt is not a successful disruption, and detecting activity is not always identifying its sponsor. NPC kingdoms can also disrupt food production in villages supplying an enemy town during wartime. This activity uses the NPC kingdom and runs alongside the Spymaster missions you choose. Its disruption wears off and food relief continues. Use Court's Economic Report to check food supplies when planning for a siege or shortage.",
+    "aliases": [
+      "sabotage",
+      "counterintelligence",
+      "foreign agent",
+      "disrupt food",
+      "disrupt loyalty",
+      "land intelligence"
+    ],
+    "preview": false
+  },
+  {
+    "id": "social-manipulation-and-lethal-missions",
+    "title": "Social manipulation and lethal missions",
+    "chapter": "Spymaster and covert work",
+    "chapterId": "spymaster-and-covert-work",
+    "text": "Supported social work can mitigate your own or another person's damaging signal, promote a positive reputation, or fabricate harmful allegations. An allegation can affect society without making it objectively true. Established reputations are harder to erase than rumors. Assassination can kill a unique person and expose or capture your Spymaster. A captured operative can require ransom or a personal breakout attempt; rescue can fail and place you in custody too. Read those consequences before confirming. Counterintelligence and ordinary information work are available without choosing a lethal mission. Foreign realms can recruit disaffected agents and operate against you. A friendly-looking court is not proof that every member is loyal. Exposed agents leave the active hidden pool while their history remains.",
+    "aliases": [
+      "assassination",
+      "breakout",
+      "captured spy",
+      "fabricate rumor",
+      "promote reputation"
+    ],
+    "preview": false
+  },
+  {
+    "id": "giving-a-clear-campaign-order",
+    "title": "Giving a clear campaign order",
+    "chapter": "War, armies, and temporary guests",
+    "chapterId": "war-armies-and-temporary-guests",
+    "text": "The Campaign Command Engine supervises accepted NPC party and army orders over time. It controls the commander's force, not your main party . You need legitimate authority or the commander's explicit agreement. Specify the commander, objective, target, duration or stop condition, and any troop or supply requirement. “Patrol around this town until I recall you” is different from “capture that castle.” A conditional reply or counteroffer changes the terms. Read the accepted version before confirming. Build the command with Alt+A in the supported conversation. For written orders or reports, open Correspondence with Ctrl+M and use Alt+A with the eligible commander selected. Orders can adapt to changing danger, war state, geography, and duties. A commander may report trouble, withdraw, refuse, or ask for guidance. Correspondence can carry those reports and their deadlines. Issuing the order does not mean it has already completed.",
+    "aliases": [
+      "Campaign Command",
+      "orders",
+      "commander",
+      "order report",
+      "cancel order",
+      "main party control"
+    ],
+    "preview": true
+  },
+  {
+    "id": "campaign-objectives-you-can-combine",
+    "title": "Campaign objectives you can combine",
+    "chapter": "War, armies, and temporary guests",
+    "chapterId": "war-armies-and-temporary-guests",
+    "text": "Aim Supported work Prepare Create the commander's party; recruit and resupply to agreed targets Travel Go to a named settlement or valid point; return home; withdraw to safety Hold and observe Hold until recalled or for a term; patrol; scout and report Coordinate Escort a party; form an army and wait; join, leave, or disband an eligible army Attack Raid a hostile village; besiege and capture a fortification; engage a named enemy; hunt enemies in a bounded region Defend Defend a settlement or relieve an active siege Multi-step orders can recruit, then patrol, then hold. Recruiting still requires funds and local manpower. Settlement surrender belongs to diplomacy, not a movement order disguised as a guaranteed capture.",
+    "aliases": [
+      "patrol",
+      "scout",
+      "escort",
+      "form army",
+      "recruit and resupply",
+      "hold position",
+      "relieve siege",
+      "raid",
+      "besiege"
+    ],
+    "preview": true
+  },
+  {
+    "id": "war-council-map-and-intelligence",
+    "title": "War Council map and intelligence",
+    "chapter": "War, armies, and temporary guests",
+    "chapterId": "war-armies-and-temporary-guests",
+    "text": "Open Royal Court → Military → War Council . Inspect kingdom lords, parties, settlements, orders, and battle reports. Pan the map by clicking or dragging. It uses a fixed readable scale; the mouse wheel is not a normal zoom control. Your realm's parties are visible. Foreign parties depend on intelligence and can be missing because they have not been detected, not because they do not exist. The selected War Councilor's Tactics and Leadership affect intelligence; without one, the ruler supplies those skills. Drag supported orders onto valid map targets: Free Roam, Hold, Patrol, or Attack. An attack on a hostile village is a raid; an attack on a fortification is a siege/capture objective. Right-click Remove Order to clear a council order. A direct command already in force cannot simply be overwritten by an unrelated map gesture. Use the Raven control for correspondence when you need clarification or negotiated orders. Battle reports distinguish completed outcomes from current map positions, and naval battles/parties have their own presentation. Escape dismisses an open military-standing popup first; otherwise it closes War Council. The map orders use the mouse controls described above. In-game screenshot - War Council: the map is on the left, strength and reports in the middle, and Lords & Parties on the right. Peace Standing and War Standing are above the map; the settlement directory helps you find a location.",
+    "aliases": [
+      "War Council",
+      "map",
+      "Raven",
+      "Remove Order",
+      "battle ledger",
+      "enemy not visible",
+      "zoom",
+      "pan map"
+    ],
+    "preview": true
+  },
+  {
+    "id": "peace-standing-war-standing-and-garrisons",
+    "title": "Peace Standing, War Standing, and garrisons",
+    "chapter": "War, armies, and temporary guests",
+    "chapterId": "war-armies-and-temporary-guests",
+    "text": "Preview: military standing and the revised war economy are actively being balanced and verified. Their goals are not a promised starvation timer or guaranteed food supply. The sovereign's Peace Standing and War Standing controls sit either side of the crowned R in the revised War Council. Automatic adjusts peace readiness to external pressure; a manual peace strength keeps your selected target. The Royal Docket's Kingdom Military Standing provides the corresponding orders. Peace standing limits automatic field recruitment. Peace drawdown selects eligible surplus healthy soldiers proportionally across troop tiers. This preserves more of the force's mix while the party shrinks. A safe subordinate lord party can release troops gradually. The main party, garrisons, heroes, and wounded troops are outside this drawdown. Current battles, army service, and a player-issued recruit and resupply order can prevent the drawdown. Released soldiers can help functioning village households recover. War standing still needs actual funds, recruits, and provisions. Garrisons keep defensive targets in either standing. Stationary garrison regulars cost less to supply and maintain than field troops; transferring them out returns them to field costs. Visiting parties do not gain that garrison discount.",
+    "aliases": [
+      "Peace Standing",
+      "War Standing",
+      "Automatic",
+      "readiness",
+      "mobilize",
+      "demobilize",
+      "drawdown",
+      "field strength"
+    ],
+    "preview": true
+  },
+  {
+    "id": "inviting-a-noble-to-travel-with-you",
+    "title": "Inviting a noble to travel with you",
+    "chapter": "War, armies, and temporary guests",
+    "chapterId": "war-armies-and-temporary-guests",
+    "text": "Ask an eligible noble from another clan to accompany you temporarily. This is a Temporary Party Guest agreement, not companion recruitment, vassalage, or a clan transfer. Agree on purpose, risk, and a fixed or open-ended term. The noble can refuse. Use Alt+A in the ready conversation to build the guest request or supported revision/departure action. To speak with a guest already traveling with you, open Party Chat with backslash (\\) and select them. A guest retains clan, identity, and equipment; their equipment cannot be treated as freely available inventory. If they led a party, their real original force remains as [Name]'s Waiting Camp , protected while the noble visits. Do not mistake the camp for an abandoned army to harvest. At review, Speak Now opens the discussion and Let Them Depart begins the return. Departure can require actual travel back to the original party or a safe alternative. Asking them to leave early still requires the supported agreement; a polite farewell is not proof of departure. War with their faction forces a separate risk review. Letting a guest fight their own people can lead to banishment and a permanent clan change, subject to succession safeguards. Read that decision carefully; ordinary guest acceptance alone does not authorize it. Diagram — A temporary guest leaves a protected original party, visits under agreed terms, then returns through a recorded journey.",
+    "aliases": [
+      "Temporary Party Guest",
+      "guest",
+      "waiting camp",
+      "Let Them Depart",
+      "Speak Now",
+      "NPC wont leave",
+      "guest departure",
+      "own faction combat",
+      "banishment"
+    ],
+    "preview": true
+  },
+  {
+    "id": "choosing-a-duel",
+    "title": "Choosing a duel",
+    "chapter": "Duels, arrests, rulers, and civil war",
+    "chapterId": "duels-arrests-rulers-and-civil-war",
+    "text": "An eligible NPC can agree to a duel in individual conversation. Read the Bannerlord Reign Duel prompt before starting; cancelling the start is different from losing a fight. Use Alt+A in the ready individual conversation to select the supported duel request and terms. Mode What is at stake Practice Private, nonlethal sparring. The opponent remembers it, but it does not produce ordinary public duel glory, disgrace, or automatic relationship rewards. Honor A nonlethal challenge whose outcome can enter public combat history, news, and reputation. Lethal A real death risk under the confirmed terms. Never treat it as ordinary practice. Nonlethal fights use protected health handling rather than normal campaign injuries. Duel training reduces health damage so combat can last longer while preserving a separate training-XP path; blocked hits can matter for learning too. It is not a way to apply those protections to an unrelated battle. The mission outcome decides who won. Narrating victory does not replace the fight. A duel used for an arrest has custody consequences and is separate from private practice. Existing native learning modifiers still affect actual skill gains.",
+    "aliases": [
+      "duel",
+      "practice duel",
+      "honor duel",
+      "lethal duel",
+      "sparring",
+      "duel XP",
+      "blocked hits",
+      "training damage"
+    ],
+    "preview": true
+  },
+  {
+    "id": "arrests-accusation-confirmation-and-custody",
+    "title": "Arrests: accusation, confirmation, and custody",
+    "chapter": "Duels, arrests, rulers, and civil war",
+    "chapterId": "duels-arrests-rulers-and-civil-war",
+    "text": "You need real jurisdiction: an eligible player-owned holding, an accused person in your party, or the supported encounter with their party. An insult in a distant conversation does not grant universal arrest power. Prepare an accusation with its reason, then explicitly confirm the arrest. These are separate steps. Reign considers cause and evidence; a serious unsupported accusation can hurt relationships and public standing. A rumor is not automatically a justified conviction. Use Alt+A for the supported prepare, confirm, release, or rescind action. Opening the selector does not itself order an arrest. During a party encounter, the accused can surrender or resist. A nonlethal arrest duel or native battle may follow. You gain custody only when the actual result places the person with you. Release frees the prisoner but retains the accusation. Rescind clears that accusation and its associated effect and releases the accused. Protected custody of your own realm's or clan's arrested people differs from ordinary random escape; deliberate release, death, and actual battle outcomes still matter. Diagram — Arrest has two decisions: prepare the accusation, then confirm; afterward release and rescind have different meanings.",
+    "aliases": [
+      "arrest",
+      "accusation",
+      "confirm arrest",
+      "jurisdiction",
+      "release",
+      "rescind",
+      "prisoner",
+      "custody"
+    ],
+    "preview": true
+  },
+  {
+    "id": "captured-rulers-and-sovereign-judgment",
+    "title": "Captured rulers and sovereign judgment",
+    "chapter": "Duels, arrests, rulers, and civil war",
+    "chapterId": "duels-arrests-rulers-and-civil-war",
+    "text": "Preview: expanded ruler capitals, capture protection, judgments, and settlement consequences have continuing native acceptance work. NPC rulers tend to remain at a secure capital until they can lead a substantial present army. They can relocate when a capital is lost and return after a campaign. These rules do not take away the player's freedom to travel. An army still approaching is not the same as soldiers already present. Defeating a ruler does not guarantee capture. When a sovereign is captured, the capturing sovereign has special decisions. A player vassal or mercenary does not acquire that sovereign power just by holding the prisoner; direct handover is distinct from a routine dungeon donation. Ordinary-war judgments can include an execution sentence, exile with concessions and a replacement ruler, or submission and annexation. Read the permanent political outcome and temporary settlement effects. Sentencing is not the same as actual death. During a pending sentence, normal sale or ransom cannot bypass it, but escape or rescue can cancel the pending outcome. An unauthorized vassal execution can anger both realms without granting the sovereign settlement package. The ruler feature also has life-and-death requirements; review its Options before assuming a no-death campaign preference will remain compatible. It changes no combat-death difficulty by implication.",
+    "aliases": [
+      "captured ruler",
+      "judgment",
+      "execution sentence",
+      "exile",
+      "submission",
+      "annexation",
+      "ruler handover",
+      "life and death"
+    ],
+    "preview": true
+  },
+  {
+    "id": "rebellion-and-civil-war",
+    "title": "Rebellion and civil war",
+    "chapter": "Duels, arrests, rulers, and civil war",
+    "chapterId": "duels-arrests-rulers-and-civil-war",
+    "text": "Disaffected NPC vassal leaders can begin a rebellion, and other clans choose sides. A non-ruling player vassal can also seek a rebellion through an accepted supported action. A promise of sympathy is not a clan transfer; a recruited lord must explicitly accept. A rebel realm is a real political faction. Capture, death, surrender, and rulership determine its decisive outcomes; an unrelated foreign power capturing a leader is not automatically victory for either civil-war side. Ordinary peace cannot simply skip the special resolution. Secret support for a future rebellion is distinct from joining one already declared. A pledge can bind a named clan to the challenge against a particular ruler while its current allegiance remains in place. Informers, refusals, summons, renunciation, and defiance can all become part of that political history. The later ruler-judgment flow distinguishes recognized rebel independence, execution under its sentence rules, and reunification under a victorious rebel leader. Loyalist victory can lead to freedom, imprisonment, or execution judgments for defeated leaders. These are substantial campaign choices and can affect the player as well as NPCs. Civil-war outcomes differ from ordinary conquest. Do not assume an ordinary-war annexation or settlement-effect package applies to a rebellion. Pending judgments and the sequence of decisions survive saving; inspect the remaining queue rather than assuming the first ruling resolved everyone.",
+    "aliases": [
+      "rebellion",
+      "civil war",
+      "secret pledge",
+      "reunification",
+      "independence",
+      "rebel surrender",
+      "informers"
+    ],
+    "preview": true
+  },
+  {
+    "id": "troops-cost-more-than-in-native-bannerlord",
+    "title": "Troops cost more than in native Bannerlord",
+    "chapter": "Economy and survival",
+    "chapterId": "economy-and-survival",
+    "text": "Recruiting, upgrading, and maintaining a strong army is more expensive in Reign, especially as troops become more advanced. A field army that you can buy today may still be unaffordable to keep supplied. Native perks and discounts still matter; negotiated hero or guest pay follows its own agreement. Automatic recruitment and upgrading consider the actual payer's funds and future military obligations. Having spare kingdom wealth does not necessarily mean every clan can replenish. Manual player purchases still require real resources, without implying that every automatic safety buffer is a new player spending rule. Prisoner ransoms follow native valuation rather than inheriting the increased enlistment price. Releasing or selling prisoners is not a way to recover the full cost of building an elite force. Preview: current war-economy revisions have controlled and persistence evidence, but long-run balance and human acceptance remain open. Descriptions here explain the reviewed rules, not guaranteed outcomes for every kingdom. The higher wage base applies to regular troops in field parties and garrisons. The owned-party wage display accounts for that party's actual modifiers and discounts. Recruitment previews use the receiving party's forecast where available. Kingdom regulars cost a little more while their realm is at war with another kingdom and a little less at peace. This applies to both field and garrison wages after existing modifiers. Hero salaries, mercenary troops and companies, and independent clans are outside this particular adjustment. See War economy and clan trade settings to adjust the available cost rules.",
+    "aliases": [
+      "troops expensive",
+      "troop costs",
+      "wages",
+      "elite troops",
+      "upgrades",
+      "recruitment cost",
+      "ransom price",
+      "military budget"
+    ],
+    "preview": true
+  },
+  {
+    "id": "recruitment-uses-people-not-an-endless-pool",
+    "title": "Recruitment uses people, not an endless pool",
+    "chapter": "Economy and survival",
+    "chapterId": "economy-and-survival",
+    "text": "New regular military recruits draw from eligible village households. Heavy recruitment leaves fewer people available and slows natural household growth for a while. A depleted or badly damaged village may be unable to supply more soldiers even when you have gold. This applies to player and AI recruitment and to supported automatic garrison and replacement-retinue routes. Existing soldiers are not retrospectively charged when the economy update arrives. Creating a new lord party does not grant a free fully funded army: its household troops depend on local people and actual money. Transferring soldiers, returning an expedition, upgrading an existing troop, or recruiting a prisoner is different from a new enlistment. Native mercenaries and special quest routes have their own handling. Civilian caravan and fishing crews do not consume village military manpower merely by being created or replenished. Diagram — Healthy villages support recruits and food; war losses, raids, and heavy enlistment strain that recovery. For automatic lord-party creation in NPC-ruled kingdoms, a noble clan generally needs land. Hired mercenaries can establish a party without land. Kingdom military support requires both land and an active serving lord party. Player-directed establishment and native initial or quest routes have their own rules. A landless household can still qualify for local stipends or civilian trade under Household stipends and NPC trade .",
+    "aliases": [
+      "no recruits",
+      "recruitment population",
+      "hearths",
+      "mobilization strain",
+      "household retinue",
+      "replacement army",
+      "civilian crews",
+      "fishing crews"
+    ],
+    "preview": true
+  },
+  {
+    "id": "household-stipends-and-npc-trade",
+    "title": "Household stipends and NPC trade",
+    "chapter": "Economy and survival",
+    "chapterId": "economy-and-survival",
+    "text": "A landless NPC noble household with a verified permanent home may receive a small weekly stipend from the clan leader who owns that holding. Eligibility looks at the family's finances, the current owner, shared kingdom, and the payer's ability to keep a military reserve. To let your own clan participate, enable Fund Local Household Stipends in Reign's in-game settings. Payments use your personal gold. The installed land caravan pilot lets eligible landed and landless NPC clans sponsor standard caravans. Turn it on through Enable NPC Caravan Investment Pilot in Reign's MCM. It starts off and assigns a named captain. It charges the clan for both formation and working capital and checks that enough cash remains for military needs. The caravan trades and remits money through native Bannerlord. Loss can cost the clan its investment. Preview: the NPC Clan Trade revision has passed its Options browser checks and is awaiting final release validation. It adds land caravans and War Sails sea convoys with a suitable port. The sponsoring clan pays one formation fee and retains ownership and trade remittances. Bannerlord supplies the starting trade purse separately. New parties use merchant crews without assigning a named noble captain. Existing pilot caravans keep their captains and records. The separate land and sea controls are described in War economy and clan trade settings under the revision notice.",
+    "aliases": [
+      "household stipend",
+      "NPC caravan",
+      "landless clan trade",
+      "caravan pilot"
+    ],
+    "preview": true
+  },
+  {
+    "id": "raids-population-and-recovery",
+    "title": "Raids, population, and recovery",
+    "chapter": "Economy and survival",
+    "chapterId": "economy-and-survival",
+    "text": "Village households support production. Healthy larger villages contribute more, while devastation reduces actual output. A completed raid resets agricultural recovery; normal functioning and safer, better-fed conditions allow it to recover gradually. A raid's damage does not end when the smoke disappears. Several damaged villages can place separate security burdens on their linked town. Recruiting may remain restricted during early recovery. A village that is not functioning cannot be assumed to produce food or recover normally. Siege aftermath matters too. Mercy is less damaging to security than pillage or devastation. Choosing the harsher option has a continuing cost, not just a different line in the victory report. Raid damage now has its own food capacity measure alongside household recovery. Severe or repeated raids can shut down new food production. A functioning village recovers gradually, and low food or security slows that recovery. Open the Economic Report from Court to compare food capacity, household recovery, actual output, and healthy potential for the current population. In fishing villages, disruption reduces new catches from boats and shore facilities. Fish already carried remain in cargo. A working voyage can finish and unload. When the village's fishing capacity shuts down, boats unload before waiting ashore. Recovery allows another departure. Food shipments and relief use their own rules. Control Center → Options → War economy → Raid food disruption keeps recorded damage available for when you turn the rule back on.",
+    "aliases": [
+      "village recovery",
+      "raid damage",
+      "agricultural recovery",
+      "pillage",
+      "devastate",
+      "mercy",
+      "village production"
+    ],
+    "preview": true
+  },
+  {
+    "id": "food-markets-settlement-stocks-and-relief",
+    "title": "Food markets, settlement stocks, and relief",
+    "chapter": "Economy and survival",
+    "chapterId": "economy-and-survival",
+    "text": "Distinguish food offered in a market, food held by a settlement, food carried by an army, and cargo in transit. They are not the same stockpile. Threatened unsieged towns prioritize buying available food within their civilian budget. They cannot buy food that does not exist or spend unlimited money. Realm relief moves real food from eligible better-supplied holdings toward shortages while protecting donor reserves. It prioritizes serious projected need and loses some food along the route. Sieges can block purchases and deliveries. A manual shipment deducts stock when dispatched, takes time, and can be held outside a newly besieged destination while cargo deteriorates. Food traveling between holdings is not immediately available at both ends. Granary actions, normal market buying, automatic relief, and a court grant are separate mechanisms. Inspect the Economic Report's current reserve and projected trend before assuming a shipment solved a deficit. Relief can ease hunger without making a besieged or devastated realm self-sufficient.",
+    "aliases": [
+      "food shortage",
+      "famine relief",
+      "granary",
+      "food reserve",
+      "shipment",
+      "siege blocks food",
+      "food in market",
+      "starvation"
+    ],
+    "preview": true
+  },
+  {
+    "id": "garrisons-patrols-and-demobilization",
+    "title": "Garrisons, patrols, and demobilization",
+    "chapter": "Economy and survival",
+    "chapterId": "economy-and-survival",
+    "text": "Stationary garrison regulars have lower wage and food burdens than equivalent field troops. Native governor, culture, building, Billeting, and Clan Accord effects retain their own benefits and costs. A patrol or visiting army does not receive the new garrison reduction just for being nearby. Patrols use troops transferred from the home garrison. Replenishing them returns survivors before issuing another detachment. Removing a patrol outside combat returns its soldiers where supported; it does not create a fresh free roster. Peace drawdown can return some released manpower to functioning villages, while raids and mobilization strain still matter. It provides no automatic gold payout or instant prosperity. Keep defensive needs and actual household recovery in view when changing standing.",
+    "aliases": [
+      "garrison wages",
+      "garrison food",
+      "quartering",
+      "Billeting",
+      "patrol manpower",
+      "release soldiers"
+    ],
+    "preview": true
+  },
+  {
+    "id": "battle-medical-discharge",
+    "title": "Battle medical discharge",
+    "chapter": "Economy and survival",
+    "chapterId": "economy-and-survival",
+    "text": "Some regular soldiers newly wounded in battle can retire if they survive the battle without being captured and remain with the force they fought in. The result varies each battle. Better surgeon Medicine lowers the maximum possible loss. Previously wounded troops, captured soldiers, heroes, and civilian crews are outside this discharge rule. Rescue or release does not make a captured soldier eligible from the earlier battle. Eligible retired soldiers can contribute back to functioning village households. This is separate from peacetime release of healthy soldiers. See Peace Standing, War Standing, and garrisons for peacetime release. Medical discharge is installed. Individual battle and reload edge cases remain under review.",
+    "aliases": [
+      "battle injury retirement",
+      "medical discharge",
+      "wounded soldiers retire",
+      "surgeon medicine"
+    ],
+    "preview": true
+  },
+  {
+    "id": "ships-ports-and-military-purchases",
+    "title": "Ships, ports, and military purchases",
+    "chapter": "Economy and survival",
+    "chapterId": "economy-and-survival",
+    "text": "Where War Sails is present, player ship purchases, repairs, and upgrades retain native pricing. NPCs retain their native discounted ship procurement. A cheaply procured NPC ship does not become a full-value resale windfall simply because it was transferred to a friend. Captured ships retain their separate normal native resale handling. Selling needs actual port funds. A sinking, discarded hull, or cleanup removal does not pay compensation. Governor commissions come from real eligible port business and cannot exceed the transaction. Existing ships without a known acquisition history use the documented migration handling instead of an invented past battle or purchase. Automatic military food and mount purchases in the payer clan's own realm still pay the market, but do not create an extra tariff payment back into that realm through the old loop. Ordinary trading and foreign purchases retain their own rules. This is a targeted accounting change, not a general abolition of tariffs.",
+    "aliases": [
+      "ships",
+      "naval",
+      "War Sails",
+      "port funds",
+      "resale",
+      "captured ship",
+      "ship repair",
+      "governor commission",
+      "tariff loop"
+    ],
+    "preview": true
+  },
+  {
+    "id": "a-longer-calendar-and-new-campaign-differences",
+    "title": "A longer calendar and new-campaign differences",
+    "chapter": "Time, news, and world events",
+    "chapterId": "time-news-and-world-events",
+    "text": "Reign's year and seasons last longer than native Bannerlord's, and character aging follows that calendar. Existing campaigns receive anchors so adopting the calendar does not suddenly change everyone's apparent date or age. Read the game's actual dates and agreed deadlines rather than counting native-length years from memory. New campaigns also include a deeper younger generation in eligible noble families and authored starting-age adjustments for Rhagaea and Ira. These are new-campaign setup changes; an update does not reseed children or overwrite ages in an established save. Newer narrative profiles likewise do not silently replace the life stories of old campaigns. Background world motion begins after the initial preparation grace period. Political incidents, court business, relationships, and rare kingdom events need actual campaign time. Waiting for a cloud response in a paused conversation is not the same as advancing the calendar.",
+    "aliases": [
+      "calendar",
+      "aging",
+      "longer year",
+      "younger generation",
+      "starting children",
+      "Rhagaea",
+      "Ira",
+      "new campaign",
+      "startup grace"
+    ],
+    "preview": false
+  },
+  {
+    "id": "kingdom-catastrophes-and-boons",
+    "title": "Kingdom catastrophes and boons",
+    "chapter": "Time, news, and world events",
+    "chapterId": "time-news-and-world-events",
+    "text": "These are occasional realm-wide events, with actual economic or political effects and later endings. They are not all variations of a generic prosperity bonus. Event What changes Famine / Bountiful Harvest Village food contribution falls / improves Pestilence / Population Boom Village households decline / grow Crime Wave / Law and Order Settlement security worsens / improves Trade Collapse / Trade Boom Prosperity declines / improves Construction Stagnation / Golden Age Building work slows / accelerates Political Unrest / National Unity Loyalty worsens / improves Border Crisis An eligible new war begins Grand Reconciliation An eligible ordinary war ends Orderly Succession An eligible NPC ruler gives way to a ruling-clan heir Effects persist for their recorded duration. A golden age speeds construction; it does not automatically grant every unrelated benefit implied by the phrase. Orderly Succession does not automatically retire the player ruler. The MCM catastrophe-and-boon switch controls new natural events.",
+    "aliases": [
+      "catastrophes",
+      "boons",
+      "Famine",
+      "Pestilence",
+      "Crime Wave",
+      "Trade Collapse",
+      "Construction Stagnation",
+      "Political Unrest",
+      "Bountiful Harvest",
+      "Population Boom",
+      "Law and Order",
+      "Trade Boom",
+      "Golden Age",
+      "National Unity",
+      "Border Crisis",
+      "Grand Reconciliation",
+      "Orderly Succession"
+    ],
+    "preview": false
+  },
+  {
+    "id": "news-and-announcements",
+    "title": "News and announcements",
+    "chapter": "Time, news, and world events",
+    "chapterId": "time-news-and-world-events",
+    "text": "Important diplomacy, ruler captures and judgments, kingdom-event beginnings/endings, and other eligible public outcomes appear through news. Ordinary captures do not all deserve a royal announcement. A sentence scheduled for later must be distinguished from an execution that has actually happened. The announcement screen pauses campaign time while you read and acknowledge it. Long reports scroll. Turning a popup category off changes presentation; it does not undo the war, judgment, or harvest. New reports also reach the normal text window, and re-enabling a category does not replay a cancelled backlog. After reading, Enter , Numpad Enter , or Escape acknowledges a ready announcement. These keys can resume the campaign after the report closes. Tournament news can reach the local social scene immediately, and team victories should credit the actual winning team rather than only the player. Firsthand participation, general public news, and a distant NPC's knowledge are still different things. Layout example — Diplomacy/news announcement: read the full report and confirmed consequences, then acknowledge to continue.",
+    "aliases": [
+      "news",
+      "town crier",
+      "popup",
+      "announcement settings",
+      "tournament news",
+      "scroll report"
+    ],
+    "preview": false
+  },
+  {
+    "id": "arena-overhaul-is-included",
+    "title": "Arena Overhaul is included",
+    "chapter": "Arenas, tournaments, and participation XP",
+    "chapterId": "arenas-tournaments-and-participation-xp",
+    "text": "Use Reign's single launcher module. Arena Overhaul retains its own Arena Overhaul MCM settings section and established saved preferences. Do not assume that all arena controls live under the Reign AI settings. The arena expands practice, loadout choices, companion participation, rewards, and tournaments. Talk to the arena master for the available practice routes. Fees, equipment options, and mode availability depend on those settings.",
+    "aliases": [
+      "Arena Overhaul",
+      "arena master",
+      "standalone arena mod"
+    ],
+    "preview": true
+  },
+  {
+    "id": "practice-modes-and-companions",
+    "title": "Practice modes and companions",
+    "chapter": "Arenas, tournaments, and participation XP",
+    "chapterId": "arenas-tournaments-and-participation-xp",
+    "text": "Ordinary practice supports configurable participants, equipment, rewards, and experience. Expansive Practice broadens the exercise. Parry Practice focuses on defensive practice. Team Practice adds coordinated teams. Supported modes can let you play as a companion hero, and some can give viewing heroes experience when enabled. Choose loadouts and weapon preferences where offered. Preferred or more expensive loadouts can carry a fee; random equipment is different from buying that choice. Defensive equipment and team settings alter the practice setup rather than permanently donating those items to your party. These arena modes are separate from the keep's Training Yard and from a negotiated private practice duel. Use the one that matches whether you want to train troops, control a hero, practice a block, or spar with a particular NPC.",
+    "aliases": [
+      "arena practice",
+      "Expansive Practice",
+      "Parry Practice",
+      "Team Practice",
+      "play as companion",
+      "loadout",
+      "weapon choice",
+      "viewing XP"
+    ],
+    "preview": true
+  },
+  {
+    "id": "tournaments-and-team-victories",
+    "title": "Tournaments and team victories",
+    "chapter": "Arenas, tournaments, and participation XP",
+    "chapterId": "arenas-tournaments-and-participation-xp",
+    "text": "Tournaments can use broader prizes, prize quality and scaling, betting options, round rewards, and champion renown or influence settings. Team Tournaments have their own team-size and scoring controls. Reign's party-member team handling aims to let eligible accompanying heroes fight with you while keeping them out of opposing teams when you compete. A team win matters as a team result in history, reputation, and celebration dialogue. An NPC winner's monetary award is separate from player prize variety. Current economy work changes NPC award accounting without removing the player's normal prize choices. Preview: bundled arena integration, party-team eligibility, and the newest NPC reward revisions retain native acceptance follow-ups. Check the installed edition's available modes and do not treat an old design reference as a roster guarantee.",
+    "aliases": [
+      "tournament",
+      "Team Tournament",
+      "betting",
+      "prizes",
+      "renown",
+      "influence",
+      "party teammates",
+      "NPC prize money"
+    ],
+    "preview": true
+  },
+  {
+    "id": "participation-xp",
+    "title": "Participation XP",
+    "chapter": "Arenas, tournaments, and participation XP",
+    "chapterId": "arenas-tournaments-and-participation-xp",
+    "text": "Meaningful completed spoken conversations can grant modest player Charm experience. Participating in a social-event phase can also provide a small learning bonus based on the actual people you spoke with. Deciding a real petition can grant Leadership experience. These are player participation rewards, not unlimited experience for opening windows, replaying a reply, or making the same person appear more times in a phase. Normal Bannerlord learning modifiers still apply. Control Center Options has an XP toggle plus overall and category adjustments. Conversation, event conversation, event learning, and petition rewards can be adjusted independently. Disabling a category does not bank old awards to reclaim when you turn it on again.",
+    "aliases": [
+      "participation XP",
+      "Charm XP",
+      "Leadership XP",
+      "event skill bonus",
+      "XP options",
+      "learning rate"
+    ],
+    "preview": true
+  },
+  {
+    "id": "portraits-and-look-at-them",
+    "title": "Portraits and Look at them",
+    "chapter": "Pictures, appearance, and memories",
+    "chapterId": "pictures-appearance-and-memories",
+    "text": "Reign can display persistent portraits across its own screens and supported native surfaces. Shipped characters can use the shared library; dynamic people and changed appearances can use campaign-specific pictures. A missing picture does not mean the person has no identity or history. Use portrait zoom for a larger view and Look at them for the supported appearance description and refresh choices. New portrait generation follows the configured image provider. It is separate from simply viewing a cached image. Current appearance and equipment matter, especially for encountered residents. A civilian's work clothes should not silently turn into noble costume just because a portrait was requested. Normal/adult image-profile settings and outfit changes have their own boundaries; they do not grant new gameplay authority. The shipped shared library is in the installed Reign module under PortraitCache/_shared . Campaign-generated portraits live in the managed ReignServer data/PortraitCache folder, grouped by campaign identity. Saves from the same campaign share that campaign's portrait folder.",
+    "aliases": [
+      "portraits",
+      "Look at them",
+      "portrait refresh",
+      "portrait zoom",
+      "shared portraits",
+      "native portrait"
+    ],
+    "preview": false
+  },
+  {
+    "id": "view-scenes-and-outfit-previews",
+    "title": "View scenes and outfit previews",
+    "chapter": "Pictures, appearance, and memories",
+    "chapterId": "pictures-appearance-and-memories",
+    "text": "View in individual or Party Chat can request an illustration of the current scene. It uses the current conversation and relevant people as context; the resulting image can appear in the transcript and open larger. It is optional cloud image work, not an automatic screenshot of the native scene. An image can help you visualize a situation but cannot prove that a gift was delivered, a person arrived, or a battle occurred. If clothing is being changed, use the supported before/after preview and keep/revert choices rather than treating a generated picture as a completed equipment transfer. Castle scenes and Tavern House scenes have separate switches. Turning general portrait replacement off does not necessarily turn off every scene-image feature, and a scene may need portrait identity preparation even when native portraits remain visible elsewhere.",
+    "aliases": [
+      "View",
+      "scene image",
+      "AI artwork",
+      "outfit preview",
+      "Keep",
+      "Revert",
+      "before and after"
+    ],
+    "preview": false
+  },
+  {
+    "id": "the-memory-book",
+    "title": "The Memory Book",
+    "chapter": "Pictures, appearance, and memories",
+    "chapterId": "pictures-appearance-and-memories",
+    "text": "Open Memory Book from the quest interface to browse illustrated memories. The book combines recorded experiences with optional artwork. Navigate the list and selected scene rather than expecting it to be a conventional quest objective list. An illustration is a visual interpretation of stored events. Changing or deleting a picture does not rewrite the original experience, promises, or world history. A fact can remain remembered without having an illustration. Layout example — Memory Book: choose a memory from the list and view its illustration and caption in the larger panel.",
+    "aliases": [
+      "Memory Book",
+      "illustrated memories",
+      "quest interface"
+    ],
+    "preview": false
+  },
+  {
+    "id": "small-interface-and-native-behavior-changes",
+    "title": "Small interface and native-behavior changes",
+    "chapter": "Pictures, appearance, and memories",
+    "chapterId": "pictures-appearance-and-memories",
+    "text": "Reign replaces supported main-menu logo/video presentation and uses its black-marble court style across major screens. It preserves usable native skill information, banners, and quest markers while hiding exact NPC relationship values. Narrated actions in supported conversation responses use italic treatment to help separate them from speech. The action builder's protected sentence has its own presentation. Neither formatting style means an action already happened. Reign-owned popups support consistent Enter/Escape behavior. Safety repairs also handle an encyclopedia interface disappearing during a tick, delayed native relocation races, and map-bar input during unavailable states. These are quiet stability changes rather than new player commands. NPC-owned settlement dungeons receive the same native prisoner-holding advantage as player-owned ones. Noble prisoners may therefore remain in AI custody more reliably. The foreign- governor loyalty penalty is removed by the ruler integration, while foreign ownership and matching-governor benefits retain their separate effects. Those two culture rules should not be confused.",
+    "aliases": [
+      "italic actions",
+      "main menu",
+      "logo",
+      "dungeon security",
+      "prison escape",
+      "foreign governor",
+      "stability fixes",
+      "map bar input"
+    ],
+    "preview": false
+  },
+  {
+    "id": "a-bannerlord-save-and-reign-memory-belong-together",
+    "title": "A Bannerlord save and Reign memory belong together",
+    "chapter": "Saving, loading, and backups",
+    "chapterId": "saving-loading-and-backups",
+    "text": "Your native save holds Bannerlord's campaign. Reign also stores memories, relationships, history, images, and other campaign state in its local server. Save Sync pairs a protected native save with the matching Reign snapshot. Save with the server running. Reign prepares the matching snapshot and warns if the native save succeeds but server protection fails. An unprotected save is still a native save, but it is not proof that the matching Reign state is safely aligned. Restore service and make a new protected save rather than ignoring the warning. Copying or renaming a native save does not invent a fresh Save Sync identity. Loading an older protected point restores the associated Reign timeline; later memories should not bleed into an earlier world. Diagram — A protected save links Bannerlord state and Reign state; restoring an old point restores that matching pair.",
+    "aliases": [
+      "Save Sync",
+      "protected save",
+      "unprotected save",
+      "save warning",
+      "timeline",
+      "rewind",
+      "renamed save"
+    ],
+    "preview": false
+  },
+  {
+    "id": "capacity-and-safe-housekeeping",
+    "title": "Capacity and safe housekeeping",
+    "chapter": "Saving, loading, and backups",
+    "chapterId": "saving-loading-and-backups",
+    "text": "There is a limited pool of unique protected Save Sync states. Watch the warning and capacity display instead of keeping unlimited one-off saves and assuming every one is protected. Overwriting an ordinary rolling save can retire its older point where safe. Use the native save UI's supported deletion flow when removing a save you no longer need. Do not manually delete server database folders to make space. A native save can exist without its matching protected Reign point, and a renamed copy can still share the old identity. Keep intentional backups outside routine cleanup. Close Bannerlord before using the Control Center's Campaign Backups cleanup controls. Choose the individual campaign, campaigns with no matching saves, or the full cleanup option, then answer the Are you sure? prompt. The no-save cleanup preserves campaigns with matching physical saves, imports awaiting their first load, and the shared portrait library. Full cleanup removes Reign histories, backups, campaign portraits, and related queued work. The native save files and installed shared portraits remain. An already scheduled cleanup can finish after the server starts.",
+    "aliases": [
+      "save capacity",
+      "too many saves",
+      "delete save",
+      "rolling save",
+      "snapshot limit"
+    ],
+    "preview": false
+  },
+  {
+    "id": "exporting-and-restoring-a-campaign",
+    "title": "Exporting and restoring a campaign",
+    "chapter": "Saving, loading, and backups",
+    "chapterId": "saving-loading-and-backups",
+    "text": "In Campaign Backups , select the correct campaign and export its archive. Keep the matching native Bannerlord save with it. The Reign archive preserves campaign-side memory and supporting data; it does not contain your global provider API keys. On restore, select the intended archive and inspect any replace-existing-campaign warning before confirming. Loading a native save from one point with unrelated server data is not a complete restoration. Keep a separate copy of the current pair before replacing anything valuable. Deleting a Reign campaign is destructive even if it leaves the native save file behind. Deleting all campaigns is broader still. A backup, a protected snapshot, an older native save, and a new campaign are four different things.",
+    "aliases": [
+      "backup",
+      "export campaign",
+      "import campaign",
+      "restore backup",
+      "reignbackup",
+      "delete campaign"
+    ],
+    "preview": false
+  },
+  {
+    "id": "updating-moving-computers-and-removing-the-mod",
+    "title": "Updating, moving computers, and removing the mod",
+    "chapter": "Saving, loading, and backups",
+    "chapterId": "saving-loading-and-backups",
+    "text": "Before a major update or move, export Reign campaign data and retain the matching native save and package/version information. The installation's module, writable cache, selected server environment, and shared portrait library have deliberate locations; copying only a DLL is not a complete installation. Existing campaigns keep established identities and profiles unless an explicit supported migration changes them. Do not assume a new-campaign feature will be retrofitted. Likewise, do not assume removing a mod with saved campaign behaviors mid-campaign is supported. This guide does not claim a tested universal uninstall or cross-version save-conversion path.",
+    "aliases": [
+      "update",
+      "move computer",
+      "uninstall",
+      "remove mod",
+      "existing save",
+      "compatibility"
+    ],
+    "preview": false
+  },
+  {
+    "id": "which-settings-window-to-use",
+    "title": "Which settings window to use",
+    "chapter": "Settings and the Control Center",
+    "chapterId": "settings-and-the-control-center",
+    "text": "Use MCM inside Bannerlord for game-side feature and execution switches. Use the Control Center for providers, server-side gameplay options, images, memory, backups, and advanced diagnostics. Arena Overhaul has its own MCM section. Use the installed launcher's managed server on/off and Control Center controls. An ordinary browser tab or an old batch-file instruction is not necessarily the supported lifetime owner for your installed edition. Do not close or restart the server during an important request or save unless you are deliberately recovering from a problem.",
+    "aliases": [
+      "settings",
+      "MCM",
+      "Control Center",
+      "server on off"
+    ],
+    "preview": false
+  },
+  {
+    "id": "reign-mcm-feature-switches",
+    "title": "Reign MCM feature switches",
+    "chapter": "Settings and the Control Center",
+    "chapterId": "settings-and-the-control-center",
+    "text": "Setting Plain-language purpose Enable Bannerlord Reign AI World Master game-side integration switch Enable Social Events Scheduled town gatherings Enable Tournament Celebrations Social opportunities connected to tournaments Enable Party Chat Group chat and its hotkey Enable Correspondence Letters and the correspondence hotkey Enable Court System Court, Rule Mode, and linked royal interfaces Castle Chat Image Generation Optional room illustrations Tavern House Scene Images Optional confirmed-visit illustrations Enable Passive NPC Relationships Broader background relationship processing Ambient Relationship Drift Small personality/co-presence changes without new LLM work Use Reign-Controlled NPC Marriage Relationship-aware NPC matchmaking Restrict Pregnant NPCs From Combat Pregnant NPC field-duty withdrawal and protection Enable Generated Wilderness Events Social encounters while traveling Enable Conversation Relationship Changes Personal effects of validated conduct in conversations Enable Kingdom Catastrophes and Boons Natural realm-wide events Enable AI Portraits Supported portrait replacement and generation controls Reveal All Character Relationships Optional cheat to reveal hidden exact relationships Disabling a switch usually prevents new work. It does not necessarily erase a relationship, undo a completed event, or recreate a previously changed party.",
+    "aliases": [
+      "feature switches",
+      "turn off feature",
+      "AI World toggle"
+    ],
+    "preview": false
+  },
+  {
+    "id": "execution-and-server-connection-switches",
+    "title": "Execution and server connection switches",
+    "chapter": "Settings and the Control Center",
+    "chapterId": "settings-and-the-control-center",
+    "text": "Execute Diplomacy Actions , Execute Strategy Plans , Execute Internal Politics Actions , and Execute Conversation Actions determine whether their supported plans may create real game effects. Enable Campaign Command Engine governs persistent NPC orders. Enable Ruler-Driven NPC Diplomacy enables autonomous foreign-ruler work. Use Local Bannerlord Reign Server , Local Server URL , and Receive Server Action Commands connect the native game with its server. A working chat with action execution turned off can still produce discussion without the transfer or order you expected. Correct the relevant setting deliberately; do not enable every debug control as a general repair. The utilities Open Party Chat and Open Correspondence provide alternatives to backslash (\\) and Ctrl+M . Alt+A opens actions within a supported, ready Reign conversation rather than globally on the map. Show Debug Messages is informational; Enable Debug Controls exposes tools that can change a campaign or generate provider work. They are not required for ordinary play.",
+    "aliases": [
+      "execution settings",
+      "action commands",
+      "server URL",
+      "debug controls",
+      "Open Party Chat",
+      "Open Correspondence"
+    ],
+    "preview": false
+  },
+  {
+    "id": "control-center-areas",
+    "title": "Control Center areas",
+    "chapter": "Settings and the Control Center",
+    "chapterId": "settings-and-the-control-center",
+    "text": "Area When an ordinary player needs it General / launcher controls Confirm server health and open its managed controls LLM Backend and Models Configure the cloud dialogue account/provider and model routes AI Image Generation Configure the separate cloud image provider and portrait options Options Participation XP, correspondence pacing, news, approaches, NPC Lives, ruler-related choices, and other exposed gameplay preferences Campaign Backups Save Sync status, export, import, and confirmed campaign deletion Characters Advanced inspection or correction of a person's record and portrait variant Character Memory Memory search and advanced retrieval/consolidation maintenance Prompting / Castle Chat Customize supported dialogue, room, image, and event prompts Diagnostics / Logging / Log Viewer Find a failed operation or collect a useful report Audit Viewer / Conversation Diagnostics Inspect a selected conversation's processing; captured payloads can include private campaign context Action Router Advanced action routing and diagnostics World History Inspect recorded world events and their chronology NPC Lives and Story Editor Advanced story definitions, prompts, timing, and Approach model controls under Diagnostics Test and lab areas Developer/acceptance tools, including Dialogue Lab, Relationship Director, World Test, Test Lab, Live Test Bridge, and Verification Lab Test tools can alter state or consume provider allowance. They are not a way to unlock the normal game. Character Editor revisions can change a campaign and may have native effects; inspect the exact change and confirmation rather than treating it as an in-character ability.",
+    "aliases": [
+      "Character Editor",
+      "revision",
+      "Prompting",
+      "Diagnostics",
+      "Logging",
+      "Audit Viewer",
+      "Character Memory",
+      "Story Editor",
+      "Test Lab",
+      "Verification Lab"
+    ],
+    "preview": false
+  },
+  {
+    "id": "war-economy-and-clan-trade-settings",
+    "title": "War economy and clan trade settings",
+    "chapter": "Settings and the Control Center",
+    "chapterId": "settings-and-the-control-center",
+    "text": "In the Control Center open Options , then War economy . You can adjust troop wages, recruitment and upgrades, village food output, garrison wage and food savings, automatic spending reserves, and raid food disruption. A disabled group keeps the values you entered. For wages and upgrades, change the cost rules. For garrisons, change the stationary wage and food savings. Spending reserves protect money needed for upcoming obligations. The Fund Local Household Stipends switch is in Reign's in-game MCM. Preview: the NPC Clan Trade group is in the upcoming revision. Its Options checks passed and deployment awaits release validation. Land caravans and War Sails convoys have independent enable switches, formation prices, and per-clan active limits. Both start off. The shared cash setting caps the fee as a share of clan cash, and the daily chance applies to eligible clans after affordability and reserve checks. Turning a mode off or lowering its limit changes future launches. Existing parties continue trading.",
+    "aliases": [
+      "NPC Clan Trade",
+      "caravan and convoy switches",
+      "sea convoy price",
+      "war economy options",
+      "garrison savings"
+    ],
+    "preview": true
+  },
+  {
+    "id": "provider-choices-costs-and-privacy",
+    "title": "Provider choices, costs, and privacy",
+    "chapter": "Settings and the Control Center",
+    "chapterId": "settings-and-the-control-center",
+    "text": "Keep cloud dialogue and cloud image configuration separate. A provider can be configured yet temporarily unavailable, out of allowance, or unable to serve the selected model. Use the supported saved route and its diagnostic feedback. Cloud requests send relevant game/conversation context to the selected provider. API keys remain server-side rather than entering the Bannerlord client. Reign's local memory worker does not mean dialogue never leaves the computer. Optional external vector storage has a different role from the dialogue provider; raw campaign prose is not simply the vector itself. Turn detailed conversation capture on only when you need it and understand what is stored. Logs and exported diagnostic payloads can contain private fictional character information and your own chat text. Avoid sharing a whole settings file when a redacted error and selected report will do.",
+    "aliases": [
+      "provider cost",
+      "subscription",
+      "privacy",
+      "cloud context",
+      "OpenRouter",
+      "NanoGPT",
+      "AtlasCloud",
+      "Reign Image Generator",
+      "Qdrant"
+    ],
+    "preview": false
+  },
+  {
+    "id": "chat-is-slow-or-not-answering",
+    "title": "Chat is slow or not answering",
+    "chapter": "Help, glossary, and edition notes",
+    "chapterId": "help-glossary-and-edition-notes",
+    "text": "Check that the launcher-managed server is healthy, the selected cloud LLM provider is configured and available, and the game points to the installation's correct local URL. Initial character preparation can take longer than a warm conversation. A long cloud response does not prove your graphics card is too weak. Keep the pending operation's status in view. Reopening may recover a result already being generated. If the request clearly failed, use its retry path; do not send many copies of the same request or change every provider setting at once. If reporting it, keep the error, approximate time, NPC, conversation surface, and relevant diagnostics.",
+    "aliases": [
+      "chat not responding",
+      "slow chat",
+      "connection error",
+      "provider unavailable",
+      "retry response"
+    ],
+    "preview": false
+  },
+  {
+    "id": "the-npc-agreed-but-nothing-happened",
+    "title": "The NPC agreed, but nothing happened",
+    "chapter": "Help, glossary, and edition notes",
+    "chapterId": "help-glossary-and-edition-notes",
+    "text": "Check the attached action or agreement status, execution settings, actual target, funds, inventory, ownership, presence, authority, and safety. The accepted terms may involve a future date or physical travel. A new counteroffer can mean you have not yet accepted the final version. For a guide, follow them. For a departing guest, allow the return journey and inspect the agreement. For a government proposal, check adoption and the actual vote rather than its draft. For a shipment, check cargo and access. These are different failures and should not all be fixed by repeating “yes.”",
+    "aliases": [
+      "agreed no action",
+      "agreement blocked",
+      "delayed action"
+    ],
+    "preview": false
+  },
+  {
+    "id": "a-menu-person-or-picture-is-missing",
+    "title": "A menu, person, or picture is missing",
+    "chapter": "Help, glossary, and edition notes",
+    "chapterId": "help-glossary-and-edition-notes",
+    "text": "Check eligibility first. Court needs rulership and appropriate location; a full Royal Court needs a capital. Homes lists known available residents. Party Chat uses available eligible people. A pregnant NPC may be withdrawn. An ambassador can still be traveling or recalled. For pictures, distinguish cached display from new generation. Check Enable AI Portraits and the relevant scene switch, then the separate cloud image settings. Missing optional artwork should not be treated as a missing character. A Preview feature may also differ between the reviewed source and your installed package.",
+    "aliases": [
+      "menu missing",
+      "missing portrait",
+      "cant open court",
+      "NPC missing",
+      "image failed"
+    ],
+    "preview": false
+  },
+  {
+    "id": "saving-warns-preparation-stalls-or-a-rollback-seems-wrong",
+    "title": "Saving warns, preparation stalls, or a rollback seems wrong",
+    "chapter": "Help, glossary, and edition notes",
+    "chapterId": "help-glossary-and-edition-notes",
+    "text": "Keep the native save. Read whether it is protected or unprotected, whether capacity is full, and whether the server is reachable. Re-establish the matching services and use a protected save or known matching backup pair. A successful native save alone does not establish that all Reign data was captured. Use preparation Retry for a recorded failed stage. Do not delete database folders or invent a new campaign to bypass a recoverable stage. If an older save appears to know future events, preserve the save and diagnostic evidence and report a timeline-alignment problem rather than continuing to overwrite your only good pair.",
+    "aliases": [
+      "save sync failure",
+      "stuck preparation",
+      "wrong memories after load",
+      "timeline problem"
+    ],
+    "preview": false
+  },
+  {
+    "id": "quick-glossary",
+    "title": "Quick glossary",
+    "chapter": "Help, glossary, and edition notes",
+    "chapterId": "help-glossary-and-edition-notes",
+    "text": "Term Meaning Native Bannerlord's own game systems, before Reign's extra behavior MCM Mod Configuration Menu inside the game Control Center Reign's local settings, campaign, and diagnostic interface LLM The cloud language model generating the AI's words and structured responses Image provider The separately configured service generating optional new artwork Reign server Local companion service connecting game state, memory, and providers Directional relationship How one person feels about another; the reverse can differ Rumor An uncertain, usually temporary social allegation Reputation A more established public conclusion Public Standing The combined social effect of current public signals Political Pressure Realm/ruler political tension or cooperation, separate from Government Government The kingdom's representative institution, members, parties, and authority Clan Accord A limited cooperative arrangement between clans, not a kingdom treaty Docket Court's pending business and recorded decisions Chancellor The separate salaried petition-delegation office Royal Council Specialized advisors; their advice does not execute an order Receipt / recorded result Evidence that a particular operation actually committed Save Sync The link between a native save and its matching Reign state Timeline The restored branch of campaign history belonging to a save point Preview Implemented behavior with outstanding acceptance or installation uncertainty",
+    "aliases": [
+      "glossary",
+      "terminology",
+      "what is native"
+    ],
+    "preview": false
+  },
+  {
+    "id": "what-is-still-being-verified",
+    "title": "What is still being verified",
+    "chapter": "Help, glossary, and edition notes",
+    "chapterId": "help-glossary-and-edition-notes",
+    "text": "The guide covers the reviewed code and documented behavior, not a claim that every feature has passed release acceptance. Significant open areas include Royal Council, expanded Government participation and hearings, broader court-life work, NPC Lives journeys and missions, residents/Homes recruitment, personal gossip/communications, Clan Accords, Tavern House, ruler judgments, arena integration, and recent military/economic balance. Descriptions of these areas explain what their implemented routes are for, while Preview notices flag their limits. A roadmap checkbox, a successful build, a picture, and a natural-sounding reply are each different from final native acceptance. Your installed edition can also lag behind current development source. The manual's maintenance files retain topic-to-source coverage, source hashes, illustration provenance, and Claude/Grok/Gemini review notes. They help update the guide when the mod changes. Hardware planning figures remain provisional until representative campaign measurements are available. This edition covers the reviewed action sentence catalog and the marriage and economy changes through November 9. The local installation includes the revised NPC matchmaking, Nord households, medical discharge, and war economy rules. The wedding evidence covers one complete Aserai route. The controlled war economy observations cover specific routes, with broader campaign balance still being tested. Preview notices indicate an edition difference or an open acceptance check. The NPC Clan Trade notice states its current deployment status.",
+    "aliases": [
+      "preview features",
+      "edition notes",
+      "acceptance",
+      "known limitations",
+      "coverage"
+    ],
+    "preview": false
+  }
+]

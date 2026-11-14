@@ -1,0 +1,13 @@
+{
+  "version": 1,
+  "heroStringId": "reign_court_castle_N7_father",
+  "characterName": "Gudbrand Hrafnvik",
+  "imagePath": "portrait.png",
+  "imageSha256": "20FB6CFC593FAEBBB3151692F7833EE34F547DE86E39FCB0B00BE1EAEBA5250C",
+  "description": "Dark-blue wool knee-length tunic with narrow cream-and-rust geometric seam trim, cream linen undertunic, simple brown leather belt, brown trousers, cloth leg wraps and practical plain leather boots.",
+  "status": "completed",
+  "descriptionSource": "agent_vision",
+  "retryEligible": false,
+  "error": "",
+  "updatedUtc": "2026-11-07T03:32:45.329476+00:00"
+}

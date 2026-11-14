@@ -1,0 +1,13 @@
+{
+  "version": 1,
+  "heroStringId": "reign_court_castle_N7_child_1",
+  "characterName": "Kolbein Hrafnvik",
+  "imagePath": "portrait.png",
+  "imageSha256": "67408D8544F1738D67CC3B3F1668D5B3D8837D268D1D251A4B4F85A7373D1816",
+  "description": "Grey-green wool knee-length tunic with restrained cream woven borders, cream linen undertunic, brown leather belt, brown trousers, lower-leg cloth wraps and plain practical leather boots.",
+  "status": "completed",
+  "descriptionSource": "agent_vision",
+  "retryEligible": false,
+  "error": "",
+  "updatedUtc": "2026-11-07T03:34:13.086295+00:00"
+}

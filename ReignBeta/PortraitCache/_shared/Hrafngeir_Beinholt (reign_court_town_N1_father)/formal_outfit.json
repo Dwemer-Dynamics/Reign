@@ -1,0 +1,13 @@
+{
+  "version": 1,
+  "heroStringId": "reign_court_town_N1_father",
+  "characterName": "Hrafngeir Beinholt",
+  "imagePath": "portrait.png",
+  "imageSha256": "40D67B00D25F16CDF083C9A4E25E78F1A558FB6D1E03906AC98D16AFB3E2D36F",
+  "description": "A faded dark indigo-blue knee-length wool tunic with restrained narrow grey-and-cream tablet-woven trim at neckline and cuffs, a natural beige linen long-sleeved undershirt, a simple medium-brown leather belt, dark walnut wool trousers, beige leg wraps and practical dark-brown leather shoes. Modest prosperous early medieval Scandinavian landowner textile work, lightly worn civilian layers with no mantle or head covering. No armor, weapon, crowns, fur war gear, heraldry or display jewelry.",
+  "status": "completed",
+  "descriptionSource": "agent_vision",
+  "retryEligible": false,
+  "error": "",
+  "updatedUtc": "2026-11-07T03:35:06.364074+00:00"
+}

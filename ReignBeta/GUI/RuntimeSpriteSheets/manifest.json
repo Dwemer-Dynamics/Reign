@@ -1,8 +1,8 @@
 {
   "version": 1,
-  "generatedUtc": "2026-10-30T18:35:36.9407210Z",
+  "generatedUtc": "2026-11-13T06:37:07.8956467Z",
   "spriteDataPath": "GUI/ReignBetaSpriteData.xml",
-  "spriteDataSha256": "729c93ee940c5754535af010b9ef503a9f49f7084a8bd732b76c53ae0f407a02",
+  "spriteDataSha256": "fa825d1defded9862df44e19cc24bdcee03408ac614cfe04c0ee575a932b8f95",
   "categories": {
     "ui_reignbeta_main_menu": {
       "sheets": [
@@ -3141,7 +3141,7 @@
           "width": 2048,
           "height": 2048,
           "path": "GUI/RuntimeSpriteSheets/ui_reignbeta_tavern_house/ui_reignbeta_tavern_house_1.png",
-          "sha256": "91416a12994cd7043e46f62b0241475a50ade9884c343df6b0b3c87595e39aa7"
+          "sha256": "646bb166f23a3b400b200976c15bf0caad708e91e1832c58898f7fb3898473dc"
         }
       ],
       "parts": {
@@ -3152,7 +3152,7 @@
           "width": 1672,
           "height": 941,
           "sourcePath": "GUI/SpriteParts/ui_reignbeta_tavern_house/reign_tavern_house_shell.png",
-          "sourceSha256": "57a42c3a131e7829ae698c2d0c76c1101096c56d01641bcc599cd1a5ef37ba97"
+          "sourceSha256": "c6561f93d51ac2844ae0c7df6ea893f588abfc9d58a240c3d6a06e218d76ed53"
         },
         "reign_tavern_house_worker_card": {
           "sheetId": 1,
@@ -3161,7 +3161,7 @@
           "width": 220,
           "height": 218,
           "sourcePath": "GUI/SpriteParts/ui_reignbeta_tavern_house/reign_tavern_house_worker_card.png",
-          "sourceSha256": "0b7225739ff310bbcd05d2282f67b4990fb75fed982c6ee1c42609554c604a7f"
+          "sourceSha256": "4d2bafe9e44457c05339f22088a5520fd77e6a81475cfb311658ececb269cb49"
         },
         "reign_tavern_house_madam_card": {
           "sheetId": 1,
@@ -3170,7 +3170,7 @@
           "width": 260,
           "height": 240,
           "sourcePath": "GUI/SpriteParts/ui_reignbeta_tavern_house/reign_tavern_house_madam_card.png",
-          "sourceSha256": "b9c0b2e9c7b548eb0666fcf7aab85eef5d9c79cff204c3dde8d1dbf09850dcbb"
+          "sourceSha256": "654d44b5b52ceaec14f04944398052ffffb775c7a44e918f6a1de6e7a6f669f4"
         },
         "reign_tavern_house_eye": {
           "sheetId": 1,
@@ -3188,7 +3188,7 @@
           "width": 838,
           "height": 338,
           "sourcePath": "GUI/SpriteParts/ui_reignbeta_tavern_house/reign_tavern_house_agreement.png",
-          "sourceSha256": "51f076c9df3625df5140a046097c8855f24c6e20a1ef85b80e80b4fc4ee5f03c"
+          "sourceSha256": "abc1d81d4501f241bccea20a0107464acb01997d0b175cce1f2778b50ba7ffcf"
         }
       }
     },
@@ -3242,6 +3242,37 @@
           "height": 42,
           "sourcePath": "GUI/SpriteParts/ui_reignbeta_banter/reign_banter_collapsed.png",
           "sourceSha256": "e7a3d1b173d19f982880b4c10b2e744fbd0931c9a721b97018169ac750e6e2dd"
+        }
+      }
+    },
+    "ui_reignbeta_war_standing": {
+      "sheets": [
+        {
+          "id": 1,
+          "width": 4096,
+          "height": 2048,
+          "path": "GUI/RuntimeSpriteSheets/ui_reignbeta_war_standing/ui_reignbeta_war_standing_1.png",
+          "sha256": "ae2f6cc2bb7c2f4a623582e8c7364b4b796b0027c17fde7a79abb8b1de6e7783"
+        }
+      ],
+      "parts": {
+        "reign_war_standing_tabs": {
+          "sheetId": 1,
+          "x": 4,
+          "y": 4,
+          "width": 2172,
+          "height": 724,
+          "sourcePath": "GUI/SpriteParts/ui_reignbeta_war_standing/reign_war_standing_tabs.png",
+          "sourceSha256": "73f1fcefd6202a58975af8f324068c28e6b7ae7da7a588642f4514aee37d7238"
+        },
+        "reign_war_standing_popup": {
+          "sheetId": 1,
+          "x": 2184,
+          "y": 4,
+          "width": 1254,
+          "height": 1254,
+          "sourcePath": "GUI/SpriteParts/ui_reignbeta_war_standing/reign_war_standing_popup.png",
+          "sourceSha256": "2cbb69f56afd18f19e45fce42a22157efb7d534c08ad4d9d07c825af0114577e"
         }
       }
     }

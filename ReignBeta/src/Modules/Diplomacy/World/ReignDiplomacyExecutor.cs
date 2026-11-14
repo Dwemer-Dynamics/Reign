@@ -1,7 +1,11 @@
+using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
 using Newtonsoft.Json.Linq;
+using Reign.Core.Contracts.Actions;
+using ReignBeta.Actions;
+using TaleWorlds.Core;
 using ReignBeta.Campaign;
 using ReignBeta.Integration;
 using ReignBeta.Government;
@@ -544,32 +548,70 @@ namespace ReignBeta.World
         private static ReignActionResult DiplomaticPackage(Kingdom actor, Kingdom target, ReignWorldActionRecord action)
         {
             JObject terms = ReignValueService.ParseTerms(action);
+            ReignActionResult result = ReignActionResult.Done(actor.InformalName + " recorded a compound diplomatic package with " + target.InformalName + ".");
             int shipsTransferred = 0;
+            int goldApplied = 0;
+            int settlementsTransferred = 0;
+            int prisonersReleased = 0;
+            var settlements = new List<Settlement>();
             ReignActionResult packageAssetResult = null;
-            if (IsNavalPackage(action))
+            if (ReignMarriageService.HasMarriageIntent(action))
             {
-                packageAssetResult = TransferPackageNavalAssets(actor, target, action, out shipsTransferred);
-                if (!packageAssetResult.Success)
+                ActionAgreement frozen = null;
+                if (ReignMarriageService.LinkedWedding(action) == null)
                 {
-                    return packageAssetResult;
+                    try { frozen = CaptureWeddingPackage(actor, target, action, terms); }
+                    catch (InvalidOperationException ex) { return ReignActionResult.ValidationFailed(ex.Message); }
+                }
+                result = ReignMarriageService.SettleMarriage(action, result, frozen);
+                if (!result.Success || !result.Completed) return result;
+                var wedding = ReignMarriageService.LinkedWedding(action);
+                foreach (var leg in wedding?.Consideration?.Clauses ?? new List<ActionClause>())
+                {
+                    string id = ReignActionService.Arg(leg, "assetId");
+                    string amount = ReignActionService.Arg(leg, "quantity");
+                    string flow = "from=" + leg.ActorId + ";to=" + leg.RecipientId + ";amount=" + amount;
+                    switch (leg.ActionId)
+                    {
+                        case "give.gold":
+                            if (leg.Id == "arranged_fee") break;
+                            goldApplied += int.Parse(amount, CultureInfo.InvariantCulture);
+                            result.WithEffect("gold_transfer", "hero", leg.RecipientId, ReignActionService.HeroById(leg.RecipientId)?.Name.ToString(), flow);
+                            break;
+                        case "give.item":
+                            result.WithEffect(ReignActionService.Arg(leg, "equipmentSet").Length == 0 ? "item_transfer" : "equipped_item_transfer",
+                                "item", id, ReignObjectResolver.FindItem(id)?.Name.ToString(), flow);
+                            break;
+                        case "give.settlement":
+                            var town = Settlement.Find(id);
+                            if (town != null) settlements.Add(town);
+                            settlementsTransferred++;
+                            break;
+                        case ReignWeddingBargain.ReleasePrisoner:
+                            prisonersReleased++;
+                            result.WithEffect("prisoner_release", "hero", id, ReignActionService.HeroById(id)?.Name.ToString(), flow);
+                            break;
+                        case "give.ship":
+                            shipsTransferred++;
+                            result.WithEffect("ship_transfer", "ship", id, id, flow);
+                            break;
+                    }
                 }
             }
-
-            ReignActionResult result = ReignActionResult.Done(actor.InformalName + " recorded a compound diplomatic package with " + target.InformalName + ".");
-            ReignTradePackageExecutor.ApplyMaterialTerms(action, terms, result);
-            int goldApplied = ReadIntTerm(action.TermsJson, "gold", ReadIntTerm(action.TermsJson, "GoldAmount", 0));
-            List<Settlement> settlements = new List<Settlement>();
-            int settlementsTransferred = TransferPackageSettlements(actor, target, action, settlements);
-            int prisonersReleased = ReleasePackagePrisoner(actor, target, action, out Hero releasedPrisoner);
-            if (releasedPrisoner != null)
+            else
             {
-                result.WithEffect("prisoner_release", "hero", releasedPrisoner.StringId, releasedPrisoner.Name.ToString(), "facilitator=package")
-                    .WithChangedEntity("hero", releasedPrisoner.StringId, releasedPrisoner.Name.ToString(), "released_from_captivity");
-            }
-            if (ReignMarriageService.HasMarriageIntent(action)
-                && !ReignMarriageService.TryApplyMarriage(action, result, out string marriageFailure))
-            {
-                return ReignActionResult.FailTerminal(marriageFailure, "marriage_verification_failed", "state_verification");
+                if (IsNavalPackage(action))
+                {
+                    packageAssetResult = TransferPackageNavalAssets(actor, target, action, out shipsTransferred);
+                    if (!packageAssetResult.Success) return packageAssetResult;
+                }
+                ReignTradePackageExecutor.ApplyMaterialTerms(action, terms, result);
+                goldApplied = ReadIntTerm(action.TermsJson, "gold", ReadIntTerm(action.TermsJson, "GoldAmount", 0));
+                settlementsTransferred = TransferPackageSettlements(actor, target, action, settlements);
+                prisonersReleased = ReleasePackagePrisoner(actor, target, action, out Hero releasedPrisoner);
+                if (releasedPrisoner != null)
+                    result.WithEffect("prisoner_release", "hero", releasedPrisoner.StringId, releasedPrisoner.Name.ToString(), "facilitator=package")
+                        .WithChangedEntity("hero", releasedPrisoner.StringId, releasedPrisoner.Name.ToString(), "released_from_captivity");
             }
 
             bool alliancePackage = string.Equals(ReadStringTerm(action.TermsJson, "treatyKind", string.Empty), "alliance_package", System.StringComparison.OrdinalIgnoreCase);
@@ -602,6 +644,84 @@ namespace ReignBeta.World
                 ? actor.InformalName + " recorded a verified diplomatic package with " + target.InformalName + "."
                 : "Verified agreement: " + receipt + ".");
             return result;
+        }
+
+        private static ActionAgreement CaptureWeddingPackage(Kingdom actor, Kingdom target, ReignWorldActionRecord action, JObject terms)
+        {
+            var package = new ActionAgreement { Id = ReignMarriageService.WeddingId(action) };
+            string Read(JObject row, string name, string fallback = "") => ReignValueService.ReadStringTerm(row, name, fallback);
+            Hero Party(string id) => ReignValueService.ResolveHero(id) ?? throw new InvalidOperationException("A named wedding asset holder is unavailable.");
+            string fromId = Read(terms, "fromHeroStringId", action.ActorHeroStringId);
+            string toId = Read(terms, "toHeroStringId", action.TargetHeroStringId);
+            int gold = ReignValueService.ReadIntTerm(terms, "gold", ReignValueService.ReadIntTerm(terms, "GoldAmount",
+                ReignValueService.ReadIntTerm(terms, "goldAmount", 0)));
+            if (gold > 0)
+                package.Clauses.Add(ReignWeddingBargain.Asset("give.gold", Party(Read(terms, "goldFromHeroStringId", fromId)),
+                    Party(Read(terms, "goldToHeroStringId", toId)), gold));
+
+            var items = ReignValueService.ReadItemTermObjects(terms);
+            if (items.Count == 0 && Read(terms, "itemId", Read(terms, "item")).Length != 0) items.Add(terms);
+            foreach (var row in items)
+            {
+                var item = ReignObjectResolver.FindItem(Read(row, "itemId", Read(row, "item")));
+                if (item == null) throw new InvalidOperationException("The signed wedding item could not be resolved.");
+                var from = Party(Read(row, "fromHeroStringId", Read(row, "itemFromHeroStringId",
+                    Read(terms, "itemFromHeroStringId", Read(terms, "assetFromHeroStringId", fromId)))));
+                var to = Party(Read(row, "toHeroStringId", Read(row, "itemToHeroStringId",
+                    Read(terms, "itemToHeroStringId", Read(terms, "assetToHeroStringId", toId)))));
+                int quantity = ReignValueService.ReadIntTerm(row, "amount", ReignValueService.ReadIntTerm(row, "Amount", 1));
+                var leg = ReignWeddingBargain.Asset("give.item", from, to, quantity, item.StringId);
+                string slot = Read(row, "sourceEquipmentSlot");
+                string equipment = Read(row, "sourceEquipmentSet");
+                if (quantity == 1 && (slot.Length != 0 || equipment.Length != 0
+                    || (ReignValueService.PartyForInventory(from)?.ItemRoster.GetItemNumber(item) ?? 0) == 0)
+                    && ReignObjectResolver.TryFindEquippedItem(from, item.StringId, slot, equipment, out _, out EquipmentIndex index,
+                        out EquipmentElement element, out string set))
+                {
+                    leg = ReignWeddingBargain.Asset("give.item", from, to, 1, item.StringId, element.ItemModifier?.StringId ?? "");
+                    leg.Arguments["equipmentSet"] = set;
+                    leg.Arguments["equipmentSlot"] = ((int)index).ToString(CultureInfo.InvariantCulture);
+                }
+                package.Clauses.Add(leg);
+            }
+
+            var settlementIds = ReignValueService.ReadStringListTerm(terms, "settlementIds");
+            if (!string.IsNullOrWhiteSpace(action.TargetSettlementStringId)) settlementIds.Add(action.TargetSettlementStringId);
+            var fromKingdom = ReignObjectResolver.FindKingdom(Read(terms, "settlementFromKingdomId")) ?? target;
+            var toKingdom = ReignObjectResolver.FindKingdom(Read(terms, "settlementToKingdomId")) ?? actor;
+            foreach (string id in settlementIds.Distinct())
+            {
+                var settlement = Settlement.Find(id);
+                if (settlement?.OwnerClan?.Leader == null || settlement.MapFaction != fromKingdom || toKingdom?.Leader == null)
+                    throw new InvalidOperationException("The named wedding fief is outside the authorized parties.");
+                package.Clauses.Add(ReignWeddingBargain.Asset("give.settlement", settlement.OwnerClan.Leader, toKingdom.Leader, 1, id));
+            }
+
+            string prisonerId = Read(terms, "prisonerHeroStringId", Read(terms, "prisonerHero"));
+            if (prisonerId.Length != 0)
+            {
+                var prisoner = ReignObjectResolver.FindHero(prisonerId);
+                var custody = prisoner?.PartyBelongedToAsPrisoner;
+                var recipient = custody?.MapFaction == actor ? target?.Leader : custody?.MapFaction == target ? actor?.Leader : null;
+                if (custody?.Owner == null || recipient == null)
+                    throw new InvalidOperationException("The named wedding prisoner is outside the authorized parties.");
+                var leg = ReignWeddingBargain.Asset(ReignWeddingBargain.ReleasePrisoner, custody.Owner, recipient, 1, prisoner.StringId);
+                if (custody.Settlement != null) leg.Arguments["custodySettlementId"] = custody.Settlement.StringId;
+                package.Clauses.Add(leg);
+            }
+
+            if (IsNavalPackage(action))
+            {
+                var from = Party(Read(terms, "assetFromHeroStringId", action.ActorHeroStringId));
+                var to = Party(Read(terms, "assetToHeroStringId", action.TargetHeroStringId));
+                var ships = from.PartyBelongedTo?.Ships.Where(ship => ship != null && ship.IsTradeable && !ship.IsUsedByQuest).ToList();
+                int count = ReignValueService.ReadIntTerm(terms, "amount", ReignValueService.ReadIntTerm(terms, "shipCount", 0));
+                if (ships == null || ships.Count == 0 || count > ships.Count)
+                    throw new InvalidOperationException("The wedding package's ships are unavailable.");
+                foreach (var ship in ships.Take(count <= 0 || ReadBoolTerm(action.TermsJson, "allMatchingAssets", false) ? ships.Count : count))
+                    package.Clauses.Add(ReignWeddingBargain.Asset("give.ship", from, to, 1, ReignAssetTransfer.ShipId(ship)));
+            }
+            return package;
         }
 
         private static int TransferPackageSettlements(Kingdom actor, Kingdom target, ReignWorldActionRecord action, List<Settlement> transferredSettlements)

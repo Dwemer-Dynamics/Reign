@@ -10,15 +10,34 @@ namespace ReignBeta.Campaign
 {
     internal static class ReignWandererAppearance
     {
+        private static readonly PopulationFaceSchemaCache SchemaCache = new PopulationFaceSchemaCache();
+        internal static PopulationFaceSchemaCache SchemaDiagnostics => SchemaCache;
+        internal static void ClearSchemaCache() => SchemaCache.Clear();
+        private static IReadOnlyList<int> FaceIndices(int race, bool female, int age, int weightCount)
+        {
+            var key = new PopulationFaceSchemaKey(race, female, age, weightCount);
+            long mismatches = SchemaCache.Mismatches;
+            var indices = SchemaCache.Get(key, ReadFaceIndices);
+            if (SchemaCache.Mismatches != mismatches)
+                ReignBeta.Integration.ReignLog.Warn("Native face schema changed; schema memoization disabled for this session.");
+            return indices;
+        }
+        private static int[] ReadFaceIndices(PopulationFaceSchemaKey key)
+        {
+            var indices = new List<int>();
+            int count = MBBodyProperties.GetFaceGenInstancesLength(key.Race, key.Female ? 1 : 0, key.Age);
+            for (int i = 0; i < count && i < key.WeightCount; i++)
+                if (IsFace(MBBodyProperties.GetDeformKeyData(i, key.Race, key.Female ? 1 : 0, key.Age).Id)) indices.Add(i);
+            return indices.ToArray();
+        }
         internal static float[] Shape(BodyProperties body, int race, bool female)
         {
             var p = FaceGenerationParams.Create();
             MBBodyProperties.GetParamsFromKey(ref p, body, false, false);
-            var result = new List<float>();
-            int count = MBBodyProperties.GetFaceGenInstancesLength(race, female ? 1 : 0, (int)body.Age);
-            for (int i = 0; i < count && i < p.KeyWeights.Length; i++)
-                if (IsFace(MBBodyProperties.GetDeformKeyData(i, race, female ? 1 : 0, (int)body.Age).Id)) result.Add(p.KeyWeights[i]);
-            return result.ToArray();
+            var indices = FaceIndices(race, female, (int)body.Age, p.KeyWeights.Length);
+            var result = new float[indices.Count];
+            for (int i = 0; i < indices.Count; i++) result[i] = p.KeyWeights[indices[i]];
+            return result;
         }
 
         private static bool IsFace(string id) => id != "age" && id != "height" && id != "weight" && id != "build";
@@ -44,10 +63,9 @@ namespace ReignBeta.Campaign
                 body = new BodyProperties(new DynamicBodyProperties(age, .2f + (float)rng.NextDouble() * .6f, .2f + (float)rng.NextDouble() * .6f), body.StaticProperties);
                 var parameters = FaceGenerationParams.Create();
                 MBBodyProperties.GetParamsFromKey(ref parameters, body, false, false);
-                int count = MBBodyProperties.GetFaceGenInstancesLength(race, female ? 1 : 0, (int)age);
-                for (int i = 0; i < count && i < parameters.KeyWeights.Length; i++)
-                    if (IsFace(MBBodyProperties.GetDeformKeyData(i, race, female ? 1 : 0, (int)age).Id))
-                        parameters.KeyWeights[i] = .2f + (float)rng.NextDouble() * .6f;
+                var indices = FaceIndices(race, female, (int)age, parameters.KeyWeights.Length);
+                for (int i = 0; i < indices.Count; i++)
+                    parameters.KeyWeights[indices[i]] = .2f + (float)rng.NextDouble() * .6f;
                 parameters.HeightMultiplier = .3f + (float)rng.NextDouble() * .4f;
                 MBBodyProperties.EnforceConstraints(ref parameters);
                 MBBodyProperties.ProduceNumericKeyWithParams(parameters, false, false, ref body);

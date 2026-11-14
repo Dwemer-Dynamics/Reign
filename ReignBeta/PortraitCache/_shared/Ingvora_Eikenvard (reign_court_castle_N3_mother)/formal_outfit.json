@@ -1,0 +1,13 @@
+{
+  "version": 1,
+  "heroStringId": "reign_court_castle_N3_mother",
+  "characterName": "Ingvora Eikenvard",
+  "imagePath": "portrait.png",
+  "imageSha256": "D6EE77C8F0E85ABDCD67A9566E82A8D6FA5ADF80B7CE16A9B3E02569C3CA3E0B",
+  "description": "A dark olive wool apron dress with restrained ochre woven borders along the straps, sides and hem and two modest round metal shoulder brooches, over a cream linen shift with elbow-length sleeves and a moderately open curved neckline. A red-and-cream patterned woven belt has long tasselled ends; the full layered skirt leaves brown leather shoes visible. No headgear, armor or weapons.",
+  "status": "completed",
+  "descriptionSource": "agent_vision",
+  "retryEligible": false,
+  "error": "",
+  "updatedUtc": "2026-11-07T03:24:37.453972+00:00"
+}

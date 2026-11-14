@@ -1,0 +1,13 @@
+{
+  "version": 1,
+  "heroStringId": "reign_court_town_N1_child_3",
+  "characterName": "Audrik Beinholt",
+  "imagePath": "portrait.png",
+  "imageSha256": "E99357B7B15728EEFA93B271A6AB454FE5690B69B8FCBBC9CDD33A52F4891497",
+  "description": "A muted dusty russet-red knee-length wool tunic with a simple rounded slit collar and restrained narrow oatmeal-and-brown woven trim at neckline and cuffs, a cream linen long-sleeved undershirt, a plain sturdy brown leather belt, dark grey-brown wool trousers, oatmeal leg wraps and soft dark-brown leather shoes. Practical civilian early medieval Scandinavian landowner attire, modest prosperous woven cloth with light everyday wear. No headgear, armor, weapons, fur war gear, crowns, heraldry or elaborate jewelry.",
+  "status": "completed",
+  "descriptionSource": "agent_vision",
+  "retryEligible": false,
+  "error": "",
+  "updatedUtc": "2026-11-07T03:40:35.624258+00:00"
+}

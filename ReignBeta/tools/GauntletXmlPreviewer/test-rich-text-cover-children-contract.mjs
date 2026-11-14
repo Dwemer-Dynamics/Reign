@@ -63,6 +63,7 @@ try {
       await document.fonts.ready;
       const { GauntletRenderer } = await import('./js/renderer.js');
       const { previewActionRichText } = await import('./js/action-text.js');
+      const { analyzeDiagnostics } = await import('./js/diagnostics.js');
       const stage = document.createElement('div');
       stage.style.cssText = 'position:fixed;left:0;top:0;width:1000px;height:1000px;';
       document.body.appendChild(stage);
@@ -93,20 +94,46 @@ try {
           }
         }
       }
+      const nativeEditableSamples = [];
+      for (const width of [240, 420]) {
+        const body = 'I wish to pay you 750 denars for a private visit with Livia Bellori, Beatrice Voss, Oren Mercato and Tobias Marin. '.repeat(20);
+        const tail = 'The final named price stays reachable.';
+        const xml = '<Prefab><Window><Widget WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="' + width + '" SuggestedHeight="52"><Children><ReignActionEditableTextWidget WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="' + width + '" SuggestedHeight="52" Brush="DefaultText" Brush.Font="ReignSerifDynamic" Brush.FontSize="20" Text="@Body" ComposerId="@ComposerId" /></Children></Widget></Window></Prefab>';
+        renderer.render(xml, 'NativeEditableContract.xml', { Body: body + tail, ComposerId: 'provider-free-probe' });
+        await new Promise(resolve => requestAnimationFrame(() => requestAnimationFrame(resolve)));
+        const element = stage.querySelector('.editable');
+        element.scrollLeft = element.scrollWidth;
+        const end = document.createRange(); end.setStart(element.firstChild, element.firstChild.length - tail.length); end.setEnd(element.firstChild, element.firstChild.length);
+        const endBounds = end.getBoundingClientRect(), bounds = element.getBoundingClientRect();
+        const issues = analyzeDiagnostics(renderer, stage);
+        nativeEditableSamples.push({ kind: 'native-horizontal', width, complete: element.textContent === body + tail,
+          scrollLeft: element.scrollLeft, scrollWidth: element.scrollWidth, clientWidth: element.clientWidth,
+          scrollHeight: element.scrollHeight, clientHeight: element.clientHeight, issueCount: issues.length,
+          passed: element.textContent === body + tail && element.scrollLeft > 0 && endBounds.right <= bounds.right + 2
+            && endBounds.right >= bounds.left && element.scrollHeight <= element.clientHeight + 2 && issues.length === 0 });
+        element.style.whiteSpace = 'normal'; element.style.overflowX = 'hidden';
+        nativeEditableSamples.push({ kind: 'broken-native-window', width,
+          passed: analyzeDiagnostics(renderer, stage).some(issue => issue.kind === 'overflow') });
+        renderer.render(xml.replaceAll('ReignActionEditableTextWidget', 'TextWidget'), 'PlainOverflowContract.xml', { Body: body + tail, ComposerId: 'provider-free-probe' });
+        await new Promise(resolve => requestAnimationFrame(() => requestAnimationFrame(resolve)));
+        nativeEditableSamples.push({ kind: 'plain-overflow', width,
+          passed: analyzeDiagnostics(renderer, stage).some(issue => issue.kind === 'overflow') });
+      }
       stage.remove();
-      return samples;
+      return { samples, nativeEditableSamples };
     })()`
   });
   assert.ok(!response.exceptionDetails, JSON.stringify(response.exceptionDetails));
-  const samples = response.result.value;
-  report = { schema: "reign-ui-multiline-cover-children-contract-v1", generatedUtc: new Date().toISOString(), samples,
+  const { samples, nativeEditableSamples } = response.result.value;
+  report = { schema: "reign-ui-multiline-cover-children-contract-v1", generatedUtc: new Date().toISOString(), samples, nativeEditableSamples,
     passed: samples.length === 16 && samples.every(sample => sample.complete && sample.height > (sample.longReply ? 350 : 35)
       && sample.positionYOffset === (sample.formatted && sample.kind === "TextWidget" ? 2 : 0)
       && sample.scrollHeight <= sample.clientHeight + sample.positionYOffset + 1 && sample.textHeight <= sample.height + 1
-      && sample.parentHeight >= sample.height - 1 && sample.italicCount === (sample.formatted && sample.kind === "RichTextWidget" ? 1 : 0)) };
+      && sample.parentHeight >= sample.height - 1 && sample.italicCount === (sample.formatted && sample.kind === "RichTextWidget" ? 1 : 0))
+      && nativeEditableSamples.length === 6 && nativeEditableSamples.every(sample => sample.passed) };
   fs.writeFileSync(path.join(output, "multiline-cover-children-contract.json"), JSON.stringify(report, null, 2) + "\n");
   assert.equal(report.passed, true, JSON.stringify(report));
-  console.log(JSON.stringify({ passed: true, cases: samples.length, output }));
+  console.log(JSON.stringify({ passed: true, cases: samples.length + nativeEditableSamples.length, output }));
 } finally {
   socket?.close();
   edge.kill();

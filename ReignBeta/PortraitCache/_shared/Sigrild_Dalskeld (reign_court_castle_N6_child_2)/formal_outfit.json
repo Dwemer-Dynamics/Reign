@@ -1,0 +1,13 @@
+{
+  "version": 1,
+  "heroStringId": "reign_court_castle_N6_child_2",
+  "characterName": "Sigrild Dalskeld",
+  "imagePath": "portrait.png",
+  "imageSha256": "9D030FD34C7F69C1144E1860F6D587F03E5516CF8D7EC01E78DC474AD77A3210",
+  "description": "Rust-brown wool apron gown with modest round clasps and restrained cream woven borders, cream opaque linen shift with moderate square neckline and elbow sleeves, woven waist tie and plain brown leather shoes; normal tier1 landowner clothing using corrected confidence46.",
+  "status": "completed",
+  "descriptionSource": "agent_vision",
+  "retryEligible": false,
+  "error": "",
+  "updatedUtc": "2026-11-07T03:41:07.712752+00:00"
+}

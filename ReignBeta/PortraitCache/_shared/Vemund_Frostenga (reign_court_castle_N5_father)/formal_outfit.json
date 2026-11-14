@@ -1,0 +1,13 @@
+{
+  "version": 1,
+  "heroStringId": "reign_court_castle_N5_father",
+  "characterName": "Vemund Frostenga",
+  "imagePath": "portrait.png",
+  "imageSha256": "060D63FD4EC9E2CC9CA4CA9A157547D2C9F84814ABCE24FBCAC3ADE98C11B3CC",
+  "description": "Muted blue-grey knee-length wool tunic with narrow cream woven borders at neckline, cuffs and hem, over ivory linen; brown leather belt with small ordinary leather pouch, loose brown trousers, grey leg wraps and brown leather shoes. No headgear, armor or weapons.",
+  "status": "completed",
+  "descriptionSource": "agent_vision",
+  "retryEligible": false,
+  "error": "",
+  "updatedUtc": "2026-11-07T03:19:40.590951+00:00"
+}

@@ -1,4 +1,5 @@
 using System;
+using SandBox.View.Map;
 using ReignBeta.Integration;
 using TaleWorlds.CampaignSystem;
 using TaleWorlds.Core;
@@ -21,6 +22,14 @@ namespace ReignBeta.UI
 
         public static bool IsOpen => _activeScreen != null;
 
+        internal static bool CanPresentOnMap()
+        {
+            MapScreen map = ScreenManager.TopScreen as MapScreen;
+            return ReignCampaignPreparationStartPolicy.CanPresentPopup(
+                map?.IsActive == true, map?.IsReady == true,
+                TaleWorlds.Engine.LoadingWindow.IsLoadingWindowActive);
+        }
+
         public static void RequireUntilReady()
         {
             _keepOpenRequested = true;
@@ -34,6 +43,9 @@ namespace ReignBeta.UI
                 return true;
             }
             if (ScreenManager.TopScreen == null) return false;
+            // Disabling the native state before the map finishes loading can
+            // prevent that very transition and hide our Retry control behind it.
+            if (!_calibrationFixtureOpen && !CanPresentOnMap()) return false;
 
             try
             {

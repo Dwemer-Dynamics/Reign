@@ -1,0 +1,13 @@
+{
+  "version": 1,
+  "heroStringId": "reign_court_castle_N1_mother",
+  "characterName": "Rannveig Eldhammar",
+  "imagePath": "portrait.png",
+  "imageSha256": "8BB710EA55AE99790CBE1B5909C5FBBC2997BE5DD6B56BDD1CF9DC28F1A6077A",
+  "description": "A slate-blue wool apron dress with red-and-cream geometric woven borders over a cream linen shift, two modest round bronze shoulder brooches, long linen sleeves and a woven red-and-cream belt with hanging tasselled ends. The ankle-length layered skirt and plain dark brown shoes are visible. No headgear, armor or weapons.",
+  "status": "completed",
+  "descriptionSource": "agent_vision",
+  "retryEligible": false,
+  "error": "",
+  "updatedUtc": "2026-11-07T03:08:12.827010+00:00"
+}

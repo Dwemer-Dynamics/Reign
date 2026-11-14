@@ -305,6 +305,29 @@ namespace ReignBeta.Integration
             return result;
         }
 
+        internal static async Task<bool> SendMarriageLetterAsync(string source, string id, Hero sender, Hero recipient,
+            string body, double dispatchDay)
+        {
+            var route = CalculateLetterRoute(sender, recipient, dispatchDay);
+            Interlocked.Increment(ref _correspondenceTickInFlight);
+            try
+            {
+                var response = await PostJsonAsync("/correspondence/send", new JObject
+                {
+                    ["campaignId"] = GetCampaignId(),
+                    ["timelineId"] = ReignBeta.Campaign.ReignWorldHistoryCampaignBehavior.Instance?.TimelineId ?? "main",
+                    ["senderId"] = sender.StringId, ["senderName"] = sender.Name.ToString(),
+                    ["recipientId"] = recipient.StringId, ["recipientName"] = recipient.Name.ToString(),
+                    ["body"] = body, ["source"] = source, ["reason"] = id,
+                    ["dispatchDay"] = dispatchDay, ["deliveryDay"] = route.DeliveryDay,
+                    ["originId"] = route.OriginId, ["destinationId"] = route.DestinationId
+                }).ConfigureAwait(false);
+                return response.Value<bool?>("ok") == true;
+            }
+            catch (Exception ex) { ReignLog.Warn("Marriage correspondence failed: " + ex.Message); return false; }
+            finally { Interlocked.Decrement(ref _correspondenceTickInFlight); }
+        }
+
         public static async Task<ReignCorrespondenceTickResult> TickCorrespondenceAsync(string phase = "all", IEnumerable<string> deliveryReceiptAcks = null)
         {
             Interlocked.Increment(ref _correspondenceTickInFlight);
@@ -343,6 +366,7 @@ namespace ReignBeta.Integration
                     if (!ReferenceEquals(expectedCampaign, TaleWorlds.CampaignSystem.Campaign.Current)
                         || expectedTimeline != (ReignBeta.Campaign.ReignWorldHistoryCampaignBehavior.Instance?.TimelineId ?? "main"))
                         throw new InvalidOperationException("The campaign changed before the delivered action response arrived.");
+                    ReignBeta.Campaign.ReignRelationshipCampaignBehavior.Instance?.ObserveMarriageLetters(result.DeliveredLetters);
                     foreach (var delivery in (response["structuredActionDeliveries"] as JArray ?? new JArray()).OfType<JObject>())
                     {
                         var request = delivery["request"] as JObject; var answer = delivery["response"] as JObject;

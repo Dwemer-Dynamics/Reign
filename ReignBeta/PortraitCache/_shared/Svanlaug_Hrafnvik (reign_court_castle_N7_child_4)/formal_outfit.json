@@ -1,0 +1,13 @@
+{
+  "version": 1,
+  "heroStringId": "reign_court_castle_N7_child_4",
+  "characterName": "Svanlaug Hrafnvik",
+  "imagePath": "portrait.png",
+  "imageSha256": "3715E1FA1B6059B19E9C318A1AAFE1F4A9808D860B8151F8422D71AD1CD23E60",
+  "description": "A muted slate-blue wool apron dress over a fine natural cream linen shift, small simple paired bronze brooches, restrained grey tablet-woven borders and a narrow woven belt. The dress falls to the ankles with both brown leather shoes visible below. Let the linen neckline and elbow-length sleeves follow the stated moderate normal clothing-coverage layer without transparency. The fabrics are opaque, clean and practical, with modest prosperous workmanship; no regalia, armor, head covering, weapons or heraldry.",
+  "status": "completed",
+  "descriptionSource": "agent_vision",
+  "retryEligible": false,
+  "error": "",
+  "updatedUtc": "2026-11-07T03:12:23.101094+00:00"
+}

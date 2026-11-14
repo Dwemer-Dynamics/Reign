@@ -1,5 +1,7 @@
 # Conversation corrections and narrative time
 
+2026-11-13 superseding decision: the user retired conversation-driven time advancement entirely and authorized removal of runtime conversation validation/repair/retry. Campaign time is the only recovery/date authority; no per-message or narrated skip is applied. Preserve historical clock records without authority. The native five-minute replacement below is canceled; location work remains separate and incomplete. See [current delivery procedure](testing/DIALOGUE_AND_PROVIDERS.md#single-pass-conversation-delivery). All validator/repair and two-clock descriptions below are historical context, not active runtime policy.
+
 2026-10-28 — Ira/Rhagaea regression repair. Current source and tests are authoritative; native/provider acceptance remains separate.
 
 A character's stored agenda is an intention, not proof that its proposed investigative step is relevant or that the player owes an answer. The current observer-projected contribution and recent correction are considered before another demand. Repeating a challenged demand requires a visible causal explanation with exact, relevant earlier-source evidence. This does not certify a source's factual truth. Ordinary testimony, uncertainty, independent disagreement and genuine refusal remain allowed.
@@ -8,7 +10,15 @@ The correction validator checks visible clauses separately and checks dependent 
 
 Group expression checks compare only the current observer-visible beat, including distinctive gestures and framing from the other speaker. Actual objects, completed drink quantities, supported facts, consent and refusal remain protected by existing repair validation. Older or private other-speaker prose is not borrowed into a new scene. Exact continuity records already supplied with the same source, observer, session, day and body can be omitted from the additional protected block; differing content is retained, and source-coverage preflight still runs.
 
-## Two clocks
+## Native clock replacement requested 2026-11-12
+
+The approved replacement requires five **native** game minutes once per saved/submitted player contribution in every direct NPC conversation, including party chat and events; letters are the sole exception. Clock advancement must occur inside the paused mission before generation snapshots, with no deferred exit jump. Retire narrative time authority only after native timer/save/mission feasibility passes; preserve historical records and safely rebase recovery anchors without changing the campaign date. Narrated larger skips require native waiting controls.
+
+Accepted RP locations must persist across cache expiry/reopening/compatible saves, starting at the native location and resetting on actual departure/travel or forced relocation. Either side can propose a flexible local destination through action text. Every included participant must explicitly accept; refusal or missing/unclear answers keeps the current scene. Repair NPC responses before publication and commit only final accepted output, including the final dialogue integrity guard's accepted reply hash. RP movement does not move native characters or change witness/information access.
+
+Implementation starts with the guarded diagnostic described in [conversation clock feasibility](testing/DIALOGUE_AND_PROVIDERS.md#conversation-clock-feasibility). Native ticker-debt loss is an unresolved activation blocker. The user requested a build/validation pause before deployment. The following sections retain the **historical installed behavior**, not acceptance of the new specification.
+
+## Two clocks (historical implementation)
 
 Native `worldDay` continues to own campaign simulation, native travel, action deadlines, pregnancy, cooldowns and save identity. Merely sending messages does not advance either clock.
 

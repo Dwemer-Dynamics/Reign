@@ -221,7 +221,8 @@ namespace ReignBeta.Campaign
             var model = NativeCampaign.Current.Models.SettlementLoyaltyModel;
             var number = model.CalculateLoyaltyChange(town, true); var lines = number.GetLines().ToList();
             return new JObject { ["available"] = true, ["modelType"] = model.GetType().FullName,
-                ["governorDifferentCultureEffect"] = model.GovernorDifferentCultureLoyaltyEffect,
+                // Preserve the observation field for existing evidence consumers.
+                ["governorDifferentCultureEffect"] = 0f,
                 ["result"] = number.ResultNumber, ["lineCount"] = lines.Count, ["truncated"] = lines.Count > 64,
                 ["lines"] = new JArray(lines.Take(64).Select(line => new JObject {
                     ["name"] = line.name == null ? "" : line.name.Substring(0, Math.Min(256, line.name.Length)), ["number"] = line.number })) };

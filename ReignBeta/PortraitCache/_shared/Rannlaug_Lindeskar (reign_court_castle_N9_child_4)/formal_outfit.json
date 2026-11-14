@@ -1,0 +1,13 @@
+{
+  "version": 1,
+  "heroStringId": "reign_court_castle_N9_child_4",
+  "characterName": "Rannlaug Lindeskar",
+  "imagePath": "portrait.png",
+  "imageSha256": "2D42967F5ECF7363A220ADDFC9946D2FDC746D0B2BB3997EBFEA1E5140DE262A",
+  "description": "An earthy muted walnut-brown ankle-length wool dress over a pale cream linen long-sleeved underdress, restrained pale ochre geometric woven trim on the modest rounded neckline and cuffs, a simple dark-brown leather belt and small practical brown leather ankle shoes fully visible below the hem. Modest prosperous early medieval Scandinavian landowner craft, plain everyday civilian layers, softly worn woven cloth. No head covering, weapons, armor, fur war gear, crowns, heraldry or ornamental display jewelry.",
+  "status": "completed",
+  "descriptionSource": "agent_vision",
+  "retryEligible": false,
+  "error": "",
+  "updatedUtc": "2026-11-07T03:33:53.693248+00:00"
+}
