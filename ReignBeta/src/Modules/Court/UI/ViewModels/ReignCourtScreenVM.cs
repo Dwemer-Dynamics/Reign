@@ -142,7 +142,7 @@ namespace ReignBeta.UI.ViewModels
                 string current = office.State.ToString().Replace('_', ' ').ToUpperInvariant();
                 if (office.DesiredActiveEffectiveDay >= 0
                     && office.DesiredActive != (office.State == ReignChancellorOfficeState.Active))
-                    return current + "  •  " + (office.DesiredActive ? "ACTIVE" : "INACTIVE") + " NEXT 8 AM";
+                    return current + "  â€¢  " + (office.DesiredActive ? "ACTIVE" : "INACTIVE") + " NEXT 8 AM";
                 return current;
             }
         }
@@ -154,7 +154,7 @@ namespace ReignBeta.UI.ViewModels
                 if (office == null || office.IsVacant) return "Appoint through direct conversation";
                 if (office.Emergency || office.State == ReignChancellorOfficeState.CaptiveContinuity
                     || office.State == ReignChancellorOfficeState.Handoff)
-                    return "Emergency service • unpaid";
+                    return "Emergency service â€¢ unpaid";
                 return office.Salary.ToString("N0", CultureInfo.InvariantCulture) + " denars per Active day";
             }
         }
@@ -558,7 +558,7 @@ namespace ReignBeta.UI.ViewModels
             if (_court.HasRoyalCommandAccess)
             foreach (ReignSettlementSupplySnapshot land in ReignCourtSupplyService.GetScopedSnapshots(_court.Session.Authority).Take(5))
                 Lands.Add(new ReignCourtCardVM(land.SettlementStringId, "lands", land.Name,
-                    "Food " + land.FoodStocks.ToString("0") + "/" + land.FoodCapacity + "  •  Grain " + land.GrainCount,
+                    "Food " + land.FoodStocks.ToString("0") + "/" + land.FoodCapacity + "  â€¢  Grain " + land.GrainCount,
                     land.IsBesieged ? "BESIEGED" : land.HasShortage ? "SHORTAGE" : land.Loyalty < 40 ? "UNREST" : "STABLE",
                     "Prosperity " + land.Prosperity.ToString("0") + "  " + land.FoodChange.ToString("+0.0;-0.0;0.0") + "/day", SelectCard, land));
 
@@ -747,11 +747,11 @@ namespace ReignBeta.UI.ViewModels
                 case "lands":
                     foreach (ReignSettlementSupplySnapshot land in ReignCourtSupplyService.GetScopedSnapshots(_court.Session.Authority))
                         TabRows.Add(new ReignCourtCardVM(land.SettlementStringId, tabId, land.Name,
-                            "Owner " + (Settlement.Find(land.SettlementStringId)?.OwnerClan?.Name?.ToString() ?? "Unknown") + "  •  Governor " + (FindHero(land.GovernorHeroStringId)?.Name?.ToString() ?? "Vacant")
+                            "Owner " + (Settlement.Find(land.SettlementStringId)?.OwnerClan?.Name?.ToString() ?? "Unknown") + "  â€¢  Governor " + (FindHero(land.GovernorHeroStringId)?.Name?.ToString() ?? "Vacant")
                             + "\nProsperity " + land.Prosperity.ToString("0") + "  Loyalty " + land.Loyalty.ToString("0") + "  Security " + land.Security.ToString("0")
                             + "\nFood " + land.FoodStocks.ToString("0") + "/" + land.FoodCapacity + " (" + land.FoodChange.ToString("+0.0;-0.0;0.0") + "/day), market stock " + land.StrategicSupplyUnits + " supply units, market gold " + land.MarketGold
-                            + "\nTax " + land.DailyTaxIncome + "/day  •  Construction " + land.CurrentConstruction + " " + land.CurrentConstructionProgress.ToString("0") + " (" + land.Construction.ToString("0.0") + "/day)"
-                            + "\nGarrison " + land.GarrisonCount + " (" + land.GarrisonWounded + " wounded)  •  Militia " + land.Militia.ToString("0") + " (" + land.MilitiaChange.ToString("+0.0;-0.0;0.0") + "/day)  •  Villages " + land.VillageCount + (land.RaidedVillageCount > 0 ? " (" + land.RaidedVillageCount + " raided)" : string.Empty),
+                            + "\nTax " + land.DailyTaxIncome + "/day  â€¢  Construction " + land.CurrentConstruction + " " + land.CurrentConstructionProgress.ToString("0") + " (" + land.Construction.ToString("0.0") + "/day)"
+                            + "\nGarrison " + land.GarrisonCount + " (" + land.GarrisonWounded + " wounded)  â€¢  Militia " + land.Militia.ToString("0") + " (" + land.MilitiaChange.ToString("+0.0;-0.0;0.0") + "/day)  â€¢  Villages " + land.VillageCount + (land.RaidedVillageCount > 0 ? " (" + land.RaidedVillageCount + " raided)" : string.Empty),
                             land.IsBesieged ? "BESIEGED" : land.HasShortage ? "SHORTAGE" : "STABLE", "Select for an atomic 25-grain emergency transfer", SelectCard, land));
                     break;
                 case "subjects":
@@ -769,7 +769,7 @@ namespace ReignBeta.UI.ViewModels
                     foreach (CourtObligation obligation in _court.Obligations.Where(x => x.Status == "unresolved"))
                         TabRows.Add(new ReignCourtCardVM(obligation.ObligationId,tabId,"Obligation: "+obligation.ObligationType,obligation.Description,"DUE "+(obligation.DueDay<0?"NONE":obligation.DueDay.ToString("0.0")),"Terms are revision- and hash-bound",SelectCard,obligation));
                     foreach (CourtPlot plot in _court.Plots.Where(x => x.IsDiscoveredByPlayer && x.Status == "active"))
-                        TabRows.Add(new ReignCourtCardVM(plot.PlotId,tabId,"Known "+plot.PlotType,plot.TargetStringId,"ACTIVE",(plot.Progress*100f).ToString("0")+"% • source-limited",SelectCard,plot));
+                        TabRows.Add(new ReignCourtCardVM(plot.PlotId,tabId,"Known "+plot.PlotType,plot.TargetStringId,"ACTIVE",(plot.Progress*100f).ToString("0")+"% â€¢ source-limited",SelectCard,plot));
                     foreach (Hero hero in SubjectHeroes().Take(200))
                         TabRows.Add(new ReignCourtCardVM(hero.StringId, tabId, hero.Name.ToString(), SubjectSubtitle(hero),
                             hero.IsPrisoner ? "CAPTIVE" : hero.CurrentSettlement != null ? "AT " + hero.CurrentSettlement.Name : "AWAY",
@@ -783,7 +783,7 @@ namespace ReignBeta.UI.ViewModels
                     {
                         bool war = FactionManager.IsAtWarAgainstFaction(ours, kingdom);
                         TabRows.Add(new ReignCourtCardVM(kingdom.StringId, tabId, kingdom.Name.ToString(), "Ruler " + (kingdom.Leader?.Name?.ToString() ?? "Unknown")
-                            + "  •  Fiefs " + kingdom.Fiefs.Count + "  •  Clans " + kingdom.Clans.Count,
+                            + "  â€¢  Fiefs " + kingdom.Fiefs.Count + "  â€¢  Clans " + kingdom.Clans.Count,
                             war ? "AT WAR" : "AT PEACE", "Comparative strength " + kingdom.CurrentTotalStrength.ToString("0"), SelectCard, kingdom, kingdom.Leader));
                     }
                     break;
@@ -792,7 +792,7 @@ namespace ReignBeta.UI.ViewModels
                     {
                         Hero hero = FindHero(posting.HeroStringId);
                         TabRows.Add(new ReignCourtCardVM(posting.PostingId, tabId, hero?.Name?.ToString() ?? "Unknown ambassador",
-                            "Mission " + posting.MissionType.Replace('_', ' ') + "  •  Target " + (Kingdom.All.FirstOrDefault(x => x.StringId == posting.TargetKingdomStringId)?.Name?.ToString() ?? posting.TargetKingdomStringId),
+                            "Mission " + posting.MissionType.Replace('_', ' ') + "  â€¢  Target " + (Kingdom.All.FirstOrDefault(x => x.StringId == posting.TargetKingdomStringId)?.Name?.ToString() ?? posting.TargetKingdomStringId),
                             posting.Status.ToUpperInvariant(), "Assigned day " + posting.AssignedDay.ToString("0.0"), SelectCard, posting, hero));
                     }
                     if (TabRows.Count == 0) TabRows.Add(new ReignCourtCardVM("vacant", tabId, "No active postings", "Up to three persistent royal ambassador postings may be assigned.", "VACANT", "Appoint a Foreign Advisor to improve negotiations.", SelectCard));
@@ -804,7 +804,7 @@ namespace ReignBeta.UI.ViewModels
                         spymaster == null ? "ADVANCED OPERATIONS LOCKED" : "ACTIVE", "Exact native reports remain available; uncertain claims require sources and confidence.", SelectCard, spymaster, FindHero(spymaster?.HeroStringId)));
                     foreach (IntelligenceOperation operation in _court.IntelligenceOperations.OrderByDescending(x => x.StartedDay))
                         TabRows.Add(new ReignCourtCardVM(operation.OperationId, tabId, operation.OperationType.Replace('_', ' '), operation.TargetType + " " + operation.TargetStringId,
-                            operation.State.ToString().ToUpperInvariant(), "Risk " + (operation.Risk * 100f).ToString("0") + "%  •  Confidence " + (operation.Confidence * 100f).ToString("0") + "%", SelectCard, operation));
+                            operation.State.ToString().ToUpperInvariant(), "Risk " + (operation.Risk * 100f).ToString("0") + "%  â€¢  Confidence " + (operation.Confidence * 100f).ToString("0") + "%", SelectCard, operation));
                     foreach (CourtMatter rumor in _court.Matters.Where(x => x.Kind == ReignCourtMatterKind.Rumor && !x.IsTerminal)) TabRows.Add(MatterCard(rumor, tabId));
                     break;
                 case "military":
@@ -818,10 +818,10 @@ namespace ReignBeta.UI.ViewModels
                             "Mobilization requires actual recruits, provisions and clan funding.", SelectCard, realm));
                     foreach (MobileParty party in MobileParty.AllLordParties.Where(x => x?.ActualClan?.Kingdom == realm).OrderByDescending(x => x.Party.EstimatedStrength))
                         TabRows.Add(new ReignCourtCardVM(party.StringId, tabId, party.Name.ToString(), "Commander " + (party.LeaderHero?.Name?.ToString() ?? "Vacant")
-                            + "  •  Men " + party.MemberRoster.TotalManCount + "  •  Wounded " + party.MemberRoster.TotalWounded
-                            + "\nMorale " + party.Morale.ToString("0") + (party.Army == null ? string.Empty : "  •  Army cohesion " + party.Army.Cohesion.ToString("0"))
-                            + "  •  Food " + party.Food.ToString("0.0") + " days  •  Prisoners " + party.PrisonRoster.TotalManCount,
-                            party.Army == null ? "INDEPENDENT" : "IN ARMY", "Strength " + party.Party.EstimatedStrength.ToString("0") + "  •  Objective " + party.DefaultBehavior, SelectCard, party, party.LeaderHero));
+                            + "  â€¢  Men " + party.MemberRoster.TotalManCount + "  â€¢  Wounded " + party.MemberRoster.TotalWounded
+                            + "\nMorale " + party.Morale.ToString("0") + (party.Army == null ? string.Empty : "  â€¢  Army cohesion " + party.Army.Cohesion.ToString("0"))
+                            + "  â€¢  Food " + party.Food.ToString("0.0") + " days  â€¢  Prisoners " + party.PrisonRoster.TotalManCount,
+                            party.Army == null ? "INDEPENDENT" : "IN ARMY", "Strength " + party.Party.EstimatedStrength.ToString("0") + "  â€¢  Objective " + party.DefaultBehavior, SelectCard, party, party.LeaderHero));
                     break;
                 default:
                     foreach (CourtMatter matter in _court.Matters.Where(x => !x.IsTerminal).OrderByDescending(x => x.IsCritical).ThenBy(x => x.DueDay)) TabRows.Add(MatterCard(matter));
@@ -1344,11 +1344,11 @@ namespace ReignBeta.UI.ViewModels
             switch (petition.Kind)
             {
                 case ReignPetitionKind.Food:
-                    return petition.FoodStockCost.ToString("N0", CultureInfo.InvariantCulture) + " food • " + petition.DurationDays + " days";
+                    return petition.FoodStockCost.ToString("N0", CultureInfo.InvariantCulture) + " food â€¢ " + petition.DurationDays + " days";
                 case ReignPetitionKind.Soldiers:
-                    return petition.SoldierCount.ToString("N0", CultureInfo.InvariantCulture) + " soldiers • " + petition.DurationDays + " days";
+                    return petition.SoldierCount.ToString("N0", CultureInfo.InvariantCulture) + " soldiers â€¢ " + petition.DurationDays + " days";
                 default:
-                    return petition.GoldCost.ToString("N0", CultureInfo.InvariantCulture) + " denars • " + petition.DurationDays + " days";
+                    return petition.GoldCost.ToString("N0", CultureInfo.InvariantCulture) + " denars â€¢ " + petition.DurationDays + " days";
             }
         }
 
@@ -1390,20 +1390,20 @@ namespace ReignBeta.UI.ViewModels
             if (string.Equals(history.Type, "petition", StringComparison.OrdinalIgnoreCase))
                 return (string.IsNullOrWhiteSpace(history.PetitionerName)
                     ? "Petition"
-                    : history.PetitionerName) + " — "
+                    : history.PetitionerName) + " â€” "
                     + (history.PetitionKind?.ToString() ?? "petition");
             if (string.Equals(history.Type, "chancellor_service", StringComparison.OrdinalIgnoreCase))
                 return (string.IsNullOrWhiteSpace(history.ChancellorName)
                     ? "Chancellor"
-                    : history.ChancellorName) + " — Chancellor service";
+                    : history.ChancellorName) + " â€” Chancellor service";
             if (string.Equals(history.Type, "soldier_expedition", StringComparison.OrdinalIgnoreCase))
                 return (string.IsNullOrWhiteSpace(history.SettlementName)
                     ? "Garrison"
-                    : history.SettlementName) + " — Soldier expedition";
+                    : history.SettlementName) + " â€” Soldier expedition";
             if (string.Equals(history.Type, "commitment", StringComparison.OrdinalIgnoreCase))
                 return (string.IsNullOrWhiteSpace(history.SettlementName)
                     ? "Settlement"
-                    : history.SettlementName) + " — "
+                    : history.SettlementName) + " â€” "
                     + (history.PetitionKind?.ToString() ?? "court") + " commitment";
             string type = string.IsNullOrWhiteSpace(history.Type) ? "Court record" : history.Type;
             return type.Replace('_', ' ');
@@ -1439,7 +1439,7 @@ namespace ReignBeta.UI.ViewModels
         }
 
         private static Hero FindHero(string id) { return string.IsNullOrWhiteSpace(id) ? null : Hero.AllAliveHeroes.FirstOrDefault(x => x.StringId == id.Trim()); }
-        private static string SubjectSubtitle(Hero hero) { return (hero.Clan?.Name?.ToString() ?? hero.Occupation.ToString()) + "  •  " + (hero.Clan?.Kingdom?.Name?.ToString() ?? "No kingdom"); }
+        private static string SubjectSubtitle(Hero hero) { return (hero.Clan?.Name?.ToString() ?? hero.Occupation.ToString()) + "  â€¢  " + (hero.Clan?.Kingdom?.Name?.ToString() ?? "No kingdom"); }
         private static string FormatMatterState(CourtMatter matter) { return matter.IsCritical ? "URGENT" : matter.State.ToString().Replace('_', ' ').ToUpperInvariant(); }
         private static string DueText(CourtMatter matter) { return matter.DueDay < 0 ? "No deadline" : "Due day " + matter.DueDay.ToString("0.#"); }
         private static string FormatCompact(float value) { return Math.Abs(value) >= 10000f ? (value / 1000f).ToString("0.#") + "K" : value.ToString("0"); }
@@ -1462,11 +1462,11 @@ namespace ReignBeta.UI.ViewModels
         {
             switch(axis)
             {
-                case "presence":return "Absentee and neglectful  ↔  attentive and personally engaged";
-                case "martial":return "Publicly inept or cowardly  ↔  formidable and proven";
-                case "statecraft":return "Politically inept  ↔  capable ruler, strategist, and negotiator";
-                case "judgement":return "Cruel, faithless, or unjust  ↔  merciful, honorable, and wise";
-                case "decorum":return "Scandalous and promiscuous  ↔  restrained, discreet, and respectable";
+                case "presence":return "Absentee and neglectful  â†”  attentive and personally engaged";
+                case "martial":return "Publicly inept or cowardly  â†”  formidable and proven";
+                case "statecraft":return "Politically inept  â†”  capable ruler, strategist, and negotiator";
+                case "judgement":return "Cruel, faithless, or unjust  â†”  merciful, honorable, and wise";
+                case "decorum":return "Scandalous and promiscuous  â†”  restrained, discreet, and respectable";
                 default:return string.Empty;
             }
         }

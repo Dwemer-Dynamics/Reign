@@ -102,7 +102,7 @@ public sealed class DuelModePolicyTests
         Assert.True(process.ExitCode == 0, (await output) + (await error));
         using var report = System.Text.Json.JsonDocument.Parse(File.ReadAllText(Path.Combine(evidence, "report.json")));
         Assert.True(report.RootElement.GetProperty("ok").GetBoolean());
-        Assert.Equal(4, report.RootElement.GetProperty("boundHooks").GetInt32());
+        Assert.Equal(5, report.RootElement.GetProperty("boundHooks").GetInt32());
         Assert.Equal(6, report.RootElement.GetProperty("scopeChecks").GetInt32());
         Assert.True(report.RootElement.GetProperty("transpilerPreservedNativeInstructions").GetBoolean());
         Assert.True(report.RootElement.GetProperty("collisionCopyOnly").GetBoolean());
@@ -133,11 +133,11 @@ public sealed class DuelModePolicyTests
     }
 
     [Fact]
-    public void PracticeIsTheThirdSelectableMode()
+    public void TrainingTogetherIsSelectableAlongsidePracticeHonorAndLethal()
     {
         var mode = Assert.Single(Reign.Core.Contracts.Actions.ReignActionCatalog.Find("duel_player")!.Parameters);
         Assert.Equal("terms.duelMode", mode.Key);
-        Assert.Equal(new[] { "practice", "honor", "lethal" }, mode.Choices);
+        Assert.Equal(new[] { "practice", "training_together", "honor", "lethal" }, mode.Choices);
     }
 
     [Fact]
@@ -148,8 +148,8 @@ public sealed class DuelModePolicyTests
         string mission = File.ReadAllText(Path.Combine(root, "ReignBeta/src/Modules/Characters/Campaign/ReignDuelMissionBehavior.cs"));
         string social = service.Substring(service.IndexOf("internal static void RecordDuelSocialOutcome", StringComparison.Ordinal));
         social = social.Substring(0, social.IndexOf("public static bool HasPendingForOpponent", StringComparison.Ordinal));
-        Assert.Contains("if (intent == null || ReignDuelModePolicy.IsPractice(intent.Mode)) return;", social);
-        Assert.True(social.IndexOf("IsPractice(intent.Mode)", StringComparison.Ordinal) < social.IndexOf("RecordSocialOutcome(", StringComparison.Ordinal));
+        Assert.Contains("if (intent == null || ReignDuelModePolicy.IsPrivate(intent.Mode)) return;", social);
+        Assert.True(social.IndexOf("IsPrivate(intent.Mode)", StringComparison.Ordinal) < social.IndexOf("RecordSocialOutcome(", StringComparison.Ordinal));
         Assert.Contains("RecordDuelSocialOutcome(intent, resolvedWinner, loserHero, finishReason)", service);
         Assert.Contains("RecordDuelSocialOutcome(finished, winnerHero, loserHero, finishReason)", mission);
         Assert.Contains("? \"practice\" : ResolvePurpose", service);
@@ -158,6 +158,67 @@ public sealed class DuelModePolicyTests
             Assert.Contains("\"practice_duel_completed\"", consumer);
             Assert.Contains("in a private practice duel.", consumer);
         }
+    }
+
+    [Theory]
+    [InlineData("practice", 1f, 70f, true)]
+    [InlineData("training_together", 0.05f, 98.5f, true)]
+    [InlineData("training", 0.05f, 98.5f, false)]
+    [InlineData("honor", 0.05f, 98.5f, false)]
+    [InlineData("lethal", 0.05f, 98.5f, false)]
+    public void DamageAndPrivacyAreIndependentOfLegacyTraining(string mode, float multiplier, float health, bool isPrivate)
+    {
+        Assert.Equal(multiplier, ReignDuelModePolicy.HealthMultiplier(mode));
+        Assert.Equal(health, ReignDuelModePolicy.HealthAfterHit(mode, 100f, 70f, 30f), 4);
+        Assert.Equal(isPrivate, ReignDuelModePolicy.IsPrivate(mode));
+    }
+
+    [Theory]
+    [InlineData("training_together")]
+    [InlineData("Training Together")]
+    [InlineData("training-together")]
+    public void TrainingTogetherCannotEscalateAndDoesNotReuseArrestMode(string input)
+    {
+        var mode = ReignDuelModePolicy.Resolve(input, true);
+        Assert.Equal("training_together", mode);
+        Assert.True(ReignDuelModePolicy.IsTrainingTogether(mode));
+        Assert.False(ReignDuelModePolicy.IsLethal(mode));
+        Assert.Equal("training together", ReignDuelModePolicy.DisplayName(mode));
+        Assert.False(ReignDuelModePolicy.IsTrainingTogether("training"));
+    }
+
+    [Theory]
+    [InlineData(100f, 0f, 500f)]
+    [InlineData(100f, 100f, 50f)]
+    [InlineData(100f, 90.25f, 9.75f)]
+    public void FullDamagePracticePreservesTheNativeHealthDecision(float health, float next, float damage)
+        => Assert.Equal(next, ReignDuelModePolicy.HealthAfterHit("practice", health, next, damage));
+
+    [Fact]
+    public void TrainingStopUsesPrivateReceiptWithoutInventingWinnerAndNativeCallbackCannotCompleteTwice()
+    {
+        var root = TestOptions.FindWorkspace();
+        string service = File.ReadAllText(Path.Combine(root, "ReignBeta/src/Modules/Characters/Campaign/ReignDuelService.cs"));
+        string stop = service.Split("internal static void CompleteTrainingTogether")[1].Split("public static void CompleteDuelFromMapMission")[0];
+        Assert.Contains("!IsActiveDuel(intent.ActionId)", stop);
+        Assert.Contains("Neither fighter won or lost.", stop);
+        Assert.Contains("practice_duel_completed", stop);
+        Assert.DoesNotContain("RecordDuelSocialOutcome", stop);
+        Assert.DoesNotContain("AddOutcomeDiagnostics", stop);
+        Assert.True(stop.IndexOf("Complete(intent.ActionId)") < stop.IndexOf("CompleteActionFromMissionHook"));
+        string callback = service.Split("public static void CompleteDuelFromMapMission")[1].Split("internal static void RecordDuelSocialOutcome")[0];
+        Assert.Contains("if (!IsActiveDuel(intent.ActionId)) return;", callback);
+        string mission = File.ReadAllText(Path.Combine(root, "ReignBeta/src/Modules/Characters/Campaign/ReignDuelMissionBehavior.cs"));
+        Assert.Contains("if (_trainingStopped) return true;", mission);
+        Assert.Contains("TryStopTraining(\"training_mission_ended\")", mission);
+        string patches = File.ReadAllText(Path.Combine(root, "ReignBeta/src/Modules/Characters/Campaign/ReignDuelCombatPatches.cs"));
+        string leave = patches.Split("private static bool TrainingEndRequest")[1].Split("private static bool NativeBattleHit")[0];
+        Assert.Contains("behavior?.CanLeaveTraining != true", leave);
+        Assert.Contains("canPlayerLeave = true;", leave);
+        Assert.DoesNotContain("TryStopTraining(", leave);
+        Assert.DoesNotContain("CompleteTrainingTogether(", leave);
+        string server = File.ReadAllText(Path.Combine(root, "ReignServer/src/Modules/Platform/Program.cs"));
+        Assert.Contains("exactly the same consent, private memory, nonlethal purpose and social rules as practice", server);
     }
 
     [Theory]

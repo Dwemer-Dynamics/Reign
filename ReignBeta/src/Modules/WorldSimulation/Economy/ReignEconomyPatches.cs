@@ -790,18 +790,24 @@ namespace ReignBeta.Economy
             if (town?.OwnerClan?.Leader == null || town.IsUnderSiege || town.FoodChange <= 0
                 || !town.GarrisonAutoRecruitmentIsEnabled || town.Settlement.Party.MapEvent != null) return false;
             if (!BeginDailyGarrison(ReignWarEconomyTransactions.Garrison, town)) return false;
-            var getter = AccessTools.Method(typeof(GarrisonRecruitmentCampaignBehavior), "GetAutoRecruitmentGarrisonChangeExplainedNumber");
-            float native = ((ExplainedNumber)getter.Invoke(__instance, new object[] { town })).ResultNumber;
+            float native = NativeGarrisonChange(__instance, town, automatic: true).ResultNumber;
             var field = AccessTools.Field(typeof(GarrisonRecruitmentCampaignBehavior), "_volunteerListCache");
-            var volunteers = ((IEnumerable<GarrisonRecruitmentCampaignBehavior.VolunteerTroop>)field.GetValue(__instance)).ToList();
+            // Native 1.5.7 made VolunteerTroop private. Read the audited payload
+            // without exposing that type in Reign's compiled assembly references.
+            var volunteerType = field.FieldType.GetGenericArguments().Single();
+            var ownerField = AccessTools.Field(volunteerType, "OwnerNotable");
+            var indexField = AccessTools.Field(volunteerType, "NotableVolunteerArrayIndex");
+            if (ownerField?.FieldType != typeof(Hero) || indexField?.FieldType != typeof(int))
+                throw new InvalidOperationException("Native garrison volunteer payload changed.");
+            var volunteers = ((System.Collections.IEnumerable)field.GetValue(__instance)).Cast<object>().ToList();
             if (native <= 0) return false;
             if (town.GarrisonParty == null) town.Settlement.AddGarrisonParty();
             int remaining = Math.Min(volunteers.Count, (int)Math.Ceiling(native));
             foreach (var volunteer in volunteers)
             {
                 if (remaining <= 0) break;
-                var notable = volunteer.OwnerNotable;
-                int index = volunteer.NotableVolunteerArrayIndex;
+                var notable = (Hero)ownerField.GetValue(volunteer);
+                int index = (int)indexField.GetValue(volunteer);
                 var troop = notable.VolunteerTypes[index];
                 var locality = notable.CurrentSettlement ?? town.Settlement;
                 if (ReignWarEconomyTransactions.Enlist(ReignWarEconomyTransactions.Garrison, locality,
@@ -816,14 +822,26 @@ namespace ReignBeta.Economy
             { ReignWarEconomyTransactions.Totals("initial_campaign_garrison").Exempt++; return true; }
             if (town?.OwnerClan?.Leader == null || town.IsUnderSiege || town.Settlement.Party.MapEvent != null) return false;
             if (!BeginDailyGarrison(ReignWarEconomyTransactions.BaseGarrison, town)) return false;
-            var getter = AccessTools.Method(typeof(GarrisonRecruitmentCampaignBehavior), "GetBaseGarrisonChangeExplainedNumber");
-            int native = (int)((ExplainedNumber)getter.Invoke(__instance, new object[] { town, false })).ResultNumber;
+            int native = (int)NativeGarrisonChange(__instance, town, automatic: false).ResultNumber;
             if (native <= 0) return false;
             if (town.GarrisonParty == null) town.Settlement.AddGarrisonParty();
             for (int i = 0; i < native; i++)
                 if (!ReignWarEconomyTransactions.Enlist(ReignWarEconomyTransactions.BaseGarrison, town.Settlement,
                     town.GarrisonParty, town.OwnerClan.Leader, town.MapFaction.BasicTroop, liability: true)) break;
             return false;
+        }
+
+        internal static ExplainedNumber NativeGarrisonChange(
+            GarrisonRecruitmentCampaignBehavior behavior, Town town, bool automatic)
+        {
+            string name = automatic ? "GetAutoRecruitmentGarrisonChangeExplainedNumber"
+                : "GetBaseGarrisonChangeExplainedNumber";
+            var getter = AccessTools.DeclaredMethod(typeof(GarrisonRecruitmentCampaignBehavior), name,
+                new[] { typeof(Town), typeof(bool) })
+                ?? throw new MissingMethodException(typeof(GarrisonRecruitmentCampaignBehavior).FullName, name);
+            // Native daily recruitment requests a quote without UI descriptions.
+            // Reflection does not supply optional/new arguments on our behalf.
+            return (ExplainedNumber)getter.Invoke(behavior, new object[] { town, false });
         }
 
         private static void FoodProvisionPrefix(MobileParty mobileParty, Settlement settlement,

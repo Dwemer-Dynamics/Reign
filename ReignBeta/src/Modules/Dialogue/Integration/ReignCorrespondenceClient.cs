@@ -57,7 +57,7 @@ namespace ReignBeta.Integration
                             ["destinationId"] = route.DestinationId,
                             ["transitDays"] = Math.Max(0.25d, route.DeliveryDay - day)
                         };
-                        ConfigureStructuredActions(candidate, hero, null);
+                        ConfigureStructuredActions(candidate, hero, null, Reign.Core.Contracts.Actions.AgreementChannel.Correspondence);
                         rows.Add(candidate);
                     }
                     return rows;
@@ -188,7 +188,8 @@ namespace ReignBeta.Integration
                     ["actionResolutionIndex"] = BuildActionResolutionIndex(recipient,
                         new List<Hero> { recipient }, true)
                 };
-                await ReignMainThread.InvokeAsync(() => ConfigureStructuredActions(payload, recipient, actionDraft)).ConfigureAwait(false);
+                await ReignMainThread.InvokeAsync(() => ConfigureStructuredActions(payload, recipient, actionDraft,
+                    Reign.Core.Contracts.Actions.AgreementChannel.Correspondence)).ConfigureAwait(false);
                 JObject response = await PostJsonAsync("/correspondence/send", payload).ConfigureAwait(false);
                 result.Ok = response.Value<bool?>("ok") == true;
                 result.Error = response.Value<string>("error") ?? string.Empty;

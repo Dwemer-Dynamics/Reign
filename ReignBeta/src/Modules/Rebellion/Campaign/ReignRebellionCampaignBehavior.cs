@@ -2358,7 +2358,7 @@ namespace ReignBeta.Campaign
             TextObject informal = new TextObject(name.ToString());
             rebels.InitializeKingdom(name, informal, parent.Culture, leaderClan.Banner ?? parent.Banner,
                 parent.Color2, parent.Color, leaderClan.HomeSettlement ?? parent.InitialHomeSettlement,
-                parent.EncyclopediaText, parent.EncyclopediaTitle, parent.EncyclopediaRulerTitle);
+                parent.EncyclopediaText, parent.FormalName, parent.EncyclopediaRulerTitle);
             ChangeKingdomAction.ApplyByCreateKingdom(leaderClan, rebels, true);
             rebels.RulingClan = leaderClan;
             foreach (PolicyObject policy in parent.ActivePolicies.ToList())

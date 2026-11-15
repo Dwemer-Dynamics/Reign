@@ -260,7 +260,7 @@ namespace ReignBeta.ClanAccords
 
         private void OnHourlyTick()
         {
-            if (Hero.MainHero == null || TaleWorlds.CampaignSystem.Campaign.Current == null || ReignCampaignInitializationGate.IsPending
+            if (TaleWorlds.CampaignSystem.Campaign.Current == null || Hero.MainHero == null || ReignCampaignInitializationGate.IsPending
                 || ReignWorldHistoryCampaignBehavior.Instance?.TimelineReady != true) return;
             Reconcile();
             if (_inFlight || !_dirty || System.Diagnostics.Stopwatch.GetTimestamp() < _nextSyncAttempt) return;

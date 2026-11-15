@@ -588,7 +588,7 @@
       "id": "tavern-house",
       "kind": "runtime",
       "path": "approved-references/tavern-house.png",
-      "sha256": "f40be141c633ccd67526a8ae13c5887df0ac278a44c5bc8c158672eed448de8e"
+      "sha256": "77ae1f847128ee6bdf38b6ac2b7b4c403740c61778776c39d491baa94c6811f2"
     },
     {
       "id": "action-builder",
@@ -2051,8 +2051,15 @@
     "shellSpec": "specs/tavern-house-shell.json",
     "workerCardSpec": "specs/tavern-house-worker-card.json",
     "madamCardSpec": "specs/tavern-house-madam-card.json",
-    "materializer": "tools/materialize_tavern_house.py",
-    "rule": "Dedicated town tavern screen; complete cards scroll above shell. Portraits and scenes stay unchanged inside their apertures."
+    "materializer": "tools/materialize_tavern_house.ps1",
+    "rule": "Dedicated town tavern screen; complete cards scroll above shell. Portraits and scenes stay unchanged inside their apertures.",
+    "visualRefinement": {
+      "date": "2026-11-12",
+      "authority": "User approved the Claude-led image-model proposal for implementation/build/validation; deployment explicitly withheld.",
+      "source": "generated-sources/tavern-house-v2/provenance.json",
+      "rule": "Exact existing geometry and apertures; complete integrated stepped artwork, generated natural marble, quiet worker edges and clean transcript.",
+      "nativeAcceptance": "Pending deployment and native/human acceptance."
+    }
   },
   "conversationOutfitChange": {
     "schema": "reign-outfit-ui-v1",

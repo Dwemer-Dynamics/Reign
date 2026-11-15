@@ -376,7 +376,8 @@ namespace ReignBeta.Economy
                 Unsupported(receipt.Error); return;
             }
             var value = new ExplainedNumber(0);
-            PerkHelper.AddPerkBonusForTown(perk, port.Town, ref value);
+            // Both naval commissions are the perk's secondary governor effect.
+            PerkHelper.AddPerkBonusForTown(perk, port.Town, false, ref value);
             receipt.CommissionQuoted = Math.Max(0, value.RoundedResultNumber);
             // The native SettlementToCharacter wrapper does not cap settlement funds.
             // Clamp explicitly: no debt, negative treasury, or bonus exceeding real business.

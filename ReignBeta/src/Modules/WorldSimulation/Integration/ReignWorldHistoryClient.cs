@@ -168,6 +168,10 @@ namespace ReignBeta.Integration
             Kick();
         }
 
+        private static bool IsPublicHistoryEvent(JObject item) => item != null &&
+            (item.Value<string>("eventType") == "public_announcement" && item.Value<string>("source") == "reign_public_news"
+                || Reign.Core.Contracts.World.ReignPublicNews.IsNativePublicDiplomacy(item.Value<string>("eventType"), item.Value<string>("source"), item.Value<string>("disseminationClass")));
+
         internal static void Enqueue(JObject historyEvent)
         {
             if (historyEvent == null || string.IsNullOrWhiteSpace(historyEvent.Value<string>("eventId")))
@@ -182,7 +186,23 @@ namespace ReignBeta.Integration
                 envelope["_reignHistoryEpoch"] = _epoch;
             }
             string eventType = envelope.Value<string>("eventType") ?? string.Empty;
-            bool shared = !string.IsNullOrWhiteSpace(envelope["payload"]?.Value<string>("playerHeroId"));
+            if (eventType == "public_announcement" && envelope.Value<string>("source") == "reign_public_news")
+            {
+                // Publication must survive a crash before the async queue drains.
+                // Use the same outbox, campaign/epoch lock and uploader as native
+                // history, and never add a second mutable announcement store.
+                lock (StateLock)
+                {
+                    if (envelope.Value<long?>("_reignHistoryEpoch") != _epoch
+                        || envelope.Value<string>("_reignCampaignId") != _campaignId || envelope.Value<string>("_reignTimelineId") != _timelineId)
+                        throw new InvalidOperationException("Public announcement belongs to an older campaign history generation.");
+                    Persist(PendingPath(_timelineId, _campaignId), new[] { envelope }, _epoch);
+                    SharedPending[envelope.Value<string>("eventId")] = envelope;
+                }
+                Kick();
+                return;
+            }
+            bool shared = IsPublicHistoryEvent(envelope) || !string.IsNullOrWhiteSpace(envelope["payload"]?.Value<string>("playerHeroId"));
             if (shared) SharedPending[envelope.Value<string>("eventId")] = envelope;
             if (RoutineEventTypes.Contains(eventType) && !shared)
             {
@@ -211,7 +231,8 @@ namespace ReignBeta.Integration
                     {
                         JObject item;
                         try { item = JObject.Parse(line); } catch { continue; }
-                        if (!string.IsNullOrWhiteSpace(item["payload"]?.Value<string>("playerHeroId"))
+                        if ((!string.IsNullOrWhiteSpace(item["payload"]?.Value<string>("playerHeroId"))
+                                || IsPublicHistoryEvent(item))
                             && !string.IsNullOrWhiteSpace(item.Value<string>("eventId")))
                             SharedPending[item.Value<string>("eventId")] = item;
                     }
@@ -220,28 +241,31 @@ namespace ReignBeta.Integration
             var eligible = SharedPending.Values.Where(e => e.Value<string>("_reignTimelineId") == timeline
                 && e.Value<string>("_reignCampaignId") == campaign
                 && (e.Value<long?>("sequence") ?? 0) <= boundary).ToList();
-            var pending = eligible.OrderBy(e => e.Value<string>("eventType") == "party_contact_interval")
+            int publicNewsCount = eligible.Count(IsPublicHistoryEvent);
+            var pending = eligible.OrderBy(e => !IsPublicHistoryEvent(e))
+                .ThenBy(e => e.Value<string>("eventType") == "party_contact_interval")
                 .ThenByDescending(e => e.Value<long?>("sequence") ?? 0).Take(256).OrderBy(e => e.Value<long?>("sequence") ?? 0).ToList();
             var ids = new JArray(pending.Select(e => e.Value<string>("eventId")));
-            if (pending.Count == 0) return new JObject { ["complete"] = epoch == Interlocked.Read(ref _epoch), ["timelineId"] = timeline, ["generation"] = generation, ["eventIds"] = ids };
+            if (pending.Count == 0) return new JObject { ["complete"] = epoch == Interlocked.Read(ref _epoch), ["timelineId"] = timeline, ["generation"] = generation, ["eventIds"] = ids, ["pendingPublicNews"] = publicNewsCount };
             var upload = ReignServerClient.IngestWorldHistoryBatchAsync(campaign, timeline, completeFrom, new JArray(pending), generation, epoch);
             if (await Task.WhenAny(upload, Task.Delay(4000)).ConfigureAwait(false) != upload)
             {
                 // Observe any late failure; the durable outbox owns retry.
                 _ = upload.ContinueWith(t => { var ignored = t.Exception; }, TaskContinuationOptions.OnlyOnFaulted);
-                return new JObject { ["complete"] = false, ["timelineId"] = timeline, ["eventIds"] = ids, ["reason"] = "activity_sync_pending" };
+                return new JObject { ["complete"] = false, ["timelineId"] = timeline, ["eventIds"] = ids, ["pendingPublicNews"] = publicNewsCount, ["reason"] = "activity_sync_pending" };
             }
             JObject response;
             try { response = await upload.ConfigureAwait(false); }
-            catch { return new JObject { ["complete"] = false, ["timelineId"] = timeline, ["eventIds"] = ids, ["reason"] = "activity_sync_unavailable" }; }
+            catch { return new JObject { ["complete"] = false, ["timelineId"] = timeline, ["eventIds"] = ids, ["pendingPublicNews"] = publicNewsCount, ["reason"] = "activity_sync_unavailable" }; }
             bool complete = response?.Value<bool?>("ok") == true && epoch == Interlocked.Read(ref _epoch);
             if (complete)
             {
                 RemoveAcknowledged(path, pending.Select(e => e.Value<string>("eventId")));
                 foreach (JObject item in pending) SharedPending.TryRemove(item.Value<string>("eventId"), out _);
+                publicNewsCount -= pending.Count(IsPublicHistoryEvent);
                 complete = pending.Count == eligible.Count;
             }
-            return new JObject { ["complete"] = complete, ["timelineId"] = timeline, ["generation"] = generation, ["eventIds"] = ids };
+            return new JObject { ["complete"] = complete, ["timelineId"] = timeline, ["generation"] = generation, ["eventIds"] = ids, ["pendingPublicNews"] = Math.Max(0, publicNewsCount) };
         }
 
         internal static bool FlushAndWait(TimeSpan timeout)
@@ -684,7 +708,8 @@ namespace ReignBeta.Integration
                     try
                     {
                         JObject item = JObject.Parse(earlier);
-                        if (!string.IsNullOrWhiteSpace(item["payload"]?.Value<string>("playerHeroId"))) writer.WriteLine(earlier);
+                        if (!string.IsNullOrWhiteSpace(item["payload"]?.Value<string>("playerHeroId"))
+                            || IsPublicHistoryEvent(item)) writer.WriteLine(earlier);
                     }
                     catch { }
                 }
@@ -693,11 +718,15 @@ namespace ReignBeta.Integration
                 string line;
                 while ((line = reader.ReadLine()) != null)
                 {
-                    try { if (!string.IsNullOrWhiteSpace(JObject.Parse(line)["payload"]?.Value<string>("playerHeroId"))) continue; } catch { }
+                    try {
+                        var item = JObject.Parse(line);
+                        if (!string.IsNullOrWhiteSpace(item["payload"]?.Value<string>("playerHeroId"))
+                            || IsPublicHistoryEvent(item)) continue;
+                    } catch { }
                     writer.WriteLine(line);
                 }
             });
-            ReignLog.Warn("World-history outbox exceeded 32 MB; personal activity evidence was preserved alongside the newest 16 MB of ordinary events.");
+            ReignLog.Warn("World-history outbox exceeded 32 MB; personal activity and public announcements were preserved alongside the newest 16 MB of ordinary events.");
         }
 
         private static List<JObject> ReadPendingBatch(

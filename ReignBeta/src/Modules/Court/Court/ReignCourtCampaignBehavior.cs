@@ -615,7 +615,7 @@ namespace ReignBeta.Court
             catch { options = new JArray(); }
             List<InquiryElement> elements = options.OfType<JObject>().Select(x => new InquiryElement(
                 x.Value<string>("optionId") ?? string.Empty,
-                (x.Value<string>("label") ?? "Reply") + (string.IsNullOrWhiteSpace(x.Value<string>("description")) ? string.Empty : " — " + x.Value<string>("description")),
+                (x.Value<string>("label") ?? "Reply") + (string.IsNullOrWhiteSpace(x.Value<string>("description")) ? string.Empty : " â€” " + x.Value<string>("description")),
                 null)).ToList();
             if (elements.Count == 0) return false;
             MBInformationManager.ShowMultiSelectionInquiry(new MultiSelectionInquiryData(

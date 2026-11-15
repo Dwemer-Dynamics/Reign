@@ -1059,7 +1059,7 @@ Orders can compose multiple steps, such as recruit, patrol, and hold, or form an
 
 ## Temporary noble party guests
 
-An eligible foreign-clan lord or lady can temporarily travel inside the player's main party without becoming a companion or changing clan. Ask in ordinary one-on-one dialogue. The noble must be a living, active, free adult; belong to another clan; not be a companion, governor, prisoner, child, dead, quest-bound, in battle, or in a siege; and must explicitly consent. Leaving an army is a separate decision that also requires acceptance.
+An eligible foreign-clan lord or lady can temporarily travel inside the player's main party without becoming a companion or changing clan. Ask in ordinary one-on-one dialogue. The noble must be a living adult, belong to another clan, and explicitly consent. Companions, children, dead characters and quest-bound, battle or siege commitments remain ineligible. A prisoner in your main party or a dungeon owned by your clan can agree to join; you must be physically at the dungeon. Actual departure releases the prisoner before adding them as a free guest. Foreign custody and execution sentences still block release. A deferred agreement leaves custody unchanged and is rechecked when departure starts. Accepting service relinquishes a governorship; leaving an army requires separate acceptance.
 
 The terms must state the purpose, risk, relevance, and duration, and must ask rather than command. A fixed visit can last **1–30 days**. An open-ended visit has a mandatory review every **30 days**. The guest keeps their original clan, kingdom, identity, and equipment; their equipment is locked while the agreement is live. Accepting, renewing, or ending the guest arrangement is relationship-neutral and does not itself create traits, rumors, or reputation.
 
@@ -1256,18 +1256,6 @@ A post-start lord party, including a player-clan party, requests 10–15 cultura
 
 Patrols transfer real troops from their home garrison, requiring at least five healthy troops to form. Replenishment returns survivors before transferring a replacement roster; removal outside combat returns troops to the garrison.
 
-## NPC Clan Trade
-
-In the Web UI, open **Options > War economy > NPC Clan Trade**. You can turn inland caravans and War Sails convoys on independently, set their formation fees and per-clan limits, and adjust the cash threshold and daily launch chance. Both modes default off. Standard fees are 15,000 denars for a caravan and 30,000 for a convoy before native cultural discounts. The default fee must be below half the sponsoring clan leader's cash and leave a military reserve. An eligible clan has a 4% daily chance and can run one party of each enabled type by default.
-
-The clan pays once and the town receives the fee. The game supplies the same starting trading cash it supplies for standard player parties. A generic merchant crew runs each new NPC party while the sponsoring clan owns it and receives its remittances. Some early remittances can come from the starting purse. Bandits or hostile armies can destroy the party and its investment. Existing pilot caravans keep their captains. The player and native merchants keep their existing formation rules.
-
-## Local household stipends
-
-A landless NPC noble house in financial hardship can receive up to 140 denars per campaign week from the current clan leader who owns its permanent home. The house must serve the same kingdom, its leader must hold less than 8,000 denars, and its living members must hold less than 15,000 together. The payment can only bring the leader's purse up to 8,000.
-
-The landholder must have owned the holding for at least seven days and must retain the greater of 25,000 denars or seven days of military wages plus outstanding recruitment liabilities. An owner pays at most 280 denars per week, starting with the poorest eligible household. Missed payments expire. If you want your own clan to fund eligible houses, enable **Fund Local Household Stipends** under **Bannerlord Reign → General** in Mod Configuration.
-
 ## Realm food relief network
 
 Daily relief uses actual stocks in the current kingdom or independent clan. With aggregate food decline, the capacity-weighted seven-day projected reserve ratio sets a donor floor between 20% and 60% and a recipient target between 20% and 50%. Otherwise the floor remains 60% and the target 50%. Declining donors can contribute if both current and projected stocks remain above the floor. A shipment never leaves a donor's projected reserve ratio below its recipient's.
@@ -1277,10 +1265,6 @@ The worst projected shortages receive priority. Eligible donors share demand pro
 Granaries buy and distribute before automatic relief. Siege blocks new purchases, while stored grain inside the settlement remains available. Manual shipments debit once at dispatch, retain normal travel and road spoilage, and reject besieged endpoints. A siege beginning later holds arriving cargo outside; it loses 2% of its remaining amount per blocked day until access reopens. Cargo in transit belongs to neither settlement's available stock.
 
 The Economic Report uses native wages and recruitment liabilities. Hover food for reserves, seven-day projection, actual/healthy village contribution and household growth; hover garrison wages for military funding requirements. Separate workshop/caravan trade profit is marked unmeasured where the native ledger does not expose it. Operator-only World Test diagnostics add source receipts, blocked recruitment, sponsored hearth changes, production, relief losses, unmet demand and stale/unsupported evidence.
-
-Kingdom regulars in field parties and garrisons receive 5% more pay during actual war with another kingdom and 5% less during peace. This applies after existing wage discounts. Garrison pay follows the settlement's current owner. Independent clans, mercenary companies, individual mercenary troops and hero salaries use their existing rates.
-
-Oversized field parties in Peace Standing release healthy regulars across troop tiers in proportion to their numbers. Small fractional shares carry across days, and lower-experience troops leave first within their tier.
 
 ---
 
@@ -1862,7 +1846,6 @@ Garrisons keep their normal full defensive targets in either standing. Stationar
 
 2026-11-05 economy revision3: village food output is slightly lower (10hearths=2,300=11,600=16.5,1200=22); healthy large villages continue gaining output. Recruitment and native-derived upgrades cost50% more than revision2, with daily wages unchanged. NPC tournament prize cash uses the normal resale quote, and NPC champion gold no longer depends on player renown. Player prize variety and rewards remain intact. Long-run native balance verification is pending.
 
-
 ## Raid food disruption (2026-11-07)
 
 Raids now disrupt food capacity separately from population. There is no additional hearth loss or recruitment/security penalty. Existing native raid destruction still applies.
@@ -1875,3 +1858,5 @@ Raids now disrupt food capacity separately from population. There is no addition
 Options > War economy > Raid food disruption contains its switch, shutdown threshold and recovery settings. Switching off retains damage while restoring the previous production rules and native fishing movement/catches. Re-enabling applies remaining damage. Settings pages with an old revision must refresh before changing prices; your entered values are not replaced with defaults.
 
 Food tooltips distinguish household recovery, food capacity, actual output and healthy potential at current hearths. A recovered productive capacity does not restore lost population. Native gameplay and long-run balance acceptance for this revision remain pending.
+
+Local verification (2026-11-07): code, deterministic and licensed adapter checks, isolated server checks, Options browser checks and exact-artifact deployment passed. Your existing prices and healthy food curve were preserved. Native gameplay and campaign balance testing remain pending; see the roadmap for the retained verification evidence.

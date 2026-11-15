@@ -167,15 +167,19 @@ namespace ReignBeta.Integration
             }
         }
 
-        public static async Task<List<ReignDiplomacyAnnouncement>> FetchDiplomacyAnnouncementsAsync()
+        public static async Task<List<ReignDiplomacyAnnouncement>> FetchDiplomacyAnnouncementsAsync(bool publicHistory = false)
         {
             List<ReignDiplomacyAnnouncement> results = new List<ReignDiplomacyAnnouncement>();
-            string route = "/diplomacy/events/next?campaignId=" + Uri.EscapeDataString(GetCampaignId()) + "&limit=10";
+            string route = "/diplomacy/events/next?campaignId=" + Uri.EscapeDataString(GetCampaignId())
+                + (publicHistory ? "&limit=500&publicHistory=true" : "&limit=10");
             JObject response = await GetJsonAsync(route).ConfigureAwait(false);
             if (response.Value<bool?>("ok") != true || !(response["events"] is JArray events))
             {
+                if (publicHistory) throw new InvalidOperationException("Public diplomatic history is unavailable.");
                 return results;
             }
+            if (publicHistory && (response.Value<bool?>("publicHistory") != true || response.Value<string>("projection") != "reign-public-diplomacy-v1"))
+                throw new InvalidOperationException("The server does not support the required public diplomatic projection.");
 
             foreach (JObject item in events.OfType<JObject>())
             {
@@ -198,7 +202,9 @@ namespace ReignBeta.Integration
                     TargetKingdomStringId = ReadString(item, "targetKingdomId", string.Empty),
                     TargetPublicReason = ReadString(item, "targetPublicReason", string.Empty),
                     WorldDay = ReadFloat(item, "worldDay", 0f),
-                    Accepted = ReadBool(item, "accepted", false)
+                    Accepted = ReadBool(item, "accepted", false),
+                    PublicAnnouncement = publicHistory && ReadBool(item, "publicAnnouncement", false),
+                    Acknowledged = ReadBool(item, "acknowledged", false)
                 });
             }
 

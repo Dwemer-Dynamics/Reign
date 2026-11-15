@@ -20,6 +20,11 @@ namespace ReignBeta.UI
         ReignActionComposerVM Composer { get; }
     }
 
+    public interface IReignTavernActionHost : IReignActionHost
+    {
+        TavernHouseActionContext TavernActionContext { get; }
+    }
+
     public static class ReignActionBuilder
     {
         private static ScreenBase _screen;
@@ -61,7 +66,7 @@ namespace ReignBeta.UI
                 owner.Composer.Insert(a);
                 Close();
             }, Close, owner.Composer.State.Draft, owner is ReignCorrespondenceScreenVM,
-                (owner as ReignSocialEventScreenVM)?.ActiveWeddingId ?? ""));
+                (owner as ReignSocialEventScreenVM)?.ActiveWeddingId ?? "", (owner as IReignTavernActionHost)?.TavernActionContext));
             return true;
         }
 

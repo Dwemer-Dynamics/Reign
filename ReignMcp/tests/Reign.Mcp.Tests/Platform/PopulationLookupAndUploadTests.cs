@@ -33,6 +33,171 @@ public sealed class PopulationLookupAndUploadTests
     private sealed class Person(string id) { public string Id = id; public bool Alive = true; }
 
     [Fact]
+    public void FaceSchemaCachePreservesFreshWeightsAndCandidateRandomDrawOrder()
+    {
+        var key = new PopulationFaceSchemaKey(0, false, 30, 6);
+        string[] names = { "age", "face_a", "height", "face_b", "weight", "build" };
+        int[] Fresh() => Enumerable.Range(0, names.Length)
+            .Where(i => names[i] != "age" && names[i] != "height" && names[i] != "weight" && names[i] != "build").ToArray();
+        int reads = 0;
+        var cache = new PopulationFaceSchemaCache();
+        for (int generation = 0; generation < 600; generation++)
+        {
+            // Fractional age/body decoding can change every vector; only positions are cached.
+            float[] weights = Enumerable.Range(0, 6).Select(i => (float)(generation * .001 + i)).ToArray();
+            var actual = cache.Get(key, _ => { reads++; return Fresh(); });
+            Assert.Equal(Fresh().Select(i => weights[i]), actual.Select(i => weights[i]));
+            var oldRng = new Random(generation); var newRng = new Random(generation);
+            var expectedWeights = (float[])weights.Clone(); var actualWeights = (float[])weights.Clone();
+            foreach (int i in Fresh()) expectedWeights[i] = .2f + (float)oldRng.NextDouble() * .6f;
+            foreach (int i in actual) actualWeights[i] = .2f + (float)newRng.NextDouble() * .6f;
+            Assert.Equal(expectedWeights, actualWeights);
+            Assert.Equal(oldRng.NextDouble(), newRng.NextDouble());
+        }
+        Assert.Equal(4, reads); // Initial read, first reuse, reuse256 and512.
+        Assert.Equal(3, cache.VerificationReads);
+        Assert.Equal(0, cache.Mismatches);
+    }
+
+    [Fact]
+    public void FaceSchemaKeySeparatesEveryNativeSchemaArgumentAndOwnsReadonlyIndices()
+    {
+        var cache = new PopulationFaceSchemaCache(); var key = new PopulationFaceSchemaKey(1, false, 30, 8);
+        int[] supplied = { 1, 3 };
+        var result = cache.Get(key, _ => supplied);
+        supplied[0] = 7;
+        Assert.Throws<NotSupportedException>(() => ((IList<int>)result)[0] = 5);
+        Assert.Equal(new[] { 1, 3 }, cache.Get(key, _ => new[] { 1, 3 }));
+        foreach (var different in new[] { new PopulationFaceSchemaKey(2, false, 30, 8),
+            new PopulationFaceSchemaKey(1, true, 30, 8), new PopulationFaceSchemaKey(1, false, 31, 8),
+            new PopulationFaceSchemaKey(1, false, 30, 9) })
+            Assert.Equal(new[] { 2 }, cache.Get(different, _ => new[] { 2 }));
+        Assert.Equal(5, cache.Count);
+        Assert.Equal(5, cache.Misses);
+    }
+
+    [Fact]
+    public void FaceSchemaMismatchUsesFreshIndicesAndDisablesAllSessionMemoization()
+    {
+        var cache = new PopulationFaceSchemaCache(); var key = new PopulationFaceSchemaKey(0, false, 30, 8);
+        Assert.Equal(new[] { 1 }, cache.Get(key, _ => new[] { 1 }));
+        Assert.Equal(new[] { 2 }, cache.Get(key, _ => new[] { 2 }));
+        Assert.True(cache.Disabled); Assert.Equal(1, cache.Mismatches);
+        Assert.Equal(0, cache.Count); Assert.Equal(0, cache.PayloadBytes);
+        Assert.Equal(new[] { 3 }, cache.Get(key, _ => new[] { 3 }));
+        cache.Clear();
+        Assert.False(cache.Disabled); Assert.Equal(0, cache.Mismatches);
+        Assert.Equal(new[] { 4 }, cache.Get(key, _ => new[] { 4 }));
+    }
+
+    [Fact]
+    public void FaceSchemaPeriodicVerificationDetectsChangeWithoutUsingRandomness()
+    {
+        var cache = new PopulationFaceSchemaCache(); var key = new PopulationFaceSchemaKey(0, true, 20, 8);
+        int reads = 0;
+        int[] Read() { reads++; return new[] { reads < 3 ? 1 : 2 }; }
+        cache.Get(key, _ => Read());
+        for (int i = 1; i < 256; i++) Assert.Equal(new[] { 1 }, cache.Get(key, _ => Read()));
+        Assert.Equal(new[] { 2 }, cache.Get(key, _ => Read()));
+        Assert.Equal(3, reads); Assert.True(cache.Disabled);
+    }
+
+    [Fact]
+    public void FailedFaceSchemaVerificationMustRetryBeforeReusingPositions()
+    {
+        var cache = new PopulationFaceSchemaCache(); var key = new PopulationFaceSchemaKey(0, false, 20, 8);
+        cache.Get(key, _ => new[] { 1 });
+        Assert.Throws<InvalidOperationException>(() => cache.Get(key, _ => throw new InvalidOperationException()));
+        Assert.Equal(new[] { 2 }, cache.Get(key, _ => new[] { 2 }));
+        Assert.Equal(2, cache.VerificationReads); Assert.True(cache.Disabled);
+    }
+
+    [Fact]
+    public void FaceSchemaCacheBoundsEntriesAndPayloadAndNeverCachesFailedReads()
+    {
+        var first = new PopulationFaceSchemaKey(0, false, 20, 8);
+        var second = new PopulationFaceSchemaKey(0, false, 21, 8);
+        var cache = new PopulationFaceSchemaCache(1, 72);
+        Assert.Throws<InvalidOperationException>(() => cache.Get(first, _ => throw new InvalidOperationException()));
+        Assert.Equal(0, cache.Count);
+        cache.Get(first, _ => new[] { 1, 3 });
+        Assert.Equal(72, cache.PayloadBytes);
+        cache.Get(second, _ => new[] { 1, 3 });
+        Assert.Equal(1, cache.Count); Assert.Equal(72, cache.PayloadBytes);
+        var byteBound = new PopulationFaceSchemaCache(20, 72);
+        byteBound.Get(first, _ => new[] { 1, 3 }); byteBound.Get(second, _ => new[] { 1, 3 });
+        Assert.Equal(1, byteBound.Count);
+        byteBound.Get(first, _ => new[] { 1, 2, 3 }); // Oversized entry is observed, never retained.
+        Assert.Equal(1, byteBound.Count); Assert.Equal(72, byteBound.PayloadBytes);
+    }
+
+    [Fact]
+    public void LedgerIdentityLookupPreservesFirstMatchCaseAndLiveStateAcrossAppendAndLoad()
+    {
+        var first = new Person("same"); var duplicate = new Person("same");
+        var people = new List<Person> { first, duplicate, new Person("SAME"), new Person(""), new Person(null!) };
+        var index = new PopulationIdentityIndex<Person>(p => p.Id);
+        foreach (string? id in new string?[] { "same", "SAME", "", null, "missing" })
+            Assert.Same(people.FirstOrDefault(p => p.Id == id), index.Find(people, id));
+        first.Alive = false;
+        Assert.False(index.Find(people, "same")!.Alive); // Eligibility is never cached.
+        var appended = new Person("appended"); people.Add(appended);
+        Assert.Same(appended, index.Find(people, appended.Id));
+        var loaded = people.Select(p => new Person(p.Id)).ToList();
+        Assert.Same(loaded[0], index.Find(loaded, "same")); // Same count, different load.
+        Assert.NotSame(first, index.Find(loaded, "same"));
+    }
+
+    [Fact]
+    public void ReservedLedgerIdentityAssignmentRequiresInvalidationAndCannotRetainOldKey()
+    {
+        var reserved = new Person(""); var people = new List<Person> { reserved };
+        var index = new PopulationIdentityIndex<Person>(p => p.Id);
+        Assert.Same(reserved, index.Find(people, ""));
+        reserved.Id = "native-created";
+        index.Invalidate();
+        Assert.Null(index.Find(people, ""));
+        Assert.Same(reserved, index.Find(people, "native-created"));
+        people.Clear();
+        Assert.Null(index.Find(people, "native-created"));
+    }
+
+    [Fact]
+    public void FailedIdentityIndexBuildDoesNotPublishPartialStateAndExplicitReplacementCanReload()
+    {
+        var people = new List<Person> { new Person("first"), new Person("last") };
+        bool fail = true;
+        var index = new PopulationIdentityIndex<Person>(p =>
+        {
+            if (p.Id == "last" && fail) throw new InvalidOperationException("Interrupted build");
+            return p.Id;
+        });
+        Assert.Throws<InvalidOperationException>(() => index.Find(people, "first"));
+        fail = false;
+        Assert.Same(people[1], index.Find(people, "last"));
+        people[1] = new Person("replacement");
+        index.Invalidate(); // Explicit same-count replacement contract.
+        Assert.Null(index.Find(people, "last"));
+        Assert.Same(people[1], index.Find(people, "replacement"));
+    }
+
+    [Fact]
+    public void RepeatedPopulationLookupsDoNotRescanTheLedgerForEveryWanderer()
+    {
+        var people = Enumerable.Range(0, 10000).Select(i => new Person(i.ToString())).ToList();
+        int identityReads = 0;
+        var index = new PopulationIdentityIndex<Person>(p => { identityReads++; return p.Id; });
+        Assert.Same(people[9999], index.Find(people, "9999"));
+        Assert.Equal(10000, identityReads);
+        for (int i = 0; i < people.Count; i++)
+            Assert.Same(people[i], index.Find(people, people[i].Id));
+        Assert.Equal(10000, identityReads); // 10k lookups add no ledger enumeration.
+        people.Add(new Person("new"));
+        Assert.Same(people[10000], index.Find(people, "new"));
+        Assert.Equal(20001, identityReads); // One rebuild after an append.
+    }
+
+    [Fact]
     public void PassLookupKeepsNativeIdentityAndUsesAuthoritativeResolutionForDuplicatesAndMisses()
     {
         var living = new Person("same"); var dead = new Person("same") { Alive = false };

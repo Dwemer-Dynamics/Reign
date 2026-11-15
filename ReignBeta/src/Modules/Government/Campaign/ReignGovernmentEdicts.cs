@@ -56,7 +56,7 @@ namespace ReignBeta.Government
                 bool project = definition.Id != "public_works" || EdictProjectAvailable(settlement.Town);
                 result.Add(new JObject { ["proposalId"] = proposal, ["category"] = "edict",
                     ["payload"] = EdictPetitionPayload(definition.Id, settlement, active),
-                    ["label"] = (active == null ? "Enact " : "Repeal ") + definition.Name + " — " + settlement.Name,
+                    ["label"] = (active == null ? "Enact " : "Repeal ") + definition.Name + " â€” " + settlement.Name,
                     ["description"] = definition.Terms + "\nSettlement: " + settlement.Name + ". Beneficiary and payer: " + settlement.OwnerClan?.Name
                         + ". Regular government session; no immediate execution."
                         + (definition.Id == "public_works" ? " Named construction: " + settlement.Town?.CurrentBuilding?.BuildingType?.Name + ", current level " + (settlement.Town?.CurrentBuilding?.CurrentLevel ?? 0) + "." : "")
@@ -93,17 +93,17 @@ namespace ReignBeta.Government
             if (petition == null || petition.Kind != "edict" || petition.Status != "active") return string.Empty;
             var state = string.IsNullOrEmpty(petition.BusinessId) ? null : _edicts.FirstOrDefault(x =>
                 x.BusinessId == petition.BusinessId && x.KingdomId == petition.KingdomId);
-            if (state == null) return "Enacted · effect record unavailable";
+            if (state == null) return "Enacted Â· effect record unavailable";
             string status = state.Status == "active" && CurrentDay() >= state.ExpiresDay ? "expired" : state.Status;
             switch (status)
             {
-                case "active": return "Enacted · effects active";
-                case "expired": return "Enacted · effects expired";
-                case "repealed": return "Enacted · later repealed";
-                case "ownership_changed": return "Enacted · ended after ownership changed";
-                case "project_ended": return "Enacted · project ended";
-                case "superseded_by_native_policy": return "Enacted · superseded by kingdom policy";
-                default: return "Enacted · effect record unavailable";
+                case "active": return "Enacted Â· effects active";
+                case "expired": return "Enacted Â· effects expired";
+                case "repealed": return "Enacted Â· later repealed";
+                case "ownership_changed": return "Enacted Â· ended after ownership changed";
+                case "project_ended": return "Enacted Â· project ended";
+                case "superseded_by_native_policy": return "Enacted Â· superseded by kingdom policy";
+                default: return "Enacted Â· effect record unavailable";
             }
         }
 

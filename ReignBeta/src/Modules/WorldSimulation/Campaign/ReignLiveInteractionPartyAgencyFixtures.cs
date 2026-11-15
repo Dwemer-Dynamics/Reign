@@ -164,8 +164,17 @@ namespace ReignBeta.Campaign
                             }
                             break;
                         case "prisoner":
+                            // PA-NATIVE-008 proves rejection of foreign custody. Player-held
+                            // captives can now consent to release into temporary service.
+                            Settlement foreignDungeon = Settlement.All.FirstOrDefault(settlement =>
+                                settlement?.IsFortification == true && settlement.OwnerClan != null
+                                && settlement.OwnerClan != Clan.PlayerClan && !settlement.IsUnderSiege);
+                            if (foreignDungeon == null)
+                                throw new InvalidOperationException("No foreign dungeon exists for the prisoner rejection fixture.");
+                            if (target.IsPrisoner && target.PartyBelongedToAsPrisoner != foreignDungeon.Party)
+                                throw new InvalidOperationException("The selected prisoner is not in the fixture's foreign custody; reload and select a free target.");
                             if (!target.IsPrisoner)
-                                TakePrisonerAction.Apply(PartyBase.MainParty, target);
+                                TakePrisonerAction.Apply(foreignDungeon.Party, target);
                             break;
                         case "dead":
                         case "child":
@@ -1240,8 +1249,7 @@ namespace ReignBeta.Campaign
                     && hero.Clan?.Kingdom?.Leader == hero; break;
                 case "governor": predicate = hero => hero.IsAlive
                     && hero.GovernorOf != null; break;
-                case "prisoner": predicate = hero => hero.IsAlive
-                    && hero.IsPrisoner; break;
+                case "prisoner": predicate = partyless; break;
                 case "dead": predicate = hero => hero.IsDead; break;
                 case "child": predicate = hero => hero.IsAlive
                     && !ReignConversationEligibility.IsAdultLivingNpc(hero); break;

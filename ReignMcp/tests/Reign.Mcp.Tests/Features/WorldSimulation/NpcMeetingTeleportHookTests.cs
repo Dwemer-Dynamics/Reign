@@ -43,15 +43,11 @@ public sealed class NpcMeetingTeleportHookTests
         Assert.Equal(4, root.GetProperty("returnLeaseChecks").GetInt32());
         Assert.Equal(2048, root.GetProperty("announcementHoldGuardChecks").GetInt32());
         Assert.Equal(18, root.GetProperty("meetingFeatureGateChecks").GetInt32());
-        Assert.Equal(4, root.GetProperty("shipTradeContextChecks").GetInt32());
         bool navalDlc = File.Exists(Path.Combine(game, "Modules/NavalDLC/bin/Win64_Shipping_Client/NavalDLC.dll"));
         Assert.Equal(navalDlc, root.GetProperty("shipTradeDlcAvailable").GetBoolean());
         if (navalDlc)
         {
-            Assert.True(root.GetProperty("shipTradeHookBound").GetBoolean());
-            Assert.Equal(2, root.GetProperty("shipTradeShapeRejections").GetInt32());
-            Assert.True(root.GetProperty("shipTradeInstructionsPreserved").GetBoolean());
-            Assert.True(root.GetProperty("shipTradeHookRemoved").GetBoolean());
+            Assert.True(root.GetProperty("shipTradeNativeContextVerified").GetBoolean());
         }
         Assert.True(root.GetProperty("rulerWaitsForReturnLease").GetBoolean());
         Assert.Equal(0, root.GetProperty("providerCalls").GetInt32());

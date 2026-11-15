@@ -281,6 +281,14 @@ export class GauntletRenderer {
         element.style.display = "block";
       }
       this.applyTextStyle(element, xmlNode, scopedContext);
+      if (tag === "ReignActionEditableTextWidget") {
+        // Native EditableText exposes a horizontal _visibleStart/_realVisibleText
+        // window. Preserve the complete sentence in a bounded, scrollable preview.
+        element.style.whiteSpace = "pre";
+        element.style.overflowX = "auto";
+        element.style.overflowY = "hidden";
+        element.style.scrollbarWidth = "none";
+      }
       if (runtimeRow && Number(runtimeRow.fontSize) > 0) element.style.fontSize = `${Number(runtimeRow.fontSize)}px`;
       if (runtimeRow?.brush) element.dataset.runtimeBrush = runtimeRow.brush;
     }

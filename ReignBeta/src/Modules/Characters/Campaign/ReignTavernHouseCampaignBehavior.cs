@@ -24,12 +24,18 @@ using TaleWorlds.MountAndBlade;
 namespace ReignBeta.Campaign
 {
     /// <summary>Saved native identities own the house. The server negotiates; this behavior alone transfers gold and companions.</summary>
-    public sealed class ReignTavernHouseCampaignBehavior : CampaignBehaviorBase
+    public sealed partial class ReignTavernHouseCampaignBehavior : CampaignBehaviorBase
     {
         public static ReignTavernHouseCampaignBehavior Instance { get; private set; }
         private TavernHouseState _state = new TavernHouseState();
+        private readonly PopulationIdentityIndex<TavernHousePerson> _identityIndex = new PopulationIdentityIndex<TavernHousePerson>(p => p.HeroId);
         private TavernHouseCastCatalog _catalog;
         private readonly RealTimeMaintenanceCadence _maintenanceCadence = new RealTimeMaintenanceCadence();
+        private readonly PausedPopulationCatchup _pausedCatchup = new PausedPopulationCatchup();
+        private TaleWorlds.CampaignSystem.Campaign _sessionCampaign;
+        private DateTime _nextMaintenanceRetryUtc;
+        private int _lastPausedDebt = -1;
+        private bool _nativeProgressSinceObservation;
         private DateTime _nextPortraitUtc;
         private DateTime _nextRecruitmentRecoveryUtc;
         private int _recruitmentRecoveryIndex;
@@ -74,7 +80,7 @@ namespace ReignBeta.Campaign
         internal JObject RuntimeStatus() => new JObject { ["ready"] = _ready, ["lookupPassCount"] = _lookupPassCount,
             ["lookupCount"] = _lastLookupCount, ["lookupFallbackHits"] = _lastLookupFallbackHits,
             ["lookupDuplicateIds"] = _lastLookupDuplicateIds, ["maintenanceInFlight"] = _populationPassActive,
-            ["error"] = _lastError };
+            ["pausedCatchupPending"] = _pausedCatchup.Pending, ["pausedCatchupBlocked"] = _pausedCatchup.Blocked, ["error"] = _lastError };
 
         private double Day => CampaignTime.Now.ToDays;
         private string Timeline => ReignWorldHistoryCampaignBehavior.Instance?.TimelineId ?? "main";
@@ -94,9 +100,15 @@ namespace ReignBeta.Campaign
             List<string> chunks = store.IsSaving ? ReignSavePayloadCodec.Encode(JsonConvert.SerializeObject(_state)) : null;
             store.SyncData("_reign_tavern_house_v1", ref chunks);
             if (!store.IsLoading) return;
+            _pausedCatchup.Request();
+            _nextMaintenanceRetryUtc = DateTime.MinValue;
+            _lastPausedDebt = -1;
+            _identityIndex.Invalidate();
             _state = chunks == null || chunks.Count == 0 ? new TavernHouseState()
                 : JsonConvert.DeserializeObject<TavernHouseState>(ReignSavePayloadCodec.Decode(chunks));
             TavernHouseRules.ValidateState(_state);
+            foreach (var visit in _state.Visits.Where(v => v.PaymentState == "applying"))
+            { visit.PaymentState = "recovery_required"; visit.Paid = false; }
             _ready = false; _authorizedRecruitId = null; _portraitRetryUtc.Clear();
             _populationPassActive = false; _passHeroes.Clear(); _passPeople.Clear();
             _nextRecruitmentRecoveryUtc = DateTime.MinValue; _recruitmentRecoveryIndex = 0;
@@ -104,6 +116,8 @@ namespace ReignBeta.Campaign
 
         private void OnSession(CampaignGameStarter starter)
         {
+            _sessionCampaign = TaleWorlds.CampaignSystem.Campaign.Current;
+            _pausedCatchup.Request();
             // Native PlayerTownVisitCampaignBehavior owns this submenu; town_tavern is an option, not a menu.
             starter.AddGameMenuOption("town_backstreet", "reign_visit_madam", "Visit the Madam", args =>
             {
@@ -131,7 +145,7 @@ namespace ReignBeta.Campaign
             catch (Exception ex) { _lastError = ex.Message; ReignLog.Exception("Tavern house initialization", ex); }
         }
 
-        public TavernHousePerson GetPerson(Hero hero) => hero == null ? null : _state.People.FirstOrDefault(p => p.HeroId == hero.StringId);
+        public TavernHousePerson GetPerson(Hero hero) => hero == null ? null : _identityIndex.Find(_state.People, hero.StringId);
         public bool IsActiveStaff(Hero hero) => TavernHouseRules.IsActive(GetPerson(hero));
         internal bool IsOwnedIdentity(Hero hero) => GetPerson(hero) != null;
         internal bool AllowsRecruitment(Hero hero) => !IsActiveStaff(hero) || _authorizedRecruitId == hero?.StringId;
@@ -175,12 +189,84 @@ namespace ReignBeta.Campaign
 
         private void OnTick(float dt)
         {
+            if (DateTime.UtcNow < _nextMaintenanceRetryUtc) return;
             if (!_maintenanceCadence.TryTake(System.Diagnostics.Stopwatch.GetTimestamp(),
                     System.Diagnostics.Stopwatch.Frequency, dt > 0f)) return;
             using (ReignLog.MeasureWork("population.tavern", dt)) Maintain();
+            ObservePausedCatchup(pausedPass: false);
         }
 
-        private void Maintain()
+        internal void ApplicationTick()
+        {
+            if (Mission.Current != null) { _pausedCatchup.Request(); _lastPausedDebt = -1; return; }
+            if (!_pausedCatchup.Pending || _pausedCatchup.Blocked || DateTime.UtcNow < _nextMaintenanceRetryUtc) return;
+            bool current = _sessionCampaign != null && ReferenceEquals(_sessionCampaign, TaleWorlds.CampaignSystem.Campaign.Current);
+            if (!current) return;
+            if (_sessionCampaign.TimeControlMode != CampaignTimeControlMode.Stop) return;
+            bool saving = ReignSaveSyncCampaignBehavior.IsNativeSaveInProgress || ReignSaveSyncCoordinator.IsSaveFinalizationPending;
+            if (!_pausedCatchup.CanPoll(current, _ready && Hero.MainHero != null && !ReignCampaignInitializationGate.IsPending,
+                    false, saving, ReignSaveSyncCoordinator.IsReadyForCampaign(ReignCampaignIdentity.CurrentCampaignId()))) return;
+            if (!_maintenanceCadence.TryTake(System.Diagnostics.Stopwatch.GetTimestamp(), System.Diagnostics.Stopwatch.Frequency)) return;
+            using (ReignLog.MeasureWork("population.tavern", 0f)) Maintain(queuePortraits: false);
+            ObservePausedCatchup(pausedPass: true);
+        }
+
+        internal void CampaignEnded()
+        {
+            _sessionCampaign = null; _ready = false;
+            _pausedCatchup.Request(); _lastPausedDebt = -1;
+            _nativeProgressSinceObservation = false; _nextMaintenanceRetryUtc = default; _lastError = "";
+            _passHeroes.Clear(); _passPeople.Clear(); _identityIndex.Invalidate();
+        }
+
+        private void ObservePausedCatchup(bool pausedPass)
+        {
+            if (!_ready || Hero.MainHero == null || ReignCampaignInitializationGate.IsPending || Mission.Current != null) return;
+            if (!string.IsNullOrEmpty(_lastError)) return;
+            try
+            {
+                // Recruitment may legitimately await a receipt or its five-second retry slot.
+                // Only native population debt participates in stalled-creation detection.
+                bool recruitmentPending = _state.People.Any(TavernHouseRules.HasPendingRecruitment);
+                int pending = 0;
+                var peopleById = _state.People.ToDictionary(p => p.Id, StringComparer.Ordinal);
+                var slotsByTown = _state.Slots.GroupBy(s => s.TownId, StringComparer.Ordinal)
+                    .ToDictionary(g => g.Key, g => g.ToArray(), StringComparer.Ordinal);
+                foreach (var town in Town.AllTowns)
+                {
+                    if (town.Settlement.IsUnderSiege || town.Settlement.SiegeEvent != null) continue;
+                    string townId = town.Settlement.StringId;
+                    if (!_state.InitializedTownIds.Contains(townId)) { pending++; continue; }
+                    if (!slotsByTown.TryGetValue(townId, out var slots))
+                        throw new InvalidOperationException("Initialized tavern town has no saved slots; refusing repair.");
+                    foreach (var slot in slots)
+                    {
+                        TavernHousePerson person = null;
+                        if (!string.IsNullOrEmpty(slot.PersonId) && !peopleById.TryGetValue(slot.PersonId, out person))
+                            throw new InvalidOperationException("Saved tavern slot references a missing person; refusing repair.");
+                        if ((person != null && !person.Initialized) || TavernHouseRules.ReplacementDue(slot, Day)) pending++;
+                    }
+                }
+                bool stalled = pausedPass && pending > 0 && pending == _lastPausedDebt && !_nativeProgressSinceObservation;
+                if (_nativeProgressSinceObservation) _pausedCatchup.Progress();
+                _nativeProgressSinceObservation = false;
+                if (_lastPausedDebt >= 0 && pending < _lastPausedDebt) _pausedCatchup.Progress();
+                _lastPausedDebt = pending;
+                if (stalled) throw new InvalidOperationException("Pending tavern preparation made no progress; retry deferred.");
+                _pausedCatchup.Observe(pending > 0 || recruitmentPending, false);
+            }
+            catch (Exception ex) { DeferMaintenance(ex); }
+        }
+
+        private void DeferMaintenance(Exception error)
+        {
+            _lastError = error.Message;
+            _nextMaintenanceRetryUtc = DateTime.UtcNow.AddSeconds(30);
+            _pausedCatchup.Observe(true, true);
+            ReignLog.Exception("Tavern house maintenance", error);
+        }
+
+        private void Maintain(bool queuePortraits = true)
         {
             if (!_ready || ReignCampaignInitializationGate.IsPending || Hero.MainHero == null || Mission.Current != null) return;
             bool ownsPass = false;
@@ -197,15 +283,16 @@ namespace ReignBeta.Campaign
                     // Initial preparation is bounded. Local entry finishes its own roster synchronously.
                     remainingCreations -= MaintainTown(town.Settlement, remainingCreations);
                 }
-                QueuePortrait();
+                if (queuePortraits) QueuePortrait();
                 _lastError = "";
             }
-            catch (Exception ex) { _lastError = ex.Message; ReignLog.Exception("Tavern house maintenance", ex); }
+            catch (Exception ex) { DeferMaintenance(ex); }
             finally { if (ownsPass) EndPopulationPass(); }
         }
 
         private void MaintainDaily()
         {
+            _pausedCatchup.Request();
             using (ReignLog.MeasureWork("population.tavern", 0f)) Maintain();
         }
 
@@ -251,6 +338,7 @@ namespace ReignBeta.Campaign
 
         private void Depart(TavernHousePerson person, bool recruited, string reason)
         {
+            _pausedCatchup.Request();
             if (!TavernHouseRules.IsActive(person)) return;
             person.Recruited = recruited; person.Retired = !recruited; person.Madam = false;
             person.LeftDay = Day; person.DepartureReason = reason;
@@ -322,6 +410,7 @@ namespace ReignBeta.Campaign
             {
                 hero = HeroCreator.CreateSpecialHero(donor, town, null, null, (int)savedBody.Age);
                 person.HeroId = hero.StringId;
+                _identityIndex.Invalidate();
                 if (_populationPassActive) _passHeroes.Created(person.HeroId, hero);
             }
             if (person.Initialized) return;
@@ -354,6 +443,8 @@ namespace ReignBeta.Campaign
             hero.ChangeState(Hero.CharacterStates.Active);
             if (hero.CurrentSettlement != town) EnterSettlementAction.ApplyForCharacterOnly(hero, town);
             person.Initialized = true;
+            _nativeProgressSinceObservation = true;
+            _pausedCatchup.Progress();
             ReignLog.Info("Tavern native identity created cast=" + person.CastId + " identity=" + person.Id + " hero=" + hero.StringId + " town=" + town.StringId);
         }
 
@@ -375,60 +466,19 @@ namespace ReignBeta.Campaign
         }
 
         public TavernHouseVisitReceipt GetOpenVisit(Settlement town) => town == null ? null
-            : TavernHouseRules.GetOpenVisit(_state.Visits, town.StringId, ReignServerClient.GetCampaignId(), Timeline);
+            : _state.Visits.FirstOrDefault(v => !v.Ended && v.TownId == town.StringId && v.CampaignId == ReignServerClient.GetCampaignId()
+                && v.TimelineId == Timeline && (v.Paid || v.PaymentState == "applying" || v.PaymentState == "recovery_required"));
         public void MarkServerConfirmed(string visitId, string conversationId)
         {
             var visit = _state.Visits.SingleOrDefault(v => v.VisitId == visitId && v.CampaignId == ReignServerClient.GetCampaignId() && v.TimelineId == Timeline);
             if (visit == null || !visit.Paid) return;
             visit.ServerConfirmed = true; visit.ConversationId = conversationId ?? "";
+            if (visit.ActionTermsHash.Length > 0) ReignBeta.Actions.ReignAgreementBehavior.Instance?.RecheckAgreement(visit.AgreementId);
         }
         public void EndVisit(string visitId)
         {
             var visit = _state.Visits.SingleOrDefault(v => v.VisitId == visitId && v.CampaignId == ReignServerClient.GetCampaignId() && v.TimelineId == Timeline);
             if (visit != null) visit.Ended = true;
-        }
-
-        public bool ConfirmVisit(TavernHouseVisitQuote quote, out TavernHouseVisitReceipt receipt, out string reason)
-        {
-            receipt = null;
-            if (!TavernHouseRules.ValidateQuote(quote, out reason)) return false;
-            if (!_ready || Hero.MainHero == null || Hero.MainHero.IsChild || !Hero.MainHero.IsAlive || Hero.MainHero.IsPrisoner
-                || quote.PlayerHeroId != Hero.MainHero.StringId || quote.CampaignId != ReignServerClient.GetCampaignId() || quote.TimelineId != Timeline)
-            { reason = "This agreement does not belong to the active adult player and campaign."; return false; }
-            receipt = _state.Visits.SingleOrDefault(v => v.CampaignId == quote.CampaignId && v.TimelineId == quote.TimelineId && v.AgreementId == quote.AgreementId);
-            if (receipt != null && !TavernHouseRules.Matches(receipt, quote)) { reason = "The agreement was already used with different terms."; return false; }
-            if (receipt?.Paid == true) return true;
-            Settlement town = Settlement.Find(quote.TownId);
-            if (town?.IsTown != true || Hero.MainHero.CurrentSettlement != town || !EnsureTown(town))
-            { reason = "You must be at this town's tavern house."; return false; }
-            if (GetOpenVisit(town) is TavernHouseVisitReceipt active && active != receipt)
-            { reason = "Finish the current visit before accepting another agreement."; return false; }
-            if (quote.Charges.Any(c => !IsAvailable(PopulationHero(c.HeroId), town)))
-            { reason = "An agreed participant is no longer available. Negotiate a new agreement."; return false; }
-            Hero madam = GetMadam(town);
-            if (madam == null || !IsAvailable(madam, town)) { reason = "The madam is unavailable."; return false; }
-            if (Hero.MainHero.Gold < quote.TotalGold) { reason = "You do not have the agreed payment."; return false; }
-            if (receipt == null)
-            {
-                receipt = new TavernHouseVisitReceipt { VisitId = Guid.NewGuid().ToString("N"), AgreementId = quote.AgreementId,
-                    CampaignId = quote.CampaignId, TimelineId = quote.TimelineId, TownId = quote.TownId, PlayerHeroId = quote.PlayerHeroId,
-                    Charges = quote.Charges.Select(c => new TavernHouseVisitCharge { HeroId = c.HeroId, DisplayName = PopulationHero(c.HeroId).Name.ToString(), Gold = c.Gold }).ToList(),
-                    ParticipantHeroIds = quote.Charges.Select(c => c.HeroId).ToList(), QuoteRevision = quote.QuoteRevision,
-                    PaidGold = quote.TotalGold, StartedDay = Day };
-                _state.Visits.Add(receipt);
-            }
-            int goldBefore = Hero.MainHero.Gold;
-            // Mark before native event dispatch; if a downstream listener throws after the transfer, it still must not repeat.
-            receipt.Paid = true;
-            try { if (quote.TotalGold > 0) GiveGoldAction.ApplyBetweenCharacters(Hero.MainHero, madam, quote.TotalGold, true); }
-            catch (Exception ex)
-            {
-                receipt.Paid = goldBefore - Hero.MainHero.Gold >= quote.TotalGold;
-                ReignLog.Exception("Tavern visit payment", ex);
-                if (!receipt.Paid) { reason = "The native payment did not complete. The saved agreement can be retried."; return false; }
-            }
-            reason = "";
-            return true;
         }
 
         internal bool ValidateRecruitment(Hero hero, int agreedGold, string agreementId, bool consentConfirmed, out string reason)

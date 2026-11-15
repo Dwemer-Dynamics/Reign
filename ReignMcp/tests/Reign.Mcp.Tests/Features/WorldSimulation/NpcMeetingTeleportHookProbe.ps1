@@ -16,7 +16,7 @@ $resolver=[ResolveEventHandler]{param($sender,$eventArgs)
 [AppDomain]::CurrentDomain.add_AssemblyResolve($resolver)
 $ok=$false;$failure='';$hooks=0;$beforeRemoval=$false;$preserved=$false;$rejected=$false;$modelChecks=0;$leaseChecks=0;$patches=$null;$rulerWaits=$false
 $rescueBound=$false;$rescueNoOp=$false;$rescueRemoved=$false;$rescueTarget=$null;$rescuePrefix=$null;$announcementHoldChecks=0;$meetingFeatureChecks=0
-$shipPatch=$null;$shipTarget=$null;$shipDlcAvailable=$false;$shipBound=$false;$shipRemoved=$false;$shipContextChecks=0;$shipShapeChecks=0;$shipPreserved=$false
+$shipDlcAvailable=$false;$shipNativeContextVerified=$false
 try {
     $client=[Reflection.Assembly]::LoadFrom([IO.Path]::GetFullPath($ClientAssembly))
     $native=[Reflection.Assembly]::LoadFrom((Join-Path $gameBin 'TaleWorlds.CampaignSystem.dll'))
@@ -163,73 +163,38 @@ try {
             $meetingFeatureChecks++
         }
     }
-    # The exact licensed War Sails callback caused the recorded governor-away
-    # crash. Exercise its installed transpiler and complete port-selection cases
-    # without starting a campaign or invoking a ship trade/perk/gold action.
-    $shipPatch=$client.GetType('ReignBeta.Campaign.ReignShipTradeGovernorPatch',$true)
-    $selectPort=$shipPatch.GetMethod('SelectTradePort',$static)
-    $settlementType=$selectPort.GetParameters()[0].ParameterType
-    $oldPort=[Runtime.Serialization.FormatterServices]::GetUninitializedObject($settlementType)
-    $newPort=[Runtime.Serialization.FormatterServices]::GetUninitializedObject($settlementType)
-    for($mask=0;$mask -lt 4;$mask++){
-        $first=$null;$second=$null;$expected=$null
-        if($mask -band 1){$first=$oldPort;$expected=$oldPort}
-        if($mask -band 2){$second=$newPort;if($null -eq $expected){$expected=$newPort}}
-        $actual=$selectPort.Invoke($null,[object[]]@($first,$second))
-        if(-not [object]::ReferenceEquals($expected,$actual)){throw 'Ship perk context did not preserve the actual trading port.'}
-        $shipContextChecks++
-    }
+    # War Sails 1.3.7 fixes the away-governor crash natively. Inspect the actual
+    # callback without executing a ship trade, perk or gold action.
+    if($null -ne $client.GetType('ReignBeta.Campaign.ReignShipTradeGovernorPatch',$false)){throw 'Obsolete ship-trade patch is still shipped.'}
     $shipDlc=Join-Path $BannerlordPath 'Modules\NavalDLC\bin\Win64_Shipping_Client\NavalDLC.dll'
     $shipDlcAvailable=[IO.File]::Exists($shipDlc)
     if($shipDlcAvailable){
         $shipAssembly=[Reflection.Assembly]::LoadFrom($shipDlc)
         $shipTarget=$shipAssembly.GetType('NavalDLC.CampaignBehaviors.ShipTradeCampaignBehavior',$true).GetMethod('OnShipOwnerChanged',$instance)
-        $shipTranspiler=$shipPatch.GetMethod('Transpiler',$static)
-        $shipResolver=$shipPatch.GetMethod('ResolveTradePort',$static)
         $heroType=$native.GetType('TaleWorlds.CampaignSystem.Hero',$true)
+        $settlementType=$native.GetType('TaleWorlds.CampaignSystem.Settlements.Settlement',$true)
+        $partyType=$native.GetType('TaleWorlds.CampaignSystem.Party.PartyBase',$true)
+        $shipType=$native.GetType('TaleWorlds.CampaignSystem.Naval.Ship',$true)
         $currentSettlement=$heroType.GetProperty('CurrentSettlement').GetGetMethod()
+        $partySettlement=$partyType.GetProperty('Settlement').GetGetMethod()
+        $shipOwner=$shipType.GetProperty('Owner').GetGetMethod()
         $townField=$settlementType.GetField('Town')
-        $shipOriginal=$instructionList::new()
-        foreach($instruction in @($readInstructions.Invoke($null,[object[]]@($shipTarget,$null)))){$shipOriginal.Add($instruction)}
-        $shipSite=-1
-        for($i=0;$i -lt $shipOriginal.Count;$i++){if($shipOriginal[$i].operand -eq $currentSettlement){if($shipSite -ge 0){throw 'Ambiguous native governor location lookup.'};$shipSite=$i}}
-        if($shipSite -lt 0 -or $shipOriginal[$shipSite+1].opcode -ne [Reflection.Emit.OpCodes]::Ldfld -or $shipOriginal[$shipSite+1].operand -ne $townField){throw 'Native governor-town callback shape changed.'}
-        $shipLabel=$dynamic.GetILGenerator().DefineLabel()
-        $shipOriginal[$shipSite].labels.Add($shipLabel)
-        $shipOriginal[$shipSite].blocks.Add([HarmonyLib.ExceptionBlock]::new([HarmonyLib.ExceptionBlockType]::BeginExceptionBlock))
-        $shipOriginal[$shipSite].blocks.Add([HarmonyLib.ExceptionBlock]::new([HarmonyLib.ExceptionBlockType]::EndExceptionBlock))
-        $shipRewritten=@($shipTranspiler.Invoke($null,[object[]](,$shipOriginal)))
-        if($shipRewritten.Count -ne $shipOriginal.Count+2 -or $shipRewritten[$shipSite].opcode -ne [Reflection.Emit.OpCodes]::Ldarg_1 -or $shipRewritten[$shipSite+1].opcode -ne [Reflection.Emit.OpCodes]::Ldarg_2 -or $shipRewritten[$shipSite+2].operand -ne $shipResolver){throw 'Ship callback did not bind the original ship and former owner.'}
-        for($i=0;$i -lt $shipOriginal.Count;$i++){
-            if($i -eq $shipSite){continue};$at=$i;if($i -gt $shipSite){$at+=2}
-            if($shipOriginal[$i].opcode -ne $shipRewritten[$at].opcode -or $shipOriginal[$i].operand -ne $shipRewritten[$at].operand){throw 'Unrelated ship trade/perk/gold instructions changed.'}
-        }
-        $shipPreserved=$shipRewritten[$shipSite].labels.Contains($shipLabel) -and $shipRewritten[$shipSite].blocks.Count -eq 1 -and $shipRewritten[$shipSite+2].blocks.Count -eq 1 -and $shipOriginal[$shipSite].operand -eq $currentSettlement -and $shipOriginal[$shipSite].blocks.Count -eq 2
-        if(-not $shipPreserved){throw 'Ship callback labels, exception boundaries or original input were not preserved.'}
-        $resolverInstructions=@($readInstructions.Invoke($null,[object[]]@($shipResolver,$null)))
-        if(@($resolverInstructions | Where-Object {$_.operand -eq $currentSettlement}).Count -ne 0){throw 'Ship perk context still reads the travelling governor location.'}
-        $shipEmpty=$instructionList::new();$shipDuplicate=$instructionList::new()
-        foreach($repeat in 1..2){$shipDuplicate.Add($shipOriginal[$shipSite]);$shipDuplicate.Add($shipOriginal[$shipSite+1])}
-        $shipShapes=[object[]]::new(2);$shipShapes[0]=$shipEmpty;$shipShapes[1]=$shipDuplicate
-        foreach($shape in $shipShapes){
-            try{$shipTranspiler.Invoke($null,[object[]](,$shape)) | Out-Null;throw 'Unsupported ship callback shape accepted.'}
-            catch{if($_.Exception.GetBaseException() -isnot [InvalidOperationException]){throw};$shipShapeChecks++}
-        }
-        $shipPatch.GetMethod('Apply',$static).Invoke($null,@()) | Out-Null
-        $shipPatch.GetMethod('Apply',$static).Invoke($null,@()) | Out-Null
-        $shipInfo=[HarmonyLib.Harmony]::GetPatchInfo($shipTarget)
-        $shipBound=$null -ne $shipInfo -and @($shipInfo.Transpilers | Where-Object {$_.owner -eq 'com.bannerlordreign.reignbeta.ship_trade_governor' -and $_.PatchMethod -eq $shipTranspiler}).Count -eq 1
-        if(-not $shipBound){throw 'The exact installed native ship callback was not patched once.'}
+        $shipInstructions=@($readInstructions.Invoke($null,[object[]]@($shipTarget,$null)))
+        if(@($shipInstructions | Where-Object {$_.operand -eq $currentSettlement}).Count -ne 0){throw 'Native ship trade still reads a travelling governor location.'}
+        $portSites=@()
+        for($i=0;$i -lt $shipInstructions.Count;$i++){if($shipInstructions[$i].operand -eq $partySettlement){$portSites+=,$i}}
+        if($portSites.Count -ne 2){throw 'Expected both former-owner and new-owner native trading-port branches.'}
+        $first=$portSites[0];$second=$portSites[1]
+        if($shipInstructions[$first-1].opcode -ne [Reflection.Emit.OpCodes]::Ldarg_2 -or
+           $shipInstructions[$second-2].opcode -ne [Reflection.Emit.OpCodes]::Ldarg_1 -or $shipInstructions[$second-1].operand -ne $shipOwner){throw 'Native trade ports are not selected from the former owner and ship owner.'}
+        foreach($site in $portSites){if($shipInstructions[$site+1].operand -ne $townField){throw 'Native trade port did not supply its town.'}}
+        $perkCalls=@($shipInstructions | Where-Object {$_.operand -is [Reflection.MethodInfo] -and $_.operand.Name -eq 'AddPerkBonusForTown'})
+        if($perkCalls.Count -ne 1 -or $perkCalls[0].operand.GetParameters().Count -ne 4){throw 'Native town perk dispatch changed.'}
+        $shipNativeContextVerified=$true
     }
     $ok=$true
 } catch {$failure=$_.Exception.ToString()+[Environment]::NewLine+$_.ScriptStackTrace}
 finally {
-    if($null -ne $shipPatch){try{$shipPatch.GetMethod('Unapply',[Reflection.BindingFlags]'Static,Public,NonPublic').Invoke($null,@()) | Out-Null}catch{$ok=$false;$failure+=' Ship context unapply failed.'}}
-    if($null -ne $shipTarget){
-        $shipRemaining=[HarmonyLib.Harmony]::GetPatchInfo($shipTarget)
-        $shipRemoved=$null -eq $shipRemaining -or @($shipRemaining.Transpilers | Where-Object {$_.owner -eq 'com.bannerlordreign.reignbeta.ship_trade_governor'}).Count -eq 0
-        if(-not $shipRemoved){$ok=$false;$failure+=' Ship context transpiler survived module unapply.'}
-    }
     if($null -ne $patches){try{$patches.GetMethod('Unapply',[Reflection.BindingFlags]'Static,Public,NonPublic').Invoke($null,@()) | Out-Null}catch{}}
     if($null -ne $rescueTarget){
         $remaining=[HarmonyLib.Harmony]::GetPatchInfo($rescueTarget)
@@ -238,7 +203,7 @@ finally {
     }
     [AppDomain]::CurrentDomain.remove_AssemblyResolve($resolver)
 }
-$report=[ordered]@{ok=$ok;error=$failure;installedHookCount=$hooks;rescuePrisonerHookBound=$rescueBound;rescuePrefixNoCampaignNoOp=$rescueNoOp;rescueHookRemoved=$rescueRemoved;replacementBeforeQueueRemoval=$beforeRemoval;preservedLabelsAndBlocks=$preserved;unsupportedShapesRejected=$rejected;customModelDispatchChecks=$modelChecks;returnLeaseChecks=$leaseChecks;rulerWaitsForReturnLease=$rulerWaits;announcementHoldGuardChecks=$announcementHoldChecks;meetingFeatureGateChecks=$meetingFeatureChecks;shipTradeDlcAvailable=$shipDlcAvailable;shipTradeContextChecks=$shipContextChecks;shipTradeHookBound=$shipBound;shipTradeShapeRejections=$shipShapeChecks;shipTradeInstructionsPreserved=$shipPreserved;shipTradeHookRemoved=$shipRemoved;providerCalls=0;campaignMutations=0}
+$report=[ordered]@{ok=$ok;error=$failure;installedHookCount=$hooks;rescuePrisonerHookBound=$rescueBound;rescuePrefixNoCampaignNoOp=$rescueNoOp;rescueHookRemoved=$rescueRemoved;replacementBeforeQueueRemoval=$beforeRemoval;preservedLabelsAndBlocks=$preserved;unsupportedShapesRejected=$rejected;customModelDispatchChecks=$modelChecks;returnLeaseChecks=$leaseChecks;rulerWaitsForReturnLease=$rulerWaits;announcementHoldGuardChecks=$announcementHoldChecks;meetingFeatureGateChecks=$meetingFeatureChecks;shipTradeDlcAvailable=$shipDlcAvailable;shipTradeNativeContextVerified=$shipNativeContextVerified;providerCalls=0;campaignMutations=0}
 [IO.File]::WriteAllText((Join-Path $probeRoot 'report.json'),($report | ConvertTo-Json -Depth 8),[Text.UTF8Encoding]::new($false))
 $report | ConvertTo-Json -Depth 8
 if(-not $ok){exit 1}

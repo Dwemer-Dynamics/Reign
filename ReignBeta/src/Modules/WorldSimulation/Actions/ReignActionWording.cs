@@ -29,7 +29,8 @@ namespace ReignBeta.Actions
                 bool player = c.ActorId == a.PlayerId;
                 string subject = ReignActionLanguage.Subject(player, i);
                 string political = ReignBeta.Government.ReignGovernmentCampaignBehavior.Instance?.GovernmentActionSentence(c, subject) ?? "";
-                if (c.ActionId == "marriage.propose")
+                if (c.ActionId == TavernHouseVisitAction.Id) c.DisplayText = ReignTavernHouseAction.Sentence(a);
+                else if (c.ActionId == "marriage.propose")
                     c.DisplayText = "I propose that " + ReignActionService.HeroById(ReignActionService.Arg(c, "playerMatchId"))?.Name
                         + " marry " + ReignActionService.HeroById(ReignActionService.Arg(c, "prospectId"))?.Name;
                 else if (c.ActionId == "marriage.appeal")

@@ -216,7 +216,8 @@ namespace ReignBeta.Economy
 
     internal sealed class ReignSettlementLoyaltyModel : DefaultSettlementLoyaltyModel
     {
-        public override float GovernorDifferentCultureLoyaltyEffect => ReignRulerCampaignBehavior.Enabled(ReignBeta.Shared.Rulers.RulerOptions.GovernorCulture) ? 0f : base.GovernorDifferentCultureLoyaltyEffect;
+        // Bannerlord 1.5.7 removed governor-culture loyalty effects. Inherit its
+        // security curve and rebellion thresholds; Reign consequences remain additive.
         public override ExplainedNumber CalculateLoyaltyChange(Town town, bool includeDescriptions = false)
         {
             ExplainedNumber result = base.CalculateLoyaltyChange(town, includeDescriptions);

@@ -137,6 +137,68 @@ try {
     }
 
     $recordType = $client.GetType('ReignBeta.Events.SocialEventRecord', $true)
+    [Reflection.Assembly]::LoadFrom((Join-Path $gameBin 'Newtonsoft.Json.dll')) | Out-Null
+    Record-ProbeStage 'checking-constructor-bypassed-social-and-wedding-records'
+    $sessionType=$client.GetType('ReignBeta.Runtime.ReignSocialEventSession',$true)
+    $vmType=$client.GetType('ReignBeta.UI.ViewModels.ReignSocialEventScreenVM',$true)
+    $catalogType=$client.GetType('ReignBeta.Events.SocialEventTemplateCatalog',$true)
+    $sessionConstructor=$sessionType.GetConstructor([Type[]]@($recordType))
+    $vmConstructor=$vmType.GetConstructors()[0]
+    $phaseSetter=$sessionType.GetProperty('CurrentPhaseIndex').GetSetMethod($true)
+    $contextMethod=$sessionType.GetMethod('BuildSceneContextText',$flags)
+    $socialCases=0;$weddingCases=0
+    foreach($templateId in @('dance_aserai','feast_empire','fair_vlandia','wedding_aserai','wedding_empire')){
+        $wedding=$templateId.StartsWith('wedding_')
+        $customValues=[Collections.Generic.List[object]]::new();$customValues.Add($null)
+        if($wedding){$customValues.Add('');$customValues.Add('Visiting kin share a second custom.')}
+        foreach($customs in $customValues){
+            $legacy=[Runtime.Serialization.FormatterServices]::GetUninitializedObject($recordType)
+            Require ($null -eq $recordType.GetField('_weddingId',$flags).GetValue($legacy)) 'Fixture must bypass all record initializers.'
+            Require ($legacy.WeddingId -eq '' -and $legacy.WeddingCustoms -eq '' -and !$legacy.IsWedding) 'Absent wedding metadata is not normalized.'
+            Require ($null -eq $legacy.AttendeeHeroStringIds -and $null -eq $legacy.MovedHeroStringIds) 'Legacy nullable-list fixture is not constructor-bypassed.'
+            $legacy.EventId='fixture_'+$templateId;$legacy.TemplateId=$templateId;$legacy.DisplayName='Retained '+$templateId
+            $legacy.WeddingId=$(if($wedding){'fixture_wedding'}else{$null})
+            $legacy.WeddingCustoms=$customs;$legacy.WeddingRosterCount=12
+            $session=$sessionConstructor.Invoke([object[]]@($legacy))
+            Require ($null -ne $legacy.AttendeeHeroStringIds -and $legacy.AttendeeHeroStringIds.Count -eq 0 -and $null -ne $legacy.MovedHeroStringIds -and $legacy.MovedHeroStringIds.Count -eq 0) 'Saved event collections were not normalized at the session boundary.'
+            for($phase=0;$phase -lt $session.Template.Phases.Count;$phase++){
+                $phaseSetter.Invoke($session,[object[]]@($phase))|Out-Null
+                $vm=$null
+                try {
+                    $vm=$vmConstructor.Invoke([object[]]@($session,$null,$null,$null,$null,$true))
+                    Require ($vm.EventTitle -eq $legacy.DisplayName) 'Saved event title changed.'
+                    Require ($vm.PhaseTitle -eq $session.CurrentPhase.Title) 'Saved event phase changed.'
+                    Require (![string]::IsNullOrEmpty($vm.EventImageId)) 'Saved event art identifier missing.'
+                    Require ($vm.ApproachLabel -eq $(if($wedding){'Wedding actions'}else{'Wait Approach'})) 'Event approach classification changed.'
+                    Require ($vm.LeaveEventLabel -eq $(if($wedding){'Leave ceremony'}else{'End Event'})) 'Event close classification changed.'
+                    Require ($vm.NextPhaseLabel -eq $(if($wedding -and $phase -eq 2){'Conclude ceremony'}else{'Next Phase'})) 'Event phase label changed.'
+                    $context=$contextMethod.Invoke($session,[object[]]@('Fixture calendar','Fixture settlement','Fixture host'))
+                    Require ($context.Contains('pending marriage ceremony') -eq $wedding) 'Production scene context misclassified the event.'
+                    if($wedding){
+                        Require ($vm.PhaseStatus.Contains('Attendees 12')) 'Wedding roster count lost.'
+                        Require ($vm.PhaseDescription.Contains('Visiting kin share a second custom.') -eq ($phase -eq 1 -and ![string]::IsNullOrEmpty($customs))) 'Optional wedding customs rendering changed.'
+                        Require ($context.Contains('Visiting kin share a second custom.') -eq ![string]::IsNullOrEmpty($customs)) 'Wedding customs missing from scene context.'
+                        $weddingCases++
+                    }else{
+                        Require ($vm.PhaseStatus.Contains('Attendees 0')) 'Absent saved attendee list was not handled safely.'
+                        Require (!$vm.EventImageId.Contains('wedding_')) 'Tournament event selected wedding art.'
+                        $socialCases++
+                    }
+                }finally{if($null -ne $vm){$vm.OnFinalize()}}
+            }
+            $serialized=[Newtonsoft.Json.JsonConvert]::SerializeObject($legacy)
+            $legacyRoundTrip=[Newtonsoft.Json.JsonConvert]::DeserializeObject($serialized,$recordType)
+            Require ($legacyRoundTrip.IsWedding -eq $wedding -and $legacyRoundTrip.WeddingCustoms -eq [string]$customs) 'Wedding metadata JSON contract changed.'
+        }
+    }
+    # The catalog already supplies a valid fallback for retired template IDs.
+    Require ($null -ne $catalogType.GetMethod('GetById').Invoke($null,[object[]]@('removed_fixture_template'))) 'Unknown event template lost its existing fallback.'
+    Record-ProbeStage 'checking-unloaded-campaign-callbacks'
+    $government=$client.GetType('ReignBeta.UI.ReignGovernmentScreenManager',$true)
+    $government.GetMethod('TryPresentPendingBusiness',$flags).Invoke($null,[object[]]@([single]1))|Out-Null
+    $accordsType=$client.GetType('ReignBeta.ClanAccords.ReignClanAccordsCampaignBehavior',$true)
+    $unloadedAccords=[Runtime.Serialization.FormatterServices]::GetUninitializedObject($accordsType)
+    $accordsType.GetMethod('OnHourlyTick',$flags).Invoke($unloadedAccords,@())|Out-Null
     Record-ProbeStage 'checking-pending-record-save-fields'
     $record = [Activator]::CreateInstance($recordType)
     $record.EventId = 'reign_wilderness_plain_probe'
@@ -179,6 +241,8 @@ Record-ProbeStage 'writing-report'
     nativeExceptionReproduced = $true; baseMapBarPassed = $true
     navalMapBarPassed = ($null -ne $navalMethod); guardedLookupCases = $cases
     pendingRoundTripPassed = $true; nativeSaveFieldContractPassed = $true
+    legacySocialInitializationCases = $socialCases; legacyWeddingInitializationCases = $weddingCases
+    constructorBypassedSceneContextPassed = $true; unloadedCampaignCallbacksPassed = $true
     clientSha256 = (Get-FileHash -LiteralPath $clientPath -Algorithm SHA256).Hash
     inputAssemblySha256 = (Get-FileHash -LiteralPath $nativeInput.Location -Algorithm SHA256).Hash
     sandboxAssemblySha256 = (Get-FileHash -LiteralPath $sandbox.Location -Algorithm SHA256).Hash

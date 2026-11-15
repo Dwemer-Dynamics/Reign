@@ -858,7 +858,7 @@ try {
         if(-not $badReferencesRejected){throw 'Corrupt native ship-reference/receipt lists were accepted.'}
         $shipIds.Add('isolated_ship_b');$restore.Invoke($null,[object[]]@($isolatedBehavior))|Out-Null
         $navalAcquisitionIdentity=$true;$navalFundingBinding=$true;$navalFundingHooks=$navalBindings.Count
-        [ordered]@{schema='reign-naval-funding-binding-v1';binding=$navalFundingBinding;hooks=$navalFundingHooks;nativeShipReferenceContainer=$navalAcquisitionIdentity;campaignMutations=0;nativeGameplayAcceptance=$false} | ConvertTo-Json | Set-Content -LiteralPath (Join-Path $EvidenceDirectory 'naval-funding.json') -Encoding UTF8
+        [ordered]@{schema='reign-naval-funding-binding-v1';binding=$navalFundingBinding;hooks=$navalFundingHooks;nativeShipReferenceContainer=$navalAcquisitionIdentity;campaignMutations=0;nativeGameplayAcceptance=$false;medicalDischargeBinding=$medicalBinding;medicalRosterConservation=$medicalRosterConservation} | ConvertTo-Json | Set-Content -LiteralPath (Join-Path $EvidenceDirectory 'naval-funding.json') -Encoding UTF8
         $patches.GetMethod('ApplyNavalRecruitment',$static).Invoke($null,@()) | Out-Null
         $navalTarget=$naval.GetType('NavalDLC.CampaignBehaviors.ShipTradeCampaignBehavior',$true).GetMethod('OnSettlementEntered',$instance)
         if($registered.Count -ne 61 -or $registered['NavalGarrisonTranspiler'] -ne $navalTarget){throw 'Late naval economy bindings are incomplete.'}
@@ -1163,10 +1163,32 @@ try {
     $raidFood=$client.GetType('ReignBeta.Economy.ReignRaidFoodDisruption',$true)
     try {
         $raidFood.GetMethod('Install',$static).Invoke($null,@()) | Out-Null
+        # Reproduce the native save-load crash with a real component whose runtime
+        # MapEvent backlink has not been restored. No campaign/engine initialization.
+        $restoredRaidType=$campaign.GetType('TaleWorlds.CampaignSystem.MapEvents.RaidEventComponent',$true)
+        $unboundRaid=[Runtime.Serialization.FormatterServices]::GetUninitializedObject($restoredRaidType)
+        $ensureRaid=$raidFood.GetMethod('EnsureRaid',$static)
+        foreach($initialized in @($false,$true)){
+            foreach($component in @($null,$unboundRaid)){
+                if($null -ne $ensureRaid.Invoke($null,[object[]]@($component,$initialized))){throw 'Unbound raid unexpectedly created a food receipt.'}
+            }
+        }
+        if($null -ne $restoredRaidType.GetProperty('MapEvent',$instance).GetValue($unboundRaid,$null)){throw 'Unbound raid regression mutated the native backlink.'}
         $raidHooks=$raidFood.GetField('Hooks',$static).GetValue($null)
         $raidError=$raidFood.GetField('_hookError',$static).GetValue($null)
         $expectedRaidHooks=if(Test-Path -LiteralPath $navalPath){15}else{6}
         if($raidError.Length -gt 0 -or $raidHooks.Count -ne $expectedRaidHooks){throw ('Raid food hook binding failed: '+$raidError)}
+        $raidFinalize=$campaign.GetType('TaleWorlds.CampaignSystem.MapEvents.RaidEventComponent',$true).GetMethod('OnBeforeMapEventFinalize',$instance)
+        if($null -eq $raidFinalize -or -not $raidFinalize.IsVirtual -or $raidFinalize.ReturnType -ne [void] -or $raidFinalize.GetParameters().Count -ne 0 -or
+           $raidHooks['RaidClosing'] -ne $raidFinalize -or $raidHooks['RaidClosed'] -ne $raidFinalize){throw 'Raid recovery must bracket the exact native village-finalization callback.'}
+        $finalizeEvent=$campaign.GetType('TaleWorlds.CampaignSystem.MapEvents.MapEvent',$true).GetMethod('FinalizeEventAux',$instance)
+        $finalizeIl=@([HarmonyLib.PatchProcessor]::GetOriginalInstructions($finalizeEvent))
+        $beforeIndex=-1;$teardownIndex=-1
+        for($i=0;$i -lt $finalizeIl.Count;$i++){
+            if($finalizeIl[$i].operand -eq $raidFinalize.GetBaseDefinition()){if($beforeIndex -ge 0){throw 'Ambiguous native pre-finalization dispatch.'};$beforeIndex=$i}
+            if($finalizeIl[$i].operand -is [Reflection.MethodInfo] -and $finalizeIl[$i].operand.Name -eq 'FinalizeComponent'){$teardownIndex=$i}
+        }
+        if($beforeIndex -lt 0 -or $teardownIndex -le $beforeIndex){throw 'Native raid-finalization dispatch no longer precedes component teardown.'}
         foreach($entry in $raidHooks.GetEnumerator()) {
             $info=[HarmonyLib.Harmony]::GetPatchInfo($entry.Value)
             $owned=@(@($info.Prefixes)+@($info.Postfixes)+@($info.Transpilers)+@($info.Finalizers) | Where-Object {$_.owner -eq 'com.bannerlordreign.reignbeta.raidfood' -and $_.PatchMethod.Name -eq $entry.Key})
@@ -1222,7 +1244,7 @@ try {
             $fixtureScope.Patch($campaign.GetType('TaleWorlds.CampaignSystem.GameComponents.DefaultRaidModel',$true).GetMethod('CalculateHitDamage',$instance),[HarmonyLib.HarmonyMethod]::new($fixture.GetMethod('NoExtraRaidDamage',$static)),$null,$null,$null) | Out-Null
             foreach($name in @('Run','Partial','Probe','Fishing','ScopedDefenderCount','PlannedOneFish')){[Runtime.CompilerServices.RuntimeHelpers]::PrepareMethod($fixture.GetMethod($name,$static).MethodHandle)}
         } finally {$fixtureScope.UnpatchAll($fixtureScope.Id)}
-        @{schema='reign-raid-food-hook-probe-v1';boundHooks=$raidHooks.Count;exactlyOnce=$true;fixtureBinding=$true;savedNativeIdentity=$true;nativeGameplayAcceptance=$false;providerCalls=0;campaignMutations=0} | ConvertTo-Json | Set-Content -LiteralPath (Join-Path $EvidenceDirectory 'raid-food-hooks.json') -Encoding UTF8
+        @{schema='reign-raid-food-hook-probe-v1';boundHooks=$raidHooks.Count;exactlyOnce=$true;fixtureBinding=$true;savedNativeIdentity=$true;unboundLoadCases=4;unboundNativeBacklinkPreserved=$true;nativeGameplayAcceptance=$false;providerCalls=0;campaignMutations=0} | ConvertTo-Json | Set-Content -LiteralPath (Join-Path $EvidenceDirectory 'raid-food-hooks.json') -Encoding UTF8
     } finally {$raidFood.GetField('_harmony',$static).GetValue($null).UnpatchAll('com.bannerlordreign.reignbeta.raidfood')}
     # Separate owner: no campaign, no native time, no provider or roster mutation.
     $medical=$client.GetType('ReignBeta.Economy.ReignMedicalDischarge',$true)

@@ -49,7 +49,11 @@ export function analyzeDiagnostics(renderer, stageContent) {
       // box. Measure the untransformed inner span so an intentional offset does
       // not masquerade as wrapped or clipped text.
       const measuredText = element.querySelector(":scope > .g-node-text-content") || element;
-      const horizontal = !intentionalEllipsis && measuredText.scrollWidth > element.clientWidth + 2;
+      const style = getComputedStyle(element);
+      const nativeEditableWindow = metadata?.tag === "ReignActionEditableTextWidget"
+        && element.clientWidth > 0 && element.clientHeight > 0
+        && style.whiteSpace === "pre" && style.overflowX === "auto" && style.overflowY === "hidden";
+      const horizontal = !intentionalEllipsis && !nativeEditableWindow && measuredText.scrollWidth > element.clientWidth + 2;
       const vertical = measuredText.scrollHeight > element.clientHeight + 2;
       if (horizontal || vertical) {
         addIssue(issues, seen, metadata, "overflow", `Text exceeds its ${horizontal && vertical ? "width and height" : horizontal ? "width" : "height"} (${element.scrollWidth}×${element.scrollHeight} content in ${element.clientWidth}×${element.clientHeight}).`);

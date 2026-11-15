@@ -48,6 +48,11 @@ namespace ReignBeta.Integration
             }
         }
 
+        internal static bool IsSaveFinalizationPending
+        {
+            get { lock (Gate) return _saveFinalizationsInFlight > 0; }
+        }
+
         internal static bool IsReadyForCampaign(string campaignId)
         {
             lock (Gate)

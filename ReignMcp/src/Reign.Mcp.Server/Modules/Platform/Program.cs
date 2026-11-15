@@ -52,10 +52,19 @@ builder.Services
 if (args.Contains("--plan-cli", StringComparer.OrdinalIgnoreCase)
     || args.Contains("--validate-cli", StringComparer.OrdinalIgnoreCase)
     || args.Contains("--validation-status-cli", StringComparer.OrdinalIgnoreCase)
-    || args.Contains("--linux-server-cli", StringComparer.OrdinalIgnoreCase))
+    || args.Contains("--linux-server-cli", StringComparer.OrdinalIgnoreCase)
+    || args.Contains("--deployment-source-check-cli", StringComparer.OrdinalIgnoreCase))
 {
     using var validationHost = builder.Build();
     var validation = validationHost.Services.GetRequiredService<ReignValidationService>();
+    if (args.Contains("--deployment-source-check-cli", StringComparer.OrdinalIgnoreCase))
+    {
+        var check = validation.CheckDeploymentSource(CliValue(args, "--validation-report", ""),
+            CliValue(args, "--linux-build-report", ""));
+        Console.WriteLine(System.Text.Json.JsonSerializer.Serialize(check));
+        Environment.ExitCode = check.Ok ? 0 : 1;
+        return;
+    }
     if (args.Contains("--linux-server-cli", StringComparer.OrdinalIgnoreCase))
     {
         var linux = await validation.BuildLinuxServerAsync(args.Contains("--restore"),
@@ -74,7 +83,7 @@ if (args.Contains("--plan-cli", StringComparer.OrdinalIgnoreCase)
         Environment.ExitCode = status.Status == "unavailable" ? 1 : 0;
         return;
     }
-    var profile = CliValue(args, "--profile", "all");
+    var profile = CliValue(args, "--profile", "changed");
     var configuration = CliValue(args, "--configuration", "Release");
     var changedPaths = CliValue(args, "--changed-paths", "");
     var restore = args.Contains("--restore", StringComparer.OrdinalIgnoreCase);

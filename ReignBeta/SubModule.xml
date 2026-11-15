@@ -8,10 +8,10 @@
   <MultiplayerModule value="false"/>
 
   <DependedModuleMetadatas>
-    <DependedModuleMetadata id="Native" order="LoadBeforeThis" optional="false" version="e1.0.0"/>
-    <DependedModuleMetadata id="SandBoxCore" order="LoadBeforeThis" optional="false" version="e1.0.0"/>
-    <DependedModuleMetadata id="Sandbox" order="LoadBeforeThis" optional="false" version="e1.0.0"/>
-    <DependedModuleMetadata id="StoryMode" order="LoadBeforeThis" optional="true" version="e1.0.0"/>
+    <DependedModuleMetadata id="Native" order="LoadBeforeThis" optional="false" version="v1.5.7"/>
+    <DependedModuleMetadata id="SandBoxCore" order="LoadBeforeThis" optional="false" version="v1.5.7"/>
+    <DependedModuleMetadata id="Sandbox" order="LoadBeforeThis" optional="false" version="v1.5.7"/>
+    <DependedModuleMetadata id="StoryMode" order="LoadBeforeThis" optional="true" version="v1.5.7"/>
     <DependedModuleMetadata id="Bannerlord.Harmony" order="LoadBeforeThis" optional="false" version="v2.3.3"/>
     <DependedModuleMetadata id="Bannerlord.ButterLib" order="LoadBeforeThis" optional="false" version="v2.9.18"/>
     <DependedModuleMetadata id="Bannerlord.UIExtenderEx" order="LoadBeforeThis" optional="false" version="v2.8.0"/>

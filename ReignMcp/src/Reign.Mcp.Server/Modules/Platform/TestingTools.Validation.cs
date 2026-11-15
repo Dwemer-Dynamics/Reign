@@ -218,11 +218,11 @@ public static partial class TestingTools
     }
 
     [McpServerTool(Name = "reign_get_validation_plan", ReadOnly = true, Destructive = false, Idempotent = true, UseStructuredContent = true)]
-    [Description("Discovers every managed Reign project, resolves changed paths through reign.modules.json, selects the lowest safe validation tier, and returns the exact build/test plan without executing it.")]
+    [Description("Plans change-relevant builds/tests by default. Product/all broaden build coverage with quick checks. Behavioral selects full offline validation only on explicit user request. Does not execute the plan.")]
     public static ValidationPlan GetValidationPlan(
         ReignValidationService validation,
-        [AllowedValues("changed", "core", "product", "tooling", "all")]
-        string profile = "all",
+        [AllowedValues("changed", "core", "product", "tooling", "all", "behavioral")]
+        string profile = "changed",
         [AllowedValues("Debug", "Release")]
         string configuration = "Release",
         bool restore = false,
@@ -237,15 +237,15 @@ public static partial class TestingTools
     public static ValidationLaneStatus GetValidationStatus(ReignValidationService validation) => validation.GetStatus();
 
     [McpServerTool(Name = "reign_validate", ReadOnly = false, Destructive = false, Idempotent = false, UseStructuredContent = true)]
-    [Description("Runs the canonical fail-closed, module-aware Reign validation plan and writes a structured report with the selected tier and reasons. It never deploys, starts a listener, or controls Bannerlord/Reign processes.")]
+    [Description("Runs change-relevant validation and useful quick checks. Product/all broaden build coverage; behavioral selects full offline validation only on explicit user request. Writes evidence and never deploys or controls game/server processes.")]
     public static Task<ValidationReport> Validate(
         ReignValidationService validation,
-        [AllowedValues("changed", "core", "product", "tooling", "all")]
+        [AllowedValues("changed", "core", "product", "tooling", "all", "behavioral")]
         string profile = "changed",
         [AllowedValues("Debug", "Release")]
         string configuration = "Release",
         bool restore = false,
-        [Description("Semicolon or newline separated workspace-relative changed paths. Required for changed. Use product for product-wide confidence and all only for ecosystem release validation.")]
+        [Description("Exact workspace-relative changed paths for ordinary validation. Product/all widen build coverage and retain quick checks; behavioral runs the full offline suite only on explicit user request.")]
         string changedPaths = "",
         bool failFast = true,
         CancellationToken cancellationToken = default,
@@ -283,7 +283,7 @@ public static partial class TestingTools
     [Description("Runs Reign's non-listening CLI verifier from the exact successful Release artifact named by validationRunId. It writes isolated verification artifacts, refuses to overlap an active server verification run, and cannot run live-LLM or game tiers.")]
     public static Task<OfflineVerificationResult> RunOfflineVerification(
         ReignBuildService buildService,
-        [AllowedValues("quick", "offline")] string tier = "offline",
+        [AllowedValues("quick", "offline")] string tier = "quick",
         string suite = "",
         int seed = 1337,
         int repeat = 1,

@@ -1487,6 +1487,22 @@ export function getSampleDataForPrefab(fileName, preset = "") {
       Title: "Choose an action", SearchVisible: true,
       Choices: choices(["Give…", "Go to…", "Support…", "Government decisions…", "Court and intelligence…", "Party and military orders…", "Diplomacy…", "Clan and kingdom…", "Personal requests…"])
     });
+    if (preset === "action-builder-tavern-names") Object.assign(result, {
+      Title: "Choose company for this visit", SearchVisible: true, CanAccept: false,
+      Sentence: "I wish to arrange a private visit…",
+      Choices: choices(["Livia Bellori", "Beatrice Voss", "Zara Caldera", "Hilda Rainault", "Oren Mercato", "Tobias Marin"])
+    });
+    if (preset === "action-builder-tavern-price") Object.assign(result, {
+      Title: "Agreed price for Livia Bellori (denars; 0 if free)", EntryVisible: true, SearchVisible: false, CanAccept: false, Entry: "450",
+      Sentence: "I wish to arrange a private visit with Livia Bellori…", Choices: [],
+      $emptyListRationales: { Choices: "The agreed price uses the number field and Continue." }
+    });
+    if (preset === "action-builder-tavern-free" || preset === "action-builder-tavern-offer") Object.assign(result, {
+      Title: "Your sentence", CanAccept: true, SearchVisible: false,
+      Sentence: preset.endsWith("free") ? "I wish to accept the agreed free private visit with Oren Mercato."
+        : "I wish to pay you 750 denars for a private visit with Livia Bellori, Beatrice Voss, Oren Mercato, Tobias Marin (Livia Bellori: 450 denars; Beatrice Voss: 140 denars; Oren Mercato: 0 denars; Tobias Marin: 160 denars).",
+      Choices: choices(preset.endsWith("free") ? ["Change the names or prices…"] : ["Decline this offer", "Change the names or prices…"])
+    });
     if (preset === "action-builder-selection") Object.assign(result, {
       Title: "Select troops", SearchVisible: true, CanAccept: false,
       Choices: ["Aserai Archer", "Aserai Footman", "Battanian Fian", "Imperial Archer", "Imperial Legionary", "Khuzait Horse Archer", "Sturgian Spearman", "Vlandian Banner Knight"].map((Label, i) => ({ Label, Detail: `${12 + i * 2} available`, Enabled: true }))
@@ -1544,7 +1560,8 @@ export function getSampleDataForPrefab(fileName, preset = "") {
       Title: "Select troops", SearchVisible: true, Error: "This person no longer commands the selected troops.",
       Choices: [{ Label: "Imperial Legionary", Detail: "No longer available", Enabled: false }]
     });
-    result.Recipient = preset === "action-builder-pledge" ? "To Argoros" : "To Lucon";
+    result.Recipient = preset.startsWith("action-builder-tavern-") ? "To Livia Bellori"
+      : preset === "action-builder-pledge" ? "To Argoros" : "To Lucon";
     result.Choices = result.Choices.map(row => ({ ...row, Disabled: !row.Enabled }));
     return result;
   }

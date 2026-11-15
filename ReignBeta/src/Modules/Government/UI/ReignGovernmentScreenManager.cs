@@ -267,10 +267,13 @@ namespace ReignBeta.UI
             _scanDelay -= Math.Max(0f, dt);
             if (_scanDelay > 0f) return;
             _scanDelay = 0.5f;
+            // Native player/kingdom getters require a live campaign. Check that
+            // boundary before consulting them during unload or main-menu ticks.
+            if (!CanPresentOnMap()) return;
             var behavior = ReignGovernmentCampaignBehavior.Instance;
             if (!ReferenceEquals(behavior, _presentationBehavior)) { PresentedStages.Clear(); _presentationBehavior = behavior; }
             Kingdom kingdom = Clan.PlayerClan?.Kingdom ?? Kingdom.All.FirstOrDefault(k => behavior?.GetSeats(k.StringId).Any(x => x.HeroStringId == Hero.MainHero?.StringId) == true);
-            if (behavior == null || kingdom == null || !CanPresentOnMap()) return;
+            if (behavior == null || kingdom == null) return;
             if (behavior.IsCharterPending(kingdom.StringId))
             {
                 string charterKey = "charter:" + kingdom.StringId;

@@ -8,6 +8,7 @@ using SandBox.Missions.MissionLogics;
 using TaleWorlds.CampaignSystem;
 using TaleWorlds.Core;
 using TaleWorlds.Engine;
+using TaleWorlds.Library;
 using TaleWorlds.MountAndBlade;
 
 namespace ReignBeta.Campaign
@@ -44,6 +45,8 @@ namespace ReignBeta.Campaign
                     prefix: new HarmonyMethod(typeof(ReignDuelCombatPatches), nameof(NativeBattleHit)));
                 harmony.Patch(Required(typeof(Mission), "PrintAttackCollisionResults"),
                     prefix: new HarmonyMethod(typeof(ReignDuelCombatPatches), nameof(CombatNotice)));
+                harmony.Patch(Required(typeof(SandBox.Missions.MissionLogics.Arena.ArenaDuelMissionController), "OnEndMissionRequest"),
+                    prefix: new HarmonyMethod(typeof(ReignDuelCombatPatches), nameof(TrainingEndRequest)));
                 Ready = true;
             }
             catch
@@ -102,7 +105,18 @@ namespace ReignBeta.Campaign
             }
             Agent attacker = blow.OwnerId < 0 ? null : target.Mission.FindAgentWithIndex(blow.OwnerId);
             target.Health = !behavior.OwnsCombatHit(target, attacker) ? nativeNextHealth
-                : ReignDuelModePolicy.HealthAfterHit(target.Health, nativeNextHealth, blow.InflictedDamage);
+                : ReignDuelModePolicy.HealthAfterHit(behavior.CombatMode, target.Health, nativeNextHealth, blow.InflictedDamage);
+        }
+
+        private static bool TrainingEndRequest(MissionBehavior __instance, ref InquiryData __result, ref bool canPlayerLeave)
+        {
+            var behavior = __instance.Mission?.GetMissionBehavior<ReignDuelMissionBehavior>();
+            if (behavior?.CanLeaveTraining != true) return true;
+            // A later native leave inquiry may be cancelled. Finalize only in
+            // OnEndMission, before native agent teardown, without a forfeit.
+            canPlayerLeave = true;
+            __result = null;
+            return false;
         }
 
         private static bool NativeBattleHit(Agent affectedAgent, Agent affectorAgent)
@@ -111,10 +125,12 @@ namespace ReignBeta.Campaign
         private static void CombatNotice(Agent attackerAgent, Agent victimAgent,
             ref AttackCollisionData attackCollisionData, ref CombatLogData combatLog)
         {
-            if (ForHit(victimAgent, attackerAgent) == null || attackCollisionData.AttackBlockedWithShield) return;
-            combatLog.InflictedDamage = TaleWorlds.Library.MathF.Round(combatLog.InflictedDamage * ReignDuelModePolicy.DamageMultiplier);
-            combatLog.ModifiedDamage = TaleWorlds.Library.MathF.Round(combatLog.ModifiedDamage * ReignDuelModePolicy.DamageMultiplier);
-            combatLog.IsFatalDamage = victimAgent.Health - attackCollisionData.InflictedDamage * ReignDuelModePolicy.DamageMultiplier < 1f;
+            var behavior = ForHit(victimAgent, attackerAgent);
+            if (behavior == null || attackCollisionData.AttackBlockedWithShield) return;
+            float multiplier = ReignDuelModePolicy.HealthMultiplier(behavior.CombatMode);
+            combatLog.InflictedDamage = TaleWorlds.Library.MathF.Round(combatLog.InflictedDamage * multiplier);
+            combatLog.ModifiedDamage = TaleWorlds.Library.MathF.Round(combatLog.ModifiedDamage * multiplier);
+            combatLog.IsFatalDamage = victimAgent.Health - attackCollisionData.InflictedDamage * multiplier < 1f;
         }
 
         private static void ScaleSkillXp(Hero __instance, ref float xpAmount)

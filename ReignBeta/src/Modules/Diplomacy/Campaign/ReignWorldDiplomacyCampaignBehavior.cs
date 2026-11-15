@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using System.Threading;
 using Newtonsoft.Json.Linq;
 using ReignBeta.Integration;
 using ReignBeta.Runtime;
@@ -22,6 +23,7 @@ namespace ReignBeta.Campaign
         private const int OutageNotificationFailureThreshold = 3;
         public static ReignWorldDiplomacyCampaignBehavior Instance { get; private set; }
         private readonly object _announcementLock = new object();
+        private readonly SemaphoreSlim _publicAnnouncementSync = new SemaphoreSlim(1, 1);
         private readonly object _evaluationCatchUpLock = new object();
         private readonly object _pressureGenerationLock = new object();
         private readonly object _pressurePollLock = new object();
@@ -320,29 +322,70 @@ namespace ReignBeta.Campaign
                 _ = ReignMainThread.InvokeAsync(ShowOutageOnce);
         }
 
-        private async Task PollAnnouncementsAsync()
+        internal async Task SynchronizePublicAnnouncementsForDialogueAsync()
         {
+            if (!await PollAnnouncementsAsync().ConfigureAwait(false))
+                throw new InvalidOperationException("Public diplomatic announcements could not be synchronized yet.");
+        }
+
+        private async Task<bool> PollAnnouncementsAsync()
+        {
+            if (!await _publicAnnouncementSync.WaitAsync(TimeSpan.FromSeconds(8)).ConfigureAwait(false)) return false;
+            _announcementPollInFlight = true;
+            var deadline = new CancellationTokenSource(TimeSpan.FromSeconds(8));
+            CancellationToken deadlineToken = deadline.Token;
             try
             {
-                List<ReignDiplomacyAnnouncement> announcements = await ReignServerClient.FetchDiplomacyAnnouncementsAsync().ConfigureAwait(false);
-                lock (_announcementLock)
-                {
-                    foreach (ReignDiplomacyAnnouncement announcement in announcements.Where(x => x != null && x.IsValid))
+                var ownerRead = ReignMainThread.InvokeAsync(() => TaleWorlds.CampaignSystem.Campaign.Current);
+                await AwaitPublicAnnouncementPhase(ownerRead, deadlineToken).ConfigureAwait(false);
+                var owner = await ownerRead.ConfigureAwait(false);
+                var fetch = ReignServerClient.FetchDiplomacyAnnouncementsAsync(publicHistory: true);
+                await AwaitPublicAnnouncementPhase(fetch, deadlineToken).ConfigureAwait(false);
+                List<ReignDiplomacyAnnouncement> announcements = await fetch.ConfigureAwait(false);
+                var apply = ReignMainThread.InvokeAsync(() => {
+                    deadlineToken.ThrowIfCancellationRequested();
+                    if (Instance != this || owner != TaleWorlds.CampaignSystem.Campaign.Current)
+                        throw new OperationCanceledException("Diplomatic announcements belong to a previous loaded campaign.");
+                    if (ReignNewsCampaignBehavior.Instance == null) throw new InvalidOperationException("Public news history is unavailable.");
+                    foreach (var announcement in announcements.Where(x => x != null && x.IsValid))
                     {
-                        if (_knownAnnouncementIds.Add(announcement.EventId))
-                        {
-                            _pendingAnnouncements.Enqueue(announcement);
-                        }
+                        deadlineToken.ThrowIfCancellationRequested();
+                        ReignNewsCampaignBehavior.Instance.RecordPublicDiplomacyAnnouncement(announcement);
                     }
-                }
+                    lock (_announcementLock)
+                    {
+                        foreach (ReignDiplomacyAnnouncement announcement in announcements.Where(x => x != null && x.IsValid && !x.Acknowledged))
+                            if (_knownAnnouncementIds.Add(announcement.EventId)) _pendingAnnouncements.Enqueue(announcement);
+                    }
+                });
+                await AwaitPublicAnnouncementPhase(apply, deadlineToken).ConfigureAwait(false);
+                return true;
             }
             catch (Exception ex)
             {
                 ReignLog.Warn("Diplomacy announcement poll failed: " + ex.Message);
+                return false;
             }
             finally
             {
                 _announcementPollInFlight = false;
+                deadline.Cancel();
+                deadline.Dispose();
+                // The captured token rejects any queued late callback before writes.
+                _publicAnnouncementSync.Release();
+            }
+        }
+        private static async Task AwaitPublicAnnouncementPhase(Task phase, CancellationToken cancellation)
+        {
+            var expired = new TaskCompletionSource<bool>(TaskCreationOptions.RunContinuationsAsynchronously);
+            using (cancellation.Register(() => expired.TrySetResult(true)))
+            {
+                if (await Task.WhenAny(phase, expired.Task).ConfigureAwait(false) != phase)
+                {
+                    _ = phase.ContinueWith(t => { var ignored = t.Exception; }, TaskContinuationOptions.OnlyOnFaulted);
+                    throw new TimeoutException("Public diplomatic synchronization did not finish within eight seconds.");
+                }
+                await phase.ConfigureAwait(false);
             }
         }
 
@@ -506,6 +549,10 @@ namespace ReignBeta.Campaign
                 try
                 {
                     List<ReignDiplomacyAnnouncement> announcements = await ReignServerClient.FetchDiplomacyAnnouncementsAsync().ConfigureAwait(false);
+                    await ReignMainThread.InvokeAsync(() => {
+                        foreach (var announcement in announcements.Where(x => x != null && x.IsValid))
+                            ReignNewsCampaignBehavior.Instance?.RecordPublicDiplomacyAnnouncement(announcement);
+                    }).ConfigureAwait(false);
                     bool matched = false;
                     lock (_announcementLock)
                     {

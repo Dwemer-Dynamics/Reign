@@ -36,10 +36,17 @@ namespace ReignBeta
         private Harmony _portraitHarmony;
         private UIExtender _uiExtender;
 
+        public SubModule()
+        {
+            ReignBeta.Compatibility.ReignRbmCompatibility.Bootstrap();
+        }
+
         protected override void OnSubModuleLoad()
         {
             base.OnSubModuleLoad();
             EnsureManagedRuntimeDependencies();
+            ReignBloodFeudPatches.Apply();
+            ReignBeta.Compatibility.ReignRbmCompatibility.VerifyEarlyStartup();
             ReignEncyclopediaSafetyPatch.Apply();
             ReignMapBarInputSafetyPatch.Apply();
             ReignPregnancyPatches.Apply();
@@ -54,7 +61,6 @@ namespace ReignBeta
             ReignBeta.World.ReignRulerNativePatches.Apply();
             ReignTemporaryPartyGuestPatches.Apply();
             ReignNpcLivesPatches.Apply();
-            ReignShipTradeGovernorPatch.Apply();
             ReignRescueConversationBehavior.Install();
             ReignWorkshopDialoguePatches.Apply();
             ReignMainMenuVideoPatches.Apply();
@@ -65,6 +71,14 @@ namespace ReignBeta
 #endif
             ReignRuntimeSpriteSheets.EnsureLoaded(true);
             LoadPortraitSystem();
+        }
+
+        protected override void OnBeforeInitialModuleScreenSetAsRoot()
+        {
+            base.OnBeforeInitialModuleScreenSetAsRoot();
+            // Harmony can run Agent's static initializer, which reads the native
+            // action cache. Module discovery precedes loading the action table.
+            ReignBeta.World.ReignPlayerGodModeHealthPatch.TryApply();
         }
 
         private static void EnsureManagedRuntimeDependencies()
@@ -130,6 +144,7 @@ namespace ReignBeta
                 if (Game.Current?.GameTextManager == null)
                     throw new InvalidOperationException("The native game text manager must be ready before economy hooks.");
                 ReignEconomyPatches.Apply();
+                ReignBeta.Compatibility.ReignCraftingOrderLoadPatches.Apply();
                 campaignStarter.AddBehavior(new ReignSaveSyncCampaignBehavior());
                 campaignStarter.AddBehavior(new ReignXpCampaignBehavior());
                 campaignStarter.AddModel(new ReignVillageProductionCalculatorModel());
@@ -198,6 +213,8 @@ namespace ReignBeta
         {
             ReignBanterCampaignBehavior.Instance?.CampaignEnded();
             ReignPartyChatHistoryBehavior.Instance?.EndCampaign();
+            ReignTavernHouseCampaignBehavior.Instance?.CampaignEnded();
+            ReignWandererPopulationCampaignBehavior.Instance?.CampaignEnded();
             base.OnGameEnd(game);
         }
 
@@ -235,6 +252,8 @@ namespace ReignBeta
             RunTickStage(
                 "character editor polling",
                 () => ReignCharacterEditorCampaignBehavior.Instance?.ApplicationTick(dt));
+            RunTickStage("paused tavern population preparation", () => ReignTavernHouseCampaignBehavior.Instance?.ApplicationTick());
+            RunTickStage("paused wanderer population preparation", () => ReignWandererPopulationCampaignBehavior.Instance?.ApplicationTick());
 
             RunTickStage("continuous relationship outbox", () => ReignServerClient.RelationshipRealtimeTick(dt));
             RunTickStage("player approach options", () => ReignServerClient.PlayerApproachOptionsTick(dt));
@@ -303,6 +322,7 @@ namespace ReignBeta
         public override void OnMissionBehaviorInitialize(Mission mission)
         {
             base.OnMissionBehaviorInitialize(mission);
+            ReignBeta.World.ReignPlayerGodMode.Attach(mission);
             mission.AddMissionBehavior(new ReignDuelMissionBehavior());
             mission.AddMissionBehavior(new ReignSceneActionMissionBehavior());
             mission.AddMissionBehavior(new ReignEncounteredResidentMissionBehavior());
@@ -313,15 +333,18 @@ namespace ReignBeta
         protected override void OnSubModuleUnloaded()
         {
             base.OnSubModuleUnloaded();
+            ReignBeta.Compatibility.ReignRbmCompatibility.Unload();
+            ReignBeta.Compatibility.ReignCraftingOrderLoadPatches.Unapply();
             ReignDuelCombatPatches.Unapply();
+            ReignBeta.World.ReignPlayerGodModeHealthPatch.Unapply();
             _portraitHarmony?.UnpatchAll(_portraitHarmony.Id);
             ReignPregnancyPatches.Unapply();
             ReignNpcLivesPatches.Unapply();
-            ReignShipTradeGovernorPatch.Unapply();
             ReignMarriagePatches.Unapply();
             ReignDiplomacyPatches.Unapply();
             ReignGovernmentPatches.Unapply();
             ReignIndividualRelationPatches.Unapply();
+            ReignBloodFeudPatches.Unapply();
             ReignDungeonEscapePatches.Unapply();
             ReignArrestCustodyPatches.Unapply();
             ReignHiddenInformationPatches.Unapply();
@@ -341,6 +364,7 @@ namespace ReignBeta
         public override void OnGameInitializationFinished(Game game)
         {
             base.OnGameInitializationFinished(game);
+            ReignBeta.Compatibility.ReignRbmCompatibility.AfterGameLoad(game);
             ReignLog.Info("Bannerlord Reign initialized through ReignBeta module id.");
             InformationManager.DisplayMessage(new InformationMessage("Bannerlord Reign AI world foundation loaded.", Color.FromUint(0xFFFFD36A)));
         }

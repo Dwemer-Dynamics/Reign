@@ -34,6 +34,7 @@ $resolver = [ResolveEventHandler] {
 [AppDomain]::CurrentDomain.add_AssemblyResolve($resolver)
 $prepared = [Collections.Generic.List[string]]::new()
 $hooks = [Collections.Generic.List[string]]::new()
+$calls = [Collections.Generic.List[string]]::new()
 $failure = $null
 try {
     $sandbox = [Reflection.Assembly]::LoadFrom((Join-Path $script:assemblyRoots[1] 'SandBox.dll'))
@@ -57,6 +58,16 @@ try {
         throw 'Native pre-join battle hook changed.'
     }
     $hooks.Add('MapEventSide.AddPartyInternal')
+    $manager = $campaign.GetType('TaleWorlds.CampaignSystem.Conversation.ConversationManager', $true)
+    $end = $manager.GetMethod('EndConversation', $flags, $null, [Type[]]@(), $null)
+    if ($null -eq $end -or $end.ReturnType -ne [void]) { throw 'Native conversation end hook changed.' }
+    $hooks.Add('ConversationManager.EndConversation')
+    $lords = $campaign.GetType('TaleWorlds.CampaignSystem.CampaignBehaviors.LordConversationsCampaignBehavior', $true)
+    $liberation = $lords.GetMethod('conversation_player_liberates_prisoner_on_consequence', $flags)
+    if ($null -eq $liberation -or $liberation.ReturnType -ne [void] -or $liberation.GetParameters().Length -ne 0) {
+        throw 'Native post-battle liberation consequence changed.'
+    }
+    $calls.Add('LordConversationsCampaignBehavior.conversation_player_liberates_prisoner_on_consequence')
     $client = [Reflection.Assembly]::LoadFrom($clientPath)
     foreach ($typeName in @('ReignBeta.Campaign.ReignRescueConversationBehavior',
         'ReignBeta.Campaign.ReignPlayerApproachCampaignBehavior', 'ReignBeta.Integration.ReignServerClient',
@@ -83,7 +94,7 @@ finally { [AppDomain]::CurrentDomain.remove_AssemblyResolve($resolver) }
 $report = [ordered]@{
     schema = 'reign-player-approach-native-probe-v1'; ok = ($null -eq $failure)
     clientSha256 = (Get-FileHash -LiteralPath $clientPath -Algorithm SHA256).Hash.ToLowerInvariant()
-    nativeHooks = @($hooks); preparedMethods = @($prepared); failure = $failure
+    nativeHooks = @($hooks); nativeCallBoundaries = @($calls); preparedMethods = @($prepared); failure = $failure
     isolation = 'Managed binding/JIT only; no method invocation, Harmony install, game, provider, listener, campaign, save or deployment.'
 }
 [IO.File]::WriteAllText((Join-Path $probeRoot 'report.json'), ($report | ConvertTo-Json -Depth 8), [Text.UTF8Encoding]::new($false))

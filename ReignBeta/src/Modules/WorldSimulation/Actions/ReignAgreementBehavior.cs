@@ -91,14 +91,22 @@ namespace ReignBeta.Actions
             _offers[offer.Id] = ReignActionService.Copy(offer);
         }
 
-        public ActionAgreement PrepareOffer(ActionAgreement draft, string playerId, string npcId, string conversationId, out ActionReceipt receipt)
+        public ActionAgreement PrepareOffer(ActionAgreement draft, string playerId, string npcId, string conversationId, out ActionReceipt receipt,
+            AgreementChannel channel = AgreementChannel.Unknown)
         {
             receipt = null;
             if (draft == null) return null;
             var a = ReignActionService.Copy(draft);
             if (a.Origin != ActionOrigin.Conversation || a.PlayerId != playerId || a.NpcId != npcId)
                 throw new InvalidOperationException("This action belongs to a different conversation participant.");
-            if (a.NpcAcceptedHash.Length == 0) { a.ConversationId = conversationId; a.ProposerId = playerId; }
+            if (a.NpcAcceptedHash.Length == 0 && !_agreements.ContainsKey(a.Id))
+            {
+                a.ConversationId = conversationId; a.ProposerId = playerId;
+                // Set by the native route, never by model output or a draft field.
+                a.Channel = channel;
+            }
+            else if (a.Channel != AgreementChannel.Unknown && a.Channel != channel)
+                throw new InvalidOperationException("This signed proposal belongs to a different conversation channel.");
             if (_agreements.TryGetValue(a.Id, out var committed))
             {
                 if (committed.CommittedHash != a.TermsHash()) throw new InvalidOperationException("The operation was already committed with different terms.");
@@ -106,12 +114,17 @@ namespace ReignBeta.Actions
             }
             if (a.NpcAcceptedHash.Length > 0)
             {
-                if (!_offers.TryGetValue(a.Id, out var pending) || pending.State != AgreementState.Counteroffered
+                if (!_offers.TryGetValue(a.Id, out var pending) || (pending.State != AgreementState.Counteroffered && !(TavernHouseVisitAction.Contains(pending) && pending.State == AgreementState.Offered && pending.HasBothConsents))
                     || pending.TermsHash() != a.TermsHash() || pending.NpcAcceptedHash != a.TermsHash()
                     || a.ConversationId != conversationId)
                     throw new InvalidOperationException("The NPC's offer has changed or is no longer available.");
                 a.State = AgreementState.Counteroffered;
                 if (!AgreementRules.Accept(a, playerId, a.TermsHash())) throw new InvalidOperationException("This offer cannot be accepted.");
+                if (TavernHouseVisitAction.Contains(a))
+                {
+                    // The successful tavern response supplies server preparation before any debit.
+                    a.State = AgreementState.Offered; _offers[a.Id] = ReignActionService.Copy(a); return a;
+                }
                 receipt = Commit(a, false); _offers.Remove(a.Id); return null;
             }
             a.ConversationId = conversationId; a.ProposerId = playerId;
@@ -135,6 +148,7 @@ namespace ReignBeta.Actions
                 throw new InvalidOperationException("The proposal revision is stale.");
             if (AgreementRules.IsPlayerDeclaration(a))
             {
+                _offers[a.Id] = ReignActionService.Copy(a);
                 a.State = AgreementState.Accepted;
                 receipt = Commit(a, false);
                 return null;
@@ -145,7 +159,8 @@ namespace ReignBeta.Actions
             return a;
         }
 
-        public string ReceiveDecision(ActionAgreement offered, ActionDecision decision, string player, string npc, string conversation, string responseId)
+        public string ReceiveDecision(ActionAgreement offered, ActionDecision decision, string player, string npc, string conversation, string responseId,
+            AgreementChannel channel = AgreementChannel.Unknown)
         {
             if (string.IsNullOrWhiteSpace(responseId)) throw new InvalidOperationException("The response has no durable identity.");
             string key = conversation + ":" + responseId;
@@ -156,12 +171,12 @@ namespace ReignBeta.Actions
                 if (receipt.Value<string>("decision") != content) throw new InvalidOperationException("This response identity already belongs to different terms.");
                 return receipt.Value<string>("message") ?? "";
             }
-            string message = ReceiveDecisionCore(offered, decision, player, npc, conversation);
+            string message = ReceiveDecisionCore(offered, decision, player, npc, conversation, channel);
             _decisions[key] = new JObject { ["decision"] = content, ["message"] = message }.ToString(Formatting.None);
             return message;
         }
 
-        private string ReceiveDecisionCore(ActionAgreement offered, ActionDecision decision, string player, string npc, string conversation)
+        private string ReceiveDecisionCore(ActionAgreement offered, ActionDecision decision, string player, string npc, string conversation, AgreementChannel channel)
         {
             var errors = ActionNegotiation.ValidateDecision(offered, decision, player, npc, conversation, ReignActionService.Now);
             if (errors.Count > 0) throw new InvalidOperationException(string.Join(" ", errors));
@@ -197,12 +212,13 @@ namespace ReignBeta.Actions
                     _offers.Remove(offered.Id); return receipt.Message;
                 case "counter":
                 case "propose":
-                    var proposal = ActionNegotiation.CreateProposal(offered, decision, player, npc, conversation, ReignActionService.Now);
+                    var proposal = ActionNegotiation.CreateProposal(offered, decision, player, npc, conversation, ReignActionService.Now, channel);
                     errors = ReignActionService.Preview(proposal);
                     errors.AddRange(ReignActionQuotes.ValidateNpcQuote(proposal));
                     if (errors.Count > 0) throw new InvalidOperationException(string.Join(" ", errors));
                     ReignActionWording.Render(proposal);
                     proposal.NpcAcceptedHash = proposal.TermsHash();
+                    if (TavernHouseVisitAction.Contains(offered)) _offers.Remove(offered.Id);
                     _offers[proposal.Id] = proposal;
                     return "Action offer: " + proposal.Sentence + " Open Alt+A to review, accept or counter.";
                 default: throw new InvalidOperationException("Unknown action decision.");
@@ -226,6 +242,10 @@ namespace ReignBeta.Actions
                 if (prior.CommittedHash != agreement.TermsHash()) throw new InvalidOperationException("This operation ID has different saved terms.");
                 return Status(agreement.Id);
             }
+            if (agreement.Channel == AgreementChannel.InPerson
+                && (!_offers.TryGetValue(agreement.Id, out var prepared) || prepared.Channel != AgreementChannel.InPerson
+                    || prepared.TermsHash() != agreement.TermsHash()))
+                throw new InvalidOperationException("The in-person terms were not prepared by the current native conversation.");
             var journal = new AgreementJournal { Agreement = ReignActionService.Copy(agreement) };
             _agreements.Add(agreement.Id, journal);
             try { return ReignAgreementEngine.Commit(journal, this, ReignActionService.Now, operatorAuthorized); }
@@ -241,7 +261,7 @@ namespace ReignBeta.Actions
             foreach (var step in j.Steps.Where(s => s.Reserved && !s.Returned && !s.Completed))
             {
                 var clause = j.Agreement.Clauses.Single(c => c.Id == step.ClauseId);
-                if (clause.ActionId.StartsWith("give.") || clause.ActionId.StartsWith("government.") || clause.ActionId.StartsWith("npc_life.") || clause.ActionId == "expose_concealed_pregnancy") continue;
+                if (clause.ActionId == TavernHouseVisitAction.Id || clause.ActionId.StartsWith("give.") || clause.ActionId.StartsWith("government.") || clause.ActionId.StartsWith("npc_life.") || clause.ActionId == "expose_concealed_pregnancy") continue;
                 var expected = CapturedRecord(j.Agreement, clause, step.Snapshot, step.Installment);
                 if (JToken.DeepEquals(AuthorityFields(expected), AuthorityFields(record))) return true;
             }
@@ -297,9 +317,9 @@ namespace ReignBeta.Actions
         public ActionReceipt Status(string id)
         {
             if (!_agreements.TryGetValue(id, out var j)) throw new InvalidOperationException("Unknown operation ID.");
-            return new ActionReceipt { OperationId = id, TermsHash = j.CommittedHash, State = j.Agreement.State,
-                Day = ReignActionService.Now, Message = j.Agreement.Failure.Length > 0 ? j.Agreement.Failure : j.Receipts.LastOrDefault()?.Message ?? j.Agreement.State.ToString(),
-                ObservedEffects = j.Steps.Where(s => s.Completed).Select(s => s.ClauseId).ToList() };
+            return ReignAgreementEngine.Describe(j,
+                j.Agreement.Failure.Length > 0 ? j.Agreement.Failure : j.Receipts.LastOrDefault()?.Message ?? j.Agreement.State.ToString(),
+                ReignActionService.Now);
         }
         public ActionReceipt Cancel(string id) => _agreements.TryGetValue(id, out var j)
             ? ReignAgreementEngine.Cancel(j, this, ReignActionService.Now) : throw new InvalidOperationException("Unknown operation ID.");
@@ -392,7 +412,21 @@ namespace ReignBeta.Actions
                 ReignAgreementEngine.Advance(j, this, ReignActionService.Now);
             }
         }
-        public IReadOnlyList<string> Preflight(ActionAgreement a) => ReignActionService.Preview(a);
+        public IReadOnlyList<string> Preflight(ActionAgreement a) => ReignActionService.Preview(a)
+            .Concat(TavernHouseVisitAction.Contains(a) ? ReignTavernHouseAction.CheckPrepared(a) : Enumerable.Empty<string>()).ToList();
+        internal void InvalidateUnpaidTavernOffer(ActionAgreement offered)
+        {
+            if (offered == null || !TavernHouseVisitAction.Contains(offered) || _agreements.ContainsKey(offered.Id)) return;
+            if (_offers.TryGetValue(offered.Id, out var saved) && saved.TermsHash() == offered.TermsHash() && saved.NpcAcceptedHash == saved.TermsHash())
+            { saved.PlayerAcceptedHash = ""; saved.State = AgreementState.Rejected; }
+        }
+        internal ActionReceipt CommitPreparedTavern(ActionAgreement offered)
+        {
+            if (!_offers.TryGetValue(offered.Id, out var pending) || pending.TermsHash() != offered.TermsHash() || !offered.HasBothConsents)
+                throw new InvalidOperationException("The exact mutually accepted Tavern House offer is unavailable.");
+            var accepted = ReignActionService.Copy(offered); accepted.State = AgreementState.Accepted;
+            var receipt = Commit(accepted, false); _offers.Remove(offered.Id); return receipt;
+        }
         internal void RetireMeetingAgreement(string originalId, string controlId, string meetingId, int revision)
         {
             if (_agreements.TryGetValue(originalId, out var original) && _agreements.TryGetValue(controlId, out var control))
@@ -400,6 +434,13 @@ namespace ReignBeta.Actions
         }
         internal IEnumerable<string> CheckAssetReservations(ActionAgreement a)
         {
+            foreach (var clause in a.Clauses.Where(c => c.ActionId == "accept_temporary_party_guest"))
+                if (_agreements.Values.Any(j => j.Agreement.Id != a.Id
+                    && (j.Agreement.State == AgreementState.Accepted || j.Agreement.State == AgreementState.Reserved || j.Agreement.State == AgreementState.Waiting
+                        || j.Agreement.State == AgreementState.InTransit || j.Agreement.State == AgreementState.RecoveryRequired)
+                    && j.Agreement.Clauses.Any(c => c.ActionId == clause.ActionId && c.ActorId == clause.ActorId
+                        && j.Steps.Any(s => s.ClauseId == c.Id && !s.Returned && !s.Completed))))
+                    yield return "This character already has a pending temporary-party agreement. Inspect that agreement instead of proposing a second join.";
             foreach (var clause in a.Clauses.Where(c => new[] { "give.settlement", "give.workshop", "give.ship" }.Contains(c.ActionId)
                 || c.ActionId == "give.prisoner" && Hero.AllAliveHeroes.Any(h => h.CharacterObject.StringId == ReignActionService.Arg(c, "assetId"))))
                 if (_agreements.Values.Any(j => j.Agreement.Id != a.Id
@@ -410,7 +451,9 @@ namespace ReignBeta.Actions
                         && j.Steps.Any(s => s.ClauseId == c.Id && s.Reserved && !s.Returned && !s.Completed))))
                     yield return "This owned asset or prisoner is already reserved by another agreement.";
         }
-        public string Capture(ActionAgreement a, ActionClause c) => c.ActionId == ReignSpouseSeparation.ActionId
+        public string Capture(ActionAgreement a, ActionClause c) => c.ActionId == TavernHouseVisitAction.Id
+            ? ReignTavernHouseAction.Capture(a).ToString(Formatting.None)
+            : c.ActionId == ReignSpouseSeparation.ActionId
             ? ReignSpouseSeparationAction.Capture(a, c)
             : c.ActionId.StartsWith("npc_life.", StringComparison.Ordinal)
             ? JObject.FromObject(c).ToString(Formatting.None)
@@ -424,7 +467,7 @@ namespace ReignBeta.Actions
 #endif
             : new JObject { ["worldAction"] = JObject.FromObject(ReignActionService.WorldRecord(a, c)) }.ToString(Formatting.None);
         public void Reserve(ActionAgreement a, ActionClause c, string snapshot) { if (c.ActionId.StartsWith("give.", StringComparison.Ordinal)) ReignAssetTransfer.Reserve(c, JObject.Parse(snapshot)); }
-        public void Return(ActionAgreement a, ActionClause c, string snapshot, int fulfilledInstallments) { if (c.ActionId.StartsWith("give.", StringComparison.Ordinal)) ReignAssetTransfer.Return(c, JObject.Parse(snapshot), fulfilledInstallments); }
+        public void Return(ActionAgreement a, ActionClause c, string snapshot, int fulfilledInstallments) { if (c.ActionId == TavernHouseVisitAction.Id) ReignTavernHouseAction.Return(a); else if (c.ActionId.StartsWith("give.", StringComparison.Ordinal)) ReignAssetTransfer.Return(c, JObject.Parse(snapshot), fulfilledInstallments); }
         private static string Key(ActionAgreement a, ActionClause c, int installment) => a.Id + ":" + c.Id + ":" + installment;
         public void ApplyAssetsAtomically(ActionAgreement a, IReadOnlyList<AgreementStep> steps)
         {
@@ -435,7 +478,8 @@ namespace ReignBeta.Actions
         public void Apply(ActionAgreement a, ActionClause c, string snapshot, int installment)
         {
             string key = Key(a, c, installment); if (_applied.Contains(key)) return;
-            if (c.ActionId == ReignSpouseSeparation.ActionId) ReignSpouseSeparationAction.Apply(a, c, snapshot, key);
+            if (c.ActionId == TavernHouseVisitAction.Id) ReignTavernHouseAction.Apply(a);
+            else if (c.ActionId == ReignSpouseSeparation.ActionId) ReignSpouseSeparationAction.Apply(a, c, snapshot, key);
             else if (c.ActionId.StartsWith("npc_life.", StringComparison.Ordinal)) ReignNpcLivesBehavior.Instance.ApplyLifeAction(a, c, key);
             else if (c.ActionId == "expose_concealed_pregnancy") ReignFamilyCampaignBehavior.Instance.ExposePregnancy(
                 ReignActionService.Arg(c, "pregnancyId"), c.RecipientId, ReignActionService.Arg(c, "disclosure") == "name_father");
@@ -460,6 +504,7 @@ namespace ReignBeta.Actions
         public bool Observe(ActionAgreement a, ActionClause c, string snapshot, int installment)
         {
             if (!_applied.Contains(Key(a, c, installment))) return false;
+            if (c.ActionId == TavernHouseVisitAction.Id) return ReignTavernHouseAction.Observe(a);
             if (c.ActionId == ReignSpouseSeparation.ActionId) return ReignSpouseSeparationAction.Observe(c, Key(a, c, installment));
             if (c.ActionId.StartsWith("npc_life.", StringComparison.Ordinal))
                 return ReignNpcLivesBehavior.Instance.ObserveLifeAction(a, c, Key(a, c, installment));
@@ -509,6 +554,7 @@ namespace ReignBeta.Actions
         }
         public double DeliveryDays(ActionAgreement a)
         {
+            if (AgreementRules.IsImmediateInPerson(a)) return 0;
             var first = ReignActionService.HeroById(a.PlayerId); var second = ReignActionService.HeroById(a.NpcId);
             if (first?.PartyBelongedTo != null && first.PartyBelongedTo == second?.PartyBelongedTo || first?.CurrentSettlement != null && first.CurrentSettlement == second?.CurrentSettlement) return 0;
             if (!a.Clauses.Any(c => c.ActionId.StartsWith("give.", StringComparison.Ordinal))) return 0;

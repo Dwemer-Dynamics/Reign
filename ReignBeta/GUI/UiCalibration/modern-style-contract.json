@@ -300,7 +300,7 @@
       ],
       "backdrop": "Integrated generated artwork; untouched full-body PNGs contained underneath both apertures.",
       "thresholds": {
-        "maximumLightNeutralPixelRatio": 5e-05,
+        "maximumLightNeutralPixelRatio": 5E-05,
         "allowedOpaqueLeakPixels": 80,
         "maximumOpaqueLeakRatio": 0.0003
       }
@@ -349,7 +349,7 @@
       "presentation": "opaque-aperture-plate",
       "expectedSha256": "b75567e3e40a8f84e7e68fe9f0018473c1094d85f5783808903030bb882a9889",
       "thresholds": {
-        "maximumLightNeutralPixelRatio": 5e-05
+        "maximumLightNeutralPixelRatio": 5E-05
       },
       "retainedHighlightEvidence": "Two original eye-button glint pixels in 44044 pixels; unchanged approved source artwork, not portrait-edge matte.",
       "aperture": {
@@ -574,7 +574,7 @@
         "minimumExteriorOpaqueRatio": 0.985,
         "maximumOpaqueLeakRatio": 0.01,
         "allowedOpaqueLeakPixels": 6000,
-        "maximumLightNeutralPixelRatio": 1e-05,
+        "maximumLightNeutralPixelRatio": 1E-05,
         "maximumTransparentRgbLeakRatio": 1
       }
     },
@@ -863,7 +863,7 @@
       "path": "../SpriteParts/ui_reignbeta_tavern_house/reign_tavern_house_worker_card.png",
       "shape": "circle",
       "presentation": "opaque-aperture-plate",
-      "expectedSha256": "0b7225739ff310bbcd05d2282f67b4990fb75fed982c6ee1c42609554c604a7f",
+      "expectedSha256": "4d2bafe9e44457c05339f22088a5520fd77e6a81475cfb311658ececb269cb49",
       "aperture": {
         "units": "pixels",
         "x": 47,
@@ -878,7 +878,7 @@
       "path": "../SpriteParts/ui_reignbeta_tavern_house/reign_tavern_house_madam_card.png",
       "shape": "oval",
       "presentation": "opaque-aperture-plate",
-      "expectedSha256": "b9c0b2e9c7b548eb0666fcf7aab85eef5d9c79cff204c3dde8d1dbf09850dcbb",
+      "expectedSha256": "654d44b5b52ceaec14f04944398052ffffb775c7a44e918f6a1de6e7a6f669f4",
       "aperture": {
         "units": "pixels",
         "x": 67,

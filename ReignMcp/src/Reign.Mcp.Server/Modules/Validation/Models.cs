@@ -214,4 +214,6 @@ public sealed record ValidationReport
     public required string ReportPath { get; init; }
     public required RepositoryHygieneReport RepositoryHygiene { get; init; }
     public required IReadOnlyList<ProjectValidationResult> Results { get; init; }
+    public IReadOnlyDictionary<string, string> DeploymentArtifactHashes { get; init; }
+        = new Dictionary<string, string>();
 }

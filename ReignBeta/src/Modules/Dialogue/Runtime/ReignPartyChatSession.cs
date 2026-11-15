@@ -122,7 +122,7 @@ namespace ReignBeta.Runtime
                 + BuildLocationText() + "\n"
                 + "Player: " + (Hero.MainHero?.Name?.ToString() ?? "Player") + "\n"
                 + "Selected speakers: " + (string.IsNullOrWhiteSpace(active) ? "none" : active) + "\n"
-                + "This is a living group conversation. Each NPC should answer only as themselves, aware that others may hear them.";
+                + "This is a living group conversation. Each NPC answers only as themselves. The listed speakers and player participate; use current native presence for any other audience. Do not invent extra listeners or party personnel.";
         }
 
         public static List<Hero> GetAvailableConversationHeroes() => BuildAvailableConversationHeroes(true);

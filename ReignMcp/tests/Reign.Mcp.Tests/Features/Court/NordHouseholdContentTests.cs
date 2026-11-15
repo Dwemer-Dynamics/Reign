@@ -90,8 +90,8 @@ public sealed class NordHouseholdContentTests
         var currentRows = current.RootElement.GetProperty("profiles").EnumerateArray().ToDictionary(p => p.GetProperty("heroStringId").GetString()!);
         var preservedRows = preserved.RootElement.GetProperty("profiles").EnumerateArray().ToDictionary(p => p.GetProperty("heroStringId").GetString()!);
         var files = inventory.RootElement.GetProperty("files").EnumerateArray().ToDictionary(p => p.GetProperty("path").GetString()!);
-        Assert.Equal(1195, currentRows.Count);
-        Assert.Equal(1195, preservedRows.Count);
+        Assert.Equal(1251, currentRows.Count);
+        Assert.Equal(1251, preservedRows.Count);
         var lives = new HashSet<string>(StringComparer.Ordinal);
         var masters = new HashSet<string>(StringComparer.Ordinal);
         foreach (var row in manifest.RootElement.GetProperty("records").EnumerateArray())
@@ -140,5 +140,67 @@ public sealed class NordHouseholdContentTests
         }
         Assert.Equal(78, lives.Count);
         Assert.Equal(78, masters.Count);
+    }
+
+    [Fact]
+    public void EntirePregeneratedRosterHasCompletePersonalityAndNarrativeData()
+    {
+        string profiles = Path.Combine(TestOptions.FindWorkspace(), "ReignServer/profiles");
+        using var catalog = JsonDocument.Parse(File.ReadAllText(Path.Combine(profiles, "profile_catalog.json")));
+        using var legacy = JsonDocument.Parse(File.ReadAllText(Path.Combine(profiles, "profile_catalog_v4.json")));
+        var rows = catalog.RootElement.GetProperty("profiles").EnumerateArray().ToArray();
+        var previous = legacy.RootElement.GetProperty("profiles").EnumerateArray().ToDictionary(p => p.GetProperty("heroStringId").GetString()!);
+        var keys = catalog.RootElement.GetProperty("traitDefinitions").EnumerateObject().Select(p => p.Name).Order().ToArray();
+        Assert.Equal(43, keys.Length);
+        Assert.Equal(1251, rows.Length);
+        Assert.Equal(rows.Length, rows.Select(p => p.GetProperty("heroStringId").GetString()).Distinct().Count());
+        Assert.Equal(56, rows.Count(p => p.GetProperty("source").GetString() == "native_sandbox" && p.GetProperty("sourceFacts").GetProperty("cultureId").GetString() == "nord"));
+        var lifeSummaries = new HashSet<string>(StringComparer.Ordinal);
+        foreach (var row in rows)
+        {
+            string id = row.GetProperty("heroStringId").GetString()!;
+            var traits = row.GetProperty("traits");
+            foreach (string field in new[] { "foundationTraits", "traitPercentages", "hiddenReignTraits" })
+                Assert.Equal(keys, traits.GetProperty(field).EnumerateObject().Select(p => p.Name).Order().ToArray());
+            Assert.All(traits.GetProperty("foundationTraits").EnumerateObject(), trait => Assert.InRange(trait.Value.GetInt32(), -2, 2));
+            Assert.All(traits.GetProperty("traitPercentages").EnumerateObject(), trait => {
+                var band = traits.GetProperty("traitPercentageBands").GetProperty(traits.GetProperty("foundationTraits").GetProperty(trait.Name).GetInt32().ToString());
+                Assert.InRange(trait.Value.GetInt32(), band.GetProperty("min").GetInt32(), band.GetProperty("max").GetInt32());
+            });
+            Assert.Matches("^[EI][NS][TF][JP]$", row.GetProperty("mbtiProfile").GetProperty("type").GetString()!);
+            Assert.Equal(row.GetProperty("mbtiProfile").GetRawText(), traits.GetProperty("mbtiProfile").GetRawText());
+            foreach (string field in new[] { "sourceFacts", "traits", "mbtiProfile" })
+                Assert.Equal(previous[id].GetProperty(field).GetRawText(), row.GetProperty(field).GetRawText());
+            Assert.False(string.IsNullOrWhiteSpace(traits.GetProperty("basePersonalitySummary").GetString()));
+            foreach (string field in new[] { "coreTemperament", "socialStyle", "trustAndAttachment", "powerAndStatus", "decisionStyle", "emotionalPattern", "moralBoundaries", "underPressure", "internalContradictions" })
+                Assert.False(string.IsNullOrWhiteSpace(traits.GetProperty("personalityPortrait").GetProperty(field).GetString()));
+            Assert.Equal(7, traits.GetProperty("courtVirtues").EnumerateObject().Count());
+            Assert.False(string.IsNullOrWhiteSpace(row.GetProperty("background").GetProperty("summary").GetString()));
+            Assert.False(string.IsNullOrWhiteSpace(row.GetProperty("voice").GetProperty("speechStyle").GetString()));
+            Assert.NotEmpty(row.GetProperty("motivations").GetProperty("dreams").EnumerateArray());
+            string file = Convert.ToHexString(SHA256.HashData(System.Text.Encoding.UTF8.GetBytes(id)))[..24] + ".json";
+            Assert.Equal(file, row.GetProperty("narrativeFile").GetString());
+            using var narrative = JsonDocument.Parse(File.ReadAllText(Path.Combine(profiles, "narrative/profiles", file)));
+            var n = narrative.RootElement;
+            Assert.Equal(id, n.GetProperty("heroStringId").GetString());
+            Assert.Equal("ready", n.GetProperty("status").GetString());
+            foreach (string field in new[] { "origin", "upbringing", "reputation", "publicSummary", "privateBackstory", "summary" })
+                Assert.False(string.IsNullOrWhiteSpace(n.GetProperty("life").GetProperty(field).GetString()));
+            Assert.True(lifeSummaries.Add(n.GetProperty("life").GetProperty("summary").GetString()!));
+            foreach (string field in new[] { "nativeVoice", "speechStyle", "socialMask" })
+                Assert.False(string.IsNullOrWhiteSpace(n.GetProperty("voice").GetProperty(field).GetString()));
+            Assert.True(n.GetProperty("voice").GetProperty("tells").GetArrayLength() >= 2);
+            var items = n.GetProperty("items").EnumerateArray().ToArray();
+            Assert.True(items.Length >= 20);
+            Assert.Equal(items.Length, items.Select(i => i.GetProperty("id").GetString()).Distinct().Count());
+            foreach (string category in new[] { "hobby", "dream", "desire", "fear", "value", "formative" })
+                Assert.True(items.Count(i => i.GetProperty("category").GetString() == category) >= 2);
+            Assert.All(items, item => {
+                foreach (string field in new[] { "title", "description", "personalMeaning", "meaningKey" })
+                    Assert.False(string.IsNullOrWhiteSpace(item.GetProperty(field).GetString()));
+                Assert.InRange(item.GetProperty("influence").GetInt32(), 1, 10);
+            });
+            Assert.Equal(3, n.GetProperty("definingIds").GetArrayLength());
+        }
     }
 }

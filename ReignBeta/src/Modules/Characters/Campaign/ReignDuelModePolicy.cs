@@ -11,6 +11,11 @@ namespace ReignBeta.Campaign
         internal static float ScaleExperience(float normalXp, bool blocked)
             => IsPositiveFinite(normalXp) ? normalXp * (blocked ? BlockedXpMultiplier : HitXpMultiplier) : 0f;
 
+        internal static float HealthMultiplier(string mode) => IsPractice(mode) ? 1f : DamageMultiplier;
+
+        internal static float HealthAfterHit(string mode, float health, float nativeNextHealth, float normalDamage)
+            => IsPractice(mode) ? nativeNextHealth : HealthAfterHit(health, nativeNextHealth, normalDamage);
+
         internal static float HealthAfterHit(float health, float nativeNextHealth, float normalDamage)
         {
             // Preserve native invulnerability/no-damage decisions. Scale before the
@@ -29,6 +34,7 @@ namespace ReignBeta.Campaign
             // An explicitly agreed nonlethal mode cannot be escalated by a legacy flag.
             if (mode == "honor" || mode == "honour") return "honor";
             if (mode == "practice") return "practice";
+            if (mode == "training_together") return "training_together";
             if (mode == "training") return "training";
             if (mode == "lethal" || mode == "death" || mode == "to_the_death") return "lethal";
             return legacyLethal ? "lethal" : "training";
@@ -36,6 +42,9 @@ namespace ReignBeta.Campaign
 
         internal static bool IsLethal(string mode) => string.Equals(mode, "lethal", StringComparison.Ordinal);
         internal static bool IsPractice(string mode) => string.Equals(mode, "practice", StringComparison.Ordinal);
+
+        internal static bool IsTrainingTogether(string mode) => string.Equals(mode, "training_together", StringComparison.Ordinal);
+        internal static bool IsPrivate(string mode) => IsPractice(mode) || IsTrainingTogether(mode);
 
         internal static bool IsExperiencePair(string player, string opponent, string attacker, string target)
         {
@@ -49,6 +58,7 @@ namespace ReignBeta.Campaign
         {
             if (IsLethal(mode)) return "duel to the death";
             if (IsPractice(mode)) return "practice duel";
+            if (IsTrainingTogether(mode)) return "training together";
             return string.Equals(mode, "honor", StringComparison.Ordinal) ? "duel of honor" : "training duel";
         }
     }

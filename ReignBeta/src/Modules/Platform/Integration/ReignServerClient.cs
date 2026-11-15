@@ -2027,7 +2027,8 @@ namespace ReignBeta.Integration
             string sceneContext = BuildSceneContext(hero);
             string sceneContextDirective = conversationContext
                 ?.Value<string>("sceneContextDirective") ?? string.Empty;
-            if (!string.IsNullOrWhiteSpace(sceneContextDirective))
+            if (!string.IsNullOrWhiteSpace(sceneContextDirective)
+                && (conversationContext?["rescueContext"] == null || conversationContext.Value<bool?>("rescueOpening") == true))
                 sceneContext = sceneContext + "\n\n" + sceneContextDirective.Trim();
             JObject payload = new JObject
             {
@@ -2285,11 +2286,20 @@ namespace ReignBeta.Integration
             PersonalGossipPresenceSnapshot gossipSnapshot = null;
             if (conversationInput || approachObservation || payload != null && route == "/correspondence/send")
             {
+                if (ReignWorldDiplomacyCampaignBehavior.Instance != null)
+                    await ReignWorldDiplomacyCampaignBehavior.Instance.SynchronizePublicAnnouncementsForDialogueAsync().ConfigureAwait(false);
                 gossipSnapshot = await RefreshPersonalGossipConversationAsync(payload).ConfigureAwait(false);
                 double nativeDay = await ReignMainThread.InvokeAsync(() =>
                 {
+                    if ((ReignNewsCampaignBehavior.Instance?.PreparePublicHistoryForDialogue() ?? 0) > 0)
+                        throw new InvalidOperationException("Public news could not be synchronized yet. Please try the conversation again shortly.");
                     ReignWorldHistoryCampaignBehavior.Instance?.CaptureSharedPartyContact();
-                    payload["partyContext"] = BuildConversationPartyRoster();
+                    if (ReignWorldHistoryCampaignBehavior.Instance != null)
+                        payload["worldHistorySequence"] = ReignWorldHistoryCampaignBehavior.Instance.Sequence;
+                    var partySnapshot = BuildConversationPartyRoster();
+                    payload["partyContext"] = partySnapshot;
+                    if (payload["localPresence"] is JObject presence)
+                        presence["partyContext"] = partySnapshot.DeepClone();
                     if (ReignCalendarService.TryGetCalendarPosition(CampaignTime.Now, out int year, out _, out int season, out int day, out _))
                     {
                         double hour = (CampaignTime.Now.ToDays % 1d) * 24d;
@@ -2299,7 +2309,19 @@ namespace ReignBeta.Integration
                     return TaleWorlds.CampaignSystem.Campaign.Current == null ? 0d : CampaignTime.Now.ToDays;
                 }).ConfigureAwait(false);
                 if (nativeDay > 0d) payload["worldDay"] = nativeDay;
-                payload["sharedActivitySync"] = await Task.Run(() => ReignWorldHistoryTransport.SynchronizeSharedActivitiesAsync()).ConfigureAwait(false);
+                var publicationSyncTimer = System.Diagnostics.Stopwatch.StartNew();
+                JObject synchronization;
+                do
+                {
+                    synchronization = await Task.Run(() => ReignWorldHistoryTransport.SynchronizeSharedActivitiesAsync()).ConfigureAwait(false);
+                    if ((synchronization.Value<int?>("pendingPublicNews") ?? 0) > 0)
+                        await Task.Delay(200).ConfigureAwait(false);
+                    // Drain newly published facts before the first writer call.
+                    // This is idempotent history transport, never LLM regeneration.
+                } while ((synchronization.Value<int?>("pendingPublicNews") ?? 0) > 0 && publicationSyncTimer.Elapsed.TotalSeconds < 8);
+                payload["sharedActivitySync"] = synchronization;
+                if ((synchronization.Value<int?>("pendingPublicNews") ?? 0) > 0)
+                    throw new InvalidOperationException("Public news is still synchronizing. Please try the conversation again shortly.");
             }
             else if (payload?["gossipPresence"] is JObject pendingGossip && pendingGossip.Count == 0)
                 gossipSnapshot = await RefreshPersonalGossipConversationAsync(payload).ConfigureAwait(false);
@@ -3673,12 +3695,17 @@ namespace ReignBeta.Integration
             var main = MobileParty.MainParty;
             var members = new JArray();
             var prisoners = new JArray();
-            if (main != null)
+            int heroCount = 0, troopCount = 0, prisonerHeroCount = 0, prisonerTroopCount = 0;
+            bool complete = main?.MemberRoster != null && main.PrisonRoster != null;
+            if (complete)
             {
                 foreach (var row in main.MemberRoster.GetTroopRoster())
                 {
+                    if (row.Number <= 0) continue;
+                    if (row.Character == null) { complete = false; continue; }
                     Hero hero = row.Character?.HeroObject;
-                    if (hero == null || row.Number <= 0) continue;
+                    if (hero == null) { troopCount += row.Number; continue; }
+                    heroCount += row.Number;
                     var guest = ReignBeta.PartyAgency.ReignTemporaryPartyGuestCampaignBehavior.Instance?.Records
                         .FirstOrDefault(record => record.HeroStringId == hero.StringId && record.IsLive
                             && (record.Phase == ReignBeta.PartyAgency.ReignTemporaryGuestPhase.Active
@@ -3695,11 +3722,32 @@ namespace ReignBeta.Integration
                         ["roleEvidence"] = roles });
                 }
                 foreach (var row in main.PrisonRoster.GetTroopRoster())
-                    if (row.Character?.HeroObject != null && row.Number > 0) prisoners.Add(row.Character.HeroObject.StringId);
+                {
+                    if (row.Number <= 0) continue;
+                    if (row.Character == null) { complete = false; continue; }
+                    if (row.Character.HeroObject == null) prisonerTroopCount += row.Number;
+                    else { prisonerHeroCount += row.Number; prisoners.Add(row.Character.HeroObject.StringId); }
+                }
+                complete &= heroCount + troopCount == main.MemberRoster.TotalManCount
+                    && prisonerHeroCount + prisonerTroopCount == main.PrisonRoster.TotalManCount;
             }
-            return new JObject { ["schema"] = "reign-party-context-v1", ["partyId"] = main?.StringId ?? "",
-                ["worldDay"] = CampaignTime.Now.ToDays, ["complete"] = main != null, ["members"] = members,
-                ["prisoners"] = prisoners, ["source"] = "native_main_party_member_roster" };
+            var result = new JObject { ["schema"] = "reign-party-context-v2", ["partyId"] = main?.StringId ?? "",
+                ["worldDay"] = CampaignTime.Now.ToDays, ["captureId"] = Guid.NewGuid().ToString("N"),
+                ["capturedUtc"] = DateTime.UtcNow.ToString("o"), ["complete"] = complete, ["members"] = members,
+                ["prisoners"] = prisoners, ["source"] = "native_main_party_rosters" };
+            if (complete)
+            {
+                result["memberCount"] = heroCount + troopCount;
+                result["heroCount"] = heroCount;
+                result["regularTroopCount"] = troopCount;
+                result["woundedMemberCount"] = main.MemberRoster.TotalWounded;
+                result["prisonerCount"] = prisonerHeroCount + prisonerTroopCount;
+                result["prisonerHeroCount"] = prisonerHeroCount;
+                result["regularPrisonerCount"] = prisonerTroopCount;
+                result["armyLeaderPartyId"] = main.Army?.LeaderParty?.StringId ?? "";
+                result["attachedToArmy"] = main.Army != null;
+            }
+            return result;
         }
 
         private static JArray BuildSceneParticipants(IEnumerable<Hero> heroes)

@@ -27,7 +27,7 @@ try {
     $hero=$campaign.GetType('TaleWorlds.CampaignSystem.Hero',$true)
     $health=$agent.GetProperty('Health',$instance).GetSetMethod($true)
     $handle=$agent.GetMethod('HandleBlow',$instance)
-    $targets=@($handle,$hero.GetMethod('AddSkillXp',$instance),$sandbox.GetType('SandBox.Missions.MissionLogics.BattleAgentLogic',$true).GetMethod('OnScoreHit',$instance),$native.GetType('TaleWorlds.MountAndBlade.Mission',$true).GetMethod('PrintAttackCollisionResults',$instance))
+    $targets=@($handle,$hero.GetMethod('AddSkillXp',$instance),$sandbox.GetType('SandBox.Missions.MissionLogics.BattleAgentLogic',$true).GetMethod('OnScoreHit',$instance),$native.GetType('TaleWorlds.MountAndBlade.Mission',$true).GetMethod('PrintAttackCollisionResults',$instance),$sandbox.GetType('SandBox.Missions.MissionLogics.Arena.ArenaDuelMissionController',$true).GetMethod('OnEndMissionRequest',$instance))
     $patches.GetMethod('Apply',$static).Invoke($null,@()) | Out-Null
     $patches.GetMethod('Apply',$static).Invoke($null,@()) | Out-Null
     foreach($target in $targets){

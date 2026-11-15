@@ -1192,6 +1192,8 @@ namespace ReignBeta.Campaign
 
         private void RepairAttendeeRosters()
         {
+            foreach (SocialEventRecord record in _events.Where(x => x != null))
+                record.NormalizeLoadedCollections();
             string playerId = Hero.MainHero?.StringId;
             if (string.IsNullOrWhiteSpace(playerId))
             {

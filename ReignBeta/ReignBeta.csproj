@@ -17,7 +17,7 @@
 
   <Target Name="RequireBannerlordReferences" BeforeTargets="ResolveReferences">
     <Error Condition="!Exists('$(BannerlordPath)\bin\Win64_Shipping_Client\TaleWorlds.CampaignSystem.dll')"
-           Text="Set REIGN_BANNERLORD_PATH (or BannerlordPath) to your licensed Bannerlord v1.4.8 installation before validating the client." />
+           Text="Set REIGN_BANNERLORD_PATH (or BannerlordPath) to your licensed Bannerlord v1.5.7 installation before validating the client." />
     <Error Condition="!Exists('$(BannerlordPath)\bin\Win64_Shipping_Client\System.Numerics.Vectors.dll')"
            Text="The licensed Bannerlord installation must contain its native System.Numerics.Vectors.dll; a NuGet facade cannot replace it." />
   </Target>
@@ -95,6 +95,10 @@
     </Reference>
     <Reference Include="TaleWorlds.Localization">
       <HintPath>$(BannerlordPath)\bin\Win64_Shipping_Client\TaleWorlds.Localization.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
+    <Reference Include="TaleWorlds.ModuleManager">
+      <HintPath>$(BannerlordPath)\bin\Win64_Shipping_Client\TaleWorlds.ModuleManager.dll</HintPath>
       <Private>false</Private>
     </Reference>
     <Reference Include="TaleWorlds.MountAndBlade">

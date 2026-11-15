@@ -116,18 +116,21 @@ namespace ReignBeta.Campaign
         private static MobileParty DutyParty(EncounteredResident record) => MobileParty.All
             .FirstOrDefault(p => p.StringId == record.SourcePartyId && p.IsActive);
 
-        internal bool ValidateDeparture(Hero hero, out string reason)
+        internal bool ValidateDeparture(Hero hero, out string reason, bool releaseIntoGuestService = false)
         {
             reason = string.Empty;
+            // Only the guest path may admit a captive, and native custody remains authoritative.
+            bool releasablePrisoner = releaseIntoGuestService
+                && ReignBeta.PartyAgency.ReignTemporaryPartyGuestCampaignBehavior.CanReleasePrisonerForGuest(hero);
             var resident = Find(hero);
             if (resident == null || hero?.IsNotable == true)
             {
                 Settlement here = Settlement.CurrentSettlement ?? Hero.MainHero?.CurrentSettlement ?? MobileParty.MainParty?.CurrentSettlement;
                 bool present = hero != null && (CharacterObject.OneToOneConversationCharacter?.HeroObject == hero
                     || MobileParty.MainParty != null && hero.PartyBelongedTo == MobileParty.MainParty
-                    || here != null && hero.CurrentSettlement == here);
+                    || here != null && hero.CurrentSettlement == here || releasablePrisoner);
                 var house = ReignTavernHouseCampaignBehavior.Instance;
-                if (hero == null || hero == Hero.MainHero || !hero.IsAlive || hero.IsChild || hero.IsPrisoner
+                if (hero == null || hero == Hero.MainHero || !hero.IsAlive || hero.IsChild || hero.IsPrisoner && !releasablePrisoner
                     || hero.IsLord || hero.Clan != null || hero.CompanionOf != null || !present
                     || !hero.HasMet && CharacterObject.OneToOneConversationCharacter?.HeroObject != hero)
                     reason = "Only a known, living, adult, free civilian here can join you.";
@@ -137,12 +140,12 @@ namespace ReignBeta.Campaign
                     reason = "This tavern worker is no longer available here.";
                 return reason.Length == 0;
             }
-            if (!resident.Initialized || hero == null || !hero.IsAlive || hero.IsChild || hero.IsPrisoner)
+            if (!resident.Initialized || hero == null || !hero.IsAlive || hero.IsChild || hero.IsPrisoner && !releasablePrisoner)
                 reason = "Only a known, living, adult, free resident can join you.";
             else if (resident.Military && !resident.ReleasedFromDuty)
                 reason = "This person must be released from duty by their commander or home-owning clan leader first.";
             else if (!ResidentsAt(Settlement.CurrentSettlement).Contains(hero)
-                && hero.PartyBelongedTo != MobileParty.MainParty)
+                && hero.PartyBelongedTo != MobileParty.MainParty && !releasablePrisoner)
                 reason = "This resident is no longer here.";
             return reason.Length == 0;
         }

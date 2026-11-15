@@ -31,6 +31,10 @@ namespace ReignBeta.Campaign
         private string _saved = "";
         private static ConversationSentence _listen, _return;
         private static int _mainOptionsToken;
+        private static ConversationSentence _liberationReturn;
+        private static int _liberationGoodbyeToken;
+        private JObject _activeLiberation;
+        private static bool _liberationHookInstalled;
         private float _delay;
         internal void ApplyApproachOptions()
         {
@@ -54,6 +58,7 @@ namespace ReignBeta.Campaign
             store.SyncData("ReignRescueConversationsV1", ref _saved);
             if (store.IsLoading)
             {
+                _activeLiberation = null;
                 try { var saved = JObject.Parse(string.IsNullOrWhiteSpace(_saved) ? "{}" : _saved);
                     _rescues = (saved["rescues"] as JArray ?? new JArray()).OfType<JObject>().ToList();
                     _loadedBattles = (saved["battles"] as JArray ?? new JArray()).OfType<JObject>().ToList(); }
@@ -89,6 +94,15 @@ namespace ReignBeta.Campaign
                     postfix: new HarmonyMethod(typeof(ReignRescueConversationBehavior), nameof(AfterNativePrisonRelease)));
             }
             catch (Exception ex) { ReignLog.Warn("Prison rescue conversation hook unavailable: " + ex.Message); }
+            try
+            {
+                var end = AccessTools.Method(typeof(ConversationManager), "EndConversation", Type.EmptyTypes)
+                    ?? throw new MissingMethodException("ConversationManager.EndConversation() is unavailable.");
+                new Harmony("com.bannerlordreign.native-liberation-conversation").Patch(end,
+                    postfix: new HarmonyMethod(typeof(ReignRescueConversationBehavior), nameof(AfterNativeConversationEnded)));
+                _liberationHookInstalled = true;
+            }
+            catch (Exception ex) { _liberationHookInstalled = false; ReignLog.Warn("Native liberation session hook unavailable: " + ex.Message); }
         }
         private static Hero NativePrisoner(object owner) => owner == null ? null : AccessTools.Field(typeof(PrisonBreakCampaignBehavior), "_prisonerHero")?.GetValue(owner) as Hero;
         private static void BeforePrisonSuccessConversation(object __instance)
@@ -190,19 +204,97 @@ namespace ReignBeta.Campaign
             _listen = starter.AddPlayerLine("reign_listen_to_rescued_hero", "hero_main_options", "reign_rescue_listen_done", "Listen to them.", CanListen, Listen, 111);
             _mainOptionsToken = _listen.InputToken;
             _return = starter.AddDialogLine("reign_rescue_listen_return", "reign_rescue_listen_done", "hero_main_options", "{=*}...", null, null);
+            // Native post-battle liberation (including naval/corsair captives)
+            // uses separate menus and has not run the release consequence yet.
+            foreach (string input in new[] { "liberate_player_choice", "liberate_final_words", "liberate_response_enemy" })
+            {
+                ConversationSentence option = null;
+                option = starter.AddPlayerLine("reign_liberate_and_listen_" + input, input, "reign_liberation_chat_return",
+                    "You are free. Let us speak.", CanLiberateAndListen, () => LiberateAndListen(option.InputToken), 111);
+            }
+            _liberationReturn = starter.AddDialogLine("reign_liberation_chat_return_line", "reign_liberation_chat_return",
+                "reign_liberation_goodbye", "{=*}...", null, null);
+            _liberationGoodbyeToken = _liberationReturn.OutputToken;
+            starter.AddPlayerLine("reign_liberation_goodbye_line", "reign_liberation_goodbye", "close_window",
+                "Farewell.", null, null);
+        }
+        private static bool CanLiberateAndListen() => PlayerApproachPolicy.CanOfferLiberationConversation(
+            _liberationHookInstalled && Instance != null && NativeCampaign.Current?.CurrentConversationContext == ConversationContext.FreeOrCapturePrisonerHero
+                && NativeCampaign.Current.GetCampaignBehavior<TaleWorlds.CampaignSystem.CampaignBehaviors.LordConversationsCampaignBehavior>() != null,
+            ConversationHero != null && ConversationHero != Hero.MainHero && ConversationHero.IsAlive && ConversationHero.IsLord
+                && ConversationHero.IsPrisoner && ConversationHero.PartyBelongedToAsPrisoner != PartyBase.MainParty
+                && Instance?._activeLiberation?.Value<string>("heroId") != ConversationHero.StringId,
+            ReignCampaignInitializationGate.IsPending, Settings.ReignBetaSettings.Instance?.UseLocalServer != false,
+            ReignServerClient.ApproachKindEnabled("prison_rescue"));
+
+        private static void LiberateAndListen(int originalToken)
+        {
+            // Native ProcessSentence advances ActiveToken BEFORE its consequence.
+            // Capture the option's immutable input token instead of ActiveToken.
+            AccessTools.Property(typeof(ConversationSentence), "OutputToken").SetValue(_liberationReturn, originalToken);
+            if (!CanLiberateAndListen() || Instance == null) return;
+            Hero hero = ConversationHero;
+            var owner = NativeCampaign.Current.GetCampaignBehavior<TaleWorlds.CampaignSystem.CampaignBehaviors.LordConversationsCampaignBehavior>();
+            if (owner == null) return;
+            if (Instance._activeLiberation?.Value<string>("heroId") == hero.StringId) return;
+            AccessTools.Property(typeof(ConversationSentence), "OutputToken").SetValue(_liberationReturn, _liberationGoodbyeToken);
+            var rescue = new JObject { ["eventId"] = "liberation_" + Guid.NewGuid().ToString("N"), ["kind"] = "prison_rescue",
+                ["heroId"] = hero.StringId, ["playerId"] = Hero.MainHero.StringId,
+                ["nativeReleaseRoute"] = "native_battle_liberation", ["nativeReleasePending"] = true };
+            Instance._activeLiberation = rescue;
+            Instance.AddRescue(rescue);
+            rescue["opened"] = true;
+            try
+            {
+                rescue["nativeReleaseStarted"] = true;
+                // The licensed native consequence owns both release and relation
+                // effects. This route bypasses its other farewell choices, so it
+                // runs once; returning from Reign offers only a plain farewell.
+                owner.conversation_player_liberates_prisoner_on_consequence();
+                if (hero.IsPrisoner) throw new InvalidOperationException("Native liberation did not free this prisoner.");
+                rescue["nativeReleasePending"] = false;
+                rescue["completedDay"] = CampaignTime.Now.ToDays;
+                rescue["description"] = "The player chose to release you in the native post-battle liberation conversation. Your captivity has ended. This does not establish that the player fought alone or joined an outmatched friendly army.";
+                Listen();
+            }
+            catch (Exception ex)
+            {
+                rescue["failure"] = ex.Message;
+                rescue["dismissed"] = hero.IsPrisoner;
+                if (!hero.IsPrisoner)
+                {
+                    rescue["nativeReleasePending"] = false;
+                    rescue["completedDay"] = CampaignTime.Now.ToDays;
+                    rescue["description"] = "The player chose native post-battle liberation and your freedom was verified, but the follow-up conversation did not open. No further release is required.";
+                }
+                // A chat-open exception after observed release must not route to
+                // native farewell choices that would award the release again.
+                AccessTools.Property(typeof(ConversationSentence), "OutputToken").SetValue(_liberationReturn,
+                    hero.IsPrisoner ? originalToken : _liberationGoodbyeToken);
+                ReignLog.Warn("Native liberation conversation could not complete: " + ex.Message);
+            }
+        }
+        private static void AfterNativeConversationEnded()
+        {
+            if (Instance != null) Instance._activeLiberation = null;
         }
         private static Hero ConversationHero => CharacterObject.OneToOneConversationCharacter?.HeroObject;
         private static bool CanListen()
         {
             JObject rescue = Instance?.Pending(ConversationHero);
             if (rescue == null || ReignCampaignInitializationGate.IsPending || Settings.ReignBetaSettings.Instance?.UseLocalServer == false) return false;
-            return !rescue.Value<bool>("nativeReleasePending") || NativePrisoner(NativeCampaign.Current?.GetCampaignBehavior<PrisonBreakCampaignBehavior>()) == ConversationHero;
+            return !rescue.Value<bool>("nativeReleasePending") || rescue.Value<string>("nativeReleaseRoute") != "native_battle_liberation"
+                && NativePrisoner(NativeCampaign.Current?.GetCampaignBehavior<PrisonBreakCampaignBehavior>()) == ConversationHero;
         }
         private JObject Pending(Hero hero) => hero == null ? null : _rescues.LastOrDefault(r => r.Value<string>("heroId") == hero.StringId
             && r.Value<string>("playerId") == Hero.MainHero?.StringId && !r.Value<bool>("listened") && !r.Value<bool>("dismissed")
             && ReignServerClient.ApproachKindEnabled(r.Value<string>("kind")));
         internal static void PrepareListenOption(int token)
         {
+            if (NativeCampaign.Current?.CurrentConversationContext != ConversationContext.FreeOrCapturePrisonerHero && Instance != null)
+            {
+                Instance._activeLiberation = null;
+            }
             if (_listen == null || !CanListen()) return;
             AccessTools.Property(typeof(ConversationSentence), "InputToken").SetValue(_listen, token);
             AccessTools.Property(typeof(ConversationSentence), "OutputToken").SetValue(_return, token);

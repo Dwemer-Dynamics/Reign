@@ -344,6 +344,7 @@ namespace ReignBeta.Campaign
                 return await ExecuteSocialBalanceCommandAsync(command).ConfigureAwait(false);
             switch (operation)
             {
+                case "conversation_clock_probe": return await ConversationClockProbeAsync(command).ConfigureAwait(false);
                 case "resident_native_approach": return await ApproachResidentForTestAsync(command).ConfigureAwait(false);
                 case "resident_native_leave": return await ApproachResidentForTestAsync(command, true).ConfigureAwait(false);
                 case "search_targets": return await SearchTargetsAsync(command).ConfigureAwait(false);
@@ -701,6 +702,9 @@ namespace ReignBeta.Campaign
 
         private static async Task<LiveCommandResult> SaveCheckpointAsync(JObject command)
         {
+            if (await ReignMainThread.InvokeAsync(() => ConversationClockRequiresRestore).ConfigureAwait(false))
+                return LiveCommandResult.Failed("A conversation clock diagnostic requires restoring Current without saving; no checkpoint was queued.",
+                    new JObject { ["requiresCheckpointRestore"] = true, ["nativeSaveQueued"] = false });
             if (await ReignMainThread.InvokeAsync(() => TaleWorlds.MountAndBlade.Mission.Current != null).ConfigureAwait(false))
                 return LiveCommandResult.Failed("Leave the native mission before checkpointing; no save was queued.",
                     new JObject { ["nativeMissionActive"] = true, ["nativeSaveQueued"] = false });
@@ -809,7 +813,8 @@ namespace ReignBeta.Campaign
                 // Recheck at the native SaveAs boundary after the external quiet window.
                 if (ReignServerClient.PersonalGossipRuntimeStatus().Value<bool?>("inFlight") != false)
                     return false;
-                if (TaleWorlds.CampaignSystem.Campaign.Current?.SaveHandler == null
+                if (ConversationClockRequiresRestore
+                    || TaleWorlds.CampaignSystem.Campaign.Current?.SaveHandler == null
                     || TaleWorlds.CampaignSystem.Campaign.Current.SaveHandler.IsSaving)
                     return false;
                 // Save Sync registers before Bannerlord's completion callback

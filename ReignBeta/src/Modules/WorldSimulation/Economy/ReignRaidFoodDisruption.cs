@@ -51,8 +51,10 @@ namespace ReignBeta.Economy
                 Add(typeof(RaidEventComponent), "OnInitialize", nameof(RaidInitializing), true);
                 Add(typeof(RaidEventComponent), "Update", nameof(RaidUpdateBefore), true);
                 Add(typeof(RaidEventComponent), "Update", nameof(RaidUpdateFinally), finalizer: true);
-                Add(typeof(RaidEventComponent), "OnBeforeFinalize", nameof(RaidClosing), true);
-                Add(typeof(RaidEventComponent), "OnBeforeFinalize", nameof(RaidClosed), finalizer: true);
+                // Native 1.5.7 renamed the callback that applies the final village
+                // state and dispatches RaidCompleted before component teardown.
+                Add(typeof(RaidEventComponent), "OnBeforeMapEventFinalize", nameof(RaidClosing), true);
+                Add(typeof(RaidEventComponent), "OnBeforeMapEventFinalize", nameof(RaidClosed), finalizer: true);
                 var navalModel = AccessTools.TypeByName("NavalDLC.GameComponents.NavalDLCVillageProductionCalculatorModel");
                 if (navalModel != null)
                 {
@@ -212,7 +214,10 @@ namespace ReignBeta.Economy
             + raid.MapEvent.StringId + ":" + raid.MapEvent.BattleStartTime.ToHours.ToString("R", CultureInfo.InvariantCulture);
         private static RaidFoodAttempt EnsureRaid(RaidEventComponent raid, bool initialized)
         {
-            var village = raid?.MapEvent.MapEventSettlement?.Village;
+            // MapEvent is a runtime backlink restored by native MapEvent.OnAfterLoad,
+            // not a saved property. A retained/unbound component has no owner yet.
+            // Leave its saved receipt untouched rather than replaying or closing it.
+            var village = raid?.MapEvent?.MapEventSettlement?.Village;
             if (State == null || village == null) return null;
             var r = Get(village);
             if (!Valid(r)) { Unsupported("Cannot bind malformed village food state."); return null; }

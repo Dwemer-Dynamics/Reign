@@ -194,7 +194,7 @@ namespace ReignBeta.Economy
                     if (auxiliary.Ships.Count != 0) throw new InvalidOperationException("Auxiliary party created unexpected native ships; fixture bounds changed.");
                     var sample = make(auxiliary.Party);
                     _fixtureShip = sample;
-                    auxiliary.Anchor.SetSettlement(town.Settlement);
+                    auxiliary.Anchor.Settlement = town.Settlement;
                     int before = owner.Clan.Leader.Gold;
                     float value;
                     using (legacy ? ReignWarEconomyNaval.ObserveLegacyNative() : null)

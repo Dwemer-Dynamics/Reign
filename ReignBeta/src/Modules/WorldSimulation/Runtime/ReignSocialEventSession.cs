@@ -23,8 +23,9 @@ namespace ReignBeta.Runtime
         public ReignSocialEventSession(SocialEventRecord record)
         {
             Record = record;
+            record.NormalizeLoadedCollections();
             Template = SocialEventTemplateCatalog.GetById(record.TemplateId);
-            if (!string.IsNullOrEmpty(record.WeddingId))
+            if (record.IsWedding)
                 CurrentPhaseIndex = ReignBeta.Campaign.ReignRelationshipCampaignBehavior.Instance?.Wedding(record.WeddingId)?.Phase ?? 0;
 
             if (record.IsGeneratedWildernessEvent)
@@ -103,7 +104,7 @@ namespace ReignBeta.Runtime
             }
 
             CurrentPhaseIndex++;
-            if (!string.IsNullOrEmpty(Record.WeddingId))
+            if (Record.IsWedding)
             {
                 var wedding = ReignBeta.Campaign.ReignRelationshipCampaignBehavior.Instance?.Wedding(Record.WeddingId);
                 if (wedding != null) wedding.Phase = CurrentPhaseIndex;
@@ -217,16 +218,24 @@ namespace ReignBeta.Runtime
         public string BuildSceneContext()
         {
             string settlement = Record.GetSettlement()?.Name?.ToString() ?? Record.SettlementStringId ?? "unknown settlement";
+            return BuildSceneContextText(ReignCalendarService.BuildPromptCalendarContext(), settlement,
+                Record.GetHost()?.Name?.ToString() ?? "unknown");
+        }
+
+        // Keep native world lookup at the boundary so the same production text
+        // path can be verified with constructor-bypassed saved event records.
+        internal string BuildSceneContextText(string calendarContext, string settlement, string host)
+        {
             string context = "Social event: " + Template.DisplayName
                 + "\nEvent id: " + Record.EventId
-                + "\n" + ReignCalendarService.BuildPromptCalendarContext()
+                + "\n" + calendarContext
                 + "\nSettlement: " + settlement
                 + "\nPhase: " + CurrentPhase.Title
                 + "\nPhase setting: " + CurrentPhase.SettingSummary
-                + "\nHost: " + (Record.GetHost()?.Name?.ToString() ?? "unknown")
+                + "\nHost: " + host
                 + "\nAttendees: " + string.Join(", ", Record.GetAttendees().Select(x => x.Name?.ToString()).Where(x => !string.IsNullOrWhiteSpace(x)));
 
-            if (Record.WeddingId.Length != 0)
+            if (Record.IsWedding)
                 context += "\nThis is a pending marriage ceremony. The couple is still unmarried. "
                     + Record.WeddingCustoms;
             if (Record.IsGeneratedWildernessEvent)

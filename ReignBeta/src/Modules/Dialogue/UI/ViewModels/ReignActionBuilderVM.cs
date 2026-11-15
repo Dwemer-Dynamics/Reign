@@ -34,6 +34,7 @@ namespace ReignBeta.UI.ViewModels
         private readonly Action _cancel;
         private readonly bool _correspondence;
         private readonly string _weddingId;
+        private readonly TavernHouseActionContext _tavern;
         private Action _onClose;
         private string _pickerText = "";
         private bool _townDropdownOpen;
@@ -51,11 +52,12 @@ namespace ReignBeta.UI.ViewModels
         private bool _finalized;
         private List<ActionParameter> _parameters;
         public ReignActionBuilderVM(IReadOnlyList<Hero> participants, Action<ActionAgreement> accept, Action cancel, ActionAgreement existing = null,
-            bool correspondence = false, string weddingId = "")
+            bool correspondence = false, string weddingId = "", TavernHouseActionContext tavern = null)
         {
             _participants = participants; _accept = accept; _cancel = cancel;
             _correspondence = correspondence;
-            _weddingId = weddingId;
+            _weddingId = weddingId; _tavern = tavern;
+            if (TavernHouseVisitAction.Contains(existing) && (tavern == null || TavernHouseVisitAction.Validate(existing, tavern).Count > 0)) existing = null;
             _agreement = existing == null ? new ActionAgreement { PlayerId = Hero.MainHero.StringId, ProposerId = Hero.MainHero.StringId, Origin = ActionOrigin.Conversation, CreatedDay = ReignActionService.Now } : ReignActionService.Copy(existing);
             Choices = new MBBindingList<ReignActionChoiceVM>();
             if (_agreement.Clauses.Count > 0) ShowReview(); else ShowOpening();
@@ -67,6 +69,12 @@ namespace ReignBeta.UI.ViewModels
         {
             get
             {
+                if (_clause?.ActionId == TavernHouseVisitAction.Id && !_review)
+                {
+                    if (!_clause.Arguments.ContainsKey("participant1")) return "I wish to arrange a private visit…";
+                    var preview = ReignActionService.Copy(_agreement); preview.Clauses = new List<ActionClause> { _clause };
+                    return TavernHouseVisitAction.Sentence(preview, _tavern) + ".";
+                }
                 if (_clause != null && !_review)
                     return (_agreement.Clauses.Count == 0 ? "" : _agreement.Sentence + " ")
                         + ReignActionLanguage.Subject(_playerActs, _agreement.Clauses.Count) + ReignActionLanguage.Verb(ReignActionCatalog.Find(_clause.ActionId), _playerActs)
@@ -122,6 +130,12 @@ namespace ReignBeta.UI.ViewModels
         private void ShowOpening() => Step("Begin your sentence", () =>
         {
             Choices.Clear();
+            if (_tavern != null)
+                Choice("I wish to arrange a private visit…", () => Forward(() =>
+                {
+                    _playerActs = true; _agreement.NpcId = _tavern.MadamId;
+                    BeginClause(ReignActionCatalog.Find(TavernHouseVisitAction.Id));
+                }, ShowOpening));
             Choice("I would like you…", () => { _playerActs = false; Forward(ChoosePerson, ShowOpening); });
             Choice("I wish to…", () => { _playerActs = true; Forward(ChoosePerson, ShowOpening); });
             var coordinator = ReignRelationshipCampaignBehavior.Instance;
@@ -141,7 +155,8 @@ namespace ReignBeta.UI.ViewModels
                         () => Forward(() => ChooseMarriageMember(leader), ShowOpening));
             }
             foreach (var pending in ReignAgreementBehavior.Instance?.Offers.Where(a => a.State == AgreementState.Counteroffered
-                && a.PlayerId == Hero.MainHero.StringId && _participants.Any(h => h.StringId == a.NpcId)) ?? Enumerable.Empty<ActionAgreement>())
+                && a.PlayerId == Hero.MainHero.StringId && _participants.Any(h => h.StringId == a.NpcId)
+                && (!TavernHouseVisitAction.Contains(a) || _tavern != null && TavernHouseVisitAction.Validate(a, _tavern).Count == 0)) ?? Enumerable.Empty<ActionAgreement>())
                 Choice("Review offer from " + ReignActionService.HeroById(pending.NpcId)?.Name,
                     () => Forward(() => { _agreement = ReignActionService.Copy(pending); ShowReview(); }, ShowOpening), true, pending.Sentence);
         });
@@ -286,6 +301,8 @@ namespace ReignBeta.UI.ViewModels
             if (_search.Length > 0)
             { AddActionChoices(ReignActionCatalog.All.Where(d => d.ConversationEligible), ShowVerbs); return; }
             var available = ReignActionCatalog.All.Where(IsAvailable).ToList();
+            if (available.Any(d => d.Id == TavernHouseVisitAction.Id))
+                Choice("Arrange a private visit…", () => Forward(() => BeginClause(ReignActionCatalog.Find(TavernHouseVisitAction.Id)), ShowVerbs));
             if (available.Any(d => d.Id.StartsWith("give.", StringComparison.Ordinal)))
                 Choice("Give…", () => Forward(ShowAssets, ShowVerbs), true, "Gold, possessions, troops, prisoners, land, workshops and ships");
             if (available.Any(d => d.Id == "go_to_settlement"))
@@ -301,7 +318,8 @@ namespace ReignBeta.UI.ViewModels
         private static readonly string[] SupportActions = { "government.join_party", "government.back_platform", "government.support_vote", "government.support_nomination",
             "government.endorse_petition", "government.sponsor_petition", "government.seek_petition_adoption", "government.present_petition",
             "government.transfer_mandate", "government.nominate_leader", "government.vote_leader", "pledge_rebellion_support" };
-        private bool IsAvailable(ActionDefinition definition) => ReignActionService.CanBuild(definition, _agreement, _playerActs);
+        private bool IsAvailable(ActionDefinition definition) => !TavernHouseVisitAction.Contains(_agreement)
+            && ReignActionService.CanBuild(definition, _agreement, _playerActs, _tavern);
         private static string ActionGroup(ActionDefinition d)
         {
             if (d.NativeObjective.Length > 0 || d.Family == "strategy" || d.Id.EndsWith("campaign_order", StringComparison.Ordinal)) return "campaign";
@@ -359,6 +377,10 @@ namespace ReignBeta.UI.ViewModels
             if (!IsAvailable(d)) { ShowVerbs(); ShowError("This action is no longer available for the selected person."); return; }
             _editIndex = -1;
             _clause = new ActionClause { ActionId = d.Id, ActorId = _playerActs ? _agreement.PlayerId : _agreement.NpcId, RecipientId = _playerActs ? _agreement.NpcId : _agreement.PlayerId };
+            if (d.Id == TavernHouseVisitAction.Id)
+            {
+                TavernHouseVisitAction.Bind(_clause, _tavern); _labels.Clear(); ShowTavernParticipant(1); return;
+            }
             if (d.Id == ReignSpouseSeparation.ActionId)
             {
                 var spouse = ReignActionService.HeroById(_clause.ActorId)?.Spouse;
@@ -376,6 +398,29 @@ namespace ReignBeta.UI.ViewModels
             _labels.Clear();
             _parameterIndex = 0; _category = ""; ShowParameter();
         }
+        private void ShowTavernParticipant(int index) => Step("Choose company for this visit", () =>
+        {
+            Choices.Clear();
+            var chosen = Enumerable.Range(1, index - 1).Select(i => TavernHouseVisitAction.Arg(_clause, "participant" + i)).ToList();
+            foreach (var person in _tavern.Roster.Where(p => p.Adult && p.Available && !chosen.Contains(p.HeroId)))
+                Choice(person.Name, () => Forward(() => NumberEntry("Agreed price for " + person.Name + " (denars; 0 if free)", 0, amount =>
+                {
+                    if (amount < 0 || amount > int.MaxValue || amount != Math.Floor(amount)) { ShowError("Enter a nonnegative whole-denar amount."); return; }
+                    long total = (long)amount + Enumerable.Range(1, index - 1).Sum(i => (long)int.Parse(TavernHouseVisitAction.Arg(_clause, "price" + i), CultureInfo.InvariantCulture));
+                    if (total > int.MaxValue) { ShowError("The total is too large. Lower this price."); return; }
+                    _clause.Arguments["participant" + index] = person.HeroId;
+                    _clause.Arguments["price" + index] = ((int)amount).ToString(CultureInfo.InvariantCulture);
+                    _clause.Arguments["totalGold"] = total.ToString(CultureInfo.InvariantCulture);
+                    if (index == 4) FinishClause(); else ShowTavernMore(index);
+                }), () => ShowTavernParticipant(index)));
+        });
+        private void ShowTavernMore(int index) => Step("Your visit selections", () =>
+        {
+            Choices.Clear();
+            Choice("Review these names and prices", FinishClause);
+            if (_tavern.Roster.Count(p => p.Adult && p.Available) > index)
+                Choice("Add another person…", () => Forward(() => ShowTavernParticipant(index + 1), () => ShowTavernMore(index)));
+        });
         private void ShowParameter()
         {
             while (_parameterIndex < _parameters.Count && IsUnusedWageDetail(_parameters[_parameterIndex]))
@@ -513,6 +558,17 @@ namespace ReignBeta.UI.ViewModels
         private void ShowReview() => Step("Your sentence", () =>
         {
             Choices.Clear();
+            if (TavernHouseVisitAction.Contains(_agreement))
+            {
+                if (_agreement.NpcAcceptedHash == _agreement.TermsHash())
+                    Choice("Decline this offer", () => { ReignAgreementBehavior.Instance.DeclineOffer(_agreement.Id, _agreement.TermsHash()); _cancel(); });
+                Choice("Change the names or prices…", () => Forward(() =>
+                {
+                    _clause = new ActionClause { ActionId = TavernHouseVisitAction.Id, ActorId = _agreement.PlayerId, RecipientId = _agreement.NpcId };
+                    TavernHouseVisitAction.Bind(_clause, _tavern); _editIndex = 0; _playerActs = true; ShowTavernParticipant(1);
+                }, ShowReview));
+                return;
+            }
             if (AgreementRules.IsPlayerDeclaration(_agreement))
             {
                 Choice("Declared when you send this message", () => { }, false, "The ruler cannot veto it. You can still go Back or Cancel.");

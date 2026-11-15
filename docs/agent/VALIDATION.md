@@ -1,5 +1,13 @@
 # Tiered validation
 
+## Standing build rule (2026-11-14)
+
+Normal builds use `changed` with exact changed paths: compile the affected projects/dependencies and run their selected module, boundary and quick checks. Do not append unrelated behavioral suites. `product` and `all` broaden build/contract coverage but use quick verification; even validator, ownership, routing, shared-build, publication and deployment work does not automatically select full offline behavior.
+
+Full offline behavioral validation runs only when the user explicitly requests it. Select `behavioral` in `reign_get_validation_plan` / `reign_validate`, or `-Profile behavioral` in `ReignMcp/scripts/reign-validate.ps1`. This opt-in selects all managed projects and the full offline suite. Its report retains `Profile=all`, records `VerificationTier=offline` and an explicit-request selection reason, so existing artifact/deployment checks remain compatible. An ordinary `all` report records `VerificationTier=quick`; never describe it as full behavioral proof. The existing artifact-bound verifier can also run an explicitly requested full suite without rebuilding unchanged qualified source. Preserve all existing isolation, provider/native gates, hygiene and lease rules.
+
+The source fingerprint covers Linux `.sh` scripts, `.service` units and the extensionless `reignctl` controller as well as PowerShell modules. Installer/controller changes cannot reuse a report that predates this coverage extension; qualify the final source with the current canonical engine and use its exact verifier for packaging.
+
 ## Dedicated ReignServer Linux component
 
 Use `reign_build_linux_server` or `ReignMcp/scripts/reign-validate.ps1 -LinuxServer -Restore -RequestingTaskId <task UUID>` to cross-publish the WSL server. The same canonical OS lease, ownership plan, source fingerprint, and paired hygiene gates apply. This produces `reign-linux-build-v1` and a complete SHA-256 `reign-linux-artifact-v1` file inventory under `.codex-build/reign-mcp/linux-server/<run>`. It does not start services, access campaigns, or call providers. Retain both reports; full manifest-selected validation and Linux runtime checks are separate proof.
@@ -16,7 +24,8 @@ For code changes, obtain `reign_get_validation_plan` before editing, then run `r
 | 2 | Complete owning subsystem | Subsystem behavior |
 | 3 | Affected boundaries, dependencies and consumers | Public contract, persistent schema or Bannerlord adapter |
 | Product 4 | Complete Reign runtime/tooling boundary and quick verification | Explicit product-wide confidence or a manifest-selected product boundary |
-| Ecosystem 4 | Every managed project and offline verification | Release/milestone, project ownership, module routing, shared build infrastructure or validation-engine change |
+| Ecosystem 4 | Every managed project and quick verification | Release/milestone, project ownership, module routing, shared build infrastructure or validation-engine change |
+| Explicit behavioral | Every managed project and full offline behavioral verification | Only an explicit user request for full behavioral validation |
 
 ## Select the plan
 
@@ -29,6 +38,8 @@ Use the lowest tier selected by the manifest. Testing-catalog, MCP feature, agen
 Each plan reports status, nullable selected tier, non-code classification, path rules, affected modules, selected projects, verification operations and coverage completeness. The service also supports explicit `core` and `tooling` subsets; these do not replace a broader required plan.
 
 ## Run and coordinate
+
+Canonical validation, Linux publishing and isolated offline verification have no elapsed-time process deadline. Full runs can readily take forty minutes or longer. Do not stop a healthy run because of its duration or replace this with a larger fixed cap. Preserve the OS lease, task attribution, explicit caller cancellation, owned-process cleanup and contract-specific behavioral limits. The generic API/tool process limits do not apply to validation orchestration.
 
 Before validation, call `reign_get_validation_status`. Supply the current task UUID as `requestingTaskId` to `reign_validate`. The OS lease serializes heavy validation; a status snapshot does not reserve it. See [task coordination](TASK_COORDINATION.md) for busy or unknown ownership. Reuse only a successful report whose source fingerprint, configuration, scope, verification tier, exact project set and retained artifacts cover the requested plan.
 
@@ -52,3 +63,8 @@ In the paired layout, the private `Reign` checkout is the MCP workspace and the 
 ## Linux-only server
 
 ReignServer targets net10.0/linux-x64. On Windows the canonical runner executes its DLL in the selected WSL distro as dwemer with ReignValidation and run-owned data. Set REIGN_WSL_DISTRO only to select a different local distro. Windows client and portrait renderer artifacts are built separately; the helper is under client/out/native-portrait-generator. Linux publishing explicitly excludes private verification source. The legacy Windows server installer and vector-worker packaging commands are retired.
+# Deployment source binding
+
+Successful product/all reports include `DeploymentArtifactHashes` for client and MCP verifier output; Linux reports pin `ArtifactManifestSha256`. Source fingerprints include PowerShell modules (`.psm1`). Reuse verifies recorded artifact hashes; deployment additionally requires the reviewed machine source checkpoint. Use `reign_check_deployment_source` or its qualified read-only CLI to compare original canonical reports with current source through the same fingerprint implementation. Foreign/copied reports, stale source and altered output fail closed.
+
+The primary hook allows only the primary paired deployment entry point. It does not exempt retained worktree scripts. Reading a deployment path through bounded read commands or `git diff` is allowed without exempting another chained invocation. See [the checkpoint procedure](testing/UI_AND_DEPLOYMENT.md#reviewed-deployment-source). Hook/validator changes require all/Tier4 qualification; deployment still uses the exact validated artifacts and requires existing user authorization.

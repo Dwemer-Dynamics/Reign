@@ -1,6 +1,6 @@
 [CmdletBinding()]
 param(
-    [ValidateSet('changed', 'core', 'product', 'tooling', 'all')]
+    [ValidateSet('changed', 'core', 'product', 'tooling', 'all', 'behavioral')]
     [string]$Profile = 'changed',
     [ValidateSet('Debug', 'Release')]
     [string]$Configuration = 'Release',

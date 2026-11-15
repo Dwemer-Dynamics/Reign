@@ -92,14 +92,26 @@ namespace ReignBeta.Events
         [SaveableField(28)]
         public string GeneratedInitiatorHeroStringId;
 
-        public string WeddingId { get; set; } = "";
-        public string WeddingCustoms = "";
+        // These are transient ceremony metadata, rebuilt from the wedding ledger.
+        // Native save loading bypasses constructors and leaves them absent on
+        // ordinary saved events. Never rely on a field initializer here.
+        private string _weddingId;
+        private string _weddingCustoms;
+        public string WeddingId { get => _weddingId ?? string.Empty; set => _weddingId = value ?? string.Empty; }
+        public string WeddingCustoms { get => _weddingCustoms ?? string.Empty; set => _weddingCustoms = value ?? string.Empty; }
+        public bool IsWedding => !string.IsNullOrEmpty(WeddingId);
         public int WeddingRosterCount;
 
         public SocialEventRecord()
         {
             AttendeeHeroStringIds = new List<string>();
             MovedHeroStringIds = new List<string>();
+        }
+
+        internal void NormalizeLoadedCollections()
+        {
+            AttendeeHeroStringIds = AttendeeHeroStringIds ?? new List<string>();
+            MovedHeroStringIds = MovedHeroStringIds ?? new List<string>();
         }
 
         public SocialEventStatus Status

@@ -22,9 +22,9 @@ namespace ReignBeta.UI.ViewModels
         public IReadOnlyList<Hero> ActionParticipants => _session.ActiveHeroes().ToList();
         public bool ActionBusy => IsBusy;
         internal string ActiveWeddingId => _session.Record.WeddingId;
-        [DataSourceProperty] public string ApproachLabel => ActiveWeddingId.Length != 0 ? "Wedding actions" : "Wait Approach";
-        [DataSourceProperty] public string NextPhaseLabel => ActiveWeddingId.Length != 0 && _session.CurrentPhaseIndex == 2 ? "Conclude ceremony" : "Next Phase";
-        [DataSourceProperty] public string LeaveEventLabel => ActiveWeddingId.Length != 0 ? "Leave ceremony" : "End Event";
+        [DataSourceProperty] public string ApproachLabel => _session.Record.IsWedding ? "Wedding actions" : "Wait Approach";
+        [DataSourceProperty] public string NextPhaseLabel => _session.Record.IsWedding && _session.CurrentPhaseIndex == 2 ? "Conclude ceremony" : "Next Phase";
+        [DataSourceProperty] public string LeaveEventLabel => _session.Record.IsWedding ? "Leave ceremony" : "End Event";
         private ReignActionComposerVM _composer;
         private bool _personalSceneClosed;
         public ReignActionComposerVM Composer => _composer ?? (_composer = new ReignActionComposerVM(() => OnPropertyChanged(nameof(InputText))));
@@ -540,7 +540,7 @@ namespace ReignBeta.UI.ViewModels
                 return;
             }
 
-            if (ActiveWeddingId.Length != 0)
+            if (_session.Record.IsWedding)
             {
                 ReignActionBuilder.RequestOpenForHost(ScreenManager.TopScreen, this);
                 return;
@@ -617,7 +617,7 @@ namespace ReignBeta.UI.ViewModels
                 return;
             }
 
-            if (ActiveWeddingId.Length != 0)
+            if (_session.Record.IsWedding)
             {
                 if (_session.AdvancePhase())
                 {
@@ -641,7 +641,7 @@ namespace ReignBeta.UI.ViewModels
 
         public async void ExecuteEndEvent()
         {
-            if (ActiveWeddingId.Length != 0)
+            if (_session.Record.IsWedding)
             {
                 if (!IsBusy) _closeScreen?.Invoke();
                 return;
@@ -856,7 +856,7 @@ namespace ReignBeta.UI.ViewModels
             }
             else
             {
-                bool wedding = ActiveWeddingId.Length != 0;
+                bool wedding = _session.Record.IsWedding;
                 int count = wedding ? _session.Record.WeddingRosterCount : _session.Record.GetAttendees().Count();
                 PhaseStatus = "Phase " + (_session.CurrentPhaseIndex + 1) + " of " + _session.Template.Phases.Count + " | Attendees " + count;
                 if (!wedding) PhaseStatus += " | Conversation " + _session.PhaseExchangeCount + "/" + ReignSocialEventSession.TurnsPerAutomaticPhase;
@@ -867,7 +867,7 @@ namespace ReignBeta.UI.ViewModels
                     string culture = artTemplate.Substring("wedding_".Length);
                     artTemplate = "feast_" + (culture == "neutral" ? "empire" : culture);
                     artPhase = new[] { "arrival_and_seating", "toasts_and_table_talk", "farewells" }[_session.CurrentPhaseIndex];
-                    if (_session.CurrentPhaseIndex == 1 && _session.Record.WeddingCustoms.Length != 0)
+                    if (_session.CurrentPhaseIndex == 1 && !string.IsNullOrEmpty(_session.Record.WeddingCustoms))
                         PhaseDescription += " " + _session.Record.WeddingCustoms;
                 }
                 EventImageId = ReignEventArtTextureFactory.BuildImageId(artTemplate, artPhase);

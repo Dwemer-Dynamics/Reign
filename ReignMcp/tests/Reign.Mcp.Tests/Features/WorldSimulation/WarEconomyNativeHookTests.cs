@@ -36,6 +36,8 @@ public sealed class WarEconomyNativeHookTests
         Assert.True(report.RootElement.GetProperty("ok").GetBoolean());
         using var raidFood = System.Text.Json.JsonDocument.Parse(File.ReadAllText(Path.Combine(evidence,"raid-food-hooks.json")));
         Assert.True(raidFood.RootElement.GetProperty("exactlyOnce").GetBoolean());
+        Assert.Equal(4, raidFood.RootElement.GetProperty("unboundLoadCases").GetInt32());
+        Assert.True(raidFood.RootElement.GetProperty("unboundNativeBacklinkPreserved").GetBoolean());
         Assert.False(raidFood.RootElement.GetProperty("nativeGameplayAcceptance").GetBoolean());
         Assert.True(report.RootElement.GetProperty("cohortControlBinding").GetBoolean());
         Assert.True(report.RootElement.GetProperty("medicalDischargeBinding").GetBoolean());

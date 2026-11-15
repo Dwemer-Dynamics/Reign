@@ -62,12 +62,12 @@ Life and death is required while its feature is enabled; combat-death difficulty
 
 ## Judgments
 
-Sovereigns decide regardless of government type. AI realm captures trigger judgment at capture. A player vassal/mercenary keeps ordinary prisoner control until direct handover; dungeon donation alone is insufficient. Player sovereigns can choose and suffer all outcomes.
+Sovereigns decide regardless of government type. Existing saved sentences retain their stored absolute deadlines; a legacy pending record without a capture timestamp starts a full seven-day window on first observation. AI realm captures queue judgment at capture. No verdict is permitted until seven full fractional campaign days after the original capture; handover does not restart this clock. A player vassal/mercenary keeps ordinary prisoner control until direct handover; dungeon donation alone is insufficient. Player sovereigns can choose and suffer all outcomes.
 
 | Verdict | Permanent resolution |
 |---|---|
-| Torture and humiliation | Execution after 15 campaign days. Leaders at affinity <= -20 toward the condemned ruler defect with fiefs; >= -19 remain at war. |
-| Clean execution | Execution after 15 days. Leaders <= -10 defect with fiefs; >= -9 remain at war. |
+| Torture and humiliation | Execution eight campaign days after sentencing. Leaders at affinity <= -20 toward the condemned ruler defect with fiefs; >= -19 remain at war. |
+| Clean execution | Execution eight days after sentencing. Leaders <= -10 defect with fiefs; >= -9 remain at war. |
 | Exile | Immediate peace, one city (castle only if no city), 25% available realm wealth without debt, and a replacement ruler. |
 | Submission | Noble clans and fiefs join the victor; former ruler becomes a clan leader and gains exactly +75 personal affinity toward the victor. |
 
@@ -75,7 +75,7 @@ Execution cutoffs use personal directional Reign affinity frozen at sentencing. 
 
 Clans must still belong to the defeated kingdom when the execution occurs. A clan that has already joined a third kingdom is unaffected by the split. Defectors retain the fiefs they hold at execution, including later acquisitions; these holdings receive the conquest effect.
 
-Sentenced rulers cannot be ransomed, sold, exchanged or voluntarily released. Reject the entire paid release before payments. Normal escapes, battle rescue and player prison breaks cancel the sentence and pending political consequences. War remains active during sentencing; after cancellation ordinary war rules resume. Recapture requires a new judgment and fresh 15 days. Same-kingdom custody transfers preserve sentencing. Torture is history/flavor without early lethal damage.
+Sentenced rulers cannot be ransomed, sold, exchanged or voluntarily released. Reject the entire paid release before payments. Normal escapes, battle rescue and player prison breaks cancel the sentence and pending political consequences. War remains active during sentencing; after cancellation ordinary war rules resume. Recapture starts a new seven-day decision window, followed by eight further days if execution is chosen. Same-kingdom custody transfers preserve sentencing. Torture is history/flavor without early lethal damage.
 
 Exile: collect one quarter from available treasury and each noble clan leader's gold, proportionally with integer rounding, excluding earmarked wallets. The eligible defeated leader with highest affinity toward the conqueror succeeds. Former ruler, spouse and minor children form a new landless clan at a foreign court; adult heirs retain the original clan/fiefs. Without an adult original-clan heir, redistribute its fiefs within the defeated kingdom. Preserve the controlled player hero and update player-clan ownership. Prevent kingdom joining, mercenary service and kingdom founding for 126 days; afterwards native rules apply. No protected truce. Exile is unavailable without a replacement ruler and a concession holding.
 

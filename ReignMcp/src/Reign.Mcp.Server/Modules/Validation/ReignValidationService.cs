@@ -119,6 +119,7 @@ public sealed partial class ReignValidationService(
                     "dotnet",
                     arguments,
                     options.WorkspaceRoot,
+                    timeout: Timeout.InfiniteTimeSpan,
                     artifactDirectory: Path.Combine(runRoot, project.Id),
                     cancellationToken: cancellationToken).ConfigureAwait(false);
                 results.Add(new ProjectValidationResult
@@ -179,6 +180,7 @@ public sealed partial class ReignValidationService(
                                 "--results-directory", Path.Combine(runRoot, project.Id, "test-results")
                             ],
                             options.WorkspaceRoot,
+                            timeout: Timeout.InfiniteTimeSpan,
                             artifactDirectory: Path.Combine(runRoot, project.Id),
                             cancellationToken: cancellationToken).ConfigureAwait(false);
                         results.Add(new ProjectValidationResult
@@ -203,6 +205,7 @@ public sealed partial class ReignValidationService(
                         executable,
                         operation.Arguments,
                         Path.GetDirectoryName(executable)!,
+                        timeout: Timeout.InfiniteTimeSpan,
                         artifactDirectory: Path.Combine(runRoot, project.Id, "out", "data", "tests"),
                         environment: new Dictionary<string, string>
                         {
@@ -254,6 +257,7 @@ public sealed partial class ReignValidationService(
                             "--json"
                         ],
                         Path.GetDirectoryName(serverExecutable)!,
+                        timeout: Timeout.InfiniteTimeSpan,
                         artifactDirectory: Path.Combine(runRoot, "server", "out", "data", "tests"),
                         environment: new Dictionary<string, string>
                         {
@@ -277,7 +281,7 @@ public sealed partial class ReignValidationService(
         var report = new ValidationReport
         {
             Schema = "reign-validation-report-v4",
-            ValidatorVersion = "0.7.0",
+            ValidatorVersion = "0.7.3",
             RunId = runId,
             SourceFingerprintSha256 = sourceFingerprint,
             StartedUtc = started.ToString("O"),
@@ -295,7 +299,8 @@ public sealed partial class ReignValidationService(
             ArtifactRoot = runRoot,
             ReportPath = reportPath,
             RepositoryHygiene = repositoryHygiene,
-            Results = results
+            Results = results,
+            DeploymentArtifactHashes = CaptureDeploymentArtifactHashes(runRoot)
         };
         await File.WriteAllTextAsync(
             reportPath,
@@ -338,6 +343,8 @@ public sealed partial class ReignValidationService(
                     || !string.Equals(candidate.Plan.VerificationTier, plan.VerificationTier,
                         StringComparison.OrdinalIgnoreCase)
                     || !Directory.Exists(candidate.ArtifactRoot)
+                    || (candidate.Plan.Profile is "product" or "all"
+                        && candidate.DeploymentArtifactHashes.Count == 0)
                     || candidate.Results.Any(result => !result.Process.Ok))
                 {
                     continue;
@@ -345,7 +352,12 @@ public sealed partial class ReignValidationService(
                 var candidateProjects = candidate.Plan.Projects
                     .Select(project => project.Id)
                     .ToHashSet(StringComparer.OrdinalIgnoreCase);
-                if (plannedProjects.SetEquals(candidateProjects)) return candidate;
+                if (plannedProjects.SetEquals(candidateProjects))
+                {
+                    if (candidate.DeploymentArtifactHashes.Count > 0)
+                        VerifyArtifactHashes(candidate.ArtifactRoot, candidate.DeploymentArtifactHashes);
+                    return candidate;
+                }
             }
             catch (JsonException)
             {
@@ -354,6 +366,10 @@ public sealed partial class ReignValidationService(
             catch (IOException)
             {
                 // A concurrently observed report may still be flushing; it is not reusable yet.
+            }
+            catch (InvalidDataException)
+            {
+                // An altered recorded artifact is not reusable qualification.
             }
         }
         return null;
@@ -385,7 +401,7 @@ public sealed partial class ReignValidationService(
         var extensions = new HashSet<string>(StringComparer.OrdinalIgnoreCase)
         {
             ".cs", ".csproj", ".props", ".targets", ".json", ".xml", ".md",
-            ".ps1", ".cmd", ".toml", ".sln", ".slnx", ".yml", ".yaml", ".py", ".iss", ".js", ".mjs", ".txt", ".html", ".css"
+            ".ps1", ".psm1", ".cmd", ".toml", ".sln", ".slnx", ".yml", ".yaml", ".py", ".iss", ".js", ".mjs", ".txt", ".html", ".css", ".sh", ".service"
         };
         var excluded = new HashSet<string>(StringComparer.OrdinalIgnoreCase)
         {
@@ -436,7 +452,7 @@ public sealed partial class ReignValidationService(
                 }
                 foreach (var file in directory.EnumerateFiles())
                 {
-                    if (extensions.Contains(file.Extension))
+                    if (extensions.Contains(file.Extension) || file.Name.Equals("reignctl", StringComparison.OrdinalIgnoreCase))
                     {
                         files.Add(file.FullName);
                     }

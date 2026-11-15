@@ -179,6 +179,8 @@ namespace ReignBeta.Campaign
                     character => OnNativeArenaDuelEnded(intent, character),
                     health);
                 ReignDuelMissionBehavior.EnableCombatExperience(duelMission, intent);
+                if (ReignDuelModePolicy.IsTrainingTogether(intent.Mode))
+                    InformationManager.DisplayMessage(new InformationMessage("[Bannerlord Reign] Training together: press Tab to stop training."));
                 duelMission.AddMissionBehavior(new ReignArenaDuelEquipmentBehavior(
                     opponent.CharacterObject,
                     arenaSettlement.Culture?.DuelPresetEquipmentRoster?.AllEquipments));
@@ -256,7 +258,7 @@ namespace ReignBeta.Campaign
             }
         }
 
-        private static void ScheduleTemporaryArenaSettlementContextCleanup(string actionId)
+        internal static void ScheduleTemporaryArenaSettlementContextCleanup(string actionId)
         {
             if (string.IsNullOrWhiteSpace(actionId))
             {

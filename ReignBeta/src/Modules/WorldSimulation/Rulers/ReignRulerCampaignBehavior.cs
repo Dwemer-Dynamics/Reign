@@ -68,7 +68,7 @@ namespace ReignBeta.Campaign
                     && Hero.OneToOneConversationHero != Hero.MainHero && HeldPlayerRuler() != null,
                 () => HandOver(HeldPlayerRuler(), Hero.OneToOneConversationHero));
             starter.AddPlayerLine("reign_ruler_judgment", "hero_main_options", "close_window", "I will decide your fate as a captive ruler.",
-                () => State.Judgments.Any(j => j.PrisonerId == Hero.OneToOneConversationHero?.StringId && j.VictorId == Hero.MainHero?.StringId && j.Stage == RulerJudgmentStage.AwaitingDecision),
+                () => State.Judgments.Any(j => j.PrisonerId == Hero.OneToOneConversationHero?.StringId && j.VictorId == Hero.MainHero?.StringId && ReignRulerPolicy.DecisionDue(j, Day)),
                 () => _presenting = false);
         }
         internal void OptionsChanged()
@@ -90,28 +90,34 @@ namespace ReignBeta.Campaign
             foreach (var j in State.Judgments.ToList())
             {
                 if (j.Stage == RulerJudgmentStage.Completed || j.Stage == RulerJudgmentStage.Cancelled) continue;
+                ReignRulerPolicy.EnsureCaptureDay(j, Day);
+                ReignRulerPolicy.EnsureSentenceDeadline(j, Day);
                 if (j.Stage == RulerJudgmentStage.AwaitingDecision && Realm(j.VictorKingdomId)?.Leader?.IsAlive == true)
-                    j.VictorId = Realm(j.VictorKingdomId).Leader.StringId;
+                    ReignRulerPolicy.SetDecisionAuthority(j, Realm(j.VictorKingdomId).Leader.StringId);
                 Hero prisoner = HeroById(j.PrisonerId);
                 if (prisoner == null) { j.Failure = "Prisoner identity is unavailable."; continue; }
-                if (!j.NativeDeathObserved && !j.NativeExecutionRequested && (!prisoner.IsPrisoner || prisoner.PartyBelongedToAsPrisoner?.MapFaction != Realm(j.VictorKingdomId)))
-                { ReignRulerPolicy.Cancel(j, "escaped_or_rescued"); continue; }
+                if (!j.NativeDeathObserved && !j.NativeExecutionRequested && (!prisoner.IsAlive || !prisoner.IsPrisoner || prisoner.PartyBelongedToAsPrisoner?.MapFaction != Realm(j.VictorKingdomId)))
+                { CancelForLostCustody(j, prisoner.IsAlive, "cancelled"); continue; }
                 if (j.Stage == RulerJudgmentStage.AwaitingAuthority)
                 {
                     if (Realm(j.VictorKingdomId)?.Leader != Hero.MainHero) continue;
-                    j.VictorId = Hero.MainHero.StringId; j.Stage = RulerJudgmentStage.AwaitingDecision;
+                    ReignRulerPolicy.SetDecisionAuthority(j, Hero.MainHero.StringId); j.Stage = RulerJudgmentStage.AwaitingDecision;
                 }
-                if (j.Stage == RulerJudgmentStage.AwaitingDecision && !_networkBusy)
+                if (ReignRulerPolicy.DecisionDue(j, Day) && !_networkBusy)
                 {
                     if (HeroById(j.VictorId) == Hero.MainHero) { if (!_presenting) PrepareDecision(j, null); }
                     else PrepareDecision(j, null);
-                    break;
                 }
                 if (ReignRulerPolicy.SentenceDue(j, Day) || j.Stage == RulerJudgmentStage.Applying) ApplyJudgment(j);
             }
         }
         private void InitializeWorld()
         {
+            // Publish a state reconciliation at today's observation time; never
+            // invent the unrecorded date of an older cancellation.
+            foreach (var judgment in State.Judgments.Where(j => j.Stage == RulerJudgmentStage.Cancelled && j.ResolvedDay < 0
+                && ReignRulerPolicy.HasIssuedSentence(j) && (j.CancellationReason == "escaped_or_rescued" || j.CancellationReason == "custody_changed")))
+                ReignNewsCampaignBehavior.Instance?.ReconcileCancelledJudgment(judgment);
             if (Enabled(RulerOptions.Capitals)) foreach (var k in Kingdom.All.Where(k => !k.IsEliminated)) Capital(k);
             foreach (var a in Kingdom.All.Where(k => !k.IsEliminated))
                 foreach (var b in Kingdom.All.Where(k => !k.IsEliminated && string.CompareOrdinal(k.StringId, a.StringId) > 0 && a.IsAtWarWith(k))) GetWar(a, b, true);
@@ -244,12 +250,24 @@ namespace ReignBeta.Campaign
         {
             if (ApplyingNative) return;
             foreach (var j in State.Judgments.Where(j => j.PrisonerId == prisoner?.StringId).ToList())
-                if (ReignRulerPolicy.Cancel(j, "escaped_or_rescued"))
-                {
-                    if (prisoner?.IsAlive == true && detail != EndCaptivityDetail.Death)
-                        ReignNewsCampaignBehavior.Instance?.Judgment(j, "escaped");
-                    if (j.DefeatedLord) CreateExile(j, false, true);
-                }
+                CancelForLostCustody(j, prisoner?.IsAlive == true && detail != EndCaptivityDetail.Death, "escaped");
+        }
+        private bool CancelForLostCustody(RulerJudgment judgment, bool living, string phase)
+        {
+            Hero captive = HeroById(judgment.PrisonerId);
+            string reason = !living ? "prisoner_died_outside_judgment" : captive?.IsPrisoner == true ? "custody_changed" : "escaped_or_rescued";
+            if (!ReignRulerPolicy.Cancel(judgment, reason, Day)) return false;
+            // Persist the later outcome beside the sentence, rather than only
+            // showing a transient notice while history still says execution pending.
+            if (living)
+            {
+                try { History(judgment, phase, reason == "custody_changed"
+                    ? "The pending judgment was cancelled because custody no longer belongs to the victorious realm."
+                    : "The captive is no longer imprisoned; the pending judgment was cancelled."); }
+                catch (Exception ex) { ReignLog.Warn("Cancelled judgment history could not be published: " + judgment.Id + ": " + ex.Message); }
+            }
+            if (living && judgment.DefeatedLord && captive?.IsPrisoner == false) CreateExile(judgment, false, true);
+            return true;
         }
         private void HeroKilled(Hero victim, Hero killer, KillCharacterAction.KillCharacterActionDetail detail, bool show)
         {
@@ -269,6 +287,14 @@ namespace ReignBeta.Campaign
             ["available"] = ReignBeta.World.ReignRulerNativePatches.HookCount > 0 && ReignBeta.World.ReignRulerNativePatches.Error.Length == 0,
             ["pending"] = _networkBusy || _relationOutbox.Count > 0 || State.Judgments.Any(j => j.Stage == RulerJudgmentStage.Applying && j.Failure.Length == 0),
             ["failures"] = State.Judgments.Count(j => j.Failure.Length > 0), ["pendingRelationships"] = _relationOutbox.Count,
+            ["activeJudgments"] = State.Judgments.Count(j => j.Stage != RulerJudgmentStage.Completed && j.Stage != RulerJudgmentStage.Cancelled),
+            ["judgmentsLimit"] = 20,
+            ["judgments"] = new JArray(State.Judgments.Where(j => j.Stage != RulerJudgmentStage.Completed && j.Stage != RulerJudgmentStage.Cancelled)
+                .Take(20).Select(j => JObject.FromObject(ReignRulerPolicy.TimingObservation(j, Day)))),
+            ["recentTerminalJudgmentCount"] = State.Judgments.Count(j => j.Stage == RulerJudgmentStage.Completed || j.Stage == RulerJudgmentStage.Cancelled),
+            ["recentTerminalJudgments"] = new JArray(State.Judgments.Where(j => j.Stage == RulerJudgmentStage.Completed || j.Stage == RulerJudgmentStage.Cancelled)
+                .OrderByDescending(j => j.ResolvedDay >= 0 ? j.ResolvedDay : Math.Max(j.SentencedDay, j.CapturedDay)).ThenBy(j => j.Id, StringComparer.Ordinal)
+                .Take(20).Select(j => JObject.FromObject(ReignRulerPolicy.TimingObservation(j, Day)))),
             ["nativeHooks"] = ReignBeta.World.ReignRulerNativePatches.HookCount, ["nativeHookError"] = ReignBeta.World.ReignRulerNativePatches.Error };
         internal JObject Diagnostics() => JObject.FromObject(new { state = State, pendingNetwork = _networkBusy, pendingRelationships = _relationOutbox.Count,
             failures = State.Judgments.Where(j => j.Failure.Length > 0).Select(j => new { j.Id, j.Failure }), optionsConfirmed = ReignServerClient.RulerOptionsConfirmed,

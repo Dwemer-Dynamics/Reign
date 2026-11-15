@@ -1,10 +1,10 @@
 {
   "schema": "reign-fixed-region-composite-v1",
   "assetId": "tavern-house-shell",
-  "authority": "User-provided four-region tavern sketch; existing Reign modern palette and typography.",
+  "authority": "User-approved image-model visual proposal, 2026-11-12; exact existing geometry and frozen Reign style tokens.",
   "approvedReference": {
     "path": "../approved-references/tavern-house.png",
-    "sha256": "f40be141c633ccd67526a8ae13c5887df0ac278a44c5bc8c158672eed448de8e"
+    "sha256": "77ae1f847128ee6bdf38b6ac2b7b4c403740c61778776c39d491baa94c6811f2"
   },
   "canvas": {
     "width": 1672,
@@ -94,7 +94,7 @@
   ],
   "productionComposite": {
     "runtimePath": "../../../GUI/SpriteParts/ui_reignbeta_tavern_house/reign_tavern_house_shell.png",
-    "expectedSha256": "57a42c3a131e7829ae698c2d0c76c1101096c56d01641bcc599cd1a5ef37ba97"
+    "expectedSha256": "c6561f93d51ac2844ae0c7df6ea893f588abfc9d58a240c3d6a06e218d76ed53"
   },
-  "materializer": "../tools/materialize_tavern_house.py"
+  "materializer": "../tools/materialize_tavern_house.ps1"
 }

@@ -2,6 +2,49 @@
 
 Read only the procedure relevant to the current task. Existing provider, campaign, and deployment gates remain authoritative. Dated procedure history was retained during the 2026-09-12 guide split.
 
+## Entire pregenerated roster completeness (2026-11-12)
+
+The shipped catalogs must cover all 453 native Sandbox/War Sails nobles and all
+798 authored court nobles: 1,251 profiles, including the 56 native Nord nobles
+(54 living and two deceased). `NordHouseholdContentTests` audits every profile's
+43 foundation/percentage/hidden traits, percentage bands, MBTI, rounded personality,
+background, voice, motivations, complete narrative, interest categories and defining
+selection. Both catalogs retain identical identity/personality data. The existing
+`character_narrative` suite checks the full roster's personality/fact compatibility,
+unique lives and preserved canon; `character_construction` covers materialization
+and the editor. Use the supported `offline`/`pipeline` route for those construction,
+editor and notable-MBTI checks: `character_construction` is a coverage feature label,
+not a named execution dispatcher. Run `quick`/`character_narrative` for the whole-roster
+narrative contracts. Both runs must use the same successful immutable Release artifact.
+`native-context.json` must include the nine native Nord clans and kingdom; the narrative
+suite verifies Halthdar's real ruler/clan-leader roles without changing source canon.
+
+The existing `narrative-editor-ui-contract.mjs` now also renders nine personality
+cases: canonical, first-contact-pending and missing at 1672/1024/600 widths. Complete
+dynamic trait foundations must show all 43 controls and derived MBTI while life
+construction remains pending. Missing data must retain the unavailable state;
+canonical MBTI must identify its pregenerated source. Preserve all existing layout,
+palette, narrative-editing/history and legacy-state checks. Traffic remains intercepted.
+
+Foundation authoring reads `--naval-data` (defaulting to sibling NavalDLC ModuleData),
+merges missing native clan identities and ordinary/naval skills, and dispatches before
+campaign/database housekeeping. Use isolated inputs and output; never overwrite the
+v5 source catalog with foundation output. `author_native_nord_profiles.py` appends the
+56 reviewed local narratives and proves preservation of prior profile objects and
+narrative bytes. This adds no provider, live campaign, portrait, native-time or deployment
+authority. The native identity census, zero-error full data audit and final reports are
+retained under `E:/CodexStorage/Projects/Reign/Investigations/2026-11-12-nord-profiles`.
+
+2026-11-12 evidence: changed/Release Tier3 `20261112-230621-ab0cf76d` passed canonical
+validation with clean hygiene. All1,251 source profiles and1,261 shipped data/UI files
+pass completeness/hash audits; narrative84/84, profile-library18/18, editor13/13,
+MBTI15/15 and27 responsive render/scroll/edit cases pass on that immutable artifact.
+The broader offline pipeline is19/20 groups: its two native-save source-token checks
+expect direct diagnostics-builder assignments while the existing client uses
+`HeartbeatSection` wrappers. Preserve that separate coverage gap and failed report;
+neither compilation nor the profile passes establish native save behavior or a fully
+green deployment verdict. Deployment and native campaign acceptance remain held.
+
 ## Nord household content extension (2026-11-06)
 
 The new-campaign roster adds 13 landless tier-1 Nord households (four town homes

@@ -12,6 +12,7 @@
     <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
     <OutputPath>$(MSBuildProjectDirectory)\bin\$(Configuration)\</OutputPath>
     <CopyLocalLockFileAssemblies>false</CopyLocalLockFileAssemblies>
+    <ReignServerRoot Condition="'$(ReignServerRoot)' == ''">$(MSBuildProjectDirectory)/../../../../../../ReignServer</ReignServerRoot>
   </PropertyGroup>
 
   <PropertyGroup>
@@ -28,6 +29,7 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <ProjectReference Include="$(ReignServerRoot)/shared/Reign.Core.Contracts/Reign.Core.Contracts.csproj" />
     <PackageReference Include="Bannerlord.BUTR.Shared" Version="3.0.0.142" />
     <PackageReference Include="Bannerlord.ModuleManager.Source" Version="5.0.222" />
     <PackageReference Include="Harmony.Extensions" Version="3.2.0.77" />

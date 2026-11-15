@@ -5,6 +5,7 @@
     <IsPackable>false</IsPackable>
   </PropertyGroup>
   <ItemGroup>
+    <Compile Include="..\..\..\ReignBeta\src\Modules\WorldSimulation\PartyAgency\ReignTemporaryGuestCustodyPolicy.cs" Link="Shared\ReignTemporaryGuestCustodyPolicy.cs" />
     <Compile Include="..\..\..\ReignBeta\src\Modules\Court\UI\ReignCourtLayout.cs" Link="Shared\ReignCourtLayout.cs" />
     <Compile Include="..\..\..\ReignBeta\src\Modules\Dialogue\Integration\ReignCommunicationPollHold.cs" Link="Shared\ReignCommunicationPollHold.cs" />
     <Compile Include="..\..\..\ReignBeta\src\Modules\WorldSimulation\Economy\ReignWarEconomyPolicy.cs" Link="Shared\ReignWarEconomyPolicy.cs" />

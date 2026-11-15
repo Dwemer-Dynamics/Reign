@@ -13,7 +13,7 @@ internal sealed class ReignModuleCatalog(ReignMcpOptions options)
     private static readonly HashSet<string> AuditedExtensions = new(StringComparer.OrdinalIgnoreCase)
     {
         ".cs", ".csproj", ".props", ".targets", ".json", ".xml", ".md",
-        ".ps1", ".cmd", ".toml", ".sln", ".slnx", ".yml", ".yaml", ".xsl", ".iss", ".html", ".css"
+        ".ps1", ".psm1", ".cmd", ".toml", ".sln", ".slnx", ".yml", ".yaml", ".xsl", ".iss", ".html", ".css"
     };
 
     public ModuleResolution Resolve(
@@ -196,7 +196,7 @@ internal sealed class ReignModuleCatalog(ReignMcpOptions options)
             ModuleCoverageComplete = audit.Complete, NonCodeOnly = false,
             PathResolutions = pathResolutions, CoverageAudit = audit,
             Scope = forceEcosystem ? "ecosystem" : forceProduct ? "product" : "module",
-            VerificationTier = forceEcosystem ? "offline" : forceProduct ? "quick"
+            VerificationTier = forceEcosystem || forceProduct ? "quick"
                 : operations.Count > 0 ? "targeted"
                 : selectedProjects.Any(project => project.Group == "core") ? "quick" : "none"
         };
@@ -227,7 +227,7 @@ internal sealed class ReignModuleCatalog(ReignMcpOptions options)
             PathResolutions = [],
             CoverageAudit = audit,
             Scope = scope,
-            VerificationTier = scope == "ecosystem" ? "offline" : "quick"
+            VerificationTier = "quick"
         };
     }
 

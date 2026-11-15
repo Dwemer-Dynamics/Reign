@@ -6,32 +6,6 @@ namespace Reign.Mcp.Tests.Features.WorldSimulation;
 public sealed class NpcLivesHarnessTests
 {
     [Fact]
-    public void ShipTradeGovernorCompatibilityUsesThePortAndKeepsItsOptionalNativeBoundary()
-    {
-        string root = TestOptions.FindWorkspace();
-        string source = File.ReadAllText(Path.Combine(root, "ReignBeta/src/Modules/WorldSimulation/Campaign/ReignShipTradeGovernorPatch.cs"));
-        Assert.Contains("AccessTools.TypeByName(\"NavalDLC.CampaignBehaviors.ShipTradeCampaignBehavior\")", source);
-        Assert.Contains("if (type == null) return;", source);
-        Assert.Contains("=> oldOwnerPort ?? newOwnerPort;", source);
-        Assert.Contains("=> SelectTradePort(oldOwner?.Settlement, ship?.Owner?.Settlement);", source);
-        Assert.Contains("sites.Length != 1", source);
-        Assert.Contains("source[sites[0] + 1].opcode != OpCodes.Ldfld", source);
-        Assert.Contains("!Equals(source[sites[0] + 1].operand, town)", source);
-        foreach (string forbidden in new[] { "GiveGoldAction.", "ChangeShipOwnerAction.Apply", "ChangeState(", "GovernorOf =", "CurrentSettlement =" })
-            Assert.DoesNotContain(forbidden, source);
-        string startup = File.ReadAllText(Path.Combine(root, "ReignBeta/src/Modules/Platform/SubModule.cs"));
-        Assert.Contains("ReignShipTradeGovernorPatch.Apply();", startup);
-        Assert.Contains("ReignShipTradeGovernorPatch.Unapply();", startup);
-        using var catalog = System.Text.Json.JsonDocument.Parse(File.ReadAllText(Path.Combine(root, "reign.testing.json")));
-        string contract = catalog.RootElement.GetProperty("npcLives").GetProperty("shipTradeGovernorContext").GetString()!;
-        foreach (string required in new[] { "OnShipOwnerChanged", "CurrentSettlement.Town", "optional", "four", "actual native campaign regression", "no provider" })
-            Assert.Contains(required, contract);
-        foreach (string path in new[] { "docs/agent/testing/FEATURE_HARNESSES.md", "ReignMcp/docs/tool-catalog.md",
-            "ReignMcp/docs/security-model.md", "ReignMcp/README.md" })
-            Assert.Contains("Away-governor ship-trade context (2026-10-25)", File.ReadAllText(Path.Combine(root, path)));
-    }
-
-    [Fact]
     public void NewMeetingValidationHonorsTheSwitchWithoutCancellingSignedCommitments()
     {
         string root = TestOptions.FindWorkspace();
@@ -190,25 +164,20 @@ public sealed class NpcLivesHarnessTests
     }
 
     [Fact]
-    public void ReplacedLeaveDraftIsDiscardedBeforeBothRoutesCachePublicationEffects()
+    public void LeaveConversationKeepsAuthoredSpeechAndIndependentActionPublication()
     {
         string root = TestOptions.FindWorkspace();
         string source = File.ReadAllText(Path.Combine(root, "ReignServer/src/Modules/Platform/Program.cs"));
         const string guard = "ConstrainNpcLeaveReply(payload, heroId, parsed, ref reply);";
-        var guards = System.Text.RegularExpressions.Regex.Matches(source,
-            System.Text.RegularExpressions.Regex.Escape(guard)).Select(m => m.Index).ToArray();
-        Assert.Equal(2, guards.Length);
-        foreach (int index in guards)
-        {
-            int parsed = source.LastIndexOf("Dictionary<string, object> parsed = TryParseJsonObject(content);", index, StringComparison.Ordinal);
-            int memories = source.IndexOf("List<Dictionary<string, object>> memoryWrites =", parsed, StringComparison.Ordinal);
-            int state = source.IndexOf("Dictionary<string, object> stateUpdates =", parsed, StringComparison.Ordinal);
-            int actionGate = source.IndexOf("Dictionary<string, object> actionGate =", parsed, StringComparison.Ordinal);
-            Assert.True(parsed >= 0 && parsed < index && index < memories && index < state && index < actionGate);
-        }
+        Assert.DoesNotContain(guard, source);
+        Assert.Contains("GenerateSinglePassConversation(dialogueLlmRequest, payload", source);
+        Assert.Contains("GenerateSinglePassConversation(eventLlmRequest, payload", source);
+        Assert.Contains("CaptureStructuredActionDecision(payload, parsed);", source);
+        string accepted = File.ReadAllText(Path.Combine(root, "ReignServer/src/Modules/Dialogue/ConversationAcceptedUnit.cs"));
+        Assert.Contains("RecordAcceptedNpcLives(connection, unit, sourceRows)", accepted);
         using var catalog = System.Text.Json.JsonDocument.Parse(File.ReadAllText(Path.Combine(root, "reign.testing.json")));
-        Assert.Contains("before deriving", catalog.RootElement.GetProperty("npcLives").GetProperty("personalLeavePublication").GetString()!);
-        Assert.Contains("omitted", catalog.RootElement.GetProperty("npcLives").GetProperty("personalLeavePublication").GetString()!);
+        Assert.Contains("single-pass", catalog.RootElement.GetProperty("npcLives").GetProperty("personalLeavePublication").GetString()!);
+        Assert.Contains("consent", catalog.RootElement.GetProperty("npcLives").GetProperty("personalLeavePublication").GetString()!);
         foreach (string path in new[] { "docs/agent/testing/FEATURE_HARNESSES.md", "ReignMcp/docs/tool-catalog.md",
             "ReignMcp/docs/security-model.md", "ReignMcp/README.md" })
             Assert.Contains("Personal leave reply publication (2026-10-25)", File.ReadAllText(Path.Combine(root, path)));

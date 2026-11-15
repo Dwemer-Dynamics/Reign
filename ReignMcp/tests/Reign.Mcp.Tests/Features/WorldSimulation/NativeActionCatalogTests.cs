@@ -12,6 +12,10 @@ public sealed class NativeActionCatalogTests
     {
         Assert.Equal(193, ReignNativeActionCatalog.All.Count);
         Assert.Equal(193, ReignNativeActionCatalog.All.Select(d => d.Id).Distinct(StringComparer.Ordinal).Count());
+        Assert.Equal(11, ReignNativeActionCatalog.ExcludedFromExecution.Count);
+        Assert.Equal(204, ReignNativeActionCatalog.All.Concat(ReignNativeActionCatalog.ExcludedFromExecution)
+            .Select(d => d.Id).Distinct(StringComparer.Ordinal).Count());
+        Assert.All(ReignNativeActionCatalog.ExcludedFromExecution, d => Assert.Null(ReignNativeActionCatalog.Find(d.Id)));
         Assert.All(ReignNativeActionCatalog.All, d =>
         {
             Assert.StartsWith("native.", d.Id);
@@ -47,7 +51,7 @@ public sealed class NativeActionCatalogTests
                         + (parameterMetadata[i].Attributes.HasFlag(ParameterAttributes.HasDefault) ? "=optional" : ""))) + ")");
             }
         }
-        var expected = ReignNativeActionCatalog.All.Select(d => d.Type + "." + d.Method + ":" + d.ReturnType + "("
+        var expected = ReignNativeActionCatalog.All.Concat(ReignNativeActionCatalog.ExcludedFromExecution).Select(d => d.Type + "." + d.Method + ":" + d.ReturnType + "("
             + string.Join(";", d.Parameters.Select(p => p.Type + (p.Direction.Length > 0 ? "&" : "") + " " + p.Name
                 + (p.Direction == "out" ? "!out" : "") + (p.Default.Length > 0 ? "=optional" : ""))) + ")").ToArray();
         var missing = expected.Except(actual, StringComparer.Ordinal).ToArray();

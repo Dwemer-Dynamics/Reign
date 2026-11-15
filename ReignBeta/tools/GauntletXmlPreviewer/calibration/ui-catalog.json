@@ -302,6 +302,42 @@
           "previewOnly": true,
           "liveAction": "previewer preset only",
           "entry": "Conversation > Alt+A > Unavailable selection"
+        },
+        {
+          "id": "action-builder-tavern-names",
+          "label": "Tavern visit company",
+          "variant": "action-builder-tavern-names",
+          "previewOnly": true,
+          "nativeInjection": false,
+          "entry": "Visit the Madam > Alt+A",
+          "liveAction": "previewer preset only"
+        },
+        {
+          "id": "action-builder-tavern-price",
+          "label": "Tavern agreed price",
+          "variant": "action-builder-tavern-price",
+          "previewOnly": true,
+          "nativeInjection": false,
+          "entry": "Visit the Madam > Alt+A",
+          "liveAction": "previewer preset only"
+        },
+        {
+          "id": "action-builder-tavern-free",
+          "label": "Tavern free visit",
+          "variant": "action-builder-tavern-free",
+          "previewOnly": true,
+          "nativeInjection": false,
+          "entry": "Visit the Madam > Alt+A",
+          "liveAction": "previewer preset only"
+        },
+        {
+          "id": "action-builder-tavern-offer",
+          "label": "Tavern named group offer",
+          "variant": "action-builder-tavern-offer",
+          "previewOnly": true,
+          "nativeInjection": false,
+          "entry": "Visit the Madam > Alt+A",
+          "liveAction": "previewer preset only"
         }
       ],
       "referenceSurfaceElementId": "ActionBuilderShell"
@@ -1161,7 +1197,7 @@
         },
         {
           "id": "tavern-house-quote",
-          "label": "Visit agreement",
+          "label": "Protected visit sentence draft",
           "variant": "tavern-house-quote",
           "entry": "Town > Tavern > Visit the Madam",
           "liveAction": "previewer preset; native feature acceptance required",
@@ -1271,7 +1307,7 @@
         },
         {
           "id": "settlement-homes-empty",
-          "label": "Homes \u2014 No known residents",
+          "label": "Homes — No known residents",
           "variant": "homes-empty",
           "entry": "Settlement without met residents",
           "liveAction": "settlement Homes native acceptance",

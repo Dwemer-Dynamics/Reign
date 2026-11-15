@@ -22,7 +22,7 @@ namespace ReignBeta.Campaign
         internal long DurationMs { get; set; }
     }
 
-    public sealed class ReignCharacterEditorCampaignBehavior : CampaignBehaviorBase
+    public sealed partial class ReignCharacterEditorCampaignBehavior : CampaignBehaviorBase
     {
         public static ReignCharacterEditorCampaignBehavior Instance { get; private set; }
         public bool NotableBackgroundInitializationComplete => _notableBackgroundInitializationComplete;
@@ -49,6 +49,8 @@ namespace ReignBeta.Campaign
             _owningCampaign = TaleWorlds.CampaignSystem.Campaign.Current;
             CampaignEvents.HourlyTickEvent.AddNonSerializedListener(this, OnHourlyTick);
             CampaignEvents.OnSessionLaunchedEvent.AddNonSerializedListener(this, OnSessionLaunched);
+            CampaignEvents.SettlementEntered.AddNonSerializedListener(this, OnProfileTownEntered);
+            CampaignEvents.OnSettlementLeftEvent.AddNonSerializedListener(this, OnProfileTownLeft);
         }
 
         public override void SyncData(IDataStore dataStore)
@@ -73,6 +75,7 @@ namespace ReignBeta.Campaign
         public void ApplicationTick(float deltaSeconds)
         {
             if (!IsCurrentCampaign) return;
+            TryPrewarmTownProfiles();
             if (!ReignCampaignInitializationGate.IsPending)
             {
                 StartPoll(false);

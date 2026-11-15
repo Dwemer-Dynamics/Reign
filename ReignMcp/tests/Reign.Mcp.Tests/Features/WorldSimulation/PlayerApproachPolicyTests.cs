@@ -6,6 +6,16 @@ namespace Reign.Mcp.Tests.Features.WorldSimulation;
 public sealed class PlayerApproachPolicyTests
 {
     [Theory]
+    [InlineData(true, true, false, true, true, true)]
+    [InlineData(false, true, false, true, true, false)]
+    [InlineData(true, false, false, true, true, false)]
+    [InlineData(true, true, true, true, true, false)]
+    [InlineData(true, true, false, false, true, false)]
+    [InlineData(true, true, false, true, false, false)]
+    public void LiberationTalkRequiresTheActualNativeReleaseContextAndEnabledRescue(bool native, bool hero,
+        bool initializing, bool server, bool rescue, bool expected)
+        => Assert.Equal(expected, PlayerApproachPolicy.CanOfferLiberationConversation(native, hero, initializing, server, rescue));
+    [Theory]
     [InlineData(true, true, false, false, true)] // An external noble visiting the keep.
     [InlineData(true, true, true, true, false)] // A noble travelling with the player.
     [InlineData(true, true, true, false, false)] // Native party ownership alone excludes.
