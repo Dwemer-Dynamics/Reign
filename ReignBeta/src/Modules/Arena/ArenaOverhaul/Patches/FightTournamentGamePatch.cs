@@ -1,4 +1,4 @@
-﻿using ArenaOverhaul.Helpers;
+using ArenaOverhaul.Helpers;
 using ArenaOverhaul.ModSettings;
 using ArenaOverhaul.Tournament;
 
@@ -34,6 +34,7 @@ namespace ArenaOverhaul.Patches
         private static readonly MethodInfo? miGetRegularRewardItems = AccessTools.Method(typeof(TournamentModel), "GetRegularRewardItems");
         private static readonly MethodInfo? miGetEliteRewardItems = AccessTools.Method(typeof(TournamentModel), "GetEliteRewardItems");
         private static readonly MethodInfo? miGetBannerRewardItems = AccessTools.Method(typeof(FightTournamentGamePatch), "GetBannerRewardItems");
+        private static readonly MethodInfo? miGetCompatibleRegularRewardItems = AccessTools.Method(typeof(FightTournamentGamePatch), "GetCompatibleRegularRewardItems");
         private static readonly MethodInfo? miGetCompatibleEliteRewardItems = AccessTools.Method(typeof(FightTournamentGamePatch), "GetCompatibleEliteRewardItems");
 
         private static readonly MethodInfo? miGetPrizeItemName = AccessTools.Method(typeof(TournamentRewardManager), "GetPrizeItemName");
@@ -46,6 +47,19 @@ namespace ArenaOverhaul.Patches
         {
             __result = _applicantManager.GetParticipantCharacters(__instance, settlement, includePlayer);
             return false;
+        }
+
+        [HarmonyPrefix]
+        [HarmonyPatch("GetTournamentPrize")]
+        public static void RefreshPrizePools(FightTournamentGame __instance)
+        {
+            // Clear candidate caches, never Prize or its recorded noble count.
+            // Native retains an existing prize when no reroll is due; on an actual
+            // roll it rebuilds null OR empty caches with current history filtering.
+            // Do not enumerate participants here and consume native RNG twice.
+            FieldAccessHelper.FTGPossibleRegularRewardItemObjectsCacheByRef(__instance) = null!;
+            FieldAccessHelper.FTGPossibleEliteRewardItemObjectsCacheByRef(__instance) = null!;
+            FieldAccessHelper.FTGPossibleBannerRewardItemObjectsCacheByRef(__instance) = null!;
         }
 
         [HarmonyTranspiler]
@@ -110,6 +124,11 @@ namespace ArenaOverhaul.Patches
                         {
                             codes[i].opcode = OpCodes.Call;
                             codes[i].operand = miGetBannerRewardItems;
+                        }
+                        else if (miGetCompatibleRegularRewardItems != null)
+                        {
+                            codes[i].opcode = OpCodes.Call;
+                            codes[i].operand = miGetCompatibleRegularRewardItems;
                         }
                         regularCalls++;
                     }
@@ -204,9 +223,9 @@ namespace ArenaOverhaul.Patches
         {
             bool alreadyRegistered = TournamentRewardManager.CurrentPrizeHasRegisteredModifier(__instance.Town, __result);
             ItemModifier? itemModifier = null;
-            if (Settings.Instance!.EnableHighQualityPrizes && !alreadyRegistered)
+            if (!alreadyRegistered)
             {
-                itemModifier = TournamentRewardManager.GetRandomItemModifier(__result);
+                if (Settings.Instance!.EnableHighQualityPrizes) itemModifier = TournamentRewardManager.GetRandomItemModifier(__result);
                 TournamentRewardManager.RegisterPrizeModifier(__instance.Town, __result, itemModifier);
             }
             if (!alreadyRegistered) TournamentRewardManager.RecordRolledPrize(__result);
@@ -216,89 +235,28 @@ namespace ArenaOverhaul.Patches
                     + "; alreadyRegistered=" + alreadyRegistered, "Tournament prize roll");
         }
 
+        private static MBList<ItemObject> GetCompatibleRegularRewardItems(TournamentModel model, Town town, int minValue, int maxValue)
+        {
+            return new MBList<ItemObject>(ReignBeta.Shared.Arena.TournamentPrizeVariety.FreshPool(
+                model.GetRegularRewardItems(town, minValue, maxValue), item => item.StringId,
+                TournamentRewardManager.RecentTournamentPrizeItemIds));
+        }
+
         private static MBList<ItemObject> GetBannerRewardItems(TournamentModel model, Town town, int minValue, int maxValue)
         {
-            MBList<ItemObject> items = model.GetRegularRewardItems(town, minValue, maxValue);
+            MBList<ItemObject> items = new MBList<ItemObject>(model.GetRegularRewardItems(town, minValue, maxValue));
             if (Settings.Instance!.CultureRestrictedTournamentPrizes.SelectedIndex >= 1 && town.Culture is CultureObject townCulture)
             {
                 FilterByCulture(items, townCulture);
             }
-            return items;
+            return new MBList<ItemObject>(ReignBeta.Shared.Arena.TournamentPrizeVariety.FreshPool(items, item => item.StringId,
+                TournamentRewardManager.RecentTournamentPrizeItemIds));
         }
 
         private static MBList<ItemObject> GetCompatibleEliteRewardItems(TournamentModel model, Town town, int minValue, int maxValue)
         {
-            if (Settings.Instance!.EnableTournamentPrizeScaling && Clan.PlayerClan.Tier >= 2)
-            {
-                return CreateScaledEliteRewardItems(town);
-            }
-            MBList<ItemObject> items = model.GetEliteRewardItems(town, minValue, maxValue);
-            if (Settings.Instance.CultureRestrictedTournamentPrizes.SelectedIndex >= 2 && town.Culture is CultureObject townCulture)
-            {
-                FilterByCulture(items, townCulture, Settings.Instance.CultureRestrictedTournamentPrizes.SelectedIndex == 2);
-            }
-            items.Sort((x, y) => x.Value.CompareTo(y.Value));
-            return items;
-        }
-
-        private static MBList<ItemObject> CreateScaledEliteRewardItems(Town town)
-        {
-            MBList<ItemObject> itemObjectList = [];
-
-            var townCulture = town.Culture;
-            int culturalPrizesSelectedIndex = Settings.Instance!.CultureRestrictedTournamentPrizes.SelectedIndex;
-            CultureObject? requiredCulture = culturalPrizesSelectedIndex >= 1 ? townCulture : null;
-            List<ItemObject>? itemObjectCandidates = default;
-
-            //Pick standard items with cultural restrictions
-            if (requiredCulture != null)
-            {
-                //Get top 10 most valued standard items by type with town culture
-                itemObjectCandidates =
-                    Items.All
-                    .Where(itemObject => IsSuitablePrize(itemObject, requiredCulture)).ToList()
-                    .GroupBy(itemObject => (itemObject.Type))
-                    .Select(accessGroup => (GroupKey: accessGroup.Key, TopTenItems: accessGroup.OrderByDescending(subg => subg.Value).Take(10)))
-                    .SelectMany(x => x.TopTenItems.Select(y => (x.GroupKey, Item: y)))
-                    .Select(x => x.Item).ToList();
-            }
-
-            //Another try without cultural restrictions
-            if (itemObjectCandidates is null || itemObjectCandidates.Count <= 0)
-            {
-                //Get top 5 most valued standard items by type and culture
-                itemObjectCandidates =
-                    Items.All
-                    .Where(itemObject => IsSuitablePrize(itemObject, null)).ToList()
-                    .GroupBy(itemObject => (itemObject.Type, itemObject.Culture))
-                    .Select(accessGroup => (GroupKey: accessGroup.Key, TopFiveItems: accessGroup.OrderByDescending(subg => subg.Value).Take(5)))
-                    .SelectMany(x => x.TopFiveItems.Select(y => (x.GroupKey, Item: y)))
-                    .Select(x => x.Item).ToList();
-            }
-
-            //Add standard items
-            if (itemObjectCandidates != null)
-            {
-                itemObjectList.AddRange(itemObjectCandidates);
-            }
-
-            //Add unique weapons and armors
-            requiredCulture = culturalPrizesSelectedIndex >= 2 ? townCulture : null;
-
-            var uniqueWeapons = Items.All.Where(itemObject => IsUniqueWeapon(itemObject, requiredCulture)).ToList();
-            itemObjectList.AddRange(uniqueWeapons);
-
-            var uniqueArmors = Items.All.Where(itemObject => IsUniqueArmor(itemObject, requiredCulture)).ToList();
-            itemObjectList.AddRange(uniqueArmors);
-
-            //Add unique mounts
-            requiredCulture = culturalPrizesSelectedIndex == 3 ? townCulture : null;
-
-            var uniqueMounts = Items.All.Where(itemObject => IsUniqueMount(itemObject, requiredCulture)).ToList();
-            itemObjectList.AddRange(uniqueMounts);
-
-            itemObjectList.Sort((x, y) => x.Value.CompareTo(y.Value));
-            return itemObjectList;
+            var pool = TournamentPrizeCatalog.Build(town);
+            return pool.Count > 0 ? new MBList<ItemObject>(pool) : model.GetEliteRewardItems(town, minValue, maxValue);
         }
 
         /* service methods */
@@ -313,46 +271,9 @@ namespace ArenaOverhaul.Patches
             }
         }
 
-        private static bool IsSuitablePrize(ItemObject itemObject, CultureObject? requiredCulture) =>
-            (itemObject.Tier is ItemObject.ItemTiers.Tier5 or ItemObject.ItemTiers.Tier6)
-            && itemObject.Value <= GetMaxItemValueForElitePrize()
-            && (requiredCulture is null || itemObject.Culture is null || itemObject.Culture == requiredCulture || !itemObject.Culture.CanHaveSettlement)
-            && !itemObject.NotMerchandise
-            && (itemObject.IsCraftedWeapon || itemObject.IsMountable || itemObject.ArmorComponent != null)
-            && !itemObject.IsCraftedByPlayer;
-
-        private static bool IsUniqueItemObject(ItemObject itemObject, CultureObject? requiredCulture) =>
-            itemObject.NotMerchandise && (int) itemObject.Tier >= 2 && !itemObject.IsCraftedByPlayer
-            && (requiredCulture is null || itemObject.Culture is null || itemObject.Culture == requiredCulture || !itemObject.Culture.CanHaveSettlement);
-
-        private static bool IsUniqueWeapon(ItemObject itemObject, CultureObject? requiredCulture) =>
-            IsUniqueItemObject(itemObject, requiredCulture)
-            && itemObject.IsCraftedWeapon
-            //Remove practice weapons
-            && !itemObject.StringId.EndsWith("_blunt")
-            && !itemObject.StringId.StartsWith("practice_")
-            //Remove cheap weapons
-            && !itemObject.StringId.StartsWith("peasant_");
-
-        private static bool IsUniqueArmor(ItemObject itemObject, CultureObject? requiredCulture) =>
-            IsUniqueItemObject(itemObject, requiredCulture)
-            && itemObject.ArmorComponent != null
-            //Remove practice armors
-            && !itemObject.StringId.StartsWith("dummy_")
-            //Remove magic armors
-            && itemObject.StringId != "celtic_frost" && itemObject.StringId != "saddle_of_aeneas" && itemObject.StringId != "fortunas_choice";
-
-        private static bool IsUniqueMount(ItemObject itemObject, CultureObject? requiredCulture) => IsUniqueItemObject(itemObject, requiredCulture) && itemObject.IsMountable;
-
         internal static bool ShouldPrizeBeRerolled(int lastRecordedNobleCountForTournamentPrize, int participantingNoblesCount) =>
-            Settings.Instance!.TournamentPrizeRerollCondition.SelectedIndex switch
-            {
-                0 => false, //Never
-                1 => lastRecordedNobleCountForTournamentPrize < 4 && participantingNoblesCount >= 4, //When prize tier can be improved
-                2 => lastRecordedNobleCountForTournamentPrize < participantingNoblesCount, //When chances for better prize are improved
-                3 => lastRecordedNobleCountForTournamentPrize != participantingNoblesCount, //When situation changed
-                _ => true,
-            };
+            ReignBeta.Shared.Arena.TournamentPrizeVariety.ShouldReroll(Settings.Instance!.TournamentPrizeRerollCondition.SelectedIndex,
+                lastRecordedNobleCountForTournamentPrize, participantingNoblesCount);
 
         internal static int GetRegularRewardItemMinValue()
         {
@@ -379,14 +300,5 @@ namespace ArenaOverhaul.Patches
             };
         }
 
-        private static int GetMaxItemValueForElitePrize() =>
-            Clan.PlayerClan.Tier switch
-            {
-                < 3 => 50000,
-                3 => 200000,
-                4 => 300000,
-                5 => 400000,
-                _ => 500000,
-            };
     }
 }

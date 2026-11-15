@@ -21,23 +21,36 @@ namespace ReignBeta.Campaign
 {
     public sealed partial class ReignRulerCampaignBehavior
     {
+        private static bool HeldForJudgment(RulerJudgment j)
+        {
+            var captive = HeroById(j.PrisonerId);
+            return captive?.IsAlive == true && captive.IsPrisoner
+                && captive.PartyBelongedToAsPrisoner?.MapFaction == Realm(j.VictorKingdomId);
+        }
+
         private void PrepareDecision(RulerJudgment j, RulerVerdict? requested)
         {
+            if (!ReignRulerPolicy.DecisionDue(j, Day) || !HeldForJudgment(j)
+                || Realm(j.VictorKingdomId)?.Leader?.IsAlive != true
+                || Realm(j.VictorKingdomId)?.Leader?.StringId != j.VictorId) return;
             _networkBusy = true; int epoch = _epoch; var owner = NativeCampaign.Current;
             string decidingRuler = j.VictorId;
-            var p = ReignServerClient.RulerRequestPayload(); p["victorId"] = j.VictorId; p["prisonerId"] = j.PrisonerId;
-            p["victorProfile"] = ReignServerClient.RulerPersonalitySnapshot(HeroById(j.VictorId));
-            var defeated = Realm(j.DefeatedKingdomId);
-            p["clans"] = new JArray((defeated?.Clans ?? Enumerable.Empty<Clan>()).Where(c => !c.IsEliminated && !c.IsUnderMercenaryService && c.Leader?.IsAlive == true)
-                .Select(c => new JObject { ["clanId"] = c.StringId, ["leaderId"] = c.Leader.StringId }));
             _ = Resolve();
             async Task Resolve()
             {
                 try
                 {
+                    // Capture native context on the calling main thread, inside
+                    // the try/finally so preparation errors cannot strand busy.
+                    var p = ReignServerClient.RulerRequestPayload(); p["victorId"] = j.VictorId; p["prisonerId"] = j.PrisonerId;
+                    p["victorProfile"] = ReignServerClient.RulerPersonalitySnapshot(HeroById(j.VictorId));
+                    var defeated = Realm(j.DefeatedKingdomId);
+                    p["clans"] = new JArray((defeated?.Clans ?? Enumerable.Empty<Clan>()).Where(c => !c.IsEliminated && !c.IsUnderMercenaryService && c.Leader?.IsAlive == true)
+                        .Select(c => new JObject { ["clanId"] = c.StringId, ["leaderId"] = c.Leader.StringId }));
                     var r = await ReignServerClient.RulerRequestAsync("context", p).ConfigureAwait(false);
                     await ReignMainThread.InvokeAsync(() => {
-                        if (Instance != this || epoch != _epoch || owner != NativeCampaign.Current || j.Stage != RulerJudgmentStage.AwaitingDecision) return;
+                        if (Instance != this || epoch != _epoch || owner != NativeCampaign.Current
+                            || !ReignRulerPolicy.DecisionDue(j, Day) || !HeldForJudgment(j)) return;
                         if (Realm(j.VictorKingdomId)?.Leader?.StringId != decidingRuler) return;
                         if (r.Value<bool?>("ok") != true) throw new InvalidOperationException(r.Value<string>("error") ?? "Ruler judgment context unavailable.");
                         j.Traits = r["traits"]?.ToObject<Dictionary<string, double>>() ?? new Dictionary<string, double>();
@@ -47,7 +60,11 @@ namespace ReignBeta.Campaign
                             c.Fiefs = ClanById(c.ClanId)?.Settlements.Where(s => s.IsTown || s.IsCastle).Select(s => s.StringId).ToList() ?? new List<string>(); return c; }).ToList();
                         j.Failure = "";
                         if (j.Draw < 0 && TryConsumeJudgmentDraw(j, out double controlledDraw)) j.Draw = controlledDraw;
-                        if (requested.HasValue) { Sentence(j, requested.Value); return; }
+                        var intended = requested ?? j.PendingVerdict;
+                        if (intended.HasValue && Eligible(j, intended.Value)) { Sentence(j, intended.Value); return; }
+                        // A queued choice can become unavailable during captivity.
+                        // Release it so the normal eligible decision can proceed.
+                        j.PendingVerdict = null;
                         if (HeroById(j.VictorId) == Hero.MainHero) { PresentDecision(j); return; }
                         if (j.CivilWar && !j.RebelVictory)
                         {
@@ -59,8 +76,8 @@ namespace ReignBeta.Campaign
                             Sentence(j, choice); return;
                         }
                         var scores = ReignRulerPolicy.Scores(j.Traits, j.VictorAffinity.Value, j.CivilWar && j.RebelVictory);
-                        foreach (var key in scores.Keys.Where(v => !Eligible(j, v)).ToList()) scores.Remove(key);
                         if (j.DefeatedLord || (j.CivilWar && !j.RebelVictory)) { scores.Clear(); scores[RulerVerdict.Freedom] = j.Traits["mercy"]; scores[RulerVerdict.Imprisonment] = 50; scores[RulerVerdict.CleanExecution] = 100-j.Traits["mercy"]; }
+                        foreach (var key in scores.Keys.Where(v => !Eligible(j, v)).ToList()) scores.Remove(key);
                         if (j.Draw < 0) j.Draw = MBRandom.RandomFloat;
                         Sentence(j, ReignRulerPolicy.Choose(scores, j.Draw));
                     }).ConfigureAwait(false);
@@ -79,11 +96,12 @@ namespace ReignBeta.Campaign
         }
         private void PresentDecision(RulerJudgment j)
         {
+            if (!ReignRulerPolicy.DecisionDue(j, Day) || !HeldForJudgment(j)) return;
             if (_presenting || Mission.Current != null || NativeCampaign.Current.ConversationManager.IsConversationInProgress || MobileParty.MainParty?.MapEvent != null
                 || ReignBeta.UI.ReignDiplomacyAnnouncementScreenManager.IsOpen || InformationManager.IsAnyInquiryActive()) return;
             var rows = Enum.GetValues(typeof(RulerVerdict)).Cast<RulerVerdict>().Where(v => Eligible(j, v)).Select(v => new InquiryElement(v, Label(v), null)).ToList();
             _presenting = true;
-            MBInformationManager.ShowMultiSelectionInquiry(new MultiSelectionInquiryData("Captured ruler", "Decide the fate of " + (HeroById(j.PrisonerId)?.Name?.ToString() ?? "the captive") + ". Executions allow fifteen days for escape or rescue; ransom is forbidden after sentencing.",
+            MBInformationManager.ShowMultiSelectionInquiry(new MultiSelectionInquiryData("Captured ruler", "Decide the fate of " + (HeroById(j.PrisonerId)?.Name?.ToString() ?? "the captive") + ". Executions allow eight days for escape or rescue; ransom is forbidden after sentencing.",
                 rows, true, 1, 1, "Choose", "Decide later", chosen => {
                     _presenting = false;
                     if (j.Stage != RulerJudgmentStage.AwaitingDecision || chosen.Count != 1 || Realm(j.VictorKingdomId)?.Leader != Hero.MainHero) return;
@@ -94,12 +112,12 @@ namespace ReignBeta.Campaign
         private static string Label(RulerVerdict v)
         {
             switch (v) {
-                case RulerVerdict.TortureExecution: return "Torture and humiliation, then execution in fifteen days";
-                case RulerVerdict.CleanExecution: return "Clean execution in fifteen days";
+                case RulerVerdict.TortureExecution: return "Torture and humiliation, then execution in eight days";
+                case RulerVerdict.CleanExecution: return "Clean execution in eight days";
                 case RulerVerdict.Exile: return "Exile, reparations, a ceded holding and immediate peace";
                 case RulerVerdict.Submission: return "Submission: unite their kingdom with ours";
                 case RulerVerdict.Independence: return "Recognize rebel independence and release the ruler";
-                case RulerVerdict.RebelExecution: return "Keep independence and execute the old ruler in fifteen days";
+                case RulerVerdict.RebelExecution: return "Keep independence and execute the old ruler in eight days";
                 case RulerVerdict.Reunification: return "Reunify under the rebel leader and spare the old ruler";
                 case RulerVerdict.Freedom: return "Grant freedom";
                 default: return "Imprison the defeated leader";
@@ -137,8 +155,9 @@ namespace ReignBeta.Campaign
             .FirstOrDefault(h => h?.IsAlive == true && !h.IsChild && !h.IsPrisoner && h.Clan?.Kingdom?.StringId == j.DefeatedKingdomId);
         internal void Sentence(RulerJudgment j, RulerVerdict verdict)
         {
-            if (j.Stage != RulerJudgmentStage.AwaitingDecision || !Eligible(j, verdict) || HeroById(j.PrisonerId)?.IsPrisoner != true
+            if (!ReignRulerPolicy.DecisionDue(j, Day) || !Eligible(j, verdict) || !HeldForJudgment(j)
                 || Realm(j.VictorKingdomId)?.Leader?.StringId != j.VictorId) return;
+            j.PendingVerdict = null;
             j.Verdict = verdict; j.SentencedDay = Day; j.Deadline = Day + ReignRulerPolicy.ExecutionDays;
             if (verdict == RulerVerdict.Exile)
             {
@@ -165,7 +184,7 @@ namespace ReignBeta.Campaign
             Kingdom defeated = Realm(j.DefeatedKingdomId), winning = Realm(j.VictorKingdomId);
             if (winning?.Leader?.IsAlive == true) victor = winning.Leader;
             if (prisoner == null || victor?.IsAlive != true || winning == null || defeated == null) { j.Failure = "Judgment principals unavailable."; return; }
-            if (!j.NativeDeathObserved && !j.NativeExecutionRequested && (!prisoner.IsPrisoner || prisoner.PartyBelongedToAsPrisoner?.MapFaction != winning)) { ReignRulerPolicy.Cancel(j, "escaped_or_rescued"); return; }
+            if (!j.NativeDeathObserved && !j.NativeExecutionRequested && (!prisoner.IsPrisoner || prisoner.PartyBelongedToAsPrisoner?.MapFaction != winning)) { CancelForLostCustody(j, prisoner.IsAlive, "cancelled"); return; }
             j.Stage = RulerJudgmentStage.Applying; ApplyingNative = true;
             try
             {
@@ -228,7 +247,7 @@ namespace ReignBeta.Campaign
                     || prisoner.PartyBelongedToAsPrisoner?.MapFaction != winning))
                     throw new InvalidOperationException("Imprisonment did not retain the living leader in the victorious kingdom's custody.");
                 if (!j.CivilWar && j.Verdict != RulerVerdict.Submission) AddEffects(j, null);
-                j.Stage = RulerJudgmentStage.Completed; j.Failure = ""; History(j, "completed", CompletedSummary(j.Verdict));
+                j.Stage = RulerJudgmentStage.Completed; j.ResolvedDay = Day; j.Failure = ""; History(j, "completed", CompletedSummary(j.Verdict));
             }
             catch (Exception ex) { j.Failure = "Native consequence uncertain: " + ex.Message; ReignLog.Warn("Ruler judgment " + j.Id + " halted: " + ex); }
             finally { ApplyingNative = false; }
@@ -340,23 +359,42 @@ namespace ReignBeta.Campaign
         private void History(RulerJudgment j, string phase, string summary)
         {
             ReignWorldHistoryCampaignBehavior.Instance?.RecordReignSystemEvent("ruler_judgment", phase, "politics", j.Id,
-                summary, "major_world", j.VictorId, j.DefeatedKingdomId, JObject.FromObject(new { judgmentId = j.Id, verdict = j.Verdict.ToString(), j.Deadline, j.CancellationReason }), new JArray(j.PrisonerId));
+                summary, "major_world", j.VictorId, j.DefeatedKingdomId, JObject.FromObject(new { judgmentId = j.Id,
+                    verdict = ReignRulerPolicy.HasIssuedSentence(j) ? j.Verdict.ToString() : "",
+                    j.CapturedDay, j.SentencedDay, j.Deadline, j.CancellationReason, j.ResolvedDay }), new JArray(j.PrisonerId));
             ReignNewsCampaignBehavior.Instance?.Judgment(j, phase);
         }
         internal void RequestPlayerSentence(Hero prisoner)
         {
+            if (prisoner == null) return;
             var j = State.Judgments.LastOrDefault(x => x.PrisonerId == prisoner.StringId && x.Stage == RulerJudgmentStage.AwaitingDecision);
             if (j == null && prisoner.PartyBelongedToAsPrisoner != null) { PrisonerTaken(prisoner.PartyBelongedToAsPrisoner, prisoner); j = State.Judgments.LastOrDefault(x => x.PrisonerId == prisoner.StringId && x.Stage == RulerJudgmentStage.AwaitingDecision); }
-            if (j != null && !_networkBusy) PrepareDecision(j, RulerVerdict.CleanExecution);
+            if (j == null) return;
+            if (HeroById(j.VictorId) != Hero.MainHero || Realm(j.VictorKingdomId)?.Leader != Hero.MainHero)
+            {
+                InformationManager.DisplayMessage(new InformationMessage("Only the ruling sovereign can decide this captive ruler's fate."));
+                return;
+            }
+            if (!ReignRulerPolicy.DecisionDue(j, Day))
+            {
+                InformationManager.DisplayMessage(new InformationMessage("A captured ruler's fate can be decided after seven days in captivity."));
+                return;
+            }
+            j.PendingVerdict = RulerVerdict.CleanExecution;
+            if (!_networkBusy) PrepareDecision(j, null);
         }
         internal void ScheduleDefeatedLord(Hero defeated, Hero victor, string movement)
         {
+            var kingdom = victor?.Clan?.Kingdom;
+            var sovereign = kingdom?.Leader;
             if (!Enabled(RulerOptions.CivilWars) || CampaignOptions.IsLifeDeathCycleDisabled || defeated == null || victor == null
+                || sovereign?.IsAlive != true
                 || State.Judgments.Any(j => j.PrisonerId == defeated.StringId && j.Stage != RulerJudgmentStage.Completed && j.Stage != RulerJudgmentStage.Cancelled)) return;
-            var j = new RulerJudgment { Id = Guid.NewGuid().ToString("N"), PrisonerId = defeated.StringId, VictorId = victor.StringId,
-                VictorKingdomId = victor.Clan.Kingdom.StringId, DefeatedKingdomId = defeated.Clan.Kingdom?.StringId ?? victor.Clan.Kingdom.StringId,
-                MovementId = movement, CivilWar = true, DefeatedLord = true, CapturedDay = Day, Stage = RulerJudgmentStage.AwaitingDecision };
-            State.Judgments.Add(j); Sentence(j, RulerVerdict.CleanExecution);
+            var j = new RulerJudgment { Id = Guid.NewGuid().ToString("N"), PrisonerId = defeated.StringId, VictorId = sovereign.StringId,
+                VictorKingdomId = kingdom.StringId, DefeatedKingdomId = defeated.Clan?.Kingdom?.StringId ?? kingdom.StringId,
+                MovementId = movement, CivilWar = true, DefeatedLord = true, CapturedDay = Day,
+                PendingVerdict = RulerVerdict.CleanExecution, Stage = RulerJudgmentStage.AwaitingDecision };
+            State.Judgments.Add(j);
         }
     }
 }

@@ -83,7 +83,7 @@ if (args.Contains("--plan-cli", StringComparer.OrdinalIgnoreCase)
         Environment.ExitCode = status.Status == "unavailable" ? 1 : 0;
         return;
     }
-    var profile = CliValue(args, "--profile", "all");
+    var profile = CliValue(args, "--profile", "changed");
     var configuration = CliValue(args, "--configuration", "Release");
     var changedPaths = CliValue(args, "--changed-paths", "");
     var restore = args.Contains("--restore", StringComparer.OrdinalIgnoreCase);

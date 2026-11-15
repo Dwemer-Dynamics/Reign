@@ -35,7 +35,10 @@ public sealed class PlayerApproachNativeCompatibilityTests
         Assert.True(process.ExitCode == 0, (await output) + (await error));
         using var report = JsonDocument.Parse(File.ReadAllText(Path.Combine(evidence, "report.json")));
         Assert.True(report.RootElement.GetProperty("ok").GetBoolean());
-        Assert.Equal(4, report.RootElement.GetProperty("nativeHooks").GetArrayLength());
+        Assert.Equal(5, report.RootElement.GetProperty("nativeHooks").GetArrayLength());
+        Assert.Single(report.RootElement.GetProperty("nativeCallBoundaries").EnumerateArray());
+        Assert.Contains(report.RootElement.GetProperty("preparedMethods").EnumerateArray(),
+            method => method.GetString() == "ReignBeta.Campaign.ReignRescueConversationBehavior.LiberateAndListen");
         Assert.Contains(report.RootElement.GetProperty("preparedMethods").EnumerateArray(),
             method => method.GetString() == "ReignBeta.Campaign.ReignRescueConversationBehavior.Listen");
         foreach (string guard in new[] { "CanPresentOnMap", "TryPresentOnMap" })

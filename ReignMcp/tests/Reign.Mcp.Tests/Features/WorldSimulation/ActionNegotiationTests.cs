@@ -4,6 +4,38 @@ namespace Reign.Mcp.Tests.Features.WorldSimulation;
 
 public sealed class ActionNegotiationTests
 {
+    [Fact]
+    public void ChannelIsBoundToConsentWhileLegacyHashesStayUnchanged()
+    {
+        var offer = NativeHonorOffer();
+        Assert.Equal(NativeHonorHash, offer.TermsHash());
+        offer.Channel = AgreementChannel.InPerson;
+        string inPerson = offer.TermsHash();
+        Assert.Equal("a9c976491eed275b11cb16707dc3d94c071dfa6f2ad05c551ce6e5676fa3dfea", inPerson);
+        Assert.NotEqual(NativeHonorHash, inPerson);
+        Assert.False(offer.HasRequiredConsents);
+        offer.Channel = AgreementChannel.Correspondence;
+        Assert.Equal("a5558a6be1b1f7c9ece94dba9cfc29401c3c4f335b75a4965f925331577b383c", offer.TermsHash());
+        Assert.NotEqual(inPerson, offer.TermsHash());
+        offer.Channel = AgreementChannel.Unknown;
+        Assert.Equal(NativeHonorHash, offer.TermsHash());
+    }
+
+    [Fact]
+    public void ReadOnlyJournalReceiptReportsPerClauseAndDoesNotRescheduleLegacyTransit()
+    {
+        var offer = NativeHonorOffer();
+        offer.State = AgreementState.InTransit;
+        var journal = new AgreementJournal { Agreement = offer, CommittedHash = offer.TermsHash(), ArrivalDay = 91147,
+            Steps = new() { new() { ClauseId = offer.Clauses[0].Id, Reserved = true } } };
+        var receipt = ReignAgreementEngine.Describe(journal, "Delivery is in transit.", 91142);
+        Assert.Equal(91147, receipt.ArrivalDay);
+        Assert.Equal("in_transit", Assert.Single(receipt.Clauses).Status);
+        Assert.True(receipt.Clauses[0].Reserved);
+        Assert.Equal(91147, journal.ArrivalDay);
+        Assert.Empty(journal.Receipts);
+        Assert.Empty(receipt.ObservedEffects);
+    }
     // Captured game-client consent: this literal must never be recomputed by the
     // runtime under test. Its fractional day exposed Framework/modern .NET drift.
     private const string NativeHonorHash = "9cb08740d540a046ae60f62d8df4923980e111a5f70af7c728e04ace643aa25a";

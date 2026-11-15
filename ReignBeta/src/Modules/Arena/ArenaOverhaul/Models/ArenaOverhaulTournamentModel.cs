@@ -1,4 +1,4 @@
-﻿using ArenaOverhaul.CampaignBehaviors.BehaviorManagers;
+using ArenaOverhaul.CampaignBehaviors.BehaviorManagers;
 using ArenaOverhaul.ModSettings;
 using ArenaOverhaul.Tournament;
 
@@ -56,63 +56,16 @@ namespace ArenaOverhaul.Models
 
         public override float GetTournamentStartChance(Town town) => _previouslyAssignedModel.GetTournamentStartChance(town);
 
-        public override MBList<ItemObject> GetRegularRewardItems(Town town, int minimum, int maximum) =>
-            _previouslyAssignedModel.GetRegularRewardItems(town, minimum, maximum);
+        public override MBList<ItemObject> GetRegularRewardItems(Town town, int minimum, int maximum)
+        {
+            return _previouslyAssignedModel.GetRegularRewardItems(town, minimum, maximum);
+        }
 
         public override MBList<ItemObject> GetEliteRewardItems(Town town, int minimum, int maximum)
         {
-            Settings settings = Settings.Instance!;
-            if (!settings.EnableTournamentPrizeScaling || Clan.PlayerClan.Tier < 2)
-                return _previouslyAssignedModel.GetEliteRewardItems(town, minimum, maximum);
-
-            int cultureMode = settings.CultureRestrictedTournamentPrizes.SelectedIndex;
-            CultureObject? regularCulture = cultureMode >= 1 ? town.Culture : null;
-            var items = TaleWorlds.CampaignSystem.Extensions.Items.All.ToList();
-            List<ItemObject> regular = items.Where(item => SuitableElitePrize(item, regularCulture))
-                .GroupBy(item => item.Type).SelectMany(group => group.OrderByDescending(item => item.Value).Take(10)).ToList();
-            if (regular.Count == 0)
-                regular = items.Where(item => SuitableElitePrize(item, null))
-                    .GroupBy(item => (item.Type, item.Culture))
-                    .SelectMany(group => group.OrderByDescending(item => item.Value).Take(5)).ToList();
-
-            CultureObject? uniqueCulture = cultureMode >= 2 ? town.Culture : null;
-            CultureObject? mountCulture = cultureMode == 3 ? town.Culture : null;
-            var expanded = regular.Concat(items.Where(item => UniquePrize(item, uniqueCulture)
-                    && (item.IsCraftedWeapon && !item.StringId.EndsWith("_blunt") && !item.StringId.StartsWith("practice_") && !item.StringId.StartsWith("peasant_")
-                        || item.ArmorComponent != null && !item.StringId.StartsWith("dummy_")
-                            && item.StringId != "celtic_frost" && item.StringId != "saddle_of_aeneas" && item.StringId != "fortunas_choice")))
-                .Concat(items.Where(item => UniquePrize(item, mountCulture) && item.IsMountable))
-                .GroupBy(item => item.StringId).Select(group => group.First()).OrderBy(item => item.Value).ToList();
-            var fresh = expanded.Where(item => !TournamentRewardManager.IsRecentlyRolledPrize(item)).ToList();
-            if (fresh.Count >= Math.Min(8, expanded.Count)) expanded = fresh;
-            if (settings.LogTournamentPrizeRolls)
-                Helpers.LoggingHelper.Log("town=" + town.StringId + "; cultureMode=" + cultureMode + "; clanTier=" + Clan.PlayerClan.Tier
-                    + "; regular=" + regular.Count + "; elitePool=" + expanded.Count
-                    + "; recent=" + string.Join(",", TournamentRewardManager.RecentTournamentPrizeItemIds), "Elite tournament prize pool");
-            return expanded.Count > 0 ? new MBList<ItemObject>(expanded) : _previouslyAssignedModel.GetEliteRewardItems(town, minimum, maximum);
+            var pool = TournamentPrizeCatalog.Build(town);
+            return pool.Count > 0 ? new MBList<ItemObject>(pool) : _previouslyAssignedModel.GetEliteRewardItems(town, minimum, maximum);
         }
-
-        private static bool SuitableElitePrize(ItemObject item, CultureObject? culture) =>
-            (item.Tier == ItemObject.ItemTiers.Tier4 || item.Tier == ItemObject.ItemTiers.Tier5)
-            && item.Value <= MaxElitePrizeValue() && CultureAllows(item, culture) && !item.NotMerchandise
-            && (item.IsCraftedWeapon || item.IsMountable || item.ArmorComponent != null) && !item.IsCraftedByPlayer;
-
-        private static bool UniquePrize(ItemObject item, CultureObject? culture) =>
-            item.NotMerchandise && item.Tier >= ItemObject.ItemTiers.Tier3 && !item.IsCraftedByPlayer && CultureAllows(item, culture);
-
-        private static bool CultureAllows(ItemObject item, CultureObject? culture) =>
-            culture == null || item.Culture == null || item.Culture == culture || !item.Culture.CanHaveSettlement;
-
-        private static int MaxElitePrizeValue() => Clan.PlayerClan.Tier switch
-        {
-            3 => 200000,
-            4 => 300000,
-            5 => 400000,
-            >= 6 => 500000,
-            _ => 50000
-        };
-
-        /* service methods */
 
         private static Equipment? GetRandomPracticeClothes()
         {

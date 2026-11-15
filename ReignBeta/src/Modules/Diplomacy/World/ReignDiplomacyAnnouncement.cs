@@ -23,6 +23,8 @@ namespace ReignBeta.World
         public float WorldDay;
         public bool Accepted;
         public bool IsNews;
+        public bool PublicAnnouncement;
+        public bool Acknowledged;
         public Reign.Core.Contracts.Government.GovernmentNewsEdition GovernmentNews;
 
         public bool IsValid => !string.IsNullOrWhiteSpace(EventId) && !string.IsNullOrWhiteSpace(Title);

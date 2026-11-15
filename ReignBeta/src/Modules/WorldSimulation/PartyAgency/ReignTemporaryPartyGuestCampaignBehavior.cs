@@ -113,7 +113,8 @@ namespace ReignBeta.PartyAgency
                 : 0f;
             string purpose = CleanPurpose(ReadString(terms, "purpose", action.Reason));
             bool armyExitAccepted = ReadBool(terms, "armyExitAccepted", false);
-            MobileParty priorParty = hero.PartyBelongedTo;
+            MobileParty priorParty = hero.IsPrisoner ? null : hero.PartyBelongedTo;
+            PartyBase priorCustody = hero.IsPrisoner ? hero.PartyBelongedToAsPrisoner : null;
             Settlement priorSettlement = hero.CurrentSettlement;
             Town priorGovernorship = hero.GovernorOf;
             int residentPayment = 0;
@@ -187,8 +188,22 @@ namespace ReignBeta.PartyAgency
                         throw new InvalidOperationException("The notable's businesses must be relinquished before joining your party.");
                     hero.SetNewOccupation(Occupation.Special);
                 }
+                // Release immediately before transfer, after consent and departure setup.
+                // Native release events cannot be undone by restoring custody on failure.
+                if (priorCustody != null)
+                {
+                    if (!CanReleasePrisonerForGuest(hero))
+                        throw new InvalidOperationException("The prisoner is no longer in player-controlled custody.");
+                    EndCaptivityAction.ApplyByReleasedByChoice(hero, Hero.MainHero);
+                    if (hero.IsPrisoner || hero.PartyBelongedToAsPrisoner != null
+                        || priorCustody.PrisonRoster.GetTroopCount(hero.CharacterObject) != 0)
+                        throw new InvalidOperationException("Bannerlord did not release the consenting prisoner.");
+                    // Native release leaves Released state; AddHeroToParty does not activate it.
+                    hero.ChangeState(Hero.CharacterStates.Active);
+                }
                 AddHeroToPartyAction.Apply(hero, MobileParty.MainParty, false);
-                if (hero.PartyBelongedTo != MobileParty.MainParty)
+                if (hero.IsPrisoner || (priorCustody != null && !hero.IsActive) || hero.PartyBelongedTo != MobileParty.MainParty
+                    || MobileParty.MainParty.MemberRoster.GetTroopCount(hero.CharacterObject) != 1)
                     throw new InvalidOperationException("Bannerlord did not add the consenting noble to the player party.");
                 if (!IdentityMatches(record, hero))
                     throw new InvalidOperationException("The native party transfer changed a permanent noble affiliation.");
@@ -211,6 +226,7 @@ namespace ReignBeta.PartyAgency
                 return ReignActionResult.Done(hero.Name + " joined the player party as a temporary guest.")
                     .WithEffect("temporary_party_guest_joined", "hero", hero.StringId, hero.Name.ToString(),
                         "agreementId=" + record.AgreementId + ";reviewDay=" + record.ReviewDueDay
+                        + ";releasedFromCustody=" + (priorCustody != null)
                         + ";relinquishedGovernorship=" + (priorGovernorship?.Settlement.StringId ?? string.Empty))
                     .WithChangedEntity("hero", hero.StringId, hero.Name.ToString(), "party_membership_changed");
             }
@@ -222,7 +238,22 @@ namespace ReignBeta.PartyAgency
                     GiveGoldAction.ApplyBetweenCharacters(hero, Hero.MainHero, residentPayment, true);
                 if (hero.PartyBelongedTo == MobileParty.MainParty)
                     MobileParty.MainParty.MemberRoster.AddToCounts(hero.CharacterObject, -1);
-                if (priorParty != null && priorParty.IsActive && hero.IsAlive && !hero.IsPrisoner)
+                string custodyFailure = string.Empty;
+                if (priorCustody != null && hero.IsAlive)
+                {
+                    try
+                    {
+                        if (!hero.IsPrisoner) TakePrisonerAction.Apply(priorCustody, hero);
+                        if (!hero.IsPrisoner || hero.PartyBelongedToAsPrisoner != priorCustody
+                            || priorCustody.PrisonRoster.GetTroopCount(hero.CharacterObject) != 1)
+                            custodyFailure = "Custody restoration requires attention.";
+                    }
+                    catch (Exception restoreError)
+                    {
+                        custodyFailure = "Custody restoration failed: " + restoreError.Message;
+                    }
+                }
+                else if (priorParty != null && priorParty.IsActive && hero.IsAlive && !hero.IsPrisoner)
                 {
                     if (sourceParty == priorParty)
                         TeleportHeroAction.ApplyImmediateTeleportToPartyAsPartyLeader(hero, priorParty);
@@ -232,8 +263,11 @@ namespace ReignBeta.PartyAgency
                 else if (priorSettlement != null && hero.IsAlive && !hero.IsPrisoner)
                     EnterSettlementAction.ApplyForCharacterOnly(hero, priorSettlement);
                 ReleaseCamp(record, false);
-                if (priorGovernorship != null && priorGovernorship.Governor == null && hero.GovernorOf == null)
+                if (priorGovernorship != null && priorGovernorship.Governor == null && hero.GovernorOf == null && !hero.IsPrisoner)
                     ChangeGovernorAction.Apply(priorGovernorship, hero);
+                if (!string.IsNullOrEmpty(custodyFailure))
+                    return ReignActionResult.FailTerminal(ex.Message + " " + custodyFailure,
+                        "temporary_guest_custody_restore_failed", "native_party_transfer");
                 return ReignActionResult.FailTerminal(ex.Message, "temporary_guest_join_failed", "native_party_transfer");
             }
         }
@@ -391,12 +425,23 @@ namespace ReignBeta.PartyAgency
             reason = string.Empty;
             JObject terms = ParseTerms(action?.TermsJson);
             bool resident = hero != null && !hero.IsLord;
+            bool releasablePrisoner = CanReleasePrisonerForGuest(hero);
             if (resident && (ReignEncounteredResidentsCampaignBehavior.Instance == null
-                || !ReignEncounteredResidentsCampaignBehavior.Instance.ValidateDeparture(hero, out reason))) return false;
+                || !ReignEncounteredResidentsCampaignBehavior.Instance.ValidateDeparture(hero, out reason, releaseIntoGuestService: true))) return false;
             if (hero == null || hero == Hero.MainHero || hero.CompanionOf != null
-                || !ReignConversationEligibility.IsAdultLivingNpc(hero) || hero.IsPrisoner)
+                || !ReignConversationEligibility.IsAdultLivingNpc(hero))
             {
-                reason = "A temporary guest must be a living, adult, free noble or known civilian.";
+                reason = "A temporary guest must be a living, adult noble or known civilian.";
+                return false;
+            }
+            if (hero.IsPrisoner && !releasablePrisoner)
+            {
+                reason = "A prisoner must be in your party or a dungeon owned by your clan to be released into temporary service.";
+                return false;
+            }
+            if (hero.IsPrisoner && ReignRulerCampaignBehavior.BlocksRelease(hero))
+            {
+                reason = "A ruler sentenced to execution cannot be released into temporary service.";
                 return false;
             }
             if (!resident && (hero.Clan == null || hero.Clan == Clan.PlayerClan))
@@ -412,6 +457,15 @@ namespace ReignBeta.PartyAgency
                 return false;
             }
             MobileParty party = hero.PartyBelongedTo;
+            PartyBase custody = hero.IsPrisoner ? hero.PartyBelongedToAsPrisoner : null;
+            if (custody != null && (custody.MapEvent != null
+                || custody.MobileParty?.IsCurrentlyUsedByAQuest == true
+                || custody.MobileParty?.SiegeEvent != null || custody.MobileParty?.BesiegerCamp != null
+                || custody.Settlement?.IsUnderSiege == true))
+            {
+                reason = "A prisoner cannot enter temporary service during a battle, siege or quest-bound transfer.";
+                return false;
+            }
             if (party?.IsCurrentlyUsedByAQuest == true)
             {
                 reason = "A noble whose party is required by an active quest cannot become a temporary guest.";
@@ -1130,9 +1184,22 @@ namespace ReignBeta.PartyAgency
             return state != null && !state.AtMenu && !state.MapConversationActive && !state.IsSimulationActive;
         }
 
+        internal static bool CanReleasePrisonerForGuest(Hero hero)
+        {
+            PartyBase custody = hero?.PartyBelongedToAsPrisoner;
+            return custody != null && ReignTemporaryGuestCustodyPolicy.CanRelease(
+                hero.IsPrisoner, Hero.MainHero != null && !Hero.MainHero.IsPrisoner,
+                custody.PrisonRoster.GetTroopCount(hero.CharacterObject),
+                custody == PartyBase.MainParty,
+                custody.Settlement != null && MobileParty.MainParty?.CurrentSettlement == custody.Settlement
+                    && Clan.PlayerClan != null
+                    && custody.Settlement.OwnerClan == Clan.PlayerClan);
+        }
+
         private static bool IsInPerson(Hero hero)
         {
             if (hero == null) return false;
+            if (hero.IsPrisoner && hero.PartyBelongedToAsPrisoner == PartyBase.MainParty) return true;
             if (CharacterObject.OneToOneConversationCharacter?.HeroObject == hero) return true;
             if (ReignLiveInteractionTestHost
                 .IsDisposablePartyAgencyFixtureConversationActive(hero)) return true;

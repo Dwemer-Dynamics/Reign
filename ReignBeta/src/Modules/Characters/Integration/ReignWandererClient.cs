@@ -25,7 +25,7 @@ namespace ReignBeta.Integration
                 if (string.IsNullOrWhiteSpace(payload.Value<string>("sceneTurnId"))) payload["sceneTurnId"] = Guid.NewGuid().ToString("N");
                 payload["nativePaymentReceipts"] = ReignGoldTransferService.Instance?.Snapshot(hero) ?? new JArray();
                 payload["nativeActionReceipts"] = ReignAICampaignBehavior.Instance?.ConversationActionReceipts(hero) ?? new JArray();
-                ConfigureStructuredActions(payload, hero, actionDraft);
+                ConfigureStructuredActions(payload, hero, actionDraft, Reign.Core.Contracts.Actions.AgreementChannel.InPerson);
                 owner?.BeginContact(hero, playerText);
             }).ConfigureAwait(false);
             JObject response = null;

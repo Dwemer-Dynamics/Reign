@@ -87,7 +87,7 @@ namespace ReignBeta.Integration
                     request["approachOpening"] = false;
                     request["structuredActionRecipientId"] = actionDraft?.NpcId ?? "";
                     await ReignMainThread.InvokeAsync(() => ConfigureStructuredActions(request, speaker,
-                        actionDraft?.NpcId == speaker.StringId ? actionDraft : null)).ConfigureAwait(false);
+                        actionDraft?.NpcId == speaker.StringId ? actionDraft : null, Reign.Core.Contracts.Actions.AgreementChannel.InPerson)).ConfigureAwait(false);
                     request["playerIsFemale"] = Hero.MainHero?.IsFemale ?? false;
                     await AttachContextBundlesAsync(request, "social_event", speaker, session.Record.GetAttendees()).ConfigureAwait(false);
                     participantRequests.Add(request);

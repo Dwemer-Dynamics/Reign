@@ -27,6 +27,7 @@ namespace ReignBeta.Campaign
         private string _activeId = "";
         private int _epoch;
         private float _retryDelay;
+        private float _historyRetryDelay;
 
         public override void RegisterEvents()
         {
@@ -47,8 +48,31 @@ namespace ReignBeta.Campaign
         }
         internal void Publish(ReignNewsArticle article)
         {
+            if (article?.IsValid != true) return;
+            // World knowledge precedes and is independent of Seen, popup options
+            // and acknowledgment. The existing history outbox owns transport.
+            _state.QueuePublicHistory(article, CampaignTime.Now.ToDays);
+            FlushPublicHistory();
             if (!_state.Publish(article, ReignServerClient.NewsOptions, ReignServerClient.NewsOptionsConfirmed)) return;
             InformationManager.DisplayMessage(new InformationMessage("[Reign Herald] " + article.Text, Color.FromUint(0xFFC5BDAF)));
+        }
+        internal void RecordPublicDiplomacyAnnouncement(ReignDiplomacyAnnouncement announcement)
+        {
+            if (announcement?.IsValid != true || !announcement.PublicAnnouncement) return;
+            var article = new ReignNewsArticle {
+                Id = "crier:diplomacy:" + announcement.EventId, Category = ReignNewsCategories.Diplomacy,
+                Title = announcement.Title, Headline = announcement.Outcome, WorldDay = announcement.WorldDay,
+                Body = ReignNewsCopy.AnnouncementReport(announcement.Summary, announcement.Terms,
+                    announcement.ActorName, announcement.ActorPublicReason, announcement.TargetName, announcement.TargetPublicReason, announcement.IsNews),
+                ActorId = announcement.ActorHeroStringId, ActorName = announcement.ActorName,
+                ActorRealmId = announcement.ActorKingdomStringId, ActorRealmName = announcement.ActorKingdomName,
+                TargetId = announcement.TargetHeroStringId, TargetName = announcement.TargetName,
+                TargetRealmId = announcement.TargetKingdomStringId, TargetRealmName = announcement.TargetKingdomName
+            };
+            // The diplomatic queue continues owning its existing popup/ack route.
+            // History is independent of that presentation and its UI preference.
+            if (string.IsNullOrWhiteSpace(article.Body)) article.Body = string.IsNullOrWhiteSpace(article.Headline) ? article.Title : article.Headline;
+            _state.QueuePublicHistory(article, CampaignTime.Now.ToDays);
         }
         internal void ApplyOptions()
         {
@@ -61,8 +85,30 @@ namespace ReignBeta.Campaign
         }
         internal void ApplicationTick(float dt)
         {
+            _historyRetryDelay = Math.Max(0, _historyRetryDelay - dt);
+            FlushPublicHistory();
             _retryDelay = Math.Max(0, _retryDelay - dt);
             if (_retryDelay == 0) TryPresent();
+        }
+        private void FlushPublicHistory()
+        {
+            var history = ReignWorldHistoryCampaignBehavior.Instance;
+            if (history?.TimelineReady != true || _state.HistoryOutbox.Count == 0 || _historyRetryDelay > 0) return;
+            foreach (var article in _state.HistoryOutbox.ToList())
+            {
+                // Remove only after durable history enqueue succeeds. Pending
+                // articles survive native save/load and retries use stable IDs.
+                try { history.RecordPublicNews(article); }
+                catch (Exception ex) { _historyRetryDelay = 5; ReignLog.Warn("Public news history enqueue deferred: " + ex.Message); return; }
+                _state.MarkPublicHistoryEnqueued(article.Id);
+                history.ForgetPublicNewsAttempt(article.Id);
+            }
+        }
+        internal int PreparePublicHistoryForDialogue()
+        {
+            _historyRetryDelay = 0;
+            FlushPublicHistory();
+            return _state.HistoryOutbox.Count;
         }
         private void TryPresent()
         {
@@ -107,6 +153,7 @@ namespace ReignBeta.Campaign
         internal JObject Diagnostics() => JObject.FromObject(new
         {
             schema = "reign-town-crier-v1", pending = _state.Pending.Take(64), pendingCount = _state.Pending.Count,
+            historyPendingCount = _state.HistoryOutbox.Count, historyPublishedCount = _state.HistoryPublishedIds.Count,
             pendingTruncated = _state.Pending.Count > 64, activeId = _activeId, retainedNoticeIds = _state.Seen.Count,
             optionsConfirmed = ReignServerClient.NewsOptionsConfirmed,
             options = ReignNewsCategories.Switches.Keys.ToDictionary(k => k, k => ReignServerClient.NewsOptions.Preference(k)),

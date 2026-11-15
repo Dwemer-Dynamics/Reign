@@ -8,9 +8,140 @@ namespace Reign.Mcp.Tests.Features.WorldSimulation;
 public sealed class RulerPolicyTests
 {
     [Theory]
+    [InlineData(106.999, false)] [InlineData(107, true)] [InlineData(107.001, true)]
+    public void Captivity_decision_waits_seven_full_days(double now, bool due)
+    {
+        var j = new RulerJudgment { CapturedDay = 100, Stage = RulerJudgmentStage.AwaitingDecision };
+        Assert.Equal(due, ReignRulerPolicy.DecisionDue(j, now));
+        j.Stage = RulerJudgmentStage.Cancelled;
+        Assert.False(ReignRulerPolicy.DecisionDue(j, now));
+    }
+
+    [Fact]
+    public void Missing_legacy_capture_time_starts_a_full_window_and_persists_intended_verdict()
+    {
+        var j = JsonSerializer.Deserialize<RulerJudgment>("{\"Stage\":1}")!;
+        Assert.False(ReignRulerPolicy.DecisionDue(j, 100));
+        ReignRulerPolicy.EnsureCaptureDay(j, 100.25);
+        j.PendingVerdict = RulerVerdict.CleanExecution;
+        var loaded = JsonSerializer.Deserialize<RulerJudgment>(JsonSerializer.Serialize(j))!;
+        Assert.Equal(100.25, loaded.CapturedDay);
+        Assert.Equal(RulerVerdict.CleanExecution, loaded.PendingVerdict);
+        Assert.False(ReignRulerPolicy.DecisionDue(loaded, 107.249));
+        Assert.True(ReignRulerPolicy.DecisionDue(loaded, 107.25));
+        ReignRulerPolicy.EnsureCaptureDay(loaded, 90);
+        Assert.Equal(100.25, loaded.CapturedDay);
+        Assert.False(ReignRulerPolicy.DecisionDue(loaded, double.NaN));
+        Assert.True(ReignRulerPolicy.Cancel(loaded, "escaped_or_rescued"));
+        Assert.False(ReignRulerPolicy.DecisionDue(loaded, 200));
+    }
+
+    [Fact]
+    public void Execution_has_eight_more_days_while_an_existing_absolute_deadline_is_preserved()
+    {
+        Assert.Equal(7, ReignRulerPolicy.DecisionDays);
+        Assert.Equal(8, ReignRulerPolicy.ExecutionDays);
+        var j = new RulerJudgment { CapturedDay = 100, SentencedDay = 107, Deadline = 107 + ReignRulerPolicy.ExecutionDays,
+            Stage = RulerJudgmentStage.Sentenced, Verdict = RulerVerdict.CleanExecution };
+        Assert.False(ReignRulerPolicy.SentenceDue(j, 114.999));
+        Assert.True(ReignRulerPolicy.SentenceDue(j, 115));
+        j.Deadline = 122; // An existing save's former fifteen-day sentence.
+        var loaded = JsonSerializer.Deserialize<RulerJudgment>(JsonSerializer.Serialize(j))!;
+        Assert.False(ReignRulerPolicy.SentenceDue(loaded, 115));
+        Assert.True(ReignRulerPolicy.SentenceDue(loaded, 122));
+    }
+
+    [Fact]
+    public void Legacy_authority_wait_is_anchored_before_handover_without_rewriting_sentenced_history()
+    {
+        var j = new RulerJudgment { Stage = RulerJudgmentStage.AwaitingAuthority };
+        ReignRulerPolicy.EnsureCaptureDay(j, 100.5);
+        j.Stage = RulerJudgmentStage.AwaitingDecision;
+        ReignRulerPolicy.EnsureCaptureDay(j, 110);
+        Assert.Equal(100.5, j.CapturedDay);
+        Assert.True(ReignRulerPolicy.DecisionDue(j, 110));
+        j.Stage = RulerJudgmentStage.Sentenced;
+        j.CapturedDay = -1;
+        ReignRulerPolicy.EnsureCaptureDay(j, 120);
+        Assert.Equal(-1, j.CapturedDay);
+    }
+
+    [Fact]
+    public void Corrupt_nonfinite_sentence_deadline_recovers_without_shortening_a_valid_saved_sentence()
+    {
+        var j = new RulerJudgment { Stage = RulerJudgmentStage.Sentenced, Verdict = RulerVerdict.CleanExecution,
+            SentencedDay = 107.25, Deadline = double.NaN };
+        ReignRulerPolicy.EnsureSentenceDeadline(j, 110);
+        Assert.Equal(115.25, j.Deadline);
+        j.Deadline = 122.25;
+        ReignRulerPolicy.EnsureSentenceDeadline(j, 200);
+        Assert.Equal(122.25, j.Deadline);
+        j.SentencedDay = 0; j.Deadline = double.NaN;
+        ReignRulerPolicy.EnsureSentenceDeadline(j, 100);
+        Assert.Equal(8, j.Deadline);
+        j.SentencedDay = -1; j.Deadline = double.NaN;
+        ReignRulerPolicy.EnsureSentenceDeadline(j, 100);
+        Assert.Equal(108, j.Deadline);
+    }
+
+    [Fact]
+    public void A_successor_does_not_inherit_the_prior_sovereigns_queued_verdict()
+    {
+        var j = new RulerJudgment { CapturedDay = 100, VictorId = "old_ruler", PendingVerdict = RulerVerdict.CleanExecution };
+        ReignRulerPolicy.SetDecisionAuthority(j, "old_ruler");
+        Assert.Equal(RulerVerdict.CleanExecution, j.PendingVerdict);
+        ReignRulerPolicy.SetDecisionAuthority(j, "new_ruler");
+        Assert.Null(j.PendingVerdict);
+        Assert.Equal(100, j.CapturedDay);
+    }
+
+    [Fact]
+    public void Read_only_timing_evidence_does_not_invent_a_verdict_before_the_decision()
+    {
+        var j = new RulerJudgment { Id = "judgment", CapturedDay = 100.25, Stage = RulerJudgmentStage.AwaitingDecision };
+        var waiting = ReignRulerPolicy.TimingObservation(j, 106);
+        Assert.Equal(107.25, waiting["decisionDueDay"]);
+        Assert.Equal(false, waiting["timeGateOpen"]);
+        Assert.Equal("", waiting["verdict"]);
+        Assert.Equal(-1d, waiting["executionDueDay"]);
+        Assert.Equal(100.25, j.CapturedDay);
+        j.Stage = RulerJudgmentStage.Sentenced;
+        j.SentencedDay = 107.25; j.Deadline = 115.25; j.Verdict = RulerVerdict.CleanExecution;
+        Assert.Equal(115.25, ReignRulerPolicy.TimingObservation(j, 108)["executionDueDay"]);
+        Assert.True(ReignRulerPolicy.Cancel(j, "escaped_or_rescued"));
+        var cancelled = ReignRulerPolicy.TimingObservation(j, 200);
+        Assert.Equal(115.25, cancelled["executionDueDay"]);
+        Assert.Equal(false, cancelled["executionDue"]);
+        Assert.Equal("escaped_or_rescued", cancelled["cancellationReason"]);
+        Assert.False(ReignRulerPolicy.Cancel(j, "escaped_or_rescued"));
+        Assert.False(ReignRulerPolicy.SentenceDue(j, 200));
+    }
+    [Theory]
     [InlineData(false, 2000, false)] [InlineData(true, 999, false)] [InlineData(true, 1000, true)] [InlineData(true, 1001, true)]
     public void Departure_requires_command_and_one_thousand_present_healthy_troops(bool commander, int healthy, bool expected)
         => Assert.Equal(expected, ReignRulerPolicy.CanDepart(commander, healthy));
+    [Fact]
+    public void CancellationPreservesActualSentenceProvenanceAndHasFiniteTiming()
+    {
+        var waiting = new RulerJudgment { Stage = RulerJudgmentStage.AwaitingDecision, CapturedDay = 100,
+            PendingVerdict = RulerVerdict.CleanExecution };
+        Assert.True(ReignRulerPolicy.Cancel(waiting, "escaped_or_rescued", 101));
+        Assert.False(ReignRulerPolicy.HasIssuedSentence(waiting));
+        var observed = ReignRulerPolicy.TimingObservation(waiting, double.NaN);
+        Assert.Equal("", observed["verdict"]);
+        Assert.Equal(-1d, observed["observedDay"]);
+        Assert.Equal(101d, observed["resolvedDay"]);
+        Assert.Equal(true, observed["terminal"]);
+        Assert.False(ReignRulerPolicy.Cancel(waiting, "different", 200));
+        Assert.Equal(101d, waiting.ResolvedDay);
+        var legacy = new RulerJudgment { Stage = RulerJudgmentStage.Cancelled, SentencedDay = -1,
+            Verdict = RulerVerdict.CleanExecution, Deadline = 115, CancellationReason = "escaped_or_rescued" };
+        Assert.True(ReignRulerPolicy.HasIssuedSentence(legacy));
+        Assert.Equal(115d, ReignRulerPolicy.TimingObservation(legacy, 200)["executionDueDay"]);
+        Assert.Equal(false, ReignRulerPolicy.TimingObservation(legacy, 200)["executionDue"]);
+        legacy.Deadline = 0; legacy.SentencedDay = 0;
+        Assert.False(ReignRulerPolicy.HasIssuedSentence(legacy));
+    }
     [Fact] public void Relocation_and_return_are_explicit_exceptions() => Assert.True(ReignRulerPolicy.CanDepart(false, 0, true));
     [Theory] [InlineData(999, false)] [InlineData(1000, true)]
     public void Arrival_after_reload_ends_the_return_exception_before_the_next_departure(int healthy, bool canDepart)

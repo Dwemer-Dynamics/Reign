@@ -991,7 +991,12 @@ namespace ReignBeta.UI.ViewModels
                     {
                         ClearFailedConversationTurn();
                         if (_conversationContext.Value<bool?>("rescueOpening") == true)
+                        {
                             ReignRescueConversationBehavior.Instance?.HeardRescue(_conversationContext["rescueContext"]?.Value<string>("eventId"), _hero);
+                            // The opening instruction ends only after a usable response.
+                            // Retain the dated rescue facts and unrelated directives.
+                            _conversationContext.Remove("sceneContextDirective");
+                        }
                         _conversationContext["approachOpening"] = false;
                         _conversationContext["rescueOpening"] = false;
                         if (string.IsNullOrWhiteSpace(auditRunId))

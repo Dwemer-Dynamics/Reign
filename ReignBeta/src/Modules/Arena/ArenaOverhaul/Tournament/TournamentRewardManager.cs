@@ -1,6 +1,7 @@
 ﻿using ArenaOverhaul.CampaignBehaviors.BehaviorManagers;
 using ArenaOverhaul.Helpers;
 using ArenaOverhaul.ModSettings;
+using ReignBeta.Shared.Arena;
 
 using ArenaOverhaul.TeamTournament;
 
@@ -36,14 +37,16 @@ namespace ArenaOverhaul.Tournament
         public static Dictionary<Town, PrizeItemInfo?> TournamentPrizeAwards => _tournamentPrizeAwards;
         internal static IReadOnlyList<string> RecentTournamentPrizeItemIds => _recentTournamentPrizeItemIds;
 
-        internal static void Initialize()
+        internal static void Initialize(IEnumerable<string>? recent = null)
         {
+            var restored = TournamentPrizeVariety.NormalizeHistory(recent);
             _roundWinners.Clear();
             _roundPrizeWinners.Clear();
             _noticableTakedowns.Clear();
             _renownAwardees.Clear();
             _tournamentPrizeAwards.Clear();
             _recentTournamentPrizeItemIds.Clear();
+            _recentTournamentPrizeItemIds.AddRange(restored);
         }
 
         public static void InitiateTournament(Town town)
@@ -237,7 +240,7 @@ namespace ArenaOverhaul.Tournament
 
         internal static bool IsRecentlyRolledPrize(ItemObject item) => item != null && _recentTournamentPrizeItemIds.Contains(item.StringId);
 
-        internal static void RecordRolledPrize(ItemObject item)
+        internal static void RecordRolledPrize(ItemObject? item)
         {
             if (item == null) return;
             _recentTournamentPrizeItemIds.Remove(item.StringId);

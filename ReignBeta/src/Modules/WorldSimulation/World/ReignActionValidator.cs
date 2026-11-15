@@ -52,7 +52,7 @@ namespace ReignBeta.World
             if (action.Type == ReignWorldActionType.RegularKillCharacter
                 && (ReignRulerCampaignBehavior.BlocksRelease(rulerTarget)
                     || ReignRulerCampaignBehavior.Instance?.AwaitsDecision(rulerTarget) == true))
-            { reason = "This captured ruler awaits sovereign judgment. Use the captivity judgment to choose their fate; execution takes fifteen days."; return false; }
+            { reason = "This captured ruler awaits sovereign judgment. Use the captivity judgment to choose their fate; execution takes eight days."; return false; }
             if ((action.Type.ToString().IndexOf("Peace", StringComparison.OrdinalIgnoreCase) >= 0
                 || action.Type == ReignWorldActionType.PoliticsResolveCivilWar || action.Type == ReignWorldActionType.PoliticsSurrenderRebellion)
                 && ReignRulerCampaignBehavior.BlocksPeace(ReignObjectResolver.FindKingdom(action.ActorKingdomStringId), ReignObjectResolver.FindKingdom(action.TargetKingdomStringId)))

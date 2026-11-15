@@ -1,3 +1,7 @@
+## Validation depth (2026-11-14)
+
+`reign_get_validation_plan` and `reign_validate` default to `changed` and require exact changed paths. Existing module/dependency tests and quick verification remain; `product` / `all` broaden compilation and contracts without triggering full offline behavior. New explicit `behavioral` profile selects all projects plus full offline verification only when the user requests it. Its report uses `Profile=all`, `VerificationTier=offline` and an explicit selection reason for deployment compatibility. CLI: `ReignMcp/scripts/reign-validate.ps1 -Profile behavioral`. The artifact-bound verifier defaults to quick; full offline runs require explicit selection and user request under existing confirmation/isolation gates. See `docs/agent/VALIDATION.md`.
+
 ## Native performance and queue observation (2026-11-08)
 
 2026-11-13: `reign_probe_conversation_clock` now accepts `profile=observe` only. All pulse/advance requests are rejected before native dispatch. Conversation-driven time advancement is retired. Existing enrollment/verification/observation gates remain; historical arithmetic fixtures do not authorize clock mutation.
@@ -543,3 +547,9 @@ the local PID4008 crash dump proves NullReferenceException in NavalDLC ShipTrade
 ## `reign_check_deployment_source`
 
 Read-only source/artifact provenance probe. Optional `validationReport` and `linuxBuildReport` select original canonical Release reports; at least one is required. Returns `reign-deployment-source-check-v1`, physical paired roots and bounded failure diagnostics. It recomputes canonical fingerprints through the validator, rejects foreign/copied reports before reading outside the report tree, and verifies report-bound client/verifier hashes and the pinned complete Linux manifest. No build, deploy, provider call, runtime control, authority write or campaign mutation. The qualified non-listening CLI flag is `--deployment-source-check-cli`. A successful probe is not deployment authorization or a lease reservation. See the [checkpoint procedure](../../docs/agent/testing/UI_AND_DEPLOYMENT.md#reviewed-deployment-source).
+
+## Beta prompt, news and agreement contracts
+
+The native runtime also consumes the existing `/diplomacy/events/next` GET with `publicHistory=true&limit=500`. This read-only versioned projection is separate from the popup batch and includes retained acknowledged public notices; no extra MCP tool or action/ack authority is added. Provider-free `baseline.world_test` verifies eligibility, closed fields and unchanged queue bytes. See the batch procedure for bounded native synchronization and historical coverage limits.
+
+`reign-beta-prompt-news-agreements-v1` is documented in `docs/agent/BETA_PROMPT_NEWS_AGREEMENTS_2026-11-14.md`. Canonical validation and exact-artifact prompt/memory/world-history suites use provider-free fixtures. Public world-news archive/recall is independent of player notification settings; only explicitly public projections are global. Native-prepared, consent-bound channels control new agreement transit, and the dialogue context exposes a bounded read-only journal view. Existing pending schedules are not silently migrated. The artifact-bound approach probe adds the native liberation call and conversation-end boundary; it does not invoke either or operate a campaign. Native release/return, transfers, save/load and generated wording remain separate acceptance.

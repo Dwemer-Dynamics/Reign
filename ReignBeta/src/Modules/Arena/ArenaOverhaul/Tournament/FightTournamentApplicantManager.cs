@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
+using ReignBeta.Shared.Arena;
 
 using TaleWorlds.CampaignSystem;
 using TaleWorlds.CampaignSystem.Party;
@@ -17,6 +18,12 @@ namespace ArenaOverhaul.Tournament
 
             int maximumParticipantCount = instance.MaximumParticipantCount;
             var applicantCharacters = GetAllApplicants(settlement, includePlayer);
+            bool playerCompetes = includePlayer && applicantCharacters.Any(x => x.CharacterObject.IsPlayerCharacter);
+            IEnumerable<string> CurrentPartyHeroes() => MobileParty.MainParty?.MemberRoster.GetTroopRoster()
+                .Where(row => row.Number > 0 && row.Character?.HeroObject != null)
+                .Select(row => row.Character.HeroObject.StringId) ?? Enumerable.Empty<string>();
+            applicantCharacters = TournamentPartyProtection.Filter(applicantCharacters, playerCompetes,
+                x => x.CharacterObject.HeroObject?.StringId, Hero.MainHero?.StringId ?? "", CurrentPartyHeroes());
 
             var applicantGroups = applicantCharacters.GroupBy(x => x.GrouppingObject).Select(group => (group.Key, Importance: (int) group.Average(item => item.Importance))).OrderByDescending(x => x.Importance).Take(maximumParticipantCount).ToList();
             var totalImportance = applicantGroups.Sum(x => x.Importance);
@@ -88,6 +95,17 @@ namespace ArenaOverhaul.Tournament
                 }
             }
 
+            // Recheck after every intake/refill route. Temporary guests need no
+            // CompanionOf relationship to receive the same party protection.
+            participantCharacters = TournamentPartyProtection.Filter(participantCharacters, playerCompetes,
+                x => x.HeroObject?.StringId, Hero.MainHero?.StringId ?? "", CurrentPartyHeroes());
+            if (participantCharacters.Count < maximumParticipantCount)
+            {
+                var replacements = new List<FightTournamentApplicant>();
+                FillUpWithRandomTroops(settlement, replacements, maximumParticipantCount - participantCharacters.Count);
+                participantCharacters.AddRange(replacements.Where(x => !x.CharacterObject.IsHero)
+                    .Take(maximumParticipantCount - participantCharacters.Count).Select(x => x.CharacterObject));
+            }
             return new MBList<CharacterObject>(participantCharacters);
         }
 

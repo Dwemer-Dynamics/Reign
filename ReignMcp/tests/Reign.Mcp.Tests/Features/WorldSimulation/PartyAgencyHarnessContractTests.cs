@@ -5,6 +5,81 @@ namespace Reign.Mcp.Tests;
 
 public sealed class PartyAgencyHarnessContractTests
 {
+    [Theory]
+    [InlineData(true, true, 1, true, false, true)]
+    [InlineData(true, true, 1, false, true, true)]
+    [InlineData(true, true, 1, false, false, false)]
+    [InlineData(false, true, 1, true, false, false)]
+    [InlineData(true, false, 1, true, false, false)]
+    [InlineData(true, false, 1, false, true, false)]
+    [InlineData(true, true, 0, true, false, false)]
+    [InlineData(true, true, 2, true, false, false)]
+    [InlineData(true, true, -1, false, true, false)]
+    public void GuestReleaseUsesNativeCustodyAuthority(bool prisoner, bool playerAvailable, int count,
+        bool mainParty, bool clanDungeon, bool expected)
+    {
+        Assert.Equal(expected, ReignBeta.PartyAgency.ReignTemporaryGuestCustodyPolicy.CanRelease(
+            prisoner, playerAvailable, count, mainParty, clanDungeon));
+    }
+
+    [Fact]
+    public void PrisonerGuestTransferRequiresCustodyConsentNativeReleaseAndRollback()
+    {
+        string root = TestOptions.FindWorkspace();
+        string source = File.ReadAllText(Path.Combine(root, "ReignBeta", "src", "Modules",
+            "WorldSimulation", "PartyAgency", "ReignTemporaryPartyGuestCampaignBehavior.cs"));
+        string accept = source[source.IndexOf("public ReignActionResult AcceptGuest(", StringComparison.Ordinal)
+            ..source.IndexOf("public bool ValidateAction(", StringComparison.Ordinal)];
+        int validation = accept.IndexOf("if (!ValidateAcceptAction(action, hero, out string reason))", StringComparison.Ordinal);
+        int deferred = accept.IndexOf("if (ReadBool(terms, \"deferStart\", false))", StringComparison.Ordinal);
+        int release = accept.IndexOf("EndCaptivityAction.ApplyByReleasedByChoice(hero, Hero.MainHero)", StringComparison.Ordinal);
+        int activate = accept.IndexOf("hero.ChangeState(Hero.CharacterStates.Active)", StringComparison.Ordinal);
+        int transfer = accept.IndexOf("AddHeroToPartyAction.Apply(hero, MobileParty.MainParty, false)", StringComparison.Ordinal);
+        int rollback = accept.IndexOf("catch (Exception ex)", StringComparison.Ordinal);
+        int recapture = accept.IndexOf("TakePrisonerAction.Apply(priorCustody, hero)", StringComparison.Ordinal);
+        Assert.True(validation >= 0 && deferred > validation && release > deferred && transfer > release);
+        Assert.True(activate > release && transfer > activate);
+        Assert.Contains("(priorCustody != null && !hero.IsActive)", accept, StringComparison.Ordinal);
+        Assert.True(rollback > transfer && recapture > rollback);
+        Assert.Contains("if (!CanReleasePrisonerForGuest(hero))", accept, StringComparison.Ordinal);
+        Assert.Contains("priorCustody.PrisonRoster.GetTroopCount(hero.CharacterObject) != 0", accept, StringComparison.Ordinal);
+        Assert.Contains("MemberRoster.GetTroopCount(hero.CharacterObject) != 1", accept, StringComparison.Ordinal);
+        Assert.Contains("hero.PartyBelongedToAsPrisoner != priorCustody", accept, StringComparison.Ordinal);
+        Assert.Contains("temporary_guest_custody_restore_failed", accept, StringComparison.Ordinal);
+
+        string preflight = source[source.IndexOf("public bool ValidateAcceptAction(", StringComparison.Ordinal)
+            ..source.IndexOf("public void ApplicationTick()", StringComparison.Ordinal)];
+        Assert.Contains("hero.IsPrisoner && !releasablePrisoner", preflight, StringComparison.Ordinal);
+        Assert.Contains("custody.Settlement?.IsUnderSiege == true", preflight, StringComparison.Ordinal);
+        Assert.Contains("custody.MapEvent != null", preflight, StringComparison.Ordinal);
+        Assert.Contains("IsCurrentlyUsedByAQuest == true", preflight, StringComparison.Ordinal);
+        Assert.Contains("!ReadBool(terms, \"consentConfirmed\", false)", preflight, StringComparison.Ordinal);
+        Assert.Contains("ReignRulerCampaignBehavior.BlocksRelease(hero)", preflight, StringComparison.Ordinal);
+        Assert.DoesNotContain("EndCaptivityAction.", preflight, StringComparison.Ordinal);
+        string custody = source[source.IndexOf("internal static bool CanReleasePrisonerForGuest(", StringComparison.Ordinal)
+            ..source.IndexOf("private static bool IsInPerson(", StringComparison.Ordinal)];
+        Assert.Contains("custody == PartyBase.MainParty", custody, StringComparison.Ordinal);
+        Assert.Contains("custody.Settlement.OwnerClan == Clan.PlayerClan", custody, StringComparison.Ordinal);
+        Assert.Contains("MobileParty.MainParty?.CurrentSettlement == custody.Settlement", custody, StringComparison.Ordinal);
+        Assert.Contains("!Hero.MainHero.IsPrisoner", custody, StringComparison.Ordinal);
+        Assert.Contains("ReignTemporaryGuestCustodyPolicy.CanRelease(", custody, StringComparison.Ordinal);
+        Assert.Contains("custody.PrisonRoster.GetTroopCount(hero.CharacterObject)", custody, StringComparison.Ordinal);
+
+        string resident = File.ReadAllText(Path.Combine(root, "ReignBeta", "src", "Modules", "Characters",
+            "Campaign", "ReignEncounteredResidentRecruitment.cs"));
+        Assert.Contains("bool releaseIntoGuestService = false", resident, StringComparison.Ordinal);
+        Assert.Contains("ReignTemporaryPartyGuestCampaignBehavior.CanReleasePrisonerForGuest(hero)", resident, StringComparison.Ordinal);
+        Assert.Contains("resident.Military && !resident.ReleasedFromDuty", resident, StringComparison.Ordinal);
+
+        string fixture = File.ReadAllText(Path.Combine(root, "ReignBeta", "src", "Modules", "WorldSimulation",
+            "Campaign", "ReignLiveInteractionPartyAgencyFixtures.cs"));
+        string prisonerFixture = fixture[fixture.IndexOf("case \"prisoner\":", StringComparison.Ordinal)
+            ..fixture.IndexOf("case \"dead\":", StringComparison.Ordinal)];
+        Assert.Contains("settlement.OwnerClan != Clan.PlayerClan", prisonerFixture, StringComparison.Ordinal);
+        Assert.Contains("TakePrisonerAction.Apply(foreignDungeon.Party, target)", prisonerFixture, StringComparison.Ordinal);
+        Assert.DoesNotContain("TakePrisonerAction.Apply(PartyBase.MainParty", prisonerFixture, StringComparison.Ordinal);
+    }
+
     [Fact]
     public void ObservationalPolicyContractsMatchThePersistedGuestLifecycle()
     {

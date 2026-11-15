@@ -281,7 +281,7 @@ public sealed partial class ReignValidationService(
         var report = new ValidationReport
         {
             Schema = "reign-validation-report-v4",
-            ValidatorVersion = "0.7.2",
+            ValidatorVersion = "0.7.3",
             RunId = runId,
             SourceFingerprintSha256 = sourceFingerprint,
             StartedUtc = started.ToString("O"),

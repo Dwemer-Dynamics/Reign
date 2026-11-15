@@ -18,7 +18,7 @@ namespace ReignBeta.Integration
             string campaignId = GetCampaignId(), timeline = ReignWorldHistoryCampaignBehavior.Instance?.TimelineId ?? "main";
             if (TavernHouseVisitAction.Contains(draft) && !tavernActions)
                 throw new InvalidOperationException("This visit action belongs only to the Tavern House conversation.");
-            ConfigureStructuredActions(payload, npc, draft);
+            ConfigureStructuredActions(payload, npc, draft, AgreementChannel.InPerson);
             return response =>
             {
                 if (campaign != TaleWorlds.CampaignSystem.Campaign.Current || behavior != ReignAgreementBehavior.Instance
@@ -30,8 +30,10 @@ namespace ReignBeta.Integration
         }
         // Called on the campaign thread. Only the locally attached composer draft
         // supplies executable terms. Speech may rank discovery assets, never authorize them.
-        private static void ConfigureStructuredActions(JObject payload, Hero npc, ActionAgreement draft)
+        private static void ConfigureStructuredActions(JObject payload, Hero npc, ActionAgreement draft,
+            AgreementChannel channel)
         {
+            if (!Enum.IsDefined(typeof(AgreementChannel), channel)) throw new InvalidOperationException("Unknown native conversation channel.");
             string playerId = Hero.MainHero?.StringId ?? "", npcId = npc?.StringId ?? "";
             payload["playerHeroStringId"] = playerId;
             payload["speakerHeroStringId"] = npcId;
@@ -39,12 +41,24 @@ namespace ReignBeta.Integration
                 ReignWorldHistoryCampaignBehavior.Instance?.TimelineId ?? "main", npcId);
             if (draft != null && npc?.IsChild == true) throw new InvalidOperationException("Gameplay bargaining requires an adult participant.");
             var behavior = ReignAgreementBehavior.Instance ?? throw new InvalidOperationException("The explicit action service is unavailable.");
-            var offer = behavior.PrepareOffer(draft, playerId, npcId, contextId, out var receipt);
+            var offer = behavior.PrepareOffer(draft, playerId, npcId, contextId, out var receipt, channel);
             var context = new JObject { ["playerId"] = playerId, ["npcId"] = npcId, ["conversationId"] = contextId,
-                ["worldDay"] = ReignActionService.Now, ["adultParticipant"] = npc?.IsChild != true };
+                ["worldDay"] = ReignActionService.Now, ["adultParticipant"] = npc?.IsChild != true, ["channel"] = (int)channel };
             if (offer != null) { context["proposal"] = JObject.FromObject(offer); context["termsHash"] = offer.TermsHash(); }
             if (receipt != null) context["nativeReceipt"] = JObject.FromObject(receipt);
             context["fulfilledPaymentHistory"] = CaptureFulfilledPaymentHistory(playerId, npcId);
+            // Actual saved journals, distinct from model proposals and queue rows.
+            // Bound the prompt view; the native journals themselves remain intact.
+            var journals = System.Linq.Enumerable.Where(behavior.Agreements, j => j.Agreement.PlayerId == playerId && j.Agreement.NpcId == npcId
+                && j.Agreement.Id != receipt?.OperationId && (j.Agreement.State == AgreementState.Reserved || j.Agreement.State == AgreementState.Waiting
+                    || j.Agreement.State == AgreementState.InTransit || j.Agreement.State == AgreementState.RecoveryRequired));
+            if (System.Linq.Enumerable.Any(journals)) context["agreementJournal"] = new JObject {
+                ["schema"] = "reign-agreement-journal-view-v1", ["total"] = System.Linq.Enumerable.Count(journals),
+                ["truncated"] = System.Linq.Enumerable.Count(journals) > 16,
+                ["rows"] = JArray.FromObject(System.Linq.Enumerable.Select(System.Linq.Enumerable.Take(
+                    System.Linq.Enumerable.ThenBy(System.Linq.Enumerable.OrderByDescending(journals, j => j.Agreement.CreatedDay),
+                        j => j.Agreement.Id, StringComparer.Ordinal), 16), j => behavior.Status(j.Agreement.Id)))
+            };
             if (ReignSpouseSeparationAction.Available(npc)) context["currentMarriage"] = new JObject {
                 ["actorId"] = npcId, ["spouseId"] = npc.Spouse.StringId,
                 ["spouseName"] = npc.Spouse.Name.ToString(), ["spouseClanId"] = npc.Spouse.Clan?.StringId ?? "",
@@ -107,6 +121,8 @@ namespace ReignBeta.Integration
                     throw new InvalidOperationException(envelope?.Value<string>("error") ?? "No verified action decision was returned.");
                 }
                 var decision = envelope["decision"]?.ToObject<ActionDecision>() ?? throw new InvalidOperationException("The typed decision is missing.");
+                if (!Enum.IsDefined(typeof(AgreementChannel), context.Value<int?>("channel") ?? 0))
+                    throw new InvalidOperationException("Unknown retained native conversation channel.");
                 if (npc?.IsChild == true && decision.Kind != "none") throw new InvalidOperationException("This participant cannot authorize gameplay bargains.");
                 if (context.Value<string>("playerId") != Hero.MainHero?.StringId || context.Value<string>("npcId") != npc?.StringId)
                     throw new InvalidOperationException("The conversation participants changed.");
@@ -127,7 +143,8 @@ namespace ReignBeta.Integration
                 }
                 else message = ReignAgreementBehavior.Instance.ReceiveDecision(context["proposal"]?.ToObject<ActionAgreement>(), decision,
                     context.Value<string>("playerId"), context.Value<string>("npcId"), context.Value<string>("conversationId"),
-                    string.IsNullOrEmpty(responseId) ? request.Value<string>("correlationId") ?? request.Value<string>("sceneTurnId") : responseId);
+                    string.IsNullOrEmpty(responseId) ? request.Value<string>("correlationId") ?? request.Value<string>("sceneTurnId") : responseId,
+                    (AgreementChannel)(context.Value<int?>("channel") ?? 0));
             }
             catch (Exception ex) { message = "Action not applied: " + ex.Message; }
             if (string.IsNullOrWhiteSpace(message)) return;

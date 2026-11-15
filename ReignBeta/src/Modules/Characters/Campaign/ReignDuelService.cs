@@ -264,6 +264,22 @@ namespace ReignBeta.Campaign
             ReignLog.Warn("Conversation duel failed action=" + intent.ActionId + " opponent=" + intent.OpponentHeroStringId + " reason=" + message);
         }
 
+        internal static void CompleteTrainingTogether(ReignDuelIntent intent, string reason)
+        {
+            if (intent == null || !ReignDuelModePolicy.IsTrainingTogether(intent.Mode) || !IsActiveDuel(intent.ActionId)) return;
+            // Consume ownership before reporting: native teardown may call back again.
+            Complete(intent.ActionId);
+            string message = "The player and " + intent.OpponentName + " finished training together in private. Neither fighter won or lost.";
+            var result = ReignActionResult.Done(message)
+                .WithResultCode("practice_duel_completed")
+                .WithEffect("training_completed", "hero", intent.OpponentHeroStringId, intent.OpponentName, "mode=training_together;reason=" + reason)
+                .WithDiagnostic("duelMode", intent.Mode)
+                .WithDiagnostic("finishReason", reason)
+                .WithDiagnostic("outcome", "ended_without_winner");
+            ReignAICampaignBehavior.Instance?.CompleteActionFromMissionHook(intent.ActionId, result);
+            InformationManager.DisplayMessage(new InformationMessage("[Bannerlord Reign] " + message, Color.FromUint(0xFFFFD36A)));
+        }
+
         public static void CompleteDuelFromMapMission(ReignDuelIntent intent, Hero winnerHero, string finishReason)
         {
             if (intent == null)
@@ -271,6 +287,12 @@ namespace ReignBeta.Campaign
                 return;
             }
 
+            if (!IsActiveDuel(intent.ActionId)) return;
+            if (winnerHero == null && ReignDuelModePolicy.IsTrainingTogether(intent.Mode))
+            {
+                CompleteTrainingTogether(intent, finishReason);
+                return;
+            }
             Hero opponent = intent.OpponentHero;
             if (intent.Purpose == "npc_personal_story")
             {
@@ -297,7 +319,7 @@ namespace ReignBeta.Campaign
             ReignActionResult result = ReignActionResult.Done(message)
                 .WithResultCode(arrestDuel
                     ? playerWon ? "arrest_duel_capture_completed" : "arrest_duel_escape_completed"
-                    : ReignDuelModePolicy.IsPractice(intent.Mode) ? "practice_duel_completed"
+                    : ReignDuelModePolicy.IsPrivate(intent.Mode) ? "practice_duel_completed"
                     : intent.Lethal ? "lethal_duel_completed" : "training_duel_completed")
                 .WithEffect("duel_completed", "hero", intent.OpponentHeroStringId, intent.OpponentName, "mode=" + intent.Mode + ";winner=" + winnerName + ";loser=" + loserName + ";reason=" + finishReason)
                 .WithChangedEntity("hero", intent.OpponentHeroStringId, intent.OpponentName, playerWon ? "lost_duel_to_player" : "won_duel_against_player")
@@ -321,7 +343,7 @@ namespace ReignBeta.Campaign
         {
             // Practice is remembered by the opponent through the private action
             // receipt only. Never emit social/world-history evidence for it.
-            if (intent == null || ReignDuelModePolicy.IsPractice(intent.Mode)) return;
+            if (intent == null || ReignDuelModePolicy.IsPrivate(intent.Mode)) return;
             string source = "duel|" + intent.ActionId;
             JObject evidence = new JObject
             {
@@ -427,7 +449,7 @@ namespace ReignBeta.Campaign
                 ReadString(terms, "duelMode", ReadString(terms, "mode", string.Empty)),
                 ReadBool(terms, "lethal", false));
             bool lethal = ReignDuelModePolicy.IsLethal(mode);
-            string purpose = ReignDuelModePolicy.IsPractice(mode)
+            string purpose = ReignDuelModePolicy.IsPrivate(mode)
                 ? "practice" : ResolvePurpose(terms, action, opponent, lethal);
 
             return new ReignDuelIntent
@@ -557,6 +579,7 @@ namespace ReignBeta.Campaign
             }
 
             if (intent.Mode == "honor") return winnerName + " bested " + loserName + " in a duel of honor.";
+            if (ReignDuelModePolicy.IsTrainingTogether(intent.Mode)) return winnerName + " bested " + loserName + " while training together in private.";
             if (ReignDuelModePolicy.IsPractice(intent.Mode)) return winnerName + " bested " + loserName + " in a private practice duel.";
 
             if (string.Equals(intent.Purpose, "hostile", StringComparison.OrdinalIgnoreCase))

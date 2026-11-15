@@ -1,3 +1,7 @@
+## Validation depth (2026-11-14)
+
+Normal validation uses exact changed paths and relevant module/dependency tests plus quick checks. Build coverage (`product` / `all`, including validator or release changes) does not authorize full behavioral testing. Only an explicit user request selects `behavioral` or a full artifact-bound offline run. `behavioral` retains an all-project report with offline depth; quick reports cannot substitute for explicitly requested full proof. Isolation, hygiene, artifact binding, OS lease and provider/native gates remain enforced.
+
 ## Validation lifetime (2026-11-14)
 
 Canonical validation and Linux publication pass an unlimited process lifetime explicitly. Windows cancellation remains linked to the caller; Linux receives JSON null/Python timeout=None. A newline-delimited request leaves stdin open as a live ownership channel; a raw-descriptor EOF watcher cleans up the exact child group on relay loss without an elapsed deadline or buffered-reader shutdown race. The isolated database, PID/start-time checks, signal handlers, bounded output capture and cleanup remain. Healthy full runs have no elapsed-time cutoff. Generic API and unrelated tool limits and individual behavioral contract limits remain unchanged. ReignProcessRunnerTests checks survival beyond a tiny generic limit, actual started-child cancellation, unrelated limit preservation and Linux relay timeout encoding. Explicit reign-validation-relay-proof-v1 acceptance uses only a fake executable in a task-owned fixture to prove normal completion, stdin EOF and abrupt relay loss; it starts no product services or providers.
@@ -465,6 +469,15 @@ targeted rows are permitted only for a measured failure cluster or confidence
 gap, and temporary sandbox paths cannot satisfy the release gate. Campaign
 Command save persistence additionally requires a guarded campaign-test restart
 receipt; a same-process checkpoint cannot satisfy the different-instance gate.
+
+Prisoner guest invitations release only a consenting captive in the player's main
+party or a player-clan dungeon where the main party is physically present. Native
+custody/roster facts grant authority; action terms cannot override them. Preview
+and deferred acceptance leave custody unchanged; actual departure revalidates
+eligibility and execution-sentence protection before native release and transfer.
+Failed transfer attempts exact-custody restoration, without claiming to reverse
+release/capture event side effects. The existing PA-NATIVE-008 prisoner rejection
+fixture uses foreign dungeon custody, retaining all disposable-save and reload gates.
 
 Party Agency preparation is non-mutating and binds one certification run to
 the campaign-test enrollment's immutable baseline, exact run-owned Current
@@ -1113,3 +1126,13 @@ Review hardening: current question quotes must span complete punctuated request 
 `reign_check_deployment_source` and `--deployment-source-check-cli` are read-only. They accept only original canonical report paths beneath the configured workspace build root, reject redirected paths before reads, bound reports to64MiB, and use the existing canonical source fingerprint plus report-owned artifact hashes. They cannot read arbitrary settings/credentials through a report argument, start a listener/build/provider, change authority or control campaigns.
 
 Deploy requires a machine-local pointer to durable reviewed source/artifact receipts. Only explicit checkpoint promotion writes it atomically under its own writer lock; Deploy never adopts an arbitrary checkout. Review receipts bind prior pointer, complete candidate and exact delta hashes plus all changed paths. Source inventory includes tracked and untracked nonignored bytes, first-party assets and verified physical roots/junction. Old worktree/legacy/chained deployment invocations remain gated by the primary hook; read arguments do not exempt a chained invocation. This is an accident-prevention boundary, not a sandbox against deliberately rewriting code and all local evidence. Existing external communication, provider-cost, native-game and deployment authorization rules remain authoritative.
+
+Captured-ruler timing (2026-11-14): production decisions require seven fractional native days from original capture, including direct requests and asynchronous callbacks. New execution sentences add eight days. Existing absolute deadlines remain valid. Timing tests retain every existing enrollment, disposable-save, provider, time and recovery gate; a build or policy test never authorizes advancing the live campaign.
+
+Beta background diagnostics (2026-11-14): status corrections retain requested campaign/timeline scope, distinguish unavailable registered-save metadata from actual snapshot loss, and expose only source-free aggregate incomplete-memory reasons in the new bounded projection. Wedding schedule and acknowledgement receipts do not grant execution, payment, native time or provider authority. Stale reload callbacks cannot acknowledge or unlock a newer request; retry cleanup affects only its owned in-flight state. Existing live-campaign, provider and deployment gates remain unchanged.
+
+## Beta publication, agreement and liberation boundaries
+
+The existing diplomatic `events/next` GET adds `publicHistory=true`, a closed public-only projection of retained ready director announcements (maximum500), including acknowledged notices without fetch/ack writes. Pending and explicitly nonpublic rows are excluded; malformed stored lists fail rather than certify an empty history. Native callers require the returned version/publication flag, keep the existing popup route, and time-bound refresh/owner-checked application. This adds no proposal, action, provider or live-test authority. Its regression uses isolated WorldTest state; MCP does not add a runtime-mutation tool for it.
+
+`reign-beta-prompt-news-agreements-v1` retains exact source/consent/observer/timeline authority. Public history snapshots allowlist already-public article fields and use actual publication time; private producer/government objects and UI preferences never authorize global access. The native journal view reports state without recovery authority. Native routes set the consent-bound channel; clients/models cannot establish an InPerson commit without its saved native offer. Legacy schedules remain. The added release-and-talk menu is an explicit player release choice and invokes the same native liberation consequence once, with verified freedom before Reign chat and a separate effect-free farewell. Canonical `reign-player-approach-native-probe-v1` binds/JIT-checks these signatures only, never invokes callbacks or changes live campaigns. See `docs/agent/BETA_PROMPT_NEWS_AGREEMENTS_2026-11-14.md` for isolation and residual native acceptance.

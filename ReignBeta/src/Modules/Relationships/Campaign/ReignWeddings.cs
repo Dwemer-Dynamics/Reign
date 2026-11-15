@@ -43,6 +43,7 @@ namespace ReignBeta.Campaign
         public Dictionary<string, JObject> Custody = new Dictionary<string, JObject>();
         public Dictionary<string, JObject> SettlementEvidence = new Dictionary<string, JObject>();
         public string PendingAppeal = "";
+        public string DirectorReportedSchedule = "";
         public DateTime AppealUntilUtc;
         public bool Terminal => State == WeddingState.Completed || State == WeddingState.Cancelled || State == WeddingState.Recovery;
     }
@@ -56,6 +57,7 @@ namespace ReignBeta.Campaign
         private string _completingWedding = "";
         private string _openWeddingChoice = "";
         private bool _weddingReportInFlight;
+        private int _weddingReportEpoch;
         private DateTime _weddingReportRetryUtc;
 
         internal static bool WeddingFeatureReady => ReignMarriagePatches.WeddingsReady
@@ -68,6 +70,9 @@ namespace ReignBeta.Campaign
             store.SyncData("_reignWeddingsV1", ref _weddingChunks);
             if (store.IsLoading)
             {
+                _weddingReportEpoch++;
+                _weddingReportInFlight = false;
+                _weddingReportRetryUtc = default;
                 _weddings = _weddingChunks?.Count > 0
                     ? JsonConvert.DeserializeObject<Dictionary<string, ReignWedding>>(ReignSavePayloadCodec.Decode(_weddingChunks))
                         ?? new Dictionary<string, ReignWedding>(StringComparer.Ordinal)
@@ -395,20 +400,31 @@ namespace ReignBeta.Campaign
             string status = wedding.State == WeddingState.Completed ? "completed"
                 : wedding.State == WeddingState.Cancelled ? "obsolete"
                 : wedding.State == WeddingState.Recovery ? "recovery" : "wedding_pending";
-            return new JObject
+            var clauses = (wedding.Consideration?.Clauses ?? Enumerable.Empty<ActionClause>()).ToList();
+            bool feeKnown = ArrangedMarriagePolicy.TryReceiptFee(clauses
+                .Where(clause => clause != null && clause.ActionId == "give.gold")
+                .Select(clause => clause.Arguments != null && clause.Arguments.TryGetValue("quantity", out var quantity)
+                    ? quantity : ""), out int fee) && clauses.All(clause => clause != null);
+            var receipt = new JObject
             {
                 ["directorActionId"] = wedding.Id, ["worldDay"] = WeddingNow, ["timelineId"] = WeddingTimeline,
                 ["status"] = status, ["error"] = wedding.Reason, ["marriageVerified"] = status == "completed",
-                ["paymentVerified"] = status == "completed",
-                ["fee"] = wedding.Consideration?.Clauses.Where(c => c.ActionId == "give.gold")
-                    .Sum(c => int.Parse(ReignActionService.Arg(c, "quantity"))) ?? 0
+                ["scheduledStartDay"] = wedding.Starts, ["scheduledEndDay"] = wedding.Ends,
+                ["paymentVerified"] = status == "completed", ["feeMetadataValid"] = feeKnown
             };
+            if (feeKnown) receipt["fee"] = fee;
+            else receipt["feeDiagnostic"] = "unavailable_invalid_consideration_quantity";
+            return receipt;
         }
+
+        private static string WeddingScheduleReceiptKey(ReignWedding wedding) =>
+            FormattableString.Invariant($"{wedding.Starts:R}|{wedding.Ends:R}|{wedding.VenueId}");
 
         private void PollWeddingReceipts()
         {
             if (_weddingReportInFlight || DateTime.UtcNow < _weddingReportRetryUtc) return;
-            var pending = _weddings.Values.Where(w => w.DirectorAction && w.Terminal && !w.DirectorReported
+            var pending = _weddings.Values.Where(w => w.DirectorAction
+                && (w.Terminal ? !w.DirectorReported : w.DirectorReportedSchedule != WeddingScheduleReceiptKey(w))
                 && w.TimelineId == WeddingTimeline).Take(16).ToList();
             var offers = _marriageOffers.Values.Where(o => o.DirectorOffer && !o.DirectorReported && o.TimelineId == WeddingTimeline
                 && (o.State == "refused" || o.State == "expired" || o.State == "unavailable")).Take(16).ToList();
@@ -418,25 +434,53 @@ namespace ReignBeta.Campaign
         private async System.Threading.Tasks.Task ReportWeddingReceipts(List<ReignWedding> pending, List<ReignPlayerMarriageOffer> offers)
         {
             _weddingReportInFlight = true;
+            int epoch = ++_weddingReportEpoch;
             string timeline = WeddingTimeline;
             int generation = ReignSaveSyncCoordinator.CampaignGeneration;
-            var receipts = new JArray(pending.Select(WeddingDirectorReceipt));
-            foreach (var offer in offers)
-                receipts.Add(new JObject { ["directorActionId"] = offer.Id, ["status"] = offer.State == "refused" ? "player_refused" : "obsolete",
-                    ["worldDay"] = WeddingNow, ["timelineId"] = timeline });
-            var result = await ReignServerClient.ReportRelationshipDirectorActionsAsync(receipts).ConfigureAwait(false);
-            await ReignMainThread.InvokeAsync(() =>
+            bool CurrentOwner() => ReferenceEquals(Instance, this) && epoch == _weddingReportEpoch
+                && timeline == WeddingTimeline && generation == ReignSaveSyncCoordinator.CampaignGeneration;
+            try
             {
-                _weddingReportInFlight = false;
-                if (!ReferenceEquals(Instance, this) || timeline != WeddingTimeline
-                    || generation != ReignSaveSyncCoordinator.CampaignGeneration) return;
-                if (result)
+                var snapshots = pending.Select(wedding => new { Wedding = wedding, wedding.State,
+                    wedding.Terminal, Schedule = WeddingScheduleReceiptKey(wedding) }).ToList();
+                var receipts = new JArray(pending.Select(WeddingDirectorReceipt));
+                foreach (var offer in offers)
+                    receipts.Add(new JObject { ["directorActionId"] = offer.Id, ["status"] = offer.State == "refused" ? "player_refused" : "obsolete",
+                        ["worldDay"] = WeddingNow, ["timelineId"] = timeline });
+                var result = await ReignServerClient.ReportRelationshipDirectorActionsAsync(receipts).ConfigureAwait(false);
+                await ReignMainThread.InvokeAsync(() =>
                 {
-                    foreach (var wedding in pending) wedding.DirectorReported = true;
-                    foreach (var offer in offers) offer.DirectorReported = true;
-                }
-                else _weddingReportRetryUtc = DateTime.UtcNow.AddSeconds(10);
-            }).ConfigureAwait(false);
+                    if (!CurrentOwner()) return;
+                    if (result)
+                    {
+                        foreach (var snapshot in snapshots)
+                        {
+                            snapshot.Wedding.DirectorReportedSchedule = snapshot.Schedule;
+                            snapshot.Wedding.DirectorReported = ArrangedMarriagePolicy.CanAcknowledgeWeddingReceipt(
+                                snapshot.Terminal, (int)snapshot.State, snapshot.Schedule,
+                                snapshot.Wedding.Terminal, (int)snapshot.Wedding.State, WeddingScheduleReceiptKey(snapshot.Wedding));
+                        }
+                        foreach (var offer in offers) offer.DirectorReported = true;
+                    }
+                    else _weddingReportRetryUtc = DateTime.UtcNow.AddSeconds(10);
+                }).ConfigureAwait(false);
+            }
+            catch (Exception ex)
+            {
+                await ReignMainThread.InvokeAsync(() =>
+                {
+                    if (!CurrentOwner()) return;
+                    _weddingReportRetryUtc = DateTime.UtcNow.AddSeconds(10);
+                    ReignLog.Warn("Wedding receipt reporting will retry: " + ex.GetType().Name);
+                }).ConfigureAwait(false);
+            }
+            finally
+            {
+                await ReignMainThread.InvokeAsync(() =>
+                {
+                    if (epoch == _weddingReportEpoch) _weddingReportInFlight = false;
+                }).ConfigureAwait(false);
+            }
         }
 
         private void CancelWedding(ReignWedding match, string reason)

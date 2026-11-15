@@ -54,7 +54,8 @@ namespace ReignBeta.Campaign
 
         internal void Judgment(RulerJudgment judgment, string phase)
         {
-            bool execution = ReignRulerPolicy.Execution(judgment.Verdict);
+            bool issued = ReignRulerPolicy.HasIssuedSentence(judgment);
+            bool execution = issued && ReignRulerPolicy.Execution(judgment.Verdict);
             if (phase == "sentenced" && !execution) return; // Immediate settlements are announced only once they succeed.
             var prisoner = ReignRulerCampaignBehavior.HeroById(judgment.PrisonerId);
             var victor = ReignRulerCampaignBehavior.HeroById(judgment.VictorId);
@@ -62,13 +63,19 @@ namespace ReignBeta.Campaign
             var winning = ReignRulerCampaignBehavior.Realm(judgment.VictorKingdomId);
             string name = prisoner?.Name?.ToString() ?? "The captive leader", ruler = victor?.Name?.ToString() ?? "The victorious ruler";
             string realm = defeated?.Name?.ToString() ?? "the defeated realm", conqueror = winning?.Name?.ToString() ?? "the victorious realm";
+            string sentenceDays = (judgment.Deadline > judgment.SentencedDay
+                ? judgment.Deadline - judgment.SentencedDay : ReignRulerPolicy.ExecutionDays)
+                .ToString("0.##", System.Globalization.CultureInfo.InvariantCulture);
             var news = WithPeople(new ReignNewsArticle
             {
                 Id = "crier:judgment:" + judgment.Id + ":" + phase,
                 Category = phase == "sentenced" ? ReignNewsCategories.Sentences : ReignNewsCategories.RulerOutcomes,
                 Title = phase == "sentenced" ? "A Sentence of Death" : "The Fate of a Captive Leader",
-                Headline = phase == "sentenced" ? "Fifteen days until execution" : "A ruling takes effect",
-                WorldDay = CampaignTime.Now.ToDays
+                Headline = phase == "sentenced" ? sentenceDays + " days until execution" : "A ruling takes effect",
+                WorldDay = CampaignTime.Now.ToDays,
+                SourceEventType = "ruler_judgment", SourceCorrelationId = judgment.Id, SourcePhase = phase,
+                PublicVerdict = issued ? judgment.Verdict.ToString() : "",
+                ExecutionDueDay = phase == "sentenced" && execution ? (double?)judgment.Deadline : null
             }, victor, prisoner, "The ruling authority", phase == "sentenced" ? "Condemned to death" : "The defeated leader");
             // Keep the realms at the time of judgment even after annexation or exile.
             news.ActorRealmId = judgment.VictorKingdomId; news.ActorRealmName = conqueror;
@@ -77,18 +84,19 @@ namespace ReignBeta.Campaign
             {
                 news.Body = ruler + " has condemned " + name + " to death. "
                     + (judgment.Verdict == RulerVerdict.TortureExecution
-                        ? "The prisoner will endure fifteen days of torture and public humiliation before the execution."
-                        : "The execution is to take place fifteen days after this sentence, without torture or humiliation.");
+                        ? "The prisoner will endure " + sentenceDays + " days of torture and public humiliation before the execution."
+                        : "The execution is to take place " + sentenceDays + " days after this sentence, without torture or humiliation.");
                 news.Consequences = judgment.DefeatedLord
                     ? "No ransom will be accepted. Escape or rescue would void this sentence. The settlement ending the rebellion would remain in force."
                     : "No ransom will be accepted. Escape or rescue would void this sentence and leave the war unresolved.";
             }
-            else if (phase == "escaped")
+            else if (phase == "escaped" || phase == "cancelled")
             {
-                news.Title = "A Captive Leader Goes Free"; news.Headline = "The pending judgment is void";
-                news.Body = name + " is no longer in the captor's custody. The pending judgment has been cancelled.";
+                news.Title = phase == "escaped" ? "A Captive Leader Goes Free" : "A Pending Judgment Is Voided"; news.Headline = "The pending judgment is void";
+                news.Body = phase == "escaped" ? name + " is no longer in the captor's custody. The pending judgment has been cancelled."
+                    : name + " is no longer held in the victorious realm's custody. The pending judgment has been cancelled.";
                 news.Consequences = judgment.DefeatedLord
-                    ? "The death sentence will not be carried out. The settlement ending the rebellion remains in force."
+                    ? (execution ? "The death sentence will not be carried out. " : "No execution sentence was issued. ") + "The settlement ending the rebellion remains in force."
                     : "No settlement or other consequences of that judgment take effect. The war continues on its existing terms.";
             }
             else
@@ -147,6 +155,20 @@ namespace ReignBeta.Campaign
                 }
             }
             Publish(news);
+        }
+
+        internal void ReconcileCancelledJudgment(RulerJudgment judgment)
+        {
+            var prisoner = ReignRulerCampaignBehavior.HeroById(judgment.PrisonerId);
+            if (prisoner?.IsAlive != true) return;
+            Publish(WithPeople(new ReignNewsArticle {
+                Id = "crier:judgment:" + judgment.Id + ":cancelled_state", Category = ReignNewsCategories.RulerOutcomes,
+                Title = "A Pending Judgment Is Voided", Headline = "A saved cancellation is confirmed",
+                Body = "The previously announced judgment concerning " + prisoner.Name + " is cancelled. This is a confirmation from the saved judgment state; the original cancellation date is unrecorded.",
+                Consequences = "The former execution deadline is no longer pending. This report establishes neither a completed execution nor the captive's current freedom.",
+                WorldDay = CampaignTime.Now.ToDays, SourceEventType = "ruler_judgment", SourceCorrelationId = judgment.Id,
+                SourcePhase = "cancelled_state", PublicVerdict = ReignRulerPolicy.HasIssuedSentence(judgment) ? judgment.Verdict.ToString() : ""
+            }, null, prisoner, "", ""));
         }
 
         internal void KingdomEvent(ReignKingdomEventRecord record, Kingdom kingdom, Kingdom other, Hero formerRuler, Hero heir, bool ended = false)

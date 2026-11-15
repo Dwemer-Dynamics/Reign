@@ -6,6 +6,60 @@ namespace Reign.Mcp.Tests;
 public sealed class ReignProjectCatalogTests
 {
     [Fact]
+    public void ToolDefaultsCannotImplicitlyRequestFullBehavioralValidation()
+    {
+        foreach (var name in new[] { nameof(TestingTools.GetValidationPlan), nameof(TestingTools.Validate) })
+        {
+            var profile = typeof(TestingTools).GetMethod(name)!.GetParameters().Single(x => x.Name == "profile");
+            Assert.Equal("changed", profile.DefaultValue);
+        }
+        var tier = typeof(TestingTools).GetMethod(nameof(TestingTools.RunOfflineVerification))!
+            .GetParameters().Single(x => x.Name == "tier");
+        Assert.Equal("quick", tier.DefaultValue);
+        var script = File.ReadAllText(Path.Combine(TestOptions.Create().WorkspaceRoot,
+            "ReignMcp/scripts/reign-validate.ps1"));
+        Assert.Contains("'all', 'behavioral'", script);
+        Assert.Contains("[string]$Profile = 'changed'", script);
+    }
+
+    [Theory]
+    [InlineData("all")]
+    [InlineData("product")]
+    [InlineData("core")]
+    [InlineData("tooling")]
+    public void OrdinaryProfilesNeverSelectFullBehavioralValidation(string profile)
+    {
+        var plan = Catalog().CreatePlan(profile, "Release", false);
+        Assert.NotEqual("offline", plan.VerificationTier);
+    }
+
+    [Fact]
+    public void FullBehavioralValidationRequiresItsExplicitProfile()
+    {
+        var ordinary = Catalog().CreatePlan("all", "Release", false);
+        var behavioral = Catalog().CreatePlan("behavioral", "Release", false);
+
+        Assert.Equal("quick", ordinary.VerificationTier);
+        Assert.Equal("offline", behavioral.VerificationTier);
+        Assert.Equal("all", behavioral.Profile);
+        Assert.Equal(ordinary.Projects.Select(x => x.Id), behavioral.Projects.Select(x => x.Id));
+        Assert.Contains(behavioral.SelectionReasons, x => x.Contains("explicitly requested"));
+        Assert.Empty(behavioral.VerificationOperations);
+    }
+
+    [Fact]
+    public void OrdinaryCourtChangeKeepsItsRelevantChecksWithoutTheFullSuite()
+    {
+        var plan = Catalog().CreatePlan("changed", "Release", false,
+            "ReignServer/src/Modules/Court/CourtSystem.cs");
+
+        Assert.Equal("targeted", plan.VerificationTier);
+        Assert.All(plan.VerificationOperations, x => Assert.Equal("court", x.ModuleId));
+        Assert.Contains(plan.VerificationOperations, x => x.Arguments.Contains("--run-court-tests"));
+        Assert.DoesNotContain(plan.Projects, x => x.Id == "mcp-tests");
+    }
+
+    [Fact]
     public void CurrentWorkspaceCatalogAndModuleCoverageAreComplete()
     {
         var plan = Catalog().CreatePlan("all", "Release", restore: false);
@@ -71,7 +125,7 @@ public sealed class ReignProjectCatalogTests
         Assert.Equal("ready", plan.Status);
         Assert.Equal(4, plan.SelectedTier);
         Assert.Equal("ecosystem", plan.Scope);
-        Assert.Equal("offline", plan.VerificationTier);
+        Assert.Equal("quick", plan.VerificationTier);
     }
 
     [Fact]
@@ -231,7 +285,7 @@ public sealed class ReignProjectCatalogTests
         Assert.Equal("ready", plan.Status);
         Assert.Equal(4, plan.SelectedTier);
         Assert.Equal("ecosystem", plan.Scope);
-        Assert.Equal("offline", plan.VerificationTier);
+        Assert.Equal("quick", plan.VerificationTier);
         Assert.Equal(21, plan.Projects.Count);
     }
 

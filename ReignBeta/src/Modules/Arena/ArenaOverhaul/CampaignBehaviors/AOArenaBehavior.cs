@@ -50,6 +50,7 @@ namespace ArenaOverhaul.CampaignBehaviors
 
         private CampaignGameStarter? _campaignGame;
         private readonly List<CultureObject> _visitedCultures = [];
+        private List<string> _recentPrizeIds = [];
 
         private AOArenaBehaviorManager _AOArenaBehaviorManager = new();
 
@@ -58,6 +59,7 @@ namespace ArenaOverhaul.CampaignBehaviors
         public AOArenaBehavior()
         {
             AOArenaBehaviorManager.Instance = _AOArenaBehaviorManager;
+            TournamentRewardManager.Initialize();
         }
 
         public override void RegisterEvents()
@@ -87,7 +89,7 @@ namespace ArenaOverhaul.CampaignBehaviors
             _AOArenaBehaviorManager.SetStandardPracticeMode();
 
             AddDialogs(campaignGameStarter);
-            TournamentRewardManager.Initialize();
+            TournamentRewardManager.Initialize(TournamentRewardManager.RecentTournamentPrizeItemIds);
 
             if (Settlement.CurrentSettlement != null)
             {
@@ -710,6 +712,13 @@ namespace ArenaOverhaul.CampaignBehaviors
 
         public override void SyncData(IDataStore dataStore)
         {
+            if (dataStore.IsSaving) _recentPrizeIds = TournamentRewardManager.RecentTournamentPrizeItemIds.ToList();
+            dataStore.SyncDataAsJson("_AORecentTournamentPrizesV1", ref _recentPrizeIds);
+            if (dataStore.IsLoading)
+            {
+                _recentPrizeIds ??= [];
+                TournamentRewardManager.Initialize(_recentPrizeIds);
+            }
 #pragma warning disable CS8601 // Possible null reference assignment.
             dataStore.SyncDataAsJson("_AOArenaBehaviorManager", ref _AOArenaBehaviorManager);
 #pragma warning restore CS8601 // Possible null reference assignment.

@@ -45,6 +45,7 @@ namespace ReignBeta.Campaign
         private float _historyCompleteFromDay;
         private bool _timelineReady;
         private readonly List<JObject> _deferred = new List<JObject>();
+        private readonly Dictionary<string, JObject> _publicNewsAttempts = new Dictionary<string, JObject>(StringComparer.Ordinal);
         private readonly Dictionary<int, BattleSnapshot> _battleSnapshots = new Dictionary<int, BattleSnapshot>();
         private readonly Dictionary<string, string> _reconciliationState = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
         private readonly HashSet<string> _observedEntities = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
@@ -152,6 +153,7 @@ namespace ReignBeta.Campaign
 
         public override void SyncData(IDataStore dataStore)
         {
+            if (dataStore.IsLoading) _publicNewsAttempts.Clear();
             dataStore.SyncData("_reign_worldHistoryTimelineId", ref _timelineId);
             dataStore.SyncData("_reign_worldHistoryHeadEventId", ref _headEventId);
             dataStore.SyncData("_reign_worldHistorySequence", ref _sequence);
@@ -808,6 +810,38 @@ namespace ReignBeta.Campaign
                 dissemination, payload, "reign_system", category);
         }
 
+        internal void RecordPublicNews(Reign.Core.Contracts.World.ReignNewsArticle article)
+        {
+            if (!_timelineReady || article?.IsValid != true) throw new InvalidOperationException("Public history is not ready.");
+            string eventId = Reign.Core.Contracts.World.ReignPublicNews.EventId(_timelineId, article.Id);
+            if (_publicNewsAttempts.TryGetValue(eventId, out var retry))
+            {
+                // An enqueue may have appended bytes before reporting I/O failure.
+                // Retry the exact same immutable event/sequence, never allocate a
+                // second native head for an existing publication identity.
+                ReignWorldHistoryTransport.Enqueue(retry);
+                return;
+            }
+            var snapshot = JObject.FromObject(Reign.Core.Contracts.World.ReignPublicNews.Snapshot(article));
+            var entities = new JArray();
+            void Person(string id, string name, string realm, string role)
+            {
+                if (!string.IsNullOrWhiteSpace(id)) entities.Add(new JObject {
+                    ["entityId"] = id, ["entityType"] = "hero", ["name"] = name ?? "",
+                    ["kingdomId"] = realm ?? "", ["role"] = role
+                });
+            }
+            Person(article.ActorId, article.ActorName, article.ActorRealmId, "announcement actor");
+            Person(article.TargetId, article.TargetName, article.TargetRealmId, "announcement subject");
+            Emit("public_announcement", "published", article.Text, article.Id, null, entities, true, "major_world",
+                snapshot, "reign_public_news", "public_news", eventIdOverride:
+                    eventId, worldDayOverride: article.PublicationDay,
+                    beforeEnqueue: e => _publicNewsAttempts[eventId] = (JObject)e.DeepClone());
+            if (!_publicNewsAttempts.ContainsKey(eventId)) throw new InvalidOperationException("The public announcement was not enqueued into native history.");
+        }
+        internal void ForgetPublicNewsAttempt(string articleId) => _publicNewsAttempts.Remove(
+            Reign.Core.Contracts.World.ReignPublicNews.EventId(_timelineId, articleId));
+
         public void RecordSocialOutcome(string archetypeId, Hero subject, string role, string sourceKey,
             string summary, JObject evidence = null, JArray counterOnlyTagIds = null,
             bool forceExposure = false, bool forcePromotion = false)
@@ -867,14 +901,15 @@ namespace ReignBeta.Campaign
                 new JArray(tagId ?? string.Empty));
         }
 
-        private void Emit(string eventType, string phase, string summary, string correlationId, Settlement location, JArray entities, bool complete, string dissemination, JObject payload = null, string source = "bannerlord_native", string categoryOverride = "", bool retainUntilTimelineReady = false)
+        private void Emit(string eventType, string phase, string summary, string correlationId, Settlement location, JArray entities, bool complete, string dissemination, JObject payload = null, string source = "bannerlord_native", string categoryOverride = "", bool retainUntilTimelineReady = false,
+            string eventIdOverride = null, double? worldDayOverride = null, Action<JObject> beforeEnqueue = null)
         {
             // Bannerlord and War Sails emit thousands of synthetic creation/ownership callbacks
             // while reconstructing a save. They are initialization state, not events that happened
             // during play, and previously dominated young campaign databases.
             if (!ReignWorldHistoryFlushPolicy.ShouldPersistEvent(eventType))
                 return;
-            double worldDay = CampaignTime.Now.ToDays;
+            double worldDay = worldDayOverride ?? CampaignTime.Now.ToDays;
             entities = entities ?? new JArray();
             payload = payload ?? new JObject();
             bool playerActivity = entities.OfType<JObject>().Any(e => e.Value<bool?>("isPlayer") == true);
@@ -904,7 +939,7 @@ namespace ReignBeta.Campaign
             }
             if (IsDuplicateHighFrequencyEvent(eventType, summary, location, entities, (float)worldDay)) return;
             long sequence = ++_sequence;
-            string eventId = _timelineId + "_" + sequence.ToString("D12") + "_" + Guid.NewGuid().ToString("N").Substring(0, 8);
+            string eventId = eventIdOverride ?? _timelineId + "_" + sequence.ToString("D12") + "_" + Guid.NewGuid().ToString("N").Substring(0, 8);
             _headEventId = eventId;
             foreach (JObject entity in (entities ?? new JArray()).OfType<JObject>())
             {
@@ -919,6 +954,7 @@ namespace ReignBeta.Campaign
                 ["summary"] = summary ?? eventType, ["source"] = source ?? "bannerlord_native", ["isComplete"] = complete,
                 ["entities"] = entities ?? new JArray(), ["payload"] = payload ?? new JObject()
             };
+            beforeEnqueue?.Invoke(evt);
             if (!_timelineReady)
             {
                 // Most callbacks observed during save reconstruction are initialization

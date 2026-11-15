@@ -28,6 +28,7 @@ namespace ReignBeta.Campaign
         private float _opponentOriginalHealthLimit;
         private float _pauseTimer;
         private bool _active;
+        private bool _trainingStopped;
 
         public override MissionBehaviorType BehaviorType
         {
@@ -44,7 +45,12 @@ namespace ReignBeta.Campaign
                 mission.AddMissionBehavior(behavior);
             }
             behavior._experienceIntent = intent;
+            behavior._trainingStopped = false;
         }
+
+        internal string CombatMode => _experienceIntent?.Mode;
+
+        internal bool CanLeaveTraining => HasActiveCombatDuel && ReignDuelModePolicy.IsTrainingTogether(CombatMode);
 
         internal bool HasActiveCombatDuel => _experienceIntent != null
             && ReignDuelService.IsActiveDuel(_experienceIntent.ActionId);
@@ -127,6 +133,14 @@ namespace ReignBeta.Campaign
         {
             base.OnMissionTick(dt);
 
+            if (_active && ReignDuelModePolicy.IsTrainingTogether(CombatMode)
+                && !ReignIndividualChatScreenManager.IsOpen
+                && TaleWorlds.InputSystem.Input.IsKeyPressed(TaleWorlds.InputSystem.InputKey.Tab))
+            {
+                TryStopTraining("training_stopped_by_player");
+                return;
+            }
+
             if (!_active)
             {
                 return;
@@ -165,6 +179,24 @@ namespace ReignBeta.Campaign
                     PauseNearbyAgents();
                 }
             }
+        }
+
+        internal bool TryStopTraining(string reason)
+        {
+            if (_trainingStopped) return true;
+            if (!HasActiveCombatDuel || !ReignDuelModePolicy.IsTrainingTogether(CombatMode)) return false;
+            _trainingStopped = true;
+            var finished = _experienceIntent;
+            if (_active) RestoreAgents();
+            ReignDuelService.CompleteTrainingTogether(finished, reason);
+            ReignDuelLaunchPromptService.ScheduleTemporaryArenaSettlementContextCleanup(finished.ActionId);
+            return true;
+        }
+
+        protected override void OnEndMission()
+        {
+            TryStopTraining("training_mission_ended");
+            base.OnEndMission();
         }
 
         public override void OnAgentRemoved(Agent affectedAgent, Agent affectorAgent, AgentState agentState, KillingBlow killingBlow)
@@ -209,7 +241,9 @@ namespace ReignBeta.Campaign
                 return false;
             }
 
-            if (TryStartNativeDuel(intent, player, opponent, source, out string nativeError))
+            string nativeError = "training together uses restorable scene control";
+            if (!ReignDuelModePolicy.IsTrainingTogether(intent.Mode)
+                && TryStartNativeDuel(intent, player, opponent, source, out nativeError))
             {
                 return true;
             }
@@ -507,7 +541,7 @@ namespace ReignBeta.Campaign
 
         private void CompleteDuel(ReignDuelIntent finished, Agent winnerAgent, Agent loserAgent, string finishReason, bool restoreManualState)
         {
-            if (finished == null)
+            if (finished == null || !ReignDuelService.IsActiveDuel(finished.ActionId))
             {
                 return;
             }
@@ -538,7 +572,7 @@ namespace ReignBeta.Campaign
             ReignActionResult result = ReignActionResult.Done(message)
                 .WithResultCode(arrestDuel
                     ? playerWon ? "arrest_duel_capture_completed" : "arrest_duel_escape_completed"
-                    : ReignDuelModePolicy.IsPractice(finished.Mode) ? "practice_duel_completed"
+                    : ReignDuelModePolicy.IsPrivate(finished.Mode) ? "practice_duel_completed"
                     : finished.Lethal ? "lethal_duel_completed" : "training_duel_completed")
                 .WithEffect("duel_completed", "hero", finished.OpponentHeroStringId, finished.OpponentName, "mode=" + finished.Mode + ";winner=" + winnerName + ";loser=" + loserName + ";reason=" + finishReason)
                 .WithChangedEntity("hero", finished.OpponentHeroStringId, finished.OpponentName, playerWon ? "lost_duel_to_player" : "won_duel_against_player")
@@ -625,6 +659,7 @@ namespace ReignBeta.Campaign
             }
 
             if (intent.Mode == "honor") return winnerName + " bested " + loserName + " in a duel of honor.";
+            if (ReignDuelModePolicy.IsTrainingTogether(intent.Mode)) return winnerName + " bested " + loserName + " while training together in private.";
             if (ReignDuelModePolicy.IsPractice(intent.Mode)) return winnerName + " bested " + loserName + " in a private practice duel.";
 
             if (string.Equals(intent.Purpose, "hostile", StringComparison.OrdinalIgnoreCase))

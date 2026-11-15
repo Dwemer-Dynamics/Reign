@@ -8,7 +8,11 @@ Complete authorized implementation through appropriate verification and requeste
 
 ## Validation and behavioral proof
 
-Full validations routinely take forty minutes or longer. Do not impose an elapsed-time deadline on validation. Retain task ownership, observation, explicit cancellation and cleanup; a healthy run is allowed to finish.
+Standing rule (2026-11-14): normal builds validate the exact changed paths and run only the relevant module/dependency tests plus useful quick checks. Full offline behavioral validation is opt-in only when the user explicitly requests it: use `behavioral`, or the artifact-bound offline verifier under its existing gates. Neither publication, deployment, a broad build profile nor a validator/shared-build change implicitly requests the full behavioral suite. `product` and `all` widen compilation/contract coverage while retaining quick verification. Do not automatically append unrelated behavioral suites to ordinary work.
+
+Already-running MCP hosts may retain the older validation engine. If their validation catalog does not expose `behavioral`, use the fresh canonical `ReignMcp/scripts/reign-validate.ps1` entry point until the host reconnects normally; do not use its old automatic offline selection or restart another task's runtime.
+
+Explicitly requested full validations may take forty minutes or longer. Do not impose an elapsed-time deadline on validation. Retain task ownership, observation, explicit cancellation and cleanup; a healthy run is allowed to finish.
 
 - `reign.modules.json` owns module/dependency/facet routing; `reign-projects.json` owns active projects. Obtain `reign_get_validation_plan` before code edits and use `reign_validate` afterward. Use exact changed paths and the lowest manifest-selected tier; see [validation guidance](docs/agent/VALIDATION.md) when selecting scope or handling failures.
 - Use `changed` for ordinary work, `product` for explicit product-wide confidence, and `all` for ecosystem release or manifest-required ownership, routing, shared-build or validator changes. Documentation/roadmap/policy-only changes are Tier 1 no-build plans. Read-only audits need no product build. Missing, unknown or ambiguous paths block; classify them before continuing.

@@ -18,10 +18,10 @@ public sealed class ReignProjectCatalog(ReignMcpOptions options)
     {
         new ReignSourceLayout(options.WorkspaceRoot).ValidateProjections();
         profile = profile.Trim().ToLowerInvariant();
-        if (profile is not ("changed" or "core" or "product" or "tooling" or "all"))
+        if (profile is not ("changed" or "core" or "product" or "tooling" or "all" or "behavioral"))
         {
             throw new ArgumentException(
-                "profile must be changed, core, product, tooling, or all.",
+                "profile must be changed, core, product, tooling, all, or behavioral.",
                 nameof(profile));
         }
         configuration = configuration.Trim();
@@ -126,10 +126,10 @@ public sealed class ReignProjectCatalog(ReignMcpOptions options)
             selected = moduleResolution.SelectedProjects;
             diagnostics.AddRange(moduleResolution.Diagnostics);
         }
-        else if (profile is "all" or "product")
+        else if (profile is "all" or "product" or "behavioral")
         {
             moduleResolution = new ReignModuleCatalog(options)
-                .ResolveAll(projects, profile == "all" ? "ecosystem" : "product");
+                .ResolveAll(projects, profile == "product" ? "product" : "ecosystem");
             selected = moduleResolution.SelectedProjects;
             diagnostics.AddRange(moduleResolution.Diagnostics);
         }
@@ -163,10 +163,12 @@ public sealed class ReignProjectCatalog(ReignMcpOptions options)
         {
             Schema = "reign-validation-plan-v3",
             Status = status,
-            Profile = profile,
+            // Keep deployment-compatible profile identity; verification depth is separate.
+            Profile = profile == "behavioral" ? "all" : profile,
             Scope = moduleResolution?.Scope ?? profile,
-            VerificationTier = moduleResolution?.VerificationTier
-                ?? (profile == "core" ? "quick" : "none"),
+            VerificationTier = profile == "behavioral" ? "offline"
+                : moduleResolution?.VerificationTier
+                    ?? (profile == "core" ? "quick" : "none"),
             Configuration = configuration,
             Restore = restore,
             CoverageComplete = unmanaged.Length == 0
@@ -178,7 +180,9 @@ public sealed class ReignProjectCatalog(ReignMcpOptions options)
             Diagnostics = diagnostics,
             SelectedTier = selectedTier,
             NonCodeOnly = nonCodeOnly,
-            SelectionReasons = reasons,
+            SelectionReasons = profile == "behavioral"
+                ? reasons.Concat(["Full offline behavioral validation explicitly requested."]).ToArray()
+                : reasons,
             ModuleCoverageComplete = moduleCoverageComplete,
             AffectedModules = moduleResolution?.AffectedModules ?? [],
             VerificationOperations = moduleResolution?.VerificationOperations ?? [],

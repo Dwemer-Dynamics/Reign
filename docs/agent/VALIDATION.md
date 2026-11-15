@@ -1,5 +1,11 @@
 # Tiered validation
 
+## Standing build rule (2026-11-14)
+
+Normal builds use `changed` with exact changed paths: compile the affected projects/dependencies and run their selected module, boundary and quick checks. Do not append unrelated behavioral suites. `product` and `all` broaden build/contract coverage but use quick verification; even validator, ownership, routing, shared-build, publication and deployment work does not automatically select full offline behavior.
+
+Full offline behavioral validation runs only when the user explicitly requests it. Select `behavioral` in `reign_get_validation_plan` / `reign_validate`, or `-Profile behavioral` in `ReignMcp/scripts/reign-validate.ps1`. This opt-in selects all managed projects and the full offline suite. Its report retains `Profile=all`, records `VerificationTier=offline` and an explicit-request selection reason, so existing artifact/deployment checks remain compatible. An ordinary `all` report records `VerificationTier=quick`; never describe it as full behavioral proof. The existing artifact-bound verifier can also run an explicitly requested full suite without rebuilding unchanged qualified source. Preserve all existing isolation, provider/native gates, hygiene and lease rules.
+
 The source fingerprint covers Linux `.sh` scripts, `.service` units and the extensionless `reignctl` controller as well as PowerShell modules. Installer/controller changes cannot reuse a report that predates this coverage extension; qualify the final source with the current canonical engine and use its exact verifier for packaging.
 
 ## Dedicated ReignServer Linux component
@@ -18,7 +24,8 @@ For code changes, obtain `reign_get_validation_plan` before editing, then run `r
 | 2 | Complete owning subsystem | Subsystem behavior |
 | 3 | Affected boundaries, dependencies and consumers | Public contract, persistent schema or Bannerlord adapter |
 | Product 4 | Complete Reign runtime/tooling boundary and quick verification | Explicit product-wide confidence or a manifest-selected product boundary |
-| Ecosystem 4 | Every managed project and offline verification | Release/milestone, project ownership, module routing, shared build infrastructure or validation-engine change |
+| Ecosystem 4 | Every managed project and quick verification | Release/milestone, project ownership, module routing, shared build infrastructure or validation-engine change |
+| Explicit behavioral | Every managed project and full offline behavioral verification | Only an explicit user request for full behavioral validation |
 
 ## Select the plan
 
