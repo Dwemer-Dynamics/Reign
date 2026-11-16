@@ -946,7 +946,7 @@ namespace ReignBeta.UI.ViewModels
                     guardedPromptOverride,
                     guardedPromptOverrideDirective,
                     guardedPromptOverrideOwnerCommandId, actionDraft, retrySavedTurn ? correlationId : "", retrySceneTurnId,
-                    ownerCurrent);
+                    ownerCurrent, requestViewInsertionReceipt: !_isOfficialAmbassadorMode);
                 timer.Stop();
 
                 // Durable original-payload reconciliation is not presentation: it
@@ -1052,6 +1052,7 @@ namespace ReignBeta.UI.ViewModels
                         var viewPlayerLine = ChatLines.LastOrDefault(line => line.IsPlayerLine && string.IsNullOrEmpty(line.ExchangeId));
                         if (viewPlayerLine != null) viewPlayerLine.ExchangeId = viewExchange;
                         AddChatLine(_hero?.Name?.ToString() ?? "NPC", reply.Text, "npc", viewExchange);
+                        if (!_isOfficialAmbassadorMode) AcknowledgeViewInsertion(owner, reply);
                         if (!string.IsNullOrWhiteSpace(reply.ActionShadowPreview) && ReignBetaSettings.Instance?.DebugMessagesEnabled == true)
                         {
                             AddSystemLine(reply.ActionShadowPreview);
@@ -1135,6 +1136,35 @@ namespace ReignBeta.UI.ViewModels
                 && !(owner.EndsOnCloseRequest && _conversationFinishRequested)
                 && owner.Fence.IsCurrent() && ReferenceEquals(owner.Player, Hero.MainHero)
                 && (owner.SessionId.Length == 0 || string.Equals(owner.SessionId, _conversationSessionId, StringComparison.Ordinal));
+        }
+
+        // Bannerlord thread, immediately after AddChatLine inserted reply.Text for this owner.
+        // Captures the exact acknowledgment from the original request scope. Delivery is
+        // detached: the insertion already happened, so it may finish after this view closes
+        // while the original load, player and shared generation still match. Any failure
+        // leaves presentation unknown and never touches the accepted reply or the UI.
+        private void AcknowledgeViewInsertion(ConversationRequestOwner owner, ReignDialogueReply reply)
+        {
+            try
+            {
+                string generation = owner?.Fence.SharedActivityGeneration ?? string.Empty;
+                if (!IsRequestOwnerCurrent(owner) || generation.Length == 0
+                    || generation != (ReignWorldHistoryCampaignBehavior.Instance?.SharedActivityGeneration ?? string.Empty)) return;
+                string campaign = ReignServerClient.GetCampaignId();
+                string timeline = ReignWorldHistoryCampaignBehavior.Instance?.TimelineId ?? "main";
+                string player = owner.Player?.StringId ?? string.Empty;
+                if (campaign != _conversationContext.Value<string>("campaignId") || timeline != _conversationContext.Value<string>("timelineId")
+                    || player != _conversationContext.Value<string>("playerId")) return;
+                var ack = ReignServerClient.CaptureIndividualViewInsertion(reply.RawResponse, reply.Text,
+                    campaign, timeline, owner.SessionId, player, _hero?.StringId ?? string.Empty);
+                if (ack == null) return;
+                ReignServerClient.RequestFence fence = owner.Fence;
+                Hero originalPlayer = owner.Player;
+                Func<bool> originalLoad = () => fence.IsCurrent() && ReferenceEquals(originalPlayer, Hero.MainHero)
+                    && generation == (ReignWorldHistoryCampaignBehavior.Instance?.SharedActivityGeneration ?? string.Empty);
+                _ = Task.Run(() => ReignServerClient.SendIndividualViewInsertionAsync(ack, originalLoad));
+            }
+            catch (Exception ex) { ReignLog.Info("View insertion receipt skipped: " + ex.GetType().Name); }
         }
 
         // Bannerlord thread only, for a current owner whose reply was accepted.
