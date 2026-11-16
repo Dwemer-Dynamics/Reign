@@ -13,9 +13,32 @@ public sealed class ControlCenterRuntimeTests
         var start = new ProcessStartInfo(Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.Windows),
             "System32/WindowsPowerShell/v1.0/powershell.exe"))
         { UseShellExecute = false, RedirectStandardOutput = true, RedirectStandardError = true, CreateNoWindow = true };
-        foreach (string arg in new[] { "-NoProfile", "-ExecutionPolicy", "Bypass", "-File",
-            Path.Combine(root, "ReignServer/scripts/Test-LauncherStartup.ps1"), "-Launcher",
-            Path.Combine(root, "ReignServer/scripts/Start-ReignServer-Wsl.ps1") })
+        start.Environment["REIGN_TEST_STARTUP_SCRIPT"] = Path.Combine(root, "ReignServer/scripts/Test-LauncherStartup.ps1");
+        start.Environment["REIGN_TEST_LAUNCHER_SCRIPT"] = Path.Combine(root, "ReignServer/scripts/Start-ReignServer-Wsl.ps1");
+        // The host need not register ReignServer: the child-only wsl.exe mock checks the
+        // production wslpath invocation and answers both path conversions.
+        const string command = """
+            $ErrorActionPreference = 'Stop'
+            $global:wslCalls = 0
+            $global:wslExpected = @(
+                @('C:/Users/speed/.reign/setup/reign-recover.py', '/mnt/c/Users/speed/.reign/setup/reign-recover.py'),
+                @('C:/reign launcher fixture/helper.py', '/mnt/c/reign launcher fixture/helper.py'))
+            function global:wsl.exe {
+                $i = $global:wslCalls++
+                if ($i -ge $global:wslExpected.Count -or $args.Count -ne 6 -or
+                    ($args -join '|') -cne ('-d|ReignServer|--exec|/usr/bin/wslpath|-u|' + $global:wslExpected[$i][0])) {
+                    throw "Unexpected wsl.exe call: $($args -join '|')"
+                }
+                $global:LASTEXITCODE = 0
+                $global:wslExpected[$i][1]
+            }
+            try {
+                & $env:REIGN_TEST_STARTUP_SCRIPT -Launcher $env:REIGN_TEST_LAUNCHER_SCRIPT
+                if ($global:wslCalls -ne 2) { throw "Expected 2 wsl.exe path conversions, saw $global:wslCalls." }
+            } catch { [Console]::Error.WriteLine($_); exit 1 }
+            """;
+        foreach (string arg in new[] { "-NoProfile", "-ExecutionPolicy", "Bypass", "-EncodedCommand",
+            Convert.ToBase64String(System.Text.Encoding.Unicode.GetBytes(command)) })
             start.ArgumentList.Add(arg);
         using var process = Process.Start(start)!;
         var stdout = process.StandardOutput.ReadToEndAsync();
