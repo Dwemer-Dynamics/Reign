@@ -1156,7 +1156,7 @@ namespace ReignBeta.UI.ViewModels
                 if (campaign != _conversationContext.Value<string>("campaignId") || timeline != _conversationContext.Value<string>("timelineId")
                     || player != _conversationContext.Value<string>("playerId")) return;
                 var ack = ReignServerClient.CaptureIndividualViewInsertion(reply.RawResponse, reply.Text,
-                    campaign, timeline, owner.SessionId, player, _hero?.StringId ?? string.Empty);
+                    campaign, timeline, owner.SessionId, player, _hero?.StringId ?? string.Empty, generation);
                 if (ack == null) return;
                 ReignServerClient.RequestFence fence = owner.Fence;
                 Hero originalPlayer = owner.Player;

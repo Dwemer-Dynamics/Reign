@@ -2516,7 +2516,8 @@ namespace ReignBeta.Integration
         // the exact current reply carries an eligible v1 descriptor bound to this request's
         // live scope, its accepted turn IDs, the raw line hash and a proven response origin.
         internal static IndividualViewInsertionAck CaptureIndividualViewInsertion(JObject response, string lineText,
-            string campaignId, string timelineId, string sessionId, string playerHeroId, string npcHeroId)
+            string campaignId, string timelineId, string sessionId, string playerHeroId, string npcHeroId,
+            string restoreGeneration)
         {
             JObject exchange = response?["conversationExchange"] as JObject;
             JObject unit = exchange?["acceptedUnit"] as JObject;
@@ -2542,6 +2543,7 @@ namespace ReignBeta.Integration
                 || (string)body["playerHeroStringId"] != playerHeroId || (string)body["speakerHeroStringId"] != npcHeroId
                 || (string)body["unitId"] != ExactJsonString(unit, "unitId")
                 || (string)body["restoreGeneration"] != ExactJsonString(unit, "restoreGeneration")
+                || string.IsNullOrEmpty(restoreGeneration) || (string)body["restoreGeneration"] != restoreGeneration
                 || !InTurnIds(exchange["turnIds"]) || !InTurnIds(unit["sourceIds"])) return null;
             return new IndividualViewInsertionAck(origin, body);
         }
