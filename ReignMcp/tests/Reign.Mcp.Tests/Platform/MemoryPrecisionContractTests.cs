@@ -91,8 +91,12 @@ public sealed class MemoryPrecisionContractTests
         string root=TestOptions.FindWorkspace();
         string test=Path.Combine(root,"ReignServer/services/vector-worker/test_precision.py").Replace('\\','/');
         var start=new ProcessStartInfo("wsl.exe") {UseShellExecute=false,RedirectStandardOutput=true,RedirectStandardError=true,CreateNoWindow=true};
-        foreach(string arg in new[]{"-d","ReignServer","--","python3","-c",
-            "import pathlib,subprocess,os,sys,hashlib; r=pathlib.Path('/var/www/html/ReignServer/runtime'); req=next(p for p in [r/'current/services/vector-worker/requirements-linux.txt',r/'current/VectorWorker/requirements-linux.txt'] if p.is_file()); py=r/'venvs'/hashlib.sha256(req.read_bytes()).hexdigest()/'bin/python'; tok=r/'model-versions'/hashlib.sha256((r/'current/embedding-model.lock.json').read_bytes()).hexdigest()/'tokenizer.json'; assert py.is_file() and tok.is_file(), 'Managed worker dependencies are required'; script=subprocess.check_output(['wslpath','-u',sys.argv[1]],text=True).strip(); env=dict(os.environ,REIGN_PRECISION_TEST_TOKENIZER=str(tok),PYTHONDONTWRITEBYTECODE='1'); sys.exit(subprocess.call([str(py),'-B',script,'--runtime-contracts'],env=env))",test}) start.ArgumentList.Add(arg);
+        string distro=Environment.GetEnvironmentVariable("REIGN_WSL_DISTRO") ?? "ReignServer";
+        string? fixtureRuntime=Environment.GetEnvironmentVariable("REIGN_VALIDATION_WORKER_RUNTIME");
+        string runtime=string.IsNullOrWhiteSpace(fixtureRuntime) ? "/var/www/html/ReignServer/runtime" : fixtureRuntime;
+        Assert.True(runtime.StartsWith('/'),"REIGN_VALIDATION_WORKER_RUNTIME must be a Linux absolute path.");
+        foreach(string arg in new[]{"-d",distro,"--","python3","-c",
+            "import pathlib,subprocess,os,sys,hashlib; r=pathlib.Path(sys.argv[2]); assert r.is_absolute(), 'Worker runtime must be a Linux absolute path'; req=next(p for p in [r/'current/services/vector-worker/requirements-linux.txt',r/'current/VectorWorker/requirements-linux.txt'] if p.is_file()); py=r/'venvs'/hashlib.sha256(req.read_bytes()).hexdigest()/'bin/python'; tok=r/'model-versions'/hashlib.sha256((r/'current/embedding-model.lock.json').read_bytes()).hexdigest()/'tokenizer.json'; assert py.is_file() and tok.is_file(), 'Managed worker dependencies are required'; script=subprocess.check_output(['wslpath','-u',sys.argv[1]],text=True).strip(); env=dict(os.environ,REIGN_PRECISION_TEST_TOKENIZER=str(tok),PYTHONDONTWRITEBYTECODE='1'); sys.exit(subprocess.call([str(py),'-B',script,'--runtime-contracts'],env=env))",test,runtime}) start.ArgumentList.Add(arg);
         using var process=Process.Start(start)!;
         var output=process.StandardOutput.ReadToEndAsync(); var error=process.StandardError.ReadToEndAsync();
         using var timeout=new CancellationTokenSource(TimeSpan.FromSeconds(60));
@@ -110,7 +114,8 @@ public sealed class MemoryPrecisionContractTests
         string workspace = TestOptions.FindWorkspace();
         var start = new ProcessStartInfo("wsl.exe") { UseShellExecute=false, RedirectStandardOutput=true, RedirectStandardError=true,CreateNoWindow=true };
         string test=Path.Combine(workspace,"ReignServer/services/vector-worker/test_precision.py").Replace('\\','/');
-        foreach(string arg in new[]{"-d","ReignServer","--","python3","-c",
+        string distro=Environment.GetEnvironmentVariable("REIGN_WSL_DISTRO") ?? "ReignServer";
+        foreach(string arg in new[]{"-d",distro,"--","python3","-c",
             "import subprocess,sys; p=subprocess.check_output(['wslpath','-u',sys.argv[1]],text=True).strip(); sys.exit(subprocess.call(['python3','-B',p]))",test}) start.ArgumentList.Add(arg);
         using var process = Process.Start(start)!;
         var output=process.StandardOutput.ReadToEndAsync(); var error=process.StandardError.ReadToEndAsync();
