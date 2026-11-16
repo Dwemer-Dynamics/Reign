@@ -44,6 +44,8 @@ namespace ReignBeta
         protected override void OnSubModuleLoad()
         {
             base.OnSubModuleLoad();
+            // Admit scoped main-thread work for campaign games started from now on.
+            ReignMainThread.OpenScopedIngress();
             EnsureManagedRuntimeDependencies();
             ReignBloodFeudPatches.Apply();
             ReignBeta.Compatibility.ReignRbmCompatibility.VerifyEarlyStartup();
@@ -145,6 +147,9 @@ namespace ReignBeta
                     throw new InvalidOperationException("The native game text manager must be ready before economy hooks.");
                 ReignEconomyPatches.Apply();
                 ReignBeta.Compatibility.ReignCraftingOrderLoadPatches.Apply();
+                // Open this game's scoped dispatch before any campaign behavior
+                // can capture it.
+                ReignMainThread.BeginGameScope(game);
                 campaignStarter.AddBehavior(new ReignSaveSyncCampaignBehavior());
                 campaignStarter.AddBehavior(new ReignXpCampaignBehavior());
                 campaignStarter.AddModel(new ReignVillageProductionCalculatorModel());
@@ -211,6 +216,8 @@ namespace ReignBeta
 
         public override void OnGameEnd(Game game)
         {
+            // Cancel scoped work owned by this exact game before feature teardown.
+            ReignMainThread.EndGameScope(game);
             ReignBanterCampaignBehavior.Instance?.CampaignEnded();
             ReignPartyChatHistoryBehavior.Instance?.EndCampaign();
             ReignTavernHouseCampaignBehavior.Instance?.CampaignEnded();
@@ -332,6 +339,9 @@ namespace ReignBeta
 
         protected override void OnSubModuleUnloaded()
         {
+            // Reject later scoped admissions and settle pending scoped work
+            // before patch cleanup. Legacy queued work is unchanged.
+            ReignMainThread.CloseScopedIngress();
             base.OnSubModuleUnloaded();
             ReignBeta.Compatibility.ReignRbmCompatibility.Unload();
             ReignBeta.Compatibility.ReignCraftingOrderLoadPatches.Unapply();

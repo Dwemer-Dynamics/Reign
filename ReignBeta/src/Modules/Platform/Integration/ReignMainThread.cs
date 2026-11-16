@@ -19,6 +19,37 @@ namespace ReignBeta.Integration
         private static string _lastSlowItemSource = string.Empty;
         private static long _lastSlowLogUtcTicks;
 
+        // Scoped work shares Work's FIFO and drain. A slot is held until its
+        // wrapper drains, including canceled tombstones, so the backlog stays
+        // bounded across repeated game end/unload.
+        private const int ScopedCapacity = 16;
+        private static readonly object ScopedGate = new object();
+        private static readonly ScopedEntry[] ScopedSlots = new ScopedEntry[ScopedCapacity];
+        private static bool _scopedIngressOpen;
+        private static GameScope _currentScope;
+        private static object _currentScopeGame;
+
+        internal enum ScopedAdmission
+        {
+            Accepted,
+            Busy,
+            Closed
+        }
+
+        // One campaign game activation, compared by reference. It holds no game
+        // object, so workers may retain it.
+        internal sealed class GameScope { }
+
+        private sealed class ScopedEntry
+        {
+            internal int Slot;
+            internal Func<bool> Owner;
+            internal Action Action;
+            internal TaskCompletionSource<bool> Completion; // Null once claimed or tombstoned.
+
+            internal void Run() { RunScoped(this); }
+        }
+
         public static bool IsMainThread
         {
             get { return _mainThreadId != 0 && Thread.CurrentThread.ManagedThreadId == _mainThreadId; }
@@ -31,6 +62,11 @@ namespace ReignBeta.Integration
         public static long SlowItemCount => Interlocked.Read(ref _slowItemCount);
         public static double LastSlowItemDurationMs => Interlocked.Read(ref _lastSlowItemMicroseconds) / 1000d;
         public static string LastSlowItemSource => Volatile.Read(ref _lastSlowItemSource);
+
+        internal static GameScope CurrentGameScope
+        {
+            get { lock (ScopedGate) return _currentScope; }
+        }
 
         private static T Execute<T>(Func<T> action)
         {
@@ -157,6 +193,138 @@ namespace ReignBeta.Integration
                 }
             });
             return tcs.Task;
+        }
+
+        internal static void OpenScopedIngress()
+        {
+            lock (ScopedGate) _scopedIngressOpen = true;
+        }
+
+        internal static void CloseScopedIngress()
+        {
+            TaskCompletionSource<bool>[] canceled;
+            lock (ScopedGate)
+            {
+                _scopedIngressOpen = false;
+                canceled = EndCurrentScopeLocked();
+            }
+            CancelOutsideGate(canceled);
+        }
+
+        // Game thread. A different Game whose predecessor never reported
+        // OnGameEnd replaces and cancels that predecessor's scope.
+        internal static void BeginGameScope(object game)
+        {
+            if (game == null) return;
+            TaskCompletionSource<bool>[] canceled;
+            lock (ScopedGate)
+            {
+                if (!_scopedIngressOpen || ReferenceEquals(_currentScopeGame, game)) return;
+                canceled = EndCurrentScopeLocked();
+                _currentScope = new GameScope();
+                _currentScopeGame = game;
+            }
+            CancelOutsideGate(canceled);
+        }
+
+        internal static void EndGameScope(object game)
+        {
+            if (game == null) return;
+            TaskCompletionSource<bool>[] canceled;
+            lock (ScopedGate)
+            {
+                if (!ReferenceEquals(_currentScopeGame, game)) return;
+                canceled = EndCurrentScopeLocked();
+            }
+            CancelOutsideGate(canceled);
+        }
+
+        // Always queues, including from the game thread. ownerIsCurrent runs on
+        // the game thread immediately before action. A full registry returns
+        // Busy without waiting. completion is null unless Accepted.
+        internal static ScopedAdmission TryInvokeScoped(GameScope scope, Func<bool> ownerIsCurrent, Action action,
+            out Task completion)
+        {
+            if (ownerIsCurrent == null) throw new ArgumentNullException(nameof(ownerIsCurrent));
+            if (action == null) throw new ArgumentNullException(nameof(action));
+            completion = null;
+            lock (ScopedGate)
+            {
+                if (scope == null || !ReferenceEquals(scope, _currentScope)) return ScopedAdmission.Closed;
+                int slot = Array.IndexOf(ScopedSlots, null);
+                if (slot < 0) return ScopedAdmission.Busy;
+                ScopedEntry entry = new ScopedEntry
+                {
+                    Slot = slot,
+                    Owner = ownerIsCurrent,
+                    Action = action,
+                    Completion = new TaskCompletionSource<bool>(TaskCreationOptions.RunContinuationsAsynchronously)
+                };
+                ScopedSlots[slot] = entry;
+                completion = entry.Completion.Task;
+                Interlocked.Increment(ref _pendingCount);
+                Work.Enqueue(entry.Run);
+            }
+            return ScopedAdmission.Accepted;
+        }
+
+        private static void RunScoped(ScopedEntry entry)
+        {
+            Func<bool> owner;
+            Action action;
+            TaskCompletionSource<bool> completion;
+            lock (ScopedGate)
+            {
+                ScopedSlots[entry.Slot] = null;
+                owner = entry.Owner;
+                action = entry.Action;
+                completion = entry.Completion;
+                entry.Owner = null;
+                entry.Action = null;
+                entry.Completion = null;
+            }
+            if (completion == null) return;
+
+            try
+            {
+                if (!owner())
+                {
+                    completion.TrySetCanceled();
+                    return;
+                }
+                Execute(action);
+                completion.TrySetResult(true);
+            }
+            catch (Exception ex)
+            {
+                completion.TrySetException(ex);
+            }
+        }
+
+        // Every live entry belongs to the current scope, so ending it
+        // tombstones all of them in place; their slots free when drained.
+        private static TaskCompletionSource<bool>[] EndCurrentScopeLocked()
+        {
+            _currentScope = null;
+            _currentScopeGame = null;
+            TaskCompletionSource<bool>[] canceled = null;
+            int count = 0;
+            foreach (ScopedEntry entry in ScopedSlots)
+            {
+                if (entry?.Completion == null) continue;
+                if (canceled == null) canceled = new TaskCompletionSource<bool>[ScopedCapacity];
+                canceled[count++] = entry.Completion;
+                entry.Owner = null;
+                entry.Action = null;
+                entry.Completion = null;
+            }
+            return canceled;
+        }
+
+        private static void CancelOutsideGate(TaskCompletionSource<bool>[] canceled)
+        {
+            if (canceled == null) return;
+            foreach (TaskCompletionSource<bool> completion in canceled) completion?.TrySetCanceled();
         }
 
         private static DateTime ReadUtc(ref long ticks)
