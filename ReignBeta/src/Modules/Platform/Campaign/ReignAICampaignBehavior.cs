@@ -52,6 +52,7 @@ namespace ReignBeta.Campaign
         private const int TerminalReportScanBatch = 64;
         private int _terminalReportScanCursor;
         private readonly List<ReignWorldActionRecord> _terminalReportHints = new List<ReignWorldActionRecord>();
+        private readonly HashSet<string> _terminalReportDeferralLogged = new HashSet<string>(StringComparer.Ordinal);
         private readonly Dictionary<string, KeyValuePair<long, int>> _terminalReportBackoff = new Dictionary<string, KeyValuePair<long, int>>(StringComparer.Ordinal);
         private static readonly long RealtimeActionPollIntervalTicks =
             System.TimeSpan.FromSeconds(1d).Ticks;
@@ -328,6 +329,7 @@ namespace ReignBeta.Campaign
                     if (existing.TermsHash != action.TermsHash || existing.Type != action.Type
                         || existing.ActorHeroStringId != action.ActorHeroStringId || existing.TargetHeroStringId != action.TargetHeroStringId)
                         throw new InvalidOperationException("A replayed action has different terms: " + action.ActionId);
+                    RefreshTerminalReportOffer(existing, action);
                     if (HandleTerminalReportReoffer(existing)) continue;
                     var prior = GetLastActionResult(existing.ActionId);
                     _ = ReignServerClient.ReportActionAsync(existing, existing.Status.ToString().ToLowerInvariant(), prior?.Message ?? "Saved action result.", prior);
@@ -622,6 +624,7 @@ namespace ReignBeta.Campaign
                     if (existing.TermsHash != action.TermsHash || existing.Type != action.Type
                         || existing.ActorHeroStringId != action.ActorHeroStringId || existing.TargetHeroStringId != action.TargetHeroStringId)
                     { ReignLog.Warn("Rejected conflicting action replay " + action.ActionId); continue; }
+                    RefreshTerminalReportOffer(existing, action);
                     if (HandleTerminalReportReoffer(existing)) continue;
                     var prior = GetLastActionResult(existing.ActionId);
                     _ = ReignServerClient.ReportActionAsync(existing, existing.Status.ToString().ToLowerInvariant(), prior?.Message ?? "Saved action result.", prior);
@@ -640,8 +643,9 @@ namespace ReignBeta.Campaign
         }
 
         // ---- Opt-in terminal action report v1 (independent player gold/item handovers). ----
-        // Phases: offered/unproven (scope captured before execution), captured (exact report,
-        // no protocol POST yet), posted/native_pending (a POST may have run: exact replay on
+        // Phases: offered/unproven (scope captured before execution; native execution is
+        // deferred while it differs from the loaded scope), captured (exact report, no protocol
+        // POST from this save yet), posted/native_pending (a POST may have run: exact replay on
         // the pinned origin only), then settled: acknowledged, legacy (one-shot sent), stale,
         // conflict, refused. Unproven and settled evidence is retained, never resent or rebound.
         private const string TerminalReportStateSchema = "reign-client-terminal-report-v1";
@@ -713,6 +717,64 @@ namespace ReignBeta.Campaign
                 ReignLog.Warn("Terminal report candidate retained without delivery action=" + action.ActionId + " reason=" + reason);
             }
             action.TerminalReportJson = state.ToString(Newtonsoft.Json.Formatting.None);
+            return true;
+        }
+
+        // Game thread. Null when a nonterminal record has no terminal report state, or when its
+        // persisted offer still matches the loaded campaign, timeline, player, action/terms and
+        // shared activity generation (and an offered report keeps its recognized origin).
+        // Otherwise the mismatch reason: native execution is deferred, nothing is mutated.
+        // An unproven offer recorded without any generation keeps its earlier legacy execution.
+        private static string TerminalReportExecutionMismatch(ReignWorldActionRecord action)
+        {
+            if (action == null || action.IsTerminal || string.IsNullOrEmpty(action.TerminalReportJson)) return null;
+            JObject state = TerminalReportState(action);
+            string phase = TerminalReportString(state, "phase");
+            if (phase != "offered" && phase != "unproven") return "phase_" + (phase ?? "missing");
+            string generation = TerminalReportString(state, "generation") ?? string.Empty;
+            string live = ReignWorldHistoryCampaignBehavior.Instance?.SharedActivityGeneration ?? string.Empty;
+            if (TerminalReportString(state, "campaignId") != ReignServerClient.GetCampaignId()) return "campaign";
+            if (TerminalReportString(state, "timelineId") != (ReignWorldHistoryCampaignBehavior.Instance?.TimelineId ?? "main")) return "timeline";
+            if (Hero.MainHero == null || TerminalReportString(state, "playerHeroStringId") != Hero.MainHero.StringId) return "player";
+            if (TerminalReportString(state, "actionId") != action.ActionId
+                || TerminalReportString(state, "termsHash") != (action.TermsHash ?? string.Empty)) return "action";
+            if ((phase == "offered" || generation.Length > 0) && (generation.Length == 0 || generation != live)) return "generation";
+            if (phase == "offered" && string.IsNullOrEmpty(TerminalReportString(state, "origin"))) return "origin";
+            return null;
+        }
+
+        // Game thread, dedup path. Rebinds only an untouched (never attempted, no result)
+        // nonterminal offered candidate whose persisted offer is stale solely by shared
+        // activity generation, when the same original origin re-offers the identical action
+        // (ids, terms, type, command, actor/target) under a current loaded fence and the
+        // current generation and scope. The prior generation is kept as evidence. Anything
+        // else stays deferred by TerminalReportExecutionMismatch for reconciliation.
+        private bool RefreshTerminalReportOffer(ReignWorldActionRecord existing, ReignWorldActionRecord incoming)
+        {
+            if (existing == null || incoming == null || existing.IsTerminal
+                || TerminalReportExecutionMismatch(existing) != "generation"
+                || !IsKnownTerminalReportCandidate(existing) || !IsKnownTerminalReportCandidate(incoming)) return false;
+            JObject state = TerminalReportState(existing);
+            if (TerminalReportString(state, "phase") != "offered") return false;
+            bool untouched = existing.AttemptCount == 0 && existing.LastAttemptDay <= 0f
+                && existing.Status != ReignWorldActionStatus.Executing
+                && !_lastActionResults.ContainsKey(existing.ActionId);
+            bool identical = incoming.ActionId == existing.ActionId && incoming.TermsHash == existing.TermsHash
+                && incoming.Type == existing.Type && incoming.NegotiatedCommand == existing.NegotiatedCommand
+                && incoming.ActorHeroStringId == existing.ActorHeroStringId && incoming.TargetHeroStringId == existing.TargetHeroStringId
+                && string.Equals(incoming.AuthorizationMode, existing.AuthorizationMode, StringComparison.Ordinal);
+            var fence = incoming.ImportFence as ReignServerClient.RequestFence;
+            string live = ReignWorldHistoryCampaignBehavior.Instance?.SharedActivityGeneration ?? string.Empty;
+            string origin = TerminalReportString(state, "origin") ?? string.Empty;
+            if (!untouched || !identical || fence == null || !fence.IsCurrent() || live.Length == 0
+                || fence.SharedActivityGeneration != live || origin.Length == 0 || incoming.ImportOrigin != origin
+                || existing.ActorHeroStringId != Hero.MainHero?.StringId
+                || !TerminalActionReportProtocol.IsTrustedIdentifier(live)) return false;
+            state["priorGeneration"] = TerminalReportString(state, "generation");
+            state["generation"] = live;
+            state["reason"] = "reoffered_current_generation";
+            existing.TerminalReportJson = state.ToString(Newtonsoft.Json.Formatting.None);
+            ReignLog.Info("Terminal report candidate rebound to the current generation on an exact re-offer action=" + existing.ActionId);
             return true;
         }
 
@@ -867,9 +929,14 @@ namespace ReignBeta.Campaign
                         progressed = await TransitionTerminalReportAsync(action, fence, sha, phase, origin, preflight, reason).ConfigureAwait(false);
                         return;
                     }
-                    // Only an exact authoritative eligible reply starts the first POST. A
-                    // protocol_owned reply for a captured report is retained for reconciliation.
-                    if (preflight != "eligible") return;
+                    // An exact authoritative eligible reply starts the first POST. So does an
+                    // exact protocol_owned reply (same scope and report type): a save may hold
+                    // this captured report from before its first POST while another live
+                    // instance already posted it, so a same-generation reload restores
+                    // "captured". The pinned replay carries only this exact body; the server
+                    // revalidates hash, type and generation and refuses any different report.
+                    // Posted is persisted before dispatch, so no legacy fallback follows.
+                    if (preflight != "eligible" && preflight != "protocol_owned") return;
                     if (!await TransitionTerminalReportAsync(action, fence, sha, phase, origin, "posted", reason).ConfigureAwait(false)) return;
                     phase = "posted";
                 }
@@ -958,8 +1025,9 @@ namespace ReignBeta.Campaign
             }
         }
 
-        // "eligible", "protocol_owned", "legacy" (verified missing capability or current
-        // ineligibility), "stale", "conflict" or "unknown". Only the pinned origin is read.
+        // "eligible", "protocol_owned" (exact scope/type already owned by the protocol; the
+        // caller may replay only the pinned exact body), "legacy" (verified missing capability
+        // or current ineligibility), "stale", "conflict" or "unknown". Only the pinned origin is read.
         private static async Task<string> PreflightTerminalReportAsync(JObject state, Func<bool> owner)
         {
             string origin = TerminalReportString(state, "origin") ?? string.Empty;
@@ -1263,6 +1331,20 @@ namespace ReignBeta.Campaign
             {
                 return ReignActionResult.Progress("Action deferred until the native save completes.")
                     .WithResultCode("native_save_in_progress");
+            }
+
+            // Every native world-action execution passes here (both tick loops, immediate
+            // dialogue execution, and records restored by the dedup path without re-import).
+            // A candidate whose persisted offer no longer matches the loaded scope is deferred
+            // untouched; only an exact current-generation re-offer can rebind it.
+            string offerMismatch = TerminalReportExecutionMismatch(action);
+            if (offerMismatch != null)
+            {
+                if (_terminalReportDeferralLogged.Add(action.ActionId + ":" + offerMismatch))
+                    ReignLog.Warn("Terminal report candidate execution deferred action=" + action.ActionId + " reason=" + offerMismatch
+                        + "; reconciliation limit: awaits an exact current-generation re-offer from its original origin");
+                return ReignActionResult.Progress("Action deferred until its saved offer matches the loaded campaign scope.")
+                    .WithResultCode("terminal_report_offer_scope_mismatch");
             }
 
             if (TryRetireImpossibleTreaty(action)
