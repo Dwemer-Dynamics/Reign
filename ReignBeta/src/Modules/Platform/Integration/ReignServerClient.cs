@@ -40,6 +40,12 @@ namespace ReignBeta.Integration
         private static readonly HttpClient InteractiveClient =
             CreateLocalServerHttpClient(4, InteractiveProviderTimeoutSeconds);
         private static readonly HttpClient LiveTestClient = CreateLocalServerHttpClient(4, 5);
+        // Terminal action report v1 only: one proven origin, never redirected.
+        private static readonly HttpClient PinnedClient = CreateLocalServerHttpClient(2, 30, false);
+        // Local response provenance for the two protocol import routes. A value is the
+        // proven origin; an empty value marks a qualifying response whose origin is unproven.
+        private static readonly System.Runtime.CompilerServices.ConditionalWeakTable<JObject, string> ResponseOrigins =
+            new System.Runtime.CompilerServices.ConditionalWeakTable<JObject, string>();
         private static readonly object NativeDescriptionLock = new object();
         private static readonly Dictionary<string, string> NativeDescriptions = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
         private static readonly object PortraitRosterSyncLock = new object();
@@ -67,7 +73,7 @@ namespace ReignBeta.Integration
             "relationship_history"
         };
 
-        private static HttpClient CreateLocalServerHttpClient(int maximumConnections, int timeoutSeconds = 360)
+        private static HttpClient CreateLocalServerHttpClient(int maximumConnections, int timeoutSeconds = 360, bool allowAutoRedirect = true)
         {
             // Bannerlord runs this assembly on .NET Framework, whose default HTTP
             // connection limit is only two. At accelerated campaign speed that
@@ -80,7 +86,8 @@ namespace ReignBeta.Integration
             HttpClientHandler handler = new HttpClientHandler
             {
                 MaxConnectionsPerServer = Math.Max(2, maximumConnections),
-                UseProxy = false
+                UseProxy = false,
+                AllowAutoRedirect = allowAutoRedirect
             };
             return new HttpClient(new Reign.Core.Contracts.Platform.ReignProtocolHandler(handler)) { Timeout = TimeSpan.FromSeconds(Math.Max(2, timeoutSeconds)) };
         }
@@ -231,12 +238,14 @@ namespace ReignBeta.Integration
                     return results;
                 }
 
+                string origin = ResponseOrigin(response) ?? string.Empty;
                 foreach (JToken token in actions)
                 {
                     JObject obj = token as JObject;
                     ReignWorldActionRecord record = ParseActionRecord(obj);
                     if (record != null && record.Type != ReignWorldActionType.Unknown)
                     {
+                        record.ImportOrigin = origin;
                         if (IsStaleUndeliveredAction(obj))
                         {
                             ReignLog.Warn("Rejected stale server action " + record.ActionId + " type=" + record.Type + " correlationId=" + ReadString(obj, "correlationId", ""));
@@ -303,32 +312,44 @@ namespace ReignBeta.Integration
                 }).ConfigureAwait(false);
 
                 JObject response = await PostJsonAsync("/actions/report", payload).ConfigureAwait(false);
-                JArray relationChanges = response["nativeRelationChanges"] as JArray ?? new JArray();
-                if (relationChanges.Count == 0) return;
-                await ReignMainThread.InvokeAsync(() =>
-                {
-                    if (!fence.IsCurrent())
-                    {
-                        ReignLog.Warn("Action report relation changes skipped: the campaign changed action=" + (action.ActionId ?? string.Empty));
-                        return;
-                    }
-                    foreach (JObject change in relationChanges.OfType<JObject>())
-                    {
-                        Hero subject = ReignObjectResolver.FindHero(change.Value<string>("subjectId") ?? string.Empty);
-                        Hero target = ReignObjectResolver.FindHero(change.Value<string>("targetId") ?? string.Empty);
-                        int delta = change.Value<int?>("delta") ?? 0;
-                        if (subject != null && target != null && delta != 0)
-                        {
-                            TaleWorlds.CampaignSystem.Actions.ChangeRelationAction.ApplyRelationChangeBetweenHeroes(subject, target, delta, true);
-                        }
-                    }
-                }).ConfigureAwait(false);
+                await ApplyLegacyReportRelationChangesAsync(response, fence, action.ActionId).ConfigureAwait(false);
             }
             catch (Exception ex)
             {
                 ReignLog.Warn("Local server action report failed: " + ex.Message);
             }
         }
+
+        // Existing legacy report effect: raw native deltas, applied once under the
+        // fence captured before the report was sent.
+        internal static async Task ApplyLegacyReportRelationChangesAsync(JObject response, RequestFence fence, string actionId,
+            Func<bool> requestOwner = null)
+        {
+            JArray relationChanges = response?["nativeRelationChanges"] as JArray ?? new JArray();
+            if (relationChanges.Count == 0) return;
+            await ReignMainThread.InvokeAsync(() =>
+            {
+                if (fence == null || !fence.IsCurrent() || !RequestOwnerCurrent(requestOwner))
+                {
+                    ReignLog.Warn("Action report relation changes skipped: the campaign changed action=" + (actionId ?? string.Empty));
+                    return;
+                }
+                foreach (JObject change in relationChanges.OfType<JObject>())
+                {
+                    Hero subject = ReignObjectResolver.FindHero(change.Value<string>("subjectId") ?? string.Empty);
+                    Hero target = ReignObjectResolver.FindHero(change.Value<string>("targetId") ?? string.Empty);
+                    int delta = change.Value<int?>("delta") ?? 0;
+                    if (subject != null && target != null && delta != 0)
+                    {
+                        TaleWorlds.CampaignSystem.Actions.ChangeRelationAction.ApplyRelationChangeBetweenHeroes(subject, target, delta, true);
+                    }
+                }
+            }).ConfigureAwait(false);
+        }
+
+        // Game thread only: the exact legacy-shaped report a terminal protocol POST files.
+        internal static string BuildTerminalReportJson(ReignWorldActionRecord action, string status, string message, ReignActionResult result) =>
+            BuildActionReportPayload(action, status, message, result).ToString(Formatting.None);
 
         private static JObject BuildActionReportPayload(ReignWorldActionRecord action, string status, string message, ReignActionResult result)
         {
@@ -2065,8 +2086,8 @@ namespace ReignBeta.Integration
                     bool current = fence.IsCurrent() && RequestOwnerCurrent(requestOwner);
                     if (current && applyNativeEncyclopediaText && !string.IsNullOrWhiteSpace(reply.EncyclopediaText))
                         ApplyHeroEncyclopediaText(hero, reply.EncyclopediaText);
-                    reply.QueuedActions = current ? ParseQueuedActionRows(response["queuedTestDirectiveActions"]) : new List<ReignWorldActionRecord>();
-                    if (current) reply.QueuedActions.AddRange(ParseQueuedActionRows(response["queuedDialogueActions"]));
+                    reply.QueuedActions = current ? ParseQueuedActionRows(response["queuedTestDirectiveActions"], fence) : new List<ReignWorldActionRecord>();
+                    if (current) reply.QueuedActions.AddRange(ParseQueuedActionRows(response["queuedDialogueActions"], fence));
                     playerPresent = current && Hero.MainHero != null;
                 }).ConfigureAwait(false);
                 reply.ClientTotalMs = timer.ElapsedMilliseconds;
@@ -2380,7 +2401,7 @@ namespace ReignBeta.Integration
                                 throw new InvalidOperationException("HTTP " + (int)response.StatusCode + ": " + body);
                             }
 
-                            return JObject.Parse(body);
+                            return RecordResponseOrigin(route, baseUrl, url, response, JObject.Parse(body));
                         }
                     }
                     catch (Exception ex) when (ReignServerEndpoint.IsTransportFailure(ex))
@@ -2397,6 +2418,72 @@ namespace ReignBeta.Integration
                 // Unconditional matching release: a no-op once this operation's
                 // report settled its claim, never able to clear a newer probe.
                 ReignServerEndpoint.ReleaseRequest(probeClaim);
+            }
+        }
+
+        // Records local provenance only for the two terminal-report import routes. A
+        // redirected response, a path-prefixed base URL or an unobservable final target
+        // proves no origin; such a record stays a pending candidate, never another server's.
+        private static JObject RecordResponseOrigin(string route, string baseUrl, string requestUrl, HttpResponseMessage response, JObject parsed)
+        {
+            if (parsed == null || !(route == "/dialogue/respond" || route.StartsWith("/actions/next?", StringComparison.Ordinal))) return parsed;
+            string origin = PinnableOrigin(baseUrl);
+            Uri final = response?.RequestMessage?.RequestUri;
+            if (final == null || !Uri.TryCreate(requestUrl, UriKind.Absolute, out Uri requested)
+                || !string.Equals(final.AbsoluteUri, requested.AbsoluteUri, StringComparison.Ordinal)) origin = string.Empty;
+            ResponseOrigins.Remove(parsed);
+            ResponseOrigins.Add(parsed, origin);
+            return parsed;
+        }
+
+        // Null when the token's response did not come through a qualifying import route.
+        internal static string ResponseOrigin(JToken token)
+        {
+            JObject root = token?.Root as JObject;
+            return root != null && ResponseOrigins.TryGetValue(root, out string origin) ? origin : null;
+        }
+
+        private static string PinnableOrigin(string baseUrl)
+        {
+            string trimmed = (baseUrl ?? string.Empty).Trim().TrimEnd('/');
+            if (!Uri.TryCreate(trimmed, UriKind.Absolute, out Uri uri) || uri.UserInfo.Length > 0
+                || (uri.Scheme != Uri.UriSchemeHttp && uri.Scheme != Uri.UriSchemeHttps)) return string.Empty;
+            string origin = uri.GetLeftPart(UriPartial.Authority);
+            return string.Equals(origin, trimmed, StringComparison.OrdinalIgnoreCase) ? origin : string.Empty;
+        }
+
+        // A pinned origin stays usable only while it is one of the currently allowed endpoints.
+        internal static bool IsAllowedPinnedOrigin(string origin) => !string.IsNullOrEmpty(origin)
+            && ReignServerEndpoint.CandidateBaseUrls().Any(baseUrl => string.Equals(PinnableOrigin(baseUrl), origin, StringComparison.Ordinal));
+
+        // Terminal action report v1 transport: the exact pinned origin only, no redirects,
+        // no candidate failover and no shared circuit-breaker state. The protocol handler
+        // still performs its handshake and adds its header. Failures throw without the
+        // response body; the caller keeps its exact report pending. requestOwner is a
+        // required game-thread predicate, rechecked after the readiness gates and again
+        // immediately before dispatch (an abandoned owner sends nothing).
+        internal static async Task<JObject> SendPinnedJsonAsync(string origin, string pathAndQuery, JObject payload, Func<bool> requestOwner)
+        {
+            if (requestOwner == null) throw new ArgumentNullException(nameof(requestOwner));
+            await ReignSaveSyncCoordinator.WaitForReadyAsync(pathAndQuery).ConfigureAwait(false);
+            await ReignCampaignInitializationGate.WaitForReadyAsync(pathAndQuery).ConfigureAwait(false);
+            await EnsureRequestOwnerAsync(requestOwner, "pinned request preparation").ConfigureAwait(false);
+            if (!IsAllowedPinnedOrigin(origin))
+                throw new InvalidOperationException("The pinned terminal report origin is no longer an allowed local endpoint.");
+            string url = origin + pathAndQuery;
+            using (var request = new HttpRequestMessage(payload == null ? HttpMethod.Get : HttpMethod.Post, url))
+            {
+                if (payload != null) request.Content = new ReignJsonHttpContent(payload);
+                await EnsureRequestOwnerAsync(requestOwner, "pinned transport dispatch").ConfigureAwait(false);
+                using (HttpResponseMessage response = await PinnedClient.SendAsync(request).ConfigureAwait(false))
+                {
+                    Uri final = response.RequestMessage?.RequestUri;
+                    if (final == null || !string.Equals(final.AbsoluteUri, new Uri(url).AbsoluteUri, StringComparison.Ordinal))
+                        throw new InvalidOperationException("The pinned terminal report response came from a different endpoint.");
+                    if (!response.IsSuccessStatusCode)
+                        throw new InvalidOperationException("HTTP " + (int)response.StatusCode + " from the pinned terminal report endpoint.");
+                    return JObject.Parse(await response.Content.ReadAsStringAsync().ConfigureAwait(false));
+                }
             }
         }
 
@@ -2575,7 +2662,7 @@ namespace ReignBeta.Integration
                                     throw new InvalidOperationException("HTTP " + (int)response.StatusCode + ": " + body);
                                 }
 
-                                JObject parsedResponse = JObject.Parse(body);
+                                JObject parsedResponse = RecordResponseOrigin(route, baseUrl, url, response, JObject.Parse(body));
                                 if (conversationInput)
                                 {
                                     string receiptWarning = ReignConversationInputJournal.Acknowledge(payload, parsedResponse);
@@ -2649,8 +2736,14 @@ namespace ReignBeta.Integration
             private readonly string _campaignId;
             private readonly string _timelineId;
 
-            private RequestFence(object campaign, int saveGeneration, string initializationGeneration, string campaignId, string timelineId)
+            // Shared activity generation observed at capture. Informational only: IsCurrent
+            // is unchanged; terminal report admission binds to this value, never a later one.
+            internal string SharedActivityGeneration { get; }
+
+            private RequestFence(object campaign, int saveGeneration, string initializationGeneration, string campaignId, string timelineId,
+                string sharedActivityGeneration)
             {
+                SharedActivityGeneration = sharedActivityGeneration ?? string.Empty;
                 _campaign = campaign;
                 _saveGeneration = saveGeneration;
                 _initializationGeneration = initializationGeneration;
@@ -2659,7 +2752,8 @@ namespace ReignBeta.Integration
             }
 
             internal static RequestFence Capture() => new RequestFence(TaleWorlds.CampaignSystem.Campaign.Current,
-                ReignSaveSyncCoordinator.CampaignGeneration, InitializationGeneration(), GetCampaignId(), CurrentTimeline());
+                ReignSaveSyncCoordinator.CampaignGeneration, InitializationGeneration(), GetCampaignId(), CurrentTimeline(),
+                ReignWorldHistoryCampaignBehavior.Instance?.SharedActivityGeneration);
 
             internal bool IsCurrent() => _campaign != null
                 && ReferenceEquals(_campaign, TaleWorlds.CampaignSystem.Campaign.Current)
@@ -5819,7 +5913,14 @@ namespace ReignBeta.Integration
             return action;
         }
 
+        // Callers without a request-time fence parse on the game thread after their own
+        // owner check, so a capture here binds the same loaded owner.
         private static List<ReignWorldActionRecord> ParseQueuedActionRows(JToken token)
+            => ParseQueuedActionRows(token, ResponseOrigin(token) == null ? null : RequestFence.Capture());
+
+        // Dialogue passes its original request fence so a response cannot rebind to a
+        // newer server generation while it was waiting.
+        private static List<ReignWorldActionRecord> ParseQueuedActionRows(JToken token, RequestFence fence)
         {
             List<ReignWorldActionRecord> results = new List<ReignWorldActionRecord>();
             JArray rows = token as JArray;
@@ -5828,6 +5929,8 @@ namespace ReignBeta.Integration
                 return results;
             }
 
+            string origin = ResponseOrigin(token);
+            RequestFence importFence = origin == null ? null : fence;
             foreach (JToken rowToken in rows)
             {
                 JObject row = rowToken as JObject;
@@ -5840,6 +5943,8 @@ namespace ReignBeta.Integration
                 ReignWorldActionRecord record = ParseActionRecord(recordObject);
                 if (record != null && record.Type != ReignWorldActionType.Unknown)
                 {
+                    record.ImportOrigin = origin;
+                    record.ImportFence = importFence;
                     results.Add(record);
                 }
                 else
