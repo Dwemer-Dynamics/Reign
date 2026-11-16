@@ -60,6 +60,7 @@ namespace ReignBeta.UI.ViewModels
         private bool _isPortraitZoomVisible;
         private bool _isPregnancyWarningVisible;
         private bool _pregnancyDecisionBusy;
+        private object _pregnancyDecisionOperation;
         private bool _calibrationPregnancyFixtureActive;
         private ReignConceptionAttemptResult _pendingConceptionAttempt;
         private string _pendingConceptionActionText;
@@ -73,6 +74,10 @@ namespace ReignBeta.UI.ViewModels
         private readonly ConversationSessionStartGate _conversationStartGate;
         private Task<ReignConversationFinishResult> _conversationFinishTask;
         private TaskCompletionSource<bool> _conversationTurnCompletion;
+        private ConversationRequestOwner _activeTurn;
+        // The load which opened this screen (captured on the Bannerlord thread).
+        // Session start, its install, finish payload and close work are fenced to it.
+        private readonly ReignServerClient.RequestFence _loadFence;
         private string _finalizationReason = "screen_finalized";
         internal string ConversationGeneration { get; } = Guid.NewGuid().ToString("N");
         private string _conversationSessionId;
@@ -114,6 +119,7 @@ namespace ReignBeta.UI.ViewModels
             _conversationContext["campaignId"] = ReignServerClient.GetCampaignId();
             _conversationContext["timelineId"] = ReignWorldHistoryCampaignBehavior.Instance?.TimelineId ?? "main";
             _conversationContext["playerId"] = Hero.MainHero?.StringId ?? string.Empty;
+            _loadFence = ReignServerClient.RequestFence.Capture();
             _conversationStartGate = new ConversationSessionStartGate(_conversationContext.Value<string>("sessionId"));
             _isOfficialAmbassadorMode = string.Equals(_conversationContext.Value<string>("conversationMode"), "ambassador_official", StringComparison.OrdinalIgnoreCase);
             _calibrationMode = calibrationMode;
@@ -834,7 +840,8 @@ namespace ReignBeta.UI.ViewModels
             string guardedPromptOverrideDirective = "",
             string guardedPromptOverrideOwnerCommandId = "",
             Reign.Core.Contracts.Actions.ActionAgreement actionDraft = null,
-            string retrySceneTurnId = "", bool retrySavedTurn = false, JObject recoveredInput = null)
+            string retrySceneTurnId = "", bool retrySavedTurn = false, JObject recoveredInput = null,
+            bool endsOnCloseRequest = false)
         {
             ReignDialogueReply reply = new ReignDialogueReply();
             if (_calibrationMode) return reply;
@@ -845,6 +852,10 @@ namespace ReignBeta.UI.ViewModels
             bool npcOpening = _conversationContext.Value<bool?>("approachOpening") == true && string.IsNullOrWhiteSpace(text);
             string retryScope = "";
             object requestCampaign = null;
+            ConversationRequestOwner owner = null;
+            // Immutable reintroduced-draft inputs, captured on the Bannerlord thread.
+            JObject reintroducedOriginal = null;
+            string reintroducedContribution = string.Empty, reintroducedHero = string.Empty;
             if (string.IsNullOrWhiteSpace(text) && !npcOpening)
             {
                 reply.Error = "No text was supplied.";
@@ -885,7 +896,17 @@ namespace ReignBeta.UI.ViewModels
 
                 IsBusy = true;
                 BusyText = "Preparing response...";
-                _conversationTurnCompletion = new TaskCompletionSource<bool>(TaskCreationOptions.RunContinuationsAsynchronously);
+                owner = new ConversationRequestOwner(ReignServerClient.RequestFence.Capture(), Hero.MainHero,
+                    new TaskCompletionSource<bool>(TaskCreationOptions.RunContinuationsAsynchronously))
+                    { EndsOnCloseRequest = endsOnCloseRequest };
+                _activeTurn = owner;
+                _conversationTurnCompletion = owner.Completion;
+                if (recoveredInput != null)
+                {
+                    reintroducedOriginal = (JObject)recoveredInput.DeepClone();
+                    reintroducedContribution = _conversationContext.Value<string>("contributionId") ?? correlationId;
+                    reintroducedHero = _hero?.StringId ?? string.Empty;
+                }
                 return true;
             }).ConfigureAwait(false);
             if (!accepted)
@@ -894,12 +915,22 @@ namespace ReignBeta.UI.ViewModels
             }
 
             Stopwatch timer = Stopwatch.StartNew();
+            Func<bool> ownerCurrent = () => IsRequestOwnerCurrent(owner);
 
             try
             {
                 string sessionId = await EnsureConversationSessionAsync().ConfigureAwait(false);
                 if (string.IsNullOrWhiteSpace(sessionId))
                     throw new InvalidOperationException("The conversation could not reconnect. Close and reopen chat to try again.");
+                // Bind the confirmed server session to this accepted turn. An
+                // unbound owner (no session yet) is a normal start, not stale.
+                if (!await ReignMainThread.InvokeAsync(() =>
+                    {
+                        if (!ownerCurrent()) return false;
+                        owner.SessionId = sessionId;
+                        return true;
+                    }).ConfigureAwait(false))
+                    throw new ReignServerClient.RequestOwnerAbandonedException("The conversation closed before its session was bound.");
                 ReignXpInteraction xp = await ReignServerClient.BeginXpInteractionAsync().ConfigureAwait(false);
                 reply = await ReignServerClient.RequestDialogueResponseAsync(
                     _hero,
@@ -914,20 +945,30 @@ namespace ReignBeta.UI.ViewModels
                     _conversationContext,
                     guardedPromptOverride,
                     guardedPromptOverrideDirective,
-                    guardedPromptOverrideOwnerCommandId, actionDraft, retrySavedTurn ? correlationId : "", retrySceneTurnId);
+                    guardedPromptOverrideOwnerCommandId, actionDraft, retrySavedTurn ? correlationId : "", retrySceneTurnId,
+                    ownerCurrent);
                 timer.Stop();
 
-                if (reply.Ok && recoveredInput != null)
-                    ReignConversationInputJournal.ResolveReintroducedDraft(recoveredInput,
-                        _conversationContext.Value<string>("contributionId") ?? correlationId, _hero?.StringId ?? "");
-                JArray recoveredAfterReply = reply.Ok && recoveredInput != null ? ReignConversationInputJournal.ReadRecoverable(
-                    _conversationContext.Value<string>("campaignId"), _conversationContext.Value<string>("timelineId"),
-                    _conversationContext.Value<string>("playerId"), _hero?.StringId ?? "") : null;
+                // Durable original-payload reconciliation is not presentation: it
+                // runs for any accepted reply, including one whose view went stale.
+                // The journal itself verifies the original scope, the old hash and
+                // the confirmed new contribution. Only the recoverable list and
+                // retry/UI state below are screen-gated.
+                if (reintroducedOriginal != null && (reply.Ok || reply.RawResponse?["acceptedResponse"] is JObject))
+                {
+                    try { ReignConversationInputJournal.ResolveReintroducedDraft(reintroducedOriginal, reintroducedContribution, reintroducedHero); }
+                    catch (Exception ex) { ReignLog.Warn("Reintroduced draft reconciliation deferred: " + ex.GetType().Name); }
+                }
 
                 if (reply.RawResponse?.Value<bool?>("reloadConversationHistory") == true)
                 {
-                    await ReignMainThread.InvokeAsync(ClearFailedConversationTurn).ConfigureAwait(false);
-                    await LoadHistoryAsync().ConfigureAwait(false);
+                    bool reload = await ReignMainThread.InvokeAsync(() =>
+                    {
+                        if (!ownerCurrent()) return false;
+                        ClearFailedConversationTurn();
+                        return true;
+                    }).ConfigureAwait(false);
+                    if (reload) await LoadHistoryAsync(ownerCurrent).ConfigureAwait(false);
                     return reply;
                 }
 
@@ -937,6 +978,17 @@ namespace ReignBeta.UI.ViewModels
                         + " hero=" + (_hero?.StringId ?? "")
                         + " ok=" + reply.Ok
                         + " serverTiming=" + (reply.TimingSummary ?? ""));
+                    // Tested in this same game-thread callback before any presentation,
+                    // journal, XP, office or immediate native-action mutation. The
+                    // durable journal acknowledgement already ran in the transport;
+                    // undelivered queued actions stay in the server outbox.
+                    if (!ownerCurrent())
+                    {
+                        ReignLog.Info("Individual chat reply skipped by a stale view hero=" + (_hero?.StringId ?? ""));
+                        return;
+                    }
+                    JArray recoveredAfterReply = reply.Ok && recoveredInput != null
+                        ? ReadRecoverableInputs() : null;
                     if (reply.Ok && reply.QueuedActions != null && reply.QueuedActions.Count > 0)
                     {
                         int queued = ReignAICampaignBehavior.Instance?.EnqueueAndExecuteServerActions(reply.QueuedActions) ?? 0;
@@ -973,11 +1025,6 @@ namespace ReignBeta.UI.ViewModels
                         AddSystemLine(officeChanged
                             ? "[Chancellor office: " + officeReceipt + "]"
                             : "[Chancellor office unchanged: " + officeReceipt + "]");
-                    }
-
-                    if (_isFinalized)
-                    {
-                        return;
                     }
 
                     if (recoveredAfterReply != null)
@@ -1032,21 +1079,28 @@ namespace ReignBeta.UI.ViewModels
                 reply.Error = ex.Message;
                 await ReignMainThread.InvokeAsync(() =>
                 {
-                    if (!_isFinalized)
+                    // Failed-draft state belongs only to a still-current owner.
+                    if (ownerCurrent())
                     {
                         RetainFailedConversationTurn(text, correlationId, reply.RequestSceneTurnId, retryScope,
                             requestCampaign, actionDraft, ex.Message, recoveredInput);
                     }
 
-                    ReignLog.Warn("Individual chat send failed: " + ex.Message);
+                    if (ex is ReignServerClient.RequestOwnerAbandonedException) ReignLog.Info("Individual chat send abandoned: " + ex.Message);
+                    else ReignLog.Warn("Individual chat send failed: " + ex.Message);
                 }).ConfigureAwait(false);
             }
             finally
             {
-                _conversationTurnCompletion?.TrySetResult(true);
+                // Settle this turn's own completion source even when stale, so a
+                // pending finish never waits on it and never settles a newer turn.
+                owner.Completion.TrySetResult(true);
                 await ReignMainThread.InvokeAsync(() =>
                 {
-                    if (!_isFinalized)
+                    if (!ReferenceEquals(_activeTurn, owner)) return;
+                    _activeTurn = null;
+                    // A changed load never receives this turn's busy/presentation reset.
+                    if (!_isFinalized && owner.Fence.IsCurrent())
                     {
                         IsBusy = IsPregnancyWarningVisible;
                         BusyText = IsPregnancyWarningVisible ? "Choose whether to proceed." : _generationErrorStatus;
@@ -1057,21 +1111,74 @@ namespace ReignBeta.UI.ViewModels
             return reply;
         }
 
+        // One accepted Individual Chat turn: the original load fence, player, this
+        // screen and active-turn ownership, plus its own completion source. The
+        // server session is bound once confirmed.
+        private sealed class ConversationRequestOwner
+        {
+            internal ConversationRequestOwner(ReignServerClient.RequestFence fence, Hero player, TaskCompletionSource<bool> completion)
+            {
+                Fence = fence; Player = player; Completion = completion;
+            }
+            internal ReignServerClient.RequestFence Fence { get; }
+            internal Hero Player { get; }
+            internal TaskCompletionSource<bool> Completion { get; }
+            internal string SessionId { get; set; } = string.Empty;
+            // A system follow-up turn (Pull Out) also ends once close requests finish.
+            internal bool EndsOnCloseRequest { get; set; }
+        }
+
+        // Bannerlord thread only.
+        private bool IsRequestOwnerCurrent(ConversationRequestOwner owner)
+        {
+            return owner != null && !_isFinalized && ReferenceEquals(_activeTurn, owner)
+                && !(owner.EndsOnCloseRequest && _conversationFinishRequested)
+                && owner.Fence.IsCurrent() && ReferenceEquals(owner.Player, Hero.MainHero)
+                && (owner.SessionId.Length == 0 || string.Equals(owner.SessionId, _conversationSessionId, StringComparison.Ordinal));
+        }
+
+        // Bannerlord thread only, for a current owner whose reply was accepted.
+        private JArray ReadRecoverableInputs()
+        {
+            return ReignConversationInputJournal.ReadRecoverable(
+                _conversationContext.Value<string>("campaignId"), _conversationContext.Value<string>("timelineId"),
+                _conversationContext.Value<string>("playerId"), _hero?.StringId ?? "");
+        }
+
+        // Bannerlord thread only, at decision admission. The returned predicate
+        // (Bannerlord thread only) holds while this screen is open, close has not
+        // requested finish, and this exact decision operation and warning attempt
+        // are pending; a real attempt also needs its original load, player and session.
+        private Func<bool> CapturePregnancyDecisionOwner(object operation, ReignConceptionAttemptResult attempt, bool providerFreeFixture)
+        {
+            Hero player = providerFreeFixture ? null : Hero.MainHero;
+            string sessionId = _conversationSessionId ?? string.Empty;
+            return () => !_isFinalized && !_conversationFinishRequested
+                && ReferenceEquals(_pregnancyDecisionOperation, operation)
+                && ReferenceEquals(_pendingConceptionAttempt, attempt)
+                && (providerFreeFixture || (_loadFence.IsCurrent() && ReferenceEquals(player, Hero.MainHero)
+                    && string.Equals(sessionId, _conversationSessionId ?? string.Empty, StringComparison.Ordinal)));
+        }
+
         public async void ExecuteProceedPregnancy()
         {
             ReignConceptionAttemptResult pending = null;
             string actionText = string.Empty;
             bool providerFreeFixture = false;
+            Func<bool> owner = null;
             bool accepted = await ReignMainThread.InvokeAsync(() =>
             {
-                if (_isFinalized || !IsPregnancyWarningVisible || _pregnancyDecisionBusy || _pendingConceptionAttempt == null)
+                if (_isFinalized || _conversationFinishRequested || !IsPregnancyWarningVisible || _pregnancyDecisionBusy || _pendingConceptionAttempt == null
+                    || (!_calibrationPregnancyFixtureActive && !_loadFence.IsCurrent()))
                 {
                     return false;
                 }
                 _pregnancyDecisionBusy = true;
+                _pregnancyDecisionOperation = new object();
                 pending = _pendingConceptionAttempt;
                 actionText = _pendingConceptionActionText ?? string.Empty;
                 providerFreeFixture = _calibrationPregnancyFixtureActive;
+                owner = CapturePregnancyDecisionOwner(_pregnancyDecisionOperation, pending, providerFreeFixture);
                 BusyText = "Resolving pregnancy chance...";
                 return true;
             }).ConfigureAwait(false);
@@ -1081,28 +1188,30 @@ namespace ReignBeta.UI.ViewModels
             {
                 await ReignMainThread.InvokeAsync(() =>
                 {
-                    FinishPregnancyDecision("proceed", true, true, string.Empty);
+                    if (owner()) FinishPregnancyDecision("proceed", true, true, string.Empty);
                 }).ConfigureAwait(false);
                 return;
             }
 
             ReignConceptionAttemptResult result = await ReignServerClient.ResolvePlayerConceptionAttemptAsync(
-                _hero, actionText, pending.AttemptId).ConfigureAwait(false);
+                _hero, actionText, pending.AttemptId, owner).ConfigureAwait(false);
             if (!result.Ok)
             {
                 await ReignMainThread.InvokeAsync(() =>
                 {
+                    if (!owner()) return;
                     _pregnancyDecisionBusy = false;
+                    _pregnancyDecisionOperation = null;
                     BusyText = FriendlyServerError(result.Error);
                     CompletePregnancyDecision("proceed", false, false, result.Error);
                 }).ConfigureAwait(false);
                 return;
             }
 
-            await ReignServerClient.ApplyResolvedPlayerConceptionAsync(result).ConfigureAwait(false);
+            await ReignServerClient.ApplyResolvedPlayerConceptionAsync(result, owner).ConfigureAwait(false);
             await ReignMainThread.InvokeAsync(() =>
             {
-                FinishPregnancyDecision("proceed", true, false, string.Empty);
+                if (owner()) FinishPregnancyDecision("proceed", true, false, string.Empty);
             }).ConfigureAwait(false);
         }
 
@@ -1111,16 +1220,20 @@ namespace ReignBeta.UI.ViewModels
             ReignConceptionAttemptResult pending = null;
             string actionText = string.Empty;
             bool providerFreeFixture = false;
+            Func<bool> owner = null;
             bool accepted = await ReignMainThread.InvokeAsync(() =>
             {
-                if (_isFinalized || !IsPregnancyWarningVisible || _pregnancyDecisionBusy || _pendingConceptionAttempt == null)
+                if (_isFinalized || _conversationFinishRequested || !IsPregnancyWarningVisible || _pregnancyDecisionBusy || _pendingConceptionAttempt == null
+                    || (!_calibrationPregnancyFixtureActive && !_loadFence.IsCurrent()))
                 {
                     return false;
                 }
                 _pregnancyDecisionBusy = true;
+                _pregnancyDecisionOperation = new object();
                 pending = _pendingConceptionAttempt;
                 actionText = _pendingConceptionActionText ?? string.Empty;
                 providerFreeFixture = _calibrationPregnancyFixtureActive;
+                owner = CapturePregnancyDecisionOwner(_pregnancyDecisionOperation, pending, providerFreeFixture);
                 BusyText = "Preventing pregnancy...";
                 return true;
             }).ConfigureAwait(false);
@@ -1130,18 +1243,20 @@ namespace ReignBeta.UI.ViewModels
             {
                 await ReignMainThread.InvokeAsync(() =>
                 {
-                    FinishPregnancyDecision("pull_out", true, true, string.Empty);
+                    if (owner()) FinishPregnancyDecision("pull_out", true, true, string.Empty);
                 }).ConfigureAwait(false);
                 return;
             }
 
             ReignConceptionAttemptResult result = await ReignServerClient.CancelPlayerConceptionAttemptAsync(
-                _hero, actionText, pending.AttemptId).ConfigureAwait(false);
+                _hero, actionText, pending.AttemptId, owner).ConfigureAwait(false);
             if (!result.Ok || !result.Cancelled)
             {
                 await ReignMainThread.InvokeAsync(() =>
                 {
+                    if (!owner()) return;
                     _pregnancyDecisionBusy = false;
+                    _pregnancyDecisionOperation = null;
                     string error = string.IsNullOrWhiteSpace(result.Error)
                         ? "The pull-out decision could not be recorded."
                         : result.Error;
@@ -1151,12 +1266,15 @@ namespace ReignBeta.UI.ViewModels
                 return;
             }
 
-            await ReignMainThread.InvokeAsync(() =>
+            // The follow-up turn is admitted inline (already on the Bannerlord
+            // thread) in the same guarded callback that finishes the warning.
+            Task<ReignDialogueReply> followUp = await ReignMainThread.InvokeAsync(() =>
             {
+                if (!owner()) return null;
                 FinishPregnancyDecision("pull_out", true, false, string.Empty);
+                return SendTextAsync("Pull Out", false, "pull_out", endsOnCloseRequest: true);
             }).ConfigureAwait(false);
-
-            await SendTextAsync("Pull Out", false, "pull_out").ConfigureAwait(false);
+            if (followUp != null) await followUp.ConfigureAwait(false);
         }
 
         public void ExecuteClose()
@@ -1166,6 +1284,8 @@ namespace ReignBeta.UI.ViewModels
             _pendingConceptionActionText = string.Empty;
             _calibrationPregnancyFixtureActive = false;
             IsPregnancyWarningVisible = false;
+            _pregnancyDecisionBusy = false; // Releases this screen's token; stale callbacks then fail owner().
+            _pregnancyDecisionOperation = null;
             CompletePregnancyDecision("closed", false, false, "The pregnancy-warning screen was closed before a decision completed.");
             RequestConversationFinish("closed_by_player");
             ClosePortraitZoom();
@@ -1215,6 +1335,8 @@ namespace ReignBeta.UI.ViewModels
             FinishOutfit();
             _isFinalized = true;
             _view?.Close();
+            _pregnancyDecisionBusy = false;
+            _pregnancyDecisionOperation = null;
             CompletePregnancyDecision("finalized", false, _calibrationPregnancyFixtureActive,
                 "The Individual Chat screen finalized before the pregnancy decision completed.");
             RequestConversationFinish(_finalizationReason);
@@ -1239,6 +1361,7 @@ namespace ReignBeta.UI.ViewModels
             string error)
         {
             _pregnancyDecisionBusy = false;
+            _pregnancyDecisionOperation = null;
             _pendingConceptionAttempt = null;
             _pendingConceptionActionText = string.Empty;
             _calibrationPregnancyFixtureActive = false;
@@ -1274,16 +1397,30 @@ namespace ReignBeta.UI.ViewModels
 
         private async Task<string> EnsureConversationSessionAsync()
         {
-            if (!string.IsNullOrWhiteSpace(_conversationSessionId))
+            // Gate selection, the session-task field and the result install run on
+            // the Bannerlord thread, fenced to this screen's original load. A
+            // same-load close still joins an in-flight start; it never reopens one.
+            string known = string.Empty;
+            Task<ConversationSessionStart> pending = await ReignMainThread.InvokeAsync(() =>
             {
-                return _conversationSessionId;
-            }
-            Task<ConversationSessionStart> pending = _conversationStartGate.EnsureAsync(
-                StartConversationAsync, true);
-            _conversationSessionTask = pending;
+                if (!_loadFence.IsCurrent()) return null;
+                if (!string.IsNullOrWhiteSpace(_conversationSessionId)) { known = _conversationSessionId; return null; }
+                // After close, never reopen a failed start: reuse only the existing attempt.
+                Task<ConversationSessionStart> attempt = _conversationStartGate.EnsureAsync(
+                    StartConversationAsync, !_conversationFinishRequested);
+                _conversationSessionTask = attempt;
+                return attempt;
+            }).ConfigureAwait(false);
+            if (pending == null) return known;
             ConversationSessionStart result = await pending.ConfigureAwait(false);
-            _conversationSessionId = result.Ok ? result.SessionId : string.Empty;
-            return _conversationSessionId;
+            return await ReignMainThread.InvokeAsync(() =>
+            {
+                // A success that arrives after a reload is never installed.
+                if (!_loadFence.IsCurrent()) return string.Empty;
+                // A stale failed attempt can never erase a session confirmed meanwhile.
+                if (result.Ok && string.IsNullOrWhiteSpace(_conversationSessionId)) _conversationSessionId = result.SessionId;
+                return result.Ok ? result.SessionId : _conversationSessionId ?? string.Empty;
+            }).ConfigureAwait(false);
         }
 
         private async Task<ConversationSessionStart> StartConversationAsync()
@@ -1291,7 +1428,10 @@ namespace ReignBeta.UI.ViewModels
             var owner = ReignIndividualConversationBehavior.Instance;
             if (owner != null && !await owner.WaitForRecoveryAsync().ConfigureAwait(false))
                 return new ConversationSessionStart { Error = "Conversation recovery has not completed." };
-            return await ReignServerClient.StartConversationSessionWithIdentityAsync(_hero, _conversationContext).ConfigureAwait(false);
+            // The fence is rechecked after the recovery await, inside the
+            // game-thread callback that captures the native start payload.
+            return await ReignServerClient.StartConversationSessionWithIdentityAsync(_hero, _conversationContext,
+                _loadFence.IsCurrent).ConfigureAwait(false);
         }
 
         internal void SetFinalizationReason(string reason) { _finalizationReason = reason; }
@@ -1336,18 +1476,24 @@ namespace ReignBeta.UI.ViewModels
             var turn = _conversationTurnCompletion;
             if (turn != null) await turn.Task.ConfigureAwait(false);
             string sessionId = await EnsureConversationSessionAsync().ConfigureAwait(false);
-            return await ReignServerClient.FinishConversationSessionAsync(_hero, sessionId, reason, _conversationContext).ConfigureAwait(false);
+            // Payload capture and close-work apply are each fenced to the original load.
+            return await ReignServerClient.FinishConversationSessionAsync(_hero, sessionId, reason, _conversationContext,
+                _loadFence.IsCurrent).ConfigureAwait(false);
         }
 
-        private async Task LoadHistoryAsync()
+        private async Task LoadHistoryAsync(Func<bool> requestOwner = null)
         {
+            ReignServerClient.RequestFence fence = null;
+            Func<bool> historyCurrent = () => !_isFinalized && fence != null && fence.IsCurrent()
+                && (requestOwner == null || requestOwner());
             bool accepted = await ReignMainThread.InvokeAsync(() =>
             {
-                if (_isFinalized)
+                if (_isFinalized || (requestOwner != null && !requestOwner()))
                 {
                     return false;
                 }
 
+                fence = ReignServerClient.RequestFence.Capture();
                 IsBusy = true;
                 BusyText = "Loading history...";
                 return true;
@@ -1360,7 +1506,7 @@ namespace ReignBeta.UI.ViewModels
             Stopwatch timer = Stopwatch.StartNew();
             try
             {
-                List<ReignDialogueLine> history = await ReignServerClient.GetDialogueHistoryAsync(_hero, 80, _conversationContext).ConfigureAwait(false);
+                List<ReignDialogueLine> history = await ReignServerClient.GetDialogueHistoryAsync(_hero, 80, _conversationContext, historyCurrent).ConfigureAwait(false);
                 JArray recoverable = _isOfficialAmbassadorMode ? new JArray() : ReignConversationInputJournal.ReadRecoverable(
                     _conversationContext.Value<string>("campaignId"), _conversationContext.Value<string>("timelineId"),
                     _conversationContext.Value<string>("playerId"), _hero?.StringId ?? "");
@@ -1368,7 +1514,7 @@ namespace ReignBeta.UI.ViewModels
 
                 await ReignMainThread.InvokeAsync(() =>
                 {
-                    if (_isFinalized)
+                    if (!historyCurrent())
                     {
                         return;
                     }
@@ -1399,7 +1545,7 @@ namespace ReignBeta.UI.ViewModels
                 ReignLog.Warn("Individual chat history failed: " + ex.Message);
                 await ReignMainThread.InvokeAsync(() =>
                 {
-                    if (!_isFinalized)
+                    if (historyCurrent())
                     {
                         ChatLines.Clear();
                         AddSystemLine(FriendlyServerError(ex.Message));

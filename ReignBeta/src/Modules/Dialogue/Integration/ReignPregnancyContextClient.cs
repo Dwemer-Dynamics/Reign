@@ -11,11 +11,17 @@ namespace ReignBeta.Integration
 {
     public static partial class ReignServerClient
     {
-        private static async Task SynchronizePregnancyContextAsync(string route, JObject request)
+        // requestOwner (optional) is the originating request's Bannerlord-thread
+        // owner/load predicate. It is checked inside the same game-thread callback
+        // before native capture and before knowledge acceptance/enrichment, and the
+        // nested sync is dispatched through the owned transport (that route never
+        // re-enters this helper). Null keeps the legacy unowned behavior.
+        private static async Task SynchronizePregnancyContextAsync(string route, JObject request, Func<bool> requestOwner = null)
         {
             if (request == null) return;
             var capture = await ReignMainThread.InvokeAsync(() =>
             {
+                EnsureRequestOwner(requestOwner, "pregnancy context capture");
                 var family = ReignFamilyCampaignBehavior.Instance;
                 if (family == null || TaleWorlds.CampaignSystem.Campaign.Current == null) return null;
                 string campaignId = GetCampaignId(), timeline = ReignWorldHistoryCampaignBehavior.Instance?.TimelineId ?? "main";
@@ -56,10 +62,13 @@ namespace ReignBeta.Integration
                             }) : Enumerable.Empty<string>()) } };
             }).ConfigureAwait(false);
             if (capture == null) return;
-            JObject response = await PostJsonAsync("/family/pregnancy/sync", capture.Payload).ConfigureAwait(false);
+            JObject response = requestOwner == null
+                ? await PostJsonAsync("/family/pregnancy/sync", capture.Payload).ConfigureAwait(false)
+                : await PostOwnedJsonAsync("/family/pregnancy/sync", capture.Payload, requestOwner).ConfigureAwait(false);
             if (response.Value<bool?>("ok") != true) throw new InvalidOperationException(response.Value<string>("error") ?? "Pregnancy context could not be reconciled.");
             await ReignMainThread.InvokeAsync(() =>
             {
+                EnsureRequestOwner(requestOwner, "pregnancy knowledge acceptance");
                 if (capture.Campaign != TaleWorlds.CampaignSystem.Campaign.Current || capture.Family != ReignFamilyCampaignBehavior.Instance
                     || capture.CampaignId != GetCampaignId() || capture.Timeline != (ReignWorldHistoryCampaignBehavior.Instance?.TimelineId ?? "main"))
                     throw new OperationCanceledException("Pregnancy context belongs to another loaded save.");

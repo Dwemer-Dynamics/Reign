@@ -30,39 +30,54 @@ namespace ReignBeta.Integration
             return RequestPlayerConceptionDecisionAsync(partner, actionText, attemptId, "preview");
         }
 
-        public static Task<ReignConceptionAttemptResult> ResolvePlayerConceptionAttemptAsync(Hero partner, string actionText, string attemptId)
+        public static Task<ReignConceptionAttemptResult> ResolvePlayerConceptionAttemptAsync(Hero partner, string actionText, string attemptId, Func<bool> requestOwner = null)
         {
-            return RequestPlayerConceptionDecisionAsync(partner, actionText, attemptId, "proceed");
+            return RequestPlayerConceptionDecisionAsync(partner, actionText, attemptId, "proceed", requestOwner);
         }
 
-        public static Task<ReignConceptionAttemptResult> CancelPlayerConceptionAttemptAsync(Hero partner, string actionText, string attemptId)
+        public static Task<ReignConceptionAttemptResult> CancelPlayerConceptionAttemptAsync(Hero partner, string actionText, string attemptId, Func<bool> requestOwner = null)
         {
-            return RequestPlayerConceptionDecisionAsync(partner, actionText, attemptId, "pull_out");
+            return RequestPlayerConceptionDecisionAsync(partner, actionText, attemptId, "pull_out", requestOwner);
         }
 
-        private static async Task<ReignConceptionAttemptResult> RequestPlayerConceptionDecisionAsync(Hero partner, string actionText, string attemptId, string decision)
+        // requestOwner (optional, Bannerlord-thread predicate) is checked in the same
+        // game-thread callback that captures the native payload and again at owned
+        // dispatch. An unowned request keeps the original capture and transport.
+        private static async Task<ReignConceptionAttemptResult> RequestPlayerConceptionDecisionAsync(Hero partner, string actionText, string attemptId, string decision, Func<bool> requestOwner = null)
         {
             ReignConceptionAttemptResult result = new ReignConceptionAttemptResult();
             try
             {
-                Hero player = Hero.MainHero;
-                if (player == null || partner == null || string.IsNullOrWhiteSpace(attemptId)) return result;
-                JObject response = await PostJsonAsync("/family/verify_conception_attempt", new JObject
+                Func<JObject> capture = () =>
                 {
-                    ["campaignId"] = GetCampaignId(),
-                    ["attemptId"] = attemptId,
-                    ["eventId"] = attemptId,
-                    ["decision"] = decision ?? "preview",
-                    ["playerId"] = player.StringId,
-                    ["partnerId"] = partner.StringId,
-                    ["player"] = BuildHeroProfile(player),
-                    ["partner"] = BuildHeroProfile(partner),
-                    ["actionText"] = actionText ?? string.Empty,
-                    ["verifiedAct"] = true,
-                    ["coLocated"] = true,
-                    ["completed"] = true,
-                    ["worldDay"] = CurrentDirectorDay()
+                    Hero player = Hero.MainHero;
+                    if (player == null || partner == null || string.IsNullOrWhiteSpace(attemptId)) return null;
+                    return new JObject
+                    {
+                        ["campaignId"] = GetCampaignId(),
+                        ["attemptId"] = attemptId,
+                        ["eventId"] = attemptId,
+                        ["decision"] = decision ?? "preview",
+                        ["playerId"] = player.StringId,
+                        ["partnerId"] = partner.StringId,
+                        ["player"] = BuildHeroProfile(player),
+                        ["partner"] = BuildHeroProfile(partner),
+                        ["actionText"] = actionText ?? string.Empty,
+                        ["verifiedAct"] = true,
+                        ["coLocated"] = true,
+                        ["completed"] = true,
+                        ["worldDay"] = CurrentDirectorDay()
+                    };
+                };
+                JObject payload = requestOwner == null ? capture() : await ReignMainThread.InvokeAsync(() =>
+                {
+                    EnsureRequestOwner(requestOwner, "conception decision capture");
+                    return capture();
                 }).ConfigureAwait(false);
+                if (payload == null) return result;
+                JObject response = requestOwner == null
+                    ? await PostJsonAsync("/family/verify_conception_attempt", payload).ConfigureAwait(false)
+                    : await PostOwnedJsonAsync("/family/verify_conception_attempt", payload, requestOwner).ConfigureAwait(false);
                 result.Ok = response.Value<bool?>("ok") == true;
                 result.Verified = response.Value<bool?>("verified") == true;
                 result.Eligible = response.Value<bool?>("eligible") == true;
@@ -79,6 +94,12 @@ namespace ReignBeta.Integration
                 result.LegalFatherId = response.Value<string>("legalFatherId") ?? string.Empty;
                 result.DueDay = response.Value<float?>("dueDay") ?? 0f;
             }
+            catch (RequestOwnerAbandonedException ex)
+            {
+                // Expected when the owner closed or changed load before dispatch.
+                result.Error = ex.Message;
+                ReignLog.Info("Player conception decision abandoned: " + ex.Message);
+            }
             catch (Exception ex)
             {
                 result.Error = ex.Message;
@@ -87,11 +108,18 @@ namespace ReignBeta.Integration
             return result;
         }
 
-        public static async Task ApplyResolvedPlayerConceptionAsync(ReignConceptionAttemptResult result)
+        // A stale requestOwner skips only local native conception; the server's
+        // accepted decision stays durable.
+        public static async Task ApplyResolvedPlayerConceptionAsync(ReignConceptionAttemptResult result, Func<bool> requestOwner = null)
         {
             if (result == null || !result.Success) return;
             await ReignMainThread.InvokeAsync(() =>
             {
+                if (!RequestOwnerCurrent(requestOwner))
+                {
+                    ReignLog.Info("Verified player conception was not started locally: its request owner closed.");
+                    return;
+                }
                 Hero mother = FindLivingHero(result.MotherId);
                 Hero bio = FindLivingHero(result.BiologicalFatherId);
                 Hero legal = FindLivingHero(result.LegalFatherId) ?? bio;
