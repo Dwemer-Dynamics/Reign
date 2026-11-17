@@ -137,16 +137,23 @@ namespace ReignBeta.UI.ViewModels
 
             IsBusy = true;
             BusyText = "Dispatching letter...";
+            // The originating screen, load and player own the response and its action import.
+            ReignServerClient.RequestFence fence = ReignServerClient.RequestFence.Capture();
+            Hero player = Hero.MainHero;
+            Func<bool> owner = () => !_finalized && fence.IsCurrent() && ReferenceEquals(player, Hero.MainHero);
             ReignLetterSendResult result = await SendProductionLetterAsync(
                 _selected.Hero,
                 body,
-                string.Empty, ActionDraft == null ? null : ReignBeta.Actions.ReignActionService.Copy(ActionDraft));
+                string.Empty, ActionDraft == null ? null : ReignBeta.Actions.ReignActionService.Copy(ActionDraft), owner);
             await ReignMainThread.InvokeAsync(() =>
             {
-                if (_finalized) return;
+                if (!owner()) return;
                 if (result.Ok)
                 {
                     InformationManager.DisplayMessage(new InformationMessage("[Bannerlord Reign] Letter dispatched to " + _selected.Name + "."));
+                    if (result.HeldActionId != null)
+                        InformationManager.DisplayMessage(new InformationMessage("[Bannerlord Reign] [unknown: "
+                            + ReignBeta.Actions.ReignCompletedOrderPolicy.UncertainExecutionMarker + "]"));
                     _close?.Invoke();
                     return;
                 }
@@ -160,22 +167,50 @@ namespace ReignBeta.UI.ViewModels
             Hero recipient,
             string body,
             string correlationId,
-            Reign.Core.Contracts.Actions.ActionAgreement actionDraft = null)
+            Reign.Core.Contracts.Actions.ActionAgreement actionDraft = null,
+            Func<bool> requestOwner = null)
         {
             ReignLetterSendResult result = await ReignServerClient.SendLetterAsync(
                 recipient,
                 body,
-                correlationId, actionDraft).ConfigureAwait(false);
-            if (!result.Ok || result.QueuedActions == null || result.QueuedActions.Count == 0)
+                correlationId, actionDraft, requestOwner).ConfigureAwait(false);
+            if (!result.Ok || result.ImportFence == null)
                 return result;
 
+            // Parse and import on the game thread for the original load and a still-current
+            // owner. A stale owner skips local mutation; the accepted letter stays sent and
+            // its server action remains eligible through the existing outbox.
             int queued = await ReignMainThread.InvokeAsync(() =>
-                ReignAICampaignBehavior.Instance?.EnqueueAndExecuteServerActions(
-                    result.QueuedActions) ?? 0).ConfigureAwait(false);
+            {
+                if (!result.ImportFence.IsCurrent() || requestOwner != null && !requestOwner())
+                {
+                    result.ActionsDeferred = true;
+                    return 0;
+                }
+                result.QueuedActions = ReignServerClient.ParseLetterActionRows(result);
+                if (result.QueuedActions.Count == 0) return 0;
+                var behavior = ReignAICampaignBehavior.Instance;
+                if (behavior == null) return 0;
+                // An interrupted import never turns the accepted letter into a send failure.
+                if (!behavior.TryImportForPresentation(result.QueuedActions, out int imported, out string heldActionId))
+                {
+                    result.ActionImportInterrupted = true;
+                    result.HeldActionId = heldActionId;
+                }
+                return imported;
+            }).ConfigureAwait(false);
+            if (result.ActionsDeferred)
+            {
+                ReignLog.Info("Stale dispatched-letter response; actions left in the server outbox correlation="
+                    + (result.CorrelationId ?? string.Empty));
+                return result;
+            }
+            if (result.QueuedActions.Count == 0) return result;
             ReignLog.Info(
                 "Immediate dispatched-letter action import actions="
                 + result.QueuedActions.Count
                 + " queued=" + queued
+                + " interrupted=" + result.ActionImportInterrupted
                 + " correlation=" + (result.CorrelationId ?? string.Empty));
             return result;
         }

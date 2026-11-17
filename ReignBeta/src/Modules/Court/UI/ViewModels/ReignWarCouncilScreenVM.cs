@@ -587,12 +587,16 @@ namespace ReignBeta.UI.ViewModels
             }
             MessengerBusy = true;
             MessengerStatus = "Dispatching raven...";
+            // The originating War Council screen, load and player own the response and import.
+            ReignServerClient.RequestFence fence = ReignServerClient.RequestFence.Capture();
+            Hero player = Hero.MainHero;
+            Func<bool> owner = () => !_finalized && fence.IsCurrent() && ReferenceEquals(player, Hero.MainHero);
             ReignLetterSendResult result = await ReignCorrespondenceScreenVM.SendProductionLetterAsync(
                 recipient, body, "war-council-raven-" + Guid.NewGuid().ToString("N"),
-                Composer.State.Draft == null ? null : ReignBeta.Actions.ReignActionService.Copy(Composer.State.Draft));
+                Composer.State.Draft == null ? null : ReignBeta.Actions.ReignActionService.Copy(Composer.State.Draft), owner);
             await ReignMainThread.InvokeAsync(() =>
             {
-                if (_finalized) return;
+                if (!owner()) return;
                 MessengerBusy = false;
                 if (!result.Ok)
                 {
@@ -604,7 +608,9 @@ namespace ReignBeta.UI.ViewModels
                 MessengerStatus = string.Empty;
                 _messengerRecipient = null;
                 StatusText = "Raven dispatched to " + (recipient.Name?.ToString() ?? recipient.StringId)
-                    + ". The letter is recorded in Correspondence.";
+                    + ". The letter is recorded in Correspondence."
+                    + (result.HeldActionId == null ? string.Empty
+                        : " [unknown: " + ReignBeta.Actions.ReignCompletedOrderPolicy.UncertainExecutionMarker + "]");
             });
         }
 

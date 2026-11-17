@@ -208,7 +208,8 @@ namespace ReignBeta.UI.ViewModels
         internal string ScenePreparationError => _scene.Error;
         internal string ScenePreparationStatus => _scene.Status;
         internal JObject ScenePreparationEvidence => _scene.Evidence;
-        public override void OnFinalize() { ReignActionBuilder.CloseFor(this); _composer?.Dispose(); _scene.Close(); base.OnFinalize(); }
+        public override void OnFinalize() { _closed = true; ReignActionBuilder.CloseFor(this); _composer?.Dispose(); _scene.Close(); base.OnFinalize(); }
+        private bool _closed;
         internal string AutomationTranscript => string.Join("\n", Transcript.Select(x => x.Speaker + ": " + x.Text));
         internal int AutomationExpectedReplyCount => Math.Max(1, _matter.Participants.Count);
         internal bool AutomationNaturalConversationComplete => _conversationSendRevision > 0
@@ -326,6 +327,11 @@ namespace ReignBeta.UI.ViewModels
         private async Task RequestReactionAsync(string phase, string outcome, string playerText,
             int conversationRevision = 0, Reign.Core.Contracts.Actions.ActionAgreement action = null, string contributionId = "")
         {
+            // Captured by the game-thread caller before any await: this screen, the
+            // original load and player own every later dispatch and presentation.
+            ReignServerClient.RequestFence fence = ReignServerClient.RequestFence.Capture();
+            Hero player = Hero.MainHero;
+            Func<bool> owner = () => !_closed && fence.IsCurrent() && ReferenceEquals(player, Hero.MainHero);
             Busy = true;
             bool reactionCompleted = false;
             try
@@ -346,21 +352,28 @@ namespace ReignBeta.UI.ViewModels
                 foreach (Hero speaker in speakers)
                 {
                     ReignNobleMatterParticipant participant = _matter.Participants.FirstOrDefault(x => x.HeroId == speaker.StringId);
-                    JObject context = await ReignMainThread.InvokeAsync(() => BuildConversationContext(
+                    JObject context = await ReignMainThread.InvokeAsync(() => !owner() ? null : BuildConversationContext(
                         phase, outcome, speaker, participant, speakers)).ConfigureAwait(false);
+                    if (context == null) break;
                     if (contributionId.Length > 0) context["contributionId"] = contributionId;
                     ReignDialogueReply response = await ReignServerClient.RequestDialogueResponseAsync(
                         speaker, turn, string.Empty, string.Empty,
                         "noble_docket_" + _matter.MatterId + "_" + speaker.StringId + "_" + Guid.NewGuid().ToString("N"),
-                        applyNativeEncyclopediaText: false, conversationContext: context, actionDraft: action?.NpcId == speaker.StringId ? action : null).ConfigureAwait(false);
-                    await ReignMainThread.InvokeAsync(() =>
+                        applyNativeEncyclopediaText: false, conversationContext: context, actionDraft: action?.NpcId == speaker.StringId ? action : null,
+                        requestOwner: owner).ConfigureAwait(false);
+                    if (!await ReignMainThread.InvokeAsync(() =>
                     {
+                        // A stale owner applies no transcript, demand reveal or structured turn.
+                        if (!owner()) return false;
                         bool providerBacked = response.Ok && !string.IsNullOrWhiteSpace(response.Text);
                         string reply = providerBacked
                             ? ReignRulerDocketRules.SanitizeVisibleNobleReply(
                                 response.Text, ResolveCourtLocationName())
                             : FallbackStatement(participant, phase);
                         AddTranscriptLine(speaker.Name?.ToString() ?? "Noble", reply, "npc");
+                        // Existing action receipts follow as separate view-only system lines.
+                        foreach (string statusLine in ReignServerClient.NativeStatusLines(response.RawResponse))
+                        { Transcript.Add(new ReignChatLineVM("Court Clerk", statusLine, "system")); ChatScrollVersion++; }
                         PetitionerSpeech = reply;
                         ApplyStructuredTurn(response.RawResponse);
                         if (providerBacked)
@@ -375,21 +388,27 @@ namespace ReignBeta.UI.ViewModels
                             if (_conversationCompletedReplyCount >= _conversationExpectedReplyCount)
                                 _completedConversationRevision = conversationRevision;
                         }
-                    }).ConfigureAwait(false);
+                        return true;
+                    }).ConfigureAwait(false)) break;
                 }
-                await ReignMainThread.InvokeAsync(RefreshMatterState).ConfigureAwait(false);
-                reactionCompleted = true;
+                reactionCompleted = await ReignMainThread.InvokeAsync(() =>
+                {
+                    if (!owner()) return false;
+                    RefreshMatterState();
+                    return true;
+                }).ConfigureAwait(false);
             }
             catch (Exception ex)
             {
                 ReignLog.Warn("Noble docket " + phase + " reaction failed: " + ex.Message);
-                await ReignMainThread.InvokeAsync(() => AddTranscriptLine("Court Clerk",
-                    "The audience response was interrupted. No judgment has been applied.", "system")).ConfigureAwait(false);
+                await ReignMainThread.InvokeAsync(() => { if (owner()) AddTranscriptLine("Court Clerk",
+                    "The audience response was interrupted. No judgment has been applied.", "system"); }).ConfigureAwait(false);
             }
             finally
             {
                 await ReignMainThread.InvokeAsync(() =>
                 {
+                    if (!owner()) return;
                     if (!reactionCompleted && phase == "conversation"
                         && conversationRevision == _conversationSendRevision)
                         _completedConversationRevision = 0;

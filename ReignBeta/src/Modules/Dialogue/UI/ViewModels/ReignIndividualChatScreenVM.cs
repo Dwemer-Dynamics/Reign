@@ -989,10 +989,17 @@ namespace ReignBeta.UI.ViewModels
                     }
                     JArray recoveredAfterReply = reply.Ok && recoveredInput != null
                         ? ReadRecoverableInputs() : null;
-                    if (reply.Ok && reply.QueuedActions != null && reply.QueuedActions.Count > 0)
+                    // Dialogue actions were imported once by the conversation wrapper; only
+                    // test directives remain here. An interrupted import never discards the
+                    // accepted reply and never becomes a failed turn or a retry.
+                    string heldDirectiveId = null;
+                    // QueuedActions also carries the already-imported dialogue rows as evidence.
+                    if (reply.Ok && reply.TestDirectiveActions != null && reply.TestDirectiveActions.Count > 0)
                     {
-                        int queued = ReignAICampaignBehavior.Instance?.EnqueueAndExecuteServerActions(reply.QueuedActions) ?? 0;
-                        ReignLog.Info("Immediate dialogue action import hero=" + (_hero?.StringId ?? "") + " actions=" + reply.QueuedActions.Count + " queued=" + queued);
+                        int queued = 0;
+                        if (ReignAICampaignBehavior.Instance?.TryImportForPresentation(reply.TestDirectiveActions, out queued, out heldDirectiveId) == false)
+                            ReignLog.Warn("Immediate test directive import interrupted hero=" + (_hero?.StringId ?? ""));
+                        ReignLog.Info("Immediate test directive import hero=" + (_hero?.StringId ?? "") + " actions=" + reply.TestDirectiveActions.Count + " queued=" + queued);
                     }
 
                     if (reply.Ok && reply.ChancellorDecision?.Value<bool?>("accepted") == true)
@@ -1034,7 +1041,11 @@ namespace ReignBeta.UI.ViewModels
                         OnPropertyChanged(nameof(SendButtonText));
                     }
 
-                    if (reply.Ok && !string.IsNullOrWhiteSpace(reply.Text))
+                    // Existing receipts/outcomes are separate system lines after the exact NPC line.
+                    List<string> statusLines = reply.Ok ? ReignServerClient.NativeStatusLines(reply.RawResponse) : new List<string>();
+                    if (heldDirectiveId != null)
+                        statusLines.Add("[unknown: " + ReignBeta.Actions.ReignCompletedOrderPolicy.UncertainExecutionMarker + "]");
+                    if (reply.Ok && (!string.IsNullOrWhiteSpace(reply.Text) || statusLines.Count > 0))
                     {
                         ClearFailedConversationTurn();
                         if (_conversationContext.Value<bool?>("rescueOpening") == true)
@@ -1051,8 +1062,14 @@ namespace ReignBeta.UI.ViewModels
                         string viewExchange = reply.ExchangeId ?? "";
                         var viewPlayerLine = ChatLines.LastOrDefault(line => line.IsPlayerLine && string.IsNullOrEmpty(line.ExchangeId));
                         if (viewPlayerLine != null) viewPlayerLine.ExchangeId = viewExchange;
-                        AddChatLine(_hero?.Name?.ToString() ?? "NPC", reply.Text, "npc", viewExchange);
-                        if (!_isOfficialAmbassadorMode) AcknowledgeViewInsertion(owner, reply);
+                        if (!string.IsNullOrWhiteSpace(reply.Text))
+                        {
+                            // The exact accepted line is inserted once; its insertion receipt
+                            // is derived only from that raw line, never from status text.
+                            AddChatLine(_hero?.Name?.ToString() ?? "NPC", reply.Text, "npc", viewExchange);
+                            if (!_isOfficialAmbassadorMode) AcknowledgeViewInsertion(owner, reply);
+                        }
+                        foreach (string statusLine in statusLines) AddSystemLine(statusLine);
                         if (!string.IsNullOrWhiteSpace(reply.ActionShadowPreview) && ReignBetaSettings.Instance?.DebugMessagesEnabled == true)
                         {
                             AddSystemLine(reply.ActionShadowPreview);

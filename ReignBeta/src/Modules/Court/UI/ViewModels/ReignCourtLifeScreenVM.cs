@@ -215,13 +215,19 @@ namespace ReignBeta.UI.ViewModels
                 string turnId = "opening";
                 if (phase == "conversation")
                 {
-                    if (string.IsNullOrWhiteSpace(_matter.PendingPlayerTurnId))
-                    {
-                        _matter.PendingPlayerTurnId = "court_life_turn_" + Guid.NewGuid().ToString("N");
-                        _matter.PendingPlayerText = text;
-                        AddLine(Hero.MainHero?.Name?.ToString() ?? "Ruler", text, "user");
-                    }
-                    turnId = _matter.PendingPlayerTurnId; text = _matter.PendingPlayerText;
+                    // Resumes off-thread: the durable matter and the view change only on the
+                    // game thread, for the matter's still-current owner.
+                    string playerText = text;
+                    await ReignMainThread.InvokeAsync(() => {
+                        if (!_court.OwnsCourtLifeMatter(_matter)) throw new OperationCanceledException("The campaign or audience changed.");
+                        if (string.IsNullOrWhiteSpace(_matter.PendingPlayerTurnId))
+                        {
+                            _matter.PendingPlayerTurnId = "court_life_turn_" + Guid.NewGuid().ToString("N");
+                            _matter.PendingPlayerText = playerText;
+                            AddLine(Hero.MainHero?.Name?.ToString() ?? "Ruler", playerText, "user");
+                        }
+                        turnId = _matter.PendingPlayerTurnId; text = _matter.PendingPlayerText;
+                    }).ConfigureAwait(false);
                 }
                 var action = phase == "conversation" && !string.IsNullOrWhiteSpace(_matter.PendingActionJson)
                     ? Newtonsoft.Json.JsonConvert.DeserializeObject<Reign.Core.Contracts.Actions.ActionAgreement>(_matter.PendingActionJson) : null;
@@ -251,7 +257,23 @@ namespace ReignBeta.UI.ViewModels
                         ReignDialogueReply reply = await ReignServerClient.RequestDialogueResponseAsync(hero,
                             phase == "opening" ? "[The court grants you leave to speak.]" : text,
                             _matter.TranscriptId, correlationId: _matter.MatterId + "_" + turnId + "_" + person.ActorId,
-                            applyNativeEncyclopediaText: false, conversationContext: context, actionDraft: action?.NpcId == hero.StringId ? action : null).ConfigureAwait(false);
+                            applyNativeEncyclopediaText: false, conversationContext: context, actionDraft: action?.NpcId == hero.StringId ? action : null,
+                            requestOwner: () => _court.OwnsCourtLifeMatter(_matter)).ConfigureAwait(false);
+                        if (reply.Ok && string.IsNullOrWhiteSpace(reply.Text))
+                        {
+                            // An accepted status-only reply completes this speaker's turn without an
+                            // NPC line or term interpretation, so a retry never replays its correlation.
+                            bool statusOnly = await ReignMainThread.InvokeAsync(() => {
+                                if (!_court.OwnsCourtLifeMatter(_matter)) throw new OperationCanceledException("The campaign or audience changed.");
+                                if (ReignServerClient.NativeStatusLines(reply.RawResponse).Count == 0) return false;
+                                AddStatusLines(reply.RawResponse);
+                                if (!_matter.CompletedReplyKeys.Contains(key)) _matter.CompletedReplyKeys.Add(key);
+                                if (!_matter.CompletedInterpretationKeys.Contains(key)) _matter.CompletedInterpretationKeys.Add(key);
+                                _court.NotifyCourtLifeChanged();
+                                return true;
+                            }).ConfigureAwait(false);
+                            if (statusOnly) continue;
+                        }
                         if (!reply.Ok || string.IsNullOrWhiteSpace(reply.Text)) throw new InvalidOperationException(reply.Error ?? "The guest did not reply.");
                         raw = reply.RawResponse; raw["reply"] = reply.Text;
                     }
@@ -265,6 +287,7 @@ namespace ReignBeta.UI.ViewModels
                     await ReignMainThread.InvokeAsync(() => {
                         if (!_court.OwnsCourtLifeMatter(_matter)) throw new OperationCanceledException("The campaign or audience changed.");
                         AddLine(person.Name, visible, "assistant");
+                        AddStatusLines(raw);
                         _matter.CompletedReplyKeys.Add(key); _matter.ReplyTextsByKey[key] = visible; _court.NotifyCourtLifeChanged();
                     }).ConfigureAwait(false);
                     }
@@ -497,6 +520,14 @@ namespace ReignBeta.UI.ViewModels
             // Saved audiences can retain the old label even when the foreign noble is defending a complaint.
             return _matter.Source == ReignDocketSource.International && option?.OptionId == "favor_foreign"
                 ? "Uphold the foreign noble's position" : option?.Label;
+        }
+        // Existing action receipts as separate view-only system lines; the durable matter
+        // transcript and interpretation input keep only the exact spoken lines.
+        private void AddStatusLines(JObject raw)
+        {
+            if (_finalized) return;
+            foreach (string line in ReignServerClient.NativeStatusLines(raw)) Transcript.Add(new ReignChatLineVM("Bannerlord Reign", line, "system"));
+            _scroll++; OnPropertyChanged(nameof(ChatScrollVersion));
         }
         private void AddLine(string speaker, string text, string role)
         {

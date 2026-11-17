@@ -148,49 +148,64 @@ namespace ReignBeta.Integration
             Hero recipient,
             string body,
             string correlationId,
-            Reign.Core.Contracts.Actions.ActionAgreement actionDraft = null)
+            Reign.Core.Contracts.Actions.ActionAgreement actionDraft = null,
+            Func<bool> requestOwner = null)
         {
             ReignLetterSendResult result = new ReignLetterSendResult();
             try
             {
-                Hero sender = Hero.MainHero;
-                if (sender == null || recipient == null || string.IsNullOrWhiteSpace(body))
+                // UI, War Council and automation callers may be on a worker. Native reads,
+                // the structured-action capture and the original load fence share one
+                // game-thread callback; that fence then owns the response and its import.
+                RequestFence fence = null;
+                double day = 0;
+                ReignLetterRoute route = null;
+                JObject payload = await ReignMainThread.InvokeAsync(() =>
+                {
+                    EnsureRequestOwner(requestOwner, "letter capture");
+                    Hero sender = Hero.MainHero;
+                    if (sender == null || recipient == null || string.IsNullOrWhiteSpace(body)) return null;
+                    fence = RequestFence.Capture();
+                    day = CurrentWorldDay();
+                    route = CalculateLetterRoute(sender, recipient, day);
+                    JObject captured = new JObject
+                    {
+                        ["campaignId"] = GetCampaignId(),
+                        ["senderId"] = sender.StringId,
+                        ["senderName"] = sender.Name?.ToString() ?? "Player",
+                        ["recipientId"] = recipient.StringId,
+                        ["recipientName"] = recipient.Name?.ToString() ?? recipient.StringId,
+                        ["body"] = body,
+                        ["source"] = "player",
+                        ["timelineId"] = ReignBeta.Campaign.ReignWorldHistoryCampaignBehavior.Instance?.TimelineId ?? "main",
+                        ["dispatchDay"] = day,
+                        ["deliveryDay"] = route.DeliveryDay,
+                        ["originId"] = route.OriginId,
+                        ["destinationId"] = route.DestinationId,
+                        ["sender"] = BuildHeroProfile(sender),
+                        ["recipient"] = BuildHeroProfile(recipient),
+                        ["playerHeroStringId"] = sender.StringId,
+                        ["playerKingdomId"] = sender.Clan?.Kingdom?.StringId ?? string.Empty,
+                        ["playerClanId"] = sender.Clan?.StringId ?? string.Empty,
+                        ["speakerHeroStringId"] = recipient.StringId,
+                        ["speakerKingdomId"] = recipient.Clan?.Kingdom?.StringId ?? string.Empty,
+                        ["speakerClanId"] = recipient.Clan?.StringId ?? string.Empty,
+                        ["correlationId"] = string.IsNullOrWhiteSpace(correlationId) ? NewCorrelationId("letter", recipient.StringId) : correlationId,
+                        ["actionResolutionIndex"] = BuildActionResolutionIndex(recipient,
+                            new List<Hero> { recipient }, true)
+                    };
+                    ConfigureStructuredActions(captured, recipient, actionDraft,
+                        Reign.Core.Contracts.Actions.AgreementChannel.Correspondence);
+                    return captured;
+                }).ConfigureAwait(false);
+                if (payload == null)
                 {
                     result.Error = "A sender, recipient, and letter text are required.";
                     return result;
                 }
 
-                double day = CurrentWorldDay();
-                ReignLetterRoute route = CalculateLetterRoute(sender, recipient, day);
-                JObject payload = new JObject
-                {
-                    ["campaignId"] = GetCampaignId(),
-                    ["senderId"] = sender.StringId,
-                    ["senderName"] = sender.Name?.ToString() ?? "Player",
-                    ["recipientId"] = recipient.StringId,
-                    ["recipientName"] = recipient.Name?.ToString() ?? recipient.StringId,
-                    ["body"] = body,
-                    ["source"] = "player",
-                    ["timelineId"] = ReignBeta.Campaign.ReignWorldHistoryCampaignBehavior.Instance?.TimelineId ?? "main",
-                    ["dispatchDay"] = day,
-                    ["deliveryDay"] = route.DeliveryDay,
-                    ["originId"] = route.OriginId,
-                    ["destinationId"] = route.DestinationId,
-                    ["sender"] = BuildHeroProfile(sender),
-                    ["recipient"] = BuildHeroProfile(recipient),
-                    ["playerHeroStringId"] = sender.StringId,
-                    ["playerKingdomId"] = sender.Clan?.Kingdom?.StringId ?? string.Empty,
-                    ["playerClanId"] = sender.Clan?.StringId ?? string.Empty,
-                    ["speakerHeroStringId"] = recipient.StringId,
-                    ["speakerKingdomId"] = recipient.Clan?.Kingdom?.StringId ?? string.Empty,
-                    ["speakerClanId"] = recipient.Clan?.StringId ?? string.Empty,
-                    ["correlationId"] = string.IsNullOrWhiteSpace(correlationId) ? NewCorrelationId("letter", recipient.StringId) : correlationId,
-                    ["actionResolutionIndex"] = BuildActionResolutionIndex(recipient,
-                        new List<Hero> { recipient }, true)
-                };
-                await ReignMainThread.InvokeAsync(() => ConfigureStructuredActions(payload, recipient, actionDraft,
-                    Reign.Core.Contracts.Actions.AgreementChannel.Correspondence)).ConfigureAwait(false);
-                JObject response = await PostJsonAsync("/correspondence/send", payload).ConfigureAwait(false);
+                JObject response = await PostOwnedJsonAsync("/correspondence/send", payload,
+                    () => fence.IsCurrent() && RequestOwnerCurrent(requestOwner)).ConfigureAwait(false);
                 result.Ok = response.Value<bool?>("ok") == true;
                 result.Error = response.Value<string>("error") ?? string.Empty;
                 result.LetterId = response.Value<string>("letterId") ?? string.Empty;
@@ -198,7 +213,14 @@ namespace ReignBeta.Integration
                 result.DispatchDay = response.Value<double?>("dispatchDay") ?? day;
                 result.DeliveryDay = response.Value<double?>("deliveryDay") ?? route.DeliveryDay;
                 result.CorrelationId = response.Value<string>("correlationId") ?? correlationId ?? string.Empty;
-                result.QueuedActions = ParseQueuedActionRows(response["queuedActions"]);
+                // Parsing reads native campaign time, so it waits for the guarded game-thread import.
+                result.QueuedActionRows = response["queuedActions"];
+                result.ImportFence = fence;
+            }
+            catch (RequestOwnerAbandonedException ex)
+            {
+                result.Error = ex.Message;
+                ReignLog.Info("Correspondence send abandoned by its local owner: " + ex.Message);
             }
             catch (Exception ex)
             {
@@ -208,6 +230,10 @@ namespace ReignBeta.Integration
 
             return result;
         }
+
+        // Game thread only, after the caller confirmed result.ImportFence and its owner.
+        internal static List<ReignBeta.World.ReignWorldActionRecord> ParseLetterActionRows(ReignLetterSendResult result)
+            => ParseQueuedActionRows(result?.QueuedActionRows, result?.ImportFence);
 
         public static async Task<ReignLetterSendResult> SendEconomicShipmentLetterAsync(
             Hero recipient,
@@ -897,6 +923,13 @@ namespace ReignBeta.Integration
         public double DispatchDay { get; set; }
         public double DeliveryDay { get; set; }
         public List<ReignBeta.World.ReignWorldActionRecord> QueuedActions { get; set; } = new List<ReignBeta.World.ReignWorldActionRecord>();
+        // Raw accepted rows and the request's original load fence; imported only on the
+        // game thread for a still-current owner. A stale owner leaves them to the outbox.
+        internal JToken QueuedActionRows { get; set; }
+        internal ReignServerClient.RequestFence ImportFence { get; set; }
+        internal bool ActionsDeferred { get; set; }
+        internal bool ActionImportInterrupted { get; set; }
+        internal string HeldActionId { get; set; }
     }
 
     public sealed class ReignLetter

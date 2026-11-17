@@ -643,6 +643,9 @@ namespace ReignBeta.UI.ViewModels
         {
             if (!CheckContinuedPartyPresence()) return;
             string text = InputText ?? string.Empty;
+            // Captured where the click is accepted; awaited continuations resume off-thread.
+            ReignServerClient.RequestFence sendFence = ReignServerClient.RequestFence.Capture();
+            Hero sendPlayer = Hero.MainHero;
             if (!_targetedReviewMode && !_banterReadOnly && !_isFinalized && !IsBusy && InputEnabled
                 && ReignServerClient.NpcLivesOptions.Allows("approach") && string.IsNullOrWhiteSpace(_session.ApproachRequestId)
                 // In ordinary Party Chat, typed input is the player's opening; only the empty Approach button requests an NPC opening.
@@ -650,23 +653,43 @@ namespace ReignBeta.UI.ViewModels
             {
                 var opening = RequestLifeOpening(GetSelectedHeroes()); _activeBatchTask = opening;
                 var opened = await opening;
-                if (_isFinalized || !opened.Ok || string.IsNullOrWhiteSpace(text)) return;
+                if (!opened.Ok || string.IsNullOrWhiteSpace(text)) return;
             }
+            // The send itself is accepted on the game thread for the same screen, load and player.
+            Task<ReignPartyChatBatchResult> batch = await ReignMainThread.InvokeAsync(() =>
+                !_isFinalized && sendFence.IsCurrent() && ReferenceEquals(sendPlayer, Hero.MainHero) ? BeginPlayerSend(text) : null);
+            if (batch == null) return;
+            await batch;
+            await ReignMainThread.InvokeAsync(() =>
+            {
+                if (_isFinalized || !sendFence.IsCurrent()) return;
+                if (ReferenceEquals(_activeBatchTask, batch))
+                {
+                    _activeBatchTask = null;
+                }
+                RefreshLabels();
+                PersistCastleTranscript();
+            });
+        }
+
+        // Game thread only. Returns null when the turn is not admitted.
+        private Task<ReignPartyChatBatchResult> BeginPlayerSend(string text)
+        {
             if (_isFinalized || string.IsNullOrWhiteSpace(text) || IsBusy || !InputEnabled)
             {
-                return;
+                return null;
             }
 
             var actionDraft = ActionDraft == null ? null : ReignBeta.Actions.ReignActionService.Copy(ActionDraft);
             List<Hero> activeHeroes = GetSelectedHeroes();
             if (actionDraft != null && !activeHeroes.Any(h => h.StringId == actionDraft.NpcId))
-            { AddSystemLine("Select the character addressed by your action before sending it.", false); return; }
-            if (activeHeroes.Count == 0) { AddSystemLine("Select one or more characters before expecting a reply.", false); return; }
+            { AddSystemLine("Select the character addressed by your action before sending it.", false); return null; }
+            if (activeHeroes.Count == 0) { AddSystemLine("Select one or more characters before expecting a reply.", false); return null; }
             string playerName = Hero.MainHero?.Name?.ToString() ?? "Player";
             try { ReignConversationInputJournal.Save(ReignServerClient.GetCampaignId(),
                 ReignBeta.Campaign.ReignWorldHistoryCampaignBehavior.Instance?.TimelineId ?? "main", Hero.MainHero?.StringId ?? "",
                 _session.SessionId + "_turn_" + (_session.PlayerInputCount + 1), text, session: _session.SessionId); }
-            catch (Exception ex) { AddSystemLine("Your message could not be saved locally: " + ex.Message, false); return; }
+            catch (Exception ex) { AddSystemLine("Your message could not be saved locally: " + ex.Message, false); return null; }
             _session.RegisterPlayerInput();
             AddChatLine(playerName, text, "player");
             _session.RecordTranscriptLine(playerName, text, Hero.MainHero?.StringId ?? string.Empty, "player");
@@ -676,21 +699,14 @@ namespace ReignBeta.UI.ViewModels
             {
                 AddSystemLine("Select one or more characters before expecting a reply.", false);
                 RefreshLabels();
-                return;
+                return null;
             }
 
             RememberConversationHeroes(activeHeroes);
             Task<ReignPartyChatBatchResult> batch = RequestLiveNpcTurns(activeHeroes, text,
                 suppressRelationshipAssessment: _targetedReviewMode, actionDraft: actionDraft);
             _activeBatchTask = batch;
-            await batch;
-            if (_isFinalized) return;
-            if (ReferenceEquals(_activeBatchTask, batch))
-            {
-                _activeBatchTask = null;
-            }
-            RefreshLabels();
-            PersistCastleTranscript();
+            return batch;
         }
 
         public async Task<ReignPartyChatBatchResult> SendAutomationLineAsync(
@@ -917,8 +933,17 @@ namespace ReignBeta.UI.ViewModels
             Reign.Core.Contracts.Actions.ActionAgreement actionDraft = null)
         {
             if (_isFinalized) return new ReignPartyChatBatchResult { Error = "Conversation closed." };
-            if (!await ReignMainThread.InvokeAsync(CheckContinuedPartyPresence).ConfigureAwait(false))
+            // The batch owner is captured on the game thread where the turn is accepted:
+            // this screen, the original load fence and the original player.
+            PartyTurnOwner owner = null;
+            if (!await ReignMainThread.InvokeAsync(() =>
+                {
+                    if (!CheckContinuedPartyPresence()) return false;
+                    owner = new PartyTurnOwner(ReignServerClient.RequestFence.Capture(), Hero.MainHero);
+                    return true;
+                }).ConfigureAwait(false))
                 return new ReignPartyChatBatchResult { Error = "The previous party chat is no longer available here." };
+            Func<bool> turnCurrent = () => IsPartyTurnCurrent(owner);
             await ReignMainThread.InvokeAsync(() =>
             {
                 _guestReviewSession?.BeginTurn();
@@ -928,7 +953,7 @@ namespace ReignBeta.UI.ViewModels
             try
             {
                 if (_isFinalized) return new ReignPartyChatBatchResult { Error = "Conversation closed." };
-                result = await RequestLiveNpcTurnsCore(activeHeroes, playerText, auditRunId, auditSceneIndex,
+                result = await RequestLiveNpcTurnsCore(activeHeroes, playerText, turnCurrent, auditRunId, auditSceneIndex,
                     auditTurnIndex, requireStillSelected, correlationBase, castleOpening, openingTurn,
                     suppressRelationshipAssessment, actionDraft).ConfigureAwait(false);
                 return result;
@@ -945,7 +970,7 @@ namespace ReignBeta.UI.ViewModels
                             .IndexOf("temporary", StringComparison.OrdinalIgnoreCase) >= 0)
                         .Select(row => row.Value<string>("actionId") ?? row.Value<string>("serverActionId"));
                     _guestReviewSession?.CompleteTurn(result?.Ok == true, ids);
-                    if (_isFinalized) return;
+                    if (!turnCurrent()) return;
                     if (_targetedReviewMode) TargetedReviewProviderFailed = result?.Ok != true;
                     RefreshTargetedReviewReceipt();
                     PersistPartyChat();
@@ -958,6 +983,18 @@ namespace ReignBeta.UI.ViewModels
                 }).ConfigureAwait(false);
             }
         }
+
+        // Game thread only. A closed screen, a changed load or a changed player owns no
+        // later dispatch, presentation or native effect of this batch.
+        private sealed class PartyTurnOwner
+        {
+            internal PartyTurnOwner(ReignServerClient.RequestFence fence, Hero player) { Fence = fence; Player = player; }
+            internal ReignServerClient.RequestFence Fence { get; }
+            internal Hero Player { get; }
+        }
+
+        private bool IsPartyTurnCurrent(PartyTurnOwner owner) => owner != null && !_isFinalized
+            && owner.Fence.IsCurrent() && ReferenceEquals(owner.Player, Hero.MainHero);
 
         public void RefreshTargetedReviewReceipt()
         {
@@ -979,6 +1016,7 @@ namespace ReignBeta.UI.ViewModels
         private async Task<ReignPartyChatBatchResult> RequestLiveNpcTurnsCore(
             List<Hero> activeHeroes,
             string playerText,
+            Func<bool> turnCurrent,
             string auditRunId = "",
             int auditSceneIndex = -1,
             int auditTurnIndex = -1,
@@ -990,29 +1028,34 @@ namespace ReignBeta.UI.ViewModels
             Reign.Core.Contracts.Actions.ActionAgreement actionDraft = null)
         {
             ReignPartyChatBatchResult batchResult = new ReignPartyChatBatchResult();
-            if (castleOpening && _castleMode && ChatLines.Count == 0
-                && !string.IsNullOrWhiteSpace(_session.SessionId))
+            // Every view/native access after an await runs in a game-thread callback that
+            // first tests this batch's owner (screen, original load and player).
+            JObject historyRequest = !castleOpening ? null : await ReignMainThread.InvokeAsync(() =>
+                !turnCurrent() || !_castleMode || ChatLines.Count != 0 || string.IsNullOrWhiteSpace(_session.SessionId) ? null
+                    : new JObject
+                    {
+                        ["campaignId"] = ReignServerClient.GetCampaignId(),
+                        ["conversationSessionId"] = _session.SessionId.Trim(),
+                        ["playerHeroStringId"] = Hero.MainHero?.StringId ?? "",
+                        ["timelineId"] = ReignBeta.Campaign.ReignWorldHistoryCampaignBehavior.Instance?.TimelineId ?? "main",
+                        ["limit"] = 36
+                    }).ConfigureAwait(false);
+            if (historyRequest != null)
             {
                 try
                 {
                     JObject response = await ReignServerClient.PostJsonAsync(
                         "/party-chat/history",
-                        new JObject
-                        {
-                            ["campaignId"] = ReignServerClient.GetCampaignId(),
-                            ["conversationSessionId"] = _session.SessionId.Trim(),
-                            ["playerHeroStringId"] = Hero.MainHero?.StringId ?? "",
-                            ["timelineId"] = ReignBeta.Campaign.ReignWorldHistoryCampaignBehavior.Instance?.TimelineId ?? "main",
-                            ["limit"] = 36
-                        }).ConfigureAwait(false);
+                        historyRequest).ConfigureAwait(false);
                     JArray rows = response.Value<bool?>("ok") == true
                         ? response["lines"] as JArray
                         : null;
                     rows = rows ?? new JArray();
-                    ReignConversationInputJournal.AppendPending(rows, ReignServerClient.GetCampaignId(),
-                        ReignBeta.Campaign.ReignWorldHistoryCampaignBehavior.Instance?.TimelineId ?? "main", Hero.MainHero?.StringId ?? "", session: _session.SessionId);
-                    if (rows != null)
+                    bool recovered = await ReignMainThread.InvokeAsync(() =>
                     {
+                        if (!turnCurrent()) return false;
+                        ReignConversationInputJournal.AppendPending(rows, historyRequest.Value<string>("campaignId"),
+                            historyRequest.Value<string>("timelineId"), historyRequest.Value<string>("playerHeroStringId"), session: _session.SessionId);
                         _pendingRecoveredTranscript = new List<ReignPartyChatTranscriptLine>();
                         foreach (JObject row in rows.OfType<JObject>())
                         {
@@ -1023,13 +1066,13 @@ namespace ReignBeta.UI.ViewModels
                             }
                         }
 
-                        if (_pendingRecoveredTranscript.Count > 0
-                            && await ReignMainThread.InvokeAsync(ApplyPendingRecoveredTranscript).ConfigureAwait(false))
-                        {
-                            batchResult.SessionId = _session.SessionId;
-                            batchResult.Ok = true;
-                            return batchResult;
-                        }
+                        return _pendingRecoveredTranscript.Count > 0 && ApplyPendingRecoveredTranscript();
+                    }).ConfigureAwait(false);
+                    if (recovered)
+                    {
+                        batchResult.SessionId = _session.SessionId;
+                        batchResult.Ok = true;
+                        return batchResult;
                     }
                 }
                 catch (Exception ex)
@@ -1039,20 +1082,27 @@ namespace ReignBeta.UI.ViewModels
                 }
             }
 
-            if (castleOpening)
+            bool admitted = await ReignMainThread.InvokeAsync(() =>
             {
-                _session.BeginOpeningTurn();
-            }
-            await ReignMainThread.InvokeAsync(() =>
-            {
-                if (_isFinalized) return;
+                if (!turnCurrent()) return false;
+                if (castleOpening)
+                {
+                    _session.BeginOpeningTurn();
+                }
                 IsBusy = true;
                 BusyText = castleOpening
                     ? "Preparing the room conversation..."
                     : "Waiting for Bannerlord Reign...";
+                return true;
             }).ConfigureAwait(false);
+            if (!admitted)
+            {
+                batchResult.Error = "Conversation closed.";
+                return batchResult;
+            }
             Stopwatch timer = Stopwatch.StartNew();
             bool anyReply = false;
+            bool anyStatusOnly = false;
             bool hadFailure = false;
             int expectedSpeakerCount = 0;
             ReignXpInteraction xp = await ReignServerClient.BeginXpInteractionAsync().ConfigureAwait(false);
@@ -1061,24 +1111,35 @@ namespace ReignBeta.UI.ViewModels
 
             try
             {
-                string sessionId = await EnsureConversationSessionAsync(activeHeroes);
+                // The session start reads native party/location state in its synchronous
+                // prefix, so it starts inside a guarded game-thread callback.
+                Task<string> sessionTask = await ReignMainThread.InvokeAsync(() =>
+                    turnCurrent() ? EnsureConversationSessionAsync(activeHeroes) : null).ConfigureAwait(false);
+                if (sessionTask == null)
+                {
+                    hadFailure = true;
+                    batchResult.Error = "Conversation closed.";
+                    return batchResult;
+                }
+                string sessionId = await sessionTask.ConfigureAwait(false);
                 if (string.IsNullOrWhiteSpace(sessionId))
                 {
                     hadFailure = true;
                     batchResult.Error = "Bannerlord Reign could not start the party conversation session.";
-                    await ReignMainThread.InvokeAsync(() => AddSystemLine(batchResult.Error, false)).ConfigureAwait(false);
+                    await ReignMainThread.InvokeAsync(() => { if (turnCurrent()) AddSystemLine(batchResult.Error, false); }).ConfigureAwait(false);
                     return batchResult;
                 }
 
                 batchResult.SessionId = sessionId;
                 batchResult.ExchangeId = _session.CurrentSceneTurnId;
 
-                JObject speakingFloor = await ReignServerClient.RequestPartyChatTurnPlanAsync(_session, activeHeroes, playerText, castleOpening || openingTurn, actionDraft?.NpcId ?? "").ConfigureAwait(false);
+                JObject speakingFloor = await ReignServerClient.RequestPartyChatTurnPlanAsync(_session, activeHeroes, playerText, castleOpening || openingTurn, actionDraft?.NpcId ?? "",
+                    turnCurrent).ConfigureAwait(false);
                 if (speakingFloor.Value<bool?>("ok") != true || !(speakingFloor["responseOrder"] is JArray plannedOrder))
                 {
                     hadFailure = true;
                     batchResult.Error = "Bannerlord Reign could not prepare the group turn: " + (speakingFloor.Value<string>("error") ?? "missing speaking plan");
-                    await ReignMainThread.InvokeAsync(() => AddSystemLine(batchResult.Error, false)).ConfigureAwait(false);
+                    await ReignMainThread.InvokeAsync(() => { if (turnCurrent()) AddSystemLine(batchResult.Error, false); }).ConfigureAwait(false);
                     return batchResult;
                 }
                 var plannedIds = plannedOrder.Values<string>().ToList();
@@ -1087,7 +1148,7 @@ namespace ReignBeta.UI.ViewModels
                 {
                     hadFailure = true;
                     batchResult.Error = "The group speaking plan contains an unavailable participant.";
-                    await ReignMainThread.InvokeAsync(() => AddSystemLine(batchResult.Error, false)).ConfigureAwait(false);
+                    await ReignMainThread.InvokeAsync(() => { if (turnCurrent()) AddSystemLine(batchResult.Error, false); }).ConfigureAwait(false);
                     return batchResult;
                 }
                 List<Hero> orderedSpeakers = plannedIds.Select(id => activeHeroes.First(hero => hero.StringId.Equals(id, StringComparison.OrdinalIgnoreCase))).ToList();
@@ -1096,17 +1157,32 @@ namespace ReignBeta.UI.ViewModels
                 {
                     if (_isFinalized) break;
                     Hero speaker = orderedSpeakers[speakerIndex];
-                    bool stillSelected = !requireStillSelected || await ReignMainThread.InvokeAsync(() => IsStillSelected(speaker)).ConfigureAwait(false);
-                    if (speaker == null || !stillSelected)
+                    int speakerPosition = speakerIndex + 1;
+                    if (speaker == null) continue;
+                    // One guarded game-thread capture per routed speaker, in the planned
+                    // order: owner, selection and the native labels this request needs.
+                    // A stale owner stops every later dispatch of this batch.
+                    PartySpeakerCapture capture = await ReignMainThread.InvokeAsync(() =>
+                    {
+                        if (!turnCurrent()) return null;
+                        var snapshot = new PartySpeakerCapture
+                        {
+                            Selected = !requireStillSelected || IsStillSelected(speaker),
+                            Name = speaker.Name?.ToString(),
+                            ScenePrompt = _castleMode ? (_castleSession?.DialoguePromptSnapshot ?? string.Empty) : IsHomesMode ? _homeContext : _targetedReviewContext,
+                            FamilyChambers = string.Equals(_castleSession?.InteractionMode, "family_chambers", StringComparison.OrdinalIgnoreCase),
+                            ChildHeroIdsCsv = _castleSession?.ChildHeroIdsCsv ?? string.Empty,
+                            FamilyScenePlanJson = _castleSession?.ScenePlanJson ?? "{}",
+                            HomeVenue = IsHomesMode ? "at " + _homeResident.Name + "'s home in " + _homesSettlement.Name : ""
+                        };
+                        if (snapshot.Selected && castleOpening)
+                            BusyText = CastleOpeningProgressText(snapshot.Name, speakerPosition, orderedSpeakers.Count);
+                        return snapshot;
+                    }).ConfigureAwait(false);
+                    if (capture == null) break;
+                    if (!capture.Selected)
                     {
                         continue;
-                    }
-
-                    if (castleOpening)
-                    {
-                        string progressText = CastleOpeningProgressText(
-                            speaker.Name?.ToString(), speakerIndex + 1, orderedSpeakers.Count);
-                        await ReignMainThread.InvokeAsync(() => { if (!_isFinalized) BusyText = progressText; }).ConfigureAwait(false);
                     }
 
                     string effectiveCorrelationBase = string.IsNullOrWhiteSpace(
@@ -1126,43 +1202,63 @@ namespace ReignBeta.UI.ViewModels
                         auditRunId,
                         auditSceneIndex,
                         auditTurnIndex,
-                        _castleMode ? (_castleSession?.DialoguePromptSnapshot ?? string.Empty) : IsHomesMode ? _homeContext : _targetedReviewContext,
+                        capture.ScenePrompt,
                         _castleRoomName,
                         castleOpening || openingTurn,
-                        string.Equals(_castleSession?.InteractionMode, "family_chambers", StringComparison.OrdinalIgnoreCase),
-                        _castleSession?.ChildHeroIdsCsv ?? string.Empty,
-                        _castleSession?.ScenePlanJson ?? "{}",
-                        IsHomesMode ? "at " + _homeResident.Name + "'s home in " + _homesSettlement.Name : "",
-                        speakingFloor, speaker.StringId == actionDraft?.NpcId ? actionDraft : null).ConfigureAwait(false);
+                        capture.FamilyChambers,
+                        capture.ChildHeroIdsCsv,
+                        capture.FamilyScenePlanJson,
+                        capture.HomeVenue,
+                        speakingFloor, speaker.StringId == actionDraft?.NpcId ? actionDraft : null,
+                        turnCurrent).ConfigureAwait(false);
+                    if (string.IsNullOrEmpty(reply.SpeakerName)) reply.SpeakerName = capture.Name ?? string.Empty;
                     batchResult.Replies.Add(reply);
-                    if (_isFinalized) break;
-                    if (!reply.Ok)
+
+                    // Presentation, sanitizing (it reads native names) and the transcript
+                    // share one owner-checked callback. Existing action receipts follow the
+                    // NPC line as separate system lines and never enter the NPC transcript.
+                    string presented = await ReignMainThread.InvokeAsync(() =>
+                    {
+                        if (!turnCurrent()) return "stale";
+                        if (!reply.Ok)
+                        {
+                            AddSystemLine("Bannerlord Reign failed for " + capture.Name + ": " + FriendlyServerError(reply.Error), false);
+                            return "failed";
+                        }
+                        string clean = SanitizeReplyText(reply.Text, speaker, activeHeroes);
+                        bool silent = string.IsNullOrWhiteSpace(clean) || IsSilence(clean);
+                        if (!silent)
+                        {
+                            string speakerName = capture.Name ?? "NPC";
+                            _session.RecordTranscriptLine(speakerName, clean, speaker.StringId, "npc",
+                                reply.PrivateAudienceHeroStringId);
+                            AddChatLine(speakerName, clean, "npc");
+                        }
+                        bool anyStatusLine = false;
+                        foreach (string statusLine in ReignServerClient.NativeStatusLines(reply.RawResponse))
+                        {
+                            AddSystemLine(statusLine, false);
+                            anyStatusLine = true;
+                        }
+                        // An accepted status-only reply was presented; it is not a silent turn.
+                        return silent ? (anyStatusLine ? "status" : "silent") : "spoke";
+                    }).ConfigureAwait(false);
+                    if (presented == "stale") break;
+                    if (presented == "failed")
                     {
                         hadFailure = true;
-                        string friendlyError = FriendlyServerError(reply.Error);
-                        await ReignMainThread.InvokeAsync(() => AddSystemLine("Bannerlord Reign failed for " + speaker.Name + ": " + friendlyError, false)).ConfigureAwait(false);
                         if (IsBatchFatalError(reply.Error))
                         {
                             break;
                         }
                         continue;
                     }
-
-                    string clean = SanitizeReplyText(reply.Text, speaker, activeHeroes);
-                    if (string.IsNullOrWhiteSpace(clean) || IsSilence(clean))
+                    if (presented == "silent" || presented == "status")
                     {
-                        ReignLog.Info("Party chat NPC stayed silent speaker=" + speaker.StringId);
+                        if (presented == "status") anyStatusOnly = true;
+                        ReignLog.Info("Party chat NPC " + (presented == "status" ? "returned only status lines" : "stayed silent") + " speaker=" + speaker.StringId);
                         continue;
                     }
-
-                    string speakerName = speaker.Name?.ToString() ?? "NPC";
-                    await ReignMainThread.InvokeAsync(() =>
-                    {
-                        if (_isFinalized) return;
-                        _session.RecordTranscriptLine(speakerName, clean, speaker.StringId, "npc",
-                            reply.PrivateAudienceHeroStringId);
-                        AddChatLine(speakerName, clean, "npc");
-                    }).ConfigureAwait(false);
                     anyReply = true;
 
                     if (!string.IsNullOrWhiteSpace(reply.TimingSummary))
@@ -1177,19 +1273,21 @@ namespace ReignBeta.UI.ViewModels
                 {
                     if (castleOpening)
                     {
-                        await ReignMainThread.InvokeAsync(() => { if (!_isFinalized) BusyText = "Reviewing the opening conversation..."; }).ConfigureAwait(false);
+                        await ReignMainThread.InvokeAsync(() => { if (turnCurrent()) BusyText = "Reviewing the opening conversation..."; }).ConfigureAwait(false);
                     }
+                    // The adjudication capture is owner-checked in its own game-thread callback.
                     JObject relationshipResult = await ReignServerClient.ApplyConversationRelationshipAssessmentsAsync(
                         batchResult.ExchangeId,
                         "party_chat",
                         activeHeroes,
                         batchResult.Replies.Select(x => x.RawResponse),
-                        batchResult.Replies.Select(x => x.CorrelationId).FirstOrDefault(x => !string.IsNullOrWhiteSpace(x)) ?? string.Empty).ConfigureAwait(false);
+                        batchResult.Replies.Select(x => x.CorrelationId).FirstOrDefault(x => !string.IsNullOrWhiteSpace(x)) ?? string.Empty,
+                        turnCurrent).ConfigureAwait(false);
                     if (relationshipResult.Value<bool?>("ok") != true)
                     {
                         hadFailure = true;
                         batchResult.Error = "Conversation relationship evaluation failed: " + (relationshipResult.Value<string>("error") ?? "unknown error");
-                        await ReignMainThread.InvokeAsync(() => AddSystemLine(batchResult.Error, false)).ConfigureAwait(false);
+                        await ReignMainThread.InvokeAsync(() => { if (turnCurrent()) AddSystemLine(batchResult.Error, false); }).ConfigureAwait(false);
                     }
                 }
             }
@@ -1198,28 +1296,41 @@ namespace ReignBeta.UI.ViewModels
                 timer.Stop();
                 await ReignMainThread.InvokeAsync(() =>
                 {
-                    if (_isFinalized || _guestReviewSession != null) return;
+                    if (!turnCurrent() || _guestReviewSession != null) return;
                     IsBusy = false;
                     BusyText = string.Empty;
                 }).ConfigureAwait(false);
                 ReignLog.Info("Party chat batch clientMs=" + timer.ElapsedMilliseconds + " activeHeroes=" + activeHeroes.Count);
             }
 
-            if (!anyReply && !hadFailure)
+            bool stillCurrent = await ReignMainThread.InvokeAsync(() =>
             {
-                await ReignMainThread.InvokeAsync(() => AddSystemLine("No one answers just yet.", false)).ConfigureAwait(false);
-            }
-            await ReignMainThread.InvokeAsync(() => { if (!_isFinalized) PersistCastleTranscript(); }).ConfigureAwait(false);
+                if (!turnCurrent()) return false;
+                if (!anyReply && !anyStatusOnly && !hadFailure) AddSystemLine("No one answers just yet.", false);
+                PersistCastleTranscript();
+                return true;
+            }).ConfigureAwait(false);
             batchResult.Ok = !hadFailure && batchResult.Replies.Count == expectedSpeakerCount && batchResult.Replies.All(reply => reply.Ok);
-            if (!_isFinalized && batchResult.Ok && anyReply && !castleOpening && !openingTurn
+            if (stillCurrent && batchResult.Ok && anyReply && !castleOpening && !openingTurn
                 && !string.IsNullOrWhiteSpace(playerText) && string.IsNullOrWhiteSpace(auditRunId))
-                await ReignMainThread.InvokeAsync(() => { if (!_isFinalized) xp.Award(xpReceipt, ReignXpSkill.Charm, ReignXpRules.ConversationXp, ReignXpReason.Conversation); }).ConfigureAwait(false);
+                await ReignMainThread.InvokeAsync(() => { if (turnCurrent()) xp.Award(xpReceipt, ReignXpSkill.Charm, ReignXpRules.ConversationXp, ReignXpReason.Conversation); }).ConfigureAwait(false);
             if (!batchResult.Ok && string.IsNullOrWhiteSpace(batchResult.Error))
             {
                 batchResult.Error = string.Join("; ", batchResult.Replies.Where(reply => !reply.Ok)
                     .Select(reply => (reply.SpeakerName ?? reply.SpeakerHeroStringId) + ": " + reply.Error));
             }
             return batchResult;
+        }
+
+        private sealed class PartySpeakerCapture
+        {
+            internal bool Selected;
+            internal string Name;
+            internal string ScenePrompt;
+            internal bool FamilyChambers;
+            internal string ChildHeroIdsCsv;
+            internal string FamilyScenePlanJson;
+            internal string HomeVenue;
         }
 
         private async Task TrackTargetedOpeningAsync(Task<ReignPartyChatBatchResult> opening)
@@ -1313,10 +1424,12 @@ namespace ReignBeta.UI.ViewModels
             }
 
             _conversationFinishRequested = true;
-            _ = FinishConversationAsync(reason);
+            // Detached same-load cleanup: owned by the load and player only, never by
+            // the (possibly closed) screen. Captured here on the game thread.
+            _ = FinishConversationAsync(reason, ReignServerClient.RequestFence.Capture(), Hero.MainHero);
         }
 
-        private async Task FinishConversationAsync(string reason)
+        private async Task FinishConversationAsync(string reason, ReignServerClient.RequestFence loadFence, Hero loadPlayer)
         {
             Task batch = _activeBatchTask;
             if (batch != null)
@@ -1331,16 +1444,26 @@ namespace ReignBeta.UI.ViewModels
                 }
             }
 
-            string sessionId = await EnsureConversationSessionAsync(_conversationHeroes);
+            // The session start's synchronous prefix reads native state; start it on the
+            // game thread only while the original load is current.
+            Task<string> sessionTask = await ReignMainThread.InvokeAsync(() =>
+                loadFence.IsCurrent() && ReferenceEquals(loadPlayer, Hero.MainHero)
+                    ? EnsureConversationSessionAsync(_conversationHeroes) : null);
+            string sessionId = sessionTask == null ? null : await sessionTask;
             if (string.IsNullOrWhiteSpace(sessionId))
             {
                 return;
             }
-
-            await ReignServerClient.FinishPartyChatConversationSessionAsync(
-                _session,
-                _conversationHeroes,
-                reason ?? (_isFinalized ? "screen_finalized" : "closed_by_player"));
+            Func<bool> sameLoad = () => loadFence.IsCurrent() && ReferenceEquals(loadPlayer, Hero.MainHero);
+            // The finish payload's native reads run in this guarded callback; its close work
+            // applies only while the same load is current, even after the screen closed.
+            Task<ReignConversationFinishResult> finish = await ReignMainThread.InvokeAsync(() => sameLoad()
+                ? ReignServerClient.FinishPartyChatConversationSessionAsync(
+                    _session,
+                    _conversationHeroes,
+                    reason ?? (_isFinalized ? "screen_finalized" : "closed_by_player"), sameLoad)
+                : null);
+            if (finish != null) await finish;
         }
 
         private static string FriendlyServerError(string error)

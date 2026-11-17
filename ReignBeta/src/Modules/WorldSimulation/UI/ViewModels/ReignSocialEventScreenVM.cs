@@ -469,8 +469,10 @@ namespace ReignBeta.UI.ViewModels
             if (string.IsNullOrWhiteSpace(correlationId)) correlationId = Guid.NewGuid().ToString("N");
             ReignSocialEventTurnReply rejected = new ReignSocialEventTurnReply();
             List<Hero> activeHeroes = null;
+            SocialTurnOwner owner = null;
             bool accepted = await ReignMainThread.InvokeAsync(() =>
             {
+                if (_personalSceneClosed) { rejected.Error = "The social event closed."; return false; }
                 if (string.IsNullOrWhiteSpace(text)) { rejected.Error = "No text was supplied."; return false; }
                 if (IsBusy) { rejected.Error = "Social-event conversation is busy."; return false; }
                 activeHeroes = _session.ActiveHeroes().ToList();
@@ -484,10 +486,11 @@ namespace ReignBeta.UI.ViewModels
                 AddChatLine(playerName, text, "player");
                 _session.RecordTranscriptLine(playerName, text);
                 InputText = string.Empty;
+                owner = CaptureSocialOwner();
                 return true;
             }).ConfigureAwait(false);
             if (!accepted) return rejected;
-            return await RequestGroupTurnAsync(activeHeroes, text, correlationId, actionDraft).ConfigureAwait(false);
+            return await RequestGroupTurnAsync(activeHeroes, text, correlationId, actionDraft, owner).ConfigureAwait(false);
         }
 
         public bool SelectAutomationHeroes(IEnumerable<Hero> heroes)
@@ -559,6 +562,7 @@ namespace ReignBeta.UI.ViewModels
                 return;
             }
 
+            SocialTurnOwner owner = CaptureSocialOwner();
             IsBusy = true;
             BusyText = "Waiting to see who approaches...";
             JObject response = new JObject { ["ok"] = false, ["error"] = "The approach roll did not complete." };
@@ -566,37 +570,45 @@ namespace ReignBeta.UI.ViewModels
             {
                 response = await ReignServerClient.RollSocialEventApproachesAsync(_session, candidates);
             }
-            finally
+            catch (Exception ex)
             {
+                response = new JObject { ["ok"] = false, ["error"] = ex.Message };
+            }
+
+            // The roll resumes off-thread: activation and presentation are owner-checked
+            // on the game thread, and a stale owner starts no approach replies.
+            List<Hero> heroes = await ReignMainThread.InvokeAsync(() =>
+            {
+                if (!IsSocialTurnCurrent(owner)) return null;
                 BusyText = string.Empty;
                 IsBusy = false;
-            }
+                if (response.Value<bool?>("ok") != true)
+                {
+                    AddSystemLine("No approach roll was made: " + (response.Value<string>("error") ?? "Bannerlord Reign is unavailable."));
+                    return null;
+                }
 
-            if (response.Value<bool?>("ok") != true)
-            {
-                AddSystemLine("No approach roll was made: " + (response.Value<string>("error") ?? "Bannerlord Reign is unavailable."));
-                return;
-            }
+                HashSet<string> selectedIds = new HashSet<string>(
+                    (response["approachHeroStringIds"] as JArray ?? new JArray())
+                        .Values<string>()
+                        .Where(x => !string.IsNullOrWhiteSpace(x)),
+                    StringComparer.OrdinalIgnoreCase);
+                List<Hero> approached = _session.ActivateApproachHeroes(candidates.Where(x => selectedIds.Contains(x.StringId)));
+                if (approached.Count == 0)
+                {
+                    AddSystemLine("No one approaches you just yet.");
+                }
+                else
+                {
+                    AddSystemLine(string.Join(", ", approached.Select(x => x.Name?.ToString())) + (approached.Count == 1 ? " approaches you." : " approach you."));
+                }
 
-            HashSet<string> selectedIds = new HashSet<string>(
-                (response["approachHeroStringIds"] as JArray ?? new JArray())
-                    .Values<string>()
-                    .Where(x => !string.IsNullOrWhiteSpace(x)),
-                StringComparer.OrdinalIgnoreCase);
-            List<Hero> heroes = _session.ActivateApproachHeroes(candidates.Where(x => selectedIds.Contains(x.StringId)));
-            if (heroes.Count == 0)
+                RefreshAttendees();
+                return approached;
+            });
+            if (heroes != null && heroes.Count > 0)
             {
-                AddSystemLine("No one approaches you just yet.");
-            }
-            else
-            {
-                AddSystemLine(string.Join(", ", heroes.Select(x => x.Name?.ToString())) + (heroes.Count == 1 ? " approaches you." : " approach you."));
-            }
-
-            RefreshAttendees();
-            if (heroes.Count > 0)
-            {
-                await RequestRepliesAsync(heroes, string.Empty, true);
+                await RequestRepliesAsync(heroes, string.Empty, true, owner);
             }
         }
 
@@ -628,15 +640,20 @@ namespace ReignBeta.UI.ViewModels
                     _closeScreen?.Invoke();
                 return;
             }
+            SocialTurnOwner owner = CaptureSocialOwner();
             await ReignServerClient.FinishSocialEventPhaseAsync(_session);
-            if (!_session.AdvancePhase())
+            await ReignMainThread.InvokeAsync(() =>
             {
-                ExecuteEndEvent();
-                return;
-            }
+                if (!IsSocialTurnCurrent(owner)) return;
+                if (!_session.AdvancePhase())
+                {
+                    ExecuteEndEvent();
+                    return;
+                }
 
-            AddSystemLine("The event moves to the next phase: " + _session.CurrentPhase.Title + ".");
-            RefreshFromSession();
+                AddSystemLine("The event moves to the next phase: " + _session.CurrentPhase.Title + ".");
+                RefreshFromSession();
+            });
         }
 
         public async void ExecuteEndEvent()
@@ -661,10 +678,20 @@ namespace ReignBeta.UI.ViewModels
                 return;
             }
 
+            // Ending is same-load cleanup: it is owned by the original load, and only a
+            // still-open screen is closed. Native payload reads stay on the game thread.
+            ReignServerClient.RequestFence loadFence = ReignServerClient.RequestFence.Capture();
             await ReignServerClient.FinishSocialEventPhaseAsync(_session);
-            await ReignServerClient.ResolveSocialEventAsync(_session);
-            _resolveEvent?.Invoke();
-            _closeScreen?.Invoke();
+            Task<bool> resolve = await ReignMainThread.InvokeAsync(() =>
+                loadFence.IsCurrent() ? ReignServerClient.ResolveSocialEventAsync(_session) : null);
+            if (resolve == null) return;
+            await resolve;
+            await ReignMainThread.InvokeAsync(() =>
+            {
+                if (!loadFence.IsCurrent()) return;
+                _resolveEvent?.Invoke();
+                if (!_personalSceneClosed) _closeScreen?.Invoke();
+            });
         }
 
         public void ExecuteClose()
@@ -686,60 +713,110 @@ namespace ReignBeta.UI.ViewModels
             IsOverlayVisible = isVisible;
         }
 
-        private async Task RequestRepliesAsync(List<Hero> activeHeroes, string playerText, bool approachOpening = false)
+        // Game thread only. A closed screen, a changed load or a changed player owns no
+        // later dispatch, presentation or native effect of an in-flight turn.
+        private sealed class SocialTurnOwner
+        {
+            internal SocialTurnOwner(ReignServerClient.RequestFence fence, Hero player) { Fence = fence; Player = player; }
+            internal ReignServerClient.RequestFence Fence { get; }
+            internal Hero Player { get; }
+        }
+
+        private SocialTurnOwner CaptureSocialOwner() => new SocialTurnOwner(ReignServerClient.RequestFence.Capture(), Hero.MainHero);
+
+        private bool IsSocialTurnCurrent(SocialTurnOwner owner) => owner != null && !_personalSceneClosed
+            && owner.Fence.IsCurrent() && ReferenceEquals(owner.Player, Hero.MainHero);
+
+        // Existing action receipts/outcomes as separate system lines; never NPC transcript text.
+        private void AddNativeStatusLines(JObject response)
+        {
+            foreach (string line in ReignServerClient.NativeStatusLines(response)) AddChatLine("Event", line, "system");
+        }
+
+        private async Task RequestRepliesAsync(List<Hero> activeHeroes, string playerText, bool approachOpening, SocialTurnOwner owner)
         {
             if (!approachOpening)
             {
-                await RequestGroupTurnAsync(activeHeroes, playerText);
+                await RequestGroupTurnAsync(activeHeroes, playerText, owner: owner).ConfigureAwait(false);
                 return;
             }
 
-            IsBusy = true;
-            BusyText = "Waiting for Bannerlord Reign...";
+            Func<bool> current = () => IsSocialTurnCurrent(owner);
+            if (!await ReignMainThread.InvokeAsync(() =>
+                {
+                    if (!current()) return false;
+                    IsBusy = true;
+                    BusyText = "Waiting for Bannerlord Reign...";
+                    return true;
+                }).ConfigureAwait(false)) return;
             Stopwatch timer = Stopwatch.StartNew();
             try
             {
                 foreach (Hero speaker in activeHeroes)
                 {
-                    ReignEventReply reply = await ReignServerClient.RequestSocialEventResponseAsync(_session, speaker, playerText, approachOpening);
-                    if (reply.Ok && !string.IsNullOrWhiteSpace(reply.Text))
+                    // Each approach dispatch is admitted only for the still-current owner.
+                    ReignEventReply reply = await ReignServerClient.RequestSocialEventResponseAsync(_session, speaker, playerText, approachOpening, current).ConfigureAwait(false);
+                    bool stillCurrent = await ReignMainThread.InvokeAsync(() =>
                     {
-                        AddChatLine(speaker.Name?.ToString() ?? "NPC", reply.Text.Trim(), "npc");
-                        _session.RecordTranscriptLine(speaker.Name?.ToString() ?? "NPC", reply.Text.Trim());
-                        if (!string.IsNullOrWhiteSpace(reply.TimingSummary))
+                        if (!current()) return false;
+                        string speakerName = speaker.Name?.ToString() ?? "NPC";
+                        bool hasStatus = reply.Ok && ReignServerClient.HasNativeStatus(reply.RawResponse);
+                        if (reply.Ok && (!string.IsNullOrWhiteSpace(reply.Text) || hasStatus))
                         {
-                            ReignLog.Info("Social event reply timing hero=" + speaker.StringId + " " + reply.TimingSummary + " clientMs=" + reply.ClientTotalMs);
+                            if (!string.IsNullOrWhiteSpace(reply.Text))
+                            {
+                                AddChatLine(speakerName, reply.Text.Trim(), "npc");
+                                _session.RecordTranscriptLine(speakerName, reply.Text.Trim());
+                            }
+                            AddNativeStatusLines(reply.RawResponse);
+                            if (!string.IsNullOrWhiteSpace(reply.TimingSummary))
+                            {
+                                ReignLog.Info("Social event reply timing hero=" + speaker.StringId + " " + reply.TimingSummary + " clientMs=" + reply.ClientTotalMs);
+                            }
                         }
-                    }
-                    else
-                    {
-                        AddSystemLine("Bannerlord Reign server failed for " + (speaker.Name?.ToString() ?? "NPC") + ": " + (reply.Error ?? "No response."));
-                    }
+                        else
+                        {
+                            AddSystemLine("Bannerlord Reign server failed for " + speakerName + ": " + (reply.Error ?? "No response."));
+                        }
+                        return true;
+                    }).ConfigureAwait(false);
+                    if (!stillCurrent) break;
                 }
             }
             finally
             {
                 timer.Stop();
-                BusyText = string.Empty;
-                IsBusy = false;
+                await ReignMainThread.InvokeAsync(() =>
+                {
+                    if (!current()) return;
+                    BusyText = string.Empty;
+                    IsBusy = false;
+                    RefreshAttendees();
+                }).ConfigureAwait(false);
                 ReignLog.Info("Social event reply batch clientMs=" + timer.ElapsedMilliseconds
                     + " activeHeroes=" + activeHeroes.Count
                     + " turn=" + (approachOpening ? "approach_opening" : "player_reply"));
-                RefreshAttendees();
             }
         }
 
-        private async Task<ReignSocialEventTurnReply> RequestGroupTurnAsync(List<Hero> activeHeroes, string playerText, string correlationId = "", Reign.Core.Contracts.Actions.ActionAgreement actionDraft = null)
+        private async Task<ReignSocialEventTurnReply> RequestGroupTurnAsync(List<Hero> activeHeroes, string playerText, string correlationId = "",
+            Reign.Core.Contracts.Actions.ActionAgreement actionDraft = null, SocialTurnOwner owner = null)
         {
-            if (_session.PersonalStory != null) return await RequestPersonalStoryAsync(playerText, correlationId, actionDraft).ConfigureAwait(false);
+            if (_session.PersonalStory != null) return await RequestPersonalStoryAsync(playerText, correlationId, actionDraft, owner).ConfigureAwait(false);
             if (_calibrationMode) return new ReignSocialEventTurnReply { Error = "Calibration does not send dialogue or award XP." };
-            IsBusy = true;
-            BusyText = "Waiting for Bannerlord Reign...";
+            Func<bool> current = () => IsSocialTurnCurrent(owner);
+            string xpPhaseKey = await ReignMainThread.InvokeAsync(() =>
+            {
+                if (!current()) return null;
+                IsBusy = true;
+                BusyText = "Waiting for Bannerlord Reign...";
+                return _session.XpPhaseKey;
+            }).ConfigureAwait(false);
+            if (xpPhaseKey == null) return new ReignSocialEventTurnReply { Error = "The social event closed." };
             ReignSocialEventTurnReply turn = null;
-            string xpPhaseKey = _session.XpPhaseKey;
             try
             {
-                ReignXpInteraction xp = await ReignServerClient.BeginXpInteractionAsync();
+                ReignXpInteraction xp = await ReignServerClient.BeginXpInteractionAsync().ConfigureAwait(false);
                 turn = await ReignServerClient.RequestSocialEventTurnAsync(
                     _session,
                     activeHeroes,
@@ -747,68 +824,81 @@ namespace ReignBeta.UI.ViewModels
                     string.IsNullOrWhiteSpace(correlationId) ? Guid.NewGuid().ToString("N") : correlationId,
                     reply =>
                     {
+                        // Invoked on the game thread after the client's owner check.
                         Hero speaker = ReignObjectResolver.FindHero(reply.HeroStringId);
-                        if (speaker != null && !string.IsNullOrWhiteSpace(reply.Text))
+                        if (speaker == null) return;
+                        if (!string.IsNullOrWhiteSpace(reply.Text))
                         {
                             string speakerName = speaker.Name?.ToString() ?? "NPC";
                             AddChatLine(speakerName, reply.Text.Trim(), "npc");
                             _session.RecordTranscriptLine(speakerName, reply.Text.Trim());
                         }
-                    }, actionDraft);
-            if (turn == null || !turn.Ok)
-            {
-                AddSystemLine("Bannerlord Reign could not complete the group conversation: " + (turn?.Error ?? "No response."));
-                return turn ?? new ReignSocialEventTurnReply { Error = "No response." };
-            }
+                        AddNativeStatusLines(reply.RawResponse);
+                    }, actionDraft, current).ConfigureAwait(false);
 
-            _session.ApplyTurnResolution(turn.AddressedHeroStringIds, turn.WanderedHeroStringIds, turn.NextIdleCounters);
-            bool newExchange = true;
-            await ReignMainThread.InvokeAsync(() =>
-            {
-                if (xp.Owner != null)
-                    newExchange = xp.Owner.RecordSocialExchange(xpPhaseKey, turn.TurnId,
-                        turn.ParticipantResults.Where(r => r.Ok && !string.IsNullOrWhiteSpace(r.Text)
-                            && !string.Equals(r.Participation, "silent", StringComparison.OrdinalIgnoreCase))
-                            .Select(r => ReignObjectResolver.FindHero(r.HeroStringId)), xp.Options);
-            });
-            if (!newExchange) return turn;
-            foreach (string heroId in turn.WanderedHeroStringIds)
-            {
-                Hero wandered = Hero.AllAliveHeroes.FirstOrDefault(x => x != null && string.Equals(x.StringId, heroId, StringComparison.OrdinalIgnoreCase));
-                AddSystemLine((wandered?.Name?.ToString() ?? "A participant") + " wanders away from the conversation.");
-            }
-
-            HashSet<string> joinedIds = new HashSet<string>(turn.JoinedHeroStringIds, StringComparer.OrdinalIgnoreCase);
-            List<Hero> joined = _session.ActivateApproachHeroes(_session.Record.GetAttendees().Where(x => x != null && joinedIds.Contains(x.StringId)));
-            if (joined.Count > 0)
-            {
-                AddSystemLine(string.Join(", ", joined.Select(x => x.Name?.ToString())) + (joined.Count == 1 ? " joins the conversation." : " join the conversation."));
-                RefreshAttendees();
-                await RequestRepliesAsync(joined, string.Empty, true);
-            }
-
-            bool advanceAutomatically = _session.RegisterCompletedExchange();
-            if (advanceAutomatically)
-            {
-                await ReignServerClient.FinishSocialEventPhaseAsync(_session);
-                if (_session.AdvancePhase())
+                // Resolution, XP, departures and joins share one owner-checked callback.
+                List<Hero> joined = await ReignMainThread.InvokeAsync(() =>
                 {
-                    AddSystemLine("The event naturally moves to the next phase: " + _session.CurrentPhase.Title + ".");
-                    RefreshFromSession();
-                    return turn;
-                }
-            }
+                    if (!current()) return null;
+                    if (turn == null || !turn.Ok)
+                    {
+                        AddSystemLine("Bannerlord Reign could not complete the group conversation: " + (turn?.Error ?? "No response."));
+                        return null;
+                    }
 
-            RefreshFromSession();
-            return turn;
+                    _session.ApplyTurnResolution(turn.AddressedHeroStringIds, turn.WanderedHeroStringIds, turn.NextIdleCounters);
+                    if (xp.Owner != null && !xp.Owner.RecordSocialExchange(xpPhaseKey, turn.TurnId,
+                            turn.ParticipantResults.Where(r => r.Ok && !string.IsNullOrWhiteSpace(r.Text)
+                                && !string.Equals(r.Participation, "silent", StringComparison.OrdinalIgnoreCase))
+                                .Select(r => ReignObjectResolver.FindHero(r.HeroStringId)), xp.Options))
+                        return null;
+                    foreach (string heroId in turn.WanderedHeroStringIds)
+                    {
+                        Hero wandered = Hero.AllAliveHeroes.FirstOrDefault(x => x != null && string.Equals(x.StringId, heroId, StringComparison.OrdinalIgnoreCase));
+                        AddSystemLine((wandered?.Name?.ToString() ?? "A participant") + " wanders away from the conversation.");
+                    }
+
+                    HashSet<string> joinedIds = new HashSet<string>(turn.JoinedHeroStringIds, StringComparer.OrdinalIgnoreCase);
+                    List<Hero> arrivals = _session.ActivateApproachHeroes(_session.Record.GetAttendees().Where(x => x != null && joinedIds.Contains(x.StringId)));
+                    if (arrivals.Count > 0)
+                    {
+                        AddSystemLine(string.Join(", ", arrivals.Select(x => x.Name?.ToString())) + (arrivals.Count == 1 ? " joins the conversation." : " join the conversation."));
+                        RefreshAttendees();
+                    }
+                    return arrivals;
+                }).ConfigureAwait(false);
+                if (joined == null) return turn ?? new ReignSocialEventTurnReply { Error = "No response." };
+                if (joined.Count > 0)
+                {
+                    await RequestRepliesAsync(joined, string.Empty, true, owner).ConfigureAwait(false);
+                }
+
+                bool? advanceAutomatically = await ReignMainThread.InvokeAsync(() =>
+                    current() ? _session.RegisterCompletedExchange() : (bool?)null).ConfigureAwait(false);
+                if (advanceAutomatically == null) return turn;
+                if (advanceAutomatically == true)
+                {
+                    await ReignServerClient.FinishSocialEventPhaseAsync(_session).ConfigureAwait(false);
+                }
+                await ReignMainThread.InvokeAsync(() =>
+                {
+                    if (!current()) return;
+                    if (advanceAutomatically == true && _session.AdvancePhase())
+                    {
+                        AddSystemLine("The event naturally moves to the next phase: " + _session.CurrentPhase.Title + ".");
+                    }
+                    RefreshFromSession();
+                }).ConfigureAwait(false);
+                return turn;
             }
             finally
             {
                 await ReignMainThread.InvokeAsync(() =>
                 {
+                    if (!current()) return;
                     BusyText = string.Empty;
                     IsBusy = false;
-                });
+                }).ConfigureAwait(false);
             }
         }
 
@@ -892,20 +982,34 @@ namespace ReignBeta.UI.ViewModels
             catch (Exception ex) { await ReignMainThread.InvokeAsync(() => AddSystemLine(ex.Message)).ConfigureAwait(false); }
             finally { await ReignMainThread.InvokeAsync(() => { IsBusy = false; BusyText = ""; }).ConfigureAwait(false); }
         }
-        private async Task<ReignSocialEventTurnReply> RequestPersonalStoryAsync(string text, string correlation, Reign.Core.Contracts.Actions.ActionAgreement action)
+        private async Task<ReignSocialEventTurnReply> RequestPersonalStoryAsync(string text, string correlation, Reign.Core.Contracts.Actions.ActionAgreement action,
+            SocialTurnOwner owner)
         {
-            IsBusy = true; BusyText = "Listening...";
+            Func<bool> ownerCurrent = () => IsSocialTurnCurrent(owner);
+            if (!await ReignMainThread.InvokeAsync(() =>
+                {
+                    if (!ownerCurrent()) return false;
+                    IsBusy = true; BusyText = "Listening...";
+                    return true;
+                }).ConfigureAwait(false))
+                return new ReignSocialEventTurnReply { Error = "The story scene closed." };
             try
             {
                 var reply = await ReignServerClient.RequestNpcStoryTurnAsync(_session, text,
-                    string.IsNullOrWhiteSpace(correlation) ? Guid.NewGuid().ToString("N") : correlation, action).ConfigureAwait(false);
+                    string.IsNullOrWhiteSpace(correlation) ? Guid.NewGuid().ToString("N") : correlation, action, ownerCurrent).ConfigureAwait(false);
                 await ReignMainThread.InvokeAsync(() => {
-                    if (_personalSceneClosed) return;
+                    if (!ownerCurrent()) return;
                     if (!reply.Ok) { AddSystemLine(reply.Error); return; }
                     foreach (var line in reply.ParticipantResults)
                     {
                         string name = ReignObjectResolver.FindHero(line.HeroStringId)?.Name?.ToString() ?? "Companion";
-                        AddChatLine(name, line.Text, "npc"); _session.RecordTranscriptLine(name, line.Text);
+                        // The exact story reply is projected unchanged; action receipts follow it
+                        // as separate system lines (an action-only reply shows only those).
+                        if (!string.IsNullOrWhiteSpace(line.Text) || !ReignServerClient.HasNativeStatus(line.RawResponse))
+                        {
+                            AddChatLine(name, line.Text, "npc"); _session.RecordTranscriptLine(name, line.Text);
+                        }
+                        AddNativeStatusLines(line.RawResponse);
                     }
                     var current = ReignBeta.Campaign.ReignNpcLivesBehavior.Instance?.State.Stories.FirstOrDefault(s => s.Id == _session.PersonalStory.Id);
                     if (current != null && current.Revision != _session.PersonalStory.Revision)
@@ -915,10 +1019,10 @@ namespace ReignBeta.UI.ViewModels
             }
             catch (Exception ex)
             {
-                await ReignMainThread.InvokeAsync(() => AddSystemLine(ex.Message)).ConfigureAwait(false);
+                await ReignMainThread.InvokeAsync(() => { if (ownerCurrent()) AddSystemLine(ex.Message); }).ConfigureAwait(false);
                 return new ReignSocialEventTurnReply { Error = ex.Message };
             }
-            finally { await ReignMainThread.InvokeAsync(() => { IsBusy = false; BusyText = ""; }).ConfigureAwait(false); }
+            finally { await ReignMainThread.InvokeAsync(() => { if (ownerCurrent()) { IsBusy = false; BusyText = ""; } }).ConfigureAwait(false); }
         }
 
         private string BuildWildernessImageCaption(string terrain)

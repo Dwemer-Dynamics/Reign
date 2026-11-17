@@ -33,6 +33,7 @@ namespace ReignBeta.UI.ViewModels
         private int _providerCallCount;
         private List<string> _lastRoles = new List<string>();
         private readonly bool _calibrationFixture;
+        private bool _closed;
 
         public ReignRoyalCouncilScreenVM(ReignCourtCampaignBehavior court, Action close)
             : this(court, close, false)
@@ -64,7 +65,7 @@ namespace ReignBeta.UI.ViewModels
         public bool AutomationCalibrationFixture => _calibrationFixture;
 
         public void ExecuteClose() => _close?.Invoke();
-        public override void OnFinalize() { ReignActionBuilder.CloseFor(this); _composer?.Dispose(); base.OnFinalize(); }
+        public override void OnFinalize() { _closed = true; ReignActionBuilder.CloseFor(this); _composer?.Dispose(); base.OnFinalize(); }
         public void ExecuteSend()
         {
             string text = InputText ?? string.Empty;
@@ -96,15 +97,21 @@ namespace ReignBeta.UI.ViewModels
 
         private async Task RequestOpeningBriefingsAsync()
         {
-            if (IsBusy) return;
+            if (IsBusy || _closed) return;
+            // Captured on the game thread (constructor or automation) before any await.
+            CouncilTurnOwner owner = new CouncilTurnOwner(ReignServerClient.RequestFence.Capture(), Hero.MainHero);
             IsBusy = true;
             StatusText = "Receiving the council's opening briefings...";
             foreach (string role in Roles)
             {
-                ReignRoyalCouncilSeatVM seat = Seat(role);
-                if (seat?.IsAvailable == true) await RequestAdvisorAsync(role, seat.Hero, string.Empty, true, false).ConfigureAwait(false);
+                // Sequential: each advisor is captured only after the prior reply was appended.
+                if (!await RequestAdvisorAsync(owner, role, string.Empty, true, false, onlyIfAvailable: true).ConfigureAwait(false)) break;
             }
-            await ReignMainThread.InvokeAsync(() => { IsBusy = false; StatusText = "The council awaits your question."; });
+            await ReignMainThread.InvokeAsync(() =>
+            {
+                if (!IsCouncilTurnCurrent(owner)) return;
+                IsBusy = false; StatusText = "The council awaits your question.";
+            });
         }
 
         private void PopulateCalibrationBriefings()
@@ -143,23 +150,67 @@ namespace ReignBeta.UI.ViewModels
                 return;
             }
             _lastRoles = routed;
-            foreach (string role in routed) await RequestAdvisorAsync(role, Seat(role).Hero, text, false, expand,
-                Seat(role).Hero.StringId == action?.NpcId ? action : null, contributionId).ConfigureAwait(false);
-            await ReignMainThread.InvokeAsync(() => { IsBusy = false; StatusText = "The council awaits your next question."; });
-        }
-
-        private async Task RequestAdvisorAsync(string role, Hero hero, string playerText, bool opening, bool expand, Reign.Core.Contracts.Actions.ActionAgreement action = null, string contributionId = "")
-        {
-            JArray record = new JArray(Transcript.Select(line => new JObject { ["speaker"] = line.Speaker, ["role"] = line.Role, ["text"] = line.Text }));
-            JArray present = new JArray(Roles.Select(Seat).Where(seat => seat?.IsAvailable == true).Select(seat => seat.Hero.StringId));
-            ReignCourtServerResponse response = await ReignCourtServerClient.RequestRoyalCouncilAdviceAsync(_sessionId,
-                "council_turn_" + Guid.NewGuid().ToString("N"), role, hero, playerText, opening, expand, BuildDomainPacket(role), record, present, action, contributionId).ConfigureAwait(false);
-            _providerCallCount += Math.Max(0, response.Raw.Value<int?>("providerCallCount") ?? 0);
+            // Captured here, on the game thread where the send was accepted.
+            CouncilTurnOwner owner = new CouncilTurnOwner(ReignServerClient.RequestFence.Capture(), Hero.MainHero);
+            foreach (string role in routed)
+                if (!await RequestAdvisorAsync(owner, role, text, false, expand, action: action, contributionId: contributionId).ConfigureAwait(false)) break;
             await ReignMainThread.InvokeAsync(() =>
             {
-                if (!response.Ok) Transcript.Add(new ReignChatLineVM("Council Clerk", Seat(role).Title + " could not report: " + response.Error, "system"));
-                else Transcript.Add(new ReignChatLineVM(hero?.Name?.ToString() ?? Seat(role).Title, response.Raw.Value<string>("reply") ?? "Nothing material to report.", "npc"));
+                if (!IsCouncilTurnCurrent(owner)) return;
+                IsBusy = false; StatusText = "The council awaits your next question.";
             });
+        }
+
+        // Game thread only. A closed council, a changed load or a changed player owns no
+        // later advisor dispatch, structured action or presentation.
+        private sealed class CouncilTurnOwner
+        {
+            internal CouncilTurnOwner(ReignServerClient.RequestFence fence, Hero player) { Fence = fence; Player = player; }
+            internal ReignServerClient.RequestFence Fence { get; }
+            internal Hero Player { get; }
+        }
+
+        private bool IsCouncilTurnCurrent(CouncilTurnOwner owner) => owner != null && !_closed
+            && owner.Fence.IsCurrent() && ReferenceEquals(owner.Player, Hero.MainHero);
+
+        // Returns false once the owner is stale, which stops the remaining advisors.
+        private async Task<bool> RequestAdvisorAsync(CouncilTurnOwner owner, string role, string playerText, bool opening, bool expand,
+            bool onlyIfAvailable = false, Reign.Core.Contracts.Actions.ActionAgreement action = null, string contributionId = "")
+        {
+            Func<bool> current = () => IsCouncilTurnCurrent(owner);
+            Hero hero = null;
+            bool skipped = false;
+            // One game-thread capture per advisor, after the prior advisor's reply was
+            // appended: transcript, domain packet, base payload and action completion.
+            ReignCourtServerClient.RoyalCouncilAdviceRequest request = await ReignMainThread.InvokeAsync(() =>
+            {
+                if (!current()) return null;
+                ReignRoyalCouncilSeatVM seat = Seat(role);
+                if (onlyIfAvailable && seat?.IsAvailable != true) { skipped = true; return null; }
+                hero = seat.Hero;
+                JArray record = new JArray(Transcript.Select(line => new JObject { ["speaker"] = line.Speaker, ["role"] = line.Role, ["text"] = line.Text }));
+                JArray present = new JArray(Roles.Select(Seat).Where(s => s?.IsAvailable == true).Select(s => s.Hero.StringId));
+                return ReignCourtServerClient.CaptureRoyalCouncilAdvice(_sessionId, "council_turn_" + Guid.NewGuid().ToString("N"), role, hero,
+                    playerText, opening, expand, BuildDomainPacket(role), record, present, hero.StringId == action?.NpcId ? action : null, contributionId);
+            }).ConfigureAwait(false);
+            if (skipped) return true;
+            if (request == null) return false;
+            ReignCourtServerResponse response = await ReignCourtServerClient.SendRoyalCouncilAdviceAsync(request, current).ConfigureAwait(false);
+            return await ReignMainThread.InvokeAsync(() =>
+            {
+                // Automation provider accounting counts every completed request, as before.
+                JObject counted = response.Raw["acceptedResponse"] as JObject ?? response.Raw;
+                _providerCallCount += Math.Max(0, counted.Value<int?>("providerCallCount") ?? 0);
+                if (!current()) return false;
+                if (!response.Ok) Transcript.Add(new ReignChatLineVM("Council Clerk", Seat(role).Title + " could not report: " + response.Error, "system"));
+                else
+                {
+                    Transcript.Add(new ReignChatLineVM(hero?.Name?.ToString() ?? Seat(role).Title, response.Raw.Value<string>("reply") ?? "Nothing material to report.", "npc"));
+                    foreach (string statusLine in ReignServerClient.NativeStatusLines(response.Raw))
+                        Transcript.Add(new ReignChatLineVM("Council Clerk", statusLine, "system"));
+                }
+                return true;
+            }).ConfigureAwait(false);
         }
 
         private JObject BuildDomainPacket(string role)

@@ -71,7 +71,10 @@ namespace ReignBeta.Campaign
             if (_takingOver) { Request("handoff", Capture(roster: true)); return; }
             if (Active && visible)
             {
-                if (_real >= _nextDelivery && (_episode.Value<int?>("draftCount") ?? 0) > (_episode.Value<int?>("accepted") ?? 0))
+                // An accept commits a canonical party line, so it is selected only while the
+                // mounted panel is expanded and readable on the current map screen.
+                if (_real >= _nextDelivery && (_episode.Value<int?>("draftCount") ?? 0) > (_episode.Value<int?>("accepted") ?? 0)
+                    && ReignBanterPanel.IsReadable)
                 { var payload = Capture(roster: true); payload["sequence"] = (_episode.Value<int?>("accepted") ?? 0) + 1; Request("accept", payload); return; }
                 if (_episode.Value<bool?>("generationDone") == true && (_episode.Value<int?>("accepted") ?? 0) >= (_episode.Value<int?>("draftCount") ?? 0) && _real >= _nextDelivery)
                 { Finish("complete"); return; }
@@ -109,13 +112,23 @@ namespace ReignBeta.Campaign
         {
             if (_busy) return; _busy = true;
             NativeCampaign owner = NativeCampaign.Current; int epoch = _epoch;
+            bool unreadable = false;
             _ = RunAsync();
             async Task RunAsync()
             {
                 try
                 {
+                    // The existing game-thread owner predicate is rechecked before transport
+                    // dispatch; an accept also requires the panel to remain readable there.
+                    // Accept responses carry no relationship effects before the episode finishes.
                     JObject result = await ReignServerClient.BanterRequestAsync(operation, payload,
-                        () => ReignMainThread.InvokeAsync(() => Current(owner, epoch))).ConfigureAwait(false);
+                        () => ReignMainThread.InvokeAsync(() =>
+                        {
+                            if (!Current(owner, epoch)) return false;
+                            if (operation != "accept" || MapVisible() && ReignBanterPanel.IsReadable) return true;
+                            unreadable = true;
+                            return false;
+                        })).ConfigureAwait(false);
                     await ReignMainThread.InvokeAsync(() => {
                         if (!Current(owner, epoch)) return;
                         if (result?.Value<bool?>("ok") != true)
@@ -139,6 +152,12 @@ namespace ReignBeta.Campaign
                             ReignBanterPanel.Close(); ReignPartyChatScreenManager.OpenBanter(result);
                         }
                     }).ConfigureAwait(false);
+                }
+                catch (OperationCanceledException) when (unreadable)
+                {
+                    // Ordinary abandonment: the panel stopped being readable before dispatch.
+                    // No transport-failure backoff; the accept is selected again when readable.
+                    ReignLog.Info("Party banter accept deferred until the panel is readable.");
                 }
                 catch (Exception ex)
                 {
