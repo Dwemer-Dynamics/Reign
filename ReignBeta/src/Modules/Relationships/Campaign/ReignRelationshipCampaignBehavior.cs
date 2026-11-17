@@ -233,6 +233,28 @@ namespace ReignBeta.Campaign
             }
         }
 
+        // Game thread, read-only. What the persisted journal (never the replay cache, which a
+        // save or load discards) proves about one native effect identity: absent, complete,
+        // incomplete or mismatch, or unreadable (any entry fails to parse) or unpersisted (the
+        // cache recorded an attempt whose persisted entry failed, after the native call).
+        internal string ClassifyConversationRelation(string receiptId, string subjectId, string targetId, int? delta)
+        {
+            List<NativeRelationEffectReceipt> persisted;
+            try
+            {
+                persisted = _nativeConversationEffectJournal.Select(value => JObject.Parse(value).ToObject<NativeRelationEffectReceipt>()).ToList();
+            }
+            catch (Exception) { return "unreadable"; }
+            if (persisted.Any(entry => entry == null || entry.ReceiptIds == null)) return "unreadable";
+            var ids = new[] { receiptId };
+            NativeRelationEffectClass result = NativeRelationEffectLedger.Classify(persisted, ids, subjectId, targetId, delta);
+            if (result == NativeRelationEffectClass.Absent && _nativeConversationEffectCache != null
+                && NativeRelationEffectLedger.Classify(_nativeConversationEffectCache, ids, subjectId, targetId, null) != NativeRelationEffectClass.Absent)
+                return "unpersisted";
+            return result == NativeRelationEffectClass.Absent ? "absent" : result == NativeRelationEffectClass.Complete ? "complete"
+                : result == NativeRelationEffectClass.Incomplete ? "incomplete" : "mismatch";
+        }
+
         internal JObject ApplyConversationRelationOnce(IEnumerable<string> receiptIds, Hero subject, Hero target, int delta, bool show)
         {
             if (subject == null || target == null || subject == target)
