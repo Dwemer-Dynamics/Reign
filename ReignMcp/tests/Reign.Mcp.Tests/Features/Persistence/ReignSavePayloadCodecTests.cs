@@ -123,8 +123,8 @@ public sealed class ReignSavePayloadCodecTests
         }
         var payload = new string(characters);
 
-        Type? codecType = typeof(ReignSavePayloadCodecTests).Assembly.GetType(
-            "ReignBeta.Save.ReignSavePayloadCodec");
+        Type? codecType = Type.GetType(
+            "ReignBeta.Save.ReignSavePayloadCodec, ReignBeta.Core");
         Assert.NotNull(codecType);
 
         MethodInfo? encode = codecType.GetMethod(
