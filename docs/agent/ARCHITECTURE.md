@@ -29,22 +29,27 @@ flowchart LR
     MCP -- "builds, validates" --> RS
 ```
 
-- `ReignBeta/ReignBeta.csproj` compiles every `ReignBeta/src/Modules/**/*.cs` file except ArenaOverhaul (its own project) and
-  links `ReignServer/shared/Reign.Shared.Source/**` plus a few server-owned shared files. `ExcludeCourt=true` compiles
-  Court and Spymaster out and defines `REIGN_EXCLUDE_COURT`.
+- `ReignBeta/ReignBeta.csproj` is SDK-style: it compiles every `ReignBeta/**/*.cs` file except ArenaOverhaul (its own
+  project, built to `ArenaOverhaul.1.4.6.dll`) and the deployment-only `server/` and `staging/` trees. It references the
+  `Reign.Core.Contracts` project and links `ReignServer/shared/Reign.Shared.Source/**` plus a few other server-owned
+  shared files. `ExcludeCourt=true` compiles Court and Spymaster out and defines `REIGN_EXCLUDE_COURT`.
 - `Reign.Core.Contracts` and everything under `ReignServer/shared` belong to the server repository. The client consumes a
   contract change only after the server change has merged.
 - `ReignMcp` holds the canonical validator. Never build or test directly; see `docs/agent/VALIDATION.md`.
-  `ReignMcp/tests/Reign.Mcp.Tests` links about 58 client source files and runs the client-side xUnit tests.
+  `ReignMcp/tests/Reign.Mcp.Tests` links about 53 game-free client source files (plus a few server files) and runs the
+  client-side xUnit tests.
 
 ## Client composition
 
-`ReignBeta/src/Modules/Platform/SubModule.cs` is the single entry point. It:
+`ReignBeta/SubModule.xml` loads two submodules: `ReignBeta.SubModule` (`ReignBeta.dll`) and `ArenaOverhaul.SubModule`
+(`ArenaOverhaul.1.4.6.dll`).
 
-1. applies the Harmony patches and the UIExtenderEx prefabs;
-2. registers every campaign behaviour with `campaignStarter.AddBehavior(...)`, which is the only place behaviours are
-   created;
-3. registers save types through `Persistence/Save/ReignBetaSaveDefiner.cs` (and `ArenaOverhaulSaveableTypeDefiner`).
+`ReignBeta/src/Modules/Platform/SubModule.cs` is the Reign entry point. It applies the Harmony patches and the
+UIExtenderEx prefabs, and registers every Reign campaign behaviour with `campaignStarter.AddBehavior(...)`. ArenaOverhaul
+registers its own `AOArenaBehavior` in `Arena/ArenaOverhaul/SubModule.cs`.
+
+Bannerlord discovers save definitions by reflection: `Persistence/Save/ReignBetaSaveDefiner.cs` for Reign, and
+`ArenaOverhaulSaveableTypeDefiner` inside the ArenaOverhaul DLL. Nothing registers them explicitly.
 
 Cross-cutting services in `Platform/Integration`:
 

@@ -2,7 +2,7 @@
 
 Castle court life. Courts and court life, nobles and visitors, ruler/noble/international dockets, patronage, capital ambassadors, family chambers, the training yard and the war council.
 
-> Generated from the source tree on 2026-11-17 and checked by hand. `reign.modules.json` stays authoritative for ownership and validation routing; `docs/agent/ARCHITECTURE.md` describes the target structure.
+> Generated from the source tree on 2026-11-17 and checked by hand. `reign.modules.json` stays authoritative for ownership and validation routing; `docs/agent/ARCHITECTURE.md` describes the current structure and its direction.
 
 ## Layout
 
@@ -29,8 +29,8 @@ Namespaces in use: `ReignBeta.Court (35)`, `ReignBeta.UI (18)`, `ReignBeta.UI.Vi
 
 Other client modules whose types this module references, most-used first: Platform (68), WorldSimulation (65), Dialogue (40), Characters (36), Portraits (23), UI (18), Rebellion (14), Arena (8), Government (7), Persistence (7), Diplomacy (6), Spymaster (5), Relationships (5).
 
-Counts are distinct type names referenced per file, summed; they show coupling, not a layering rule.
+Counts are approximate: distinct type names referenced per file, matched by name and summed. They show coupling, not a layering rule.
 
 ## In-game test harness shipped in this module
 
-These files belong to the test harness and are compiled into the mod today (see restructuring step C9): `Campaign/ReignCapitalAmbassadorInGameTests.cs`, `Campaign/ReignCourtLifeCaptiveFixture.cs`, `Campaign/ReignCourtLifeFamilyFixture.cs`, `Campaign/ReignCourtLifeInGameTests.cs`, `Campaign/ReignLiveInteractionCapitalAmbassadorHost.cs`, `Campaign/ReignLiveInteractionCourtHost.cs`, `Campaign/ReignLiveInteractionCourtLifeHost.cs`, `Campaign/ReignLiveInteractionRoyalCouncilHost.cs`, `Campaign/ReignLiveInteractionRulerDocketHost.cs`, `Campaign/ReignNobleDocketInGameTests.cs`, `Campaign/ReignRoyalCouncilInGameTests.cs`, `Campaign/ReignRulerDocketInGameTests.cs`, `Campaign/ReignRulerDocketLaunchTests.cs`.
+These files belong to the test harness and are compiled into the mod today (ARCHITECTURE.md, restructuring direction step 3 moves them out of the product): `Campaign/ReignCapitalAmbassadorInGameTests.cs`, `Campaign/ReignCourtLifeCaptiveFixture.cs`, `Campaign/ReignCourtLifeFamilyFixture.cs`, `Campaign/ReignCourtLifeInGameTests.cs`, `Campaign/ReignLiveInteractionCapitalAmbassadorHost.cs`, `Campaign/ReignLiveInteractionCourtHost.cs`, `Campaign/ReignLiveInteractionCourtLifeHost.cs`, `Campaign/ReignLiveInteractionRoyalCouncilHost.cs`, `Campaign/ReignLiveInteractionRulerDocketHost.cs`, `Campaign/ReignNobleDocketInGameTests.cs`, `Campaign/ReignRoyalCouncilInGameTests.cs`, `Campaign/ReignRulerDocketInGameTests.cs`, `Campaign/ReignRulerDocketLaunchTests.cs`.

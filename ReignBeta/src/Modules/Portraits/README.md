@@ -2,7 +2,7 @@
 
 Portraits. AI portrait generation and caching (`AIPortraits`), native portrait patches and portrait widgets.
 
-> Generated from the source tree on 2026-11-17 and checked by hand. `reign.modules.json` stays authoritative for ownership and validation routing; `docs/agent/ARCHITECTURE.md` describes the target structure.
+> Generated from the source tree on 2026-11-17 and checked by hand. `reign.modules.json` stays authoritative for ownership and validation routing; `docs/agent/ARCHITECTURE.md` describes the current structure and its direction.
 
 ## Layout
 
@@ -24,4 +24,4 @@ Namespaces in use: `AIPortraits (33)`, `ReignBeta.Integration (5)`, `ReignBeta.U
 
 Other client modules whose types this module references, most-used first: Platform (30), Characters (18), Arena (12), Dialogue (3), WorldSimulation (2), UI (1), Rebellion (1).
 
-Counts are distinct type names referenced per file, summed; they show coupling, not a layering rule.
+Counts are approximate: distinct type names referenced per file, matched by name and summed. They show coupling, not a layering rule.

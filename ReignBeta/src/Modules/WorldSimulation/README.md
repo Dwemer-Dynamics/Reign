@@ -2,7 +2,7 @@
 
 World simulation. World actions and the action gauntlet, arrests, campaign commands, combat, economy, news, party agency, rulers and world history.
 
-> Generated from the source tree on 2026-11-17 and checked by hand. `reign.modules.json` stays authoritative for ownership and validation routing; `docs/agent/ARCHITECTURE.md` describes the target structure.
+> Generated from the source tree on 2026-11-17 and checked by hand. `reign.modules.json` stays authoritative for ownership and validation routing; `docs/agent/ARCHITECTURE.md` describes the current structure and its direction.
 
 ## Layout
 
@@ -38,8 +38,8 @@ Namespaces in use: `ReignBeta.World (30)`, `ReignBeta.Campaign (28)`, `ReignBeta
 
 Other client modules whose types this module references, most-used first: Platform (95), Characters (83), Diplomacy (42), Dialogue (42), Court (36), Rebellion (24), Government (18), Persistence (17), Arena (15), Relationships (13), Portraits (10), Spymaster (6), KingdomEvents (5), Reputation (4), UI (3).
 
-Counts are distinct type names referenced per file, summed; they show coupling, not a layering rule.
+Counts are approximate: distinct type names referenced per file, matched by name and summed. They show coupling, not a layering rule.
 
 ## In-game test harness shipped in this module
 
-These files belong to the test harness and are compiled into the mod today (see restructuring step C9): `Campaign/ReignActionGauntlet.cs`, `Campaign/ReignLiveInteractionCampaignCommandHost.cs`, `Campaign/ReignLiveInteractionGauntletFixtures.cs`, `Campaign/ReignLiveInteractionNativeUiCalibrationHost.cs`, `Campaign/ReignLiveInteractionPartyAgencyFixtures.cs`, `Campaign/ReignLiveInteractionPassiveWorldHost.cs`, `Campaign/ReignLiveInteractionPersonalGossipHost.cs`, `Campaign/ReignLiveInteractionStructuredActionHost.cs`, `Campaign/ReignLiveInteractionTestHost.cs`, `Campaign/ReignLiveInteractionUiCalibrationHost.cs`, `Rulers/ReignRulerFixtures.cs`, `Rulers/ReignRulerPrisonerFixtures.cs`.
+These files belong to the test harness and are compiled into the mod today (ARCHITECTURE.md, restructuring direction step 3 moves them out of the product): `Arrests/ReignArrestTestHost.cs`, `Campaign/ReignActionGauntlet.cs`, `Campaign/ReignLiveInteractionCampaignCommandHost.cs`, `Campaign/ReignLiveInteractionGauntletFixtures.cs`, `Campaign/ReignLiveInteractionNativeUiCalibrationHost.cs`, `Campaign/ReignLiveInteractionPartyAgencyFixtures.cs`, `Campaign/ReignLiveInteractionPassiveWorldHost.cs`, `Campaign/ReignLiveInteractionPersonalGossipHost.cs`, `Campaign/ReignLiveInteractionStructuredActionHost.cs`, `Campaign/ReignLiveInteractionTestHost.cs`, `Campaign/ReignLiveInteractionUiCalibrationHost.cs`, `Economy/ReignNpcCaravanTestHost.cs`, `Economy/ReignRaidFoodTestHost.cs`, `Economy/ReignWarEconomyNavalTestHost.cs`, `Economy/ReignWarEconomyTestHost.cs`, `Integration/ReignWorldTestClient.cs`, `Rulers/ReignRulerFixtures.cs`, `Rulers/ReignRulerPrisonerFixtures.cs`.

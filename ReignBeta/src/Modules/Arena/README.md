@@ -2,7 +2,7 @@
 
 Arena and tournaments. The vendored ArenaOverhaul sub-project (its own `ArenaOverhaul.csproj`, referenced by `ReignBeta.csproj`) plus Reign's tournament integration.
 
-> Generated from the source tree on 2026-11-17 and checked by hand. `reign.modules.json` stays authoritative for ownership and validation routing; `docs/agent/ARCHITECTURE.md` describes the target structure.
+> Generated from the source tree on 2026-11-17 and checked by hand. `reign.modules.json` stays authoritative for ownership and validation routing; `docs/agent/ARCHITECTURE.md` describes the current structure and its direction.
 
 ## Layout
 

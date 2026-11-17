@@ -2,7 +2,7 @@
 
 Save integration. The Bannerlord `SaveableTypeDefiner` (`Save/ReignBetaSaveDefiner.cs`) and Save Sync with the server (`ReignSaveSyncCampaignBehavior`, `ReignSaveSyncCoordinator`).
 
-> Generated from the source tree on 2026-11-17 and checked by hand. `reign.modules.json` stays authoritative for ownership and validation routing; `docs/agent/ARCHITECTURE.md` describes the target structure.
+> Generated from the source tree on 2026-11-17 and checked by hand. `reign.modules.json` stays authoritative for ownership and validation routing; `docs/agent/ARCHITECTURE.md` describes the current structure and its direction.
 
 ## Layout
 
@@ -23,4 +23,4 @@ Namespaces in use: `ReignBeta.Integration (2)`, `ReignBeta.Save (2)`, `ReignBeta
 
 Other client modules whose types this module references, most-used first: Court (17), WorldSimulation (10), Platform (8), Government (7), Characters (6), Rebellion (6), Diplomacy (3), KingdomEvents (2).
 
-Counts are distinct type names referenced per file, summed; they show coupling, not a layering rule.
+Counts are approximate: distinct type names referenced per file, matched by name and summed. They show coupling, not a layering rule.
