@@ -13,6 +13,13 @@ namespace ReignBeta.Integration
         private static string _successfulBaseUrl;
         private static DateTime _unavailableUntilUtc;
         private static bool _halfOpenProbeRunning;
+        // Identifies the one half-open recovery probe. Zero is an anonymous
+        // claim taken through the legacy entry point (court and similar callers),
+        // which legacy and live reports continue to release exactly as before.
+        // Reachability (any HTTP response resets it) is a global signal; claim
+        // ownership is released only by the matching identified operation.
+        private static long _halfOpenProbeClaim;
+        private static long _nextProbeClaim;
         private static int _consecutiveFailures;
 
         internal static string BuildUrl(string route)
@@ -35,8 +42,22 @@ namespace ReignBeta.Integration
 
         internal static bool TryBeginRequest(out string error)
         {
+            return TryBeginRequest(out error, out _, false);
+        }
+
+        // An identified caller receives a nonzero claim only when it became the
+        // half-open recovery probe. It reports through the claim overloads below
+        // and calls ReleaseRequest(claim) unconditionally in finally.
+        internal static bool TryBeginRequest(out string error, out long probeClaim)
+        {
+            return TryBeginRequest(out error, out probeClaim, true);
+        }
+
+        private static bool TryBeginRequest(out string error, out long probeClaim, bool identified)
+        {
             lock (Gate)
             {
+                probeClaim = 0;
                 DateTime now = DateTime.UtcNow;
                 if (_unavailableUntilUtc <= now)
                 {
@@ -48,6 +69,8 @@ namespace ReignBeta.Integration
                             return false;
                         }
                         _halfOpenProbeRunning = true;
+                        _halfOpenProbeClaim = identified ? ++_nextProbeClaim : 0;
+                        probeClaim = _halfOpenProbeClaim;
                     }
 
                     error = string.Empty;
@@ -60,27 +83,75 @@ namespace ReignBeta.Integration
             }
         }
 
+        // Legacy and explicit live reachability success: resets the breaker and
+        // releases an anonymous legacy claim, never an identified probe that
+        // another operation still owns.
         internal static void ReportSuccess(string baseUrl)
+        {
+            ReportSuccess(baseUrl, 0);
+        }
+
+        // Any response resets global reachability. The claim is released only
+        // when it is this operation's own current claim (zero: anonymous only),
+        // so a superseded or older completion never mutates a newer claim.
+        internal static void ReportSuccess(string baseUrl, long probeClaim)
         {
             lock (Gate)
             {
                 _successfulBaseUrl = NormalizeBaseUrl(baseUrl);
                 _unavailableUntilUtc = DateTime.MinValue;
-                _halfOpenProbeRunning = false;
                 _consecutiveFailures = 0;
+                if (probeClaim == _halfOpenProbeClaim) ClearProbeClaim();
             }
         }
 
+        // Legacy global report (court, Save Sync). It still applies the usual
+        // backoff, but it can release only an anonymous legacy claim, never an
+        // identified probe that another operation still owns.
         internal static void ReportTransportFailure()
         {
             lock (Gate)
             {
-                _consecutiveFailures = Math.Min(8, _consecutiveFailures + 1);
-                int delaySeconds = Math.Min(60, 5 * (1 << Math.Min(3, _consecutiveFailures - 1)));
-                _unavailableUntilUtc = DateTime.UtcNow.AddSeconds(delaySeconds);
-                _halfOpenProbeRunning = false;
-                _successfulBaseUrl = null;
+                ApplyTransportFailurePenalty();
+                if (_halfOpenProbeClaim == 0) _halfOpenProbeRunning = false;
             }
+        }
+
+        // Identified transport failure (timeouts included): global backoff, and
+        // release of this operation's own claim only.
+        internal static void ReportTransportFailure(long probeClaim)
+        {
+            lock (Gate)
+            {
+                ApplyTransportFailurePenalty();
+                if (probeClaim != 0 && probeClaim == _halfOpenProbeClaim) ClearProbeClaim();
+            }
+        }
+
+        // Unconditional finally release for identified operations: abandonment,
+        // cancellation, a non-transport exception or an already-settled claim.
+        // No penalty; idempotent; an older completion cannot clear a newer probe.
+        internal static void ReleaseRequest(long probeClaim)
+        {
+            if (probeClaim == 0) return;
+            lock (Gate)
+            {
+                if (probeClaim == _halfOpenProbeClaim) ClearProbeClaim();
+            }
+        }
+
+        private static void ApplyTransportFailurePenalty()
+        {
+            _consecutiveFailures = Math.Min(8, _consecutiveFailures + 1);
+            int delaySeconds = Math.Min(60, 5 * (1 << Math.Min(3, _consecutiveFailures - 1)));
+            _unavailableUntilUtc = DateTime.UtcNow.AddSeconds(delaySeconds);
+            _successfulBaseUrl = null;
+        }
+
+        private static void ClearProbeClaim()
+        {
+            _halfOpenProbeRunning = false;
+            _halfOpenProbeClaim = 0;
         }
 
         internal static bool IsTransportFailure(Exception exception)

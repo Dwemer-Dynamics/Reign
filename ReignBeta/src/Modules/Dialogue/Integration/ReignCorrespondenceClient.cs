@@ -565,7 +565,8 @@ namespace ReignBeta.Integration
             string mode,
             IEnumerable<Hero> conversationHeroes,
             IEnumerable<JObject> resultRows,
-            string correlationId = "")
+            string correlationId = "",
+            Func<bool> requestOwner = null)
         {
             JObject empty = new JObject { ["ok"] = true, ["skipped"] = true, ["reason"] = "Conversation relationship changes are disabled or no assessments were supplied." };
             List<Hero> heroes = null;
@@ -573,11 +574,13 @@ namespace ReignBeta.Integration
             TaleWorlds.CampaignSystem.Campaign relationCampaign = null;
             ReignBeta.Campaign.ReignRelationshipCampaignBehavior relationBehavior = null;
             string relationTimeline = "";
+            Dictionary<string, Hero> heroById = null;
             // Provider completion resumes on a worker thread. Capture the whole
             // native input together before political sync can replace its lists.
             await ReignMainThread.InvokeAsync(() =>
             {
-                if (ReignBetaSettings.Instance?.EventRelationshipChangesEnabled == false || Hero.MainHero == null)
+                if (ReignBetaSettings.Instance?.EventRelationshipChangesEnabled == false || Hero.MainHero == null
+                    || !RequestOwnerCurrent(requestOwner))
                     return;
 
                 heroes = (conversationHeroes ?? Enumerable.Empty<Hero>())
@@ -586,6 +589,9 @@ namespace ReignBeta.Integration
                     .GroupBy(x => x.StringId, StringComparer.OrdinalIgnoreCase)
                     .Select(x => x.First())
                     .ToList();
+                // Captured ID mapping: the post-await receipt loop below resolves
+                // heroes by these IDs without reading native Hero state off thread.
+                heroById = heroes.ToDictionary(x => x.StringId, x => x, StringComparer.OrdinalIgnoreCase);
                 List<JObject> completedResults = (resultRows ?? Enumerable.Empty<JObject>())
                     .Where(x => x != null && x.Value<bool?>("ok") != false)
                     .ToList();
@@ -668,26 +674,48 @@ namespace ReignBeta.Integration
                     + " participants=" + heroes.Count);
             }).ConfigureAwait(false);
             if (payload == null) return empty;
-            JObject response = await PostJsonAsync("/relationships/conversation/evaluate", payload).ConfigureAwait(false);
+            JObject response;
+            try
+            {
+                response = requestOwner == null
+                    ? await PostJsonAsync("/relationships/conversation/evaluate", payload).ConfigureAwait(false)
+                    : await PostOwnedJsonAsync("/relationships/conversation/evaluate", payload, requestOwner).ConfigureAwait(false);
+            }
+            catch (RequestOwnerAbandonedException)
+            {
+                // Abandoned before dispatch: no evaluation was sent by this call,
+                // so no native change or receipt acknowledgement is owed for it.
+                return empty;
+            }
             if (response.Value<bool?>("ok") != true) return response;
             foreach (JObject change in (response["nativeChanges"] as JArray ?? new JArray()).OfType<JObject>())
             {
-                Hero subject = heroes.FirstOrDefault(x => string.Equals(x.StringId, change.Value<string>("subjectId"), StringComparison.OrdinalIgnoreCase));
-                Hero target = heroes.FirstOrDefault(x => string.Equals(x.StringId, change.Value<string>("targetId"), StringComparison.OrdinalIgnoreCase));
+                heroById.TryGetValue(change.Value<string>("subjectId") ?? string.Empty, out Hero subject);
+                heroById.TryGetValue(change.Value<string>("targetId") ?? string.Empty, out Hero target);
                 int delta = change.Value<int?>("delta") ?? 0;
                 bool show = change.Value<bool?>("showNotification") == true;
                 if (subject != null && target != null && subject != target)
                 {
                     JArray receiptIds = change["receiptIds"] as JArray ?? new JArray();
                     JObject nativeReceipt = null;
+                    bool ownerCurrent = true;
                     await ReignMainThread.InvokeAsync(() =>
                     {
+                        // A stale local owner applies nothing further. Receipts for
+                        // changes already applied above were acknowledged in their
+                        // own iteration and are unaffected.
+                        if (!RequestOwnerCurrent(requestOwner)) { ownerCurrent = false; return; }
                         if (relationBehavior == null || !ReferenceEquals(relationBehavior, ReignBeta.Campaign.ReignRelationshipCampaignBehavior.Instance)
                             || !ReferenceEquals(relationCampaign, TaleWorlds.CampaignSystem.Campaign.Current)
                             || relationTimeline != (ReignBeta.Campaign.ReignWorldHistoryCampaignBehavior.Instance?.TimelineId ?? "main"))
                             throw new InvalidOperationException("The campaign changed before the relationship effect could be applied.");
                         nativeReceipt = relationBehavior.ApplyConversationRelationOnce(receiptIds.Values<string>(), subject, target, delta, show);
                     }).ConfigureAwait(false);
+                    if (!ownerCurrent)
+                    {
+                        ReignLog.Info("Conversation relationship effects deferred: the local owner closed correlation=" + correlationId);
+                        break;
+                    }
                     JObject acknowledgement = await PostJsonAsync("/relationships/conversation/native-receipt", new JObject
                     {
                         ["campaignId"] = payload.Value<string>("campaignId"),

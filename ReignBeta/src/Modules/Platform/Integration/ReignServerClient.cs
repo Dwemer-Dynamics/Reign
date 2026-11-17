@@ -291,66 +291,92 @@ namespace ReignBeta.Integration
                     return;
                 }
 
-                JObject payload = new JObject
+                // Reports also originate from workers (outbox expiry, debug
+                // harnesses). Capture the native payload, hero profiles and the
+                // current load fence together on the Bannerlord thread; this runs
+                // inline, exactly as before, for callers already on that thread.
+                RequestFence fence = null;
+                JObject payload = await ReignMainThread.InvokeAsync(() =>
                 {
-                    ["campaignId"] = GetCampaignId(),
-                    ["serverActionId"] = action.ActionId ?? string.Empty,
-                    ["timelineId"] = ReignWorldHistoryCampaignBehavior.Instance?.TimelineId ?? "main",
-                    ["playerHeroStringId"] = Hero.MainHero?.StringId ?? string.Empty,
-                    ["sharedActivityGeneration"] = ReignWorldHistoryCampaignBehavior.Instance?.SharedActivityGeneration ?? string.Empty,
-                    ["actionId"] = action.ActionId ?? string.Empty,
-                    ["status"] = status ?? "reported",
-                    ["type"] = action.Type.ToString(),
-                    ["message"] = message ?? string.Empty,
-                    ["attemptCount"] = action.AttemptCount,
-                    ["maxAttempts"] = action.MaxAttempts,
-                    ["statusValue"] = action.StatusValue,
-                    ["source"] = action.Source ?? string.Empty,
-                    ["actorHeroStringId"] = action.ActorHeroStringId ?? string.Empty,
-                    ["actorKingdomStringId"] = action.ActorKingdomStringId ?? string.Empty,
-                    ["actorClanStringId"] = action.ActorClanStringId ?? string.Empty,
-                    ["targetHeroStringId"] = action.TargetHeroStringId ?? string.Empty,
-                    ["targetKingdomStringId"] = action.TargetKingdomStringId ?? string.Empty,
-                    ["targetClanStringId"] = action.TargetClanStringId ?? string.Empty,
-                    ["targetSettlementStringId"] = action.TargetSettlementStringId ?? string.Empty,
-                    ["planStage"] = action.PlanStage.ToString(),
-                    ["authorizationMode"] = action.AuthorizationMode ?? string.Empty,
-                    ["negotiationId"] = action.NegotiationId ?? string.Empty,
-                    ["termsHash"] = action.TermsHash ?? string.Empty,
-                    ["acceptedByHeroStringId"] = action.AcceptedByHeroStringId ?? string.Empty,
-                    ["acceptedDay"] = action.AcceptedDay,
-                    ["executionPhase"] = action.ExecutionPhase ?? string.Empty,
-                    ["negotiatedCommand"] = action.NegotiatedCommand ?? string.Empty,
-                    ["failureReason"] = action.FailureReason ?? string.Empty,
-                    ["worldDay"] = TaleWorlds.CampaignSystem.Campaign.Current == null ? 0d : CampaignTime.Now.ToDays
-                };
-
-                Hero actorHero = ReignObjectResolver.FindHero(action.ActorHeroStringId);
-                Hero targetHero = ReignObjectResolver.FindHero(action.TargetHeroStringId);
-                if (actorHero != null) payload["actorHero"] = BuildHeroProfile(actorHero);
-                if (targetHero != null) payload["targetHero"] = BuildHeroProfile(targetHero);
-
-                if (result != null)
-                {
-                    payload["result"] = BuildActionResultReport(action, status, message, result);
-                }
+                    fence = RequestFence.Capture();
+                    return BuildActionReportPayload(action, status, message, result);
+                }).ConfigureAwait(false);
 
                 JObject response = await PostJsonAsync("/actions/report", payload).ConfigureAwait(false);
-                foreach (JObject change in (response["nativeRelationChanges"] as JArray ?? new JArray()).OfType<JObject>())
+                JArray relationChanges = response["nativeRelationChanges"] as JArray ?? new JArray();
+                if (relationChanges.Count == 0) return;
+                await ReignMainThread.InvokeAsync(() =>
                 {
-                    Hero subject = ReignObjectResolver.FindHero(change.Value<string>("subjectId") ?? string.Empty);
-                    Hero target = ReignObjectResolver.FindHero(change.Value<string>("targetId") ?? string.Empty);
-                    int delta = change.Value<int?>("delta") ?? 0;
-                    if (subject != null && target != null && delta != 0)
+                    if (!fence.IsCurrent())
                     {
-                        await ReignMainThread.InvokeAsync(() => TaleWorlds.CampaignSystem.Actions.ChangeRelationAction.ApplyRelationChangeBetweenHeroes(subject, target, delta, true)).ConfigureAwait(false);
+                        ReignLog.Warn("Action report relation changes skipped: the campaign changed action=" + (action.ActionId ?? string.Empty));
+                        return;
                     }
-                }
+                    foreach (JObject change in relationChanges.OfType<JObject>())
+                    {
+                        Hero subject = ReignObjectResolver.FindHero(change.Value<string>("subjectId") ?? string.Empty);
+                        Hero target = ReignObjectResolver.FindHero(change.Value<string>("targetId") ?? string.Empty);
+                        int delta = change.Value<int?>("delta") ?? 0;
+                        if (subject != null && target != null && delta != 0)
+                        {
+                            TaleWorlds.CampaignSystem.Actions.ChangeRelationAction.ApplyRelationChangeBetweenHeroes(subject, target, delta, true);
+                        }
+                    }
+                }).ConfigureAwait(false);
             }
             catch (Exception ex)
             {
                 ReignLog.Warn("Local server action report failed: " + ex.Message);
             }
+        }
+
+        private static JObject BuildActionReportPayload(ReignWorldActionRecord action, string status, string message, ReignActionResult result)
+        {
+            JObject payload = new JObject
+            {
+                ["campaignId"] = GetCampaignId(),
+                ["serverActionId"] = action.ActionId ?? string.Empty,
+                ["timelineId"] = ReignWorldHistoryCampaignBehavior.Instance?.TimelineId ?? "main",
+                ["playerHeroStringId"] = Hero.MainHero?.StringId ?? string.Empty,
+                ["sharedActivityGeneration"] = ReignWorldHistoryCampaignBehavior.Instance?.SharedActivityGeneration ?? string.Empty,
+                ["actionId"] = action.ActionId ?? string.Empty,
+                ["status"] = status ?? "reported",
+                ["type"] = action.Type.ToString(),
+                ["message"] = message ?? string.Empty,
+                ["attemptCount"] = action.AttemptCount,
+                ["maxAttempts"] = action.MaxAttempts,
+                ["statusValue"] = action.StatusValue,
+                ["source"] = action.Source ?? string.Empty,
+                ["actorHeroStringId"] = action.ActorHeroStringId ?? string.Empty,
+                ["actorKingdomStringId"] = action.ActorKingdomStringId ?? string.Empty,
+                ["actorClanStringId"] = action.ActorClanStringId ?? string.Empty,
+                ["targetHeroStringId"] = action.TargetHeroStringId ?? string.Empty,
+                ["targetKingdomStringId"] = action.TargetKingdomStringId ?? string.Empty,
+                ["targetClanStringId"] = action.TargetClanStringId ?? string.Empty,
+                ["targetSettlementStringId"] = action.TargetSettlementStringId ?? string.Empty,
+                ["planStage"] = action.PlanStage.ToString(),
+                ["authorizationMode"] = action.AuthorizationMode ?? string.Empty,
+                ["negotiationId"] = action.NegotiationId ?? string.Empty,
+                ["termsHash"] = action.TermsHash ?? string.Empty,
+                ["acceptedByHeroStringId"] = action.AcceptedByHeroStringId ?? string.Empty,
+                ["acceptedDay"] = action.AcceptedDay,
+                ["executionPhase"] = action.ExecutionPhase ?? string.Empty,
+                ["negotiatedCommand"] = action.NegotiatedCommand ?? string.Empty,
+                ["failureReason"] = action.FailureReason ?? string.Empty,
+                ["worldDay"] = TaleWorlds.CampaignSystem.Campaign.Current == null ? 0d : CampaignTime.Now.ToDays
+            };
+
+            Hero actorHero = ReignObjectResolver.FindHero(action.ActorHeroStringId);
+            Hero targetHero = ReignObjectResolver.FindHero(action.TargetHeroStringId);
+            if (actorHero != null) payload["actorHero"] = BuildHeroProfile(actorHero);
+            if (targetHero != null) payload["targetHero"] = BuildHeroProfile(targetHero);
+
+            if (result != null)
+            {
+                payload["result"] = BuildActionResultReport(action, status, message, result);
+            }
+
+            return payload;
         }
 
         public static async Task IngestAuditAsync(string correlationId, string mode, string phase, string status, string summary, JObject data = null, string heroId = "", string actionId = "", string eventId = "", long durationMs = 0)
@@ -1601,40 +1627,52 @@ namespace ReignBeta.Integration
             return string.Join(" | ", parts);
         }
 
-        public static async Task<List<ReignDialogueLine>> GetDialogueHistoryAsync(Hero hero, int limit = 80, JObject conversationContext = null)
+        public static async Task<List<ReignDialogueLine>> GetDialogueHistoryAsync(Hero hero, int limit = 80, JObject conversationContext = null,
+            Func<bool> requestOwner = null)
         {
             List<ReignDialogueLine> lines = new List<ReignDialogueLine>();
             try
             {
-                if (hero == null || string.IsNullOrWhiteSpace(hero.StringId))
+                // The native payload and the original owner check share one
+                // game-thread callback; inline for callers already on that thread.
+                JObject payload = await ReignMainThread.InvokeAsync(() =>
+                {
+                    EnsureRequestOwner(requestOwner, "dialogue history capture");
+                    if (hero == null || string.IsNullOrWhiteSpace(hero.StringId)) return null;
+                    JObject captured = new JObject
+                    {
+                        ["campaignId"] = GetCampaignId(),
+                        ["correlationId"] = NewCorrelationId("dialogue", hero.StringId),
+                        ["mode"] = "dialogue",
+                        ["heroStringId"] = hero.StringId,
+                        ["playerHeroStringId"] = Hero.MainHero?.StringId ?? "",
+                        ["timelineId"] = ReignWorldHistoryCampaignBehavior.Instance?.TimelineId ?? "main",
+                        ["limit"] = limit
+                    };
+                    if (conversationContext != null)
+                    {
+                        captured["conversationMode"] = conversationContext.Value<string>("conversationMode") ?? string.Empty;
+                        captured["postingId"] = conversationContext.Value<string>("postingId") ?? string.Empty;
+                        captured["representedKingdomId"] = conversationContext.Value<string>("representedKingdomId") ?? string.Empty;
+                    }
+                    return captured;
+                }).ConfigureAwait(false);
+                if (payload == null)
                 {
                     return lines;
                 }
 
-                JObject payload = new JObject
-                {
-                    ["campaignId"] = GetCampaignId(),
-                    ["correlationId"] = NewCorrelationId("dialogue", hero.StringId),
-                    ["mode"] = "dialogue",
-                    ["heroStringId"] = hero.StringId,
-                    ["playerHeroStringId"] = Hero.MainHero?.StringId ?? "",
-                    ["timelineId"] = ReignWorldHistoryCampaignBehavior.Instance?.TimelineId ?? "main",
-                    ["limit"] = limit
-                };
-                if (conversationContext != null)
-                {
-                    payload["conversationMode"] = conversationContext.Value<string>("conversationMode") ?? string.Empty;
-                    payload["postingId"] = conversationContext.Value<string>("postingId") ?? string.Empty;
-                    payload["representedKingdomId"] = conversationContext.Value<string>("representedKingdomId") ?? string.Empty;
-                }
+                string heroId = payload.Value<string>("heroStringId");
                 Stopwatch timer = Stopwatch.StartNew();
-                JObject response = await PostJsonAsync("/dialogue/history", payload).ConfigureAwait(false);
+                JObject response = requestOwner == null
+                    ? await PostJsonAsync("/dialogue/history", payload).ConfigureAwait(false)
+                    : await PostOwnedJsonAsync("/dialogue/history", payload, requestOwner).ConfigureAwait(false);
                 timer.Stop();
-                ReignLog.Info("HTTP /dialogue/history hero=" + hero.StringId + " clientMs=" + timer.ElapsedMilliseconds + " ok=" + (response.Value<bool?>("ok") == true));
+                ReignLog.Info("HTTP /dialogue/history hero=" + heroId + " clientMs=" + timer.ElapsedMilliseconds + " ok=" + (response.Value<bool?>("ok") == true));
                 JArray array = response.Value<bool?>("ok") == true ? response["lines"] as JArray ?? new JArray() : new JArray();
 
                 ReignConversationInputJournal.ReconcileAcceptedHistory(array, payload.Value<string>("campaignId"),
-                    payload.Value<string>("timelineId"), payload.Value<string>("playerHeroStringId"), hero.StringId);
+                    payload.Value<string>("timelineId"), payload.Value<string>("playerHeroStringId"), heroId);
                 foreach (JToken token in array)
                 {
                     JObject obj = token as JObject;
@@ -1671,39 +1709,45 @@ namespace ReignBeta.Integration
             return result.Ok ? result.SessionId : string.Empty;
         }
 
-        public static async Task<Reign.Core.Contracts.Dialogue.ConversationSessionStart> StartConversationSessionWithIdentityAsync(Hero hero, JObject conversationContext = null)
+        // loadCurrent (optional) is a Bannerlord-thread load fence. When supplied,
+        // the native start payload is captured inside the same game-thread callback
+        // that checks it; a changed load starts nothing.
+        public static async Task<Reign.Core.Contracts.Dialogue.ConversationSessionStart> StartConversationSessionWithIdentityAsync(Hero hero, JObject conversationContext = null,
+            Func<bool> loadCurrent = null)
         {
             var result = new Reign.Core.Contracts.Dialogue.ConversationSessionStart();
             try
             {
-                if (hero == null || string.IsNullOrWhiteSpace(hero.StringId))
+                JObject payload;
+                if (loadCurrent == null) payload = BuildConversationStartPayload(hero, conversationContext);
+                else
                 {
-                    return result;
+                    bool stale = false;
+                    payload = await ReignMainThread.InvokeAsync(() =>
+                    {
+                        if (!loadCurrent()) { stale = true; return null; }
+                        return BuildConversationStartPayload(hero, conversationContext);
+                    }).ConfigureAwait(false);
+                    if (stale)
+                    {
+                        result.Error = "The campaign changed before the conversation session could start.";
+                        return result;
+                    }
                 }
-                bool official = IsOfficialAmbassadorContext(conversationContext);
-                string representedRulerId = conversationContext?.Value<string>("representedRulerId") ?? string.Empty;
-                JObject payload = new JObject
-                {
-                    ["campaignId"] = GetCampaignId(),
-                    ["timelineId"] = ReignBeta.Campaign.ReignWorldHistoryCampaignBehavior.Instance?.TimelineId ?? "main",
-                    ["npcId"] = hero.StringId,
-                    ["playerId"] = Hero.MainHero?.StringId ?? string.Empty,
-                    ["channel"] = official ? "ambassador_official" : "in_person",
-                    ["worldDay"] = TaleWorlds.CampaignSystem.Campaign.Current == null ? 0d : CampaignTime.Now.ToDays,
-                    ["locationId"] = ResolveDialogueLocationId(hero),
-                    ["participants"] = new JArray(new[] { hero.StringId, Hero.MainHero?.StringId ?? string.Empty, official ? representedRulerId : string.Empty }.Where(id => !string.IsNullOrWhiteSpace(id)).Distinct(StringComparer.OrdinalIgnoreCase))
-                };
-                if (official) payload["ambassadorContext"] = conversationContext.DeepClone();
-                foreach (string key in new[] { "sessionId", "logicalConversationId", "continuedFromSessionId", "continuationReason" })
-                    if (conversationContext?[key] != null) payload[key] = conversationContext[key].DeepClone();
-                foreach (string key in new[] { "campaignId", "timelineId", "playerId" })
-                    if (!string.IsNullOrWhiteSpace(conversationContext?.Value<string>(key))) payload[key] = conversationContext[key].DeepClone();
-                JObject response = await PostJsonAsync("/memory/conversation/start", payload).ConfigureAwait(false);
+                if (payload == null) return result;
+                // The same load fence guards dispatch and its pregnancy subrequests.
+                JObject response = loadCurrent == null
+                    ? await PostJsonAsync("/memory/conversation/start", payload).ConfigureAwait(false)
+                    : await PostOwnedJsonAsync("/memory/conversation/start", payload, loadCurrent).ConfigureAwait(false);
                 result.Ok = response.Value<bool?>("ok") == true;
                 result.SessionId = response.Value<string>("sessionId") ?? string.Empty;
                 result.LogicalConversationId = response.Value<string>("logicalConversationId") ?? string.Empty;
                 result.Status = response.Value<string>("status") ?? "open";
                 result.Error = response.Value<string>("error") ?? string.Empty;
+            }
+            catch (RequestOwnerAbandonedException)
+            {
+                result.Error = "The campaign changed before the conversation session could start.";
             }
             catch (Exception ex)
             {
@@ -1713,7 +1757,38 @@ namespace ReignBeta.Integration
             return result;
         }
 
-        public static async Task<ReignConversationFinishResult> FinishConversationSessionAsync(Hero hero, string sessionId, string reason = "closed_by_game", JObject conversationContext = null)
+        private static JObject BuildConversationStartPayload(Hero hero, JObject conversationContext)
+        {
+            if (hero == null || string.IsNullOrWhiteSpace(hero.StringId))
+            {
+                return null;
+            }
+            bool official = IsOfficialAmbassadorContext(conversationContext);
+            string representedRulerId = conversationContext?.Value<string>("representedRulerId") ?? string.Empty;
+            JObject payload = new JObject
+            {
+                ["campaignId"] = GetCampaignId(),
+                ["timelineId"] = ReignBeta.Campaign.ReignWorldHistoryCampaignBehavior.Instance?.TimelineId ?? "main",
+                ["npcId"] = hero.StringId,
+                ["playerId"] = Hero.MainHero?.StringId ?? string.Empty,
+                ["channel"] = official ? "ambassador_official" : "in_person",
+                ["worldDay"] = TaleWorlds.CampaignSystem.Campaign.Current == null ? 0d : CampaignTime.Now.ToDays,
+                ["locationId"] = ResolveDialogueLocationId(hero),
+                ["participants"] = new JArray(new[] { hero.StringId, Hero.MainHero?.StringId ?? string.Empty, official ? representedRulerId : string.Empty }.Where(id => !string.IsNullOrWhiteSpace(id)).Distinct(StringComparer.OrdinalIgnoreCase))
+            };
+            if (official) payload["ambassadorContext"] = conversationContext.DeepClone();
+            foreach (string key in new[] { "sessionId", "logicalConversationId", "continuedFromSessionId", "continuationReason" })
+                if (conversationContext?[key] != null) payload[key] = conversationContext[key].DeepClone();
+            foreach (string key in new[] { "campaignId", "timelineId", "playerId" })
+                if (!string.IsNullOrWhiteSpace(conversationContext?.Value<string>(key))) payload[key] = conversationContext[key].DeepClone();
+            return payload;
+        }
+
+        // loadCurrent (optional) is a Bannerlord-thread load fence. When supplied,
+        // the native finish payload and the communication close-work apply each
+        // run inside a game-thread callback that checks it first.
+        public static async Task<ReignConversationFinishResult> FinishConversationSessionAsync(Hero hero, string sessionId, string reason = "closed_by_game", JObject conversationContext = null,
+            Func<bool> loadCurrent = null)
         {
             ReignConversationFinishResult result = new ReignConversationFinishResult { SessionId = sessionId ?? string.Empty };
             try
@@ -1723,28 +1798,35 @@ namespace ReignBeta.Integration
                     result.Error = "Session id is empty.";
                     return result;
                 }
-                JObject payload = new JObject
+                JObject payload = loadCurrent == null ? BuildConversationFinishPayload(hero, sessionId, reason, conversationContext)
+                    : await ReignMainThread.InvokeAsync(() => loadCurrent()
+                        ? BuildConversationFinishPayload(hero, sessionId, reason, conversationContext) : null).ConfigureAwait(false);
+                if (payload == null)
                 {
-                    ["campaignId"] = GetCampaignId(),
-                    ["timelineId"] = ReignBeta.Campaign.ReignWorldHistoryCampaignBehavior.Instance?.TimelineId ?? "main",
-                    ["sessionId"] = sessionId,
-                    ["npcId"] = hero?.StringId ?? string.Empty,
-                    ["playerId"] = Hero.MainHero?.StringId ?? string.Empty,
-                    ["worldDay"] = TaleWorlds.CampaignSystem.Campaign.Current == null ? 0d : CampaignTime.Now.ToDays,
-                    ["locationId"] = ResolveDialogueLocationId(hero),
-                    ["reason"] = reason ?? "closed_by_game"
-                };
-                if (IsOfficialAmbassadorContext(conversationContext))
-                    payload["ambassadorContext"] = conversationContext.DeepClone();
-                foreach (string key in new[] { "campaignId", "timelineId", "playerId" })
-                    if (!string.IsNullOrWhiteSpace(conversationContext?.Value<string>(key))) payload[key] = conversationContext[key].DeepClone();
-                JObject response = await PostJsonAsync("/memory/conversation/finish", payload).ConfigureAwait(false);
+                    result.Error = "The campaign changed before the conversation session could finish.";
+                    return result;
+                }
+                JObject response = loadCurrent == null
+                    ? await PostJsonAsync("/memory/conversation/finish", payload).ConfigureAwait(false)
+                    : await PostOwnedJsonAsync("/memory/conversation/finish", payload, loadCurrent).ConfigureAwait(false);
                 result.Ok = response.Value<bool?>("ok") == true;
                 result.SceneSummaryId = response.Value<string>("sceneSummaryId") ?? string.Empty;
                 result.Raw = response;
                 result.Error = response.Value<string>("error") ?? string.Empty;
                 ReignLog.Info("Conversation session finish id=" + sessionId + " ok=" + result.Ok);
-                if (result.Ok) await ReignMainThread.InvokeAsync(() => ApplyCommunicationCloseWork(response)).ConfigureAwait(false);
+                if (result.Ok) await ReignMainThread.InvokeAsync(() =>
+                {
+                    if (loadCurrent != null && !loadCurrent())
+                    {
+                        ReignLog.Warn("Conversation close work skipped: the campaign changed session=" + sessionId);
+                        return;
+                    }
+                    ApplyCommunicationCloseWork(response);
+                }).ConfigureAwait(false);
+            }
+            catch (RequestOwnerAbandonedException)
+            {
+                result.Error = "The campaign changed before the conversation session could finish.";
             }
             catch (Exception ex)
             {
@@ -1752,6 +1834,26 @@ namespace ReignBeta.Integration
                 ReignLog.Warn("Conversation session finish failed: " + ex.Message);
             }
             return result;
+        }
+
+        private static JObject BuildConversationFinishPayload(Hero hero, string sessionId, string reason, JObject conversationContext)
+        {
+            JObject payload = new JObject
+            {
+                ["campaignId"] = GetCampaignId(),
+                ["timelineId"] = ReignBeta.Campaign.ReignWorldHistoryCampaignBehavior.Instance?.TimelineId ?? "main",
+                ["sessionId"] = sessionId,
+                ["npcId"] = hero?.StringId ?? string.Empty,
+                ["playerId"] = Hero.MainHero?.StringId ?? string.Empty,
+                ["worldDay"] = TaleWorlds.CampaignSystem.Campaign.Current == null ? 0d : CampaignTime.Now.ToDays,
+                ["locationId"] = ResolveDialogueLocationId(hero),
+                ["reason"] = reason ?? "closed_by_game"
+            };
+            if (IsOfficialAmbassadorContext(conversationContext))
+                payload["ambassadorContext"] = conversationContext.DeepClone();
+            foreach (string key in new[] { "campaignId", "timelineId", "playerId" })
+                if (!string.IsNullOrWhiteSpace(conversationContext?.Value<string>(key))) payload[key] = conversationContext[key].DeepClone();
+            return payload;
         }
 
         public static async Task<string> StartPartyChatConversationSessionAsync(ReignPartyChatSession session, IEnumerable<Hero> activeHeroes)
@@ -1872,9 +1974,11 @@ namespace ReignBeta.Integration
             string guardedPromptOverrideDirective = "",
             string guardedPromptOverrideOwnerCommandId = "",
             Reign.Core.Contracts.Actions.ActionAgreement actionDraft = null,
-            string retryOfCorrelationId = "", string retrySceneTurnId = "")
+            string retryOfCorrelationId = "", string retrySceneTurnId = "",
+            Func<bool> requestOwner = null)
         {
             ReignDialogueReply reply = new ReignDialogueReply();
+            RequestFence fence = null;
             try
             {
                 ReignBetaSettings settings = ReignBetaSettings.Instance;
@@ -1897,6 +2001,8 @@ namespace ReignBeta.Integration
                 // snapshot on the game thread, then do all network work from the worker.
                 JObject payload = await ReignMainThread.InvokeAsync(() =>
                 {
+                    EnsureRequestOwner(requestOwner, "dialogue request capture");
+                    fence = RequestFence.Capture();
                     ReignHeroKnowledge.MarkMet(hero);
                     return BuildDialogueRequestPayload(
                         hero,
@@ -1932,9 +2038,12 @@ namespace ReignBeta.Integration
                 bool suppressRelationshipAssessment =
                     conversationContext?.Value<bool?>("suppressRelationshipAssessment") == true;
                 if (!officialAmbassador)
+                {
+                    await EnsureRequestOwnerAsync(requestOwner, "context bundle selection").ConfigureAwait(false);
                     await AttachContextBundlesAsync(payload, "dialogue", hero, new List<Hero> { hero }).ConfigureAwait(false);
+                }
                 Stopwatch timer = Stopwatch.StartNew();
-                JObject response = await PostWandererConversationAsync("/dialogue/respond", payload, hero, playerText, actionDraft).ConfigureAwait(false);
+                JObject response = await PostWandererConversationAsync("/dialogue/respond", payload, hero, playerText, actionDraft, requestOwner).ConfigureAwait(false);
                 timer.Stop();
                 reply.Ok = response.Value<bool?>("ok") == true;
                 reply.Text = response.Value<string>("reply") ?? string.Empty;
@@ -1946,12 +2055,20 @@ namespace ReignBeta.Integration
                 JObject conceptionGate = response["conceptionGate"] as JObject;
                 reply.ConceptionGateNeeded = conceptionGate?.Value<bool?>("needed") == true
                     && conceptionGate?.Value<bool?>("completed") == true;
-                if (applyNativeEncyclopediaText)
+                // Native hero text, queued-action parsing (it reads CampaignTime)
+                // and the player read share one game-thread callback, for the
+                // original load and a still-current local owner. A stale owner
+                // receives no locally parsed actions; the server outbox keeps them.
+                bool playerPresent = false;
+                await ReignMainThread.InvokeAsync(() =>
                 {
-                    ApplyHeroEncyclopediaText(hero, reply.EncyclopediaText);
-                }
-                reply.QueuedActions = ParseQueuedActionRows(response["queuedTestDirectiveActions"]);
-                reply.QueuedActions.AddRange(ParseQueuedActionRows(response["queuedDialogueActions"]));
+                    bool current = fence.IsCurrent() && RequestOwnerCurrent(requestOwner);
+                    if (current && applyNativeEncyclopediaText && !string.IsNullOrWhiteSpace(reply.EncyclopediaText))
+                        ApplyHeroEncyclopediaText(hero, reply.EncyclopediaText);
+                    reply.QueuedActions = current ? ParseQueuedActionRows(response["queuedTestDirectiveActions"]) : new List<ReignWorldActionRecord>();
+                    if (current) reply.QueuedActions.AddRange(ParseQueuedActionRows(response["queuedDialogueActions"]));
+                    playerPresent = current && Hero.MainHero != null;
+                }).ConfigureAwait(false);
                 reply.ClientTotalMs = timer.ElapsedMilliseconds;
                 reply.TimingSummary = FormatTimingSummary(response["timing"] as JObject);
                 reply.CorrelationId = response.Value<string>("correlationId") ?? correlationId ?? string.Empty;
@@ -1962,14 +2079,15 @@ namespace ReignBeta.Integration
                 reply.RawResponse = response;
                 if (reply.Ok && payload.Value<int?>("structuredActionProtocolVersion") != 1 && payload["governmentPrivateContext"] is JObject governmentPrivateContext)
                     response["governmentCommitmentReceipt"] = await ReignMainThread.InvokeAsync(() =>
-                        ReignBeta.Government.ReignGovernmentCampaignBehavior.Instance
+                        !fence.IsCurrent() || !RequestOwnerCurrent(requestOwner) ? new JObject()
+                        : ReignBeta.Government.ReignGovernmentCampaignBehavior.Instance
                             ?.ApplyGovernmentPrivateConversationResult(governmentPrivateContext, response)
                         ?? new JObject()).ConfigureAwait(false);
                 JObject exchange = response["conversationExchange"] as JObject;
                 reply.ConversationSessionId = exchange?.Value<string>("sessionId") ?? conversationSessionId ?? string.Empty;
                 reply.ExchangeId = exchange?.Value<string>("exchangeId") ?? string.Empty;
                 reply.TurnIds = exchange?["turnIds"] as JArray ?? new JArray();
-                ReignLog.Info("HTTP /dialogue/respond hero=" + hero.StringId
+                ReignLog.Info("HTTP /dialogue/respond hero=" + (payload.Value<string>("heroStringId") ?? string.Empty)
                     + " clientMs=" + reply.ClientTotalMs
                     + " ok=" + reply.Ok
                     + " timing=" + reply.TimingSummary);
@@ -1978,15 +2096,24 @@ namespace ReignBeta.Integration
                     reply.Error = FriendlyConversationFailure(response, reply.CorrelationId);
                 }
 
-                if (reply.Ok && Hero.MainHero != null && !officialAmbassador
+                if (reply.Ok && playerPresent && !officialAmbassador
                     && !suppressRelationshipAssessment)
                 {
                     await ApplyConversationRelationshipAssessmentsAsync(
-                        reply.ExchangeId, "in_person_conversation", new[] { hero }, new[] { response }, reply.CorrelationId).ConfigureAwait(false);
+                        reply.ExchangeId, "in_person_conversation", new[] { hero }, new[] { response }, reply.CorrelationId,
+                        requestOwner).ConfigureAwait(false);
                     if (reply.ConceptionGateNeeded && string.IsNullOrWhiteSpace(playerPromptLabel))
                     {
-                        ReignConceptionAttemptResult preview = await PreviewPlayerConceptionAttemptAsync(hero, reply.Text, conceptionAttemptId).ConfigureAwait(false);
-                        if (preview.Ok && preview.Verified && preview.Eligible)
+                        // The preview's synchronous prefix reads native heroes and
+                        // builds its payload, so it starts inside this game-thread
+                        // callback after the original owner check. A stale view
+                        // never opens a pregnancy decision preview.
+                        Task<ReignConceptionAttemptResult> previewTask = await ReignMainThread.InvokeAsync(() =>
+                            fence.IsCurrent() && RequestOwnerCurrent(requestOwner)
+                                ? PreviewPlayerConceptionAttemptAsync(hero, reply.Text, conceptionAttemptId)
+                                : null).ConfigureAwait(false);
+                        ReignConceptionAttemptResult preview = previewTask == null ? null : await previewTask.ConfigureAwait(false);
+                        if (preview != null && preview.Ok && preview.Verified && preview.Eligible)
                         {
                             reply.ConceptionAttempt = preview;
                         }
@@ -1997,6 +2124,13 @@ namespace ReignBeta.Integration
                     }
                 }
 
+                return reply;
+            }
+            catch (RequestOwnerAbandonedException ex)
+            {
+                reply.Ok = false;
+                reply.Error = ex.Message;
+                ReignLog.Info("Dialogue response abandoned by its local owner: " + ex.Message);
                 return reply;
             }
             catch (Exception ex)
@@ -2224,37 +2358,46 @@ namespace ReignBeta.Integration
         {
             await ReignSaveSyncCoordinator.WaitForReadyAsync(route).ConfigureAwait(false);
             await ReignCampaignInitializationGate.WaitForReadyAsync(route).ConfigureAwait(false);
-            if (!ReignServerEndpoint.TryBeginRequest(out string unavailable))
+            if (!ReignServerEndpoint.TryBeginRequest(out string unavailable, out long probeClaim))
             {
                 throw new HttpRequestException(unavailable);
             }
 
-            Exception lastTransportFailure = null;
-            foreach (string baseUrl in ReignServerEndpoint.CandidateBaseUrls())
+            try
             {
-                string url = baseUrl.TrimEnd('/') + (route.StartsWith("/", StringComparison.Ordinal) ? route : "/" + route);
-                try
+                Exception lastTransportFailure = null;
+                foreach (string baseUrl in ReignServerEndpoint.CandidateBaseUrls())
                 {
-                    using (HttpResponseMessage response = await (requestClient ?? Client).GetAsync(url).ConfigureAwait(false))
+                    string url = baseUrl.TrimEnd('/') + (route.StartsWith("/", StringComparison.Ordinal) ? route : "/" + route);
+                    try
                     {
-                        string body = await response.Content.ReadAsStringAsync().ConfigureAwait(false);
-                        ReignServerEndpoint.ReportSuccess(baseUrl);
-                        if (!response.IsSuccessStatusCode)
+                        using (HttpResponseMessage response = await (requestClient ?? Client).GetAsync(url).ConfigureAwait(false))
                         {
-                            throw new InvalidOperationException("HTTP " + (int)response.StatusCode + ": " + body);
-                        }
+                            string body = await response.Content.ReadAsStringAsync().ConfigureAwait(false);
+                            ReignServerEndpoint.ReportSuccess(baseUrl, probeClaim);
+                            if (!response.IsSuccessStatusCode)
+                            {
+                                throw new InvalidOperationException("HTTP " + (int)response.StatusCode + ": " + body);
+                            }
 
-                        return JObject.Parse(body);
+                            return JObject.Parse(body);
+                        }
+                    }
+                    catch (Exception ex) when (ReignServerEndpoint.IsTransportFailure(ex))
+                    {
+                        lastTransportFailure = ex;
                     }
                 }
-                catch (Exception ex) when (ReignServerEndpoint.IsTransportFailure(ex))
-                {
-                    lastTransportFailure = ex;
-                }
-            }
 
-            ReignServerEndpoint.ReportTransportFailure();
-            throw lastTransportFailure ?? new HttpRequestException("Local Bannerlord Reign server is unavailable.");
+                ReignServerEndpoint.ReportTransportFailure(probeClaim);
+                throw lastTransportFailure ?? new HttpRequestException("Local Bannerlord Reign server is unavailable.");
+            }
+            finally
+            {
+                // Unconditional matching release: a no-op once this operation's
+                // report settled its claim, never able to clear a newer probe.
+                ReignServerEndpoint.ReleaseRequest(probeClaim);
+            }
         }
 
         public static Task<JObject> SetSocialBalanceUnderlyingAffinityAsync(JObject payload)
@@ -2267,7 +2410,23 @@ namespace ReignBeta.Integration
             return PostJsonAsync("/tests/social-balance/affair/candidates", payload ?? new JObject());
         }
 
-        internal static async Task<JObject> PostJsonAsync(string route, JObject payload, Func<Task<bool>> isCurrentRequest = null)
+        internal static Task<JObject> PostJsonAsync(string route, JObject payload, Func<Task<bool>> isCurrentRequest = null)
+        {
+            return PostJsonCoreAsync(route, payload, isCurrentRequest, null);
+        }
+
+        // requestOwner is a local Bannerlord-thread predicate (for example an
+        // accepted Individual Chat turn). It is rechecked before every owned
+        // native preflight effect and before transport dispatch. A request that
+        // already left may finish: its original-payload conversation journal
+        // acknowledgement is durable and does not depend on the owner.
+        internal static Task<JObject> PostOwnedJsonAsync(string route, JObject payload, Func<bool> requestOwner)
+        {
+            return PostJsonCoreAsync(route, payload, null, requestOwner);
+        }
+
+        private static async Task<JObject> PostJsonCoreAsync(string route, JObject payload,
+            Func<Task<bool>> isCurrentRequest, Func<bool> requestOwner)
         {
             bool conversationInput = payload != null && (route == "/dialogue/respond" || route == "/party-chat/respond"
                 || route == "/events/social/respond" || route == "/events/social/turn" || route == "/events/social/turn-plan"
@@ -2279,18 +2438,25 @@ namespace ReignBeta.Integration
             await ReignCampaignInitializationGate.WaitForReadyAsync(route).ConfigureAwait(false);
             if (isCurrentRequest != null && !await isCurrentRequest().ConfigureAwait(false))
                 throw new OperationCanceledException("Request belongs to a previous loaded save.");
+            await EnsureRequestOwnerAsync(requestOwner, "pregnancy context synchronization").ConfigureAwait(false);
             if (conversationInput || approachObservation || route == "/correspondence/send" || route == "/memory/conversation/start" || route == "/party-banter/start")
-                await SynchronizePregnancyContextAsync(route, payload).ConfigureAwait(false);
+                await SynchronizePregnancyContextAsync(route, payload, requestOwner).ConfigureAwait(false);
             if (route == "/world-history/ingest-batch" && !ReignWorldHistoryTransport.IsCurrentRequest(payload))
                 throw new OperationCanceledException("World-history request belongs to a previous loaded save.");
             PersonalGossipPresenceSnapshot gossipSnapshot = null;
             if (conversationInput || approachObservation || payload != null && route == "/correspondence/send")
             {
+                await EnsureRequestOwnerAsync(requestOwner, "public announcement synchronization").ConfigureAwait(false);
                 if (ReignWorldDiplomacyCampaignBehavior.Instance != null)
                     await ReignWorldDiplomacyCampaignBehavior.Instance.SynchronizePublicAnnouncementsForDialogueAsync().ConfigureAwait(false);
+                await EnsureRequestOwnerAsync(requestOwner, "personal gossip refresh").ConfigureAwait(false);
                 gossipSnapshot = await RefreshPersonalGossipConversationAsync(payload).ConfigureAwait(false);
+                if (isCurrentRequest != null && !await isCurrentRequest().ConfigureAwait(false))
+                    throw new OperationCanceledException("Request belongs to a previous loaded save.");
                 double nativeDay = await ReignMainThread.InvokeAsync(() =>
                 {
+                    // Same game-thread callback as the shared party-contact capture.
+                    EnsureRequestOwner(requestOwner, "shared party contact capture");
                     if ((ReignNewsCampaignBehavior.Instance?.PreparePublicHistoryForDialogue() ?? 0) > 0)
                         throw new InvalidOperationException("Public news could not be synchronized yet. Please try the conversation again shortly.");
                     ReignWorldHistoryCampaignBehavior.Instance?.CaptureSharedPartyContact();
@@ -2324,7 +2490,10 @@ namespace ReignBeta.Integration
                     throw new InvalidOperationException("Public news is still synchronizing. Please try the conversation again shortly.");
             }
             else if (payload?["gossipPresence"] is JObject pendingGossip && pendingGossip.Count == 0)
+            {
+                await EnsureRequestOwnerAsync(requestOwner, "personal gossip refresh").ConfigureAwait(false);
                 gossipSnapshot = await RefreshPersonalGossipConversationAsync(payload).ConfigureAwait(false);
+            }
             if (gossipSnapshot != null)
             {
                 var callerGuard = isCurrentRequest;
@@ -2339,94 +2508,170 @@ namespace ReignBeta.Integration
             // circuit breaker. Live routes use their own short-timeout client and
             // always probe loopback directly; a successful probe still clears the
             // shared breaker because it proves the server is reachable.
+            long probeClaim = 0;
             if (!liveTestRoute
-                && !ReignServerEndpoint.TryBeginRequest(out string unavailable))
+                && !ReignServerEndpoint.TryBeginRequest(out string unavailable, out probeClaim))
             {
                 throw new HttpRequestException(unavailable);
             }
 
-            HttpClient routeClient = liveTestRoute
-                ? LiveTestClient
-                : IsProviderBackedInteractiveRoute(route) ? InteractiveClient
-                : IsPriorityServerRoute(route) ? PriorityClient : Client;
-            Exception lastTransportFailure = null;
-            foreach (string baseUrl in ReignServerEndpoint.CandidateBaseUrls())
+            try
             {
-                string url = baseUrl.TrimEnd('/') + (route.StartsWith("/", StringComparison.Ordinal) ? route : "/" + route);
-                Stopwatch timer = Stopwatch.StartNew();
-                ReignJsonHttpContent content = null;
-                try
+                HttpClient routeClient = liveTestRoute
+                    ? LiveTestClient
+                    : IsProviderBackedInteractiveRoute(route) ? InteractiveClient
+                    : IsPriorityServerRoute(route) ? PriorityClient : Client;
+                Exception lastTransportFailure = null;
+                foreach (string baseUrl in ReignServerEndpoint.CandidateBaseUrls())
                 {
-                    if (isCurrentRequest != null && !await isCurrentRequest().ConfigureAwait(false))
-                        throw new OperationCanceledException("Request belongs to a previous loaded save.");
-                    content = payload?["gossipPresence"] != null
-                        ? await Task.Run(() => new ReignJsonHttpContent(payload)).ConfigureAwait(false)
-                        : new ReignJsonHttpContent(payload ?? new JObject());
-                    using (content)
-                    using (HttpRequestMessage request = new HttpRequestMessage(
-                        HttpMethod.Post,
-                        url))
+                    string url = baseUrl.TrimEnd('/') + (route.StartsWith("/", StringComparison.Ordinal) ? route : "/" + route);
+                    Stopwatch timer = Stopwatch.StartNew();
+                    ReignJsonHttpContent content = null;
+                    try
                     {
                         if (isCurrentRequest != null && !await isCurrentRequest().ConfigureAwait(false))
-                            throw new OperationCanceledException("Request belongs to a previous loaded save after encoding.");
-                        request.Content = content;
-                        using (HttpResponseMessage response = await routeClient.SendAsync(
-                            request,
-                            HttpCompletionOption.ResponseHeadersRead).ConfigureAwait(false))
+                            throw new OperationCanceledException("Request belongs to a previous loaded save.");
+                        await EnsureRequestOwnerAsync(requestOwner, "request encoding").ConfigureAwait(false);
+                        content = payload?["gossipPresence"] != null
+                            ? await Task.Run(() => new ReignJsonHttpContent(payload)).ConfigureAwait(false)
+                            : new ReignJsonHttpContent(payload ?? new JObject());
+                        using (content)
+                        using (HttpRequestMessage request = new HttpRequestMessage(
+                            HttpMethod.Post,
+                            url))
                         {
-                            string body = await response.Content.ReadAsStringAsync().ConfigureAwait(false);
-                            timer.Stop();
-                            RecordStreamedPost(content);
-                            // Successful empty control-plane polls are intentionally
-                            // quiet. Logging several of them per second was itself a
-                            // large source of transient strings and file I/O during
-                            // unattended runs. Slow calls and all substantive routes
-                            // remain visible.
-                            if (!IsHighFrequencyControlRoute(route)
-                                || timer.ElapsedMilliseconds >= 250
-                                || !response.IsSuccessStatusCode)
+                            if (isCurrentRequest != null && !await isCurrentRequest().ConfigureAwait(false))
+                                throw new OperationCanceledException("Request belongs to a previous loaded save after encoding.");
+                            await EnsureRequestOwnerAsync(requestOwner, "transport dispatch").ConfigureAwait(false);
+                            request.Content = content;
+                            using (HttpResponseMessage response = await routeClient.SendAsync(
+                                request,
+                                HttpCompletionOption.ResponseHeadersRead).ConfigureAwait(false))
                             {
-                                ReignLog.Info("HTTP POST " + route
-                                    + " status=" + (int)response.StatusCode
-                                    + " clientMs=" + timer.ElapsedMilliseconds
-                                    + " requestBytes=" + content.SerializedBytes
-                                    + " serializationMs=" + content.SerializationDurationMs
-                                    + " responseChars=" + body.Length);
-                            }
-                            ReignServerEndpoint.ReportSuccess(baseUrl);
-                            if (!response.IsSuccessStatusCode)
-                            {
-                                throw new InvalidOperationException("HTTP " + (int)response.StatusCode + ": " + body);
-                            }
+                                string body = await response.Content.ReadAsStringAsync().ConfigureAwait(false);
+                                timer.Stop();
+                                RecordStreamedPost(content);
+                                // Successful empty control-plane polls are intentionally
+                                // quiet. Logging several of them per second was itself a
+                                // large source of transient strings and file I/O during
+                                // unattended runs. Slow calls and all substantive routes
+                                // remain visible.
+                                if (!IsHighFrequencyControlRoute(route)
+                                    || timer.ElapsedMilliseconds >= 250
+                                    || !response.IsSuccessStatusCode)
+                                {
+                                    ReignLog.Info("HTTP POST " + route
+                                        + " status=" + (int)response.StatusCode
+                                        + " clientMs=" + timer.ElapsedMilliseconds
+                                        + " requestBytes=" + content.SerializedBytes
+                                        + " serializationMs=" + content.SerializationDurationMs
+                                        + " responseChars=" + body.Length);
+                                }
+                                // Live routes carry no claim (zero): explicit live
+                                // reachability success, as before.
+                                ReignServerEndpoint.ReportSuccess(baseUrl, probeClaim);
+                                if (!response.IsSuccessStatusCode)
+                                {
+                                    throw new InvalidOperationException("HTTP " + (int)response.StatusCode + ": " + body);
+                                }
 
-                            JObject parsedResponse = JObject.Parse(body);
-                            if (conversationInput)
-                            {
-                                string receiptWarning = ReignConversationInputJournal.Acknowledge(payload, parsedResponse);
-                                if (!string.IsNullOrEmpty(receiptWarning)) ReignLog.Warn("Conversation delivery reconciliation: " + receiptWarning);
+                                JObject parsedResponse = JObject.Parse(body);
+                                if (conversationInput)
+                                {
+                                    string receiptWarning = ReignConversationInputJournal.Acknowledge(payload, parsedResponse);
+                                    if (!string.IsNullOrEmpty(receiptWarning)) ReignLog.Warn("Conversation delivery reconciliation: " + receiptWarning);
+                                }
+                                if (conversationInput && parsedResponse.Value<bool?>("ok") == true)
+                                {
+                                    _ = TickPersonalGossipAsync();
+                                    // Accepted disclosures are now durable. Refresh menu eligibility after publication.
+                                    // An owner closed after acceptance skips only this refresh;
+                                    // the journal ack and accepted response keep their meaning.
+                                    try { await SynchronizePregnancyContextAsync(route, payload, requestOwner).ConfigureAwait(false); }
+                                    catch (RequestOwnerAbandonedException) { }
+                                    catch (Exception ex) { ReignLog.Warn("Pregnancy knowledge refresh deferred: " + ex.GetType().Name); }
+                                }
+                                return parsedResponse;
                             }
-                            if (conversationInput && parsedResponse.Value<bool?>("ok") == true)
-                            {
-                                _ = TickPersonalGossipAsync();
-                                // Accepted disclosures are now durable. Refresh menu eligibility after publication.
-                                try { await SynchronizePregnancyContextAsync(route, payload).ConfigureAwait(false); }
-                                catch (Exception ex) { ReignLog.Warn("Pregnancy knowledge refresh deferred: " + ex.GetType().Name); }
-                            }
-                            return parsedResponse;
                         }
                     }
+                    catch (Exception ex) when (ReignServerEndpoint.IsTransportFailure(ex))
+                    {
+                        RecordStreamedPost(content);
+                        content?.Dispose();
+                        lastTransportFailure = ex;
+                    }
                 }
-                catch (Exception ex) when (ReignServerEndpoint.IsTransportFailure(ex))
-                {
-                    RecordStreamedPost(content);
-                    content?.Dispose();
-                    lastTransportFailure = ex;
-                }
+
+                if (!liveTestRoute)
+                    ReignServerEndpoint.ReportTransportFailure(probeClaim);
+                throw lastTransportFailure ?? new HttpRequestException("Local Bannerlord Reign server is unavailable.");
+            }
+            finally
+            {
+                // Owner abandonment, cancellation and non-transport exceptions
+                // release only this operation's own claim, without penalty; after
+                // a report this matching release is a no-op.
+                ReignServerEndpoint.ReleaseRequest(probeClaim);
+            }
+        }
+
+        // Local request-owner helpers. A null owner is the legacy unowned request.
+        // Owners are Bannerlord-thread predicates; EnsureRequestOwner must be
+        // called from the same game-thread callback that performs the effect.
+        internal sealed class RequestOwnerAbandonedException : OperationCanceledException
+        {
+            internal RequestOwnerAbandonedException(string message) : base(message) { }
+        }
+
+        private static async Task EnsureRequestOwnerAsync(Func<bool> requestOwner, string stage)
+        {
+            if (requestOwner != null && !await ReignMainThread.InvokeAsync(requestOwner).ConfigureAwait(false))
+                throw new RequestOwnerAbandonedException("The local request owner closed before " + stage + ".");
+        }
+
+        private static void EnsureRequestOwner(Func<bool> requestOwner, string stage)
+        {
+            if (requestOwner != null && !requestOwner())
+                throw new RequestOwnerAbandonedException("The local request owner closed before " + stage + ".");
+        }
+
+        private static bool RequestOwnerCurrent(Func<bool> requestOwner) => requestOwner == null || requestOwner();
+
+        // Captured on the Bannerlord thread: the exact loaded campaign instance,
+        // Save Sync load generation, campaign-initialization generation, campaign
+        // id and timeline. IsCurrent must also run on the Bannerlord thread.
+        internal sealed class RequestFence
+        {
+            private readonly object _campaign;
+            private readonly int _saveGeneration;
+            private readonly string _initializationGeneration;
+            private readonly string _campaignId;
+            private readonly string _timelineId;
+
+            private RequestFence(object campaign, int saveGeneration, string initializationGeneration, string campaignId, string timelineId)
+            {
+                _campaign = campaign;
+                _saveGeneration = saveGeneration;
+                _initializationGeneration = initializationGeneration;
+                _campaignId = campaignId;
+                _timelineId = timelineId;
             }
 
-            if (!liveTestRoute)
-                ReignServerEndpoint.ReportTransportFailure();
-            throw lastTransportFailure ?? new HttpRequestException("Local Bannerlord Reign server is unavailable.");
+            internal static RequestFence Capture() => new RequestFence(TaleWorlds.CampaignSystem.Campaign.Current,
+                ReignSaveSyncCoordinator.CampaignGeneration, InitializationGeneration(), GetCampaignId(), CurrentTimeline());
+
+            internal bool IsCurrent() => _campaign != null
+                && ReferenceEquals(_campaign, TaleWorlds.CampaignSystem.Campaign.Current)
+                && _saveGeneration == ReignSaveSyncCoordinator.CampaignGeneration
+                && string.Equals(_initializationGeneration, InitializationGeneration(), StringComparison.Ordinal)
+                && string.Equals(_campaignId, GetCampaignId(), StringComparison.Ordinal)
+                && string.Equals(_timelineId, CurrentTimeline(), StringComparison.Ordinal);
+
+            private static string InitializationGeneration() =>
+                ReignCampaignInitializationGate.Snapshot().Value<string>("generationId") ?? string.Empty;
+
+            private static string CurrentTimeline() => ReignWorldHistoryCampaignBehavior.Instance?.TimelineId ?? "main";
         }
 
         public static Task<JObject> PostCastleSceneAsync(JObject payload)
