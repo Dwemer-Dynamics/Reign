@@ -1,0 +1,36 @@
+# Court module (client)
+
+Castle court life. Courts and court life, nobles and visitors, ruler/noble/international dockets, patronage, capital ambassadors, family chambers, the training yard and the war council.
+
+> Generated from the source tree on 2026-11-17 and checked by hand. `reign.modules.json` stays authoritative for ownership and validation routing; `docs/agent/ARCHITECTURE.md` describes the target structure.
+
+## Layout
+
+| Folder | C# files |
+|---|---|
+| `Campaign` | 38 |
+| `UI` | 28 |
+| `Integration` | 8 |
+| `FamilyChambers` | 5 |
+| `TrainingYard` | 4 |
+| `WarCouncil` | 1 |
+
+Namespaces in use: `ReignBeta.Court (35)`, `ReignBeta.UI (18)`, `ReignBeta.UI.ViewModels (16)`, `ReignBeta.Integration (9)`, `ReignBeta.Campaign (5)`, `ReignBeta.Court.TrainingYard (1)`, `ReignBeta.Court.WarCouncil (1)`.
+
+## Public surface
+
+- Campaign behaviours deriving from `CampaignBehaviorBase` (all registered in `Platform/SubModule.cs`): `ReignCourtCampaignBehavior`, `ReignCourtNobleCampaignBehavior`, `ReignFamilyChambersCampaignBehavior`, `ReignTrainingYardCampaignBehavior`, `ReignWarCouncilCampaignBehavior`.
+- `ReignServerClient` partial files (server routes for this module): `Campaign/ReignPatronageHistory.cs`, `Integration/ReignFamilyVisitClient.cs`.
+- Other server clients: `Integration/ReignCastleSceneClient.cs`, `Integration/ReignCourtServerClient.cs`, `Integration/ReignInternationalCourtClient.cs`, `Integration/ReignRulerPetitionSceneClient.cs`.
+- Static `.Instance` singletons: `ReignCourtCampaignBehavior`, `ReignCourtNobleCampaignBehavior`, `ReignFamilyChambersCampaignBehavior`, `ReignWarCouncilCampaignBehavior`.
+- Types registered with the save definer (identity must not change without save compatibility): `AmbassadorPosting`, `CapitalAmbassadorTestLedger`, `CastleBathHistoryRecord`, `CastleRoomSessionRecord`, `CourtAgendaItem`, `CourtCounterSample`, `CourtDecisionOption`, `CourtMatter`, `CourtObligation`, `CourtOfficeAssignment`, `CourtPlot`, `CourtRegentAssignment`, `CourtSession`, `FamilyChambersSessionRecord`, `ForeignAmbassadorPosting`, `IntelligenceOperation`, `KingdomCapitalDesignation`.
+
+## Dependencies
+
+Other client modules whose types this module references, most-used first: Platform (68), WorldSimulation (65), Dialogue (40), Characters (36), Portraits (23), UI (18), Rebellion (14), Arena (8), Government (7), Persistence (7), Diplomacy (6), Spymaster (5), Relationships (5).
+
+Counts are distinct type names referenced per file, summed; they show coupling, not a layering rule.
+
+## In-game test harness shipped in this module
+
+These files belong to the test harness and are compiled into the mod today (see restructuring step C9): `Campaign/ReignCapitalAmbassadorInGameTests.cs`, `Campaign/ReignCourtLifeCaptiveFixture.cs`, `Campaign/ReignCourtLifeFamilyFixture.cs`, `Campaign/ReignCourtLifeInGameTests.cs`, `Campaign/ReignLiveInteractionCapitalAmbassadorHost.cs`, `Campaign/ReignLiveInteractionCourtHost.cs`, `Campaign/ReignLiveInteractionCourtLifeHost.cs`, `Campaign/ReignLiveInteractionRoyalCouncilHost.cs`, `Campaign/ReignLiveInteractionRulerDocketHost.cs`, `Campaign/ReignNobleDocketInGameTests.cs`, `Campaign/ReignRoyalCouncilInGameTests.cs`, `Campaign/ReignRulerDocketInGameTests.cs`, `Campaign/ReignRulerDocketLaunchTests.cs`.
