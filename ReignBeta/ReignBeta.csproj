@@ -31,6 +31,13 @@
     <Compile Remove="src\Modules\Spymaster\**\*.cs" />
   </ItemGroup>
 
+  <!-- Game-free sources compiled once, into ReignBeta.Core.dll (see Core/ReignBeta.Core.Sources.props). -->
+  <Import Project="Core\ReignBeta.Core.Sources.props" />
+  <ItemGroup>
+    <Compile Remove="Core\**" />
+    <Compile Remove="@(ReignCoreSource)" />
+  </ItemGroup>
+
   <ItemGroup>
     <Content Include="..\.version.txt;..\.version_number.txt" Link="%(Filename)%(Extension)" CopyToOutputDirectory="PreserveNewest" />
     <Compile Include="$(ReignServerRoot)\tools\portrait-generator\shared\ReignCourtAppearanceGenerator.cs"
@@ -165,6 +172,7 @@
     <Compile Include="$(ReignServerRoot)\shared\Reign.Relationships\ArrangedMarriagePolicy.cs" Link="Shared\ArrangedMarriagePolicy.cs" />
     <ProjectReference Include="$(ReignServerRoot)\shared\Reign.Core.Contracts\Reign.Core.Contracts.csproj" />
     <ProjectReference Include="src\Modules\Arena\ArenaOverhaul\ArenaOverhaul.csproj" />
+    <ProjectReference Include="Core\ReignBeta.Core.csproj" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="ModuleData\reign_tavern_cast.json">

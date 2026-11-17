@@ -1,0 +1,56 @@
+<Project>
+  <!-- Single list of the game-free client sources compiled into ReignBeta.Core.dll.
+       ReignBeta.Core.csproj compiles them; ReignBeta.csproj removes them from its own
+       compilation and references the core project instead. The files stay in their
+       owning module folders, so module ownership in reign.modules.json is unchanged.
+       A file listed here must not reference TaleWorlds, Harmony, MCM or other ReignBeta types. -->
+  <ItemGroup>
+    <ReignCoreSource Include="$(MSBuildThisFileDirectory)..\src\Modules\Characters\Campaign\ReignBusinessOwnershipRelease.cs" />
+    <ReignCoreSource Include="$(MSBuildThisFileDirectory)..\src\Modules\Characters\Campaign\ReignDuelModePolicy.cs" />
+    <ReignCoreSource Include="$(MSBuildThisFileDirectory)..\src\Modules\Characters\Campaign\ReignResidentCompanionRegistration.cs" />
+    <ReignCoreSource Include="$(MSBuildThisFileDirectory)..\src\Modules\Characters\Domain\NpcMeetingMovementEvidence.cs" />
+    <ReignCoreSource Include="$(MSBuildThisFileDirectory)..\src\Modules\Court\UI\ReignCourtLayout.cs" />
+    <ReignCoreSource Include="$(MSBuildThisFileDirectory)..\src\Modules\Court\UI\ReignKeepAccessPolicy.cs" />
+    <ReignCoreSource Include="$(MSBuildThisFileDirectory)..\src\Modules\Court\UI\ReignScenePreparationCoordinator.cs" />
+    <ReignCoreSource Include="$(MSBuildThisFileDirectory)..\src\Modules\Dialogue\Integration\ReignCommunicationPollHold.cs" />
+    <ReignCoreSource Include="$(MSBuildThisFileDirectory)..\src\Modules\Dialogue\Runtime\ReignConversationInputJournal.cs" />
+    <ReignCoreSource Include="$(MSBuildThisFileDirectory)..\src\Modules\Dialogue\Runtime\ReignPartyChatContinuation.cs" />
+    <ReignCoreSource Include="$(MSBuildThisFileDirectory)..\src\Modules\Dialogue\UI\ReignBanterWindowState.cs" />
+    <ReignCoreSource Include="$(MSBuildThisFileDirectory)..\src\Modules\Dialogue\UI\ReignPartyChatCleanup.cs" />
+    <ReignCoreSource Include="$(MSBuildThisFileDirectory)..\src\Modules\Government\Domain\GovernmentAttendanceResidencePolicy.cs" />
+    <ReignCoreSource Include="$(MSBuildThisFileDirectory)..\src\Modules\Government\Domain\GovernmentPoliticalRefreshCycle.cs" />
+    <ReignCoreSource Include="$(MSBuildThisFileDirectory)..\src\Modules\Government\Domain\GovernmentVoteEvidence.cs" />
+    <ReignCoreSource Include="$(MSBuildThisFileDirectory)..\src\Modules\Government\Domain\ReignGovernmentBusinessRecord.cs" />
+    <ReignCoreSource Include="$(MSBuildThisFileDirectory)..\src\Modules\Government\Domain\ReignGovernmentNativeSafety.cs" />
+    <ReignCoreSource Include="$(MSBuildThisFileDirectory)..\src\Modules\Persistence\Save\ReignSavePayloadCodec.cs" />
+    <ReignCoreSource Include="$(MSBuildThisFileDirectory)..\src\Modules\Platform\Domain\ReignTerminalReportRecoveryPolicy.cs" />
+    <ReignCoreSource Include="$(MSBuildThisFileDirectory)..\src\Modules\Platform\Integration\ReignCampaignReadinessState.cs" />
+    <ReignCoreSource Include="$(MSBuildThisFileDirectory)..\src\Modules\Platform\Integration\ReignPartyChatSessionRequest.cs" />
+    <ReignCoreSource Include="$(MSBuildThisFileDirectory)..\src\Modules\Portraits\AIPortraits\NativePortraitIdentity.cs" />
+    <ReignCoreSource Include="$(MSBuildThisFileDirectory)..\src\Modules\Portraits\AIPortraits\PortraitAvailabilityCache.cs" />
+    <ReignCoreSource Include="$(MSBuildThisFileDirectory)..\src\Modules\Portraits\AIPortraits\PortraitProductTransaction.cs" />
+    <ReignCoreSource Include="$(MSBuildThisFileDirectory)..\src\Modules\Portraits\UI\Portraits\ReignPortraitBustFraming.cs" />
+    <ReignCoreSource Include="$(MSBuildThisFileDirectory)..\src\Modules\Rebellion\Campaign\ReignRebellionResidentEscape.cs" />
+    <ReignCoreSource Include="$(MSBuildThisFileDirectory)..\src\Modules\Relationships\UI\ReignPlayerApproachPresentationPolicy.cs" />
+    <ReignCoreSource Include="$(MSBuildThisFileDirectory)..\src\Modules\Reputation\Domain\ReignRulerSampleIndex.cs" />
+    <ReignCoreSource Include="$(MSBuildThisFileDirectory)..\src\Modules\WorldSimulation\Actions\ReignCompletedOrderPolicy.cs" />
+    <ReignCoreSource Include="$(MSBuildThisFileDirectory)..\src\Modules\WorldSimulation\Actions\ReignUnfulfilledTreatyPolicy.cs" />
+    <ReignCoreSource Include="$(MSBuildThisFileDirectory)..\src\Modules\WorldSimulation\CampaignCommands\ReignCampaignCommandModels.cs" />
+    <ReignCoreSource Include="$(MSBuildThisFileDirectory)..\src\Modules\WorldSimulation\CampaignCommands\ReignCampaignReportPolicy.cs" />
+    <ReignCoreSource Include="$(MSBuildThisFileDirectory)..\src\Modules\WorldSimulation\CampaignCommands\ReignTimedHoldPolicy.cs" />
+    <ReignCoreSource Include="$(MSBuildThisFileDirectory)..\src\Modules\WorldSimulation\Domain\ReignPassiveWorldAdvanceBoundary.cs" />
+    <ReignCoreSource Include="$(MSBuildThisFileDirectory)..\src\Modules\WorldSimulation\Domain\RulerReleaseActionPolicy.cs" />
+    <ReignCoreSource Include="$(MSBuildThisFileDirectory)..\src\Modules\WorldSimulation\Economy\ReignMedicalDischargePolicy.cs" />
+    <ReignCoreSource Include="$(MSBuildThisFileDirectory)..\src\Modules\WorldSimulation\Economy\ReignRaidFoodPolicy.cs" />
+    <ReignCoreSource Include="$(MSBuildThisFileDirectory)..\src\Modules\WorldSimulation\Economy\ReignWarEconomyLedger.cs" />
+    <ReignCoreSource Include="$(MSBuildThisFileDirectory)..\src\Modules\WorldSimulation\Economy\ReignWarEconomyPolicy.cs" />
+    <ReignCoreSource Include="$(MSBuildThisFileDirectory)..\src\Modules\WorldSimulation\Integration\ReignWorldHistoryFlushPolicy.cs" />
+    <ReignCoreSource Include="$(MSBuildThisFileDirectory)..\src\Modules\WorldSimulation\Integration\ReignWorldHistoryOutbox.cs" />
+    <ReignCoreSource Include="$(MSBuildThisFileDirectory)..\src\Modules\WorldSimulation\PartyAgency\ReignGuestReviewSession.cs" />
+    <ReignCoreSource Include="$(MSBuildThisFileDirectory)..\src\Modules\WorldSimulation\PartyAgency\ReignGuestWagePolicy.cs" />
+    <ReignCoreSource Include="$(MSBuildThisFileDirectory)..\src\Modules\WorldSimulation\PartyAgency\ReignTemporaryGuestCustodyPolicy.cs" />
+    <ReignCoreSource Include="$(MSBuildThisFileDirectory)..\src\Modules\WorldSimulation\Runtime\ReignWildernessEventCompletion.cs" />
+    <ReignCoreSource Include="$(MSBuildThisFileDirectory)..\src\Modules\WorldSimulation\World\ReignSurrenderHandoff.cs" />
+    <ReignCoreSource Include="$(MSBuildThisFileDirectory)..\src\Modules\WorldSimulation\World\ReignWorldActionType.cs" />
+  </ItemGroup>
+</Project>
