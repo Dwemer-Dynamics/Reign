@@ -1996,7 +1996,7 @@ namespace ReignBeta.Integration
             string guardedPromptOverrideOwnerCommandId = "",
             Reign.Core.Contracts.Actions.ActionAgreement actionDraft = null,
             string retryOfCorrelationId = "", string retrySceneTurnId = "",
-            Func<bool> requestOwner = null)
+            Func<bool> requestOwner = null, bool requestViewInsertionReceipt = false)
         {
             ReignDialogueReply reply = new ReignDialogueReply();
             RequestFence fence = null;
@@ -2056,6 +2056,8 @@ namespace ReignBeta.Integration
                 }
                 string conceptionAttemptId = "player_intimacy_" + Guid.NewGuid().ToString("N");
                 bool officialAmbassador = IsOfficialAmbassadorContext(conversationContext);
+                // Only the ordinary Individual Chat view opts in; retries resend the same field.
+                if (requestViewInsertionReceipt && !officialAmbassador) payload[IndividualViewInsertionOptInField] = IndividualViewInsertionSchema;
                 bool suppressRelationshipAssessment =
                     conversationContext?.Value<bool?>("suppressRelationshipAssessment") == true;
                 if (!officialAmbassador)
@@ -2484,6 +2486,102 @@ namespace ReignBeta.Integration
                         throw new InvalidOperationException("HTTP " + (int)response.StatusCode + " from the pinned terminal report endpoint.");
                     return JObject.Parse(await response.Content.ReadAsStringAsync().ConfigureAwait(false));
                 }
+            }
+        }
+
+        // ---- Individual Chat view-insertion receipt v1 (client). ----
+        // Attests only that the guarded game-thread AddChatLine inserted the exact accepted
+        // NPC line into its matching individual view: never delivery, render, audio or a
+        // human observation. Unknown, older or ineligible descriptors stay normal replies.
+        private const string IndividualViewInsertionSchema = "reign-individual-view-insertion-v1";
+        private const string IndividualViewInsertionOptInField = "viewInsertionReceipt";
+        private const string IndividualViewInsertionAckSchema = "reign-individual-view-insertion-ack-v1";
+        private const string IndividualViewInsertionResultSchema = "reign-individual-view-insertion-result-v1";
+        private const string IndividualViewInsertionRoute = "/conversation/view-insertion";
+        private static readonly string[] IndividualViewInsertionAckFields = { "campaignId", "timelineId", "unitId",
+            "sessionId", "sourceTurnId", "role", "speakerHeroStringId", "playerHeroStringId", "restoreGeneration", "textSha256" };
+
+        // One captured insertion: its proven response origin and immutable 11-string body.
+        internal sealed class IndividualViewInsertionAck
+        {
+            internal IndividualViewInsertionAck(string origin, JObject body) { Origin = origin; Body = body; }
+            internal string Origin { get; }
+            internal JObject Body { get; }
+        }
+
+        private static string ExactJsonString(JObject source, string key) =>
+            source?[key] is JValue value && value.Type == JTokenType.String ? (string)value.Value : null;
+
+        // Game thread, in the same callback that just inserted lineText. Returns null unless
+        // the exact current reply carries an eligible v1 descriptor bound to this request's
+        // live scope, its accepted turn IDs, the raw line hash and a proven response origin.
+        internal static IndividualViewInsertionAck CaptureIndividualViewInsertion(JObject response, string lineText,
+            string campaignId, string timelineId, string sessionId, string playerHeroId, string npcHeroId,
+            string restoreGeneration)
+        {
+            JObject exchange = response?["conversationExchange"] as JObject;
+            JObject unit = exchange?["acceptedUnit"] as JObject;
+            JObject descriptor = unit?["viewInsertion"] as JObject;
+            string origin = ResponseOrigin(response);
+            if (descriptor == null || string.IsNullOrEmpty(lineText) || !IsAllowedPinnedOrigin(origin)
+                || ExactJsonString(descriptor, "schema") != IndividualViewInsertionSchema
+                || ExactJsonString(descriptor, "status") != "eligible") return null;
+            var body = new JObject { ["schema"] = IndividualViewInsertionAckSchema };
+            foreach (string field in IndividualViewInsertionAckFields)
+            {
+                string value = ExactJsonString(descriptor, field);
+                if (field != "role" && field != "textSha256"
+                    && !Reign.Core.Contracts.Actions.TerminalActionReportProtocol.IsTrustedIdentifier(value)) return null;
+                body[field] = value;
+            }
+            string turn = (string)body["sourceTurnId"];
+            bool InTurnIds(JToken ids) => ids is JArray array && array.Any(id => id.Type == JTokenType.String && (string)id == turn);
+            if ((string)body["role"] != "npc"
+                || (string)body["textSha256"] != ReignConversationInputJournal.Hash(lineText)
+                || (string)body["campaignId"] != campaignId || (string)body["timelineId"] != timelineId
+                || (string)body["sessionId"] != sessionId || ExactJsonString(exchange, "sessionId") != sessionId
+                || (string)body["playerHeroStringId"] != playerHeroId || (string)body["speakerHeroStringId"] != npcHeroId
+                || (string)body["unitId"] != ExactJsonString(unit, "unitId")
+                || (string)body["restoreGeneration"] != ExactJsonString(unit, "restoreGeneration")
+                || string.IsNullOrEmpty(restoreGeneration) || (string)body["restoreGeneration"] != restoreGeneration
+                || !InTurnIds(exchange["turnIds"]) || !InTurnIds(unit["sourceIds"])) return null;
+            return new IndividualViewInsertionAck(origin, body);
+        }
+
+        // Delivers one captured insertion to its exact pinned origin. owner is the original
+        // load's game-thread guard, rechecked before every dispatch and retry. Transport
+        // ambiguity retries the identical body (the server records an exact replay once);
+        // any definite non-inserted answer stops. Never regenerates, never fails the reply.
+        internal static async Task<bool> SendIndividualViewInsertionAsync(IndividualViewInsertionAck ack, Func<bool> owner)
+        {
+            if (ack == null || owner == null) return false;
+            for (int attempt = 1; ; attempt++)
+            {
+                JObject result;
+                try { result = await SendPinnedJsonAsync(ack.Origin, IndividualViewInsertionRoute, ack.Body, owner).ConfigureAwait(false); }
+                catch (RequestOwnerAbandonedException) { return false; }
+                catch (Exception ex) when (attempt < 3)
+                {
+                    ReignLog.Info("View insertion receipt retry attempt=" + attempt + " error=" + ex.GetType().Name);
+                    await Task.Delay(TimeSpan.FromSeconds(2 * attempt)).ConfigureAwait(false);
+                    continue;
+                }
+                catch (Exception ex)
+                {
+                    ReignLog.Info("View insertion receipt unknown error=" + ex.GetType().Name);
+                    return false;
+                }
+                bool inserted = result?["ok"] is JValue okValue && okValue.Type == JTokenType.Boolean && okValue.Value is bool okFlag && okFlag
+                    && ExactJsonString(result, "schema") == IndividualViewInsertionResultSchema
+                    && ExactJsonString(result, "disposition") == "inserted"
+                    && new[] { "campaignId", "unitId", "sourceTurnId", "restoreGeneration", "textSha256" }
+                        .All(field => ExactJsonString(result, field) == (string)ack.Body[field])
+                    && result["acknowledgedTs"] is JValue tsValue && tsValue.Type == JTokenType.Integer
+                    && (tsValue.Value is long ts ? ts > 0 : tsValue.Value is int tsInt && tsInt > 0);
+                if (!inserted)
+                    ReignLog.Info("View insertion receipt not recorded disposition="
+                        + (ExactJsonString(result, "disposition") ?? "") + " reason=" + (ExactJsonString(result, "reason") ?? ""));
+                return inserted;
             }
         }
 
