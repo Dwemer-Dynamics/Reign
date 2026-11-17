@@ -4,8 +4,6 @@
     <IsPackable>false</IsPackable>
   </PropertyGroup>
   <ItemGroup>
-    <Compile Include="..\..\..\ReignBeta\src\Modules\WorldSimulation\Economy\ReignNpcFoodSabotagePolicy.cs" Link="Shared\ReignNpcFoodSabotagePolicy.cs" />
-    <Compile Include="..\..\..\ReignServer\shared\Reign.Shared.Source\Core\ReignKingdomEventCore.cs" Link="Shared\ReignKingdomEventCore.cs" />
     <Compile Include="..\..\..\ReignServer\src\Modules\Platform\NativeProviderTestGuard.cs" Link="Shared\NativeProviderTestGuard.cs" />
     <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
     <Compile Include="..\..\..\ReignBeta\src\Modules\Arena\ArenaOverhaul\Tournament\TournamentHeroEligibility.cs"

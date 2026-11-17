@@ -31,13 +31,6 @@
     <Compile Remove="src\Modules\Spymaster\**\*.cs" />
   </ItemGroup>
 
-  <!-- Game-free sources compiled once, into ReignBeta.Core.dll (see Core/ReignBeta.Core.Sources.props). -->
-  <Import Project="Core\ReignBeta.Core.Sources.props" />
-  <ItemGroup>
-    <Compile Remove="Core\**" />
-    <Compile Remove="@(ReignCoreSource)" />
-  </ItemGroup>
-
   <ItemGroup>
     <Content Include="..\.version.txt;..\.version_number.txt" Link="%(Filename)%(Extension)" CopyToOutputDirectory="PreserveNewest" />
     <Compile Include="$(ReignServerRoot)\tools\portrait-generator\shared\ReignCourtAppearanceGenerator.cs"
@@ -205,4 +198,12 @@
     <Error Condition="!Exists('$(NativePortraitGeneratorPublishDir)Bannerlord.NativePortraitRenderHost.exe')"
            Text="The bundled native TaleWorlds portrait render host was not published into the Reign client package." />
   </Target>
+  <!-- Game-free sources compiled once, into ReignBeta.Core.dll (see Core/ReignBeta.Core.Sources.props).
+       Kept last so the removals apply after every Compile include above. -->
+  <Import Project="Core\ReignBeta.Core.Sources.props" />
+  <ItemGroup>
+    <Compile Remove="Core\**" />
+    <Compile Remove="@(ReignCoreSource)" />
+    <Compile Remove="@(ReignCoreLinkedSource)" />
+  </ItemGroup>
 </Project>

@@ -41,6 +41,7 @@
     <ReignCoreSource Include="$(MSBuildThisFileDirectory)..\src\Modules\WorldSimulation\Domain\ReignPassiveWorldAdvanceBoundary.cs" />
     <ReignCoreSource Include="$(MSBuildThisFileDirectory)..\src\Modules\WorldSimulation\Domain\RulerReleaseActionPolicy.cs" />
     <ReignCoreSource Include="$(MSBuildThisFileDirectory)..\src\Modules\WorldSimulation\Economy\ReignMedicalDischargePolicy.cs" />
+    <ReignCoreSource Include="$(MSBuildThisFileDirectory)..\src\Modules\WorldSimulation\Economy\ReignNpcFoodSabotagePolicy.cs" />
     <ReignCoreSource Include="$(MSBuildThisFileDirectory)..\src\Modules\WorldSimulation\Economy\ReignRaidFoodPolicy.cs" />
     <ReignCoreSource Include="$(MSBuildThisFileDirectory)..\src\Modules\WorldSimulation\Economy\ReignWarEconomyLedger.cs" />
     <ReignCoreSource Include="$(MSBuildThisFileDirectory)..\src\Modules\WorldSimulation\Economy\ReignWarEconomyPolicy.cs" />
@@ -52,5 +53,10 @@
     <ReignCoreSource Include="$(MSBuildThisFileDirectory)..\src\Modules\WorldSimulation\Runtime\ReignWildernessEventCompletion.cs" />
     <ReignCoreSource Include="$(MSBuildThisFileDirectory)..\src\Modules\WorldSimulation\World\ReignSurrenderHandoff.cs" />
     <ReignCoreSource Include="$(MSBuildThisFileDirectory)..\src\Modules\WorldSimulation\World\ReignWorldActionType.cs" />
+  </ItemGroup>
+  <!-- Server-owned shared source that core code needs. ReignBeta drops its own link of these
+       files so each type is compiled once, in ReignBeta.Core. Requires $(ReignServerRoot). -->
+  <ItemGroup>
+    <ReignCoreLinkedSource Include="$(ReignServerRoot)\shared\Reign.Shared.Source\Core\ReignKingdomEventCore.cs" />
   </ItemGroup>
 </Project>
