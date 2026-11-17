@@ -750,8 +750,12 @@ if ($auxiliaryUiAuthorityFileCount -ne $expectedAuxiliaryUiAuthorityFileCount -o
 if ($protectedMapRows.Count -ne $expectedProtectedMapFileCount) {
     throw "The protected War Council map authority must contain exactly $expectedProtectedMapFileCount files; found $($protectedMapRows.Count)."
 }
+# ReignBeta.Core.dll: the game-free client core assembly deployed next to ReignBeta.dll
+# (outside the frozen UI authority count, which already holds the ReignBeta and contracts DLLs).
+$coreClientArtifactRowCount = 1
 $expectedFileCount =
     $uiAuthorityFileCount +
+    $coreClientArtifactRowCount +
     $auxiliaryUiAuthorityFileCount +
     $fixedRuntimeUiContractFileCount +
     $protectedMapRows.Count +
