@@ -31,13 +31,14 @@ namespace ReignBeta.Integration
             return history;
         }
         internal static async Task<ReignSocialEventTurnReply> RequestNpcStoryTurnAsync(ReignSocialEventSession session, string text,
-            string turnId, Reign.Core.Contracts.Actions.ActionAgreement actionDraft)
+            string turnId, Reign.Core.Contracts.Actions.ActionAgreement actionDraft, Func<bool> requestOwner = null)
         {
             await session.PersonalStoryReady.ConfigureAwait(false);
             var story = session.PersonalStory;
             var owner = await ReignMainThread.InvokeAsync(() => ReignNpcLivesBehavior.Instance).ConfigureAwait(false);
             await owner.RefreshLifeSnapshotAsync().ConfigureAwait(false);
             Hero hero = await ReignMainThread.InvokeAsync(() => {
+                EnsureRequestOwner(requestOwner, "story turn capture");
                 var current = owner.State.Stories.FirstOrDefault(s => s.Id == story.Id);
                 if (current == null || current.Status != "active" || current.Revision != story.Revision)
                     throw new InvalidOperationException("This chapter has ended or changed. Reopen Personal lives to continue.");
@@ -49,7 +50,8 @@ namespace ReignBeta.Integration
                 return npc;
             }).ConfigureAwait(false);
             var reply = await RequestDialogueResponseAsync(hero, text, StorySceneSessionId(session),
-                correlationId: turnId, conversationContext: session.PersonalStoryContext, actionDraft: actionDraft).ConfigureAwait(false);
+                correlationId: turnId, conversationContext: session.PersonalStoryContext, actionDraft: actionDraft,
+                requestOwner: requestOwner).ConfigureAwait(false);
             var result = new ReignSocialEventTurnReply { Ok = reply.Ok, Error = reply.Error, TurnId = turnId, RawResponse = reply.RawResponse };
             if (reply.Ok)
             {

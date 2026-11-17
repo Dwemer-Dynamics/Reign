@@ -24,6 +24,10 @@ namespace ReignBeta.UI
         internal static bool IsOpen => _layer != null;
         internal static GauntletLayer InputLayer => _layer;
         internal static bool IsCalibrationActive => _calibration;
+        // Game thread only: a successfully mounted, expanded production panel on the current
+        // top screen. This is admission evidence only; it does not prove a line was read.
+        internal static bool IsReadable => _layer != null && _vm != null && _window != null && !_calibration
+            && !_window.Collapsed && _host != null && ReferenceEquals(_host, ScreenManager.TopScreen);
         internal static bool ShowCalibrationFixture()
         {
             Close();

@@ -367,7 +367,8 @@ namespace ReignBeta.Actions
                     || order.IssuerHeroStringId != captured.TargetHeroStringId || order.CorrelationId != parent.Agreement.Id
                     || !ReignCompletedOrderPolicy.CanReconcileCancellation(parent, step,
                         JToken.DeepEquals(AuthorityFields(captured), AuthorityFields(record)),
-                        _applied.Contains(Key(parent.Agreement, clause, step.Installment)), order.Status, record.Status.ToString())) continue;
+                        _applied.Contains(Key(parent.Agreement, clause, step.Installment)), order.Status, record.Status.ToString(),
+                        record.FailureReason)) continue;
                 var cancellation = _agreements.Values.FirstOrDefault(j => j.Agreement.State == AgreementState.Completed
                     && j.Agreement.HasBothConsents && j.CommittedHash == j.Agreement.TermsHash()
                     && j.Agreement.PlayerId == parent.Agreement.PlayerId && j.Agreement.NpcId == parent.Agreement.NpcId

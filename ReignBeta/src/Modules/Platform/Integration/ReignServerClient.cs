@@ -1023,7 +1023,8 @@ namespace ReignBeta.Integration
             ReignSocialEventSession session,
             Hero speaker,
             string playerText,
-            bool approachOpening = false)
+            bool approachOpening = false,
+            Func<bool> requestOwner = null)
         {
             ReignEventReply reply = new ReignEventReply();
             try
@@ -1041,15 +1042,26 @@ namespace ReignBeta.Integration
                     return reply;
                 }
 
-                ReignHeroKnowledge.MarkMet(speaker);
-                JObject payload = BuildSocialEventPayload(session, speaker, playerText);
+                // Native reads, the load fence and the owner share one game-thread capture.
+                RequestFence fence = null;
+                List<Hero> attendees = null;
+                JObject payload = await ReignMainThread.InvokeAsync(() =>
+                {
+                    EnsureRequestOwner(requestOwner, "social event response capture");
+                    fence = RequestFence.Capture();
+                    ReignHeroKnowledge.MarkMet(speaker);
+                    attendees = session.Record.GetAttendees().ToList();
+                    return BuildSocialEventPayload(session, speaker, playerText);
+                }).ConfigureAwait(false);
                 payload["correlationId"] = NewCorrelationId("social_event", speaker.StringId);
                 payload["mode"] = "social_event";
                 payload["turnType"] = approachOpening ? "npc_approach_opening" : "player_reply";
                 payload["approachOpening"] = approachOpening;
-                await AttachContextBundlesAsync(payload, "social_event", speaker, session.Record.GetAttendees()).ConfigureAwait(false);
+                await EnsureRequestOwnerAsync(requestOwner, "social event context selection").ConfigureAwait(false);
+                await AttachContextBundlesAsync(payload, "social_event", speaker, attendees).ConfigureAwait(false);
                 Stopwatch timer = Stopwatch.StartNew();
-                JObject response = await PostWandererConversationAsync("/events/social/respond", payload, speaker, approachOpening ? string.Empty : playerText).ConfigureAwait(false);
+                JObject response = await PostWandererConversationAsync("/events/social/respond", payload, speaker, approachOpening ? string.Empty : playerText,
+                    null, requestOwner).ConfigureAwait(false);
                 timer.Stop();
                 reply.Ok = response.Value<bool?>("ok") == true;
                 reply.HeroStringId = speaker.StringId;
@@ -1062,7 +1074,7 @@ namespace ReignBeta.Integration
                 reply.RelationshipAssessments = response["relationshipAssessments"] as JArray ?? new JArray();
                 reply.Error = response.Value<string>("error") ?? string.Empty;
                 reply.EncyclopediaText = response.Value<string>("encyclopediaText") ?? string.Empty;
-                ApplyHeroEncyclopediaText(speaker, reply.EncyclopediaText);
+                reply.RawResponse = response;
                 reply.ClientTotalMs = timer.ElapsedMilliseconds;
                 reply.TimingSummary = FormatTimingSummary(response["timing"] as JObject);
                 if (!reply.Ok && string.IsNullOrWhiteSpace(reply.Error))
@@ -1070,21 +1082,34 @@ namespace ReignBeta.Integration
                     reply.Error = FriendlyConversationFailure(response, payload.Value<string>("correlationId"));
                 }
 
-                if (reply.Ok && Hero.MainHero != null)
+                Func<bool> current = () => fence.IsCurrent() && RequestOwnerCurrent(requestOwner);
+                await ReignMainThread.InvokeAsync(() => { if (current()) ApplyHeroEncyclopediaText(speaker, reply.EncyclopediaText); }).ConfigureAwait(false);
+                if (reply.Ok)
                 {
+                    // The adjudication capture is owner-checked on the game thread.
                     await ApplyConversationRelationshipAssessmentsAsync(
                         response["conversationExchange"]?["exchangeId"]?.Value<string>() ?? payload.Value<string>("sceneTurnId") ?? string.Empty,
                         approachOpening ? "social_event_npc_initiative" : "social_event_conversation",
-                        session.Record.GetAttendees(), new[] { response }, payload.Value<string>("correlationId") ?? string.Empty).ConfigureAwait(false);
-                    if (!approachOpening)
+                        attendees, new[] { response }, payload.Value<string>("correlationId") ?? string.Empty, current).ConfigureAwait(false);
+                    await ReignMainThread.InvokeAsync(() =>
                     {
-                        _ = ObservePlayerHistoricalClaimForListenersSafelyAsync(speaker, session.Record.GetAttendees(), playerText, "social_event");
-                    }
+                        if (!current() || Hero.MainHero == null) return;
+                        if (!approachOpening)
+                        {
+                            _ = ObservePlayerHistoricalClaimForListenersSafelyAsync(speaker, attendees, playerText, "social_event");
+                        }
 
-                    if (string.IsNullOrWhiteSpace(response.Value<string>("privateAudienceHeroStringId")))
-                        _ = ObserveNpcHistoricalClaimForListenersSafelyAsync(speaker, session.Record.GetAttendees(), reply.Text, "social_event");
+                        if (string.IsNullOrWhiteSpace(response.Value<string>("privateAudienceHeroStringId")))
+                            _ = ObserveNpcHistoricalClaimForListenersSafelyAsync(speaker, attendees, reply.Text, "social_event");
+                    }).ConfigureAwait(false);
                 }
 
+                return reply;
+            }
+            catch (RequestOwnerAbandonedException ex)
+            {
+                reply.Error = ex.Message;
+                ReignLog.Info("Social event response abandoned by its local owner: " + ex.Message);
                 return reply;
             }
             catch (Exception ex)
@@ -1096,21 +1121,31 @@ namespace ReignBeta.Integration
         }
 
         public static async Task<JObject> RequestPartyChatTurnPlanAsync(ReignPartyChatSession session,
-            List<Hero> presentHeroes, string playerText, bool opening = false, string actionRecipientId = "")
+            List<Hero> presentHeroes, string playerText, bool opening = false, string actionRecipientId = "",
+            Func<bool> requestOwner = null)
         {
             if (session == null || presentHeroes == null || presentHeroes.Count == 0)
                 return new JObject { ["ok"] = false, ["error"] = "No group audience is available." };
             try
             {
-                JObject payload = await ReignMainThread.InvokeAsync(() => BuildPartyChatPayload(session,
-                    presentHeroes[0], presentHeroes, playerText)).ConfigureAwait(false);
+                JObject payload = await ReignMainThread.InvokeAsync(() =>
+                {
+                    EnsureRequestOwner(requestOwner, "group speaking plan capture");
+                    return BuildPartyChatPayload(session, presentHeroes[0], presentHeroes, playerText);
+                }).ConfigureAwait(false);
                 payload["mode"] = "party_chat";
                 payload["approachOpening"] = opening;
                 payload["structuredActionRecipientId"] = actionRecipientId;
                 payload["structuredActionProtocolVersion"] = Reign.Core.Contracts.Actions.ActionNegotiation.ProtocolVersion;
                 // Freeze the full audience's response order before context selection.
                 // Each NPC's contextual writer decides whether to speak or listen.
-                return await PostJsonAsync("/party-chat/turn-plan", payload).ConfigureAwait(false);
+                return requestOwner == null ? await PostJsonAsync("/party-chat/turn-plan", payload).ConfigureAwait(false)
+                    : await PostOwnedJsonAsync("/party-chat/turn-plan", payload, requestOwner).ConfigureAwait(false);
+            }
+            catch (RequestOwnerAbandonedException ex)
+            {
+                ReignLog.Info("Group speaking plan abandoned by its local owner: " + ex.Message);
+                return new JObject { ["ok"] = false, ["error"] = "The conversation closed." };
             }
             catch (Exception ex)
             {
@@ -1136,12 +1171,13 @@ namespace ReignBeta.Integration
             string familyScenePlanJson = "{}",
             string residentHomeVenue = "",
             JObject speakingFloor = null,
-            Reign.Core.Contracts.Actions.ActionAgreement actionDraft = null)
+            Reign.Core.Contracts.Actions.ActionAgreement actionDraft = null,
+            Func<bool> requestOwner = null)
         {
+            // The native display name is read in the guarded game-thread capture below.
             ReignPartyChatReply reply = new ReignPartyChatReply
             {
-                SpeakerHeroStringId = speaker?.StringId ?? string.Empty,
-                SpeakerName = speaker?.Name?.ToString() ?? string.Empty
+                SpeakerHeroStringId = speaker?.StringId ?? string.Empty
             };
             try
             {
@@ -1158,10 +1194,19 @@ namespace ReignBeta.Integration
                     return reply;
                 }
 
+                RequestFence fence = null;
+                JObject visitorContext = null;
+                string familyTimeline = "main";
                 JObject payload = await ReignMainThread.InvokeAsync(() =>
                 {
+                    // Owner, native capture and the load fence share one game-thread callback.
+                    EnsureRequestOwner(requestOwner, "party chat request capture");
+                    fence = RequestFence.Capture();
+                    reply.SpeakerName = speaker.Name?.ToString() ?? string.Empty;
                     ReignHeroKnowledge.MarkMet(activeHeroes);
                     ReignHeroKnowledge.MarkMet(speaker);
+                    visitorContext = ReignCourtCampaignBehavior.Instance?.BuildNobleVisitorConversationContext(speaker.StringId);
+                    familyTimeline = ReignWorldHistoryCampaignBehavior.Instance?.TimelineId ?? "main";
                     return BuildPartyChatPayload(session, speaker, activeHeroes ?? new List<Hero>(), playerText);
                 }).ConfigureAwait(false);
                 if (speakingFloor != null)
@@ -1176,7 +1221,6 @@ namespace ReignBeta.Integration
                         ["policy"] = speakingFloor.Value<string>("policy") ?? ""
                     };
                 }
-                JObject visitorContext = ReignCourtCampaignBehavior.Instance?.BuildNobleVisitorConversationContext(speaker.StringId);
                 if (visitorContext?.Value<bool?>("enabled") == true) payload["nobleVisitorContext"] = visitorContext;
                 payload["correlationId"] = string.IsNullOrWhiteSpace(correlationId)
                     ? NewCorrelationId("party_chat", speaker.StringId)
@@ -1197,7 +1241,7 @@ namespace ReignBeta.Integration
                     payload["familyChambers"] = true;
                     payload["childParticipantIds"] = new JArray((childHeroIdsCsv ?? string.Empty).Split(new[] { ',' }, StringSplitOptions.RemoveEmptyEntries));
                     payload["familyScenePlan"] = string.IsNullOrWhiteSpace(familyScenePlanJson) ? "{}" : familyScenePlanJson;
-                    payload["timelineId"] = ReignWorldHistoryCampaignBehavior.Instance?.TimelineId ?? "main";
+                    payload["timelineId"] = familyTimeline;
                 }
                 if (!string.IsNullOrWhiteSpace(residentHomeVenue))
                 {
@@ -1215,9 +1259,11 @@ namespace ReignBeta.Integration
                     payload["auditSceneIndex"] = auditSceneIndex;
                     payload["auditTurnIndex"] = auditTurnIndex;
                 }
+                await EnsureRequestOwnerAsync(requestOwner, "party chat context selection").ConfigureAwait(false);
                 await AttachContextBundlesAsync(payload, "party_chat", speaker, activeHeroes ?? new List<Hero>()).ConfigureAwait(false);
                 Stopwatch timer = Stopwatch.StartNew();
-                JObject response = await PostWandererConversationAsync("/party-chat/respond", payload, speaker, castleOpening ? string.Empty : playerText, actionDraft).ConfigureAwait(false);
+                JObject response = await PostWandererConversationAsync("/party-chat/respond", payload, speaker, castleOpening ? string.Empty : playerText, actionDraft,
+                    requestOwner).ConfigureAwait(false);
                 timer.Stop();
                 reply.Ok = response.Value<bool?>("ok") == true;
                 reply.Text = response.Value<string>("reply") ?? string.Empty;
@@ -1237,7 +1283,6 @@ namespace ReignBeta.Integration
                 reply.ExchangeId = exchange?.Value<string>("exchangeId") ?? session.CurrentSceneTurnId ?? string.Empty;
                 reply.SelectedContextPulls = response["selectedContextPulls"] as JArray ?? new JArray();
                 reply.QueuedActions = response["queuedActions"] as JArray ?? new JArray();
-                ApplyHeroEncyclopediaText(speaker, reply.EncyclopediaText);
                 reply.ClientTotalMs = timer.ElapsedMilliseconds;
                 reply.TimingSummary = FormatTimingSummary(response["timing"] as JObject);
                 ReignLog.Info("HTTP /party-chat/respond hero=" + speaker.StringId
@@ -1249,13 +1294,26 @@ namespace ReignBeta.Integration
                     reply.Error = FriendlyConversationFailure(response, reply.CorrelationId);
                 }
 
-                if (reply.Ok && Hero.MainHero != null && !familyChambers)
+                // Native hero text and the observers' synchronous native reads start only
+                // in a game-thread callback for the original load and a current owner.
+                await ReignMainThread.InvokeAsync(() =>
                 {
-                    if (string.IsNullOrWhiteSpace(reply.PrivateAudienceHeroStringId))
-                        _ = ObserveNpcHistoricalClaimForListenersSafelyAsync(speaker, activeHeroes, reply.Text, "party_chat");
-                    _ = ObservePlayerHistoricalClaimForListenersSafelyAsync(speaker, activeHeroes, playerText, "party_chat");
-                }
+                    if (!fence.IsCurrent() || !RequestOwnerCurrent(requestOwner)) return;
+                    ApplyHeroEncyclopediaText(speaker, reply.EncyclopediaText);
+                    if (reply.Ok && Hero.MainHero != null && !familyChambers)
+                    {
+                        if (string.IsNullOrWhiteSpace(reply.PrivateAudienceHeroStringId))
+                            _ = ObserveNpcHistoricalClaimForListenersSafelyAsync(speaker, activeHeroes, reply.Text, "party_chat");
+                        _ = ObservePlayerHistoricalClaimForListenersSafelyAsync(speaker, activeHeroes, playerText, "party_chat");
+                    }
+                }).ConfigureAwait(false);
 
+                return reply;
+            }
+            catch (RequestOwnerAbandonedException ex)
+            {
+                reply.Error = ex.Message;
+                ReignLog.Info("Party chat response abandoned by its local owner: " + ex.Message);
                 return reply;
             }
             catch (Exception ex)
@@ -1918,7 +1976,8 @@ namespace ReignBeta.Integration
         public static async Task<ReignConversationFinishResult> FinishPartyChatConversationSessionAsync(
             ReignPartyChatSession session,
             IEnumerable<Hero> activeHeroes,
-            string reason = "closed_by_player")
+            string reason = "closed_by_player",
+            Func<bool> loadOwner = null)
         {
             string sessionId = session?.SessionId ?? string.Empty;
             ReignConversationFinishResult result = new ReignConversationFinishResult { SessionId = sessionId };
@@ -1951,7 +2010,7 @@ namespace ReignBeta.Integration
                 result.Raw = response;
                 result.Error = response.Value<string>("error") ?? string.Empty;
                 ReignLog.Info("Party chat conversation session finish id=" + sessionId + " ok=" + result.Ok);
-                if (result.Ok) await ReignMainThread.InvokeAsync(() => ApplyCommunicationCloseWork(response)).ConfigureAwait(false);
+                if (result.Ok) await ReignMainThread.InvokeAsync(() => { if (RequestOwnerCurrent(loadOwner)) ApplyCommunicationCloseWork(response); }).ConfigureAwait(false);
             }
             catch (Exception ex)
             {
@@ -2088,7 +2147,12 @@ namespace ReignBeta.Integration
                     bool current = fence.IsCurrent() && RequestOwnerCurrent(requestOwner);
                     if (current && applyNativeEncyclopediaText && !string.IsNullOrWhiteSpace(reply.EncyclopediaText))
                         ApplyHeroEncyclopediaText(hero, reply.EncyclopediaText);
-                    reply.QueuedActions = current ? ParseQueuedActionRows(response["queuedTestDirectiveActions"], fence) : new List<ReignWorldActionRecord>();
+                    // Dialogue actions were already imported once by the conversation wrapper
+                    // under this same fence; only test directives remain for the view import.
+                    // QueuedActions keeps the combined evidence (directives, then dialogue
+                    // actions) that automation and audit assertions read; parsing never imports.
+                    reply.TestDirectiveActions = current ? ParseQueuedActionRows(response["queuedTestDirectiveActions"], fence) : new List<ReignWorldActionRecord>();
+                    reply.QueuedActions = new List<ReignWorldActionRecord>(reply.TestDirectiveActions);
                     if (current) reply.QueuedActions.AddRange(ParseQueuedActionRows(response["queuedDialogueActions"], fence));
                     playerPresent = current && Hero.MainHero != null;
                 }).ConfigureAwait(false);
@@ -2458,6 +2522,19 @@ namespace ReignBeta.Integration
         internal static bool IsAllowedPinnedOrigin(string origin) => !string.IsNullOrEmpty(origin)
             && ReignServerEndpoint.CandidateBaseUrls().Any(baseUrl => string.Equals(PinnableOrigin(baseUrl), origin, StringComparison.Ordinal));
 
+        // A definite HTTP answer from the exact pinned origin. It stays an
+        // InvalidOperationException, with the same message, for existing callers.
+        internal sealed class PinnedHttpRefusalException : InvalidOperationException
+        {
+            internal PinnedHttpRefusalException(int statusCode)
+                : base("HTTP " + statusCode + " from the pinned terminal report endpoint.") { StatusCode = statusCode; }
+            internal int StatusCode { get; }
+            // 408 Request Timeout and 429 Too Many Requests are transient answers that keep
+            // the caller's bounded retry.
+            internal bool IsDefiniteClientRefusal => StatusCode >= 400 && StatusCode < 500
+                && StatusCode != 408 && StatusCode != 429;
+        }
+
         // Terminal action report v1 transport: the exact pinned origin only, no redirects,
         // no candidate failover and no shared circuit-breaker state. The protocol handler
         // still performs its handshake and adds its header. Failures throw without the
@@ -2483,7 +2560,7 @@ namespace ReignBeta.Integration
                     if (final == null || !string.Equals(final.AbsoluteUri, new Uri(url).AbsoluteUri, StringComparison.Ordinal))
                         throw new InvalidOperationException("The pinned terminal report response came from a different endpoint.");
                     if (!response.IsSuccessStatusCode)
-                        throw new InvalidOperationException("HTTP " + (int)response.StatusCode + " from the pinned terminal report endpoint.");
+                        throw new PinnedHttpRefusalException((int)response.StatusCode);
                     return JObject.Parse(await response.Content.ReadAsStringAsync().ConfigureAwait(false));
                 }
             }
@@ -2560,6 +2637,13 @@ namespace ReignBeta.Integration
                 JObject result;
                 try { result = await SendPinnedJsonAsync(ack.Origin, IndividualViewInsertionRoute, ack.Body, owner).ConfigureAwait(false); }
                 catch (RequestOwnerAbandonedException) { return false; }
+                catch (PinnedHttpRefusalException ex) when (ex.IsDefiniteClientRefusal)
+                {
+                    // A definite 4xx refusal is not transport ambiguity; resending the
+                    // identical body cannot change it.
+                    ReignLog.Info("View insertion receipt refused status=" + ex.StatusCode);
+                    return false;
+                }
                 catch (Exception ex) when (attempt < 3)
                 {
                     ReignLog.Info("View insertion receipt retry attempt=" + attempt + " error=" + ex.GetType().Name);
@@ -6546,7 +6630,10 @@ namespace ReignBeta.Integration
         public string ActionShadowPreview { get; set; } = string.Empty;
         public bool ConceptionGateNeeded { get; set; }
         public ReignConceptionAttemptResult ConceptionAttempt { get; set; }
+        // Combined evidence: test directives, then dialogue actions. Read-only for audits.
         public List<ReignWorldActionRecord> QueuedActions { get; set; } = new List<ReignWorldActionRecord>();
+        // Test directives only; the sole list the Individual view imports.
+        public List<ReignWorldActionRecord> TestDirectiveActions { get; set; } = new List<ReignWorldActionRecord>();
         public long ClientTotalMs { get; set; }
         public string TimingSummary { get; set; } = string.Empty;
         public string CorrelationId { get; set; } = string.Empty;

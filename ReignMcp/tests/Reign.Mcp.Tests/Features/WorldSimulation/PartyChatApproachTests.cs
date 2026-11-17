@@ -41,7 +41,7 @@ public sealed class PartyChatApproachTests
         catch (OperationCanceledException) { process.Kill(true); await process.WaitForExitAsync(); throw new TimeoutException("Party Send probe timed out: " + evidence); }
         Assert.True(process.ExitCode == 0, (await output) + (await error) + " Evidence: " + evidence);
         using var report = JsonDocument.Parse(File.ReadAllText(Path.Combine(evidence, "report.json")));
-        Assert.Equal(35, report.RootElement.GetArrayLength());
+        Assert.Equal(37, report.RootElement.GetArrayLength());
     }
 
     private sealed class WindowsFactAttribute : FactAttribute
@@ -59,7 +59,27 @@ public sealed class PartyChatApproachTests
         namespace ReignBeta.Actions { public static class ReignActionService { public static Draft Copy(Draft draft) => new Draft { NpcId = draft.NpcId }; } }
         namespace ReignBeta.Campaign { public sealed class ReignWorldHistoryCampaignBehavior { public static ReignWorldHistoryCampaignBehavior Instance; public string TimelineId; } }
         public sealed class Options { public bool Enabled = true; public bool Allows(string key) => Enabled; }
-        public static class ReignServerClient { public static Options NpcLivesOptions = new Options(); public static string GetCampaignId() => "isolated"; }
+        public static class ReignServerClient {
+            public static Options NpcLivesOptions = new Options(); public static string GetCampaignId() => "isolated";
+            // Modeled load identity: a campaign object and a save generation, both replaced by a load change.
+            public static object Campaign = new object(); public static int SaveGeneration;
+            public static void ChangeLoad() { Campaign = new object(); SaveGeneration++; }
+            public sealed class RequestFence {
+                private readonly object _campaign; private readonly int _generation;
+                private RequestFence(object campaign, int generation) { _campaign = campaign; _generation = generation; }
+                public static RequestFence Capture() => new RequestFence(Campaign, SaveGeneration);
+                public bool IsCurrent() { ReignMainThread.FenceChecks++; return _campaign != null && ReferenceEquals(_campaign, Campaign) && _generation == SaveGeneration; }
+            }
+        }
+        // Dispatches each callback as the game thread and records it; exceptions fault the task as in production.
+        public static class ReignMainThread {
+            public static bool IsMainThread; public static int Dispatched, FenceChecks;
+            public static Task InvokeAsync(Action action) { return InvokeAsync<bool>(() => { action(); return true; }); }
+            public static Task<T> InvokeAsync<T>(Func<T> action) {
+                bool previous = IsMainThread; IsMainThread = true; Dispatched++;
+                try { return Task.FromResult(action()); } catch (Exception ex) { return Task.FromException<T>(ex); } finally { IsMainThread = previous; }
+            }
+        }
         public static class ReignConversationInputJournal { public static bool Fail; public static string Text; public static void Save(string campaign, string timeline, string player, string id, string text, string session) { if (Fail) throw new Exception("journal failed"); Text = text; } }
         public sealed class Session { public string ApproachRequestId = "", SessionId = "session"; public int PlayerInputCount; public string Transcript; public void RegisterPlayerInput() { PlayerInputCount++; } public void RecordTranscriptLine(string name, string text, string id, string role) { Transcript = text; } }
         public sealed class ReignPartyChatBatchResult { public bool Ok = true; }
@@ -73,23 +93,28 @@ public sealed class PartyChatApproachTests
             public Draft ActionDraft;
             public Task _activeBatchTask;
             public int Openings, Sends;
+            public bool SentOnMainThread;
+            public TaskCompletionSource<ReignPartyChatBatchResult> PendingOpening;
             public string SentText, VisibleText, Error;
             public Draft SentDraft;
             public bool SuppressAssessment;
             public List<Hero> Heroes = new List<Hero> { new Hero { StringId = "npc_a" } };
             public List<Hero> GetSelectedHeroes() => Heroes;
             public string LifeAudienceKey(List<Hero> heroes) => string.Join("|", heroes.Select(h => h.StringId));
-            public Task<ReignPartyChatBatchResult> RequestLifeOpening(List<Hero> heroes) { Openings++; return Task.FromResult(new ReignPartyChatBatchResult()); }
+            public Task<ReignPartyChatBatchResult> RequestLifeOpening(List<Hero> heroes) { Openings++; return PendingOpening != null ? PendingOpening.Task : Task.FromResult(new ReignPartyChatBatchResult()); }
             public void AddSystemLine(string text, bool persist) { Error = text; }
             public void AddChatLine(string name, string text, string role) { VisibleText = text; }
             public void RememberConversationHeroes(List<Hero> heroes) { }
-            public Task<ReignPartyChatBatchResult> RequestLiveNpcTurns(List<Hero> heroes, string text, bool suppressRelationshipAssessment = false, Draft actionDraft = null) { Sends++; SentText = text; SentDraft = actionDraft; SuppressAssessment = suppressRelationshipAssessment; return Task.FromResult(new ReignPartyChatBatchResult()); }
+            public Task<ReignPartyChatBatchResult> RequestLiveNpcTurns(List<Hero> heroes, string text, bool suppressRelationshipAssessment = false, Draft actionDraft = null) { Sends++; SentOnMainThread = ReignMainThread.IsMainThread; SentText = text; SentDraft = actionDraft; SuppressAssessment = suppressRelationshipAssessment; return Task.FromResult(new ReignPartyChatBatchResult()); }
             public void RefreshLabels() { }
             public void PersistCastleTranscript() { }
             /* PRODUCTION_SEND */
             private static void Check(bool condition, string name) { if (!condition) throw new Exception(name); }
-            private static void Reset() { ReignServerClient.NpcLivesOptions.Enabled = true; ReignConversationInputJournal.Fail = false; ReignConversationInputJournal.Text = null; }
+            private static void Reset() { ReignServerClient.NpcLivesOptions.Enabled = true; ReignConversationInputJournal.Fail = false; ReignConversationInputJournal.Text = null;
+                ReignServerClient.Campaign = new object(); ReignServerClient.SaveGeneration = 0; ReignMainThread.IsMainThread = false; ReignMainThread.Dispatched = 0; ReignMainThread.FenceChecks = 0; }
             public static string[] Run() {
+                // Continuations resume inline on this probe thread, never posted to a host context.
+                System.Threading.SynchronizationContext.SetSynchronizationContext(null);
                 var passed = new List<string>();
                 foreach (string previous in new[] { "", "npc_a", "npc_other" })
                 foreach (string text in new[] { "What happened today?", "  My own opening.  ", "*waves*", "\u2003Hello\u2003" }) {
@@ -98,6 +123,7 @@ public sealed class PartyChatApproachTests
                     Check(vm.Openings == 0 && vm.Sends == 1, "typed input must bypass Approach for audience " + previous);
                     Check(vm.SentText == text && vm.VisibleText == text && vm._session.Transcript == text && ReignConversationInputJournal.Text == text, "preserve exact typed text");
                     Check(vm._session.PlayerInputCount == 1 && vm.InputText == "" && vm._activeBatchTask == null, "normal send bookkeeping");
+                    Check(vm.SentOnMainThread && ReignMainThread.Dispatched == 2 && ReignMainThread.FenceChecks == 2, "send admitted and completed through fenced game-thread dispatch");
                     passed.Add("typed:" + previous + ":" + text);
                 }
                 foreach (string text in new string[] { null, "", " \t\r\n", "\u2003" }) {
@@ -147,6 +173,30 @@ public sealed class PartyChatApproachTests
                         && departed._session.PlayerInputCount == 0 && ReignConversationInputJournal.Text == null,
                         "a departed original participant blocks both Send and Approach without losing the draft");
                     passed.Add("departed-participant:" + text);
+                }
+                foreach (bool loadChanged in new[] { true, false }) {
+                    // Home-mode typed send: an actual in-flight opening precedes the send continuation.
+                    Reset(); var pending = new PartySendProbe { InputText = "Continue after opening", ShowLifeControls = false,
+                        PendingOpening = new TaskCompletionSource<ReignPartyChatBatchResult>() };
+                    Task running = pending.ExecuteSend();
+                    Check(!running.IsCompleted && pending.Openings == 1 && pending.Sends == 0 && ReferenceEquals(pending._activeBatchTask, pending.PendingOpening.Task)
+                        && ReignMainThread.Dispatched == 0 && ReignConversationInputJournal.Text == null && pending._session.PlayerInputCount == 0, "opening is genuinely in flight before continuation");
+                    if (loadChanged) ReignServerClient.ChangeLoad();
+                    pending.PendingOpening.SetResult(new ReignPartyChatBatchResult());
+                    running.GetAwaiter().GetResult();
+                    if (loadChanged) {
+                        Check(pending.Sends == 0 && pending.InputText == "Continue after opening" && pending._session.PlayerInputCount == 0
+                            && pending._session.Transcript == null && pending.VisibleText == null && pending.Error == null && ReignConversationInputJournal.Text == null,
+                            "old-fence continuation performs no send and no local mutation");
+                        Check(ReignMainThread.Dispatched == 1 && ReignMainThread.FenceChecks == 1, "old fence is rejected inside the dispatched admission callback");
+                        passed.Add("inflight-load-change");
+                    } else {
+                        Check(pending.Sends == 1 && pending.SentOnMainThread && pending.SentText == "Continue after opening" && pending.InputText == ""
+                            && pending._session.PlayerInputCount == 1 && ReignConversationInputJournal.Text == "Continue after opening" && pending._activeBatchTask == null,
+                            "valid-owner continuation sends once on the dispatched game thread");
+                        Check(ReignMainThread.Dispatched == 2 && ReignMainThread.FenceChecks == 2, "valid owner passes both fenced dispatches");
+                        passed.Add("inflight-valid-owner");
+                    }
                 }
                 return passed.ToArray();
             }

@@ -59,9 +59,14 @@ namespace ReignBeta.Integration
         internal static Task<JObject> NpcLivesRequestAsync(string operation, JObject payload) =>
             PostJsonAsync("/npc-lives/" + operation, payload);
 
-        internal static async Task<JObject> OpenNpcLifeApproachAsync(Hero hero, string session, JObject context, Func<bool> continueWaiting = null)
+        // requestOwner is an optional Bannerlord-thread predicate (Party Chat approach
+        // owner) that guards the native capture, every post-readiness dispatch and
+        // continued polling. Null keeps the legacy unowned path unchanged. A stale
+        // owner stops local polling only; the server keeps the one durable opening.
+        internal static async Task<JObject> OpenNpcLifeApproachAsync(Hero hero, string session, JObject context, Func<bool> continueWaiting = null, Func<bool> requestOwner = null)
         {
             JObject p = await ReignMainThread.InvokeAsync(() => {
+                EnsureRequestOwner(requestOwner, "approach opening capture");
                 ReignHeroKnowledge.MarkMet(hero);
                 var value = BuildDialogueRequestPayload(hero, "", session, "", false, context);
                 foreach (var field in CaptureNpcLivesContext("").Properties()) value[field.Name] = field.Value.DeepClone();
@@ -82,11 +87,12 @@ namespace ReignBeta.Integration
                 return value;
             }).ConfigureAwait(false);
             var active = await ReignMainThread.InvokeAsync(() => {
+                EnsureRequestOwner(requestOwner, "approach audience capture");
                 var ids = (p["npcLifeAudienceIds"] as JArray ?? new JArray(hero.StringId)).Values<string>().ToList();
                 return Hero.AllAliveHeroes.Where(h => h != Hero.MainHero && ids.Contains(h.StringId)).Concat(new[] { hero }).Distinct().ToList();
             }).ConfigureAwait(false);
             await AttachContextBundlesAsync(p, p.Value<string>("npcLifeContext") == "in_person" ? "dialogue" : "party_chat", hero, active).ConfigureAwait(false);
-            JObject response = await NpcLivesRequestAsync("open", p).ConfigureAwait(false);
+            JObject response = await PostOwnedJsonAsync("/npc-lives/open", p, requestOwner).ConfigureAwait(false);
             if (response.Value<bool?>("ok") != true) return response;
             p["operationId"] = response.Value<string>("operationId") ?? "";
             p["generation"] = response.Value<string>("generation") ?? "";
@@ -97,7 +103,8 @@ namespace ReignBeta.Integration
             {
                 await Task.Delay(500).ConfigureAwait(false);
                 if (continueWaiting != null && !continueWaiting()) break;
-                response = await NpcLivesRequestAsync("opening", p).ConfigureAwait(false);
+                if (requestOwner != null && !await ReignMainThread.InvokeAsync(requestOwner).ConfigureAwait(false)) break;
+                response = await PostOwnedJsonAsync("/npc-lives/opening", p, requestOwner).ConfigureAwait(false);
             }
             return response;
         }

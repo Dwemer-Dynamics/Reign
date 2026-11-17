@@ -178,7 +178,16 @@ namespace ReignBeta.UI.ViewModels
         internal string ScenePreparationError => _scene?.Error ?? string.Empty;
         internal string ScenePreparationStatus => _calibrationMode ? "disabled" : _scene?.Status ?? "failed";
         internal JObject ScenePreparationEvidence => _scene?.Evidence ?? new JObject { ["status"] = "disabled", ["ready"] = false };
-        public override void OnFinalize() { ReignActionBuilder.CloseFor(this); _composer?.Dispose(); _scene?.Close(); base.OnFinalize(); }
+        public override void OnFinalize() { _closed = true; ReignActionBuilder.CloseFor(this); _composer?.Dispose(); _scene?.Close(); base.OnFinalize(); }
+        private bool _closed;
+
+        // Game-thread owner of one audience reaction: this screen, the original load and player.
+        private Func<bool> CaptureAudienceOwner()
+        {
+            ReignServerClient.RequestFence fence = ReignServerClient.RequestFence.Capture();
+            Hero player = Hero.MainHero;
+            return () => !_closed && fence.IsCurrent() && ReferenceEquals(player, Hero.MainHero);
+        }
         [DataSourceProperty] public bool HasPortrait => _petitionerCard?.HasPortrait == true;
         [DataSourceProperty] public bool DirectGrantVisible => _petition.Kind != ReignPetitionKind.Food
             || _petition.FoodStockCost > 0;
@@ -340,6 +349,9 @@ namespace ReignBeta.UI.ViewModels
         private async Task RequestReactionAsync(string phase, string outcome, string playerText, Reign.Core.Contracts.Actions.ActionAgreement action = null, string contributionId = "")
         {
             if (_calibrationMode) return;
+            // Captured by the game-thread caller before any await; every later dispatch
+            // and presentation of this reaction belongs to it.
+            Func<bool> owner = CaptureAudienceOwner();
             Busy = true;
             try
             {
@@ -371,10 +383,17 @@ namespace ReignBeta.UI.ViewModels
                 {
                     bool isPetitioner = string.Equals(speaker.StringId,
                         _petition.PetitionerHeroId, StringComparison.OrdinalIgnoreCase);
-                    string speakerName = speaker.Name?.ToString() ?? "Court attendee";
+                    string speakerName = null;
+                    // One owner-checked game-thread capture per speaker; a stale owner
+                    // dispatches no later speaker.
                     JObject conversationContext = await ReignMainThread.InvokeAsync(() =>
-                        BuildPetitionConversationContext(phase, outcome, stagedTurn,
-                            speaker, activeSpeakers)).ConfigureAwait(false);
+                    {
+                        if (!owner()) return null;
+                        speakerName = speaker.Name?.ToString() ?? "Court attendee";
+                        return BuildPetitionConversationContext(phase, outcome, stagedTurn,
+                            speaker, activeSpeakers);
+                    }).ConfigureAwait(false);
+                    if (conversationContext == null) break;
                     if (contributionId.Length > 0) conversationContext["contributionId"] = contributionId;
                     ReignDialogueReply response = await ReignServerClient
                         .RequestDialogueResponseAsync(speaker, audienceTurn,
@@ -383,14 +402,17 @@ namespace ReignBeta.UI.ViewModels
                             "ruler_petition_" + _petition.PetitionId + "_"
                                 + speaker.StringId + "_" + Guid.NewGuid().ToString("N"),
                             applyNativeEncyclopediaText: false,
-                            conversationContext: conversationContext, actionDraft: action?.NpcId == speaker.StringId ? action : null).ConfigureAwait(false);
+                            conversationContext: conversationContext, actionDraft: action?.NpcId == speaker.StringId ? action : null,
+                            requestOwner: owner).ConfigureAwait(false);
+                    if (!await ReignMainThread.InvokeAsync(owner).ConfigureAwait(false)) break;
                     if (response.Ok)
                     {
                         exchangeComplete &= !string.IsNullOrWhiteSpace(response.Text);
                         string reply = response.Text ?? string.Empty;
                         string transcriptId = response.ConversationSessionId ?? string.Empty;
-                        await ReignMainThread.InvokeAsync(() =>
+                        if (!await ReignMainThread.InvokeAsync(() =>
                         {
+                            if (!owner()) return false;
                             if (isPetitioner && !string.IsNullOrWhiteSpace(transcriptId))
                                 _petition.TranscriptId = transcriptId;
                             if (!string.IsNullOrWhiteSpace(reply))
@@ -398,16 +420,21 @@ namespace ReignBeta.UI.ViewModels
                                 if (isPetitioner) PetitionerSpeech = reply;
                                 AddTranscriptLine(speakerName, reply, "npc");
                             }
+                            // Existing action receipts follow as separate, unpersisted system lines.
+                            foreach (string statusLine in ReignServerClient.NativeStatusLines(response.RawResponse))
+                                AddTranscriptLine("Court Clerk", statusLine, "system", false);
                             if (isPetitioner)
                                 _court.AttachRulerPetitionPresentation(_petition.PetitionId,
                                     transcriptId, string.Empty);
-                        }).ConfigureAwait(false);
+                            return true;
+                        }).ConfigureAwait(false)) break;
                     }
                     else if (string.Equals(phase, "closing",
                                  StringComparison.OrdinalIgnoreCase) && isPetitioner)
                     {
                         await ReignMainThread.InvokeAsync(() =>
                         {
+                            if (!owner()) return;
                             PetitionerSpeech = _petition.State == ReignDocketPetitionState.Granted
                                 ? "Your aid is received, my liege. We will put it to the need presented."
                                 : "I understand your ruling, my liege, though the need remains.";
@@ -419,33 +446,34 @@ namespace ReignBeta.UI.ViewModels
                     {
                         exchangeComplete = false;
                         await ReignMainThread.InvokeAsync(() =>
-                            AddTranscriptLine("Court Clerk",
+                            { if (owner()) AddTranscriptLine("Court Clerk",
                                 speakerName + " could not answer: "
                                 + (string.IsNullOrWhiteSpace(response.Error)
                                     ? "no response was received."
-                                    : response.Error), "system")).ConfigureAwait(false);
+                                    : response.Error), "system"); }).ConfigureAwait(false);
                     }
                 }
                 if (!stagedTurn && exchangeComplete && !string.IsNullOrWhiteSpace(playerText))
-                    await ReignMainThread.InvokeAsync(() => xp.Award(xpReceipt, ReignXpSkill.Charm, ReignXpRules.ConversationXp, ReignXpReason.Conversation)).ConfigureAwait(false);
+                    await ReignMainThread.InvokeAsync(() => { if (owner()) xp.Award(xpReceipt, ReignXpSkill.Charm, ReignXpRules.ConversationXp, ReignXpReason.Conversation); }).ConfigureAwait(false);
             }
             catch (Exception ex)
             {
                 ReignLog.Warn("Petitioner " + phase + " reaction failed: " + ex.Message);
                 if (phase == "closing") await ReignMainThread.InvokeAsync(() =>
                 {
+                    if (!owner()) return;
                     PetitionerSpeech = _petition.State == ReignDocketPetitionState.Granted
                         ? "Your aid is received, my liege."
                         : "I understand your ruling, my liege.";
                     AddTranscriptLine(_petition.PetitionerName, PetitionerSpeech, "npc");
                 }).ConfigureAwait(false);
                 else if (phase == "conversation") await ReignMainThread.InvokeAsync(() =>
-                    AddTranscriptLine("Court Clerk",
-                        "The petitioner could not answer. Your decision remains available.", "system")).ConfigureAwait(false);
+                    { if (owner()) AddTranscriptLine("Court Clerk",
+                        "The petitioner could not answer. Your decision remains available.", "system"); }).ConfigureAwait(false);
             }
             finally
             {
-                await ReignMainThread.InvokeAsync(() => Busy = false).ConfigureAwait(false);
+                await ReignMainThread.InvokeAsync(() => { if (owner()) Busy = false; }).ConfigureAwait(false);
             }
         }
 

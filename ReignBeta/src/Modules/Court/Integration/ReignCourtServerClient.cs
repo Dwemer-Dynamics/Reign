@@ -141,7 +141,18 @@ namespace ReignBeta.Integration
             return PostAsync("/court/offices/dismiss", payload);
         }
 
-        public static async Task<ReignCourtServerResponse> RequestRoyalCouncilAdviceAsync(string councilSessionId, string turnId,
+        // One advisor request captured on the game thread: payload, structured-action
+        // completion and the original load fence. Built after the prior advisor's reply
+        // was appended, so each advisor sees the accumulated transcript.
+        internal sealed class RoyalCouncilAdviceRequest
+        {
+            internal JObject Payload;
+            internal Action<JObject> Complete;
+            internal ReignServerClient.RequestFence Fence;
+        }
+
+        // Game thread only.
+        internal static RoyalCouncilAdviceRequest CaptureRoyalCouncilAdvice(string councilSessionId, string turnId,
             string role, Hero speaker, string playerText, bool isOpening, bool expand, JObject domainPacket,
             JArray transcript, JArray presentAdvisorIds, Reign.Core.Contracts.Actions.ActionAgreement actionDraft = null, string contributionId = "")
         {
@@ -163,9 +174,27 @@ namespace ReignBeta.Integration
                 ["cultureId"] = speaker?.Culture?.StringId ?? string.Empty,
                 ["clanId"] = speaker?.Clan?.StringId ?? string.Empty
             };
-            Action<JObject> complete = await ReignMainThread.InvokeAsync(() => ReignServerClient.BeginStructuredActionExchange(payload, speaker, actionDraft)).ConfigureAwait(false);
-            ReignCourtServerResponse response = await PostAsync("/court/royal-council/respond", payload).ConfigureAwait(false);
-            await ReignMainThread.InvokeAsync(() => complete(response.Raw)).ConfigureAwait(false);
+            // The council presents structured receipts as separate system lines.
+            Action<JObject> complete = ReignServerClient.BeginStructuredActionExchange(payload, speaker, actionDraft, inlineReceipt: false);
+            return new RoyalCouncilAdviceRequest { Payload = payload, Complete = complete, Fence = ReignServerClient.RequestFence.Capture() };
+        }
+
+        // requestOwner is the council screen's game-thread owner. It is rechecked before
+        // dispatch, and structured-action completion runs only for the original load and
+        // a still-current owner, independently of the view's append guard.
+        internal static async Task<ReignCourtServerResponse> SendRoyalCouncilAdviceAsync(RoyalCouncilAdviceRequest request, Func<bool> requestOwner)
+        {
+            ReignCourtServerResponse response = await PostAsync("/court/royal-council/respond", request.Payload, requestOwner).ConfigureAwait(false);
+            await ReignMainThread.InvokeAsync(() =>
+            {
+                if (!request.Fence.IsCurrent() || requestOwner != null && !requestOwner())
+                {
+                    response.Raw = new JObject { ["ok"] = false, ["error"] = "The council closed while this advice was in progress.",
+                        ["acceptedResponse"] = response.Raw };
+                    return;
+                }
+                request.Complete(response.Raw);
+            }).ConfigureAwait(false);
             response.Ok = response.Raw.Value<bool?>("ok") == true;
             response.Error = response.Raw.Value<string>("error") ?? response.Error;
             return response;
@@ -468,13 +497,14 @@ namespace ReignBeta.Integration
             };
         }
 
-        private static async Task<ReignCourtServerResponse> PostAsync(string route, JObject payload)
+        private static async Task<ReignCourtServerResponse> PostAsync(string route, JObject payload, Func<bool> requestOwner = null)
         {
             if (route == "/court/royal-council/respond" || route == "/court/ruler-petition/respond")
             {
                 try
                 {
-                    JObject result = await ReignServerClient.PostJsonAsync(route, payload).ConfigureAwait(false);
+                    JObject result = requestOwner == null ? await ReignServerClient.PostJsonAsync(route, payload).ConfigureAwait(false)
+                        : await ReignServerClient.PostOwnedJsonAsync(route, payload, requestOwner).ConfigureAwait(false);
                     return new ReignCourtServerResponse { Ok = result.Value<bool?>("ok") == true,
                         Error = result.Value<string>("error") ?? "", Revision = ReadNumericRevision(result),
                         NativeActions = result["nativeActions"] as JArray ?? new JArray(), Raw = result };

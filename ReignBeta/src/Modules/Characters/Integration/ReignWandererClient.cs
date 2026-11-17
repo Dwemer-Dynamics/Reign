@@ -59,23 +59,37 @@ namespace ReignBeta.Integration
                         response = new JObject { ["ok"] = false, ["error"] = "The conversation closed while this reply was in progress.",
                             ["acceptedResponse"] = accepted }; return;
                     }
-                    ProcessStructuredActionDecision(payload, response, hero);
+                    // The accepted NPC reply bytes stay exact. The structured receipt and
+                    // native outcomes are kept as separate fields for system-line presentation.
+                    ProcessStructuredActionDecision(payload, response, hero, inlineReceipt: false);
+                    // Parsed with this request's own fence, so a response cannot rebind to a newer load.
                     var actions = new[] { "queuedDialogueActions", "queuedEventActions", "queuedActions" }
-                        .SelectMany(key => ParseQueuedActionRows(response?[key])).GroupBy(a => a.ActionId).Select(g => g.First())
+                        .SelectMany(key => ParseQueuedActionRows(response?[key], fence)).GroupBy(a => a.ActionId).Select(g => g.First())
                         .OrderBy(a => a.ActionId.StartsWith("pa_", StringComparison.Ordinal) ? 0 : 1).ToList();
                     if (actions.Count == 0) return;
                     var behavior = ReignAICampaignBehavior.Instance;
-                    behavior?.EnqueueAndExecuteServerActions(actions);
                     var results = new JArray();
-                    foreach (var action in actions)
+                    string heldActionId = null;
+                    if (behavior == null || behavior.TryImportForPresentation(actions, out _, out heldActionId))
                     {
-                        var result = behavior?.GetLastActionResult(action.ActionId);
-                        string status = result == null ? "pending" : result.ResultCode == "payment_unknown" ? "unknown" : result.Success && result.Completed ? "applied" : result.Success ? "pending" : "failed";
-                        string message = result?.Message ?? "Native execution is pending.";
-                        results.Add(new JObject { ["actionId"] = action.ActionId, ["status"] = status, ["message"] = message });
+                        foreach (var action in actions)
+                        {
+                            var result = behavior?.GetLastActionResult(action.ActionId);
+                            string status = result == null ? "pending"
+                                : result.ResultCode == "payment_unknown" || result.ResultCode == ReignBeta.Actions.ReignCompletedOrderPolicy.UncertainExecutionResultCode ? "unknown"
+                                : result.Success && result.Completed ? "applied" : result.Success ? "pending" : "failed";
+                            string message = result?.Message ?? "Native execution is pending.";
+                            results.Add(new JObject { ["actionId"] = action.ActionId, ["status"] = status, ["message"] = message });
+                        }
+                    }
+                    else if (heldActionId != null)
+                    {
+                        // Only the exact row whose native execution was interrupted is labelled;
+                        // conflicting replays and unattempted neighbors claim no result.
+                        results.Add(new JObject { ["actionId"] = heldActionId, ["status"] = "unknown",
+                            ["message"] = ReignBeta.Actions.ReignCompletedOrderPolicy.UncertainExecutionMarker });
                     }
                     response["nativeActionOutcomes"] = results;
-                    response["reply"] = (response.Value<string>("reply") ?? "") + "\n\n" + string.Join("\n", results.Select(r => "[" + r.Value<string>("status") + ": " + r.Value<string>("message") + "]"));
                 }).ConfigureAwait(false);
                 return response;
             }
@@ -91,7 +105,8 @@ namespace ReignBeta.Integration
                     // A stale owner settles the contact as uncertain rather than
                     // as a protected (presented) exchange.
                     string receipt = (string)(accepted ?? response)?["conversationExchange"]?["exchangeId"];
-                    bool success = !staleRequestOwner && response?.Value<bool?>("ok") == true && !string.IsNullOrWhiteSpace(response.Value<string>("reply"));
+                    bool success = !staleRequestOwner && response?.Value<bool?>("ok") == true
+                        && (!string.IsNullOrWhiteSpace(response.Value<string>("reply")) || HasNativeStatus(response));
                     owner?.EndContact(hero, success, string.IsNullOrWhiteSpace(receipt)
                         ? "reign-chat:" + ((string)payload["correlationId"] ?? Guid.NewGuid().ToString("N")) : receipt, playerText);
                 }).ConfigureAwait(false);

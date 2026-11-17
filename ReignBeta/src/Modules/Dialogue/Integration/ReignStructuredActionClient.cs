@@ -1,4 +1,6 @@
 using System;
+using System.Collections.Generic;
+using System.Linq;
 using Newtonsoft.Json.Linq;
 using Reign.Core.Contracts.Actions;
 using ReignBeta.Actions;
@@ -11,7 +13,11 @@ namespace ReignBeta.Integration
     {
         // Prepare and complete on the campaign thread. Alternate conversation hosts
         // use this same boundary without granting a response from an older load authority.
-        internal static Action<JObject> BeginStructuredActionExchange(JObject payload, Hero npc, ActionAgreement draft = null, bool tavernActions = false)
+        // inlineReceipt keeps the established reply-appended receipt for unaffected hosts
+        // (Tavern House, court audience). Hosts that present receipts as separate system
+        // lines pass false and read structuredActionReceipt through NativeStatusLines.
+        internal static Action<JObject> BeginStructuredActionExchange(JObject payload, Hero npc, ActionAgreement draft = null, bool tavernActions = false,
+            bool inlineReceipt = true)
         {
             var campaign = TaleWorlds.CampaignSystem.Campaign.Current;
             var behavior = ReignAgreementBehavior.Instance;
@@ -25,7 +31,8 @@ namespace ReignBeta.Integration
                     || campaignId != GetCampaignId() || timeline != (ReignWorldHistoryCampaignBehavior.Instance?.TimelineId ?? "main"))
                 { response["ok"] = false; response["error"] = "The campaign changed before the action response arrived."; return; }
                 ProcessStructuredActionDecision(payload, response, npc,
-                    payload.Value<string>("requestId") ?? payload.Value<string>("turnId") ?? payload.Value<string>("commandId") ?? "", tavernActions);
+                    payload.Value<string>("requestId") ?? payload.Value<string>("turnId") ?? payload.Value<string>("commandId") ?? "", tavernActions,
+                    inlineReceipt);
             };
         }
         // Called on the campaign thread. Only the locally attached composer draft
@@ -106,7 +113,8 @@ namespace ReignBeta.Integration
             };
         }
 
-        private static void ProcessStructuredActionDecision(JObject request, JObject response, Hero npc, string responseId = "", bool tavernActions = false)
+        private static void ProcessStructuredActionDecision(JObject request, JObject response, Hero npc, string responseId = "", bool tavernActions = false,
+            bool inlineReceipt = true)
         {
             if (response == null || response.Value<bool?>("ok") != true || response.Value<bool?>("historicalReplay") == true) return;
             var context = request["structuredActionContext"] as JObject;
@@ -149,7 +157,23 @@ namespace ReignBeta.Integration
             catch (Exception ex) { message = "Action not applied: " + ex.Message; }
             if (string.IsNullOrWhiteSpace(message)) return;
             response["structuredActionReceipt"] = message;
-            response["reply"] = (response.Value<string>("reply") ?? "") + "\n\n[" + message + "]";
+            if (inlineReceipt) response["reply"] = (response.Value<string>("reply") ?? "") + "\n\n[" + message + "]";
         }
+
+        // Existing structured receipt and native action outcomes as separate system lines.
+        // The NPC reply text is never modified; only executor-supplied messages are shown.
+        internal static List<string> NativeStatusLines(JObject response)
+        {
+            var lines = new List<string>();
+            string receipt = response?.Value<string>("structuredActionReceipt");
+            if (!string.IsNullOrWhiteSpace(receipt)) lines.Add("[" + receipt + "]");
+            foreach (JObject outcome in (response?["nativeActionOutcomes"] as JArray ?? new JArray()).OfType<JObject>())
+                lines.Add("[" + (outcome.Value<string>("status") ?? "pending") + ": " + (outcome.Value<string>("message") ?? "") + "]");
+            return lines;
+        }
+
+        // An accepted reply whose only content is an action receipt or outcome is still a
+        // presented exchange, as it was when those receipts were appended to the reply text.
+        internal static bool HasNativeStatus(JObject response) => NativeStatusLines(response).Count > 0;
     }
 }

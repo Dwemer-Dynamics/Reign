@@ -469,6 +469,27 @@ public sealed class PartyAgencyHarnessContractTests
         Assert.Contains("[\"playerText\"] = text", host, StringComparison.Ordinal);
         Assert.Contains("PartyAgencyNativeEvidence", host, StringComparison.Ordinal);
         Assert.Contains("nativeEvidenceReceipt", host, StringComparison.Ordinal);
+        // Queued-action evidence stays combined (test directives, then dialogue actions)
+        // while the Individual view imports only test directives, so dialogue actions
+        // already imported by the conversation wrapper are never applied twice.
+        Assert.Contains("[\"queuedActionCount\"] = reply.QueuedActions?.Count ?? 0", host,
+            StringComparison.Ordinal);
+        string serverClient = File.ReadAllText(TestSourceLocator.Unique(
+            Path.Combine(root, "ReignBeta"), "ReignServerClient.cs",
+            "/src/Modules/Platform/Integration/"));
+        Assert.Matches(@"reply\.TestDirectiveActions = current \? ParseQueuedActionRows\(response\[""queuedTestDirectiveActions""\], fence\)[^;]*;\s*"
+            + @"reply\.QueuedActions = new List<ReignWorldActionRecord>\(reply\.TestDirectiveActions\);\s*"
+            + @"if \(current\) reply\.QueuedActions\.AddRange\(ParseQueuedActionRows\(response\[""queuedDialogueActions""\], fence\)\);",
+            serverClient);
+        string individual = File.ReadAllText(TestSourceLocator.Unique(
+            Path.Combine(root, "ReignBeta"), "ReignIndividualChatScreenVM.cs",
+            "/src/Modules/Dialogue/UI/ViewModels/"));
+        Assert.Contains("TryImportForPresentation(reply.TestDirectiveActions,", individual,
+            StringComparison.Ordinal);
+        Assert.DoesNotContain("TryImportForPresentation(reply.QueuedActions", individual,
+            StringComparison.Ordinal);
+        Assert.DoesNotContain("EnqueueAndExecuteServerActions(reply.QueuedActions", individual,
+            StringComparison.Ordinal);
 
         string fixture = File.ReadAllText(TestSourceLocator.Unique(
             Path.Combine(root, "ReignBeta"),
@@ -942,8 +963,39 @@ public sealed class PartyAgencyHarnessContractTests
         string tracker = vm.Split("private async Task<ReignPartyChatBatchResult> RequestLiveNpcTurns(", StringSplitOptions.None)[1]
             .Split("public void RefreshTargetedReviewReceipt()", StringSplitOptions.None)[0];
         Assert.Matches(@"if \(_guestReviewSession != null\)\s*\{\s*IsBusy = false;\s*BusyText = string.Empty;", tracker);
-        Assert.Contains("() => { if (!_isFinalized) PersistCastleTranscript(); }", vm);
-        Assert.Contains("() => { if (!_isFinalized) xp.Award(", vm);
+        // A closed screen, a changed load or a changed player owns no terminal
+        // presentation, persistence or XP of the batch. The owner keeps the screen check.
+        Assert.Matches(@"bool IsPartyTurnCurrent\(PartyTurnOwner owner\) => owner != null && !_isFinalized\s*"
+            + @"&& owner\.Fence\.IsCurrent\(\) && ReferenceEquals\(owner\.Player, Hero\.MainHero\);", vm);
+        Assert.Matches(@"if \(!turnCurrent\(\)\) return false;\s*if \([^)]*!hadFailure\)[^;]*;\s*PersistCastleTranscript\(\);", vm);
+        Assert.Contains("() => { if (turnCurrent()) xp.Award(", vm);
+        // The approach opening is owned by the same fenced owner from acceptance through
+        // dispatch, transcript restore, persistence and the busy reset.
+        string lives = File.ReadAllText(TestSourceLocator.Unique(Path.Combine(root, "ReignBeta"),
+            "ReignPartyChatLives.cs", "/src/Modules/Dialogue/UI/ViewModels/"));
+        string opening = lives.Split("RequestLifeOpening(List<Hero> heroes)", StringSplitOptions.None)[1];
+        Assert.Contains("var owner = new PartyTurnOwner(ReignServerClient.RequestFence.Capture(), Hero.MainHero);", opening);
+        Assert.Contains("Func<bool> current = () => IsPartyTurnCurrent(owner);", opening);
+        Assert.Contains("OpenNpcLifeApproachAsync(hero, session, individualContext, requestOwner: current)", opening);
+        Assert.Contains("PostOwnedJsonAsync(\"/party-chat/history\"", opening);
+        Assert.Matches(@"if \(!current\(\)\) return;\s*if \(restored\.Count > 0\)[\s\S]*PersistCastleTranscript\(\);", opening);
+        Assert.Contains("if (current()) { IsBusy = false;", opening);
+        Assert.DoesNotContain("() => !_isFinalized", opening);
+        Assert.DoesNotContain("if (!_isFinalized) AddSystemLine", opening);
+        // One shared opener: the optional owner guards capture, dispatch and polling,
+        // while a null owner keeps the legacy continueWaiting path.
+        string npcLives = File.ReadAllText(TestSourceLocator.Unique(Path.Combine(root, "ReignBeta"),
+            "ReignNpcLivesClient.cs", "/src/Modules/Characters/Integration/"));
+        string ownedOpening = npcLives.Split("Task<JObject> OpenNpcLifeApproachAsync(", StringSplitOptions.None)[1];
+        Assert.Contains("EnsureRequestOwner(requestOwner, \"approach opening capture\");", ownedOpening);
+        Assert.Contains("EnsureRequestOwner(requestOwner, \"approach audience capture\");", ownedOpening);
+        Assert.Contains("PostOwnedJsonAsync(\"/npc-lives/open\", p, requestOwner)", ownedOpening);
+        Assert.Contains("PostOwnedJsonAsync(\"/npc-lives/opening\", p, requestOwner)", ownedOpening);
+        Assert.Contains("continueWaiting == null || continueWaiting()", ownedOpening);
+        Assert.DoesNotContain("PostJsonAsync(", ownedOpening);
+        string client = File.ReadAllText(TestSourceLocator.Unique(Path.Combine(root, "ReignBeta"),
+            "ReignServerClient.cs", "/src/Modules/Platform/Integration/"));
+        Assert.DoesNotContain("OpenOwnedNpcLifeApproachAsync", client);
     }
 
     [Fact]

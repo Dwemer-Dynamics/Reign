@@ -117,7 +117,7 @@ public sealed class ReignCompletedOrderPolicyTests
     {
         var j = ActiveHold();
         bool Can(string native = "cancelled", string world = "Executing", bool captured = true, bool applied = true) =>
-            ReignCompletedOrderPolicy.CanReconcileCancellation(j, j.Steps[0], captured, applied, native, world);
+            ReignCompletedOrderPolicy.CanReconcileCancellation(j, j.Steps[0], captured, applied, native, world, "");
         Assert.True(Can()); Assert.True(Can(world: "Cancelled"));
         Assert.False(Can(native: "active")); Assert.False(Can(native: "completed"));
         Assert.False(Can(world: "Failed")); Assert.False(Can(world: "Completed"));
@@ -300,4 +300,54 @@ public sealed class ReignCompletedOrderPolicyTests
         Assert.Equal(1, j.Steps[0].FulfilledInstallments);
         Assert.False(j.Steps[0].Started);
     }
+
+    private const string Held = ReignCompletedOrderPolicy.UncertainExecutionMarker;
+
+    [Fact]
+    public void Uncertain_execution_hold_requires_executing_and_the_exact_saved_marker()
+    {
+        Assert.True(ReignCompletedOrderPolicy.IsUncertainExecutionHeld("Executing", Held));
+        foreach (string status in new[] { "Proposed", "Accepted", "Completed", "Failed", "Rejected", "Cancelled", "" })
+            Assert.False(ReignCompletedOrderPolicy.IsUncertainExecutionHeld(status, Held));
+        foreach (string failure in new[] { "", "The target was lost.", ReignCompletedOrderPolicy.StaleAuthorizationFailure,
+                     Held.TrimEnd('.'), Held + " ", Held.ToUpperInvariant() })
+            Assert.False(ReignCompletedOrderPolicy.IsUncertainExecutionHeld("Executing", failure));
+        Assert.False(string.IsNullOrWhiteSpace(ReignCompletedOrderPolicy.UncertainExecutionResultCode));
+    }
+
+    [Fact]
+    public void Only_an_entered_execution_without_a_recorded_result_is_held_after_a_throw()
+    {
+        Assert.True(ReignCompletedOrderPolicy.ShouldHoldAfterThrow("Executing", resultRecordedThisAttempt: false));
+        // Recorded progress or a committed result is stronger evidence and stays untouched.
+        Assert.False(ReignCompletedOrderPolicy.ShouldHoldAfterThrow("Executing", resultRecordedThisAttempt: true));
+        // Accepted/Proposed never started the executor; terminal statuses already settled.
+        foreach (string status in new[] { "Proposed", "Accepted", "Completed", "Failed", "Rejected", "Cancelled" })
+        {
+            Assert.False(ReignCompletedOrderPolicy.ShouldHoldAfterThrow(status, false));
+            Assert.False(ReignCompletedOrderPolicy.ShouldHoldAfterThrow(status, true));
+        }
+    }
+
+    [Fact]
+    public void A_held_record_is_never_cancelled_or_completed_by_reconciliation_and_stays_held_after_reload()
+    {
+        var hold = ActiveHold();
+        var patrol = CompletedPatrol();
+        string holdBefore = JsonSerializer.Serialize(hold), patrolBefore = JsonSerializer.Serialize(patrol);
+        Assert.True(ReignCompletedOrderPolicy.CanReconcileCancellation(hold, hold.Steps[0], true, true, "cancelled", "Executing", ""));
+        Assert.False(ReignCompletedOrderPolicy.CanReconcileCancellation(hold, hold.Steps[0], true, true, "cancelled", "Executing", Held));
+        Assert.True(Reconcile(patrol));
+        Assert.False(Reconcile(patrol, failure: Held));
+        Assert.Equal(holdBefore, JsonSerializer.Serialize(hold));
+        Assert.Equal(patrolBefore, JsonSerializer.Serialize(patrol));
+
+        var saved = JsonSerializer.Deserialize<HeldRow>(JsonSerializer.Serialize(new HeldRow("Executing", Held, float.MaxValue)))!;
+        Assert.True(ReignCompletedOrderPolicy.IsUncertainExecutionHeld(saved.Status, saved.FailureReason));
+        Assert.Equal(float.MaxValue, saved.ExecuteAfterDay);
+        Assert.False(ReignCompletedOrderPolicy.CanReconcileCancellation(hold, hold.Steps[0], true, true, "cancelled", saved.Status, saved.FailureReason));
+        Assert.False(Reconcile(patrol, worldStatus: saved.Status, failure: saved.FailureReason));
+    }
+
+    private sealed record HeldRow(string Status, string FailureReason, float ExecuteAfterDay);
 }

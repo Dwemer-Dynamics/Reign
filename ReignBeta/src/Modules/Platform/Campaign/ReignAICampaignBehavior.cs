@@ -123,10 +123,19 @@ namespace ReignBeta.Campaign
             });
         }
 
+        // The saved uncertain-execution hold outranks any transient cached result, before and after reload.
+        private static bool IsUncertainExecutionHeld(ReignWorldActionRecord action) => action != null
+            && ReignBeta.Actions.ReignCompletedOrderPolicy.IsUncertainExecutionHeld(action.Status.ToString(), action.FailureReason);
+
+        private static ReignActionResult UncertainExecutionResult() =>
+            ReignActionResult.Progress(ReignBeta.Actions.ReignCompletedOrderPolicy.UncertainExecutionMarker)
+                .WithResultCode(ReignBeta.Actions.ReignCompletedOrderPolicy.UncertainExecutionResultCode).WithOutcome("unknown");
+
         public ReignActionResult GetLastActionResult(string actionId)
         {
-            if (!string.IsNullOrWhiteSpace(actionId) && _lastActionResults.TryGetValue(actionId, out ReignActionResult result)) return result;
             var saved = _actions.FirstOrDefault(a => a != null && a.ActionId == actionId);
+            if (IsUncertainExecutionHeld(saved)) return UncertainExecutionResult();
+            if (!string.IsNullOrWhiteSpace(actionId) && _lastActionResults.TryGetValue(actionId, out ReignActionResult result)) return result;
             if (saved == null) return null;
             if (saved.Status == ReignWorldActionStatus.Completed) return ReignActionResult.Done("Already completed; the saved action receipt prevents a second execution.");
             if (saved.Status == ReignWorldActionStatus.Cancelled) return ReignActionResult.NoOp("This action was cancelled; its saved receipt prevents another execution.")
@@ -329,6 +338,8 @@ namespace ReignBeta.Campaign
                     if (existing.TermsHash != action.TermsHash || existing.Type != action.Type
                         || existing.ActorHeroStringId != action.ActorHeroStringId || existing.TargetHeroStringId != action.TargetHeroStringId)
                         throw new InvalidOperationException("A replayed action has different terms: " + action.ActionId);
+                    // A held uncertain execution is never re-offered, re-reported or restarted.
+                    if (IsUncertainExecutionHeld(existing)) continue;
                     RefreshTerminalReportOffer(existing, action);
                     if (HandleTerminalReportReoffer(existing)) continue;
                     var prior = GetLastActionResult(existing.ActionId);
@@ -347,6 +358,7 @@ namespace ReignBeta.Campaign
                 _ = ReignServerClient.ReportActionAsync(queued, "enqueued_immediate", "Queued immediately from dialogue response.");
                 if (!queued.RequiresAcceptance && queued.ExecuteAfterDay <= now)
                 {
+                    _lastActionResults.TryGetValue(queued.ActionId, out ReignActionResult resultBefore);
                     try
                     {
                         ExecuteAction(queued, now);
@@ -355,12 +367,53 @@ namespace ReignBeta.Campaign
                     {
                         ReignLog.Exception("Immediate dialogue action execution failed action=" + queued.ActionId
                             + " type=" + queued.Type, ex);
+                        // Only this exact admitted record, and only when it entered Executing
+                        // without a recorded result, becomes a durable non-runnable hold. No
+                        // status, phase, attempt, report or terminal result is written; a
+                        // terminal record or a result recorded by this attempt is kept as is.
+                        bool recorded = _lastActionResults.TryGetValue(queued.ActionId, out ReignActionResult resultAfter)
+                            && !ReferenceEquals(resultAfter, resultBefore);
+                        if (ReignBeta.Actions.ReignCompletedOrderPolicy.ShouldHoldAfterThrow(queued.Status.ToString(), recorded))
+                        {
+                            queued.FailureReason = ReignBeta.Actions.ReignCompletedOrderPolicy.UncertainExecutionMarker;
+                            queued.ExecuteAfterDay = float.MaxValue;
+                            ReignLog.Warn("Immediate action held with an unknown native outcome action=" + queued.ActionId);
+                        }
+                        // Existing court, docket and agreement callers keep their exception semantics.
                         throw;
                     }
                 }
             }
 
             return queuedCount;
+        }
+
+        // Presentation entry points only (accepted conversation replies and letters). The
+        // import keeps its normal order; a throw is contained so the accepted reply survives.
+        // heldActionId names only the exact row that became held during this call: a
+        // conflicting replay, an unattempted row, a row with a recorded result and any
+        // later unimported neighbor are never labelled, and earlier holds are never
+        // attributed to this reply. Existing non-presentation callers keep the throw.
+        internal bool TryImportForPresentation(IEnumerable<ReignWorldActionRecord> rows, out int queued, out string heldActionId)
+        {
+            queued = 0;
+            heldActionId = null;
+            List<ReignWorldActionRecord> list = rows?.Where(row => row != null).ToList() ?? new List<ReignWorldActionRecord>();
+            if (list.Count == 0) return true;
+            var heldBefore = new HashSet<string>(list.Where(row => IsUncertainExecutionHeld(_actions.FirstOrDefault(
+                a => a != null && a.ActionId == row.ActionId))).Select(row => row.ActionId), StringComparer.Ordinal);
+            try
+            {
+                queued = EnqueueAndExecuteServerActions(list);
+                return true;
+            }
+            catch (Exception ex)
+            {
+                ReignLog.Exception("Presented action import interrupted", ex);
+                heldActionId = list.Select(row => row.ActionId).FirstOrDefault(id => !heldBefore.Contains(id)
+                    && IsUncertainExecutionHeld(_actions.FirstOrDefault(a => a != null && a.ActionId == id)));
+                return false;
+            }
         }
 
         private static bool DurableDialogueReceipt(ReignWorldActionRecord action) => action.ActionId != null
@@ -624,6 +677,7 @@ namespace ReignBeta.Campaign
                     if (existing.TermsHash != action.TermsHash || existing.Type != action.Type
                         || existing.ActorHeroStringId != action.ActorHeroStringId || existing.TargetHeroStringId != action.TargetHeroStringId)
                     { ReignLog.Warn("Rejected conflicting action replay " + action.ActionId); continue; }
+                    if (IsUncertainExecutionHeld(existing)) continue;
                     RefreshTerminalReportOffer(existing, action);
                     if (HandleTerminalReportReoffer(existing)) continue;
                     var prior = GetLastActionResult(existing.ActionId);
@@ -1215,6 +1269,7 @@ namespace ReignBeta.Campaign
 
         private bool TryRetireImpossibleTreaty(ReignWorldActionRecord action)
         {
+            if (IsUncertainExecutionHeld(action)) return false;
             string kind = action?.Type == ReignWorldActionType.DiplomacyDemilitarizedBorder ? "demilitarized_border"
                 : action?.Type == ReignWorldActionType.DiplomacyCaravanProtectionAgreement ? "caravan_protection_agreement"
                 : action?.Type == ReignWorldActionType.DiplomacySignDefensivePact ? "defensive_pact" : "";
@@ -1293,6 +1348,15 @@ namespace ReignBeta.Campaign
                 return false;
             }
 
+            if (IsUncertainExecutionHeld(action))
+            {
+                // Later native evidence never settles a held record here; exact
+                // reconciliation is owned by the separately reviewed receipt path.
+                if (_terminalReportDeferralLogged.Add(action.ActionId + ":uncertain_hold_hook"))
+                    ReignLog.Warn("Mission-hook result ignored for held uncertain action=" + action.ActionId);
+                return false;
+            }
+
             if (RecordRejectedAction(action, result)) return true;
 
             if (result.Success && result.Completed)
@@ -1327,6 +1391,8 @@ namespace ReignBeta.Campaign
 
         private ReignActionResult ExecuteAction(ReignWorldActionRecord action, float now)
         {
+            // Authority for every tick, immediate, reconcile or direct start: never re-run a held record.
+            if (IsUncertainExecutionHeld(action)) return UncertainExecutionResult();
             if (ReignSaveSyncCampaignBehavior.IsNativeSaveInProgress)
             {
                 return ReignActionResult.Progress("Action deferred until the native save completes.")
