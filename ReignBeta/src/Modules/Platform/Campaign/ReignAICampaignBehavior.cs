@@ -15,6 +15,7 @@ using TaleWorlds.CampaignSystem.Party;
 using TaleWorlds.CampaignSystem.Settlements;
 using TaleWorlds.Core;
 using TaleWorlds.Library;
+using TerminalActionReportProtocol = Reign.Core.Contracts.Actions.TerminalActionReportProtocol;
 
 namespace ReignBeta.Campaign
 {
@@ -39,6 +40,20 @@ namespace ReignBeta.Campaign
         private bool _governmentRefusalsReconciled;
         private bool _completedCampaignOrdersReconciled;
         private long _lastRealtimeActionPollUtcTicks;
+        // Terminal action report v1 drain: one in-flight report per loaded owner fence,
+        // elapsed-time backoff scoped to that same fence (cleared when the owner changes).
+        private object _terminalReportInFlightToken;
+        private ReignServerClient.RequestFence _terminalReportInFlightFence;
+        private ReignServerClient.RequestFence _terminalReportFence;
+        private long _nextTerminalReportScanUtcTicks;
+        // Bounded scan: a rotating cursor examines at most TerminalReportScanBatch retained
+        // records per scan; captures/reoffers are hinted (record references only, the durable
+        // state stays on the record) so they are found promptly without a full scan.
+        private const int TerminalReportScanBatch = 64;
+        private int _terminalReportScanCursor;
+        private readonly List<ReignWorldActionRecord> _terminalReportHints = new List<ReignWorldActionRecord>();
+        private readonly HashSet<string> _terminalReportDeferralLogged = new HashSet<string>(StringComparer.Ordinal);
+        private readonly Dictionary<string, KeyValuePair<long, int>> _terminalReportBackoff = new Dictionary<string, KeyValuePair<long, int>>(StringComparer.Ordinal);
         private static readonly long RealtimeActionPollIntervalTicks =
             System.TimeSpan.FromSeconds(1d).Ticks;
 
@@ -195,6 +210,8 @@ namespace ReignBeta.Campaign
                 _ = PollServerActionsAsync();
             }
 
+            if (IsEnabled() && !ReignSaveSyncCoordinator.IsAlignmentPending) TickTerminalReports();
+
             int added = DrainPendingServerActions();
             if (added <= 0) return;
             float now = CurrentDay();
@@ -312,11 +329,14 @@ namespace ReignBeta.Campaign
                     if (existing.TermsHash != action.TermsHash || existing.Type != action.Type
                         || existing.ActorHeroStringId != action.ActorHeroStringId || existing.TargetHeroStringId != action.TargetHeroStringId)
                         throw new InvalidOperationException("A replayed action has different terms: " + action.ActionId);
+                    RefreshTerminalReportOffer(existing, action);
+                    if (HandleTerminalReportReoffer(existing)) continue;
                     var prior = GetLastActionResult(existing.ActionId);
                     _ = ReignServerClient.ReportActionAsync(existing, existing.Status.ToString().ToLowerInvariant(), prior?.Message ?? "Saved action result.", prior);
                     continue;
                 }
 
+                if (!OfferTerminalReport(action)) continue;
                 ReignWorldActionRecord queued = EnqueueAction(action);
                 if (queued == null)
                 {
@@ -558,11 +578,16 @@ namespace ReignBeta.Campaign
         {
             try
             {
+                // Started on the game thread: this fence is the loaded owner of the poll.
+                var importFence = ReignServerClient.RequestFence.Capture();
                 List<ReignWorldActionRecord> actions = await ReignServerClient.FetchActionCommandsAsync().ConfigureAwait(false);
                 if (actions == null || actions.Count == 0)
                 {
                     return;
                 }
+
+                foreach (ReignWorldActionRecord action in actions)
+                    if (action != null) action.ImportFence = importFence;
 
                 lock (_pendingServerActionsLock)
                 {
@@ -599,11 +624,14 @@ namespace ReignBeta.Campaign
                     if (existing.TermsHash != action.TermsHash || existing.Type != action.Type
                         || existing.ActorHeroStringId != action.ActorHeroStringId || existing.TargetHeroStringId != action.TargetHeroStringId)
                     { ReignLog.Warn("Rejected conflicting action replay " + action.ActionId); continue; }
+                    RefreshTerminalReportOffer(existing, action);
+                    if (HandleTerminalReportReoffer(existing)) continue;
                     var prior = GetLastActionResult(existing.ActionId);
                     _ = ReignServerClient.ReportActionAsync(existing, existing.Status.ToString().ToLowerInvariant(), prior?.Message ?? "Saved action result.", prior);
                     continue;
                 }
 
+                if (!OfferTerminalReport(action)) continue;
                 ReignWorldActionRecord queued = EnqueueAction(action);
                 if (queued != null)
                 {
@@ -613,6 +641,529 @@ namespace ReignBeta.Campaign
             }
             return added;
         }
+
+        // ---- Opt-in terminal action report v1 (independent player gold/item handovers). ----
+        // Phases: offered/unproven (scope captured before execution; native execution is
+        // deferred while it differs from the loaded scope), captured (exact report, no protocol
+        // POST from this save yet), posted/native_pending (a POST may have run: exact replay on
+        // the pinned origin only), then settled: acknowledged, legacy (one-shot sent), stale,
+        // conflict, refused. Unproven and settled evidence is retained, never resent or rebound.
+        private const string TerminalReportStateSchema = "reign-client-terminal-report-v1";
+        private static readonly long TerminalReportScanTicks = TimeSpan.FromSeconds(2d).Ticks;
+        private static readonly HashSet<string> TerminalReportStatuses = new HashSet<string>(StringComparer.Ordinal)
+            { "completed", "failed", "rejected", "cancelled", "blocked", "obsolete" };
+        private static readonly string[] TerminalReportScopeKeys =
+            { "campaignId", "timelineId", "playerHeroStringId", "generation", "actionId", "termsHash" };
+
+        private static JObject TerminalReportState(ReignWorldActionRecord action)
+        {
+            if (string.IsNullOrEmpty(action?.TerminalReportJson)) return null;
+            try
+            {
+                JObject state = JObject.Parse(action.TerminalReportJson);
+                if (state.Value<string>("schema") == TerminalReportStateSchema) return state;
+            }
+            catch (Newtonsoft.Json.JsonException) { }
+            // Unreadable state is inert: it never reopens the legacy writer.
+            return new JObject { ["schema"] = TerminalReportStateSchema, ["phase"] = "refused", ["reason"] = "unreadable_state" };
+        }
+
+        // Exact JSON string value only; other token types never coerce into identity.
+        private static string TerminalReportString(JObject source, string key) =>
+            source?[key] is JValue value && value.Type == JTokenType.String ? (string)value : null;
+
+        // Classified from the imported record alone (never the loaded hero): an original
+        // pa_ independent player gold/item transfer. Everything else keeps legacy reporting.
+        private static bool IsKnownTerminalReportCandidate(ReignWorldActionRecord action) =>
+            action?.ActionId != null && action.ActionId.StartsWith("pa_", StringComparison.Ordinal)
+            && ((action.Type == ReignWorldActionType.RegularTransferGold && action.NegotiatedCommand == "transfer_gold")
+                || (action.Type == ReignWorldActionType.RegularTransferItem && action.NegotiatedCommand == "transfer_item"))
+            && !string.Equals(action.AuthorizationMode, "negotiated", StringComparison.OrdinalIgnoreCase);
+
+        // Game thread, before ledger admission. Returns false only for a known candidate
+        // whose original import owner (fence and its captured shared activity generation)
+        // is no longer loaded; the server outbox redelivers it. A known candidate without
+        // proof is admitted as retained unproven evidence: it never falls back to legacy.
+        private bool OfferTerminalReport(ReignWorldActionRecord action)
+        {
+            action.TerminalReportJson = string.Empty;
+            if (!IsKnownTerminalReportCandidate(action)) return true;
+            var fence = action.ImportFence as ReignServerClient.RequestFence;
+            string liveGeneration = ReignWorldHistoryCampaignBehavior.Instance?.SharedActivityGeneration ?? string.Empty;
+            if (fence != null && (!fence.IsCurrent() || fence.SharedActivityGeneration != liveGeneration))
+            {
+                ReignLog.Warn("Terminal report candidate not admitted: its import owner is no longer loaded action=" + action.ActionId);
+                return false;
+            }
+            string origin = action.ImportOrigin;
+            var state = new JObject
+            {
+                ["schema"] = TerminalReportStateSchema, ["origin"] = origin ?? string.Empty,
+                ["campaignId"] = ReignServerClient.GetCampaignId(),
+                ["timelineId"] = ReignWorldHistoryCampaignBehavior.Instance?.TimelineId ?? "main",
+                ["playerHeroStringId"] = Hero.MainHero?.StringId ?? string.Empty,
+                ["generation"] = fence != null ? fence.SharedActivityGeneration : liveGeneration,
+                ["actionId"] = action.ActionId, ["termsHash"] = action.TermsHash ?? string.Empty
+            };
+            string reason = fence == null || origin == null ? "missing_import_proof"
+                : origin.Length == 0 ? "origin_unproven"
+                : Hero.MainHero == null || action.ActorHeroStringId != Hero.MainHero.StringId ? "actor_not_loaded_player"
+                : !TerminalReportScopeKeys.All(key => TerminalActionReportProtocol.IsTrustedIdentifier(TerminalReportString(state, key))) ? "scope_unproven"
+                : null;
+            state["phase"] = reason == null ? "offered" : "unproven";
+            if (reason != null)
+            {
+                state["reason"] = reason;
+                ReignLog.Warn("Terminal report candidate retained without delivery action=" + action.ActionId + " reason=" + reason);
+            }
+            action.TerminalReportJson = state.ToString(Newtonsoft.Json.Formatting.None);
+            return true;
+        }
+
+        // Game thread. Null when a nonterminal record has no terminal report state, or when its
+        // persisted offer still matches the loaded campaign, timeline, player, action/terms and
+        // shared activity generation (and an offered report keeps its recognized origin).
+        // Otherwise the mismatch reason: native execution is deferred, nothing is mutated.
+        // An unproven offer recorded without any generation keeps its earlier legacy execution.
+        private static string TerminalReportExecutionMismatch(ReignWorldActionRecord action)
+        {
+            if (action == null || action.IsTerminal || string.IsNullOrEmpty(action.TerminalReportJson)) return null;
+            JObject state = TerminalReportState(action);
+            string phase = TerminalReportString(state, "phase");
+            if (phase != "offered" && phase != "unproven") return "phase_" + (phase ?? "missing");
+            string generation = TerminalReportString(state, "generation") ?? string.Empty;
+            string live = ReignWorldHistoryCampaignBehavior.Instance?.SharedActivityGeneration ?? string.Empty;
+            if (TerminalReportString(state, "campaignId") != ReignServerClient.GetCampaignId()) return "campaign";
+            if (TerminalReportString(state, "timelineId") != (ReignWorldHistoryCampaignBehavior.Instance?.TimelineId ?? "main")) return "timeline";
+            if (Hero.MainHero == null || TerminalReportString(state, "playerHeroStringId") != Hero.MainHero.StringId) return "player";
+            if (TerminalReportString(state, "actionId") != action.ActionId
+                || TerminalReportString(state, "termsHash") != (action.TermsHash ?? string.Empty)) return "action";
+            if ((phase == "offered" || generation.Length > 0) && (generation.Length == 0 || generation != live)) return "generation";
+            if (phase == "offered" && string.IsNullOrEmpty(TerminalReportString(state, "origin"))) return "origin";
+            return null;
+        }
+
+        // Game thread, dedup path. Rebinds only an untouched (never attempted, no result)
+        // nonterminal offered candidate whose persisted offer is stale solely by shared
+        // activity generation, when the same original origin re-offers the identical action
+        // (ids, terms, type, command, actor/target) under a current loaded fence and the
+        // current generation and scope. The prior generation is kept as evidence. Anything
+        // else stays deferred by TerminalReportExecutionMismatch for reconciliation.
+        private bool RefreshTerminalReportOffer(ReignWorldActionRecord existing, ReignWorldActionRecord incoming)
+        {
+            if (existing == null || incoming == null || existing.IsTerminal
+                || TerminalReportExecutionMismatch(existing) != "generation"
+                || !IsKnownTerminalReportCandidate(existing) || !IsKnownTerminalReportCandidate(incoming)) return false;
+            JObject state = TerminalReportState(existing);
+            if (TerminalReportString(state, "phase") != "offered") return false;
+            bool untouched = existing.AttemptCount == 0 && existing.LastAttemptDay <= 0f
+                && existing.Status != ReignWorldActionStatus.Executing
+                && !_lastActionResults.ContainsKey(existing.ActionId);
+            bool identical = incoming.ActionId == existing.ActionId && incoming.TermsHash == existing.TermsHash
+                && incoming.Type == existing.Type && incoming.NegotiatedCommand == existing.NegotiatedCommand
+                && incoming.ActorHeroStringId == existing.ActorHeroStringId && incoming.TargetHeroStringId == existing.TargetHeroStringId
+                && string.Equals(incoming.AuthorizationMode, existing.AuthorizationMode, StringComparison.Ordinal);
+            var fence = incoming.ImportFence as ReignServerClient.RequestFence;
+            string live = ReignWorldHistoryCampaignBehavior.Instance?.SharedActivityGeneration ?? string.Empty;
+            string origin = TerminalReportString(state, "origin") ?? string.Empty;
+            if (!untouched || !identical || fence == null || !fence.IsCurrent() || live.Length == 0
+                || fence.SharedActivityGeneration != live || origin.Length == 0 || incoming.ImportOrigin != origin
+                || existing.ActorHeroStringId != Hero.MainHero?.StringId
+                || !TerminalActionReportProtocol.IsTrustedIdentifier(live)) return false;
+            state["priorGeneration"] = TerminalReportString(state, "generation");
+            state["generation"] = live;
+            state["reason"] = "reoffered_current_generation";
+            existing.TerminalReportJson = state.ToString(Newtonsoft.Json.Formatting.None);
+            ReignLog.Info("Terminal report candidate rebound to the current generation on an exact re-offer action=" + existing.ActionId);
+            return true;
+        }
+
+        // A re-offer never synthesizes a protocol candidate's legacy report: a pending exact
+        // report is retried now, and settled evidence suppresses the synthesized report.
+        private bool HandleTerminalReportReoffer(ReignWorldActionRecord existing)
+        {
+            JObject state = TerminalReportState(existing);
+            string phase = state?.Value<string>("phase");
+            if (state == null || ((phase == "offered" || phase == "unproven") && !existing.IsTerminal)) return false;
+            if (phase == "captured" || phase == "posted" || phase == "native_pending")
+            {
+                _terminalReportBackoff.Remove(existing.ActionId);
+                HintTerminalReport(existing);
+            }
+            return true;
+        }
+
+        // The persisted exact report restates the persisted scope and status it is filed
+        // under, within the protocol size bound; sha is its recomputed digest.
+        private static bool TerminalReportPayloadExact(JObject state, string json, string status, out string sha)
+        {
+            sha = string.Empty;
+            if (state == null || string.IsNullOrEmpty(json) || !TerminalReportStatuses.Contains(status ?? string.Empty)
+                || !TerminalReportScopeKeys.All(key => TerminalActionReportProtocol.IsTrustedIdentifier(TerminalReportString(state, key)))
+                || !TerminalActionReportProtocol.TryReportSha256(json, out sha, out _)) return false;
+            JObject report;
+            try { report = JObject.Parse(json); }
+            catch (Newtonsoft.Json.JsonException) { return false; }
+            string player = TerminalReportString(state, "playerHeroStringId"), actionId = TerminalReportString(state, "actionId");
+            return TerminalReportString(report, "status") == status
+                && TerminalReportString(report, "campaignId") == TerminalReportString(state, "campaignId")
+                && TerminalReportString(report, "timelineId") == TerminalReportString(state, "timelineId")
+                && TerminalReportString(report, "playerHeroStringId") == player
+                && TerminalReportString(report, "actorHeroStringId") == player
+                && TerminalReportString(report, "sharedActivityGeneration") == TerminalReportString(state, "generation")
+                && TerminalReportString(report, "termsHash") == TerminalReportString(state, "termsHash")
+                && TerminalReportString(report, "serverActionId") == actionId
+                && (report["actionId"] == null || TerminalReportString(report, "actionId") == actionId);
+        }
+
+        // Terminal game-thread result. A candidate captures its one exact report and SHA;
+        // delivery belongs to the drain. Everything else keeps the existing one-shot report.
+        private void ReportActionOutcome(ReignWorldActionRecord action, string status, string message, ReignActionResult result)
+        {
+            JObject state = TerminalReportState(action);
+            if (state == null || !TerminalReportStatuses.Contains(status ?? string.Empty))
+            {
+                _ = ReignServerClient.ReportActionAsync(action, status, message, result);
+                return;
+            }
+            string phase = state.Value<string>("phase");
+            if (phase != "offered" && phase != "unproven")
+            {
+                ReignLog.Warn("Terminal report already captured; a later terminal result was not reported action=" + action.ActionId);
+                return;
+            }
+            string json = ReignServerClient.BuildTerminalReportJson(action, status, message, result);
+            bool exact = TerminalReportPayloadExact(state, json, status, out string sha);
+            if (exact) { state["reportJson"] = json; state["reportSha256"] = sha; }
+            state["status"] = status;
+            state["phase"] = !exact ? "refused" : phase == "offered" ? "captured" : "unproven";
+            if (!exact) state["reason"] = "report_scope_or_size";
+            action.TerminalReportJson = state.ToString(Newtonsoft.Json.Formatting.None);
+            _terminalReportBackoff.Remove(action.ActionId);
+            if (exact && phase == "offered") HintTerminalReport(action);
+            ReignLog.Info("Terminal action report captured action=" + action.ActionId + " phase=" + state.Value<string>("phase"));
+        }
+
+        private void TickTerminalReports()
+        {
+            long now = DateTime.UtcNow.Ticks;
+            if (now < _nextTerminalReportScanUtcTicks) return;
+            _nextTerminalReportScanUtcTicks = now + TerminalReportScanTicks;
+            string generation = ReignWorldHistoryCampaignBehavior.Instance?.SharedActivityGeneration ?? string.Empty;
+            if (ReignBetaSettings.Instance?.UseLocalServer == false || generation.Length == 0) return;
+            // Backoff and the in-flight slot belong to one loaded owner; a new owner starts clean.
+            if (_terminalReportFence == null || !_terminalReportFence.IsCurrent() || _terminalReportFence.SharedActivityGeneration != generation)
+            {
+                _terminalReportFence = ReignServerClient.RequestFence.Capture();
+                _terminalReportBackoff.Clear();
+            }
+            if (_terminalReportInFlightToken != null && ReferenceEquals(_terminalReportInFlightFence, _terminalReportFence)) return;
+            // Hinted records first; each hint is consumed once and must still be retained.
+            while (_terminalReportHints.Count > 0)
+            {
+                ReignWorldActionRecord hinted = _terminalReportHints[0];
+                _terminalReportHints.RemoveAt(0);
+                if (_actions.IndexOf(hinted) >= 0 && TryStartTerminalReport(hinted, now)) return;
+            }
+            int count = _actions.Count;
+            if (count == 0) { _terminalReportScanCursor = 0; return; }
+            if (_terminalReportScanCursor >= count) _terminalReportScanCursor = 0;
+            for (int examined = 0; examined < Math.Min(count, TerminalReportScanBatch); examined++)
+            {
+                ReignWorldActionRecord action = _actions[_terminalReportScanCursor];
+                _terminalReportScanCursor = (_terminalReportScanCursor + 1) % count;
+                if (TryStartTerminalReport(action, now)) return;
+            }
+        }
+
+        private void HintTerminalReport(ReignWorldActionRecord action)
+        {
+            // Overflow falls back to the rotating cursor, which still reaches every record.
+            if (action != null && _terminalReportHints.Count < TerminalReportScanBatch && !_terminalReportHints.Contains(action))
+                _terminalReportHints.Add(action);
+        }
+
+        private bool TryStartTerminalReport(ReignWorldActionRecord action, long now)
+        {
+            if (string.IsNullOrEmpty(action?.TerminalReportJson)
+                || (_terminalReportBackoff.TryGetValue(action.ActionId, out var wait) && wait.Key > now)) return false;
+            JObject state = TerminalReportState(action);
+            string phase = state?.Value<string>("phase");
+            if (phase != "captured" && phase != "posted" && phase != "native_pending") return false;
+            var token = new object();
+            _terminalReportInFlightToken = token;
+            _terminalReportInFlightFence = _terminalReportFence;
+            _ = AdvanceTerminalReportAsync(action, state, _terminalReportFence, token);
+            return true;
+        }
+
+        private async Task AdvanceTerminalReportAsync(ReignWorldActionRecord action, JObject state, ReignServerClient.RequestFence fence, object token)
+        {
+            string actionId = action.ActionId, origin = TerminalReportString(state, "origin") ?? string.Empty;
+            string sha = TerminalReportString(state, "reportSha256") ?? string.Empty, phase = state.Value<string>("phase");
+            string reason = "pending";
+            bool progressed = false;
+            // Game-thread guard for every pinned request: same loaded owner, scope, phase,
+            // origin and an exact persisted report (rechecked immediately before dispatch).
+            Func<bool> owner = () => TerminalReportRequestOwner(action, fence, sha, phase, origin);
+            try
+            {
+                if (phase == "captured")
+                {
+                    string preflight = await PreflightTerminalReportAsync(state, owner).ConfigureAwait(false);
+                    reason = "preflight_" + preflight;
+                    if (preflight == "legacy")
+                    {
+                        // Verified missing capability or known current ineligibility before any
+                        // protocol POST: the existing one-shot report, same origin, marked first.
+                        if (!await TransitionTerminalReportAsync(action, fence, sha, phase, origin, "legacy", reason).ConfigureAwait(false)) return;
+                        progressed = true;
+                        phase = "legacy";
+                        JObject legacy = await ReignServerClient.SendPinnedJsonAsync(origin, "/actions/report",
+                            JObject.Parse(TerminalReportString(state, "reportJson")), owner).ConfigureAwait(false);
+                        await ReignServerClient.ApplyLegacyReportRelationChangesAsync(legacy, fence, actionId, owner).ConfigureAwait(false);
+                        return;
+                    }
+                    if (preflight == "stale" || preflight == "conflict")
+                    {
+                        progressed = await TransitionTerminalReportAsync(action, fence, sha, phase, origin, preflight, reason).ConfigureAwait(false);
+                        return;
+                    }
+                    // An exact authoritative eligible reply starts the first POST. So does an
+                    // exact protocol_owned reply (same scope and report type): a save may hold
+                    // this captured report from before its first POST while another live
+                    // instance already posted it, so a same-generation reload restores
+                    // "captured". The pinned replay carries only this exact body; the server
+                    // revalidates hash, type and generation and refuses any different report.
+                    // Posted is persisted before dispatch, so no legacy fallback follows.
+                    if (preflight != "eligible" && preflight != "protocol_owned") return;
+                    if (!await TransitionTerminalReportAsync(action, fence, sha, phase, origin, "posted", reason).ConfigureAwait(false)) return;
+                    phase = "posted";
+                }
+
+                JObject ack = await ReignServerClient.SendPinnedJsonAsync(origin, TerminalActionReportProtocol.ProposedRoute,
+                    TerminalReportEnvelope(state), owner).ConfigureAwait(false);
+                string disposition = TerminalReportAckDisposition(ack, state);
+                reason = "ack_" + disposition + ":" + (TerminalReportString(ack, "reason") ?? string.Empty);
+                if (disposition != TerminalActionReportProtocol.Accepted)
+                {
+                    // After a POST nothing falls back. Only exact stale/conflict settles;
+                    // invalid, mismatched, ineligible or unknown replies stay pending.
+                    string settled = disposition == TerminalActionReportProtocol.Stale ? "stale"
+                        : disposition == TerminalActionReportProtocol.Conflict ? "conflict" : null;
+                    if (settled != null) progressed = await TransitionTerminalReportAsync(action, fence, sha, phase, origin, settled, reason).ConfigureAwait(false);
+                    return;
+                }
+                string authoritative = TerminalReportString(ack, "authoritativeStatus") ?? string.Empty;
+                if (!TerminalReportStatuses.Contains(authoritative)) { reason = "ack_authoritative_status_invalid"; return; }
+                bool memoryDone = TerminalReportString(ack, "memoryProjectionStatus") == "completed";
+                string effectStatus = TerminalReportString(ack, "nativeEffectStatus") ?? string.Empty;
+                JToken effectToken = ack["nativeEffect"];
+                bool noEffect = effectToken == null || effectToken.Type == JTokenType.Null;
+                bool nativeDone = (effectStatus == "none" && noEffect) || effectStatus == "applied";
+                if (effectStatus == "pending")
+                {
+                    JObject effect = effectToken as JObject;
+                    JObject observation = null;
+                    string effectReason = "owner_changed";
+                    await ReignMainThread.InvokeAsync(() =>
+                    {
+                        observation = ApplyTerminalReportEffect(action, fence, sha, phase, origin, effect, out effectReason);
+                    }).ConfigureAwait(false);
+                    if (observation == null)
+                    {
+                        // Invalid or unverifiable effect evidence: no local mutation, stays pending.
+                        reason = "effect_" + effectReason;
+                        return;
+                    }
+                    phase = "native_pending";
+                    string receiptId = TerminalReportString(effect, "receiptId");
+                    JObject receiptAck = await ReignServerClient.SendPinnedJsonAsync(origin, "/relationships/conversation/native-receipt", new JObject
+                    {
+                        ["campaignId"] = TerminalReportString(state, "campaignId"),
+                        ["receiptIds"] = new JArray(receiptId),
+                        ["nativeReceipt"] = observation
+                    }, owner).ConfigureAwait(false);
+                    nativeDone = receiptAck?.Value<bool?>("ok") == true
+                        && TerminalReportString(receiptAck, "campaignId") == TerminalReportString(state, "campaignId")
+                        && receiptAck["receiptIds"] is JArray acked
+                        && acked.Any(id => id.Type == JTokenType.String && (string)id == receiptId);
+                    if (!nativeDone) reason = "native_receipt_unacknowledged";
+                }
+                else if (!nativeDone) reason = "native_effect_status_unrecognized";
+                if (nativeDone && memoryDone)
+                {
+                    progressed = await TransitionTerminalReportAsync(action, fence, sha, phase, origin, "acknowledged", reason,
+                        s => s["authoritativeStatus"] = authoritative).ConfigureAwait(false);
+                }
+                else if (nativeDone) reason = "memory_projection_pending";
+            }
+            catch (Exception ex)
+            {
+                reason = "error_" + ex.GetType().Name;
+            }
+            finally
+            {
+                if (!progressed || reason.StartsWith("error_", StringComparison.Ordinal))
+                    ReignLog.Info("Terminal action report step unsettled action=" + actionId + " reason=" + BoundedReason(reason));
+                await ReignMainThread.InvokeAsync(() =>
+                {
+                    // Release only this step's own slot. A step whose owner was replaced
+                    // touches nothing else: no backoff, no state.
+                    if (ReferenceEquals(_terminalReportInFlightToken, token))
+                    {
+                        _terminalReportInFlightToken = null;
+                        _terminalReportInFlightFence = null;
+                    }
+                    if (!ReferenceEquals(Instance, this) || !ReferenceEquals(_terminalReportFence, fence) || !fence.IsCurrent()) return;
+                    long now = DateTime.UtcNow.Ticks;
+                    if (progressed) { _terminalReportBackoff.Remove(actionId); return; }
+                    int failures = _terminalReportBackoff.TryGetValue(actionId, out var prior) ? prior.Value + 1 : 1;
+                    long delay = TimeSpan.FromSeconds(Math.Min(300d, 5d * Math.Pow(2d, Math.Min(failures, 6)))).Ticks;
+                    _terminalReportBackoff[actionId] = new KeyValuePair<long, int>(now + delay, failures);
+                }).ConfigureAwait(false);
+            }
+        }
+
+        // "eligible", "protocol_owned" (exact scope/type already owned by the protocol; the
+        // caller may replay only the pinned exact body), "legacy" (verified missing capability
+        // or current ineligibility), "stale", "conflict" or "unknown". Only the pinned origin is read.
+        private static async Task<string> PreflightTerminalReportAsync(JObject state, Func<bool> owner)
+        {
+            string origin = TerminalReportString(state, "origin") ?? string.Empty;
+            JObject health = await ReignServerClient.SendPinnedJsonAsync(origin, "/health", null, owner).ConfigureAwait(false);
+            if (health.Value<bool?>("ok") != true || TerminalReportString(health, "service") != "BannerlordReignServer") return "unknown";
+            JToken capability = health[TerminalActionReportProtocol.HealthCapabilityField];
+            if (capability == null) return "legacy";
+            if (capability.Type != JTokenType.String || (string)capability != TerminalActionReportProtocol.RequestSchema) return "unknown";
+            JObject reply = await ReignServerClient.SendPinnedJsonAsync(origin, TerminalActionReportProtocol.ProposedRoute + "?"
+                + string.Join("&", TerminalReportScopeKeys.Select(key => key + "=" + Uri.EscapeDataString(TerminalReportString(state, key) ?? string.Empty))),
+                null, owner).ConfigureAwait(false);
+            if (reply.Value<bool?>("ok") != true || TerminalReportString(reply, "schema") != TerminalActionReportProtocol.PreflightSchema
+                || TerminalReportString(reply, "service") != "BannerlordReignServer" || TerminalReportString(reply, "protocol") != TerminalActionReportProtocol.RequestSchema
+                || TerminalReportScopeKeys.Any(key => TerminalReportString(reply, key) != TerminalReportString(state, key))) return "unknown";
+            string disposition = TerminalReportString(reply, "disposition"), reason = TerminalReportString(reply, "reason");
+            string reportType = TerminalReportString(JObject.Parse(TerminalReportString(state, "reportJson") ?? "{}"), "type") ?? string.Empty;
+            bool sameType = reportType.Length > 0 && TerminalReportString(reply, "reportType") == reportType;
+            if (disposition == TerminalActionReportProtocol.Eligible && sameType) return "eligible";
+            if (disposition == TerminalActionReportProtocol.Accepted && reason == "protocol_owned" && sameType) return "protocol_owned";
+            if (disposition == TerminalActionReportProtocol.Ineligible) return "legacy";
+            if (disposition == TerminalActionReportProtocol.Stale) return "stale";
+            return disposition == TerminalActionReportProtocol.Conflict ? "conflict" : "unknown";
+        }
+
+        private static JObject TerminalReportEnvelope(JObject state)
+        {
+            var envelope = new JObject { ["schema"] = TerminalActionReportProtocol.RequestSchema };
+            foreach (string key in TerminalReportScopeKeys) envelope[key] = TerminalReportString(state, key);
+            envelope["status"] = TerminalReportString(state, "status");
+            envelope["reportJson"] = TerminalReportString(state, "reportJson");
+            envelope["reportSha256"] = TerminalReportString(state, "reportSha256");
+            return envelope;
+        }
+
+        // The disposition of an ack that echoes this exact report identity, else "invalid".
+        private static string TerminalReportAckDisposition(JObject ack, JObject state) =>
+            ack?.Value<bool?>("ok") != true || TerminalReportString(ack, "schema") != TerminalActionReportProtocol.ResponseSchema
+            || TerminalReportString(ack, "campaignId") != TerminalReportString(state, "campaignId")
+            || TerminalReportString(ack, "actionId") != TerminalReportString(state, "actionId")
+            || TerminalReportString(ack, "reportSha256") != TerminalReportString(state, "reportSha256")
+            || TerminalReportString(ack, "generation") != TerminalReportString(state, "generation")
+                ? "invalid" : TerminalReportString(ack, "disposition") ?? "invalid";
+
+        // Game thread: the same loaded owner and ledger record, the exact live campaign,
+        // timeline, player and shared activity generation, and the same report identity,
+        // phase, action, terms and original pinned origin.
+        private JObject CurrentTerminalReport(ReignWorldActionRecord action, ReignServerClient.RequestFence fence, string sha, string phase, string origin)
+        {
+            if (!ReferenceEquals(Instance, this) || fence == null || !fence.IsCurrent() || !_actions.Contains(action)
+                || Hero.MainHero == null || string.IsNullOrEmpty(sha) || string.IsNullOrEmpty(origin)) return null;
+            JObject state = TerminalReportState(action);
+            string generation = TerminalReportString(state, "generation");
+            return state != null && TerminalReportString(state, "reportSha256") == sha && TerminalReportString(state, "phase") == phase
+                && TerminalReportString(state, "origin") == origin
+                && TerminalReportString(state, "campaignId") == ReignServerClient.GetCampaignId()
+                && TerminalReportString(state, "timelineId") == (ReignWorldHistoryCampaignBehavior.Instance?.TimelineId ?? "main")
+                && TerminalReportString(state, "playerHeroStringId") == Hero.MainHero.StringId
+                && !string.IsNullOrEmpty(generation) && generation == fence.SharedActivityGeneration
+                && generation == (ReignWorldHistoryCampaignBehavior.Instance?.SharedActivityGeneration ?? string.Empty)
+                && TerminalReportString(state, "actionId") == action.ActionId
+                && TerminalReportString(state, "termsHash") == (action.TermsHash ?? string.Empty) ? state : null;
+        }
+
+        // Game thread: CurrentTerminalReport plus the persisted report still hashing to its
+        // SHA and restating its exact encoded scope. Every pinned request requires it.
+        private bool TerminalReportRequestOwner(ReignWorldActionRecord action, ReignServerClient.RequestFence fence, string sha, string phase, string origin)
+        {
+            JObject state = CurrentTerminalReport(action, fence, sha, phase, origin);
+            return state != null && TerminalReportPayloadExact(state, TerminalReportString(state, "reportJson"),
+                TerminalReportString(state, "status"), out string recomputed) && recomputed == sha;
+        }
+
+        private Task<bool> TransitionTerminalReportAsync(ReignWorldActionRecord action, ReignServerClient.RequestFence fence,
+            string sha, string fromPhase, string origin, string toPhase, string reason, Action<JObject> update = null) =>
+            ReignMainThread.InvokeAsync(() =>
+            {
+                if (!TerminalReportRequestOwner(action, fence, sha, fromPhase, origin)) return false;
+                JObject state = TerminalReportState(action);
+                state["phase"] = toPhase;
+                state["reason"] = BoundedReason(reason);
+                update?.Invoke(state);
+                // The accepted marker (identity, SHA, status) stays; the pending payload is cleared.
+                if (toPhase == "acknowledged") state.Remove("reportJson");
+                action.TerminalReportJson = state.ToString(Newtonsoft.Json.Formatting.None);
+                ReignLog.Info("Terminal action report action=" + action.ActionId + " phase=" + toPhase + " reason=" + BoundedReason(reason));
+                return true;
+            });
+
+        // Game thread. Validates the staged receipt against the original action and exact
+        // report before any native mutation, then applies it once through the save-backed
+        // native relation ledger (a replay returns the saved observation).
+        private JObject ApplyTerminalReportEffect(ReignWorldActionRecord action, ReignServerClient.RequestFence fence,
+            string sha, string phase, string origin, JObject effect, out string reason)
+        {
+            reason = "owner_changed";
+            if (!TerminalReportRequestOwner(action, fence, sha, phase, origin)) return null;
+            JObject state = TerminalReportState(action);
+            reason = "invalid_effect";
+            string timeline = TerminalReportString(state, "timelineId"), generation = TerminalReportString(state, "generation");
+            string expected;
+            try { expected = TerminalActionReportProtocol.ReceiptId(action.ActionId, timeline, generation, sha); }
+            catch (ArgumentException) { return null; }
+            string subjectId = TerminalReportString(effect, "subjectId") ?? string.Empty, targetId = TerminalReportString(effect, "targetId") ?? string.Empty;
+            JToken deltaToken = effect?["delta"];
+            long delta = deltaToken != null && deltaToken.Type == JTokenType.Integer ? (long)deltaToken : 0L;
+            bool pair = subjectId.Length > 0 && targetId.Length > 0 && subjectId != targetId
+                && ((subjectId == action.ActorHeroStringId && targetId == action.TargetHeroStringId)
+                    || (subjectId == action.TargetHeroStringId && targetId == action.ActorHeroStringId));
+            // Server action relation deltas are bounded to -25..15 and staged as pending.
+            if (effect == null || TerminalReportString(effect, "receiptId") != expected || TerminalReportString(effect, "timelineId") != timeline
+                || TerminalReportString(effect, "reportGeneration") != generation || TerminalReportString(effect, "reportSha256") != sha
+                || TerminalReportString(effect, "nativeApplicationStatus") != "pending"
+                || !pair || delta == 0 || delta < -25 || delta > 15) return null;
+            reason = "participant_unavailable";
+            Hero subject = ReignObjectResolver.FindHero(subjectId), target = ReignObjectResolver.FindHero(targetId);
+            ReignRelationshipCampaignBehavior relations = ReignRelationshipCampaignBehavior.Instance;
+            if (subject == null || target == null || subject == target || relations == null) return null;
+            if (phase != "native_pending")
+            {
+                state["phase"] = "native_pending";
+                action.TerminalReportJson = state.ToString(Newtonsoft.Json.Formatting.None);
+            }
+            reason = "measurement_incomplete";
+            JObject observation;
+            try { observation = relations.ApplyConversationRelationOnce(new[] { expected }, subject, target, (int)delta, true); }
+            catch (InvalidOperationException) { return null; }
+            observation["timelineId"] = timeline;
+            observation["reportGeneration"] = generation;
+            observation["reportSha256"] = sha;
+            reason = string.Empty;
+            return observation;
+        }
+
+        private static string BoundedReason(string reason) => new string((reason ?? string.Empty)
+            .Where(c => char.IsLetterOrDigit(c) || c == '_' || c == ':').Take(96).ToArray());
+
         public ReignActionResult ExecuteActionForTest(ReignWorldActionRecord action)
         {
             if (action == null)
@@ -753,7 +1304,7 @@ namespace ReignBeta.Campaign
                 action.ExecuteAfterDay = CurrentDay();
                 ReignLog.Info("Completed mission-hook action " + action.ActionId + ": " + result.Message);
                 ShowDebug("Completed " + action.Type + ".");
-                _ = ReignServerClient.ReportActionAsync(action, "completed", result.Message, result);
+                ReportActionOutcome(action, "completed", result.Message, result);
                 return true;
             }
 
@@ -763,7 +1314,7 @@ namespace ReignBeta.Campaign
                 action.Status = ReignWorldActionStatus.Failed;
                 ReignLog.Warn("Failed mission-hook action " + action.ActionId + ": " + result.Message);
                 ShowDebug("Failed " + action.Type + ": " + result.Message);
-                _ = ReignServerClient.ReportActionAsync(action, "failed", result.Message, result);
+                ReportActionOutcome(action, "failed", result.Message, result);
                 return true;
             }
 
@@ -782,6 +1333,20 @@ namespace ReignBeta.Campaign
                     .WithResultCode("native_save_in_progress");
             }
 
+            // Every native world-action execution passes here (both tick loops, immediate
+            // dialogue execution, and records restored by the dedup path without re-import).
+            // A candidate whose persisted offer no longer matches the loaded scope is deferred
+            // untouched; only an exact current-generation re-offer can rebind it.
+            string offerMismatch = TerminalReportExecutionMismatch(action);
+            if (offerMismatch != null)
+            {
+                if (_terminalReportDeferralLogged.Add(action.ActionId + ":" + offerMismatch))
+                    ReignLog.Warn("Terminal report candidate execution deferred action=" + action.ActionId + " reason=" + offerMismatch
+                        + "; reconciliation limit: awaits an exact current-generation re-offer from its original origin");
+                return ReignActionResult.Progress("Action deferred until its saved offer matches the loaded campaign scope.")
+                    .WithResultCode("terminal_report_offer_scope_mismatch");
+            }
+
             if (TryRetireImpossibleTreaty(action)
                 || ReignBeta.Actions.ReignAgreementBehavior.Instance?.ReconcileObservedCampaignCancellation(action) == true
                 || TryCompleteObservedCampaignOrder(action)) return GetLastActionResult(action.ActionId);
@@ -797,7 +1362,7 @@ namespace ReignBeta.Campaign
                 action.Status = ReignWorldActionStatus.Failed;
                 action.FailureReason = blocked.Message;
                 ReignLog.Warn("Blocked action " + action.ActionId + ": " + blocked.Message);
-                _ = ReignServerClient.ReportActionAsync(action, "blocked", blocked.Message, blocked);
+                ReportActionOutcome(action, "blocked", blocked.Message, blocked);
                 return blocked;
             }
 
@@ -857,7 +1422,7 @@ namespace ReignBeta.Campaign
                 if (string.Equals(action.AuthorizationMode, "negotiated", System.StringComparison.OrdinalIgnoreCase))
                     action.ExecutionPhase = "obsolete";
                 ReignLog.Info("Obsoleted action " + action.ActionId + ": " + result.Message);
-                _ = ReignServerClient.ReportActionAsync(action, "obsolete", result.Message, result);
+                ReportActionOutcome(action, "obsolete", result.Message, result);
                 return result;
             }
 
@@ -878,7 +1443,7 @@ namespace ReignBeta.Campaign
                 {
                     ShowVerifiedReceipt(receipt);
                 }
-                _ = ReignServerClient.ReportActionAsync(action, "completed", result.Message, result);
+                ReportActionOutcome(action, "completed", result.Message, result);
                 return result;
             }
 
@@ -904,7 +1469,7 @@ namespace ReignBeta.Campaign
                 if (string.Equals(action.AuthorizationMode, "negotiated", System.StringComparison.OrdinalIgnoreCase)) action.ExecutionPhase = "failed";
                 ReignLog.Warn("Failed action " + action.ActionId + ": " + result.Message);
                 ShowDebug("Failed " + action.Type + ": " + result.Message);
-                _ = ReignServerClient.ReportActionAsync(action, "failed", result.Message, result);
+                ReportActionOutcome(action, "failed", result.Message, result);
                 return result;
             }
 
@@ -925,7 +1490,7 @@ namespace ReignBeta.Campaign
             if (string.Equals(action.AuthorizationMode, "negotiated", System.StringComparison.OrdinalIgnoreCase))
                 action.ExecutionPhase = "rejected";
             ReignLog.Info("Rejected action " + action.ActionId + ": " + result.Message);
-            _ = ReignServerClient.ReportActionAsync(action, "rejected", result.Message, result);
+            ReportActionOutcome(action, "rejected", result.Message, result);
             return true;
         }
 

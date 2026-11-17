@@ -101,6 +101,17 @@ namespace ReignBeta.World
         [SaveableField(32)]
         public string NegotiatedCommand;
 
+        // Optional terminal action report v1 state: offer origin/scope, then the exact
+        // pending report and finally its accepted marker. Empty keeps the legacy path.
+        [SaveableField(33)]
+        public string TerminalReportJson;
+
+        // Transient import provenance, never saved: the proven local response origin
+        // (empty when unproven, null when the import path offers none) and the
+        // game-thread request fence of the loaded owner that imported the record.
+        internal string ImportOrigin;
+        internal object ImportFence;
+
         public ReignWorldActionRecord()
         {
             ActionId = Guid.NewGuid().ToString("N");
@@ -122,6 +133,7 @@ namespace ReignBeta.World
             ExecutionPhase = "idle";
             ExecutionSnapshotJson = "{}";
             NegotiatedCommand = string.Empty;
+            TerminalReportJson = string.Empty;
             Reason = string.Empty;
             TermsJson = string.Empty;
             FailureReason = string.Empty;
