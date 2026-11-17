@@ -79,6 +79,8 @@
              Link="Shared\ReignGuestWagePolicy.cs" />
     <Compile Include="..\..\..\ReignBeta\src\Modules\WorldSimulation\Actions\ReignCompletedOrderPolicy.cs"
              Link="Shared\ReignCompletedOrderPolicy.cs" />
+    <Compile Include="..\..\..\ReignBeta\src\Modules\Platform\Domain\ReignTerminalReportRecoveryPolicy.cs"
+             Link="Shared\ReignTerminalReportRecoveryPolicy.cs" />
     <Compile Include="..\..\..\ReignBeta\src\Modules\WorldSimulation\Actions\ReignUnfulfilledTreatyPolicy.cs"
              Link="Shared\ReignUnfulfilledTreatyPolicy.cs" />
     <Compile Include="..\..\..\ReignBeta\src\Modules\WorldSimulation\CampaignCommands\ReignTimedHoldPolicy.cs"

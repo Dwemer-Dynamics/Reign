@@ -2509,7 +2509,7 @@ namespace ReignBeta.Integration
             return root != null && ResponseOrigins.TryGetValue(root, out string origin) ? origin : null;
         }
 
-        private static string PinnableOrigin(string baseUrl)
+        internal static string PinnableOrigin(string baseUrl)
         {
             string trimmed = (baseUrl ?? string.Empty).Trim().TrimEnd('/');
             if (!Uri.TryCreate(trimmed, UriKind.Absolute, out Uri uri) || uri.UserInfo.Length > 0

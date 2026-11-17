@@ -9,6 +9,7 @@ using ReignBeta.Settings;
 using ReignBeta.Runtime;
 using ReignBeta.World;
 using ReignBeta.Government;
+using ReignBeta.Platform;
 using TaleWorlds.CampaignSystem;
 using TaleWorlds.CampaignSystem.CampaignBehaviors;
 using TaleWorlds.CampaignSystem.Party;
@@ -54,6 +55,17 @@ namespace ReignBeta.Campaign
         private readonly List<ReignWorldActionRecord> _terminalReportHints = new List<ReignWorldActionRecord>();
         private readonly HashSet<string> _terminalReportDeferralLogged = new HashSet<string>(StringComparer.Ordinal);
         private readonly Dictionary<string, KeyValuePair<long, int>> _terminalReportBackoff = new Dictionary<string, KeyValuePair<long, int>>(StringComparer.Ordinal);
+        // Not persisted. Records whose report already existed (captured or later) when this
+        // save was loaded, keyed by record reference; filled once in SyncData, never added to.
+        // A report captured after the load is new by absence.
+        private readonly Dictionary<ReignWorldActionRecord, string> _inheritedTerminalReportPhase = new Dictionary<ReignWorldActionRecord, string>();
+        // Per behavior instance (one load): reports held without any request, settled reports
+        // whose one exact-redelivery reconciliation is requested or done, and the load session
+        // whose proof the server refused.
+        private readonly Dictionary<string, string> _terminalReportHolds = new Dictionary<string, string>(StringComparer.Ordinal);
+        private readonly HashSet<string> _terminalReportReconcileRequested = new HashSet<string>(StringComparer.Ordinal);
+        private readonly HashSet<string> _terminalReportReconciled = new HashSet<string>(StringComparer.Ordinal);
+        private string _terminalReportStaleProofSession;
         private static readonly long RealtimeActionPollIntervalTicks =
             System.TimeSpan.FromSeconds(1d).Ticks;
 
@@ -267,7 +279,25 @@ namespace ReignBeta.Campaign
             _agreements.RemoveAll(x => x == null);
             _warOrigins.RemoveAll(x => x == null);
             _treatyObligations.RemoveAll(x => x == null);
-            if (dataStore.IsLoading) PruneSaveBackedHistory();
+            if (dataStore.IsLoading)
+            {
+                PruneSaveBackedHistory();
+                CaptureInheritedTerminalReports();
+            }
+        }
+
+        // After the load prune (which keeps every pa_ receipt): a report captured or later, or
+        // unreadable, existed in the loaded save. Offered/unproven records have no report.
+        private void CaptureInheritedTerminalReports()
+        {
+            _inheritedTerminalReportPhase.Clear();
+            foreach (ReignWorldActionRecord action in _actions)
+            {
+                if (string.IsNullOrEmpty(action?.TerminalReportJson)) continue;
+                string phase = TerminalReportString(TerminalReportState(action), "phase");
+                if (string.IsNullOrEmpty(phase) || phase == "offered" || phase == "unproven") continue;
+                _inheritedTerminalReportPhase[action] = phase;
+            }
         }
 
         private void PruneSaveBackedHistory()
@@ -833,19 +863,57 @@ namespace ReignBeta.Campaign
         }
 
         // A re-offer never synthesizes a protocol candidate's legacy report: a pending exact
-        // report is retried now, and settled evidence suppresses the synthesized report.
+        // report is hinted (its backoff stands, so the 30 s redelivery cannot re-POST it on
+        // every poll), settled stale/acknowledged evidence gets at most one reconciliation per
+        // loaded instance, and every other settled phase suppresses the synthesized report.
         private bool HandleTerminalReportReoffer(ReignWorldActionRecord existing)
         {
             JObject state = TerminalReportState(existing);
             string phase = state?.Value<string>("phase");
             if (state == null || ((phase == "offered" || phase == "unproven") && !existing.IsTerminal)) return false;
             if (phase == "captured" || phase == "posted" || phase == "native_pending")
-            {
-                _terminalReportBackoff.Remove(existing.ActionId);
                 HintTerminalReport(existing);
-            }
+            else if ((phase == "stale" || phase == "acknowledged") && !_terminalReportReconciled.Contains(existing.ActionId)
+                && _terminalReportReconcileRequested.Add(existing.ActionId))
+                HintTerminalReport(existing);
+            else if (phase == "legacy")
+                HoldTerminalReport(existing.ActionId, "legacy_outcome_unknown");
             return true;
         }
+
+        // Game thread. Sends nothing for this report again in this loaded instance; one diagnostic.
+        private void HoldTerminalReport(string actionId, string reason)
+        {
+            if (string.IsNullOrEmpty(actionId)) return;
+            _terminalReportHolds[actionId] = reason ?? string.Empty;
+            if (_terminalReportDeferralLogged.Add("hold:" + actionId))
+                ReignLog.Info("Terminal action report held without delivery action=" + actionId + " reason=" + BoundedReason(reason));
+        }
+
+        // Game thread. The recovery policy's view of one saved report under the current load.
+        private TerminalReportRecoveryInput TerminalReportRecoveryInputFor(ReignWorldActionRecord action, JObject state, string phase,
+            ReignSaveSyncCoordinator.VerifiedLoad load, bool redelivered)
+        {
+            string generation = TerminalReportString(state, "generation") ?? string.Empty;
+            string live = ReignWorldHistoryCampaignBehavior.Instance?.SharedActivityGeneration ?? string.Empty;
+            string origin = TerminalReportString(state, "origin") ?? string.Empty;
+            bool exact = TerminalReportPayloadExact(state, TerminalReportString(state, "reportJson"), TerminalReportString(state, "status"), out string sha)
+                && sha == TerminalReportString(state, "reportSha256");
+            return new TerminalReportRecoveryInput
+            {
+                Phase = phase, PayloadExact = exact, Inherited = _inheritedTerminalReportPhase.ContainsKey(action),
+                Quarantined = IsUncertainExecutionHeld(action), Redelivered = redelivered,
+                LoadVerified = load != null, LoadProofStale = load != null && _terminalReportStaleProofSession == load.LoadSessionId,
+                GenerationMatchesLive = generation.Length > 0 && generation == live,
+                OriginMatchesLoad = load != null && origin.Length > 0 && origin == load.Origin,
+                HasAckNative = !string.IsNullOrEmpty(TerminalReportString(state, "ackNative"))
+            };
+        }
+
+        private static JObject TerminalReportLoadProof(ReignSaveSyncCoordinator.VerifiedLoad load) => load == null ? null : new JObject
+        {
+            ["loadSessionId"] = load.LoadSessionId, ["savePointId"] = load.SavePointId, ["restoreGeneration"] = load.RestoreGeneration
+        };
 
         // The persisted exact report restates the persisted scope and status it is filed
         // under, within the protocol size bound; sha is its recomputed digest.
@@ -939,29 +1007,90 @@ namespace ReignBeta.Campaign
 
         private bool TryStartTerminalReport(ReignWorldActionRecord action, long now)
         {
-            if (string.IsNullOrEmpty(action?.TerminalReportJson)
+            if (string.IsNullOrEmpty(action?.TerminalReportJson) || _terminalReportHolds.ContainsKey(action.ActionId)
                 || (_terminalReportBackoff.TryGetValue(action.ActionId, out var wait) && wait.Key > now)) return false;
             JObject state = TerminalReportState(action);
             string phase = state?.Value<string>("phase");
-            if (phase != "captured" && phase != "posted" && phase != "native_pending") return false;
+            bool redelivered = _terminalReportReconcileRequested.Contains(action.ActionId);
+            if (phase != "captured" && phase != "posted" && phase != "native_pending"
+                && !(redelivered && (phase == "stale" || phase == "acknowledged"))) return false;
+            ReignSaveSyncCoordinator.VerifiedLoad load = ReignSaveSyncCoordinator.CurrentVerifiedLoad;
+            TerminalReportDecision decision = ReignTerminalReportRecoveryPolicy.Delivery(
+                TerminalReportRecoveryInputFor(action, state, phase, load, redelivered));
+            if (decision.Route == TerminalReportRoute.Hold) HoldTerminalReport(action.ActionId, decision.Reason);
+            // A reconciliation request is consumed by a hold or a dispatch, never by a deferral.
+            if (redelivered && decision.Route != TerminalReportRoute.V1 && decision.Route != TerminalReportRoute.Recover)
+                ConsumeTerminalReportReconcile(action.ActionId);
+            if (decision.Route != TerminalReportRoute.V1 && decision.Route != TerminalReportRoute.Recover) return false;
+            // Recovery is bound to one verified load of this exact campaign and live generation.
+            // A live generation that has not caught up with the load yet only defers (no request).
+            string live = ReignWorldHistoryCampaignBehavior.Instance?.SharedActivityGeneration ?? string.Empty;
+            if (decision.Route == TerminalReportRoute.Recover && (load.RestoreGeneration != live
+                || load.CampaignId != ReignServerClient.GetCampaignId() || _terminalReportFence?.SharedActivityGeneration != live))
+            {
+                if (_terminalReportDeferralLogged.Add("recovery_wait:" + action.ActionId))
+                    ReignLog.Info("Terminal action report recovery waits for the verified load generation action=" + action.ActionId);
+                return false;
+            }
+            if (redelivered) ConsumeTerminalReportReconcile(action.ActionId);
             var token = new object();
             _terminalReportInFlightToken = token;
             _terminalReportInFlightFence = _terminalReportFence;
-            _ = AdvanceTerminalReportAsync(action, state, _terminalReportFence, token);
+            _ = AdvanceTerminalReportAsync(action, state, _terminalReportFence, token,
+                decision.AttachProof ? load : null, decision.Route == TerminalReportRoute.Recover,
+                _inheritedTerminalReportPhase.ContainsKey(action));
             return true;
         }
 
-        private async Task AdvanceTerminalReportAsync(ReignWorldActionRecord action, JObject state, ReignServerClient.RequestFence fence, object token)
+        private void ConsumeTerminalReportReconcile(string actionId)
+        {
+            _terminalReportReconcileRequested.Remove(actionId);
+            _terminalReportReconciled.Add(actionId);
+        }
+
+        // One delivery step: v1 (carrying the current verified load proof when the policy says so)
+        // or, for an inherited report captured under another generation, the recovery schema bound
+        // to that verified load. Settled stale/acknowledged evidence is reconciled at most once per
+        // loaded instance and never falls back. A hold sends nothing more for this instance.
+        private async Task AdvanceTerminalReportAsync(ReignWorldActionRecord action, JObject state, ReignServerClient.RequestFence fence, object token,
+            ReignSaveSyncCoordinator.VerifiedLoad load = null, bool recovery = false, bool inherited = false)
         {
             string actionId = action.ActionId, origin = TerminalReportString(state, "origin") ?? string.Empty;
             string sha = TerminalReportString(state, "reportSha256") ?? string.Empty, phase = state.Value<string>("phase");
-            string reason = "pending";
+            string reason = "pending", hold = null, staleProofSession = null;
             bool progressed = false;
+            bool reconcile = phase == "acknowledged";
+            ReignSaveSyncCoordinator.VerifiedLoad recoveryLoad = recovery ? load : null;
             // Game-thread guard for every pinned request: same loaded owner, scope, phase,
             // origin and an exact persisted report (rechecked immediately before dispatch).
-            Func<bool> owner = () => TerminalReportRequestOwner(action, fence, sha, phase, origin);
+            // Recovery replaces only generation equality with the exact current verified load.
+            Func<bool> owner = () => TerminalReportStepOwner(action, fence, sha, phase, origin, recoveryLoad);
             try
             {
+                if (recovery)
+                {
+                    string capability = await TerminalReportRecoveryCapabilityAsync(origin, owner).ConfigureAwait(false);
+                    if (capability != "supported")
+                    {
+                        reason = "recovery_capability_" + capability;
+                        // An exact older server: never posted the recovery schema, never Stale, never legacy.
+                        if (capability == "unsupported") hold = "server_recovery_unsupported";
+                        return;
+                    }
+                }
+                // Inherited, recovered or reconciled dispatch is persisted before its POST; a stale
+                // report reopens as posted with its prior phase kept, never as legacy. An inherited
+                // captured report never takes the proof-less preflight (whose legacy, stale or
+                // conflict answer could settle it or apply journal-less deltas): the proof-carrying
+                // POST decides.
+                if (recovery || phase == "stale" || reconcile || (inherited && phase == "captured"))
+                {
+                    string from = phase, to = phase == "captured" || phase == "stale" ? "posted" : phase;
+                    if (!await TransitionTerminalReportAsync(action, fence, sha, from, origin, to,
+                        recovery ? "recovery_dispatched" : "reconcile_dispatched",
+                        s => RecordTerminalReportDispatch(s, from, load, recovery, reconcile), recoveryLoad).ConfigureAwait(false)) return;
+                    phase = to;
+                }
                 if (phase == "captured")
                 {
                     string preflight = await PreflightTerminalReportAsync(state, owner).ConfigureAwait(false);
@@ -996,16 +1125,39 @@ namespace ReignBeta.Campaign
                 }
 
                 JObject ack = await ReignServerClient.SendPinnedJsonAsync(origin, TerminalActionReportProtocol.ProposedRoute,
-                    TerminalReportEnvelope(state), owner).ConfigureAwait(false);
+                    TerminalReportEnvelope(state, load, recovery), owner).ConfigureAwait(false);
                 string disposition = TerminalReportAckDisposition(ack, state);
-                reason = "ack_" + disposition + ":" + (TerminalReportString(ack, "reason") ?? string.Empty);
+                string ackReason = TerminalReportString(ack, "reason") ?? string.Empty;
+                reason = "ack_" + disposition + ":" + ackReason;
+                if (disposition == TerminalActionReportProtocol.Conflict && ackReason == TerminalActionReportProtocol.LoadProofStale)
+                {
+                    // A later import or restore replaced this verified load; the server mutated nothing.
+                    hold = "load_proof_invalidated";
+                    staleProofSession = load?.LoadSessionId;
+                    return;
+                }
+                if (disposition == TerminalActionReportProtocol.Accepted && recovery && !TerminalReportAdmissionMatches(ack, load))
+                {
+                    reason = "ack_admission_mismatch";
+                    return;
+                }
                 if (disposition != TerminalActionReportProtocol.Accepted)
                 {
-                    // After a POST nothing falls back. Only exact stale/conflict settles;
-                    // invalid, mismatched, ineligible or unknown replies stay pending.
-                    string settled = disposition == TerminalActionReportProtocol.Stale ? "stale"
+                    // After a POST nothing falls back. Only exact stale/conflict settles a v1 report;
+                    // invalid, mismatched, ineligible or unknown replies stay pending. Recovery never
+                    // goes stale and a reconciliation never changes its settled phase: unproven,
+                    // ineligible or unknown history is held for this load.
+                    string settled = disposition == TerminalActionReportProtocol.Stale && !recovery ? "stale"
                         : disposition == TerminalActionReportProtocol.Conflict ? "conflict" : null;
-                    if (settled != null) progressed = await TransitionTerminalReportAsync(action, fence, sha, phase, origin, settled, reason).ConfigureAwait(false);
+                    if (reconcile)
+                    {
+                        if (settled != null || disposition == TerminalActionReportProtocol.Unknown)
+                            hold = "reconcile_" + disposition + ":" + ackReason;
+                    }
+                    else if (settled != null)
+                        progressed = await TransitionTerminalReportAsync(action, fence, sha, phase, origin, settled, reason, null, recoveryLoad).ConfigureAwait(false);
+                    else if (recovery && (disposition == TerminalActionReportProtocol.Unknown || disposition == TerminalActionReportProtocol.Stale))
+                        hold = ackReason.Length > 0 ? ackReason : "recovery_" + disposition;
                     return;
                 }
                 string authoritative = TerminalReportString(ack, "authoritativeStatus") ?? string.Empty;
@@ -1013,42 +1165,67 @@ namespace ReignBeta.Campaign
                 bool memoryDone = TerminalReportString(ack, "memoryProjectionStatus") == "completed";
                 string effectStatus = TerminalReportString(ack, "nativeEffectStatus") ?? string.Empty;
                 JToken effectToken = ack["nativeEffect"];
-                bool noEffect = effectToken == null || effectToken.Type == JTokenType.Null;
-                bool nativeDone = (effectStatus == "none" && noEffect) || effectStatus == "applied";
-                if (effectStatus == "pending")
+                JObject effect = effectToken as JObject;
+                if (effectToken != null && effectToken.Type != JTokenType.Null && effect == null) { reason = "effect_invalid_effect"; return; }
+                // R3: the persisted native journal, never the server status alone, decides. The
+                // classification, the native_pending stamp and the ledger write run in one
+                // synchronous game-thread block, so no save can split them.
+                JObject observation = null;
+                string outcome = "pending:owner_changed", ackNative = "none";
+                await ReignMainThread.InvokeAsync(() =>
                 {
-                    JObject effect = effectToken as JObject;
-                    JObject observation = null;
-                    string effectReason = "owner_changed";
-                    await ReignMainThread.InvokeAsync(() =>
-                    {
-                        observation = ApplyTerminalReportEffect(action, fence, sha, phase, origin, effect, out effectReason);
-                    }).ConfigureAwait(false);
-                    if (observation == null)
-                    {
-                        // Invalid or unverifiable effect evidence: no local mutation, stays pending.
-                        reason = "effect_" + effectReason;
-                        return;
-                    }
-                    phase = "native_pending";
+                    observation = ResolveTerminalReportEffect(action, fence, sha, phase, origin, effect, effectStatus,
+                        recoveryLoad, reconcile, out outcome, out ackNative);
+                }).ConfigureAwait(false);
+                bool nativeDone = outcome == "done";
+                if (outcome.StartsWith("hold:", StringComparison.Ordinal))
+                {
+                    hold = outcome.Substring("hold:".Length);
+                    return;
+                }
+                if (outcome == "ack")
+                {
+                    if (!reconcile) phase = "native_pending";
                     string receiptId = TerminalReportString(effect, "receiptId");
-                    JObject receiptAck = await ReignServerClient.SendPinnedJsonAsync(origin, "/relationships/conversation/native-receipt", new JObject
+                    var receiptBody = new JObject
                     {
                         ["campaignId"] = TerminalReportString(state, "campaignId"),
                         ["receiptIds"] = new JArray(receiptId),
                         ["nativeReceipt"] = observation
-                    }, owner).ConfigureAwait(false);
+                    };
+                    if (load != null) receiptBody[TerminalActionReportProtocol.LoadProofField] = TerminalReportLoadProof(load);
+                    JObject receiptAck = await ReignServerClient.SendPinnedJsonAsync(origin, "/relationships/conversation/native-receipt",
+                        receiptBody, owner).ConfigureAwait(false);
+                    if (receiptAck?.Value<bool?>("ok") != true && TerminalReportString(receiptAck, "reason") == TerminalActionReportProtocol.LoadProofStale)
+                    {
+                        hold = "load_proof_invalidated";
+                        staleProofSession = load?.LoadSessionId;
+                        return;
+                    }
                     nativeDone = receiptAck?.Value<bool?>("ok") == true
                         && TerminalReportString(receiptAck, "campaignId") == TerminalReportString(state, "campaignId")
                         && receiptAck["receiptIds"] is JArray acked
                         && acked.Any(id => id.Type == JTokenType.String && (string)id == receiptId);
                     if (!nativeDone) reason = "native_receipt_unacknowledged";
+                    else ackNative = "applied:" + receiptId;
                 }
-                else if (!nativeDone) reason = "native_effect_status_unrecognized";
+                else if (!nativeDone)
+                {
+                    // No native mutation happened in this step; the report stays pending.
+                    reason = "effect_" + outcome.Substring(outcome.IndexOf(':') + 1);
+                    return;
+                }
+                if (reconcile)
+                {
+                    // Settled evidence keeps its phase; only the reconciliation result is recorded.
+                    if (nativeDone) progressed = await TransitionTerminalReportAsync(action, fence, sha, phase, origin, phase, "reconciled",
+                        s => { if (s["reconcile"] is JObject r) r["result"] = "done"; }, recoveryLoad).ConfigureAwait(false);
+                    return;
+                }
                 if (nativeDone && memoryDone)
                 {
                     progressed = await TransitionTerminalReportAsync(action, fence, sha, phase, origin, "acknowledged", reason,
-                        s => s["authoritativeStatus"] = authoritative).ConfigureAwait(false);
+                        s => { s["authoritativeStatus"] = authoritative; s["ackNative"] = ackNative; }, recoveryLoad).ConfigureAwait(false);
                 }
                 else if (nativeDone) reason = "memory_projection_pending";
             }
@@ -1058,6 +1235,7 @@ namespace ReignBeta.Campaign
             }
             finally
             {
+                if (hold != null) reason = "hold_" + hold;
                 if (!progressed || reason.StartsWith("error_", StringComparison.Ordinal))
                     ReignLog.Info("Terminal action report step unsettled action=" + actionId + " reason=" + BoundedReason(reason));
                 await ReignMainThread.InvokeAsync(() =>
@@ -1070,6 +1248,12 @@ namespace ReignBeta.Campaign
                         _terminalReportInFlightFence = null;
                     }
                     if (!ReferenceEquals(Instance, this) || !ReferenceEquals(_terminalReportFence, fence) || !fence.IsCurrent()) return;
+                    if (hold != null)
+                    {
+                        if (staleProofSession != null) _terminalReportStaleProofSession = staleProofSession;
+                        HoldTerminalReport(actionId, hold);
+                        return;
+                    }
                     long now = DateTime.UtcNow.Ticks;
                     if (progressed) { _terminalReportBackoff.Remove(actionId); return; }
                     int failures = _terminalReportBackoff.TryGetValue(actionId, out var prior) ? prior.Value + 1 : 1;
@@ -1106,15 +1290,59 @@ namespace ReignBeta.Campaign
             return disposition == TerminalActionReportProtocol.Conflict ? "conflict" : "unknown";
         }
 
-        private static JObject TerminalReportEnvelope(JObject state)
+        // The v1 envelope is unchanged (generation is always the report's own). A verified load's
+        // proof and, for recovery, the load it is recovered under are siblings outside the SHA.
+        private static JObject TerminalReportEnvelope(JObject state, ReignSaveSyncCoordinator.VerifiedLoad load = null, bool recovery = false)
         {
-            var envelope = new JObject { ["schema"] = TerminalActionReportProtocol.RequestSchema };
+            var envelope = new JObject
+            {
+                ["schema"] = recovery ? TerminalActionReportProtocol.RecoverySchema : TerminalActionReportProtocol.RequestSchema
+            };
             foreach (string key in TerminalReportScopeKeys) envelope[key] = TerminalReportString(state, key);
             envelope["status"] = TerminalReportString(state, "status");
             envelope["reportJson"] = TerminalReportString(state, "reportJson");
             envelope["reportSha256"] = TerminalReportString(state, "reportSha256");
+            if (load != null) envelope[TerminalActionReportProtocol.LoadProofField] = TerminalReportLoadProof(load);
+            if (recovery && load != null)
+                envelope[TerminalActionReportProtocol.RecoveryField] = new JObject
+                {
+                    ["liveGeneration"] = load.RestoreGeneration, ["savePointId"] = load.SavePointId, ["loadSessionId"] = load.LoadSessionId
+                };
             return envelope;
         }
+
+        // Mutable dispatch progress only; the report bytes, SHA, generation and scope never change.
+        private static void RecordTerminalReportDispatch(JObject state, string priorPhase, ReignSaveSyncCoordinator.VerifiedLoad load,
+            bool recovery, bool reconcile)
+        {
+            if (priorPhase == "stale") state["priorPhase"] = "stale";
+            if (reconcile) state["reconcile"] = new JObject { ["phaseAtLoad"] = priorPhase, ["dispatched"] = true, ["result"] = "pending" };
+            if (recovery && load != null)
+                state["recovery"] = new JObject
+                {
+                    ["schema"] = TerminalActionReportProtocol.RecoverySchema, ["liveGeneration"] = load.RestoreGeneration,
+                    ["savePointId"] = load.SavePointId, ["loadSessionId"] = load.LoadSessionId,
+                    ["priorPhase"] = priorPhase, ["dispatched"] = true
+                };
+        }
+
+        // "supported", "unsupported" (an exact Reign server health without the recovery capability)
+        // or "unknown". Only the pinned origin is read.
+        private static async Task<string> TerminalReportRecoveryCapabilityAsync(string origin, Func<bool> owner)
+        {
+            JObject health = await ReignServerClient.SendPinnedJsonAsync(origin, "/health", null, owner).ConfigureAwait(false);
+            if (health.Value<bool?>("ok") != true || TerminalReportString(health, "service") != "BannerlordReignServer") return "unknown";
+            JToken capability = health[TerminalActionReportProtocol.RecoveryHealthCapabilityField];
+            if (capability == null) return "unsupported";
+            return capability.Type == JTokenType.String && (string)capability == TerminalActionReportProtocol.RecoverySchema ? "supported" : "unknown";
+        }
+
+        // The accepted recovery reply names exactly the verified load this step was sent under.
+        private static bool TerminalReportAdmissionMatches(JObject ack, ReignSaveSyncCoordinator.VerifiedLoad load) =>
+            load != null && ack?[TerminalActionReportProtocol.AdmissionField] is JObject admission
+            && TerminalReportString(admission, "generation") == load.RestoreGeneration
+            && TerminalReportString(admission, "savePointId") == load.SavePointId
+            && TerminalReportString(admission, "loadSessionId") == load.LoadSessionId;
 
         // The disposition of an ack that echoes this exact report identity, else "invalid".
         private static string TerminalReportAckDisposition(JObject ack, JObject state) =>
@@ -1154,30 +1382,121 @@ namespace ReignBeta.Campaign
                 TerminalReportString(state, "status"), out string recomputed) && recomputed == sha;
         }
 
+        // Game thread, recovery only: CurrentTerminalReport's checks with generation equality
+        // replaced by the exact current verified load. The report's own generation differs from
+        // the live one; the live generation, the loaded fence and the load proof agree; and the
+        // origin that answered that load is the report's pinned origin.
+        private bool TerminalReportRecoveryOwner(ReignWorldActionRecord action, ReignServerClient.RequestFence fence, string sha, string phase,
+            string origin, ReignSaveSyncCoordinator.VerifiedLoad load)
+        {
+            if (!ReferenceEquals(Instance, this) || fence == null || !fence.IsCurrent() || !_actions.Contains(action)
+                || Hero.MainHero == null || string.IsNullOrEmpty(sha) || string.IsNullOrEmpty(origin) || load == null
+                || !ReferenceEquals(ReignSaveSyncCoordinator.CurrentVerifiedLoad, load)) return false;
+            JObject state = TerminalReportState(action);
+            string generation = TerminalReportString(state, "generation");
+            string live = ReignWorldHistoryCampaignBehavior.Instance?.SharedActivityGeneration ?? string.Empty;
+            return state != null && TerminalReportString(state, "reportSha256") == sha && TerminalReportString(state, "phase") == phase
+                && TerminalReportString(state, "origin") == origin && origin == load.Origin
+                && TerminalReportString(state, "campaignId") == ReignServerClient.GetCampaignId()
+                && TerminalReportString(state, "campaignId") == load.CampaignId
+                && TerminalReportString(state, "timelineId") == (ReignWorldHistoryCampaignBehavior.Instance?.TimelineId ?? "main")
+                && TerminalReportString(state, "playerHeroStringId") == Hero.MainHero.StringId
+                && !string.IsNullOrEmpty(generation) && live.Length > 0 && generation != live
+                && live == fence.SharedActivityGeneration && live == load.RestoreGeneration
+                && TerminalReportString(state, "actionId") == action.ActionId
+                && TerminalReportString(state, "termsHash") == (action.TermsHash ?? string.Empty)
+                && TerminalReportPayloadExact(state, TerminalReportString(state, "reportJson"), TerminalReportString(state, "status"), out string recomputed)
+                && recomputed == sha;
+        }
+
+        private bool TerminalReportStepOwner(ReignWorldActionRecord action, ReignServerClient.RequestFence fence, string sha, string phase,
+            string origin, ReignSaveSyncCoordinator.VerifiedLoad recoveryLoad) => recoveryLoad == null
+                ? TerminalReportRequestOwner(action, fence, sha, phase, origin)
+                : TerminalReportRecoveryOwner(action, fence, sha, phase, origin, recoveryLoad);
+
         private Task<bool> TransitionTerminalReportAsync(ReignWorldActionRecord action, ReignServerClient.RequestFence fence,
-            string sha, string fromPhase, string origin, string toPhase, string reason, Action<JObject> update = null) =>
+            string sha, string fromPhase, string origin, string toPhase, string reason, Action<JObject> update = null,
+            ReignSaveSyncCoordinator.VerifiedLoad recoveryLoad = null) =>
             ReignMainThread.InvokeAsync(() =>
             {
-                if (!TerminalReportRequestOwner(action, fence, sha, fromPhase, origin)) return false;
+                if (!TerminalReportStepOwner(action, fence, sha, fromPhase, origin, recoveryLoad)) return false;
                 JObject state = TerminalReportState(action);
                 state["phase"] = toPhase;
                 state["reason"] = BoundedReason(reason);
                 update?.Invoke(state);
-                // The accepted marker (identity, SHA, status) stays; the pending payload is cleared.
-                if (toPhase == "acknowledged") state.Remove("reportJson");
+                // The exact report bytes stay at every phase, acknowledged included, so a later
+                // verified load can still prove and reconcile them.
                 action.TerminalReportJson = state.ToString(Newtonsoft.Json.Formatting.None);
                 ReignLog.Info("Terminal action report action=" + action.ActionId + " phase=" + toPhase + " reason=" + BoundedReason(reason));
                 return true;
             });
 
+        // Game thread, one synchronous block. Server acceptance never proves a native mutation:
+        // the persisted journal (plus any saved unpersisted marker) is classified for the exact
+        // receipt identity, the pure policy decides, and only an apply/replay reaches the ledger.
+        // outcome: ack (observation returned), done, hold:<reason> or pending:<reason> (nothing
+        // mutated; retried). ackNative is what an acknowledgement records about the effect.
+        private JObject ResolveTerminalReportEffect(ReignWorldActionRecord action, ReignServerClient.RequestFence fence, string sha,
+            string phase, string origin, JObject effect, string effectStatus, ReignSaveSyncCoordinator.VerifiedLoad recoveryLoad,
+            bool keepPhase, out string outcome, out string ackNative)
+        {
+            outcome = "pending:owner_changed";
+            ackNative = "none";
+            if (!TerminalReportStepOwner(action, fence, sha, phase, origin, recoveryLoad)) return null;
+            JObject state = TerminalReportState(action);
+            string timeline = TerminalReportString(state, "timelineId"), generation = TerminalReportString(state, "generation");
+            string expected;
+            try { expected = TerminalActionReportProtocol.ReceiptId(action.ActionId, timeline, generation, sha); }
+            catch (ArgumentException) { outcome = "pending:invalid_effect"; return null; }
+            if (effect != null && TerminalReportString(effect, "receiptId") != expected) { outcome = "pending:invalid_effect"; return null; }
+            // Without a restated effect the report's own pair names the identity (delta unknown).
+            string subjectId = effect != null ? TerminalReportString(effect, "subjectId") ?? string.Empty : action.ActorHeroStringId ?? string.Empty;
+            string targetId = effect != null ? TerminalReportString(effect, "targetId") ?? string.Empty : action.TargetHeroStringId ?? string.Empty;
+            JToken deltaToken = effect?["delta"];
+            int? delta = deltaToken != null && deltaToken.Type == JTokenType.Integer
+                && (long)deltaToken >= int.MinValue && (long)deltaToken <= int.MaxValue ? (int)(long)deltaToken : (int?)null;
+            ReignRelationshipCampaignBehavior relations = ReignRelationshipCampaignBehavior.Instance;
+            if (relations == null) { outcome = "pending:participant_unavailable"; return null; }
+            string savedMarker = TerminalReportString(state, "nativeJournal");
+            string journal = !string.IsNullOrEmpty(savedMarker) ? savedMarker
+                : relations.ClassifyConversationRelation(expected, subjectId, targetId, delta);
+            string decision = ReignTerminalReportRecoveryPolicy.NativeAction(phase, journal,
+                TerminalReportString(state, "nativeAttempt"), effectStatus, TerminalReportString(state, "ackNative"));
+            if (decision == "done")
+            {
+                outcome = "done";
+                ackNative = effectStatus == "applied" ? "applied:" + expected : "none";
+                return null;
+            }
+            // An unrecognized server status is not evidence about the native world; retry later.
+            if (decision == "hold:native_effect_status_unrecognized") { outcome = "pending:native_effect_status_unrecognized"; return null; }
+            if (decision != "apply" && decision != "replay") { outcome = decision; return null; }
+            JObject observation = ApplyTerminalReportEffect(action, fence, sha, phase, origin, effect, recoveryLoad, keepPhase, expected, out string reason);
+            if (observation == null)
+            {
+                outcome = reason.StartsWith("hold:", StringComparison.Ordinal) ? reason : "pending:" + reason;
+                return null;
+            }
+            // A recovered report is acknowledged only with an exact echo of its admitting load.
+            if (recoveryLoad != null)
+                observation[TerminalActionReportProtocol.AdmissionField] = new JObject
+                {
+                    ["generation"] = recoveryLoad.RestoreGeneration, ["loadSessionId"] = recoveryLoad.LoadSessionId
+                };
+            outcome = "ack";
+            return observation;
+        }
+
         // Game thread. Validates the staged receipt against the original action and exact
         // report before any native mutation, then applies it once through the save-backed
-        // native relation ledger (a replay returns the saved observation).
+        // native relation ledger (a replay returns the saved observation). The native_pending
+        // write carries the attempt stamp, so a later absent journal proves no native call.
         private JObject ApplyTerminalReportEffect(ReignWorldActionRecord action, ReignServerClient.RequestFence fence,
-            string sha, string phase, string origin, JObject effect, out string reason)
+            string sha, string phase, string origin, JObject effect, ReignSaveSyncCoordinator.VerifiedLoad recoveryLoad,
+            bool keepPhase, string expectedReceipt, out string reason)
         {
             reason = "owner_changed";
-            if (!TerminalReportRequestOwner(action, fence, sha, phase, origin)) return null;
+            if (!TerminalReportStepOwner(action, fence, sha, phase, origin, recoveryLoad)) return null;
             JObject state = TerminalReportState(action);
             reason = "invalid_effect";
             string timeline = TerminalReportString(state, "timelineId"), generation = TerminalReportString(state, "generation");
@@ -1199,15 +1518,34 @@ namespace ReignBeta.Campaign
             Hero subject = ReignObjectResolver.FindHero(subjectId), target = ReignObjectResolver.FindHero(targetId);
             ReignRelationshipCampaignBehavior relations = ReignRelationshipCampaignBehavior.Instance;
             if (subject == null || target == null || subject == target || relations == null) return null;
-            if (phase != "native_pending")
+            if (expectedReceipt != expected) return null;
+            if (phase != "native_pending" && !keepPhase)
             {
                 state["phase"] = "native_pending";
+                state["nativeAttempt"] = ReignTerminalReportRecoveryPolicy.NativeAttemptStamp;
                 action.TerminalReportJson = state.ToString(Newtonsoft.Json.Formatting.None);
             }
             reason = "measurement_incomplete";
             JObject observation;
             try { observation = relations.ApplyConversationRelationOnce(new[] { expected }, subject, target, (int)delta, true); }
-            catch (InvalidOperationException) { return null; }
+            catch (Exception)
+            {
+                // What the persisted journal now proves. An entry the replay cache recorded but the
+                // persisted list lost may follow a native mutation: mark it in the same synchronous
+                // call so it is never applied again, even after a save discards the cache.
+                string after = relations.ClassifyConversationRelation(expected, subject.StringId, target.StringId, (int)delta);
+                if (after == "unpersisted")
+                {
+                    state["nativeJournal"] = "unpersisted";
+                    action.TerminalReportJson = state.ToString(Newtonsoft.Json.Formatting.None);
+                    reason = "hold:native_journal_unpersisted";
+                }
+                else if (after == "absent") reason = "native_apply_failed_before_mutation";
+                else if (after == "incomplete") reason = "hold:native_observation_incomplete";
+                else if (after == "mismatch") reason = "hold:native_parameter_mismatch";
+                else reason = "hold:native_journal_" + after;
+                return null;
+            }
             observation["timelineId"] = timeline;
             observation["reportGeneration"] = generation;
             observation["reportSha256"] = sha;

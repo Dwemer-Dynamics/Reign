@@ -34,6 +34,35 @@ namespace ReignBeta.Integration
         private static string _lastObservedCampaignId = string.Empty;
         private static readonly System.Collections.Generic.HashSet<string> CapacityWarningsShown =
             new System.Collections.Generic.HashSet<string>(StringComparer.OrdinalIgnoreCase);
+        private static VerifiedLoad _verifiedLoad;
+
+        // A Save Sync load this coordinator generation positively verified: a no-op that
+        // echoed this exact save point and load session, or a rollback whose owned local reset
+        // completed. Both carry the server's restore generation, bound to that load session,
+        // and the exact origin that answered. Degraded, unregistered, missing-snapshot,
+        // disabled, failed or superseded loads have none.
+        internal sealed class VerifiedLoad
+        {
+            internal VerifiedLoad(int coordinatorGeneration, string campaignId, string savePointId, string loadSessionId,
+                string restoreGeneration, string origin, string result)
+            {
+                CoordinatorGeneration = coordinatorGeneration; CampaignId = campaignId; SavePointId = savePointId;
+                LoadSessionId = loadSessionId; RestoreGeneration = restoreGeneration; Origin = origin; Result = result;
+            }
+            internal int CoordinatorGeneration { get; }
+            internal string CampaignId { get; }
+            internal string SavePointId { get; }
+            internal string LoadSessionId { get; }
+            internal string RestoreGeneration { get; }
+            internal string Origin { get; }
+            internal string Result { get; }
+        }
+
+        // Null unless the verified load belongs to the current coordinator generation.
+        internal static VerifiedLoad CurrentVerifiedLoad
+        {
+            get { lock (Gate) return _verifiedLoad != null && _verifiedLoad.CoordinatorGeneration == _generation ? _verifiedLoad : null; }
+        }
 
         internal static int CampaignGeneration
         {
@@ -372,6 +401,7 @@ namespace ReignBeta.Integration
             bool waitingForCampaignIdentityLogged = false;
             string campaignId = payload.Value<string>("campaignId") ?? string.Empty;
             bool rolledBack = false;
+            VerifiedLoad rollbackProof = null;
             while (IsCurrentGeneration(generation, campaignId))
             {
                 if (!CurrentCampaignMatches(campaignId))
@@ -392,16 +422,19 @@ namespace ReignBeta.Integration
 
                 try
                 {
-                    JObject response = await PostDirectAsync("/save-sync/load", payload).ConfigureAwait(false);
+                    var answered = await PostDirectWithOriginAsync("/save-sync/load", payload).ConfigureAwait(false);
+                    JObject response = answered.Key;
                     string result = response?.Value<string>("result") ?? string.Empty;
                     if (response?.Value<bool?>("ok") == true)
                     {
                         if (result == "rolled_back")
                         {
                             rolledBack = true;
+                            rollbackProof = LoadProofCandidate(generation, payload, response, answered.Value);
                             break;
                         }
-                        CompleteIfCurrent(generation);
+                        // Only an exact no-op echo is a verified load; every other success stays unverified.
+                        CompleteIfCurrent(generation, result == "no_op" ? LoadProofCandidate(generation, payload, response, answered.Value) : null);
                         ReignLog.Info("Save Sync load result=" + result + " campaign=" + (payload.Value<string>("campaignId") ?? "") + " point=" + (payload.Value<string>("savePointId") ?? ""));
                         return;
                     }
@@ -424,19 +457,21 @@ namespace ReignBeta.Integration
             }
             if (!rolledBack) return;
             ReignLog.Info("Save Sync load result=rolled_back campaign=" + campaignId + " point=" + (payload.Value<string>("savePointId") ?? ""));
-            await ResetCalendarAfterRollbackAsync(generation, campaignId, campaign, scope).ConfigureAwait(false);
+            await ResetCalendarAfterRollbackAsync(generation, campaignId, campaign, scope, rollbackProof).ConfigureAwait(false);
         }
 
         // Local phase after an accepted server rollback; never re-POSTs the
-        // load. Only this generation's own completed reset releases readiness.
+        // load. Only this generation's own completed reset releases readiness,
+        // and only that completed reset makes the rollback a verified load.
         private static async Task ResetCalendarAfterRollbackAsync(int generation, string campaignId,
-            WeakReference<TaleWorlds.CampaignSystem.Campaign> campaign, ReignMainThread.GameScope scope)
+            WeakReference<TaleWorlds.CampaignSystem.Campaign> campaign, ReignMainThread.GameScope scope,
+            VerifiedLoad rollbackProof = null)
         {
             Func<bool> owner = () => IsOwnedLoadedCampaign(generation, campaignId, campaign);
             Action reset = () =>
             {
                 ReignCalendarService.Reset();
-                CompleteIfCurrent(generation);
+                CompleteIfCurrent(generation, rollbackProof);
             };
             try
             {
@@ -494,7 +529,12 @@ namespace ReignBeta.Integration
                 && ReferenceEquals(original, TaleWorlds.CampaignSystem.Campaign.Current);
         }
 
-        private static async Task<JObject> PostDirectAsync(string route, JObject payload)
+        private static async Task<JObject> PostDirectAsync(string route, JObject payload) =>
+            (await PostDirectWithOriginAsync(route, payload).ConfigureAwait(false)).Key;
+
+        // Value is the pinnable origin that actually answered, or "" when the response came
+        // from a different final URI (a redirect) or a base URL that is not a bare origin.
+        private static async Task<System.Collections.Generic.KeyValuePair<JObject, string>> PostDirectWithOriginAsync(string route, JObject payload)
         {
             string json = (payload ?? new JObject()).ToString(Formatting.None);
             Exception last = null;
@@ -512,7 +552,11 @@ namespace ReignBeta.Integration
                         ReignServerEndpoint.ReportSuccess(baseUrl);
                         ReignLog.Info("HTTP POST " + route + " status=" + (int)response.StatusCode + " clientMs=" + timer.ElapsedMilliseconds);
                         if (!response.IsSuccessStatusCode) throw new InvalidOperationException("HTTP " + (int)response.StatusCode + ": " + body);
-                        return JObject.Parse(body);
+                        Uri final = response.RequestMessage?.RequestUri;
+                        string origin = final != null && Uri.TryCreate(url, UriKind.Absolute, out Uri requested)
+                            && string.Equals(final.AbsoluteUri, requested.AbsoluteUri, StringComparison.Ordinal)
+                                ? ReignServerClient.PinnableOrigin(baseUrl) : string.Empty;
+                        return new System.Collections.Generic.KeyValuePair<JObject, string>(JObject.Parse(body), origin);
                     }
                 }
                 catch (Exception ex) when (ReignServerEndpoint.IsTransportFailure(ex)) { last = ex; }
@@ -538,10 +582,36 @@ namespace ReignBeta.Integration
                 StringComparison.OrdinalIgnoreCase);
         }
 
-        private static void CompleteIfCurrent(int generation)
+        private static void CompleteIfCurrent(int generation, VerifiedLoad verified = null)
         {
-            lock (Gate) if (generation == _generation) _ready.TrySetResult(true);
+            lock (Gate)
+            {
+                if (generation != _generation) return;
+                // Published before readiness so the first released tick already sees it.
+                if (verified != null && verified.CoordinatorGeneration == generation) _verifiedLoad = verified;
+                _ready.TrySetResult(true);
+            }
         }
+
+        // A verified-load candidate only from an exact echo of this request's campaign, save
+        // point and load session, a restore generation the server bound to that session, and
+        // the origin that actually answered. Anything less leaves the load unverified.
+        private static VerifiedLoad LoadProofCandidate(int generation, JObject payload, JObject response, string origin)
+        {
+            string campaignId = payload?.Value<string>("campaignId") ?? string.Empty;
+            string savePointId = payload?.Value<string>("savePointId") ?? string.Empty;
+            string loadSessionId = payload?.Value<string>("loadSessionId") ?? string.Empty;
+            string restoreGeneration = ExactString(response, "restoreGeneration");
+            if (string.IsNullOrEmpty(origin) || campaignId.Length == 0 || savePointId.Length == 0 || loadSessionId.Length == 0
+                || string.IsNullOrEmpty(restoreGeneration)
+                || ExactString(response, "campaignId") != campaignId || ExactString(response, "savePointId") != savePointId
+                || ExactString(response, "loadSessionId") != loadSessionId) return null;
+            return new VerifiedLoad(generation, campaignId, savePointId, loadSessionId, restoreGeneration, origin,
+                ExactString(response, "result") ?? string.Empty);
+        }
+
+        private static string ExactString(JObject source, string key) =>
+            source?[key] is JValue value && value.Type == JTokenType.String ? (string)value : null;
 
         private static bool IsSaveSyncRoute(string route)
         {
