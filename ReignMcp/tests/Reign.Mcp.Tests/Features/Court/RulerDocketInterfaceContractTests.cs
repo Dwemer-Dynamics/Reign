@@ -90,7 +90,7 @@ public sealed class RulerDocketInterfaceContractTests
         string scroll = File.ReadAllText(Path.Combine(root, "ReignBeta", "src", "Modules", "Court",
             "UI", "Widgets", "ReignDocketCardScrollPanel.cs"));
         string behavior = File.ReadAllText(Path.Combine(root, "ReignBeta", "src", "Modules", "Court",
-            "Court", "ReignRulerDocketCampaignBehavior.cs"));
+            "Campaign", "ReignRulerDocketCampaignBehavior.cs"));
         string assetTool = File.ReadAllText(Path.Combine(root, "ReignBeta", "artwork",
             "ui-modern-style-kit", "tools", "prepare_ruler_docket_interface_assets.py"));
         string deployUi = File.ReadAllText(Path.Combine(root, "ReignBeta", "tools",
@@ -211,7 +211,7 @@ public sealed class RulerDocketInterfaceContractTests
         string sceneClient = File.ReadAllText(Path.Combine(root, "ReignBeta", "src", "Modules", "Court",
             "Integration", "ReignRulerPetitionSceneClient.cs"));
         string domain = File.ReadAllText(Path.Combine(root, "ReignBeta", "src", "Modules", "Court",
-            "Court", "ReignRulerDocketDomain.cs"));
+            "Campaign", "ReignRulerDocketDomain.cs"));
         string client = File.ReadAllText(Path.Combine(root, "ReignBeta", "src", "Modules", "Court",
             "Integration", "ReignCourtServerClient.cs"));
         string server = File.ReadAllText(Path.Combine(root, "ReignServer", "src", "Modules", "Court",
@@ -361,7 +361,7 @@ public sealed class RulerDocketInterfaceContractTests
         string manager = File.ReadAllText(Path.Combine(root, "ReignBeta", "src", "Modules", "Court",
             "UI", "ReignCourtPetitionScreenManager.cs"));
         string nobleBehavior = File.ReadAllText(Path.Combine(root, "ReignBeta", "src", "Modules", "Court",
-            "Court", "ReignNobleDocketCampaignBehavior.cs"));
+            "Campaign", "ReignNobleDocketCampaignBehavior.cs"));
         string screen = File.ReadAllText(Path.Combine(root, "ReignBeta", "src", "Modules", "Court",
             "UI", "ViewModels", "ReignCourtScreenVM.cs"));
         string reputation = File.ReadAllText(Path.Combine(root, "ReignServer", "src", "Modules",
@@ -432,7 +432,7 @@ public sealed class RulerDocketInterfaceContractTests
         string screen = File.ReadAllText(Path.Combine(root, "ReignBeta", "src", "Modules", "Court",
             "UI", "ViewModels", "ReignCourtScreenVM.cs"));
         string behavior = File.ReadAllText(Path.Combine(root, "ReignBeta", "src", "Modules", "Court",
-            "Court", "ReignRulerDocketCampaignBehavior.cs"));
+            "Campaign", "ReignRulerDocketCampaignBehavior.cs"));
 
         int proclamation = xml.IndexOf("Command.Click=\"ExecuteRoyalProclamation\"",
             StringComparison.Ordinal);
@@ -463,7 +463,7 @@ public sealed class RulerDocketInterfaceContractTests
     {
         string root = TestOptions.FindWorkspace();
         string fixture = File.ReadAllText(Path.Combine(root, "ReignBeta", "src", "Modules", "Court",
-            "Court", "ReignRulerDocketInGameTests.cs"));
+            "Campaign", "ReignRulerDocketInGameTests.cs"));
 
         Assert.Contains("state.SettlementSamples.RemoveAll(x => x.Day >= day - 3", fixture,
             StringComparison.Ordinal);
