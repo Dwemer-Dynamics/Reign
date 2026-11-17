@@ -126,6 +126,11 @@ namespace ReignBeta.Integration
             // across retries so the server can replay the completed receipt
             // instead of performing the destructive rollback a second time.
             loadPayload["loadSessionId"] = Guid.NewGuid().ToString("N");
+            // Game thread: capture the reset owner now; weak so a superseded
+            // Campaign stays collectible during retries.
+            WeakReference<TaleWorlds.CampaignSystem.Campaign> campaign =
+                new WeakReference<TaleWorlds.CampaignSystem.Campaign>(TaleWorlds.CampaignSystem.Campaign.Current);
+            ReignMainThread.GameScope scope = ReignMainThread.CurrentGameScope;
             lock (Gate)
             {
                 generation = ++_generation;
@@ -133,7 +138,7 @@ namespace ReignBeta.Integration
                 _alignmentInitialized = true;
                 _ready = ReadySource(false);
             }
-            _ = Task.Run(() => RunLoadHandshakeAsync(generation, loadPayload));
+            _ = Task.Run(() => RunLoadHandshakeAsync(generation, loadPayload, campaign, scope));
         }
 
         internal static async Task WaitForReadyAsync(string route)
@@ -360,11 +365,13 @@ namespace ReignBeta.Integration
             });
         }
 
-        private static async Task RunLoadHandshakeAsync(int generation, JObject payload)
+        private static async Task RunLoadHandshakeAsync(int generation, JObject payload,
+            WeakReference<TaleWorlds.CampaignSystem.Campaign> campaign, ReignMainThread.GameScope scope)
         {
             int failures = 0;
             bool waitingForCampaignIdentityLogged = false;
             string campaignId = payload.Value<string>("campaignId") ?? string.Empty;
+            bool rolledBack = false;
             while (IsCurrentGeneration(generation, campaignId))
             {
                 if (!CurrentCampaignMatches(campaignId))
@@ -391,10 +398,8 @@ namespace ReignBeta.Integration
                     {
                         if (result == "rolled_back")
                         {
-                            await ReignMainThread.InvokeAsync(() =>
-                            {
-                                ReignCalendarService.Reset();
-                            }).ConfigureAwait(false);
+                            rolledBack = true;
+                            break;
                         }
                         CompleteIfCurrent(generation);
                         ReignLog.Info("Save Sync load result=" + result + " campaign=" + (payload.Value<string>("campaignId") ?? "") + " point=" + (payload.Value<string>("savePointId") ?? ""));
@@ -417,6 +422,76 @@ namespace ReignBeta.Integration
                 int seconds = Math.Min(120, 5 * (1 << Math.Min(4, Math.Max(0, failures - 1))));
                 await Task.Delay(TimeSpan.FromSeconds(seconds)).ConfigureAwait(false);
             }
+            if (!rolledBack) return;
+            ReignLog.Info("Save Sync load result=rolled_back campaign=" + campaignId + " point=" + (payload.Value<string>("savePointId") ?? ""));
+            await ResetCalendarAfterRollbackAsync(generation, campaignId, campaign, scope).ConfigureAwait(false);
+        }
+
+        // Local phase after an accepted server rollback; never re-POSTs the
+        // load. Only this generation's own completed reset releases readiness.
+        private static async Task ResetCalendarAfterRollbackAsync(int generation, string campaignId,
+            WeakReference<TaleWorlds.CampaignSystem.Campaign> campaign, ReignMainThread.GameScope scope)
+        {
+            Func<bool> owner = () => IsOwnedLoadedCampaign(generation, campaignId, campaign);
+            Action reset = () =>
+            {
+                ReignCalendarService.Reset();
+                CompleteIfCurrent(generation);
+            };
+            try
+            {
+                bool busyLogged = false;
+                for (int delayMs = 25; ; delayMs = Math.Min(250, delayMs * 2))
+                {
+                    ReignMainThread.ScopedAdmission admission =
+                        ReignMainThread.TryInvokeScoped(scope, owner, reset, out Task completion);
+                    if (admission == ReignMainThread.ScopedAdmission.Closed)
+                    {
+                        ReignLog.Info("Save Sync canceled a post-rollback calendar reset whose game scope ended.");
+                        return;
+                    }
+                    if (admission == ReignMainThread.ScopedAdmission.Busy)
+                    {
+                        if (!busyLogged)
+                        {
+                            busyLogged = true;
+                            ReignLog.Info("Save Sync is retrying its local post-rollback calendar reset while main-thread dispatch is busy.");
+                        }
+                        await Task.Delay(delayMs).ConfigureAwait(false);
+                        if (!IsCurrentGeneration(generation, campaignId))
+                        {
+                            ReignLog.Info("Save Sync skipped a superseded post-rollback calendar reset.");
+                            return;
+                        }
+                        continue;
+                    }
+                    try
+                    {
+                        await completion.ConfigureAwait(false);
+                    }
+                    catch (OperationCanceledException)
+                    {
+                        ReignLog.Info("Save Sync canceled a post-rollback calendar reset whose campaign owner or game scope was replaced.");
+                    }
+                    return;
+                }
+            }
+            catch (Exception ex)
+            {
+                // The server rollback stands; alignment stays pending.
+                ReignLog.Warn("Save Sync applied the server rollback but its local calendar reset failed; alignment remains pending: " + ex.Message);
+            }
+        }
+
+        // Game thread only: reads Campaign.Current.
+        private static bool IsOwnedLoadedCampaign(int generation, string campaignId,
+            WeakReference<TaleWorlds.CampaignSystem.Campaign> campaign)
+        {
+            if (!IsCurrentGeneration(generation, campaignId)) return false;
+            return campaign != null
+                && campaign.TryGetTarget(out TaleWorlds.CampaignSystem.Campaign original)
+                && original != null
+                && ReferenceEquals(original, TaleWorlds.CampaignSystem.Campaign.Current);
         }
 
         private static async Task<JObject> PostDirectAsync(string route, JObject payload)
