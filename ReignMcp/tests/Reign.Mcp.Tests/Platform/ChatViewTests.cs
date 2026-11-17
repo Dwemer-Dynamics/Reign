@@ -85,15 +85,29 @@ public sealed class ChatViewTests
     {
         string root = TestOptions.FindWorkspace();
         string deployment = File.ReadAllText(Path.Combine(root, "ReignServer/scripts/Deploy-LocalWsl.ps1"));
-        string control = File.ReadAllText(Path.Combine(root, "ReignServer/scripts/reignctl"));
+        string control = File.ReadAllText(Path.Combine(root, "ReignServer/scripts/reignctl")).Replace("\r\n", "\n");
         Assert.Contains("[switch]$LeaveStopped", deployment);
-        Assert.Contains("[string[]]$activationOptions = if ($LeaveStopped) { @('--leave-stopped') } else { @() }", deployment);
-        Assert.Contains("activate $artifact @activationOptions", deployment);
-        Assert.Contains("rollback $previousVersion @activationOptions", deployment);
-        Assert.DoesNotContain("if ($wasManagedRunning) {", deployment);
-        Assert.Contains("if ($LeaveStopped) {", deployment);
-        Assert.Contains("if [ \"$leave_stopped\" = 0 ] && ! start; then", control);
+        // A reviewed deployment always states its start policy; tester activation keeps --leave-stopped.
+        Assert.Contains("[string[]]$activationOptions = if ($LeaveStopped) { @('--leave-stopped') } else { @('--start') }", deployment);
+        Assert.Contains("reignctl activate $artifact @activationOptions --await-commit \"--manifest-sha256=$approvedManifest\"", deployment);
+        Assert.Contains("--start) [ \"$start_policy\" = prior ] || exit 64; start_policy=running ;;", control);
+        Assert.Contains("--leave-stopped) [ \"$start_policy\" = prior ] || exit 64; start_policy=stopped ;;", control);
         Assert.Contains("Reign runtime activated; service left stopped", control);
+        // A bare direct call health checks the candidate, then returns the unit to its prior state.
+        Assert.Contains("if [ \"$start_policy\" = prior ] && [ \"$prior_state\" = stopped ]; then", control);
+        // Recovery is the receipt's own activation, aborted by version rather than by a second rollback.
+        Assert.Contains("$state.Server = $receipt", deployment);
+        Assert.Contains("reignctl abort-activation $state.Server.version", deployment);
+        Assert.DoesNotContain("rollback $previousVersion", deployment);
+        // Restoration follows the recorded prior running/stopped state, never the requested start policy.
+        Assert.Contains("printf '%s %s %s %s %s\\n' \"$version\" \"${old_version:--}\" \"$prior_state\"", control);
+        Assert.Contains("read -r version old_version prior_state metadata_created schema_before < \"$marker\"", control);
+        int restoreStart = control.IndexOf("restore_prior() {", StringComparison.Ordinal);
+        Assert.True(restoreStart >= 0, "reignctl restore_prior is missing.");
+        string restore = control[restoreStart..control.IndexOf("\n}\n", restoreStart, StringComparison.Ordinal)];
+        Assert.Contains("if [ \"$prior_state\" = running ] && ! { managed start && verify_managed 0; }; then", restore);
+        Assert.DoesNotContain("start_policy", restore);
+        Assert.DoesNotContain("LeaveStopped", restore);
     }
 
     [Fact]

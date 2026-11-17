@@ -227,7 +227,10 @@ public sealed class ReignRepositoryHygieneAuditTests
         Assert.Contains("-StagedModule $stage", deploy, StringComparison.Ordinal);
         Assert.Contains("-StagedModule $activatedModule", deploy, StringComparison.Ordinal);
         Assert.Contains("Test-ReignServerContent.ps1", deploy, StringComparison.Ordinal);
-        Assert.Contains("runtime checksum mismatch", deploy, StringComparison.Ordinal);
+        Assert.Contains("\"--manifest-sha256=$approvedManifest\"", deploy, StringComparison.Ordinal);
+        Assert.Contains("Invoke-ReignDistroPython root $runtimeIdentity @($receipt.version, $approvedManifest)", deploy, StringComparison.Ordinal);
+        Assert.Contains("if hashlib.sha256(read(name)).hexdigest()!=digest:",
+            File.ReadAllText(Path.Combine(workspace, "ReignServer", "scripts", "reignctl")), StringComparison.Ordinal);
         string serverVerifier = File.ReadAllText(Path.Combine(workspace, "ReignServer", "scripts", "Test-ReignServerContent.ps1"));
         foreach (string root in new[] { "ui", "profiles", "services/vector-worker", "resources/portrait-models", "prompts" })
             Assert.Contains(root, serverVerifier, StringComparison.Ordinal);
