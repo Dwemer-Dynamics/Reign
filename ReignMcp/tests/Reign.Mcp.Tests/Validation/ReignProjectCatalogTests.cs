@@ -167,7 +167,7 @@ public sealed class ReignProjectCatalogTests
     [InlineData("ReignServer/src/Modules/Diplomacy/WorldDiplomacyDirector.cs", 2, "diplomacy", "server", "server")]
     [InlineData("ReignServer/src/Modules/Court/CourtSystem.cs", 2, "court", "server", "server")]
     [InlineData("ReignServer/src/Modules/Spymaster/SpymasterSystem.cs", 2, "spymaster", "server", "server")]
-    [InlineData("ReignBeta/src/Modules/Spymaster/Court/ReignSpymasterCampaignBehavior.cs", 2, "spymaster", "bannerlord", "client")]
+    [InlineData("ReignBeta/src/Modules/Spymaster/Campaign/ReignSpymasterCampaignBehavior.cs", 2, "spymaster", "bannerlord", "client")]
     [InlineData("ReignMcp/tests/Reign.Mcp.Tests/Features/Spymaster/SpymasterOrganicScenarioContractTests.cs", 2, "spymaster", "mcp", "mcp-tests")]
     [InlineData("ReignBeta/src/Modules/KingdomEvents/Campaign/ReignKingdomEventsCampaignBehavior.cs", 2, "kingdom-events", "bannerlord", "client")]
     [InlineData("ReignServer/src/Modules/Rebellion/RebellionDirector.cs", 2, "rebellion", "server", "server")]
