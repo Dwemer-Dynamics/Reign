@@ -5,8 +5,8 @@ using TaleWorlds.CampaignSystem;
 namespace ReignBeta.Campaign
 {
     // Test-harness side of IReignTestHarness: forwards to the live interaction host, the action
-    // gauntlet and the social-balance harness; spymaster controls come from the Spymaster module. SubModule installs it at
-    // load; product code never names these harness types directly.
+    // gauntlet and the social-balance harness; spymaster controls come from the Spymaster module.
+    // SubModule installs it at load; product code never names these harness types directly.
     internal sealed class ReignInProcessTestHarness : IReignTestHarness
     {
         public void LiveInteractionApplicationTick(float dt) => ReignLiveInteractionTestHost.ApplicationTick(dt);
