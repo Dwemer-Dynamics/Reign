@@ -370,6 +370,57 @@ namespace ReignBeta.Integration
             }
         }
 
+        // One answered direct POST: the HTTP status and body of the first candidate endpoint
+        // that answered, its base URL and request URL, and the final request URI after redirects.
+        internal sealed class DirectJsonResponse
+        {
+            internal int StatusCode;
+            internal bool IsSuccessStatusCode;
+            internal string Body;
+            internal string BaseUrl;
+            internal string RequestUrl;
+            internal Uri FinalRequestUri;
+            internal long ElapsedMilliseconds;
+        }
+
+        // Direct JSON POST for callers that own their gating (Save Sync, the Court client):
+        // the caller's HttpClient, compact JSON as UTF-8 application/json, candidate endpoint
+        // failover, and the legacy (unclaimed) shared-breaker success/failure reports. No
+        // readiness gate, probe claim, log line or status check here; the caller adds those.
+        // Throws the last transport failure when no candidate answered.
+        internal static async Task<DirectJsonResponse> PostDirectJsonAsync(HttpClient client, string route, string json)
+        {
+            Exception last = null;
+            foreach (string baseUrl in ReignServerEndpoint.CandidateBaseUrls())
+            {
+                string url = baseUrl.TrimEnd('/') + (route.StartsWith("/", StringComparison.Ordinal) ? route : "/" + route);
+                Stopwatch timer = Stopwatch.StartNew();
+                try
+                {
+                    using (StringContent content = new StringContent(json, System.Text.Encoding.UTF8, "application/json"))
+                    using (HttpResponseMessage response = await client.PostAsync(url, content).ConfigureAwait(false))
+                    {
+                        string body = await response.Content.ReadAsStringAsync().ConfigureAwait(false);
+                        timer.Stop();
+                        ReignServerEndpoint.ReportSuccess(baseUrl);
+                        return new DirectJsonResponse
+                        {
+                            StatusCode = (int)response.StatusCode,
+                            IsSuccessStatusCode = response.IsSuccessStatusCode,
+                            Body = body,
+                            BaseUrl = baseUrl,
+                            RequestUrl = url,
+                            FinalRequestUri = response.RequestMessage?.RequestUri,
+                            ElapsedMilliseconds = timer.ElapsedMilliseconds
+                        };
+                    }
+                }
+                catch (Exception ex) when (ReignServerEndpoint.IsTransportFailure(ex)) { last = ex; }
+            }
+            ReignServerEndpoint.ReportTransportFailure();
+            throw last ?? new HttpRequestException("Local Bannerlord Reign server is unavailable.");
+        }
+
         private static Task EnsureRequestOwnerAsync(Func<bool> requestOwner, string stage) =>
             ReignRequestOwnership.EnsureAsync(requestOwner, stage);
     }
