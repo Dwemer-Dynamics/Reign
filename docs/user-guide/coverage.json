@@ -229,10 +229,10 @@
         "docs/REIGN_PLAYER_GUIDE.md",
         "docs/NOBLE_DOCKET_EVENT_CATALOG.md",
         "docs/agent/COURT_LIFE_IMPLEMENTATION.md",
-        "ReignBeta/src/Modules/Court/Court/ReignCourtCampaignBehavior.cs",
-        "ReignBeta/src/Modules/Court/Court/ReignPatronageCampaignBehavior.cs",
-        "ReignBeta/src/Modules/Court/Court/ReignNobleVisitorCampaignBehavior.cs",
-        "ReignBeta/src/Modules/Court/Court/ReignNobleDocketCampaignBehavior.cs"
+        "ReignBeta/src/Modules/Court/Campaign/ReignCourtCampaignBehavior.cs",
+        "ReignBeta/src/Modules/Court/Campaign/ReignPatronageCampaignBehavior.cs",
+        "ReignBeta/src/Modules/Court/Campaign/ReignNobleVisitorCampaignBehavior.cs",
+        "ReignBeta/src/Modules/Court/Campaign/ReignNobleDocketCampaignBehavior.cs"
       ],
       "topics": [
         "capitals-and-rule-mode",
@@ -286,7 +286,7 @@
       "title": "Spymaster and covert work",
       "sources": [
         "docs/REIGN_PLAYER_GUIDE.md",
-        "ReignBeta/src/Modules/Spymaster/Court/ReignSpymasterCampaignBehavior.cs"
+        "ReignBeta/src/Modules/Spymaster/Campaign/ReignSpymasterCampaignBehavior.cs"
       ],
       "topics": [
         "appointing-and-using-a-spymaster",
@@ -553,19 +553,19 @@
       "sha256": "ebb28518db89f7c39bf2a7dcd25fc23507c5d85e3d87b1e47898bfce798579fd"
     },
     {
-      "path": "ReignBeta/src/Modules/Court/Court/ReignCourtCampaignBehavior.cs",
+      "path": "ReignBeta/src/Modules/Court/Campaign/ReignCourtCampaignBehavior.cs",
       "sha256": "0b8714a7306d355c22d87e1f8e45005dd46dddce54761ca852663334cefe1cae"
     },
     {
-      "path": "ReignBeta/src/Modules/Court/Court/ReignNobleDocketCampaignBehavior.cs",
+      "path": "ReignBeta/src/Modules/Court/Campaign/ReignNobleDocketCampaignBehavior.cs",
       "sha256": "c7f01c6b3ae27cd6dc30e4618b7d8d0c0fd9057b99b6802c665bf6bfeb13d3e5"
     },
     {
-      "path": "ReignBeta/src/Modules/Court/Court/ReignNobleVisitorCampaignBehavior.cs",
+      "path": "ReignBeta/src/Modules/Court/Campaign/ReignNobleVisitorCampaignBehavior.cs",
       "sha256": "7a261a638054f07c7c1c4a9fc28c08b1455705dde465f4495c6374d3300cb01f"
     },
     {
-      "path": "ReignBeta/src/Modules/Court/Court/ReignPatronageCampaignBehavior.cs",
+      "path": "ReignBeta/src/Modules/Court/Campaign/ReignPatronageCampaignBehavior.cs",
       "sha256": "bfacdd16fa3f9ad780780e93a10394725d65f19b55975bfe600f6f1fa81febc9"
     },
     {
@@ -669,7 +669,7 @@
       "sha256": "eb9ceb11b729bde05f6f5bf7c1f4e0abad0eaf6f69afcd375f88da893a3ff921"
     },
     {
-      "path": "ReignBeta/src/Modules/Spymaster/Court/ReignSpymasterCampaignBehavior.cs",
+      "path": "ReignBeta/src/Modules/Spymaster/Campaign/ReignSpymasterCampaignBehavior.cs",
       "sha256": "4f5f49511b9e5a3df5ecbef4b7d1feee493ba87c83f86944283849ad292ae2af"
     },
     {

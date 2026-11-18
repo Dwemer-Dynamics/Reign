@@ -153,9 +153,9 @@ public sealed class ReignSavePayloadCodecTests
     {
         string root = TestOptions.FindWorkspace();
         string domain = File.ReadAllText(Path.Combine(root, "ReignBeta", "src", "Modules",
-            "Court", "Court", "ReignCourtDomain.cs"));
+            "Court", "Campaign", "ReignCourtDomain.cs"));
         string behavior = File.ReadAllText(Path.Combine(root, "ReignBeta", "src", "Modules",
-            "Court", "Court", "ReignCourtCampaignBehavior.cs"));
+            "Court", "Campaign", "ReignCourtCampaignBehavior.cs"));
         string viewModel = File.ReadAllText(Path.Combine(root, "ReignBeta", "src", "Modules",
             "Dialogue", "UI", "ViewModels", "ReignPartyChatScreenVM.cs"));
 
@@ -178,9 +178,9 @@ public sealed class ReignSavePayloadCodecTests
     {
         string root = TestOptions.FindWorkspace();
         string docketBehavior = File.ReadAllText(Path.Combine(root, "ReignBeta", "src", "Modules",
-            "Court", "Court", "ReignRulerDocketCampaignBehavior.cs"));
+            "Court", "Campaign", "ReignRulerDocketCampaignBehavior.cs"));
         string courtBehavior = File.ReadAllText(Path.Combine(root, "ReignBeta", "src", "Modules",
-            "Court", "Court", "ReignCourtCampaignBehavior.cs"));
+            "Court", "Campaign", "ReignCourtCampaignBehavior.cs"));
 
         Assert.Contains("private List<string> _rulerDocketStateChunks", docketBehavior,
             StringComparison.Ordinal);

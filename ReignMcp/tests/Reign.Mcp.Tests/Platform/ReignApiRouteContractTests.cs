@@ -6,13 +6,7 @@ public sealed class ReignApiRouteContractTests
     public void EveryWrappedRouteExistsInCurrentReignRouter()
     {
         var workspace = TestOptions.FindWorkspace();
-        var router = string.Join(Environment.NewLine,
-            Directory.EnumerateFiles(
-                    Path.Combine(workspace, "ReignServer", "src"),
-                    "Program*.cs",
-                    SearchOption.AllDirectories)
-                .Order(StringComparer.OrdinalIgnoreCase)
-                .Select(File.ReadAllText));
+        var router = TestSourceLocator.ServerRouterText(workspace);
         string[] exactRoutes =
         [
             "/health",
@@ -51,17 +45,12 @@ public sealed class ReignApiRouteContractTests
 
         Assert.All(exactRoutes, route =>
             Assert.True(
-                router.Contains($"request.Path == \"{route}\"", StringComparison.Ordinal) ||
-                router.Contains($"case \"{route}\":", StringComparison.Ordinal),
+                TestSourceLocator.ServerDeclaresRoute(router, route),
                 $"The current router does not declare {route}."));
-        Assert.Contains(
-            "request.Path.StartsWith(\"/world-history/event/\"",
-            router,
-            StringComparison.Ordinal);
-        Assert.Contains(
-            "request.Path.StartsWith(\"/world-history/correlation/\"",
-            router,
-            StringComparison.Ordinal);
+        Assert.True(TestSourceLocator.ServerDeclaresRoutePrefix(router, "/world-history/event/"),
+            "The current router does not declare the /world-history/event/ prefix.");
+        Assert.True(TestSourceLocator.ServerDeclaresRoutePrefix(router, "/world-history/correlation/"),
+            "The current router does not declare the /world-history/correlation/ prefix.");
     }
 
     [Fact]
