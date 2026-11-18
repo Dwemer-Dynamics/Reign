@@ -13,6 +13,7 @@ using TaleWorlds.CampaignSystem.Party;
 using TaleWorlds.CampaignSystem.Settlements;
 using TaleWorlds.Core;
 using TaleWorlds.Library;
+using static ReignBeta.World.ReignWorldParsing;
 
 namespace ReignBeta.Campaign
 {
@@ -817,13 +818,6 @@ namespace ReignBeta.Campaign
                     ["reputationTagId"] = item?.ReputationTagId ?? string.Empty
                 },
                 new JArray(accused?.StringId ?? string.Empty));
-        }
-
-        private static JObject ParseTerms(string json)
-        {
-            if (string.IsNullOrWhiteSpace(json)) return new JObject();
-            try { return JObject.Parse(json); }
-            catch { return new JObject(); }
         }
 
         private static string ReadString(JObject obj, string key, string fallback)

@@ -1,4 +1,5 @@
 using System;
+using static ReignBeta.Platform.ReignNumeric;
 
 namespace ReignBeta.UI.Portraits
 {
@@ -33,9 +34,6 @@ namespace ReignBeta.UI.Portraits
                 Height = height
             };
         }
-
-        private static bool Finite(double value) => !double.IsNaN(value) && !double.IsInfinity(value);
         private static int Round(double value) => (int)Math.Round(value, MidpointRounding.AwayFromZero);
-        private static int Clamp(int value, int minimum, int maximum) => Math.Max(minimum, Math.Min(maximum, value));
     }
 }

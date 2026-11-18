@@ -59,7 +59,6 @@ namespace ReignBeta.UI.ViewModels
         private Hero _messengerRecipient;
         private bool _messengerVisible;
         private bool _messengerBusy;
-        private string _messengerInputText = string.Empty;
         private string _messengerRecipientName = string.Empty;
         private string _messengerStatus = string.Empty;
         private bool _finalized;

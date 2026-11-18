@@ -15,6 +15,7 @@ using TaleWorlds.InputSystem;
 using TaleWorlds.Library;
 using TaleWorlds.MountAndBlade;
 using TaleWorlds.ScreenSystem;
+using static ReignBeta.UI.ReignScreenLayers;
 
 namespace ReignBeta.UI
 {
@@ -358,12 +359,6 @@ namespace ReignBeta.UI
             _closeRequested = false;
             IsOpen = false;
             if (callback != null) _pendingReturn = callback;
-        }
-
-        private static bool SafeHasLayer(ScreenBase host, GauntletLayer layer)
-        {
-            try { return host?.HasLayer(layer) == true; }
-            catch { return false; }
         }
 
         private sealed class OpenRequest

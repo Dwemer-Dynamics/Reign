@@ -6,6 +6,7 @@ using ReignBeta.Integration;
 using ReignBeta.Government;
 using TaleWorlds.CampaignSystem;
 using TaleWorlds.CampaignSystem.Actions;
+using static ReignBeta.World.ReignWorldParsing;
 
 namespace ReignBeta.World
 {
@@ -310,14 +311,6 @@ namespace ReignBeta.World
                     }
                 }
             }
-        }
-
-        private static IEnumerable<string> SplitCsv(string value)
-        {
-            return (value ?? string.Empty)
-                .Split(',')
-                .Select(x => x.Trim())
-                .Where(x => x.Length > 0);
         }
 
         private static float ReadFloatTerm(string json, string key, float fallback)

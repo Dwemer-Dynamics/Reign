@@ -15,7 +15,7 @@ The current client always registers or ticks several test-oriented components:
 | `ReignLiveInteractionTestHost.ApplicationTick` | Called every application tick; idle heartbeat settles to ten seconds | Diagnostic module/profile only |
 | `ReignNpcDialogueAuditRunner.ApplicationTick` | Called every application tick with an early debug-mode guard | Diagnostic module/profile only |
 | `ReignPartyDialogueAuditRunner.ApplicationTick` | Called every application tick with an early debug-mode guard | Diagnostic module/profile only |
-| `ReignActionGauntlet.ApplicationTick` | Called every application tick and polls verification/overnight command files | Diagnostic module/profile only |
+| `ReignActionGauntlet.ApplicationTick` | Called every application tick and polls the verification command file | Diagnostic module/profile only |
 | `ReignSocialBalanceHarnessCampaignBehavior` | Registered in every campaign | Diagnostic module/profile only |
 | MCM Debug controls and destructive test-realm actions | Shipped in ordinary settings UI behind a toggle | Diagnostic module/profile only |
 | `ReignWorldTestClient` daily heartbeat | Once-per-campaign-day full native observation | Keep, then slim and rename as release telemetry |

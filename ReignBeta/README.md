@@ -6,7 +6,7 @@ This repo contains the game-side module: Gauntlet UI, MCM settings, action routi
 
 Native campaign history, knowledge delivery, and evidence-backed claim verification are documented in [docs/WorldHistory.md](docs/WorldHistory.md).
 Managed local embeddings, Qdrant integration, indexing, privacy filtering, and hybrid recall are documented in [docs/SemanticMemory.md](docs/SemanticMemory.md).
-The server-side Offline-First Verification Lab and the client game-tier bridge are documented in the Reign Server repository at `docs/VerificationLab.md`.
+The server-side Offline-First Verification Lab and the client game-tier bridge are documented in the Reign Server repository at `docs/server/VerificationLab.md`.
 
 The local web/API server lives in the separate `Reign-Server` repository. Runtime server builds, campaign data, API keys, logs, generated portraits, and per-save state are intentionally ignored here.
 
@@ -26,4 +26,3 @@ D:\Program Files (x86)\Steam\steamapps\common\Mount & Blade II Bannerlord\Module
 
 - Do not commit API keys or `server/app/data/settings.json`.
 - Generated campaign folders and audit logs are save-specific runtime data.
-- `tools/Overnight` contains the restart/repair loop helpers for long live dialogue action testing.

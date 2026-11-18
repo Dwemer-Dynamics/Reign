@@ -38,7 +38,7 @@ namespace ReignBeta.UI.ViewModels
         private TavernHouseVisitReceipt _receipt;
         private bool _finalized, _busy, _imageBusy;
         private int _transcriptRevision, _chatScrollVersion;
-        private string _inputText = "", _statusText = "", _sceneImageId = "", _imageStatus = "A scene will appear after you agree on a visit.";
+        private string _statusText = "", _sceneImageId = "", _imageStatus = "A scene will appear after you agree on a visit.";
         private ReignPartyChatMemberVM _preview;
         private JObject _pendingTurn;
         private string _pendingRequestId;

@@ -11,6 +11,7 @@ using TaleWorlds.Engine.GauntletUI;
 using TaleWorlds.InputSystem;
 using TaleWorlds.Library;
 using TaleWorlds.ScreenSystem;
+using static ReignBeta.UI.ReignScreenLayers;
 
 namespace ReignBeta.UI
 {
@@ -225,12 +226,6 @@ namespace ReignBeta.UI
             _court = null;
             _fromKeep = false;
             IsOpen = false;
-        }
-
-        private static bool SafeHasLayer(ScreenBase host, GauntletLayer layer)
-        {
-            try { return host?.HasLayer(layer) == true; }
-            catch { return false; }
         }
     }
 }

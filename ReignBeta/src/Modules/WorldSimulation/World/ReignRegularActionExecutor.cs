@@ -470,16 +470,6 @@ namespace ReignBeta.World
             return ReignObjectResolver.FindParty(partyId);
         }
 
-        private static MobileParty PartyForInventory(Hero hero)
-        {
-            if (hero == Hero.MainHero)
-            {
-                return MobileParty.MainParty;
-            }
-
-            return hero?.PartyBelongedTo;
-        }
-
         private static string PartyName(MobileParty party)
         {
             return party?.Name?.ToString() ?? party?.StringId ?? string.Empty;

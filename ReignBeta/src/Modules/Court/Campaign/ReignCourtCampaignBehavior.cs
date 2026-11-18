@@ -1680,16 +1680,6 @@ namespace ReignBeta.Court
             StateChanged?.Invoke();
         }
 
-        private static List<string> FindExplicitLordMentions(string notes)
-        {
-            if (string.IsNullOrWhiteSpace(notes)) return new List<string>();
-            return Hero.AllAliveHeroes
-                .Where(x => x?.Clan != null && !string.IsNullOrWhiteSpace(x.Name?.ToString())
-                    && notes.IndexOf(x.Name.ToString(), StringComparison.OrdinalIgnoreCase) >= 0)
-                .Select(x => x.StringId).Where(x => !string.IsNullOrWhiteSpace(x))
-                .Distinct(StringComparer.OrdinalIgnoreCase).ToList();
-        }
-
         private static void RecordFoodShipmentKnowledge(ReignEconomicShipment shipment, string phase, string side,
             Settlement source, Settlement target)
         {

@@ -1241,18 +1241,6 @@ namespace ReignBeta.Campaign
             }
         }
 
-        private static string CultureSuffix(string cultureId)
-        {
-            string value = (cultureId ?? string.Empty).ToLowerInvariant();
-            if (value.Contains("vland")) return "vlandia";
-            if (value.Contains("sturg")) return "sturgia";
-            if (value.Contains("battan")) return "battania";
-            if (value.Contains("aserai")) return "aserai";
-            if (value.Contains("khuz")) return "khuzait";
-            if (value.Contains("nord")) return "nord";
-            return "empire";
-        }
-
         private SocialEventRecord GetOpenEventForCurrentSettlement()
         {
             Settlement settlement = Settlement.CurrentSettlement ?? MobileParty.MainParty?.CurrentSettlement;

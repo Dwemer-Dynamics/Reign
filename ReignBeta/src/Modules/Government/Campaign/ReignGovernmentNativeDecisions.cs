@@ -18,7 +18,6 @@ namespace ReignBeta.Government
     public sealed partial class ReignGovernmentCampaignBehavior
     {
         private string _capturingCounterpartOfBusinessId;
-        private readonly Dictionary<KingdomDecision, string> _nativeDecisionPressureIds = new Dictionary<KingdomDecision, string>();
         internal static readonly IReadOnlyDictionary<string, string> NativeBusinessKinds = new Dictionary<string, string>(StringComparer.Ordinal)
         {
             ["KingdomPolicyDecision"] = "policy", ["DeclareWarDecision"] = "war", ["MakePeaceKingdomDecision"] = "peace",

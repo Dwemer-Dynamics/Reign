@@ -5100,47 +5100,6 @@ namespace ReignBeta.Integration
             };
         }
 
-        private static JObject BuildHeroFoundationProfile(Hero hero)
-        {
-            return new JObject
-            {
-                ["narrativeVersion"] = ReignBeta.Campaign.ReignCampaignPreparationCampaignBehavior.Instance?.NarrativeVersion ?? 0,
-                ["campaignId"] = GetCampaignId(),
-                ["campaignLabel"] = ReignCampaignIdentity.CurrentCampaignLabel(),
-                ["heroStringId"] = hero?.StringId ?? string.Empty,
-                ["mainHeroStringId"] = Hero.MainHero?.StringId ?? string.Empty,
-                ["mainHeroName"] = Hero.MainHero?.Name?.ToString() ?? string.Empty,
-                ["characterObjectId"] = hero?.CharacterObject?.StringId ?? string.Empty,
-                ["name"] = hero?.Name?.ToString() ?? string.Empty,
-                ["cultureId"] = hero?.Culture?.StringId ?? string.Empty,
-                ["clanId"] = hero?.Clan?.StringId ?? string.Empty,
-                ["clanName"] = hero?.Clan?.Name?.ToString() ?? string.Empty,
-                ["clanTier"] = hero?.Clan?.Tier ?? 0,
-                ["kingdomId"] = hero?.Clan?.Kingdom?.StringId ?? hero?.MapFaction?.StringId ?? string.Empty,
-                ["kingdomName"] = hero?.Clan?.Kingdom?.InformalName?.ToString() ?? hero?.MapFaction?.Name?.ToString() ?? string.Empty,
-                ["currentSettlementId"] = hero?.CurrentSettlement?.StringId ?? string.Empty,
-                ["currentSettlementName"] = hero?.CurrentSettlement?.Name?.ToString() ?? string.Empty,
-                ["occupation"] = hero?.Occupation.ToString() ?? string.Empty,
-                ["age"] = hero?.Age ?? 0f,
-                ["isFemale"] = hero?.IsFemale ?? false,
-                ["isAlive"] = hero?.IsAlive ?? false,
-                ["isPrisoner"] = hero?.IsPrisoner ?? false,
-                ["isLord"] = hero?.IsLord ?? false,
-                ["isNotable"] = hero?.IsNotable ?? false,
-                ["isWanderer"] = hero?.IsWanderer ?? false,
-                ["isChild"] = hero?.IsChild ?? false,
-                ["isPregnant"] = hero?.IsPregnant ?? false,
-                ["spouseId"] = hero?.Spouse?.StringId ?? string.Empty,
-                ["fatherId"] = hero?.Father?.StringId ?? string.Empty,
-                ["motherId"] = hero?.Mother?.StringId ?? string.Empty,
-                ["encyclopediaText"] = hero?.EncyclopediaText?.ToString() ?? string.Empty,
-                ["nativeEncyclopediaText"] = GetNativeEncyclopediaText(hero),
-                ["traits"] = BuildTraitProfile(hero),
-                ["attributes"] = new JObject { ["endurance"] = hero?.GetAttributeValue(DefaultCharacterAttributes.Endurance) ?? 0 },
-                ["skills"] = BuildSkillProfile(hero)
-            };
-        }
-
         private static JObject BuildWealthProfile(Hero hero)
         {
             int gold = hero?.Gold ?? 0;
@@ -5284,29 +5243,6 @@ namespace ReignBeta.Integration
             result["items"] = items;
             result["topItems"] = new JArray(items.Take(32).Select(x => x.DeepClone()));
             return result;
-        }
-
-        private static bool IsLiveDialogueTestInventoryItem(ItemRosterElement element)
-        {
-            ItemObject item = element.EquipmentElement.Item;
-            if (item == null || element.Amount <= 0)
-            {
-                return false;
-            }
-
-            if (item.IsTradeGood || item.IsMountable)
-            {
-                return true;
-            }
-
-            string type = item.Type.ToString();
-            return string.Equals(type, "BodyArmor", StringComparison.OrdinalIgnoreCase)
-                || string.Equals(type, "HeadArmor", StringComparison.OrdinalIgnoreCase)
-                || string.Equals(type, "OneHandedWeapon", StringComparison.OrdinalIgnoreCase)
-                || string.Equals(type, "TwoHandedWeapon", StringComparison.OrdinalIgnoreCase)
-                || string.Equals(type, "Bow", StringComparison.OrdinalIgnoreCase)
-                || string.Equals(type, "Crossbow", StringComparison.OrdinalIgnoreCase)
-                || string.Equals(type, "Shield", StringComparison.OrdinalIgnoreCase);
         }
 
         private static JObject BuildAppearanceProfile(Hero hero)

@@ -7,6 +7,7 @@ using TaleWorlds.CampaignSystem;
 using TaleWorlds.CampaignSystem.Actions;
 using TaleWorlds.CampaignSystem.CharacterDevelopment;
 using TaleWorlds.Core;
+using static ReignBeta.Platform.ReignNumeric;
 
 namespace ReignBeta.Government
 {
@@ -157,14 +158,6 @@ namespace ReignBeta.Government
                 lobby.PositionShift = 0;
                 lobby.Revision++;
             }
-        }
-
-        private static int BribeCost(ReignGovernmentResolutionScale scale, int governmentLevel)
-        {
-            int baseCost = scale == ReignGovernmentResolutionScale.Minor ? 5000
-                : scale == ReignGovernmentResolutionScale.Standard ? 12500 : 30000;
-            return (int)Math.Round(baseCost * (1d + 0.25d * Clamp(governmentLevel - 1, 0, 4)),
-                MidpointRounding.AwayFromZero);
         }
     }
 }

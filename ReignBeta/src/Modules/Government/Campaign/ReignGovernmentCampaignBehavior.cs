@@ -14,6 +14,7 @@ using TaleWorlds.CampaignSystem.CharacterDevelopment;
 using TaleWorlds.CampaignSystem.Settlements;
 using TaleWorlds.Core;
 using TaleWorlds.Library;
+using static ReignBeta.Platform.ReignNumeric;
 
 namespace ReignBeta.Government
 {
@@ -817,11 +818,6 @@ namespace ReignBeta.Government
             return _parties.FirstOrDefault(x => Same(x.KingdomStringId, kingdomStringId) && Same(x.PartyId, partyId));
         }
 
-        private static ReignGovernmentPartyBlueprint ToBlueprint(ReignGovernmentPartyRecord party)
-        {
-            return new ReignGovernmentPartyBlueprint(party.PartyId, party.Name, ParsePlanks(party.PlanksCsv).ToArray());
-        }
-
         internal static List<ReignGovernmentPlank> ParsePlanks(string csv)
         {
             var result = new List<ReignGovernmentPlank>();
@@ -855,14 +851,7 @@ namespace ReignBeta.Government
             return TaleWorlds.CampaignSystem.Campaign.Current == null ? 0f : (float)CampaignTime.Now.ToDays;
         }
 
-        private static int StableOffset(string id, string salt, int radius)
-        {
-            int width = radius * 2 + 1;
-            return (int)(ReignGovernmentRules.StableHash((salt ?? string.Empty) + "|" + (id ?? string.Empty)) % (uint)width) - radius;
-        }
-
         internal static bool Same(string left, string right) => string.Equals(left ?? string.Empty, right ?? string.Empty, StringComparison.OrdinalIgnoreCase);
-        private static int Clamp(int value, int minimum, int maximum) => Math.Max(minimum, Math.Min(maximum, value));
 
         private static List<T> Clean<T>(List<T> source, Func<T, bool> keep) where T : class
         {
