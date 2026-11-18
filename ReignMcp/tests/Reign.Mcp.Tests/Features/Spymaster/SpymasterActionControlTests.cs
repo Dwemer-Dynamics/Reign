@@ -46,7 +46,7 @@ public sealed class SpymasterActionControlTests
     {
         string workspace = TestOptions.FindWorkspace();
         string host = File.ReadAllText(Path.Combine(workspace, "ReignBeta/src/Modules/Spymaster/Campaign/ReignLiveInteractionSpymasterHost.cs"));
-        string native = File.ReadAllText(Path.Combine(workspace, "ReignBeta/src/Modules/Spymaster/Court/ReignSpymasterOrganicInGameTests.cs"));
+        string native = File.ReadAllText(Path.Combine(workspace, "ReignBeta/src/Modules/Spymaster/Campaign/ReignSpymasterOrganicInGameTests.cs"));
         Assert.Contains("destructive && (command.Value<string>(\"irreversibleConfirmation\")", host);
         Assert.Contains("expected != ActiveSaveName()", host);
         Assert.Contains("CampaignTimeControlMode.Stop", host);

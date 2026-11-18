@@ -66,7 +66,7 @@ public sealed class TrainingYardRulesTests
                 "ReignDocketCardScrollPanel.cs"),
             Path.Combine(root, "ReignBeta", "src", "Modules", "Government", "UI", "Widgets",
                 "ReignGovernmentMemberScrollPanel.cs"),
-            Path.Combine(root, "ReignBeta", "src", "Modules", "UI", "UI", "Widgets",
+            Path.Combine(root, "ReignBeta", "src", "Modules", "UI", "Widgets",
                 "ReignAutoScrollPanel.cs"),
         };
 
