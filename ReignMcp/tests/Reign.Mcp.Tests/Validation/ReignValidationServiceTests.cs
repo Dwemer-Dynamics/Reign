@@ -52,7 +52,7 @@ public sealed class ReignValidationServiceTests
                 service.ValidateAsync("changed", "Release", false, "AGENTS.md", true,
                     CancellationToken.None));
 
-            Assert.Contains("workspace build lane", error.Message, StringComparison.OrdinalIgnoreCase);
+            Assert.Contains("owns the validation lane", error.Message, StringComparison.OrdinalIgnoreCase);
         }
         finally
         {

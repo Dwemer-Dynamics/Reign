@@ -45,7 +45,7 @@ public sealed partial class ReignValidationService(
         }
 
         var plan = GetPlan(profile, configuration, restore, changedPaths);
-        using var validationLease = ReignValidationLease.Acquire(options.BuildRoot, plan, requestingTaskId);
+        using var validationLease = ReignValidationLease.Acquire(options.EffectiveLeaseRoot, plan, requestingTaskId);
         validationLease.Update("repository-hygiene");
         var repositoryHygiene = await hygieneAudit.AuditAsync(cancellationToken)
             .ConfigureAwait(false);
@@ -486,7 +486,7 @@ public sealed partial class ReignValidationService(
         return Convert.ToHexString(hash.GetHashAndReset()).ToLowerInvariant();
     }
 
-    public ValidationLaneStatus GetStatus() => ReignValidationLease.ReadStatus(options.BuildRoot);
+    public ValidationLaneStatus GetStatus() => ReignValidationLease.ReadStatus(options.EffectiveLeaseRoot);
 
     private static ProcessResult RequireSuccessfulVerificationPayload(
         ProcessResult process, string label)
