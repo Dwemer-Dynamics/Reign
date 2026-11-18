@@ -2,7 +2,9 @@ name: Reign MCP tests
 # Builds and runs ReignMcp/tests/Reign.Mcp.Tests in the paired Reign + ReignServer layout. These tests need
 # no Bannerlord installation, secrets, PostgreSQL or providers: native-artifact and live tests skip themselves
 # (ValidatedEconomyClientFact and similar) when no validated client artifact or game path is present.
-# Local work still goes through the canonical validator; this job is the hosted regression net.
+# Documented exception to "CI uses the same engine" (AGENTS.md): the canonical validator's client profiles need
+# the licensed Bannerlord installation and the machine's WSL validation lane, so this hosted job runs the MCP test
+# project directly. Local work still goes through the canonical validator.
 on:
   pull_request:
     branches: [unstable, dev, reign]
@@ -37,6 +39,7 @@ jobs:
           ref: ${{ steps.server.outputs.ref }}
           path: .paired-server
           lfs: false
+          persist-credentials: false
       - name: Connect the paired layout
         shell: pwsh
         run: |
@@ -50,4 +53,11 @@ jobs:
         with:
           dotnet-version: 10.0.x
       - name: Run Reign MCP tests
-        run: dotnet test ReignMcp/tests/Reign.Mcp.Tests/Reign.Mcp.Tests.csproj -c Release
+        # Excluded because they start the registered ReignServer WSL distro, which a hosted runner does not have;
+        # the canonical validator still runs them:
+        #   ControlCenterRuntimeTests.ManagedServerControlUsesIsolatedServiceAndSecurityContracts
+        #   MemoryPrecisionContractTests.LinuxTokenizerAndQdrantEligibilityUseIsolatedState
+        #   MemoryPrecisionContractTests.WorkerPrecisionContractsExecuteWithoutProvidersOrListeners
+        run: >-
+          dotnet test ReignMcp/tests/Reign.Mcp.Tests/Reign.Mcp.Tests.csproj -c Release
+          --filter "FullyQualifiedName!=Reign.Mcp.Tests.ControlCenterRuntimeTests.ManagedServerControlUsesIsolatedServiceAndSecurityContracts&FullyQualifiedName!=Reign.Mcp.Tests.MemoryPrecisionContractTests.LinuxTokenizerAndQdrantEligibilityUseIsolatedState&FullyQualifiedName!=Reign.Mcp.Tests.MemoryPrecisionContractTests.WorkerPrecisionContractsExecuteWithoutProvidersOrListeners"
