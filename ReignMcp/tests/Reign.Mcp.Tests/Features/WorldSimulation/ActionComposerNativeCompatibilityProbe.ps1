@@ -63,6 +63,8 @@ try {
     $update = $richText.GetMethods() | Where-Object { $_.Name -eq 'Update' -and $_.GetParameters().Length -eq 7 }
     if ($update.GetParameters()[2].ParameterType -ne $vector) { throw 'Native Size and RichText.Update vector identities disagree.' }
     $client = [Reflection.Assembly]::LoadFrom($clientPath)
+    # The in-game test harness lives in ReignBeta.Testing.dll next to the client assembly.
+    $testing = [Reflection.Assembly]::LoadFrom((Join-Path ([IO.Path]::GetDirectoryName($clientPath)) 'ReignBeta.Testing.dll'))
     $reference = @($client.GetReferencedAssemblies() | Where-Object Name -eq 'System.Numerics.Vectors')
     if ($reference.Count -ne 1 -or $reference[0].FullName -ne $vector.Assembly.FullName) {
         throw 'Compiled client does not reference the exact installed native vector assembly.'
@@ -490,7 +492,7 @@ public sealed class ReignKnownHeroProbeState
     # These compiled helpers observe isolated agreements and validate supplied
     # context facts only. They never access a campaign, sign a live offer or invoke
     # a native action. Proposal IDs must come from the saved client, not its server preview.
-    $hostType = $client.GetType('ReignBeta.Campaign.ReignLiveInteractionTestHost', $true)
+    $hostType = $testing.GetType('ReignBeta.Campaign.ReignLiveInteractionTestHost', $true)
     $observeOffers = $hostType.GetMethod('ObservePendingNpcOffers', $flags)
     $agreementType = $observeOffers.GetParameters()[0].ParameterType.GetGenericArguments()[0]
     function New-ObservedOffer([string]$id, [string]$npc = 'lord_1_1') {

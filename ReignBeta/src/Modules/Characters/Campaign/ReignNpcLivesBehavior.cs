@@ -37,7 +37,7 @@ namespace ReignBeta.Campaign
         internal bool _busy, _initialized;
         private double _real, _nextEvaluation;
         internal double _nextPoll;
-        // Process-local announcement delivery hold armed by ReignNpcLivesTestControls; never saved.
+        // Process-local announcement delivery hold armed by the test harness; never saved.
         internal sealed class NativeAnnouncementDeliveryHold
         {
             internal NativeCampaign Owner;
@@ -47,7 +47,7 @@ namespace ReignBeta.Campaign
             internal JObject Receipt;
         }
         internal NativeAnnouncementDeliveryHold _nativeAnnouncementDeliveryHold;
-        private bool HoldAnnouncementDeliveryForNativeTest(JObject row) => ReignNpcLivesTestControls.HoldAnnouncementDeliveryForNativeTest(this, row);
+        private bool HoldAnnouncementDeliveryForNativeTest(JObject row) => ReignTestHarness.Current.HoldNpcLivesAnnouncementDelivery(this, row);
         public override void RegisterEvents()
         {
             Instance = this;

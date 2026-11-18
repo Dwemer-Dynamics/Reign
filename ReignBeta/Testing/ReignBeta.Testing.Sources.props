@@ -1,0 +1,72 @@
+<Project>
+  <!-- Single list of the in-game test harness sources compiled into the optional
+       ReignBeta.Testing.dll. ReignBeta.Testing.csproj compiles them; ReignBeta.csproj removes them
+       from its own compilation and builds the testing project after itself. The files stay in
+       their owning module folders, so module ownership in reign.modules.json is unchanged.
+       Product code reaches these types only through ReignBeta.Runtime.ReignTestHarness.
+       Types that are save-registered, used as saved fields, or called by product code stay in
+       ReignBeta. -->
+  <ItemGroup>
+    <ReignTestingSource Include="$(MSBuildThisFileDirectory)..\src\Modules\Characters\Campaign\ReignEncounteredResidentNativeTestHost.cs" />
+    <ReignTestingSource Include="$(MSBuildThisFileDirectory)..\src\Modules\Characters\Campaign\ReignNpcLivesAnnouncementFixture.cs" />
+    <ReignTestingSource Include="$(MSBuildThisFileDirectory)..\src\Modules\Characters\Campaign\ReignNpcLivesComposerFixture.cs" />
+    <ReignTestingSource Include="$(MSBuildThisFileDirectory)..\src\Modules\Characters\Campaign\ReignNpcLivesTestHost.cs" />
+    <ReignTestingSource Include="$(MSBuildThisFileDirectory)..\src\Modules\Dialogue\Campaign\ReignLiveInteractionConversationClockHost.cs" />
+    <ReignTestingSource Include="$(MSBuildThisFileDirectory)..\src\Modules\Dialogue\Campaign\ReignLiveInteractionCorrespondenceHost.cs" />
+    <ReignTestingSource Include="$(MSBuildThisFileDirectory)..\src\Modules\Diplomacy\ClanAccords\ReignClanAccordNativeTests.cs" />
+    <ReignTestingSource Include="$(MSBuildThisFileDirectory)..\src\Modules\Government\Testing\ReignGovernmentCertificationTests.cs" />
+    <ReignTestingSource Include="$(MSBuildThisFileDirectory)..\src\Modules\Government\Testing\ReignGovernmentFiefNativeTests.cs" />
+    <ReignTestingSource Include="$(MSBuildThisFileDirectory)..\src\Modules\Government\Testing\ReignGovernmentHearingNativeTests.cs" />
+    <ReignTestingSource Include="$(MSBuildThisFileDirectory)..\src\Modules\Government\Testing\ReignGovernmentInGameTests.cs" />
+    <ReignTestingSource Include="$(MSBuildThisFileDirectory)..\src\Modules\Government\Testing\ReignGovernmentPlayerFlowTests.cs" />
+    <ReignTestingSource Include="$(MSBuildThisFileDirectory)..\src\Modules\Government\Testing\ReignGovernmentPrivateConversationTests.cs" />
+    <ReignTestingSource Include="$(MSBuildThisFileDirectory)..\src\Modules\Government\Testing\ReignLiveInteractionGovernmentHost.cs" />
+    <ReignTestingSource Include="$(MSBuildThisFileDirectory)..\src\Modules\KingdomEvents\Campaign\ReignKingdomEventInGameTests.cs" />
+    <ReignTestingSource Include="$(MSBuildThisFileDirectory)..\src\Modules\KingdomEvents\Campaign\ReignLiveInteractionKingdomEventHost.cs" />
+    <ReignTestingSource Include="$(MSBuildThisFileDirectory)..\src\Modules\Platform\Integration\ReignLiveTestClient.cs" />
+    <ReignTestingSource Include="$(MSBuildThisFileDirectory)..\src\Modules\Rebellion\Testing\ReignRebellionPreparationTestHost.cs" />
+    <ReignTestingSource Include="$(MSBuildThisFileDirectory)..\src\Modules\Reputation\Campaign\ReignLiveInteractionSocialBalanceHost.cs" />
+    <ReignTestingSource Include="$(MSBuildThisFileDirectory)..\src\Modules\WorldSimulation\Arrests\ReignArrestTestHost.cs" />
+    <ReignTestingSource Include="$(MSBuildThisFileDirectory)..\src\Modules\WorldSimulation\Campaign\ReignActionGauntlet.cs" />
+    <ReignTestingSource Include="$(MSBuildThisFileDirectory)..\src\Modules\WorldSimulation\Campaign\ReignInProcessTestHarness.cs" />
+    <ReignTestingSource Include="$(MSBuildThisFileDirectory)..\src\Modules\WorldSimulation\Campaign\ReignLiveInteractionCampaignCommandHost.cs" />
+    <ReignTestingSource Include="$(MSBuildThisFileDirectory)..\src\Modules\WorldSimulation\Campaign\ReignLiveInteractionGauntletFixtures.cs" />
+    <ReignTestingSource Include="$(MSBuildThisFileDirectory)..\src\Modules\WorldSimulation\Campaign\ReignLiveInteractionNativeUiCalibrationHost.cs" />
+    <ReignTestingSource Include="$(MSBuildThisFileDirectory)..\src\Modules\WorldSimulation\Campaign\ReignLiveInteractionPartyAgencyFixtures.cs" />
+    <ReignTestingSource Include="$(MSBuildThisFileDirectory)..\src\Modules\WorldSimulation\Campaign\ReignLiveInteractionPassiveWorldHost.cs" />
+    <ReignTestingSource Include="$(MSBuildThisFileDirectory)..\src\Modules\WorldSimulation\Campaign\ReignLiveInteractionPersonalGossipHost.cs" />
+    <ReignTestingSource Include="$(MSBuildThisFileDirectory)..\src\Modules\WorldSimulation\Campaign\ReignLiveInteractionStructuredActionHost.cs" />
+    <ReignTestingSource Include="$(MSBuildThisFileDirectory)..\src\Modules\WorldSimulation\Campaign\ReignLiveInteractionTestHost.cs" />
+    <ReignTestingSource Include="$(MSBuildThisFileDirectory)..\src\Modules\WorldSimulation\Campaign\ReignLiveInteractionUiCalibrationHost.cs" />
+    <ReignTestingSource Include="$(MSBuildThisFileDirectory)..\src\Modules\WorldSimulation\Economy\ReignNpcCaravanTestHost.cs" />
+    <ReignTestingSource Include="$(MSBuildThisFileDirectory)..\src\Modules\WorldSimulation\Economy\ReignRaidFoodTestHost.cs" />
+    <ReignTestingSource Include="$(MSBuildThisFileDirectory)..\src\Modules\WorldSimulation\Economy\ReignWarEconomyNavalTestHost.cs" />
+    <ReignTestingSource Include="$(MSBuildThisFileDirectory)..\src\Modules\WorldSimulation\Economy\ReignWarEconomyTestHost.cs" />
+    <ReignTestingSource Include="$(MSBuildThisFileDirectory)..\src\Modules\WorldSimulation\Integration\ReignWorldTestClient.cs" />
+    <ReignTestingSource Include="$(MSBuildThisFileDirectory)..\src\Modules\WorldSimulation\Rulers\ReignRulerFixtures.cs" />
+    <ReignTestingSource Include="$(MSBuildThisFileDirectory)..\src\Modules\WorldSimulation\Rulers\ReignRulerPrisonerFixtures.cs" />
+  </ItemGroup>
+  <!-- Court and Spymaster harness sources: compiled out together with those modules when
+       ExcludeCourt=true (REIGN_EXCLUDE_COURT). -->
+  <ItemGroup>
+    <ReignTestingCourtSource Include="$(MSBuildThisFileDirectory)..\src\Modules\Court\Campaign\ReignCapitalAmbassadorInGameTests.cs" />
+    <ReignTestingCourtSource Include="$(MSBuildThisFileDirectory)..\src\Modules\Court\Campaign\ReignCourtLifeCaptiveFixture.cs" />
+    <ReignTestingCourtSource Include="$(MSBuildThisFileDirectory)..\src\Modules\Court\Campaign\ReignCourtLifeFamilyFixture.cs" />
+    <ReignTestingCourtSource Include="$(MSBuildThisFileDirectory)..\src\Modules\Court\Campaign\ReignCourtLifeInGameTests.cs" />
+    <ReignTestingCourtSource Include="$(MSBuildThisFileDirectory)..\src\Modules\Court\Campaign\ReignLiveInteractionCapitalAmbassadorHost.cs" />
+    <ReignTestingCourtSource Include="$(MSBuildThisFileDirectory)..\src\Modules\Court\Campaign\ReignLiveInteractionCourtHost.cs" />
+    <ReignTestingCourtSource Include="$(MSBuildThisFileDirectory)..\src\Modules\Court\Campaign\ReignLiveInteractionCourtLifeHost.cs" />
+    <ReignTestingCourtSource Include="$(MSBuildThisFileDirectory)..\src\Modules\Court\Campaign\ReignLiveInteractionRoyalCouncilHost.cs" />
+    <ReignTestingCourtSource Include="$(MSBuildThisFileDirectory)..\src\Modules\Court\Campaign\ReignLiveInteractionRulerDocketHost.cs" />
+    <ReignTestingCourtSource Include="$(MSBuildThisFileDirectory)..\src\Modules\Court\Campaign\ReignNobleDocketInGameTests.cs" />
+    <ReignTestingCourtSource Include="$(MSBuildThisFileDirectory)..\src\Modules\Court\Campaign\ReignRoyalCouncilInGameTests.cs" />
+    <ReignTestingCourtSource Include="$(MSBuildThisFileDirectory)..\src\Modules\Court\Campaign\ReignRulerDocketInGameTests.cs" />
+    <ReignTestingCourtSource Include="$(MSBuildThisFileDirectory)..\src\Modules\Court\Campaign\ReignRulerDocketLaunchTests.cs" />
+    <ReignTestingCourtSource Include="$(MSBuildThisFileDirectory)..\src\Modules\Spymaster\Campaign\ReignLiveInteractionSpymasterHost.cs" />
+    <ReignTestingCourtSource Include="$(MSBuildThisFileDirectory)..\src\Modules\Spymaster\Campaign\ReignSpymasterGovernmentCertificationFixture.cs" />
+    <ReignTestingCourtSource Include="$(MSBuildThisFileDirectory)..\src\Modules\Spymaster\Campaign\ReignSpymasterInGameTests.cs" />
+    <ReignTestingCourtSource Include="$(MSBuildThisFileDirectory)..\src\Modules\Spymaster\Campaign\ReignSpymasterInProcessTestControls.cs" />
+    <ReignTestingCourtSource Include="$(MSBuildThisFileDirectory)..\src\Modules\Spymaster\Campaign\ReignSpymasterOrganicInGameTests.cs" />
+    <ReignTestingCourtSource Include="$(MSBuildThisFileDirectory)..\src\Modules\Spymaster\Campaign\ReignSpymasterTestRuntime.cs" />
+  </ItemGroup>
+</Project>

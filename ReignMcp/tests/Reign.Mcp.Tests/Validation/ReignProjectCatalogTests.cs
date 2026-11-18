@@ -84,7 +84,7 @@ public sealed class ReignProjectCatalogTests
         Assert.Equal(4, plan.SelectedTier);
         Assert.Equal("product", plan.Scope);
         Assert.Equal("quick", plan.VerificationTier);
-        Assert.Equal(11, plan.Projects.Count);
+        Assert.Equal(12, plan.Projects.Count);
         Assert.DoesNotContain(plan.Projects, item => item.Group == "tooling");
         Assert.Contains(plan.Projects, item => item.Id == "client");
         Assert.Contains(plan.Projects, item => item.Id == "mcp-tests");
@@ -286,7 +286,7 @@ public sealed class ReignProjectCatalogTests
         Assert.Equal(4, plan.SelectedTier);
         Assert.Equal("ecosystem", plan.Scope);
         Assert.Equal("quick", plan.VerificationTier);
-        Assert.Equal(22, plan.Projects.Count);
+        Assert.Equal(23, plan.Projects.Count);
     }
 
     [Fact]

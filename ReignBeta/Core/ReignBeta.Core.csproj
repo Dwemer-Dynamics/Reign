@@ -18,6 +18,7 @@
     <Compile Include="@(ReignCoreSource)" />
     <Compile Include="@(ReignCoreLinkedSource)" Link="Shared\%(Filename)%(Extension)" />
     <InternalsVisibleTo Include="ReignBeta" />
+    <InternalsVisibleTo Include="ReignBeta.Testing" />
     <InternalsVisibleTo Include="Reign.Mcp.Tests" />
   </ItemGroup>
   <ItemGroup>
