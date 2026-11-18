@@ -68,7 +68,7 @@ public sealed class SpymasterSaveArchiveTests
     public void Court_adapter_migrates_legacy_and_recovered_state_without_dropping_receipts()
     {
         string source = File.ReadAllText(Path.Combine(TestOptions.FindWorkspace(), "ReignBeta", "src", "Modules",
-            "Court", "Court", "ReignCourtCampaignBehavior.cs"));
+            "Court", "Campaign", "ReignCourtCampaignBehavior.cs"));
         Assert.Contains("_spymasterStateJson = string.Empty;", source);
         Assert.Contains("_spymasterStateChunks = ReignSavePayloadCodec.Encode(JsonConvert.SerializeObject(", source);
         Assert.Contains("dataStore.SyncData(\"_reignCourt_spymasterState\", ref _spymasterStateJson);", source);

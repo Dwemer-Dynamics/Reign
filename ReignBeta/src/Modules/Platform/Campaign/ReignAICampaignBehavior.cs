@@ -505,7 +505,7 @@ namespace ReignBeta.Campaign
             MaybeTickConversationSceneState();
             if (!ReignSaveSyncCoordinator.IsAlignmentPending)
                 _ = ReignServerClient.TickPersonalGossipAsync();
-            ReignActionGauntlet.TickAllSuites();
+            ReignTestHarness.Current.TickActionGauntletSuites();
             MaybeStartServerActionPoll(now);
             MaybeSubmitWorldTestHeartbeat(now);
             DrainPendingServerActions();

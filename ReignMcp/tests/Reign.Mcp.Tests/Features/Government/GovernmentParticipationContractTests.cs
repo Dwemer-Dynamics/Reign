@@ -629,7 +629,7 @@ public sealed class GovernmentParticipationContractTests
         Assert.Contains("hearing?.BusinessId == _ownPositionHearingId", readerBehavior);
         Assert.Contains("if (!returning) _pendingOptionId = null;", readerBehavior);
         var snapshot = File.ReadAllText(Path.Combine(TestOptions.FindWorkspace(),
-            "ReignBeta/src/Modules/UI/UI/Calibration/ReignUiCalibrationService.cs"));
+            "ReignBeta/src/Modules/UI/Calibration/ReignUiCalibrationService.cs"));
         Assert.Contains("mappedFont =", snapshot);
         Assert.Contains("GetMappedFontForLocalization", snapshot);
         Assert.Contains("fontTextureReady =", snapshot);

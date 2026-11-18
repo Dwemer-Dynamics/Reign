@@ -11,7 +11,7 @@ const governmentWidget = fs.readFileSync(path.join(moduleRoot,
 const governmentVm = fs.readFileSync(path.join(moduleRoot,
   "src/Modules/Government/UI/ViewModels/ReignGovernmentScreenVM.cs"), "utf8");
 const thumbnailPatch = fs.readFileSync(path.join(moduleRoot,
-  "src/Modules/UI/UI/GameMenu/ReignGameMenuPartyItemInsertPatch.cs"), "utf8");
+  "src/Modules/UI/GameMenu/ReignGameMenuPartyItemInsertPatch.cs"), "utf8");
 const portraitWidget = fs.readFileSync(path.join(moduleRoot,
   "src/Modules/Portraits/UI/Widgets/ReignPortraitWidget.cs"), "utf8");
 
