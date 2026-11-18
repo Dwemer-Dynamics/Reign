@@ -1718,6 +1718,7 @@
             "ReignBeta/src/Modules/Platform/**",
             "ReignBeta/src/Platform/**",
             "ReignBeta/tools/**",
+            "tools/*.ps1",
             "ReignBeta/lib/**"
           ],
           "projects": [

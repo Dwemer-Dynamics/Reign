@@ -7,7 +7,7 @@ public sealed class RulerDocketParticipantDiversityContractTests
     {
         string root = TestOptions.FindWorkspace();
         string fixture = File.ReadAllText(Path.Combine(root, "ReignBeta", "src", "Modules",
-            "Court", "Court", "ReignNobleDocketInGameTests.cs"));
+            "Court", "Campaign", "ReignNobleDocketInGameTests.cs"));
         string mcp = File.ReadAllText(TestSourceLocator.Unique(Path.Combine(root, "ReignMcp"),
             "TestingTools.Court.cs"));
 

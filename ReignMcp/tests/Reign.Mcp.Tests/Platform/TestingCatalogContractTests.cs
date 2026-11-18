@@ -1388,7 +1388,7 @@ public sealed class TestingCatalogContractTests
         string nativeHost = File.ReadAllText(Path.Combine(root, "ReignBeta", "src", "Modules", "WorldSimulation", "Campaign", "ReignLiveInteractionNativeUiCalibrationHost.cs"));
         string portraitMixin = File.ReadAllText(Path.Combine(root, "ReignBeta", "src", "Modules", "Portraits", "AIPortraits", "ConversationPortraitMixin.cs"));
         string individualManager = File.ReadAllText(Path.Combine(root, "ReignBeta", "src", "Modules", "Dialogue", "UI", "ReignIndividualChatScreenManager.cs"));
-        string calibrationService = File.ReadAllText(Path.Combine(root, "ReignBeta", "src", "Modules", "UI", "UI", "Calibration", "ReignUiCalibrationService.cs"));
+        string calibrationService = File.ReadAllText(Path.Combine(root, "ReignBeta", "src", "Modules", "UI", "Calibration", "ReignUiCalibrationService.cs"));
         string guide = TestingDocumentation.Read(Path.Combine(root, "docs", "agent", "TESTING_TOOL_GUIDE.md"));
         string security = File.ReadAllText(Path.Combine(root, "ReignMcp", "docs", "security-model.md"));
         int leaseAcquireIndex = uiHost.IndexOf(
