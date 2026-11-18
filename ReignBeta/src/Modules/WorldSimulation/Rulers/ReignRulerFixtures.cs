@@ -13,15 +13,15 @@ using TaleWorlds.CampaignSystem.Actions;
 using TaleWorlds.CampaignSystem.Party;
 using TaleWorlds.CampaignSystem.Settlements;
 using NativeCampaign = TaleWorlds.CampaignSystem.Campaign;
+using static ReignBeta.Campaign.ReignRulerCampaignBehavior;
 
 namespace ReignBeta.Campaign
 {
-    public sealed partial class ReignRulerCampaignBehavior
+    // Harness-owned ruler fixture controls. One-use control state stays on ReignRulerCampaignBehavior.
+    internal static partial class ReignRulerFixtureControls
     {
         // Called only after the enclosing guarded structured-action host has checked
         // exact enrollment, native save identity, paused time and recovery checkpoint.
-        private readonly System.Collections.Generic.Dictionary<string, JObject> _captureControls = new System.Collections.Generic.Dictionary<string, JObject>();
-        private readonly System.Collections.Generic.Dictionary<string, JObject> _judgmentControls = new System.Collections.Generic.Dictionary<string, JObject>();
         internal static void ValidateJudgmentDrawInput(int amount, string prisoner, string victor)
         {
             if (amount < 0 || amount >= 4000 || string.IsNullOrWhiteSpace(prisoner) || string.IsNullOrWhiteSpace(victor)
@@ -38,10 +38,10 @@ namespace ReignBeta.Campaign
             && judgment.Stage == RulerJudgmentStage.AwaitingDecision && judgment.Draw < 0
             && judgment.PrisonerId == prisoner && judgment.VictorId == victor
             && enrollmentMatches && custodyMatches && aiSovereign && ReignRulerPolicy.Finite(draw) && draw >= 0 && draw < 1;
-        private bool TryConsumeJudgmentDraw(RulerJudgment judgment, out double draw)
+        internal static bool TryConsumeJudgmentDraw(ReignRulerCampaignBehavior rulers, RulerJudgment judgment, out double draw)
         {
             draw = 0;
-            var control = TakeJudgmentDrawControl(_judgmentControls, judgment.PrisonerId);
+            var control = TakeJudgmentDrawControl(rulers._judgmentControls, judgment.PrisonerId);
             if (control == null) return false;
             var prisoner = HeroById(judgment.PrisonerId); var victor = HeroById(judgment.VictorId);
             double selected = control.Value<double>("draw");
@@ -59,11 +59,11 @@ namespace ReignBeta.Campaign
             ReignAgreementBehavior.Instance.SaveNativeOperation(operation, receipt);
             return matches;
         }
-        internal bool TryConsumeCaptureRoll(Hero hero, out double roll)
+        internal static bool TryConsumeCaptureRoll(ReignRulerCampaignBehavior rulers, Hero hero, out double roll)
         {
             roll = 0;
-            if (!_captureControls.TryGetValue(hero.StringId, out var control)) return false;
-            _captureControls.Remove(hero.StringId);
+            if (!rulers._captureControls.TryGetValue(hero.StringId, out var control)) return false;
+            rulers._captureControls.Remove(hero.StringId);
             if (!ReignLiveInteractionTestHost.MatchesRulerFixture(control["enrollment"] as JObject)) return false;
             roll = control.Value<double>("roll");
             string operation = control.Value<string>("operationId");
@@ -75,7 +75,7 @@ namespace ReignBeta.Campaign
             ReignAgreementBehavior.Instance.SaveNativeOperation(operation, receipt);
             return true;
         }
-        internal JObject PrepareFixture(JObject testCase, string operation, JObject enrollment)
+        internal static JObject PrepareFixture(ReignRulerCampaignBehavior rulers, JObject testCase, string operation, JObject enrollment)
         {
             var a = testCase["arguments"] as JObject ?? throw new InvalidOperationException("Fixture arguments are required.");
             string[] keys = { "profile", "heroId", "settlementId", "otherHeroId", "amount" };
@@ -98,10 +98,10 @@ namespace ReignBeta.Campaign
                 throw new InvalidOperationException("News samples require distinct living adults and amount zero through seven.");
             if (hero?.IsAlive != true || hero.IsChild || hero.PartyBelongedTo?.MapEvent != null || hero.PartyBelongedTo?.SiegeEvent != null || settlement?.IsFortification != true || settlement.IsUnderSiege)
                 throw new InvalidOperationException("Prepare an adult, living, idle hero and a safe fortification.");
-            if (profile == "capture_roll" && _captureControls.ContainsKey(hero.StringId)) throw new InvalidOperationException("Consume the existing one-use capture control before preparing another.");
+            if (profile == "capture_roll" && rulers._captureControls.ContainsKey(hero.StringId)) throw new InvalidOperationException("Consume the existing one-use capture control before preparing another.");
             if (profile == "judgment_draw")
             {
-                if (_judgmentControls.ContainsKey(hero.StringId)) throw new InvalidOperationException("Consume the existing one-use judgment draw before preparing another.");
+                if (rulers._judgmentControls.ContainsKey(hero.StringId)) throw new InvalidOperationException("Consume the existing one-use judgment draw before preparing another.");
                 var custody = other?.PartyBelongedTo?.Party ?? settlement.Party;
                 if (!Sovereign(hero) || hero.IsPrisoner || !Sovereign(other) || other == Hero.MainHero || other.IsPrisoner
                     || other.IsChild || other.Clan.Kingdom == hero.Clan.Kingdom || other.PartyBelongedTo?.MapEvent != null
@@ -119,7 +119,7 @@ namespace ReignBeta.Campaign
             ReignAgreementBehavior.Instance.SaveNativeOperation(operation, receipt);
             try
             {
-                ApplyingNative = true;
+                rulers.ApplyingNative = true;
                 switch (profile)
                 {
                     case "snapshot": break;
@@ -130,13 +130,13 @@ namespace ReignBeta.Campaign
                         receipt["newsAfter"] = news.Diagnostics();
                         receipt["presentationOnly"] = true; break;
                     case "judgment_draw":
-                        _judgmentControls[hero.StringId] = new JObject { ["draw"] = amount/4000d, ["operationId"] = operation,
+                        rulers._judgmentControls[hero.StringId] = new JObject { ["draw"] = amount/4000d, ["operationId"] = operation,
                             ["prisonerId"] = hero.StringId, ["victorId"] = other.StringId, ["enrollment"] = enrollment.DeepClone() };
                         receipt["selectedDraw"] = amount/4000d; receipt["oneShot"] = true;
                         receipt["prisonerId"] = hero.StringId; receipt["victorId"] = other.StringId; break;
                     case "mortality":
                         // The real setter must pass through the ordinary protection hook.
-                        ApplyingNative = false;
+                        rulers.ApplyingNative = false;
                         receipt["lifeDeathBefore"] = CampaignOptions.IsLifeDeathCycleDisabled;
                         CampaignOptions.IsLifeDeathCycleDisabled = amount == 1;
                         receipt["lifeDeathAfter"] = CampaignOptions.IsLifeDeathCycleDisabled;
@@ -147,7 +147,7 @@ namespace ReignBeta.Campaign
                         receipt["guardAfter"] = ObservePrisonGuard(hero, other); break;
                     case "ransom_offer": case "barter_release": case "barter_transfer":
                         // Exercise the ordinary protection hooks, including before-payment guards.
-                        ApplyingNative = false;
+                        rulers.ApplyingNative = false;
                         RunPrisonerPaymentFixture(profile, hero, other, amount, receipt); break;
                     case "party": ResizeFixtureParty(hero.PartyBelongedTo, hero, amount); break;
                     case "ruler":
@@ -169,19 +169,19 @@ namespace ReignBeta.Campaign
                         var custody = other.PartyBelongedTo?.Party ?? settlement.Party;
                         if (custody.MapFaction != other.MapFaction) throw new InvalidOperationException("Captor faction must match native custody.");
                         if (!FactionManager.IsAtWarAgainstFaction(other.MapFaction, hero.MapFaction)) DeclareWarAction.ApplyByDefault(other.MapFaction, hero.MapFaction);
-                        ApplyingNative = false; TakePrisonerAction.Apply(custody, hero); break;
+                        rulers.ApplyingNative = false; TakePrisonerAction.Apply(custody, hero); break;
                     case "ownership": ChangeOwnerOfSettlementAction.ApplyByGift(settlement, hero); break;
                     case "loyalty": if (amount > 100) throw new InvalidOperationException("Loyalty must be between zero and 100."); settlement.Town.Loyalty = amount; break;
                     case "capture_roll":
                         if (!Sovereign(hero)) throw new InvalidOperationException("Capture control requires a current ruler.");
-                        _captureControls[hero.StringId] = new JObject { ["roll"] = amount/4000d, ["operationId"] = operation, ["enrollment"] = enrollment.DeepClone() };
+                        rulers._captureControls[hero.StringId] = new JObject { ["roll"] = amount/4000d, ["operationId"] = operation, ["enrollment"] = enrollment.DeepClone() };
                         receipt["selectedRoll"] = amount/4000d; receipt["oneShot"] = true; break;
                     case "wound": hero.HitPoints = amount == 0 ? hero.MaxHitPoints : 1; break;
                 }
                 receipt["status"] = profile == "snapshot" ? "observed" : "prepared"; receipt["after"] = ObserveNative(hero, settlement);
             }
             catch (Exception ex) { receipt["status"] = "uncertain"; receipt["error"] = ex.ToString(); }
-            finally { ApplyingNative = false; ReignAgreementBehavior.Instance.SaveNativeOperation(operation, receipt); }
+            finally { rulers.ApplyingNative = false; ReignAgreementBehavior.Instance.SaveNativeOperation(operation, receipt); }
             return receipt;
         }
         private static void ResizeFixtureParty(MobileParty party, Hero hero, int healthy)
@@ -190,29 +190,6 @@ namespace ReignBeta.Campaign
             if (healthy < heroes) throw new InvalidOperationException("Preserve all healthy heroes in a roster fixture.");
             foreach (var row in party.MemberRoster.GetTroopRoster().Where(r => !r.Character.IsHero).ToList()) party.MemberRoster.RemoveTroop(row.Character, row.Number);
             party.MemberRoster.AddToCounts(hero.Culture.BasicTroop, healthy-heroes);
-        }
-        private static JObject ObserveCampaignOptions()
-        {
-            // Fixed, read-only metadata. Missing properties are evidence, not inferred defaults.
-            string[] names = { "CampaignDifficulty", "PlayerReceivedDamage", "PlayerTroopsReceivedDamage", "RecruitmentDifficulty",
-                "PlayerMapMovementSpeed", "PersuasionSuccess", "CombatAIDifficulty", "ClanMemberDeathChance", "BattleDeath" };
-            var rows = new JArray();
-            foreach (string name in names)
-            {
-                var row = new JObject { ["name"] = name, ["available"] = false };
-                var property = typeof(CampaignOptions).GetProperty(name, System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.Static);
-                if (property?.CanRead == true && property.GetIndexParameters().Length == 0)
-                {
-                    try {
-                        object value = property.GetValue(null, null);
-                        row["value"] = value?.ToString(); row["available"] = true;
-                        if (property.PropertyType.IsEnum) row["enumValues"] = new JArray(Enum.GetNames(property.PropertyType));
-                    }
-                    catch { row["reason"] = "native getter unavailable"; }
-                }
-                rows.Add(row);
-            }
-            return new JObject { ["schema"] = "reign-ruler-campaign-options-observation-v1", ["readOnly"] = true, ["rows"] = rows };
         }
         private static JObject ObserveLoyaltyModel(Town town)
         {
