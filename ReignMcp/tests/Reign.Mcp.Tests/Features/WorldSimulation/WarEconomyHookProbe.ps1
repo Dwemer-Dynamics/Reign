@@ -44,6 +44,8 @@ try {
     $client=[Reflection.Assembly]::LoadFrom([IO.Path]::GetFullPath($ClientAssembly))
     # Game-free economy policies live in ReignBeta.Core.dll next to the client assembly.
     $core=[Reflection.Assembly]::LoadFrom((Join-Path ([IO.Path]::GetDirectoryName([IO.Path]::GetFullPath($ClientAssembly))) 'ReignBeta.Core.dll'))
+    # The in-game test harness lives in ReignBeta.Testing.dll next to the client assembly.
+    $testing=[Reflection.Assembly]::LoadFrom((Join-Path ([IO.Path]::GetDirectoryName([IO.Path]::GetFullPath($ClientAssembly))) 'ReignBeta.Testing.dll'))
     $campaign=[Reflection.Assembly]::LoadFrom((Join-Path $gameBin 'TaleWorlds.CampaignSystem.dll'))
     $cohort=$client.GetType('ReignBeta.Economy.ReignWarEconomyCohortControl',$true)
     $contracts=[Reflection.Assembly]::LoadFrom((Join-Path ([IO.Path]::GetDirectoryName($ClientAssembly)) 'Reign.Core.Contracts.dll'))
@@ -944,7 +946,7 @@ try {
         $navalRoute='verified_binding'
     }
     $persistenceFields=0
-    $savedField=$client.GetType('ReignBeta.Economy.ReignWarEconomyTestHost',$true).GetMethod('SavedField',$static)
+    $savedField=$testing.GetType('ReignBeta.Economy.ReignWarEconomyTestHost',$true).GetMethod('SavedField',$static)
     foreach($entry in @{
         'ReignBeta.Court.ReignCourtCampaignBehavior'=@('_rulerDocketState','_economicReportState','_operations','_obligations','_appliedNativeCommandIds');
         'ReignBeta.Government.ReignGovernmentCampaignBehavior'=@('_governments','_resolutions','_edicts');
@@ -969,7 +971,7 @@ try {
     $after=$savedField.Invoke($null,[object[]]@($isolatedGovernment,'_edicts')).ToString()
     if($before -eq $after -or $isolatedEdicts.Count -ne 1 -or $budget.GetValue($edict,$null) -ne 37){throw 'Saved escrow evidence failed to observe a real value change without mutation.'}
     $persistedAidObserved=$true
-    $testHost=$client.GetType('ReignBeta.Economy.ReignWarEconomyTestHost',$true)
+    $testHost=$testing.GetType('ReignBeta.Economy.ReignWarEconomyTestHost',$true)
     $financeInput=[Newtonsoft.Json.Linq.JArray]::Parse('[{"clanId":"one","cash":123,"dailyIncome":17,"incomeModelLines":[1]}]')
     $financeBefore=$financeInput.ToString()
     $financeResult=$testHost.GetMethod('FinanceSnapshot',$static).Invoke($null,[object[]](,$financeInput))
@@ -1217,7 +1219,7 @@ try {
             $foodArgs=[object[]]@($null,$number);$applyFood.Invoke($null,$foodArgs) | Out-Null
             if($explainedType.GetProperty('ResultNumber',$instance).GetValue($foodArgs[1],$null) -ne 0){throw 'Non-functioning or negative native food result was resurrected.'}
         }
-        $fixture=$client.GetType('ReignBeta.Economy.ReignRaidFoodTestHost',$true)
+        $fixture=$testing.GetType('ReignBeta.Economy.ReignRaidFoodTestHost',$true)
         $jsonRestored=$fixture.GetMethod('RestoredJson',$static)
         $valuesRestored=$fixture.GetMethod('RecoveryValuesMatch',$static)
         foreach($fraction in @([single]0.05,[single]0.325,[single]0.4999997913837433)){

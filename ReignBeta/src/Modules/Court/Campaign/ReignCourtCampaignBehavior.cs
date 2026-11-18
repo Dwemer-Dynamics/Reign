@@ -63,8 +63,41 @@ namespace ReignBeta.Court
         private string _lastAuthorityFailureReason = string.Empty;
 
         public static ReignCourtCampaignBehavior Instance { get; private set; }
-        // Product forwarder: SyncData bounds the saved capital/ambassador acceptance ledgers through ReignCourtTestControls.
-        private void CompactCapitalAmbassadorTestLedgers() => ReignCourtTestControls.CompactCapitalAmbassadorTestLedgers(this);
+        // SyncData bounds the saved capital/ambassador acceptance ledgers. Product-owned because it runs on
+        // every save and load whether or not the optional test harness assembly is installed.
+        internal const int CapitalAmbassadorLedgerMaxCount = 16;
+        internal const int CapitalAmbassadorLedgerMaxObservations = 16;
+        internal const int CapitalAmbassadorLedgerMaxStoredJsonChars = 2048;
+
+        private void CompactCapitalAmbassadorTestLedgers()
+        {
+            _capitalAmbassadorTestLedgers = (_capitalAmbassadorTestLedgers ?? new List<CapitalAmbassadorTestLedger>())
+                .Where(x=>x!=null&&!string.IsNullOrWhiteSpace(x.RunId))
+                .GroupBy(x=>x.RunId,StringComparer.OrdinalIgnoreCase).Select(x=>x.Last())
+                .Take(CapitalAmbassadorLedgerMaxCount).ToList();
+            foreach(CapitalAmbassadorTestLedger ledger in _capitalAmbassadorTestLedgers)
+                CompactCapitalAmbassadorTestLedger(ledger);
+        }
+
+        internal static void CompactCapitalAmbassadorTestLedger(CapitalAmbassadorTestLedger ledger)
+        {
+            if(ledger==null)return;
+            ledger.ObservationJson=(ledger.ObservationJson??new List<string>())
+                .Where(x=>!string.IsNullOrWhiteSpace(x))
+                .Select(x=>CompactCapitalAmbassadorStoredJson(x,"observation"))
+                .ToList();
+            if(ledger.ObservationJson.Count>CapitalAmbassadorLedgerMaxObservations)
+                ledger.ObservationJson=ledger.ObservationJson.Skip(ledger.ObservationJson.Count-CapitalAmbassadorLedgerMaxObservations).ToList();
+        }
+
+        private static string CompactCapitalAmbassadorStoredJson(string json,string kind)
+        {
+            string value=json??string.Empty;
+            if(value.Length<=CapitalAmbassadorLedgerMaxStoredJsonChars)return value;
+            return new JObject{{"compacted",true},{"kind",kind??string.Empty},{"originalLength",value.Length}}
+                .ToString(Formatting.None);
+        }
+
         public CourtSession Session => _session;
         public IReadOnlyList<CourtMatter> Matters => _matters;
         public IReadOnlyList<CourtAgendaItem> Agenda => _agenda;

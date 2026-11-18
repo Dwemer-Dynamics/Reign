@@ -686,12 +686,18 @@ Add-DeploymentRow `
     -RelativePath 'bin\Win64_Shipping_Client\ReignBeta.Core.dll' `
     -Kind 'validated-client-artifact' `
     -ValidatedBuildProjectId 'client'
+Add-DeploymentRow `
+    -Source (Join-Path $validatedBuildOutputRoots['client'] 'ReignBeta.Testing.dll') `
+    -RelativePath 'bin\Win64_Shipping_Client\ReignBeta.Testing.dll' `
+    -Kind 'validated-client-artifact' `
+    -ValidatedBuildProjectId 'client'
 
 $validatedSupportMappings = @(
     @('client', 'ModuleData\reign_tavern_cast.json', 'ModuleData\reign_tavern_cast.json', 'validated-client-content'),
     @('client', 'ReignBeta.pdb', 'bin\Win64_Shipping_Client\ReignBeta.pdb', 'validated-client-symbol'),
     @('client', 'Reign.Core.Contracts.pdb', 'bin\Win64_Shipping_Client\Reign.Core.Contracts.pdb', 'validated-client-symbol'),
     @('client', 'ReignBeta.Core.pdb', 'bin\Win64_Shipping_Client\ReignBeta.Core.pdb', 'validated-client-symbol'),
+    @('client', 'ReignBeta.Testing.pdb', 'bin\Win64_Shipping_Client\ReignBeta.Testing.pdb', 'validated-client-symbol'),
     @('server', 'ReignServer.exe', 'server\app\ReignServer.exe', 'validated-server-artifact'),
     @('server', 'ReignBetaServer.pdb', 'server\app\ReignBetaServer.pdb', 'validated-server-symbol'),
     @('server', 'ReignServer.exe.config', 'server\app\ReignServer.exe.config', 'validated-server-config'),
@@ -753,9 +759,13 @@ if ($protectedMapRows.Count -ne $expectedProtectedMapFileCount) {
 # ReignBeta.Core.dll: the game-free client core assembly deployed next to ReignBeta.dll
 # (outside the frozen UI authority count, which already holds the ReignBeta and contracts DLLs).
 $coreClientArtifactRowCount = 1
+# ReignBeta.Testing.dll: the optional in-game test harness assembly deployed next to ReignBeta.dll
+# (likewise outside the frozen UI authority count).
+$testingClientArtifactRowCount = 1
 $expectedFileCount =
     $uiAuthorityFileCount +
     $coreClientArtifactRowCount +
+    $testingClientArtifactRowCount +
     $auxiliaryUiAuthorityFileCount +
     $fixedRuntimeUiContractFileCount +
     $protectedMapRows.Count +

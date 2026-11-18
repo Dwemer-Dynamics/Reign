@@ -1,12 +1,18 @@
+using System;
+using System.IO;
+using System.Linq;
+using System.Reflection;
+using System.Threading.Tasks;
 using Newtonsoft.Json.Linq;
 using TaleWorlds.CampaignSystem;
 
 namespace ReignBeta.Runtime
 {
     // The only way product code reaches the in-game test harness (live interaction host,
-    // action gauntlet, fixtures and test runtimes). SubModule installs the harness at load;
-    // until then, or when no harness is installed, the idle harness below answers exactly
-    // as an installed harness does when nothing is running.
+    // action gauntlet, fixtures and test runtimes), which is compiled into the optional
+    // ReignBeta.Testing.dll. SubModule loads and installs it at load; until then, or when no
+    // harness is installed, the idle harness below answers as an installed harness does when
+    // nothing is running.
     internal interface IReignTestHarness
     {
         void LiveInteractionApplicationTick(float dt);
@@ -29,6 +35,14 @@ namespace ReignBeta.Runtime
         // registration position.
         CampaignBehaviorBase CreateSocialBalanceHarnessBehavior();
         void RecordSocialBalanceOverride(string kind, JObject evidence);
+
+        // Product forwarders into harness-owned controls. Each answers as the harness does when
+        // no fixture has armed it: nothing held, nothing captured, no prepared draw or roll.
+        bool HoldNpcLivesAnnouncementDelivery(ReignBeta.Campaign.ReignNpcLivesBehavior lives, JObject row);
+        void CaptureGovernmentLoadFingerprintPhase(ReignBeta.Government.ReignGovernmentCampaignBehavior government, string phase, bool reset);
+        bool TryConsumeRulerJudgmentDraw(ReignBeta.Campaign.ReignRulerCampaignBehavior rulers, ReignBeta.Shared.Rulers.RulerJudgment judgment, out double draw);
+        bool TryConsumeRulerCaptureRoll(ReignBeta.Campaign.ReignRulerCampaignBehavior rulers, Hero hero, out double roll);
+        Task<double?> SubmitWorldTestHeartbeatAsync(double deltaAfterDay);
 
         IReignSpymasterTestControls Spymaster { get; }
     }
@@ -55,8 +69,49 @@ namespace ReignBeta.Runtime
         internal static IReignTestHarness Current { get; private set; } = IdleTestHarness.Instance;
         internal static IReignSpymasterTestControls IdleSpymasterControls => IdleTestHarness.Instance;
 
-        // Called once by SubModule.OnSubModuleLoad.
+        internal const string TestingAssemblyFileName = "ReignBeta.Testing.dll";
+
         internal static void Install(IReignTestHarness harness) => Current = harness ?? IdleTestHarness.Instance;
+
+        // Called once, first, by SubModule.OnSubModuleLoad. Loads the optional harness assembly that
+        // ships next to ReignBeta.dll and installs its single IReignTestHarness implementation. A module
+        // without the assembly, or one that fails to load, keeps the idle harness.
+        internal static void InstallFromOptionalAssembly(Assembly clientAssembly)
+        {
+            try
+            {
+                string directory = Path.GetDirectoryName(clientAssembly.Location);
+                string path = Path.Combine(directory ?? string.Empty, TestingAssemblyFileName);
+                if (!File.Exists(path)) return;
+                Assembly testing = Assembly.LoadFrom(path);
+                Type[] harnessTypes = LoadableTypes(testing)
+                    .Where(type => type.IsClass && !type.IsAbstract && typeof(IReignTestHarness).IsAssignableFrom(type))
+                    .ToArray();
+                if (harnessTypes.Length != 1)
+                    throw new InvalidOperationException(TestingAssemblyFileName + " must contain exactly one test harness; found " + harnessTypes.Length + ".");
+                Install((IReignTestHarness)Activator.CreateInstance(harnessTypes[0]));
+            }
+            catch (Exception ex)
+            {
+                Install(null);
+                ReignBeta.Integration.ReignLog.Warn("Reign test harness was not installed; continuing without it: " + ex.GetType().Name + ": " + ex.Message);
+            }
+        }
+
+        // GetTypes throws when any harness type fails to load; keep the loadable ones and log why the rest failed.
+        private static Type[] LoadableTypes(Assembly assembly)
+        {
+            try
+            {
+                return assembly.GetTypes();
+            }
+            catch (ReflectionTypeLoadException ex)
+            {
+                foreach (Exception loaderException in (ex.LoaderExceptions ?? new Exception[0]).Where(item => item != null).Take(5))
+                    ReignBeta.Integration.ReignLog.Warn("Reign test harness type failed to load: " + loaderException.GetType().Name + ": " + loaderException.Message);
+                return ex.Types.Where(type => type != null).ToArray();
+            }
+        }
 
         private sealed class IdleTestHarness : IReignTestHarness, IReignSpymasterTestControls
         {
@@ -76,6 +131,11 @@ namespace ReignBeta.Runtime
             public void ApplyNpcObservableClanEvidence(Hero subject, JObject clan) { }
             public CampaignBehaviorBase CreateSocialBalanceHarnessBehavior() => null;
             public void RecordSocialBalanceOverride(string kind, JObject evidence) { }
+            public bool HoldNpcLivesAnnouncementDelivery(ReignBeta.Campaign.ReignNpcLivesBehavior lives, JObject row) => false;
+            public void CaptureGovernmentLoadFingerprintPhase(ReignBeta.Government.ReignGovernmentCampaignBehavior government, string phase, bool reset) { }
+            public bool TryConsumeRulerJudgmentDraw(ReignBeta.Campaign.ReignRulerCampaignBehavior rulers, ReignBeta.Shared.Rulers.RulerJudgment judgment, out double draw) { draw = 0; return false; }
+            public bool TryConsumeRulerCaptureRoll(ReignBeta.Campaign.ReignRulerCampaignBehavior rulers, Hero hero, out double roll) { roll = 0; return false; }
+            public Task<double?> SubmitWorldTestHeartbeatAsync(double deltaAfterDay) => Task.FromResult<double?>(null);
             public IReignSpymasterTestControls Spymaster => this;
             public bool Active => false;
             public bool SuppressIrreversibleNativeConsequences => false;

@@ -1716,6 +1716,7 @@
           "ownership": [
             "ReignBeta/ReignBeta.csproj",
             "ReignBeta/Core/**",
+            "ReignBeta/Testing/**",
             "ReignBeta/src/Modules/Platform/**",
             "ReignBeta/src/Platform/**",
             "ReignBeta/tools/**",
@@ -1724,7 +1725,8 @@
           ],
           "projects": [
             "client",
-            "client-core"
+            "client-core",
+            "client-testing"
           ],
           "testProjects": [],
           "defaultTier": 2,

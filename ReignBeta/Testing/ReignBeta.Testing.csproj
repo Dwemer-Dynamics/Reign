@@ -1,0 +1,190 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <!-- Optional in-game test harness: live interaction host, action gauntlet, fixtures, in-game
+       tests and test server clients (see ReignBeta.Testing.Sources.props). ReignBeta.csproj builds
+       this project after itself into the same output folder, passing ReignClientOutputPath, so
+       ReignBeta.Testing.dll lands next to ReignBeta.dll. SubModule loads it when present and installs
+       its IReignTestHarness; the module works without it.
+       ReignBeta.dll is referenced as a built file, never as a ProjectReference, which would form a
+       cycle. A standalone build of this project (no ReignClientOutputPath) first builds ReignBeta into
+       its own output folder with ReignSkipTestingAssembly=true, then compiles against that. -->
+  <PropertyGroup>
+    <TargetFramework>net472</TargetFramework>
+    <AssemblyName>ReignBeta.Testing</AssemblyName>
+    <RootNamespace>ReignBeta</RootNamespace>
+    <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
+    <GenerateAssemblyInfo>true</GenerateAssemblyInfo>
+    <EnableDefaultCompileItems>false</EnableDefaultCompileItems>
+    <Version>$([System.IO.File]::ReadAllText('$(MSBuildProjectDirectory)\..\..\.version_number.txt').Trim())</Version>
+    <AssemblyVersion>$(Version).0</AssemblyVersion>
+    <FileVersion>$(Version).0</FileVersion>
+    <LangVersion>latest</LangVersion>
+    <OutputPath>..\bin\Win64_Shipping_Client\</OutputPath>
+    <BannerlordPath Condition="'$(BannerlordPath)' == ''">$(REIGN_BANNERLORD_PATH)</BannerlordPath>
+    <BannerlordWorkshopPath Condition="'$(BannerlordWorkshopPath)' == ''">$(BannerlordPath)\..\..\workshop\content\261550</BannerlordWorkshopPath>
+    <ReignServerRoot Condition="'$(ReignServerRoot)' == ''">$(MSBuildProjectDirectory)\..\..\..\ReignServer</ReignServerRoot>
+    <!-- Passed to the standalone ReignBeta build normalized: an unresolved "Testing\..\..\.." path
+         would match ReignBeta's Compile Remove="Testing\**" and drop every shared source. -->
+    <ReignServerRootFull>$([MSBuild]::NormalizeDirectory('$(ReignServerRoot)'))</ReignServerRootFull>
+    <ReignTestingStandalone Condition="'$(ReignClientOutputPath)' == ''">true</ReignTestingStandalone>
+    <ReignClientOutputPath Condition="'$(ReignClientOutputPath)' == ''">$([MSBuild]::NormalizeDirectory('$(MSBuildProjectDirectory)', '$(OutputPath)'))</ReignClientOutputPath>
+    <ReignClientOutputPath>$([MSBuild]::EnsureTrailingSlash('$(ReignClientOutputPath)'))</ReignClientOutputPath>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(ExcludeCourt)' == 'true'">
+    <DefineConstants>$(DefineConstants);REIGN_EXCLUDE_COURT</DefineConstants>
+  </PropertyGroup>
+
+  <Import Project="ReignBeta.Testing.Sources.props" />
+  <ItemGroup>
+    <Compile Include="@(ReignTestingSource)" />
+  </ItemGroup>
+  <ItemGroup Condition="'$(ExcludeCourt)' != 'true'">
+    <Compile Include="@(ReignTestingCourtSource)" />
+  </ItemGroup>
+
+  <Target Name="RequireBannerlordReferences" BeforeTargets="ResolveReferences">
+    <Error Condition="!Exists('$(BannerlordPath)\bin\Win64_Shipping_Client\TaleWorlds.CampaignSystem.dll')"
+           Text="Set REIGN_BANNERLORD_PATH (or BannerlordPath) to your licensed Bannerlord v1.5.7 installation before validating the client." />
+  </Target>
+
+  <!-- Standalone build: compile ReignBeta (without rebuilding this project) into the same folder. -->
+  <Target Name="ReignBuildClientForStandaloneTesting"
+          BeforeTargets="ResolveAssemblyReferences"
+          Condition="'$(ReignTestingStandalone)' == 'true' and '$(DesignTimeBuild)' != 'true'">
+    <MSBuild Projects="$(MSBuildProjectDirectory)\..\ReignBeta.csproj"
+             Targets="Build"
+             Properties="Configuration=$(Configuration);OutputPath=$(ReignClientOutputPath);ReignSkipTestingAssembly=true;ReignSkipNativePortraitGenerator=true;BannerlordPath=$(BannerlordPath);BannerlordWorkshopPath=$(BannerlordWorkshopPath);ReignServerRoot=$(ReignServerRootFull);ExcludeCourt=$(ExcludeCourt)"
+             BuildInParallel="false" />
+  </Target>
+
+  <ItemGroup>
+    <!-- The client assemblies this harness extends, taken from the client output folder.
+         ReignBeta and ReignBeta.Core grant this assembly InternalsVisibleTo. -->
+    <Reference Include="ReignBeta">
+      <HintPath>$(ReignClientOutputPath)ReignBeta.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
+    <Reference Include="ReignBeta.Core">
+      <HintPath>$(ReignClientOutputPath)ReignBeta.Core.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
+    <Reference Include="Reign.Core.Contracts">
+      <HintPath>$(ReignClientOutputPath)Reign.Core.Contracts.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
+    <Reference Include="ArenaOverhaul.1.4.6">
+      <HintPath>$(ReignClientOutputPath)ArenaOverhaul.1.4.6.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
+    <Reference Include="System.IO.Compression" />
+    <Reference Include="System.Net.Http" />
+    <Reference Include="System.Numerics" Aliases="FrameworkNumerics" />
+    <Reference Include="System.Numerics.Vectors" Aliases="global,NumericsVectors">
+      <HintPath>$(BannerlordPath)\bin\Win64_Shipping_Client\System.Numerics.Vectors.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
+    <Reference Include="TaleWorlds.CampaignSystem">
+      <HintPath>$(BannerlordPath)\bin\Win64_Shipping_Client\TaleWorlds.CampaignSystem.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
+    <Reference Include="TaleWorlds.Core">
+      <HintPath>$(BannerlordPath)\bin\Win64_Shipping_Client\TaleWorlds.Core.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
+    <Reference Include="TaleWorlds.Core.ViewModelCollection">
+      <HintPath>$(BannerlordPath)\bin\Win64_Shipping_Client\TaleWorlds.Core.ViewModelCollection.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
+    <Reference Include="TaleWorlds.CampaignSystem.ViewModelCollection">
+      <HintPath>$(BannerlordPath)\bin\Win64_Shipping_Client\TaleWorlds.CampaignSystem.ViewModelCollection.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
+    <Reference Include="TaleWorlds.Engine">
+      <HintPath>$(BannerlordPath)\bin\Win64_Shipping_Client\TaleWorlds.Engine.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
+    <Reference Include="TaleWorlds.Engine.GauntletUI">
+      <HintPath>$(BannerlordPath)\bin\Win64_Shipping_Client\TaleWorlds.Engine.GauntletUI.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
+    <Reference Include="TaleWorlds.GauntletUI">
+      <HintPath>$(BannerlordPath)\bin\Win64_Shipping_Client\TaleWorlds.GauntletUI.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
+    <Reference Include="TaleWorlds.InputSystem">
+      <HintPath>$(BannerlordPath)\bin\Win64_Shipping_Client\TaleWorlds.InputSystem.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
+    <Reference Include="TaleWorlds.Library">
+      <HintPath>$(BannerlordPath)\bin\Win64_Shipping_Client\TaleWorlds.Library.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
+    <Reference Include="TaleWorlds.Localization">
+      <HintPath>$(BannerlordPath)\bin\Win64_Shipping_Client\TaleWorlds.Localization.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
+    <Reference Include="TaleWorlds.ModuleManager">
+      <HintPath>$(BannerlordPath)\bin\Win64_Shipping_Client\TaleWorlds.ModuleManager.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
+    <Reference Include="TaleWorlds.MountAndBlade">
+      <HintPath>$(BannerlordPath)\bin\Win64_Shipping_Client\TaleWorlds.MountAndBlade.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
+    <Reference Include="TaleWorlds.MountAndBlade.View">
+      <HintPath>$(BannerlordPath)\Modules\Native\bin\Win64_Shipping_Client\TaleWorlds.MountAndBlade.View.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
+    <Reference Include="TaleWorlds.MountAndBlade.GauntletUI.Widgets">
+      <HintPath>$(BannerlordPath)\bin\Win64_Shipping_Client\TaleWorlds.MountAndBlade.GauntletUI.Widgets.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
+    <Reference Include="TaleWorlds.ObjectSystem">
+      <HintPath>$(BannerlordPath)\bin\Win64_Shipping_Client\TaleWorlds.ObjectSystem.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
+    <Reference Include="TaleWorlds.SaveSystem">
+      <HintPath>$(BannerlordPath)\bin\Win64_Shipping_Client\TaleWorlds.SaveSystem.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
+    <Reference Include="SandBox">
+      <HintPath>$(BannerlordPath)\Modules\SandBox\bin\Win64_Shipping_Client\SandBox.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
+    <Reference Include="SandBox.View">
+      <HintPath>$(BannerlordPath)\Modules\SandBox\bin\Win64_Shipping_Client\SandBox.View.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
+    <Reference Include="TaleWorlds.ScreenSystem">
+      <HintPath>$(BannerlordPath)\bin\Win64_Shipping_Client\TaleWorlds.ScreenSystem.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
+    <Reference Include="TaleWorlds.TwoDimension">
+      <HintPath>$(BannerlordPath)\bin\Win64_Shipping_Client\TaleWorlds.TwoDimension.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
+    <Reference Include="TaleWorlds.DotNet">
+      <HintPath>$(BannerlordPath)\bin\Win64_Shipping_Client\TaleWorlds.DotNet.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
+    <Reference Include="MCMv5">
+      <HintPath>$(BannerlordPath)\Modules\Bannerlord.MBOptionScreen\bin\Win64_Shipping_Client\MCMv5.dll</HintPath>
+      <HintPath Condition="!Exists('$(BannerlordPath)\Modules\Bannerlord.MBOptionScreen\bin\Win64_Shipping_Client\MCMv5.dll')">$(BannerlordWorkshopPath)\2859238197\bin\Win64_Shipping_Client\MCMv5.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
+    <Reference Include="Newtonsoft.Json">
+      <HintPath>$(BannerlordPath)\bin\Win64_Shipping_Client\Newtonsoft.Json.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
+    <Reference Include="0Harmony">
+      <HintPath>$(BannerlordPath)\Modules\Bannerlord.Harmony\bin\Win64_Shipping_Client\0Harmony.dll</HintPath>
+      <HintPath Condition="!Exists('$(BannerlordPath)\Modules\Bannerlord.Harmony\bin\Win64_Shipping_Client\0Harmony.dll')">$(BannerlordWorkshopPath)\2859188632\bin\Win64_Shipping_Client\0Harmony.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
+    <Reference Include="Bannerlord.UIExtenderEx">
+      <HintPath>$(BannerlordPath)\Modules\Bannerlord.UIExtenderEx\bin\Win64_Shipping_Client\Bannerlord.UIExtenderEx.dll</HintPath>
+      <HintPath Condition="!Exists('$(BannerlordPath)\Modules\Bannerlord.UIExtenderEx\bin\Win64_Shipping_Client\Bannerlord.UIExtenderEx.dll')">$(BannerlordWorkshopPath)\2859222409\bin\Win64_Shipping_Client\Bannerlord.UIExtenderEx.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
+  </ItemGroup>
+</Project>

@@ -166,6 +166,9 @@
     <ProjectReference Include="$(ReignServerRoot)\shared\Reign.Core.Contracts\Reign.Core.Contracts.csproj" />
     <ProjectReference Include="src\Modules\Arena\ArenaOverhaul\ArenaOverhaul.csproj" />
     <ProjectReference Include="Core\ReignBeta.Core.csproj" />
+    <!-- The optional in-game test harness (Testing\ReignBeta.Testing.csproj) implements the
+         internal ReignTestHarness seam and drives internal product state. -->
+    <InternalsVisibleTo Include="ReignBeta.Testing" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="ModuleData\reign_tavern_cast.json">
@@ -215,5 +218,46 @@
     </ItemGroup>
     <Error Condition="'@(_ReignCompileOutsideCore->Count())' != '@(_ReignCompileFullPath->Count())'"
            Text="ReignBeta.csproj still compiles a source listed in Core\ReignBeta.Core.Sources.props; it must be compiled only by ReignBeta.Core." />
+  </Target>
+  <!-- In-game test harness sources compiled once, into the optional ReignBeta.Testing.dll
+       (see Testing/ReignBeta.Testing.Sources.props), which references this assembly. -->
+  <Import Project="Testing\ReignBeta.Testing.Sources.props" />
+  <ItemGroup>
+    <Compile Remove="Testing\**" />
+    <Compile Remove="@(ReignTestingSource)" />
+    <Compile Remove="@(ReignTestingCourtSource)" />
+  </ItemGroup>
+  <Target Name="ReignVerifyTestingSourcesCompiledOnce" BeforeTargets="CoreCompile">
+    <ItemGroup>
+      <_ReignCompileFullPathForTesting Include="@(Compile->'%(FullPath)')" />
+      <_ReignCompileOutsideTesting Include="@(_ReignCompileFullPathForTesting)" />
+      <_ReignCompileOutsideTesting Remove="@(ReignTestingSource->'%(FullPath)');@(ReignTestingCourtSource->'%(FullPath)')" />
+    </ItemGroup>
+    <Error Condition="'@(_ReignCompileOutsideTesting->Count())' != '@(_ReignCompileFullPathForTesting->Count())'"
+           Text="ReignBeta.csproj still compiles a source listed in Testing\ReignBeta.Testing.Sources.props; it must be compiled only by ReignBeta.Testing." />
+  </Target>
+  <!-- Build the optional harness after this assembly, into the same output folder, against the
+       ReignBeta.dll just built. Plain file references there, not a ProjectReference (that would be a
+       cycle). A standalone build of the testing project sets ReignSkipTestingAssembly when it builds
+       this project first. The testing project has no packages; restore it when asked to restore
+       bundled tools or when it has never been restored. -->
+  <Target Name="BuildReignTestingAssembly"
+          AfterTargets="Build"
+          Condition="'$(DesignTimeBuild)' != 'true' and '$(ReignSkipTestingAssembly)' != 'true'">
+    <PropertyGroup>
+      <ReignTestingProject>$(MSBuildProjectDirectory)\Testing\ReignBeta.Testing.csproj</ReignTestingProject>
+      <ReignTestingProperties>Configuration=$(Configuration);OutputPath=$(TargetDir);ReignClientOutputPath=$(TargetDir);BannerlordPath=$(BannerlordPath);BannerlordWorkshopPath=$(BannerlordWorkshopPath);ReignServerRoot=$(ReignServerRoot);ExcludeCourt=$(ExcludeCourt)</ReignTestingProperties>
+    </PropertyGroup>
+    <MSBuild Projects="$(ReignTestingProject)"
+             Targets="Restore"
+             Condition="'$(ReignRestoreBundledTools)' == 'true' or !Exists('$(MSBuildProjectDirectory)\Testing\obj\project.assets.json')"
+             Properties="$(ReignTestingProperties);_ReignTestingRestoreEvaluation=true"
+             BuildInParallel="false" />
+    <MSBuild Projects="$(ReignTestingProject)"
+             Targets="Build"
+             Properties="$(ReignTestingProperties)"
+             BuildInParallel="false" />
+    <Error Condition="!Exists('$(TargetDir)ReignBeta.Testing.dll')"
+           Text="The in-game test harness assembly ReignBeta.Testing.dll was not built next to ReignBeta.dll." />
   </Target>
 </Project>
