@@ -5,16 +5,17 @@ using Newtonsoft.Json.Linq;
 using ReignBeta.Campaign;
 using ReignBeta.World;
 using TaleWorlds.CampaignSystem;
+using static ReignBeta.Integration.ReignServerClient;
 
 namespace ReignBeta.Integration
 {
-    public static partial class ReignServerClient
+    internal static class ReignWandererClient
     {
         internal static Task<JObject> ReadWandererContactAsync(string campaign, string timeline, string hero, string player)
             => PostJsonAsync("/dialogue/history", new JObject { ["campaignId"] = campaign, ["timelineId"] = timeline,
                 ["heroStringId"] = hero, ["playerHeroStringId"] = player, ["wandererContactOnly"] = true });
 
-        private static async Task<JObject> PostWandererConversationAsync(string route, JObject payload, Hero hero, string playerText,
+        internal static async Task<JObject> PostWandererConversationAsync(string route, JObject payload, Hero hero, string playerText,
             Reign.Core.Contracts.Actions.ActionAgreement actionDraft = null, Func<bool> requestOwner = null)
         {
             ReignWandererPopulationCampaignBehavior owner = null;
@@ -30,7 +31,7 @@ namespace ReignBeta.Integration
                 if (string.IsNullOrWhiteSpace(payload.Value<string>("sceneTurnId"))) payload["sceneTurnId"] = Guid.NewGuid().ToString("N");
                 payload["nativePaymentReceipts"] = ReignGoldTransferService.Instance?.Snapshot(hero) ?? new JArray();
                 payload["nativeActionReceipts"] = ReignAICampaignBehavior.Instance?.ConversationActionReceipts(hero) ?? new JArray();
-                ConfigureStructuredActions(payload, hero, actionDraft, Reign.Core.Contracts.Actions.AgreementChannel.InPerson);
+                ReignStructuredActionClient.ConfigureStructuredActions(payload, hero, actionDraft, Reign.Core.Contracts.Actions.AgreementChannel.InPerson);
                 owner?.BeginContact(hero, playerText);
             }).ConfigureAwait(false);
             JObject response = null, accepted = null;
@@ -61,7 +62,7 @@ namespace ReignBeta.Integration
                     }
                     // The accepted NPC reply bytes stay exact. The structured receipt and
                     // native outcomes are kept as separate fields for system-line presentation.
-                    ProcessStructuredActionDecision(payload, response, hero, inlineReceipt: false);
+                    ReignStructuredActionClient.ProcessStructuredActionDecision(payload, response, hero, inlineReceipt: false);
                     // Parsed with this request's own fence, so a response cannot rebind to a newer load.
                     var actions = new[] { "queuedDialogueActions", "queuedEventActions", "queuedActions" }
                         .SelectMany(key => ParseQueuedActionRows(response?[key], fence)).GroupBy(a => a.ActionId).Select(g => g.First())
@@ -106,7 +107,7 @@ namespace ReignBeta.Integration
                     // as a protected (presented) exchange.
                     string receipt = (string)(accepted ?? response)?["conversationExchange"]?["exchangeId"];
                     bool success = !staleRequestOwner && response?.Value<bool?>("ok") == true
-                        && (!string.IsNullOrWhiteSpace(response.Value<string>("reply")) || HasNativeStatus(response));
+                        && (!string.IsNullOrWhiteSpace(response.Value<string>("reply")) || ReignStructuredActionClient.HasNativeStatus(response));
                     owner?.EndContact(hero, success, string.IsNullOrWhiteSpace(receipt)
                         ? "reign-chat:" + ((string)payload["correlationId"] ?? Guid.NewGuid().ToString("N")) : receipt, playerText);
                 }).ConfigureAwait(false);

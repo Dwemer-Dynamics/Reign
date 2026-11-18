@@ -447,7 +447,7 @@ namespace ReignBeta.Campaign
                 foreach (var offer in offers)
                     receipts.Add(new JObject { ["directorActionId"] = offer.Id, ["status"] = offer.State == "refused" ? "player_refused" : "obsolete",
                         ["worldDay"] = WeddingNow, ["timelineId"] = timeline });
-                var result = await ReignServerClient.ReportRelationshipDirectorActionsAsync(receipts).ConfigureAwait(false);
+                var result = await ReignRelationshipDirectorClient.ReportRelationshipDirectorActionsAsync(receipts).ConfigureAwait(false);
                 await ReignMainThread.InvokeAsync(() =>
                 {
                     if (!CurrentOwner()) return;

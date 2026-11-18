@@ -99,7 +99,7 @@ namespace ReignBeta.Government
             JObject response = null;
             for (int attempt = 0; attempt < 3; attempt++)
             {
-                try { response = await ReignServerClient.RequestGovernmentCrownDecisionAsync(payload).ConfigureAwait(false); }
+                try { response = await ReignGovernmentHearingServerClient.RequestGovernmentCrownDecisionAsync(payload).ConfigureAwait(false); }
                 catch { response = null; }
                 if (response?.Value<bool?>("ok") == true) break;
                 if (attempt < 2) await Task.Delay(1500 * (attempt + 1)).ConfigureAwait(false);

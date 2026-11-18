@@ -13,10 +13,11 @@ using Newtonsoft.Json.Linq;
 using ReignBeta.Runtime;
 using TaleWorlds.CampaignSystem;
 using TaleWorlds.Library;
+using static ReignBeta.Integration.ReignServerClient;
 
 namespace ReignBeta.Integration
 {
-    public static partial class ReignServerClient
+    internal static class ReignWorldHistoryClient
     {
         internal static async Task<JObject> OpenWorldHistoryTimelineAsync(string timelineId, long savedSequence, string savedHeadEventId, float completeFromDay)
         {
@@ -247,7 +248,7 @@ namespace ReignBeta.Integration
                 .ThenByDescending(e => e.Value<long?>("sequence") ?? 0).Take(256).OrderBy(e => e.Value<long?>("sequence") ?? 0).ToList();
             var ids = new JArray(pending.Select(e => e.Value<string>("eventId")));
             if (pending.Count == 0) return new JObject { ["complete"] = epoch == Interlocked.Read(ref _epoch), ["timelineId"] = timeline, ["generation"] = generation, ["eventIds"] = ids, ["pendingPublicNews"] = publicNewsCount };
-            var upload = ReignServerClient.IngestWorldHistoryBatchAsync(campaign, timeline, completeFrom, new JArray(pending), generation, epoch);
+            var upload = ReignWorldHistoryClient.IngestWorldHistoryBatchAsync(campaign, timeline, completeFrom, new JArray(pending), generation, epoch);
             if (await Task.WhenAny(upload, Task.Delay(4000)).ConfigureAwait(false) != upload)
             {
                 // Observe any late failure; the durable outbox owns retry.
@@ -631,7 +632,7 @@ namespace ReignBeta.Integration
                     {
                         Stopwatch uploadTimer = Stopwatch.StartNew();
                         if (epoch != Interlocked.Read(ref _epoch)) continue;
-                        JObject response = await ReignServerClient.IngestWorldHistoryBatchAsync(campaign, timeline, completeFrom, new JArray(persisted), generation, epoch).ConfigureAwait(false);
+                        JObject response = await ReignWorldHistoryClient.IngestWorldHistoryBatchAsync(campaign, timeline, completeFrom, new JArray(persisted), generation, epoch).ConfigureAwait(false);
                         uploadTimer.Stop();
                         if (epoch != Interlocked.Read(ref _epoch)) continue;
                         if (response?.Value<bool?>("ok") != true)

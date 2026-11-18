@@ -28,7 +28,7 @@ namespace ReignBeta.Campaign
         private double _tick;
         private int _epoch;
         internal bool ApplyingNative;
-        internal static bool Enabled(string feature) => ReignServerClient.RulerOptionsConfirmed && ReignServerClient.RulerOptions.Enabled(feature);
+        internal static bool Enabled(string feature) => ReignRulerClient.RulerOptionsConfirmed && ReignRulerClient.RulerOptions.Enabled(feature);
         internal static Hero HeroById(string id) => Hero.AllAliveHeroes.FirstOrDefault(h => h.StringId == id) ?? Hero.DeadOrDisabledHeroes.FirstOrDefault(h => h.StringId == id);
         internal static Kingdom Realm(string id) => Kingdom.All.FirstOrDefault(k => k.StringId == id);
         internal static Clan ClanById(string id) => Clan.All.FirstOrDefault(c => c.StringId == id);
@@ -83,7 +83,7 @@ namespace ReignBeta.Campaign
             _tick += Math.Max(0, dt);
             if (_tick < 5 || NativeCampaign.Current == null || Hero.MainHero == null || ReignCampaignInitializationGate.IsPending || ReignSaveSyncCampaignBehavior.IsNativeSaveInProgress) return;
             _tick = 0;
-            if (!ReignServerClient.RulerOptionsConfirmed) return;
+            if (!ReignRulerClient.RulerOptionsConfirmed) return;
             OptionsChanged();
             if (!_initialized) { InitializeWorld(); _initialized = true; }
             if (_relationOutbox.Count > 0 && !_networkBusy) SendRelations(_relationOutbox[0]);
@@ -297,8 +297,8 @@ namespace ReignBeta.Campaign
                 .Take(20).Select(j => JObject.FromObject(ReignRulerPolicy.TimingObservation(j, Day)))),
             ["nativeHooks"] = ReignBeta.World.ReignRulerNativePatches.HookCount, ["nativeHookError"] = ReignBeta.World.ReignRulerNativePatches.Error };
         internal JObject Diagnostics() => JObject.FromObject(new { state = State, pendingNetwork = _networkBusy, pendingRelationships = _relationOutbox.Count,
-            failures = State.Judgments.Where(j => j.Failure.Length > 0).Select(j => new { j.Id, j.Failure }), optionsConfirmed = ReignServerClient.RulerOptionsConfirmed,
-            options = RulerOptions.Switches.Keys.ToDictionary(key => key, key => ReignServerClient.RulerOptions.Preference(key)),
+            failures = State.Judgments.Where(j => j.Failure.Length > 0).Select(j => new { j.Id, j.Failure }), optionsConfirmed = ReignRulerClient.RulerOptionsConfirmed,
+            options = RulerOptions.Switches.Keys.ToDictionary(key => key, key => ReignRulerClient.RulerOptions.Preference(key)),
             lifeDeathCycleDisabled = CampaignOptions.IsLifeDeathCycleDisabled, campaignOptions = ObserveCampaignOptions(),
             news = ReignNewsCampaignBehavior.Instance?.Diagnostics() });
     }

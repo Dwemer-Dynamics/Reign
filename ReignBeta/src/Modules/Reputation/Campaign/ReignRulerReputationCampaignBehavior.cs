@@ -123,7 +123,7 @@ namespace ReignBeta.Campaign
         {
             try
             {
-                JObject catalog = await ReignServerClient.GetSocialCatalogAsync().ConfigureAwait(false);
+                JObject catalog = await ReignWorldHistoryClient.GetSocialCatalogAsync().ConfigureAwait(false);
                 JObject governance = catalog?["governanceSettings"] as JObject;
                 JObject war = catalog?["warScoreSettings"] as JObject;
                 if (governance != null) _governanceSettings = (JObject)governance.DeepClone();

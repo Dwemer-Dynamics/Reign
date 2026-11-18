@@ -25,13 +25,13 @@ namespace ReignBeta.Campaign
                 return "No known living correspondence contact matched the requested target.";
             if (recipient == null)
                 recipient = await ReignMainThread.InvokeAsync(() =>
-                    ReignServerClient.GetKnownCorrespondenceContacts()
+                    ReignCorrespondenceClient.GetKnownCorrespondenceContacts()
                         .FirstOrDefault()).ConfigureAwait(false);
             if (recipient == null)
                 return "No known living correspondence contact matched the requested target.";
 
             bool legitimate = await ReignMainThread.InvokeAsync(() =>
-                ReignServerClient.GetKnownCorrespondenceContacts()
+                ReignCorrespondenceClient.GetKnownCorrespondenceContacts()
                     .Any(hero => string.Equals(
                         hero.StringId,
                         recipient.StringId,

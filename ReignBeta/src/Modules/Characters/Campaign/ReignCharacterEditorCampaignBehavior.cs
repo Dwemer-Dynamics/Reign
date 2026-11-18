@@ -119,7 +119,7 @@ namespace ReignBeta.Campaign
             DateTime startedUtc = DateTime.UtcNow;
             try
             {
-                JObject initialized = await ReignServerClient.InitializeNotableMbtiProfilesAsync(notables).ConfigureAwait(false);
+                JObject initialized = await ReignCharacterEditorClient.InitializeNotableMbtiProfilesAsync(notables).ConfigureAwait(false);
                 EnsureActiveGeneration(generationId);
                 if (initialized?.Value<bool?>("ok") != true)
                     throw new InvalidOperationException("The server did not generate every notable personality ("
@@ -166,7 +166,7 @@ namespace ReignBeta.Campaign
                         applied.Add(new JObject
                         {
                             ["heroId"] = heroId,
-                            ["traits"] = ReignServerClient.NativePersonalityTraits(hero)
+                            ["traits"] = ReignCharacterEditorClient.NativePersonalityTraits(hero)
                         });
                     }
                     return applied;
@@ -177,7 +177,7 @@ namespace ReignBeta.Campaign
                     notables.Count);
                 progress?.Invoke(observations.Count, notables.Count, "Confirming native personality traits");
 
-                JObject confirmed = await ReignServerClient.ConfirmNotableMbtiProfilesAsync(observations).ConfigureAwait(false);
+                JObject confirmed = await ReignCharacterEditorClient.ConfirmNotableMbtiProfilesAsync(observations).ConfigureAwait(false);
                 EnsureActiveGeneration(generationId);
                 if (confirmed?.Value<bool?>("ok") != true
                     || (confirmed?.Value<int?>("confirmedCount") ?? -1) != notables.Count)
@@ -234,13 +234,13 @@ namespace ReignBeta.Campaign
         {
             try
             {
-                List<ReignCharacterEditorCommand> commands = await ReignServerClient.PollCharacterEditorCommandsAsync().ConfigureAwait(false);
+                List<ReignCharacterEditorCommand> commands = await ReignCharacterEditorClient.PollCharacterEditorCommandsAsync().ConfigureAwait(false);
                 foreach (ReignCharacterEditorCommand command in commands)
                 {
                     CharacterEditorApplyResult result = await ReignMainThread.InvokeAsync(() =>
                         IsCurrentCampaign ? Apply(command) : null).ConfigureAwait(false);
                     if (result == null) return; // Never apply old-campaign commands to a new save.
-                    await ReignServerClient.ReportCharacterEditorCommandAsync(command.CommandId, result.Errors.Count == 0 ? "completed" : result.Applied.Count > 0 ? "partially_applied" : "failed", result.Applied, result.Errors).ConfigureAwait(false);
+                    await ReignCharacterEditorClient.ReportCharacterEditorCommandAsync(command.CommandId, result.Errors.Count == 0 ? "completed" : result.Applied.Count > 0 ? "partially_applied" : "failed", result.Applied, result.Errors).ConfigureAwait(false);
                 }
             }
             catch (Exception ex) { ReignLog.Warn("Character editor campaign poll failed: " + ex.Message); }

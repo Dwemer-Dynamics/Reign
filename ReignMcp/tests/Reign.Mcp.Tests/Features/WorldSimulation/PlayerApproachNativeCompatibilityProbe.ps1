@@ -71,16 +71,18 @@ try {
     $client = [Reflection.Assembly]::LoadFrom($clientPath)
     foreach ($typeName in @('ReignBeta.Campaign.ReignRescueConversationBehavior',
         'ReignBeta.Campaign.ReignPlayerApproachCampaignBehavior', 'ReignBeta.Integration.ReignServerClient',
+        'ReignBeta.Integration.ReignPlayerApproachClient',
         'ReignBeta.UI.ReignPlayerApproachPopup')) {
         $type = $client.GetType($typeName, $true)
         $types = @($type)
-        if ($typeName -ne 'ReignBeta.Integration.ReignServerClient') {
+        if ($typeName -notin @('ReignBeta.Integration.ReignServerClient', 'ReignBeta.Integration.ReignPlayerApproachClient')) {
             # Resolve native calls inside compiler-generated async/closure bodies too.
             $types += @($type.GetNestedTypes($flags) | Where-Object { !$_.ContainsGenericParameters })
         }
         $members = @($types | ForEach-Object { $_.GetMethods($flags) } | Where-Object { !$_.ContainsGenericParameters -and !$_.IsAbstract })
-        # ServerClient is a shared partial type. Bound this proof to approach-owned calls.
-        if ($typeName -eq 'ReignBeta.Integration.ReignServerClient') {
+        # ServerClient is a shared partial type; PlayerApproachClient holds the approach routes moved out of it.
+        # Bound this proof to approach-owned calls.
+        if ($typeName -in @('ReignBeta.Integration.ReignServerClient', 'ReignBeta.Integration.ReignPlayerApproachClient')) {
             $members = @($members | Where-Object { $_.Name -match 'Approach|Attention' })
         }
         foreach ($method in $members) {

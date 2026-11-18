@@ -343,7 +343,7 @@ namespace ReignBeta.Campaign
                         "sourceCorrelationId")
                         ?? string.Empty;
                     bool shouldBeActive = expectation.Value<bool?>("active") == true;
-                    JObject status = await ReignServerClient.GetSocialCharacterStatusAsync(
+                    JObject status = await ReignWorldHistoryClient.GetSocialCharacterStatusAsync(
                         heroId, timelineId, worldDay).ConfigureAwait(false);
                     JArray reputations = status?["reputations"] as JArray ?? new JArray();
                     JObject matchingSource = reputations.OfType<JObject>().FirstOrDefault(x =>

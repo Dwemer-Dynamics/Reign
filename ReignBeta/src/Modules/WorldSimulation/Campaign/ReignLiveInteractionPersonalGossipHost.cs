@@ -65,10 +65,10 @@ namespace ReignBeta.Campaign
                 throw new InvalidOperationException("Personal gossip requires the exact enrolled paused Current, timeline, instance and recovery checkpoint outside a mission/battle.");
         }
 
-        private static Tuple<JObject, ReignServerClient.PersonalGossipPresenceSnapshot> PersonalGossipNativeRequest(JObject command)
+        private static Tuple<JObject, ReignPersonalGossipClient.PersonalGossipPresenceSnapshot> PersonalGossipNativeRequest(JObject command)
         {
             GuardPersonalGossipTest(command);
-            var presence = ReignServerClient.CapturePersonalGossipPresence();
+            var presence = ReignPersonalGossipClient.CapturePersonalGossipPresence();
             var request = new JObject {
                 ["campaignId"] = command["campaignId"]?.DeepClone(), ["runId"] = command["runId"]?.DeepClone(),
                 ["commandId"] = command["commandId"]?.DeepClone(), ["leaseId"] = command["leaseId"]?.DeepClone(),
@@ -125,12 +125,12 @@ namespace ReignBeta.Campaign
                             throw new InvalidOperationException("Every requested gossip participant must be an exact currently available production conversation target.");
                     }
                 }).ConfigureAwait(false);
-                if (phase == "tick") await ReignServerClient.TickPersonalGossipAsync().ConfigureAwait(false);
+                if (phase == "tick") await ReignPersonalGossipClient.TickPersonalGossipAsync().ConfigureAwait(false);
                 var captured = await ReignMainThread.InvokeAsync(() => PersonalGossipNativeRequest(command)).ConfigureAwait(false);
                 var request = captured.Item1;
-                request["gossipPresence"] = await ReignServerClient.EncodePersonalGossipPresenceAsync(captured.Item2).ConfigureAwait(false);
+                request["gossipPresence"] = await ReignPersonalGossipClient.EncodePersonalGossipPresenceAsync(captured.Item2).ConfigureAwait(false);
                 await ReignMainThread.InvokeAsync(() => GuardPersonalGossipTest(command)).ConfigureAwait(false);
-                var evidence = await ReignServerClient.PersonalGossipTestRequestAsync(request, captured.Item2).ConfigureAwait(false);
+                var evidence = await ReignPersonalGossipClient.PersonalGossipTestRequestAsync(request, captured.Item2).ConfigureAwait(false);
                 if (evidence?.Value<bool?>("ok") != true) return LiveCommandResult.Failed("Server rejected gossip fixture authorization.", evidence);
                 evidence["nativeObservations"] = await ReignMainThread.InvokeAsync(() =>
                 {
@@ -148,16 +148,16 @@ namespace ReignBeta.Campaign
                 {
                     var comparison = await ReignMainThread.InvokeAsync(() => {
                         GuardPersonalGossipTest(command);
-                        return ReignServerClient.CapturePersonalGossipComparison();
+                        return ReignPersonalGossipClient.CapturePersonalGossipComparison();
                     }).ConfigureAwait(false);
-                    var proof = await ReignServerClient.PersonalGossipPresenceContractAsync(comparison).ConfigureAwait(false);
+                    var proof = await ReignPersonalGossipClient.PersonalGossipPresenceContractAsync(comparison).ConfigureAwait(false);
                     var refused = (JObject)request.DeepClone();
-                    refused["gossipPresence"] = await ReignServerClient.PersonalGossipIncompleteFixtureAsync(captured.Item2.WorldDay, captured.Item2.Timeline).ConfigureAwait(false);
+                    refused["gossipPresence"] = await ReignPersonalGossipClient.PersonalGossipIncompleteFixtureAsync(captured.Item2.WorldDay, captured.Item2.Timeline).ConfigureAwait(false);
                     await ReignMainThread.InvokeAsync(() => GuardPersonalGossipTest(command)).ConfigureAwait(false);
                     bool rejected = false;
                     try
                     {
-                        var answer = await ReignServerClient.PersonalGossipTestRequestAsync(refused, captured.Item2).ConfigureAwait(false);
+                        var answer = await ReignPersonalGossipClient.PersonalGossipTestRequestAsync(refused, captured.Item2).ConfigureAwait(false);
                         rejected = answer?.Value<bool?>("ok") == false
                             && (answer.Value<string>("error") ?? "").Contains("A complete current native roster is required.");
                     }
@@ -187,9 +187,9 @@ namespace ReignBeta.Campaign
                                 : hero.PartyBelongedTo != MobileParty.MainParty))
                                 throw new InvalidOperationException("The native resident placement did not reach its exact requested active destination. Restore the retained checkpoint before retrying.");
                         }
-                        return ReignServerClient.CapturePersonalGossipPresence();
+                        return ReignPersonalGossipClient.CapturePersonalGossipPresence();
                     }).ConfigureAwait(false);
-                    evidence["afterNativePresence"] = await ReignServerClient.EncodePersonalGossipPresenceAsync(after).ConfigureAwait(false);
+                    evidence["afterNativePresence"] = await ReignPersonalGossipClient.EncodePersonalGossipPresenceAsync(after).ConfigureAwait(false);
                     evidence["afterNativeActivationStates"] = await ReignMainThread.InvokeAsync(() => new JArray(
                         (test["activateResidents"] as JArray ?? new JArray()).Values<string>().Select(id =>
                             PersonalGossipNativeState(Hero.AllAliveHeroes.Single(h => h.StringId == id))))).ConfigureAwait(false);
@@ -238,8 +238,8 @@ namespace ReignBeta.Campaign
                             // Observe the accepted source before closing the production session.
                             // This is read-only operator evidence and never enters a participant prompt.
                             var turnCapture = await ReignMainThread.InvokeAsync(() => PersonalGossipNativeRequest(command)).ConfigureAwait(false);
-                            turnCapture.Item1["gossipPresence"] = await ReignServerClient.EncodePersonalGossipPresenceAsync(turnCapture.Item2).ConfigureAwait(false);
-                            var scheduling = await ReignServerClient.PersonalGossipTestRequestAsync(turnCapture.Item1, turnCapture.Item2).ConfigureAwait(false);
+                            turnCapture.Item1["gossipPresence"] = await ReignPersonalGossipClient.EncodePersonalGossipPresenceAsync(turnCapture.Item2).ConfigureAwait(false);
+                            var scheduling = await ReignPersonalGossipClient.PersonalGossipTestRequestAsync(turnCapture.Item1, turnCapture.Item2).ConfigureAwait(false);
                             if (scheduling?.Value<bool?>("ok") != true)
                                 return LiveCommandResult.Failed("Accepted turn completed, but its guarded scheduling observation failed; do not replay the accepted turn.", evidence);
                             acceptedTurn["gossipWhileOpen"] = scheduling["conversationScheduling"]?.DeepClone();

@@ -559,7 +559,7 @@ namespace ReignBeta.Actions
             var first = ReignActionService.HeroById(a.PlayerId); var second = ReignActionService.HeroById(a.NpcId);
             if (first?.PartyBelongedTo != null && first.PartyBelongedTo == second?.PartyBelongedTo || first?.CurrentSettlement != null && first.CurrentSettlement == second?.CurrentSettlement) return 0;
             if (!a.Clauses.Any(c => c.ActionId.StartsWith("give.", StringComparison.Ordinal))) return 0;
-            return ReignBeta.Integration.ReignServerClient.ActionDeliveryDays(first, second, ReignActionService.Now);
+            return ReignBeta.Integration.ReignCorrespondenceClient.ActionDeliveryDays(first, second, ReignActionService.Now);
         }
         public void SaveJournal(AgreementJournal journal) { _agreements[journal.Agreement.Id] = journal; }
     }

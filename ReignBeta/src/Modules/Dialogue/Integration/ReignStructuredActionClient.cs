@@ -6,10 +6,11 @@ using Reign.Core.Contracts.Actions;
 using ReignBeta.Actions;
 using ReignBeta.Campaign;
 using TaleWorlds.CampaignSystem;
+using static ReignBeta.Integration.ReignServerClient;
 
 namespace ReignBeta.Integration
 {
-    public static partial class ReignServerClient
+    internal static class ReignStructuredActionClient
     {
         // Prepare and complete on the campaign thread. Alternate conversation hosts
         // use this same boundary without granting a response from an older load authority.
@@ -37,7 +38,7 @@ namespace ReignBeta.Integration
         }
         // Called on the campaign thread. Only the locally attached composer draft
         // supplies executable terms. Speech may rank discovery assets, never authorize them.
-        private static void ConfigureStructuredActions(JObject payload, Hero npc, ActionAgreement draft,
+        internal static void ConfigureStructuredActions(JObject payload, Hero npc, ActionAgreement draft,
             AgreementChannel channel)
         {
             if (!Enum.IsDefined(typeof(AgreementChannel), channel)) throw new InvalidOperationException("Unknown native conversation channel.");
@@ -84,7 +85,7 @@ namespace ReignBeta.Integration
 
         // Arrival is observation, not a bargaining turn. Supply the same verified
         // payment facts without preparing offers or enabling action decisions.
-        private static void AttachReadOnlyAgreementPaymentHistory(JObject payload, Hero npc)
+        internal static void AttachReadOnlyAgreementPaymentHistory(JObject payload, Hero npc)
         {
             string playerId = Hero.MainHero?.StringId ?? "", npcId = npc?.StringId ?? "";
             payload["structuredActionContext"] = new JObject {
@@ -113,7 +114,7 @@ namespace ReignBeta.Integration
             };
         }
 
-        private static void ProcessStructuredActionDecision(JObject request, JObject response, Hero npc, string responseId = "", bool tavernActions = false,
+        internal static void ProcessStructuredActionDecision(JObject request, JObject response, Hero npc, string responseId = "", bool tavernActions = false,
             bool inlineReceipt = true)
         {
             if (response == null || response.Value<bool?>("ok") != true || response.Value<bool?>("historicalReplay") == true) return;

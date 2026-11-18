@@ -175,7 +175,7 @@ namespace ReignBeta.Integration
                 ["clanId"] = speaker?.Clan?.StringId ?? string.Empty
             };
             // The council presents structured receipts as separate system lines.
-            Action<JObject> complete = ReignServerClient.BeginStructuredActionExchange(payload, speaker, actionDraft, inlineReceipt: false);
+            Action<JObject> complete = ReignStructuredActionClient.BeginStructuredActionExchange(payload, speaker, actionDraft, inlineReceipt: false);
             return new RoyalCouncilAdviceRequest { Payload = payload, Complete = complete, Fence = ReignServerClient.RequestFence.Capture() };
         }
 
@@ -329,7 +329,7 @@ namespace ReignBeta.Integration
         public static Task<ReignCourtServerResponse> TickForeignAmbassadorsAsync(int dayIndex)
         {
             JObject payload = BasePayload("foreign_ambassador_tick_" + dayIndex, 0);
-            payload["worldSnapshot"] = ReignServerClient.BuildDiplomacyWorldSnapshot();
+            payload["worldSnapshot"] = ReignDiplomacyServerClient.BuildDiplomacyWorldSnapshot();
             return PostAsync("/court/foreign-ambassadors/tick", payload);
         }
 
@@ -339,7 +339,7 @@ namespace ReignBeta.Integration
             payload["referralId"] = referralId ?? string.Empty;
             payload["termsHash"] = termsHash ?? string.Empty;
             payload["accept"] = accept;
-            payload["worldSnapshot"] = ReignServerClient.BuildDiplomacyWorldSnapshot();
+            payload["worldSnapshot"] = ReignDiplomacyServerClient.BuildDiplomacyWorldSnapshot();
             return PostAsync("/court/foreign-ambassadors/referrals/respond", payload);
         }
 
@@ -417,7 +417,7 @@ namespace ReignBeta.Integration
             try{encoded["terms"]=JObject.Parse(string.IsNullOrWhiteSpace(action?.TermsJson)?"{}":action.TermsJson);}catch{encoded["terms"]=new JObject();}
             JObject payload=BasePayload(commandId,0);
             payload["worldAction"]=encoded;
-            payload["worldSnapshot"]=ReignServerClient.BuildDiplomacyWorldSnapshot();
+            payload["worldSnapshot"]=ReignDiplomacyServerClient.BuildDiplomacyWorldSnapshot();
             payload["termsHash"]=ReignCourtTerms.Hash(encoded.ToString(Formatting.None));
             return PostAsync("/court/diplomacy/propose",payload);
         }

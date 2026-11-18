@@ -206,7 +206,7 @@ namespace ReignBeta.Campaign
             try
             {
                 ReignDiplomacyEvaluationResult result =
-                    await ReignServerClient.EvaluatePoliticalPressureAsync()
+                    await ReignDiplomacyServerClient.EvaluatePoliticalPressureAsync()
                         .ConfigureAwait(false);
                 if (!result.Ok)
                 {
@@ -244,7 +244,7 @@ namespace ReignBeta.Campaign
         {
             try
             {
-                ReignDiplomacyEvaluationResult result = await ReignServerClient.EvaluateWorldDiplomacyAsync(retry).ConfigureAwait(false);
+                ReignDiplomacyEvaluationResult result = await ReignDiplomacyServerClient.EvaluateWorldDiplomacyAsync(retry).ConfigureAwait(false);
                 if (!result.Ok)
                 {
                     RecordEvaluationFailure(result.Error);
@@ -339,7 +339,7 @@ namespace ReignBeta.Campaign
                 var ownerRead = ReignMainThread.InvokeAsync(() => TaleWorlds.CampaignSystem.Campaign.Current);
                 await AwaitPublicAnnouncementPhase(ownerRead, deadlineToken).ConfigureAwait(false);
                 var owner = await ownerRead.ConfigureAwait(false);
-                var fetch = ReignServerClient.FetchDiplomacyAnnouncementsAsync(publicHistory: true);
+                var fetch = ReignDiplomacyServerClient.FetchDiplomacyAnnouncementsAsync(publicHistory: true);
                 await AwaitPublicAnnouncementPhase(fetch, deadlineToken).ConfigureAwait(false);
                 List<ReignDiplomacyAnnouncement> announcements = await fetch.ConfigureAwait(false);
                 var apply = ReignMainThread.InvokeAsync(() => {
@@ -394,7 +394,7 @@ namespace ReignBeta.Campaign
             try
             {
                 List<ReignPoliticalPressureNotice> notices =
-                    await ReignServerClient.FetchPoliticalPressureNoticesAsync().ConfigureAwait(false);
+                    await ReignDiplomacyServerClient.FetchPoliticalPressureNoticesAsync().ConfigureAwait(false);
                 foreach (ReignPoliticalPressureNotice notice in notices.Where(x => x != null))
                 {
                     if (_processedPressureNoticeIds.Contains(notice.IncidentId,
@@ -404,7 +404,7 @@ namespace ReignBeta.Campaign
                             .InvokeAsync(() => ApplyPoliticalPressureNotice(
                                 notice, displayNotice: false))
                             .ConfigureAwait(false);
-                        await ReignServerClient.AcknowledgePoliticalPressureNoticeAsync(
+                        await ReignDiplomacyServerClient.AcknowledgePoliticalPressureNoticeAsync(
                             notice.IncidentId, notice.TimelineId, CurrentDay(),
                             replayReceipts)
                             .ConfigureAwait(false);
@@ -412,12 +412,12 @@ namespace ReignBeta.Campaign
                     }
                     JArray receipts = await ReignMainThread.InvokeAsync(() =>
                         ApplyPoliticalPressureNotice(notice)).ConfigureAwait(false);
-                    await ReignServerClient.AcknowledgePoliticalPressureNoticeAsync(
+                    await ReignDiplomacyServerClient.AcknowledgePoliticalPressureNoticeAsync(
                         notice.IncidentId, notice.TimelineId, CurrentDay(), receipts)
                         .ConfigureAwait(false);
                 }
                 List<ReignClanConflictNotice> clanNotices =
-                    await ReignServerClient.FetchClanConflictNoticesAsync().ConfigureAwait(false);
+                    await ReignDiplomacyServerClient.FetchClanConflictNoticesAsync().ConfigureAwait(false);
                 foreach (ReignClanConflictNotice notice in clanNotices.Where(x => x != null))
                 {
                     bool display = !_processedClanConflictNoticeIds.Contains(
@@ -427,7 +427,7 @@ namespace ReignBeta.Campaign
                         await ReignMainThread.InvokeAsync(() =>
                             ApplyClanConflictNotice(notice)).ConfigureAwait(false);
                     }
-                    await ReignServerClient.AcknowledgeClanConflictNoticeAsync(
+                    await ReignDiplomacyServerClient.AcknowledgeClanConflictNoticeAsync(
                         notice.IncidentId, notice.TimelineId, CurrentDay())
                         .ConfigureAwait(false);
                 }
@@ -548,7 +548,7 @@ namespace ReignBeta.Campaign
             {
                 try
                 {
-                    List<ReignDiplomacyAnnouncement> announcements = await ReignServerClient.FetchDiplomacyAnnouncementsAsync().ConfigureAwait(false);
+                    List<ReignDiplomacyAnnouncement> announcements = await ReignDiplomacyServerClient.FetchDiplomacyAnnouncementsAsync().ConfigureAwait(false);
                     await ReignMainThread.InvokeAsync(() => {
                         foreach (var announcement in announcements.Where(x => x != null && x.IsValid))
                             ReignNewsCampaignBehavior.Instance?.RecordPublicDiplomacyAnnouncement(announcement);
@@ -586,7 +586,7 @@ namespace ReignBeta.Campaign
         private void TryShowNextAnnouncement()
         {
             if (ReignSaveSyncCampaignBehavior.IsNativeSaveInProgress
-                || !ReignServerClient.NewsOptionsConfirmed || ReignDiplomacyAnnouncementScreenManager.IsOpen || !CanOpenOnCampaignMap())
+                || !ReignNewsClient.NewsOptionsConfirmed || ReignDiplomacyAnnouncementScreenManager.IsOpen || !CanOpenOnCampaignMap())
             {
                 return;
             }
@@ -603,7 +603,7 @@ namespace ReignBeta.Campaign
             if (next != null)
             {
                 InformationManager.DisplayMessage(new InformationMessage("[Reign Herald] " + next.Title + ": " + next.Summary + "\n" + next.Terms));
-                if (ReignServerClient.NewsOptionsConfirmed && !ReignServerClient.NewsOptions.Allows(Reign.Core.Contracts.World.ReignNewsCategories.Diplomacy))
+                if (ReignNewsClient.NewsOptionsConfirmed && !ReignNewsClient.NewsOptions.Allows(Reign.Core.Contracts.World.ReignNewsCategories.Diplomacy))
                 {
                     _ = AcknowledgeDiplomacyAnnouncementAndContinueAsync(next.EventId);
                     return;
@@ -639,7 +639,7 @@ namespace ReignBeta.Campaign
         {
             try
             {
-                await ReignServerClient.AcknowledgeDiplomacyAnnouncementAsync(
+                await ReignDiplomacyServerClient.AcknowledgeDiplomacyAnnouncementAsync(
                     eventId).ConfigureAwait(false);
             }
             catch (Exception ex)

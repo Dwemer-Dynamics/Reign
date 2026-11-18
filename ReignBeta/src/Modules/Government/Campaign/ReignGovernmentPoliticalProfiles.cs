@@ -167,7 +167,7 @@ namespace ReignBeta.Government
                         try
                         {
                             var current = AppliedPoliticalProfile(hero.StringId);
-                            capture.Rows.Add(ReignServerClient.BuildPoliticalSyncHero(hero));
+                            capture.Rows.Add(ReignGovernmentPoliticalClient.BuildPoliticalSyncHero(hero));
                             _politicalCapturedHeroCount++;
                             capture.Bases[hero.StringId] = new PoliticalBase { Profile = current, Revision = current?.Revision ?? 0 };
                         }
@@ -187,7 +187,7 @@ namespace ReignBeta.Government
                     _politicalSyncError = "No political profiles could be captured.";
                     return;
                 }
-                var payload = ReignServerClient.BuildPoliticalSyncPayload(capture.Rows);
+                var payload = ReignGovernmentPoliticalClient.BuildPoliticalSyncPayload(capture.Rows);
                 _politicalCapture = null;
                 // All native fields are detached before the worker touches JSON
                 // or transport. There is still only one batch in flight.
@@ -209,7 +209,7 @@ namespace ReignBeta.Government
             string failure = "Political profile synchronization did not complete.";
             try
             {
-                response = await ReignServerClient.SyncPoliticalProfilesAsync(payload).ConfigureAwait(false);
+                response = await ReignGovernmentPoliticalClient.SyncPoliticalProfilesAsync(payload).ConfigureAwait(false);
                 if (response?.Value<bool?>("ok") == true) prepared = GovernmentPoliticalBatchPreparation.Prepare(payload, response);
             }
             catch (Exception ex)

@@ -12,10 +12,11 @@ using TaleWorlds.CampaignSystem;
 using TaleWorlds.CampaignSystem.Actions;
 using TaleWorlds.CampaignSystem.Party;
 using TaleWorlds.CampaignSystem.Settlements;
+using static ReignBeta.Integration.ReignServerClient;
 
 namespace ReignBeta.Integration
 {
-    public static partial class ReignServerClient
+    internal static class ReignCorrespondenceClient
     {
         private static int _correspondenceTickInFlight;
         private static int _autonomousCorrespondenceInFlight;
@@ -57,7 +58,7 @@ namespace ReignBeta.Integration
                             ["destinationId"] = route.DestinationId,
                             ["transitDays"] = Math.Max(0.25d, route.DeliveryDay - day)
                         };
-                        ConfigureStructuredActions(candidate, hero, null, Reign.Core.Contracts.Actions.AgreementChannel.Correspondence);
+                        ReignStructuredActionClient.ConfigureStructuredActions(candidate, hero, null, Reign.Core.Contracts.Actions.AgreementChannel.Correspondence);
                         rows.Add(candidate);
                     }
                     return rows;
@@ -194,7 +195,7 @@ namespace ReignBeta.Integration
                         ["actionResolutionIndex"] = BuildActionResolutionIndex(recipient,
                             new List<Hero> { recipient }, true)
                     };
-                    ConfigureStructuredActions(captured, recipient, actionDraft,
+                    ReignStructuredActionClient.ConfigureStructuredActions(captured, recipient, actionDraft,
                         Reign.Core.Contracts.Actions.AgreementChannel.Correspondence);
                     return captured;
                 }).ConfigureAwait(false);
@@ -399,7 +400,7 @@ namespace ReignBeta.Integration
                         var request = delivery["request"] as JObject; var answer = delivery["response"] as JObject;
                         if (request == null || answer == null) continue;
                         var npc = ReignObjectResolver.FindHero(request["structuredActionContext"]?.Value<string>("npcId"));
-                        ProcessStructuredActionDecision(request, answer, npc, "letter:" + delivery.Value<string>("letterId"));
+                        ReignStructuredActionClient.ProcessStructuredActionDecision(request, answer, npc, "letter:" + delivery.Value<string>("letterId"));
                     }
                 }).ConfigureAwait(false);
             }

@@ -5,10 +5,11 @@ using System.Threading.Tasks;
 using Newtonsoft.Json.Linq;
 using TaleWorlds.CampaignSystem;
 using TaleWorlds.CampaignSystem.CharacterDevelopment;
+using static ReignBeta.Integration.ReignServerClient;
 
 namespace ReignBeta.Integration
 {
-    public static partial class ReignServerClient
+    internal static class ReignCharacterEditorClient
     {
         public static async Task<List<ReignCharacterEditorCommand>> PollCharacterEditorCommandsAsync()
         {

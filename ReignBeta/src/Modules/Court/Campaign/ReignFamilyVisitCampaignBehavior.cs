@@ -221,7 +221,7 @@ namespace ReignBeta.Court
                 var sent = state.FamilyVisitOutbox.ToList();
                 foreach (string raw in sent)
                 {
-                    var result = await ReignServerClient.PostFamilyVisitAsync(JObject.Parse(raw)).ConfigureAwait(false);
+                    var result = await ReignFamilyVisitClient.PostFamilyVisitAsync(JObject.Parse(raw)).ConfigureAwait(false);
                     if (result.Value<bool?>("ok") != true)
                     {
                         string error = result.Value<string>("error") ?? "";
@@ -238,7 +238,7 @@ namespace ReignBeta.Court
                     }
                     await ReignMainThread.InvokeAsync(() => { if (ReferenceEquals(state, _rulerDocketState)) state.FamilyVisitOutbox.Remove(raw); }).ConfigureAwait(false);
                 }
-                JObject snapshot = await ReignServerClient.PostFamilyVisitAsync(tick).ConfigureAwait(false);
+                JObject snapshot = await ReignFamilyVisitClient.PostFamilyVisitAsync(tick).ConfigureAwait(false);
                 if (snapshot.Value<bool?>("ok") != true) return;
                 await ReignMainThread.InvokeAsync(() =>
                 {

@@ -41,9 +41,9 @@ namespace ReignBeta.UI.ViewModels
         [DataSourceProperty] public float SendButtonLeft => ShowLifeControls ? 1084f : 1388f;
         [DataSourceProperty] public float SendButtonWidth => ShowLifeControls ? 240f : 202f;
         [DataSourceProperty] public bool CanAnnounce => ShowLifeControls && InputEnabled && !IsBusy && !_isFinalized
-            && ReignServerClient.NpcLivesOptions.Allows("announcement") && !string.IsNullOrWhiteSpace(InputText);
+            && ReignNpcLivesClient.NpcLivesOptions.Allows("announcement") && !string.IsNullOrWhiteSpace(InputText);
         [DataSourceProperty] public string SendLabel =>
-            string.IsNullOrWhiteSpace(InputText) && ReignServerClient.NpcLivesOptions.Allows("approach") ? "Approach" : "Send";
+            string.IsNullOrWhiteSpace(InputText) && ReignNpcLivesClient.NpcLivesOptions.Allows("approach") ? "Approach" : "Send";
         private ReignActionComposerVM _composer;
         public ReignActionComposerVM Composer => _composer ?? (_composer = new ReignActionComposerVM(() => { OnPropertyChanged(nameof(InputText)); OnPropertyChanged(nameof(SendLabel)); OnPropertyChanged(nameof(CanAnnounce)); }));
         [DataSourceProperty] public string ActionComposerId => Composer.Id;
@@ -173,9 +173,9 @@ namespace ReignBeta.UI.ViewModels
                 AddSystemLine("The " + _castleRoomName + " is quiet.", true);
                 InputEnabled = false;
             }
-            else if (ChatLines.Count == 0 || ReignServerClient.NpcLivesOptions.Allows("approach"))
+            else if (ChatLines.Count == 0 || ReignNpcLivesClient.NpcLivesOptions.Allows("approach"))
             {
-                _activeBatchTask = ReignServerClient.NpcLivesOptions.Allows("approach") ? RequestLifeOpening(GetSelectedHeroes()) : RequestLiveNpcTurns(GetSelectedHeroes(), string.Empty,
+                _activeBatchTask = ReignNpcLivesClient.NpcLivesOptions.Allows("approach") ? RequestLifeOpening(GetSelectedHeroes()) : RequestLiveNpcTurns(GetSelectedHeroes(), string.Empty,
                     requireStillSelected: false, castleOpening: true,
                     suppressRelationshipAssessment: true);
             }
@@ -259,7 +259,7 @@ namespace ReignBeta.UI.ViewModels
             {
                 AddSystemLine("You visit " + _homeResident.Name + " at home.", false);
                 _session.BeginOpeningTurn();
-                _activeBatchTask = ReignServerClient.NpcLivesOptions.Allows("approach") ? RequestLifeOpening(new List<Hero> { _homeResident }) : RequestLiveNpcTurns(new List<Hero> { _homeResident }, string.Empty,
+                _activeBatchTask = ReignNpcLivesClient.NpcLivesOptions.Allows("approach") ? RequestLifeOpening(new List<Hero> { _homeResident }) : RequestLiveNpcTurns(new List<Hero> { _homeResident }, string.Empty,
                     requireStillSelected: true, openingTurn: true);
             }
         }
@@ -608,7 +608,7 @@ namespace ReignBeta.UI.ViewModels
         public async void ExecuteAnnounce()
         {
             if (!ShowLifeControls || _isFinalized || IsBusy || !InputEnabled) return;
-            if (!ReignServerClient.NpcLivesOptions.Allows("announcement"))
+            if (!ReignNpcLivesClient.NpcLivesOptions.Allows("announcement"))
             { AddSystemLine("Party announcements are disabled in Options.", false); return; }
             string text = InputText ?? string.Empty;
             if (string.IsNullOrWhiteSpace(text)) return;
@@ -647,7 +647,7 @@ namespace ReignBeta.UI.ViewModels
             ReignServerClient.RequestFence sendFence = ReignServerClient.RequestFence.Capture();
             Hero sendPlayer = Hero.MainHero;
             if (!_targetedReviewMode && !_banterReadOnly && !_isFinalized && !IsBusy && InputEnabled
-                && ReignServerClient.NpcLivesOptions.Allows("approach") && string.IsNullOrWhiteSpace(_session.ApproachRequestId)
+                && ReignNpcLivesClient.NpcLivesOptions.Allows("approach") && string.IsNullOrWhiteSpace(_session.ApproachRequestId)
                 // In ordinary Party Chat, typed input is the player's opening; only the empty Approach button requests an NPC opening.
                 && (string.IsNullOrWhiteSpace(text) || !ShowLifeControls && _lifeApproachedKey != LifeAudienceKey(GetSelectedHeroes())))
             {
@@ -1105,7 +1105,7 @@ namespace ReignBeta.UI.ViewModels
             bool anyStatusOnly = false;
             bool hadFailure = false;
             int expectedSpeakerCount = 0;
-            ReignXpInteraction xp = await ReignServerClient.BeginXpInteractionAsync().ConfigureAwait(false);
+            ReignXpInteraction xp = await ReignXpClient.BeginXpInteractionAsync().ConfigureAwait(false);
             string xpReceipt = "conversation:party:" + (string.IsNullOrWhiteSpace(correlationBase)
                 ? _session.CurrentSceneTurnId : correlationBase);
 
@@ -1235,7 +1235,7 @@ namespace ReignBeta.UI.ViewModels
                             AddChatLine(speakerName, clean, "npc");
                         }
                         bool anyStatusLine = false;
-                        foreach (string statusLine in ReignServerClient.NativeStatusLines(reply.RawResponse))
+                        foreach (string statusLine in ReignStructuredActionClient.NativeStatusLines(reply.RawResponse))
                         {
                             AddSystemLine(statusLine, false);
                             anyStatusLine = true;
@@ -1276,7 +1276,7 @@ namespace ReignBeta.UI.ViewModels
                         await ReignMainThread.InvokeAsync(() => { if (turnCurrent()) BusyText = "Reviewing the opening conversation..."; }).ConfigureAwait(false);
                     }
                     // The adjudication capture is owner-checked in its own game-thread callback.
-                    JObject relationshipResult = await ReignServerClient.ApplyConversationRelationshipAssessmentsAsync(
+                    JObject relationshipResult = await ReignCorrespondenceClient.ApplyConversationRelationshipAssessmentsAsync(
                         batchResult.ExchangeId,
                         "party_chat",
                         activeHeroes,

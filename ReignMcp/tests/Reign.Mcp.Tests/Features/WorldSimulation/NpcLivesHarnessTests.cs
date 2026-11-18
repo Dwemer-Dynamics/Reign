@@ -11,7 +11,7 @@ public sealed class NpcLivesHarnessTests
         string root = TestOptions.FindWorkspace();
         string source = File.ReadAllText(Path.Combine(root, "ReignBeta/src/Modules/Characters/Campaign/ReignNpcLifeActions.cs"));
         Assert.Contains("=> enabled || agreement != null && agreement.HasBothConsents;", source);
-        Assert.Contains("if (!MeetingFeatureAllows(ReignServerClient.NpcLivesOptions.Allows(\"meeting\"), a))", source);
+        Assert.Contains("if (!MeetingFeatureAllows(ReignNpcLivesClient.NpcLivesOptions.Allows(\"meeting\"), a))", source);
         Assert.Contains("errors.Add(\"New summoned meetings are disabled.\");", source);
         using var catalog = System.Text.Json.JsonDocument.Parse(File.ReadAllText(Path.Combine(root, "reign.testing.json")));
         string contract = catalog.RootElement.GetProperty("npcLives").GetProperty("meetingFeatureGate").GetString()!;

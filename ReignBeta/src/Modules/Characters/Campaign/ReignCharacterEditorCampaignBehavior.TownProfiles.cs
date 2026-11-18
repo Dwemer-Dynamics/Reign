@@ -47,7 +47,7 @@ namespace ReignBeta.Campaign
             Task<Newtonsoft.Json.Linq.JObject> request;
             try
             {
-                request = ReignServerClient.PrewarmTownNotableProfilesAsync(town,
+                request = ReignTownNotableProfileClient.PrewarmTownNotableProfilesAsync(town,
                     () => ReignMainThread.InvokeAsync(() => IsCurrentCampaign));
             }
             catch (Exception ex)

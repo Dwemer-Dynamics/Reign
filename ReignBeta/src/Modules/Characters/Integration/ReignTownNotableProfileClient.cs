@@ -3,10 +3,11 @@ using System.Linq;
 using System.Threading.Tasks;
 using Newtonsoft.Json.Linq;
 using TaleWorlds.CampaignSystem.Settlements;
+using static ReignBeta.Integration.ReignServerClient;
 
 namespace ReignBeta.Integration
 {
-    public static partial class ReignServerClient
+    internal static class ReignTownNotableProfileClient
     {
         internal static Task<JObject> PrewarmTownNotableProfilesAsync(Settlement town, Func<Task<bool>> current)
         {

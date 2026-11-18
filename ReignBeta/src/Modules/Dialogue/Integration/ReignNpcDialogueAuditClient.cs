@@ -2,10 +2,11 @@ using System;
 using System.Threading.Tasks;
 using Newtonsoft.Json.Linq;
 using TaleWorlds.CampaignSystem;
+using static ReignBeta.Integration.ReignServerClient;
 
 namespace ReignBeta.Integration
 {
-    public static partial class ReignServerClient
+    internal static class ReignNpcDialogueAuditClient
     {
         public static Task<JObject> PollNpcDialogueAuditRequestAsync()
         {

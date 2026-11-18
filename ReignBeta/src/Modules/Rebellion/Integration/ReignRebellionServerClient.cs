@@ -7,6 +7,7 @@ using ReignBeta.Campaign;
 using ReignBeta.World;
 using TaleWorlds.CampaignSystem;
 using TaleWorlds.CampaignSystem.Settlements;
+using static ReignBeta.Integration.ReignServerClient;
 
 namespace ReignBeta.Integration
 {
@@ -25,7 +26,7 @@ namespace ReignBeta.Integration
             new Dictionary<string, JObject>(StringComparer.OrdinalIgnoreCase);
     }
 
-    public static partial class ReignServerClient
+    internal static class ReignRebellionServerClient
     {
         internal static async Task<ReignEffectiveAttitudeResult>
             ResolveEffectiveAttitudesAsync(JArray pairs)

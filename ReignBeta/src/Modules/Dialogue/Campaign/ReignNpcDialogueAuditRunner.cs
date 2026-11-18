@@ -62,7 +62,7 @@ namespace ReignBeta.Campaign
         {
             try
             {
-                JObject request = await ReignServerClient.PollNpcDialogueAuditRequestAsync().ConfigureAwait(false);
+                JObject request = await ReignNpcDialogueAuditClient.PollNpcDialogueAuditRequestAsync().ConfigureAwait(false);
                 if (request.Value<bool?>("ok") != true || request.Value<bool?>("found") != true) return;
                 if (ReignSaveSyncCoordinator.IsAlignmentPending) return;
 
@@ -72,7 +72,7 @@ namespace ReignBeta.Campaign
                 {
                     if (string.Equals(requestId, _launchRequestId, StringComparison.OrdinalIgnoreCase))
                     {
-                        await ReignServerClient.AcknowledgeNpcDialogueAuditRequestAsync(
+                        await ReignNpcDialogueAuditClient.AcknowledgeNpcDialogueAuditRequestAsync(
                             requestId, "accepted", _activeHero, "Audit runner is active.").ConfigureAwait(false);
                     }
                     return;
@@ -82,7 +82,7 @@ namespace ReignBeta.Campaign
                 Hero hero = await ReignMainThread.InvokeAsync(() => FindHero(heroSearch)).ConfigureAwait(false);
                 if (hero == null)
                 {
-                    await ReignServerClient.AcknowledgeNpcDialogueAuditRequestAsync(
+                    await ReignNpcDialogueAuditClient.AcknowledgeNpcDialogueAuditRequestAsync(
                         requestId, "rejected", null, "No adult living non-player hero matched '" + heroSearch + "'.").ConfigureAwait(false);
                     ReignLog.Warn("Remote NPC dialogue audit request rejected because no hero matched: " + heroSearch);
                     return;
@@ -99,7 +99,7 @@ namespace ReignBeta.Campaign
                 }).ConfigureAwait(false);
                 if (!started) return;
 
-                await ReignServerClient.AcknowledgeNpcDialogueAuditRequestAsync(
+                await ReignNpcDialogueAuditClient.AcknowledgeNpcDialogueAuditRequestAsync(
                     requestId, "accepted", hero, "Audit scheduled through the production dialogue runner.").ConfigureAwait(false);
                 ReignLog.Info("Remote NPC dialogue audit request accepted request=" + requestId + " hero=" + hero.StringId);
             }
@@ -188,7 +188,7 @@ namespace ReignBeta.Campaign
         {
             try
             {
-                JObject status = await ReignServerClient.GetNpcDialogueAuditStatusAsync(_runId).ConfigureAwait(false);
+                JObject status = await ReignNpcDialogueAuditClient.GetNpcDialogueAuditStatusAsync(_runId).ConfigureAwait(false);
                 await ReignMainThread.InvokeAsync(() =>
                 {
                     if (status.Value<bool?>("found") == true)
@@ -294,7 +294,7 @@ namespace ReignBeta.Campaign
                 string playerName = Hero.MainHero?.Name?.ToString() ?? "the traveler";
                 string playerClanName = Clan.PlayerClan?.Name?.ToString() ?? "an independent house";
                 List<AuditLine> plan = BuildPlan(seed, playerName, playerClanName);
-                JObject started = await ReignServerClient.StartNpcDialogueAuditAsync(_runId, hero, seed).ConfigureAwait(false);
+                JObject started = await ReignNpcDialogueAuditClient.StartNpcDialogueAuditAsync(_runId, hero, seed).ConfigureAwait(false);
                 if (started.Value<bool?>("ok") != true) throw new InvalidOperationException(started.Value<string>("error") ?? "The server refused to start the audit.");
 
                 for (int sceneIndex = 0; sceneIndex < SceneCount && !_stopRequested; sceneIndex++)
@@ -325,7 +325,7 @@ namespace ReignBeta.Campaign
                         completedInScene++;
                         try
                         {
-                            JObject verified = await ReignServerClient.VerifyNpcDialogueAuditTurnAsync(
+                            JObject verified = await ReignNpcDialogueAuditClient.VerifyNpcDialogueAuditTurnAsync(
                                 _runId, sceneIndex, line.TurnIndex, line.Text, reply,
                                 new JArray(line.ExpectedContextPulls), line.RecallToken).ConfigureAwait(false);
                             await ReignMainThread.InvokeAsync(() => vm.AddAutomationSystemLine(
@@ -344,7 +344,7 @@ namespace ReignBeta.Campaign
                     await ReignMainThread.InvokeAsync(ReignIndividualChatScreenManager.Close).ConfigureAwait(false);
                     if (finish.Ok && completedInScene == ExchangesPerScene)
                     {
-                        await ReignServerClient.VerifyNpcDialogueAuditSceneAsync(_runId, sceneIndex, sessionId).ConfigureAwait(false);
+                        await ReignNpcDialogueAuditClient.VerifyNpcDialogueAuditSceneAsync(_runId, sceneIndex, sessionId).ConfigureAwait(false);
                     }
                     else
                     {
@@ -353,7 +353,7 @@ namespace ReignBeta.Campaign
                     await Task.Delay(500).ConfigureAwait(false);
                 }
                 cancelled = _stopRequested;
-                JObject completed = await ReignServerClient.FinishNpcDialogueAuditAsync(_runId, cancelled).ConfigureAwait(false);
+                JObject completed = await ReignNpcDialogueAuditClient.FinishNpcDialogueAuditAsync(_runId, cancelled).ConfigureAwait(false);
                 _lastSummary = FormatSummary(completed);
                 _lastReportPath = completed.Value<string>("reportPath") ?? string.Empty;
             }
@@ -364,7 +364,7 @@ namespace ReignBeta.Campaign
                 ReignLog.Exception("NPC dialogue audit", ex);
                 try
                 {
-                    JObject stopped = await ReignServerClient.FinishNpcDialogueAuditAsync(_runId, true).ConfigureAwait(false);
+                    JObject stopped = await ReignNpcDialogueAuditClient.FinishNpcDialogueAuditAsync(_runId, true).ConfigureAwait(false);
                     _lastReportPath = stopped.Value<string>("reportPath") ?? string.Empty;
                 }
                 catch (Exception finishEx)
@@ -410,7 +410,7 @@ namespace ReignBeta.Campaign
             if (string.IsNullOrWhiteSpace(_launchRequestId) || string.IsNullOrWhiteSpace(_runId)) return _stopRequested;
             try
             {
-                JObject status = await ReignServerClient.GetNpcDialogueAuditStatusAsync(_runId).ConfigureAwait(false);
+                JObject status = await ReignNpcDialogueAuditClient.GetNpcDialogueAuditStatusAsync(_runId).ConfigureAwait(false);
                 if (string.Equals(status.Value<string>("status"), "cancelled", StringComparison.OrdinalIgnoreCase))
                 {
                     _stopRequested = true;

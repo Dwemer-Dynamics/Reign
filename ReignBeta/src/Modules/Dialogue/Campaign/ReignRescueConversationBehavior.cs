@@ -38,11 +38,11 @@ namespace ReignBeta.Campaign
         private float _delay;
         internal void ApplyApproachOptions()
         {
-            if (!ReignServerClient.ApproachKindEnabled("battle_rescue")) { _joinedBattles.Clear(); _loadedBattles.Clear(); }
+            if (!ReignPlayerApproachClient.ApproachKindEnabled("battle_rescue")) { _joinedBattles.Clear(); _loadedBattles.Clear(); }
             // Keep native release evidence intact; hiding this optional line must
             // never execute or suppress the ordinary native release consequences.
             foreach (JObject rescue in _rescues)
-                if (!ReignServerClient.ApproachKindEnabled(rescue.Value<string>("kind")) && !rescue.Value<bool>("listened")) rescue["dismissed"] = true;
+                if (!ReignPlayerApproachClient.ApproachKindEnabled(rescue.Value<string>("kind")) && !rescue.Value<bool>("listened")) rescue["dismissed"] = true;
         }
         public override void RegisterEvents()
         {
@@ -107,7 +107,7 @@ namespace ReignBeta.Campaign
         private static Hero NativePrisoner(object owner) => owner == null ? null : AccessTools.Field(typeof(PrisonBreakCampaignBehavior), "_prisonerHero")?.GetValue(owner) as Hero;
         private static void BeforePrisonSuccessConversation(object __instance)
         {
-            if (!ReignServerClient.ApproachKindEnabled("prison_rescue")) return;
+            if (!ReignPlayerApproachClient.ApproachKindEnabled("prison_rescue")) return;
             Hero hero = NativePrisoner(__instance);
             if (hero == null || hero == Hero.MainHero || !hero.IsAlive || !hero.IsPrisoner || Hero.MainHero == null) return;
             var settlement = hero.PartyBelongedToAsPrisoner?.Settlement ?? Hero.MainHero.CurrentSettlement;
@@ -137,7 +137,7 @@ namespace ReignBeta.Campaign
                 .Sum(t => PlayerApproachPolicy.FightingUnitPower(t.Number - t.WoundedNumber, t.Character?.Tier ?? 0)));
         private void CaptureJoin(MapEvent battle, BattleSideEnum side)
         {
-            if (!ReignServerClient.ApproachKindEnabled("battle_rescue")) return;
+            if (!ReignPlayerApproachClient.ApproachKindEnabled("battle_rescue")) return;
             if (Hero.MainHero == null || battle == null || !battle.IsFieldBattle || _joinedBattles.ContainsKey(battle.GetHashCode())) return;
             MapEventSide friends = side == BattleSideEnum.Attacker ? battle.AttackerSide : battle.DefenderSide;
             MapEventSide enemies = side == BattleSideEnum.Attacker ? battle.DefenderSide : battle.AttackerSide;
@@ -181,7 +181,7 @@ namespace ReignBeta.Campaign
         {
             if (battle == null || !_joinedBattles.TryGetValue(battle.GetHashCode(), out JObject evidence)) return;
             _joinedBattles.Remove(battle.GetHashCode());
-            if (!ReignServerClient.ApproachKindEnabled("battle_rescue")) return;
+            if (!ReignPlayerApproachClient.ApproachKindEnabled("battle_rescue")) return;
             var player = battle.Winner?.Parties.FirstOrDefault(p => p.Party == PartyBase.MainParty);
             if ((int)battle.WinningSide != evidence.Value<int>("side") || battle.EndedByRetreat || player == null || player.ContributionToBattle <= 0) return;
             foreach (string id in evidence["beneficiaries"].Values<string>())
@@ -195,7 +195,7 @@ namespace ReignBeta.Campaign
         }
         private void AddRescue(JObject rescue)
         {
-            if (!ReignServerClient.ApproachKindEnabled(rescue.Value<string>("kind"))) return;
+            if (!ReignPlayerApproachClient.ApproachKindEnabled(rescue.Value<string>("kind"))) return;
             if (_rescues.Any(r => r.Value<string>("heroId") == rescue.Value<string>("heroId") && r.Value<string>("eventId") == rescue.Value<string>("eventId"))) return;
             rescue["opened"] = false; rescue["listened"] = false; _rescues.Add(rescue); _delay = 1;
         }
@@ -225,7 +225,7 @@ namespace ReignBeta.Campaign
                 && ConversationHero.IsPrisoner && ConversationHero.PartyBelongedToAsPrisoner != PartyBase.MainParty
                 && Instance?._activeLiberation?.Value<string>("heroId") != ConversationHero.StringId,
             ReignCampaignInitializationGate.IsPending, Settings.ReignBetaSettings.Instance?.UseLocalServer != false,
-            ReignServerClient.ApproachKindEnabled("prison_rescue"));
+            ReignPlayerApproachClient.ApproachKindEnabled("prison_rescue"));
 
         private static void LiberateAndListen(int originalToken)
         {
@@ -288,7 +288,7 @@ namespace ReignBeta.Campaign
         }
         private JObject Pending(Hero hero) => hero == null ? null : _rescues.LastOrDefault(r => r.Value<string>("heroId") == hero.StringId
             && r.Value<string>("playerId") == Hero.MainHero?.StringId && !r.Value<bool>("listened") && !r.Value<bool>("dismissed")
-            && ReignServerClient.ApproachKindEnabled(r.Value<string>("kind")));
+            && ReignPlayerApproachClient.ApproachKindEnabled(r.Value<string>("kind")));
         internal static void PrepareListenOption(int token)
         {
             if (NativeCampaign.Current?.CurrentConversationContext != ConversationContext.FreeOrCapturePrisonerHero && Instance != null)
@@ -337,13 +337,13 @@ namespace ReignBeta.Campaign
                 || ReignIndividualChatScreenManager.IsOpen || ReignPartyChatScreenManager.IsOpenOrPending || ReignPlayerApproachPopup.IsOpen) return;
             var next = _rescues.FirstOrDefault(r => r.Value<string>("playerId") == Hero.MainHero.StringId
                 && !r.Value<bool>("opened") && !r.Value<bool>("listened") && !r.Value<bool>("dismissed")
-                && ReignServerClient.ApproachKindEnabled(r.Value<string>("kind")));
+                && ReignPlayerApproachClient.ApproachKindEnabled(r.Value<string>("kind")));
             if (next == null) return;
             string screen = ScreenManager.TopScreen?.GetType().Name ?? "";
             if (screen.IndexOf("MapScreen", StringComparison.OrdinalIgnoreCase) < 0 || PlayerEncounter.Current != null) return;
             Hero hero = Hero.AllAliveHeroes.FirstOrDefault(h => h.StringId == next.Value<string>("heroId"));
             if (hero == null || hero.IsPrisoner || !hero.IsAlive) { next["opened"] = true; return; }
-            if (!ReignServerClient.BuildPlayerAttentionPresence(hero).OfType<JObject>().Any(r => r.Value<string>("heroId") == hero.StringId)) return;
+            if (!ReignPlayerApproachClient.BuildPlayerAttentionPresence(hero).OfType<JObject>().Any(r => r.Value<string>("heroId") == hero.StringId)) return;
             next["opened"] = true;
             try
             {

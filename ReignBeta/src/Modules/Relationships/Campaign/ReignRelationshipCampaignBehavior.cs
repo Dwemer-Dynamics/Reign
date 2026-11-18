@@ -107,7 +107,7 @@ namespace ReignBeta.Campaign
             try
             {
                 List<ReignDirectorAction> actions =
-                    await ReignServerClient.PollRelationshipDirectorActionsAsync()
+                    await ReignRelationshipDirectorClient.PollRelationshipDirectorActionsAsync()
                         .ConfigureAwait(false);
                 if (actions.Count == 0) return;
                 JArray receipts = new JArray();
@@ -117,7 +117,7 @@ namespace ReignBeta.Campaign
                     foreach (ReignDirectorAction action in actions)
                         receipts.Add(ApplyDirectorAction(action));
                 }).ConfigureAwait(false);
-                await ReignServerClient.ReportRelationshipDirectorActionsAsync(receipts)
+                await ReignRelationshipDirectorClient.ReportRelationshipDirectorActionsAsync(receipts)
                     .ConfigureAwait(false);
             }
             catch (Exception ex)
@@ -185,7 +185,7 @@ namespace ReignBeta.Campaign
             string generationId)
         {
             ReignAmbientRelationshipRunResult result =
-                await ReignServerClient.SubmitCampaignOpeningRelationshipSeedAsync(
+                await ReignRelationshipDirectorClient.SubmitCampaignOpeningRelationshipSeedAsync(
                     generationId).ConfigureAwait(false);
             if (!result.Ok)
                 throw new InvalidOperationException(
@@ -590,7 +590,7 @@ namespace ReignBeta.Campaign
         {
             try
             {
-                if (await ReignServerClient.EvaluateAutonomousCorrespondenceAsync().ConfigureAwait(false))
+                if (await ReignCorrespondenceClient.EvaluateAutonomousCorrespondenceAsync().ConfigureAwait(false))
                     _lastAutonomousMailSlot = slot;
             }
             finally
@@ -607,7 +607,7 @@ namespace ReignBeta.Campaign
             lock (_mailReceiptAcks) sentAcks = _mailReceiptAcks.Take(100).ToList();
             try
             {
-                ReignCorrespondenceTickResult result = await ReignServerClient.TickCorrespondenceAsync(phase, sentAcks).ConfigureAwait(false);
+                ReignCorrespondenceTickResult result = await ReignCorrespondenceClient.TickCorrespondenceAsync(phase, sentAcks).ConfigureAwait(false);
                 if (!result.Ok) return;
                 JArray nativeApplications = new JArray();
                 await ReignMainThread.InvokeAsync(() =>
@@ -667,7 +667,7 @@ namespace ReignBeta.Campaign
                         receipt, receipt.Value<string>("subjectId"), eventId: receipt.Value<string>("eventId")).ConfigureAwait(false);
                 ReignNativeRelationSyncProgress nativeProgress = NativeSyncProgressSnapshot();
                 if (nativeProgress != null)
-                    await ReignServerClient.ReportNativeRelationSyncProgressAsync(nativeProgress).ConfigureAwait(false);
+                    await ReignRelationshipDirectorClient.ReportNativeRelationSyncProgressAsync(nativeProgress).ConfigureAwait(false);
             }
             catch (Exception ex)
             {
@@ -719,7 +719,7 @@ namespace ReignBeta.Campaign
             {
                 try
                 {
-                    ReignServerClient.CaptureAmbientRelationshipDailyInput();
+                    ReignRelationshipDirectorClient.CaptureAmbientRelationshipDailyInput();
                     _lastAmbientCapturedDay = dayKey;
                 }
                 catch (Exception ex)
@@ -754,7 +754,7 @@ namespace ReignBeta.Campaign
         {
             try
             {
-                ReignAmbientRelationshipRunResult result = await ReignServerClient.SubmitAmbientRelationshipSnapshotAsync().ConfigureAwait(false);
+                ReignAmbientRelationshipRunResult result = await ReignRelationshipDirectorClient.SubmitAmbientRelationshipSnapshotAsync().ConfigureAwait(false);
                 if (!result.Ok)
                 {
                     ReignLog.Warn("Ambient relationship drift failed: "
