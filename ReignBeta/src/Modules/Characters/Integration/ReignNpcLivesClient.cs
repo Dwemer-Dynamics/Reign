@@ -13,6 +13,7 @@ using ReignBeta.Dialogue.Integration;
 using ReignBeta.Platform.Integration;
 using ReignBeta.Relationships.Integration;
 using ReignBeta.WorldSimulation.Campaign;
+using ReignBeta.Platform.Runtime;
 
 namespace ReignBeta.Characters.Integration
 {
@@ -31,7 +32,7 @@ namespace ReignBeta.Characters.Integration
             var main = MobileParty.MainParty;
             var settlement = Settlement.CurrentSettlement ?? main?.CurrentSettlement;
             var p = new JObject {
-                ["campaignId"] = GetCampaignId(), ["timelineId"] = ReignWorldHistoryCampaignBehavior.Instance?.TimelineId ?? "main",
+                ["campaignId"] = GetCampaignId(), ["timelineId"] = ReignServices.WorldHistory?.TimelineId ?? "main",
                 ["generation"] = generation ?? "", ["worldDay"] = CampaignTime.Now.ToDays,
                 ["playerId"] = Hero.MainHero?.StringId ?? "", ["playerName"] = Hero.MainHero?.Name?.ToString() ?? "Player",
                 ["partyId"] = main?.StringId ?? "", ["locationId"] = settlement?.StringId ?? "",

@@ -15,6 +15,7 @@ using TaleWorlds.CampaignSystem.Roster;
 using TaleWorlds.CampaignSystem.Settlements;
 using TaleWorlds.Core;
 using TaleWorlds.Localization;
+using ReignBeta.Platform.Runtime;
 
 namespace ReignBeta.WorldSimulation.Economy
 {
@@ -33,7 +34,7 @@ namespace ReignBeta.WorldSimulation.Economy
             int previous=_outerFoodDepth;_outerFoodDepth=0;
             try {return quote();}finally {_outerFoodDepth=previous;}
         }
-        internal static RaidFoodState State => ReignEconomyCampaignBehavior.Instance?.EconomyState.RaidFood;
+        internal static RaidFoodState State => ReignServices.Economy?.EconomyState.RaidFood;
         private static double Now => CampaignTime.Now.ToHours;
         private static bool Enabled => ReignWarEconomyPolicy.Options.Enabled("economyRaidFoodEnabled");
         private static double Number(string key) => ReignWarEconomyPolicy.Options.Number(key);
@@ -102,7 +103,7 @@ namespace ReignBeta.WorldSimulation.Economy
                 {
                     var record = Get(village);
                     if (!Valid(record)) { Unsupported("Malformed migration record retained: " + village.StringId); continue; }
-                    double legacy = ReignEconomyCampaignBehavior.Instance?.GetRecoveryModifier(village) ?? 1;
+                    double legacy = ReignServices.Economy?.GetRecoveryModifier(village) ?? 1;
                     if(!ReignRaidFoodPolicy.Finite(legacy)||legacy<0||legacy>1)
                     {Unsupported("Invalid legacy recovery retained during migration: "+village.StringId);continue;}
                     if (village.VillageState == Village.VillageStates.Looted || legacy < 1)
@@ -158,12 +159,12 @@ namespace ReignBeta.WorldSimulation.Economy
             if (!State.Villages.TryGetValue(village.StringId, out var record)) return 1;
             // Invalid evidence remains retained. Never manufacture a healthy reset or a permanent zero.
             if(record != null && ReignRaidFoodPolicy.Finite(record.Capacity) && record.Capacity >= 0 && record.Capacity <= 1)return record.Capacity;
-            double legacy=ReignEconomyCampaignBehavior.Instance?.GetRecoveryModifier(village)??1;
+            double legacy=ReignServices.Economy?.GetRecoveryModifier(village)??1;
             return ReignRaidFoodPolicy.Finite(legacy)?Math.Max(0,Math.Min(1,legacy)):1;
         }
         internal static float Effective(Village village)
         {
-            double capacity=Capacity(village),legacy=ReignEconomyCampaignBehavior.Instance?.GetRecoveryModifier(village)??1;
+            double capacity=Capacity(village),legacy=ReignServices.Economy?.GetRecoveryModifier(village)??1;
             return (float)ReignRaidFoodPolicy.Effective(ReignRaidFoodPolicy.Finite(legacy)?legacy:capacity,capacity,Enabled);
         }
         internal static void Settle(Village village)
@@ -360,7 +361,7 @@ namespace ReignBeta.WorldSimulation.Economy
         private static void MarkDamage(Village village,double? definitelyDepartedBeforeHours=null)
         {
             var r = Get(village);
-            double legacy=ReignEconomyCampaignBehavior.Instance?.GetStoredRecoveryModifier(village)??1;
+            double legacy=ReignServices.Economy?.GetStoredRecoveryModifier(village)??1;
             double preDamage=!Enabled?1:ReignRaidFoodPolicy.Effective(ReignRaidFoodPolicy.Finite(legacy)?legacy:Capacity(village),Capacity(village),true);
             foreach (var party in MobileParty.All.Where(p => FishingHome(p) == village && Flag(p.PartyComponent, "IsRoaming")))
             {
@@ -506,7 +507,7 @@ namespace ReignBeta.WorldSimulation.Economy
             var state = State;
             RaidFoodVillage record = state != null && state.Villages.TryGetValue(village.StringId, out var r) ? r : null;
             return new JObject { ["version"] = ReignRaidFoodPolicy.Version, ["capacity"] = Capacity(village),
-                ["legacyRecovery"] = ReignEconomyCampaignBehavior.Instance?.GetRecoveryModifier(village) ?? 1,
+                ["legacyRecovery"] = ReignServices.Economy?.GetRecoveryModifier(village) ?? 1,
                 ["effectiveRecovery"] = Effective(village), ["severity"] = record?.Severity ?? "none",
                 ["lastDamageHours"] = record?.LastDamageHours ?? -1, ["activeGeneration"] = record?.Active?.Generation,
                 ["normalDaysToFull"] = (1 - Capacity(village)) * Number(record?.Severity == "full" ? "economyRaidFullDays" : "economyRaidPartialDays"),

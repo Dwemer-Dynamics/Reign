@@ -16,6 +16,7 @@ using TaleWorlds.CampaignSystem.Naval;
 using TaleWorlds.CampaignSystem.Party;
 using TaleWorlds.CampaignSystem.Settlements;
 using ReignBeta.Platform.Integration;
+using ReignBeta.Platform.Runtime;
 
 namespace ReignBeta.WorldSimulation.Economy
 {
@@ -184,7 +185,7 @@ namespace ReignBeta.WorldSimulation.Economy
         private static float AiValueFactor() => !LegacyProbe && _price?.Sale == true ? 1f : NpcMarketFactor;
         private static bool DiscountedAcquisition(Ship ship, PartyBase seller)
         {
-            var behavior = ReignEconomyCampaignBehavior.Instance;
+            var behavior = ReignServices.Economy;
             if (behavior != null && behavior.NavalShipIndex.TryGetValue(ship, out string id)
                 && behavior.EconomyState.NavalAcquisitions.TryGetValue(id, out var record))
                 return record.Kind == "npc_purchase" || record.Kind == "legacy_npc_unknown" || record.Kind == "native_npc_grant";
@@ -215,7 +216,7 @@ namespace ReignBeta.WorldSimulation.Economy
         }
         internal static void PruneAcquisitions()
         {
-            var b = ReignEconomyCampaignBehavior.Instance;
+            var b = ReignServices.Economy;
             if (b == null) return;
             for (int i = b.NavalShips.Count - 1; i >= 0; i--)
                 if (b.NavalShips[i]?.Owner == null)
@@ -227,7 +228,7 @@ namespace ReignBeta.WorldSimulation.Economy
         }
         private static void Acquisition(Trade ctx)
         {
-            var b = ReignEconomyCampaignBehavior.Instance;
+            var b = ReignServices.Economy;
             if (b == null || !ReferenceEquals(ctx.Ship.Owner, ctx.Buyer)) return;
             bool npc = ctx.Buyer?.MobileParty != null && ctx.Buyer.MobileParty.ActualClan != Clan.PlayerClan;
             string kind;
@@ -402,7 +403,7 @@ namespace ReignBeta.WorldSimulation.Economy
             var state = ReignWarEconomyTransactions.State;
             if (state == null || !Healthy || ship?.ShipHull == null || ship.Owner == null || newOwner == null) return false;
             if (ReferenceEquals(ship.Owner, newOwner)) return false; // repeated callback has no price or transfer
-            var behavior = ReignEconomyCampaignBehavior.Instance;
+            var behavior = ReignServices.Economy;
             if (state.NavalAcquisitionFailures > 0 && !behavior.NavalShipIndex.ContainsKey(ship))
             { Unsupported("Untracked hull cannot trade after acquisition coverage failed."); return false; }
             if (behavior.NavalShips.Count >= 8192 && !behavior.NavalShipIndex.ContainsKey(ship))

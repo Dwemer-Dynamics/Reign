@@ -16,14 +16,16 @@ Mod entry point and shared runtime. `SubModule.cs` (behaviour and Harmony regist
 | `Domain` | 1 |
 | `Settings` | 1 |
 
-Namespaces in use: `ReignBeta.Integration (15)`, `ReignBeta.Compatibility (4)`, `ReignBeta.Campaign (2)`, `ReignBeta.Runtime (2)`, `ReignBeta (1)`, `AIEventsAndIntrigue.Settings (1)`, `ReignBeta.Platform (1)`, `ReignBeta.Settings (1)`.
+Namespaces in use: `ReignBeta.Platform.Integration (18)`, `ReignBeta.Platform.Compatibility (4)`, `ReignBeta.Platform.Runtime (4)`, `ReignBeta.Platform.Campaign (2)`, `ReignBeta.Platform.Domain (2)`, `AIEventsAndIntrigue.Settings (1)`, `ReignBeta (1)`, `ReignBeta.Platform.Settings (1)`.
 
 ## Public surface
 
 - Campaign behaviours deriving from `CampaignBehaviorBase` (all registered in `Platform/SubModule.cs`): `ReignAICampaignBehavior`, `ReignCampaignPreparationCampaignBehavior`.
 - `ReignServerClient` partial files (server routes for this module): `Integration/ReignLiveTestClient.cs`, `Integration/ReignRulerClient.cs`, `Integration/ReignServerClient.Banter.cs`, `Integration/ReignServerClient.cs`, `Integration/ReignXpClient.cs`.
 - Other server clients: `Integration/ReignInitializationServerClient.cs`.
-- Static `.Instance` singletons: `AIEventsSettings`, `ReignAICampaignBehavior`, `ReignCampaignPreparationCampaignBehavior`.
+- `AIEventsSettings.Instance` stays a static adapter (not in the registry).
+- Behaviours registered in `ReignServices` (their `Instance` property forwards to the slot): `ReignAICampaignBehavior`, `ReignCampaignPreparationCampaignBehavior`.
+- `Runtime/ReignServices.cs`: the typed static service registry for every client behaviour that used a static `Instance`. Each behaviour writes its slot where it used to set `Instance`; nothing fills or clears slots on game start or end.
 
 ## Dependencies
 

@@ -48,14 +48,14 @@ namespace ReignBeta.WorldSimulation.PartyAgency
         private readonly Dictionary<string, ReignGuestReviewSession> _reviewCloseResolutions =
             new Dictionary<string, ReignGuestReviewSession>(StringComparer.OrdinalIgnoreCase);
 
-        public static ReignTemporaryPartyGuestCampaignBehavior Instance { get; private set; }
+        public static ReignTemporaryPartyGuestCampaignBehavior Instance => ReignServices.TemporaryPartyGuest;
 
         public IReadOnlyList<ReignTemporaryPartyGuestRecord> Records =>
             (_records ?? new List<ReignTemporaryPartyGuestRecord>()).Where(x => x != null).ToList();
 
         public override void RegisterEvents()
         {
-            Instance = this;
+            ReignServices.TemporaryPartyGuest = this;
             CampaignEvents.OnGameLoadFinishedEvent.AddNonSerializedListener(this, OnGameLoadFinished);
             CampaignEvents.HourlyTickEvent.AddNonSerializedListener(this, OnHourlyTick);
             CampaignEvents.MapEventStarted.AddNonSerializedListener(this, OnMapEventStarted);
@@ -73,7 +73,7 @@ namespace ReignBeta.WorldSimulation.PartyAgency
         public bool IsProtectedCamp(MobileParty party)
         {
             if (party == null || string.IsNullOrWhiteSpace(party.StringId)) return false;
-            if (ReignNpcLivesBehavior.Instance?.IsSummonsCamp(party) == true) return true;
+            if (ReignServices.NpcLives?.IsSummonsCamp(party) == true) return true;
             return (_records ?? new List<ReignTemporaryPartyGuestRecord>()).Any(record =>
                 record != null
                 && record.IsLive
@@ -190,7 +190,7 @@ namespace ReignBeta.WorldSimulation.PartyAgency
 
                 if (!hero.IsLord)
                 {
-                    var residents = ReignEncounteredResidentsCampaignBehavior.Instance
+                    var residents = ReignServices.EncounteredResidents
                         ?? throw new InvalidOperationException("The civilian departure service is unavailable.");
                     residents.RegisterCivilianDeparture(hero);
                     if (hero.IsNotable && !ReignRecruitedNotableCampaignBehavior.ClearDepartingNotableRole(hero))
@@ -217,10 +217,10 @@ namespace ReignBeta.WorldSimulation.PartyAgency
                 if (!IdentityMatches(record, hero))
                     throw new InvalidOperationException("The native party transfer changed a permanent noble affiliation.");
 
-                ReignTavernHouseCampaignBehavior.Instance?.CompleteTemporaryDeparture(hero);
+                ReignServices.TavernHouse?.CompleteTemporaryDeparture(hero);
                 if (pending != null) _records.Remove(pending);
                 _records.Add(record);
-                if (ReignEncounteredResidentsCampaignBehavior.Instance?.Find(hero) != null)
+                if (ReignServices.EncounteredResidents?.Find(hero) != null)
                 {
                     int payment = terms.Value<int?>("agreedGold") ?? 0;
                     if (payment > 0)
@@ -228,7 +228,7 @@ namespace ReignBeta.WorldSimulation.PartyAgency
                         GiveGoldAction.ApplyBetweenCharacters(Hero.MainHero, hero, payment, true);
                         residentPayment = payment;
                     }
-                    ReignEncounteredResidentsCampaignBehavior.Instance.DetachDepartingRole(hero);
+                    ReignServices.EncounteredResidents.DetachDepartingRole(hero);
                 }
                 InformationManager.DisplayMessage(new InformationMessage(
                     hero.Name + " has joined your party temporarily for: " + purpose + "."));
@@ -435,8 +435,8 @@ namespace ReignBeta.WorldSimulation.PartyAgency
             JObject terms = ParseTerms(action?.TermsJson);
             bool resident = hero != null && !hero.IsLord;
             bool releasablePrisoner = CanReleasePrisonerForGuest(hero);
-            if (resident && (ReignEncounteredResidentsCampaignBehavior.Instance == null
-                || !ReignEncounteredResidentsCampaignBehavior.Instance.ValidateDeparture(hero, out reason, releaseIntoGuestService: true))) return false;
+            if (resident && (ReignServices.EncounteredResidents == null
+                || !ReignServices.EncounteredResidents.ValidateDeparture(hero, out reason, releaseIntoGuestService: true))) return false;
             if (hero == null || hero == Hero.MainHero || hero.CompanionOf != null
                 || !ReignConversationEligibility.IsAdultLivingNpc(hero))
             {
@@ -711,7 +711,7 @@ namespace ReignBeta.WorldSimulation.PartyAgency
                 {
                     // Personal leave/meeting attendance temporarily changes physical
                     // presence, never the guest's service agreement or protected camp.
-                    bool personalAbsence = ReignBeta.Characters.Campaign.ReignNpcLivesBehavior.Instance?.IsAwayOnPersonalBusiness(hero.StringId) == true;
+                    bool personalAbsence = ReignServices.NpcLives?.IsAwayOnPersonalBusiness(hero.StringId) == true;
                     if (!personalAbsence && hero.PartyBelongedTo != MobileParty.MainParty && !record.TemporarilyExcludedFromBattle)
                     {
                         CompleteUnavailable(record);
@@ -1071,7 +1071,7 @@ namespace ReignBeta.WorldSimulation.PartyAgency
             {
                 ReignTemporaryPartyGuestRecord record = FindLiveRecord(pending.Key);
                 Hero hero = FindHero(pending.Key);
-                var ledger = ReignAICampaignBehavior.Instance?.Actions;
+                var ledger = ReignServices.AI?.Actions;
                 bool nativePending = pending.Value.ActionIds.Any(id =>
                     ledger?.FirstOrDefault(action => action.ActionId == id)?.IsTerminal != true);
                 ReignGuestReviewResolution resolution = pending.Value.Resolve(record?.HeroStringId,
@@ -1131,7 +1131,7 @@ namespace ReignBeta.WorldSimulation.PartyAgency
 
         private static JObject ReviewActionReceipt(ReignTemporaryPartyGuestRecord record)
         {
-            var action = ReignAICampaignBehavior.Instance?.Actions.LastOrDefault(x => x != null
+            var action = ReignServices.AI?.Actions.LastOrDefault(x => x != null
                 && x.ActorHeroStringId == record.HeroStringId
                 && (x.Type == ReignWorldActionType.RegularRenewTemporaryPartyGuest
                     || x.Type == ReignWorldActionType.RegularAcceptTemporaryPartyGuest
@@ -1229,7 +1229,7 @@ namespace ReignBeta.WorldSimulation.PartyAgency
 
         private static Settlement FindSafeReturnSettlement(Hero hero)
         {
-            var resident = ReignEncounteredResidentsCampaignBehavior.Instance?.Find(hero);
+            var resident = ReignServices.EncounteredResidents?.Find(hero);
             Settlement residentHome = resident == null ? null : FindSettlement(resident.HomeId);
             if (residentHome != null && !residentHome.IsUnderSiege) return residentHome;
             IEnumerable<Settlement> candidates = Settlement.All.Where(settlement => settlement != null
@@ -1266,7 +1266,7 @@ namespace ReignBeta.WorldSimulation.PartyAgency
             if (!string.IsNullOrWhiteSpace(record?.OriginalClanStringId))
                 return Clan.All.FirstOrDefault(x => string.Equals(x.StringId,
                     record.OriginalClanStringId, StringComparison.OrdinalIgnoreCase));
-            return ReignEncounteredResidentsCampaignBehavior.Instance?.Find(hero) != null ? null : hero?.MapFaction;
+            return ReignServices.EncounteredResidents?.Find(hero) != null ? null : hero?.MapFaction;
         }
 
         private ReignTemporaryPartyGuestRecord FindLiveRecord(string heroId)

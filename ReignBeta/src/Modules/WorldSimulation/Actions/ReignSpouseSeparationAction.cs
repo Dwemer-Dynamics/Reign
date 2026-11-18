@@ -9,6 +9,7 @@ using TaleWorlds.CampaignSystem;
 using TaleWorlds.CampaignSystem.Actions;
 using ReignBeta.Actions;
 using ReignBeta.WorldSimulation.Campaign;
+using ReignBeta.Platform.Runtime;
 
 namespace ReignBeta.WorldSimulation.Actions
 {
@@ -17,7 +18,7 @@ namespace ReignBeta.WorldSimulation.Actions
         internal static bool Available(Hero actor) => actor != null && actor != Hero.MainHero
             && actor.IsAlive && !actor.IsChild && !actor.IsPrisoner && actor.Spouse != null
             && actor.Spouse.IsAlive && !actor.Spouse.IsChild && actor.Spouse.Spouse == actor
-            && ReignWorldHistoryCampaignBehavior.Instance?.TimelineReady == true;
+            && ReignServices.WorldHistory?.TimelineReady == true;
 
         internal static void Bind(ActionAgreement agreement)
         {
@@ -62,7 +63,7 @@ namespace ReignBeta.WorldSimulation.Actions
 
         internal static void Apply(ActionAgreement agreement, ActionClause clause, string snapshot, string key)
         {
-            var behavior = ReignAgreementBehavior.Instance;
+            var behavior = ReignServices.Agreement;
             if (behavior.NativeOperation(key) != null) return;
             var errors = Check(agreement, clause);
             if (errors.Count > 0) throw new InvalidOperationException(string.Join(" ", errors));
@@ -92,7 +93,7 @@ namespace ReignBeta.WorldSimulation.Actions
                 }
                 if (actor.Spouse != null || spouse.Spouse != null) throw new InvalidOperationException("The marriage did not end.");
                 data["operationId"] = key; data["termsHash"] = agreement.TermsHash();
-                ReignWorldHistoryCampaignBehavior.Instance.RecordReignSystemEvent("divorce", "completed", "relationships", key,
+                ReignServices.WorldHistory.RecordReignSystemEvent("divorce", "completed", "relationships", key,
                     actor.Name + " ended their marriage to " + spouse.Name + " by letter.", "ordinary", actor.StringId,
                     actor.Clan?.Kingdom?.StringId ?? "", data, new JArray(spouse.StringId));
                 behavior.SaveNativeOperation(key, data);
@@ -118,7 +119,7 @@ namespace ReignBeta.WorldSimulation.Actions
 
         internal static bool Observe(ActionClause clause, string key)
         {
-            var receipt = ReignAgreementBehavior.Instance.NativeOperation(key);
+            var receipt = ReignServices.Agreement.NativeOperation(key);
             if (receipt == null) return false;
             var actor = ReignActionService.HeroById(clause.ActorId);
             var spouse = ReignActionService.HeroById(receipt.Value<string>("spouseId"));

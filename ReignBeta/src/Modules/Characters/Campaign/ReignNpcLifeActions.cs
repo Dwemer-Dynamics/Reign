@@ -13,6 +13,7 @@ using TaleWorlds.CampaignSystem.Settlements;
 using ReignBeta.Characters.Integration;
 using ReignBeta.Platform.Integration;
 using ReignBeta.WorldSimulation.Actions;
+using ReignBeta.Platform.Runtime;
 
 namespace ReignBeta.Characters.Campaign
 {
@@ -207,7 +208,7 @@ namespace ReignBeta.Characters.Campaign
                     ConversationId = ReignActionConversationPolicy.ConversationContextId(_campaign, _timeline, hero.StringId),
                     ProposerId = hero.StringId, Origin = ActionOrigin.Conversation, CreatedDay = CampaignTime.Now.ToDays,
                     ExpiresDay = 0, Clauses = new List<ActionClause> { clause } };
-                ReignAgreementBehavior.Instance?.RegisterNpcLifeOffer(offer);
+                ReignServices.Agreement?.RegisterNpcLifeOffer(offer);
                 context["npcLifeRequestId"] = id; context["npcLivesRevision"] = revision;
                 if (story != null) context["npcStoryId"] = story.Id;
             }).ConfigureAwait(false);

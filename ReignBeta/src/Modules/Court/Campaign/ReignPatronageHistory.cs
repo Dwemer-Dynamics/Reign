@@ -4,6 +4,7 @@ using System.Threading.Tasks;
 using Newtonsoft.Json.Linq;
 using TaleWorlds.CampaignSystem;
 using ReignBeta.Platform.Integration;
+using ReignBeta.Platform.Runtime;
 
 namespace ReignBeta.Platform.Integration
 {
@@ -29,7 +30,7 @@ namespace ReignBeta.Court.Campaign
         {
             if (_patronagePublicHistoryPending) return false;
             string campaign = ReignServerClient.GetCampaignId();
-            string timeline = ReignBeta.WorldSimulation.Campaign.ReignWorldHistoryCampaignBehavior.Instance?.TimelineId ?? "main";
+            string timeline = ReignServices.WorldHistory?.TimelineId ?? "main";
             string kingdom = Clan.PlayerClan?.Kingdom?.StringId ?? "";
             double day = CurrentCourtLifeDay();
             string scope = campaign + "|" + timeline + "|" + kingdom;
@@ -43,7 +44,7 @@ namespace ReignBeta.Court.Campaign
             {
                 JObject result = await ReignServerClient.GetPatronagePublicHistoryAsync(campaign, timeline, kingdom, day).ConfigureAwait(false);
                 return await ReignMainThread.InvokeAsync(() => {
-                    string currentScope = ReignServerClient.GetCampaignId() + "|" + (ReignBeta.WorldSimulation.Campaign.ReignWorldHistoryCampaignBehavior.Instance?.TimelineId ?? "main")
+                    string currentScope = ReignServerClient.GetCampaignId() + "|" + (ReignServices.WorldHistory?.TimelineId ?? "main")
                         + "|" + (Clan.PlayerClan?.Kingdom?.StringId ?? "");
                     if (currentScope != scope || !ReferenceEquals(Instance, requestedBehavior)
                         || !ReferenceEquals(EnsureRulerDocketState(), requestedState) || result?.Value<bool?>("ok") != true) return false;

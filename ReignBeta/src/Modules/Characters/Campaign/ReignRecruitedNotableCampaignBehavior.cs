@@ -5,6 +5,7 @@ using ReignBeta.PartyAgency;
 using TaleWorlds.CampaignSystem;
 using ReignBeta.Platform.Integration;
 using ReignBeta.WorldSimulation.PartyAgency;
+using ReignBeta.Platform.Runtime;
 
 namespace ReignBeta.Characters.Campaign
 {
@@ -27,7 +28,7 @@ namespace ReignBeta.Characters.Campaign
             if (hero?.Clan == Clan.PlayerClan && oldClan != hero?.Clan)
             {
                 ClearRecruitedRole(hero);
-                ReignTemporaryPartyGuestCampaignBehavior.Instance?.CompletePermanentRecruitment(hero);
+                ReignServices.TemporaryPartyGuest?.CompletePermanentRecruitment(hero);
             }
         }
 
@@ -36,7 +37,7 @@ namespace ReignBeta.Characters.Campaign
             if (hero?.CompanionOf == Clan.PlayerClan)
             {
                 ClearRecruitedRole(hero);
-                ReignTemporaryPartyGuestCampaignBehavior.Instance?.CompletePermanentRecruitment(hero);
+                ReignServices.TemporaryPartyGuest?.CompletePermanentRecruitment(hero);
             }
         }
 
@@ -101,7 +102,7 @@ namespace ReignBeta.Characters.Campaign
             foreach (Hero hero in Hero.AllAliveHeroes.Where(x => x.Clan == Clan.PlayerClan).ToList())
             {
                 ClearRecruitedRole(hero);
-                ReignTemporaryPartyGuestCampaignBehavior.Instance?.CompletePermanentRecruitment(hero);
+                ReignServices.TemporaryPartyGuest?.CompletePermanentRecruitment(hero);
             }
         }
     }

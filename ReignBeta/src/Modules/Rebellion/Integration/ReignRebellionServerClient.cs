@@ -13,6 +13,7 @@ using ReignBeta.Platform.Campaign;
 using ReignBeta.Platform.Integration;
 using ReignBeta.Rebellion.Campaign;
 using ReignBeta.WorldSimulation.Campaign;
+using ReignBeta.Platform.Runtime;
 
 namespace ReignBeta.Rebellion.Integration
 {
@@ -43,7 +44,7 @@ namespace ReignBeta.Rebellion.Integration
                     new JObject
                     {
                         ["campaignId"] = GetCampaignId(),
-                        ["timelineId"] = ReignWorldHistoryCampaignBehavior.Instance
+                        ["timelineId"] = ReignServices.WorldHistory
                             ?.TimelineId ?? "main",
                         ["pairs"] = pairs ?? new JArray()
                     }).ConfigureAwait(false);
@@ -97,7 +98,7 @@ namespace ReignBeta.Rebellion.Integration
         {
             JObject payload = draft == null ? new JObject() : (JObject)draft.DeepClone();
             payload["campaignId"] = GetCampaignId();
-            payload["timelineId"] = ReignWorldHistoryCampaignBehavior.Instance?.TimelineId ?? "main";
+            payload["timelineId"] = ReignServices.WorldHistory?.TimelineId ?? "main";
             payload["worldDay"] = TaleWorlds.CampaignSystem.Campaign.Current == null ? 0d : CampaignTime.Now.ToDays;
             return PostJsonAsync("/negotiations/draft", payload);
         }
@@ -140,7 +141,7 @@ namespace ReignBeta.Rebellion.Integration
                 JObject response = await PostJsonAsync("/correspondence/send", new JObject
                 {
                     ["campaignId"] = GetCampaignId(),
-                    ["timelineId"] = ReignWorldHistoryCampaignBehavior.Instance?.TimelineId ?? "main",
+                    ["timelineId"] = ReignServices.WorldHistory?.TimelineId ?? "main",
                     ["senderId"] = sender.StringId ?? string.Empty,
                     ["senderName"] = sender.Name?.ToString() ?? "Unknown sender",
                     ["recipientId"] = recipient.StringId ?? string.Empty,
@@ -224,7 +225,7 @@ namespace ReignBeta.Rebellion.Integration
                     ["rulerName"] = kingdom.Leader?.Name?.ToString() ?? string.Empty,
                     ["isEliminated"] = kingdom.IsEliminated,
                     ["isPlayerKingdom"] = kingdom == playerKingdom,
-                    ["isRebelRealm"] = ReignRebellionCampaignBehavior.Instance?.IsRebelKingdom(kingdom) == true,
+                    ["isRebelRealm"] = ReignServices.Rebellion?.IsRebelKingdom(kingdom) == true,
                     ["fortificationCount"] = kingdom.Fiefs.Count,
                     ["strength"] = kingdom.CurrentTotalStrength,
                     ["enemies"] = new JArray(Kingdom.All.Where(x => x != null && !x.IsEliminated && kingdom.IsAtWarWith(x)).Select(x => x.StringId)),
@@ -272,7 +273,7 @@ namespace ReignBeta.Rebellion.Integration
             return new JObject
             {
                 ["campaignId"] = GetCampaignId(),
-                ["timelineId"] = ReignWorldHistoryCampaignBehavior.Instance?.TimelineId ?? "main",
+                ["timelineId"] = ReignServices.WorldHistory?.TimelineId ?? "main",
                 ["worldDay"] = TaleWorlds.CampaignSystem.Campaign.Current == null ? 0d : CampaignTime.Now.ToDays,
                 ["campaignStartDay"] = ReignCampaignPreparationCampaignBehavior.AutonomousWorldOriginDay,
                 ["playerKingdomId"] = playerKingdom?.StringId ?? string.Empty,

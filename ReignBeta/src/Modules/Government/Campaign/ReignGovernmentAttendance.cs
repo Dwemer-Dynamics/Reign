@@ -9,6 +9,7 @@ using TaleWorlds.CampaignSystem.Actions;
 using TaleWorlds.CampaignSystem.Settlements;
 using ReignBeta.Government.Domain;
 using ReignBeta.Persistence.Save;
+using ReignBeta.Platform.Runtime;
 
 namespace ReignBeta.Government.Campaign
 {
@@ -106,7 +107,7 @@ namespace ReignBeta.Government.Campaign
         {
             if (kingdom == null) return null;
 #if !REIGN_EXCLUDE_COURT
-            var court = ReignBeta.Court.Campaign.ReignCourtCampaignBehavior.Instance;
+            var court = ReignServices.Court;
             var designation = court?.CapitalDesignations.FirstOrDefault(x => Same(x.KingdomStringId, kingdom.StringId));
             if (designation != null)
             {
@@ -134,7 +135,7 @@ namespace ReignBeta.Government.Campaign
                 || campaign?.QuestManager?.TrackedObjects?.ContainsKey(hero) == true
                 || campaign?.IssueManager?.IssueSolvingCompanionList?.Contains(hero) == true) return "Occupied with another duty";
 #if !REIGN_EXCLUDE_COURT
-            var court = ReignBeta.Court.Campaign.ReignCourtCampaignBehavior.Instance;
+            var court = ReignServices.Court;
             if (court != null && (court.IsNobleVisitorReserved(hero) || court.HasConflictingGovernmentAttendanceDuty(hero, requiresRelocation)
                 || requiresRelocation && (court.Offices.Any(x => x.IsActive && Same(x.HeroStringId, hero.StringId))
                 || court.Regents.Any(x => x.IsActive && Same(x.HeroStringId, hero.StringId))

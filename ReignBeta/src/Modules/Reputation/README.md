@@ -11,12 +11,12 @@ Reputation. Combat, ruler and court-personality reputation behaviours.
 | `Campaign` | 6 |
 | `Domain` | 1 |
 
-Namespaces in use: `ReignBeta.Campaign (7)`.
+Namespaces in use: `ReignBeta.Reputation.Campaign (5)`, `ReignBeta.Reputation.Domain (1)`, `ReignBeta.WorldSimulation.Campaign (1)`.
 
 ## Public surface
 
 - Campaign behaviours deriving from `CampaignBehaviorBase` (all registered in `Platform/SubModule.cs`): `ReignCombatReputationCampaignBehavior`, `ReignCourtPersonalityReputationCampaignBehavior`, `ReignRulerReputationCampaignBehavior`, `ReignSocialBalanceHarnessCampaignBehavior`, `ReignWhoremongerCampaignBehavior`.
-- Static `.Instance` singletons: `ReignCourtPersonalityReputationCampaignBehavior`, `ReignRulerReputationCampaignBehavior`, `ReignSocialBalanceHarnessCampaignBehavior`.
+- Behaviours registered in `ReignServices` (their `Instance` property forwards to the slot): `ReignCourtPersonalityReputationCampaignBehavior`, `ReignRulerReputationCampaignBehavior`, `ReignSocialBalanceHarnessCampaignBehavior`.
 
 ## Dependencies
 

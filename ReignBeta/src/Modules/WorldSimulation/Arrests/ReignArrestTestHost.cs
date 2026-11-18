@@ -17,6 +17,7 @@ using ReignBeta.Characters.Integration;
 using ReignBeta.Persistence.Campaign;
 using ReignBeta.Platform.Integration;
 using ReignBeta.WorldSimulation.Arrests;
+using ReignBeta.Platform.Runtime;
 
 namespace ReignBeta.WorldSimulation.Campaign
 {
@@ -64,7 +65,7 @@ namespace ReignBeta.WorldSimulation.Campaign
             string fixtureRunId, string targetHeroId, string disposableSaveName,
             bool requireDisposableSave)
         {
-            ReignArrestCampaignBehavior behavior = ReignArrestCampaignBehavior.Instance;
+            ReignArrestCampaignBehavior behavior = ReignServices.Arrest;
             Hero target = string.IsNullOrWhiteSpace(targetHeroId)
                 ? CharacterObject.OneToOneConversationCharacter?.HeroObject
                 : Hero.FindFirst(hero => string.Equals(hero.StringId, targetHeroId,

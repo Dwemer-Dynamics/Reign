@@ -14,6 +14,7 @@ using ReignBeta.Persistence.Integration;
 using ReignBeta.Platform.Integration;
 using ReignBeta.Relationships.Integration;
 using ReignBeta.WorldSimulation.Campaign;
+using ReignBeta.Platform.Runtime;
 
 namespace ReignBeta.Relationships.Campaign
 {
@@ -86,7 +87,7 @@ namespace ReignBeta.Relationships.Campaign
 
         private void CaptureDirectorPeriod(double day)
         {
-            string timeline=ReignWorldHistoryCampaignBehavior.Instance?.TimelineId??"main";
+            string timeline=ReignServices.WorldHistory?.TimelineId??"main";
             long period=ArrangedMarriagePolicy.Period(day);
             if(_directorCaptureTimeline!=timeline) { _directorOutbox.Clear(); _directorHeader.Clear(); _lastDirectorCapturePeriod=-1; _lastDirectorCompletedPeriod=-1; _directorCaptureTimeline=timeline; }
             if(period<=_lastDirectorCapturePeriod)return;
@@ -145,7 +146,7 @@ namespace ReignBeta.Relationships.Campaign
             var campaign=TaleWorlds.CampaignSystem.Campaign.Current;
             JObject Receipt(string status,string error="")=>new JObject {
                 ["directorActionId"]=action.DirectorActionId,["status"]=status,["error"]=error,
-                ["worldDay"]=CampaignTime.Now.ToDays,["timelineId"]=ReignWorldHistoryCampaignBehavior.Instance?.TimelineId??"main",
+                ["worldDay"]=CampaignTime.Now.ToDays,["timelineId"]=ReignServices.WorldHistory?.TimelineId??"main",
                 ["marriageVerified"]=status=="completed",["paymentVerified"]=status=="completed" };
             if(!ReferenceEquals(Instance,this))return Receipt("obsolete","The originating campaign instance was replaced.");
             var waiting = Wedding(action.DirectorActionId);
@@ -155,7 +156,7 @@ namespace ReignBeta.Relationships.Campaign
                 return Receipt("deferred","Waiting for a safe native transaction boundary.");
             var terms=action.Payload?["marriageTerms"] as JObject;
             string timeline=action.Payload?.Value<string>("timelineId");
-            if(timeline!=(ReignWorldHistoryCampaignBehavior.Instance?.TimelineId??"main")
+            if(timeline!=(ReignServices.WorldHistory?.TimelineId??"main")
                 ||(action.Payload?.Value<double?>("scheduledWorldDay")??0)>CampaignTime.Now.ToDays)
                 return Receipt("obsolete","The marriage belongs to a different save/timeline.");
             if(terms?.Value<int?>("policyVersion")!=ArrangedMarriagePolicy.Version)

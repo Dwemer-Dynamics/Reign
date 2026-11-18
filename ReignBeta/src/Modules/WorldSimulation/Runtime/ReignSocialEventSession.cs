@@ -5,6 +5,7 @@ using TaleWorlds.CampaignSystem;
 using TaleWorlds.Core;
 using TaleWorlds.Library;
 using ReignBeta.WorldSimulation.Events;
+using ReignBeta.Platform.Runtime;
 
 namespace ReignBeta.WorldSimulation.Runtime
 {
@@ -27,7 +28,7 @@ namespace ReignBeta.WorldSimulation.Runtime
             record.NormalizeLoadedCollections();
             Template = SocialEventTemplateCatalog.GetById(record.TemplateId);
             if (record.IsWedding)
-                CurrentPhaseIndex = ReignBeta.Relationships.Campaign.ReignRelationshipCampaignBehavior.Instance?.Wedding(record.WeddingId)?.Phase ?? 0;
+                CurrentPhaseIndex = ReignServices.Relationship?.Wedding(record.WeddingId)?.Phase ?? 0;
 
             if (record.IsGeneratedWildernessEvent)
             {
@@ -107,7 +108,7 @@ namespace ReignBeta.WorldSimulation.Runtime
             CurrentPhaseIndex++;
             if (Record.IsWedding)
             {
-                var wedding = ReignBeta.Relationships.Campaign.ReignRelationshipCampaignBehavior.Instance?.Wedding(Record.WeddingId);
+                var wedding = ReignServices.Relationship?.Wedding(Record.WeddingId);
                 if (wedding != null) wedding.Phase = CurrentPhaseIndex;
             }
             _currentPhaseTranscriptStartIndex = _transcriptLines.Count;

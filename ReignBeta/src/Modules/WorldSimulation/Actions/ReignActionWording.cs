@@ -4,6 +4,7 @@ using System.Linq;
 using Reign.Core.Contracts.Actions;
 using ReignBeta.Actions;
 using ReignBeta.Characters.Actions;
+using ReignBeta.Platform.Runtime;
 
 namespace ReignBeta.WorldSimulation.Actions
 {
@@ -17,20 +18,20 @@ namespace ReignBeta.WorldSimulation.Actions
             // Live entity labels can change after fulfillment (for example a
             // civil-war movement becomes resolved); re-rendering would alter
             // consent even though the saved executable terms are unchanged.
-            var completed = ReignAgreementBehavior.Instance?.Agreements
+            var completed = ReignServices.Agreement?.Agreements
                 .FirstOrDefault(j => j.Agreement.Id == a.Id);
             if (AgreementRules.IsExactCompletedReplay(a, completed)) return;
             ReignActionService.BindGuestReviews(a);
             ReignSpouseSeparationAction.Bind(a);
-            ReignBeta.Government.Campaign.ReignGovernmentCampaignBehavior.Instance?.BindPetitionRevisions(a);
-            ReignBeta.Characters.Campaign.ReignNpcLivesBehavior.Instance?.BindMeetingArrival(a);
+            ReignServices.Government?.BindPetitionRevisions(a);
+            ReignServices.NpcLives?.BindMeetingArrival(a);
             for (int i = 0; i < a.Clauses.Count; i++)
             {
                 var c = a.Clauses[i]; var d = ReignActionCatalog.Find(c.ActionId)
                     ?? throw new InvalidOperationException("Unknown action: " + c.ActionId);
                 bool player = c.ActorId == a.PlayerId;
                 string subject = ReignActionLanguage.Subject(player, i);
-                string political = ReignBeta.Government.Campaign.ReignGovernmentCampaignBehavior.Instance?.GovernmentActionSentence(c, subject) ?? "";
+                string political = ReignServices.Government?.GovernmentActionSentence(c, subject) ?? "";
                 if (c.ActionId == TavernHouseVisitAction.Id) c.DisplayText = ReignTavernHouseAction.Sentence(a);
                 else if (c.ActionId == "marriage.propose")
                     c.DisplayText = "I propose that " + ReignActionService.HeroById(ReignActionService.Arg(c, "playerMatchId"))?.Name
@@ -41,12 +42,12 @@ namespace ReignBeta.WorldSimulation.Actions
                     c.DisplayText = subject + "release " + ReignActionService.HeroById(ReignActionService.Arg(c, "assetId"))?.Name;
                 else if (political.Length > 0) c.DisplayText = political;
                 else if (c.ActionId.StartsWith("npc_life.", StringComparison.Ordinal))
-                    c.DisplayText = ReignBeta.Characters.Campaign.ReignNpcLivesBehavior.Instance.LifeActionSentence(a, c);
+                    c.DisplayText = ReignServices.NpcLives.LifeActionSentence(a, c);
                 else if (c.ActionId == ReignSpouseSeparation.ActionId)
                     c.DisplayText = subject + "write to " + ReignActionService.HeroById(ReignActionService.Arg(c, "spouseId"))?.Name
                         + " that your marriage is over and end it";
                 else if (c.ActionId == "expose_concealed_pregnancy")
-                    c.DisplayText = ReignBeta.Characters.Campaign.ReignFamilyCampaignBehavior.Instance.PregnancyExposureSentence(
+                    c.DisplayText = ReignServices.Family.PregnancyExposureSentence(
                         ReignActionService.Arg(c, "pregnancyId"), ReignActionService.Arg(c, "disclosure") == "name_father");
                 else if (c.ActionId == "start_ruling_clan_rebellion")
                     c.DisplayText = "I declare rebellion against your rule of " + Label(d.Parameters.First(p => p.Key == "actorKingdomId"), c)

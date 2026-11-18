@@ -62,7 +62,7 @@ public sealed class TavernHouseUiContractTests
         Assert.Contains("tavernHouseCalibrationFixture", host, StringComparison.Ordinal);
         Assert.Contains("IsCalibrationFixture", manager, StringComparison.Ordinal);
         int branch = vm.IndexOf("if (_fixture)", StringComparison.Ordinal);
-        int production = vm.IndexOf("_house = ReignTavernHouseCampaignBehavior.Instance", branch, StringComparison.Ordinal);
+        int production = vm.IndexOf("_house = ReignServices.TavernHouse", branch, StringComparison.Ordinal);
         Assert.True(branch >= 0 && production > branch);
         string fixture = vm.Substring(branch, production - branch);
         Assert.DoesNotContain("EnsureTown", fixture, StringComparison.Ordinal);

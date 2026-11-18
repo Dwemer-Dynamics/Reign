@@ -14,6 +14,7 @@ using ReignBeta.Dialogue.Integration;
 using ReignBeta.Platform.Campaign;
 using ReignBeta.Platform.Integration;
 using ReignBeta.WorldSimulation.World;
+using ReignBeta.Platform.Runtime;
 
 namespace ReignBeta.Court.Campaign
 {
@@ -154,7 +155,7 @@ namespace ReignBeta.Court.Campaign
                 action.Reason = matter.Title;
                 action.RequiresAcceptance = false;
                 action.ExecuteAfterDay = (float)CampaignTime.Now.ToDays;
-                ReignAICampaignBehavior ai = ReignAICampaignBehavior.Instance;
+                ReignAICampaignBehavior ai = ReignServices.AI;
                 if (ai == null) { summary = "The diplomatic action service is unavailable."; return false; }
                 ReignWorldActionRecord stored = ai.Actions.FirstOrDefault(x => x.ActionId == action.ActionId);
                 if (stored?.Status == ReignWorldActionStatus.Completed)
@@ -264,7 +265,7 @@ namespace ReignBeta.Court.Campaign
         {
             if (data.Value<bool?>("nativeActionStarted") != true || matter.EffectsCommitted
                 || _courtLifeConversationsInFlight > 0) return false;
-            ReignWorldActionRecord stored = ReignAICampaignBehavior.Instance?.Actions
+            ReignWorldActionRecord stored = ReignServices.AI?.Actions
                 .FirstOrDefault(x => x.ActionId == matter.MatterId + "_native");
             if (stored == null) return false;
             JObject expected = data["nativeConfirmedAction"] as JObject;

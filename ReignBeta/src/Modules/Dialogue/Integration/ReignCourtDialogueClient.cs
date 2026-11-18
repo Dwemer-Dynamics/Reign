@@ -9,6 +9,7 @@ using TaleWorlds.CampaignSystem.Settlements;
 using static ReignBeta.Platform.Integration.ReignServerClient;
 using ReignBeta.Platform.Integration;
 using ReignBeta.WorldSimulation.Campaign;
+using ReignBeta.Platform.Runtime;
 
 namespace ReignBeta.Dialogue.Integration
 {
@@ -38,7 +39,7 @@ namespace ReignBeta.Dialogue.Integration
                 JObject payload = new JObject
                 {
                     ["campaignId"] = GetCampaignId(),
-                    ["timelineId"] = ReignWorldHistoryCampaignBehavior.Instance?.TimelineId ?? "main",
+                    ["timelineId"] = ReignServices.WorldHistory?.TimelineId ?? "main",
                     ["commandId"] = commandId ?? string.Empty,
                     ["expectedRevision"] = expectedRevision,
                     ["matterId"] = matter.MatterId,

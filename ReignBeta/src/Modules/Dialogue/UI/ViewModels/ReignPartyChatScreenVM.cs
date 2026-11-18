@@ -33,6 +33,7 @@ using ReignBeta.WorldSimulation.World;
 using ReignBeta.Court.Campaign;
 using ReignBeta.Court.UI;
 #endif
+using ReignBeta.Platform.Runtime;
 
 namespace ReignBeta.Dialogue.UI
 {
@@ -252,7 +253,7 @@ namespace ReignBeta.Dialogue.UI
             _session = new ReignPartyChatSession();
             PartyMembers = new MBBindingList<ReignPartyChatMemberVM>();
             ChatLines = new MBBindingList<ReignChatLineVM>();
-            var residents = ReignEncounteredResidentsCampaignBehavior.Instance?.ResidentsAt(settlement) ?? new List<Hero>();
+            var residents = ReignServices.EncounteredResidents?.ResidentsAt(settlement) ?? new List<Hero>();
             _homeResident = residents.Contains(resident) ? resident : null;
             _homeContext = _homeResident == null ? string.Empty
                 : "This is a private visit to " + _homeResident.Name + "'s home in " + settlement.Name
@@ -637,9 +638,9 @@ namespace ReignBeta.Dialogue.UI
             try
             {
                 string id = "announcement_" + Guid.NewGuid().ToString("N");
-                ReignConversationInputJournal.Save(ReignServerClient.GetCampaignId(), ReignWorldHistoryCampaignBehavior.Instance?.TimelineId ?? "main",
+                ReignConversationInputJournal.Save(ReignServerClient.GetCampaignId(), ReignServices.WorldHistory?.TimelineId ?? "main",
                     Hero.MainHero.StringId, id, text, session: id);
-                var owner = ReignNpcLivesBehavior.Instance ?? throw new InvalidOperationException("Party information is unavailable.");
+                var owner = ReignServices.NpcLives ?? throw new InvalidOperationException("Party information is unavailable.");
                 // This captures the actual native party roster, never the location list or selected speakers.
                 await owner.AnnounceAsync(text, id);
                 InputText = "";
@@ -651,7 +652,7 @@ namespace ReignBeta.Dialogue.UI
         public void ExecutePersonalLives()
         {
             if (IsBusy || !ShowLifeControls) return;
-            ExecuteClose(); ReignNpcLivesBehavior.Instance?.OpenLifeJournal();
+            ExecuteClose(); ReignServices.NpcLives?.OpenLifeJournal();
         }
         public async void ExecuteSend()
         {
@@ -701,7 +702,7 @@ namespace ReignBeta.Dialogue.UI
             if (activeHeroes.Count == 0) { AddSystemLine("Select one or more characters before expecting a reply.", false); return null; }
             string playerName = Hero.MainHero?.Name?.ToString() ?? "Player";
             try { ReignConversationInputJournal.Save(ReignServerClient.GetCampaignId(),
-                ReignBeta.WorldSimulation.Campaign.ReignWorldHistoryCampaignBehavior.Instance?.TimelineId ?? "main", Hero.MainHero?.StringId ?? "",
+                ReignServices.WorldHistory?.TimelineId ?? "main", Hero.MainHero?.StringId ?? "",
                 _session.SessionId + "_turn_" + (_session.PlayerInputCount + 1), text, session: _session.SessionId); }
             catch (Exception ex) { AddSystemLine("Your message could not be saved locally: " + ex.Message, false); return null; }
             _session.RegisterPlayerInput();
@@ -766,7 +767,7 @@ namespace ReignBeta.Dialogue.UI
 
                 string playerName = Hero.MainHero?.Name?.ToString() ?? "Player";
                 try { ReignConversationInputJournal.Save(ReignServerClient.GetCampaignId(),
-                    ReignBeta.WorldSimulation.Campaign.ReignWorldHistoryCampaignBehavior.Instance?.TimelineId ?? "main", Hero.MainHero?.StringId ?? "",
+                    ReignServices.WorldHistory?.TimelineId ?? "main", Hero.MainHero?.StringId ?? "",
                     _session.SessionId + "_turn_" + (_session.PlayerInputCount + 1), text, session: _session.SessionId); }
                 catch (Exception ex) { rejected.Error = "Your message could not be saved locally: " + ex.Message; return false; }
                 _session.RegisterPlayerInput();
@@ -1015,7 +1016,7 @@ namespace ReignBeta.Dialogue.UI
             if (_isFinalized || _guestReviewSession == null) return;
             foreach (string id in _guestReviewSession.ActionIds)
             {
-                var action = ReignAICampaignBehavior.Instance?.Actions.FirstOrDefault(x => x.ActionId == id);
+                var action = ReignServices.AI?.Actions.FirstOrDefault(x => x.ActionId == id);
                 string status = action?.Status.ToString() ?? "Pending";
                 if (!_shownReviewReceipts.Add(id + ":" + status)) continue;
                 string message = action?.Status == ReignWorldActionStatus.Completed
@@ -1051,7 +1052,7 @@ namespace ReignBeta.Dialogue.UI
                         ["campaignId"] = ReignServerClient.GetCampaignId(),
                         ["conversationSessionId"] = _session.SessionId.Trim(),
                         ["playerHeroStringId"] = Hero.MainHero?.StringId ?? "",
-                        ["timelineId"] = ReignBeta.WorldSimulation.Campaign.ReignWorldHistoryCampaignBehavior.Instance?.TimelineId ?? "main",
+                        ["timelineId"] = ReignServices.WorldHistory?.TimelineId ?? "main",
                         ["limit"] = 36
                     }).ConfigureAwait(false);
             if (historyRequest != null)
@@ -1593,9 +1594,9 @@ namespace ReignBeta.Dialogue.UI
             if (IsHomesMode)
             {
                 PartyMembers.Clear();
-                foreach (Hero hero in ReignEncounteredResidentsCampaignBehavior.Instance.ResidentsAt(_homesSettlement))
+                foreach (Hero hero in ReignServices.EncounteredResidents.ResidentsAt(_homesSettlement))
                 {
-                    string role = ReignEncounteredResidentsCampaignBehavior.Instance.Find(hero)?.Role ?? "Resident";
+                    string role = ReignServices.EncounteredResidents.Find(hero)?.Role ?? "Resident";
                     role = Regex.Replace(role, "(?<=[a-z])([A-Z])", " $1");
                     PartyMembers.Add(new ReignPartyChatMemberVM(hero, hero == _homeResident, ToggleMember,
                         PreviewPortrait, OpenEncyclopedia, GenerateAIPortrait, VisitResidentInPerson, role));
@@ -1670,14 +1671,14 @@ namespace ReignBeta.Dialogue.UI
         }
 
         private bool IsResidentAvailable(Hero hero) => hero != null && Settlement.CurrentSettlement == _homesSettlement
-            && ReignEncounteredResidentsCampaignBehavior.Instance?.ResidentsAt(_homesSettlement).Contains(hero) == true;
+            && ReignServices.EncounteredResidents?.ResidentsAt(_homesSettlement).Contains(hero) == true;
 
         private void VisitResidentInPerson(ReignPartyChatMemberVM member)
         {
             if (IsBusy || !IsResidentAvailable(member?.Hero)) return;
             Hero hero = member.Hero;
             ExecuteClose();
-            ReignEncounteredResidentsCampaignBehavior.Instance.VisitInPerson(hero);
+            ReignServices.EncounteredResidents.VisitInPerson(hero);
         }
 
         private string SanitizeReplyText(string text, Hero speaker, IEnumerable<Hero> activeHeroes)

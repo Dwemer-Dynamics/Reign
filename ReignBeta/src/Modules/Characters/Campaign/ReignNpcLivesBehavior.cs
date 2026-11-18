@@ -31,7 +31,7 @@ namespace ReignBeta.Characters.Campaign
 {
     public sealed partial class ReignNpcLivesBehavior : CampaignBehaviorBase
     {
-        public static ReignNpcLivesBehavior Instance { get; private set; }
+        public static ReignNpcLivesBehavior Instance => ReignServices.NpcLives;
         internal NpcLivesState State { get; private set; } = new NpcLivesState();
         internal string Generation { get; private set; } = "";
         internal string _campaign = "", _timeline = "";
@@ -58,7 +58,7 @@ namespace ReignBeta.Characters.Campaign
         private bool HoldAnnouncementDeliveryForNativeTest(JObject row) => ReignTestHarness.Current.HoldNpcLivesAnnouncementDelivery(this, row);
         public override void RegisterEvents()
         {
-            Instance = this;
+            ReignServices.NpcLives = this;
             CampaignEvents.OnSessionLaunchedEvent.AddNonSerializedListener(this, AddLifeMenus);
             CampaignEvents.OnHideoutBattleCompletedEvent.AddNonSerializedListener(this, OnStoryHideoutCompleted);
             CampaignEvents.CanMoveToSettlementEvent.AddNonSerializedListener(this, OnMeetingCanMoveToSettlement);
@@ -90,7 +90,7 @@ namespace ReignBeta.Characters.Campaign
             }
         }
         internal bool Current(NativeCampaign owner, int epoch) => Instance == this && ReferenceEquals(owner, NativeCampaign.Current) && epoch == _epoch
-            && _campaign == ReignServerClient.GetCampaignId() && _timeline == (ReignWorldHistoryCampaignBehavior.Instance?.TimelineId ?? "main");
+            && _campaign == ReignServerClient.GetCampaignId() && _timeline == (ReignServices.WorldHistory?.TimelineId ?? "main");
         private static bool Ready() => NativeCampaign.Current != null && MobileParty.MainParty != null && Hero.MainHero?.IsAlive == true
             && !ReignCampaignInitializationGate.IsPending && Platform.Settings.ReignBetaSettings.Instance?.UseLocalServer != false;
         internal static bool QuietMap() => ReignPlayerApproachPopup.CanPresentOnMap() && !ReignPlayerApproachPopup.IsOpen
@@ -101,7 +101,7 @@ namespace ReignBeta.Characters.Campaign
         {
             _real += Math.Max(0, dt);
             if (!Ready() || ReignSaveSyncCampaignBehavior.IsNativeSaveInProgress) return;
-            string campaign = ReignServerClient.GetCampaignId(), timeline = ReignWorldHistoryCampaignBehavior.Instance?.TimelineId ?? "main";
+            string campaign = ReignServerClient.GetCampaignId(), timeline = ReignServices.WorldHistory?.TimelineId ?? "main";
             if (_campaign != campaign || _timeline != timeline)
             { _epoch++; _busy = _initialized = false; _campaign = campaign; _timeline = timeline; Generation = ""; _nextPoll = _nextEvaluation = 0; }
             if (ReignTestHarness.Current.OwnsAutomationSession && !NpcLivesTestOwnsSession
@@ -164,7 +164,7 @@ namespace ReignBeta.Characters.Campaign
                             payload["contributionId"] = operation; payload["playerHeroStringId"] = payload["playerId"]?.DeepClone();
                             ReignConversationInputJournal.Acknowledge(payload, response);
                         }
-                        ReignAgreementBehavior.Instance?.RecheckPendingAgreements();
+                        ReignServices.Agreement?.RecheckPendingAgreements();
                         if (QuietMap()) PresentLifeInvitation(response.Value<string>("invitationId"));
                     }).ConfigureAwait(false);
                 }

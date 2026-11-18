@@ -10,6 +10,7 @@ using TaleWorlds.CampaignSystem;
 using ReignBeta.Characters.Integration;
 using ReignBeta.Platform.Integration;
 using ReignBeta.WorldSimulation.Campaign;
+using ReignBeta.Platform.Runtime;
 
 namespace ReignBeta.Portraits.Integration
 {
@@ -26,7 +27,7 @@ namespace ReignBeta.Portraits.Integration
             ["heroStringId"] = HeroId, ["playerHeroId"] = PlayerId, ["operationId"] = Id };
         internal bool IsCurrent => ReferenceEquals(Campaign, TaleWorlds.CampaignSystem.Campaign.Current)
             && CampaignId == ReignCampaignIdentity.CurrentCampaignId()
-            && Timeline == (ReignWorldHistoryCampaignBehavior.Instance?.TimelineId ?? "main");
+            && Timeline == (ReignServices.WorldHistory?.TimelineId ?? "main");
         internal void Cleanup()
         {
             TextureFactory.ForgetFile(BeforePath);
@@ -57,7 +58,7 @@ namespace ReignBeta.Portraits.Integration
             ["companionOfId"] = hero?.CompanionOf != null && hero.CompanionOf == Clan.PlayerClan ? Hero.MainHero?.StringId ?? "" : "" };
         internal static ReignOutfitAttempt Create(Hero hero) => new ReignOutfitAttempt {
             Campaign = TaleWorlds.CampaignSystem.Campaign.Current, CampaignId = ReignCampaignIdentity.CurrentCampaignId(),
-            CampaignFolder = ReignCampaignIdentity.CurrentCampaignFolderName(), Timeline = ReignWorldHistoryCampaignBehavior.Instance?.TimelineId ?? "main",
+            CampaignFolder = ReignCampaignIdentity.CurrentCampaignFolderName(), Timeline = ReignServices.WorldHistory?.TimelineId ?? "main",
             HeroId = hero.StringId, PlayerId = Hero.MainHero.StringId, CacheKey = CharacterCacheId.ForHero(hero) };
         internal static string Hash(byte[] bytes)
         {

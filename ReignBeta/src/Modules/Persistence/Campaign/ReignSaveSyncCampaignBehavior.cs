@@ -16,6 +16,7 @@ using ReignBeta.Platform.Integration;
 using ReignBeta.WorldSimulation.Campaign;
 using ReignBeta.WorldSimulation.Integration;
 using ReignBeta.WorldSimulation.Runtime;
+using ReignBeta.Platform.Runtime;
 
 namespace ReignBeta.Persistence.Campaign
 {
@@ -55,7 +56,7 @@ namespace ReignBeta.Persistence.Campaign
         private bool _registrationFailedForCurrentSave;
         private string _registrationFailureDetail = string.Empty;
 
-        public static ReignSaveSyncCampaignBehavior Instance { get; private set; }
+        public static ReignSaveSyncCampaignBehavior Instance => ReignServices.SaveSync;
 
         internal static bool IsNativeSaveInProgress => _nativeSaveInProgress;
 
@@ -78,7 +79,7 @@ namespace ReignBeta.Persistence.Campaign
 
         public override void RegisterEvents()
         {
-            Instance = this;
+            ReignServices.SaveSync = this;
             CampaignEvents.OnNewGameCreatedEvent.AddNonSerializedListener(this, OnNewGameCreated);
             CampaignEvents.OnGameLoadedEvent.AddNonSerializedListener(this, OnGameLoaded);
             CampaignEvents.OnSessionLaunchedEvent.AddNonSerializedListener(this, OnSessionLaunched);
@@ -131,7 +132,7 @@ namespace ReignBeta.Persistence.Campaign
                 return;
             }
 
-            ReignWorldHistoryCampaignBehavior history = ReignWorldHistoryCampaignBehavior.Instance;
+            ReignWorldHistoryCampaignBehavior history = ReignServices.WorldHistory;
             string timeline = string.IsNullOrWhiteSpace(_timelineId) ? history?.TimelineId ?? "main" : _timelineId;
             long sequence = _worldHistorySequence > 0 ? _worldHistorySequence : history?.Sequence ?? 0L;
             string head = string.IsNullOrWhiteSpace(_worldHistoryHeadEventId) ? history?.HeadEventId ?? string.Empty : _worldHistoryHeadEventId;
@@ -181,7 +182,7 @@ namespace ReignBeta.Persistence.Campaign
                 _registrationFailureDetail =
                     "Campaign preparation has not received its durable readiness seal.";
             }
-            ReignWorldHistoryCampaignBehavior history = ReignWorldHistoryCampaignBehavior.Instance;
+            ReignWorldHistoryCampaignBehavior history = ReignServices.WorldHistory;
             _savePointId = Guid.NewGuid().ToString("N");
             _savePointKind = "native_save";
             _capturedUtc = DateTime.UtcNow.ToString("o", CultureInfo.InvariantCulture);

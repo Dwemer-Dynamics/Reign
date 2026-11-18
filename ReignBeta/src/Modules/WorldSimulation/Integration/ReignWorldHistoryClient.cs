@@ -14,6 +14,7 @@ using TaleWorlds.CampaignSystem;
 using TaleWorlds.Library;
 using static ReignBeta.Platform.Integration.ReignServerClient;
 using ReignBeta.Platform.Integration;
+using ReignBeta.Platform.Runtime;
 
 namespace ReignBeta.WorldSimulation.Integration
 {
@@ -221,7 +222,7 @@ namespace ReignBeta.WorldSimulation.Integration
             float completeFrom;
             long epoch;
             lock (StateLock) { timeline = _timelineId; campaign = _campaignId; completeFrom = _completeFromDay;
-                epoch = _epoch; generation = ReignBeta.WorldSimulation.Campaign.ReignWorldHistoryCampaignBehavior.Instance?.SharedActivityGeneration ?? string.Empty; }
+                epoch = _epoch; generation = ReignServices.WorldHistory?.SharedActivityGeneration ?? string.Empty; }
             string path = PendingPath(timeline, campaign);
             // Recover relevant durable outbox entries without making the next
             // reply wait for unrelated world traffic or the normal upload cadence.
@@ -557,7 +558,7 @@ namespace ReignBeta.WorldSimulation.Integration
                         timeline = _timelineId;
                         campaign = _campaignId;
                         epoch = _epoch;
-                        generation = ReignBeta.WorldSimulation.Campaign.ReignWorldHistoryCampaignBehavior.Instance?.SharedActivityGeneration ?? string.Empty;
+                        generation = ReignServices.WorldHistory?.SharedActivityGeneration ?? string.Empty;
                         completeFrom = _completeFromDay;
                     }
                     string path = PendingPath(timeline, campaign);

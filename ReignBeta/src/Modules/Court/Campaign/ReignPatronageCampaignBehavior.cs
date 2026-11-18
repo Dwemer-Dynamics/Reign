@@ -9,6 +9,7 @@ using TaleWorlds.CampaignSystem;
 using TaleWorlds.CampaignSystem.Actions;
 using TaleWorlds.CampaignSystem.Settlements;
 using TaleWorlds.Library;
+using ReignBeta.Platform.Runtime;
 
 namespace ReignBeta.Court.Campaign
 {
@@ -88,7 +89,7 @@ namespace ReignBeta.Court.Campaign
         {
             ReignRulerDocketState state = EnsureRulerDocketState();
             string scope = ReignBeta.Platform.Integration.ReignServerClient.GetCampaignId() + "|"
-                + (ReignBeta.WorldSimulation.Campaign.ReignWorldHistoryCampaignBehavior.Instance?.TimelineId ?? "main") + "|" + (Clan.PlayerClan?.Kingdom?.StringId ?? "");
+                + (ReignServices.WorldHistory?.TimelineId ?? "main") + "|" + (Clan.PlayerClan?.Kingdom?.StringId ?? "");
             if (_patronagePublicHistoryScope == scope && _patronagePublicHistoryDay <= CurrentCourtLifeDay())
                 foreach (JObject subject in _patronagePublicSubjects.OfType<JObject>().Where(x =>
                     template.RequiredContext == "history" || x.Value<string>("context") == template.RequiredContext))

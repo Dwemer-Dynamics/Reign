@@ -8,6 +8,7 @@ using TaleWorlds.CampaignSystem.Settlements;
 using TaleWorlds.CampaignSystem.Settlements.Locations;
 using ReignBeta.Platform.Integration;
 using ReignBeta.WorldSimulation.Runtime;
+using ReignBeta.Platform.Runtime;
 
 namespace ReignBeta.Dialogue.Runtime
 {
@@ -150,7 +151,7 @@ namespace ReignBeta.Dialogue.Runtime
             }
 
             if (settlement != null && !settlement.IsUnderSiege)
-                foreach (Hero resident in ReignBeta.Characters.Campaign.ReignEncounteredResidentsCampaignBehavior.Instance?.ResidentsAt(settlement) ?? new List<Hero>())
+                foreach (Hero resident in ReignServices.EncounteredResidents?.ResidentsAt(settlement) ?? new List<Hero>())
                     if (seen.Add(resident.StringId)) result.Add(resident);
 
             List<Hero> ordered = result

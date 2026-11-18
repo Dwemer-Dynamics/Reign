@@ -14,6 +14,7 @@ using TaleWorlds.Library;
 using ReignBeta.Characters.Campaign;
 using ReignBeta.Characters.Integration;
 using ReignBeta.Platform.Integration;
+using ReignBeta.Platform.Runtime;
 
 namespace ReignBeta.Portraits.Integration
 {
@@ -45,7 +46,7 @@ namespace ReignBeta.Portraits.Integration
             string castId = person.CastId, heroId = hero.StringId;
             string appearanceCode = PortraitRequestRegistry.GetCodeFor(hero);
             JObject snapshot = ReignServerClient.BuildNativePortraitSnapshot(hero);
-            var behavior = ReignTavernHouseCampaignBehavior.Instance;
+            var behavior = ReignServices.TavernHouse;
             // Resolve every TaleWorlds value above on the requesting game thread.
             Task.Run(async () =>
             {
@@ -63,7 +64,7 @@ namespace ReignBeta.Portraits.Integration
                         _ = ReignServerClient.RegisterPortraitFileAsync(cacheKey, PortraitCache.DiskPath(cacheKey), "shipped_tavern");
                         await ReignMainThread.InvokeAsync(() =>
                         {
-                            if (ReignTavernHouseCampaignBehavior.Instance != behavior || ReignCampaignIdentity.CurrentCampaignId() != campaignId) return;
+                            if (ReignServices.TavernHouse != behavior || ReignCampaignIdentity.CurrentCampaignId() != campaignId) return;
                             TextureFactory.Invalidate(cacheKey);
                             person.PortraitComplete = PortraitCache.ExistsOnDisk(cacheKey);
                             PortraitIndex.Register(appearanceCode, cacheKey);

@@ -6,9 +6,6 @@ using Newtonsoft.Json.Linq;
 using Reign.Core.Contracts.Actions;
 using ReignBeta.Campaign;
 using ReignBeta.Government;
-#if !REIGN_EXCLUDE_COURT
-using ReignBeta.Court;
-#endif
 using ReignBeta.World;
 using TaleWorlds.CampaignSystem;
 using ReignBeta.Characters.Actions;
@@ -17,9 +14,7 @@ using ReignBeta.Government.Campaign;
 using ReignBeta.Relationships.Campaign;
 using ReignBeta.WorldSimulation.Actions;
 using ReignBeta.WorldSimulation.World;
-#if !REIGN_EXCLUDE_COURT
-using ReignBeta.Court.Campaign;
-#endif
+using ReignBeta.Platform.Runtime;
 
 namespace ReignBeta.Actions
 {
@@ -44,20 +39,20 @@ namespace ReignBeta.Actions
             if (actor == null || counterpart == null || actor == counterpart || actor.IsDead || counterpart.IsDead || actor.IsChild || counterpart.IsChild) return false;
             if (definition.Id == ReignSpouseSeparation.ActionId) return ReignSpouseSeparationAction.Available(actor);
             if (definition.Adapter.StartsWith("npc_life:", StringComparison.Ordinal))
-                return ReignNpcLivesBehavior.Instance?.CanBuildLifeAction(definition.Id, actor, counterpart) == true;
+                return ReignServices.NpcLives?.CanBuildLifeAction(definition.Id, actor, counterpart) == true;
             if (definition.Id == "expose_concealed_pregnancy")
-                return ReignFamilyCampaignBehavior.Instance?.PregnancyExposureOptions(counterpart.StringId).Count > 0;
+                return ReignServices.Family?.PregnancyExposureOptions(counterpart.StringId).Count > 0;
             if (definition.Adapter.StartsWith("asset:", StringComparison.Ordinal))
                 return definition.Id == "give.gold" ? actor.Gold > 0
                     : ReignActionEntities.Find(definition.Id.Substring(5), actor.StringId, clause: new ActionClause { ActionId = definition.Id, ActorId = actor.StringId, RecipientId = counterpart.StringId }).Any(r => r.Available);
             if (definition.Adapter.StartsWith("government:", StringComparison.Ordinal))
-                return ReignGovernmentCampaignBehavior.Instance != null && (actor.Clan?.Kingdom != null
-                    || ReignGovernmentCampaignBehavior.Instance.Seats.Any(s => s.HeroStringId == actor.StringId)
+                return ReignServices.Government != null && (actor.Clan?.Kingdom != null
+                    || ReignServices.Government.Seats.Any(s => s.HeroStringId == actor.StringId)
                     || definition.Id == "government.endorse_petition" && actor.IsNotable);
             if (definition.Family == "court")
             {
 #if !REIGN_EXCLUDE_COURT
-                var court = ReignCourtCampaignBehavior.Instance;
+                var court = ReignServices.CourtWorld;
                 if (court == null || !actor.IsActive || actor.IsPrisoner) return false;
                 if (definition.Id.StartsWith("spymaster.", StringComparison.Ordinal))
                     return court.IsRuleModeActive && court.ActiveSpymaster == actor
@@ -104,7 +99,7 @@ namespace ReignBeta.Actions
             }
             if (new[] { "renew_temporary_party_guest", "end_temporary_party_guest", "acknowledge_own_faction_combat_risk" }.Contains(definition.Id))
             {
-                var guest = ReignBeta.WorldSimulation.PartyAgency.ReignTemporaryPartyGuestCampaignBehavior.Instance?.Records.FirstOrDefault(record =>
+                var guest = ReignServices.TemporaryPartyGuest?.Records.FirstOrDefault(record =>
                     record.IsLive && string.Equals(record.HeroStringId, actor.StringId, StringComparison.OrdinalIgnoreCase));
                 if (guest == null) return false;
                 if (definition.Id == "renew_temporary_party_guest") return actor.PartyBelongedTo == TaleWorlds.CampaignSystem.Party.MobileParty.MainParty;
@@ -117,12 +112,12 @@ namespace ReignBeta.Actions
         public static bool CanSelect(ActionClause clause, ActionParameter parameter, string value)
         {
             if (clause.ActionId == "expose_concealed_pregnancy" && parameter.Key == "disclosure")
-                return ReignFamilyCampaignBehavior.Instance?.CheckPregnancyExposure(Arg(clause, "pregnancyId"), clause.RecipientId, value == "name_father") == "";
+                return ReignServices.Family?.CheckPregnancyExposure(Arg(clause, "pregnancyId"), clause.RecipientId, value == "name_father") == "";
             Hero actor = HeroById(clause.ActorId), counterpart = HeroById(clause.RecipientId);
             if (clause.ActionId == "npc_life.summon_meeting")
             {
                 if (parameter.Key == "targetHeroId") return ReignNpcLivesBehavior.CanSummon(actor, HeroById(value));
-                if (parameter.Key == "destinationId") return ReignNpcLivesBehavior.Instance?.MeetingPlaceOptions(clause).Any(o => o.Id == value && o.Available) == true;
+                if (parameter.Key == "destinationId") return ReignServices.NpcLives?.MeetingPlaceOptions(clause).Any(o => o.Id == value && o.Available) == true;
             }
             if (!ReignActionConversationPolicy.AllowsParticipantSelection(clause.ActionId, parameter.Key, value, clause.ActorId, clause.RecipientId)) return false;
             if (parameter.Kind == "hero" && parameter.Key != "terms.wageRecipientHeroStringId")
@@ -161,11 +156,11 @@ namespace ReignBeta.Actions
 
         public static List<string> Preview(ActionAgreement agreement)
         {
-            ReignNpcLivesBehavior.Instance?.BindMeetingArrival(agreement);
+            ReignServices.NpcLives?.BindMeetingArrival(agreement);
             var errors = AgreementRules.Validate(agreement, ReignActionCatalog.Find, Now);
             if (errors.Count > 0) return errors;
             if (agreement.Clauses.Any(c => c.ActionId.StartsWith("marriage.", StringComparison.Ordinal)))
-                return ReignRelationshipCampaignBehavior.Instance?.CheckMarriageAction(agreement)
+                return ReignServices.Relationship?.CheckMarriageAction(agreement)
                     ?? new List<string> { "Marriage services are unavailable." };
             try { BindGuestReviews(agreement); }
             catch (ArgumentException ex) { return new List<string> { ex.Message }; }
@@ -177,13 +172,13 @@ namespace ReignBeta.Actions
                 else if (c.ActionId == ReignSpouseSeparation.ActionId) errors.AddRange(ReignSpouseSeparationAction.Check(agreement, c));
                 else if (c.ActionId == "expose_concealed_pregnancy")
                 {
-                    string error = ReignFamilyCampaignBehavior.Instance?.CheckPregnancyExposure(Arg(c, "pregnancyId"), c.RecipientId, Arg(c, "disclosure") == "name_father") ?? "Family services are unavailable.";
+                    string error = ReignServices.Family?.CheckPregnancyExposure(Arg(c, "pregnancyId"), c.RecipientId, Arg(c, "disclosure") == "name_father") ?? "Family services are unavailable.";
                     if (error.Length > 0) errors.Add(error);
                 }
                 else if (d.Adapter.StartsWith("npc_life:", StringComparison.Ordinal))
                 {
-                    if (ReignNpcLivesBehavior.Instance == null) errors.Add("NPC Lives is unavailable.");
-                    else errors.AddRange(ReignNpcLivesBehavior.Instance.CheckLifeAction(agreement, c));
+                    if (ReignServices.NpcLives == null) errors.Add("NPC Lives is unavailable.");
+                    else errors.AddRange(ReignServices.NpcLives.CheckLifeAction(agreement, c));
                 }
                 else if (d.Adapter.StartsWith("asset:", StringComparison.Ordinal))
                 {
@@ -191,14 +186,14 @@ namespace ReignBeta.Actions
                 }
                 else if (d.Adapter.StartsWith("government:", StringComparison.Ordinal))
                 {
-                    if (ReignGovernmentCampaignBehavior.Instance == null) errors.Add("Government is unavailable.");
-                    else errors.AddRange(ReignGovernmentCampaignBehavior.Instance.CheckAgreementClause(c));
+                    if (ReignServices.Government == null) errors.Add("Government is unavailable.");
+                    else errors.AddRange(ReignServices.Government.CheckAgreementClause(c));
                 }
                 else if (d.Adapter.StartsWith("court:", StringComparison.Ordinal))
                 {
 #if !REIGN_EXCLUDE_COURT
-                    if (ReignCourtCampaignBehavior.Instance == null) errors.Add("Court services are unavailable.");
-                    else errors.AddRange(ReignCourtCampaignBehavior.Instance.CheckCourtAgreement(c));
+                    if (ReignServices.CourtWorld == null) errors.Add("Court services are unavailable.");
+                    else errors.AddRange(ReignServices.CourtWorld.CheckCourtAgreement(c));
 #else
                     errors.Add("This build does not include court services.");
 #endif
@@ -211,16 +206,16 @@ namespace ReignBeta.Actions
             }
             errors.AddRange(ReignAssetTransfer.CheckAggregate(agreement));
 #if !REIGN_EXCLUDE_COURT
-            if (ReignCourtCampaignBehavior.Instance != null) errors.AddRange(ReignCourtCampaignBehavior.Instance.CheckCourtAgreementPackage(agreement));
+            if (ReignServices.CourtWorld != null) errors.AddRange(ReignServices.CourtWorld.CheckCourtAgreementPackage(agreement));
 #endif
-            if (ReignAgreementBehavior.Instance != null) errors.AddRange(ReignAgreementBehavior.Instance.CheckAssetReservations(agreement));
+            if (ReignServices.Agreement != null) errors.AddRange(ReignServices.Agreement.CheckAssetReservations(agreement));
             if (errors.Count == 0 && agreement.Clauses.Any(c => c.ActionId == "government.support_nomination" || c.ActionId == "government.support_vote"))
             {
-                if (ReignAgreementBehavior.Instance == null || ReignGovernmentCampaignBehavior.Instance == null)
+                if (ReignServices.Agreement == null || ReignServices.Government == null)
                     errors.Add("The vote bargain's delivery timing is unavailable.");
                 else
-                    errors.AddRange(ReignGovernmentCampaignBehavior.Instance.CheckVoteAgreementTiming(agreement,
-                        ReignAgreementBehavior.Instance.DeliveryDays(agreement)));
+                    errors.AddRange(ReignServices.Government.CheckVoteAgreementTiming(agreement,
+                        ReignServices.Agreement.DeliveryDays(agreement)));
             }
             return errors.Distinct().ToList();
         }
@@ -231,7 +226,7 @@ namespace ReignBeta.Actions
             foreach (var clause in agreement.Clauses.Where(c => c != null
                 && (c.ActionId == "renew_temporary_party_guest" || c.ActionId == "end_temporary_party_guest")))
             {
-                var context = ReignBeta.WorldSimulation.PartyAgency.ReignTemporaryPartyGuestCampaignBehavior.Instance
+                var context = ReignServices.TemporaryPartyGuest
                     ?.BuildConversationContext(HeroById(clause.ActorId));
                 AgreementRules.BindGuestReview(agreement, clause, context?.Value<string>("agreementId") ?? "",
                     context?.Value<double?>("reviewDueDay") ?? double.NaN,
@@ -294,11 +289,11 @@ namespace ReignBeta.Actions
 
         public static ActionReceipt RunOperator(ActionAgreement agreement)
         {
-            if (ReignAgreementBehavior.Instance == null) throw new InvalidOperationException("Load a campaign first.");
+            if (ReignServices.Agreement == null) throw new InvalidOperationException("Load a campaign first.");
             agreement = Copy(agreement); agreement.Origin = ActionOrigin.Console; agreement.State = AgreementState.Accepted;
             agreement.PlayerAcceptedHash = ""; agreement.NpcAcceptedHash = "";
             BindGuestReviews(agreement);
-            return ReignAgreementBehavior.Instance.Commit(agreement, true);
+            return ReignServices.Agreement.Commit(agreement, true);
         }
 
         public static ActionReceipt AcceptNpcDecision(ActionAgreement offered, string decision, string reviewedHash)
@@ -307,7 +302,7 @@ namespace ReignBeta.Actions
             if (decision != "accept") throw new InvalidOperationException("The NPC did not accept this proposal.");
             if (agreement.Origin != ActionOrigin.Conversation || !AgreementRules.Accept(agreement, agreement.NpcId, reviewedHash))
                 throw new InvalidOperationException("The NPC accepted a different revision.");
-            return ReignAgreementBehavior.Instance.Commit(agreement, false);
+            return ReignServices.Agreement.Commit(agreement, false);
         }
     }
 }

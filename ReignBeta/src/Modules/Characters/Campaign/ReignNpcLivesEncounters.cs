@@ -21,6 +21,7 @@ using ReignBeta.Characters.Integration;
 using ReignBeta.Platform.Integration;
 using ReignBeta.WorldSimulation.Campaign;
 using ReignBeta.WorldSimulation.World;
+using ReignBeta.Platform.Runtime;
 
 namespace ReignBeta.Characters.Campaign
 {
@@ -151,7 +152,7 @@ namespace ReignBeta.Characters.Campaign
                 var holder = friend?.PartyBelongedToAsPrisoner;
                 bool currentScope = _initialized && Generation.Length > 0 && row.Value<string>("generation") == Generation
                     && _campaign == ReignServerClient.GetCampaignId() && row.Value<string>("campaignId") == _campaign
-                    && _timeline == (ReignWorldHistoryCampaignBehavior.Instance?.TimelineId ?? "main")
+                    && _timeline == (ReignServices.WorldHistory?.TimelineId ?? "main")
                     && row.Value<string>("timelineId") == _timeline;
                 bool activeRescue = row.Value<string>("status") == "active" && row.Value<string>("kind") == "hideout"
                     && row.Value<string>("requiredOutcome") == "rescued" && story?.Status == "active"

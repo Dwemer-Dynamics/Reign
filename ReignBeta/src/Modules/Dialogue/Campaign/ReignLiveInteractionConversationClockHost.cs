@@ -19,6 +19,7 @@ using ReignBeta.Dialogue.UI;
 using ReignBeta.Persistence.Campaign;
 using ReignBeta.Persistence.Integration;
 using ReignBeta.Platform.Integration;
+using ReignBeta.Platform.Runtime;
 
 namespace ReignBeta.WorldSimulation.Campaign
 {
@@ -126,7 +127,7 @@ namespace ReignBeta.WorldSimulation.Campaign
                 || enrollment?.Value<bool?>("recoveryCheckpointVerified") != true
                 || string.IsNullOrWhiteSpace(enrollment?.Value<string>("campaignTestRunId"))
                 || enrollment?.Value<string>("campaignId") != campaignId
-                || enrollment?.Value<string>("timelineId") != (ReignWorldHistoryCampaignBehavior.Instance?.TimelineId ?? "main")
+                || enrollment?.Value<string>("timelineId") != (ReignServices.WorldHistory?.TimelineId ?? "main")
                 || expected.Length == 0 || baseline.Length == 0
                 || string.Equals(expected, baseline, StringComparison.OrdinalIgnoreCase)
                 || expected != ActiveSaveName() || expected != command.Value<string>("expectedSaveName")
@@ -187,7 +188,7 @@ namespace ReignBeta.WorldSimulation.Campaign
                 ["clock"] = ReignConversationClockProbe.Read(ConversationClockTracker(campaign)),
                 ["gameInstanceId"] = _gameInstanceId,
                 ["campaignId"] = ReignCampaignIdentity.CurrentCampaignId(),
-                ["timelineId"] = ReignWorldHistoryCampaignBehavior.Instance?.TimelineId ?? "main",
+                ["timelineId"] = ReignServices.WorldHistory?.TimelineId ?? "main",
                 ["saveName"] = ActiveSaveName(),
                 ["applicationDispatchTicks"] = ReignMainThread.LastDrainUtc.Ticks,
                 ["worldDay"] = CampaignTime.Now.ToDays,

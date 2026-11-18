@@ -10,13 +10,14 @@ using TaleWorlds.MountAndBlade;
 using ReignBeta.Dialogue.Campaign;
 using ReignBeta.Dialogue.Runtime;
 using ReignBeta.Platform.Integration;
+using ReignBeta.Platform.Runtime;
 
 namespace ReignBeta.Dialogue.UI
 {
     public sealed partial class ReignPartyChatScreenVM
     {
-        private readonly ReignPartyChatHistoryBehavior _partyHistory = ReignPartyChatHistoryBehavior.Instance;
-        private readonly int _partyHistoryEpoch = ReignPartyChatHistoryBehavior.Instance?.Epoch ?? -1;
+        private readonly ReignPartyChatHistoryBehavior _partyHistory = ReignServices.PartyChatHistory;
+        private readonly int _partyHistoryEpoch = ReignServices.PartyChatHistory?.Epoch ?? -1;
         private ReignPartyChatContinuation _partyOrigin;
         private bool _restoringPartyChat;
         private bool _continuedPartyChat;

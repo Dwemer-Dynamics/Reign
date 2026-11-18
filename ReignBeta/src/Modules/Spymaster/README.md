@@ -12,7 +12,7 @@ Spymaster. The spymaster court office: missions, reports and their UI. Compiled 
 | `UI` | 2 |
 | `Integration` | 1 |
 
-Namespaces in use: `ReignBeta.Court (7)`, `ReignBeta.Campaign (1)`, `ReignBeta.Integration (1)`, `ReignBeta.UI (1)`, `ReignBeta.UI.ViewModels (1)`.
+Namespaces in use: `ReignBeta.Spymaster.Campaign (6)`, `ReignBeta.Court.Campaign (2)`, `ReignBeta.Spymaster.UI (2)`, `ReignBeta.Spymaster.Integration (1)`, `ReignBeta.WorldSimulation.Campaign (1)`.
 
 ## Public surface
 

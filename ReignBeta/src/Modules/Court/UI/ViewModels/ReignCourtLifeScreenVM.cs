@@ -18,6 +18,7 @@ using ReignBeta.Dialogue.UI;
 using ReignBeta.Platform.Integration;
 using ReignBeta.Portraits.UI;
 using ReignBeta.UI.ViewModels;
+using ReignBeta.Platform.Runtime;
 
 namespace ReignBeta.Court.UI
 {
@@ -162,7 +163,7 @@ namespace ReignBeta.Court.UI
             {
                 string contribution = "court_life_turn_" + Guid.NewGuid().ToString("N");
                 try { ReignBeta.Dialogue.Runtime.ReignConversationInputJournal.Save(ReignServerClient.GetCampaignId(),
-                    ReignBeta.WorldSimulation.Campaign.ReignWorldHistoryCampaignBehavior.Instance?.TimelineId ?? "main", Hero.MainHero?.StringId ?? "", contribution, text); }
+                    ReignServices.WorldHistory?.TimelineId ?? "main", Hero.MainHero?.StringId ?? "", contribution, text); }
                 catch (Exception ex) { StatusText = "Your message could not be saved locally: " + ex.Message; return; }
                 _matter.PendingPlayerTurnId = contribution;
                 _matter.PendingPlayerText = text;

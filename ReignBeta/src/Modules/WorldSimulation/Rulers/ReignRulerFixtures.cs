@@ -17,6 +17,7 @@ using static ReignBeta.WorldSimulation.Rulers.ReignRulerCampaignBehavior;
 using ReignBeta.WorldSimulation.Actions;
 using ReignBeta.WorldSimulation.Campaign;
 using ReignBeta.WorldSimulation.News;
+using ReignBeta.Platform.Runtime;
 
 namespace ReignBeta.WorldSimulation.Rulers
 {
@@ -53,13 +54,13 @@ namespace ReignBeta.WorldSimulation.Rulers
                 prisoner?.IsPrisoner == true && prisoner.PartyBelongedToAsPrisoner?.MapFaction == victor?.Clan?.Kingdom,
                 Sovereign(victor) && victor != Hero.MainHero, selected);
             string operation = control.Value<string>("operationId");
-            var receipt = ReignAgreementBehavior.Instance.NativeOperation(operation) ?? new JObject();
+            var receipt = ReignServices.Agreement.NativeOperation(operation) ?? new JObject();
             receipt["status"] = matches ? "consumed" : "invalidated";
             receipt["judgmentId"] = judgment.Id; receipt["actualVictorId"] = judgment.VictorId;
             receipt["observedDay"] = Day; receipt["civilWar"] = judgment.CivilWar; receipt["rebelVictory"] = judgment.RebelVictory;
             if (matches) { receipt["selectedDraw"] = selected; draw = selected; }
             else receipt["reason"] = "The enrolled AI ruler, custody or pending decision changed.";
-            ReignAgreementBehavior.Instance.SaveNativeOperation(operation, receipt);
+            ReignServices.Agreement.SaveNativeOperation(operation, receipt);
             return matches;
         }
         internal static bool TryConsumeCaptureRoll(ReignRulerCampaignBehavior rulers, Hero hero, out double roll)
@@ -70,12 +71,12 @@ namespace ReignBeta.WorldSimulation.Rulers
             if (!ReignLiveInteractionTestHost.MatchesRulerFixture(control["enrollment"] as JObject)) return false;
             roll = control.Value<double>("roll");
             string operation = control.Value<string>("operationId");
-            var receipt = ReignAgreementBehavior.Instance.NativeOperation(operation);
+            var receipt = ReignServices.Agreement.NativeOperation(operation);
             if (receipt == null) return false;
             receipt["status"] = "consumed"; receipt["selectedRoll"] = roll;
             receipt["observedWounded"] = hero.IsWounded; receipt["consumedDay"] = Day;
             receipt["expectedCapture"] = ReignRulerPolicy.Capture(hero.IsWounded, roll);
-            ReignAgreementBehavior.Instance.SaveNativeOperation(operation, receipt);
+            ReignServices.Agreement.SaveNativeOperation(operation, receipt);
             return true;
         }
         internal static JObject PrepareFixture(ReignRulerCampaignBehavior rulers, JObject testCase, string operation, JObject enrollment)
@@ -94,7 +95,7 @@ namespace ReignBeta.WorldSimulation.Rulers
                 throw new InvalidOperationException("Mortality probes require the main hero, empty other hero and amount zero or one.");
             string hash;
             using (var sha = SHA256.Create()) hash = BitConverter.ToString(sha.ComputeHash(Encoding.UTF8.GetBytes(profile + "\n" + JsonConvert.SerializeObject(new System.Collections.Generic.SortedDictionary<string,string>(a.Properties().ToDictionary(p => p.Name, p => (string)p.Value), StringComparer.Ordinal))))).Replace("-", "").ToLowerInvariant();
-            var retained = ReignAgreementBehavior.Instance.NativeOperation(operation);
+            var retained = ReignServices.Agreement.NativeOperation(operation);
             if (retained != null) { if (retained.Value<string>("requestHash") != hash) throw new InvalidOperationException("Ruler fixture operation arguments changed."); return retained; }
             Hero hero = HeroById(heroId), other = HeroById(a.Value<string>("otherHeroId")); var settlement = Holding(settlementId);
             if (profile == "news" && (amount > 7 || other?.IsAlive != true || other.IsChild || hero == other))
@@ -119,7 +120,7 @@ namespace ReignBeta.WorldSimulation.Rulers
             if (PrisonerFixture(profile)) ValidatePrisonerFixture(profile, hero, other, amount);
             var receipt = new JObject { ["schema"] = "reign-ruler-fixture-v1", ["operationId"] = operation, ["requestHash"] = hash, ["status"] = "started", ["invocations"] = 1,
                 ["profile"] = profile, ["before"] = ObserveNative(hero, settlement), ["semanticVerification"] = "fixture_only" };
-            ReignAgreementBehavior.Instance.SaveNativeOperation(operation, receipt);
+            ReignServices.Agreement.SaveNativeOperation(operation, receipt);
             try
             {
                 rulers.ApplyingNative = true;
@@ -127,7 +128,7 @@ namespace ReignBeta.WorldSimulation.Rulers
                 {
                     case "snapshot": break;
                     case "news":
-                        var news = ReignNewsCampaignBehavior.Instance ?? throw new InvalidOperationException("Town-crier news is unavailable.");
+                        var news = ReignServices.News ?? throw new InvalidOperationException("Town-crier news is unavailable.");
                         receipt["newsBefore"] = news.Diagnostics();
                         news.PreparePresentationFixture(amount, hero, other, operation);
                         receipt["newsAfter"] = news.Diagnostics();
@@ -184,7 +185,7 @@ namespace ReignBeta.WorldSimulation.Rulers
                 receipt["status"] = profile == "snapshot" ? "observed" : "prepared"; receipt["after"] = ObserveNative(hero, settlement);
             }
             catch (Exception ex) { receipt["status"] = "uncertain"; receipt["error"] = ex.ToString(); }
-            finally { rulers.ApplyingNative = false; ReignAgreementBehavior.Instance.SaveNativeOperation(operation, receipt); }
+            finally { rulers.ApplyingNative = false; ReignServices.Agreement.SaveNativeOperation(operation, receipt); }
             return receipt;
         }
         private static void ResizeFixtureParty(MobileParty party, Hero hero, int healthy)
@@ -224,7 +225,7 @@ namespace ReignBeta.WorldSimulation.Rulers
             ["prosperityChange"] = settlement?.Town?.ProsperityChange,
             ["garrisonStrength"] = settlement?.Town?.GarrisonParty?.Party.CalculateCurrentStrength(), ["worldDay"] = Day,
             ["nativeHooks"] = ReignRulerNativePatches.HookCount, ["nativeHookError"] = ReignRulerNativePatches.Error,
-            ["news"] = ReignNewsCampaignBehavior.Instance?.Diagnostics()
+            ["news"] = ReignServices.News?.Diagnostics()
         };
     }
 }

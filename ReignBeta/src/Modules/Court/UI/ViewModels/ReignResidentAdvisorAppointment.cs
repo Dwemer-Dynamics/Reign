@@ -11,6 +11,7 @@ using TaleWorlds.Core;
 using TaleWorlds.Library;
 using ReignBeta.Court.Campaign;
 using ReignBeta.Platform.Integration;
+using ReignBeta.Platform.Runtime;
 
 namespace ReignBeta.Court.UI
 {
@@ -40,7 +41,7 @@ namespace ReignBeta.Court.UI
         {
             if (court?.CurrentCapital == null) return Enumerable.Empty<Hero>();
             var used = new HashSet<string>(court.Offices.Where(a => a.IsActive).Select(a => a.HeroStringId), StringComparer.OrdinalIgnoreCase);
-            string war = ReignWarCouncilCampaignBehavior.Instance?.SelectedCouncilorHeroId;
+            string war = ReignServices.WarCouncil?.SelectedCouncilorHeroId;
             if (!string.IsNullOrWhiteSpace(war)) used.Add(war);
             return Hero.AllAliveHeroes.Where(hero => hero != null && hero.Occupation == Occupation.Lord && !hero.IsChild && !hero.IsPrisoner
                 && hero.CurrentSettlement == court.CurrentCapital && !used.Contains(hero.StringId)).ToList();

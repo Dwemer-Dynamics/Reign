@@ -3,6 +3,7 @@ using TaleWorlds.CampaignSystem.GameComponents;
 using TaleWorlds.CampaignSystem.Party;
 using TaleWorlds.CampaignSystem.Roster;
 using TaleWorlds.Localization;
+using ReignBeta.Platform.Runtime;
 
 namespace ReignBeta.Diplomacy.ClanAccords
 {
@@ -57,7 +58,7 @@ namespace ReignBeta.Diplomacy.ClanAccords
 
         private static void AddAccordIncome(Clan clan, ref ExplainedNumber result)
         {
-            int income = ReignClanAccordsCampaignBehavior.Instance?.GetBonuses(clan).TradeIncome ?? 0;
+            int income = ReignServices.ClanAccords?.GetBonuses(clan).TradeIncome ?? 0;
             ReignClanAccordModelMath.AddFinalDelta(ref result, income, new TextObject("{=!}Clan Accords: trade cooperation"));
         }
     }
@@ -86,7 +87,7 @@ namespace ReignBeta.Diplomacy.ClanAccords
         {
             var result = base.GetTotalWage(mobileParty, troopRoster, includeDescriptions);
             if (mobileParty?.IsGarrison != true) return result;
-            double reduction = ReignClanAccordsCampaignBehavior.Instance?.GetBonuses(mobileParty.CurrentSettlement?.OwnerClan).GarrisonWageReduction ?? 0d;
+            double reduction = ReignServices.ClanAccords?.GetBonuses(mobileParty.CurrentSettlement?.OwnerClan).GarrisonWageReduction ?? 0d;
             ReignClanAccordModelMath.ApplyWageReduction(ref result, reduction);
             return result;
         }

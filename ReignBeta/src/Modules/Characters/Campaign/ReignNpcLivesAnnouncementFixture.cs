@@ -13,6 +13,7 @@ using ReignBeta.Characters.Integration;
 using ReignBeta.Persistence.Campaign;
 using ReignBeta.Platform.Integration;
 using ReignBeta.WorldSimulation.Actions;
+using ReignBeta.Platform.Runtime;
 
 namespace ReignBeta.WorldSimulation.Campaign
 {
@@ -55,7 +56,7 @@ namespace ReignBeta.WorldSimulation.Campaign
                 if (hold.Receipt.Value<string>("status") != "uncertain") hold.Receipt["status"] = "expired";
                 hold.Receipt["expired"] = true;
                 hold.Receipt["retiredUtc"] = DateTime.UtcNow.ToString("O");
-                ReignAgreementBehavior.Instance?.SaveNativeOperation(hold.Operation, hold.Receipt);
+                ReignServices.Agreement?.SaveNativeOperation(hold.Operation, hold.Receipt);
             }
             lives._nativeAnnouncementDeliveryHold = null;
         }
@@ -81,7 +82,7 @@ namespace ReignBeta.WorldSimulation.Campaign
             {
                 hold.Receipt["status"] = "uncertain";
                 hold.Receipt["error"] = "The original queued announcement identity or bytes changed; inspect or restore the enrolled Current.";
-                ReignAgreementBehavior.Instance.SaveNativeOperation(hold.Operation, hold.Receipt);
+                ReignServices.Agreement.SaveNativeOperation(hold.Operation, hold.Receipt);
                 return false;
             }
             if (captured == null)
@@ -91,7 +92,7 @@ namespace ReignBeta.WorldSimulation.Campaign
                     ["textLength"] = payload.Value<string>("text")?.Length ?? 0,
                     ["sourceMemberIds"] = AnnouncementMemberIds(payload), ["worldDay"] = payload["worldDay"]?.DeepClone(),
                     ["capturedUtc"] = DateTime.UtcNow.ToString("O") };
-                ReignAgreementBehavior.Instance.SaveNativeOperation(hold.Operation, hold.Receipt);
+                ReignServices.Agreement.SaveNativeOperation(hold.Operation, hold.Receipt);
             }
             return true;
         }
@@ -138,7 +139,7 @@ namespace ReignBeta.WorldSimulation.Campaign
             string hash = PartyComposerDigest(new { campaign = lives._campaign, timeline = lives._timeline, generation = lives.Generation, save,
                 gameInstance = command.Value<string>("gameInstanceId"), caseId = test.Value<string>("caseId"),
                 heroId = test.Value<string>("heroId"), otherHeroId = test.Value<string>("otherHeroId"), operationId = test.Value<string>("operationId") });
-            var journal = ReignAgreementBehavior.Instance ?? throw new InvalidOperationException("Native fixture journal is unavailable.");
+            var journal = ReignServices.Agreement ?? throw new InvalidOperationException("Native fixture journal is unavailable.");
             RetireAnnouncementHoldIfInvalid(lives);
             var retained = journal.NativeOperation(operation);
             string control = test.Value<string>("control");

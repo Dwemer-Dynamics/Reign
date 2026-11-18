@@ -24,6 +24,7 @@ using ReignBeta.WorldSimulation.Campaign;
 using ReignBeta.WorldSimulation.News;
 using ReignBeta.WorldSimulation.Rulers;
 using ReignBeta.WorldSimulation.World;
+using ReignBeta.Platform.Runtime;
 
 namespace ReignBeta.Rebellion.Campaign
 {
@@ -59,7 +60,7 @@ namespace ReignBeta.Rebellion.Campaign
         private readonly object _backingUpdatesLock = new object();
         private List<JObject> _pendingBackingUpdates = new List<JObject>();
 
-        public static ReignRebellionCampaignBehavior Instance { get; private set; }
+        public static ReignRebellionCampaignBehavior Instance => ReignServices.Rebellion;
         public IReadOnlyList<ReignRebellionMovementRecord> Movements => _movements;
         public IReadOnlyList<ReignRebellionMembershipRecord> Memberships => _memberships;
         public IReadOnlyList<ReignRebellionWeeklyRollRecord> WeeklyRolls => _weeklyRolls;
@@ -85,7 +86,7 @@ namespace ReignBeta.Rebellion.Campaign
 
         public override void RegisterEvents()
         {
-            Instance = this;
+            ReignServices.Rebellion = this;
             CampaignEvents.OnSessionLaunchedEvent.AddNonSerializedListener(this, OnSessionLaunched);
             CampaignEvents.DailyTickEvent.AddNonSerializedListener(this, OnDailyTick);
             CampaignEvents.HourlyTickEvent.AddNonSerializedListener(this, OnHourlyTick);
@@ -1011,7 +1012,7 @@ namespace ReignBeta.Rebellion.Campaign
         private void EmitPlotHistory(ReignRebellionPlotRecord plot, string type,
             string phase, string actorId, string summary, bool hidden)
         {
-            ReignWorldHistoryCampaignBehavior.Instance?.RecordReignSystemEvent(
+            ReignServices.WorldHistory?.RecordReignSystemEvent(
                 type, phase, "politics", plot?.CorrelationId, summary,
                 hidden ? "participants" : "major_world", actorId,
                 plot?.ParentKingdomStringId,
@@ -2230,8 +2231,8 @@ namespace ReignBeta.Rebellion.Campaign
                 .Where(x => x?.IsFortification == true && x.MapFaction == rebels).Select(x => x.StringId));
             if (!rebels.IsAtWarWith(parent))
             {
-                if (ReignAICampaignBehavior.Instance != null)
-                    ReignAICampaignBehavior.Instance.DeclareWarWithOrigin(rebels, parent, "rebellion",
+                if (ReignServices.AI != null)
+                    ReignServices.AI.DeclareWarWithOrigin(rebels, parent, "rebellion",
                         "Civil war began.", movement.MovementId, string.Empty, true);
                 else DeclareWarAction.ApplyByRebellion(rebels, parent);
             }
@@ -2423,8 +2424,8 @@ namespace ReignBeta.Rebellion.Campaign
             if (parent != null && rebels != null && !parent.IsEliminated && !rebels.IsEliminated
                 && !parent.IsAtWarWith(rebels) && !movement.ExecutionPhase.StartsWith("resolving", StringComparison.OrdinalIgnoreCase))
             {
-                if (ReignAICampaignBehavior.Instance != null)
-                    ReignAICampaignBehavior.Instance.DeclareWarWithOrigin(rebels, parent, "rebellion",
+                if (ReignServices.AI != null)
+                    ReignServices.AI.DeclareWarWithOrigin(rebels, parent, "rebellion",
                         "Civil war resumed after external peace.", movement.MovementId, string.Empty, true);
                 else DeclareWarAction.ApplyByRebellion(rebels, parent);
             }
@@ -2550,7 +2551,7 @@ namespace ReignBeta.Rebellion.Campaign
             else movement.ChallengedRulerCapturedDay = next;
             movement.UpdatedDay = now;
             Hero capturedLeader = FindHero(rebelLeader ? movement.LeaderHeroStringId : movement.OriginalRulerHeroStringId);
-            ReignNewsCampaignBehavior.Instance?.Capture(capturedLeader, capturedLeader?.PartyBelongedToAsPrisoner, rebelLeader);
+            ReignServices.News?.Capture(capturedLeader, capturedLeader?.PartyBelongedToAsPrisoner, rebelLeader);
             EmitHistory(movement,
                 rebelLeader ? "civil_war_leader_captured" : "civil_war_ruler_captured",
                 "civil_war",
@@ -2576,7 +2577,7 @@ namespace ReignBeta.Rebellion.Campaign
         private void OnHeroKilled(Hero victim, Hero killer, KillCharacterAction.KillCharacterActionDetail detail, bool showNotification)
         {
             if (victim == null) return;
-            if (ReignRulerCampaignBehavior.Instance?.ApplyingNative == true) return;
+            if (ReignServices.Ruler?.ApplyingNative == true) return;
             foreach (ReignRebellionMovementRecord movement in _movements.Where(IsCivilWar).ToList())
             {
                 if (Same(movement.LeaderHeroStringId, victim.StringId))
@@ -2602,8 +2603,8 @@ namespace ReignBeta.Rebellion.Campaign
             Kingdom rebels = FindKingdom(movement.RebelKingdomStringId);
             if (parent != null && rebels != null && !parent.IsEliminated && !rebels.IsEliminated && !parent.IsAtWarWith(rebels))
             {
-                if (ReignAICampaignBehavior.Instance != null)
-                    ReignAICampaignBehavior.Instance.DeclareWarWithOrigin(rebels, parent, "rebellion",
+                if (ReignServices.AI != null)
+                    ReignServices.AI.DeclareWarWithOrigin(rebels, parent, "rebellion",
                         "Civil war resumed during resolution reconciliation.", movement.MovementId, string.Empty, true);
                 else DeclareWarAction.ApplyByRebellion(rebels, parent);
             }
@@ -2782,7 +2783,7 @@ namespace ReignBeta.Rebellion.Campaign
                 if (ReignRulerCampaignBehavior.Enabled(RulerOptions.CivilWars) && !CampaignOptions.IsLifeDeathCycleDisabled)
                 {
                     ImprisonByVictor(victor, defeated);
-                    ReignRulerCampaignBehavior.Instance.ScheduleDefeatedLord(defeated, victor, movement.MovementId);
+                    ReignServices.Ruler.ScheduleDefeatedLord(defeated, victor, movement.MovementId);
                     outcome = "execution_scheduled";
                 }
                 else if (!CampaignOptions.IsLifeDeathCycleDisabled)
@@ -2836,7 +2837,7 @@ namespace ReignBeta.Rebellion.Campaign
             if (!string.IsNullOrWhiteSpace(movement.BackingSponsorKingdomStringId)
                 && !string.IsNullOrWhiteSpace(movement.RebelKingdomStringId))
             {
-                ReignAICampaignBehavior.Instance?.EndAgreementsBetween(
+                ReignServices.AI?.EndAgreementsBetween(
                     movement.BackingSponsorKingdomStringId, movement.RebelKingdomStringId,
                     "rebellion_backing", "rebellion_resolved", string.Empty, string.Empty);
                 movement.BackingStatus = "expired";
@@ -3103,7 +3104,7 @@ namespace ReignBeta.Rebellion.Campaign
             movement.JudgmentsPending = false;
             movement.UpdatedDay = CurrentDay();
             movement.CooldownUntilDay = CurrentDay() + 63f;
-            ReignAICampaignBehavior.Instance?.RecordAgreementFromAction(action,
+            ReignServices.AI?.RecordAgreementFromAction(action,
                 "recognized_independence", 63f, true);
             FinalizeResolution(movement);
 
@@ -3221,7 +3222,7 @@ namespace ReignBeta.Rebellion.Campaign
         private void EmitHistory(ReignRebellionMovementRecord movement, string type, string phase,
             string actorId, string summary, bool hidden)
         {
-            ReignWorldHistoryCampaignBehavior.Instance?.RecordReignSystemEvent(type, phase, "politics",
+            ReignServices.WorldHistory?.RecordReignSystemEvent(type, phase, "politics",
                 movement?.CorrelationId, summary, hidden ? "participants" : "major_world", actorId,
                 movement?.ParentKingdomStringId,
                 new JObject

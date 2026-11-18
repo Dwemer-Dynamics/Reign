@@ -11,6 +11,7 @@ using ReignBeta.Characters.Integration;
 using ReignBeta.Dialogue.Integration;
 using ReignBeta.Persistence.Campaign;
 using ReignBeta.Platform.Integration;
+using ReignBeta.Platform.Runtime;
 
 namespace ReignBeta.WorldSimulation.Campaign
 {
@@ -61,7 +62,7 @@ namespace ReignBeta.WorldSimulation.Campaign
                 || expected != ActiveSaveName() || command.Value<string>("gameInstanceId") != _gameInstanceId
                 || command.Value<string>("campaignId") != ReignCampaignIdentity.CurrentCampaignId()
                 || enrollment.Value<string>("campaignId") != ReignCampaignIdentity.CurrentCampaignId()
-                || enrollment.Value<string>("timelineId") != (ReignWorldHistoryCampaignBehavior.Instance?.TimelineId ?? "main")
+                || enrollment.Value<string>("timelineId") != (ReignServices.WorldHistory?.TimelineId ?? "main")
                 || TaleWorlds.CampaignSystem.Campaign.Current?.TimeControlMode != CampaignTimeControlMode.Stop
                 || ReignSaveSyncCampaignBehavior.IsNativeSaveInProgress || Mission.Current != null || MobileParty.MainParty?.MapEvent != null)
                 throw new InvalidOperationException("Personal gossip requires the exact enrolled paused Current, timeline, instance and recovery checkpoint outside a mission/battle.");

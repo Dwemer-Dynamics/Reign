@@ -11,6 +11,7 @@ using ReignBeta.Government.Domain;
 using ReignBeta.Persistence.Save;
 using ReignBeta.WorldSimulation.News;
 using ReignBeta.WorldSimulation.Runtime;
+using ReignBeta.Platform.Runtime;
 
 namespace ReignBeta.Government.Campaign
 {
@@ -32,7 +33,7 @@ namespace ReignBeta.Government.Campaign
         public void OpenGovernmentNews(string editionId)
         {
             var edition = _governmentNews.Archive.FirstOrDefault(e => e.Id == editionId);
-            if (edition != null) ReignNewsCampaignBehavior.Instance?.OpenGovernmentArchive(edition);
+            if (edition != null) ReignServices.News?.OpenGovernmentArchive(edition);
         }
 
         partial void SyncGovernmentSessionNews(IDataStore store)
@@ -125,10 +126,10 @@ namespace ReignBeta.Government.Campaign
 
         partial void TickGovernmentSessionNews()
         {
-            if (ReignNewsCampaignBehavior.Instance == null
+            if (ReignServices.News == null
                 || !ReignCalendarService.TryGetAbsoluteCalendarDay(CampaignTime.Now, out double calendarDay)) return;
             foreach (var edition in _governmentNews.PublishDue(calendarDay))
-                ReignNewsCampaignBehavior.Instance.PublishGovernmentEdition(edition);
+                ReignServices.News.PublishGovernmentEdition(edition);
         }
 
         private static string GovernmentNewsDate(float day)

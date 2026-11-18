@@ -5,6 +5,7 @@ using Newtonsoft.Json.Linq;
 using Reign.Core.Contracts.Actions;
 using ReignBeta.Campaign;
 using ReignBeta.Characters.Campaign;
+using ReignBeta.Platform.Runtime;
 
 namespace ReignBeta.Characters.Actions
 {
@@ -58,17 +59,17 @@ namespace ReignBeta.Characters.Actions
         {
             var errors = CheckPrepared(agreement); if (errors.Count > 0) throw new InvalidOperationException(string.Join(" ", errors));
             var quote = TavernHouseVisitAction.Quote(agreement, Context);
-            var house = ReignTavernHouseCampaignBehavior.Instance;
+            var house = ReignServices.TavernHouse;
             if (house == null) throw new InvalidOperationException("The Tavern House is unavailable.");
             if (!house.PayPreparedVisit(quote, agreement.TermsHash(), Preparations[agreement.Id].Value<string>("preparationId"), agreement.NpcId, Context.SessionId, out string reason))
                 throw new InvalidOperationException(reason);
         }
-        internal static bool Observe(ActionAgreement agreement) => ReignTavernHouseCampaignBehavior.Instance?.VisitForAgreement(agreement.Id, agreement.TermsHash())?.ServerConfirmed == true;
+        internal static bool Observe(ActionAgreement agreement) => ReignServices.TavernHouse?.VisitForAgreement(agreement.Id, agreement.TermsHash())?.ServerConfirmed == true;
         internal static void Return(ActionAgreement agreement)
         {
             // A paid or uncertain native transfer remains recoverable. Cancellation must never
             // manufacture a refund or repeat the debit based on a later wallet balance.
-            var house = ReignTavernHouseCampaignBehavior.Instance;
+            var house = ReignServices.TavernHouse;
             house?.RetainUnconfirmedVisit(agreement.Id, agreement.TermsHash());
             var receipt = house?.VisitForAgreement(agreement.Id, agreement.TermsHash());
             if (receipt != null && !receipt.ServerConfirmed)

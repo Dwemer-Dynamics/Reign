@@ -14,6 +14,7 @@ using ReignBeta.Court.Campaign;
 using ReignBeta.Court.UI;
 using ReignBeta.Platform.Integration;
 using ReignBeta.UI;
+using ReignBeta.Platform.Runtime;
 
 namespace ReignBeta.Court.FamilyChambers
 {
@@ -54,7 +55,7 @@ namespace ReignBeta.Court.FamilyChambers
                 ReignLog.Warn("Family Chambers open ignored because Rule Mode is inactive.");
                 return;
             }
-            if (ReignFamilyChambersCampaignBehavior.Instance == null)
+            if (ReignServices.FamilyChambers == null)
             {
                 ReignLog.Warn("Family Chambers open ignored because its campaign behavior is unavailable.");
                 return;
@@ -74,7 +75,7 @@ namespace ReignBeta.Court.FamilyChambers
                 ReignLog.Warn("Family Chambers keep entry ignored because no native town or castle keep is active.");
                 return;
             }
-            if (ReignFamilyChambersCampaignBehavior.Instance == null) return;
+            if (ReignServices.FamilyChambers == null) return;
             _pendingCourt = court;
             _pendingAllowOutsideRuleMode = true;
             _pendingOriginReturn = returnToKeep;

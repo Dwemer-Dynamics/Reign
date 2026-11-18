@@ -13,13 +13,13 @@ Rebellion. Rebellion detection, uprisings and their campaign effects.
 | `Integration` | 1 |
 | `Testing` | 1 |
 
-Namespaces in use: `ReignBeta.World (6)`, `ReignBeta.Campaign (3)`, `ReignBeta.Integration (1)`.
+Namespaces in use: `ReignBeta.World (6)`, `ReignBeta.Rebellion.Campaign (2)`, `ReignBeta.Rebellion.Integration (1)`, `ReignBeta.WorldSimulation.Campaign (1)`.
 
 ## Public surface
 
 - Campaign behaviours deriving from `CampaignBehaviorBase` (all registered in `Platform/SubModule.cs`): `ReignRebellionCampaignBehavior`.
 - `ReignServerClient` partial files (server routes for this module): `Integration/ReignRebellionServerClient.cs`.
-- Static `.Instance` singletons: `ReignRebellionCampaignBehavior`.
+- Behaviours registered in `ReignServices` (their `Instance` property forwards to the slot): `ReignRebellionCampaignBehavior`.
 - Types registered with the save definer (identity must not change without save compatibility): `ReignRebellionMembershipRecord`, `ReignRebellionMovementRecord`, `ReignRebellionPledgeRecord`, `ReignRebellionPlotRecord`, `ReignRebellionSummonsRecord`, `ReignRebellionWeeklyRollRecord`.
 
 ## Dependencies

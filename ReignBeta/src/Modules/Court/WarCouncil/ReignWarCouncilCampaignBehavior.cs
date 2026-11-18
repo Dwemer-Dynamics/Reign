@@ -12,6 +12,7 @@ using TaleWorlds.Core;
 using ReignBeta.Court.Campaign;
 using ReignBeta.Persistence.Save;
 using ReignBeta.Platform.Integration;
+using ReignBeta.Platform.Runtime;
 
 namespace ReignBeta.Court.WarCouncil
 {
@@ -54,7 +55,7 @@ namespace ReignBeta.Court.WarCouncil
         private List<string> _chunks = new List<string>();
         private ReignWarCouncilIntelligenceState _intelligence = new ReignWarCouncilIntelligenceState();
         private List<string> _intelligenceChunks = new List<string>();
-        public static ReignWarCouncilCampaignBehavior Instance { get; private set; }
+        public static ReignWarCouncilCampaignBehavior Instance => ReignServices.WarCouncil;
 
         public IReadOnlyList<ReignWarCouncilBattleReport> RecentReports
         {
@@ -71,7 +72,7 @@ namespace ReignBeta.Court.WarCouncil
 
         public override void RegisterEvents()
         {
-            Instance = this;
+            ReignServices.WarCouncil = this;
             CampaignEvents.MapEventEnded.AddNonSerializedListener(this, OnMapEventEnded);
             CampaignEvents.DailyTickEvent.AddNonSerializedListener(this, OnDailyTick);
         }
@@ -253,7 +254,7 @@ namespace ReignBeta.Court.WarCouncil
             Kingdom playerKingdom = Clan.PlayerClan?.Kingdom;
             bool playerRealm = hero?.Clan == Clan.PlayerClan
                 || (playerKingdom != null && hero?.Clan?.Kingdom == playerKingdom);
-            bool holdsCouncilOffice = hero != null && (ReignCourtCampaignBehavior.Instance?.Offices?.Any(assignment => assignment.IsActive
+            bool holdsCouncilOffice = hero != null && (ReignServices.Court?.Offices?.Any(assignment => assignment.IsActive
                 && string.Equals(assignment.HeroStringId, hero.StringId, StringComparison.OrdinalIgnoreCase)) ?? false);
             return hero != null && hero != Hero.MainHero && !holdsCouncilOffice && playerRealm && hero.IsAlive && hero.IsActive
                 && !hero.IsPrisoner && hero.CharacterObject?.Occupation == Occupation.Lord
@@ -271,7 +272,7 @@ namespace ReignBeta.Court.WarCouncil
 
         private static Settlement ResolveCapital()
         {
-            Settlement capital = ReignCourtCampaignBehavior.Instance?.CurrentCapital;
+            Settlement capital = ReignServices.Court?.CurrentCapital;
             if (capital != null) return capital;
             if (Clan.PlayerClan != null)
             {

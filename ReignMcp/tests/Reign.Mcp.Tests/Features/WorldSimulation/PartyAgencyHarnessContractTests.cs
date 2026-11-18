@@ -576,7 +576,7 @@ public sealed class PartyAgencyHarnessContractTests
         string validator = File.ReadAllText(TestSourceLocator.Unique(
             Path.Combine(root, "ReignBeta"), "ReignActionValidator.cs",
             "/src/Modules/WorldSimulation/World/"));
-        Assert.Contains("ReignPersonalItemService.Instance", validator,
+        Assert.Contains("ReignServices.PersonalItemService", validator,
             StringComparison.Ordinal);
         string personalItems = File.ReadAllText(TestSourceLocator.Unique(
             Path.Combine(root, "ReignBeta"), "ReignPersonalItemService.cs",

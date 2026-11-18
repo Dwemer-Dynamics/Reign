@@ -11,6 +11,7 @@ using ReignBeta.Persistence.Campaign;
 using ReignBeta.Persistence.Integration;
 using ReignBeta.Platform.Integration;
 using ReignBeta.WorldSimulation.Campaign;
+using ReignBeta.Platform.Runtime;
 
 namespace ReignBeta.Dialogue.Integration
 {
@@ -23,7 +24,7 @@ namespace ReignBeta.Dialogue.Integration
         internal static readonly ReignCommunicationPollHold CommunicationPollHold = new ReignCommunicationPollHold();
         private static int _communicationPulseRequested;
         internal static string CommunicationPollScope() => GetCampaignId() + "|"
-            + (ReignWorldHistoryCampaignBehavior.Instance?.TimelineId ?? "main") + "|"
+            + (ReignServices.WorldHistory?.TimelineId ?? "main") + "|"
             + (ReignCampaignInitializationGate.Snapshot().Value<string>("generationId") ?? "");
 
         internal static JObject CheckpointCommunicationPollHold(string token, int seconds, bool pulse)
@@ -49,9 +50,9 @@ namespace ReignBeta.Dialogue.Integration
         }
         internal static void ApplyCommunicationCloseWork(JObject response)
         {
-            var lives = ReignNpcLivesBehavior.Instance;
+            var lives = ReignServices.NpcLives;
             if (response.Value<string>("communicationCampaignId") == GetCampaignId()
-                && response.Value<string>("communicationTimelineId") == (ReignWorldHistoryCampaignBehavior.Instance?.TimelineId ?? "main")
+                && response.Value<string>("communicationTimelineId") == (ReignServices.WorldHistory?.TimelineId ?? "main")
                 && lives != null && lives.Generation.Length > 0 && response.Value<string>("communicationGeneration") == lives.Generation
                 && response["communicationHostReservations"] is JArray hosts)
                 lives.ReconcileCommunicationHosts(hosts);
@@ -64,7 +65,7 @@ namespace ReignBeta.Dialogue.Integration
             bool requested = Volatile.Read(ref _communicationPulseRequested) != 0;
             if (CommunicationPollHold.HasLease && CommunicationPollHold.Suppresses(TaleWorlds.CampaignSystem.Campaign.Current,
                 CommunicationPollScope(), DateTime.UtcNow, requested,
-                ReignNpcLivesBehavior.Instance?.HasPendingCommunicationReceipts == true)) return;
+                ReignServices.NpcLives?.HasPendingCommunicationReceipts == true)) return;
             if ((!requested && DateTime.UtcNow < _communicationNextPoll) || ReignSaveSyncCoordinator.IsAlignmentPending
                 || ReignSaveSyncCampaignBehavior.IsNativeSaveInProgress || ReignCampaignInitializationGate.IsPending
                 || TaleWorlds.CampaignSystem.Campaign.Current == null || Hero.MainHero == null || Interlocked.CompareExchange(ref _communicationInFlight, 1, 0) != 0) return;
@@ -107,7 +108,7 @@ namespace ReignBeta.Dialogue.Integration
                     if (_communicationScope != scope || !ReignPersonalGossipClient.PersonalGossipSnapshotCurrent(snapshot)) return;
                     if (response.Value<string>("generation") is string generation) _communicationGeneration = generation;
                     if (response.Value<bool?>("ok") != true) return;
-                    var lives = ReignNpcLivesBehavior.Instance;
+                    var lives = ReignServices.NpcLives;
                     if (lives == null || lives.Generation != _communicationGeneration) return;
                     if (response["hostReservations"] is JArray hosts) lives.ReconcileCommunicationHosts(hosts);
                     foreach (var work in (response["summons"] as JArray ?? new JArray()).Children<JObject>())

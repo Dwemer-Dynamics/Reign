@@ -11,6 +11,7 @@ using TaleWorlds.CampaignSystem.Settlements;
 using TaleWorlds.Core;
 using ReignBeta.Relationships.Campaign;
 using ReignBeta.WorldSimulation.Campaign;
+using ReignBeta.Platform.Runtime;
 
 namespace ReignBeta.Court.Campaign
 {
@@ -353,7 +354,7 @@ namespace ReignBeta.Court.Campaign
                 string weddingId = "noble_docket_wedding_" + matter.MatterId;
                 var package = new Reign.Core.Contracts.Actions.ActionAgreement { Id = weddingId };
                 if (gold > 0) package.Clauses.Add(ReignWeddingBargain.Asset("give.gold", payer, recipient, gold));
-                if (!ReignRelationshipCampaignBehavior.Instance.RequestWedding(weddingId, marryA, marryB, package, "", 0, out _,
+                if (!ReignServices.Relationship.RequestWedding(weddingId, marryA, marryB, package, "", 0, out _,
                     trustedConsideration: true))
                 {
                     error = "The signed marriage could not be reserved for a wedding.";
@@ -515,7 +516,7 @@ namespace ReignBeta.Court.Campaign
             if (subject == null || string.IsNullOrWhiteSpace(tag)) return;
             ReignWorldHistoryCampaignBehavior history = TaleWorlds.CampaignSystem.Campaign.Current
                 ?.GetCampaignBehavior<ReignWorldHistoryCampaignBehavior>()
-                ?? ReignWorldHistoryCampaignBehavior.Instance;
+                ?? ReignServices.WorldHistory;
             history?.RecordDynamicSocialReputation(
                 subject, tag, true, Math.Max(1, (int)matter.Severity + 1),
                 matter.MatterId + "|judgment|" + subject.StringId + "|" + tag,
@@ -856,7 +857,7 @@ namespace ReignBeta.Court.Campaign
             else subjects.Add(FindHero(matter.IsMurder ? matter.ConvictedHeroId : matter.RuledAgainstHeroId));
             foreach (Hero subject in subjects.Where(x => x != null))
                 foreach (string tag in tags)
-                    ReignWorldHistoryCampaignBehavior.Instance?.RecordDynamicSocialReputation(
+                    ReignServices.WorldHistory?.RecordDynamicSocialReputation(
                         subject, tag, false, 0,
                         matter.MatterId + "|reversal|" + subject.StringId + "|" + tag,
                         "The ruler formally reversed the judgment supporting this reputation.",

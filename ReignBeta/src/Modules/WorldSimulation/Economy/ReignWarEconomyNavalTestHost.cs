@@ -12,6 +12,7 @@ using TaleWorlds.CampaignSystem.Naval;
 using TaleWorlds.CampaignSystem.Party;
 using TaleWorlds.CampaignSystem.Party.PartyComponents;
 using TaleWorlds.CampaignSystem.Settlements;
+using ReignBeta.Platform.Runtime;
 
 namespace ReignBeta.WorldSimulation.Economy
 {
@@ -130,10 +131,10 @@ namespace ReignBeta.WorldSimulation.Economy
                 check("funded_native_purchase", startWallet - payer.Gold == buyQuote && town.Gold - startMarket + buyCommission == buyQuote
                     && ReferenceEquals(ship.Owner, party.Party), new JObject { ["quote"] = buyQuote,
                         ["payerDebit"] = startWallet - payer.Gold, ["marketCredit"] = town.Gold - startMarket, ["commissionPaid"] = buyCommission });
-                string purchaseId = ReignEconomyCampaignBehavior.Instance.NavalShipIndex[ship];
+                string purchaseId = ReignServices.Economy.NavalShipIndex[ship];
                 ChangeShipOwnerAction.ApplyByTransferring(friendly.Party, ship);
                 ChangeShipOwnerAction.ApplyByTransferring(party.Party, ship);
-                check("friendly_transfers_preserve_purchase", ReignEconomyCampaignBehavior.Instance.NavalShipIndex[ship] == purchaseId
+                check("friendly_transfers_preserve_purchase", ReignServices.Economy.NavalShipIndex[ship] == purchaseId
                     && ReignWarEconomyTransactions.State.NavalAcquisitions[purchaseId].Kind == "npc_purchase",
                     new JObject { ["receiptId"] = purchaseId, ["temporaryFriendlyParty"] = friendly.StringId });
 
@@ -168,7 +169,7 @@ namespace ReignBeta.WorldSimulation.Economy
                 var valueShip = make(hostile.Party);
                 ChangeShipOwnerAction.ApplyByLooting(party.Party, valueShip);
                 int capturedQuote = (int)NativeCampaign.Current.Models.ShipCostModel.GetShipTradeValue(valueShip, party.Party, town.Settlement.Party);
-                string capturedId = ReignEconomyCampaignBehavior.Instance.NavalShipIndex[valueShip];
+                string capturedId = ReignServices.Economy.NavalShipIndex[valueShip];
                 check("native_capture_action_normal_resale", capturedQuote > sellQuote * 50
                     && ReignWarEconomyTransactions.State.NavalAcquisitions[capturedId].Kind == "captured",
                     new JObject { ["capturedQuote"] = capturedQuote, ["purchasedQuote"] = sellQuote,

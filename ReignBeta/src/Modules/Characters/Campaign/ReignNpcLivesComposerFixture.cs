@@ -17,6 +17,7 @@ using ReignBeta.Characters.UI;
 using ReignBeta.Dialogue.UI;
 using ReignBeta.Persistence.Campaign;
 using ReignBeta.WorldSimulation.Actions;
+using ReignBeta.Platform.Runtime;
 
 namespace ReignBeta.WorldSimulation.Campaign
 {
@@ -47,7 +48,7 @@ namespace ReignBeta.WorldSimulation.Campaign
             string operationId = "npc_party_composer:" + test.Value<string>("operationId");
             string requestHash = PartyComposerDigest(new { campaign = lives._campaign, timeline = lives._timeline, generation = lives.Generation,
                 arguments = new JObject(test.Properties().OrderBy(p => p.Name, StringComparer.Ordinal).Select(p => new JProperty(p.Name, p.Value.DeepClone()))) });
-            var journal = ReignAgreementBehavior.Instance ?? throw new InvalidOperationException("Native fixture journal is unavailable.");
+            var journal = ReignServices.Agreement ?? throw new InvalidOperationException("Native fixture journal is unavailable.");
             var retained = journal.NativeOperation(operationId);
             if (retained != null)
             {
@@ -119,7 +120,7 @@ namespace ReignBeta.WorldSimulation.Campaign
 
         private static JObject ObservePartyComposerConservation(ReignNpcLivesBehavior lives, string first, string second)
         {
-            var journal = ReignAgreementBehavior.Instance;
+            var journal = ReignServices.Agreement;
             return new JObject { ["campaignId"] = lives._campaign, ["timelineId"] = lives._timeline, ["generation"] = lives.Generation,
                 ["worldDay"] = CampaignTime.Now.ToDays,
                 ["timeMode"] = TaleWorlds.CampaignSystem.Campaign.Current.TimeControlMode.ToString(),

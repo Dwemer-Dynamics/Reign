@@ -28,12 +28,13 @@ using ReignBeta.WorldSimulation.Campaign;
 #if !REIGN_EXCLUDE_COURT
 using ReignBeta.Court.Campaign;
 #endif
+using ReignBeta.Platform.Runtime;
 
 namespace ReignBeta.Relationships.Campaign
 {
     public sealed partial class ReignRelationshipCampaignBehavior : CampaignBehaviorBase
     {
-        public static ReignRelationshipCampaignBehavior Instance { get; private set; }
+        public static ReignRelationshipCampaignBehavior Instance => ReignServices.Relationship;
 
         private bool _tickInFlight;
         private bool _replyTickInFlight;
@@ -209,7 +210,7 @@ namespace ReignBeta.Relationships.Campaign
                 _lastAmbientCapturedDay =
                     (int)Math.Floor(day + 0.000001f);
                 _lastAmbientCapturedTimelineId =
-                    ReignWorldHistoryCampaignBehavior.Instance?.TimelineId ?? "main";
+                    ReignServices.WorldHistory?.TimelineId ?? "main";
                 _lastDirectorSnapshotDay = day;
                 _ambientConfirmedCadenceInitialized = true;
                 ReplaceNativeSyncPlan(result.NativeSyncPlan);
@@ -291,7 +292,7 @@ namespace ReignBeta.Relationships.Campaign
 
         public override void RegisterEvents()
         {
-            Instance = this;
+            ReignServices.Relationship = this;
             CampaignEvents.TickEvent.AddNonSerializedListener(this, OnTick);
             CampaignEvents.HourlyTickEvent.AddNonSerializedListener(this, OnHourlyTick);
             CampaignEvents.DailyTickEvent.AddNonSerializedListener(this, OnDailyTick);
@@ -526,7 +527,7 @@ namespace ReignBeta.Relationships.Campaign
         private async Task PollAsync(string phase)
         {
             var nativeCampaign = TaleWorlds.CampaignSystem.Campaign.Current;
-            string timeline = ReignWorldHistoryCampaignBehavior.Instance?.TimelineId ?? "main";
+            string timeline = ReignServices.WorldHistory?.TimelineId ?? "main";
             List<string> sentAcks;
             lock (_mailReceiptAcks) sentAcks = _mailReceiptAcks.Take(100).ToList();
             try
@@ -538,7 +539,7 @@ namespace ReignBeta.Relationships.Campaign
                 {
                     if (!ReferenceEquals(nativeCampaign, TaleWorlds.CampaignSystem.Campaign.Current)
                         || !ReferenceEquals(this, Instance) || ReignSaveSyncCoordinator.IsAlignmentPending
-                        || timeline != (ReignWorldHistoryCampaignBehavior.Instance?.TimelineId ?? "main")
+                        || timeline != (ReignServices.WorldHistory?.TimelineId ?? "main")
                         || result.TimelineId != timeline) return;
                     lock (_mailReceiptAcks) foreach (string id in sentAcks) _mailReceiptAcks.Remove(id);
                     bool applied = true;
@@ -573,9 +574,9 @@ namespace ReignBeta.Relationships.Campaign
                     }
                     if (result.QueuedActions != null && result.QueuedActions.Count > 0)
                     {
-                        int queued = ReignAICampaignBehavior.Instance?.EnqueueAndExecuteServerActions(result.QueuedActions) ?? 0;
+                        int queued = ReignServices.AI?.EnqueueAndExecuteServerActions(result.QueuedActions) ?? 0;
                         ReignLog.Info("Immediate correspondence action import actions=" + result.QueuedActions.Count + " queued=" + queued);
-                        if (ReignAICampaignBehavior.Instance == null) applied = false;
+                        if (ReignServices.AI == null) applied = false;
                     }
                     if (applied) lock (_mailReceiptAcks) foreach (string id in result.DeliveryReceiptIds) _mailReceiptAcks.Add(id);
                     TryShowMailInquiry();
@@ -632,7 +633,7 @@ namespace ReignBeta.Relationships.Campaign
                 return;
             }
             int dayKey = (int)Math.Floor(day + 0.000001f);
-            string currentTimelineId = ReignWorldHistoryCampaignBehavior.Instance?.TimelineId ?? "main";
+            string currentTimelineId = ReignServices.WorldHistory?.TimelineId ?? "main";
             if (!currentTimelineId.Equals(_lastAmbientCapturedTimelineId, StringComparison.OrdinalIgnoreCase))
             {
                 _lastAmbientCapturedDay = -1000;
@@ -831,9 +832,9 @@ namespace ReignBeta.Relationships.Campaign
                     Hero mother = FindHero(action.Payload?.Value<string>("motherId"));
                     Hero bio = FindHero(action.Payload?.Value<string>("biologicalFatherId"));
                     Hero legal = FindHero(action.Payload?.Value<string>("legalFatherId")) ?? bio;
-                    if (ReignFamilyCampaignBehavior.Instance == null)
+                    if (ReignServices.Family == null)
                         throw new InvalidOperationException("Reign family campaign behavior is unavailable.");
-                    if (!ReignFamilyCampaignBehavior.Instance.TryStartManagedConception(
+                    if (!ReignServices.Family.TryStartManagedConception(
                             action.Payload?.Value<string>("conceptionId"), mother, bio, legal,
                             action.Payload?.Value<float?>("conceptionDay") ?? (float)CampaignTime.Now.ToDays,
                             action.Payload?.Value<float?>("dueDay") ?? (float)CampaignTime.Now.ToDays + 36f,
@@ -909,7 +910,7 @@ namespace ReignBeta.Relationships.Campaign
                 }
                 else if (action.ActionType == "reveal_parentage")
                 {
-                    if (ReignFamilyCampaignBehavior.Instance == null || !ReignFamilyCampaignBehavior.Instance.RevealBiologicalFather(action.Payload?.Value<string>("childId"), out error)) throw new InvalidOperationException(error);
+                    if (ReignServices.Family == null || !ReignServices.Family.RevealBiologicalFather(action.Payload?.Value<string>("childId"), out error)) throw new InvalidOperationException(error);
                 }
                 else throw new InvalidOperationException("Unknown relationship director action: " + action.ActionType);
             }
@@ -920,7 +921,7 @@ namespace ReignBeta.Relationships.Campaign
                 ["status"] = status,
                 ["error"] = error,
 				["worldDay"] = CampaignTime.Now.ToDays,
-				["timelineId"] = ReignWorldHistoryCampaignBehavior.Instance?.TimelineId ?? "main"
+				["timelineId"] = ReignServices.WorldHistory?.TimelineId ?? "main"
             };
         }
 
@@ -931,7 +932,7 @@ namespace ReignBeta.Relationships.Campaign
             Hero sender = FindHero(letter.SenderId);
             _mailInquiryOpen = true;
 #if !REIGN_EXCLUDE_COURT
-            if (ReignCourtCampaignBehavior.Instance?.TryHandleRegentLetter(letter, () =>
+            if (ReignServices.Court?.TryHandleRegentLetter(letter, () =>
             {
                 _mailInquiryOpen = false;
                 _standardMailInquiryOpen = false;

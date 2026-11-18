@@ -19,6 +19,7 @@ using TaleWorlds.Library;
 using TaleWorlds.Core;
 using TaleWorlds.Localization;
 using ReignBeta.Platform.Integration;
+using ReignBeta.Platform.Runtime;
 
 namespace ReignBeta.WorldSimulation.Rulers
 {
@@ -76,7 +77,7 @@ namespace ReignBeta.WorldSimulation.Rulers
         }
         private static void BattlePrefix(MapEvent __instance) { _battle = __instance; Rolls.Clear(); }
         private static Exception CaptureFinalizer(Exception __exception) { _battle = null; _siegeResidents = false; Rolls.Clear(); return __exception; }
-        private static Exception ExecutionFinalizer(Exception __exception) { ReignRulerCampaignBehavior.Instance?.EndExecutionRelations(); return __exception; }
+        private static Exception ExecutionFinalizer(Exception __exception) { ReignServices.Ruler?.EndExecutionRelations(); return __exception; }
         private static void BattlePostfix() { _battle = null; Rolls.Clear(); }
         private static IEnumerable<CodeInstruction> CaptureTranspiler(IEnumerable<CodeInstruction> instructions, MethodBase original)
         {
@@ -108,12 +109,12 @@ namespace ReignBeta.WorldSimulation.Rulers
         private static bool Surrendered(MapEvent battle) => (bool)(AccessTools.Property(typeof(MapEventSide), "IsSurrendered")?.GetValue(battle.GetMapEventSide(battle.DefeatedSide), null) ?? AccessTools.Field(typeof(MapEventSide), "IsSurrendered")?.GetValue(battle.GetMapEventSide(battle.DefeatedSide)) ?? false);
         private static bool Protected(Hero hero) => (_battle == null || !Surrendered(_battle))
             && ReignRulerCampaignBehavior.Enabled(RulerOptions.Capture) && ReignRulerCampaignBehavior.Sovereign(hero)
-            && ReignRulerCampaignBehavior.Instance?.ApplyingNative != true;
+            && ReignServices.Ruler?.ApplyingNative != true;
         private static bool Roll(Hero hero)
         {
             if (Rolls.TryGetValue(hero, out bool prior)) return prior;
             double roll = 0;
-            if (ReignRulerCampaignBehavior.Instance == null || !ReignRulerCampaignBehavior.Instance.TryConsumeCaptureRoll(hero, out roll)) roll = MBRandom.RandomFloat;
+            if (ReignServices.Ruler == null || !ReignServices.Ruler.TryConsumeCaptureRoll(hero, out roll)) roll = MBRandom.RandomFloat;
             bool capture = ReignRulerPolicy.Capture(hero.IsWounded, roll); Rolls[hero] = capture; return capture;
         }
         private static bool TakePrefix(PartyBase capturerParty, Hero prisonerCharacter)
@@ -130,7 +131,7 @@ namespace ReignBeta.WorldSimulation.Rulers
         private static void SettlementPostfix() { _siegeResidents = false; Rolls.Clear(); }
         private static bool ReleasePrefix(Hero prisoner, EndCaptivityDetail detail)
         {
-            var behavior = ReignRulerCampaignBehavior.Instance;
+            var behavior = ReignServices.Ruler;
             // Civil-war settlement makes peace and restores clans. Native peace
             // release must not undo the imprisonment being applied to this leader.
             if (behavior?.ApplyingNative == true && detail == EndCaptivityDetail.ReleasedAfterPeace
@@ -154,12 +155,12 @@ namespace ReignBeta.WorldSimulation.Rulers
             }
             return true;
         }
-        private static bool PeacePrefix(object[] __args) => ReignRulerCampaignBehavior.Instance?.ApplyingNative == true
+        private static bool PeacePrefix(object[] __args) => ReignServices.Ruler?.ApplyingNative == true
             || !ReignRulerCampaignBehavior.BlocksPeace(__args.OfType<IFaction>().FirstOrDefault(), __args.OfType<IFaction>().Skip(1).FirstOrDefault());
         private static bool ExecutionPrefix(Hero __0, Hero __1)
         {
             Hero victim = __0, executor = __1;
-            var behavior = ReignRulerCampaignBehavior.Instance; if (behavior == null) return true;
+            var behavior = ReignServices.Ruler; if (behavior == null) return true;
             if (behavior.ApplyingNative) { behavior.BeginExecutionRelations(victim, executor); return true; }
             if (ReignRulerCampaignBehavior.BlocksRelease(victim)) return false;
             if (behavior.AwaitsDecision(victim))
@@ -171,7 +172,7 @@ namespace ReignBeta.WorldSimulation.Rulers
             { behavior.RequestPlayerSentence(victim); return false; }
             behavior.BeginExecutionRelations(victim, executor); return true;
         }
-        private static void ExecutionPostfix() => ReignRulerCampaignBehavior.Instance?.EndExecutionRelations();
+        private static void ExecutionPostfix() => ReignServices.Ruler?.EndExecutionRelations();
         private sealed class DeferredExecutionScope
         {
             internal ReignRulerCampaignBehavior Behavior;
@@ -180,7 +181,7 @@ namespace ReignBeta.WorldSimulation.Rulers
         private static void DeferredExecutionPrefix(Hero __0, out DeferredExecutionScope __state)
         {
             __state = null;
-            var behavior = ReignRulerCampaignBehavior.Instance;
+            var behavior = ReignServices.Ruler;
             if (behavior?.CompletesDeferredExecution(__0) != true) return;
             __state = new DeferredExecutionScope { Behavior = behavior, PriorApplying = behavior.ApplyingNative };
             behavior.ApplyingNative = true;
@@ -194,10 +195,10 @@ namespace ReignBeta.WorldSimulation.Rulers
         }
         private static Exception DeferredExecutionFinalizer(Exception __exception, DeferredExecutionScope __state)
         { DeferredExecutionPostfix(__state); return __exception; }
-        private static bool MovePrefix(MobileParty __instance, object[] __args) => ReignRulerCampaignBehavior.Instance?.MayMove(__instance, __args.OfType<Settlement>().FirstOrDefault()) != false;
-        private static bool LeavePrefix(MobileParty __0) => ReignRulerCampaignBehavior.Instance?.MayLeave(__0) != false;
-        private static void ObjectivePostfix(Army __instance) => ReignRulerCampaignBehavior.Instance?.ObjectiveCompleted(__instance);
-        private static bool JoinPrefix(Clan clan, object[] __args) => ReignRulerCampaignBehavior.Instance?.ApplyingNative == true || !ReignRulerCampaignBehavior.Restricted(clan, __args.OfType<Kingdom>().LastOrDefault());
+        private static bool MovePrefix(MobileParty __instance, object[] __args) => ReignServices.Ruler?.MayMove(__instance, __args.OfType<Settlement>().FirstOrDefault()) != false;
+        private static bool LeavePrefix(MobileParty __0) => ReignServices.Ruler?.MayLeave(__0) != false;
+        private static void ObjectivePostfix(Army __instance) => ReignServices.Ruler?.ObjectiveCompleted(__instance);
+        private static bool JoinPrefix(Clan clan, object[] __args) => ReignServices.Ruler?.ApplyingNative == true || !ReignRulerCampaignBehavior.Restricted(clan, __args.OfType<Kingdom>().LastOrDefault());
         private static void CreationPostfix(ref bool __result, ref List<TextObject> explanations)
         {
             if (!ReignRulerCampaignBehavior.Restricted(Clan.PlayerClan)) return;

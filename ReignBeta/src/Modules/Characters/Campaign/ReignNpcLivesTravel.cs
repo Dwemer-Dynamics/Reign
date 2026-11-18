@@ -22,6 +22,7 @@ using ReignBeta.Characters.Integration;
 using ReignBeta.Platform.Integration;
 using ReignBeta.Relationships.Campaign;
 using ReignBeta.WorldSimulation.CampaignCommands;
+using ReignBeta.Platform.Runtime;
 
 namespace ReignBeta.Characters.Campaign
 {
@@ -109,11 +110,11 @@ namespace ReignBeta.Characters.Campaign
             && !ReignBeta.Dialogue.UI.ReignIndividualChatScreenManager.IsOpen && !ReignBeta.Dialogue.UI.ReignPartyChatScreenManager.IsOpenOrPending;
         internal static bool SafePlace(Hero h, Settlement s) => h != null && s != null && !s.IsUnderSiege && !s.IsHideout
             && !FactionManager.IsAtWarAgainstFaction(h.MapFaction, s.MapFaction);
-        private static string CurrentLifeGuestAgreement(Hero hero) => ReignBeta.WorldSimulation.PartyAgency.ReignTemporaryPartyGuestCampaignBehavior.Instance?.Records
+        private static string CurrentLifeGuestAgreement(Hero hero) => ReignServices.TemporaryPartyGuest?.Records
             .FirstOrDefault(r => r.HeroStringId == hero?.StringId && r.IsLive)?.AgreementId ?? "";
         private static bool MayReturnFromLifeAbsence(Hero hero, string agreement)
         {
-            var record = ReignBeta.WorldSimulation.PartyAgency.ReignTemporaryPartyGuestCampaignBehavior.Instance?.Records
+            var record = ReignServices.TemporaryPartyGuest?.Records
                 .FirstOrDefault(r => r.HeroStringId == hero?.StringId && r.AgreementId == agreement);
             return NpcLivesPolicy.CanResumeGuestService(agreement, record?.AgreementId ?? "", record?.Phase.ToString() ?? "",
                 hero?.Clan == Clan.PlayerClan && hero?.CompanionOf == Clan.PlayerClan);
@@ -559,7 +560,7 @@ namespace ReignBeta.Characters.Campaign
             {
                 var hero = ReignActionService.HeroById(row.Key);
                 var town = Settlement.Find(row.Value.TownId);
-                if (ReignRelationshipCampaignBehavior.Instance?.OwnsWeddingAttendance(row.Value.OwnerId) != true
+                if (ReignServices.Relationship?.OwnsWeddingAttendance(row.Value.OwnerId) != true
                     || !Free(hero) || hero.CurrentSettlement != town || !SafePlace(hero, town))
                 {
                     ReleaseWeddingGuest(row.Key, row.Value);
@@ -597,9 +598,9 @@ namespace ReignBeta.Characters.Campaign
                 {
                     if (party != null && party.LeaderHero == hero && party != MobileParty.MainParty)
                     {
-                        bool otherOwner = ReignCampaignCommandBehavior.Instance?.Orders.Any(o => o.CommanderHeroStringId == hero.StringId && !o.IsTerminal && o.Objective == "timed_hold") == true;
+                        bool otherOwner = ReignServices.CampaignCommand?.Orders.Any(o => o.CommanderHeroStringId == hero.StringId && !o.IsTerminal && o.Objective == "timed_hold") == true;
                         party.Ai.SetDoNotMakeNewDecisions(duty.DecisionLock || otherOwner
-                            || ReignBeta.WorldSimulation.PartyAgency.ReignTemporaryPartyGuestCampaignBehavior.Instance?.IsProtectedCamp(party) == true);
+                            || ReignServices.TemporaryPartyGuest?.IsProtectedCamp(party) == true);
                         var destination = Settlement.Find(duty.TargetSettlementId);
                         if (SafePlace(hero, destination) && !otherOwner) party.SetMoveGoToSettlement(destination, party.NavigationCapability, false);
                     }

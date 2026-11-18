@@ -8,6 +8,7 @@ using TaleWorlds.CampaignSystem;
 using TaleWorlds.CampaignSystem.Actions;
 using ReignBeta.Characters.Campaign;
 using ReignBeta.World;
+using ReignBeta.Platform.Runtime;
 
 namespace ReignBeta.WorldSimulation.World
 {
@@ -15,8 +16,8 @@ namespace ReignBeta.WorldSimulation.World
     {
         private GoldPaymentLedger _ledger = new GoldPaymentLedger();
         private string _serialized = "";
-        public static ReignGoldTransferService Instance { get; private set; }
-        public override void RegisterEvents() { Instance = this; }
+        public static ReignGoldTransferService Instance => ReignServices.GoldTransferService;
+        public override void RegisterEvents() { ReignServices.GoldTransferService = this; }
         public override void SyncData(IDataStore store)
         {
             if (store.IsSaving) _serialized = JsonConvert.SerializeObject(_ledger);
@@ -59,7 +60,7 @@ namespace ReignBeta.WorldSimulation.World
             string purpose = terms.Value<string>("paymentPurpose") ?? "gift";
             string agreement = terms.Value<string>("paymentAgreementId") ?? "";
             if (purpose == "recruitment_advance"
-                && ReignEncounteredResidentsCampaignBehavior.Instance?.AgreementId(to) != agreement)
+                && ReignServices.EncounteredResidents?.AgreementId(to) != agreement)
                 return ReignActionResult.ValidationFailed("The recruitment advance no longer matches this resident's agreement.");
             return Pay(action.ActionId, from, to, amount, purpose, agreement, terms.Value<string>("refundOfReceiptId") ?? "");
         }

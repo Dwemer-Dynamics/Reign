@@ -12,13 +12,13 @@ Relationships. The relationship director, realtime relationship updates and play
 | `Integration` | 3 |
 | `UI` | 2 |
 
-Namespaces in use: `ReignBeta.Campaign (6)`, `ReignBeta.Integration (3)`, `ReignBeta.UI (2)`.
+Namespaces in use: `ReignBeta.Relationships.Campaign (6)`, `ReignBeta.Relationships.Integration (3)`, `ReignBeta.Relationships.UI (2)`.
 
 ## Public surface
 
 - Campaign behaviours deriving from `CampaignBehaviorBase` (all registered in `Platform/SubModule.cs`): `ReignPlayerApproachCampaignBehavior`, `ReignRelationshipCampaignBehavior`.
 - `ReignServerClient` partial files (server routes for this module): `Integration/ReignPlayerApproachClient.cs`, `Integration/ReignRelationshipDirectorClient.cs`, `Integration/ReignRelationshipRealtimeClient.cs`.
-- Static `.Instance` singletons: `ReignPlayerApproachCampaignBehavior`, `ReignRelationshipCampaignBehavior`.
+- Behaviours registered in `ReignServices` (their `Instance` property forwards to the slot): `ReignPlayerApproachCampaignBehavior`, `ReignRelationshipCampaignBehavior`.
 
 ## Dependencies
 

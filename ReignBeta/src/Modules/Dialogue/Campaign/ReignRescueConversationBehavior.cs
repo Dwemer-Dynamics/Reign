@@ -22,12 +22,13 @@ using ReignBeta.Dialogue.UI;
 using ReignBeta.Platform.Integration;
 using ReignBeta.Relationships.Integration;
 using ReignBeta.Relationships.UI;
+using ReignBeta.Platform.Runtime;
 
 namespace ReignBeta.Dialogue.Campaign
 {
     public sealed class ReignRescueConversationBehavior : CampaignBehaviorBase
     {
-        internal static ReignRescueConversationBehavior Instance { get; private set; }
+        internal static ReignRescueConversationBehavior Instance => ReignServices.RescueConversation;
         private List<JObject> _rescues = new List<JObject>();
         private readonly Dictionary<int, JObject> _joinedBattles = new Dictionary<int, JObject>();
         private List<JObject> _loadedBattles = new List<JObject>();
@@ -49,7 +50,7 @@ namespace ReignBeta.Dialogue.Campaign
         }
         public override void RegisterEvents()
         {
-            Instance = this;
+            ReignServices.RescueConversation = this;
             CampaignEvents.OnSessionLaunchedEvent.AddNonSerializedListener(this, OnSession);
             CampaignEvents.MapEventEnded.AddNonSerializedListener(this, OnBattleEnded);
             CampaignEvents.TickEvent.AddNonSerializedListener(this, OnTick);

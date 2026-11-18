@@ -16,6 +16,7 @@ using ReignBeta.Platform.Integration;
 using ReignBeta.WorldSimulation.Arrests;
 using ReignBeta.WorldSimulation.Campaign;
 using ReignBeta.WorldSimulation.World;
+using ReignBeta.Platform.Runtime;
 
 namespace ReignBeta.Characters.Campaign
 {
@@ -83,7 +84,7 @@ namespace ReignBeta.Characters.Campaign
             Pending[action.ActionId] = intent;
             if (string.Equals(intent.Purpose, "arrest_capture", StringComparison.OrdinalIgnoreCase))
             {
-                ReignArrestCampaignBehavior.Instance?.MarkDuelPending(intent.ArrestCaseId,
+                ReignServices.Arrest?.MarkDuelPending(intent.ArrestCaseId,
                     action.ActionId);
             }
 
@@ -247,7 +248,7 @@ namespace ReignBeta.Characters.Campaign
                 .WithChangedEntity("action", intent.ActionId, "RegularDuelPlayer", "cancelled_by_player");
 
             Complete(intent.ActionId);
-            ReignAICampaignBehavior.Instance?.CompleteActionFromMissionHook(intent.ActionId, result);
+            ReignServices.AI?.CompleteActionFromMissionHook(intent.ActionId, result);
             ReignLog.Info("Conversation duel cancelled action=" + intent.ActionId + " opponent=" + intent.OpponentHeroStringId);
         }
 
@@ -264,7 +265,7 @@ namespace ReignBeta.Characters.Campaign
                 .WithDiagnostic("duelMode", intent.Mode);
 
             Complete(intent.ActionId);
-            ReignAICampaignBehavior.Instance?.CompleteActionFromMissionHook(intent.ActionId, result);
+            ReignServices.AI?.CompleteActionFromMissionHook(intent.ActionId, result);
             InformationManager.DisplayMessage(new InformationMessage("[Bannerlord Reign] " + message, Color.FromUint(0xFFFF6600)));
             ReignLog.Warn("Conversation duel failed action=" + intent.ActionId + " opponent=" + intent.OpponentHeroStringId + " reason=" + message);
         }
@@ -281,7 +282,7 @@ namespace ReignBeta.Characters.Campaign
                 .WithDiagnostic("duelMode", intent.Mode)
                 .WithDiagnostic("finishReason", reason)
                 .WithDiagnostic("outcome", "ended_without_winner");
-            ReignAICampaignBehavior.Instance?.CompleteActionFromMissionHook(intent.ActionId, result);
+            ReignServices.AI?.CompleteActionFromMissionHook(intent.ActionId, result);
             InformationManager.DisplayMessage(new InformationMessage("[Bannerlord Reign] " + message, Color.FromUint(0xFFFFD36A)));
         }
 
@@ -304,7 +305,7 @@ namespace ReignBeta.Characters.Campaign
                 if (!Pending.ContainsKey(intent.ActionId)) return;
                 string outcome = winnerHero == Hero.MainHero ? "won" : winnerHero == opponent ? "lost" : "withdrawn";
                 Complete(intent.ActionId);
-                ReignNpcLivesBehavior.Instance?.ResolveStoryEncounter(intent.ActionId, outcome);
+                ReignServices.NpcLives?.ResolveStoryEncounter(intent.ActionId, outcome);
                 return;
             }
             bool playerWon = winnerHero == null || winnerHero == Hero.MainHero || (winnerHero.StringId == Hero.MainHero?.StringId);
@@ -319,7 +320,7 @@ namespace ReignBeta.Characters.Campaign
             bool arrestDuel = string.Equals(intent.Purpose, "arrest_capture",
                 StringComparison.OrdinalIgnoreCase);
             if (arrestDuel)
-                ReignArrestCampaignBehavior.Instance?.CompleteArrestDuel(
+                ReignServices.Arrest?.CompleteArrestDuel(
                     intent.ArrestCaseId, opponent, playerWon);
             ReignActionResult result = ReignActionResult.Done(message)
                 .WithResultCode(arrestDuel
@@ -339,7 +340,7 @@ namespace ReignBeta.Characters.Campaign
             }
 
             Complete(intent.ActionId);
-            ReignAICampaignBehavior.Instance?.CompleteActionFromMissionHook(intent.ActionId, result);
+            ReignServices.AI?.CompleteActionFromMissionHook(intent.ActionId, result);
             InformationManager.DisplayMessage(new InformationMessage("[Bannerlord Reign] " + message, Color.FromUint(0xFFFFD36A)));
             ReignLog.Info("Conversation duel completed from map mission action=" + intent.ActionId + " result=" + result.ResultCode + " killed=" + killed + " callbackWinner=" + (winnerHero?.StringId ?? "null"));
         }
@@ -361,11 +362,11 @@ namespace ReignBeta.Characters.Campaign
                 ["loserHeroId"] = loserHero?.StringId ?? string.Empty
             };
             if (winnerHero != null)
-                ReignWorldHistoryCampaignBehavior.Instance?.RecordSocialOutcome(
+                ReignServices.WorldHistory?.RecordSocialOutcome(
                     "duelist", winnerHero, "winner", source + "|winner",
                     winnerHero.Name + " prevailed in a duel.", evidence);
             if (loserHero != null)
-                ReignWorldHistoryCampaignBehavior.Instance?.RecordSocialOutcome(
+                ReignServices.WorldHistory?.RecordSocialOutcome(
                     "fallen_challenger", loserHero, "loser", source + "|loser",
                     loserHero.Name + " was defeated in a duel.", evidence);
         }

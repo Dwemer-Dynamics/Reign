@@ -21,6 +21,7 @@ using ReignBeta.Persistence.Save;
 using ReignBeta.Platform.Integration;
 using ReignBeta.WorldSimulation.Campaign;
 using ReignBeta.WorldSimulation.Economy;
+using ReignBeta.Platform.Runtime;
 
 namespace ReignBeta.Court.Campaign
 {
@@ -68,7 +69,7 @@ namespace ReignBeta.Court.Campaign
                 Detail = "Issued verbatim as a globally known, immutable historical proclamation. It has no direct mechanical effect."
             };
             EnsureRulerDocketState().History.Add(record);
-            ReignWorldHistoryCampaignBehavior.Instance?.RecordReignSystemEvent(
+            ReignServices.WorldHistory?.RecordReignSystemEvent(
                 "royal_proclamation", "completed", "politics", proclamationId,
                 exactText, "major_world", Hero.MainHero?.StringId ?? string.Empty,
                 Clan.PlayerClan?.Kingdom?.StringId ?? string.Empty,
@@ -416,7 +417,7 @@ namespace ReignBeta.Court.Campaign
         internal void TryProcessPendingDocketWorldHistoryJobs()
         {
             ReignBeta.WorldSimulation.Campaign.ReignWorldHistoryCampaignBehavior history =
-                ReignBeta.WorldSimulation.Campaign.ReignWorldHistoryCampaignBehavior.Instance;
+                ReignServices.WorldHistory;
             if (history == null || !history.TimelineReady) return;
             foreach (ReignDocketWorldHistoryJob job in EnsureRulerDocketState().PendingWorldHistoryJobs
                 .Where(x => x != null && !x.Applied)
@@ -543,7 +544,7 @@ namespace ReignBeta.Court.Campaign
             state.LastChancellorAbsentLordOccurrenceDay = day;
             Hero ruler = Hero.MainHero;
             if (ruler == null) return;
-            ReignBeta.WorldSimulation.Campaign.ReignWorldHistoryCampaignBehavior.Instance?.RecordSocialOutcome(
+            ReignServices.WorldHistory?.RecordSocialOutcome(
                 "absent_lord", ruler, "ruler",
                 "chancellor_coverage|" + CurrentReignId() + "|window_end|" + day,
                 ruler.Name + " delegated the morning docket to an Active Chancellor on "
@@ -972,7 +973,7 @@ namespace ReignBeta.Court.Campaign
                 BuildTownPetitionCandidates(townSettlement, day, native);
 
             string campaignId = ReignCampaignIdentity.CurrentCampaignId();
-            string timelineId = ReignBeta.WorldSimulation.Campaign.ReignWorldHistoryCampaignBehavior.Instance?.TimelineId ?? "main";
+            string timelineId = ReignServices.WorldHistory?.TimelineId ?? "main";
             int replies = Math.Min(ReignCourtLifeRules.MaximumDailyEntries, DueInternationalReplyCount(day));
             PromoteInternationalReplies(day, replies);
             int count = ReignCourtLifeRules.OrdinarySlots(campaignId, timelineId, day, replies);

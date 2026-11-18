@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using TaleWorlds.CampaignSystem;
 using ReignBeta.Court.WarCouncil;
+using ReignBeta.Platform.Runtime;
 
 namespace ReignBeta.Court.Campaign
 {
@@ -16,7 +17,7 @@ namespace ReignBeta.Court.Campaign
             if (hero.IsPrisoner) { reason = "A captive cannot hold court office."; return false; }
             if (hero.Age < TaleWorlds.CampaignSystem.Campaign.Current.Models.AgeModel.HeroComesOfAge) { reason = "The candidate has not reached adulthood."; return false; }
             if (assignments != null && assignments.Any(x => x != null && x.IsActive && x.HeroStringId == hero.StringId)) { reason = "One person may hold only one major office."; return false; }
-            if (string.Equals(ReignWarCouncilCampaignBehavior.Instance?.SelectedCouncilorHeroId, hero.StringId, StringComparison.OrdinalIgnoreCase))
+            if (string.Equals(ReignServices.WarCouncil?.SelectedCouncilorHeroId, hero.StringId, StringComparison.OrdinalIgnoreCase))
             { reason = "The War Councilor must be distinct from every other Royal Council seat."; return false; }
 
             bool playerClan = hero.Clan == Clan.PlayerClan;

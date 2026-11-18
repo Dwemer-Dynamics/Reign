@@ -4,12 +4,13 @@ using System.Linq;
 using Newtonsoft.Json.Linq;
 using TaleWorlds.CampaignSystem;
 using TaleWorlds.CampaignSystem.Settlements;
+using ReignBeta.Platform.Runtime;
 
 namespace ReignBeta.WorldSimulation.Economy
 {
     internal static class ReignNpcFoodSabotage
     {
-        private static NpcFoodSabotageState State => ReignEconomyCampaignBehavior.Instance?.EconomyState.NpcFoodSabotage;
+        private static NpcFoodSabotageState State => ReignServices.Economy?.EconomyState.NpcFoodSabotage;
         private static string PlayerRealmId => Clan.PlayerClan?.Kingdom?.StringId;
         private static int Day => (int)Math.Floor(CampaignTime.Now.ToDays);
 

@@ -14,6 +14,7 @@ using ReignBeta.Dialogue.UI;
 using ReignBeta.Platform.Integration;
 using ReignBeta.Platform.Settings;
 using ReignBeta.WorldSimulation.Campaign;
+using ReignBeta.Platform.Runtime;
 
 namespace ReignBeta.Dialogue.Campaign
 {
@@ -24,13 +25,13 @@ namespace ReignBeta.Dialogue.Campaign
         private static ConversationSentence _residentLeave;
         private static ConversationSentence _residentReturn;
         private static ConversationSentence _residentResume;
-        internal static ReignIndividualConversationBehavior Instance { get; private set; }
+        internal static ReignIndividualConversationBehavior Instance => ReignServices.IndividualConversation;
         private readonly ConversationContinuationSlot _continuation = new ConversationContinuationSlot();
         private string _savedContinuation = string.Empty;
         private Task<bool> _recovery = Task.FromResult(true);
         private readonly object _recoveryGate = new object();
 
-        public ReignIndividualConversationBehavior() { Instance = this; }
+        public ReignIndividualConversationBehavior() { ReignServices.IndividualConversation = this; }
 
         internal void BeginConversation(string generation) => _continuation.Begin(generation);
         internal void EndConversation() => _continuation.Discard();
@@ -115,7 +116,7 @@ namespace ReignBeta.Dialogue.Campaign
         {
             if (ReignCampaignInitializationGate.IsPending || ReignBetaSettings.Instance?.UseLocalServer == false) return false;
             var agent = TaleWorlds.CampaignSystem.Campaign.Current?.ConversationManager.OneToOneConversationAgent as Agent;
-            return ReignEncounteredResidentsCampaignBehavior.Instance?.CanMeet(agent) == true;
+            return ReignServices.EncounteredResidents?.CanMeet(agent) == true;
         }
 
         private static void SpeakWithResident()
@@ -123,7 +124,7 @@ namespace ReignBeta.Dialogue.Campaign
             try
             {
                 var agent = TaleWorlds.CampaignSystem.Campaign.Current?.ConversationManager.OneToOneConversationAgent as Agent;
-                Hero hero = ReignEncounteredResidentsCampaignBehavior.Instance?.Meet(agent);
+                Hero hero = ReignServices.EncounteredResidents?.Meet(agent);
                 if (hero != null) ReignIndividualChatScreenManager.OpenForHero(hero);
             }
             catch (System.Exception ex)
@@ -160,12 +161,12 @@ namespace ReignBeta.Dialogue.Campaign
 
         private static Hero GetConversationHero()
         {
-            return ReignEncounteredResidentsCampaignBehavior.Instance?.ConversationHero
+            return ReignServices.EncounteredResidents?.ConversationHero
                 ?? CharacterObject.OneToOneConversationCharacter?.HeroObject;
         }
 
         internal bool CanResume(Hero hero) => hero != null && _continuation.Snapshot?.Matches(
-            ReignServerClient.GetCampaignId(), ReignWorldHistoryCampaignBehavior.Instance?.TimelineId ?? "main",
+            ReignServerClient.GetCampaignId(), ReignServices.WorldHistory?.TimelineId ?? "main",
             Hero.MainHero?.StringId ?? string.Empty, hero.StringId) == true;
 
         internal async void ResumeConversation(Hero hero)
@@ -180,7 +181,7 @@ namespace ReignBeta.Dialogue.Campaign
                 }
                 await ReignMainThread.InvokeAsync(() => {
                     var token = _continuation.Consume(ReignServerClient.GetCampaignId(),
-                        ReignWorldHistoryCampaignBehavior.Instance?.TimelineId ?? "main", Hero.MainHero?.StringId ?? string.Empty,
+                        ReignServices.WorldHistory?.TimelineId ?? "main", Hero.MainHero?.StringId ?? string.Empty,
                         hero?.StringId ?? string.Empty);
                     if (token == null) return;
                     ReignIndividualChatScreenManager.OpenForHero(hero, new JObject {

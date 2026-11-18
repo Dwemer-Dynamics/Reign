@@ -16,6 +16,7 @@ using ReignBeta.Dialogue.UI;
 using ReignBeta.Platform.Integration;
 using ReignBeta.Portraits.UI;
 using ReignBeta.UI;
+using ReignBeta.Platform.Runtime;
 
 namespace ReignBeta.Court.UI
 {
@@ -142,14 +143,14 @@ namespace ReignBeta.Court.UI
         public static int AutomationPlayerRealmPartyCount => _vm?.Markers.Count(x => x.IsPlayerRealm) ?? 0;
         public static int AutomationHostilePartyCount => _vm?.Markers.Count(x => x.IsHostile) ?? 0;
         public static int AutomationForeignPartyCount => _vm?.Markers.Count(x => x.IsForeign) ?? 0;
-        public static int AutomationDetectedForeignPartyCount => ReignBeta.Court.WarCouncil.ReignWarCouncilCampaignBehavior.Instance?.DetectedForeignPartyCount ?? 0;
-        public static int AutomationCouncilorTactics => ReignBeta.Court.WarCouncil.ReignWarCouncilCampaignBehavior.Instance?.LastCouncilorTactics ?? 0;
-        public static int AutomationCouncilorLeadership => ReignBeta.Court.WarCouncil.ReignWarCouncilCampaignBehavior.Instance?.LastCouncilorLeadership ?? 0;
-        public static double AutomationDetectionRange => ReignBeta.Court.WarCouncil.ReignWarCouncilCampaignBehavior.Instance?.LastDetectionRange ?? 0d;
+        public static int AutomationDetectedForeignPartyCount => ReignServices.WarCouncil?.DetectedForeignPartyCount ?? 0;
+        public static int AutomationCouncilorTactics => ReignServices.WarCouncil?.LastCouncilorTactics ?? 0;
+        public static int AutomationCouncilorLeadership => ReignServices.WarCouncil?.LastCouncilorLeadership ?? 0;
+        public static double AutomationDetectionRange => ReignServices.WarCouncil?.LastDetectionRange ?? 0d;
         public static double AutomationDetectionChance => ReignWarCouncilRules.ForeignPartyDetectionChance(AutomationCouncilorLeadership);
-        public static string AutomationCapitalSettlementId => ReignBeta.Court.WarCouncil.ReignWarCouncilCampaignBehavior.Instance?.LastCapitalSettlementId ?? string.Empty;
-        public static string AutomationSelectedCouncilorHeroId => ReignBeta.Court.WarCouncil.ReignWarCouncilCampaignBehavior.Instance?.SelectedCouncilorHeroId ?? string.Empty;
-        public static string AutomationEffectiveCouncilorHeroId => ReignBeta.Court.WarCouncil.ReignWarCouncilCampaignBehavior.Instance?.EffectiveCouncilorHeroId ?? string.Empty;
+        public static string AutomationCapitalSettlementId => ReignServices.WarCouncil?.LastCapitalSettlementId ?? string.Empty;
+        public static string AutomationSelectedCouncilorHeroId => ReignServices.WarCouncil?.SelectedCouncilorHeroId ?? string.Empty;
+        public static string AutomationEffectiveCouncilorHeroId => ReignServices.WarCouncil?.EffectiveCouncilorHeroId ?? string.Empty;
         public static int AutomationCouncilorCandidateCount => _vm?.CouncilorCandidates.Count ?? 0;
         public static bool AutomationCouncilorDropdownOpen => _vm?.CouncilorDropdownOpen == true;
         public static int AutomationNavalPartyCount => _vm?.Markers.Count(x => x.IsNaval) ?? 0;

@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using ReignBeta.Knowledge;
 using TaleWorlds.CampaignSystem;
+using ReignBeta.Platform.Runtime;
 
 namespace ReignBeta.Characters.Campaign
 {
@@ -14,11 +15,11 @@ namespace ReignBeta.Characters.Campaign
     {
         private List<ReignCharacterKnowledgeRecord> _records = new List<ReignCharacterKnowledgeRecord>();
 
-        public static ReignCharacterKnowledgeCampaignBehavior Instance { get; private set; }
+        public static ReignCharacterKnowledgeCampaignBehavior Instance => ReignServices.CharacterKnowledge;
 
         public override void RegisterEvents()
         {
-            Instance = this;
+            ReignServices.CharacterKnowledge = this;
         }
 
         public override void SyncData(IDataStore dataStore)

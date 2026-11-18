@@ -17,14 +17,14 @@ Hero identity and character life. Hero profiles and identity sync, family, chara
 | `Knowledge` | 1 |
 | `World` | 1 |
 
-Namespaces in use: `ReignBeta.Campaign (44)`, `ReignBeta.Integration (7)`, `ReignBeta.Family (4)`, `ReignBeta.UI (2)`, `ReignBeta.Actions (1)`, `ReignBeta.Knowledge (1)`, `ReignBeta.UI.ViewModels (1)`, `ReignBeta.World (1)`.
+Namespaces in use: `ReignBeta.Characters.Campaign (39)`, `ReignBeta.Characters.Integration (7)`, `ReignBeta.WorldSimulation.Campaign (4)`, `ReignBeta.Characters.Family (3)`, `ReignBeta.Characters.UI (2)`, `ReignBeta.Characters.Actions (1)`, `ReignBeta.Characters.Domain (1)`, `ReignBeta.Characters.World (1)`, `ReignBeta.Family (1)`, `ReignBeta.Knowledge (1)`, `ReignBeta.UI (1)`.
 
 ## Public surface
 
 - Campaign behaviours deriving from `CampaignBehaviorBase` (all registered in `Platform/SubModule.cs`): `ReignCharacterEditorCampaignBehavior`, `ReignCharacterKnowledgeCampaignBehavior`, `ReignEncounteredResidentsCampaignBehavior`, `ReignFamilyCampaignBehavior`, `ReignNativeStartingAgeCampaignBehavior`, `ReignNpcLivesBehavior`, `ReignRecruitedNotableCampaignBehavior`, `ReignStartingChildrenCampaignBehavior`, `ReignTavernHouseCampaignBehavior`, `ReignWandererPopulationCampaignBehavior`.
 - Harmony patch classes: `NpcMeetingCharacterStayPatch`, `NpcMeetingPartySpawnPatch`, `NpcMeetingPartyStayPatch`, `ReignNpcStoryRescuePrisonerPatch`.
 - `ReignServerClient` partial files (server routes for this module): `Integration/ReignCharacterEditorClient.cs`, `Integration/ReignNpcLivesClient.cs`, `Integration/ReignNpcStoryClient.cs`, `Integration/ReignTavernHouseClient.cs`, `Integration/ReignTownNotableProfileClient.cs`, `Integration/ReignWandererClient.cs`.
-- Static `.Instance` singletons: `ReignCharacterEditorCampaignBehavior`, `ReignCharacterKnowledgeCampaignBehavior`, `ReignEncounteredResidentsCampaignBehavior`, `ReignFamilyCampaignBehavior`, `ReignNpcLivesBehavior`, `ReignStartingChildrenCampaignBehavior`, `ReignTavernHouseCampaignBehavior`, `ReignWandererPopulationCampaignBehavior`.
+- Behaviours registered in `ReignServices` (their `Instance` property forwards to the slot): `ReignCharacterEditorCampaignBehavior`, `ReignCharacterKnowledgeCampaignBehavior`, `ReignEncounteredResidentsCampaignBehavior`, `ReignFamilyCampaignBehavior`, `ReignNpcLivesBehavior`, `ReignStartingChildrenCampaignBehavior`, `ReignTavernHouseCampaignBehavior`, `ReignWandererPopulationCampaignBehavior`.
 - Types registered with the save definer (identity must not change without save compatibility): `ReignCharacterKnowledgeRecord`, `ReignConceptionRecord`, `ReignParentageRecord`.
 
 ## Dependencies

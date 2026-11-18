@@ -21,6 +21,7 @@ using ReignBeta.Platform.Integration;
 using ReignBeta.WorldSimulation.Actions;
 using ReignBeta.WorldSimulation.Campaign;
 using ReignBeta.WorldSimulation.World;
+using ReignBeta.Platform.Runtime;
 
 namespace ReignBeta.Relationships.Campaign
 {
@@ -203,7 +204,7 @@ namespace ReignBeta.Relationships.Campaign
                 ["offerId"] = offer.Id, ["phase"] = phase, ["day"] = WeddingNow, ["summary"] = summary,
                 ["audience"] = new JArray(offer.PlayerMatchId, offer.ProspectId)
             };
-            ReignWorldHistoryCampaignBehavior.Instance?.RecordReignSystemEvent("arranged_marriage_offer", phase, "relationships", offer.Id,
+            ReignServices.WorldHistory?.RecordReignSystemEvent("arranged_marriage_offer", phase, "relationships", offer.Id,
                 summary, "participants", offer.LeaderId, "", new JObject { ["offerId"] = offer.Id },
                 new JArray(offer.PlayerMatchId, offer.ProspectId));
         }
@@ -256,7 +257,7 @@ namespace ReignBeta.Relationships.Campaign
 
         private void FinalizeMarriageOfferAnswer(ReignPlayerMarriageOffer offer)
         {
-            ReignNpcLivesBehavior.Instance?.EndWeddingAttendance(offer.Id);
+            ReignServices.NpcLives?.EndWeddingAttendance(offer.Id);
             var leader = FindHero(offer.LeaderId);
             var first = FindHero(offer.PlayerMatchId);
             var second = FindHero(offer.ProspectId);
@@ -300,7 +301,7 @@ namespace ReignBeta.Relationships.Campaign
                 if (offer.State == "open" && !offer.Open)
                 {
                     offer.State = "expired";
-                    ReignNpcLivesBehavior.Instance?.EndWeddingAttendance(offer.Id);
+                    ReignServices.NpcLives?.EndWeddingAttendance(offer.Id);
                 }
                 if (offer.State == "courier" && !offer.LetterSent && maySend)
                     _ = SendMarriageMail(offer, "reign_marriage_offer", FindHero(offer.LeaderId), Hero.MainHero,
@@ -317,7 +318,7 @@ namespace ReignBeta.Relationships.Campaign
                 var prospect = FindHero(offer.ProspectId);
                 string reason = !SafeWeddingTown(town, Clan.PlayerClan, prospect?.Clan)
                     ? "The venue is no longer safe."
-                    : ReignNpcLivesBehavior.Instance?.BeginWeddingAttendance(offer.Id, prospect, town) ?? "The prospect is unavailable.";
+                    : ReignServices.NpcLives?.BeginWeddingAttendance(offer.Id, prospect, town) ?? "The prospect is unavailable.";
                 if (reason.Length != 0)
                 {
                     offer.MeetingFinished = true;

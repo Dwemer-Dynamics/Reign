@@ -10,6 +10,7 @@ using TaleWorlds.CampaignSystem;
 using TaleWorlds.CampaignSystem.Settlements;
 using ReignBeta.Government.Domain;
 using ReignBeta.WorldSimulation.World;
+using ReignBeta.Platform.Runtime;
 
 namespace ReignBeta.Government.Campaign
 {
@@ -349,7 +350,7 @@ namespace ReignBeta.Government.Campaign
         private void ObserveGovernmentActionQueue(ReignGovernmentBusinessRecord record)
         {
             if (record.Kind != "world_action" || GovernmentBusinessRules.IsClosed(record.Status)) return;
-            var queue = ReignBeta.Platform.Campaign.ReignAICampaignBehavior.Instance;
+            var queue = ReignServices.AI;
             if (queue == null) return;
             var action = queue.Actions.FirstOrDefault(x => Same(x.ActionId, record.ActionCorrelationId));
             if (action == null)

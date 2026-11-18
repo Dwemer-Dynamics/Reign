@@ -17,6 +17,7 @@ using TaleWorlds.MountAndBlade;
 using ReignBeta.Persistence.Save;
 using ReignBeta.Platform.Integration;
 using ReignBeta.World;
+using ReignBeta.Platform.Runtime;
 
 namespace ReignBeta.WorldSimulation.World
 {
@@ -42,7 +43,7 @@ namespace ReignBeta.WorldSimulation.World
         private List<string> _stateChunks = new List<string>();
         private float _representationTickIn;
 
-        internal static ReignFollowCampaignBehavior Instance { get; private set; }
+        internal static ReignFollowCampaignBehavior Instance => ReignServices.Follow;
 
         internal IEnumerable<Tuple<Hero, Hero>> ActiveSceneFollowers
         {
@@ -60,7 +61,7 @@ namespace ReignBeta.WorldSimulation.World
 
         public override void RegisterEvents()
         {
-            Instance = this;
+            ReignServices.Follow = this;
             CampaignEvents.OnGameLoadFinishedEvent.AddNonSerializedListener(this, ReconcileAfterLoad);
             CampaignEvents.TickEvent.AddNonSerializedListener(this, OnCampaignTick);
             CampaignEvents.OnMissionEndedEvent.AddNonSerializedListener(this, _ => ApplicationTick(0f));

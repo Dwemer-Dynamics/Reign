@@ -22,6 +22,7 @@ using ReignBeta.Platform.Integration;
 using ReignBeta.Court.Campaign;
 using ReignBeta.Spymaster.Campaign;
 #endif
+using ReignBeta.Platform.Runtime;
 
 namespace ReignBeta.Government.Campaign
 {
@@ -690,7 +691,7 @@ namespace ReignBeta.Government.Campaign
                     && action != ReignGovernmentResolutionAction.SpymasterCounterintelligence
                     && action != ReignGovernmentResolutionAction.IdentifyCulprit))
                 return;
-            IEnumerable<ReignSpymasterMission> missions = ReignCourtCampaignBehavior.Instance?.SpymasterState?.Missions
+            IEnumerable<ReignSpymasterMission> missions = ReignServices.Court?.SpymasterState?.Missions
                 ?? Enumerable.Empty<ReignSpymasterMission>();
             ReignSpymasterMission completed = missions.Where(x => x != null
                     && x.State == ReignSpymasterMissionState.Succeeded
@@ -817,8 +818,8 @@ namespace ReignBeta.Government.Campaign
             Add(tags, "open_issues", "merchant_issue", "justice_grievance", "unpopular_policy", "stalled_project", "bad_project",
                 "poor_trade_route", "merchant_burden", "broken_tax_promise", "ambassador_warning", "border_tension");
 #if !REIGN_EXCLUDE_COURT
-            if (fiefs.Any(x => ReignCourtCampaignBehavior.Instance?.GetSpymasterLoyaltyDelta(x) != 0f
-                || ReignCourtCampaignBehavior.Instance?.GetSpymasterSecurityDelta(x) != 0f))
+            if (fiefs.Any(x => ReignServices.Court?.GetSpymasterLoyaltyDelta(x) != 0f
+                || ReignServices.Court?.GetSpymasterSecurityDelta(x) != 0f))
                 Add(tags, "subterfuge_village", "subterfuge_food", "capital_spy_risk", "known_agent", "corruption_evidence",
                     "war_plan_leak", "hostile_rumors", "noble_intrigue", "suspected_proxy_raid");
 #endif

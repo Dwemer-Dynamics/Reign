@@ -18,6 +18,7 @@ using ReignBeta.Dialogue.UI;
 using ReignBeta.Platform.Campaign;
 using ReignBeta.Platform.Integration;
 using ReignBeta.World;
+using ReignBeta.Platform.Runtime;
 
 namespace ReignBeta.WorldSimulation.World
 {
@@ -106,7 +107,7 @@ namespace ReignBeta.WorldSimulation.World
                 // while Individual Chat replaces its native conversation wrapper.
                 // Resolve that registration first so we do not dereference the stale
                 // native Character pointer for these promoted residents.
-                return ReignEncounteredResidentsCampaignBehavior.Instance?.ResolveAgent(agent) == hero
+                return ReignServices.EncounteredResidents?.ResolveAgent(agent) == hero
                     || agent.Character == hero.CharacterObject;
             }
             catch (NullReferenceException)
@@ -449,8 +450,8 @@ namespace ReignBeta.WorldSimulation.World
 
         private void EnsurePersistentFollowers()
         {
-            if (ReignFollowCampaignBehavior.Instance == null) return;
-            foreach (Tuple<Hero, Hero> pair in ReignFollowCampaignBehavior.Instance.ActiveSceneFollowers)
+            if (ReignServices.Follow == null) return;
+            foreach (Tuple<Hero, Hero> pair in ReignServices.Follow.ActiveSceneFollowers)
             {
                 Hero actor = pair.Item1;
                 Hero target = pair.Item2;
@@ -516,7 +517,7 @@ namespace ReignBeta.WorldSimulation.World
             return true;
         }
         private static void Complete(Order order, ReignActionResult result)
-            => ReignAICampaignBehavior.Instance?.CompleteActionFromMissionHook(order.ActionId, result);
+            => ReignServices.AI?.CompleteActionFromMissionHook(order.ActionId, result);
         private void Finish(Order order, bool success, string message, string code)
         {
             Restore(order);

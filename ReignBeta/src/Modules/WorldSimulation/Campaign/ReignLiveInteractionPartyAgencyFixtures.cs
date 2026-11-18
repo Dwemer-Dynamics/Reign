@@ -23,6 +23,7 @@ using ReignBeta.Platform.Integration;
 using ReignBeta.Reputation.Campaign;
 using ReignBeta.WorldSimulation.Arrests;
 using ReignBeta.WorldSimulation.PartyAgency;
+using ReignBeta.Platform.Runtime;
 
 namespace ReignBeta.WorldSimulation.Campaign
 {
@@ -279,7 +280,7 @@ namespace ReignBeta.WorldSimulation.Campaign
                 return LiveCommandResult.Failed("The Party Agency fixture target is unavailable.");
 
             ReignTemporaryPartyGuestRecord startingRecord =
-                ReignTemporaryPartyGuestCampaignBehavior.Instance?.Records
+                ReignServices.TemporaryPartyGuest?.Records
                     .FirstOrDefault(item => item?.HeroStringId == target.StringId);
             double plannedReturnHours = startingRecord != null
                 && startingRecord.Phase == ReignTemporaryGuestPhase.Returning
@@ -300,7 +301,7 @@ namespace ReignBeta.WorldSimulation.Campaign
             await ReignMainThread.InvokeAsync(() =>
             {
                 ReignTemporaryPartyGuestCampaignBehavior behavior =
-                    ReignTemporaryPartyGuestCampaignBehavior.Instance;
+                    ReignServices.TemporaryPartyGuest;
                 if (behavior != null)
                 {
                     foreach (ReignTemporaryPartyGuestRecord unrelated in behavior.Records
@@ -344,11 +345,11 @@ namespace ReignBeta.WorldSimulation.Campaign
                             if (waitMenu?.IsWaitMenu == true && !waitMenu.IsWaitActive)
                                 waitMenu.StartWait();
                         }
-                        ReignTemporaryPartyGuestCampaignBehavior.Instance?.ApplicationTick();
+                        ReignServices.TemporaryPartyGuest?.ApplicationTick();
                         if (caseId == "PA-NATIVE-015" && plannedReturnHours <= 0d)
                         {
                             ReignTemporaryPartyGuestRecord returningRecord =
-                                ReignTemporaryPartyGuestCampaignBehavior.Instance?.Records
+                                ReignServices.TemporaryPartyGuest?.Records
                                     .FirstOrDefault(item => item?.HeroStringId == target.StringId);
                             double currentDay = CampaignTime.Now.ToDays;
                             if (returningRecord?.Phase == ReignTemporaryGuestPhase.Returning
@@ -362,7 +363,7 @@ namespace ReignBeta.WorldSimulation.Campaign
                         }
                     }).ConfigureAwait(false);
                     ReignTemporaryPartyGuestRecord current =
-                        ReignTemporaryPartyGuestCampaignBehavior.Instance?.Records
+                        ReignServices.TemporaryPartyGuest?.Records
                             .FirstOrDefault(record => record?.HeroStringId == target.StringId
                                 && record.Phase == ReignTemporaryGuestPhase.ReviewDue);
                     if (current != null) break;
@@ -394,7 +395,7 @@ namespace ReignBeta.WorldSimulation.Campaign
                 ? await ReignMainThread.InvokeAsync(() =>
                 {
                     ReignTemporaryPartyGuestRecord liveRecord =
-                        ReignTemporaryPartyGuestCampaignBehavior.Instance?.Records
+                        ReignServices.TemporaryPartyGuest?.Records
                             .FirstOrDefault(item => item?.HeroStringId == target.StringId);
                     MobileParty camp = MobileParty.All.FirstOrDefault(party => party != null
                         && string.Equals(party.StringId, liveRecord?.SourcePartyStringId,
@@ -406,7 +407,7 @@ namespace ReignBeta.WorldSimulation.Campaign
             bool financeAndInteractionNeutral = safetyEvidence == null
                 || safetyEvidence.Value<bool?>("ok") == true;
             ReignTemporaryPartyGuestRecord record =
-                ReignTemporaryPartyGuestCampaignBehavior.Instance?.Records
+                ReignServices.TemporaryPartyGuest?.Records
                     .FirstOrDefault(item => item?.HeroStringId == target.StringId);
             bool reached = CampaignTime.Now.ToDays >= targetDay;
             bool reviewBoundary = record?.Phase == ReignTemporaryGuestPhase.ReviewDue;
@@ -513,7 +514,7 @@ namespace ReignBeta.WorldSimulation.Campaign
                 bool ok = fixtureVariants.Length >= 2
                     && distinctHeroes.Length == fixtureVariants.Length
                     && distinctHeroes.All(heroId =>
-                        ReignTemporaryPartyGuestCampaignBehavior.Instance?.Records.Any(
+                        ReignServices.TemporaryPartyGuest?.Records.Any(
                             record => record?.HeroStringId == heroId
                                 && record.Phase == ReignTemporaryGuestPhase.Active) == true);
                 JObject evidence = new JObject
@@ -556,7 +557,7 @@ namespace ReignBeta.WorldSimulation.Campaign
             if (target == null) return LiveCommandResult.Failed(
                 "The Party Agency review-provider fixture target is unavailable.");
             bool notified = await ReignMainThread.InvokeAsync(() =>
-                ReignTemporaryPartyGuestCampaignBehavior.Instance
+                ReignServices.TemporaryPartyGuest
                     ?.NotifyDisposableLiveTestReviewProviderFailure(target.StringId) == true)
                 .ConfigureAwait(false);
             if (!notified) return LiveCommandResult.Failed(
@@ -564,10 +565,10 @@ namespace ReignBeta.WorldSimulation.Campaign
 
             await Task.Delay(3500).ConfigureAwait(false);
             await ReignMainThread.InvokeAsync(() =>
-                ReignTemporaryPartyGuestCampaignBehavior.Instance?.ApplicationTick())
+                ReignServices.TemporaryPartyGuest?.ApplicationTick())
                 .ConfigureAwait(false);
             ReignTemporaryPartyGuestRecord retryRecord =
-                ReignTemporaryPartyGuestCampaignBehavior.Instance?.Records
+                ReignServices.TemporaryPartyGuest?.Records
                     .FirstOrDefault(item => item?.HeroStringId == target.StringId);
             bool retryPreserved = retryRecord?.Phase == ReignTemporaryGuestPhase.ReviewDue
                 && (retryRecord.LastReviewReason ?? string.Empty)
@@ -575,11 +576,11 @@ namespace ReignBeta.WorldSimulation.Campaign
             bool departureSelected = false;
             if (variant == "provider_departure" && retryPreserved)
                 departureSelected = await ReignMainThread.InvokeAsync(() =>
-                    ReignTemporaryPartyGuestCampaignBehavior.Instance
+                    ReignServices.TemporaryPartyGuest
                         ?.LetDisposableLiveTestReviewGuestDepart(target.StringId) == true)
                     .ConfigureAwait(false);
             ReignTemporaryPartyGuestRecord finalRecord =
-                ReignTemporaryPartyGuestCampaignBehavior.Instance?.Records
+                ReignServices.TemporaryPartyGuest?.Records
                     .FirstOrDefault(item => item?.HeroStringId == target.StringId);
             bool expectedPhase = variant == "provider_departure"
                 ? departureSelected && (finalRecord?.Phase == ReignTemporaryGuestPhase.Returning
@@ -622,7 +623,7 @@ namespace ReignBeta.WorldSimulation.Campaign
                         "The matching game-generated Party Agency recovery receipt is unavailable.");
                 Hero target = FindPartyAgencyFixtureHero();
                 ReignTemporaryPartyGuestCampaignBehavior behavior =
-                    ReignTemporaryPartyGuestCampaignBehavior.Instance;
+                    ReignServices.TemporaryPartyGuest;
                 ReignTemporaryPartyGuestRecord record = behavior?.Records
                     .FirstOrDefault(item => item?.HeroStringId == target?.StringId);
                 if (target == null || record == null)
@@ -832,7 +833,7 @@ namespace ReignBeta.WorldSimulation.Campaign
                 Kingdom playerKingdom = Hero.MainHero?.Clan?.Kingdom;
                 Kingdom originalKingdom = target?.Clan?.Kingdom;
                 ReignTemporaryPartyGuestRecord record =
-                    ReignTemporaryPartyGuestCampaignBehavior.Instance?.Records
+                    ReignServices.TemporaryPartyGuest?.Records
                         .FirstOrDefault(item => item?.HeroStringId == target?.StringId);
                 if (record == null || record.Phase != ReignTemporaryGuestPhase.Active
                     || playerKingdom == null || originalKingdom == null
@@ -845,7 +846,7 @@ namespace ReignBeta.WorldSimulation.Campaign
                     DeclareWarAction.ApplyByDefault(playerKingdom, originalKingdom);
                     createdWar = true;
                 }
-                ReignTemporaryPartyGuestCampaignBehavior.Instance
+                ReignServices.TemporaryPartyGuest
                     .RunDisposableLiveTestHourlyStateOnly();
                 bool due = record.Phase == ReignTemporaryGuestPhase.ReviewDue
                     && !record.HostilityWarningAcknowledged
@@ -885,7 +886,7 @@ namespace ReignBeta.WorldSimulation.Campaign
                         "The matching game-generated Party Agency battle receipt is unavailable.");
                 Hero target = FindPartyAgencyFixtureHero();
                 ReignTemporaryPartyGuestCampaignBehavior behavior =
-                    ReignTemporaryPartyGuestCampaignBehavior.Instance;
+                    ReignServices.TemporaryPartyGuest;
                 ReignTemporaryPartyGuestRecord record = behavior?.Records
                     .FirstOrDefault(item => item?.HeroStringId == target?.StringId);
                 if (target == null || record == null)
@@ -1054,7 +1055,7 @@ namespace ReignBeta.WorldSimulation.Campaign
                         "The matching game-generated Party Agency save-stage receipt is unavailable.");
                 Hero target = FindPartyAgencyFixtureHero();
                 ReignTemporaryPartyGuestCampaignBehavior behavior =
-                    ReignTemporaryPartyGuestCampaignBehavior.Instance;
+                    ReignServices.TemporaryPartyGuest;
                 ReignTemporaryPartyGuestRecord record = behavior?.Records
                     .FirstOrDefault(item => item?.HeroStringId == target?.StringId);
                 if (target == null || record == null)
@@ -1146,7 +1147,7 @@ namespace ReignBeta.WorldSimulation.Campaign
                     return LiveCommandResult.Failed(
                         "Unknown Party Agency lifecycle phase '" + variant + "'.");
                 ReignTemporaryPartyGuestCampaignBehavior behavior =
-                    ReignTemporaryPartyGuestCampaignBehavior.Instance;
+                    ReignServices.TemporaryPartyGuest;
                 List<ReignTemporaryPartyGuestRecord> matches = behavior?.Records
                     .Where(record => record != null && record.Phase == expectedPhase)
                     .OrderByDescending(record => record.LastStateChangeDay).ToList()
@@ -1421,7 +1422,7 @@ namespace ReignBeta.WorldSimulation.Campaign
         private static JObject CapturePartyAgencyNativeState(Hero hero)
         {
             ReignTemporaryPartyGuestRecord record =
-                ReignTemporaryPartyGuestCampaignBehavior.Instance?.Records
+                ReignServices.TemporaryPartyGuest?.Records
                     .FirstOrDefault(item => item?.HeroStringId == hero?.StringId);
             MobileParty source = record == null ? hero?.PartyBelongedTo
                 : MobileParty.All.FirstOrDefault(party => party != null
@@ -1450,7 +1451,7 @@ namespace ReignBeta.WorldSimulation.Campaign
                 ["sourcePartyClanId"] = source?.ActualClan?.StringId ?? string.Empty,
                 ["sourcePartyIsLordParty"] = source?.LordPartyComponent != null,
                 ["sourcePartyProtected"] = source == null
-                    || ReignTemporaryPartyGuestCampaignBehavior.Instance?.IsProtectedCamp(source) == true,
+                    || ReignServices.TemporaryPartyGuest?.IsProtectedCamp(source) == true,
                 ["sourcePartyX"] = source?.Position.X ?? 0f,
                 ["sourcePartyY"] = source?.Position.Y ?? 0f,
                 ["troopSignature"] = source == null ? string.Empty : string.Join("|",
@@ -1479,7 +1480,7 @@ namespace ReignBeta.WorldSimulation.Campaign
                 ["battleEquipmentSignature"] = PartyAgencyEquipmentSignature(hero?.BattleEquipment),
                 ["civilianEquipmentSignature"] = PartyAgencyEquipmentSignature(hero?.CivilianEquipment),
                 ["equipmentChangeAllowed"] = hero?.CanHeroEquipmentBeChanged() == true,
-                ["temporaryGuestEquipmentLocked"] = ReignTemporaryPartyGuestCampaignBehavior.Instance
+                ["temporaryGuestEquipmentLocked"] = ReignServices.TemporaryPartyGuest
                     ?.IsTemporaryGuestEquipmentLocked(hero) == true,
                 ["morale"] = source?.Morale ?? 0f,
                 ["recordPhase"] = record?.Phase.ToString() ?? string.Empty
@@ -1502,7 +1503,7 @@ namespace ReignBeta.WorldSimulation.Campaign
 
         private static JObject CapturePartyAgencyUnrelatedState(Hero hero)
         {
-            ReignArrestCampaignBehavior arrests = ReignArrestCampaignBehavior.Instance;
+            ReignArrestCampaignBehavior arrests = ReignServices.Arrest;
             int arrestCases = arrests?.Cases.Count(item => item != null
                 && string.Equals(item.AccusedHeroStringId, hero?.StringId,
                     StringComparison.OrdinalIgnoreCase)) ?? 0;
@@ -1520,9 +1521,9 @@ namespace ReignBeta.WorldSimulation.Campaign
                 ["isPrisoner"] = hero?.IsPrisoner == true,
                 ["arrestCaseCount"] = arrestCases,
                 ["rulerReputationState"] = CapturePrivatePartyAgencyState(
-                    ReignRulerReputationCampaignBehavior.Instance, "_state"),
+                    ReignServices.RulerReputation, "_state"),
                 ["courtPersonalityReputationState"] = CapturePrivatePartyAgencyState(
-                    ReignCourtPersonalityReputationCampaignBehavior.Instance, "_state"),
+                    ReignServices.CourtPersonalityReputation, "_state"),
                 ["combatReputationState"] = CapturePrivatePartyAgencyState(
                     TaleWorlds.CampaignSystem.Campaign.Current
                         ?.GetCampaignBehavior<ReignCombatReputationCampaignBehavior>(),

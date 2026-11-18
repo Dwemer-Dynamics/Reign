@@ -11,6 +11,7 @@ using ReignBeta.Relationships.Integration;
 using ReignBeta.World;
 using ReignBeta.WorldSimulation.Campaign;
 using ReignBeta.WorldSimulation.World;
+using ReignBeta.Platform.Runtime;
 
 namespace ReignBeta.Characters.World
 {
@@ -238,7 +239,7 @@ namespace ReignBeta.Characters.World
             else if (action.Source != "reign_console" && !((first.StringId == action.ActorHeroStringId && second.StringId == action.TargetHeroStringId)
                 || (second.StringId == action.ActorHeroStringId && first.StringId == action.TargetHeroStringId)))
                 reason = "A personal marriage agreement can bind only its two participants.";
-            else if (!proposal && ReignBeta.WorldSimulation.Actions.ReignAgreementBehavior.Instance?.Authorizes(action) != true)
+            else if (!proposal && ReignServices.Agreement?.Authorizes(action) != true)
                 reason = "Marriage requires the exact accepted agreement or saved operator instruction.";
             else if (first.Spouse == second && second.Spouse == first) return true;
             else if (first.Spouse != null || second.Spouse != null
@@ -283,7 +284,7 @@ namespace ReignBeta.Characters.World
         internal static string WeddingId(ReignWorldActionRecord action) => "world_wedding_" + action.ActionId;
 
         internal static ReignWedding LinkedWedding(ReignWorldActionRecord action)
-            => action == null ? null : ReignRelationshipCampaignBehavior.Instance?.Wedding(WeddingId(action));
+            => action == null ? null : ReignServices.Relationship?.Wedding(WeddingId(action));
 
         internal static bool MatchesLinkedTerms(ReignWedding wedding, ReignWorldActionRecord action)
             => wedding != null && wedding.LinkedTerms == (action.TermsJson ?? "")
@@ -294,7 +295,7 @@ namespace ReignBeta.Characters.World
             if (!TryResolveCouple(action, out Hero first, out Hero second, out string reason))
                 return ReignActionResult.ValidationFailed(reason);
 
-            var coordinator = ReignRelationshipCampaignBehavior.Instance;
+            var coordinator = ReignServices.Relationship;
             var pending = LinkedWedding(action);
             bool alreadyMarried = first.Spouse == second && second.Spouse == first;
             if (pending == null && !alreadyMarried && ReignRelationshipCampaignBehavior.WeddingFeatureReady)
@@ -313,7 +314,7 @@ namespace ReignBeta.Characters.World
                     var receipt = coordinator.ApplyArrangedMarriage(new ReignDirectorAction
                     {
                         DirectorActionId = id, ActionType = "marriage", ActorId = first.StringId, TargetId = second.StringId,
-                        Payload = new JObject { ["route"] = "arranged", ["timelineId"] = ReignWorldHistoryCampaignBehavior.Instance?.TimelineId ?? "main",
+                        Payload = new JObject { ["route"] = "arranged", ["timelineId"] = ReignServices.WorldHistory?.TimelineId ?? "main",
                             ["marriageTerms"] = quote?.DeepClone() }
                     }, action.AcceptedByHeroStringId == Hero.MainHero?.StringId, consideration);
                     pending = coordinator.Wedding(id);

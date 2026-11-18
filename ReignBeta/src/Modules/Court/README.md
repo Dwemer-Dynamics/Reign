@@ -15,14 +15,15 @@ Castle court life. Courts and court life, nobles and visitors, ruler/noble/inter
 | `TrainingYard` | 4 |
 | `WarCouncil` | 1 |
 
-Namespaces in use: `ReignBeta.Court (35)`, `ReignBeta.UI (18)`, `ReignBeta.UI.ViewModels (16)`, `ReignBeta.Integration (9)`, `ReignBeta.Campaign (5)`, `ReignBeta.Court.TrainingYard (1)`, `ReignBeta.Court.WarCouncil (1)`.
+Namespaces in use: `ReignBeta.Court.Campaign (33)`, `ReignBeta.Court.UI (25)`, `ReignBeta.Court.Integration (8)`, `ReignBeta.WorldSimulation.Campaign (5)`, `ReignBeta.Court.FamilyChambers (4)`, `ReignBeta.UI (4)`, `ReignBeta.Court.TrainingYard (3)`, `ReignBeta.Court (2)`, `ReignBeta.Court.WarCouncil (1)`, `ReignBeta.Platform.Integration (1)`.
 
 ## Public surface
 
 - Campaign behaviours deriving from `CampaignBehaviorBase` (all registered in `Platform/SubModule.cs`): `ReignCourtCampaignBehavior`, `ReignCourtNobleCampaignBehavior`, `ReignFamilyChambersCampaignBehavior`, `ReignTrainingYardCampaignBehavior`, `ReignWarCouncilCampaignBehavior`.
 - `ReignServerClient` partial files (server routes for this module): `Campaign/ReignPatronageHistory.cs`, `Integration/ReignFamilyVisitClient.cs`.
 - Other server clients: `Integration/ReignCastleSceneClient.cs`, `Integration/ReignCourtServerClient.cs`, `Integration/ReignInternationalCourtClient.cs`, `Integration/ReignRulerPetitionSceneClient.cs`.
-- Static `.Instance` singletons: `ReignCourtCampaignBehavior`, `ReignCourtNobleCampaignBehavior`, `ReignFamilyChambersCampaignBehavior`, `ReignWarCouncilCampaignBehavior`.
+- Behaviours registered in `ReignServices` (their `Instance` property forwards to the slot): `ReignCourtCampaignBehavior`, `ReignCourtNobleCampaignBehavior`, `ReignFamilyChambersCampaignBehavior`, `ReignWarCouncilCampaignBehavior`.
+- `ReignCourtCampaignBehavior` implements World Simulation's `ICourtWorldBridge` explicitly (`Campaign/ReignCourtWorldBridge.cs`) and publishes it as `ReignServices.CourtWorld`; Court depends on World Simulation, not the reverse.
 - Types registered with the save definer (identity must not change without save compatibility): `AmbassadorPosting`, `CapitalAmbassadorTestLedger`, `CastleBathHistoryRecord`, `CastleRoomSessionRecord`, `CourtAgendaItem`, `CourtCounterSample`, `CourtDecisionOption`, `CourtMatter`, `CourtObligation`, `CourtOfficeAssignment`, `CourtPlot`, `CourtRegentAssignment`, `CourtSession`, `FamilyChambersSessionRecord`, `ForeignAmbassadorPosting`, `IntelligenceOperation`, `KingdomCapitalDesignation`.
 
 ## Dependencies

@@ -15,6 +15,7 @@ using TaleWorlds.Core;
 using TaleWorlds.ObjectSystem;
 using ReignBeta.Actions;
 using ReignBeta.WorldSimulation.World;
+using ReignBeta.Platform.Runtime;
 
 namespace ReignBeta.WorldSimulation.Actions
 {
@@ -39,7 +40,7 @@ namespace ReignBeta.WorldSimulation.Actions
         private static int ItemCount(Hero hero, EquipmentElement e)
         {
             var roster = hero.PartyBelongedTo?.ItemRoster;
-            if (roster == null || hero != hero.PartyBelongedTo.LeaderHero && hero != Hero.MainHero) return ReignPersonalItemService.Instance?.AgreementCount(hero, e) ?? 0;
+            if (roster == null || hero != hero.PartyBelongedTo.LeaderHero && hero != Hero.MainHero) return ReignServices.PersonalItemService?.AgreementCount(hero, e) ?? 0;
             int i = roster.FindIndexOfElement(e); return i < 0 ? 0 : roster.GetElementNumber(i);
         }
         private static void ChangeItem(Hero hero, EquipmentElement e, int delta, JObject saved = null, bool source = false)
@@ -50,8 +51,8 @@ namespace ReignBeta.WorldSimulation.Actions
             var roster = personal ? null : (saved == null ? hero.PartyBelongedTo : SavedParty(saved, key))?.ItemRoster;
             if (personal)
             {
-                if (ReignPersonalItemService.Instance == null) throw new InvalidOperationException("Personal possessions are unavailable.");
-                ReignPersonalItemService.Instance.AgreementChange(hero, e, delta); return;
+                if (ReignServices.PersonalItemService == null) throw new InvalidOperationException("Personal possessions are unavailable.");
+                ReignServices.PersonalItemService.AgreementChange(hero, e, delta); return;
             }
             if (roster == null) throw new InvalidOperationException("The saved item party is unavailable.");
             int index = roster.FindIndexOfElement(e);
@@ -89,7 +90,7 @@ namespace ReignBeta.WorldSimulation.Actions
         }
         private static int SavedItemCount(Hero hero, EquipmentElement element, JObject saved, string key)
         {
-            if (saved.Value<string>(key + "Storage") == "personal") return ReignPersonalItemService.Instance?.AgreementCount(hero, element) ?? 0;
+            if (saved.Value<string>(key + "Storage") == "personal") return ReignServices.PersonalItemService?.AgreementCount(hero, element) ?? 0;
             var roster = SavedParty(saved, key).ItemRoster; int i = roster.FindIndexOfElement(element);
             return i < 0 ? 0 : roster.GetElementNumber(i);
         }

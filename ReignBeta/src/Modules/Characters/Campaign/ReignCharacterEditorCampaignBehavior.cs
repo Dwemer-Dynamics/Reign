@@ -14,6 +14,7 @@ using TaleWorlds.Localization;
 using ReignBeta.Characters.Integration;
 using ReignBeta.Platform.Integration;
 using ReignBeta.WorldSimulation.World;
+using ReignBeta.Platform.Runtime;
 
 namespace ReignBeta.Characters.Campaign
 {
@@ -26,7 +27,7 @@ namespace ReignBeta.Characters.Campaign
 
     public sealed partial class ReignCharacterEditorCampaignBehavior : CampaignBehaviorBase
     {
-        public static ReignCharacterEditorCampaignBehavior Instance { get; private set; }
+        public static ReignCharacterEditorCampaignBehavior Instance => ReignServices.CharacterEditor;
         public bool NotableBackgroundInitializationComplete => _notableBackgroundInitializationComplete;
         public bool NotableBackgroundInitializationInFlight => _notableBackgroundInitializationInFlight;
 
@@ -43,7 +44,7 @@ namespace ReignBeta.Characters.Campaign
 
         public ReignCharacterEditorCampaignBehavior()
         {
-            Instance = this;
+            ReignServices.CharacterEditor = this;
         }
 
         public override void RegisterEvents()
@@ -319,7 +320,7 @@ namespace ReignBeta.Characters.Campaign
                     JObject wealth = value as JObject; if (wealth == null) return false; int wealthGold = wealth.Value<int?>("gold") ?? hero.Gold; hero.ChangeHeroGold(wealthGold - hero.Gold); return true;
                 case "ispregnant":
                     hero.IsPregnant = value.Value<bool>();
-                    ReignFamilyCampaignBehavior.Instance?.NotifyPregnancyStateChanged(hero);
+                    ReignServices.Family?.NotifyPregnancyStateChanged(hero);
                     return true;
                 case "spouseid": SetSpouse(hero, ReignObjectResolver.FindHero(value?.ToString())); return true;
                 case "fatherid": SetParent(hero, ReignObjectResolver.FindHero(value?.ToString()), true); return true;

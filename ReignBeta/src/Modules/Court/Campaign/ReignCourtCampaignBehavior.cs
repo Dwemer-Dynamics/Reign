@@ -34,6 +34,7 @@ using ReignBeta.Relationships.Integration;
 using ReignBeta.Spymaster.Campaign;
 using ReignBeta.WorldSimulation.Campaign;
 using ReignBeta.WorldSimulation.World;
+using ReignBeta.Platform.Runtime;
 
 namespace ReignBeta.Court.Campaign
 {
@@ -77,7 +78,7 @@ namespace ReignBeta.Court.Campaign
         private int _consecutiveAuthorityFailures;
         private string _lastAuthorityFailureReason = string.Empty;
 
-        public static ReignCourtCampaignBehavior Instance { get; private set; }
+        public static ReignCourtCampaignBehavior Instance => ReignServices.Court;
         // SyncData bounds the saved capital/ambassador acceptance ledgers. Product-owned because it runs on
         // every save and load whether or not the optional test harness assembly is installed.
         internal const int CapitalAmbassadorLedgerMaxCount = 16;
@@ -155,7 +156,8 @@ namespace ReignBeta.Court.Campaign
 
         public override void RegisterEvents()
         {
-            Instance = this;
+            ReignServices.Court = this;
+            ReignServices.CourtWorld = this;
             CampaignEvents.OnSessionLaunchedEvent.AddNonSerializedListener(this, OnSessionLaunched);
             CampaignEvents.DailyTickEvent.AddNonSerializedListener(this, OnDailyTick);
             CampaignEvents.HourlyTickEvent.AddNonSerializedListener(this, OnHourlyTick);
@@ -347,7 +349,7 @@ namespace ReignBeta.Court.Campaign
             ReignCourtScope scope = ResolveCourtScope(capital.SettlementStringId, settlement.StringId);
             int day = CurrentDay();
             string campaignId = ReignCampaignIdentity.CurrentCampaignId();
-            string timelineId = ReignWorldHistoryCampaignBehavior.Instance?.TimelineId ?? "main";
+            string timelineId = ReignServices.WorldHistory?.TimelineId ?? "main";
             bool reuseRoyalDocket = authority == ReignCourtAuthority.Royal && _session != null && _session.Authority == ReignCourtAuthority.Royal
                 && string.Equals(_session.CampaignId, campaignId, StringComparison.Ordinal) && string.Equals(_session.TimelineId, timelineId, StringComparison.Ordinal);
             if (reuseRoyalDocket)
@@ -611,7 +613,7 @@ namespace ReignBeta.Court.Campaign
                 {
                     ["matterId"] = matterId, ["optionId"] = optionId, ["termsHash"] = termsHash,
                     ["revision"] = response.Revision, ["commandId"] = reportCommandId,
-                    ["timelineId"] = ReignWorldHistoryCampaignBehavior.Instance?.TimelineId ?? "main",
+                    ["timelineId"] = ReignServices.WorldHistory?.TimelineId ?? "main",
                     ["campaignId"] = ReignCampaignIdentity.CurrentCampaignId()
                 };
                 NativeCourtExecution execution = await ExecuteNativeActionsAsync(response.NativeActions, weddingReceipt).ConfigureAwait(false);
@@ -1091,8 +1093,8 @@ namespace ReignBeta.Court.Campaign
                                 bool weddingAction = ReignMarriageService.HasMarriageIntent(worldAction);
                                 if (weddingAction && weddingReceipt == null)
                                     throw new InvalidOperationException("The marriage must have an exact court receipt before scheduling.");
-                                if (ReignAICampaignBehavior.Instance?.EnqueueAndExecuteServerActions(new[] { worldAction }) != 1) throw new InvalidOperationException("The authoritative world action queue rejected the plan.");
-                                ReignActionResult result = ReignAICampaignBehavior.Instance.GetLastActionResult(worldAction.ActionId);
+                                if (ReignServices.AI?.EnqueueAndExecuteServerActions(new[] { worldAction }) != 1) throw new InvalidOperationException("The authoritative world action queue rejected the plan.");
+                                ReignActionResult result = ReignServices.AI.GetLastActionResult(worldAction.ActionId);
                                 if (result != null && !result.Success) throw new InvalidOperationException(result.Message);
                                 if (weddingAction && result?.Completed != true)
                                 {
@@ -1207,7 +1209,7 @@ namespace ReignBeta.Court.Campaign
                             case "rebellion_response":
                             {
                                 string result = string.Empty;
-                                if (ReignRebellionCampaignBehavior.Instance?.TryResolvePlayerUltimatum(action.Value<string>("movementId"), action.Value<string>("response"), out result) != true)
+                                if (ReignServices.Rebellion?.TryResolvePlayerUltimatum(action.Value<string>("movementId"), action.Value<string>("response"), out result) != true)
                                     throw new InvalidOperationException(string.IsNullOrWhiteSpace(result) ? "The rebellion response was rejected." : result);
                                 receipt["result"] = result;
                                 break;
@@ -1217,7 +1219,7 @@ namespace ReignBeta.Court.Campaign
                                 if (weddingReceipt == null)
                                     throw new InvalidOperationException("The marriage must have an exact court receipt before scheduling.");
                                 string weddingId = "court_marriage_" + action.Value<string>("evaluationId");
-                                var execution=ReignRelationshipCampaignBehavior.Instance?.ApplyArrangedMarriage(new ReignDirectorAction {
+                                var execution=ReignServices.Relationship?.ApplyArrangedMarriage(new ReignDirectorAction {
                                     DirectorActionId=weddingId, ActionType="marriage",
                                     ActorId=action.Value<string>("heroAId"),TargetId=action.Value<string>("heroBId"),
                                     Payload=new JObject { ["route"]="arranged",["timelineId"]=action.Value<string>("timelineId"),["marriageTerms"]=action["marriageTerms"]?.DeepClone() }
@@ -1256,14 +1258,14 @@ namespace ReignBeta.Court.Campaign
         {
             if (_courtWeddingReportInFlight || ReignSaveSyncCoordinator.IsAlignmentPending
                 || ReignSaveSyncCampaignBehavior.IsNativeSaveInProgress) return;
-            string timeline = ReignWorldHistoryCampaignBehavior.Instance?.TimelineId ?? "main";
+            string timeline = ReignServices.WorldHistory?.TimelineId ?? "main";
             string campaign = ReignCampaignIdentity.CurrentCampaignId();
             foreach (string encoded in _courtWeddingReceipts)
             {
                 var link = JObject.Parse(encoded);
                 if (link.Value<string>("campaignId") != campaign || link.Value<string>("timelineId") != timeline) continue;
-                var wedding = ReignRelationshipCampaignBehavior.Instance?.Wedding(link.Value<string>("weddingId"));
-                var action = ReignAICampaignBehavior.Instance?.Actions.FirstOrDefault(a => a.ActionId == link.Value<string>("worldActionId"));
+                var wedding = ReignServices.Relationship?.Wedding(link.Value<string>("weddingId"));
+                var action = ReignServices.AI?.Actions.FirstOrDefault(a => a.ActionId == link.Value<string>("worldActionId"));
                 if (action != null && !action.IsTerminal || action == null && wedding?.Terminal != true) continue;
                 bool success = wedding?.State == WeddingState.Completed
                     && (action == null || action.Status == ReignWorldActionStatus.Completed);
@@ -1712,7 +1714,7 @@ namespace ReignBeta.Court.Campaign
                         + shipment.CapacityOverflow.ToString("0.#") + " exceeded storage capacity."
                     : "The food shipment from " + sourceName + " to " + targetName + " was lost.";
             if (!sourceSide && !string.IsNullOrWhiteSpace(shipment.Notes)) summary += " Ruler's note: " + shipment.Notes;
-            ReignWorldHistoryCampaignBehavior.Instance?.RecordReignSystemEvent(
+            ReignServices.WorldHistory?.RecordReignSystemEvent(
                 "court_food_shipment", phase + "_" + side, "economic_transfer", shipment.ShipmentId + ":" + side,
                 summary, "private", Hero.MainHero?.StringId ?? string.Empty,
                 (sourceSide ? source?.OwnerClan?.Kingdom : target?.OwnerClan?.Kingdom)?.StringId ?? string.Empty,
@@ -1739,7 +1741,7 @@ namespace ReignBeta.Court.Campaign
 
         private static void RecordLegacyEconomicHistory(ReignEconomicShipment shipment, string phase, Settlement source, Settlement target)
         {
-            ReignWorldHistoryCampaignBehavior.Instance?.RecordReignSystemEvent(
+            ReignServices.WorldHistory?.RecordReignSystemEvent(
                 "court_economic_transfer", phase, "economic_transfer", shipment.ShipmentId,
                 shipment.Amount + " " + shipment.ItemName + " transferred from " + source.Name + " to " + target.Name + ".",
                 "private", Hero.MainHero?.StringId ?? string.Empty, target.OwnerClan?.Kingdom?.StringId ?? string.Empty,
@@ -1768,7 +1770,7 @@ namespace ReignBeta.Court.Campaign
         private void EnsureRoyalDocket()
         {
             string campaignId = ReignCampaignIdentity.CurrentCampaignId();
-            string timelineId = ReignWorldHistoryCampaignBehavior.Instance?.TimelineId ?? "main";
+            string timelineId = ReignServices.WorldHistory?.TimelineId ?? "main";
             if (_session != null && _session.Authority == ReignCourtAuthority.Royal
                 && string.Equals(_session.CampaignId, campaignId, StringComparison.Ordinal)
                 && string.Equals(_session.TimelineId, timelineId, StringComparison.Ordinal)) return;
@@ -1911,7 +1913,7 @@ namespace ReignBeta.Court.Campaign
                 if (effect == "rebellion_response")
                 {
                     string movementId = outcome.Value<string>("movementId") ?? string.Empty;
-                    applied = ReignRebellionCampaignBehavior.Instance?.TryResolvePlayerUltimatum(movementId, outcome.Value<string>("response") ?? "deadline_expired", out result) == true;
+                    applied = ReignServices.Rebellion?.TryResolvePlayerUltimatum(movementId, outcome.Value<string>("response") ?? "deadline_expired", out result) == true;
                 }
                 else if (effect == "declare_war")
                 {
@@ -2002,7 +2004,7 @@ namespace ReignBeta.Court.Campaign
                 });
             }
 
-            ReignRebellionMovementRecord rebellion = ReignRebellionCampaignBehavior.Instance?.Movements?
+            ReignRebellionMovementRecord rebellion = ReignServices.Rebellion?.Movements?
                 .FirstOrDefault(x => x.IsPlayerKingdom && !x.ResolutionApplied && (x.UltimatumIssued || x.Pressure >= 70f));
             if (rebellion != null)
             {
@@ -2106,7 +2108,7 @@ namespace ReignBeta.Court.Campaign
                     ? matter.SourceKey.Substring("rebellion_ultimatum:".Length)
                     : string.Empty;
                 string result = string.Empty;
-                bool applied = ReignRebellionCampaignBehavior.Instance?.TryResolvePlayerUltimatum(movementId, "deadline_expired", out result) == true;
+                bool applied = ReignServices.Rebellion?.TryResolvePlayerUltimatum(movementId, "deadline_expired", out result) == true;
                 matter.State = applied ? ReignCourtMatterState.Expired : ReignCourtMatterState.Invalidated;
                 matter.SelectedOptionId = "deadline_expired";
                 matter.ResolvedDay = day;

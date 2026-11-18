@@ -23,6 +23,7 @@ using TaleWorlds.Core;
 using TaleWorlds.Library;
 using TaleWorlds.ObjectSystem;
 using ReignBeta.WorldSimulation.World;
+using ReignBeta.Platform.Runtime;
 
 namespace ReignBeta.WorldSimulation.Actions
 {
@@ -42,7 +43,7 @@ namespace ReignBeta.WorldSimulation.Actions
 
         public static JObject Execute(string id, Dictionary<string, string> supplied, bool mutate)
         {
-            if (TaleWorlds.CampaignSystem.Campaign.Current == null || ReignAgreementBehavior.Instance == null)
+            if (TaleWorlds.CampaignSystem.Campaign.Current == null || ReignServices.Agreement == null)
                 throw new InvalidOperationException("Load a campaign first.");
             var d = ReignNativeActionCatalog.Find(id) ?? throw new InvalidOperationException("Unknown native action ID.");
             if (supplied.Count > 32 || supplied.Any(kv => kv.Key.Length > 128 || kv.Value.Length > 8192))
@@ -56,7 +57,7 @@ namespace ReignBeta.WorldSimulation.Actions
             string operation = supplied.TryGetValue("operation", out var named) ? named : "native_" + Guid.NewGuid().ToString("N");
             if (operation.Length < 1 || operation.Length > 80 || operation.Any(ch => !char.IsLetterOrDigit(ch) && ch != '_' && ch != '-'))
                 throw new InvalidOperationException("Operation IDs use 1–80 letters, numbers, underscores or hyphens.");
-            var behavior = ReignAgreementBehavior.Instance;
+            var behavior = ReignServices.Agreement;
             var existing = behavior.NativeOperation(operation);
             if (mutate && existing != null)
             {

@@ -23,6 +23,7 @@ using ReignBeta.Relationships.Campaign;
 using ReignBeta.World;
 using ReignBeta.WorldSimulation.Actions;
 using ReignBeta.WorldSimulation.World;
+using ReignBeta.Platform.Runtime;
 
 namespace ReignBeta.Diplomacy.World
 {
@@ -43,8 +44,8 @@ namespace ReignBeta.Diplomacy.World
             switch (action.Type)
             {
                 case ReignWorldActionType.DiplomacyDeclareWar:
-                    if (ReignAICampaignBehavior.Instance != null)
-                        ReignAICampaignBehavior.Instance.DeclareWarWithOrigin(actor, target, "direct",
+                    if (ReignServices.AI != null)
+                        ReignServices.AI.DeclareWarWithOrigin(actor, target, "direct",
                             action.Reason, action.ActionId, string.Empty, false);
                     else DeclareWarAction.ApplyByKingdomDecision(actor, target);
                     return ReignActionResult.Done(actor.InformalName + " declared war on " + target.InformalName + ".")
@@ -246,13 +247,13 @@ namespace ReignBeta.Diplomacy.World
                 Reason = action.Reason,
                 TermsJson = action.TermsJson
             };
-            ReignAICampaignBehavior.Instance?.RecordAgreementFromAction(agreementAction,
+            ReignServices.AI?.RecordAgreementFromAction(agreementAction,
                 "rebellion_backing", 0f, true);
-            ReignRebellionCampaignBehavior.Instance?.RecordForeignBacking(movementId, sponsor.StringId, action.ActionId);
+            ReignServices.Rebellion?.RecordForeignBacking(movementId, sponsor.StringId, action.ActionId);
             if (!sponsor.IsAtWarWith(parent))
             {
-                if (ReignAICampaignBehavior.Instance != null)
-                    ReignAICampaignBehavior.Instance.DeclareWarWithOrigin(sponsor, parent,
+                if (ReignServices.AI != null)
+                    ReignServices.AI.DeclareWarWithOrigin(sponsor, parent,
                         "rebellion_backing", action.Reason, action.ActionId, string.Empty, false);
                 else DeclareWarAction.ApplyByKingdomDecision(sponsor, parent);
             }
@@ -433,7 +434,7 @@ namespace ReignBeta.Diplomacy.World
         private static ReignActionResult BreakTreaties(Kingdom actor, Kingdom target, ReignWorldActionRecord action)
         {
             string kind = ReadStringTerm(action.TermsJson, "agreementKind", ReadStringTerm(action.TermsJson, "kind", string.Empty));
-            int ended = ReignAICampaignBehavior.Instance?.EndAgreementsBetween(actor.StringId, target.StringId,
+            int ended = ReignServices.AI?.EndAgreementsBetween(actor.StringId, target.StringId,
                 kind, "explicit_breach", actor.StringId, string.Empty) ?? 0;
 
             bool all = string.IsNullOrWhiteSpace(kind);
@@ -1075,7 +1076,7 @@ namespace ReignBeta.Diplomacy.World
 
         private static void RecordAgreement(ReignWorldActionRecord action, string kind, float durationDays, bool isPublic)
         {
-            ReignAICampaignBehavior.Instance?.RecordAgreementFromAction(action, kind, durationDays, isPublic);
+            ReignServices.AI?.RecordAgreementFromAction(action, kind, durationDays, isPublic);
         }
 
         private static int ReadIntTerm(string json, string key, int fallback)

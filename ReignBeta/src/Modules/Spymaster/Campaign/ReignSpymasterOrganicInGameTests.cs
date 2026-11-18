@@ -16,6 +16,7 @@ using ReignBeta.Characters.Integration;
 using ReignBeta.Court.Campaign;
 using ReignBeta.WorldSimulation.Actions;
 using ReignBeta.WorldSimulation.Campaign;
+using ReignBeta.Platform.Runtime;
 
 namespace ReignBeta.Spymaster.Campaign
 {
@@ -122,10 +123,10 @@ namespace ReignBeta.Spymaster.Campaign
             var result = new List<ReignSpymasterMission>();
             foreach (string id in ids.Values<string>())
             {
-                AgreementJournal journal = ReignAgreementBehavior.Instance?.Agreements.FirstOrDefault(x => x.Agreement.Id == id);
+                AgreementJournal journal = ReignServices.Agreement?.Agreements.FirstOrDefault(x => x.Agreement.Id == id);
                 ActionAgreement agreement = journal?.Agreement;
                 string context = ReignCampaignIdentity.CurrentCampaignId() + ":"
-                    + (ReignWorldHistoryCampaignBehavior.Instance?.TimelineId ?? "main") + ":" + court.ActiveSpymaster?.StringId;
+                    + (ReignServices.WorldHistory?.TimelineId ?? "main") + ":" + court.ActiveSpymaster?.StringId;
                 if (agreement == null || journal.OperatorAuthorized || agreement.Origin != ActionOrigin.Conversation
                     || !agreement.HasBothConsents || journal.CommittedHash != agreement.TermsHash()
                     || agreement.PlayerId != Hero.MainHero?.StringId || agreement.NpcId != court.ActiveSpymaster?.StringId

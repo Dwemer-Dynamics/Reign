@@ -20,6 +20,7 @@ using ReignBeta.Rebellion.Campaign;
 using ReignBeta.WorldSimulation.Campaign;
 using ReignBeta.WorldSimulation.Economy;
 using ReignBeta.WorldSimulation.Rulers;
+using ReignBeta.Platform.Runtime;
 
 namespace ReignBeta.WorldSimulation.Integration
 {
@@ -103,9 +104,9 @@ namespace ReignBeta.WorldSimulation.Integration
                 }
             }
 
-            ReignAICampaignBehavior ai = ReignAICampaignBehavior.Instance;
-            ReignRebellionCampaignBehavior rebellion = ReignRebellionCampaignBehavior.Instance;
-            string timelineId = ReignWorldHistoryCampaignBehavior.Instance?.TimelineId ?? "main";
+            ReignAICampaignBehavior ai = ReignServices.AI;
+            ReignRebellionCampaignBehavior rebellion = ReignServices.Rebellion;
+            string timelineId = ReignServices.WorldHistory?.TimelineId ?? "main";
             string featureConfiguration = string.Join("|",
                 settings == null || settings.PassiveRelationshipDirectorEnabled,
                 settings == null || settings.AmbientRelationshipDriftEnabled,
@@ -181,7 +182,7 @@ namespace ReignBeta.WorldSimulation.Integration
                 ["saveSync"] = new JObject
                 {
                     ["alignmentPending"] = ReignSaveSyncCoordinator.IsAlignmentPending,
-                    ["timelineId"] = ReignWorldHistoryCampaignBehavior.Instance?.TimelineId ?? "main"
+                    ["timelineId"] = ReignServices.WorldHistory?.TimelineId ?? "main"
                 },
                 ["relationshipClient"] = BuildRelationshipOutboxDiagnostics(),
                 ["producerClocks"] = new JObject
@@ -216,9 +217,9 @@ namespace ReignBeta.WorldSimulation.Integration
                     ["agreements"] = agreements,
                     ["actions"] = actions
                 },
-                ["rulers"] = ReignRulerCampaignBehavior.Instance?.Diagnostics() ?? new JObject(),
+                ["rulers"] = ReignServices.Ruler?.Diagnostics() ?? new JObject(),
                 ["warEconomy"] = BuildWorldTestWarEconomy(),
-                ["clanAccords"] = ReignBeta.Diplomacy.ClanAccords.ReignClanAccordsCampaignBehavior.Instance?.Snapshot() ?? new JObject(),
+                ["clanAccords"] = ReignServices.ClanAccords?.Snapshot() ?? new JObject(),
                 ["rebellions"] = new JObject
                 {
                     ["weeklyRolls"] = BuildWorldTestRebellionRolls(rebellion, deltaAfterDay),
@@ -274,7 +275,7 @@ namespace ReignBeta.WorldSimulation.Integration
 
         private static JObject BuildWorldTestWarEconomy()
         {
-            ReignEconomyCampaignBehavior behavior = ReignEconomyCampaignBehavior.Instance;
+            ReignEconomyCampaignBehavior behavior = ReignServices.Economy;
             List<Village> villages = Settlement.All.Where(x => x?.Village != null)
                 .Select(x => x.Village).Where(x => x != null).ToList();
             JObject recoveryStages = new JObject();

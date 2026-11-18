@@ -17,6 +17,7 @@ using TaleWorlds.ScreenSystem;
 using static ReignBeta.UI.ReignScreenLayers;
 using ReignBeta.Government.Campaign;
 using ReignBeta.Platform.Integration;
+using ReignBeta.Platform.Runtime;
 
 namespace ReignBeta.Government.UI
 {
@@ -140,13 +141,13 @@ namespace ReignBeta.Government.UI
 
         public static void Open(Kingdom kingdom, bool interactive, Action returnAction)
         {
-            if (kingdom == null || kingdom.IsEliminated || ReignGovernmentCampaignBehavior.Instance == null) return;
+            if (kingdom == null || kingdom.IsEliminated || ReignServices.Government == null) return;
             _pendingOpen = new OpenRequest { Kingdom = kingdom, Interactive = interactive, ReturnAction = returnAction };
         }
 
         public static void OpenBusiness(Kingdom kingdom, string businessId, bool interactive = true, Action returnAction = null)
         {
-            if (kingdom == null || kingdom.IsEliminated || ReignGovernmentCampaignBehavior.Instance == null) return;
+            if (kingdom == null || kingdom.IsEliminated || ReignServices.Government == null) return;
             _pendingOpen = new OpenRequest { Kingdom = kingdom, Interactive = interactive, ReturnAction = returnAction, BusinessId = businessId };
         }
 
@@ -172,7 +173,7 @@ namespace ReignBeta.Government.UI
                 _layerMousePresses = _layerMouseReleases = _globalEscapes = _layerEscapes = 0;
                 ScrollbarSamples.Clear();
                 _scrollbarMouseWasDown = false;
-                _vm = new ReignGovernmentScreenVM(ReignGovernmentCampaignBehavior.Instance, _kingdom, _interactive, () => _closeRequested = true);
+                _vm = new ReignGovernmentScreenVM(ReignServices.Government, _kingdom, _interactive, () => _closeRequested = true);
                 if (!string.IsNullOrWhiteSpace(request.BusinessId)) _vm.SelectBusinessById(request.BusinessId);
                 _layer = new GauntletLayer("ReignGovernmentScreen", LayerOrder, false);
                 _layer.LoadMovie("ReignGovernmentScreen", _vm);
@@ -203,7 +204,7 @@ namespace ReignBeta.Government.UI
 
         public static void ApplicationTick(float dt)
         {
-            ReignGovernmentCampaignBehavior.Instance?.TickPoliticalProfileSync();
+            ReignServices.Government?.TickPoliticalProfileSync();
             if (_pendingReturn != null && !IsOpen)
             {
                 Action callback = _pendingReturn;
@@ -272,7 +273,7 @@ namespace ReignBeta.Government.UI
             // Native player/kingdom getters require a live campaign. Check that
             // boundary before consulting them during unload or main-menu ticks.
             if (!CanPresentOnMap()) return;
-            var behavior = ReignGovernmentCampaignBehavior.Instance;
+            var behavior = ReignServices.Government;
             if (!ReferenceEquals(behavior, _presentationBehavior)) { PresentedStages.Clear(); _presentationBehavior = behavior; }
             Kingdom kingdom = Clan.PlayerClan?.Kingdom ?? Kingdom.All.FirstOrDefault(k => behavior?.GetSeats(k.StringId).Any(x => x.HeroStringId == Hero.MainHero?.StringId) == true);
             if (behavior == null || kingdom == null) return;

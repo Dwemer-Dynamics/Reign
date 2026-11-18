@@ -13,6 +13,7 @@ using ReignBeta.Platform.Campaign;
 using ReignBeta.Platform.Integration;
 using ReignBeta.Rebellion.Campaign;
 using ReignBeta.World;
+using ReignBeta.Platform.Runtime;
 
 namespace ReignBeta.WorldSimulation.World
 {
@@ -36,7 +37,7 @@ namespace ReignBeta.WorldSimulation.World
                     return StartRulingClanRebellion(action, kingdom, claimant);
 
                 case ReignWorldActionType.PoliticsResolveCivilWar:
-                    return ReignRebellionCampaignBehavior.Instance?.ResolveNegotiatedSettlement(action)
+                    return ReignServices.Rebellion?.ResolveNegotiatedSettlement(action)
                         ?? ReignActionResult.FailTerminal("Rebellion campaign behavior is unavailable.", "rebellion_behavior_unavailable", "state_verification");
 
                 case ReignWorldActionType.PoliticsRecruitLordToRebellion:
@@ -116,8 +117,8 @@ namespace ReignBeta.WorldSimulation.World
             }
 
             string outcome = string.Empty;
-            if (ReignRebellionCampaignBehavior.Instance == null
-                || !ReignRebellionCampaignBehavior.Instance.TryStartDirectedMovement(kingdom, claimant, rebelClans.Skip(1), out outcome))
+            if (ReignServices.Rebellion == null
+                || !ReignServices.Rebellion.TryStartDirectedMovement(kingdom, claimant, rebelClans.Skip(1), out outcome))
             {
                 return ReignActionResult.ValidationFailed(string.IsNullOrWhiteSpace(outcome) ? "Rebellion campaign behavior is unavailable." : outcome);
             }
@@ -132,8 +133,8 @@ namespace ReignBeta.WorldSimulation.World
             Hero recruiter = ReignObjectResolver.FindHero(action.ActorHeroStringId);
             Hero target = ReignObjectResolver.FindHero(action.TargetHeroStringId);
             string outcome = string.Empty;
-            if (ReignRebellionCampaignBehavior.Instance == null
-                || !ReignRebellionCampaignBehavior.Instance.TryRecruitLord(recruiter, target, out outcome))
+            if (ReignServices.Rebellion == null
+                || !ReignServices.Rebellion.TryRecruitLord(recruiter, target, out outcome))
             {
                 return ReignActionResult.ValidationFailed(string.IsNullOrWhiteSpace(outcome)
                     ? "Rebellion campaign behavior is unavailable." : outcome);
@@ -150,8 +151,8 @@ namespace ReignBeta.WorldSimulation.World
             Hero player = ReignObjectResolver.FindHero(action.ActorHeroStringId);
             Hero rebelLeader = ReignObjectResolver.FindHero(action.TargetHeroStringId);
             string outcome = string.Empty;
-            if (ReignRebellionCampaignBehavior.Instance == null
-                || !ReignRebellionCampaignBehavior.Instance.TryJoinNpcRebellion(player, rebelLeader, out outcome))
+            if (ReignServices.Rebellion == null
+                || !ReignServices.Rebellion.TryJoinNpcRebellion(player, rebelLeader, out outcome))
             {
                 return ReignActionResult.ValidationFailed(string.IsNullOrWhiteSpace(outcome)
                     ? "Rebellion campaign behavior is unavailable." : outcome);
@@ -168,8 +169,8 @@ namespace ReignBeta.WorldSimulation.World
             Hero surrendering = ReignObjectResolver.FindHero(action.ActorHeroStringId);
             string movementId = ReadStringTerm(action.TermsJson, "movementId", string.Empty);
             string outcome = string.Empty;
-            if (ReignRebellionCampaignBehavior.Instance == null
-                || !ReignRebellionCampaignBehavior.Instance.TrySurrender(surrendering, movementId, out outcome))
+            if (ReignServices.Rebellion == null
+                || !ReignServices.Rebellion.TrySurrender(surrendering, movementId, out outcome))
             {
                 return ReignActionResult.ValidationFailed(string.IsNullOrWhiteSpace(outcome)
                     ? "Rebellion campaign behavior is unavailable." : outcome);
@@ -186,8 +187,8 @@ namespace ReignBeta.WorldSimulation.World
             JObject terms = ParseRebellionTerms(action.TermsJson);
             string decision = terms.Value<string>("decision") ?? string.Empty;
             string outcome = string.Empty;
-            if (ReignRebellionCampaignBehavior.Instance == null
-                || !ReignRebellionCampaignBehavior.Instance.TryRecordPreparationDecision(
+            if (ReignServices.Rebellion == null
+                || !ReignServices.Rebellion.TryRecordPreparationDecision(
                     player, lord, decision, terms.Value<string>("decisionReason") ?? action.Reason,
                     terms.Value<string>("requestChannel") ?? "conversation", action.ActionId, out outcome))
                 return ReignActionResult.ValidationFailed(string.IsNullOrWhiteSpace(outcome)
@@ -205,8 +206,8 @@ namespace ReignBeta.WorldSimulation.World
             string response = terms.Value<string>("playerResponse") ?? string.Empty;
             string verdict = terms.Value<string>("rulerVerdict") ?? string.Empty;
             string outcome = string.Empty;
-            if (ReignRebellionCampaignBehavior.Instance == null
-                || !ReignRebellionCampaignBehavior.Instance.TryResolvePreparationSummons(
+            if (ReignServices.Rebellion == null
+                || !ReignServices.Rebellion.TryResolvePreparationSummons(
                     player, ruler, response, verdict, out outcome))
                 return ReignActionResult.ValidationFailed(string.IsNullOrWhiteSpace(outcome)
                     ? "Rebellion campaign behavior is unavailable." : outcome);
@@ -220,8 +221,8 @@ namespace ReignBeta.WorldSimulation.World
             Hero member = ReignObjectResolver.FindHero(action.ActorHeroStringId);
             Hero ruler = ReignObjectResolver.FindHero(action.TargetHeroStringId);
             string outcome = string.Empty;
-            if (ReignGovernmentCampaignBehavior.Instance == null
-                || !ReignGovernmentCampaignBehavior.Instance.TryRecordReductionConsent(
+            if (ReignServices.Government == null
+                || !ReignServices.Government.TryRecordReductionConsent(
                     ruler, member, out outcome))
             {
                 return ReignActionResult.ValidationFailed(string.IsNullOrWhiteSpace(outcome)
@@ -280,7 +281,7 @@ namespace ReignBeta.WorldSimulation.World
 
         private static void RecordAgreement(ReignWorldActionRecord action, string kind, float durationDays, bool isPublic)
         {
-            ReignAICampaignBehavior.Instance?.RecordAgreementFromAction(action, kind, durationDays, isPublic);
+            ReignServices.AI?.RecordAgreementFromAction(action, kind, durationDays, isPublic);
         }
 
         private static IEnumerable<string> ReadSupporterClanIds(ReignWorldActionRecord action)

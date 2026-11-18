@@ -7,6 +7,7 @@ using ReignBeta.Court;
 using ReignBeta.Court.Campaign;
 using ReignBeta.Platform.Integration;
 using ReignBeta.WorldSimulation.Integration;
+using ReignBeta.Platform.Runtime;
 
 namespace ReignBeta.WorldSimulation.Campaign
 {
@@ -14,7 +15,7 @@ namespace ReignBeta.WorldSimulation.Campaign
     {
         private static async Task<LiveCommandResult> ExecuteRulerDocketTestAsync(JObject command)
         {
-            ReignCourtCampaignBehavior court = ReignCourtCampaignBehavior.Instance;
+            ReignCourtCampaignBehavior court = ReignServices.Court;
             if (court == null) return LiveCommandResult.Failed("The production Court controller is unavailable.");
             string runId = command.Value<string>("fixtureRunId") ?? command.Value<string>("runId") ?? Guid.NewGuid().ToString("N");
             string phase = (command.Value<string>("phase") ?? "preflight").Trim().ToLowerInvariant();
@@ -309,7 +310,7 @@ namespace ReignBeta.WorldSimulation.Campaign
                     ReignWorldHistoryCampaignBehavior history =
                         TaleWorlds.CampaignSystem.Campaign.Current
                             ?.GetCampaignBehavior<ReignWorldHistoryCampaignBehavior>()
-                        ?? ReignWorldHistoryCampaignBehavior.Instance;
+                        ?? ReignServices.WorldHistory;
                     return history?.TimelineReady == true;
                 }).ConfigureAwait(false);
                 if (timelineReady) break;

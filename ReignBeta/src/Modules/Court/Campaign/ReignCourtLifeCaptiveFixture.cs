@@ -8,6 +8,7 @@ using TaleWorlds.CampaignSystem.Actions;
 using TaleWorlds.CampaignSystem.Party;
 using static ReignBeta.Court.Campaign.ReignCourtCampaignBehavior;
 using ReignBeta.Platform.Campaign;
+using ReignBeta.Platform.Runtime;
 
 namespace ReignBeta.Court.Campaign
 {
@@ -103,7 +104,7 @@ namespace ReignBeta.Court.Campaign
             JObject payload = ParseObject(matter.PayloadJson);
             Kingdom ours = Clan.PlayerClan?.Kingdom;
             Kingdom origin = Kingdom.All.FirstOrDefault(k => k.StringId == matter.KingdomId);
-            var actions = ReignAICampaignBehavior.Instance?.Actions
+            var actions = ReignServices.AI?.Actions
                 .Where(x => x.ActionId == matter.MatterId + "_native").ToList();
             var action = actions?.FirstOrDefault();
             return new JObject { ["schema"] = "reign-court-life-custody-v1",

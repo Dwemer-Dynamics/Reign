@@ -11,6 +11,7 @@ using TaleWorlds.CampaignSystem.ViewModelCollection.Conversation;
 using TaleWorlds.Localization;
 using TaleWorlds.MountAndBlade;
 using ReignBeta.Dialogue.Campaign;
+using ReignBeta.Platform.Runtime;
 
 namespace ReignBeta.Characters.Campaign
 {
@@ -71,46 +72,46 @@ namespace ReignBeta.Characters.Campaign
             => ReignIndividualConversationBehavior.PrepareResidentConversationOption(__instance.ActiveToken);
 
         private static void AfterNativePopulation()
-            => ReignEncounteredResidentsCampaignBehavior.Instance?.RestoreNativePopulation();
+            => ReignServices.EncounteredResidents?.RestoreNativePopulation();
 
         private static void BeforeLocationSpawn(LocationCharacter locationCharacter)
         {
-            ReignEncounteredResidentsCampaignBehavior.Instance?.PrepareLocationCharacter(locationCharacter, CampaignMission.Current?.Location);
+            ReignServices.EncounteredResidents?.PrepareLocationCharacter(locationCharacter, CampaignMission.Current?.Location);
         }
 
         private static void BeforeAgentSpawn(AgentBuildData agentBuildData)
-            => ReignEncounteredResidentsCampaignBehavior.Instance?.BeforeSpawn(agentBuildData);
+            => ReignServices.EncounteredResidents?.BeforeSpawn(agentBuildData);
         private static void AfterAgentSpawn(Agent __result)
-            => ReignEncounteredResidentsCampaignBehavior.Instance?.AfterSpawn(__result);
+            => ReignServices.EncounteredResidents?.AfterSpawn(__result);
         private static void AgentName(Agent __instance, ref string __result)
         {
-            Hero hero = ReignEncounteredResidentsCampaignBehavior.Instance?.ResolveAgent(__instance);
+            Hero hero = ReignServices.EncounteredResidents?.ResolveAgent(__instance);
             if (hero != null && !__instance.Character.IsHero) __result = hero.Name.ToString();
         }
         private static void AgentNameObject(Agent __instance, ref TextObject __result)
         {
-            Hero hero = ReignEncounteredResidentsCampaignBehavior.Instance?.ResolveAgent(__instance);
+            Hero hero = ReignServices.EncounteredResidents?.ResolveAgent(__instance);
             if (hero != null && !__instance.Character.IsHero) __result = hero.Name;
         }
         private static void ConversationName(MissionConversationVM __instance, ref string value)
         {
             _conversation = new WeakReference<MissionConversationVM>(__instance);
-            Hero hero = ReignEncounteredResidentsCampaignBehavior.Instance?.ConversationHero;
-            if (hero != null && ReignEncounteredResidentsCampaignBehavior.Instance.Find(hero) != null) value = hero.Name.ToString();
+            Hero hero = ReignServices.EncounteredResidents?.ConversationHero;
+            if (hero != null && ReignServices.EncounteredResidents.Find(hero) != null) value = hero.Name.ToString();
         }
         internal static void RefreshKnownName()
         {
-            Hero hero = ReignEncounteredResidentsCampaignBehavior.Instance?.ConversationHero;
+            Hero hero = ReignServices.EncounteredResidents?.ConversationHero;
             if (hero != null && _conversation != null && _conversation.TryGetTarget(out var vm))
                 vm.CurrentCharacterNameLbl = hero.Name.ToString();
         }
         private static void HeroLocation(Hero hero, ref Location __result)
         {
-            if (ReignEncounteredResidentsCampaignBehavior.Instance?.SuppressAutomaticLocation(hero) == true) __result = null;
+            if (ReignServices.EncounteredResidents?.SuppressAutomaticLocation(hero) == true) __result = null;
         }
         private static void OverlayListing(LocationCharacter locationCharacter, ref bool __result)
         {
-            if (ReignEncounteredResidentsCampaignBehavior.Instance?.SuppressAutomaticLocation(locationCharacter?.Character?.HeroObject) == true)
+            if (ReignServices.EncounteredResidents?.SuppressAutomaticLocation(locationCharacter?.Character?.HeroObject) == true)
                 __result = false;
         }
     }

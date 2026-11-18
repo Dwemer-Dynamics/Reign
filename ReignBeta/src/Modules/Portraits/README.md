@@ -12,7 +12,7 @@ Portraits. AI portrait generation and caching (`AIPortraits`), native portrait p
 | `UI` | 7 |
 | `Integration` | 5 |
 
-Namespaces in use: `AIPortraits (33)`, `ReignBeta.Integration (5)`, `ReignBeta.UI.Portraits (2)`, `ReignBeta.UI.Widgets (2)`, `ReignBeta.UI (1)`, `ReignBeta.UI.EventArt (1)`, `ReignBeta.UI.Tavern (1)`.
+Namespaces in use: `AIPortraits (34)`, `ReignBeta.Portraits.Integration (5)`, `ReignBeta.Portraits.UI (5)`, `ReignBeta.UI.Widgets (2)`.
 
 ## Public surface
 

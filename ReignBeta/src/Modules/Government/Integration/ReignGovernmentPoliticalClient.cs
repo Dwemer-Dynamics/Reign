@@ -3,6 +3,7 @@ using System.Threading.Tasks;
 using Newtonsoft.Json.Linq;
 using TaleWorlds.CampaignSystem;
 using static ReignBeta.Platform.Integration.ReignServerClient;
+using ReignBeta.Platform.Runtime;
 
 namespace ReignBeta.Government.Integration
 {
@@ -24,13 +25,13 @@ namespace ReignBeta.Government.Integration
             row["isArmyLeader"] = hero.PartyBelongedTo?.Army?.LeaderParty?.LeaderHero == hero;
             row["isWarPartyLeader"] = hero.PartyBelongedTo?.LeaderHero == hero && hero.IsLord;
             row["isChild"] = hero.IsChild;
-            row["politicalEvents"] = ReignBeta.Government.Campaign.ReignGovernmentCampaignBehavior.Instance?.PoliticalEventsForServer(hero.StringId) ?? new JArray();
+            row["politicalEvents"] = ReignServices.Government?.PoliticalEventsForServer(hero.StringId) ?? new JArray();
             return row;
         }
         internal static JObject BuildPoliticalSyncPayload(JArray rows)
         {
             return new JObject { ["campaignId"] = GetCampaignId(), ["worldDay"] = CampaignTime.Now.ToDays,
-                ["timelineId"] = ReignBeta.WorldSimulation.Campaign.ReignWorldHistoryCampaignBehavior.Instance?.TimelineId ?? "main", ["heroes"] = rows };
+                ["timelineId"] = ReignServices.WorldHistory?.TimelineId ?? "main", ["heroes"] = rows };
         }
         internal static Task<JObject> SyncPoliticalProfilesAsync(JObject payload) => PostJsonAsync("/government/political-profiles/sync", payload);
     }

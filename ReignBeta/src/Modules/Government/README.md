@@ -14,7 +14,7 @@ Cultural governments and political parties. Government state, political parties,
 | `Integration` | 5 |
 | `UI` | 5 |
 
-Namespaces in use: `ReignBeta.Government (44)`, `ReignBeta.Integration (3)`, `ReignBeta.UI.ViewModels (3)`, `ReignBeta.UI (2)`, `ReignBeta.Court (1)`, `ReignBeta.Campaign (1)`.
+Namespaces in use: `ReignBeta.Government.Campaign (31)`, `ReignBeta.Government.Testing (6)`, `ReignBeta.Government.Domain (5)`, `ReignBeta.Government.Integration (4)`, `ReignBeta.Government.UI (4)`, `ReignBeta.Court.Campaign (1)`, `ReignBeta.Government (1)`, `ReignBeta.UI (1)`, `ReignBeta.WorldSimulation.Campaign (1)`.
 
 ## Public surface
 
@@ -22,7 +22,7 @@ Namespaces in use: `ReignBeta.Government (44)`, `ReignBeta.Integration (3)`, `Re
 - Extends behaviours owned by another module through `partial class`: `ReignCourtCampaignBehavior` (Court).
 - Harmony patch classes: `ReignGovernmentEdictModelPatch`, `ReignGovernmentEdictVolunteerPatch`, `ReignGovernmentNativeCallOfferPatch`, `ReignGovernmentNativeControlEnabledPatch`, `ReignGovernmentNativeControlExecutePatch`, `ReignGovernmentNativeControlReasonPatch`, `ReignGovernmentNativeDecisionScreenPatch`, `ReignGovernmentNativeDiplomacyExplanationPatch`, `ReignGovernmentNativeElectionPatch`, `ReignGovernmentNativeNoticePatch`, `ReignGovernmentNativeOutcomePatch`, `ReignGovernmentNativePeaceCallbackPatch`, `ReignGovernmentNativePeaceOfferPatch`, `ReignGovernmentNativePeaceResolvedPatch`, `ReignGovernmentNativeProposalPatch`, `ReignGovernmentNativeRelationPrivacyPatch`, `ReignGovernmentNativeTreatyOfferPatch`, `ReignGovernmentRuralIssueContextPatch`, `ReignGovernmentRuralVolunteerPatch`.
 - `ReignServerClient` partial files (server routes for this module): `Integration/ReignGovernmentHearingServerClient.cs`, `Integration/ReignGovernmentPoliticalClient.cs`, `Integration/ReignGovernmentServerClient.cs`.
-- Static `.Instance` singletons: `ReignGovernmentCampaignBehavior`.
+- Behaviours registered in `ReignServices` (their `Instance` property forwards to the slot): `ReignGovernmentCampaignBehavior`.
 - Types registered with the save definer (identity must not change without save compatibility): `ReignGovernmentLobbyRecord`, `ReignGovernmentMeetingRecord`, `ReignGovernmentPartyRecord`, `ReignGovernmentPressureRecord`, `ReignGovernmentResolutionRecord`, `ReignGovernmentSeatRecord`, `ReignGovernmentStateRecord`.
 
 ## Dependencies

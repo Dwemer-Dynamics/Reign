@@ -18,6 +18,7 @@ using ReignBeta.WorldSimulation.Actions;
 #if !REIGN_EXCLUDE_COURT
 using ReignBeta.Court.Campaign;
 #endif
+using ReignBeta.Platform.Runtime;
 
 namespace ReignBeta.Dialogue.UI
 {
@@ -143,7 +144,7 @@ namespace ReignBeta.Dialogue.UI
                 }, ShowOpening));
             Choice("I would like you…", () => { _playerActs = false; Forward(ChoosePerson, ShowOpening); });
             Choice("I wish to…", () => { _playerActs = true; Forward(ChoosePerson, ShowOpening); });
-            var coordinator = ReignRelationshipCampaignBehavior.Instance;
+            var coordinator = ReignServices.Relationship;
             if (ReignRelationshipCampaignBehavior.WeddingFeatureReady)
             {
                 foreach (var offer in coordinator.OpenMarriageOffers(_participants))
@@ -159,7 +160,7 @@ namespace ReignBeta.Dialogue.UI
                     Choice("Propose an arranged marriage to " + leader.Name + "…",
                         () => Forward(() => ChooseMarriageMember(leader), ShowOpening));
             }
-            foreach (var pending in ReignAgreementBehavior.Instance?.Offers.Where(a => a.State == AgreementState.Counteroffered
+            foreach (var pending in ReignServices.Agreement?.Offers.Where(a => a.State == AgreementState.Counteroffered
                 && a.PlayerId == Hero.MainHero.StringId && _participants.Any(h => h.StringId == a.NpcId)
                 && (!TavernHouseVisitAction.Contains(a) || _tavern != null && TavernHouseVisitAction.Validate(a, _tavern).Count == 0)) ?? Enumerable.Empty<ActionAgreement>())
                 Choice("Review offer from " + ReignActionService.HeroById(pending.NpcId)?.Name,
@@ -175,7 +176,7 @@ namespace ReignBeta.Dialogue.UI
                 string deadline = "Offer expires on campaign day " + offer.ExpiresDay.ToString("0.00", CultureInfo.InvariantCulture) + ".";
                 Choice("Accept this marriage proposal", () => ConfirmMarriageReply(offer, "accept", terms), offer.Open, terms);
                 Choice("Refuse this marriage proposal", () => ConfirmMarriageReply(offer, "refuse", terms), offer.Open, deadline);
-                var towns = ReignRelationshipCampaignBehavior.Instance.MeetingTowns(offer, _correspondence).ToList();
+                var towns = ReignServices.Relationship.MeetingTowns(offer, _correspondence).ToList();
                 if (towns.Count != 0)
                     Choice("Request a meeting with " + ReignActionService.HeroById(offer.ProspectId)?.Name + "…",
                         () => Forward(() => ShowTownPicker("Request a meeting", terms, towns.Select(row =>
@@ -204,14 +205,14 @@ namespace ReignBeta.Dialogue.UI
         private void ReplyToMarriage(ReignPlayerMarriageOffer offer, string response, string venue = "")
         {
             var leader = _participants.FirstOrDefault(h => h.StringId == offer.LeaderId);
-            string result = ReignRelationshipCampaignBehavior.Instance.AnswerMarriageOffer(offer.Id, leader, response, _correspondence, venue);
+            string result = ReignServices.Relationship.AnswerMarriageOffer(offer.Id, leader, response, _correspondence, venue);
             InformationManager.DisplayMessage(new InformationMessage(result));
             _cancel();
         }
 
         private void ChooseMarriageMember(Hero leader)
         {
-            var pairs = ReignRelationshipCampaignBehavior.Instance.PlayerMarriageCandidates(leader).ToList();
+            var pairs = ReignServices.Relationship.PlayerMarriageCandidates(leader).ToList();
             Step("Choose the member of your clan", () =>
             {
                 Choices.Clear();
@@ -228,7 +229,7 @@ namespace ReignBeta.Dialogue.UI
 
         private void DraftMarriage(Hero leader, Hero clanMember, Hero spouse)
         {
-            var coordinator = ReignRelationshipCampaignBehavior.Instance;
+            var coordinator = ReignServices.Relationship;
             _agreement = coordinator.QuotePlayerMarriage(Guid.NewGuid().ToString("N"), clanMember, spouse, leader, false);
             _agreement.Origin = ActionOrigin.Conversation;
             _agreement.ProposerId = Hero.MainHero.StringId;
@@ -262,7 +263,7 @@ namespace ReignBeta.Dialogue.UI
             Choices.Clear();
             Choice("Call off my wedding", () =>
             {
-                if (ReignRelationshipCampaignBehavior.Instance?.WithdrawPlayerWedding(_weddingId) == true) _cancel();
+                if (ReignServices.Relationship?.WithdrawPlayerWedding(_weddingId) == true) _cancel();
                 else ShowError("This wedding is no longer active.");
             });
         });
@@ -469,7 +470,7 @@ namespace ReignBeta.Dialogue.UI
                         r.Available ? r.Quantity > 0 ? r.Quantity + " available" : "" : r.Reason);
             });
 #if !REIGN_EXCLUDE_COURT
-            if (p.Kind == "spySocialItem" && ReignCourtCampaignBehavior.Instance != null)
+            if (p.Kind == "spySocialItem" && ReignServices.Court != null)
                 _ = LoadSocialChoicesAsync(_clause, _renderStep);
 #endif
         }
@@ -482,7 +483,7 @@ namespace ReignBeta.Dialogue.UI
 
         private void PrepareInlinePetition(ActionParameter parameter)
         {
-            var government = ReignBeta.Government.Campaign.ReignGovernmentCampaignBehavior.Instance;
+            var government = ReignServices.Government;
             Step("Which kingdom will receive your petition?", () => {
                 Choices.Clear();
                 foreach (var kingdom in Kingdom.All.Where(k => government?.GetParticipationAccess(k.StringId, Hero.MainHero).Prepare == true))
@@ -491,7 +492,7 @@ namespace ReignBeta.Dialogue.UI
         }
         private void SelectInlineProposal(ActionParameter parameter, string kingdomId)
         {
-            var government = ReignBeta.Government.Campaign.ReignGovernmentCampaignBehavior.Instance;
+            var government = ReignServices.Government;
             Step("Choose the exact measure and target", () => {
                 Choices.Clear();
                 foreach (var row in government.GetParticipationProposalChoices(kingdomId, Hero.MainHero).OfType<Newtonsoft.Json.Linq.JObject>())
@@ -522,7 +523,7 @@ namespace ReignBeta.Dialogue.UI
         private async Task LoadSocialChoicesAsync(ActionClause clause, Action render)
         {
             string error = "";
-            try { await ReignCourtCampaignBehavior.Instance.LoadAgreementSocialChoicesAsync(clause).ConfigureAwait(false); }
+            try { await ReignServices.Court.LoadAgreementSocialChoicesAsync(clause).ConfigureAwait(false); }
             catch (Exception ex) { error = ex.Message; }
             await ReignMainThread.InvokeAsync(() =>
             {
@@ -566,7 +567,7 @@ namespace ReignBeta.Dialogue.UI
             if (TavernHouseVisitAction.Contains(_agreement))
             {
                 if (_agreement.NpcAcceptedHash == _agreement.TermsHash())
-                    Choice("Decline this offer", () => { ReignAgreementBehavior.Instance.DeclineOffer(_agreement.Id, _agreement.TermsHash()); _cancel(); });
+                    Choice("Decline this offer", () => { ReignServices.Agreement.DeclineOffer(_agreement.Id, _agreement.TermsHash()); _cancel(); });
                 Choice("Change the names or prices…", () => Forward(() =>
                 {
                     _clause = new ActionClause { ActionId = TavernHouseVisitAction.Id, ActorId = _agreement.PlayerId, RecipientId = _agreement.NpcId };
@@ -581,7 +582,7 @@ namespace ReignBeta.Dialogue.UI
             }
             if (_agreement.Clauses.Any(c => c.ActionId == "marriage.appeal")) return;
             if (_agreement.NpcAcceptedHash == _agreement.TermsHash())
-                Choice("Decline this offer", () => { ReignAgreementBehavior.Instance.DeclineOffer(_agreement.Id, _agreement.TermsHash()); _cancel(); });
+                Choice("Decline this offer", () => { ReignServices.Agreement.DeclineOffer(_agreement.Id, _agreement.TermsHash()); _cancel(); });
             Choice(_playerActs ? "and I will give…" : "and you will give…", () => Forward(ShowAssets, ShowReview));
             Choice(_playerActs ? "and you will give…" : "and I will give…", () => { _playerActs = !_playerActs; Forward(ShowAssets, () => { _playerActs = !_playerActs; ShowReview(); }); });
             if (!HasMarriageDraft) Choice("Add another action…", () => Forward(ShowVerbs, ShowReview));
