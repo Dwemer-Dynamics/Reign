@@ -844,7 +844,8 @@
         "dialogue",
         "diplomacy",
         "reputation",
-        "persistence"
+        "persistence",
+        "world-simulation"
       ],
       "boundaryModules": [
         "dialogue",

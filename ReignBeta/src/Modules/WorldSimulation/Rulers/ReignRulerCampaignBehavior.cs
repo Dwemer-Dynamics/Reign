@@ -24,7 +24,7 @@ namespace ReignBeta.WorldSimulation.Rulers
 {
     public sealed partial class ReignRulerCampaignBehavior : CampaignBehaviorBase
     {
-        public static ReignRulerCampaignBehavior Instance { get; private set; }
+        public static ReignRulerCampaignBehavior Instance => ReignServices.Ruler;
         internal RulerState State = new RulerState();
         private List<string> _chunks = new List<string>();
         private List<JObject> _relationOutbox = new List<JObject>();
@@ -46,7 +46,7 @@ namespace ReignBeta.WorldSimulation.Rulers
         internal static double Day => CampaignTime.Now.ToDays;
         public override void RegisterEvents()
         {
-            Instance = this;
+            ReignServices.Ruler = this;
             CampaignEvents.OnSessionLaunchedEvent.AddNonSerializedListener(this, OnSession);
             CampaignEvents.HourlyTickEvent.AddNonSerializedListener(this, Hourly);
             CampaignEvents.WarDeclared.AddNonSerializedListener(this, WarDeclared);
@@ -126,7 +126,7 @@ namespace ReignBeta.WorldSimulation.Rulers
             // invent the unrecorded date of an older cancellation.
             foreach (var judgment in State.Judgments.Where(j => j.Stage == RulerJudgmentStage.Cancelled && j.ResolvedDay < 0
                 && ReignRulerPolicy.HasIssuedSentence(j) && (j.CancellationReason == "escaped_or_rescued" || j.CancellationReason == "custody_changed")))
-                ReignNewsCampaignBehavior.Instance?.ReconcileCancelledJudgment(judgment);
+                ReignServices.News?.ReconcileCancelledJudgment(judgment);
             if (Enabled(RulerOptions.Capitals)) foreach (var k in Kingdom.All.Where(k => !k.IsEliminated)) Capital(k);
             foreach (var a in Kingdom.All.Where(k => !k.IsEliminated))
                 foreach (var b in Kingdom.All.Where(k => !k.IsEliminated && string.CompareOrdinal(k.StringId, a.StringId) > 0 && a.IsAtWarWith(k))) GetWar(a, b, true);
@@ -142,9 +142,9 @@ namespace ReignBeta.WorldSimulation.Rulers
                 // Accepted attendance owns this finite stay. Capital enforcement
                 // resumes after its owner releases the ruler; do not bounce them
                 // between the venue and capital or abandon their return intent.
-                if (ReignNpcLivesBehavior.Instance?.HasOwnedMeetingTeleportDeferral(ruler.StringId) == true
-                    || ReignBeta.Government.Campaign.ReignGovernmentCampaignBehavior.Instance?.IsGovernmentAttendanceReserved(ruler) == true
-                    || ReignBeta.Court.Campaign.ReignCourtCampaignBehavior.Instance?.IsNobleVisitorReserved(ruler) == true) continue;
+                if (ReignServices.NpcLives?.HasOwnedMeetingTeleportDeferral(ruler.StringId) == true
+                    || ReignServices.Government?.IsGovernmentAttendanceReserved(ruler) == true
+                    || ReignServices.CourtWorld?.IsNobleVisitorReserved(ruler) == true) continue;
                 MobileParty party = ruler.PartyBelongedTo;
                 if (party == null)
                 {
@@ -251,7 +251,7 @@ namespace ReignBeta.WorldSimulation.Rulers
             var jnew = new RulerJudgment { Id = Guid.NewGuid().ToString("N"), PrisonerId = prisoner.StringId, VictorId = victor.Leader.StringId,
                 DefeatedKingdomId = loser.StringId, VictorKingdomId = victor.StringId, CapturedDay = Day, WarId = war.Id,
                 Stage = captor == PartyBase.MainParty && victor.Leader != Hero.MainHero ? RulerJudgmentStage.AwaitingAuthority : RulerJudgmentStage.AwaitingDecision };
-            ReignRebellionCampaignBehavior.Instance?.DescribeRulerJudgment(jnew);
+            ReignServices.Rebellion?.DescribeRulerJudgment(jnew);
             if (jnew.CivilWar && !Enabled(RulerOptions.CivilWars)) return;
             State.Judgments.Add(jnew);
         }
@@ -309,7 +309,7 @@ namespace ReignBeta.WorldSimulation.Rulers
             failures = State.Judgments.Where(j => j.Failure.Length > 0).Select(j => new { j.Id, j.Failure }), optionsConfirmed = ReignRulerClient.RulerOptionsConfirmed,
             options = RulerOptions.Switches.Keys.ToDictionary(key => key, key => ReignRulerClient.RulerOptions.Preference(key)),
             lifeDeathCycleDisabled = CampaignOptions.IsLifeDeathCycleDisabled, campaignOptions = ObserveCampaignOptions(),
-            news = ReignNewsCampaignBehavior.Instance?.Diagnostics() });
+            news = ReignServices.News?.Diagnostics() });
         private static JObject ObserveCampaignOptions()
         {
             // Fixed, read-only metadata. Missing properties are evidence, not inferred defaults.

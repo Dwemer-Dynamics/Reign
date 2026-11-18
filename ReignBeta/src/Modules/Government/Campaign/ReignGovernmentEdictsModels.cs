@@ -12,6 +12,7 @@ using TaleWorlds.CampaignSystem.Settlements.Workshops;
 using TaleWorlds.Localization;
 using ReignBeta.Diplomacy.ClanAccords;
 using ReignBeta.WorldSimulation.Economy;
+using ReignBeta.Platform.Runtime;
 
 namespace ReignBeta.Government.Campaign
 {
@@ -52,7 +53,7 @@ namespace ReignBeta.Government.Campaign
         }
         private static void Postfix(MethodBase __originalMethod, object[] __args, ref ExplainedNumber __result)
         {
-            var behavior = ReignGovernmentCampaignBehavior.Instance;
+            var behavior = ReignServices.Government;
             if (behavior == null) return;
             Settlement settlement = __args.OfType<Town>().FirstOrDefault()?.Settlement
                 ?? __args.OfType<Village>().FirstOrDefault()?.Settlement
@@ -106,7 +107,7 @@ namespace ReignBeta.Government.Campaign
         { yield return AccessTools.Method(typeof(DefaultVolunteerModel), "GetDailyVolunteerProductionProbability"); }
         private static void Postfix(Settlement settlement, ref float __result)
         {
-            var effects = ReignGovernmentCampaignBehavior.Instance?.EdictEffects(settlement);
+            var effects = ReignServices.Government?.EdictEffects(settlement);
             if (effects != null) __result = Math.Max(0, __result * (1f + (float)effects.RecruitReplenishment));
         }
     }

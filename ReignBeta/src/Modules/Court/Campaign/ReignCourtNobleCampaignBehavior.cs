@@ -11,6 +11,8 @@ using TaleWorlds.Core;
 using TaleWorlds.Localization;
 using TaleWorlds.MountAndBlade;
 using TaleWorlds.ObjectSystem;
+using ReignBeta.Platform.Runtime;
+using ReignBeta.WorldSimulation.Domain;
 
 namespace ReignBeta.Court.Campaign
 {
@@ -52,12 +54,17 @@ namespace ReignBeta.Court.Campaign
             EquipmentIndex.Horse, EquipmentIndex.HorseHarness
         };
 
-        internal static ReignCourtNobleCampaignBehavior Instance { get; private set; }
-        internal static bool IsHouseholdClanMigrationInProgress { get; private set; }
+        internal static ReignCourtNobleCampaignBehavior Instance => ReignServices.CourtNoble;
+        // World Simulation owns this flag (ReignHouseholdClanMigration) so world history can read it without Court.
+        internal static bool IsHouseholdClanMigrationInProgress
+        {
+            get => ReignHouseholdClanMigration.InProgress;
+            private set => ReignHouseholdClanMigration.InProgress = value;
+        }
 
         public ReignCourtNobleCampaignBehavior()
         {
-            Instance = this;
+            ReignServices.CourtNoble = this;
         }
 
         public override void RegisterEvents()
@@ -873,8 +880,8 @@ namespace ReignBeta.Court.Campaign
         private static void PlaceAtHomeHolding(Hero hero)
         {
             if (hero == null || !hero.IsAlive || !hero.IsActive || hero.IsPrisoner || hero.PartyBelongedTo != null) return;
-            if (ReignCourtCampaignBehavior.Instance?.IsNobleVisitorReserved(hero) == true) return;
-            if (ReignBeta.Government.Campaign.ReignGovernmentCampaignBehavior.Instance?.IsGovernmentAttendanceReserved(hero) == true) return;
+            if (ReignServices.Court?.IsNobleVisitorReserved(hero) == true) return;
+            if (ReignServices.Government?.IsGovernmentAttendanceReserved(hero) == true) return;
             Settlement target = FindCurrentHomeHolding(hero);
             if (target == null || hero.CurrentSettlement == target) return;
             TeleportHeroAction.ApplyImmediateTeleportToSettlement(hero, target);

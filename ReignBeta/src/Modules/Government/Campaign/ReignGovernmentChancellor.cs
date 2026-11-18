@@ -17,6 +17,7 @@ using ReignBeta.WorldSimulation.Campaign;
 #if !REIGN_EXCLUDE_COURT
 using ReignBeta.Court.Campaign;
 #endif
+using ReignBeta.Platform.Runtime;
 
 namespace ReignBeta.Government.Campaign
 {
@@ -30,7 +31,7 @@ namespace ReignBeta.Government.Campaign
             return false;
 #else
             Kingdom kingdom = FindKingdom(kingdomId);
-            var office = ReignCourtCampaignBehavior.Instance?.Chancellor;
+            var office = ReignServices.Court?.Chancellor;
             Hero chancellor = FindHero(heroId);
             // This is the player's existing salaried office, not an invented NPC office
             // or emergency regency. Government delegation was approved only while Active.
@@ -47,7 +48,7 @@ namespace ReignBeta.Government.Campaign
 #if REIGN_EXCLUDE_COURT
             return null;
 #else
-            return ReignCourtCampaignBehavior.Instance?.Chancellor?.HeroId;
+            return ReignServices.Court?.Chancellor?.HeroId;
 #endif
         }
 
@@ -81,7 +82,7 @@ namespace ReignBeta.Government.Campaign
             }
             Hero ruler = FindKingdom(record.KingdomStringId)?.Leader;
             Hero chancellor = FindHero(chancellorId);
-            string timeline = ReignWorldHistoryCampaignBehavior.Instance?.TimelineId ?? "main";
+            string timeline = ReignServices.WorldHistory?.TimelineId ?? "main";
             string correlation = "government_crown_" + record.BusinessId + "_" + Guid.NewGuid().ToString("N");
             record.CrownVoteStatus = "pending";
             record.CrownActorHeroId = chancellorId;
@@ -119,7 +120,7 @@ namespace ReignBeta.Government.Campaign
                 // The same business ID can survive reload; reference identity prevents
                 // an old response crossing a load/timeline or office/ruler change.
                 if (Instance != this || !_business.Any(b => ReferenceEquals(b, reserved))
-                    || (ReignWorldHistoryCampaignBehavior.Instance?.TimelineId ?? "main") != timeline
+                    || (ReignServices.WorldHistory?.TimelineId ?? "main") != timeline
                     || GovernmentBusinessRules.IsClosed(reserved.Status)
                     || reserved.CrownVoteStatus != "pending"
                     || !Same(reserved.CrownActorHeroId, chancellorId)) return false;

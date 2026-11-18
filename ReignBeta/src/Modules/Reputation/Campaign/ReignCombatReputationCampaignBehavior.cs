@@ -13,6 +13,7 @@ using TaleWorlds.Core;
 using ReignBeta.Persistence.Save;
 using ReignBeta.Platform.Integration;
 using ReignBeta.WorldSimulation.Campaign;
+using ReignBeta.Platform.Runtime;
 
 namespace ReignBeta.Reputation.Campaign
 {
@@ -310,12 +311,12 @@ namespace ReignBeta.Reputation.Campaign
 
         private static void Record(string archetype, Hero subject, string role, string source, string summary)
         {
-            ReignWorldHistoryCampaignBehavior.Instance?.RecordSocialOutcome(archetype, subject, role, source, summary);
+            ReignServices.WorldHistory?.RecordSocialOutcome(archetype, subject, role, source, summary);
         }
 
         private static void CounterOnly(Hero subject, string source, string summary, params string[] tagIds)
         {
-            ReignWorldHistoryCampaignBehavior.Instance?.RecordSocialOutcome(string.Empty, subject, "subject", source,
+            ReignServices.WorldHistory?.RecordSocialOutcome(string.Empty, subject, "subject", source,
                 summary, null, new JArray(tagIds));
         }
     }

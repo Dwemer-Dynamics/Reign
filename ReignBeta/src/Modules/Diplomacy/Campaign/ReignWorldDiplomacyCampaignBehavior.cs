@@ -24,13 +24,14 @@ using ReignBeta.Platform.Integration;
 using ReignBeta.Platform.Settings;
 using ReignBeta.WorldSimulation.News;
 using ReignBeta.WorldSimulation.UI;
+using ReignBeta.Platform.Runtime;
 
 namespace ReignBeta.Diplomacy.Campaign
 {
     public sealed class ReignWorldDiplomacyCampaignBehavior : CampaignBehaviorBase
     {
         private const int OutageNotificationFailureThreshold = 3;
-        public static ReignWorldDiplomacyCampaignBehavior Instance { get; private set; }
+        public static ReignWorldDiplomacyCampaignBehavior Instance => ReignServices.WorldDiplomacy;
         private readonly object _announcementLock = new object();
         private readonly SemaphoreSlim _publicAnnouncementSync = new SemaphoreSlim(1, 1);
         private readonly object _evaluationCatchUpLock = new object();
@@ -67,7 +68,7 @@ namespace ReignBeta.Diplomacy.Campaign
 
         public override void RegisterEvents()
         {
-            Instance = this;
+            ReignServices.WorldDiplomacy = this;
             CampaignEvents.OnSessionLaunchedEvent.AddNonSerializedListener(this, OnSessionLaunched);
             CampaignEvents.DailyTickEvent.AddNonSerializedListener(this, OnDailyTick);
             CampaignEvents.HourlyTickEvent.AddNonSerializedListener(this, OnHourlyTick);
@@ -105,7 +106,7 @@ namespace ReignBeta.Diplomacy.Campaign
         internal void PrepareInitialState()
         {
             ReignDiplomacyPatches.CancelUnresolvedNpcDiplomacy();
-            ReignAICampaignBehavior.Instance?.ImportNativeDiplomaticAgreements();
+            ReignServices.AI?.ImportNativeDiplomaticAgreements();
         }
 
         private void OnDailyTick()
@@ -355,11 +356,11 @@ namespace ReignBeta.Diplomacy.Campaign
                     deadlineToken.ThrowIfCancellationRequested();
                     if (Instance != this || owner != TaleWorlds.CampaignSystem.Campaign.Current)
                         throw new OperationCanceledException("Diplomatic announcements belong to a previous loaded campaign.");
-                    if (ReignNewsCampaignBehavior.Instance == null) throw new InvalidOperationException("Public news history is unavailable.");
+                    if (ReignServices.News == null) throw new InvalidOperationException("Public news history is unavailable.");
                     foreach (var announcement in announcements.Where(x => x != null && x.IsValid))
                     {
                         deadlineToken.ThrowIfCancellationRequested();
-                        ReignNewsCampaignBehavior.Instance.RecordPublicDiplomacyAnnouncement(announcement);
+                        ReignServices.News.RecordPublicDiplomacyAnnouncement(announcement);
                     }
                     lock (_announcementLock)
                     {
@@ -527,14 +528,14 @@ namespace ReignBeta.Diplomacy.Campaign
 
             if (!displayNotice) return receipts;
 
-            ReignNewsCampaignBehavior.Instance?.ForeignRuling(notice);
+            ReignServices.News?.ForeignRuling(notice);
             AddBoundedProcessedId(_processedPressureNoticeIds, notice.IncidentId);
             return receipts;
         }
 
         private void ApplyClanConflictNotice(ReignClanConflictNotice notice)
         {
-            ReignNewsCampaignBehavior.Instance?.ClanRuling(notice);
+            ReignServices.News?.ClanRuling(notice);
             AddBoundedProcessedId(_processedClanConflictNoticeIds, notice.IncidentId);
         }
 
@@ -560,7 +561,7 @@ namespace ReignBeta.Diplomacy.Campaign
                     List<ReignDiplomacyAnnouncement> announcements = await ReignDiplomacyServerClient.FetchDiplomacyAnnouncementsAsync().ConfigureAwait(false);
                     await ReignMainThread.InvokeAsync(() => {
                         foreach (var announcement in announcements.Where(x => x != null && x.IsValid))
-                            ReignNewsCampaignBehavior.Instance?.RecordPublicDiplomacyAnnouncement(announcement);
+                            ReignServices.News?.RecordPublicDiplomacyAnnouncement(announcement);
                     }).ConfigureAwait(false);
                     bool matched = false;
                     lock (_announcementLock)

@@ -126,7 +126,7 @@ try {
     $releasePrefix=$type.GetMethod('ReleasePrefix',$flags)
     $detailType=$releasePrefix.GetParameters()[1].ParameterType
     $verdictType=$judgmentType.GetProperty('Verdict').PropertyType
-    $instanceProperty=$behaviorType.GetProperty('Instance',$flags)
+    $instanceProperty=$client.GetType('ReignBeta.Platform.Runtime.ReignServices',$true).GetProperty('Ruler',$flags)
     $priorInstance=$instanceProperty.GetValue($null,$null)
     $applyingField=$behaviorType.GetField('ApplyingNative',$instanceFlags)
     $custodyState=$behaviorType.GetField('State',$instanceFlags).GetValue($behavior)

@@ -16,6 +16,7 @@ using ReignBeta.Spymaster.Campaign;
 using ReignBeta.Spymaster.Integration;
 using ReignBeta.WorldSimulation.Actions;
 using ReignBeta.WorldSimulation.Campaign;
+using ReignBeta.Platform.Runtime;
 
 namespace ReignBeta.Court.Campaign
 {
@@ -30,12 +31,12 @@ namespace ReignBeta.Court.Campaign
         {
             var campaign = TaleWorlds.CampaignSystem.Campaign.Current;
             string campaignId = ReignCampaignIdentity.CurrentCampaignId();
-            string timeline = ReignWorldHistoryCampaignBehavior.Instance?.TimelineId ?? "main";
+            string timeline = ReignServices.WorldHistory?.TimelineId ?? "main";
             return () =>
             {
                 if (!ReferenceEquals(campaign, TaleWorlds.CampaignSystem.Campaign.Current) || !ReferenceEquals(Instance, this)
                     || campaignId != ReignCampaignIdentity.CurrentCampaignId()
-                    || timeline != (ReignWorldHistoryCampaignBehavior.Instance?.TimelineId ?? "main"))
+                    || timeline != (ReignServices.WorldHistory?.TimelineId ?? "main"))
                     throw new InvalidOperationException("The campaign or timeline changed during this court operation.");
             };
         }
@@ -198,7 +199,7 @@ namespace ReignBeta.Court.Campaign
             _courtAgreementFences[operation] = () =>
             {
                 context();
-                if (!IsPlayerKingdomRuler() || ReignAgreementBehavior.Instance?.IsActiveAgreement(a.Id, a.TermsHash()) != true)
+                if (!IsPlayerKingdomRuler() || ReignServices.Agreement?.IsActiveAgreement(a.Id, a.TermsHash()) != true)
                     throw new InvalidOperationException("The exact accepted court agreement is no longer active.");
             };
             _courtAgreementTail = RunCourtAgreementAsync(_courtAgreementTail, context, operation, a, c, step);
@@ -267,7 +268,7 @@ namespace ReignBeta.Court.Campaign
                     var receipt = JObject.Parse(step.Snapshot); receipt["status"] = error.Length == 0 ? "applied" : "uncertain"; receipt["message"] = error;
                     step.Snapshot = receipt.ToString(Formatting.None);
                     _courtAgreementFences.Remove(operation);
-                    ReignAgreementBehavior.Instance.RecheckAgreement(a.Id);
+                    ReignServices.Agreement.RecheckAgreement(a.Id);
                 }).ConfigureAwait(false);
             }
             catch (Exception ex)
@@ -277,7 +278,7 @@ namespace ReignBeta.Court.Campaign
                     try { context(); } catch { return; }
                     var receipt = JObject.Parse(step.Snapshot); receipt["status"] = invoked ? "uncertain" : "failed"; receipt["message"] = ex.Message;
                     step.Snapshot = receipt.ToString(Formatting.None); _courtAgreementFences.Remove(operation);
-                    ReignAgreementBehavior.Instance.RecheckAgreement(a.Id);
+                    ReignServices.Agreement.RecheckAgreement(a.Id);
                 }).ConfigureAwait(false);
             }
         }

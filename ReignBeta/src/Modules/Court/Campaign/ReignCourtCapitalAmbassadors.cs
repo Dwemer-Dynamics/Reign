@@ -17,6 +17,7 @@ using ReignBeta.Dialogue.UI;
 using ReignBeta.Government.Campaign;
 using ReignBeta.Platform.Integration;
 using ReignBeta.Platform.Settings;
+using ReignBeta.Platform.Runtime;
 
 namespace ReignBeta.Court.Campaign
 {
@@ -89,7 +90,7 @@ namespace ReignBeta.Court.Campaign
                 _capitalDesignations.Add(record);
             }
             ApplyCapitalDesignation(record, kingdom.StringId, settlement.StringId, CurrentDayFloat());
-            ReignBeta.WorldSimulation.Rulers.ReignRulerCampaignBehavior.Instance?.DesignateCapital(kingdom, settlement);
+            ReignServices.Ruler?.DesignateCapital(kingdom, settlement);
 
             if (HasOpenSession)
             {
@@ -108,7 +109,7 @@ namespace ReignBeta.Court.Campaign
             string kingdomId = Clan.PlayerClan?.Kingdom?.StringId;
             if (string.IsNullOrWhiteSpace(kingdomId)) return null;
             var record = _capitalDesignations.FirstOrDefault(x => string.Equals(x.KingdomStringId, kingdomId, StringComparison.OrdinalIgnoreCase));
-            var rulers = ReignBeta.WorldSimulation.Rulers.ReignRulerCampaignBehavior.Instance;
+            var rulers = ReignServices.Ruler;
             if (!ReignBeta.WorldSimulation.Rulers.ReignRulerCampaignBehavior.Enabled(ReignBeta.Shared.Rulers.RulerOptions.Capitals) || rulers == null) return record;
             var kingdom = Clan.PlayerClan.Kingdom;
             if (record?.EverDesignated == true && !string.IsNullOrWhiteSpace(record.SettlementStringId))
@@ -312,7 +313,7 @@ namespace ReignBeta.Court.Campaign
                 ["capitalSettlementName"] = CurrentCapital?.Name?.ToString() ?? string.Empty,
                 ["authorityRevision"] = posting.AuthorityRevision,
                 ["authorityCharter"] = ParseObject(posting.AuthorityCharterJson),
-                ["representedGovernment"] = ReignGovernmentCampaignBehavior.Instance?.BuildPublicSnapshot(origin)
+                ["representedGovernment"] = ReignServices.Government?.BuildPublicSnapshot(origin)
                     ?? new JObject { ["available"] = false, ["authoritative"] = true },
                 ["governmentNegotiationRule"] = "You know your kingdom's authoritative government position. Clearly distinguish what the ruler would accept from what the government will approve; do not promise blocked authority."
             };

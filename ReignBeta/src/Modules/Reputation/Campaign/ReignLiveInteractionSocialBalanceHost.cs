@@ -18,6 +18,7 @@ using ReignBeta.Rebellion.Campaign;
 using ReignBeta.Reputation.Campaign;
 using ReignBeta.WorldSimulation.Integration;
 using ReignBeta.WorldSimulation.Runtime;
+using ReignBeta.Platform.Runtime;
 
 namespace ReignBeta.WorldSimulation.Campaign
 {
@@ -40,7 +41,7 @@ namespace ReignBeta.WorldSimulation.Campaign
             string operation = command?.Value<string>("operation") ?? string.Empty;
             if (!SocialBalanceOperations.Contains(operation))
                 return LiveCommandResult.Failed("Unsupported social-balance operation '" + operation + "'.");
-            ReignSocialBalanceHarnessCampaignBehavior harness = ReignSocialBalanceHarnessCampaignBehavior.Instance;
+            ReignSocialBalanceHarnessCampaignBehavior harness = ReignServices.SocialBalanceHarness;
             if (harness == null)
                 return LiveCommandResult.Failed("The save-backed social-balance harness behavior is unavailable.");
             if (!harness.ValidateEnrollment(command, out string enrollmentError))
@@ -243,9 +244,9 @@ namespace ReignBeta.WorldSimulation.Campaign
             return await ReignMainThread.InvokeAsync(() =>
             {
                 ReignSocialBalanceHarnessCampaignBehavior harness =
-                    ReignSocialBalanceHarnessCampaignBehavior.Instance;
+                    ReignServices.SocialBalanceHarness;
                 ReignCourtPersonalityReputationCampaignBehavior court =
-                    ReignCourtPersonalityReputationCampaignBehavior.Instance;
+                    ReignServices.CourtPersonalityReputation;
                 if (harness == null || court == null)
                     return LiveCommandResult.Failed(
                         "The save-backed Social Reputation harness and court state are required.",
@@ -269,9 +270,9 @@ namespace ReignBeta.WorldSimulation.Campaign
             return await ReignMainThread.InvokeAsync(() =>
             {
                 ReignSocialBalanceHarnessCampaignBehavior harness =
-                    ReignSocialBalanceHarnessCampaignBehavior.Instance;
+                    ReignServices.SocialBalanceHarness;
                 ReignCourtPersonalityReputationCampaignBehavior court =
-                    ReignCourtPersonalityReputationCampaignBehavior.Instance;
+                    ReignServices.CourtPersonalityReputation;
                 if (harness == null || court == null)
                     return LiveCommandResult.Failed(
                         "The reloaded save-backed Social Reputation harness and court state are required.",
@@ -295,9 +296,9 @@ namespace ReignBeta.WorldSimulation.Campaign
             return await ReignMainThread.InvokeAsync(() =>
             {
                 string runId = (command["enrollment"] as JObject)?.Value<string>("runId") ?? string.Empty;
-                bool markerCleared = ReignSocialBalanceHarnessCampaignBehavior.Instance?
+                bool markerCleared = ReignServices.SocialBalanceHarness?
                     .ClearPersistenceMarker(runId) == true;
-                int rebellionOverrides = ReignRebellionCampaignBehavior.Instance?
+                int rebellionOverrides = ReignServices.Rebellion?
                     .ClearSocialBalanceRollOverrides(runId) ?? 0;
                 JObject evidence = prerequisites.Data?.DeepClone() as JObject ?? new JObject();
                 evidence["persistenceMarkerCleared"] = markerCleared;
@@ -334,7 +335,7 @@ namespace ReignBeta.WorldSimulation.Campaign
                         ["error"] = "The Unchaste profile requires female and male ordinary lords plus a distinct living adult legal-father fixture."
                     };
 
-                ReignFamilyCampaignBehavior family = ReignFamilyCampaignBehavior.Instance;
+                ReignFamilyCampaignBehavior family = ReignServices.Family;
                 Hero child = null;
                 string childError = string.Empty;
                 if (family == null || !family.TryCreateSocialBalanceChild(
@@ -349,7 +350,7 @@ namespace ReignBeta.WorldSimulation.Campaign
                     };
 
                 ReignCourtPersonalityReputationCampaignBehavior producer =
-                    ReignCourtPersonalityReputationCampaignBehavior.Instance;
+                    ReignServices.CourtPersonalityReputation;
                 int seasonIndex = Math.Max(0, (int)Math.Floor(
                     Math.Max(0d, CampaignTime.Now.ToDays) / ReignCalendarService.DaysPerSeason));
                 string enrolledRunId = (command["enrollment"] as JObject)
@@ -397,9 +398,9 @@ namespace ReignBeta.WorldSimulation.Campaign
                         ["isRegularLord"] = true,
                         ["producerEvidence"] = fatherEvidence
                     },
-                    ["worldHistorySequence"] = ReignWorldHistoryCampaignBehavior.Instance?.Sequence ?? 0L
+                    ["worldHistorySequence"] = ReignServices.WorldHistory?.Sequence ?? 0L
                 };
-                ReignSocialBalanceHarnessCampaignBehavior.Instance?.RecordOverride(
+                ReignServices.SocialBalanceHarness?.RecordOverride(
                     "unchaste_forced_public_parentage", new JObject(result));
                 return result;
             }).ConfigureAwait(false);
@@ -450,7 +451,7 @@ namespace ReignBeta.WorldSimulation.Campaign
                         ["error"] = "Player parity requires the living adult player plus opposite-sex biological and distinct legal-parent fixtures."
                     };
 
-                ReignFamilyCampaignBehavior family = ReignFamilyCampaignBehavior.Instance;
+                ReignFamilyCampaignBehavior family = ReignServices.Family;
                 Hero child = null;
                 string childError = string.Empty;
                 if (family == null || !family.TryCreateSocialBalanceChild(
@@ -465,7 +466,7 @@ namespace ReignBeta.WorldSimulation.Campaign
                     };
 
                 ReignCourtPersonalityReputationCampaignBehavior producer =
-                    ReignCourtPersonalityReputationCampaignBehavior.Instance;
+                    ReignServices.CourtPersonalityReputation;
                 int seasonIndex = Math.Max(0, (int)Math.Floor(
                     Math.Max(0d, CampaignTime.Now.ToDays) / ReignCalendarService.DaysPerSeason));
                 string enrolledRunId = (command["enrollment"] as JObject)
@@ -505,9 +506,9 @@ namespace ReignBeta.WorldSimulation.Campaign
                         ["publiclyKnown"] = true,
                         ["illegitimate"] = true
                     },
-                    ["worldHistorySequence"] = ReignWorldHistoryCampaignBehavior.Instance?.Sequence ?? 0L
+                    ["worldHistorySequence"] = ReignServices.WorldHistory?.Sequence ?? 0L
                 };
-                ReignSocialBalanceHarnessCampaignBehavior.Instance?.RecordOverride(
+                ReignServices.SocialBalanceHarness?.RecordOverride(
                     "player_unchaste_parity_forced_public_parentage", new JObject(result));
                 return result;
             }).ConfigureAwait(false);
@@ -568,7 +569,7 @@ namespace ReignBeta.WorldSimulation.Campaign
                 string enrolledRunId = (command["enrollment"] as JObject)
                     ?.Value<string>("runId") ?? string.Empty;
                 ReignCourtPersonalityReputationCampaignBehavior producer =
-                    ReignCourtPersonalityReputationCampaignBehavior.Instance;
+                    ReignServices.CourtPersonalityReputation;
                 JObject evidence = new JObject();
                 string error = string.Empty;
                 if (producer == null || !producer.RunNpcRulerFavoringPresenceForSocialBalance(
@@ -686,7 +687,7 @@ namespace ReignBeta.WorldSimulation.Campaign
                 string enrolledRunId = (command["enrollment"] as JObject)
                     ?.Value<string>("runId") ?? string.Empty;
                 ReignCourtPersonalityReputationCampaignBehavior producer =
-                    ReignCourtPersonalityReputationCampaignBehavior.Instance;
+                    ReignServices.CourtPersonalityReputation;
                 JObject first = new JObject();
                 JObject second = new JObject();
                 string firstError = string.Empty;
@@ -756,7 +757,7 @@ namespace ReignBeta.WorldSimulation.Campaign
         {
             return await ReignMainThread.InvokeAsync(() =>
             {
-                ReignRebellionCampaignBehavior rebellion = ReignRebellionCampaignBehavior.Instance;
+                ReignRebellionCampaignBehavior rebellion = ReignServices.Rebellion;
                 if (rebellion == null)
                     return LiveCommandResult.Failed("The native rebellion behavior is unavailable.",
                         prerequisites.Data);
@@ -833,7 +834,7 @@ namespace ReignBeta.WorldSimulation.Campaign
                 evidence["resolutionHarness"] = resolution;
                 evidence["cleanupHarness"] = cleanup;
                 evidence["authoritativePassRequired"] = true;
-                ReignSocialBalanceHarnessCampaignBehavior.Instance?.RecordOverride(
+                ReignServices.SocialBalanceHarness?.RecordOverride(
                     "favoring_rebellion_transition", new JObject
                     {
                         ["kingdomId"] = kingdom.StringId,
@@ -1097,7 +1098,7 @@ namespace ReignBeta.WorldSimulation.Campaign
                         ["targetToPlayerBefore"] = targetToPlayer,
                         ["temporaryValue"] = 100
                     };
-                    ReignSocialBalanceHarnessCampaignBehavior.Instance?.RecordOverride(
+                    ReignServices.SocialBalanceHarness?.RecordOverride(
                         "player_affair_native_relation_fixture", row);
                     return row;
                 }).ConfigureAwait(false);
@@ -1134,7 +1135,7 @@ namespace ReignBeta.WorldSimulation.Campaign
                     fixture["playerToTargetAffinity"] = playerAffinity;
                     await ReignMainThread.InvokeAsync(() =>
                     {
-                        ReignSocialBalanceHarnessCampaignBehavior.Instance?.RecordOverride(
+                        ReignServices.SocialBalanceHarness?.RecordOverride(
                             "player_affair_underlying_affinity_fixture", new JObject(fixture));
                         return true;
                     }).ConfigureAwait(false);
@@ -1285,7 +1286,7 @@ namespace ReignBeta.WorldSimulation.Campaign
                         {
                             player.SetPersonalRelation(target, fixture.Value<int>("playerToTargetBefore"));
                             target.SetPersonalRelation(player, fixture.Value<int>("targetToPlayerBefore"));
-                            ReignSocialBalanceHarnessCampaignBehavior.Instance?.RecordOverride(
+                            ReignServices.SocialBalanceHarness?.RecordOverride(
                                 "player_affair_native_relation_restored", new JObject
                                 {
                                     ["playerId"] = player.StringId, ["targetId"] = target.StringId,
@@ -1331,7 +1332,7 @@ namespace ReignBeta.WorldSimulation.Campaign
                     fixture["restoredPlayerToTargetAffinity"] = restoredPlayerAffinity;
                     await ReignMainThread.InvokeAsync(() =>
                     {
-                        ReignSocialBalanceHarnessCampaignBehavior.Instance?.RecordOverride(
+                        ReignServices.SocialBalanceHarness?.RecordOverride(
                             "player_affair_underlying_affinity_restored", new JObject(fixture));
                         return true;
                     }).ConfigureAwait(false);
@@ -1533,7 +1534,7 @@ namespace ReignBeta.WorldSimulation.Campaign
                 ["authoritativePassRequired"] = true,
                 ["message"] = "This command establishes and records native prerequisites. The profile is passed only by authoritative server assertions and never by this command alone."
             };
-            ReignSocialBalanceHarnessCampaignBehavior.Instance?.RecordOverride(
+            ReignServices.SocialBalanceHarness?.RecordOverride(
                 "social_reputation_profile_preflight", evidence);
             return blockers.Count > 0
                 ? LiveCommandResult.Failed(string.Join(" ", blockers))
@@ -1611,13 +1612,13 @@ namespace ReignBeta.WorldSimulation.Campaign
             JObject data = new JObject
             {
                 ["campaignId"] = ReignCampaignIdentity.CurrentCampaignId(),
-                ["timelineId"] = ReignWorldHistoryCampaignBehavior.Instance?.TimelineId ?? "main",
+                ["timelineId"] = ReignServices.WorldHistory?.TimelineId ?? "main",
                 ["worldDay"] = CampaignTime.Now.ToDays,
                 ["heroes"] = heroRows,
                 ["settlements"] = settlements,
                 ["villages"] = villages,
                 ["rebellion"] = SocialBalanceRebellionSnapshot(),
-                ["harness"] = ReignSocialBalanceHarnessCampaignBehavior.Instance?.Snapshot() ?? new JObject()
+                ["harness"] = ReignServices.SocialBalanceHarness?.Snapshot() ?? new JObject()
             };
             return LiveCommandResult.Completed("Captured a native social-balance snapshot.", data);
         }
@@ -1633,7 +1634,7 @@ namespace ReignBeta.WorldSimulation.Campaign
             if (command["loyalty"] != null) town.Loyalty = ClampFloat(command.Value<float>("loyalty"), 0f, 100f);
             if (command["security"] != null) town.Security = ClampFloat(command.Value<float>("security"), 0f, 100f);
             JObject after = TownMetrics(town);
-            ReignSocialBalanceHarnessCampaignBehavior.Instance?.RecordOverride("town_metrics",
+            ReignServices.SocialBalanceHarness?.RecordOverride("town_metrics",
                 new JObject { ["settlementId"] = settlement.StringId, ["before"] = before, ["after"] = after });
             return LiveCommandResult.Completed("Applied bounded settlement metrics in the enrolled disposable save.",
                 new JObject { ["settlementId"] = settlement.StringId, ["before"] = before, ["after"] = after });
@@ -1654,7 +1655,7 @@ namespace ReignBeta.WorldSimulation.Campaign
                 else return LiveCommandResult.Failed("Supported village states are normal and looted.");
             }
             JObject after = VillageMetrics(village);
-            ReignSocialBalanceHarnessCampaignBehavior.Instance?.RecordOverride("village_metrics",
+            ReignServices.SocialBalanceHarness?.RecordOverride("village_metrics",
                 new JObject { ["villageId"] = settlement.StringId, ["before"] = before, ["after"] = after });
             return LiveCommandResult.Completed("Applied bounded village metrics in the enrolled disposable save.",
                 new JObject { ["villageId"] = settlement.StringId, ["before"] = before, ["after"] = after });
@@ -1668,7 +1669,7 @@ namespace ReignBeta.WorldSimulation.Campaign
             if (command["charm"] != null)
                 hero.SetSkillValue(DefaultSkills.Charm, Math.Max(0, Math.Min(1023, command.Value<int>("charm"))));
             JObject after = SocialBalanceHeroMetrics(hero);
-            ReignSocialBalanceHarnessCampaignBehavior.Instance?.RecordOverride("hero_metrics",
+            ReignServices.SocialBalanceHarness?.RecordOverride("hero_metrics",
                 new JObject { ["heroId"] = hero.StringId, ["before"] = before, ["after"] = after });
             return LiveCommandResult.Completed("Applied bounded hero metrics in the enrolled disposable save.",
                 new JObject { ["heroId"] = hero.StringId, ["before"] = before, ["after"] = after });
@@ -1683,7 +1684,7 @@ namespace ReignBeta.WorldSimulation.Campaign
             int prior = observer.GetRelation(subject);
             int value = Math.Max(-100, Math.Min(100, command.Value<int?>("value") ?? prior));
             observer.SetPersonalRelation(subject, value);
-            ReignSocialBalanceHarnessCampaignBehavior.Instance?.RecordOverride("native_relation",
+            ReignServices.SocialBalanceHarness?.RecordOverride("native_relation",
                 new JObject { ["observerId"] = observer.StringId, ["subjectId"] = subject.StringId, ["before"] = prior, ["after"] = value });
             return LiveCommandResult.Completed("Set the enrolled save's native relationship value.",
                 new JObject { ["observerId"] = observer.StringId, ["subjectId"] = subject.StringId, ["before"] = prior, ["after"] = observer.GetRelation(subject) });
@@ -1697,7 +1698,7 @@ namespace ReignBeta.WorldSimulation.Campaign
                 return LiveCommandResult.Failed("The replacement ruling clan must be an active member of the kingdom.");
             string before = kingdom.RulingClan?.StringId ?? string.Empty;
             ChangeRulingClanAction.Apply(kingdom, clan);
-            ReignSocialBalanceHarnessCampaignBehavior.Instance?.RecordOverride("ruling_clan",
+            ReignServices.SocialBalanceHarness?.RecordOverride("ruling_clan",
                 new JObject { ["kingdomId"] = kingdom.StringId, ["before"] = before, ["after"] = kingdom.RulingClan?.StringId ?? string.Empty });
             return LiveCommandResult.Completed("Changed the ruler in the enrolled disposable save.",
                 new JObject { ["kingdomId"] = kingdom.StringId, ["beforeClanId"] = before, ["afterClanId"] = kingdom.RulingClan?.StringId ?? string.Empty });
@@ -1713,7 +1714,7 @@ namespace ReignBeta.WorldSimulation.Campaign
             if (destination == null) ChangeKingdomAction.ApplyByLeaveKingdom(clan, true);
             else if (clan.Kingdom != destination)
                 ChangeKingdomAction.ApplyByJoinToKingdom(clan, destination, CampaignTime.Zero, true);
-            ReignSocialBalanceHarnessCampaignBehavior.Instance?.RecordOverride("clan_kingdom",
+            ReignServices.SocialBalanceHarness?.RecordOverride("clan_kingdom",
                 new JObject { ["clanId"] = clan.StringId, ["before"] = before, ["after"] = clan.Kingdom?.StringId ?? string.Empty });
             return LiveCommandResult.Completed("Changed clan membership in the enrolled disposable save.",
                 new JObject { ["clanId"] = clan.StringId, ["beforeKingdomId"] = before, ["afterKingdomId"] = clan.Kingdom?.StringId ?? string.Empty });
@@ -1727,7 +1728,7 @@ namespace ReignBeta.WorldSimulation.Campaign
                 return LiveCommandResult.Failed("A fortification and living clan member owner are required.");
             string before = settlement.OwnerClan?.StringId ?? string.Empty;
             ChangeOwnerOfSettlementAction.ApplyByGift(settlement, owner);
-            ReignSocialBalanceHarnessCampaignBehavior.Instance?.RecordOverride("settlement_owner",
+            ReignServices.SocialBalanceHarness?.RecordOverride("settlement_owner",
                 new JObject { ["settlementId"] = settlement.StringId, ["before"] = before, ["after"] = settlement.OwnerClan?.StringId ?? string.Empty });
             return LiveCommandResult.Completed("Changed settlement ownership in the enrolled disposable save.",
                 new JObject { ["settlementId"] = settlement.StringId, ["beforeClanId"] = before, ["afterClanId"] = settlement.OwnerClan?.StringId ?? string.Empty });
@@ -1823,7 +1824,7 @@ namespace ReignBeta.WorldSimulation.Campaign
                 .TryAcknowledgeForLiveHarness(false, out string eventId);
             if (acknowledged)
             {
-                ReignSocialBalanceHarnessCampaignBehavior.Instance?.RecordOverride(
+                ReignServices.SocialBalanceHarness?.RecordOverride(
                     "diplomacy_announcement_acknowledged",
                     new JObject { ["eventId"] = eventId });
             }
@@ -1851,11 +1852,11 @@ namespace ReignBeta.WorldSimulation.Campaign
             JArray counters = command["counterOnlyTagIds"] as JArray;
             string sourceKey = command.Value<string>("sourceKey")
                 ?? "social-balance-" + Guid.NewGuid().ToString("N");
-            ReignWorldHistoryCampaignBehavior.Instance?.RecordSocialOutcome(
+            ReignServices.WorldHistory?.RecordSocialOutcome(
                 archetype, subject, command.Value<string>("role") ?? "subject", sourceKey, summary,
                 evidence, counters, command.Value<bool?>("forceExposure") == true,
                 command.Value<bool?>("forcePromotion") == true);
-            ReignSocialBalanceHarnessCampaignBehavior.Instance?.RecordOverride("social_outcome",
+            ReignServices.SocialBalanceHarness?.RecordOverride("social_outcome",
                 new JObject { ["subjectId"] = subject.StringId, ["archetypeId"] = archetype, ["sourceKey"] = sourceKey });
             return LiveCommandResult.Completed("Queued deterministic social outcome evidence through World History.",
                 new JObject { ["subjectId"] = subject.StringId, ["archetypeId"] = archetype, ["sourceKey"] = sourceKey });
@@ -1874,7 +1875,7 @@ namespace ReignBeta.WorldSimulation.Campaign
             string after = hero.CurrentSettlement?.StringId
                 ?? hero.PartyBelongedTo?.CurrentSettlement?.StringId
                 ?? string.Empty;
-            ReignSocialBalanceHarnessCampaignBehavior.Instance?.RecordOverride("hero_location",
+            ReignServices.SocialBalanceHarness?.RecordOverride("hero_location",
                 new JObject
                 {
                     ["heroId"] = hero.StringId, ["beforeSettlementId"] = before,
@@ -1890,7 +1891,7 @@ namespace ReignBeta.WorldSimulation.Campaign
 
         private static LiveCommandResult SocialBalanceCreateChild(JObject command)
         {
-            ReignFamilyCampaignBehavior family = ReignFamilyCampaignBehavior.Instance;
+            ReignFamilyCampaignBehavior family = ReignServices.Family;
             Hero mother = FindSocialBalanceHero(command.Value<string>("motherId"));
             Hero biologicalFather = FindSocialBalanceHero(command.Value<string>("biologicalFatherId"));
             Hero legalFather = FindSocialBalanceHero(command.Value<string>("legalFatherId")) ?? biologicalFather;
@@ -1902,7 +1903,7 @@ namespace ReignBeta.WorldSimulation.Campaign
                 command.Value<bool?>("female") == true,
                 out Hero child, out string error))
                 return LiveCommandResult.Failed(error);
-            ReignSocialBalanceHarnessCampaignBehavior.Instance?.RecordOverride("child_created",
+            ReignServices.SocialBalanceHarness?.RecordOverride("child_created",
                 new JObject
                 {
                     ["childId"] = child.StringId,
@@ -1924,20 +1925,20 @@ namespace ReignBeta.WorldSimulation.Campaign
 
         private static LiveCommandResult SocialBalanceQueueRebellionRoll(JObject command)
         {
-            ReignRebellionCampaignBehavior rebellion = ReignRebellionCampaignBehavior.Instance;
+            ReignRebellionCampaignBehavior rebellion = ReignServices.Rebellion;
             if (rebellion == null) return LiveCommandResult.Failed("The rebellion behavior is unavailable.");
             string runId = (command["enrollment"] as JObject)?.Value<string>("runId") ?? string.Empty;
             if (!rebellion.QueueSocialBalanceRollOverride(command.Value<string>("kingdomId"),
                 command.Value<string>("clanId"), command.Value<int?>("roll") ?? 100, runId, out string result))
                 return LiveCommandResult.Failed(result);
-            ReignSocialBalanceHarnessCampaignBehavior.Instance?.RecordOverride("rebellion_roll",
+            ReignServices.SocialBalanceHarness?.RecordOverride("rebellion_roll",
                 new JObject { ["kingdomId"] = command.Value<string>("kingdomId"), ["clanId"] = command.Value<string>("clanId"), ["roll"] = command.Value<int?>("roll") ?? 100 });
             return LiveCommandResult.Completed(result);
         }
 
         private static LiveCommandResult SocialBalanceResolveRebellion(JObject command)
         {
-            ReignRebellionCampaignBehavior rebellion = ReignRebellionCampaignBehavior.Instance;
+            ReignRebellionCampaignBehavior rebellion = ReignServices.Rebellion;
             Hero surrendering = FindSocialBalanceHero(command.Value<string>("surrenderingHeroId"));
             if (rebellion == null || surrendering == null)
                 return LiveCommandResult.Failed("The rebellion behavior and surrendering leader are required.");
@@ -1949,7 +1950,7 @@ namespace ReignBeta.WorldSimulation.Campaign
         private static LiveCommandResult SocialBalanceClearOverrides(JObject command)
         {
             string runId = (command["enrollment"] as JObject)?.Value<string>("runId") ?? string.Empty;
-            int cleared = ReignRebellionCampaignBehavior.Instance?.ClearSocialBalanceRollOverrides(runId) ?? 0;
+            int cleared = ReignServices.Rebellion?.ClearSocialBalanceRollOverrides(runId) ?? 0;
             return LiveCommandResult.Completed("Cleared pending test-only native overrides.",
                 new JObject { ["rebellionRollOverridesCleared"] = cleared });
         }
@@ -1960,8 +1961,8 @@ namespace ReignBeta.WorldSimulation.Campaign
             string operation = command?.Value<string>("operation") ?? string.Empty;
             string commandId = command?.Value<string>("commandId") ?? string.Empty;
             if (!operation.StartsWith("social_", StringComparison.OrdinalIgnoreCase)
-                || ReignSocialBalanceHarnessCampaignBehavior.Instance == null
-                || !ReignSocialBalanceHarnessCampaignBehavior.Instance.TryGetReceipt(commandId, out JObject stored))
+                || ReignServices.SocialBalanceHarness == null
+                || !ReignServices.SocialBalanceHarness.TryGetReceipt(commandId, out JObject stored))
                 return false;
             result = new LiveCommandResult
             {
@@ -1978,7 +1979,7 @@ namespace ReignBeta.WorldSimulation.Campaign
         {
             string operation = command?.Value<string>("operation") ?? string.Empty;
             if (!operation.StartsWith("social_", StringComparison.OrdinalIgnoreCase) || result == null) return;
-            ReignSocialBalanceHarnessCampaignBehavior.Instance?.RememberReceipt(
+            ReignServices.SocialBalanceHarness?.RememberReceipt(
                 command.Value<string>("commandId") ?? string.Empty,
                 new JObject
                 {
@@ -1992,7 +1993,7 @@ namespace ReignBeta.WorldSimulation.Campaign
 
         private static JObject SocialBalanceRebellionSnapshot()
         {
-            ReignRebellionCampaignBehavior rebellion = ReignRebellionCampaignBehavior.Instance;
+            ReignRebellionCampaignBehavior rebellion = ReignServices.Rebellion;
             return new JObject
             {
                 ["weeklyRolls"] = new JArray((rebellion?.WeeklyRolls ?? new List<ReignBeta.World.ReignRebellionWeeklyRollRecord>())

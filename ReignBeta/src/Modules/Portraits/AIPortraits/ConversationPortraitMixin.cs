@@ -8,6 +8,7 @@ using TaleWorlds.Core;
 using TaleWorlds.Core.ViewModelCollection;
 using TaleWorlds.Core.ViewModelCollection.ImageIdentifiers;
 using TaleWorlds.Library;
+using ReignBeta.Platform.Runtime;
 
 namespace AIPortraits;
 
@@ -874,7 +875,7 @@ internal sealed class ConversationPortraitMixin : BaseViewModelMixin<MissionConv
 			UpdatePlayerPortrait();
 			UpdateLordSourceExport();
 			CharacterObject oneToOneConversationCharacter = CharacterObject.OneToOneConversationCharacter;
-            Hero knownResident = ReignBeta.Characters.Campaign.ReignEncounteredResidentsCampaignBehavior.Instance?.ConversationHero;
+            Hero knownResident = ReignServices.EncounteredResidents?.ConversationHero;
             if (knownResident != null) oneToOneConversationCharacter = knownResident.CharacterObject;
 			if (oneToOneConversationCharacter == null)
 			{
@@ -888,7 +889,7 @@ internal sealed class ConversationPortraitMixin : BaseViewModelMixin<MissionConv
 				return;
 			}
 			Equipment equipment = knownResident != null
-                ? ReignBeta.Characters.Campaign.ReignEncounteredResidentsCampaignBehavior.Instance.PortraitEquipment(knownResident)
+                ? ReignServices.EncounteredResidents.PortraitEquipment(knownResident)
                 : oneToOneConversationCharacter.FirstCivilianEquipment ?? oneToOneConversationCharacter.Equipment;
 			CharacterCode characterCode = CharacterCode.CreateFrom(oneToOneConversationCharacter, equipment);
 			string text = characterCode?.Code;

@@ -4,6 +4,7 @@ using TaleWorlds.CampaignSystem;
 using TaleWorlds.Library;
 using ReignBeta.Platform.Integration;
 using ReignBeta.Portraits.Integration;
+using ReignBeta.Platform.Runtime;
 
 namespace AIPortraits;
 
@@ -94,7 +95,7 @@ public class ConversationBehavior : CampaignBehaviorBase
 
 	private static Hero GetConversationHero()
 	{
-		return ReignBeta.Characters.Campaign.ReignEncounteredResidentsCampaignBehavior.Instance?.ConversationHero
+		return ReignServices.EncounteredResidents?.ConversationHero
             ?? CharacterObject.OneToOneConversationCharacter?.HeroObject;
 	}
 }

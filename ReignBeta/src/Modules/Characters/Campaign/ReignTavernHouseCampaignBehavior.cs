@@ -26,13 +26,14 @@ using ReignBeta.Persistence.Save;
 using ReignBeta.Platform.Integration;
 using ReignBeta.Portraits.Integration;
 using ReignBeta.WorldSimulation.Campaign;
+using ReignBeta.Platform.Runtime;
 
 namespace ReignBeta.Characters.Campaign
 {
     /// <summary>Saved native identities own the house. The server negotiates; this behavior alone transfers gold and companions.</summary>
     public sealed partial class ReignTavernHouseCampaignBehavior : CampaignBehaviorBase
     {
-        public static ReignTavernHouseCampaignBehavior Instance { get; private set; }
+        public static ReignTavernHouseCampaignBehavior Instance => ReignServices.TavernHouse;
         private TavernHouseState _state = new TavernHouseState();
         private readonly PopulationIdentityIndex<TavernHousePerson> _identityIndex = new PopulationIdentityIndex<TavernHousePerson>(p => p.HeroId);
         private TavernHouseCastCatalog _catalog;
@@ -89,12 +90,12 @@ namespace ReignBeta.Characters.Campaign
             ["pausedCatchupPending"] = _pausedCatchup.Pending, ["pausedCatchupBlocked"] = _pausedCatchup.Blocked, ["error"] = _lastError };
 
         private double Day => CampaignTime.Now.ToDays;
-        private string Timeline => ReignWorldHistoryCampaignBehavior.Instance?.TimelineId ?? "main";
+        private string Timeline => ReignServices.WorldHistory?.TimelineId ?? "main";
         public bool Ready => _ready;
 
         public override void RegisterEvents()
         {
-            Instance = this;
+            ReignServices.TavernHouse = this;
             ReignTavernHousePatches.Install();
             CampaignEvents.OnSessionLaunchedEvent.AddNonSerializedListener(this, OnSession);
             CampaignEvents.TickEvent.AddNonSerializedListener(this, OnTick);
@@ -479,7 +480,7 @@ namespace ReignBeta.Characters.Campaign
             var visit = _state.Visits.SingleOrDefault(v => v.VisitId == visitId && v.CampaignId == ReignServerClient.GetCampaignId() && v.TimelineId == Timeline);
             if (visit == null || !visit.Paid) return;
             visit.ServerConfirmed = true; visit.ConversationId = conversationId ?? "";
-            if (visit.ActionTermsHash.Length > 0) ReignBeta.WorldSimulation.Actions.ReignAgreementBehavior.Instance?.RecheckAgreement(visit.AgreementId);
+            if (visit.ActionTermsHash.Length > 0) ReignServices.Agreement?.RecheckAgreement(visit.AgreementId);
         }
         public void EndVisit(string visitId)
         {
@@ -525,7 +526,7 @@ namespace ReignBeta.Characters.Campaign
                 { reason = "The native companion transfer did not complete; the agreement is saved for recovery."; return false; }
                 Depart(person, true, "recruited");
                 hero.SetNewOccupation(Occupation.Wanderer);
-                ReignEncounteredResidentsCampaignBehavior.Instance?.DetachDepartingRole(hero);
+                ReignServices.EncounteredResidents?.DetachDepartingRole(hero);
                 if (!person.RecruitmentGoldPaid)
                 {
                     int before = Hero.MainHero.Gold;

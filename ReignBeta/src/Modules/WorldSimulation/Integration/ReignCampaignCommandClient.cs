@@ -7,6 +7,7 @@ using static ReignBeta.Platform.Integration.ReignServerClient;
 using ReignBeta.Platform.Integration;
 using ReignBeta.WorldSimulation.CampaignCommands;
 using ReignBeta.WorldSimulation.World;
+using ReignBeta.Platform.Runtime;
 
 namespace ReignBeta.WorldSimulation.Integration
 {
@@ -45,7 +46,7 @@ namespace ReignBeta.WorldSimulation.Integration
                 string reason = response.Value<string>("reason") ?? string.Empty;
                 if (!ReignCampaignCommandJudgment.IsAllowedOutcome(outcome)) return;
                 await ReignMainThread.InvokeAsync(() =>
-                    ReignCampaignCommandBehavior.Instance?.ApplyLlmJudgment(order.OrderId,
+                    ReignServices.CampaignCommand?.ApplyLlmJudgment(order.OrderId,
                         outcome, reason)).ConfigureAwait(false);
             }
             catch (Exception ex)
@@ -70,7 +71,7 @@ namespace ReignBeta.WorldSimulation.Integration
                 JObject response = await PostJsonAsync("/correspondence/send", new JObject
                 {
                     ["campaignId"] = GetCampaignId(),
-                    ["timelineId"] = ReignBeta.WorldSimulation.Campaign.ReignWorldHistoryCampaignBehavior.Instance?.TimelineId ?? "main",
+                    ["timelineId"] = ReignServices.WorldHistory?.TimelineId ?? "main",
                     ["senderId"] = sender.StringId ?? string.Empty,
                     ["senderName"] = sender.Name?.ToString() ?? "Commander",
                     ["recipientId"] = recipient.StringId ?? string.Empty,

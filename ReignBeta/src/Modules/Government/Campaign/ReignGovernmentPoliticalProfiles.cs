@@ -12,6 +12,7 @@ using ReignBeta.Government.Domain;
 using ReignBeta.Government.Integration;
 using ReignBeta.Platform.Integration;
 using ReignBeta.WorldSimulation.Campaign;
+using ReignBeta.Platform.Runtime;
 
 namespace ReignBeta.Government.Campaign
 {
@@ -87,7 +88,7 @@ namespace ReignBeta.Government.Campaign
             if (kingdom == null) return;
             var evidence = new GovernmentPoliticalWorldEvidence {
                 Id = "government:" + record.BusinessId, CampaignId = ReignCampaignIdentity.CurrentCampaignId(),
-                TimelineId = ReignWorldHistoryCampaignBehavior.Instance?.TimelineId ?? "main",
+                TimelineId = ReignServices.WorldHistory?.TimelineId ?? "main",
                 KingdomId = record.KingdomStringId, Kind = record.Kind, TargetId = record.TargetId,
                 OptionId = optionId, Applied = true, IsRepeal = record.IsRepeal,
                 Interval = GovernmentInterval(CurrentDay()), WorldDay = CurrentDay(),
@@ -134,7 +135,7 @@ namespace ReignBeta.Government.Campaign
             _politicalCapture = new PoliticalCapture {
                 Campaign = TaleWorlds.CampaignSystem.Campaign.Current, State = _participation,
                 CampaignId = ReignCampaignIdentity.CurrentCampaignId(),
-                TimelineId = ReignWorldHistoryCampaignBehavior.Instance?.TimelineId ?? "main",
+                TimelineId = ReignServices.WorldHistory?.TimelineId ?? "main",
                 Interval = CurrentPoliticalInterval, Heroes = heroes
             };
             // Selection and capture do not share a frame. Keep the wire batch
@@ -145,7 +146,7 @@ namespace ReignBeta.Government.Campaign
             && ReferenceEquals(capture.Campaign, TaleWorlds.CampaignSystem.Campaign.Current)
             && ReferenceEquals(capture.State, _participation)
             && capture.CampaignId == ReignCampaignIdentity.CurrentCampaignId()
-            && capture.TimelineId == (ReignWorldHistoryCampaignBehavior.Instance?.TimelineId ?? "main");
+            && capture.TimelineId == (ReignServices.WorldHistory?.TimelineId ?? "main");
 
         private void ContinuePoliticalCapture()
         {
@@ -228,7 +229,7 @@ namespace ReignBeta.Government.Campaign
                 _politicalSyncError = succeeded ? "" : failure;
                 if (!PoliticalScopeCurrent(capture) || capture.Interval != CurrentPoliticalInterval || !succeeded
                     || response.Value<string>("campaignId") != ReignCampaignIdentity.CurrentCampaignId()
-                    || response.Value<string>("timelineId") != (ReignWorldHistoryCampaignBehavior.Instance?.TimelineId ?? "main")) return false;
+                    || response.Value<string>("timelineId") != (ReignServices.WorldHistory?.TimelineId ?? "main")) return false;
                 try
                 {
                   using (ReignLog.MeasureWork("government.political.apply", 0f))

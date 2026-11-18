@@ -21,6 +21,7 @@ using ReignBeta.Persistence.Integration;
 using ReignBeta.Platform.Integration;
 using ReignBeta.Relationships.Campaign;
 using ReignBeta.WorldSimulation.Domain;
+using ReignBeta.Platform.Runtime;
 
 namespace ReignBeta.WorldSimulation.Campaign
 {
@@ -113,7 +114,7 @@ namespace ReignBeta.WorldSimulation.Campaign
                                 if (!_armed || command.Value<string>("gameInstanceId") != GameInstanceId
                                     || (holdSeconds != 0 && (command.Value<string>("periodicCommunicationExpectedSaveName") != ActiveSaveName()
                                         || string.IsNullOrEmpty(command.Value<string>("periodicCommunicationExpectedSaveName"))
-                                        || command.Value<string>("periodicCommunicationExpectedTimeline") != (ReignWorldHistoryCampaignBehavior.Instance?.TimelineId ?? "main"))))
+                                        || command.Value<string>("periodicCommunicationExpectedTimeline") != (ReignServices.WorldHistory?.TimelineId ?? "main"))))
                                     throw new InvalidOperationException("A checkpoint hold requires the armed exact native instance, save and timeline.");
                                 var hold = ReignCommunicationClient.CheckpointCommunicationPollHold(
                                     command.Value<string>("periodicCommunicationHoldToken"),
@@ -472,7 +473,7 @@ namespace ReignBeta.WorldSimulation.Campaign
             PassiveWorldAcknowledgeDiplomacyAnnouncementAsync(JObject command)
         {
             ReignWorldDiplomacyCampaignBehavior behavior =
-                ReignWorldDiplomacyCampaignBehavior.Instance;
+                ReignServices.WorldDiplomacy;
             if (behavior != null)
                 await behavior.PollAndShowNextAnnouncementForLiveHarnessAsync()
                     .ConfigureAwait(false);
@@ -566,7 +567,7 @@ namespace ReignBeta.WorldSimulation.Campaign
             PassiveWorldDrainPoliticalPressureAsync()
         {
             ReignWorldDiplomacyCampaignBehavior behavior =
-                ReignWorldDiplomacyCampaignBehavior.Instance;
+                ReignServices.WorldDiplomacy;
             if (behavior == null)
                 return LiveCommandResult.Failed(
                     "The Reign diplomacy campaign behavior is not available.");
@@ -596,7 +597,7 @@ namespace ReignBeta.WorldSimulation.Campaign
                 {
                     ["campaignId"] = campaignId,
                     ["activeSaveName"] = ActiveSaveName(),
-                    ["timelineId"] = ReignWorldHistoryCampaignBehavior.Instance?.TimelineId ?? "main",
+                    ["timelineId"] = ReignServices.WorldHistory?.TimelineId ?? "main",
                     ["worldDay"] = CampaignTime.Now.ToDays,
                     ["timeMode"] = campaign.TimeControlMode.ToString(),
                     ["settlementId"] = settlement?.StringId ?? string.Empty,

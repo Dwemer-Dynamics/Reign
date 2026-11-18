@@ -20,6 +20,7 @@ using ReignBeta.Platform.Settings;
 using ReignBeta.Portraits.Integration;
 using ReignBeta.Portraits.UI;
 using ReignBeta.UI.ViewModels;
+using ReignBeta.Platform.Runtime;
 
 namespace ReignBeta.Characters.UI
 {
@@ -113,7 +114,7 @@ namespace ReignBeta.Characters.UI
                 AddLine("Player", "I would like to hear about the house and its people.", "player");
                 return;
             }
-            _house = ReignTavernHouseCampaignBehavior.Instance ?? throw new InvalidOperationException("The tavern house is not ready.");
+            _house = ReignServices.TavernHouse ?? throw new InvalidOperationException("The tavern house is not ready.");
             _house.EnsureTown(town);
             _staff = _house.GetStaff(town).ToList(); _madam = _house.GetMadam(town);
             if (_madam == null) throw new InvalidOperationException("No madam is available at this town.");

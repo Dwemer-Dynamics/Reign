@@ -10,6 +10,7 @@ using ReignBeta.Court.Campaign;
 using ReignBeta.Platform.Integration;
 using ReignBeta.Spymaster.Campaign;
 using ReignBeta.Spymaster.Integration;
+using ReignBeta.Platform.Runtime;
 
 namespace ReignBeta.WorldSimulation.Campaign
 {
@@ -17,7 +18,7 @@ namespace ReignBeta.WorldSimulation.Campaign
     {
         private static async Task<LiveCommandResult> ExecuteSpymasterTestAsync(JObject command)
         {
-            ReignCourtCampaignBehavior court = ReignCourtCampaignBehavior.Instance;
+            ReignCourtCampaignBehavior court = ReignServices.Court;
             if (court == null) return LiveCommandResult.Failed("The production court controller is unavailable.");
             string runId = command.Value<string>("fixtureRunId") ?? command.Value<string>("runId") ?? Guid.NewGuid().ToString("N");
             string profile = command.Value<string>("profile") ?? command.Value<string>("text") ?? "feature";
@@ -30,7 +31,7 @@ namespace ReignBeta.WorldSimulation.Campaign
 
         private static async Task<LiveCommandResult> ExecuteOrganicSpymasterTestAsync(JObject command)
         {
-            ReignCourtCampaignBehavior court = ReignCourtCampaignBehavior.Instance;
+            ReignCourtCampaignBehavior court = ReignServices.Court;
             if (court == null) return LiveCommandResult.Failed("The production court controller is unavailable.");
             string runId = command.Value<string>("fixtureRunId") ?? command.Value<string>("runId") ?? Guid.NewGuid().ToString("N");
             string phase = command.Value<string>("phase") ?? command.Value<string>("profile") ?? command.Value<string>("text") ?? "preflight";
@@ -50,7 +51,7 @@ namespace ReignBeta.WorldSimulation.Campaign
                     || expected.Length == 0 || baseline.Length == 0 || expected == baseline || expected != ActiveSaveName()
                     || enrollment.Value<string>("campaignId") != ReignCampaignIdentity.CurrentCampaignId()
                     || command.Value<string>("campaignId") != ReignCampaignIdentity.CurrentCampaignId()
-                    || enrollment.Value<string>("timelineId") != (ReignWorldHistoryCampaignBehavior.Instance?.TimelineId ?? "main")
+                    || enrollment.Value<string>("timelineId") != (ReignServices.WorldHistory?.TimelineId ?? "main")
                     || command.Value<string>("gameInstanceId") != _gameInstanceId
                     || TaleWorlds.CampaignSystem.Campaign.Current?.TimeControlMode != CampaignTimeControlMode.Stop)
                     return new JObject { ["ok"] = false, ["error"] = "Spymaster action controls require the exact paused, armed, verified disposable Current campaign and timeline." };

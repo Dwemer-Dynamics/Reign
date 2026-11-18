@@ -35,6 +35,7 @@ using ReignBeta.Spymaster.UI;
 using ReignBeta.WorldSimulation.Events;
 using ReignBeta.WorldSimulation.Runtime;
 using ReignBeta.WorldSimulation.UI;
+using ReignBeta.Platform.Runtime;
 
 namespace ReignBeta.WorldSimulation.Campaign
 {
@@ -67,7 +68,7 @@ namespace ReignBeta.WorldSimulation.Campaign
                     return nativeResult;
                 }
 
-                ReignCourtCampaignBehavior court = ReignCourtCampaignBehavior.Instance;
+                ReignCourtCampaignBehavior court = ReignServices.Court;
                 if (court == null && target != "government")
                     return LiveCommandResult.Failed("The production court controller is unavailable.");
 
@@ -163,7 +164,7 @@ namespace ReignBeta.WorldSimulation.Campaign
                         ReignCourtEconomicReportScreenManager.Open(court);
                         break;
                     case "clan-accords":
-                        var accords = ReignBeta.Diplomacy.ClanAccords.ReignClanAccordsCampaignBehavior.Instance;
+                        var accords = ReignServices.ClanAccords;
                         if (accords == null || !ReignBeta.Diplomacy.ClanAccords.ReignClanAccordsCampaignBehavior.IsPlayerRuler)
                             return "Clan Accords requires the player to rule a kingdom.";
                         ReignClanAccordsScreenManager.Open(court,
@@ -518,7 +519,7 @@ namespace ReignBeta.WorldSimulation.Campaign
                 if (ReignGovernmentScreenManager.IsOpen)
                 {
                     ReignGovernmentScreenManager.Close(false);
-                    ReignCourtCampaignBehavior court = ReignCourtCampaignBehavior.Instance;
+                    ReignCourtCampaignBehavior court = ReignServices.Court;
                     if (court?.IsRuleModeActive == true)
                     {
                         ReignCourtScreenManager.Open(court);
@@ -979,7 +980,7 @@ namespace ReignBeta.WorldSimulation.Campaign
             {
                 ["target"] = _uiCalibrationTarget,
                 ["movieName"] = _uiCalibrationMovie,
-                ["courtSessionActive"] = ReignCourtCampaignBehavior.Instance?.IsRuleModeActive == true,
+                ["courtSessionActive"] = ReignServices.Court?.IsRuleModeActive == true,
                 ["courtOpen"] = ReignCourtScreenManager.IsOpen,
                 ["castleLayoutOpen"] = ReignCastleLayoutScreenManager.IsOpen,
                 ["castleChatOpen"] = ReignPartyChatScreenManager.IsOpen

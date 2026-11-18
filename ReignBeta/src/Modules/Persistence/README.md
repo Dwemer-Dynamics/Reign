@@ -12,12 +12,12 @@ Save integration. The Bannerlord `SaveableTypeDefiner` (`Save/ReignBetaSaveDefin
 | `Save` | 2 |
 | `Campaign` | 1 |
 
-Namespaces in use: `ReignBeta.Integration (2)`, `ReignBeta.Save (2)`, `ReignBeta.Campaign (1)`.
+Namespaces in use: `ReignBeta.Persistence.Integration (2)`, `ReignBeta.Persistence.Save (2)`, `ReignBeta.Persistence.Campaign (1)`.
 
 ## Public surface
 
 - Campaign behaviours deriving from `CampaignBehaviorBase` (all registered in `Platform/SubModule.cs`): `ReignSaveSyncCampaignBehavior`.
-- Static `.Instance` singletons: `ReignSaveSyncCampaignBehavior`.
+- Behaviours registered in `ReignServices` (their `Instance` property forwards to the slot): `ReignSaveSyncCampaignBehavior`.
 
 ## Dependencies
 

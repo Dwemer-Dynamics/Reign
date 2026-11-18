@@ -12,6 +12,7 @@ using TaleWorlds.CampaignSystem.MapEvents;
 using TaleWorlds.CampaignSystem.Party;
 using TaleWorlds.Core;
 using ReignBeta.Platform.Integration;
+using ReignBeta.Platform.Runtime;
 
 namespace ReignBeta.WorldSimulation.PartyAgency
 {
@@ -156,7 +157,7 @@ namespace ReignBeta.WorldSimulation.PartyAgency
         private static bool StartPartyEncounterPrefix(PartyBase attackerParty, PartyBase defenderParty)
         {
             if (ShouldBlockEncounter(attackerParty, defenderParty)) return false;
-            return ReignBeta.Relationships.Campaign.ReignPlayerApproachCampaignBehavior.Instance?.ConsumeFriendlyEncounter(attackerParty, defenderParty) != true;
+            return ReignServices.PlayerApproach?.ConsumeFriendlyEncounter(attackerParty, defenderParty) != true;
         }
 
         private static bool CanPartyJoinBattlePrefix(PartyBase __0, ref bool __result)
@@ -204,9 +205,9 @@ namespace ReignBeta.WorldSimulation.PartyAgency
 
         private static bool ShouldSuppressLeaderPartyExpense(Clan clan)
         {
-            return ReignTemporaryPartyGuestCampaignBehavior.Instance
+            return ReignServices.TemporaryPartyGuest
                 ?.IsGuestClanLeaderInMainParty(clan) == true
-                || ReignBeta.Characters.Campaign.ReignNpcLivesBehavior.Instance?.IsSummonedClanLeader(clan) == true;
+                || ReignServices.NpcLives?.IsSummonedClanLeader(clan) == true;
         }
 
         private static bool ShouldSuppressProtectedPartyExpense(MobileParty party)
@@ -216,7 +217,7 @@ namespace ReignBeta.WorldSimulation.PartyAgency
 
         private static bool IsProtected(MobileParty party)
         {
-            return ReignTemporaryPartyGuestCampaignBehavior.Instance?.IsProtectedCamp(party) == true;
+            return ReignServices.TemporaryPartyGuest?.IsProtectedCamp(party) == true;
         }
     }
 }

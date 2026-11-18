@@ -7,22 +7,23 @@ using NativeCampaign = TaleWorlds.CampaignSystem.Campaign;
 using ReignBeta.Dialogue.Runtime;
 using ReignBeta.Dialogue.UI;
 using ReignBeta.Persistence.Save;
+using ReignBeta.Platform.Runtime;
 
 namespace ReignBeta.Dialogue.Campaign
 {
     public sealed class ReignPartyChatHistoryBehavior : CampaignBehaviorBase
     {
-        public static ReignPartyChatHistoryBehavior Instance { get; private set; }
+        public static ReignPartyChatHistoryBehavior Instance => ReignServices.PartyChatHistory;
         private NativeCampaign _owner;
         public int Epoch { get; private set; }
         internal ReignPartyChatContinuation Last { get; private set; }
-        public override void RegisterEvents() { _owner = NativeCampaign.Current; Instance = this; }
+        public override void RegisterEvents() { _owner = NativeCampaign.Current; ReignServices.PartyChatHistory = this; }
         internal bool Owns(int epoch) => Instance == this && _owner == NativeCampaign.Current && Epoch == epoch;
         internal void Store(ReignPartyChatContinuation snapshot, int epoch)
         {
             if (Owns(epoch)) Last = snapshot;
         }
-        internal void EndCampaign() { Epoch++; Last = null; if (Instance == this) Instance = null; }
+        internal void EndCampaign() { Epoch++; Last = null; if (Instance == this) ReignServices.PartyChatHistory = null; }
 
         public override void SyncData(IDataStore store)
         {

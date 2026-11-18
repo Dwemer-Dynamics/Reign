@@ -3,6 +3,7 @@ using System.Threading.Tasks;
 using Newtonsoft.Json.Linq;
 using ReignBeta.KingdomEvents.Campaign;
 using ReignBeta.Platform.Integration;
+using ReignBeta.Platform.Runtime;
 
 namespace ReignBeta.WorldSimulation.Campaign
 {
@@ -10,7 +11,7 @@ namespace ReignBeta.WorldSimulation.Campaign
     {
         private static async Task<LiveCommandResult> ExecuteKingdomEventTestAsync(JObject command)
         {
-            ReignKingdomEventsCampaignBehavior behavior = ReignKingdomEventsCampaignBehavior.Instance;
+            ReignKingdomEventsCampaignBehavior behavior = ReignServices.KingdomEvents;
             if (behavior == null) return LiveCommandResult.Failed("The production kingdom catastrophe/boon behavior is unavailable.");
             string runId = command.Value<string>("fixtureRunId") ?? command.Value<string>("runId") ?? Guid.NewGuid().ToString("N");
             string phase = command.Value<string>("phase") ?? command.Value<string>("profile") ?? "preflight";

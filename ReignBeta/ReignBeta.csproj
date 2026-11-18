@@ -163,7 +163,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="$(ReignServerRoot)\shared\Reign.Relationships\ArrangedMarriagePolicy.cs" Link="Shared\ArrangedMarriagePolicy.cs" />
-    <ProjectReference Include="$(ReignServerRoot)\shared\Reign.Core.Contracts\Reign.Core.Contracts.csproj" />
+    <ProjectReference Include="$(ReignServerRoot)\shared\Reign.Core.Contracts\Reign.Core.Contracts.csproj" GlobalPropertiesToRemove="ReignServerRoot" />
     <ProjectReference Include="src\Modules\Arena\ArenaOverhaul\ArenaOverhaul.csproj" />
     <ProjectReference Include="Core\ReignBeta.Core.csproj" />
     <!-- The optional in-game test harness (Testing\ReignBeta.Testing.csproj) implements the

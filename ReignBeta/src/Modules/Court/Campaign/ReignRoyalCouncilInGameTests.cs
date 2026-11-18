@@ -9,6 +9,7 @@ using TaleWorlds.CampaignSystem;
 using TaleWorlds.CampaignSystem.Settlements;
 using static ReignBeta.Court.Campaign.ReignCourtCampaignBehavior;
 using ReignBeta.Platform.Integration;
+using ReignBeta.Platform.Runtime;
 
 namespace ReignBeta.Court.Campaign
 {
@@ -94,7 +95,7 @@ namespace ReignBeta.Court.Campaign
             var offices = new JArray(court._offices.Where(office => office?.IsActive == true).OrderBy(office => (int)office.Office)
                 .Select(office => new JObject { ["officeValue"] = (int)office.Office, ["office"] = office.Office.ToString(), ["heroId"] = office.HeroStringId }));
             return new JObject { ["capitalId"] = court.CurrentCapital?.StringId ?? string.Empty,
-                ["warCouncilorId"] = ReignBeta.Court.WarCouncil.ReignWarCouncilCampaignBehavior.Instance?.SelectedCouncilorHeroId ?? string.Empty,
+                ["warCouncilorId"] = ReignServices.WarCouncil?.SelectedCouncilorHeroId ?? string.Empty,
                 ["offices"] = offices };
         }
 

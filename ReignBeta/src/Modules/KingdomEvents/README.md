@@ -11,12 +11,12 @@ Kingdom events. Kingdom-wide events raised from campaign state.
 | `Campaign` | 3 |
 | `Events` | 1 |
 
-Namespaces in use: `ReignBeta.Campaign (3)`, `ReignBeta.Events (1)`.
+Namespaces in use: `ReignBeta.KingdomEvents.Campaign (2)`, `ReignBeta.Events (1)`, `ReignBeta.WorldSimulation.Campaign (1)`.
 
 ## Public surface
 
 - Campaign behaviours deriving from `CampaignBehaviorBase` (all registered in `Platform/SubModule.cs`): `ReignKingdomEventsCampaignBehavior`.
-- Static `.Instance` singletons: `ReignKingdomEventsCampaignBehavior`.
+- Behaviours registered in `ReignServices` (their `Instance` property forwards to the slot): `ReignKingdomEventsCampaignBehavior`.
 - Types registered with the save definer (identity must not change without save compatibility): `ReignKingdomEventRecord`, `ReignKingdomEventTestLedger`.
 
 ## Dependencies

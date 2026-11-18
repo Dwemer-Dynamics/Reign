@@ -16,6 +16,7 @@ using ReignBeta.Platform.Integration;
 using ReignBeta.Relationships.Campaign;
 using ReignBeta.UI.ViewModels;
 using ReignBeta.WorldSimulation.World;
+using ReignBeta.Platform.Runtime;
 
 namespace ReignBeta.Dialogue.UI
 {
@@ -96,7 +97,7 @@ namespace ReignBeta.Dialogue.UI
         [DataSourceProperty]
         public bool CanOpenMarriageOffer => !_finalized && !ActionBusy
             && ReignRelationshipCampaignBehavior.WeddingFeatureReady
-            && ReignRelationshipCampaignBehavior.Instance.OpenMarriageOffers(ActionParticipants).Any();
+            && ReignServices.Relationship.OpenMarriageOffers(ActionParticipants).Any();
 
         public void ExecuteOpenMarriageOffer()
         {
@@ -194,7 +195,7 @@ namespace ReignBeta.Dialogue.UI
                 }
                 result.QueuedActions = ReignCorrespondenceClient.ParseLetterActionRows(result);
                 if (result.QueuedActions.Count == 0) return 0;
-                var behavior = ReignAICampaignBehavior.Instance;
+                var behavior = ReignServices.AI;
                 if (behavior == null) return 0;
                 // An interrupted import never turns the accepted letter into a send failure.
                 if (!behavior.TryImportForPresentation(result.QueuedActions, out int imported, out string heldActionId))

@@ -25,6 +25,7 @@ using ReignBeta.WorldSimulation.World;
 #if !REIGN_EXCLUDE_COURT
 using ReignBeta.Court.UI;
 #endif
+using ReignBeta.Platform.Runtime;
 
 namespace ReignBeta.WorldSimulation.Campaign
 {
@@ -183,7 +184,7 @@ namespace ReignBeta.WorldSimulation.Campaign
             if (TaleWorlds.CampaignSystem.Campaign.Current == null) failures.Add("campaign_missing");
             if (Hero.MainHero == null) failures.Add("main_hero_missing");
             if (MobileParty.MainParty == null) failures.Add("main_party_missing");
-            if (ReignCampaignCommandBehavior.Instance == null) failures.Add("command_behavior_missing");
+            if (ReignServices.CampaignCommand == null) failures.Add("command_behavior_missing");
             if (ReignCampaignCommandCapabilityRegistry.All.Count != 20) failures.Add("capability_count");
             if (ReignCampaignCommandCapabilityRegistry.All.Any(x => !x.IsComplete)) failures.Add("incomplete_capability");
             if (ReignBetaSettings.Instance?.CampaignCommandEngineEnabled == false) failures.Add("engine_disabled");
@@ -373,7 +374,7 @@ namespace ReignBeta.WorldSimulation.Campaign
         private static JObject RunCampaignCommandNativeProfile(string profile, int seed, string phase,
             string certificationRunId, bool restartVerified, string restartReceipt)
         {
-            if (MobileParty.MainParty == null || ReignCampaignCommandBehavior.Instance == null)
+            if (MobileParty.MainParty == null || ReignServices.CampaignCommand == null)
                 return new JObject { ["ok"] = false, ["fatal"] = true,
                     ["failureClass"] = "bridge_desynchronization", ["error"] = "Campaign command runtime is unavailable." };
             string runScope = new string((certificationRunId ?? string.Empty).Where(ch =>
@@ -430,11 +431,11 @@ namespace ReignBeta.WorldSimulation.Campaign
             };
             if (profile == "save_roundtrip" && phase == "verify")
             {
-                ReignCampaignOrderRecord persisted = ReignCampaignCommandBehavior.Instance.Orders
+                ReignCampaignOrderRecord persisted = ReignServices.CampaignCommand.Orders
                     .FirstOrDefault(x => x.OrderId == issue.ActionId);
                 bool payloadRoundTrip = persisted != null
                     && persisted.CommanderHeroStringId == commanderParty.LeaderHero.StringId
-                    && ReignCampaignCommandBehavior.Instance.VerifySaveRoundTripForCertification();
+                    && ReignServices.CampaignCommand.VerifySaveRoundTripForCertification();
                 var reloadChecks = new JArray
                 {
                     new JObject { ["id"] = "save_payload_roundtrip", ["passed"] = payloadRoundTrip },
@@ -445,7 +446,7 @@ namespace ReignBeta.WorldSimulation.Campaign
                 bool cancelledPersisted = persisted == null || persisted.IsTerminal;
                 if (persisted != null && !persisted.IsTerminal)
                 {
-                    ReignActionResult cancelPersisted = ReignCampaignCommandBehavior.Instance.ExecuteControlAction(
+                    ReignActionResult cancelPersisted = ReignServices.CampaignCommand.ExecuteControlAction(
                         new ReignWorldActionRecord
                         {
                             Type = ReignWorldActionType.RegularCancelCampaignOrder,
@@ -476,8 +477,8 @@ namespace ReignBeta.WorldSimulation.Campaign
                     ["orderStatus"] = persisted?.Status ?? "missing"
                 };
             }
-            ReignActionResult issued = ReignCampaignCommandBehavior.Instance.ExecuteControlAction(issue);
-            ReignCampaignOrderRecord order = ReignCampaignCommandBehavior.Instance.Orders
+            ReignActionResult issued = ReignServices.CampaignCommand.ExecuteControlAction(issue);
+            ReignCampaignOrderRecord order = ReignServices.CampaignCommand.Orders
                 .FirstOrDefault(x => x.OrderId == issue.ActionId);
             bool mainUnaffected = !commanderParty.IsMainParty && MobileParty.MainParty != commanderParty;
             bool durable = issued.Success && order != null && order.CommanderHeroStringId == commanderParty.LeaderHero.StringId;
@@ -497,7 +498,7 @@ namespace ReignBeta.WorldSimulation.Campaign
                 int transitions = 0;
                 while (!order.IsTerminal && order.Objective != "patrol" && transitions < 3)
                 {
-                    if (!ReignCampaignCommandBehavior.Instance.CompleteCurrentStepForCertification(
+                    if (!ReignServices.CampaignCommand.CompleteCurrentStepForCertification(
                         order.OrderId, "Deterministic multi-stage transition fixture.")) break;
                     transitions++;
                 }
@@ -550,8 +551,8 @@ namespace ReignBeta.WorldSimulation.Campaign
                         RequiresAcceptance = false,
                         Reason = "Materially distinct composite certification flow."
                     };
-                    ReignActionResult flowIssued = ReignCampaignCommandBehavior.Instance.ExecuteControlAction(flowIssue);
-                    ReignCampaignOrderRecord flowOrder = ReignCampaignCommandBehavior.Instance.Orders
+                    ReignActionResult flowIssued = ReignServices.CampaignCommand.ExecuteControlAction(flowIssue);
+                    ReignCampaignOrderRecord flowOrder = ReignServices.CampaignCommand.Orders
                         .FirstOrDefault(x => x.OrderId == flowIssue.ActionId);
                     bool flowShape = flowIssued.Success && flowOrder?.PlanVersion == 2
                         && flowOrder.Steps.Select(x => x.Objective)
@@ -561,7 +562,7 @@ namespace ReignBeta.WorldSimulation.Campaign
                     checks.Add(new JObject { ["id"] = "distinct_composite_flow_" + flowIndex,
                         ["passed"] = flowShape, ["objectives"] = new JArray(distinctFlows[flowIndex]) });
                     if (flowOrder != null && !flowOrder.IsTerminal)
-                        ReignCampaignCommandBehavior.Instance.ExecuteControlAction(new ReignWorldActionRecord
+                        ReignServices.CampaignCommand.ExecuteControlAction(new ReignWorldActionRecord
                         {
                             Type = ReignWorldActionType.RegularCancelCampaignOrder,
                             Source = "campaign_command_certification_cleanup",
@@ -603,9 +604,9 @@ namespace ReignBeta.WorldSimulation.Campaign
                             }
                         }.ToString(Formatting.None)
                     };
-                    ReignActionResult partylessResult = ReignCampaignCommandBehavior.Instance
+                    ReignActionResult partylessResult = ReignServices.CampaignCommand
                         .ExecuteControlAction(partylessIssue);
-                    partylessOrder = ReignCampaignCommandBehavior.Instance.Orders
+                    partylessOrder = ReignServices.CampaignCommand.Orders
                         .FirstOrDefault(x => x.OrderId == partylessIssue.ActionId);
                     checks.Add(new JObject { ["id"] = "partyless_recruit_patrol_regression",
                         ["passed"] = partylessResult.Success && partylessOrder?.Steps?.Count == 3
@@ -619,7 +620,7 @@ namespace ReignBeta.WorldSimulation.Campaign
                 }
                 if (partylessOrder != null && !partylessOrder.IsTerminal)
                 {
-                    ReignCampaignCommandBehavior.Instance.ExecuteControlAction(new ReignWorldActionRecord
+                    ReignServices.CampaignCommand.ExecuteControlAction(new ReignWorldActionRecord
                     {
                         Type = ReignWorldActionType.RegularCancelCampaignOrder,
                         ActorHeroStringId = partyless.StringId,
@@ -630,12 +631,12 @@ namespace ReignBeta.WorldSimulation.Campaign
             }
             if (profile == "correspondence" && order != null && !order.IsTerminal)
             {
-                bool requested = ReignCampaignCommandBehavior.Instance.RequestGuidanceForCertification(
+                bool requested = ReignServices.CampaignCommand.RequestGuidanceForCertification(
                     order.OrderId, "Enemy strength changed; urgent sovereign guidance is required.");
                 bool twelveHours = requested && Math.Abs((order.GuidanceDeadlineDay - CampaignTime.Now.ToDays) * 24d - 12d) < 0.1d;
                 checks.Add(new JObject { ["id"] = "urgent_report_queued", ["passed"] = requested });
                 checks.Add(new JObject { ["id"] = "twelve_hour_deadline", ["passed"] = twelveHours });
-                ReignActionResult response = ReignCampaignCommandBehavior.Instance.ExecuteControlAction(
+                ReignActionResult response = ReignServices.CampaignCommand.ExecuteControlAction(
                     new ReignWorldActionRecord
                     {
                         Type = ReignWorldActionType.RegularRespondToOrderReport,
@@ -646,20 +647,20 @@ namespace ReignBeta.WorldSimulation.Campaign
                             ["response"] = "continue" }.ToString(Formatting.None)
                     });
                 checks.Add(new JObject { ["id"] = "response_delivered", ["passed"] = response.Success && !order.AwaitingGuidance });
-                bool requestedAgain = ReignCampaignCommandBehavior.Instance.RequestGuidanceForCertification(
+                bool requestedAgain = ReignServices.CampaignCommand.RequestGuidanceForCertification(
                     order.OrderId, "No-response branch fixture.");
-                bool expired = requestedAgain && ReignCampaignCommandBehavior.Instance
+                bool expired = requestedAgain && ReignServices.CampaignCommand
                     .ExpireGuidanceForCertification(order.OrderId);
                 checks.Add(new JObject { ["id"] = "no_response_branch", ["passed"] = expired });
             }
             if (profile == "fault_recovery" && order != null && !order.IsTerminal)
             {
-                ReignActionResult duplicate = ReignCampaignCommandBehavior.Instance.ExecuteControlAction(issue);
+                ReignActionResult duplicate = ReignServices.CampaignCommand.ExecuteControlAction(issue);
                 checks.Add(new JObject { ["id"] = "duplicate_suppressed",
                     ["passed"] = duplicate.ResultCode == "campaign_order_duplicate_suppressed" });
                 int beforeReassert = order.NativeReassertions;
                 commanderParty.SetMoveModeHold();
-                bool reviewed = ReignCampaignCommandBehavior.Instance.ReviewForCertification(order.OrderId);
+                bool reviewed = ReignServices.CampaignCommand.ReviewForCertification(order.OrderId);
                 checks.Add(new JObject { ["id"] = "native_ai_reasserted",
                     ["passed"] = reviewed && order.NativeReassertions > beforeReassert });
                 ReignWorldActionRecord obsolete = new ReignWorldActionRecord
@@ -676,8 +677,8 @@ namespace ReignBeta.WorldSimulation.Campaign
                     TermsJson = new JObject { ["objective"] = "raid",
                         ["issuerHeroStringId"] = Hero.MainHero?.StringId ?? string.Empty }.ToString(Formatting.None)
                 };
-                ReignActionResult obsoleteResult = ReignCampaignCommandBehavior.Instance.ExecuteControlAction(obsolete);
-                ReignCampaignOrderRecord obsoleteOrder = ReignCampaignCommandBehavior.Instance.Orders
+                ReignActionResult obsoleteResult = ReignServices.CampaignCommand.ExecuteControlAction(obsolete);
+                ReignCampaignOrderRecord obsoleteOrder = ReignServices.CampaignCommand.Orders
                     .FirstOrDefault(x => x.OrderId == obsolete.ActionId);
                 checks.Add(new JObject { ["id"] = "obsolete_target_classified",
                     ["passed"] = obsoleteOrder?.Status == "failed"
@@ -688,13 +689,13 @@ namespace ReignBeta.WorldSimulation.Campaign
             if (profile == "save_roundtrip")
             {
                 checks.Add(new JObject { ["id"] = "save_payload_roundtrip",
-                    ["passed"] = ReignCampaignCommandBehavior.Instance.VerifySaveRoundTripForCertification() });
+                    ["passed"] = ReignServices.CampaignCommand.VerifySaveRoundTripForCertification() });
             }
 
             bool cancelled = true;
             if (order != null && !order.IsTerminal && !(profile == "save_roundtrip" && phase == "prepare"))
             {
-                ReignActionResult cancel = ReignCampaignCommandBehavior.Instance.ExecuteControlAction(
+                ReignActionResult cancel = ReignServices.CampaignCommand.ExecuteControlAction(
                     new ReignWorldActionRecord
                     {
                         Type = ReignWorldActionType.RegularCancelCampaignOrder,
@@ -1003,8 +1004,8 @@ namespace ReignBeta.WorldSimulation.Campaign
                             RequiresAcceptance = false,
                             Reason = "Disposable native capability certification."
                         };
-                        issued = ReignCampaignCommandBehavior.Instance.ExecuteControlAction(action);
-                        order = ReignCampaignCommandBehavior.Instance.Orders.FirstOrDefault(x => x.OrderId == actionId);
+                        issued = ReignServices.CampaignCommand.ExecuteControlAction(action);
+                        order = ReignServices.CampaignCommand.Orders.FirstOrDefault(x => x.OrderId == actionId);
                     }
                     bool nativeReceipt = issued?.Success == true && order != null
                         && (order.Status == "active" || order.Status == "completed")
@@ -1021,7 +1022,7 @@ namespace ReignBeta.WorldSimulation.Campaign
                     });
                     if (order != null && !order.IsTerminal)
                     {
-                        ReignCampaignCommandBehavior.Instance.ExecuteControlAction(new ReignWorldActionRecord
+                        ReignServices.CampaignCommand.ExecuteControlAction(new ReignWorldActionRecord
                         {
                             Type = ReignWorldActionType.RegularCancelCampaignOrder,
                             Source = "campaign_command_certification_cleanup",
@@ -1304,7 +1305,7 @@ namespace ReignBeta.WorldSimulation.Campaign
                     Settlement settlement = objective == "timed_hold" ? null : actorSettlement;
                     string actionId = "campaign_command_soak_" + runScope + "_p" + pass + "_s" + seed
                         + "_" + objective + "_" + index;
-                    ReignActionResult issued = ReignCampaignCommandBehavior.Instance.ExecuteControlAction(
+                    ReignActionResult issued = ReignServices.CampaignCommand.ExecuteControlAction(
                         new ReignWorldActionRecord
                         {
                             ActionId = actionId,
@@ -1318,7 +1319,7 @@ namespace ReignBeta.WorldSimulation.Campaign
                             RequiresAcceptance = false,
                             Reason = "Disposable simultaneous-order native soak."
                         });
-                    ReignCampaignOrderRecord order = ReignCampaignCommandBehavior.Instance.Orders
+                    ReignCampaignOrderRecord order = ReignServices.CampaignCommand.Orders
                         .FirstOrDefault(x => x.OrderId == actionId);
                     if (issued.Success && order != null && !order.IsTerminal
                         && !string.IsNullOrWhiteSpace(order.LastNativeSignature)) fixture.Orders.Add(order);
@@ -1340,7 +1341,7 @@ namespace ReignBeta.WorldSimulation.Campaign
                 fixture.Checks.Add(SoakCheck("party_loss_observed", fixture.LossCount == 1,
                     fixture.LossCount));
                 fixture.Checks.Add(SoakCheck("main_party_untouched",
-                    !ReignCampaignCommandBehavior.Instance.Orders.Any(x => x != null && !x.IsTerminal
+                    !ReignServices.CampaignCommand.Orders.Any(x => x != null && !x.IsTerminal
                         && string.Equals(x.CommanderHeroStringId, Hero.MainHero?.StringId,
                             StringComparison.OrdinalIgnoreCase))));
                 fixture.Prepared = fixture.Checks.OfType<JObject>().All(x => x.Value<bool>("passed"));
@@ -1371,7 +1372,7 @@ namespace ReignBeta.WorldSimulation.Campaign
             int cancellations = 0;
             foreach (ReignCampaignOrderRecord order in fixture.Orders.Where(x => x != null && !x.IsTerminal))
             {
-                ReignActionResult result = ReignCampaignCommandBehavior.Instance.ExecuteControlAction(
+                ReignActionResult result = ReignServices.CampaignCommand.ExecuteControlAction(
                     new ReignWorldActionRecord
                     {
                         Type = ReignWorldActionType.RegularCancelCampaignOrder,
@@ -1382,9 +1383,9 @@ namespace ReignBeta.WorldSimulation.Campaign
                     });
                 if (result.Success && order.IsTerminal) cancellations++;
             }
-            int duplicates = ReignCampaignCommandBehavior.Instance?.Orders
+            int duplicates = ReignServices.CampaignCommand?.Orders
                 .GroupBy(x => x.OrderId, StringComparer.OrdinalIgnoreCase).Count(x => x.Count() > 1) ?? 0;
-            int active = ReignCampaignCommandBehavior.Instance?.Orders.Count(x => x != null && !x.IsTerminal) ?? 0;
+            int active = ReignServices.CampaignCommand?.Orders.Count(x => x != null && !x.IsTerminal) ?? 0;
             bool terminal = fixture.Orders.All(x => x != null && x.IsTerminal);
             checks.Add(SoakCheck("cleanup_world_restored", worldRestored));
             checks.Add(SoakCheck("terminal_orders_bounded", terminal, cancellations));
@@ -1504,8 +1505,8 @@ namespace ReignBeta.WorldSimulation.Campaign
 
         private static JObject RunCampaignCommandEvaluation()
         {
-            int active = ReignCampaignCommandBehavior.Instance?.Orders.Count(x => x != null && !x.IsTerminal) ?? 0;
-            int duplicates = ReignCampaignCommandBehavior.Instance?.Orders.GroupBy(x => x.OrderId,
+            int active = ReignServices.CampaignCommand?.Orders.Count(x => x != null && !x.IsTerminal) ?? 0;
+            int duplicates = ReignServices.CampaignCommand?.Orders.GroupBy(x => x.OrderId,
                 StringComparer.OrdinalIgnoreCase).Count(x => x.Count() > 1) ?? 0;
             bool passed = duplicates == 0 && active < 100;
             return new JObject
@@ -1519,7 +1520,7 @@ namespace ReignBeta.WorldSimulation.Campaign
         private static JObject RunCampaignCommandCleanup()
         {
             int cancelled = 0;
-            foreach (ReignCampaignOrderRecord order in ReignCampaignCommandBehavior.Instance?.Orders
+            foreach (ReignCampaignOrderRecord order in ReignServices.CampaignCommand?.Orders
                 .Where(x => x != null && !x.IsTerminal).ToList() ?? new List<ReignCampaignOrderRecord>())
             {
                 ReignWorldActionRecord action = new ReignWorldActionRecord
@@ -1530,7 +1531,7 @@ namespace ReignBeta.WorldSimulation.Campaign
                     Reason = "Certification cleanup.",
                     TermsJson = new JObject { ["orderId"] = order.OrderId }.ToString(Formatting.None)
                 };
-                if (ReignCampaignCommandBehavior.Instance.ExecuteControlAction(action).Success) cancelled++;
+                if (ReignServices.CampaignCommand.ExecuteControlAction(action).Success) cancelled++;
             }
             TaleWorlds.CampaignSystem.Campaign campaign = TaleWorlds.CampaignSystem.Campaign.Current;
             Settlement current = MobileParty.MainParty?.CurrentSettlement;

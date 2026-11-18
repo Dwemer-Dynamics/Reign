@@ -13,6 +13,7 @@ using TaleWorlds.CampaignSystem.Settlements.Workshops;
 using TaleWorlds.Core;
 using ReignBeta.World;
 using ReignBeta.WorldSimulation.PartyAgency;
+using ReignBeta.Platform.Runtime;
 
 namespace ReignBeta.WorldSimulation.World
 {
@@ -282,7 +283,7 @@ namespace ReignBeta.WorldSimulation.World
                 }
 
                 int equippedNeeded = promised - available;
-                bool equipmentLocked = ReignTemporaryPartyGuestCampaignBehavior.Instance
+                bool equipmentLocked = ReignServices.TemporaryPartyGuest
                     ?.IsTemporaryGuestEquipmentLocked(from) == true;
                 bool hasEquipped = !equipmentLocked && equippedNeeded == 1 && group.Any(x => ReignObjectResolver.TryFindEquippedItem(
                     from,
@@ -695,7 +696,7 @@ namespace ReignBeta.WorldSimulation.World
             EquipmentElement valuedElement = EquipmentElement.Invalid;
             bool equipped = false;
             if (available < amount && amount == 1
-                && ReignTemporaryPartyGuestCampaignBehavior.Instance
+                && ReignServices.TemporaryPartyGuest
                     ?.IsTemporaryGuestEquipmentLocked(from) != true)
             {
                 equipped = ReignObjectResolver.TryFindEquippedItem(
@@ -756,7 +757,7 @@ namespace ReignBeta.WorldSimulation.World
                 EquipmentElement valuedElement = EquipmentElement.Invalid;
                 bool equipped = false;
                 if (available < amount && amount == 1
-                    && ReignTemporaryPartyGuestCampaignBehavior.Instance
+                    && ReignServices.TemporaryPartyGuest
                         ?.IsTemporaryGuestEquipmentLocked(from) != true)
                 {
                     equipped = ReignObjectResolver.TryFindEquippedItem(

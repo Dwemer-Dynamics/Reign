@@ -21,6 +21,7 @@ using ReignBeta.Portraits.UI;
 using ReignBeta.UI.ViewModels;
 using ReignBeta.WorldSimulation.Runtime;
 using ReignBeta.WorldSimulation.World;
+using ReignBeta.Platform.Runtime;
 
 namespace ReignBeta.WorldSimulation.UI
 {
@@ -486,7 +487,7 @@ namespace ReignBeta.WorldSimulation.UI
                 if (activeHeroes.Count == 0) { rejected.Error = "No social-event participants are active."; return false; }
                 if (actionDraft != null && !activeHeroes.Any(h => h.StringId == actionDraft.NpcId)) { rejected.Error = "Activate the character addressed by your action."; return false; }
                 try { ReignConversationInputJournal.Save(ReignServerClient.GetCampaignId(),
-                    ReignBeta.WorldSimulation.Campaign.ReignWorldHistoryCampaignBehavior.Instance?.TimelineId ?? "main", Hero.MainHero?.StringId ?? "",
+                    ReignServices.WorldHistory?.TimelineId ?? "main", Hero.MainHero?.StringId ?? "",
                     correlationId, text, session: _session.PersonalStory == null ? "social_event_" + _session.Record.EventId : ReignNpcStoryClient.StorySceneSessionId(_session)); }
                 catch (Exception ex) { rejected.Error = "Your message could not be saved locally: " + ex.Message; AddSystemLine(rejected.Error); return false; }
                 string playerName = Hero.MainHero?.Name?.ToString() ?? "Player";
@@ -643,7 +644,7 @@ namespace ReignBeta.WorldSimulation.UI
                     RefreshFromSession();
                     AddSystemLine(_session.CurrentPhase.SettingSummary);
                 }
-                else if (ReignBeta.Relationships.Campaign.ReignRelationshipCampaignBehavior.Instance?.ConcludeWedding(ActiveWeddingId, _session.CurrentPhaseIndex) == true)
+                else if (ReignServices.Relationship?.ConcludeWedding(ActiveWeddingId, _session.CurrentPhaseIndex) == true)
                     _closeScreen?.Invoke();
                 return;
             }
@@ -1018,7 +1019,7 @@ namespace ReignBeta.WorldSimulation.UI
                         }
                         AddNativeStatusLines(line.RawResponse);
                     }
-                    var current = ReignBeta.Characters.Campaign.ReignNpcLivesBehavior.Instance?.State.Stories.FirstOrDefault(s => s.Id == _session.PersonalStory.Id);
+                    var current = ReignServices.NpcLives?.State.Stories.FirstOrDefault(s => s.Id == _session.PersonalStory.Id);
                     if (current != null && current.Revision != _session.PersonalStory.Revision)
                         AddSystemLine("This chapter is complete. Your shared experience has been recorded.");
                 }).ConfigureAwait(false);

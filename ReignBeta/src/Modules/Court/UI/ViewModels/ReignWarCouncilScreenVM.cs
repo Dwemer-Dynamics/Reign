@@ -25,6 +25,7 @@ using ReignBeta.Platform.Integration;
 using ReignBeta.Portraits.UI;
 using ReignBeta.WorldSimulation.CampaignCommands;
 using ReignBeta.WorldSimulation.World;
+using ReignBeta.Platform.Runtime;
 
 namespace ReignBeta.Court.UI
 {
@@ -77,7 +78,7 @@ namespace ReignBeta.Court.UI
         private Kingdom StandingKingdom => _standingRealm;
         [DataSourceProperty] public bool CanChangeStanding => StandingKingdom?.Leader == Hero.MainHero
             && Hero.MainHero != null && Clan.PlayerClan?.Kingdom == _standingRealm
-            && ReignCourtCampaignBehavior.Instance?.HasRoyalCommandAccess == true;
+            && ReignServices.Court?.HasRoyalCommandAccess == true;
         [DataSourceProperty] public bool PeaceStandingSelected => StandingKingdom != null && ReignBeta.WorldSimulation.Economy.ReignMilitaryReadiness.EffectiveMode(StandingKingdom) == "peace";
         [DataSourceProperty] public bool WarStandingSelected => StandingKingdom != null && ReignBeta.WorldSimulation.Economy.ReignMilitaryReadiness.EffectiveMode(StandingKingdom) == "war";
         [DataSourceProperty] public bool PeaceStandingUnselected => !PeaceStandingSelected;
@@ -150,7 +151,7 @@ namespace ReignBeta.Court.UI
             TallPanelFrameImageId = ReignEventArtTextureFactory.BuildImageId("war_council", "panel_frame_tall");
             PanelFrameOverlayImageId = ReignEventArtTextureFactory.BuildImageId("war_council", "panel_frame_overlay");
             Zoom = (float)ReignWarCouncilRules.MinimumZoom;
-            ReignWarCouncilCampaignBehavior.Instance?.RefreshForeignPartyIntelligence(true);
+            ReignServices.WarCouncil?.RefreshForeignPartyIntelligence(true);
             RefreshAll();
             CenterMapOnWorld(
                 MobileParty.MainParty?.Position.X
@@ -384,7 +385,7 @@ namespace ReignBeta.Court.UI
         private void RefreshMarkersAndLords()
         {
             Kingdom playerKingdom = Clan.PlayerClan?.Kingdom;
-            ReignWarCouncilCampaignBehavior intelligence = ReignWarCouncilCampaignBehavior.Instance;
+            ReignWarCouncilCampaignBehavior intelligence = ReignServices.WarCouncil;
             intelligence?.RefreshForeignPartyIntelligence();
             List<MobileParty> parties = MobileParty.All.Where(x => x != null && x.IsActive
                     && x.LeaderHero != null && (x.IsMainParty || IsPlayerRealmParty(x, playerKingdom)
@@ -463,7 +464,7 @@ namespace ReignBeta.Court.UI
 
         private void RefreshCouncilor()
         {
-            ReignWarCouncilCampaignBehavior intelligence = ReignWarCouncilCampaignBehavior.Instance;
+            ReignWarCouncilCampaignBehavior intelligence = ReignServices.WarCouncil;
             string selectedId = intelligence?.SelectedCouncilorHeroId ?? string.Empty;
             Hero councilor = Hero.AllAliveHeroes.FirstOrDefault(x => x.StringId == selectedId);
             Hero effective = councilor ?? Hero.MainHero;
@@ -566,7 +567,7 @@ namespace ReignBeta.Court.UI
         private void RefreshReports()
         {
             Reports.Clear();
-            foreach (ReignWarCouncilBattleReport report in ReignWarCouncilCampaignBehavior.Instance?.RecentReports
+            foreach (ReignWarCouncilBattleReport report in ReignServices.WarCouncil?.RecentReports
                 ?? Enumerable.Empty<ReignWarCouncilBattleReport>()) Reports.Add(new ReignWarCouncilReportVM(report));
         }
 
@@ -660,7 +661,7 @@ namespace ReignBeta.Court.UI
                         ["minimumTroops"] = 40, ["minimumFoodDays"] = 3,
                         ["issuerHeroStringId"] = Hero.MainHero.StringId }.ToString()
                 };
-                ReignCampaignCommandBehavior.Instance?.ExecuteControlAction(order);
+                ReignServices.CampaignCommand?.ExecuteControlAction(order);
             }
             StatusText = hero.Name + " mobilized at " + spawn.Name + " with " + stake.ToString("N0") + " denars and began recruiting.";
             RefreshAll();
@@ -687,7 +688,7 @@ namespace ReignBeta.Court.UI
 
         public void ExecuteUsePlayerAsCouncilor()
         {
-            ReignWarCouncilCampaignBehavior.Instance?.UsePlayerSkills();
+            ReignServices.WarCouncil?.UsePlayerSkills();
             CouncilorDropdownOpen = false;
             RefreshCouncilor();
             RefreshMarkersAndLords();
@@ -705,7 +706,7 @@ namespace ReignBeta.Court.UI
         public bool UsePlayerSkillsForAutomation()
         {
             ExecuteUsePlayerAsCouncilor();
-            return string.IsNullOrWhiteSpace(ReignWarCouncilCampaignBehavior.Instance?.SelectedCouncilorHeroId);
+            return string.IsNullOrWhiteSpace(ReignServices.WarCouncil?.SelectedCouncilorHeroId);
         }
 
         public bool CenterOnSettlementForAutomation(string settlementId)
@@ -718,7 +719,7 @@ namespace ReignBeta.Court.UI
 
         internal bool AssignCouncilor(Hero hero)
         {
-            ReignWarCouncilCampaignBehavior intelligence = ReignWarCouncilCampaignBehavior.Instance;
+            ReignWarCouncilCampaignBehavior intelligence = ReignServices.WarCouncil;
             if (hero == null || intelligence == null || !intelligence.SelectCouncilor(hero.StringId))
             {
                 StatusText = "That lord is not currently available to serve as War Councilor.";
@@ -782,7 +783,7 @@ namespace ReignBeta.Court.UI
             PartyText = marker == null ? "No active party" : (marker.Infantry + marker.Missile + marker.Mounted).ToString("N0")
                 + " • I " + marker.Infantry + "  M " + marker.Missile + "  C " + marker.Mounted;
             CanMobilize = marker == null && _owner.CanOfferMobilization(Hero);
-            ReignCampaignOrderRecord active = ReignCampaignCommandBehavior.Instance?.ActiveOrderFor(HeroId);
+            ReignCampaignOrderRecord active = ReignServices.CampaignCommand?.ActiveOrderFor(HeroId);
             JObject terms = Parse(active?.TermsJson);
             bool warCouncil = active != null && string.Equals(terms.Value<string>("source"), "war_council", StringComparison.OrdinalIgnoreCase);
             HasWarCouncilOrder = active != null && warCouncil;

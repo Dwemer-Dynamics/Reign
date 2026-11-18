@@ -25,6 +25,7 @@ using ReignBeta.Platform.Campaign;
 using ReignBeta.Platform.Integration;
 using ReignBeta.Platform.Settings;
 using ReignBeta.WorldSimulation.World;
+using ReignBeta.Platform.Runtime;
 
 namespace ReignBeta.WorldSimulation.Campaign
 {
@@ -564,7 +565,7 @@ namespace ReignBeta.WorldSimulation.Campaign
                     PrepareLiveDialogueCaseWorldState(testCase);
                     vm.AddAutomationSystemLine("Live beta test: " + testCase.Label);
                 }).ConfigureAwait(false);
-                HashSet<string> beforeActionIds = await ReignMainThread.InvokeAsync(() => new HashSet<string>((ReignAICampaignBehavior.Instance?.Actions ?? new List<ReignWorldActionRecord>())
+                HashSet<string> beforeActionIds = await ReignMainThread.InvokeAsync(() => new HashSet<string>((ReignServices.AI?.Actions ?? new List<ReignWorldActionRecord>())
                     .Where(x => x != null && !string.IsNullOrWhiteSpace(x.ActionId))
                     .Select(x => x.ActionId))).ConfigureAwait(false);
                 ReignDialogueReply reply = await vm.SendAutomationLineAsync(testCase.PlayerText).ConfigureAwait(false);
@@ -581,7 +582,7 @@ namespace ReignBeta.WorldSimulation.Campaign
                     .Select(x => x.ActionId)
                     .Where(x => !string.IsNullOrWhiteSpace(x))
                     .ToList();
-                List<ReignWorldActionRecord> ledgerActions = await ReignMainThread.InvokeAsync(() => (ReignAICampaignBehavior.Instance?.Actions ?? new List<ReignWorldActionRecord>())
+                List<ReignWorldActionRecord> ledgerActions = await ReignMainThread.InvokeAsync(() => (ReignServices.AI?.Actions ?? new List<ReignWorldActionRecord>())
                     .Where(x => x != null && (queuedIds.Contains(x.ActionId) || !beforeActionIds.Contains(x.ActionId)))
                     .ToList()).ConfigureAwait(false);
                 result.LedgerStatuses = new JArray(ledgerActions.Select(x => x.Type + ":" + x.Status + (string.IsNullOrWhiteSpace(x.FailureReason) ? "" : ":" + x.FailureReason)));
@@ -593,7 +594,7 @@ namespace ReignBeta.WorldSimulation.Campaign
                 ReignWorldActionRecord expectedAction = ledgerActions.LastOrDefault(x => x != null && x.Type == testCase.ExpectedType);
                 ReignActionResult executionResult = expectedAction == null
                     ? null
-                    : await ReignMainThread.InvokeAsync(() => ReignAICampaignBehavior.Instance?.GetLastActionResult(expectedAction.ActionId)).ConfigureAwait(false);
+                    : await ReignMainThread.InvokeAsync(() => ReignServices.AI?.GetLastActionResult(expectedAction.ActionId)).ConfigureAwait(false);
                 result.VerifiedReceipt = ReignActionReceiptFormatter.BuildVerifiedReceipt(executionResult);
                 result.ExecutionEffects = executionResult?.Effects == null
                     ? new JArray()
@@ -1541,7 +1542,7 @@ namespace ReignBeta.WorldSimulation.Campaign
                     return;
                 }
 
-                ReignAICampaignBehavior behavior = ReignAICampaignBehavior.Instance;
+                ReignAICampaignBehavior behavior = ReignServices.AI;
                 if (behavior == null)
                 {
                     status = "failed";
@@ -2018,7 +2019,7 @@ namespace ReignBeta.WorldSimulation.Campaign
 
             EnsurePeace(actor, target, null);
             ReignWorldActionRecord seed = WorldAction(ReignWorldActionType.DiplomacyRecordPromise, c, "BreakTreatySeed", actor, target, null, null, null, null, null, null, new JObject { ["kind"] = "trade_agreement" });
-            ReignAICampaignBehavior.Instance?.RecordAgreementFromAction(seed, "trade_agreement", 30f, true);
+            ReignServices.AI?.RecordAgreementFromAction(seed, "trade_agreement", 30f, true);
             return DiplomacySpec(ReignWorldActionType.DiplomacyBreakTreaty, c, "BreakTreaty", actor, target, null, new JObject { ["agreementKind"] = "trade_agreement" });
         }
 
@@ -3267,7 +3268,7 @@ namespace ReignBeta.WorldSimulation.Campaign
 
         private static int CountActiveAgreements(ReignWorldActionRecord action)
         {
-            IReadOnlyList<ReignDiplomaticAgreementRecord> agreements = ReignAICampaignBehavior.Instance?.Agreements;
+            IReadOnlyList<ReignDiplomaticAgreementRecord> agreements = ReignServices.AI?.Agreements;
             if (agreements == null || action == null)
             {
                 return 0;
@@ -3761,7 +3762,7 @@ namespace ReignBeta.WorldSimulation.Campaign
 
         private static bool HasCampaign()
         {
-            return TaleWorlds.CampaignSystem.Campaign.Current != null && Hero.MainHero != null && Clan.PlayerClan != null && MobileParty.MainParty != null && ReignAICampaignBehavior.Instance != null;
+            return TaleWorlds.CampaignSystem.Campaign.Current != null && Hero.MainHero != null && Clan.PlayerClan != null && MobileParty.MainParty != null && ReignServices.AI != null;
         }
 
         private static bool RequireCampaign()
@@ -3772,7 +3773,7 @@ namespace ReignBeta.WorldSimulation.Campaign
                 return false;
             }
 
-            if (ReignAICampaignBehavior.Instance == null)
+            if (ReignServices.AI == null)
             {
                 Show("Bannerlord Reign behavior is not active.");
                 return false;

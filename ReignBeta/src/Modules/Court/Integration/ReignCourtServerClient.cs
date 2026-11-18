@@ -22,6 +22,7 @@ using ReignBeta.Persistence.Integration;
 using ReignBeta.Platform.Integration;
 using ReignBeta.WorldSimulation.Campaign;
 using ReignBeta.WorldSimulation.World;
+using ReignBeta.Platform.Runtime;
 
 namespace ReignBeta.Court.Integration
 {
@@ -44,7 +45,7 @@ namespace ReignBeta.Court.Integration
             payload["sessionId"] = session?.SessionId ?? string.Empty;
             payload["authority"] = (session?.Authority ?? ReignCourtAuthority.Royal).ToString().ToLowerInvariant();
             payload["scope"] = (session?.Scope ?? ReignCourtScope.Local).ToString().ToLowerInvariant();
-            payload["capitalSettlementStringId"] = ReignCourtCampaignBehavior.Instance?.CurrentCapital?.StringId ?? string.Empty;
+            payload["capitalSettlementStringId"] = ReignServices.Court?.CurrentCapital?.StringId ?? string.Empty;
             payload["playerIsKingdomRuler"] = ReignCourtCampaignBehavior.IsPlayerKingdomRuler();
             payload["hostSettlementStringId"] = session?.HostSettlementStringId ?? string.Empty;
             payload["lastAgendaDay"] = session?.LastAgendaDay ?? -1;
@@ -288,7 +289,7 @@ namespace ReignBeta.Court.Integration
             payload["capitalSettlementStringId"] = capital?.StringId ?? string.Empty;
             payload["capitalSettlementName"] = capital?.Name?.ToString() ?? string.Empty;
             payload["candidates"] = candidates ?? new JArray();
-            payload["originGovernment"] = ReignGovernmentCampaignBehavior.Instance?.BuildPublicSnapshot(origin)
+            payload["originGovernment"] = ReignServices.Government?.BuildPublicSnapshot(origin)
                 ?? new JObject { ["available"] = false, ["authoritative"] = true };
             return PostAsync("/court/foreign-ambassadors/establish", payload);
         }
@@ -328,7 +329,7 @@ namespace ReignBeta.Court.Integration
             payload["originRulerName"] = ruler?.Name?.ToString() ?? string.Empty;
             payload["charm"] = posting?.Charm ?? 0;
             payload["rulerTrust"] = posting?.RulerTrust ?? 0;
-            payload["originGovernment"] = ReignGovernmentCampaignBehavior.Instance?.BuildPublicSnapshot(ruler?.Clan?.Kingdom)
+            payload["originGovernment"] = ReignServices.Government?.BuildPublicSnapshot(ruler?.Clan?.Kingdom)
                 ?? new JObject { ["available"] = false, ["authoritative"] = true };
             return PostAsync("/court/foreign-ambassadors/authority", payload);
         }
@@ -489,7 +490,7 @@ namespace ReignBeta.Court.Integration
             return new JObject
             {
                 ["campaignId"] = ReignCampaignIdentity.CurrentCampaignId(),
-                ["timelineId"] = ReignWorldHistoryCampaignBehavior.Instance?.TimelineId ?? "main",
+                ["timelineId"] = ReignServices.WorldHistory?.TimelineId ?? "main",
                 ["commandId"] = commandId ?? string.Empty,
                 ["expectedRevision"] = expectedRevision,
                 ["worldDay"] = CampaignTime.Now.ToDays,
@@ -497,10 +498,10 @@ namespace ReignBeta.Court.Integration
                 ["playerClanStringId"] = Clan.PlayerClan?.StringId ?? string.Empty,
                 ["playerKingdomStringId"] = Clan.PlayerClan?.Kingdom?.StringId ?? string.Empty,
                 ["playerIsKingdomRuler"] = ReignCourtCampaignBehavior.IsPlayerKingdomRuler()
-                , ["sessionId"] = ReignCourtCampaignBehavior.Instance?.Session?.SessionId ?? string.Empty
-                , ["courtScope"] = (ReignCourtCampaignBehavior.Instance?.Session?.Scope ?? ReignCourtScope.Local).ToString().ToLowerInvariant()
-                , ["hostSettlementStringId"] = ReignCourtCampaignBehavior.Instance?.Session?.HostSettlementStringId ?? string.Empty
-                , ["capitalSettlementStringId"] = ReignCourtCampaignBehavior.Instance?.CurrentCapital?.StringId ?? string.Empty
+                , ["sessionId"] = ReignServices.Court?.Session?.SessionId ?? string.Empty
+                , ["courtScope"] = (ReignServices.Court?.Session?.Scope ?? ReignCourtScope.Local).ToString().ToLowerInvariant()
+                , ["hostSettlementStringId"] = ReignServices.Court?.Session?.HostSettlementStringId ?? string.Empty
+                , ["capitalSettlementStringId"] = ReignServices.Court?.CurrentCapital?.StringId ?? string.Empty
             };
         }
 

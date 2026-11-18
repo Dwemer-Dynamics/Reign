@@ -25,6 +25,7 @@ using ReignBeta.WorldSimulation.CampaignCommands;
 using ReignBeta.WorldSimulation.Domain;
 using ReignBeta.WorldSimulation.PartyAgency;
 using ReignBeta.WorldSimulation.Rulers;
+using ReignBeta.Platform.Runtime;
 
 namespace ReignBeta.WorldSimulation.World
 {
@@ -62,7 +63,7 @@ namespace ReignBeta.WorldSimulation.World
             var rulerTarget = ReignObjectResolver.FindHero(ReadStringTerm(action.TermsJson, "prisonerHeroStringId", action.TargetHeroStringId));
             if (action.Type == ReignWorldActionType.RegularKillCharacter
                 && (ReignRulerCampaignBehavior.BlocksRelease(rulerTarget)
-                    || ReignRulerCampaignBehavior.Instance?.AwaitsDecision(rulerTarget) == true))
+                    || ReignServices.Ruler?.AwaitsDecision(rulerTarget) == true))
             { reason = "This captured ruler awaits sovereign judgment. Use the captivity judgment to choose their fate; execution takes eight days."; return false; }
             if ((action.Type.ToString().IndexOf("Peace", StringComparison.OrdinalIgnoreCase) >= 0
                 || action.Type == ReignWorldActionType.PoliticsResolveCivilWar || action.Type == ReignWorldActionType.PoliticsSurrenderRebellion)
@@ -103,7 +104,7 @@ namespace ReignBeta.WorldSimulation.World
             }
 
             bool structured = IsStructuredAction(action);
-            if (structured && !proposal && ReignBeta.WorldSimulation.Actions.ReignAgreementBehavior.Instance?.Authorizes(action) != true)
+            if (structured && !proposal && ReignServices.Agreement?.Authorizes(action) != true)
             {
                 reason = "This action does not match an authorized saved agreement step.";
                 return false;
@@ -234,7 +235,7 @@ namespace ReignBeta.WorldSimulation.World
             {
                 string movementId = ReadStringTerm(action.TermsJson, "movementId", string.Empty);
                 string rebelKingdomId = ReadStringTerm(action.TermsJson, "rebelKingdomId", string.Empty);
-                ReignRebellionMovementRecord movement = ReignRebellionCampaignBehavior.Instance?.Movements
+                ReignRebellionMovementRecord movement = ReignServices.Rebellion?.Movements
                     .FirstOrDefault(x => x != null && string.Equals(x.MovementId, movementId, StringComparison.OrdinalIgnoreCase));
                 if (movement == null || movement.ResolutionApplied
                     || !string.Equals(movement.Stage, "civil_war", StringComparison.OrdinalIgnoreCase))
@@ -265,7 +266,7 @@ namespace ReignBeta.WorldSimulation.World
                 }
             }
 
-            if (ReignRebellionCampaignBehavior.Instance?.IsCivilWarPair(actor, target) == true
+            if (ReignServices.Rebellion?.IsCivilWarPair(actor, target) == true
                 && (IsPeaceDemand(action.Type) || action.Type == ReignWorldActionType.DiplomacyMakePeace
                     || (action.Type == ReignWorldActionType.DiplomacyPackage && ReadBoolTerm(action.TermsJson, "makePeace", false))))
             {
@@ -549,7 +550,7 @@ namespace ReignBeta.WorldSimulation.World
                     || terms.Value<string>("toHeroStringId") != action.TargetHeroStringId
                     || grant.Value<string>("schema") != ReignBeta.Shared.Dialogue.PlayerActionRules.Schema
                     || grant.Value<string>("campaignId") != ReignBeta.Characters.Integration.ReignCampaignIdentity.CurrentCampaignId()
-                    || grant.Value<string>("timelineId") != (ReignBeta.WorldSimulation.Campaign.ReignWorldHistoryCampaignBehavior.Instance?.TimelineId ?? "main")
+                    || grant.Value<string>("timelineId") != (ReignServices.WorldHistory?.TimelineId ?? "main")
                     || grant.Value<string>("turnId") != action.NegotiationId
                     || action.TermsHash != ReignNegotiationTermsHasher.Compute(action.NegotiatedCommand, action.TermsJson)) return false;
                 int slot = grant.Value<int?>("slot") ?? -1;
@@ -668,7 +669,7 @@ namespace ReignBeta.WorldSimulation.World
 
         // Operator execution is a saved, exact command. It never fabricates either participant's consent.
         internal static bool HasOperatorAuthorization(ReignWorldActionRecord action) => action?.Source == "reign_console"
-            && action.AuthorizationMode == "operator" && ReignBeta.WorldSimulation.Actions.ReignAgreementBehavior.Instance?.Authorizes(action) == true;
+            && action.AuthorizationMode == "operator" && ReignServices.Agreement?.Authorizes(action) == true;
 
         internal static bool IsDialogueActionSource(string source)
         {
@@ -780,7 +781,7 @@ namespace ReignBeta.WorldSimulation.World
 
             if (action.NegotiatedCommand == "pledge_rebellion_support")
             {
-                reason = ReignRebellionCampaignBehavior.Instance?.StructuredPledgePreflightFailure(
+                reason = ReignServices.Rebellion?.StructuredPledgePreflightFailure(
                     ReignObjectResolver.FindHero(action.ActorHeroStringId), ReignObjectResolver.FindHero(action.TargetHeroStringId),
                     action.ActorKingdomStringId, ReadStringTerm(action.TermsJson, "challengedRulerId", ""))
                     ?? "Rebellion campaign behavior is unavailable.";
@@ -791,7 +792,7 @@ namespace ReignBeta.WorldSimulation.World
             {
                 Hero member = ReignObjectResolver.FindHero(action.ActorHeroStringId);
                 Hero ruler = ReignObjectResolver.FindHero(action.TargetHeroStringId);
-                ReignGovernmentCampaignBehavior government = ReignGovernmentCampaignBehavior.Instance;
+                ReignGovernmentCampaignBehavior government = ReignServices.Government;
                 ReignGovernmentStateRecord state = government?.GetGovernment(kingdom);
                 bool belongsToRealm = member?.Clan?.Kingdom == kingdom
                     || government?.GetSeats(kingdom?.StringId).Any(x => string.Equals(
@@ -863,7 +864,7 @@ namespace ReignBeta.WorldSimulation.World
             {
                 Kingdom counterpart = ReignObjectResolver.FindKingdom(action.TargetKingdomStringId);
                 string politicalResult = ReadStringTerm(action.TermsJson, "politicalResult", string.Empty);
-                if (!IsLiveKingdom(kingdom) || !IsLiveKingdom(counterpart) || ReignRebellionCampaignBehavior.Instance?.IsCivilWarPair(kingdom, counterpart) != true)
+                if (!IsLiveKingdom(kingdom) || !IsLiveKingdom(counterpart) || ReignServices.Rebellion?.IsCivilWarPair(kingdom, counterpart) != true)
                 {
                     reason = "Negotiated resolution requires both active sides of a Reign civil war.";
                     return false;
@@ -903,8 +904,7 @@ namespace ReignBeta.WorldSimulation.World
                     string parentKingdomId = ReadStringTerm(action.TermsJson,
                         "parentKingdomId", string.Empty);
                     string recognitionReason = string.Empty;
-                    bool recognitionContextValid = ReignRebellionCampaignBehavior
-                        .Instance?.ValidateRecognizedIndependenceContext(
+                    bool recognitionContextValid = ReignServices.Rebellion?.ValidateRecognizedIndependenceContext(
                             movementId, kingdom, counterpart, actorRuler,
                             targetRuler, out recognitionReason) == true;
                     if (string.IsNullOrWhiteSpace(movementId)
@@ -1017,7 +1017,7 @@ namespace ReignBeta.WorldSimulation.World
                     reason = "A declaration of rebellion is unilateral and must be queued as an immediate action.";
                     return false;
                 }
-                reason = ReignRebellionCampaignBehavior.Instance?.DeclarationPreflightFailure(kingdom, claimant, addressedRuler)
+                reason = ReignServices.Rebellion?.DeclarationPreflightFailure(kingdom, claimant, addressedRuler)
                     ?? "Rebellion campaign behavior is unavailable.";
                 if (reason.Length > 0) return false;
             }
@@ -1056,9 +1056,9 @@ namespace ReignBeta.WorldSimulation.World
         {
             if (action.Type == ReignWorldActionType.RegularCreateClanAccord || action.Type == ReignWorldActionType.RegularCancelClanAccord)
             {
-                if (ReignBeta.Diplomacy.ClanAccords.ReignClanAccordsCampaignBehavior.Instance == null)
+                if (ReignServices.ClanAccords == null)
                 { reason = "The Clan Accords service is unavailable."; return false; }
-                return ReignBeta.Diplomacy.ClanAccords.ReignClanAccordsCampaignBehavior.Instance.ValidateAction(action, out reason, proposal);
+                return ReignServices.ClanAccords.ValidateAction(action, out reason, proposal);
             }
             Hero actorHero = ReignObjectResolver.FindHero(action.ActorHeroStringId);
             Hero targetHero = ReignObjectResolver.FindHero(action.TargetHeroStringId);
@@ -1089,20 +1089,20 @@ namespace ReignBeta.WorldSimulation.World
 
             if (IsTemporaryPartyGuestAction(action.Type))
             {
-                if (ReignTemporaryPartyGuestCampaignBehavior.Instance == null)
+                if (ReignServices.TemporaryPartyGuest == null)
                 {
                     reason = "The temporary noble guest service is unavailable.";
                     return false;
                 }
-                return ReignTemporaryPartyGuestCampaignBehavior.Instance.ValidateAction(action, actorHero, out reason, proposal);
+                return ReignServices.TemporaryPartyGuest.ValidateAction(action, actorHero, out reason, proposal);
             }
 
             if (action.Type == ReignWorldActionType.RegularRecruitEncounteredResident
                 || action.Type == ReignWorldActionType.RegularReleaseResidentFromDuty)
             {
-                if (ReignBeta.Characters.Campaign.ReignEncounteredResidentsCampaignBehavior.Instance == null)
+                if (ReignServices.EncounteredResidents == null)
                 { reason = "The encountered resident service is unavailable."; return false; }
-                return ReignBeta.Characters.Campaign.ReignEncounteredResidentsCampaignBehavior.Instance.ValidateResidentAction(action, out reason, proposal);
+                return ReignServices.EncounteredResidents.ValidateResidentAction(action, out reason, proposal);
             }
 
             if (IsArrestAction(action.Type))
@@ -1286,9 +1286,9 @@ namespace ReignBeta.WorldSimulation.World
                     return false;
                 }
 
-                if (ReignGoldTransferService.Instance == null)
+                if (ReignServices.GoldTransferService == null)
                 { reason = "The payment service is unavailable."; return false; }
-                if (!ReignGoldTransferService.Instance.Validate(action, actorHero, Hero.MainHero, amount, out reason))
+                if (!ReignServices.GoldTransferService.Validate(action, actorHero, Hero.MainHero, amount, out reason))
                 {
                     reason = "Actor hero cannot afford the gold transfer.";
                     return false;
@@ -1306,16 +1306,16 @@ namespace ReignBeta.WorldSimulation.World
                     return false;
                 }
 
-                if (ReignGoldTransferService.Instance == null)
+                if (ReignServices.GoldTransferService == null)
                 { reason = "The payment service is unavailable."; return false; }
-                if (!ReignGoldTransferService.Instance.Validate(action, from, to, amount, out reason)) return false;
+                if (!ReignServices.GoldTransferService.Validate(action, from, to, amount, out reason)) return false;
             }
 
             if (action.Type == ReignWorldActionType.RegularTransferItem)
             {
-                if (ReignPersonalItemService.Instance == null)
+                if (ReignServices.PersonalItemService == null)
                 { reason = "The personal item service is unavailable."; return false; }
-                if (!ReignPersonalItemService.Instance.Validate(action, actorHero, targetHero, out reason)) return false;
+                if (!ReignServices.PersonalItemService.Validate(action, actorHero, targetHero, out reason)) return false;
             }
 
             if (action.Type == ReignWorldActionType.RegularTransferWorkshop)
@@ -1444,7 +1444,7 @@ namespace ReignBeta.WorldSimulation.World
                         return false;
                     }
 
-                    if (hero.Clan?.Leader == hero && ReignRulerCampaignBehavior.Instance?.CanRecruitFugitiveMember(hero, targetClan) != true)
+                    if (hero.Clan?.Leader == hero && ReignServices.Ruler?.CanRecruitFugitiveMember(hero, targetClan) != true)
                     {
                         reason = "A clan leader cannot join another clan until native leadership succession is resolved.";
                         return false;
@@ -1456,7 +1456,7 @@ namespace ReignBeta.WorldSimulation.World
                         return false;
                     }
 
-                    var residents = ReignEncounteredResidentsCampaignBehavior.Instance;
+                    var residents = ReignServices.EncounteredResidents;
                     if (residents?.UsesCompanionMembership(hero, targetClan) == true
                         && !residents.ValidateCompanionMembership(hero, out reason)) return false;
 

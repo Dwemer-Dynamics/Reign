@@ -11,6 +11,7 @@ using ReignBeta.Court.Campaign;
 using ReignBeta.Court.UI;
 using ReignBeta.Dialogue.Integration;
 using ReignBeta.Platform.Integration;
+using ReignBeta.Platform.Runtime;
 
 namespace ReignBeta.WorldSimulation.Campaign
 {
@@ -26,7 +27,7 @@ namespace ReignBeta.WorldSimulation.Campaign
             IList<Hero> resolvedHeroes)
         {
             ReignCourtCampaignBehavior court =
-                ReignCourtCampaignBehavior.Instance;
+                ReignServices.Court;
             if (court == null)
                 return "The production court controller is unavailable.";
             bool createTestEvent =
@@ -139,7 +140,7 @@ namespace ReignBeta.WorldSimulation.Campaign
             string correlation)
         {
             ReignCourtCampaignBehavior court =
-                ReignCourtCampaignBehavior.Instance;
+                ReignServices.Court;
             if (court == null)
                 return LiveCommandResult.Failed(
                     "The production court controller is unavailable.");
@@ -173,7 +174,7 @@ namespace ReignBeta.WorldSimulation.Campaign
         private static void EndCourtAudience()
         {
             ReignCourtCampaignBehavior court =
-                ReignCourtCampaignBehavior.Instance;
+                ReignServices.Court;
             court?.EndAudience(_courtMatter);
             if (_courtMatterIsDisposable)
                 court?.RemoveLiveTestMatter(_courtMatter);
@@ -184,7 +185,7 @@ namespace ReignBeta.WorldSimulation.Campaign
         private static void ResetCourtSession()
         {
             ReignCourtCampaignBehavior court =
-                ReignCourtCampaignBehavior.Instance;
+                ReignServices.Court;
             if (_courtMatterIsDisposable && _courtMatter != null)
                 court?.RemoveLiveTestMatter(_courtMatter);
             if (_courtSessionWasOpenedForTest)

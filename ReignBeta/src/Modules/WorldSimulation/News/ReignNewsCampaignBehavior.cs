@@ -23,12 +23,13 @@ using ReignBeta.Rebellion.Campaign;
 using ReignBeta.Relationships.UI;
 using ReignBeta.WorldSimulation.Campaign;
 using ReignBeta.WorldSimulation.UI;
+using ReignBeta.Platform.Runtime;
 
 namespace ReignBeta.WorldSimulation.News
 {
     public sealed partial class ReignNewsCampaignBehavior : CampaignBehaviorBase
     {
-        public static ReignNewsCampaignBehavior Instance { get; private set; }
+        public static ReignNewsCampaignBehavior Instance => ReignServices.News;
         private ReignNewsState _state = new ReignNewsState();
         private List<string> _chunks = new List<string>();
         private string _activeId = "";
@@ -38,7 +39,7 @@ namespace ReignBeta.WorldSimulation.News
 
         public override void RegisterEvents()
         {
-            Instance = this;
+            ReignServices.News = this;
             CampaignEvents.HeroPrisonerTaken.AddNonSerializedListener(this, OnCaptured);
             CampaignEvents.HeroPrisonerReleased.AddNonSerializedListener(this, OnReleased);
             CampaignEvents.HeroKilledEvent.AddNonSerializedListener(this, OnKilled);
@@ -99,7 +100,7 @@ namespace ReignBeta.WorldSimulation.News
         }
         private void FlushPublicHistory()
         {
-            var history = ReignWorldHistoryCampaignBehavior.Instance;
+            var history = ReignServices.WorldHistory;
             if (history?.TimelineReady != true || _state.HistoryOutbox.Count == 0 || _historyRetryDelay > 0) return;
             foreach (var article in _state.HistoryOutbox.ToList())
             {
@@ -170,7 +171,7 @@ namespace ReignBeta.WorldSimulation.News
         private void OnCaptured(PartyBase captor, Hero prisoner)
         {
             if (prisoner == null) return;
-            var movement = ReignRebellionCampaignBehavior.Instance?.FindActiveMovementForHero(prisoner);
+            var movement = ReignServices.Rebellion?.FindActiveMovementForHero(prisoner);
             bool rebellionLeader = string.Equals(movement?.LeaderHeroStringId, prisoner.StringId, StringComparison.Ordinal);
             Capture(prisoner, captor, rebellionLeader);
         }

@@ -36,7 +36,7 @@ namespace ReignBeta.WorldSimulation.Campaign
 
         public CampaignBehaviorBase CreateSocialBalanceHarnessBehavior() => new ReignSocialBalanceHarnessCampaignBehavior();
         public void RecordSocialBalanceOverride(string kind, JObject evidence) =>
-            ReignSocialBalanceHarnessCampaignBehavior.Instance?.RecordOverride(kind, evidence);
+            ReignServices.SocialBalanceHarness?.RecordOverride(kind, evidence);
 
         public bool HoldNpcLivesAnnouncementDelivery(ReignNpcLivesBehavior lives, JObject row) =>
             ReignNpcLivesTestControls.HoldAnnouncementDeliveryForNativeTest(lives, row);

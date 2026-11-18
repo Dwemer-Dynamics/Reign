@@ -10,6 +10,7 @@ using ReignBeta.Dialogue.Integration;
 using ReignBeta.Platform.Settings;
 using ReignBeta.WorldSimulation.Runtime;
 using ReignBeta.WorldSimulation.World;
+using ReignBeta.Platform.Runtime;
 
 namespace ReignBeta.Platform.Integration
 {
@@ -50,7 +51,7 @@ namespace ReignBeta.Platform.Integration
                         .Take(ReignSocialEventSession.MaxActiveParticipants)
                         .ToList();
                     attendees = session.Record.GetAttendees().ToList();
-                    relationBehavior = ReignBeta.Relationships.Campaign.ReignRelationshipCampaignBehavior.Instance;
+                    relationBehavior = ReignServices.Relationship;
                     playerIsFemale = Hero.MainHero?.IsFemale ?? false;
                     return speakers.Count == 0 ? null : BuildSocialEventPayload(session, null, playerText);
                 }).ConfigureAwait(false);
@@ -208,7 +209,7 @@ namespace ReignBeta.Platform.Integration
                         // the original load and a still-current owner.
                         bool applied = await ReignMainThread.InvokeAsync(() =>
                         {
-                            if (relationBehavior == null || !ReferenceEquals(relationBehavior, ReignBeta.Relationships.Campaign.ReignRelationshipCampaignBehavior.Instance)
+                            if (relationBehavior == null || !ReferenceEquals(relationBehavior, ReignServices.Relationship)
                                 || !fence.IsCurrent())
                                 throw new InvalidOperationException("The campaign changed before the social relationship effect could be applied.");
                             EnsureRequestOwner(requestOwner, "social relationship effect");

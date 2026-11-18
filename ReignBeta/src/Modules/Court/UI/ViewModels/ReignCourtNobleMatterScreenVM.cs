@@ -20,6 +20,7 @@ using ReignBeta.Platform.Integration;
 using ReignBeta.Portraits.UI;
 using ReignBeta.UI.ViewModels;
 using ReignBeta.WorldSimulation.UI;
+using ReignBeta.Platform.Runtime;
 
 namespace ReignBeta.Court.UI
 {
@@ -262,7 +263,7 @@ namespace ReignBeta.Court.UI
             if (!CanSend || string.IsNullOrWhiteSpace(text)) return;
             string contribution = "noble_input_" + Guid.NewGuid().ToString("N");
             try { ReignBeta.Dialogue.Runtime.ReignConversationInputJournal.Save(ReignServerClient.GetCampaignId(),
-                ReignBeta.WorldSimulation.Campaign.ReignWorldHistoryCampaignBehavior.Instance?.TimelineId ?? "main", Hero.MainHero?.StringId ?? "", contribution, text); }
+                ReignServices.WorldHistory?.TimelineId ?? "main", Hero.MainHero?.StringId ?? "", contribution, text); }
             catch (Exception ex) { StatusText = "Your message could not be saved locally: " + ex.Message; return; }
             var action = Composer.State.Draft == null ? null : ReignBeta.Actions.ReignActionService.Copy(Composer.State.Draft);
             InputText = string.Empty;

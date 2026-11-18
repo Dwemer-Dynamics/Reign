@@ -8,6 +8,7 @@ using ReignBeta.World;
 using TaleWorlds.CampaignSystem;
 using ReignBeta.Platform.Integration;
 using ReignBeta.Rebellion.Campaign;
+using ReignBeta.Platform.Runtime;
 
 namespace ReignBeta.WorldSimulation.Campaign
 {
@@ -37,7 +38,7 @@ namespace ReignBeta.WorldSimulation.Campaign
 
         private static JObject BuildRebellionPreparationTestSnapshot(string profile, JObject command)
         {
-            ReignRebellionCampaignBehavior behavior = ReignRebellionCampaignBehavior.Instance;
+            ReignRebellionCampaignBehavior behavior = ReignServices.Rebellion;
             if (behavior == null)
                 return new JObject
                 {

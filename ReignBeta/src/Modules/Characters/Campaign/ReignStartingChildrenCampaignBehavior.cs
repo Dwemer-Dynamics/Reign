@@ -11,6 +11,7 @@ using TaleWorlds.CampaignSystem.Settlements;
 using TaleWorlds.Core;
 using ReignBeta.Persistence.Save;
 using ReignBeta.Platform.Integration;
+using ReignBeta.Platform.Runtime;
 
 namespace ReignBeta.Characters.Campaign
 {
@@ -19,11 +20,11 @@ namespace ReignBeta.Characters.Campaign
         private StartingChildrenState _state = new StartingChildrenState();
         private bool _loadedSave;
         private string _reportPath;
-        internal static ReignStartingChildrenCampaignBehavior Instance { get; private set; }
+        internal static ReignStartingChildrenCampaignBehavior Instance => ReignServices.StartingChildren;
 
         public override void RegisterEvents()
         {
-            Instance = this;
+            ReignServices.StartingChildren = this;
             // Registered AFTER court households: their migration, faces and homes are ready first.
             CampaignEvents.OnNewGameCreatedPartialFollowUpEndEvent.AddNonSerializedListener(this, OnNewGame);
         }

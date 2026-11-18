@@ -8,6 +8,7 @@ using static ReignBeta.Platform.Integration.ReignServerClient;
 using ReignBeta.Characters.Campaign;
 using ReignBeta.Platform.Integration;
 using ReignBeta.WorldSimulation.Runtime;
+using ReignBeta.Platform.Runtime;
 
 namespace ReignBeta.Characters.Integration
 {
@@ -20,7 +21,7 @@ namespace ReignBeta.Characters.Integration
             var story = session.PersonalStory;
             Hero hero = await ReignMainThread.InvokeAsync(() => WorldSimulation.World.ReignObjectResolver.FindHero(story.HeroId)).ConfigureAwait(false);
             JObject context = await ReignMainThread.InvokeAsync(() => {
-                var p = ReignNpcLivesClient.CaptureNpcLivesContext(ReignNpcLivesBehavior.Instance?.Generation ?? "");
+                var p = ReignNpcLivesClient.CaptureNpcLivesContext(ReignServices.NpcLives?.Generation ?? "");
                 p["sessionId"] = StorySceneSessionId(session); p["heroId"] = story.HeroId;
                 p["npcStoryId"] = story.Id; p["npcLivesRevision"] = story.Revision;
                 p["conversationMode"] = "npc_story"; p["suppressRelationshipAssessment"] = true;
@@ -38,7 +39,7 @@ namespace ReignBeta.Characters.Integration
         {
             await session.PersonalStoryReady.ConfigureAwait(false);
             var story = session.PersonalStory;
-            var owner = await ReignMainThread.InvokeAsync(() => ReignNpcLivesBehavior.Instance).ConfigureAwait(false);
+            var owner = await ReignMainThread.InvokeAsync(() => ReignServices.NpcLives).ConfigureAwait(false);
             await owner.RefreshLifeSnapshotAsync().ConfigureAwait(false);
             Hero hero = await ReignMainThread.InvokeAsync(() => {
                 EnsureRequestOwner(requestOwner, "story turn capture");

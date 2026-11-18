@@ -10,6 +10,7 @@ using TaleWorlds.Core;
 using TaleWorlds.ObjectSystem;
 using ReignBeta.Actions;
 using ReignBeta.WorldSimulation.World;
+using ReignBeta.Platform.Runtime;
 
 namespace ReignBeta.WorldSimulation.Actions
 {
@@ -73,7 +74,7 @@ namespace ReignBeta.WorldSimulation.Actions
                 case "government.transfer_mandate":
                 case "government.support_nomination":
                     source = "political_service_reference_v2";
-                    unit = ReignBeta.Government.Campaign.ReignGovernmentCampaignBehavior.Instance?.PetitionServiceReference(actor, c)
+                    unit = ReignServices.Government?.PetitionServiceReference(actor, c)
                         ?? PoliticalServiceReference(actor, c.ActionId); break;
                 default: throw new InvalidOperationException("This service has no native asset appraisal.");
             }

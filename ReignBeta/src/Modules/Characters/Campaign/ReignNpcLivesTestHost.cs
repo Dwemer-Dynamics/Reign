@@ -21,6 +21,7 @@ using ReignBeta.Persistence.Campaign;
 using ReignBeta.Platform.Integration;
 using ReignBeta.WorldSimulation.Actions;
 using ReignBeta.WorldSimulation.World;
+using ReignBeta.Platform.Runtime;
 
 namespace ReignBeta.WorldSimulation.Campaign
 {
@@ -65,12 +66,12 @@ namespace ReignBeta.WorldSimulation.Campaign
                         || expected != ActiveSaveName() || command.Value<string>("gameInstanceId") != _gameInstanceId
                         || command.Value<string>("campaignId") != ReignCampaignIdentity.CurrentCampaignId()
                         || enrollment.Value<string>("campaignId") != ReignCampaignIdentity.CurrentCampaignId()
-                        || enrollment.Value<string>("timelineId") != (ReignWorldHistoryCampaignBehavior.Instance?.TimelineId ?? "main")
+                        || enrollment.Value<string>("timelineId") != (ReignServices.WorldHistory?.TimelineId ?? "main")
                         || TaleWorlds.CampaignSystem.Campaign.Current.TimeControlMode != CampaignTimeControlMode.Stop || ReignSaveSyncCampaignBehavior.IsNativeSaveInProgress)
                         throw new InvalidOperationException("NPC Lives requires the exact enrolled paused Current, timeline, game instance and retained recovery checkpoint.");
                     _activeRunId = command.Value<string>("runId"); _activeMode = "npc_lives";
                 }).ConfigureAwait(false);
-                var owner = ReignNpcLivesBehavior.Instance ?? throw new InvalidOperationException("NPC Lives is not initialized.");
+                var owner = ReignServices.NpcLives ?? throw new InvalidOperationException("NPC Lives is not initialized.");
                 await owner.RefreshLifeSnapshotAsync().ConfigureAwait(false);
                 if (c.Value<string>("phase") == "announcement_transport")
                     return await ReignMainThread.InvokeAsync(() => LiveCommandResult.Completed(
@@ -126,7 +127,7 @@ namespace ReignBeta.WorldSimulation.Campaign
                 var leave = lives.State.Leaves.FirstOrDefault(l => l.Id == matterId && l.HeroId == heroId
                     && l.Status == "discussing" && l.Revision == revision && l.ProposalId == proposalId);
                 if ((story == null) == (leave == null)) throw new InvalidOperationException("Review the exact current personal invitation and revision.");
-                var agreements = ReignAgreementBehavior.Instance ?? throw new InvalidOperationException("Action offers are unavailable.");
+                var agreements = ReignServices.Agreement ?? throw new InvalidOperationException("Action offers are unavailable.");
                 var offer = agreements.Offers.SingleOrDefault(a => a.Id == proposalId);
                 string expectedAction = story != null ? "npc_life.accept_story" : "npc_life.personal_leave";
                 if (offer == null || offer.State != AgreementState.Counteroffered || offer.NpcId != heroId
@@ -496,7 +497,7 @@ namespace ReignBeta.WorldSimulation.Campaign
         {
             string storyId = c.Value<string>("storyId") ?? "";
             string operationId = "npc_story_place:" + c.Value<string>("caseId");
-            var journal = ReignAgreementBehavior.Instance ?? throw new InvalidOperationException("Native fixture journal is unavailable.");
+            var journal = ReignServices.Agreement ?? throw new InvalidOperationException("Native fixture journal is unavailable.");
             var retained = journal.NativeOperation(operationId);
             if (retained != null)
             {

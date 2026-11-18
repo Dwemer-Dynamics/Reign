@@ -30,6 +30,7 @@ using ReignBeta.WorldSimulation.Actions;
 using ReignBeta.WorldSimulation.CampaignCommands;
 using ReignBeta.WorldSimulation.Rulers;
 using ReignBeta.WorldSimulation.World;
+using ReignBeta.Platform.Runtime;
 
 namespace ReignBeta.WorldSimulation.Campaign
 {
@@ -45,7 +46,7 @@ namespace ReignBeta.WorldSimulation.Campaign
                 || expected == baseline || expected != ActiveSaveName()
                 || enrollment.Value<string>("campaignId") != ReignCampaignIdentity.CurrentCampaignId()
                 || command.Value<string>("campaignId") != ReignCampaignIdentity.CurrentCampaignId()
-                || enrollment.Value<string>("timelineId") != (ReignWorldHistoryCampaignBehavior.Instance?.TimelineId ?? "main")
+                || enrollment.Value<string>("timelineId") != (ReignServices.WorldHistory?.TimelineId ?? "main")
                 || command.Value<string>("gameInstanceId") != _gameInstanceId
                 || TaleWorlds.CampaignSystem.Campaign.Current?.TimeControlMode != CampaignTimeControlMode.Stop)
                 return LiveCommandResult.Failed("Structured action tests require the exact paused, armed, verified run-owned Current campaign and timeline. A save-name prefix is not authorization.");
@@ -87,8 +88,8 @@ namespace ReignBeta.WorldSimulation.Campaign
                         var rows = ReignActionEntities.Find(entityKind, c.Value<string>("ownerHeroId"), c.Value<string>("query") ?? "", clause: entityClause);
                         result = new JObject { ["offset"] = offset, ["total"] = rows.Count, ["rows"] = JArray.FromObject(rows.Skip(offset).Take(64)) }; break;
                     case "status":
-                        if (kind == "native" || kind == "fixture") result = ReignAgreementBehavior.Instance.NativeOperation(id) ?? throw new InvalidOperationException("No retained native operation has that identity.");
-                        else if (kind == "agreement") result = JObject.FromObject(ReignAgreementBehavior.Instance.Status(id));
+                        if (kind == "native" || kind == "fixture") result = ReignServices.Agreement.NativeOperation(id) ?? throw new InvalidOperationException("No retained native operation has that identity.");
+                        else if (kind == "agreement") result = JObject.FromObject(ReignServices.Agreement.Status(id));
                         else throw new InvalidOperationException("Choose native or agreement.");
                         break;
                     case "fixture":
@@ -111,13 +112,13 @@ namespace ReignBeta.WorldSimulation.Campaign
                             if (enrollment.Value<bool?>("recoveryCheckpointVerified") != true
                                 || ReignSaveSyncCoordinator.IsAlignmentPending || ReignSaveSyncCampaignBehavior.IsNativeSaveInProgress)
                                 throw new InvalidOperationException("Wedding fixtures require a retained checkpoint and an aligned idle native save.");
-                            result = (ReignRelationshipCampaignBehavior.Instance ?? throw new InvalidOperationException("Wedding coordinator unavailable."))
+                            result = (ReignServices.Relationship ?? throw new InvalidOperationException("Wedding coordinator unavailable."))
                                 .ExerciseWeddingFixture(c["arguments"] as JObject, id);
                         }
                         else if (c.Value<string>("actionId") == "fixture.ruler_setup")
                         {
                             if (enrollment.Value<bool?>("recoveryCheckpointVerified") != true) throw new InvalidOperationException("Ruler setup requires a verified recovery checkpoint.");
-                            result = ReignRulerFixtureControls.PrepareFixture(ReignRulerCampaignBehavior.Instance ?? throw new InvalidOperationException("Ruler system unavailable."), c, id, RulerFixtureEnrollment(enrollment));
+                            result = ReignRulerFixtureControls.PrepareFixture(ReignServices.Ruler ?? throw new InvalidOperationException("Ruler system unavailable."), c, id, RulerFixtureEnrollment(enrollment));
                         }
                         else if (c.Value<string>("actionId") == "fixture.follow_accepted_guide_step")
                         {
@@ -130,7 +131,7 @@ namespace ReignBeta.WorldSimulation.Campaign
                         {
                             if (enrollment.Value<bool?>("recoveryCheckpointVerified") != true)
                                 throw new InvalidOperationException("Government player-flow fixtures require a verified retained recovery checkpoint.");
-                            result = ReignBeta.Government.Testing.ReignGovernmentTestControls.PrepareGovernmentPlayerFlowFixture(ReignBeta.Government.Campaign.ReignGovernmentCampaignBehavior.Instance
+                            result = ReignBeta.Government.Testing.ReignGovernmentTestControls.PrepareGovernmentPlayerFlowFixture(ReignServices.Government
                                 ?? throw new InvalidOperationException("Government system unavailable."), c, id);
                         }
                         else throw new InvalidOperationException("Choose a registered fixed structured fixture.");
@@ -160,7 +161,7 @@ namespace ReignBeta.WorldSimulation.Campaign
                 evidence["result"] = result; evidence["after"] = BuildStructuredActionNativeSnapshot(c);
                 if (kind == "agreement" && id.Length > 0)
                 {
-                    var journal = ReignAgreementBehavior.Instance.Agreements.FirstOrDefault(j => j.Agreement.Id == id);
+                    var journal = ReignServices.Agreement.Agreements.FirstOrDefault(j => j.Agreement.Id == id);
                     if (journal != null) evidence["journal"] = JObject.FromObject(journal);
                 }
                 return LiveCommandResult.Completed("Production adapter evidence captured. Apply a case-specific native effect assertion before recording a pass.", evidence);
@@ -185,7 +186,7 @@ namespace ReignBeta.WorldSimulation.Campaign
                 "fixture.follow_accepted_guide_step\n" + JsonConvert.SerializeObject(new SortedDictionary<string, string>(
                     args.Properties().ToDictionary(p => p.Name, p => (string)p.Value), StringComparer.Ordinal)))))
                 .Replace("-", "").ToLowerInvariant();
-            var behavior = ReignAgreementBehavior.Instance ?? throw new InvalidOperationException("Agreement system unavailable.");
+            var behavior = ReignServices.Agreement ?? throw new InvalidOperationException("Agreement system unavailable.");
             var retained = behavior.NativeOperation(id);
             if (retained != null)
             {
@@ -237,7 +238,7 @@ namespace ReignBeta.WorldSimulation.Campaign
                 "fixture.player_settlement_encounter\n" + JsonConvert.SerializeObject(new SortedDictionary<string, string>(
                     args.Properties().ToDictionary(p => p.Name, p => (string)p.Value), StringComparer.Ordinal)))))
                 .Replace("-", "").ToLowerInvariant();
-            var behavior = ReignAgreementBehavior.Instance;
+            var behavior = ReignServices.Agreement;
             var retained = behavior.NativeOperation(id);
             if (retained != null)
             {
@@ -330,7 +331,7 @@ namespace ReignBeta.WorldSimulation.Campaign
                 "fixture.siege_setup\n" + JsonConvert.SerializeObject(new SortedDictionary<string, string>(
                     args.Properties().ToDictionary(p => p.Name, p => (string)p.Value), StringComparer.Ordinal)))))
                 .Replace("-", "").ToLowerInvariant();
-            var behavior = ReignAgreementBehavior.Instance;
+            var behavior = ReignServices.Agreement;
             var retained = behavior.NativeOperation(id);
             if (retained != null)
             {
@@ -401,7 +402,7 @@ namespace ReignBeta.WorldSimulation.Campaign
                 "fixture.ship_damage\n" + JsonConvert.SerializeObject(new SortedDictionary<string, string>(
                     args.Properties().ToDictionary(p => p.Name, p => (string)p.Value), StringComparer.Ordinal)))))
                 .Replace("-", "").ToLowerInvariant();
-            var behavior = ReignAgreementBehavior.Instance;
+            var behavior = ReignServices.Agreement;
             var retained = behavior.NativeOperation(id);
             if (retained != null)
             {
@@ -440,18 +441,18 @@ namespace ReignBeta.WorldSimulation.Campaign
             && enrollment.Value<string>("disposableSaveName") != enrollment.Value<string>("protectedBaselineSaveName")
             && ActiveSaveName() == enrollment.Value<string>("disposableSaveName")
             && ReignCampaignIdentity.CurrentCampaignId() == enrollment.Value<string>("campaignId")
-            && (ReignWorldHistoryCampaignBehavior.Instance?.TimelineId ?? "main") == enrollment.Value<string>("timelineId")
+            && (ReignServices.WorldHistory?.TimelineId ?? "main") == enrollment.Value<string>("timelineId")
             && ReferenceEquals(_observedCampaign, TaleWorlds.CampaignSystem.Campaign.Current);
 
         private static JObject BuildStructuredActionNativeSnapshot(JObject testCase)
         {
             var snapshot = BuildGauntletNativeSnapshot(testCase);
-            snapshot["rulers"] = ReignRulerCampaignBehavior.Instance?.Diagnostics();
+            snapshot["rulers"] = ReignServices.Ruler?.Diagnostics();
             var rows = new JArray();
             foreach (string heroId in (testCase["heroIds"] as JArray ?? new JArray()).Values<string>()
                 .Where(id => !string.IsNullOrWhiteSpace(id)).Distinct(StringComparer.Ordinal).Take(16))
             {
-                var context = ReignBeta.WorldSimulation.PartyAgency.ReignTemporaryPartyGuestCampaignBehavior.Instance
+                var context = ReignServices.TemporaryPartyGuest
                     ?.BuildConversationContext(ReignActionService.HeroById(heroId));
                 if (context?.Value<bool?>("enabled") != true) continue;
                 var row = new JObject();
@@ -467,7 +468,7 @@ namespace ReignBeta.WorldSimulation.Campaign
                 .Where(id => !string.IsNullOrWhiteSpace(id)).Distinct(StringComparer.Ordinal).Take(16), StringComparer.Ordinal);
             snapshot["nativeMission"] = BuildStructuredMissionObservation(ids);
             snapshot["rebellionState"] = BuildStructuredRebellionObservation(ids);
-            var orders = (ReignCampaignCommandBehavior.Instance?.Orders ?? new ReignCampaignOrderRecord[0])
+            var orders = (ReignServices.CampaignCommand?.Orders ?? new ReignCampaignOrderRecord[0])
                 .Where(o => o != null && (ids.Contains(o.CommanderHeroStringId) || ids.Contains(o.IssuerHeroStringId)))
                 .OrderBy(o => o.OrderId, StringComparer.Ordinal).ToList();
             var orderRows = new JArray();
@@ -491,7 +492,7 @@ namespace ReignBeta.WorldSimulation.Campaign
                 ["truncated"] = orders.Count > 64, ["rows"] = orderRows };
             var kingdoms = new HashSet<string>(ids.Select(id => ReignActionService.HeroById(id)?.Clan?.Kingdom?.StringId)
                 .Where(id => !string.IsNullOrWhiteSpace(id)), StringComparer.Ordinal);
-            var treaties = (ReignAICampaignBehavior.Instance?.Agreements ?? new ReignDiplomaticAgreementRecord[0])
+            var treaties = (ReignServices.AI?.Agreements ?? new ReignDiplomaticAgreementRecord[0])
                 .Where(a => a != null && kingdoms.Contains(a.ActorKingdomStringId) && kingdoms.Contains(a.TargetKingdomStringId))
                 .OrderBy(a => a.AgreementId, StringComparer.Ordinal).ToList();
             var treatyRows = new JArray();
@@ -527,7 +528,7 @@ namespace ReignBeta.WorldSimulation.Campaign
                 ["requestedKingdomPairsOnly"] = true, ["maximumRows"] = 64, ["total"] = nativePairTotal,
                 ["truncated"] = nativePairTotal > 64, ["rows"] = nativePairs };
 #if !REIGN_EXCLUDE_COURT
-            var court = ReignBeta.Court.Campaign.ReignCourtCampaignBehavior.Instance;
+            var court = ReignServices.Court;
             var officeRows = new JArray();
             var offices = (court?.Offices ?? new ReignBeta.Court.CourtOfficeAssignment[0])
                 .Where(o => o != null && ids.Contains(o.HeroStringId)).OrderBy(o => o.AssignmentId, StringComparer.Ordinal).ToList();
@@ -610,7 +611,7 @@ namespace ReignBeta.WorldSimulation.Campaign
 
         private static JObject BuildStructuredRebellionObservation(HashSet<string> ids)
         {
-            var behavior = ReignRebellionCampaignBehavior.Instance;
+            var behavior = ReignServices.Rebellion;
             var plots = (behavior?.Plots ?? new ReignRebellionPlotRecord[0])
                 .Where(p => p != null && (ids.Contains(p.PlayerHeroStringId) || ids.Contains(p.RulerHeroStringId)
                     || ids.Contains(p.InformerHeroStringId))).OrderBy(p => p.PlotId, StringComparer.Ordinal).ToList();

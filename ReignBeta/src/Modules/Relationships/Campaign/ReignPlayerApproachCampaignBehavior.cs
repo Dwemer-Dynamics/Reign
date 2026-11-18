@@ -19,12 +19,13 @@ using ReignBeta.Platform.Integration;
 using ReignBeta.Relationships.Integration;
 using ReignBeta.Relationships.UI;
 using ReignBeta.WorldSimulation.CampaignCommands;
+using ReignBeta.Platform.Runtime;
 
 namespace ReignBeta.Relationships.Campaign
 {
     public sealed class ReignPlayerApproachCampaignBehavior : CampaignBehaviorBase
     {
-        public static ReignPlayerApproachCampaignBehavior Instance { get; private set; }
+        public static ReignPlayerApproachCampaignBehavior Instance => ReignServices.PlayerApproach;
         private List<JObject> _requests = new List<JObject>();
         private string _journal = "", _keepVisit = "";
         private JObject _pursuit;
@@ -61,7 +62,7 @@ namespace ReignBeta.Relationships.Campaign
         }
         public override void RegisterEvents()
         {
-            Instance = this;
+            ReignServices.PlayerApproach = this;
             CampaignEvents.HourlyTickEvent.AddNonSerializedListener(this, OnHourly);
             CampaignEvents.TickEvent.AddNonSerializedListener(this, OnTick);
         }
@@ -126,7 +127,7 @@ namespace ReignBeta.Relationships.Campaign
             foreach (MobileParty party in MobileParty.All.Where(p => p != MobileParty.MainParty && p.LeaderHero?.IsLord == true))
             {
                 if (!EligibleParty(party)) continue;
-                var order = ReignCampaignCommandBehavior.Instance?.ActiveOrderFor(party.LeaderHero.StringId);
+                var order = ReignServices.CampaignCommand?.ActiveOrderFor(party.LeaderHero.StringId);
                 bool managedPatrol = order?.Objective == "patrol" && !order.AwaitingGuidance;
                 if (!managedPatrol && (order != null || party.DefaultBehavior != AiBehavior.PatrolAroundPoint)) continue;
                 CampaignVec2 center = party.TargetSettlement?.Position ?? party.TargetPosition;
@@ -154,7 +155,7 @@ namespace ReignBeta.Relationships.Campaign
         private static bool EligibleParty(MobileParty party) => MobileParty.MainParty != null && party != null && party.IsActive && party.LeaderHero?.IsAlive == true
             && !party.LeaderHero.IsPrisoner && party.Army == null && party.MapEvent == null && party.SiegeEvent == null
             && party.CurrentSettlement == null && !FactionManager.IsAtWarAgainstFaction(party.MapFaction, MobileParty.MainParty.MapFaction)
-            && WorldSimulation.PartyAgency.ReignTemporaryPartyGuestCampaignBehavior.Instance?.IsProtectedCamp(party) != true;
+            && ReignServices.TemporaryPartyGuest?.IsProtectedCamp(party) != true;
 
         private void BeginPatrol(JObject response)
         {
@@ -165,7 +166,7 @@ namespace ReignBeta.Relationships.Campaign
             MobileParty party = MobileParty.All.FirstOrDefault(p => p.StringId == partyId);
             if (!EligibleParty(party) || !_scanAnchors.TryGetValue(partyId, out PatrolAnchor anchor))
             { QueueCancel(request); return; }
-            var currentOrder = ReignCampaignCommandBehavior.Instance?.ActiveOrderFor(party.LeaderHero.StringId);
+            var currentOrder = ReignServices.CampaignCommand?.ActiveOrderFor(party.LeaderHero.StringId);
             var currentCenter = new CampaignVec2(new TaleWorlds.Library.Vec2(anchor.X, anchor.Y), party.Position.IsOnLand);
             if ((currentOrder?.OrderId ?? "") != anchor.OrderId || (currentOrder?.Revision ?? 0) != anchor.Revision
                 || (currentOrder == null && party.DefaultBehavior != AiBehavior.PatrolAroundPoint)
@@ -204,7 +205,7 @@ namespace ReignBeta.Relationships.Campaign
             if (_pursuit == null) return;
             MobileParty party = PursuitParty();
             if (!EligibleParty(party) || party.DefaultBehavior != AiBehavior.EscortParty || party.TargetParty != MobileParty.MainParty) return;
-            var order = ReignCampaignCommandBehavior.Instance?.ActiveOrderFor(party.LeaderHero.StringId);
+            var order = ReignServices.CampaignCommand?.ActiveOrderFor(party.LeaderHero.StringId);
             if ((order?.OrderId ?? "") != _pursuit.Value<string>("orderId") || (order?.Revision ?? 0) != _pursuit.Value<int>("orderRevision")) return;
             Settlement settlement = Settlement.Find(_pursuit.Value<string>("anchorSettlementId") ?? "");
             if (settlement != null) SetPartyAiAction.GetActionForPatrollingAroundSettlement(party, settlement, party.NavigationCapability, party.IsCurrentlyAtSea, settlement.HasPort);

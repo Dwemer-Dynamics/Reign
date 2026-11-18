@@ -8,6 +8,7 @@ using TaleWorlds.Library;
 using ReignBeta.Dialogue.Runtime;
 using ReignBeta.Platform.Integration;
 using ReignBeta.WorldSimulation.Campaign;
+using ReignBeta.Platform.Runtime;
 
 namespace ReignBeta.Dialogue.UI
 {
@@ -22,7 +23,7 @@ namespace ReignBeta.Dialogue.UI
         private readonly ReignRecoveredDraftReview _recoveredDraftReview = new ReignRecoveredDraftReview();
 
         private string ConversationRetryScope => string.Join("|", ReignServerClient.GetCampaignId(),
-            ReignWorldHistoryCampaignBehavior.Instance?.TimelineId ?? "main", Hero.MainHero?.StringId ?? "",
+            ReignServices.WorldHistory?.TimelineId ?? "main", Hero.MainHero?.StringId ?? "",
             _hero?.StringId ?? "", _conversationContext.Value<string>("sessionId") ?? "", ConversationGeneration);
 
         [DataSourceProperty]

@@ -6,6 +6,7 @@ using TaleWorlds.CampaignSystem.CampaignBehaviors;
 using TaleWorlds.CampaignSystem.Party;
 using ReignBeta.Characters.Campaign;
 using ReignBeta.Platform.Integration;
+using ReignBeta.Platform.Runtime;
 
 namespace ReignBeta.Characters.Family
 {
@@ -46,7 +47,7 @@ namespace ReignBeta.Characters.Family
 
         private static bool CheckOffspringsToDeliverPrefix(Hero hero)
         {
-            return ReignFamilyCampaignBehavior.Instance == null || !ReignFamilyCampaignBehavior.Instance.IsManagedPregnancy(hero);
+            return ReignServices.Family == null || !ReignServices.Family.IsManagedPregnancy(hero);
         }
 
         private static bool SpawnLordPartyPrefix(Hero hero, ref MobileParty __result)

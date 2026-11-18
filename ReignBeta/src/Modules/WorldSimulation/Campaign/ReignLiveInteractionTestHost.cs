@@ -38,6 +38,7 @@ using ReignBeta.WorldSimulation.World;
 using ReignBeta.Court.Campaign;
 using ReignBeta.Court.UI;
 #endif
+using ReignBeta.Platform.Runtime;
 
 namespace ReignBeta.WorldSimulation.Campaign
 {
@@ -103,12 +104,12 @@ namespace ReignBeta.WorldSimulation.Campaign
             if (settings?.CorrespondenceEnabled == true)
                 modes.Add("correspondence");
             if (ReignBetaSettings.IsCourtSystemAvailable
-                && ReignCourtCampaignBehavior.Instance?.IsRuleModeActive == true)
+                && ReignServices.Court?.IsRuleModeActive == true)
             {
                 modes.Add("court_event");
                 modes.Add("spymaster");
-                if (ReignCourtCampaignBehavior.Instance.HasRoyalCommandAccess
-                    && ReignCourtCampaignBehavior.Instance.ForeignAmbassadors.Any(posting => posting?.IsResident == true))
+                if (ReignServices.Court.HasRoyalCommandAccess
+                    && ReignServices.Court.ForeignAmbassadors.Any(posting => posting?.IsResident == true))
                     modes.Add("ambassador_official");
             }
             return modes.Distinct(StringComparer.OrdinalIgnoreCase).ToArray();
@@ -161,7 +162,7 @@ namespace ReignBeta.WorldSimulation.Campaign
             {
                 if (string.Equals(_activeMode, "social_balance", StringComparison.OrdinalIgnoreCase))
                 {
-                    ReignSocialBalanceHarnessCampaignBehavior.Instance?.RecordOverride(
+                    ReignServices.SocialBalanceHarness?.RecordOverride(
                         "diplomacy_announcement_acknowledged",
                         new JObject { ["eventId"] = eventId });
                 }
@@ -478,7 +479,7 @@ namespace ReignBeta.WorldSimulation.Campaign
 
         private static LiveCommandResult PartyAgencyTest(JObject command)
         {
-            ReignTemporaryPartyGuestCampaignBehavior behavior = ReignTemporaryPartyGuestCampaignBehavior.Instance;
+            ReignTemporaryPartyGuestCampaignBehavior behavior = ReignServices.TemporaryPartyGuest;
             if (behavior == null)
                 return LiveCommandResult.Failed("The temporary noble guest campaign behavior is unavailable.");
             JObject snapshot = behavior.BuildHarnessSnapshot();
@@ -768,12 +769,12 @@ namespace ReignBeta.WorldSimulation.Campaign
 
             DateTime diplomacyDeadline = commandDeadline
                 - AutomationSaveCompletionReserve;
-            while (ReignWorldDiplomacyCampaignBehavior.Instance?.HasInFlightRequest == true
+            while (ReignServices.WorldDiplomacy?.HasInFlightRequest == true
                 && DateTime.UtcNow < diplomacyDeadline)
             {
                 await Task.Delay(250).ConfigureAwait(false);
             }
-            if (ReignWorldDiplomacyCampaignBehavior.Instance?.HasInFlightRequest == true)
+            if (ReignServices.WorldDiplomacy?.HasInFlightRequest == true)
             {
                 return LiveCommandResult.Failed(
                     "Diplomacy did not become idle before the checkpoint deadline; Bannerlord's native save was not started.",
@@ -806,7 +807,7 @@ namespace ReignBeta.WorldSimulation.Campaign
                 await Task.Delay(250).ConfigureAwait(false);
             }
 
-            long historySequence = ReignWorldHistoryCampaignBehavior.Instance?.Sequence ?? 0L;
+            long historySequence = ReignServices.WorldHistory?.Sequence ?? 0L;
             TimeSpan historyDrainBudget = commandDeadline - DateTime.UtcNow
                 - AutomationSaveCompletionReserve;
             if (historyDrainBudget <= TimeSpan.Zero
@@ -889,7 +890,7 @@ namespace ReignBeta.WorldSimulation.Campaign
                         ["saveName"] = saveName,
                         ["worldDay"] = CampaignTime.Now.ToDays,
                         ["gameInstanceId"] = _gameInstanceId,
-                        ["timelineId"] = ReignWorldHistoryCampaignBehavior.Instance?.TimelineId ?? "main",
+                        ["timelineId"] = ReignServices.WorldHistory?.TimelineId ?? "main",
                         ["saveSyncAligned"] = true,
                         ["escapeMenuRecovered"] = escapeMenuRecovered,
                         ["visiblePartyConversation"] = visiblePartyConversation,
@@ -993,16 +994,16 @@ namespace ReignBeta.WorldSimulation.Campaign
                 ["diplomacy"] = new JObject
                 {
                     ["evaluationInFlight"] =
-                        ReignWorldDiplomacyCampaignBehavior.Instance?.EvaluationInFlight == true,
+                        ReignServices.WorldDiplomacy?.EvaluationInFlight == true,
                     ["announcementPollInFlight"] =
-                        ReignWorldDiplomacyCampaignBehavior.Instance?.AnnouncementPollInFlight == true,
+                        ReignServices.WorldDiplomacy?.AnnouncementPollInFlight == true,
                     ["pressurePollInFlight"] =
-                        ReignWorldDiplomacyCampaignBehavior.Instance?.PressurePollInFlight == true,
+                        ReignServices.WorldDiplomacy?.PressurePollInFlight == true,
                     ["inFlight"] =
-                        ReignWorldDiplomacyCampaignBehavior.Instance?.HasInFlightRequest == true
+                        ReignServices.WorldDiplomacy?.HasInFlightRequest == true
                 },
                 ["campaignPreparation"] =
-                    ReignCampaignPreparationCampaignBehavior.Instance?.Snapshot()
+                    ReignServices.CampaignPreparation?.Snapshot()
                     ?? new JObject(),
                 ["mainThreadDispatch"] = new JObject
                 {
@@ -1791,7 +1792,7 @@ namespace ReignBeta.WorldSimulation.Campaign
                 JArray events = new JArray();
                 if (mode == "social_event")
                 {
-                    events = new JArray((ReignSocialEventsCampaignBehavior.Instance?.GetLiveTestEventRecords() ?? new List<SocialEventRecord>())
+                    events = new JArray((ReignServices.SocialEvents?.GetLiveTestEventRecords() ?? new List<SocialEventRecord>())
                         .Where(record => record != null && (string.IsNullOrWhiteSpace(search)
                             || (record.DisplayName ?? string.Empty).IndexOf(search, StringComparison.OrdinalIgnoreCase) >= 0
                             || (record.EventId ?? string.Empty).IndexOf(search, StringComparison.OrdinalIgnoreCase) >= 0))
@@ -1866,7 +1867,7 @@ namespace ReignBeta.WorldSimulation.Campaign
                     case "ambassador_official":
                         {
                             if (heroes.Count == 0) return FailOpen("No resident foreign ambassador matched the requested target.");
-                            ReignCourtCampaignBehavior court = ReignCourtCampaignBehavior.Instance;
+                            ReignCourtCampaignBehavior court = ReignServices.Court;
                             ForeignAmbassadorPosting posting = court?.ForeignAmbassadors.FirstOrDefault(candidate => candidate?.IsResident == true
                                 && string.Equals(candidate.HeroStringId, heroes[0].StringId, StringComparison.OrdinalIgnoreCase));
                             if (court == null) return FailOpen("The production court controller is unavailable.");
@@ -1924,7 +1925,7 @@ namespace ReignBeta.WorldSimulation.Campaign
                                 5,
                                 command.Value<int?>(
                                     "minimumParticipants") ?? 1));
-                        _eventSession = await (ReignSocialEventsCampaignBehavior.Instance?.StartLiveTestWildernessEventAsync(
+                        _eventSession = await (ReignServices.SocialEvents?.StartLiveTestWildernessEventAsync(
                                 heroes,
                                 minimumWildernessParticipants)
                             ?? Task.FromResult<ReignSocialEventSession>(null)).ConfigureAwait(false);
@@ -2016,7 +2017,7 @@ namespace ReignBeta.WorldSimulation.Campaign
                                 || expected != ActiveSaveName() || command.Value<string>("expectedSaveName") != expected
                                 || enrollment.Value<string>("campaignId") != ReignCampaignIdentity.CurrentCampaignId()
                                 || command.Value<string>("campaignId") != ReignCampaignIdentity.CurrentCampaignId()
-                                || enrollment.Value<string>("timelineId") != (ReignWorldHistoryCampaignBehavior.Instance?.TimelineId ?? "main")
+                                || enrollment.Value<string>("timelineId") != (ReignServices.WorldHistory?.TimelineId ?? "main")
                                 || command.Value<string>("gameInstanceId") != _gameInstanceId
                                 || TaleWorlds.CampaignSystem.Campaign.Current?.TimeControlMode != CampaignTimeControlMode.Stop
                                 || command.Value<string>("structuredActionActorHeroId") != _individualVm.ConversationHero?.StringId
@@ -2041,7 +2042,7 @@ namespace ReignBeta.WorldSimulation.Campaign
                                 if (draft.Origin != Reign.Core.Contracts.Actions.ActionOrigin.Conversation || draft.Revision < 1)
                                     throw new InvalidOperationException("The reviewed NPC offer has invalid origin or revision.");
                                 ReignBeta.WorldSimulation.Actions.ReignActionWording.Render(draft);
-                                var pending = ReignBeta.WorldSimulation.Actions.ReignAgreementBehavior.Instance?.Offers
+                                var pending = ReignServices.Agreement?.Offers
                                     .FirstOrDefault(a => a.Id == draft.Id);
                                 if (pending == null || pending.State != Reign.Core.Contracts.Actions.AgreementState.Counteroffered
                                     || pending.PlayerId != player || pending.NpcId != npc || pending.ProposerId != npc
@@ -2060,8 +2061,8 @@ namespace ReignBeta.WorldSimulation.Campaign
                             ReignBeta.WorldSimulation.Actions.ReignActionWording.Render(draft);
                             var replayCandidate = ReignBeta.Actions.ReignActionService.Copy(draft);
                             replayCandidate.ConversationId = ReignCampaignIdentity.CurrentCampaignId() + ":"
-                                + (ReignWorldHistoryCampaignBehavior.Instance?.TimelineId ?? "main") + ":" + npc;
-                            var savedJournal = ReignBeta.WorldSimulation.Actions.ReignAgreementBehavior.Instance?.Agreements
+                                + (ReignServices.WorldHistory?.TimelineId ?? "main") + ":" + npc;
+                            var savedJournal = ReignServices.Agreement?.Agreements
                                 .FirstOrDefault(j => j.Agreement.Id == draft.Id);
                             // Confirmation of exact completed terms uses normal Send's saved
                             // receipt route. New, changed, unsigned, pending and operator
@@ -2112,7 +2113,7 @@ namespace ReignBeta.WorldSimulation.Campaign
                 if (attachedAction != null)
                     data["agreementJournal"] = await ReignMainThread.InvokeAsync(() =>
                     {
-                        var journal = ReignBeta.WorldSimulation.Actions.ReignAgreementBehavior.Instance?.Agreements
+                        var journal = ReignServices.Agreement?.Agreements
                             .FirstOrDefault(j => j.Agreement.Id == attachedAction.Id);
                         return journal == null ? null : JObject.FromObject(journal);
                     }).ConfigureAwait(false);
@@ -2356,7 +2357,7 @@ namespace ReignBeta.WorldSimulation.Campaign
                     result["ok"] = true;
                     result["matterId"] = _courtMatter.MatterId ?? string.Empty;
                     result["sessionId"] =
-                        ReignCourtCampaignBehavior.Instance?.Session?.SessionId
+                        ReignServices.Court?.Session?.SessionId
                         ?? string.Empty;
                 }
             }
@@ -2383,7 +2384,7 @@ namespace ReignBeta.WorldSimulation.Campaign
 
         private static async Task<ReignSocialEventSession> CreateSocialEventSessionAsync(JObject command, List<Hero> heroes)
         {
-            ReignSocialEventsCampaignBehavior behavior = ReignSocialEventsCampaignBehavior.Instance;
+            ReignSocialEventsCampaignBehavior behavior = ReignServices.SocialEvents;
             if (behavior == null) return null;
             string eventId = command.Value<string>("eventId") ?? string.Empty;
             if (!string.IsNullOrWhiteSpace(eventId)) return await ReignMainThread.InvokeAsync(() => behavior.OpenLiveTestSocialEvent(eventId)).ConfigureAwait(false);
@@ -2398,10 +2399,10 @@ namespace ReignBeta.WorldSimulation.Campaign
         {
             if (_presentation == "visible")
             {
-                await ReignMainThread.InvokeAsync(() => ReignSocialEventScreenManager.Open(_eventSession, ReignSocialEventsCampaignBehavior.Instance.ResolveLiveTestSession)).ConfigureAwait(false);
+                await ReignMainThread.InvokeAsync(() => ReignSocialEventScreenManager.Open(_eventSession, ReignServices.SocialEvents.ResolveLiveTestSession)).ConfigureAwait(false);
                 _eventVm = await WaitForAsync(() => ReignSocialEventScreenManager.ActiveViewModel).ConfigureAwait(false);
             }
-            else _eventVm = await ReignMainThread.InvokeAsync(() => new ReignSocialEventScreenVM(_eventSession, () => { }, ReignSocialEventsCampaignBehavior.Instance.ResolveLiveTestSession)).ConfigureAwait(false);
+            else _eventVm = await ReignMainThread.InvokeAsync(() => new ReignSocialEventScreenVM(_eventSession, () => { }, ReignServices.SocialEvents.ResolveLiveTestSession)).ConfigureAwait(false);
             if (_eventVm != null && heroes.Count > 0) await ReignMainThread.InvokeAsync(() => _eventVm.SelectAutomationHeroes(heroes)).ConfigureAwait(false);
         }
 
@@ -2486,7 +2487,7 @@ namespace ReignBeta.WorldSimulation.Campaign
             if (mode == "ambassador_official")
             {
                 HashSet<string> residentIds = new HashSet<string>(
-                    (ReignCourtCampaignBehavior.Instance?.ForeignAmbassadors as IEnumerable<ForeignAmbassadorPosting>
+                    (ReignServices.Court?.ForeignAmbassadors as IEnumerable<ForeignAmbassadorPosting>
                         ?? Enumerable.Empty<ForeignAmbassadorPosting>())
                         .Where(posting => posting?.IsResident == true)
                         .Select(posting => posting.HeroStringId),
@@ -2498,7 +2499,7 @@ namespace ReignBeta.WorldSimulation.Campaign
                 if (allowDisposableCourtMatter)
                     return Hero.AllAliveHeroes.Where(IsLivingNpc);
                 IEnumerable<CourtMatter> matters =
-                    ReignCourtCampaignBehavior.Instance?.Matters
+                    ReignServices.Court?.Matters
                         as IEnumerable<CourtMatter>
                     ?? Enumerable.Empty<CourtMatter>();
                 HashSet<string> participantIds = new HashSet<string>(

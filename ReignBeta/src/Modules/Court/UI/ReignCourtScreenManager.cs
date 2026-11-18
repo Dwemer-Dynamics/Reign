@@ -10,6 +10,7 @@ using TaleWorlds.ScreenSystem;
 using ReignBeta.Court.Campaign;
 using ReignBeta.Platform.Integration;
 using ReignBeta.UI;
+using ReignBeta.Platform.Runtime;
 
 namespace ReignBeta.Court.UI
 {
@@ -74,7 +75,7 @@ namespace ReignBeta.Court.UI
 
         public static void ApplicationTick(float dt)
         {
-            ReignCourtCampaignBehavior.Instance?.ProcessCourtLifeBackgroundWork(dt);
+            ReignServices.Court?.ProcessCourtLifeBackgroundWork(dt);
             ReignCourtPetitionScreenManager.ApplicationTick(dt);
             if (!IsOpen) return;
             // Authority can be incomplete for a frame or two while a restored

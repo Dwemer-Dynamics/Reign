@@ -27,6 +27,7 @@ using ReignBeta.Relationships.Campaign;
 using ReignBeta.WorldSimulation.Events;
 using ReignBeta.WorldSimulation.Runtime;
 using ReignBeta.WorldSimulation.UI;
+using ReignBeta.Platform.Runtime;
 
 namespace ReignBeta.WorldSimulation.Campaign
 {
@@ -51,11 +52,11 @@ namespace ReignBeta.WorldSimulation.Campaign
         private bool _generatedWildernessRequestRunning;
         private float _pendingWildernessCheckElapsed;
 
-        public static ReignSocialEventsCampaignBehavior Instance { get; private set; }
+        public static ReignSocialEventsCampaignBehavior Instance => ReignServices.SocialEvents;
 
         public override void RegisterEvents()
         {
-            Instance = this;
+            ReignServices.SocialEvents = this;
             CampaignEvents.OnSessionLaunchedEvent.AddNonSerializedListener(this, OnSessionLaunched);
             CampaignEvents.DailyTickEvent.AddNonSerializedListener(this, OnDailyTick);
             CampaignEvents.HourlyTickEvent.AddNonSerializedListener(this, OnHourlyTick);
@@ -169,12 +170,12 @@ namespace ReignBeta.WorldSimulation.Campaign
                 args => { args.optionLeaveType = GameMenuOption.LeaveType.Submenu; return WeddingHere() != null; },
                 args => OpenWeddingHere(), false, 4);
             starter.AddGameMenuOption("town", "reign_choose_wedding", "{=!}Choose wedding plans",
-                args => { args.optionLeaveType = GameMenuOption.LeaveType.Submenu; return ReignRelationshipCampaignBehavior.Instance?.HasWeddingChoice == true; },
-                args => ReignRelationshipCampaignBehavior.Instance?.ShowWeddingChoice(), false, 4);
+                args => { args.optionLeaveType = GameMenuOption.LeaveType.Submenu; return ReignServices.Relationship?.HasWeddingChoice == true; },
+                args => ReignServices.Relationship?.ShowWeddingChoice(), false, 4);
             // Loaded-session repair is owned by the readiness coordinator.
         }
 
-        private static ReignWedding WeddingHere() => ReignRelationshipCampaignBehavior.Instance?.AvailableWedding(
+        private static ReignWedding WeddingHere() => ReignServices.Relationship?.AvailableWedding(
             Settlement.CurrentSettlement ?? MobileParty.MainParty?.CurrentSettlement);
 
         private void OpenWeddingHere()

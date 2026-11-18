@@ -2,6 +2,7 @@ using System;
 using System.Threading.Tasks;
 using Newtonsoft.Json.Linq;
 using static ReignBeta.Platform.Integration.ReignServerClient;
+using ReignBeta.Platform.Runtime;
 
 namespace ReignBeta.Government.Integration
 {
@@ -11,7 +12,7 @@ namespace ReignBeta.Government.Integration
         {
             var payload = (JObject)context.DeepClone();
             payload["campaignId"] = GetCampaignId();
-            payload["timelineId"] = ReignBeta.WorldSimulation.Campaign.ReignWorldHistoryCampaignBehavior.Instance?.TimelineId ?? "main";
+            payload["timelineId"] = ReignServices.WorldHistory?.TimelineId ?? "main";
             return PostJsonAsync("/government/crown/decision", payload);
         }
 
@@ -19,7 +20,7 @@ namespace ReignBeta.Government.Integration
         {
             var payload = (JObject)context.DeepClone();
             payload["campaignId"] = GetCampaignId();
-            payload["timelineId"] = ReignBeta.WorldSimulation.Campaign.ReignWorldHistoryCampaignBehavior.Instance?.TimelineId ?? "main";
+            payload["timelineId"] = ReignServices.WorldHistory?.TimelineId ?? "main";
             payload["correlationId"] = "government_hearing_" + Guid.NewGuid().ToString("N");
             return PostJsonAsync("/government/hearing/discussion", payload);
         }

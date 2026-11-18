@@ -12,6 +12,7 @@ using TaleWorlds.Core;
 using TaleWorlds.Library;
 using ReignBeta.Persistence.Save;
 using ReignBeta.Platform.Integration;
+using ReignBeta.Platform.Runtime;
 
 namespace ReignBeta.WorldSimulation.Economy
 {
@@ -75,11 +76,11 @@ namespace ReignBeta.WorldSimulation.Economy
             internal int Networks = 64, Holdings = 256, Shipments = 2048, Decisions = 256, Dropped;
         }
 
-        public static ReignEconomyCampaignBehavior Instance { get; private set; }
+        public static ReignEconomyCampaignBehavior Instance => ReignServices.Economy;
 
         public ReignEconomyCampaignBehavior()
         {
-            Instance = this;
+            ReignServices.Economy = this;
         }
 
         public override void RegisterEvents()
@@ -367,7 +368,7 @@ namespace ReignBeta.WorldSimulation.Economy
             ReignWarEconomyTransactions.ObserveDailyResources();
             DecayMobilizationStrain();
             ReignNpcFoodSabotage.Tick(day);
-            ReignBeta.Government.Campaign.ReignGovernmentCampaignBehavior.Instance?.ProcessEconomyAidDaily();
+            ReignServices.Government?.ProcessEconomyAidDaily();
             ApplyRealmRelief();
         }
 
@@ -386,7 +387,7 @@ namespace ReignBeta.WorldSimulation.Economy
         {
             ReignWarEconomyNaval.AssertCampaignScope();
 #if !REIGN_EXCLUDE_COURT
-            ReignBeta.Court.Campaign.ReignCourtCampaignBehavior.Instance?.ProcessEconomyShipmentArrivals();
+            ReignServices.CourtWorld?.ProcessEconomyShipmentArrivals();
 #endif
         }
 

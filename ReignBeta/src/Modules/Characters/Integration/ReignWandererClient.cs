@@ -12,6 +12,7 @@ using ReignBeta.Platform.Campaign;
 using ReignBeta.Platform.Integration;
 using ReignBeta.WorldSimulation.Campaign;
 using ReignBeta.WorldSimulation.World;
+using ReignBeta.Platform.Runtime;
 
 namespace ReignBeta.Characters.Integration
 {
@@ -32,11 +33,11 @@ namespace ReignBeta.Characters.Integration
                 // Same game-thread callback as the structured-action capture and contact start.
                 EnsureRequestOwner(requestOwner, "structured action capture");
                 fence = RequestFence.Capture();
-                owner = ReignWandererPopulationCampaignBehavior.Instance;
-                campaign = GetCampaignId(); timeline = ReignWorldHistoryCampaignBehavior.Instance?.TimelineId ?? "main";
+                owner = ReignServices.WandererPopulation;
+                campaign = GetCampaignId(); timeline = ReignServices.WorldHistory?.TimelineId ?? "main";
                 if (string.IsNullOrWhiteSpace(payload.Value<string>("sceneTurnId"))) payload["sceneTurnId"] = Guid.NewGuid().ToString("N");
-                payload["nativePaymentReceipts"] = ReignGoldTransferService.Instance?.Snapshot(hero) ?? new JArray();
-                payload["nativeActionReceipts"] = ReignAICampaignBehavior.Instance?.ConversationActionReceipts(hero) ?? new JArray();
+                payload["nativePaymentReceipts"] = ReignServices.GoldTransferService?.Snapshot(hero) ?? new JArray();
+                payload["nativeActionReceipts"] = ReignServices.AI?.ConversationActionReceipts(hero) ?? new JArray();
                 ReignStructuredActionClient.ConfigureStructuredActions(payload, hero, actionDraft, Reign.Core.Contracts.Actions.AgreementChannel.InPerson);
                 owner?.BeginContact(hero, playerText);
             }).ConfigureAwait(false);
@@ -50,8 +51,8 @@ namespace ReignBeta.Characters.Integration
                     // Stale callbacks keep the accepted raw response under
                     // acceptedResponse (durable reconciliation only) and skip every
                     // local native effect; ok=false claims no presentation.
-                    if (!fence.IsCurrent() || campaign != GetCampaignId() || timeline != (ReignWorldHistoryCampaignBehavior.Instance?.TimelineId ?? "main")
-                        || owner != ReignWandererPopulationCampaignBehavior.Instance)
+                    if (!fence.IsCurrent() || campaign != GetCampaignId() || timeline != (ReignServices.WorldHistory?.TimelineId ?? "main")
+                        || owner != ReignServices.WandererPopulation)
                     {
                         staleRequestOwner = true;
                         response = new JObject { ["ok"] = false, ["error"] = "The campaign changed while this conversation was in progress.",
@@ -74,7 +75,7 @@ namespace ReignBeta.Characters.Integration
                         .SelectMany(key => ParseQueuedActionRows(response?[key], fence)).GroupBy(a => a.ActionId).Select(g => g.First())
                         .OrderBy(a => a.ActionId.StartsWith("pa_", StringComparison.Ordinal) ? 0 : 1).ToList();
                     if (actions.Count == 0) return;
-                    var behavior = ReignAICampaignBehavior.Instance;
+                    var behavior = ReignServices.AI;
                     var results = new JArray();
                     string heldActionId = null;
                     if (behavior == null || behavior.TryImportForPresentation(actions, out _, out heldActionId))
@@ -107,8 +108,8 @@ namespace ReignBeta.Characters.Integration
                     // behavior or any Hero object. Within the same load the begun
                     // contact is always balanced, including after the view closed.
                     if (!fence.IsCurrent()) return;
-                    if (owner != ReignWandererPopulationCampaignBehavior.Instance || campaign != GetCampaignId()
-                        || timeline != (ReignWorldHistoryCampaignBehavior.Instance?.TimelineId ?? "main")) return;
+                    if (owner != ReignServices.WandererPopulation || campaign != GetCampaignId()
+                        || timeline != (ReignServices.WorldHistory?.TimelineId ?? "main")) return;
                     // A stale owner settles the contact as uncertain rather than
                     // as a protected (presented) exchange.
                     string receipt = (string)(accepted ?? response)?["conversationExchange"]?["exchangeId"];

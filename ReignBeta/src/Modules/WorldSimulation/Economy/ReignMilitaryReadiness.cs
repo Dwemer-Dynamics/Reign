@@ -13,6 +13,7 @@ using ReignBeta.Platform.Integration;
 using ReignBeta.WorldSimulation.Campaign;
 using ReignBeta.WorldSimulation.CampaignCommands;
 using ReignBeta.WorldSimulation.World;
+using ReignBeta.Platform.Runtime;
 
 namespace ReignBeta.WorldSimulation.Economy
 {
@@ -44,7 +45,7 @@ namespace ReignBeta.WorldSimulation.Economy
         {
             var state = ReignWarEconomyTransactions.State;
             if (state == null || campaign != ReignServerClient.GetCampaignId()
-                || timeline != (ReignWorldHistoryCampaignBehavior.Instance?.TimelineId ?? "main")
+                || timeline != (ReignServices.WorldHistory?.TimelineId ?? "main")
                 || !ReignWarEconomyPolicy.PressureFresh(observedDay, CampaignTime.Now.ToDays)
                 || !TryParsePressure(snapshot, campaign, timeline, out var pairs)) return false;
             state.MilitaryPressure = pairs;
@@ -87,7 +88,7 @@ namespace ReignBeta.WorldSimulation.Economy
 
         private static bool Fresh => ReignWarEconomyTransactions.State != null
             && ReignWarEconomyTransactions.State.MilitaryPressureCampaign == ReignServerClient.GetCampaignId()
-            && ReignWarEconomyTransactions.State.MilitaryPressureTimeline == (ReignWorldHistoryCampaignBehavior.Instance?.TimelineId ?? "main")
+            && ReignWarEconomyTransactions.State.MilitaryPressureTimeline == (ReignServices.WorldHistory?.TimelineId ?? "main")
             && ReignWarEconomyPolicy.PressureFresh(ReignWarEconomyTransactions.State.MilitaryPressureDay, CampaignTime.Now.ToDays);
 
         private static bool NearFrontier(MobileParty party, Kingdom other)
@@ -130,7 +131,7 @@ namespace ReignBeta.WorldSimulation.Economy
 
         private static bool HasPlayerForceOrder(MobileParty party)
         {
-            var order = ReignCampaignCommandBehavior.Instance?.ActiveOrderFor(party?.LeaderHero?.StringId);
+            var order = ReignServices.CampaignCommand?.ActiveOrderFor(party?.LeaderHero?.StringId);
             return order?.Objective == "recruit_resupply" && !order.IsTerminal && order.IssuerHeroStringId == Hero.MainHero?.StringId;
         }
 
@@ -293,7 +294,7 @@ namespace ReignBeta.WorldSimulation.Economy
                 Reason = ruler == Hero.MainHero ? "Sovereign order" : "NPC sovereign order", Day = CampaignTime.Now.ToDays,
                 Revision = (previous?.Revision ?? 0) + 1, PeacePercent = selectedPercent, Automatic = automatic };
             if (previous != null && previous.Mode != mode && ruler != Hero.MainHero)
-                ReignBeta.WorldSimulation.News.ReignNewsCampaignBehavior.Instance?.MilitaryStanding(realm, mode,
+                ReignServices.News?.MilitaryStanding(realm, mode,
                     state.MilitaryStandings[realm.StringId].Revision);
             result = mode == "war" ? "War standing ordered. Mobilization still requires recruits, food and funding."
                 : "Peace standing ordered. Your chosen field target remains in force during war; garrison targets stay full.";

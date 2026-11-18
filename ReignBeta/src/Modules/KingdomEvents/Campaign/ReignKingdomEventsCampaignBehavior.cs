@@ -19,6 +19,7 @@ using ReignBeta.Platform.Settings;
 using ReignBeta.Rebellion.Campaign;
 using ReignBeta.WorldSimulation.Campaign;
 using ReignBeta.WorldSimulation.News;
+using ReignBeta.Platform.Runtime;
 
 namespace ReignBeta.KingdomEvents.Campaign
 {
@@ -103,13 +104,13 @@ namespace ReignBeta.KingdomEvents.Campaign
         internal int _testOrganicTriggerDay = -1;
         internal string _testOrganicTriggerRunId = string.Empty;
 
-        public static ReignKingdomEventsCampaignBehavior Instance { get; private set; }
+        public static ReignKingdomEventsCampaignBehavior Instance => ReignServices.KingdomEvents;
         public IReadOnlyList<ReignKingdomEventRecord> Events => _events;
         internal static IReadOnlyList<ReignKingdomEventDefinition> Catalog => Definitions;
 
         public ReignKingdomEventsCampaignBehavior()
         {
-            Instance = this;
+            ReignServices.KingdomEvents = this;
         }
 
         public override void RegisterEvents()
@@ -302,7 +303,7 @@ namespace ReignBeta.KingdomEvents.Campaign
                     return Fail(record, "No treaty-safe war target remained eligible.", out result);
                 }
                 record.SecondaryKingdomStringId = secondary.StringId;
-                ReignAICampaignBehavior ai = ReignAICampaignBehavior.Instance;
+                ReignAICampaignBehavior ai = ReignServices.AI;
                 if (ai != null)
                 {
                     ai.DeclareWarWithOrigin(kingdom, secondary, "kingdom_event",
@@ -462,7 +463,7 @@ namespace ReignBeta.KingdomEvents.Campaign
         internal static bool HasProtectedAgreement(Kingdom left, Kingdom right)
         {
             float day = CurrentDay();
-            return ReignAICampaignBehavior.Instance?.Agreements.Any(agreement => agreement != null
+            return ReignServices.AI?.Agreements.Any(agreement => agreement != null
                 && agreement.IsActive && !agreement.IsExpired(day)
                 && SamePair(agreement.ActorKingdomStringId, agreement.TargetKingdomStringId,
                     left.StringId, right.StringId)) == true;
@@ -470,7 +471,7 @@ namespace ReignBeta.KingdomEvents.Campaign
 
         private static bool IsRebellionWar(Kingdom left, Kingdom right)
         {
-            bool origin = ReignAICampaignBehavior.Instance?.WarOrigins.Any(record => record != null
+            bool origin = ReignServices.AI?.WarOrigins.Any(record => record != null
                 && record.IsActive && string.Equals(record.OriginKind, "rebellion", StringComparison.OrdinalIgnoreCase)
                 && SamePair(record.AggressorKingdomStringId, record.DefenderKingdomStringId,
                     left.StringId, right.StringId)) == true;
@@ -479,7 +480,7 @@ namespace ReignBeta.KingdomEvents.Campaign
                 return true;
             }
 
-            return ReignRebellionCampaignBehavior.Instance?.Movements.Any(movement => movement != null
+            return ReignServices.Rebellion?.Movements.Any(movement => movement != null
                 && !movement.ResolutionApplied
                 && !string.IsNullOrWhiteSpace(movement.RebelKingdomStringId)
                 && SamePair(movement.ParentKingdomStringId, movement.RebelKingdomStringId,
@@ -491,7 +492,7 @@ namespace ReignBeta.KingdomEvents.Campaign
             return kingdom != null && !kingdom.IsEliminated
                 && kingdom.RulingClan != null
                 && kingdom.Leader != null && kingdom.Leader.IsAlive
-                && ReignRebellionCampaignBehavior.Instance?.IsRebelKingdom(kingdom) != true;
+                && ReignServices.Rebellion?.IsRebelKingdom(kingdom) != true;
         }
 
         private static bool IsSuccessionEligible(Kingdom kingdom)
@@ -597,7 +598,7 @@ namespace ReignBeta.KingdomEvents.Campaign
                     ? record.Title + " ended after " + TimedEventDurationDays.ToString("0") + " days."
                     : record.Title + " ended because its kingdom no longer exists.";
                 RecordHistory(record, kingdom, null, kingdom?.Leader, null, "ended");
-                ReignNewsCampaignBehavior.Instance?.KingdomEvent(record, kingdom, null, kingdom?.Leader, null, true);
+                ReignServices.News?.KingdomEvent(record, kingdom, null, kingdom?.Leader, null, true);
             }
         }
 
@@ -635,7 +636,7 @@ namespace ReignBeta.KingdomEvents.Campaign
                 : (record.IsTimed
                     ? record.Title + " began across " + KingdomName(kingdom) + ". " + record.Description
                     : record.Outcome);
-            ReignWorldHistoryCampaignBehavior.Instance?.RecordReignSystemEvent(
+            ReignServices.WorldHistory?.RecordReignSystemEvent(
                 "kingdom_fortune_event", phase, "kingdom_fortune", record.EventId,
                 summary, "major_world", actor?.StringId ?? string.Empty,
                 kingdom?.StringId ?? record.KingdomStringId, payload, participants);

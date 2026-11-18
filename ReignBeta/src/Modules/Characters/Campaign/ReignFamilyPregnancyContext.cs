@@ -15,6 +15,7 @@ using TaleWorlds.CampaignSystem.CampaignBehaviors;
 using ReignBeta.Platform.Integration;
 using ReignBeta.WorldSimulation.Actions;
 using ReignBeta.WorldSimulation.Campaign;
+using ReignBeta.Platform.Runtime;
 
 namespace ReignBeta.Characters.Campaign
 {
@@ -164,7 +165,7 @@ namespace ReignBeta.Characters.Campaign
             if (error.Length > 0) throw new InvalidOperationException(error);
             var record = PregnancyRecords.Single(r => r.ConceptionId == id);
             var mother = ReignActionService.HeroById(record.MotherId);
-            var history = ReignWorldHistoryCampaignBehavior.Instance ?? throw new InvalidOperationException("World history is unavailable.");
+            var history = ReignServices.WorldHistory ?? throw new InvalidOperationException("World history is unavailable.");
             bool exposeMother = !record.MotherExposed;
             record.MotherExposed = true;
             record.FatherExposed |= nameFather;

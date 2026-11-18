@@ -7,6 +7,7 @@ using System;
 using ReignBeta.Characters.Campaign;
 using ReignBeta.Dialogue.Campaign;
 using ReignBeta.WorldSimulation.Campaign;
+using ReignBeta.Platform.Runtime;
 
 namespace ReignBeta.Platform.Settings
 {
@@ -91,7 +92,7 @@ namespace ReignBeta.Platform.Settings
                 {
                     _enabled = value;
                     OnPropertyChanged();
-                    ReignFamilyCampaignBehavior.Instance?.OnPregnancyRestrictionSettingsChanged();
+                    ReignServices.Family?.OnPregnancyRestrictionSettingsChanged();
                 }
             }
         }
@@ -247,7 +248,7 @@ namespace ReignBeta.Platform.Settings
                 {
                     _pregnancyCombatRestrictionsEnabled = value;
                     OnPropertyChanged();
-                    ReignFamilyCampaignBehavior.Instance?.OnPregnancyRestrictionSettingsChanged();
+                    ReignServices.Family?.OnPregnancyRestrictionSettingsChanged();
                 }
             }
         }

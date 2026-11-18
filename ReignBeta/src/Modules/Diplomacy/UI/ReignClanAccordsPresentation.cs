@@ -6,6 +6,7 @@ using TaleWorlds.CampaignSystem;
 using TaleWorlds.CampaignSystem.Settlements;
 using ReignBeta.Diplomacy.ClanAccords;
 using ReignBeta.WorldSimulation.World;
+using ReignBeta.Platform.Runtime;
 
 namespace ReignBeta.Diplomacy.UI
 {
@@ -14,7 +15,7 @@ namespace ReignBeta.Diplomacy.UI
         internal static ReignClanAccordsScreenData Capture()
         {
             var snapshot = new ReignClanAccordsScreenData { ClanName = Clan.PlayerClan?.Name.ToString() ?? "Your clan", Tier = Clan.PlayerClan?.Tier ?? 0 };
-            var behavior = ReignClanAccordsCampaignBehavior.Instance;
+            var behavior = ReignServices.ClanAccords;
             if (behavior == null) return snapshot;
             foreach (var record in behavior.Records.Where(x => x.IsActive && x.PlayerClanId == Clan.PlayerClan?.StringId))
             {

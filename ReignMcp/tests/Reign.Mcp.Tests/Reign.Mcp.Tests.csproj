@@ -14,7 +14,10 @@
              Link="Shared\TeamTournamentRosterPolicy.cs" />
     <ProjectReference Include="..\..\src\Reign.Mcp.Server\Reign.Mcp.Server.csproj" />
     <ProjectReference Include="..\..\..\ReignServer\shared\Reign.Core.Contracts\Reign.Core.Contracts.csproj" />
-    <ProjectReference Include="..\..\..\ReignBeta\Core\ReignBeta.Core.csproj" />
+    <!-- Resolve Core's Contracts reference through the same path as the references above, so a single
+         Reign.Core.Contracts project instance is built (two paths raced on its obj folder: CS2012). -->
+    <ProjectReference Include="..\..\..\ReignBeta\Core\ReignBeta.Core.csproj"
+                      AdditionalProperties="ReignServerRoot=$([System.IO.Path]::GetFullPath('$(MSBuildThisFileDirectory)..\..\..\ReignServer'))" />
     <Compile Include="..\..\..\ReignServer\tests\ReignLiveTest\Features\WorldSimulation\PassiveWorldCheckpointPolicy.cs"
              Link="Shared\PassiveWorldCheckpointPolicy.cs" />
     <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.14.1" />

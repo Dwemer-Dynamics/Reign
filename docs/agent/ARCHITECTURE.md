@@ -59,8 +59,15 @@ Cross-cutting services in `Platform/Integration`:
 - `ReignMainThread`: marshals server results back to the game thread. Campaign state is touched only on the main thread.
 - `ReignLog`: the single client logger.
 
-Modules reach each other mostly through static `.Instance` properties on campaign behaviours (about 45). Court and World
-Simulation reference each other in both directions, and some modules extend another module's behaviour through `partial class` (Spymaster and Government extend `ReignCourtCampaignBehavior`; see each module README).
+Modules reach each other through `ReignServices` (`Platform/Runtime/ReignServices.cs`), a typed static registry with one
+slot per campaign behaviour (41) plus `CourtWorld`. Each behaviour writes its slot exactly where it used to set its static
+`Instance`, and keeps an `Instance` property that forwards to the slot; slots are never filled or cleared on game start
+or end. `ReignXpCampaignBehavior` (lazy lookup), `AIEventsSettings`, `ReignBetaSettings`, `PortraitRequestScope` and
+`ReignTestHarness.Current` stay outside the registry. Court depends on World Simulation, not the reverse: World
+Simulation product code reaches Court only through `ICourtWorldBridge` (`WorldSimulation/Domain`), which
+`ReignCourtCampaignBehavior` implements and publishes as `ReignServices.CourtWorld` (null when Court is absent), and
+reads the household-migration flag from `ReignHouseholdClanMigration`. Only World Simulation test hosts in
+`ReignBeta.Testing` still name Court types. Some modules extend another module's behaviour through `partial class` (Spymaster and Government extend `ReignCourtCampaignBehavior`; see each module README).
 
 ## Modules
 
@@ -88,8 +95,14 @@ dependencies and shipped test-harness files.
 
 Inside a module, folders name a layer: `Campaign` (campaign behaviours), `Integration` (server clients and adapters),
 `Domain` (game-free rules), `UI` (Gauntlet view models and widgets), `Runtime` (Harmony patches and runtime services),
-`World`, `Actions` and similar feature folders. Namespaces do not follow modules yet (`ReignBeta.Campaign` alone spans
-more than 100 files).
+`World`, `Actions` and similar feature folders. Namespaces follow `ReignBeta.<Module>.<Layer>` (for example
+`ReignBeta.Court.Campaign`, `ReignBeta.WorldSimulation.Economy`, `ReignBeta.Platform.Runtime`). Exceptions keep their
+namespace: partial groups take their owner's namespace wherever the file lives (so some files under Characters declare
+`ReignBeta.WorldSimulation.Campaign`); save-registered types (for example `ReignBeta.World`, `ReignBeta.Court`,
+`ReignBeta.Events`), prefab-referenced Gauntlet widgets (`ReignBeta.UI...`), `ReignBeta.SubModule`,
+`ReignBeta.Actions.ReignActionService` and `AIEventsSettings` keep their old namespaces; third-party code
+(`ArenaOverhaul`, `AIPortraits`) is unchanged.
+Each module README lists the namespaces it uses.
 
 ## Rules every change keeps
 
@@ -123,8 +136,9 @@ change:
    replacing source-text tests where it covers them.
 3. The in-game test harness (`ReignLiveInteractionTestHost`, `ReignActionGauntlet`, `*/Testing/`, fixtures, calibration
    hosts) leaves the shipped product path; product code reaches it through an interface.
-4. Module namespaces `ReignBeta.<Module>.<Layer>` and one service registry built in `SubModule`, replacing the
-   `.Instance` mesh, with the Court and World Simulation cycle broken through events or interfaces. Saveable types keep
-   their identities.
+4. Module namespaces `ReignBeta.<Module>.<Layer>` (C10a, done) and the `ReignServices` registry replacing the
+   `.Instance` mesh, with the Court and World Simulation cycle broken through `ICourtWorldBridge` (C10b, done). Saveable
+   types keep their identities. Some `X.Instance` call sites stay verbatim because ReignServer checks quote them; they
+   move once the server quotes are updated.
 
 Update this document and the module READMEs in the same PR as any step that changes these facts.

@@ -17,7 +17,7 @@ Shared UI and runtime assets. Shared widgets and view models, UI calibration, ty
 | `Widgets` | 2 |
 | `EventArt` | 1 |
 
-Namespaces in use: `ReignBeta.UI (5)`, `ReignBeta.UI.HiddenInformation (4)`, `ReignBeta.UI.Tavern (4)`, `ReignBeta.UI.Calibration (2)`, `ReignBeta.UI.GameMenu (2)`, `ReignBeta.UI.ViewModels (2)`, `ReignBeta.UI.Widgets (2)`, `ReignBeta.UI.EventArt (1)`.
+Namespaces in use: `ReignBeta.UI (6)`, `ReignBeta.UI.HiddenInformation (4)`, `ReignBeta.UI.Tavern (4)`, `ReignBeta.UI.Calibration (2)`, `ReignBeta.UI.GameMenu (2)`, `ReignBeta.UI.ViewModels (2)`, `ReignBeta.UI.Widgets (2)`, `ReignBeta.UI.EventArt (1)`.
 
 ## Public surface
 

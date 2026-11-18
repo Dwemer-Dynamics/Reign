@@ -255,10 +255,10 @@ namespace ReignBeta
         {
             // Cancel scoped work owned by this exact game before feature teardown.
             ReignMainThread.EndGameScope(game);
-            ReignBanterCampaignBehavior.Instance?.CampaignEnded();
-            ReignPartyChatHistoryBehavior.Instance?.EndCampaign();
-            ReignTavernHouseCampaignBehavior.Instance?.CampaignEnded();
-            ReignWandererPopulationCampaignBehavior.Instance?.CampaignEnded();
+            ReignServices.Banter?.CampaignEnded();
+            ReignServices.PartyChatHistory?.EndCampaign();
+            ReignServices.TavernHouse?.CampaignEnded();
+            ReignServices.WandererPopulation?.CampaignEnded();
             base.OnGameEnd(game);
         }
 
@@ -295,17 +295,17 @@ namespace ReignBeta
             }
             RunTickStage(
                 "character editor polling",
-                () => ReignCharacterEditorCampaignBehavior.Instance?.ApplicationTick(dt));
-            RunTickStage("paused tavern population preparation", () => ReignTavernHouseCampaignBehavior.Instance?.ApplicationTick());
-            RunTickStage("paused wanderer population preparation", () => ReignWandererPopulationCampaignBehavior.Instance?.ApplicationTick());
+                () => ReignServices.CharacterEditor?.ApplicationTick(dt));
+            RunTickStage("paused tavern population preparation", () => ReignServices.TavernHouse?.ApplicationTick());
+            RunTickStage("paused wanderer population preparation", () => ReignServices.WandererPopulation?.ApplicationTick());
 
             RunTickStage("continuous relationship outbox", () => ReignRelationshipRealtimeClient.RelationshipRealtimeTick(dt));
             RunTickStage("player approach options", () => ReignPlayerApproachClient.PlayerApproachOptionsTick(dt));
-            RunTickStage("ruler system", () => ReignRulerCampaignBehavior.Instance?.ApplicationTick(dt));
-            RunTickStage("town-crier news", () => ReignNewsCampaignBehavior.Instance?.ApplicationTick(dt));
-            RunTickStage("NPC lives", () => ReignNpcLivesBehavior.Instance?.ApplicationTick(dt));
-            RunTickStage("continuous native relationship projection", () => ReignRelationshipCampaignBehavior.Instance?.ApplicationTick(dt));
-            RunTickStage("continuous server action execution", () => ReignAICampaignBehavior.Instance?.ApplicationTick(dt));
+            RunTickStage("ruler system", () => ReignServices.Ruler?.ApplicationTick(dt));
+            RunTickStage("town-crier news", () => ReignServices.News?.ApplicationTick(dt));
+            RunTickStage("NPC lives", () => ReignServices.NpcLives?.ApplicationTick(dt));
+            RunTickStage("continuous native relationship projection", () => ReignServices.Relationship?.ApplicationTick(dt));
+            RunTickStage("continuous server action execution", () => ReignServices.AI?.ApplicationTick(dt));
 
             // Every subsystem is isolated. A portrait, overlay, queue, or legacy
             // audit failure must never silently stop the live-test heartbeat and
@@ -317,10 +317,10 @@ namespace ReignBeta
             RunTickStage("individual chat overlay", () => ReignIndividualChatScreenManager.ApplicationTick(dt));
             RunTickStage("social event overlay", () => ReignSocialEventScreenManager.ApplicationTick(dt));
             RunTickStage("party chat overlay", () => ReignPartyChatScreenManager.ApplicationTick(dt));
-            RunTickStage("party banter", () => ReignBanterCampaignBehavior.Instance?.ApplicationTick(dt));
+            RunTickStage("party banter", () => ReignServices.Banter?.ApplicationTick(dt));
             RunTickStage("tavern house overlay", () => ReignTavernHouseScreenManager.ApplicationTick(dt));
-            RunTickStage("temporary noble guests", () => ReignTemporaryPartyGuestCampaignBehavior.Instance?.ApplicationTick());
-            RunTickStage("persistent follow representation", () => ReignFollowCampaignBehavior.Instance?.ApplicationTick(dt));
+            RunTickStage("temporary noble guests", () => ReignServices.TemporaryPartyGuest?.ApplicationTick());
+            RunTickStage("persistent follow representation", () => ReignServices.Follow?.ApplicationTick(dt));
             RunTickStage("correspondence overlay", () => ReignCorrespondenceScreenManager.ApplicationTick(dt));
             RunTickStage("duel launch prompt", ReignDuelLaunchPromptService.Tick);
             RunTickStage("diplomacy announcement overlay", () => ReignDiplomacyAnnouncementScreenManager.ApplicationTick(dt));
@@ -333,7 +333,7 @@ namespace ReignBeta
             RunTickStage("royal council overlay", () => ReignRoyalCouncilScreenManager.ApplicationTick(dt));
             RunTickStage("economic report overlay", () => ReignCourtEconomicReportScreenManager.ApplicationTick(dt));
             RunTickStage("clan accords overlay", () => ReignClanAccordsScreenManager.ApplicationTick(dt));
-            RunTickStage("clan accords sync", () => ReignBeta.Diplomacy.ClanAccords.ReignClanAccordsCampaignBehavior.Instance?.ApplicationTick(dt));
+            RunTickStage("clan accords sync", () => ReignServices.ClanAccords?.ApplicationTick(dt));
             RunTickStage("war council overlay", () => ReignWarCouncilScreenManager.ApplicationTick(dt));
             RunTickStage("ambassador overlay", () => ReignAmbassadorScreenManager.ApplicationTick(dt));
             RunTickStage("spymaster overlay", () => ReignSpymasterScreenManager.ApplicationTick(dt));

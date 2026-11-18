@@ -15,6 +15,7 @@ using ReignBeta.Persistence.Campaign;
 using ReignBeta.Persistence.Integration;
 using ReignBeta.Platform.Campaign;
 using ReignBeta.Platform.Integration;
+using ReignBeta.Platform.Runtime;
 
 namespace ReignBeta.KingdomEvents.Campaign
 {
@@ -233,7 +234,7 @@ namespace ReignBeta.KingdomEvents.Campaign
                     JArray priorWars = before["atWarWith"] as JArray ?? new JArray();
                     if (definition.Id == "border_crisis")
                     {
-                        bool origin = ReignAICampaignBehavior.Instance?.WarOrigins.Any(x => x != null
+                        bool origin = ReignServices.AI?.WarOrigins.Any(x => x != null
                             && Same(x.OriginKind, "kingdom_event") && Same(x.SourceActionId, record.EventId)
                             && SamePair(x.AggressorKingdomStringId, x.DefenderKingdomStringId,
                                 target.StringId, secondary?.StringId)) == true;

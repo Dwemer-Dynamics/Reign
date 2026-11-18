@@ -6,6 +6,7 @@ using TaleWorlds.CampaignSystem;
 using TaleWorlds.CampaignSystem.Actions;
 using TaleWorlds.CampaignSystem.CampaignBehaviors;
 using ReignBeta.Platform.Integration;
+using ReignBeta.Platform.Runtime;
 
 namespace ReignBeta.Characters.Campaign
 {
@@ -34,19 +35,19 @@ namespace ReignBeta.Characters.Campaign
 
         private static MethodInfo Required(Type type, string name) => AccessTools.Method(type, name)
             ?? throw new MissingMethodException(type.FullName, name);
-        private static bool NativePopulation() => ReignWandererPopulationCampaignBehavior.Instance?.OwnsPopulation != true;
+        private static bool NativePopulation() => ReignServices.WandererPopulation?.OwnsPopulation != true;
         private static void CanDie(Hero __instance, KillCharacterAction.KillCharacterActionDetail causeOfDeath, ref bool __result)
         {
-            if (!WandererPopulationRules.AllowsDeath(ReignWandererPopulationCampaignBehavior.Instance?.IsProtected(__instance) == true, causeOfDeath.ToString())) __result = false;
+            if (!WandererPopulationRules.AllowsDeath(ReignServices.WandererPopulation?.IsProtected(__instance) == true, causeOfDeath.ToString())) __result = false;
             if (causeOfDeath == KillCharacterAction.KillCharacterActionDetail.Lost
-                && ReignWandererPopulationCampaignBehavior.Instance?.BlocksRemoval(__instance) == true) __result = false;
+                && ReignServices.WandererPopulation?.BlocksRemoval(__instance) == true) __result = false;
         }
         private static bool Kill(Hero victim, KillCharacterAction.KillCharacterActionDetail actionDetail)
         {
             // Forced Native cleanup also goes through this gate. Other heroes and natural old age remain untouched.
-            if (!WandererPopulationRules.AllowsDeath(ReignWandererPopulationCampaignBehavior.Instance?.IsProtected(victim) == true, actionDetail.ToString())) return false;
+            if (!WandererPopulationRules.AllowsDeath(ReignServices.WandererPopulation?.IsProtected(victim) == true, actionDetail.ToString())) return false;
             return actionDetail != KillCharacterAction.KillCharacterActionDetail.Lost
-                || ReignWandererPopulationCampaignBehavior.Instance?.BlocksRemoval(victim) != true;
+                || ReignServices.WandererPopulation?.BlocksRemoval(victim) != true;
         }
     }
 }

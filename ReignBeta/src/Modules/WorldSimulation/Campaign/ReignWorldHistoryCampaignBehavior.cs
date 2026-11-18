@@ -5,9 +5,6 @@ using System.Threading.Tasks;
 using Newtonsoft.Json.Linq;
 using ArenaOverhaul.TeamTournament;
 using ReignBeta.World;
-#if !REIGN_EXCLUDE_COURT
-using ReignBeta.Court;
-#endif
 using TaleWorlds.CampaignSystem;
 using TaleWorlds.CampaignSystem.Actions;
 using TaleWorlds.CampaignSystem.BarterSystem.Barterables;
@@ -26,11 +23,10 @@ using TaleWorlds.Core;
 using TaleWorlds.MountAndBlade;
 using SandBox.Missions.MissionLogics.Arena;
 using ReignBeta.Platform.Integration;
+using ReignBeta.WorldSimulation.Domain;
 using ReignBeta.WorldSimulation.Integration;
 using ReignBeta.WorldSimulation.World;
-#if !REIGN_EXCLUDE_COURT
-using ReignBeta.Court.Campaign;
-#endif
+using ReignBeta.Platform.Runtime;
 
 namespace ReignBeta.WorldSimulation.Campaign
 {
@@ -63,7 +59,7 @@ namespace ReignBeta.WorldSimulation.Campaign
         private double _waitingStartedDay;
         private string _waitingRoster = string.Empty;
 
-        public static ReignWorldHistoryCampaignBehavior Instance { get; private set; }
+        public static ReignWorldHistoryCampaignBehavior Instance => ReignServices.WorldHistory;
         public string TimelineId => _timelineId;
         public long Sequence => _sequence;
         public string HeadEventId => _headEventId;
@@ -73,7 +69,7 @@ namespace ReignBeta.WorldSimulation.Campaign
 
         public override void RegisterEvents()
         {
-            Instance = this;
+            ReignServices.WorldHistory = this;
             CampaignEvents.OnSessionLaunchedEvent.AddNonSerializedListener(this, OnSessionLaunched);
             CampaignEvents.OnHeroJoinedPartyEvent.AddNonSerializedListener(this, OnSharedHeroJoinedParty);
             CampaignEvents.OnPartySizeChangedEvent.AddNonSerializedListener(this, OnSharedPartySizeChanged);
@@ -546,7 +542,7 @@ namespace ReignBeta.WorldSimulation.Campaign
             // clan unchanged. It is cache repair, not a new migration event.
             if (hero?.Clan == oldClan) return;
 #if !REIGN_EXCLUDE_COURT
-            if (ReignCourtNobleCampaignBehavior.IsHouseholdClanMigrationInProgress) return;
+            if (ReignHouseholdClanMigration.InProgress) return;
 #endif
             Emit("hero_changed_clan", "completed", Name(hero) + " moved from " + Name(oldClan) + " to " + Name(hero?.Clan) + ".", string.Empty, hero?.CurrentSettlement,
                 new JArray(Entity(hero, "moving hero actor"), Entity(oldClan, "former clan"), Entity(hero?.Clan, "new clan")), true, "major_world");

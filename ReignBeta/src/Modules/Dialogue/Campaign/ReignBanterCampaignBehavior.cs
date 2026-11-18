@@ -22,7 +22,7 @@ namespace ReignBeta.Dialogue.Campaign
 {
     public sealed class ReignBanterCampaignBehavior : CampaignBehaviorBase
     {
-        public static ReignBanterCampaignBehavior Instance { get; private set; }
+        public static ReignBanterCampaignBehavior Instance => ReignServices.Banter;
         private string _journal = "", _generation = "", _campaign = "", _timeline = "";
         private JObject _episode, _options = new JObject { ["enabled"] = true };
         private int _epoch, _shown;
@@ -30,8 +30,8 @@ namespace ReignBeta.Dialogue.Campaign
         private double _real, _nextDelivery, _nextPoll, _retryAfter, _endedDay = -1, _observedDay;
         private TaleWorlds.Library.Vec2 _position;
         private bool Current(NativeCampaign owner, int epoch) => Instance == this && ReferenceEquals(owner, NativeCampaign.Current) && epoch == _epoch
-            && _campaign == ReignServerClient.GetCampaignId() && _timeline == (ReignWorldHistoryCampaignBehavior.Instance?.TimelineId ?? "main");
-        public override void RegisterEvents() { Instance = this; }
+            && _campaign == ReignServerClient.GetCampaignId() && _timeline == (ReignServices.WorldHistory?.TimelineId ?? "main");
+        public override void RegisterEvents() { ReignServices.Banter = this; }
         public override void SyncData(IDataStore store)
         {
             if (store.IsSaving) _journal = JsonConvert.SerializeObject(new JObject { ["episode"] = _episode, ["endedDay"] = _endedDay, ["shown"] = _shown });
@@ -58,7 +58,7 @@ namespace ReignBeta.Dialogue.Campaign
             _real += Math.Max(0, dt);
             if (ReignBanterPanel.IsCalibrationActive) return;
             if (!Ready() || ReignTestHarness.Current.OwnsAutomationSession) { ReignBanterPanel.Close(); return; }
-            string campaign = ReignServerClient.GetCampaignId(), timeline = ReignWorldHistoryCampaignBehavior.Instance?.TimelineId ?? "main";
+            string campaign = ReignServerClient.GetCampaignId(), timeline = ReignServices.WorldHistory?.TimelineId ?? "main";
             if (_campaign != campaign || _timeline != timeline) { _epoch++; _busy = _initialized = _positionObserved = false; _campaign = campaign; _timeline = timeline; _generation = ""; ReignBanterPanel.Close(); }
             double day = CampaignTime.Now.ToDays; var position = MobileParty.MainParty.Position.ToVec2();
             if (!_positionObserved) { _positionObserved = true; _observedDay = day; _position = position; _moving = false; }

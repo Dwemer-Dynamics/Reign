@@ -20,6 +20,7 @@ using ReignBeta.Government.UI;
 using ReignBeta.Court.Campaign;
 using ReignBeta.Court.UI;
 #endif
+using ReignBeta.Platform.Runtime;
 
 namespace ReignBeta.Government.Campaign
 {
@@ -59,7 +60,7 @@ namespace ReignBeta.Government.Campaign
             public HashSet<string> ExistingReceipts;
         }
 
-        public static ReignGovernmentCampaignBehavior Instance { get; private set; }
+        public static ReignGovernmentCampaignBehavior Instance => ReignServices.Government;
         public IReadOnlyList<ReignGovernmentStateRecord> Governments => _governments;
         public IReadOnlyList<ReignGovernmentPartyRecord> Parties => _parties;
         public IReadOnlyList<ReignGovernmentSeatRecord> Seats => _seats;
@@ -70,7 +71,7 @@ namespace ReignBeta.Government.Campaign
 
         public ReignGovernmentCampaignBehavior()
         {
-            Instance = this;
+            ReignServices.Government = this;
         }
 
         public override void RegisterEvents()

@@ -2,9 +2,6 @@ using System;
 using System.Reflection;
 using ReignBeta.Campaign;
 using ReignBeta.Government;
-#if !REIGN_EXCLUDE_COURT
-using ReignBeta.Court;
-#endif
 using TaleWorlds.CampaignSystem;
 using TaleWorlds.CampaignSystem.GameComponents;
 using TaleWorlds.CampaignSystem.Settlements;
@@ -14,9 +11,7 @@ using TaleWorlds.Localization;
 using ReignBeta.Government.Campaign;
 using ReignBeta.KingdomEvents.Campaign;
 using ReignBeta.WorldSimulation.Rulers;
-#if !REIGN_EXCLUDE_COURT
-using ReignBeta.Court.Campaign;
-#endif
+using ReignBeta.Platform.Runtime;
 
 namespace ReignBeta.WorldSimulation.Economy
 {
@@ -73,7 +68,7 @@ namespace ReignBeta.WorldSimulation.Economy
             if (village == null || village.VillageState != Village.VillageStates.Normal) return 0f;
             // The supplementary native channel has only a hearth baseline and multiplicative issue effects.
             float native = base.CalculateDailyFoodProductionAmount(village);
-            float recovery = IsPotential ? 1f : ReignEconomyCampaignBehavior.Instance?.GetFoodRecoveryModifier(village) ?? 1f;
+            float recovery = IsPotential ? 1f : ReignServices.Economy?.GetFoodRecoveryModifier(village) ?? 1f;
             return Math.Max(0, native / (village.GetHearthLevel() + 1) * (float)ReignWarEconomyPolicy.HealthyFood(village.Hearth) / 6f * recovery
                 * (1f + ReignNpcFoodSabotage.Factor(village)));
         }
@@ -83,7 +78,7 @@ namespace ReignBeta.WorldSimulation.Economy
                 return new ExplainedNumber(0f);
             ExplainedNumber result = base.CalculateDailyProductionAmount(village, item);
 #if !REIGN_EXCLUDE_COURT
-            float factor = ReignCourtCampaignBehavior.Instance?.GetDocketVillageProductionFactor(village) ?? 0f;
+            float factor = ReignServices.CourtWorld?.GetDocketVillageProductionFactor(village) ?? 0f;
             if (factor != 0f)
                 result.AddFactor(factor, new TextObject("{=!}Royal petition production support"));
 #endif
@@ -92,7 +87,7 @@ namespace ReignBeta.WorldSimulation.Economy
                 if (!ReignRaidFoodDisruption.OuterFoodOwnsRecovery) ReignRaidFoodDisruption.ApplyProduction(village, ref result);
                 return result;
             }
-            float recovery = IsPotential ? 1f : ReignEconomyCampaignBehavior.Instance?.GetRecoveryModifier(village) ?? 1f;
+            float recovery = IsPotential ? 1f : ReignServices.Economy?.GetRecoveryModifier(village) ?? 1f;
             ReignBeta.Diplomacy.ClanAccords.ReignClanAccordModelMath.AddFinalDelta(ref result,
                 -Math.Max(0, result.ResultNumber) * (1 - recovery), new TextObject("{=!}Agricultural recovery"));
             result.LimitMin(0);
@@ -110,16 +105,16 @@ namespace ReignBeta.WorldSimulation.Economy
             bool includeDescriptions = false)
         {
             ExplainedNumber result = base.CalculateTownFoodStocksChange(town, includeMarketStocks, includeDescriptions);
-            ReignEconomyCampaignBehavior behavior = ReignEconomyCampaignBehavior.Instance;
+            ReignEconomyCampaignBehavior behavior = ReignServices.Economy;
             if (town?.Settlement == null || town.IsUnderSiege)
             {
                 return result;
             }
 
-            float eventFactor = ReignKingdomEventsCampaignBehavior.Instance
+            float eventFactor = ReignServices.KingdomEvents
                 ?.GetFoodProductionFactor(town) ?? 0f;
 #if !REIGN_EXCLUDE_COURT
-            float spyFactor = ReignCourtCampaignBehavior.Instance?.GetSpymasterFoodFactor(town) ?? 0f;
+            float spyFactor = ReignServices.CourtWorld?.GetSpymasterFoodFactor(town) ?? 0f;
 #else
             float spyFactor = 0f;
 #endif
@@ -159,8 +154,8 @@ namespace ReignBeta.WorldSimulation.Economy
         public override ExplainedNumber CalculateSecurityChange(Town town, bool includeDescriptions = false)
         {
             ExplainedNumber result = base.CalculateSecurityChange(town, includeDescriptions);
-            float accordSecurity = (float)(ReignBeta.Diplomacy.ClanAccords.ReignClanAccordsCampaignBehavior.Instance?.GetBonuses(town?.Settlement?.OwnerClan).Security ?? 0d);
-            ReignEconomyCampaignBehavior behavior = ReignEconomyCampaignBehavior.Instance;
+            float accordSecurity = (float)(ReignServices.ClanAccords?.GetBonuses(town?.Settlement?.OwnerClan).Security ?? 0d);
+            ReignEconomyCampaignBehavior behavior = ReignServices.Economy;
             if (town?.Settlement == null)
             {
                 return result;
@@ -199,7 +194,7 @@ namespace ReignBeta.WorldSimulation.Economy
                 }
             }
 
-            float eventDelta = ReignKingdomEventsCampaignBehavior.Instance
+            float eventDelta = ReignServices.KingdomEvents
                 ?.GetSecurityDelta(town) ?? 0f;
             if (eventDelta != 0f)
                 result.Add(eventDelta, new TextObject(eventDelta < 0f
@@ -207,14 +202,14 @@ namespace ReignBeta.WorldSimulation.Economy
                     : "{=!}Kingdom-wide law and order"));
 
 #if !REIGN_EXCLUDE_COURT
-            float spyDelta = ReignCourtCampaignBehavior.Instance?.GetSpymasterSecurityDelta(town) ?? 0f;
+            float spyDelta = ReignServices.CourtWorld?.GetSpymasterSecurityDelta(town) ?? 0f;
             if (spyDelta != 0f)
                 result.Add(spyDelta, new TextObject("{=!}Covert security disruption"));
 #endif
             ReignBeta.Diplomacy.ClanAccords.ReignClanAccordModelMath.AddFinalDelta(ref result, accordSecurity,
                 new TextObject("{=!}Clan Accords: mutual watch"));
             ReignBeta.Diplomacy.ClanAccords.ReignClanAccordModelMath.AddFinalDelta(ref result,
-                (float)(ReignRulerCampaignBehavior.Instance?.Modifiers(town).Security ?? 0),
+                (float)(ReignServices.Ruler?.Modifiers(town).Security ?? 0),
                 new TextObject("{=!}Ruler judgment consequences"));
             return result;
         }
@@ -227,7 +222,7 @@ namespace ReignBeta.WorldSimulation.Economy
         public override ExplainedNumber CalculateLoyaltyChange(Town town, bool includeDescriptions = false)
         {
             ExplainedNumber result = base.CalculateLoyaltyChange(town, includeDescriptions);
-            float modifier = ReignEconomyCampaignBehavior.Instance?.GetReliefLoyaltyModifier(town) ?? 0f;
+            float modifier = ReignServices.Economy?.GetReliefLoyaltyModifier(town) ?? 0f;
             if (modifier > 0f)
             {
                 result.Add(modifier, new TextObject("{=!}Emergency provisions received"));
@@ -236,22 +231,22 @@ namespace ReignBeta.WorldSimulation.Economy
             {
                 result.Add(modifier, new TextObject("{=!}Unmet emergency provisions"));
             }
-            float eventDelta = ReignKingdomEventsCampaignBehavior.Instance
+            float eventDelta = ReignServices.KingdomEvents
                 ?.GetLoyaltyDelta(town) ?? 0f;
             if (eventDelta != 0f)
                 result.Add(eventDelta, new TextObject(eventDelta < 0f
                     ? "{=!}Kingdom-wide political unrest"
                     : "{=!}Kingdom-wide national unity"));
-            float governmentDelta = ReignGovernmentCampaignBehavior.Instance?.GetLoyaltyDelta(town) ?? 0f;
+            float governmentDelta = ReignServices.Government?.GetLoyaltyDelta(town) ?? 0f;
             if (governmentDelta != 0f)
                 result.Add(governmentDelta, new TextObject("{=!}Representative government authority"));
 #if !REIGN_EXCLUDE_COURT
-            float spyDelta = ReignCourtCampaignBehavior.Instance?.GetSpymasterLoyaltyDelta(town) ?? 0f;
+            float spyDelta = ReignServices.CourtWorld?.GetSpymasterLoyaltyDelta(town) ?? 0f;
             if (spyDelta != 0f)
                 result.Add(spyDelta, new TextObject("{=!}Covert agitation"));
 #endif
             ReignBeta.Diplomacy.ClanAccords.ReignClanAccordModelMath.AddFinalDelta(ref result,
-                (float)(ReignRulerCampaignBehavior.Instance?.Modifiers(town).Loyalty ?? 0),
+                (float)(ReignServices.Ruler?.Modifiers(town).Loyalty ?? 0),
                 new TextObject("{=!}Ruler judgment consequences"));
             return result;
         }
@@ -266,20 +261,20 @@ namespace ReignBeta.WorldSimulation.Economy
             ExplainedNumber result = base.CalculateProsperityChange(
                 fortification, includeDescriptions);
             float accordProsperity = fortification?.Settlement?.IsTown == true
-                ? (float)(ReignBeta.Diplomacy.ClanAccords.ReignClanAccordsCampaignBehavior.Instance?.GetBonuses(fortification.Settlement.OwnerClan).Prosperity ?? 0d) : 0f;
-            float eventDelta = ReignKingdomEventsCampaignBehavior.Instance
+                ? (float)(ReignServices.ClanAccords?.GetBonuses(fortification.Settlement.OwnerClan).Prosperity ?? 0d) : 0f;
+            float eventDelta = ReignServices.KingdomEvents
                 ?.GetProsperityDelta(fortification) ?? 0f;
             if (eventDelta != 0f)
                 result.Add(eventDelta, new TextObject(eventDelta < 0f
                     ? "{=!}Kingdom-wide trade collapse"
                     : "{=!}Kingdom-wide trade boom"));
-            float governmentDelta = ReignGovernmentCampaignBehavior.Instance?.GetProsperityDelta(fortification) ?? 0f;
+            float governmentDelta = ReignServices.Government?.GetProsperityDelta(fortification) ?? 0f;
             if (governmentDelta != 0f)
                 result.Add(governmentDelta, new TextObject("{=!}Representative government authority"));
             ReignBeta.Diplomacy.ClanAccords.ReignClanAccordModelMath.AddFinalDelta(ref result, accordProsperity,
                 new TextObject("{=!}Clan Accords: artisan exchange"));
             ReignBeta.Diplomacy.ClanAccords.ReignClanAccordModelMath.AddFinalDelta(ref result,
-                (float)(ReignRulerCampaignBehavior.Instance?.Modifiers(fortification).Prosperity ?? 0),
+                (float)(ReignServices.Ruler?.Modifiers(fortification).Prosperity ?? 0),
                 new TextObject("{=!}Ruler judgment consequences"));
             return result;
         }
@@ -292,13 +287,13 @@ namespace ReignBeta.WorldSimulation.Economy
             if (village.VillageState == Village.VillageStates.Normal)
             {
                 float nativeBaseline = village.Hearth < 300 ? 4f : village.Hearth < 600 ? 1.2f : .2f;
-                float natural = ReignEconomyCampaignBehavior.Instance?.GetNaturalGrowth(village)
+                float natural = ReignServices.Economy?.GetNaturalGrowth(village)
                     ?? (float)ReignWarEconomyPolicy.NaturalGrowth(village.Hearth, 0, ReignEconomyCampaignBehavior.IsAgricultureStressed(village));
                 // Add changes the baseline under existing native factors; unrelated perk/building flats remain intact.
                 result.Add(natural - nativeBaseline, new TextObject("{=!}Household recovery after mobilization"));
             }
-            float accordHearths = (float)(ReignBeta.Diplomacy.ClanAccords.ReignClanAccordsCampaignBehavior.Instance?.GetBonuses(village?.Settlement?.OwnerClan).HearthGrowth ?? 0d);
-            float eventDelta = ReignKingdomEventsCampaignBehavior.Instance
+            float accordHearths = (float)(ReignServices.ClanAccords?.GetBonuses(village?.Settlement?.OwnerClan).HearthGrowth ?? 0d);
+            float eventDelta = ReignServices.KingdomEvents
                 ?.GetHearthDelta(village) ?? 0f;
             if (eventDelta != 0f)
             {
@@ -322,7 +317,7 @@ namespace ReignBeta.WorldSimulation.Economy
                         new TextObject("{=!}Kingdom-wide population boom"));
                 }
             }
-            float governmentDelta = ReignGovernmentCampaignBehavior.Instance?.GetHearthDelta(village) ?? 0f;
+            float governmentDelta = ReignServices.Government?.GetHearthDelta(village) ?? 0f;
             ReignBeta.Diplomacy.ClanAccords.ReignClanAccordModelMath.AddFinalDelta(ref result, governmentDelta,
                 new TextObject("{=!}Representative government authority"));
             ReignBeta.Diplomacy.ClanAccords.ReignClanAccordModelMath.AddFinalDelta(ref result, accordHearths,
@@ -338,14 +333,14 @@ namespace ReignBeta.WorldSimulation.Economy
             bool includeDescriptions = false)
         {
             ExplainedNumber result = base.CalculateDailyConstructionPower(town, includeDescriptions);
-            float eventFactor = ReignKingdomEventsCampaignBehavior.Instance
+            float eventFactor = ReignServices.KingdomEvents
                 ?.GetConstructionFactor(town) ?? 0f;
             if (eventFactor != 0f)
                 result.AddFactor(eventFactor, new TextObject(eventFactor < 0f
                     ? "{=!}Kingdom-wide construction stagnation"
                     : "{=!}Kingdom-wide golden age"));
 #if !REIGN_EXCLUDE_COURT
-            float spyFactor = ReignCourtCampaignBehavior.Instance?.GetSpymasterConstructionFactor(town) ?? 0f;
+            float spyFactor = ReignServices.CourtWorld?.GetSpymasterConstructionFactor(town) ?? 0f;
             if (spyFactor != 0f)
                 result.AddFactor(spyFactor, new TextObject("{=!}Covert construction disruption"));
 #endif
@@ -356,10 +351,10 @@ namespace ReignBeta.WorldSimulation.Economy
         public override int CalculateDailyConstructionPowerWithoutBoost(Town town)
         {
             int native = base.CalculateDailyConstructionPowerWithoutBoost(town);
-            float eventFactor = ReignKingdomEventsCampaignBehavior.Instance
+            float eventFactor = ReignServices.KingdomEvents
                 ?.GetConstructionFactor(town) ?? 0f;
 #if !REIGN_EXCLUDE_COURT
-            float spyFactor = ReignCourtCampaignBehavior.Instance?.GetSpymasterConstructionFactor(town) ?? 0f;
+            float spyFactor = ReignServices.CourtWorld?.GetSpymasterConstructionFactor(town) ?? 0f;
 #else
             float spyFactor = 0f;
 #endif

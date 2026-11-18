@@ -15,6 +15,7 @@ using TaleWorlds.Core;
 using static ReignBeta.Court.Campaign.ReignCourtCampaignBehavior;
 using ReignBeta.Characters.Integration;
 using ReignBeta.Court.UI;
+using ReignBeta.Platform.Runtime;
 
 namespace ReignBeta.Court.Campaign
 {
@@ -165,7 +166,7 @@ namespace ReignBeta.Court.Campaign
                 "The created native condition did not produce the requested production candidate.", saveName, saveName);
 
             string campaignId = ReignCampaignIdentity.CurrentCampaignId();
-            string timelineId = ReignBeta.WorldSimulation.Campaign.ReignWorldHistoryCampaignBehavior.Instance?.TimelineId ?? "main";
+            string timelineId = ReignServices.WorldHistory?.TimelineId ?? "main";
             ReignDocketPetition petition = court.CreatePetitionSnapshot(candidate, campaignId, timelineId, day);
             petition.PetitionId = "petition_test_" + runId + "_" + Guid.NewGuid().ToString("N");
             string action = NormalizeFixtureAction(options.Value<string>("action"));

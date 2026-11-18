@@ -19,6 +19,7 @@ using static ReignBeta.Platform.Integration.ReignServerClient;
 using ReignBeta.Platform.Integration;
 using ReignBeta.Relationships.Campaign;
 using ReignBeta.WorldSimulation.Campaign;
+using ReignBeta.Platform.Runtime;
 
 namespace ReignBeta.Relationships.Integration
 {
@@ -128,8 +129,8 @@ namespace ReignBeta.Relationships.Integration
                 Hero bio = FindLivingHero(result.BiologicalFatherId);
                 Hero legal = FindLivingHero(result.LegalFatherId) ?? bio;
                 string error = string.Empty;
-                if (ReignBeta.Characters.Campaign.ReignFamilyCampaignBehavior.Instance != null
-                    && ReignBeta.Characters.Campaign.ReignFamilyCampaignBehavior.Instance.TryStartManagedConception(result.ConceptionId, mother, bio, legal, (float)CurrentDirectorDay(), result.DueDay, legal != bio ? 0.75f : 0f, true, out error))
+                if (ReignServices.Family != null
+                    && ReignServices.Family.TryStartManagedConception(result.ConceptionId, mother, bio, legal, (float)CurrentDirectorDay(), result.DueDay, legal != bio ? 0.75f : 0f, true, out error))
                 {
                     ReignLog.Info("Verified player conception succeeded at chance=" + result.Chance.ToString("P2") + ".");
                 }
@@ -148,7 +149,7 @@ namespace ReignBeta.Relationships.Integration
                 await PostJsonAsync("/family/conception/report", new JObject
                 {
                     ["campaignId"] = GetCampaignId(),["conceptionId"] = record.ConceptionId,["status"] = status ?? record.Status,
-                    ["timelineId"] = ReignWorldHistoryCampaignBehavior.Instance?.TimelineId ?? "main",
+                    ["timelineId"] = ReignServices.WorldHistory?.TimelineId ?? "main",
                     ["conceptionDay"] = record.ConceptionDay, ["dueDay"] = record.DueDay, ["secrecy"] = record.Secrecy,
                     ["motherExposed"] = record.MotherExposed, ["fatherExposed"] = record.FatherExposed,
                     ["spouseAtConceptionId"] = record.SpouseAtConceptionId, ["marriageAtConceptionKnown"] = record.MarriageAtConceptionKnown,
@@ -188,7 +189,7 @@ namespace ReignBeta.Relationships.Integration
             {
                 var scope = await ReignMainThread.InvokeAsync(() => {
                     string campaign = GetCampaignId();
-                    string timeline = ReignWorldHistoryCampaignBehavior.Instance?.TimelineId ?? "main";
+                    string timeline = ReignServices.WorldHistory?.TimelineId ?? "main";
                     return new[] { campaign, timeline, AmbientInputDirectory(campaign, timeline) };
                 }).ConfigureAwait(false);
                 return await AmbientUploadGate.Run(scope[0] + "\0" + scope[1],
@@ -289,7 +290,7 @@ namespace ReignBeta.Relationships.Integration
                     return new JObject
                     {
                         ["campaignId"] = GetCampaignId(),
-                        ["timelineId"] = ReignBeta.WorldSimulation.Campaign.ReignWorldHistoryCampaignBehavior.Instance?.TimelineId ?? "main",
+                        ["timelineId"] = ReignServices.WorldHistory?.TimelineId ?? "main",
                         ["generationId"] = generationId ?? string.Empty,
                         ["worldDay"] = CurrentDirectorDay(),
                         ["playerId"] = Hero.MainHero?.StringId ?? string.Empty,
@@ -375,7 +376,7 @@ namespace ReignBeta.Relationships.Integration
             if (directory == null)
             {
                 string campaignId = GetCampaignId();
-                string timelineId = ReignBeta.WorldSimulation.Campaign.ReignWorldHistoryCampaignBehavior.Instance?.TimelineId ?? "main";
+                string timelineId = ReignServices.WorldHistory?.TimelineId ?? "main";
                 directory = AmbientInputDirectory(campaignId, timelineId);
             }
             return Directory.Exists(directory)
@@ -404,7 +405,7 @@ namespace ReignBeta.Relationships.Integration
             }).Where(value => value > 0).ToList();
             return new JObject
             {
-                ["marriages"] = ReignRelationshipCampaignBehavior.Instance?.ArrangedMarriageDiagnostics(),
+                ["marriages"] = ReignServices.Relationship?.ArrangedMarriageDiagnostics(),
                 ["clientOutboxDays"] = known ? paths.Count : 1,
                 ["clientOutboxDaysKnown"] = known,
                 ["oldestClientOutboxDay"] = days.Count == 0 ? -1 : days.Min(),
@@ -489,7 +490,7 @@ namespace ReignBeta.Relationships.Integration
         {
             try
             {
-                await PostJsonAsync("/relationships/director/report_action", new JObject { ["campaignId"] = GetCampaignId(), ["timelineId"] = ReignBeta.WorldSimulation.Campaign.ReignWorldHistoryCampaignBehavior.Instance?.TimelineId ?? "main", ["directorActionId"] = id ?? string.Empty, ["status"] = status ?? "completed", ["error"] = error ?? string.Empty, ["worldDay"] = CurrentDirectorDay() }).ConfigureAwait(false);
+                await PostJsonAsync("/relationships/director/report_action", new JObject { ["campaignId"] = GetCampaignId(), ["timelineId"] = ReignServices.WorldHistory?.TimelineId ?? "main", ["directorActionId"] = id ?? string.Empty, ["status"] = status ?? "completed", ["error"] = error ?? string.Empty, ["worldDay"] = CurrentDirectorDay() }).ConfigureAwait(false);
             }
             catch (Exception ex) { ReignLog.Warn("Relationship director action report failed: " + ex.Message); }
         }
@@ -522,7 +523,7 @@ namespace ReignBeta.Relationships.Integration
             List<Hero> participants = eligible.Where(x => presentIds.Contains(x.StringId)).ToList();
             return new JObject
             {
-                ["campaignId"] = GetCampaignId(),["timelineId"] = ReignBeta.WorldSimulation.Campaign.ReignWorldHistoryCampaignBehavior.Instance?.TimelineId ?? "main",
+                ["campaignId"] = GetCampaignId(),["timelineId"] = ReignServices.WorldHistory?.TimelineId ?? "main",
                 ["worldDay"] = CurrentDirectorDay(),["playerId"] = Hero.MainHero?.StringId ?? string.Empty,["playerClanId"] = Clan.PlayerClan?.StringId ?? string.Empty,
                 ["presenceGroups"] = new JArray(groups),["heroes"] = new JArray(participants.Select(BuildAmbientLifecycleHero))
             };
@@ -635,7 +636,7 @@ namespace ReignBeta.Relationships.Integration
                 }));
             return new JObject
             {
-                ["campaignId"] = GetCampaignId(),["timelineId"] = ReignBeta.WorldSimulation.Campaign.ReignWorldHistoryCampaignBehavior.Instance?.TimelineId ?? "main",
+                ["campaignId"] = GetCampaignId(),["timelineId"] = ReignServices.WorldHistory?.TimelineId ?? "main",
                 ["worldDay"] = CurrentDirectorDay(),["playerId"] = Hero.MainHero?.StringId ?? string.Empty,["playerClanId"] = Clan.PlayerClan?.StringId ?? string.Empty,
                 ["nativeYear"] = CampaignTime.Now.GetYear,
                 ["periodIndex"] = Reign.Relationships.ArrangedMarriagePolicy.Period(CurrentDirectorDay()),

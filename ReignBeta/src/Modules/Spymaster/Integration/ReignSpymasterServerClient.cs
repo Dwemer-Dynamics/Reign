@@ -15,11 +15,11 @@ namespace ReignBeta.Spymaster.Integration
     {
         private static JObject BasePayload()
         {
-            ReignCourtCampaignBehavior court = ReignCourtCampaignBehavior.Instance;
+            ReignCourtCampaignBehavior court = ReignServices.Court;
             return new JObject
             {
                 ["campaignId"] = ReignCampaignIdentity.CurrentCampaignId(),
-                ["timelineId"] = ReignWorldHistoryCampaignBehavior.Instance?.TimelineId ?? "main",
+                ["timelineId"] = ReignServices.WorldHistory?.TimelineId ?? "main",
                 ["sessionId"] = court?.Session?.SessionId ?? string.Empty,
                 ["courtScope"] = (court?.Session?.Scope ?? ReignCourtScope.Local).ToString().ToLowerInvariant(),
                 ["hostSettlementStringId"] = court?.Session?.HostSettlementStringId ?? string.Empty,

@@ -15,6 +15,7 @@ using TaleWorlds.Core;
 using static ReignBeta.Court.Campaign.ReignCourtCampaignBehavior;
 using ReignBeta.Characters.Integration;
 using ReignBeta.Court.UI;
+using ReignBeta.Platform.Runtime;
 
 namespace ReignBeta.Court.Campaign
 {
@@ -99,7 +100,7 @@ namespace ReignBeta.Court.Campaign
 
             ReignNobleDocketMatter matter = SelectDistinctNobleFixtureVariant(court, template,
                 ReignCampaignIdentity.CurrentCampaignId(),
-                ReignBeta.WorldSimulation.Campaign.ReignWorldHistoryCampaignBehavior.Instance?.TimelineId ?? "main",
+                ReignServices.WorldHistory?.TimelineId ?? "main",
                 preparedDay, runId, out int participantSelectionSlot,
                 out int participantVariantIndex, out int participantVariantCount);
             if (matter == null)

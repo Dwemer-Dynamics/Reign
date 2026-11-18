@@ -52,7 +52,7 @@ public sealed class RulerReleaseActionPolicyTests
         Assert.DoesNotContain("if (ReignRulerCampaignBehavior.BlocksRelease(rulerTarget))", source);
         Assert.Contains("SelectedSentence(targetRealm, actorRealm, limit)", source);
         Assert.Contains("ReignRulerCampaignBehavior.BlocksPeace", source);
-        Assert.Contains("ReignRulerCampaignBehavior.Instance?.AwaitsDecision(rulerTarget)", source);
+        Assert.Contains("ReignServices.Ruler?.AwaitsDecision(rulerTarget)", source);
         Assert.Contains("&& (ReignRulerCampaignBehavior.BlocksRelease(rulerTarget)", source);
     }
 }

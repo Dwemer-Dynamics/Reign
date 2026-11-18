@@ -15,6 +15,7 @@ using ReignBeta.Characters.Integration;
 using ReignBeta.Platform.Integration;
 using ReignBeta.Portraits.UI;
 using ReignBeta.WorldSimulation.Campaign;
+using ReignBeta.Platform.Runtime;
 
 namespace ReignBeta.Dialogue.Integration
 {
@@ -27,7 +28,7 @@ namespace ReignBeta.Dialogue.Integration
         internal static JObject Scope(string session = "") => new JObject
         {
             ["campaignId"] = ReignCampaignIdentity.CurrentCampaignId(),
-            ["timelineId"] = ReignWorldHistoryCampaignBehavior.Instance?.TimelineId ?? "main",
+            ["timelineId"] = ReignServices.WorldHistory?.TimelineId ?? "main",
             ["playerId"] = Hero.MainHero?.StringId ?? "", ["sessionId"] = session ?? "", ["worldDay"] = CampaignTime.Now.ToDays
         };
 

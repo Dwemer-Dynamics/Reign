@@ -16,6 +16,7 @@ using ReignBeta.Persistence.Campaign;
 using ReignBeta.Platform.Campaign;
 using ReignBeta.Platform.Integration;
 using ReignBeta.WorldSimulation.World;
+using ReignBeta.Platform.Runtime;
 
 namespace ReignBeta.WorldSimulation.Campaign
 {
@@ -49,7 +50,7 @@ namespace ReignBeta.WorldSimulation.Campaign
                         ?? string.Empty;
                     if (!string.IsNullOrWhiteSpace(caseId))
                         ActionProbeBeforeIds[_activeRunId + ":" + caseId] =
-                            new HashSet<string>((ReignAICampaignBehavior.Instance?.Actions
+                            new HashSet<string>((ReignServices.AI?.Actions
                                 ?? new List<ReignWorldActionRecord>())
                                 .Where(action => action != null)
                                 .Select(action => action.ActionId),
@@ -93,7 +94,7 @@ namespace ReignBeta.WorldSimulation.Campaign
                 observation = await ReignMainThread.InvokeAsync(() =>
                 {
                     List<ReignWorldActionRecord> fresh =
-                        (ReignAICampaignBehavior.Instance?.Actions
+                        (ReignServices.AI?.Actions
                             ?? new List<ReignWorldActionRecord>())
                         .Where(action => action != null
                             && !beforeIds.Contains(action.ActionId))
@@ -102,7 +103,7 @@ namespace ReignBeta.WorldSimulation.Campaign
                         string.Equals(action.Type.ToString(), expectedType,
                             StringComparison.OrdinalIgnoreCase));
                     ReignActionResult result = expected == null ? null
-                        : ReignAICampaignBehavior.Instance?.GetLastActionResult(
+                        : ReignServices.AI?.GetLastActionResult(
                             expected.ActionId);
                     bool terminal = expected != null
                         && (expected.Status == ReignWorldActionStatus.Completed
@@ -439,13 +440,13 @@ namespace ReignBeta.WorldSimulation.Campaign
                     ["value"] = subject.GetRelation(target)
                 });
             }
-            JArray actions = new JArray((ReignAICampaignBehavior.Instance?.Actions
+            JArray actions = new JArray((ReignServices.AI?.Actions
                 ?? new List<ReignWorldActionRecord>())
                 .Where(action => action != null)
                 .Reverse().Take(64).Reverse()
                 .Select(action =>
                 {
-                    ReignActionResult result = ReignAICampaignBehavior.Instance
+                    ReignActionResult result = ReignServices.AI
                         ?.GetLastActionResult(action.ActionId);
                     return new JObject
                     {
@@ -486,7 +487,7 @@ namespace ReignBeta.WorldSimulation.Campaign
                 ["relations"] = relations,
                 ["actions"] = actions,
                 ["pendingNpcOffers"] = ObservePendingNpcOffers(
-                    ReignBeta.WorldSimulation.Actions.ReignAgreementBehavior.Instance?.Offers,
+                    ReignServices.Agreement?.Offers,
                     Hero.MainHero?.StringId ?? string.Empty, heroes.Select(h => h.StringId)),
                 ["playerGold"] = Hero.MainHero?.Gold ?? 0,
                 ["playerClanId"] = Clan.PlayerClan?.StringId ?? string.Empty,

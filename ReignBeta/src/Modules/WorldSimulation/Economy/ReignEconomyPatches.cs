@@ -21,6 +21,7 @@ using TaleWorlds.CampaignSystem.ViewModelCollection.Party;
 using TaleWorlds.Core;
 using TaleWorlds.Library;
 using ReignBeta.Platform.Integration;
+using ReignBeta.Platform.Runtime;
 
 namespace ReignBeta.WorldSimulation.Economy
 {
@@ -441,7 +442,7 @@ namespace ReignBeta.WorldSimulation.Economy
                     ["native_naval_story"] = "explicit_story_quest_exceptions",
                     ["ai_prisoner_transfer"] = IsInstalled(nameof(AiPrisonerTransferPrefix)) && IsInstalled(nameof(AiPrisonerTransferFinalizer)),
                     ["household_retinue"] = IsInstalled(nameof(LordPartyInitializedPrefix)) && IsInstalled(nameof(LordPartyInitializedPostfix)) && IsInstalled(nameof(LordPartyInitializationFinalizer)) && IsInstalled(nameof(NativeAiSpawnLocalityTranspiler)),
-                    ["castle_guard"] = ReignEconomyCampaignBehavior.Instance != null,
+                    ["castle_guard"] = ReignServices.Economy != null,
                     ["militia_conversion"] = "no supported native/Reign conversion discovered; unidentified routes fail coverage"
                 },
                 ["nativeAssembly"] = typeof(RecruitmentCampaignBehavior).Assembly.ManifestModule.ModuleVersionId.ToString(),
@@ -579,7 +580,7 @@ namespace ReignBeta.WorldSimulation.Economy
 
         private static bool PlayerRecruitmentSelectionPrefix(RecruitmentVM __instance)
         {
-            ReignEconomyCampaignBehavior behavior = ReignEconomyCampaignBehavior.Instance;
+            ReignEconomyCampaignBehavior behavior = ReignServices.Economy;
             Settlement settlement = Settlement.CurrentSettlement;
             if (behavior == null || settlement == null)
             {
@@ -602,7 +603,7 @@ namespace ReignBeta.WorldSimulation.Economy
             __state = null;
             int count = __instance.TroopsInCart.Count;
             if (ReignWarEconomyTransactions.State?.Pending.Any(x => x.Party == MobileParty.MainParty.StringId) == true
-                || count > (ReignEconomyCampaignBehavior.Instance?.GetRecruitCapacity(Settlement.CurrentSettlement) ?? 0)
+                || count > (ReignServices.Economy?.GetRecruitCapacity(Settlement.CurrentSettlement) ?? 0)
                 || __instance.TroopsInCart.Sum(x => x.Cost) > Hero.MainHero.Gold
                 || __instance.TroopsInCart.Any(x => x.Owner.OwnerHero.VolunteerTypes[x.Index] != x.Character))
             {
@@ -645,7 +646,7 @@ namespace ReignBeta.WorldSimulation.Economy
             string key = ReignWarEconomyTransactions.GenerationKey(mobileParty);
             if (state.PartyGenerations.ContainsKey(key))
             {
-                ReignEconomyCampaignBehavior.Instance.RecordDuplicateRetinueInitialization();
+                ReignServices.Economy.RecordDuplicateRetinueInitialization();
                 return false;
             }
             state.PartyGenerations[key] = "pending";
@@ -768,7 +769,7 @@ namespace ReignBeta.WorldSimulation.Economy
             }
             finally { state.PartyGenerations[generation] = "committed:" + enlisted; }
             ReignWarEconomyTransactions.Totals(ReignWarEconomyTransactions.Retinue).Blocked += retinueSize - enlisted;
-            ReignEconomyCampaignBehavior.Instance?.RecordRetinue(enlisted);
+            ReignServices.Economy?.RecordRetinue(enlisted);
             ReignLog.Info("Funded " + enlisted + " of " + retinueSize + " household troops for " + owner.StringId + ".");
         }
 
@@ -1567,7 +1568,7 @@ namespace ReignBeta.WorldSimulation.Economy
 
             int transferred = targetSize - remaining;
             int totalAfter = garrison.MemberRoster.TotalManCount + patrol.MemberRoster.TotalManCount;
-            ReignEconomyCampaignBehavior.Instance?.RecordPatrolTransfer(
+            ReignServices.Economy?.RecordPatrolTransfer(
                 transferred, totalBefore != totalAfter);
             return transferred;
         }
@@ -1602,7 +1603,7 @@ namespace ReignBeta.WorldSimulation.Economy
                     -element.Xp);
             }
             int totalAfter = garrison.MemberRoster.TotalManCount + patrol.MemberRoster.TotalManCount;
-            ReignEconomyCampaignBehavior.Instance?.RecordPatrolReturn(
+            ReignServices.Economy?.RecordPatrolReturn(
                 returned, totalBefore != totalAfter);
         }
 

@@ -30,6 +30,7 @@ using ReignBeta.WorldSimulation.Campaign;
 #if !REIGN_EXCLUDE_COURT
 using ReignBeta.Court.Campaign;
 #endif
+using ReignBeta.Platform.Runtime;
 
 namespace ReignBeta.Dialogue.UI
 {
@@ -130,7 +131,7 @@ namespace ReignBeta.Dialogue.UI
             if (string.IsNullOrWhiteSpace(_conversationContext.Value<string>("sessionId")))
                 _conversationContext["sessionId"] = "conversation_" + Guid.NewGuid().ToString("N");
             _conversationContext["campaignId"] = ReignServerClient.GetCampaignId();
-            _conversationContext["timelineId"] = ReignWorldHistoryCampaignBehavior.Instance?.TimelineId ?? "main";
+            _conversationContext["timelineId"] = ReignServices.WorldHistory?.TimelineId ?? "main";
             _conversationContext["playerId"] = Hero.MainHero?.StringId ?? string.Empty;
             _loadFence = ReignServerClient.RequestFence.Capture();
             _conversationStartGate = new ConversationSessionStartGate(_conversationContext.Value<string>("sessionId"));
@@ -896,7 +897,7 @@ namespace ReignBeta.Dialogue.UI
                 if (!npcOpening)
                 {
                     try { ReignConversationInputJournal.Save(ReignServerClient.GetCampaignId(),
-                        ReignBeta.WorldSimulation.Campaign.ReignWorldHistoryCampaignBehavior.Instance?.TimelineId ?? "main",
+                        ReignServices.WorldHistory?.TimelineId ?? "main",
                         Hero.MainHero?.StringId ?? "", correlationId, text, _hero?.StringId ?? "",
                         _conversationContext.Value<string>("sessionId") ?? ""); }
                     catch (Exception ex) { reply.Error = "Your message could not be saved locally: " + ex.Message; AddSystemLine(reply.Error); return false; }
@@ -1010,7 +1011,7 @@ namespace ReignBeta.Dialogue.UI
                     if (reply.Ok && reply.TestDirectiveActions != null && reply.TestDirectiveActions.Count > 0)
                     {
                         int queued = 0;
-                        if (ReignAICampaignBehavior.Instance?.TryImportForPresentation(reply.TestDirectiveActions, out queued, out heldDirectiveId) == false)
+                        if (ReignServices.AI?.TryImportForPresentation(reply.TestDirectiveActions, out queued, out heldDirectiveId) == false)
                             ReignLog.Warn("Immediate test directive import interrupted hero=" + (_hero?.StringId ?? ""));
                         ReignLog.Info("Immediate test directive import hero=" + (_hero?.StringId ?? "") + " actions=" + reply.TestDirectiveActions.Count + " queued=" + queued);
                     }
@@ -1029,13 +1030,13 @@ namespace ReignBeta.Dialogue.UI
                             int salary = Math.Max(0,
                                 reply.ChancellorDecision.Value<int?>("activeDailySalary") ??
                                 Reign.Core.Contracts.Court.ReignRulerDocketRules.DefaultActiveChancellorSalary);
-                            officeChanged = ReignCourtCampaignBehavior.Instance
+                            officeChanged = ReignServices.Court
                                 ?.TryAppointChancellor(_hero, salary, true, out officeReceipt) == true;
                         }
                         else if (heroMatches && string.Equals(kind, "dismissal_acknowledged",
                                      StringComparison.OrdinalIgnoreCase))
                         {
-                            officeChanged = ReignCourtCampaignBehavior.Instance
+                            officeChanged = ReignServices.Court
                                 ?.TryDismissChancellor(true, out officeReceipt) == true;
                         }
                         else
@@ -1063,7 +1064,7 @@ namespace ReignBeta.Dialogue.UI
                         ClearFailedConversationTurn();
                         if (_conversationContext.Value<bool?>("rescueOpening") == true)
                         {
-                            ReignRescueConversationBehavior.Instance?.HeardRescue(_conversationContext["rescueContext"]?.Value<string>("eventId"), _hero);
+                            ReignServices.RescueConversation?.HeardRescue(_conversationContext["rescueContext"]?.Value<string>("eventId"), _hero);
                             // The opening instruction ends only after a usable response.
                             // Retain the dated rescue facts and unrelated directives.
                             _conversationContext.Remove("sceneContextDirective");
@@ -1179,9 +1180,9 @@ namespace ReignBeta.Dialogue.UI
             {
                 string generation = owner?.Fence.SharedActivityGeneration ?? string.Empty;
                 if (!IsRequestOwnerCurrent(owner) || generation.Length == 0
-                    || generation != (ReignWorldHistoryCampaignBehavior.Instance?.SharedActivityGeneration ?? string.Empty)) return;
+                    || generation != (ReignServices.WorldHistory?.SharedActivityGeneration ?? string.Empty)) return;
                 string campaign = ReignServerClient.GetCampaignId();
-                string timeline = ReignWorldHistoryCampaignBehavior.Instance?.TimelineId ?? "main";
+                string timeline = ReignServices.WorldHistory?.TimelineId ?? "main";
                 string player = owner.Player?.StringId ?? string.Empty;
                 if (campaign != _conversationContext.Value<string>("campaignId") || timeline != _conversationContext.Value<string>("timelineId")
                     || player != _conversationContext.Value<string>("playerId")) return;
@@ -1191,7 +1192,7 @@ namespace ReignBeta.Dialogue.UI
                 ReignServerClient.RequestFence fence = owner.Fence;
                 Hero originalPlayer = owner.Player;
                 Func<bool> originalLoad = () => fence.IsCurrent() && ReferenceEquals(originalPlayer, Hero.MainHero)
-                    && generation == (ReignWorldHistoryCampaignBehavior.Instance?.SharedActivityGeneration ?? string.Empty);
+                    && generation == (ReignServices.WorldHistory?.SharedActivityGeneration ?? string.Empty);
                 _ = Task.Run(() => ReignServerClient.SendIndividualViewInsertionAsync(ack, originalLoad));
             }
             catch (Exception ex) { ReignLog.Info("View insertion receipt skipped: " + ex.GetType().Name); }
@@ -1485,7 +1486,7 @@ namespace ReignBeta.Dialogue.UI
 
         private async Task<ConversationSessionStart> StartConversationAsync()
         {
-            var owner = ReignIndividualConversationBehavior.Instance;
+            var owner = ReignServices.IndividualConversation;
             if (owner != null && !await owner.WaitForRecoveryAsync().ConfigureAwait(false))
                 return new ConversationSessionStart { Error = "Conversation recovery has not completed." };
             // The fence is rechecked after the recovery await, inside the
@@ -1668,7 +1669,7 @@ namespace ReignBeta.Dialogue.UI
             {
                 string session = await EnsureConversationSessionAsync().ConfigureAwait(false);
                 if (session.Length == 0 || _isFinalized) return;
-                var lives = ReignNpcLivesBehavior.Instance;
+                var lives = ReignServices.NpcLives;
                 if (lives != null)
                     await ReignMainThread.InvokeAsync(() => lives.PrepareLifeConversationAsync(_hero, session, _conversationContext)).Unwrap().ConfigureAwait(false);
                 await ReignNpcLivesClient.OpenNpcLifeApproachAsync(_hero, session, _conversationContext, () => !_isFinalized).ConfigureAwait(false);

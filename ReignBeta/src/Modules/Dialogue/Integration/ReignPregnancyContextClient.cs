@@ -9,6 +9,7 @@ using static ReignBeta.Platform.Integration.ReignServerClient;
 using ReignBeta.Characters.Campaign;
 using ReignBeta.Platform.Integration;
 using ReignBeta.WorldSimulation.Campaign;
+using ReignBeta.Platform.Runtime;
 
 namespace ReignBeta.Dialogue.Integration
 {
@@ -25,9 +26,9 @@ namespace ReignBeta.Dialogue.Integration
             var capture = await ReignMainThread.InvokeAsync(() =>
             {
                 EnsureRequestOwner(requestOwner, "pregnancy context capture");
-                var family = ReignFamilyCampaignBehavior.Instance;
+                var family = ReignServices.Family;
                 if (family == null || TaleWorlds.CampaignSystem.Campaign.Current == null) return null;
-                string campaignId = GetCampaignId(), timeline = ReignWorldHistoryCampaignBehavior.Instance?.TimelineId ?? "main";
+                string campaignId = GetCampaignId(), timeline = ReignServices.WorldHistory?.TimelineId ?? "main";
                 string requestedCampaign = request.Value<string>("campaignId"), requestedTimeline = request.Value<string>("timelineId");
                 if (!string.IsNullOrEmpty(requestedCampaign) && requestedCampaign != campaignId
                     || !string.IsNullOrEmpty(requestedTimeline) && requestedTimeline != timeline)
@@ -72,8 +73,8 @@ namespace ReignBeta.Dialogue.Integration
             await ReignMainThread.InvokeAsync(() =>
             {
                 EnsureRequestOwner(requestOwner, "pregnancy knowledge acceptance");
-                if (capture.Campaign != TaleWorlds.CampaignSystem.Campaign.Current || capture.Family != ReignFamilyCampaignBehavior.Instance
-                    || capture.CampaignId != GetCampaignId() || capture.Timeline != (ReignWorldHistoryCampaignBehavior.Instance?.TimelineId ?? "main"))
+                if (capture.Campaign != TaleWorlds.CampaignSystem.Campaign.Current || capture.Family != ReignServices.Family
+                    || capture.CampaignId != GetCampaignId() || capture.Timeline != (ReignServices.WorldHistory?.TimelineId ?? "main"))
                     throw new OperationCanceledException("Pregnancy context belongs to another loaded save.");
                 capture.Family.AcceptPregnancyKnowledge(response["knowledge"] as JArray);
                 JObject views = response["observerViews"] as JObject ?? new JObject();

@@ -13,6 +13,7 @@ using ReignBeta.Characters.Integration;
 using ReignBeta.Court.Integration;
 using ReignBeta.Platform.Integration;
 using ReignBeta.WorldSimulation.Campaign;
+using ReignBeta.Platform.Runtime;
 
 namespace ReignBeta.Court.Campaign
 {
@@ -53,7 +54,7 @@ namespace ReignBeta.Court.Campaign
         private static bool MatchesCurrentFamilyScope(JObject snapshot) => snapshot != null
             && snapshot.Value<string>("playerId") == Hero.MainHero?.StringId
             && snapshot.Value<string>("campaignId") == ReignCampaignIdentity.CurrentCampaignId()
-            && snapshot.Value<string>("timelineId") == (ReignWorldHistoryCampaignBehavior.Instance?.TimelineId ?? "main");
+            && snapshot.Value<string>("timelineId") == (ReignServices.WorldHistory?.TimelineId ?? "main");
 
         private static bool FamilyLocallyPresent(Hero hero)
         {
@@ -168,7 +169,7 @@ namespace ReignBeta.Court.Campaign
         public void ProcessFamilyVisits(double now)
         {
             if (_familyVisitSyncInFlight || Hero.MainHero == null) return;
-            string identity = ReignCampaignIdentity.CurrentCampaignId() + "|" + (ReignWorldHistoryCampaignBehavior.Instance?.TimelineId ?? "main") + "|" + Hero.MainHero.StringId;
+            string identity = ReignCampaignIdentity.CurrentCampaignId() + "|" + (ReignServices.WorldHistory?.TimelineId ?? "main") + "|" + Hero.MainHero.StringId;
             if (identity != _familyVisitSyncIdentity || now < _lastFamilyVisitSyncDay)
             { _familyVisitSyncIdentity = identity; _lastFamilyVisitSyncDay = -1; }
             var state = EnsureRulerDocketState();
@@ -181,7 +182,7 @@ namespace ReignBeta.Court.Campaign
                 if ((matter.TechnicalFailure && now >= matter.ExpiresDay) || hero == null || !hero.IsAlive || hero.IsPrisoner || !FamilyLocallyPresent(hero))
                     InvalidateFamilyVisit(matter);
             }
-            string campaign = ReignCampaignIdentity.CurrentCampaignId(), timeline = ReignWorldHistoryCampaignBehavior.Instance?.TimelineId ?? "main";
+            string campaign = ReignCampaignIdentity.CurrentCampaignId(), timeline = ReignServices.WorldHistory?.TimelineId ?? "main";
             var tick = FamilyCommand(campaign, timeline, "tick", now);
             tick["familyProfiles"] = new JArray(RulerFamily().Select(FamilyVisitProfile));
             tick["visitIds"] = new JArray(state.CourtLifeMatters.Where(m => m.Source == ReignDocketSource.Family && m.IsPending)

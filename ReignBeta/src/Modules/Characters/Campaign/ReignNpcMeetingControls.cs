@@ -12,6 +12,7 @@ using TaleWorlds.CampaignSystem.Party;
 using TaleWorlds.CampaignSystem.Settlements;
 using TaleWorlds.Library;
 using ReignBeta.WorldSimulation.Actions;
+using ReignBeta.Platform.Runtime;
 
 namespace ReignBeta.Characters.Campaign
 {
@@ -133,7 +134,7 @@ namespace ReignBeta.Characters.Campaign
         internal void ReconcileMeetingAgreements()
         {
             foreach (var journey in _meetingTravel.Values.Where(j => j.ControlAgreementId.Length > 0 && _acceptedOperations.Contains(j.ControlOperationId)))
-                ReignAgreementBehavior.Instance?.RetireMeetingAgreement(journey.AgreementId, journey.ControlAgreementId, journey.Meeting.Id, journey.Meeting.Revision);
+                ReignServices.Agreement?.RetireMeetingAgreement(journey.AgreementId, journey.ControlAgreementId, journey.Meeting.Id, journey.Meeting.Revision);
         }
         private void HoldMeetingHero(Hero hero, string destination)
         {

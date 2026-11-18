@@ -14,10 +14,10 @@ public sealed class StructuredConversationToolsTests
         var end = source.IndexOf("string composed", start, StringComparison.Ordinal);
         var preflight = source.Substring(start, end - start);
         Assert.Contains("ReignActionService.Copy(draft)", preflight);
-        Assert.Contains("ReignAgreementBehavior.Instance?.Agreements", preflight);
+        Assert.Contains("ReignServices.Agreement?.Agreements", preflight);
         Assert.Contains("j.Agreement.Id == draft.Id", preflight);
         Assert.Contains("ReignCampaignIdentity.CurrentCampaignId()", preflight);
-        Assert.Contains("ReignWorldHistoryCampaignBehavior.Instance?.TimelineId", preflight);
+        Assert.Contains("ReignServices.WorldHistory?.TimelineId", preflight);
         Assert.Contains("!reviewNpcOffer", preflight);
         Assert.Contains("AgreementRules.IsExactCompletedReplay(replayCandidate, savedJournal)", preflight);
         Assert.Contains("ReignActionService.Preview(draft)", preflight);

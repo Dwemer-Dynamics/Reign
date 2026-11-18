@@ -13,13 +13,13 @@ Conversations. Individual NPC conversations, party chat and banter flow, corresp
 | `Campaign` | 10 |
 | `Runtime` | 5 |
 
-Namespaces in use: `ReignBeta.UI.ViewModels (12)`, `ReignBeta.Integration (11)`, `ReignBeta.Campaign (10)`, `ReignBeta.UI (7)`, `ReignBeta.Runtime (5)`, `ReignBeta.UI.Widgets (2)`.
+Namespaces in use: `ReignBeta.Dialogue.UI (21)`, `ReignBeta.Dialogue.Integration (11)`, `ReignBeta.Dialogue.Campaign (8)`, `ReignBeta.Dialogue.Runtime (5)`, `ReignBeta.WorldSimulation.Campaign (2)`, `ReignBeta.UI.Widgets (1)`.
 
 ## Public surface
 
 - Campaign behaviours deriving from `CampaignBehaviorBase` (all registered in `Platform/SubModule.cs`): `ReignBanterCampaignBehavior`, `ReignIndividualConversationBehavior`, `ReignPartyChatHistoryBehavior`, `ReignRescueConversationBehavior`, `ReignXpCampaignBehavior`.
 - `ReignServerClient` partial files (server routes for this module): `Integration/ReignChatViewClient.cs`, `Integration/ReignCommunicationClient.cs`, `Integration/ReignCorrespondenceClient.cs`, `Integration/ReignCourtDialogueClient.cs`, `Integration/ReignNpcDialogueAuditClient.cs`, `Integration/ReignPartyDialogueAuditClient.cs`, `Integration/ReignPersonalGossipClient.cs`, `Integration/ReignPregnancyContextClient.cs`, `Integration/ReignStructuredActionClient.cs`.
-- Static `.Instance` singletons: `ReignBanterCampaignBehavior`, `ReignIndividualConversationBehavior`, `ReignPartyChatHistoryBehavior`, `ReignRescueConversationBehavior`, `ReignXpCampaignBehavior`.
+- Behaviours registered in `ReignServices` (their `Instance` property forwards to the slot): `ReignBanterCampaignBehavior`, `ReignIndividualConversationBehavior`, `ReignPartyChatHistoryBehavior`, `ReignRescueConversationBehavior`. `ReignXpCampaignBehavior.Instance` still looks the behaviour up lazily from the campaign.
 
 ## Dependencies
 

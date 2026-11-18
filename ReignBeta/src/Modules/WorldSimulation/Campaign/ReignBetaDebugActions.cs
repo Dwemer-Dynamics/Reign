@@ -24,6 +24,7 @@ using ReignBeta.Platform.Integration;
 using ReignBeta.Platform.Settings;
 using ReignBeta.Portraits.Integration;
 using ReignBeta.WorldSimulation.World;
+using ReignBeta.Platform.Runtime;
 
 namespace ReignBeta.WorldSimulation.Campaign
 {
@@ -36,7 +37,7 @@ namespace ReignBeta.WorldSimulation.Campaign
                 return;
             }
 
-            ReignKingdomEventsCampaignBehavior behavior = ReignKingdomEventsCampaignBehavior.Instance;
+            ReignKingdomEventsCampaignBehavior behavior = ReignServices.KingdomEvents;
             if (behavior == null || TaleWorlds.CampaignSystem.Campaign.Current == null)
             {
                 Show("Load a campaign before forcing a kingdom event.");
@@ -130,7 +131,7 @@ namespace ReignBeta.WorldSimulation.Campaign
 
         public static void QueuePlayerKingdomPeaceOrWar()
         {
-            ReignAICampaignBehavior behavior = ReignAICampaignBehavior.Instance;
+            ReignAICampaignBehavior behavior = ReignServices.AI;
             Kingdom playerKingdom = Clan.PlayerClan?.Kingdom;
             if (behavior == null || playerKingdom == null)
             {
@@ -170,12 +171,12 @@ namespace ReignBeta.WorldSimulation.Campaign
                 return;
             }
 
-            ReignAICampaignBehavior.Instance.QueueCaptureSettlement(actor, target, "Debug capture plan from Bannerlord Reign.");
+            ReignServices.AI.QueueCaptureSettlement(actor, target, "Debug capture plan from Bannerlord Reign.");
         }
 
         public static void ShowLedgerSummary()
         {
-            ReignAICampaignBehavior behavior = ReignAICampaignBehavior.Instance;
+            ReignAICampaignBehavior behavior = ReignServices.AI;
             if (behavior == null)
             {
                 Show("Bannerlord Reign behavior is not active.");
@@ -443,7 +444,7 @@ namespace ReignBeta.WorldSimulation.Campaign
                 return;
             }
 
-            ReignSocialEventsCampaignBehavior behavior = ReignSocialEventsCampaignBehavior.Instance;
+            ReignSocialEventsCampaignBehavior behavior = ReignServices.SocialEvents;
             if (behavior == null)
             {
                 Show("Bannerlord Reign social event behavior is not active.");
@@ -494,7 +495,7 @@ namespace ReignBeta.WorldSimulation.Campaign
                 return;
             }
 
-            ReignSocialEventsCampaignBehavior behavior = ReignSocialEventsCampaignBehavior.Instance;
+            ReignSocialEventsCampaignBehavior behavior = ReignServices.SocialEvents;
             if (behavior == null)
             {
                 Show("Bannerlord Reign social event behavior is not active.");
@@ -722,7 +723,7 @@ namespace ReignBeta.WorldSimulation.Campaign
                 Show("Enable Bannerlord Reign, Local Server, Execute Diplomacy Actions, and Autonomous World Ticks before running the diplomacy popup test.");
                 return;
             }
-            if (TaleWorlds.CampaignSystem.Campaign.Current == null || ReignAICampaignBehavior.Instance == null)
+            if (TaleWorlds.CampaignSystem.Campaign.Current == null || ReignServices.AI == null)
             {
                 Show("Load a campaign before running the diplomacy popup test.");
                 return;
@@ -775,7 +776,7 @@ namespace ReignBeta.WorldSimulation.Campaign
                     return;
                 }
 
-                ReignActionResult execution = await ReignMainThread.InvokeAsync(() => ReignAICampaignBehavior.Instance?.ExecuteActionForTest(test.Action)).ConfigureAwait(false);
+                ReignActionResult execution = await ReignMainThread.InvokeAsync(() => ReignServices.AI?.ExecuteActionForTest(test.Action)).ConfigureAwait(false);
                 if (execution == null || !execution.Success || !execution.Completed)
                 {
                     string failure = execution?.Message ?? "The Bannerlord action behavior was unavailable.";
@@ -1015,7 +1016,7 @@ namespace ReignBeta.WorldSimulation.Campaign
 
         private static void QueueAction(ReignWorldActionRecord action, string label)
         {
-            ReignAICampaignBehavior behavior = ReignAICampaignBehavior.Instance;
+            ReignAICampaignBehavior behavior = ReignServices.AI;
             if (behavior == null)
             {
                 Show("Bannerlord Reign behavior is not active.");
@@ -1047,7 +1048,7 @@ namespace ReignBeta.WorldSimulation.Campaign
         private static bool TryGetPlayerKingdom(out Kingdom kingdom)
         {
             kingdom = Clan.PlayerClan?.Kingdom;
-            if (ReignAICampaignBehavior.Instance == null || kingdom == null)
+            if (ReignServices.AI == null || kingdom == null)
             {
                 Show("No active player kingdom or Bannerlord Reign behavior.");
                 return false;

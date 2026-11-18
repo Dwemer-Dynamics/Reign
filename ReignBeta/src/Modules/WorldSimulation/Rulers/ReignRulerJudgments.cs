@@ -18,6 +18,7 @@ using ReignBeta.Platform.Integration;
 using ReignBeta.Rebellion.Campaign;
 using ReignBeta.WorldSimulation.Campaign;
 using ReignBeta.WorldSimulation.News;
+using ReignBeta.Platform.Runtime;
 
 namespace ReignBeta.WorldSimulation.Rulers
 {
@@ -244,7 +245,7 @@ namespace ReignBeta.WorldSimulation.Rulers
                     AddEffects(j, annexed);
                 }
                 else if (j.Verdict == RulerVerdict.Freedom) Once(j, "freedom", () => { if (prisoner.IsPrisoner) EndCaptivityAction.ApplyByReleasedAfterBattle(prisoner); });
-                if (j.CivilWar && !j.DefeatedLord) Once(j, "civil_war_resolution", () => ReignRebellionCampaignBehavior.Instance.CompleteRulerJudgment(j));
+                if (j.CivilWar && !j.DefeatedLord) Once(j, "civil_war_resolution", () => ReignServices.Rebellion.CompleteRulerJudgment(j));
                 if (j.Verdict == RulerVerdict.Imprisonment && (!prisoner.IsAlive || !prisoner.IsPrisoner
                     || prisoner.PartyBelongedToAsPrisoner?.MapFaction != winning))
                     throw new InvalidOperationException("Imprisonment did not retain the living leader in the victorious kingdom's custody.");
@@ -360,11 +361,11 @@ namespace ReignBeta.WorldSimulation.Rulers
         }
         private void History(RulerJudgment j, string phase, string summary)
         {
-            ReignWorldHistoryCampaignBehavior.Instance?.RecordReignSystemEvent("ruler_judgment", phase, "politics", j.Id,
+            ReignServices.WorldHistory?.RecordReignSystemEvent("ruler_judgment", phase, "politics", j.Id,
                 summary, "major_world", j.VictorId, j.DefeatedKingdomId, JObject.FromObject(new { judgmentId = j.Id,
                     verdict = ReignRulerPolicy.HasIssuedSentence(j) ? j.Verdict.ToString() : "",
                     j.CapturedDay, j.SentencedDay, j.Deadline, j.CancellationReason, j.ResolvedDay }), new JArray(j.PrisonerId));
-            ReignNewsCampaignBehavior.Instance?.Judgment(j, phase);
+            ReignServices.News?.Judgment(j, phase);
         }
         internal void RequestPlayerSentence(Hero prisoner)
         {

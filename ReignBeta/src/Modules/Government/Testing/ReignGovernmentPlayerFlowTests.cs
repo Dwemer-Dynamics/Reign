@@ -17,6 +17,7 @@ using static ReignBeta.Government.Campaign.ReignGovernmentCampaignBehavior;
 using ReignBeta.Dialogue.UI;
 using ReignBeta.Government.Campaign;
 using ReignBeta.WorldSimulation.Actions;
+using ReignBeta.Platform.Runtime;
 
 namespace ReignBeta.Government.Testing
 {
@@ -40,7 +41,7 @@ namespace ReignBeta.Government.Testing
             string hash = GovernmentFingerprintDigest(new JObject { ["action"] = action,
                 ["arguments"] = new JObject(args.Properties().OrderBy(p => p.Name, StringComparer.Ordinal)
                     .Select(p => new JProperty(p.Name, p.Value.DeepClone()))) });
-            var journal = ReignAgreementBehavior.Instance ?? throw new InvalidOperationException("Action journal unavailable.");
+            var journal = ReignServices.Agreement ?? throw new InvalidOperationException("Action journal unavailable.");
             var retained = journal.NativeOperation(operationId);
             if (retained != null)
             {

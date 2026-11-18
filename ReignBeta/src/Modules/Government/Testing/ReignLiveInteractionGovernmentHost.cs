@@ -5,6 +5,7 @@ using ReignBeta.Government;
 using ReignBeta.Government.Campaign;
 using ReignBeta.Government.Testing;
 using ReignBeta.Platform.Integration;
+using ReignBeta.Platform.Runtime;
 
 namespace ReignBeta.WorldSimulation.Campaign
 {
@@ -12,7 +13,7 @@ namespace ReignBeta.WorldSimulation.Campaign
     {
         private static async Task<LiveCommandResult> ExecuteGovernmentTestAsync(JObject command)
         {
-            ReignGovernmentCampaignBehavior behavior = ReignGovernmentCampaignBehavior.Instance;
+            ReignGovernmentCampaignBehavior behavior = ReignServices.Government;
             if (behavior == null) return LiveCommandResult.Failed("The production Government behavior is unavailable.");
             string runId = command.Value<string>("fixtureRunId")
                 ?? command.Value<string>("runId") ?? Guid.NewGuid().ToString("N");

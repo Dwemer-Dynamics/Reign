@@ -6,6 +6,7 @@ using ReignBeta.Court;
 using ReignBeta.Court.Campaign;
 using ReignBeta.Court.Integration;
 using ReignBeta.Platform.Integration;
+using ReignBeta.Platform.Runtime;
 
 namespace ReignBeta.WorldSimulation.Campaign
 {
@@ -13,7 +14,7 @@ namespace ReignBeta.WorldSimulation.Campaign
     {
         private static async Task<LiveCommandResult> ExecuteCapitalAmbassadorTestAsync(JObject command)
         {
-            ReignCourtCampaignBehavior court = ReignCourtCampaignBehavior.Instance;
+            ReignCourtCampaignBehavior court = ReignServices.Court;
             if (court == null) return LiveCommandResult.Failed("The production court controller is unavailable.");
             string runId = command.Value<string>("fixtureRunId") ?? command.Value<string>("runId") ?? Guid.NewGuid().ToString("N");
             string phase = (command.Value<string>("phase") ?? command.Value<string>("profile") ?? command.Value<string>("text") ?? "preflight").Trim().ToLowerInvariant();

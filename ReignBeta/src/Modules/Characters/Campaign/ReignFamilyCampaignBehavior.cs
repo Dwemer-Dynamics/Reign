@@ -17,6 +17,7 @@ using ReignBeta.Characters.Family;
 using ReignBeta.Platform.Integration;
 using ReignBeta.Relationships.Integration;
 using ReignBeta.WorldSimulation.World;
+using ReignBeta.Platform.Runtime;
 
 namespace ReignBeta.Characters.Campaign
 {
@@ -26,11 +27,11 @@ namespace ReignBeta.Characters.Campaign
         private List<ReignParentageRecord> _parentage = new List<ReignParentageRecord>();
         private bool _reconcilingPregnancyRestrictions;
 
-        public static ReignFamilyCampaignBehavior Instance { get; private set; }
+        public static ReignFamilyCampaignBehavior Instance => ReignServices.Family;
 
         public override void RegisterEvents()
         {
-            Instance = this;
+            ReignServices.Family = this;
             CampaignEvents.DailyTickEvent.AddNonSerializedListener(this, OnDailyTick);
             CampaignEvents.HourlyTickEvent.AddNonSerializedListener(this, OnHourlyTick);
             CampaignEvents.OnGameLoadedEvent.AddNonSerializedListener(this, OnGameLoaded);

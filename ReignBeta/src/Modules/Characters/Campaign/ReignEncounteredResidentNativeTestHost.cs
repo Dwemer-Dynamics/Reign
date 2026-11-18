@@ -11,6 +11,7 @@ using ReignBeta.Characters.Campaign;
 using ReignBeta.Characters.Integration;
 using ReignBeta.Persistence.Integration;
 using ReignBeta.Platform.Integration;
+using ReignBeta.Platform.Runtime;
 
 namespace ReignBeta.WorldSimulation.Campaign
 {
@@ -23,10 +24,10 @@ namespace ReignBeta.WorldSimulation.Campaign
             return await ReignMainThread.InvokeAsync(() =>
             {
                 var campaign = TaleWorlds.CampaignSystem.Campaign.Current;
-                var behavior = ReignEncounteredResidentsCampaignBehavior.Instance;
+                var behavior = ReignServices.EncounteredResidents;
                 JObject enrollment = command["enrollment"] as JObject;
                 string actualCampaign = ReignCampaignIdentity.CurrentCampaignId();
-                string actualTimeline = ReignWorldHistoryCampaignBehavior.Instance?.TimelineId ?? "main";
+                string actualTimeline = ReignServices.WorldHistory?.TimelineId ?? "main";
                 string save = ReignServerClient.ActiveNativeSaveName();
                 string prefix = enrollment?.Value<string>("savePrefix") ?? "";
                 string baseline = enrollment?.Value<string>("protectedBaselineSaveName") ?? "";

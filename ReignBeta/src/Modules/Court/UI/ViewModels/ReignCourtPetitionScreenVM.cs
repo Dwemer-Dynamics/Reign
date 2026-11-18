@@ -22,6 +22,7 @@ using ReignBeta.Platform.Integration;
 using ReignBeta.Portraits.UI;
 using ReignBeta.UI.ViewModels;
 using ReignBeta.WorldSimulation.UI;
+using ReignBeta.Platform.Runtime;
 
 namespace ReignBeta.Court.UI
 {
@@ -275,7 +276,7 @@ namespace ReignBeta.Court.UI
             if (!_calibrationMode)
             {
                 try { ReignBeta.Dialogue.Runtime.ReignConversationInputJournal.Save(ReignServerClient.GetCampaignId(),
-                    ReignBeta.WorldSimulation.Campaign.ReignWorldHistoryCampaignBehavior.Instance?.TimelineId ?? "main", Hero.MainHero?.StringId ?? "",
+                    ReignServices.WorldHistory?.TimelineId ?? "main", Hero.MainHero?.StringId ?? "",
                     contributionId, text, _petition.PetitionerHeroId, _petition.TranscriptId); }
                 catch (Exception ex) { StatusText = "Your message could not be saved locally: " + ex.Message; return; }
             }

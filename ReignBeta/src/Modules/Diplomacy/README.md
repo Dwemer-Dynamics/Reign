@@ -15,14 +15,14 @@ Kingdom diplomacy. World diplomacy decisions and clan accords.
 | `Integration` | 2 |
 | `Runtime` | 1 |
 
-Namespaces in use: `ReignBeta.World (5)`, `ReignBeta.UI (4)`, `ReignBeta.Campaign (3)`, `ReignBeta.ClanAccords (3)`, `ReignBeta.Integration (2)`, `ReignBeta.UI.ViewModels (2)`, `ReignBeta.Runtime (1)`.
+Namespaces in use: `ReignBeta.Diplomacy.UI (5)`, `ReignBeta.Diplomacy.ClanAccords (3)`, `ReignBeta.World (3)`, `ReignBeta.Diplomacy.Integration (2)`, `ReignBeta.Diplomacy.World (2)`, `ReignBeta.Diplomacy.Campaign (1)`, `ReignBeta.Diplomacy.Runtime (1)`, `ReignBeta.Platform.Campaign (1)`, `ReignBeta.UI (1)`, `ReignBeta.WorldSimulation.Campaign (1)`.
 
 ## Public surface
 
 - Campaign behaviours deriving from `CampaignBehaviorBase` (all registered in `Platform/SubModule.cs`): `ReignClanAccordsCampaignBehavior`, `ReignWorldDiplomacyCampaignBehavior`.
 - Extends behaviours owned by another module through `partial class`: `ReignAICampaignBehavior` (Platform).
 - `ReignServerClient` partial files (server routes for this module): `Integration/ReignClanAccordsClient.cs`, `Integration/ReignDiplomacyServerClient.cs`.
-- Static `.Instance` singletons: `ReignClanAccordsCampaignBehavior`, `ReignWorldDiplomacyCampaignBehavior`.
+- Behaviours registered in `ReignServices` (their `Instance` property forwards to the slot): `ReignClanAccordsCampaignBehavior`, `ReignWorldDiplomacyCampaignBehavior`.
 - Types registered with the save definer (identity must not change without save compatibility): `ReignDiplomaticAgreementRecord`, `ReignTreatyObligationRecord`, `ReignWarOriginRecord`.
 
 ## Dependencies

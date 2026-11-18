@@ -7,6 +7,7 @@ using TaleWorlds.CampaignSystem;
 using TaleWorlds.Library;
 using ReignBeta.Characters.Integration;
 using ReignBeta.Platform.Integration;
+using ReignBeta.Platform.Runtime;
 
 namespace ReignBeta.Portraits.Integration
 {
@@ -167,7 +168,7 @@ namespace ReignBeta.Portraits.Integration
                             if (saved)
                             {
                                 TextureFactory.Invalidate(cacheKey);
-                                var resident = ReignBeta.Characters.Campaign.ReignEncounteredResidentsCampaignBehavior.Instance?.Find(hero);
+                                var resident = ReignServices.EncounteredResidents?.Find(hero);
                                 if (resident != null) resident.InitialPortraitCompleted = true;
                             }
                             InformationManager.DisplayMessage(new InformationMessage(saved

@@ -15,6 +15,7 @@ using ReignBeta.Dialogue.UI;
 using ReignBeta.Platform.Campaign;
 using ReignBeta.World;
 using ReignBeta.WorldSimulation.UI;
+using ReignBeta.Platform.Runtime;
 
 namespace ReignBeta.WorldSimulation.World
 {
@@ -130,7 +131,7 @@ namespace ReignBeta.WorldSimulation.World
         private static void Complete(PendingSurrender pending, ReignActionResult result)
         {
             Pending.Remove(pending.ActionId);
-            ReignAICampaignBehavior.Instance?.CompleteActionFromMissionHook(pending.ActionId, result);
+            ReignServices.AI?.CompleteActionFromMissionHook(pending.ActionId, result);
         }
     }
 }

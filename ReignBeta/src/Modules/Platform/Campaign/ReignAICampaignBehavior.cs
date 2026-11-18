@@ -80,7 +80,7 @@ namespace ReignBeta.Platform.Campaign
         private static readonly long RealtimeActionPollIntervalTicks =
             System.TimeSpan.FromSeconds(1d).Ticks;
 
-        public static ReignAICampaignBehavior Instance { get; private set; }
+        public static ReignAICampaignBehavior Instance => ReignServices.AI;
 
         public IReadOnlyList<ReignWorldActionRecord> Actions
         {
@@ -177,7 +177,7 @@ namespace ReignBeta.Platform.Campaign
 
         public override void RegisterEvents()
         {
-            Instance = this;
+            ReignServices.AI = this;
             ReignCalendarPatches.Apply();
             CampaignEvents.OnSessionLaunchedEvent.AddNonSerializedListener(this, OnSessionLaunched);
             CampaignEvents.HourlyTickEvent.AddNonSerializedListener(this, OnHourlyTick);
@@ -205,26 +205,26 @@ namespace ReignBeta.Platform.Campaign
                 ReignCommunicationClient.PulseCommunications();
             }
 
-            if (!_governmentRefusalsReconciled && ReignGovernmentCampaignBehavior.Instance != null)
+            if (!_governmentRefusalsReconciled && ReignServices.Government != null)
             {
                 _governmentRefusalsReconciled = true;
                 foreach (var action in _actions.Where(x => x != null
                     && (x.Status == ReignWorldActionStatus.Failed || x.Status == ReignWorldActionStatus.Rejected)
                     && x.FailureReason == "The government process did not authorize this action.").ToList())
                 {
-                    if (ReignGovernmentCampaignBehavior.Instance.TryGetRecordedAuthorizationRefusal(action, out var refusal))
+                    if (ReignServices.Government.TryGetRecordedAuthorizationRefusal(action, out var refusal))
                         RecordRejectedAction(action, refusal);
                 }
             }
 
-            if (!_completedCampaignOrdersReconciled && ReignBeta.WorldSimulation.Actions.ReignAgreementBehavior.Instance != null
-                && ReignCampaignCommandBehavior.Instance != null)
+            if (!_completedCampaignOrdersReconciled && ReignServices.Agreement != null
+                && ReignServices.CampaignCommand != null)
             {
                 _completedCampaignOrdersReconciled = true;
                 foreach (var action in _actions.ToList())
                 {
                     if (TryRetireImpossibleTreaty(action)) continue;
-                    if (ReignBeta.WorldSimulation.Actions.ReignAgreementBehavior.Instance?.ReconcileObservedCampaignCancellation(action) == true) continue;
+                    if (ReignServices.Agreement?.ReconcileObservedCampaignCancellation(action) == true) continue;
                     TryRestoreObservedPendingCampaignOrder(action);
                     TryCompleteObservedCampaignOrder(action);
                 }
@@ -784,7 +784,7 @@ namespace ReignBeta.Platform.Campaign
             action.TerminalReportJson = string.Empty;
             if (!IsKnownTerminalReportCandidate(action)) return true;
             var fence = action.ImportFence as ReignServerClient.RequestFence;
-            string liveGeneration = ReignWorldHistoryCampaignBehavior.Instance?.SharedActivityGeneration ?? string.Empty;
+            string liveGeneration = ReignServices.WorldHistory?.SharedActivityGeneration ?? string.Empty;
             if (fence != null && (!fence.IsCurrent() || fence.SharedActivityGeneration != liveGeneration))
             {
                 ReignLog.Warn("Terminal report candidate not admitted: its import owner is no longer loaded action=" + action.ActionId);
@@ -795,7 +795,7 @@ namespace ReignBeta.Platform.Campaign
             {
                 ["schema"] = TerminalReportStateSchema, ["origin"] = origin ?? string.Empty,
                 ["campaignId"] = ReignServerClient.GetCampaignId(),
-                ["timelineId"] = ReignWorldHistoryCampaignBehavior.Instance?.TimelineId ?? "main",
+                ["timelineId"] = ReignServices.WorldHistory?.TimelineId ?? "main",
                 ["playerHeroStringId"] = Hero.MainHero?.StringId ?? string.Empty,
                 ["generation"] = fence != null ? fence.SharedActivityGeneration : liveGeneration,
                 ["actionId"] = action.ActionId, ["termsHash"] = action.TermsHash ?? string.Empty
@@ -827,9 +827,9 @@ namespace ReignBeta.Platform.Campaign
             string phase = TerminalReportString(state, "phase");
             if (phase != "offered" && phase != "unproven") return "phase_" + (phase ?? "missing");
             string generation = TerminalReportString(state, "generation") ?? string.Empty;
-            string live = ReignWorldHistoryCampaignBehavior.Instance?.SharedActivityGeneration ?? string.Empty;
+            string live = ReignServices.WorldHistory?.SharedActivityGeneration ?? string.Empty;
             if (TerminalReportString(state, "campaignId") != ReignServerClient.GetCampaignId()) return "campaign";
-            if (TerminalReportString(state, "timelineId") != (ReignWorldHistoryCampaignBehavior.Instance?.TimelineId ?? "main")) return "timeline";
+            if (TerminalReportString(state, "timelineId") != (ReignServices.WorldHistory?.TimelineId ?? "main")) return "timeline";
             if (Hero.MainHero == null || TerminalReportString(state, "playerHeroStringId") != Hero.MainHero.StringId) return "player";
             if (TerminalReportString(state, "actionId") != action.ActionId
                 || TerminalReportString(state, "termsHash") != (action.TermsHash ?? string.Empty)) return "action";
@@ -859,7 +859,7 @@ namespace ReignBeta.Platform.Campaign
                 && incoming.ActorHeroStringId == existing.ActorHeroStringId && incoming.TargetHeroStringId == existing.TargetHeroStringId
                 && string.Equals(incoming.AuthorizationMode, existing.AuthorizationMode, StringComparison.Ordinal);
             var fence = incoming.ImportFence as ReignServerClient.RequestFence;
-            string live = ReignWorldHistoryCampaignBehavior.Instance?.SharedActivityGeneration ?? string.Empty;
+            string live = ReignServices.WorldHistory?.SharedActivityGeneration ?? string.Empty;
             string origin = TerminalReportString(state, "origin") ?? string.Empty;
             if (!untouched || !identical || fence == null || !fence.IsCurrent() || live.Length == 0
                 || fence.SharedActivityGeneration != live || origin.Length == 0 || incoming.ImportOrigin != origin
@@ -927,7 +927,7 @@ namespace ReignBeta.Platform.Campaign
             ReignSaveSyncCoordinator.VerifiedLoad load, bool redelivered)
         {
             string generation = TerminalReportString(state, "generation") ?? string.Empty;
-            string live = ReignWorldHistoryCampaignBehavior.Instance?.SharedActivityGeneration ?? string.Empty;
+            string live = ReignServices.WorldHistory?.SharedActivityGeneration ?? string.Empty;
             string origin = TerminalReportString(state, "origin") ?? string.Empty;
             bool exact = TerminalReportPayloadExact(state, TerminalReportString(state, "reportJson"), TerminalReportString(state, "status"), out string sha)
                 && sha == TerminalReportString(state, "reportSha256");
@@ -1003,7 +1003,7 @@ namespace ReignBeta.Platform.Campaign
             long now = DateTime.UtcNow.Ticks;
             if (now < _nextTerminalReportScanUtcTicks) return;
             _nextTerminalReportScanUtcTicks = now + TerminalReportScanTicks;
-            string generation = ReignWorldHistoryCampaignBehavior.Instance?.SharedActivityGeneration ?? string.Empty;
+            string generation = ReignServices.WorldHistory?.SharedActivityGeneration ?? string.Empty;
             if (ReignBetaSettings.Instance?.UseLocalServer == false || generation.Length == 0) return;
             // Backoff and the in-flight slot belong to one loaded owner; a new owner starts clean.
             if (_terminalReportFence == null || !_terminalReportFence.IsCurrent() || _terminalReportFence.SharedActivityGeneration != generation)
@@ -1056,7 +1056,7 @@ namespace ReignBeta.Platform.Campaign
             if (decision.Route != TerminalReportRoute.V1 && decision.Route != TerminalReportRoute.Recover) return false;
             // Recovery is bound to one verified load of this exact campaign and live generation.
             // A live generation that has not caught up with the load yet only defers (no request).
-            string live = ReignWorldHistoryCampaignBehavior.Instance?.SharedActivityGeneration ?? string.Empty;
+            string live = ReignServices.WorldHistory?.SharedActivityGeneration ?? string.Empty;
             if (decision.Route == TerminalReportRoute.Recover && (load.RestoreGeneration != live
                 || load.CampaignId != ReignServerClient.GetCampaignId() || _terminalReportFence?.SharedActivityGeneration != live))
             {
@@ -1397,10 +1397,10 @@ namespace ReignBeta.Platform.Campaign
             return state != null && TerminalReportString(state, "reportSha256") == sha && TerminalReportString(state, "phase") == phase
                 && TerminalReportString(state, "origin") == origin
                 && TerminalReportString(state, "campaignId") == ReignServerClient.GetCampaignId()
-                && TerminalReportString(state, "timelineId") == (ReignWorldHistoryCampaignBehavior.Instance?.TimelineId ?? "main")
+                && TerminalReportString(state, "timelineId") == (ReignServices.WorldHistory?.TimelineId ?? "main")
                 && TerminalReportString(state, "playerHeroStringId") == Hero.MainHero.StringId
                 && !string.IsNullOrEmpty(generation) && generation == fence.SharedActivityGeneration
-                && generation == (ReignWorldHistoryCampaignBehavior.Instance?.SharedActivityGeneration ?? string.Empty)
+                && generation == (ReignServices.WorldHistory?.SharedActivityGeneration ?? string.Empty)
                 && TerminalReportString(state, "actionId") == action.ActionId
                 && TerminalReportString(state, "termsHash") == (action.TermsHash ?? string.Empty) ? state : null;
         }
@@ -1426,12 +1426,12 @@ namespace ReignBeta.Platform.Campaign
                 || !ReferenceEquals(ReignSaveSyncCoordinator.CurrentVerifiedLoad, load)) return false;
             JObject state = TerminalReportState(action);
             string generation = TerminalReportString(state, "generation");
-            string live = ReignWorldHistoryCampaignBehavior.Instance?.SharedActivityGeneration ?? string.Empty;
+            string live = ReignServices.WorldHistory?.SharedActivityGeneration ?? string.Empty;
             return state != null && TerminalReportString(state, "reportSha256") == sha && TerminalReportString(state, "phase") == phase
                 && TerminalReportString(state, "origin") == origin && origin == load.Origin
                 && TerminalReportString(state, "campaignId") == ReignServerClient.GetCampaignId()
                 && TerminalReportString(state, "campaignId") == load.CampaignId
-                && TerminalReportString(state, "timelineId") == (ReignWorldHistoryCampaignBehavior.Instance?.TimelineId ?? "main")
+                && TerminalReportString(state, "timelineId") == (ReignServices.WorldHistory?.TimelineId ?? "main")
                 && TerminalReportString(state, "playerHeroStringId") == Hero.MainHero.StringId
                 && !string.IsNullOrEmpty(generation) && live.Length > 0 && generation != live
                 && live == fence.SharedActivityGeneration && live == load.RestoreGeneration
@@ -1487,7 +1487,7 @@ namespace ReignBeta.Platform.Campaign
             JToken deltaToken = effect?["delta"];
             int? delta = deltaToken != null && deltaToken.Type == JTokenType.Integer
                 && (long)deltaToken >= int.MinValue && (long)deltaToken <= int.MaxValue ? (int)(long)deltaToken : (int?)null;
-            ReignRelationshipCampaignBehavior relations = ReignRelationshipCampaignBehavior.Instance;
+            ReignRelationshipCampaignBehavior relations = ReignServices.Relationship;
             if (relations == null) { outcome = "pending:participant_unavailable"; return null; }
             string savedMarker = TerminalReportString(state, "nativeJournal");
             string journal = !string.IsNullOrEmpty(savedMarker) ? savedMarker
@@ -1548,7 +1548,7 @@ namespace ReignBeta.Platform.Campaign
                 || !pair || delta == 0 || delta < -25 || delta > 15) return null;
             reason = "participant_unavailable";
             Hero subject = ReignObjectResolver.FindHero(subjectId), target = ReignObjectResolver.FindHero(targetId);
-            ReignRelationshipCampaignBehavior relations = ReignRelationshipCampaignBehavior.Instance;
+            ReignRelationshipCampaignBehavior relations = ReignServices.Relationship;
             if (subject == null || target == null || subject == target || relations == null) return null;
             if (expectedReceipt != expected) return null;
             if (phase != "native_pending" && !keepPhase)
@@ -1616,13 +1616,13 @@ namespace ReignBeta.Platform.Campaign
             catch (Newtonsoft.Json.JsonException) { return false; }
             string namedOrder = terms.Value<string>("orderId");
             string orderId = string.IsNullOrWhiteSpace(namedOrder) ? action.ActionId : namedOrder.Trim();
-            var order = ReignCampaignCommandBehavior.Instance?.Orders.FirstOrDefault(o =>
+            var order = ReignServices.CampaignCommand?.Orders.FirstOrDefault(o =>
                 string.Equals(o.OrderId, orderId, StringComparison.OrdinalIgnoreCase));
             string correlation = string.IsNullOrWhiteSpace(action.NegotiationId) ? action.ActionId : action.NegotiationId;
             if (order == null || order.IsTerminal || order.CommanderHeroStringId != action.ActorHeroStringId
                 || order.CorrelationId != correlation || order.Steps == null || order.Steps.Count == 0
                 || order.CompletedStepCount >= order.Steps.Count
-                || ReignBeta.WorldSimulation.Actions.ReignAgreementBehavior.Instance?.MatchesObservedPendingOrder(action, order.Status) != true)
+                || ReignServices.Agreement?.MatchesObservedPendingOrder(action, order.Status) != true)
                 return false;
             // A duplicate issue receipt used to claim completion while the exact saved
             // native order was still active. Correct only that receipt; do not issue it.
@@ -1647,7 +1647,7 @@ namespace ReignBeta.Platform.Campaign
                 || (action.ExecutionSnapshotJson != "{}" && !string.IsNullOrEmpty(action.ExecutionSnapshotJson))) return false;
             bool recorded = _agreements.Any(t => t != null && t.Kind == kind && SameAgreementPair(t, action)
                 && t.Reason == action.Reason && t.TermsJson == action.TermsJson);
-            if (ReignBeta.WorldSimulation.Actions.ReignAgreementBehavior.Instance?.ReconcileImpossibleTreaty(action, recorded) != true) return false;
+            if (ReignServices.Agreement?.ReconcileImpossibleTreaty(action, recorded) != true) return false;
             var result = ReignActionResult.Obsolete(ReignBeta.WorldSimulation.Actions.ReignUnfulfilledTreatyPolicy.Message,
                 ReignBeta.WorldSimulation.Actions.ReignUnfulfilledTreatyPolicy.ResultCode);
             RememberActionResult(action, result);
@@ -1688,13 +1688,13 @@ namespace ReignBeta.Platform.Campaign
             catch (Newtonsoft.Json.JsonException) { return false; }
             string namedOrder = terms.Value<string>("orderId");
             string orderId = string.IsNullOrWhiteSpace(namedOrder) ? action.ActionId : namedOrder.Trim();
-            var order = ReignCampaignCommandBehavior.Instance?.Orders.FirstOrDefault(o =>
+            var order = ReignServices.CampaignCommand?.Orders.FirstOrDefault(o =>
                 string.Equals(o.OrderId, orderId, StringComparison.OrdinalIgnoreCase));
             string correlation = string.IsNullOrWhiteSpace(action.NegotiationId) ? action.ActionId : action.NegotiationId;
             if (order == null || order.Status != "completed" || order.CommanderHeroStringId != action.ActorHeroStringId
                 || order.CorrelationId != correlation || order.Steps == null || order.Steps.Count == 0
                 || order.CompletedStepCount != order.Steps.Count || order.Steps.Any(s => s.Status != "completed")
-                || ReignBeta.WorldSimulation.Actions.ReignAgreementBehavior.Instance?.MatchesObservedCompletedOrder(action, order.Status) != true)
+                || ReignServices.Agreement?.MatchesObservedCompletedOrder(action, order.Status) != true)
                 return false;
             // Recover only the known stale authorization error after exact native and
             // saved-consent proof. No native executor runs on this receipt-only path.
@@ -1731,7 +1731,7 @@ namespace ReignBeta.Platform.Campaign
 
             if (result.Success && result.Completed)
             {
-                ReignGovernmentCampaignBehavior.Instance?.RecordCompletedWorldAction(action);
+                ReignServices.Government?.RecordCompletedWorldAction(action);
                 RememberActionResult(action, result);
                 action.Status = ReignWorldActionStatus.Completed;
                 action.FailureReason = string.Empty;
@@ -1784,7 +1784,7 @@ namespace ReignBeta.Platform.Campaign
             }
 
             if (TryRetireImpossibleTreaty(action)
-                || ReignBeta.WorldSimulation.Actions.ReignAgreementBehavior.Instance?.ReconcileObservedCampaignCancellation(action) == true
+                || ReignServices.Agreement?.ReconcileObservedCampaignCancellation(action) == true
                 || TryCompleteObservedCampaignOrder(action)) return GetLastActionResult(action.ActionId);
 
             if (action.RequiresAcceptance && action.Status == ReignWorldActionStatus.Proposed)
@@ -1864,7 +1864,7 @@ namespace ReignBeta.Platform.Campaign
 
             if (result.Success && result.Completed)
             {
-                ReignGovernmentCampaignBehavior.Instance?.RecordCompletedWorldAction(action);
+                ReignServices.Government?.RecordCompletedWorldAction(action);
                 RememberActionResult(action, result);
                 action.Status = ReignWorldActionStatus.Completed;
                 if (string.Equals(action.AuthorizationMode, "negotiated", System.StringComparison.OrdinalIgnoreCase)) action.ExecutionPhase = "verified";

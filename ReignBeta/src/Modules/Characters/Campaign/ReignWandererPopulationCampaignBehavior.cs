@@ -19,12 +19,13 @@ using ReignBeta.Persistence.Integration;
 using ReignBeta.Persistence.Save;
 using ReignBeta.Platform.Integration;
 using ReignBeta.WorldSimulation.Campaign;
+using ReignBeta.Platform.Runtime;
 
 namespace ReignBeta.Characters.Campaign
 {
     public sealed class ReignWandererPopulationCampaignBehavior : CampaignBehaviorBase
     {
-        public static ReignWandererPopulationCampaignBehavior Instance { get; private set; }
+        public static ReignWandererPopulationCampaignBehavior Instance => ReignServices.WandererPopulation;
         private WandererPopulationState _state = new WandererPopulationState();
         private readonly PopulationIdentityIndex<WandererIdentity> _identityIndex = new PopulationIdentityIndex<WandererIdentity>(p => p.HeroId);
         private CharacterObject[] _templates = Array.Empty<CharacterObject>();
@@ -47,7 +48,7 @@ namespace ReignBeta.Characters.Campaign
 
         public override void RegisterEvents()
         {
-            Instance = this;
+            ReignServices.WandererPopulation = this;
             ReignWandererPatches.Install();
             CampaignEvents.OnSessionLaunchedEvent.AddNonSerializedListener(this, OnSession);
             CampaignEvents.TickEvent.AddNonSerializedListener(this, OnTick);
@@ -117,12 +118,12 @@ namespace ReignBeta.Characters.Campaign
         private void AdoptExisting()
         {
             foreach (var hero in Hero.AllAliveHeroes.Where(h => h != Hero.MainHero && h.IsWanderer
-                && ReignTavernHouseCampaignBehavior.Instance?.IsActiveStaff(h) != true).ToList()) Adopt(hero);
+                && ReignServices.TavernHouse?.IsActiveStaff(h) != true).ToList()) Adopt(hero);
         }
 
         internal WandererIdentity Find(Hero hero) => hero == null ? null : _identityIndex.Find(_state.People, hero.StringId);
         internal bool IsProtected(Hero hero) => Find(hero)?.Protected == true;
-        internal bool BlocksRemoval(Hero hero) => ReignTavernHouseCampaignBehavior.Instance?.IsActiveStaff(hero) == true
+        internal bool BlocksRemoval(Hero hero) => ReignServices.TavernHouse?.IsActiveStaff(hero) == true
             || Find(hero) is WandererIdentity p && !p.Retired
                 && (p.Protected || !p.HistoryChecked || _inFlight.ContainsKey(p.HeroId));
 
@@ -157,10 +158,10 @@ namespace ReignBeta.Characters.Campaign
             return new WandererPresence { HeroId = hero.StringId, TownId = hero.CurrentSettlement?.StringId ?? "",
                 Alive = hero.IsAlive, Adult = !hero.IsChild, Free = !hero.IsPrisoner,
                 Independent = hero.IsWanderer && hero.CompanionOf == null && hero.Clan == null && hero.PartyBelongedTo == null
-                    && ReignTavernHouseCampaignBehavior.Instance?.IsActiveStaff(hero) != true,
+                    && ReignServices.TavernHouse?.IsActiveStaff(hero) != true,
                 Available = hero.HeroState == Hero.CharacterStates.Active && hero.GovernorOf == null,
                 SafeToMove = SafeTown(hero.CurrentSettlement) && hero.Issue == null
-                    && ReignTavernHouseCampaignBehavior.Instance?.IsActiveStaff(hero) != true
+                    && ReignServices.TavernHouse?.IsActiveStaff(hero) != true
                     && !TaleWorlds.CampaignSystem.Campaign.Current.QuestManager.TrackedObjects.ContainsKey(hero)
                     && !_inFlight.ContainsKey(hero.StringId) && (p == null || Day - p.LastMoveDay >= WandererPopulationRules.MinimumResidenceDays) };
         }
@@ -376,7 +377,7 @@ namespace ReignBeta.Characters.Campaign
             _historyBusy = true; _nextHistoryUtc = DateTime.UtcNow.AddSeconds(5);
             int requestId = System.Threading.Interlocked.Increment(ref _historyRequestId);
             string campaign = ReignServerClient.GetCampaignId();
-            string timeline = ReignWorldHistoryCampaignBehavior.Instance?.TimelineId ?? "main";
+            string timeline = ReignServices.WorldHistory?.TimelineId ?? "main";
             int saveGeneration = ReignSaveSyncCoordinator.CampaignGeneration;
             try
             {
@@ -384,7 +385,7 @@ namespace ReignBeta.Characters.Campaign
                 await ReignMainThread.InvokeAsync(() => {
                     if (System.Threading.Volatile.Read(ref _historyRequestId) != requestId) return;
                     if (_sessionCampaign == null || !ReferenceEquals(_sessionCampaign, TaleWorlds.CampaignSystem.Campaign.Current)) return;
-                    if (Instance != this || ReignServerClient.GetCampaignId() != campaign || (ReignWorldHistoryCampaignBehavior.Instance?.TimelineId ?? "main") != timeline) return;
+                    if (Instance != this || ReignServerClient.GetCampaignId() != campaign || (ReignServices.WorldHistory?.TimelineId ?? "main") != timeline) return;
                     if (ReignSaveSyncCoordinator.CampaignGeneration != saveGeneration
                         || ReignSaveSyncCampaignBehavior.IsNativeSaveInProgress
                         || ReignSaveSyncCoordinator.IsSaveFinalizationPending

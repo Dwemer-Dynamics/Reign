@@ -8,6 +8,7 @@ using ReignBeta.Actions;
 using TaleWorlds.CampaignSystem;
 using ReignBeta.Government.Domain;
 using ReignBeta.WorldSimulation.Actions;
+using ReignBeta.Platform.Runtime;
 
 namespace ReignBeta.Government.Campaign
 {
@@ -139,7 +140,7 @@ namespace ReignBeta.Government.Campaign
 
         private IEnumerable<ActionClause> GovernmentTerms(string memberId, bool includePending = false)
         {
-            var behavior = ReignAgreementBehavior.Instance;
+            var behavior = ReignServices.Agreement;
             if (behavior == null) yield break;
             foreach (var journal in behavior.Agreements.OrderByDescending(j => j.Agreement.CreatedDay))
             {

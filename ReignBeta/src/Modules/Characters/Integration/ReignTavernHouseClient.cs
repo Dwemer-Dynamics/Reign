@@ -13,6 +13,7 @@ using ReignBeta.Dialogue.Runtime;
 using ReignBeta.Platform.Integration;
 using ReignBeta.Platform.Settings;
 using ReignBeta.WorldSimulation.Campaign;
+using ReignBeta.Platform.Runtime;
 
 namespace ReignBeta.Characters.Integration
 {
@@ -21,7 +22,7 @@ namespace ReignBeta.Characters.Integration
         /// <summary>Call on the native main thread, before starting asynchronous work.</summary>
         public static JObject BuildTavernHousePayload(Settlement town, string conversationId)
         {
-            var behavior = ReignTavernHouseCampaignBehavior.Instance;
+            var behavior = ReignServices.TavernHouse;
             if (town?.IsTown != true || behavior == null || Hero.MainHero == null || string.IsNullOrWhiteSpace(conversationId))
                 throw new InvalidOperationException("A live town, native player and tavern conversation identity are required.");
             var roster = new JArray();
@@ -34,7 +35,7 @@ namespace ReignBeta.Characters.Integration
                 roster.Add(profile);
             }
             return new JObject {
-                ["campaignId"] = GetCampaignId(), ["timelineId"] = ReignWorldHistoryCampaignBehavior.Instance?.TimelineId ?? "main",
+                ["campaignId"] = GetCampaignId(), ["timelineId"] = ReignServices.WorldHistory?.TimelineId ?? "main",
                 ["conversationSessionId"] = conversationId, ["townId"] = town.StringId, ["townName"] = town.Name.ToString(), ["isTown"] = true,
                 ["playerHeroStringId"] = Hero.MainHero.StringId, ["mainHeroStringId"] = Hero.MainHero.StringId, ["player"] = BuildHeroProfile(Hero.MainHero),
                 ["playerIdentity"] = BuildPlayerIdentityContext(), ["playerName"] = Hero.MainHero.Name.ToString(),
@@ -60,10 +61,10 @@ namespace ReignBeta.Characters.Integration
                 if (operation == "respond")
                 {
                     await ReignMainThread.InvokeAsync(() => {
-                        if (GetCampaignId() != request.Value<string>("campaignId") || (ReignWorldHistoryCampaignBehavior.Instance?.TimelineId ?? "main") != request.Value<string>("timelineId"))
+                        if (GetCampaignId() != request.Value<string>("campaignId") || (ReignServices.WorldHistory?.TimelineId ?? "main") != request.Value<string>("timelineId"))
                             throw new InvalidOperationException("The campaign changed before this conversation turn.");
                         var town = Settlement.Find(request.Value<string>("townId"));
-                        var behavior = ReignTavernHouseCampaignBehavior.Instance;
+                        var behavior = ReignServices.TavernHouse;
                         if (behavior == null || Hero.MainHero?.CurrentSettlement != town) throw new InvalidOperationException("The player is no longer at this town.");
                         speaker = Hero.Find(request.Value<string>("speakerHeroStringId"));
                         var receipt = behavior.GetOpenVisit(town);
@@ -106,7 +107,7 @@ namespace ReignBeta.Characters.Integration
                 }).ConfigureAwait(false);
                 if (operation == "respond" && response?.Value<bool?>("ok") == true)
                     await ReignMainThread.InvokeAsync(() => {
-                        if (GetCampaignId() == request.Value<string>("campaignId") && (ReignWorldHistoryCampaignBehavior.Instance?.TimelineId ?? "main") == request.Value<string>("timelineId"))
+                        if (GetCampaignId() == request.Value<string>("campaignId") && (ReignServices.WorldHistory?.TimelineId ?? "main") == request.Value<string>("timelineId"))
                             ApplyHeroEncyclopediaText(speaker, response.Value<string>("encyclopediaText") ?? "");
                     }).ConfigureAwait(false);
                 return response;

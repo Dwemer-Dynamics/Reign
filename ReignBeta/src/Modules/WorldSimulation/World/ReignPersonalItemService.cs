@@ -16,6 +16,7 @@ using TaleWorlds.ObjectSystem;
 using ReignBeta.Characters.Campaign;
 using ReignBeta.World;
 using ReignBeta.WorldSimulation.PartyAgency;
+using ReignBeta.Platform.Runtime;
 
 namespace ReignBeta.WorldSimulation.World
 {
@@ -25,10 +26,10 @@ namespace ReignBeta.WorldSimulation.World
     {
         private JObject _state = EmptyState();
         private string _serialized = string.Empty;
-        public static ReignPersonalItemService Instance { get; private set; }
+        public static ReignPersonalItemService Instance => ReignServices.PersonalItemService;
 
         private static JObject EmptyState() => new JObject { ["version"] = 1, ["items"] = new JArray(), ["receipts"] = new JObject() };
-        public override void RegisterEvents() { Instance = this; }
+        public override void RegisterEvents() { ReignServices.PersonalItemService = this; }
         public override void SyncData(IDataStore dataStore)
         {
             if (dataStore.IsSaving) _serialized = _state.ToString(Newtonsoft.Json.Formatting.None);
@@ -171,7 +172,7 @@ namespace ReignBeta.WorldSimulation.World
             { reason = from.Name + " does not personally own the requested item or control enough of it in their party inventory."; return false; }
             if (p.Source == "inventory" && p.Delivery == "inventory" && p.FromParty == p.ToParty)
             { reason = "A shared-party gift needs personal ownership or equipment delivery."; return false; }
-            if (p.Source == "equipment" && ReignTemporaryPartyGuestCampaignBehavior.Instance?.IsTemporaryGuestEquipmentLocked(from) == true
+            if (p.Source == "equipment" && ReignServices.TemporaryPartyGuest?.IsTemporaryGuestEquipmentLocked(from) == true
                 && !(terms.Value<bool?>("sourceConsentConfirmed") == true && action.AcceptedByHeroStringId == from.StringId))
             { reason = "Transferring a temporary guest's equipment requires that guest's explicit consent."; return false; }
 
@@ -312,7 +313,7 @@ namespace ReignBeta.WorldSimulation.World
             if (changed == null || hero == null || Mission.Current == null) return;
             foreach (Agent agent in Mission.Current.Agents.Where(x => x.IsActive() && x.IsHuman
                 && (x.Character == hero.CharacterObject
-                    || ReignEncounteredResidentsCampaignBehavior.Instance?.ResolveAgent(x) == hero)).ToList())
+                    || ReignServices.EncounteredResidents?.ResolveAgent(x) == hero)).ToList())
             {
                 // Keep battle/civilian sets distinct. Update only the set currently
                 // worn in this scene, including custom resident mission agents.

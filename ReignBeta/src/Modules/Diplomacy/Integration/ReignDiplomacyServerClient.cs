@@ -20,6 +20,7 @@ using ReignBeta.Platform.Settings;
 using ReignBeta.Rebellion.Campaign;
 using ReignBeta.WorldSimulation.Campaign;
 using ReignBeta.WorldSimulation.Runtime;
+using ReignBeta.Platform.Runtime;
 
 namespace ReignBeta.Diplomacy.Integration
 {
@@ -235,7 +236,7 @@ namespace ReignBeta.Diplomacy.Integration
         public static async Task<List<ReignPoliticalPressureNotice>> FetchPoliticalPressureNoticesAsync()
         {
             List<ReignPoliticalPressureNotice> results = new List<ReignPoliticalPressureNotice>();
-            string timelineId = ReignWorldHistoryCampaignBehavior.Instance?.TimelineId ?? "main";
+            string timelineId = ReignServices.WorldHistory?.TimelineId ?? "main";
             string pressureCampaignId = GetCampaignId();
             double pressureRequestedDay = CampaignTime.Now.ToDays;
             string route = "/political-pressure/notices?campaignId=" + Uri.EscapeDataString(pressureCampaignId)
@@ -319,7 +320,7 @@ namespace ReignBeta.Diplomacy.Integration
         public static async Task<List<ReignClanConflictNotice>> FetchClanConflictNoticesAsync()
         {
             List<ReignClanConflictNotice> results = new List<ReignClanConflictNotice>();
-            string timelineId = ReignWorldHistoryCampaignBehavior.Instance?.TimelineId ?? "main";
+            string timelineId = ReignServices.WorldHistory?.TimelineId ?? "main";
             string route = "/clan-conflicts/notices?campaignId=" + Uri.EscapeDataString(GetCampaignId())
                 + "&timelineId=" + Uri.EscapeDataString(timelineId) + "&limit=10";
             JObject response = await GetJsonAsync(route).ConfigureAwait(false);
@@ -472,7 +473,7 @@ namespace ReignBeta.Diplomacy.Integration
             foreach (Kingdom kingdom in live)
             {
                 Hero ruler = kingdom.Leader;
-                ReignRebellionMovementRecord civilWar = ReignRebellionCampaignBehavior.Instance?.Movements.FirstOrDefault(x => x != null
+                ReignRebellionMovementRecord civilWar = ReignServices.Rebellion?.Movements.FirstOrDefault(x => x != null
                     && string.Equals(x.Stage, "civil_war", StringComparison.OrdinalIgnoreCase)
                     && (string.Equals(x.ParentKingdomStringId, kingdom.StringId, StringComparison.OrdinalIgnoreCase)
                         || string.Equals(x.RebelKingdomStringId, kingdom.StringId, StringComparison.OrdinalIgnoreCase)));
@@ -510,7 +511,7 @@ namespace ReignBeta.Diplomacy.Integration
                     ["protectedHeirHeroId"] = protectedHeir?.StringId ?? string.Empty,
                     ["rulerTraits"] = BuildTraitProfile(ruler),
                     ["rulerSkills"] = BuildSkillProfile(ruler),
-                    ["government"] = ReignGovernmentCampaignBehavior.Instance?.BuildPublicSnapshot(kingdom)
+                    ["government"] = ReignServices.Government?.BuildPublicSnapshot(kingdom)
                         ?? new JObject { ["available"] = false, ["authoritative"] = true },
                     ["enemies"] = new JArray(live.Where(kingdom.IsAtWarWith).Select(x => x.StringId)),
                     ["borderKingdomIds"] = new JArray(live
@@ -593,7 +594,7 @@ namespace ReignBeta.Diplomacy.Integration
                 }
             }
 
-            foreach (ReignDiplomaticAgreementRecord agreement in ReignAICampaignBehavior.Instance?.Agreements ?? new List<ReignDiplomaticAgreementRecord>())
+            foreach (ReignDiplomaticAgreementRecord agreement in ReignServices.AI?.Agreements ?? new List<ReignDiplomaticAgreementRecord>())
             {
                 if (agreement != null)
                 {
@@ -619,7 +620,7 @@ namespace ReignBeta.Diplomacy.Integration
                 }
             }
 
-            foreach (ReignWarOriginRecord origin in ReignAICampaignBehavior.Instance?.WarOrigins ?? new List<ReignWarOriginRecord>())
+            foreach (ReignWarOriginRecord origin in ReignServices.AI?.WarOrigins ?? new List<ReignWarOriginRecord>())
             {
                 if (origin == null) continue;
                 warOrigins.Add(new JObject
@@ -639,7 +640,7 @@ namespace ReignBeta.Diplomacy.Integration
                 });
             }
 
-            foreach (ReignTreatyObligationRecord obligation in ReignAICampaignBehavior.Instance?.TreatyObligations ?? new List<ReignTreatyObligationRecord>())
+            foreach (ReignTreatyObligationRecord obligation in ReignServices.AI?.TreatyObligations ?? new List<ReignTreatyObligationRecord>())
             {
                 if (obligation == null) continue;
                 treatyObligations.Add(new JObject
@@ -662,7 +663,7 @@ namespace ReignBeta.Diplomacy.Integration
             return new JObject
             {
                 ["campaignId"] = GetCampaignId(),
-                ["timelineId"] = ReignWorldHistoryCampaignBehavior.Instance?.TimelineId ?? "main",
+                ["timelineId"] = ReignServices.WorldHistory?.TimelineId ?? "main",
                 ["worldDay"] = TaleWorlds.CampaignSystem.Campaign.Current == null ? 0d : CampaignTime.Now.ToDays,
                 ["campaignStartDay"] = ReignCampaignPreparationCampaignBehavior.AutonomousWorldOriginDay,
                 ["playerHeroStringId"] = Hero.MainHero?.StringId ?? string.Empty,

@@ -75,7 +75,7 @@ namespace ReignBeta.WorldSimulation.Economy
             var realms = Kingdom.All.Where(k => !k.IsEliminated).ToArray();
             if (realms.Length > 64) throw new InvalidOperationException("Cohort isolation supports at most64 current kingdoms.");
             if (plan.SuppressRebellions && (Clan.All.Any(c => !c.IsEliminated && c.IsRebelClan)
-                || ReignRebellionCampaignBehavior.Instance?.Movements?.Any(m => m.Stage == "civil_war") == true))
+                || ReignServices.Rebellion?.Movements?.Any(m => m.Stage == "civil_war") == true))
                 throw new InvalidOperationException("Start cohort isolation before any rebellion, not after a civil split.");
             var scope = Resolve(plan);
             var preview = Preview(plan);
@@ -208,7 +208,7 @@ namespace ReignBeta.WorldSimulation.Economy
                     ?? throw new InvalidOperationException("Rebellion guard proof requires an existing NPC town.");
                 var native = _campaign.GetCampaignBehavior<RebellionsCampaignBehavior>()
                     ?? throw new InvalidOperationException("Native rebellion behavior unavailable.");
-                var reign = ReignRebellionCampaignBehavior.Instance
+                var reign = ReignServices.Rebellion
                     ?? throw new InvalidOperationException("Reign rebellion behavior unavailable.");
                 cases.Add("town_rebellion", Tuple.Create<object, object[]>(native, new object[] { town }));
                 cases.Add("reign_weekly_rebellion", Tuple.Create<object, object[]>(reign, new object[] { (float)CampaignTime.Now.ToDays }));
