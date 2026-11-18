@@ -5,16 +5,21 @@ using System.Threading.Tasks;
 using Newtonsoft.Json.Linq;
 using Reign.Core.Contracts.Court;
 using ReignBeta.Court;
-using ReignBeta.Integration;
-using ReignBeta.Runtime;
 using ReignBeta.UI.EventArt;
 using TaleWorlds.CampaignSystem;
 using TaleWorlds.CampaignSystem.Settlements;
 using TaleWorlds.Core;
 using TaleWorlds.Core.ViewModelCollection.ImageIdentifiers;
 using TaleWorlds.Library;
+using ReignBeta.Court.Campaign;
+using ReignBeta.Court.Integration;
+using ReignBeta.Dialogue.Integration;
+using ReignBeta.Dialogue.UI;
+using ReignBeta.Platform.Integration;
+using ReignBeta.Portraits.UI;
+using ReignBeta.UI.ViewModels;
 
-namespace ReignBeta.UI.ViewModels
+namespace ReignBeta.Court.UI
 {
     // Shares the approved court petition movie, including its four portrait slots,
     // transcript scrolling, typography and decision controls.
@@ -156,8 +161,8 @@ namespace ReignBeta.UI.ViewModels
             if (string.IsNullOrWhiteSpace(_matter.PendingPlayerTurnId))
             {
                 string contribution = "court_life_turn_" + Guid.NewGuid().ToString("N");
-                try { ReignBeta.Runtime.ReignConversationInputJournal.Save(ReignServerClient.GetCampaignId(),
-                    ReignBeta.Campaign.ReignWorldHistoryCampaignBehavior.Instance?.TimelineId ?? "main", Hero.MainHero?.StringId ?? "", contribution, text); }
+                try { ReignBeta.Dialogue.Runtime.ReignConversationInputJournal.Save(ReignServerClient.GetCampaignId(),
+                    ReignBeta.WorldSimulation.Campaign.ReignWorldHistoryCampaignBehavior.Instance?.TimelineId ?? "main", Hero.MainHero?.StringId ?? "", contribution, text); }
                 catch (Exception ex) { StatusText = "Your message could not be saved locally: " + ex.Message; return; }
                 _matter.PendingPlayerTurnId = contribution;
                 _matter.PendingPlayerText = text;

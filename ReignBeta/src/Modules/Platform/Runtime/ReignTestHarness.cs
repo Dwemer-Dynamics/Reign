@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 using Newtonsoft.Json.Linq;
 using TaleWorlds.CampaignSystem;
 
-namespace ReignBeta.Runtime
+namespace ReignBeta.Platform.Runtime
 {
     // The only way product code reaches the in-game test harness (live interaction host,
     // action gauntlet, fixtures and test runtimes), which is compiled into the optional
@@ -38,10 +38,10 @@ namespace ReignBeta.Runtime
 
         // Product forwarders into harness-owned controls. Each answers as the harness does when
         // no fixture has armed it: nothing held, nothing captured, no prepared draw or roll.
-        bool HoldNpcLivesAnnouncementDelivery(ReignBeta.Campaign.ReignNpcLivesBehavior lives, JObject row);
-        void CaptureGovernmentLoadFingerprintPhase(ReignBeta.Government.ReignGovernmentCampaignBehavior government, string phase, bool reset);
-        bool TryConsumeRulerJudgmentDraw(ReignBeta.Campaign.ReignRulerCampaignBehavior rulers, ReignBeta.Shared.Rulers.RulerJudgment judgment, out double draw);
-        bool TryConsumeRulerCaptureRoll(ReignBeta.Campaign.ReignRulerCampaignBehavior rulers, Hero hero, out double roll);
+        bool HoldNpcLivesAnnouncementDelivery(ReignBeta.Characters.Campaign.ReignNpcLivesBehavior lives, JObject row);
+        void CaptureGovernmentLoadFingerprintPhase(ReignBeta.Government.Campaign.ReignGovernmentCampaignBehavior government, string phase, bool reset);
+        bool TryConsumeRulerJudgmentDraw(ReignBeta.WorldSimulation.Rulers.ReignRulerCampaignBehavior rulers, ReignBeta.Shared.Rulers.RulerJudgment judgment, out double draw);
+        bool TryConsumeRulerCaptureRoll(ReignBeta.WorldSimulation.Rulers.ReignRulerCampaignBehavior rulers, Hero hero, out double roll);
         Task<double?> SubmitWorldTestHeartbeatAsync(double deltaAfterDay);
 
         IReignSpymasterTestControls Spymaster { get; }
@@ -94,7 +94,7 @@ namespace ReignBeta.Runtime
             catch (Exception ex)
             {
                 Install(null);
-                ReignBeta.Integration.ReignLog.Warn("Reign test harness was not installed; continuing without it: " + ex.GetType().Name + ": " + ex.Message);
+                ReignBeta.Platform.Integration.ReignLog.Warn("Reign test harness was not installed; continuing without it: " + ex.GetType().Name + ": " + ex.Message);
             }
         }
 
@@ -108,7 +108,7 @@ namespace ReignBeta.Runtime
             catch (ReflectionTypeLoadException ex)
             {
                 foreach (Exception loaderException in (ex.LoaderExceptions ?? new Exception[0]).Where(item => item != null).Take(5))
-                    ReignBeta.Integration.ReignLog.Warn("Reign test harness type failed to load: " + loaderException.GetType().Name + ": " + loaderException.Message);
+                    ReignBeta.Platform.Integration.ReignLog.Warn("Reign test harness type failed to load: " + loaderException.GetType().Name + ": " + loaderException.Message);
                 return ex.Types.Where(type => type != null).ToArray();
             }
         }
@@ -131,10 +131,10 @@ namespace ReignBeta.Runtime
             public void ApplyNpcObservableClanEvidence(Hero subject, JObject clan) { }
             public CampaignBehaviorBase CreateSocialBalanceHarnessBehavior() => null;
             public void RecordSocialBalanceOverride(string kind, JObject evidence) { }
-            public bool HoldNpcLivesAnnouncementDelivery(ReignBeta.Campaign.ReignNpcLivesBehavior lives, JObject row) => false;
-            public void CaptureGovernmentLoadFingerprintPhase(ReignBeta.Government.ReignGovernmentCampaignBehavior government, string phase, bool reset) { }
-            public bool TryConsumeRulerJudgmentDraw(ReignBeta.Campaign.ReignRulerCampaignBehavior rulers, ReignBeta.Shared.Rulers.RulerJudgment judgment, out double draw) { draw = 0; return false; }
-            public bool TryConsumeRulerCaptureRoll(ReignBeta.Campaign.ReignRulerCampaignBehavior rulers, Hero hero, out double roll) { roll = 0; return false; }
+            public bool HoldNpcLivesAnnouncementDelivery(ReignBeta.Characters.Campaign.ReignNpcLivesBehavior lives, JObject row) => false;
+            public void CaptureGovernmentLoadFingerprintPhase(ReignBeta.Government.Campaign.ReignGovernmentCampaignBehavior government, string phase, bool reset) { }
+            public bool TryConsumeRulerJudgmentDraw(ReignBeta.WorldSimulation.Rulers.ReignRulerCampaignBehavior rulers, ReignBeta.Shared.Rulers.RulerJudgment judgment, out double draw) { draw = 0; return false; }
+            public bool TryConsumeRulerCaptureRoll(ReignBeta.WorldSimulation.Rulers.ReignRulerCampaignBehavior rulers, Hero hero, out double roll) { roll = 0; return false; }
             public Task<double?> SubmitWorldTestHeartbeatAsync(double deltaAfterDay) => Task.FromResult<double?>(null);
             public IReignSpymasterTestControls Spymaster => this;
             public bool Active => false;

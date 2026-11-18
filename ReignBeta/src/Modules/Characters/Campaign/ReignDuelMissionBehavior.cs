@@ -1,7 +1,6 @@
 using System;
 using System.Collections.Generic;
 using System.Reflection;
-using ReignBeta.Integration;
 using ReignBeta.UI;
 using ReignBeta.World;
 using TaleWorlds.CampaignSystem;
@@ -11,8 +10,14 @@ using TaleWorlds.CampaignSystem.ComponentInterfaces;
 using TaleWorlds.Core;
 using TaleWorlds.Library;
 using TaleWorlds.MountAndBlade;
+using ReignBeta.Dialogue.Campaign;
+using ReignBeta.Dialogue.UI;
+using ReignBeta.Platform.Campaign;
+using ReignBeta.Platform.Integration;
+using ReignBeta.WorldSimulation.Arrests;
+using ReignBeta.WorldSimulation.World;
 
-namespace ReignBeta.Campaign
+namespace ReignBeta.Characters.Campaign
 {
     internal sealed class ReignDuelMissionBehavior : MissionBehavior
     {

@@ -13,9 +13,12 @@ using TaleWorlds.CampaignSystem.Party;
 using TaleWorlds.CampaignSystem.Settlements;
 using TaleWorlds.MountAndBlade;
 using TaleWorlds.ScreenSystem;
-using static ReignBeta.Government.ReignGovernmentCampaignBehavior;
+using static ReignBeta.Government.Campaign.ReignGovernmentCampaignBehavior;
+using ReignBeta.Dialogue.UI;
+using ReignBeta.Government.Campaign;
+using ReignBeta.WorldSimulation.Actions;
 
-namespace ReignBeta.Government
+namespace ReignBeta.Government.Testing
 {
     internal static partial class ReignGovernmentTestControls
     {

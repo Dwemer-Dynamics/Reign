@@ -3,9 +3,11 @@ using System;
 using System.Threading.Tasks;
 using Newtonsoft.Json.Linq;
 using ReignBeta.Court;
-using ReignBeta.Integration;
+using ReignBeta.Court.Campaign;
+using ReignBeta.Court.Integration;
+using ReignBeta.Platform.Integration;
 
-namespace ReignBeta.Campaign
+namespace ReignBeta.WorldSimulation.Campaign
 {
     public static partial class ReignLiveInteractionTestHost
     {

@@ -6,7 +6,6 @@ using HarmonyLib;
 using Newtonsoft.Json.Linq;
 using Reign.Core.Contracts.Actions;
 using ReignBeta.Actions;
-using ReignBeta.Integration;
 using ReignBeta.Shared.Characters;
 using ReignBeta.World;
 using TaleWorlds.CampaignSystem;
@@ -19,8 +18,12 @@ using TaleWorlds.CampaignSystem.Settlements;
 using TaleWorlds.Core;
 using TaleWorlds.Library;
 using TaleWorlds.MountAndBlade;
+using ReignBeta.Characters.Integration;
+using ReignBeta.Platform.Integration;
+using ReignBeta.Relationships.Campaign;
+using ReignBeta.WorldSimulation.CampaignCommands;
 
-namespace ReignBeta.Campaign
+namespace ReignBeta.Characters.Campaign
 {
     public sealed class NpcPersonalJourney
     {
@@ -103,14 +106,14 @@ namespace ReignBeta.Campaign
         internal static bool Free(Hero h) => h != null && h.IsAlive && !h.IsPrisoner && h.PartyBelongedTo?.MapEvent == null;
         internal static bool TravelSafe() => Mission.Current == null && MobileParty.MainParty?.MapEvent == null
             && TaleWorlds.CampaignSystem.Campaign.Current?.ConversationManager?.IsConversationInProgress != true
-            && !ReignBeta.UI.ReignIndividualChatScreenManager.IsOpen && !ReignBeta.UI.ReignPartyChatScreenManager.IsOpenOrPending;
+            && !ReignBeta.Dialogue.UI.ReignIndividualChatScreenManager.IsOpen && !ReignBeta.Dialogue.UI.ReignPartyChatScreenManager.IsOpenOrPending;
         internal static bool SafePlace(Hero h, Settlement s) => h != null && s != null && !s.IsUnderSiege && !s.IsHideout
             && !FactionManager.IsAtWarAgainstFaction(h.MapFaction, s.MapFaction);
-        private static string CurrentLifeGuestAgreement(Hero hero) => ReignBeta.PartyAgency.ReignTemporaryPartyGuestCampaignBehavior.Instance?.Records
+        private static string CurrentLifeGuestAgreement(Hero hero) => ReignBeta.WorldSimulation.PartyAgency.ReignTemporaryPartyGuestCampaignBehavior.Instance?.Records
             .FirstOrDefault(r => r.HeroStringId == hero?.StringId && r.IsLive)?.AgreementId ?? "";
         private static bool MayReturnFromLifeAbsence(Hero hero, string agreement)
         {
-            var record = ReignBeta.PartyAgency.ReignTemporaryPartyGuestCampaignBehavior.Instance?.Records
+            var record = ReignBeta.WorldSimulation.PartyAgency.ReignTemporaryPartyGuestCampaignBehavior.Instance?.Records
                 .FirstOrDefault(r => r.HeroStringId == hero?.StringId && r.AgreementId == agreement);
             return NpcLivesPolicy.CanResumeGuestService(agreement, record?.AgreementId ?? "", record?.Phase.ToString() ?? "",
                 hero?.Clan == Clan.PlayerClan && hero?.CompanionOf == Clan.PlayerClan);
@@ -596,7 +599,7 @@ namespace ReignBeta.Campaign
                     {
                         bool otherOwner = ReignCampaignCommandBehavior.Instance?.Orders.Any(o => o.CommanderHeroStringId == hero.StringId && !o.IsTerminal && o.Objective == "timed_hold") == true;
                         party.Ai.SetDoNotMakeNewDecisions(duty.DecisionLock || otherOwner
-                            || ReignBeta.PartyAgency.ReignTemporaryPartyGuestCampaignBehavior.Instance?.IsProtectedCamp(party) == true);
+                            || ReignBeta.WorldSimulation.PartyAgency.ReignTemporaryPartyGuestCampaignBehavior.Instance?.IsProtectedCamp(party) == true);
                         var destination = Settlement.Find(duty.TargetSettlementId);
                         if (SafePlace(hero, destination) && !otherOwner) party.SetMoveGoToSettlement(destination, party.NavigationCapability, false);
                     }

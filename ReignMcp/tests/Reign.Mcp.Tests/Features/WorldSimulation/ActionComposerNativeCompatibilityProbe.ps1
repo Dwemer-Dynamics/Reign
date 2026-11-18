@@ -72,7 +72,7 @@ try {
     $flags = [Reflection.BindingFlags]'Instance,Static,NonPublic,Public,DeclaredOnly'
     # Invoke only the compiled managed lifecycle helper. These are isolated saved
     # records: no campaign, government, native clan mutation or live save exists.
-    $rebellionType = $client.GetType('ReignBeta.Campaign.ReignRebellionCampaignBehavior', $true)
+    $rebellionType = $client.GetType('ReignBeta.Rebellion.Campaign.ReignRebellionCampaignBehavior', $true)
     $closePlots = $rebellionType.GetMethod('CloseResolvedPreparationPlots', $flags)
     $plotType = $client.GetType('ReignBeta.World.ReignRebellionPlotRecord', $true)
     $movementType = $client.GetType('ReignBeta.World.ReignRebellionMovementRecord', $true)
@@ -151,8 +151,8 @@ public sealed class ReignRebellionSavedRecordDataStore : TaleWorlds.CampaignSyst
         if ($plot.Status -ne $expected) { throw 'Saved preparation cleanup is not idempotent.' }
         $rebellionSavedLoadChecks++
     }
-    foreach ($typeName in @('ReignBeta.UI.Widgets.ReignActionEditableTextWidget',
-        'ReignBeta.UI.Widgets.ReignPortraitWidget', 'ReignBeta.Campaign.ReignHeroKnowledge',
+    foreach ($typeName in @('ReignBeta.Dialogue.UI.ReignActionEditableTextWidget',
+        'ReignBeta.UI.Widgets.ReignPortraitWidget', 'ReignBeta.Characters.Campaign.ReignHeroKnowledge',
         'ReignBeta.UI.Calibration.ReignUiCalibrationSession', 'ReignBeta.UI.Calibration.ReignUiCalibrationSession+WidgetGeometry')) {
         $type = $client.GetType($typeName, $true)
         $members = @($type.GetMethods($flags) | Where-Object { !$_.ContainsGenericParameters }) + @($type.GetConstructors($flags))
@@ -163,7 +163,7 @@ public sealed class ReignRebellionSavedRecordDataStore : TaleWorlds.CampaignSyst
             $prepared.Add($typeName + '.' + $method.Name)
         }
     }
-    $editor = $client.GetType('ReignBeta.UI.Widgets.ReignActionEditableTextWidget', $true)
+    $editor = $client.GetType('ReignBeta.Dialogue.UI.ReignActionEditableTextWidget', $true)
     $fieldsCompatible = $editor.GetProperty('IsNativeTextCompatible').GetValue($null, $null)
     if (!$fieldsCompatible) { throw 'Native visible text fields are incompatible.' }
     # Execute the actual managed key path, with the game's empty input manager
@@ -183,7 +183,7 @@ public sealed class ReignRebellionSavedRecordDataStore : TaleWorlds.CampaignSyst
     $priorInput = $inputField.GetValue($null)
     $emptyInput = [Activator]::CreateInstance($inputAssembly.GetType('TaleWorlds.InputSystem.EmptyInputManager', $true), $true)
     $inputField.SetValue($null, $emptyInput)
-    $composerType = $client.GetType('ReignBeta.UI.ViewModels.ReignActionComposerVM', $true)
+    $composerType = $client.GetType('ReignBeta.Dialogue.UI.ReignActionComposerVM', $true)
     $composer = [Activator]::CreateInstance($composerType, @([Action] {}))
     try {
         $textWidget = [Runtime.Serialization.FormatterServices]::GetUninitializedObject($editor)
@@ -213,7 +213,7 @@ public sealed class ReignRebellionSavedRecordDataStore : TaleWorlds.CampaignSyst
         catch { $rejected = $true }
         if (!$rejected) { throw 'Disposed mailbox composer was accepted.' }
         $mailboxEditorChecks++
-        $mailboxType = $client.GetType('ReignBeta.UI.ViewModels.ReignCorrespondenceScreenVM', $true)
+        $mailboxType = $client.GetType('ReignBeta.Dialogue.UI.ReignCorrespondenceScreenVM', $true)
         $mailbox = [Runtime.Serialization.FormatterServices]::GetUninitializedObject($mailboxType)
         $cancellation = [Threading.CancellationTokenSource]::new()
         $mailboxType.GetField('_loadCancellation', $flags).SetValue($mailbox, $cancellation)
@@ -283,7 +283,7 @@ public sealed class ReignKnownHeroProbeState
     public void Meet() { Met = true; Meetings++; Date = 999; }
 }
 '@
-    $knowledgeType = $client.GetType('ReignBeta.Campaign.ReignHeroKnowledge', $true)
+    $knowledgeType = $client.GetType('ReignBeta.Characters.Campaign.ReignHeroKnowledge', $true)
     $applyKnowledge = $knowledgeType.GetMethod('ApplyKnownState', $flags)
     foreach ($met in @($false, $true)) { foreach ($known in @($false, $true)) {
         $knowledgeState = [ReignKnownHeroProbeState]::new()
@@ -303,7 +303,7 @@ public sealed class ReignKnownHeroProbeState
     } }
     # Exercise only managed selector helpers on an uninitialized fixture: no
     # campaign constructor, entity lookup, selection callback or widget runs.
-    $builderType = $client.GetType('ReignBeta.UI.ViewModels.ReignActionBuilderVM', $true)
+    $builderType = $client.GetType('ReignBeta.Dialogue.UI.ReignActionBuilderVM', $true)
     $builder = [Runtime.Serialization.FormatterServices]::GetUninitializedObject($builderType)
     $clauseField = $builderType.GetField('_clause', $flags)
     $wageCheck = $builderType.GetMethod('IsUnusedWageDetail', $flags)
@@ -337,7 +337,7 @@ public sealed class ReignKnownHeroProbeState
     # struct. No roster, campaign constructor, hero or game callback is invoked.
     $campaignAssembly = [Reflection.Assembly]::LoadFrom((Join-Path $gameBin 'TaleWorlds.CampaignSystem.dll'))
     $rowType = $campaignAssembly.GetType('TaleWorlds.CampaignSystem.Roster.TroopRosterElement', $true)
-    $assetType = $client.GetType('ReignBeta.Actions.ReignAssetTransfer', $true)
+    $assetType = $client.GetType('ReignBeta.WorldSimulation.Actions.ReignAssetTransfer', $true)
     $snapshot = $assetType.GetMethod('RosterRowState', $flags)
     $emptyRow = [Activator]::CreateInstance($rowType)
     $emptyState = $snapshot.Invoke($null, @($emptyRow))
@@ -368,7 +368,7 @@ public sealed class ReignKnownHeroProbeState
     # compiled allowlisted reader with a constructor-free native Hero fixture.
     $heroType = $campaignAssembly.GetType('TaleWorlds.CampaignSystem.Hero', $true)
     $heroFixture = [Runtime.Serialization.FormatterServices]::GetUninitializedObject($heroType)
-    $nativeConsole = $client.GetType('ReignBeta.Actions.ReignNativeActionConsole', $true)
+    $nativeConsole = $client.GetType('ReignBeta.WorldSimulation.Actions.ReignNativeActionConsole', $true)
     $observeMember = $nativeConsole.GetMethod('ObservePublicMember', $flags)
     foreach ($pregnant in @($false, $true)) {
         $heroType.GetField('IsPregnant').SetValue($heroFixture, $pregnant)
@@ -492,7 +492,7 @@ public sealed class ReignKnownHeroProbeState
     # These compiled helpers observe isolated agreements and validate supplied
     # context facts only. They never access a campaign, sign a live offer or invoke
     # a native action. Proposal IDs must come from the saved client, not its server preview.
-    $hostType = $testing.GetType('ReignBeta.Campaign.ReignLiveInteractionTestHost', $true)
+    $hostType = $testing.GetType('ReignBeta.WorldSimulation.Campaign.ReignLiveInteractionTestHost', $true)
     $observeOffers = $hostType.GetMethod('ObservePendingNpcOffers', $flags)
     $agreementType = $observeOffers.GetParameters()[0].ParameterType.GetGenericArguments()[0]
     function New-ObservedOffer([string]$id, [string]$npc = 'lord_1_1') {
@@ -574,7 +574,7 @@ public sealed class ReignKnownHeroProbeState
     $prepared.Add($hostType.FullName + '.' + $playerEncounterFixture.Name)
     $contextGuard = $nativeConsole.GetMethod('ValidateContext', $flags)
     [Runtime.CompilerServices.RuntimeHelpers]::PrepareMethod($contextGuard.MethodHandle)
-    $prepared.Add('ReignBeta.Actions.ReignNativeActionConsole.ValidateContext')
+    $prepared.Add('ReignBeta.WorldSimulation.Actions.ReignNativeActionConsole.ValidateContext')
     if ($fault['errorStack'].ToString() -ne '' -or [bool]::Parse($fault['errorStackTruncated'].ToString())) {
         throw 'A stackless exception invented diagnostic frames.'
     }
@@ -592,11 +592,11 @@ public sealed class ReignKnownHeroProbeState
     $nativeFaultChecks++
     # Exercise the compiled balance projection, including partial/clamped transfers
     # and overflow. These supplied balances are contract fixtures, not native payment proof.
-    $diplomacyExecutor = $client.GetType('ReignBeta.World.ReignDiplomacyExecutor', $true)
+    $diplomacyExecutor = $client.GetType('ReignBeta.Diplomacy.World.ReignDiplomacyExecutor', $true)
     $goldObservation = $diplomacyExecutor.GetMethod('ObserveGoldTransferBalances', $flags)
     foreach ($method in @($goldObservation, $diplomacyExecutor.GetMethod('ApplyGoldTransfer', $flags))) {
         [Runtime.CompilerServices.RuntimeHelpers]::PrepareMethod($method.MethodHandle)
-        $prepared.Add('ReignBeta.World.ReignDiplomacyExecutor.' + $method.Name)
+        $prepared.Add('ReignBeta.Diplomacy.World.ReignDiplomacyExecutor.' + $method.Name)
     }
     foreach ($goldCase in @(
         @{ args = @(917, 1000, 83, 100, 1017, $true, $true); debit = 917L; credit = 917L; exact = $true; conserved = $true },
@@ -631,12 +631,12 @@ public sealed class ReignKnownHeroProbeState
     $secondRealm = [Runtime.Serialization.FormatterServices]::GetUninitializedObject($kingdomType)
     $otherRealm = [Runtime.Serialization.FormatterServices]::GetUninitializedObject($kingdomType)
     $allianceModel = [Activator]::CreateInstance($campaignAssembly.GetType('TaleWorlds.CampaignSystem.GameComponents.DefaultAllianceModel', $true))
-    $durationPatches = $client.GetType('ReignBeta.Runtime.ReignDiplomacyPatches', $true)
+    $durationPatches = $client.GetType('ReignBeta.Diplomacy.Runtime.ReignDiplomacyPatches', $true)
     $scopeMethod = $durationPatches.GetMethod('UseAcceptedAllianceDuration', $flags)
     $durationMethod = $durationPatches.GetMethod('ResolveAllianceDuration', $flags)
     foreach ($method in @($scopeMethod, $durationMethod, $durationPatches.GetMethod('StartAcceptedAlliance', $flags))) {
         [Runtime.CompilerServices.RuntimeHelpers]::PrepareMethod($method.MethodHandle)
-        $prepared.Add('ReignBeta.Runtime.ReignDiplomacyPatches.' + $method.Name)
+        $prepared.Add('ReignBeta.Diplomacy.Runtime.ReignDiplomacyPatches.' + $method.Name)
     }
     function Assert-AllianceDuration($a, $b, [double]$expected) {
         $time = $durationMethod.Invoke($null, @($allianceModel, $a, $b))

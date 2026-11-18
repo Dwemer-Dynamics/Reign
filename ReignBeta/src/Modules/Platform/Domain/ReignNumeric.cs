@@ -1,6 +1,6 @@
 using System;
 
-namespace ReignBeta.Platform
+namespace ReignBeta.Platform.Domain
 {
     // Shared numeric guards for game-free client policies.
     internal static class ReignNumeric

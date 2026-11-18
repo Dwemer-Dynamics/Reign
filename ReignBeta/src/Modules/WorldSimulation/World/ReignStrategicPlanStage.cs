@@ -1,4 +1,4 @@
-namespace ReignBeta.World
+namespace ReignBeta.WorldSimulation.World
 {
     public enum ReignStrategicPlanStage
     {

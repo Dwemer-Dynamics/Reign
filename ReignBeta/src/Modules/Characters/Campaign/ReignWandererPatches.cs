@@ -1,13 +1,13 @@
 using System;
 using System.Reflection;
 using HarmonyLib;
-using ReignBeta.Integration;
 using ReignBeta.Shared.Characters;
 using TaleWorlds.CampaignSystem;
 using TaleWorlds.CampaignSystem.Actions;
 using TaleWorlds.CampaignSystem.CampaignBehaviors;
+using ReignBeta.Platform.Integration;
 
-namespace ReignBeta.Campaign
+namespace ReignBeta.Characters.Campaign
 {
     internal static class ReignWandererPatches
     {

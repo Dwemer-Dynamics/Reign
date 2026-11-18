@@ -7,7 +7,7 @@ using TaleWorlds.CampaignSystem;
 using TaleWorlds.CampaignSystem.Actions;
 using TaleWorlds.CampaignSystem.CampaignBehaviors;
 
-namespace ReignBeta.Runtime
+namespace ReignBeta.Platform.Runtime
 {
     // Keep native save fields and explicit execution orders, while disabling the
     // clan-feud machinery and automatic execution queues inherited from old saves.

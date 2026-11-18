@@ -22,7 +22,7 @@ try {
     # The in-game test harness lives in ReignBeta.Testing.dll next to the client assembly.
     $testing=[Reflection.Assembly]::LoadFrom((Join-Path ([IO.Path]::GetDirectoryName([IO.Path]::GetFullPath($ClientAssembly))) 'ReignBeta.Testing.dll'))
     $flags=[Reflection.BindingFlags]'Static,Public,NonPublic'
-    $type=$client.GetType('ReignBeta.World.ReignRulerNativePatches',$true)
+    $type=$client.GetType('ReignBeta.WorldSimulation.Rulers.ReignRulerNativePatches',$true)
     $type.GetMethod('Apply',$flags).Invoke($null,@()) | Out-Null
     $hooks=[int]$type.GetProperty('HookCount',$flags).GetValue($null,$null)
     $failure=[string]$type.GetProperty('Error',$flags).GetValue($null,$null)
@@ -30,8 +30,8 @@ try {
     $native=[Reflection.Assembly]::LoadFrom((Join-Path $gameBin 'TaleWorlds.CampaignSystem.dll'))
     $campaign=$native.GetType('TaleWorlds.CampaignSystem.Campaign',$true)
     if($null -eq $campaign.GetProperty('PlayerDefaultFaction',[Reflection.BindingFlags]'Instance,Public,NonPublic').GetSetMethod($true)){throw 'Player exile faction setter unavailable.'}
-    $behaviorType=$client.GetType('ReignBeta.Campaign.ReignRulerCampaignBehavior',$true)
-    $fixtureType=$testing.GetType('ReignBeta.Campaign.ReignRulerFixtureControls',$true)
+    $behaviorType=$client.GetType('ReignBeta.WorldSimulation.Rulers.ReignRulerCampaignBehavior',$true)
+    $fixtureType=$testing.GetType('ReignBeta.WorldSimulation.Rulers.ReignRulerFixtureControls',$true)
     $optionJson=$behaviorType.GetMethod('ObserveCampaignOptions',$flags).Invoke($null,@()).ToString()
     [IO.File]::WriteAllText((Join-Path $probeRoot 'campaign-options-observation.json'),$optionJson,[Text.UTF8Encoding]::new($false))
     $options=$optionJson | ConvertFrom-Json
@@ -205,7 +205,7 @@ try {
     if($unboundStatus.available -or $unboundStatus.nativeHooks -ne 0){throw 'Runtime health falsely accepted missing ruler hooks.'}
     # Invoke the actual compiled diagnostic, so its success gate and all native
     # ExplainedNumber assertions are checked even before in-game acceptance.
-    $mathType=$testing.GetType('ReignBeta.ClanAccords.ReignClanAccordNativeTests',$true)
+    $mathType=$testing.GetType('ReignBeta.Diplomacy.ClanAccords.ReignClanAccordNativeTests',$true)
     $mathMethod=$mathType.GetMethod('Run',$flags)
     $mathJson=$mathMethod.Invoke($null,[object[]]@('isolated_ruler_native_math','contracts')).ToString()
     [IO.File]::WriteAllText((Join-Path $probeRoot 'native-math-report.json'),$mathJson,[Text.UTF8Encoding]::new($false))

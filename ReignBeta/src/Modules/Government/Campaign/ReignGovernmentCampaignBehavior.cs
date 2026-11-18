@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Linq;
 using Reign.Core.Contracts.Government;
-using ReignBeta.Integration;
 #if !REIGN_EXCLUDE_COURT
 using ReignBeta.Court;
 using ReignBeta.UI;
@@ -14,9 +13,15 @@ using TaleWorlds.CampaignSystem.CharacterDevelopment;
 using TaleWorlds.CampaignSystem.Settlements;
 using TaleWorlds.Core;
 using TaleWorlds.Library;
-using static ReignBeta.Platform.ReignNumeric;
+using static ReignBeta.Platform.Domain.ReignNumeric;
+using ReignBeta.Characters.Integration;
+using ReignBeta.Government.UI;
+#if !REIGN_EXCLUDE_COURT
+using ReignBeta.Court.Campaign;
+using ReignBeta.Court.UI;
+#endif
 
-namespace ReignBeta.Government
+namespace ReignBeta.Government.Campaign
 {
     public sealed partial class ReignGovernmentCampaignBehavior : CampaignBehaviorBase
     {
@@ -40,7 +45,7 @@ namespace ReignBeta.Government
         internal readonly Dictionary<string, GovernmentPrivateCaseBaseline> _governmentPrivateCaseBaselines =
             new Dictionary<string, GovernmentPrivateCaseBaseline>(StringComparer.Ordinal);
         // Product forwarder: session launch, SyncData and calendar restore record harness load-fingerprint phases.
-        private void CaptureGovernmentLoadFingerprintPhase(string phase, bool reset = false) => ReignBeta.Runtime.ReignTestHarness.Current.CaptureGovernmentLoadFingerprintPhase(this, phase, reset);
+        private void CaptureGovernmentLoadFingerprintPhase(string phase, bool reset = false) => ReignBeta.Platform.Runtime.ReignTestHarness.Current.CaptureGovernmentLoadFingerprintPhase(this, phase, reset);
 
         internal sealed class GovernmentPrivateCaseBaseline
         {
@@ -797,7 +802,7 @@ namespace ReignBeta.Government
                 if (hearth != 0) {
                     float beforeHearth = village.Hearth;
                     village.Hearth = MathF.Max(0f, village.Hearth + hearth);
-                    ReignBeta.Economy.ReignWarEconomyTransactions.RecordHearthGrant("government_authority", village, beforeHearth);
+                    ReignBeta.WorldSimulation.Economy.ReignWarEconomyTransactions.RecordHearthGrant("government_authority", village, beforeHearth);
                 }
             }
         }

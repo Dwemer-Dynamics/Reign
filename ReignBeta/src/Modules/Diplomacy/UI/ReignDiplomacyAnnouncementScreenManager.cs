@@ -1,5 +1,4 @@
 using System;
-using ReignBeta.Integration;
 using ReignBeta.UI.ViewModels;
 using ReignBeta.World;
 using TaleWorlds.CampaignSystem;
@@ -8,8 +7,10 @@ using TaleWorlds.Engine.GauntletUI;
 using TaleWorlds.InputSystem;
 using TaleWorlds.Library;
 using TaleWorlds.ScreenSystem;
+using ReignBeta.Diplomacy.World;
+using ReignBeta.Platform.Integration;
 
-namespace ReignBeta.UI
+namespace ReignBeta.Diplomacy.UI
 {
     public static class ReignDiplomacyAnnouncementScreenManager
     {

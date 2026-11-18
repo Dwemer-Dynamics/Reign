@@ -1,6 +1,6 @@
 using TaleWorlds.MountAndBlade;
 
-namespace ReignBeta.World
+namespace ReignBeta.WorldSimulation.World
 {
     internal static class ReignSceneTeamSafety
     {

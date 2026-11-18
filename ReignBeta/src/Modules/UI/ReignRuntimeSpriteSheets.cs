@@ -6,12 +6,12 @@ using System.Reflection;
 using System.Security.Cryptography;
 using AIPortraits;
 using Newtonsoft.Json.Linq;
-using ReignBeta.Integration;
 using TaleWorlds.Engine.GauntletUI;
 using TaleWorlds.Library;
 using TaleWorlds.TwoDimension;
 using EngineTexture = TaleWorlds.Engine.Texture;
 using TwoDimensionTexture = TaleWorlds.TwoDimension.Texture;
+using ReignBeta.Platform.Integration;
 
 namespace ReignBeta.UI
 {

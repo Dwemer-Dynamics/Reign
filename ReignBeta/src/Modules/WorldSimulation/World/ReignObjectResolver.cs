@@ -7,7 +7,7 @@ using TaleWorlds.CampaignSystem.Settlements.Workshops;
 using TaleWorlds.Core;
 using TaleWorlds.ObjectSystem;
 
-namespace ReignBeta.World
+namespace ReignBeta.WorldSimulation.World
 {
     public static class ReignObjectResolver
     {

@@ -2,7 +2,6 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using Newtonsoft.Json.Linq;
-using ReignBeta.Integration;
 using ReignBeta.Shared.Characters;
 using ReignBeta.World;
 using TaleWorlds.CampaignSystem;
@@ -12,8 +11,10 @@ using TaleWorlds.CampaignSystem.Settlements;
 using TaleWorlds.Core;
 using TaleWorlds.Localization;
 using TaleWorlds.ObjectSystem;
+using ReignBeta.Characters.Integration;
+using ReignBeta.WorldSimulation.World;
 
-namespace ReignBeta.Campaign
+namespace ReignBeta.Characters.Campaign
 {
     public sealed partial class ReignNpcLivesBehavior
     {

@@ -2,7 +2,6 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using ReignBeta.Government;
-using ReignBeta.Integration;
 using ReignBeta.UI.ViewModels;
 using TaleWorlds.CampaignSystem;
 using TaleWorlds.CampaignSystem.GameState;
@@ -16,8 +15,10 @@ using TaleWorlds.Library;
 using TaleWorlds.MountAndBlade;
 using TaleWorlds.ScreenSystem;
 using static ReignBeta.UI.ReignScreenLayers;
+using ReignBeta.Government.Campaign;
+using ReignBeta.Platform.Integration;
 
-namespace ReignBeta.UI
+namespace ReignBeta.Government.UI
 {
     public static class ReignGovernmentScreenManager
     {

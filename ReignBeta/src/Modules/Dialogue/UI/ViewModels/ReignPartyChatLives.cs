@@ -4,11 +4,12 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Newtonsoft.Json.Linq;
-using ReignBeta.Integration;
-using ReignBeta.Runtime;
 using TaleWorlds.CampaignSystem;
+using ReignBeta.Characters.Integration;
+using ReignBeta.Dialogue.Runtime;
+using ReignBeta.Platform.Integration;
 
-namespace ReignBeta.UI.ViewModels
+namespace ReignBeta.Dialogue.UI
 {
     public sealed partial class ReignPartyChatScreenVM
     {
@@ -45,7 +46,7 @@ namespace ReignBeta.UI.ViewModels
                 var context = await ReignMainThread.InvokeAsync(() => {
                     if (!current()) throw new ReignRequestOwnerAbandonedException("The party approach owner closed before its capture.");
                     campaignId = ReignServerClient.GetCampaignId();
-                    timelineId = ReignBeta.Campaign.ReignWorldHistoryCampaignBehavior.Instance?.TimelineId ?? "main";
+                    timelineId = ReignBeta.WorldSimulation.Campaign.ReignWorldHistoryCampaignBehavior.Instance?.TimelineId ?? "main";
                     return new JObject {
                         ["npcLifeContext"] = LifeChatContext,
                         ["npcLifeSceneContext"] = _session.BuildSceneContext(heroes),
@@ -60,7 +61,7 @@ namespace ReignBeta.UI.ViewModels
                         // Life preparation reads native state in its synchronous prefix, so it
                         // starts inside a guarded game-thread callback for the same owner.
                         Task preparation = await ReignMainThread.InvokeAsync(() => !current() ? null
-                            : ReignBeta.Campaign.ReignNpcLivesBehavior.Instance?.PrepareLifeConversationAsync(hero, session, individualContext) ?? Task.CompletedTask).ConfigureAwait(false);
+                            : ReignBeta.Characters.Campaign.ReignNpcLivesBehavior.Instance?.PrepareLifeConversationAsync(hero, session, individualContext) ?? Task.CompletedTask).ConfigureAwait(false);
                         if (preparation == null) throw new ReignRequestOwnerAbandonedException("The party approach owner closed before life preparation.");
                         await preparation.ConfigureAwait(false);
                         return await ReignNpcLivesClient.OpenNpcLifeApproachAsync(hero, session, individualContext, requestOwner: current).ConfigureAwait(false);

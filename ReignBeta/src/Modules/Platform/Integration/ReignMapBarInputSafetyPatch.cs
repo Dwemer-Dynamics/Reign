@@ -5,7 +5,7 @@ using System.Reflection.Emit;
 using HarmonyLib;
 using TaleWorlds.InputSystem;
 
-namespace ReignBeta.Integration
+namespace ReignBeta.Platform.Integration
 {
     // The native global map bar also ticks over modal screens opened above an
     // inventory/party panel. Those screens need not register campaign shortcuts.

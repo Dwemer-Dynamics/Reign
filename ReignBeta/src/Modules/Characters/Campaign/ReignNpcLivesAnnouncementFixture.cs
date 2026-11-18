@@ -3,15 +3,18 @@ using System.Diagnostics;
 using System.Linq;
 using Newtonsoft.Json.Linq;
 using ReignBeta.Actions;
-using ReignBeta.Integration;
-using ReignBeta.Save;
 using TaleWorlds.CampaignSystem;
 using TaleWorlds.CampaignSystem.Party;
 using TaleWorlds.MountAndBlade;
 using NativeCampaign = TaleWorlds.CampaignSystem.Campaign;
-using static ReignBeta.Campaign.ReignNpcLivesBehavior;
+using static ReignBeta.Characters.Campaign.ReignNpcLivesBehavior;
+using ReignBeta.Characters.Campaign;
+using ReignBeta.Characters.Integration;
+using ReignBeta.Persistence.Campaign;
+using ReignBeta.Platform.Integration;
+using ReignBeta.WorldSimulation.Actions;
 
-namespace ReignBeta.Campaign
+namespace ReignBeta.WorldSimulation.Campaign
 {
     public static partial class ReignLiveInteractionTestHost
     {

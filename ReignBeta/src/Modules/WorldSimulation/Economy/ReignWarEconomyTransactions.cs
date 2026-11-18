@@ -8,7 +8,7 @@ using TaleWorlds.CampaignSystem.Party;
 using TaleWorlds.CampaignSystem.Roster;
 using TaleWorlds.CampaignSystem.Settlements;
 
-namespace ReignBeta.Economy
+namespace ReignBeta.WorldSimulation.Economy
 {
     // All mutations run synchronously on Bannerlord's campaign thread. Quotes never debit resources.
     internal static class ReignWarEconomyTransactions
@@ -138,7 +138,7 @@ namespace ReignBeta.Economy
             int allowed = behavior == null || locality == null || troop == null || payer?.Clan == null || locality.IsUnderSiege
                 || State.Pending.Any(x => x.Party == party?.StringId)
                 || (party != null && State.DrawdownPending.Any(x => x.Party == party.StringId && x.Generation == Generation(party)))
-                || (automatic && !ReignBeta.World.ReignCampaignCommandBehavior.RecruitmentFitsActiveOrder(party, troop))
+                || (automatic && !ReignBeta.WorldSimulation.CampaignCommands.ReignCampaignCommandBehavior.RecruitmentFitsActiveOrder(party, troop))
                 ? 0 : Math.Min(Math.Max(0, requested), behavior.GetRecruitCapacity(locality));
             if (allowed > 0)
             {

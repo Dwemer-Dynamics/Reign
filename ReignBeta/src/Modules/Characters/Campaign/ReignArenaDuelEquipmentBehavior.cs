@@ -1,12 +1,12 @@
 using System;
 using System.Collections.Generic;
-using ReignBeta.Integration;
 using SandBox.Missions.MissionLogics.Arena;
 using TaleWorlds.CampaignSystem;
 using TaleWorlds.Core;
 using TaleWorlds.MountAndBlade;
+using ReignBeta.Platform.Integration;
 
-namespace ReignBeta.Campaign
+namespace ReignBeta.Characters.Campaign
 {
     // Native arena duels use personal battle equipment, which civilians may lack.
     // Borrow a native arena weapon on the spawned agent only; never alter the hero.

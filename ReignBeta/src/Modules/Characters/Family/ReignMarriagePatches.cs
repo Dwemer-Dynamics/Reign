@@ -4,8 +4,6 @@ using System.Linq;
 using HarmonyLib;
 using Reign.Core.Contracts.Actions;
 using ReignBeta.Campaign;
-using ReignBeta.Integration;
-using ReignBeta.Settings;
 using TaleWorlds.CampaignSystem;
 using TaleWorlds.CampaignSystem.Actions;
 using TaleWorlds.CampaignSystem.BarterSystem;
@@ -13,8 +11,12 @@ using TaleWorlds.CampaignSystem.BarterSystem.Barterables;
 using TaleWorlds.CampaignSystem.CampaignBehaviors;
 using TaleWorlds.CampaignSystem.GameComponents;
 using TaleWorlds.Library;
+using ReignBeta.Persistence.Integration;
+using ReignBeta.Platform.Integration;
+using ReignBeta.Platform.Settings;
+using ReignBeta.Relationships.Campaign;
 
-namespace ReignBeta.Family
+namespace ReignBeta.Characters.Family
 {
     internal static class ReignMarriagePatches
     {

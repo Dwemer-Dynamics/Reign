@@ -1,5 +1,4 @@
 using System;
-using ReignBeta.Integration;
 using SandBox.View.Map;
 using TaleWorlds.CampaignSystem;
 using TaleWorlds.Core;
@@ -7,8 +6,9 @@ using TaleWorlds.Engine;
 using TaleWorlds.Engine.GauntletUI;
 using TaleWorlds.Library;
 using TaleWorlds.ScreenSystem;
+using ReignBeta.Platform.Integration;
 
-namespace ReignBeta.UI
+namespace ReignBeta.Relationships.UI
 {
     internal sealed class ReignPlayerApproachPopup : ScreenBase
     {

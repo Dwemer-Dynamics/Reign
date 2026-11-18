@@ -6,14 +6,14 @@ using System.Reflection;
 using System.Runtime.CompilerServices;
 using System.Xml;
 using HarmonyLib;
-using ReignBeta.Integration;
 using TaleWorlds.Core;
 using TaleWorlds.Library;
 using TaleWorlds.Localization;
 using TaleWorlds.ModuleManager;
 using TaleWorlds.ObjectSystem;
+using ReignBeta.Platform.Integration;
 
-namespace ReignBeta.Compatibility
+namespace ReignBeta.Platform.Compatibility
 {
     internal static class ReignRbmNativeEconomics
     {

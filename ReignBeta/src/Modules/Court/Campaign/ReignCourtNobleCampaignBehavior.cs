@@ -12,7 +12,7 @@ using TaleWorlds.Localization;
 using TaleWorlds.MountAndBlade;
 using TaleWorlds.ObjectSystem;
 
-namespace ReignBeta.Court
+namespace ReignBeta.Court.Campaign
 {
     internal sealed class ReignCourtNobleCampaignBehavior : CampaignBehaviorBase
     {
@@ -102,7 +102,7 @@ namespace ReignBeta.Court
             }
             catch (Exception ex)
             {
-                ReignBeta.Integration.ReignLog.Warn(
+                ReignBeta.Platform.Integration.ReignLog.Warn(
                     "Could not restore court-house clan for "
                     + hero.StringId + ": " + ex.Message);
                 return false;
@@ -225,7 +225,7 @@ namespace ReignBeta.Court
                 }
                 ApplyAuthoredNames(roster);
                 _householdClanMigrationVersion = HouseholdClanMigrationVersion;
-                ReignBeta.Integration.ReignLog.Info(
+                ReignBeta.Platform.Integration.ReignLog.Info(
                     "Established " + AuthoredCourtNobleCount + " court nobles in " + AuthoredHouseholdCount + " independent landless clans.");
             }
             catch
@@ -373,7 +373,7 @@ namespace ReignBeta.Court
                 catch (ArmorCatalogGapException ex)
                 {
                     deferredNobles++;
-                    ReignBeta.Integration.ReignLog.Warn("Court noble equipment migration deferred for "
+                    ReignBeta.Platform.Integration.ReignLog.Warn("Court noble equipment migration deferred for "
                         + hero.StringId + "; previous equipment preserved: " + ex.Message);
                     continue;
                 }
@@ -403,7 +403,7 @@ namespace ReignBeta.Court
                 int lowerTierFallbacks = coverageFallbacks.Values.Sum();
                 string coverage = string.Join(", ", coverageFallbacks.OrderBy(pair => pair.Key, StringComparer.Ordinal)
                     .Select(pair => pair.Key + "=" + pair.Value));
-                ReignBeta.Integration.ReignLog.Info("Assigned culture-valid clan-tier equipment to "
+                ReignBeta.Platform.Integration.ReignLog.Info("Assigned culture-valid clan-tier equipment to "
                     + nobles.Count + " Reign court nobles (" + changes.Count + " equipment slots; "
                     + tierCounts + "; cleared uncovered slots=" + clearedSlots
                     + "; lower-tier slot fallbacks=" + lowerTierFallbacks
@@ -689,7 +689,7 @@ namespace ReignBeta.Court
                     hero.StaticBodyProperties = appearance.BodyProperties.StaticProperties;
                     if (!appearance.Unique)
                     {
-                        ReignBeta.Integration.ReignLog.Warn(
+                        ReignBeta.Platform.Integration.ReignLog.Warn(
                             "Using a non-unique constrained face fallback for court noble " + hero.StringId + ".");
                     }
                 }
@@ -790,7 +790,7 @@ namespace ReignBeta.Court
 
             if (choices.Count == 0)
             {
-                ReignBeta.Integration.ReignLog.Warn("No culture-valid non-bald hairstyle found for " + hero.StringId + "; using hairstyle 1.");
+                ReignBeta.Platform.Integration.ReignLog.Warn("No culture-valid non-bald hairstyle found for " + hero.StringId + "; using hairstyle 1.");
                 return 1;
             }
 
@@ -874,7 +874,7 @@ namespace ReignBeta.Court
         {
             if (hero == null || !hero.IsAlive || !hero.IsActive || hero.IsPrisoner || hero.PartyBelongedTo != null) return;
             if (ReignCourtCampaignBehavior.Instance?.IsNobleVisitorReserved(hero) == true) return;
-            if (ReignBeta.Government.ReignGovernmentCampaignBehavior.Instance?.IsGovernmentAttendanceReserved(hero) == true) return;
+            if (ReignBeta.Government.Campaign.ReignGovernmentCampaignBehavior.Instance?.IsGovernmentAttendanceReserved(hero) == true) return;
             Settlement target = FindCurrentHomeHolding(hero);
             if (target == null || hero.CurrentSettlement == target) return;
             TeleportHeroAction.ApplyImmediateTeleportToSettlement(hero, target);
@@ -945,7 +945,7 @@ namespace ReignBeta.Court
             _harmony = new Harmony(HarmonyId);
             _harmony.Patch(target, prefix: new HarmonyMethod(prefix));
             _harmony.Patch(hourlyTick, finalizer: new HarmonyMethod(hourlyFinalizer));
-            ReignBeta.Integration.ReignLog.Info(
+            ReignBeta.Platform.Integration.ReignLog.Info(
                 "Court-noble and native teleport iteration safety patches loaded.");
         }
 
@@ -963,13 +963,13 @@ namespace ReignBeta.Court
 
             if (ReignCourtNobleCampaignBehavior.TryRestoreHouseholdClan(hero))
             {
-                ReignBeta.Integration.ReignLog.Warn(
+                ReignBeta.Platform.Integration.ReignLog.Warn(
                     "Restored missing court-house clan before native coming-of-age handling for "
                     + hero.StringId + ".");
                 return true;
             }
 
-            ReignBeta.Integration.ReignLog.Warn(
+            ReignBeta.Platform.Integration.ReignLog.Warn(
                 "Skipped native coming-of-age teleport handling for clanless hero "
                 + (hero.StringId ?? "unknown") + ".");
             return false;
@@ -985,7 +985,7 @@ namespace ReignBeta.Court
             // is already consistent at this point, so deferring its remaining
             // entries until the next hourly tick preserves native behavior while
             // preventing a recoverable bookkeeping race from ending the campaign.
-            ReignBeta.Integration.ReignLog.Warn(
+            ReignBeta.Platform.Integration.ReignLog.Warn(
                 "Recovered Bannerlord's delayed-teleport list after it changed size during HourlyTick; remaining teleports were deferred by one hour.");
             return null;
         }

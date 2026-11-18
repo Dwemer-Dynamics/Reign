@@ -1,12 +1,13 @@
 using System;
 using HarmonyLib;
 using ReignBeta.Campaign;
-using ReignBeta.Integration;
 using TaleWorlds.CampaignSystem;
 using TaleWorlds.CampaignSystem.CampaignBehaviors;
 using TaleWorlds.CampaignSystem.Party;
+using ReignBeta.Characters.Campaign;
+using ReignBeta.Platform.Integration;
 
-namespace ReignBeta.Family
+namespace ReignBeta.Characters.Family
 {
     internal static class ReignPregnancyPatches
     {

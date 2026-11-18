@@ -3,7 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 
-namespace ReignBeta.UI
+namespace ReignBeta.Court.UI
 {
     // Scene text and art consume the same established session, but neither waits
     // for the other's provider. Reopening shares any pending art request.

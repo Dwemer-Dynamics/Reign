@@ -5,9 +5,15 @@ using Newtonsoft.Json.Linq;
 using ReignBeta.Campaign;
 using ReignBeta.World;
 using TaleWorlds.CampaignSystem;
-using static ReignBeta.Integration.ReignServerClient;
+using static ReignBeta.Platform.Integration.ReignServerClient;
+using ReignBeta.Characters.Campaign;
+using ReignBeta.Dialogue.Integration;
+using ReignBeta.Platform.Campaign;
+using ReignBeta.Platform.Integration;
+using ReignBeta.WorldSimulation.Campaign;
+using ReignBeta.WorldSimulation.World;
 
-namespace ReignBeta.Integration
+namespace ReignBeta.Characters.Integration
 {
     internal static class ReignWandererClient
     {
@@ -77,7 +83,7 @@ namespace ReignBeta.Integration
                         {
                             var result = behavior?.GetLastActionResult(action.ActionId);
                             string status = result == null ? "pending"
-                                : result.ResultCode == "payment_unknown" || result.ResultCode == ReignBeta.Actions.ReignCompletedOrderPolicy.UncertainExecutionResultCode ? "unknown"
+                                : result.ResultCode == "payment_unknown" || result.ResultCode == ReignBeta.WorldSimulation.Actions.ReignCompletedOrderPolicy.UncertainExecutionResultCode ? "unknown"
                                 : result.Success && result.Completed ? "applied" : result.Success ? "pending" : "failed";
                             string message = result?.Message ?? "Native execution is pending.";
                             results.Add(new JObject { ["actionId"] = action.ActionId, ["status"] = status, ["message"] = message });
@@ -88,7 +94,7 @@ namespace ReignBeta.Integration
                         // Only the exact row whose native execution was interrupted is labelled;
                         // conflicting replays and unattempted neighbors claim no result.
                         results.Add(new JObject { ["actionId"] = heldActionId, ["status"] = "unknown",
-                            ["message"] = ReignBeta.Actions.ReignCompletedOrderPolicy.UncertainExecutionMarker });
+                            ["message"] = ReignBeta.WorldSimulation.Actions.ReignCompletedOrderPolicy.UncertainExecutionMarker });
                     }
                     response["nativeActionOutcomes"] = results;
                 }).ConfigureAwait(false);

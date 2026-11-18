@@ -5,13 +5,16 @@ using System.Linq;
 using Newtonsoft.Json.Linq;
 using Reign.Shared;
 using ReignBeta.Campaign;
-using ReignBeta.Integration;
 using ReignBeta.World;
 using TaleWorlds.CampaignSystem;
 using TaleWorlds.CampaignSystem.Party;
 using TaleWorlds.CampaignSystem.Settlements;
+using ReignBeta.Platform.Integration;
+using ReignBeta.WorldSimulation.Campaign;
+using ReignBeta.WorldSimulation.CampaignCommands;
+using ReignBeta.WorldSimulation.World;
 
-namespace ReignBeta.Economy
+namespace ReignBeta.WorldSimulation.Economy
 {
     // Standing is strategic intent, not a new party-size limit or a grant of soldiers.
     internal static class ReignMilitaryReadiness
@@ -284,13 +287,13 @@ namespace ReignBeta.Economy
                 ActionId = "military-standing:" + realm.StringId + ":" + mode + ":" + ((previous?.Revision ?? 0) + 1),
                 Reason = "Order " + mode + " military standing", TermsJson = new JObject { ["militaryStanding"] = mode,
                     ["peacePercent"] = selectedPercent.HasValue ? new JValue(selectedPercent.Value) : JValue.CreateNull() }.ToString() };
-            if (!ReignBeta.Government.ReignGovernmentActionGate.TryAuthorize(action, out var blocked))
+            if (!ReignBeta.Government.Integration.ReignGovernmentActionGate.TryAuthorize(action, out var blocked))
             { result = blocked?.Message ?? "Government authorization is pending."; return false; }
             state.MilitaryStandings[realm.StringId] = new EconomyStandingOrder { Mode = mode, Ruler = ruler.StringId,
                 Reason = ruler == Hero.MainHero ? "Sovereign order" : "NPC sovereign order", Day = CampaignTime.Now.ToDays,
                 Revision = (previous?.Revision ?? 0) + 1, PeacePercent = selectedPercent, Automatic = automatic };
             if (previous != null && previous.Mode != mode && ruler != Hero.MainHero)
-                ReignBeta.Campaign.ReignNewsCampaignBehavior.Instance?.MilitaryStanding(realm, mode,
+                ReignBeta.WorldSimulation.News.ReignNewsCampaignBehavior.Instance?.MilitaryStanding(realm, mode,
                     state.MilitaryStandings[realm.StringId].Revision);
             result = mode == "war" ? "War standing ordered. Mobilization still requires recruits, food and funding."
                 : "Peace standing ordered. Your chosen field target remains in force during war; garrison targets stay full.";

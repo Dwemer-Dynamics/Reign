@@ -5,11 +5,15 @@ using System.Threading.Tasks;
 using Newtonsoft.Json.Linq;
 using Reign.Core.Contracts.Government;
 using ReignBeta.Campaign;
-using ReignBeta.Integration;
 using TaleWorlds.CampaignSystem;
 using TaleWorlds.CampaignSystem.Election;
+using ReignBeta.Characters.Integration;
+using ReignBeta.Government.Domain;
+using ReignBeta.Government.Integration;
+using ReignBeta.Platform.Integration;
+using ReignBeta.WorldSimulation.Campaign;
 
-namespace ReignBeta.Government
+namespace ReignBeta.Government.Campaign
 {
     public sealed partial class ReignGovernmentCampaignBehavior
     {
@@ -47,7 +51,7 @@ namespace ReignBeta.Government
                 living.Contains(id) && profiles.TryGetValue(id, out var profile) && !profile.SeenEvidence.Contains(x.Id)));
             return new JObject {
                 ["schema"] = "reign-government-runtime-v1", ["available"] = true,
-                ["calendarReady"] = ReignBeta.Runtime.ReignCalendarService.IsReady,
+                ["calendarReady"] = ReignBeta.WorldSimulation.Runtime.ReignCalendarService.IsReady,
                 ["syncInFlight"] = _politicalSyncInFlight, ["missingProfiles"] = missing,
                 ["pendingEvidence"] = evidence, ["syncError"] = _politicalSyncError,
                 ["refreshActive"] = _politicalRefreshCycle.Active,

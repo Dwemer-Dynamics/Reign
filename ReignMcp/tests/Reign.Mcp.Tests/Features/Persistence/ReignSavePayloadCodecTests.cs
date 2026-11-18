@@ -25,7 +25,7 @@ public sealed class ReignSavePayloadCodecTests
             })
         });
         Assert.True(Encoding.UTF8.GetByteCount(payload) + 4 > short.MaxValue);
-        var chunks = ReignBeta.Save.ReignSavePayloadCodec.Encode(payload);
+        var chunks = ReignBeta.Persistence.Save.ReignSavePayloadCodec.Encode(payload);
         using var archive = new MemoryStream();
         using (var writer = new BinaryWriter(archive, Encoding.UTF8, true))
             foreach (string chunk in chunks)
@@ -46,7 +46,7 @@ public sealed class ReignSavePayloadCodecTests
             Assert.Equal(entryBytes - 4, stringBytes);
             restored.Add(Encoding.UTF8.GetString(reader.ReadBytes(stringBytes)));
         }
-        Assert.Equal(payload, ReignBeta.Save.ReignSavePayloadCodec.Decode(restored));
+        Assert.Equal(payload, ReignBeta.Persistence.Save.ReignSavePayloadCodec.Decode(restored));
     }
 
     [Fact]
@@ -71,9 +71,9 @@ public sealed class ReignSavePayloadCodecTests
         string json = System.Text.Json.JsonSerializer.Serialize(ledger);
         Assert.True(Encoding.UTF8.GetByteCount(json) + 4 > short.MaxValue);
 
-        var chunks = ReignBeta.Save.ReignSavePayloadCodec.Encode(json);
+        var chunks = ReignBeta.Persistence.Save.ReignSavePayloadCodec.Encode(json);
         Assert.All(chunks, chunk => Assert.InRange(Encoding.UTF8.GetByteCount(chunk) + 4, 1, short.MaxValue));
-        string restored = ReignBeta.Save.ReignSavePayloadCodec.Decode(chunks);
+        string restored = ReignBeta.Persistence.Save.ReignSavePayloadCodec.Decode(chunks);
         var reloaded = System.Text.Json.JsonSerializer.Deserialize<ReignXpLedger>(restored)!;
         Assert.False(reloaded.TryClaim("conversation:individual:" + 699.ToString("x32")));
 
@@ -92,12 +92,12 @@ public sealed class ReignSavePayloadCodecTests
         var bytes = new byte[11_000];
         random.NextBytes(bytes);
         string payload = Convert.ToBase64String(bytes);
-        string envelope = string.Concat(ReignBeta.Save.ReignSavePayloadCodec.Encode(payload));
+        string envelope = string.Concat(ReignBeta.Persistence.Save.ReignSavePayloadCodec.Encode(payload));
         Assert.True(Encoding.UTF8.GetByteCount(envelope) + 4 > 12_004);
         Assert.True(Encoding.UTF8.GetByteCount(envelope) + 4 <= short.MaxValue);
-        Assert.Equal(payload, ReignBeta.Save.ReignSavePayloadCodec.DecodeLegacyArchiveEntry(envelope));
+        Assert.Equal(payload, ReignBeta.Persistence.Save.ReignSavePayloadCodec.DecodeLegacyArchiveEntry(envelope));
         Assert.Throws<System.IO.InvalidDataException>(() =>
-            ReignBeta.Save.ReignSavePayloadCodec.DecodeLegacyArchiveEntry(new string('x', short.MaxValue)));
+            ReignBeta.Persistence.Save.ReignSavePayloadCodec.DecodeLegacyArchiveEntry(new string('x', short.MaxValue)));
     }
 
     [Fact]
@@ -124,7 +124,7 @@ public sealed class ReignSavePayloadCodecTests
         var payload = new string(characters);
 
         Type? codecType = Type.GetType(
-            "ReignBeta.Save.ReignSavePayloadCodec, ReignBeta.Core");
+            "ReignBeta.Persistence.Save.ReignSavePayloadCodec, ReignBeta.Core");
         Assert.NotNull(codecType);
 
         MethodInfo? encode = codecType.GetMethod(

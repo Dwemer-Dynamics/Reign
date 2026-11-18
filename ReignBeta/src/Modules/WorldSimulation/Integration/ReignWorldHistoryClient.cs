@@ -10,12 +10,12 @@ using System.Threading;
 using System.Threading.Tasks;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
-using ReignBeta.Runtime;
 using TaleWorlds.CampaignSystem;
 using TaleWorlds.Library;
-using static ReignBeta.Integration.ReignServerClient;
+using static ReignBeta.Platform.Integration.ReignServerClient;
+using ReignBeta.Platform.Integration;
 
-namespace ReignBeta.Integration
+namespace ReignBeta.WorldSimulation.Integration
 {
     internal static class ReignWorldHistoryClient
     {
@@ -221,7 +221,7 @@ namespace ReignBeta.Integration
             float completeFrom;
             long epoch;
             lock (StateLock) { timeline = _timelineId; campaign = _campaignId; completeFrom = _completeFromDay;
-                epoch = _epoch; generation = ReignBeta.Campaign.ReignWorldHistoryCampaignBehavior.Instance?.SharedActivityGeneration ?? string.Empty; }
+                epoch = _epoch; generation = ReignBeta.WorldSimulation.Campaign.ReignWorldHistoryCampaignBehavior.Instance?.SharedActivityGeneration ?? string.Empty; }
             string path = PendingPath(timeline, campaign);
             // Recover relevant durable outbox entries without making the next
             // reply wait for unrelated world traffic or the normal upload cadence.
@@ -557,7 +557,7 @@ namespace ReignBeta.Integration
                         timeline = _timelineId;
                         campaign = _campaignId;
                         epoch = _epoch;
-                        generation = ReignBeta.Campaign.ReignWorldHistoryCampaignBehavior.Instance?.SharedActivityGeneration ?? string.Empty;
+                        generation = ReignBeta.WorldSimulation.Campaign.ReignWorldHistoryCampaignBehavior.Instance?.SharedActivityGeneration ?? string.Empty;
                         completeFrom = _completeFromDay;
                     }
                     string path = PendingPath(timeline, campaign);

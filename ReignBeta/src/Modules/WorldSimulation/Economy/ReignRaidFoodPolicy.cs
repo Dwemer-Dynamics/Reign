@@ -3,14 +3,14 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 
-namespace ReignBeta.Economy
+namespace ReignBeta.WorldSimulation.Economy
 {
     // Campaign-independent policy. Rates describe productive capacity, never population or stocks.
     internal static class ReignRaidFoodPolicy
     {
         internal const int Version = 1, HistoryLimit = 512;
         internal const double Epsilon = 1e-6;
-        internal static bool Finite(double value) => ReignBeta.Platform.ReignNumeric.Finite(value);
+        internal static bool Finite(double value) => ReignBeta.Platform.Domain.ReignNumeric.Finite(value);
         internal static double Unit(double value)
         {
             if (!Finite(value)) throw new ArgumentOutOfRangeException(nameof(value));

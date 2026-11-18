@@ -1,8 +1,6 @@
 using System;
 using Newtonsoft.Json.Linq;
-using ReignBeta.Integration;
 using ReignBeta.Campaign;
-using ReignBeta.Runtime;
 using ReignBeta.UI.ViewModels;
 using ReignBeta.UI.Widgets;
 using TaleWorlds.CampaignSystem;
@@ -11,8 +9,12 @@ using TaleWorlds.Engine.GauntletUI;
 using TaleWorlds.InputSystem;
 using TaleWorlds.Library;
 using TaleWorlds.ScreenSystem;
+using ReignBeta.Dialogue.Campaign;
+using ReignBeta.Dialogue.Runtime;
+using ReignBeta.Platform.Integration;
+using ReignBeta.Portraits.Integration;
 
-namespace ReignBeta.UI
+namespace ReignBeta.Dialogue.UI
 {
     public static class ReignIndividualChatScreenManager
     {

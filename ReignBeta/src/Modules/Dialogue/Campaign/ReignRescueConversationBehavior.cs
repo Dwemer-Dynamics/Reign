@@ -4,7 +4,6 @@ using System.Linq;
 using HarmonyLib;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
-using ReignBeta.Integration;
 using ReignBeta.UI;
 using TaleWorlds.CampaignSystem;
 using TaleWorlds.CampaignSystem.Actions;
@@ -19,8 +18,12 @@ using Helpers;
 using ReignBeta.Shared;
 using SandBox.CampaignBehaviors;
 using NativeCampaign = TaleWorlds.CampaignSystem.Campaign;
+using ReignBeta.Dialogue.UI;
+using ReignBeta.Platform.Integration;
+using ReignBeta.Relationships.Integration;
+using ReignBeta.Relationships.UI;
 
-namespace ReignBeta.Campaign
+namespace ReignBeta.Dialogue.Campaign
 {
     public sealed class ReignRescueConversationBehavior : CampaignBehaviorBase
     {
@@ -224,7 +227,7 @@ namespace ReignBeta.Campaign
             ConversationHero != null && ConversationHero != Hero.MainHero && ConversationHero.IsAlive && ConversationHero.IsLord
                 && ConversationHero.IsPrisoner && ConversationHero.PartyBelongedToAsPrisoner != PartyBase.MainParty
                 && Instance?._activeLiberation?.Value<string>("heroId") != ConversationHero.StringId,
-            ReignCampaignInitializationGate.IsPending, Settings.ReignBetaSettings.Instance?.UseLocalServer != false,
+            ReignCampaignInitializationGate.IsPending, Platform.Settings.ReignBetaSettings.Instance?.UseLocalServer != false,
             ReignPlayerApproachClient.ApproachKindEnabled("prison_rescue"));
 
         private static void LiberateAndListen(int originalToken)
@@ -282,7 +285,7 @@ namespace ReignBeta.Campaign
         private static bool CanListen()
         {
             JObject rescue = Instance?.Pending(ConversationHero);
-            if (rescue == null || ReignCampaignInitializationGate.IsPending || Settings.ReignBetaSettings.Instance?.UseLocalServer == false) return false;
+            if (rescue == null || ReignCampaignInitializationGate.IsPending || Platform.Settings.ReignBetaSettings.Instance?.UseLocalServer == false) return false;
             return !rescue.Value<bool>("nativeReleasePending") || rescue.Value<string>("nativeReleaseRoute") != "native_battle_liberation"
                 && NativePrisoner(NativeCampaign.Current?.GetCampaignBehavior<PrisonBreakCampaignBehavior>()) == ConversationHero;
         }
@@ -332,7 +335,7 @@ namespace ReignBeta.Campaign
         {
             RebindLoadedBattle();
             _delay = Math.Max(0, _delay - dt);
-            if (ReignCampaignInitializationGate.IsPending || Settings.ReignBetaSettings.Instance?.UseLocalServer == false
+            if (ReignCampaignInitializationGate.IsPending || Platform.Settings.ReignBetaSettings.Instance?.UseLocalServer == false
                 || _delay > 0 || Hero.MainHero == null || Hero.MainHero.IsPrisoner || Mission.Current != null || PartyBase.MainParty?.MapEvent != null
                 || ReignIndividualChatScreenManager.IsOpen || ReignPartyChatScreenManager.IsOpenOrPending || ReignPlayerApproachPopup.IsOpen) return;
             var next = _rescues.FirstOrDefault(r => r.Value<string>("playerId") == Hero.MainHero.StringId

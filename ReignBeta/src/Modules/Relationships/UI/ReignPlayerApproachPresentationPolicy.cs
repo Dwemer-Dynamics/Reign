@@ -1,6 +1,6 @@
 using System;
 
-namespace ReignBeta.UI
+namespace ReignBeta.Relationships.UI
 {
     // Campaign preparation can finish before Bannerlord has rendered its map.
     // Taking focus earlier prevents the native map from clearing global loading.

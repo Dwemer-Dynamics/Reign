@@ -7,8 +7,9 @@ using Newtonsoft.Json;
 using Reign.Core.Contracts.Actions;
 using TaleWorlds.CampaignSystem;
 using TaleWorlds.Library;
+using ReignBeta.Actions;
 
-namespace ReignBeta.Actions
+namespace ReignBeta.WorldSimulation.Actions
 {
     public static class ReignActionConsole
     {

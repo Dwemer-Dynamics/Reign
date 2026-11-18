@@ -3,7 +3,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Newtonsoft.Json.Linq;
 
-namespace ReignBeta.Integration
+namespace ReignBeta.Platform.Integration
 {
     internal static class ReignCampaignInitializationGate
     {

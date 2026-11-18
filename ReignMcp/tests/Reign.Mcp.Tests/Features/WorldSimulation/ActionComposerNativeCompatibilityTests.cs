@@ -60,11 +60,11 @@ public sealed class ActionComposerNativeCompatibilityTests
         Assert.Equal(2, report.RootElement.GetProperty("rebellionSavedLoadChecks").GetInt32());
         Assert.Equal("System.Numerics.Vectors", report.RootElement.GetProperty("nativeVectorAssemblyName").GetString());
         Assert.Contains(report.RootElement.GetProperty("preparedMethods").EnumerateArray(),
-            method => method.GetString() == "ReignBeta.UI.Widgets.ReignActionEditableTextWidget.OnLateUpdate");
+            method => method.GetString() == "ReignBeta.Dialogue.UI.ReignActionEditableTextWidget.OnLateUpdate");
         Assert.Contains(report.RootElement.GetProperty("preparedMethods").EnumerateArray(),
-            method => method.GetString() == "ReignBeta.Actions.ReignNativeActionConsole.ObserveFactionPair");
+            method => method.GetString() == "ReignBeta.WorldSimulation.Actions.ReignNativeActionConsole.ObserveFactionPair");
         Assert.Contains(report.RootElement.GetProperty("preparedMethods").EnumerateArray(),
-            method => method.GetString() == "ReignBeta.Campaign.ReignLiveInteractionTestHost.ApplyStructuredPlayerSettlementEncounterFixture");
+            method => method.GetString() == "ReignBeta.WorldSimulation.Campaign.ReignLiveInteractionTestHost.ApplyStructuredPlayerSettlementEncounterFixture");
     }
 
     [Fact]

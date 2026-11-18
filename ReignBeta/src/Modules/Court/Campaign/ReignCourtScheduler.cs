@@ -6,7 +6,7 @@ using System.Text;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 
-namespace ReignBeta.Court
+namespace ReignBeta.Court.Campaign
 {
     public static class ReignCourtTerms
     {

@@ -12,9 +12,15 @@ using TaleWorlds.CampaignSystem.Actions;
 using TaleWorlds.CampaignSystem.Election;
 using TaleWorlds.CampaignSystem.Settlements;
 using TaleWorlds.ObjectSystem;
-using static ReignBeta.Government.ReignGovernmentCampaignBehavior;
+using static ReignBeta.Government.Campaign.ReignGovernmentCampaignBehavior;
+using ReignBeta.Government.Campaign;
+using ReignBeta.WorldSimulation.World;
+#if !REIGN_EXCLUDE_COURT
+using ReignBeta.Court.Campaign;
+using ReignBeta.Spymaster.Campaign;
+#endif
 
-namespace ReignBeta.Government
+namespace ReignBeta.Government.Testing
 {
     internal static partial class ReignGovernmentTestControls
     {

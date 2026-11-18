@@ -4,9 +4,10 @@ using System.Linq;
 using Newtonsoft.Json.Linq;
 using Reign.Core.Contracts.Government;
 using TaleWorlds.CampaignSystem;
-using static ReignBeta.Government.ReignGovernmentCampaignBehavior;
+using static ReignBeta.Government.Campaign.ReignGovernmentCampaignBehavior;
+using ReignBeta.Government.Campaign;
 
-namespace ReignBeta.Government
+namespace ReignBeta.Government.Testing
 {
     // Harness-owned private-conversation certification cases. The per-behaviour baselines stay on ReignGovernmentCampaignBehavior.
     internal static partial class ReignGovernmentTestControls

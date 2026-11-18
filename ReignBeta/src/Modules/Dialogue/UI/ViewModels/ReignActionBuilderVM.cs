@@ -7,14 +7,19 @@ using Reign.Core.Contracts.Actions;
 using ReignBeta.Actions;
 using ReignBeta.Campaign;
 using TaleWorlds.CampaignSystem.Settlements;
-using ReignBeta.Integration;
 #if !REIGN_EXCLUDE_COURT
 using ReignBeta.Court;
 #endif
 using TaleWorlds.CampaignSystem;
 using TaleWorlds.Library;
+using ReignBeta.Platform.Integration;
+using ReignBeta.Relationships.Campaign;
+using ReignBeta.WorldSimulation.Actions;
+#if !REIGN_EXCLUDE_COURT
+using ReignBeta.Court.Campaign;
+#endif
 
-namespace ReignBeta.UI.ViewModels
+namespace ReignBeta.Dialogue.UI
 {
     public sealed class ReignActionChoiceVM : ViewModel
     {
@@ -477,7 +482,7 @@ namespace ReignBeta.UI.ViewModels
 
         private void PrepareInlinePetition(ActionParameter parameter)
         {
-            var government = ReignBeta.Government.ReignGovernmentCampaignBehavior.Instance;
+            var government = ReignBeta.Government.Campaign.ReignGovernmentCampaignBehavior.Instance;
             Step("Which kingdom will receive your petition?", () => {
                 Choices.Clear();
                 foreach (var kingdom in Kingdom.All.Where(k => government?.GetParticipationAccess(k.StringId, Hero.MainHero).Prepare == true))
@@ -486,7 +491,7 @@ namespace ReignBeta.UI.ViewModels
         }
         private void SelectInlineProposal(ActionParameter parameter, string kingdomId)
         {
-            var government = ReignBeta.Government.ReignGovernmentCampaignBehavior.Instance;
+            var government = ReignBeta.Government.Campaign.ReignGovernmentCampaignBehavior.Instance;
             Step("Choose the exact measure and target", () => {
                 Choices.Clear();
                 foreach (var row in government.GetParticipationProposalChoices(kingdomId, Hero.MainHero).OfType<Newtonsoft.Json.Linq.JObject>())

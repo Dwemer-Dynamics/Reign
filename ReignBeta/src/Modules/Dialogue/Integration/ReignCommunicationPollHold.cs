@@ -1,7 +1,7 @@
 #nullable enable
 using System;
 
-namespace ReignBeta.Integration
+namespace ReignBeta.Dialogue.Integration
 {
     // A process-local scheduling lease, never a replacement for a quiescence check.
     // The game thread owns callers. In-flight work and explicit/durable work are not held.

@@ -1,6 +1,6 @@
 using System;
 
-namespace ReignBeta.UI.ViewModels
+namespace ReignBeta.Dialogue.UI
 {
     internal static class ReignChatText
     {

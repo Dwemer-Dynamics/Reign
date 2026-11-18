@@ -6,8 +6,9 @@ using ReignBeta.Government;
 using TaleWorlds.CampaignSystem;
 using TaleWorlds.Core;
 using TaleWorlds.Library;
+using ReignBeta.Government.Campaign;
 
-namespace ReignBeta.UI.ViewModels
+namespace ReignBeta.Government.UI
 {
     public sealed partial class ReignGovernmentScreenVM
     {

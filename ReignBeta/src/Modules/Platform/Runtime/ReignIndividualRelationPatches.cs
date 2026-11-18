@@ -1,7 +1,6 @@
 using System;
 using HarmonyLib;
 using Helpers;
-using ReignBeta.Integration;
 using ReignBeta.UI.HiddenInformation;
 using SandBox.CampaignBehaviors;
 using TaleWorlds.CampaignSystem;
@@ -10,8 +9,9 @@ using TaleWorlds.CampaignSystem.GameComponents;
 using TaleWorlds.Core;
 using TaleWorlds.Library;
 using TaleWorlds.Localization;
+using ReignBeta.Platform.Integration;
 
-namespace ReignBeta.Runtime
+namespace ReignBeta.Platform.Runtime
 {
     /// <summary>
     /// Makes a Reign-era opinion belong to the people involved in the exchange.

@@ -5,7 +5,6 @@ using System.Reflection;
 using System.Reflection.Emit;
 using HarmonyLib;
 using Newtonsoft.Json.Linq;
-using ReignBeta.Integration;
 using TaleWorlds.CampaignSystem;
 using NativeCampaign = TaleWorlds.CampaignSystem.Campaign;
 using TaleWorlds.CampaignSystem.Actions;
@@ -16,8 +15,9 @@ using TaleWorlds.CampaignSystem.MapEvents;
 using TaleWorlds.CampaignSystem.Naval;
 using TaleWorlds.CampaignSystem.Party;
 using TaleWorlds.CampaignSystem.Settlements;
+using ReignBeta.Platform.Integration;
 
-namespace ReignBeta.Economy
+namespace ReignBeta.WorldSimulation.Economy
 {
     // These hooks change ship funding only. Native ship damage, capture, sibling transfers,
     // production, quests and ownership events continue to use their existing adapters.

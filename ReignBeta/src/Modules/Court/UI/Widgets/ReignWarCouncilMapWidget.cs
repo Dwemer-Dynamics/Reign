@@ -7,6 +7,8 @@ using ReignBeta.UI.Widgets;
 using TaleWorlds.GauntletUI;
 using TaleWorlds.GauntletUI.BaseTypes;
 using TaleWorlds.InputSystem;
+using ReignBeta.Court.UI;
+using ReignBeta.Portraits.UI;
 
 namespace ReignBeta.UI
 {

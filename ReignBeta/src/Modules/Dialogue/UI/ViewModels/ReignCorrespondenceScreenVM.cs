@@ -4,17 +4,22 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using ReignBeta.Campaign;
-using ReignBeta.Integration;
-using ReignBeta.Runtime;
 using ReignBeta.World;
 using ReignBeta.Shared;
 using TaleWorlds.CampaignSystem;
 using TaleWorlds.Library;
 using TaleWorlds.ScreenSystem;
+using ReignBeta.Dialogue.Integration;
+using ReignBeta.Dialogue.Runtime;
+using ReignBeta.Platform.Campaign;
+using ReignBeta.Platform.Integration;
+using ReignBeta.Relationships.Campaign;
+using ReignBeta.UI.ViewModels;
+using ReignBeta.WorldSimulation.World;
 
-namespace ReignBeta.UI.ViewModels
+namespace ReignBeta.Dialogue.UI
 {
-    public sealed class ReignCorrespondenceScreenVM : ViewModel, ReignBeta.UI.IReignActionHost
+    public sealed class ReignCorrespondenceScreenVM : ViewModel, ReignBeta.Dialogue.UI.IReignActionHost
     {
         public IReadOnlyList<Hero> ActionParticipants => _selected?.Hero == null ? new Hero[0] : new[] { _selected.Hero };
         public bool ActionBusy => IsBusy || _calibrationMode;
@@ -153,7 +158,7 @@ namespace ReignBeta.UI.ViewModels
                     InformationManager.DisplayMessage(new InformationMessage("[Bannerlord Reign] Letter dispatched to " + _selected.Name + "."));
                     if (result.HeldActionId != null)
                         InformationManager.DisplayMessage(new InformationMessage("[Bannerlord Reign] [unknown: "
-                            + ReignBeta.Actions.ReignCompletedOrderPolicy.UncertainExecutionMarker + "]"));
+                            + ReignBeta.WorldSimulation.Actions.ReignCompletedOrderPolicy.UncertainExecutionMarker + "]"));
                     _close?.Invoke();
                     return;
                 }

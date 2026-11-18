@@ -14,7 +14,7 @@ using TaleWorlds.CampaignSystem.Roster;
 using TaleWorlds.CampaignSystem.Settlements;
 using TaleWorlds.Core;
 
-namespace ReignBeta.Economy
+namespace ReignBeta.WorldSimulation.Economy
 {
     // Reachable only through the exact enrolled, paused disposable-save fixture dispatcher.
     internal static class ReignRaidFoodTestHost

@@ -4,11 +4,15 @@ using System.Linq;
 using Newtonsoft.Json.Linq;
 using Reign.Core.Contracts.Actions;
 using ReignBeta.Campaign;
-using ReignBeta.Integration;
 using TaleWorlds.CampaignSystem;
 using TaleWorlds.CampaignSystem.Actions;
+using ReignBeta.Relationships.Campaign;
+using ReignBeta.Relationships.Integration;
+using ReignBeta.World;
+using ReignBeta.WorldSimulation.Campaign;
+using ReignBeta.WorldSimulation.World;
 
-namespace ReignBeta.World
+namespace ReignBeta.Characters.World
 {
     internal static class ReignMarriageService
     {
@@ -234,7 +238,7 @@ namespace ReignBeta.World
             else if (action.Source != "reign_console" && !((first.StringId == action.ActorHeroStringId && second.StringId == action.TargetHeroStringId)
                 || (second.StringId == action.ActorHeroStringId && first.StringId == action.TargetHeroStringId)))
                 reason = "A personal marriage agreement can bind only its two participants.";
-            else if (!proposal && ReignBeta.Actions.ReignAgreementBehavior.Instance?.Authorizes(action) != true)
+            else if (!proposal && ReignBeta.WorldSimulation.Actions.ReignAgreementBehavior.Instance?.Authorizes(action) != true)
                 reason = "Marriage requires the exact accepted agreement or saved operator instruction.";
             else if (first.Spouse == second && second.Spouse == first) return true;
             else if (first.Spouse != null || second.Spouse != null

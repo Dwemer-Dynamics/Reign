@@ -5,16 +5,18 @@ using System.Threading;
 using System.Threading.Tasks;
 using Newtonsoft.Json.Linq;
 using ReignBeta.Court;
-using ReignBeta.Runtime;
-using ReignBeta.Settings;
 using ReignBeta.World;
 using TaleWorlds.CampaignSystem;
 using TaleWorlds.CampaignSystem.Actions;
 using TaleWorlds.CampaignSystem.Party;
 using TaleWorlds.CampaignSystem.Settlements;
-using static ReignBeta.Integration.ReignServerClient;
+using static ReignBeta.Platform.Integration.ReignServerClient;
+using ReignBeta.Dialogue.Runtime;
+using ReignBeta.Platform.Integration;
+using ReignBeta.Platform.Settings;
+using ReignBeta.WorldSimulation.World;
 
-namespace ReignBeta.Integration
+namespace ReignBeta.Dialogue.Integration
 {
     internal static class ReignCorrespondenceClient
     {
@@ -23,7 +25,7 @@ namespace ReignBeta.Integration
 
         public static int CorrespondenceTickInFlight =>
             Volatile.Read(ref _correspondenceTickInFlight) + Volatile.Read(ref _autonomousCorrespondenceInFlight)
-            + (ReignBeta.Campaign.ReignRelationshipCampaignBehavior.Instance?.CorrespondenceApplyPending == true ? 1 : 0);
+            + (ReignBeta.Relationships.Campaign.ReignRelationshipCampaignBehavior.Instance?.CorrespondenceApplyPending == true ? 1 : 0);
 
         public static async Task<bool> EvaluateAutonomousCorrespondenceAsync()
         {
@@ -178,7 +180,7 @@ namespace ReignBeta.Integration
                         ["recipientName"] = recipient.Name?.ToString() ?? recipient.StringId,
                         ["body"] = body,
                         ["source"] = "player",
-                        ["timelineId"] = ReignBeta.Campaign.ReignWorldHistoryCampaignBehavior.Instance?.TimelineId ?? "main",
+                        ["timelineId"] = ReignBeta.WorldSimulation.Campaign.ReignWorldHistoryCampaignBehavior.Instance?.TimelineId ?? "main",
                         ["dispatchDay"] = day,
                         ["deliveryDay"] = route.DeliveryDay,
                         ["originId"] = route.OriginId,
@@ -314,7 +316,7 @@ namespace ReignBeta.Integration
                 double day = CurrentWorldDay();
                 JObject payload = new JObject
                 {
-                    ["campaignId"] = GetCampaignId(),["timelineId"] = ReignBeta.Campaign.ReignWorldHistoryCampaignBehavior.Instance?.TimelineId ?? "main",
+                    ["campaignId"] = GetCampaignId(),["timelineId"] = ReignBeta.WorldSimulation.Campaign.ReignWorldHistoryCampaignBehavior.Instance?.TimelineId ?? "main",
                     ["senderId"] = regent.StringId,["senderName"] = regent.Name?.ToString() ?? "Regent",
                     ["recipientId"] = player.StringId,["recipientName"] = player.Name?.ToString() ?? "Ruler",
                     ["body"] = "A major matter requires your direction: " + matter.Title + "\n\n" + matter.Summary,
@@ -343,7 +345,7 @@ namespace ReignBeta.Integration
                 var response = await PostJsonAsync("/correspondence/send", new JObject
                 {
                     ["campaignId"] = GetCampaignId(),
-                    ["timelineId"] = ReignBeta.Campaign.ReignWorldHistoryCampaignBehavior.Instance?.TimelineId ?? "main",
+                    ["timelineId"] = ReignBeta.WorldSimulation.Campaign.ReignWorldHistoryCampaignBehavior.Instance?.TimelineId ?? "main",
                     ["senderId"] = sender.StringId, ["senderName"] = sender.Name.ToString(),
                     ["recipientId"] = recipient.StringId, ["recipientName"] = recipient.Name.ToString(),
                     ["body"] = body, ["source"] = source, ["reason"] = id,
@@ -363,13 +365,13 @@ namespace ReignBeta.Integration
             try
             {
                 var expectedCampaign = await ReignMainThread.InvokeAsync(() => TaleWorlds.CampaignSystem.Campaign.Current).ConfigureAwait(false);
-                string expectedTimeline = ReignBeta.Campaign.ReignWorldHistoryCampaignBehavior.Instance?.TimelineId ?? "main";
+                string expectedTimeline = ReignBeta.WorldSimulation.Campaign.ReignWorldHistoryCampaignBehavior.Instance?.TimelineId ?? "main";
                 JObject response = await PostJsonAsync("/correspondence/tick", new JObject
                 {
                     ["campaignId"] = GetCampaignId(),
                     ["playerId"] = Hero.MainHero?.StringId ?? string.Empty,
                     ["worldDay"] = CurrentWorldDay(),
-                    ["timelineId"] = ReignBeta.Campaign.ReignWorldHistoryCampaignBehavior.Instance?.TimelineId ?? "main",
+                    ["timelineId"] = ReignBeta.WorldSimulation.Campaign.ReignWorldHistoryCampaignBehavior.Instance?.TimelineId ?? "main",
                     ["phase"] = phase,
                     ["deliveryReceiptAcks"] = new JArray(deliveryReceiptAcks ?? Enumerable.Empty<string>())
                 }).ConfigureAwait(false);
@@ -392,9 +394,9 @@ namespace ReignBeta.Integration
                 await ReignMainThread.InvokeAsync(() =>
                 {
                     if (!ReferenceEquals(expectedCampaign, TaleWorlds.CampaignSystem.Campaign.Current)
-                        || expectedTimeline != (ReignBeta.Campaign.ReignWorldHistoryCampaignBehavior.Instance?.TimelineId ?? "main"))
+                        || expectedTimeline != (ReignBeta.WorldSimulation.Campaign.ReignWorldHistoryCampaignBehavior.Instance?.TimelineId ?? "main"))
                         throw new InvalidOperationException("The campaign changed before the delivered action response arrived.");
-                    ReignBeta.Campaign.ReignRelationshipCampaignBehavior.Instance?.ObserveMarriageLetters(result.DeliveredLetters);
+                    ReignBeta.Relationships.Campaign.ReignRelationshipCampaignBehavior.Instance?.ObserveMarriageLetters(result.DeliveredLetters);
                     foreach (var delivery in (response["structuredActionDeliveries"] as JArray ?? new JArray()).OfType<JObject>())
                     {
                         var request = delivery["request"] as JObject; var answer = delivery["response"] as JObject;
@@ -530,7 +532,7 @@ namespace ReignBeta.Integration
             return PostJsonAsync("/relationships/evaluate", new JObject
             {
                 ["campaignId"] = GetCampaignId(),
-                ["timelineId"] = ReignBeta.Campaign.ReignWorldHistoryCampaignBehavior.Instance?.TimelineId ?? "main",
+                ["timelineId"] = ReignBeta.WorldSimulation.Campaign.ReignWorldHistoryCampaignBehavior.Instance?.TimelineId ?? "main",
                 ["eventId"] = adjustmentId,
                 ["eventType"] = "ruler_docket",
                 ["source"] = "ruler_docket",
@@ -569,7 +571,7 @@ namespace ReignBeta.Integration
             {
                 ["campaignId"] = GetCampaignId(),
                 ["eventId"] = jobId,
-                ["timelineId"] = ReignBeta.Campaign.ReignWorldHistoryCampaignBehavior.Instance?.TimelineId ?? "main",
+                ["timelineId"] = ReignBeta.WorldSimulation.Campaign.ReignWorldHistoryCampaignBehavior.Instance?.TimelineId ?? "main",
                 ["eventType"] = string.IsNullOrWhiteSpace(eventType)
                     ? "ruler_docket_long_term_memory" : eventType,
                 ["summary"] = summary,
@@ -599,7 +601,7 @@ namespace ReignBeta.Integration
             List<Hero> heroes = null;
             JObject payload = null;
             TaleWorlds.CampaignSystem.Campaign relationCampaign = null;
-            ReignBeta.Campaign.ReignRelationshipCampaignBehavior relationBehavior = null;
+            ReignBeta.Relationships.Campaign.ReignRelationshipCampaignBehavior relationBehavior = null;
             string relationTimeline = "";
             Dictionary<string, Hero> heroById = null;
             // Provider completion resumes on a worker thread. Capture the whole
@@ -695,8 +697,8 @@ namespace ReignBeta.Integration
                 if (!string.IsNullOrWhiteSpace(correlationId)) payload["correlationId"] = correlationId;
                 relationCampaign = TaleWorlds.CampaignSystem.Campaign.Current;
                 payload["nativeReceiptProtocol"] = "reign-native-relationship-receipt-v2";
-                relationBehavior = ReignBeta.Campaign.ReignRelationshipCampaignBehavior.Instance;
-                relationTimeline = ReignBeta.Campaign.ReignWorldHistoryCampaignBehavior.Instance?.TimelineId ?? "main";
+                relationBehavior = ReignBeta.Relationships.Campaign.ReignRelationshipCampaignBehavior.Instance;
+                relationTimeline = ReignBeta.WorldSimulation.Campaign.ReignWorldHistoryCampaignBehavior.Instance?.TimelineId ?? "main";
                 ReignLog.Info("Conversation relationship input captured on game thread correlation=" + correlationId
                     + " participants=" + heroes.Count);
             }).ConfigureAwait(false);
@@ -732,9 +734,9 @@ namespace ReignBeta.Integration
                         // changes already applied above were acknowledged in their
                         // own iteration and are unaffected.
                         if (!RequestOwnerCurrent(requestOwner)) { ownerCurrent = false; return; }
-                        if (relationBehavior == null || !ReferenceEquals(relationBehavior, ReignBeta.Campaign.ReignRelationshipCampaignBehavior.Instance)
+                        if (relationBehavior == null || !ReferenceEquals(relationBehavior, ReignBeta.Relationships.Campaign.ReignRelationshipCampaignBehavior.Instance)
                             || !ReferenceEquals(relationCampaign, TaleWorlds.CampaignSystem.Campaign.Current)
-                            || relationTimeline != (ReignBeta.Campaign.ReignWorldHistoryCampaignBehavior.Instance?.TimelineId ?? "main"))
+                            || relationTimeline != (ReignBeta.WorldSimulation.Campaign.ReignWorldHistoryCampaignBehavior.Instance?.TimelineId ?? "main"))
                             throw new InvalidOperationException("The campaign changed before the relationship effect could be applied.");
                         nativeReceipt = relationBehavior.ApplyConversationRelationOnce(receiptIds.Values<string>(), subject, target, delta, show);
                     }).ConfigureAwait(false);

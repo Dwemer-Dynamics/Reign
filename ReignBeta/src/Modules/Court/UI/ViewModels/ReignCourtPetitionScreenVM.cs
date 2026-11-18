@@ -8,15 +8,22 @@ using AIPortraits;
 using Newtonsoft.Json.Linq;
 using Reign.Core.Contracts.Court;
 using ReignBeta.Court;
-using ReignBeta.Integration;
-using ReignBeta.Runtime;
 using ReignBeta.UI.EventArt;
 using TaleWorlds.CampaignSystem;
 using TaleWorlds.CampaignSystem.Party;
 using TaleWorlds.CampaignSystem.Settlements;
 using TaleWorlds.Library;
+using ReignBeta.Court.Campaign;
+using ReignBeta.Court.Integration;
+using ReignBeta.Dialogue.Integration;
+using ReignBeta.Dialogue.Runtime;
+using ReignBeta.Dialogue.UI;
+using ReignBeta.Platform.Integration;
+using ReignBeta.Portraits.UI;
+using ReignBeta.UI.ViewModels;
+using ReignBeta.WorldSimulation.UI;
 
-namespace ReignBeta.UI.ViewModels
+namespace ReignBeta.Court.UI
 {
     public sealed class ReignCourtPetitionScreenVM : ViewModel, IReignActionHost
     {
@@ -267,8 +274,8 @@ namespace ReignBeta.UI.ViewModels
             string contributionId = "petition_input_" + Guid.NewGuid().ToString("N");
             if (!_calibrationMode)
             {
-                try { ReignBeta.Runtime.ReignConversationInputJournal.Save(ReignServerClient.GetCampaignId(),
-                    ReignBeta.Campaign.ReignWorldHistoryCampaignBehavior.Instance?.TimelineId ?? "main", Hero.MainHero?.StringId ?? "",
+                try { ReignBeta.Dialogue.Runtime.ReignConversationInputJournal.Save(ReignServerClient.GetCampaignId(),
+                    ReignBeta.WorldSimulation.Campaign.ReignWorldHistoryCampaignBehavior.Instance?.TimelineId ?? "main", Hero.MainHero?.StringId ?? "",
                     contributionId, text, _petition.PetitionerHeroId, _petition.TranscriptId); }
                 catch (Exception ex) { StatusText = "Your message could not be saved locally: " + ex.Message; return; }
             }
@@ -332,7 +339,7 @@ namespace ReignBeta.UI.ViewModels
 
         private void CompleteDecision(ReignDocketGrantMethod method, bool refuse, ReignXpInteraction xp)
         {
-            if (xp.Owner != ReignBeta.Campaign.ReignXpCampaignBehavior.Instance) { Busy = false; return; }
+            if (xp.Owner != ReignBeta.Dialogue.Campaign.ReignXpCampaignBehavior.Instance) { Busy = false; return; }
             if (!_court.TryDecideRulerPetition(_petition.PetitionId, method, refuse, out string receipt, xp.Options))
             {
                 Busy = false;

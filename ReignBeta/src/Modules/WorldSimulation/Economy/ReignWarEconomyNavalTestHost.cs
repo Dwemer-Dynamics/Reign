@@ -13,7 +13,7 @@ using TaleWorlds.CampaignSystem.Party;
 using TaleWorlds.CampaignSystem.Party.PartyComponents;
 using TaleWorlds.CampaignSystem.Settlements;
 
-namespace ReignBeta.Economy
+namespace ReignBeta.WorldSimulation.Economy
 {
     // Deliberately synthetic, paused, disposable-save inputs. Never save these inputs or
     // treat their seeded currency/hulls as campaign income. Restore Current after the batch.

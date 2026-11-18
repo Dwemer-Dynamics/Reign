@@ -14,9 +14,11 @@ using TaleWorlds.CampaignSystem;
 using TaleWorlds.CampaignSystem.Party;
 using TaleWorlds.CampaignSystem.Settlements;
 using ReignBeta.Shared;
-using static ReignBeta.Integration.ReignServerClient;
+using static ReignBeta.Platform.Integration.ReignServerClient;
+using ReignBeta.Persistence.Integration;
+using ReignBeta.Platform.Integration;
 
-namespace ReignBeta.Integration
+namespace ReignBeta.Dialogue.Integration
 {
     internal static class ReignPersonalGossipClient
     {
@@ -150,7 +152,7 @@ namespace ReignBeta.Integration
                         rows[count++] = new Person(hero);
                     }
                     return new PersonalGossipPresenceSnapshot(rows, count, complete,
-                        ReignBeta.Campaign.ReignWorldHistoryCampaignBehavior.Instance?.TimelineId ?? "main",
+                        ReignBeta.WorldSimulation.Campaign.ReignWorldHistoryCampaignBehavior.Instance?.TimelineId ?? "main",
                         CampaignTime.Now.ToDays, GetCampaignId(), Thread.CurrentThread.ManagedThreadId,
                         ReignCampaignInitializationGate.Snapshot().Value<string>("generationId"));
                 }
@@ -354,7 +356,7 @@ namespace ReignBeta.Integration
         internal static bool PersonalGossipSnapshotCurrent(PersonalGossipPresenceSnapshot snapshot) =>
             snapshot != null && !ReignCampaignInitializationGate.IsPending && !ReignSaveSyncCoordinator.IsAlignmentPending
             && TaleWorlds.CampaignSystem.Campaign.Current != null && snapshot.CampaignId == GetCampaignId()
-            && snapshot.Timeline == (ReignBeta.Campaign.ReignWorldHistoryCampaignBehavior.Instance?.TimelineId ?? "main")
+            && snapshot.Timeline == (ReignBeta.WorldSimulation.Campaign.ReignWorldHistoryCampaignBehavior.Instance?.TimelineId ?? "main")
             && snapshot.Generation == ReignCampaignInitializationGate.Snapshot().Value<string>("generationId");
         internal static Task<JObject> PersonalGossipIncompleteFixtureAsync(double day, string timeline) =>
             Task.Run(() => PersonalGossipPresenceSnapshot.FixedIncomplete(day, timeline));
@@ -393,7 +395,7 @@ namespace ReignBeta.Integration
                 });
             }
             return new JObject { ["schema"] = "reign-gossip-presence-v1",
-                ["timelineId"] = ReignBeta.Campaign.ReignWorldHistoryCampaignBehavior.Instance?.TimelineId ?? "main",
+                ["timelineId"] = ReignBeta.WorldSimulation.Campaign.ReignWorldHistoryCampaignBehavior.Instance?.TimelineId ?? "main",
                 ["worldDay"] = CampaignTime.Now.ToDays, ["rosterComplete"] = heroes.Count <= 8192, ["people"] = people };
         }
         internal static Tuple<PersonalGossipPresenceSnapshot, JObject> CapturePersonalGossipComparison()
@@ -422,17 +424,17 @@ namespace ReignBeta.Integration
 
         private static bool GossipPumpCurrent(PersonalGossipPump pump) => pump != null
             && ReferenceEquals(pump, _personalGossipPump) && ReferenceEquals(pump.Campaign, TaleWorlds.CampaignSystem.Campaign.Current)
-            && pump.Timeline == (ReignBeta.Campaign.ReignWorldHistoryCampaignBehavior.Instance?.TimelineId ?? "main")
+            && pump.Timeline == (ReignBeta.WorldSimulation.Campaign.ReignWorldHistoryCampaignBehavior.Instance?.TimelineId ?? "main")
             && pump.Generation == ReignCampaignInitializationGate.Snapshot().Value<string>("generationId")
             && !ReignCampaignInitializationGate.IsPending && !ReignSaveSyncCoordinator.IsAlignmentPending;
 
         private static PersonalGossipPump CurrentGossipPump()
         {
             if (TaleWorlds.CampaignSystem.Campaign.Current == null || ReignCampaignInitializationGate.IsPending
-                || ReignSaveSyncCoordinator.IsAlignmentPending || ReignBeta.Campaign.ReignSaveSyncCampaignBehavior.IsNativeSaveInProgress) return null;
+                || ReignSaveSyncCoordinator.IsAlignmentPending || ReignBeta.Persistence.Campaign.ReignSaveSyncCampaignBehavior.IsNativeSaveInProgress) return null;
             if (!GossipPumpCurrent(_personalGossipPump))
                 _personalGossipPump = new PersonalGossipPump { Campaign = TaleWorlds.CampaignSystem.Campaign.Current,
-                    CampaignId = GetCampaignId(), Timeline = ReignBeta.Campaign.ReignWorldHistoryCampaignBehavior.Instance?.TimelineId ?? "main",
+                    CampaignId = GetCampaignId(), Timeline = ReignBeta.WorldSimulation.Campaign.ReignWorldHistoryCampaignBehavior.Instance?.TimelineId ?? "main",
                     Generation = ReignCampaignInitializationGate.Snapshot().Value<string>("generationId"), NextPoll = DateTime.UtcNow };
             return _personalGossipPump;
         }
@@ -576,7 +578,7 @@ namespace ReignBeta.Integration
                 gen0 = _gossipCaptureGen0Overlap; gen1 = _gossipCaptureGen1Overlap; gen2 = _gossipCaptureGen2Overlap;
             }
             return new JObject { ["schema"] = "reign-gossip-clock-runtime-v1", ["inFlight"] = pump != null && Volatile.Read(ref pump.InFlight) != 0
-                    || Volatile.Read(ref ReignCommunicationClient._communicationInFlight) != 0 || ReignBeta.Campaign.ReignNpcLivesBehavior.Instance?.HasPendingCommunicationReceipts == true,
+                    || Volatile.Read(ref ReignCommunicationClient._communicationInFlight) != 0 || ReignBeta.Characters.Campaign.ReignNpcLivesBehavior.Instance?.HasPendingCommunicationReceipts == true,
                 ["campaignId"] = pump?.CampaignId ?? ReignCommunicationClient._communicationCampaign, ["timelineId"] = pump?.Timeline ?? ReignCommunicationClient._communicationTimeline,
                 ["lastError"] = pump?.LastError ?? "", ["readiness"] = pump?.Readiness?.DeepClone(),
                 ["periodicCommunicationHoldVersion"] = 1,

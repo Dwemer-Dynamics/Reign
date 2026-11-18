@@ -2,9 +2,9 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net.Http;
-using ReignBeta.Settings;
+using ReignBeta.Platform.Settings;
 
-namespace ReignBeta.Integration
+namespace ReignBeta.Platform.Integration
 {
     internal static class ReignServerEndpoint
     {

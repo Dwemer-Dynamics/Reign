@@ -8,8 +8,6 @@ using Reign.Relationships;
 using ReignBeta.Actions;
 using ReignBeta.Events;
 using ReignBeta.Family;
-using ReignBeta.Integration;
-using ReignBeta.Save;
 using TaleWorlds.CampaignSystem;
 using TaleWorlds.CampaignSystem.Actions;
 using TaleWorlds.CampaignSystem.Party;
@@ -17,8 +15,16 @@ using TaleWorlds.CampaignSystem.Settlements;
 using TaleWorlds.Core;
 using TaleWorlds.Library;
 using TaleWorlds.MountAndBlade;
+using ReignBeta.Characters.Campaign;
+using ReignBeta.Characters.Family;
+using ReignBeta.Characters.Integration;
+using ReignBeta.Persistence.Integration;
+using ReignBeta.Persistence.Save;
+using ReignBeta.Platform.Integration;
+using ReignBeta.Relationships.Integration;
+using ReignBeta.WorldSimulation.Campaign;
 
-namespace ReignBeta.Campaign
+namespace ReignBeta.Relationships.Campaign
 {
     internal enum WeddingState
     {
@@ -61,7 +67,7 @@ namespace ReignBeta.Campaign
         private DateTime _weddingReportRetryUtc;
 
         internal static bool WeddingFeatureReady => ReignMarriagePatches.WeddingsReady
-            && ReignBeta.Settings.ReignBetaSettings.Instance?.Enabled != false && Instance != null;
+            && ReignBeta.Platform.Settings.ReignBetaSettings.Instance?.Enabled != false && Instance != null;
 
         private void SyncWeddings(IDataStore store)
         {
@@ -237,7 +243,7 @@ namespace ReignBeta.Campaign
                 return;
             }
             _openWeddingChoice = match.Id;
-            if (!ReignBeta.UI.ReignActionBuilder.OpenWeddingTownPicker(WeddingNames(match), towns, town =>
+            if (!ReignBeta.Dialogue.UI.ReignActionBuilder.OpenWeddingTownPicker(WeddingNames(match), towns, town =>
                 {
                     if (WeddingChoiceCurrent(match)) BookWedding(match, town);
                 }, () => _openWeddingChoice = ""))
@@ -523,7 +529,7 @@ namespace ReignBeta.Campaign
                     }
                 }
                 match.State = WeddingState.Completed;
-                ReignBeta.Court.ReignCourtCampaignBehavior.Instance?.PumpCourtWeddingReports();
+                ReignBeta.Court.Campaign.ReignCourtCampaignBehavior.Instance?.PumpCourtWeddingReports();
                 RecordWeddingOutcome(match, "married");
                 InformationManager.DisplayMessage(new InformationMessage(WeddingNames(match) + " are married."));
             }

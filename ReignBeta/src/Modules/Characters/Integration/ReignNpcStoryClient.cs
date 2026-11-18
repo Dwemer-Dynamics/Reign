@@ -3,11 +3,13 @@ using System.Linq;
 using System.Threading.Tasks;
 using Newtonsoft.Json.Linq;
 using ReignBeta.Campaign;
-using ReignBeta.Runtime;
 using TaleWorlds.CampaignSystem;
-using static ReignBeta.Integration.ReignServerClient;
+using static ReignBeta.Platform.Integration.ReignServerClient;
+using ReignBeta.Characters.Campaign;
+using ReignBeta.Platform.Integration;
+using ReignBeta.WorldSimulation.Runtime;
 
-namespace ReignBeta.Integration
+namespace ReignBeta.Characters.Integration
 {
     internal static class ReignNpcStoryClient
     {
@@ -16,7 +18,7 @@ namespace ReignBeta.Integration
         internal static async Task<JObject> StartNpcStorySceneAsync(ReignSocialEventSession session)
         {
             var story = session.PersonalStory;
-            Hero hero = await ReignMainThread.InvokeAsync(() => World.ReignObjectResolver.FindHero(story.HeroId)).ConfigureAwait(false);
+            Hero hero = await ReignMainThread.InvokeAsync(() => WorldSimulation.World.ReignObjectResolver.FindHero(story.HeroId)).ConfigureAwait(false);
             JObject context = await ReignMainThread.InvokeAsync(() => {
                 var p = ReignNpcLivesClient.CaptureNpcLivesContext(ReignNpcLivesBehavior.Instance?.Generation ?? "");
                 p["sessionId"] = StorySceneSessionId(session); p["heroId"] = story.HeroId;
@@ -44,7 +46,7 @@ namespace ReignBeta.Integration
                 if (current == null || current.Status != "active" || current.Revision != story.Revision)
                     throw new InvalidOperationException("This chapter has ended or changed. Reopen Personal lives to continue.");
                 string place = TaleWorlds.CampaignSystem.Settlements.Settlement.CurrentSettlement?.StringId ?? "";
-                var npc = World.ReignObjectResolver.FindHero(story.HeroId);
+                var npc = WorldSimulation.World.ReignObjectResolver.FindHero(story.HeroId);
                 if (npc == null || npc.IsPrisoner || !npc.IsAlive || npc.PartyBelongedTo != TaleWorlds.CampaignSystem.Party.MobileParty.MainParty
                     || story.LocationId.Length > 0 && story.LocationId != place)
                     throw new InvalidOperationException("The required companion or story location is no longer available.");

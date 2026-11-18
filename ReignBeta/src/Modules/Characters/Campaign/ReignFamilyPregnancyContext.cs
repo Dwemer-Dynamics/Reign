@@ -10,11 +10,13 @@ using Newtonsoft.Json.Serialization;
 using Reign.Core.Contracts.Family;
 using ReignBeta.Actions;
 using ReignBeta.Family;
-using ReignBeta.Integration;
 using TaleWorlds.CampaignSystem;
 using TaleWorlds.CampaignSystem.CampaignBehaviors;
+using ReignBeta.Platform.Integration;
+using ReignBeta.WorldSimulation.Actions;
+using ReignBeta.WorldSimulation.Campaign;
 
-namespace ReignBeta.Campaign
+namespace ReignBeta.Characters.Campaign
 {
     public sealed partial class ReignFamilyCampaignBehavior
     {

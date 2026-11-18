@@ -7,15 +7,21 @@ using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using Newtonsoft.Json.Serialization;
 using ReignBeta.Campaign;
-using ReignBeta.Integration;
 using ReignBeta.Shared.Characters;
-using ReignBeta.Settings;
 using ReignBeta.UI.EventArt;
 using TaleWorlds.CampaignSystem;
 using TaleWorlds.CampaignSystem.Settlements;
 using TaleWorlds.Library;
+using ReignBeta.Characters.Campaign;
+using ReignBeta.Characters.Integration;
+using ReignBeta.Dialogue.UI;
+using ReignBeta.Platform.Integration;
+using ReignBeta.Platform.Settings;
+using ReignBeta.Portraits.Integration;
+using ReignBeta.Portraits.UI;
+using ReignBeta.UI.ViewModels;
 
-namespace ReignBeta.UI.ViewModels
+namespace ReignBeta.Characters.UI
 {
     public sealed class ReignTavernHouseScreenVM : ViewModel, IReignTavernActionHost
     {
@@ -119,7 +125,7 @@ namespace ReignBeta.UI.ViewModels
             }
             _receipt = _house.GetOpenVisit(town);
             if (_receipt != null && !string.IsNullOrWhiteSpace(_receipt.ConversationId)) _conversationId = _receipt.ConversationId;
-            ReignBeta.Actions.ReignTavernHouseAction.Open(this, () => TavernActionContext);
+            ReignBeta.Characters.Actions.ReignTavernHouseAction.Open(this, () => TavernActionContext);
             Refresh();
         }
 
@@ -352,7 +358,7 @@ namespace ReignBeta.UI.ViewModels
         {
             if (!_fixture) _receipt = _house?.GetOpenVisit(Town) ?? _receipt;
             ReignActionBuilder.CloseFor(this); _composer?.Dispose();
-            ReignBeta.Actions.ReignTavernHouseAction.Close(this);
+            ReignBeta.Characters.Actions.ReignTavernHouseAction.Close(this);
             if (_finalized) return;
             _finalized = true;
             // A debit awaiting server confirmation stays open and resumes with the original receipt.

@@ -38,12 +38,12 @@ public sealed class PlayerApproachNativeCompatibilityTests
         Assert.Equal(5, report.RootElement.GetProperty("nativeHooks").GetArrayLength());
         Assert.Single(report.RootElement.GetProperty("nativeCallBoundaries").EnumerateArray());
         Assert.Contains(report.RootElement.GetProperty("preparedMethods").EnumerateArray(),
-            method => method.GetString() == "ReignBeta.Campaign.ReignRescueConversationBehavior.LiberateAndListen");
+            method => method.GetString() == "ReignBeta.Dialogue.Campaign.ReignRescueConversationBehavior.LiberateAndListen");
         Assert.Contains(report.RootElement.GetProperty("preparedMethods").EnumerateArray(),
-            method => method.GetString() == "ReignBeta.Campaign.ReignRescueConversationBehavior.Listen");
+            method => method.GetString() == "ReignBeta.Dialogue.Campaign.ReignRescueConversationBehavior.Listen");
         foreach (string guard in new[] { "CanPresentOnMap", "TryPresentOnMap" })
             Assert.Contains(report.RootElement.GetProperty("preparedMethods").EnumerateArray(),
-                method => method.GetString() == "ReignBeta.UI.ReignPlayerApproachPopup." + guard);
+                method => method.GetString() == "ReignBeta.Relationships.UI.ReignPlayerApproachPopup." + guard);
     }
 
     [Fact]

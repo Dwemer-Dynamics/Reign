@@ -7,10 +7,6 @@ using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using Reign.Core.Contracts.Court;
 using ReignBeta.Campaign;
-using ReignBeta.Economy;
-using ReignBeta.Integration;
-using ReignBeta.Runtime;
-using ReignBeta.Save;
 using TaleWorlds.CampaignSystem;
 using TaleWorlds.CampaignSystem.Actions;
 using TaleWorlds.CampaignSystem.Party;
@@ -19,8 +15,14 @@ using TaleWorlds.CampaignSystem.Settlements;
 using TaleWorlds.Core;
 using TaleWorlds.Library;
 using TaleWorlds.ObjectSystem;
+using ReignBeta.Characters.Integration;
+using ReignBeta.Dialogue.Integration;
+using ReignBeta.Persistence.Save;
+using ReignBeta.Platform.Integration;
+using ReignBeta.WorldSimulation.Campaign;
+using ReignBeta.WorldSimulation.Economy;
 
-namespace ReignBeta.Court
+namespace ReignBeta.Court.Campaign
 {
     public sealed partial class ReignCourtCampaignBehavior
     {
@@ -413,8 +415,8 @@ namespace ReignBeta.Court
 
         internal void TryProcessPendingDocketWorldHistoryJobs()
         {
-            ReignBeta.Campaign.ReignWorldHistoryCampaignBehavior history =
-                ReignBeta.Campaign.ReignWorldHistoryCampaignBehavior.Instance;
+            ReignBeta.WorldSimulation.Campaign.ReignWorldHistoryCampaignBehavior history =
+                ReignBeta.WorldSimulation.Campaign.ReignWorldHistoryCampaignBehavior.Instance;
             if (history == null || !history.TimelineReady) return;
             foreach (ReignDocketWorldHistoryJob job in EnsureRulerDocketState().PendingWorldHistoryJobs
                 .Where(x => x != null && !x.Applied)
@@ -541,7 +543,7 @@ namespace ReignBeta.Court
             state.LastChancellorAbsentLordOccurrenceDay = day;
             Hero ruler = Hero.MainHero;
             if (ruler == null) return;
-            ReignBeta.Campaign.ReignWorldHistoryCampaignBehavior.Instance?.RecordSocialOutcome(
+            ReignBeta.WorldSimulation.Campaign.ReignWorldHistoryCampaignBehavior.Instance?.RecordSocialOutcome(
                 "absent_lord", ruler, "ruler",
                 "chancellor_coverage|" + CurrentReignId() + "|window_end|" + day,
                 ruler.Name + " delegated the morning docket to an Active Chancellor on "
@@ -970,7 +972,7 @@ namespace ReignBeta.Court
                 BuildTownPetitionCandidates(townSettlement, day, native);
 
             string campaignId = ReignCampaignIdentity.CurrentCampaignId();
-            string timelineId = ReignBeta.Campaign.ReignWorldHistoryCampaignBehavior.Instance?.TimelineId ?? "main";
+            string timelineId = ReignBeta.WorldSimulation.Campaign.ReignWorldHistoryCampaignBehavior.Instance?.TimelineId ?? "main";
             int replies = Math.Min(ReignCourtLifeRules.MaximumDailyEntries, DueInternationalReplyCount(day));
             PromoteInternationalReplies(day, replies);
             int count = ReignCourtLifeRules.OrdinarySlots(campaignId, timelineId, day, replies);
@@ -1208,7 +1210,7 @@ namespace ReignBeta.Court
                 RefusePetitionWithoutEffects(petition, CurrentDay(), "explicit_refusal");
                 QueuePetitionRelationChanges(petition, false);
                 receipt = "Petition refused.";
-                ReignBeta.Campaign.ReignXpCampaignBehavior.Instance?.Award("petition:" + petitionId, ReignXpSkill.Leadership, ReignXpRules.PetitionXp, xpOptions, ReignXpReason.PetitionDecision);
+                ReignBeta.Dialogue.Campaign.ReignXpCampaignBehavior.Instance?.Award("petition:" + petitionId, ReignXpSkill.Leadership, ReignXpRules.PetitionXp, xpOptions, ReignXpReason.PetitionDecision);
                 StateChanged?.Invoke();
                 return true;
             }
@@ -1266,7 +1268,7 @@ namespace ReignBeta.Court
             AddPetitionHistory(petition, "granted", method == ReignDocketGrantMethod.GoldSubstitute
                 ? "The ruler funded the validated gold substitute." : "The ruler granted the requested aid directly.");
             receipt = "Petition granted. The commitment is now active.";
-            ReignBeta.Campaign.ReignXpCampaignBehavior.Instance?.Award("petition:" + petitionId, ReignXpSkill.Leadership, ReignXpRules.PetitionXp, xpOptions, ReignXpReason.PetitionDecision);
+            ReignBeta.Dialogue.Campaign.ReignXpCampaignBehavior.Instance?.Award("petition:" + petitionId, ReignXpSkill.Leadership, ReignXpRules.PetitionXp, xpOptions, ReignXpReason.PetitionDecision);
             StateChanged?.Invoke();
             return true;
         }
@@ -1363,7 +1365,7 @@ namespace ReignBeta.Court
                 int recruit = (int)Math.Ceiling(Math.Max(0f, TaleWorlds.CampaignSystem.Campaign.Current.Models.PartyWageModel
                     .GetTroopRecruitmentCost(element.Character, Hero.MainHero, false).ResultNumber));
                 replacementValue = SaturatingAdd(replacementValue, recruit * count);
-                fullTermWages = SaturatingAdd(fullTermWages, ReignBeta.Economy.ReignWarEconomyOptions.BaseTroopWage(element.Character) * count * petition.DurationDays);
+                fullTermWages = SaturatingAdd(fullTermWages, ReignBeta.WorldSimulation.Economy.ReignWarEconomyOptions.BaseTroopWage(element.Character) * count * petition.DurationDays);
                 remaining -= count;
                 if (remaining == 0) break;
             }
@@ -1472,7 +1474,7 @@ namespace ReignBeta.Court
                     if (target.Village != null) {
                         float beforeHearth = target.Village.Hearth;
                         target.Village.Hearth = MathF.Max(0f, target.Village.Hearth + (float)commitment.DailyEffect);
-                        ReignBeta.Economy.ReignWarEconomyTransactions.RecordHearthGrant("paid_petition", target.Village, beforeHearth);
+                        ReignBeta.WorldSimulation.Economy.ReignWarEconomyTransactions.RecordHearthGrant("paid_petition", target.Village, beforeHearth);
                     }
                     break;
                 case ReignPetitionKind.TownGold:

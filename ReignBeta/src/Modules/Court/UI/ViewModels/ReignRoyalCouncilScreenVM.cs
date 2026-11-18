@@ -6,15 +6,21 @@ using AIPortraits;
 using Newtonsoft.Json.Linq;
 using ReignBeta.Court;
 using ReignBeta.Court.WarCouncil;
-using ReignBeta.Integration;
 using TaleWorlds.CampaignSystem;
 using TaleWorlds.CampaignSystem.Actions;
 using TaleWorlds.CampaignSystem.Party;
 using TaleWorlds.Core;
 using TaleWorlds.Core.ViewModelCollection.ImageIdentifiers;
 using TaleWorlds.Library;
+using ReignBeta.Court.Campaign;
+using ReignBeta.Court.Integration;
+using ReignBeta.Dialogue.Integration;
+using ReignBeta.Dialogue.UI;
+using ReignBeta.Platform.Integration;
+using ReignBeta.Spymaster.UI;
+using ReignBeta.UI.ViewModels;
 
-namespace ReignBeta.UI.ViewModels
+namespace ReignBeta.Court.UI
 {
     public sealed class ReignRoyalCouncilScreenVM : ViewModel, IReignActionHost
     {
@@ -70,8 +76,8 @@ namespace ReignBeta.UI.ViewModels
             string text = InputText ?? string.Empty;
             if (IsBusy || string.IsNullOrWhiteSpace(text)) return;
             string contribution = "council_input_" + Guid.NewGuid().ToString("N");
-            try { ReignBeta.Runtime.ReignConversationInputJournal.Save(ReignServerClient.GetCampaignId(),
-                ReignBeta.Campaign.ReignWorldHistoryCampaignBehavior.Instance?.TimelineId ?? "main", Hero.MainHero?.StringId ?? "", contribution, text, session: _sessionId); }
+            try { ReignBeta.Dialogue.Runtime.ReignConversationInputJournal.Save(ReignServerClient.GetCampaignId(),
+                ReignBeta.WorldSimulation.Campaign.ReignWorldHistoryCampaignBehavior.Instance?.TimelineId ?? "main", Hero.MainHero?.StringId ?? "", contribution, text, session: _sessionId); }
             catch (Exception ex) { StatusText = "Your message could not be saved locally: " + ex.Message; return; }
             var action = Composer.State.Draft == null ? null : ReignBeta.Actions.ReignActionService.Copy(Composer.State.Draft);
             InputText = string.Empty;

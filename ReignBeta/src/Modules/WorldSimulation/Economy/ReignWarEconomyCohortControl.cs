@@ -7,14 +7,15 @@ using HarmonyLib;
 using Newtonsoft.Json.Linq;
 using Reign.Core.Contracts.Economy;
 using ReignBeta.Campaign;
-using ReignBeta.Integration;
 using TaleWorlds.CampaignSystem;
 using TaleWorlds.CampaignSystem.Actions;
 using TaleWorlds.CampaignSystem.CampaignBehaviors;
 using TaleWorlds.CampaignSystem.Settlements;
-using ReignBeta.Runtime;
+using ReignBeta.Platform.Integration;
+using ReignBeta.Platform.Runtime;
+using ReignBeta.Rebellion.Campaign;
 
-namespace ReignBeta.Economy
+namespace ReignBeta.WorldSimulation.Economy
 {
     // Ephemeral diagnostic isolation. Never serialized or enabled by ordinary campaign code.
     internal static class ReignWarEconomyCohortControl

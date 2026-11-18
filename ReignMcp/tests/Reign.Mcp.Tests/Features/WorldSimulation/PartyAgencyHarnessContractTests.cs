@@ -18,7 +18,7 @@ public sealed class PartyAgencyHarnessContractTests
     public void GuestReleaseUsesNativeCustodyAuthority(bool prisoner, bool playerAvailable, int count,
         bool mainParty, bool clanDungeon, bool expected)
     {
-        Assert.Equal(expected, ReignBeta.PartyAgency.ReignTemporaryGuestCustodyPolicy.CanRelease(
+        Assert.Equal(expected, ReignBeta.WorldSimulation.PartyAgency.ReignTemporaryGuestCustodyPolicy.CanRelease(
             prisoner, playerAvailable, count, mainParty, clanDungeon));
     }
 

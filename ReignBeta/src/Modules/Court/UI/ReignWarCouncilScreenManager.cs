@@ -1,7 +1,6 @@
 using System;
 using System.Linq;
 using ReignBeta.Court;
-using ReignBeta.Integration;
 using ReignBeta.Shared.WarCouncil;
 using ReignBeta.UI.EventArt;
 using ReignBeta.UI.ViewModels;
@@ -12,8 +11,13 @@ using TaleWorlds.Engine.GauntletUI;
 using TaleWorlds.InputSystem;
 using TaleWorlds.Library;
 using TaleWorlds.ScreenSystem;
+using ReignBeta.Court.Campaign;
+using ReignBeta.Dialogue.UI;
+using ReignBeta.Platform.Integration;
+using ReignBeta.Portraits.UI;
+using ReignBeta.UI;
 
-namespace ReignBeta.UI
+namespace ReignBeta.Court.UI
 {
     public static class ReignWarCouncilScreenManager
     {

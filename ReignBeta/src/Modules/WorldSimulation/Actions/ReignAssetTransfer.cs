@@ -13,8 +13,10 @@ using TaleWorlds.CampaignSystem.Roster;
 using TaleWorlds.CampaignSystem.Settlements;
 using TaleWorlds.Core;
 using TaleWorlds.ObjectSystem;
+using ReignBeta.Actions;
+using ReignBeta.WorldSimulation.World;
 
-namespace ReignBeta.Actions
+namespace ReignBeta.WorldSimulation.Actions
 {
     internal static class ReignAssetTransfer
     {

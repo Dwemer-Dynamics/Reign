@@ -8,10 +8,7 @@ using System.Threading.Tasks;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using ReignBeta.Campaign;
-using ReignBeta.Integration;
 using ReignBeta.PartyAgency;
-using ReignBeta.Settings;
-using ReignBeta.Save;
 using ReignBeta.Shared.WarCouncil;
 using TaleWorlds.CampaignSystem;
 using TaleWorlds.CampaignSystem.Actions;
@@ -23,8 +20,15 @@ using TaleWorlds.CampaignSystem.Settlements;
 using TaleWorlds.CampaignSystem.Siege;
 using TaleWorlds.Core;
 using TaleWorlds.Library;
+using ReignBeta.Persistence.Save;
+using ReignBeta.Platform.Integration;
+using ReignBeta.Platform.Settings;
+using ReignBeta.World;
+using ReignBeta.WorldSimulation.Integration;
+using ReignBeta.WorldSimulation.PartyAgency;
+using ReignBeta.WorldSimulation.World;
 
-namespace ReignBeta.World
+namespace ReignBeta.WorldSimulation.CampaignCommands
 {
     public sealed class ReignCampaignCommandBehavior : CampaignBehaviorBase
     {
@@ -135,7 +139,7 @@ namespace ReignBeta.World
                 }
                 if (ReignActionValidator.IsStructuredAction(action))
                 {
-                    if (!proposal && ReignBeta.Actions.ReignAgreementBehavior.Instance?.Authorizes(action) != true)
+                    if (!proposal && ReignBeta.WorldSimulation.Actions.ReignAgreementBehavior.Instance?.Authorizes(action) != true)
                     { reason = "The campaign instruction does not match an accepted saved agreement."; return false; }
                 }
                 else if (!HasAuthorityOrAcceptedRecommendation(action, commander, out reason)) return false;
@@ -153,7 +157,7 @@ namespace ReignBeta.World
             bool structured = ReignActionValidator.IsStructuredAction(action);
             if (!ReignCampaignControlConsent.Validate(existing, action.ActorHeroStringId,
                 action.TargetHeroStringId, structured, action.Source == "reign_console", proposal,
-                !proposal && structured && ReignBeta.Actions.ReignAgreementBehavior.Instance?.Authorizes(action) == true,
+                !proposal && structured && ReignBeta.WorldSimulation.Actions.ReignAgreementBehavior.Instance?.Authorizes(action) == true,
                 out reason)) return false;
             if (action.Type == ReignWorldActionType.RegularRespondToOrderReport
                 && string.IsNullOrWhiteSpace(ReadString(action.TermsJson, "response", string.Empty)))
@@ -389,7 +393,7 @@ namespace ReignBeta.World
 
             Hero commander = ReignObjectResolver.FindHero(order.CommanderHeroStringId);
             MobileParty party = commander?.PartyBelongedTo;
-            if (ReignBeta.Campaign.ReignPlayerApproachCampaignBehavior.Instance?.YieldPatrolOrder(party, order.OrderId, order.Revision, order.Objective) == true) return;
+            if (ReignBeta.Relationships.Campaign.ReignPlayerApproachCampaignBehavior.Instance?.YieldPatrolOrder(party, order.OrderId, order.Revision, order.Objective) == true) return;
             if (commander == null || commander.IsDead || commander.IsPrisoner)
             {
                 Fail(order, "commander_unavailable", "The commander is no longer living and free.");
@@ -584,7 +588,7 @@ namespace ReignBeta.World
                     if (commander == null || commander.IsDead || commander.IsPrisoner || commander == Hero.MainHero)
                     { failure = "The named commander is not eligible to establish a party."; return false; }
                     if (commander.PartyBelongedTo != null) return commander.PartyBelongedTo.LeaderHero == commander;
-                    if (!Economy.ReignMilitaryServiceEligibility.CanEstablishNpcParty(commander))
+                    if (!WorldSimulation.Economy.ReignMilitaryServiceEligibility.CanEstablishNpcParty(commander))
                     { failure = "The named NPC commander is not eligible to establish a military party."; return false; }
                     Settlement spawn = ResolvePartySpawn(commander, order);
                     if (spawn == null) { failure = "No safe friendly settlement is available for party establishment."; return false; }
@@ -1705,7 +1709,7 @@ namespace ReignBeta.World
             bool needFood = party.GetNumDaysForFoodToLast() < ReadDouble(terms, "minimumFoodDays", 3);
             var payer = party.LeaderHero;
             var model = TaleWorlds.CampaignSystem.Campaign.Current.Models;
-            var economy = ReignBeta.Economy.ReignEconomyCampaignBehavior.Instance;
+            var economy = ReignBeta.WorldSimulation.Economy.ReignEconomyCampaignBehavior.Instance;
             Func<Settlement, bool> eligible = settlement => {
                 if (settlement.MapFaction != party.MapFaction || settlement.IsUnderSiege || settlement.IsUnderRaid || settlement.IsRaided
                     || (!settlement.IsTown && !settlement.IsVillage)) return false;
@@ -1715,8 +1719,8 @@ namespace ReignBeta.World
                 if ((economy?.GetRecruitCapacity(settlement) ?? 0) <= 0) return false;
                 return settlement.Notables.Where(x => x.IsAlive).Any(notable => notable.VolunteerTypes
                     .Take(model.VolunteerModel.MaximumIndexHeroCanRecruitFromHero(payer, notable))
-                    .Where(troop => troop != null).Any(troop => ReignBeta.Economy.ReignWarEconomyTransactions.Allow(
-                        ReignBeta.Economy.ReignWarEconomyTransactions.Ai, settlement, party, payer, troop, 1, true, recordBlocked: false) > 0));
+                    .Where(troop => troop != null).Any(troop => ReignBeta.WorldSimulation.Economy.ReignWarEconomyTransactions.Allow(
+                        ReignBeta.WorldSimulation.Economy.ReignWarEconomyTransactions.Ai, settlement, party, payer, troop, 1, true, recordBlocked: false) > 0));
             };
             target = Settlement.All.Where(eligible).OrderBy(x => x.GetPosition2D.DistanceSquared(party.GetPosition2D))
                 .ThenBy(x => x.StringId, StringComparer.Ordinal).FirstOrDefault();

@@ -24,14 +24,14 @@ try {
     $native=[Reflection.Assembly]::LoadFrom((Join-Path $gameBin 'TaleWorlds.CampaignSystem.dll'))
     $static=[Reflection.BindingFlags]'Static,Public,NonPublic'
     $instance=[Reflection.BindingFlags]'Instance,Public,NonPublic'
-    $patches=$client.GetType('ReignBeta.Campaign.ReignNpcLivesPatches',$true)
+    $patches=$client.GetType('ReignBeta.Characters.Campaign.ReignNpcLivesPatches',$true)
     $patches.GetMethod('Apply',$static).Invoke($null,@()) | Out-Null
     $patches.GetMethod('Apply',$static).Invoke($null,@()) | Out-Null
     $snapshot=$patches.GetMethod('Snapshot',$static).Invoke($null,@()).ToString() | ConvertFrom-Json
     $hooks=[int]$snapshot.installedHookCount
     if(-not $snapshot.ready -or $hooks -ne 13){throw ('NPC Lives hook inventory failed: '+$snapshot.lastError)}
     $rescueTarget=$native.GetType('TaleWorlds.CampaignSystem.Encounters.PlayerEncounter',$true).GetMethod('DoFreeOrCapturePrisonerHeroes',$instance)
-    $rescuePrefix=$client.GetType('ReignBeta.Campaign.ReignNpcStoryRescuePrisonerPatch',$true).GetMethod('Prefix',$static)
+    $rescuePrefix=$client.GetType('ReignBeta.Characters.Campaign.ReignNpcStoryRescuePrisonerPatch',$true).GetMethod('Prefix',$static)
     if($null -eq $rescueTarget -or $null -eq $rescuePrefix -or $rescueTarget.GetParameters().Count -ne 0 -or $rescueTarget.ReturnType -ne [void]){throw 'Native rescue prisoner boundary is unavailable or changed.'}
     $ownedRescue=@([HarmonyLib.Harmony]::GetPatchInfo($rescueTarget).Prefixes | Where-Object {$_.owner -eq 'com.bannerlordreign.reignbeta.npc_lives' -and $_.PatchMethod -eq $rescuePrefix})
     $rescueBound=$ownedRescue.Count -eq 1
@@ -39,7 +39,7 @@ try {
     [Runtime.CompilerServices.RuntimeHelpers]::PrepareMethod($rescuePrefix.MethodHandle)
     $rescuePrefix.Invoke($null,[object[]]@($null)) | Out-Null
     $rescueNoOp=$true
-    $guard=$client.GetType('ReignBeta.Campaign.NpcMeetingQueuedTeleportPatch',$true)
+    $guard=$client.GetType('ReignBeta.Characters.Campaign.NpcMeetingQueuedTeleportPatch',$true)
     $transpiler=$guard.GetMethod('Transpiler',$static)
     $replacement=$guard.GetMethod('CanPerformImmediateTeleport',$static)
     $hourly=$native.GetType('TaleWorlds.CampaignSystem.CampaignBehaviors.TeleportationCampaignBehavior',$true).GetMethod('HourlyTick',$instance)
@@ -110,10 +110,10 @@ try {
         if($actual -ne $expected -or $model.Calls -ne 1){throw 'Native model rejection or single virtual dispatch changed.'}
         $modelChecks++
     }
-    $livesType=$client.GetType('ReignBeta.Campaign.ReignNpcLivesBehavior',$true)
+    $livesType=$client.GetType('ReignBeta.Characters.Campaign.ReignNpcLivesBehavior',$true)
     $lives=[Activator]::CreateInstance($livesType)
     $owns=$livesType.GetMethod('HasOwnedMeetingTeleportDeferral',$instance)
-    $rulerHourly=$client.GetType('ReignBeta.Campaign.ReignRulerCampaignBehavior',$true).GetMethod('Hourly',$instance)
+    $rulerHourly=$client.GetType('ReignBeta.WorldSimulation.Rulers.ReignRulerCampaignBehavior',$true).GetMethod('Hourly',$instance)
     $rulerInstructions=@($readInstructions.Invoke($null,[object[]]@($rulerHourly,$null)))
     $ownedCall=-1;$capitalMove=-1
     for($i=0;$i -lt $rulerInstructions.Count;$i++){
@@ -125,14 +125,14 @@ try {
     if(-not $rulerWaits){throw 'Capital enforcement does not honor the attendance and return lease before native movement.'}
     $duties=$livesType.GetField('_lifeDuties',$instance).GetValue($lives)
     foreach($heroId in @('','unrelated')){if($owns.Invoke($lives,[object[]]@($heroId))){throw 'Unowned hero acquired a teleport hold.'};$leaseChecks++}
-    $duty=[Activator]::CreateInstance($client.GetType('ReignBeta.Campaign.NpcLifeDuty',$true));$duty.HeroId='returning'
+    $duty=[Activator]::CreateInstance($client.GetType('ReignBeta.Characters.Campaign.NpcLifeDuty',$true));$duty.HeroId='returning'
     $duties.Add('returning',$duty)
     if(-not $owns.Invoke($lives,[object[]]@('returning'))){throw 'Return cleanup lease did not defer native travel.'};$leaseChecks++
     $duties.Remove('returning') | Out-Null
     if($owns.Invoke($lives,[object[]]@('returning'))){throw 'Native travel remained blocked after return lease retirement.'};$leaseChecks++
     # Exercise the compiled control's complete ownership cross-product and its
     # monotonic deadline, including nonfinite and negative elapsed values.
-    $announcementGuard=$testing.GetType('ReignBeta.Campaign.ReignNpcLivesTestControls',$true).GetMethod('AnnouncementTransportScopeAllows',$static)
+    $announcementGuard=$testing.GetType('ReignBeta.WorldSimulation.Campaign.ReignNpcLivesTestControls',$true).GetMethod('AnnouncementTransportScopeAllows',$static)
     if($null -eq $announcementGuard){throw 'Compiled announcement transport scope guard is unavailable.'}
     $elapsedCases=@(0d,179.999d,180d,181d,-1d,[double]::NaN,[double]::PositiveInfinity,[double]::NegativeInfinity)
     for($mask=0;$mask -lt 256;$mask++){

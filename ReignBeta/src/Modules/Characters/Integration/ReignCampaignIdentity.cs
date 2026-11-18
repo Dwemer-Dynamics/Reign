@@ -2,7 +2,7 @@ using System;
 using System.IO;
 using TaleWorlds.CampaignSystem;
 
-namespace ReignBeta.Integration
+namespace ReignBeta.Characters.Integration
 {
     public static class ReignCampaignIdentity
     {

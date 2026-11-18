@@ -11,7 +11,7 @@ using ReignBeta.Court;
 #endif
 using TaleWorlds.SaveSystem;
 
-namespace ReignBeta.Save
+namespace ReignBeta.Persistence.Save
 {
     public sealed class ReignBetaSaveDefiner : SaveableTypeDefiner
     {

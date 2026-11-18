@@ -7,15 +7,22 @@ using Newtonsoft.Json.Linq;
 using Reign.Core.Contracts.Actions;
 using Reign.Relationships;
 using ReignBeta.Actions;
-using ReignBeta.Integration;
-using ReignBeta.Save;
 using ReignBeta.World;
 using TaleWorlds.CampaignSystem;
 using TaleWorlds.CampaignSystem.BarterSystem.Barterables;
 using TaleWorlds.CampaignSystem.Settlements;
 using TaleWorlds.Library;
+using ReignBeta.Characters.Campaign;
+using ReignBeta.Characters.Integration;
+using ReignBeta.Dialogue.Integration;
+using ReignBeta.Persistence.Integration;
+using ReignBeta.Persistence.Save;
+using ReignBeta.Platform.Integration;
+using ReignBeta.WorldSimulation.Actions;
+using ReignBeta.WorldSimulation.Campaign;
+using ReignBeta.WorldSimulation.World;
 
-namespace ReignBeta.Campaign
+namespace ReignBeta.Relationships.Campaign
 {
     internal sealed class ReignPlayerMarriageOffer
     {
@@ -341,7 +348,7 @@ namespace ReignBeta.Campaign
                 && spouse.CurrentSettlement?.StringId == match.VenueId && match == AvailableWedding(Settlement.CurrentSettlement ?? TaleWorlds.CampaignSystem.Party.MobileParty.MainParty?.CurrentSettlement)
                 && (match.FirstId == spouse.StringId || match.SecondId == spouse.StringId)
                 && !match.Appeals.ContainsKey(spouse.StringId) && match.PendingAppeal.Length == 0
-                && ReignBeta.UI.ReignSocialEventScreenManager.ActiveViewModel?.ActiveWeddingId == id;
+                && ReignBeta.WorldSimulation.UI.ReignSocialEventScreenManager.ActiveViewModel?.ActiveWeddingId == id;
         }
 
         private static bool IsMarriageAction(ActionClause c) => c.ActionId == "marriage.propose" || c.ActionId == "marriage.appeal";

@@ -7,16 +7,26 @@ using ReignBeta.Campaign;
 using ReignBeta.Family;
 using ReignBeta.Government;
 using ReignBeta.PartyAgency;
-using ReignBeta.Runtime;
 using TaleWorlds.CampaignSystem;
 using TaleWorlds.CampaignSystem.Encounters;
 using TaleWorlds.CampaignSystem.Party;
 using TaleWorlds.CampaignSystem.Settlements;
 using TaleWorlds.CampaignSystem.Settlements.Workshops;
 using TaleWorlds.Core;
-using static ReignBeta.World.ReignWorldParsing;
+using static ReignBeta.WorldSimulation.World.ReignWorldParsing;
+using ReignBeta.Characters.Campaign;
+using ReignBeta.Characters.Family;
+using ReignBeta.Characters.World;
+using ReignBeta.Dialogue.Runtime;
+using ReignBeta.Government.Campaign;
+using ReignBeta.Rebellion.Campaign;
+using ReignBeta.World;
+using ReignBeta.WorldSimulation.CampaignCommands;
+using ReignBeta.WorldSimulation.Domain;
+using ReignBeta.WorldSimulation.PartyAgency;
+using ReignBeta.WorldSimulation.Rulers;
 
-namespace ReignBeta.World
+namespace ReignBeta.WorldSimulation.World
 {
     public static class ReignActionValidator
     {
@@ -93,7 +103,7 @@ namespace ReignBeta.World
             }
 
             bool structured = IsStructuredAction(action);
-            if (structured && !proposal && ReignBeta.Actions.ReignAgreementBehavior.Instance?.Authorizes(action) != true)
+            if (structured && !proposal && ReignBeta.WorldSimulation.Actions.ReignAgreementBehavior.Instance?.Authorizes(action) != true)
             {
                 reason = "This action does not match an authorized saved agreement step.";
                 return false;
@@ -538,8 +548,8 @@ namespace ReignBeta.World
                     || terms.Value<string>("fromHeroStringId") != Hero.MainHero.StringId
                     || terms.Value<string>("toHeroStringId") != action.TargetHeroStringId
                     || grant.Value<string>("schema") != ReignBeta.Shared.Dialogue.PlayerActionRules.Schema
-                    || grant.Value<string>("campaignId") != ReignBeta.Integration.ReignCampaignIdentity.CurrentCampaignId()
-                    || grant.Value<string>("timelineId") != (ReignBeta.Campaign.ReignWorldHistoryCampaignBehavior.Instance?.TimelineId ?? "main")
+                    || grant.Value<string>("campaignId") != ReignBeta.Characters.Integration.ReignCampaignIdentity.CurrentCampaignId()
+                    || grant.Value<string>("timelineId") != (ReignBeta.WorldSimulation.Campaign.ReignWorldHistoryCampaignBehavior.Instance?.TimelineId ?? "main")
                     || grant.Value<string>("turnId") != action.NegotiationId
                     || action.TermsHash != ReignNegotiationTermsHasher.Compute(action.NegotiatedCommand, action.TermsJson)) return false;
                 int slot = grant.Value<int?>("slot") ?? -1;
@@ -658,7 +668,7 @@ namespace ReignBeta.World
 
         // Operator execution is a saved, exact command. It never fabricates either participant's consent.
         internal static bool HasOperatorAuthorization(ReignWorldActionRecord action) => action?.Source == "reign_console"
-            && action.AuthorizationMode == "operator" && ReignBeta.Actions.ReignAgreementBehavior.Instance?.Authorizes(action) == true;
+            && action.AuthorizationMode == "operator" && ReignBeta.WorldSimulation.Actions.ReignAgreementBehavior.Instance?.Authorizes(action) == true;
 
         internal static bool IsDialogueActionSource(string source)
         {
@@ -1046,9 +1056,9 @@ namespace ReignBeta.World
         {
             if (action.Type == ReignWorldActionType.RegularCreateClanAccord || action.Type == ReignWorldActionType.RegularCancelClanAccord)
             {
-                if (ReignBeta.ClanAccords.ReignClanAccordsCampaignBehavior.Instance == null)
+                if (ReignBeta.Diplomacy.ClanAccords.ReignClanAccordsCampaignBehavior.Instance == null)
                 { reason = "The Clan Accords service is unavailable."; return false; }
-                return ReignBeta.ClanAccords.ReignClanAccordsCampaignBehavior.Instance.ValidateAction(action, out reason, proposal);
+                return ReignBeta.Diplomacy.ClanAccords.ReignClanAccordsCampaignBehavior.Instance.ValidateAction(action, out reason, proposal);
             }
             Hero actorHero = ReignObjectResolver.FindHero(action.ActorHeroStringId);
             Hero targetHero = ReignObjectResolver.FindHero(action.TargetHeroStringId);
@@ -1090,9 +1100,9 @@ namespace ReignBeta.World
             if (action.Type == ReignWorldActionType.RegularRecruitEncounteredResident
                 || action.Type == ReignWorldActionType.RegularReleaseResidentFromDuty)
             {
-                if (ReignBeta.Campaign.ReignEncounteredResidentsCampaignBehavior.Instance == null)
+                if (ReignBeta.Characters.Campaign.ReignEncounteredResidentsCampaignBehavior.Instance == null)
                 { reason = "The encountered resident service is unavailable."; return false; }
-                return ReignBeta.Campaign.ReignEncounteredResidentsCampaignBehavior.Instance.ValidateResidentAction(action, out reason, proposal);
+                return ReignBeta.Characters.Campaign.ReignEncounteredResidentsCampaignBehavior.Instance.ValidateResidentAction(action, out reason, proposal);
             }
 
             if (IsArrestAction(action.Type))

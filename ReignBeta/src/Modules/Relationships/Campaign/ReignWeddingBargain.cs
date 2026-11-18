@@ -7,8 +7,9 @@ using ReignBeta.Actions;
 using TaleWorlds.CampaignSystem;
 using TaleWorlds.CampaignSystem.Actions;
 using TaleWorlds.CampaignSystem.Settlements;
+using ReignBeta.WorldSimulation.Actions;
 
-namespace ReignBeta.Campaign
+namespace ReignBeta.Relationships.Campaign
 {
     internal static class ReignWeddingBargain
     {

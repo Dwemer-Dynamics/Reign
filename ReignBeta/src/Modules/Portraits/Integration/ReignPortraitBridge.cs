@@ -5,8 +5,10 @@ using AIEventsAndIntrigue.Settings;
 using AIPortraits;
 using TaleWorlds.CampaignSystem;
 using TaleWorlds.Library;
+using ReignBeta.Characters.Integration;
+using ReignBeta.Platform.Integration;
 
-namespace ReignBeta.Integration
+namespace ReignBeta.Portraits.Integration
 {
     public static class ReignPortraitBridge
     {
@@ -21,9 +23,9 @@ namespace ReignBeta.Integration
             if (hero != null && !PortraitCache.IsPending(key)
                 && (TextureFactory.Has(key) || PortraitCache.ExistsOnDisk(key)))
             {
-                if (ReignBeta.UI.ReignPortraitRefreshPopup.IsOpen) return;
+                if (ReignBeta.Portraits.UI.ReignPortraitRefreshPopup.IsOpen) return;
                 string campaign = ReignCampaignIdentity.CurrentCampaignId();
-                TaleWorlds.ScreenSystem.ScreenManager.PushScreen(new ReignBeta.UI.ReignPortraitRefreshPopup(
+                TaleWorlds.ScreenSystem.ScreenManager.PushScreen(new ReignBeta.Portraits.UI.ReignPortraitRefreshPopup(
                     hero.Name?.ToString() ?? "them", hero.Age >= 18 && hero.Age <= 150, mode =>
                     {
                         if (ReignCampaignIdentity.CurrentCampaignId() == campaign) RequestPortraitChoice(hero, mode);
@@ -165,7 +167,7 @@ namespace ReignBeta.Integration
                             if (saved)
                             {
                                 TextureFactory.Invalidate(cacheKey);
-                                var resident = ReignBeta.Campaign.ReignEncounteredResidentsCampaignBehavior.Instance?.Find(hero);
+                                var resident = ReignBeta.Characters.Campaign.ReignEncounteredResidentsCampaignBehavior.Instance?.Find(hero);
                                 if (resident != null) resident.InitialPortraitCompleted = true;
                             }
                             InformationManager.DisplayMessage(new InformationMessage(saved

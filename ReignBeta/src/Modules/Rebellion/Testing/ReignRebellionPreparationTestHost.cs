@@ -5,11 +5,11 @@ using System.Linq;
 using System.Threading.Tasks;
 using Newtonsoft.Json.Linq;
 using ReignBeta.World;
-using ReignBeta.Runtime;
-using ReignBeta.Integration;
 using TaleWorlds.CampaignSystem;
+using ReignBeta.Platform.Integration;
+using ReignBeta.Rebellion.Campaign;
 
-namespace ReignBeta.Campaign
+namespace ReignBeta.WorldSimulation.Campaign
 {
     public static partial class ReignLiveInteractionTestHost
     {

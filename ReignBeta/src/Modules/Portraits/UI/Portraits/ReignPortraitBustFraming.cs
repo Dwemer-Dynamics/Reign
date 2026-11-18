@@ -1,7 +1,7 @@
 using System;
-using static ReignBeta.Platform.ReignNumeric;
+using static ReignBeta.Platform.Domain.ReignNumeric;
 
-namespace ReignBeta.UI.Portraits
+namespace ReignBeta.Portraits.UI
 {
     // A presentation-only crop of the full portrait. Shipped originals and their
     // ordinary chest/thumbnail derivatives are never rewritten for this view.

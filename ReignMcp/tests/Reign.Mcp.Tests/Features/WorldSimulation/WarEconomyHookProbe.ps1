@@ -47,7 +47,7 @@ try {
     # The in-game test harness lives in ReignBeta.Testing.dll next to the client assembly.
     $testing=[Reflection.Assembly]::LoadFrom((Join-Path ([IO.Path]::GetDirectoryName([IO.Path]::GetFullPath($ClientAssembly))) 'ReignBeta.Testing.dll'))
     $campaign=[Reflection.Assembly]::LoadFrom((Join-Path $gameBin 'TaleWorlds.CampaignSystem.dll'))
-    $cohort=$client.GetType('ReignBeta.Economy.ReignWarEconomyCohortControl',$true)
+    $cohort=$client.GetType('ReignBeta.WorldSimulation.Economy.ReignWarEconomyCohortControl',$true)
     $contracts=[Reflection.Assembly]::LoadFrom((Join-Path ([IO.Path]::GetDirectoryName($ClientAssembly)) 'Reign.Core.Contracts.dll'))
     $cohortPlan=$contracts.GetType('Reign.Core.Contracts.Economy.WarEconomyCohortPlan',$true)
     $planField=$cohort.GetField('_plan',$static)
@@ -78,12 +78,12 @@ try {
         }
     } finally {$planField.SetValue($null,$previousPlan)}
     $cohortBinding=$true
-    $patches=$client.GetType('ReignBeta.Economy.ReignEconomyPatches',$true)
+    $patches=$client.GetType('ReignBeta.WorldSimulation.Economy.ReignEconomyPatches',$true)
     $patches.GetMethod('Apply',$static).Invoke($null,@()) | Out-Null
     $patches.GetMethod('Apply',$static).Invoke($null,@()) | Out-Null
     $registered=$patches.GetField('HookTargets',$static).GetValue($null)
     if($registered.Count -ne 56){throw 'Expected fifty-six exact economy hooks; setup failed.'}
-    $reignWageTarget=$client.GetType('ReignBeta.ClanAccords.ReignClanAccordsWageModel',$true).GetMethod('GetTotalWage',$instance)
+    $reignWageTarget=$client.GetType('ReignBeta.Diplomacy.ClanAccords.ReignClanAccordsWageModel',$true).GetMethod('GetTotalWage',$instance)
     if($registered['KingdomWagePostfix'] -ne $reignWageTarget){throw 'Kingdom wage adjustment missed the direct Reign wage model.'}
     $views=[Reflection.Assembly]::LoadFrom((Join-Path $gameBin 'TaleWorlds.CampaignSystem.ViewModelCollection.dll'))
     $partyView=$views.GetType('TaleWorlds.CampaignSystem.ViewModelCollection.Party.PartyVM',$true)
@@ -124,7 +124,7 @@ try {
     if(-not [bool]$diagnostics['allHooksHealthy'].Value -or [int]$diagnostics['expectedHookCount'].Value -ne $registered.Count -or
        -not [bool]$diagnostics['kingdomWageModifierHook'].Value){throw 'Hook diagnostics are stale or incomplete.'}
     if([int]$diagnostics['nativeMarketSalesVersion'].Value -ne 1 -or -not [bool]$diagnostics['nativeHorseMarketSaleHook'].Value){throw 'Native horse and non-food market sale coverage is missing.'}
-    $funding=$client.GetType('ReignBeta.Economy.ReignWarEconomyFundingAudit',$true)
+    $funding=$client.GetType('ReignBeta.WorldSimulation.Economy.ReignWarEconomyFundingAudit',$true)
     $fundingHooks=$funding.GetField('Hooks',$static).GetValue($null)
     if($fundingHooks.Count -ne 64){throw 'Expected sixty-four exact funding observation bindings.'}
     $nativeHearthSetter=[HarmonyLib.AccessTools]::PropertySetter([TaleWorlds.CampaignSystem.Settlements.Village], 'Hearth')
@@ -202,7 +202,7 @@ try {
     $read=[HarmonyLib.PatchProcessor].GetMethod('GetOriginalInstructions',$static,$null,[Type[]]@([Reflection.MethodBase],[Reflection.Emit.ILGenerator]),$null)
     # Follow the compiled government contribution, then exercise its actual native
     # ExplainedNumber adapter independently of any campaign or authored bonus state.
-    $growthType=$client.GetType('ReignBeta.Economy.ReignSettlementProsperityModel',$true)
+    $growthType=$client.GetType('ReignBeta.WorldSimulation.Economy.ReignSettlementProsperityModel',$true)
     $growthInstructions=@($read.Invoke($null,[object[]]@($growthType.GetMethod('CalculateHearthChange',$instance),$null)))
     function Get-GovernmentLocalIndex($instruction,[string]$operation) {
         $name=$instruction.opcode.Name
@@ -216,11 +216,11 @@ try {
         $body=@($instructions | Where-Object {$_.opcode -ne [Reflection.Emit.OpCodes]::Nop})
         $governmentCalls=@(for($gi=0;$gi -lt $body.Count;$gi++){
             $operand=$body[$gi].operand
-            if($operand -is [Reflection.MethodInfo] -and $operand.DeclaringType.FullName -ceq 'ReignBeta.Government.ReignGovernmentCampaignBehavior' -and $operand.Name -ceq 'GetHearthDelta'){$gi}
+            if($operand -is [Reflection.MethodInfo] -and $operand.DeclaringType.FullName -ceq 'ReignBeta.Government.Campaign.ReignGovernmentCampaignBehavior' -and $operand.Name -ceq 'GetHearthDelta'){$gi}
         })
         $flatCalls=@(for($gi=0;$gi -lt $body.Count;$gi++){
             $operand=$body[$gi].operand
-            if($operand -is [Reflection.MethodInfo] -and $operand.DeclaringType.FullName -ceq 'ReignBeta.ClanAccords.ReignClanAccordModelMath' -and $operand.Name -ceq 'AddFinalDelta'){$gi}
+            if($operand -is [Reflection.MethodInfo] -and $operand.DeclaringType.FullName -ceq 'ReignBeta.Diplomacy.ClanAccords.ReignClanAccordModelMath' -and $operand.Name -ceq 'AddFinalDelta'){$gi}
         })
         if($governmentCalls.Count -ne 1 -or $flatCalls.Count -ne 2){return $false}
         $governmentCall=$governmentCalls[0];$flatCall=$flatCalls[0]
@@ -248,13 +248,13 @@ try {
         $firstFlat=-1
         for($gi=0;$gi -lt $badGrowth.Count;$gi++){
             $operand=$badGrowth[$gi].operand
-            if($operand -is [Reflection.MethodInfo] -and $operand.DeclaringType.FullName -ceq 'ReignBeta.ClanAccords.ReignClanAccordModelMath' -and $operand.Name -ceq 'AddFinalDelta'){$firstFlat=$gi;break}
+            if($operand -is [Reflection.MethodInfo] -and $operand.DeclaringType.FullName -ceq 'ReignBeta.Diplomacy.ClanAccords.ReignClanAccordModelMath' -and $operand.Name -ceq 'AddFinalDelta'){$firstFlat=$gi;break}
         }
         if($firstFlat -lt 4){throw 'Missing reviewed government adapter for negative controls.'}
         if($corruption -eq 'missing_call'){$badGrowth[$firstFlat].opcode=[Reflection.Emit.OpCodes]::Nop}
         elseif($corruption -eq 'wrong_value'){$badGrowth[$firstFlat-4].opcode=[Reflection.Emit.OpCodes]::Ldc_R4;$badGrowth[$firstFlat-4].operand=[single]0}
         elseif($corruption -eq 'wrong_local'){
-            $accordLoad=@($badGrowth | Where-Object {$_.operand -is [Reflection.MethodInfo] -and $_.operand.DeclaringType.FullName -ceq 'ReignBeta.ClanAccords.ReignClanAccordModelMath' -and $_.operand.Name -ceq 'AddFinalDelta'})
+            $accordLoad=@($badGrowth | Where-Object {$_.operand -is [Reflection.MethodInfo] -and $_.operand.DeclaringType.FullName -ceq 'ReignBeta.Diplomacy.ClanAccords.ReignClanAccordModelMath' -and $_.operand.Name -ceq 'AddFinalDelta'})
             $secondFlat=for($gi=$firstFlat+1;$gi -lt $badGrowth.Count;$gi++){if([object]::ReferenceEquals($badGrowth[$gi],$accordLoad[1])){$gi;break}}
             $badGrowth[$firstFlat-4]=[HarmonyLib.CodeInstruction]::new($badGrowth[$secondFlat-4])
         }
@@ -263,7 +263,7 @@ try {
             $secondFlat=-1
             for($gi=$firstFlat+1;$gi -lt $badGrowth.Count;$gi++){
                 $operand=$badGrowth[$gi].operand
-                if($operand -is [Reflection.MethodInfo] -and $operand.DeclaringType.FullName -ceq 'ReignBeta.ClanAccords.ReignClanAccordModelMath' -and $operand.Name -ceq 'AddFinalDelta'){$secondFlat=$gi;break}
+                if($operand -is [Reflection.MethodInfo] -and $operand.DeclaringType.FullName -ceq 'ReignBeta.Diplomacy.ClanAccords.ReignClanAccordModelMath' -and $operand.Name -ceq 'AddFinalDelta'){$secondFlat=$gi;break}
             }
             if($secondFlat -lt 4){throw 'Missing accord adapter for the duplicate-government negative control.'}
             $badGrowth[$secondFlat-4]=[HarmonyLib.CodeInstruction]::new($badGrowth[$firstFlat-4])
@@ -272,7 +272,7 @@ try {
         if(Test-GovernmentHearthPath $badGrowth){throw ('Invalid government hearth integration accepted: '+$corruption)}
     }
     $numberType=$campaign.GetType('TaleWorlds.CampaignSystem.ExplainedNumber',$true)
-    $flatAdapter=$client.GetType('ReignBeta.ClanAccords.ReignClanAccordModelMath',$true).GetMethod('AddFinalDelta',$static)
+    $flatAdapter=$client.GetType('ReignBeta.Diplomacy.ClanAccords.ReignClanAccordModelMath',$true).GetMethod('AddFinalDelta',$static)
     $numberCtor=$numberType.GetConstructor([Type[]]@([single],[bool],[TaleWorlds.Localization.TextObject]))
     $nativeFactor=$numberType.GetMethod('AddFactor',$instance)
     $nativeResult=$numberType.GetProperty('ResultNumber',$instance)
@@ -335,7 +335,7 @@ try {
     $upgradePrefixBody=@($read.Invoke($null,[object[]]@($patches.GetMethod('AutomaticUpgradePrefix',$static),$null)))
     if(@($upgradePrefixBody | Where-Object {$_.operand -eq $upgradePayer}).Count -ne 1){throw 'Automatic upgrade funding gate did not use its verified native payer selection.'}
     $upgradePayerBinding=$true
-    $tariffs=$client.GetType('ReignBeta.Economy.ReignWarEconomyTariffs',$true)
+    $tariffs=$client.GetType('ReignBeta.WorldSimulation.Economy.ReignWarEconomyTariffs',$true)
     $saleTarget=$campaign.GetType('TaleWorlds.CampaignSystem.Actions.SellItemsAction',$true).GetMethod('ApplyInternal',$static)
     $nativeSale=$read.Invoke($null,[object[]]@($saleTarget,$null))
     $saleOperands=@($nativeSale | ForEach-Object {,$_.operand});$saleCodes=@($nativeSale | ForEach-Object {$_.opcode})
@@ -425,8 +425,8 @@ try {
     $priceCalls=@($read.Invoke($null,[object[]]@($priceObserver,$null)) | Where-Object {$_.operand -is [Reflection.MethodInfo] -and $_.operand.Name -eq 'GetItemPrice'})
     if($priceCalls.Count -ne 1){throw 'Tariff price observation must call the actual native price exactly once.'}
     if([int]$diagnostics['tariffCollectionVersion'].Value -ne 3 -or [int]$diagnostics['foodMarketVersion'].Value -ne 3){throw 'Purchase or consumption evidence version is stale.'}
-    $foodMarket=$client.GetType('ReignBeta.Economy.ReignWarEconomyFoodMarket',$true)
-    $priorityPolicy=$core.GetType('ReignBeta.Economy.ReignWarEconomyPolicy',$true)
+    $foodMarket=$client.GetType('ReignBeta.WorldSimulation.Economy.ReignWarEconomyFoodMarket',$true)
+    $priorityPolicy=$core.GetType('ReignBeta.WorldSimulation.Economy.ReignWarEconomyPolicy',$true)
     $priorityMethod=$priorityPolicy.GetMethod('NeedsSubsistencePriority',$static)
     if($null -eq $priorityMethod){throw 'Compiled subsistence forecast method missing.'}
     if(-not $priorityMethod.Invoke($null,[object[]]@([double]87.7,[double]400,[double]-76,[double]44)) -or
@@ -441,8 +441,8 @@ try {
     if([int]$census['version'].Value -ne 2 -or [int]$census['subsistencePolicyVersion'].Value -ne 3 -or [int]$census['maximumSettlements'].Value -ne 256 -or
         [bool]$census['available'].Value -or [int]$census['dropped'].Value -ne 0 -or [int]$census['errors'].Value -ne 0){throw 'A fresh offline food census fabricated native evidence.'}
     $nativeFoodCensusBounded=$true
-    $reliefPolicy=$core.GetType('ReignBeta.Economy.ReignWarEconomyPolicy',$true)
-    $holdingType=$core.GetType('ReignBeta.Economy.ReignWarEconomyPolicy+Holding',$true)
+    $reliefPolicy=$core.GetType('ReignBeta.WorldSimulation.Economy.ReignWarEconomyPolicy',$true)
+    $holdingType=$core.GetType('ReignBeta.WorldSimulation.Economy.ReignWarEconomyPolicy+Holding',$true)
     $reliefInputs=[Array]::CreateInstance($holdingType,5)
     for($i=0;$i -lt 5;$i++){
         $holding=[Activator]::CreateInstance($holdingType)
@@ -462,7 +462,7 @@ try {
     if([int]$scaledPlan.GetType().GetField('Version').GetValue($scaledPlan) -ne 2 -or
         [Math]::Abs($scaledDelivered-73) -gt .00001 -or [Math]::Abs($legacyDelivered-15) -gt .00001 -or
         [double]$holdingType.GetField('Stock').GetValue($reliefInputs.GetValue(0)) -ne 15){throw 'Compiled relief policy did not conserve its inputs or distinguish the chronic-recipient cap.'}
-    $reliefBehavior=$client.GetType('ReignBeta.Economy.ReignEconomyCampaignBehavior',$true)
+    $reliefBehavior=$client.GetType('ReignBeta.WorldSimulation.Economy.ReignEconomyCampaignBehavior',$true)
     [Runtime.CompilerServices.RuntimeHelpers]::PrepareMethod($reliefBehavior.GetMethod('ReliefDiagnostics',[Reflection.BindingFlags]'Instance,Public,NonPublic').MethodHandle)
     $reliefPolicyProbe=$true
     $tariffBinding=$true
@@ -500,7 +500,7 @@ try {
     if($financeSites -ne 2){throw 'Expected one actual payout and one native budget-credit call.'}
     $financeModel=$campaign.GetType('TaleWorlds.CampaignSystem.GameComponents.DefaultClanFinanceModel',$true)
     $support=$financeModel.GetMethod('AddIncomeFromKingdomBudget',$instance)
-    $service=$client.GetType('ReignBeta.Economy.ReignMilitaryServiceEligibility',$true)
+    $service=$client.GetType('ReignBeta.WorldSimulation.Economy.ReignMilitaryServiceEligibility',$true)
     $commanderScore=$campaign.GetType('TaleWorlds.CampaignSystem.CampaignBehaviors.HeroSpawnCampaignBehavior',$true).GetMethod('GetHeroPartyCommandScore',$instance)
     if($registered['NpcCommanderEligibilityPrefix'] -ne $commanderScore){throw 'NPC fallback eligibility is not bound to the actual command score.'}
     $selector=$commanderScore.DeclaringType.GetMethod('GetBestAvailableCommander',$instance)
@@ -606,7 +606,7 @@ try {
     }
 
     } finally {$currentGameField.SetValue($null,$priorGame)}
-    foreach($route in @(@('ReignBeta.World.ReignRegularActionExecutor','CreateParty'),@('ReignBeta.World.ReignCampaignCommandBehavior','ApplyNativeOrder'))){
+    foreach($route in @(@('ReignBeta.WorldSimulation.World.ReignRegularActionExecutor','CreateParty'),@('ReignBeta.WorldSimulation.CampaignCommands.ReignCampaignCommandBehavior','ApplyNativeOrder'))){
         $routeType=$client.GetType($route[0],$true)
         $routeMethod=$routeType.GetMethod($route[1],[Reflection.BindingFlags]'Instance,Static,Public,NonPublic')
         $routeBody=@($read.Invoke($null,[object[]]@($routeMethod,$null)))
@@ -767,7 +767,7 @@ try {
         $script:economyRoots+=,$navalRoot
         $naval=[Reflection.Assembly]::LoadFrom($navalPath)
         $patches.GetMethod('ApplyNavalRecruitment',$static).Invoke($null,@()) | Out-Null
-        $navalFunding=$client.GetType('ReignBeta.Economy.ReignWarEconomyNaval',$true)
+        $navalFunding=$client.GetType('ReignBeta.WorldSimulation.Economy.ReignWarEconomyNaval',$true)
         $navalOwner='com.bannerlordreign.reignbeta.economy.naval'
         $navalBindings=$navalFunding.GetField('Bound',$static).GetValue($null)
         $navalCost=$naval.GetType('NavalDLC.GameComponents.NavalDLCShipCostModel',$true)
@@ -831,7 +831,7 @@ try {
         $saveInstructions=$read.Invoke($null,[object[]]@($nativeSave,$null))
         $shipList=[Collections.Generic.List[TaleWorlds.CampaignSystem.Naval.Ship]]
         if(@($saveInstructions | Where-Object {$_.opcode -eq [Reflection.Emit.OpCodes]::Ldtoken -and $_.operand -eq $shipList}).Count -ne 1){throw 'Native ship-reference list has no save registration.'}
-        $behaviorType=$client.GetType('ReignBeta.Economy.ReignEconomyCampaignBehavior',$true)
+        $behaviorType=$client.GetType('ReignBeta.WorldSimulation.Economy.ReignEconomyCampaignBehavior',$true)
         $isolatedBehavior=[Activator]::CreateInstance($behaviorType)
         $nativeShip=$campaign.GetType('TaleWorlds.CampaignSystem.Naval.Ship',$true)
         $hullField=$nativeShip.GetField('ShipHull',$instance)
@@ -840,7 +840,7 @@ try {
         $shipIds=$behaviorType.GetField('NavalShipIds',$instance).GetValue($isolatedBehavior)
         $economy=$behaviorType.GetProperty('EconomyState',$instance).GetValue($isolatedBehavior,$null)
         $acquisitions=$economy.GetType().GetField('NavalAcquisitions',$instance).GetValue($economy)
-        $acquisitionType=$core.GetType('ReignBeta.Economy.EconomyShipAcquisition',$true)
+        $acquisitionType=$core.GetType('ReignBeta.WorldSimulation.Economy.EconomyShipAcquisition',$true)
         foreach($id in @('isolated_ship_a','isolated_ship_b')){
             $ship=[Runtime.Serialization.FormatterServices]::GetUninitializedObject($nativeShip)
             $hullField.SetValue($ship,$hull)
@@ -931,7 +931,7 @@ try {
         $navalName='NavalDLCVillageProductionCalculatorModel'
         $outerType=$naval.GetType(('NavalDLC.GameComponents.'+$navalName),$true)
         $outer=[Runtime.Serialization.FormatterServices]::GetUninitializedObject($outerType)
-        $reignType=$client.GetType('ReignBeta.Economy.ReignVillageProductionCalculatorModel',$true)
+        $reignType=$client.GetType('ReignBeta.WorldSimulation.Economy.ReignVillageProductionCalculatorModel',$true)
         $inner=[Runtime.Serialization.FormatterServices]::GetUninitializedObject($reignType)
         $describe=$patches.GetMethod('ModelRoute',$static)
         $probeArgs=[object[]]@($outer,$reignType,$navalName)
@@ -946,11 +946,11 @@ try {
         $navalRoute='verified_binding'
     }
     $persistenceFields=0
-    $savedField=$testing.GetType('ReignBeta.Economy.ReignWarEconomyTestHost',$true).GetMethod('SavedField',$static)
+    $savedField=$testing.GetType('ReignBeta.WorldSimulation.Economy.ReignWarEconomyTestHost',$true).GetMethod('SavedField',$static)
     foreach($entry in @{
-        'ReignBeta.Court.ReignCourtCampaignBehavior'=@('_rulerDocketState','_economicReportState','_operations','_obligations','_appliedNativeCommandIds');
-        'ReignBeta.Government.ReignGovernmentCampaignBehavior'=@('_governments','_resolutions','_edicts');
-        'ReignBeta.ClanAccords.ReignClanAccordsCampaignBehavior'=@('_state')
+        'ReignBeta.Court.Campaign.ReignCourtCampaignBehavior'=@('_rulerDocketState','_economicReportState','_operations','_obligations','_appliedNativeCommandIds');
+        'ReignBeta.Government.Campaign.ReignGovernmentCampaignBehavior'=@('_governments','_resolutions','_edicts');
+        'ReignBeta.Diplomacy.ClanAccords.ReignClanAccordsCampaignBehavior'=@('_state')
     }.GetEnumerator()){
         $ownerType=$client.GetType($entry.Key,$true)
         foreach($fieldName in $entry.Value){
@@ -958,7 +958,7 @@ try {
             $persistenceFields++
         }
     }
-    $governmentType=$client.GetType('ReignBeta.Government.ReignGovernmentCampaignBehavior',$true)
+    $governmentType=$client.GetType('ReignBeta.Government.Campaign.ReignGovernmentCampaignBehavior',$true)
     $isolatedGovernment=[Runtime.Serialization.FormatterServices]::GetUninitializedObject($governmentType)
     $edictsField=$governmentType.GetField('_edicts',$instance)
     $isolatedEdicts=[Activator]::CreateInstance($edictsField.FieldType)
@@ -971,7 +971,7 @@ try {
     $after=$savedField.Invoke($null,[object[]]@($isolatedGovernment,'_edicts')).ToString()
     if($before -eq $after -or $isolatedEdicts.Count -ne 1 -or $budget.GetValue($edict,$null) -ne 37){throw 'Saved escrow evidence failed to observe a real value change without mutation.'}
     $persistedAidObserved=$true
-    $testHost=$testing.GetType('ReignBeta.Economy.ReignWarEconomyTestHost',$true)
+    $testHost=$testing.GetType('ReignBeta.WorldSimulation.Economy.ReignWarEconomyTestHost',$true)
     $financeInput=[Newtonsoft.Json.Linq.JArray]::Parse('[{"clanId":"one","cash":123,"dailyIncome":17,"incomeModelLines":[1]}]')
     $financeBefore=$financeInput.ToString()
     $financeResult=$testHost.GetMethod('FinanceSnapshot',$static).Invoke($null,[object[]](,$financeInput))
@@ -980,7 +980,7 @@ try {
     $villageType=$campaign.GetType('TaleWorlds.CampaignSystem.Settlements.Village',$true)
     $villageState=$villageType.GetField('_villageState',$instance)
     $isolatedVillage=[Runtime.Serialization.FormatterServices]::GetUninitializedObject($villageType)
-    $productionType=$client.GetType('ReignBeta.Economy.ReignVillageProductionCalculatorModel',$true)
+    $productionType=$client.GetType('ReignBeta.WorldSimulation.Economy.ReignVillageProductionCalculatorModel',$true)
     $isolatedProduction=[Runtime.Serialization.FormatterServices]::GetUninitializedObject($productionType)
     foreach($stateName in @('Looted','BeingRaided')){
         $villageState.SetValue($isolatedVillage,[Enum]::Parse($villageState.FieldType,$stateName))
@@ -988,7 +988,7 @@ try {
         $goods=$productionType.GetMethod('CalculateDailyProductionAmount',$instance).Invoke($isolatedProduction,[object[]]@($isolatedVillage,$null))
         if($food -ne 0 -or $goods.ResultNumber -ne 0){throw 'Non-functioning village quoted nonzero output.'}
     }
-    $foodType=$client.GetType('ReignBeta.Economy.ReignSettlementFoodModel',$true)
+    $foodType=$client.GetType('ReignBeta.WorldSimulation.Economy.ReignSettlementFoodModel',$true)
     $isolatedFood=[Runtime.Serialization.FormatterServices]::GetUninitializedObject($foodType)
     if($foodType.GetProperty('NumberOfMenOnGarrisonToEatOneFood',$instance).GetValue($isolatedFood,$null) -ne 25){throw 'Garrison food baseline did not apply.'}
     $counter=$patches.GetMethod('ObserveWithoutQuartering',$static)
@@ -1007,7 +1007,7 @@ try {
     $quarterRewritten=@($patches.GetMethod('GarrisonQuarteringTranspiler',$static).Invoke($null,[object[]]@(,$quarterOriginal)))
     $quarterGetter=$campaign.GetType('TaleWorlds.CampaignSystem.CharacterObject',$true).GetProperty('TroopWage',$instance).GetGetMethod()
     if(@($quarterRewritten | Where-Object {$_.operand -eq $quarterGetter}).Count -ne 2){throw 'Field wage hook changed a hero salary quote.'}
-    $fieldUnit=$client.GetType('ReignBeta.Economy.ReignWarEconomyOptions',$true).GetMethod('UnitWage',$static)
+    $fieldUnit=$client.GetType('ReignBeta.WorldSimulation.Economy.ReignWarEconomyOptions',$true).GetMethod('UnitWage',$static)
     $fieldSites=@(for($qi=0;$qi -lt $quarterRewritten.Count;$qi++){if($quarterRewritten[$qi].operand -eq $fieldUnit){$qi}})
     if($fieldSites.Count -ne 1 -or $quarterRewritten[$fieldSites[0]-1].opcode -ne [Reflection.Emit.OpCodes]::Ldarg_1 -or $quarterRewritten[$fieldSites[0]+3].opcode -ne [Reflection.Emit.OpCodes]::Mul){throw 'Field wage helper did not replace only the regular quote before count multiplication.'}
     $optionsType=[Reign.Core.Contracts.Economy.WarEconomyOptions]
@@ -1016,7 +1016,7 @@ try {
     for($ti=0;$ti -lt $fieldExpected.Count;$ti++){
         if($fieldOptions.TroopWage($ti,$false,0) -ne $fieldExpected[$ti] -or $fieldOptions.TroopWage($ti,$true,0) -ne [Math]::Truncate($fieldExpected[$ti]*1.5)){throw 'Compiled field wage schedule or mercenary premium changed.'}
     }
-    $preferences=$client.GetType('ReignBeta.Economy.ReignWarEconomyOptions',$true)
+    $preferences=$client.GetType('ReignBeta.WorldSimulation.Economy.ReignWarEconomyOptions',$true)
     $readPreferences=$preferences.GetMethod('TryRead',$static)
     $preferenceEnvelope=[Newtonsoft.Json.Linq.JObject]::new()
     $preferenceEnvelope['version']=[Newtonsoft.Json.Linq.JValue]::new([long]1)
@@ -1036,7 +1036,7 @@ try {
     if($quarterSites.Count -ne 1 -or $quarterRewritten[$quarterSites[0]-1].opcode -ne [Reflection.Emit.OpCodes]::Ldarg_1 -or $quarterRewritten[$quarterSites[0]-2].opcode -ne [Reflection.Emit.OpCodes]::Mul){throw 'Quartering did not wrap exactly one native regular stack multiplication.'}
     $stackQuote=$patches.GetMethod('GarrisonStackWage',$static)
     if($stackQuote.Invoke($null,[object[]]@(200)) -ne 150 -or $stackQuote.Invoke($null,[object[]]@(300)) -ne 225 -or $stackQuote.Invoke($null,[object[]]@(0)) -ne 0){throw 'Garrison stack discount lost cheap-troop savings or legitimate zero wages.'}
-    $wageAdapter=$client.GetType('ReignBeta.Economy.ReignWarEconomyOptions',$true)
+    $wageAdapter=$client.GetType('ReignBeta.WorldSimulation.Economy.ReignWarEconomyOptions',$true)
     $wageMobileType=$campaign.GetType('TaleWorlds.CampaignSystem.Party.MobileParty',$true)
     $wageGarrison=[Runtime.Serialization.FormatterServices]::GetUninitializedObject($wageMobileType)
     $wageMobileType.GetProperty('IsGarrison',$instance).SetValue($wageGarrison,$true,$null)
@@ -1057,12 +1057,12 @@ try {
        @($nativeWageIl | Where-Object {$_.operand -is [Reflection.MethodInfo] -and $_.operand.Name -eq 'get_ResultNumber'}).Count -ne 1){throw 'Native payroll integer conversion changed.'}
     $financeWageIl=@([HarmonyLib.PatchProcessor]::GetOriginalInstructions($registered['NativeWagePaymentPostfix']))
     if(@($financeWageIl | Where-Object {$_.operand -eq $nativeWageGetter}).Count -ne 1){throw 'Native payroll no longer reads the observed party total.'}
-    foreach($quoteMethod in @($client.GetType('ReignBeta.Economy.ReignWarEconomyTransactions',$true).GetMethod('AdditionalWages',$static),$wageAdapter.GetMethod('FinalUnitWage',$static))){
+    foreach($quoteMethod in @($client.GetType('ReignBeta.WorldSimulation.Economy.ReignWarEconomyTransactions',$true).GetMethod('AdditionalWages',$static),$wageAdapter.GetMethod('FinalUnitWage',$static))){
         $quoteIl=@([HarmonyLib.PatchProcessor]::GetOriginalInstructions($quoteMethod))
         if(@($quoteIl | Where-Object {$_.operand -is [Reflection.MethodInfo] -and $_.operand.Name -eq 'get_RoundedResultNumber'}).Count -ne 0 -or
            @($quoteIl | Where-Object {$_.opcode -eq [Reflection.Emit.OpCodes]::Conv_I4}).Count -lt 2){throw 'Final wage quote and native payroll use different integer conversion.'}
     }
-    $readiness=$client.GetType('ReignBeta.Economy.ReignMilitaryReadiness',$true)
+    $readiness=$client.GetType('ReignBeta.WorldSimulation.Economy.ReignMilitaryReadiness',$true)
     $pressureParser=$readiness.GetMethod('TryParsePressure',$static)
     $validPressure=[Newtonsoft.Json.Linq.JObject]::Parse('{"version":1,"complete":true,"campaignId":"test","timelineId":"main","pairs":[{"actor_kingdom_id":"a","target_kingdom_id":"b","pressure_value":100,"dominant_channel":"frontier"},{"actor_kingdom_id":"b","target_kingdom_id":"a","pressure_value":-100,"dominant_channel":null},{"actor_kingdom_id":"a","target_kingdom_id":"c","pressure_value":0}]}')
     $parseArguments=[object[]]@($validPressure,'test','main',$null)
@@ -1143,7 +1143,7 @@ try {
         $expected=$fastRandom.GetMethod('NextFloat',$instance).Invoke($expectedRng,@())
         $floatProperty=$mbRandom.GetProperty('RandomFloat',$static)
         $sample=[Func[single]]{return [single]$floatProperty.GetValue($null,$null)}
-        $observer=$client.GetType('ReignBeta.Economy.ReignVillageProductionCalculatorModel',$true).GetMethod('ObserveWithoutRandomAdvance',$static)
+        $observer=$client.GetType('ReignBeta.WorldSimulation.Economy.ReignVillageProductionCalculatorModel',$true).GetMethod('ObserveWithoutRandomAdvance',$static)
         $first=$observer.Invoke($null,[object[]]@($sample))
         $second=$observer.Invoke($null,[object[]]@($sample))
         if($first -ne $expected -or $second -ne $expected){throw 'Production quotation changed the native random stream.'}
@@ -1164,7 +1164,7 @@ try {
     $patches.GetMethod('Unapply',$static).Invoke($null,@()) | Out-Null
     if($navalFundingBinding){foreach($target in $expectedNaval.Values){$info=[HarmonyLib.Harmony]::GetPatchInfo($target);if($null -ne $info -and $info.Owners.Contains($navalOwner)){throw 'Naval funding hook remained installed.'}}}
     foreach($target in $targets){$info=[HarmonyLib.Harmony]::GetPatchInfo($target);if($null -ne $info -and $info.Owners.Contains($owner)){throw 'Economy hook remained installed.'}}
-    $raidFood=$client.GetType('ReignBeta.Economy.ReignRaidFoodDisruption',$true)
+    $raidFood=$client.GetType('ReignBeta.WorldSimulation.Economy.ReignRaidFoodDisruption',$true)
     try {
         $raidFood.GetMethod('Install',$static).Invoke($null,@()) | Out-Null
         # Reproduce the native save-load crash with a real component whose runtime
@@ -1219,7 +1219,7 @@ try {
             $foodArgs=[object[]]@($null,$number);$applyFood.Invoke($null,$foodArgs) | Out-Null
             if($explainedType.GetProperty('ResultNumber',$instance).GetValue($foodArgs[1],$null) -ne 0){throw 'Non-functioning or negative native food result was resurrected.'}
         }
-        $fixture=$testing.GetType('ReignBeta.Economy.ReignRaidFoodTestHost',$true)
+        $fixture=$testing.GetType('ReignBeta.WorldSimulation.Economy.ReignRaidFoodTestHost',$true)
         $jsonRestored=$fixture.GetMethod('RestoredJson',$static)
         $valuesRestored=$fixture.GetMethod('RecoveryValuesMatch',$static)
         foreach($fraction in @([single]0.05,[single]0.325,[single]0.4999997913837433)){
@@ -1251,7 +1251,7 @@ try {
         @{schema='reign-raid-food-hook-probe-v1';boundHooks=$raidHooks.Count;exactlyOnce=$true;fixtureBinding=$true;savedNativeIdentity=$true;unboundLoadCases=4;unboundNativeBacklinkPreserved=$true;nativeGameplayAcceptance=$false;providerCalls=0;campaignMutations=0} | ConvertTo-Json | Set-Content -LiteralPath (Join-Path $EvidenceDirectory 'raid-food-hooks.json') -Encoding UTF8
     } finally {$raidFood.GetField('_harmony',$static).GetValue($null).UnpatchAll('com.bannerlordreign.reignbeta.raidfood')}
     # Separate owner: no campaign, no native time, no provider or roster mutation.
-    $medical=$client.GetType('ReignBeta.Economy.ReignMedicalDischarge',$true)
+    $medical=$client.GetType('ReignBeta.WorldSimulation.Economy.ReignMedicalDischarge',$true)
     $medical.GetMethod('Install',$static).Invoke($null,@()) | Out-Null
     try {
         if($medical.GetField('BindingError',$static).GetValue($null)){throw 'Medical binding failed.'}

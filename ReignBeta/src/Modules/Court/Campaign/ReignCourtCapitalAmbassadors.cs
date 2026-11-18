@@ -3,9 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Newtonsoft.Json.Linq;
-using ReignBeta.Integration;
 using ReignBeta.Government;
-using ReignBeta.Settings;
 using ReignBeta.UI;
 using TaleWorlds.CampaignSystem;
 using TaleWorlds.CampaignSystem.Actions;
@@ -13,8 +11,14 @@ using TaleWorlds.CampaignSystem.GameMenus;
 using TaleWorlds.CampaignSystem.Settlements;
 using TaleWorlds.Core;
 using TaleWorlds.Library;
+using ReignBeta.Court.Integration;
+using ReignBeta.Court.UI;
+using ReignBeta.Dialogue.UI;
+using ReignBeta.Government.Campaign;
+using ReignBeta.Platform.Integration;
+using ReignBeta.Platform.Settings;
 
-namespace ReignBeta.Court
+namespace ReignBeta.Court.Campaign
 {
     public sealed class ForeignKingdomAmbassadorEligibility
     {
@@ -85,7 +89,7 @@ namespace ReignBeta.Court
                 _capitalDesignations.Add(record);
             }
             ApplyCapitalDesignation(record, kingdom.StringId, settlement.StringId, CurrentDayFloat());
-            ReignBeta.Campaign.ReignRulerCampaignBehavior.Instance?.DesignateCapital(kingdom, settlement);
+            ReignBeta.WorldSimulation.Rulers.ReignRulerCampaignBehavior.Instance?.DesignateCapital(kingdom, settlement);
 
             if (HasOpenSession)
             {
@@ -104,8 +108,8 @@ namespace ReignBeta.Court
             string kingdomId = Clan.PlayerClan?.Kingdom?.StringId;
             if (string.IsNullOrWhiteSpace(kingdomId)) return null;
             var record = _capitalDesignations.FirstOrDefault(x => string.Equals(x.KingdomStringId, kingdomId, StringComparison.OrdinalIgnoreCase));
-            var rulers = ReignBeta.Campaign.ReignRulerCampaignBehavior.Instance;
-            if (!ReignBeta.Campaign.ReignRulerCampaignBehavior.Enabled(ReignBeta.Shared.Rulers.RulerOptions.Capitals) || rulers == null) return record;
+            var rulers = ReignBeta.WorldSimulation.Rulers.ReignRulerCampaignBehavior.Instance;
+            if (!ReignBeta.WorldSimulation.Rulers.ReignRulerCampaignBehavior.Enabled(ReignBeta.Shared.Rulers.RulerOptions.Capitals) || rulers == null) return record;
             var kingdom = Clan.PlayerClan.Kingdom;
             if (record?.EverDesignated == true && !string.IsNullOrWhiteSpace(record.SettlementStringId))
             {

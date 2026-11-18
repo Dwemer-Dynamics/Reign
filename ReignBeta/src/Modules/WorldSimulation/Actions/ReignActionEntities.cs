@@ -17,8 +17,18 @@ using TaleWorlds.CampaignSystem.Party;
 using TaleWorlds.CampaignSystem.Settlements;
 using TaleWorlds.Core;
 using TaleWorlds.ObjectSystem;
+using ReignBeta.Actions;
+using ReignBeta.Characters.Campaign;
+using ReignBeta.Government.Campaign;
+using ReignBeta.Rebellion.Campaign;
+using ReignBeta.WorldSimulation.Arrests;
+using ReignBeta.WorldSimulation.CampaignCommands;
+using ReignBeta.WorldSimulation.World;
+#if !REIGN_EXCLUDE_COURT
+using ReignBeta.Court.Campaign;
+#endif
 
-namespace ReignBeta.Actions
+namespace ReignBeta.WorldSimulation.Actions
 {
     public sealed class ReignActionOption
     {
@@ -95,8 +105,8 @@ namespace ReignBeta.Actions
                         Add(order.OrderId, order.Objective.Replace('_', ' ') + " — " + order.Status, !order.IsTerminal, "This order has ended.");
                     break;
                 case "clanAccord":
-                    if (ReignBeta.ClanAccords.ReignClanAccordsCampaignBehavior.Instance != null)
-                        foreach (var accord in ReignBeta.ClanAccords.ReignClanAccordsCampaignBehavior.Instance.Records.Where(x => x.PartnerClanId == owner?.Clan?.StringId))
+                    if (ReignBeta.Diplomacy.ClanAccords.ReignClanAccordsCampaignBehavior.Instance != null)
+                        foreach (var accord in ReignBeta.Diplomacy.ClanAccords.ReignClanAccordsCampaignBehavior.Instance.Records.Where(x => x.PartnerClanId == owner?.Clan?.StringId))
                             Add(accord.Id, accord.Type + " — " + accord.PartnerClanName, accord.IsActive, "This accord has ended.");
                     break;
                 case "arrestCase":

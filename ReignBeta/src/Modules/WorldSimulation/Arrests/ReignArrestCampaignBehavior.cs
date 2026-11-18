@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Linq;
 using Newtonsoft.Json.Linq;
 using ReignBeta.Court;
-using ReignBeta.Integration;
 using ReignBeta.World;
 using TaleWorlds.CampaignSystem;
 using TaleWorlds.CampaignSystem.Actions;
@@ -13,9 +12,17 @@ using TaleWorlds.CampaignSystem.Party;
 using TaleWorlds.CampaignSystem.Settlements;
 using TaleWorlds.Core;
 using TaleWorlds.Library;
-using static ReignBeta.World.ReignWorldParsing;
+using static ReignBeta.WorldSimulation.World.ReignWorldParsing;
+using ReignBeta.Campaign;
+using ReignBeta.Platform.Integration;
+using ReignBeta.WorldSimulation.Campaign;
+using ReignBeta.WorldSimulation.World;
+#if !REIGN_EXCLUDE_COURT
+using ReignBeta.Court.Campaign;
+using ReignBeta.Spymaster.Campaign;
+#endif
 
-namespace ReignBeta.Campaign
+namespace ReignBeta.WorldSimulation.Arrests
 {
     public sealed class ReignArrestCampaignBehavior : CampaignBehaviorBase
     {

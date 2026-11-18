@@ -3,13 +3,16 @@ using System.Collections.Generic;
 using System.Reflection;
 using HarmonyLib;
 using ReignBeta.Court;
-using ReignBeta.Integration;
 using TaleWorlds.CampaignSystem;
 using TaleWorlds.CampaignSystem.Actions;
 using TaleWorlds.CampaignSystem.Party;
 using TaleWorlds.CampaignSystem.Settlements;
+using ReignBeta.Platform.Integration;
+#if !REIGN_EXCLUDE_COURT
+using ReignBeta.Court.Campaign;
+#endif
 
-namespace ReignBeta.Campaign
+namespace ReignBeta.WorldSimulation.Arrests
 {
     internal static class ReignArrestCustodyPatches
     {

@@ -9,7 +9,6 @@ using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using Reign.Core.Contracts.Actions;
 using ReignBeta.Actions;
-using ReignBeta.Integration;
 using ReignBeta.World;
 using TaleWorlds.CampaignSystem;
 using TaleWorlds.CampaignSystem.CampaignBehaviors;
@@ -19,8 +18,20 @@ using TaleWorlds.CampaignSystem.Party;
 using TaleWorlds.CampaignSystem.Settlements;
 using TaleWorlds.Core;
 using TaleWorlds.MountAndBlade;
+using ReignBeta.Characters.Campaign;
+using ReignBeta.Characters.Integration;
+using ReignBeta.Persistence.Campaign;
+using ReignBeta.Persistence.Integration;
+using ReignBeta.Platform.Campaign;
+using ReignBeta.Platform.Integration;
+using ReignBeta.Rebellion.Campaign;
+using ReignBeta.Relationships.Campaign;
+using ReignBeta.WorldSimulation.Actions;
+using ReignBeta.WorldSimulation.CampaignCommands;
+using ReignBeta.WorldSimulation.Rulers;
+using ReignBeta.WorldSimulation.World;
 
-namespace ReignBeta.Campaign
+namespace ReignBeta.WorldSimulation.Campaign
 {
     public static partial class ReignLiveInteractionTestHost
     {
@@ -119,7 +130,7 @@ namespace ReignBeta.Campaign
                         {
                             if (enrollment.Value<bool?>("recoveryCheckpointVerified") != true)
                                 throw new InvalidOperationException("Government player-flow fixtures require a verified retained recovery checkpoint.");
-                            result = ReignBeta.Government.ReignGovernmentTestControls.PrepareGovernmentPlayerFlowFixture(ReignBeta.Government.ReignGovernmentCampaignBehavior.Instance
+                            result = ReignBeta.Government.Testing.ReignGovernmentTestControls.PrepareGovernmentPlayerFlowFixture(ReignBeta.Government.Campaign.ReignGovernmentCampaignBehavior.Instance
                                 ?? throw new InvalidOperationException("Government system unavailable."), c, id);
                         }
                         else throw new InvalidOperationException("Choose a registered fixed structured fixture.");
@@ -440,7 +451,7 @@ namespace ReignBeta.Campaign
             foreach (string heroId in (testCase["heroIds"] as JArray ?? new JArray()).Values<string>()
                 .Where(id => !string.IsNullOrWhiteSpace(id)).Distinct(StringComparer.Ordinal).Take(16))
             {
-                var context = ReignBeta.PartyAgency.ReignTemporaryPartyGuestCampaignBehavior.Instance
+                var context = ReignBeta.WorldSimulation.PartyAgency.ReignTemporaryPartyGuestCampaignBehavior.Instance
                     ?.BuildConversationContext(ReignActionService.HeroById(heroId));
                 if (context?.Value<bool?>("enabled") != true) continue;
                 var row = new JObject();
@@ -516,7 +527,7 @@ namespace ReignBeta.Campaign
                 ["requestedKingdomPairsOnly"] = true, ["maximumRows"] = 64, ["total"] = nativePairTotal,
                 ["truncated"] = nativePairTotal > 64, ["rows"] = nativePairs };
 #if !REIGN_EXCLUDE_COURT
-            var court = ReignBeta.Court.ReignCourtCampaignBehavior.Instance;
+            var court = ReignBeta.Court.Campaign.ReignCourtCampaignBehavior.Instance;
             var officeRows = new JArray();
             var offices = (court?.Offices ?? new ReignBeta.Court.CourtOfficeAssignment[0])
                 .Where(o => o != null && ids.Contains(o.HeroStringId)).OrderBy(o => o.AssignmentId, StringComparer.Ordinal).ToList();
@@ -547,7 +558,7 @@ namespace ReignBeta.Campaign
                 ["totalPaidGold"] = chancellor.TotalPaidGold, ["paidActiveDays"] = chancellor.PaidActiveDays,
                 ["failedPaymentDays"] = chancellor.FailedPaymentDays, ["emergency"] = chancellor.Emergency,
                 ["suppressesPetitions"] = chancellor.SuppressesPetitions } : null;
-            var serviceHistory = (court?.RulerDocketState?.History ?? new List<ReignBeta.Court.ReignDocketHistoryRecord>())
+            var serviceHistory = (court?.RulerDocketState?.History ?? new List<ReignBeta.Court.Campaign.ReignDocketHistoryRecord>())
                 .Where(h => h != null && h.Type == "chancellor_service" && ids.Contains(h.ChancellorHeroId))
                 .OrderByDescending(h => h.Day).ThenBy(h => h.RecordId, StringComparer.Ordinal).ToList();
             var historyRows = new JArray();
@@ -561,7 +572,7 @@ namespace ReignBeta.Campaign
                 ["ambassadorTotal"] = ambassadors.Count, ["ambassadorsTruncated"] = ambassadors.Count > 64,
                 ["chancellor"] = chancellorRow, ["chancellorHistory"] = historyRows,
                 ["chancellorHistoryTotal"] = serviceHistory.Count, ["chancellorHistoryTruncated"] = serviceHistory.Count > 64 };
-            var missions = (court?.SpymasterState?.Missions ?? new List<ReignBeta.Court.ReignSpymasterMission>())
+            var missions = (court?.SpymasterState?.Missions ?? new List<ReignBeta.Spymaster.Campaign.ReignSpymasterMission>())
                 .Where(m => m != null && ids.Contains(m.SpymasterHeroStringId))
                 .OrderBy(m => m.MissionId, StringComparer.Ordinal).ToList();
             var missionRows = new JArray();
@@ -576,7 +587,7 @@ namespace ReignBeta.Campaign
             snapshot["spymasterMissions"] = new JObject { ["schema"] = "reign-structured-spymaster-observation-v1",
                 ["requestedSpymasterIdsOnly"] = true, ["maximumRows"] = 64, ["total"] = missions.Count,
                 ["truncated"] = missions.Count > 64, ["rows"] = missionRows };
-            var effects = (court?.SpymasterState?.Effects ?? new List<ReignBeta.Court.ReignSpymasterSettlementEffect>())
+            var effects = (court?.SpymasterState?.Effects ?? new List<ReignBeta.Spymaster.Campaign.ReignSpymasterSettlementEffect>())
                 .Where(e => e != null && ids.Contains(e.AgentHeroStringId))
                 .OrderBy(e => e.EffectId, StringComparer.Ordinal).ToList();
             var effectRows = new JArray();

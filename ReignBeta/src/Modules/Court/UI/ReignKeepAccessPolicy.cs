@@ -1,6 +1,6 @@
 #nullable enable
 
-namespace ReignBeta.UI
+namespace ReignBeta.Court.UI
 {
     // Native castles use their main menu as the keep landing page.
     public static class ReignKeepAccessPolicy

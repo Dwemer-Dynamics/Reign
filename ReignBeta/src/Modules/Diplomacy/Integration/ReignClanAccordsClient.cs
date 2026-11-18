@@ -1,8 +1,8 @@
 using System.Threading.Tasks;
 using Newtonsoft.Json.Linq;
-using static ReignBeta.Integration.ReignServerClient;
+using static ReignBeta.Platform.Integration.ReignServerClient;
 
-namespace ReignBeta.Integration
+namespace ReignBeta.Diplomacy.Integration
 {
     internal static class ReignClanAccordsClient
     {

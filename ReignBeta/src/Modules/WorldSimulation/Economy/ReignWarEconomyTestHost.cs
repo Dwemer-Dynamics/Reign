@@ -11,7 +11,6 @@ using ReignBeta.Campaign;
 #if !REIGN_EXCLUDE_COURT
 using ReignBeta.Court;
 #endif
-using ReignBeta.Integration;
 using TaleWorlds.CampaignSystem;
 using TaleWorlds.CampaignSystem.CampaignBehaviors;
 using TaleWorlds.CampaignSystem.Actions;
@@ -21,8 +20,14 @@ using TaleWorlds.CampaignSystem.Party.PartyComponents;
 using TaleWorlds.CampaignSystem.Roster;
 using TaleWorlds.CampaignSystem.Settlements;
 using TaleWorlds.Core;
+using ReignBeta.KingdomEvents.Campaign;
+using ReignBeta.Platform.Integration;
+using ReignBeta.WorldSimulation.Campaign;
+#if !REIGN_EXCLUDE_COURT
+using ReignBeta.Court.Campaign;
+#endif
 
-namespace ReignBeta.Economy
+namespace ReignBeta.WorldSimulation.Economy
 {
     // Read-only native observations. Mutation profiles use the enrolled disposable-save bridge.
     internal static class ReignWarEconomyTestHost
@@ -839,9 +844,9 @@ namespace ReignBeta.Economy
         // or SyncData (which can prune history). Only the digest leaves this method's caller.
         private static JObject PersistedAssistance()
         {
-            var court = ReignBeta.Court.ReignCourtCampaignBehavior.Instance;
-            var government = ReignBeta.Government.ReignGovernmentCampaignBehavior.Instance;
-            var accords = ReignBeta.ClanAccords.ReignClanAccordsCampaignBehavior.Instance;
+            var court = ReignBeta.Court.Campaign.ReignCourtCampaignBehavior.Instance;
+            var government = ReignBeta.Government.Campaign.ReignGovernmentCampaignBehavior.Instance;
+            var accords = ReignBeta.Diplomacy.ClanAccords.ReignClanAccordsCampaignBehavior.Instance;
             return new JObject {
                 ["schema"] = "reign-war-economy-persisted-assistance-v1",
                 ["courtAidAndExpeditions"] = SavedField(court, "_rulerDocketState"),
@@ -1053,8 +1058,8 @@ namespace ReignBeta.Economy
                 ["kingdomId"] = village.Settlement.OwnerClan?.Kingdom?.StringId, ["state"] = village.VillageState.ToString(),
                 ["hearth"] = village.Hearth, ["recovery"] = recovery, ["strain"] = behavior?.GetMobilizationStrain(village) ?? 0,
                 ["naturalGrowth"] = natural, ["modelHearthChange"] = delta, ["otherModelGrowth"] = delta - natural,
-                ["governmentGrowth"] = ReignBeta.Government.ReignGovernmentCampaignBehavior.Instance?.GetHearthDelta(village) ?? 0,
-                ["accordGrowth"] = ReignBeta.ClanAccords.ReignClanAccordsCampaignBehavior.Instance?.GetBonuses(village.Settlement.OwnerClan).HearthGrowth ?? 0,
+                ["governmentGrowth"] = ReignBeta.Government.Campaign.ReignGovernmentCampaignBehavior.Instance?.GetHearthDelta(village) ?? 0,
+                ["accordGrowth"] = ReignBeta.Diplomacy.ClanAccords.ReignClanAccordsCampaignBehavior.Instance?.GetBonuses(village.Settlement.OwnerClan).HearthGrowth ?? 0,
                 ["observedHearthChange"] = behavior?.EconomyState.VillageHearthChange.TryGetValue(village.StringId, out double observed) == true ? (double?)observed : null,
                 ["returnedVeteranHearths"] = behavior?.EconomyState.DemobilizationHearthByVillage.TryGetValue(village.StringId, out double returnedVeterans) == true ? returnedVeterans : 0,
                 ["healthyFood"] = ReignWarEconomyPolicy.HealthyFood(village.Hearth),
@@ -1374,7 +1379,7 @@ namespace ReignBeta.Economy
                 ["observedFinance"] = state?.Finance.TryGetValue(clan.StringId, out var observedFinance) == true ? JObject.FromObject(observedFinance) : null,
                 ["dailyCashChangeModel"] = finance.CalculateClanGoldChange(clan).ResultNumber,
                 ["observedCashChange"] = state?.ClanCashChange.TryGetValue(clan.StringId, out double change) == true ? (double?)change : null,
-                ["accordIncome"] = ReignBeta.ClanAccords.ReignClanAccordsCampaignBehavior.Instance?.GetBonuses(clan).TradeIncome ?? 0 };
+                ["accordIncome"] = ReignBeta.Diplomacy.ClanAccords.ReignClanAccordsCampaignBehavior.Instance?.GetBonuses(clan).TradeIncome ?? 0 };
             if (detailed)
             {
                 const int maxLords = 32;

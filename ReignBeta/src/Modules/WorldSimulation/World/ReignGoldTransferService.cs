@@ -6,8 +6,10 @@ using ReignBeta.Campaign;
 using ReignBeta.Shared.Dialogue;
 using TaleWorlds.CampaignSystem;
 using TaleWorlds.CampaignSystem.Actions;
+using ReignBeta.Characters.Campaign;
+using ReignBeta.World;
 
-namespace ReignBeta.World
+namespace ReignBeta.WorldSimulation.World
 {
     public sealed class ReignGoldTransferService : CampaignBehaviorBase
     {

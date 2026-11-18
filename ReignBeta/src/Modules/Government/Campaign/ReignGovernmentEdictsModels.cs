@@ -4,16 +4,16 @@ using System.Linq;
 using System.Reflection;
 using HarmonyLib;
 using Newtonsoft.Json.Linq;
-using ReignBeta.ClanAccords;
-using ReignBeta.Economy;
 using TaleWorlds.CampaignSystem;
 using TaleWorlds.CampaignSystem.GameComponents;
 using TaleWorlds.CampaignSystem.Party;
 using TaleWorlds.CampaignSystem.Settlements;
 using TaleWorlds.CampaignSystem.Settlements.Workshops;
 using TaleWorlds.Localization;
+using ReignBeta.Diplomacy.ClanAccords;
+using ReignBeta.WorldSimulation.Economy;
 
-namespace ReignBeta.Government
+namespace ReignBeta.Government.Campaign
 {
     // Patch final Reign model overrides, not both their base and override. Every native
     // effect is applied once and remains inside Bannerlord's actual economy calculation.

@@ -4,9 +4,11 @@ using System.Linq;
 using System.Threading.Tasks;
 using Newtonsoft.Json.Linq;
 using ReignBeta.Court;
-using ReignBeta.Integration;
+using ReignBeta.Court.Campaign;
+using ReignBeta.Platform.Integration;
+using ReignBeta.WorldSimulation.Integration;
 
-namespace ReignBeta.Campaign
+namespace ReignBeta.WorldSimulation.Campaign
 {
     public static partial class ReignLiveInteractionTestHost
     {
@@ -31,7 +33,7 @@ namespace ReignBeta.Campaign
                 if (phase == "decide" || phase == "guardrail_insufficient" || nobleDecision)
                 {
                     int expectedReplyCount = await ReignMainThread.InvokeAsync(() =>
-                        ReignBeta.UI.ReignCourtPetitionScreenManager.AutomationExpectedReplyCount).ConfigureAwait(false);
+                        ReignBeta.Court.UI.ReignCourtPetitionScreenManager.AutomationExpectedReplyCount).ConfigureAwait(false);
                     replyWindowSeconds = Math.Max(120, Math.Min(480,
                         Math.Max(1, expectedReplyCount) * 120));
                     DateTime openingDeadline = DateTime.UtcNow.AddSeconds(replyWindowSeconds);
@@ -39,7 +41,7 @@ namespace ReignBeta.Campaign
                     while (DateTime.UtcNow < openingDeadline)
                     {
                         canDecide = await ReignMainThread.InvokeAsync(() =>
-                            ReignBeta.UI.ReignCourtPetitionScreenManager.AutomationCanDecide).ConfigureAwait(false);
+                            ReignBeta.Court.UI.ReignCourtPetitionScreenManager.AutomationCanDecide).ConfigureAwait(false);
                         if (canDecide) break;
                         await Task.Delay(250).ConfigureAwait(false);
                     }
@@ -57,13 +59,11 @@ namespace ReignBeta.Campaign
                         if (providerBackedDialogueRequired)
                         {
                             providerBackedOpeningProved = await ReignMainThread.InvokeAsync(() =>
-                                ReignBeta.UI.ReignCourtPetitionScreenManager.
-                                    AutomationProviderBackedPhaseComplete("opening")).ConfigureAwait(false);
+                                ReignBeta.Court.UI.ReignCourtPetitionScreenManager.AutomationProviderBackedPhaseComplete("opening")).ConfigureAwait(false);
                             if (!providerBackedOpeningProved)
                             {
                                 string providerStatus = await ReignMainThread.InvokeAsync(() =>
-                                    ReignBeta.UI.ReignCourtPetitionScreenManager.
-                                        AutomationProviderBackedStatus).ConfigureAwait(false);
+                                    ReignBeta.Court.UI.ReignCourtPetitionScreenManager.AutomationProviderBackedStatus).ConfigureAwait(false);
                                 return LiveCommandResult.Failed(
                                     "The provider-required noble audience used an opening fallback.",
                                     new JObject { ["ok"] = false, ["runId"] = runId,
@@ -79,7 +79,7 @@ namespace ReignBeta.Campaign
                                 ?? "Before I rule, each of you state the strongest fact supporting your position and answer the other side's central claim."
                             : "Before I rule, tell me how this aid will address the need you have presented.";
                         bool sent = await ReignMainThread.InvokeAsync(() =>
-                            ReignBeta.UI.ReignCourtPetitionScreenManager.TryExecuteAutomationAction(
+                            ReignBeta.Court.UI.ReignCourtPetitionScreenManager.TryExecuteAutomationAction(
                                 "send", rulerQuestion, out _)).ConfigureAwait(false);
                         if (!sent)
                             return LiveCommandResult.Failed(
@@ -97,28 +97,25 @@ namespace ReignBeta.Campaign
                         while (DateTime.UtcNow < conversationDeadline)
                         {
                             string transcript = await ReignMainThread.InvokeAsync(() =>
-                                ReignBeta.UI.ReignCourtPetitionScreenManager.AutomationTranscript).ConfigureAwait(false);
+                                ReignBeta.Court.UI.ReignCourtPetitionScreenManager.AutomationTranscript).ConfigureAwait(false);
                             conversationLineCount = nobleDecision
                                 ? await ReignMainThread.InvokeAsync(() =>
-                                    ReignBeta.UI.ReignCourtPetitionScreenManager.
-                                        AutomationPersistedConversationLineCount).ConfigureAwait(false)
+                                    ReignBeta.Court.UI.ReignCourtPetitionScreenManager.AutomationPersistedConversationLineCount).ConfigureAwait(false)
                                 : transcript.Split(new[] { '\n' }, StringSplitOptions.RemoveEmptyEntries).Length;
                             exactRulerLinePersisted = nobleDecision
                                 ? await ReignMainThread.InvokeAsync(() =>
-                                    ReignBeta.UI.ReignCourtPetitionScreenManager.
-                                        AutomationHasPersistedPlayerLine(rulerQuestion)).ConfigureAwait(false)
+                                    ReignBeta.Court.UI.ReignCourtPetitionScreenManager.AutomationHasPersistedPlayerLine(rulerQuestion)).ConfigureAwait(false)
                                 : transcript.IndexOf("You: " + rulerQuestion, StringComparison.Ordinal) >= 0;
                             decisionReadyAfterConversation = await ReignMainThread.InvokeAsync(() =>
-                                ReignBeta.UI.ReignCourtPetitionScreenManager.AutomationCanDecide).ConfigureAwait(false);
+                                ReignBeta.Court.UI.ReignCourtPetitionScreenManager.AutomationCanDecide).ConfigureAwait(false);
                             completionReceiptObserved = !nobleDecision || await ReignMainThread.InvokeAsync(() =>
-                                ReignBeta.UI.ReignCourtPetitionScreenManager.AutomationNaturalConversationComplete).ConfigureAwait(false);
+                                ReignBeta.Court.UI.ReignCourtPetitionScreenManager.AutomationNaturalConversationComplete).ConfigureAwait(false);
                             if (nobleDecision)
                             {
                                 conversationStatus = await ReignMainThread.InvokeAsync(() =>
-                                    ReignBeta.UI.ReignCourtPetitionScreenManager.AutomationNaturalConversationStatus).ConfigureAwait(false);
+                                    ReignBeta.Court.UI.ReignCourtPetitionScreenManager.AutomationNaturalConversationStatus).ConfigureAwait(false);
                                 providerBackedConversationProved = await ReignMainThread.InvokeAsync(() =>
-                                    ReignBeta.UI.ReignCourtPetitionScreenManager.
-                                        AutomationProviderBackedPhaseComplete("conversation")).ConfigureAwait(false);
+                                    ReignBeta.Court.UI.ReignCourtPetitionScreenManager.AutomationProviderBackedPhaseComplete("conversation")).ConfigureAwait(false);
                             }
                             naturalConversationProved = completionReceiptObserved
                                 && decisionReadyAfterConversation
@@ -159,14 +156,14 @@ namespace ReignBeta.Campaign
                     while (DateTime.UtcNow < artDeadline)
                     {
                         artComplete = await ReignMainThread.InvokeAsync(() =>
-                            ReignBeta.UI.ReignCourtPetitionScreenManager.AutomationScenePreparationComplete).ConfigureAwait(false);
+                            ReignBeta.Court.UI.ReignCourtPetitionScreenManager.AutomationScenePreparationComplete).ConfigureAwait(false);
                         if (artComplete) break;
                         await Task.Delay(500).ConfigureAwait(false);
                     }
                     bool artReady = await ReignMainThread.InvokeAsync(() =>
-                        ReignBeta.UI.ReignCourtPetitionScreenManager.AutomationSceneReady).ConfigureAwait(false);
+                        ReignBeta.Court.UI.ReignCourtPetitionScreenManager.AutomationSceneReady).ConfigureAwait(false);
                     string artError = await ReignMainThread.InvokeAsync(() =>
-                        ReignBeta.UI.ReignCourtPetitionScreenManager.AutomationScenePreparationError).ConfigureAwait(false);
+                        ReignBeta.Court.UI.ReignCourtPetitionScreenManager.AutomationScenePreparationError).ConfigureAwait(false);
                     if (!artComplete || !artReady)
                         return LiveCommandResult.Failed(
                             "The ruler-docket throne-room art did not meet its native readiness gate.",
@@ -174,7 +171,7 @@ namespace ReignBeta.Campaign
                                 ["profile"] = "ruler_docket", ["phase"] = phase,
                                 ["scenePreparationComplete"] = artComplete, ["sceneReady"] = artReady,
                                 ["audienceArt"] = await ReignMainThread.InvokeAsync(() =>
-                                    ReignBeta.UI.ReignCourtPetitionScreenManager.AutomationSceneEvidence).ConfigureAwait(false),
+                                    ReignBeta.Court.UI.ReignCourtPetitionScreenManager.AutomationSceneEvidence).ConfigureAwait(false),
                                 ["error"] = string.IsNullOrWhiteSpace(artError)
                                     ? "The generated throne-room scene did not become ready before the bounded deadline."
                                     : artError });
@@ -183,7 +180,7 @@ namespace ReignBeta.Campaign
                     ReignCourtTestControls.RunRulerDocketTestProfile(court, runId, phase, command, GameInstanceId)).ConfigureAwait(false);
                 if (phase == "snapshot" || phase == "noble_snapshot")
                     result["audienceArt"] = await ReignMainThread.InvokeAsync(() =>
-                        ReignBeta.UI.ReignCourtPetitionScreenManager.AutomationSceneEvidence).ConfigureAwait(false);
+                        ReignBeta.Court.UI.ReignCourtPetitionScreenManager.AutomationSceneEvidence).ConfigureAwait(false);
                 if (phase == "decide" || nobleDecision)
                 {
                     result["naturalConversationProved"] = naturalConversationProved;
@@ -216,7 +213,7 @@ namespace ReignBeta.Campaign
                     while (DateTime.UtcNow < deadline)
                     {
                         ready = await ReignMainThread.InvokeAsync(() =>
-                            ReignBeta.UI.ReignCourtPetitionScreenManager.AutomationCanContinue).ConfigureAwait(false);
+                            ReignBeta.Court.UI.ReignCourtPetitionScreenManager.AutomationCanContinue).ConfigureAwait(false);
                         if (ready) break;
                         await Task.Delay(250).ConfigureAwait(false);
                     }
@@ -230,21 +227,19 @@ namespace ReignBeta.Campaign
                         if (providerBackedDialogueRequired)
                         {
                             providerBackedClosingProved = await ReignMainThread.InvokeAsync(() =>
-                                ReignBeta.UI.ReignCourtPetitionScreenManager.
-                                    AutomationProviderBackedPhaseComplete("closing")).ConfigureAwait(false);
+                                ReignBeta.Court.UI.ReignCourtPetitionScreenManager.AutomationProviderBackedPhaseComplete("closing")).ConfigureAwait(false);
                             result["providerBackedClosingProved"] = providerBackedClosingProved;
                             if (!providerBackedClosingProved)
                             {
                                 result["ok"] = false;
                                 result["error"] = "The provider-required noble audience used a closing fallback.";
                                 result["providerBackedStatus"] = await ReignMainThread.InvokeAsync(() =>
-                                    ReignBeta.UI.ReignCourtPetitionScreenManager.
-                                        AutomationProviderBackedStatus).ConfigureAwait(false);
+                                    ReignBeta.Court.UI.ReignCourtPetitionScreenManager.AutomationProviderBackedStatus).ConfigureAwait(false);
                             }
                         }
                         await ReignMainThread.InvokeAsync(() =>
                         {
-                            ReignBeta.UI.ReignCourtPetitionScreenManager.TryExecuteAutomationAction("continue", out _);
+                            ReignBeta.Court.UI.ReignCourtPetitionScreenManager.TryExecuteAutomationAction("continue", out _);
                         }).ConfigureAwait(false);
                         result["closingReactionCompleted"] = true;
                         result["productionAudienceClosed"] = true;

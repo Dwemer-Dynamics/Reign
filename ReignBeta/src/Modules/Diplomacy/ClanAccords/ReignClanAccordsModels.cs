@@ -4,7 +4,7 @@ using TaleWorlds.CampaignSystem.Party;
 using TaleWorlds.CampaignSystem.Roster;
 using TaleWorlds.Localization;
 
-namespace ReignBeta.ClanAccords
+namespace ReignBeta.Diplomacy.ClanAccords
 {
     internal static class ReignClanAccordModelMath
     {
@@ -67,7 +67,7 @@ namespace ReignBeta.ClanAccords
         public override int GetCharacterWage(CharacterObject character)
         {
             int native = base.GetCharacterWage(character);
-            return character.IsHero ? native : TaleWorlds.Library.MathF.Round((float)(native * ReignBeta.Economy.ReignWarEconomyPolicy.WageMultiplier(character.Tier)));
+            return character.IsHero ? native : TaleWorlds.Library.MathF.Round((float)(native * ReignBeta.WorldSimulation.Economy.ReignWarEconomyPolicy.WageMultiplier(character.Tier)));
         }
 
         public override ExplainedNumber GetTroopRecruitmentCost(CharacterObject troop, Hero buyerHero, bool withoutItemCost = false)
@@ -75,9 +75,9 @@ namespace ReignBeta.ClanAccords
             var result = base.GetTroopRecruitmentCost(troop, buyerHero, withoutItemCost);
             // Native ransom prices reuse this quote. The enlistment premium pays for
             // mobilization/training; it must not multiply the cash awarded for captives.
-            if (!troop.IsHero && !ReignBeta.Economy.ReignEconomyPatches.IsRansomQuote)
+            if (!troop.IsHero && !ReignBeta.WorldSimulation.Economy.ReignEconomyPatches.IsRansomQuote)
                 ReignClanAccordModelMath.AddFinalDelta(ref result,
-                    (float)(System.Math.Max(0, result.ResultNumber) * (ReignBeta.Economy.ReignWarEconomyPolicy.HireMultiplier(troop.Tier) - 1)),
+                    (float)(System.Math.Max(0, result.ResultNumber) * (ReignBeta.WorldSimulation.Economy.ReignWarEconomyPolicy.HireMultiplier(troop.Tier) - 1)),
                     new TextObject("{=!}Regular troop enlistment cost"));
             return result;
         }

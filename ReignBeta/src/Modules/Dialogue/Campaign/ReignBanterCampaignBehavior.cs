@@ -3,16 +3,22 @@ using System.Linq;
 using System.Threading.Tasks;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
-using ReignBeta.Integration;
-using ReignBeta.Runtime;
 using ReignBeta.Shared.Dialogue;
 using ReignBeta.UI;
 using TaleWorlds.CampaignSystem;
 using TaleWorlds.CampaignSystem.Party;
 using TaleWorlds.ScreenSystem;
 using NativeCampaign = TaleWorlds.CampaignSystem.Campaign;
+using ReignBeta.Dialogue.Runtime;
+using ReignBeta.Dialogue.UI;
+using ReignBeta.Government.UI;
+using ReignBeta.Persistence.Campaign;
+using ReignBeta.Platform.Integration;
+using ReignBeta.Platform.Runtime;
+using ReignBeta.WorldSimulation.Campaign;
+using ReignBeta.WorldSimulation.UI;
 
-namespace ReignBeta.Campaign
+namespace ReignBeta.Dialogue.Campaign
 {
     public sealed class ReignBanterCampaignBehavior : CampaignBehaviorBase
     {
@@ -39,7 +45,7 @@ namespace ReignBeta.Campaign
             }
         }
         private static bool Ready() => NativeCampaign.Current != null && MobileParty.MainParty != null && Hero.MainHero?.IsAlive == true
-            && !ReignCampaignInitializationGate.IsPending && Settings.ReignBetaSettings.Instance?.UseLocalServer != false;
+            && !ReignCampaignInitializationGate.IsPending && Platform.Settings.ReignBetaSettings.Instance?.UseLocalServer != false;
         private static bool MapVisible() => ScreenManager.TopScreen?.GetType().Name.IndexOf("MapScreen", StringComparison.OrdinalIgnoreCase) >= 0
             && ReignGovernmentScreenManager.CanPresentOnMap(ReignBanterPanel.InputLayer)
             && !ReignPartyChatScreenManager.IsOpenOrPending && !ReignIndividualChatScreenManager.IsOpen

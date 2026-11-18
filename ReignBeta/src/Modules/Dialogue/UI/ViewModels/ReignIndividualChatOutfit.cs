@@ -4,11 +4,12 @@ using System.Threading;
 using System.Threading.Tasks;
 using AIPortraits;
 using Newtonsoft.Json.Linq;
-using ReignBeta.Integration;
 using TaleWorlds.CampaignSystem;
 using TaleWorlds.Library;
+using ReignBeta.Platform.Integration;
+using ReignBeta.Portraits.Integration;
 
-namespace ReignBeta.UI.ViewModels
+namespace ReignBeta.Dialogue.UI
 {
     public sealed partial class ReignIndividualChatScreenVM
     {

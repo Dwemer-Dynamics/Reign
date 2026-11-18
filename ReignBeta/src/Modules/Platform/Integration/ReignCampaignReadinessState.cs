@@ -2,7 +2,7 @@
 using System;
 using Newtonsoft.Json.Linq;
 
-namespace ReignBeta.Integration
+namespace ReignBeta.Platform.Integration
 {
     internal static class ReignCampaignPreparationStartPolicy
     {

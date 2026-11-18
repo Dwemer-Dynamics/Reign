@@ -5,10 +5,7 @@ using System.Threading.Tasks;
 using Newtonsoft.Json.Linq;
 using ReignBeta.Court;
 using ReignBeta.Events;
-using ReignBeta.Integration;
 using ReignBeta.PartyAgency;
-using ReignBeta.Runtime;
-using ReignBeta.Settings;
 using ReignBeta.UI;
 using ReignBeta.UI.ViewModels;
 using ReignBeta.World;
@@ -20,8 +17,29 @@ using TaleWorlds.CampaignSystem.Party;
 using TaleWorlds.CampaignSystem.Settlements;
 using TaleWorlds.Core;
 using TaleWorlds.Engine;
+using ReignBeta.Characters.Integration;
+using ReignBeta.Dialogue.Integration;
+using ReignBeta.Dialogue.Runtime;
+using ReignBeta.Dialogue.UI;
+using ReignBeta.Diplomacy.Campaign;
+using ReignBeta.Diplomacy.UI;
+using ReignBeta.Persistence.Campaign;
+using ReignBeta.Persistence.Integration;
+using ReignBeta.Platform.Campaign;
+using ReignBeta.Platform.Integration;
+using ReignBeta.Platform.Settings;
+using ReignBeta.Reputation.Campaign;
+using ReignBeta.WorldSimulation.Integration;
+using ReignBeta.WorldSimulation.PartyAgency;
+using ReignBeta.WorldSimulation.Runtime;
+using ReignBeta.WorldSimulation.UI;
+using ReignBeta.WorldSimulation.World;
+#if !REIGN_EXCLUDE_COURT
+using ReignBeta.Court.Campaign;
+using ReignBeta.Court.UI;
+#endif
 
-namespace ReignBeta.Campaign
+namespace ReignBeta.WorldSimulation.Campaign
 {
     public static partial class ReignLiveInteractionTestHost
     {
@@ -101,7 +119,7 @@ namespace ReignBeta.Campaign
             ReignBetaSettings settings = ReignBetaSettings.Instance;
             TaleWorlds.CampaignSystem.Campaign campaign = TaleWorlds.CampaignSystem.Campaign.Current;
             EnforcePassiveWorldAdvanceBoundary(campaign);
-            ReignBeta.Economy.ReignWarEconomyCohortControl.Update(_gameInstanceId);
+            ReignBeta.WorldSimulation.Economy.ReignWarEconomyCohortControl.Update(_gameInstanceId);
             bool playerReady = campaign != null
                 && CharacterObject.PlayerCharacter != null;
             PauseNpcLivesEncounterCleanup(campaign);
@@ -2022,8 +2040,8 @@ namespace ReignBeta.Campaign
                                 // player consent only after this exact rendered-terms check.
                                 if (draft.Origin != Reign.Core.Contracts.Actions.ActionOrigin.Conversation || draft.Revision < 1)
                                     throw new InvalidOperationException("The reviewed NPC offer has invalid origin or revision.");
-                                ReignBeta.Actions.ReignActionWording.Render(draft);
-                                var pending = ReignBeta.Actions.ReignAgreementBehavior.Instance?.Offers
+                                ReignBeta.WorldSimulation.Actions.ReignActionWording.Render(draft);
+                                var pending = ReignBeta.WorldSimulation.Actions.ReignAgreementBehavior.Instance?.Offers
                                     .FirstOrDefault(a => a.Id == draft.Id);
                                 if (pending == null || pending.State != Reign.Core.Contracts.Actions.AgreementState.Counteroffered
                                     || pending.PlayerId != player || pending.NpcId != npc || pending.ProposerId != npc
@@ -2039,11 +2057,11 @@ namespace ReignBeta.Campaign
                                 draft.State = Reign.Core.Contracts.Actions.AgreementState.Draft;
                                 draft.PlayerAcceptedHash = ""; draft.NpcAcceptedHash = "";
                             }
-                            ReignBeta.Actions.ReignActionWording.Render(draft);
+                            ReignBeta.WorldSimulation.Actions.ReignActionWording.Render(draft);
                             var replayCandidate = ReignBeta.Actions.ReignActionService.Copy(draft);
                             replayCandidate.ConversationId = ReignCampaignIdentity.CurrentCampaignId() + ":"
                                 + (ReignWorldHistoryCampaignBehavior.Instance?.TimelineId ?? "main") + ":" + npc;
-                            var savedJournal = ReignBeta.Actions.ReignAgreementBehavior.Instance?.Agreements
+                            var savedJournal = ReignBeta.WorldSimulation.Actions.ReignAgreementBehavior.Instance?.Agreements
                                 .FirstOrDefault(j => j.Agreement.Id == draft.Id);
                             // Confirmation of exact completed terms uses normal Send's saved
                             // receipt route. New, changed, unsigned, pending and operator
@@ -2094,7 +2112,7 @@ namespace ReignBeta.Campaign
                 if (attachedAction != null)
                     data["agreementJournal"] = await ReignMainThread.InvokeAsync(() =>
                     {
-                        var journal = ReignBeta.Actions.ReignAgreementBehavior.Instance?.Agreements
+                        var journal = ReignBeta.WorldSimulation.Actions.ReignAgreementBehavior.Instance?.Agreements
                             .FirstOrDefault(j => j.Agreement.Id == attachedAction.Id);
                         return journal == null ? null : JObject.FromObject(journal);
                     }).ConfigureAwait(false);

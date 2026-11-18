@@ -4,9 +4,10 @@ using TaleWorlds.CampaignSystem;
 using TaleWorlds.CampaignSystem.Settlements;
 using TaleWorlds.Core;
 using TaleWorlds.Library;
-using ReignBeta.Runtime;
+using ReignBeta.Platform.Runtime;
+using ReignBeta.Spymaster.Campaign;
 
-namespace ReignBeta.Court
+namespace ReignBeta.Court.Campaign
 {
     public sealed partial class ReignCourtCampaignBehavior
     {

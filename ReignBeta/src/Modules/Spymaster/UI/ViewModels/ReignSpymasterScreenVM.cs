@@ -4,7 +4,6 @@ using System.Linq;
 using AIPortraits;
 using Newtonsoft.Json.Linq;
 using ReignBeta.Court;
-using ReignBeta.Integration;
 using TaleWorlds.CampaignSystem;
 using TaleWorlds.CampaignSystem.Settlements;
 using TaleWorlds.CampaignSystem.ViewModelCollection;
@@ -12,8 +11,12 @@ using TaleWorlds.Core;
 using TaleWorlds.Core.ViewModelCollection;
 using TaleWorlds.Core.ViewModelCollection.ImageIdentifiers;
 using TaleWorlds.Library;
+using ReignBeta.Court.Campaign;
+using ReignBeta.Platform.Integration;
+using ReignBeta.Spymaster.Campaign;
+using ReignBeta.Spymaster.Integration;
 
-namespace ReignBeta.UI.ViewModels
+namespace ReignBeta.Spymaster.UI
 {
     public sealed class ReignSpymasterScreenVM : ViewModel
     {

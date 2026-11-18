@@ -5,10 +5,10 @@ using System.Linq;
 using Reign.Core.Contracts.Actions;
 using Reign.Core.Contracts.Government;
 using ReignBeta.Actions;
-using ReignBeta.Runtime;
 using TaleWorlds.CampaignSystem;
+using ReignBeta.WorldSimulation.Runtime;
 
-namespace ReignBeta.Government
+namespace ReignBeta.Government.Campaign
 {
     public sealed partial class ReignGovernmentCampaignBehavior
     {

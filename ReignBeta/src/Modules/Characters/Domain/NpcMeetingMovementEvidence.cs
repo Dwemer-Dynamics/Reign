@@ -2,7 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 
-namespace ReignBeta.Campaign
+namespace ReignBeta.Characters.Domain
 {
     // Diagnostic observations only. Never used to decide movement or fulfillment.
     internal sealed class NpcMeetingMovementEvidence

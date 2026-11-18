@@ -4,7 +4,6 @@ using System.Linq;
 using System.Threading.Tasks;
 using Newtonsoft.Json.Linq;
 using Reign.Core.Contracts.Government;
-using ReignBeta.Integration;
 #if !REIGN_EXCLUDE_COURT
 using ReignBeta.Court;
 #endif
@@ -17,8 +16,14 @@ using TaleWorlds.CampaignSystem.Settlements.Buildings;
 using TaleWorlds.Core;
 using TaleWorlds.Library;
 using TaleWorlds.ObjectSystem;
+using ReignBeta.Government.Integration;
+using ReignBeta.Platform.Integration;
+#if !REIGN_EXCLUDE_COURT
+using ReignBeta.Court.Campaign;
+using ReignBeta.Spymaster.Campaign;
+#endif
 
-namespace ReignBeta.Government
+namespace ReignBeta.Government.Campaign
 {
     public sealed partial class ReignGovernmentCampaignBehavior
     {
@@ -507,7 +512,7 @@ namespace ReignBeta.Government
             {
                 float beforeHearth = settlement.Village.Hearth;
                 settlement.Village.Hearth = MathF.Max(0f, settlement.Village.Hearth + reward.HearthOrSecurity);
-                ReignBeta.Economy.ReignWarEconomyTransactions.RecordHearthGrant("government_resolution", settlement.Village, beforeHearth);
+                ReignBeta.WorldSimulation.Economy.ReignWarEconomyTransactions.RecordHearthGrant("government_resolution", settlement.Village, beforeHearth);
             }
             ApplyRelation(kingdom.Leader, FindHero(record.SpeakerHeroStringId), reward.SpeakerRelation);
             state.Revision++;
@@ -539,7 +544,7 @@ namespace ReignBeta.Government
             {
                 float beforeHearth = settlement.Village.Hearth;
                 settlement.Village.Hearth = MathF.Max(0f, settlement.Village.Hearth + local);
-                ReignBeta.Economy.ReignWarEconomyTransactions.RecordHearthGrant("government_resolution", settlement.Village, beforeHearth);
+                ReignBeta.WorldSimulation.Economy.ReignWarEconomyTransactions.RecordHearthGrant("government_resolution", settlement.Village, beforeHearth);
             }
             ApplyRelation(kingdom.Leader, FindHero(record.SpeakerHeroStringId), relation);
             state.Revision++;
@@ -634,7 +639,7 @@ namespace ReignBeta.Government
             {
                 float beforeHearth = settlement.Village.Hearth;
                 settlement.Village.Hearth = MathF.Max(0f, settlement.Village.Hearth + 0.5f);
-                ReignBeta.Economy.ReignWarEconomyTransactions.RecordHearthGrant("government_resolution", settlement.Village, beforeHearth);
+                ReignBeta.WorldSimulation.Economy.ReignWarEconomyTransactions.RecordHearthGrant("government_resolution", settlement.Village, beforeHearth);
             }
 
             record.CurrentValue += 1f;

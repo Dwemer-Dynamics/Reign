@@ -3,9 +3,9 @@ using System.Linq;
 using System.Threading.Tasks;
 using Newtonsoft.Json.Linq;
 using TaleWorlds.CampaignSystem.Settlements;
-using static ReignBeta.Integration.ReignServerClient;
+using static ReignBeta.Platform.Integration.ReignServerClient;
 
-namespace ReignBeta.Integration
+namespace ReignBeta.Characters.Integration
 {
     internal static class ReignTownNotableProfileClient
     {

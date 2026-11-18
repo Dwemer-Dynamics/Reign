@@ -1,4 +1,4 @@
-using ReignBeta.World;
+using ReignBeta.WorldSimulation.World;
 using TaleWorlds.MountAndBlade;
 
 namespace Reign.Mcp.Tests

@@ -4,16 +4,23 @@ using System.Linq;
 using Newtonsoft.Json.Linq;
 using Reign.Shared;
 using ReignBeta.Events;
-using ReignBeta.Integration;
-using ReignBeta.Settings;
 using ReignBeta.World;
 using TaleWorlds.CampaignSystem;
 using TaleWorlds.CampaignSystem.Actions;
 using TaleWorlds.CampaignSystem.Settlements;
 using TaleWorlds.Core;
 using TaleWorlds.Library;
+using ReignBeta.Characters.Integration;
+using ReignBeta.Persistence.Campaign;
+using ReignBeta.Persistence.Integration;
+using ReignBeta.Platform.Campaign;
+using ReignBeta.Platform.Integration;
+using ReignBeta.Platform.Settings;
+using ReignBeta.Rebellion.Campaign;
+using ReignBeta.WorldSimulation.Campaign;
+using ReignBeta.WorldSimulation.News;
 
-namespace ReignBeta.Campaign
+namespace ReignBeta.KingdomEvents.Campaign
 {
     internal sealed class ReignKingdomEventDefinition
     {

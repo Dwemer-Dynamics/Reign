@@ -5,9 +5,6 @@ using System.Threading.Tasks;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using ReignBeta.Actions;
-using ReignBeta.Integration;
-using ReignBeta.Runtime;
-using ReignBeta.Save;
 using ReignBeta.Shared.Characters;
 using ReignBeta.UI;
 using TaleWorlds.CampaignSystem;
@@ -18,8 +15,19 @@ using TaleWorlds.Library;
 using TaleWorlds.MountAndBlade;
 using TaleWorlds.ScreenSystem;
 using NativeCampaign = TaleWorlds.CampaignSystem.Campaign;
+using ReignBeta.Characters.Integration;
+using ReignBeta.Dialogue.Runtime;
+using ReignBeta.Dialogue.UI;
+using ReignBeta.Persistence.Campaign;
+using ReignBeta.Persistence.Save;
+using ReignBeta.Platform.Integration;
+using ReignBeta.Platform.Runtime;
+using ReignBeta.Relationships.UI;
+using ReignBeta.WorldSimulation.Actions;
+using ReignBeta.WorldSimulation.Campaign;
+using ReignBeta.WorldSimulation.UI;
 
-namespace ReignBeta.Campaign
+namespace ReignBeta.Characters.Campaign
 {
     public sealed partial class ReignNpcLivesBehavior : CampaignBehaviorBase
     {
@@ -84,7 +92,7 @@ namespace ReignBeta.Campaign
         internal bool Current(NativeCampaign owner, int epoch) => Instance == this && ReferenceEquals(owner, NativeCampaign.Current) && epoch == _epoch
             && _campaign == ReignServerClient.GetCampaignId() && _timeline == (ReignWorldHistoryCampaignBehavior.Instance?.TimelineId ?? "main");
         private static bool Ready() => NativeCampaign.Current != null && MobileParty.MainParty != null && Hero.MainHero?.IsAlive == true
-            && !ReignCampaignInitializationGate.IsPending && Settings.ReignBetaSettings.Instance?.UseLocalServer != false;
+            && !ReignCampaignInitializationGate.IsPending && Platform.Settings.ReignBetaSettings.Instance?.UseLocalServer != false;
         internal static bool QuietMap() => ReignPlayerApproachPopup.CanPresentOnMap() && !ReignPlayerApproachPopup.IsOpen
             && !ReignPartyChatScreenManager.IsOpenOrPending && !ReignIndividualChatScreenManager.IsOpen && !ReignSocialEventScreenManager.IsOpen
             && Mission.Current == null && NativeCampaign.Current?.ConversationManager?.IsConversationInProgress != true

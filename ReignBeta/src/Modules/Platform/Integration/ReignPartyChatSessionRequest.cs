@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using Newtonsoft.Json.Linq;
 
-namespace ReignBeta.Integration
+namespace ReignBeta.Platform.Integration
 {
     internal static class ReignPartyChatSessionRequest
     {

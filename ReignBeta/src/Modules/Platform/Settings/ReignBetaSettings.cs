@@ -4,8 +4,11 @@ using MCM.Abstractions.Base.Global;
 using AIPortraits;
 using ReignBeta.Campaign;
 using System;
+using ReignBeta.Characters.Campaign;
+using ReignBeta.Dialogue.Campaign;
+using ReignBeta.WorldSimulation.Campaign;
 
-namespace ReignBeta.Settings
+namespace ReignBeta.Platform.Settings
 {
     public sealed class ReignBetaSettings : AttributeGlobalSettings<ReignBetaSettings>
     {

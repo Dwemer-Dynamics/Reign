@@ -1,5 +1,5 @@
 using System.Xml.Linq;
-using ReignBeta.UI;
+using ReignBeta.Court.UI;
 
 namespace Reign.Mcp.Tests.Features.Court;
 

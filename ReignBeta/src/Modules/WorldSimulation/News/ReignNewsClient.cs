@@ -1,8 +1,8 @@
 using Newtonsoft.Json.Linq;
 using Reign.Core.Contracts.World;
-using static ReignBeta.Integration.ReignServerClient;
+using static ReignBeta.Platform.Integration.ReignServerClient;
 
-namespace ReignBeta.Integration
+namespace ReignBeta.WorldSimulation.News
 {
     internal static class ReignNewsClient
     {
@@ -12,7 +12,7 @@ namespace ReignBeta.Integration
         {
             NewsOptions = new ReignNewsOptions(key => values?[key]?.Type != JTokenType.Boolean || values.Value<bool>(key));
             NewsOptionsConfirmed = true;
-            Campaign.ReignNewsCampaignBehavior.Instance?.ApplyOptions();
+            WorldSimulation.News.ReignNewsCampaignBehavior.Instance?.ApplyOptions();
         }
     }
 }

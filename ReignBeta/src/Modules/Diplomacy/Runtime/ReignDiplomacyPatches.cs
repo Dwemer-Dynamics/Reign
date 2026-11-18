@@ -9,7 +9,7 @@ using TaleWorlds.CampaignSystem.CampaignBehaviors;
 using TaleWorlds.CampaignSystem.Election;
 using TaleWorlds.CampaignSystem.ComponentInterfaces;
 
-namespace ReignBeta.Runtime
+namespace ReignBeta.Diplomacy.Runtime
 {
     internal static class ReignDiplomacyPatches
     {
@@ -101,14 +101,14 @@ namespace ReignBeta.Runtime
                 var method = AccessTools.Method(typeof(KingdomDecisionProposalBehavior), methodName);
                 if (method == null)
                 {
-                    Integration.ReignLog.Warn("World diplomacy patch could not find " + methodName + ".");
+                    Platform.Integration.ReignLog.Warn("World diplomacy patch could not find " + methodName + ".");
                     continue;
                 }
 
                 _harmony.Patch(method, prefix: prefix);
             }
 
-            Integration.ReignLog.Info("Ruler-driven diplomacy suppression patches loaded.");
+            Platform.Integration.ReignLog.Info("Ruler-driven diplomacy suppression patches loaded.");
         }
 
         public static void Unapply()
@@ -156,7 +156,7 @@ namespace ReignBeta.Runtime
 
             if (removed > 0)
             {
-                Integration.ReignLog.Info("Removed " + removed + " unresolved native NPC diplomacy decisions.");
+                Platform.Integration.ReignLog.Info("Removed " + removed + " unresolved native NPC diplomacy decisions.");
             }
 
             return removed;

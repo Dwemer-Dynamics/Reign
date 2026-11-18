@@ -4,7 +4,7 @@ using System.Linq;
 using TaleWorlds.CampaignSystem;
 using ReignBeta.Court.WarCouncil;
 
-namespace ReignBeta.Court
+namespace ReignBeta.Court.Campaign
 {
     public static class ReignCourtOfficeService
     {

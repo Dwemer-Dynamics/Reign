@@ -1,12 +1,13 @@
 using System.Linq;
 using Reign.Core.Contracts.ClanAccords;
-using ReignBeta.ClanAccords;
 using ReignBeta.UI.ViewModels;
 using ReignBeta.World;
 using TaleWorlds.CampaignSystem;
 using TaleWorlds.CampaignSystem.Settlements;
+using ReignBeta.Diplomacy.ClanAccords;
+using ReignBeta.WorldSimulation.World;
 
-namespace ReignBeta.UI
+namespace ReignBeta.Diplomacy.UI
 {
     internal static class ReignClanAccordsPresentation
     {

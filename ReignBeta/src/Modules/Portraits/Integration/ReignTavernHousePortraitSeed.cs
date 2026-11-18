@@ -11,8 +11,11 @@ using ReignBeta.Shared.Characters;
 using ReignPortraits;
 using TaleWorlds.CampaignSystem;
 using TaleWorlds.Library;
+using ReignBeta.Characters.Campaign;
+using ReignBeta.Characters.Integration;
+using ReignBeta.Platform.Integration;
 
-namespace ReignBeta.Integration
+namespace ReignBeta.Portraits.Integration
 {
     /// <summary>Imports shipped tavern masters into their saved native Hero cache. It never generates images or touches shared masters.</summary>
     internal static class ReignTavernHousePortraitSeed

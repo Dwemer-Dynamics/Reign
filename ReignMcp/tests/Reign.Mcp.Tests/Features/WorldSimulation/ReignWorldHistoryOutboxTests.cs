@@ -1,5 +1,5 @@
 using System.Text;
-using ReignBeta.Integration;
+using ReignBeta.WorldSimulation.Integration;
 
 namespace Reign.Mcp.Tests;
 

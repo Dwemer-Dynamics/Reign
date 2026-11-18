@@ -1,8 +1,9 @@
-using ReignBeta.Settings;
 using ReignBeta.World;
 using TaleWorlds.CampaignSystem;
+using ReignBeta.Platform.Settings;
+using ReignBeta.WorldSimulation.World;
 
-namespace ReignBeta.Family
+namespace ReignBeta.Characters.Family
 {
     internal static class ReignPregnancyRestrictionPolicy
     {

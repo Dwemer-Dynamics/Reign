@@ -1,6 +1,6 @@
 using System.Text;
 using System.Text.Json;
-using ReignBeta.Save;
+using ReignBeta.Persistence.Save;
 
 namespace Reign.Mcp.Tests;
 

@@ -4,15 +4,17 @@ using System.Linq;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using Reign.Core.Contracts.Government;
-using ReignBeta.Save;
 using ReignBeta.World;
 using TaleWorlds.CampaignSystem;
 using TaleWorlds.CampaignSystem.Actions;
 using TaleWorlds.CampaignSystem.Party;
 using TaleWorlds.CampaignSystem.Settlements;
 using TaleWorlds.Core;
+using ReignBeta.Government.Domain;
+using ReignBeta.Persistence.Save;
+using ReignBeta.WorldSimulation.World;
 
-namespace ReignBeta.Government
+namespace ReignBeta.Government.Campaign
 {
     public sealed partial class ReignGovernmentCampaignBehavior
     {
@@ -347,13 +349,13 @@ namespace ReignBeta.Government
                 // villages recruit the regular base. Never invent a replacement volunteer.
                 var basic = village.Bound?.IsCastle == true ? village.Settlement.Culture?.EliteBasicTroop : village.Settlement.Culture?.BasicTroop;
                 if (basic == null) continue;
-                double wage = ReignBeta.Economy.ReignWarEconomyTransactions.AdditionalWages(garrison, basic, 1);
+                double wage = ReignBeta.WorldSimulation.Economy.ReignWarEconomyTransactions.AdditionalWages(garrison, basic, 1);
                 int cost = Math.Max(0, TaleWorlds.CampaignSystem.Campaign.Current.Models.PartyWageModel.GetTroopRecruitmentCost(basic, payer).RoundedResultNumber);
                 if (garrison.GetAvailableWageBudget() < wage || payer.Gold < cost + wage * 3) continue;
                 Hero source = village.Settlement.Notables.FirstOrDefault(x => x.VolunteerTypes != null && x.VolunteerTypes.Any(t => t == basic));
                 if (source == null) continue;
                 int index = Array.IndexOf(source.VolunteerTypes, basic);
-                if (!ReignBeta.Economy.ReignWarEconomyTransactions.Enlist(ReignBeta.Economy.ReignWarEconomyTransactions.Guard,
+                if (!ReignBeta.WorldSimulation.Economy.ReignWarEconomyTransactions.Enlist(ReignBeta.WorldSimulation.Economy.ReignWarEconomyTransactions.Guard,
                     village.Settlement, garrison, payer, basic, source, index)) continue;
                 state.ServiceRecruitsIssued++; recruited = true;
                 state.ServiceTroops[basic.StringId] = (state.ServiceTroops.TryGetValue(basic.StringId, out int old) ? old : 0) + 1;

@@ -4,10 +4,10 @@ using System.Linq;
 using System.Reflection;
 using System.Security.Cryptography;
 using System.Text;
-using ReignBeta.Integration;
 using TaleWorlds.CampaignSystem;
+using ReignBeta.Platform.Integration;
 
-namespace ReignBeta.Campaign
+namespace ReignBeta.WorldSimulation.Campaign
 {
     internal static class ReignWorldHistoryCoverage
     {

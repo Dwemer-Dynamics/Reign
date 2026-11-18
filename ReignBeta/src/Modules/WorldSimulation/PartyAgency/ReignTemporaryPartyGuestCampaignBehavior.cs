@@ -3,8 +3,6 @@ using System.Collections.Generic;
 using System.Linq;
 using Newtonsoft.Json.Linq;
 using ReignBeta.Campaign;
-using ReignBeta.Integration;
-using ReignBeta.Runtime;
 using ReignBeta.UI;
 using ReignBeta.World;
 using TaleWorlds.CampaignSystem;
@@ -18,9 +16,19 @@ using TaleWorlds.Core;
 using TaleWorlds.Library;
 using TaleWorlds.Localization;
 using TaleWorlds.MountAndBlade;
-using static ReignBeta.World.ReignWorldParsing;
+using static ReignBeta.WorldSimulation.World.ReignWorldParsing;
+using ReignBeta.Characters.Campaign;
+using ReignBeta.Dialogue.Runtime;
+using ReignBeta.Dialogue.UI;
+using ReignBeta.PartyAgency;
+using ReignBeta.Platform.Campaign;
+using ReignBeta.Platform.Integration;
+using ReignBeta.Platform.Runtime;
+using ReignBeta.WorldSimulation.Rulers;
+using ReignBeta.WorldSimulation.Runtime;
+using ReignBeta.WorldSimulation.World;
 
-namespace ReignBeta.PartyAgency
+namespace ReignBeta.WorldSimulation.PartyAgency
 {
     public sealed partial class ReignTemporaryPartyGuestCampaignBehavior : CampaignBehaviorBase
     {
@@ -703,7 +711,7 @@ namespace ReignBeta.PartyAgency
                 {
                     // Personal leave/meeting attendance temporarily changes physical
                     // presence, never the guest's service agreement or protected camp.
-                    bool personalAbsence = ReignBeta.Campaign.ReignNpcLivesBehavior.Instance?.IsAwayOnPersonalBusiness(hero.StringId) == true;
+                    bool personalAbsence = ReignBeta.Characters.Campaign.ReignNpcLivesBehavior.Instance?.IsAwayOnPersonalBusiness(hero.StringId) == true;
                     if (!personalAbsence && hero.PartyBelongedTo != MobileParty.MainParty && !record.TemporarilyExcludedFromBattle)
                     {
                         CompleteUnavailable(record);

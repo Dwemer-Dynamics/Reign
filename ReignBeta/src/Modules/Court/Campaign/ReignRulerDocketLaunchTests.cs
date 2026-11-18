@@ -7,9 +7,10 @@ using ReignBeta.UI;
 using TaleWorlds.CampaignSystem;
 using TaleWorlds.CampaignSystem.Party;
 using TaleWorlds.CampaignSystem.Settlements;
-using static ReignBeta.Court.ReignCourtCampaignBehavior;
+using static ReignBeta.Court.Campaign.ReignCourtCampaignBehavior;
+using ReignBeta.Court.UI;
 
-namespace ReignBeta.Court
+namespace ReignBeta.Court.Campaign
 {
     internal static partial class ReignCourtTestControls
     {

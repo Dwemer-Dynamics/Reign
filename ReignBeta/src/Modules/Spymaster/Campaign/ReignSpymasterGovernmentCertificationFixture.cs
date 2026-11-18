@@ -2,9 +2,10 @@ using System;
 using System.Linq;
 using TaleWorlds.CampaignSystem;
 using TaleWorlds.CampaignSystem.Settlements;
-using static ReignBeta.Court.ReignCourtCampaignBehavior;
+using static ReignBeta.Court.Campaign.ReignCourtCampaignBehavior;
+using ReignBeta.Court.Campaign;
 
-namespace ReignBeta.Court
+namespace ReignBeta.Spymaster.Campaign
 {
     internal static partial class ReignSpymasterTestControls
     {

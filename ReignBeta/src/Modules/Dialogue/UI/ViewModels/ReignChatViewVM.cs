@@ -3,10 +3,13 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Newtonsoft.Json.Linq;
-using ReignBeta.Integration;
 using TaleWorlds.Library;
+using ReignBeta.Dialogue.Integration;
+using ReignBeta.Platform.Integration;
+using ReignBeta.UI;
+using ReignBeta.UI.ViewModels;
 
-namespace ReignBeta.UI.ViewModels
+namespace ReignBeta.Dialogue.UI
 {
     public sealed class ReignChatViewVM : ViewModel
     {
@@ -149,8 +152,8 @@ namespace ReignBeta.UI.ViewModels
         {
             if (string.IsNullOrWhiteSpace(inlinePath) || string.IsNullOrWhiteSpace(fullPath)
                 || !System.IO.File.Exists(inlinePath) || !System.IO.File.Exists(fullPath)) return;
-            string inline = ReignBeta.UI.EventArt.ReignEventArtTextureFactory.BuildMemorySceneImageId(inlinePath);
-            string full = ReignBeta.UI.EventArt.ReignEventArtTextureFactory.BuildMemorySceneImageId(fullPath);
+            string inline = ReignBeta.Portraits.UI.ReignEventArtTextureFactory.BuildMemorySceneImageId(inlinePath);
+            string full = ReignBeta.Portraits.UI.ReignEventArtTextureFactory.BuildMemorySceneImageId(fullPath);
             if (string.IsNullOrWhiteSpace(inline) || string.IsNullOrWhiteSpace(full)) return;
             line.InlineScenePath = inlinePath; line.FullScenePath = fullPath;
             line.SetScene(inline, line.OriginalText, () => {

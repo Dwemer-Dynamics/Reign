@@ -3,12 +3,14 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Newtonsoft.Json.Linq;
-using ReignBeta.Integration;
 using ReignBeta.UI;
 using ReignBeta.UI.ViewModels;
 using TaleWorlds.CampaignSystem;
+using ReignBeta.Dialogue.Integration;
+using ReignBeta.Dialogue.UI;
+using ReignBeta.Platform.Integration;
 
-namespace ReignBeta.Campaign
+namespace ReignBeta.WorldSimulation.Campaign
 {
     public static partial class ReignLiveInteractionTestHost
     {

@@ -4,7 +4,7 @@ using System.IO;
 using System.IO.Compression;
 using System.Text;
 
-namespace ReignBeta.Save
+namespace ReignBeta.Persistence.Save
 {
     public static class ReignSavePayloadCodec
     {

@@ -6,13 +6,13 @@ using Helpers;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using ReignBeta.Family;
-using ReignBeta.Integration;
-using ReignBeta.Save;
 using TaleWorlds.CampaignSystem;
 using TaleWorlds.CampaignSystem.Settlements;
 using TaleWorlds.Core;
+using ReignBeta.Persistence.Save;
+using ReignBeta.Platform.Integration;
 
-namespace ReignBeta.Campaign
+namespace ReignBeta.Characters.Campaign
 {
     internal sealed class ReignStartingChildrenCampaignBehavior : CampaignBehaviorBase
     {

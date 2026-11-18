@@ -1,4 +1,4 @@
-using ReignBeta.World;
+using ReignBeta.WorldSimulation.World;
 
 namespace Reign.Mcp.Tests.Features.WorldSimulation;
 

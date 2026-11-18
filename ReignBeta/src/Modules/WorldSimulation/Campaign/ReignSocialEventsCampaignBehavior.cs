@@ -4,9 +4,6 @@ using System.Linq;
 using System.Threading.Tasks;
 using ArenaOverhaul.TeamTournament;
 using ReignBeta.Events;
-using ReignBeta.Integration;
-using ReignBeta.Runtime;
-using ReignBeta.Settings;
 using ReignBeta.UI;
 using TaleWorlds.CampaignSystem;
 using TaleWorlds.CampaignSystem.GameState;
@@ -20,8 +17,18 @@ using TaleWorlds.Engine.Screens;
 using TaleWorlds.Library;
 using TaleWorlds.Localization;
 using TaleWorlds.ScreenSystem;
+using ReignBeta.Characters.Campaign;
+using ReignBeta.Dialogue.Integration;
+using ReignBeta.Dialogue.Runtime;
+using ReignBeta.Dialogue.UI;
+using ReignBeta.Platform.Integration;
+using ReignBeta.Platform.Settings;
+using ReignBeta.Relationships.Campaign;
+using ReignBeta.WorldSimulation.Events;
+using ReignBeta.WorldSimulation.Runtime;
+using ReignBeta.WorldSimulation.UI;
 
-namespace ReignBeta.Campaign
+namespace ReignBeta.WorldSimulation.Campaign
 {
     public sealed class ReignSocialEventsCampaignBehavior : CampaignBehaviorBase
     {

@@ -1,6 +1,6 @@
 using System;
 
-namespace ReignBeta.Integration
+namespace ReignBeta.WorldSimulation.Integration
 {
     internal static class ReignWorldHistoryFlushPolicy
     {

@@ -9,12 +9,22 @@ using ReignBeta.Government;
 #if !REIGN_EXCLUDE_COURT
 using ReignBeta.Court;
 #endif
-using ReignBeta.Save;
 using ReignBeta.World;
 using TaleWorlds.CampaignSystem;
 using TaleWorlds.CampaignSystem.Settlements;
+using ReignBeta.Actions;
+using ReignBeta.Characters.Actions;
+using ReignBeta.Characters.Campaign;
+using ReignBeta.Government.Campaign;
+using ReignBeta.Persistence.Save;
+using ReignBeta.Platform.Campaign;
+using ReignBeta.WorldSimulation.CampaignCommands;
+using ReignBeta.WorldSimulation.World;
+#if !REIGN_EXCLUDE_COURT
+using ReignBeta.Court.Campaign;
+#endif
 
-namespace ReignBeta.Actions
+namespace ReignBeta.WorldSimulation.Actions
 {
     public sealed class ReignAgreementBehavior : CampaignBehaviorBase, IAgreementBackend
     {
@@ -154,7 +164,7 @@ namespace ReignBeta.Actions
                 return null;
             }
             if (a.Clauses.Any(c => c.ActionId == "marriage.propose" || c.ActionId == "marriage.appeal"))
-                ReignBeta.Campaign.ReignRelationshipCampaignBehavior.Instance?.RecordPlayerMarriageProposal(a);
+                ReignBeta.Relationships.Campaign.ReignRelationshipCampaignBehavior.Instance?.RecordPlayerMarriageProposal(a);
             _offers[a.Id] = ReignActionService.Copy(a);
             return a;
         }
@@ -197,7 +207,7 @@ namespace ReignBeta.Actions
                         throw new InvalidOperationException("The marriage action is already resolved under different terms.");
                     return saved.Value<string>("message");
                 }
-                string message = ReignBeta.Campaign.ReignRelationshipCampaignBehavior.Instance?.ReceiveMarriageDecision(offered, decision.Kind)
+                string message = ReignBeta.Relationships.Campaign.ReignRelationshipCampaignBehavior.Instance?.ReceiveMarriageDecision(offered, decision.Kind)
                     ?? "Marriage services are unavailable.";
                 if (decision.Kind == "accept" || decision.Kind == "reject")
                     _decisions[marriageKey] = new JObject { ["hash"] = offered.TermsHash(), ["message"] = message, ["kind"] = decision.Kind }.ToString(Formatting.None);
@@ -559,7 +569,7 @@ namespace ReignBeta.Actions
             var first = ReignActionService.HeroById(a.PlayerId); var second = ReignActionService.HeroById(a.NpcId);
             if (first?.PartyBelongedTo != null && first.PartyBelongedTo == second?.PartyBelongedTo || first?.CurrentSettlement != null && first.CurrentSettlement == second?.CurrentSettlement) return 0;
             if (!a.Clauses.Any(c => c.ActionId.StartsWith("give.", StringComparison.Ordinal))) return 0;
-            return ReignBeta.Integration.ReignCorrespondenceClient.ActionDeliveryDays(first, second, ReignActionService.Now);
+            return ReignBeta.Dialogue.Integration.ReignCorrespondenceClient.ActionDeliveryDays(first, second, ReignActionService.Now);
         }
         public void SaveJournal(AgreementJournal journal) { _agreements[journal.Agreement.Id] = journal; }
     }

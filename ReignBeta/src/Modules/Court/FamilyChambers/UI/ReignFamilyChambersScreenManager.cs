@@ -1,7 +1,6 @@
 using System;
 using System.Linq;
 using ReignBeta.Court;
-using ReignBeta.Integration;
 using ReignBeta.UI.ViewModels;
 using TaleWorlds.Core;
 using TaleWorlds.CampaignSystem;
@@ -11,8 +10,12 @@ using TaleWorlds.InputSystem;
 using TaleWorlds.Library;
 using TaleWorlds.ScreenSystem;
 using static ReignBeta.UI.ReignScreenLayers;
+using ReignBeta.Court.Campaign;
+using ReignBeta.Court.UI;
+using ReignBeta.Platform.Integration;
+using ReignBeta.UI;
 
-namespace ReignBeta.UI
+namespace ReignBeta.Court.FamilyChambers
 {
     public static class ReignFamilyChambersScreenManager
     {

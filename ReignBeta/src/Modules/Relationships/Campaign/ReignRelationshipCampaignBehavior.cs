@@ -5,12 +5,10 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Newtonsoft.Json.Linq;
-using ReignBeta.Integration;
 using ReignBeta.Shared;
 #if !REIGN_EXCLUDE_COURT
 using ReignBeta.Court;
 #endif
-using ReignBeta.Settings;
 using ReignBeta.UI;
 using TaleWorlds.CampaignSystem;
 using TaleWorlds.CampaignSystem.Actions;
@@ -18,8 +16,20 @@ using TaleWorlds.CampaignSystem.Party;
 using TaleWorlds.CampaignSystem.Settlements;
 using TaleWorlds.Core;
 using TaleWorlds.Library;
+using ReignBeta.Characters.Campaign;
+using ReignBeta.Dialogue.Integration;
+using ReignBeta.Dialogue.UI;
+using ReignBeta.Persistence.Integration;
+using ReignBeta.Platform.Campaign;
+using ReignBeta.Platform.Integration;
+using ReignBeta.Platform.Settings;
+using ReignBeta.Relationships.Integration;
+using ReignBeta.WorldSimulation.Campaign;
+#if !REIGN_EXCLUDE_COURT
+using ReignBeta.Court.Campaign;
+#endif
 
-namespace ReignBeta.Campaign
+namespace ReignBeta.Relationships.Campaign
 {
     public sealed partial class ReignRelationshipCampaignBehavior : CampaignBehaviorBase
     {

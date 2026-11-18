@@ -9,9 +9,10 @@ using TaleWorlds.CampaignSystem.Actions;
 using TaleWorlds.CampaignSystem.CharacterDevelopment;
 using TaleWorlds.CampaignSystem.Settlements;
 using TaleWorlds.Core;
-using static ReignBeta.Court.ReignCourtCampaignBehavior;
+using static ReignBeta.Court.Campaign.ReignCourtCampaignBehavior;
+using ReignBeta.Court.Campaign;
 
-namespace ReignBeta.Court
+namespace ReignBeta.Spymaster.Campaign
 {
     // Harness-owned Spymaster acceptance controls. Spymaster state and SyncData stay on ReignCourtCampaignBehavior.
     internal static partial class ReignSpymasterTestControls
@@ -35,7 +36,7 @@ namespace ReignBeta.Court
                 court._spymasterState = new ReignSpymasterState { LastAgentRecruitmentDay = CurrentDayFloat() };
                 Hero spymaster = court.ActiveSpymaster;
                 AddSpyAssertion(assertions, "campaign_loaded", TaleWorlds.CampaignSystem.Campaign.Current != null && Hero.MainHero != null,
-                    "A native campaign and main hero are loaded.", new JObject { ["campaignId"] = ReignBeta.Integration.ReignCampaignIdentity.CurrentCampaignId() });
+                    "A native campaign and main hero are loaded.", new JObject { ["campaignId"] = ReignBeta.Characters.Integration.ReignCampaignIdentity.CurrentCampaignId() });
                 AddSpyAssertion(assertions, "spymaster_appointed", spymaster != null && spymaster.IsAlive && spymaster.IsActive,
                     "A living active Spymaster is appointed through the production office state.", SnapshotHero(spymaster));
                 AddSpyAssertion(assertions, "office_portrait_identity", spymaster != null && !string.IsNullOrWhiteSpace(spymaster.StringId)

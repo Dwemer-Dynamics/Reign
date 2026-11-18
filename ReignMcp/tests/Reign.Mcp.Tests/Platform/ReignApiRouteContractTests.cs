@@ -91,8 +91,8 @@ public sealed class ReignApiRouteContractTests
             StringComparison.Ordinal);
         Assert.Contains("[\"reputationChanges\"] = new ArrayList()", dialogue,
             StringComparison.Ordinal);
-        var artRequest = ReignBeta.Integration.ReignCourtAudienceScene.BuildRequest(
-            new ReignBeta.Integration.CourtSceneSnapshot
+        var artRequest = ReignBeta.Court.Integration.ReignCourtAudienceScene.BuildRequest(
+            new ReignBeta.Court.Integration.CourtSceneSnapshot
             {
                 CampaignId = "contract", TimelineId = "main", AudienceId = "petition", HostId = "host",
                 CultureId = "empire", PublicContext = "The petition", Hall = new byte[] { 1 },
@@ -117,7 +117,7 @@ public sealed class ReignApiRouteContractTests
         Assert.Equal("court_audience_all_cast_host_hall_v6", artRequest.Value<string>("renderContract"));
         Assert.Single(artRequest.Properties(), property => property.Name.EndsWith("Base64", StringComparison.Ordinal));
         foreach (string culture in new[] { "empire", "vlandia", "sturgia", "battania", "aserai", "khuzait" })
-            Assert.EndsWith("-" + culture + ".png", ReignBeta.Integration.ReignCourtAudienceScene.HallReference(culture));
+            Assert.EndsWith("-" + culture + ".png", ReignBeta.Court.Integration.ReignCourtAudienceScene.HallReference(culture));
         var cultureReferenceHashes = new Dictionary<string, string>(StringComparer.Ordinal)
         {
             ["empire"] = "62178f5c0ce9c12ef2f605f2bd158c8588c212baaf24101aac12719a5ad26c6e",

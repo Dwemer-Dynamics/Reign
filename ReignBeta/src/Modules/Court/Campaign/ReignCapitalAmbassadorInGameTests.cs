@@ -5,14 +5,16 @@ using System.Threading.Tasks;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using ReignBeta.Campaign;
-using ReignBeta.Integration;
 using TaleWorlds.CampaignSystem;
 using TaleWorlds.CampaignSystem.Actions;
 using TaleWorlds.CampaignSystem.Settlements;
 using TaleWorlds.Core;
-using static ReignBeta.Court.ReignCourtCampaignBehavior;
+using static ReignBeta.Court.Campaign.ReignCourtCampaignBehavior;
+using ReignBeta.Characters.Integration;
+using ReignBeta.Court.Integration;
+using ReignBeta.Platform.Integration;
 
-namespace ReignBeta.Court
+namespace ReignBeta.Court.Campaign
 {
     internal static partial class ReignCourtTestControls
     {
@@ -314,7 +316,7 @@ namespace ReignBeta.Court
                 "A Bannerlord campaign is loaded.", null);
             AddCapitalAmbassadorAssertion(assertions, "capital_player_is_ruler", ours != null && IsPlayerKingdomRuler(),
                 "The player rules an active kingdom.", null);
-            AddCapitalAmbassadorAssertion(assertions, "capital_feature_enabled", ReignBeta.Settings.ReignBetaSettings.IsCourtSystemAvailable,
+            AddCapitalAmbassadorAssertion(assertions, "capital_feature_enabled", ReignBeta.Platform.Settings.ReignBetaSettings.IsCourtSystemAvailable,
                 "The Court feature is enabled.", null);
             AddCapitalAmbassadorAssertion(assertions, "capital_current_safe_owned_town", current?.IsTown == true && !current.IsUnderSiege
                 && current.OwnerClan?.Kingdom == ours, "The player is currently inside a safe owned town usable as the test capital.", SettlementJson(current));

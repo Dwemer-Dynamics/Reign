@@ -7,7 +7,6 @@ using Reign.Core.Contracts.Actions;
 using ReignBeta.Actions;
 using TaleWorlds.Core;
 using ReignBeta.Campaign;
-using ReignBeta.Integration;
 using ReignBeta.Government;
 using TaleWorlds.CampaignSystem;
 using TaleWorlds.CampaignSystem.Actions;
@@ -15,8 +14,17 @@ using TaleWorlds.CampaignSystem.CampaignBehaviors;
 using TaleWorlds.CampaignSystem.Naval;
 using TaleWorlds.CampaignSystem.Party;
 using TaleWorlds.CampaignSystem.Settlements;
+using ReignBeta.Characters.World;
+using ReignBeta.Government.Integration;
+using ReignBeta.Platform.Campaign;
+using ReignBeta.Platform.Integration;
+using ReignBeta.Rebellion.Campaign;
+using ReignBeta.Relationships.Campaign;
+using ReignBeta.World;
+using ReignBeta.WorldSimulation.Actions;
+using ReignBeta.WorldSimulation.World;
 
-namespace ReignBeta.World
+namespace ReignBeta.Diplomacy.World
 {
     public static class ReignDiplomacyExecutor
     {
@@ -415,7 +423,7 @@ namespace ReignBeta.World
                     throw new System.InvalidOperationException("An existing native alliance has a different duration; the proposed renewal has not been executed.");
                 return;
             }
-            ReignBeta.Runtime.ReignDiplomacyPatches.StartAcceptedAlliance(behavior, actor, target, days);
+            ReignBeta.Diplomacy.Runtime.ReignDiplomacyPatches.StartAcceptedAlliance(behavior, actor, target, days);
             if (!behavior.IsAllyWithKingdom(actor, target))
                 throw new System.InvalidOperationException("The native alliance action did not establish the accepted alliance.");
             if (System.Math.Abs(behavior.GetAllianceEndDate(actor, target).ToDays - CampaignTime.Now.ToDays - days) > 0.001d)

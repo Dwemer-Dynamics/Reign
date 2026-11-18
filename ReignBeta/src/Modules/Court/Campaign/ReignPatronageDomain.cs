@@ -1,7 +1,7 @@
 using System.Collections.Generic;
 using Reign.Core.Contracts.Court;
 
-namespace ReignBeta.Court
+namespace ReignBeta.Court.Campaign
 {
     public sealed partial class ReignRulerDocketState
     {

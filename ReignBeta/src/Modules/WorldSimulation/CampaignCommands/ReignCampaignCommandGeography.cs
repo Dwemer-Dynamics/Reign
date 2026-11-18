@@ -5,7 +5,7 @@ using TaleWorlds.CampaignSystem;
 using TaleWorlds.CampaignSystem.Party;
 using TaleWorlds.CampaignSystem.Settlements;
 
-namespace ReignBeta.World
+namespace ReignBeta.WorldSimulation.CampaignCommands
 {
     public static class ReignCampaignCommandGeography
     {

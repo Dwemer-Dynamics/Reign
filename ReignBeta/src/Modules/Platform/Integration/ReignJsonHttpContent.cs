@@ -12,7 +12,7 @@ using System.Threading.Tasks;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 
-namespace ReignBeta.Integration
+namespace ReignBeta.Platform.Integration
 {
     /// <summary>
     /// Serializes JSON once into small pooled UTF-8 segments, then sends those

@@ -13,8 +13,11 @@ using TaleWorlds.CampaignSystem.Roster;
 using TaleWorlds.Core;
 using TaleWorlds.MountAndBlade;
 using TaleWorlds.ObjectSystem;
+using ReignBeta.Characters.Campaign;
+using ReignBeta.World;
+using ReignBeta.WorldSimulation.PartyAgency;
 
-namespace ReignBeta.World
+namespace ReignBeta.WorldSimulation.World
 {
     // A hero's gift is distinct from their party's shared supplies. The native save
     // owns personal holdings and delivery receipts, including exact item modifiers.

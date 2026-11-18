@@ -11,9 +11,9 @@ using TaleWorlds.CampaignSystem.CharacterDevelopment;
 using TaleWorlds.CampaignSystem.Party;
 using TaleWorlds.Core;
 using NativeCampaign = TaleWorlds.CampaignSystem.Campaign;
-using static ReignBeta.Campaign.ReignRulerCampaignBehavior;
+using static ReignBeta.WorldSimulation.Rulers.ReignRulerCampaignBehavior;
 
-namespace ReignBeta.Campaign
+namespace ReignBeta.WorldSimulation.Rulers
 {
     internal static partial class ReignRulerFixtureControls
     {

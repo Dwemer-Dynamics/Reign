@@ -1,5 +1,5 @@
 #nullable enable
-namespace ReignBeta.Platform
+namespace ReignBeta.Platform.Domain
 {
     internal enum TerminalReportRoute { None, V1, Recover, Hold }
 

@@ -2,15 +2,16 @@ using System;
 using System.Linq;
 using AIPortraits;
 using ReignBeta.Court;
-using ReignBeta.Integration;
 using TaleWorlds.CampaignSystem;
 using TaleWorlds.CampaignSystem.ViewModelCollection;
 using TaleWorlds.Core;
 using TaleWorlds.Core.ViewModelCollection;
 using TaleWorlds.Core.ViewModelCollection.ImageIdentifiers;
 using TaleWorlds.Library;
+using ReignBeta.Court.Campaign;
+using ReignBeta.Platform.Integration;
 
-namespace ReignBeta.UI.ViewModels
+namespace ReignBeta.Court.UI
 {
     public sealed class ReignAmbassadorScreenVM : ViewModel
     {

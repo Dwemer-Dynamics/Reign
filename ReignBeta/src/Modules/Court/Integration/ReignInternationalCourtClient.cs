@@ -1,7 +1,7 @@
 using System.Threading.Tasks;
 using Newtonsoft.Json.Linq;
 
-namespace ReignBeta.Integration
+namespace ReignBeta.Court.Integration
 {
     public static partial class ReignCourtServerClient
     {

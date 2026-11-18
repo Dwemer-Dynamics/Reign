@@ -3,7 +3,7 @@ using AIPortraits;
 using TaleWorlds.CampaignSystem;
 using TaleWorlds.Library;
 
-namespace ReignBeta.UI.ViewModels
+namespace ReignBeta.Dialogue.UI
 {
     public sealed class ReignCorrespondenceContactVM : ViewModel
     {

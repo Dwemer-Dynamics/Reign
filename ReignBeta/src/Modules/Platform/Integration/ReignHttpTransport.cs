@@ -7,7 +7,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Newtonsoft.Json.Linq;
 
-namespace ReignBeta.Integration
+namespace ReignBeta.Platform.Integration
 {
     // The one HTTP transport to the local Reign server: pooled clients per route class,
     // candidate endpoint failover with the shared circuit breaker, transport diagnostics,

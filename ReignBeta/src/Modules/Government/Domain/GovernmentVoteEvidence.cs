@@ -3,7 +3,7 @@ using System.Linq;
 using Newtonsoft.Json.Linq;
 using Reign.Core.Contracts.Government;
 
-namespace ReignBeta.Government
+namespace ReignBeta.Government.Domain
 {
     /// <summary>A completed ballot remains evidence after its voter leaves office.</summary>
     internal static class GovernmentVoteEvidence

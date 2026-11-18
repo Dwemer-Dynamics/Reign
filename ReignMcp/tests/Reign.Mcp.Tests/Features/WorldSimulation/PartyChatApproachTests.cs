@@ -57,7 +57,7 @@ public sealed class PartyChatApproachTests
         public sealed class Hero { public static Hero MainHero = new Hero { StringId = "player", Name = "Player" }; public string StringId; public string Name; }
         public sealed class Draft { public string NpcId; }
         namespace ReignBeta.Actions { public static class ReignActionService { public static Draft Copy(Draft draft) => new Draft { NpcId = draft.NpcId }; } }
-        namespace ReignBeta.Campaign { public sealed class ReignWorldHistoryCampaignBehavior { public static ReignWorldHistoryCampaignBehavior Instance; public string TimelineId; } }
+        namespace ReignBeta.WorldSimulation.Campaign { public sealed class ReignWorldHistoryCampaignBehavior { public static ReignWorldHistoryCampaignBehavior Instance; public string TimelineId; } }
         public sealed class Options { public bool Enabled = true; public bool Allows(string key) => Enabled; }
         public static class ReignNpcLivesClient { public static Options NpcLivesOptions = new Options(); }
         public static class ReignServerClient {

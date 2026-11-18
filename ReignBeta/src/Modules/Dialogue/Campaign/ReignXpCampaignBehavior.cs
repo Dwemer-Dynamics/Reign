@@ -3,13 +3,12 @@ using System.Collections.Generic;
 using System.Linq;
 using Newtonsoft.Json;
 using Reign.Core.Contracts.Dialogue;
-using ReignBeta.Runtime;
-using ReignBeta.Integration;
-using ReignBeta.Save;
 using TaleWorlds.CampaignSystem;
 using TaleWorlds.Core;
+using ReignBeta.Persistence.Save;
+using ReignBeta.Platform.Integration;
 
-namespace ReignBeta.Campaign
+namespace ReignBeta.Dialogue.Campaign
 {
     public sealed class ReignXpCampaignBehavior : CampaignBehaviorBase
     {

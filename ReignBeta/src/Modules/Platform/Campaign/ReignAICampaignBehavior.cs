@@ -4,9 +4,6 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Newtonsoft.Json.Linq;
-using ReignBeta.Integration;
-using ReignBeta.Settings;
-using ReignBeta.Runtime;
 using ReignBeta.World;
 using ReignBeta.Government;
 using ReignBeta.Platform;
@@ -17,8 +14,22 @@ using TaleWorlds.CampaignSystem.Settlements;
 using TaleWorlds.Core;
 using TaleWorlds.Library;
 using TerminalActionReportProtocol = Reign.Core.Contracts.Actions.TerminalActionReportProtocol;
+using ReignBeta.Dialogue.Integration;
+using ReignBeta.Diplomacy.World;
+using ReignBeta.Government.Campaign;
+using ReignBeta.Persistence.Campaign;
+using ReignBeta.Persistence.Integration;
+using ReignBeta.Platform.Domain;
+using ReignBeta.Platform.Integration;
+using ReignBeta.Platform.Runtime;
+using ReignBeta.Platform.Settings;
+using ReignBeta.Relationships.Campaign;
+using ReignBeta.WorldSimulation.Campaign;
+using ReignBeta.WorldSimulation.CampaignCommands;
+using ReignBeta.WorldSimulation.Runtime;
+using ReignBeta.WorldSimulation.World;
 
-namespace ReignBeta.Campaign
+namespace ReignBeta.Platform.Campaign
 {
     public sealed partial class ReignAICampaignBehavior : CampaignBehaviorBase
     {
@@ -137,11 +148,11 @@ namespace ReignBeta.Campaign
 
         // The saved uncertain-execution hold outranks any transient cached result, before and after reload.
         private static bool IsUncertainExecutionHeld(ReignWorldActionRecord action) => action != null
-            && ReignBeta.Actions.ReignCompletedOrderPolicy.IsUncertainExecutionHeld(action.Status.ToString(), action.FailureReason);
+            && ReignBeta.WorldSimulation.Actions.ReignCompletedOrderPolicy.IsUncertainExecutionHeld(action.Status.ToString(), action.FailureReason);
 
         private static ReignActionResult UncertainExecutionResult() =>
-            ReignActionResult.Progress(ReignBeta.Actions.ReignCompletedOrderPolicy.UncertainExecutionMarker)
-                .WithResultCode(ReignBeta.Actions.ReignCompletedOrderPolicy.UncertainExecutionResultCode).WithOutcome("unknown");
+            ReignActionResult.Progress(ReignBeta.WorldSimulation.Actions.ReignCompletedOrderPolicy.UncertainExecutionMarker)
+                .WithResultCode(ReignBeta.WorldSimulation.Actions.ReignCompletedOrderPolicy.UncertainExecutionResultCode).WithOutcome("unknown");
 
         public ReignActionResult GetLastActionResult(string actionId)
         {
@@ -206,14 +217,14 @@ namespace ReignBeta.Campaign
                 }
             }
 
-            if (!_completedCampaignOrdersReconciled && ReignBeta.Actions.ReignAgreementBehavior.Instance != null
+            if (!_completedCampaignOrdersReconciled && ReignBeta.WorldSimulation.Actions.ReignAgreementBehavior.Instance != null
                 && ReignCampaignCommandBehavior.Instance != null)
             {
                 _completedCampaignOrdersReconciled = true;
                 foreach (var action in _actions.ToList())
                 {
                     if (TryRetireImpossibleTreaty(action)) continue;
-                    if (ReignBeta.Actions.ReignAgreementBehavior.Instance?.ReconcileObservedCampaignCancellation(action) == true) continue;
+                    if (ReignBeta.WorldSimulation.Actions.ReignAgreementBehavior.Instance?.ReconcileObservedCampaignCancellation(action) == true) continue;
                     TryRestoreObservedPendingCampaignOrder(action);
                     TryCompleteObservedCampaignOrder(action);
                 }
@@ -403,9 +414,9 @@ namespace ReignBeta.Campaign
                         // terminal record or a result recorded by this attempt is kept as is.
                         bool recorded = _lastActionResults.TryGetValue(queued.ActionId, out ReignActionResult resultAfter)
                             && !ReferenceEquals(resultAfter, resultBefore);
-                        if (ReignBeta.Actions.ReignCompletedOrderPolicy.ShouldHoldAfterThrow(queued.Status.ToString(), recorded))
+                        if (ReignBeta.WorldSimulation.Actions.ReignCompletedOrderPolicy.ShouldHoldAfterThrow(queued.Status.ToString(), recorded))
                         {
-                            queued.FailureReason = ReignBeta.Actions.ReignCompletedOrderPolicy.UncertainExecutionMarker;
+                            queued.FailureReason = ReignBeta.WorldSimulation.Actions.ReignCompletedOrderPolicy.UncertainExecutionMarker;
                             queued.ExecuteAfterDay = float.MaxValue;
                             ReignLog.Warn("Immediate action held with an unknown native outcome action=" + queued.ActionId);
                         }
@@ -1611,7 +1622,7 @@ namespace ReignBeta.Campaign
             if (order == null || order.IsTerminal || order.CommanderHeroStringId != action.ActorHeroStringId
                 || order.CorrelationId != correlation || order.Steps == null || order.Steps.Count == 0
                 || order.CompletedStepCount >= order.Steps.Count
-                || ReignBeta.Actions.ReignAgreementBehavior.Instance?.MatchesObservedPendingOrder(action, order.Status) != true)
+                || ReignBeta.WorldSimulation.Actions.ReignAgreementBehavior.Instance?.MatchesObservedPendingOrder(action, order.Status) != true)
                 return false;
             // A duplicate issue receipt used to claim completion while the exact saved
             // native order was still active. Correct only that receipt; do not issue it.
@@ -1636,9 +1647,9 @@ namespace ReignBeta.Campaign
                 || (action.ExecutionSnapshotJson != "{}" && !string.IsNullOrEmpty(action.ExecutionSnapshotJson))) return false;
             bool recorded = _agreements.Any(t => t != null && t.Kind == kind && SameAgreementPair(t, action)
                 && t.Reason == action.Reason && t.TermsJson == action.TermsJson);
-            if (ReignBeta.Actions.ReignAgreementBehavior.Instance?.ReconcileImpossibleTreaty(action, recorded) != true) return false;
-            var result = ReignActionResult.Obsolete(ReignBeta.Actions.ReignUnfulfilledTreatyPolicy.Message,
-                ReignBeta.Actions.ReignUnfulfilledTreatyPolicy.ResultCode);
+            if (ReignBeta.WorldSimulation.Actions.ReignAgreementBehavior.Instance?.ReconcileImpossibleTreaty(action, recorded) != true) return false;
+            var result = ReignActionResult.Obsolete(ReignBeta.WorldSimulation.Actions.ReignUnfulfilledTreatyPolicy.Message,
+                ReignBeta.WorldSimulation.Actions.ReignUnfulfilledTreatyPolicy.ResultCode);
             RememberActionResult(action, result);
             if (action.Status == ReignWorldActionStatus.Cancelled) return true;
             action.Status = ReignWorldActionStatus.Cancelled;
@@ -1671,7 +1682,7 @@ namespace ReignBeta.Campaign
         {
             if (action == null || action.Type != ReignWorldActionType.RegularIssueCampaignOrder
                 || (action.IsTerminal && !(action.Status == ReignWorldActionStatus.Failed
-                    && action.FailureReason == ReignBeta.Actions.ReignCompletedOrderPolicy.StaleAuthorizationFailure))) return false;
+                    && action.FailureReason == ReignBeta.WorldSimulation.Actions.ReignCompletedOrderPolicy.StaleAuthorizationFailure))) return false;
             JObject terms;
             try { terms = JObject.Parse(action.TermsJson ?? "{}"); }
             catch (Newtonsoft.Json.JsonException) { return false; }
@@ -1683,7 +1694,7 @@ namespace ReignBeta.Campaign
             if (order == null || order.Status != "completed" || order.CommanderHeroStringId != action.ActorHeroStringId
                 || order.CorrelationId != correlation || order.Steps == null || order.Steps.Count == 0
                 || order.CompletedStepCount != order.Steps.Count || order.Steps.Any(s => s.Status != "completed")
-                || ReignBeta.Actions.ReignAgreementBehavior.Instance?.MatchesObservedCompletedOrder(action, order.Status) != true)
+                || ReignBeta.WorldSimulation.Actions.ReignAgreementBehavior.Instance?.MatchesObservedCompletedOrder(action, order.Status) != true)
                 return false;
             // Recover only the known stale authorization error after exact native and
             // saved-consent proof. No native executor runs on this receipt-only path.
@@ -1773,7 +1784,7 @@ namespace ReignBeta.Campaign
             }
 
             if (TryRetireImpossibleTreaty(action)
-                || ReignBeta.Actions.ReignAgreementBehavior.Instance?.ReconcileObservedCampaignCancellation(action) == true
+                || ReignBeta.WorldSimulation.Actions.ReignAgreementBehavior.Instance?.ReconcileObservedCampaignCancellation(action) == true
                 || TryCompleteObservedCampaignOrder(action)) return GetLastActionResult(action.ActionId);
 
             if (action.RequiresAcceptance && action.Status == ReignWorldActionStatus.Proposed)

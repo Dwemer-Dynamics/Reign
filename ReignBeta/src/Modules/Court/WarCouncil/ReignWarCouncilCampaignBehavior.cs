@@ -2,8 +2,6 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using Newtonsoft.Json;
-using ReignBeta.Integration;
-using ReignBeta.Save;
 using ReignBeta.Shared.WarCouncil;
 using TaleWorlds.CampaignSystem;
 using TaleWorlds.CampaignSystem.MapEvents;
@@ -11,6 +9,9 @@ using TaleWorlds.CampaignSystem.Party;
 using TaleWorlds.CampaignSystem.Roster;
 using TaleWorlds.CampaignSystem.Settlements;
 using TaleWorlds.Core;
+using ReignBeta.Court.Campaign;
+using ReignBeta.Persistence.Save;
+using ReignBeta.Platform.Integration;
 
 namespace ReignBeta.Court.WarCouncil
 {

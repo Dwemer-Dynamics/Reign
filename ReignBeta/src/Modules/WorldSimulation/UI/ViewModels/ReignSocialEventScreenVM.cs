@@ -4,9 +4,6 @@ using System.Diagnostics;
 using System.Linq;
 using System.Threading.Tasks;
 using Newtonsoft.Json.Linq;
-using ReignBeta.Integration;
-using ReignBeta.Runtime;
-using ReignBeta.Settings;
 using ReignBeta.UI.EventArt;
 using ReignBeta.World;
 using TaleWorlds.CampaignSystem;
@@ -14,10 +11,20 @@ using TaleWorlds.Core;
 using TaleWorlds.Core.ViewModelCollection.ImageIdentifiers;
 using TaleWorlds.Library;
 using TaleWorlds.ScreenSystem;
+using ReignBeta.Characters.Integration;
+using ReignBeta.Dialogue.Integration;
+using ReignBeta.Dialogue.Runtime;
+using ReignBeta.Dialogue.UI;
+using ReignBeta.Platform.Integration;
+using ReignBeta.Portraits.Integration;
+using ReignBeta.Portraits.UI;
+using ReignBeta.UI.ViewModels;
+using ReignBeta.WorldSimulation.Runtime;
+using ReignBeta.WorldSimulation.World;
 
-namespace ReignBeta.UI.ViewModels
+namespace ReignBeta.WorldSimulation.UI
 {
-    public sealed class ReignSocialEventScreenVM : ViewModel, ReignBeta.UI.IReignActionHost
+    public sealed class ReignSocialEventScreenVM : ViewModel, ReignBeta.Dialogue.UI.IReignActionHost
     {
         public IReadOnlyList<Hero> ActionParticipants => _session.ActiveHeroes().ToList();
         public bool ActionBusy => IsBusy;
@@ -479,7 +486,7 @@ namespace ReignBeta.UI.ViewModels
                 if (activeHeroes.Count == 0) { rejected.Error = "No social-event participants are active."; return false; }
                 if (actionDraft != null && !activeHeroes.Any(h => h.StringId == actionDraft.NpcId)) { rejected.Error = "Activate the character addressed by your action."; return false; }
                 try { ReignConversationInputJournal.Save(ReignServerClient.GetCampaignId(),
-                    ReignBeta.Campaign.ReignWorldHistoryCampaignBehavior.Instance?.TimelineId ?? "main", Hero.MainHero?.StringId ?? "",
+                    ReignBeta.WorldSimulation.Campaign.ReignWorldHistoryCampaignBehavior.Instance?.TimelineId ?? "main", Hero.MainHero?.StringId ?? "",
                     correlationId, text, session: _session.PersonalStory == null ? "social_event_" + _session.Record.EventId : ReignNpcStoryClient.StorySceneSessionId(_session)); }
                 catch (Exception ex) { rejected.Error = "Your message could not be saved locally: " + ex.Message; AddSystemLine(rejected.Error); return false; }
                 string playerName = Hero.MainHero?.Name?.ToString() ?? "Player";
@@ -636,7 +643,7 @@ namespace ReignBeta.UI.ViewModels
                     RefreshFromSession();
                     AddSystemLine(_session.CurrentPhase.SettingSummary);
                 }
-                else if (ReignBeta.Campaign.ReignRelationshipCampaignBehavior.Instance?.ConcludeWedding(ActiveWeddingId, _session.CurrentPhaseIndex) == true)
+                else if (ReignBeta.Relationships.Campaign.ReignRelationshipCampaignBehavior.Instance?.ConcludeWedding(ActiveWeddingId, _session.CurrentPhaseIndex) == true)
                     _closeScreen?.Invoke();
                 return;
             }
@@ -1011,7 +1018,7 @@ namespace ReignBeta.UI.ViewModels
                         }
                         AddNativeStatusLines(line.RawResponse);
                     }
-                    var current = ReignBeta.Campaign.ReignNpcLivesBehavior.Instance?.State.Stories.FirstOrDefault(s => s.Id == _session.PersonalStory.Id);
+                    var current = ReignBeta.Characters.Campaign.ReignNpcLivesBehavior.Instance?.State.Stories.FirstOrDefault(s => s.Id == _session.PersonalStory.Id);
                     if (current != null && current.Revision != _session.PersonalStory.Revision)
                         AddSystemLine("This chapter is complete. Your shared experience has been recorded.");
                 }).ConfigureAwait(false);

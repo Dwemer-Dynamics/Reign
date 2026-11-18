@@ -3,8 +3,6 @@ using System.Collections.Generic;
 using System.Linq;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
-using ReignBeta.Integration;
-using ReignBeta.Save;
 using ReignBeta.Shared.Characters;
 using ReignBeta.UI;
 using TaleWorlds.CampaignSystem;
@@ -18,8 +16,11 @@ using TaleWorlds.Core;
 using TaleWorlds.Library;
 using TaleWorlds.Localization;
 using TaleWorlds.MountAndBlade;
+using ReignBeta.Dialogue.UI;
+using ReignBeta.Persistence.Save;
+using ReignBeta.Platform.Integration;
 
-namespace ReignBeta.Campaign
+namespace ReignBeta.Characters.Campaign
 {
     internal sealed class EncounteredResident
     {
@@ -132,7 +133,7 @@ namespace ReignBeta.Campaign
                 Hero hero = Resolve(resident);
                 if (hero == null || !hero.IsAlive || hero.IsPrisoner
                     || hero.IsNotable || hero.PartyBelongedTo != null || hero.Clan != null || hero.CompanionOf != null
-                    || ReignBeta.PartyAgency.ReignTemporaryPartyGuestCampaignBehavior.Instance?.Records.Any(r => r.IsLive && r.HeroStringId == hero.StringId) == true) continue;
+                    || ReignBeta.WorldSimulation.PartyAgency.ReignTemporaryPartyGuestCampaignBehavior.Instance?.Records.Any(r => r.IsLive && r.HeroStringId == hero.StringId) == true) continue;
                 Settlement home = Settlement.Find(resident.HomeId);
                 if (home == null || hero.CurrentSettlement == home) continue;
                 if (hero.CurrentSettlement != null) LeaveSettlementAction.ApplyForCharacterOnly(hero);
@@ -486,8 +487,8 @@ namespace ReignBeta.Campaign
             var home = Settlement.Find(record.HomeId);
             return new JObject { ["schema"] = "reign-encountered-resident-v1", ["residentId"] = record.Id,
                 ["recruitmentAgreementId"] = AgreementId(hero),
-                ["recruitmentCreditGold"] = ReignBeta.World.ReignGoldTransferService.Instance?.Credit(hero, AgreementId(hero)) ?? 0,
-                ["nativePaymentReceipts"] = ReignBeta.World.ReignGoldTransferService.Instance?.Snapshot(hero) ?? new JArray(),
+                ["recruitmentCreditGold"] = ReignBeta.WorldSimulation.World.ReignGoldTransferService.Instance?.Credit(hero, AgreementId(hero)) ?? 0,
+                ["nativePaymentReceipts"] = ReignBeta.WorldSimulation.World.ReignGoldTransferService.Instance?.Snapshot(hero) ?? new JArray(),
                 ["homeSettlementId"] = record.HomeId, ["homeSettlementName"] = home?.Name?.ToString() ?? "",
                 ["homeOwnerClanLeaderId"] = home?.OwnerClan?.Leader?.StringId ?? "",
                 ["homeRulerId"] = home?.OwnerClan?.Kingdom?.Leader?.StringId ?? "",

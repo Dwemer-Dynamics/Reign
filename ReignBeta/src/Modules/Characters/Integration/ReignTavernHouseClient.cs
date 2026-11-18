@@ -4,13 +4,17 @@ using System.Linq;
 using System.Threading.Tasks;
 using Newtonsoft.Json.Linq;
 using ReignBeta.Campaign;
-using ReignBeta.Runtime;
-using ReignBeta.Settings;
 using TaleWorlds.CampaignSystem;
 using TaleWorlds.CampaignSystem.Settlements;
-using static ReignBeta.Integration.ReignServerClient;
+using static ReignBeta.Platform.Integration.ReignServerClient;
+using ReignBeta.Characters.Campaign;
+using ReignBeta.Dialogue.Integration;
+using ReignBeta.Dialogue.Runtime;
+using ReignBeta.Platform.Integration;
+using ReignBeta.Platform.Settings;
+using ReignBeta.WorldSimulation.Campaign;
 
-namespace ReignBeta.Integration
+namespace ReignBeta.Characters.Integration
 {
     internal static class ReignTavernHouseClient
     {
@@ -97,7 +101,7 @@ namespace ReignBeta.Integration
                 }
                 JObject response = await PostJsonAsync("/tavern-house/" + operation, request).ConfigureAwait(false);
                 if (completeAction != null) await ReignMainThread.InvokeAsync(() => {
-                    ReignBeta.Actions.ReignTavernHouseAction.RegisterPrepared(response);
+                    ReignBeta.Characters.Actions.ReignTavernHouseAction.RegisterPrepared(response);
                     completeAction(response);
                 }).ConfigureAwait(false);
                 if (operation == "respond" && response?.Value<bool?>("ok") == true)

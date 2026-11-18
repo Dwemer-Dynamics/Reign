@@ -2,8 +2,9 @@ using System;
 using HarmonyLib;
 using TaleWorlds.Core;
 using TaleWorlds.SaveSystem;
+using ReignBeta.Platform.Integration;
 
-namespace ReignBeta.Integration
+namespace ReignBeta.Persistence.Integration
 {
     internal static class ReignSaveSyncDeletionPatch
     {

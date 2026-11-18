@@ -7,9 +7,11 @@ using TaleWorlds.CampaignSystem;
 using TaleWorlds.CampaignSystem.Actions;
 using TaleWorlds.CampaignSystem.Election;
 using TaleWorlds.CampaignSystem.Settlements;
-using static ReignBeta.Government.ReignGovernmentCampaignBehavior;
+using static ReignBeta.Government.Campaign.ReignGovernmentCampaignBehavior;
+using ReignBeta.Government.Campaign;
+using ReignBeta.Government.Domain;
 
-namespace ReignBeta.Government
+namespace ReignBeta.Government.Testing
 {
     internal static partial class ReignGovernmentTestControls
     {

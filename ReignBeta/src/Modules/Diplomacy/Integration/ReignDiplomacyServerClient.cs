@@ -6,16 +6,22 @@ using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using ReignBeta.Campaign;
 using ReignBeta.Government;
-using ReignBeta.Settings;
-using ReignBeta.Runtime;
 using ReignBeta.World;
 using TaleWorlds.CampaignSystem;
 using TaleWorlds.CampaignSystem.CampaignBehaviors;
 using TaleWorlds.CampaignSystem.CharacterDevelopment;
 using TaleWorlds.CampaignSystem.Settlements;
-using static ReignBeta.Integration.ReignServerClient;
+using static ReignBeta.Platform.Integration.ReignServerClient;
+using ReignBeta.Diplomacy.World;
+using ReignBeta.Government.Campaign;
+using ReignBeta.Platform.Campaign;
+using ReignBeta.Platform.Integration;
+using ReignBeta.Platform.Settings;
+using ReignBeta.Rebellion.Campaign;
+using ReignBeta.WorldSimulation.Campaign;
+using ReignBeta.WorldSimulation.Runtime;
 
-namespace ReignBeta.Integration
+namespace ReignBeta.Diplomacy.Integration
 {
     public sealed class ReignDiplomacyEvaluationResult
     {
@@ -237,7 +243,7 @@ namespace ReignBeta.Integration
             JObject response = await GetJsonAsync(route).ConfigureAwait(false);
             if (response.Value<bool?>("ok") != true || !(response["notices"] is JArray notices)) return results;
             if (response["readinessPressure"] is JObject pressureSnapshot)
-                await ReignMainThread.InvokeAsync(() => ReignBeta.Economy.ReignMilitaryReadiness.AcceptPressure(
+                await ReignMainThread.InvokeAsync(() => ReignBeta.WorldSimulation.Economy.ReignMilitaryReadiness.AcceptPressure(
                     pressureSnapshot, pressureCampaignId, timelineId, pressureRequestedDay)).ConfigureAwait(false);
             foreach (JObject item in notices.OfType<JObject>())
             {
@@ -490,7 +496,7 @@ namespace ReignBeta.Integration
                     ["strength"] = kingdom.CurrentTotalStrength,
                     ["treasury"] = treasury,
                     ["leaderGold"] = ruler.Gold,
-                    ["economicStress"] = ReignBeta.Economy.ReignWarEconomyTransactions.Stress(kingdom),
+                    ["economicStress"] = ReignBeta.WorldSimulation.Economy.ReignWarEconomyTransactions.Stress(kingdom),
                     ["dailyGoldChange"] = dailyGoldChange,
                     ["settlementProsperity"] = settlementProsperity,
                     ["garrisonStrength"] = garrisonStrength,

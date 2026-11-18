@@ -4,7 +4,7 @@ using System.Linq;
 using ReignBeta.Knowledge;
 using TaleWorlds.CampaignSystem;
 
-namespace ReignBeta.Campaign
+namespace ReignBeta.Characters.Campaign
 {
     /// <summary>
     /// Persistent authorization foundation for the future Spymaster dossier.

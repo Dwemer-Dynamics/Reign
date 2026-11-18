@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Linq;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
-using ReignBeta.Integration;
 using ReignBeta.Actions;
 using ReignBeta.Campaign;
 using ReignBeta.World;
@@ -12,9 +11,13 @@ using Reign.Core.Contracts.Court;
 using TaleWorlds.CampaignSystem;
 using TaleWorlds.CampaignSystem.Actions;
 using TaleWorlds.CampaignSystem.Settlements;
-using static ReignBeta.Court.ReignCourtCampaignBehavior;
+using static ReignBeta.Court.Campaign.ReignCourtCampaignBehavior;
+using ReignBeta.Characters.Integration;
+using ReignBeta.Court.Campaign;
+using ReignBeta.WorldSimulation.Actions;
+using ReignBeta.WorldSimulation.Campaign;
 
-namespace ReignBeta.Court
+namespace ReignBeta.Spymaster.Campaign
 {
     internal static partial class ReignSpymasterTestControls
     {

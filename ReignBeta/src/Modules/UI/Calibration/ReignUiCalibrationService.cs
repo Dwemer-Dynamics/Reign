@@ -8,14 +8,14 @@ using System.Runtime.CompilerServices;
 using System.Security.Cryptography;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
-using ReignBeta.Integration;
-using ReignBeta.Settings;
 using ReignBeta.UI.ViewModels;
 using TaleWorlds.Engine.GauntletUI;
 using TaleWorlds.GauntletUI;
 using TaleWorlds.GauntletUI.BaseTypes;
 using TaleWorlds.Library;
 using Vector2 = NumericsVectors::System.Numerics.Vector2;
+using ReignBeta.Platform.Integration;
+using ReignBeta.Platform.Settings;
 
 namespace ReignBeta.UI.Calibration
 {

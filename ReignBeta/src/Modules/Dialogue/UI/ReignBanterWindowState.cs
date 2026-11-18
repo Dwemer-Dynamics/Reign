@@ -1,6 +1,6 @@
 using System;
 
-namespace ReignBeta.UI
+namespace ReignBeta.Dialogue.UI
 {
     // Logical Gauntlet coordinates; no game, provider or campaign state.
     internal sealed class ReignBanterWindowState

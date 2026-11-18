@@ -1,6 +1,6 @@
 using System.Collections.Generic;
 
-namespace ReignBeta.Events
+namespace ReignBeta.WorldSimulation.Events
 {
     public class SocialEventTemplate
     {

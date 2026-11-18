@@ -1,7 +1,7 @@
 using System;
 using TaleWorlds.CampaignSystem;
 
-namespace ReignBeta.Runtime
+namespace ReignBeta.Dialogue.Runtime
 {
     /// <summary>
     /// Shared eligibility rules for every player-facing Reign conversation surface.

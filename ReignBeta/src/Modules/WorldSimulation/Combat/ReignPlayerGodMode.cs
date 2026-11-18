@@ -1,12 +1,12 @@
 using System;
 using HarmonyLib;
-using ReignBeta.Integration;
 using TaleWorlds.Core;
 using TaleWorlds.InputSystem;
 using TaleWorlds.Library;
 using TaleWorlds.MountAndBlade;
+using ReignBeta.Platform.Integration;
 
-namespace ReignBeta.World
+namespace ReignBeta.WorldSimulation.Combat
 {
     // Mission-local only: never persisted to a hero, campaign, save or RBM setting.
     internal sealed class ReignPlayerGodMode : MissionLogic

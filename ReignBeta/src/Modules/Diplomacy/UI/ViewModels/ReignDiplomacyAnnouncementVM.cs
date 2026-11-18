@@ -8,8 +8,10 @@ using TaleWorlds.CampaignSystem;
 using TaleWorlds.Core;
 using TaleWorlds.Core.ViewModelCollection.ImageIdentifiers;
 using TaleWorlds.Library;
+using ReignBeta.Diplomacy.World;
+using ReignBeta.WorldSimulation.World;
 
-namespace ReignBeta.UI.ViewModels
+namespace ReignBeta.Diplomacy.UI
 {
     public sealed class ReignDiplomacyAnnouncementVM : ViewModel
     {

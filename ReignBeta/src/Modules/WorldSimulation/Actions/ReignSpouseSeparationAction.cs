@@ -7,8 +7,10 @@ using Reign.Core.Contracts.Actions;
 using ReignBeta.Campaign;
 using TaleWorlds.CampaignSystem;
 using TaleWorlds.CampaignSystem.Actions;
+using ReignBeta.Actions;
+using ReignBeta.WorldSimulation.Campaign;
 
-namespace ReignBeta.Actions
+namespace ReignBeta.WorldSimulation.Actions
 {
     internal static class ReignSpouseSeparationAction
     {

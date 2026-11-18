@@ -1,4 +1,4 @@
-using ReignBeta.World;
+using ReignBeta.WorldSimulation.CampaignCommands;
 using Xunit;
 
 namespace Reign.Mcp.Tests.Features.WorldSimulation;
