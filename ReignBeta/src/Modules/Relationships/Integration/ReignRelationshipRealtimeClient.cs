@@ -5,13 +5,14 @@ using System.Threading.Tasks;
 using Newtonsoft.Json.Linq;
 using ReignBeta.Campaign;
 using TaleWorlds.CampaignSystem;
+using static ReignBeta.Integration.ReignServerClient;
 
 namespace ReignBeta.Integration
 {
-    public static partial class ReignServerClient
+    internal static class ReignRelationshipRealtimeClient
     {
         private const int RelationshipNativePullBatchSize = 1024;
-        private static bool RelationshipOutboxUploadInFlight;
+        internal static bool RelationshipOutboxUploadInFlight;
         private static bool RelationshipNativePullInFlight;
         private static bool RelationshipNativeReceiptInFlight;
         private static DateTime RelationshipLastOutboxAttemptUtc = DateTime.MinValue;
@@ -53,7 +54,7 @@ namespace ReignBeta.Integration
             try
             {
                 ReignAmbientRelationshipRunResult result =
-                    await SubmitAmbientRelationshipSnapshotAsync().ConfigureAwait(false);
+                    await ReignRelationshipDirectorClient.SubmitAmbientRelationshipSnapshotAsync().ConfigureAwait(false);
                 RelationshipOutboxIntervalMs = result.Ok && !result.Idempotent ? 100 : 1000;
             }
             catch (Exception ex)
@@ -78,7 +79,7 @@ namespace ReignBeta.Integration
                     ["campaignId"] = campaignId,
                     ["timelineId"] = timelineId,
                     ["limit"] = RelationshipNativePullBatchSize,
-                    ["worldDay"] = CurrentDirectorDay()
+                    ["worldDay"] = ReignRelationshipDirectorClient.CurrentDirectorDay()
                 }).ConfigureAwait(false);
                 List<ReignNativeRelationSyncTarget> targets =
                     (response["targets"] as JArray ?? new JArray()).OfType<JObject>()
@@ -114,7 +115,7 @@ namespace ReignBeta.Integration
                 {
                     ["campaignId"] = GetCampaignId(),
                     ["timelineId"] = ReignWorldHistoryCampaignBehavior.Instance?.TimelineId ?? "main",
-                    ["worldDay"] = CurrentDirectorDay(),
+                    ["worldDay"] = ReignRelationshipDirectorClient.CurrentDirectorDay(),
                     ["receipts"] = receipts
                 }).ConfigureAwait(false);
                 if (response.Value<bool?>("ok") != true)
@@ -146,7 +147,7 @@ namespace ReignBeta.Integration
                         ["campaignId"] = GetCampaignId(),
                         ["timelineId"] =
                             ReignWorldHistoryCampaignBehavior.Instance?.TimelineId ?? "main",
-                        ["worldDay"] = CurrentDirectorDay(),
+                        ["worldDay"] = ReignRelationshipDirectorClient.CurrentDirectorDay(),
                         ["receipts"] = receipts
                     }).ConfigureAwait(false);
                 if (response.Value<bool?>("ok") != true)

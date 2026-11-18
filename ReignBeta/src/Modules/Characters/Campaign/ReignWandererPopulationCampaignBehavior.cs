@@ -376,7 +376,7 @@ namespace ReignBeta.Campaign
             int saveGeneration = ReignSaveSyncCoordinator.CampaignGeneration;
             try
             {
-                JObject response = await ReignServerClient.ReadWandererContactAsync(campaign, timeline, p.HeroId, Hero.MainHero.StringId);
+                JObject response = await ReignWandererClient.ReadWandererContactAsync(campaign, timeline, p.HeroId, Hero.MainHero.StringId);
                 await ReignMainThread.InvokeAsync(() => {
                     if (System.Threading.Volatile.Read(ref _historyRequestId) != requestId) return;
                     if (_sessionCampaign == null || !ReferenceEquals(_sessionCampaign, TaleWorlds.CampaignSystem.Campaign.Current)) return;

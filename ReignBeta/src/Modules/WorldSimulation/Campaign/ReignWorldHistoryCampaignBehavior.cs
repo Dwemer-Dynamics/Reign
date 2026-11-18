@@ -188,7 +188,7 @@ namespace ReignBeta.Campaign
                 };
             }
 
-            JObject response = await ReignServerClient.OpenWorldHistoryTimelineAsync(
+            JObject response = await ReignWorldHistoryClient.OpenWorldHistoryTimelineAsync(
                 _timelineId,
                 _sequence,
                 _headEventId,

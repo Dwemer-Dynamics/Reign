@@ -37,7 +37,7 @@ namespace ReignBeta.Court
         public async Task<bool> PrepareInternationalFixtureAsync()
         {
             ReignRulerDocketState state = EnsureRulerDocketState();
-            JObject world = ReignServerClient.BuildDiplomacyWorldSnapshot();
+            JObject world = ReignDiplomacyServerClient.BuildDiplomacyWorldSnapshot();
             await RefreshInternationalCourtAsync(world, state).ConfigureAwait(false);
             return !string.IsNullOrWhiteSpace(state.InternationalWorldJson) && state.InternationalWorldJson != "{}";
         }
@@ -486,7 +486,7 @@ namespace ReignBeta.Court
             if (_internationalRefreshInFlight || DateTime.UtcNow < _internationalRefreshAfterUtc) return;
             _internationalRefreshInFlight = true;
             _internationalRefreshAfterUtc = DateTime.UtcNow.AddSeconds(60);
-            JObject world = ReignServerClient.BuildDiplomacyWorldSnapshot();
+            JObject world = ReignDiplomacyServerClient.BuildDiplomacyWorldSnapshot();
             _ = RefreshInternationalCourtAsync(world, state);
         }
 

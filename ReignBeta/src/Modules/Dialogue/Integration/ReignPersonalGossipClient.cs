@@ -14,10 +14,11 @@ using TaleWorlds.CampaignSystem;
 using TaleWorlds.CampaignSystem.Party;
 using TaleWorlds.CampaignSystem.Settlements;
 using ReignBeta.Shared;
+using static ReignBeta.Integration.ReignServerClient;
 
 namespace ReignBeta.Integration
 {
-    public static partial class ReignServerClient
+    internal static class ReignPersonalGossipClient
     {
         private sealed class PersonalGossipPump
         {
@@ -575,13 +576,13 @@ namespace ReignBeta.Integration
                 gen0 = _gossipCaptureGen0Overlap; gen1 = _gossipCaptureGen1Overlap; gen2 = _gossipCaptureGen2Overlap;
             }
             return new JObject { ["schema"] = "reign-gossip-clock-runtime-v1", ["inFlight"] = pump != null && Volatile.Read(ref pump.InFlight) != 0
-                    || Volatile.Read(ref _communicationInFlight) != 0 || ReignBeta.Campaign.ReignNpcLivesBehavior.Instance?.HasPendingCommunicationReceipts == true,
-                ["campaignId"] = pump?.CampaignId ?? _communicationCampaign, ["timelineId"] = pump?.Timeline ?? _communicationTimeline,
+                    || Volatile.Read(ref ReignCommunicationClient._communicationInFlight) != 0 || ReignBeta.Campaign.ReignNpcLivesBehavior.Instance?.HasPendingCommunicationReceipts == true,
+                ["campaignId"] = pump?.CampaignId ?? ReignCommunicationClient._communicationCampaign, ["timelineId"] = pump?.Timeline ?? ReignCommunicationClient._communicationTimeline,
                 ["lastError"] = pump?.LastError ?? "", ["readiness"] = pump?.Readiness?.DeepClone(),
                 ["periodicCommunicationHoldVersion"] = 1,
-                ["periodicCommunicationHoldActive"] = CommunicationPollHold.HasLease
-                    && CommunicationPollHold.Active(TaleWorlds.CampaignSystem.Campaign.Current, CommunicationPollScope(), DateTime.UtcNow),
-                ["periodicCommunicationHoldUntilUtc"] = CommunicationPollHold.UntilUtc,
+                ["periodicCommunicationHoldActive"] = ReignCommunicationClient.CommunicationPollHold.HasLease
+                    && ReignCommunicationClient.CommunicationPollHold.Active(TaleWorlds.CampaignSystem.Campaign.Current, ReignCommunicationClient.CommunicationPollScope(), DateTime.UtcNow),
+                ["periodicCommunicationHoldUntilUtc"] = ReignCommunicationClient.CommunicationPollHold.UntilUtc,
                 ["watchUntilUtc"] = pump?.Wake.UntilUtc, ["knownWork"] = pump?.Wake.HasKnownWork ?? false,
                 ["disabledSettingsWatch"] = pump?.Wake.IsDisabled ?? false,
                 ["nextBackgroundPollUtc"] = pump?.Wake.NextBackgroundPollUtc,

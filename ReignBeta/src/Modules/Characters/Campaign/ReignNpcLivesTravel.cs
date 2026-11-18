@@ -190,7 +190,7 @@ namespace ReignBeta.Campaign
         }
         private void QueueLeaveReceipt(NpcPersonalJourney journey, string kind, double day)
         {
-            var p = ReignServerClient.CaptureNpcLivesContext(Generation); string id = journey.Id + ":" + kind;
+            var p = ReignNpcLivesClient.CaptureNpcLivesContext(Generation); string id = journey.Id + ":" + kind;
             p["kind"] = kind; p["id"] = journey.Id; p["heroId"] = journey.HeroId; p["revision"] = journey.Revision; p["worldDay"] = day;
             p["nativeReceipt"] = id; QueueLifeOperation("native", p, id);
         }
@@ -453,7 +453,7 @@ namespace ReignBeta.Campaign
         }
         private void QueueMeetingReceipt(NpcMeetingJourney journey, string kind, string agreementHash = "", string operation = null)
         {
-            var p = ReignServerClient.CaptureNpcLivesContext(Generation);
+            var p = ReignNpcLivesClient.CaptureNpcLivesContext(Generation);
             string receipt = operation ?? journey.Meeting.Id + ":" + journey.Meeting.Revision + ":" + kind;
             p["id"] = journey.Meeting.Id; p["kind"] = kind; p["meeting"] = JObject.FromObject(journey.Meeting);
             p["agreementHash"] = agreementHash; p["nativeReceipt"] = receipt;
@@ -653,7 +653,7 @@ namespace ReignBeta.Campaign
                 foreach (var objective in story.Definition.Phases[story.PhaseIndex].Objectives.Where(o => o.Kind == "visit" && !story.Evidence.Any(e => e.ObjectiveId == o.Id)))
                 {
                     string receipt = story.Id + ":" + objective.Id + ":visit";
-                    var p = ReignServerClient.CaptureNpcLivesContext(Generation);
+                    var p = ReignNpcLivesClient.CaptureNpcLivesContext(Generation);
                     p["kind"] = "visit"; p["id"] = story.Id; p["heroId"] = story.HeroId; p["revision"] = story.Revision;
                     p["objectiveId"] = objective.Id; p["nativeReceipt"] = receipt; p["outcome"] = objective.RequiredOutcome;
                     QueueLifeOperation("native", p, receipt);

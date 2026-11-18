@@ -71,7 +71,7 @@ namespace ReignBeta.Campaign
                     throw new InvalidOperationException(
                         "The exact guarded campaign-test run-owned Current save is not loaded.");
                 }
-                await ReignServerClient.VerifyCampaignCommandSaveAsync(new JObject
+                await ReignCampaignCommandClient.VerifyCampaignCommandSaveAsync(new JObject
                 {
                     ["runId"] = runId, ["loadedSaveName"] = activeSave,
                     ["campaignAligned"] = true,
@@ -158,7 +158,7 @@ namespace ReignBeta.Campaign
                 profilePayload["metrics"] = measuredResult["metrics"];
             if (caseLedgerRows != null && caseLedgerRows.Count > 0)
                 profilePayload["caseLedgerRows"] = caseLedgerRows;
-            JObject recorded = await ReignServerClient.ReportCampaignCommandProfileAsync(profilePayload)
+            JObject recorded = await ReignCampaignCommandClient.ReportCampaignCommandProfileAsync(profilePayload)
                 .ConfigureAwait(false);
             evidence["serverRecord"] = recorded;
             if (passed)
@@ -191,7 +191,7 @@ namespace ReignBeta.Campaign
         private static async Task<JObject> RunCampaignCommandVerificationProfileAsync(
             string tier, int seed, int timeoutSeconds)
         {
-            JObject started = await ReignServerClient.StartCampaignCommandVerificationAsync(tier, seed)
+            JObject started = await ReignCampaignCommandClient.StartCampaignCommandVerificationAsync(tier, seed)
                 .ConfigureAwait(false);
             if (started.Value<bool?>("ok") != true)
                 return new JObject { ["ok"] = false,
@@ -203,7 +203,7 @@ namespace ReignBeta.Campaign
             while (DateTime.UtcNow < deadline)
             {
                 await Task.Delay(1000).ConfigureAwait(false);
-                JObject statusEnvelope = await ReignServerClient.GetCampaignCommandVerificationStatusAsync()
+                JObject statusEnvelope = await ReignCampaignCommandClient.GetCampaignCommandVerificationStatusAsync()
                     .ConfigureAwait(false);
                 status = statusEnvelope["status"] as JObject ?? statusEnvelope;
                 string observedRunId = status.Value<string>("runId") ?? string.Empty;
@@ -218,7 +218,7 @@ namespace ReignBeta.Campaign
             if (string.IsNullOrWhiteSpace(runId))
                 return new JObject { ["ok"] = false,
                     ["error"] = "Verification Lab did not publish a run id before the profile timeout." };
-            JObject resultEnvelope = await ReignServerClient.GetCampaignCommandVerificationResultAsync(runId)
+            JObject resultEnvelope = await ReignCampaignCommandClient.GetCampaignCommandVerificationResultAsync(runId)
                 .ConfigureAwait(false);
             JObject result = resultEnvelope["run"] as JObject ?? resultEnvelope;
             bool passed = result.Value<bool?>("passed") == true

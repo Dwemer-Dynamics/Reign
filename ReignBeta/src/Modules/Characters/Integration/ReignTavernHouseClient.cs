@@ -8,10 +8,11 @@ using ReignBeta.Runtime;
 using ReignBeta.Settings;
 using TaleWorlds.CampaignSystem;
 using TaleWorlds.CampaignSystem.Settlements;
+using static ReignBeta.Integration.ReignServerClient;
 
 namespace ReignBeta.Integration
 {
-    public static partial class ReignServerClient
+    internal static class ReignTavernHouseClient
     {
         /// <summary>Call on the native main thread, before starting asynchronous work.</summary>
         public static JObject BuildTavernHousePayload(Settlement town, string conversationId)
@@ -79,7 +80,7 @@ namespace ReignBeta.Integration
                         request["identityRoster"] = fresh["identityRoster"];
                         request["sceneOpportunity"] = fresh["sceneOpportunity"];
                         request["correlationId"] = request.Value<string>("correlationId") ?? NewCorrelationId("tavern_house", speaker.StringId);
-                        completeAction = BeginStructuredActionExchange(request, speaker, actionDraft, receipt == null);
+                        completeAction = ReignStructuredActionClient.BeginStructuredActionExchange(request, speaker, actionDraft, receipt == null);
                         request["channel"] = "party_chat"; request["phaseId"] = "tavern_house";
                         request["locationId"] = town.StringId; request["sceneInterface"] = "tavern_house";
                     }).ConfigureAwait(false);

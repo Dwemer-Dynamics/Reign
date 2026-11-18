@@ -206,7 +206,7 @@ namespace ReignBeta.UI.ViewModels
                 else
                 {
                     Transcript.Add(new ReignChatLineVM(hero?.Name?.ToString() ?? Seat(role).Title, response.Raw.Value<string>("reply") ?? "Nothing material to report.", "npc"));
-                    foreach (string statusLine in ReignServerClient.NativeStatusLines(response.Raw))
+                    foreach (string statusLine in ReignStructuredActionClient.NativeStatusLines(response.Raw))
                         Transcript.Add(new ReignChatLineVM("Council Clerk", statusLine, "system"));
                 }
                 return true;

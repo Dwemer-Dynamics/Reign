@@ -3,10 +3,11 @@ using System.Threading.Tasks;
 using Newtonsoft.Json.Linq;
 using ReignBeta.World;
 using TaleWorlds.CampaignSystem;
+using static ReignBeta.Integration.ReignServerClient;
 
 namespace ReignBeta.Integration
 {
-    public static partial class ReignServerClient
+    internal static class ReignCampaignCommandClient
     {
         public static async Task ReportCampaignOrderStateAsync(ReignCampaignOrderRecord order,
             string eventType)

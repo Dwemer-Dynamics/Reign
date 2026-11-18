@@ -48,7 +48,7 @@ namespace ReignBeta.Government
                 try
                 {
                     Task<JObject> call = await ReignMainThread.InvokeAsync(() =>
-                        ReignServerClient.RequestGovernmentSpeakerStatementAsync(
+                        ReignGovernmentServerClient.RequestGovernmentSpeakerStatementAsync(
                             request.Kingdom, request.Party, request.Resolutions)).ConfigureAwait(false);
                     response = await call.ConfigureAwait(false);
                 }

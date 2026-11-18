@@ -535,7 +535,7 @@ namespace ReignBeta.Campaign
             {
                 await ReignMainThread.InvokeAsync(
                     relationships.ProcessInitializationProjectionFrame).ConfigureAwait(false);
-                await ReignServerClient.PumpInitializationNativeReceiptsAsync().ConfigureAwait(false);
+                await ReignRelationshipRealtimeClient.PumpInitializationNativeReceiptsAsync().ConfigureAwait(false);
                 ReignNativeRelationSyncProgress progress = relationships.InitializationProgress();
                 if (progress == null)
                 {
@@ -555,7 +555,7 @@ namespace ReignBeta.Campaign
                 if (progress.RemainingCount == 0
                     && relationships.PendingNativeReceiptCount == 0)
                 {
-                    if (!await ReignServerClient.ReportNativeRelationSyncProgressAsync(progress)
+                    if (!await ReignRelationshipDirectorClient.ReportNativeRelationSyncProgressAsync(progress)
                         .ConfigureAwait(false))
                     {
                         throw new InvalidOperationException(
@@ -595,14 +595,14 @@ namespace ReignBeta.Campaign
                     relationships.ProcessInitializationProjectionFrame();
                 }).ConfigureAwait(false);
                 EnsureCurrentGeneration(generationId);
-                await ReignServerClient.PumpInitializationNativeReceiptsAsync().ConfigureAwait(false);
+                await ReignRelationshipRealtimeClient.PumpInitializationNativeReceiptsAsync().ConfigureAwait(false);
                 EnsureCurrentGeneration(generationId);
                 ReignNativeRelationSyncProgress progress = relationships.InitializationProgress();
                 ReignInitializationQueueObservation observation =
                     new ReignInitializationQueueObservation
                     {
                         WorldHistoryCount = ReignWorldHistoryTransport.PendingCount(),
-                        RelationshipInputCount = ReignServerClient.PendingAmbientInputCount(),
+                        RelationshipInputCount = ReignRelationshipDirectorClient.PendingAmbientInputCount(),
                         NativeTargetCount = progress?.RemainingCount ?? 0,
                         NativeReceiptCount = relationships.PendingNativeReceiptCount,
                         InFlightCount = ReignWorldHistoryTransport.UploadInFlight ? 1 : 0,
@@ -625,7 +625,7 @@ namespace ReignBeta.Campaign
                 throw new TimeoutException(
                     "Critical initialization queues did not become durably idle within one minute."
                     + " History=" + ReignWorldHistoryTransport.PendingCount()
-                    + ", relationship inputs=" + ReignServerClient.PendingAmbientInputCount()
+                    + ", relationship inputs=" + ReignRelationshipDirectorClient.PendingAmbientInputCount()
                     + ", native receipts=" + relationships.PendingNativeReceiptCount + ".");
 
             long expectedSequence = _state.SealedHistorySequence;
@@ -683,12 +683,12 @@ namespace ReignBeta.Campaign
                     throw new InvalidOperationException(status?.Value<string>("error")
                         ?? "Initial social-world status was unavailable.");
 
-                await ReignServerClient.PullRelationshipNativeTargetsAsync()
+                await ReignRelationshipRealtimeClient.PullRelationshipNativeTargetsAsync()
                     .ConfigureAwait(false);
                 await ReignMainThread.InvokeAsync(
                     relationships.ProcessInitializationProjectionFrame)
                     .ConfigureAwait(false);
-                await ReignServerClient.PumpInitializationNativeReceiptsAsync()
+                await ReignRelationshipRealtimeClient.PumpInitializationNativeReceiptsAsync()
                     .ConfigureAwait(false);
 
                 int pending = status.Value<int?>("pendingSocialOutcomes") ?? 0;

@@ -176,7 +176,7 @@ namespace ReignBeta.Campaign
         {
             try
             {
-                ReignRebellionEvaluationResult result = await ReignServerClient.EvaluateRebellionsAsync(
+                ReignRebellionEvaluationResult result = await ReignRebellionServerClient.EvaluateRebellionsAsync(
                     _movements.ToList(), _memberships.ToList()).ConfigureAwait(false);
                 if (result.Ok && result.Updates.Count > 0)
                 {
@@ -238,7 +238,7 @@ namespace ReignBeta.Campaign
                 JArray requestedPairs = BuildPoliticalAttitudeRequest();
                 stage = "resolving effective political relationships";
                 ReignEffectiveAttitudeResult resolved =
-                    await ReignServerClient.ResolveEffectiveAttitudesAsync(requestedPairs)
+                    await ReignRebellionServerClient.ResolveEffectiveAttitudesAsync(requestedPairs)
                         .ConfigureAwait(false);
                 stage = "applying weekly rebellion rolls";
                 await ReignMainThread.InvokeAsync(() =>
@@ -894,7 +894,7 @@ namespace ReignBeta.Campaign
             Hero sender, Hero recipient, string body, string reason,
             float deliveryDay, bool summonsLetter)
         {
-            ReignLetterSendResult send = await ReignServerClient.SendRebellionSystemLetterAsync(
+            ReignLetterSendResult send = await ReignRebellionServerClient.SendRebellionSystemLetterAsync(
                 sender, recipient, body, reason, deliveryDay, plot?.PlotId ?? string.Empty)
                 .ConfigureAwait(false);
             if (plot == null || !send.Ok) return;
@@ -2989,7 +2989,7 @@ namespace ReignBeta.Campaign
                 return new JObject { ["ok"] = false, ["error"] = "Both kingdoms require current rulers." };
             JObject exactTerms = terms == null ? new JObject() : (JObject)terms.DeepClone();
             if (!string.IsNullOrWhiteSpace(politicalResult)) exactTerms["politicalResult"] = politicalResult;
-            JObject response = await ReignServerClient.CreateNegotiationDraftAsync(new JObject
+            JObject response = await ReignRebellionServerClient.CreateNegotiationDraftAsync(new JObject
             {
                 ["brokerHeroId"] = broker?.StringId ?? Hero.MainHero?.StringId ?? string.Empty,
                 ["firstKingdomId"] = first.StringId,
@@ -3006,7 +3006,7 @@ namespace ReignBeta.Campaign
 
         public async Task<JObject> RespondToNegotiationAsync(string negotiationId, Hero ruler, bool approve, string reason)
         {
-            JObject response = await ReignServerClient.RespondToNegotiationAsync(
+            JObject response = await ReignRebellionServerClient.RespondToNegotiationAsync(
                 negotiationId, ruler, ruler?.Clan?.Kingdom, approve, reason).ConfigureAwait(false);
             await ReignMainThread.InvokeAsync(() => UpsertNegotiation(response)).ConfigureAwait(false);
             return response;
@@ -3014,7 +3014,7 @@ namespace ReignBeta.Campaign
 
         public async Task RefreshNegotiationsOnDemandAsync(string negotiationId = "")
         {
-            JObject response = await ReignServerClient.GetNegotiationsAsync(negotiationId).ConfigureAwait(false);
+            JObject response = await ReignRebellionServerClient.GetNegotiationsAsync(negotiationId).ConfigureAwait(false);
             await ReignMainThread.InvokeAsync(() =>
             {
                 if (response["negotiations"] is JArray rows)

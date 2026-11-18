@@ -66,7 +66,7 @@ namespace ReignBeta.Campaign
                         record["itemId"] = item.StringId; record["itemName"] = item.Name.ToString();
                     }
                 if (record.Value<string>("heroId") == null) continue;
-                var p = ReignServerClient.CaptureNpcLivesContext(Generation);
+                var p = ReignNpcLivesClient.CaptureNpcLivesContext(Generation);
                 p["id"] = story.Id; p["revision"] = story.Revision; p["heroId"] = story.HeroId;
                 p["kind"] = "story_binding"; p["bindings"] = record.DeepClone();
                 string receipt = story.Id + ":binding"; p["nativeReceipt"] = receipt;

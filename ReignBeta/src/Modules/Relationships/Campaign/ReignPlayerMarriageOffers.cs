@@ -216,7 +216,7 @@ namespace ReignBeta.Campaign
             var place = prospect?.CurrentSettlement ?? prospect?.HomeSettlement;
             var origin = prospect?.PartyBelongedTo?.GetPosition2D ?? place?.GetPosition2D;
             if (prospect == null || leader == null || !origin.HasValue || offer.MeetingTown.Length != 0) yield break;
-            double courier = mail ? ReignServerClient.ActionDeliveryDays(Hero.MainHero, leader, WeddingNow) : 0;
+            double courier = mail ? ReignCorrespondenceClient.ActionDeliveryDays(Hero.MainHero, leader, WeddingNow) : 0;
             foreach (var town in Settlement.All.Where(t => SafeWeddingTown(t, Clan.PlayerClan, prospect.Clan)).OrderBy(t => t.Name.ToString()))
             {
                 double days = courier + Math.Max(1d / 24d, Math.Sqrt(origin.Value.DistanceSquared(town.GetPosition2D)) / 96d);
@@ -523,7 +523,7 @@ namespace ReignBeta.Campaign
             if (sender == null || recipient == null || !_marriageMailInFlight.Add(key)) return;
             string timeline = WeddingTimeline;
             int generation = ReignSaveSyncCoordinator.CampaignGeneration;
-            bool sent = await ReignServerClient.SendMarriageLetterAsync(source, offer.Id, sender, recipient, text, dispatch).ConfigureAwait(false);
+            bool sent = await ReignCorrespondenceClient.SendMarriageLetterAsync(source, offer.Id, sender, recipient, text, dispatch).ConfigureAwait(false);
             await ReignMainThread.InvokeAsync(() =>
             {
                 _marriageMailInFlight.Remove(key);

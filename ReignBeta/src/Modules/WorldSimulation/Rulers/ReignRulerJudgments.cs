@@ -42,12 +42,12 @@ namespace ReignBeta.Campaign
                 {
                     // Capture native context on the calling main thread, inside
                     // the try/finally so preparation errors cannot strand busy.
-                    var p = ReignServerClient.RulerRequestPayload(); p["victorId"] = j.VictorId; p["prisonerId"] = j.PrisonerId;
-                    p["victorProfile"] = ReignServerClient.RulerPersonalitySnapshot(HeroById(j.VictorId));
+                    var p = ReignRulerClient.RulerRequestPayload(); p["victorId"] = j.VictorId; p["prisonerId"] = j.PrisonerId;
+                    p["victorProfile"] = ReignRulerClient.RulerPersonalitySnapshot(HeroById(j.VictorId));
                     var defeated = Realm(j.DefeatedKingdomId);
                     p["clans"] = new JArray((defeated?.Clans ?? Enumerable.Empty<Clan>()).Where(c => !c.IsEliminated && !c.IsUnderMercenaryService && c.Leader?.IsAlive == true)
                         .Select(c => new JObject { ["clanId"] = c.StringId, ["leaderId"] = c.Leader.StringId }));
-                    var r = await ReignServerClient.RulerRequestAsync("context", p).ConfigureAwait(false);
+                    var r = await ReignRulerClient.RulerRequestAsync("context", p).ConfigureAwait(false);
                     await ReignMainThread.InvokeAsync(() => {
                         if (Instance != this || epoch != _epoch || owner != NativeCampaign.Current
                             || !ReignRulerPolicy.DecisionDue(j, Day) || !HeldForJudgment(j)) return;
@@ -337,7 +337,7 @@ namespace ReignBeta.Campaign
         private void QueueRelations(string id, JArray deltas)
         {
             if (deltas.Count == 0 || _relationOutbox.Any(p => p.Value<string>("operationId") == id)) return;
-            var p = ReignServerClient.RulerRequestPayload(); p["operationId"] = id; p["deltas"] = deltas; _relationOutbox.Add(p);
+            var p = ReignRulerClient.RulerRequestPayload(); p["operationId"] = id; p["deltas"] = deltas; _relationOutbox.Add(p);
         }
         private void SendRelations(JObject pending)
         {
@@ -345,10 +345,10 @@ namespace ReignBeta.Campaign
             async Task Send()
             {
                 try {
-                    var probe = ReignServerClient.RulerRequestPayload(); probe["victorId"] = Hero.MainHero.StringId; probe["prisonerId"] = Hero.MainHero.StringId;
-                    var context = await ReignServerClient.RulerRequestAsync("context", probe).ConfigureAwait(false);
+                    var probe = ReignRulerClient.RulerRequestPayload(); probe["victorId"] = Hero.MainHero.StringId; probe["prisonerId"] = Hero.MainHero.StringId;
+                    var context = await ReignRulerClient.RulerRequestAsync("context", probe).ConfigureAwait(false);
                     var p = (JObject)pending.DeepClone(); p["generation"] = context["generation"]?.DeepClone();
-                    var result = await ReignServerClient.RulerRequestAsync("relations", p).ConfigureAwait(false);
+                    var result = await ReignRulerClient.RulerRequestAsync("relations", p).ConfigureAwait(false);
                     if (result.Value<bool?>("ok") != true || result.Value<string>("operationId") != p.Value<string>("operationId")) throw new InvalidOperationException(result.Value<string>("error") ?? "Ruler relationship receipt missing.");
                     await ReignMainThread.InvokeAsync(() => { if (epoch == _epoch && Instance == this) _relationOutbox.Remove(pending); }).ConfigureAwait(false);
                 }

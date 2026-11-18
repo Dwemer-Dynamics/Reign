@@ -13,6 +13,7 @@ using TaleWorlds.CampaignSystem;
 using TaleWorlds.CampaignSystem.CampaignBehaviors;
 using TaleWorlds.CampaignSystem.CharacterDevelopment;
 using TaleWorlds.CampaignSystem.Settlements;
+using static ReignBeta.Integration.ReignServerClient;
 
 namespace ReignBeta.Integration
 {
@@ -99,7 +100,7 @@ namespace ReignBeta.Integration
         public readonly List<string> InvolvedB = new List<string>();
     }
 
-    public static partial class ReignServerClient
+    internal static class ReignDiplomacyServerClient
     {
         public static async Task<ReignDiplomacyEvaluationResult> EvaluateWorldDiplomacyAsync(bool retryFailedEvaluation = false)
         {

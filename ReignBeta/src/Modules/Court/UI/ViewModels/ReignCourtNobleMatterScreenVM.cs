@@ -372,7 +372,7 @@ namespace ReignBeta.UI.ViewModels
                             : FallbackStatement(participant, phase);
                         AddTranscriptLine(speaker.Name?.ToString() ?? "Noble", reply, "npc");
                         // Existing action receipts follow as separate view-only system lines.
-                        foreach (string statusLine in ReignServerClient.NativeStatusLines(response.RawResponse))
+                        foreach (string statusLine in ReignStructuredActionClient.NativeStatusLines(response.RawResponse))
                         { Transcript.Add(new ReignChatLineVM("Court Clerk", statusLine, "system")); ChatScrollVersion++; }
                         PetitionerSpeech = reply;
                         ApplyStructuredTurn(response.RawResponse);

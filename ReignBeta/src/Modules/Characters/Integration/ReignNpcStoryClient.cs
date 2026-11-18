@@ -5,10 +5,11 @@ using Newtonsoft.Json.Linq;
 using ReignBeta.Campaign;
 using ReignBeta.Runtime;
 using TaleWorlds.CampaignSystem;
+using static ReignBeta.Integration.ReignServerClient;
 
 namespace ReignBeta.Integration
 {
-    public static partial class ReignServerClient
+    internal static class ReignNpcStoryClient
     {
         internal static string StorySceneSessionId(ReignSocialEventSession session) =>
             "npc_story_scene_" + session.PersonalStory.Id + "_" + session.PersonalStory.Revision;
@@ -17,7 +18,7 @@ namespace ReignBeta.Integration
             var story = session.PersonalStory;
             Hero hero = await ReignMainThread.InvokeAsync(() => World.ReignObjectResolver.FindHero(story.HeroId)).ConfigureAwait(false);
             JObject context = await ReignMainThread.InvokeAsync(() => {
-                var p = CaptureNpcLivesContext(ReignNpcLivesBehavior.Instance?.Generation ?? "");
+                var p = ReignNpcLivesClient.CaptureNpcLivesContext(ReignNpcLivesBehavior.Instance?.Generation ?? "");
                 p["sessionId"] = StorySceneSessionId(session); p["heroId"] = story.HeroId;
                 p["npcStoryId"] = story.Id; p["npcLivesRevision"] = story.Revision;
                 p["conversationMode"] = "npc_story"; p["suppressRelationshipAssessment"] = true;
@@ -26,7 +27,7 @@ namespace ReignBeta.Integration
             var opened = await StartConversationSessionWithIdentityAsync(hero, context).ConfigureAwait(false);
             if (!opened.Ok || opened.SessionId != context.Value<string>("sessionId")) throw new InvalidOperationException("The story conversation could not be opened.");
             session.PersonalStoryContext = context;
-            var history = await NpcLivesRequestAsync("history", context).ConfigureAwait(false);
+            var history = await ReignNpcLivesClient.NpcLivesRequestAsync("history", context).ConfigureAwait(false);
             if (history.Value<bool?>("ok") != true) throw new InvalidOperationException(history.Value<string>("error") ?? "The story transcript could not be restored.");
             return history;
         }

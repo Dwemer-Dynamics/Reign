@@ -55,7 +55,7 @@ namespace ReignBeta.Integration
             "relationship_history"
         };
 
-        private static string NewCorrelationId(string mode, string subjectId)
+        internal static string NewCorrelationId(string mode, string subjectId)
         {
             string safeMode = string.IsNullOrWhiteSpace(mode) ? "request" : mode.Trim().Replace(' ', '_');
             string safeSubject = string.IsNullOrWhiteSpace(subjectId) ? "world" : subjectId.Trim().Replace(' ', '_');
@@ -853,7 +853,7 @@ namespace ReignBeta.Integration
         {
             if (session?.Record == null) return false;
             string phaseKey = session.XpPhaseKey;
-            ReignXpInteraction xp = await BeginXpInteractionAsync().ConfigureAwait(false);
+            ReignXpInteraction xp = await ReignXpClient.BeginXpInteractionAsync().ConfigureAwait(false);
             await ReignMainThread.InvokeAsync(() => xp.Owner?.FinishSocialPhase(phaseKey, xp.Options)).ConfigureAwait(false);
             return true;
         }
@@ -940,7 +940,7 @@ namespace ReignBeta.Integration
                 await EnsureRequestOwnerAsync(requestOwner, "social event context selection").ConfigureAwait(false);
                 await AttachContextBundlesAsync(payload, "social_event", speaker, attendees).ConfigureAwait(false);
                 Stopwatch timer = Stopwatch.StartNew();
-                JObject response = await PostWandererConversationAsync("/events/social/respond", payload, speaker, approachOpening ? string.Empty : playerText,
+                JObject response = await ReignWandererClient.PostWandererConversationAsync("/events/social/respond", payload, speaker, approachOpening ? string.Empty : playerText,
                     null, requestOwner).ConfigureAwait(false);
                 timer.Stop();
                 reply.Ok = response.Value<bool?>("ok") == true;
@@ -967,7 +967,7 @@ namespace ReignBeta.Integration
                 if (reply.Ok)
                 {
                     // The adjudication capture is owner-checked on the game thread.
-                    await ApplyConversationRelationshipAssessmentsAsync(
+                    await ReignCorrespondenceClient.ApplyConversationRelationshipAssessmentsAsync(
                         response["conversationExchange"]?["exchangeId"]?.Value<string>() ?? payload.Value<string>("sceneTurnId") ?? string.Empty,
                         approachOpening ? "social_event_npc_initiative" : "social_event_conversation",
                         attendees, new[] { response }, payload.Value<string>("correlationId") ?? string.Empty, current).ConfigureAwait(false);
@@ -1142,7 +1142,7 @@ namespace ReignBeta.Integration
                 await EnsureRequestOwnerAsync(requestOwner, "party chat context selection").ConfigureAwait(false);
                 await AttachContextBundlesAsync(payload, "party_chat", speaker, activeHeroes ?? new List<Hero>()).ConfigureAwait(false);
                 Stopwatch timer = Stopwatch.StartNew();
-                JObject response = await PostWandererConversationAsync("/party-chat/respond", payload, speaker, castleOpening ? string.Empty : playerText, actionDraft,
+                JObject response = await ReignWandererClient.PostWandererConversationAsync("/party-chat/respond", payload, speaker, castleOpening ? string.Empty : playerText, actionDraft,
                     requestOwner).ConfigureAwait(false);
                 timer.Stop();
                 reply.Ok = response.Value<bool?>("ok") == true;
@@ -1780,7 +1780,7 @@ namespace ReignBeta.Integration
                         ReignLog.Warn("Conversation close work skipped: the campaign changed session=" + sessionId);
                         return;
                     }
-                    ApplyCommunicationCloseWork(response);
+                    ReignCommunicationClient.ApplyCommunicationCloseWork(response);
                 }).ConfigureAwait(false);
             }
             catch (ReignRequestOwnerAbandonedException)
@@ -1890,7 +1890,7 @@ namespace ReignBeta.Integration
                 result.Raw = response;
                 result.Error = response.Value<string>("error") ?? string.Empty;
                 ReignLog.Info("Party chat conversation session finish id=" + sessionId + " ok=" + result.Ok);
-                if (result.Ok) await ReignMainThread.InvokeAsync(() => { if (RequestOwnerCurrent(loadOwner)) ApplyCommunicationCloseWork(response); }).ConfigureAwait(false);
+                if (result.Ok) await ReignMainThread.InvokeAsync(() => { if (RequestOwnerCurrent(loadOwner)) ReignCommunicationClient.ApplyCommunicationCloseWork(response); }).ConfigureAwait(false);
             }
             catch (Exception ex)
             {
@@ -2005,7 +2005,7 @@ namespace ReignBeta.Integration
                     await AttachContextBundlesAsync(payload, "dialogue", hero, new List<Hero> { hero }).ConfigureAwait(false);
                 }
                 Stopwatch timer = Stopwatch.StartNew();
-                JObject response = await PostWandererConversationAsync("/dialogue/respond", payload, hero, playerText, actionDraft, requestOwner).ConfigureAwait(false);
+                JObject response = await ReignWandererClient.PostWandererConversationAsync("/dialogue/respond", payload, hero, playerText, actionDraft, requestOwner).ConfigureAwait(false);
                 timer.Stop();
                 reply.Ok = response.Value<bool?>("ok") == true;
                 reply.Text = response.Value<string>("reply") ?? string.Empty;
@@ -2066,7 +2066,7 @@ namespace ReignBeta.Integration
                 if (reply.Ok && playerPresent && !officialAmbassador
                     && !suppressRelationshipAssessment)
                 {
-                    await ApplyConversationRelationshipAssessmentsAsync(
+                    await ReignCorrespondenceClient.ApplyConversationRelationshipAssessmentsAsync(
                         reply.ExchangeId, "in_person_conversation", new[] { hero }, new[] { response }, reply.CorrelationId,
                         requestOwner).ConfigureAwait(false);
                     if (reply.ConceptionGateNeeded && string.IsNullOrWhiteSpace(playerPromptLabel))
@@ -2077,7 +2077,7 @@ namespace ReignBeta.Integration
                         // never opens a pregnancy decision preview.
                         Task<ReignConceptionAttemptResult> previewTask = await ReignMainThread.InvokeAsync(() =>
                             fence.IsCurrent() && RequestOwnerCurrent(requestOwner)
-                                ? PreviewPlayerConceptionAttemptAsync(hero, reply.Text, conceptionAttemptId)
+                                ? ReignRelationshipDirectorClient.PreviewPlayerConceptionAttemptAsync(hero, reply.Text, conceptionAttemptId)
                                 : null).ConfigureAwait(false);
                         ReignConceptionAttemptResult preview = previewTask == null ? null : await previewTask.ConfigureAwait(false);
                         if (preview != null && preview.Ok && preview.Verified && preview.Eligible)
@@ -2108,7 +2108,7 @@ namespace ReignBeta.Integration
             }
         }
 
-        private static JObject BuildDialogueRequestPayload(
+        internal static JObject BuildDialogueRequestPayload(
             Hero hero,
             string playerText,
             string conversationSessionId,
@@ -2155,7 +2155,7 @@ namespace ReignBeta.Integration
                     : conversationSessionId + "_" + Guid.NewGuid().ToString("N"),
                 ["sceneParticipants"] = BuildSceneParticipants(participants),
                 ["localPresence"] = BuildLocalPresenceSnapshot(participants),
-                ["playerAttentionPresence"] = BuildPlayerAttentionPresence(hero),
+                ["playerAttentionPresence"] = ReignPlayerApproachClient.BuildPlayerAttentionPresence(hero),
                 ["gossipPresence"] = new JObject(), // Materialized once after readiness, before sending.
                 ["channel"] = official ? "ambassador_official"
                     : rulerPetition ? "ruler_petition"
@@ -2237,7 +2237,7 @@ namespace ReignBeta.Integration
                 return new JObject { ["ok"] = true, ["outcome"] = "not_checkable" };
             }
             float worldDay = TaleWorlds.CampaignSystem.Campaign.Current == null ? 0f : (float)CampaignTime.Now.ToDays;
-            return await CheckWorldHistoryLieAsync(claim, claimant, target, worldDay,
+            return await ReignWorldHistoryClient.CheckWorldHistoryLieAsync(claim, claimant, target, worldDay,
                 ReignWorldHistoryCampaignBehavior.Instance?.TimelineId ?? "main", mode).ConfigureAwait(false);
         }
 
@@ -2322,7 +2322,7 @@ namespace ReignBeta.Integration
         }
 
         // Readiness gates, then the shared transport.
-        private static async Task<JObject> GetJsonAsync(string route, System.Net.Http.HttpClient requestClient = null)
+        internal static async Task<JObject> GetJsonAsync(string route, System.Net.Http.HttpClient requestClient = null)
         {
             await ReignSaveSyncCoordinator.WaitForReadyAsync(route).ConfigureAwait(false);
             await ReignCampaignInitializationGate.WaitForReadyAsync(route).ConfigureAwait(false);
@@ -2487,17 +2487,17 @@ namespace ReignBeta.Integration
                 throw new OperationCanceledException("Request belongs to a previous loaded save.");
             await EnsureRequestOwnerAsync(requestOwner, "pregnancy context synchronization").ConfigureAwait(false);
             if (conversationInput || approachObservation || route == "/correspondence/send" || route == "/memory/conversation/start" || route == "/party-banter/start")
-                await SynchronizePregnancyContextAsync(route, payload, requestOwner).ConfigureAwait(false);
+                await ReignPregnancyContextClient.SynchronizePregnancyContextAsync(route, payload, requestOwner).ConfigureAwait(false);
             if (route == "/world-history/ingest-batch" && !ReignWorldHistoryTransport.IsCurrentRequest(payload))
                 throw new OperationCanceledException("World-history request belongs to a previous loaded save.");
-            PersonalGossipPresenceSnapshot gossipSnapshot = null;
+            ReignPersonalGossipClient.PersonalGossipPresenceSnapshot gossipSnapshot = null;
             if (conversationInput || approachObservation || payload != null && route == "/correspondence/send")
             {
                 await EnsureRequestOwnerAsync(requestOwner, "public announcement synchronization").ConfigureAwait(false);
                 if (ReignWorldDiplomacyCampaignBehavior.Instance != null)
                     await ReignWorldDiplomacyCampaignBehavior.Instance.SynchronizePublicAnnouncementsForDialogueAsync().ConfigureAwait(false);
                 await EnsureRequestOwnerAsync(requestOwner, "personal gossip refresh").ConfigureAwait(false);
-                gossipSnapshot = await RefreshPersonalGossipConversationAsync(payload).ConfigureAwait(false);
+                gossipSnapshot = await ReignPersonalGossipClient.RefreshPersonalGossipConversationAsync(payload).ConfigureAwait(false);
                 if (isCurrentRequest != null && !await isCurrentRequest().ConfigureAwait(false))
                     throw new OperationCanceledException("Request belongs to a previous loaded save.");
                 double nativeDay = await ReignMainThread.InvokeAsync(() =>
@@ -2539,13 +2539,13 @@ namespace ReignBeta.Integration
             else if (payload?["gossipPresence"] is JObject pendingGossip && pendingGossip.Count == 0)
             {
                 await EnsureRequestOwnerAsync(requestOwner, "personal gossip refresh").ConfigureAwait(false);
-                gossipSnapshot = await RefreshPersonalGossipConversationAsync(payload).ConfigureAwait(false);
+                gossipSnapshot = await ReignPersonalGossipClient.RefreshPersonalGossipConversationAsync(payload).ConfigureAwait(false);
             }
             if (gossipSnapshot != null)
             {
                 var callerGuard = isCurrentRequest;
                 isCurrentRequest = async () => (callerGuard == null || await callerGuard().ConfigureAwait(false))
-                    && await ReignMainThread.InvokeAsync(() => PersonalGossipSnapshotCurrent(gossipSnapshot)).ConfigureAwait(false);
+                    && await ReignMainThread.InvokeAsync(() => ReignPersonalGossipClient.PersonalGossipSnapshotCurrent(gossipSnapshot)).ConfigureAwait(false);
             }
             return await ReignHttpTransport.PostAsync(route, payload, isCurrentRequest, requestOwner,
                 payload?["gossipPresence"] != null,
@@ -2558,11 +2558,11 @@ namespace ReignBeta.Integration
                     }
                     if (conversationInput && parsedResponse.Value<bool?>("ok") == true)
                     {
-                        _ = TickPersonalGossipAsync();
+                        _ = ReignPersonalGossipClient.TickPersonalGossipAsync();
                         // Accepted disclosures are now durable. Refresh menu eligibility after publication.
                         // An owner closed after acceptance skips only this refresh;
                         // the journal ack and accepted response keep their meaning.
-                        try { await SynchronizePregnancyContextAsync(route, payload, requestOwner).ConfigureAwait(false); }
+                        try { await ReignPregnancyContextClient.SynchronizePregnancyContextAsync(route, payload, requestOwner).ConfigureAwait(false); }
                         catch (ReignRequestOwnerAbandonedException) { }
                         catch (Exception ex) { ReignLog.Warn("Pregnancy knowledge refresh deferred: " + ex.GetType().Name); }
                     }
@@ -2573,10 +2573,15 @@ namespace ReignBeta.Integration
         private static Task EnsureRequestOwnerAsync(Func<bool> requestOwner, string stage) =>
             ReignRequestOwnership.EnsureAsync(requestOwner, stage);
 
-        private static void EnsureRequestOwner(Func<bool> requestOwner, string stage) =>
+        internal static void EnsureRequestOwner(Func<bool> requestOwner, string stage) =>
             ReignRequestOwnership.Ensure(requestOwner, stage);
 
-        private static bool RequestOwnerCurrent(Func<bool> requestOwner) => ReignRequestOwnership.IsCurrent(requestOwner);
+        internal static bool RequestOwnerCurrent(Func<bool> requestOwner) => ReignRequestOwnership.IsCurrent(requestOwner);
+
+        // Forwarders for the live/world test partials, whose heartbeat sources call these by simple name.
+        internal static JObject BuildRelationshipOutboxDiagnostics() => ReignRelationshipDirectorClient.BuildRelationshipOutboxDiagnostics();
+
+        internal static JObject PersonalGossipRuntimeStatus() => ReignPersonalGossipClient.PersonalGossipRuntimeStatus();
 
         // Captured on the Bannerlord thread: the exact loaded campaign instance,
         // Save Sync load generation, campaign-initialization generation, campaign
@@ -2711,7 +2716,7 @@ namespace ReignBeta.Integration
             });
         }
 
-        private static async Task AttachContextBundlesAsync(JObject payload, string mode, Hero speaker, IEnumerable<Hero> activeHeroes)
+        internal static async Task AttachContextBundlesAsync(JObject payload, string mode, Hero speaker, IEnumerable<Hero> activeHeroes)
         {
             if (payload == null)
             {
@@ -2768,10 +2773,10 @@ namespace ReignBeta.Integration
                         float worldDay = TaleWorlds.CampaignSystem.Campaign.Current == null ? 0f : (float)CampaignTime.Now.ToDays;
                         bool lookupOnly = LooksLikeWorldHistoryLookupQuestion(playerText);
                         JObject verification = lookupOnly
-                            ? await VerifyWorldHistoryAsync(playerText, string.Empty, speaker?.StringId ?? string.Empty,
+                            ? await ReignWorldHistoryClient.VerifyWorldHistoryAsync(playerText, string.Empty, speaker?.StringId ?? string.Empty,
                                 speaker?.Clan?.Kingdom?.StringId ?? speaker?.MapFaction?.StringId ?? string.Empty, worldDay,
                                 ReignWorldHistoryCampaignBehavior.Instance?.TimelineId ?? "main").ConfigureAwait(false)
-                            : await CheckWorldHistoryLieAsync(playerText, Hero.MainHero, speaker, worldDay,
+                            : await ReignWorldHistoryClient.CheckWorldHistoryLieAsync(playerText, Hero.MainHero, speaker, worldDay,
                                 ReignWorldHistoryCampaignBehavior.Instance?.TimelineId ?? "main", mode).ConfigureAwait(false);
                         historyTimer.Stop();
                         JObject knowledgeSafe;
@@ -3181,7 +3186,7 @@ namespace ReignBeta.Integration
             return result;
         }
 
-        private static JObject BuildNativePoliticalContext(Hero observer)
+        internal static JObject BuildNativePoliticalContext(Hero observer)
         {
             Kingdom playerKingdom = Clan.PlayerClan?.Kingdom;
             Kingdom observerKingdom = observer?.Clan?.Kingdom;
@@ -3744,7 +3749,7 @@ namespace ReignBeta.Integration
                     ["daysPerWeek"] = CampaignTime.DaysInWeek, ["daysPerYear"] = ReignCalendarService.DaysPerYear },
                 ["clanAccords"] = ReignBeta.ClanAccords.ReignClanAccordsCampaignBehavior.Instance?.ConversationContext(speaker) ?? new JObject(),
                 ["sceneTurnId"] = record.EventId + "_" + session.CurrentPhaseIndex + "_" + session.PhaseExchangeCount,
-                ["playerAttentionPresence"] = BuildPlayerAttentionPresence(speaker),
+                ["playerAttentionPresence"] = ReignPlayerApproachClient.BuildPlayerAttentionPresence(speaker),
                 ["sceneParticipants"] = BuildSceneParticipants(record.GetAttendees()),
                 ["localPresence"] = BuildLocalPresenceSnapshot(record.GetAttendees()),
                 ["gossipPresence"] = new JObject(), // Materialized once after readiness, before sending.
@@ -3761,7 +3766,7 @@ namespace ReignBeta.Integration
             };
         }
 
-        private static JObject BuildPartyChatPayload(ReignPartyChatSession session, Hero speaker, List<Hero> activeHeroes, string playerText)
+        internal static JObject BuildPartyChatPayload(ReignPartyChatSession session, Hero speaker, List<Hero> activeHeroes, string playerText)
         {
             JArray attendees = new JArray();
             foreach (Hero hero in activeHeroes.Where(x => x != null).Distinct())
@@ -3818,7 +3823,7 @@ namespace ReignBeta.Integration
                 ["turnId"] = string.IsNullOrWhiteSpace(session.CurrentSceneTurnId)
                     ? session.SessionId + "_turn_" + session.PlayerInputCount
                     : session.CurrentSceneTurnId,
-                ["playerAttentionPresence"] = BuildPlayerAttentionPresence(speaker),
+                ["playerAttentionPresence"] = ReignPlayerApproachClient.BuildPlayerAttentionPresence(speaker),
                 ["approachRequestId"] = session.ApproachRequestId,
                 ["approachOpening"] = !string.IsNullOrWhiteSpace(session.ApproachRequestId) && session.PlayerInputCount == 0,
                 ["sceneParticipants"] = BuildSceneParticipants(activeHeroes),
@@ -3842,7 +3847,7 @@ namespace ReignBeta.Integration
             };
         }
 
-        private static JObject BuildLocalPresenceSnapshot(IEnumerable<Hero> heroes)
+        internal static JObject BuildLocalPresenceSnapshot(IEnumerable<Hero> heroes)
         {
             var participants = (heroes ?? Enumerable.Empty<Hero>()).Where(x => x != null)
                 .Concat(Hero.MainHero == null ? Enumerable.Empty<Hero>() : new[] { Hero.MainHero }).Distinct().ToList();
@@ -3942,7 +3947,7 @@ namespace ReignBeta.Integration
             return result;
         }
 
-        private static JArray BuildSceneParticipants(IEnumerable<Hero> heroes)
+        internal static JArray BuildSceneParticipants(IEnumerable<Hero> heroes)
         {
             List<Hero> roster = (heroes ?? Enumerable.Empty<Hero>())
                 .Where(x => x != null && !string.IsNullOrWhiteSpace(x.StringId))
@@ -4106,7 +4111,7 @@ namespace ReignBeta.Integration
             return text.Length <= 32 ? text : text.Substring(0, 32) + "...";
         }
 
-        private static JObject BuildActionResolutionIndex(
+        internal static JObject BuildActionResolutionIndex(
             Hero speaker,
             IEnumerable<Hero> activeHeroes,
             bool includeWorldCatalog = true)
@@ -4712,7 +4717,7 @@ namespace ReignBeta.Integration
             return recent;
         }
 
-        private static JObject BuildHeroProfile(Hero hero)
+        internal static JObject BuildHeroProfile(Hero hero)
         {
             Kingdom heroKingdom = hero?.Clan?.Kingdom;
             Hero sovereign = heroKingdom?.Leader;
@@ -4853,7 +4858,7 @@ namespace ReignBeta.Integration
             };
         }
 
-        private static JObject BuildIdentityRosterEntry(Hero hero)
+        internal static JObject BuildIdentityRosterEntry(Hero hero)
         {
             return new JObject
             {
@@ -5067,7 +5072,7 @@ namespace ReignBeta.Integration
                 + properties.KeyPart7.ToString("X16") + properties.KeyPart8.ToString("X16");
         }
 
-        private static JObject BuildPlayerIdentityContext()
+        internal static JObject BuildPlayerIdentityContext()
         {
             Hero player = Hero.MainHero;
             return new JObject
@@ -5538,7 +5543,7 @@ namespace ReignBeta.Integration
             return Math.Max(min, Math.Min(max, value));
         }
 
-        private static JObject BuildTraitProfile(Hero hero)
+        internal static JObject BuildTraitProfile(Hero hero)
         {
             JObject traits = new JObject();
             if (hero == null)
@@ -5554,7 +5559,7 @@ namespace ReignBeta.Integration
             return traits;
         }
 
-        private static JObject BuildSkillProfile(Hero hero)
+        internal static JObject BuildSkillProfile(Hero hero)
         {
             JObject skills = new JObject();
             if (hero == null)
@@ -5583,7 +5588,7 @@ namespace ReignBeta.Integration
             return skills;
         }
 
-        private static JObject BuildLieSceneRisk(Hero claimant, Hero target)
+        internal static JObject BuildLieSceneRisk(Hero claimant, Hero target)
         {
             int claimantTier = claimant?.Clan?.Tier ?? 0;
             int targetTier = target?.Clan?.Tier ?? 0;
@@ -5614,7 +5619,7 @@ namespace ReignBeta.Integration
             }
         }
 
-        private static string GetNativeEncyclopediaText(Hero hero)
+        internal static string GetNativeEncyclopediaText(Hero hero)
         {
             if (hero == null || string.IsNullOrWhiteSpace(hero.StringId))
             {
@@ -5666,7 +5671,7 @@ namespace ReignBeta.Integration
             return builder.ToString().Trim();
         }
 
-        private static string ResolveDialogueLocationId(Hero hero)
+        internal static string ResolveDialogueLocationId(Hero hero)
         {
             Settlement settlement = Settlement.CurrentSettlement
                 ?? MobileParty.MainParty?.CurrentSettlement
@@ -5693,7 +5698,7 @@ namespace ReignBeta.Integration
                 && (hero.IsLord || string.Equals(hero.Occupation.ToString(), "Lord", StringComparison.OrdinalIgnoreCase));
         }
 
-        private static void ApplyHeroEncyclopediaText(Hero hero, string encyclopediaText)
+        internal static void ApplyHeroEncyclopediaText(Hero hero, string encyclopediaText)
         {
             try
             {
@@ -5719,7 +5724,7 @@ namespace ReignBeta.Integration
             }
         }
 
-        private static ReignWorldActionRecord ParseActionRecord(JObject obj)
+        internal static ReignWorldActionRecord ParseActionRecord(JObject obj)
         {
             if (obj == null)
             {
@@ -5768,12 +5773,12 @@ namespace ReignBeta.Integration
 
         // Callers without a request-time fence parse on the game thread after their own
         // owner check, so a capture here binds the same loaded owner.
-        private static List<ReignWorldActionRecord> ParseQueuedActionRows(JToken token)
+        internal static List<ReignWorldActionRecord> ParseQueuedActionRows(JToken token)
             => ParseQueuedActionRows(token, ResponseOrigin(token) == null ? null : RequestFence.Capture());
 
         // Dialogue passes its original request fence so a response cannot rebind to a
         // newer server generation while it was waiting.
-        private static List<ReignWorldActionRecord> ParseQueuedActionRows(JToken token, RequestFence fence)
+        internal static List<ReignWorldActionRecord> ParseQueuedActionRows(JToken token, RequestFence fence)
         {
             List<ReignWorldActionRecord> results = new List<ReignWorldActionRecord>();
             JArray rows = token as JArray;
@@ -6226,7 +6231,7 @@ namespace ReignBeta.Integration
             return PortraitRequestScope.Current?.CampaignId ?? ReignCampaignIdentity.CurrentCampaignId();
         }
 
-        private static string ReadString(JObject obj, string key, string fallback)
+        internal static string ReadString(JObject obj, string key, string fallback)
         {
             JToken token = obj?[key];
             return token == null || token.Type == JTokenType.Null ? fallback : token.ToString();
@@ -6238,13 +6243,13 @@ namespace ReignBeta.Integration
             return token == null || token.Type == JTokenType.Null || !int.TryParse(token.ToString(), out int value) ? fallback : value;
         }
 
-        private static float ReadFloat(JObject obj, string key, float fallback)
+        internal static float ReadFloat(JObject obj, string key, float fallback)
         {
             JToken token = obj?[key];
             return token == null || token.Type == JTokenType.Null || !float.TryParse(token.ToString(), out float value) ? fallback : value;
         }
 
-        private static bool ReadBool(JObject obj, string key, bool fallback)
+        internal static bool ReadBool(JObject obj, string key, bool fallback)
         {
             JToken token = obj?[key];
             if (token == null || token.Type == JTokenType.Null)

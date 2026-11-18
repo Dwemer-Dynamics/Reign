@@ -291,7 +291,7 @@ namespace ReignBeta.ClanAccords
         {
             JObject result = null;
             string error = null;
-            try { result = await ReignServerClient.SyncClanAccordsAsync(payload).ConfigureAwait(false); }
+            try { result = await ReignClanAccordsClient.SyncClanAccordsAsync(payload).ConfigureAwait(false); }
             catch (Exception ex) { error = ex.Message; }
             try
             {

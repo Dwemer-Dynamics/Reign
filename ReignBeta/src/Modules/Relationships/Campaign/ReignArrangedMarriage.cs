@@ -88,7 +88,7 @@ namespace ReignBeta.Campaign
             if(period<=_lastDirectorCapturePeriod)return;
             if(_directorOutbox.Count>=64) { ReignLog.Warn("Marriage outbox is full; capture is blocked, not acknowledged."); return; }
             using var timing=ReignLog.MeasureWork("relationships.capture",0f);
-            var snapshot=ReignServerClient.CaptureMarriageDirectorSnapshot();
+            var snapshot=ReignRelationshipDirectorClient.CaptureMarriageDirectorSnapshot();
             if(_lastDirectorCapturePeriod>=0) _directorCaptureGaps+=Math.Max(0,period-_lastDirectorCapturePeriod-1);
             string document=snapshot.ToString(Formatting.None);
             _directorOutbox.Add(document);
@@ -113,7 +113,7 @@ namespace ReignBeta.Campaign
                     capturedPeriod=payload.Value<long>("periodIndex");
                     _lastDirectorDocumentChars=captured.Length;
                     _lastDirectorParseMs=timer.Elapsed.TotalMilliseconds;
-                    return await ReignServerClient.UploadMarriageDirectorSnapshotAsync(payload).ConfigureAwait(false);
+                    return await ReignRelationshipDirectorClient.UploadMarriageDirectorSnapshotAsync(payload).ConfigureAwait(false);
                 }).ConfigureAwait(false);
                 await ReignMainThread.InvokeAsync(()=> {
                     if(!ReferenceEquals(Instance,this)||!ReferenceEquals(campaign,TaleWorlds.CampaignSystem.Campaign.Current))return;

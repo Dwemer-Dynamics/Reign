@@ -1,10 +1,11 @@
 using System;
 using System.Threading.Tasks;
 using Newtonsoft.Json.Linq;
+using static ReignBeta.Integration.ReignServerClient;
 
 namespace ReignBeta.Integration
 {
-    public static partial class ReignServerClient
+    internal static class ReignGovernmentHearingServerClient
     {
         internal static Task<JObject> RequestGovernmentCrownDecisionAsync(JObject context)
         {

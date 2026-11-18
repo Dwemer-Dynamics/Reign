@@ -424,7 +424,7 @@ namespace ReignBeta.Campaign
             int peakInFlight = 0;
             while (DateTime.UtcNow < deadline)
             {
-                int inFlight = ReignServerClient.CorrespondenceTickInFlight;
+                int inFlight = ReignCorrespondenceClient.CorrespondenceTickInFlight;
                 peakInFlight = Math.Max(peakInFlight, inFlight);
                 if (inFlight > 0)
                 {
@@ -454,7 +454,7 @@ namespace ReignBeta.Campaign
                     ["timeoutSeconds"] = timeoutSeconds,
                     ["stableMilliseconds"] = stableMilliseconds,
                     ["peakInFlight"] = peakInFlight,
-                    ["inFlight"] = ReignServerClient.CorrespondenceTickInFlight
+                    ["inFlight"] = ReignCorrespondenceClient.CorrespondenceTickInFlight
                 });
         }
 
@@ -811,7 +811,7 @@ namespace ReignBeta.Campaign
             {
                 // A periodic scheduling hold never grants permission to save over real work.
                 // Recheck at the native SaveAs boundary after the external quiet window.
-                if (ReignServerClient.PersonalGossipRuntimeStatus().Value<bool?>("inFlight") != false)
+                if (ReignPersonalGossipClient.PersonalGossipRuntimeStatus().Value<bool?>("inFlight") != false)
                     return false;
                 if (ConversationClockRequiresRestore
                     || TaleWorlds.CampaignSystem.Campaign.Current?.SaveHandler == null
@@ -2464,7 +2464,7 @@ namespace ReignBeta.Campaign
             if (mode == "party_chat" || mode == "wilderness_event")
                 return ReignPartyChatSession.GetAvailableConversationHeroes();
             if (mode == "correspondence")
-                return ReignServerClient.GetKnownCorrespondenceContacts();
+                return ReignCorrespondenceClient.GetKnownCorrespondenceContacts();
             if (mode == "ambassador_official")
             {
                 HashSet<string> residentIds = new HashSet<string>(

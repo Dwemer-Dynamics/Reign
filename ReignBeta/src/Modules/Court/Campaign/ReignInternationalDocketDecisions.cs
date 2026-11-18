@@ -140,7 +140,7 @@ namespace ReignBeta.Court
                         .Any(x => x.Value<string>("actionId") == "trade_agreement" && x.Value<bool?>("granted") == true);
                     if (!granted) return StartInternationalReferral(matter, data, decision, out summary);
                 }
-                ReignWorldActionRecord action = data["normalizedAction"] is JObject encoded ? ReignServerClient.ParseCourtWorldAction(encoded)
+                ReignWorldActionRecord action = data["normalizedAction"] is JObject encoded ? ReignCourtDialogueClient.ParseCourtWorldAction(encoded)
                     : new ReignWorldActionRecord { Type = ReignWorldActionType.DiplomacySignTradeAgreement,
                         ActorKingdomStringId = origin.StringId, TargetKingdomStringId = Clan.PlayerClan.Kingdom.StringId,
                         ActorHeroStringId = origin.Leader.StringId, TargetHeroStringId = Hero.MainHero.StringId,
@@ -272,7 +272,7 @@ namespace ReignBeta.Court
                 // Older saves retain the original normalized proposal and explicit start marker.
                 // Missing or changed evidence is never filled in from the model's narration.
                 ReignWorldActionRecord original = data["normalizedAction"] is JObject encoded
-                    ? ReignServerClient.ParseCourtWorldAction(encoded) : null;
+                    ? ReignCourtDialogueClient.ParseCourtWorldAction(encoded) : null;
                 if (original == null) return false;
                 expected = CourtNativeActionIdentity(original);
                 decision = ParseObject(matter.AcceptedDecisionJson);

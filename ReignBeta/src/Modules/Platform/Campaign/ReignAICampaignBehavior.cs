@@ -190,8 +190,8 @@ namespace ReignBeta.Campaign
             ReignSurrenderService.Tick();
             if (IsEnabled() && !ReignSaveSyncCoordinator.IsAlignmentPending)
             {
-                ReignServerClient.PulsePersonalGossip();
-                ReignServerClient.PulseCommunications();
+                ReignPersonalGossipClient.PulsePersonalGossip();
+                ReignCommunicationClient.PulseCommunications();
             }
 
             if (!_governmentRefusalsReconciled && ReignGovernmentCampaignBehavior.Instance != null)
@@ -504,7 +504,7 @@ namespace ReignBeta.Campaign
             float now = CurrentDay();
             MaybeTickConversationSceneState();
             if (!ReignSaveSyncCoordinator.IsAlignmentPending)
-                _ = ReignServerClient.TickPersonalGossipAsync();
+                _ = ReignPersonalGossipClient.TickPersonalGossipAsync();
             ReignTestHarness.Current.TickActionGauntletSuites();
             MaybeStartServerActionPoll(now);
             MaybeSubmitWorldTestHeartbeat(now);
