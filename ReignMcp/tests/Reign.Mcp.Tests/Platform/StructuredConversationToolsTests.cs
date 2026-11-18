@@ -8,7 +8,7 @@ public sealed class StructuredConversationToolsTests
 {
     [Fact] public void CompletedReplayUsesAuthoritativeSavedJournalAndNormalComposerAndSend()
     {
-        var source = File.ReadAllText(Path.Combine(TestOptions.FindWorkspace(), "ReignBeta", "src", "Modules",
+        var source = TestSourceLocator.PartialTypeSourceText(Path.Combine(TestOptions.FindWorkspace(), "ReignBeta", "src", "Modules",
             "WorldSimulation", "Campaign", "ReignLiveInteractionTestHost.cs"));
         var start = source.IndexOf("var replayCandidate", StringComparison.Ordinal);
         var end = source.IndexOf("string composed", start, StringComparison.Ordinal);

@@ -1501,7 +1501,7 @@ public sealed class TestingCatalogContractTests
     public void CampaignCheckpointRecoversNativeMapEscapeMenuBeforeSaveAs()
     {
         string workspace = TestOptions.FindWorkspace();
-        string source = File.ReadAllText(Path.Combine(workspace, "ReignBeta", "src", "Modules",
+        string source = TestSourceLocator.PartialTypeSourceText(Path.Combine(workspace, "ReignBeta", "src", "Modules",
             "WorldSimulation", "Campaign", "ReignLiveInteractionTestHost.cs"));
         using JsonDocument catalog = JsonDocument.Parse(
             File.ReadAllText(Path.Combine(workspace, "reign.testing.json")));
@@ -1629,7 +1629,7 @@ public sealed class TestingCatalogContractTests
     public void InterruptedCampaignAdvancePublishesExactOwnershipAndRecoversWithoutSaving()
     {
         string workspace = TestOptions.FindWorkspace();
-        string nativeHost = File.ReadAllText(Path.Combine(workspace, "ReignBeta", "src",
+        string nativeHost = TestSourceLocator.PartialTypeSourceText(Path.Combine(workspace, "ReignBeta", "src",
             "Modules", "WorldSimulation", "Campaign", "ReignLiveInteractionTestHost.cs"));
         string campaignTools = File.ReadAllText(Path.Combine(workspace, "ReignMcp", "src",
             "Reign.Mcp.Server", "Modules", "Platform", "CampaignTestTools.cs"));

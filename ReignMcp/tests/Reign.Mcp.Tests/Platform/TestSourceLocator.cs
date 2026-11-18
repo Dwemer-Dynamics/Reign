@@ -48,6 +48,17 @@ internal static class TestSourceLocator
         || routerText.Contains($"routes.GetPrefix(\"{prefix}\",", StringComparison.Ordinal)
         || routerText.Contains($"routes.PostPrefix(\"{prefix}\",", StringComparison.Ordinal);
 
+    // Text of a client class split into partial files: the primary <File>.cs file followed by its
+    // sibling <File>.<Area>.cs partial files in the same folder, in name order.
+    public static string PartialTypeSourceText(string primaryPath)
+    {
+        var directory = Path.GetDirectoryName(primaryPath)!;
+        var stem = Path.GetFileNameWithoutExtension(primaryPath);
+        var parts = Directory.EnumerateFiles(directory, stem + ".*.cs")
+            .Order(StringComparer.OrdinalIgnoreCase);
+        return string.Join(Environment.NewLine, new[] { primaryPath }.Concat(parts).Select(File.ReadAllText));
+    }
+
     private static IEnumerable<string> Enumerate(string root, string fileName)
     {
         var layout = new Reign.Mcp.Server.ReignSourceLayout(TestOptions.FindWorkspace());

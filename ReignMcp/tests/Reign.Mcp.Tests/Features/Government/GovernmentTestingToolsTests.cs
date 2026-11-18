@@ -194,7 +194,7 @@ public sealed class GovernmentTestingToolsTests
             "ReignGovernmentCertificationTests.cs", "/src/Modules/Government/"));
         string nativeDecisions = File.ReadAllText(TestSourceLocator.Unique(Path.Combine(workspace, "ReignBeta"),
             "ReignGovernmentNativeDecisions.cs", "/src/Modules/Government/"));
-        string liveHost = File.ReadAllText(TestSourceLocator.Unique(Path.Combine(workspace, "ReignBeta"),
+        string liveHost = TestSourceLocator.PartialTypeSourceText(TestSourceLocator.Unique(Path.Combine(workspace, "ReignBeta"),
             "ReignLiveInteractionTestHost.cs", "/src/Modules/WorldSimulation/"));
         string serverLive = File.ReadAllText(TestSourceLocator.Unique(Path.Combine(workspace, "ReignServer"),
             "LiveInteractionTest.cs", "/src/Modules/WorldSimulation/"));

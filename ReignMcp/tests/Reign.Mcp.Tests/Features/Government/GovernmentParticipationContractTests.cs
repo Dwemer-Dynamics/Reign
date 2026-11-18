@@ -696,7 +696,7 @@ public sealed class GovernmentParticipationContractTests
         string workspace = TestOptions.FindWorkspace();
         string view = File.ReadAllText(Path.Combine(workspace,
             "ReignBeta/src/Modules/Dialogue/UI/ViewModels/ReignIndividualChatScreenVM.cs"));
-        string host = File.ReadAllText(Path.Combine(workspace,
+        string host = TestSourceLocator.PartialTypeSourceText(Path.Combine(workspace,
             "ReignBeta/src/Modules/WorldSimulation/Campaign/ReignLiveInteractionTestHost.cs"));
         Assert.Contains("_presentationInitializationTask = InitializePresentationAsync();", view);
         Assert.Contains("await OpenNpcInitiatedConversationAsync()", view);
