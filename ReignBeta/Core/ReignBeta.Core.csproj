@@ -24,6 +24,6 @@
   <ItemGroup>
     <!-- Compile-time only: Bannerlord ships Newtonsoft.Json 13.0.0.0, so no copy flows into the module bin. -->
     <PackageReference Include="Newtonsoft.Json" Version="13.0.3" PrivateAssets="all" ExcludeAssets="runtime" />
-    <ProjectReference Include="$(ReignServerRoot)\shared\Reign.Core.Contracts\Reign.Core.Contracts.csproj" />
+    <ProjectReference Include="$(ReignServerRoot)\shared\Reign.Core.Contracts\Reign.Core.Contracts.csproj" GlobalPropertiesToRemove="ReignServerRoot" />
   </ItemGroup>
 </Project>
