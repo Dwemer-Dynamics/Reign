@@ -164,7 +164,7 @@ public sealed class TestingCatalogContractTests
         Assert.Contains("tier=quick suite=live_interaction", catalog);
         string runner = File.ReadAllText(Path.Combine(workspace, "ReignServer/src/Modules/Platform/VerificationLab.cs"));
         Assert.Contains("string.Equals(requestedSuite, \"live_interaction\", StringComparison.OrdinalIgnoreCase)", runner);
-        Assert.Contains("\"contracts.live_interaction\", \"live_interaction\", RunLiveInteractionTestSelfTests(), caseResultLimit:512", runner);
+        Assert.Matches(@"""contracts\.live_interaction"", ""live_interaction"", (WorldSimulationService\.)?RunLiveInteractionTestSelfTests\(\), caseResultLimit:512", runner);
         foreach (string path in new[] { "docs/agent/testing/CAMPAIGN_AND_RUNTIME.md", "ReignMcp/README.md", "ReignMcp/docs/security-model.md" })
         {
             string text = TestingDocumentation.Read(Path.Combine(workspace, path));
