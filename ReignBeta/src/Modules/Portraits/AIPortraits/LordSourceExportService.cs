@@ -13,6 +13,7 @@ using TaleWorlds.Core.ViewModelCollection.ImageIdentifiers;
 using TaleWorlds.GauntletUI.BaseTypes;
 using TaleWorlds.Library;
 using TaleWorlds.TwoDimension;
+using static AIPortraits.PortraitMessages;
 
 namespace AIPortraits;
 
@@ -670,10 +671,5 @@ public static class LordSourceExportService
 	private static string SafeField(string value)
 	{
 		return (value ?? string.Empty).Replace('\t', ' ').Replace('\r', ' ').Replace('\n', ' ');
-	}
-
-	private static void Msg(string text, uint color)
-	{
-		InformationManager.DisplayMessage(new InformationMessage("[AIPortraits] " + text, Color.FromUint(color)));
 	}
 }

@@ -18,6 +18,7 @@ using TaleWorlds.Core;
 using TaleWorlds.Library;
 using TaleWorlds.Localization;
 using TaleWorlds.MountAndBlade;
+using static ReignBeta.World.ReignWorldParsing;
 
 namespace ReignBeta.PartyAgency
 {
@@ -1318,13 +1319,6 @@ namespace ReignBeta.PartyAgency
         private static float CurrentDay()
         {
             return (float)CampaignTime.Now.ToDays;
-        }
-
-        private static JObject ParseTerms(string json)
-        {
-            if (string.IsNullOrWhiteSpace(json)) return new JObject();
-            try { return JObject.Parse(json); }
-            catch { return new JObject(); }
         }
 
         private static ReignTemporaryGuestTermKind ParseTermKind(JObject terms)

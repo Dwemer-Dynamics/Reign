@@ -14,6 +14,7 @@ using TaleWorlds.CampaignSystem.Party;
 using TaleWorlds.CampaignSystem.Settlements;
 using TaleWorlds.CampaignSystem.Settlements.Workshops;
 using TaleWorlds.Core;
+using static ReignBeta.World.ReignWorldParsing;
 
 namespace ReignBeta.World
 {
@@ -1955,14 +1956,6 @@ namespace ReignBeta.World
                     }
                 }
             }
-        }
-
-        private static IEnumerable<string> SplitCsv(string value)
-        {
-            return (value ?? string.Empty)
-                .Split(',')
-                .Select(x => x.Trim())
-                .Where(x => x.Length > 0);
         }
 
         private static string ReadStringTerm(string json, string key, string fallback)

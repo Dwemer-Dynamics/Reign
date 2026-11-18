@@ -19,6 +19,7 @@ using TaleWorlds.CampaignSystem.Settlements;
 using TaleWorlds.Core;
 using TaleWorlds.Core.ViewModelCollection.ImageIdentifiers;
 using TaleWorlds.Library;
+using static ReignBeta.UI.ViewModels.ReignChatText;
 
 namespace ReignBeta.UI.ViewModels
 {
@@ -1503,13 +1504,6 @@ namespace ReignBeta.UI.ViewModels
                 || ContainsIgnoreCase(error, "Invalid Authentication")
                 || ContainsIgnoreCase(error, "invalid_api_key")
                 || ContainsIgnoreCase(error, "unauthorized");
-        }
-
-        private static bool ContainsIgnoreCase(string text, string value)
-        {
-            return !string.IsNullOrEmpty(text)
-                && !string.IsNullOrEmpty(value)
-                && text.IndexOf(value, StringComparison.OrdinalIgnoreCase) >= 0;
         }
 
         private void ToggleMember(ReignPartyChatMemberVM attendee)

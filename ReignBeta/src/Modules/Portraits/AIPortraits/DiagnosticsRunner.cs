@@ -9,6 +9,7 @@ using TaleWorlds.CampaignSystem;
 using TaleWorlds.CampaignSystem.GameState;
 using TaleWorlds.Core;
 using TaleWorlds.Library;
+using static AIPortraits.PortraitMessages;
 
 namespace AIPortraits;
 
@@ -270,10 +271,5 @@ public static class DiagnosticsRunner
 		_testRunning = true;
 		try { await ReignMainThread.InvokeAsync(HandlePlayerBuild).ConfigureAwait(false); }
 		finally { _testRunning = false; }
-	}
-
-	private static void Msg(string text, uint color)
-	{
-		InformationManager.DisplayMessage(new InformationMessage("[AIPortraits] " + text, Color.FromUint(color)));
 	}
 }
