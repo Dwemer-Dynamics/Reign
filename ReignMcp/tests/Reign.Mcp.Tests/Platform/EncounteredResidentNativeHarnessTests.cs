@@ -11,7 +11,7 @@ public sealed class EncounteredResidentNativeHarnessTests
         using var catalog = JsonDocument.Parse(File.ReadAllText(Path.Combine(root, "reign.testing.json")));
         var approach = catalog.RootElement.GetProperty("encounteredResidents").GetProperty("nativeApproach");
         string operation = approach.GetProperty("operation").GetString()!;
-        string client = File.ReadAllText(Path.Combine(root, "ReignBeta/src/Modules/WorldSimulation/Campaign/ReignLiveInteractionTestHost.cs"));
+        string client = TestSourceLocator.PartialTypeSourceText(Path.Combine(root, "ReignBeta/src/Modules/WorldSimulation/Campaign/ReignLiveInteractionTestHost.cs"));
         string server = File.ReadAllText(Path.Combine(root, "ReignServer/src/Modules/WorldSimulation/LiveInteractionTest.cs"));
         string native = File.ReadAllText(Path.Combine(root, "ReignBeta/src/Modules/Characters/Campaign/ReignEncounteredResidentNativeTestHost.cs"));
         Assert.Contains("\"" + operation + "\"", client);

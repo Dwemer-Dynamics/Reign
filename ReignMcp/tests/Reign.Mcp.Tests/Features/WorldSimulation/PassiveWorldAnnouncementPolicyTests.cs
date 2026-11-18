@@ -53,7 +53,7 @@ public sealed class PassiveWorldAnnouncementPolicyTests
     public void EveryAcknowledgmentPathAndRecoveryCarryTheSameOptInChoice()
     {
         string root = TestOptions.FindWorkspace();
-        string host = File.ReadAllText(Path.Combine(root, "ReignBeta/src/Modules/WorldSimulation/Campaign/ReignLiveInteractionTestHost.cs"));
+        string host = TestSourceLocator.PartialTypeSourceText(Path.Combine(root, "ReignBeta/src/Modules/WorldSimulation/Campaign/ReignLiveInteractionTestHost.cs"));
         string advance = File.ReadAllText(Path.Combine(root, "ReignBeta/src/Modules/WorldSimulation/Campaign/ReignLiveInteractionPassiveWorldHost.cs"));
         string controller = File.ReadAllText(Path.Combine(root, "ReignServer/tests/ReignLiveTest/Features/WorldSimulation/PassiveWorldControl.cs"));
         string mcp = File.ReadAllText(Path.Combine(root, "ReignMcp/src/Reign.Mcp.Server/Modules/Platform/CampaignTestTools.cs"));

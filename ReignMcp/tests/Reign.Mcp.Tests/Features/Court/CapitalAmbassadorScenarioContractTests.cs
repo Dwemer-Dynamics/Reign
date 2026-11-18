@@ -78,7 +78,7 @@ public sealed class CapitalAmbassadorScenarioContractTests
         Assert.Contains("Reload the exact verified disposable baseline", fixture, StringComparison.Ordinal);
         Assert.DoesNotContain("DeclareWarAction.Apply", fixture, StringComparison.Ordinal);
 
-        string host = File.ReadAllText(TestSourceLocator.Unique(Path.Combine(root, "ReignBeta"), "ReignLiveInteractionTestHost.cs", "/src/"));
+        string host = TestSourceLocator.PartialTypeSourceText(TestSourceLocator.Unique(Path.Combine(root, "ReignBeta"), "ReignLiveInteractionTestHost.cs", "/src/"));
         Assert.Contains("TryBuildOfficialAmbassadorContext", host, StringComparison.Ordinal);
         Assert.Contains("ambassador_official", host, StringComparison.Ordinal);
         string ui = File.ReadAllText(TestSourceLocator.Unique(Path.Combine(root, "ReignBeta"), "ReignLiveInteractionUiCalibrationHost.cs", "/src/"));

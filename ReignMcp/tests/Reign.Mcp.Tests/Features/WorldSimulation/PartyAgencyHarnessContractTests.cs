@@ -71,7 +71,7 @@ public sealed class PartyAgencyHarnessContractTests
         Assert.Contains("ReignTemporaryPartyGuestCampaignBehavior.CanReleasePrisonerForGuest(hero)", resident, StringComparison.Ordinal);
         Assert.Contains("resident.Military && !resident.ReleasedFromDuty", resident, StringComparison.Ordinal);
 
-        string fixture = File.ReadAllText(Path.Combine(root, "ReignBeta", "src", "Modules", "WorldSimulation",
+        string fixture = TestSourceLocator.PartialTypeSourceText(Path.Combine(root, "ReignBeta", "src", "Modules", "WorldSimulation",
             "Campaign", "ReignLiveInteractionPartyAgencyFixtures.cs"));
         string prisonerFixture = fixture[fixture.IndexOf("case \"prisoner\":", StringComparison.Ordinal)
             ..fixture.IndexOf("case \"dead\":", StringComparison.Ordinal)];
@@ -85,7 +85,7 @@ public sealed class PartyAgencyHarnessContractTests
     {
         string root = TestOptions.FindWorkspace();
         string guestRoot = Path.Combine(root, "ReignBeta", "src", "Modules", "WorldSimulation");
-        string host = File.ReadAllText(Path.Combine(guestRoot, "Campaign", "ReignLiveInteractionTestHost.cs"));
+        string host = TestSourceLocator.PartialTypeSourceText(Path.Combine(guestRoot, "Campaign", "ReignLiveInteractionTestHost.cs"));
         string behavior = File.ReadAllText(Path.Combine(guestRoot, "PartyAgency", "ReignTemporaryPartyGuestCampaignBehavior.cs"));
         string record = File.ReadAllText(Path.Combine(guestRoot, "PartyAgency", "ReignTemporaryPartyGuestRecord.cs"));
         using JsonDocument catalog = JsonDocument.Parse(File.ReadAllText(Path.Combine(root, "reign.testing.json")));
@@ -152,7 +152,7 @@ public sealed class PartyAgencyHarnessContractTests
     public void NativeReturnTimingReceiptSurvivesCompletedReturnAndUsesManifestVariants()
     {
         string root = TestOptions.FindWorkspace();
-        string source = File.ReadAllText(Path.Combine(root, "ReignBeta", "src", "Modules",
+        string source = TestSourceLocator.PartialTypeSourceText(Path.Combine(root, "ReignBeta", "src", "Modules",
             "WorldSimulation", "Campaign", "ReignLiveInteractionPartyAgencyFixtures.cs"));
 
         Assert.Contains("return_due_observed_on_returning_transition", source,
@@ -443,7 +443,7 @@ public sealed class PartyAgencyHarnessContractTests
     public void ClientHarnessSupportsOneNpcFirstReviewAndEvidenceAssertions()
     {
         string root = TestOptions.FindWorkspace();
-        string host = File.ReadAllText(TestSourceLocator.Unique(
+        string host = TestSourceLocator.PartialTypeSourceText(TestSourceLocator.Unique(
             Path.Combine(root, "ReignBeta"), "ReignLiveInteractionTestHost.cs",
             "/src/Modules/WorldSimulation/Campaign/"));
         Assert.Contains("targetedReview", host, StringComparison.Ordinal);
@@ -491,7 +491,7 @@ public sealed class PartyAgencyHarnessContractTests
         Assert.DoesNotContain("EnqueueAndExecuteServerActions(reply.QueuedActions", individual,
             StringComparison.Ordinal);
 
-        string fixture = File.ReadAllText(TestSourceLocator.Unique(
+        string fixture = TestSourceLocator.PartialTypeSourceText(TestSourceLocator.Unique(
             Path.Combine(root, "ReignBeta"),
             "ReignLiveInteractionPartyAgencyFixtures.cs",
             "/src/Modules/WorldSimulation/Campaign/"));
@@ -612,7 +612,7 @@ public sealed class PartyAgencyHarnessContractTests
         Assert.Contains("AddNearbyPartyToPlayerMapEvent", patches,
             StringComparison.Ordinal);
 
-        string nativeFixtures = File.ReadAllText(TestSourceLocator.Unique(
+        string nativeFixtures = TestSourceLocator.PartialTypeSourceText(TestSourceLocator.Unique(
             Path.Combine(root, "ReignBeta"),
             "ReignLiveInteractionPartyAgencyFixtures.cs",
             "/src/Modules/WorldSimulation/Campaign/"));

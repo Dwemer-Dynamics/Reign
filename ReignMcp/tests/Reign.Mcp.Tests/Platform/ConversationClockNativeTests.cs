@@ -48,7 +48,7 @@ public sealed class ConversationClockNativeTests
         Assert.False(probe.GetProperty("nativeAcceptance").GetBoolean());
         Assert.Equal(0, probe.GetProperty("maximumNativeMinutesPerLoad").GetInt32());
         Assert.Equal("reign_probe_conversation_clock", probe.GetProperty("nativeEntry").GetString());
-        string host = File.ReadAllText(Path.Combine(clientRoot, "Modules/WorldSimulation/Campaign/ReignLiveInteractionTestHost.cs"));
+        string host = TestSourceLocator.PartialTypeSourceText(Path.Combine(clientRoot, "Modules/WorldSimulation/Campaign/ReignLiveInteractionTestHost.cs"));
         Assert.Contains("if (await ReignMainThread.InvokeAsync(() => ConversationClockRequiresRestore)", host);
         Assert.Contains("if (ConversationClockRequiresRestore", host);
     }
