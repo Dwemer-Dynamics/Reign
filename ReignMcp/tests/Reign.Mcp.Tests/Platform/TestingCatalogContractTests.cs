@@ -1223,7 +1223,7 @@ public sealed class TestingCatalogContractTests
         Assert.Contains("day 0, 30, 60, and 90", raw, StringComparison.OrdinalIgnoreCase);
         Assert.Contains("blockerCount", raw, StringComparison.Ordinal);
         Assert.Contains("\"product\"", raw, StringComparison.Ordinal);
-        Assert.Contains("workspace-wide lease", raw, StringComparison.OrdinalIgnoreCase);
+        Assert.Contains("machine-wide lease", raw, StringComparison.OrdinalIgnoreCase);
         Assert.Contains("ecosystem release", raw, StringComparison.OrdinalIgnoreCase);
         Assert.Contains("reign-repository-policy-v1", raw, StringComparison.Ordinal);
         Assert.Contains("repository-hygiene-report", raw, StringComparison.Ordinal);
