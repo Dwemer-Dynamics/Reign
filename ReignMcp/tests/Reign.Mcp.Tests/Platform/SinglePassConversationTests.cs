@@ -3,9 +3,9 @@ namespace Reign.Mcp.Tests;
 public sealed class SinglePassConversationTests
 {
     [Theory]
-    [InlineData("ReignServer/src/Modules/Platform/Program.cs", "Dictionary<string, object> llm = GenerateSinglePassConversation(dialogueLlmRequest", "llmMs = phaseTimer.ElapsedMilliseconds;")]
-    [InlineData("ReignServer/src/Modules/Platform/Program.cs", "Dictionary<string, object> llm = GenerateSinglePassConversation(eventLlmRequest", "llmMs = phaseTimer.ElapsedMilliseconds;")]
-    [InlineData("ReignServer/src/Modules/Relationships/Relationships.cs", "Dictionary<string, object> llm = GenerateSinglePassConversation(llmRequest", "Dictionary<string, object> parsed = PrepareCorrespondenceDelivery(llm);")]
+    [InlineData("ReignServer/src/Modules/Platform/Program.cs", "GenerateSinglePassConversation(dialogueLlmRequest", "llmMs = phaseTimer.ElapsedMilliseconds;")]
+    [InlineData("ReignServer/src/Modules/Platform/Program.cs", "GenerateSinglePassConversation(eventLlmRequest", "llmMs = phaseTimer.ElapsedMilliseconds;")]
+    [InlineData("ReignServer/src/Modules/Relationships/Relationships.cs", "GenerateSinglePassConversation(llmRequest", "PrepareCorrespondenceDelivery(llm);")]
     [InlineData("ReignServer/src/Modules/Dialogue/ConversationRouteMemory.cs", "var result = GenerateSinglePassConversation(request", "context.Result = result;")]
     public void RuntimeDeliveryDoesNotDispatchRepairOrSemanticReview(string path, string start, string end)
     {
