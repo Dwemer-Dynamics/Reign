@@ -47,8 +47,8 @@ public sealed class CapitalAmbassadorScenarioContractTests
         Assert.Contains("\"capital_ambassador_test\"", liveServer, StringComparison.Ordinal);
         Assert.Contains("\"ambassador_official\"", liveServer, StringComparison.Ordinal);
 
-        string program = File.ReadAllText(TestSourceLocator.Unique(Path.Combine(root, "ReignServer"), "Program.cs", "/src/Modules/Platform/"));
-        Assert.Contains("/court/foreign-ambassadors/test", program, StringComparison.Ordinal);
+        Assert.True(TestSourceLocator.ServerDeclaresRoute(TestSourceLocator.ServerRouterText(root), "/court/foreign-ambassadors/test"),
+            "The server does not declare /court/foreign-ambassadors/test.");
         string serverMatrix = File.ReadAllText(TestSourceLocator.Unique(Path.Combine(root, "ReignServer"), "CapitalAmbassadorTestSystem.cs", "/src/"));
         Assert.Contains("run Reign capital ambassador server matrix", serverMatrix, StringComparison.Ordinal);
         Assert.Contains("cleanup", serverMatrix, StringComparison.OrdinalIgnoreCase);

@@ -217,7 +217,7 @@ namespace ReignBeta.Integration
                 result.QueuedActionRows = response["queuedActions"];
                 result.ImportFence = fence;
             }
-            catch (RequestOwnerAbandonedException ex)
+            catch (ReignRequestOwnerAbandonedException ex)
             {
                 result.Error = ex.Message;
                 ReignLog.Info("Correspondence send abandoned by its local owner: " + ex.Message);
@@ -707,7 +707,7 @@ namespace ReignBeta.Integration
                     ? await PostJsonAsync("/relationships/conversation/evaluate", payload).ConfigureAwait(false)
                     : await PostOwnedJsonAsync("/relationships/conversation/evaluate", payload, requestOwner).ConfigureAwait(false);
             }
-            catch (RequestOwnerAbandonedException)
+            catch (ReignRequestOwnerAbandonedException)
             {
                 // Abandoned before dispatch: no evaluation was sent by this call,
                 // so no native change or receipt acknowledgement is owed for it.

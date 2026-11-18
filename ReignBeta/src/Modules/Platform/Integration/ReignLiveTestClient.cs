@@ -211,6 +211,8 @@ namespace ReignBeta.Integration
                     ["completedCommandCacheCount"] = ReignLiveInteractionTestHost.CompletedCommandCacheCount
                 },
                 ["httpTransport"] = HttpTransportDiagnostics(),
+                ["terminalReports"] = HeartbeatSection(sections, "terminalReports", () => ReignAICampaignBehavior.Instance?.TerminalReportHoldDiagnostics()
+                    ?? new JObject { ["schema"] = "reign-terminal-report-holds-v1", ["available"] = false, ["reason"] = "behavior_unavailable" }),
                 ["characterInitialization"] = new JObject
                 {
                     ["startingChildren"] = HeartbeatSection(sections, "startingChildren", () => ReignStartingChildrenCampaignBehavior.Instance?.Snapshot() ?? new JObject()),

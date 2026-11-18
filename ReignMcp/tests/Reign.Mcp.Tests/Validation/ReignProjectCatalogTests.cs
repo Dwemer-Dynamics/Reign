@@ -173,7 +173,7 @@ public sealed class ReignProjectCatalogTests
     [InlineData("ReignServer/src/Modules/Rebellion/RebellionDirector.cs", 2, "rebellion", "server", "server")]
     [InlineData("ReignServer/src/Modules/WorldSimulation/WorldTest.cs", 2, "world-simulation", "server", "server")]
     [InlineData("ReignServer/src/Modules/Portraits/PortraitGeneration.cs", 2, "portraits", "server", "server")]
-    [InlineData("ReignBeta/src/Modules/UI/UI/ReignRuntimeSpriteSheets.cs", 2, "ui", "bannerlord", "client")]
+    [InlineData("ReignBeta/src/Modules/UI/ReignRuntimeSpriteSheets.cs", 2, "ui", "bannerlord", "client")]
     [InlineData("ReignMcp/src/Reign.Mcp.Server/Modules/Platform/ReignApiClient.cs", 2, "platform", "mcp", "mcp")]
     [InlineData("BannerlordEditorMcp/src/Bannerlord.EditorBridge/EditorBridgeController.cs", 2, "bannerlord-editor", "tooling", "bannerlordeditormcp-src-bannerlord-editorbridge-bannerlord-editorbridge-csproj")]
     public void EveryRepresentativeModuleFacetRoutesNarrowly(

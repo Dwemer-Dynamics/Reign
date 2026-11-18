@@ -201,10 +201,13 @@ public sealed class SocialReputationHarnessContractTests
         Assert.Contains("operation.Equals(\"social_reputation_profile\"", serverBridge, StringComparison.Ordinal);
         Assert.Contains("? 3600", serverBridge, StringComparison.Ordinal);
         Assert.Contains("social_profile_timeout_scope", serverBridge, StringComparison.Ordinal);
-        Assert.Contains("InteractiveClient", serverClient, StringComparison.Ordinal);
-        Assert.Contains("IsProviderBackedInteractiveRoute", serverClient, StringComparison.Ordinal);
-        Assert.Contains("InteractiveProviderTimeoutSeconds = 900", serverClient, StringComparison.Ordinal);
-        Assert.Contains("[\"interactiveProviderTimeoutSeconds\"]", serverClient, StringComparison.Ordinal);
+        // The interactive provider client lives in the shared HTTP transport.
+        string transport = File.ReadAllText(TestSourceLocator.Unique(
+            Path.Combine(root, "ReignBeta"), "ReignHttpTransport.cs", "/src/Modules/Platform/"));
+        Assert.Contains("InteractiveClient", transport, StringComparison.Ordinal);
+        Assert.Contains("IsProviderBackedInteractiveRoute", transport, StringComparison.Ordinal);
+        Assert.Contains("InteractiveProviderTimeoutSeconds = 900", transport, StringComparison.Ordinal);
+        Assert.Contains("[\"interactiveProviderTimeoutSeconds\"]", transport, StringComparison.Ordinal);
         Assert.Contains("RunNpcRulerFavoringPresenceForSocialBalance", courtProducer, StringComparison.Ordinal);
         Assert.Contains("ProcessNpcRulerFavoringPair", courtProducer, StringComparison.Ordinal);
         Assert.Contains("if (record == null)", courtProducer, StringComparison.Ordinal);
@@ -238,7 +241,8 @@ public sealed class SocialReputationHarnessContractTests
         Assert.Contains("new Dictionary<string, object>(rareExposureOverride)", socialBalance, StringComparison.Ordinal);
         Assert.Contains("receiptResultJson", socialBalance, StringComparison.Ordinal);
         Assert.Contains("veryLowThreshold", socialBalance, StringComparison.Ordinal);
-        Assert.Contains("/tests/social-balance/affair/candidates", platform, StringComparison.Ordinal);
+        Assert.True(TestSourceLocator.ServerDeclaresRoute(TestSourceLocator.ServerRouterText(root), "/tests/social-balance/affair/candidates"),
+            "The server does not declare /tests/social-balance/affair/candidates.");
         Assert.Contains("court_conversation_signal_receipts", socialBalance, StringComparison.Ordinal);
         Assert.Contains("court_flirt_targets", socialBalance, StringComparison.Ordinal);
         Assert.Contains("clanTierScalingCorrect", socialBalance, StringComparison.Ordinal);

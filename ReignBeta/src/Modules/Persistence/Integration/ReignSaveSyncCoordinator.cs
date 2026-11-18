@@ -555,7 +555,7 @@ namespace ReignBeta.Integration
                         Uri final = response.RequestMessage?.RequestUri;
                         string origin = final != null && Uri.TryCreate(url, UriKind.Absolute, out Uri requested)
                             && string.Equals(final.AbsoluteUri, requested.AbsoluteUri, StringComparison.Ordinal)
-                                ? ReignServerClient.PinnableOrigin(baseUrl) : string.Empty;
+                                ? ReignHttpTransport.PinnableOrigin(baseUrl) : string.Empty;
                         return new System.Collections.Generic.KeyValuePair<JObject, string>(JObject.Parse(body), origin);
                     }
                 }

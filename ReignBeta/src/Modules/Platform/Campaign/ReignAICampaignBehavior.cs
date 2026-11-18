@@ -505,7 +505,7 @@ namespace ReignBeta.Campaign
             MaybeTickConversationSceneState();
             if (!ReignSaveSyncCoordinator.IsAlignmentPending)
                 _ = ReignServerClient.TickPersonalGossipAsync();
-            ReignActionGauntlet.TickAllSuites();
+            ReignTestHarness.Current.TickActionGauntletSuites();
             MaybeStartServerActionPoll(now);
             MaybeSubmitWorldTestHeartbeat(now);
             DrainPendingServerActions();
@@ -888,6 +888,27 @@ namespace ReignBeta.Campaign
             _terminalReportHolds[actionId] = reason ?? string.Empty;
             if (_terminalReportDeferralLogged.Add("hold:" + actionId))
                 ReignLog.Info("Terminal action report held without delivery action=" + actionId + " reason=" + BoundedReason(reason));
+        }
+
+        // Game thread. Read-only snapshot of the reports held in this loaded instance, for the
+        // runtime diagnostics. Holds are never expired here; durable work stays saved.
+        internal JObject TerminalReportHoldDiagnostics()
+        {
+            var result = new JObject { ["schema"] = "reign-terminal-report-holds-v1" };
+            if (!ReignMainThread.IsMainThread)
+            {
+                result["available"] = false;
+                result["reason"] = "off_main_thread";
+                return result;
+            }
+            var reasons = new JObject();
+            foreach (var group in _terminalReportHolds.Values.GroupBy(value => BoundedReason(value)).OrderBy(group => group.Key, StringComparer.Ordinal))
+                reasons[group.Key] = group.Count();
+            result["available"] = true;
+            result["heldCount"] = _terminalReportHolds.Count;
+            result["reasons"] = reasons;
+            result["sampleActionIds"] = new JArray(_terminalReportHolds.Keys.OrderBy(id => id, StringComparer.Ordinal).Take(10));
+            return result;
         }
 
         // Game thread. The recovery policy's view of one saved report under the current load.
