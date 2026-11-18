@@ -649,7 +649,7 @@ namespace ReignBeta.KingdomEvents.Campaign
             Hero oldRuler,
             Hero heir)
         {
-            ReignNewsCampaignBehavior.Instance?.KingdomEvent(record, kingdom, secondary, oldRuler, heir);
+            ReignServices.News?.KingdomEvent(record, kingdom, secondary, oldRuler, heir);
         }
 
         internal static bool TryAcknowledgeAnnouncementForLiveHarness(out string eventId)

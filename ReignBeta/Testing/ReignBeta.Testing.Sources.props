@@ -28,6 +28,9 @@
     <ReignTestingSource Include="$(MSBuildThisFileDirectory)..\src\Modules\Reputation\Campaign\ReignLiveInteractionSocialBalanceHost.cs" />
     <ReignTestingSource Include="$(MSBuildThisFileDirectory)..\src\Modules\WorldSimulation\Arrests\ReignArrestTestHost.cs" />
     <ReignTestingSource Include="$(MSBuildThisFileDirectory)..\src\Modules\WorldSimulation\Campaign\ReignActionGauntlet.cs" />
+    <ReignTestingSource Include="$(MSBuildThisFileDirectory)..\src\Modules\WorldSimulation\Campaign\ReignActionGauntlet.ActionSpecs.cs" />
+    <ReignTestingSource Include="$(MSBuildThisFileDirectory)..\src\Modules\WorldSimulation\Campaign\ReignActionGauntlet.Assertions.cs" />
+    <ReignTestingSource Include="$(MSBuildThisFileDirectory)..\src\Modules\WorldSimulation\Campaign\ReignActionGauntlet.LiveDialogue.cs" />
     <ReignTestingSource Include="$(MSBuildThisFileDirectory)..\src\Modules\WorldSimulation\Campaign\ReignInProcessTestHarness.cs" />
     <ReignTestingSource Include="$(MSBuildThisFileDirectory)..\src\Modules\WorldSimulation\Campaign\ReignLiveInteractionCampaignCommandHost.cs" />
     <ReignTestingSource Include="$(MSBuildThisFileDirectory)..\src\Modules\WorldSimulation\Campaign\ReignLiveInteractionGauntletFixtures.cs" />
