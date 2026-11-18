@@ -283,7 +283,7 @@ namespace ReignBeta
 
             RunTickStage(
                 "campaign preparation",
-                () => ReignCampaignPreparationCampaignBehavior.Instance?.ApplicationTick(dt));
+                () => ReignServices.CampaignPreparation?.ApplicationTick(dt));
             if (ReignCampaignInitializationGate.IsPending)
             {
                 // Keep only the local control plane alive while the prerequisite
