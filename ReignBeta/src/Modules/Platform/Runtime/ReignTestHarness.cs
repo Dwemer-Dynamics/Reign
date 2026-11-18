@@ -84,7 +84,7 @@ namespace ReignBeta.Runtime
                 string path = Path.Combine(directory ?? string.Empty, TestingAssemblyFileName);
                 if (!File.Exists(path)) return;
                 Assembly testing = Assembly.LoadFrom(path);
-                Type[] harnessTypes = testing.GetTypes()
+                Type[] harnessTypes = LoadableTypes(testing)
                     .Where(type => type.IsClass && !type.IsAbstract && typeof(IReignTestHarness).IsAssignableFrom(type))
                     .ToArray();
                 if (harnessTypes.Length != 1)
@@ -95,6 +95,21 @@ namespace ReignBeta.Runtime
             {
                 Install(null);
                 ReignBeta.Integration.ReignLog.Warn("Reign test harness was not installed; continuing without it: " + ex.GetType().Name + ": " + ex.Message);
+            }
+        }
+
+        // GetTypes throws when any harness type fails to load; keep the loadable ones and log why the rest failed.
+        private static Type[] LoadableTypes(Assembly assembly)
+        {
+            try
+            {
+                return assembly.GetTypes();
+            }
+            catch (ReflectionTypeLoadException ex)
+            {
+                foreach (Exception loaderException in (ex.LoaderExceptions ?? new Exception[0]).Where(item => item != null).Take(5))
+                    ReignBeta.Integration.ReignLog.Warn("Reign test harness type failed to load: " + loaderException.GetType().Name + ": " + loaderException.Message);
+                return ex.Types.Where(type => type != null).ToArray();
             }
         }
 
