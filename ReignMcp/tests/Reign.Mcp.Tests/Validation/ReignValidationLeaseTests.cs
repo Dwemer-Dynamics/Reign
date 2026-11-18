@@ -21,6 +21,7 @@ public sealed class ReignValidationLeaseTests : IDisposable
         Assert.False(lane.StartsWith(TestOptions.FindWorkspace(), StringComparison.OrdinalIgnoreCase));
         Assert.EndsWith(Path.Combine("validation-lanes", "ReignServer"), ReignMcpOptions.ResolveLeaseRoot(null, null));
         Assert.Throws<InvalidOperationException>(() => ReignMcpOptions.ResolveLeaseRoot("relative-lease", null));
+        Assert.EndsWith(Path.Combine("validation-lanes", "_2"), ReignMcpOptions.ResolveLeaseRoot(null, ".."));
     }
 
     [Fact]

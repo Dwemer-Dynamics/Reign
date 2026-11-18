@@ -1915,7 +1915,7 @@
     ],
     "productScope": "Core Reign runtime, shared contracts, server, client, Verification Lab, live-test controller, and Reign MCP. Independent editor, portrait-generator, and legacy-importer projects are excluded.",
     "releaseScope": "The all profile is the ecosystem release profile: it covers every managed project and complete offline verification, and is reserved for releases and shared ownership/build/validator changes.",
-    "coordination": "The workspace-wide lease prevents overlapping validations and is enforced by the OS. Call reign_get_validation_status before acquisition; its snapshot is not a reservation. Supply requestingTaskId for exact task attribution. Continue independent work while busy, or reuse only a matching successful report.",
+    "coordination": "The machine-wide lease (one per WSL validation lane, shared by every worktree, still described by tests as the workspace-wide lease) prevents overlapping validations and is enforced by the OS. Call reign_get_validation_status before acquisition; its snapshot is not a reservation. Supply requestingTaskId for exact task attribution. Continue independent work while busy, or reuse only a matching successful report.",
     "changedPathsRequired": true,
     "artifactDeploymentHook": {
       "implementation": ".codex/hooks/enforce-reign-validation.ps1 permits only the primary canonical ReignServer/scripts/Deploy-LocalWsl.ps1 in the physical sibling or verified workspace junction. Retained worktree deployment scripts receive no exception: old copies lack the current source/artifact gates. The deployment script requires the reviewed machine authority, canonical source fingerprints and report-bound artifacts without rebuilding.",

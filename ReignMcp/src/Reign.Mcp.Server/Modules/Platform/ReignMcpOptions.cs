@@ -56,6 +56,8 @@ public sealed record ReignMcpOptions
 
     // One lease per WSL validation lane on this machine: %LOCALAPPDATA%/Reign/validation-lanes/<distro>
     // (the same default distro as ReignProcessRunner). REIGN_MCP_LEASE_ROOT, when set, must be absolute.
+    // Every validation on the machine that targets the same lane is serialized, including plans that never
+    // reach WSL: they share build outputs' lane-scoped verification resources by design.
     public static string ResolveLeaseRoot(string? configured, string? distro)
     {
         if (!string.IsNullOrWhiteSpace(configured))
@@ -66,6 +68,7 @@ public sealed record ReignMcpOptions
         }
         string lane = string.IsNullOrWhiteSpace(distro) ? "ReignServer" : distro.Trim();
         lane = new string(lane.Select(c => char.IsLetterOrDigit(c) || c is '.' or '-' or '_' ? c : '_').ToArray());
+        if (lane.All(c => c == '.')) lane = "_" + lane.Length;  // never "." or ".." as a directory name
         string local = Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData);
         if (string.IsNullOrEmpty(local)) local = Path.GetTempPath();
         return Path.GetFullPath(Path.Combine(local, "Reign", "validation-lanes", lane));
