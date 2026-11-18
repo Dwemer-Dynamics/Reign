@@ -1,3 +1,7 @@
+using System;
+using System.IO;
+using System.Linq;
+using System.Reflection;
 using System.Threading.Tasks;
 using Newtonsoft.Json.Linq;
 using TaleWorlds.CampaignSystem;
@@ -65,8 +69,34 @@ namespace ReignBeta.Runtime
         internal static IReignTestHarness Current { get; private set; } = IdleTestHarness.Instance;
         internal static IReignSpymasterTestControls IdleSpymasterControls => IdleTestHarness.Instance;
 
-        // Called once by SubModule.OnSubModuleLoad.
+        internal const string TestingAssemblyFileName = "ReignBeta.Testing.dll";
+
         internal static void Install(IReignTestHarness harness) => Current = harness ?? IdleTestHarness.Instance;
+
+        // Called once, first, by SubModule.OnSubModuleLoad. Loads the optional harness assembly that
+        // ships next to ReignBeta.dll and installs its single IReignTestHarness implementation. A module
+        // without the assembly, or one that fails to load, keeps the idle harness.
+        internal static void InstallFromOptionalAssembly(Assembly clientAssembly)
+        {
+            try
+            {
+                string directory = Path.GetDirectoryName(clientAssembly.Location);
+                string path = Path.Combine(directory ?? string.Empty, TestingAssemblyFileName);
+                if (!File.Exists(path)) return;
+                Assembly testing = Assembly.LoadFrom(path);
+                Type[] harnessTypes = testing.GetTypes()
+                    .Where(type => type.IsClass && !type.IsAbstract && typeof(IReignTestHarness).IsAssignableFrom(type))
+                    .ToArray();
+                if (harnessTypes.Length != 1)
+                    throw new InvalidOperationException(TestingAssemblyFileName + " must contain exactly one test harness; found " + harnessTypes.Length + ".");
+                Install((IReignTestHarness)Activator.CreateInstance(harnessTypes[0]));
+            }
+            catch (Exception ex)
+            {
+                Install(null);
+                ReignBeta.Integration.ReignLog.Warn("Reign test harness was not installed; continuing without it: " + ex.GetType().Name + ": " + ex.Message);
+            }
+        }
 
         private sealed class IdleTestHarness : IReignTestHarness, IReignSpymasterTestControls
         {

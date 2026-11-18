@@ -44,8 +44,8 @@ namespace ReignBeta
         protected override void OnSubModuleLoad()
         {
             base.OnSubModuleLoad();
-            // The in-game test harness reaches product code only through this seam.
-            ReignTestHarness.Install(new ReignInProcessTestHarness());
+            // The in-game test harness (optional ReignBeta.Testing.dll) reaches product code only through this seam.
+            ReignTestHarness.InstallFromOptionalAssembly(typeof(SubModule).Assembly);
             // Admit scoped main-thread work for campaign games started from now on.
             ReignMainThread.OpenScopedIngress();
             EnsureManagedRuntimeDependencies();
