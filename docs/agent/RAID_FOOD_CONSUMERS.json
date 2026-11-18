@@ -4,7 +4,7 @@
   "effectiveFood": [
     {"path":"ReignBeta/src/Modules/WorldSimulation/Economy/ReignEconomyModels.cs","symbols":["CalculateDailyFoodProductionAmount","CalculateDailyProductionAmount:Item.IsFood","CalculateTownFoodStocksChange"],"rule":"minimum legacy/new recovery once; DLC outer food modifiers precede recovery"},
     {"path":"ReignBeta/src/Modules/WorldSimulation/Economy/ReignRaidFoodDisruption.cs","symbols":["AddCatch","FishingDeparture","FishingHourly"],"rule":"new physical catch only; one existing voyage; post-unload home hold at zero; no cargo loss"},
-    {"path":"ReignBeta/src/Modules/Court/Court/ReignRulerDocketCampaignBehavior.cs","symbols":["CaptureSettlementSamples","HealthyVillageProduction"],"rule":"actual/potential model observations per recipe; no second recovery multiplication"},
+    {"path":"ReignBeta/src/Modules/Court/Campaign/ReignRulerDocketCampaignBehavior.cs","symbols":["CaptureSettlementSamples","HealthyVillageProduction"],"rule":"actual/potential model observations per recipe; no second recovery multiplication"},
     {"path":"ReignBeta/src/Modules/Court/UI/ViewModels/ReignCourtEconomicReportVM.cs","symbols":["FoodDetails"],"rule":"show effective food, capacity and legacy recovery separately"},
     {"path":"ReignBeta/src/Modules/Reputation/Campaign/ReignRulerReputationCampaignBehavior.cs","symbols":["village agriculture observation"],"rule":"recovery credit requires effective full recovery plus existing stability and observed hearth conditions"},
     {"path":"ReignBeta/src/Modules/WorldSimulation/Integration/ReignWorldTestClient.cs","symbols":["war economy food penalty","daily town/castle food census"],"rule":"food uses effective recovery; security/recruitment remain legacy"},
