@@ -237,7 +237,7 @@ namespace ReignBeta.Integration
             {
                 turn.Error = ex.Message;
                 // A closed screen or changed load is an expected abandonment, not a failure.
-                if (ex is ReignServerClient.RequestOwnerAbandonedException)
+                if (ex is ReignRequestOwnerAbandonedException)
                     ReignLog.Info("Social event group turn abandoned: " + ex.Message);
                 else
                     ReignLog.Warn("Social event group turn failed: " + ex.Message);

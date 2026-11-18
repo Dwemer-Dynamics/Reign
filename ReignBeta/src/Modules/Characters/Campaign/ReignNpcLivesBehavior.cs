@@ -96,8 +96,8 @@ namespace ReignBeta.Campaign
             string campaign = ReignServerClient.GetCampaignId(), timeline = ReignWorldHistoryCampaignBehavior.Instance?.TimelineId ?? "main";
             if (_campaign != campaign || _timeline != timeline)
             { _epoch++; _busy = _initialized = false; _campaign = campaign; _timeline = timeline; Generation = ""; _nextPoll = _nextEvaluation = 0; }
-            if (ReignLiveInteractionTestHost.OwnsAutomationSession && !NpcLivesTestOwnsSession
-                && !ReignLiveInteractionTestHost.OwnsPassiveWorldSession) return;
+            if (ReignTestHarness.Current.OwnsAutomationSession && !NpcLivesTestOwnsSession
+                && !ReignTestHarness.Current.OwnsPassiveWorldSession) return;
             if (_initialized) { AdvanceCommunicationHosts(); AdvanceLifeTravel(); }
             if (_busy || _real < _nextPoll) return;
             _nextPoll = _real + 5;
@@ -249,6 +249,6 @@ namespace ReignBeta.Campaign
             QueueLifeOperation("announcement", p, operationId);
             return await Task.FromResult(new JObject { ["ok"] = true, ["status"] = "queued", ["operationId"] = operationId });
         }
-        internal bool NpcLivesTestOwnsSession => ReignLiveInteractionTestHost.OwnsNpcLivesSession;
+        internal bool NpcLivesTestOwnsSession => ReignTestHarness.Current.OwnsNpcLivesSession;
     }
 }

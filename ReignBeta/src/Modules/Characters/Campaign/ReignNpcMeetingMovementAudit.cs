@@ -7,6 +7,7 @@ using TaleWorlds.CampaignSystem.Actions;
 using TaleWorlds.CampaignSystem.CampaignBehaviors;
 using TaleWorlds.CampaignSystem.Party;
 using TaleWorlds.CampaignSystem.Settlements;
+using ReignBeta.Runtime;
 
 namespace ReignBeta.Campaign
 {
@@ -16,7 +17,7 @@ namespace ReignBeta.Campaign
 
         internal void ObserveMeetingMovement(Hero hero, string operation, string target = "", string detail = "", bool allowed = true)
         {
-            if (!ReignLiveInteractionTestHost.OwnsAutomationSession || hero == null || hero == Hero.MainHero
+            if (!ReignTestHarness.Current.OwnsAutomationSession || hero == null || hero == Hero.MainHero
                 || !_meetingTravel.Values.Any(j => !j.Terminal && (j.Meeting.IssuerId == hero.StringId || j.Meeting.TargetId == hero.StringId))) return;
             // Method identities only: no source paths, local values or arbitrary object dumps.
             var callers = (new StackTrace(2, false).GetFrames() ?? new StackFrame[0])

@@ -12,6 +12,7 @@ using TaleWorlds.CampaignSystem.Party;
 using TaleWorlds.CampaignSystem.Settlements;
 using TaleWorlds.Core;
 using TaleWorlds.Library;
+using ReignBeta.Runtime;
 
 namespace ReignBeta.Court
 {
@@ -170,8 +171,8 @@ namespace ReignBeta.Court
             float day = CurrentDayFloat();
             ReignSpymasterMission mission = new ReignSpymasterMission
             {
-                MissionId = agreementOperationId ?? (ReignSpymasterTestRuntime.Active
-                    ? "spytest_" + ReignSpymasterTestRuntime.RunId + "_" + Guid.NewGuid().ToString("N")
+                MissionId = agreementOperationId ?? (ReignTestHarness.Current.Spymaster.Active
+                    ? "spytest_" + ReignTestHarness.Current.Spymaster.RunId + "_" + Guid.NewGuid().ToString("N")
                     : "spy_" + Guid.NewGuid().ToString("N")),
                 SpymasterHeroStringId = spymaster.StringId,
                 MissionType = missionType ?? string.Empty,
@@ -230,7 +231,7 @@ namespace ReignBeta.Court
                     string invalidation = ValidateSpymasterMissionTarget(mission);
                     if (!string.IsNullOrWhiteSpace(invalidation))
                     {
-                        ReignSpymasterTestRuntime.DiscardMissionOutcome(mission.MissionId);
+                        ReignTestHarness.Current.Spymaster.DiscardMissionOutcome(mission.MissionId);
                         mission.State = ReignSpymasterMissionState.Cancelled;
                         mission.ResolvedDay = day;
                         mission.ResultSummary = invalidation + " The prepaid funds were not recovered.";
@@ -252,7 +253,7 @@ namespace ReignBeta.Court
         internal void ResolveSpymasterMission(ReignSpymasterMission mission, Hero spymaster, float day)
         {
             float outcomeRoll;
-            if (!ReignSpymasterTestRuntime.TryTakeMissionOutcome(mission.MissionId, out outcomeRoll))
+            if (!ReignTestHarness.Current.Spymaster.TryTakeMissionOutcome(mission.MissionId, out outcomeRoll))
                 outcomeRoll = NextSpymasterRoll("mission_outcome");
             mission.OutcomeRoll = outcomeRoll * 100f;
             bool succeeded = mission.OutcomeRoll < mission.SuccessChance;
@@ -263,7 +264,7 @@ namespace ReignBeta.Court
                 mission.AgreementEffectState = "applying";
                 ResolveSuccessfulSpymasterMission(mission, spymaster, day);
                 if (mission.AgreementEffectState == "applying") mission.AgreementEffectState = "completed";
-                ReignSpymasterTestRuntime.DiscardMissionConsequence(mission.MissionId);
+                ReignTestHarness.Current.Spymaster.DiscardMissionConsequence(mission.MissionId);
             }
             else
             {
@@ -370,8 +371,8 @@ namespace ReignBeta.Court
                 mission.ResultSummary = "The attempt reached the target, but campaign protections prevented the death.";
                 return;
             }
-            if (ReignSpymasterTestRuntime.Active && ReignSpymasterTestRuntime.SuppressIrreversibleNativeConsequences)
-                ReignSpymasterTestRuntime.RecordNativeIntent("assassination", new JObject { ["victimHeroId"] = victim.StringId, ["missionId"] = mission.MissionId });
+            if (ReignTestHarness.Current.Spymaster.Active && ReignTestHarness.Current.Spymaster.SuppressIrreversibleNativeConsequences)
+                ReignTestHarness.Current.Spymaster.RecordNativeIntent("assassination", new JObject { ["victimHeroId"] = victim.StringId, ["missionId"] = mission.MissionId });
             else KillCharacterAction.ApplyByMurder(victim, null, true);
             mission.ResultSummary = victim.Name + " was assassinated. Native clan and kingdom succession has begun.";
         }
@@ -384,8 +385,8 @@ namespace ReignBeta.Court
                 && !string.Equals(mission.MissionType, "fabricate_positive", StringComparison.OrdinalIgnoreCase))
             {
                 int loss = ReignSpymasterCore.RelationLoss(mission.ClanTier, mission.Harmful, mission.TargetIsRuler);
-                if (ReignSpymasterTestRuntime.Active && ReignSpymasterTestRuntime.SuppressIrreversibleNativeConsequences)
-                    ReignSpymasterTestRuntime.RecordNativeIntent("relation_and_pressure", new JObject { ["targetHeroId"] = target.StringId, ["loss"] = loss, ["missionId"] = mission.MissionId });
+                if (ReignTestHarness.Current.Spymaster.Active && ReignTestHarness.Current.Spymaster.SuppressIrreversibleNativeConsequences)
+                    ReignTestHarness.Current.Spymaster.RecordNativeIntent("relation_and_pressure", new JObject { ["targetHeroId"] = target.StringId, ["loss"] = loss, ["missionId"] = mission.MissionId });
                 else
                 {
                     ChangeRelationAction.ApplyRelationChangeBetweenHeroes(target, Hero.MainHero, -loss, true);
@@ -395,15 +396,15 @@ namespace ReignBeta.Court
 
             if (!assassination) return;
             float consequenceRoll;
-            if (!ReignSpymasterTestRuntime.TryTakeMissionConsequence(mission.MissionId, out consequenceRoll))
+            if (!ReignTestHarness.Current.Spymaster.TryTakeMissionConsequence(mission.MissionId, out consequenceRoll))
                 consequenceRoll = NextSpymasterRoll("assassination_consequence");
             mission.ConsequenceRoll = consequenceRoll * 100f;
             if (consequenceRoll < 0.20f)
             {
                 if (spymaster?.IsAlive == true && spymaster.CanDie(KillCharacterAction.KillCharacterActionDetail.Murdered))
                 {
-                    if (ReignSpymasterTestRuntime.Active && ReignSpymasterTestRuntime.SuppressIrreversibleNativeConsequences)
-                        ReignSpymasterTestRuntime.RecordNativeIntent("spymaster_killed", new JObject { ["spymasterHeroId"] = spymaster.StringId, ["missionId"] = mission.MissionId });
+                    if (ReignTestHarness.Current.Spymaster.Active && ReignTestHarness.Current.Spymaster.SuppressIrreversibleNativeConsequences)
+                        ReignTestHarness.Current.Spymaster.RecordNativeIntent("spymaster_killed", new JObject { ["spymasterHeroId"] = spymaster.StringId, ["missionId"] = mission.MissionId });
                     else KillCharacterAction.ApplyByMurder(spymaster, target, true);
                 }
                 mission.ResultSummary += " The Spymaster was killed by the target's household.";
@@ -412,9 +413,9 @@ namespace ReignBeta.Court
             else if (spymaster?.CanBecomePrisoner() == true)
             {
                 PartyBase holder = ResolveSpymasterCaptivityHolder(mission, target);
-                bool suppress = ReignSpymasterTestRuntime.Active && ReignSpymasterTestRuntime.SuppressIrreversibleNativeConsequences;
-                if (ReignSpymasterTestRuntime.Active && ReignSpymasterTestRuntime.SuppressIrreversibleNativeConsequences)
-                    ReignSpymasterTestRuntime.RecordNativeIntent("spymaster_captured", new JObject { ["spymasterHeroId"] = spymaster.StringId, ["holderAvailable"] = holder != null, ["missionId"] = mission.MissionId });
+                bool suppress = ReignTestHarness.Current.Spymaster.Active && ReignTestHarness.Current.Spymaster.SuppressIrreversibleNativeConsequences;
+                if (ReignTestHarness.Current.Spymaster.Active && ReignTestHarness.Current.Spymaster.SuppressIrreversibleNativeConsequences)
+                    ReignTestHarness.Current.Spymaster.RecordNativeIntent("spymaster_captured", new JObject { ["spymasterHeroId"] = spymaster.StringId, ["holderAvailable"] = holder != null, ["missionId"] = mission.MissionId });
                 else if (holder != null) TakePrisonerAction.Apply(holder, spymaster);
                 bool captured = holder != null && (suppress || spymaster.IsPrisoner);
                 mission.AttributionPending = captured;
@@ -457,9 +458,9 @@ namespace ReignBeta.Court
             mission.PlayerIdentified = true;
             mission.State = ReignSpymasterMissionState.Exposed;
             int loss = ReignSpymasterCore.RelationLoss(mission.ClanTier, mission.Harmful, mission.TargetIsRuler);
-            bool suppress = ReignSpymasterTestRuntime.Active && ReignSpymasterTestRuntime.SuppressIrreversibleNativeConsequences;
+            bool suppress = ReignTestHarness.Current.Spymaster.Active && ReignTestHarness.Current.Spymaster.SuppressIrreversibleNativeConsequences;
             if (suppress)
-                ReignSpymasterTestRuntime.RecordNativeIntent("exposure", new JObject { ["targetHeroId"] = target?.StringId ?? string.Empty, ["relationLoss"] = loss, ["missionId"] = mission.MissionId });
+                ReignTestHarness.Current.Spymaster.RecordNativeIntent("exposure", new JObject { ["targetHeroId"] = target?.StringId ?? string.Empty, ["relationLoss"] = loss, ["missionId"] = mission.MissionId });
             else
             {
                 if (target != null && target != Hero.MainHero)
@@ -475,7 +476,7 @@ namespace ReignBeta.Court
                 if (warRoll < 0.90f)
                 {
                     if (suppress)
-                        ReignSpymasterTestRuntime.RecordNativeIntent("declare_war", new JObject { ["foreignKingdomId"] = foreign.StringId, ["playerKingdomId"] = player.StringId, ["missionId"] = mission.MissionId });
+                        ReignTestHarness.Current.Spymaster.RecordNativeIntent("declare_war", new JObject { ["foreignKingdomId"] = foreign.StringId, ["playerKingdomId"] = player.StringId, ["missionId"] = mission.MissionId });
                     else DeclareWarAction.ApplyByKingdomDecision(foreign, player);
                     mission.ResultSummary += " The exposure caused war.";
                 }
@@ -510,13 +511,13 @@ namespace ReignBeta.Court
                 ? FindSettlement(mission.TargetStringId)?.Town?.Governor : FindHero(mission.TargetStringId);
             mission.BreakoutChance = GetSpymasterBreakoutChance();
             float breakoutRoll;
-            if (!ReignSpymasterTestRuntime.TryTakeBreakoutOutcome(mission.MissionId, out breakoutRoll))
+            if (!ReignTestHarness.Current.Spymaster.TryTakeBreakoutOutcome(mission.MissionId, out breakoutRoll))
                 breakoutRoll = NextSpymasterRoll("breakout");
             mission.BreakoutRoll = breakoutRoll * 100f;
             if (mission.BreakoutRoll < mission.BreakoutChance)
             {
-                if (ReignSpymasterTestRuntime.Active && ReignSpymasterTestRuntime.SuppressIrreversibleNativeConsequences)
-                    ReignSpymasterTestRuntime.RecordNativeIntent("breakout_success", new JObject { ["spymasterHeroId"] = spymaster.StringId, ["missionId"] = mission.MissionId });
+                if (ReignTestHarness.Current.Spymaster.Active && ReignTestHarness.Current.Spymaster.SuppressIrreversibleNativeConsequences)
+                    ReignTestHarness.Current.Spymaster.RecordNativeIntent("breakout_success", new JObject { ["spymasterHeroId"] = spymaster.StringId, ["missionId"] = mission.MissionId });
                 else EndCaptivityAction.ApplyByEscape(spymaster, Hero.MainHero, true);
                 mission.AttributionPending = false;
                 mission.ResultSummary += " The ruler personally broke the Spymaster out; both escaped and the sponsor remained concealed.";
@@ -530,8 +531,8 @@ namespace ReignBeta.Court
             ExposeSpymasterMission(mission, target, true);
             AppendMissionHistory(mission, "Breakout failed; both the ruler and Spymaster were captured and the operation was exposed.", CurrentDayFloat());
             _ = ReignSpymasterServerClient.RecordMissionMemoryAsync(mission, "resolved");
-            if (ReignSpymasterTestRuntime.Active && ReignSpymasterTestRuntime.SuppressIrreversibleNativeConsequences)
-                ReignSpymasterTestRuntime.RecordNativeIntent("player_captured", new JObject { ["holderAvailable"] = holder != null, ["missionId"] = mission.MissionId });
+            if (ReignTestHarness.Current.Spymaster.Active && ReignTestHarness.Current.Spymaster.SuppressIrreversibleNativeConsequences)
+                ReignTestHarness.Current.Spymaster.RecordNativeIntent("player_captured", new JObject { ["holderAvailable"] = holder != null, ["missionId"] = mission.MissionId });
             else if (holder != null) TakePrisonerAction.Apply(holder, Hero.MainHero);
             StateChanged?.Invoke();
             return "The breakout failed. Both the ruler and Spymaster are imprisoned, and the operation has been exposed.";
@@ -543,8 +544,8 @@ namespace ReignBeta.Court
             Hero target = FindHero(mission.TargetStringId);
             if (target != null && target != Hero.MainHero)
             {
-                if (ReignSpymasterTestRuntime.Active && ReignSpymasterTestRuntime.SuppressIrreversibleNativeConsequences)
-                    ReignSpymasterTestRuntime.RecordNativeIntent("positive_relation", new JObject { ["targetHeroId"] = target.StringId, ["gain"] = 2, ["missionId"] = mission.MissionId });
+                if (ReignTestHarness.Current.Spymaster.Active && ReignTestHarness.Current.Spymaster.SuppressIrreversibleNativeConsequences)
+                    ReignTestHarness.Current.Spymaster.RecordNativeIntent("positive_relation", new JObject { ["targetHeroId"] = target.StringId, ["gain"] = 2, ["missionId"] = mission.MissionId });
                 else ChangeRelationAction.ApplyRelationChangeBetweenHeroes(target, Hero.MainHero, 2, true);
             }
         }
@@ -721,7 +722,7 @@ namespace ReignBeta.Court
                 await ReignMainThread.InvokeAsync(() =>
                 {
                     ApplyForeignAgentResponse(response, day);
-                    ReignSpymasterTestRuntime.RecordForeignAgentActionReceipt(response?["controlledAgentAction"] as JObject);
+                    ReignTestHarness.Current.Spymaster.RecordForeignAgentActionReceipt(response?["controlledAgentAction"] as JObject);
                 }).ConfigureAwait(false);
             }
             catch (Exception ex) { ReignLog.Warn("Foreign agent tick failed: " + ex.Message); }
@@ -788,7 +789,7 @@ namespace ReignBeta.Court
                     ["isAtWar"] = true }));
             JObject snapshot = new JObject { ["worldDay"] = day, ["playerKingdomId"] = player?.StringId ?? string.Empty,
                 ["playerRulerId"] = ruler?.StringId ?? string.Empty, ["candidates"] = candidates, ["enemyKingdoms"] = enemies };
-            JObject controlledAction = ReignSpymasterTestRuntime.PendingForeignAgentActionControl();
+            JObject controlledAction = ReignTestHarness.Current.Spymaster.PendingForeignAgentActionControl();
             if (controlledAction != null) snapshot["controlledAgentAction"] = controlledAction;
             return snapshot;
         }

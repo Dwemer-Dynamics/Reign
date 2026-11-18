@@ -51,7 +51,7 @@ namespace ReignBeta.Campaign
         {
             _real += Math.Max(0, dt);
             if (ReignBanterPanel.IsCalibrationActive) return;
-            if (!Ready() || ReignLiveInteractionTestHost.OwnsAutomationSession) { ReignBanterPanel.Close(); return; }
+            if (!Ready() || ReignTestHarness.Current.OwnsAutomationSession) { ReignBanterPanel.Close(); return; }
             string campaign = ReignServerClient.GetCampaignId(), timeline = ReignWorldHistoryCampaignBehavior.Instance?.TimelineId ?? "main";
             if (_campaign != campaign || _timeline != timeline) { _epoch++; _busy = _initialized = _positionObserved = false; _campaign = campaign; _timeline = timeline; _generation = ""; ReignBanterPanel.Close(); }
             double day = CampaignTime.Now.ToDays; var position = MobileParty.MainParty.Position.ToVec2();
