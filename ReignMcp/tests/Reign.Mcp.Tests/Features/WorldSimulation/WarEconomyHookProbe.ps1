@@ -42,6 +42,8 @@ $navalFundingBinding=$false;$navalFundingHooks=0;$navalAcquisitionIdentity=$fals
 $governmentHearthFlat=$false;$governmentHearthFlatCases=0;$cohortBinding=$false;$militaryServiceBinding=$false
 try {
     $client=[Reflection.Assembly]::LoadFrom([IO.Path]::GetFullPath($ClientAssembly))
+    # Game-free economy policies live in ReignBeta.Core.dll next to the client assembly.
+    $core=[Reflection.Assembly]::LoadFrom((Join-Path ([IO.Path]::GetDirectoryName([IO.Path]::GetFullPath($ClientAssembly))) 'ReignBeta.Core.dll'))
     $campaign=[Reflection.Assembly]::LoadFrom((Join-Path $gameBin 'TaleWorlds.CampaignSystem.dll'))
     $cohort=$client.GetType('ReignBeta.Economy.ReignWarEconomyCohortControl',$true)
     $contracts=[Reflection.Assembly]::LoadFrom((Join-Path ([IO.Path]::GetDirectoryName($ClientAssembly)) 'Reign.Core.Contracts.dll'))
@@ -422,7 +424,7 @@ try {
     if($priceCalls.Count -ne 1){throw 'Tariff price observation must call the actual native price exactly once.'}
     if([int]$diagnostics['tariffCollectionVersion'].Value -ne 3 -or [int]$diagnostics['foodMarketVersion'].Value -ne 3){throw 'Purchase or consumption evidence version is stale.'}
     $foodMarket=$client.GetType('ReignBeta.Economy.ReignWarEconomyFoodMarket',$true)
-    $priorityPolicy=$client.GetType('ReignBeta.Economy.ReignWarEconomyPolicy',$true)
+    $priorityPolicy=$core.GetType('ReignBeta.Economy.ReignWarEconomyPolicy',$true)
     $priorityMethod=$priorityPolicy.GetMethod('NeedsSubsistencePriority',$static)
     if($null -eq $priorityMethod){throw 'Compiled subsistence forecast method missing.'}
     if(-not $priorityMethod.Invoke($null,[object[]]@([double]87.7,[double]400,[double]-76,[double]44)) -or
@@ -437,8 +439,8 @@ try {
     if([int]$census['version'].Value -ne 2 -or [int]$census['subsistencePolicyVersion'].Value -ne 3 -or [int]$census['maximumSettlements'].Value -ne 256 -or
         [bool]$census['available'].Value -or [int]$census['dropped'].Value -ne 0 -or [int]$census['errors'].Value -ne 0){throw 'A fresh offline food census fabricated native evidence.'}
     $nativeFoodCensusBounded=$true
-    $reliefPolicy=$client.GetType('ReignBeta.Economy.ReignWarEconomyPolicy',$true)
-    $holdingType=$client.GetType('ReignBeta.Economy.ReignWarEconomyPolicy+Holding',$true)
+    $reliefPolicy=$core.GetType('ReignBeta.Economy.ReignWarEconomyPolicy',$true)
+    $holdingType=$core.GetType('ReignBeta.Economy.ReignWarEconomyPolicy+Holding',$true)
     $reliefInputs=[Array]::CreateInstance($holdingType,5)
     for($i=0;$i -lt 5;$i++){
         $holding=[Activator]::CreateInstance($holdingType)
@@ -836,7 +838,7 @@ try {
         $shipIds=$behaviorType.GetField('NavalShipIds',$instance).GetValue($isolatedBehavior)
         $economy=$behaviorType.GetProperty('EconomyState',$instance).GetValue($isolatedBehavior,$null)
         $acquisitions=$economy.GetType().GetField('NavalAcquisitions',$instance).GetValue($economy)
-        $acquisitionType=$client.GetType('ReignBeta.Economy.EconomyShipAcquisition',$true)
+        $acquisitionType=$core.GetType('ReignBeta.Economy.EconomyShipAcquisition',$true)
         foreach($id in @('isolated_ship_a','isolated_ship_b')){
             $ship=[Runtime.Serialization.FormatterServices]::GetUninitializedObject($nativeShip)
             $hullField.SetValue($ship,$hull)

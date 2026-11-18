@@ -1715,6 +1715,7 @@
           "id": "bannerlord",
           "ownership": [
             "ReignBeta/ReignBeta.csproj",
+            "ReignBeta/Core/**",
             "ReignBeta/src/Modules/Platform/**",
             "ReignBeta/src/Platform/**",
             "ReignBeta/tools/**",
@@ -1722,7 +1723,8 @@
             "ReignBeta/lib/**"
           ],
           "projects": [
-            "client"
+            "client",
+            "client-core"
           ],
           "testProjects": [],
           "defaultTier": 2,

@@ -165,6 +165,7 @@
     <Compile Include="$(ReignServerRoot)\shared\Reign.Relationships\ArrangedMarriagePolicy.cs" Link="Shared\ArrangedMarriagePolicy.cs" />
     <ProjectReference Include="$(ReignServerRoot)\shared\Reign.Core.Contracts\Reign.Core.Contracts.csproj" />
     <ProjectReference Include="src\Modules\Arena\ArenaOverhaul\ArenaOverhaul.csproj" />
+    <ProjectReference Include="Core\ReignBeta.Core.csproj" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="ModuleData\reign_tavern_cast.json">
@@ -196,5 +197,23 @@
            Text="The bundled native portrait generator was not published into the Reign client package." />
     <Error Condition="!Exists('$(NativePortraitGeneratorPublishDir)Bannerlord.NativePortraitRenderHost.exe')"
            Text="The bundled native TaleWorlds portrait render host was not published into the Reign client package." />
+  </Target>
+  <!-- Game-free sources compiled once, into ReignBeta.Core.dll (see Core/ReignBeta.Core.Sources.props).
+       Kept last so the removals apply after every Compile include above. -->
+  <Import Project="Core\ReignBeta.Core.Sources.props" />
+  <ItemGroup>
+    <Compile Remove="Core\**" />
+    <Compile Remove="@(ReignCoreSource)" />
+    <Compile Remove="@(ReignCoreLinkedSource)" />
+  </ItemGroup>
+  <!-- A duplicate would compile silently (CS0436 warning, local type wins), so fail instead. -->
+  <Target Name="ReignVerifyCoreSourcesCompiledOnce" BeforeTargets="CoreCompile">
+    <ItemGroup>
+      <_ReignCompileFullPath Include="@(Compile->'%(FullPath)')" />
+      <_ReignCompileOutsideCore Include="@(_ReignCompileFullPath)" />
+      <_ReignCompileOutsideCore Remove="@(ReignCoreSource->'%(FullPath)');@(ReignCoreLinkedSource->'%(FullPath)')" />
+    </ItemGroup>
+    <Error Condition="'@(_ReignCompileOutsideCore->Count())' != '@(_ReignCompileFullPath->Count())'"
+           Text="ReignBeta.csproj still compiles a source listed in Core\ReignBeta.Core.Sources.props; it must be compiled only by ReignBeta.Core." />
   </Target>
 </Project>
