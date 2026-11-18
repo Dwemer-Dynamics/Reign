@@ -18,7 +18,7 @@ public sealed class SocialReputationHarnessContractTests
             Path.Combine(root, "ReignBeta"), "ReignLiveInteractionTestHost.cs", "/src/"));
         string individualVm = File.ReadAllText(TestSourceLocator.Unique(
             Path.Combine(root, "ReignBeta"), "ReignIndividualChatScreenVM.cs", "/src/"));
-        string serverClient = File.ReadAllText(TestSourceLocator.Unique(
+        string serverClient = TestSourceLocator.PartialTypeText(TestSourceLocator.Unique(
             Path.Combine(root, "ReignBeta"), "ReignServerClient.cs", "/src/Modules/Platform/"));
         string courtProducer = File.ReadAllText(TestSourceLocator.Unique(
             Path.Combine(root, "ReignBeta"), "ReignCourtPersonalityReputationCampaignBehavior.cs", "/src/"));

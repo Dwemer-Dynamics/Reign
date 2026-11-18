@@ -474,7 +474,7 @@ public sealed class PartyAgencyHarnessContractTests
         // already imported by the conversation wrapper are never applied twice.
         Assert.Contains("[\"queuedActionCount\"] = reply.QueuedActions?.Count ?? 0", host,
             StringComparison.Ordinal);
-        string serverClient = File.ReadAllText(TestSourceLocator.Unique(
+        string serverClient = TestSourceLocator.PartialTypeText(TestSourceLocator.Unique(
             Path.Combine(root, "ReignBeta"), "ReignServerClient.cs",
             "/src/Modules/Platform/Integration/"));
         Assert.Matches(@"reply\.TestDirectiveActions = current \? ParseQueuedActionRows\(response\[""queuedTestDirectiveActions""\], fence\)[^;]*;\s*"
@@ -992,7 +992,7 @@ public sealed class PartyAgencyHarnessContractTests
         Assert.Contains("PostOwnedJsonAsync(\"/npc-lives/opening\", p, requestOwner)", ownedOpening);
         Assert.Contains("continueWaiting == null || continueWaiting()", ownedOpening);
         Assert.DoesNotContain("PostJsonAsync(", ownedOpening);
-        string client = File.ReadAllText(TestSourceLocator.Unique(Path.Combine(root, "ReignBeta"),
+        string client = TestSourceLocator.PartialTypeText(TestSourceLocator.Unique(Path.Combine(root, "ReignBeta"),
             "ReignServerClient.cs", "/src/Modules/Platform/Integration/"));
         Assert.DoesNotContain("OpenOwnedNpcLifeApproachAsync", client);
     }

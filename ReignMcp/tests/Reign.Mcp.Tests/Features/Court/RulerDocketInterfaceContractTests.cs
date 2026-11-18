@@ -216,7 +216,7 @@ public sealed class RulerDocketInterfaceContractTests
             "Integration", "ReignCourtServerClient.cs"));
         string server = File.ReadAllText(Path.Combine(root, "ReignServer", "src", "Modules", "Court",
             "RulerDocketDialogue.cs"));
-        string normalClient = File.ReadAllText(Path.Combine(root, "ReignBeta", "src", "Modules", "Platform",
+        string normalClient = TestSourceLocator.PartialTypeText(Path.Combine(root, "ReignBeta", "src", "Modules", "Platform",
             "Integration", "ReignServerClient.cs"));
         string normalServer = File.ReadAllText(Path.Combine(root, "ReignServer", "src", "Modules", "Platform",
             "Program.cs"));

@@ -781,20 +781,20 @@ namespace ReignBeta.Platform.Campaign
 
         private void PrepareNativeFoundations()
         {
-            Require(ReignAICampaignBehavior.Instance, "calendar").PrepareInitialState();
+            Require(ReignServices.AI, "calendar").PrepareInitialState();
             Require(ReignServices.Relationship, "relationship baselines")
                 .PrepareInitialBaselines();
-            Require(ReignRulerReputationCampaignBehavior.Instance, "ruler reputation")
+            Require(ReignServices.RulerReputation, "ruler reputation")
                 .PrepareInitialState();
-            Require(ReignRebellionCampaignBehavior.Instance, "rebellion state")
+            Require(ReignServices.Rebellion, "rebellion state")
                 .PrepareInitialState();
-            Require(ReignWorldDiplomacyCampaignBehavior.Instance, "world diplomacy")
+            Require(ReignServices.WorldDiplomacy, "world diplomacy")
                 .PrepareInitialState();
-            Require(ReignSocialEventsCampaignBehavior.Instance, "social events")
+            Require(ReignServices.SocialEvents, "social events")
                 .PrepareInitialState();
-            Require(ReignFamilyCampaignBehavior.Instance, "family state")
+            Require(ReignServices.Family, "family state")
                 .PrepareInitialState();
-            Require(ReignCourtPersonalityReputationCampaignBehavior.Instance, "court reputation")
+            Require(ReignServices.CourtPersonalityReputation, "court reputation")
                 .PrepareInitialState();
 #if !REIGN_EXCLUDE_COURT
             Require(ReignServices.Court, "court state").PrepareInitialState();

@@ -117,7 +117,7 @@ public sealed class RebellionTestingToolsTests
         string workspace = TestOptions.FindWorkspace();
         string host = File.ReadAllText(TestSourceLocator.Unique(Path.Combine(workspace, "ReignBeta"),
             "ReignRebellionPreparationTestHost.cs", "/src/Modules/Rebellion/Testing/"));
-        string behavior = File.ReadAllText(TestSourceLocator.Unique(Path.Combine(workspace, "ReignBeta"),
+        string behavior = TestSourceLocator.PartialTypeText(TestSourceLocator.Unique(Path.Combine(workspace, "ReignBeta"),
             "ReignRebellionCampaignBehavior.cs", "/src/Modules/Rebellion/Campaign/"));
         string correspondence = File.ReadAllText(TestSourceLocator.Unique(Path.Combine(workspace, "ReignBeta"),
             "ReignLiveInteractionCorrespondenceHost.cs", "/src/Modules/Dialogue/Campaign/"));
@@ -191,7 +191,7 @@ public sealed class RebellionTestingToolsTests
         string prompt = File.ReadAllText(TestSourceLocator.Unique(
             Path.Combine(workspace, "ReignServer"), "PromptCaching.cs",
             "/src/Modules/Dialogue/"));
-        string client = File.ReadAllText(TestSourceLocator.Unique(
+        string client = TestSourceLocator.PartialTypeText(TestSourceLocator.Unique(
             Path.Combine(workspace, "ReignBeta"), "ReignServerClient.cs",
             "/src/Modules/Platform/Integration/"));
 

@@ -26,6 +26,17 @@ internal static class TestSourceLocator
         };
     }
 
+    // Text of a client class split into partial files: the primary <Type>.cs file followed by its
+    // sibling <Type>.<Area>.cs partial files in the same folder, in name order.
+    public static string PartialTypeText(string primaryPath)
+    {
+        var directory = Path.GetDirectoryName(primaryPath)!;
+        var stem = Path.GetFileNameWithoutExtension(primaryPath);
+        var parts = Directory.EnumerateFiles(directory, stem + ".*.cs")
+            .Order(StringComparer.OrdinalIgnoreCase);
+        return string.Join(Environment.NewLine, new[] { primaryPath }.Concat(parts).Select(File.ReadAllText));
+    }
+
     // Server router text: the legacy HandleClient chain and every module's route-table
     // registrations (Program*.cs, which includes Program.<Module>Routes.cs).
     public static string ServerRouterText(string workspace) => string.Join(Environment.NewLine,
