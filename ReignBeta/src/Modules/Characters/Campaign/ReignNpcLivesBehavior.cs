@@ -101,7 +101,7 @@ namespace ReignBeta.Campaign
             if (_initialized) { AdvanceCommunicationHosts(); AdvanceLifeTravel(); }
             if (_busy || _real < _nextPoll) return;
             _nextPoll = _real + 5;
-            if (!_initialized) { Request("state", ReignServerClient.CaptureNpcLivesContext("")); return; }
+            if (!_initialized) { Request("state", ReignNpcLivesClient.CaptureNpcLivesContext("")); return; }
             ApplyLifeRewards();
             if (_outbox.Count > 0)
             {
@@ -112,13 +112,13 @@ namespace ReignBeta.Campaign
                 Request(row.Value<string>("route"), p, row.Value<string>("operationId")); return;
             }
             double day = CampaignTime.Now.ToDays;
-            if (QuietMap() && ReignServerClient.NpcLivesOptionsConfirmed && day >= _nextEvaluation)
+            if (QuietMap() && ReignNpcLivesClient.NpcLivesOptionsConfirmed && day >= _nextEvaluation)
             {
                 _nextEvaluation = day + 1d / 24;
-                var p = ReignServerClient.CaptureNpcLivesContext(Generation, true, leaveDestinations: true); p["locations"] = ReignServerClient.CaptureNpcStoryLocations();
+                var p = ReignNpcLivesClient.CaptureNpcLivesContext(Generation, true, leaveDestinations: true); p["locations"] = ReignNpcLivesClient.CaptureNpcStoryLocations();
                 Request("evaluate", p); return;
             }
-            Request("state", ReignServerClient.CaptureNpcLivesContext(Generation));
+            Request("state", ReignNpcLivesClient.CaptureNpcLivesContext(Generation));
         }
         private void Request(string route, JObject payload, string operation = "")
         {
@@ -128,7 +128,7 @@ namespace ReignBeta.Campaign
             {
                 try
                 {
-                    var response = await ReignServerClient.NpcLivesRequestAsync(route, payload).ConfigureAwait(false);
+                    var response = await ReignNpcLivesClient.NpcLivesRequestAsync(route, payload).ConfigureAwait(false);
                     await ReignMainThread.InvokeAsync(() => {
                         if (!Current(owner, epoch)) return;
                         if (response.Value<bool?>("ok") != true)
@@ -174,8 +174,8 @@ namespace ReignBeta.Campaign
         internal async Task RefreshLifeSnapshotAsync()
         {
             NativeCampaign owner = null; int epoch = 0;
-            var p = await ReignMainThread.InvokeAsync(() => { owner = NativeCampaign.Current; epoch = _epoch; return ReignServerClient.CaptureNpcLivesContext(Generation); }).ConfigureAwait(false);
-            var response = await ReignServerClient.NpcLivesRequestAsync("state", p).ConfigureAwait(false);
+            var p = await ReignMainThread.InvokeAsync(() => { owner = NativeCampaign.Current; epoch = _epoch; return ReignNpcLivesClient.CaptureNpcLivesContext(Generation); }).ConfigureAwait(false);
+            var response = await ReignNpcLivesClient.NpcLivesRequestAsync("state", p).ConfigureAwait(false);
             await ReignMainThread.InvokeAsync(() => {
                 if (!Current(owner, epoch)) throw new InvalidOperationException("The campaign changed while loading personal lives.");
                 if (response.Value<bool?>("ok") != true) throw new InvalidOperationException(response.Value<string>("error") ?? "Personal lives are unavailable.");
@@ -207,18 +207,18 @@ namespace ReignBeta.Campaign
                 receipts.Add(new JObject { ["id"] = effect.Id, ["heroId"] = effect.HeroId, ["nativeReceipt"] = effect.Id });
             }
             if (receipts.Count == 0) return;
-            var p = ReignServerClient.CaptureNpcLivesContext(Generation); p["receipts"] = receipts;
+            var p = ReignNpcLivesClient.CaptureNpcLivesContext(Generation); p["receipts"] = receipts;
             QueueLifeOperation("acknowledge", p, "xp_ack:" + string.Join("|", receipts.OfType<JObject>().Select(r => r.Value<string>("id"))));
         }
         private void PresentLifeInvitation(string requested)
         {
             if (!QuietMap()) return;
             var story = State.Stories.FirstOrDefault(s => s.Id == requested) ?? State.Stories.FirstOrDefault(s => s.Status == "invited"
-                && ReignServerClient.NpcLivesOptions.Allows(s.Definition.Category));
+                && ReignNpcLivesClient.NpcLivesOptions.Allows(s.Definition.Category));
             var leave = State.Leaves.FirstOrDefault(l => l.Id == requested) ?? State.Leaves.FirstOrDefault(l => l.Status == "discussing"
-                && ReignServerClient.NpcLivesOptions.Allows("leave"));
-            if (story != null && (story.Status != "invited" || !ReignServerClient.NpcLivesOptions.Allows(story.Definition.Category))) story = null;
-            if (leave != null && (leave.Status != "discussing" || !ReignServerClient.NpcLivesOptions.Allows("leave"))) leave = null;
+                && ReignNpcLivesClient.NpcLivesOptions.Allows("leave"));
+            if (story != null && (story.Status != "invited" || !ReignNpcLivesClient.NpcLivesOptions.Allows(story.Definition.Category))) story = null;
+            if (leave != null && (leave.Status != "discussing" || !ReignNpcLivesClient.NpcLivesOptions.Allows("leave"))) leave = null;
             string id = story?.Id ?? leave?.Id; if (id == null) return;
             int revision = story?.Revision ?? leave.Revision; string displayKey = id + ":" + revision;
             if (_shownUntil.TryGetValue(displayKey, out var until) && CampaignTime.Now.ToDays < until) return;
@@ -231,21 +231,21 @@ namespace ReignBeta.Campaign
                 var popup = new ReignPlayerApproachPopup("A PERSONAL MATTER", hero.Name + " would like a moment with you.",
                     "Approach", "Another time", accept => {
                         Release(); if (!Current(owner, epoch)) return;
-                        _shownUntil[displayKey] = CampaignTime.Now.ToDays + NpcLivesPolicy.ReaskDelay(ReignServerClient.NpcLivesOptions);
+                        _shownUntil[displayKey] = CampaignTime.Now.ToDays + NpcLivesPolicy.ReaskDelay(ReignNpcLivesClient.NpcLivesOptions);
                         if (accept) ReignIndividualChatScreenManager.OpenForHero(hero,
                             new JObject { ["npcLifeRequestId"] = id, ["npcStoryId"] = story?.Id ?? "", ["npcLivesRevision"] = revision,
                                 ["npcLifeInvitationEntry"] = true }, null);
-                    }, () => { Release(); if (Current(owner, epoch)) _shownUntil[displayKey] = CampaignTime.Now.ToDays + NpcLivesPolicy.ReaskDelay(ReignServerClient.NpcLivesOptions); });
+                    }, () => { Release(); if (Current(owner, epoch)) _shownUntil[displayKey] = CampaignTime.Now.ToDays + NpcLivesPolicy.ReaskDelay(ReignNpcLivesClient.NpcLivesOptions); });
                 ScreenManager.PushScreen(popup);
                 if (!popup.Initialized) { ScreenManager.PopScreen(); Release(); }
             });
         }
         internal async Task<JObject> AnnounceAsync(string text, string operationId)
         {
-            if (!ReignServerClient.NpcLivesOptions.Allows("announcement")) throw new InvalidOperationException("Party announcements are disabled.");
+            if (!ReignNpcLivesClient.NpcLivesOptions.Allows("announcement")) throw new InvalidOperationException("Party announcements are disabled.");
             if (!_initialized) throw new InvalidOperationException("Party information is still loading. Try again in a moment.");
             // The exact roster and words are saved in the outbox before transport.
-            var p = ReignServerClient.CaptureNpcLivesContext(Generation, true); p["text"] = text;
+            var p = ReignNpcLivesClient.CaptureNpcLivesContext(Generation, true); p["text"] = text;
             QueueLifeOperation("announcement", p, operationId);
             return await Task.FromResult(new JObject { ["ok"] = true, ["status"] = "queued", ["operationId"] = operationId });
         }

@@ -7,10 +7,11 @@ using ReignBeta.Shared.Characters;
 using TaleWorlds.CampaignSystem;
 using TaleWorlds.CampaignSystem.Party;
 using TaleWorlds.CampaignSystem.Settlements;
+using static ReignBeta.Integration.ReignServerClient;
 
 namespace ReignBeta.Integration
 {
-    public static partial class ReignServerClient
+    internal static class ReignNpcLivesClient
     {
         internal static NpcLivesOptions NpcLivesOptions { get; private set; } = new NpcLivesOptions(_ => false, _ => null);
         internal static bool NpcLivesOptionsConfirmed { get; private set; }
@@ -38,7 +39,7 @@ namespace ReignBeta.Integration
                 p["members"] = new JArray((main?.MemberRoster.GetTroopRoster().Where(r => r.Number > 0 && r.Character.IsHero)
                     .Select(r => r.Character.HeroObject) ?? Enumerable.Empty<Hero>()).Where(h => h != null && h != Hero.MainHero)
                     .Distinct().Select(h => {
-                        var row = BuildApproachCandidate(h);
+                        var row = ReignPlayerApproachClient.BuildApproachCandidate(h);
                         row["inMainParty"] = main.MemberRoster.Contains(h.CharacterObject) && h.PartyBelongedTo == main && !h.IsPrisoner;
                         if (leaveDestinations)
                             row["unsafeLeaveLocationIds"] = new JArray(Settlement.All.Where(s => !s.IsHideout
@@ -83,7 +84,7 @@ namespace ReignBeta.Integration
                 value["localPresence"] = BuildLocalPresenceSnapshot(audience);
                 if (!string.IsNullOrWhiteSpace(context?.Value<string>("npcLifeSceneContext")))
                     value["sceneContext"] = context.Value<string>("npcLifeSceneContext");
-                AttachReadOnlyAgreementPaymentHistory(value, hero);
+                ReignStructuredActionClient.AttachReadOnlyAgreementPaymentHistory(value, hero);
                 return value;
             }).ConfigureAwait(false);
             var active = await ReignMainThread.InvokeAsync(() => {

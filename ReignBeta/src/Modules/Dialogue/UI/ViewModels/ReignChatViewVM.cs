@@ -56,7 +56,7 @@ namespace ReignBeta.UI.ViewModels
             _scroll();
             try
             {
-                JObject response = await ReignServerClient.PostChatViewAsync("start", scope).ConfigureAwait(false);
+                JObject response = await ReignChatViewClient.PostChatViewAsync("start", scope).ConfigureAwait(false);
                 ReignChatViewClient.Check(response);
                 await ReignMainThread.InvokeAsync(() =>
                 {
@@ -136,7 +136,7 @@ namespace ReignBeta.UI.ViewModels
                     }
                     await Task.Delay(1500).ConfigureAwait(false);
                     JObject query = (JObject)scope.DeepClone(); query["jobId"] = id; query["includeImage"] = false;
-                    response = await ReignServerClient.PostChatViewAsync("state", query).ConfigureAwait(false);
+                    response = await ReignChatViewClient.PostChatViewAsync("state", query).ConfigureAwait(false);
                     ReignChatViewClient.Check(response);
                 }
                 await ReignMainThread.InvokeAsync(() => { if (Owns(scope)) line.Text = "This image is still pending. Reopen the conversation to check it; no new generation is required."; }).ConfigureAwait(false);

@@ -733,7 +733,7 @@ namespace ReignBeta.Campaign
 
         private static async Task RunRandomDiplomacyPopupTestAsync()
         {
-            ReignRandomDiplomacyTestResult test = await ReignServerClient.QueueRandomDiplomacyPopupTestAsync().ConfigureAwait(false);
+            ReignRandomDiplomacyTestResult test = await ReignDiplomacyServerClient.QueueRandomDiplomacyPopupTestAsync().ConfigureAwait(false);
             if (!test.Ok)
             {
                 await ReignMainThread.InvokeAsync(() => Show("Diplomacy initiative test could not run: " + (string.IsNullOrWhiteSpace(test.Error) ? "unknown server error" : test.Error))).ConfigureAwait(false);

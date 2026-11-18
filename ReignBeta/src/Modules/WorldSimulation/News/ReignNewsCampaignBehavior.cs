@@ -53,7 +53,7 @@ namespace ReignBeta.Campaign
             // and acknowledgment. The existing history outbox owns transport.
             _state.QueuePublicHistory(article, CampaignTime.Now.ToDays);
             FlushPublicHistory();
-            if (!_state.Publish(article, ReignServerClient.NewsOptions, ReignServerClient.NewsOptionsConfirmed)) return;
+            if (!_state.Publish(article, ReignNewsClient.NewsOptions, ReignNewsClient.NewsOptionsConfirmed)) return;
             InformationManager.DisplayMessage(new InformationMessage("[Reign Herald] " + article.Text, Color.FromUint(0xFFC5BDAF)));
         }
         internal void RecordPublicDiplomacyAnnouncement(ReignDiplomacyAnnouncement announcement)
@@ -76,9 +76,9 @@ namespace ReignBeta.Campaign
         }
         internal void ApplyOptions()
         {
-            if (!ReignServerClient.NewsOptionsConfirmed) return;
-            _state.ApplyOptions(ReignServerClient.NewsOptions);
-            if (!ReignServerClient.NewsOptions.Allows(ReignNewsCategories.Diplomacy))
+            if (!ReignNewsClient.NewsOptionsConfirmed) return;
+            _state.ApplyOptions(ReignNewsClient.NewsOptions);
+            if (!ReignNewsClient.NewsOptions.Allows(ReignNewsCategories.Diplomacy))
                 ReignDiplomacyAnnouncementScreenManager.TryAcknowledgeDisabledDiplomacy();
             if (_activeId.Length > 0 && !_state.Pending.Any(p => p.Id == _activeId))
                 ReignDiplomacyAnnouncementScreenManager.TryCloseOwnedAnnouncement(_activeId);
@@ -112,7 +112,7 @@ namespace ReignBeta.Campaign
         }
         private void TryPresent()
         {
-            if (Instance != this || !ReignServerClient.NewsOptionsConfirmed || _state.Pending.Count == 0
+            if (Instance != this || !ReignNewsClient.NewsOptionsConfirmed || _state.Pending.Count == 0
                 || ReignBetaSettings.Instance?.Enabled == false || ReignBetaSettings.Instance?.UseLocalServer == false
                 || ReignDiplomacyAnnouncementScreenManager.IsOpen || !CanPresent()) return;
             ApplyOptions();
@@ -155,8 +155,8 @@ namespace ReignBeta.Campaign
             schema = "reign-town-crier-v1", pending = _state.Pending.Take(64), pendingCount = _state.Pending.Count,
             historyPendingCount = _state.HistoryOutbox.Count, historyPublishedCount = _state.HistoryPublishedIds.Count,
             pendingTruncated = _state.Pending.Count > 64, activeId = _activeId, retainedNoticeIds = _state.Seen.Count,
-            optionsConfirmed = ReignServerClient.NewsOptionsConfirmed,
-            options = ReignNewsCategories.Switches.Keys.ToDictionary(k => k, k => ReignServerClient.NewsOptions.Preference(k)),
+            optionsConfirmed = ReignNewsClient.NewsOptionsConfirmed,
+            options = ReignNewsCategories.Switches.Keys.ToDictionary(k => k, k => ReignNewsClient.NewsOptions.Preference(k)),
             nativeTime = TaleWorlds.CampaignSystem.Campaign.Current?.TimeControlMode.ToString(),
             timeLocked = TaleWorlds.CampaignSystem.Campaign.Current?.TimeControlModeLock
         });

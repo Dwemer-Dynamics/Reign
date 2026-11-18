@@ -15,10 +15,11 @@ using TaleWorlds.CampaignSystem.Party;
 using TaleWorlds.CampaignSystem.Settlements;
 using TaleWorlds.Core;
 using TaleWorlds.Library;
+using static ReignBeta.Integration.ReignServerClient;
 
 namespace ReignBeta.Integration
 {
-    public static partial class ReignServerClient
+    internal static class ReignRelationshipDirectorClient
     {
         private static readonly object AmbientInputLock = new object();
         private const int AmbientInputUploadBatchSize = 8;
@@ -405,7 +406,7 @@ namespace ReignBeta.Integration
                 ["clientOutboxDaysKnown"] = known,
                 ["oldestClientOutboxDay"] = days.Count == 0 ? -1 : days.Min(),
                 ["latestClientOutboxDay"] = days.Count == 0 ? -1 : days.Max(),
-                ["uploadInFlight"] = RelationshipOutboxUploadInFlight || !known,
+                ["uploadInFlight"] = ReignRelationshipRealtimeClient.RelationshipOutboxUploadInFlight || !known,
                 ["uploadStages"] = System.Threading.Volatile.Read(ref _ambientUploadDiagnostics).DeepClone()
             };
         }
@@ -800,7 +801,7 @@ namespace ReignBeta.Integration
         }
 
         private static Hero FindLivingHero(string id) => Hero.AllAliveHeroes.FirstOrDefault(x => x != null && string.Equals(x.StringId, id, StringComparison.OrdinalIgnoreCase));
-        private static double CurrentDirectorDay() => TaleWorlds.CampaignSystem.Campaign.Current == null ? 0d : CampaignTime.Now.ToDays;
+        internal static double CurrentDirectorDay() => TaleWorlds.CampaignSystem.Campaign.Current == null ? 0d : CampaignTime.Now.ToDays;
     }
 
     public sealed class ReignConceptionAttemptResult

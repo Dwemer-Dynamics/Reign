@@ -764,7 +764,7 @@ namespace ReignBeta.World
             if (exceptional && !IsBindingOrder(order) && !order.LlmJudgmentRequested)
             {
                 order.LlmJudgmentRequested = true;
-                _ = ReignServerClient.RequestCampaignOrderJudgmentAsync(order, BuildJudgmentPayload(order));
+                _ = ReignCampaignCommandClient.RequestCampaignOrderJudgmentAsync(order, BuildJudgmentPayload(order));
             }
             Publish(order, "guidance_required");
         }
@@ -831,7 +831,7 @@ namespace ReignBeta.World
         {
             try
             {
-                bool delivered = await ReignServerClient.SendCampaignOrderReportLetterAsync(report);
+                bool delivered = await ReignCampaignCommandClient.SendCampaignOrderReportLetterAsync(report);
                 await ReignMainThread.InvokeAsync(() =>
                 {
                     if (Instance != this || !_orders.Contains(order)
@@ -1351,7 +1351,7 @@ namespace ReignBeta.World
         private static void Publish(ReignCampaignOrderRecord order, string eventType)
         {
             SyncNativeDecisionLock(order);
-            _ = ReignServerClient.ReportCampaignOrderStateAsync(order, eventType);
+            _ = ReignCampaignCommandClient.ReportCampaignOrderStateAsync(order, eventType);
         }
 
         private void RestoreNativeDecisionLocks(float dt)

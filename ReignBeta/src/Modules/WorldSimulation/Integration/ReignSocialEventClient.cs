@@ -111,7 +111,7 @@ namespace ReignBeta.Integration
                         built["turnType"] = "player_reply";
                         built["approachOpening"] = false;
                         built["structuredActionRecipientId"] = actionDraft?.NpcId ?? "";
-                        ConfigureStructuredActions(built, speaker,
+                        ReignStructuredActionClient.ConfigureStructuredActions(built, speaker,
                             actionDraft?.NpcId == speaker.StringId ? actionDraft : null, Reign.Core.Contracts.Actions.AgreementChannel.InPerson);
                         built["playerIsFemale"] = Hero.MainHero?.IsFemale ?? false;
                         return built;
@@ -281,7 +281,7 @@ namespace ReignBeta.Integration
                     Hero speaker = ReignObjectResolver.FindHero(heroId);
                     var request = participantRequests.OfType<JObject>().FirstOrDefault(r => r["structuredActionContext"]?.Value<string>("npcId") == heroId);
                     // The reply bytes stay exact; the receipt is presented as a system line.
-                    if (request != null) ProcessStructuredActionDecision(request, row, speaker, inlineReceipt: false);
+                    if (request != null) ReignStructuredActionClient.ProcessStructuredActionDecision(request, row, speaker, inlineReceipt: false);
                     if (speaker != null)
                     {
                         ApplyHeroEncyclopediaText(speaker, reply.EncyclopediaText);

@@ -7,6 +7,12 @@ public sealed record ReignMcpOptions
     public required string WorkspaceRoot { get; init; }
     public required Uri ServerBaseUri { get; init; }
     public required string BuildRoot { get; init; }
+    // Directory of the validation lease. The WSL validation lane and its database are
+    // machine-wide, so FromEnvironment keys the lease by lane rather than by workspace:
+    // validations from different worktrees exclude each other. Null keeps the lease under
+    // BuildRoot (isolated option sets, such as tests).
+    public string? LeaseRoot { get; init; }
+    public string EffectiveLeaseRoot => LeaseRoot ?? BuildRoot;
     public bool AllowBuild { get; init; }
     public bool AllowRestore { get; init; }
     public bool AllowVerificationControl { get; init; }
@@ -34,6 +40,9 @@ public sealed record ReignMcpOptions
             WorkspaceRoot = workspace,
             ServerBaseUri = baseUri,
             BuildRoot = buildRoot,
+            LeaseRoot = ResolveLeaseRoot(
+                Environment.GetEnvironmentVariable("REIGN_MCP_LEASE_ROOT"),
+                Environment.GetEnvironmentVariable("REIGN_WSL_DISTRO")),
             AllowBuild = ReadBoolean("REIGN_MCP_ALLOW_BUILD", false),
             AllowRestore = ReadBoolean("REIGN_MCP_ALLOW_RESTORE", false),
             AllowVerificationControl = ReadBoolean("REIGN_MCP_ALLOW_VERIFICATION_CONTROL", false),
@@ -43,6 +52,26 @@ public sealed record ReignMcpOptions
             ApiTimeout = TimeSpan.FromSeconds(ReadBoundedInt("REIGN_MCP_API_TIMEOUT_SECONDS", 30, 2, 300)),
             ProcessTimeout = TimeSpan.FromSeconds(ReadBoundedInt("REIGN_MCP_PROCESS_TIMEOUT_SECONDS", 1800, 30, 7200))
         };
+    }
+
+    // One lease per WSL validation lane on this machine: %LOCALAPPDATA%/Reign/validation-lanes/<distro>
+    // (the same default distro as ReignProcessRunner). REIGN_MCP_LEASE_ROOT, when set, must be absolute.
+    // This serializes every validation on the machine that uses the same lane, including plans that do not
+    // reach WSL.
+    public static string ResolveLeaseRoot(string? configured, string? distro)
+    {
+        if (!string.IsNullOrWhiteSpace(configured))
+        {
+            if (!Path.IsPathFullyQualified(configured.Trim()))
+                throw new InvalidOperationException("REIGN_MCP_LEASE_ROOT must be an absolute path.");
+            return Path.GetFullPath(configured.Trim());
+        }
+        string lane = string.IsNullOrWhiteSpace(distro) ? "ReignServer" : distro.Trim();
+        lane = new string(lane.Select(c => char.IsLetterOrDigit(c) || c is '.' or '-' or '_' ? c : '_').ToArray());
+        if (lane.All(c => c == '.')) lane = "_" + lane.Length;  // never "." or ".." as a directory name
+        string local = Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData);
+        if (string.IsNullOrEmpty(local)) local = Path.GetTempPath();
+        return Path.GetFullPath(Path.Combine(local, "Reign", "validation-lanes", lane));
     }
 
     internal static Uri ParseLoopbackUri(string value)

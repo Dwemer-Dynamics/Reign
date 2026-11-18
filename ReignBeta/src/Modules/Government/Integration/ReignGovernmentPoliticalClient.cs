@@ -2,10 +2,11 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 using Newtonsoft.Json.Linq;
 using TaleWorlds.CampaignSystem;
+using static ReignBeta.Integration.ReignServerClient;
 
 namespace ReignBeta.Integration
 {
-    public static partial class ReignServerClient
+    internal static class ReignGovernmentPoliticalClient
     {
         internal static JObject BuildGovernmentPoliticalHero(Hero hero) => BuildHeroProfile(hero);
         internal static JObject BuildPoliticalSyncPayload(IEnumerable<Hero> heroes)

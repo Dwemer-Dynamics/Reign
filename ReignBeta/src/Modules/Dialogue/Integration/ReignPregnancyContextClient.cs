@@ -6,17 +6,18 @@ using Newtonsoft.Json.Linq;
 using ReignBeta.Campaign;
 using ReignBeta.Runtime;
 using TaleWorlds.CampaignSystem;
+using static ReignBeta.Integration.ReignServerClient;
 
 namespace ReignBeta.Integration
 {
-    public static partial class ReignServerClient
+    internal static class ReignPregnancyContextClient
     {
         // requestOwner (optional) is the originating request's Bannerlord-thread
         // owner/load predicate. It is checked inside the same game-thread callback
         // before native capture and before knowledge acceptance/enrichment, and the
         // nested sync is dispatched through the owned transport (that route never
         // re-enters this helper). Null keeps the legacy unowned behavior.
-        private static async Task SynchronizePregnancyContextAsync(string route, JObject request, Func<bool> requestOwner = null)
+        internal static async Task SynchronizePregnancyContextAsync(string route, JObject request, Func<bool> requestOwner = null)
         {
             if (request == null) return;
             var capture = await ReignMainThread.InvokeAsync(() =>

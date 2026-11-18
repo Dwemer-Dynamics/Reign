@@ -316,7 +316,7 @@ namespace ReignBeta.Court
                             { adjustment.Skipped = true; adjustment.Applied = true; adjustment.ReceiptId = "skipped_dead_identity_" + adjustment.AdjustmentId; }
                             return;
                         }
-                        request = ReignServerClient.ApplyRulerDocketDirectionalDeltaAsync(adjustment.AdjustmentId,
+                        request = ReignCorrespondenceClient.ApplyRulerDocketDirectionalDeltaAsync(adjustment.AdjustmentId,
                             observer, ruler, adjustment.Delta, adjustment.Reason);
                     }).ConfigureAwait(false);
                     if (request == null) continue;
@@ -377,7 +377,7 @@ namespace ReignBeta.Court
                             { job.Skipped = true; job.Applied = true; job.ReceiptId = "skipped_dead_identity_" + job.JobId; job.LastError = "The remembering hero died before delivery."; }
                             return;
                         }
-                        request = ReignServerClient.RecordRulerDocketMemoryAsync(job.JobId, hero, job.EventType, job.Summary, job.WorldDay);
+                        request = ReignCorrespondenceClient.RecordRulerDocketMemoryAsync(job.JobId, hero, job.EventType, job.Summary, job.WorldDay);
                     }).ConfigureAwait(false);
                     if (request == null) continue;
                     JObject response = await request.ConfigureAwait(false);

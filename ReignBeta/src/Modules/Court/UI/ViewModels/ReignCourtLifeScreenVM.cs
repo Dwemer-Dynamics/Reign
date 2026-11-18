@@ -265,7 +265,7 @@ namespace ReignBeta.UI.ViewModels
                             // NPC line or term interpretation, so a retry never replays its correlation.
                             bool statusOnly = await ReignMainThread.InvokeAsync(() => {
                                 if (!_court.OwnsCourtLifeMatter(_matter)) throw new OperationCanceledException("The campaign or audience changed.");
-                                if (ReignServerClient.NativeStatusLines(reply.RawResponse).Count == 0) return false;
+                                if (ReignStructuredActionClient.NativeStatusLines(reply.RawResponse).Count == 0) return false;
                                 AddStatusLines(reply.RawResponse);
                                 if (!_matter.CompletedReplyKeys.Contains(key)) _matter.CompletedReplyKeys.Add(key);
                                 if (!_matter.CompletedInterpretationKeys.Contains(key)) _matter.CompletedInterpretationKeys.Add(key);
@@ -526,7 +526,7 @@ namespace ReignBeta.UI.ViewModels
         private void AddStatusLines(JObject raw)
         {
             if (_finalized) return;
-            foreach (string line in ReignServerClient.NativeStatusLines(raw)) Transcript.Add(new ReignChatLineVM("Bannerlord Reign", line, "system"));
+            foreach (string line in ReignStructuredActionClient.NativeStatusLines(raw)) Transcript.Add(new ReignChatLineVM("Bannerlord Reign", line, "system"));
             _scroll++; OnPropertyChanged(nameof(ChatScrollVersion));
         }
         private void AddLine(string speaker, string text, string role)

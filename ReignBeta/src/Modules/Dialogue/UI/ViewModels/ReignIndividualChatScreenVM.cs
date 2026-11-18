@@ -931,7 +931,7 @@ namespace ReignBeta.UI.ViewModels
                         return true;
                     }).ConfigureAwait(false))
                     throw new ReignRequestOwnerAbandonedException("The conversation closed before its session was bound.");
-                ReignXpInteraction xp = await ReignServerClient.BeginXpInteractionAsync().ConfigureAwait(false);
+                ReignXpInteraction xp = await ReignXpClient.BeginXpInteractionAsync().ConfigureAwait(false);
                 reply = await ReignServerClient.RequestDialogueResponseAsync(
                     _hero,
                     text,
@@ -1042,7 +1042,7 @@ namespace ReignBeta.UI.ViewModels
                     }
 
                     // Existing receipts/outcomes are separate system lines after the exact NPC line.
-                    List<string> statusLines = reply.Ok ? ReignServerClient.NativeStatusLines(reply.RawResponse) : new List<string>();
+                    List<string> statusLines = reply.Ok ? ReignStructuredActionClient.NativeStatusLines(reply.RawResponse) : new List<string>();
                     if (heldDirectiveId != null)
                         statusLines.Add("[unknown: " + ReignBeta.Actions.ReignCompletedOrderPolicy.UncertainExecutionMarker + "]");
                     if (reply.Ok && (!string.IsNullOrWhiteSpace(reply.Text) || statusLines.Count > 0))
@@ -1240,7 +1240,7 @@ namespace ReignBeta.UI.ViewModels
                 return;
             }
 
-            ReignConceptionAttemptResult result = await ReignServerClient.ResolvePlayerConceptionAttemptAsync(
+            ReignConceptionAttemptResult result = await ReignRelationshipDirectorClient.ResolvePlayerConceptionAttemptAsync(
                 _hero, actionText, pending.AttemptId, owner).ConfigureAwait(false);
             if (!result.Ok)
             {
@@ -1255,7 +1255,7 @@ namespace ReignBeta.UI.ViewModels
                 return;
             }
 
-            await ReignServerClient.ApplyResolvedPlayerConceptionAsync(result, owner).ConfigureAwait(false);
+            await ReignRelationshipDirectorClient.ApplyResolvedPlayerConceptionAsync(result, owner).ConfigureAwait(false);
             await ReignMainThread.InvokeAsync(() =>
             {
                 if (owner()) FinishPregnancyDecision("proceed", true, false, string.Empty);
@@ -1295,7 +1295,7 @@ namespace ReignBeta.UI.ViewModels
                 return;
             }
 
-            ReignConceptionAttemptResult result = await ReignServerClient.CancelPlayerConceptionAttemptAsync(
+            ReignConceptionAttemptResult result = await ReignRelationshipDirectorClient.CancelPlayerConceptionAttemptAsync(
                 _hero, actionText, pending.AttemptId, owner).ConfigureAwait(false);
             if (!result.Ok || !result.Cancelled)
             {
@@ -1658,7 +1658,7 @@ namespace ReignBeta.UI.ViewModels
                 var lives = ReignNpcLivesBehavior.Instance;
                 if (lives != null)
                     await ReignMainThread.InvokeAsync(() => lives.PrepareLifeConversationAsync(_hero, session, _conversationContext)).Unwrap().ConfigureAwait(false);
-                await ReignServerClient.OpenNpcLifeApproachAsync(_hero, session, _conversationContext, () => !_isFinalized).ConfigureAwait(false);
+                await ReignNpcLivesClient.OpenNpcLifeApproachAsync(_hero, session, _conversationContext, () => !_isFinalized).ConfigureAwait(false);
                 // Reload accepted history once. This also recovers an opener which
                 // finished after the previous screen closed, without speaking twice.
                 if (!_isFinalized) await LoadHistoryAsync().ConfigureAwait(false);

@@ -91,7 +91,7 @@ namespace ReignBeta.UI.ViewModels
                 AddSystemLine("Provider-free UI calibration fixture.");
             else if (_session.PersonalStory != null)
             {
-                _session.PersonalStoryReady = ReignServerClient.StartNpcStorySceneAsync(_session);
+                _session.PersonalStoryReady = ReignNpcStoryClient.StartNpcStorySceneAsync(_session);
                 _ = RestorePersonalStoryAsync();
             }
             else
@@ -480,7 +480,7 @@ namespace ReignBeta.UI.ViewModels
                 if (actionDraft != null && !activeHeroes.Any(h => h.StringId == actionDraft.NpcId)) { rejected.Error = "Activate the character addressed by your action."; return false; }
                 try { ReignConversationInputJournal.Save(ReignServerClient.GetCampaignId(),
                     ReignBeta.Campaign.ReignWorldHistoryCampaignBehavior.Instance?.TimelineId ?? "main", Hero.MainHero?.StringId ?? "",
-                    correlationId, text, session: _session.PersonalStory == null ? "social_event_" + _session.Record.EventId : ReignServerClient.StorySceneSessionId(_session)); }
+                    correlationId, text, session: _session.PersonalStory == null ? "social_event_" + _session.Record.EventId : ReignNpcStoryClient.StorySceneSessionId(_session)); }
                 catch (Exception ex) { rejected.Error = "Your message could not be saved locally: " + ex.Message; AddSystemLine(rejected.Error); return false; }
                 string playerName = Hero.MainHero?.Name?.ToString() ?? "Player";
                 AddChatLine(playerName, text, "player");
@@ -730,7 +730,7 @@ namespace ReignBeta.UI.ViewModels
         // Existing action receipts/outcomes as separate system lines; never NPC transcript text.
         private void AddNativeStatusLines(JObject response)
         {
-            foreach (string line in ReignServerClient.NativeStatusLines(response)) AddChatLine("Event", line, "system");
+            foreach (string line in ReignStructuredActionClient.NativeStatusLines(response)) AddChatLine("Event", line, "system");
         }
 
         private async Task RequestRepliesAsync(List<Hero> activeHeroes, string playerText, bool approachOpening, SocialTurnOwner owner)
@@ -760,7 +760,7 @@ namespace ReignBeta.UI.ViewModels
                     {
                         if (!current()) return false;
                         string speakerName = speaker.Name?.ToString() ?? "NPC";
-                        bool hasStatus = reply.Ok && ReignServerClient.HasNativeStatus(reply.RawResponse);
+                        bool hasStatus = reply.Ok && ReignStructuredActionClient.HasNativeStatus(reply.RawResponse);
                         if (reply.Ok && (!string.IsNullOrWhiteSpace(reply.Text) || hasStatus))
                         {
                             if (!string.IsNullOrWhiteSpace(reply.Text))
@@ -816,7 +816,7 @@ namespace ReignBeta.UI.ViewModels
             ReignSocialEventTurnReply turn = null;
             try
             {
-                ReignXpInteraction xp = await ReignServerClient.BeginXpInteractionAsync().ConfigureAwait(false);
+                ReignXpInteraction xp = await ReignXpClient.BeginXpInteractionAsync().ConfigureAwait(false);
                 turn = await ReignServerClient.RequestSocialEventTurnAsync(
                     _session,
                     activeHeroes,
@@ -995,7 +995,7 @@ namespace ReignBeta.UI.ViewModels
                 return new ReignSocialEventTurnReply { Error = "The story scene closed." };
             try
             {
-                var reply = await ReignServerClient.RequestNpcStoryTurnAsync(_session, text,
+                var reply = await ReignNpcStoryClient.RequestNpcStoryTurnAsync(_session, text,
                     string.IsNullOrWhiteSpace(correlation) ? Guid.NewGuid().ToString("N") : correlation, action, ownerCurrent).ConfigureAwait(false);
                 await ReignMainThread.InvokeAsync(() => {
                     if (!ownerCurrent()) return;
@@ -1005,7 +1005,7 @@ namespace ReignBeta.UI.ViewModels
                         string name = ReignObjectResolver.FindHero(line.HeroStringId)?.Name?.ToString() ?? "Companion";
                         // The exact story reply is projected unchanged; action receipts follow it
                         // as separate system lines (an action-only reply shows only those).
-                        if (!string.IsNullOrWhiteSpace(line.Text) || !ReignServerClient.HasNativeStatus(line.RawResponse))
+                        if (!string.IsNullOrWhiteSpace(line.Text) || !ReignStructuredActionClient.HasNativeStatus(line.RawResponse))
                         {
                             AddChatLine(name, line.Text, "npc"); _session.RecordTranscriptLine(name, line.Text);
                         }

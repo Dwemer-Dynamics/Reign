@@ -63,7 +63,7 @@ namespace ReignBeta.UI.ViewModels
                             : ReignBeta.Campaign.ReignNpcLivesBehavior.Instance?.PrepareLifeConversationAsync(hero, session, individualContext) ?? Task.CompletedTask).ConfigureAwait(false);
                         if (preparation == null) throw new ReignRequestOwnerAbandonedException("The party approach owner closed before life preparation.");
                         await preparation.ConfigureAwait(false);
-                        return await ReignServerClient.OpenNpcLifeApproachAsync(hero, session, individualContext, requestOwner: current).ConfigureAwait(false);
+                        return await ReignNpcLivesClient.OpenNpcLifeApproachAsync(hero, session, individualContext, requestOwner: current).ConfigureAwait(false);
                     }
                     finally { lane.Release(); }
                 })).ConfigureAwait(false);

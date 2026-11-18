@@ -108,7 +108,7 @@ namespace ReignBeta.Campaign
                                         || string.IsNullOrEmpty(command.Value<string>("periodicCommunicationExpectedSaveName"))
                                         || command.Value<string>("periodicCommunicationExpectedTimeline") != (ReignWorldHistoryCampaignBehavior.Instance?.TimelineId ?? "main"))))
                                     throw new InvalidOperationException("A checkpoint hold requires the armed exact native instance, save and timeline.");
-                                var hold = ReignServerClient.CheckpointCommunicationPollHold(
+                                var hold = ReignCommunicationClient.CheckpointCommunicationPollHold(
                                     command.Value<string>("periodicCommunicationHoldToken"),
                                     holdSeconds,
                                     command.Value<bool?>("communicationPulse") == true);

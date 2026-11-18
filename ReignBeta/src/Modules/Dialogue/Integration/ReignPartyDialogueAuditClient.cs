@@ -5,10 +5,11 @@ using System.Threading.Tasks;
 using Newtonsoft.Json.Linq;
 using ReignBeta.UI.ViewModels;
 using TaleWorlds.CampaignSystem;
+using static ReignBeta.Integration.ReignServerClient;
 
 namespace ReignBeta.Integration
 {
-    public static partial class ReignServerClient
+    internal static class ReignPartyDialogueAuditClient
     {
         public static Task<JObject> PollPartyDialogueAuditRequestAsync()
         {

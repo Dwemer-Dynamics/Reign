@@ -316,14 +316,14 @@ namespace ReignBeta.Campaign
                 if (!ReignLiveInteractionTestHost.OwnsNpcLivesSession || !lives.Current(campaign, epoch)
                     || campaign.TimeControlMode != CampaignTimeControlMode.Stop || ReignSaveSyncCampaignBehavior.IsNativeSaveInProgress)
                     throw new InvalidOperationException("The invitation fixture no longer owns a paused native campaign.");
-                var request = ReignServerClient.CaptureNpcLivesContext(lives.Generation, true, leaveDestinations: true);
-                request["locations"] = ReignServerClient.CaptureNpcStoryLocations();
+                var request = ReignNpcLivesClient.CaptureNpcLivesContext(lives.Generation, true, leaveDestinations: true);
+                request["locations"] = ReignNpcLivesClient.CaptureNpcStoryLocations();
                 foreach (string key in new[] { "runId", "commandId", "leaseId", "gameInstanceId", "testCase" }) request[key] = command[key]?.DeepClone();
                 request["activeSaveName"] = ReignServerClient.ActiveNativeSaveName();
                 request["timeMode"] = campaign.TimeControlMode.ToString(); request["nativeSaveInProgress"] = false;
                 return request;
             }).ConfigureAwait(false);
-            var response = await ReignServerClient.NpcLivesRequestAsync("test-fixture", p).ConfigureAwait(false);
+            var response = await ReignNpcLivesClient.NpcLivesRequestAsync("test-fixture", p).ConfigureAwait(false);
             if (response.Value<bool?>("ok") != true) throw new InvalidOperationException(response.Value<string>("error") ?? "Invitation preparation failed.");
             await lives.RefreshLifeSnapshotAsync().ConfigureAwait(false);
             return await ReignMainThread.InvokeAsync(() => {

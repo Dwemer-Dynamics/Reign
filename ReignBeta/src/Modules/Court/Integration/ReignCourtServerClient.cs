@@ -175,7 +175,7 @@ namespace ReignBeta.Integration
                 ["clanId"] = speaker?.Clan?.StringId ?? string.Empty
             };
             // The council presents structured receipts as separate system lines.
-            Action<JObject> complete = ReignServerClient.BeginStructuredActionExchange(payload, speaker, actionDraft, inlineReceipt: false);
+            Action<JObject> complete = ReignStructuredActionClient.BeginStructuredActionExchange(payload, speaker, actionDraft, inlineReceipt: false);
             return new RoyalCouncilAdviceRequest { Payload = payload, Complete = complete, Fence = ReignServerClient.RequestFence.Capture() };
         }
 
@@ -329,7 +329,7 @@ namespace ReignBeta.Integration
         public static Task<ReignCourtServerResponse> TickForeignAmbassadorsAsync(int dayIndex)
         {
             JObject payload = BasePayload("foreign_ambassador_tick_" + dayIndex, 0);
-            payload["worldSnapshot"] = ReignServerClient.BuildDiplomacyWorldSnapshot();
+            payload["worldSnapshot"] = ReignDiplomacyServerClient.BuildDiplomacyWorldSnapshot();
             return PostAsync("/court/foreign-ambassadors/tick", payload);
         }
 
@@ -339,7 +339,7 @@ namespace ReignBeta.Integration
             payload["referralId"] = referralId ?? string.Empty;
             payload["termsHash"] = termsHash ?? string.Empty;
             payload["accept"] = accept;
-            payload["worldSnapshot"] = ReignServerClient.BuildDiplomacyWorldSnapshot();
+            payload["worldSnapshot"] = ReignDiplomacyServerClient.BuildDiplomacyWorldSnapshot();
             return PostAsync("/court/foreign-ambassadors/referrals/respond", payload);
         }
 
@@ -417,7 +417,7 @@ namespace ReignBeta.Integration
             try{encoded["terms"]=JObject.Parse(string.IsNullOrWhiteSpace(action?.TermsJson)?"{}":action.TermsJson);}catch{encoded["terms"]=new JObject();}
             JObject payload=BasePayload(commandId,0);
             payload["worldAction"]=encoded;
-            payload["worldSnapshot"]=ReignServerClient.BuildDiplomacyWorldSnapshot();
+            payload["worldSnapshot"]=ReignDiplomacyServerClient.BuildDiplomacyWorldSnapshot();
             payload["termsHash"]=ReignCourtTerms.Hash(encoded.ToString(Formatting.None));
             return PostAsync("/court/diplomacy/propose",payload);
         }
@@ -521,39 +521,23 @@ namespace ReignBeta.Integration
             try
             {
                 string json = (payload ?? new JObject()).ToString(Formatting.None);
-                Exception lastTransportFailure = null;
-                foreach (string baseUrl in ReignServerEndpoint.CandidateBaseUrls())
+                ReignHttpTransport.DirectJsonResponse response;
+                try { response = await ReignHttpTransport.PostDirectJsonAsync(Client, route, json).ConfigureAwait(false); }
+                catch (Exception ex) when (ReignServerEndpoint.IsTransportFailure(ex))
                 {
-                    string url = baseUrl.TrimEnd('/') + (route.StartsWith("/", StringComparison.Ordinal) ? route : "/" + route);
-                    Stopwatch timer = Stopwatch.StartNew();
-                    try
-                    {
-                        using (StringContent content = new StringContent(json, Encoding.UTF8, "application/json"))
-                        using (HttpResponseMessage response = await Client.PostAsync(url, content).ConfigureAwait(false))
-                        {
-                            string body = await response.Content.ReadAsStringAsync().ConfigureAwait(false);
-                            timer.Stop();
-                            ReignServerEndpoint.ReportSuccess(baseUrl);
-                            if (!response.IsSuccessStatusCode) return new ReignCourtServerResponse { Ok = false, Error = "HTTP " + (int)response.StatusCode + ": " + body };
-                            JObject result = JObject.Parse(body);
-                            return new ReignCourtServerResponse
-                            {
-                                Ok = result.Value<bool?>("ok") == true,
-                                Error = result.Value<string>("error") ?? string.Empty,
-                                Revision = ReadNumericRevision(result),
-                                NativeActions = result["nativeActions"] as JArray ?? new JArray(),
-                                Raw = result
-                            };
-                        }
-                    }
-                    catch (Exception ex) when (ReignServerEndpoint.IsTransportFailure(ex))
-                    {
-                        lastTransportFailure = ex;
-                    }
+                    // No candidate answered: the last transport failure, as before.
+                    return new ReignCourtServerResponse { Ok = false, Error = ex.Message };
                 }
-
-                ReignServerEndpoint.ReportTransportFailure();
-                return new ReignCourtServerResponse { Ok = false, Error = lastTransportFailure?.Message ?? "Local Bannerlord Reign server is unavailable." };
+                if (!response.IsSuccessStatusCode) return new ReignCourtServerResponse { Ok = false, Error = "HTTP " + response.StatusCode + ": " + response.Body };
+                JObject result = JObject.Parse(response.Body);
+                return new ReignCourtServerResponse
+                {
+                    Ok = result.Value<bool?>("ok") == true,
+                    Error = result.Value<string>("error") ?? string.Empty,
+                    Revision = ReadNumericRevision(result),
+                    NativeActions = result["nativeActions"] as JArray ?? new JArray(),
+                    Raw = result
+                };
             }
             catch (Exception ex)
             {

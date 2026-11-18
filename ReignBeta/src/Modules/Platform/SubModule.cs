@@ -265,8 +265,8 @@ namespace ReignBeta
             RunTickStage("paused tavern population preparation", () => ReignTavernHouseCampaignBehavior.Instance?.ApplicationTick());
             RunTickStage("paused wanderer population preparation", () => ReignWandererPopulationCampaignBehavior.Instance?.ApplicationTick());
 
-            RunTickStage("continuous relationship outbox", () => ReignServerClient.RelationshipRealtimeTick(dt));
-            RunTickStage("player approach options", () => ReignServerClient.PlayerApproachOptionsTick(dt));
+            RunTickStage("continuous relationship outbox", () => ReignRelationshipRealtimeClient.RelationshipRealtimeTick(dt));
+            RunTickStage("player approach options", () => ReignPlayerApproachClient.PlayerApproachOptionsTick(dt));
             RunTickStage("ruler system", () => ReignRulerCampaignBehavior.Instance?.ApplicationTick(dt));
             RunTickStage("town-crier news", () => ReignNewsCampaignBehavior.Instance?.ApplicationTick(dt));
             RunTickStage("NPC lives", () => ReignNpcLivesBehavior.Instance?.ApplicationTick(dt));

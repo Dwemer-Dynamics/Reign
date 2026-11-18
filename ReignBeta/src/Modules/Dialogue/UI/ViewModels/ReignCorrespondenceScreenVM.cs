@@ -170,7 +170,7 @@ namespace ReignBeta.UI.ViewModels
             Reign.Core.Contracts.Actions.ActionAgreement actionDraft = null,
             Func<bool> requestOwner = null)
         {
-            ReignLetterSendResult result = await ReignServerClient.SendLetterAsync(
+            ReignLetterSendResult result = await ReignCorrespondenceClient.SendLetterAsync(
                 recipient,
                 body,
                 correlationId, actionDraft, requestOwner).ConfigureAwait(false);
@@ -187,7 +187,7 @@ namespace ReignBeta.UI.ViewModels
                     result.ActionsDeferred = true;
                     return 0;
                 }
-                result.QueuedActions = ReignServerClient.ParseLetterActionRows(result);
+                result.QueuedActions = ReignCorrespondenceClient.ParseLetterActionRows(result);
                 if (result.QueuedActions.Count == 0) return 0;
                 var behavior = ReignAICampaignBehavior.Instance;
                 if (behavior == null) return 0;
@@ -238,9 +238,9 @@ namespace ReignBeta.UI.ViewModels
 
         private async Task LoadAsync()
         {
-            List<Hero> heroes = await ReignMainThread.InvokeAsync(ReignServerClient.GetKnownCorrespondenceContacts);
+            List<Hero> heroes = await ReignMainThread.InvokeAsync(ReignCorrespondenceClient.GetKnownCorrespondenceContacts);
             if (_finalized) return;
-            ReignCorrespondenceSnapshot snapshot = await ReignServerClient.GetCorrespondenceAsync(heroes, summaryOnly: true,
+            ReignCorrespondenceSnapshot snapshot = await ReignCorrespondenceClient.GetCorrespondenceAsync(heroes, summaryOnly: true,
                 isCurrentRequest: () => Task.FromResult(!_finalized));
             if (_finalized) return;
             foreach (string heroId in snapshot.ContactStates.Keys.Concat((snapshot.Letters ?? new List<ReignLetter>())
@@ -361,7 +361,7 @@ namespace ReignBeta.UI.ViewModels
             try
             {
                 if (await ReignMainThread.InvokeAsync(() => _finalized || version != _threadLoadVersion)) return;
-                ReignCorrespondenceSnapshot snapshot = await ReignServerClient.GetCorrespondenceAsync(heroes, contact.Hero.StringId,
+                ReignCorrespondenceSnapshot snapshot = await ReignCorrespondenceClient.GetCorrespondenceAsync(heroes, contact.Hero.StringId,
                     isCurrentRequest: () => Task.FromResult(!_finalized && version == _threadLoadVersion));
                 bool loaded = await ReignMainThread.InvokeAsync(() =>
                 {
@@ -413,7 +413,7 @@ namespace ReignBeta.UI.ViewModels
             if (unread.Count == 0 || _finalized) return;
             try
             {
-                if (!await ReignServerClient.MarkLettersReadAsync(unread.Select(letter => letter.LetterId),
+                if (!await ReignCorrespondenceClient.MarkLettersReadAsync(unread.Select(letter => letter.LetterId),
                     () => Task.FromResult(!_finalized && version == _threadLoadVersion))) return;
                 await ReignMainThread.InvokeAsync(() =>
                 {

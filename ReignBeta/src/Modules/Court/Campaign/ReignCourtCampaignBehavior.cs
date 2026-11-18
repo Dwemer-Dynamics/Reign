@@ -456,7 +456,7 @@ namespace ReignBeta.Court
             string commandId = string.IsNullOrWhiteSpace(correlationId)
                 ? "court_respond_" + Guid.NewGuid().ToString("N")
                 : correlationId;
-            ReignCourtDialogueReply reply = await ReignServerClient.RequestCourtMatterResponseAsync(matter, speaker, playerText,
+            ReignCourtDialogueReply reply = await ReignCourtDialogueClient.RequestCourtMatterResponseAsync(matter, speaker, playerText,
                 revision, commandId).ConfigureAwait(false);
             if (reply.Ok && reply.Revision > 0) _serverMatterRevisions[matter.MatterId] = reply.Revision;
             return reply;
@@ -1015,7 +1015,7 @@ namespace ReignBeta.Court
                 {
                     var commands = (actions ?? new JArray()).OfType<JObject>().ToList();
                     if (commands.Count > 1 && commands.Any(a => a.Value<string>("type") == "marriage_response"
-                        || ReignMarriageService.HasMarriageIntent(ReignServerClient.ParseCourtWorldAction(a["action"] as JObject ?? a["worldAction"] as JObject))))
+                        || ReignMarriageService.HasMarriageIntent(ReignCourtDialogueClient.ParseCourtWorldAction(a["action"] as JObject ?? a["worldAction"] as JObject))))
                         throw new InvalidOperationException("A marriage decision must bind its consideration inside one signed wedding package.");
                     foreach (JObject action in commands)
                     {
@@ -1035,7 +1035,7 @@ namespace ReignBeta.Court
                             case "world_action":
                             {
                                 JObject encoded = action["action"] as JObject ?? action["worldAction"] as JObject;
-                                ReignWorldActionRecord worldAction = ReignServerClient.ParseCourtWorldAction(encoded);
+                                ReignWorldActionRecord worldAction = ReignCourtDialogueClient.ParseCourtWorldAction(encoded);
                                 if (worldAction == null) throw new InvalidOperationException("The validated world action could not be decoded.");
                                 worldAction.Source = "court_decision";
                                 worldAction.RequiresAcceptance = false;
@@ -1613,7 +1613,7 @@ namespace ReignBeta.Court
                         + shipment.SourceSettlementName + " to " + shipment.TargetSettlementName + ". Estimated travel time: "
                         + transit.ToString("0.0") + " days."
                         + (string.IsNullOrWhiteSpace(shipment.Notes) ? string.Empty : "\n\nA note from the ruler:\n" + shipment.Notes);
-                ReignLetterSendResult result = await ReignServerClient.SendEconomicShipmentLetterAsync(
+                ReignLetterSendResult result = await ReignCorrespondenceClient.SendEconomicShipmentLetterAsync(
                     recipient, body, shipment.ShipmentId, role, shipment.SourceSettlementStringId,
                     shipment.TargetSettlementStringId, shipment.RequestedDay + 0.25f).ConfigureAwait(false);
                 await ReignMainThread.InvokeAsync(() => SetEconomicLetterResult(shipment, role,
@@ -1901,7 +1901,7 @@ namespace ReignBeta.Court
                 .Where(x => x != null && x.IsMajorRealmEvent && !x.IsTerminal && x.RegentMailSentDay < 0f))
             {
                 matter.RegentMailSentDay = day;matter.Revision++;
-                _ = ReignServerClient.SendRegentCourtLetterAsync(regent, matter);
+                _ = ReignCorrespondenceClient.SendRegentCourtLetterAsync(regent, matter);
             }
         }
 

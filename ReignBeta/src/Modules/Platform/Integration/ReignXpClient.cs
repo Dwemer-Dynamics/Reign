@@ -4,6 +4,7 @@ using Newtonsoft.Json.Linq;
 using Reign.Core.Contracts.Dialogue;
 using ReignBeta.Campaign;
 using ReignBeta.Runtime;
+using static ReignBeta.Integration.ReignServerClient;
 
 namespace ReignBeta.Integration
 {
@@ -15,7 +16,7 @@ namespace ReignBeta.Integration
             => Owner?.Award(receipt, skill, baseXp, Options, reason);
     }
 
-    public static partial class ReignServerClient
+    internal static class ReignXpClient
     {
         private static readonly System.Net.Http.HttpClient XpOptionsClient = ReignHttpTransport.CreateLocalServerHttpClient(2, 5);
         internal static async Task<ReignXpInteraction> BeginXpInteractionAsync()

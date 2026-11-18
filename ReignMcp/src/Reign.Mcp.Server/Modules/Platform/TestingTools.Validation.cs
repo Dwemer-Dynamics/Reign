@@ -233,7 +233,7 @@ public static partial class TestingTools
     }
 
     [McpServerTool(Name = "reign_get_validation_status", ReadOnly = true, Destructive = false, Idempotent = true, UseStructuredContent = true)]
-    [Description("Reads the workspace validation lease, owner task, requested paths, current operation and report location. Does not start, cancel or take over work. Availability is a snapshot; the OS lease remains authoritative.")]
+    [Description("Reads the machine-wide (per WSL lane) validation lease, owner task, requested paths, current operation and report location. Does not start, cancel or take over work. Availability is a snapshot; the OS lease remains authoritative.")]
     public static ValidationLaneStatus GetValidationStatus(ReignValidationService validation) => validation.GetStatus();
 
     [McpServerTool(Name = "reign_validate", ReadOnly = false, Destructive = false, Idempotent = false, UseStructuredContent = true)]

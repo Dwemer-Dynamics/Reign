@@ -31,10 +31,10 @@ namespace ReignBeta.Campaign
         private List<string> _passedContacts = new List<string>();
         private JObject _shownRequest;
         private ReignPlayerApproachPopup _popup;
-        private static bool Enabled(JObject request) => ReignServerClient.ApproachKindEnabled(request?.Value<string>("kind"));
+        private static bool Enabled(JObject request) => ReignPlayerApproachClient.ApproachKindEnabled(request?.Value<string>("kind"));
         internal void ApplyApproachOptions()
         {
-            if (!ReignServerClient.ApproachKindEnabled("patrol"))
+            if (!ReignPlayerApproachClient.ApproachKindEnabled("patrol"))
             { CancelPursuit(true); _passedContacts.Clear(); }
             foreach (JObject request in _requests.Where(r => !Enabled(r)).ToList())
                 if (string.IsNullOrWhiteSpace(request.Value<string>("pendingChoice"))) QueueCancel(request);
@@ -83,7 +83,7 @@ namespace ReignBeta.Campaign
         }
         private void OnHourly()
         {
-            if (_evaluating || !Ready() || (!ReignServerClient.ApproachKindEnabled("shared") && !ReignServerClient.ApproachKindEnabled("patrol"))) return;
+            if (_evaluating || !Ready() || (!ReignPlayerApproachClient.ApproachKindEnabled("shared") && !ReignPlayerApproachClient.ApproachKindEnabled("patrol"))) return;
             _ = EvaluateSharedAndPatrolAsync();
         }
         private static bool Ready() => !ReignCampaignInitializationGate.IsPending
@@ -97,18 +97,18 @@ namespace ReignBeta.Campaign
             _evaluating = true;
             try
             {
-                var presence = new HashSet<string>(ReignServerClient.BuildPlayerAttentionPresence().OfType<JObject>().Select(x => x.Value<string>("heroId")));
+                var presence = new HashSet<string>(ReignPlayerApproachClient.BuildPlayerAttentionPresence().OfType<JObject>().Select(x => x.Value<string>("heroId")));
                 var shared = new JArray(Hero.AllAliveHeroes.Where(h => h != Hero.MainHero && presence.Contains(h.StringId))
-                    .Select(h => ReignServerClient.BuildApproachCandidate(h)));
+                    .Select(h => ReignPlayerApproachClient.BuildApproachCandidate(h)));
                 var patrols = CapturePatrolCandidates();
                 int healthy = MobileParty.MainParty.MemberRoster.GetTroopRoster().Sum(t => Math.Max(0, t.Number - t.WoundedNumber));
-                JObject response = ReignServerClient.ApproachKindEnabled("shared")
-                    ? await ReignServerClient.EvaluateApproachesAsync("shared", shared).ConfigureAwait(false) : new JObject();
+                JObject response = ReignPlayerApproachClient.ApproachKindEnabled("shared")
+                    ? await ReignPlayerApproachClient.EvaluateApproachesAsync("shared", shared).ConfigureAwait(false) : new JObject();
                 await ReignMainThread.InvokeAsync(() => { if (CurrentOwner(owner, epoch)) Enqueue(response); }).ConfigureAwait(false);
                 if (patrols.Count > 0)
                 {
                     JObject patrol = await ReignMainThread.InvokeAsync(() => CurrentOwner(owner, epoch)
-                        ? ReignServerClient.EvaluateApproachesAsync("patrol", patrols, healthy) : Task.FromResult(new JObject())).Unwrap().ConfigureAwait(false);
+                        ? ReignPlayerApproachClient.EvaluateApproachesAsync("patrol", patrols, healthy) : Task.FromResult(new JObject())).Unwrap().ConfigureAwait(false);
                     await ReignMainThread.InvokeAsync(() => { if (CurrentOwner(owner, epoch)) BeginPatrol(patrol); }).ConfigureAwait(false);
                 }
             }
@@ -118,7 +118,7 @@ namespace ReignBeta.Campaign
         private JArray CapturePatrolCandidates()
         {
             _scanAnchors.Clear(); var rows = new JArray();
-            if (!ReignServerClient.ApproachKindEnabled("patrol") || _pursuit != null || MobileParty.MainParty.CurrentSettlement != null) return rows;
+            if (!ReignPlayerApproachClient.ApproachKindEnabled("patrol") || _pursuit != null || MobileParty.MainParty.CurrentSettlement != null) return rows;
             foreach (MobileParty party in MobileParty.All.Where(p => p != MobileParty.MainParty && p.LeaderHero?.IsLord == true))
             {
                 if (!EligibleParty(party)) continue;
@@ -138,7 +138,7 @@ namespace ReignBeta.Campaign
                 }
                 if (party.Position.Distance(MobileParty.MainParty.Position) > PlayerApproachPolicy.PatrolAreaRadius
                     || center.Distance(MobileParty.MainParty.Position) > PlayerApproachPolicy.PatrolAreaRadius) continue;
-                var row = ReignServerClient.BuildApproachCandidate(party.LeaderHero);
+                var row = ReignPlayerApproachClient.BuildApproachCandidate(party.LeaderHero);
                 row["patrolling"] = true; row["hostile"] = false; row["protected"] = false;
                 row["distance"] = party.Position.Distance(MobileParty.MainParty.Position);
                 rows.Add(row);
@@ -209,7 +209,7 @@ namespace ReignBeta.Campaign
         internal bool ConsumeFriendlyEncounter(PartyBase a, PartyBase b)
         {
             if (a == null || b == null) return false;
-            if (!ReignServerClient.ApproachKindEnabled("patrol")) { CancelPursuit(true); return false; }
+            if (!ReignPlayerApproachClient.ApproachKindEnabled("patrol")) { CancelPursuit(true); return false; }
             // Grace applies only to a noble initiating another collision before
             // departing. A deliberate player encounter keeps its normal route.
             if (b == PartyBase.MainParty && a.MobileParty != null && _passedContacts.Contains(a.MobileParty.StringId)
@@ -256,11 +256,11 @@ namespace ReignBeta.Campaign
             // Native castles use the castle menu as their keep landing page.
             string keep = (menu == "town_keep" || menu == "castle_keep"
                 || (menu == "castle" && Settlement.CurrentSettlement?.IsCastle == true)) ? (Settlement.CurrentSettlement?.StringId ?? "") : "";
-            if (ReignServerClient.ApproachKindEnabled("keep") && keep.Length > 0 && keep != _keepVisit && !_evaluating)
+            if (ReignPlayerApproachClient.ApproachKindEnabled("keep") && keep.Length > 0 && keep != _keepVisit && !_evaluating)
             {
                 _keepVisit = keep;
                 var nobles = Runtime.ReignPartyChatSession.GetAvailableConversationHeroes().Where(EligibleKeepHero).ToList();
-                _ = EvaluateKeepAsync(new JArray(nobles.Select(h => ReignServerClient.BuildApproachCandidate(h))));
+                _ = EvaluateKeepAsync(new JArray(nobles.Select(h => ReignPlayerApproachClient.BuildApproachCandidate(h))));
             }
             else if (keep.Length == 0 && menu != "") _keepVisit = "";
             if (_requests.Count == 0) return;
@@ -274,7 +274,7 @@ namespace ReignBeta.Campaign
         {
             NativeCampaign owner = NativeCampaign.Current; int epoch = _epoch;
             _evaluating = true;
-            try { var response = await ReignServerClient.EvaluateApproachesAsync("keep", nobles).ConfigureAwait(false);
+            try { var response = await ReignPlayerApproachClient.EvaluateApproachesAsync("keep", nobles).ConfigureAwait(false);
                 await ReignMainThread.InvokeAsync(() => { if (CurrentOwner(owner, epoch)) Enqueue(response); }).ConfigureAwait(false); }
             catch (Exception ex) { if (CurrentOwner(owner, epoch)) { _keepVisit = ""; _retryDelay = 10; ReignLog.Warn("Keep approach failed: " + ex.Message); } }
             finally { if (CurrentOwner(owner, epoch)) _evaluating = false; }
@@ -290,7 +290,7 @@ namespace ReignBeta.Campaign
         }
         private bool StillPresent(JObject request)
         {
-            var presence = new HashSet<string>(ReignServerClient.BuildPlayerAttentionPresence().OfType<JObject>().Select(p => p.Value<string>("heroId")));
+            var presence = new HashSet<string>(ReignPlayerApproachClient.BuildPlayerAttentionPresence().OfType<JObject>().Select(p => p.Value<string>("heroId")));
             return (request["heroes"] as JArray ?? new JArray()).OfType<JObject>().All(r =>
             {
                 Hero hero = Hero.AllAliveHeroes.FirstOrDefault(h => h.StringId == r.Value<string>("heroId"));
@@ -337,14 +337,14 @@ namespace ReignBeta.Campaign
             NativeCampaign owner = NativeCampaign.Current; int epoch = _epoch;
             try
             {
-                JObject response = await ReignServerClient.DecideApproachAsync(request.Value<string>("requestId"), choice).ConfigureAwait(false);
+                JObject response = await ReignPlayerApproachClient.DecideApproachAsync(request.Value<string>("requestId"), choice).ConfigureAwait(false);
                 if (response.Value<bool?>("ok") != true) throw new InvalidOperationException(response.Value<string>("error") ?? "Approach decision unavailable.");
                 JArray observations = await ReignMainThread.InvokeAsync(() => CurrentOwner(owner, epoch)
-                    ? ReignServerClient.ApplyApproachReceipts(response) : throw new InvalidOperationException("The approach campaign changed.")).ConfigureAwait(false);
+                    ? ReignPlayerApproachClient.ApplyApproachReceipts(response) : throw new InvalidOperationException("The approach campaign changed.")).ConfigureAwait(false);
                 if (observations.Count > 0)
                 {
                     JObject acknowledged = await ReignMainThread.InvokeAsync(() => CurrentOwner(owner, epoch)
-                        ? ReignServerClient.AcknowledgeApproachAsync(request.Value<string>("requestId"), observations)
+                        ? ReignPlayerApproachClient.AcknowledgeApproachAsync(request.Value<string>("requestId"), observations)
                         : Task.FromResult(new JObject())).Unwrap().ConfigureAwait(false);
                     if (acknowledged.Value<bool?>("ok") != true) throw new InvalidOperationException("Native approach observation is awaiting acknowledgment.");
                 }

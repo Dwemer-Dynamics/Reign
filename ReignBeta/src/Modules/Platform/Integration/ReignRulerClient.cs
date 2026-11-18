@@ -5,10 +5,11 @@ using ReignBeta.Campaign;
 using ReignBeta.Runtime;
 using ReignBeta.Shared.Rulers;
 using TaleWorlds.CampaignSystem;
+using static ReignBeta.Integration.ReignServerClient;
 
 namespace ReignBeta.Integration
 {
-    public static partial class ReignServerClient
+    internal static class ReignRulerClient
     {
         internal static RulerOptions RulerOptions { get; private set; } = new RulerOptions(_ => false);
         internal static bool RulerOptionsConfirmed { get; private set; }

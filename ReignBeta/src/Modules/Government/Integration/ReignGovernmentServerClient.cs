@@ -7,10 +7,11 @@ using ReignBeta.Campaign;
 using ReignBeta.Government;
 using TaleWorlds.CampaignSystem;
 using TaleWorlds.CampaignSystem.Settlements;
+using static ReignBeta.Integration.ReignServerClient;
 
 namespace ReignBeta.Integration
 {
-    public static partial class ReignServerClient
+    internal static class ReignGovernmentServerClient
     {
         internal static Task<JObject> RequestGovernmentSpeakerStatementAsync(
             Kingdom kingdom,

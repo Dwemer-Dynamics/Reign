@@ -1,9 +1,10 @@
 using System.Threading.Tasks;
 using Newtonsoft.Json.Linq;
+using static ReignBeta.Integration.ReignServerClient;
 
 namespace ReignBeta.Integration
 {
-    public static partial class ReignServerClient
+    internal static class ReignFamilyVisitClient
     {
         internal static Task<JObject> PostFamilyVisitAsync(JObject payload) => PostJsonAsync("/court/life/family", payload);
     }

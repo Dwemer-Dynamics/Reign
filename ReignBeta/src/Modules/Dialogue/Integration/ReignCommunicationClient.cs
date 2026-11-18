@@ -4,18 +4,19 @@ using System.Threading.Tasks;
 using Newtonsoft.Json.Linq;
 using ReignBeta.Campaign;
 using TaleWorlds.CampaignSystem;
+using static ReignBeta.Integration.ReignServerClient;
 
 namespace ReignBeta.Integration
 {
-    public static partial class ReignServerClient
+    internal static class ReignCommunicationClient
     {
-        private static int _communicationInFlight;
+        internal static int _communicationInFlight;
         private static DateTime _communicationNextPoll;
         private static string _communicationScope = "", _communicationGeneration = "";
-        private static string _communicationCampaign = "", _communicationTimeline = "";
-        private static readonly ReignCommunicationPollHold CommunicationPollHold = new ReignCommunicationPollHold();
+        internal static string _communicationCampaign = "", _communicationTimeline = "";
+        internal static readonly ReignCommunicationPollHold CommunicationPollHold = new ReignCommunicationPollHold();
         private static int _communicationPulseRequested;
-        private static string CommunicationPollScope() => GetCampaignId() + "|"
+        internal static string CommunicationPollScope() => GetCampaignId() + "|"
             + (ReignWorldHistoryCampaignBehavior.Instance?.TimelineId ?? "main") + "|"
             + (ReignCampaignInitializationGate.Snapshot().Value<string>("generationId") ?? "");
 
@@ -40,7 +41,7 @@ namespace ReignBeta.Integration
             _communicationNextPoll = DateTime.MinValue;
             PulseCommunications();
         }
-        private static void ApplyCommunicationCloseWork(JObject response)
+        internal static void ApplyCommunicationCloseWork(JObject response)
         {
             var lives = ReignNpcLivesBehavior.Instance;
             if (response.Value<string>("communicationCampaignId") == GetCampaignId()
@@ -62,15 +63,15 @@ namespace ReignBeta.Integration
                 || ReignSaveSyncCampaignBehavior.IsNativeSaveInProgress || ReignCampaignInitializationGate.IsPending
                 || TaleWorlds.CampaignSystem.Campaign.Current == null || Hero.MainHero == null || Interlocked.CompareExchange(ref _communicationInFlight, 1, 0) != 0) return;
             Interlocked.Exchange(ref _communicationPulseRequested, 0);
-            PersonalGossipPresenceSnapshot snapshot = null;
+            ReignPersonalGossipClient.PersonalGossipPresenceSnapshot snapshot = null;
             try
             {
-                snapshot = CapturePersonalGossipPresence();
+                snapshot = ReignPersonalGossipClient.CapturePersonalGossipPresence();
                 string scope = snapshot.CampaignId + "|" + snapshot.Timeline + "|" + snapshot.Generation;
                 if (_communicationScope != scope) { _communicationScope = scope; _communicationGeneration = ""; }
                 _communicationCampaign = snapshot.CampaignId; _communicationTimeline = snapshot.Timeline;
                 _communicationNextPoll = DateTime.UtcNow.AddSeconds(10);
-                var context = CaptureNpcLivesContext(_communicationGeneration);
+                var context = ReignNpcLivesClient.CaptureNpcLivesContext(_communicationGeneration);
                 _ = PumpCommunicationAsync(snapshot, context, scope);
             }
             catch
@@ -81,23 +82,23 @@ namespace ReignBeta.Integration
             }
         }
 
-        private static async Task PumpCommunicationAsync(PersonalGossipPresenceSnapshot snapshot, JObject payload, string scope)
+        private static async Task PumpCommunicationAsync(ReignPersonalGossipClient.PersonalGossipPresenceSnapshot snapshot, JObject payload, string scope)
         {
             try
             {
                 if (string.IsNullOrEmpty(payload.Value<string>("generation")))
                 {
                     var boot = await PostJsonAsync("/communications/scope", payload,
-                        () => ReignMainThread.InvokeAsync(() => PersonalGossipSnapshotCurrent(snapshot))).ConfigureAwait(false);
+                        () => ReignMainThread.InvokeAsync(() => ReignPersonalGossipClient.PersonalGossipSnapshotCurrent(snapshot))).ConfigureAwait(false);
                     if (boot.Value<bool?>("ok") != true) return;
                     payload["generation"] = boot.Value<string>("generation") ?? "";
                 }
-                payload["gossipPresence"] = await EncodePersonalGossipPresenceAsync(snapshot).ConfigureAwait(false);
+                payload["gossipPresence"] = await ReignPersonalGossipClient.EncodePersonalGossipPresenceAsync(snapshot).ConfigureAwait(false);
                 var response = await PostJsonAsync("/communications/tick", payload,
-                    () => ReignMainThread.InvokeAsync(() => PersonalGossipSnapshotCurrent(snapshot))).ConfigureAwait(false);
+                    () => ReignMainThread.InvokeAsync(() => ReignPersonalGossipClient.PersonalGossipSnapshotCurrent(snapshot))).ConfigureAwait(false);
                 await ReignMainThread.InvokeAsync(() =>
                 {
-                    if (_communicationScope != scope || !PersonalGossipSnapshotCurrent(snapshot)) return;
+                    if (_communicationScope != scope || !ReignPersonalGossipClient.PersonalGossipSnapshotCurrent(snapshot)) return;
                     if (response.Value<string>("generation") is string generation) _communicationGeneration = generation;
                     if (response.Value<bool?>("ok") != true) return;
                     var lives = ReignNpcLivesBehavior.Instance;

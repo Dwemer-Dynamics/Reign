@@ -46,7 +46,7 @@ namespace ReignBeta.Campaign
                 if (_storyEncounters.Values.Any(e => e.Value<string>("storyId") == storyId && e.Value<string>("status") != "resolved"))
                     throw new InvalidOperationException("This story already has an encounter in progress.");
                 encounter = "npc_encounter_" + Guid.NewGuid().ToString("N");
-                var p = ReignServerClient.CaptureNpcLivesContext(Generation);
+                var p = ReignNpcLivesClient.CaptureNpcLivesContext(Generation);
                 p["id"] = story.Id; p["revision"] = story.Revision; p["heroId"] = story.HeroId;
                 p["kind"] = "encounter_started"; p["objectiveId"] = objective.Id;
                 p["encounterId"] = encounter; p["nativeReceipt"] = encounter + ":started";
@@ -207,7 +207,7 @@ namespace ReignBeta.Campaign
             if (outcome != "won" && outcome != "lost" && outcome != "withdrawn") throw new ArgumentException("A native encounter outcome is required.");
             row["status"] = "resolved"; row["outcome"] = outcome;
             _storyRescueCaptors.Remove(encounter);
-            var p = ReignServerClient.CaptureNpcLivesContext(Generation);
+            var p = ReignNpcLivesClient.CaptureNpcLivesContext(Generation);
             foreach (string key in new[] { "heroId", "revision", "objectiveId", "kind", "locationId" }) p[key] = row[key].DeepClone();
             p["id"] = row["storyId"].DeepClone(); p["encounterId"] = encounter;
             p["outcome"] = outcome == "won" && row.Value<string>("requiredOutcome").Length > 0 ? row.Value<string>("requiredOutcome") : outcome;

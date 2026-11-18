@@ -64,7 +64,7 @@ namespace ReignBeta.Campaign
             .Select(m => m.Value<string>("heroId")).Where(id => !string.IsNullOrEmpty(id))
             .Distinct(StringComparer.Ordinal).OrderBy(id => id, StringComparer.Ordinal));
 
-        private static JArray CurrentAnnouncementMemberIds(ReignNpcLivesBehavior lives) => AnnouncementMemberIds(ReignServerClient.CaptureNpcLivesContext(lives.Generation, true));
+        private static JArray CurrentAnnouncementMemberIds(ReignNpcLivesBehavior lives) => AnnouncementMemberIds(ReignNpcLivesClient.CaptureNpcLivesContext(lives.Generation, true));
 
         private static bool CaptureHeldAnnouncement(ReignNpcLivesBehavior lives, NativeAnnouncementDeliveryHold hold, JObject row)
         {

@@ -327,7 +327,7 @@ namespace ReignBeta.UI.ViewModels
             }
 
             Busy = true;
-            ReignXpInteraction xp = await ReignServerClient.BeginXpInteractionAsync();
+            ReignXpInteraction xp = await ReignXpClient.BeginXpInteractionAsync();
             await ReignMainThread.InvokeAsync(() => CompleteDecision(method, refuse, xp));
         }
 
@@ -368,7 +368,7 @@ namespace ReignBeta.UI.ViewModels
                         "No active court audience participants are available.");
                 bool stagedTurn = !string.Equals(phase, "conversation",
                     StringComparison.OrdinalIgnoreCase);
-                ReignXpInteraction xp = stagedTurn ? null : await ReignServerClient.BeginXpInteractionAsync().ConfigureAwait(false);
+                ReignXpInteraction xp = stagedTurn ? null : await ReignXpClient.BeginXpInteractionAsync().ConfigureAwait(false);
                 string xpReceipt = "conversation:petition:" + _petition.PetitionId + ":" + Guid.NewGuid().ToString("N");
                 bool exchangeComplete = true;
                 string audienceTurn = string.Equals(phase, "opening",
@@ -421,7 +421,7 @@ namespace ReignBeta.UI.ViewModels
                                 AddTranscriptLine(speakerName, reply, "npc");
                             }
                             // Existing action receipts follow as separate, unpersisted system lines.
-                            foreach (string statusLine in ReignServerClient.NativeStatusLines(response.RawResponse))
+                            foreach (string statusLine in ReignStructuredActionClient.NativeStatusLines(response.RawResponse))
                                 AddTranscriptLine("Court Clerk", statusLine, "system", false);
                             if (isPetitioner)
                                 _court.AttachRulerPetitionPresentation(_petition.PetitionId,
