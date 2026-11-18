@@ -106,7 +106,7 @@ namespace ReignBeta.Campaign
                         else if (c.Value<string>("actionId") == "fixture.ruler_setup")
                         {
                             if (enrollment.Value<bool?>("recoveryCheckpointVerified") != true) throw new InvalidOperationException("Ruler setup requires a verified recovery checkpoint.");
-                            result = (ReignRulerCampaignBehavior.Instance ?? throw new InvalidOperationException("Ruler system unavailable.")).PrepareFixture(c, id, RulerFixtureEnrollment(enrollment));
+                            result = ReignRulerFixtureControls.PrepareFixture(ReignRulerCampaignBehavior.Instance ?? throw new InvalidOperationException("Ruler system unavailable."), c, id, RulerFixtureEnrollment(enrollment));
                         }
                         else if (c.Value<string>("actionId") == "fixture.follow_accepted_guide_step")
                         {
