@@ -26,9 +26,9 @@ public sealed class RulerDocketRulesTests
             "WorldSimulation", "Integration", "ReignWorldHistoryClient.cs"));
         string worldHistoryBehavior = File.ReadAllText(Path.Combine(root, "ReignBeta", "src", "Modules",
             "WorldSimulation", "Campaign", "ReignWorldHistoryCampaignBehavior.cs"));
-        string serverClient = File.ReadAllText(Path.Combine(root, "ReignBeta", "src", "Modules",
+        string serverClient = TestSourceLocator.PartialTypeText(Path.Combine(root, "ReignBeta", "src", "Modules",
             "Platform", "Integration", "ReignServerClient.cs"));
-        string reputationServer = File.ReadAllText(Path.Combine(root, "ReignServer", "src",
+        string reputationServer = TestSourceLocator.ServerFileGroupText(Path.Combine(root, "ReignServer", "src",
             "Modules", "Reputation", "SocialReputation.cs"));
         string courtReputationServer = File.ReadAllText(Path.Combine(root, "ReignServer", "src",
             "Modules", "Reputation", "CourtSocialReputation.cs"));

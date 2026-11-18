@@ -26,12 +26,49 @@ internal static class TestSourceLocator
         };
     }
 
+    // Text of a client class split into partial files: the primary <Type>.cs file followed by its
+    // sibling <Type>.<Area>.cs partial files in the same folder, in name order.
+    public static string PartialTypeText(string primaryPath)
+    {
+        var directory = Path.GetDirectoryName(primaryPath)!;
+        var stem = Path.GetFileNameWithoutExtension(primaryPath);
+        var parts = Directory.EnumerateFiles(directory, stem + ".*.cs")
+            .Order(StringComparer.OrdinalIgnoreCase);
+        return string.Join(Environment.NewLine, new[] { primaryPath }.Concat(parts).Select(File.ReadAllText));
+    }
+
     // Server router text: the legacy HandleClient chain and every module's route-table
     // registrations (Program*.cs, which includes Program.<Module>Routes.cs).
     public static string ServerRouterText(string workspace) => string.Join(Environment.NewLine,
         Enumerate(Path.Combine(workspace, "ReignServer", "src"), "Program*.cs")
             .Order(StringComparer.OrdinalIgnoreCase)
             .Select(File.ReadAllText));
+
+    // Server Program source: the Platform/Program.cs hub and every Program.<Area>.cs partial (route files included),
+    // wherever it lives under ReignServer/src. Accepts the former single-file layout and the split layout.
+    public static string ServerProgramText(string workspace) => ServerRouterText(workspace);
+
+    // The first server Program*.cs file (path order) whose text contains anchor, for checks that slice or order text
+    // inside one member. Accepts the former single-file layout and the split layout.
+    public static string ServerProgramFileText(string workspace, string anchor) =>
+        Enumerate(Path.Combine(workspace, "ReignServer", "src"), "Program*.cs")
+            .Order(StringComparer.OrdinalIgnoreCase)
+            .Select(File.ReadAllText)
+            .FirstOrDefault(text => text.Contains(anchor, StringComparison.Ordinal))
+        ?? throw new FileNotFoundException($"No server Program*.cs file contains {anchor}.");
+
+    // A server source file plus its Name.*.cs partial-class siblings in the same folder (ordinal file-name order), so
+    // a check that reads one logical file keeps working when the file is split into partial files. Accepts the
+    // former single-file layout and the split layout.
+    public static string ServerFileGroupText(string primaryPath)
+    {
+        string fullPath = Path.GetFullPath(primaryPath);
+        string stem = Path.GetFileNameWithoutExtension(fullPath);
+        var siblings = Directory.EnumerateFiles(Path.GetDirectoryName(fullPath)!, stem + ".*.cs")
+            .Where(path => path.EndsWith(".cs", StringComparison.OrdinalIgnoreCase))
+            .Order(StringComparer.Ordinal);
+        return string.Join("\n\n", new[] { fullPath }.Concat(siblings).Select(File.ReadAllText));
+    }
 
     // True when the server declares this exact route: as a legacy chain comparison or a
     // route-table registration (routes.Get/Post). Other mentions, such as HTTP client calls, do not count.

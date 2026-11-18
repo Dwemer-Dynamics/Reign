@@ -216,10 +216,9 @@ public sealed class RulerDocketInterfaceContractTests
             "Integration", "ReignCourtServerClient.cs"));
         string server = File.ReadAllText(Path.Combine(root, "ReignServer", "src", "Modules", "Court",
             "RulerDocketDialogue.cs"));
-        string normalClient = File.ReadAllText(Path.Combine(root, "ReignBeta", "src", "Modules", "Platform",
+        string normalClient = TestSourceLocator.PartialTypeText(Path.Combine(root, "ReignBeta", "src", "Modules", "Platform",
             "Integration", "ReignServerClient.cs"));
-        string normalServer = File.ReadAllText(Path.Combine(root, "ReignServer", "src", "Modules", "Platform",
-            "Program.cs"));
+        string normalServer = TestSourceLocator.ServerProgramText(root);
         string textureFactory = File.ReadAllText(Path.Combine(root, "ReignBeta", "src", "Modules", "Portraits",
             "UI", "EventArt", "ReignEventArtTextureFactory.cs"));
         string assetTool = File.ReadAllText(Path.Combine(root, "ReignBeta", "artwork",
@@ -368,8 +367,7 @@ public sealed class RulerDocketInterfaceContractTests
             "Reputation", "CourtSocialReputation.cs"));
         string dialogue = File.ReadAllText(Path.Combine(root, "ReignServer", "src", "Modules",
             "Court", "RulerDocketDialogue.cs"));
-        string server = File.ReadAllText(Path.Combine(root, "ReignServer", "src", "Modules",
-            "Platform", "Program.cs"));
+        string server = TestSourceLocator.ServerProgramText(root);
 
         Assert.Contains("TryActivateNobleMatter", manager, StringComparison.Ordinal);
         Assert.Contains("card.Payload is ReignNobleDocketMatter", screen, StringComparison.Ordinal);
