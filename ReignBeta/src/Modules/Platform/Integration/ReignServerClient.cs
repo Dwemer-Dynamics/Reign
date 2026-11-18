@@ -34,29 +34,11 @@ namespace ReignBeta.Integration
 {
     public static partial class ReignServerClient
     {
-        private const int InteractiveProviderTimeoutSeconds = 900;
-        private static readonly HttpClient Client = CreateLocalServerHttpClient(8);
-        private static readonly HttpClient PriorityClient = CreateLocalServerHttpClient(4);
-        private static readonly HttpClient InteractiveClient =
-            CreateLocalServerHttpClient(4, InteractiveProviderTimeoutSeconds);
-        private static readonly HttpClient LiveTestClient = CreateLocalServerHttpClient(4, 5);
-        // Terminal action report v1 only: one proven origin, never redirected.
-        private static readonly HttpClient PinnedClient = CreateLocalServerHttpClient(2, 30, false);
-        // Local response provenance for the two protocol import routes. A value is the
-        // proven origin; an empty value marks a qualifying response whose origin is unproven.
-        private static readonly System.Runtime.CompilerServices.ConditionalWeakTable<JObject, string> ResponseOrigins =
-            new System.Runtime.CompilerServices.ConditionalWeakTable<JObject, string>();
         private static readonly object NativeDescriptionLock = new object();
         private static readonly Dictionary<string, string> NativeDescriptions = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
         private static readonly object PortraitRosterSyncLock = new object();
         private static readonly Dictionary<string, string> SyncedPortraitRosterFingerprints =
             new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
-        private static long _streamedPostRequests;
-        private static long _streamedPostBytes;
-        private static long _largeStreamedPostRequests;
-        private static long _peakStreamedPostBytes;
-        private static long _totalPostSerializationMs;
-        private static long _peakPostSerializationMs;
         private static readonly string[] ContextPullIds =
         {
             "check_inventory_appearance",
@@ -72,108 +54,6 @@ namespace ReignBeta.Integration
             "relevant_memory",
             "relationship_history"
         };
-
-        private static HttpClient CreateLocalServerHttpClient(int maximumConnections, int timeoutSeconds = 360, bool allowAutoRedirect = true)
-        {
-            // Bannerlord runs this assembly on .NET Framework, whose default HTTP
-            // connection limit is only two. At accelerated campaign speed that
-            // allowed redundant hourly work to occupy both connections for minutes,
-            // starving daily relationship and World Test telemetry before it ever
-            // reached the local server.
-            ServicePointManager.DefaultConnectionLimit = Math.Max(
-                ServicePointManager.DefaultConnectionLimit,
-                16);
-            HttpClientHandler handler = new HttpClientHandler
-            {
-                MaxConnectionsPerServer = Math.Max(2, maximumConnections),
-                UseProxy = false,
-                AllowAutoRedirect = allowAutoRedirect
-            };
-            return new HttpClient(new Reign.Core.Contracts.Platform.ReignProtocolHandler(handler)) { Timeout = TimeSpan.FromSeconds(Math.Max(2, timeoutSeconds)) };
-        }
-
-        private static bool IsPriorityServerRoute(string route)
-        {
-            string value = route ?? string.Empty;
-            return value.StartsWith("/relationships/ambient/", StringComparison.OrdinalIgnoreCase)
-                || value.Equals("/world-test/heartbeat", StringComparison.OrdinalIgnoreCase)
-                || value.StartsWith("/political-pressure/", StringComparison.OrdinalIgnoreCase)
-                || value.StartsWith("/save-sync/", StringComparison.OrdinalIgnoreCase)
-                || value.Equals("/portraits/generate/status", StringComparison.OrdinalIgnoreCase)
-                || value.StartsWith("/initialization/readiness/", StringComparison.OrdinalIgnoreCase)
-                || value.StartsWith("/tests/live/", StringComparison.OrdinalIgnoreCase)
-                || value.Equals("/world-history/timeline/open", StringComparison.OrdinalIgnoreCase)
-                || value.StartsWith("/tests/npc-dialogue/request", StringComparison.OrdinalIgnoreCase);
-        }
-
-        private static bool IsProviderBackedInteractiveRoute(string route)
-        {
-            string value = route ?? string.Empty;
-            return value.Equals("/dialogue/respond", StringComparison.OrdinalIgnoreCase)
-                || value.Equals("/party-chat/respond", StringComparison.OrdinalIgnoreCase)
-                || value.Equals("/tavern-house/respond", StringComparison.OrdinalIgnoreCase)
-                || value.Equals("/tavern-house/scene", StringComparison.OrdinalIgnoreCase)
-                || value.Equals("/family-chambers/scene/generate", StringComparison.OrdinalIgnoreCase)
-                || value.Equals("/portraits/generate", StringComparison.OrdinalIgnoreCase);
-        }
-
-        private static bool IsHighFrequencyControlRoute(string route)
-        {
-            string value = route ?? string.Empty;
-            return value.Equals("/tests/live/game/heartbeat", StringComparison.OrdinalIgnoreCase)
-                || value.Equals("/tests/live/game/poll", StringComparison.OrdinalIgnoreCase)
-                || value.Equals("/relationships/ambient/native_sync/pull", StringComparison.OrdinalIgnoreCase)
-                || value.Equals("/tests/npc-dialogue/request/poll", StringComparison.OrdinalIgnoreCase)
-                || value.Equals("/tests/party-dialogue/request/poll", StringComparison.OrdinalIgnoreCase);
-        }
-
-        internal static JObject HttpTransportDiagnostics()
-        {
-            return new JObject
-            {
-                ["mode"] = "pooled_segmented_utf8_json",
-                ["interactiveProviderTimeoutSeconds"] = InteractiveProviderTimeoutSeconds,
-                ["interactiveProviderRoutes"] = new JArray(
-                    "/dialogue/respond",
-                    "/party-chat/respond",
-                    "/family-chambers/scene/generate",
-                    "/portraits/generate"),
-                ["pooledRequests"] = Interlocked.Read(ref _streamedPostRequests),
-                ["serializedBytes"] = Interlocked.Read(ref _streamedPostBytes),
-                ["largeRequests"] = Interlocked.Read(ref _largeStreamedPostRequests),
-                ["peakRequestBytes"] = Interlocked.Read(ref _peakStreamedPostBytes),
-                ["totalSerializationMs"] = Interlocked.Read(ref _totalPostSerializationMs),
-                ["peakSerializationMs"] = Interlocked.Read(ref _peakPostSerializationMs)
-            };
-        }
-
-        private static void RecordStreamedPost(ReignJsonHttpContent content)
-        {
-            if (content == null) return;
-            long bytes = Math.Max(0L, content.SerializedBytes);
-            long durationMs = Math.Max(0L, content.SerializationDurationMs);
-            Interlocked.Increment(ref _streamedPostRequests);
-            Interlocked.Add(ref _streamedPostBytes, bytes);
-            Interlocked.Add(ref _totalPostSerializationMs, durationMs);
-            if (bytes >= 85L * 1024L)
-                Interlocked.Increment(ref _largeStreamedPostRequests);
-            UpdateMaximum(ref _peakStreamedPostBytes, bytes);
-            UpdateMaximum(ref _peakPostSerializationMs, durationMs);
-        }
-
-        private static void UpdateMaximum(ref long target, long value)
-        {
-            long observed = Interlocked.Read(ref target);
-            while (value > observed)
-            {
-                long prior = Interlocked.CompareExchange(
-                    ref target,
-                    value,
-                    observed);
-                if (prior == observed) return;
-                observed = prior;
-            }
-        }
 
         private static string NewCorrelationId(string mode, string subjectId)
         {
@@ -1106,7 +986,7 @@ namespace ReignBeta.Integration
 
                 return reply;
             }
-            catch (RequestOwnerAbandonedException ex)
+            catch (ReignRequestOwnerAbandonedException ex)
             {
                 reply.Error = ex.Message;
                 ReignLog.Info("Social event response abandoned by its local owner: " + ex.Message);
@@ -1142,7 +1022,7 @@ namespace ReignBeta.Integration
                 return requestOwner == null ? await PostJsonAsync("/party-chat/turn-plan", payload).ConfigureAwait(false)
                     : await PostOwnedJsonAsync("/party-chat/turn-plan", payload, requestOwner).ConfigureAwait(false);
             }
-            catch (RequestOwnerAbandonedException ex)
+            catch (ReignRequestOwnerAbandonedException ex)
             {
                 ReignLog.Info("Group speaking plan abandoned by its local owner: " + ex.Message);
                 return new JObject { ["ok"] = false, ["error"] = "The conversation closed." };
@@ -1310,7 +1190,7 @@ namespace ReignBeta.Integration
 
                 return reply;
             }
-            catch (RequestOwnerAbandonedException ex)
+            catch (ReignRequestOwnerAbandonedException ex)
             {
                 reply.Error = ex.Message;
                 ReignLog.Info("Party chat response abandoned by its local owner: " + ex.Message);
@@ -1824,7 +1704,7 @@ namespace ReignBeta.Integration
                 result.Status = response.Value<string>("status") ?? "open";
                 result.Error = response.Value<string>("error") ?? string.Empty;
             }
-            catch (RequestOwnerAbandonedException)
+            catch (ReignRequestOwnerAbandonedException)
             {
                 result.Error = "The campaign changed before the conversation session could start.";
             }
@@ -1903,7 +1783,7 @@ namespace ReignBeta.Integration
                     ApplyCommunicationCloseWork(response);
                 }).ConfigureAwait(false);
             }
-            catch (RequestOwnerAbandonedException)
+            catch (ReignRequestOwnerAbandonedException)
             {
                 result.Error = "The campaign changed before the conversation session could finish.";
             }
@@ -2213,7 +2093,7 @@ namespace ReignBeta.Integration
 
                 return reply;
             }
-            catch (RequestOwnerAbandonedException ex)
+            catch (ReignRequestOwnerAbandonedException ex)
             {
                 reply.Ok = false;
                 reply.Error = ex.Message;
@@ -2441,130 +2321,28 @@ namespace ReignBeta.Integration
             return explicitHistory.Any(q.Contains) || eventQuestions.Any(q.Contains) || reportedClaims.Any(q.Contains);
         }
 
-        private static async Task<JObject> GetJsonAsync(string route, HttpClient requestClient = null)
+        // Readiness gates, then the shared transport.
+        private static async Task<JObject> GetJsonAsync(string route, System.Net.Http.HttpClient requestClient = null)
         {
             await ReignSaveSyncCoordinator.WaitForReadyAsync(route).ConfigureAwait(false);
             await ReignCampaignInitializationGate.WaitForReadyAsync(route).ConfigureAwait(false);
-            if (!ReignServerEndpoint.TryBeginRequest(out string unavailable, out long probeClaim))
-            {
-                throw new HttpRequestException(unavailable);
-            }
-
-            try
-            {
-                Exception lastTransportFailure = null;
-                foreach (string baseUrl in ReignServerEndpoint.CandidateBaseUrls())
-                {
-                    string url = baseUrl.TrimEnd('/') + (route.StartsWith("/", StringComparison.Ordinal) ? route : "/" + route);
-                    try
-                    {
-                        using (HttpResponseMessage response = await (requestClient ?? Client).GetAsync(url).ConfigureAwait(false))
-                        {
-                            string body = await response.Content.ReadAsStringAsync().ConfigureAwait(false);
-                            ReignServerEndpoint.ReportSuccess(baseUrl, probeClaim);
-                            if (!response.IsSuccessStatusCode)
-                            {
-                                throw new InvalidOperationException("HTTP " + (int)response.StatusCode + ": " + body);
-                            }
-
-                            return RecordResponseOrigin(route, baseUrl, url, response, JObject.Parse(body));
-                        }
-                    }
-                    catch (Exception ex) when (ReignServerEndpoint.IsTransportFailure(ex))
-                    {
-                        lastTransportFailure = ex;
-                    }
-                }
-
-                ReignServerEndpoint.ReportTransportFailure(probeClaim);
-                throw lastTransportFailure ?? new HttpRequestException("Local Bannerlord Reign server is unavailable.");
-            }
-            finally
-            {
-                // Unconditional matching release: a no-op once this operation's
-                // report settled its claim, never able to clear a newer probe.
-                ReignServerEndpoint.ReleaseRequest(probeClaim);
-            }
-        }
-
-        // Records local provenance only for the two terminal-report import routes. A
-        // redirected response, a path-prefixed base URL or an unobservable final target
-        // proves no origin; such a record stays a pending candidate, never another server's.
-        private static JObject RecordResponseOrigin(string route, string baseUrl, string requestUrl, HttpResponseMessage response, JObject parsed)
-        {
-            if (parsed == null || !(route == "/dialogue/respond" || route.StartsWith("/actions/next?", StringComparison.Ordinal))) return parsed;
-            string origin = PinnableOrigin(baseUrl);
-            Uri final = response?.RequestMessage?.RequestUri;
-            if (final == null || !Uri.TryCreate(requestUrl, UriKind.Absolute, out Uri requested)
-                || !string.Equals(final.AbsoluteUri, requested.AbsoluteUri, StringComparison.Ordinal)) origin = string.Empty;
-            ResponseOrigins.Remove(parsed);
-            ResponseOrigins.Add(parsed, origin);
-            return parsed;
+            return await ReignHttpTransport.GetJsonAsync(route, requestClient).ConfigureAwait(false);
         }
 
         // Null when the token's response did not come through a qualifying import route.
-        internal static string ResponseOrigin(JToken token)
-        {
-            JObject root = token?.Root as JObject;
-            return root != null && ResponseOrigins.TryGetValue(root, out string origin) ? origin : null;
-        }
+        internal static string ResponseOrigin(JToken token) => ReignHttpTransport.ResponseOrigin(token);
 
-        internal static string PinnableOrigin(string baseUrl)
-        {
-            string trimmed = (baseUrl ?? string.Empty).Trim().TrimEnd('/');
-            if (!Uri.TryCreate(trimmed, UriKind.Absolute, out Uri uri) || uri.UserInfo.Length > 0
-                || (uri.Scheme != Uri.UriSchemeHttp && uri.Scheme != Uri.UriSchemeHttps)) return string.Empty;
-            string origin = uri.GetLeftPart(UriPartial.Authority);
-            return string.Equals(origin, trimmed, StringComparison.OrdinalIgnoreCase) ? origin : string.Empty;
-        }
-
-        // A pinned origin stays usable only while it is one of the currently allowed endpoints.
-        internal static bool IsAllowedPinnedOrigin(string origin) => !string.IsNullOrEmpty(origin)
-            && ReignServerEndpoint.CandidateBaseUrls().Any(baseUrl => string.Equals(PinnableOrigin(baseUrl), origin, StringComparison.Ordinal));
-
-        // A definite HTTP answer from the exact pinned origin. It stays an
-        // InvalidOperationException, with the same message, for existing callers.
-        internal sealed class PinnedHttpRefusalException : InvalidOperationException
-        {
-            internal PinnedHttpRefusalException(int statusCode)
-                : base("HTTP " + statusCode + " from the pinned terminal report endpoint.") { StatusCode = statusCode; }
-            internal int StatusCode { get; }
-            // 408 Request Timeout and 429 Too Many Requests are transient answers that keep
-            // the caller's bounded retry.
-            internal bool IsDefiniteClientRefusal => StatusCode >= 400 && StatusCode < 500
-                && StatusCode != 408 && StatusCode != 429;
-        }
-
-        // Terminal action report v1 transport: the exact pinned origin only, no redirects,
-        // no candidate failover and no shared circuit-breaker state. The protocol handler
-        // still performs its handshake and adds its header. Failures throw without the
-        // response body; the caller keeps its exact report pending. requestOwner is a
-        // required game-thread predicate, rechecked after the readiness gates and again
-        // immediately before dispatch (an abandoned owner sends nothing).
+        // Terminal action report v1: readiness gates, then the exact pinned origin only (see
+        // ReignHttpTransport.SendPinnedJsonAsync). requestOwner is a required game-thread predicate.
         internal static async Task<JObject> SendPinnedJsonAsync(string origin, string pathAndQuery, JObject payload, Func<bool> requestOwner)
         {
             if (requestOwner == null) throw new ArgumentNullException(nameof(requestOwner));
             await ReignSaveSyncCoordinator.WaitForReadyAsync(pathAndQuery).ConfigureAwait(false);
             await ReignCampaignInitializationGate.WaitForReadyAsync(pathAndQuery).ConfigureAwait(false);
-            await EnsureRequestOwnerAsync(requestOwner, "pinned request preparation").ConfigureAwait(false);
-            if (!IsAllowedPinnedOrigin(origin))
-                throw new InvalidOperationException("The pinned terminal report origin is no longer an allowed local endpoint.");
-            string url = origin + pathAndQuery;
-            using (var request = new HttpRequestMessage(payload == null ? HttpMethod.Get : HttpMethod.Post, url))
-            {
-                if (payload != null) request.Content = new ReignJsonHttpContent(payload);
-                await EnsureRequestOwnerAsync(requestOwner, "pinned transport dispatch").ConfigureAwait(false);
-                using (HttpResponseMessage response = await PinnedClient.SendAsync(request).ConfigureAwait(false))
-                {
-                    Uri final = response.RequestMessage?.RequestUri;
-                    if (final == null || !string.Equals(final.AbsoluteUri, new Uri(url).AbsoluteUri, StringComparison.Ordinal))
-                        throw new InvalidOperationException("The pinned terminal report response came from a different endpoint.");
-                    if (!response.IsSuccessStatusCode)
-                        throw new PinnedHttpRefusalException((int)response.StatusCode);
-                    return JObject.Parse(await response.Content.ReadAsStringAsync().ConfigureAwait(false));
-                }
-            }
+            return await ReignHttpTransport.SendPinnedJsonAsync(origin, pathAndQuery, payload, requestOwner).ConfigureAwait(false);
         }
+
+        internal static JObject HttpTransportDiagnostics() => ReignHttpTransport.HttpTransportDiagnostics();
 
         // ---- Individual Chat view-insertion receipt v1 (client). ----
         // Attests only that the guarded game-thread AddChatLine inserted the exact accepted
@@ -2600,7 +2378,7 @@ namespace ReignBeta.Integration
             JObject unit = exchange?["acceptedUnit"] as JObject;
             JObject descriptor = unit?["viewInsertion"] as JObject;
             string origin = ResponseOrigin(response);
-            if (descriptor == null || string.IsNullOrEmpty(lineText) || !IsAllowedPinnedOrigin(origin)
+            if (descriptor == null || string.IsNullOrEmpty(lineText) || !ReignHttpTransport.IsAllowedPinnedOrigin(origin)
                 || ExactJsonString(descriptor, "schema") != IndividualViewInsertionSchema
                 || ExactJsonString(descriptor, "status") != "eligible") return null;
             var body = new JObject { ["schema"] = IndividualViewInsertionAckSchema };
@@ -2636,8 +2414,8 @@ namespace ReignBeta.Integration
             {
                 JObject result;
                 try { result = await SendPinnedJsonAsync(ack.Origin, IndividualViewInsertionRoute, ack.Body, owner).ConfigureAwait(false); }
-                catch (RequestOwnerAbandonedException) { return false; }
-                catch (PinnedHttpRefusalException ex) when (ex.IsDefiniteClientRefusal)
+                catch (ReignRequestOwnerAbandonedException) { return false; }
+                catch (ReignHttpTransport.PinnedHttpRefusalException ex) when (ex.IsDefiniteClientRefusal)
                 {
                     // A definite 4xx refusal is not transport ambiguity; resending the
                     // identical body cannot change it.
@@ -2769,143 +2547,36 @@ namespace ReignBeta.Integration
                 isCurrentRequest = async () => (callerGuard == null || await callerGuard().ConfigureAwait(false))
                     && await ReignMainThread.InvokeAsync(() => PersonalGossipSnapshotCurrent(gossipSnapshot)).ConfigureAwait(false);
             }
-            bool liveTestRoute = route.StartsWith(
-                "/tests/live/", StringComparison.OrdinalIgnoreCase);
-            // The production bridge is itself the recovery/control plane. An
-            // unrelated passive-system timeout must not place heartbeat, polling,
-            // acknowledgement, or lifecycle traffic behind the shared endpoint
-            // circuit breaker. Live routes use their own short-timeout client and
-            // always probe loopback directly; a successful probe still clears the
-            // shared breaker because it proves the server is reachable.
-            long probeClaim = 0;
-            if (!liveTestRoute
-                && !ReignServerEndpoint.TryBeginRequest(out string unavailable, out probeClaim))
-            {
-                throw new HttpRequestException(unavailable);
-            }
-
-            try
-            {
-                HttpClient routeClient = liveTestRoute
-                    ? LiveTestClient
-                    : IsProviderBackedInteractiveRoute(route) ? InteractiveClient
-                    : IsPriorityServerRoute(route) ? PriorityClient : Client;
-                Exception lastTransportFailure = null;
-                foreach (string baseUrl in ReignServerEndpoint.CandidateBaseUrls())
+            return await ReignHttpTransport.PostAsync(route, payload, isCurrentRequest, requestOwner,
+                payload?["gossipPresence"] != null,
+                async parsedResponse =>
                 {
-                    string url = baseUrl.TrimEnd('/') + (route.StartsWith("/", StringComparison.Ordinal) ? route : "/" + route);
-                    Stopwatch timer = Stopwatch.StartNew();
-                    ReignJsonHttpContent content = null;
-                    try
+                    if (conversationInput)
                     {
-                        if (isCurrentRequest != null && !await isCurrentRequest().ConfigureAwait(false))
-                            throw new OperationCanceledException("Request belongs to a previous loaded save.");
-                        await EnsureRequestOwnerAsync(requestOwner, "request encoding").ConfigureAwait(false);
-                        content = payload?["gossipPresence"] != null
-                            ? await Task.Run(() => new ReignJsonHttpContent(payload)).ConfigureAwait(false)
-                            : new ReignJsonHttpContent(payload ?? new JObject());
-                        using (content)
-                        using (HttpRequestMessage request = new HttpRequestMessage(
-                            HttpMethod.Post,
-                            url))
-                        {
-                            if (isCurrentRequest != null && !await isCurrentRequest().ConfigureAwait(false))
-                                throw new OperationCanceledException("Request belongs to a previous loaded save after encoding.");
-                            await EnsureRequestOwnerAsync(requestOwner, "transport dispatch").ConfigureAwait(false);
-                            request.Content = content;
-                            using (HttpResponseMessage response = await routeClient.SendAsync(
-                                request,
-                                HttpCompletionOption.ResponseHeadersRead).ConfigureAwait(false))
-                            {
-                                string body = await response.Content.ReadAsStringAsync().ConfigureAwait(false);
-                                timer.Stop();
-                                RecordStreamedPost(content);
-                                // Successful empty control-plane polls are intentionally
-                                // quiet. Logging several of them per second was itself a
-                                // large source of transient strings and file I/O during
-                                // unattended runs. Slow calls and all substantive routes
-                                // remain visible.
-                                if (!IsHighFrequencyControlRoute(route)
-                                    || timer.ElapsedMilliseconds >= 250
-                                    || !response.IsSuccessStatusCode)
-                                {
-                                    ReignLog.Info("HTTP POST " + route
-                                        + " status=" + (int)response.StatusCode
-                                        + " clientMs=" + timer.ElapsedMilliseconds
-                                        + " requestBytes=" + content.SerializedBytes
-                                        + " serializationMs=" + content.SerializationDurationMs
-                                        + " responseChars=" + body.Length);
-                                }
-                                // Live routes carry no claim (zero): explicit live
-                                // reachability success, as before.
-                                ReignServerEndpoint.ReportSuccess(baseUrl, probeClaim);
-                                if (!response.IsSuccessStatusCode)
-                                {
-                                    throw new InvalidOperationException("HTTP " + (int)response.StatusCode + ": " + body);
-                                }
-
-                                JObject parsedResponse = RecordResponseOrigin(route, baseUrl, url, response, JObject.Parse(body));
-                                if (conversationInput)
-                                {
-                                    string receiptWarning = ReignConversationInputJournal.Acknowledge(payload, parsedResponse);
-                                    if (!string.IsNullOrEmpty(receiptWarning)) ReignLog.Warn("Conversation delivery reconciliation: " + receiptWarning);
-                                }
-                                if (conversationInput && parsedResponse.Value<bool?>("ok") == true)
-                                {
-                                    _ = TickPersonalGossipAsync();
-                                    // Accepted disclosures are now durable. Refresh menu eligibility after publication.
-                                    // An owner closed after acceptance skips only this refresh;
-                                    // the journal ack and accepted response keep their meaning.
-                                    try { await SynchronizePregnancyContextAsync(route, payload, requestOwner).ConfigureAwait(false); }
-                                    catch (RequestOwnerAbandonedException) { }
-                                    catch (Exception ex) { ReignLog.Warn("Pregnancy knowledge refresh deferred: " + ex.GetType().Name); }
-                                }
-                                return parsedResponse;
-                            }
-                        }
+                        string receiptWarning = ReignConversationInputJournal.Acknowledge(payload, parsedResponse);
+                        if (!string.IsNullOrEmpty(receiptWarning)) ReignLog.Warn("Conversation delivery reconciliation: " + receiptWarning);
                     }
-                    catch (Exception ex) when (ReignServerEndpoint.IsTransportFailure(ex))
+                    if (conversationInput && parsedResponse.Value<bool?>("ok") == true)
                     {
-                        RecordStreamedPost(content);
-                        content?.Dispose();
-                        lastTransportFailure = ex;
+                        _ = TickPersonalGossipAsync();
+                        // Accepted disclosures are now durable. Refresh menu eligibility after publication.
+                        // An owner closed after acceptance skips only this refresh;
+                        // the journal ack and accepted response keep their meaning.
+                        try { await SynchronizePregnancyContextAsync(route, payload, requestOwner).ConfigureAwait(false); }
+                        catch (ReignRequestOwnerAbandonedException) { }
+                        catch (Exception ex) { ReignLog.Warn("Pregnancy knowledge refresh deferred: " + ex.GetType().Name); }
                     }
-                }
-
-                if (!liveTestRoute)
-                    ReignServerEndpoint.ReportTransportFailure(probeClaim);
-                throw lastTransportFailure ?? new HttpRequestException("Local Bannerlord Reign server is unavailable.");
-            }
-            finally
-            {
-                // Owner abandonment, cancellation and non-transport exceptions
-                // release only this operation's own claim, without penalty; after
-                // a report this matching release is a no-op.
-                ReignServerEndpoint.ReleaseRequest(probeClaim);
-            }
+                }).ConfigureAwait(false);
         }
 
-        // Local request-owner helpers. A null owner is the legacy unowned request.
-        // Owners are Bannerlord-thread predicates; EnsureRequestOwner must be
-        // called from the same game-thread callback that performs the effect.
-        internal sealed class RequestOwnerAbandonedException : OperationCanceledException
-        {
-            internal RequestOwnerAbandonedException(string message) : base(message) { }
-        }
+        // Request-owner helpers for the route clients (see ReignRequestOwnership).
+        private static Task EnsureRequestOwnerAsync(Func<bool> requestOwner, string stage) =>
+            ReignRequestOwnership.EnsureAsync(requestOwner, stage);
 
-        private static async Task EnsureRequestOwnerAsync(Func<bool> requestOwner, string stage)
-        {
-            if (requestOwner != null && !await ReignMainThread.InvokeAsync(requestOwner).ConfigureAwait(false))
-                throw new RequestOwnerAbandonedException("The local request owner closed before " + stage + ".");
-        }
+        private static void EnsureRequestOwner(Func<bool> requestOwner, string stage) =>
+            ReignRequestOwnership.Ensure(requestOwner, stage);
 
-        private static void EnsureRequestOwner(Func<bool> requestOwner, string stage)
-        {
-            if (requestOwner != null && !requestOwner())
-                throw new RequestOwnerAbandonedException("The local request owner closed before " + stage + ".");
-        }
-
-        private static bool RequestOwnerCurrent(Func<bool> requestOwner) => requestOwner == null || requestOwner();
+        private static bool RequestOwnerCurrent(Func<bool> requestOwner) => ReignRequestOwnership.IsCurrent(requestOwner);
 
         // Captured on the Bannerlord thread: the exact loaded campaign instance,
         // Save Sync load generation, campaign-initialization generation, campaign

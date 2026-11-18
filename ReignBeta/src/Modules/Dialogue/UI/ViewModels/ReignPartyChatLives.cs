@@ -43,7 +43,7 @@ namespace ReignBeta.UI.ViewModels
                 if (string.IsNullOrWhiteSpace(session)) throw new InvalidOperationException("This conversation could not be opened.");
                 string campaignId = "", timelineId = "main";
                 var context = await ReignMainThread.InvokeAsync(() => {
-                    if (!current()) throw new ReignServerClient.RequestOwnerAbandonedException("The party approach owner closed before its capture.");
+                    if (!current()) throw new ReignRequestOwnerAbandonedException("The party approach owner closed before its capture.");
                     campaignId = ReignServerClient.GetCampaignId();
                     timelineId = ReignBeta.Campaign.ReignWorldHistoryCampaignBehavior.Instance?.TimelineId ?? "main";
                     return new JObject {
@@ -61,7 +61,7 @@ namespace ReignBeta.UI.ViewModels
                         // starts inside a guarded game-thread callback for the same owner.
                         Task preparation = await ReignMainThread.InvokeAsync(() => !current() ? null
                             : ReignBeta.Campaign.ReignNpcLivesBehavior.Instance?.PrepareLifeConversationAsync(hero, session, individualContext) ?? Task.CompletedTask).ConfigureAwait(false);
-                        if (preparation == null) throw new ReignServerClient.RequestOwnerAbandonedException("The party approach owner closed before life preparation.");
+                        if (preparation == null) throw new ReignRequestOwnerAbandonedException("The party approach owner closed before life preparation.");
                         await preparation.ConfigureAwait(false);
                         return await ReignServerClient.OpenNpcLifeApproachAsync(hero, session, individualContext, requestOwner: current).ConfigureAwait(false);
                     }
@@ -95,7 +95,7 @@ namespace ReignBeta.UI.ViewModels
             catch (Exception ex)
             {
                 result.Error = ex.Message;
-                if (ex is ReignServerClient.RequestOwnerAbandonedException) ReignLog.Info("Party approach opening abandoned: " + ex.Message);
+                if (ex is ReignRequestOwnerAbandonedException) ReignLog.Info("Party approach opening abandoned: " + ex.Message);
                 await ReignMainThread.InvokeAsync(() => { if (current()) AddSystemLine(ex.Message, false); }).ConfigureAwait(false);
             }
             finally { await ReignMainThread.InvokeAsync(() => { if (current()) { IsBusy = false; BusyText = ""; RefreshLabels(); } }).ConfigureAwait(false); }

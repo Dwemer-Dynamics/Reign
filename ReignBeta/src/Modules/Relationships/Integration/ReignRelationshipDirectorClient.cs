@@ -94,7 +94,7 @@ namespace ReignBeta.Integration
                 result.LegalFatherId = response.Value<string>("legalFatherId") ?? string.Empty;
                 result.DueDay = response.Value<float?>("dueDay") ?? 0f;
             }
-            catch (RequestOwnerAbandonedException ex)
+            catch (ReignRequestOwnerAbandonedException ex)
             {
                 // Expected when the owner closed or changed load before dispatch.
                 result.Error = ex.Message;

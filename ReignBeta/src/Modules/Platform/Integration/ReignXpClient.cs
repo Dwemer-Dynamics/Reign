@@ -17,7 +17,7 @@ namespace ReignBeta.Integration
 
     public static partial class ReignServerClient
     {
-        private static readonly System.Net.Http.HttpClient XpOptionsClient = CreateLocalServerHttpClient(2, 5);
+        private static readonly System.Net.Http.HttpClient XpOptionsClient = ReignHttpTransport.CreateLocalServerHttpClient(2, 5);
         internal static async Task<ReignXpInteraction> BeginXpInteractionAsync()
         {
             var owner = await ReignMainThread.InvokeAsync(() => ReignXpCampaignBehavior.Instance).ConfigureAwait(false);

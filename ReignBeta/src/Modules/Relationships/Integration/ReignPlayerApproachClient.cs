@@ -12,7 +12,7 @@ namespace ReignBeta.Integration
 {
     public static partial class ReignServerClient
     {
-        private static readonly System.Net.Http.HttpClient ApproachOptionsClient = CreateLocalServerHttpClient(2, 5);
+        private static readonly System.Net.Http.HttpClient ApproachOptionsClient = ReignHttpTransport.CreateLocalServerHttpClient(2, 5);
         private static PlayerApproachOptions _approachOptions = new PlayerApproachOptions();
         private static bool _approachOptionsConfirmed, _approachOptionsRefreshing;
         private static float _approachOptionsDelay;
