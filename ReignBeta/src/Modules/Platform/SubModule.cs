@@ -44,6 +44,8 @@ namespace ReignBeta
         protected override void OnSubModuleLoad()
         {
             base.OnSubModuleLoad();
+            // The in-game test harness reaches product code only through this seam.
+            ReignTestHarness.Install(new ReignInProcessTestHarness());
             // Admit scoped main-thread work for campaign games started from now on.
             ReignMainThread.OpenScopedIngress();
             EnsureManagedRuntimeDependencies();
@@ -167,7 +169,8 @@ namespace ReignBeta
                 campaignStarter.AddBehavior(new ReignKingdomEventsCampaignBehavior());
                 campaignStarter.AddBehavior(new ReignGovernmentCampaignBehavior());
                 campaignStarter.AddBehavior(new ReignCampaignPreparationCampaignBehavior());
-                campaignStarter.AddBehavior(new ReignSocialBalanceHarnessCampaignBehavior());
+                CampaignBehaviorBase socialBalanceHarness = ReignTestHarness.Current.CreateSocialBalanceHarnessBehavior();
+                if (socialBalanceHarness != null) campaignStarter.AddBehavior(socialBalanceHarness);
                 campaignStarter.AddBehavior(new ReignCharacterEditorCampaignBehavior());
                 campaignStarter.AddBehavior(new ReignCharacterKnowledgeCampaignBehavior());
                 campaignStarter.AddBehavior(new ReignAICampaignBehavior());
@@ -252,7 +255,7 @@ namespace ReignBeta
                 // Keep only the local control plane alive while the prerequisite
                 // pass owns the campaign. It provides heartbeat, progress, save,
                 // and shutdown/reload commands, but cannot start interactions.
-                RunTickStage("live interaction host", () => ReignLiveInteractionTestHost.ApplicationTick(dt));
+                RunTickStage("live interaction host", () => ReignTestHarness.Current.LiveInteractionApplicationTick(dt));
                 RunTickStage("notable generation popup", () => ReignNotableGenerationPopupManager.ApplicationTick(dt));
                 return;
             }
@@ -273,7 +276,7 @@ namespace ReignBeta
             // Every subsystem is isolated. A portrait, overlay, queue, or legacy
             // audit failure must never silently stop the live-test heartbeat and
             // leave a remote run permanently unverifiable.
-            RunTickStage("live interaction host", () => ReignLiveInteractionTestHost.ApplicationTick(dt));
+            RunTickStage("live interaction host", () => ReignTestHarness.Current.LiveInteractionApplicationTick(dt));
             RunTickStage("NPC dialogue audit", () => ReignNpcDialogueAuditRunner.ApplicationTick(dt));
             RunTickStage("party dialogue audit", () => ReignPartyDialogueAuditRunner.ApplicationTick(dt));
             RunTickStage("portrait encyclopedia bridge", ReignPortraitBridge.ProcessQueuedEncyclopediaOpen);
@@ -304,7 +307,7 @@ namespace ReignBeta
             RunTickStage("portrait queue", PortraitQueue.DrainOnMainThread);
             RunTickStage("memory queue", MemoryQueue.DrainOnMainThread);
             RunTickStage("diagnostics", DiagnosticsRunner.Tick);
-            RunTickStage("action gauntlet", () => ReignActionGauntlet.ApplicationTick(dt));
+            RunTickStage("action gauntlet", () => ReignTestHarness.Current.ActionGauntletApplicationTick(dt));
             RunTickStage("action sentence builder", ReignActionBuilder.ApplicationTick);
         }
 

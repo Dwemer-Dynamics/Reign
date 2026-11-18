@@ -4,6 +4,7 @@ using TaleWorlds.CampaignSystem;
 using TaleWorlds.CampaignSystem.Settlements;
 using TaleWorlds.Core;
 using TaleWorlds.Library;
+using ReignBeta.Runtime;
 
 namespace ReignBeta.Court
 {
@@ -11,7 +12,7 @@ namespace ReignBeta.Court
     {
         private static float NextSpymasterRoll(string purpose)
         {
-            if (ReignSpymasterTestRuntime.TryNext(purpose, out float testRoll)) return testRoll;
+            if (ReignTestHarness.Current.Spymaster.TryNext(purpose, out float testRoll)) return testRoll;
             return MBRandom.RandomFloat;
         }
 
