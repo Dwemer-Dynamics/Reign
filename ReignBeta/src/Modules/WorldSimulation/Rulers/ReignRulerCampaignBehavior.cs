@@ -28,11 +28,11 @@ namespace ReignBeta.Campaign
         private double _tick;
         private int _epoch;
         internal bool ApplyingNative;
-        // One-use fixture controls prepared by ReignRulerFixtureControls and consumed by product judgment/capture logic.
+        // One-use fixture controls prepared by the test harness and consumed by product judgment/capture logic.
         internal readonly System.Collections.Generic.Dictionary<string, JObject> _captureControls = new System.Collections.Generic.Dictionary<string, JObject>();
         internal readonly System.Collections.Generic.Dictionary<string, JObject> _judgmentControls = new System.Collections.Generic.Dictionary<string, JObject>();
-        private bool TryConsumeJudgmentDraw(RulerJudgment judgment, out double draw) => ReignRulerFixtureControls.TryConsumeJudgmentDraw(this, judgment, out draw);
-        internal bool TryConsumeCaptureRoll(Hero hero, out double roll) => ReignRulerFixtureControls.TryConsumeCaptureRoll(this, hero, out roll);
+        private bool TryConsumeJudgmentDraw(RulerJudgment judgment, out double draw) => ReignTestHarness.Current.TryConsumeRulerJudgmentDraw(this, judgment, out draw);
+        internal bool TryConsumeCaptureRoll(Hero hero, out double roll) => ReignTestHarness.Current.TryConsumeRulerCaptureRoll(this, hero, out roll);
         internal static bool Enabled(string feature) => ReignRulerClient.RulerOptionsConfirmed && ReignRulerClient.RulerOptions.Enabled(feature);
         internal static Hero HeroById(string id) => Hero.AllAliveHeroes.FirstOrDefault(h => h.StringId == id) ?? Hero.DeadOrDisabledHeroes.FirstOrDefault(h => h.StringId == id);
         internal static Kingdom Realm(string id) => Kingdom.All.FirstOrDefault(k => k.StringId == id);

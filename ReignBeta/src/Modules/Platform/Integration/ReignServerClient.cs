@@ -6242,8 +6242,8 @@ namespace ReignBeta.Integration
             catch { return string.Empty; }
         }
 
-        // Product forwarder: ReignAICampaignBehavior schedules the daily World Test heartbeat owned by ReignWorldTestServerClient.
-        public static Task<double?> SubmitWorldTestHeartbeatAsync(double deltaAfterDay) => ReignWorldTestServerClient.SubmitWorldTestHeartbeatAsync(deltaAfterDay);
+        // Product forwarder: ReignAICampaignBehavior schedules the daily World Test heartbeat owned by the test harness.
+        public static Task<double?> SubmitWorldTestHeartbeatAsync(double deltaAfterDay) => ReignBeta.Runtime.ReignTestHarness.Current.SubmitWorldTestHeartbeatAsync(deltaAfterDay);
 
         internal static string ReadString(JObject obj, string key, string fallback)
         {

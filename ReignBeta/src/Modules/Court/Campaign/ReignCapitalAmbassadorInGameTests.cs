@@ -18,9 +18,6 @@ namespace ReignBeta.Court
     {
         private const string CapitalAmbassadorFixtureConfirmation = "prepare Reign capital ambassador disposable fixture";
         private const string CapitalAmbassadorOwnershipFixtureConfirmation = "grant Reign capital fixture town on disposable save";
-        private const int CapitalAmbassadorLedgerMaxCount = 16;
-        private const int CapitalAmbassadorLedgerMaxObservations = 16;
-        private const int CapitalAmbassadorLedgerMaxStoredJsonChars = 2048;
 
         internal static JObject RunCapitalAmbassadorTestProfile(ReignCourtCampaignBehavior court, string runId, string phase, JObject options)
         {
@@ -431,10 +428,10 @@ namespace ReignBeta.Court
 
             CapitalAmbassadorTestLedger oversizedLedger = new CapitalAmbassadorTestLedger { RunId = "payload_bound" };
             for (int index = 0; index < 40; index++) oversizedLedger.ObservationJson.Add(new string('x', 10000));
-            CompactCapitalAmbassadorTestLedger(oversizedLedger);
+            ReignCourtCampaignBehavior.CompactCapitalAmbassadorTestLedger(oversizedLedger);
             AddCapitalAmbassadorAssertion(assertions,"capital_harness_save_payload_bounded",
-                oversizedLedger.ObservationJson.Count<=CapitalAmbassadorLedgerMaxObservations
-                && oversizedLedger.ObservationJson.All(x=>(x??string.Empty).Length<=CapitalAmbassadorLedgerMaxStoredJsonChars),
+                oversizedLedger.ObservationJson.Count<=ReignCourtCampaignBehavior.CapitalAmbassadorLedgerMaxObservations
+                && oversizedLedger.ObservationJson.All(x=>(x??string.Empty).Length<=ReignCourtCampaignBehavior.CapitalAmbassadorLedgerMaxStoredJsonChars),
                 "Capital/ambassador test evidence is compacted before native serialization so repeated observations cannot corrupt a save.",
                 new JObject{{"observations",oversizedLedger.ObservationJson.Count},{"maxStoredChars",oversizedLedger.ObservationJson.Max(x=>(x??string.Empty).Length)}});
             return CapitalAmbassadorResult(runId,"deterministic",assertions);
@@ -752,35 +749,6 @@ namespace ReignBeta.Court
             return court._capitalAmbassadorTestLedgers.FirstOrDefault(x=>string.Equals(x.RunId,runId,StringComparison.OrdinalIgnoreCase));
         }
 
-        internal static void CompactCapitalAmbassadorTestLedgers(ReignCourtCampaignBehavior court)
-        {
-            court._capitalAmbassadorTestLedgers = (court._capitalAmbassadorTestLedgers ?? new List<CapitalAmbassadorTestLedger>())
-                .Where(x=>x!=null&&!string.IsNullOrWhiteSpace(x.RunId))
-                .GroupBy(x=>x.RunId,StringComparer.OrdinalIgnoreCase).Select(x=>x.Last())
-                .Take(CapitalAmbassadorLedgerMaxCount).ToList();
-            foreach(CapitalAmbassadorTestLedger ledger in court._capitalAmbassadorTestLedgers)
-                CompactCapitalAmbassadorTestLedger(ledger);
-        }
-
-        private static void CompactCapitalAmbassadorTestLedger(CapitalAmbassadorTestLedger ledger)
-        {
-            if(ledger==null)return;
-            ledger.ObservationJson=(ledger.ObservationJson??new List<string>())
-                .Where(x=>!string.IsNullOrWhiteSpace(x))
-                .Select(x=>CompactCapitalAmbassadorStoredJson(x,"observation"))
-                .ToList();
-            if(ledger.ObservationJson.Count>CapitalAmbassadorLedgerMaxObservations)
-                ledger.ObservationJson=ledger.ObservationJson.Skip(ledger.ObservationJson.Count-CapitalAmbassadorLedgerMaxObservations).ToList();
-        }
-
-        private static string CompactCapitalAmbassadorStoredJson(string json,string kind)
-        {
-            string value=json??string.Empty;
-            if(value.Length<=CapitalAmbassadorLedgerMaxStoredJsonChars)return value;
-            return new JObject{{"compacted",true},{"kind",kind??string.Empty},{"originalLength",value.Length}}
-                .ToString(Formatting.None);
-        }
-
         private static void RecordCapitalAmbassadorObservation(CapitalAmbassadorTestLedger ledger,JObject snapshot,string stage)
         {
             if(ledger==null)return;
@@ -796,7 +764,7 @@ namespace ReignBeta.Court
                 ["postingStatus"]=(string)snapshot?["posting"]?["Status"]??string.Empty
             };
             ledger.ObservationJson.Add(checkpoint.ToString(Formatting.None));
-            CompactCapitalAmbassadorTestLedger(ledger);
+            ReignCourtCampaignBehavior.CompactCapitalAmbassadorTestLedger(ledger);
         }
 
         private static JObject CapitalAmbassadorSnapshot(ReignCourtCampaignBehavior court, CapitalAmbassadorTestLedger ledger)

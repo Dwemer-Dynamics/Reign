@@ -1,12 +1,14 @@
+using System.Threading.Tasks;
 using Newtonsoft.Json.Linq;
 using TaleWorlds.CampaignSystem;
 
 namespace ReignBeta.Runtime
 {
     // The only way product code reaches the in-game test harness (live interaction host,
-    // action gauntlet, fixtures and test runtimes). SubModule installs the harness at load;
-    // until then, or when no harness is installed, the idle harness below answers exactly
-    // as an installed harness does when nothing is running.
+    // action gauntlet, fixtures and test runtimes), which is compiled into the optional
+    // ReignBeta.Testing.dll. SubModule loads and installs it at load; until then, or when no
+    // harness is installed, the idle harness below answers as an installed harness does when
+    // nothing is running.
     internal interface IReignTestHarness
     {
         void LiveInteractionApplicationTick(float dt);
@@ -29,6 +31,14 @@ namespace ReignBeta.Runtime
         // registration position.
         CampaignBehaviorBase CreateSocialBalanceHarnessBehavior();
         void RecordSocialBalanceOverride(string kind, JObject evidence);
+
+        // Product forwarders into harness-owned controls. Each answers as the harness does when
+        // no fixture has armed it: nothing held, nothing captured, no prepared draw or roll.
+        bool HoldNpcLivesAnnouncementDelivery(ReignBeta.Campaign.ReignNpcLivesBehavior lives, JObject row);
+        void CaptureGovernmentLoadFingerprintPhase(ReignBeta.Government.ReignGovernmentCampaignBehavior government, string phase, bool reset);
+        bool TryConsumeRulerJudgmentDraw(ReignBeta.Campaign.ReignRulerCampaignBehavior rulers, ReignBeta.Shared.Rulers.RulerJudgment judgment, out double draw);
+        bool TryConsumeRulerCaptureRoll(ReignBeta.Campaign.ReignRulerCampaignBehavior rulers, Hero hero, out double roll);
+        Task<double?> SubmitWorldTestHeartbeatAsync(double deltaAfterDay);
 
         IReignSpymasterTestControls Spymaster { get; }
     }
@@ -76,6 +86,11 @@ namespace ReignBeta.Runtime
             public void ApplyNpcObservableClanEvidence(Hero subject, JObject clan) { }
             public CampaignBehaviorBase CreateSocialBalanceHarnessBehavior() => null;
             public void RecordSocialBalanceOverride(string kind, JObject evidence) { }
+            public bool HoldNpcLivesAnnouncementDelivery(ReignBeta.Campaign.ReignNpcLivesBehavior lives, JObject row) => false;
+            public void CaptureGovernmentLoadFingerprintPhase(ReignBeta.Government.ReignGovernmentCampaignBehavior government, string phase, bool reset) { }
+            public bool TryConsumeRulerJudgmentDraw(ReignBeta.Campaign.ReignRulerCampaignBehavior rulers, ReignBeta.Shared.Rulers.RulerJudgment judgment, out double draw) { draw = 0; return false; }
+            public bool TryConsumeRulerCaptureRoll(ReignBeta.Campaign.ReignRulerCampaignBehavior rulers, Hero hero, out double roll) { roll = 0; return false; }
+            public Task<double?> SubmitWorldTestHeartbeatAsync(double deltaAfterDay) => Task.FromResult<double?>(null);
             public IReignSpymasterTestControls Spymaster => this;
             public bool Active => false;
             public bool SuppressIrreversibleNativeConsequences => false;

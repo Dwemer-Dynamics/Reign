@@ -35,11 +35,11 @@ namespace ReignBeta.Government
         // Process-local observations only. They are not saved, do not normalize state,
         // and cannot turn a failed strict-v2 comparison into a passing comparison.
         internal readonly Newtonsoft.Json.Linq.JArray _governmentLoadFingerprintPhases = new Newtonsoft.Json.Linq.JArray();
-        // Process-local private-conversation certification baselines prepared by ReignGovernmentTestControls; never saved.
+        // Process-local private-conversation certification baselines prepared by the test harness; never saved.
         internal readonly Dictionary<string, GovernmentPrivateCaseBaseline> _governmentPrivateCaseBaselines =
             new Dictionary<string, GovernmentPrivateCaseBaseline>(StringComparer.Ordinal);
         // Product forwarder: session launch, SyncData and calendar restore record harness load-fingerprint phases.
-        private void CaptureGovernmentLoadFingerprintPhase(string phase, bool reset = false) => ReignGovernmentTestControls.CaptureGovernmentLoadFingerprintPhase(this, phase, reset);
+        private void CaptureGovernmentLoadFingerprintPhase(string phase, bool reset = false) => ReignBeta.Runtime.ReignTestHarness.Current.CaptureGovernmentLoadFingerprintPhase(this, phase, reset);
 
         internal sealed class GovernmentPrivateCaseBaseline
         {
