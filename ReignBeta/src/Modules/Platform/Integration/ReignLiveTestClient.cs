@@ -6,14 +6,22 @@ using System.Reflection;
 using System.Threading.Tasks;
 using Newtonsoft.Json.Linq;
 using ReignBeta.Campaign;
-using ReignBeta.Runtime;
 using TaleWorlds.CampaignSystem;
 using TaleWorlds.CampaignSystem.Party;
 using TaleWorlds.CampaignSystem.Settlements;
 using TaleWorlds.Core;
-using static ReignBeta.Integration.ReignServerClient;
+using static ReignBeta.Platform.Integration.ReignServerClient;
+using ReignBeta.Characters.Campaign;
+using ReignBeta.Dialogue.Runtime;
+using ReignBeta.Diplomacy.Campaign;
+using ReignBeta.Persistence.Campaign;
+using ReignBeta.Persistence.Integration;
+using ReignBeta.Platform.Campaign;
+using ReignBeta.WorldSimulation.Campaign;
+using ReignBeta.WorldSimulation.Integration;
+using ReignBeta.WorldSimulation.Rulers;
 
-namespace ReignBeta.Integration
+namespace ReignBeta.Platform.Integration
 {
     // Harness-owned live-test transport and heartbeat. Shared request helpers, campaign identity and the native save name stay on ReignServerClient.
     internal static class ReignLiveTestServerClient
@@ -160,14 +168,14 @@ namespace ReignBeta.Integration
                     ["saveFinalization"] = HeartbeatSection(sections, "saveFinalization", () => ReignSaveSyncCoordinator.SaveFinalizationSnapshot())
                 },
                 ["diplomacy"] = BuildDiplomacyDiagnostics(),
-                ["government"] = HeartbeatSection(sections, "government", () => ReignBeta.Government.ReignGovernmentCampaignBehavior.Instance?.PoliticalRuntimeStatus() ?? new JObject()),
+                ["government"] = HeartbeatSection(sections, "government", () => ReignBeta.Government.Campaign.ReignGovernmentCampaignBehavior.Instance?.PoliticalRuntimeStatus() ?? new JObject()),
                 ["rulers"] = HeartbeatSection(sections, "rulers", () => ReignRulerCampaignBehavior.Instance?.RuntimeStatus() ?? new JObject()),
                 ["clanAccords"] = new JObject
                 {
                     ["schema"] = "reign-clan-accords-runtime-v1",
-                    ["available"] = ReignBeta.ClanAccords.ReignClanAccordsCampaignBehavior.Instance != null,
-                    ["pending"] = ReignBeta.ClanAccords.ReignClanAccordsCampaignBehavior.Instance?.HasPendingWork == true,
-                    ["snapshot"] = HeartbeatSection(sections, "clanAccords", () => ReignBeta.ClanAccords.ReignClanAccordsCampaignBehavior.Instance?.Snapshot() ?? new JObject())
+                    ["available"] = ReignBeta.Diplomacy.ClanAccords.ReignClanAccordsCampaignBehavior.Instance != null,
+                    ["pending"] = ReignBeta.Diplomacy.ClanAccords.ReignClanAccordsCampaignBehavior.Instance?.HasPendingWork == true,
+                    ["snapshot"] = HeartbeatSection(sections, "clanAccords", () => ReignBeta.Diplomacy.ClanAccords.ReignClanAccordsCampaignBehavior.Instance?.Snapshot() ?? new JObject())
                 },
                 ["encounteredResidents"] = HeartbeatSection(sections, "residents", () => ReignEncounteredResidentsCampaignBehavior.Instance?.RuntimeSnapshot() ?? new JObject()),
                 ["wandererPopulation"] = HeartbeatSection(sections, "wanderers", () => ReignWandererPopulationCampaignBehavior.Instance?.RuntimeSnapshot() ?? new JObject()),
@@ -175,12 +183,12 @@ namespace ReignBeta.Integration
                 ["courtLife"] = new JObject
                 {
                     ["schema"] = "reign-court-life-runtime-v1",
-                    ["deliveryPending"] = ReignBeta.Court.ReignCourtCampaignBehavior.Instance?.HasPendingCourtLifeDeliveryWork == true,
-                    ["internationalPending"] = ReignBeta.Court.ReignCourtCampaignBehavior.Instance?.HasPendingInternationalCourtLifeWork == true,
-                    ["familyAttentionPending"] = ReignBeta.Court.ReignCourtCampaignBehavior.Instance?.HasPendingFamilyVisitWork == true,
-                    ["familyVisitOutbox"] = ReignBeta.Court.ReignCourtCampaignBehavior.Instance?.RulerDocketState.FamilyVisitOutbox?.Count ?? 0
+                    ["deliveryPending"] = ReignBeta.Court.Campaign.ReignCourtCampaignBehavior.Instance?.HasPendingCourtLifeDeliveryWork == true,
+                    ["internationalPending"] = ReignBeta.Court.Campaign.ReignCourtCampaignBehavior.Instance?.HasPendingInternationalCourtLifeWork == true,
+                    ["familyAttentionPending"] = ReignBeta.Court.Campaign.ReignCourtCampaignBehavior.Instance?.HasPendingFamilyVisitWork == true,
+                    ["familyVisitOutbox"] = ReignBeta.Court.Campaign.ReignCourtCampaignBehavior.Instance?.RulerDocketState.FamilyVisitOutbox?.Count ?? 0
                 },
-                ["courtUi"] = HeartbeatSection(sections, "courtUi", () => JObject.FromObject(ReignBeta.UI.ReignCourtScreenManager.AutomationLayoutSnapshot)),
+                ["courtUi"] = HeartbeatSection(sections, "courtUi", () => JObject.FromObject(ReignBeta.Court.UI.ReignCourtScreenManager.AutomationLayoutSnapshot)),
                 ["relationshipClient"] = HeartbeatSection(sections, "relationships", () => BuildRelationshipOutboxDiagnostics()),
                 ["personalGossip"] = HeartbeatSection(sections, "gossip", () => PersonalGossipRuntimeStatus()),
                 ["worldHistory"] = new JObject

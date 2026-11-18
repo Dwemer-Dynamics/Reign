@@ -1,7 +1,7 @@
 using Newtonsoft.Json.Linq;
-using ReignBeta.Runtime;
+using ReignBeta.Platform.Runtime;
 
-namespace ReignBeta.Court
+namespace ReignBeta.Spymaster.Campaign
 {
     // Test-harness side of IReignSpymasterTestControls: forwards to ReignSpymasterTestRuntime.
     // Lives with the spymaster module so ExcludeCourt builds compile it out together.

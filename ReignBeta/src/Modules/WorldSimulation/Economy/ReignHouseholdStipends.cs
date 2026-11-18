@@ -2,12 +2,12 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using Newtonsoft.Json.Linq;
-using ReignBeta.Settings;
 using TaleWorlds.CampaignSystem;
 using TaleWorlds.CampaignSystem.Settlements;
 using NativeCampaign = TaleWorlds.CampaignSystem.Campaign;
+using ReignBeta.Platform.Settings;
 
-namespace ReignBeta.Economy
+namespace ReignBeta.WorldSimulation.Economy
 {
     internal static class ReignHouseholdStipends
     {

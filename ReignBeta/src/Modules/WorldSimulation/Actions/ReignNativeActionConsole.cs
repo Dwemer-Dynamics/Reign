@@ -22,8 +22,9 @@ using TaleWorlds.CampaignSystem.Settlements.Workshops;
 using TaleWorlds.Core;
 using TaleWorlds.Library;
 using TaleWorlds.ObjectSystem;
+using ReignBeta.WorldSimulation.World;
 
-namespace ReignBeta.Actions
+namespace ReignBeta.WorldSimulation.Actions
 {
     // Operator-only native primitives. The list is checked-in public API metadata;
     // neither chat, model output, nor console input can select another type/method.

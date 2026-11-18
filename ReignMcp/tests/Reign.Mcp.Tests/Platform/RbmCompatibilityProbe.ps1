@@ -52,7 +52,7 @@ try {
     $client = [Reflection.Assembly]::LoadFrom($ClientAssembly)
     $harmonyPath = @($script:rbmProbeRoots | ForEach-Object { Join-Path $_ '0Harmony.dll' } | Where-Object { Test-Path -LiteralPath $_ })[0]
     [Reflection.Assembly]::LoadFrom($harmonyPath) | Out-Null
-    $policy = $client.GetType('ReignBeta.Compatibility.ReignRbmCompatibility', $true)
+    $policy = $client.GetType('ReignBeta.Platform.Compatibility.ReignRbmCompatibility', $true)
     $settings = @($policy.GetField('DisabledSettings', $flags).GetValue($null))
     $contracts = @($policy.GetField('Suppressions', $flags).GetValue($null))
     Require ($settings.Count -eq 24) 'The reviewed off policy changed.'

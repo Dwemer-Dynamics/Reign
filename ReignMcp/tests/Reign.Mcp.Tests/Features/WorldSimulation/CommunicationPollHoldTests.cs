@@ -1,4 +1,4 @@
-using ReignBeta.Integration;
+using ReignBeta.Dialogue.Integration;
 using ReignLiveTest;
 
 namespace Reign.Mcp.Tests.Features.WorldSimulation;

@@ -241,7 +241,7 @@ public static class NativeEconomicFixture {
     }
 
     private static void Install(Assembly client) {
-        economics=client.GetType("ReignBeta.Compatibility.ReignRbmNativeEconomics",true);
+        economics=client.GetType("ReignBeta.Platform.Compatibility.ReignRbmNativeEconomics",true);
         economics.GetField("Report",Flags).SetValue(null,new Action<string>(Warn));
         economics.GetField("ModuleRoot",Flags).SetValue(null,new Func<string,string>(ModuleRoot));
         economics.GetField("OfficialModules",Flags).SetValue(null,new Func<string[]>(OfficialModules));

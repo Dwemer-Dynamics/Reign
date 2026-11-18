@@ -4,7 +4,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using System.Diagnostics;
 
-namespace ReignBeta.Integration
+namespace ReignBeta.Platform.Integration
 {
     public static class ReignMainThread
     {

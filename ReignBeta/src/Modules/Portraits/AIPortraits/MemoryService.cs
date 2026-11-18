@@ -132,7 +132,7 @@ public static class MemoryService
 			}
 		}
 		Array.Resize(ref array, newSize);
-		array = array.Concat(ReignBeta.Integration.ReignChatViewClient.ArchiveFiles).Distinct(StringComparer.OrdinalIgnoreCase).ToArray();
+		array = array.Concat(ReignBeta.Dialogue.Integration.ReignChatViewClient.ArchiveFiles).Distinct(StringComparer.OrdinalIgnoreCase).ToArray();
 		Array.Sort(array, (IComparer<string>)StringComparer.OrdinalIgnoreCase);
 		return array;
 	}

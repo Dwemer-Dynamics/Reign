@@ -10,7 +10,7 @@ using System.Threading.Tasks;
 using AIPortraits;
 using Newtonsoft.Json.Linq;
 
-namespace ReignBeta.Integration
+namespace ReignBeta.Court.Integration
 {
     internal sealed class CourtSceneViewState
     {

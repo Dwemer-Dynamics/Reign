@@ -2,7 +2,6 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using Reign.Core.Contracts.Actions;
-using ReignBeta.Integration;
 using ReignBeta.UI.ViewModels;
 using TaleWorlds.CampaignSystem;
 using TaleWorlds.CampaignSystem.Settlements;
@@ -10,8 +9,10 @@ using TaleWorlds.Engine.GauntletUI;
 using TaleWorlds.InputSystem;
 using TaleWorlds.Library;
 using TaleWorlds.ScreenSystem;
+using ReignBeta.Platform.Integration;
+using ReignBeta.WorldSimulation.UI;
 
-namespace ReignBeta.UI
+namespace ReignBeta.Dialogue.UI
 {
     public interface IReignActionHost
     {
@@ -58,7 +59,7 @@ namespace ReignBeta.UI
             if (IsOpen || owner == null || owner.ActionBusy || screen == null || screen != ScreenManager.TopScreen) return false;
             var participants = owner.ActionParticipants.Where(h => h != null && !h.IsDead && !h.IsChild && h != Hero.MainHero).ToList();
             if (participants.Count == 0) return false;
-            if (!Widgets.ReignActionEditableTextWidget.IsNativeTextCompatible)
+            if (!Dialogue.UI.ReignActionEditableTextWidget.IsNativeTextCompatible)
                 throw new InvalidOperationException("The native text editor is incompatible with protected Reign action sentences.");
             _owner = owner;
             Open(screen, new ReignActionBuilderVM(participants, a =>

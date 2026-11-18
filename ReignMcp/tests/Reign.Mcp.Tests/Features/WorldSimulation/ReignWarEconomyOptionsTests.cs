@@ -98,7 +98,7 @@ public sealed class ReignWarEconomyOptionsTests
     [Fact]
     public void CompleteStackBudgetDoesNotMultiplyPerUnitQuarteringRounding()
     {
-        int count = ReignBeta.Economy.ReignWarEconomyPolicy.AffordableCountExact(20, 15, 15, 0, 0, 0, 1,
+        int count = ReignBeta.WorldSimulation.Economy.ReignWarEconomyPolicy.AffordableCountExact(20, 15, 15, 0, 0, 0, 1,
             recruits => Math.Round(3 * recruits * .5));
         Assert.Equal(10, count);
         Assert.Equal(15, Math.Round(3 * count * .5));

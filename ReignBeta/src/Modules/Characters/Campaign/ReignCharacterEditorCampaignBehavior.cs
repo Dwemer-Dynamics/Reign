@@ -4,7 +4,6 @@ using System.Linq;
 using System.Reflection;
 using System.Threading.Tasks;
 using Newtonsoft.Json.Linq;
-using ReignBeta.Integration;
 using ReignBeta.World;
 using TaleWorlds.CampaignSystem;
 using TaleWorlds.CampaignSystem.Actions;
@@ -12,8 +11,11 @@ using TaleWorlds.CampaignSystem.CharacterDevelopment;
 using TaleWorlds.Core;
 using TaleWorlds.Library;
 using TaleWorlds.Localization;
+using ReignBeta.Characters.Integration;
+using ReignBeta.Platform.Integration;
+using ReignBeta.WorldSimulation.World;
 
-namespace ReignBeta.Campaign
+namespace ReignBeta.Characters.Campaign
 {
     internal sealed class ReignPersonalityPreparationResult
     {

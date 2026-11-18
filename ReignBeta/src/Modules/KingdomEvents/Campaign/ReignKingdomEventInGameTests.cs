@@ -7,12 +7,16 @@ using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using Reign.Shared;
 using ReignBeta.Events;
-using ReignBeta.Integration;
 using TaleWorlds.CampaignSystem;
 using TaleWorlds.CampaignSystem.Settlements;
-using static ReignBeta.Campaign.ReignKingdomEventsCampaignBehavior;
+using static ReignBeta.KingdomEvents.Campaign.ReignKingdomEventsCampaignBehavior;
+using ReignBeta.Characters.Integration;
+using ReignBeta.Persistence.Campaign;
+using ReignBeta.Persistence.Integration;
+using ReignBeta.Platform.Campaign;
+using ReignBeta.Platform.Integration;
 
-namespace ReignBeta.Campaign
+namespace ReignBeta.KingdomEvents.Campaign
 {
     // Harness-owned kingdom-event acceptance controls. Saved test ledgers and the one-tick organic trigger stay on ReignKingdomEventsCampaignBehavior.
     internal static partial class ReignKingdomEventTestControls

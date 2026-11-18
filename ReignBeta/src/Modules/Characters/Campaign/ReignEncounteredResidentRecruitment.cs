@@ -2,7 +2,6 @@ using System;
 using System.Linq;
 using Newtonsoft.Json.Linq;
 using ReignBeta.World;
-using ReignBeta.Integration;
 using ReignBeta.PartyAgency;
 using TaleWorlds.CampaignSystem;
 using TaleWorlds.CampaignSystem.Actions;
@@ -10,8 +9,12 @@ using TaleWorlds.CampaignSystem.Party;
 using TaleWorlds.CampaignSystem.Settlements;
 using TaleWorlds.Core;
 using TaleWorlds.MountAndBlade;
+using ReignBeta.Platform.Campaign;
+using ReignBeta.Platform.Integration;
+using ReignBeta.WorldSimulation.PartyAgency;
+using ReignBeta.WorldSimulation.World;
 
-namespace ReignBeta.Campaign
+namespace ReignBeta.Characters.Campaign
 {
     internal sealed partial class ReignEncounteredResidentsCampaignBehavior
     {
@@ -121,7 +124,7 @@ namespace ReignBeta.Campaign
             reason = string.Empty;
             // Only the guest path may admit a captive, and native custody remains authoritative.
             bool releasablePrisoner = releaseIntoGuestService
-                && ReignBeta.PartyAgency.ReignTemporaryPartyGuestCampaignBehavior.CanReleasePrisonerForGuest(hero);
+                && ReignBeta.WorldSimulation.PartyAgency.ReignTemporaryPartyGuestCampaignBehavior.CanReleasePrisonerForGuest(hero);
             var resident = Find(hero);
             if (resident == null || hero?.IsNotable == true)
             {

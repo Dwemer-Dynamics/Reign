@@ -11,6 +11,15 @@ using ReignBeta.Court;
 #endif
 using ReignBeta.World;
 using TaleWorlds.CampaignSystem;
+using ReignBeta.Characters.Actions;
+using ReignBeta.Characters.Campaign;
+using ReignBeta.Government.Campaign;
+using ReignBeta.Relationships.Campaign;
+using ReignBeta.WorldSimulation.Actions;
+using ReignBeta.WorldSimulation.World;
+#if !REIGN_EXCLUDE_COURT
+using ReignBeta.Court.Campaign;
+#endif
 
 namespace ReignBeta.Actions
 {
@@ -95,7 +104,7 @@ namespace ReignBeta.Actions
             }
             if (new[] { "renew_temporary_party_guest", "end_temporary_party_guest", "acknowledge_own_faction_combat_risk" }.Contains(definition.Id))
             {
-                var guest = ReignBeta.PartyAgency.ReignTemporaryPartyGuestCampaignBehavior.Instance?.Records.FirstOrDefault(record =>
+                var guest = ReignBeta.WorldSimulation.PartyAgency.ReignTemporaryPartyGuestCampaignBehavior.Instance?.Records.FirstOrDefault(record =>
                     record.IsLive && string.Equals(record.HeroStringId, actor.StringId, StringComparison.OrdinalIgnoreCase));
                 if (guest == null) return false;
                 if (definition.Id == "renew_temporary_party_guest") return actor.PartyBelongedTo == TaleWorlds.CampaignSystem.Party.MobileParty.MainParty;
@@ -222,7 +231,7 @@ namespace ReignBeta.Actions
             foreach (var clause in agreement.Clauses.Where(c => c != null
                 && (c.ActionId == "renew_temporary_party_guest" || c.ActionId == "end_temporary_party_guest")))
             {
-                var context = ReignBeta.PartyAgency.ReignTemporaryPartyGuestCampaignBehavior.Instance
+                var context = ReignBeta.WorldSimulation.PartyAgency.ReignTemporaryPartyGuestCampaignBehavior.Instance
                     ?.BuildConversationContext(HeroById(clause.ActorId));
                 AgreementRules.BindGuestReview(agreement, clause, context?.Value<string>("agreementId") ?? "",
                     context?.Value<double?>("reviewDueDay") ?? double.NaN,

@@ -8,9 +8,9 @@ using System.Reflection.Emit;
 using System.Security.Cryptography;
 using System.Xml;
 using HarmonyLib;
-using ReignBeta.Integration;
+using ReignBeta.Platform.Integration;
 
-namespace ReignBeta.Compatibility
+namespace ReignBeta.Platform.Compatibility
 {
     // Optional, process-scoped policy. No compile-time reference to an RBM assembly.
     // Pricing is deliberately separate: native formulas on RBM stats are not native prices.

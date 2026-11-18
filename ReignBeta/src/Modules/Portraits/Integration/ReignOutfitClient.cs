@@ -7,8 +7,11 @@ using AIPortraits;
 using Newtonsoft.Json.Linq;
 using ReignBeta.Campaign;
 using TaleWorlds.CampaignSystem;
+using ReignBeta.Characters.Integration;
+using ReignBeta.Platform.Integration;
+using ReignBeta.WorldSimulation.Campaign;
 
-namespace ReignBeta.Integration
+namespace ReignBeta.Portraits.Integration
 {
     internal sealed class ReignOutfitAttempt
     {

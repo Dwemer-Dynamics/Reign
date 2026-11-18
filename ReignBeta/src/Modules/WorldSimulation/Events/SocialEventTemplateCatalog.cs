@@ -2,7 +2,7 @@ using System.Collections.Generic;
 using System.Linq;
 using TaleWorlds.Core;
 
-namespace ReignBeta.Events
+namespace ReignBeta.WorldSimulation.Events
 {
     public static class SocialEventTemplateCatalog
     {

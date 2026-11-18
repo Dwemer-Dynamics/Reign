@@ -3,9 +3,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using Newtonsoft.Json.Linq;
 using Reign.Core.Contracts.Actions;
-using ReignBeta.Integration;
 using ReignBeta.World;
-using ReignBeta.Save;
 using ReignBeta.Actions;
 using ReignBeta.Shared.Characters;
 using TaleWorlds.CampaignSystem;
@@ -16,9 +14,15 @@ using TaleWorlds.CampaignSystem.Party;
 using TaleWorlds.CampaignSystem.Settlements;
 using TaleWorlds.Core;
 using TaleWorlds.MountAndBlade;
-using static ReignBeta.Campaign.ReignNpcLivesBehavior;
+using static ReignBeta.Characters.Campaign.ReignNpcLivesBehavior;
+using ReignBeta.Characters.Campaign;
+using ReignBeta.Characters.Integration;
+using ReignBeta.Persistence.Campaign;
+using ReignBeta.Platform.Integration;
+using ReignBeta.WorldSimulation.Actions;
+using ReignBeta.WorldSimulation.World;
 
-namespace ReignBeta.Campaign
+namespace ReignBeta.WorldSimulation.Campaign
 {
     public static partial class ReignLiveInteractionTestHost
     {

@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using ReignBeta.Family;
-using ReignBeta.Integration;
 using ReignBeta.World;
 using Helpers;
 using TaleWorlds.CampaignSystem;
@@ -14,8 +13,12 @@ using TaleWorlds.CampaignSystem.Settlements;
 using TaleWorlds.Core;
 using TaleWorlds.Library;
 using TaleWorlds.Localization;
+using ReignBeta.Characters.Family;
+using ReignBeta.Platform.Integration;
+using ReignBeta.Relationships.Integration;
+using ReignBeta.WorldSimulation.World;
 
-namespace ReignBeta.Campaign
+namespace ReignBeta.Characters.Campaign
 {
     public sealed partial class ReignFamilyCampaignBehavior : CampaignBehaviorBase
     {

@@ -6,8 +6,6 @@ using System.Threading.Tasks;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using ReignBeta.Court.WarCouncil;
-using ReignBeta.Integration;
-using ReignBeta.Settings;
 using ReignBeta.Shared.WarCouncil;
 using ReignBeta.UI.ViewModels;
 using ReignBeta.World;
@@ -18,8 +16,17 @@ using TaleWorlds.CampaignSystem.Party.PartyComponents;
 using TaleWorlds.CampaignSystem.Settlements;
 using TaleWorlds.Core;
 using TaleWorlds.Library;
+using ReignBeta.Characters.Integration;
+using ReignBeta.Platform.Integration;
+using ReignBeta.Platform.Settings;
+using ReignBeta.WorldSimulation.CampaignCommands;
+using ReignBeta.WorldSimulation.Integration;
+using ReignBeta.WorldSimulation.World;
+#if !REIGN_EXCLUDE_COURT
+using ReignBeta.Court.UI;
+#endif
 
-namespace ReignBeta.Campaign
+namespace ReignBeta.WorldSimulation.Campaign
 {
     public static partial class ReignLiveInteractionTestHost
     {

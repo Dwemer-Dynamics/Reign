@@ -8,7 +8,7 @@ using TaleWorlds.CampaignSystem.ComponentInterfaces;
 using TaleWorlds.CampaignSystem.Party;
 using TaleWorlds.CampaignSystem.Settlements;
 
-namespace ReignBeta.Campaign
+namespace ReignBeta.Characters.Campaign
 {
     public sealed partial class ReignNpcLivesBehavior
     {

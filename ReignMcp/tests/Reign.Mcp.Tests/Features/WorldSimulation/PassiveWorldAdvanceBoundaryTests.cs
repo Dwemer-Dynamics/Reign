@@ -1,4 +1,4 @@
-using ReignBeta.Campaign;
+using ReignBeta.WorldSimulation.Domain;
 using System.Text.Json;
 
 namespace Reign.Mcp.Tests;

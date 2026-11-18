@@ -9,8 +9,6 @@ using Newtonsoft.Json.Linq;
 using Newtonsoft.Json;
 using ReignBeta.Court;
 using ReignBeta.CastleChat;
-using ReignBeta.Integration;
-using ReignBeta.Runtime;
 using ReignBeta.Campaign;
 using ReignBeta.PartyAgency;
 using ReignBeta.World;
@@ -19,9 +17,24 @@ using TaleWorlds.CampaignSystem.Settlements;
 using TaleWorlds.Core;
 using TaleWorlds.Core.ViewModelCollection.ImageIdentifiers;
 using TaleWorlds.Library;
-using static ReignBeta.UI.ViewModels.ReignChatText;
+using static ReignBeta.Dialogue.UI.ReignChatText;
+using ReignBeta.Characters.Campaign;
+using ReignBeta.Characters.Integration;
+using ReignBeta.Dialogue.Integration;
+using ReignBeta.Dialogue.Runtime;
+using ReignBeta.Platform.Campaign;
+using ReignBeta.Platform.Integration;
+using ReignBeta.Portraits.Integration;
+using ReignBeta.UI.ViewModels;
+using ReignBeta.WorldSimulation.Campaign;
+using ReignBeta.WorldSimulation.PartyAgency;
+using ReignBeta.WorldSimulation.World;
+#if !REIGN_EXCLUDE_COURT
+using ReignBeta.Court.Campaign;
+using ReignBeta.Court.UI;
+#endif
 
-namespace ReignBeta.UI.ViewModels
+namespace ReignBeta.Dialogue.UI
 {
     public sealed class ReignPartyChatBatchResult
     {
@@ -32,7 +45,7 @@ namespace ReignBeta.UI.ViewModels
         public List<ReignPartyChatReply> Replies { get; } = new List<ReignPartyChatReply>();
     }
 
-    public sealed partial class ReignPartyChatScreenVM : ViewModel, ReignBeta.UI.IReignActionHost
+    public sealed partial class ReignPartyChatScreenVM : ViewModel, ReignBeta.Dialogue.UI.IReignActionHost
     {
         public IReadOnlyList<Hero> ActionParticipants => GetSelectedHeroes();
         public bool ActionBusy => IsBusy || !InputEnabled;
@@ -165,7 +178,7 @@ namespace ReignBeta.UI.ViewModels
             Title = _castleRoomName; LocationText = _castleRoomName;
             SetPlayerPortraitIdentifier();
             _castleArtImageId = castleSession?.ImageStatus != "ready" || string.IsNullOrWhiteSpace(castleSession?.ImageLocalPath)
-                ? string.Empty : ReignBeta.UI.EventArt.ReignEventArtTextureFactory.BuildCastleSceneImageId(castleSession.SessionKey);
+                ? string.Empty : ReignBeta.Portraits.UI.ReignEventArtTextureFactory.BuildCastleSceneImageId(castleSession.SessionKey);
             RestoreCastleTranscript();
             RefreshCastleMembers();
             RefreshLabels();
@@ -282,8 +295,8 @@ namespace ReignBeta.UI.ViewModels
         {
             if (_isFinalized || !_castleMode || _castleSession?.ImageStatus != "ready"
                 || string.IsNullOrWhiteSpace(_castleSession.ImageLocalPath) || HasCastleArt) return;
-            string imageId = ReignBeta.UI.EventArt.ReignEventArtTextureFactory.BuildCastleSceneImageId(_castleSession.SessionKey);
-            if (ReignBeta.UI.EventArt.ReignEventArtTextureFactory.GetOrBuild(imageId) == null) { _castleSession.ImageStatus = "failed"; ReignLog.Warn("Castle scene could not be loaded; retaining the approved fallback."); return; }
+            string imageId = ReignBeta.Portraits.UI.ReignEventArtTextureFactory.BuildCastleSceneImageId(_castleSession.SessionKey);
+            if (ReignBeta.Portraits.UI.ReignEventArtTextureFactory.GetOrBuild(imageId) == null) { _castleSession.ImageStatus = "failed"; ReignLog.Warn("Castle scene could not be loaded; retaining the approved fallback."); return; }
             _castleArtImageId = imageId;
             OnPropertyChanged(nameof(CastleArtImageId));
             OnPropertyChanged(nameof(HasCastleArt));
@@ -688,7 +701,7 @@ namespace ReignBeta.UI.ViewModels
             if (activeHeroes.Count == 0) { AddSystemLine("Select one or more characters before expecting a reply.", false); return null; }
             string playerName = Hero.MainHero?.Name?.ToString() ?? "Player";
             try { ReignConversationInputJournal.Save(ReignServerClient.GetCampaignId(),
-                ReignBeta.Campaign.ReignWorldHistoryCampaignBehavior.Instance?.TimelineId ?? "main", Hero.MainHero?.StringId ?? "",
+                ReignBeta.WorldSimulation.Campaign.ReignWorldHistoryCampaignBehavior.Instance?.TimelineId ?? "main", Hero.MainHero?.StringId ?? "",
                 _session.SessionId + "_turn_" + (_session.PlayerInputCount + 1), text, session: _session.SessionId); }
             catch (Exception ex) { AddSystemLine("Your message could not be saved locally: " + ex.Message, false); return null; }
             _session.RegisterPlayerInput();
@@ -753,7 +766,7 @@ namespace ReignBeta.UI.ViewModels
 
                 string playerName = Hero.MainHero?.Name?.ToString() ?? "Player";
                 try { ReignConversationInputJournal.Save(ReignServerClient.GetCampaignId(),
-                    ReignBeta.Campaign.ReignWorldHistoryCampaignBehavior.Instance?.TimelineId ?? "main", Hero.MainHero?.StringId ?? "",
+                    ReignBeta.WorldSimulation.Campaign.ReignWorldHistoryCampaignBehavior.Instance?.TimelineId ?? "main", Hero.MainHero?.StringId ?? "",
                     _session.SessionId + "_turn_" + (_session.PlayerInputCount + 1), text, session: _session.SessionId); }
                 catch (Exception ex) { rejected.Error = "Your message could not be saved locally: " + ex.Message; return false; }
                 _session.RegisterPlayerInput();
@@ -1038,7 +1051,7 @@ namespace ReignBeta.UI.ViewModels
                         ["campaignId"] = ReignServerClient.GetCampaignId(),
                         ["conversationSessionId"] = _session.SessionId.Trim(),
                         ["playerHeroStringId"] = Hero.MainHero?.StringId ?? "",
-                        ["timelineId"] = ReignBeta.Campaign.ReignWorldHistoryCampaignBehavior.Instance?.TimelineId ?? "main",
+                        ["timelineId"] = ReignBeta.WorldSimulation.Campaign.ReignWorldHistoryCampaignBehavior.Instance?.TimelineId ?? "main",
                         ["limit"] = 36
                     }).ConfigureAwait(false);
             if (historyRequest != null)

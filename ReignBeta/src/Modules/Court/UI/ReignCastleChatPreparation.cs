@@ -3,13 +3,16 @@ using System.Threading.Tasks;
 using System.Linq;
 using ReignBeta.Court;
 using ReignBeta.UI.ViewModels;
-using ReignBeta.Integration;
 using TaleWorlds.CampaignSystem;
 using TaleWorlds.CampaignSystem.Settlements;
 using TaleWorlds.Core;
 using TaleWorlds.Library;
+using ReignBeta.Court.Campaign;
+using ReignBeta.Court.Integration;
+using ReignBeta.Dialogue.UI;
+using ReignBeta.Platform.Integration;
 
-namespace ReignBeta.UI
+namespace ReignBeta.Court.UI
 {
     public static class ReignCastleChatPreparation
     {

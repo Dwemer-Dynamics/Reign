@@ -1,6 +1,6 @@
 using System;
 
-namespace ReignBeta.UI
+namespace ReignBeta.Court.UI
 {
     // Uniform authored-space fit; keep these constants in parity with court-layout.js.
     public static class ReignCourtLayout

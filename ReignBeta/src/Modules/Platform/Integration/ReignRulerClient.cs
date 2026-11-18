@@ -2,12 +2,13 @@ using System;
 using System.Threading.Tasks;
 using Newtonsoft.Json.Linq;
 using ReignBeta.Campaign;
-using ReignBeta.Runtime;
 using ReignBeta.Shared.Rulers;
 using TaleWorlds.CampaignSystem;
-using static ReignBeta.Integration.ReignServerClient;
+using static ReignBeta.Platform.Integration.ReignServerClient;
+using ReignBeta.WorldSimulation.Campaign;
+using ReignBeta.WorldSimulation.Rulers;
 
-namespace ReignBeta.Integration
+namespace ReignBeta.Platform.Integration
 {
     internal static class ReignRulerClient
     {

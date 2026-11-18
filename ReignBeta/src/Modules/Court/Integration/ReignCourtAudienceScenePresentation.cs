@@ -2,10 +2,12 @@ using System;
 using System.IO;
 using System.Threading.Tasks;
 using Newtonsoft.Json.Linq;
-using ReignBeta.Settings;
 using ReignBeta.UI.EventArt;
+using ReignBeta.Platform.Integration;
+using ReignBeta.Platform.Settings;
+using ReignBeta.Portraits.UI;
 
-namespace ReignBeta.Integration
+namespace ReignBeta.Court.Integration
 {
     // Per-view presentation owns only notifications; the shared engine owns the pending job.
     internal sealed class ReignCourtAudienceScenePresentation

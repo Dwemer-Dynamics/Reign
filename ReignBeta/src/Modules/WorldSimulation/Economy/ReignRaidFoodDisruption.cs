@@ -16,7 +16,7 @@ using TaleWorlds.CampaignSystem.Settlements;
 using TaleWorlds.Core;
 using TaleWorlds.Localization;
 
-namespace ReignBeta.Economy
+namespace ReignBeta.WorldSimulation.Economy
 {
     internal static class ReignRaidFoodDisruption
     {
@@ -40,7 +40,7 @@ namespace ReignBeta.Economy
         private static void Unsupported(string error)
         {
             if (State != null) { State.Unsupported++; State.LastError = error; }
-            if(ReportedErrors.Count<256 && ReportedErrors.Add(error)) ReignBeta.Integration.ReignLog.Warn("Raid food: " + error);
+            if(ReportedErrors.Count<256 && ReportedErrors.Add(error)) ReignBeta.Platform.Integration.ReignLog.Warn("Raid food: " + error);
         }
         internal static void Install()
         {
@@ -385,11 +385,11 @@ namespace ReignBeta.Economy
             double recovery = ReignVillageProductionCalculatorModel.IsPotential ? 1
                 : village?.VillageState == Village.VillageStates.Normal ? Effective(village) : 0;
             result.LimitMin(0);
-            ReignBeta.ClanAccords.ReignClanAccordModelMath.AddFinalDelta(ref result,
+            ReignBeta.Diplomacy.ClanAccords.ReignClanAccordModelMath.AddFinalDelta(ref result,
                 -(float)(Math.Max(0, result.ResultNumber) * (1 - recovery)), new TextObject("{=!}Food production recovery"));
             float sabotage = ReignNpcFoodSabotage.Factor(village);
             if (sabotage != 0f)
-                ReignBeta.ClanAccords.ReignClanAccordModelMath.AddFinalDelta(ref result,
+                ReignBeta.Diplomacy.ClanAccords.ReignClanAccordModelMath.AddFinalDelta(ref result,
                     Math.Max(0f, result.ResultNumber) * sabotage, new TextObject("{=!}Covert supply disruption"));
             result.LimitMin(0);
         }

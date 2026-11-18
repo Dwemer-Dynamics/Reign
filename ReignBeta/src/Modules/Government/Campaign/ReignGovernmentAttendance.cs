@@ -4,12 +4,13 @@ using System.Linq;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using Reign.Core.Contracts.Government;
-using ReignBeta.Save;
 using TaleWorlds.CampaignSystem;
 using TaleWorlds.CampaignSystem.Actions;
 using TaleWorlds.CampaignSystem.Settlements;
+using ReignBeta.Government.Domain;
+using ReignBeta.Persistence.Save;
 
-namespace ReignBeta.Government
+namespace ReignBeta.Government.Campaign
 {
     public sealed class ReignGovernmentAttendanceRecord
     {
@@ -105,7 +106,7 @@ namespace ReignBeta.Government
         {
             if (kingdom == null) return null;
 #if !REIGN_EXCLUDE_COURT
-            var court = ReignBeta.Court.ReignCourtCampaignBehavior.Instance;
+            var court = ReignBeta.Court.Campaign.ReignCourtCampaignBehavior.Instance;
             var designation = court?.CapitalDesignations.FirstOrDefault(x => Same(x.KingdomStringId, kingdom.StringId));
             if (designation != null)
             {
@@ -133,7 +134,7 @@ namespace ReignBeta.Government
                 || campaign?.QuestManager?.TrackedObjects?.ContainsKey(hero) == true
                 || campaign?.IssueManager?.IssueSolvingCompanionList?.Contains(hero) == true) return "Occupied with another duty";
 #if !REIGN_EXCLUDE_COURT
-            var court = ReignBeta.Court.ReignCourtCampaignBehavior.Instance;
+            var court = ReignBeta.Court.Campaign.ReignCourtCampaignBehavior.Instance;
             if (court != null && (court.IsNobleVisitorReserved(hero) || court.HasConflictingGovernmentAttendanceDuty(hero, requiresRelocation)
                 || requiresRelocation && (court.Offices.Any(x => x.IsActive && Same(x.HeroStringId, hero.StringId))
                 || court.Regents.Any(x => x.IsActive && Same(x.HeroStringId, hero.StringId))

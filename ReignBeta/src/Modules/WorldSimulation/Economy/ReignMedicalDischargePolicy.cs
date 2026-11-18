@@ -3,7 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 
-namespace ReignBeta.Economy
+namespace ReignBeta.WorldSimulation.Economy
 {
     internal sealed class MedicalParty
     {

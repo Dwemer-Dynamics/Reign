@@ -3,8 +3,6 @@ using System.Collections.Generic;
 using System.Linq;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
-using ReignBeta.Save;
-using ReignBeta.Integration;
 using TaleWorlds.CampaignSystem;
 using TaleWorlds.CampaignSystem.Actions;
 using TaleWorlds.CampaignSystem.Naval;
@@ -12,8 +10,10 @@ using TaleWorlds.CampaignSystem.Party;
 using TaleWorlds.CampaignSystem.Settlements;
 using TaleWorlds.Core;
 using TaleWorlds.Library;
+using ReignBeta.Persistence.Save;
+using ReignBeta.Platform.Integration;
 
-namespace ReignBeta.Economy
+namespace ReignBeta.WorldSimulation.Economy
 {
     public sealed class ReignEconomyCampaignBehavior : CampaignBehaviorBase
     {
@@ -367,7 +367,7 @@ namespace ReignBeta.Economy
             ReignWarEconomyTransactions.ObserveDailyResources();
             DecayMobilizationStrain();
             ReignNpcFoodSabotage.Tick(day);
-            ReignBeta.Government.ReignGovernmentCampaignBehavior.Instance?.ProcessEconomyAidDaily();
+            ReignBeta.Government.Campaign.ReignGovernmentCampaignBehavior.Instance?.ProcessEconomyAidDaily();
             ApplyRealmRelief();
         }
 
@@ -386,7 +386,7 @@ namespace ReignBeta.Economy
         {
             ReignWarEconomyNaval.AssertCampaignScope();
 #if !REIGN_EXCLUDE_COURT
-            ReignBeta.Court.ReignCourtCampaignBehavior.Instance?.ProcessEconomyShipmentArrivals();
+            ReignBeta.Court.Campaign.ReignCourtCampaignBehavior.Instance?.ProcessEconomyShipmentArrivals();
 #endif
         }
 

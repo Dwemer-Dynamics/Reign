@@ -4,7 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using Newtonsoft.Json.Linq;
 
-namespace ReignBeta.Campaign
+namespace ReignBeta.Reputation.Domain
 {
     // Campaign-owned sample rows are immutable after append. The owner invalidates
     // on pruning/loading; every query also checks array identity, day, count and tail.

@@ -4,14 +4,15 @@ using System.Linq;
 using System.Threading.Tasks;
 using ReignBeta.Court;
 using ReignBeta.Court.WarCouncil;
-using ReignBeta.Integration;
 using TaleWorlds.CampaignSystem;
 using TaleWorlds.CampaignSystem.Actions;
 using TaleWorlds.CampaignSystem.Party;
 using TaleWorlds.Core;
 using TaleWorlds.Library;
+using ReignBeta.Court.Campaign;
+using ReignBeta.Platform.Integration;
 
-namespace ReignBeta.UI.ViewModels
+namespace ReignBeta.Court.UI
 {
     internal static class ReignResidentAdvisorAppointment
     {

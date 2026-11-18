@@ -1,6 +1,6 @@
 using System;
 
-namespace ReignBeta.UI
+namespace ReignBeta.Dialogue.UI
 {
     // Engine-independent cleanup orchestration; each delegate closes over only the resource it owns.
     internal static class ReignPartyChatCleanup

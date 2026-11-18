@@ -4,15 +4,15 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using HarmonyLib;
-using ReignBeta.Integration;
 using TaleWorlds.CampaignSystem;
 using TaleWorlds.CampaignSystem.CampaignBehaviors;
 using TaleWorlds.CampaignSystem.MapEvents;
 using TaleWorlds.CampaignSystem.Party;
 using TaleWorlds.Core;
 using TaleWorlds.Library;
+using ReignBeta.Platform.Integration;
 
-namespace ReignBeta.Economy
+namespace ReignBeta.WorldSimulation.Economy
 {
     // Native references are held ONLY while the event is active. Closed details live in bounded JSON receipts.
     internal static class ReignMedicalDischarge

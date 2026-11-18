@@ -9,8 +9,10 @@ using TaleWorlds.CampaignSystem;
 using TaleWorlds.CampaignSystem.Actions;
 using TaleWorlds.CampaignSystem.Settlements;
 using TaleWorlds.Core;
+using ReignBeta.Relationships.Campaign;
+using ReignBeta.WorldSimulation.Campaign;
 
-namespace ReignBeta.Court
+namespace ReignBeta.Court.Campaign
 {
     public sealed partial class ReignCourtCampaignBehavior
     {

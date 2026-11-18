@@ -7,14 +7,14 @@ using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
 using HarmonyLib;
 using ReignBeta.Campaign;
-using ReignBeta.Integration;
 using TaleWorlds.GauntletUI.BaseTypes;
 using TaleWorlds.Library;
 using TaleWorlds.MountAndBlade.GauntletUI.Widgets;
 using TaleWorlds.MountAndBlade.GauntletUI.Widgets.Encyclopedia;
 using TaleWorlds.ScreenSystem;
 using TaleWorlds.TwoDimension;
-using ReignBeta.Runtime;
+using ReignBeta.Characters.Integration;
+using ReignBeta.Platform.Runtime;
 
 namespace AIPortraits;
 
@@ -632,7 +632,7 @@ public static class PortraitPatch
 
 	private static void ShowMsg(string text, uint color)
 	{
-		_ = ReignBeta.Integration.ReignMainThread.InvokeAsync(delegate
+		_ = ReignBeta.Platform.Integration.ReignMainThread.InvokeAsync(delegate
 		{
 			InformationManager.DisplayMessage(new InformationMessage(text, Color.FromUint(color)));
 		});

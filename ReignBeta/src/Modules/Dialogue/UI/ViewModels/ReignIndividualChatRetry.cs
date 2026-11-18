@@ -3,12 +3,13 @@ using Newtonsoft.Json.Linq;
 using Reign.Core.Contracts.Actions;
 using Reign.Core.Contracts.Dialogue;
 using ReignBeta.Campaign;
-using ReignBeta.Integration;
-using ReignBeta.Runtime;
 using TaleWorlds.CampaignSystem;
 using TaleWorlds.Library;
+using ReignBeta.Dialogue.Runtime;
+using ReignBeta.Platform.Integration;
+using ReignBeta.WorldSimulation.Campaign;
 
-namespace ReignBeta.UI.ViewModels
+namespace ReignBeta.Dialogue.UI
 {
     public sealed partial class ReignIndividualChatScreenVM
     {

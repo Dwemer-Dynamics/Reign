@@ -37,7 +37,7 @@ public static class TavernVisitNativeProbe
 {
     public static int Run(Assembly client)
     {
-        Type type = client.GetType("ReignBeta.Actions.ReignTavernHouseAction", true);
+        Type type = client.GetType("ReignBeta.Characters.Actions.ReignTavernHouseAction", true);
         var flags = BindingFlags.Static | BindingFlags.NonPublic | BindingFlags.Public;
         Func<string, object[], object> call = (name, args) => type.GetMethod(name, flags).Invoke(null, args);
         int passed = 0;

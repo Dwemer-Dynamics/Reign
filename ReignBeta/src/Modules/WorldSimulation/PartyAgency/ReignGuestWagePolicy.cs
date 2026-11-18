@@ -1,7 +1,7 @@
 using System;
-using static ReignBeta.Platform.ReignNumeric;
+using static ReignBeta.Platform.Domain.ReignNumeric;
 
-namespace ReignBeta.PartyAgency
+namespace ReignBeta.WorldSimulation.PartyAgency
 {
     internal static class ReignGuestWagePolicy
     {

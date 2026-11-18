@@ -11,7 +11,7 @@ using TaleWorlds.CampaignSystem.ViewModelCollection.KingdomManagement.Diplomacy;
 using TaleWorlds.CampaignSystem.ViewModelCollection.KingdomManagement.Decisions;
 using TaleWorlds.Localization;
 
-namespace ReignBeta.Government
+namespace ReignBeta.Government.Campaign
 {
     internal static class ReignGovernmentNativeControlAuthority
     {
@@ -62,7 +62,7 @@ namespace ReignBeta.Government
         private static bool Prefix()
         {
             if (!ReignGovernmentNativeControlAuthority.Active) return true;
-            ReignBeta.UI.ReignGovernmentScreenManager.Open(Clan.PlayerClan.Kingdom,
+            ReignBeta.Government.UI.ReignGovernmentScreenManager.Open(Clan.PlayerClan.Kingdom,
                 Clan.PlayerClan.Kingdom.Leader == Hero.MainHero, null);
             return false;
         }

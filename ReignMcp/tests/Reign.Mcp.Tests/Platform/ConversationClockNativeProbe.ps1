@@ -79,7 +79,7 @@ public static class IsolatedConversationClockProbe {
     }
     static void OnEvent(MBCampaignEvent e, params object[] args) { callbacks++; callbackTimes.Add(((CampaignTime)args[0]).ToHours); }
     public static Dictionary<string, object> Run(Assembly client) {
-        Type adapter = client.GetType("ReignBeta.Runtime.ReignConversationClockProbe", true);
+        Type adapter = client.GetType("ReignBeta.Dialogue.Runtime.ReignConversationClockProbe", true);
         MethodInfo pulse = adapter.GetMethod("PulseFiveMinutes", S);
         var campaign = (Campaign)FormatterServices.GetUninitializedObject(typeof(Campaign));
         var currentSetter = typeof(Campaign).GetProperty("Current", S).GetSetMethod(true);
@@ -135,7 +135,7 @@ public static class IsolatedConversationClockProbe {
             object badUnits = Tracker(0); Set("TimeTicksPerSecond", 1L);
             Check(Reject(pulse, badUnits) && Read(badUnits, "NumTicks") == 0, "uninitialized or changed units rejected");
             Calendar(7, 3);
-            Type sessionType = client.GetType("ReignBeta.Runtime.ReignConversationClockProbeSession", true);
+            Type sessionType = client.GetType("ReignBeta.Dialogue.Runtime.ReignConversationClockProbeSession", true);
             MethodInfo run = sessionType.GetMethod("Run", I);
             MethodInfo observe = sessionType.GetMethod("ObserveLater", S);
             MethodInfo lease = sessionType.GetMethod("LeaseIsCurrent", S);

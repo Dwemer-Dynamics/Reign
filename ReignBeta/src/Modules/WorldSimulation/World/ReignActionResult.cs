@@ -1,6 +1,7 @@
 using System.Collections.Generic;
+using ReignBeta.World;
 
-namespace ReignBeta.World
+namespace ReignBeta.WorldSimulation.World
 {
     public sealed class ReignActionResult
     {

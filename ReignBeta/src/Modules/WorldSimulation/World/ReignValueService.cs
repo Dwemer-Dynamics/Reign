@@ -11,8 +11,10 @@ using TaleWorlds.CampaignSystem.Roster;
 using TaleWorlds.CampaignSystem.Settlements;
 using TaleWorlds.CampaignSystem.Settlements.Workshops;
 using TaleWorlds.Core;
+using ReignBeta.World;
+using ReignBeta.WorldSimulation.PartyAgency;
 
-namespace ReignBeta.World
+namespace ReignBeta.WorldSimulation.World
 {
     public sealed class ReignTradeTermQuote
     {

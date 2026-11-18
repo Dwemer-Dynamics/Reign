@@ -1,6 +1,5 @@
 using System;
 using ReignBeta.Campaign;
-using ReignBeta.Integration;
 using ReignBeta.UI.ViewModels;
 using TaleWorlds.CampaignSystem;
 using TaleWorlds.CampaignSystem.Settlements;
@@ -9,8 +8,10 @@ using TaleWorlds.Engine.GauntletUI;
 using TaleWorlds.InputSystem;
 using TaleWorlds.Library;
 using TaleWorlds.ScreenSystem;
+using ReignBeta.Dialogue.UI;
+using ReignBeta.Platform.Integration;
 
-namespace ReignBeta.UI
+namespace ReignBeta.Characters.UI
 {
     public static class ReignTavernHouseScreenManager
     {

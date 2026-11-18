@@ -3,14 +3,16 @@ using System.IO;
 using System.Linq;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
-using ReignBeta.Integration;
 using TaleWorlds.Core;
 using TaleWorlds.Engine.GauntletUI;
 using TaleWorlds.InputSystem;
 using TaleWorlds.Library;
 using TaleWorlds.ScreenSystem;
+using ReignBeta.Government.UI;
+using ReignBeta.Platform.Integration;
+using ReignBeta.UI;
 
-namespace ReignBeta.UI
+namespace ReignBeta.Dialogue.UI
 {
     internal static class ReignBanterPanel
     {

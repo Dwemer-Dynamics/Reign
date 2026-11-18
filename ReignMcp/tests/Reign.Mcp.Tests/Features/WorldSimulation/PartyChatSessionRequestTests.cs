@@ -1,6 +1,6 @@
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
-using ReignBeta.Integration;
+using ReignBeta.Platform.Integration;
 
 namespace Reign.Mcp.Tests.Features.WorldSimulation;
 

@@ -7,9 +7,12 @@ using TaleWorlds.CampaignSystem;
 using TaleWorlds.CampaignSystem.Party;
 using TaleWorlds.CampaignSystem.Settlements;
 using ReignBeta.Shared;
-using static ReignBeta.Integration.ReignServerClient;
+using static ReignBeta.Platform.Integration.ReignServerClient;
+using ReignBeta.Characters.Integration;
+using ReignBeta.Platform.Integration;
+using ReignBeta.WorldSimulation.News;
 
-namespace ReignBeta.Integration
+namespace ReignBeta.Relationships.Integration
 {
     internal static class ReignPlayerApproachClient
     {
@@ -23,16 +26,16 @@ namespace ReignBeta.Integration
         // Never start new invitations before the first successful settings read.
         internal static void PlayerApproachOptionsTick(float dt)
         {
-            ReignBeta.Economy.ReignWarEconomyOptions.EnsureLoaded();
-            if (Settings.ReignBetaSettings.Instance?.UseLocalServer == false)
+            ReignBeta.WorldSimulation.Economy.ReignWarEconomyOptions.EnsureLoaded();
+            if (Platform.Settings.ReignBetaSettings.Instance?.UseLocalServer == false)
             { _approachOptionsConfirmed = false; return; }
             _approachOptionsDelay = Math.Max(0, _approachOptionsDelay - dt);
             if (!_approachOptionsRefreshing && _approachOptionsDelay <= 0)
             { _approachOptionsRefreshing = true; _approachOptionsDelay = 5; _ = RefreshPlayerApproachOptionsAsync(); }
             if (_approachOptionsConfirmed)
             {
-                ReignBeta.Campaign.ReignPlayerApproachCampaignBehavior.Instance?.ApplyApproachOptions();
-                ReignBeta.Campaign.ReignRescueConversationBehavior.Instance?.ApplyApproachOptions();
+                ReignBeta.Relationships.Campaign.ReignPlayerApproachCampaignBehavior.Instance?.ApplyApproachOptions();
+                ReignBeta.Dialogue.Campaign.ReignRescueConversationBehavior.Instance?.ApplyApproachOptions();
             }
         }
 
@@ -48,7 +51,7 @@ namespace ReignBeta.Integration
                 await ReignMainThread.InvokeAsync(() => { _approachOptions = options; _approachOptionsConfirmed = true;
                     ReignNpcLivesClient.SetNpcLivesOptions(response["npcLives"] as JObject); ReignRulerClient.SetRulerOptions(response["rulers"] as JObject);
                     ReignNewsClient.SetNewsOptions(response["announcements"] as JObject);
-                    ReignBeta.Economy.ReignWarEconomyOptions.Apply(response["warEconomy"] as JObject); }).ConfigureAwait(false);
+                    ReignBeta.WorldSimulation.Economy.ReignWarEconomyOptions.Apply(response["warEconomy"] as JObject); }).ConfigureAwait(false);
             }
             catch (Exception ex) { ReignLog.Warn("Approach options refresh failed; retaining confirmed preferences: " + ex.Message); }
             finally { await ReignMainThread.InvokeAsync(() => _approachOptionsRefreshing = false).ConfigureAwait(false); }
@@ -103,7 +106,7 @@ namespace ReignBeta.Integration
         {
             return PostJsonAsync("/approaches/evaluate", new JObject
             {
-                ["campaignId"] = GetCampaignId(), ["timelineId"] = ReignBeta.Campaign.ReignWorldHistoryCampaignBehavior.Instance?.TimelineId ?? "main",
+                ["campaignId"] = GetCampaignId(), ["timelineId"] = ReignBeta.WorldSimulation.Campaign.ReignWorldHistoryCampaignBehavior.Instance?.TimelineId ?? "main",
                 ["playerId"] = Hero.MainHero?.StringId ?? "", ["worldDay"] = CampaignTime.Now.ToDays,
                 ["playerRenown"] = Clan.PlayerClan?.Renown ?? 0, ["healthyPartyMembers"] = healthyMembers,
                 ["kind"] = kind, ["candidates"] = candidates
@@ -112,14 +115,14 @@ namespace ReignBeta.Integration
 
         internal static Task<JObject> DecideApproachAsync(string requestId, string choice) => PostJsonAsync("/approaches/decision", new JObject
         {
-            ["campaignId"] = GetCampaignId(), ["timelineId"] = ReignBeta.Campaign.ReignWorldHistoryCampaignBehavior.Instance?.TimelineId ?? "main",
+            ["campaignId"] = GetCampaignId(), ["timelineId"] = ReignBeta.WorldSimulation.Campaign.ReignWorldHistoryCampaignBehavior.Instance?.TimelineId ?? "main",
             ["playerId"] = Hero.MainHero?.StringId ?? "", ["worldDay"] = CampaignTime.Now.ToDays,
             ["requestId"] = requestId, ["choice"] = choice
         });
 
         internal static Task<JObject> AcknowledgeApproachAsync(string requestId, JArray observations) => PostJsonAsync("/approaches/decision", new JObject
         {
-            ["campaignId"] = GetCampaignId(), ["timelineId"] = ReignBeta.Campaign.ReignWorldHistoryCampaignBehavior.Instance?.TimelineId ?? "main",
+            ["campaignId"] = GetCampaignId(), ["timelineId"] = ReignBeta.WorldSimulation.Campaign.ReignWorldHistoryCampaignBehavior.Instance?.TimelineId ?? "main",
             ["playerId"] = Hero.MainHero?.StringId ?? "", ["worldDay"] = CampaignTime.Now.ToDays,
             ["requestId"] = requestId, ["choice"] = "acknowledge", ["nativeObservations"] = observations
         });
@@ -130,7 +133,7 @@ namespace ReignBeta.Integration
             foreach (JObject receipt in (response?["request"]?["receipts"] as JArray ?? new JArray()).OfType<JObject>())
             {
                 Hero hero = Hero.AllAliveHeroes.FirstOrDefault(h => h.StringId == receipt.Value<string>("heroId"));
-                var owner = ReignBeta.Campaign.ReignRelationshipCampaignBehavior.Instance;
+                var owner = ReignBeta.Relationships.Campaign.ReignRelationshipCampaignBehavior.Instance;
                 if (hero == null || owner == null) throw new InvalidOperationException("The approach relationship participants are unavailable.");
                 JObject observation = owner.ApplyConversationRelationOnce(
                     new[] { receipt.Value<string>("receiptId") }, hero, Hero.MainHero, receipt.Value<int>("nativeRelationDelta"), true);

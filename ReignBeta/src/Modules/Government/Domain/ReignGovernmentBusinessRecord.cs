@@ -1,6 +1,6 @@
 using System;
 
-namespace ReignBeta.Government
+namespace ReignBeta.Government.Domain
 {
     /// <summary>Saved in bounded compressed JSON chunks, not a new native save type.</summary>
     public sealed class ReignGovernmentBusinessRecord

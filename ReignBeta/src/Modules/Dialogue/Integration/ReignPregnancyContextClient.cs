@@ -4,11 +4,13 @@ using System.Linq;
 using System.Threading.Tasks;
 using Newtonsoft.Json.Linq;
 using ReignBeta.Campaign;
-using ReignBeta.Runtime;
 using TaleWorlds.CampaignSystem;
-using static ReignBeta.Integration.ReignServerClient;
+using static ReignBeta.Platform.Integration.ReignServerClient;
+using ReignBeta.Characters.Campaign;
+using ReignBeta.Platform.Integration;
+using ReignBeta.WorldSimulation.Campaign;
 
-namespace ReignBeta.Integration
+namespace ReignBeta.Dialogue.Integration
 {
     internal static class ReignPregnancyContextClient
     {

@@ -4,11 +4,13 @@ using System.Linq;
 using System.Threading.Tasks;
 using Newtonsoft.Json.Linq;
 using ReignBeta.Campaign;
-using ReignBeta.Runtime;
 using TaleWorlds.CampaignSystem;
 using TaleWorlds.CampaignSystem.Party;
+using ReignBeta.Dialogue.Runtime;
+using ReignBeta.Relationships.Campaign;
+using ReignBeta.WorldSimulation.Campaign;
 
-namespace ReignBeta.Integration
+namespace ReignBeta.Platform.Integration
 {
     public static partial class ReignServerClient
     {
@@ -35,7 +37,7 @@ namespace ReignBeta.Integration
                 ["expectedRevision"] = revision, ["heroes"] = profiles, ["relationshipPairs"] = pairs,
                 ["playerHeroStringId"] = Hero.MainHero?.StringId ?? "", ["playerName"] = Hero.MainHero?.Name?.ToString() ?? "Player",
                 ["partyId"] = MobileParty.MainParty?.StringId ?? "", ["locationId"] = MobileParty.MainParty?.CurrentSettlement?.StringId ?? "",
-                ["traveling"] = traveling, ["chatOpen"] = UI.ReignPartyChatScreenManager.IsOpenOrPending
+                ["traveling"] = traveling, ["chatOpen"] = Dialogue.UI.ReignPartyChatScreenManager.IsOpenOrPending
             };
         }
         internal static async Task<JObject> BanterRequestAsync(string operation, JObject payload, Func<Task<bool>> current, bool projectNative = true)

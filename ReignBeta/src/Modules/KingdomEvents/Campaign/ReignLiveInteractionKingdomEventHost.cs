@@ -1,9 +1,10 @@
 using System;
 using System.Threading.Tasks;
 using Newtonsoft.Json.Linq;
-using ReignBeta.Integration;
+using ReignBeta.KingdomEvents.Campaign;
+using ReignBeta.Platform.Integration;
 
-namespace ReignBeta.Campaign
+namespace ReignBeta.WorldSimulation.Campaign
 {
     public static partial class ReignLiveInteractionTestHost
     {

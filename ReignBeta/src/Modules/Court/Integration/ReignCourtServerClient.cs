@@ -9,14 +9,21 @@ using Newtonsoft.Json.Linq;
 using ReignBeta.Campaign;
 using ReignBeta.Court;
 using ReignBeta.Government;
-using ReignBeta.Runtime;
-using ReignBeta.Settings;
 using ReignBeta.World;
 using TaleWorlds.CampaignSystem;
 using TaleWorlds.CampaignSystem.Settlements;
 using TaleWorlds.Core;
+using ReignBeta.Characters.Integration;
+using ReignBeta.Court.Campaign;
+using ReignBeta.Dialogue.Integration;
+using ReignBeta.Diplomacy.Integration;
+using ReignBeta.Government.Campaign;
+using ReignBeta.Persistence.Integration;
+using ReignBeta.Platform.Integration;
+using ReignBeta.WorldSimulation.Campaign;
+using ReignBeta.WorldSimulation.World;
 
-namespace ReignBeta.Integration
+namespace ReignBeta.Court.Integration
 {
     public sealed class ReignCourtServerResponse
     {

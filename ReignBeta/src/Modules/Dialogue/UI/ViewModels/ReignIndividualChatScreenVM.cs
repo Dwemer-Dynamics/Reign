@@ -7,9 +7,6 @@ using AIPortraits;
 using Newtonsoft.Json.Linq;
 using ReignBeta.Campaign;
 using ReignBeta.Court;
-using ReignBeta.Integration;
-using ReignBeta.Runtime;
-using ReignBeta.Settings;
 using Reign.Core.Contracts.Dialogue;
 using TaleWorlds.CampaignSystem;
 using TaleWorlds.CampaignSystem.Party;
@@ -17,11 +14,26 @@ using TaleWorlds.CampaignSystem.Settlements;
 using TaleWorlds.Core;
 using TaleWorlds.Core.ViewModelCollection.ImageIdentifiers;
 using TaleWorlds.Library;
-using static ReignBeta.UI.ViewModels.ReignChatText;
+using static ReignBeta.Dialogue.UI.ReignChatText;
+using ReignBeta.Characters.Campaign;
+using ReignBeta.Characters.Integration;
+using ReignBeta.Dialogue.Campaign;
+using ReignBeta.Dialogue.Integration;
+using ReignBeta.Dialogue.Runtime;
+using ReignBeta.Platform.Campaign;
+using ReignBeta.Platform.Integration;
+using ReignBeta.Platform.Settings;
+using ReignBeta.Portraits.Integration;
+using ReignBeta.Relationships.Integration;
+using ReignBeta.UI.ViewModels;
+using ReignBeta.WorldSimulation.Campaign;
+#if !REIGN_EXCLUDE_COURT
+using ReignBeta.Court.Campaign;
+#endif
 
-namespace ReignBeta.UI.ViewModels
+namespace ReignBeta.Dialogue.UI
 {
-    public sealed partial class ReignIndividualChatScreenVM : ViewModel, ReignBeta.UI.IReignActionHost
+    public sealed partial class ReignIndividualChatScreenVM : ViewModel, ReignBeta.Dialogue.UI.IReignActionHost
     {
         public IReadOnlyList<Hero> ActionParticipants => new[] { _hero };
         public bool ActionBusy => _presentationInitializing || IsBusy || IsPregnancyWarningVisible || IsOutfitVisible || _calibrationMode;
@@ -809,7 +821,7 @@ namespace ReignBeta.UI.ViewModels
             if (draft == null || marker < 0
                 || marker != template.LastIndexOf("{action}", StringComparison.Ordinal))
                 throw new InvalidOperationException("Supply one action insertion marker.");
-            ReignBeta.Actions.ReignActionWording.Render(draft);
+            ReignBeta.WorldSimulation.Actions.ReignActionWording.Render(draft);
             Composer.SetText(template.Substring(0, marker));
             Composer.Insert(draft);
             Composer.Replace(Composer.State.Text.Length, 0, template.Substring(marker + 8));
@@ -884,7 +896,7 @@ namespace ReignBeta.UI.ViewModels
                 if (!npcOpening)
                 {
                     try { ReignConversationInputJournal.Save(ReignServerClient.GetCampaignId(),
-                        ReignBeta.Campaign.ReignWorldHistoryCampaignBehavior.Instance?.TimelineId ?? "main",
+                        ReignBeta.WorldSimulation.Campaign.ReignWorldHistoryCampaignBehavior.Instance?.TimelineId ?? "main",
                         Hero.MainHero?.StringId ?? "", correlationId, text, _hero?.StringId ?? "",
                         _conversationContext.Value<string>("sessionId") ?? ""); }
                     catch (Exception ex) { reply.Error = "Your message could not be saved locally: " + ex.Message; AddSystemLine(reply.Error); return false; }
@@ -1045,7 +1057,7 @@ namespace ReignBeta.UI.ViewModels
                     // Existing receipts/outcomes are separate system lines after the exact NPC line.
                     List<string> statusLines = reply.Ok ? ReignStructuredActionClient.NativeStatusLines(reply.RawResponse) : new List<string>();
                     if (heldDirectiveId != null)
-                        statusLines.Add("[unknown: " + ReignBeta.Actions.ReignCompletedOrderPolicy.UncertainExecutionMarker + "]");
+                        statusLines.Add("[unknown: " + ReignBeta.WorldSimulation.Actions.ReignCompletedOrderPolicy.UncertainExecutionMarker + "]");
                     if (reply.Ok && (!string.IsNullOrWhiteSpace(reply.Text) || statusLines.Count > 0))
                     {
                         ClearFailedConversationTurn();

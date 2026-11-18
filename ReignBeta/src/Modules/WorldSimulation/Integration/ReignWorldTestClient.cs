@@ -7,15 +7,21 @@ using System.Text;
 using System.Threading.Tasks;
 using Newtonsoft.Json.Linq;
 using ReignBeta.Campaign;
-using ReignBeta.Economy;
-using ReignBeta.Settings;
 using ReignBeta.World;
 using TaleWorlds.CampaignSystem;
 using TaleWorlds.CampaignSystem.Party;
 using TaleWorlds.CampaignSystem.Settlements;
-using static ReignBeta.Integration.ReignServerClient;
+using static ReignBeta.Platform.Integration.ReignServerClient;
+using ReignBeta.Persistence.Integration;
+using ReignBeta.Platform.Campaign;
+using ReignBeta.Platform.Integration;
+using ReignBeta.Platform.Settings;
+using ReignBeta.Rebellion.Campaign;
+using ReignBeta.WorldSimulation.Campaign;
+using ReignBeta.WorldSimulation.Economy;
+using ReignBeta.WorldSimulation.Rulers;
 
-namespace ReignBeta.Integration
+namespace ReignBeta.WorldSimulation.Integration
 {
     // Harness-owned World Test heartbeat. ReignServerClient keeps a thin SubmitWorldTestHeartbeatAsync forwarder for ReignAICampaignBehavior.
     internal static class ReignWorldTestServerClient
@@ -212,7 +218,7 @@ namespace ReignBeta.Integration
                 },
                 ["rulers"] = ReignRulerCampaignBehavior.Instance?.Diagnostics() ?? new JObject(),
                 ["warEconomy"] = BuildWorldTestWarEconomy(),
-                ["clanAccords"] = ReignBeta.ClanAccords.ReignClanAccordsCampaignBehavior.Instance?.Snapshot() ?? new JObject(),
+                ["clanAccords"] = ReignBeta.Diplomacy.ClanAccords.ReignClanAccordsCampaignBehavior.Instance?.Snapshot() ?? new JObject(),
                 ["rebellions"] = new JObject
                 {
                     ["weeklyRolls"] = BuildWorldTestRebellionRolls(rebellion, deltaAfterDay),

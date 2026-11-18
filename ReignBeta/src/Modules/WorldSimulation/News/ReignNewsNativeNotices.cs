@@ -2,11 +2,12 @@ using System;
 using System.Linq;
 using Reign.Core.Contracts.World;
 using ReignBeta.Events;
-using ReignBeta.Integration;
 using ReignBeta.Shared.Rulers;
 using TaleWorlds.CampaignSystem;
+using ReignBeta.Diplomacy.Integration;
+using ReignBeta.WorldSimulation.Rulers;
 
-namespace ReignBeta.Campaign
+namespace ReignBeta.WorldSimulation.News
 {
     public sealed partial class ReignNewsCampaignBehavior
     {

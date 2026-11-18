@@ -4,7 +4,6 @@ using System.Linq;
 using System.Threading.Tasks;
 using Newtonsoft.Json.Linq;
 using ArenaOverhaul.TeamTournament;
-using ReignBeta.Integration;
 using ReignBeta.World;
 #if !REIGN_EXCLUDE_COURT
 using ReignBeta.Court;
@@ -26,8 +25,14 @@ using TaleWorlds.CampaignSystem.Siege;
 using TaleWorlds.Core;
 using TaleWorlds.MountAndBlade;
 using SandBox.Missions.MissionLogics.Arena;
+using ReignBeta.Platform.Integration;
+using ReignBeta.WorldSimulation.Integration;
+using ReignBeta.WorldSimulation.World;
+#if !REIGN_EXCLUDE_COURT
+using ReignBeta.Court.Campaign;
+#endif
 
-namespace ReignBeta.Campaign
+namespace ReignBeta.WorldSimulation.Campaign
 {
     public sealed class ReignWorldHistoryCampaignBehavior : CampaignBehaviorBase
     {

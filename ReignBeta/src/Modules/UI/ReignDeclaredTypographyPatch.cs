@@ -2,9 +2,9 @@ using System;
 using System.Collections.Generic;
 using System.Reflection;
 using HarmonyLib;
-using ReignBeta.Integration;
 using TaleWorlds.GauntletUI.BaseTypes;
 using TaleWorlds.TwoDimension;
+using ReignBeta.Platform.Integration;
 
 namespace ReignBeta.UI
 {

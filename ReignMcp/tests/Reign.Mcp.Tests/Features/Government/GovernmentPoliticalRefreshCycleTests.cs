@@ -1,4 +1,4 @@
-using ReignBeta.Government;
+using ReignBeta.Government.Domain;
 using Reign.Core.Contracts.Government;
 using Newtonsoft.Json.Linq;
 

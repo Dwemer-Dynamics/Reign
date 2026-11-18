@@ -6,7 +6,6 @@ using System.Reflection;
 using System.Reflection.Emit;
 using HarmonyLib;
 using ReignBeta.Campaign;
-using ReignBeta.Integration;
 using ReignBeta.Shared.Rulers;
 using TaleWorlds.CampaignSystem;
 using TaleWorlds.CampaignSystem.Actions;
@@ -19,8 +18,9 @@ using TaleWorlds.CampaignSystem.Settlements;
 using TaleWorlds.Library;
 using TaleWorlds.Core;
 using TaleWorlds.Localization;
+using ReignBeta.Platform.Integration;
 
-namespace ReignBeta.World
+namespace ReignBeta.WorldSimulation.Rulers
 {
     internal static class ReignRulerNativePatches
     {

@@ -7,8 +7,10 @@ using ReignBeta.Court;
 using ReignBeta.UI.EventArt;
 using TaleWorlds.CampaignSystem;
 using TaleWorlds.Library;
+using ReignBeta.Court.Campaign;
+using ReignBeta.Portraits.UI;
 
-namespace ReignBeta.UI.ViewModels
+namespace ReignBeta.Court.UI
 {
     public sealed class ReignCastleLayoutScreenVM : ViewModel
     {

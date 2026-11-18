@@ -3,10 +3,10 @@ using System.Threading.Tasks;
 using Newtonsoft.Json.Linq;
 using Reign.Core.Contracts.Dialogue;
 using ReignBeta.Campaign;
-using ReignBeta.Runtime;
-using static ReignBeta.Integration.ReignServerClient;
+using static ReignBeta.Platform.Integration.ReignServerClient;
+using ReignBeta.Dialogue.Campaign;
 
-namespace ReignBeta.Integration
+namespace ReignBeta.Platform.Integration
 {
     internal sealed class ReignXpInteraction
     {

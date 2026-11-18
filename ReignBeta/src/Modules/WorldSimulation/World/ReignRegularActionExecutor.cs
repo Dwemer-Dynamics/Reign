@@ -15,8 +15,15 @@ using TaleWorlds.CampaignSystem.Settlements;
 using TaleWorlds.CampaignSystem.Settlements.Workshops;
 using TaleWorlds.Core;
 using TaleWorlds.Localization;
+using ReignBeta.Characters.Campaign;
+using ReignBeta.Government.Integration;
+using ReignBeta.World;
+using ReignBeta.WorldSimulation.Arrests;
+using ReignBeta.WorldSimulation.CampaignCommands;
+using ReignBeta.WorldSimulation.PartyAgency;
+using ReignBeta.WorldSimulation.Rulers;
 
-namespace ReignBeta.World
+namespace ReignBeta.WorldSimulation.World
 {
     public static class ReignRegularActionExecutor
     {
@@ -139,18 +146,18 @@ namespace ReignBeta.World
                         : ReignCampaignCommandBehavior.Instance.ExecuteControlAction(action);
                 case ReignWorldActionType.RegularCreateClanAccord:
                 case ReignWorldActionType.RegularCancelClanAccord:
-                    return ReignBeta.ClanAccords.ReignClanAccordsCampaignBehavior.Instance == null
+                    return ReignBeta.Diplomacy.ClanAccords.ReignClanAccordsCampaignBehavior.Instance == null
                         ? ReignActionResult.ValidationFailed("The Clan Accords service is unavailable.")
-                        : ReignBeta.ClanAccords.ReignClanAccordsCampaignBehavior.Instance.Execute(action);
+                        : ReignBeta.Diplomacy.ClanAccords.ReignClanAccordsCampaignBehavior.Instance.Execute(action);
                 case ReignWorldActionType.RegularAcceptTemporaryPartyGuest:
                     return ReignTemporaryPartyGuestCampaignBehavior.Instance == null
                         ? ReignActionResult.ValidationFailed("The temporary noble guest service is unavailable.")
                         : ReignTemporaryPartyGuestCampaignBehavior.Instance.AcceptGuest(action, actor);
                 case ReignWorldActionType.RegularRecruitEncounteredResident:
                 case ReignWorldActionType.RegularReleaseResidentFromDuty:
-                    return ReignBeta.Campaign.ReignEncounteredResidentsCampaignBehavior.Instance == null
+                    return ReignBeta.Characters.Campaign.ReignEncounteredResidentsCampaignBehavior.Instance == null
                         ? ReignActionResult.ValidationFailed("The encountered resident service is unavailable.")
-                        : ReignBeta.Campaign.ReignEncounteredResidentsCampaignBehavior.Instance.ExecuteResidentAction(action);
+                        : ReignBeta.Characters.Campaign.ReignEncounteredResidentsCampaignBehavior.Instance.ExecuteResidentAction(action);
                 case ReignWorldActionType.RegularRenewTemporaryPartyGuest:
                     return ReignTemporaryPartyGuestCampaignBehavior.Instance == null
                         ? ReignActionResult.ValidationFailed("The temporary noble guest service is unavailable.")
@@ -220,7 +227,7 @@ namespace ReignBeta.World
 
         private static ReignActionResult CreateParty(ReignWorldActionRecord action, Hero actor, Settlement settlement)
         {
-            if (!Economy.ReignMilitaryServiceEligibility.CanEstablishNpcParty(actor))
+            if (!WorldSimulation.Economy.ReignMilitaryServiceEligibility.CanEstablishNpcParty(actor))
                 return ReignActionResult.ValidationFailed("The named NPC commander is not eligible to establish a military party.");
             if (actor.PartyBelongedTo != null)
             {

@@ -4,9 +4,6 @@ using System.Linq;
 using System.Threading.Tasks;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
-using ReignBeta.Integration;
-using ReignBeta.Runtime;
-using ReignBeta.Save;
 using TaleWorlds.CampaignSystem;
 using TaleWorlds.CampaignSystem.Actions;
 using TaleWorlds.CampaignSystem.Election;
@@ -14,8 +11,13 @@ using TaleWorlds.CampaignSystem.Settlements;
 using TaleWorlds.CampaignSystem.Siege;
 using TaleWorlds.Core;
 using TaleWorlds.Library;
+using ReignBeta.Persistence.Save;
+using ReignBeta.Platform.Integration;
+using ReignBeta.Reputation.Domain;
+using ReignBeta.WorldSimulation.Campaign;
+using ReignBeta.WorldSimulation.Integration;
 
-namespace ReignBeta.Campaign
+namespace ReignBeta.Reputation.Campaign
 {
     public sealed class ReignRulerReputationCampaignBehavior : CampaignBehaviorBase
     {
@@ -186,7 +188,7 @@ namespace ReignBeta.Campaign
             JArray samples = (JArray)_state["villageSamples"];
             if (_villageSampleIndex.Contains(samples, settlement.StringId, day)) return;
             var previous = _villageSampleIndex.Previous(samples, settlement.StringId, day);
-            double agriculture = ReignBeta.Economy.ReignEconomyCampaignBehavior.Instance?.GetFoodRecoveryModifier(village) ?? 0;
+            double agriculture = ReignBeta.WorldSimulation.Economy.ReignEconomyCampaignBehavior.Instance?.GetFoodRecoveryModifier(village) ?? 0;
             var episode = ((JObject)_state["villageEpisodes"])[settlement.StringId] as JObject;
             if (episode != null && agriculture >= .999999 && village.VillageState == Village.VillageStates.Normal
                 && Number(episode, "agricultureRecoveredDay") <= 0)

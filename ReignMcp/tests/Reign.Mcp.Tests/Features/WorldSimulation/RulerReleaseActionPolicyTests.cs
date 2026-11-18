@@ -1,4 +1,5 @@
-using ReignBeta.World;
+using ReignBeta.WorldSimulation.Domain;
+using ReignBeta.WorldSimulation.World;
 using Xunit;
 
 namespace Reign.Mcp.Tests.Features.WorldSimulation;

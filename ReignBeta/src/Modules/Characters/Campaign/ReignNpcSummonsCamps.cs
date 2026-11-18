@@ -11,8 +11,10 @@ using TaleWorlds.CampaignSystem.Party;
 using TaleWorlds.CampaignSystem.Settlements;
 using TaleWorlds.Library;
 using TaleWorlds.Localization;
+using ReignBeta.WorldSimulation.CampaignCommands;
+using ReignBeta.WorldSimulation.PartyAgency;
 
-namespace ReignBeta.Campaign
+namespace ReignBeta.Characters.Campaign
 {
     // Owned by the saved life duty, independently of temporary guest agreements.
     public sealed class NpcSummonsCamp

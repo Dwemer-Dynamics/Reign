@@ -28,7 +28,7 @@ try {
     $client=[Reflection.Assembly]::LoadFrom($ClientAssembly)
     $arena=Join-Path ([IO.Path]::GetDirectoryName($ClientAssembly)) 'ArenaOverhaul.1.4.6.dll'
     if(Test-Path $arena){[Reflection.Assembly]::LoadFrom($arena)|Out-Null}
-    $resident=$client.GetType('ReignBeta.Campaign.ReignEncounteredResidentPatches',$true)
+    $resident=$client.GetType('ReignBeta.Characters.Campaign.ReignEncounteredResidentPatches',$true)
     $bindings=@($resident.GetMethod('ResolveNativeTargets',$flags).Invoke($null,@()))
     if($bindings.Count -ne 9 -or @($bindings|Where-Object {$null -eq $_}).Count){throw 'Resident target set is incomplete'}
     if($bindings[3].GetParameters().Count -ne 4){throw 'Resident SpawnAgent must bind the actual four-parameter native method'}

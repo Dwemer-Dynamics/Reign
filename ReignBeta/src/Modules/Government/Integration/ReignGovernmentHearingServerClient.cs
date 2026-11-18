@@ -1,9 +1,9 @@
 using System;
 using System.Threading.Tasks;
 using Newtonsoft.Json.Linq;
-using static ReignBeta.Integration.ReignServerClient;
+using static ReignBeta.Platform.Integration.ReignServerClient;
 
-namespace ReignBeta.Integration
+namespace ReignBeta.Government.Integration
 {
     internal static class ReignGovernmentHearingServerClient
     {
@@ -11,7 +11,7 @@ namespace ReignBeta.Integration
         {
             var payload = (JObject)context.DeepClone();
             payload["campaignId"] = GetCampaignId();
-            payload["timelineId"] = ReignBeta.Campaign.ReignWorldHistoryCampaignBehavior.Instance?.TimelineId ?? "main";
+            payload["timelineId"] = ReignBeta.WorldSimulation.Campaign.ReignWorldHistoryCampaignBehavior.Instance?.TimelineId ?? "main";
             return PostJsonAsync("/government/crown/decision", payload);
         }
 
@@ -19,7 +19,7 @@ namespace ReignBeta.Integration
         {
             var payload = (JObject)context.DeepClone();
             payload["campaignId"] = GetCampaignId();
-            payload["timelineId"] = ReignBeta.Campaign.ReignWorldHistoryCampaignBehavior.Instance?.TimelineId ?? "main";
+            payload["timelineId"] = ReignBeta.WorldSimulation.Campaign.ReignWorldHistoryCampaignBehavior.Instance?.TimelineId ?? "main";
             payload["correlationId"] = "government_hearing_" + Guid.NewGuid().ToString("N");
             return PostJsonAsync("/government/hearing/discussion", payload);
         }

@@ -6,14 +6,15 @@ using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using Reign.Core.Contracts.Court;
 using ReignBeta.Campaign;
-using ReignBeta.Integration;
-using ReignBeta.Runtime;
 using ReignBeta.World;
 using TaleWorlds.CampaignSystem;
 using TaleWorlds.CampaignSystem.Actions;
 using TaleWorlds.CampaignSystem.Settlements;
+using ReignBeta.Court.Integration;
+using ReignBeta.Diplomacy.Integration;
+using ReignBeta.Platform.Integration;
 
-namespace ReignBeta.Court
+namespace ReignBeta.Court.Campaign
 {
     public sealed partial class ReignRulerDocketState
     {

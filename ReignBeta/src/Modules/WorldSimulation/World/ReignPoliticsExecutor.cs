@@ -2,13 +2,19 @@ using System.Collections.Generic;
 using System.Linq;
 using Newtonsoft.Json.Linq;
 using ReignBeta.Campaign;
-using ReignBeta.Integration;
 using ReignBeta.Government;
 using TaleWorlds.CampaignSystem;
 using TaleWorlds.CampaignSystem.Actions;
-using static ReignBeta.World.ReignWorldParsing;
+using static ReignBeta.WorldSimulation.World.ReignWorldParsing;
+using ReignBeta.Characters.World;
+using ReignBeta.Government.Campaign;
+using ReignBeta.Government.Integration;
+using ReignBeta.Platform.Campaign;
+using ReignBeta.Platform.Integration;
+using ReignBeta.Rebellion.Campaign;
+using ReignBeta.World;
 
-namespace ReignBeta.World
+namespace ReignBeta.WorldSimulation.World
 {
     public static class ReignPoliticsExecutor
     {

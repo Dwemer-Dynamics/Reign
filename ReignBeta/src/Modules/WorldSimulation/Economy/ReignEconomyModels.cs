@@ -11,8 +11,14 @@ using TaleWorlds.CampaignSystem.Settlements;
 using TaleWorlds.Core;
 using TaleWorlds.Library;
 using TaleWorlds.Localization;
+using ReignBeta.Government.Campaign;
+using ReignBeta.KingdomEvents.Campaign;
+using ReignBeta.WorldSimulation.Rulers;
+#if !REIGN_EXCLUDE_COURT
+using ReignBeta.Court.Campaign;
+#endif
 
-namespace ReignBeta.Economy
+namespace ReignBeta.WorldSimulation.Economy
 {
     internal sealed class ReignVillageProductionCalculatorModel : DefaultVillageProductionCalculatorModel
     {
@@ -87,7 +93,7 @@ namespace ReignBeta.Economy
                 return result;
             }
             float recovery = IsPotential ? 1f : ReignEconomyCampaignBehavior.Instance?.GetRecoveryModifier(village) ?? 1f;
-            ReignBeta.ClanAccords.ReignClanAccordModelMath.AddFinalDelta(ref result,
+            ReignBeta.Diplomacy.ClanAccords.ReignClanAccordModelMath.AddFinalDelta(ref result,
                 -Math.Max(0, result.ResultNumber) * (1 - recovery), new TextObject("{=!}Agricultural recovery"));
             result.LimitMin(0);
             return result;
@@ -153,7 +159,7 @@ namespace ReignBeta.Economy
         public override ExplainedNumber CalculateSecurityChange(Town town, bool includeDescriptions = false)
         {
             ExplainedNumber result = base.CalculateSecurityChange(town, includeDescriptions);
-            float accordSecurity = (float)(ReignBeta.ClanAccords.ReignClanAccordsCampaignBehavior.Instance?.GetBonuses(town?.Settlement?.OwnerClan).Security ?? 0d);
+            float accordSecurity = (float)(ReignBeta.Diplomacy.ClanAccords.ReignClanAccordsCampaignBehavior.Instance?.GetBonuses(town?.Settlement?.OwnerClan).Security ?? 0d);
             ReignEconomyCampaignBehavior behavior = ReignEconomyCampaignBehavior.Instance;
             if (town?.Settlement == null)
             {
@@ -205,9 +211,9 @@ namespace ReignBeta.Economy
             if (spyDelta != 0f)
                 result.Add(spyDelta, new TextObject("{=!}Covert security disruption"));
 #endif
-            ReignBeta.ClanAccords.ReignClanAccordModelMath.AddFinalDelta(ref result, accordSecurity,
+            ReignBeta.Diplomacy.ClanAccords.ReignClanAccordModelMath.AddFinalDelta(ref result, accordSecurity,
                 new TextObject("{=!}Clan Accords: mutual watch"));
-            ReignBeta.ClanAccords.ReignClanAccordModelMath.AddFinalDelta(ref result,
+            ReignBeta.Diplomacy.ClanAccords.ReignClanAccordModelMath.AddFinalDelta(ref result,
                 (float)(ReignRulerCampaignBehavior.Instance?.Modifiers(town).Security ?? 0),
                 new TextObject("{=!}Ruler judgment consequences"));
             return result;
@@ -244,7 +250,7 @@ namespace ReignBeta.Economy
             if (spyDelta != 0f)
                 result.Add(spyDelta, new TextObject("{=!}Covert agitation"));
 #endif
-            ReignBeta.ClanAccords.ReignClanAccordModelMath.AddFinalDelta(ref result,
+            ReignBeta.Diplomacy.ClanAccords.ReignClanAccordModelMath.AddFinalDelta(ref result,
                 (float)(ReignRulerCampaignBehavior.Instance?.Modifiers(town).Loyalty ?? 0),
                 new TextObject("{=!}Ruler judgment consequences"));
             return result;
@@ -260,7 +266,7 @@ namespace ReignBeta.Economy
             ExplainedNumber result = base.CalculateProsperityChange(
                 fortification, includeDescriptions);
             float accordProsperity = fortification?.Settlement?.IsTown == true
-                ? (float)(ReignBeta.ClanAccords.ReignClanAccordsCampaignBehavior.Instance?.GetBonuses(fortification.Settlement.OwnerClan).Prosperity ?? 0d) : 0f;
+                ? (float)(ReignBeta.Diplomacy.ClanAccords.ReignClanAccordsCampaignBehavior.Instance?.GetBonuses(fortification.Settlement.OwnerClan).Prosperity ?? 0d) : 0f;
             float eventDelta = ReignKingdomEventsCampaignBehavior.Instance
                 ?.GetProsperityDelta(fortification) ?? 0f;
             if (eventDelta != 0f)
@@ -270,9 +276,9 @@ namespace ReignBeta.Economy
             float governmentDelta = ReignGovernmentCampaignBehavior.Instance?.GetProsperityDelta(fortification) ?? 0f;
             if (governmentDelta != 0f)
                 result.Add(governmentDelta, new TextObject("{=!}Representative government authority"));
-            ReignBeta.ClanAccords.ReignClanAccordModelMath.AddFinalDelta(ref result, accordProsperity,
+            ReignBeta.Diplomacy.ClanAccords.ReignClanAccordModelMath.AddFinalDelta(ref result, accordProsperity,
                 new TextObject("{=!}Clan Accords: artisan exchange"));
-            ReignBeta.ClanAccords.ReignClanAccordModelMath.AddFinalDelta(ref result,
+            ReignBeta.Diplomacy.ClanAccords.ReignClanAccordModelMath.AddFinalDelta(ref result,
                 (float)(ReignRulerCampaignBehavior.Instance?.Modifiers(fortification).Prosperity ?? 0),
                 new TextObject("{=!}Ruler judgment consequences"));
             return result;
@@ -291,7 +297,7 @@ namespace ReignBeta.Economy
                 // Add changes the baseline under existing native factors; unrelated perk/building flats remain intact.
                 result.Add(natural - nativeBaseline, new TextObject("{=!}Household recovery after mobilization"));
             }
-            float accordHearths = (float)(ReignBeta.ClanAccords.ReignClanAccordsCampaignBehavior.Instance?.GetBonuses(village?.Settlement?.OwnerClan).HearthGrowth ?? 0d);
+            float accordHearths = (float)(ReignBeta.Diplomacy.ClanAccords.ReignClanAccordsCampaignBehavior.Instance?.GetBonuses(village?.Settlement?.OwnerClan).HearthGrowth ?? 0d);
             float eventDelta = ReignKingdomEventsCampaignBehavior.Instance
                 ?.GetHearthDelta(village) ?? 0f;
             if (eventDelta != 0f)
@@ -317,9 +323,9 @@ namespace ReignBeta.Economy
                 }
             }
             float governmentDelta = ReignGovernmentCampaignBehavior.Instance?.GetHearthDelta(village) ?? 0f;
-            ReignBeta.ClanAccords.ReignClanAccordModelMath.AddFinalDelta(ref result, governmentDelta,
+            ReignBeta.Diplomacy.ClanAccords.ReignClanAccordModelMath.AddFinalDelta(ref result, governmentDelta,
                 new TextObject("{=!}Representative government authority"));
-            ReignBeta.ClanAccords.ReignClanAccordModelMath.AddFinalDelta(ref result, accordHearths,
+            ReignBeta.Diplomacy.ClanAccords.ReignClanAccordModelMath.AddFinalDelta(ref result, accordHearths,
                 new TextObject("{=!}Clan Accords: agricultural exchange"));
             return result;
         }

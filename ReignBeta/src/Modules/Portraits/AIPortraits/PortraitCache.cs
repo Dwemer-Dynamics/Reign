@@ -8,10 +8,12 @@ using System.Text;
 using System.Threading.Tasks;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
-using ReignBeta.Integration;
 using ReignPortraits;
 using Reign.Core.Contracts.Platform;
 using TaleWorlds.Library;
+using ReignBeta.Characters.Integration;
+using ReignBeta.Platform.Integration;
+using ReignBeta.Portraits.Integration;
 
 namespace AIPortraits;
 

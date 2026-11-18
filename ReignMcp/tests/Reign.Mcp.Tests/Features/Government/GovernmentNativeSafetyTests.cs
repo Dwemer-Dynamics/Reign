@@ -1,7 +1,7 @@
 using System.Text.Json;
 using System.Text.RegularExpressions;
 using Reign.Core.Contracts.Government;
-using ReignBeta.Government;
+using ReignBeta.Government.Domain;
 
 namespace Reign.Mcp.Tests;
 

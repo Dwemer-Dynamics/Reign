@@ -5,7 +5,7 @@ using System.Text;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 
-namespace ReignBeta.World
+namespace ReignBeta.WorldSimulation.World
 {
     internal static class ReignNegotiationTermsHasher
     {

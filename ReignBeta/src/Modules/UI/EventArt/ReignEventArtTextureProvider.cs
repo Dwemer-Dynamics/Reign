@@ -1,5 +1,6 @@
 using TaleWorlds.GauntletUI;
 using TaleWorlds.TwoDimension;
+using ReignBeta.Portraits.UI;
 
 namespace ReignBeta.UI.EventArt
 {

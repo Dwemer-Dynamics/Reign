@@ -10,8 +10,11 @@ using TaleWorlds.CampaignSystem;
 using TaleWorlds.CampaignSystem.Settlements;
 using TaleWorlds.Core;
 using TaleWorlds.Library;
+using ReignBeta.Characters.Integration;
+using ReignBeta.Court.Campaign;
+using ReignBeta.Court.UI;
 
-namespace ReignBeta.Integration
+namespace ReignBeta.Court.Integration
 {
     internal static class ReignRulerPetitionSceneClient
     {

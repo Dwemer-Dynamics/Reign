@@ -3,16 +3,19 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Newtonsoft.Json.Linq;
-using ReignBeta.Integration;
-using ReignBeta.Runtime;
-using ReignBeta.Settings;
 using ReignBeta.UI;
 using ReignBeta.UI.ViewModels;
 using TaleWorlds.CampaignSystem;
 using TaleWorlds.Core;
 using TaleWorlds.Library;
+using ReignBeta.Dialogue.Integration;
+using ReignBeta.Dialogue.Runtime;
+using ReignBeta.Dialogue.UI;
+using ReignBeta.Persistence.Integration;
+using ReignBeta.Platform.Integration;
+using ReignBeta.Platform.Settings;
 
-namespace ReignBeta.Campaign
+namespace ReignBeta.Dialogue.Campaign
 {
     public static class ReignPartyDialogueAuditRunner
     {

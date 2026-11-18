@@ -6,13 +6,16 @@ using System.Text;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using Reign.Core.Contracts.Government;
-using ReignBeta.Integration;
 using ReignBeta.World;
 using TaleWorlds.CampaignSystem;
 using TaleWorlds.CampaignSystem.Settlements;
-using static ReignBeta.Government.ReignGovernmentCampaignBehavior;
+using static ReignBeta.Government.Campaign.ReignGovernmentCampaignBehavior;
+using ReignBeta.Government.Campaign;
+using ReignBeta.Government.Domain;
+using ReignBeta.Platform.Integration;
+using ReignBeta.WorldSimulation.World;
 
-namespace ReignBeta.Government
+namespace ReignBeta.Government.Testing
 {
     // Harness-owned Government acceptance controls. Saved government state and the process-local load-fingerprint phases stay on ReignGovernmentCampaignBehavior.
     internal static partial class ReignGovernmentTestControls
@@ -33,7 +36,7 @@ namespace ReignBeta.Government
                 case "contracts": return GovernmentContracts(id);
                 case "snapshot": return GovernmentSnapshot(government, id);
                 case "hearing_compose":
-                    bool composed = ReignBeta.UI.ReignGovernmentScreenManager.TryComposeHearing(
+                    bool composed = ReignBeta.Government.UI.ReignGovernmentScreenManager.TryComposeHearing(
                         options.Value<string>("businessId"), options.Value<string>("playerMessage"));
                     return new JObject { ["ok"] = composed, ["profile"] = phase,
                         ["businessId"] = options.Value<string>("businessId"), ["submitted"] = false,
@@ -97,7 +100,7 @@ namespace ReignBeta.Government
                 TaleWorlds.CampaignSystem.Campaign.Current != null,
                 "A Bannerlord campaign is loaded.", null);
             AddGovernmentAssertion(assertions, "government_restored_calendar_ready",
-                ReignBeta.Runtime.ReignCalendarService.IsReady
+                ReignBeta.WorldSimulation.Runtime.ReignCalendarService.IsReady
                     && kingdoms.All(kingdom => government.GetGovernment(kingdom).SessionProtocolVersion == GovernmentSessionRules.ProtocolVersion
                         && FormatGovernmentDate(government.GetGovernment(kingdom).NextMeetingDay) != "Awaiting calendar"),
                 "The restored calendar supplies anchored session dates before campaign time advances.", null);
@@ -242,29 +245,29 @@ namespace ReignBeta.Government
                     && !news.Record(1, "day", "realm", "Realm", "Senate", new GovernmentNewsItem { ReceiptId = "business:presented", Text = "Later change" })
                     && news.Archive[0].Kingdoms[0].Items.Single().Text == "Correct attribution",
                 "An existing pending presentation can refresh once without duplicate news; publication makes the archived report immutable.", null);
-            var narrowShare = new ReignBeta.UI.ViewModels.ReignGovernmentShareVM("A very long proposal title", 2.27, 0);
-            var middleShare = new ReignBeta.UI.ViewModels.ReignGovernmentShareVM("A very long proposal title", 12.5, 0);
-            var longOption = new ReignBeta.UI.ViewModels.ReignGovernmentOptionVM("accept", "Approve", new string('x', 500), false, false, _ => { }, 12.5);
+            var narrowShare = new ReignBeta.Government.UI.ReignGovernmentShareVM("A very long proposal title", 2.27, 0);
+            var middleShare = new ReignBeta.Government.UI.ReignGovernmentShareVM("A very long proposal title", 12.5, 0);
+            var longOption = new ReignBeta.Government.UI.ReignGovernmentOptionVM("accept", "Approve", new string('x', 500), false, false, _ => { }, 12.5);
             string fullTerms = "Workshop benefit, tariff cost and an explicit expiry remain in the full proposal.";
             var readingOptions = new JArray(new JObject { ["label"] = "Approve", ["description"] = fullTerms });
-            string completeTerms = ReignBeta.UI.ViewModels.ReignGovernmentScreenVM.CompleteProposalText("Proposal", readingOptions);
+            string completeTerms = ReignBeta.Government.UI.ReignGovernmentScreenVM.CompleteProposalText("Proposal", readingOptions);
             AddGovernmentAssertion(assertions, "government_compact_support_remains_readable",
                 Math.Abs(narrowShare.Width - 18.9772f) < .001 && narrowShare.Text == ""
                     && middleShare.Text == "12.5%" && longOption.Detail == "12.5% declared support · Terms below."
                     && longOption.ShareText == "12.5% declared support"
                     && completeTerms.Contains(fullTerms)
-                    && ReignBeta.UI.ViewModels.ReignGovernmentScreenVM.CompleteProposalText(completeTerms, readingOptions) == completeTerms,
+                    && ReignBeta.Government.UI.ReignGovernmentScreenVM.CompleteProposalText(completeTerms, readingOptions) == completeTerms,
                 "Narrow bars keep their true shares without miniature sentences; long outcome descriptions point to the complete proposal reading field.", null);
             var closedUnvoted = new ReignGovernmentBusinessRecord { Status = "invalidated", VotesJson = "[]" };
             var recorded = new ReignGovernmentBusinessRecord { Status = "decided", VotesJson = "[{\"memberHeroId\":\"member\",\"optionId\":\"accept\",\"weight\":10}]" };
             var openUnvoted = new ReignGovernmentBusinessRecord { Status = "presented", VotesJson = "[]" };
-            var finalOption = new ReignBeta.UI.ViewModels.ReignGovernmentOptionVM("accept", "Approve", "", false, false, _ => { }, 30, true);
-            var unvotedOption = new ReignBeta.UI.ViewModels.ReignGovernmentOptionVM("accept", "Approve", "", false, false, _ => { }, 30, false, true);
+            var finalOption = new ReignBeta.Government.UI.ReignGovernmentOptionVM("accept", "Approve", "", false, false, _ => { }, 30, true);
+            var unvotedOption = new ReignBeta.Government.UI.ReignGovernmentOptionVM("accept", "Approve", "", false, false, _ => { }, 30, false, true);
             AddGovernmentAssertion(assertions, "government_closed_vote_presentation_is_truthful",
-                ReignBeta.UI.ViewModels.ReignGovernmentScreenVM.ClosedWithoutRecordedVote(closedUnvoted)
-                    && !ReignBeta.UI.ViewModels.ReignGovernmentScreenVM.ClosedWithoutRecordedVote(recorded)
-                    && !ReignBeta.UI.ViewModels.ReignGovernmentScreenVM.ClosedWithoutRecordedVote(openUnvoted)
-                    && !ReignBeta.UI.ViewModels.ReignGovernmentScreenVM.ClosedWithoutRecordedVote(null)
+                ReignBeta.Government.UI.ReignGovernmentScreenVM.ClosedWithoutRecordedVote(closedUnvoted)
+                    && !ReignBeta.Government.UI.ReignGovernmentScreenVM.ClosedWithoutRecordedVote(recorded)
+                    && !ReignBeta.Government.UI.ReignGovernmentScreenVM.ClosedWithoutRecordedVote(openUnvoted)
+                    && !ReignBeta.Government.UI.ReignGovernmentScreenVM.ClosedWithoutRecordedVote(null)
                     && finalOption.ShareText == "30% recorded vote" && finalOption.Detail == finalOption.ShareText
                     && unvotedOption.ShareText == "No vote recorded" && unvotedOption.Detail == unvotedOption.ShareText,
                 "A closed matter without ballots cannot present old declarations as a final vote. Recorded outcomes identify actual vote shares; open matters retain declared support.", null);
@@ -558,7 +561,7 @@ namespace ReignBeta.Government
                 "All 104 templates expose two tangible deadline-bound routes with public units, exact payer/cost terms and private relationship verification.", null);
             var memorial = ReignGovernmentResolutionCatalog.Find("R094");
             string sharedTerms = SeasonalRequirementDescription(memorial.FirstRoute, memorial.Scale);
-            string memorialText = ReignBeta.UI.ViewModels.ReignGovernmentScreenVM.CompleteProposalText("Choose a remedy.",
+            string memorialText = ReignBeta.Government.UI.ReignGovernmentScreenVM.CompleteProposalText("Choose a remedy.",
                 new JArray(new JObject { ["label"] = memorial.FirstRoute.Description, ["description"] = sharedTerms },
                     new JObject { ["label"] = memorial.SecondRoute.Description, ["description"] = sharedTerms }));
             AddGovernmentAssertion(assertions, "government_equal_cost_remedies_keep_named_terms",

@@ -6,16 +6,17 @@ using System.Text;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using Reign.Core.Contracts.Court;
-using ReignBeta.Integration;
 using ReignBeta.UI;
 using ReignBeta.UI.Calibration;
 using TaleWorlds.CampaignSystem;
 using TaleWorlds.CampaignSystem.Actions;
 using TaleWorlds.CampaignSystem.Settlements;
 using TaleWorlds.Core;
-using static ReignBeta.Court.ReignCourtCampaignBehavior;
+using static ReignBeta.Court.Campaign.ReignCourtCampaignBehavior;
+using ReignBeta.Characters.Integration;
+using ReignBeta.Court.UI;
 
-namespace ReignBeta.Court
+namespace ReignBeta.Court.Campaign
 {
     internal static partial class ReignCourtTestControls
     {
@@ -98,7 +99,7 @@ namespace ReignBeta.Court
 
             ReignNobleDocketMatter matter = SelectDistinctNobleFixtureVariant(court, template,
                 ReignCampaignIdentity.CurrentCampaignId(),
-                ReignBeta.Campaign.ReignWorldHistoryCampaignBehavior.Instance?.TimelineId ?? "main",
+                ReignBeta.WorldSimulation.Campaign.ReignWorldHistoryCampaignBehavior.Instance?.TimelineId ?? "main",
                 preparedDay, runId, out int participantSelectionSlot,
                 out int participantVariantIndex, out int participantVariantCount);
             if (matter == null)

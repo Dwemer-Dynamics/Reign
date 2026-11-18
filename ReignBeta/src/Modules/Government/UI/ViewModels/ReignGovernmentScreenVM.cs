@@ -6,15 +6,16 @@ using AIPortraits;
 using Newtonsoft.Json.Linq;
 using Reign.Core.Contracts.Government;
 using ReignBeta.Government;
-using ReignBeta.Integration;
-using ReignBeta.Runtime;
 using TaleWorlds.CampaignSystem;
 using TaleWorlds.CampaignSystem.Settlements;
 using TaleWorlds.Core;
 using TaleWorlds.Core.ViewModelCollection.ImageIdentifiers;
 using TaleWorlds.Library;
+using ReignBeta.Government.Campaign;
+using ReignBeta.Government.Domain;
+using ReignBeta.Platform.Integration;
 
-namespace ReignBeta.UI.ViewModels
+namespace ReignBeta.Government.UI
 {
     /// <summary>Public hearing projection. Private scores and current relationships never enter this VM.</summary>
     public sealed partial class ReignGovernmentScreenVM : ViewModel
@@ -83,7 +84,7 @@ namespace ReignBeta.UI.ViewModels
         [DataSourceProperty] public string KingdomBannerId => _kingdomBanner?.Id ?? string.Empty;
         [DataSourceProperty] public string KingdomBannerArgs => _kingdomBanner?.AdditionalArgs ?? string.Empty;
         [DataSourceProperty] public string KingdomBannerProvider => _kingdomBanner?.TextureProviderName ?? string.Empty;
-        [DataSourceProperty] public string GovernmentSceneId => ReignBeta.UI.EventArt.ReignEventArtTextureFactory.BuildCourtPetitionReferenceImageId(_kingdom?.Culture?.StringId);
+        [DataSourceProperty] public string GovernmentSceneId => ReignBeta.Portraits.UI.ReignEventArtTextureFactory.BuildCourtPetitionReferenceImageId(_kingdom?.Culture?.StringId);
         [DataSourceProperty] public ReignGovernmentPersonVM Petitioner { get; private set; }
         [DataSourceProperty] public ReignGovernmentPersonVM Sponsor { get; private set; }
         [DataSourceProperty] public bool HasPetitioner => !string.IsNullOrWhiteSpace(_selected?.PetitionerHeroStringId);

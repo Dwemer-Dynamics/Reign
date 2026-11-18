@@ -1,8 +1,9 @@
 using System;
 using AIEventsAndIntrigue.Settings;
-using ReignBeta.Integration;
 using TaleWorlds.CampaignSystem;
 using TaleWorlds.Library;
+using ReignBeta.Platform.Integration;
+using ReignBeta.Portraits.Integration;
 
 namespace AIPortraits;
 
@@ -22,7 +23,7 @@ public class ConversationBehavior : CampaignBehaviorBase
 		starter.AddPlayerLine("aiportraits_look", "hero_main_options", "aiportraits_look_done", "You take a look at them.", LookCondition, LookConsequence, 110);
 		starter.AddPlayerLine("reign_outfit_change", "hero_main_options", "aiportraits_look_done", "Let's get you some new clothes.",
             () => LookCondition() && ReignOutfitClient.Eligible(GetConversationHero()),
-            () => ReignBeta.UI.ReignIndividualChatScreenManager.OpenForOutfit(GetConversationHero()), 110);
+            () => ReignBeta.Dialogue.UI.ReignIndividualChatScreenManager.OpenForOutfit(GetConversationHero()), 110);
 		starter.AddPlayerLine("aiportraits_memory", "hero_main_options", "aiportraits_memory_done", "You reflect on your time with them.", MemoryCondition, MemoryConsequence, 109);
 		starter.AddDialogLine("aiportraits_look_reaction", "aiportraits_look_done", "hero_main_options", "{=*}...", null, null);
 		starter.AddDialogLine("aiportraits_memory_reaction", "aiportraits_memory_done", "hero_main_options", "{=*}...", null, null);
@@ -93,7 +94,7 @@ public class ConversationBehavior : CampaignBehaviorBase
 
 	private static Hero GetConversationHero()
 	{
-		return ReignBeta.Campaign.ReignEncounteredResidentsCampaignBehavior.Instance?.ConversationHero
+		return ReignBeta.Characters.Campaign.ReignEncounteredResidentsCampaignBehavior.Instance?.ConversationHero
             ?? CharacterObject.OneToOneConversationCharacter?.HeroObject;
 	}
 }

@@ -3,13 +3,15 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Newtonsoft.Json.Linq;
-using ReignBeta.Runtime;
-using ReignBeta.Settings;
 using ReignBeta.World;
 using TaleWorlds.CampaignSystem;
 using TaleWorlds.CampaignSystem.Actions;
+using ReignBeta.Dialogue.Integration;
+using ReignBeta.Platform.Settings;
+using ReignBeta.WorldSimulation.Runtime;
+using ReignBeta.WorldSimulation.World;
 
-namespace ReignBeta.Integration
+namespace ReignBeta.Platform.Integration
 {
     public static partial class ReignServerClient
     {
@@ -36,7 +38,7 @@ namespace ReignBeta.Integration
                 RequestFence fence = null;
                 List<Hero> speakers = null;
                 List<Hero> attendees = null;
-                ReignBeta.Campaign.ReignRelationshipCampaignBehavior relationBehavior = null;
+                ReignBeta.Relationships.Campaign.ReignRelationshipCampaignBehavior relationBehavior = null;
                 bool playerIsFemale = false;
                 JObject payload = await ReignMainThread.InvokeAsync(() =>
                 {
@@ -48,7 +50,7 @@ namespace ReignBeta.Integration
                         .Take(ReignSocialEventSession.MaxActiveParticipants)
                         .ToList();
                     attendees = session.Record.GetAttendees().ToList();
-                    relationBehavior = ReignBeta.Campaign.ReignRelationshipCampaignBehavior.Instance;
+                    relationBehavior = ReignBeta.Relationships.Campaign.ReignRelationshipCampaignBehavior.Instance;
                     playerIsFemale = Hero.MainHero?.IsFemale ?? false;
                     return speakers.Count == 0 ? null : BuildSocialEventPayload(session, null, playerText);
                 }).ConfigureAwait(false);
@@ -206,7 +208,7 @@ namespace ReignBeta.Integration
                         // the original load and a still-current owner.
                         bool applied = await ReignMainThread.InvokeAsync(() =>
                         {
-                            if (relationBehavior == null || !ReferenceEquals(relationBehavior, ReignBeta.Campaign.ReignRelationshipCampaignBehavior.Instance)
+                            if (relationBehavior == null || !ReferenceEquals(relationBehavior, ReignBeta.Relationships.Campaign.ReignRelationshipCampaignBehavior.Instance)
                                 || !fence.IsCurrent())
                                 throw new InvalidOperationException("The campaign changed before the social relationship effect could be applied.");
                             EnsureRequestOwner(requestOwner, "social relationship effect");

@@ -6,11 +6,13 @@ using Newtonsoft.Json.Linq;
 using Reign.Core.Contracts.Government;
 using Reign.Core.Contracts.World;
 using ReignBeta.Campaign;
-using ReignBeta.Runtime;
-using ReignBeta.Save;
 using TaleWorlds.CampaignSystem;
+using ReignBeta.Government.Domain;
+using ReignBeta.Persistence.Save;
+using ReignBeta.WorldSimulation.News;
+using ReignBeta.WorldSimulation.Runtime;
 
-namespace ReignBeta.Government
+namespace ReignBeta.Government.Campaign
 {
     public sealed partial class ReignGovernmentCampaignBehavior
     {

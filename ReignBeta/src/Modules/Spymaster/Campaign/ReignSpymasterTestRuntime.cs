@@ -2,7 +2,7 @@ using System;
 using System.Collections.Generic;
 using Newtonsoft.Json.Linq;
 
-namespace ReignBeta.Court
+namespace ReignBeta.Spymaster.Campaign
 {
     /// <summary>
     /// Non-serialized, command-scoped deterministic hooks used only by the armed

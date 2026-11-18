@@ -6,8 +6,10 @@ using Reign.Core.Contracts.Actions;
 using Reign.Core.Contracts.Government;
 using ReignBeta.Actions;
 using TaleWorlds.CampaignSystem;
+using ReignBeta.Government.Domain;
+using ReignBeta.WorldSimulation.Actions;
 
-namespace ReignBeta.Government
+namespace ReignBeta.Government.Campaign
 {
     public sealed partial class ReignGovernmentCampaignBehavior
     {
@@ -25,7 +27,7 @@ namespace ReignBeta.Government
                 {
                     var caucus = _participation.Caucuses.FirstOrDefault(c => GovernmentParticipationRules.CaucusId(c) == ReignActionService.Arg(clause, "caucusId"));
                     if (caucus == null) continue; // Ordinary eligibility reports the missing selection.
-                    if (caucus.TargetInterval < 0 || !ReignBeta.Runtime.ReignCalendarService.TryFromAbsoluteCalendarDay(
+                    if (caucus.TargetInterval < 0 || !ReignBeta.WorldSimulation.Runtime.ReignCalendarService.TryFromAbsoluteCalendarDay(
                         GovernmentSessionRules.SessionCalendarDay(caucus.TargetInterval), out CampaignTime time))
                     { errors.Add("The party selection date is unavailable; no vote bargain can be reserved."); continue; }
                     deadline = time.ToDays;

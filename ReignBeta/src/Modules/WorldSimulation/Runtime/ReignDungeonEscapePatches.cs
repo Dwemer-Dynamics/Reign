@@ -3,13 +3,13 @@ using System.Collections.Generic;
 using System.Reflection;
 using System.Reflection.Emit;
 using HarmonyLib;
-using ReignBeta.Integration;
 using TaleWorlds.CampaignSystem;
 using TaleWorlds.CampaignSystem.CampaignBehaviors;
 using TaleWorlds.CampaignSystem.Party;
 using TaleWorlds.CampaignSystem.Settlements;
+using ReignBeta.Platform.Integration;
 
-namespace ReignBeta.Runtime
+namespace ReignBeta.WorldSimulation.Runtime
 {
     /// <summary>
     /// Gives NPC-owned castle and town dungeons the same native hold-rate bonus

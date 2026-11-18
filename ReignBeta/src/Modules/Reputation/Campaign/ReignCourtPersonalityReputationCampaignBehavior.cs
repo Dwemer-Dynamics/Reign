@@ -5,14 +5,17 @@ using System.Security.Cryptography;
 using System.Text;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
-using ReignBeta.Integration;
-using ReignBeta.Runtime;
-using ReignBeta.Save;
 using TaleWorlds.CampaignSystem;
 using TaleWorlds.CampaignSystem.Party;
 using TaleWorlds.CampaignSystem.Settlements;
+using ReignBeta.Characters.Campaign;
+using ReignBeta.Persistence.Save;
+using ReignBeta.Platform.Integration;
+using ReignBeta.Platform.Runtime;
+using ReignBeta.WorldSimulation.Campaign;
+using ReignBeta.WorldSimulation.Runtime;
 
-namespace ReignBeta.Campaign
+namespace ReignBeta.Reputation.Campaign
 {
     public sealed class ReignCourtPersonalityReputationCampaignBehavior : CampaignBehaviorBase
     {

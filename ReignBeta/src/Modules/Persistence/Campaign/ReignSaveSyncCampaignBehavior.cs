@@ -6,13 +6,18 @@ using System.Linq;
 using System.Security.Cryptography;
 using System.Text;
 using Newtonsoft.Json.Linq;
-using ReignBeta.Integration;
-using ReignBeta.Runtime;
 using TaleWorlds.CampaignSystem;
 using TaleWorlds.Core;
 using TaleWorlds.Library;
+using ReignBeta.Characters.Integration;
+using ReignBeta.Persistence.Integration;
+using ReignBeta.Platform.Campaign;
+using ReignBeta.Platform.Integration;
+using ReignBeta.WorldSimulation.Campaign;
+using ReignBeta.WorldSimulation.Integration;
+using ReignBeta.WorldSimulation.Runtime;
 
-namespace ReignBeta.Campaign
+namespace ReignBeta.Persistence.Campaign
 {
     public sealed class ReignSaveSyncCampaignBehavior : CampaignBehaviorBase
     {

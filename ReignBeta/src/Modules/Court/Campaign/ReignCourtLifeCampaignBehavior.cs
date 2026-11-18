@@ -3,11 +3,10 @@ using System.Collections.Generic;
 using System.Linq;
 using Newtonsoft.Json.Linq;
 using Reign.Core.Contracts.Court;
-using ReignBeta.Integration;
 using TaleWorlds.CampaignSystem;
 using TaleWorlds.CampaignSystem.Settlements;
 
-namespace ReignBeta.Court
+namespace ReignBeta.Court.Campaign
 {
     public sealed partial class ReignCourtCampaignBehavior
     {

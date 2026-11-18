@@ -9,8 +9,6 @@ using Reign.Core.Contracts.Court;
 using ReignBeta.CastleChat;
 using ReignBeta.Court;
 using ReignBeta.Events;
-using ReignBeta.Integration;
-using ReignBeta.Runtime;
 using ReignBeta.UI;
 using ReignBeta.UI.Calibration;
 using ReignBeta.World;
@@ -20,8 +18,25 @@ using TaleWorlds.CampaignSystem.GameState;
 using TaleWorlds.CampaignSystem.Party;
 using TaleWorlds.CampaignSystem.Settlements;
 using TaleWorlds.Core;
+using ReignBeta.Characters.UI;
+using ReignBeta.Court.Campaign;
+using ReignBeta.Court.FamilyChambers;
+using ReignBeta.Court.TrainingYard;
+using ReignBeta.Court.UI;
+using ReignBeta.Dialogue.Runtime;
+using ReignBeta.Dialogue.UI;
+using ReignBeta.Diplomacy.UI;
+using ReignBeta.Diplomacy.World;
+using ReignBeta.Government.UI;
+using ReignBeta.Platform.Integration;
+using ReignBeta.Portraits.UI;
+using ReignBeta.Relationships.UI;
+using ReignBeta.Spymaster.UI;
+using ReignBeta.WorldSimulation.Events;
+using ReignBeta.WorldSimulation.Runtime;
+using ReignBeta.WorldSimulation.UI;
 
-namespace ReignBeta.Campaign
+namespace ReignBeta.WorldSimulation.Campaign
 {
     public static partial class ReignLiveInteractionTestHost
     {
@@ -148,8 +163,8 @@ namespace ReignBeta.Campaign
                         ReignCourtEconomicReportScreenManager.Open(court);
                         break;
                     case "clan-accords":
-                        var accords = ReignBeta.ClanAccords.ReignClanAccordsCampaignBehavior.Instance;
-                        if (accords == null || !ReignBeta.ClanAccords.ReignClanAccordsCampaignBehavior.IsPlayerRuler)
+                        var accords = ReignBeta.Diplomacy.ClanAccords.ReignClanAccordsCampaignBehavior.Instance;
+                        if (accords == null || !ReignBeta.Diplomacy.ClanAccords.ReignClanAccordsCampaignBehavior.IsPlayerRuler)
                             return "Clan Accords requires the player to rule a kingdom.";
                         ReignClanAccordsScreenManager.Open(court,
                             ReignClanAccordsPresentation.Capture, accords.CancelFromUi);
@@ -1296,7 +1311,7 @@ namespace ReignBeta.Campaign
 #else
 using System.Threading.Tasks;
 using Newtonsoft.Json.Linq;
-namespace ReignBeta.Campaign
+namespace ReignBeta.WorldSimulation.Campaign
 {
     public static partial class ReignLiveInteractionTestHost
     {

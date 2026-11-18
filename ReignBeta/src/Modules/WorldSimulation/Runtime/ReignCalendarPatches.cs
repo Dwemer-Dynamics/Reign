@@ -1,11 +1,11 @@
 using System;
 using System.Runtime.CompilerServices;
 using HarmonyLib;
-using ReignBeta.Integration;
 using TaleWorlds.CampaignSystem;
 using TaleWorlds.CampaignSystem.ViewModelCollection.Map.MapBar;
+using ReignBeta.Platform.Integration;
 
-namespace ReignBeta.Runtime
+namespace ReignBeta.WorldSimulation.Runtime
 {
     public static class ReignCalendarPatches
     {

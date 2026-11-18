@@ -1,4 +1,4 @@
-using ReignBeta.Campaign;
+using ReignBeta.Characters.Campaign;
 using Xunit;
 
 namespace Reign.Mcp.Tests.Platform;

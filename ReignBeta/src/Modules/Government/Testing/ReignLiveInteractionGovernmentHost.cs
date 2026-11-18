@@ -2,9 +2,11 @@ using System;
 using System.Threading.Tasks;
 using Newtonsoft.Json.Linq;
 using ReignBeta.Government;
-using ReignBeta.Integration;
+using ReignBeta.Government.Campaign;
+using ReignBeta.Government.Testing;
+using ReignBeta.Platform.Integration;
 
-namespace ReignBeta.Campaign
+namespace ReignBeta.WorldSimulation.Campaign
 {
     public static partial class ReignLiveInteractionTestHost
     {

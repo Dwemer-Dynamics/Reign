@@ -1,12 +1,11 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using ReignBeta.Runtime;
 using ReignBeta.World;
 using TaleWorlds.CampaignSystem;
 using TaleWorlds.CampaignSystem.Actions;
 
-namespace ReignBeta.Campaign
+namespace ReignBeta.Platform.Campaign
 {
     public sealed partial class ReignAICampaignBehavior
     {

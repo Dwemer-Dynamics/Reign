@@ -1,6 +1,6 @@
 using System;
 
-namespace ReignBeta.World
+namespace ReignBeta.WorldSimulation.World
 {
     internal enum ReignSurrenderHandoffState { Waiting, AwaitingCapture, Captured, EncounterLost }
 

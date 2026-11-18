@@ -1,14 +1,14 @@
 using System;
 using System.Linq;
-using ReignBeta.Integration;
 using TaleWorlds.CampaignSystem;
 using TaleWorlds.CampaignSystem.Actions;
 using TaleWorlds.CampaignSystem.Party;
 using TaleWorlds.CampaignSystem.Party.PartyComponents;
 using TaleWorlds.CampaignSystem.Settlements;
 using TaleWorlds.CampaignSystem.Settlements.Workshops;
+using ReignBeta.Platform.Integration;
 
-namespace ReignBeta.Campaign
+namespace ReignBeta.Characters.Campaign
 {
     public sealed partial class ReignRecruitedNotableCampaignBehavior
     {

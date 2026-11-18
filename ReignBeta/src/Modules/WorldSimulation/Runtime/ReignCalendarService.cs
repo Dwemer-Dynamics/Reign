@@ -2,12 +2,13 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using Newtonsoft.Json;
-using ReignBeta.Integration;
 using Reign.Core.Contracts.Platform;
 using TaleWorlds.CampaignSystem;
 using TaleWorlds.Library;
+using ReignBeta.Characters.Integration;
+using ReignBeta.Platform.Integration;
 
-namespace ReignBeta.Runtime
+namespace ReignBeta.WorldSimulation.Runtime
 {
     public static class ReignCalendarService
     {

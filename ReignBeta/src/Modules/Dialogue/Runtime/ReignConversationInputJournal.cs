@@ -8,7 +8,7 @@ using System.Text;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 
-namespace ReignBeta.Runtime
+namespace ReignBeta.Dialogue.Runtime
 {
     // Originals remain local even if the server never receives the request. No automatic
     // replay across saves: resending can execute game actions and needs the original scope.

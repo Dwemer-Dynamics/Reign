@@ -7,7 +7,7 @@ using TaleWorlds.CampaignSystem.Extensions;
 using TaleWorlds.CampaignSystem.Settlements;
 using TaleWorlds.Core;
 
-namespace ReignBeta.Court
+namespace ReignBeta.Court.Campaign
 {
     public sealed class ReignSettlementSupplySnapshot
     {

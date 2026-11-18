@@ -1,6 +1,8 @@
 using ReignBeta.World;
+using ReignBeta.Government.Campaign;
+using ReignBeta.WorldSimulation.World;
 
-namespace ReignBeta.Government
+namespace ReignBeta.Government.Integration
 {
     public static class ReignGovernmentActionGate
     {

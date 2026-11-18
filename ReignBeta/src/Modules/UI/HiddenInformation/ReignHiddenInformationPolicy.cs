@@ -4,13 +4,13 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using System.Runtime.CompilerServices;
-using ReignBeta.Integration;
-using ReignBeta.Settings;
 using TaleWorlds.CampaignSystem;
 using TaleWorlds.CampaignSystem.ViewModelCollection.Encyclopedia.Items;
 using TaleWorlds.Core;
 using TaleWorlds.Core.ViewModelCollection.Information;
 using TaleWorlds.Library;
+using ReignBeta.Platform.Integration;
+using ReignBeta.Platform.Settings;
 
 namespace ReignBeta.UI.HiddenInformation
 {

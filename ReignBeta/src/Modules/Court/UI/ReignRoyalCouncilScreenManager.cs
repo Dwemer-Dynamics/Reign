@@ -1,7 +1,6 @@
 #if !REIGN_EXCLUDE_COURT
 using System;
 using ReignBeta.Court;
-using ReignBeta.Integration;
 using ReignBeta.UI.ViewModels;
 using TaleWorlds.Core;
 using TaleWorlds.Engine;
@@ -9,8 +8,12 @@ using TaleWorlds.Engine.GauntletUI;
 using TaleWorlds.InputSystem;
 using TaleWorlds.Library;
 using TaleWorlds.ScreenSystem;
+using ReignBeta.Court.Campaign;
+using ReignBeta.Dialogue.UI;
+using ReignBeta.Platform.Integration;
+using ReignBeta.UI;
 
-namespace ReignBeta.UI
+namespace ReignBeta.Court.UI
 {
     public static class ReignRoyalCouncilScreenManager
     {

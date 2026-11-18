@@ -1,9 +1,9 @@
 using System;
 using System.Collections.Generic;
 using TaleWorlds.CampaignSystem;
-using ReignBeta.Integration;
+using ReignBeta.Platform.Integration;
 
-namespace ReignBeta.Campaign
+namespace ReignBeta.Characters.Campaign
 {
     internal static class ReignHeroKnowledge
     {

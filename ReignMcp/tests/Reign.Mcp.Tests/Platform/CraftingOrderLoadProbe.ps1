@@ -34,7 +34,7 @@ try {
     $designType=$core.GetType('TaleWorlds.Core.WeaponDesign',$true)
     $elementType=$core.GetType('TaleWorlds.Core.WeaponDesignElement',$true)
     $dataField=[HarmonyLib.AccessTools]::Field($orderType,'_preCraftedWeaponDesignItemData')
-    $patch=$client.GetType('ReignBeta.Compatibility.ReignCraftingOrderLoadPatches',$true)
+    $patch=$client.GetType('ReignBeta.Platform.Compatibility.ReignCraftingOrderLoadPatches',$true)
     Add-Type -TypeDefinition @'
 using System;
 using System.Collections.Generic;

@@ -1,4 +1,4 @@
-using EscapePolicy = ReignBeta.Campaign.ReignRebellionResidentEscape;
+using EscapePolicy = ReignBeta.Rebellion.Campaign.ReignRebellionResidentEscape;
 
 namespace Reign.Mcp.Tests;
 

@@ -2,7 +2,7 @@ using System;
 using System.Linq;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
-using ReignBeta.Campaign;
+using ReignBeta.Reputation.Domain;
 using Xunit;
 
 namespace Reign.Mcp.Tests.Features.Reputation;

@@ -10,8 +10,9 @@ using TaleWorlds.CampaignSystem.Settlements.Locations;
 using TaleWorlds.CampaignSystem.ViewModelCollection.Conversation;
 using TaleWorlds.Localization;
 using TaleWorlds.MountAndBlade;
+using ReignBeta.Dialogue.Campaign;
 
-namespace ReignBeta.Campaign
+namespace ReignBeta.Characters.Campaign
 {
     internal static class ReignEncounteredResidentPatches
     {

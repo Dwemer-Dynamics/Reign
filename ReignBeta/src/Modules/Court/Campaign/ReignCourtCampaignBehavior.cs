@@ -6,9 +6,6 @@ using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using Reign.Core.Contracts.Court;
 using ReignBeta.Campaign;
-using ReignBeta.Integration;
-using ReignBeta.Settings;
-using ReignBeta.Save;
 using ReignBeta.UI;
 using ReignBeta.World;
 using TaleWorlds.CampaignSystem;
@@ -19,8 +16,26 @@ using TaleWorlds.CampaignSystem.Settlements;
 using TaleWorlds.Core;
 using TaleWorlds.Localization;
 using TaleWorlds.Library;
+using ReignBeta.Characters.Integration;
+using ReignBeta.Characters.World;
+using ReignBeta.Court.FamilyChambers;
+using ReignBeta.Court.Integration;
+using ReignBeta.Court.UI;
+using ReignBeta.Dialogue.Integration;
+using ReignBeta.Persistence.Campaign;
+using ReignBeta.Persistence.Integration;
+using ReignBeta.Persistence.Save;
+using ReignBeta.Platform.Campaign;
+using ReignBeta.Platform.Integration;
+using ReignBeta.Platform.Settings;
+using ReignBeta.Rebellion.Campaign;
+using ReignBeta.Relationships.Campaign;
+using ReignBeta.Relationships.Integration;
+using ReignBeta.Spymaster.Campaign;
+using ReignBeta.WorldSimulation.Campaign;
+using ReignBeta.WorldSimulation.World;
 
-namespace ReignBeta.Court
+namespace ReignBeta.Court.Campaign
 {
     public sealed partial class ReignCourtCampaignBehavior : CampaignBehaviorBase
     {
@@ -1516,7 +1531,7 @@ namespace ReignBeta.Court
                 if (shipment.BlockedSpoilageLastDay > 0)
                 {
                     float before = shipment.SurvivingFood;
-                    shipment.SurvivingFood = (float)ReignBeta.Economy.ReignWarEconomyPolicy.BlockedCargo(before, now - shipment.BlockedSpoilageLastDay);
+                    shipment.SurvivingFood = (float)ReignBeta.WorldSimulation.Economy.ReignWarEconomyPolicy.BlockedCargo(before, now - shipment.BlockedSpoilageLastDay);
                     shipment.SiegeSpoilage += before - shipment.SurvivingFood;
                     shipment.BlockedSpoilageLastDay = now;
                     changed = true;

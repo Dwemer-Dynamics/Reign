@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using Reign.Core.Contracts.Court;
 
-namespace ReignBeta.Court
+namespace ReignBeta.Court.Campaign
 {
     public enum ReignCourtLifeMatterState
     {

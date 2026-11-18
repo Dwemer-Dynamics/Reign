@@ -1,4 +1,4 @@
-using ReignBeta.World;
+using ReignBeta.WorldSimulation.CampaignCommands;
 using Newtonsoft.Json;
 using Xunit;
 

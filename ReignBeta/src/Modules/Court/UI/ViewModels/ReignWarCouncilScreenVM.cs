@@ -6,7 +6,6 @@ using System.Threading.Tasks;
 using Newtonsoft.Json.Linq;
 using ReignBeta.Court;
 using ReignBeta.Court.WarCouncil;
-using ReignBeta.Integration;
 using ReignBeta.Shared.WarCouncil;
 using ReignBeta.UI.EventArt;
 using ReignBeta.World;
@@ -19,8 +18,15 @@ using TaleWorlds.CampaignSystem.Settlements;
 using TaleWorlds.Core;
 using TaleWorlds.Core.ViewModelCollection.ImageIdentifiers;
 using TaleWorlds.Library;
+using ReignBeta.Court.Campaign;
+using ReignBeta.Dialogue.Integration;
+using ReignBeta.Dialogue.UI;
+using ReignBeta.Platform.Integration;
+using ReignBeta.Portraits.UI;
+using ReignBeta.WorldSimulation.CampaignCommands;
+using ReignBeta.WorldSimulation.World;
 
-namespace ReignBeta.UI.ViewModels
+namespace ReignBeta.Court.UI
 {
     public sealed class ReignWarCouncilScreenVM : ViewModel, IReignActionHost
     {
@@ -72,12 +78,12 @@ namespace ReignBeta.UI.ViewModels
         [DataSourceProperty] public bool CanChangeStanding => StandingKingdom?.Leader == Hero.MainHero
             && Hero.MainHero != null && Clan.PlayerClan?.Kingdom == _standingRealm
             && ReignCourtCampaignBehavior.Instance?.HasRoyalCommandAccess == true;
-        [DataSourceProperty] public bool PeaceStandingSelected => StandingKingdom != null && ReignBeta.Economy.ReignMilitaryReadiness.EffectiveMode(StandingKingdom) == "peace";
-        [DataSourceProperty] public bool WarStandingSelected => StandingKingdom != null && ReignBeta.Economy.ReignMilitaryReadiness.EffectiveMode(StandingKingdom) == "war";
+        [DataSourceProperty] public bool PeaceStandingSelected => StandingKingdom != null && ReignBeta.WorldSimulation.Economy.ReignMilitaryReadiness.EffectiveMode(StandingKingdom) == "peace";
+        [DataSourceProperty] public bool WarStandingSelected => StandingKingdom != null && ReignBeta.WorldSimulation.Economy.ReignMilitaryReadiness.EffectiveMode(StandingKingdom) == "war";
         [DataSourceProperty] public bool PeaceStandingUnselected => !PeaceStandingSelected;
         [DataSourceProperty] public bool WarStandingUnselected => !WarStandingSelected;
         [DataSourceProperty] public bool CanChoosePeaceForce => CanChangeStanding && PeaceStandingSelected && !MessengerVisible;
-        [DataSourceProperty] public string PeaceForceText => StandingKingdom == null ? "--" : (ReignBeta.Economy.ReignMilitaryReadiness.PeacePercent(StandingKingdom)?.ToString(CultureInfo.InvariantCulture) is string percent ? percent + "%" : "Auto") + " v";
+        [DataSourceProperty] public string PeaceForceText => StandingKingdom == null ? "--" : (ReignBeta.WorldSimulation.Economy.ReignMilitaryReadiness.PeacePercent(StandingKingdom)?.ToString(CultureInfo.InvariantCulture) is string percent ? percent + "%" : "Auto") + " v";
         [DataSourceProperty] public bool StandingDropdownVisible { get => _standingDropdownVisible; private set {
             if (_standingDropdownVisible == value) return; _standingDropdownVisible = value; _pointerDown = false;
             OnPropertyChangedWithValue(value); } }
@@ -87,10 +93,10 @@ namespace ReignBeta.UI.ViewModels
             foreach (string property in new[] { nameof(CanChangeStanding), nameof(PeaceStandingSelected), nameof(WarStandingSelected),
                 nameof(PeaceStandingUnselected), nameof(WarStandingUnselected), nameof(CanChoosePeaceForce), nameof(PeaceForceText) }) OnPropertyChanged(property);
             PeaceForceOptions.Clear();
-            PeaceForceOptions.Add(new ReignPeaceForceOptionVM(null, ChoosePeaceForce, ReignBeta.Economy.ReignMilitaryReadiness.PeacePercent(StandingKingdom) == null));
+            PeaceForceOptions.Add(new ReignPeaceForceOptionVM(null, ChoosePeaceForce, ReignBeta.WorldSimulation.Economy.ReignMilitaryReadiness.PeacePercent(StandingKingdom) == null));
             for (int percent = 40; percent <= 90; percent += 5)
                 PeaceForceOptions.Add(new ReignPeaceForceOptionVM(percent, ChoosePeaceForce,
-                    ReignBeta.Economy.ReignMilitaryReadiness.PeacePercent(StandingKingdom) == percent));
+                    ReignBeta.WorldSimulation.Economy.ReignMilitaryReadiness.PeacePercent(StandingKingdom) == percent));
             PeaceForceLeftOptions.Clear(); PeaceForceRightOptions.Clear();
             for (int index = 0; index < PeaceForceOptions.Count; index++)
                 (index < 6 ? PeaceForceLeftOptions : PeaceForceRightOptions).Add(PeaceForceOptions[index]);
@@ -99,7 +105,7 @@ namespace ReignBeta.UI.ViewModels
         {
             if (!CanChangeStanding || MessengerVisible) { StatusText = "Only the current sovereign may change military standing. Close the messenger first."; return false; }
             StandingDropdownVisible = false;
-            bool ok = ReignBeta.Economy.ReignMilitaryReadiness.Order(Hero.MainHero, mode, out string message);
+            bool ok = ReignBeta.WorldSimulation.Economy.ReignMilitaryReadiness.Order(Hero.MainHero, mode, out string message);
             StatusText = message; RefreshStanding(); return ok;
         }
         public void ExecutePeaceStanding() => SetStanding("peace");
@@ -112,7 +118,7 @@ namespace ReignBeta.UI.ViewModels
             if (!StandingDropdownVisible || !CanChoosePeaceForce) { ExecuteClosePeaceForce(); return; }
             var realm = StandingKingdom;
             if (realm == null || realm.Leader != Hero.MainHero) { ExecuteClosePeaceForce(); return; }
-            bool ok = ReignBeta.Economy.ReignMilitaryReadiness.Order(Hero.MainHero, "peace", out string message, percent, false);
+            bool ok = ReignBeta.WorldSimulation.Economy.ReignMilitaryReadiness.Order(Hero.MainHero, "peace", out string message, percent, false);
             StatusText = message; ExecuteClosePeaceForce(); if (ok) RefreshStanding();
         }
         public bool ChoosePeaceForceForAutomation(string value)
@@ -124,7 +130,7 @@ namespace ReignBeta.UI.ViewModels
                 percent = parsed;
             }
             if (!StandingDropdownVisible || !CanChoosePeaceForce) return false;
-            ChoosePeaceForce(percent); return ReignBeta.Economy.ReignMilitaryReadiness.PeacePercent(StandingKingdom) == percent;
+            ChoosePeaceForce(percent); return ReignBeta.WorldSimulation.Economy.ReignMilitaryReadiness.PeacePercent(StandingKingdom) == percent;
         }
 
         public ReignWarCouncilScreenVM(Action close)
@@ -207,7 +213,7 @@ namespace ReignBeta.UI.ViewModels
         {
             if (StandingDropdownVisible && !CanChoosePeaceForce) ExecuteClosePeaceForce();
             string stamp = StandingKingdom?.StringId + ":" + StandingKingdom?.Leader?.StringId + ":"
-                + ReignBeta.Economy.ReignMilitaryReadiness.EffectiveMode(StandingKingdom) + ":" + PeaceForceText + ":" + CanChangeStanding + ":" + MessengerVisible;
+                + ReignBeta.WorldSimulation.Economy.ReignMilitaryReadiness.EffectiveMode(StandingKingdom) + ":" + PeaceForceText + ":" + CanChangeStanding + ":" + MessengerVisible;
             if (stamp != _standingViewStamp) { _standingViewStamp = stamp; RefreshStanding(); }
             // Campaign time is paused while this screen is open. Rebuilding all
             // portrait and roster VMs on a timer caused visible flicker and reset
@@ -609,7 +615,7 @@ namespace ReignBeta.UI.ViewModels
                 StatusText = "Raven dispatched to " + (recipient.Name?.ToString() ?? recipient.StringId)
                     + ". The letter is recorded in Correspondence."
                     + (result.HeldActionId == null ? string.Empty
-                        : " [unknown: " + ReignBeta.Actions.ReignCompletedOrderPolicy.UncertainExecutionMarker + "]");
+                        : " [unknown: " + ReignBeta.WorldSimulation.Actions.ReignCompletedOrderPolicy.UncertainExecutionMarker + "]");
             });
         }
 

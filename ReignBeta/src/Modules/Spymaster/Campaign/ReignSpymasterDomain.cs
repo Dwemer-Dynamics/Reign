@@ -2,7 +2,7 @@ using System;
 using System.Collections.Generic;
 using ReignShared.Spymaster;
 
-namespace ReignBeta.Court
+namespace ReignBeta.Spymaster.Campaign
 {
     public enum ReignSpymasterPage
     {

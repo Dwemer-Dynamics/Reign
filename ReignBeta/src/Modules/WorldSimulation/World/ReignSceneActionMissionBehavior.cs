@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Linq;
 using Newtonsoft.Json.Linq;
 using ReignBeta.Campaign;
-using ReignBeta.Integration;
 using ReignBeta.UI;
 using SandBox;
 using SandBox.Missions.AgentBehaviors;
@@ -14,8 +13,13 @@ using TaleWorlds.Core;
 using TaleWorlds.Engine;
 using TaleWorlds.Library;
 using TaleWorlds.MountAndBlade;
+using ReignBeta.Characters.Campaign;
+using ReignBeta.Dialogue.UI;
+using ReignBeta.Platform.Campaign;
+using ReignBeta.Platform.Integration;
+using ReignBeta.World;
 
-namespace ReignBeta.World
+namespace ReignBeta.WorldSimulation.World
 {
         // Production scene orders own one NPC's movement, never player controls.
     // A scene Follow completes after its native behavior binds to the actual

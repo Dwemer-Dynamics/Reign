@@ -10,7 +10,7 @@ using TaleWorlds.CampaignSystem.Settlements;
 using TaleWorlds.Core;
 using NativeCampaign = TaleWorlds.CampaignSystem.Campaign;
 
-namespace ReignBeta.Economy
+namespace ReignBeta.WorldSimulation.Economy
 {
     // Native consumption still removes items, rounds purchases and credits the market.
     // This adapter changes only the allocation of the existing civilian purchasing budget.

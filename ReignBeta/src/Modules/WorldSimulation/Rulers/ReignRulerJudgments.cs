@@ -4,8 +4,6 @@ using System.Linq;
 using System.Threading.Tasks;
 using HarmonyLib;
 using Newtonsoft.Json.Linq;
-using ReignBeta.Integration;
-using ReignBeta.Runtime;
 using ReignBeta.Shared.Rulers;
 using TaleWorlds.CampaignSystem;
 using TaleWorlds.CampaignSystem.Actions;
@@ -16,8 +14,12 @@ using TaleWorlds.Library;
 using TaleWorlds.Localization;
 using TaleWorlds.MountAndBlade;
 using NativeCampaign = TaleWorlds.CampaignSystem.Campaign;
+using ReignBeta.Platform.Integration;
+using ReignBeta.Rebellion.Campaign;
+using ReignBeta.WorldSimulation.Campaign;
+using ReignBeta.WorldSimulation.News;
 
-namespace ReignBeta.Campaign
+namespace ReignBeta.WorldSimulation.Rulers
 {
     public sealed partial class ReignRulerCampaignBehavior
     {
@@ -98,7 +100,7 @@ namespace ReignBeta.Campaign
         {
             if (!ReignRulerPolicy.DecisionDue(j, Day) || !HeldForJudgment(j)) return;
             if (_presenting || Mission.Current != null || NativeCampaign.Current.ConversationManager.IsConversationInProgress || MobileParty.MainParty?.MapEvent != null
-                || ReignBeta.UI.ReignDiplomacyAnnouncementScreenManager.IsOpen || InformationManager.IsAnyInquiryActive()) return;
+                || ReignBeta.Diplomacy.UI.ReignDiplomacyAnnouncementScreenManager.IsOpen || InformationManager.IsAnyInquiryActive()) return;
             var rows = Enum.GetValues(typeof(RulerVerdict)).Cast<RulerVerdict>().Where(v => Eligible(j, v)).Select(v => new InquiryElement(v, Label(v), null)).ToList();
             _presenting = true;
             MBInformationManager.ShowMultiSelectionInquiry(new MultiSelectionInquiryData("Captured ruler", "Decide the fate of " + (HeroById(j.PrisonerId)?.Name?.ToString() ?? "the captive") + ". Executions allow eight days for escape or rescue; ransom is forbidden after sentencing.",

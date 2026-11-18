@@ -4,9 +4,6 @@ using System.Linq;
 using System.Threading.Tasks;
 using System.Threading;
 using Newtonsoft.Json.Linq;
-using ReignBeta.Integration;
-using ReignBeta.Runtime;
-using ReignBeta.Settings;
 using ReignBeta.UI;
 using ReignBeta.World;
 using TaleWorlds.CampaignSystem;
@@ -15,8 +12,20 @@ using TaleWorlds.Core;
 using TaleWorlds.Library;
 using TaleWorlds.MountAndBlade;
 using TaleWorlds.ScreenSystem;
+using ReignBeta.Dialogue.UI;
+using ReignBeta.Diplomacy.Integration;
+using ReignBeta.Diplomacy.Runtime;
+using ReignBeta.Diplomacy.UI;
+using ReignBeta.Diplomacy.World;
+using ReignBeta.Persistence.Campaign;
+using ReignBeta.Persistence.Integration;
+using ReignBeta.Platform.Campaign;
+using ReignBeta.Platform.Integration;
+using ReignBeta.Platform.Settings;
+using ReignBeta.WorldSimulation.News;
+using ReignBeta.WorldSimulation.UI;
 
-namespace ReignBeta.Campaign
+namespace ReignBeta.Diplomacy.Campaign
 {
     public sealed class ReignWorldDiplomacyCampaignBehavior : CampaignBehaviorBase
     {

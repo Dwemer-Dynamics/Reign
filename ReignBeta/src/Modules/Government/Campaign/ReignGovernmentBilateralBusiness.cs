@@ -4,8 +4,9 @@ using HarmonyLib;
 using Reign.Core.Contracts.Government;
 using TaleWorlds.CampaignSystem;
 using TaleWorlds.CampaignSystem.Election;
+using ReignBeta.Government.Domain;
 
-namespace ReignBeta.Government
+namespace ReignBeta.Government.Campaign
 {
     public sealed partial class ReignGovernmentCampaignBehavior
     {

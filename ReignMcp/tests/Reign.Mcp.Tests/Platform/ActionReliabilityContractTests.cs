@@ -1,4 +1,4 @@
-using ReignBeta.PartyAgency;
+using ReignBeta.WorldSimulation.PartyAgency;
 using Xunit;
 
 namespace Reign.Mcp.Tests.Platform;

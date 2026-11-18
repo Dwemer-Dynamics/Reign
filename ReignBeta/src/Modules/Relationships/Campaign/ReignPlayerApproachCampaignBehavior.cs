@@ -4,7 +4,6 @@ using System.Linq;
 using System.Threading.Tasks;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
-using ReignBeta.Integration;
 using ReignBeta.UI;
 using ReignBeta.World;
 using ReignBeta.Shared;
@@ -15,8 +14,13 @@ using TaleWorlds.CampaignSystem.Settlements;
 using TaleWorlds.MountAndBlade;
 using TaleWorlds.ScreenSystem;
 using NativeCampaign = TaleWorlds.CampaignSystem.Campaign;
+using ReignBeta.Dialogue.UI;
+using ReignBeta.Platform.Integration;
+using ReignBeta.Relationships.Integration;
+using ReignBeta.Relationships.UI;
+using ReignBeta.WorldSimulation.CampaignCommands;
 
-namespace ReignBeta.Campaign
+namespace ReignBeta.Relationships.Campaign
 {
     public sealed class ReignPlayerApproachCampaignBehavior : CampaignBehaviorBase
     {
@@ -88,7 +92,7 @@ namespace ReignBeta.Campaign
         }
         private static bool Ready() => !ReignCampaignInitializationGate.IsPending
             && NativeCampaign.Current != null && MobileParty.MainParty != null
-            && Settings.ReignBetaSettings.Instance?.UseLocalServer != false
+            && Platform.Settings.ReignBetaSettings.Instance?.UseLocalServer != false
             && Hero.MainHero?.IsAlive == true && !Hero.MainHero.IsPrisoner && MobileParty.MainParty?.MapEvent == null;
 
         private async Task EvaluateSharedAndPatrolAsync()
@@ -150,7 +154,7 @@ namespace ReignBeta.Campaign
         private static bool EligibleParty(MobileParty party) => MobileParty.MainParty != null && party != null && party.IsActive && party.LeaderHero?.IsAlive == true
             && !party.LeaderHero.IsPrisoner && party.Army == null && party.MapEvent == null && party.SiegeEvent == null
             && party.CurrentSettlement == null && !FactionManager.IsAtWarAgainstFaction(party.MapFaction, MobileParty.MainParty.MapFaction)
-            && PartyAgency.ReignTemporaryPartyGuestCampaignBehavior.Instance?.IsProtectedCamp(party) != true;
+            && WorldSimulation.PartyAgency.ReignTemporaryPartyGuestCampaignBehavior.Instance?.IsProtectedCamp(party) != true;
 
         private void BeginPatrol(JObject response)
         {
@@ -259,7 +263,7 @@ namespace ReignBeta.Campaign
             if (ReignPlayerApproachClient.ApproachKindEnabled("keep") && keep.Length > 0 && keep != _keepVisit && !_evaluating)
             {
                 _keepVisit = keep;
-                var nobles = Runtime.ReignPartyChatSession.GetAvailableConversationHeroes().Where(EligibleKeepHero).ToList();
+                var nobles = Dialogue.Runtime.ReignPartyChatSession.GetAvailableConversationHeroes().Where(EligibleKeepHero).ToList();
                 _ = EvaluateKeepAsync(new JArray(nobles.Select(h => ReignPlayerApproachClient.BuildApproachCandidate(h))));
             }
             else if (keep.Length == 0 && menu != "") _keepVisit = "";

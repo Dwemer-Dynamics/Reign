@@ -4,13 +4,14 @@ using System.Globalization;
 using System.Linq;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
-using ReignBeta.Integration;
-using ReignBeta.Save;
 using TaleWorlds.CampaignSystem;
 using TaleWorlds.CampaignSystem.Party;
 using TaleWorlds.CampaignSystem.Settlements;
+using ReignBeta.Persistence.Save;
+using ReignBeta.Platform.Integration;
+using ReignBeta.WorldSimulation.Campaign;
 
-namespace ReignBeta.Campaign
+namespace ReignBeta.Reputation.Campaign
 {
     /// <summary>
     /// Records genuine NPC arrivals through the existing durable world-history outbox.

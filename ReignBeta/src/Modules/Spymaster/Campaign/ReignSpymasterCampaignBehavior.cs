@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Linq;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
-using ReignBeta.Integration;
 using ReignShared.Spymaster;
 using TaleWorlds.CampaignSystem;
 using TaleWorlds.CampaignSystem.Actions;
@@ -12,9 +11,12 @@ using TaleWorlds.CampaignSystem.Party;
 using TaleWorlds.CampaignSystem.Settlements;
 using TaleWorlds.Core;
 using TaleWorlds.Library;
-using ReignBeta.Runtime;
+using ReignBeta.Platform.Integration;
+using ReignBeta.Platform.Runtime;
+using ReignBeta.Spymaster.Campaign;
+using ReignBeta.Spymaster.Integration;
 
-namespace ReignBeta.Court
+namespace ReignBeta.Court.Campaign
 {
     public sealed partial class ReignCourtCampaignBehavior
     {
@@ -570,7 +572,7 @@ namespace ReignBeta.Court
                     mission.ResultSummary = details;
                     mission.ReportJson = status.ToString(Formatting.None);
                     mission.AgreementEffectState = "completed"; _courtAgreementSpyEffects.Remove(mission.MissionId);
-                    ReignBeta.Actions.ReignAgreementBehavior.Instance?.RecheckPendingAgreements();
+                    ReignBeta.WorldSimulation.Actions.ReignAgreementBehavior.Instance?.RecheckPendingAgreements();
                     _ = ReignSpymasterServerClient.RecordMissionMemoryAsync(mission, "resolved");
                     StateChanged?.Invoke();
                 }).ConfigureAwait(false);
@@ -582,7 +584,7 @@ namespace ReignBeta.Court
                 {
                     try { fence(); } catch { return; }
                     mission.AgreementEffectState = "uncertain"; _courtAgreementSpyEffects.Remove(mission.MissionId);
-                    ReignBeta.Actions.ReignAgreementBehavior.Instance?.RecheckPendingAgreements();
+                    ReignBeta.WorldSimulation.Actions.ReignAgreementBehavior.Instance?.RecheckPendingAgreements();
                 }).ConfigureAwait(false);
             }
         }
@@ -746,7 +748,7 @@ namespace ReignBeta.Court
                         mission.ResultSummary = "The social operation succeeded: " + outcome.Replace('_', ' ') + ".";
                     mission.ReportJson = result?.ToString(Formatting.None) ?? "{}";
                     mission.AgreementEffectState = "completed"; _courtAgreementSpyEffects.Remove(mission.MissionId);
-                    ReignBeta.Actions.ReignAgreementBehavior.Instance?.RecheckPendingAgreements();
+                    ReignBeta.WorldSimulation.Actions.ReignAgreementBehavior.Instance?.RecheckPendingAgreements();
                     _ = ReignSpymasterServerClient.RecordMissionMemoryAsync(mission, "resolved");
                     StateChanged?.Invoke();
                 }).ConfigureAwait(false);
@@ -758,7 +760,7 @@ namespace ReignBeta.Court
                     try { fence(); } catch { return; }
                     mission.AgreementEffectState = "uncertain"; _courtAgreementSpyEffects.Remove(mission.MissionId);
                     mission.ResultSummary = "The field operation succeeded, but its social record could not be synchronized: " + ex.Message;
-                    ReignBeta.Actions.ReignAgreementBehavior.Instance?.RecheckPendingAgreements();
+                    ReignBeta.WorldSimulation.Actions.ReignAgreementBehavior.Instance?.RecheckPendingAgreements();
                     StateChanged?.Invoke();
                 }).ConfigureAwait(false);
             }

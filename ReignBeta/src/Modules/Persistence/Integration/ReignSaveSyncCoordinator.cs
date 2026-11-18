@@ -6,11 +6,13 @@ using System.Threading;
 using System.Threading.Tasks;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
-using ReignBeta.Runtime;
 using TaleWorlds.Core;
 using TaleWorlds.Library;
+using ReignBeta.Characters.Integration;
+using ReignBeta.Platform.Integration;
+using ReignBeta.WorldSimulation.Runtime;
 
-namespace ReignBeta.Integration
+namespace ReignBeta.Persistence.Integration
 {
     internal static class ReignSaveSyncCoordinator
     {

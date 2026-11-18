@@ -874,7 +874,7 @@ internal sealed class ConversationPortraitMixin : BaseViewModelMixin<MissionConv
 			UpdatePlayerPortrait();
 			UpdateLordSourceExport();
 			CharacterObject oneToOneConversationCharacter = CharacterObject.OneToOneConversationCharacter;
-            Hero knownResident = ReignBeta.Campaign.ReignEncounteredResidentsCampaignBehavior.Instance?.ConversationHero;
+            Hero knownResident = ReignBeta.Characters.Campaign.ReignEncounteredResidentsCampaignBehavior.Instance?.ConversationHero;
             if (knownResident != null) oneToOneConversationCharacter = knownResident.CharacterObject;
 			if (oneToOneConversationCharacter == null)
 			{
@@ -888,7 +888,7 @@ internal sealed class ConversationPortraitMixin : BaseViewModelMixin<MissionConv
 				return;
 			}
 			Equipment equipment = knownResident != null
-                ? ReignBeta.Campaign.ReignEncounteredResidentsCampaignBehavior.Instance.PortraitEquipment(knownResident)
+                ? ReignBeta.Characters.Campaign.ReignEncounteredResidentsCampaignBehavior.Instance.PortraitEquipment(knownResident)
                 : oneToOneConversationCharacter.FirstCivilianEquipment ?? oneToOneConversationCharacter.Equipment;
 			CharacterCode characterCode = CharacterCode.CreateFrom(oneToOneConversationCharacter, equipment);
 			string text = characterCode?.Code;

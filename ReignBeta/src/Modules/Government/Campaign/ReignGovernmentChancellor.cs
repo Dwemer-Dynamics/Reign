@@ -9,10 +9,16 @@ using ReignBeta.Campaign;
 #if !REIGN_EXCLUDE_COURT
 using ReignBeta.Court;
 #endif
-using ReignBeta.Integration;
 using TaleWorlds.CampaignSystem;
+using ReignBeta.Government.Domain;
+using ReignBeta.Government.Integration;
+using ReignBeta.Platform.Integration;
+using ReignBeta.WorldSimulation.Campaign;
+#if !REIGN_EXCLUDE_COURT
+using ReignBeta.Court.Campaign;
+#endif
 
-namespace ReignBeta.Government
+namespace ReignBeta.Government.Campaign
 {
     public sealed partial class ReignGovernmentCampaignBehavior
     {

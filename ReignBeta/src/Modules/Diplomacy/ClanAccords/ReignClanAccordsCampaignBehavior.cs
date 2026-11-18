@@ -6,13 +6,15 @@ using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using Reign.Core.Contracts.ClanAccords;
 using ReignBeta.Campaign;
-using ReignBeta.Integration;
-using ReignBeta.Runtime;
 using ReignBeta.World;
 using TaleWorlds.CampaignSystem;
 using TaleWorlds.CampaignSystem.Actions;
+using ReignBeta.Diplomacy.Integration;
+using ReignBeta.Platform.Integration;
+using ReignBeta.WorldSimulation.Campaign;
+using ReignBeta.WorldSimulation.World;
 
-namespace ReignBeta.ClanAccords
+namespace ReignBeta.Diplomacy.ClanAccords
 {
     /// <summary>Native-save authority. Server projections own memory and relationship consequences.</summary>
     public sealed class ReignClanAccordsCampaignBehavior : CampaignBehaviorBase

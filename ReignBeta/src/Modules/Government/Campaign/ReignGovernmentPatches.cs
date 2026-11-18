@@ -4,14 +4,14 @@ using System.Linq;
 using System.Reflection;
 using HarmonyLib;
 using Newtonsoft.Json.Linq;
-using ReignBeta.Integration;
 using TaleWorlds.CampaignSystem;
 using TaleWorlds.CampaignSystem.Actions;
 using TaleWorlds.CampaignSystem.CampaignBehaviors;
 using TaleWorlds.CampaignSystem.Election;
 using TaleWorlds.CampaignSystem.ViewModelCollection.KingdomManagement.Diplomacy;
+using ReignBeta.Platform.Integration;
 
-namespace ReignBeta.Government
+namespace ReignBeta.Government.Campaign
 {
     internal static class ReignGovernmentPatches
     {

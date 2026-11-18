@@ -8,7 +8,7 @@ using TaleWorlds.Core;
 using TaleWorlds.Core.ViewModelCollection.ImageIdentifiers;
 using TaleWorlds.Library;
 
-namespace ReignBeta.UI.ViewModels
+namespace ReignBeta.Court.FamilyChambers
 {
     public sealed class ReignFamilyChambersScreenVM : ViewModel
     {

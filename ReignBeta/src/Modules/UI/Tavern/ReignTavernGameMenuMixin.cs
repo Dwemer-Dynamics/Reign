@@ -3,6 +3,7 @@ using Bannerlord.UIExtenderEx.ViewModels;
 using TaleWorlds.CampaignSystem.Settlements;
 using TaleWorlds.CampaignSystem.ViewModelCollection.GameMenu;
 using TaleWorlds.Library;
+using ReignBeta.Portraits.UI;
 
 namespace ReignBeta.UI.Tavern
 {

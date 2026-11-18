@@ -1,4 +1,4 @@
-namespace ReignBeta.PartyAgency
+namespace ReignBeta.WorldSimulation.PartyAgency
 {
     // Native facts are supplied by the adapter; no model-authored term grants custody authority.
     public static class ReignTemporaryGuestCustodyPolicy

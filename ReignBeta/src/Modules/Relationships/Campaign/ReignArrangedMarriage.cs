@@ -7,11 +7,15 @@ using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using Reign.Relationships;
 using Reign.Core.Contracts.Relationships;
-using ReignBeta.Integration;
 using TaleWorlds.CampaignSystem;
 using TaleWorlds.CampaignSystem.Actions;
+using ReignBeta.Characters.Integration;
+using ReignBeta.Persistence.Integration;
+using ReignBeta.Platform.Integration;
+using ReignBeta.Relationships.Integration;
+using ReignBeta.WorldSimulation.Campaign;
 
-namespace ReignBeta.Campaign
+namespace ReignBeta.Relationships.Campaign
 {
     public sealed partial class ReignRelationshipCampaignBehavior
     {
@@ -68,13 +72,13 @@ namespace ReignBeta.Campaign
         private void SyncMarriageOutbox(IDataStore dataStore)
         {
             if(dataStore.IsSaving)
-                _directorOutboxChunks=ReignBeta.Save.ReignSavePayloadCodec.Encode(JsonConvert.SerializeObject(_directorOutbox));
+                _directorOutboxChunks=ReignBeta.Persistence.Save.ReignSavePayloadCodec.Encode(JsonConvert.SerializeObject(_directorOutbox));
             dataStore.SyncData("_reignMarriageOutboxChunksV1",ref _directorOutboxChunks);
             if(dataStore.IsLoading)
             {
                 _directorHeader.Clear();
                 _directorOutbox=_directorOutboxChunks?.Count>0
-                    ?JsonConvert.DeserializeObject<List<string>>(ReignBeta.Save.ReignSavePayloadCodec.Decode(_directorOutboxChunks))
+                    ?JsonConvert.DeserializeObject<List<string>>(ReignBeta.Persistence.Save.ReignSavePayloadCodec.Decode(_directorOutboxChunks))
                         ??throw new InvalidOperationException("Marriage outbox save payload is null.")
                     :new List<string>();
             }

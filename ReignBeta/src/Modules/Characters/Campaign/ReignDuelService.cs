@@ -3,16 +3,21 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using Newtonsoft.Json.Linq;
-using ReignBeta.Integration;
-using ReignBeta.Runtime;
 using ReignBeta.World;
 using TaleWorlds.CampaignSystem;
 using TaleWorlds.CampaignSystem.Actions;
 using TaleWorlds.Core;
 using TaleWorlds.Library;
 using TaleWorlds.MountAndBlade;
+using ReignBeta.Dialogue.Campaign;
+using ReignBeta.Dialogue.Runtime;
+using ReignBeta.Platform.Campaign;
+using ReignBeta.Platform.Integration;
+using ReignBeta.WorldSimulation.Arrests;
+using ReignBeta.WorldSimulation.Campaign;
+using ReignBeta.WorldSimulation.World;
 
-namespace ReignBeta.Campaign
+namespace ReignBeta.Characters.Campaign
 {
     internal static class ReignDuelService
     {
@@ -645,7 +650,7 @@ namespace ReignBeta.Campaign
             }
 
             int relation = opponent == null || Hero.MainHero == null ? 0 : opponent.GetRelation(Hero.MainHero);
-            return relation <= World.ReignActionValidator.NpcAttackPlayerRelationThreshold ? "hostile" : "friendly";
+            return relation <= WorldSimulation.World.ReignActionValidator.NpcAttackPlayerRelationThreshold ? "hostile" : "friendly";
         }
 
         private static bool ContainsAny(string value, params string[] terms)

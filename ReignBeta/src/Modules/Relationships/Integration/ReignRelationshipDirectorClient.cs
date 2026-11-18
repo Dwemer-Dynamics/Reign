@@ -15,9 +15,12 @@ using TaleWorlds.CampaignSystem.Party;
 using TaleWorlds.CampaignSystem.Settlements;
 using TaleWorlds.Core;
 using TaleWorlds.Library;
-using static ReignBeta.Integration.ReignServerClient;
+using static ReignBeta.Platform.Integration.ReignServerClient;
+using ReignBeta.Platform.Integration;
+using ReignBeta.Relationships.Campaign;
+using ReignBeta.WorldSimulation.Campaign;
 
-namespace ReignBeta.Integration
+namespace ReignBeta.Relationships.Integration
 {
     internal static class ReignRelationshipDirectorClient
     {
@@ -125,8 +128,8 @@ namespace ReignBeta.Integration
                 Hero bio = FindLivingHero(result.BiologicalFatherId);
                 Hero legal = FindLivingHero(result.LegalFatherId) ?? bio;
                 string error = string.Empty;
-                if (ReignBeta.Campaign.ReignFamilyCampaignBehavior.Instance != null
-                    && ReignBeta.Campaign.ReignFamilyCampaignBehavior.Instance.TryStartManagedConception(result.ConceptionId, mother, bio, legal, (float)CurrentDirectorDay(), result.DueDay, legal != bio ? 0.75f : 0f, true, out error))
+                if (ReignBeta.Characters.Campaign.ReignFamilyCampaignBehavior.Instance != null
+                    && ReignBeta.Characters.Campaign.ReignFamilyCampaignBehavior.Instance.TryStartManagedConception(result.ConceptionId, mother, bio, legal, (float)CurrentDirectorDay(), result.DueDay, legal != bio ? 0.75f : 0f, true, out error))
                 {
                     ReignLog.Info("Verified player conception succeeded at chance=" + result.Chance.ToString("P2") + ".");
                 }
@@ -286,7 +289,7 @@ namespace ReignBeta.Integration
                     return new JObject
                     {
                         ["campaignId"] = GetCampaignId(),
-                        ["timelineId"] = ReignBeta.Campaign.ReignWorldHistoryCampaignBehavior.Instance?.TimelineId ?? "main",
+                        ["timelineId"] = ReignBeta.WorldSimulation.Campaign.ReignWorldHistoryCampaignBehavior.Instance?.TimelineId ?? "main",
                         ["generationId"] = generationId ?? string.Empty,
                         ["worldDay"] = CurrentDirectorDay(),
                         ["playerId"] = Hero.MainHero?.StringId ?? string.Empty,
@@ -372,7 +375,7 @@ namespace ReignBeta.Integration
             if (directory == null)
             {
                 string campaignId = GetCampaignId();
-                string timelineId = ReignBeta.Campaign.ReignWorldHistoryCampaignBehavior.Instance?.TimelineId ?? "main";
+                string timelineId = ReignBeta.WorldSimulation.Campaign.ReignWorldHistoryCampaignBehavior.Instance?.TimelineId ?? "main";
                 directory = AmbientInputDirectory(campaignId, timelineId);
             }
             return Directory.Exists(directory)
@@ -486,7 +489,7 @@ namespace ReignBeta.Integration
         {
             try
             {
-                await PostJsonAsync("/relationships/director/report_action", new JObject { ["campaignId"] = GetCampaignId(), ["timelineId"] = ReignBeta.Campaign.ReignWorldHistoryCampaignBehavior.Instance?.TimelineId ?? "main", ["directorActionId"] = id ?? string.Empty, ["status"] = status ?? "completed", ["error"] = error ?? string.Empty, ["worldDay"] = CurrentDirectorDay() }).ConfigureAwait(false);
+                await PostJsonAsync("/relationships/director/report_action", new JObject { ["campaignId"] = GetCampaignId(), ["timelineId"] = ReignBeta.WorldSimulation.Campaign.ReignWorldHistoryCampaignBehavior.Instance?.TimelineId ?? "main", ["directorActionId"] = id ?? string.Empty, ["status"] = status ?? "completed", ["error"] = error ?? string.Empty, ["worldDay"] = CurrentDirectorDay() }).ConfigureAwait(false);
             }
             catch (Exception ex) { ReignLog.Warn("Relationship director action report failed: " + ex.Message); }
         }
@@ -519,7 +522,7 @@ namespace ReignBeta.Integration
             List<Hero> participants = eligible.Where(x => presentIds.Contains(x.StringId)).ToList();
             return new JObject
             {
-                ["campaignId"] = GetCampaignId(),["timelineId"] = ReignBeta.Campaign.ReignWorldHistoryCampaignBehavior.Instance?.TimelineId ?? "main",
+                ["campaignId"] = GetCampaignId(),["timelineId"] = ReignBeta.WorldSimulation.Campaign.ReignWorldHistoryCampaignBehavior.Instance?.TimelineId ?? "main",
                 ["worldDay"] = CurrentDirectorDay(),["playerId"] = Hero.MainHero?.StringId ?? string.Empty,["playerClanId"] = Clan.PlayerClan?.StringId ?? string.Empty,
                 ["presenceGroups"] = new JArray(groups),["heroes"] = new JArray(participants.Select(BuildAmbientLifecycleHero))
             };
@@ -587,7 +590,7 @@ namespace ReignBeta.Integration
             // This endpoint evaluates political marriages only. Ambient presence,
             // pair relations and non-noble profiles have their own daily input path;
             // constructing them here created a multi-megabyte unused social graph.
-            bool playerLetters = ReignBeta.Campaign.ReignRelationshipCampaignBehavior.WeddingFeatureReady;
+            bool playerLetters = ReignBeta.Relationships.Campaign.ReignRelationshipCampaignBehavior.WeddingFeatureReady;
             var nobles = Hero.AllAliveHeroes.Where(x => x != null && x.IsAlive && x.IsLord && !x.IsChild && x.Age >= 18f);
             if (playerLetters && Hero.MainHero?.IsAlive == true && !Hero.MainHero.IsChild)
                 nobles = nobles.Concat(new[] { Hero.MainHero }).Distinct();
@@ -632,7 +635,7 @@ namespace ReignBeta.Integration
                 }));
             return new JObject
             {
-                ["campaignId"] = GetCampaignId(),["timelineId"] = ReignBeta.Campaign.ReignWorldHistoryCampaignBehavior.Instance?.TimelineId ?? "main",
+                ["campaignId"] = GetCampaignId(),["timelineId"] = ReignBeta.WorldSimulation.Campaign.ReignWorldHistoryCampaignBehavior.Instance?.TimelineId ?? "main",
                 ["worldDay"] = CurrentDirectorDay(),["playerId"] = Hero.MainHero?.StringId ?? string.Empty,["playerClanId"] = Clan.PlayerClan?.StringId ?? string.Empty,
                 ["nativeYear"] = CampaignTime.Now.GetYear,
                 ["periodIndex"] = Reign.Relationships.ArrangedMarriagePolicy.Period(CurrentDirectorDay()),

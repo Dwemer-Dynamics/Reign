@@ -5,12 +5,12 @@ using System.Security.Cryptography;
 using System.Text;
 using Newtonsoft.Json.Linq;
 using ReignBeta.Campaign;
-using ReignBeta.Integration;
 using TaleWorlds.CampaignSystem;
 using TaleWorlds.CampaignSystem.Settlements;
-using static ReignBeta.Court.ReignCourtCampaignBehavior;
+using static ReignBeta.Court.Campaign.ReignCourtCampaignBehavior;
+using ReignBeta.Platform.Integration;
 
-namespace ReignBeta.Court
+namespace ReignBeta.Court.Campaign
 {
     internal static partial class ReignCourtTestControls
     {

@@ -1,5 +1,3 @@
-using ReignBeta.Settings;
-using ReignBeta.Integration;
 using ReignBeta.UI;
 using TaleWorlds.CampaignSystem;
 using TaleWorlds.Library;
@@ -11,9 +9,13 @@ using System.Threading.Tasks;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using Reign.Core.Contracts.Dialogue;
-using ReignBeta.Runtime;
+using ReignBeta.Characters.Campaign;
+using ReignBeta.Dialogue.UI;
+using ReignBeta.Platform.Integration;
+using ReignBeta.Platform.Settings;
+using ReignBeta.WorldSimulation.Campaign;
 
-namespace ReignBeta.Campaign
+namespace ReignBeta.Dialogue.Campaign
 {
     public sealed class ReignIndividualConversationBehavior : CampaignBehaviorBase
     {

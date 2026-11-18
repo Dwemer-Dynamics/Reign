@@ -1,7 +1,7 @@
 using System;
 using System.Threading.Tasks;
 
-namespace ReignBeta.Integration
+namespace ReignBeta.Platform.Integration
 {
     // Thrown when a request's local owner (for example an accepted Individual Chat turn)
     // closed before the next guarded stage.

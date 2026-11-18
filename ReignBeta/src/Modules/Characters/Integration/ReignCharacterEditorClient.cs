@@ -5,9 +5,10 @@ using System.Threading.Tasks;
 using Newtonsoft.Json.Linq;
 using TaleWorlds.CampaignSystem;
 using TaleWorlds.CampaignSystem.CharacterDevelopment;
-using static ReignBeta.Integration.ReignServerClient;
+using static ReignBeta.Platform.Integration.ReignServerClient;
+using ReignBeta.Platform.Integration;
 
-namespace ReignBeta.Integration
+namespace ReignBeta.Characters.Integration
 {
     internal static class ReignCharacterEditorClient
     {

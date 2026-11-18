@@ -2,7 +2,7 @@
 using System;
 using System.Threading.Tasks;
 
-namespace ReignBeta.Runtime
+namespace ReignBeta.WorldSimulation.Runtime
 {
     internal static class ReignWildernessEventCompletion
     {

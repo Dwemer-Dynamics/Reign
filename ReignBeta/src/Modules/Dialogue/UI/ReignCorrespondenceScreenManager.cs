@@ -1,6 +1,4 @@
 using System;
-using ReignBeta.Integration;
-using ReignBeta.Settings;
 using ReignBeta.UI.ViewModels;
 using ReignBeta.UI.Widgets;
 using TaleWorlds.CampaignSystem;
@@ -11,8 +9,10 @@ using TaleWorlds.GauntletUI.BaseTypes;
 using TaleWorlds.InputSystem;
 using TaleWorlds.Library;
 using TaleWorlds.ScreenSystem;
+using ReignBeta.Platform.Integration;
+using ReignBeta.Platform.Settings;
 
-namespace ReignBeta.UI
+namespace ReignBeta.Dialogue.UI
 {
     public static class ReignCorrespondenceScreenManager
     {

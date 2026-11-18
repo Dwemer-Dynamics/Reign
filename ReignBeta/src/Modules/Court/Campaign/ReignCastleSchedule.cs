@@ -2,14 +2,14 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using ReignBeta.CastleChat;
-using ReignBeta.Runtime;
 using TaleWorlds.CampaignSystem;
 using TaleWorlds.CampaignSystem.Party;
 using TaleWorlds.CampaignSystem.Settlements;
 using TaleWorlds.CampaignSystem.CharacterDevelopment;
 using TaleWorlds.Core;
+using ReignBeta.Dialogue.Runtime;
 
-namespace ReignBeta.Court
+namespace ReignBeta.Court.Campaign
 {
     public sealed partial class ReignCourtCampaignBehavior
     {
@@ -135,7 +135,7 @@ namespace ReignBeta.Court
             foreach (Hero hero in ReignPartyChatSession.GetMainPartyHeroes()) AddCastleCandidate(result, hero, settlement, true);
             foreach (Hero hero in ReignPartyChatSession.GetAvailableConversationHeroes().Where(x => x?.IsLord == true))
                 AddCastleCandidate(result, hero, settlement, false);
-            foreach (Hero hero in ReignBeta.Government.ReignGovernmentCampaignBehavior.Instance?.GetAttendingGovernmentHeroes(settlement) ?? Array.Empty<Hero>())
+            foreach (Hero hero in ReignBeta.Government.Campaign.ReignGovernmentCampaignBehavior.Instance?.GetAttendingGovernmentHeroes(settlement) ?? Array.Empty<Hero>())
                 AddCastleCandidate(result, hero, settlement, false);
             foreach (ForeignAmbassadorPosting posting in _foreignAmbassadors.Where(x => x != null && x.IsResident &&
                 string.Equals(x.CapitalSettlementStringId, settlement.StringId, StringComparison.OrdinalIgnoreCase)))
@@ -184,7 +184,7 @@ namespace ReignBeta.Court
         {
             // Add newly arrived representatives to the existing hall without rerolling everyone else's
             // schedule, bath rotation, session identity, or conversations in the current time block.
-            var attendees = ReignBeta.Government.ReignGovernmentCampaignBehavior.Instance?.GetAttendingGovernmentHeroes(settlement);
+            var attendees = ReignBeta.Government.Campaign.ReignGovernmentCampaignBehavior.Instance?.GetAttendingGovernmentHeroes(settlement);
             var hall = sessions.FirstOrDefault(x => x.Room == (int)CastleRoom.MainHall);
             if (hall == null || attendees == null || attendees.Count == 0) return;
             var present = new HashSet<string>(sessions.SelectMany(x => SplitIds(x.OccupantHeroIdsCsv)), StringComparer.OrdinalIgnoreCase);

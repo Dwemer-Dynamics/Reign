@@ -6,16 +6,23 @@ using System.Reflection;
 using System.Runtime.InteropServices;
 using System.Threading.Tasks;
 using Newtonsoft.Json.Linq;
-using ReignBeta.Integration;
-using ReignBeta.Runtime;
 using ReignBeta.UI;
 using TaleWorlds.CampaignSystem;
 using TaleWorlds.CampaignSystem.GameMenus;
 using TaleWorlds.CampaignSystem.MapNotificationTypes;
 using TaleWorlds.CampaignSystem.Settlements;
 using TaleWorlds.Core;
+using ReignBeta.Characters.Integration;
+using ReignBeta.Dialogue.Integration;
+using ReignBeta.Diplomacy.Campaign;
+using ReignBeta.Diplomacy.UI;
+using ReignBeta.KingdomEvents.Campaign;
+using ReignBeta.Persistence.Integration;
+using ReignBeta.Platform.Integration;
+using ReignBeta.Relationships.Campaign;
+using ReignBeta.WorldSimulation.Domain;
 
-namespace ReignBeta.Campaign
+namespace ReignBeta.WorldSimulation.Campaign
 {
     public static partial class ReignLiveInteractionTestHost
     {
@@ -124,7 +131,7 @@ namespace ReignBeta.Campaign
                             return PassiveWorldSnapshot();
                         case "world_economy_test":
                         {
-                            var evidence = ReignBeta.Economy.ReignWarEconomyTestHost.Run(command, GameInstanceId);
+                            var evidence = ReignBeta.WorldSimulation.Economy.ReignWarEconomyTestHost.Run(command, GameInstanceId);
                             return evidence.Value<bool?>("ok") == true
                                 ? LiveCommandResult.Completed("Economy evidence captured.", evidence)
                                 : LiveCommandResult.Failed("Economy evidence did not satisfy the requested assertion.", evidence);
@@ -137,7 +144,7 @@ namespace ReignBeta.Campaign
                 catch (Exception ex)
                 {
                     if (operation == "world_economy_test")
-                        ReignBeta.Integration.ReignLog.Exception("Native war economy observation", ex);
+                        ReignBeta.Platform.Integration.ReignLog.Exception("Native war economy observation", ex);
                     return LiveCommandResult.Failed(
                         "Passive-world native command failed: " + ex.Message);
                 }

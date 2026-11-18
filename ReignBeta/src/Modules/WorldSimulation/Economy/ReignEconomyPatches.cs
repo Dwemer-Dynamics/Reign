@@ -6,7 +6,6 @@ using System.Reflection.Emit;
 using HarmonyLib;
 using Helpers;
 using Newtonsoft.Json.Linq;
-using ReignBeta.Integration;
 using TaleWorlds.CampaignSystem;
 using TaleWorlds.CampaignSystem.Actions;
 using TaleWorlds.CampaignSystem.CampaignBehaviors;
@@ -21,8 +20,9 @@ using TaleWorlds.CampaignSystem.ViewModelCollection;
 using TaleWorlds.CampaignSystem.ViewModelCollection.Party;
 using TaleWorlds.Core;
 using TaleWorlds.Library;
+using ReignBeta.Platform.Integration;
 
-namespace ReignBeta.Economy
+namespace ReignBeta.WorldSimulation.Economy
 {
     internal static class ReignEconomyPatches
     {
@@ -103,7 +103,7 @@ namespace ReignBeta.Economy
                 _harmony.Patch(quartering, transpiler: new HarmonyMethod(typeof(ReignEconomyPatches), nameof(GarrisonQuarteringTranspiler)));
                 PatchedHooks.Add(nameof(GarrisonQuarteringTranspiler));
                 HookTargets[nameof(GarrisonQuarteringTranspiler)] = quartering;
-                PatchKingdomWage(typeof(ClanAccords.ReignClanAccordsWageModel), nameof(KingdomWagePostfix));
+                PatchKingdomWage(typeof(Diplomacy.ClanAccords.ReignClanAccordsWageModel), nameof(KingdomWagePostfix));
                 ApplyFieldWageUi();
                 var clanDailyFinance = AccessTools.Method(typeof(ClanVariablesCampaignBehavior), "DailyTickClan")
                     ?? throw new MissingMethodException(typeof(ClanVariablesCampaignBehavior).FullName, "DailyTickClan");
@@ -377,8 +377,8 @@ namespace ReignBeta.Economy
             owner("loyalty", models?.SettlementLoyaltyModel, typeof(ReignSettlementLoyaltyModel), null);
             owner("prosperityAndHearth", models?.SettlementProsperityModel, typeof(ReignSettlementProsperityModel), "NavalDLCSettlementProsperityModel");
             owner("construction", models?.BuildingConstructionModel, typeof(ReignBuildingConstructionModel), "NavalDLCBuildingConstructionModel");
-            owner("wages", models?.PartyWageModel, typeof(ReignBeta.ClanAccords.ReignClanAccordsWageModel), "NavalDLCPartyWageModel");
-            owner("finance", models?.ClanFinanceModel, typeof(ReignBeta.ClanAccords.ReignClanAccordsFinanceModel), "NavalDLCClanFinanceModel");
+            owner("wages", models?.PartyWageModel, typeof(ReignBeta.Diplomacy.ClanAccords.ReignClanAccordsWageModel), "NavalDLCPartyWageModel");
+            owner("finance", models?.ClanFinanceModel, typeof(ReignBeta.Diplomacy.ClanAccords.ReignClanAccordsFinanceModel), "NavalDLCClanFinanceModel");
             return new JObject
             {
                 ["raidFood"] = ReignRaidFoodDisruption.Diagnostics(),
@@ -1050,7 +1050,7 @@ namespace ReignBeta.Economy
                 finally { _exemptWageQuote = false; }
             }
             bool atWar = ReignMilitaryReadiness.AtWar(kingdom);
-            ClanAccords.ReignClanAccordModelMath.AddFinalDelta(ref result,
+            Diplomacy.ClanAccords.ReignClanAccordModelMath.AddFinalDelta(ref result,
                 (float)ReignWarEconomyPolicy.KingdomWageDelta(result.ResultNumber, exemptWages, atWar),
                 new TaleWorlds.Localization.TextObject(atWar ? "{=!}Wartime hazard pay" : "{=!}Peacetime wage reduction"));
         }

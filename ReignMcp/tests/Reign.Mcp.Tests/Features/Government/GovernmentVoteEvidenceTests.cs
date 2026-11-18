@@ -1,5 +1,5 @@
 using System.Text.Json;
-using ReignBeta.Government;
+using ReignBeta.Government.Domain;
 
 namespace Reign.Mcp.Tests;
 

@@ -11,8 +11,12 @@ using TaleWorlds.Core;
 using TaleWorlds.MountAndBlade;
 using TaleWorlds.ScreenSystem;
 using NativeCampaign = TaleWorlds.CampaignSystem.Campaign;
+using ReignBeta.Dialogue.UI;
+using ReignBeta.Platform.Campaign;
+using ReignBeta.World;
+using ReignBeta.WorldSimulation.UI;
 
-namespace ReignBeta.World
+namespace ReignBeta.WorldSimulation.World
 {
     internal static class ReignSurrenderService
     {

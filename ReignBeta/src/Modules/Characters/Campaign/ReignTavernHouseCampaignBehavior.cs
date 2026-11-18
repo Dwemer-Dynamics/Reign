@@ -6,8 +6,6 @@ using System.Linq;
 using AIPortraits;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
-using ReignBeta.Integration;
-using ReignBeta.Save;
 using ReignBeta.Shared.Characters;
 using ReignBeta.UI;
 using TaleWorlds.CampaignSystem;
@@ -20,8 +18,16 @@ using TaleWorlds.Core;
 using TaleWorlds.Library;
 using TaleWorlds.Localization;
 using TaleWorlds.MountAndBlade;
+using ReignBeta.Characters.Integration;
+using ReignBeta.Characters.UI;
+using ReignBeta.Persistence.Campaign;
+using ReignBeta.Persistence.Integration;
+using ReignBeta.Persistence.Save;
+using ReignBeta.Platform.Integration;
+using ReignBeta.Portraits.Integration;
+using ReignBeta.WorldSimulation.Campaign;
 
-namespace ReignBeta.Campaign
+namespace ReignBeta.Characters.Campaign
 {
     /// <summary>Saved native identities own the house. The server negotiates; this behavior alone transfers gold and companions.</summary>
     public sealed partial class ReignTavernHouseCampaignBehavior : CampaignBehaviorBase
@@ -473,7 +479,7 @@ namespace ReignBeta.Campaign
             var visit = _state.Visits.SingleOrDefault(v => v.VisitId == visitId && v.CampaignId == ReignServerClient.GetCampaignId() && v.TimelineId == Timeline);
             if (visit == null || !visit.Paid) return;
             visit.ServerConfirmed = true; visit.ConversationId = conversationId ?? "";
-            if (visit.ActionTermsHash.Length > 0) ReignBeta.Actions.ReignAgreementBehavior.Instance?.RecheckAgreement(visit.AgreementId);
+            if (visit.ActionTermsHash.Length > 0) ReignBeta.WorldSimulation.Actions.ReignAgreementBehavior.Instance?.RecheckAgreement(visit.AgreementId);
         }
         public void EndVisit(string visitId)
         {

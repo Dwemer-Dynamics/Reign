@@ -15,8 +15,6 @@ using ReignBeta.Campaign;
 using ReignBeta.Court;
 using ReignBeta.Events;
 using ReignBeta.Government;
-using ReignBeta.Runtime;
-using ReignBeta.Settings;
 using ReignBeta.World;
 using ReignPortraits;
 using TaleWorlds.CampaignSystem;
@@ -29,8 +27,29 @@ using TaleWorlds.Core;
 using TaleWorlds.Library;
 using TaleWorlds.Localization;
 using TaleWorlds.MountAndBlade;
+using ReignBeta.Characters.Campaign;
+using ReignBeta.Characters.Integration;
+using ReignBeta.Dialogue.Integration;
+using ReignBeta.Dialogue.Runtime;
+using ReignBeta.Diplomacy.Campaign;
+using ReignBeta.Government.Campaign;
+using ReignBeta.Persistence.Integration;
+using ReignBeta.Platform.Campaign;
+using ReignBeta.Platform.Runtime;
+using ReignBeta.Platform.Settings;
+using ReignBeta.Portraits.Integration;
+using ReignBeta.Relationships.Campaign;
+using ReignBeta.Relationships.Integration;
+using ReignBeta.WorldSimulation.Campaign;
+using ReignBeta.WorldSimulation.Integration;
+using ReignBeta.WorldSimulation.News;
+using ReignBeta.WorldSimulation.Runtime;
+using ReignBeta.WorldSimulation.World;
+#if !REIGN_EXCLUDE_COURT
+using ReignBeta.Court.Campaign;
+#endif
 
-namespace ReignBeta.Integration
+namespace ReignBeta.Platform.Integration
 {
     public static partial class ReignServerClient
     {
@@ -482,7 +501,7 @@ namespace ReignBeta.Integration
                     ["campaignId"] = campaignId,
                     ["correlationId"] = NewCorrelationId("identity_sync", Hero.MainHero?.StringId),
                     ["worldDay"] = observedWorldDay,
-                    ["timelineId"] = ReignBeta.Campaign.ReignWorldHistoryCampaignBehavior.Instance?.TimelineId ?? "main",
+                    ["timelineId"] = ReignBeta.WorldSimulation.Campaign.ReignWorldHistoryCampaignBehavior.Instance?.TimelineId ?? "main",
                     ["deferRelationshipProjection"] = !string.IsNullOrWhiteSpace(initializationGenerationId),
                     ["initializationGenerationId"] = initializationGenerationId ?? string.Empty,
                     ["portraitRosterFingerprint"] = rosterFingerprint,
@@ -1727,7 +1746,7 @@ namespace ReignBeta.Integration
             JObject payload = new JObject
             {
                 ["campaignId"] = GetCampaignId(),
-                ["timelineId"] = ReignBeta.Campaign.ReignWorldHistoryCampaignBehavior.Instance?.TimelineId ?? "main",
+                ["timelineId"] = ReignBeta.WorldSimulation.Campaign.ReignWorldHistoryCampaignBehavior.Instance?.TimelineId ?? "main",
                 ["npcId"] = hero.StringId,
                 ["playerId"] = Hero.MainHero?.StringId ?? string.Empty,
                 ["channel"] = official ? "ambassador_official" : "in_person",
@@ -1800,7 +1819,7 @@ namespace ReignBeta.Integration
             JObject payload = new JObject
             {
                 ["campaignId"] = GetCampaignId(),
-                ["timelineId"] = ReignBeta.Campaign.ReignWorldHistoryCampaignBehavior.Instance?.TimelineId ?? "main",
+                ["timelineId"] = ReignBeta.WorldSimulation.Campaign.ReignWorldHistoryCampaignBehavior.Instance?.TimelineId ?? "main",
                 ["sessionId"] = sessionId,
                 ["npcId"] = hero?.StringId ?? string.Empty,
                 ["playerId"] = Hero.MainHero?.StringId ?? string.Empty,
@@ -2047,7 +2066,7 @@ namespace ReignBeta.Integration
                 if (reply.Ok && payload.Value<int?>("structuredActionProtocolVersion") != 1 && payload["governmentPrivateContext"] is JObject governmentPrivateContext)
                     response["governmentCommitmentReceipt"] = await ReignMainThread.InvokeAsync(() =>
                         !fence.IsCurrent() || !RequestOwnerCurrent(requestOwner) ? new JObject()
-                        : ReignBeta.Government.ReignGovernmentCampaignBehavior.Instance
+                        : ReignBeta.Government.Campaign.ReignGovernmentCampaignBehavior.Instance
                             ?.ApplyGovernmentPrivateConversationResult(governmentPrivateContext, response)
                         ?? new JObject()).ConfigureAwait(false);
                 JObject exchange = response["conversationExchange"] as JObject;
@@ -2134,7 +2153,7 @@ namespace ReignBeta.Integration
             JObject payload = new JObject
             {
                 ["campaignId"] = GetCampaignId(),
-                ["timelineId"] = ReignBeta.Campaign.ReignWorldHistoryCampaignBehavior.Instance?.TimelineId ?? "main",
+                ["timelineId"] = ReignBeta.WorldSimulation.Campaign.ReignWorldHistoryCampaignBehavior.Instance?.TimelineId ?? "main",
                 ["heroStringId"] = hero?.StringId ?? string.Empty,
                 ["hero"] = BuildHeroProfile(hero),
                 ["mcmTestMode"] = mcmTestMode,
@@ -2168,10 +2187,10 @@ namespace ReignBeta.Integration
                 ["locationId"] = ResolveDialogueLocationId(hero),
                 ["sceneContext"] = sceneContext,
                 ["nativePoliticalContext"] = BuildNativePoliticalContext(hero),
-                ["clanAccords"] = ReignBeta.ClanAccords.ReignClanAccordsCampaignBehavior.Instance?.ConversationContext(hero) ?? new JObject(),
-                ["arrestContext"] = ReignBeta.Campaign.ReignArrestCampaignBehavior.Instance
+                ["clanAccords"] = ReignBeta.Diplomacy.ClanAccords.ReignClanAccordsCampaignBehavior.Instance?.ConversationContext(hero) ?? new JObject(),
+                ["arrestContext"] = ReignBeta.WorldSimulation.Arrests.ReignArrestCampaignBehavior.Instance
                     ?.BuildConversationContext(hero) ?? new JObject(),
-                ["temporaryPartyGuest"] = ReignBeta.PartyAgency.ReignTemporaryPartyGuestCampaignBehavior.Instance
+                ["temporaryPartyGuest"] = ReignBeta.WorldSimulation.PartyAgency.ReignTemporaryPartyGuestCampaignBehavior.Instance
                     ?.BuildConversationContext(hero) ?? new JObject(),
                 ["nativeSceneMovement"] = ReignSceneActionMissionBehavior.Context(),
                 ["playerPartyId"] = MobileParty.MainParty?.StringId ?? string.Empty,
@@ -2191,7 +2210,7 @@ namespace ReignBeta.Integration
             if (visitorContext?.Value<bool?>("enabled") == true) payload["nobleVisitorContext"] = visitorContext;
             if (!official && !rulerPetition && !nobleDocket && !courtLife)
             {
-                JObject governmentContext = ReignBeta.Government.ReignGovernmentCampaignBehavior.Instance
+                JObject governmentContext = ReignBeta.Government.Campaign.ReignGovernmentCampaignBehavior.Instance
                     ?.BuildGovernmentPrivateConversationContext(hero, payload.Value<string>("sceneTurnId"), playerText ?? "");
                 if (governmentContext?.Value<bool?>("enabled") == true)
                     payload["governmentPrivateContext"] = governmentContext;
@@ -3741,13 +3760,13 @@ namespace ReignBeta.Integration
                 ["phaseDescription"] = session.CurrentPhase.SettingSummary ?? string.Empty,
                 ["sceneContext"] = session.BuildSceneContext(),
                 ["nativePoliticalContext"] = BuildNativePoliticalContext(speaker),
-                ["temporaryPartyGuest"] = ReignBeta.PartyAgency.ReignTemporaryPartyGuestCampaignBehavior.Instance
+                ["temporaryPartyGuest"] = ReignBeta.WorldSimulation.PartyAgency.ReignTemporaryPartyGuestCampaignBehavior.Instance
                     ?.BuildConversationContext(speaker) ?? new JObject(),
                 ["nativeSceneMovement"] = ReignSceneActionMissionBehavior.Context(),
                 ["playerPartyId"] = MobileParty.MainParty?.StringId ?? string.Empty,
                 ["campaignCalendar"] = new JObject { ["daysPerSeason"] = ReignCalendarService.DaysPerSeason,
                     ["daysPerWeek"] = CampaignTime.DaysInWeek, ["daysPerYear"] = ReignCalendarService.DaysPerYear },
-                ["clanAccords"] = ReignBeta.ClanAccords.ReignClanAccordsCampaignBehavior.Instance?.ConversationContext(speaker) ?? new JObject(),
+                ["clanAccords"] = ReignBeta.Diplomacy.ClanAccords.ReignClanAccordsCampaignBehavior.Instance?.ConversationContext(speaker) ?? new JObject(),
                 ["sceneTurnId"] = record.EventId + "_" + session.CurrentPhaseIndex + "_" + session.PhaseExchangeCount,
                 ["playerAttentionPresence"] = ReignPlayerApproachClient.BuildPlayerAttentionPresence(speaker),
                 ["sceneParticipants"] = BuildSceneParticipants(record.GetAttendees()),
@@ -3816,7 +3835,7 @@ namespace ReignBeta.Integration
                 ["phaseDescription"] = "A group conversation with selected party or local characters.",
                 ["sceneContext"] = session.BuildSceneContext(activeHeroes),
                 ["nativePoliticalContext"] = BuildNativePoliticalContext(speaker),
-                ["clanAccords"] = ReignBeta.ClanAccords.ReignClanAccordsCampaignBehavior.Instance?.ConversationContext(speaker) ?? new JObject(),
+                ["clanAccords"] = ReignBeta.Diplomacy.ClanAccords.ReignClanAccordsCampaignBehavior.Instance?.ConversationContext(speaker) ?? new JObject(),
                 ["sceneTurnId"] = string.IsNullOrWhiteSpace(session.CurrentSceneTurnId)
                     ? session.SessionId + "_turn_" + session.PlayerInputCount
                     : session.CurrentSceneTurnId,
@@ -3903,7 +3922,7 @@ namespace ReignBeta.Integration
                     Hero hero = row.Character?.HeroObject;
                     if (hero == null) { troopCount += row.Number; continue; }
                     heroCount += row.Number;
-                    var guest = ReignBeta.PartyAgency.ReignTemporaryPartyGuestCampaignBehavior.Instance?.Records
+                    var guest = ReignBeta.WorldSimulation.PartyAgency.ReignTemporaryPartyGuestCampaignBehavior.Instance?.Records
                         .FirstOrDefault(record => record.HeroStringId == hero.StringId && record.IsLive
                             && (record.Phase == ReignBeta.PartyAgency.ReignTemporaryGuestPhase.Active
                                 || record.Phase == ReignBeta.PartyAgency.ReignTemporaryGuestPhase.ReviewDue
@@ -4765,7 +4784,7 @@ namespace ReignBeta.Integration
                 ["currentPartyId"] = hero?.PartyBelongedTo?.StringId ?? string.Empty,
                 ["isChild"] = hero?.IsChild ?? false,
                 ["isPregnant"] = hero?.IsPregnant ?? false,
-                ["pregnancyContexts"] = ReignBeta.Campaign.ReignFamilyCampaignBehavior.Instance?.PregnancyContextsFor(hero) ?? new JArray(),
+                ["pregnancyContexts"] = ReignBeta.Characters.Campaign.ReignFamilyCampaignBehavior.Instance?.PregnancyContextsFor(hero) ?? new JArray(),
                 ["childrenCount"] = hero?.Children?.Count ?? 0,
                 ["childrenIds"] = new JArray((hero?.Children ?? new List<Hero>()).Where(child => child != null).Select(child => child.StringId)),
                 ["childrenNames"] = new JArray((hero?.Children ?? new List<Hero>()).Where(child => child != null).Select(child => child.Name?.ToString() ?? child.StringId)),
@@ -4781,7 +4800,7 @@ namespace ReignBeta.Integration
                 ["childrenNames"] = new JArray(hero?.Children?.Select(child => child.Name?.ToString() ?? string.Empty) ?? Enumerable.Empty<string>()),
                 ["encyclopediaText"] = hero?.EncyclopediaText?.ToString() ?? string.Empty,
                 ["nativeEncyclopediaText"] = GetNativeEncyclopediaText(hero),
-                ["narrativeVersion"] = ReignBeta.Campaign.ReignCampaignPreparationCampaignBehavior.Instance?.NarrativeVersion ?? 0,
+                ["narrativeVersion"] = ReignBeta.Platform.Campaign.ReignCampaignPreparationCampaignBehavior.Instance?.NarrativeVersion ?? 0,
                 ["relationToPlayer"] = hero != null && Hero.MainHero != null && hero != Hero.MainHero ? hero.GetRelation(Hero.MainHero) : 0,
                 ["sovereignHeroStringId"] = sovereign?.StringId ?? string.Empty,
                 ["sovereignName"] = sovereign?.Name?.ToString() ?? string.Empty,
@@ -4797,9 +4816,9 @@ namespace ReignBeta.Integration
                 ["inventory"] = BuildInventoryProfile(hero),
                 ["appearance"] = BuildAppearanceProfile(hero)
             };
-            JObject wanderer = ReignBeta.Campaign.ReignWandererPopulationCampaignBehavior.Instance?.Metadata(hero);
+            JObject wanderer = ReignBeta.Characters.Campaign.ReignWandererPopulationCampaignBehavior.Instance?.Metadata(hero);
             if (wanderer != null) profile["wandererIdentity"] = wanderer;
-            JObject resident = ReignBeta.Campaign.ReignEncounteredResidentsCampaignBehavior.Instance?.Metadata(hero);
+            JObject resident = ReignBeta.Characters.Campaign.ReignEncounteredResidentsCampaignBehavior.Instance?.Metadata(hero);
             if (resident != null)
             {
                 profile["encounteredResident"] = resident;
@@ -4810,7 +4829,7 @@ namespace ReignBeta.Integration
                     + System.Text.RegularExpressions.Regex.Replace((string)resident["occupation"] ?? "resident", "([a-z])([A-Z])", "$1 $2").ToLowerInvariant()
                     + " from " + (string)resident["homeSettlementName"] + ".";
             }
-            JObject tavern = ReignBeta.Campaign.ReignTavernHouseCampaignBehavior.Instance?.Metadata(hero);
+            JObject tavern = ReignBeta.Characters.Campaign.ReignTavernHouseCampaignBehavior.Instance?.Metadata(hero);
             if (tavern != null)
             {
                 profile["tavernHouse"] = tavern;
@@ -4824,7 +4843,7 @@ namespace ReignBeta.Integration
                 profile["kingdomId"] = hero?.Clan?.Kingdom?.StringId ?? string.Empty;
                 profile["kingdomName"] = hero?.Clan?.Kingdom?.InformalName?.ToString() ?? string.Empty;
             }
-            var governmentProfile = ReignBeta.Government.ReignGovernmentCampaignBehavior.Instance;
+            var governmentProfile = ReignBeta.Government.Campaign.ReignGovernmentCampaignBehavior.Instance;
             profile["appliedPoliticalProfile"] = governmentProfile?.PoliticalProfileForServer(hero?.StringId);
             profile["governmentOfficeTitle"] = governmentProfile?.GovernmentOfficeTitle(hero?.StringId) ?? "";
             profile["governmentOfficeKingdomId"] = governmentProfile?.GetOfficeKingdomId(hero?.StringId) ?? "";
@@ -4862,7 +4881,7 @@ namespace ReignBeta.Integration
         {
             return new JObject
             {
-                ["encounteredResident"] = ReignBeta.Campaign.ReignEncounteredResidentsCampaignBehavior.Instance?.Metadata(hero),
+                ["encounteredResident"] = ReignBeta.Characters.Campaign.ReignEncounteredResidentsCampaignBehavior.Instance?.Metadata(hero),
                 ["heroStringId"] = hero?.StringId ?? string.Empty,
                 ["name"] = hero?.Name?.ToString() ?? string.Empty,
                 ["occupation"] = hero?.Occupation.ToString() ?? string.Empty,
@@ -4871,8 +4890,8 @@ namespace ReignBeta.Integration
                 ["isRuler"] = hero != null && hero.Clan?.Kingdom?.Leader == hero,
                 ["isClanLeader"] = hero != null && hero.Clan?.Leader == hero,
                 ["isMercenaryClan"] = hero?.Clan?.IsUnderMercenaryService ?? false,
-                ["governmentOfficeTitle"] = ReignBeta.Government.ReignGovernmentCampaignBehavior.Instance?.GovernmentOfficeTitle(hero?.StringId) ?? "",
-                ["governmentOfficeKingdomId"] = ReignBeta.Government.ReignGovernmentCampaignBehavior.Instance?.GetOfficeKingdomId(hero?.StringId) ?? "",
+                ["governmentOfficeTitle"] = ReignBeta.Government.Campaign.ReignGovernmentCampaignBehavior.Instance?.GovernmentOfficeTitle(hero?.StringId) ?? "",
+                ["governmentOfficeKingdomId"] = ReignBeta.Government.Campaign.ReignGovernmentCampaignBehavior.Instance?.GetOfficeKingdomId(hero?.StringId) ?? "",
                 ["isNotable"] = hero?.IsNotable ?? false,
                 ["isWanderer"] = hero?.IsWanderer ?? false,
                 ["governorOfSettlementId"] = hero?.GovernorOf?.Settlement?.StringId ?? string.Empty,
@@ -4910,16 +4929,16 @@ namespace ReignBeta.Integration
             row["age"] = hero.Age;
             row["bodyWeight"] = hero.Weight;
             row["bodyBuild"] = hero.Build;
-            JObject tavern = ReignBeta.Campaign.ReignTavernHouseCampaignBehavior.Instance?.Metadata(hero);
+            JObject tavern = ReignBeta.Characters.Campaign.ReignTavernHouseCampaignBehavior.Instance?.Metadata(hero);
             if (tavern != null)
             {
                 row["portraitSourceProfile"] = "ai_source_resident_full_outfit_v1";
                 row["tavernHouse"] = tavern;
             }
-            var resident = ReignBeta.Campaign.ReignEncounteredResidentsCampaignBehavior.Instance?.Find(hero);
+            var resident = ReignBeta.Characters.Campaign.ReignEncounteredResidentsCampaignBehavior.Instance?.Find(hero);
             if (resident != null)
             {
-                var colors = ReignBeta.Campaign.ReignEncounteredResidentsCampaignBehavior.Instance.PortraitColors(hero);
+                var colors = ReignBeta.Characters.Campaign.ReignEncounteredResidentsCampaignBehavior.Instance.PortraitColors(hero);
                 row["clothingColor1"] = colors.Item1;
                 row["clothingColor2"] = colors.Item2;
             }
@@ -4931,7 +4950,7 @@ namespace ReignBeta.Integration
             CharacterObject character = hero?.CharacterObject;
             return new JObject
             {
-                ["encounteredResident"] = ReignBeta.Campaign.ReignEncounteredResidentsCampaignBehavior.Instance?.Metadata(hero),
+                ["encounteredResident"] = ReignBeta.Characters.Campaign.ReignEncounteredResidentsCampaignBehavior.Instance?.Metadata(hero),
                 ["heroStringId"] = hero?.StringId ?? string.Empty,
                 ["characterObjectId"] = character?.StringId ?? string.Empty,
                 ["name"] = hero?.Name?.ToString() ?? character?.Name?.ToString() ?? string.Empty,
@@ -4953,7 +4972,7 @@ namespace ReignBeta.Integration
 
         private static JArray BuildPortraitCivilianEquipment(Hero hero)
         {
-            var residents = ReignBeta.Campaign.ReignEncounteredResidentsCampaignBehavior.Instance;
+            var residents = ReignBeta.Characters.Campaign.ReignEncounteredResidentsCampaignBehavior.Instance;
             if (residents?.Find(hero) != null)
             {
                 // A resident's actual worn outfit is authoritative even if a slot is empty.
@@ -4978,7 +4997,7 @@ namespace ReignBeta.Integration
                 foreach (EquipmentIndex index in Enum.GetValues(typeof(EquipmentIndex)))
                 {
                     int slot = (int)index;
-                    bool preserveEncountered = ReignBeta.Campaign.ReignEncounteredResidentsCampaignBehavior.Instance?.Find(hero) != null;
+                    bool preserveEncountered = ReignBeta.Characters.Campaign.ReignEncounteredResidentsCampaignBehavior.Instance?.Find(hero) != null;
                     if (!visitedSlots.Add(slot) || slot < (preserveEncountered ? 0 : 5) || slot > 9)
                     {
                         continue;
@@ -6068,7 +6087,7 @@ namespace ReignBeta.Integration
         {
             JObject request = payload == null ? new JObject() : new JObject(payload);
             request["campaignId"] = GetCampaignId();
-            request["timelineId"] = ReignBeta.Campaign.ReignWorldHistoryCampaignBehavior.Instance
+            request["timelineId"] = ReignBeta.WorldSimulation.Campaign.ReignWorldHistoryCampaignBehavior.Instance
                 ?.TimelineId ?? "main";
             return PostJsonAsync("/arrests/case/apply", request);
         }
@@ -6077,7 +6096,7 @@ namespace ReignBeta.Integration
         {
             JObject request = payload == null ? new JObject() : new JObject(payload);
             request["campaignId"] = GetCampaignId();
-            request["timelineId"] = ReignBeta.Campaign.ReignWorldHistoryCampaignBehavior.Instance
+            request["timelineId"] = ReignBeta.WorldSimulation.Campaign.ReignWorldHistoryCampaignBehavior.Instance
                 ?.TimelineId ?? "main";
             return PostJsonAsync("/arrests/evidence/evaluate", request);
         }
@@ -6179,7 +6198,7 @@ namespace ReignBeta.Integration
         }
 
         // Product forwarder: ReignAICampaignBehavior schedules the daily World Test heartbeat owned by the test harness.
-        public static Task<double?> SubmitWorldTestHeartbeatAsync(double deltaAfterDay) => ReignBeta.Runtime.ReignTestHarness.Current.SubmitWorldTestHeartbeatAsync(deltaAfterDay);
+        public static Task<double?> SubmitWorldTestHeartbeatAsync(double deltaAfterDay) => ReignBeta.Platform.Runtime.ReignTestHarness.Current.SubmitWorldTestHeartbeatAsync(deltaAfterDay);
 
         internal static string ReadString(JObject obj, string key, string fallback)
         {

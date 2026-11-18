@@ -15,8 +15,6 @@ using ReignBeta.Campaign;
 using ReignBeta.Court;
 using ReignBeta.Events;
 using ReignBeta.Government;
-using ReignBeta.Runtime;
-using ReignBeta.Settings;
 using ReignBeta.World;
 using ReignPortraits;
 using TaleWorlds.CampaignSystem;
@@ -29,8 +27,9 @@ using TaleWorlds.Core;
 using TaleWorlds.Library;
 using TaleWorlds.Localization;
 using TaleWorlds.MountAndBlade;
+using ReignBeta.Relationships.Integration;
 
-namespace ReignBeta.Integration
+namespace ReignBeta.Platform.Integration
 {
     public sealed class ReignDialogueLine
     {

@@ -2,8 +2,6 @@
 using System;
 using System.Threading.Tasks;
 using Newtonsoft.Json.Linq;
-using ReignBeta.Integration;
-using ReignBeta.Runtime;
 using ReignBeta.UI;
 #if !REIGN_EXCLUDE_COURT
 using ReignBeta.Court;
@@ -12,8 +10,23 @@ using TaleWorlds.CampaignSystem;
 using TaleWorlds.Core;
 using TaleWorlds.Library;
 using TaleWorlds.ScreenSystem;
+using ReignBeta.Characters.Campaign;
+using ReignBeta.Characters.Integration;
+using ReignBeta.Diplomacy.Campaign;
+using ReignBeta.Persistence.Integration;
+using ReignBeta.Platform.Integration;
+using ReignBeta.Rebellion.Campaign;
+using ReignBeta.Relationships.Campaign;
+using ReignBeta.Relationships.Integration;
+using ReignBeta.Reputation.Campaign;
+using ReignBeta.WorldSimulation.Campaign;
+using ReignBeta.WorldSimulation.Integration;
+using ReignBeta.WorldSimulation.Runtime;
+#if !REIGN_EXCLUDE_COURT
+using ReignBeta.Court.Campaign;
+#endif
 
-namespace ReignBeta.Campaign
+namespace ReignBeta.Platform.Campaign
 {
     /// <summary>
     /// Owns the one blocking preparation pass for a campaign generation. Only
@@ -739,7 +752,7 @@ namespace ReignBeta.Campaign
                     ReignCalendarService.InitializeForCurrentCampaign();
                 if (!ReignCalendarService.IsReady)
                     throw new InvalidOperationException("The restored campaign calendar is not ready.");
-                ReignBeta.Government.ReignGovernmentCampaignBehavior.Instance?.RestoreSessionCalendar();
+                ReignBeta.Government.Campaign.ReignGovernmentCampaignBehavior.Instance?.RestoreSessionCalendar();
                 return true;
             }).ConfigureAwait(false);
             ReignInitializationReleaseToken token;

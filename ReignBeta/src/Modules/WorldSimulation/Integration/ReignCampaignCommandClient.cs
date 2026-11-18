@@ -3,9 +3,12 @@ using System.Threading.Tasks;
 using Newtonsoft.Json.Linq;
 using ReignBeta.World;
 using TaleWorlds.CampaignSystem;
-using static ReignBeta.Integration.ReignServerClient;
+using static ReignBeta.Platform.Integration.ReignServerClient;
+using ReignBeta.Platform.Integration;
+using ReignBeta.WorldSimulation.CampaignCommands;
+using ReignBeta.WorldSimulation.World;
 
-namespace ReignBeta.Integration
+namespace ReignBeta.WorldSimulation.Integration
 {
     internal static class ReignCampaignCommandClient
     {
@@ -67,7 +70,7 @@ namespace ReignBeta.Integration
                 JObject response = await PostJsonAsync("/correspondence/send", new JObject
                 {
                     ["campaignId"] = GetCampaignId(),
-                    ["timelineId"] = ReignBeta.Campaign.ReignWorldHistoryCampaignBehavior.Instance?.TimelineId ?? "main",
+                    ["timelineId"] = ReignBeta.WorldSimulation.Campaign.ReignWorldHistoryCampaignBehavior.Instance?.TimelineId ?? "main",
                     ["senderId"] = sender.StringId ?? string.Empty,
                     ["senderName"] = sender.Name?.ToString() ?? "Commander",
                     ["recipientId"] = recipient.StringId ?? string.Empty,

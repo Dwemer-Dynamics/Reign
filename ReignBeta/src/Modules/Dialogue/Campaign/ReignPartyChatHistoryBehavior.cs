@@ -1,13 +1,14 @@
 using System;
 using System.Collections.Generic;
 using Newtonsoft.Json;
-using ReignBeta.Runtime;
-using ReignBeta.Save;
 using ReignBeta.UI;
 using TaleWorlds.CampaignSystem;
 using NativeCampaign = TaleWorlds.CampaignSystem.Campaign;
+using ReignBeta.Dialogue.Runtime;
+using ReignBeta.Dialogue.UI;
+using ReignBeta.Persistence.Save;
 
-namespace ReignBeta.Campaign
+namespace ReignBeta.Dialogue.Campaign
 {
     public sealed class ReignPartyChatHistoryBehavior : CampaignBehaviorBase
     {

@@ -7,9 +7,14 @@ using ReignBeta.Shared.Characters;
 using TaleWorlds.CampaignSystem;
 using TaleWorlds.CampaignSystem.Party;
 using TaleWorlds.CampaignSystem.Settlements;
-using static ReignBeta.Integration.ReignServerClient;
+using static ReignBeta.Platform.Integration.ReignServerClient;
+using ReignBeta.Characters.Campaign;
+using ReignBeta.Dialogue.Integration;
+using ReignBeta.Platform.Integration;
+using ReignBeta.Relationships.Integration;
+using ReignBeta.WorldSimulation.Campaign;
 
-namespace ReignBeta.Integration
+namespace ReignBeta.Characters.Integration
 {
     internal static class ReignNpcLivesClient
     {

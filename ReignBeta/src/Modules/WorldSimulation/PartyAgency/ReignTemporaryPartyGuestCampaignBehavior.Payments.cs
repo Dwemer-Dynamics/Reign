@@ -1,12 +1,13 @@
 using System;
 using Newtonsoft.Json.Linq;
-using ReignBeta.Integration;
-using ReignBeta.Runtime;
 using TaleWorlds.CampaignSystem;
 using TaleWorlds.CampaignSystem.Actions;
 using TaleWorlds.Library;
+using ReignBeta.PartyAgency;
+using ReignBeta.Platform.Integration;
+using ReignBeta.WorldSimulation.Runtime;
 
-namespace ReignBeta.PartyAgency
+namespace ReignBeta.WorldSimulation.PartyAgency
 {
     public sealed partial class ReignTemporaryPartyGuestCampaignBehavior
     {

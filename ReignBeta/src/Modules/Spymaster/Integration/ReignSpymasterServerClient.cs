@@ -2,9 +2,14 @@ using System.Threading.Tasks;
 using Newtonsoft.Json.Linq;
 using ReignBeta.Campaign;
 using ReignBeta.Court;
-using ReignBeta.Runtime;
+using ReignBeta.Characters.Integration;
+using ReignBeta.Court.Campaign;
+using ReignBeta.Platform.Integration;
+using ReignBeta.Platform.Runtime;
+using ReignBeta.Spymaster.Campaign;
+using ReignBeta.WorldSimulation.Campaign;
 
-namespace ReignBeta.Integration
+namespace ReignBeta.Spymaster.Integration
 {
     public static class ReignSpymasterServerClient
     {

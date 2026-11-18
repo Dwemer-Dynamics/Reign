@@ -4,8 +4,9 @@ using System.Linq;
 using Newtonsoft.Json.Linq;
 using Reign.Core.Contracts.Actions;
 using ReignBeta.Campaign;
+using ReignBeta.Characters.Campaign;
 
-namespace ReignBeta.Actions
+namespace ReignBeta.Characters.Actions
 {
     internal static class ReignTavernHouseAction
     {

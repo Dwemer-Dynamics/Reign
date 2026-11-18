@@ -13,9 +13,12 @@ using TaleWorlds.CampaignSystem.Actions;
 using TaleWorlds.CampaignSystem.Party;
 using TaleWorlds.CampaignSystem.Settlements;
 using NativeCampaign = TaleWorlds.CampaignSystem.Campaign;
-using static ReignBeta.Campaign.ReignRulerCampaignBehavior;
+using static ReignBeta.WorldSimulation.Rulers.ReignRulerCampaignBehavior;
+using ReignBeta.WorldSimulation.Actions;
+using ReignBeta.WorldSimulation.Campaign;
+using ReignBeta.WorldSimulation.News;
 
-namespace ReignBeta.Campaign
+namespace ReignBeta.WorldSimulation.Rulers
 {
     // Harness-owned ruler fixture controls. One-use control state stays on ReignRulerCampaignBehavior.
     internal static partial class ReignRulerFixtureControls

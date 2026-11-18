@@ -12,7 +12,7 @@ using TaleWorlds.InputSystem;
 using TaleWorlds.TwoDimension;
 using Vector2 = NumericsVectors::System.Numerics.Vector2;
 
-namespace ReignBeta.UI.Widgets
+namespace ReignBeta.Dialogue.UI
 {
     public sealed class ReignActionEditableTextWidget : EditableTextWidget
     {
@@ -50,7 +50,7 @@ namespace ReignBeta.UI.Widgets
             {
                 if (!_missingComposerReported)
                 {
-                    ReignBeta.Integration.ReignLog.Warn("Action editor has no registered composer: widget=" + Id);
+                    ReignBeta.Platform.Integration.ReignLog.Warn("Action editor has no registered composer: widget=" + Id);
                     _missingComposerReported = true;
                 }
                 return;

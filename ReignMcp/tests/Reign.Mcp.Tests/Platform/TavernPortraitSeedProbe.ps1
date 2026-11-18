@@ -46,7 +46,7 @@ $resolver = [ResolveEventHandler] {
 [Reflection.Assembly]::Load('Newtonsoft.Json') | Out-Null
 $client = [Reflection.Assembly]::LoadFrom($clientPath)
 $flags = [Reflection.BindingFlags]'Public,NonPublic,Static'
-$install = $client.GetType('ReignBeta.Integration.ReignTavernPortraitPack', $true).GetMethod('Install', $flags)
+$install = $client.GetType('ReignBeta.Portraits.Integration.ReignTavernPortraitPack', $true).GetMethod('Install', $flags)
 $core = $client.GetType('ReignPortraits.PortraitDerivativeCore', $true)
 $current = $core.GetMethod('IsCurrentV2', $flags)
 $manifestType = $client.GetType('ReignPortraits.PortraitDerivativeManifestV2', $true)

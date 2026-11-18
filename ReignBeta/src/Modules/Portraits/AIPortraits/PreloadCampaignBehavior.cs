@@ -1,7 +1,7 @@
 using AIEventsAndIntrigue.Settings;
-using ReignBeta.Integration;
 using TaleWorlds.CampaignSystem;
 using TaleWorlds.Library;
+using ReignBeta.Platform.Integration;
 
 namespace AIPortraits;
 

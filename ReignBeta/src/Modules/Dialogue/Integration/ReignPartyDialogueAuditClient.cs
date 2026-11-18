@@ -5,9 +5,11 @@ using System.Threading.Tasks;
 using Newtonsoft.Json.Linq;
 using ReignBeta.UI.ViewModels;
 using TaleWorlds.CampaignSystem;
-using static ReignBeta.Integration.ReignServerClient;
+using static ReignBeta.Platform.Integration.ReignServerClient;
+using ReignBeta.Dialogue.UI;
+using ReignBeta.Platform.Integration;
 
-namespace ReignBeta.Integration
+namespace ReignBeta.Dialogue.Integration
 {
     internal static class ReignPartyDialogueAuditClient
     {

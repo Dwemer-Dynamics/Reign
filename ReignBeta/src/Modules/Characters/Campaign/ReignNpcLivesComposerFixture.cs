@@ -5,16 +5,20 @@ using System.Text;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using ReignBeta.Actions;
-using ReignBeta.Save;
 using ReignBeta.UI;
 using TaleWorlds.CampaignSystem;
 using TaleWorlds.CampaignSystem.Party;
 using TaleWorlds.Core;
 using TaleWorlds.MountAndBlade;
 using TaleWorlds.ScreenSystem;
-using static ReignBeta.Campaign.ReignNpcLivesBehavior;
+using static ReignBeta.Characters.Campaign.ReignNpcLivesBehavior;
+using ReignBeta.Characters.Campaign;
+using ReignBeta.Characters.UI;
+using ReignBeta.Dialogue.UI;
+using ReignBeta.Persistence.Campaign;
+using ReignBeta.WorldSimulation.Actions;
 
-namespace ReignBeta.Campaign
+namespace ReignBeta.WorldSimulation.Campaign
 {
     // Harness-owned party composer fixture.
     internal static partial class ReignNpcLivesTestControls

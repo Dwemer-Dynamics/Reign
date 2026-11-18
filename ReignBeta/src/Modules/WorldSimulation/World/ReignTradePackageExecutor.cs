@@ -10,8 +10,9 @@ using TaleWorlds.CampaignSystem.Party;
 using TaleWorlds.CampaignSystem.Settlements;
 using TaleWorlds.CampaignSystem.Settlements.Workshops;
 using TaleWorlds.Core;
+using ReignBeta.World;
 
-namespace ReignBeta.World
+namespace ReignBeta.WorldSimulation.World
 {
     public static class ReignTradePackageExecutor
     {

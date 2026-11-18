@@ -4,7 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using Reign.Shared;
 
-namespace ReignBeta.Economy
+namespace ReignBeta.WorldSimulation.Economy
 {
     internal sealed class NpcFoodSabotageState
     {

@@ -4,8 +4,6 @@ using System.Globalization;
 using System.Linq;
 using System.Threading.Tasks;
 using Newtonsoft.Json.Linq;
-using ReignBeta.Integration;
-using ReignBeta.Runtime;
 using ReignBeta.World;
 using ReignBeta.Shared.Rulers;
 using TaleWorlds.CampaignSystem;
@@ -17,8 +15,17 @@ using TaleWorlds.CampaignSystem.Settlements;
 using TaleWorlds.Core;
 using TaleWorlds.Library;
 using TaleWorlds.Localization;
+using ReignBeta.Characters.Integration;
+using ReignBeta.Dialogue.Integration;
+using ReignBeta.Platform.Campaign;
+using ReignBeta.Platform.Integration;
+using ReignBeta.Rebellion.Integration;
+using ReignBeta.WorldSimulation.Campaign;
+using ReignBeta.WorldSimulation.News;
+using ReignBeta.WorldSimulation.Rulers;
+using ReignBeta.WorldSimulation.World;
 
-namespace ReignBeta.Campaign
+namespace ReignBeta.Rebellion.Campaign
 {
     /// <summary>
     /// Authoritative relationship-driven rebellion lifecycle.

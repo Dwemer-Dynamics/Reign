@@ -1,7 +1,7 @@
 using System;
 using System.Linq;
 
-namespace ReignBeta.Court
+namespace ReignBeta.Court.Campaign
 {
     public partial class ReignCourtCampaignBehavior
     {

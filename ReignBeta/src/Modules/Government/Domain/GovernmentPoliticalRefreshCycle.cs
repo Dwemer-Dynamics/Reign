@@ -5,7 +5,7 @@ using System.Linq;
 using Newtonsoft.Json.Linq;
 using Reign.Core.Contracts.Government;
 
-namespace ReignBeta.Government
+namespace ReignBeta.Government.Domain
 {
     // Finish a finite cache sweep before restarting its refresh timer. Large
     // populations must not make early batches expire while later ones still wait.

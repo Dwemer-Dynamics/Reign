@@ -11,12 +11,9 @@ using ReignBeta.Court;
 using ReignBeta.Court.TrainingYard;
 using ReignBeta.Court.WarCouncil;
 #endif
-using ReignBeta.Integration;
-using ReignBeta.Economy;
 using ReignBeta.Family;
 using ReignBeta.Government;
 using ReignBeta.PartyAgency;
-using ReignBeta.Runtime;
 using ReignBeta.UI;
 using ReignBeta.UI.HiddenInformation;
 using ReignBeta.World;
@@ -24,6 +21,43 @@ using TaleWorlds.CampaignSystem;
 using TaleWorlds.Core;
 using TaleWorlds.Library;
 using TaleWorlds.MountAndBlade;
+using ReignBeta.Characters.Campaign;
+using ReignBeta.Characters.Family;
+using ReignBeta.Characters.UI;
+using ReignBeta.Dialogue.Campaign;
+using ReignBeta.Dialogue.UI;
+using ReignBeta.Diplomacy.Campaign;
+using ReignBeta.Diplomacy.Runtime;
+using ReignBeta.Diplomacy.UI;
+using ReignBeta.Government.Campaign;
+using ReignBeta.Government.UI;
+using ReignBeta.KingdomEvents.Campaign;
+using ReignBeta.Persistence.Campaign;
+using ReignBeta.Persistence.Integration;
+using ReignBeta.Platform.Campaign;
+using ReignBeta.Platform.Integration;
+using ReignBeta.Platform.Runtime;
+using ReignBeta.Portraits.Integration;
+using ReignBeta.Rebellion.Campaign;
+using ReignBeta.Relationships.Campaign;
+using ReignBeta.Relationships.Integration;
+using ReignBeta.Reputation.Campaign;
+using ReignBeta.WorldSimulation.Arrests;
+using ReignBeta.WorldSimulation.Campaign;
+using ReignBeta.WorldSimulation.CampaignCommands;
+using ReignBeta.WorldSimulation.Economy;
+using ReignBeta.WorldSimulation.News;
+using ReignBeta.WorldSimulation.PartyAgency;
+using ReignBeta.WorldSimulation.Rulers;
+using ReignBeta.WorldSimulation.Runtime;
+using ReignBeta.WorldSimulation.UI;
+using ReignBeta.WorldSimulation.World;
+#if !REIGN_EXCLUDE_COURT
+using ReignBeta.Court.Campaign;
+using ReignBeta.Court.FamilyChambers;
+using ReignBeta.Court.UI;
+using ReignBeta.Spymaster.UI;
+#endif
 
 namespace ReignBeta
 {
@@ -38,7 +72,7 @@ namespace ReignBeta
 
         public SubModule()
         {
-            ReignBeta.Compatibility.ReignRbmCompatibility.Bootstrap();
+            ReignBeta.Platform.Compatibility.ReignRbmCompatibility.Bootstrap();
         }
 
         protected override void OnSubModuleLoad()
@@ -50,7 +84,7 @@ namespace ReignBeta
             // The in-game test harness (optional ReignBeta.Testing.dll) reaches product code only through this seam.
             ReignTestHarness.InstallFromOptionalAssembly(typeof(SubModule).Assembly);
             ReignBloodFeudPatches.Apply();
-            ReignBeta.Compatibility.ReignRbmCompatibility.VerifyEarlyStartup();
+            ReignBeta.Platform.Compatibility.ReignRbmCompatibility.VerifyEarlyStartup();
             ReignEncyclopediaSafetyPatch.Apply();
             ReignMapBarInputSafetyPatch.Apply();
             ReignPregnancyPatches.Apply();
@@ -62,7 +96,7 @@ namespace ReignBeta
             ReignArrestCustodyPatches.Apply();
             ReignHiddenInformationPatches.Apply();
             ReignSaveSyncDeletionPatch.Apply();
-            ReignBeta.World.ReignRulerNativePatches.Apply();
+            ReignBeta.WorldSimulation.Rulers.ReignRulerNativePatches.Apply();
             ReignTemporaryPartyGuestPatches.Apply();
             ReignNpcLivesPatches.Apply();
             ReignRescueConversationBehavior.Install();
@@ -82,7 +116,7 @@ namespace ReignBeta
             base.OnBeforeInitialModuleScreenSetAsRoot();
             // Harmony can run Agent's static initializer, which reads the native
             // action cache. Module discovery precedes loading the action table.
-            ReignBeta.World.ReignPlayerGodModeHealthPatch.TryApply();
+            ReignBeta.WorldSimulation.Combat.ReignPlayerGodModeHealthPatch.TryApply();
         }
 
         private static void EnsureManagedRuntimeDependencies()
@@ -148,7 +182,7 @@ namespace ReignBeta
                 if (Game.Current?.GameTextManager == null)
                     throw new InvalidOperationException("The native game text manager must be ready before economy hooks.");
                 ReignEconomyPatches.Apply();
-                ReignBeta.Compatibility.ReignCraftingOrderLoadPatches.Apply();
+                ReignBeta.Platform.Compatibility.ReignCraftingOrderLoadPatches.Apply();
                 // Open this game's scoped dispatch before any campaign behavior
                 // can capture it.
                 ReignMainThread.BeginGameScope(game);
@@ -160,9 +194,9 @@ namespace ReignBeta
                 campaignStarter.AddModel(new ReignSettlementLoyaltyModel());
                 campaignStarter.AddModel(new ReignSettlementProsperityModel());
                 campaignStarter.AddModel(new ReignBuildingConstructionModel());
-                campaignStarter.AddModel(new ReignBeta.ClanAccords.ReignClanAccordsFinanceModel());
-                campaignStarter.AddModel(new ReignBeta.ClanAccords.ReignClanAccordsWageModel());
-                campaignStarter.AddBehavior(new ReignBeta.ClanAccords.ReignClanAccordsCampaignBehavior());
+                campaignStarter.AddModel(new ReignBeta.Diplomacy.ClanAccords.ReignClanAccordsFinanceModel());
+                campaignStarter.AddModel(new ReignBeta.Diplomacy.ClanAccords.ReignClanAccordsWageModel());
+                campaignStarter.AddBehavior(new ReignBeta.Diplomacy.ClanAccords.ReignClanAccordsCampaignBehavior());
                 campaignStarter.AddBehavior(new ReignEconomyCampaignBehavior());
                 campaignStarter.AddBehavior(new ReignRulerCampaignBehavior());
                 campaignStarter.AddBehavior(new ReignNewsCampaignBehavior());
@@ -174,7 +208,7 @@ namespace ReignBeta
                 campaignStarter.AddBehavior(new ReignCharacterEditorCampaignBehavior());
                 campaignStarter.AddBehavior(new ReignCharacterKnowledgeCampaignBehavior());
                 campaignStarter.AddBehavior(new ReignAICampaignBehavior());
-                campaignStarter.AddBehavior(new ReignBeta.Actions.ReignAgreementBehavior());
+                campaignStarter.AddBehavior(new ReignBeta.WorldSimulation.Actions.ReignAgreementBehavior());
                 campaignStarter.AddBehavior(new ReignPersonalItemService());
                 campaignStarter.AddBehavior(new ReignGoldTransferService());
                 campaignStarter.AddBehavior(new ReignCampaignCommandBehavior());
@@ -299,7 +333,7 @@ namespace ReignBeta
             RunTickStage("royal council overlay", () => ReignRoyalCouncilScreenManager.ApplicationTick(dt));
             RunTickStage("economic report overlay", () => ReignCourtEconomicReportScreenManager.ApplicationTick(dt));
             RunTickStage("clan accords overlay", () => ReignClanAccordsScreenManager.ApplicationTick(dt));
-            RunTickStage("clan accords sync", () => ReignBeta.ClanAccords.ReignClanAccordsCampaignBehavior.Instance?.ApplicationTick(dt));
+            RunTickStage("clan accords sync", () => ReignBeta.Diplomacy.ClanAccords.ReignClanAccordsCampaignBehavior.Instance?.ApplicationTick(dt));
             RunTickStage("war council overlay", () => ReignWarCouncilScreenManager.ApplicationTick(dt));
             RunTickStage("ambassador overlay", () => ReignAmbassadorScreenManager.ApplicationTick(dt));
             RunTickStage("spymaster overlay", () => ReignSpymasterScreenManager.ApplicationTick(dt));
@@ -332,12 +366,12 @@ namespace ReignBeta
         public override void OnMissionBehaviorInitialize(Mission mission)
         {
             base.OnMissionBehaviorInitialize(mission);
-            ReignBeta.World.ReignPlayerGodMode.Attach(mission);
+            ReignBeta.WorldSimulation.Combat.ReignPlayerGodMode.Attach(mission);
             mission.AddMissionBehavior(new ReignDuelMissionBehavior());
             mission.AddMissionBehavior(new ReignSceneActionMissionBehavior());
             mission.AddMissionBehavior(new ReignEncounteredResidentMissionBehavior());
-            mission.AddMissionBehavior(new ReignBeta.Campaign.ReignSharedActivityMissionBehavior());
-            mission.AddMissionBehavior(new ReignBeta.Campaign.NpcStoryMissionWitness());
+            mission.AddMissionBehavior(new ReignBeta.WorldSimulation.Campaign.ReignSharedActivityMissionBehavior());
+            mission.AddMissionBehavior(new ReignBeta.Characters.Campaign.NpcStoryMissionWitness());
         }
 
         protected override void OnSubModuleUnloaded()
@@ -346,10 +380,10 @@ namespace ReignBeta
             // before patch cleanup. Legacy queued work is unchanged.
             ReignMainThread.CloseScopedIngress();
             base.OnSubModuleUnloaded();
-            ReignBeta.Compatibility.ReignRbmCompatibility.Unload();
-            ReignBeta.Compatibility.ReignCraftingOrderLoadPatches.Unapply();
+            ReignBeta.Platform.Compatibility.ReignRbmCompatibility.Unload();
+            ReignBeta.Platform.Compatibility.ReignCraftingOrderLoadPatches.Unapply();
             ReignDuelCombatPatches.Unapply();
-            ReignBeta.World.ReignPlayerGodModeHealthPatch.Unapply();
+            ReignBeta.WorldSimulation.Combat.ReignPlayerGodModeHealthPatch.Unapply();
             _portraitHarmony?.UnpatchAll(_portraitHarmony.Id);
             ReignPregnancyPatches.Unapply();
             ReignNpcLivesPatches.Unapply();
@@ -363,7 +397,7 @@ namespace ReignBeta
             ReignHiddenInformationPatches.Unapply();
             ReignSaveSyncDeletionPatch.Unapply();
             ReignEconomyPatches.Unapply();
-            ReignBeta.World.ReignRulerNativePatches.Unapply();
+            ReignBeta.WorldSimulation.Rulers.ReignRulerNativePatches.Unapply();
             ReignWorkshopDialoguePatches.Unapply();
             ReignMainMenuVideoPatches.Unapply();
             ReignPopupKeyboardPatches.Unapply();
@@ -377,7 +411,7 @@ namespace ReignBeta
         public override void OnGameInitializationFinished(Game game)
         {
             base.OnGameInitializationFinished(game);
-            ReignBeta.Compatibility.ReignRbmCompatibility.AfterGameLoad(game);
+            ReignBeta.Platform.Compatibility.ReignRbmCompatibility.AfterGameLoad(game);
             ReignLog.Info("Bannerlord Reign initialized through ReignBeta module id.");
             InformationManager.DisplayMessage(new InformationMessage("Bannerlord Reign AI world foundation loaded.", Color.FromUint(0xFFFFD36A)));
         }

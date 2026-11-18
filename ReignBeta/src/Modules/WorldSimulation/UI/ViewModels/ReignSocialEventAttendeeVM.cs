@@ -1,12 +1,12 @@
 using System;
 using AIPortraits;
-using ReignBeta.Integration;
 using TaleWorlds.CampaignSystem;
 using TaleWorlds.Core;
 using TaleWorlds.Core.ViewModelCollection.ImageIdentifiers;
 using TaleWorlds.Library;
+using ReignBeta.Platform.Integration;
 
-namespace ReignBeta.UI.ViewModels
+namespace ReignBeta.WorldSimulation.UI
 {
     public sealed class ReignSocialEventAttendeeVM : ViewModel
     {

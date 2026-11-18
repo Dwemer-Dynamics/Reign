@@ -5,7 +5,6 @@ using System.Security.Cryptography;
 using System.Text;
 using Newtonsoft.Json.Linq;
 using Reign.Core.Contracts.Court;
-using ReignBeta.Integration;
 using ReignBeta.UI;
 using ReignBeta.UI.Calibration;
 using TaleWorlds.CampaignSystem;
@@ -13,9 +12,11 @@ using TaleWorlds.CampaignSystem.Party;
 using TaleWorlds.CampaignSystem.Roster;
 using TaleWorlds.CampaignSystem.Settlements;
 using TaleWorlds.Core;
-using static ReignBeta.Court.ReignCourtCampaignBehavior;
+using static ReignBeta.Court.Campaign.ReignCourtCampaignBehavior;
+using ReignBeta.Characters.Integration;
+using ReignBeta.Court.UI;
 
-namespace ReignBeta.Court
+namespace ReignBeta.Court.Campaign
 {
     // Harness-owned Court acceptance controls. Saved court state, test ledgers/markers and SyncData stay on ReignCourtCampaignBehavior.
     internal static partial class ReignCourtTestControls
@@ -164,7 +165,7 @@ namespace ReignBeta.Court
                 "The created native condition did not produce the requested production candidate.", saveName, saveName);
 
             string campaignId = ReignCampaignIdentity.CurrentCampaignId();
-            string timelineId = ReignBeta.Campaign.ReignWorldHistoryCampaignBehavior.Instance?.TimelineId ?? "main";
+            string timelineId = ReignBeta.WorldSimulation.Campaign.ReignWorldHistoryCampaignBehavior.Instance?.TimelineId ?? "main";
             ReignDocketPetition petition = court.CreatePetitionSnapshot(candidate, campaignId, timelineId, day);
             petition.PetitionId = "petition_test_" + runId + "_" + Guid.NewGuid().ToString("N");
             string action = NormalizeFixtureAction(options.Value<string>("action"));

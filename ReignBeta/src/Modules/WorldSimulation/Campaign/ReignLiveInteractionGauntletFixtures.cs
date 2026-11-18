@@ -5,15 +5,19 @@ using System.Threading.Tasks;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using Reign.Core.Contracts.Actions;
-using ReignBeta.Integration;
 using ReignBeta.World;
 using TaleWorlds.CampaignSystem;
 using TaleWorlds.CampaignSystem.Actions;
 using TaleWorlds.CampaignSystem.Party;
 using TaleWorlds.CampaignSystem.Settlements;
 using TaleWorlds.Core;
+using ReignBeta.Characters.Integration;
+using ReignBeta.Persistence.Campaign;
+using ReignBeta.Platform.Campaign;
+using ReignBeta.Platform.Integration;
+using ReignBeta.WorldSimulation.World;
 
-namespace ReignBeta.Campaign
+namespace ReignBeta.WorldSimulation.Campaign
 {
     public static partial class ReignLiveInteractionTestHost
     {
@@ -482,7 +486,7 @@ namespace ReignBeta.Campaign
                 ["relations"] = relations,
                 ["actions"] = actions,
                 ["pendingNpcOffers"] = ObservePendingNpcOffers(
-                    ReignBeta.Actions.ReignAgreementBehavior.Instance?.Offers,
+                    ReignBeta.WorldSimulation.Actions.ReignAgreementBehavior.Instance?.Offers,
                     Hero.MainHero?.StringId ?? string.Empty, heroes.Select(h => h.StringId)),
                 ["playerGold"] = Hero.MainHero?.Gold ?? 0,
                 ["playerClanId"] = Clan.PlayerClan?.StringId ?? string.Empty,

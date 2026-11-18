@@ -6,9 +6,11 @@ using Reign.Core.Contracts.Actions;
 using ReignBeta.Actions;
 using ReignBeta.Campaign;
 using TaleWorlds.CampaignSystem;
-using static ReignBeta.Integration.ReignServerClient;
+using static ReignBeta.Platform.Integration.ReignServerClient;
+using ReignBeta.WorldSimulation.Actions;
+using ReignBeta.WorldSimulation.Campaign;
 
-namespace ReignBeta.Integration
+namespace ReignBeta.Dialogue.Integration
 {
     internal static class ReignStructuredActionClient
     {
@@ -77,7 +79,7 @@ namespace ReignBeta.Integration
             if (npc?.IsChild != true) context["appraisals"] = ReignActionQuotes.Context(playerId, npcId, offer,
                 payload.Value<string>("playerText") ?? payload.Value<string>("text") ?? payload.Value<string>("message") ?? "");
             if (npc?.IsChild != true)
-                context["governmentPetitions"] = ReignBeta.Government.ReignGovernmentCampaignBehavior.Instance
+                context["governmentPetitions"] = ReignBeta.Government.Campaign.ReignGovernmentCampaignBehavior.Instance
                     ?.PetitionNegotiationContext(npc, Hero.MainHero, offer);
             payload["structuredActionProtocolVersion"] = ActionNegotiation.ProtocolVersion;
             payload["structuredActionContext"] = context;

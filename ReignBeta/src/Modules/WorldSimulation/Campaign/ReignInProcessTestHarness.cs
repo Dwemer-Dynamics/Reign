@@ -1,9 +1,12 @@
 using System.Threading.Tasks;
 using Newtonsoft.Json.Linq;
-using ReignBeta.Runtime;
 using TaleWorlds.CampaignSystem;
+using ReignBeta.Characters.Campaign;
+using ReignBeta.Platform.Runtime;
+using ReignBeta.Reputation.Campaign;
+using ReignBeta.WorldSimulation.Rulers;
 
-namespace ReignBeta.Campaign
+namespace ReignBeta.WorldSimulation.Campaign
 {
     // Test-harness side of IReignTestHarness: forwards to the live interaction host, the action
     // gauntlet, the harness-owned fixture controls and the social-balance harness; spymaster
@@ -37,19 +40,19 @@ namespace ReignBeta.Campaign
 
         public bool HoldNpcLivesAnnouncementDelivery(ReignNpcLivesBehavior lives, JObject row) =>
             ReignNpcLivesTestControls.HoldAnnouncementDeliveryForNativeTest(lives, row);
-        public void CaptureGovernmentLoadFingerprintPhase(ReignBeta.Government.ReignGovernmentCampaignBehavior government, string phase, bool reset) =>
-            ReignBeta.Government.ReignGovernmentTestControls.CaptureGovernmentLoadFingerprintPhase(government, phase, reset);
+        public void CaptureGovernmentLoadFingerprintPhase(ReignBeta.Government.Campaign.ReignGovernmentCampaignBehavior government, string phase, bool reset) =>
+            ReignBeta.Government.Testing.ReignGovernmentTestControls.CaptureGovernmentLoadFingerprintPhase(government, phase, reset);
         public bool TryConsumeRulerJudgmentDraw(ReignRulerCampaignBehavior rulers, ReignBeta.Shared.Rulers.RulerJudgment judgment, out double draw) =>
             ReignRulerFixtureControls.TryConsumeJudgmentDraw(rulers, judgment, out draw);
         public bool TryConsumeRulerCaptureRoll(ReignRulerCampaignBehavior rulers, Hero hero, out double roll) =>
             ReignRulerFixtureControls.TryConsumeCaptureRoll(rulers, hero, out roll);
         public Task<double?> SubmitWorldTestHeartbeatAsync(double deltaAfterDay) =>
-            ReignBeta.Integration.ReignWorldTestServerClient.SubmitWorldTestHeartbeatAsync(deltaAfterDay);
+            ReignBeta.WorldSimulation.Integration.ReignWorldTestServerClient.SubmitWorldTestHeartbeatAsync(deltaAfterDay);
 
 #if REIGN_EXCLUDE_COURT
         public IReignSpymasterTestControls Spymaster => ReignTestHarness.IdleSpymasterControls;
 #else
-        public IReignSpymasterTestControls Spymaster { get; } = new ReignBeta.Court.ReignSpymasterInProcessTestControls();
+        public IReignSpymasterTestControls Spymaster { get; } = new ReignBeta.Spymaster.Campaign.ReignSpymasterInProcessTestControls();
 #endif
     }
 }

@@ -4,7 +4,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using HarmonyLib;
-using ReignBeta.Integration;
 using TaleWorlds.CampaignSystem;
 using TaleWorlds.CampaignSystem.ViewModelCollection;
 using TaleWorlds.CampaignSystem.ViewModelCollection.ClanManagement;
@@ -20,6 +19,7 @@ using TaleWorlds.Core.ViewModelCollection.Generic;
 using TaleWorlds.Core.ViewModelCollection.Information;
 using TaleWorlds.Library;
 using TaleWorlds.Localization;
+using ReignBeta.Platform.Integration;
 
 namespace ReignBeta.UI.HiddenInformation
 {

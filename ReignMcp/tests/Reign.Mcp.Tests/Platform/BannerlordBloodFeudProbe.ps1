@@ -65,7 +65,7 @@ public static class FeudProbeSentinel { public static void Prefix() {} }
     Require ([bool]$getter.Invoke($clan, @())) 'Native flag control was not active.'
     $sentinel = [HarmonyLib.Harmony]::new($sentinelOwner)
     $sentinel.Patch($getter, [HarmonyLib.HarmonyMethod]::new([FeudProbeSentinel].GetMethod('Prefix')), $null, $null, $null) | Out-Null
-    $policy = $client.GetType('ReignBeta.Runtime.ReignBloodFeudPatches', $true)
+    $policy = $client.GetType('ReignBeta.Platform.Runtime.ReignBloodFeudPatches', $true)
     $apply = $policy.GetMethod('Apply', $flags)
     $unapply = $policy.GetMethod('Unapply', $flags)
     $apply.Invoke($null, @()) | Out-Null
@@ -145,7 +145,7 @@ public static class FeudProbeSentinel { public static void Prefix() {} }
     foreach ($pair in @(@('SettlementLoyaltyChangeDueToSecurityThreshold',60),@('LowSecurityLoyaltyEffect',-2.5),@('SettlementOwnerDifferentCultureLoyaltyEffect',-3))) {
         Require ($nativeLoyalty.GetProperty($pair[0]).GetValue($loyalty,$null) -eq $pair[1]) ('Native stability default changed: ' + $pair[0])
     }
-    $reignLoyalty = $client.GetType('ReignBeta.Economy.ReignSettlementLoyaltyModel', $true)
+    $reignLoyalty = $client.GetType('ReignBeta.WorldSimulation.Economy.ReignSettlementLoyaltyModel', $true)
     foreach ($name in @('RebelliousStateStartLoyaltyThreshold','RebellionStartLoyaltyThreshold')) {
         Require ($reignLoyalty.GetProperty($name).GetGetMethod().DeclaringType -eq $nativeLoyalty) ('Reign replaced a native rebellion threshold: ' + $name)
     }

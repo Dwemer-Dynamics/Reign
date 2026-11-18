@@ -6,9 +6,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
-using ReignBeta.Integration;
 using Reign.Core.Contracts.Platform;
-using ReignBeta.Settings;
 using ReignBeta.UI;
 using ReignBeta.UI.ViewModels;
 using ReignBeta.World;
@@ -22,8 +20,13 @@ using TaleWorlds.Core;
 using TaleWorlds.Library;
 using TaleWorlds.Localization;
 using TaleWorlds.ObjectSystem;
+using ReignBeta.Dialogue.UI;
+using ReignBeta.Platform.Campaign;
+using ReignBeta.Platform.Integration;
+using ReignBeta.Platform.Settings;
+using ReignBeta.WorldSimulation.World;
 
-namespace ReignBeta.Campaign
+namespace ReignBeta.WorldSimulation.Campaign
 {
     public static class ReignActionGauntlet
     {
