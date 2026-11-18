@@ -59,8 +59,9 @@ public sealed class PartyChatApproachTests
         namespace ReignBeta.Actions { public static class ReignActionService { public static Draft Copy(Draft draft) => new Draft { NpcId = draft.NpcId }; } }
         namespace ReignBeta.Campaign { public sealed class ReignWorldHistoryCampaignBehavior { public static ReignWorldHistoryCampaignBehavior Instance; public string TimelineId; } }
         public sealed class Options { public bool Enabled = true; public bool Allows(string key) => Enabled; }
+        public static class ReignNpcLivesClient { public static Options NpcLivesOptions = new Options(); }
         public static class ReignServerClient {
-            public static Options NpcLivesOptions = new Options(); public static string GetCampaignId() => "isolated";
+            public static string GetCampaignId() => "isolated";
             // Modeled load identity: a campaign object and a save generation, both replaced by a load change.
             public static object Campaign = new object(); public static int SaveGeneration;
             public static void ChangeLoad() { Campaign = new object(); SaveGeneration++; }
@@ -110,7 +111,7 @@ public sealed class PartyChatApproachTests
             public void PersistCastleTranscript() { }
             /* PRODUCTION_SEND */
             private static void Check(bool condition, string name) { if (!condition) throw new Exception(name); }
-            private static void Reset() { ReignServerClient.NpcLivesOptions.Enabled = true; ReignConversationInputJournal.Fail = false; ReignConversationInputJournal.Text = null;
+            private static void Reset() { ReignNpcLivesClient.NpcLivesOptions.Enabled = true; ReignConversationInputJournal.Fail = false; ReignConversationInputJournal.Text = null;
                 ReignServerClient.Campaign = new object(); ReignServerClient.SaveGeneration = 0; ReignMainThread.IsMainThread = false; ReignMainThread.Dispatched = 0; ReignMainThread.FenceChecks = 0; }
             public static string[] Run() {
                 // Continuations resume inline on this probe thread, never posted to a host context.
@@ -140,7 +141,7 @@ public sealed class PartyChatApproachTests
                     passed.Add("guard:" + gate + ":" + text);
                 }
                 foreach (string text in new[] { "Hello", "" }) {
-                    Reset(); ReignServerClient.NpcLivesOptions.Enabled = false; var vm = new PartySendProbe { InputText = text };
+                    Reset(); ReignNpcLivesClient.NpcLivesOptions.Enabled = false; var vm = new PartySendProbe { InputText = text };
                     vm.ExecuteSend().GetAwaiter().GetResult();
                     Check(vm.Openings == 0 && vm.Sends == (text.Length > 0 ? 1 : 0), "disabled approach preference");
                     passed.Add("disabled:" + text);
