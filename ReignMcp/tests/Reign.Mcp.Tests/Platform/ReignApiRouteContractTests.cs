@@ -160,8 +160,7 @@ public sealed class ReignApiRouteContractTests
     public void RuntimeAndLogRoutesKeepPollingResponsesBounded()
     {
         var workspace = TestOptions.FindWorkspace();
-        string platform = File.ReadAllText(TestSourceLocator.Unique(
-            Path.Combine(workspace, "ReignServer"), "Program.cs", "/src/Modules/Platform/"));
+        string platform = TestSourceLocator.ServerProgramText(workspace);
         string liveTests = File.ReadAllText(TestSourceLocator.Unique(
             Path.Combine(workspace, "ReignServer"), "LiveInteractionTest.cs", "/src/Modules/WorldSimulation/"));
 

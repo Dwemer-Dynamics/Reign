@@ -130,7 +130,7 @@ public sealed class TestingCatalogContractTests
         Assert.Contains("sourceAuditsBeforeLateRepair", replay);
         Assert.Contains("PrepareCountedRouteProviderRequest(check, replayRequest);", replay);
         const string boundary = "FinishDialogueRepairsWithAnswerSupport(() =>";
-        string program = Read("ReignServer/src/Modules/Platform/Program.cs");
+        string program = TestSourceLocator.ServerProgramText(workspace).Replace("\r\n", "\n");
         Assert.DoesNotContain(boundary, program);
         Assert.Contains("GenerateSinglePassConversation(dialogueLlmRequest", program);
         Assert.Contains("GenerateSinglePassConversation(eventLlmRequest", program);

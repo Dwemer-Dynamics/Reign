@@ -30,8 +30,7 @@ public sealed class SocialReputationHarnessContractTests
             Path.Combine(root, "ReignServer"), "CourtSocialReputation.cs", "/src/"));
         string worldHistoryServer = File.ReadAllText(TestSourceLocator.Unique(
             Path.Combine(root, "ReignServer"), "WorldHistory.cs", "/src/"));
-        string platform = File.ReadAllText(TestSourceLocator.Unique(
-            Path.Combine(root, "ReignServer"), "Program.cs", "/src/Modules/Platform/"));
+        string platform = TestSourceLocator.ServerProgramText(root);
         Assert.Contains("reign_get_social_reputation_test_manifest", source, StringComparison.Ordinal);
         Assert.Contains("reign_prepare_social_reputation_test", source, StringComparison.Ordinal);
         Assert.Contains("reign_start_social_reputation_test", source, StringComparison.Ordinal);
@@ -256,10 +255,11 @@ public sealed class SocialReputationHarnessContractTests
         Assert.Contains("opportunitySnapshot", courtSocial, StringComparison.Ordinal);
         Assert.Contains("[\"speakerClanTier\"] = speakerClanTier", courtSocial, StringComparison.Ordinal);
         Assert.Contains("rejectedSocialSignals", platform, StringComparison.Ordinal);
-        int responseStart = platform.IndexOf("Dictionary<string, object> response = new Dictionary<string, object>", StringComparison.Ordinal);
-        int responseEnd = platform.IndexOf("LogOperational(\"dialogue.respond\"", responseStart, StringComparison.Ordinal);
+        string respondSource = TestSourceLocator.ServerProgramFileText(root, "LogOperational(\"dialogue.respond\"");
+        int responseStart = respondSource.IndexOf("Dictionary<string, object> response = new Dictionary<string, object>", StringComparison.Ordinal);
+        int responseEnd = respondSource.IndexOf("LogOperational(\"dialogue.respond\"", responseStart, StringComparison.Ordinal);
         Assert.True(responseStart >= 0 && responseEnd > responseStart);
-        string responseEnvelope = platform.Substring(responseStart, responseEnd - responseStart);
+        string responseEnvelope = respondSource.Substring(responseStart, responseEnd - responseStart);
         Assert.Contains("[\"socialSignals\"] = ReadDictionaryList(socialSignalValidation, \"signals\")", responseEnvelope, StringComparison.Ordinal);
         Assert.Contains("[\"rejectedSocialSignals\"] = ReadDictionaryList(socialSignalValidation, \"rejected\")", responseEnvelope, StringComparison.Ordinal);
         Assert.Contains("Always include socialSignals", platform, StringComparison.Ordinal);
