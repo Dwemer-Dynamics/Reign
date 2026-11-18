@@ -14,7 +14,7 @@ namespace ReignBeta.Campaign
             string runId = command.Value<string>("fixtureRunId") ?? command.Value<string>("runId") ?? Guid.NewGuid().ToString("N");
             string phase = command.Value<string>("phase") ?? command.Value<string>("profile") ?? "preflight";
             JObject result = await ReignMainThread.InvokeAsync(() =>
-                behavior.RunKingdomEventTestProfile(runId, phase, command)).ConfigureAwait(false);
+                ReignKingdomEventTestControls.RunKingdomEventTestProfile(behavior, runId, phase, command)).ConfigureAwait(false);
             return result.Value<bool?>("ok") == true
                 ? LiveCommandResult.Completed("The forced production kingdom-event acceptance phase completed.", result)
                 : LiveCommandResult.Failed("The kingdom-event acceptance phase failed its current gate.", result);
