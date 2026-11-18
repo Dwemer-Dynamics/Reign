@@ -24,7 +24,7 @@ public sealed class SocialReputationHarnessContractTests
             Path.Combine(root, "ReignBeta"), "ReignCourtPersonalityReputationCampaignBehavior.cs", "/src/"));
         string socialBalance = File.ReadAllText(TestSourceLocator.Unique(
             Path.Combine(root, "ReignServer"), "SocialBalanceTest.cs", "/src/"));
-        string reputationServer = File.ReadAllText(TestSourceLocator.Unique(
+        string reputationServer = TestSourceLocator.ServerFileGroupText(TestSourceLocator.Unique(
             Path.Combine(root, "ReignServer"), "SocialReputation.cs", "/src/"));
         string courtReputationServer = File.ReadAllText(TestSourceLocator.Unique(
             Path.Combine(root, "ReignServer"), "CourtSocialReputation.cs", "/src/"));
@@ -246,7 +246,7 @@ public sealed class SocialReputationHarnessContractTests
         Assert.Contains("court_flirt_targets", socialBalance, StringComparison.Ordinal);
         Assert.Contains("clanTierScalingCorrect", socialBalance, StringComparison.Ordinal);
         Assert.Contains("court_social_signal_evidence", socialBalance, StringComparison.Ordinal);
-        string categorizedMemory = File.ReadAllText(TestSourceLocator.Unique(
+        string categorizedMemory = TestSourceLocator.ServerFileGroupText(TestSourceLocator.Unique(
             Path.Combine(root, "ReignServer"), "CategorizedMemory.cs", "/src/Modules/Dialogue/"));
         Assert.Contains("compact[\"socialSignals\"] = socialSignals", categorizedMemory, StringComparison.Ordinal);
         Assert.Contains("speakerClanTier", categorizedMemory, StringComparison.Ordinal);
@@ -275,7 +275,7 @@ public sealed class SocialReputationHarnessContractTests
             Path.Combine(root, "ReignServer"), "CourtSocialReputation.cs", "/src/"));
         string standing = File.ReadAllText(TestSourceLocator.Unique(
             Path.Combine(root, "ReignServer"), "PublicStanding.cs", "/src/"));
-        string relationships = File.ReadAllText(TestSourceLocator.Unique(
+        string relationships = TestSourceLocator.ServerFileGroupText(TestSourceLocator.Unique(
             Path.Combine(root, "ReignServer"), "WorldRelationshipModel.cs", "/src/"));
         Assert.Contains("sexual_intimacy_completed", court, StringComparison.Ordinal);
         Assert.Contains("court_social_signal_evidence", court, StringComparison.Ordinal);
@@ -313,7 +313,7 @@ public sealed class SocialReputationHarnessContractTests
             "ReignMcp/src/Reign.Mcp.Server/Modules/Reputation/TestingTools.SocialReputation.cs"));
         string server = File.ReadAllText(Path.Combine(root,
             "ReignServer/src/Modules/Reputation/SocialBalanceTest.cs"));
-        string selfTests = File.ReadAllText(Path.Combine(root,
+        string selfTests = TestSourceLocator.ServerFileGroupText(Path.Combine(root,
             "ReignServer/src/Modules/Reputation/SocialReputation.cs"));
         Assert.Contains("bool includeSnapshots = true", tools, StringComparison.Ordinal);
         Assert.Contains("InputGuard.OptionalIdentifier(caseId, nameof(caseId))", tools, StringComparison.Ordinal);

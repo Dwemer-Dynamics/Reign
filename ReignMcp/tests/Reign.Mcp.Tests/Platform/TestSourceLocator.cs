@@ -46,6 +46,19 @@ internal static class TestSourceLocator
             .FirstOrDefault(text => text.Contains(anchor, StringComparison.Ordinal))
         ?? throw new FileNotFoundException($"No server Program*.cs file contains {anchor}.");
 
+    // A server source file plus its Name.*.cs partial-class siblings in the same folder (ordinal file-name order), so
+    // a check that reads one logical file keeps working when the file is split into partial files. Accepts the
+    // former single-file layout and the split layout.
+    public static string ServerFileGroupText(string primaryPath)
+    {
+        string fullPath = Path.GetFullPath(primaryPath);
+        string stem = Path.GetFileNameWithoutExtension(fullPath);
+        var siblings = Directory.EnumerateFiles(Path.GetDirectoryName(fullPath)!, stem + ".*.cs")
+            .Where(path => path.EndsWith(".cs", StringComparison.OrdinalIgnoreCase))
+            .Order(StringComparer.Ordinal);
+        return string.Join("\n\n", new[] { fullPath }.Concat(siblings).Select(File.ReadAllText));
+    }
+
     // True when the server declares this exact route: as a legacy chain comparison or a
     // route-table registration (routes.Get/Post). Other mentions, such as HTTP client calls, do not count.
     public static bool ServerDeclaresRoute(string routerText, string route) =>

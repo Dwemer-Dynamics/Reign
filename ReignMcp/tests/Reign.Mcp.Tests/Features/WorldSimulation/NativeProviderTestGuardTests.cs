@@ -151,7 +151,7 @@ public sealed class NativeProviderTestGuardTests : IDisposable
             ("Platform/CodexAppServerProvider.cs", "codex_text"), ("Portraits/CodexImageProvider.cs", "codex_image"),
             ("Portraits/PortraitGeneration.cs", "atlas_reference_upload"), ("Portraits/PortraitGeneration.cs", "image_prediction_poll"),
             ("Portraits/PortraitGeneration.cs", "image_download") })
-            Assert.Contains("ProviderTestGuard.BeforeDispatch(\"" + entry.Item2 + "\")", File.ReadAllText(Path.Combine(root, entry.Item1)));
+            Assert.Contains("ProviderTestGuard.BeforeDispatch(\"" + entry.Item2 + "\")", TestSourceLocator.ServerFileGroupText(Path.Combine(root, entry.Item1)));
         Assert.Contains("[\"nativeProviderTestGuard\"] = ProviderTestGuard.Snapshot()", File.ReadAllText(Path.Combine(root, "Platform", "ProviderMiddleware.cs")));
     }
 

@@ -24,7 +24,7 @@ public sealed class TestingCatalogContractTests
         Assert.True(end > start);
         Assert.Contains("RunCategorizedMemorySubsystemSelfTests(), caseResultLimit:64", runner[start..end]);
         Assert.Contains("\"pipeline.categorized_memory\", \"categorized_memory\"", runner[start..end]);
-        string fixture = Read("ReignServer/src/Modules/Dialogue/CategorizedMemory.cs");
+        string fixture = TestSourceLocator.ServerFileGroupText(Path.Combine(workspace, "ReignServer/src/Modules/Dialogue/CategorizedMemory.cs"));
         foreach (string id in new[] { "private_promise_retrieval", "long_archive_recall", "contradictory_recollections", "exact_live_prompt_context", "recent_raw_window_without_recall_keywords" })
         {
             Assert.Contains("add(\"" + id + "\"", fixture);

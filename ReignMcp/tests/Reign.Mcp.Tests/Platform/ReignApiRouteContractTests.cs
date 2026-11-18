@@ -212,7 +212,7 @@ public sealed class ReignApiRouteContractTests
             Path.Combine(workspace, "ReignServer"),
             "SaveSync.cs",
             "/src/Modules/Persistence/"));
-        string campaignBackups = File.ReadAllText(TestSourceLocator.Unique(
+        string campaignBackups = TestSourceLocator.ServerFileGroupText(TestSourceLocator.Unique(
             Path.Combine(workspace, "ReignServer"),
             "CampaignBackups.cs",
             "/src/Modules/Persistence/"));
