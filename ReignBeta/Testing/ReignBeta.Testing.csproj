@@ -22,6 +22,9 @@
     <BannerlordPath Condition="'$(BannerlordPath)' == ''">$(REIGN_BANNERLORD_PATH)</BannerlordPath>
     <BannerlordWorkshopPath Condition="'$(BannerlordWorkshopPath)' == ''">$(BannerlordPath)\..\..\workshop\content\261550</BannerlordWorkshopPath>
     <ReignServerRoot Condition="'$(ReignServerRoot)' == ''">$(MSBuildProjectDirectory)\..\..\..\ReignServer</ReignServerRoot>
+    <!-- Passed to the standalone ReignBeta build normalized: an unresolved "Testing\..\..\.." path
+         would match ReignBeta's Compile Remove="Testing\**" and drop every shared source. -->
+    <ReignServerRootFull>$([MSBuild]::NormalizeDirectory('$(ReignServerRoot)'))</ReignServerRootFull>
     <ReignTestingStandalone Condition="'$(ReignClientOutputPath)' == ''">true</ReignTestingStandalone>
     <ReignClientOutputPath Condition="'$(ReignClientOutputPath)' == ''">$([MSBuild]::NormalizeDirectory('$(MSBuildProjectDirectory)', '$(OutputPath)'))</ReignClientOutputPath>
     <ReignClientOutputPath>$([MSBuild]::EnsureTrailingSlash('$(ReignClientOutputPath)'))</ReignClientOutputPath>
@@ -50,7 +53,7 @@
           Condition="'$(ReignTestingStandalone)' == 'true' and '$(DesignTimeBuild)' != 'true'">
     <MSBuild Projects="$(MSBuildProjectDirectory)\..\ReignBeta.csproj"
              Targets="Build"
-             Properties="Configuration=$(Configuration);OutputPath=$(ReignClientOutputPath);ReignSkipTestingAssembly=true;ReignSkipNativePortraitGenerator=true;BannerlordPath=$(BannerlordPath);BannerlordWorkshopPath=$(BannerlordWorkshopPath);ReignServerRoot=$(ReignServerRoot);ExcludeCourt=$(ExcludeCourt)"
+             Properties="Configuration=$(Configuration);OutputPath=$(ReignClientOutputPath);ReignSkipTestingAssembly=true;ReignSkipNativePortraitGenerator=true;BannerlordPath=$(BannerlordPath);BannerlordWorkshopPath=$(BannerlordWorkshopPath);ReignServerRoot=$(ReignServerRootFull);ExcludeCourt=$(ExcludeCourt)"
              BuildInParallel="false" />
   </Target>
 
