@@ -323,7 +323,7 @@ namespace ReignBeta.Court
                 else if (Hero.MainHero != null && now < originalGold) GiveGoldAction.ApplyBetweenCharacters(null, Hero.MainHero, originalGold - now, false);
                 court._spymasterState = JsonConvert.DeserializeObject<ReignSpymasterState>(originalJson) ?? new ReignSpymasterState();
                 ReignSpymasterTestRuntime.Reset();
-                court.StateChanged?.Invoke();
+                court.RaiseStateChanged();
             }
             JObject result = BuildSpymasterRun(normalizedRunId, requestedProfile, seed, started, assertions, capturedNativeIntents);
             result["cleanup"] = new JObject { ["stateRestored"] = true, ["goldRestored"] = (Hero.MainHero?.Gold ?? 0) == originalGold, ["testRuntimeActive"] = ReignSpymasterTestRuntime.Active };
@@ -353,7 +353,7 @@ namespace ReignBeta.Court
                 SponsorKingdomStringId = "spyreload_foreign", SettlementStringId = Settlement.CurrentSettlement?.StringId ?? string.Empty,
                 EffectType = "loyalty", WorldDay = CurrentDayFloat(), DurationDays = 10f, Magnitude = -1f, Detected = true,
                 SponsorAttributed = false, Summary = "Reload marker action." });
-            court.StateChanged?.Invoke();
+            court.RaiseStateChanged();
             return new JObject { ["ok"] = true, ["runId"] = runId, ["profile"] = "prepare_reload", ["markerId"] = prefix,
                 ["fingerprint"] = SpymasterReloadFingerprint(court, runId), ["state"] = JObject.FromObject(state) };
         }
@@ -389,7 +389,7 @@ namespace ReignBeta.Court
             int actionIds = state.AppliedForeignAgentActionIds.RemoveAll(x => (x ?? string.Empty).StartsWith(reloadPrefix, StringComparison.OrdinalIgnoreCase)
                 || (x ?? string.Empty).StartsWith("spytest-action-" + runId, StringComparison.OrdinalIgnoreCase));
             ReignSpymasterTestRuntime.Reset();
-            court.StateChanged?.Invoke();
+            court.RaiseStateChanged();
             return new JObject { ["ok"] = true, ["missionsRemoved"] = missions, ["agentsRemoved"] = agents,
                 ["actionsRemoved"] = actions, ["actionIdsRemoved"] = actionIds, ["runtimeActive"] = ReignSpymasterTestRuntime.Active };
         }

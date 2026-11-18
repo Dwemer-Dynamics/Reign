@@ -72,7 +72,7 @@ namespace ReignBeta.Court
                 ["requiresCheckpointRollback"] = true, ["saveName"] = save };
             // Record intent before the native action: callback failure must never permit a blind second capture.
             var marker = new JObject { ["runId"] = runId, ["preparedGameInstance"] = instance, ["captiveFixture"] = receipt };
-            StoreRulerDocketMarker(court, marker); court.StateChanged?.Invoke();
+            StoreRulerDocketMarker(court, marker); court.RaiseStateChanged();
             try
             {
                 TakePrisonerAction.Apply(PartyBase.MainParty, hero);
@@ -85,13 +85,13 @@ namespace ReignBeta.Court
                     throw new InvalidOperationException("The production matter did not bind the exact fixture captive.");
                 receipt["status"] = "captured_and_bound";
                 marker["courtLifeMatterId"] = matter.MatterId;
-                StoreRulerDocketMarker(court, marker); court.StateChanged?.Invoke();
+                StoreRulerDocketMarker(court, marker); court.RaiseStateChanged();
                 return matter;
             }
             catch (Exception ex)
             {
                 receipt["after"] = CourtLifeCustody(hero); receipt["status"] = "partial_failure";
-                receipt["error"] = ex.Message; StoreRulerDocketMarker(court, marker); court.StateChanged?.Invoke();
+                receipt["error"] = ex.Message; StoreRulerDocketMarker(court, marker); court.RaiseStateChanged();
                 reason = "Captive setup failed; inspect its persisted custody receipt and restore the guarded pre-fixture checkpoint before retry: " + ex.Message;
                 return null;
             }

@@ -74,7 +74,7 @@ namespace ReignBeta.Court
                         capturedBatch.PreSnapshotJson = retained;
                         captured["assassinationTargetsBefore"] = targets.DeepClone();
                         captured["batch"] = JObject.FromObject(capturedBatch);
-                        court.StateChanged?.Invoke();
+                        court.RaiseStateChanged();
                     }
                     return captured;
                 }
@@ -292,7 +292,7 @@ namespace ReignBeta.Court
             // Establish a known observation boundary without creating an agent or
             // influencing any future production roll.
             state.LastAgentRecruitmentDay = ledger.StartedDay;
-            court.StateChanged?.Invoke();
+            court.RaiseStateChanged();
             JObject result = ObserveOrganicTest(court, runId, new JObject { ["stage"] = "prepared" });
             result["preflight"] = preflight;
             result["requiresDisposableSave"] = true;
@@ -326,7 +326,7 @@ namespace ReignBeta.Court
             ledger.MissionIds.AddRange(batch.MissionIds);
             ledger.MissionIds = ledger.MissionIds.Distinct(StringComparer.OrdinalIgnoreCase).ToList();
             ledger.Batches.Add(batch);
-            court.StateChanged?.Invoke();
+            court.RaiseStateChanged();
             JArray assertions = new JArray();
             int minimum = Math.Max(0, (int?)options["minimumNewMissions"] ?? 1);
             AddOrganicAssertion(assertions, "organic_missions_captured", added.Count >= minimum,
@@ -527,7 +527,7 @@ namespace ReignBeta.Court
             ledger.ObservationJson.Add(OrganicLedgerCheckpoint(court, ledger, (string)snapshot["stage"]).ToString(Formatting.None));
             if (ledger.ObservationJson.Count > OrganicLedgerMaxObservations)
                 ledger.ObservationJson.RemoveRange(0, ledger.ObservationJson.Count - OrganicLedgerMaxObservations);
-            court.StateChanged?.Invoke();
+            court.RaiseStateChanged();
             JObject result = new JObject
             {
                 ["ok"] = true, ["runId"] = runId, ["profile"] = "organic", ["phase"] = "observe",
@@ -729,7 +729,7 @@ namespace ReignBeta.Court
             int removed = state.OrganicTestLedgers.RemoveAll(x => string.Equals(x.RunId, runId, StringComparison.OrdinalIgnoreCase));
             if (ledger != null && state.OrganicTestLedgers.Count == 0) state.LastAgentRecruitmentDay = ledger.PreviousAgentRecruitmentDay;
             ReignSpymasterTestRuntime.Reset();
-            court.StateChanged?.Invoke();
+            court.RaiseStateChanged();
             return new JObject { ["ok"] = true, ["runId"] = runId, ["profile"] = "organic", ["phase"] = "cleanup_marker",
                 ["ledgersRemoved"] = removed, ["requiresSaveRollback"] = true,
                 ["message"] = "The marker was removed. Restore the pre-test checkpoint and delete the disposable native save/Save Sync point to undo organic world effects." };

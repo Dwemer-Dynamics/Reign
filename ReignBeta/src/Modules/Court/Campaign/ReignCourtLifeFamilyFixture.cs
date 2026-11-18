@@ -147,7 +147,7 @@ namespace ReignBeta.Court
                 StoreRulerDocketMarker(court, marker);
                 court._lastFamilyVisitSyncDay = -1;
                 court.ProcessFamilyVisits(CurrentCourtLifeDay());
-                court.StateChanged?.Invoke();
+                court.RaiseStateChanged();
                 return new JObject { ["ok"] = true, ["schema"] = "reign-court-life-family-fixture-v1",
                     ["phase"] = phase, ["runId"] = runId, ["saveName"] = save, ["fixture"] = marker,
                     ["familyInventory"] = CourtLifeFamilyFixtureInventory(court), ["savedByHarness"] = false,

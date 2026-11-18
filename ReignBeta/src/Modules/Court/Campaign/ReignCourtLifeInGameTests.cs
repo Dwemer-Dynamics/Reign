@@ -223,7 +223,7 @@ namespace ReignBeta.Court
                 ["preparedDay"] = CurrentCourtLifeDay(), ["preparedGameInstance"] = instance, ["beforeDecision"] = CourtLifeNativeState(court, matter) };
             if (captiveReceipt != null) marker["captiveFixture"] = captiveReceipt;
             if (source == ReignDocketSource.Family) marker["familyBaseline"] = CourtLifeFamilyObservation(court, matter);
-            StoreRulerDocketMarker(court, marker); court.StateChanged?.Invoke();
+            StoreRulerDocketMarker(court, marker); court.RaiseStateChanged();
             JObject result = CourtLifeEvidence(court, runId, "court_life_prepare", save, matter);
             result["ok"] = true; result["productionEligibility"] = true; result["requiresBaselineRollback"] = true;
             result["fixtureChanges"] = new JObject { ["gold"] = gold, ["kingdomSettlementLoyalty"] = loyalty,

@@ -96,6 +96,8 @@ namespace ReignBeta.Court
         public ReignSpymasterState SpymasterState => EnsureSpymasterState();
 
         public event Action StateChanged;
+        // Lets harness controls raise the event; C# allows raising a field-like event only inside its type.
+        internal void RaiseStateChanged() => StateChanged?.Invoke();
 
         public void EnsureServerSessionAligned()
         {
