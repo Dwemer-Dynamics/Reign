@@ -930,7 +930,7 @@ namespace ReignBeta.UI.ViewModels
                         owner.SessionId = sessionId;
                         return true;
                     }).ConfigureAwait(false))
-                    throw new ReignServerClient.RequestOwnerAbandonedException("The conversation closed before its session was bound.");
+                    throw new ReignRequestOwnerAbandonedException("The conversation closed before its session was bound.");
                 ReignXpInteraction xp = await ReignServerClient.BeginXpInteractionAsync().ConfigureAwait(false);
                 reply = await ReignServerClient.RequestDialogueResponseAsync(
                     _hero,
@@ -1104,7 +1104,7 @@ namespace ReignBeta.UI.ViewModels
                             requestCampaign, actionDraft, ex.Message, recoveredInput);
                     }
 
-                    if (ex is ReignServerClient.RequestOwnerAbandonedException) ReignLog.Info("Individual chat send abandoned: " + ex.Message);
+                    if (ex is ReignRequestOwnerAbandonedException) ReignLog.Info("Individual chat send abandoned: " + ex.Message);
                     else ReignLog.Warn("Individual chat send failed: " + ex.Message);
                 }).ConfigureAwait(false);
             }
