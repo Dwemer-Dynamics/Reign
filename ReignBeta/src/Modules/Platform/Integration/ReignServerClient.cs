@@ -2996,7 +2996,7 @@ namespace ReignBeta.Integration
                     ["witnessIds"] = new JArray(witnesses.Select(x => x.StringId))
                 }
             };
-            ReignLiveInteractionTestHost
+            ReignTestHarness.Current
                 .ApplyManipulationFixtureOpportunityEvidence(snapshot);
             return snapshot;
         }
@@ -3249,7 +3249,7 @@ namespace ReignBeta.Integration
             JObject playerWealth =
                 BuildNpcObservableWealthProfile(Hero.MainHero);
             JObject playerClan = ClanStanding(Clan.PlayerClan);
-            ReignLiveInteractionTestHost
+            ReignTestHarness.Current
                 .ApplyNpcObservableClanEvidence(
                     Hero.MainHero, playerClan);
             return new JObject
@@ -5201,7 +5201,7 @@ namespace ReignBeta.Integration
                     : "native_hero_wallet",
                 ["notes"] = "Observed directly from the loaded Bannerlord campaign. Cargo does not describe visible dress or personal cash. An absent party is not an empty observed inventory. Hero.Gold and Clan.Gold are retained separately; Bannerlord may expose the same shared clan wallet through both values for clan members."
             };
-            ReignLiveInteractionTestHost
+            ReignTestHarness.Current
                 .ApplyManipulationFixtureWealthEvidence(hero, wealth);
             return wealth;
         }
@@ -5210,7 +5210,7 @@ namespace ReignBeta.Integration
             Hero hero)
         {
             JObject wealth = BuildWealthProfile(hero);
-            ReignLiveInteractionTestHost
+            ReignTestHarness.Current
                 .ApplyNpcObservableWealthEvidence(hero, wealth);
             return wealth;
         }

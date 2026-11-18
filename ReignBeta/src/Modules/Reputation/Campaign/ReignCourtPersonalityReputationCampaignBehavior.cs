@@ -307,7 +307,7 @@ namespace ReignBeta.Campaign
                 ["sourceKey"] = sourceKey, ["worldHistorySequence"] = finalSequence,
                 ["dayElevenQueuedExactEvent"] = finalSequence > dayTenSequence
             };
-            ReignSocialBalanceHarnessCampaignBehavior.Instance?.RecordOverride(
+            ReignTestHarness.Current.RecordSocialBalanceOverride(
                 "npc_ruler_favoring_presence_forced", new JObject(evidence));
             return resetCount == 1 && dayTenCount == 10
                 && dayTenSequence == beforeDayTenSequence && finalSequence > dayTenSequence;

@@ -12,6 +12,7 @@ using TaleWorlds.CampaignSystem;
 using TaleWorlds.CampaignSystem.Actions;
 using TaleWorlds.CampaignSystem.CampaignBehaviors;
 using TaleWorlds.CampaignSystem.Settlements;
+using ReignBeta.Runtime;
 
 namespace ReignBeta.Economy
 {
@@ -66,7 +67,7 @@ namespace ReignBeta.Economy
             }
             var campaign = TaleWorlds.CampaignSystem.Campaign.Current;
             if (campaign == null || campaign.TimeControlMode != CampaignTimeControlMode.Stop
-                || string.IsNullOrEmpty(instance) || instance != ReignLiveInteractionTestHost.GameInstanceId
+                || string.IsNullOrEmpty(instance) || instance != ReignTestHarness.Current.GameInstanceId
                 || string.IsNullOrEmpty(command.Value<string>("campaignTestRunId"))
                 || command.Value<string>("expectedSaveName") != ReignServerClient.ActiveNativeSaveName())
                 throw new InvalidOperationException("Cohort isolation requires the exact paused enrolled Current.");
@@ -154,7 +155,7 @@ namespace ReignBeta.Economy
         }
         private static bool Owns()
             => _harmony != null && _campaign != null && ReferenceEquals(_campaign, TaleWorlds.CampaignSystem.Campaign.Current)
-                && _instance == ReignLiveInteractionTestHost.GameInstanceId
+                && _instance == ReignTestHarness.Current.GameInstanceId
                 && _save == ReignServerClient.ActiveNativeSaveName()
                 && _playerKingdom == Clan.PlayerClan?.Kingdom?.StringId
                 && DateTime.UtcNow < _expiresUtc && CampaignTime.Now.ToDays >= _start && CampaignTime.Now.ToDays < _end;

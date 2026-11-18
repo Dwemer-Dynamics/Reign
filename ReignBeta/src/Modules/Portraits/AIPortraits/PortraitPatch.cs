@@ -14,6 +14,7 @@ using TaleWorlds.MountAndBlade.GauntletUI.Widgets;
 using TaleWorlds.MountAndBlade.GauntletUI.Widgets.Encyclopedia;
 using TaleWorlds.ScreenSystem;
 using TaleWorlds.TwoDimension;
+using ReignBeta.Runtime;
 
 namespace AIPortraits;
 
@@ -353,7 +354,7 @@ public static class PortraitPatch
 	{
 		try
 		{
-			return ReignActionGauntlet.IsLiveDialogueGauntletActive;
+			return ReignTestHarness.Current.IsLiveDialogueGauntletActive;
 		}
 		catch
 		{
