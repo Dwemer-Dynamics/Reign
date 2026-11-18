@@ -521,39 +521,23 @@ namespace ReignBeta.Integration
             try
             {
                 string json = (payload ?? new JObject()).ToString(Formatting.None);
-                Exception lastTransportFailure = null;
-                foreach (string baseUrl in ReignServerEndpoint.CandidateBaseUrls())
+                ReignHttpTransport.DirectJsonResponse response;
+                try { response = await ReignHttpTransport.PostDirectJsonAsync(Client, route, json).ConfigureAwait(false); }
+                catch (Exception ex) when (ReignServerEndpoint.IsTransportFailure(ex))
                 {
-                    string url = baseUrl.TrimEnd('/') + (route.StartsWith("/", StringComparison.Ordinal) ? route : "/" + route);
-                    Stopwatch timer = Stopwatch.StartNew();
-                    try
-                    {
-                        using (StringContent content = new StringContent(json, Encoding.UTF8, "application/json"))
-                        using (HttpResponseMessage response = await Client.PostAsync(url, content).ConfigureAwait(false))
-                        {
-                            string body = await response.Content.ReadAsStringAsync().ConfigureAwait(false);
-                            timer.Stop();
-                            ReignServerEndpoint.ReportSuccess(baseUrl);
-                            if (!response.IsSuccessStatusCode) return new ReignCourtServerResponse { Ok = false, Error = "HTTP " + (int)response.StatusCode + ": " + body };
-                            JObject result = JObject.Parse(body);
-                            return new ReignCourtServerResponse
-                            {
-                                Ok = result.Value<bool?>("ok") == true,
-                                Error = result.Value<string>("error") ?? string.Empty,
-                                Revision = ReadNumericRevision(result),
-                                NativeActions = result["nativeActions"] as JArray ?? new JArray(),
-                                Raw = result
-                            };
-                        }
-                    }
-                    catch (Exception ex) when (ReignServerEndpoint.IsTransportFailure(ex))
-                    {
-                        lastTransportFailure = ex;
-                    }
+                    // No candidate answered: the last transport failure, as before.
+                    return new ReignCourtServerResponse { Ok = false, Error = ex.Message };
                 }
-
-                ReignServerEndpoint.ReportTransportFailure();
-                return new ReignCourtServerResponse { Ok = false, Error = lastTransportFailure?.Message ?? "Local Bannerlord Reign server is unavailable." };
+                if (!response.IsSuccessStatusCode) return new ReignCourtServerResponse { Ok = false, Error = "HTTP " + response.StatusCode + ": " + response.Body };
+                JObject result = JObject.Parse(response.Body);
+                return new ReignCourtServerResponse
+                {
+                    Ok = result.Value<bool?>("ok") == true,
+                    Error = result.Value<string>("error") ?? string.Empty,
+                    Revision = ReadNumericRevision(result),
+                    NativeActions = result["nativeActions"] as JArray ?? new JArray(),
+                    Raw = result
+                };
             }
             catch (Exception ex)
             {

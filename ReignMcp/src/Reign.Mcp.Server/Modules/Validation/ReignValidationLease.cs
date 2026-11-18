@@ -41,7 +41,7 @@ public sealed class ReignValidationLease : IDisposable
         catch (IOException error) when ((error.HResult & 0xffff) is 32 or 33)
         {
             throw new InvalidOperationException(
-                "Another Reign validation currently owns the workspace build lane. "
+                "Another Reign validation currently owns the validation lane (machine-wide, shared by every worktree). "
                 + "Call reign_get_validation_status to inspect its owner and progress; wait or reuse "
                 + "a matching successful report. Do not bypass the lease.", error);
         }

@@ -1201,7 +1201,7 @@ namespace ReignBeta.PartyAgency
             if (hero == null) return false;
             if (hero.IsPrisoner && hero.PartyBelongedToAsPrisoner == PartyBase.MainParty) return true;
             if (CharacterObject.OneToOneConversationCharacter?.HeroObject == hero) return true;
-            if (ReignLiveInteractionTestHost
+            if (ReignTestHarness.Current
                 .IsDisposablePartyAgencyFixtureConversationActive(hero)) return true;
             Settlement playerSettlement = Settlement.CurrentSettlement
                 ?? Hero.MainHero?.CurrentSettlement

@@ -41,7 +41,10 @@ not compile code. Individual project files route to the owning module boundary;
 only shared build files and project/module ownership catalogs require ecosystem
 validation.
 
-The validator holds a workspace-wide OS build lease. Call `reign_get_validation_status`
+The validator holds a machine-wide OS build lease per WSL validation lane
+(`%LOCALAPPDATA%/Reign/validation-lanes/<REIGN_WSL_DISTRO>`, override `REIGN_MCP_LEASE_ROOT`),
+so validations from different worktrees that share the lane and its database exclude
+each other. Call `reign_get_validation_status`
 before validation and pass `requestingTaskId` for exact task attribution. The
 read-only snapshot exposes the owner, scope, current operation and report path;
 it never reserves, cancels or takes over work. A competing validation fails before
