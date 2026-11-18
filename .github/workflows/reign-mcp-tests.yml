@@ -1,0 +1,53 @@
+name: Reign MCP tests
+# Builds and runs ReignMcp/tests/Reign.Mcp.Tests in the paired Reign + ReignServer layout. These tests need
+# no Bannerlord installation, secrets, PostgreSQL or providers: native-artifact and live tests skip themselves
+# (ValidatedEconomyClientFact and similar) when no validated client artifact or game path is present.
+# Local work still goes through the canonical validator; this job is the hosted regression net.
+on:
+  pull_request:
+    branches: [unstable, dev, reign]
+  push:
+    branches: [unstable]
+permissions:
+  contents: read
+jobs:
+  mcp-tests:
+    runs-on: windows-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v7.0.1
+        with:
+          lfs: false
+      - name: Select the paired ReignServer branch
+        id: server
+        shell: bash
+        env:
+          HEAD_REF: ${{ github.head_ref || github.ref_name }}
+          BASE_REF: ${{ github.base_ref || github.ref_name }}
+        run: |
+          # Use the same-named ReignServer branch when it exists (paired change), else the target branch.
+          if git ls-remote --exit-code --heads https://github.com/Dwemer-Dynamics/ReignServer.git "$HEAD_REF" > /dev/null; then
+            echo "ref=$HEAD_REF" >> "$GITHUB_OUTPUT"
+          else
+            echo "ref=$BASE_REF" >> "$GITHUB_OUTPUT"
+          fi
+      - uses: actions/checkout@v7.0.1
+        with:
+          repository: Dwemer-Dynamics/ReignServer
+          ref: ${{ steps.server.outputs.ref }}
+          path: .paired-server
+          lfs: false
+      - name: Connect the paired layout
+        shell: pwsh
+        run: |
+          # ReignSourceLayout (reign.repositories.json, mode "paired") requires the real ReignServer checkout
+          # as the sibling ../ReignServer and Reign/ReignServer as a junction to it, as Connect-Repositories.ps1 sets up.
+          $sibling = Join-Path (Split-Path -Parent $env:GITHUB_WORKSPACE) 'ReignServer'
+          Move-Item -LiteralPath (Join-Path $env:GITHUB_WORKSPACE '.paired-server') -Destination $sibling
+          New-Item -ItemType Junction -Path (Join-Path $env:GITHUB_WORKSPACE 'ReignServer') -Target $sibling | Out-Null
+          if (-not (Test-Path -LiteralPath (Join-Path $sibling '.git'))) { throw 'The paired ReignServer checkout is missing its .git.' }
+      - uses: actions/setup-dotnet@v6.0.0
+        with:
+          dotnet-version: 10.0.x
+      - name: Run Reign MCP tests
+        run: dotnet test ReignMcp/tests/Reign.Mcp.Tests/Reign.Mcp.Tests.csproj -c Release
