@@ -119,8 +119,8 @@ namespace ReignBeta.Campaign
                         {
                             if (enrollment.Value<bool?>("recoveryCheckpointVerified") != true)
                                 throw new InvalidOperationException("Government player-flow fixtures require a verified retained recovery checkpoint.");
-                            result = (ReignBeta.Government.ReignGovernmentCampaignBehavior.Instance
-                                ?? throw new InvalidOperationException("Government system unavailable.")).PrepareGovernmentPlayerFlowFixture(c, id);
+                            result = ReignBeta.Government.ReignGovernmentTestControls.PrepareGovernmentPlayerFlowFixture(ReignBeta.Government.ReignGovernmentCampaignBehavior.Instance
+                                ?? throw new InvalidOperationException("Government system unavailable."), c, id);
                         }
                         else throw new InvalidOperationException("Choose a registered fixed structured fixture.");
                         break;

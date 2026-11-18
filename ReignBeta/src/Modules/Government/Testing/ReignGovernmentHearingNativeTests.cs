@@ -7,35 +7,36 @@ using TaleWorlds.CampaignSystem;
 using TaleWorlds.CampaignSystem.Actions;
 using TaleWorlds.CampaignSystem.Election;
 using TaleWorlds.ObjectSystem;
+using static ReignBeta.Government.ReignGovernmentCampaignBehavior;
 
 namespace ReignBeta.Government
 {
-    public sealed partial class ReignGovernmentCampaignBehavior
+    internal static partial class ReignGovernmentTestControls
     {
-        private bool GovernmentNativeResolveSeasonalFixture(ReignGovernmentResolutionRecord resolution,
+        private static bool GovernmentNativeResolveSeasonalFixture(ReignGovernmentCampaignBehavior government, ReignGovernmentResolutionRecord resolution,
             string optionId, Kingdom kingdom, int fixtureLevel, out string result)
         {
-            var state = GetGovernment(kingdom);
+            var state = government.GetGovernment(kingdom);
             result = "No government exists for the seasonal fixture.";
             if (state == null) return false;
             int originalLevel = state.Level;
             state.Level = fixtureLevel;
             try
             {
-                ImportSeasonalBusiness();
-                var business = _business.FirstOrDefault(x => x.Kind == "seasonal" && x.TargetId == resolution.ResolutionId);
-                return business != null && RecommendBusiness(business.BusinessId, optionId, kingdom.Leader, out result)
-                    && VoteBusiness(business.BusinessId, kingdom.Leader, out result)
-                    && ResolveBusiness(business.BusinessId, optionId, kingdom.Leader,
+                government.ImportSeasonalBusiness();
+                var business = government._business.FirstOrDefault(x => x.Kind == "seasonal" && x.TargetId == resolution.ResolutionId);
+                return business != null && government.RecommendBusiness(business.BusinessId, optionId, kingdom.Leader, out result)
+                    && government.VoteBusiness(business.BusinessId, kingdom.Leader, out result)
+                    && government.ResolveBusiness(business.BusinessId, optionId, kingdom.Leader,
                         business.WinningOptionId != optionId, out result);
             }
             finally { state.Level = originalLevel; }
         }
 
-        private void GovernmentNativeAuthorityCase(JArray assertions, Kingdom kingdom,
+        private static void GovernmentNativeAuthorityCase(ReignGovernmentCampaignBehavior government, JArray assertions, Kingdom kingdom,
             ReignGovernmentStateRecord state, string caseId)
         {
-            if (kingdom == null || state == null || kingdom.Leader != Hero.MainHero || GetSeats(kingdom.StringId).Count == 0)
+            if (kingdom == null || state == null || kingdom.Leader != Hero.MainHero || government.GetSeats(kingdom.StringId).Count == 0)
             {
                 AddGovernmentAssertion(assertions, "government_native_authority_production", false,
                     "The exact enrolled player-ruler kingdom needs eligible individual voters.", null);
@@ -45,9 +46,9 @@ namespace ReignBeta.Government
                 : caseId == "GOV-NATIVE-013" ? 3 : caseId == "GOV-NATIVE-014" || caseId == "GOV-NATIVE-015" ? 4 : 5;
             bool favorable = caseId == "GOV-NATIVE-014" || caseId == "GOV-NATIVE-017";
             state.Level = level;
-            foreach (var party in GetParties(kingdom.StringId))
+            foreach (var party in government.GetParties(kingdom.StringId))
                 party.PlanksCsv = favorable ? "RoyalAuthority,MilitaryStrength" : "Peace,PopularWelfare";
-            foreach (var seat in GetSeats(kingdom.StringId))
+            foreach (var seat in government.GetSeats(kingdom.StringId))
             {
                 Hero member = FindHero(seat.HeroStringId);
                 if (member == null || member == kingdom.Leader) continue;
@@ -60,11 +61,11 @@ namespace ReignBeta.Government
                 Type = ReignWorldActionType.DiplomacyDeclareWar, ActorHeroStringId = kingdom.Leader.StringId,
                 ActorClanStringId = kingdom.RulingClan.StringId, ActorKingdomStringId = kingdom.StringId,
                 Reason = "Government hearing authority fixture; this case does not execute a war." };
-            bool firstAllowed = TryAuthorizeAction(action, out ReignActionResult held);
-            var business = _business.SingleOrDefault(x => x.ActionCorrelationId == action.ActionId);
+            bool firstAllowed = government.TryAuthorizeAction(action, out ReignActionResult held);
+            var business = government._business.SingleOrDefault(x => x.ActionCorrelationId == action.ActionId);
             bool caseCreated = !firstAllowed && held != null && business != null && business.Status == "hearing";
-            bool recommended = business != null && RecommendBusiness(business.BusinessId, "accept", kingdom.Leader, out _);
-            bool voted = recommended && VoteBusiness(business.BusinessId, kingdom.Leader, out _);
+            bool recommended = business != null && government.RecommendBusiness(business.BusinessId, "accept", kingdom.Leader, out _);
+            bool voted = recommended && government.VoteBusiness(business.BusinessId, kingdom.Leader, out _);
             string voteStatus = business?.Status ?? "";
             bool opposed = business?.WinningOptionId == "reject";
             bool immediate = level != 3 || opposed && business.IsUrgent && voteStatus == "reconsideration"
@@ -72,23 +73,23 @@ namespace ReignBeta.Government
             bool resolved;
             if (level == 5)
             {
-                resolved = voted && !ResolveBusiness(business.BusinessId, "accept", kingdom.Leader, true, out _)
+                resolved = voted && !government.ResolveBusiness(business.BusinessId, "accept", kingdom.Leader, true, out _)
                     && (favorable ? business.Status == "authorized" && business.WinningOptionId == "accept"
                         : business.Status == "decided" && business.ExecutedOptionId == "reject" && opposed);
             }
             else
             {
-                bool explicitOverride = !opposed || level < 3 || !ResolveBusiness(business.BusinessId, "accept", kingdom.Leader, false, out _);
-                resolved = voted && explicitOverride && ResolveBusiness(business.BusinessId, "accept", kingdom.Leader, opposed, out _)
+                bool explicitOverride = !opposed || level < 3 || !government.ResolveBusiness(business.BusinessId, "accept", kingdom.Leader, false, out _);
+                resolved = voted && explicitOverride && government.ResolveBusiness(business.BusinessId, "accept", kingdom.Leader, opposed, out _)
                     && business.Status == "authorized";
             }
-            bool canExecute = TryAuthorizeAction(action, out ReignActionResult after);
-            int caseCount = _business.Count(x => x.ActionCorrelationId == action.ActionId);
-            TryAuthorizeAction(action, out _);
+            bool canExecute = government.TryAuthorizeAction(action, out ReignActionResult after);
+            int caseCount = government._business.Count(x => x.ActionCorrelationId == action.ActionId);
+            government.TryAuthorizeAction(action, out _);
             var votes = JArray.Parse(business?.VotesJson ?? "[]").OfType<JObject>().ToArray();
             bool passed = caseCreated && recommended && voted && immediate && resolved && state.Trust == legacyTrust
                 && votes.Length > 0 && votes.Select(x => x.Value<string>("memberHeroId")).Distinct().Count() == votes.Length
-                && caseCount == 1 && _business.Count(x => x.ActionCorrelationId == action.ActionId) == 1
+                && caseCount == 1 && government._business.Count(x => x.ActionCorrelationId == action.ActionId) == 1
                 && canExecute == (level != 5 || favorable);
             AddGovernmentAssertion(assertions, "government_native_authority_production", passed,
                 "The production action queue creates one held hearing, records the recommendation and individual ballots, respects urgent reconsideration and permitted overrides, and binds maximum authority to the vote. Authorization is distinct from execution; this test starts no war.",
@@ -98,10 +99,10 @@ namespace ReignBeta.Government
                     ["legacyTrustUnchanged"] = state.Trust == legacyTrust, ["nativeWarExecutedByHarness"] = false });
         }
 
-        private void GovernmentNativeDecisionCase(JArray assertions, Kingdom kingdom)
+        private static void GovernmentNativeDecisionCase(ReignGovernmentCampaignBehavior government, JArray assertions, Kingdom kingdom)
         {
-            var state = EnsureGovernment(kingdom);
-            if (state == null || kingdom?.RulingClan == null || GetSeats(kingdom.StringId).Count == 0)
+            var state = government.EnsureGovernment(kingdom);
+            if (state == null || kingdom?.RulingClan == null || government.GetSeats(kingdom.StringId).Count == 0)
             {
                 AddGovernmentAssertion(assertions, "government_native_decision_level_five_enforced", false,
                     "Native policy integration requires a real kingdom and occupied government seats.", null);
@@ -112,7 +113,7 @@ namespace ReignBeta.Government
             try
             {
                 var policy = MBObjectManager.Instance.GetObjectTypeList<PolicyObject>().Where(x => x != null)
-                    .Where(x => !_business.Any(b => b.KingdomStringId == kingdom.StringId && b.Kind == "policy"
+                    .Where(x => !government._business.Any(b => b.KingdomStringId == kingdom.StringId && b.Kind == "policy"
                         && b.TargetId == x.StringId && !GovernmentBusinessRules.IsClosed(b.Status)))
                     .OrderBy(x => x.StringId, StringComparer.Ordinal).FirstOrDefault();
                 if (policy == null)
@@ -123,28 +124,28 @@ namespace ReignBeta.Government
                 bool activeBefore = kingdom.HasPolicy(policy);
                 var decision = new KingdomPolicyDecision(kingdom.RulingClan, policy, activeBefore);
                 decision.IsEnforced = true;
-                int countBefore = _business.Count;
+                int countBefore = government._business.Count;
                 kingdom.AddDecision(decision, true);
-                var business = _business.FirstOrDefault(x => x.NativeDecisionIndex >= 0
-                    && x.NativeDecisionIndex < _ownedNativeDecisions.Count && ReferenceEquals(_ownedNativeDecisions[x.NativeDecisionIndex], decision));
-                bool captured = business != null && _business.Count == countBefore + 1 && !kingdom.UnresolvedDecisions.Contains(decision)
+                var business = government._business.FirstOrDefault(x => x.NativeDecisionIndex >= 0
+                    && x.NativeDecisionIndex < government._ownedNativeDecisions.Count && ReferenceEquals(government._ownedNativeDecisions[x.NativeDecisionIndex], decision));
+                bool captured = business != null && government._business.Count == countBefore + 1 && !kingdom.UnresolvedDecisions.Contains(decision)
                     && !decision.NotifyPlayer && !decision.NeedsPlayerResolution && decision.PlayerExamined && business.IsRepeal == activeBefore;
-                bool repeatedCapture = TryCaptureNativeDecision(decision) && _business.Count == countBefore + 1;
-                bool bypassBlocked = !CanApplyNativeDecision(decision);
-                bool proposed = captured && RecommendBusiness(business.BusinessId, "accept", kingdom.Leader, out _);
-                bool recess = proposed && PostponeBusiness(business.BusinessId, kingdom.Leader, out _)
+                bool repeatedCapture = government.TryCaptureNativeDecision(decision) && government._business.Count == countBefore + 1;
+                bool bypassBlocked = !government.CanApplyNativeDecision(decision);
+                bool proposed = captured && government.RecommendBusiness(business.BusinessId, "accept", kingdom.Leader, out _);
+                bool recess = proposed && government.PostponeBusiness(business.BusinessId, kingdom.Leader, out _)
                     && Math.Abs(business.RecessUntilDay - CurrentDay() - 7f) < 0.01f
-                    && !PostponeBusiness(business.BusinessId, kingdom.Leader, out _)
-                    && ReconveneBusiness(business.BusinessId, kingdom.Leader, out _)
-                    && !PostponeBusiness(business.BusinessId, kingdom.Leader, out _);
-                bool voted = recess && VoteBusiness(business.BusinessId, kingdom.Leader, out _);
+                    && !government.PostponeBusiness(business.BusinessId, kingdom.Leader, out _)
+                    && government.ReconveneBusiness(business.BusinessId, kingdom.Leader, out _)
+                    && !government.PostponeBusiness(business.BusinessId, kingdom.Leader, out _);
+                bool voted = recess && government.VoteBusiness(business.BusinessId, kingdom.Leader, out _);
                 var votes = JArray.Parse(business?.VotesJson ?? "[]").OfType<JObject>().ToArray();
                 bool activeAfter = kingdom.HasPolicy(policy);
                 bool expectedActive = business?.WinningOptionId == "accept" ? !activeBefore : activeBefore;
                 long revision = business?.Revision ?? 0;
-                bool reentryBlocked = business != null && !VoteBusiness(business.BusinessId, kingdom.Leader, out _)
-                    && !ResolveBusiness(business.BusinessId, "reject", kingdom.Leader, true, out _)
-                    && !RecommendBusiness(business.BusinessId, "reject", kingdom.Leader, out _)
+                bool reentryBlocked = business != null && !government.VoteBusiness(business.BusinessId, kingdom.Leader, out _)
+                    && !government.ResolveBusiness(business.BusinessId, "reject", kingdom.Leader, true, out _)
+                    && !government.RecommendBusiness(business.BusinessId, "reject", kingdom.Leader, out _)
                     && business.Revision == revision && kingdom.HasPolicy(policy) == activeAfter;
                 bool passed = captured && repeatedCapture && bypassBlocked && recess && voted && votes.Length > 0
                     && business.Status == "decided" && business.ExecutionApplied && business.ConsequencesApplied
@@ -160,8 +161,8 @@ namespace ReignBeta.Government
                 var missingNative = new ReignGovernmentBusinessRecord { KingdomStringId = kingdom.StringId,
                     Kind = "policy", TargetId = policy.StringId, NativeDecisionIndex = -1,
                     OptionsJson = "[{\"id\":\"accept\",\"affirmative\":true},{\"id\":\"reject\",\"affirmative\":false}]" };
-                _business.Add(missingNative);
-                bool invalidVote = VoteBusiness(missingNative.BusinessId, kingdom.Leader, out string invalidReason);
+                government._business.Add(missingNative);
+                bool invalidVote = government.VoteBusiness(missingNative.BusinessId, kingdom.Leader, out string invalidReason);
                 AddGovernmentAssertion(assertions, "government_native_missing_decision_invalidates_without_effects",
                     !invalidVote && missingNative.Status == "invalidated" && !missingNative.ExecutionApplied
                     && !missingNative.ConsequencesApplied && kingdom.HasPolicy(policy) == activeAfter,

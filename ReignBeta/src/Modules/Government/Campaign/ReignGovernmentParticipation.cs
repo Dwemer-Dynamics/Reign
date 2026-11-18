@@ -15,7 +15,7 @@ namespace ReignBeta.Government
 {
     public sealed partial class ReignGovernmentCampaignBehavior
     {
-        private GovernmentParticipationState _participation = new GovernmentParticipationState();
+        internal GovernmentParticipationState _participation = new GovernmentParticipationState();
         private List<string> _participationChunks = new List<string>();
         public GovernmentParticipationState Participation => _participation;
         private bool _accreditingSession;

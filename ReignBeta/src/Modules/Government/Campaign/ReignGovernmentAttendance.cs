@@ -29,7 +29,7 @@ namespace ReignBeta.Government
 
     public sealed partial class ReignGovernmentCampaignBehavior
     {
-        private List<ReignGovernmentAttendanceRecord> _governmentAttendance = new List<ReignGovernmentAttendanceRecord>();
+        internal List<ReignGovernmentAttendanceRecord> _governmentAttendance = new List<ReignGovernmentAttendanceRecord>();
         private List<string> _governmentHearingChunks = new List<string>();
         public long GovernmentAttendanceRevision { get; private set; }
         public bool IsGovernmentAttendanceReserved(Hero hero) => hero != null && _governmentAttendance.Any(x => !x.Released && !x.Returning
@@ -101,7 +101,7 @@ namespace ReignBeta.Government
             ["commitments"] = JArray.FromObject(_governmentCommitments)
         };
 
-        private Settlement GovernmentCapital(Kingdom kingdom)
+        internal Settlement GovernmentCapital(Kingdom kingdom)
         {
             if (kingdom == null) return null;
 #if !REIGN_EXCLUDE_COURT
