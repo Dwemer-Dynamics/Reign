@@ -11,10 +11,12 @@ using TaleWorlds.CampaignSystem;
 using TaleWorlds.CampaignSystem.Party;
 using TaleWorlds.CampaignSystem.Settlements;
 using TaleWorlds.Core;
+using static ReignBeta.Integration.ReignServerClient;
 
 namespace ReignBeta.Integration
 {
-    public static partial class ReignServerClient
+    // Harness-owned live-test transport and heartbeat. Shared request helpers, campaign identity and the native save name stay on ReignServerClient.
+    internal static class ReignLiveTestServerClient
     {
         private static DateTime _nextLiveTargetCountRefreshUtc = DateTime.MinValue;
         private static int _cachedLivePartyTargetCount;
@@ -239,17 +241,6 @@ namespace ReignBeta.Integration
                 ["headlessSupported"] = true,
                 ["visibleSupported"] = true
             };
-        }
-
-        internal static string ActiveNativeSaveName()
-        {
-            try
-            {
-                object value = typeof(MBSaveLoad).GetProperty("ActiveSaveSlotName",
-                    BindingFlags.Public | BindingFlags.Static)?.GetValue(null, null);
-                return Convert.ToString(value) ?? string.Empty;
-            }
-            catch { return string.Empty; }
         }
 
         private static JObject BuildNativeSaveDiagnostics()

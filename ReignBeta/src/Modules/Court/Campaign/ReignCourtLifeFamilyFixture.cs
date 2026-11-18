@@ -5,33 +5,34 @@ using Newtonsoft.Json.Linq;
 using TaleWorlds.CampaignSystem;
 using TaleWorlds.CampaignSystem.Actions;
 using TaleWorlds.Core;
+using static ReignBeta.Court.ReignCourtCampaignBehavior;
 
 namespace ReignBeta.Court
 {
-    public sealed partial class ReignCourtCampaignBehavior
+    internal static partial class ReignCourtTestControls
     {
-        private JObject CourtLifeFamilyFixtureInventory() => new JObject
+        private static JObject CourtLifeFamilyFixtureInventory(ReignCourtCampaignBehavior court) => new JObject
         {
             ["player"] = Hero.MainHero == null ? null : FamilyVisitProfile(Hero.MainHero),
             ["family"] = new JArray(RulerFamily().Select(FamilyVisitProfile)),
-            ["attention"] = FamilyMirror()
+            ["attention"] = court.FamilyMirror()
         };
 
-        private JObject PrepareCourtLifeFamilyFixture(string runId, JObject options, string save, string instance)
+        private static JObject PrepareCourtLifeFamilyFixture(ReignCourtCampaignBehavior court, string runId, JObject options, string save, string instance)
         {
             const string phase = "court_life_family_fixture";
-            if (options.Value<string>("confirmation") != RulerDocketFixtureConfirmation || !HasRoyalCommandAccess)
+            if (options.Value<string>("confirmation") != RulerDocketFixtureConfirmation || !court.HasRoyalCommandAccess)
                 return RulerDocketTestFailure(runId, phase, "Exact armed disposable fixture confirmation and capital Court are required.", save, save);
             Hero father = Hero.MainHero;
             bool ageRulerTo34 = options.Value<bool?>("courtLifeFixtureAgeRulerTo34") == true;
             if (father == null || father.IsFemale || !father.IsAlive || father.IsChild || father.Age < 18
-                || (father.Age < 32 && !ageRulerTo34) || (ageRulerTo34 && father.Age > 34.02f) || CurrentCapital == null)
+                || (father.Age < 32 && !ageRulerTo34) || (ageRulerTo34 && father.Age > 34.02f) || court.CurrentCapital == null)
             {
                 JObject failure = RulerDocketTestFailure(runId, phase, "This bounded fixture requires a living male ruler aged at least 32, or explicitly authorized age-to-34 setup for an adult ruler no older than 34. Adult parentage for children aged four and fourteen is required. Inspect familyInventory before choosing another fixture.", save, save);
-                failure["familyInventory"] = CourtLifeFamilyFixtureInventory();
+                failure["familyInventory"] = CourtLifeFamilyFixtureInventory(court);
                 return failure;
             }
-            JObject marker = FindRulerDocketMarker(runId);
+            JObject marker = FindRulerDocketMarker(court, runId);
             if (marker != null && marker.Value<string>("familyFixturePlayerId") != father.StringId)
                 return RulerDocketTestFailure(runId, phase, "Fixture identity already belongs to another purpose or player.", save, save);
             if (marker != null && (marker.Value<bool?>("familyFixtureAgeRulerTo34") == true) != ageRulerTo34)
@@ -45,7 +46,7 @@ namespace ReignBeta.Court
                     ["familyFixtureAgeRulerTo34"] = ageRulerTo34, ["familyFixturePlayerAgeBefore"] = father.Age,
                     ["familyFixturePlayerAgeAdjusted"] = false,
                     ["familyFixtureChildren"] = new JArray(), ["familyFixtureComplete"] = false };
-                StoreRulerDocketMarker(marker);
+                StoreRulerDocketMarker(court, marker);
             }
             try
             {
@@ -54,7 +55,7 @@ namespace ReignBeta.Court
                     father.SetBirthDay(CampaignTime.YearsFromNow(-34));
                     marker["familyFixturePlayerAgeAdjusted"] = true;
                     marker["familyFixturePlayerAgeAfter"] = father.Age;
-                    StoreRulerDocketMarker(marker);
+                    StoreRulerDocketMarker(court, marker);
                 }
                 if (father.Age < 32)
                     throw new InvalidOperationException("Adult historical parentage failed after ruler-age preparation.");
@@ -77,15 +78,15 @@ namespace ReignBeta.Court
                     marker["familyFixtureTemplateId"] = template?.StringId ?? "";
                     marker["familyFixtureOriginClanId"] = origin?.StringId ?? "";
                     marker["familyFixturePlayerCultureId"] = father.Culture.StringId;
-                    StoreRulerDocketMarker(marker);
+                    StoreRulerDocketMarker(court, marker);
                     if (template == null)
                         throw new InvalidOperationException("No matching female noble template or adult noble character in the ruler culture.");
                     if (origin == null)
                         throw new InvalidOperationException("No same-culture noble origin clan in the ruler kingdom or a kingdom at peace with it.");
-                    wife = HeroCreator.CreateSpecialHero(template, CurrentCapital, origin, null, 34);
+                    wife = HeroCreator.CreateSpecialHero(template, court.CurrentCapital, origin, null, 34);
                     if (wife == null) throw new InvalidOperationException("Native wife creation returned null.");
                     marker["familyFixtureWifeId"] = wife.StringId;
-                    StoreRulerDocketMarker(marker);
+                    StoreRulerDocketMarker(court, marker);
                     if (ReferenceEquals(wife.CharacterObject, template))
                         throw new InvalidOperationException("Native wife creation did not clone its source character.");
                 }
@@ -98,7 +99,7 @@ namespace ReignBeta.Court
                 }
                 if (father.Spouse != wife || wife.Spouse != father || wife.Clan != father.Clan || !wife.IsAlive || wife.Age < 32)
                     throw new InvalidOperationException("Native marriage postconditions failed.");
-                if (wife.CurrentSettlement != CurrentCapital) EnterSettlementAction.ApplyForCharacterOnly(wife, CurrentCapital);
+                if (wife.CurrentSettlement != court.CurrentCapital) EnterSettlementAction.ApplyForCharacterOnly(wife, court.CurrentCapital);
                 var children = (JArray)marker["familyFixtureChildren"];
                 foreach (int age in new[] { 4, 14 })
                 {
@@ -109,11 +110,11 @@ namespace ReignBeta.Court
                     {
                         var template = global::TaleWorlds.CampaignSystem.Campaign.Current.Models.HeroCreationModel.GetCharacterTemplateForOffspring(wife, father, age == 4);
                         if (template == null) throw new InvalidOperationException("Native offspring template is unavailable.");
-                        child = HeroCreator.CreateChild(template, CurrentCapital, father.Clan, age);
+                        child = HeroCreator.CreateChild(template, court.CurrentCapital, father.Clan, age);
                         if (child == null) throw new InvalidOperationException("Native child creation returned null.");
                         row = new JObject { ["age"] = age, ["heroId"] = child.StringId, ["initialized"] = false };
                         children.Add(row);
-                        StoreRulerDocketMarker(marker);
+                        StoreRulerDocketMarker(court, marker);
                     }
                     if (row.Value<bool?>("initialized") != true)
                     {
@@ -131,31 +132,31 @@ namespace ReignBeta.Court
                         EquipmentHelper.AssignHeroEquipmentFromEquipment(child, model.GetCivilianEquipment(child));
                         EquipmentHelper.AssignHeroEquipmentFromEquipment(child, model.GetBattleEquipment(child));
                         // Native child state is retained; only physical household residence is established.
-                        EnterSettlementAction.ApplyForCharacterOnly(child, CurrentCapital);
+                        EnterSettlementAction.ApplyForCharacterOnly(child, court.CurrentCapital);
                         row["initialized"] = true;
-                        StoreRulerDocketMarker(marker);
+                        StoreRulerDocketMarker(court, marker);
                     }
                     if (!child.IsAlive || !child.IsChild || !child.IsNotSpawned || child.Age >= 18
                         || Math.Abs(child.Age - age) > 0.02 || child.Clan != father.Clan
                         || child.Father != father || child.Mother != wife || child.PartyBelongedTo != null
-                        || child.Spouse != null || child.CurrentSettlement != CurrentCapital
+                        || child.Spouse != null || child.CurrentSettlement != court.CurrentCapital
                         || father.Children.Count(h => h == child) != 1 || wife.Children.Count(h => h == child) != 1)
                         throw new InvalidOperationException("Native child postconditions failed.");
                 }
                 marker["familyFixtureComplete"] = true;
-                StoreRulerDocketMarker(marker);
-                _lastFamilyVisitSyncDay = -1;
-                ProcessFamilyVisits(CurrentCourtLifeDay());
-                StateChanged?.Invoke();
+                StoreRulerDocketMarker(court, marker);
+                court._lastFamilyVisitSyncDay = -1;
+                court.ProcessFamilyVisits(CurrentCourtLifeDay());
+                court.RaiseStateChanged();
                 return new JObject { ["ok"] = true, ["schema"] = "reign-court-life-family-fixture-v1",
                     ["phase"] = phase, ["runId"] = runId, ["saveName"] = save, ["fixture"] = marker,
-                    ["familyInventory"] = CourtLifeFamilyFixtureInventory(), ["savedByHarness"] = false,
+                    ["familyInventory"] = CourtLifeFamilyFixtureInventory(court), ["savedByHarness"] = false,
                     ["nativeTimeAdvancedByHarness"] = false, ["requiresQuiescentCheckpoint"] = true };
             }
             catch (Exception ex)
             {
                 JObject failure = RulerDocketTestFailure(runId, phase, ex.Message, save, save);
-                failure["fixture"] = marker; failure["familyInventory"] = CourtLifeFamilyFixtureInventory();
+                failure["fixture"] = marker; failure["familyInventory"] = CourtLifeFamilyFixtureInventory(court);
                 failure["requiresInspectionBeforeRetry"] = true;
                 return failure;
             }

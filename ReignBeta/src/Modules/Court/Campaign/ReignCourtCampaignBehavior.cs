@@ -24,30 +24,30 @@ namespace ReignBeta.Court
 {
     public sealed partial class ReignCourtCampaignBehavior : CampaignBehaviorBase
     {
-        private List<CourtMatter> _matters = new List<CourtMatter>();
-        private List<CourtAgendaItem> _agenda = new List<CourtAgendaItem>();
-        private List<CourtOfficeAssignment> _offices = new List<CourtOfficeAssignment>();
-        private List<AmbassadorPosting> _ambassadors = new List<AmbassadorPosting>();
+        internal List<CourtMatter> _matters = new List<CourtMatter>();
+        internal List<CourtAgendaItem> _agenda = new List<CourtAgendaItem>();
+        internal List<CourtOfficeAssignment> _offices = new List<CourtOfficeAssignment>();
+        internal List<AmbassadorPosting> _ambassadors = new List<AmbassadorPosting>();
         private List<KingdomCapitalDesignation> _capitalDesignations = new List<KingdomCapitalDesignation>();
-        private List<ForeignAmbassadorPosting> _foreignAmbassadors = new List<ForeignAmbassadorPosting>();
-        private List<CapitalAmbassadorTestLedger> _capitalAmbassadorTestLedgers = new List<CapitalAmbassadorTestLedger>();
-        private List<string> _royalCouncilTestMarkers = new List<string>();
-        private List<string> _rulerDocketTestMarkers = new List<string>();
+        internal List<ForeignAmbassadorPosting> _foreignAmbassadors = new List<ForeignAmbassadorPosting>();
+        internal List<CapitalAmbassadorTestLedger> _capitalAmbassadorTestLedgers = new List<CapitalAmbassadorTestLedger>();
+        internal List<string> _royalCouncilTestMarkers = new List<string>();
+        internal List<string> _rulerDocketTestMarkers = new List<string>();
         private List<IntelligenceOperation> _operations = new List<IntelligenceOperation>();
         private List<CourtObligation> _obligations = new List<CourtObligation>();
         private List<CourtPlot> _plots = new List<CourtPlot>();
         private List<CourtCounterSample> _counterSamples = new List<CourtCounterSample>();
-        private List<CourtRegentAssignment> _regents = new List<CourtRegentAssignment>();
+        internal List<CourtRegentAssignment> _regents = new List<CourtRegentAssignment>();
         private List<CastleRoomSessionRecord> _castleRoomSessions = new List<CastleRoomSessionRecord>();
         private List<CastleBathHistoryRecord> _castleBathHistory = new List<CastleBathHistoryRecord>();
         private List<string> _appliedNativeCommandIds = new List<string>();
         private List<string> _courtWeddingReceipts = new List<string>();
         private bool _courtWeddingReportInFlight;
-        private CourtSession _session;
+        internal CourtSession _session;
         private long _serverRevision;
         private bool _serverSessionOpened;
         private float _lastServerTickDay = -1000f;
-        private bool _serverRequestInFlight;
+        internal bool _serverRequestInFlight;
         private readonly Dictionary<string, long> _serverMatterRevisions = new Dictionary<string, long>(StringComparer.Ordinal);
         private bool _serverAvailable;
         private string _serverStatus = "Court server has not connected.";
@@ -57,12 +57,14 @@ namespace ReignBeta.Court
         private ReignEconomicReportState _economicReportState = new ReignEconomicReportState();
         private string _spymasterStateJson = string.Empty;
         private List<string> _spymasterStateChunks = new List<string>();
-        private ReignSpymasterState _spymasterState = new ReignSpymasterState();
+        internal ReignSpymasterState _spymasterState = new ReignSpymasterState();
         private readonly HashSet<string> _economicLetterRequestsInFlight = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
         private int _consecutiveAuthorityFailures;
         private string _lastAuthorityFailureReason = string.Empty;
 
         public static ReignCourtCampaignBehavior Instance { get; private set; }
+        // Product forwarder: SyncData bounds the saved capital/ambassador acceptance ledgers through ReignCourtTestControls.
+        private void CompactCapitalAmbassadorTestLedgers() => ReignCourtTestControls.CompactCapitalAmbassadorTestLedgers(this);
         public CourtSession Session => _session;
         public IReadOnlyList<CourtMatter> Matters => _matters;
         public IReadOnlyList<CourtAgendaItem> Agenda => _agenda;
@@ -94,6 +96,8 @@ namespace ReignBeta.Court
         public ReignSpymasterState SpymasterState => EnsureSpymasterState();
 
         public event Action StateChanged;
+        // Lets harness controls raise the event; C# allows raising a field-like event only inside its type.
+        internal void RaiseStateChanged() => StateChanged?.Invoke();
 
         public void EnsureServerSessionAligned()
         {
@@ -1279,7 +1283,7 @@ namespace ReignBeta.Court
             return "The court server is unavailable. Native reports and time controls remain available, but mutations stay queued.";
         }
 
-        private static Hero FindHero(string id)
+        internal static Hero FindHero(string id)
         {
             return string.IsNullOrWhiteSpace(id) ? null : Hero.AllAliveHeroes.FirstOrDefault(x => string.Equals(x.StringId, id, StringComparison.OrdinalIgnoreCase));
         }
@@ -2050,7 +2054,7 @@ namespace ReignBeta.Court
             }
         }
 
-        private static int StableCourtOrder(string id,int day)
+        internal static int StableCourtOrder(string id,int day)
         {
             unchecked{int hash=day;foreach(char c in id??string.Empty)hash=hash*31+c;return hash&int.MaxValue;}
         }
@@ -2182,13 +2186,13 @@ namespace ReignBeta.Court
         }
 
         private static Settlement CurrentSettlement() { return Settlement.CurrentSettlement ?? MobileParty.MainParty?.CurrentSettlement; }
-        private static int CurrentDay() { return (int)Math.Floor(CampaignTime.Now.ToDays); }
+        internal static int CurrentDay() { return (int)Math.Floor(CampaignTime.Now.ToDays); }
         private static int CurrentHour()
         {
             double day = CampaignTime.Now.ToDays;
             return (int)Math.Floor((day - Math.Floor(day)) * 24d);
         }
-        private static float CurrentDayFloat() { return (float)CampaignTime.Now.ToDays; }
+        internal static float CurrentDayFloat() { return (float)CampaignTime.Now.ToDays; }
 
         private async Task OpenServerSessionAsync()
         {

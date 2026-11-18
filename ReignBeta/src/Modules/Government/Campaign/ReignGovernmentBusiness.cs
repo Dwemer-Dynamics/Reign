@@ -13,10 +13,10 @@ namespace ReignBeta.Government
 {
     public sealed partial class ReignGovernmentCampaignBehavior
     {
-        private List<ReignGovernmentBusinessRecord> _business = new List<ReignGovernmentBusinessRecord>();
+        internal List<ReignGovernmentBusinessRecord> _business = new List<ReignGovernmentBusinessRecord>();
         private List<string> _businessChunks = new List<string>();
         // KingdomDecision and List<KingdomDecision> are native save types. Preserve exact terms, including tribute.
-        private List<KingdomDecision> _ownedNativeDecisions = new List<KingdomDecision>();
+        internal List<KingdomDecision> _ownedNativeDecisions = new List<KingdomDecision>();
         private KingdomDecision _executingGovernmentDecision;
         public event Action<ReignGovernmentBusinessRecord> BusinessChanged;
 
@@ -369,8 +369,8 @@ namespace ReignBeta.Government
                 personality, ReignGovernmentRules.StableVariance(member.StringId, record.BusinessId + "|" + optionId));
         }
 
-        private static List<JObject> BusinessOptions(ReignGovernmentBusinessRecord record) => JArray.Parse(record.OptionsJson ?? "[]").OfType<JObject>().ToList();
-        private KingdomDecision NativeBusinessDecision(ReignGovernmentBusinessRecord record) => record.NativeDecisionIndex >= 0 && record.NativeDecisionIndex < _ownedNativeDecisions.Count
+        internal static List<JObject> BusinessOptions(ReignGovernmentBusinessRecord record) => JArray.Parse(record.OptionsJson ?? "[]").OfType<JObject>().ToList();
+        internal KingdomDecision NativeBusinessDecision(ReignGovernmentBusinessRecord record) => record.NativeDecisionIndex >= 0 && record.NativeDecisionIndex < _ownedNativeDecisions.Count
             ? _ownedNativeDecisions[record.NativeDecisionIndex] : null;
 
         private void CloseInvalidBusiness(ReignGovernmentBusinessRecord record, string reason)

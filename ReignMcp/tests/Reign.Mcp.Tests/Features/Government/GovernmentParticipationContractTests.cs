@@ -122,19 +122,19 @@ public sealed class GovernmentParticipationContractTests
         Assert.Contains("settlement.OwnerClan != Hero.MainHero?.Clan", native);
         Assert.Contains("Take(3)", native);
         Assert.Contains("tariffsBefore == settlement.Town.TradeTaxAccumulated", native);
-        Assert.Contains("edictsBefore == JsonConvert.SerializeObject(_edicts)", native);
+        Assert.Contains("edictsBefore == JsonConvert.SerializeObject(government._edicts)", native);
         Assert.Contains("nonzeroTariffExercised", native);
         Assert.Contains("nonzeroWorkshopExercised", native);
         Assert.Contains("finally { _observation = null; _observationThreadId = 0; }", model);
         Assert.Contains("System.Threading.Thread.CurrentThread.ManagedThreadId", model);
         Assert.DoesNotContain("Unpatch", model);
         Assert.DoesNotContain("Suppress", model);
-        string crime = native[native.IndexOf("private JObject ObserveTownCrimeTargets", StringComparison.Ordinal)..
-            native.IndexOf("private JObject GovernmentAuthorityContracts", StringComparison.Ordinal)];
+        string crime = native[native.IndexOf("private static JObject ObserveTownCrimeTargets", StringComparison.Ordinal)..
+            native.IndexOf("private static JObject GovernmentAuthorityContracts", StringComparison.Ordinal)];
         Assert.Contains("CreateResolution(kingdom, state, party, ReignGovernmentResolutionCatalog.Find(\"R029\")", crime);
         Assert.DoesNotContain("_resolutions.Add", crime);
         Assert.DoesNotContain("_business.Add", crime);
-        Assert.Contains("businessBefore == JsonConvert.SerializeObject(_business)", crime);
+        Assert.Contains("businessBefore == JsonConvert.SerializeObject(government._business)", crime);
         Assert.Contains("kingdoms.Take(32)", crime);
         using var manifest = JsonDocument.Parse(File.ReadAllText(Path.Combine(root,
             "ReignServer/tests/ReignLiveTest/scenarios/government-system-manifest.json")));
@@ -224,9 +224,9 @@ public sealed class GovernmentParticipationContractTests
         string root = TestOptions.FindWorkspace();
         string source = File.ReadAllText(Path.Combine(root,
             "ReignBeta/src/Modules/Government/Testing/ReignGovernmentInGameTests.cs"));
-        string preflight = source[source.IndexOf("private JObject GovernmentPreflight", StringComparison.Ordinal)..
+        string preflight = source[source.IndexOf("private static JObject GovernmentPreflight", StringComparison.Ordinal)..
             source.IndexOf("private static JObject GovernmentContracts", StringComparison.Ordinal)];
-        Assert.Contains("if (IsCharterPending(kingdom.StringId))", preflight);
+        Assert.Contains("if (government.IsCharterPending(kingdom.StringId))", preflight);
         Assert.Contains("parties.Count == 0 && seats.Count == 0", preflight);
         Assert.Contains("parties.All(party => !party.IsDominant && !party.IsGoverningCoalition)", preflight);
         Assert.Contains("coalitionSeats * 2 > seats.Count", preflight);
@@ -307,18 +307,18 @@ public sealed class GovernmentParticipationContractTests
     {
         string source = File.ReadAllText(Path.Combine(TestOptions.FindWorkspace(),
             "ReignBeta/src/Modules/Government/Testing/ReignGovernmentInGameTests.cs"));
-        string fingerprint = source[source.IndexOf("private string GovernmentFeatureFingerprint()", StringComparison.Ordinal)..
+        string fingerprint = source[source.IndexOf("private static string GovernmentFeatureFingerprint(ReignGovernmentCampaignBehavior government)", StringComparison.Ordinal)..
             source.IndexOf("private static JObject GovernmentTestResult", StringComparison.Ordinal)];
-        Assert.Contains("[\"participation\"] = JObject.FromObject(_participation)", fingerprint);
-        string readback = source[source.IndexOf("private JObject GovernmentSavedConstitutionEvidence()", StringComparison.Ordinal)..
-            source.IndexOf("private string GovernmentFeatureFingerprint()", StringComparison.Ordinal)];
+        Assert.Contains("[\"participation\"] = JObject.FromObject(government._participation)", fingerprint);
+        string readback = source[source.IndexOf("private static JObject GovernmentSavedConstitutionEvidence(ReignGovernmentCampaignBehavior government)", StringComparison.Ordinal)..
+            source.IndexOf("private static string GovernmentFeatureFingerprint(ReignGovernmentCampaignBehavior government)", StringComparison.Ordinal)];
         Assert.Contains("Clan.PlayerClan?.Kingdom?.StringId", readback);
         foreach (string field in new[] { "available", "kingdomId", "institutionId", "draftAuthority", "confirmed", "source", "revision" })
             Assert.Contains("[\"" + field + "\"]", readback);
         Assert.DoesNotContain("Profiles", readback);
         Assert.DoesNotContain("JObject.FromObject", readback);
         Assert.Equal(2, System.Text.RegularExpressions.Regex.Matches(source,
-            "result\\[\"constitution\"\\] = GovernmentSavedConstitutionEvidence\\(\\);").Count);
+            "result\\[\"constitution\"\\] = GovernmentSavedConstitutionEvidence\\(government\\);").Count);
         Assert.Equal(2, System.Text.RegularExpressions.Regex.Matches(source,
             "result\\[\"featureFingerprintSchema\"\\] = \"reign-government-persistence-v2\";").Count);
     }
@@ -337,7 +337,7 @@ public sealed class GovernmentParticipationContractTests
         Assert.Contains("value.Properties().Take(16)", source);
         Assert.Contains("savedParticipation.Properties().Take(48)", source);
         Assert.Contains("_governmentLoadFingerprintPhases.Count >= 4", source);
-        Assert.DoesNotContain("error.Message", source[source.IndexOf("private void CaptureGovernmentLoadFingerprintPhase", StringComparison.Ordinal)..]);
+        Assert.DoesNotContain("error.Message", source[source.IndexOf("internal static void CaptureGovernmentLoadFingerprintPhase", StringComparison.Ordinal)..]);
         Assert.Contains("CaptureGovernmentLoadFingerprintPhase(\"sync_loaded_before_prune\", true)", Read("Campaign/ReignGovernmentCampaignBehavior.cs"));
         Assert.Contains("CaptureGovernmentLoadFingerprintPhase(\"sync_loaded_after_prune\")", Read("Campaign/ReignGovernmentCampaignBehavior.cs"));
         Assert.Contains("CaptureGovernmentLoadFingerprintPhase(\"session_launched\")", Read("Campaign/ReignGovernmentCampaignBehavior.cs"));

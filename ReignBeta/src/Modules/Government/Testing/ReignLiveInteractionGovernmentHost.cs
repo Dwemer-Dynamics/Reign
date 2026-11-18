@@ -17,7 +17,7 @@ namespace ReignBeta.Campaign
             string profile = command.Value<string>("profile")
                 ?? command.Value<string>("phase") ?? "preflight";
             JObject result = await ReignMainThread.InvokeAsync(() =>
-                behavior.RunGovernmentTestProfile(runId, profile, command, GameInstanceId))
+                ReignGovernmentTestControls.RunGovernmentTestProfile(behavior, runId, profile, command, GameInstanceId))
                 .ConfigureAwait(false);
             return result.Value<bool?>("ok") == true
                 ? LiveCommandResult.Completed("The Government feature-harness profile completed.", result)

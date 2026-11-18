@@ -28,6 +28,11 @@ namespace ReignBeta.Campaign
         private double _tick;
         private int _epoch;
         internal bool ApplyingNative;
+        // One-use fixture controls prepared by ReignRulerFixtureControls and consumed by product judgment/capture logic.
+        internal readonly System.Collections.Generic.Dictionary<string, JObject> _captureControls = new System.Collections.Generic.Dictionary<string, JObject>();
+        internal readonly System.Collections.Generic.Dictionary<string, JObject> _judgmentControls = new System.Collections.Generic.Dictionary<string, JObject>();
+        private bool TryConsumeJudgmentDraw(RulerJudgment judgment, out double draw) => ReignRulerFixtureControls.TryConsumeJudgmentDraw(this, judgment, out draw);
+        internal bool TryConsumeCaptureRoll(Hero hero, out double roll) => ReignRulerFixtureControls.TryConsumeCaptureRoll(this, hero, out roll);
         internal static bool Enabled(string feature) => ReignRulerClient.RulerOptionsConfirmed && ReignRulerClient.RulerOptions.Enabled(feature);
         internal static Hero HeroById(string id) => Hero.AllAliveHeroes.FirstOrDefault(h => h.StringId == id) ?? Hero.DeadOrDisabledHeroes.FirstOrDefault(h => h.StringId == id);
         internal static Kingdom Realm(string id) => Kingdom.All.FirstOrDefault(k => k.StringId == id);
@@ -301,5 +306,28 @@ namespace ReignBeta.Campaign
             options = RulerOptions.Switches.Keys.ToDictionary(key => key, key => ReignRulerClient.RulerOptions.Preference(key)),
             lifeDeathCycleDisabled = CampaignOptions.IsLifeDeathCycleDisabled, campaignOptions = ObserveCampaignOptions(),
             news = ReignNewsCampaignBehavior.Instance?.Diagnostics() });
+        private static JObject ObserveCampaignOptions()
+        {
+            // Fixed, read-only metadata. Missing properties are evidence, not inferred defaults.
+            string[] names = { "CampaignDifficulty", "PlayerReceivedDamage", "PlayerTroopsReceivedDamage", "RecruitmentDifficulty",
+                "PlayerMapMovementSpeed", "PersuasionSuccess", "CombatAIDifficulty", "ClanMemberDeathChance", "BattleDeath" };
+            var rows = new JArray();
+            foreach (string name in names)
+            {
+                var row = new JObject { ["name"] = name, ["available"] = false };
+                var property = typeof(CampaignOptions).GetProperty(name, System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.Static);
+                if (property?.CanRead == true && property.GetIndexParameters().Length == 0)
+                {
+                    try {
+                        object value = property.GetValue(null, null);
+                        row["value"] = value?.ToString(); row["available"] = true;
+                        if (property.PropertyType.IsEnum) row["enumValues"] = new JArray(Enum.GetNames(property.PropertyType));
+                    }
+                    catch { row["reason"] = "native getter unavailable"; }
+                }
+                rows.Add(row);
+            }
+            return new JObject { ["schema"] = "reign-ruler-campaign-options-observation-v1", ["readOnly"] = true, ["rows"] = rows };
+        }
     }
 }

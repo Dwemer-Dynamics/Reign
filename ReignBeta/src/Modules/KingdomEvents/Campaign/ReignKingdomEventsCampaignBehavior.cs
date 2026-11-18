@@ -52,7 +52,7 @@ namespace ReignBeta.Campaign
         internal const float LoyaltyMagnitude = 0.5f;
         private const int RetainedCompletedEvents = 128;
 
-        private static readonly IReadOnlyList<ReignKingdomEventDefinition> Definitions =
+        internal static readonly IReadOnlyList<ReignKingdomEventDefinition> Definitions =
             new List<ReignKingdomEventDefinition>
             {
                 new ReignKingdomEventDefinition("famine", "Famine", false, true, -FoodProductionMagnitude,
@@ -88,13 +88,13 @@ namespace ReignBeta.Campaign
                     "An eligible NPC ruler voluntarily abdicates in favor of the ruling clan's heir.")
             };
 
-        private List<ReignKingdomEventRecord> _events = new List<ReignKingdomEventRecord>();
-        private List<ReignKingdomEventTestLedger> _testLedgers = new List<ReignKingdomEventTestLedger>();
-        private int _lastRolledDay = -1;
+        internal List<ReignKingdomEventRecord> _events = new List<ReignKingdomEventRecord>();
+        internal List<ReignKingdomEventTestLedger> _testLedgers = new List<ReignKingdomEventTestLedger>();
+        internal int _lastRolledDay = -1;
         // Non-serialized, disposable-save-only acceptance seam. It is armed by an exact
         // kingdom_event_test command and consumed before the selected daily tick executes.
-        private int _testOrganicTriggerDay = -1;
-        private string _testOrganicTriggerRunId = string.Empty;
+        internal int _testOrganicTriggerDay = -1;
+        internal string _testOrganicTriggerRunId = string.Empty;
 
         public static ReignKingdomEventsCampaignBehavior Instance { get; private set; }
         public IReadOnlyList<ReignKingdomEventRecord> Events => _events;
@@ -402,7 +402,7 @@ namespace ReignBeta.Campaign
             };
         }
 
-        private List<Kingdom> EligibleKingdoms(ReignKingdomEventDefinition definition)
+        internal List<Kingdom> EligibleKingdoms(ReignKingdomEventDefinition definition)
         {
             IEnumerable<Kingdom> query = Kingdom.All
                 .Where(IsEstablishedKingdom)
@@ -432,7 +432,7 @@ namespace ReignBeta.Campaign
             return query.ToList();
         }
 
-        private List<Kingdom> EligibleWarPartners(Kingdom actor)
+        internal List<Kingdom> EligibleWarPartners(Kingdom actor)
         {
             return Kingdom.All
                 .Where(IsEstablishedKingdom)
@@ -442,7 +442,7 @@ namespace ReignBeta.Campaign
                 .ToList();
         }
 
-        private List<Kingdom> EligiblePeacePartners(Kingdom actor)
+        internal List<Kingdom> EligiblePeacePartners(Kingdom actor)
         {
             return Kingdom.All
                 .Where(IsEstablishedKingdom)
@@ -452,7 +452,7 @@ namespace ReignBeta.Campaign
                 .ToList();
         }
 
-        private static bool HasProtectedAgreement(Kingdom left, Kingdom right)
+        internal static bool HasProtectedAgreement(Kingdom left, Kingdom right)
         {
             float day = CurrentDay();
             return ReignAICampaignBehavior.Instance?.Agreements.Any(agreement => agreement != null
@@ -508,7 +508,7 @@ namespace ReignBeta.Campaign
             return heir != null;
         }
 
-        private static List<KeyValuePair<Hero, int>> EligibleHeirs(Kingdom kingdom)
+        internal static List<KeyValuePair<Hero, int>> EligibleHeirs(Kingdom kingdom)
         {
             if (kingdom?.RulingClan == null)
             {
@@ -686,22 +686,22 @@ namespace ReignBeta.Campaign
                 .AreAutonomousWorldSystemsUnlocked(CurrentDay());
         }
 
-        private static ReignKingdomEventDefinition FindDefinition(string archetypeId)
+        internal static ReignKingdomEventDefinition FindDefinition(string archetypeId)
         {
             return Definitions.FirstOrDefault(definition => Same(definition.Id, archetypeId));
         }
 
-        private static Kingdom FindKingdom(string kingdomStringId)
+        internal static Kingdom FindKingdom(string kingdomStringId)
         {
             return Kingdom.All.FirstOrDefault(kingdom => kingdom != null && Same(kingdom.StringId, kingdomStringId));
         }
 
-        private static int CurrentDayIndex()
+        internal static int CurrentDayIndex()
         {
             return (int)Math.Floor(CurrentDay());
         }
 
-        private static float CurrentDay()
+        internal static float CurrentDay()
         {
             return (float)CampaignTime.Now.ToDays;
         }
@@ -711,12 +711,12 @@ namespace ReignBeta.Campaign
             return kingdom?.InformalName?.ToString() ?? kingdom?.Name?.ToString() ?? "an unknown kingdom";
         }
 
-        private static bool Same(string left, string right)
+        internal static bool Same(string left, string right)
         {
             return string.Equals(left ?? string.Empty, right ?? string.Empty, StringComparison.OrdinalIgnoreCase);
         }
 
-        private static bool SamePair(string firstLeft, string firstRight, string secondLeft, string secondRight)
+        internal static bool SamePair(string firstLeft, string firstRight, string secondLeft, string secondRight)
         {
             return (Same(firstLeft, secondLeft) && Same(firstRight, secondRight))
                 || (Same(firstLeft, secondRight) && Same(firstRight, secondLeft));

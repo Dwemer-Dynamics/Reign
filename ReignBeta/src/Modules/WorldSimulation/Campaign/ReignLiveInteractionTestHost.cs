@@ -190,7 +190,7 @@ namespace ReignBeta.Campaign
         {
             try
             {
-                JObject response = await ReignServerClient.SubmitLiveTestHeartbeatAsync(_gameInstanceId, _activeRunId, _activeMode, _commandInFlight).ConfigureAwait(false);
+                JObject response = await ReignLiveTestServerClient.SubmitLiveTestHeartbeatAsync(_gameInstanceId, _activeRunId, _activeMode, _commandInFlight).ConfigureAwait(false);
                 _armed = response.Value<bool?>("armed") == true;
                 if (!_heartbeatAcceptedForObservedCampaign)
                 {
@@ -245,7 +245,7 @@ namespace ReignBeta.Campaign
         {
             try
             {
-                JObject response = await ReignServerClient.PollLiveTestCommandAsync(_gameInstanceId).ConfigureAwait(false);
+                JObject response = await ReignLiveTestServerClient.PollLiveTestCommandAsync(_gameInstanceId).ConfigureAwait(false);
                 if (response.Value<bool?>("ok") != true || response.Value<bool?>("found") != true) return;
                 JObject command = response["command"] as JObject;
                 if (command == null) return;
@@ -260,7 +260,7 @@ namespace ReignBeta.Campaign
                     await ReportCommandResultAsync(runId, commandId, completed).ConfigureAwait(false);
                     return;
                 }
-                await ReignServerClient.AcknowledgeLiveTestCommandAsync(_gameInstanceId, runId, commandId, "accepted", "Command accepted by the loaded campaign.").ConfigureAwait(false);
+                await ReignLiveTestServerClient.AcknowledgeLiveTestCommandAsync(_gameInstanceId, runId, commandId, "accepted", "Command accepted by the loaded campaign.").ConfigureAwait(false);
                 string operation = command.Value<string>("operation") ?? string.Empty;
                 if (operation.Equals("world_advance", StringComparison.OrdinalIgnoreCase))
                 {
@@ -298,7 +298,7 @@ namespace ReignBeta.Campaign
 
         private static Task<JObject> ReportCommandResultAsync(string runId, string commandId, LiveCommandResult result)
         {
-            return ReignServerClient.ReportLiveTestCommandAsync(
+            return ReignLiveTestServerClient.ReportLiveTestCommandAsync(
                 _gameInstanceId, runId, commandId, result.Status, result.Message, result.Error, result.Data, result.CorrelationIds);
         }
 

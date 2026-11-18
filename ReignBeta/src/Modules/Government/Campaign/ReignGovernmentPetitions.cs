@@ -222,19 +222,19 @@ namespace ReignBeta.Government
             return true;
         }
 
-        private static string LocalPetitionReceiptId(string receiptId, int interval) => receiptId + ":interval:" + interval;
+        internal static string LocalPetitionReceiptId(string receiptId, int interval) => receiptId + ":interval:" + interval;
 
         // A consent that expires at the coming selection cannot support its nomination.
         // Only an explicit free screen action renews it; signed agreement receipts above
         // keep their original identity and cannot silently extend an NPC's promise.
-        private static bool LocalConsentCoversNextSelection(GovernmentPetition petition, string actorId, string operation, int interval) =>
+        internal static bool LocalConsentCoversNextSelection(GovernmentPetition petition, string actorId, string operation, int interval) =>
             petition != null && GovernmentParticipationRules.HasConsent(petition, actorId, operation, interval + 1);
 
         public string PetitionConsentValidity(GovernmentPetition petition, GovernmentPetitionConsent consent) =>
             DescribePetitionConsent(petition, consent, GovernmentInterval(CurrentDay()),
                 CaucusSessionLabel(new GovernmentPartyCaucus { TargetInterval = consent.ExpiresInterval }));
 
-        private static string DescribePetitionConsent(GovernmentPetition petition, GovernmentPetitionConsent consent, int interval, string expiry)
+        internal static string DescribePetitionConsent(GovernmentPetition petition, GovernmentPetitionConsent consent, int interval, string expiry)
         {
             if (consent.Revision != petition.Revision) return "Earlier revision; fresh consent is required for the current terms.";
             if (interval >= consent.ExpiresInterval) return "Consent expired at " + expiry + ". Recorded services remain in the history.";
@@ -243,11 +243,11 @@ namespace ReignBeta.Government
             return "Consent current; expires at " + expiry + ".";
         }
 
-        private static GovernmentPetitionConsent PersonalPetitionSponsor(GovernmentPetition petition, int interval, IEnumerable<string> members) =>
+        internal static GovernmentPetitionConsent PersonalPetitionSponsor(GovernmentPetition petition, int interval, IEnumerable<string> members) =>
             petition.Consents.FirstOrDefault(c => c.Operation == "sponsor" && c.Revision == petition.Revision
                 && interval < c.ExpiresInterval && members.Contains(c.ActorId));
 
-        private static JArray PetitionParticipants(JArray original, string petitioner, string sponsor, string filingSpeaker)
+        internal static JArray PetitionParticipants(JArray original, string petitioner, string sponsor, string filingSpeaker)
         {
             var participants = new JArray();
             foreach (var person in new[] { new[] { petitioner, "petitioner" }, new[] { sponsor, "sponsor" }, new[] { filingSpeaker, "filing_speaker" } })

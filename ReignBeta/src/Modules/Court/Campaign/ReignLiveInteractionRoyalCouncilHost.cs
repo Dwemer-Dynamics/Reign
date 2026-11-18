@@ -18,7 +18,7 @@ namespace ReignBeta.Campaign
             JObject result;
             try
             {
-                result = await ReignMainThread.InvokeAsync(() => court.RunRoyalCouncilTestProfile(runId, phase, command, GameInstanceId)).ConfigureAwait(false);
+                result = await ReignMainThread.InvokeAsync(() => ReignCourtTestControls.RunRoyalCouncilTestProfile(court, runId, phase, command, GameInstanceId)).ConfigureAwait(false);
             }
             catch (Exception ex)
             {

@@ -11,10 +11,11 @@ using TaleWorlds.CampaignSystem.CharacterDevelopment;
 using TaleWorlds.CampaignSystem.Party;
 using TaleWorlds.Core;
 using NativeCampaign = TaleWorlds.CampaignSystem.Campaign;
+using static ReignBeta.Campaign.ReignRulerCampaignBehavior;
 
 namespace ReignBeta.Campaign
 {
-    public sealed partial class ReignRulerCampaignBehavior
+    internal static partial class ReignRulerFixtureControls
     {
         private static bool PrisonerFixture(string profile) => profile == "prison_guard" || profile == "ransom_offer"
             || profile == "barter_release" || profile == "barter_transfer";

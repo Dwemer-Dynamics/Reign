@@ -9,6 +9,7 @@ using TaleWorlds.CampaignSystem;
 using TaleWorlds.CampaignSystem.Party;
 using TaleWorlds.MountAndBlade;
 using NativeCampaign = TaleWorlds.CampaignSystem.Campaign;
+using static ReignBeta.Campaign.ReignNpcLivesBehavior;
 
 namespace ReignBeta.Campaign
 {
@@ -17,17 +18,9 @@ namespace ReignBeta.Campaign
         internal static bool NpcLivesFixtureBridgeArmed => _armed;
     }
 
-    public sealed partial class ReignNpcLivesBehavior
+    // Harness-owned announcement delivery control. The process-local hold stays on ReignNpcLivesBehavior.
+    internal static partial class ReignNpcLivesTestControls
     {
-        private sealed class NativeAnnouncementDeliveryHold
-        {
-            internal NativeCampaign Owner;
-            internal int Epoch;
-            internal string Campaign, Timeline, Generation, SaveName, Operation;
-            internal Stopwatch Clock;
-            internal JObject Receipt;
-        }
-        private NativeAnnouncementDeliveryHold _nativeAnnouncementDeliveryHold;
         private const double NativeAnnouncementHoldMaximumSeconds = 180d;
 
         // Executed against the actual compiled client by the provider-free licensed probe.
@@ -38,30 +31,30 @@ namespace ReignBeta.Campaign
                 && !double.IsNaN(elapsedSeconds) && !double.IsInfinity(elapsedSeconds)
                 && elapsedSeconds >= 0 && elapsedSeconds < NativeAnnouncementHoldMaximumSeconds;
 
-        private bool AnnouncementHoldOwnsCurrent(NativeAnnouncementDeliveryHold hold) => hold != null
-            && Current(hold.Owner, hold.Epoch) && hold.Campaign == _campaign && hold.Timeline == _timeline
-            && hold.Generation == Generation && hold.SaveName == ReignServerClient.ActiveNativeSaveName();
+        private static bool AnnouncementHoldOwnsCurrent(ReignNpcLivesBehavior lives, NativeAnnouncementDeliveryHold hold) => hold != null
+            && lives.Current(hold.Owner, hold.Epoch) && hold.Campaign == lives._campaign && hold.Timeline == lives._timeline
+            && hold.Generation == lives.Generation && hold.SaveName == ReignServerClient.ActiveNativeSaveName();
 
-        private bool AnnouncementHoldActive(NativeAnnouncementDeliveryHold hold) => hold != null
-            && AnnouncementTransportScopeAllows(ReferenceEquals(hold.Owner, NativeCampaign.Current), hold.Epoch == _epoch,
-                hold.Campaign == _campaign && hold.Timeline == _timeline, hold.Generation == Generation,
+        private static bool AnnouncementHoldActive(ReignNpcLivesBehavior lives, NativeAnnouncementDeliveryHold hold) => hold != null
+            && AnnouncementTransportScopeAllows(ReferenceEquals(hold.Owner, NativeCampaign.Current), hold.Epoch == lives._epoch,
+                hold.Campaign == lives._campaign && hold.Timeline == lives._timeline, hold.Generation == lives.Generation,
                 hold.SaveName == ReignServerClient.ActiveNativeSaveName(), ReignLiveInteractionTestHost.NpcLivesFixtureBridgeArmed,
                 NativeCampaign.Current?.TimeControlMode == CampaignTimeControlMode.Stop,
                 !ReignSaveSyncCampaignBehavior.IsNativeSaveInProgress, hold.Clock.Elapsed.TotalSeconds);
 
-        private void RetireAnnouncementHoldIfInvalid()
+        private static void RetireAnnouncementHoldIfInvalid(ReignNpcLivesBehavior lives)
         {
-            var hold = _nativeAnnouncementDeliveryHold;
-            if (hold == null || AnnouncementHoldActive(hold)) return;
+            var hold = lives._nativeAnnouncementDeliveryHold;
+            if (hold == null || AnnouncementHoldActive(lives, hold)) return;
             // A foreign/restored campaign must not receive a stale fixture journal write.
-            if (AnnouncementHoldOwnsCurrent(hold))
+            if (AnnouncementHoldOwnsCurrent(lives, hold))
             {
                 if (hold.Receipt.Value<string>("status") != "uncertain") hold.Receipt["status"] = "expired";
                 hold.Receipt["expired"] = true;
                 hold.Receipt["retiredUtc"] = DateTime.UtcNow.ToString("O");
                 ReignAgreementBehavior.Instance?.SaveNativeOperation(hold.Operation, hold.Receipt);
             }
-            _nativeAnnouncementDeliveryHold = null;
+            lives._nativeAnnouncementDeliveryHold = null;
         }
 
         private static JArray AnnouncementMemberIds(JObject payload) => new JArray((payload["members"] as JArray ?? new JArray())
@@ -71,9 +64,9 @@ namespace ReignBeta.Campaign
             .Select(m => m.Value<string>("heroId")).Where(id => !string.IsNullOrEmpty(id))
             .Distinct(StringComparer.Ordinal).OrderBy(id => id, StringComparer.Ordinal));
 
-        private JArray CurrentAnnouncementMemberIds() => AnnouncementMemberIds(ReignNpcLivesClient.CaptureNpcLivesContext(Generation, true));
+        private static JArray CurrentAnnouncementMemberIds(ReignNpcLivesBehavior lives) => AnnouncementMemberIds(ReignNpcLivesClient.CaptureNpcLivesContext(lives.Generation, true));
 
-        private bool CaptureHeldAnnouncement(NativeAnnouncementDeliveryHold hold, JObject row)
+        private static bool CaptureHeldAnnouncement(ReignNpcLivesBehavior lives, NativeAnnouncementDeliveryHold hold, JObject row)
         {
             if (row == null) return true;
             var payload = row["payload"] as JObject;
@@ -102,29 +95,29 @@ namespace ReignBeta.Campaign
 
         // Called only at the ordinary outbox dispatch boundary. It never edits, removes,
         // acknowledges, retargets or sends a payload. Expiry resumes ordinary transport.
-        private bool HoldAnnouncementDeliveryForNativeTest(JObject row)
+        internal static bool HoldAnnouncementDeliveryForNativeTest(ReignNpcLivesBehavior lives, JObject row)
         {
             if (row?.Value<string>("route") != "announcement") return false;
-            RetireAnnouncementHoldIfInvalid();
-            var hold = _nativeAnnouncementDeliveryHold;
+            RetireAnnouncementHoldIfInvalid(lives);
+            var hold = lives._nativeAnnouncementDeliveryHold;
             if (hold == null) return false;
-            CaptureHeldAnnouncement(hold, row);
+            CaptureHeldAnnouncement(lives, hold, row);
             return true;
         }
 
-        private JObject AnnouncementControlObservation(JObject retained, bool replayed)
+        private static JObject AnnouncementControlObservation(ReignNpcLivesBehavior lives, JObject retained, bool replayed)
         {
             var result = (JObject)retained.DeepClone();
-            var hold = _nativeAnnouncementDeliveryHold;
+            var hold = lives._nativeAnnouncementDeliveryHold;
             result["replayed"] = replayed;
-            result["active"] = hold != null && hold.Operation == retained.Value<string>("operationId") && AnnouncementHoldActive(hold);
-            result["currentMemberIds"] = CurrentAnnouncementMemberIds();
-            result["outboxCount"] = _outbox.Count;
+            result["active"] = hold != null && hold.Operation == retained.Value<string>("operationId") && AnnouncementHoldActive(lives, hold);
+            result["currentMemberIds"] = CurrentAnnouncementMemberIds(lives);
+            result["outboxCount"] = lives._outbox.Count;
             result["worldDay"] = CampaignTime.Now.ToDays;
             return result;
         }
 
-        internal JObject ControlNativeAnnouncementDelivery(JObject test, JObject command)
+        internal static JObject ControlNativeAnnouncementDelivery(ReignNpcLivesBehavior lives, JObject test, JObject command)
         {
             string[] fields = { "caseId", "phase", "heroId", "otherHeroId", "operationId", "control" };
             if (test.Count != fields.Length || test.Properties().Any(p => !fields.Contains(p.Name)
@@ -134,40 +127,40 @@ namespace ReignBeta.Campaign
                 || !new[] { "arm", "observe", "release" }.Contains(test.Value<string>("control")))
                 throw new InvalidOperationException("Supply only the exact bounded announcement control, case, operation and two distinct NPC identities.");
             var campaign = NativeCampaign.Current;
-            if (!ReignLiveInteractionTestHost.OwnsNpcLivesSession || !_initialized || Generation.Length == 0 || !Current(campaign, _epoch)
+            if (!ReignLiveInteractionTestHost.OwnsNpcLivesSession || !lives._initialized || lives.Generation.Length == 0 || !lives.Current(campaign, lives._epoch)
                 || campaign.TimeControlMode != CampaignTimeControlMode.Stop || ReignSaveSyncCampaignBehavior.IsNativeSaveInProgress)
                 throw new InvalidOperationException("The announcement control requires its exact enrolled paused NPC Lives session.");
             string operation = "npc_announcement_hold:" + test.Value<string>("operationId");
             string save = command["enrollment"]?.Value<string>("disposableSaveName") ?? "";
-            string hash = PartyComposerDigest(new { campaign = _campaign, timeline = _timeline, generation = Generation, save,
+            string hash = PartyComposerDigest(new { campaign = lives._campaign, timeline = lives._timeline, generation = lives.Generation, save,
                 gameInstance = command.Value<string>("gameInstanceId"), caseId = test.Value<string>("caseId"),
                 heroId = test.Value<string>("heroId"), otherHeroId = test.Value<string>("otherHeroId"), operationId = test.Value<string>("operationId") });
             var journal = ReignAgreementBehavior.Instance ?? throw new InvalidOperationException("Native fixture journal is unavailable.");
-            RetireAnnouncementHoldIfInvalid();
+            RetireAnnouncementHoldIfInvalid(lives);
             var retained = journal.NativeOperation(operation);
             string control = test.Value<string>("control");
             if (retained != null)
             {
                 if (retained.Value<string>("requestHash") != hash)
                     throw new InvalidOperationException("This operation identity already belongs to another exact announcement control.");
-                var hold = _nativeAnnouncementDeliveryHold;
+                var hold = lives._nativeAnnouncementDeliveryHold;
                 if (control == "arm" || hold == null || hold.Operation != operation)
-                    return AnnouncementControlObservation(retained, true); // Never rearm an old/expired/uncertain identity.
-                if (!CaptureHeldAnnouncement(hold, _outbox.FirstOrDefault(r => r.Value<string>("route") == "announcement")))
+                    return AnnouncementControlObservation(lives, retained, true); // Never rearm an old/expired/uncertain identity.
+                if (!CaptureHeldAnnouncement(lives, hold, lives._outbox.FirstOrDefault(r => r.Value<string>("route") == "announcement")))
                     throw new InvalidOperationException(hold.Receipt.Value<string>("error"));
                 if (control == "release")
                 {
                     hold.Receipt["status"] = "released"; hold.Receipt["releaseCount"] = 1;
                     hold.Receipt["releasedUtc"] = DateTime.UtcNow.ToString("O");
-                    hold.Receipt["releaseMemberIds"] = CurrentAnnouncementMemberIds();
+                    hold.Receipt["releaseMemberIds"] = CurrentAnnouncementMemberIds(lives);
                     journal.SaveNativeOperation(operation, hold.Receipt);
-                    _nativeAnnouncementDeliveryHold = null; _nextPoll = 0;
+                    lives._nativeAnnouncementDeliveryHold = null; lives._nextPoll = 0;
                 }
-                return AnnouncementControlObservation(hold.Receipt, false);
+                return AnnouncementControlObservation(lives, hold.Receipt, false);
             }
             if (control != "arm") throw new InvalidOperationException("Arm this exact announcement control before observing or releasing it.");
             var party = MobileParty.MainParty;
-            if (_nativeAnnouncementDeliveryHold != null || _busy || _outbox.Count != 0 || _failedOperations.Count != 0
+            if (lives._nativeAnnouncementDeliveryHold != null || lives._busy || lives._outbox.Count != 0 || lives._failedOperations.Count != 0
                 || party == null || !party.IsActive || party.IsDisbanding || party.LeaderHero != Hero.MainHero
                 || Hero.MainHero == null || Hero.MainHero.IsDead || Hero.MainHero.IsChild || Hero.MainHero.IsPrisoner
                 || party.Army != null || party.MapEvent != null || party.SiegeEvent != null || party.IsCurrentlyAtSea
@@ -180,20 +173,20 @@ namespace ReignBeta.Campaign
                     || hero.PartyBelongedTo != party || party.MemberRoster.GetTroopCount(hero.CharacterObject) < 1)
                     throw new InvalidOperationException("Both announcement control identities must be actual living free adult main-party NPCs.");
             }
-            var members = CurrentAnnouncementMemberIds();
+            var members = CurrentAnnouncementMemberIds(lives);
             if (members.Count > 64) throw new InvalidOperationException("This bounded announcement control observes at most 64 actual party NPCs.");
             var receipt = new JObject { ["schema"] = "reign-npc-announcement-transport-control-v1", ["origin"] = "operator_queued_delivery_control",
                 ["caseId"] = test["caseId"], ["operationId"] = operation, ["requestHash"] = hash,
                 ["status"] = "armed", ["armCount"] = 1, ["releaseCount"] = 0, ["maximumSeconds"] = NativeAnnouncementHoldMaximumSeconds,
                 ["armedUtc"] = DateTime.UtcNow.ToString("O"), ["armMemberIds"] = members,
-                ["before"] = ObservePartyComposerConservation(test.Value<string>("heroId"), test.Value<string>("otherHeroId")),
+                ["before"] = ObservePartyComposerConservation(lives, test.Value<string>("heroId"), test.Value<string>("otherHeroId")),
                 ["consentGranted"] = false, ["providerCalls"] = 0,
                 ["cleanup"] = "Release or allow the 180-second monotonic expiry; prove the original outbox drained before time advance or saving. Restore only the enrolled Current for roster-fixture cleanup." };
             journal.SaveNativeOperation(operation, receipt);
-            _nativeAnnouncementDeliveryHold = new NativeAnnouncementDeliveryHold { Owner = campaign, Epoch = _epoch,
-                Campaign = _campaign, Timeline = _timeline, Generation = Generation, SaveName = save, Operation = operation,
+            lives._nativeAnnouncementDeliveryHold = new NativeAnnouncementDeliveryHold { Owner = campaign, Epoch = lives._epoch,
+                Campaign = lives._campaign, Timeline = lives._timeline, Generation = lives.Generation, SaveName = save, Operation = operation,
                 Clock = Stopwatch.StartNew(), Receipt = receipt };
-            return AnnouncementControlObservation(receipt, false);
+            return AnnouncementControlObservation(lives, receipt, false);
         }
     }
 }

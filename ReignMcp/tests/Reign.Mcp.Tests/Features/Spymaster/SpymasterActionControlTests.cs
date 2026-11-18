@@ -53,7 +53,7 @@ public sealed class SpymasterActionControlTests
         Assert.Contains("StartsWith(\"spymaster.assassinate_\", StringComparison.Ordinal) != destructive", native);
         Assert.Contains("accepted_assassination_native_deaths", native);
         Assert.Contains("target?.IsDead == true", native);
-        Assert.Contains("target == Hero.MainHero || target == ActiveSpymaster", native);
+        Assert.Contains("target == Hero.MainHero || target == court.ActiveSpymaster", native);
         Assert.Contains("FindSettlement(mission.TargetStringId)?.Town?.Governor", native);
         Assert.Contains("before[\"acceptedAssassinationTargets\"] = targets", native);
         Assert.Contains("CapturedAssassinationHero(batch, m.MissionId)", native);

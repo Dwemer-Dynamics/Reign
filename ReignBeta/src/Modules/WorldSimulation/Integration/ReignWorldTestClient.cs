@@ -13,10 +13,12 @@ using ReignBeta.World;
 using TaleWorlds.CampaignSystem;
 using TaleWorlds.CampaignSystem.Party;
 using TaleWorlds.CampaignSystem.Settlements;
+using static ReignBeta.Integration.ReignServerClient;
 
 namespace ReignBeta.Integration
 {
-    public static partial class ReignServerClient
+    // Harness-owned World Test heartbeat. ReignServerClient keeps a thin SubmitWorldTestHeartbeatAsync forwarder for ReignAICampaignBehavior.
+    internal static class ReignWorldTestServerClient
     {
         // Heartbeats are cursor-based, but several autonomous systems can finish
         // more than one durable record while campaign time is paused. Those
