@@ -73,7 +73,7 @@ public sealed class TestingCatalogContractTests
             Assert.Contains("certificateEligible=false", text);
         }
         string source = Read("ReignServer/src/Modules/Dialogue/MemoryEvidenceReplayInspection.cs");
-        Assert.Contains("PrepareQuestionContinuityWrite(connection, write, CloneDictionary(payload)", source);
+        Assert.Matches(@"PrepareQuestionContinuityWrite\(connection, write, (Program\.)?CloneDictionary\(payload\)", source);
         Assert.Contains("transaction.Rollback();", source);
         Assert.Contains("question_link_inspection_requires_isolated_validation", source);
         string contracts = Read("ReignServer/src/Modules/Dialogue/MemoryEvidenceReplaySelfTests.cs");
@@ -145,7 +145,7 @@ public sealed class TestingCatalogContractTests
         string support = Read("ReignServer/src/Modules/Dialogue/DialogueAnswerSupport.cs");
         Assert.Contains("var result = finishRepairs();", support);
         Assert.Contains("ConditionalWeakTable<Dictionary<string, object>, object>", support);
-        Assert.Contains("SealAnswerSupportAudit(CloneDictionary(check))", support);
+        Assert.Matches(@"SealAnswerSupportAudit\((Program\.)?CloneDictionary\(check\)\)", support);
         Assert.Contains("\"memoryReferences\", \"communicationPlans\"", support);
         string counted = Read("ReignServer/src/Modules/Dialogue/ConversationRouteMemory.cs");
         Assert.Contains("if (IsSealedAnswerSupportAudit(input)) return;", counted);
