@@ -140,6 +140,6 @@ namespace ReignBeta.Government
             return clan?.Kingdom;
         }
 
-        private static ReignGovernmentActionKind MapActionKind(ReignWorldActionType type) => GovernmentBusinessRules.ClassifyWorldAction(type.ToString());
+        internal static ReignGovernmentActionKind MapActionKind(ReignWorldActionType type) => GovernmentBusinessRules.ClassifyWorldAction(type.ToString());
     }
 }

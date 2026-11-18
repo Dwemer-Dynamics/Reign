@@ -47,9 +47,9 @@ namespace ReignBeta.Court
 
         private CourtOfficeAssignment AgreementOffice(ActionClause c) => _offices.FirstOrDefault(x => x.IsActive && x.HeroStringId == c.ActorId);
         private AmbassadorPosting AgreementAmbassador(ActionClause c) => _ambassadors.FirstOrDefault(x => x.HeroStringId == c.ActorId && x.Status != "recalled" && x.Status != "replaced");
-        private static string SpyType(ActionClause c) => c.ActionId.Substring("spymaster.".Length);
+        internal static string SpyType(ActionClause c) => c.ActionId.Substring("spymaster.".Length);
         private static bool SpyLand(ActionClause c) => c.Arguments.ContainsKey("targetSettlementId");
-        private static string SpyTarget(ActionClause c) => ReignActionService.Arg(c, SpyLand(c) ? "targetSettlementId" : "targetHeroId");
+        internal static string SpyTarget(ActionClause c) => ReignActionService.Arg(c, SpyLand(c) ? "targetSettlementId" : "targetHeroId");
         private static string SocialKey(ActionClause c) => SpyTarget(c) + ":" + (c.ActionId.Contains("reputation") ? "reputations" : "rumors");
 
         internal IReadOnlyList<ReignActionOption> AgreementSocialChoices(ActionClause c) =>

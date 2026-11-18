@@ -180,7 +180,7 @@ namespace ReignBeta.Campaign
                 ChangeGovernorAction.Apply(governorTown, hero);
             return true;
         }
-        private JObject SummonsCampEvidence(string heroId)
+        internal JObject SummonsCampEvidence(string heroId)
         {
             if (!_lifeDuties.TryGetValue(heroId, out var duty) || !duty.SoloAttendance) return null;
             var camp = duty.Camp;

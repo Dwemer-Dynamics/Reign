@@ -12,20 +12,21 @@ using TaleWorlds.CampaignSystem.Actions;
 using TaleWorlds.CampaignSystem.Election;
 using TaleWorlds.CampaignSystem.Settlements;
 using TaleWorlds.ObjectSystem;
+using static ReignBeta.Government.ReignGovernmentCampaignBehavior;
 
 namespace ReignBeta.Government
 {
-    public sealed partial class ReignGovernmentCampaignBehavior
+    internal static partial class ReignGovernmentTestControls
     {
         private static readonly Dictionary<string, GovernmentLanguageFixture> GovernmentLanguageFixtures =
             new Dictionary<string, GovernmentLanguageFixture>(StringComparer.OrdinalIgnoreCase);
         private static readonly Dictionary<string, GovernmentSoakFixture> GovernmentSoakFixtures =
             new Dictionary<string, GovernmentSoakFixture>(StringComparer.OrdinalIgnoreCase);
 
-        private JObject GovernmentCertificationCasePrepare(string runId, JObject options)
+        private static JObject GovernmentCertificationCasePrepare(ReignGovernmentCampaignBehavior government, string runId, JObject options)
         {
             foreach (GovernmentLanguageFixture retained in GovernmentLanguageFixtures.Values.ToList())
-                RestoreGovernmentLanguageFixture(retained);
+                RestoreGovernmentLanguageFixture(government, retained);
             GovernmentLanguageFixtures.Clear();
             JArray assertions = new JArray();
             string caseId = options.Value<string>("caseId") ?? runId;
@@ -35,11 +36,11 @@ namespace ReignBeta.Government
             string expectedPosture = options.Value<string>("expectedPosture") ?? string.Empty;
             Kingdom kingdom = Clan.PlayerClan?.Kingdom;
             Hero target = FindHero(targetSearch);
-            ReignGovernmentStateRecord state = EnsureGovernment(kingdom);
+            ReignGovernmentStateRecord state = government.EnsureGovernment(kingdom);
             bool playerRuler = kingdom != null && Hero.MainHero != null && kingdom.Leader == Hero.MainHero;
             bool targetEligible = target != null && target.IsAlive && !target.IsChild && !target.IsPrisoner
                 && target != Hero.MainHero && (target.Clan?.Kingdom == kingdom
-                    || GetSeats(kingdom?.StringId).Any(seat => Same(seat.HeroStringId, target.StringId)));
+                    || government.GetSeats(kingdom?.StringId).Any(seat => Same(seat.HeroStringId, target.StringId)));
             bool roleMatches = expectedTag.Equals("clan", StringComparison.OrdinalIgnoreCase)
                 ? target?.Clan?.Leader == target
                 : expectedTag.Equals("individual", StringComparison.OrdinalIgnoreCase)
@@ -108,10 +109,10 @@ namespace ReignBeta.Government
             if (currentRelation != desiredRelation)
                 ChangeRelationAction.ApplyRelationChangeBetweenHeroes(Hero.MainHero, target,
                     desiredRelation - currentRelation, false);
-            EnsureGovernmentLanguageTargetSeat(kingdom, state, target, fixture);
-            ReignGovernmentSeatRecord seat = GetSeats(kingdom.StringId)
+            EnsureGovernmentLanguageTargetSeat(government, kingdom, state, target, fixture);
+            ReignGovernmentSeatRecord seat = government.GetSeats(kingdom.StringId)
                 .FirstOrDefault(item => Same(item.HeroStringId, target.StringId));
-            JObject productionKnowledge = BuildGovernmentKnowledgeForSpeaker(target);
+            JObject productionKnowledge = government.BuildGovernmentKnowledgeForSpeaker(target);
             JObject productionMembership = productionKnowledge["ownMembership"] as JObject;
             bool productionPartyPower = productionKnowledge.Value<bool?>("available") == true
                 && productionMembership?.Value<bool?>("isMember") == true
@@ -133,7 +134,7 @@ namespace ReignBeta.Government
                 fixture.OriginalGovernmentLoyalty = seat.GovernmentLoyalty;
                 fixture.OriginalPartyLoyalty = seat.PartyLoyalty;
                 fixture.OriginalSeatPartyId = seat.PartyId ?? string.Empty;
-                ReignGovernmentPartyRecord party = FindParty(kingdom.StringId, seat.PartyId);
+                ReignGovernmentPartyRecord party = government.FindParty(kingdom.StringId, seat.PartyId);
                 if (party != null)
                 {
                     fixture.PartyId = party.PartyId;
@@ -172,7 +173,7 @@ namespace ReignBeta.Government
                         || fixtureName.StartsWith("conditional_", StringComparison.OrdinalIgnoreCase)
                             ? -25 : state.StanceTowardRuler;
             state.Revision++;
-            JObject postMutationKnowledge = BuildGovernmentKnowledgeForSpeaker(target);
+            JObject postMutationKnowledge = government.BuildGovernmentKnowledgeForSpeaker(target);
             JObject postMutationMembership = postMutationKnowledge["ownMembership"] as JObject;
             JArray postMutationPlanks = postMutationMembership?["partyPlanks"] as JArray;
             bool postMutationPartyPower = postMutationKnowledge.Value<bool?>("available") == true
@@ -204,7 +205,7 @@ namespace ReignBeta.Government
             return result;
         }
 
-        private JObject GovernmentCertificationCaseObserve(string runId, JObject options)
+        private static JObject GovernmentCertificationCaseObserve(ReignGovernmentCampaignBehavior government, string runId, JObject options)
         {
             JArray assertions = new JArray();
             string caseId = options.Value<string>("caseId") ?? runId;
@@ -217,7 +218,7 @@ namespace ReignBeta.Government
             }
             Kingdom kingdom = FindKingdom(fixture.KingdomId);
             Hero target = FindHero(fixture.TargetHeroId);
-            ReignGovernmentStateRecord state = GetGovernment(kingdom);
+            ReignGovernmentStateRecord state = government.GetGovernment(kingdom);
             bool heroTagged = CsvContains(state?.ReductionConsentHeroIdsCsv, fixture.TargetHeroId);
             bool clanTagged = CsvContains(state?.ReductionConsentClanIdsCsv, target?.Clan?.StringId);
             bool expected;
@@ -240,16 +241,16 @@ namespace ReignBeta.Government
             result["caseId"] = caseId;
             result["targetHeroId"] = fixture.TargetHeroId;
             result["expectedPosture"] = fixture.ExpectedPosture;
-            RestoreGovernmentLanguageFixture(fixture);
+            RestoreGovernmentLanguageFixture(government, fixture);
             GovernmentLanguageFixtures.Remove(caseId);
             return result;
         }
 
-        private void EnsureGovernmentLanguageTargetSeat(Kingdom kingdom,
+        private static void EnsureGovernmentLanguageTargetSeat(ReignGovernmentCampaignBehavior government, Kingdom kingdom,
             ReignGovernmentStateRecord state, Hero target, GovernmentLanguageFixture fixture)
         {
             if (kingdom == null || state == null || target == null
-                || GetSeats(kingdom.StringId).Any(item => Same(item.HeroStringId, target.StringId)))
+                || government.GetSeats(kingdom.StringId).Any(item => Same(item.HeroStringId, target.StringId)))
                 return;
             if (target.Clan?.Leader != target || target.Clan == Clan.PlayerClan) return;
 
@@ -260,16 +261,16 @@ namespace ReignBeta.Government
             fixture.TemporaryFiefSettlementId = fortification.StringId;
             fixture.OriginalFiefOwnerClanId = fortification.OwnerClan?.StringId ?? string.Empty;
             ChangeOwnerOfSettlementAction.ApplyByGift(fortification, target.Clan.Leader);
-            ReconcileMembership(kingdom, state, false);
+            government.ReconcileMembership(kingdom, state, false);
         }
 
-        private void RestoreGovernmentLanguageFixture(GovernmentLanguageFixture fixture)
+        private static void RestoreGovernmentLanguageFixture(ReignGovernmentCampaignBehavior government, GovernmentLanguageFixture fixture)
         {
             if (fixture == null) return;
             Kingdom kingdom = FindKingdom(fixture.KingdomId);
             Hero target = FindHero(fixture.TargetHeroId);
-            ReignGovernmentStateRecord state = GetGovernment(kingdom);
-            ReignGovernmentSeatRecord seat = GetSeats(fixture.KingdomId)
+            ReignGovernmentStateRecord state = government.GetGovernment(kingdom);
+            ReignGovernmentSeatRecord seat = government.GetSeats(fixture.KingdomId)
                 .FirstOrDefault(item => Same(item.HeroStringId, fixture.TargetHeroId));
             if (seat != null)
             {
@@ -278,7 +279,7 @@ namespace ReignBeta.Government
                 seat.PartyLoyalty = fixture.OriginalPartyLoyalty;
                 seat.Revision++;
             }
-            ReignGovernmentPartyRecord party = FindParty(fixture.KingdomId, fixture.PartyId);
+            ReignGovernmentPartyRecord party = government.FindParty(fixture.KingdomId, fixture.PartyId);
             if (party != null)
             {
                 party.PlanksCsv = fixture.OriginalPartyPlanks ?? party.PlanksCsv;
@@ -293,7 +294,7 @@ namespace ReignBeta.Government
                 ChangeOwnerOfSettlementAction.ApplyByGift(temporaryFief, originalOwner.Leader);
             if (state != null)
             {
-                ReconcileMembership(kingdom, state, false);
+                government.ReconcileMembership(kingdom, state, false);
                 state.Level = fixture.OriginalLevel;
                 state.Trust = fixture.OriginalTrust;
                 state.ReductionConsentFromLevel = fixture.OriginalConsentLevel;
@@ -311,7 +312,7 @@ namespace ReignBeta.Government
             }
         }
 
-        private JObject GovernmentCertificationCaseExecute(string runId, JObject options)
+        private static JObject GovernmentCertificationCaseExecute(ReignGovernmentCampaignBehavior government, string runId, JObject options)
         {
             JArray assertions = new JArray();
             string caseId = (options.Value<string>("caseId") ?? runId).Trim().ToUpperInvariant();
@@ -325,28 +326,28 @@ namespace ReignBeta.Government
             if (!manifestOwned) return GovernmentTestResult(runId, "case_execute", assertions);
 
             Kingdom playerKingdom = Clan.PlayerClan?.Kingdom;
-            ReignGovernmentStateRecord state = EnsureGovernment(playerKingdom);
+            ReignGovernmentStateRecord state = government.EnsureGovernment(playerKingdom);
             switch (caseId)
             {
                 case "GOV-NATIVE-002":
                 case "GOV-NATIVE-003":
-                    GovernmentNativeUiCase(assertions, caseId, playerKingdom, state);
+                    GovernmentNativeUiCase(government, assertions, caseId, playerKingdom, state);
                     break;
                 case "GOV-NATIVE-004":
-                    GovernmentNativePlayerMeetingCase(assertions, playerKingdom);
+                    GovernmentNativePlayerMeetingCase(government, assertions, playerKingdom);
                     break;
                 case "GOV-NATIVE-005":
-                    GovernmentNativeNpcMeetingCase(assertions);
+                    GovernmentNativeNpcMeetingCase(government, assertions);
                     break;
                 case "GOV-NATIVE-006":
                 case "GOV-NATIVE-007":
-                    GovernmentNativeResolutionRouteCase(assertions, playerKingdom, state,
+                    GovernmentNativeResolutionRouteCase(government, assertions, playerKingdom, state,
                         caseId == "GOV-NATIVE-006" ? 0 : 1);
                     break;
                 case "GOV-NATIVE-008":
                 case "GOV-NATIVE-009":
                 case "GOV-NATIVE-010":
-                    GovernmentNativeLobbyCase(assertions, playerKingdom, state, caseId);
+                    GovernmentNativeLobbyCase(government, assertions, playerKingdom, state, caseId);
                     break;
                 case "GOV-NATIVE-011":
                 case "GOV-NATIVE-012":
@@ -355,44 +356,44 @@ namespace ReignBeta.Government
                 case "GOV-NATIVE-015":
                 case "GOV-NATIVE-016":
                 case "GOV-NATIVE-017":
-                    GovernmentNativeAuthorityCase(assertions, playerKingdom, state, caseId);
+                    GovernmentNativeAuthorityCase(government, assertions, playerKingdom, state, caseId);
                     break;
                 case "GOV-NATIVE-018":
-                    GovernmentNativeDecisionCase(assertions, playerKingdom);
+                    GovernmentNativeDecisionCase(government, assertions, playerKingdom);
                     break;
                 case "GOV-NATIVE-044":
                 case "GOV-NATIVE-045":
                 case "GOV-NATIVE-046":
                 case "GOV-NATIVE-047":
                 case "GOV-NATIVE-048":
-                    GovernmentFiefNativeCase(assertions, caseId);
+                    GovernmentFiefNativeCase(government, assertions, caseId);
                     break;
                 case "GOV-NATIVE-051":
-                    GovernmentFiefSaveAssert(assertions, true);
+                    GovernmentFiefSaveAssert(government, assertions, true);
                     break;
                 case "GOV-NATIVE-019":
-                    GovernmentNativeCoalitionCase(assertions, playerKingdom, state);
+                    GovernmentNativeCoalitionCase(government, assertions, playerKingdom, state);
                     break;
                 case "GOV-NATIVE-020":
-                    GovernmentNativeRatifiedReductionCase(assertions, playerKingdom, state);
+                    GovernmentNativeRatifiedReductionCase(government, assertions, playerKingdom, state);
                     break;
                 case "GOV-NATIVE-021":
-                    GovernmentNativeForcedReductionCase(assertions, playerKingdom, state);
+                    GovernmentNativeForcedReductionCase(government, assertions, playerKingdom, state);
                     break;
                 case "GOV-NATIVE-023":
                 case "GOV-NATIVE-024":
-                    GovernmentNativePressureChannelCase(assertions, playerKingdom, state, caseId);
+                    GovernmentNativePressureChannelCase(government, assertions, playerKingdom, state, caseId);
                     break;
                 case "GOV-NATIVE-025":
                 case "GOV-NATIVE-026":
-                    GovernmentNativeNpcRulerCase(assertions, caseId);
+                    GovernmentNativeNpcRulerCase(government, assertions, caseId);
                     break;
                 case "GOV-NATIVE-027":
-                    GovernmentNativeKnowledgeCase(assertions, playerKingdom);
+                    GovernmentNativeKnowledgeCase(government, assertions, playerKingdom);
                     break;
                 case "GOV-NATIVE-028":
                 case "GOV-NATIVE-029":
-                    GovernmentNativeHistoryCase(assertions, playerKingdom, caseId);
+                    GovernmentNativeHistoryCase(government, assertions, playerKingdom, caseId);
                     break;
                 case "GOV-NATIVE-036":
                 case "GOV-NATIVE-037":
@@ -402,7 +403,7 @@ namespace ReignBeta.Government
                 case "GOV-NATIVE-041":
                 case "GOV-NATIVE-042":
                 case "GOV-NATIVE-043":
-                    GovernmentNativeCultureInstitutionCase(assertions, caseId);
+                    GovernmentNativeCultureInstitutionCase(government, assertions, caseId);
                     break;
                 default:
                     AddGovernmentAssertion(assertions, "government_native_case_implemented", false,
@@ -415,7 +416,7 @@ namespace ReignBeta.Government
             return result;
         }
 
-        private void GovernmentNativeCultureInstitutionCase(JArray assertions, string caseId)
+        private static void GovernmentNativeCultureInstitutionCase(ReignGovernmentCampaignBehavior government, JArray assertions, string caseId)
         {
             string cultureId;
             ReignGovernmentInstitutionKind expectedKind;
@@ -441,7 +442,7 @@ namespace ReignBeta.Government
                             .StartsWith("empire", StringComparison.OrdinalIgnoreCase))
                     .OrderBy(item => item.StringId, StringComparer.Ordinal).FirstOrDefault();
             List<SeatCandidate> candidates = kingdom == null
-                ? new List<SeatCandidate>() : SelectSeatCandidates(kingdom, profile);
+                ? new List<SeatCandidate>() : government.SelectSeatCandidates(kingdom, profile);
             IReadOnlyList<ReignGovernmentPartyBlueprint> blueprints = ReignGovernmentRules.SelectParties(
                 "government-cert-culture|" + cultureId + "|" + (kingdom?.StringId ?? string.Empty),
                 candidates.Count);
@@ -471,7 +472,7 @@ namespace ReignBeta.Government
                 && assigned.All(item => item.Party != null) && occupied.Count > 0
                 && deterministicSpeakers;
 
-            ReignGovernmentStateRecord state = EnsureGovernment(kingdom);
+            ReignGovernmentStateRecord state = government.EnsureGovernment(kingdom);
             bool stateProjection = false;
             JObject publicSnapshot = null;
             if (fallback && state != null)
@@ -509,10 +510,10 @@ namespace ReignBeta.Government
             }
             else if (state != null)
             {
-                publicSnapshot = BuildPublicSnapshot(kingdom);
-                List<ReignGovernmentSeatRecord> seats = GetSeats(kingdom.StringId).ToList();
-                List<ReignGovernmentPartyRecord> parties = GetParties(kingdom.StringId).ToList();
-                int coalitionSeats = GetGoverningCoalition(kingdom.StringId).Sum(item => item.SeatCount);
+                publicSnapshot = government.BuildPublicSnapshot(kingdom);
+                List<ReignGovernmentSeatRecord> seats = government.GetSeats(kingdom.StringId).ToList();
+                List<ReignGovernmentPartyRecord> parties = government.GetParties(kingdom.StringId).ToList();
+                int coalitionSeats = government.GetGoverningCoalition(kingdom.StringId).Sum(item => item.SeatCount);
                 stateProjection = state.InstitutionKindValue == (int)expectedKind
                     && state.InstitutionName == profile.Name
                     && Same(state.CultureStringId, kingdom.Culture?.StringId)
@@ -554,12 +555,12 @@ namespace ReignBeta.Government
                 });
         }
 
-        private void GovernmentNativeUiCase(JArray assertions, string caseId,
+        private static void GovernmentNativeUiCase(ReignGovernmentCampaignBehavior government, JArray assertions, string caseId,
             Kingdom playerKingdom, ReignGovernmentStateRecord state)
         {
             if (caseId == "GOV-NATIVE-002")
             {
-                JObject snapshot = BuildPublicSnapshot(playerKingdom);
+                JObject snapshot = government.BuildPublicSnapshot(playerKingdom);
                 AddGovernmentAssertion(assertions, "government_native_court_government_ui",
                     playerKingdom != null && state != null
                     && snapshot.Value<bool?>("authoritative") == true,
@@ -571,7 +572,7 @@ namespace ReignBeta.Government
             Kingdom foreign = Kingdom.All.Where(IsEligibleKingdom)
                 .Where(item => item != playerKingdom)
                 .OrderBy(item => item.StringId, StringComparer.Ordinal).FirstOrDefault();
-            JObject foreignSnapshot = BuildPublicSnapshot(foreign);
+            JObject foreignSnapshot = government.BuildPublicSnapshot(foreign);
             AddGovernmentAssertion(assertions, "government_native_keep_read_only_ui",
                 playerKingdom != null && foreign != null
                 && foreignSnapshot.Value<bool?>("authoritative") == true
@@ -581,12 +582,12 @@ namespace ReignBeta.Government
                 foreignSnapshot);
         }
 
-        private void GovernmentNativePlayerMeetingCase(JArray assertions, Kingdom playerKingdom)
+        private static void GovernmentNativePlayerMeetingCase(ReignGovernmentCampaignBehavior government, JArray assertions, Kingdom playerKingdom)
         {
-            ReignGovernmentMeetingRecord meeting = _meetings
+            ReignGovernmentMeetingRecord meeting = government._meetings
                 .Where(item => item.PlayerAttended && Same(item.KingdomStringId, playerKingdom?.StringId))
                 .OrderByDescending(item => item.MeetingDay).FirstOrDefault();
-            List<ReignGovernmentPartyRecord> occupied = GetParties(playerKingdom?.StringId)
+            List<ReignGovernmentPartyRecord> occupied = government.GetParties(playerKingdom?.StringId)
                 .Where(item => item.SeatCount > 0 && !string.IsNullOrWhiteSpace(item.SpeakerHeroStringId))
                 .ToList();
             JObject statements = new JObject();
@@ -620,26 +621,26 @@ namespace ReignBeta.Government
                 });
         }
 
-        private void GovernmentNativeNpcMeetingCase(JArray assertions)
+        private static void GovernmentNativeNpcMeetingCase(ReignGovernmentCampaignBehavior government, JArray assertions)
         {
             Kingdom kingdom = Kingdom.All.Where(IsEligibleKingdom)
                 .Where(item => item.Leader != Hero.MainHero)
                 .OrderBy(item => item.StringId, StringComparer.Ordinal).FirstOrDefault();
-            ReignGovernmentStateRecord state = EnsureGovernment(kingdom);
-            int priorMeetings = _meetings.Count;
+            ReignGovernmentStateRecord state = government.EnsureGovernment(kingdom);
+            int priorMeetings = government._meetings.Count;
             ReignGovernmentMeetingRecord meeting = kingdom == null || state == null
-                ? null : RunSeasonalMeeting(kingdom, state, false);
+                ? null : government.RunSeasonalMeeting(kingdom, state, false);
             List<ReignGovernmentResolutionRecord> proposed = meeting == null
                 ? new List<ReignGovernmentResolutionRecord>()
-                : _resolutions.Where(item => meeting.ResolutionIdsCsv.Split(',')
+                : government._resolutions.Where(item => meeting.ResolutionIdsCsv.Split(',')
                     .Any(id => Same(id, item.ResolutionId))).ToList();
             bool dispositionsApplied = proposed.Count == 0 || proposed.All(item =>
                 !Same(item.Status, "debate"));
             AddGovernmentAssertion(assertions, "government_native_npc_meetings_zero_calls",
-                meeting != null && _meetings.Count == priorMeetings + 1
+                meeting != null && government._meetings.Count == priorMeetings + 1
                 && !meeting.PlayerAttended && meeting.ProviderCallCount == 0
                 && dispositionsApplied
-                && _meetings.Where(item => !item.PlayerAttended)
+                && government._meetings.Where(item => !item.PlayerAttended)
                     .All(item => item.ProviderCallCount == 0),
                 "A real non-player realm completed a production seasonal meeting, resolved its proposals deterministically, and made zero provider calls.",
                 new JObject
@@ -652,13 +653,13 @@ namespace ReignBeta.Government
                 });
         }
 
-        private void GovernmentNativeResolutionRouteCase(JArray assertions,
+        private static void GovernmentNativeResolutionRouteCase(ReignGovernmentCampaignBehavior government, JArray assertions,
             Kingdom kingdom, ReignGovernmentStateRecord state, int routeIndex)
         {
             Settlement target = kingdom?.Fiefs.Select(item => item?.Settlement)
                 .Where(item => item != null).OrderBy(item => item.StringId, StringComparer.Ordinal)
                 .FirstOrDefault();
-            ReignGovernmentPartyRecord party = GetParties(kingdom?.StringId)
+            ReignGovernmentPartyRecord party = government.GetParties(kingdom?.StringId)
                 .Where(item => item.SeatCount > 0 && !string.IsNullOrWhiteSpace(item.SpeakerHeroStringId))
                 .OrderBy(item => item.PartyId, StringComparer.Ordinal).FirstOrDefault();
             ReignGovernmentResolutionTemplate template = ReignGovernmentResolutionCatalog.Templates
@@ -698,9 +699,9 @@ namespace ReignBeta.Government
             float prosperityBefore = target.Town?.Prosperity ?? 0f;
             float securityBefore = target.Town?.Security ?? 0f;
             float hearthBefore = target.Village?.Hearth ?? 0f;
-            _resolutions.Add(record);
-            bool accepted = GovernmentNativeResolveSeasonalFixture(record, "route:" + routeIndex, kingdom, 1, out string acceptance);
-            int progressed = accepted ? RecordResolutionProgress(kingdom.StringId, selected.Action,
+            government._resolutions.Add(record);
+            bool accepted = GovernmentNativeResolveSeasonalFixture(government, record, "route:" + routeIndex, kingdom, 1, out string acceptance);
+            int progressed = accepted ? government.RecordResolutionProgress(kingdom.StringId, selected.Action,
                 target.StringId, selected.Target, "release certification completed the exact selected route") : 0;
             bool measurableBenefit = (target.Town != null && (target.Town.Loyalty > loyaltyBefore
                     || target.Town.Prosperity > prosperityBefore || target.Town.Security > securityBefore))
@@ -733,12 +734,12 @@ namespace ReignBeta.Government
                 });
         }
 
-        private void GovernmentNativeCoalitionCase(JArray assertions, Kingdom kingdom,
+        private static void GovernmentNativeCoalitionCase(ReignGovernmentCampaignBehavior government, JArray assertions, Kingdom kingdom,
             ReignGovernmentStateRecord state)
         {
-            List<ReignGovernmentSeatRecord> seats = GetSeats(kingdom?.StringId)
+            List<ReignGovernmentSeatRecord> seats = government.GetSeats(kingdom?.StringId)
                 .OrderBy(item => item.HeroStringId, StringComparer.Ordinal).ToList();
-            List<ReignGovernmentPartyRecord> parties = GetParties(kingdom?.StringId)
+            List<ReignGovernmentPartyRecord> parties = government.GetParties(kingdom?.StringId)
                 .OrderBy(item => item.PartyId, StringComparer.Ordinal).ToList();
             while (kingdom != null && parties.Count < 3)
             {
@@ -753,7 +754,7 @@ namespace ReignBeta.Government
                     PartyLoyalty = 50,
                     Revision = 1
                 };
-                _parties.Add(synthetic);
+                government._parties.Add(synthetic);
                 parties.Add(synthetic);
             }
             if (kingdom == null || state == null || seats.Count < 3 || parties.Count < 3)
@@ -768,11 +769,11 @@ namespace ReignBeta.Government
                 seats[index].PartyId = parties[index % 3].PartyId;
                 seats[index].Revision++;
             }
-            RecalculatePartyState(kingdom, state);
-            List<ReignGovernmentPartyRecord> coalition = GetGoverningCoalition(kingdom.StringId).ToList();
+            government.RecalculatePartyState(kingdom, state);
+            List<ReignGovernmentPartyRecord> coalition = government.GetGoverningCoalition(kingdom.StringId).ToList();
             int coalitionSeats = coalition.Sum(item => item.SeatCount);
             int largest = parties.Max(item => item.SeatCount);
-            JObject snapshot = BuildPublicSnapshot(kingdom);
+            JObject snapshot = government.BuildPublicSnapshot(kingdom);
             List<string> publicIds = (snapshot["governingCoalitionPartyIds"] as JArray
                 ?? new JArray()).Values<string>().ToList();
             bool exactPublic = coalition.All(item => publicIds.Contains(item.PartyId,
@@ -793,11 +794,11 @@ namespace ReignBeta.Government
                 });
         }
 
-        private void GovernmentNativeRatifiedReductionCase(JArray assertions,
+        private static void GovernmentNativeRatifiedReductionCase(ReignGovernmentCampaignBehavior government, JArray assertions,
             Kingdom kingdom, ReignGovernmentStateRecord state)
         {
-            List<ReignGovernmentSeatRecord> seats = GetSeats(kingdom?.StringId).ToList();
-            List<ReignGovernmentPartyRecord> parties = GetParties(kingdom?.StringId).ToList();
+            List<ReignGovernmentSeatRecord> seats = government.GetSeats(kingdom?.StringId).ToList();
+            List<ReignGovernmentPartyRecord> parties = government.GetParties(kingdom?.StringId).ToList();
             if (kingdom == null || state == null || kingdom.Leader != Hero.MainHero
                 || seats.Count == 0 || parties.Count == 0)
             {
@@ -834,7 +835,7 @@ namespace ReignBeta.Government
             List<Town> towns = kingdom.Fiefs.Where(item => item?.Settlement?.IsFortification == true)
                 .ToList();
             foreach (Town town in towns) town.Loyalty = 100f;
-            bool reduced = ReduceGovernmentLevel(kingdom, false, out string result);
+            bool reduced = government.ReduceGovernmentLevel(kingdom, false, out string result);
             int votesFor = seats.Count(item => item.LastReductionVoteSupported);
             bool exactLoyalty = towns.Count > 0
                 && towns.All(town => Math.Abs(town.Loyalty - 95f) < 0.01f);
@@ -864,7 +865,7 @@ namespace ReignBeta.Government
                 });
         }
 
-        private void GovernmentNativeForcedReductionCase(JArray assertions,
+        private static void GovernmentNativeForcedReductionCase(ReignGovernmentCampaignBehavior government, JArray assertions,
             Kingdom kingdom, ReignGovernmentStateRecord state)
         {
             List<Clan> candidateClans = kingdom?.Clans.Where(clan => clan != null
@@ -875,7 +876,7 @@ namespace ReignBeta.Government
             Clan preferredConsentingClan = candidateClans.FirstOrDefault(clan => clan.Heroes.Any(hero =>
                 hero != null && hero != clan.Leader && hero.IsAlive && !hero.IsChild && !hero.IsPrisoner));
             Clan preferredNonConsentingClan = candidateClans.FirstOrDefault(clan => clan != preferredConsentingClan);
-            GovernmentTemporaryLandholdingFixture landFixture = EnsureTemporaryLandholdingClans(kingdom,
+            GovernmentTemporaryLandholdingFixture landFixture = EnsureTemporaryLandholdingClans(government, kingdom,
                 new[] { preferredConsentingClan, preferredNonConsentingClan });
             try
             {
@@ -890,7 +891,7 @@ namespace ReignBeta.Government
             Hero sameClanMember = consentingClan?.Heroes.Where(hero => hero != null
                     && hero != consentingClan.Leader && hero.IsAlive && !hero.IsChild && !hero.IsPrisoner)
                 .OrderBy(hero => hero.StringId, StringComparer.Ordinal).FirstOrDefault();
-            List<ReignGovernmentSeatRecord> originalSeats = GetSeats(kingdom?.StringId).ToList();
+            List<ReignGovernmentSeatRecord> originalSeats = government.GetSeats(kingdom?.StringId).ToList();
             Hero individualConsent = originalSeats.Select(item => FindHero(item.HeroStringId))
                 .Where(hero => hero != null && hero != Hero.MainHero && hero.Clan != Clan.PlayerClan
                     && hero.Clan != consentingClan && hero.Clan?.Leader != hero)
@@ -903,7 +904,7 @@ namespace ReignBeta.Government
             Hero playerClanMember = Clan.PlayerClan?.Heroes.Where(hero => hero != null
                     && hero != Hero.MainHero && hero.IsAlive && !hero.IsChild && !hero.IsPrisoner)
                 .OrderBy(hero => hero.StringId, StringComparer.Ordinal).FirstOrDefault() ?? Hero.MainHero;
-            ReignGovernmentPartyRecord party = GetParties(kingdom?.StringId)
+            ReignGovernmentPartyRecord party = government.GetParties(kingdom?.StringId)
                 .OrderBy(item => item.PartyId, StringComparer.Ordinal).FirstOrDefault();
             bool rolesAvailable = kingdom != null && state != null && kingdom.Leader == Hero.MainHero
                 && consentingClan?.Leader != null && nonConsentingClan?.Leader != null
@@ -929,7 +930,7 @@ namespace ReignBeta.Government
             state.ReductionConsentFromLevel = 0;
             state.ReductionConsentHeroIdsCsv = string.Empty;
             state.ReductionConsentClanIdsCsv = string.Empty;
-            foreach (ReignGovernmentPartyRecord item in GetParties(kingdom.StringId))
+            foreach (ReignGovernmentPartyRecord item in government.GetParties(kingdom.StringId))
             {
                 item.PlanksCsv = "RepresentativeAuthority,PopularWelfare";
                 item.PartyLoyalty = 100;
@@ -937,8 +938,8 @@ namespace ReignBeta.Government
             }
             foreach (Hero hero in new[] { consentingClan.Leader, nonConsentingClan.Leader,
                 sameClanMember, individualConsent, nonLandholder, playerClanMember })
-                EnsureGovernmentCertificationSeat(kingdom, party, hero);
-            List<ReignGovernmentSeatRecord> voters = GetSeats(kingdom.StringId).ToList();
+                EnsureGovernmentCertificationSeat(government, kingdom, party, hero);
+            List<ReignGovernmentSeatRecord> voters = government.GetSeats(kingdom.StringId).ToList();
             foreach (ReignGovernmentSeatRecord seat in voters)
             {
                 Hero member = FindHero(seat.HeroStringId);
@@ -953,9 +954,9 @@ namespace ReignBeta.Government
                 seat.GovernmentLoyalty = 100;
                 seat.Revision++;
             }
-            bool clanConsentRecorded = TryRecordReductionConsent(kingdom.Leader,
+            bool clanConsentRecorded = government.TryRecordReductionConsent(kingdom.Leader,
                 consentingClan.Leader, out string clanConsentResult);
-            bool individualConsentRecorded = TryRecordReductionConsent(kingdom.Leader,
+            bool individualConsentRecorded = government.TryRecordReductionConsent(kingdom.Leader,
                 individualConsent, out string individualConsentResult);
             var before = new Dictionary<string, int>(StringComparer.OrdinalIgnoreCase);
             foreach (Hero hero in new[] { consentingClan.Leader, nonConsentingClan.Leader,
@@ -964,7 +965,7 @@ namespace ReignBeta.Government
             List<Town> towns = kingdom.Fiefs.Where(item => item?.Settlement?.IsFortification == true)
                 .ToList();
             foreach (Town town in towns) town.Loyalty = 100f;
-            bool reduced = ReduceGovernmentLevel(kingdom, true, out string reductionResult);
+            bool reduced = government.ReduceGovernmentLevel(kingdom, true, out string reductionResult);
             int votesFor = voters.Count(item => item.LastReductionVoteSupported);
             int Delta(Hero hero) => hero.GetRelation(kingdom.Leader) - before[hero.StringId];
             bool exact = reduced && !ReignGovernmentRules.ReductionRatified(votesFor, voters.Count)
@@ -1008,10 +1009,10 @@ namespace ReignBeta.Government
             }
         }
 
-        private ReignGovernmentSeatRecord EnsureGovernmentCertificationSeat(Kingdom kingdom,
+        private static ReignGovernmentSeatRecord EnsureGovernmentCertificationSeat(ReignGovernmentCampaignBehavior government, Kingdom kingdom,
             ReignGovernmentPartyRecord party, Hero hero)
         {
-            ReignGovernmentSeatRecord seat = _seats.FirstOrDefault(item =>
+            ReignGovernmentSeatRecord seat = government._seats.FirstOrDefault(item =>
                 Same(item.KingdomStringId, kingdom?.StringId) && Same(item.HeroStringId, hero?.StringId));
             if (seat != null) return seat;
             seat = new ReignGovernmentSeatRecord
@@ -1025,11 +1026,11 @@ namespace ReignBeta.Government
                 GovernmentLoyalty = 100,
                 Revision = 1
             };
-            _seats.Add(seat);
+            government._seats.Add(seat);
             return seat;
         }
 
-        private GovernmentTemporaryLandholdingFixture EnsureTemporaryLandholdingClans(
+        private static GovernmentTemporaryLandholdingFixture EnsureTemporaryLandholdingClans(ReignGovernmentCampaignBehavior government, 
             Kingdom kingdom, IEnumerable<Clan> requestedClans)
         {
             var fixture = new GovernmentTemporaryLandholdingFixture();
@@ -1075,10 +1076,10 @@ namespace ReignBeta.Government
             }
         }
 
-        private void GovernmentNativePressureChannelCase(JArray assertions,
+        private static void GovernmentNativePressureChannelCase(ReignGovernmentCampaignBehavior government, JArray assertions,
             Kingdom kingdom, ReignGovernmentStateRecord state, string caseId)
         {
-            JObject snapshot = BuildPublicSnapshot(kingdom);
+            JObject snapshot = government.BuildPublicSnapshot(kingdom);
             bool separate = snapshot.SelectToken("peoplePressure.additionalToNoblePoliticalPressure")
                     ?.Value<bool>() == true
                 && snapshot.SelectToken("peoplePressure.probabilityRule")?.Value<string>()
@@ -1087,7 +1088,7 @@ namespace ReignBeta.Government
             {
                 Town town = kingdom?.Fiefs.Where(item => item?.Settlement?.IsFortification == true)
                     .OrderBy(item => item.Settlement.StringId, StringComparer.Ordinal).FirstOrDefault();
-                ReignGovernmentPartyRecord party = GetParties(kingdom?.StringId)
+                ReignGovernmentPartyRecord party = government.GetParties(kingdom?.StringId)
                     .Where(item => item.SeatCount > 0)
                     .OrderBy(item => item.PartyId, StringComparer.Ordinal).FirstOrDefault();
                 ReignGovernmentResolutionTemplate template = ReignGovernmentResolutionCatalog.Find("R004")
@@ -1113,9 +1114,9 @@ namespace ReignBeta.Government
                     ConsequenceLevel = state.Level,
                     Revision = 1
                 };
-                _resolutions.Add(record);
+                government._resolutions.Add(record);
                 float before = town.Loyalty;
-                bool declined = GovernmentNativeResolveSeasonalFixture(record, "reject", kingdom, 4, out string result);
+                bool declined = GovernmentNativeResolveSeasonalFixture(government, record, "reject", kingdom, 4, out string result);
                 AddGovernmentAssertion(assertions, "government_native_people_pressure_native_unrest",
                     separate && declined && Same(record.Status, "refused")
                     && town.Loyalty < before
@@ -1146,11 +1147,11 @@ namespace ReignBeta.Government
                         && clan != kingdom.RulingClan && clan != Clan.PlayerClan
                         && !clan.IsEliminated && clan.Leader != null)
                     .OrderBy(clan => clan.StringId, StringComparer.Ordinal).FirstOrDefault();
-                landFixture = EnsureTemporaryLandholdingClans(kingdom, new[] { affectedClan });
+                landFixture = EnsureTemporaryLandholdingClans(government, kingdom, new[] { affectedClan });
             }
             try
             {
-            List<ReignGovernmentSeatRecord> seats = GetSeats(kingdom?.StringId).ToList();
+            List<ReignGovernmentSeatRecord> seats = government.GetSeats(kingdom?.StringId).ToList();
             if (kingdom == null || state == null || affectedClan == null
                 || affectedClan.Fiefs.Count == 0 || seats.Count == 0)
             {
@@ -1163,7 +1164,7 @@ namespace ReignBeta.Government
             state.ReductionConsentFromLevel = 0;
             state.ReductionConsentHeroIdsCsv = string.Empty;
             state.ReductionConsentClanIdsCsv = string.Empty;
-            foreach (ReignGovernmentPartyRecord party in GetParties(kingdom.StringId))
+            foreach (ReignGovernmentPartyRecord party in government.GetParties(kingdom.StringId))
             {
                 party.PlanksCsv = "RepresentativeAuthority,PopularWelfare";
                 party.PartyLoyalty = 100;
@@ -1177,7 +1178,7 @@ namespace ReignBeta.Government
             if (relation != 100) ChangeRelationAction.ApplyRelationChangeBetweenHeroes(
                 kingdom.Leader, affectedClan.Leader, 100 - relation, false);
             int relationBefore = affectedClan.Leader.GetRelation(kingdom.Leader);
-            bool forced = ReduceGovernmentLevel(kingdom, true, out string forcedResult);
+            bool forced = government.ReduceGovernmentLevel(kingdom, true, out string forcedResult);
             int relationAfter = affectedClan.Leader.GetRelation(kingdom.Leader);
             AddGovernmentAssertion(assertions, "government_native_lord_pressure_civil_war_input",
                 separate && forced && relationAfter - relationBefore == -70
@@ -1201,13 +1202,13 @@ namespace ReignBeta.Government
             }
         }
 
-        private void GovernmentNativeNpcRulerCase(JArray assertions, string caseId)
+        private static void GovernmentNativeNpcRulerCase(ReignGovernmentCampaignBehavior government, JArray assertions, string caseId)
         {
             Kingdom kingdom = Kingdom.All.Where(IsEligibleKingdom)
                 .Where(item => item.Leader != Hero.MainHero)
                 .OrderBy(item => item.StringId, StringComparer.Ordinal).FirstOrDefault();
-            ReignGovernmentStateRecord state = EnsureGovernment(kingdom);
-            List<ReignGovernmentPartyRecord> parties = GetParties(kingdom?.StringId).ToList();
+            ReignGovernmentStateRecord state = government.EnsureGovernment(kingdom);
+            List<ReignGovernmentPartyRecord> parties = government.GetParties(kingdom?.StringId).ToList();
             ReignGovernmentPartyRecord coalition = parties.OrderBy(item => item.PartyId,
                 StringComparer.Ordinal).FirstOrDefault();
             if (kingdom == null || state == null || coalition == null)
@@ -1237,23 +1238,23 @@ namespace ReignBeta.Government
                 ActorKingdomStringId = kingdom.StringId,
                 Reason = opposed ? "opposed aggressive war" : "defensive government-backed war"
             };
-            bool allowed = TryAuthorizeAction(action, out ReignActionResult blocked);
-            var business = _business.FirstOrDefault(item => Same(item.ActionCorrelationId, action.ActionId));
-            foreach (var seat in GetSeats(kingdom.StringId))
+            bool allowed = government.TryAuthorizeAction(action, out ReignActionResult blocked);
+            var business = government._business.FirstOrDefault(item => Same(item.ActionCorrelationId, action.ActionId));
+            foreach (var seat in government.GetSeats(kingdom.StringId))
             {
                 Hero member = FindHero(seat.HeroStringId);
                 if (member != null && member != kingdom.Leader)
                     ChangeRelationAction.ApplyRelationChangeBetweenHeroes(kingdom.Leader, member,
                         (opposed ? -100 : 100) - member.GetRelation(kingdom.Leader), false);
             }
-            bool voted = business != null && RecommendBusiness(business.BusinessId, "accept", kingdom.Leader, out _)
-                && VoteBusiness(business.BusinessId, kingdom.Leader, out _);
-            bool responded = opposed || voted && ResolveBusiness(business.BusinessId, "accept", kingdom.Leader,
+            bool voted = business != null && government.RecommendBusiness(business.BusinessId, "accept", kingdom.Leader, out _)
+                && government.VoteBusiness(business.BusinessId, kingdom.Leader, out _);
+            bool responded = opposed || voted && government.ResolveBusiness(business.BusinessId, "accept", kingdom.Leader,
                 business.WinningOptionId != "accept", out _);
-            JObject snapshot = BuildPublicSnapshot(kingdom);
+            JObject snapshot = government.BuildPublicSnapshot(kingdom);
             bool expected = !allowed && blocked != null && voted && responded && (opposed
                 ? business.Status == "decided" && business.WinningOptionId == "reject"
-                    && !ResolveBusiness(business.BusinessId, "accept", kingdom.Leader, true, out _)
+                    && !government.ResolveBusiness(business.BusinessId, "accept", kingdom.Leader, true, out _)
                 : business.Status == "authorized");
             AddGovernmentAssertion(assertions, "government_native_npc_ruler_pressure",
                 expected
@@ -1272,9 +1273,9 @@ namespace ReignBeta.Government
                 });
         }
 
-        private void GovernmentNativeKnowledgeCase(JArray assertions, Kingdom kingdom)
+        private static void GovernmentNativeKnowledgeCase(ReignGovernmentCampaignBehavior government, JArray assertions, Kingdom kingdom)
         {
-            JObject snapshot = BuildPublicSnapshot(kingdom);
+            JObject snapshot = government.BuildPublicSnapshot(kingdom);
             bool partiesKnown = snapshot["parties"] is JArray parties && parties.Count >= 2
                 && parties.Children<JObject>().All(party =>
                     !string.IsNullOrWhiteSpace(party.Value<string>("partyId"))
@@ -1289,10 +1290,10 @@ namespace ReignBeta.Government
                 "The authoritative public Government knowledge contains current authority, coalition, party agendas, speakers, stance, and the explicit ruler-agrees/government-refuses negotiation rule.", snapshot);
         }
 
-        private void GovernmentNativeHistoryCase(JArray assertions, Kingdom kingdom, string caseId)
+        private static void GovernmentNativeHistoryCase(ReignGovernmentCampaignBehavior government, JArray assertions, Kingdom kingdom, string caseId)
         {
-            ReignGovernmentStateRecord state = EnsureGovernment(kingdom);
-            List<ReignGovernmentPartyRecord> parties = GetParties(kingdom?.StringId).ToList();
+            ReignGovernmentStateRecord state = government.EnsureGovernment(kingdom);
+            List<ReignGovernmentPartyRecord> parties = government.GetParties(kingdom?.StringId).ToList();
             if (kingdom == null || state == null || parties.Count == 0)
             {
                 AddGovernmentAssertion(assertions, "government_native_history_resolution", false,
@@ -1336,8 +1337,8 @@ namespace ReignBeta.Government
                     spyTarget = kingdom.Fiefs.Where(item => item?.Settlement?.IsFortification == true)
                         .OrderBy(item => item.Settlement.StringId, StringComparer.Ordinal).FirstOrDefault();
 #if !REIGN_EXCLUDE_COURT
-                    spymasterEffectId = ReignCourtCampaignBehavior.Instance
-                        ?.AddGovernmentCertificationSubterfugeEffect(spyTarget) ?? string.Empty;
+                    spymasterEffectId = (ReignCourtCampaignBehavior.Instance is ReignCourtCampaignBehavior spymasterCourt
+                        ? ReignSpymasterTestControls.AddGovernmentCertificationSubterfugeEffect(spymasterCourt, spyTarget) : null) ?? string.Empty;
                     prerequisiteActive = !string.IsNullOrWhiteSpace(spymasterEffectId)
                         && (ReignCourtCampaignBehavior.Instance?.GetSpymasterLoyaltyDelta(spyTarget) ?? 0f) != 0f;
 #endif
@@ -1364,7 +1365,7 @@ namespace ReignBeta.Government
                         .FirstOrDefault();
                     if (MatchingTag(selected?.EvidenceTag ?? string.Empty)) temporaryPartyId = candidateId;
                 }
-                List<ReignGovernmentSeatRecord> fixtureSeats = GetSeats(kingdom.StringId).ToList();
+                List<ReignGovernmentSeatRecord> fixtureSeats = government.GetSeats(kingdom.StringId).ToList();
                 if (!string.IsNullOrWhiteSpace(temporaryPartyId) && fixtureSeats.Count > 0)
                 {
                     foreach (ReignGovernmentSeatRecord seat in fixtureSeats)
@@ -1373,7 +1374,7 @@ namespace ReignBeta.Government
                         seat.PartyId = temporaryPartyId;
                         seat.Revision++;
                     }
-                    _parties.Add(new ReignGovernmentPartyRecord
+                    government._parties.Add(new ReignGovernmentPartyRecord
                     {
                         KingdomStringId = kingdom.StringId,
                         PartyId = temporaryPartyId,
@@ -1384,11 +1385,11 @@ namespace ReignBeta.Government
                         PartyLoyalty = 100,
                         Revision = 1
                     });
-                    RecalculatePartyState(kingdom, state);
+                    government.RecalculatePartyState(kingdom, state);
                 }
-                int before = _resolutions.Count;
-                ReignGovernmentMeetingRecord meeting = RunSeasonalMeeting(kingdom, state, true);
-                List<ReignGovernmentResolutionRecord> generated = _resolutions.Skip(before).ToList();
+                int before = government._resolutions.Count;
+                ReignGovernmentMeetingRecord meeting = government.RunSeasonalMeeting(kingdom, state, true);
+                List<ReignGovernmentResolutionRecord> generated = government._resolutions.Skip(before).ToList();
                 ReignGovernmentResolutionRecord matching = generated.FirstOrDefault(record =>
                     MatchingTag(ReignGovernmentResolutionCatalog.Find(record.TemplateId)?.EvidenceTag ?? string.Empty));
                 ReignGovernmentResolutionTemplate template = ReignGovernmentResolutionCatalog.Find(matching?.TemplateId);
@@ -1427,38 +1428,38 @@ namespace ReignBeta.Government
             {
                 if (raidVillage != null) raidVillage.VillageState = originalVillageState;
 #if !REIGN_EXCLUDE_COURT
-                ReignCourtCampaignBehavior.Instance
-                    ?.RemoveGovernmentCertificationSubterfugeEffect(spymasterEffectId);
+                if (ReignCourtCampaignBehavior.Instance is ReignCourtCampaignBehavior spymasterCleanupCourt)
+                    ReignSpymasterTestControls.RemoveGovernmentCertificationSubterfugeEffect(spymasterCleanupCourt, spymasterEffectId);
 #endif
-                foreach (ReignGovernmentSeatRecord seat in GetSeats(kingdom?.StringId).ToList())
+                foreach (ReignGovernmentSeatRecord seat in government.GetSeats(kingdom?.StringId).ToList())
                 {
                     if (originalSeatParties.TryGetValue(seat.HeroStringId, out string partyId))
                         seat.PartyId = partyId;
                 }
                 if (!string.IsNullOrWhiteSpace(temporaryPartyId))
-                    _parties.RemoveAll(item => Same(item.KingdomStringId, kingdom?.StringId)
+                    government._parties.RemoveAll(item => Same(item.KingdomStringId, kingdom?.StringId)
                         && Same(item.PartyId, temporaryPartyId));
                 foreach (ReignGovernmentPartyRecord party in parties)
                 {
                     if (originalPlanks.TryGetValue(party.PartyId, out string value)) party.PlanksCsv = value;
                 }
-                if (kingdom != null && state != null) RecalculatePartyState(kingdom, state);
+                if (kingdom != null && state != null) government.RecalculatePartyState(kingdom, state);
             }
         }
 
-        private JObject GovernmentCertificationSoakPrepare(string runId)
+        private static JObject GovernmentCertificationSoakPrepare(ReignGovernmentCampaignBehavior government, string runId)
         {
             JArray assertions = new JArray();
             var fixture = new GovernmentSoakFixture
             {
                 StartDay = CurrentDay(),
-                GovernmentCount = _governments.Count,
-                PartyCount = _parties.Count,
-                SeatCount = _seats.Count,
-                ResolutionCount = _resolutions.Count,
-                PressureCount = _pressures.Count,
-                MeetingCount = _meetings.Count,
-                Fingerprint = GovernmentFeatureFingerprint()
+                GovernmentCount = government._governments.Count,
+                PartyCount = government._parties.Count,
+                SeatCount = government._seats.Count,
+                ResolutionCount = government._resolutions.Count,
+                PressureCount = government._pressures.Count,
+                MeetingCount = government._meetings.Count,
+                Fingerprint = GovernmentFeatureFingerprint(government)
             };
             GovernmentSoakFixtures[runId] = fixture;
             AddGovernmentAssertion(assertions, "government_soak_prepare",
@@ -1470,7 +1471,7 @@ namespace ReignBeta.Government
             return result;
         }
 
-        private JObject GovernmentCertificationSoakVerify(string runId, JObject options)
+        private static JObject GovernmentCertificationSoakVerify(ReignGovernmentCampaignBehavior government, string runId, JObject options)
         {
             JArray assertions = new JArray();
             bool restoredFromRetainedEvidence = false;
@@ -1488,26 +1489,26 @@ namespace ReignBeta.Government
             }
             float elapsed = CurrentDay() - fixture.StartDay;
             int expectedMaximumMeetings = fixture.MeetingCount
-                + Math.Max(1, _governments.Count) * 12;
-            bool newNpcMeeting = _meetings.Any(item => !item.PlayerAttended
+                + Math.Max(1, government._governments.Count) * 12;
+            bool newNpcMeeting = government._meetings.Any(item => !item.PlayerAttended
                 && item.MeetingDay + 0.01f >= fixture.StartDay);
-            bool newResolutionActivity = _resolutions.Any(item => item.ProposedDay + 0.01f >= fixture.StartDay)
-                || _resolutions.Count != fixture.ResolutionCount;
+            bool newResolutionActivity = government._resolutions.Any(item => item.ProposedDay + 0.01f >= fixture.StartDay)
+                || government._resolutions.Count != fixture.ResolutionCount;
             bool stable = elapsed >= 209.5f
-                && _governments.Count == fixture.GovernmentCount
-                && _parties.Count >= fixture.PartyCount
-                && _parties.Count <= fixture.PartyCount + fixture.GovernmentCount * 2
-                && _meetings.Count >= fixture.MeetingCount
-                && _meetings.Count <= expectedMaximumMeetings
+                && government._governments.Count == fixture.GovernmentCount
+                && government._parties.Count >= fixture.PartyCount
+                && government._parties.Count <= fixture.PartyCount + fixture.GovernmentCount * 2
+                && government._meetings.Count >= fixture.MeetingCount
+                && government._meetings.Count <= expectedMaximumMeetings
                 && newNpcMeeting && newResolutionActivity
-                && _meetings.Where(item => !item.PlayerAttended).All(item => item.ProviderCallCount == 0)
-                && _resolutions.Count <= fixture.ResolutionCount + fixture.GovernmentCount * 40
-                && _pressures.Count <= fixture.PressureCount + fixture.GovernmentCount * 40;
+                && government._meetings.Where(item => !item.PlayerAttended).All(item => item.ProviderCallCount == 0)
+                && government._resolutions.Count <= fixture.ResolutionCount + fixture.GovernmentCount * 40
+                && government._pressures.Count <= fixture.PressureCount + fixture.GovernmentCount * 40;
             AddGovernmentAssertion(assertions, "government_soak_verify", stable,
                 "After 210 externally advanced days, Government identity remains stable, seasonal meetings stay bounded, NPC meetings remain provider-free, and saved collections show no runaway growth.",
-                new JObject { ["elapsedDays"] = elapsed, ["governments"] = _governments.Count,
-                    ["parties"] = _parties.Count, ["meetings"] = _meetings.Count,
-                    ["resolutions"] = _resolutions.Count, ["pressures"] = _pressures.Count,
+                new JObject { ["elapsedDays"] = elapsed, ["governments"] = government._governments.Count,
+                    ["parties"] = government._parties.Count, ["meetings"] = government._meetings.Count,
+                    ["resolutions"] = government._resolutions.Count, ["pressures"] = government._pressures.Count,
                     ["newNpcMeeting"] = newNpcMeeting,
                     ["newResolutionActivity"] = newResolutionActivity,
                     ["maximumMeetings"] = expectedMaximumMeetings,
@@ -1559,36 +1560,36 @@ namespace ReignBeta.Government
             return true;
         }
 
-        private JObject GovernmentCertificationCleanup(string runId)
+        private static JObject GovernmentCertificationCleanup(ReignGovernmentCampaignBehavior government, string runId)
         {
             JArray assertions = new JArray();
             foreach (GovernmentLanguageFixture fixture in GovernmentLanguageFixtures.Values.ToList())
-                RestoreGovernmentLanguageFixture(fixture);
+                RestoreGovernmentLanguageFixture(government, fixture);
             GovernmentLanguageFixtures.Clear();
             GovernmentSoakFixtures.Clear();
-            _governmentPrivateCaseBaselines.Clear();
-            _resolutions.RemoveAll(item => (item.ResolutionId ?? string.Empty)
+            government._governmentPrivateCaseBaselines.Clear();
+            government._resolutions.RemoveAll(item => (item.ResolutionId ?? string.Empty)
                 .StartsWith("government-cert-", StringComparison.OrdinalIgnoreCase));
-            _pressures.RemoveAll(item => (item.ActionCorrelationId ?? string.Empty)
+            government._pressures.RemoveAll(item => (item.ActionCorrelationId ?? string.Empty)
                 .StartsWith("government-cert-", StringComparison.OrdinalIgnoreCase));
-            _lobbyRecords.RemoveAll(item => (item.ResolutionId ?? string.Empty)
+            government._lobbyRecords.RemoveAll(item => (item.ResolutionId ?? string.Empty)
                 .StartsWith("government-cert-", StringComparison.OrdinalIgnoreCase));
-            HashSet<string> temporaryPartyIds = new HashSet<string>(_parties
+            HashSet<string> temporaryPartyIds = new HashSet<string>(government._parties
                 .Where(item => (item.PartyId ?? string.Empty)
                     .StartsWith("government_cert_coalition_party_", StringComparison.OrdinalIgnoreCase))
                 .Select(item => item.PartyId), StringComparer.OrdinalIgnoreCase);
-            _seats.RemoveAll(item => temporaryPartyIds.Contains(item.PartyId));
-            _parties.RemoveAll(item => temporaryPartyIds.Contains(item.PartyId));
-            bool retained = _resolutions.Any(item => (item.ResolutionId ?? string.Empty)
+            government._seats.RemoveAll(item => temporaryPartyIds.Contains(item.PartyId));
+            government._parties.RemoveAll(item => temporaryPartyIds.Contains(item.PartyId));
+            bool retained = government._resolutions.Any(item => (item.ResolutionId ?? string.Empty)
                     .StartsWith("government-cert-", StringComparison.OrdinalIgnoreCase))
-                || _pressures.Any(item => (item.ActionCorrelationId ?? string.Empty)
+                || government._pressures.Any(item => (item.ActionCorrelationId ?? string.Empty)
                     .StartsWith("government-cert-", StringComparison.OrdinalIgnoreCase))
-                || _lobbyRecords.Any(item => (item.ResolutionId ?? string.Empty)
+                || government._lobbyRecords.Any(item => (item.ResolutionId ?? string.Empty)
                     .StartsWith("government-cert-", StringComparison.OrdinalIgnoreCase))
-                || _parties.Any(item => (item.PartyId ?? string.Empty)
+                || government._parties.Any(item => (item.PartyId ?? string.Empty)
                     .StartsWith("government_cert_coalition_party_", StringComparison.OrdinalIgnoreCase));
             AddGovernmentAssertion(assertions, "government_certification_cleanup",
-                GovernmentLanguageFixtures.Count == 0 && GovernmentSoakFixtures.Count == 0 && _governmentPrivateCaseBaselines.Count == 0
+                GovernmentLanguageFixtures.Count == 0 && GovernmentSoakFixtures.Count == 0 && government._governmentPrivateCaseBaselines.Count == 0
                 && !retained,
                 "All non-serialized snapshots and exact Government certification-prefixed records were cleared; guarded campaign-test control still owns save cleanup and baseline protection.", null);
             return GovernmentTestResult(runId, "cleanup", assertions);

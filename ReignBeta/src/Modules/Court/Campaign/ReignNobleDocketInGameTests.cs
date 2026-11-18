@@ -13,14 +13,15 @@ using TaleWorlds.CampaignSystem;
 using TaleWorlds.CampaignSystem.Actions;
 using TaleWorlds.CampaignSystem.Settlements;
 using TaleWorlds.Core;
+using static ReignBeta.Court.ReignCourtCampaignBehavior;
 
 namespace ReignBeta.Court
 {
-    public sealed partial class ReignCourtCampaignBehavior
+    internal static partial class ReignCourtTestControls
     {
-        private JObject NobleDocketPreflight(string runId, string saveName)
+        private static JObject NobleDocketPreflight(ReignCourtCampaignBehavior court, string runId, string saveName)
         {
-            List<Hero> candidates = EligibleNobleMatterHeroes(CurrentDay(), 0);
+            List<Hero> candidates = court.EligibleNobleMatterHeroes(CurrentDay(), 0);
             int protectedVictims = candidates.Count(IsProtectedMurderVictim);
             int suitableUnmarriedPairs = CountSuitableUnmarriedPairs(candidates);
             int reciprocalSpousePairs = candidates.Count(x => x.Spouse != null
@@ -28,7 +29,7 @@ namespace ReignBeta.Court
             JArray assertions = new JArray
             {
                 Assertion("player_is_current_ruler", Clan.PlayerClan?.Kingdom?.Leader == Hero.MainHero),
-                Assertion("capital_court_has_royal_command_access", HasRoyalCommandAccess),
+                Assertion("capital_court_has_royal_command_access", court.HasRoyalCommandAccess),
                 Assertion("four_eligible_nobles_available", candidates.Count >= 4)
             };
             return new JObject
@@ -62,7 +63,7 @@ namespace ReignBeta.Court
             return count;
         }
 
-        private JObject PrepareNobleDocketFixture(string runId, JObject options,
+        private static JObject PrepareNobleDocketFixture(ReignCourtCampaignBehavior court, string runId, JObject options,
             string saveName, string gameInstanceId)
         {
             if (!string.Equals(options.Value<string>("confirmation"),
@@ -76,26 +77,26 @@ namespace ReignBeta.Court
                 return RulerDocketTestFailure(runId, "noble_prepare",
                     "templateId must name one of the 68 authoritative noble docket templates.",
                     saveName, saveName);
-            if (!HasRoyalCommandAccess)
+            if (!court.HasRoyalCommandAccess)
                 return RulerDocketTestFailure(runId, "noble_prepare",
                     "Hold production Court in the capital before preparing a noble matter.",
                     saveName, saveName);
 
-            ReignRulerDocketState state = EnsureRulerDocketState();
+            ReignRulerDocketState state = court.EnsureRulerDocketState();
             state.NobleMatters.RemoveAll(x => x?.MatterId?.StartsWith(
                 "noble_test_" + runId + "_", StringComparison.Ordinal) == true);
             int preparedDay = CurrentDay();
             int eligibilitySelectionSlot = StableCourtOrder(
                 (runId ?? string.Empty) + "|noble-fixture-participants", preparedDay) % 2048;
-            List<Hero> candidates = EligibleNobleMatterHeroes(preparedDay,
+            List<Hero> candidates = court.EligibleNobleMatterHeroes(preparedDay,
                 eligibilitySelectionSlot);
-            JObject fixtureState = PrepareSpecialNobleEligibility(template, candidates);
+            JObject fixtureState = PrepareSpecialNobleEligibility(court, template, candidates);
             if (fixtureState.Value<bool?>("ok") != true)
                 return RulerDocketTestFailure(runId, "noble_prepare",
                     fixtureState.Value<string>("error") ?? "The required noble eligibility could not be prepared.",
                     saveName, saveName);
 
-            ReignNobleDocketMatter matter = SelectDistinctNobleFixtureVariant(template,
+            ReignNobleDocketMatter matter = SelectDistinctNobleFixtureVariant(court, template,
                 ReignCampaignIdentity.CurrentCampaignId(),
                 ReignBeta.Campaign.ReignWorldHistoryCampaignBehavior.Instance?.TimelineId ?? "main",
                 preparedDay, runId, out int participantSelectionSlot,
@@ -106,7 +107,7 @@ namespace ReignBeta.Court
                     saveName, saveName);
             string expectedInvestigation = (options.Value<string>(
                 "expectedInvestigationOutcome") ?? "any").Trim().ToLowerInvariant();
-            matter.MatterId = ChooseNobleTestMatterId(runId, matter,
+            matter.MatterId = ChooseNobleTestMatterId(court, runId, matter,
                 expectedInvestigation);
             matter.CanonicalTruthHash = ReignCourtTerms.Hash(matter.MatterId + "|" + matter.CanonicalTruth);
             state.NobleMatters.Add(matter);
@@ -128,7 +129,7 @@ namespace ReignBeta.Court
                 ["expectedInvestigationOutcome"] = expectedInvestigation,
                 ["eligibilityFixture"] = fixtureState
             };
-            StoreRulerDocketMarker(marker);
+            StoreRulerDocketMarker(court, marker);
             return new JObject
             {
                 ["ok"] = matter.Participants.Count >= template.MinimumPrincipals
@@ -151,7 +152,7 @@ namespace ReignBeta.Court
             };
         }
 
-        private ReignNobleDocketMatter SelectDistinctNobleFixtureVariant(
+        private static ReignNobleDocketMatter SelectDistinctNobleFixtureVariant(ReignCourtCampaignBehavior court, 
             ReignNobleMatterTemplate template, string campaignId, string timelineId,
             int day, string runId, out int selectedSlot, out int selectedVariantIndex,
             out int availableVariantCount)
@@ -163,7 +164,7 @@ namespace ReignBeta.Court
             for (int slot = 0; slot < MaximumProductionSlots
                 && variants.Count < MaximumDistinctVariants; slot++)
             {
-                ReignNobleDocketMatter candidate = TryBuildNobleMatter(template,
+                ReignNobleDocketMatter candidate = court.TryBuildNobleMatter(template,
                     campaignId, timelineId, day, slot);
                 if (candidate == null) continue;
                 string signature = string.Join("|", candidate.Participants.Select(
@@ -187,7 +188,7 @@ namespace ReignBeta.Court
             return variants[selectedVariantIndex].Value;
         }
 
-        private JObject PrepareSpecialNobleEligibility(ReignNobleMatterTemplate template,
+        private static JObject PrepareSpecialNobleEligibility(ReignCourtCampaignBehavior court, ReignNobleMatterTemplate template,
             List<Hero> candidates)
         {
             if (template.RequiresSpouses)
@@ -236,17 +237,17 @@ namespace ReignBeta.Court
             return new JObject { ["ok"] = true, ["kind"] = "none" };
         }
 
-        private JObject OpenNobleDocketFixture(string runId, string saveName)
+        private static JObject OpenNobleDocketFixture(ReignCourtCampaignBehavior court, string runId, string saveName)
         {
-            ReignNobleDocketMatter matter = FindNobleDocketTestMatter(runId);
-            bool opened = ReignCourtPetitionScreenManager.TryOpenForAutomation(this, matter,
+            ReignNobleDocketMatter matter = FindNobleDocketTestMatter(court, runId);
+            bool opened = ReignCourtPetitionScreenManager.TryOpenForAutomation(court, matter,
                 out string error);
-            JObject marker = FindRulerDocketMarker(runId);
+            JObject marker = FindRulerDocketMarker(court, runId);
             if (marker != null)
             {
                 marker["victimDeadAfterOpen"] = matter?.IsMurder == true
                     && FindAnyHero(matter.VictimHeroId)?.IsAlive == false;
-                StoreRulerDocketMarker(marker);
+                StoreRulerDocketMarker(court, marker);
             }
             return new JObject
             {
@@ -260,7 +261,7 @@ namespace ReignBeta.Court
             };
         }
 
-        private JObject SnapshotNobleDocketFixture(string runId, string saveName)
+        private static JObject SnapshotNobleDocketFixture(ReignCourtCampaignBehavior court, string runId, string saveName)
         {
             bool saved = ReignUiCalibrationService.TrySaveSnapshot(
                 "ReignCourtPetitionScreen", out string path, out string error);
@@ -270,10 +271,10 @@ namespace ReignBeta.Court
                 ["error"] = error ?? string.Empty };
         }
 
-        private JObject DecideNobleDocketFixture(string runId, JObject options, string saveName)
+        private static JObject DecideNobleDocketFixture(ReignCourtCampaignBehavior court, string runId, JObject options, string saveName)
         {
-            JObject marker = FindRulerDocketMarker(runId);
-            ReignNobleDocketMatter matter = FindNobleDocketTestMatter(runId);
+            JObject marker = FindRulerDocketMarker(court, runId);
+            ReignNobleDocketMatter matter = FindNobleDocketTestMatter(court, runId);
             if (marker == null || matter == null)
                 return RulerDocketTestFailure(runId, "noble_decide",
                     "The run-owned noble matter marker is missing.", saveName, saveName);
@@ -289,7 +290,7 @@ namespace ReignBeta.Court
             marker["action"] = action;
             marker["decidedState"] = matter.State.ToString();
             marker["convictedHeroId"] = matter.ConvictedHeroId;
-            StoreRulerDocketMarker(marker);
+            StoreRulerDocketMarker(court, marker);
             bool expected = action == "defer"
                 ? matter.State == ReignNobleMatterState.Deferred
                 : action == "acquit-all" ? matter.State == ReignNobleMatterState.Acquitted
@@ -306,15 +307,15 @@ namespace ReignBeta.Court
             };
         }
 
-        private JObject ObserveNobleDocketFixture(string runId, string saveName)
+        private static JObject ObserveNobleDocketFixture(ReignCourtCampaignBehavior court, string runId, string saveName)
         {
-            JObject marker = FindRulerDocketMarker(runId);
-            ReignNobleDocketMatter matter = FindNobleDocketTestMatter(runId);
+            JObject marker = FindRulerDocketMarker(court, runId);
+            ReignNobleDocketMatter matter = FindNobleDocketTestMatter(court, runId);
             if (marker == null || matter == null)
                 return RulerDocketTestFailure(runId, "noble_observe",
                     "The run-owned noble matter marker is missing.", saveName, saveName);
             string action = marker.Value<string>("action") ?? string.Empty;
-            bool history = EnsureRulerDocketState().History.Any(x =>
+            bool history = court.EnsureRulerDocketState().History.Any(x =>
                 x.PetitionId == matter.MatterId && x.Type == "noble_matter"
                 && x.Outcome == "judgment");
             bool participantCap = matter.Participants.Count >= 2 && matter.Participants.Count <= 4
@@ -339,7 +340,7 @@ namespace ReignBeta.Court
             JObject familyState = ObserveNobleFamilyState(matter);
             bool familyStateConsistent = familyState.Value<bool?>("consistent") == true;
             JArray expectedReputationEffects = ExpectedNobleReputationEffects(matter);
-            JObject relationshipState = ObserveNobleDirectionalRelationshipStateForTest(
+            JObject relationshipState = ObserveNobleDirectionalRelationshipStateForTest(court, 
                 matter.MatterId);
             return new JObject
             {
@@ -366,18 +367,18 @@ namespace ReignBeta.Court
             };
         }
 
-        internal JObject ObserveNobleDirectionalRelationshipStateForTest(
+        internal static JObject ObserveNobleDirectionalRelationshipStateForTest(ReignCourtCampaignBehavior court, 
             string matterId)
         {
-            ReignNobleDocketMatter matter = EnsureRulerDocketState().NobleMatters
+            ReignNobleDocketMatter matter = court.EnsureRulerDocketState().NobleMatters
                 .FirstOrDefault(x => x?.MatterId == matterId);
             if (matter == null)
                 return new JObject { ["required"] = false, ["consistent"] = false,
                     ["error"] = "The run-owned noble matter is missing." };
 
-            TryProcessPendingDocketRelationshipAdjustments();
+            court.TryProcessPendingDocketRelationshipAdjustments();
             string prefix = matter.MatterId + "_relation_";
-            List<ReignDirectionalRelationAdjustment> actual = EnsureRulerDocketState()
+            List<ReignDirectionalRelationAdjustment> actual = court.EnsureRulerDocketState()
                 .PendingRelationAdjustments.Where(x => x != null
                     && (x.AdjustmentId ?? string.Empty).StartsWith(prefix,
                         StringComparison.Ordinal)).ToList();
@@ -634,11 +635,11 @@ namespace ReignBeta.Court
             };
         }
 
-        private JObject ReverseNobleDocketFixture(string runId, string saveName)
+        private static JObject ReverseNobleDocketFixture(ReignCourtCampaignBehavior court, string runId, string saveName)
         {
-            ReignNobleDocketMatter matter = FindNobleDocketTestMatter(runId);
-            bool reversed = TryReverseNobleJudgment(matter?.MatterId, out string receipt);
-            bool history = matter != null && EnsureRulerDocketState().History.Any(x =>
+            ReignNobleDocketMatter matter = FindNobleDocketTestMatter(court, runId);
+            bool reversed = court.TryReverseNobleJudgment(matter?.MatterId, out string receipt);
+            bool history = matter != null && court.EnsureRulerDocketState().History.Any(x =>
                 x.PetitionId == matter.MatterId && x.Outcome == "reversal");
             return new JObject { ["ok"] = reversed
                     && matter.State == ReignNobleMatterState.Reversed && history,
@@ -647,11 +648,11 @@ namespace ReignBeta.Court
                 ["historyRecorded"] = history, ["matter"] = NobleMatterTestJson(matter) };
         }
 
-        private JObject ExecuteNobleDocketSentenceFixture(string runId, string saveName)
+        private static JObject ExecuteNobleDocketSentenceFixture(ReignCourtCampaignBehavior court, string runId, string saveName)
         {
-            ReignNobleDocketMatter matter = FindNobleDocketTestMatter(runId);
+            ReignNobleDocketMatter matter = FindNobleDocketTestMatter(court, runId);
             Hero convicted = FindAnyHero(matter?.ConvictedHeroId);
-            bool executed = TryExecuteMurderSentence(matter?.MatterId, out string receipt);
+            bool executed = court.TryExecuteMurderSentence(matter?.MatterId, out string receipt);
             bool dead = convicted != null && !convicted.IsAlive;
             return new JObject { ["ok"] = executed && dead && matter?.Irreversible == true
                     && matter.CustodyHold?.Executed == true,
@@ -661,24 +662,24 @@ namespace ReignBeta.Court
                 ["matter"] = NobleMatterTestJson(matter) };
         }
 
-        private JObject PrepareNobleCourtStayFixture(string runId, string saveName)
+        private static JObject PrepareNobleCourtStayFixture(ReignCourtCampaignBehavior court, string runId, string saveName)
         {
-            ReignNobleDocketMatter matter = FindNobleDocketTestMatter(runId);
+            ReignNobleDocketMatter matter = FindNobleDocketTestMatter(court, runId);
             string heroId = matter?.Participants.FirstOrDefault(x =>
                 FindAnyHero(x.HeroId)?.IsAlive == true && !FindAnyHero(x.HeroId).IsPrisoner)?.HeroId;
-            bool requested = TryRequestCourtStay(matter?.MatterId, heroId, out string receipt);
-            ReignCourtStayLease lease = EnsureRulerDocketState().CourtStayLeases
+            bool requested = court.TryRequestCourtStay(matter?.MatterId, heroId, out string receipt);
+            ReignCourtStayLease lease = court.EnsureRulerDocketState().CourtStayLeases
                 .LastOrDefault(x => x.MatterId == matter?.MatterId && x.HeroId == heroId);
-            JObject marker = FindRulerDocketMarker(runId);
+            JObject marker = FindRulerDocketMarker(court, runId);
             if (marker != null)
             {
                 marker["courtStayHeroId"] = heroId ?? string.Empty;
                 marker["courtStayReleaseDay"] = lease?.ReleaseDay ?? -1;
-                StoreRulerDocketMarker(marker);
+                StoreRulerDocketMarker(court, marker);
             }
             Hero hero = FindAnyHero(heroId);
-            bool atCapital = hero?.CurrentSettlement == CurrentCapital
-                || hero?.PartyBelongedTo?.CurrentSettlement == CurrentCapital;
+            bool atCapital = hero?.CurrentSettlement == court.CurrentCapital
+                || hero?.PartyBelongedTo?.CurrentSettlement == court.CurrentCapital;
             return new JObject { ["ok"] = requested && lease != null && !lease.Released && atCapital,
                 ["runId"] = runId, ["phase"] = "noble_stay_prepare",
                 ["saveName"] = saveName, ["receipt"] = receipt,
@@ -686,12 +687,12 @@ namespace ReignBeta.Court
                 ["atCapital"] = atCapital, ["requiresGuardedAdvancement"] = true };
         }
 
-        private JObject VerifyNobleCourtStayFixture(string runId, string saveName)
+        private static JObject VerifyNobleCourtStayFixture(ReignCourtCampaignBehavior court, string runId, string saveName)
         {
-            JObject marker = FindRulerDocketMarker(runId);
-            ReignNobleDocketMatter matter = FindNobleDocketTestMatter(runId);
+            JObject marker = FindRulerDocketMarker(court, runId);
+            ReignNobleDocketMatter matter = FindNobleDocketTestMatter(court, runId);
             string heroId = marker?.Value<string>("courtStayHeroId") ?? string.Empty;
-            ReignCourtStayLease lease = EnsureRulerDocketState().CourtStayLeases
+            ReignCourtStayLease lease = court.EnsureRulerDocketState().CourtStayLeases
                 .LastOrDefault(x => x.MatterId == matter?.MatterId && x.HeroId == heroId);
             int releaseDay = marker?.Value<int?>("courtStayReleaseDay") ?? int.MaxValue;
             return new JObject { ["ok"] = lease?.Released == true && CurrentDay() >= releaseDay,
@@ -701,9 +702,9 @@ namespace ReignBeta.Court
                 ["releasedToNativeAgency"] = lease?.Released == true };
         }
 
-        private JObject VerifyNobleInvestigationFixture(string runId, string saveName)
+        private static JObject VerifyNobleInvestigationFixture(ReignCourtCampaignBehavior court, string runId, string saveName)
         {
-            ReignNobleDocketMatter matter = FindNobleDocketTestMatter(runId);
+            ReignNobleDocketMatter matter = FindNobleDocketTestMatter(court, runId);
             ReignChancellorInvestigation investigation = matter?.Investigation;
             bool resolved = investigation?.Resolved == true;
             bool bounded = investigation != null && investigation.SuccessChance >= 0d
@@ -712,7 +713,7 @@ namespace ReignBeta.Court
                 || investigation.Outcome == "wrong_conviction"
                 || investigation.Outcome == "insufficient_evidence"
                 || investigation.Outcome == "side_a" || investigation.Outcome == "side_b");
-            JObject marker = FindRulerDocketMarker(runId);
+            JObject marker = FindRulerDocketMarker(court, runId);
             string expected = marker?.Value<string>("expectedInvestigationOutcome") ?? "any";
             bool expectedMatched = expected == "any"
                 || expected == "correct" && investigation?.Outcome == "correct_conviction"
@@ -732,27 +733,27 @@ namespace ReignBeta.Court
                 ["matter"] = NobleMatterTestJson(matter) };
         }
 
-        private JObject MarkNobleDocketReload(string runId, string saveName,
+        private static JObject MarkNobleDocketReload(ReignCourtCampaignBehavior court, string runId, string saveName,
             string gameInstanceId)
         {
-            JObject marker = FindRulerDocketMarker(runId);
-            if (marker == null || FindNobleDocketTestMatter(runId) == null)
+            JObject marker = FindRulerDocketMarker(court, runId);
+            if (marker == null || FindNobleDocketTestMatter(court, runId) == null)
                 return RulerDocketTestFailure(runId, "noble_save_prepare",
                     "The run-owned noble matter marker is missing.", saveName, saveName);
-            marker["nobleReloadFingerprint"] = NobleDocketFingerprint(runId);
+            marker["nobleReloadFingerprint"] = NobleDocketFingerprint(court, runId);
             marker["nobleReloadGameInstanceId"] = gameInstanceId ?? string.Empty;
-            StoreRulerDocketMarker(marker);
+            StoreRulerDocketMarker(court, marker);
             return new JObject { ["ok"] = true, ["runId"] = runId,
                 ["phase"] = "noble_save_prepare",
                 ["fingerprint"] = marker.Value<string>("nobleReloadFingerprint"),
                 ["requiresGuardedCheckpointRestart"] = true };
         }
 
-        private JObject VerifyNobleDocketReload(string runId, string saveName,
+        private static JObject VerifyNobleDocketReload(ReignCourtCampaignBehavior court, string runId, string saveName,
             string gameInstanceId)
         {
-            JObject marker = FindRulerDocketMarker(runId);
-            string current = NobleDocketFingerprint(runId);
+            JObject marker = FindRulerDocketMarker(court, runId);
+            string current = NobleDocketFingerprint(court, runId);
             bool differentInstance = marker != null && !string.Equals(
                 marker.Value<string>("nobleReloadGameInstanceId"), gameInstanceId,
                 StringComparison.OrdinalIgnoreCase);
@@ -765,7 +766,7 @@ namespace ReignBeta.Court
                 ["fingerprintMatched"] = same, ["currentFingerprint"] = current };
         }
 
-        private JObject VerifyRoyalProclamationFixture(string runId, JObject options,
+        private static JObject VerifyRoyalProclamationFixture(ReignCourtCampaignBehavior court, string runId, JObject options,
             string saveName)
         {
             if (!string.Equals(options.Value<string>("confirmation"),
@@ -775,12 +776,12 @@ namespace ReignBeta.Court
                     saveName, saveName);
             string exact = options.Value<string>("proclamationText")
                 ?? "By our hand, this exact test proclamation enters the realm's public record.";
-            int historyBefore = EnsureRulerDocketState().History.Count;
-            bool issued = TryIssueRoyalProclamation(exact, out string receipt);
-            ReignDocketHistoryRecord record = EnsureRulerDocketState().History.LastOrDefault(x =>
+            int historyBefore = court.EnsureRulerDocketState().History.Count;
+            bool issued = court.TryIssueRoyalProclamation(exact, out string receipt);
+            ReignDocketHistoryRecord record = court.EnsureRulerDocketState().History.LastOrDefault(x =>
                 x.Type == "royal_proclamation" && x.Summary == exact);
             return new JObject { ["ok"] = issued && record != null
-                    && EnsureRulerDocketState().History.Count == historyBefore + 1
+                    && court.EnsureRulerDocketState().History.Count == historyBefore + 1
                     && record.Detail.IndexOf("no direct mechanical effect",
                         StringComparison.OrdinalIgnoreCase) >= 0,
                 ["runId"] = runId, ["phase"] = "royal_proclamation",
@@ -789,11 +790,11 @@ namespace ReignBeta.Court
                 ["receipt"] = receipt };
         }
 
-        private ReignNobleDocketMatter FindNobleDocketTestMatter(string runId)
+        private static ReignNobleDocketMatter FindNobleDocketTestMatter(ReignCourtCampaignBehavior court, string runId)
         {
-            JObject marker = FindRulerDocketMarker(runId);
+            JObject marker = FindRulerDocketMarker(court, runId);
             string matterId = marker?.Value<string>("matterId") ?? string.Empty;
-            return EnsureRulerDocketState().NobleMatters.LastOrDefault(x =>
+            return court.EnsureRulerDocketState().NobleMatters.LastOrDefault(x =>
                 x?.MatterId == matterId || x?.MatterId?.StartsWith(
                     "noble_test_" + runId + "_", StringComparison.Ordinal) == true);
         }
@@ -815,13 +816,13 @@ namespace ReignBeta.Court
             return action;
         }
 
-        private string ChooseNobleTestMatterId(string runId,
+        private static string ChooseNobleTestMatterId(ReignCourtCampaignBehavior court, string runId,
             ReignNobleDocketMatter matter, string expectedInvestigation)
         {
             string prefix = "noble_test_" + runId + "_";
             if (!matter.IsMurder || expectedInvestigation == "any")
                 return prefix + Guid.NewGuid().ToString("N");
-            Hero chancellor = FindAnyHero(EnsureRulerDocketState().Chancellor?.HeroId);
+            Hero chancellor = FindAnyHero(court.EnsureRulerDocketState().Chancellor?.HeroId);
             int charm = chancellor?.GetSkillValue(DefaultSkills.Charm) ?? 0;
             int leadership = chancellor?.GetSkillValue(DefaultSkills.Leadership) ?? 0;
             int steward = chancellor?.GetSkillValue(DefaultSkills.Steward) ?? 0;
@@ -841,15 +842,15 @@ namespace ReignBeta.Court
                 "No bounded deterministic matter id produced the requested Chancellor result.");
         }
 
-        private string NobleDocketFingerprint(string runId)
+        private static string NobleDocketFingerprint(ReignCourtCampaignBehavior court, string runId)
         {
-            ReignNobleDocketMatter matter = FindNobleDocketTestMatter(runId);
+            ReignNobleDocketMatter matter = FindNobleDocketTestMatter(court, runId);
             JObject value = new JObject
             {
                 ["matter"] = matter == null ? null : JObject.FromObject(matter),
-                ["history"] = new JArray(EnsureRulerDocketState().History
+                ["history"] = new JArray(court.EnsureRulerDocketState().History
                     .Where(x => x.PetitionId == matter?.MatterId).Select(x => JObject.FromObject(x))),
-                ["courtStay"] = new JArray(EnsureRulerDocketState().CourtStayLeases
+                ["courtStay"] = new JArray(court.EnsureRulerDocketState().CourtStayLeases
                     .Where(x => x.MatterId == matter?.MatterId).Select(x => JObject.FromObject(x)))
             };
             using (SHA256 sha = SHA256.Create())

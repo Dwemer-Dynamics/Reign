@@ -19,7 +19,7 @@ namespace ReignBeta.Campaign
             try
             {
                 if (phase == "prepare")
-                    result = await court.PrepareCapitalAmbassadorFixtureAsync(runId, command).ConfigureAwait(false);
+                    result = await ReignCourtTestControls.PrepareCapitalAmbassadorFixtureAsync(court, runId, command).ConfigureAwait(false);
                 else if (phase == "server_matrix")
                 {
                     ReignCourtServerResponse response = await ReignCourtServerClient.RunCapitalAmbassadorServerMatrixAsync(runId).ConfigureAwait(false);
@@ -28,7 +28,7 @@ namespace ReignBeta.Campaign
                     if (!response.Ok && result.Property("error") == null) result["error"] = response.Error;
                 }
                 else
-                    result = await ReignMainThread.InvokeAsync(() => court.RunCapitalAmbassadorTestProfile(runId, phase, command)).ConfigureAwait(false);
+                    result = await ReignMainThread.InvokeAsync(() => ReignCourtTestControls.RunCapitalAmbassadorTestProfile(court, runId, phase, command)).ConfigureAwait(false);
             }
             catch (Exception ex)
             {

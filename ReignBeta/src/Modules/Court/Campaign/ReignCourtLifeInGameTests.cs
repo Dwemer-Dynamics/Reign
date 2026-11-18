@@ -9,43 +9,44 @@ using ReignBeta.UI.Calibration;
 using TaleWorlds.CampaignSystem;
 using TaleWorlds.CampaignSystem.Actions;
 using TaleWorlds.CampaignSystem.Settlements;
+using static ReignBeta.Court.ReignCourtCampaignBehavior;
 
 namespace ReignBeta.Court
 {
-    public sealed partial class ReignCourtCampaignBehavior
+    internal static partial class ReignCourtTestControls
     {
-        private JObject RunCourtLifeTestPhase(string runId, string phase, JObject options, string save, string instance)
+        private static JObject RunCourtLifeTestPhase(ReignCourtCampaignBehavior court, string runId, string phase, JObject options, string save, string instance)
         {
             if (!new[] { "court_life_check", "court_life_preflight", "court_life_family_fixture", "court_life_prepare", "court_life_open", "court_life_converse",
                 "court_life_choose_confirm", "court_life_snapshot", "court_life_observe", "court_life_clock_observe", "court_life_save_prepare", "court_life_save_verify" }.Contains(phase))
                 return RulerDocketTestFailure(runId, phase, "Unsupported court-life evidence phase.", save, save);
             if (phase == "court_life_check") return new JObject { ["ok"] = true, ["saveName"] = save };
-            if (phase == "court_life_preflight") return new JObject { ["ok"] = HasRoyalCommandAccess && CurrentCapital?.IsUnderSiege == false,
+            if (phase == "court_life_preflight") return new JObject { ["ok"] = court.HasRoyalCommandAccess && court.CurrentCapital?.IsUnderSiege == false,
                 ["schema"] = "reign-court-life-evidence-v1", ["runId"] = runId, ["phase"] = phase,
-                ["saveName"] = save, ["capitalId"] = CurrentCapital?.StringId, ["playerGold"] = Hero.MainHero?.Gold,
-                ["familyInventory"] = CourtLifeFamilyFixtureInventory(),
-                ["captiveInventory"] = CourtLifeCaptiveInventory(),
-                ["patronageEligibility"] = CourtLifePatronageEligibility(options.Value<string>("courtLifeTemplateId")),
-                ["pendingMatterInventory"] = CourtLifePendingMatterInventory(options),
+                ["saveName"] = save, ["capitalId"] = court.CurrentCapital?.StringId, ["playerGold"] = Hero.MainHero?.Gold,
+                ["familyInventory"] = CourtLifeFamilyFixtureInventory(court),
+                ["captiveInventory"] = CourtLifeCaptiveInventory(court),
+                ["patronageEligibility"] = CourtLifePatronageEligibility(court, options.Value<string>("courtLifeTemplateId")),
+                ["pendingMatterInventory"] = CourtLifePendingMatterInventory(court, options),
                 ["sources"] = new JArray("International", "Family", "Patronage", "Visitor"),
                 ["internationalTemplateCount"] = ReignInternationalDocketCatalog.Templates.Count,
                 ["patronageTemplateCount"] = ReignPatronageCatalog.Templates.Count };
-            if (phase == "court_life_family_fixture") return PrepareCourtLifeFamilyFixture(runId, options, save, instance);
-            if (phase == "court_life_prepare") return PrepareCourtLifeFixture(runId, options, save, instance);
-            JObject marker = FindRulerDocketMarker(runId);
-            ReignCourtLifeMatter matter = FindCourtLifeTestMatter(runId);
+            if (phase == "court_life_family_fixture") return PrepareCourtLifeFamilyFixture(court, runId, options, save, instance);
+            if (phase == "court_life_prepare") return PrepareCourtLifeFixture(court, runId, options, save, instance);
+            JObject marker = FindRulerDocketMarker(court, runId);
+            ReignCourtLifeMatter matter = FindCourtLifeTestMatter(court, runId);
             if (marker == null || matter == null) return RulerDocketTestFailure(runId, phase, "No exact court-life fixture is bound to this run.", save, save);
             if (phase == "court_life_snapshot")
             {
                 bool saved = ReignUiCalibrationService.TrySaveSnapshot("ReignCourtPetitionScreen", out string path, out string error);
-                JObject snapshot = CourtLifeEvidence(runId, phase, save, matter);
+                JObject snapshot = CourtLifeEvidence(court, runId, phase, save, matter);
                 snapshot["audienceArt"] = ReignCourtPetitionScreenManager.AutomationSceneEvidence;
                 snapshot["ok"] = saved; snapshot["snapshotPath"] = path; snapshot["error"] = error; return snapshot;
             }
             if (phase == "court_life_open")
             {
-                bool opened = ReignCourtPetitionScreenManager.TryOpenForAutomation(this, matter, out string error);
-                JObject result = CourtLifeEvidence(runId, phase, save, matter);
+                bool opened = ReignCourtPetitionScreenManager.TryOpenForAutomation(court, matter, out string error);
+                JObject result = CourtLifeEvidence(court, runId, phase, save, matter);
                 result["ok"] = opened; result["error"] = error; return result;
             }
             if (phase == "court_life_choose_confirm")
@@ -55,10 +56,10 @@ namespace ReignBeta.Court
                     return RulerDocketTestFailure(runId, phase, "The requested exact option is absent from this production quote.", save, save);
                 if (!ReignCourtPetitionScreenManager.AutomationNaturalConversationComplete)
                     return RulerDocketTestFailure(runId, phase, "A completed natural player turn is required before confirmation.", save, save);
-                marker["beforeDecision"] = CourtLifeNativeState(matter); StoreRulerDocketMarker(marker);
+                marker["beforeDecision"] = CourtLifeNativeState(court, matter); StoreRulerDocketMarker(court, marker);
                 bool chosen = ReignCourtPetitionScreenManager.TryExecuteAutomationAction("choose", selected, out string chooseError);
                 bool confirmed = chosen && ReignCourtPetitionScreenManager.TryExecuteAutomationAction("confirm", "", out chooseError);
-                JObject result = CourtLifeEvidence(runId, phase, save, matter);
+                JObject result = CourtLifeEvidence(court, runId, phase, save, matter);
                 JObject payload = ParseObject(matter.PayloadJson);
                 JObject receipt = payload["nativeReceipt"] as JObject;
                 JObject native = result["nativeState"] as JObject;
@@ -89,20 +90,20 @@ namespace ReignBeta.Court
                     var decisionAssertions = new JArray(Assertion("matter_resolved_with_receipt", chosen && confirmed
                         && matter.EffectsCommitted && matter.State == ReignCourtLifeMatterState.Resolved
                         && !string.IsNullOrWhiteSpace(matter.ResolutionReceiptId)));
-                    AddCourtLifeDecisionAssertions(decisionAssertions, marker, matter);
+                    AddCourtLifeDecisionAssertions(court, decisionAssertions, marker, matter);
                     result["assertions"] = decisionAssertions;
                 }
                 return result;
             }
             if (phase == "court_life_save_prepare")
             {
-                if (HasPendingFamilyVisitWork || HasPendingInternationalCourtLifeWork || HasPendingCourtLifeDeliveryWork
-                    || EnsureRulerDocketState().PendingRelationAdjustments.Any(x => !x.Applied))
+                if (court.HasPendingFamilyVisitWork || court.HasPendingInternationalCourtLifeWork || court.HasPendingCourtLifeDeliveryWork
+                    || court.EnsureRulerDocketState().PendingRelationAdjustments.Any(x => !x.Applied))
                     return RulerDocketTestFailure(runId, phase, "Wait for family, international and relation delivery queues to drain before checkpoint preparation.", save, save);
-                marker["courtLifeSaveFingerprint"] = CourtLifeFingerprint(matter); marker["courtLifeSaveInstance"] = instance;
-                StoreRulerDocketMarker(marker);
+                marker["courtLifeSaveFingerprint"] = CourtLifeFingerprint(court, matter); marker["courtLifeSaveInstance"] = instance;
+                StoreRulerDocketMarker(court, marker);
             }
-            JObject evidence = CourtLifeEvidence(runId, phase, save, matter);
+            JObject evidence = CourtLifeEvidence(court, runId, phase, save, matter);
             var assertions = new JArray { Assertion("exact_matter_bound", marker.Value<string>("courtLifeMatterId") == matter.MatterId),
                 Assertion("no_hidden_statistics_in_npc_speech", matter.ConversationLines.Where(x => x.Role == "assistant")
                     .All(x => !ReignRulerDocketRules.ContainsForbiddenNobleDocketStatistics(x.Text))) };
@@ -110,7 +111,7 @@ namespace ReignBeta.Court
             if (phase == "court_life_save_verify")
             {
                 assertions.Add(Assertion("different_game_instance", !string.IsNullOrWhiteSpace(marker.Value<string>("courtLifeSaveInstance")) && marker.Value<string>("courtLifeSaveInstance") != instance));
-                assertions.Add(Assertion("state_fingerprint_survived_reload", marker.Value<string>("courtLifeSaveFingerprint") == CourtLifeFingerprint(matter)));
+                assertions.Add(Assertion("state_fingerprint_survived_reload", marker.Value<string>("courtLifeSaveFingerprint") == CourtLifeFingerprint(court, matter)));
             }
             if (phase == "court_life_clock_observe") assertions.Add(Assertion("native_campaign_time_advanced", CurrentCourtLifeDay() > marker.Value<double>("preparedDay")));
             string expectation = options.Value<string>("courtLifeExpectation") ?? "snapshot";
@@ -121,19 +122,19 @@ namespace ReignBeta.Court
             else if (expectation == "resolved")
             {
                 assertions.Add(Assertion("matter_resolved_with_receipt", matter.EffectsCommitted && matter.State == ReignCourtLifeMatterState.Resolved && !string.IsNullOrWhiteSpace(matter.ResolutionReceiptId)));
-                AddCourtLifeDecisionAssertions(assertions, marker, matter);
+                AddCourtLifeDecisionAssertions(court, assertions, marker, matter);
             }
             else if (expectation == "delivery_complete")
             {
-                ReignPatronageCommission c = EnsureRulerDocketState().PatronageCommissions.FirstOrDefault(x => x.MatterId == matter.MatterId);
+                ReignPatronageCommission c = court.EnsureRulerDocketState().PatronageCommissions.FirstOrDefault(x => x.MatterId == matter.MatterId);
                 assertions.Add(Assertion("commission_completed_after_due_day", c != null && c.Paid && c.Completed && CurrentCourtLifeDay() >= c.DueDay));
                 if (c != null)
                 {
                     int expected = c.Objective == ReignPatronageObjective.Loyalty ? c.SettlementIds.Count : c.Objective == ReignPatronageObjective.Praise ? c.HeroIds.Count : 0;
                     assertions.Add(Assertion("all_recipients_have_one_delivery_or_exclusion", c.DeliveryReceipts.Distinct().Count() == c.DeliveryReceipts.Count && c.DeliveryReceipts.Count + c.ExcludedRecipientIds.Count == expected));
-                    assertions.Add(Assertion("durable_work_and_single_completion_history", EnsureRulerDocketState().PatronageWorks.Count(w => w.CommissionId == c.CommissionId) == 1
-                        && EnsureRulerDocketState().History.Count(h => h.RecordId == c.CommissionId + "_complete") == 1));
-                    assertions.Add(Assertion("praise_adjustments_have_real_receipts", c.Objective != ReignPatronageObjective.Praise || EnsureRulerDocketState().PendingRelationAdjustments
+                    assertions.Add(Assertion("durable_work_and_single_completion_history", court.EnsureRulerDocketState().PatronageWorks.Count(w => w.CommissionId == c.CommissionId) == 1
+                        && court.EnsureRulerDocketState().History.Count(h => h.RecordId == c.CommissionId + "_complete") == 1));
+                    assertions.Add(Assertion("praise_adjustments_have_real_receipts", c.Objective != ReignPatronageObjective.Praise || court.EnsureRulerDocketState().PendingRelationAdjustments
                         .Where(a => a.AdjustmentId.StartsWith(c.CommissionId + "_praise_", StringComparison.Ordinal)).All(a => a.Applied && !string.IsNullOrWhiteSpace(a.ReceiptId) && a.Delta == 3 && a.SubjectHeroId == c.RulerHeroId)));
                     assertions.Add(Assertion("loyalty_native_before_after_exactly_plus_five", c.Objective != ReignPatronageObjective.Loyalty
                         || (c.NativeDeliveryEffects.Count == c.DeliveryReceipts.Count && c.NativeDeliveryEffects.Select(x => x.ReceiptId).Distinct().Count() == c.NativeDeliveryEffects.Count
@@ -142,9 +143,9 @@ namespace ReignBeta.Court
             }
             else if (expectation == "arrived")
             {
-                assertions.Add(Assertion("all_visitors_physically_resident", AreNobleVisitorsAvailable(matter, out _)));
-                ReignNobleVisitorStay stay = EnsureRulerDocketState().NobleVisitorStays.FirstOrDefault(x => x.MatterId == matter.MatterId);
-                IReadOnlyList<CastleRoomSessionRecord> schedule = EnsureCastleSchedule();
+                assertions.Add(Assertion("all_visitors_physically_resident", court.AreNobleVisitorsAvailable(matter, out _)));
+                ReignNobleVisitorStay stay = court.EnsureRulerDocketState().NobleVisitorStays.FirstOrDefault(x => x.MatterId == matter.MatterId);
+                IReadOnlyList<CastleRoomSessionRecord> schedule = court.EnsureCastleSchedule();
                 List<string> visitorIds = (stay?.Members ?? new List<ReignNobleVisitorMember>())
                     .Where(x => x.Arrived && !x.Released).Select(x => x.HeroId).Distinct(StringComparer.OrdinalIgnoreCase).ToList();
                 CastleRoomSessionRecord guestBedrooms = schedule.FirstOrDefault(x => x.Room == (int)CastleChat.CastleRoom.GuestBedrooms);
@@ -155,35 +156,35 @@ namespace ReignBeta.Court
             }
             else if (expectation == "departed")
             {
-                ReignNobleVisitorStay stay = EnsureRulerDocketState().NobleVisitorStays.FirstOrDefault(x => x.MatterId == matter.MatterId);
-                assertions.Add(Assertion("all_visitors_released_to_native_ai", stay != null && stay.Departed && stay.Members.All(m => m.Released && !IsNobleVisitorReserved(FindHero(m.HeroId)))));
+                ReignNobleVisitorStay stay = court.EnsureRulerDocketState().NobleVisitorStays.FirstOrDefault(x => x.MatterId == matter.MatterId);
+                assertions.Add(Assertion("all_visitors_released_to_native_ai", stay != null && stay.Departed && stay.Members.All(m => m.Released && !court.IsNobleVisitorReserved(FindHero(m.HeroId)))));
                 if (stay != null) assertions.Add(Assertion("recorded_native_return_locations", stay.Members.Where(m => !string.IsNullOrWhiteSpace(m.ReturnSettlementId))
                     .All(m => FindHero(m.HeroId)?.CurrentSettlement?.StringId == m.ReturnSettlementId)));
             }
             else if (expectation == "dismissed" || expectation == "neglected" || expectation == "reconciled")
             {
-                AddCourtLifeFamilyTransitionAssertions(assertions, marker, matter, expectation, evidence);
+                AddCourtLifeFamilyTransitionAssertions(court, assertions, marker, matter, expectation, evidence);
             }
             else if (expectation != "snapshot") assertions.Add(Assertion("known_expectation", false));
             evidence["assertions"] = assertions; evidence["ok"] = assertions.All(a => a.Value<bool?>("passed") == true);
             return evidence;
         }
 
-        private JObject PrepareCourtLifeFixture(string runId, JObject options, string save, string instance)
+        private static JObject PrepareCourtLifeFixture(ReignCourtCampaignBehavior court, string runId, JObject options, string save, string instance)
         {
-            if (options.Value<string>("confirmation") != RulerDocketFixtureConfirmation || !HasRoyalCommandAccess)
+            if (options.Value<string>("confirmation") != RulerDocketFixtureConfirmation || !court.HasRoyalCommandAccess)
                 return RulerDocketTestFailure(runId, "court_life_prepare", "The armed disposable fixture confirmation and production capital Court are required.", save, save);
-            if (FindCourtLifeTestMatter(runId) != null) return RulerDocketTestFailure(runId, "court_life_prepare", "This fixtureRunId already has a matter. Reuse it for observations or choose a new run ID.", save, save);
+            if (FindCourtLifeTestMatter(court, runId) != null) return RulerDocketTestFailure(runId, "court_life_prepare", "This fixtureRunId already has a matter. Reuse it for observations or choose a new run ID.", save, save);
             if (!Enum.TryParse(options.Value<string>("courtLifeSource"), true, out ReignDocketSource source)
                 || source == ReignDocketSource.Notable || source == ReignDocketSource.DomesticNoble)
                 return RulerDocketTestFailure(runId, "court_life_prepare", "Select International, Family, Patronage, or Visitor.", save, save);
             string template = options.Value<string>("courtLifeTemplateId") ?? "";
             string existingId = options.Value<string>("courtLifeExistingMatterId") ?? "";
             if (!string.IsNullOrEmpty(existingId))
-                return BindExactExistingCourtLifeFixture(runId, source, existingId, template, options, save, instance);
+                return BindExactExistingCourtLifeFixture(court, runId, source, existingId, template, options, save, instance);
             if (source == ReignDocketSource.Patronage && !string.IsNullOrWhiteSpace(template))
             {
-                JObject existing = TryBindExistingPatronageFixture(runId, template, options, save, instance);
+                JObject existing = TryBindExistingPatronageFixture(court, runId, template, options, save, instance);
                 if (existing != null) return existing;
             }
             int slot = ReignCourtLifeRules.StableRoll(runId, 1000000);
@@ -194,20 +195,20 @@ namespace ReignBeta.Court
                 return RulerDocketTestFailure(runId, "court_life_prepare", "Captive setup is restricted to International captive templates.", save, save);
             JObject captiveReceipt = null;
             ReignCourtLifeMatter matter = !string.IsNullOrEmpty(captiveHeroId)
-                ? PrepareCourtLifeCaptiveMatter(runId, captiveHeroId, template, slot, save, instance, out captiveReceipt, out reason)
-                : source == ReignDocketSource.Patronage ? TryCreatePatronageMatterForSlot(Session.CampaignId, Session.TimelineId, CurrentDay(), slot, template)
-                : source == ReignDocketSource.Visitor ? TryCreateNobleVisitorMatterForSlot(Session.CampaignId, Session.TimelineId, CurrentDay(), slot, template)
-                : source == ReignDocketSource.Family ? TryCreateFamilyVisitMatterForSlot(Session.CampaignId, Session.TimelineId, CurrentDay(), slot, options.Value<string>("courtLifeHeroId"), template)
-                : TryCreateInternationalTemplateFixture(template, Session.CampaignId, Session.TimelineId, CurrentDay(), slot, out reason);
+                ? PrepareCourtLifeCaptiveMatter(court, runId, captiveHeroId, template, slot, save, instance, out captiveReceipt, out reason)
+                : source == ReignDocketSource.Patronage ? court.TryCreatePatronageMatterForSlot(court.Session.CampaignId, court.Session.TimelineId, CurrentDay(), slot, template)
+                : source == ReignDocketSource.Visitor ? court.TryCreateNobleVisitorMatterForSlot(court.Session.CampaignId, court.Session.TimelineId, CurrentDay(), slot, template)
+                : source == ReignDocketSource.Family ? court.TryCreateFamilyVisitMatterForSlot(court.Session.CampaignId, court.Session.TimelineId, CurrentDay(), slot, options.Value<string>("courtLifeHeroId"), template)
+                : court.TryCreateInternationalTemplateFixture(template, court.Session.CampaignId, court.Session.TimelineId, CurrentDay(), slot, out reason);
             if (matter == null)
             {
                 JObject failure = RulerDocketTestFailure(runId, "court_life_prepare", reason, save, save);
-                failure["captiveFixture"] = captiveReceipt ?? FindRulerDocketMarker(runId)?["captiveFixture"];
+                failure["captiveFixture"] = captiveReceipt ?? FindRulerDocketMarker(court, runId)?["captiveFixture"];
                 if (source == ReignDocketSource.Patronage)
-                    failure["patronageEligibility"] = CourtLifePatronageEligibility(template);
+                    failure["patronageEligibility"] = CourtLifePatronageEligibility(court, template);
                 return failure;
             }
-            EnsureRulerDocketState().CourtLifeMatters.Add(matter);
+            court.EnsureRulerDocketState().CourtLifeMatters.Add(matter);
             int gold = options.Value<int?>("courtLifeFixtureGold") ?? -1;
             if (gold >= 0)
             {
@@ -217,20 +218,20 @@ namespace ReignBeta.Court
             }
             int loyalty = options.Value<int?>("courtLifeFixtureLoyalty") ?? -1;
             if (source == ReignDocketSource.Patronage && loyalty >= 0 && loyalty <= 100)
-                foreach (Settlement settlement in EligiblePatronageSettlements(matter.KingdomId, CurrentCapital)) settlement.Town.Loyalty = loyalty;
+                foreach (Settlement settlement in EligiblePatronageSettlements(matter.KingdomId, court.CurrentCapital)) settlement.Town.Loyalty = loyalty;
             var marker = new JObject { ["runId"] = runId, ["courtLifeMatterId"] = matter.MatterId, ["courtLifeSource"] = source.ToString(),
-                ["preparedDay"] = CurrentCourtLifeDay(), ["preparedGameInstance"] = instance, ["beforeDecision"] = CourtLifeNativeState(matter) };
+                ["preparedDay"] = CurrentCourtLifeDay(), ["preparedGameInstance"] = instance, ["beforeDecision"] = CourtLifeNativeState(court, matter) };
             if (captiveReceipt != null) marker["captiveFixture"] = captiveReceipt;
-            if (source == ReignDocketSource.Family) marker["familyBaseline"] = CourtLifeFamilyObservation(matter);
-            StoreRulerDocketMarker(marker); StateChanged?.Invoke();
-            JObject result = CourtLifeEvidence(runId, "court_life_prepare", save, matter);
+            if (source == ReignDocketSource.Family) marker["familyBaseline"] = CourtLifeFamilyObservation(court, matter);
+            StoreRulerDocketMarker(court, marker); court.RaiseStateChanged();
+            JObject result = CourtLifeEvidence(court, runId, "court_life_prepare", save, matter);
             result["ok"] = true; result["productionEligibility"] = true; result["requiresBaselineRollback"] = true;
             result["fixtureChanges"] = new JObject { ["gold"] = gold, ["kingdomSettlementLoyalty"] = loyalty,
                 ["captive"] = captiveReceipt,
                 ["templateWasForcedWithinEligibility"] = !string.IsNullOrWhiteSpace(template), ["nativeTimeAdvanced"] = false };
             if (source == ReignDocketSource.Visitor)
             {
-                ReignNobleVisitorStay stay = EnsureRulerDocketState().NobleVisitorStays.SingleOrDefault(s => s.MatterId == matter.MatterId);
+                ReignNobleVisitorStay stay = court.EnsureRulerDocketState().NobleVisitorStays.SingleOrDefault(s => s.MatterId == matter.MatterId);
                 bool immediate = stay != null && stay.Arrived && !stay.Departed
                     && stay.ActualArrivalDay == preparedWorldDay && stay.ArrivalDay == preparedWorldDay
                     && stay.DepartureDay == preparedWorldDay + stay.StayDays
@@ -245,11 +246,11 @@ namespace ReignBeta.Court
             return result;
         }
 
-        private JObject CourtLifePendingMatterInventory(JObject options)
+        private static JObject CourtLifePendingMatterInventory(ReignCourtCampaignBehavior court, JObject options)
         {
             string source = options.Value<string>("courtLifeSource") ?? "";
             string template = options.Value<string>("courtLifeTemplateId") ?? "";
-            var matches = EnsureRulerDocketState().CourtLifeMatters.Where(m => m.IsPending
+            var matches = court.EnsureRulerDocketState().CourtLifeMatters.Where(m => m.IsPending
                 && (string.IsNullOrEmpty(source) || string.Equals(m.Source.ToString(), source, StringComparison.OrdinalIgnoreCase))
                 && (string.IsNullOrEmpty(template) || m.TemplateId == template)).OrderBy(m => m.MatterId, StringComparer.Ordinal).ToList();
             return new JObject { ["totalCount"] = matches.Count, ["limit"] = 100, ["truncated"] = matches.Count > 100,
@@ -258,14 +259,14 @@ namespace ReignBeta.Court
                     ["matterId"] = m.MatterId, ["templateId"] = m.TemplateId, ["source"] = m.Source.ToString(),
                     ["title"] = m.Title, ["state"] = m.State.ToString(), ["kingdomId"] = m.KingdomId,
                     ["effectsCommitted"] = m.EffectsCommitted, ["completedPlayerTurns"] = m.CompletedPlayerTurnIds.Count,
-                    ["boundFixtureRunIds"] = new JArray(_rulerDocketTestMarkers.Select(ParseRulerDocketMarker)
+                    ["boundFixtureRunIds"] = new JArray(court._rulerDocketTestMarkers.Select(ParseRulerDocketMarker)
                         .Where(x => x?.Value<string>("courtLifeMatterId") == m.MatterId).Select(x => x.Value<string>("runId"))) })) };
         }
 
-        private JObject BindExactExistingCourtLifeFixture(string runId, ReignDocketSource source, string matterId,
+        private static JObject BindExactExistingCourtLifeFixture(ReignCourtCampaignBehavior court, string runId, ReignDocketSource source, string matterId,
             string templateId, JObject options, string save, string instance)
         {
-            var state = EnsureRulerDocketState();
+            var state = court.EnsureRulerDocketState();
             var matches = state.CourtLifeMatters.Where(m => m.MatterId == matterId).ToList();
             if (matches.Count != 1)
                 return RulerDocketTestFailure(runId, "court_life_prepare", "Exactly one existing matter must match the supplied ID; no fixture was created.", save, save);
@@ -276,7 +277,7 @@ namespace ReignBeta.Court
                 error = "Exact existing binding supports International and Patronage only.";
             if (!matter.IsPending || matter.EffectsCommitted || !string.IsNullOrEmpty(matter.ResolutionReceiptId)
                 || !string.IsNullOrEmpty(matter.PendingPlayerTurnId) || payload.Value<bool?>("nativeActionStarted") == true
-                || payload.Value<bool?>("nativeEffectCommitted") == true || HasPendingInternationalCourtLifeWork || HasPendingCourtLifeDeliveryWork)
+                || payload.Value<bool?>("nativeEffectCommitted") == true || court.HasPendingInternationalCourtLifeWork || court.HasPendingCourtLifeDeliveryWork)
                 error = "The existing matter must be pending with no committed or in-flight effects or conversation.";
             bool kingdomMatches = source == ReignDocketSource.International
                 ? payload["player"]?.Value<string>("kingdomId") == Clan.PlayerClan?.Kingdom?.StringId
@@ -284,8 +285,8 @@ namespace ReignBeta.Court
                     && payload["foreign"]?.Value<string>("kingdomId") == matter.KingdomId
                     && !string.IsNullOrEmpty(matter.KingdomId) && matter.KingdomId != Clan.PlayerClan?.Kingdom?.StringId
                 : matter.KingdomId == Clan.PlayerClan?.Kingdom?.StringId;
-            if (matter.Source != source || matter.CampaignId != Session.CampaignId || matter.TimelineId != Session.TimelineId
-                || matter.ReignId != CurrentReignId() || matter.SettlementId != CurrentCapital?.StringId || !kingdomMatches
+            if (matter.Source != source || matter.CampaignId != court.Session.CampaignId || matter.TimelineId != court.Session.TimelineId
+                || matter.ReignId != court.CurrentReignId() || matter.SettlementId != court.CurrentCapital?.StringId || !kingdomMatches
                 || (!string.IsNullOrEmpty(templateId) && matter.TemplateId != templateId))
                 error = "The existing matter does not match the exact source, template, ruler, kingdom, campaign, timeline and capital.";
             if ((options.Value<int?>("courtLifeFixtureGold") ?? -1) >= 0 || (options.Value<int?>("courtLifeFixtureLoyalty") ?? -1) >= 0
@@ -293,58 +294,58 @@ namespace ReignBeta.Court
                 || !string.IsNullOrEmpty(options.Value<string>("courtLifeFixtureCaptiveHeroId"))
                 || !string.IsNullOrEmpty(options.Value<string>("courtLifeHeroId")))
                 error = "Existing matter binding cannot be combined with fixture mutations or participant selection.";
-            if (FindRulerDocketMarker(runId) != null || _rulerDocketTestMarkers.Select(ParseRulerDocketMarker)
+            if (FindRulerDocketMarker(court, runId) != null || court._rulerDocketTestMarkers.Select(ParseRulerDocketMarker)
                 .Any(m => m?.Value<string>("courtLifeMatterId") == matterId))
                 error = "The fixture ID or existing matter is already bound. Continue its original fixture.";
             if (error != null) return RulerDocketTestFailure(runId, "court_life_prepare", error, save, save);
-            string before = CourtLifeFingerprint(matter);
+            string before = CourtLifeFingerprint(court, matter);
             int count = state.CourtLifeMatters.Count;
-            StoreRulerDocketMarker(new JObject { ["runId"] = runId, ["courtLifeMatterId"] = matter.MatterId,
+            StoreRulerDocketMarker(court, new JObject { ["runId"] = runId, ["courtLifeMatterId"] = matter.MatterId,
                 ["courtLifeSource"] = source.ToString(), ["preparedDay"] = CurrentCourtLifeDay(), ["preparedGameInstance"] = instance,
-                ["beforeDecision"] = CourtLifeNativeState(matter), ["reusedExistingMatter"] = true, ["existingMatterFingerprint"] = before });
-            bool preserved = before == CourtLifeFingerprint(matter) && count == state.CourtLifeMatters.Count;
-            JObject result = CourtLifeEvidence(runId, "court_life_prepare", save, matter);
+                ["beforeDecision"] = CourtLifeNativeState(court, matter), ["reusedExistingMatter"] = true, ["existingMatterFingerprint"] = before });
+            bool preserved = before == CourtLifeFingerprint(court, matter) && count == state.CourtLifeMatters.Count;
+            JObject result = CourtLifeEvidence(court, runId, "court_life_prepare", save, matter);
             result["ok"] = preserved; result["reusedExistingMatter"] = true; result["requiresBaselineRollback"] = true;
             result["fixtureChanges"] = new JObject { ["markerOnly"] = true, ["nativeTimeAdvanced"] = false };
             result["assertions"] = new JArray(Assertion("existing_matter_binding_preserves_matter_and_native_state", preserved));
             return result;
         }
 
-        private JObject TryBindExistingPatronageFixture(string runId, string templateId, JObject options, string save, string instance)
+        private static JObject TryBindExistingPatronageFixture(ReignCourtCampaignBehavior court, string runId, string templateId, JObject options, string save, string instance)
         {
-            var state = EnsureRulerDocketState();
+            var state = court.EnsureRulerDocketState();
             var pending = state.CourtLifeMatters.Where(m => m.IsPending && m.TemplateId == templateId).ToList();
             if (pending.Count == 0) return null;
             string error = null;
             if (pending.Count != 1) error = "The exact template has multiple pending matters; automatic fixture binding is ambiguous.";
             ReignCourtLifeMatter matter = pending.Count == 1 ? pending[0] : null;
             if (matter != null && (matter.Source != ReignDocketSource.Patronage || matter.EffectsCommitted
-                || matter.CampaignId != Session.CampaignId || matter.TimelineId != Session.TimelineId
-                || matter.ReignId != CurrentReignId() || matter.KingdomId != Clan.PlayerClan?.Kingdom?.StringId
-                || matter.SettlementId != CurrentCapital?.StringId))
+                || matter.CampaignId != court.Session.CampaignId || matter.TimelineId != court.Session.TimelineId
+                || matter.ReignId != court.CurrentReignId() || matter.KingdomId != Clan.PlayerClan?.Kingdom?.StringId
+                || matter.SettlementId != court.CurrentCapital?.StringId))
                 error = "The pending matter does not belong to this ruler, campaign, timeline and capital.";
             if ((options.Value<int?>("courtLifeFixtureGold") ?? -1) >= 0
                 || (options.Value<int?>("courtLifeFixtureLoyalty") ?? -1) >= 0
                 || !string.IsNullOrEmpty(options.Value<string>("courtLifeFixtureCaptiveHeroId")))
                 error = "Existing matters cannot be combined with fixture gold, loyalty or captive mutations.";
-            if (matter != null && _rulerDocketTestMarkers.Select(ParseRulerDocketMarker)
+            if (matter != null && court._rulerDocketTestMarkers.Select(ParseRulerDocketMarker)
                 .Any(m => m?.Value<string>("courtLifeMatterId") == matter.MatterId))
                 error = "This pending matter is already bound to a fixture. Continue that fixture instead.";
             if (error != null)
             {
                 JObject failure = RulerDocketTestFailure(runId, "court_life_prepare", error, save, save);
-                failure["patronageEligibility"] = CourtLifePatronageEligibility(templateId);
+                failure["patronageEligibility"] = CourtLifePatronageEligibility(court, templateId);
                 return failure;
             }
-            string before = CourtLifeFingerprint(matter);
+            string before = CourtLifeFingerprint(court, matter);
             int matterCount = state.CourtLifeMatters.Count;
             var marker = new JObject { ["runId"] = runId, ["courtLifeMatterId"] = matter.MatterId,
                 ["courtLifeSource"] = ReignDocketSource.Patronage.ToString(), ["preparedDay"] = CurrentCourtLifeDay(),
-                ["preparedGameInstance"] = instance, ["beforeDecision"] = CourtLifeNativeState(matter),
+                ["preparedGameInstance"] = instance, ["beforeDecision"] = CourtLifeNativeState(court, matter),
                 ["reusedExistingMatter"] = true, ["existingMatterFingerprint"] = before };
-            StoreRulerDocketMarker(marker);
-            bool preserved = before == CourtLifeFingerprint(matter) && state.CourtLifeMatters.Count == matterCount;
-            JObject result = CourtLifeEvidence(runId, "court_life_prepare", save, matter);
+            StoreRulerDocketMarker(court, marker);
+            bool preserved = before == CourtLifeFingerprint(court, matter) && state.CourtLifeMatters.Count == matterCount;
+            JObject result = CourtLifeEvidence(court, runId, "court_life_prepare", save, matter);
             result["ok"] = preserved;
             result["reusedExistingMatter"] = true;
             result["requiresBaselineRollback"] = true;
@@ -353,11 +354,11 @@ namespace ReignBeta.Court
             return result;
         }
 
-        private JObject CourtLifePatronageEligibility(string requestedTemplateId)
+        private static JObject CourtLifePatronageEligibility(ReignCourtCampaignBehavior court, string requestedTemplateId)
         {
-            var state = EnsureRulerDocketState();
+            var state = court.EnsureRulerDocketState();
             Hero ruler = Hero.MainHero;
-            Settlement host = FindCurrentCapital();
+            Settlement host = court.FindCurrentCapital();
             Kingdom kingdom = Clan.PlayerClan?.Kingdom;
             var templates = new JArray();
             foreach (ReignPatronageTemplate template in ReignPatronageCatalog.Templates.Where(t =>
@@ -372,7 +373,7 @@ namespace ReignBeta.Court
                 if ((template.Id == "patronage-returning-artist" || template.Id == "patronage-popular-performer")
                     && !state.PatronageCreators.Any(c => c.Role == template.CreatorRole && c.HomeSettlementId == host?.StringId
                         && state.PatronageWorks.Any(w => w.CreatorId == c.ActorId))) missing.Add("prior_creator_work_required");
-                var subjects = PatronageSubjectHistory(template).Take(5).ToList();
+                var subjects = court.PatronageSubjectHistory(template).Take(5).ToList();
                 if (template.RequiresHistoricalSubject && subjects.Count == 0) missing.Add("public_historical_subject_required");
                 var pending = state.CourtLifeMatters.Where(m => m.IsPending && m.TemplateId == template.Id).ToList();
                 if (pending.Count > 0) missing.Add("same_template_pending");
@@ -386,27 +387,27 @@ namespace ReignBeta.Court
                 ["capitalId"] = host?.StringId, ["templates"] = templates };
         }
 
-        internal ReignCourtLifeMatter FindCourtLifeTestMatter(string runId)
+        internal static ReignCourtLifeMatter FindCourtLifeTestMatter(ReignCourtCampaignBehavior court, string runId)
         {
-            string id = FindRulerDocketMarker(runId)?.Value<string>("courtLifeMatterId");
-            return EnsureRulerDocketState().CourtLifeMatters.FirstOrDefault(x => x.MatterId == id);
+            string id = FindRulerDocketMarker(court, runId)?.Value<string>("courtLifeMatterId");
+            return court.EnsureRulerDocketState().CourtLifeMatters.FirstOrDefault(x => x.MatterId == id);
         }
 
-        private JObject CourtLifeEvidence(string runId, string phase, string save, ReignCourtLifeMatter matter)
+        private static JObject CourtLifeEvidence(ReignCourtCampaignBehavior court, string runId, string phase, string save, ReignCourtLifeMatter matter)
         {
             return new JObject { ["schema"] = "reign-court-life-evidence-v1", ["ok"] = true, ["runId"] = runId, ["phase"] = phase,
                 ["saveName"] = save, ["worldDay"] = CurrentCourtLifeDay(), ["matterId"] = matter.MatterId,
                 ["source"] = matter.Source.ToString(), ["matter"] = JObject.FromObject(matter),
-                ["nativeState"] = CourtLifeNativeState(matter), ["fixture"] = FindRulerDocketMarker(runId),
+                ["nativeState"] = CourtLifeNativeState(court, matter), ["fixture"] = FindRulerDocketMarker(court, runId),
                 ["nativeTimeAdvancedByHarness"] = false, ["savedByHarness"] = false };
         }
 
-        private JObject CourtLifeNativeState(ReignCourtLifeMatter matter)
+        private static JObject CourtLifeNativeState(ReignCourtCampaignBehavior court, ReignCourtLifeMatter matter)
         {
-            var state = EnsureRulerDocketState();
-            JObject family = FamilyMirror();
+            var state = court.EnsureRulerDocketState();
+            JObject family = court.FamilyMirror();
             return new JObject { ["rulerGold"] = Hero.MainHero?.Gold ?? 0,
-                ["international"] = matter.Source == ReignDocketSource.International ? CourtLifeInternationalNativeState(matter) : null,
+                ["international"] = matter.Source == ReignDocketSource.International ? CourtLifeInternationalNativeState(court, matter) : null,
                 ["settlements"] = new JArray(Settlement.All.Where(s => s.Town != null && s.OwnerClan?.Kingdom?.StringId == matter.KingdomId)
                     .OrderBy(s => s.StringId).Select(s => new JObject { ["id"] = s.StringId, ["loyalty"] = s.Town.Loyalty, ["kingdomId"] = s.OwnerClan?.Kingdom?.StringId })),
                 ["participants"] = new JArray(matter.Participants.Select(p => new JObject { ["heroId"] = p.HeroId, ["actorId"] = p.ActorId,
@@ -423,12 +424,12 @@ namespace ReignBeta.Court
                         return new JObject { ["heroId"] = id, ["exists"] = hero != null, ["age"] = hero == null ? JValue.CreateNull() : new JValue(hero.Age) };
                     })),
                 ["familyOutboxCount"] = state.FamilyVisitOutbox?.Count ?? 0,
-                ["familyAttentionPending"] = HasPendingFamilyVisitWork,
+                ["familyAttentionPending"] = court.HasPendingFamilyVisitWork,
                 ["history"] = JArray.FromObject(state.History.Where(h => h.PetitionId == matter.MatterId || h.RecordId.Contains(matter.MatterId))) };
         }
 
-        private string CourtLifeFingerprint(ReignCourtLifeMatter matter)
-            => CourtLifeSnapshotFingerprint(new JObject { ["matter"] = JObject.FromObject(matter), ["native"] = CourtLifeNativeState(matter) });
+        private static string CourtLifeFingerprint(ReignCourtCampaignBehavior court, ReignCourtLifeMatter matter)
+            => CourtLifeSnapshotFingerprint(new JObject { ["matter"] = JObject.FromObject(matter), ["native"] = CourtLifeNativeState(court, matter) });
 
         private static string CourtLifeSnapshotFingerprint(JObject snapshot)
         {
@@ -483,9 +484,9 @@ namespace ReignBeta.Court
             assertions.Add(Assertion("family_profile_value_change_changes_fingerprint", observedFingerprint != CourtLifeSnapshotFingerprint(refreshed)));
         }
 
-        private JObject CourtLifeFamilyObservation(ReignCourtLifeMatter matter)
+        private static JObject CourtLifeFamilyObservation(ReignCourtCampaignBehavior court, ReignCourtLifeMatter matter)
         {
-            JObject mirror = FamilyMirror();
+            JObject mirror = court.FamilyMirror();
             string hero = matter.Participants.FirstOrDefault()?.HeroId ?? "", player = Hero.MainHero?.StringId ?? "";
             JObject member = (mirror["members"] as JArray ?? new JArray()).OfType<JObject>().FirstOrDefault(x => x.Value<string>("hero_id") == hero);
             JObject visit = (mirror["visits"] as JArray ?? new JArray()).OfType<JObject>().FirstOrDefault(x => x.Value<string>("visit_id") == matter.MatterId);
@@ -495,7 +496,7 @@ namespace ReignBeta.Court
             return new JObject { ["visitId"] = matter.MatterId, ["heroId"] = hero, ["playerId"] = player,
                 ["campaignId"] = matter.CampaignId, ["timelineId"] = matter.TimelineId, ["scoped"] = scoped,
                 ["worldDay"] = mirror.Value<double?>("worldDay"), ["member"] = member?.DeepClone(), ["visit"] = visit?.DeepClone(),
-                ["quiescent"] = !HasPendingFamilyVisitWork && (EnsureRulerDocketState().FamilyVisitOutbox?.Count ?? 0) == 0 };
+                ["quiescent"] = !court.HasPendingFamilyVisitWork && (court.EnsureRulerDocketState().FamilyVisitOutbox?.Count ?? 0) == 0 };
         }
 
         private static bool SameCourtLifeFamilyObservationScope(JObject left, JObject right)
@@ -503,9 +504,9 @@ namespace ReignBeta.Court
                 && new[] { "campaignId", "timelineId", "playerId", "heroId", "visitId" }.All(key =>
                     !string.IsNullOrWhiteSpace(left.Value<string>(key)) && left.Value<string>(key) == right.Value<string>(key));
 
-        private void AddCourtLifeFamilyTransitionAssertions(JArray assertions, JObject marker, ReignCourtLifeMatter matter, string expectation, JObject evidence)
+        private static void AddCourtLifeFamilyTransitionAssertions(ReignCourtCampaignBehavior court, JArray assertions, JObject marker, ReignCourtLifeMatter matter, string expectation, JObject evidence)
         {
-            JObject baseline = marker["familyBaseline"] as JObject, current = CourtLifeFamilyObservation(matter);
+            JObject baseline = marker["familyBaseline"] as JObject, current = CourtLifeFamilyObservation(court, matter);
             JObject before = baseline?["member"] as JObject, member = current["member"] as JObject, visit = current["visit"] as JObject;
             bool bound = SameCourtLifeFamilyObservationScope(baseline, current) && before != null && member != null;
             bool ready = bound && current.Value<bool?>("quiescent") == true;
@@ -528,7 +529,7 @@ namespace ReignBeta.Court
             {
                 assertions.Add(Assertion("exact_visit_crossed_patience_into_neglect", newlyNeglected));
                 if (newlyNeglected && assertions.All(a => a.Value<bool?>("passed") == true))
-                { marker["familyNeglectEvidence"] = current.DeepClone(); StoreRulerDocketMarker(marker); }
+                { marker["familyNeglectEvidence"] = current.DeepClone(); StoreRulerDocketMarker(court, marker); }
             }
             if (expectation == "reconciled")
             {
@@ -545,7 +546,7 @@ namespace ReignBeta.Court
             evidence["fixture"] = marker.DeepClone();
         }
 
-        private void AddCourtLifeDecisionAssertions(JArray assertions, JObject marker, ReignCourtLifeMatter matter)
+        private static void AddCourtLifeDecisionAssertions(ReignCourtCampaignBehavior court, JArray assertions, JObject marker, ReignCourtLifeMatter matter)
         {
             if (matter.Source == ReignDocketSource.International)
             {
@@ -553,7 +554,7 @@ namespace ReignBeta.Court
                 if (matter.SelectedOptionId == "accept" && (payload["normalizedAction"] is JObject
                     || payload.Value<string>("remedy") == "sign_trade_agreement"))
                 {
-                    JObject action = (JObject)CourtLifeInternationalNativeState(matter)["nativeDiplomaticAction"];
+                    JObject action = (JObject)CourtLifeInternationalNativeState(court, matter)["nativeDiplomaticAction"];
                     assertions.Add(Assertion("accepted_diplomacy_has_one_completed_native_action",
                         action.Value<bool?>("serviceAvailable") == true && action.Value<int?>("count") == 1
                         && action.Value<string>("status") == "Completed"));
@@ -565,12 +566,12 @@ namespace ReignBeta.Court
                 return;
             }
             if (matter.Source != ReignDocketSource.Patronage) return;
-            ReignPatronageCommission c = EnsureRulerDocketState().PatronageCommissions.FirstOrDefault(x => x.MatterId == matter.MatterId);
+            ReignPatronageCommission c = court.EnsureRulerDocketState().PatronageCommissions.FirstOrDefault(x => x.MatterId == matter.MatterId);
             int before = marker["beforeDecision"]?.Value<int?>("rulerGold") ?? -1;
             assertions.Add(Assertion("gold_matches_actual_commission", before >= 0 && before - (Hero.MainHero?.Gold ?? 0) == (c?.GoldPaid ?? 0)));
             if (matter.SelectedOptionId == "decline") assertions.Add(Assertion("decline_creates_no_commission", c == null));
             else assertions.Add(Assertion("one_paid_commission_exact_cost", c != null && c.Paid && c.GoldPaid == ReignPatronageRules.Cost(c.Reach)
-                && EnsureRulerDocketState().PatronageCommissions.Count(x => x.MatterId == matter.MatterId) == 1));
+                && court.EnsureRulerDocketState().PatronageCommissions.Count(x => x.MatterId == matter.MatterId) == 1));
         }
     }
 }

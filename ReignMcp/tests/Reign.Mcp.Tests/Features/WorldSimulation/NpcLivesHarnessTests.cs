@@ -74,8 +74,8 @@ public sealed class NpcLivesHarnessTests
         string source = File.ReadAllText(Path.Combine(root, "ReignBeta/src/Modules/Characters/Campaign/ReignNpcLivesAnnouncementFixture.cs"));
         foreach (string required in new[] { "Stopwatch.StartNew()", "NativeAnnouncementHoldMaximumSeconds = 180d",
             "AnnouncementTransportScopeAllows", "!double.IsNaN(elapsedSeconds)", "!double.IsInfinity(elapsedSeconds)",
-            "elapsedSeconds >= 0", "elapsedSeconds < NativeAnnouncementHoldMaximumSeconds", "AnnouncementHoldOwnsCurrent(hold)",
-            "RetireAnnouncementHoldIfInvalid()", "PartyComposerDigest(payload)", "[\"sourceMemberIds\"] = AnnouncementMemberIds(payload)",
+            "elapsedSeconds >= 0", "elapsedSeconds < NativeAnnouncementHoldMaximumSeconds", "AnnouncementHoldOwnsCurrent(lives, hold)",
+            "RetireAnnouncementHoldIfInvalid(lives)", "PartyComposerDigest(payload)", "[\"sourceMemberIds\"] = AnnouncementMemberIds(payload)",
             "control == \"arm\" || hold == null || hold.Operation != operation", "[\"releaseCount\"] = 1",
             "OwnsNpcLivesSession", "IsNativeSaveInProgress", "_outbox.Count != 0", "_failedOperations.Count != 0",
             "hero.PartyBelongedTo != party", "party.MemberRoster.GetTroopCount", "members.Count > 64" })

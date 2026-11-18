@@ -26,16 +26,28 @@ namespace ReignBeta.Campaign
         public static ReignNpcLivesBehavior Instance { get; private set; }
         internal NpcLivesState State { get; private set; } = new NpcLivesState();
         internal string Generation { get; private set; } = "";
-        private string _campaign = "", _timeline = "";
+        internal string _campaign = "", _timeline = "";
         private List<string> _chunks = new List<string>();
-        private List<JObject> _outbox = new List<JObject>();
-        private HashSet<string> _nativeEffects = new HashSet<string>(StringComparer.Ordinal);
-        private HashSet<string> _acceptedOperations = new HashSet<string>(StringComparer.Ordinal);
-        private Dictionary<string, string> _failedOperations = new Dictionary<string, string>(StringComparer.Ordinal);
+        internal List<JObject> _outbox = new List<JObject>();
+        internal HashSet<string> _nativeEffects = new HashSet<string>(StringComparer.Ordinal);
+        internal HashSet<string> _acceptedOperations = new HashSet<string>(StringComparer.Ordinal);
+        internal Dictionary<string, string> _failedOperations = new Dictionary<string, string>(StringComparer.Ordinal);
         private Dictionary<string, double> _shownUntil = new Dictionary<string, double>(StringComparer.Ordinal);
-        private int _epoch;
-        private bool _busy, _initialized;
-        private double _real, _nextPoll, _nextEvaluation;
+        internal int _epoch;
+        internal bool _busy, _initialized;
+        private double _real, _nextEvaluation;
+        internal double _nextPoll;
+        // Process-local announcement delivery hold armed by ReignNpcLivesTestControls; never saved.
+        internal sealed class NativeAnnouncementDeliveryHold
+        {
+            internal NativeCampaign Owner;
+            internal int Epoch;
+            internal string Campaign, Timeline, Generation, SaveName, Operation;
+            internal System.Diagnostics.Stopwatch Clock;
+            internal JObject Receipt;
+        }
+        internal NativeAnnouncementDeliveryHold _nativeAnnouncementDeliveryHold;
+        private bool HoldAnnouncementDeliveryForNativeTest(JObject row) => ReignNpcLivesTestControls.HoldAnnouncementDeliveryForNativeTest(this, row);
         public override void RegisterEvents()
         {
             Instance = this;
@@ -69,11 +81,11 @@ namespace ReignBeta.Campaign
                 RestoreLifeTravel(saved);
             }
         }
-        private bool Current(NativeCampaign owner, int epoch) => Instance == this && ReferenceEquals(owner, NativeCampaign.Current) && epoch == _epoch
+        internal bool Current(NativeCampaign owner, int epoch) => Instance == this && ReferenceEquals(owner, NativeCampaign.Current) && epoch == _epoch
             && _campaign == ReignServerClient.GetCampaignId() && _timeline == (ReignWorldHistoryCampaignBehavior.Instance?.TimelineId ?? "main");
         private static bool Ready() => NativeCampaign.Current != null && MobileParty.MainParty != null && Hero.MainHero?.IsAlive == true
             && !ReignCampaignInitializationGate.IsPending && Settings.ReignBetaSettings.Instance?.UseLocalServer != false;
-        private static bool QuietMap() => ReignPlayerApproachPopup.CanPresentOnMap() && !ReignPlayerApproachPopup.IsOpen
+        internal static bool QuietMap() => ReignPlayerApproachPopup.CanPresentOnMap() && !ReignPlayerApproachPopup.IsOpen
             && !ReignPartyChatScreenManager.IsOpenOrPending && !ReignIndividualChatScreenManager.IsOpen && !ReignSocialEventScreenManager.IsOpen
             && Mission.Current == null && NativeCampaign.Current?.ConversationManager?.IsConversationInProgress != true
             && MobileParty.MainParty?.MapEvent == null && Hero.MainHero?.IsPrisoner == false;

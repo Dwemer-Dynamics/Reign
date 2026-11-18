@@ -12,30 +12,31 @@ using Reign.Core.Contracts.Court;
 using TaleWorlds.CampaignSystem;
 using TaleWorlds.CampaignSystem.Actions;
 using TaleWorlds.CampaignSystem.Settlements;
+using static ReignBeta.Court.ReignCourtCampaignBehavior;
 
 namespace ReignBeta.Court
 {
-    public sealed partial class ReignCourtCampaignBehavior
+    internal static partial class ReignSpymasterTestControls
     {
         private const string OrganicPrepareConfirmation = "prepare organic Spymaster test on disposable save";
         private const string OrganicIrreversibleConfirmation = "run irreversible Reign Spymaster test on disposable save";
         private const string ControlledOutcomeConfirmation = "force Reign Spymaster outcomes on disposable save";
         private const string ControlledAgentActionConfirmation = "force one Reign Spymaster foreign-agent action on disposable save";
 
-        internal JObject RunSpymasterActionControlProfile(string runId, string phase, JObject options)
-            => RunAcceptedSpymasterControlProfile(runId, phase, options, false);
+        internal static JObject RunSpymasterActionControlProfile(ReignCourtCampaignBehavior court, string runId, string phase, JObject options)
+            => RunAcceptedSpymasterControlProfile(court, runId, phase, options, false);
 
-        internal JObject RunSpymasterDestructiveActionControlProfile(string runId, string phase, JObject options)
+        internal static JObject RunSpymasterDestructiveActionControlProfile(ReignCourtCampaignBehavior court, string runId, string phase, JObject options)
         {
             if (options.Value<bool?>("destructiveActionControl") != true
                 || options.Value<string>("irreversibleConfirmation") != OrganicIrreversibleConfirmation
                 || options.Value<string>("controlConfirmation") != "control Reign Spymaster action test on disposable save"
                 || (options["enrollment"] as JObject)?.Value<string>("source") != "reign_mcp_spymaster_destructive_action_control")
                 return OrganicFailure(runId, phase, "Accepted assassination controls require their separate irreversible authorization.");
-            return RunAcceptedSpymasterControlProfile(runId, phase, options, true);
+            return RunAcceptedSpymasterControlProfile(court, runId, phase, options, true);
         }
 
-        private JObject RunAcceptedSpymasterControlProfile(string runId, string phase, JObject options, bool destructive)
+        private static JObject RunAcceptedSpymasterControlProfile(ReignCourtCampaignBehavior court, string runId, string phase, JObject options, bool destructive)
         {
             try
             {
@@ -43,25 +44,25 @@ namespace ReignBeta.Court
                     || !((string)options["batch"] ?? "").StartsWith(destructive ? "destructive_action_" : "action_", StringComparison.Ordinal))
                     throw new InvalidOperationException("Action controls require their own ledger and batch namespace.");
                 if (phase == "prepare")
-                    return PrepareOrganicLedger(runId, new JObject { ["confirmation"] = OrganicPrepareConfirmation });
-                if (phase == "observe") return ObserveOrganicTest(runId, options);
+                    return PrepareOrganicLedger(court, runId, new JObject { ["confirmation"] = OrganicPrepareConfirmation });
+                if (phase == "observe") return ObserveOrganicTest(court, runId, options);
                 if (phase != "capture" && phase != "control" && phase != "verify")
                     throw new InvalidOperationException("Unsupported accepted-action control phase.");
-                ReignSpymasterOrganicTestLedger ledger = FindOrganicLedger(runId);
+                ReignSpymasterOrganicTestLedger ledger = FindOrganicLedger(court, runId);
                 if (ledger == null || !ledger.DisposableSaveConfirmed
                     || ledger.CampaignId != ReignCampaignIdentity.CurrentCampaignId()
-                    || ledger.SpymasterHeroStringId != ActiveSpymaster?.StringId)
+                    || ledger.SpymasterHeroStringId != court.ActiveSpymaster?.StringId)
                     throw new InvalidOperationException("Prepare a ledger for the current campaign and appointed Spymaster first.");
-                List<ReignSpymasterMission> missions = AcceptedActionControlMissions(ledger, options, phase != "verify", destructive);
+                List<ReignSpymasterMission> missions = AcceptedActionControlMissions(court, ledger, options, phase != "verify", destructive);
                 if (phase == "capture")
                 {
-                    JObject captured = CaptureOrganicMissions(runId, options, missions);
+                    JObject captured = CaptureOrganicMissions(court, runId, options, missions);
                     if (destructive && captured.Value<bool?>("ok") == true)
                     {
                         var capturedBatch = ledger.Batches.Last(x => x.Label == (string)options["batch"]);
                         JArray targets = new JArray(missions.Select(m =>
                         {
-                            Hero target = AcceptedAssassinationHero(m);
+                            Hero target = AcceptedAssassinationHero(court, m);
                             return new JObject { ["missionId"] = m.MissionId, ["targetId"] = m.TargetStringId,
                                 ["heroId"] = target?.StringId, ["isAlive"] = target?.IsAlive == true };
                         }));
@@ -73,7 +74,7 @@ namespace ReignBeta.Court
                         capturedBatch.PreSnapshotJson = retained;
                         captured["assassinationTargetsBefore"] = targets.DeepClone();
                         captured["batch"] = JObject.FromObject(capturedBatch);
-                        StateChanged?.Invoke();
+                        court.RaiseStateChanged();
                     }
                     return captured;
                 }
@@ -83,8 +84,8 @@ namespace ReignBeta.Court
                     throw new InvalidOperationException("The exact accepted agreements must match the captured batch.");
                 var bounded = new JObject { ["batch"] = options["batch"], ["minimum"] = missions.Count,
                     ["confirmation"] = ControlledOutcomeConfirmation, ["unitRoll"] = 0f };
-                if (phase == "control") return ControlOrganicMissionOutcomes(runId, bounded);
-                JObject verified = VerifyControlledMissionOutcomes(runId, bounded);
+                if (phase == "control") return ControlOrganicMissionOutcomes(court, runId, bounded);
+                JObject verified = VerifyControlledMissionOutcomes(court, runId, bounded);
                 if (destructive)
                 {
                     JArray assertions = (JArray)verified["assertions"];
@@ -101,14 +102,14 @@ namespace ReignBeta.Court
                             CapturedAssassinationHero(batch, m.MissionId)?.Name + " was assassinated.", StringComparison.Ordinal)),
                         "Every exact signed assassination target died through the production resolver.", targets);
                     verified = OrganicResult(runId, "verify_controlled_outcomes", assertions);
-                    verified["state"] = OrganicStateSnapshot(ledger);
+                    verified["state"] = OrganicStateSnapshot(court, ledger);
                 }
                 return verified;
             }
             catch (Exception ex) { return OrganicFailure(runId, phase, ex.Message); }
         }
 
-        private List<ReignSpymasterMission> AcceptedActionControlMissions(ReignSpymasterOrganicTestLedger ledger,
+        private static List<ReignSpymasterMission> AcceptedActionControlMissions(ReignCourtCampaignBehavior court, ReignSpymasterOrganicTestLedger ledger,
             JObject options, bool requireActive, bool destructive)
         {
             JArray ids = options["agreementIds"] as JArray;
@@ -121,10 +122,10 @@ namespace ReignBeta.Court
                 AgreementJournal journal = ReignAgreementBehavior.Instance?.Agreements.FirstOrDefault(x => x.Agreement.Id == id);
                 ActionAgreement agreement = journal?.Agreement;
                 string context = ReignCampaignIdentity.CurrentCampaignId() + ":"
-                    + (ReignWorldHistoryCampaignBehavior.Instance?.TimelineId ?? "main") + ":" + ActiveSpymaster?.StringId;
+                    + (ReignWorldHistoryCampaignBehavior.Instance?.TimelineId ?? "main") + ":" + court.ActiveSpymaster?.StringId;
                 if (agreement == null || journal.OperatorAuthorized || agreement.Origin != ActionOrigin.Conversation
                     || !agreement.HasBothConsents || journal.CommittedHash != agreement.TermsHash()
-                    || agreement.PlayerId != Hero.MainHero?.StringId || agreement.NpcId != ActiveSpymaster?.StringId
+                    || agreement.PlayerId != Hero.MainHero?.StringId || agreement.NpcId != court.ActiveSpymaster?.StringId
                     || agreement.ConversationId != context || agreement.Failure.Length > 0
                     || (requireActive && agreement.State != AgreementState.Waiting && agreement.State != AgreementState.InTransit)
                     || agreement.Clauses.Count < 1 || agreement.Clauses.Count > 3)
@@ -134,17 +135,17 @@ namespace ReignBeta.Court
                     if (!clause.ActionId.StartsWith("spymaster.", StringComparison.Ordinal)
                         || clause.ActionId.StartsWith("spymaster.assassinate_", StringComparison.Ordinal) != destructive
                         || !ReignActionCatalog.All.Any(x => x.Id == clause.ActionId)
-                        || clause.ActorId != ActiveSpymaster?.StringId || clause.RecipientId != Hero.MainHero?.StringId)
+                        || clause.ActorId != court.ActiveSpymaster?.StringId || clause.RecipientId != Hero.MainHero?.StringId)
                         throw new InvalidOperationException(destructive
                             ? "Only registered assassination Spymaster clauses are allowed in the separately authorized route."
                             : "Only registered non-assassination Spymaster clauses are allowed.");
                     AgreementStep step = journal.Steps.SingleOrDefault(x => x.ClauseId == clause.Id && x.Installment == 0);
                     JObject receipt = step == null || string.IsNullOrEmpty(step.Snapshot) ? null : JObject.Parse(step.Snapshot);
                     string operation = "sa_" + ReignCourtTerms.Hash(agreement.Id + ":" + clause.Id);
-                    ReignSpymasterMission mission = EnsureSpymasterState().Missions.FirstOrDefault(x => x.MissionId == operation);
+                    ReignSpymasterMission mission = court.EnsureSpymasterState().Missions.FirstOrDefault(x => x.MissionId == operation);
                     if (step == null || !step.Started || step.Returned || receipt?.Value<string>("missionId") != operation
                         || receipt.Value<string>("operationId") != operation || mission == null
-                        || mission.SpymasterHeroStringId != ActiveSpymaster?.StringId || mission.MissionType != SpyType(clause)
+                        || mission.SpymasterHeroStringId != court.ActiveSpymaster?.StringId || mission.MissionType != SpyType(clause)
                         || mission.TargetStringId != SpyTarget(clause) || mission.StartedDay + 0.001f < ledger.StartedDay
                         || ledger.InitialMissionIds.Contains(operation) || requireActive && (step.Completed || mission.State != ReignSpymasterMissionState.Active))
                         throw new InvalidOperationException("The accepted step must identify its exact production mission after preparation.");
@@ -152,8 +153,8 @@ namespace ReignBeta.Court
                     {
                         var capturedBatch = ledger.Batches.LastOrDefault(x => x.Label == (string)options["batch"]);
                         Hero capturedTarget = capturedBatch == null ? null : CapturedAssassinationHero(capturedBatch, mission.MissionId);
-                        Hero target = requireActive ? AcceptedAssassinationHero(mission) : capturedTarget;
-                        if (target == null || target == Hero.MainHero || target == ActiveSpymaster
+                        Hero target = requireActive ? AcceptedAssassinationHero(court, mission) : capturedTarget;
+                        if (target == null || target == Hero.MainHero || target == court.ActiveSpymaster
                             || requireActive && !target.IsAlive || capturedBatch != null && target != capturedTarget)
                             throw new InvalidOperationException("Accepted assassination controls require the exact captured living target outside the player and appointed Spymaster.");
                     }
@@ -165,7 +166,7 @@ namespace ReignBeta.Court
             return result;
         }
 
-        private Hero AcceptedAssassinationHero(ReignSpymasterMission mission) =>
+        private static Hero AcceptedAssassinationHero(ReignCourtCampaignBehavior court, ReignSpymasterMission mission) =>
             mission.MissionType == "assassinate_governor"
                 ? FindSettlement(mission.TargetStringId)?.Town?.Governor : FindHero(mission.TargetStringId);
 
@@ -179,46 +180,46 @@ namespace ReignBeta.Court
                 .FirstOrDefault(x => x != null && x.StringId == heroId);
         }
 
-        internal JObject RunSpymasterOrganicProfile(string runId, string phase, JObject options)
+        internal static JObject RunSpymasterOrganicProfile(ReignCourtCampaignBehavior court, string runId, string phase, JObject options)
         {
             string normalizedRunId = string.IsNullOrWhiteSpace(runId) ? Guid.NewGuid().ToString("N") : runId.Trim();
             string requestedPhase = (phase ?? "preflight").Trim().ToLowerInvariant();
             options = options ?? new JObject();
             switch (requestedPhase)
             {
-                case "preflight": return OrganicPreflight(normalizedRunId);
-                case "prepare": return PrepareOrganicLedger(normalizedRunId, options);
-                case "capture": return CaptureOrganicMissions(normalizedRunId, options);
-                case "control_outcomes": return ControlOrganicMissionOutcomes(normalizedRunId, options);
-                case "verify_controlled_outcomes": return VerifyControlledMissionOutcomes(normalizedRunId, options);
-                case "verify_controlled_assassination": return VerifyControlledAssassination(normalizedRunId, options);
-                case "verify_controlled_capture": return VerifyControlledCapture(normalizedRunId, options);
-                case "control_agent_action": return ControlForeignAgentAction(normalizedRunId, options);
-                case "verify_controlled_agent_action": return VerifyControlledForeignAgentAction(normalizedRunId);
-                case "observe": return ObserveOrganicTest(normalizedRunId, options);
-                case "evaluate": return EvaluateOrganicTest(normalizedRunId, options);
-                case "verify_reload": return VerifyOrganicReload(normalizedRunId);
-                case "attempt_breakout": return AttemptOrganicBreakout(normalizedRunId, options);
-                case "cleanup_marker": return CleanupOrganicLedger(normalizedRunId);
+                case "preflight": return OrganicPreflight(court, normalizedRunId);
+                case "prepare": return PrepareOrganicLedger(court, normalizedRunId, options);
+                case "capture": return CaptureOrganicMissions(court, normalizedRunId, options);
+                case "control_outcomes": return ControlOrganicMissionOutcomes(court, normalizedRunId, options);
+                case "verify_controlled_outcomes": return VerifyControlledMissionOutcomes(court, normalizedRunId, options);
+                case "verify_controlled_assassination": return VerifyControlledAssassination(court, normalizedRunId, options);
+                case "verify_controlled_capture": return VerifyControlledCapture(court, normalizedRunId, options);
+                case "control_agent_action": return ControlForeignAgentAction(court, normalizedRunId, options);
+                case "verify_controlled_agent_action": return VerifyControlledForeignAgentAction(court, normalizedRunId);
+                case "observe": return ObserveOrganicTest(court, normalizedRunId, options);
+                case "evaluate": return EvaluateOrganicTest(court, normalizedRunId, options);
+                case "verify_reload": return VerifyOrganicReload(court, normalizedRunId);
+                case "attempt_breakout": return AttemptOrganicBreakout(court, normalizedRunId, options);
+                case "cleanup_marker": return CleanupOrganicLedger(court, normalizedRunId);
                 default: return OrganicFailure(normalizedRunId, requestedPhase, "Unsupported organic Spymaster phase.");
             }
         }
 
-        internal JObject BuildSpymasterOrganicAgentRequest()
+        internal static JObject BuildSpymasterOrganicAgentRequest(ReignCourtCampaignBehavior court)
         {
-            return BuildForeignAgentSnapshot(CurrentDayFloat());
+            return court.BuildForeignAgentSnapshot(CurrentDayFloat());
         }
 
-        private JObject OrganicPreflight(string runId)
+        private static JObject OrganicPreflight(ReignCourtCampaignBehavior court, string runId)
         {
             JArray assertions = new JArray();
             Kingdom player = Clan.PlayerClan?.Kingdom;
-            Hero spymaster = ActiveSpymaster;
-            Settlement playerSettlement = OrganicPlayerSettlement(player);
-            Settlement foreignSettlement = OrganicForeignSettlement(player, 0);
-            Hero foreignHero = OrganicForeignHero(player, 0);
+            Hero spymaster = court.ActiveSpymaster;
+            Settlement playerSettlement = OrganicPlayerSettlement(court, player);
+            Settlement foreignSettlement = OrganicForeignSettlement(court, player, 0);
+            Hero foreignHero = OrganicForeignHero(court, player, 0);
             float adultAge = TaleWorlds.CampaignSystem.Campaign.Current?.Models?.AgeModel?.HeroComesOfAge ?? 18f;
-            List<Hero> candidates = Hero.AllAliveHeroes.Where(x => IsEligibleForeignAgentCandidate(x, player, player?.Leader, adultAge))
+            List<Hero> candidates = Hero.AllAliveHeroes.Where(x => court.IsEligibleForeignAgentCandidate(x, player, player?.Leader, adultAge))
                 .Where(x => x.IsNotable ? ResolveNotableFortification(x)?.IsFortification == true
                     : ResolveNobleFortification(x, player)?.IsFortification == true).ToList();
             AddOrganicAssertion(assertions, "organic_campaign_ready", TaleWorlds.CampaignSystem.Campaign.Current != null && Hero.MainHero != null
@@ -240,7 +241,7 @@ namespace ReignBeta.Court
             AddOrganicAssertion(assertions, "organic_bridge_isolation", !ReignSpymasterTestRuntime.Active,
                 "No forced-roll or consequence-suppression runtime is active.", null);
             JObject result = OrganicResult(runId, "preflight", assertions);
-            result["agentRequest"] = BuildSpymasterOrganicAgentRequest();
+            result["agentRequest"] = BuildSpymasterOrganicAgentRequest(court);
             result["recommendedTargets"] = new JObject
             {
                 ["playerSettlementId"] = playerSettlement?.StringId ?? string.Empty,
@@ -250,19 +251,19 @@ namespace ReignBeta.Court
             return result;
         }
 
-        private JObject PrepareOrganicLedger(string runId, JObject options)
+        private static JObject PrepareOrganicLedger(ReignCourtCampaignBehavior court, string runId, JObject options)
         {
             if (!string.Equals((string)options["confirmation"], OrganicPrepareConfirmation, StringComparison.Ordinal))
                 return OrganicFailure(runId, "prepare", "The exact disposable-save preparation confirmation is required.");
-            ReignSpymasterState state = EnsureSpymasterState();
-            ReignSpymasterOrganicTestLedger existing = FindOrganicLedger(runId);
+            ReignSpymasterState state = court.EnsureSpymasterState();
+            ReignSpymasterOrganicTestLedger existing = FindOrganicLedger(court, runId);
             if (existing != null)
             {
-                JObject idempotent = ObserveOrganicTest(runId, new JObject { ["stage"] = "prepare_replay" });
+                JObject idempotent = ObserveOrganicTest(court, runId, new JObject { ["stage"] = "prepare_replay" });
                 idempotent["idempotent"] = true;
                 return idempotent;
             }
-            JObject preflight = OrganicPreflight(runId);
+            JObject preflight = OrganicPreflight(court, runId);
             if (preflight.Value<bool?>("ok") != true) return preflight;
             if (state.Missions.Any(x => x.State == ReignSpymasterMissionState.Active))
                 return OrganicFailure(runId, "prepare", "Finish or cancel existing Spymaster missions before cloning the disposable acceptance save.");
@@ -272,16 +273,16 @@ namespace ReignBeta.Court
             {
                 RunId = runId,
                 CampaignId = ReignCampaignIdentity.CurrentCampaignId(),
-                SpymasterHeroStringId = ActiveSpymaster?.StringId ?? string.Empty,
+                SpymasterHeroStringId = court.ActiveSpymaster?.StringId ?? string.Empty,
                 StartedDay = CurrentDayFloat(),
                 LastObservedDay = CurrentDayFloat(),
                 PreviousAgentRecruitmentDay = state.LastAgentRecruitmentDay,
                 StartingGold = Hero.MainHero?.Gold ?? 0,
                 DisposableSaveConfirmed = true,
                 PlayerKingdomStringId = player?.StringId ?? string.Empty,
-                PlayerSettlementStringId = OrganicPlayerSettlement(player)?.StringId ?? string.Empty,
-                ForeignSettlementStringId = OrganicForeignSettlement(player, 0)?.StringId ?? string.Empty,
-                ForeignHeroStringId = OrganicForeignHero(player, 0)?.StringId ?? string.Empty,
+                PlayerSettlementStringId = OrganicPlayerSettlement(court, player)?.StringId ?? string.Empty,
+                ForeignSettlementStringId = OrganicForeignSettlement(court, player, 0)?.StringId ?? string.Empty,
+                ForeignHeroStringId = OrganicForeignHero(court, player, 0)?.StringId ?? string.Empty,
                 InitialMissionIds = state.Missions.Select(x => x.MissionId).ToList(),
                 InitialAgentHeroIds = state.ForeignAgents.Select(x => x.AgentHeroStringId).ToList(),
                 InitialActionIds = state.ForeignAgentActions.Select(x => x.ActionId).ToList(),
@@ -291,20 +292,20 @@ namespace ReignBeta.Court
             // Establish a known observation boundary without creating an agent or
             // influencing any future production roll.
             state.LastAgentRecruitmentDay = ledger.StartedDay;
-            StateChanged?.Invoke();
-            JObject result = ObserveOrganicTest(runId, new JObject { ["stage"] = "prepared" });
+            court.RaiseStateChanged();
+            JObject result = ObserveOrganicTest(court, runId, new JObject { ["stage"] = "prepared" });
             result["preflight"] = preflight;
             result["requiresDisposableSave"] = true;
             result["nextNaturalAgentTickDay"] = ledger.StartedDay + 5f;
             return result;
         }
 
-        private JObject CaptureOrganicMissions(string runId, JObject options, List<ReignSpymasterMission> accepted = null)
+        private static JObject CaptureOrganicMissions(ReignCourtCampaignBehavior court, string runId, JObject options, List<ReignSpymasterMission> accepted = null)
         {
-            ReignSpymasterOrganicTestLedger ledger = FindOrganicLedger(runId);
+            ReignSpymasterOrganicTestLedger ledger = FindOrganicLedger(court, runId);
             if (ledger == null || !ledger.DisposableSaveConfirmed)
                 return OrganicFailure(runId, "capture", "Prepare the organic ledger on a disposable save first.");
-            ReignSpymasterState state = EnsureSpymasterState();
+            ReignSpymasterState state = court.EnsureSpymasterState();
             HashSet<string> known = new HashSet<string>(ledger.InitialMissionIds.Concat(ledger.MissionIds), StringComparer.OrdinalIgnoreCase);
             List<ReignSpymasterMission> added = (accepted ?? state.Missions).Where(x => x.StartedDay + 0.001f >= ledger.StartedDay && !known.Contains(x.MissionId))
                 .OrderBy(x => x.StartedDay).ToList();
@@ -320,12 +321,12 @@ namespace ReignBeta.Court
                 ActionsBefore = state.ForeignAgentActions.Count,
                 EffectsBefore = state.Effects.Count,
                 MissionIds = added.Select(x => x.MissionId).ToList(),
-                PreSnapshotJson = OrganicLedgerCheckpoint(ledger, "before_" + label).ToString(Formatting.None)
+                PreSnapshotJson = OrganicLedgerCheckpoint(court, ledger, "before_" + label).ToString(Formatting.None)
             };
             ledger.MissionIds.AddRange(batch.MissionIds);
             ledger.MissionIds = ledger.MissionIds.Distinct(StringComparer.OrdinalIgnoreCase).ToList();
             ledger.Batches.Add(batch);
-            StateChanged?.Invoke();
+            court.RaiseStateChanged();
             JArray assertions = new JArray();
             int minimum = Math.Max(0, (int?)options["minimumNewMissions"] ?? 1);
             AddOrganicAssertion(assertions, "organic_missions_captured", added.Count >= minimum,
@@ -340,15 +341,15 @@ namespace ReignBeta.Court
                 "Captured missions use ordinary production IDs and native Bannerlord rolls.", null);
             JObject result = OrganicResult(runId, "capture", assertions);
             result["batch"] = JObject.FromObject(batch);
-            result["state"] = OrganicStateSnapshot(ledger);
+            result["state"] = OrganicStateSnapshot(court, ledger);
             return result;
         }
 
-        private JObject ControlOrganicMissionOutcomes(string runId, JObject options)
+        private static JObject ControlOrganicMissionOutcomes(ReignCourtCampaignBehavior court, string runId, JObject options)
         {
             if (!string.Equals((string)options["confirmation"], ControlledOutcomeConfirmation, StringComparison.Ordinal))
                 return OrganicFailure(runId, "control_outcomes", "The exact controlled-outcome confirmation is required.");
-            ReignSpymasterOrganicTestLedger ledger = FindOrganicLedger(runId);
+            ReignSpymasterOrganicTestLedger ledger = FindOrganicLedger(court, runId);
             if (ledger == null || !ledger.DisposableSaveConfirmed)
                 return OrganicFailure(runId, "control_outcomes", "Prepare the organic ledger on a disposable save first.");
             string batchLabel = (string)options["batch"] ?? string.Empty;
@@ -362,7 +363,7 @@ namespace ReignBeta.Court
             float unitRoll = Math.Max(0f, Math.Min(0.999999f, (float?)options["unitRoll"] ?? 0f));
             float? consequenceUnitRoll = options["consequenceUnitRoll"] == null
                 ? (float?)null : Math.Max(0f, Math.Min(0.999999f, (float)options["consequenceUnitRoll"]));
-            List<ReignSpymasterMission> missions = EnsureSpymasterState().Missions.Where(x =>
+            List<ReignSpymasterMission> missions = court.EnsureSpymasterState().Missions.Where(x =>
                 batch.MissionIds.Contains(x.MissionId, StringComparer.OrdinalIgnoreCase)
                 && x.State == ReignSpymasterMissionState.Active
                 && (requestedTypes.Count == 0 || requestedTypes.Contains(x.MissionType))).ToList();
@@ -387,9 +388,9 @@ namespace ReignBeta.Court
             return result;
         }
 
-        private JObject VerifyControlledMissionOutcomes(string runId, JObject options)
+        private static JObject VerifyControlledMissionOutcomes(ReignCourtCampaignBehavior court, string runId, JObject options)
         {
-            ReignSpymasterOrganicTestLedger ledger = FindOrganicLedger(runId);
+            ReignSpymasterOrganicTestLedger ledger = FindOrganicLedger(court, runId);
             if (ledger == null) return OrganicFailure(runId, "verify_controlled_outcomes", "No organic Spymaster ledger exists for this run.");
             string batchLabel = (string)options["batch"] ?? string.Empty;
             ReignSpymasterOrganicBatchRecord batch = ledger.Batches.LastOrDefault(x =>
@@ -402,7 +403,7 @@ namespace ReignBeta.Court
             HashSet<string> controlledMissionIds = new HashSet<string>(
                 ReignSpymasterTestRuntime.ControlledMissionIds(runId),
                 StringComparer.OrdinalIgnoreCase);
-            List<ReignSpymasterMission> missions = EnsureSpymasterState().Missions.Where(x =>
+            List<ReignSpymasterMission> missions = court.EnsureSpymasterState().Missions.Where(x =>
                 batch.MissionIds.Contains(x.MissionId, StringComparer.OrdinalIgnoreCase)
                 && controlledMissionIds.Contains(x.MissionId)
                 && (requestedTypes.Count == 0 || requestedTypes.Contains(x.MissionType))).ToList();
@@ -419,13 +420,13 @@ namespace ReignBeta.Court
                 });
             JObject result = OrganicResult(runId, "verify_controlled_outcomes", assertions);
             result["controlledMissionIds"] = new JArray(controlledMissionIds);
-            result["state"] = OrganicStateSnapshot(ledger);
+            result["state"] = OrganicStateSnapshot(court, ledger);
             return result;
         }
 
-        private JObject VerifyControlledAssassination(string runId, JObject options)
+        private static JObject VerifyControlledAssassination(ReignCourtCampaignBehavior court, string runId, JObject options)
         {
-            ReignSpymasterMission mission = ControlledMissionFromBatch(runId, options);
+            ReignSpymasterMission mission = ControlledMissionFromBatch(court, runId, options);
             Hero target = mission == null ? null : Hero.AllAliveHeroes
                 .Concat(Hero.DeadOrDisabledHeroes)
                 .FirstOrDefault(x => x != null && string.Equals(x.StringId, mission.TargetStringId, StringComparison.Ordinal));
@@ -441,13 +442,13 @@ namespace ReignBeta.Court
             return OrganicResult(runId, "verify_controlled_assassination", assertions);
         }
 
-        private JObject VerifyControlledCapture(string runId, JObject options)
+        private static JObject VerifyControlledCapture(ReignCourtCampaignBehavior court, string runId, JObject options)
         {
-            ReignSpymasterMission mission = ControlledMissionFromBatch(runId, options);
+            ReignSpymasterMission mission = ControlledMissionFromBatch(court, runId, options);
             JArray assertions = new JArray();
             AddOrganicAssertion(assertions, "controlled_spymaster_captured",
-                mission != null && mission.AttributionPending && ActiveSpymaster?.IsPrisoner == true
-                && PendingCapturedSpymasterMission?.MissionId == mission.MissionId,
+                mission != null && mission.AttributionPending && court.ActiveSpymaster?.IsPrisoner == true
+                && court.PendingCapturedSpymasterMission?.MissionId == mission.MissionId,
                 "The exact failed production assassination captured the Spymaster without exposing the sponsor.",
                 mission == null ? null : OrganicMissionSnapshot(mission));
             AddOrganicAssertion(assertions, "controlled_capture_controls_consumed",
@@ -456,27 +457,27 @@ namespace ReignBeta.Court
             return OrganicResult(runId, "verify_controlled_capture", assertions);
         }
 
-        private ReignSpymasterMission ControlledMissionFromBatch(string runId, JObject options)
+        private static ReignSpymasterMission ControlledMissionFromBatch(ReignCourtCampaignBehavior court, string runId, JObject options)
         {
-            ReignSpymasterOrganicTestLedger ledger = FindOrganicLedger(runId);
+            ReignSpymasterOrganicTestLedger ledger = FindOrganicLedger(court, runId);
             string batchLabel = (string)options["batch"] ?? string.Empty;
             ReignSpymasterOrganicBatchRecord batch = ledger?.Batches.LastOrDefault(x =>
                 string.Equals(x.Label, batchLabel, StringComparison.OrdinalIgnoreCase));
             HashSet<string> controlled = new HashSet<string>(
                 ReignSpymasterTestRuntime.ControlledMissionIds(runId), StringComparer.OrdinalIgnoreCase);
-            return batch == null ? null : EnsureSpymasterState().Missions.FirstOrDefault(x =>
+            return batch == null ? null : court.EnsureSpymasterState().Missions.FirstOrDefault(x =>
                 batch.MissionIds.Contains(x.MissionId, StringComparer.OrdinalIgnoreCase)
                 && controlled.Contains(x.MissionId));
         }
 
-        private JObject ControlForeignAgentAction(string runId, JObject options)
+        private static JObject ControlForeignAgentAction(ReignCourtCampaignBehavior court, string runId, JObject options)
         {
             if (!string.Equals((string)options["confirmation"], ControlledAgentActionConfirmation, StringComparison.Ordinal))
                 return OrganicFailure(runId, "control_agent_action", "The exact controlled foreign-agent confirmation is required.");
-            ReignSpymasterOrganicTestLedger ledger = FindOrganicLedger(runId);
+            ReignSpymasterOrganicTestLedger ledger = FindOrganicLedger(court, runId);
             if (ledger == null || !ledger.DisposableSaveConfirmed)
                 return OrganicFailure(runId, "control_agent_action", "Prepare the organic ledger on a disposable save first.");
-            ReignForeignAgentRecord agent = EnsureSpymasterState().ForeignAgents.FirstOrDefault(x => x.Activated && !x.Exposed);
+            ReignForeignAgentRecord agent = court.EnsureSpymasterState().ForeignAgents.FirstOrDefault(x => x.Activated && !x.Exposed);
             if (agent == null)
                 return OrganicFailure(runId, "control_agent_action", "No active hidden foreign agent is available for the exact one-shot action control.");
             float unitRoll = Math.Max(0f, Math.Min(0.999999f, (float?)options["unitRoll"] ?? 0f));
@@ -496,13 +497,13 @@ namespace ReignBeta.Court
             return result;
         }
 
-        private JObject VerifyControlledForeignAgentAction(string runId)
+        private static JObject VerifyControlledForeignAgentAction(ReignCourtCampaignBehavior court, string runId)
         {
-            ReignSpymasterOrganicTestLedger ledger = FindOrganicLedger(runId);
+            ReignSpymasterOrganicTestLedger ledger = FindOrganicLedger(court, runId);
             if (ledger == null) return OrganicFailure(runId, "verify_controlled_agent_action", "No organic Spymaster ledger exists for this run.");
             JObject receipt = ReignSpymasterTestRuntime.LastForeignAgentActionReceipt(runId);
             string actionId = (string)receipt?["actionId"] ?? string.Empty;
-            ReignForeignAgentActionRecord action = EnsureSpymasterState().ForeignAgentActions.FirstOrDefault(x =>
+            ReignForeignAgentActionRecord action = court.EnsureSpymasterState().ForeignAgentActions.FirstOrDefault(x =>
                 string.Equals(x.ActionId, actionId, StringComparison.OrdinalIgnoreCase));
             JArray assertions = new JArray();
             AddOrganicAssertion(assertions, "controlled_agent_action_production_path", receipt?.Value<bool?>("consumed") == true
@@ -515,32 +516,32 @@ namespace ReignBeta.Court
             return result;
         }
 
-        private JObject ObserveOrganicTest(string runId, JObject options)
+        private static JObject ObserveOrganicTest(ReignCourtCampaignBehavior court, string runId, JObject options)
         {
-            ReignSpymasterOrganicTestLedger ledger = FindOrganicLedger(runId);
+            ReignSpymasterOrganicTestLedger ledger = FindOrganicLedger(court, runId);
             if (ledger == null) return OrganicFailure(runId, "observe", "No organic Spymaster ledger exists for this run.");
-            JObject snapshot = OrganicStateSnapshot(ledger);
+            JObject snapshot = OrganicStateSnapshot(court, ledger);
             snapshot["stage"] = (string)options?["stage"] ?? "observation";
             snapshot["capturedUtc"] = DateTime.UtcNow.ToString("o");
             ledger.LastObservedDay = CurrentDayFloat();
-            ledger.ObservationJson.Add(OrganicLedgerCheckpoint(ledger, (string)snapshot["stage"]).ToString(Formatting.None));
+            ledger.ObservationJson.Add(OrganicLedgerCheckpoint(court, ledger, (string)snapshot["stage"]).ToString(Formatting.None));
             if (ledger.ObservationJson.Count > OrganicLedgerMaxObservations)
                 ledger.ObservationJson.RemoveRange(0, ledger.ObservationJson.Count - OrganicLedgerMaxObservations);
-            StateChanged?.Invoke();
+            court.RaiseStateChanged();
             JObject result = new JObject
             {
                 ["ok"] = true, ["runId"] = runId, ["profile"] = "organic", ["phase"] = "observe",
-                ["snapshot"] = snapshot, ["agentRequest"] = BuildSpymasterOrganicAgentRequest(),
+                ["snapshot"] = snapshot, ["agentRequest"] = BuildSpymasterOrganicAgentRequest(court),
                 ["testRuntimeActive"] = ReignSpymasterTestRuntime.Active
             };
             return result;
         }
 
-        private JObject EvaluateOrganicTest(string runId, JObject options)
+        private static JObject EvaluateOrganicTest(ReignCourtCampaignBehavior court, string runId, JObject options)
         {
-            ReignSpymasterOrganicTestLedger ledger = FindOrganicLedger(runId);
+            ReignSpymasterOrganicTestLedger ledger = FindOrganicLedger(court, runId);
             if (ledger == null) return OrganicFailure(runId, "evaluate", "No organic Spymaster ledger exists for this run.");
-            ReignSpymasterState state = EnsureSpymasterState();
+            ReignSpymasterState state = court.EnsureSpymasterState();
             List<ReignSpymasterMission> missions = state.Missions.Where(x => ledger.MissionIds.Contains(x.MissionId, StringComparer.OrdinalIgnoreCase)).ToList();
             List<ReignSpymasterMission> resolved = missions.Where(x => x.State != ReignSpymasterMissionState.Active).ToList();
             List<ReignForeignAgentRecord> newAgents = state.ForeignAgents.Where(x => !ledger.InitialAgentHeroIds.Contains(x.AgentHeroStringId, StringComparer.OrdinalIgnoreCase)).ToList();
@@ -612,7 +613,7 @@ namespace ReignBeta.Court
                 .Where(x => !x.Exposed).GroupBy(x => x.SponsorKingdomStringId, StringComparer.OrdinalIgnoreCase).All(g => g.Count() <= 1),
                 "No enemy kingdom retains more than one hidden active or dormant agent; exposed agents remain historical records.", null);
             AddOrganicAssertion(assertions, "organic_agent_locality", newAgents.All(x => !string.IsNullOrWhiteSpace(x.SettlementStringId)
-                && OrganicSettlementBelongsToPlayer(x.SettlementStringId)),
+                && OrganicSettlementBelongsToPlayer(court, x.SettlementStringId)),
                 "Naturally recruited noble and notable agents map to a valid player town or castle.", null);
             AddOrganicAssertion(assertions, "organic_agent_tick_timing", newAgents.All(x => x.RecruitedDay + 0.001f >= ledger.StartedDay + 5f),
                 "No organic foreign agent appears before the first genuine five-day recruitment boundary.", null);
@@ -623,7 +624,7 @@ namespace ReignBeta.Court
             if ((bool?)options["requireAgentRecruitment"] == true)
                 AddOrganicAssertion(assertions, "organic_agent_recruited", newAgents.Count > 0,
                     "At least one foreign agent was recruited by the genuine five-day server tick.", new JArray(newAgents.Select(x => JObject.FromObject(x))));
-            bool actionTargetsPlayer = newActions.All(x => OrganicSettlementBelongsToPlayer(x.SettlementStringId));
+            bool actionTargetsPlayer = newActions.All(x => OrganicSettlementBelongsToPlayer(court, x.SettlementStringId));
             bool actionEffectsApplied = newActions.All(a => state.Effects.Any(e => e.SettlementStringId == a.SettlementStringId
                 && e.AgentHeroStringId == a.AgentHeroStringId && e.EffectType == a.EffectType));
             AddOrganicAssertion(assertions, "organic_enemy_actions_valid", actionTargetsPlayer && actionEffectsApplied
@@ -651,45 +652,45 @@ namespace ReignBeta.Court
                 { ["trials"] = resolved.Count, ["observedSuccesses"] = observedSuccess, ["expectedSuccesses"] = expected, ["tolerance"] = tolerance });
 
             JObject result = OrganicResult(runId, "evaluate", assertions);
-            result["snapshot"] = OrganicStateSnapshot(ledger);
-            result["agentRequest"] = BuildSpymasterOrganicAgentRequest();
+            result["snapshot"] = OrganicStateSnapshot(court, ledger);
+            result["agentRequest"] = BuildSpymasterOrganicAgentRequest(court);
             result["recommendedNext"] = OrganicRecommendedNext(assertions);
             return result;
         }
 
-        private JObject VerifyOrganicReload(string runId)
+        private static JObject VerifyOrganicReload(ReignCourtCampaignBehavior court, string runId)
         {
-            ReignSpymasterOrganicTestLedger ledger = FindOrganicLedger(runId);
+            ReignSpymasterOrganicTestLedger ledger = FindOrganicLedger(court, runId);
             JArray assertions = new JArray();
             AddOrganicAssertion(assertions, "organic_ledger_survived_reload", ledger != null && ledger.DisposableSaveConfirmed
                 && string.Equals(ledger.CampaignId, ReignCampaignIdentity.CurrentCampaignId(), StringComparison.OrdinalIgnoreCase),
                 "The organic acceptance ledger survived a native save/process restart/load boundary.", ledger == null ? null : JObject.FromObject(ledger));
             if (ledger != null)
             {
-                ReignSpymasterState state = EnsureSpymasterState();
+                ReignSpymasterState state = court.EnsureSpymasterState();
                 AddOrganicAssertion(assertions, "organic_tracked_state_survived_reload", ledger.MissionIds.All(id => state.Missions.Any(x => x.MissionId == id))
                     && state.AppliedForeignAgentActionIds.Distinct(StringComparer.OrdinalIgnoreCase).Count() == state.AppliedForeignAgentActionIds.Count,
                     "Tracked missions and enemy-action idempotency keys survived reload without duplication.", null);
             }
             JObject result = OrganicResult(runId, "verify_reload", assertions);
-            if (ledger != null) result["snapshot"] = OrganicStateSnapshot(ledger);
-            result["agentRequest"] = BuildSpymasterOrganicAgentRequest();
+            if (ledger != null) result["snapshot"] = OrganicStateSnapshot(court, ledger);
+            result["agentRequest"] = BuildSpymasterOrganicAgentRequest(court);
             return result;
         }
 
-        private JObject AttemptOrganicBreakout(string runId, JObject options)
+        private static JObject AttemptOrganicBreakout(ReignCourtCampaignBehavior court, string runId, JObject options)
         {
-            ReignSpymasterOrganicTestLedger ledger = FindOrganicLedger(runId);
+            ReignSpymasterOrganicTestLedger ledger = FindOrganicLedger(court, runId);
             if (ledger == null || !ledger.DisposableSaveConfirmed)
                 return OrganicFailure(runId, "attempt_breakout", "Prepare the organic ledger on a disposable save first.");
             if ((bool?)options["allowIrreversible"] != true
                 || !string.Equals((string)options["confirmation"], OrganicIrreversibleConfirmation, StringComparison.Ordinal))
                 return OrganicFailure(runId, "attempt_breakout", "The exact irreversible disposable-save confirmation is required.");
-            if (!CanAttemptSpymasterBreakout)
+            if (!court.CanAttemptSpymasterBreakout)
                 return new JObject { ["ok"] = true, ["runId"] = runId, ["profile"] = "organic", ["phase"] = "attempt_breakout",
                     ["status"] = "not_applicable", ["message"] = "No naturally captured Spymaster is currently eligible; repeat the isolated assassination attempt if this branch still needs observation." };
-            float chance = GetSpymasterBreakoutChance();
-            ReignSpymasterMission pendingMission = PendingCapturedSpymasterMission;
+            float chance = court.GetSpymasterBreakoutChance();
+            ReignSpymasterMission pendingMission = court.PendingCapturedSpymasterMission;
             bool controlled = options["unitRoll"] != null;
             if (controlled)
             {
@@ -699,14 +700,14 @@ namespace ReignBeta.Court
                 float unitRoll = Math.Max(0f, Math.Min(0.999999f, (float)options["unitRoll"]));
                 ReignSpymasterTestRuntime.ForceBreakoutOutcome(runId, pendingMission.MissionId, unitRoll);
             }
-            string message = AttemptSpymasterBreakout();
+            string message = court.AttemptSpymasterBreakout();
             if (!controlled)
                 return new JObject { ["ok"] = true, ["runId"] = runId, ["profile"] = "organic", ["phase"] = "attempt_breakout",
                     ["status"] = "attempted", ["displayedChance"] = chance, ["message"] = message,
-                    ["playerPrisoner"] = Hero.MainHero?.IsPrisoner == true, ["spymasterPrisoner"] = ActiveSpymaster?.IsPrisoner == true };
+                    ["playerPrisoner"] = Hero.MainHero?.IsPrisoner == true, ["spymasterPrisoner"] = court.ActiveSpymaster?.IsPrisoner == true };
             JArray assertions = new JArray();
             AddOrganicAssertion(assertions, "controlled_breakout_succeeded",
-                string.IsNullOrEmpty(message) && ActiveSpymaster?.IsPrisoner != true
+                string.IsNullOrEmpty(message) && court.ActiveSpymaster?.IsPrisoner != true
                 && pendingMission.AttributionPending == false
                 && (pendingMission.ResultSummary ?? string.Empty).IndexOf("personally broke", StringComparison.OrdinalIgnoreCase) >= 0,
                 "The production breakout consumed the exact one-shot, freed the Spymaster, and preserved sponsor concealment.",
@@ -717,31 +718,31 @@ namespace ReignBeta.Court
             JObject result = OrganicResult(runId, "attempt_breakout", assertions);
             result["displayedChance"] = chance;
             result["playerPrisoner"] = Hero.MainHero?.IsPrisoner == true;
-            result["spymasterPrisoner"] = ActiveSpymaster?.IsPrisoner == true;
+            result["spymasterPrisoner"] = court.ActiveSpymaster?.IsPrisoner == true;
             return result;
         }
 
-        private JObject CleanupOrganicLedger(string runId)
+        private static JObject CleanupOrganicLedger(ReignCourtCampaignBehavior court, string runId)
         {
-            ReignSpymasterState state = EnsureSpymasterState();
-            ReignSpymasterOrganicTestLedger ledger = FindOrganicLedger(runId);
+            ReignSpymasterState state = court.EnsureSpymasterState();
+            ReignSpymasterOrganicTestLedger ledger = FindOrganicLedger(court, runId);
             int removed = state.OrganicTestLedgers.RemoveAll(x => string.Equals(x.RunId, runId, StringComparison.OrdinalIgnoreCase));
             if (ledger != null && state.OrganicTestLedgers.Count == 0) state.LastAgentRecruitmentDay = ledger.PreviousAgentRecruitmentDay;
             ReignSpymasterTestRuntime.Reset();
-            StateChanged?.Invoke();
+            court.RaiseStateChanged();
             return new JObject { ["ok"] = true, ["runId"] = runId, ["profile"] = "organic", ["phase"] = "cleanup_marker",
                 ["ledgersRemoved"] = removed, ["requiresSaveRollback"] = true,
                 ["message"] = "The marker was removed. Restore the pre-test checkpoint and delete the disposable native save/Save Sync point to undo organic world effects." };
         }
 
-        private ReignSpymasterOrganicTestLedger FindOrganicLedger(string runId)
+        private static ReignSpymasterOrganicTestLedger FindOrganicLedger(ReignCourtCampaignBehavior court, string runId)
         {
-            return EnsureSpymasterState().OrganicTestLedgers.FirstOrDefault(x => string.Equals(x.RunId, runId, StringComparison.OrdinalIgnoreCase));
+            return court.EnsureSpymasterState().OrganicTestLedgers.FirstOrDefault(x => string.Equals(x.RunId, runId, StringComparison.OrdinalIgnoreCase));
         }
 
-        private JObject OrganicLedgerCheckpoint(ReignSpymasterOrganicTestLedger ledger, string stage)
+        private static JObject OrganicLedgerCheckpoint(ReignCourtCampaignBehavior court, ReignSpymasterOrganicTestLedger ledger, string stage)
         {
-            ReignSpymasterState state = EnsureSpymasterState();
+            ReignSpymasterState state = court.EnsureSpymasterState();
             return new JObject
             {
                 ["schemaVersion"] = 1,
@@ -757,9 +758,9 @@ namespace ReignBeta.Court
             };
         }
 
-        private JObject OrganicStateSnapshot(ReignSpymasterOrganicTestLedger ledger)
+        private static JObject OrganicStateSnapshot(ReignCourtCampaignBehavior court, ReignSpymasterOrganicTestLedger ledger)
         {
-            ReignSpymasterState state = EnsureSpymasterState();
+            ReignSpymasterState state = court.EnsureSpymasterState();
             List<ReignSpymasterMission> missions = state.Missions.Where(x => ledger.MissionIds.Contains(x.MissionId, StringComparer.OrdinalIgnoreCase)).ToList();
             List<ReignForeignAgentRecord> agents = state.ForeignAgents.Where(x => !ledger.InitialAgentHeroIds.Contains(x.AgentHeroStringId, StringComparer.OrdinalIgnoreCase)).ToList();
             List<ReignForeignAgentActionRecord> actions = state.ForeignAgentActions.Where(x => !ledger.InitialActionIds.Contains(x.ActionId, StringComparer.OrdinalIgnoreCase)).ToList();
@@ -769,8 +770,8 @@ namespace ReignBeta.Court
                 ["runId"] = ledger.RunId, ["campaignId"] = ledger.CampaignId, ["worldDay"] = CurrentDayFloat(),
                 ["startedDay"] = ledger.StartedDay, ["elapsedDays"] = CurrentDayFloat() - ledger.StartedDay,
                 ["startingGold"] = ledger.StartingGold, ["currentGold"] = Hero.MainHero?.Gold ?? 0,
-                ["spymaster"] = SnapshotHero(ActiveSpymaster), ["missionCapacity"] = SpymasterMissionCapacity,
-                ["activeMissionCount"] = ActiveSpymasterMissionCount, ["missions"] = new JArray(missions.Select(OrganicMissionSnapshot)),
+                ["spymaster"] = SnapshotHero(court.ActiveSpymaster), ["missionCapacity"] = court.SpymasterMissionCapacity,
+                ["activeMissionCount"] = court.ActiveSpymasterMissionCount, ["missions"] = new JArray(missions.Select(OrganicMissionSnapshot)),
                 ["newAgents"] = new JArray(agents.Select(x => JObject.FromObject(x))), ["newAgentActions"] = new JArray(actions.Select(x => JObject.FromObject(x))),
                 ["newEffects"] = new JArray(effects.Select(x => JObject.FromObject(x))), ["batches"] = JArray.FromObject(ledger.Batches),
                 ["playerSettlement"] = OrganicSettlementSnapshot(FindSettlement(ledger.PlayerSettlementStringId)),
@@ -815,20 +816,20 @@ namespace ReignBeta.Court
                 && mission.AttributionRoll < Math.Max(5f, Math.Min(95f, mission.DetectionChance * 0.7f));
         }
 
-        private Settlement OrganicPlayerSettlement(Kingdom player)
+        private static Settlement OrganicPlayerSettlement(ReignCourtCampaignBehavior court, Kingdom player)
         {
             return Town.AllFiefs.Where(x => x?.Settlement?.IsFortification == true && x.OwnerClan?.Kingdom == player)
                 .OrderBy(x => x.Settlement.StringId).Select(x => x.Settlement).FirstOrDefault();
         }
 
-        private Settlement OrganicForeignSettlement(Kingdom player, int offset)
+        private static Settlement OrganicForeignSettlement(ReignCourtCampaignBehavior court, Kingdom player, int offset)
         {
             List<Settlement> rows = Town.AllFiefs.Where(x => x?.Settlement?.IsFortification == true && x.OwnerClan?.Kingdom != null
                 && x.OwnerClan.Kingdom != player).OrderBy(x => x.Settlement.StringId).Select(x => x.Settlement).ToList();
             return rows.Count == 0 ? null : rows[Math.Abs(offset) % rows.Count];
         }
 
-        private Hero OrganicForeignHero(Kingdom player, int offset)
+        private static Hero OrganicForeignHero(ReignCourtCampaignBehavior court, Kingdom player, int offset)
         {
             List<Hero> rows = Hero.AllAliveHeroes.Where(x => x?.IsLord == true && x.Clan?.Kingdom != null && x.Clan.Kingdom != player)
                 .OrderBy(x => x.StringId).ToList();
@@ -849,7 +850,7 @@ namespace ReignBeta.Court
             };
         }
 
-        private bool OrganicSettlementBelongsToPlayer(string settlementId)
+        private static bool OrganicSettlementBelongsToPlayer(ReignCourtCampaignBehavior court, string settlementId)
         {
             Settlement settlement = FindSettlement(settlementId);
             return settlement?.Town?.OwnerClan?.Kingdom != null && settlement.Town.OwnerClan.Kingdom == Clan.PlayerClan?.Kingdom;

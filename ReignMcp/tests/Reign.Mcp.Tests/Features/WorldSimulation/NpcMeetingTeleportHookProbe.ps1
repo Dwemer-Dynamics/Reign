@@ -130,7 +130,7 @@ try {
     if($owns.Invoke($lives,[object[]]@('returning'))){throw 'Native travel remained blocked after return lease retirement.'};$leaseChecks++
     # Exercise the compiled control's complete ownership cross-product and its
     # monotonic deadline, including nonfinite and negative elapsed values.
-    $announcementGuard=$livesType.GetMethod('AnnouncementTransportScopeAllows',$static)
+    $announcementGuard=$client.GetType('ReignBeta.Campaign.ReignNpcLivesTestControls',$true).GetMethod('AnnouncementTransportScopeAllows',$static)
     if($null -eq $announcementGuard){throw 'Compiled announcement transport scope guard is unavailable.'}
     $elapsedCases=@(0d,179.999d,180d,181d,-1d,[double]::NaN,[double]::PositiveInfinity,[double]::NegativeInfinity)
     for($mask=0;$mask -lt 256;$mask++){

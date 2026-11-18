@@ -72,8 +72,8 @@ namespace ReignBeta.Campaign
     }
     public sealed partial class ReignNpcLivesBehavior
     {
-        private Dictionary<string, NpcPersonalJourney> _personalTravel = new Dictionary<string, NpcPersonalJourney>(StringComparer.Ordinal);
-        private Dictionary<string, NpcMeetingJourney> _meetingTravel = new Dictionary<string, NpcMeetingJourney>(StringComparer.Ordinal);
+        internal Dictionary<string, NpcPersonalJourney> _personalTravel = new Dictionary<string, NpcPersonalJourney>(StringComparer.Ordinal);
+        internal Dictionary<string, NpcMeetingJourney> _meetingTravel = new Dictionary<string, NpcMeetingJourney>(StringComparer.Ordinal);
         private sealed class WeddingAttendanceLease
         {
             public string OwnerId = "", TownId = "", ChildOrigin = "";
@@ -82,8 +82,8 @@ namespace ReignBeta.Campaign
 
         private Dictionary<string, WeddingAttendanceLease> _weddingAttendance = new Dictionary<string, WeddingAttendanceLease>();
 
-        private Dictionary<string, NpcLifeDuty> _lifeDuties = new Dictionary<string, NpcLifeDuty>(StringComparer.Ordinal);
-        private Dictionary<string, JObject> _storyEncounters = new Dictionary<string, JObject>(StringComparer.Ordinal);
+        internal Dictionary<string, NpcLifeDuty> _lifeDuties = new Dictionary<string, NpcLifeDuty>(StringComparer.Ordinal);
+        internal Dictionary<string, JObject> _storyEncounters = new Dictionary<string, JObject>(StringComparer.Ordinal);
         private double _travelTickDay = -1;
         internal bool IsAwayOnPersonalBusiness(string hero) => _personalTravel.Values.Any(l => l.HeroId == hero && l.Status == "away")
             || _lifeDuties.TryGetValue(hero, out var duty) && !duty.WasLeader;
@@ -100,11 +100,11 @@ namespace ReignBeta.Campaign
             _storyBindings = saved["bindings"]?.ToObject<Dictionary<string, JObject>>() ?? new Dictionary<string, JObject>();
             _travelTickDay = -1;
         }
-        private static bool Free(Hero h) => h != null && h.IsAlive && !h.IsPrisoner && h.PartyBelongedTo?.MapEvent == null;
-        private static bool TravelSafe() => Mission.Current == null && MobileParty.MainParty?.MapEvent == null
+        internal static bool Free(Hero h) => h != null && h.IsAlive && !h.IsPrisoner && h.PartyBelongedTo?.MapEvent == null;
+        internal static bool TravelSafe() => Mission.Current == null && MobileParty.MainParty?.MapEvent == null
             && TaleWorlds.CampaignSystem.Campaign.Current?.ConversationManager?.IsConversationInProgress != true
             && !ReignBeta.UI.ReignIndividualChatScreenManager.IsOpen && !ReignBeta.UI.ReignPartyChatScreenManager.IsOpenOrPending;
-        private static bool SafePlace(Hero h, Settlement s) => h != null && s != null && !s.IsUnderSiege && !s.IsHideout
+        internal static bool SafePlace(Hero h, Settlement s) => h != null && s != null && !s.IsUnderSiege && !s.IsHideout
             && !FactionManager.IsAtWarAgainstFaction(h.MapFaction, s.MapFaction);
         private static string CurrentLifeGuestAgreement(Hero hero) => ReignBeta.PartyAgency.ReignTemporaryPartyGuestCampaignBehavior.Instance?.Records
             .FirstOrDefault(r => r.HeroStringId == hero?.StringId && r.IsLive)?.AgreementId ?? "";
@@ -388,7 +388,7 @@ namespace ReignBeta.Campaign
                 }
             }
         }
-        private static NpcPartyContentObservation ObserveLifePartyContents(MobileParty party) => NpcPartyContentObservation.Capture(party.StringId,
+        internal static NpcPartyContentObservation ObserveLifePartyContents(MobileParty party) => NpcPartyContentObservation.Capture(party.StringId,
             party.MemberRoster.GetTroopRoster().Select(r => new NpcPartyRosterEntry { CharacterId = r.Character?.StringId ?? "",
                 Number = r.Number, Wounded = r.WoundedNumber, Xp = r.Xp }),
             party.PrisonRoster.GetTroopRoster().Select(r => new NpcPartyRosterEntry { CharacterId = r.Character?.StringId ?? "",

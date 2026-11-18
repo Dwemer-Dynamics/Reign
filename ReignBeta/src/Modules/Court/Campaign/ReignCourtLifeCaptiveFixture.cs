@@ -6,12 +6,13 @@ using ReignBeta.Campaign;
 using TaleWorlds.CampaignSystem;
 using TaleWorlds.CampaignSystem.Actions;
 using TaleWorlds.CampaignSystem.Party;
+using static ReignBeta.Court.ReignCourtCampaignBehavior;
 
 namespace ReignBeta.Court
 {
-    public sealed partial class ReignCourtCampaignBehavior
+    internal static partial class ReignCourtTestControls
     {
-        private JObject CourtLifeCustody(Hero hero)
+        private static JObject CourtLifeCustody(Hero hero)
             => new JObject { ["heroId"] = hero?.StringId, ["exists"] = hero != null,
                 ["name"] = hero?.Name?.ToString(), ["age"] = hero?.Age, ["alive"] = hero?.IsAlive,
                 ["kingdomId"] = hero?.Clan?.Kingdom?.StringId, ["gold"] = hero?.Gold,
@@ -20,27 +21,27 @@ namespace ReignBeta.Court
                 ["custodianHeroId"] = hero?.PartyBelongedToAsPrisoner?.Owner?.StringId,
                 ["heldByPlayer"] = hero != null && hero.IsPrisoner && hero.PartyBelongedToAsPrisoner?.Owner == Hero.MainHero };
 
-        private bool IsCourtLifeCaptiveFixtureCandidate(Hero hero)
-            => CourtLifeCaptiveExclusion(hero) == string.Empty;
+        private static bool IsCourtLifeCaptiveFixtureCandidate(ReignCourtCampaignBehavior court, Hero hero)
+            => CourtLifeCaptiveExclusion(court, hero) == string.Empty;
 
-        private string CourtLifeCaptiveExclusion(Hero hero)
+        private static string CourtLifeCaptiveExclusion(ReignCourtCampaignBehavior court, Hero hero)
         {
             Kingdom ours = Clan.PlayerClan?.Kingdom, origin = hero?.Clan?.Kingdom;
             if (ours == null || origin == null || origin == ours) return "not_foreign";
-            if (!IsEligibleNobleVisitor(hero, ours)) return "native_status_or_assignment";
-            if (!InternationalOriginEligible(origin, ours)) return "origin_or_envoy_ineligible";
-            if (FindInternationalCaptive(origin) != null) return "existing_player_captive_use_production_template";
-            var state = EnsureRulerDocketState();
+            if (!court.IsEligibleNobleVisitor(hero, ours)) return "native_status_or_assignment";
+            if (!court.InternationalOriginEligible(origin, ours)) return "origin_or_envoy_ineligible";
+            if (court.FindInternationalCaptive(origin) != null) return "existing_player_captive_use_production_template";
+            var state = court.EnsureRulerDocketState();
             if (state.CourtLifeMatters.Any(m => m.IsPending && m.Participants.Any(p => p.HeroId == hero.StringId)))
                 return "participant_in_pending_matter";
             // Capturing the fixture must leave an actual eligible envoy available.
-            return _foreignAmbassadors.Any(a => a.IsActive && a.OriginKingdomStringId == origin.StringId)
-                || EligibleForeignAmbassadorCandidates(origin).Any(h => h != hero) ? string.Empty : "no_remaining_envoy";
+            return court._foreignAmbassadors.Any(a => a.IsActive && a.OriginKingdomStringId == origin.StringId)
+                || court.EligibleForeignAmbassadorCandidates(origin).Any(h => h != hero) ? string.Empty : "no_remaining_envoy";
         }
 
-        private JObject CourtLifeCaptiveInventory()
+        private static JObject CourtLifeCaptiveInventory(ReignCourtCampaignBehavior court)
         {
-            var inventory = Hero.AllAliveHeroes.Select(h => new { Hero = h, Exclusion = CourtLifeCaptiveExclusion(h) }).ToList();
+            var inventory = Hero.AllAliveHeroes.Select(h => new { Hero = h, Exclusion = CourtLifeCaptiveExclusion(court, h) }).ToList();
             var candidates = inventory.Where(x => x.Exclusion == string.Empty).Select(x => x.Hero).OrderBy(h => h.StringId).ToList();
             return new JObject { ["schema"] = "reign-court-life-custody-v1", ["readOnly"] = true,
                 ["candidateCount"] = candidates.Count, ["truncated"] = candidates.Count > 64,
@@ -52,16 +53,16 @@ namespace ReignBeta.Court
                 ["mainPartyOwnedByPlayer"] = PartyBase.MainParty?.Owner == Hero.MainHero };
         }
 
-        private ReignCourtLifeMatter PrepareCourtLifeCaptiveMatter(string runId, string heroId, string templateId,
+        private static ReignCourtLifeMatter PrepareCourtLifeCaptiveMatter(ReignCourtCampaignBehavior court, string runId, string heroId, string templateId,
             int slot, string save, string instance, out JObject receipt, out string reason)
         {
             receipt = null; reason = string.Empty;
             ReignInternationalTemplate template = ReignInternationalDocketCatalog.Find(templateId);
             Hero hero = FindHero(heroId);
-            if (template?.RequiresCaptive != true || !IsCourtLifeCaptiveFixtureCandidate(hero)
+            if (template?.RequiresCaptive != true || !IsCourtLifeCaptiveFixtureCandidate(court, hero)
                 || PartyBase.MainParty == null || PartyBase.MainParty.Owner != Hero.MainHero)
             { reason = "Exact eligible captive candidate, captive template and player-owned native main party are required."; return null; }
-            if (FindRulerDocketMarker(runId) != null)
+            if (FindRulerDocketMarker(court, runId) != null)
             { reason = "This fixture ID already has preparation evidence. Inspect it and restore the guarded pre-fixture checkpoint before retrying a partial capture."; return null; }
             Kingdom origin = hero.Clan.Kingdom;
             if (template.Id.Contains("ransom") && origin.Leader.Gold < template.Gold)
@@ -71,32 +72,32 @@ namespace ReignBeta.Court
                 ["requiresCheckpointRollback"] = true, ["saveName"] = save };
             // Record intent before the native action: callback failure must never permit a blind second capture.
             var marker = new JObject { ["runId"] = runId, ["preparedGameInstance"] = instance, ["captiveFixture"] = receipt };
-            StoreRulerDocketMarker(marker); StateChanged?.Invoke();
+            StoreRulerDocketMarker(court, marker); court.RaiseStateChanged();
             try
             {
                 TakePrisonerAction.Apply(PartyBase.MainParty, hero);
                 receipt["after"] = CourtLifeCustody(hero);
-                if (FindInternationalCaptive(origin) != hero || !InternationalOriginEligible(origin, Clan.PlayerClan.Kingdom)
-                    || !InternationalTemplateEligible(template, origin, Clan.PlayerClan.Kingdom))
+                if (court.FindInternationalCaptive(origin) != hero || !court.InternationalOriginEligible(origin, Clan.PlayerClan.Kingdom)
+                    || !court.InternationalTemplateEligible(template, origin, Clan.PlayerClan.Kingdom))
                     throw new InvalidOperationException("Native capture did not satisfy the unchanged production template prerequisites.");
-                ReignCourtLifeMatter matter = BuildInternationalMatter(template, origin, Session.CampaignId, Session.TimelineId, CurrentDay(), slot, null);
+                ReignCourtLifeMatter matter = court.BuildInternationalMatter(template, origin, court.Session.CampaignId, court.Session.TimelineId, CurrentDay(), slot, null);
                 if (matter == null || ParseObject(matter.PayloadJson).Value<string>("captiveId") != heroId)
                     throw new InvalidOperationException("The production matter did not bind the exact fixture captive.");
                 receipt["status"] = "captured_and_bound";
                 marker["courtLifeMatterId"] = matter.MatterId;
-                StoreRulerDocketMarker(marker); StateChanged?.Invoke();
+                StoreRulerDocketMarker(court, marker); court.RaiseStateChanged();
                 return matter;
             }
             catch (Exception ex)
             {
                 receipt["after"] = CourtLifeCustody(hero); receipt["status"] = "partial_failure";
-                receipt["error"] = ex.Message; StoreRulerDocketMarker(marker); StateChanged?.Invoke();
+                receipt["error"] = ex.Message; StoreRulerDocketMarker(court, marker); court.RaiseStateChanged();
                 reason = "Captive setup failed; inspect its persisted custody receipt and restore the guarded pre-fixture checkpoint before retry: " + ex.Message;
                 return null;
             }
         }
 
-        private JObject CourtLifeInternationalNativeState(ReignCourtLifeMatter matter)
+        private static JObject CourtLifeInternationalNativeState(ReignCourtCampaignBehavior court, ReignCourtLifeMatter matter)
         {
             JObject payload = ParseObject(matter.PayloadJson);
             Kingdom ours = Clan.PlayerClan?.Kingdom;

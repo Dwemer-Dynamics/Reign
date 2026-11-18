@@ -13,12 +13,12 @@ namespace ReignBeta.Campaign
 {
     public sealed partial class ReignNpcLivesBehavior
     {
-        private sealed class CommunicationHostReservation
+        internal sealed class CommunicationHostReservation
         {
             public string Id = "", HostId = "", TargetId = "", DestinationId = "", Hash = "";
             public double ExpiresDay;
         }
-        private Dictionary<string, CommunicationHostReservation> _communicationHosts = new Dictionary<string, CommunicationHostReservation>();
+        internal Dictionary<string, CommunicationHostReservation> _communicationHosts = new Dictionary<string, CommunicationHostReservation>();
         internal bool HasPendingCommunicationReceipts => _outbox.Any(row => row.Value<string>("route") == "communication_receipt");
 
         private string CommunicationHostProblem(CommunicationHostReservation hold)

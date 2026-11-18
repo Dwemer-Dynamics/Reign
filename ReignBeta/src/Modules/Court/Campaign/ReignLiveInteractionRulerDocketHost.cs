@@ -180,7 +180,7 @@ namespace ReignBeta.Campaign
                                     : artError });
                 }
                 result = await ReignMainThread.InvokeAsync(() =>
-                    court.RunRulerDocketTestProfile(runId, phase, command, GameInstanceId)).ConfigureAwait(false);
+                    ReignCourtTestControls.RunRulerDocketTestProfile(court, runId, phase, command, GameInstanceId)).ConfigureAwait(false);
                 if (phase == "snapshot" || phase == "noble_snapshot")
                     result["audienceArt"] = await ReignMainThread.InvokeAsync(() =>
                         ReignBeta.UI.ReignCourtPetitionScreenManager.AutomationSceneEvidence).ConfigureAwait(false);
@@ -206,7 +206,7 @@ namespace ReignBeta.Campaign
                     {
                         await Task.Delay(500).ConfigureAwait(false);
                         result = await ReignMainThread.InvokeAsync(() =>
-                            court.RunRulerDocketTestProfile(runId, phase, command, GameInstanceId)).ConfigureAwait(false);
+                            ReignCourtTestControls.RunRulerDocketTestProfile(court, runId, phase, command, GameInstanceId)).ConfigureAwait(false);
                     }
                 }
                 if ((phase == "decide" || nobleDecision) && result.Value<bool?>("ok") == true)
@@ -267,7 +267,7 @@ namespace ReignBeta.Campaign
             string matterId = (result["matter"] as JObject)?.Value<string>("matterId")
                 ?? string.Empty;
             JObject state = await ReignMainThread.InvokeAsync(() =>
-                court.ObserveNobleDirectionalRelationshipStateForTest(matterId))
+                ReignCourtTestControls.ObserveNobleDirectionalRelationshipStateForTest(court, matterId))
                 .ConfigureAwait(false);
             DateTime deadline = DateTime.UtcNow.AddSeconds(90);
             while (state.Value<bool?>("required") == true
@@ -276,7 +276,7 @@ namespace ReignBeta.Campaign
             {
                 await Task.Delay(250).ConfigureAwait(false);
                 state = await ReignMainThread.InvokeAsync(() =>
-                    court.ObserveNobleDirectionalRelationshipStateForTest(matterId))
+                    ReignCourtTestControls.ObserveNobleDirectionalRelationshipStateForTest(court, matterId))
                     .ConfigureAwait(false);
             }
             result["directionalRelationshipState"] = state;

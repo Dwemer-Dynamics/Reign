@@ -40,7 +40,7 @@ namespace ReignBeta.Campaign
             // a new/completed story; re-entering it would disturb native context.
             campaign.GameMenuManager.RefreshMenuOptions(context);
         }
-        private bool WithPlayer(string id)
+        internal bool WithPlayer(string id)
         {
             Hero hero = ReignActionService.HeroById(id);
             return Free(hero) && hero.PartyBelongedTo == MobileParty.MainParty

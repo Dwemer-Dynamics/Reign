@@ -96,14 +96,14 @@ namespace ReignBeta.Court
             return null;
         }
 
-        private bool InternationalOriginEligible(Kingdom origin, Kingdom ours)
+        internal bool InternationalOriginEligible(Kingdom origin, Kingdom ours)
         {
             return origin != null && origin != ours && !origin.IsEliminated && origin.Leader?.IsAlive == true
                 && !ours.IsAtWarWith(origin) && (_foreignAmbassadors.Any(x => x.IsActive && x.OriginKingdomStringId == origin.StringId)
                     || EligibleForeignAmbassadorCandidates(origin).Count > 0);
         }
 
-        private bool InternationalTemplateEligible(ReignInternationalTemplate template, Kingdom origin, Kingdom ours)
+        internal bool InternationalTemplateEligible(ReignInternationalTemplate template, Kingdom origin, Kingdom ours)
         {
             ReignRulerDocketState state = EnsureRulerDocketState();
             JObject world = ParseObject(state.InternationalWorldJson);
@@ -133,13 +133,13 @@ namespace ReignBeta.Court
             return true;
         }
 
-        private Hero FindInternationalCaptive(Kingdom origin)
+        internal Hero FindInternationalCaptive(Kingdom origin)
         {
             return Hero.AllAliveHeroes.FirstOrDefault(x => x != null && x.IsAlive && x.IsLord && !x.IsChild && x.IsPrisoner
                 && x.Clan?.Kingdom == origin && x.PartyBelongedToAsPrisoner?.Owner == Hero.MainHero);
         }
 
-        private ReignCourtLifeMatter BuildInternationalMatter(ReignInternationalTemplate template, Kingdom origin,
+        internal ReignCourtLifeMatter BuildInternationalMatter(ReignInternationalTemplate template, Kingdom origin,
             string campaign, string timeline, int day, int slot, JObject queued)
         {
             Kingdom ours = Clan.PlayerClan.Kingdom;

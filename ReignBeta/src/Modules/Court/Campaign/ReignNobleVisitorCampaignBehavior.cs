@@ -112,7 +112,7 @@ namespace ReignBeta.Court
             if (result && IsNobleVisitorReserved(hero)) result = false;
         }
 
-        private bool IsEligibleNobleVisitor(Hero hero, Kingdom host, string ownStayId = "")
+        internal bool IsEligibleNobleVisitor(Hero hero, Kingdom host, string ownStayId = "")
         {
             if (hero == null || hero.Clan?.Kingdom == null || host == null) return false;
             bool reserved = (EnsureRulerDocketState().NobleVisitorStays ?? new List<ReignNobleVisitorStay>()).Any(s => s != null && s.StayId != ownStayId

@@ -59,7 +59,7 @@ namespace ReignBeta.Court
             return matter;
         }
 
-        private static IEnumerable<Hero> PatronageComingOfAgeChildren(Hero ruler)
+        internal static IEnumerable<Hero> PatronageComingOfAgeChildren(Hero ruler)
         {
             int adulthood = Math.Max(18, TaleWorlds.CampaignSystem.Campaign.Current?.Models.AgeModel.HeroComesOfAge ?? 18);
             return ruler.Children.Where(c => c != null && c.IsAlive && c.Age >= adulthood - 1 && c.Age < adulthood + 2);
@@ -84,7 +84,7 @@ namespace ReignBeta.Court
                 + householdSubjects;
         }
 
-        private IEnumerable<ReignDocketHistoryRecord> PatronageSubjectHistory(ReignPatronageTemplate template)
+        internal IEnumerable<ReignDocketHistoryRecord> PatronageSubjectHistory(ReignPatronageTemplate template)
         {
             ReignRulerDocketState state = EnsureRulerDocketState();
             string scope = ReignBeta.Integration.ReignServerClient.GetCampaignId() + "|"
@@ -221,7 +221,7 @@ namespace ReignBeta.Court
             ProcessPatronageCommissions(CurrentCourtLifeDay()); StateChanged?.Invoke(); return true;
         }
 
-        private static List<Settlement> EligiblePatronageSettlements(string kingdomId, Settlement host)
+        internal static List<Settlement> EligiblePatronageSettlements(string kingdomId, Settlement host)
             => Settlement.All.Where(x => x != null && (x.IsTown || x.IsCastle) && x.Town != null
                 && x.OwnerClan?.Kingdom?.StringId == kingdomId)
                 .OrderBy(x => host == null ? 0f : x.GetPosition2D.DistanceSquared(host.GetPosition2D)).ThenBy(x => x.StringId, StringComparer.Ordinal).ToList();

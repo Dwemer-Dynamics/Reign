@@ -2,12 +2,13 @@ using System;
 using System.Linq;
 using TaleWorlds.CampaignSystem;
 using TaleWorlds.CampaignSystem.Settlements;
+using static ReignBeta.Court.ReignCourtCampaignBehavior;
 
 namespace ReignBeta.Court
 {
-    public sealed partial class ReignCourtCampaignBehavior
+    internal static partial class ReignSpymasterTestControls
     {
-        internal string AddGovernmentCertificationSubterfugeEffect(Town town)
+        internal static string AddGovernmentCertificationSubterfugeEffect(ReignCourtCampaignBehavior court, Town town)
         {
             if (town?.Settlement == null) return string.Empty;
             float day = CurrentDayFloat();
@@ -19,19 +20,19 @@ namespace ReignBeta.Court
                 SettlementStringId = town.Settlement.StringId,
                 EffectType = "loyalty",
                 SourceKingdomStringId = foreign?.StringId ?? "government_certification_foreign_network",
-                AgentHeroStringId = ActiveSpymaster?.StringId ?? string.Empty,
+                AgentHeroStringId = court.ActiveSpymaster?.StringId ?? string.Empty,
                 StartDay = day,
                 EndDay = day + 30f,
                 Magnitude = -5f
             };
-            EnsureSpymasterState().Effects.Add(effect);
+            court.EnsureSpymasterState().Effects.Add(effect);
             return effect.EffectId;
         }
 
-        internal bool RemoveGovernmentCertificationSubterfugeEffect(string effectId)
+        internal static bool RemoveGovernmentCertificationSubterfugeEffect(ReignCourtCampaignBehavior court, string effectId)
         {
             if (string.IsNullOrWhiteSpace(effectId)) return false;
-            return EnsureSpymasterState().Effects.RemoveAll(item =>
+            return court.EnsureSpymasterState().Effects.RemoveAll(item =>
                 string.Equals(item?.EffectId, effectId, StringComparison.OrdinalIgnoreCase)) > 0;
         }
     }

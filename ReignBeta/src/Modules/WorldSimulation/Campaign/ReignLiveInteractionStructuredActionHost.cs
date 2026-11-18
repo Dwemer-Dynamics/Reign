@@ -106,7 +106,7 @@ namespace ReignBeta.Campaign
                         else if (c.Value<string>("actionId") == "fixture.ruler_setup")
                         {
                             if (enrollment.Value<bool?>("recoveryCheckpointVerified") != true) throw new InvalidOperationException("Ruler setup requires a verified recovery checkpoint.");
-                            result = (ReignRulerCampaignBehavior.Instance ?? throw new InvalidOperationException("Ruler system unavailable.")).PrepareFixture(c, id, RulerFixtureEnrollment(enrollment));
+                            result = ReignRulerFixtureControls.PrepareFixture(ReignRulerCampaignBehavior.Instance ?? throw new InvalidOperationException("Ruler system unavailable."), c, id, RulerFixtureEnrollment(enrollment));
                         }
                         else if (c.Value<string>("actionId") == "fixture.follow_accepted_guide_step")
                         {
@@ -119,8 +119,8 @@ namespace ReignBeta.Campaign
                         {
                             if (enrollment.Value<bool?>("recoveryCheckpointVerified") != true)
                                 throw new InvalidOperationException("Government player-flow fixtures require a verified retained recovery checkpoint.");
-                            result = (ReignBeta.Government.ReignGovernmentCampaignBehavior.Instance
-                                ?? throw new InvalidOperationException("Government system unavailable.")).PrepareGovernmentPlayerFlowFixture(c, id);
+                            result = ReignBeta.Government.ReignGovernmentTestControls.PrepareGovernmentPlayerFlowFixture(ReignBeta.Government.ReignGovernmentCampaignBehavior.Instance
+                                ?? throw new InvalidOperationException("Government system unavailable."), c, id);
                         }
                         else throw new InvalidOperationException("Choose a registered fixed structured fixture.");
                         break;

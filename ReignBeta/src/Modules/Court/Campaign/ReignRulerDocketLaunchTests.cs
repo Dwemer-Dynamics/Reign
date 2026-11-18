@@ -7,21 +7,22 @@ using ReignBeta.UI;
 using TaleWorlds.CampaignSystem;
 using TaleWorlds.CampaignSystem.Party;
 using TaleWorlds.CampaignSystem.Settlements;
+using static ReignBeta.Court.ReignCourtCampaignBehavior;
 
 namespace ReignBeta.Court
 {
-    public sealed partial class ReignCourtCampaignBehavior
+    internal static partial class ReignCourtTestControls
     {
-        private JObject VerifyInsufficientPetitionGuardrail(string runId, string saveName)
+        private static JObject VerifyInsufficientPetitionGuardrail(ReignCourtCampaignBehavior court, string runId, string saveName)
         {
-            JObject marker = FindRulerDocketMarker(runId);
-            ReignDocketPetition petition = FindRulerDocketTestPetition(runId);
+            JObject marker = FindRulerDocketMarker(court, runId);
+            ReignDocketPetition petition = FindRulerDocketTestPetition(court, runId);
             if (marker == null || petition == null || !petition.IsPending)
                 return RulerDocketTestFailure(runId, "guardrail_insufficient",
                     "A run-owned pending petition is required.", saveName, saveName);
 
-            Settlement capital = CurrentCapital;
-            ReignRulerDocketState state = EnsureRulerDocketState();
+            Settlement capital = court.CurrentCapital;
+            ReignRulerDocketState state = court.EnsureRulerDocketState();
             int historyBefore = state.History.Count;
             int commitmentsBefore = state.Commitments.Count;
             int expeditionsBefore = state.Expeditions.Count;
@@ -50,7 +51,7 @@ namespace ReignBeta.Court
                 }
             }
 
-            ReignPetitionDecisionQuote quote = GetRulerPetitionQuote(petition.PetitionId);
+            ReignPetitionDecisionQuote quote = court.GetRulerPetitionQuote(petition.PetitionId);
             bool commandCompleted = ReignCourtPetitionScreenManager.TryExecuteAutomationAction(
                 "grant-direct", out string commandError);
             bool pendingAfterAttempt = petition.IsPending;
@@ -75,14 +76,14 @@ namespace ReignBeta.Court
             };
         }
 
-        private JObject InvalidatePetitionerIdentityFixture(string runId, string saveName)
+        private static JObject InvalidatePetitionerIdentityFixture(ReignCourtCampaignBehavior court, string runId, string saveName)
         {
-            ReignDocketPetition petition = FindRulerDocketTestPetition(runId);
+            ReignDocketPetition petition = FindRulerDocketTestPetition(court, runId);
             if (petition == null || !petition.IsPending)
                 return RulerDocketTestFailure(runId, "invalidate_identity",
                     "A run-owned pending petition is required.", saveName, saveName);
             petition.PetitionerHeroId = "missing_petitioner_" + runId;
-            ReignPetitionDecisionQuote quote = GetRulerPetitionQuote(petition.PetitionId);
+            ReignPetitionDecisionQuote quote = court.GetRulerPetitionQuote(petition.PetitionId);
             return new JObject
             {
                 ["ok"] = !quote.Valid && petition.IsPending,
@@ -92,10 +93,10 @@ namespace ReignBeta.Court
             };
         }
 
-        private JObject VerifyTechnicalPetitionReturn(string runId, string saveName)
+        private static JObject VerifyTechnicalPetitionReturn(ReignCourtCampaignBehavior court, string runId, string saveName)
         {
-            ReignDocketPetition petition = FindRulerDocketTestPetition(runId);
-            ReignRulerDocketState state = EnsureRulerDocketState();
+            ReignDocketPetition petition = FindRulerDocketTestPetition(court, runId);
+            ReignRulerDocketState state = court.EnsureRulerDocketState();
             int historyBefore = state.History.Count;
             int commitmentsBefore = state.Commitments.Count;
             bool available = ReignCourtPetitionScreenManager.AutomationCanTechnicalReturn;
@@ -114,19 +115,19 @@ namespace ReignBeta.Court
             };
         }
 
-        private JObject PrepareChancellorScheduleFixture(string runId, string saveName)
+        private static JObject PrepareChancellorScheduleFixture(ReignCourtCampaignBehavior court, string runId, string saveName)
         {
-            JObject marker = FindRulerDocketMarker(runId);
-            ReignChancellorOffice office = EnsureRulerDocketState().Chancellor;
+            JObject marker = FindRulerDocketMarker(court, runId);
+            ReignChancellorOffice office = court.EnsureRulerDocketState().Chancellor;
             if (marker == null || office.IsVacant || marker.Value<string>("termId") != office.TermId)
                 return RulerDocketTestFailure(runId, "chancellor_schedule_prepare",
                     "The run-owned Chancellor fixture is missing.", saveName, saveName);
             Hero.MainHero.Gold = Math.Max(Hero.MainHero.Gold, office.Salary + 1000);
             int day = CurrentDay();
-            bool scheduled = TryScheduleChancellorActive(true, out string error);
+            bool scheduled = court.TryScheduleChancellorActive(true, out string error);
             marker["scheduledDay"] = day;
             marker["effectiveDay"] = office.DesiredActiveEffectiveDay;
-            StoreRulerDocketMarker(marker);
+            StoreRulerDocketMarker(court, marker);
             return new JObject
             {
                 ["ok"] = scheduled && office.State == ReignChancellorOfficeState.Inactive
@@ -138,12 +139,12 @@ namespace ReignBeta.Court
             };
         }
 
-        private JObject VerifyChancellorScheduleFixture(string runId, string saveName)
+        private static JObject VerifyChancellorScheduleFixture(ReignCourtCampaignBehavior court, string runId, string saveName)
         {
-            JObject marker = FindRulerDocketMarker(runId);
-            ReignChancellorOffice office = EnsureRulerDocketState().Chancellor;
+            JObject marker = FindRulerDocketMarker(court, runId);
+            ReignChancellorOffice office = court.EnsureRulerDocketState().Chancellor;
             int expectedDay = marker?.Value<int?>("effectiveDay") ?? -1;
-            bool history = EnsureRulerDocketState().History.Any(x => x.Type == "chancellor_service"
+            bool history = court.EnsureRulerDocketState().History.Any(x => x.Type == "chancellor_service"
                 && x.Outcome == "activated" && x.ChancellorHeroId == office.HeroId && x.Day >= expectedDay);
             return new JObject
             {
@@ -156,27 +157,27 @@ namespace ReignBeta.Court
             };
         }
 
-        private JObject VerifyChancellorEligibilityAndDismissal(string runId, JObject options,
+        private static JObject VerifyChancellorEligibilityAndDismissal(ReignCourtCampaignBehavior court, string runId, JObject options,
             string saveName)
         {
             if (!string.Equals(options.Value<string>("confirmation"),
                     RulerDocketFixtureConfirmation, StringComparison.Ordinal))
                 return RulerDocketTestFailure(runId, "chancellor_eligibility_dismissal",
                     "The exact disposable-save ruler-docket fixture confirmation is required.", saveName, saveName);
-            ReignRulerDocketState state = EnsureRulerDocketState();
+            ReignRulerDocketState state = court.EnsureRulerDocketState();
             if (!state.Chancellor.IsVacant)
                 return RulerDocketTestFailure(runId, "chancellor_eligibility_dismissal",
                     "The Chancellor office must be vacant.", saveName, saveName);
-            bool rulerRejected = !TryAppointChancellor(Hero.MainHero, 500, true, out string rulerError);
-            Hero eligible = SelectEmergencyChancellorCandidate();
+            bool rulerRejected = !court.TryAppointChancellor(Hero.MainHero, 500, true, out string rulerError);
+            Hero eligible = court.SelectEmergencyChancellorCandidate();
             string appointmentReceipt = string.Empty;
             string unvalidatedReceipt = string.Empty;
             string dismissalReceipt = string.Empty;
-            bool appointed = eligible != null && TryAppointChancellor(eligible, 500, true, out appointmentReceipt);
+            bool appointed = eligible != null && court.TryAppointChancellor(eligible, 500, true, out appointmentReceipt);
             string heroId = state.Chancellor.HeroId;
-            bool unvalidatedRejected = appointed && !TryDismissChancellor(false, out unvalidatedReceipt)
+            bool unvalidatedRejected = appointed && !court.TryDismissChancellor(false, out unvalidatedReceipt)
                 && !state.Chancellor.IsVacant;
-            bool dismissed = unvalidatedRejected && TryDismissChancellor(true, out dismissalReceipt)
+            bool dismissed = unvalidatedRejected && court.TryDismissChancellor(true, out dismissalReceipt)
                 && state.Chancellor.IsVacant;
             bool history = state.History.Any(x => x.Type == "chancellor_service"
                 && x.Outcome == "dismissed_by_ruler" && x.ChancellorHeroId == heroId);
@@ -196,7 +197,7 @@ namespace ReignBeta.Court
             };
         }
 
-        private JObject VerifyLegacyDocketMigration(string runId, JObject options, string saveName)
+        private static JObject VerifyLegacyDocketMigration(ReignCourtCampaignBehavior court, string runId, JObject options, string saveName)
         {
             if (!string.Equals(options.Value<string>("confirmation"),
                     RulerDocketFixtureConfirmation, StringComparison.Ordinal))
@@ -208,21 +209,21 @@ namespace ReignBeta.Court
             {
                 MatterId = matterId, SourceKey = "settlement_supply:" + runId,
                 Title = "Legacy docket launch fixture", State = ReignCourtMatterState.Queued,
-                SettlementStringId = CurrentCapital?.StringId ?? string.Empty
+                SettlementStringId = court.CurrentCapital?.StringId ?? string.Empty
             };
             CourtRegentAssignment regent = new CourtRegentAssignment
             {
                 AssignmentId = regentId,
-                HeroStringId = SelectEmergencyChancellorCandidate()?.StringId ?? string.Empty,
+                HeroStringId = court.SelectEmergencyChancellorCandidate()?.StringId ?? string.Empty,
                 IsActive = true
             };
-            _matters.Add(matter);
-            _agenda.Add(new CourtAgendaItem { MatterId = matterId, AgendaDay = CurrentDay() });
-            _regents.Add(regent);
-            ReignRulerDocketState state = EnsureRulerDocketState();
+            court._matters.Add(matter);
+            court._agenda.Add(new CourtAgendaItem { MatterId = matterId, AgendaDay = CurrentDay() });
+            court._regents.Add(regent);
+            ReignRulerDocketState state = court.EnsureRulerDocketState();
             state.LegacyMigrationComplete = false;
             int historyBefore = state.History.Count;
-            MigrateLegacyDocketOnce();
+            court.MigrateLegacyDocketOnce();
             bool matterHistory = state.History.Any(x => x.Type == "legacy_matter"
                 && x.Outcome == "legacy_retired" && x.Summary == matter.Title);
             bool regentHistory = state.History.Any(x => x.Type == "legacy_regent"
@@ -233,12 +234,12 @@ namespace ReignBeta.Court
                 ["ok"] = state.LegacyMigrationComplete
                     && matter.State == ReignCourtMatterState.Invalidated
                     && matter.ResolutionMode == "legacy_docket_migration"
-                    && !_agenda.Any(x => x.MatterId == matterId)
+                    && !court._agenda.Any(x => x.MatterId == matterId)
                     && !regent.IsActive && regent.DismissalReason == "legacy_regent_replaced_by_chancellor"
                     && matterHistory && regentHistory && historyRecordsAdded >= 2,
                 ["runId"] = runId, ["phase"] = "legacy_migration",
                 ["legacyMatterRetired"] = matter.State == ReignCourtMatterState.Invalidated,
-                ["legacyAgendaRemoved"] = !_agenda.Any(x => x.MatterId == matterId),
+                ["legacyAgendaRemoved"] = !court._agenda.Any(x => x.MatterId == matterId),
                 ["legacyRegentRetired"] = !regent.IsActive,
                 ["historyRecordsAdded"] = historyRecordsAdded,
                 ["fixtureHistoryRecordsFound"] = matterHistory && regentHistory,
@@ -246,7 +247,7 @@ namespace ReignBeta.Court
             };
         }
 
-        private JObject PrepareNaturalDocketSoak(string runId, JObject options,
+        private static JObject PrepareNaturalDocketSoak(ReignCourtCampaignBehavior court, string runId, JObject options,
             string saveName, string gameInstanceId)
         {
             if (!string.Equals(options.Value<string>("confirmation"),
@@ -254,7 +255,7 @@ namespace ReignBeta.Court
                 return RulerDocketTestFailure(runId, "natural_soak_prepare",
                     "The exact disposable-save ruler-docket fixture confirmation is required.", saveName, saveName);
             int days = Math.Max(7, Math.Min(180, options.Value<int?>("soakDays") ?? 30));
-            ReignRulerDocketState state = EnsureRulerDocketState();
+            ReignRulerDocketState state = court.EnsureRulerDocketState();
             JObject marker = new JObject
             {
                 ["runId"] = runId, ["fixtureType"] = "natural_soak",
@@ -268,7 +269,7 @@ namespace ReignBeta.Court
                 ["historyAtStart"] = state.History.Count,
                 ["gameInstanceId"] = gameInstanceId ?? string.Empty, ["saveName"] = saveName
             };
-            StoreRulerDocketMarker(marker);
+            StoreRulerDocketMarker(court, marker);
             return new JObject
             {
                 ["ok"] = state.LegacyMigrationComplete,
@@ -279,11 +280,11 @@ namespace ReignBeta.Court
             };
         }
 
-        private JObject VerifyNaturalDocketSoak(string runId, JObject options,
+        private static JObject VerifyNaturalDocketSoak(ReignCourtCampaignBehavior court, string runId, JObject options,
             string saveName, string gameInstanceId)
         {
-            JObject marker = FindRulerDocketMarker(runId);
-            ReignRulerDocketState state = EnsureRulerDocketState();
+            JObject marker = FindRulerDocketMarker(court, runId);
+            ReignRulerDocketState state = court.EnsureRulerDocketState();
             int startDay = marker?.Value<int?>("startDay") ?? int.MaxValue;
             int requiredDays = marker?.Value<int?>("requiredDays") ?? 30;
             int day = CurrentDay();

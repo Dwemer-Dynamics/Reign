@@ -16,7 +16,7 @@ namespace ReignBeta.Government
 {
     public sealed partial class ReignGovernmentCampaignBehavior
     {
-        private List<GovernmentEdictState> _edicts = new List<GovernmentEdictState>();
+        internal List<GovernmentEdictState> _edicts = new List<GovernmentEdictState>();
         private List<string> _edictChunks = new List<string>();
         private static Settlement FindSettlement(string id) => ReignObjectResolver.FindSettlement(id);
         private static Clan FindClan(string id) => ReignObjectResolver.FindClan(id);

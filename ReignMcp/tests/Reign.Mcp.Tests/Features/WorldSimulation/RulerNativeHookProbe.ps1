@@ -29,6 +29,7 @@ try {
     $campaign=$native.GetType('TaleWorlds.CampaignSystem.Campaign',$true)
     if($null -eq $campaign.GetProperty('PlayerDefaultFaction',[Reflection.BindingFlags]'Instance,Public,NonPublic').GetSetMethod($true)){throw 'Player exile faction setter unavailable.'}
     $behaviorType=$client.GetType('ReignBeta.Campaign.ReignRulerCampaignBehavior',$true)
+    $fixtureType=$client.GetType('ReignBeta.Campaign.ReignRulerFixtureControls',$true)
     $optionJson=$behaviorType.GetMethod('ObserveCampaignOptions',$flags).Invoke($null,@()).ToString()
     [IO.File]::WriteAllText((Join-Path $probeRoot 'campaign-options-observation.json'),$optionJson,[Text.UTF8Encoding]::new($false))
     $options=$optionJson | ConvertFrom-Json
@@ -38,7 +39,7 @@ try {
         if($row.available -and $null -eq $row.PSObject.Properties['value']){throw 'Available native option lacks an observed value.'}
     }
     $campaignOptionsObserved=$true
-    $drawInput=$behaviorType.GetMethod('ValidateJudgmentDrawInput',$flags)
+    $drawInput=$fixtureType.GetMethod('ValidateJudgmentDrawInput',$flags)
     foreach($drawCase in @(@(0,'prisoner','victor'),@(2000,'prisoner','victor'),@(3999,'prisoner','victor'))){
         $drawInput.Invoke($null,[object[]]$drawCase) | Out-Null
         $judgmentDrawChecks++
@@ -49,7 +50,7 @@ try {
         if(-not $rejected){throw 'Compiled judgment draw accepted an unsafe identity or draw.'}
         $judgmentDrawChecks++
     }
-    $takeDraw=$behaviorType.GetMethod('TakeJudgmentDrawControl',$flags)
+    $takeDraw=$fixtureType.GetMethod('TakeJudgmentDrawControl',$flags)
     $jobjectType=$takeDraw.ReturnType
     $dictionaryType=[System.Collections.Generic.Dictionary[string,object]].GetGenericTypeDefinition().MakeGenericType([Type[]]@([string],$jobjectType))
     $drawControls=[Activator]::CreateInstance($dictionaryType)
@@ -58,7 +59,7 @@ try {
     if(-not [Object]::ReferenceEquals($drawControl,$takeDraw.Invoke($null,[object[]]@($drawControls,'prisoner')))){throw 'Judgment draw did not consume its exact control.'}
     if($null -ne $takeDraw.Invoke($null,[object[]]@($drawControls,'prisoner')) -or -not $drawControls.ContainsKey('unrelated')){throw 'Judgment draw replayed or removed another target.'}
     $judgmentDrawChecks+=2
-    $drawEligible=$behaviorType.GetMethod('JudgmentDrawEligible',$flags)
+    $drawEligible=$fixtureType.GetMethod('JudgmentDrawEligible',$flags)
     $judgmentType=$drawEligible.GetParameters()[0].ParameterType
     $stageType=$judgmentType.GetProperty('Stage').PropertyType
     $judgment=[Activator]::CreateInstance($judgmentType)
@@ -76,7 +77,7 @@ try {
     $judgment.Draw=-1;$judgment.Stage=[Enum]::Parse($stageType,'Sentenced')
     if($drawEligible.Invoke($null,[object[]]@($judgment,'prisoner','victor',$true,$true,$true,0.25))){throw 'Sentenced judgment accepted a new draw.'}
     $judgmentDrawChecks+=2
-    $inputMethod=$behaviorType.GetMethod('ValidatePrisonerFixtureInput',$flags)
+    $inputMethod=$fixtureType.GetMethod('ValidatePrisonerFixtureInput',$flags)
     foreach($rulerFixtureInput in @(@('prison_guard',1,'guard','prisoner'),@('ransom_offer',1,'prisoner','payer'),@('ransom_offer',4000,'prisoner','payer'),@('barter_release',1000,'prisoner','payer'),@('barter_transfer',1000,'prisoner','payer'))){
         $inputMethod.Invoke($null,[object[]]$rulerFixtureInput) | Out-Null
         $prisonerFixtureChecks++
@@ -114,7 +115,7 @@ try {
         $prisonerFixtureChecks++
     }
     foreach($method in @('PreparePrisonGuard','RunRansomOfferFixture','RunBarterFixture','ObservePrisonGuard','ObservePrisonerPayment')){
-        [Runtime.CompilerServices.RuntimeHelpers]::PrepareMethod($behaviorType.GetMethod($method,$flags).MethodHandle)
+        [Runtime.CompilerServices.RuntimeHelpers]::PrepareMethod($fixtureType.GetMethod($method,$flags).MethodHandle)
         $prisonerFixtureChecks++
     }
     $behavior=[Activator]::CreateInstance($behaviorType)

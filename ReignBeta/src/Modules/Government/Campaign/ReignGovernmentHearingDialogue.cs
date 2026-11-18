@@ -33,9 +33,9 @@ namespace ReignBeta.Government
 
     public sealed partial class ReignGovernmentCampaignBehavior
     {
-        private List<ReignGovernmentCommitmentRecord> _governmentCommitments = new List<ReignGovernmentCommitmentRecord>();
+        internal List<ReignGovernmentCommitmentRecord> _governmentCommitments = new List<ReignGovernmentCommitmentRecord>();
         // A receipt can only originate in a currently reserved, actual individual conversation turn.
-        private readonly Dictionary<string, JObject> _governmentConversationTurns = new Dictionary<string, JObject>(StringComparer.Ordinal);
+        internal readonly Dictionary<string, JObject> _governmentConversationTurns = new Dictionary<string, JObject>(StringComparer.Ordinal);
         private readonly HashSet<string> _governmentPublicTurns = new HashSet<string>(StringComparer.Ordinal);
 
         public IReadOnlyList<ReignGovernmentCommitmentRecord> GetGovernmentCommitments(string kingdomId)
