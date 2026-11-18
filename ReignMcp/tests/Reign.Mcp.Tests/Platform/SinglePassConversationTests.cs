@@ -9,7 +9,10 @@ public sealed class SinglePassConversationTests
     [InlineData("ReignServer/src/Modules/Dialogue/ConversationRouteMemory.cs", "var result = GenerateSinglePassConversation(request", "context.Result = result;")]
     public void RuntimeDeliveryDoesNotDispatchRepairOrSemanticReview(string path, string start, string end)
     {
-        string source = File.ReadAllText(Path.Combine(TestOptions.FindWorkspace(), path));
+        // Server Program members may live in any Program*.cs partial: read the one holding the route.
+        string source = path.EndsWith("/Platform/Program.cs", StringComparison.Ordinal)
+            ? TestSourceLocator.ServerProgramFileText(TestOptions.FindWorkspace(), start)
+            : File.ReadAllText(Path.Combine(TestOptions.FindWorkspace(), path));
         int begin = source.IndexOf(start, StringComparison.Ordinal);
         Assert.True(begin >= 0, path);
         int finish = source.IndexOf(end, begin, StringComparison.Ordinal);

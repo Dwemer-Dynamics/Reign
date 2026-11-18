@@ -44,6 +44,32 @@ internal static class TestSourceLocator
             .Order(StringComparer.OrdinalIgnoreCase)
             .Select(File.ReadAllText));
 
+    // Server Program source: the Platform/Program.cs hub and every Program.<Area>.cs partial (route files included),
+    // wherever it lives under ReignServer/src. Accepts the former single-file layout and the split layout.
+    public static string ServerProgramText(string workspace) => ServerRouterText(workspace);
+
+    // The first server Program*.cs file (path order) whose text contains anchor, for checks that slice or order text
+    // inside one member. Accepts the former single-file layout and the split layout.
+    public static string ServerProgramFileText(string workspace, string anchor) =>
+        Enumerate(Path.Combine(workspace, "ReignServer", "src"), "Program*.cs")
+            .Order(StringComparer.OrdinalIgnoreCase)
+            .Select(File.ReadAllText)
+            .FirstOrDefault(text => text.Contains(anchor, StringComparison.Ordinal))
+        ?? throw new FileNotFoundException($"No server Program*.cs file contains {anchor}.");
+
+    // A server source file plus its Name.*.cs partial-class siblings in the same folder (ordinal file-name order), so
+    // a check that reads one logical file keeps working when the file is split into partial files. Accepts the
+    // former single-file layout and the split layout.
+    public static string ServerFileGroupText(string primaryPath)
+    {
+        string fullPath = Path.GetFullPath(primaryPath);
+        string stem = Path.GetFileNameWithoutExtension(fullPath);
+        var siblings = Directory.EnumerateFiles(Path.GetDirectoryName(fullPath)!, stem + ".*.cs")
+            .Where(path => path.EndsWith(".cs", StringComparison.OrdinalIgnoreCase))
+            .Order(StringComparer.Ordinal);
+        return string.Join("\n\n", new[] { fullPath }.Concat(siblings).Select(File.ReadAllText));
+    }
+
     // True when the server declares this exact route: as a legacy chain comparison or a
     // route-table registration (routes.Get/Post). Other mentions, such as HTTP client calls, do not count.
     public static bool ServerDeclaresRoute(string routerText, string route) =>

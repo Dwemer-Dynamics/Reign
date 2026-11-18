@@ -185,10 +185,10 @@ public sealed class RebellionTestingToolsTests
     public void Server_language_contract_accepts_direct_questions_and_scopes_negation()
     {
         string workspace = TestOptions.FindWorkspace();
-        string server = File.ReadAllText(TestSourceLocator.Unique(
+        string server = TestSourceLocator.ServerFileGroupText(TestSourceLocator.Unique(
             Path.Combine(workspace, "ReignServer"), "RebellionDirector.cs",
             "/src/Modules/Rebellion/"));
-        string prompt = File.ReadAllText(TestSourceLocator.Unique(
+        string prompt = TestSourceLocator.ServerFileGroupText(TestSourceLocator.Unique(
             Path.Combine(workspace, "ReignServer"), "PromptCaching.cs",
             "/src/Modules/Dialogue/"));
         string client = TestSourceLocator.PartialTypeText(TestSourceLocator.Unique(
