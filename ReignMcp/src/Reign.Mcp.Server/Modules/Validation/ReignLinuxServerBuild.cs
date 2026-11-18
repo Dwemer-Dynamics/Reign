@@ -13,7 +13,7 @@ public sealed partial class ReignValidationService
         var plan = GetPlan("all", "Release", restore);
         if (!plan.CoverageComplete || plan.Status != "ready")
             throw new InvalidOperationException("Resolve paired-source ownership before Linux publishing.");
-        using var lease = ReignValidationLease.Acquire(options.BuildRoot, plan, requestingTaskId);
+        using var lease = ReignValidationLease.Acquire(options.EffectiveLeaseRoot, plan, requestingTaskId);
         var hygiene = await hygieneAudit.AuditAsync(cancellationToken).ConfigureAwait(false);
         if (hygiene.BlocksValidation)
         {
