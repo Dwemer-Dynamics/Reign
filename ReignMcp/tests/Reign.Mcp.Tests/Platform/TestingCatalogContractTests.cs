@@ -17,7 +17,7 @@ public sealed class TestingCatalogContractTests
         var route = catalog.RootElement.GetProperty("categorizedMemoryContracts");
         Assert.Equal("reign-categorized-memory-contracts-v1", route.GetProperty("schema").GetString());
         Assert.Equal(64, route.GetProperty("caseResultLimit").GetInt32());
-        string runner = Read("ReignServer/src/Modules/Platform/VerificationLab.cs");
+        string runner = TestSourceLocator.ServerFileGroupText(Path.Combine(workspace, "ReignServer/src/Modules/Platform/VerificationLab.cs"));
         int start = runner.IndexOf("string.Equals(requestedSuite, \"categorized_memory\", StringComparison.OrdinalIgnoreCase)", StringComparison.Ordinal);
         Assert.True(start >= 0);
         int end = runner.IndexOf("return;", start, StringComparison.Ordinal);
@@ -162,7 +162,7 @@ public sealed class TestingCatalogContractTests
         string catalog = File.ReadAllText(Path.Combine(workspace, "reign.testing.json"));
         Assert.Contains("reign-live-interaction-source-contracts-v1", catalog);
         Assert.Contains("tier=quick suite=live_interaction", catalog);
-        string runner = File.ReadAllText(Path.Combine(workspace, "ReignServer/src/Modules/Platform/VerificationLab.cs"));
+        string runner = TestSourceLocator.ServerFileGroupText(Path.Combine(workspace, "ReignServer/src/Modules/Platform/VerificationLab.cs"));
         Assert.Contains("string.Equals(requestedSuite, \"live_interaction\", StringComparison.OrdinalIgnoreCase)", runner);
         Assert.Matches(@"""contracts\.live_interaction"", ""live_interaction"", (WorldSimulationService\.)?RunLiveInteractionTestSelfTests\(\), caseResultLimit:512", runner);
         foreach (string path in new[] { "docs/agent/testing/CAMPAIGN_AND_RUNTIME.md", "ReignMcp/README.md", "ReignMcp/docs/security-model.md" })
@@ -350,7 +350,9 @@ public sealed class TestingCatalogContractTests
         Assert.Contains("contracts.dialogue_marriage", marriage.GetProperty("verification").GetString());
         foreach (string path in new[] { "docs/agent/TESTING_TOOL_GUIDE.md", "ReignMcp/docs/tool-catalog.md",
             "ReignMcp/docs/security-model.md", "ReignServer/src/Modules/Platform/VerificationLab.cs" })
-            Assert.Contains("contracts.dialogue_marriage", TestingDocumentation.Read(Path.Combine(workspace, path)));
+            Assert.Contains("contracts.dialogue_marriage", path.EndsWith(".cs", StringComparison.Ordinal)
+                ? TestSourceLocator.ServerFileGroupText(Path.Combine(workspace, path))
+                : TestingDocumentation.Read(Path.Combine(workspace, path)));
     }
 
     [Fact]
@@ -1316,7 +1318,7 @@ public sealed class TestingCatalogContractTests
     public void InitialScreenStartMenuRequiresNativeGauntletActivationEvidence()
     {
         string workspace = TestOptions.FindWorkspace();
-        string source = File.ReadAllText(Path.Combine(workspace, "ReignServer", "tests", "ReignLiveTest", "Program.cs"));
+        string source = TestSourceLocator.ServerFileGroupText(Path.Combine(workspace, "ReignServer", "tests", "ReignLiveTest", "Program.cs"));
         string batch = File.ReadAllText(Path.Combine(workspace, "ReignBeta", "tools", "GauntletXmlPreviewer",
             "capture-native-augmentation-batch.ps1"));
 
@@ -1342,7 +1344,7 @@ public sealed class TestingCatalogContractTests
             Path.Combine(root, "reign.testing.json")));
         string[] commands = document.RootElement.GetProperty("liveTestCommands")
             .EnumerateArray().Select(value => value.GetString()!).ToArray();
-        string program = File.ReadAllText(Path.Combine(root, "ReignServer", "tests", "ReignLiveTest", "Program.cs"));
+        string program = TestSourceLocator.ServerFileGroupText(Path.Combine(root, "ReignServer", "tests", "ReignLiveTest", "Program.cs"));
         string catalog = File.ReadAllText(Path.Combine(root, "ReignServer", "tests", "ReignLiveTest", "TestingCatalogControl.cs"));
         string[] implemented = System.Text.RegularExpressions.Regex.Matches(program, "case \\\"([^\\\"]+)\\\"")
             .Select(match => match.Groups[1].Value)

@@ -21,7 +21,7 @@ public sealed class ClanAccordCatalogTests
         Assert.Equal("clan_accords_test", route.GetProperty("operation").GetString());
         Assert.Equal("contracts", route.GetProperty("profile").GetString());
         Assert.Equal(120, route.GetProperty("maximumTimeoutSeconds").GetInt32());
-        string server = File.ReadAllText(Path.Combine(root, "ReignServer/src/Modules/WorldSimulation/LiveInteractionTest.cs"));
+        string server = TestSourceLocator.ServerFileGroupText(Path.Combine(root, "ReignServer/src/Modules/WorldSimulation/LiveInteractionTest.cs"));
         int registryStart = server.IndexOf("HashSet<string> LiveTestOperations", StringComparison.Ordinal);
         int registryEnd = server.IndexOf("HashSet<string> LiveTestTerminalCommandStates", registryStart, StringComparison.Ordinal);
         Assert.Contains("\"clan_accords_test\"", server[registryStart..registryEnd]);

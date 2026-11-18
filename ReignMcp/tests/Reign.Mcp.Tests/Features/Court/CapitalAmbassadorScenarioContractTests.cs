@@ -43,7 +43,7 @@ public sealed class CapitalAmbassadorScenarioContractTests
     public void ServerAndGameAdaptersUseExplicitProductionBoundaries()
     {
         string root = TestOptions.FindWorkspace();
-        string liveServer = File.ReadAllText(TestSourceLocator.Unique(Path.Combine(root, "ReignServer"), "LiveInteractionTest.cs", "/src/"));
+        string liveServer = TestSourceLocator.ServerFileGroupText(TestSourceLocator.Unique(Path.Combine(root, "ReignServer"), "LiveInteractionTest.cs", "/src/"));
         Assert.Contains("\"capital_ambassador_test\"", liveServer, StringComparison.Ordinal);
         Assert.Contains("\"ambassador_official\"", liveServer, StringComparison.Ordinal);
 
@@ -83,7 +83,7 @@ public sealed class CapitalAmbassadorScenarioContractTests
         Assert.Contains("ambassador_official", host, StringComparison.Ordinal);
         string ui = File.ReadAllText(TestSourceLocator.Unique(Path.Combine(root, "ReignBeta"), "ReignLiveInteractionUiCalibrationHost.cs", "/src/"));
         Assert.Contains("ReignAmbassadorScreenManager.TryExecuteAutomationAction", ui, StringComparison.Ordinal);
-        string liveTest = File.ReadAllText(Path.Combine(root, "ReignServer", "tests", "ReignLiveTest", "Program.cs"));
+        string liveTest = TestSourceLocator.ServerFileGroupText(Path.Combine(root, "ReignServer", "tests", "ReignLiveTest", "Program.cs"));
         Assert.Contains("[\"value\"] = Value(args, \"--value\", \"\")", liveTest, StringComparison.Ordinal);
         Assert.Contains("ambassador|economic-report|spymaster|war-council", liveTest, StringComparison.Ordinal);
     }

@@ -330,7 +330,7 @@ public sealed class PartyAgencyHarnessContractTests
     public void ServerAllowsEveryPartyAgencyNativeHarnessOperation()
     {
         string root = TestOptions.FindWorkspace();
-        string server = File.ReadAllText(TestSourceLocator.Unique(
+        string server = TestSourceLocator.ServerFileGroupText(TestSourceLocator.Unique(
             Path.Combine(root, "ReignServer"), "LiveInteractionTest.cs",
             "/src/Modules/WorldSimulation/"));
         foreach (string operation in new[]

@@ -522,7 +522,10 @@ function auditNativeCalibrationContract() {
   if (contractErrors.length) return { checkedTargets: runtimeEntries.length, targetIds: runtimeEntries.map((entry) => entry.id), errors: contractErrors };
 
   const host = fs.readFileSync(hostPath, "utf8");
-  const liveTest = fs.readFileSync(liveTestPath, "utf8");
+  // ReignLiveTest Program.cs together with any Program.<Area>.cs partial files beside it (single-file or split layout).
+  const liveTest = [liveTestPath, ...fs.readdirSync(path.dirname(liveTestPath))
+    .filter((name) => name.startsWith("Program.") && name.endsWith(".cs") && name !== "Program.cs").sort()
+    .map((name) => path.join(path.dirname(liveTestPath), name))].map((file) => fs.readFileSync(file, "utf8")).join("\n\n");
   const memoriesVm = fs.readFileSync(memoriesVmPath, "utf8");
   const memoriesPrefab = fs.readFileSync(memoriesPrefabPath, "utf8");
   for (const entry of runtimeEntries) {

@@ -121,7 +121,7 @@ public sealed class RebellionTestingToolsTests
             "ReignRebellionCampaignBehavior.cs", "/src/Modules/Rebellion/Campaign/"));
         string correspondence = File.ReadAllText(TestSourceLocator.Unique(Path.Combine(workspace, "ReignBeta"),
             "ReignLiveInteractionCorrespondenceHost.cs", "/src/Modules/Dialogue/Campaign/"));
-        string liveServer = File.ReadAllText(TestSourceLocator.Unique(Path.Combine(workspace, "ReignServer"),
+        string liveServer = TestSourceLocator.ServerFileGroupText(TestSourceLocator.Unique(Path.Combine(workspace, "ReignServer"),
             "LiveInteractionTest.cs", "/src/Modules/WorldSimulation/"));
         string relationships = File.ReadAllText(TestSourceLocator.Unique(Path.Combine(workspace, "ReignBeta"),
             "ReignRelationshipCampaignBehavior.cs", "/src/Modules/Relationships/Campaign/"));
