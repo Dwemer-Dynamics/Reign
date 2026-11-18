@@ -384,7 +384,7 @@ namespace ReignBeta.Integration
             lock (AmbientInputLock) return PendingAmbientInputPaths().Count();
         }
 
-        private static JObject BuildRelationshipOutboxDiagnostics()
+        internal static JObject BuildRelationshipOutboxDiagnostics()
         {
             List<string> paths;
             // A heartbeat cannot wait behind a bulk upload's file reads. Unknown

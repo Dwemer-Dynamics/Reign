@@ -137,7 +137,7 @@ public sealed class ArrestTestingToolsTests
 
         string liveClient = File.ReadAllText(TestSourceLocator.Unique(
             Path.Combine(workspace, "ReignBeta"),
-            "ReignLiveTestClient.cs",
+            "ReignServerClient.cs",
             "/src/Modules/Platform/Integration/"));
         Assert.Contains("internal static string ActiveNativeSaveName()", liveClient,
             StringComparison.Ordinal);

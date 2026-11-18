@@ -2441,7 +2441,7 @@ namespace ReignBeta.Integration
             return explicitHistory.Any(q.Contains) || eventQuestions.Any(q.Contains) || reportedClaims.Any(q.Contains);
         }
 
-        private static async Task<JObject> GetJsonAsync(string route, HttpClient requestClient = null)
+        internal static async Task<JObject> GetJsonAsync(string route, HttpClient requestClient = null)
         {
             await ReignSaveSyncCoordinator.WaitForReadyAsync(route).ConfigureAwait(false);
             await ReignCampaignInitializationGate.WaitForReadyAsync(route).ConfigureAwait(false);
@@ -5182,7 +5182,7 @@ namespace ReignBeta.Integration
             };
         }
 
-        private static JObject BuildIdentityRosterEntry(Hero hero)
+        internal static JObject BuildIdentityRosterEntry(Hero hero)
         {
             return new JObject
             {
@@ -6554,6 +6554,20 @@ namespace ReignBeta.Integration
         {
             return PortraitRequestScope.Current?.CampaignId ?? ReignCampaignIdentity.CurrentCampaignId();
         }
+
+        internal static string ActiveNativeSaveName()
+        {
+            try
+            {
+                object value = typeof(TaleWorlds.Core.MBSaveLoad).GetProperty("ActiveSaveSlotName",
+                    System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.Static)?.GetValue(null, null);
+                return Convert.ToString(value) ?? string.Empty;
+            }
+            catch { return string.Empty; }
+        }
+
+        // Product forwarder: ReignAICampaignBehavior schedules the daily World Test heartbeat owned by ReignWorldTestServerClient.
+        public static Task<double?> SubmitWorldTestHeartbeatAsync(double deltaAfterDay) => ReignWorldTestServerClient.SubmitWorldTestHeartbeatAsync(deltaAfterDay);
 
         private static string ReadString(JObject obj, string key, string fallback)
         {

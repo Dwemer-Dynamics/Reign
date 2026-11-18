@@ -208,7 +208,7 @@ namespace ReignBeta.Campaign
                         string runId = command.Value<string>("runId") ?? string.Empty;
                         try
                         {
-                            JObject status = await ReignServerClient
+                            JObject status = await ReignLiveTestServerClient
                                 .GetLiveTestRunStatusAsync(runId).ConfigureAwait(false);
                             if (status.Value<bool?>("cancelRequested") == true
                                 || string.Equals(status.Value<string>("status"),
