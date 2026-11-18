@@ -23,6 +23,7 @@
     <ReignCoreSource Include="$(MSBuildThisFileDirectory)..\src\Modules\Government\Domain\ReignGovernmentBusinessRecord.cs" />
     <ReignCoreSource Include="$(MSBuildThisFileDirectory)..\src\Modules\Government\Domain\ReignGovernmentNativeSafety.cs" />
     <ReignCoreSource Include="$(MSBuildThisFileDirectory)..\src\Modules\Persistence\Save\ReignSavePayloadCodec.cs" />
+    <ReignCoreSource Include="$(MSBuildThisFileDirectory)..\src\Modules\Platform\Domain\ReignNumeric.cs" />
     <ReignCoreSource Include="$(MSBuildThisFileDirectory)..\src\Modules\Platform\Domain\ReignTerminalReportRecoveryPolicy.cs" />
     <ReignCoreSource Include="$(MSBuildThisFileDirectory)..\src\Modules\Platform\Integration\ReignCampaignReadinessState.cs" />
     <ReignCoreSource Include="$(MSBuildThisFileDirectory)..\src\Modules\Platform\Integration\ReignPartyChatSessionRequest.cs" />

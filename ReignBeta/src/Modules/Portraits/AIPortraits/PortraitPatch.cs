@@ -239,10 +239,6 @@ public static class PortraitPatch
 
 	private static readonly ConcurrentDictionary<string, byte> _seenDisplay = new ConcurrentDictionary<string, byte>();
 
-	private static readonly ConcurrentDictionary<string, byte> _waitingAnnounced = new ConcurrentDictionary<string, byte>();
-
-	private static readonly ConcurrentDictionary<string, byte> _readFailAnnounced = new ConcurrentDictionary<string, byte>();
-
 	public static void SetNpcIdentity(string cacheKey)
 	{
 		_convNpcCacheKey = cacheKey;

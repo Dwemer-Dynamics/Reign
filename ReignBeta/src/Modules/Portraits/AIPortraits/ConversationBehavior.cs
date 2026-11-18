@@ -8,10 +8,6 @@ namespace AIPortraits;
 
 public class ConversationBehavior : CampaignBehaviorBase
 {
-	private const string LookOutputToken = "aiportraits_look_done";
-
-	private const string MemoryOutputToken = "aiportraits_memory_done";
-
 	public override void RegisterEvents()
 	{
 		CampaignEvents.OnSessionLaunchedEvent.AddNonSerializedListener(this, OnSessionLaunched);
@@ -99,10 +95,5 @@ public class ConversationBehavior : CampaignBehaviorBase
 	{
 		return ReignBeta.Campaign.ReignEncounteredResidentsCampaignBehavior.Instance?.ConversationHero
             ?? CharacterObject.OneToOneConversationCharacter?.HeroObject;
-	}
-
-	private static void ShowMsg(string text, uint color)
-	{
-		InformationManager.DisplayMessage(new InformationMessage(text, Color.FromUint(color)));
 	}
 }

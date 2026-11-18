@@ -442,23 +442,6 @@ namespace ReignBeta.Government
             };
         }
 
-        private void ApplyNpcMeetingDisposition(Kingdom kingdom, ReignGovernmentStateRecord state,
-            IReadOnlyList<ReignGovernmentResolutionRecord> proposed)
-        {
-            ImportSeasonalBusiness();
-            TickGovernmentBusiness();
-        }
-
-        private static int SelectNpcRoute(Kingdom kingdom, ReignGovernmentResolutionTemplate template)
-        {
-            bool firstGold = UsesImmediateGold(template.FirstRoute.Action);
-            bool secondGold = UsesImmediateGold(template.SecondRoute.Action);
-            int gold = kingdom?.Leader?.Gold ?? 0;
-            if (firstGold && gold < template.FirstRoute.Target && !secondGold) return 1;
-            if (secondGold && gold < template.SecondRoute.Target && !firstGold) return 0;
-            return ReignGovernmentRules.StableHash("npc-route|" + (kingdom?.StringId ?? string.Empty) + "|" + template.Id) % 2u == 0u ? 0 : 1;
-        }
-
         private void EvaluateResolutions(Kingdom kingdom, ReignGovernmentStateRecord state)
         {
             foreach (ReignGovernmentResolutionRecord record in _resolutions.Where(x => Same(x.KingdomStringId, kingdom.StringId)

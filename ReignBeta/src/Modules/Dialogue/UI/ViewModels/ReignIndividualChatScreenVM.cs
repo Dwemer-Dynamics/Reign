@@ -17,6 +17,7 @@ using TaleWorlds.CampaignSystem.Settlements;
 using TaleWorlds.Core;
 using TaleWorlds.Core.ViewModelCollection.ImageIdentifiers;
 using TaleWorlds.Library;
+using static ReignBeta.UI.ViewModels.ReignChatText;
 
 namespace ReignBeta.UI.ViewModels
 {
@@ -1722,13 +1723,6 @@ namespace ReignBeta.UI.ViewModels
             }
 
             return "Bannerlord Reign server failed: " + text;
-        }
-
-        private static bool ContainsIgnoreCase(string text, string value)
-        {
-            return !string.IsNullOrEmpty(text)
-                && !string.IsNullOrEmpty(value)
-                && text.IndexOf(value, StringComparison.OrdinalIgnoreCase) >= 0;
         }
 
         private static ImageIdentifierVM BuildPortrait(Hero hero, string cacheKey)

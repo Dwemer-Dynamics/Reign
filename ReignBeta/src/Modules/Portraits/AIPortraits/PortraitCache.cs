@@ -36,12 +36,6 @@ public static class PortraitCache
 {
 	private static readonly ConcurrentDictionary<string, byte> _pending = new ConcurrentDictionary<string, byte>();
 
-	private static readonly ConcurrentDictionary<string, byte> _migrationChecked = new ConcurrentDictionary<string, byte>();
-
-	private static readonly ConcurrentDictionary<string, byte> _seedChecked = new ConcurrentDictionary<string, byte>();
-
-	private static readonly ConcurrentDictionary<string, byte> _normalizationChecked = new ConcurrentDictionary<string, byte>();
-
 	private static readonly ConcurrentDictionary<string, string> _characterPortraitPathCache = new ConcurrentDictionary<string, string>();
 
 	private static readonly ConcurrentDictionary<string, string> _seedPortraitPathByIdentity = new ConcurrentDictionary<string, string>();
@@ -69,12 +63,6 @@ public static class PortraitCache
 	public const string PendingGenerationFileName = ".portrait_generation_pending.json";
 
 	private const string SeedMarkerFileName = ".shared_seed_complete.json";
-
-	private static string[] LegacyCacheDirs => new[]
-	{
-		Path.Combine(BasePath.Name, "Modules", "AIPortraits", "PortraitCache"),
-		Path.Combine(BasePath.Name, "Modules", "AIEventsAndIntrigue", "PortraitCache")
-	};
 
 	private static readonly Lazy<ReignInstallation> Installation = new Lazy<ReignInstallation>(ReignInstallation.TryLoadCurrent);
 	private static string BaseCacheRoot => Installation.Value?.PortraitCacheRoot ?? Path.Combine(BasePath.Name, "Modules", "ReignBeta", "PortraitCache");
@@ -1028,118 +1016,6 @@ public static class PortraitCache
 		}
 	}
 
-	private static void MigrateLegacyCacheIfNeeded()
-	{
-		string migrationKey = CacheDir;
-		if (!_migrationChecked.TryAdd(migrationKey, 0))
-		{
-			return;
-		}
-
-		try
-		{
-			bool migrated = false;
-			foreach (string legacyCacheDir in LegacyCacheDirs)
-			{
-				if (!Directory.Exists(legacyCacheDir))
-				{
-					continue;
-				}
-
-				CopyDirectory(legacyCacheDir, CacheDir);
-				migrated = true;
-			}
-
-			if (migrated)
-			{
-				Debug.Print("[AIPortraits] Migrated portrait cache path to Bannerlord Reign campaign folder.");
-			}
-		}
-		catch (Exception ex)
-		{
-			Debug.Print("[AIPortraits] Portrait cache migration skipped: " + ex.Message);
-		}
-	}
-
-	private static void CopySeedCacheIfNeeded()
-	{
-		string seedKey = CacheDir;
-		if (!_seedChecked.TryAdd(seedKey, 0))
-		{
-			return;
-		}
-
-		PortraitSeedResult result = EnsureSeedCacheForCampaign();
-		if (!result.Ok && !string.IsNullOrWhiteSpace(result.Message))
-		{
-			Debug.Print("[AIPortraits] " + result.Message);
-		}
-	}
-
-	private static void NormalizePromptFilesIfNeeded()
-	{
-		string normalizationKey = CacheDir;
-		if (!_normalizationChecked.TryAdd(normalizationKey, 0))
-		{
-			return;
-		}
-
-		try
-		{
-			if (!Directory.Exists(CacheDir))
-			{
-				return;
-			}
-
-			int normalized = 0;
-			foreach (string customPromptFile in Directory.GetFiles(CacheDir, CustomPromptFileName, SearchOption.AllDirectories))
-			{
-				string directoryName = Path.GetDirectoryName(customPromptFile);
-				if (string.IsNullOrEmpty(directoryName))
-				{
-					continue;
-				}
-
-				string promptFile = Path.Combine(directoryName, PromptFileName);
-				if (File.Exists(promptFile))
-				{
-					continue;
-				}
-
-				File.Copy(customPromptFile, promptFile);
-				normalized++;
-			}
-
-			if (normalized > 0)
-			{
-				Debug.Print("[AIPortraits] Normalized " + normalized + " custom_prompt.txt files into prompt.txt.");
-			}
-		}
-		catch (Exception ex)
-		{
-			Debug.Print("[AIPortraits] Portrait prompt normalization skipped: " + ex.Message);
-		}
-	}
-
-	private static void CopyDirectory(string sourceDirectory, string destinationDirectory)
-	{
-		Directory.CreateDirectory(destinationDirectory);
-		foreach (string sourceFile in Directory.GetFiles(sourceDirectory))
-		{
-			string destinationFile = Path.Combine(destinationDirectory, Path.GetFileName(sourceFile));
-			if (!File.Exists(destinationFile))
-			{
-				File.Copy(sourceFile, destinationFile);
-			}
-		}
-
-		foreach (string sourceChild in Directory.GetDirectories(sourceDirectory))
-		{
-			string destinationChild = Path.Combine(destinationDirectory, Path.GetFileName(sourceChild));
-			CopyDirectory(sourceChild, destinationChild);
-		}
-	}
-
 	private static void CopyDirectoryCounted(string sourceDirectory, string destinationDirectory, ref int foldersCopied, ref int filesCopied)
 	{
 		if (!Directory.Exists(destinationDirectory))
@@ -1420,53 +1296,6 @@ public static class PortraitCache
 		return false;
 	}
 
-	private static bool TryGetCharacterPortraitPathByProfileScan(string id, bool requireCustom, out string path)
-	{
-		path = null;
-		string extractedId = ExtractParenthesizedId(id);
-		if (string.IsNullOrWhiteSpace(extractedId))
-		{
-			return false;
-		}
-
-		try
-		{
-			foreach (string serverCharactersDir in ServerCharactersDirs)
-			{
-				if (!Directory.Exists(serverCharactersDir))
-				{
-					continue;
-				}
-
-				foreach (string characterDir in Directory.GetDirectories(serverCharactersDir))
-				{
-					string profilePath = Path.Combine(characterDir, "profile.json");
-					if (!File.Exists(profilePath))
-					{
-						continue;
-					}
-
-					JObject profile = JObject.Parse(File.ReadAllText(profilePath, Encoding.UTF8));
-					if (!ProfileMatches(profile, extractedId))
-					{
-						continue;
-					}
-
-					if (TryGetPortraitInCharacterFolder(characterDir, requireCustom, out path))
-					{
-						return true;
-					}
-				}
-			}
-		}
-		catch (Exception ex)
-		{
-			Debug.Print("[AIPortraits] Character portrait profile scan failed for " + id + ": " + ex.Message);
-		}
-
-		return false;
-	}
-
 	private static bool TryGetPortraitInCharacterFolder(string characterDir, bool requireCustom, out string path)
 	{
 		path = null;
@@ -1501,19 +1330,6 @@ public static class PortraitCache
 		}
 
 		return false;
-	}
-
-	private static bool ProfileMatches(JObject profile, string extractedId)
-	{
-		if (profile == null || string.IsNullOrWhiteSpace(extractedId))
-		{
-			return false;
-		}
-
-		return StringEquals(profile.Value<string>("heroStringId"), extractedId)
-			|| StringEquals(profile.Value<string>("characterObjectId"), extractedId)
-			|| StringEquals(profile.Value<string>("stringId"), extractedId)
-			|| StringEquals(profile.Value<string>("id"), extractedId);
 	}
 
 	private static string ExtractParenthesizedId(string cacheKey)

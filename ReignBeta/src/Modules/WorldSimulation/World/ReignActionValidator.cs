@@ -14,6 +14,7 @@ using TaleWorlds.CampaignSystem.Party;
 using TaleWorlds.CampaignSystem.Settlements;
 using TaleWorlds.CampaignSystem.Settlements.Workshops;
 using TaleWorlds.Core;
+using static ReignBeta.World.ReignWorldParsing;
 
 namespace ReignBeta.World
 {
@@ -667,20 +668,6 @@ namespace ReignBeta.World
                     StringComparison.OrdinalIgnoreCase)
                 || string.Equals(source, "test_lab_action_gate",
                     StringComparison.OrdinalIgnoreCase);
-        }
-
-        private static bool HasWarBlockingAgreement(Kingdom actor, Kingdom target)
-        {
-            float now = TaleWorlds.CampaignSystem.Campaign.Current == null ? 0f : (float)CampaignTime.Now.ToDays;
-            return ReignAICampaignBehavior.Instance?.Agreements.Any(x =>
-                x != null
-                && x.IsActive
-                && !x.IsExpired(now)
-                && BlocksWar(x.Kind)
-                && ((string.Equals(x.ActorKingdomStringId, actor.StringId, StringComparison.OrdinalIgnoreCase)
-                        && string.Equals(x.TargetKingdomStringId, target.StringId, StringComparison.OrdinalIgnoreCase))
-                    || (string.Equals(x.ActorKingdomStringId, target.StringId, StringComparison.OrdinalIgnoreCase)
-                        && string.Equals(x.TargetKingdomStringId, actor.StringId, StringComparison.OrdinalIgnoreCase)))) == true;
         }
 
         private static bool BlocksWar(string kind)
@@ -1969,14 +1956,6 @@ namespace ReignBeta.World
                     }
                 }
             }
-        }
-
-        private static IEnumerable<string> SplitCsv(string value)
-        {
-            return (value ?? string.Empty)
-                .Split(',')
-                .Select(x => x.Trim())
-                .Where(x => x.Length > 0);
         }
 
         private static string ReadStringTerm(string json, string key, string fallback)

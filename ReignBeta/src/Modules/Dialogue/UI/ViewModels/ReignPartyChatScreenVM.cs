@@ -19,6 +19,7 @@ using TaleWorlds.CampaignSystem.Settlements;
 using TaleWorlds.Core;
 using TaleWorlds.Core.ViewModelCollection.ImageIdentifiers;
 using TaleWorlds.Library;
+using static ReignBeta.UI.ViewModels.ReignChatText;
 
 namespace ReignBeta.UI.ViewModels
 {
@@ -1505,13 +1506,6 @@ namespace ReignBeta.UI.ViewModels
                 || ContainsIgnoreCase(error, "unauthorized");
         }
 
-        private static bool ContainsIgnoreCase(string text, string value)
-        {
-            return !string.IsNullOrEmpty(text)
-                && !string.IsNullOrEmpty(value)
-                && text.IndexOf(value, StringComparison.OrdinalIgnoreCase) >= 0;
-        }
-
         private void ToggleMember(ReignPartyChatMemberVM attendee)
         {
             if (IsHomesMode)
@@ -1772,22 +1766,6 @@ namespace ReignBeta.UI.ViewModels
             if (_isFinalized) return;
             ChatLines.Add(new ReignChatLineVM(speaker, text, role) { ExchangeId = exchangeId ?? _session?.CurrentSceneTurnId ?? "" });
             ChatScrollVersion++;
-        }
-
-        private List<Hero> BuildResponseOrder(IEnumerable<Hero> activeHeroes, string playerText)
-        {
-            var speakers = (activeHeroes ?? Enumerable.Empty<Hero>()).Where(hero => hero != null
-                    && !string.IsNullOrWhiteSpace(hero.StringId))
-                .GroupBy(hero => hero.StringId, StringComparer.OrdinalIgnoreCase).Select(group => group.First()).ToList();
-            var participants = speakers.Select(hero => new GroupTurnParticipant
-                { Id = hero.StringId, Name = hero.Name?.ToString() ?? string.Empty }).ToList();
-            var prior = (_session?.RecentTranscriptEntries ?? Array.Empty<ReignPartyChatTranscriptLine>())
-                .Select(line => new GroupTurnLine { SpeakerId = line.SpeakerHeroStringId, Role = line.Role, Text = line.Text });
-            string seed = (_session?.SessionId ?? string.Empty) + "|" + (_session?.CurrentSceneTurnId ?? string.Empty)
-                + "|" + (_session?.PlayerInputCount.ToString() ?? "0") + "|" + (playerText ?? string.Empty);
-            var addressed = GroupConversationTurnOrder.ResolveAddressed(participants, playerText, prior);
-            return GroupConversationTurnOrder.Order(participants, playerText, seed, addressed)
-                .Select(id => speakers.First(hero => hero.StringId.Equals(id, StringComparison.OrdinalIgnoreCase))).ToList();
         }
 
         private List<ReignPartyChatTranscriptLine> _pendingRecoveredTranscript;

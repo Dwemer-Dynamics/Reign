@@ -1,4 +1,5 @@
 using System;
+using static ReignBeta.Platform.ReignNumeric;
 
 namespace ReignBeta.PartyAgency
 {
@@ -21,7 +22,5 @@ namespace ReignBeta.PartyAgency
             gold = (long)rate * periods;
             return true;
         }
-
-        private static bool Finite(double value) => !double.IsNaN(value) && !double.IsInfinity(value);
     }
 }

@@ -30,12 +30,7 @@ namespace ReignBeta.Campaign
         private const string Mode = "action_gauntlet";
         private const float AllSuiteDelayDays = 0.0417f;
         private const int LiveDialogueBatchSize = 20;
-        private const int OvernightGoalBatchPassThreshold = 18;
-        private const int OvernightGoalConsecutiveBatches = 2;
-        private const float OvernightBatchDelayDays = 0f;
         private const float OvernightCommandPollSeconds = 5f;
-        private const string OvernightCommandFileName = "live-dialogue-overnight-command.json";
-        private const string OvernightStatusFileName = "live-dialogue-overnight-status.json";
         private const string VerificationGameCommandFileName = "game-command.json";
         private const string VerificationGameStatusFileName = "game-status.json";
         private static string _lastSummary = "No action gauntlet has run yet.";
@@ -52,22 +47,7 @@ namespace ReignBeta.Campaign
         private static int _lastLiveDialogueFailed;
         private static int _lastLiveDialogueTotal;
         private static JArray _lastLiveDialogueResults = new JArray();
-        private static bool _overnightLiveDialogueActive;
-        private static bool _overnightLiveDialoguePaused;
-        private static bool _overnightBatchInFlight;
-        private static string _overnightRunId = string.Empty;
-        private static string _lastOvernightCommandId = string.Empty;
-        private static int _overnightBatchIndex;
-        private static int _overnightMaxBatches = 100;
-        private static int _overnightTotalPassed;
-        private static int _overnightTotalSkipped;
-        private static int _overnightTotalFailed;
-        private static int _overnightTotalCases;
-        private static int _overnightConsecutiveGoalBatches;
-        private static int _overnightBestBatchPassed;
-        private static float _overnightNextDay;
         private static float _overnightCommandPollAccumulator;
-        private static string _lastOvernightSummary = "No overnight live dialogue gauntlet has run yet.";
         private static float _verificationCommandPollAccumulator;
         private static string _verificationCommandId = string.Empty;
         private static bool _verificationGameRunActive;
@@ -475,246 +455,6 @@ namespace ReignBeta.Campaign
             }
 
             return batchSummary;
-        }
-
-        private static async Task RunOvernightLiveDialogueBatchAsync()
-        {
-            _overnightBatchInFlight = true;
-            int batchNumber = _overnightBatchIndex + 1;
-            WriteOvernightStatus("running_batch", "Running live dialogue batch " + batchNumber + " of " + _overnightMaxBatches + ".");
-
-            try
-            {
-                LiveDialogueBatchSummary summary = await RunLiveDialogueBetaSuiteAsync().ConfigureAwait(false);
-                _overnightBatchIndex++;
-                _overnightTotalPassed += summary.Passed;
-                _overnightTotalSkipped += summary.Skipped;
-                _overnightTotalFailed += summary.Failed;
-                _overnightTotalCases += summary.Total;
-                bool goalBatch = summary.Passed >= OvernightGoalBatchPassThreshold && summary.Total >= LiveDialogueBatchSize;
-                bool repairNeeded = LiveDialogueNeedsRepair(summary);
-                _overnightBestBatchPassed = Math.Max(_overnightBestBatchPassed, summary.Passed);
-                _overnightConsecutiveGoalBatches = goalBatch ? _overnightConsecutiveGoalBatches + 1 : 0;
-
-                JObject data = new JObject
-                {
-                    ["overnightRunId"] = _overnightRunId,
-                    ["batch"] = batchNumber,
-                    ["maxBatches"] = _overnightMaxBatches,
-                    ["summary"] = summary.ToJson(),
-                    ["totals"] = OvernightTotalsJson(),
-                    ["goalBatch"] = goalBatch,
-                    ["repairNeeded"] = repairNeeded,
-                    ["goalPassThreshold"] = OvernightGoalBatchPassThreshold,
-                    ["goalConsecutiveTarget"] = OvernightGoalConsecutiveBatches,
-                    ["consecutiveGoalBatches"] = _overnightConsecutiveGoalBatches
-                };
-                string batchStatus = repairNeeded ? "failed" : goalBatch ? "goal_batch" : "completed_below_goal";
-                WriteGauntletLog(_overnightRunId, "live_dialogue.overnight.batch", batchStatus, summary.Message, data);
-
-                if (repairNeeded)
-                {
-                    _overnightLiveDialoguePaused = true;
-                    _lastOvernightSummary = "Overnight live dialogue paused for repair after batch " + batchNumber + ": " + summary.Failed + " failed, " + summary.Passed + " passed.";
-                    WriteOvernightStatus("paused_for_repair", _lastOvernightSummary, summary);
-                    Show(_lastOvernightSummary);
-                    return;
-                }
-
-                if (_overnightConsecutiveGoalBatches >= OvernightGoalConsecutiveBatches)
-                {
-                    CompleteOvernightLiveDialogueGauntlet("Reached target: " + OvernightGoalConsecutiveBatches + " consecutive 20-case batches with at least " + OvernightGoalBatchPassThreshold + " successes.");
-                    return;
-                }
-
-                if (_overnightBatchIndex >= _overnightMaxBatches)
-                {
-                    CompleteOvernightLiveDialogueGauntlet("Reached requested safety batch count before target.");
-                    return;
-                }
-
-                _overnightNextDay = CurrentDay() + OvernightBatchDelayDays;
-                _lastOvernightSummary = "Overnight live dialogue batch " + batchNumber + " scored " + summary.Passed + "/" + summary.Total + "; consecutive target batches=" + _overnightConsecutiveGoalBatches + "/" + OvernightGoalConsecutiveBatches + ". Next batch starts immediately.";
-                WriteOvernightStatus("waiting_next_batch", _lastOvernightSummary, summary);
-                Show(_lastOvernightSummary);
-            }
-            catch (Exception ex)
-            {
-                ReignLog.Exception("Overnight live dialogue batch", ex);
-                _overnightLiveDialoguePaused = true;
-                _lastOvernightSummary = "Overnight live dialogue paused after exception: " + ex.Message;
-                WriteOvernightStatus("paused_for_repair", _lastOvernightSummary);
-                Show(_lastOvernightSummary);
-            }
-            finally
-            {
-                _overnightBatchInFlight = false;
-            }
-        }
-
-        private static void StartOvernightLiveDialogueGauntlet(int maxBatches, string source)
-        {
-            ReignBetaSettings settings = ReignBetaSettings.Instance;
-            if (settings != null)
-            {
-                settings.McmTestModeEnabled = true;
-                settings.DialogueComplianceTestModeEnabled = true;
-            }
-
-            _overnightRunId = NewCorrelationId("overnight-live-dialogue");
-            _overnightBatchIndex = 0;
-            _overnightMaxBatches = Math.Max(1, maxBatches);
-            _overnightTotalPassed = 0;
-            _overnightTotalSkipped = 0;
-            _overnightTotalFailed = 0;
-            _overnightTotalCases = 0;
-            _overnightConsecutiveGoalBatches = 0;
-            _overnightBestBatchPassed = 0;
-            _overnightNextDay = CurrentDay();
-            _overnightLiveDialogueActive = true;
-            _overnightLiveDialoguePaused = false;
-            _overnightBatchInFlight = false;
-            _lastOvernightSummary = "Overnight live dialogue gauntlet started from " + (source ?? "unknown") + ". Max batches=" + _overnightMaxBatches + ".";
-
-            WriteOvernightStatus(HasCampaign() ? "running" : "waiting_for_campaign", _lastOvernightSummary);
-            WriteGauntletLog(_overnightRunId, "live_dialogue.overnight.start", "started", _lastOvernightSummary, new JObject
-            {
-                ["runId"] = _overnightRunId,
-                ["source"] = source ?? string.Empty,
-                ["maxBatches"] = _overnightMaxBatches,
-                ["batchSize"] = LiveDialogueBatchSize
-            });
-            Show(_lastOvernightSummary);
-        }
-
-        private static void StopOvernightLiveDialogueGauntlet(string reason)
-        {
-            _overnightLiveDialogueActive = false;
-            _overnightLiveDialoguePaused = false;
-            _overnightBatchInFlight = false;
-            _liveDialogueActive = false;
-            _lastOvernightSummary = "Overnight live dialogue gauntlet stopped. " + (reason ?? string.Empty);
-            WriteOvernightStatus("stopped", _lastOvernightSummary);
-            WriteGauntletLog(string.IsNullOrWhiteSpace(_overnightRunId) ? NewCorrelationId("overnight-stop") : _overnightRunId, "live_dialogue.overnight.stop", "stopped", _lastOvernightSummary, OvernightTotalsJson());
-            Show(_lastOvernightSummary);
-        }
-
-        private static void ResumeOvernightLiveDialogueGauntlet(string source)
-        {
-            if (string.IsNullOrWhiteSpace(_overnightRunId))
-            {
-                TryRestoreOvernightStateFromStatus();
-                if (string.IsNullOrWhiteSpace(_overnightRunId))
-                {
-                    StartOvernightLiveDialogueGauntlet(_overnightMaxBatches, source ?? "resume");
-                    return;
-                }
-            }
-
-            ReignBetaSettings settings = ReignBetaSettings.Instance;
-            if (settings != null)
-            {
-                settings.McmTestModeEnabled = true;
-                settings.DialogueComplianceTestModeEnabled = true;
-            }
-
-            _overnightLiveDialogueActive = true;
-            _overnightLiveDialoguePaused = false;
-            _overnightBatchInFlight = false;
-            _overnightNextDay = CurrentDay();
-            _lastOvernightSummary = "Overnight live dialogue gauntlet resumed from " + (source ?? "command") + " at batch " + (_overnightBatchIndex + 1) + ".";
-            WriteOvernightStatus("running", _lastOvernightSummary);
-            WriteGauntletLog(_overnightRunId, "live_dialogue.overnight.resume", "started", _lastOvernightSummary, OvernightTotalsJson());
-            Show(_lastOvernightSummary);
-        }
-
-        private static void TryRestoreOvernightStateFromStatus()
-        {
-            try
-            {
-                string path = OvernightStatusPath();
-                if (!File.Exists(path))
-                {
-                    return;
-                }
-
-                JObject status = JObject.Parse(File.ReadAllText(path));
-                string runId = status.Value<string>("overnightRunId") ?? string.Empty;
-                if (string.IsNullOrWhiteSpace(runId))
-                {
-                    return;
-                }
-
-                _overnightRunId = runId;
-                _overnightBatchIndex = status.Value<int?>("batchIndex") ?? 0;
-                _overnightMaxBatches = Math.Max(1, status.Value<int?>("maxBatches") ?? _overnightMaxBatches);
-                JObject totals = status["totals"] as JObject ?? new JObject();
-                _overnightTotalPassed = totals.Value<int?>("passed") ?? 0;
-                _overnightTotalSkipped = totals.Value<int?>("skipped") ?? 0;
-                _overnightTotalFailed = totals.Value<int?>("failed") ?? 0;
-                _overnightTotalCases = totals.Value<int?>("total") ?? 0;
-                _overnightConsecutiveGoalBatches = totals.Value<int?>("consecutiveGoalBatches") ?? 0;
-                _overnightBestBatchPassed = totals.Value<int?>("bestBatchPassed") ?? 0;
-                _lastOvernightSummary = "Restored overnight run " + _overnightRunId + " from status file.";
-            }
-            catch (Exception ex)
-            {
-                ReignLog.Warn("Could not restore overnight state: " + ex.Message);
-            }
-        }
-
-        private static void CompleteOvernightLiveDialogueGauntlet(string reason)
-        {
-            _overnightLiveDialogueActive = false;
-            _overnightLiveDialoguePaused = false;
-            _overnightBatchInFlight = false;
-            _lastOvernightSummary = "Overnight live dialogue complete: batches=" + _overnightBatchIndex + ", passed=" + _overnightTotalPassed + ", skipped=" + _overnightTotalSkipped + ", failed=" + _overnightTotalFailed + ", total=" + _overnightTotalCases + ". " + (reason ?? string.Empty);
-            WriteOvernightStatus("complete", _lastOvernightSummary);
-            WriteGauntletLog(_overnightRunId, "live_dialogue.overnight.complete", _overnightTotalFailed == 0 ? "completed" : "failed", _lastOvernightSummary, OvernightTotalsJson());
-            Show(_lastOvernightSummary);
-        }
-
-        private static void PollOvernightCommandFile()
-        {
-            try
-            {
-                string path = OvernightCommandPath();
-                if (!File.Exists(path))
-                {
-                    return;
-                }
-
-                JObject command = JObject.Parse(File.ReadAllText(path));
-                string commandId = command.Value<string>("commandId") ?? command.Value<string>("id") ?? string.Empty;
-                if (!string.IsNullOrWhiteSpace(commandId) && string.Equals(commandId, _lastOvernightCommandId, StringComparison.OrdinalIgnoreCase))
-                {
-                    return;
-                }
-
-                _lastOvernightCommandId = string.IsNullOrWhiteSpace(commandId) ? Guid.NewGuid().ToString("N") : commandId;
-                string name = (command.Value<string>("command") ?? string.Empty).Trim().ToLowerInvariant();
-                int maxBatches = command.Value<int?>("maxBatches") ?? _overnightMaxBatches;
-                switch (name)
-                {
-                    case "start":
-                        StartOvernightLiveDialogueGauntlet(maxBatches, "command_file");
-                        break;
-                    case "resume":
-                        ResumeOvernightLiveDialogueGauntlet("command_file");
-                        break;
-                    case "stop":
-                        StopOvernightLiveDialogueGauntlet("Command file requested stop.");
-                        break;
-                    case "status":
-                        WriteOvernightStatus(_overnightLiveDialoguePaused ? "paused_for_repair" : (_overnightLiveDialogueActive ? "running" : "idle"), _lastOvernightSummary);
-                        break;
-                }
-            }
-            catch (Exception ex)
-            {
-                ReignLog.Warn("Overnight command poll failed: " + ex.Message);
-                WriteOvernightStatus("command_error", "Could not read overnight command: " + ex.Message);
-            }
         }
 
         private static void PollVerificationGameCommand()
@@ -1425,32 +1165,6 @@ namespace ReignBeta.Campaign
                 .FirstOrDefault(npc => playerClan.Heroes.Any(player => player != null
                     && player.IsAlive
                     && global::TaleWorlds.CampaignSystem.Campaign.Current.Models.MarriageModel.IsCoupleSuitableForMarriage(player, npc)));
-        }
-
-        private static bool LiveDialogueNeedsRepair(LiveDialogueBatchSummary summary)
-        {
-            if (summary == null || summary.Total <= 0)
-            {
-                return true;
-            }
-
-            int infrastructureFailures = 0;
-            foreach (JObject result in (summary.Results ?? new JArray()).OfType<JObject>())
-            {
-                string id = result.Value<string>("id") ?? string.Empty;
-                string failureClass = result.Value<string>("failureClass") ?? string.Empty;
-                if (string.Equals(id, "suite_exception", StringComparison.OrdinalIgnoreCase))
-                {
-                    return true;
-                }
-
-                if (string.Equals(failureClass, "llm_or_server_failed", StringComparison.OrdinalIgnoreCase))
-                {
-                    infrastructureFailures++;
-                }
-            }
-
-            return summary.Passed == 0 && infrastructureFailures >= Math.Max(3, summary.Total / 2);
         }
 
         private static string DescribeLedgerState(ReignWorldActionType expectedType, List<ReignWorldActionRecord> ledgerActions)
@@ -3198,16 +2912,6 @@ namespace ReignBeta.Campaign
             return result != null && result.Success ? string.Empty : result?.Message ?? "No execution result.";
         }
 
-        private static string SuccessOrProgress(GauntletContext c, ReignWorldActionRecord action, ReignActionResult result, JObject before, JObject after)
-        {
-            if (result == null || !result.Success)
-            {
-                return result?.Message ?? "No execution result.";
-            }
-
-            return result.Outcome == "progress" || result.Completed ? string.Empty : "Expected progress or completion, got " + result.Outcome + ".";
-        }
-
         private static Assertion MovementOrder(string expectedDetail)
         {
             return (c, action, result, before, after) =>
@@ -3262,18 +2966,6 @@ namespace ReignBeta.Campaign
                     && string.Equals(effectType, expectedType, StringComparison.OrdinalIgnoreCase));
                 return changed || effect ? string.Empty : "Expected verified native change/effect " + expectedType + ".";
             };
-        }
-
-        private static string PendingHook(GauntletContext c, ReignWorldActionRecord action, ReignActionResult result, JObject before, JObject after)
-        {
-            if (result == null || !result.Success)
-            {
-                return result?.Message ?? "No execution result.";
-            }
-
-            return result.ResultCode != null && result.ResultCode.IndexOf("pending", StringComparison.OrdinalIgnoreCase) >= 0
-                ? string.Empty
-                : "Expected a pending hook diagnostic result.";
         }
 
         private static string GoldChanged(GauntletContext c, ReignWorldActionRecord action, ReignActionResult result, JObject before, JObject after)
@@ -4025,77 +3717,9 @@ namespace ReignBeta.Campaign
             }
         }
 
-        private static void WriteOvernightStatus(string state, string message, LiveDialogueBatchSummary batch = null)
-        {
-            try
-            {
-                string directory = LogDirectory();
-                Directory.CreateDirectory(directory);
-                JObject status = new JObject
-                {
-                    ["timestamp"] = DateTime.UtcNow.ToString("o"),
-                    ["state"] = state ?? string.Empty,
-                    ["message"] = message ?? string.Empty,
-                    ["overnightRunId"] = _overnightRunId ?? string.Empty,
-                    ["batchIndex"] = _overnightBatchIndex,
-                    ["maxBatches"] = _overnightMaxBatches,
-                    ["batchSize"] = LiveDialogueBatchSize,
-                    ["active"] = _overnightLiveDialogueActive,
-                    ["paused"] = _overnightLiveDialoguePaused,
-                    ["batchInFlight"] = _overnightBatchInFlight,
-                    ["nextDay"] = _overnightNextDay,
-                    ["totals"] = OvernightTotalsJson(),
-                    ["goal"] = new JObject
-                    {
-                        ["batchSize"] = LiveDialogueBatchSize,
-                        ["passThreshold"] = OvernightGoalBatchPassThreshold,
-                        ["consecutiveTarget"] = OvernightGoalConsecutiveBatches,
-                        ["consecutiveGoalBatches"] = _overnightConsecutiveGoalBatches,
-                        ["bestBatchPassed"] = _overnightBestBatchPassed
-                    },
-                    ["lastLiveDialogueRunId"] = _lastLiveDialogueRunId ?? string.Empty,
-                    ["lastBatch"] = batch == null ? new JObject() : batch.ToJson(),
-                    ["commandPath"] = OvernightCommandPath(),
-                    ["statusPath"] = OvernightStatusPath(),
-                    ["logPath"] = Path.Combine(directory, "action-gauntlet.jsonl")
-                };
-
-                File.WriteAllText(OvernightStatusPath(), status.ToString(Formatting.Indented));
-            }
-            catch
-            {
-                // The overnight harness should never destabilize the campaign.
-            }
-        }
-
-        private static JObject OvernightTotalsJson()
-        {
-            return new JObject
-            {
-                ["passed"] = _overnightTotalPassed,
-                ["skipped"] = _overnightTotalSkipped,
-                ["failed"] = _overnightTotalFailed,
-                ["total"] = _overnightTotalCases,
-                ["consecutiveGoalBatches"] = _overnightConsecutiveGoalBatches,
-                ["bestBatchPassed"] = _overnightBestBatchPassed,
-                ["goalPassThreshold"] = OvernightGoalBatchPassThreshold,
-                ["goalConsecutiveTarget"] = OvernightGoalConsecutiveBatches
-            };
-        }
-
         private static string LogDirectory()
         {
             return Path.Combine(BasePath.Name, "Modules", "ReignBeta", "logs");
-        }
-
-        private static string OvernightCommandPath()
-        {
-            return Path.Combine(LogDirectory(), OvernightCommandFileName);
-        }
-
-        private static string OvernightStatusPath()
-        {
-            return Path.Combine(LogDirectory(), OvernightStatusFileName);
         }
 
         private static string VerificationGameDirectory()

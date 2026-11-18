@@ -464,14 +464,6 @@ namespace ReignBeta.UI.ViewModels
             if (!HomeVisible) { BuildTabRows(tab.Id); _ = _court.RefreshServerTabAsync(tab.Id); }
         }
 
-        private void OpenCommand(string tabId)
-        {
-            if (!RequireRoyalCommand()) return;
-            ReignCourtTabVM tab = Tabs.FirstOrDefault(x => x.Id == tabId);
-            if (tab == null) { StatusText = "That court office is not available."; return; }
-            SelectTab(tab);
-        }
-
         private bool RequireRoyalCommand()
         {
             if (_court.HasRoyalCommandAccess) return true;
@@ -1455,34 +1447,6 @@ namespace ReignBeta.UI.ViewModels
                 case "military": return "ARMIES, PARTIES, READINESS, SUPPLIES, AND WAR COUNCILS";
                 case "history": return "RESOLVED PETITIONS, COMMITMENTS, EXPEDITIONS, AND CHANCELLOR SERVICE";
                 default: return "AGENDA, AUDIENCES, JUDGMENTS, AND COURT HISTORY";
-            }
-        }
-
-        private static string ReputationAxisMeaning(string axis)
-        {
-            switch(axis)
-            {
-                case "presence":return "Absentee and neglectful  â†”  attentive and personally engaged";
-                case "martial":return "Publicly inept or cowardly  â†”  formidable and proven";
-                case "statecraft":return "Politically inept  â†”  capable ruler, strategist, and negotiator";
-                case "judgement":return "Cruel, faithless, or unjust  â†”  merciful, honorable, and wise";
-                case "decorum":return "Scandalous and promiscuous  â†”  restrained, discreet, and respectable";
-                default:return string.Empty;
-            }
-        }
-
-        private static string ReputationAxisDescriptor(string axis,float score)
-        {
-            if(Math.Abs(score)<5f)return "No settled public impression";
-            bool strong=Math.Abs(score)>=35f,positive=score>0f;
-            switch(axis)
-            {
-                case "presence":return positive?(strong?"Renowned as personally engaged":"Seen as attentive and present"):(strong?"Notorious for absence and neglect":"Seen as distant and inattentive");
-                case "martial":return positive?(strong?"Famed as a formidable fighter":"Regarded as martially capable"):(strong?"Widely judged cowardly or inept":"Doubted in martial matters");
-                case "statecraft":return positive?(strong?"Celebrated as a masterful ruler":"Regarded as politically capable"):(strong?"Notorious for political incompetence":"Regarded as politically unsteady");
-                case "judgement":return positive?(strong?"Revered for honorable and wise judgement":"Seen as just and dependable"):(strong?"Feared as cruel, faithless, or unjust":"Regarded as harsh or unreliable");
-                case "decorum":return positive?(strong?"Held up as exceptionally respectable":"Seen as discreet and respectable"):(strong?"Notorious for scandal and promiscuity":"Seen as indiscreet or scandal-prone");
-                default:return string.Empty;
             }
         }
 

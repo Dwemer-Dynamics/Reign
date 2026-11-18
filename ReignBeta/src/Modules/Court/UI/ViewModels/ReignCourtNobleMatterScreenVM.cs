@@ -34,7 +34,6 @@ namespace ReignBeta.UI.ViewModels
         private readonly ReignCourtAudienceScenePresentation _scene;
         private string _eventImageId;
         private string _statusText;
-        private string _inputText = string.Empty;
         private string _petitionerSpeech;
         private string _selectedSuspectHeroId = string.Empty;
         private string _negotiatedTermsJson = string.Empty;
