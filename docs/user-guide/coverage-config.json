@@ -131,10 +131,10 @@
         "docs/REIGN_PLAYER_GUIDE.md",
         "docs/NOBLE_DOCKET_EVENT_CATALOG.md",
         "docs/agent/COURT_LIFE_IMPLEMENTATION.md",
-        "ReignBeta/src/Modules/Court/Court/ReignCourtCampaignBehavior.cs",
-        "ReignBeta/src/Modules/Court/Court/ReignPatronageCampaignBehavior.cs",
-        "ReignBeta/src/Modules/Court/Court/ReignNobleVisitorCampaignBehavior.cs",
-        "ReignBeta/src/Modules/Court/Court/ReignNobleDocketCampaignBehavior.cs"
+        "ReignBeta/src/Modules/Court/Campaign/ReignCourtCampaignBehavior.cs",
+        "ReignBeta/src/Modules/Court/Campaign/ReignPatronageCampaignBehavior.cs",
+        "ReignBeta/src/Modules/Court/Campaign/ReignNobleVisitorCampaignBehavior.cs",
+        "ReignBeta/src/Modules/Court/Campaign/ReignNobleDocketCampaignBehavior.cs"
       ]
     },
     "government-and-political-participation": {
@@ -160,7 +160,7 @@
     "spymaster-and-covert-work": {
       "sources": [
         "docs/REIGN_PLAYER_GUIDE.md",
-        "ReignBeta/src/Modules/Spymaster/Court/ReignSpymasterCampaignBehavior.cs"
+        "ReignBeta/src/Modules/Spymaster/Campaign/ReignSpymasterCampaignBehavior.cs"
       ]
     },
     "war-armies-and-temporary-guests": {
