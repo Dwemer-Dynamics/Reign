@@ -63,7 +63,7 @@ namespace ReignBeta.Court
                 () => DesignateCapital(settlement), null), true);
         }
 
-        private void DesignateCapital(Settlement settlement)
+        internal void DesignateCapital(Settlement settlement)
         {
             Kingdom kingdom = Clan.PlayerClan?.Kingdom;
             if (!IsCapitalDesignationEligible(
@@ -99,7 +99,7 @@ namespace ReignBeta.Court
                 + settlement.Name + (first ? " is now your kingdom's first capital. Rule Mode is available." : " is now your kingdom's capital.")));
         }
 
-        private KingdomCapitalDesignation CurrentCapitalDesignation()
+        internal KingdomCapitalDesignation CurrentCapitalDesignation()
         {
             string kingdomId = Clan.PlayerClan?.Kingdom?.StringId;
             if (string.IsNullOrWhiteSpace(kingdomId)) return null;
@@ -121,13 +121,13 @@ namespace ReignBeta.Court
             return record;
         }
 
-        private static bool IsCapitalDesignationEligible(bool courtEnabled, bool playerRuler,
+        internal static bool IsCapitalDesignationEligible(bool courtEnabled, bool playerRuler,
             bool isTown, bool underSiege, bool ownedByPlayerKingdom)
         {
             return courtEnabled && playerRuler && isTown && !underSiege && ownedByPlayerKingdom;
         }
 
-        private static void ApplyCapitalDesignation(KingdomCapitalDesignation record,
+        internal static void ApplyCapitalDesignation(KingdomCapitalDesignation record,
             string kingdomId, string settlementId, float day)
         {
             if (record == null) return;
@@ -139,7 +139,7 @@ namespace ReignBeta.Court
             record.Revision++;
         }
 
-        private static void ClearCapitalDesignation(KingdomCapitalDesignation record, float day)
+        internal static void ClearCapitalDesignation(KingdomCapitalDesignation record, float day)
         {
             if (record == null) return;
             record.SettlementStringId = string.Empty;
@@ -147,14 +147,14 @@ namespace ReignBeta.Court
             record.Revision++;
         }
 
-        private static ReignCourtScope ResolveCourtScope(string capitalSettlementId, string hostSettlementId)
+        internal static ReignCourtScope ResolveCourtScope(string capitalSettlementId, string hostSettlementId)
         {
             return !string.IsNullOrWhiteSpace(capitalSettlementId)
                 && string.Equals(capitalSettlementId, hostSettlementId, StringComparison.OrdinalIgnoreCase)
                 ? ReignCourtScope.Capital : ReignCourtScope.Local;
         }
 
-        private Settlement FindCurrentCapital()
+        internal Settlement FindCurrentCapital()
         {
             KingdomCapitalDesignation record = CurrentCapitalDesignation();
             Kingdom kingdom = Clan.PlayerClan?.Kingdom;
@@ -315,7 +315,7 @@ namespace ReignBeta.Court
             return true;
         }
 
-        private void ProcessForeignAmbassadorTick()
+        internal void ProcessForeignAmbassadorTick()
         {
             int currentDay = (int)Math.Floor(CurrentDayFloat());
             if (_lastForeignReferralTickDay != currentDay)
@@ -490,7 +490,7 @@ namespace ReignBeta.Court
             _ = UpdateForeignAmbassadorLocationAsync(posting, "capital_shelter");
         }
 
-        private void EndForeignAmbassador(ForeignAmbassadorPosting posting, string status, bool returnHome, string commandId, long revision)
+        internal void EndForeignAmbassador(ForeignAmbassadorPosting posting, string status, bool returnHome, string commandId, long revision)
         {
             if (posting == null) return;
             posting.Status = status;
@@ -516,7 +516,7 @@ namespace ReignBeta.Court
             HandleCapitalLoss(record, true);
         }
 
-        private void HandleCapitalLoss(KingdomCapitalDesignation record, bool showMessage)
+        internal void HandleCapitalLoss(KingdomCapitalDesignation record, bool showMessage)
         {
             ClearCapitalDesignation(record, CurrentDayFloat());
             if (HasOpenSession)
@@ -530,7 +530,7 @@ namespace ReignBeta.Court
             if (showMessage) InformationManager.DisplayMessage(new InformationMessage("[Bannerlord Reign] Your capital has been lost. Royal commands are suspended until a new capital is designated."));
         }
 
-        private void OnAmbassadorWarDeclared(IFaction first, IFaction second, DeclareWarAction.DeclareWarDetail detail)
+        internal void OnAmbassadorWarDeclared(IFaction first, IFaction second, DeclareWarAction.DeclareWarDetail detail)
         {
             Kingdom ours = Clan.PlayerClan?.Kingdom;
             Kingdom a = first as Kingdom;
@@ -573,7 +573,7 @@ namespace ReignBeta.Court
             }
         }
 
-        private List<Hero> EligibleForeignAmbassadorCandidates(Kingdom origin)
+        internal List<Hero> EligibleForeignAmbassadorCandidates(Kingdom origin)
         {
             Hero ruler = origin?.Leader;
             float adultAge = TaleWorlds.CampaignSystem.Campaign.Current?.Models?.AgeModel?.HeroComesOfAge ?? 18f;
@@ -604,12 +604,12 @@ namespace ReignBeta.Court
             return AmbassadorTravelDaysFromDistance(distance);
         }
 
-        private static int AmbassadorTravelDaysFromDistance(float? distance)
+        internal static int AmbassadorTravelDaysFromDistance(float? distance)
         {
             return !distance.HasValue ? 3 : distance.Value <= 50f ? 1 : distance.Value <= 100f ? 2 : 3;
         }
 
-        private static bool IsForeignAmbassadorCandidateEligible(string heroId, bool isRuler,
+        internal static bool IsForeignAmbassadorCandidateEligible(string heroId, bool isRuler,
             bool isLordOrLady, bool alive, bool active, bool prisoner, float age, float adultAge,
             bool inOriginKingdom, bool partyLeader, bool governor, int charm, bool assigned)
         {
@@ -625,7 +625,7 @@ namespace ReignBeta.Court
                 : Hero.FindFirst(hero => string.Equals(hero?.StringId, id, StringComparison.OrdinalIgnoreCase));
         }
 
-        private static string ForeignAmbassadorTerminalReason(bool originExists, bool originEliminated,
+        internal static string ForeignAmbassadorTerminalReason(bool originExists, bool originEliminated,
             bool envoyExists, bool envoyAlive, bool envoyDisabled)
         {
             if (!originExists) return "origin_kingdom_missing";
@@ -657,7 +657,7 @@ namespace ReignBeta.Court
             TeleportHeroAction.ApplyImmediateTeleportToSettlement(hero, target);
         }
 
-        private static JObject ParseObject(string json)
+        internal static JObject ParseObject(string json)
         {
             try { return JObject.Parse(string.IsNullOrWhiteSpace(json) ? "{}" : json); }
             catch { return new JObject(); }

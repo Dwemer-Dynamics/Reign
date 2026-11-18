@@ -13,7 +13,7 @@ namespace ReignBeta.Court
     {
         // Native dates already exceed 90,000 days. A float loses several game minutes
         // there and can put a newly created audience ahead of its own current time.
-        private static double CurrentCourtLifeDay() => CampaignTime.Now.ToDays;
+        internal static double CurrentCourtLifeDay() => CampaignTime.Now.ToDays;
 
         private float _courtLifeBackgroundElapsed;
         private int _courtLifeConversationsInFlight;

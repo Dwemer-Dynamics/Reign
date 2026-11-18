@@ -23,7 +23,7 @@ namespace ReignBeta.Court
     public sealed partial class ReignCourtCampaignBehavior
     {
         private volatile bool _familyVisitSyncInFlight;
-        private double _lastFamilyVisitSyncDay = -1;
+        internal double _lastFamilyVisitSyncDay = -1;
         private string _familyVisitSyncIdentity = "";
 
         public bool HasPendingFamilyVisitWork => _familyVisitSyncInFlight || (EnsureRulerDocketState().FamilyVisitOutbox?.Count ?? 0) > 0;
@@ -38,7 +38,7 @@ namespace ReignBeta.Court
         public bool HasUnmigratedChildAttention(Hero hero) => hero != null && (FamilyMirror()["members"]?.OfType<JObject>()
             .Any(x => x.Value<string>("hero_id") == hero.StringId && x.Value<int?>("child_relation_owned") == 1 && x.Value<int?>("adult_migrated") == 0) ?? false);
 
-        private JObject FamilyMirror()
+        internal JObject FamilyMirror()
         {
             try
             {
@@ -60,7 +60,7 @@ namespace ReignBeta.Court
                 || (court != null && (hero.CurrentSettlement == court || hero.PartyBelongedTo?.CurrentSettlement == court)));
         }
 
-        private static List<Hero> RulerFamily()
+        internal static List<Hero> RulerFamily()
         {
             var player = Hero.MainHero;
             if (player == null) return new List<Hero>();
@@ -68,7 +68,7 @@ namespace ReignBeta.Court
                 .Where(x => x != null).GroupBy(x => x.StringId).Select(x => x.First()).ToList();
         }
 
-        private static JObject FamilyVisitProfile(Hero hero)
+        internal static JObject FamilyVisitProfile(Hero hero)
         {
             return new JObject { ["heroStringId"] = hero.StringId, ["name"] = hero.Name?.ToString() ?? hero.StringId,
                 ["age"] = hero.Age, ["isFemale"] = hero.IsFemale, ["isChild"] = hero.IsChild,

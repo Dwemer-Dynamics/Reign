@@ -9,29 +9,31 @@ using TaleWorlds.CampaignSystem.Actions;
 using TaleWorlds.CampaignSystem.CharacterDevelopment;
 using TaleWorlds.CampaignSystem.Settlements;
 using TaleWorlds.Core;
+using static ReignBeta.Court.ReignCourtCampaignBehavior;
 
 namespace ReignBeta.Court
 {
-    public sealed partial class ReignCourtCampaignBehavior
+    // Harness-owned Spymaster acceptance controls. Spymaster state and SyncData stay on ReignCourtCampaignBehavior.
+    internal static partial class ReignSpymasterTestControls
     {
-        internal JObject RunSpymasterInGameProfile(string runId, string profile, int seed)
+        internal static JObject RunSpymasterInGameProfile(ReignCourtCampaignBehavior court, string runId, string profile, int seed)
         {
             string normalizedRunId = string.IsNullOrWhiteSpace(runId) ? Guid.NewGuid().ToString("N") : runId;
             string requestedProfile = (profile ?? "feature").Trim().ToLowerInvariant();
-            if (requestedProfile == "cleanup") return CleanupSpymasterTestState(normalizedRunId);
-            if (requestedProfile == "prepare_reload") return PrepareSpymasterReloadFixture(normalizedRunId, seed);
-            if (requestedProfile == "verify_reload") return VerifySpymasterReloadFixture(normalizedRunId);
+            if (requestedProfile == "cleanup") return CleanupSpymasterTestState(court, normalizedRunId);
+            if (requestedProfile == "prepare_reload") return PrepareSpymasterReloadFixture(court, normalizedRunId, seed);
+            if (requestedProfile == "verify_reload") return VerifySpymasterReloadFixture(court, normalizedRunId);
 
             JArray assertions = new JArray();
-            string originalJson = JsonConvert.SerializeObject(EnsureSpymasterState(), Formatting.None);
+            string originalJson = JsonConvert.SerializeObject(court.EnsureSpymasterState(), Formatting.None);
             int originalGold = Hero.MainHero?.Gold ?? 0;
             DateTime started = DateTime.UtcNow;
             JArray capturedNativeIntents = new JArray();
             ReignSpymasterTestRuntime.Begin(normalizedRunId, seed, true);
             try
             {
-                _spymasterState = new ReignSpymasterState { LastAgentRecruitmentDay = CurrentDayFloat() };
-                Hero spymaster = ActiveSpymaster;
+                court._spymasterState = new ReignSpymasterState { LastAgentRecruitmentDay = CurrentDayFloat() };
+                Hero spymaster = court.ActiveSpymaster;
                 AddSpyAssertion(assertions, "campaign_loaded", TaleWorlds.CampaignSystem.Campaign.Current != null && Hero.MainHero != null,
                     "A native campaign and main hero are loaded.", new JObject { ["campaignId"] = ReignBeta.Integration.ReignCampaignIdentity.CurrentCampaignId() });
                 AddSpyAssertion(assertions, "spymaster_appointed", spymaster != null && spymaster.IsAlive && spymaster.IsActive,
@@ -44,11 +46,11 @@ namespace ReignBeta.Court
 
                 ReignSpymasterMission activeLock = NewTestMission(normalizedRunId, "land_intelligence", spymaster, null, null);
                 activeLock.State = ReignSpymasterMissionState.Active;
-                EnsureSpymasterState().Missions.Add(activeLock);
-                bool canChange = CanChangeSpymasterOffice(out string lockError);
+                court.EnsureSpymasterState().Missions.Add(activeLock);
+                bool canChange = court.CanChangeSpymasterOffice(out string lockError);
                 AddSpyAssertion(assertions, "active_mission_blocks_office_change", !canChange && lockError.Contains("active"),
                     "Dismissal and replacement are blocked while the incumbent owns an active mission.", new JObject { ["error"] = lockError });
-                EnsureSpymasterState().Missions.Clear();
+                court.EnsureSpymasterState().Missions.Clear();
 
                 int[] skillBoundaries = { 0, 1, 99, 100, 299, 300, 301 };
                 foreach (int skill in skillBoundaries)
@@ -75,8 +77,8 @@ namespace ReignBeta.Court
                 if (governedTarget != null)
                 {
                     ReignSpymasterMissionQuote governorQuote =
-                        GetSpymasterQuote("assassinate_governor", governedTarget.Governor);
-                    ReignSpymasterMissionQuote displayedGovernorQuote = GetSpymasterQuote(
+                        court.GetSpymasterQuote("assassinate_governor", governedTarget.Governor);
+                    ReignSpymasterMissionQuote displayedGovernorQuote = court.GetSpymasterQuote(
                         "assassinate_governor", "settlement", governedTarget.Settlement.StringId);
                     AddSpyAssertion(assertions, "governor_assassination_displayed_quote_matches_charge",
                         displayedGovernorQuote.GoldCost == governorQuote.GoldCost
@@ -121,43 +123,43 @@ namespace ReignBeta.Court
                 Town paymentTarget = fortifications.FirstOrDefault();
                 string paymentTargetId = paymentTarget?.Settlement?.StringId ?? string.Empty;
                 string paymentTargetName = paymentTarget?.Settlement?.Name?.ToString() ?? "test fortification";
-                string firstError = StartSpymasterMission("land_intelligence", "settlement", paymentTargetId, paymentTargetName);
+                string firstError = court.StartSpymasterMission("land_intelligence", "settlement", paymentTargetId, paymentTargetName);
                 int paymentAfter = Hero.MainHero.Gold;
-                ReignSpymasterMission paid = EnsureSpymasterState().Missions.LastOrDefault();
+                ReignSpymasterMission paid = court.EnsureSpymasterState().Missions.LastOrDefault();
                 AddSpyAssertion(assertions, "payment_up_front_and_timing", string.IsNullOrWhiteSpace(firstError) && paid != null
                     && paymentBefore - paymentAfter == paid.GoldCost && Math.Abs((paid.DueDay - paid.StartedDay) - 4f) < 0.001f,
                     "Mission payment is charged once up front and the due day matches the displayed duration.", paid == null ? null : JObject.FromObject(paid));
-                StartSpymasterMission("land_intelligence", "settlement", paymentTargetId, paymentTargetName);
-                StartSpymasterMission("land_intelligence", "settlement", paymentTargetId, paymentTargetName);
-                string capacityError = StartSpymasterMission("land_intelligence", "settlement", paymentTargetId, paymentTargetName);
-                AddSpyAssertion(assertions, "mission_capacity", ActiveSpymasterMissionCount == ReignSpymasterCore.MissionCapacity && capacityError.Contains("capacity"),
-                    "The fourth simultaneous mission is rejected at the production capacity boundary.", new JObject { ["active"] = ActiveSpymasterMissionCount, ["error"] = capacityError });
-                EnsureSpymasterState().Missions.Clear();
+                court.StartSpymasterMission("land_intelligence", "settlement", paymentTargetId, paymentTargetName);
+                court.StartSpymasterMission("land_intelligence", "settlement", paymentTargetId, paymentTargetName);
+                string capacityError = court.StartSpymasterMission("land_intelligence", "settlement", paymentTargetId, paymentTargetName);
+                AddSpyAssertion(assertions, "mission_capacity", court.ActiveSpymasterMissionCount == ReignSpymasterCore.MissionCapacity && capacityError.Contains("capacity"),
+                    "The fourth simultaneous mission is rejected at the production capacity boundary.", new JObject { ["active"] = court.ActiveSpymasterMissionCount, ["error"] = capacityError });
+                court.EnsureSpymasterState().Missions.Clear();
 
                 int savedGold = Hero.MainHero.Gold;
                 if (savedGold > 0) GiveGoldAction.ApplyBetweenCharacters(Hero.MainHero, null, savedGold, false);
-                string insufficient = StartSpymasterMission("land_intelligence", "settlement", paymentTargetId, paymentTargetName);
+                string insufficient = court.StartSpymasterMission("land_intelligence", "settlement", paymentTargetId, paymentTargetName);
                 if (savedGold > 0) GiveGoldAction.ApplyBetweenCharacters(null, Hero.MainHero, savedGold, false);
-                AddSpyAssertion(assertions, "insufficient_funds", insufficient.Contains("treasury") && EnsureSpymasterState().Missions.Count == 0,
+                AddSpyAssertion(assertions, "insufficient_funds", insufficient.Contains("treasury") && court.EnsureSpymasterState().Missions.Count == 0,
                     "Insufficient funds rejects the mission without creating an operation.", new JObject { ["error"] = insufficient });
 
                 ReignSpymasterMission invalidated = NewTestMission(normalizedRunId, "land_intelligence", spymaster, null, null);
                 invalidated.TargetType = "settlement"; invalidated.TargetStringId = "missing_spymaster_target";
                 invalidated.GoldCost = 1500; invalidated.StartedDay = CurrentDayFloat() - 5f; invalidated.DueDay = CurrentDayFloat() - 1f;
-                EnsureSpymasterState().Missions.Add(invalidated);
+                court.EnsureSpymasterState().Missions.Add(invalidated);
                 int noRefundGold = Hero.MainHero.Gold;
-                ProcessSpymasterDailyTick();
+                court.ProcessSpymasterDailyTick();
                 AddSpyAssertion(assertions, "invalidation_no_refund", invalidated.State == ReignSpymasterMissionState.Cancelled
                     && Hero.MainHero.Gold == noRefundGold && invalidated.ResultSummary.Contains("not recovered"),
                     "A due mission whose target became invalid is cancelled deterministically without refund.", JObject.FromObject(invalidated));
 
-                EnsureSpymasterState().Missions.Clear();
+                court.EnsureSpymasterState().Missions.Clear();
                 if (paymentTarget != null)
                 {
                     ReignSpymasterMission landMission = NewTestMission(normalizedRunId, "land_intelligence", spymaster, null, paymentTarget.Settlement);
                     landMission.SuccessChance = 54f; landMission.DetectionChance = 25f;
                     ReignSpymasterTestRuntime.Force("mission_outcome", 0.5399f);
-                    ResolveSpymasterMission(landMission, spymaster, CurrentDayFloat());
+                    court.ResolveSpymasterMission(landMission, spymaster, CurrentDayFloat());
                     string reportBefore = landMission.ReportJson;
                     AddSpyAssertion(assertions, "displayed_probability_success_boundary", landMission.State == ReignSpymasterMissionState.Succeeded
                         && Math.Abs(landMission.OutcomeRoll - 53.99f) < 0.02f,
@@ -171,7 +173,7 @@ namespace ReignBeta.Court
                     ReignSpymasterTestRuntime.Force("mission_outcome", 0.54f);
                     ReignSpymasterTestRuntime.Force("mission_detection", 0.2499f);
                     ReignSpymasterTestRuntime.Force("mission_attribution", 0f);
-                    ResolveSpymasterMission(exposed, spymaster, CurrentDayFloat());
+                    court.ResolveSpymasterMission(exposed, spymaster, CurrentDayFloat());
                     AddSpyAssertion(assertions, "displayed_probability_failure_detection_boundary", exposed.State == ReignSpymasterMissionState.Exposed
                         && exposed.TargetNoticed && exposed.PlayerIdentified,
                         "A roll exactly at success fails; a detection roll just below the displayed risk notices and attributes the operation.", JObject.FromObject(exposed));
@@ -179,16 +181,16 @@ namespace ReignBeta.Court
                     foreach (string disruption in new[] { "disrupt_food", "disrupt_construction", "disrupt_security", "disrupt_loyalty" })
                     {
                         ReignSpymasterMission mission = NewTestMission(normalizedRunId, disruption, spymaster, null, paymentTarget.Settlement);
-                        ResolveSuccessfulSpymasterMission(mission, spymaster, CurrentDayFloat());
+                        court.ResolveSuccessfulSpymasterMission(mission, spymaster, CurrentDayFloat());
                         ReignSpymasterEffectSpec expected = ReignSpymasterCore.Effect(disruption);
-                        ReignSpymasterSettlementEffect actual = EnsureSpymasterState().Effects.LastOrDefault();
+                        ReignSpymasterSettlementEffect actual = court.EnsureSpymasterState().Effects.LastOrDefault();
                         AddSpyAssertion(assertions, "effect_" + disruption, actual != null && actual.EffectType == expected.EffectType
                             && Math.Abs(actual.Magnitude - expected.Magnitude) < 0.001d && Math.Abs((actual.EndDay - actual.StartDay) - expected.DurationDays) < 0.001d,
                             "The live campaign applies the intended severity and duration.", actual == null ? null : JObject.FromObject(actual));
                     }
-                    for (int i = 0; i < 5; i++) EnsureSpymasterState().Effects.Add(new ReignSpymasterSettlementEffect
+                    for (int i = 0; i < 5; i++) court.EnsureSpymasterState().Effects.Add(new ReignSpymasterSettlementEffect
                     { SettlementStringId = paymentTarget.Settlement.StringId, EffectType = "food", StartDay = CurrentDayFloat(), EndDay = CurrentDayFloat() + 10f, Magnitude = -0.35f });
-                    AddSpyAssertion(assertions, "effect_clamping_invariant", Math.Abs(GetSpymasterFoodFactor(paymentTarget) + 0.90f) < 0.001f,
+                    AddSpyAssertion(assertions, "effect_clamping_invariant", Math.Abs(court.GetSpymasterFoodFactor(paymentTarget) + 0.90f) < 0.001f,
                         "Stacked multiplicative disruption is clamped so settlement production cannot cross the invariant floor.", null);
                 }
 
@@ -211,14 +213,14 @@ namespace ReignBeta.Court
                         new JObject { ["skills"] = skills, ["relationships"] = relationships, ["rumors"] = rumors });
 
                     ReignSpymasterMission assassination = NewTestMission(normalizedRunId, "assassinate_person", spymaster, foreignNoble, null);
-                    ResolveAssassination(assassination, foreignNoble);
+                    court.ResolveAssassination(assassination, foreignNoble);
                     AddSpyAssertion(assertions, "assassination_success_intent", ReignSpymasterTestRuntime.NativeIntents.Any(x => (string)x["type"] == "assassination"),
                         "Successful assassination reaches the native death boundary while the test hook safely records the irreversible intent.", JObject.FromObject(assassination));
 
                     ReignSpymasterMission failedAssassination = NewTestMission(normalizedRunId, "assassinate_person", spymaster, foreignNoble, null);
                     failedAssassination.Harmful = true; failedAssassination.TargetIsRuler = foreignNoble.Clan?.Kingdom?.Leader == foreignNoble;
                     ReignSpymasterTestRuntime.Force("assassination_consequence", 0.30f);
-                    ApplyFailedMissionConsequences(failedAssassination, spymaster);
+                    court.ApplyFailedMissionConsequences(failedAssassination, spymaster);
                     AddSpyAssertion(assertions, "assassination_failure_kill_or_capture", ReignSpymasterTestRuntime.NativeIntents.Any(x =>
                         (string)x["type"] == "spymaster_killed" || (string)x["type"] == "spymaster_captured"),
                         "A failed assassination reaches a deterministic Spymaster kill-or-capture consequence without harming the test campaign.", JObject.FromObject(failedAssassination));
@@ -240,7 +242,7 @@ namespace ReignBeta.Court
                         && (loyalty <= 40d || !ReignSpymasterCore.ShouldRecruit(loyalty, 0d)),
                         "The live assembly uses the exact enemy-agent loyalty curve and boundary eligibility.", new JObject { ["loyalty"] = loyalty, ["chance"] = ReignSpymasterCore.RecruitmentChance(loyalty) });
 
-                JObject agentRequest = BuildForeignAgentSnapshot(CurrentDayFloat());
+                JObject agentRequest = court.BuildForeignAgentSnapshot(CurrentDayFloat());
                 HashSet<string> agentCandidateIds = new HashSet<string>((agentRequest["candidates"] as JArray ?? new JArray())
                     .OfType<JObject>().Select(x => (string)x["heroId"] ?? string.Empty), StringComparer.OrdinalIgnoreCase);
                 AddSpyAssertion(assertions, "foreign_agent_candidate_exclusions",
@@ -262,13 +264,13 @@ namespace ReignBeta.Court
                         ["settlementStringId"] = paymentTargetId, ["effectType"] = "security", ["durationDays"] = 10f,
                         ["magnitude"] = -1f, ["detected"] = true, ["sponsorAttributed"] = false })
                 };
-                int effectsBeforeAgent = EnsureSpymasterState().Effects.Count;
-                ApplyForeignAgentResponse(agentResponse, CurrentDayFloat());
-                ApplyForeignAgentResponse(agentResponse, CurrentDayFloat());
-                AddSpyAssertion(assertions, "foreign_agent_action_idempotence", EnsureSpymasterState().ForeignAgentActions.Count(x => x.ActionId == "spytest-action-" + normalizedRunId) == 1
-                    && EnsureSpymasterState().Effects.Count == effectsBeforeAgent + 1
-                    && EnsureSpymasterState().ForeignAgents.Count == 1 && EnsureSpymasterState().ForeignAgents[0].Activated,
-                    "Foreign-agent activation is upserted and action IDs prevent duplicate save/load outcomes.", JObject.FromObject(EnsureSpymasterState()));
+                int effectsBeforeAgent = court.EnsureSpymasterState().Effects.Count;
+                court.ApplyForeignAgentResponse(agentResponse, CurrentDayFloat());
+                court.ApplyForeignAgentResponse(agentResponse, CurrentDayFloat());
+                AddSpyAssertion(assertions, "foreign_agent_action_idempotence", court.EnsureSpymasterState().ForeignAgentActions.Count(x => x.ActionId == "spytest-action-" + normalizedRunId) == 1
+                    && court.EnsureSpymasterState().Effects.Count == effectsBeforeAgent + 1
+                    && court.EnsureSpymasterState().ForeignAgents.Count == 1 && court.EnsureSpymasterState().ForeignAgents[0].Activated,
+                    "Foreign-agent activation is upserted and action IDs prevent duplicate save/load outcomes.", JObject.FromObject(court.EnsureSpymasterState()));
 
                 ReignSpymasterMission memory = NewTestMission(normalizedRunId, "person_relationships", spymaster, foreignNoble, null);
                 memory.GoldCost = 2250; memory.SuccessChance = 47f; memory.DetectionChance = 31f; memory.OutcomeRoll = 46f;
@@ -283,8 +285,8 @@ namespace ReignBeta.Court
                     "The Spymaster's mission memory retains parameters, costs, probability snapshots, outcomes, attribution, consequences and ordered history.", JObject.Parse(memoryJson));
 
                 ReignSpymasterState legacy = new ReignSpymasterState { Version = 0, Missions = null, Effects = null, ForeignAgents = null, ForeignAgentActions = null, AppliedForeignAgentActionIds = null };
-                _spymasterState = legacy;
-                ReignSpymasterState migrated = EnsureSpymasterState();
+                court._spymasterState = legacy;
+                ReignSpymasterState migrated = court.EnsureSpymasterState();
                 AddSpyAssertion(assertions, "legacy_state_migration", migrated.Version == 4 && migrated.Missions != null && migrated.Effects != null
                     && migrated.ForeignAgents != null && migrated.ForeignAgentActions != null && migrated.AppliedForeignAgentActionIds != null
                     && migrated.OrganicTestLedgers != null,
@@ -294,7 +296,7 @@ namespace ReignBeta.Court
                 oversizedLedger.Batches.Add(new ReignSpymasterOrganicBatchRecord { BatchId = "oversized_batch", PreSnapshotJson = new string('b', 10000) });
                 for (int index = 0; index < 40; index++) oversizedLedger.ObservationJson.Add(new string('o', 10000));
                 migrated.OrganicTestLedgers.Add(oversizedLedger);
-                ReignSpymasterState compacted = EnsureSpymasterState();
+                ReignSpymasterState compacted = court.EnsureSpymasterState();
                 ReignSpymasterOrganicTestLedger compactedLedger = compacted.OrganicTestLedgers.FirstOrDefault(x => x.RunId == "oversized_save_payload");
                 AddSpyAssertion(assertions, "organic_harness_save_payload_bounded", compactedLedger != null
                     && compactedLedger.Batches.All(x => (x.PreSnapshotJson ?? string.Empty).Length <= OrganicLedgerMaxStoredJsonChars)
@@ -319,23 +321,23 @@ namespace ReignBeta.Court
                 int now = Hero.MainHero?.Gold ?? 0;
                 if (Hero.MainHero != null && now > originalGold) GiveGoldAction.ApplyBetweenCharacters(Hero.MainHero, null, now - originalGold, false);
                 else if (Hero.MainHero != null && now < originalGold) GiveGoldAction.ApplyBetweenCharacters(null, Hero.MainHero, originalGold - now, false);
-                _spymasterState = JsonConvert.DeserializeObject<ReignSpymasterState>(originalJson) ?? new ReignSpymasterState();
+                court._spymasterState = JsonConvert.DeserializeObject<ReignSpymasterState>(originalJson) ?? new ReignSpymasterState();
                 ReignSpymasterTestRuntime.Reset();
-                StateChanged?.Invoke();
+                court.StateChanged?.Invoke();
             }
             JObject result = BuildSpymasterRun(normalizedRunId, requestedProfile, seed, started, assertions, capturedNativeIntents);
             result["cleanup"] = new JObject { ["stateRestored"] = true, ["goldRestored"] = (Hero.MainHero?.Gold ?? 0) == originalGold, ["testRuntimeActive"] = ReignSpymasterTestRuntime.Active };
             return result;
         }
 
-        private JObject PrepareSpymasterReloadFixture(string runId, int seed)
+        private static JObject PrepareSpymasterReloadFixture(ReignCourtCampaignBehavior court, string runId, int seed)
         {
-            CleanupSpymasterTestState(runId);
-            ReignSpymasterState state = EnsureSpymasterState();
+            CleanupSpymasterTestState(court, runId);
+            ReignSpymasterState state = court.EnsureSpymasterState();
             string prefix = "spyreload_" + runId;
             ReignSpymasterMission marker = new ReignSpymasterMission
             {
-                MissionId = prefix, SpymasterHeroStringId = ActiveSpymaster?.StringId ?? string.Empty,
+                MissionId = prefix, SpymasterHeroStringId = court.ActiveSpymaster?.StringId ?? string.Empty,
                 MissionType = "person_relationships", TargetType = "person", TargetStringId = Hero.MainHero?.StringId ?? string.Empty,
                 TargetName = Hero.MainHero?.Name?.ToString() ?? "player", GoldCost = 2250, Roguery = 123, ClanTier = 4,
                 StartedDay = CurrentDayFloat(), DueDay = CurrentDayFloat() + 5f, SuccessChance = 47f, DetectionChance = 31f,
@@ -351,34 +353,34 @@ namespace ReignBeta.Court
                 SponsorKingdomStringId = "spyreload_foreign", SettlementStringId = Settlement.CurrentSettlement?.StringId ?? string.Empty,
                 EffectType = "loyalty", WorldDay = CurrentDayFloat(), DurationDays = 10f, Magnitude = -1f, Detected = true,
                 SponsorAttributed = false, Summary = "Reload marker action." });
-            StateChanged?.Invoke();
+            court.StateChanged?.Invoke();
             return new JObject { ["ok"] = true, ["runId"] = runId, ["profile"] = "prepare_reload", ["markerId"] = prefix,
-                ["fingerprint"] = SpymasterReloadFingerprint(runId), ["state"] = JObject.FromObject(state) };
+                ["fingerprint"] = SpymasterReloadFingerprint(court, runId), ["state"] = JObject.FromObject(state) };
         }
 
-        private JObject VerifySpymasterReloadFixture(string runId)
+        private static JObject VerifySpymasterReloadFixture(ReignCourtCampaignBehavior court, string runId)
         {
             string prefix = "spyreload_" + runId;
-            ReignSpymasterState state = EnsureSpymasterState();
+            ReignSpymasterState state = court.EnsureSpymasterState();
             ReignSpymasterMission mission = state.Missions.FirstOrDefault(x => x.MissionId == prefix);
             int actionCount = state.ForeignAgentActions.Count(x => x.ActionId == prefix + "_action");
             int agentCount = state.ForeignAgents.Count(x => x.AgentHeroStringId == prefix + "_agent");
             bool passed = mission != null && mission.State == ReignSpymasterMissionState.Active && mission.GoldCost == 2250
                 && mission.History?.Count == 2 && actionCount == 1 && agentCount == 1
                 && state.AppliedForeignAgentActionIds.Count(x => x == prefix + "_action") == 1;
-            string fingerprint = SpymasterReloadFingerprint(runId);
-            JObject cleanup = CleanupSpymasterTestState(runId);
+            string fingerprint = SpymasterReloadFingerprint(court, runId);
+            JObject cleanup = CleanupSpymasterTestState(court, runId);
             return new JObject { ["ok"] = passed, ["runId"] = runId, ["profile"] = "verify_reload", ["fingerprint"] = fingerprint,
                 ["assertions"] = new JArray(new JObject { ["caseId"] = "save_load_roundtrip", ["passed"] = passed,
                     ["summary"] = "Active mission, rich memory, hidden agent affiliation and idempotent action history survived native save/load." }),
                 ["cleanup"] = cleanup };
         }
 
-        private JObject CleanupSpymasterTestState(string runId)
+        private static JObject CleanupSpymasterTestState(ReignCourtCampaignBehavior court, string runId)
         {
             string reloadPrefix = "spyreload_" + runId;
             string testPrefix = "spytest_" + runId;
-            ReignSpymasterState state = EnsureSpymasterState();
+            ReignSpymasterState state = court.EnsureSpymasterState();
             int missions = state.Missions.RemoveAll(x => (x.MissionId ?? string.Empty).StartsWith(reloadPrefix, StringComparison.OrdinalIgnoreCase)
                 || (x.MissionId ?? string.Empty).StartsWith(testPrefix, StringComparison.OrdinalIgnoreCase));
             int agents = state.ForeignAgents.RemoveAll(x => (x.AgentHeroStringId ?? string.Empty).StartsWith(reloadPrefix, StringComparison.OrdinalIgnoreCase));
@@ -387,15 +389,15 @@ namespace ReignBeta.Court
             int actionIds = state.AppliedForeignAgentActionIds.RemoveAll(x => (x ?? string.Empty).StartsWith(reloadPrefix, StringComparison.OrdinalIgnoreCase)
                 || (x ?? string.Empty).StartsWith("spytest-action-" + runId, StringComparison.OrdinalIgnoreCase));
             ReignSpymasterTestRuntime.Reset();
-            StateChanged?.Invoke();
+            court.StateChanged?.Invoke();
             return new JObject { ["ok"] = true, ["missionsRemoved"] = missions, ["agentsRemoved"] = agents,
                 ["actionsRemoved"] = actions, ["actionIdsRemoved"] = actionIds, ["runtimeActive"] = ReignSpymasterTestRuntime.Active };
         }
 
-        private string SpymasterReloadFingerprint(string runId)
+        private static string SpymasterReloadFingerprint(ReignCourtCampaignBehavior court, string runId)
         {
             string prefix = "spyreload_" + runId;
-            ReignSpymasterState state = EnsureSpymasterState();
+            ReignSpymasterState state = court.EnsureSpymasterState();
             return JsonConvert.SerializeObject(new
             {
                 mission = state.Missions.FirstOrDefault(x => x.MissionId == prefix),

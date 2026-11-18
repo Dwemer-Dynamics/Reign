@@ -18,8 +18,8 @@ namespace ReignBeta.Court
     public sealed partial class ReignCourtCampaignBehavior
     {
         private const int OrganicLedgerMaxBatches = 48;
-        private const int OrganicLedgerMaxObservations = 16;
-        private const int OrganicLedgerMaxStoredJsonChars = 2048;
+        internal const int OrganicLedgerMaxObservations = 16;
+        internal const int OrganicLedgerMaxStoredJsonChars = 2048;
         private bool _spymasterAgentTickInFlight;
 
         public CourtOfficeAssignment ActiveSpymasterAssignment =>
@@ -95,7 +95,7 @@ namespace ReignBeta.Court
                 && (string.IsNullOrWhiteSpace(heroStringId) || string.Equals(x.SpymasterHeroStringId, heroStringId, StringComparison.OrdinalIgnoreCase)));
         }
 
-        private bool CanChangeSpymasterOffice(out string error)
+        internal bool CanChangeSpymasterOffice(out string error)
         {
             error = string.Empty;
             CourtOfficeAssignment incumbent = ActiveSpymasterAssignment;
@@ -208,7 +208,7 @@ namespace ReignBeta.Court
                 + quote.SuccessChance.ToString("0") + "%; detection " + quote.DetectionChance.ToString("0") + "%.";
         }
 
-        private void ProcessSpymasterDailyTick()
+        internal void ProcessSpymasterDailyTick()
         {
             ReignSpymasterState state = EnsureSpymasterState();
             float day = CurrentDayFloat();
@@ -249,7 +249,7 @@ namespace ReignBeta.Court
             StateChanged?.Invoke();
         }
 
-        private void ResolveSpymasterMission(ReignSpymasterMission mission, Hero spymaster, float day)
+        internal void ResolveSpymasterMission(ReignSpymasterMission mission, Hero spymaster, float day)
         {
             float outcomeRoll;
             if (!ReignSpymasterTestRuntime.TryTakeMissionOutcome(mission.MissionId, out outcomeRoll))
@@ -286,7 +286,7 @@ namespace ReignBeta.Court
             _ = ReignSpymasterServerClient.RecordMissionMemoryAsync(mission, "resolved");
         }
 
-        private void ResolveSuccessfulSpymasterMission(ReignSpymasterMission mission, Hero spymaster, float day)
+        internal void ResolveSuccessfulSpymasterMission(ReignSpymasterMission mission, Hero spymaster, float day)
         {
             switch (mission.MissionType)
             {
@@ -353,7 +353,7 @@ namespace ReignBeta.Court
                 + " for approximately " + duration.ToString("0") + " days.";
         }
 
-        private void ResolveAssassination(ReignSpymasterMission mission, Hero victim)
+        internal void ResolveAssassination(ReignSpymasterMission mission, Hero victim)
         {
             if (victim == null || !victim.IsAlive)
             {
@@ -376,7 +376,7 @@ namespace ReignBeta.Court
             mission.ResultSummary = victim.Name + " was assassinated. Native clan and kingdom succession has begun.";
         }
 
-        private void ApplyFailedMissionConsequences(ReignSpymasterMission mission, Hero spymaster)
+        internal void ApplyFailedMissionConsequences(ReignSpymasterMission mission, Hero spymaster)
         {
             Hero target = ResolveSpymasterConsequenceTarget(mission);
             bool assassination = mission.MissionType.StartsWith("assassinate", StringComparison.OrdinalIgnoreCase);
@@ -586,7 +586,7 @@ namespace ReignBeta.Court
             }
         }
 
-        private static string BuildSettlementReport(ReignSettlementSupplySnapshot x)
+        internal static string BuildSettlementReport(ReignSettlementSupplySnapshot x)
         {
             string goods = x.Items == null || x.Items.Count == 0 ? "No market stock recorded"
                 : string.Join(", ", x.Items.OrderByDescending(i => i.Count).Select(i => i.Name + " " + i.Count + " @ " + i.LocalPrice));
@@ -604,7 +604,7 @@ namespace ReignBeta.Court
                 + ". Market: " + goods + ".";
         }
 
-        private static string BuildPersonReport(Hero hero, string type)
+        internal static string BuildPersonReport(Hero hero, string type)
         {
             if (hero == null) return "The subject could not be located.";
             if (type == "person_skills")
@@ -763,7 +763,7 @@ namespace ReignBeta.Court
             }
         }
 
-        private JObject BuildForeignAgentSnapshot(float day)
+        internal JObject BuildForeignAgentSnapshot(float day)
         {
             Kingdom player = Clan.PlayerClan?.Kingdom;
             Hero ruler = player?.Leader;
@@ -793,7 +793,7 @@ namespace ReignBeta.Court
             return snapshot;
         }
 
-        private bool IsEligibleForeignAgentCandidate(Hero hero, Kingdom player, Hero ruler, float adultAge)
+        internal bool IsEligibleForeignAgentCandidate(Hero hero, Kingdom player, Hero ruler, float adultAge)
         {
             if (hero == null || hero.Age < adultAge || player == null)
                 return false;
@@ -803,7 +803,7 @@ namespace ReignBeta.Court
                 || hero.IsNotable && hero.HomeSettlement?.MapFaction == player;
         }
 
-        private void ApplyForeignAgentResponse(JObject response, float day)
+        internal void ApplyForeignAgentResponse(JObject response, float day)
         {
             if (response == null || response.Value<bool?>("ok") != true) return;
             ReignSpymasterState state = EnsureSpymasterState();
@@ -857,14 +857,14 @@ namespace ReignBeta.Court
             StateChanged?.Invoke();
         }
 
-        private static Settlement ResolveNotableFortification(Hero hero)
+        internal static Settlement ResolveNotableFortification(Hero hero)
         {
             Settlement home = hero?.HomeSettlement;
             if (home?.IsVillage == true) return home.Village?.Bound;
             return home;
         }
 
-        private static Settlement FindSettlement(string id)
+        internal static Settlement FindSettlement(string id)
         {
             return string.IsNullOrWhiteSpace(id) ? null : Settlement.All.FirstOrDefault(x => string.Equals(x.StringId, id, StringComparison.OrdinalIgnoreCase));
         }

@@ -18,7 +18,7 @@ namespace ReignBeta.Campaign
             string runId = command.Value<string>("fixtureRunId") ?? command.Value<string>("runId") ?? Guid.NewGuid().ToString("N");
             string profile = command.Value<string>("profile") ?? command.Value<string>("text") ?? "feature";
             int seed = command.Value<int?>("seed") ?? 147147;
-            JObject result = await ReignMainThread.InvokeAsync(() => court.RunSpymasterInGameProfile(runId, profile, seed)).ConfigureAwait(false);
+            JObject result = await ReignMainThread.InvokeAsync(() => ReignSpymasterTestControls.RunSpymasterInGameProfile(court, runId, profile, seed)).ConfigureAwait(false);
             return result.Value<bool?>("ok") == true
                 ? LiveCommandResult.Completed("The deterministic Spymaster in-game profile completed.", result)
                 : LiveCommandResult.Failed("One or more deterministic Spymaster assertions failed.", result);
@@ -33,7 +33,7 @@ namespace ReignBeta.Campaign
             JObject result = await ReignMainThread.InvokeAsync(() =>
             {
                 if (command.Value<bool?>("actionControl") != true)
-                    return court.RunSpymasterOrganicProfile(runId, phase, command);
+                    return ReignSpymasterTestControls.RunSpymasterOrganicProfile(court, runId, phase, command);
                 JObject enrollment = command["enrollment"] as JObject;
                 bool destructive = command.Value<bool?>("destructiveActionControl") == true;
                 string source = destructive ? "reign_mcp_spymaster_destructive_action_control" : "reign_mcp_spymaster_action_control";
@@ -50,8 +50,8 @@ namespace ReignBeta.Campaign
                     || command.Value<string>("gameInstanceId") != _gameInstanceId
                     || TaleWorlds.CampaignSystem.Campaign.Current?.TimeControlMode != CampaignTimeControlMode.Stop)
                     return new JObject { ["ok"] = false, ["error"] = "Spymaster action controls require the exact paused, armed, verified disposable Current campaign and timeline." };
-                return destructive ? court.RunSpymasterDestructiveActionControlProfile(runId, phase, command)
-                    : court.RunSpymasterActionControlProfile(runId, phase, command);
+                return destructive ? ReignSpymasterTestControls.RunSpymasterDestructiveActionControlProfile(court, runId, phase, command)
+                    : ReignSpymasterTestControls.RunSpymasterActionControlProfile(court, runId, phase, command);
             }).ConfigureAwait(false);
             JObject agentRequest = result["agentRequest"] as JObject;
             if (agentRequest != null)

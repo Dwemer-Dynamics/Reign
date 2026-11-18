@@ -58,7 +58,7 @@ namespace ReignBeta.Court
             return settlement?.Town?.Governor ?? settlement?.OwnerClan?.Leader ?? settlement?.MapFaction?.Leader;
         }
 
-        private static Settlement ResolveNobleFortification(Hero hero, Kingdom player)
+        internal static Settlement ResolveNobleFortification(Hero hero, Kingdom player)
         {
             Settlement current = hero?.CurrentSettlement;
             if (current?.IsVillage == true) current = current.Village?.Bound;

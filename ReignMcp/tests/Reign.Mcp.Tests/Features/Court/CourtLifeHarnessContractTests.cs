@@ -14,7 +14,7 @@ public sealed class CourtLifeHarnessContractTests
         Assert.Contains("JObject international = native?[\"international\"] as JObject", native, StringComparison.Ordinal);
         Assert.DoesNotContain("native?[\"international\"]?[\"nativeDiplomaticAction\"]", native, StringComparison.Ordinal);
         Assert.Contains("else if (decisionExpectation == \"resolved\")", native, StringComparison.Ordinal);
-        Assert.Contains("AddCourtLifeDecisionAssertions(decisionAssertions, marker, matter)", native, StringComparison.Ordinal);
+        Assert.Contains("AddCourtLifeDecisionAssertions(court, decisionAssertions, marker, matter)", native, StringComparison.Ordinal);
     }
 
     [Fact]
@@ -128,7 +128,7 @@ public sealed class CourtLifeHarnessContractTests
             Assert.Contains("CurrentCourtLifeDay()", source, StringComparison.Ordinal);
         }
         string behavior = File.ReadAllText(Path.Combine(directory, "ReignCourtLifeCampaignBehavior.cs"));
-        Assert.Contains("private static double CurrentCourtLifeDay() => CampaignTime.Now.ToDays;", behavior, StringComparison.Ordinal);
+        Assert.Contains("internal static double CurrentCourtLifeDay() => CampaignTime.Now.ToDays;", behavior, StringComparison.Ordinal);
         Assert.Contains("x.AvailableDay <= CurrentCourtLifeDay()", behavior, StringComparison.Ordinal);
         Assert.Contains("matter.AvailableDay > CurrentCourtLifeDay()", behavior, StringComparison.Ordinal);
         Assert.Contains("CurrentCourtLifeDay() >= matter.ExpiresDay", behavior, StringComparison.Ordinal);

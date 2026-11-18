@@ -30,7 +30,7 @@ namespace ReignBeta.Court
             }
         }
 
-        private ReignNobleDocketMatter TryBuildNobleMatter(ReignNobleMatterTemplate template,
+        internal ReignNobleDocketMatter TryBuildNobleMatter(ReignNobleMatterTemplate template,
             string campaignId, string timelineId, int day, int slot)
         {
             List<Hero> candidates = EligibleNobleMatterHeroes(day, slot);
@@ -138,7 +138,7 @@ namespace ReignBeta.Court
             };
         }
 
-        private List<Hero> EligibleNobleMatterHeroes(int day, int slot)
+        internal List<Hero> EligibleNobleMatterHeroes(int day, int slot)
         {
             Kingdom kingdom = Clan.PlayerClan?.Kingdom;
             HashSet<string> alreadyPending = new HashSet<string>(EnsureRulerDocketState().NobleMatters
@@ -203,7 +203,7 @@ namespace ReignBeta.Court
             return hero?.Clan?.StringId ?? string.Empty;
         }
 
-        private static bool IsProtectedMurderVictim(Hero hero)
+        internal static bool IsProtectedMurderVictim(Hero hero)
         {
             if (hero == null || hero == Hero.MainHero || !hero.IsAlive || !hero.IsLord || hero.IsChild
                 || hero.IsPregnant || hero.Clan?.Leader == hero || hero.Clan == Clan.PlayerClan) return false;

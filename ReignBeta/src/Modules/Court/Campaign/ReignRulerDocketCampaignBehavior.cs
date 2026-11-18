@@ -127,7 +127,7 @@ namespace ReignBeta.Court
             };
         }
 
-        private ReignRulerDocketState EnsureRulerDocketState()
+        internal ReignRulerDocketState EnsureRulerDocketState()
         {
             _rulerDocketState = _rulerDocketState ?? new ReignRulerDocketState();
             _rulerDocketState.Normalize();
@@ -189,7 +189,7 @@ namespace ReignBeta.Court
             }
         }
 
-        private void MigrateLegacyDocketOnce()
+        internal void MigrateLegacyDocketOnce()
         {
             ReignRulerDocketState state = EnsureRulerDocketState();
             if (state.LegacyMigrationComplete) return;
@@ -286,7 +286,7 @@ namespace ReignBeta.Court
             }
         }
 
-        private void TryProcessPendingDocketRelationshipAdjustments()
+        internal void TryProcessPendingDocketRelationshipAdjustments()
         {
             if (_docketRelationDeliveryInFlight
                 || !EnsureRulerDocketState().PendingRelationAdjustments.Any(x => x != null && !x.Applied))
@@ -347,7 +347,7 @@ namespace ReignBeta.Court
             }
         }
 
-        private void TryProcessPendingDocketMemoryJobs()
+        internal void TryProcessPendingDocketMemoryJobs()
         {
             if (_docketMemoryDeliveryInFlight
                 || !EnsureRulerDocketState().PendingMemoryJobs.Any(x => x != null && !x.Applied))
@@ -411,7 +411,7 @@ namespace ReignBeta.Court
             }
         }
 
-        private void TryProcessPendingDocketWorldHistoryJobs()
+        internal void TryProcessPendingDocketWorldHistoryJobs()
         {
             ReignBeta.Campaign.ReignWorldHistoryCampaignBehavior history =
                 ReignBeta.Campaign.ReignWorldHistoryCampaignBehavior.Instance;
@@ -447,7 +447,7 @@ namespace ReignBeta.Court
             return known != null && !known.IsAlive;
         }
 
-        private void ProcessRulerDocketOfficeTick(int day)
+        internal void ProcessRulerDocketOfficeTick(int day)
         {
             ReignRulerDocketState state = EnsureRulerDocketState();
             if (state.LastOfficeTickDay >= day) return;
@@ -658,7 +658,7 @@ namespace ReignBeta.Court
             return true;
         }
 
-        private void MaintainChancellorCaptivityLifecycle(int day, bool? rulerCaptiveOverride = null)
+        internal void MaintainChancellorCaptivityLifecycle(int day, bool? rulerCaptiveOverride = null)
         {
             ReignRulerDocketState state = EnsureRulerDocketState();
             ReignChancellorOffice office = state.Chancellor;
@@ -733,7 +733,7 @@ namespace ReignBeta.Court
             }
         }
 
-        private Hero SelectEmergencyChancellorCandidate()
+        internal Hero SelectEmergencyChancellorCandidate()
         {
             Kingdom kingdom = Clan.PlayerClan?.Kingdom;
             if (kingdom == null) return null;
@@ -926,7 +926,7 @@ namespace ReignBeta.Court
             });
         }
 
-        private string CurrentReignId()
+        internal string CurrentReignId()
         {
             string kingdomId = TaleWorlds.CampaignSystem.Clan.PlayerClan?.Kingdom?.StringId ?? "no_kingdom";
             string rulerId = TaleWorlds.CampaignSystem.Hero.MainHero?.StringId ?? "no_ruler";
@@ -949,7 +949,7 @@ namespace ReignBeta.Court
             AddPetitionHistory(petition, "refused", "The ruler refused the petition.");
         }
 
-        private void GenerateRulerDocketForDay(int day)
+        internal void GenerateRulerDocketForDay(int day)
         {
             ReignRulerDocketState state = EnsureRulerDocketState();
             // Loading after midnight can reach the hourly generation route before
@@ -1008,7 +1008,7 @@ namespace ReignBeta.Court
             }
         }
 
-        private void BuildTownPetitionCandidates(Settlement townSettlement, int day, List<NativePetitionCandidate> output)
+        internal void BuildTownPetitionCandidates(Settlement townSettlement, int day, List<NativePetitionCandidate> output)
         {
             Town town = townSettlement?.Town;
             if (town == null) return;
@@ -1066,7 +1066,7 @@ namespace ReignBeta.Court
             });
         }
 
-        private Hero SelectPetitioner(Settlement parentTown, Settlement target, ReignPetitionKind kind, int day)
+        internal Hero SelectPetitioner(Settlement parentTown, Settlement target, ReignPetitionKind kind, int day)
         {
             Hero governor = parentTown.Town?.Governor;
             if (IsEligibleRepresentative(governor)) return governor;
@@ -1086,7 +1086,7 @@ namespace ReignBeta.Court
             return hero != null && hero.IsAlive && hero.IsActive && !hero.IsPrisoner;
         }
 
-        private ReignDocketPetition CreatePetitionSnapshot(NativePetitionCandidate candidate, string campaignId, string timelineId, int day)
+        internal ReignDocketPetition CreatePetitionSnapshot(NativePetitionCandidate candidate, string campaignId, string timelineId, int day)
         {
             ReignPetitionTerms terms = ReignRulerDocketRules.Terms(candidate.Score.Kind, candidate.Score.Severity);
             double effect = candidate.Score.Kind == ReignPetitionKind.Food ? terms.HearthDaily
@@ -1584,7 +1584,7 @@ namespace ReignBeta.Court
             return place + " " + problem + " (" + severity.ToString().ToLowerInvariant() + ").";
         }
 
-        private sealed class NativePetitionCandidate
+        internal sealed class NativePetitionCandidate
         {
             public ReignPetitionCandidateScore Score;
             public Settlement ParentTown;

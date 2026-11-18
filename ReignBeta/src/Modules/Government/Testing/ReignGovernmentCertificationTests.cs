@@ -1337,8 +1337,8 @@ namespace ReignBeta.Government
                     spyTarget = kingdom.Fiefs.Where(item => item?.Settlement?.IsFortification == true)
                         .OrderBy(item => item.Settlement.StringId, StringComparer.Ordinal).FirstOrDefault();
 #if !REIGN_EXCLUDE_COURT
-                    spymasterEffectId = ReignCourtCampaignBehavior.Instance
-                        ?.AddGovernmentCertificationSubterfugeEffect(spyTarget) ?? string.Empty;
+                    spymasterEffectId = (ReignCourtCampaignBehavior.Instance is ReignCourtCampaignBehavior spymasterCourt
+                        ? ReignSpymasterTestControls.AddGovernmentCertificationSubterfugeEffect(spymasterCourt, spyTarget) : null) ?? string.Empty;
                     prerequisiteActive = !string.IsNullOrWhiteSpace(spymasterEffectId)
                         && (ReignCourtCampaignBehavior.Instance?.GetSpymasterLoyaltyDelta(spyTarget) ?? 0f) != 0f;
 #endif
@@ -1428,8 +1428,8 @@ namespace ReignBeta.Government
             {
                 if (raidVillage != null) raidVillage.VillageState = originalVillageState;
 #if !REIGN_EXCLUDE_COURT
-                ReignCourtCampaignBehavior.Instance
-                    ?.RemoveGovernmentCertificationSubterfugeEffect(spymasterEffectId);
+                if (ReignCourtCampaignBehavior.Instance is ReignCourtCampaignBehavior spymasterCleanupCourt)
+                    ReignSpymasterTestControls.RemoveGovernmentCertificationSubterfugeEffect(spymasterCleanupCourt, spymasterEffectId);
 #endif
                 foreach (ReignGovernmentSeatRecord seat in government.GetSeats(kingdom?.StringId).ToList())
                 {

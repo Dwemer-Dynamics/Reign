@@ -10,10 +10,11 @@ using TaleWorlds.CampaignSystem;
 using TaleWorlds.CampaignSystem.Actions;
 using TaleWorlds.CampaignSystem.Settlements;
 using TaleWorlds.Core;
+using static ReignBeta.Court.ReignCourtCampaignBehavior;
 
 namespace ReignBeta.Court
 {
-    public sealed partial class ReignCourtCampaignBehavior
+    internal static partial class ReignCourtTestControls
     {
         private const string CapitalAmbassadorFixtureConfirmation = "prepare Reign capital ambassador disposable fixture";
         private const string CapitalAmbassadorOwnershipFixtureConfirmation = "grant Reign capital fixture town on disposable save";
@@ -21,30 +22,30 @@ namespace ReignBeta.Court
         private const int CapitalAmbassadorLedgerMaxObservations = 16;
         private const int CapitalAmbassadorLedgerMaxStoredJsonChars = 2048;
 
-        internal JObject RunCapitalAmbassadorTestProfile(string runId, string phase, JObject options)
+        internal static JObject RunCapitalAmbassadorTestProfile(ReignCourtCampaignBehavior court, string runId, string phase, JObject options)
         {
             string normalizedRunId = string.IsNullOrWhiteSpace(runId) ? Guid.NewGuid().ToString("N") : runId.Trim();
             string normalizedPhase = (phase ?? "preflight").Trim().ToLowerInvariant();
             options = options ?? new JObject();
             switch (normalizedPhase)
             {
-                case "preflight": return CapitalAmbassadorPreflight(normalizedRunId);
-                case "prepare_ownership": return PrepareCapitalAmbassadorOwnershipFixture(normalizedRunId, options);
-                case "deterministic": return CapitalAmbassadorDeterministicMatrix(normalizedRunId);
-                case "observe": return ObserveCapitalAmbassadorFixture(normalizedRunId, false);
-                case "mark_reload": return MarkCapitalAmbassadorReload(normalizedRunId);
-                case "verify_reload": return ObserveCapitalAmbassadorFixture(normalizedRunId, true);
-                case "move_capital": return MoveCapitalAmbassadorFixture(normalizedRunId);
-                case "simulate_loss": return SimulateCapitalLossFixture(normalizedRunId);
-                case "simulate_war": return SimulateAmbassadorWarFixture(normalizedRunId);
-                case "lifecycle_a": return RunCapitalLifecycleAFixture(normalizedRunId);
-                case "lifecycle_b_transition": return RunAmbassadorLifecycleBTransitionFixture(normalizedRunId);
-                case "cleanup_marker": return CleanupCapitalAmbassadorFixture(normalizedRunId);
+                case "preflight": return CapitalAmbassadorPreflight(court, normalizedRunId);
+                case "prepare_ownership": return PrepareCapitalAmbassadorOwnershipFixture(court, normalizedRunId, options);
+                case "deterministic": return CapitalAmbassadorDeterministicMatrix(court, normalizedRunId);
+                case "observe": return ObserveCapitalAmbassadorFixture(court, normalizedRunId, false);
+                case "mark_reload": return MarkCapitalAmbassadorReload(court, normalizedRunId);
+                case "verify_reload": return ObserveCapitalAmbassadorFixture(court, normalizedRunId, true);
+                case "move_capital": return MoveCapitalAmbassadorFixture(court, normalizedRunId);
+                case "simulate_loss": return SimulateCapitalLossFixture(court, normalizedRunId);
+                case "simulate_war": return SimulateAmbassadorWarFixture(court, normalizedRunId);
+                case "lifecycle_a": return RunCapitalLifecycleAFixture(court, normalizedRunId);
+                case "lifecycle_b_transition": return RunAmbassadorLifecycleBTransitionFixture(court, normalizedRunId);
+                case "cleanup_marker": return CleanupCapitalAmbassadorFixture(court, normalizedRunId);
                 default: return CapitalAmbassadorFailure(normalizedRunId, normalizedPhase, "Unsupported capital/ambassador test phase.");
             }
         }
 
-        private JObject PrepareCapitalAmbassadorOwnershipFixture(string runId, JObject options)
+        private static JObject PrepareCapitalAmbassadorOwnershipFixture(ReignCourtCampaignBehavior court, string runId, JObject options)
         {
             if (!string.Equals((string)options?["confirmation"],
                 CapitalAmbassadorOwnershipFixtureConfirmation,
@@ -64,7 +65,7 @@ namespace ReignBeta.Court
                     "Load the disposable ruler campaign while inside its safe owned town.");
             }
 
-            List<Settlement> owned = OwnedSafeTowns(ours);
+            List<Settlement> owned = OwnedSafeTowns(court, ours);
             if (owned.Count >= 2)
             {
                 return new JObject
@@ -95,7 +96,7 @@ namespace ReignBeta.Court
             before["ownerClanId"] = alternate.OwnerClan?.StringId ?? string.Empty;
             before["ownerHeroId"] = alternate.OwnerClan?.Leader?.StringId ?? string.Empty;
             ChangeOwnerOfSettlementAction.ApplyByGift(alternate, Hero.MainHero);
-            List<Settlement> afterOwned = OwnedSafeTowns(ours);
+            List<Settlement> afterOwned = OwnedSafeTowns(court, ours);
             bool transferred = alternate.OwnerClan == Clan.PlayerClan
                 && afterOwned.Count >= 2;
             JArray assertions = new JArray();
@@ -117,17 +118,17 @@ namespace ReignBeta.Court
             return result;
         }
 
-        internal async Task<JObject> PrepareCapitalAmbassadorFixtureAsync(string runId, JObject options)
+        internal static async Task<JObject> PrepareCapitalAmbassadorFixtureAsync(ReignCourtCampaignBehavior court, string runId, JObject options)
         {
             string normalizedRunId = string.IsNullOrWhiteSpace(runId) ? Guid.NewGuid().ToString("N") : runId.Trim();
             options = options ?? new JObject();
             if (!string.Equals((string)options["confirmation"], CapitalAmbassadorFixtureConfirmation, StringComparison.Ordinal))
                 return CapitalAmbassadorFailure(normalizedRunId, "prepare", "The exact disposable-save fixture confirmation is required.");
 
-            CapitalAmbassadorTestLedger replay = await ReignMainThread.InvokeAsync(() => FindCapitalAmbassadorLedger(normalizedRunId)).ConfigureAwait(false);
+            CapitalAmbassadorTestLedger replay = await ReignMainThread.InvokeAsync(() => FindCapitalAmbassadorLedger(court, normalizedRunId)).ConfigureAwait(false);
             if (replay != null)
             {
-                JObject existing = await ReignMainThread.InvokeAsync(() => ObserveCapitalAmbassadorFixture(normalizedRunId, false)).ConfigureAwait(false);
+                JObject existing = await ReignMainThread.InvokeAsync(() => ObserveCapitalAmbassadorFixture(court, normalizedRunId, false)).ConfigureAwait(false);
                 existing["idempotent"] = true;
                 return existing;
             }
@@ -137,8 +138,8 @@ namespace ReignBeta.Court
             ForeignAmbassadorPosting blockingPosting = await ReignMainThread.InvokeAsync(() =>
             {
                 Kingdom ours = Clan.PlayerClan?.Kingdom;
-                if (EligibleFixtureOriginKingdoms(ours).Count > 0) return null;
-                return _foreignAmbassadors
+                if (EligibleFixtureOriginKingdoms(court, ours).Count > 0) return null;
+                return court._foreignAmbassadors
                     .Where(x => x?.IsActive == true)
                     .OrderBy(x => x.OriginKingdomStringId, StringComparer.Ordinal)
                     .ThenBy(x => x.PostingId, StringComparer.Ordinal)
@@ -150,7 +151,7 @@ namespace ReignBeta.Court
                             && origin.Leader?.IsAlive == true && origin.Leader.IsActive
                             && !ours.IsAtWarWith(origin)
                             && x.Charm >= 200
-                            && EligibleForeignAmbassadorCandidates(origin).Count > 0;
+                            && court.EligibleForeignAmbassadorCandidates(origin).Count > 0;
                     });
             }).ConfigureAwait(false);
             if (blockingPosting != null)
@@ -190,7 +191,7 @@ namespace ReignBeta.Court
                         "The guarded fixture could not retire the pre-existing posting: " + ended.Error);
                 await ReignMainThread.InvokeAsync(() =>
                 {
-                    EndForeignAmbassador(blockingPosting, "ended", true, string.Empty,
+                    court.EndForeignAmbassador(blockingPosting, "ended", true, string.Empty,
                         ended.Ok ? ended.Revision : blockingPosting.Revision + 1);
                     blockingPosting.EndReason = "test_fixture_replaced";
                 }).ConfigureAwait(false);
@@ -209,9 +210,9 @@ namespace ReignBeta.Court
             {
                 Kingdom ours = Clan.PlayerClan?.Kingdom;
                 Settlement capital = Settlement.CurrentSettlement;
-                List<Settlement> safeTowns = OwnedSafeTowns(ours);
+                List<Settlement> safeTowns = OwnedSafeTowns(court, ours);
                 Settlement alternate = safeTowns.FirstOrDefault(x => x != capital);
-                Kingdom origin = EligibleFixtureOriginKingdoms(ours).FirstOrDefault();
+                Kingdom origin = EligibleFixtureOriginKingdoms(court, ours).FirstOrDefault();
                 string error = capital?.IsTown == true && safeTowns.Contains(capital) && alternate != null && origin != null
                     ? string.Empty
                     : "Load a ruler campaign while inside one of at least two safe owned towns, with a peaceful foreign kingdom whose ruler relation is -30 or better and which has an eligible 200-Charm envoy.";
@@ -221,29 +222,29 @@ namespace ReignBeta.Court
 
             string sessionError = await ReignMainThread.InvokeAsync(() =>
             {
-                DesignateCapital(setup.Item1);
-                if (IsRuleModeActive && Session?.HostSettlementStringId == setup.Item1.StringId) return string.Empty;
-                return TryOpenSession(setup.Item1, out string error) ? string.Empty : error;
+                court.DesignateCapital(setup.Item1);
+                if (court.IsRuleModeActive && court.Session?.HostSettlementStringId == setup.Item1.StringId) return string.Empty;
+                return court.TryOpenSession(setup.Item1, out string error) ? string.Empty : error;
             }).ConfigureAwait(false);
             if (!string.IsNullOrWhiteSpace(sessionError)) return CapitalAmbassadorFailure(normalizedRunId, "prepare", sessionError);
 
             DateTime sessionDeadline = DateTime.UtcNow.AddSeconds(45);
-            while ((_serverRequestInFlight || !ServerAvailable || !ServerSessionOpened) && DateTime.UtcNow < sessionDeadline)
+            while ((court._serverRequestInFlight || !court.ServerAvailable || !court.ServerSessionOpened) && DateTime.UtcNow < sessionDeadline)
             {
                 await Task.Delay(250).ConfigureAwait(false);
-                await ReignMainThread.InvokeAsync(EnsureServerSessionAligned).ConfigureAwait(false);
+                await ReignMainThread.InvokeAsync(court.EnsureServerSessionAligned).ConfigureAwait(false);
             }
-            if (_serverRequestInFlight || !ServerAvailable || !ServerSessionOpened)
+            if (court._serverRequestInFlight || !court.ServerAvailable || !court.ServerSessionOpened)
                 return CapitalAmbassadorFailure(normalizedRunId, "prepare", "The production capital Court session did not align with the server before the bounded deadline.");
 
-            Task<string> establishmentTask = await ReignMainThread.InvokeAsync(() => EstablishForeignAmbassadorAsync(setup.Item3)).ConfigureAwait(false);
+            Task<string> establishmentTask = await ReignMainThread.InvokeAsync(() => court.EstablishForeignAmbassadorAsync(setup.Item3)).ConfigureAwait(false);
             string establishmentError = await establishmentTask.ConfigureAwait(false);
             if (!string.IsNullOrWhiteSpace(establishmentError)) return CapitalAmbassadorFailure(normalizedRunId, "prepare", establishmentError);
 
             bool forceResident = (bool?)options["forceResident"] == true;
             JObject result = await ReignMainThread.InvokeAsync(() =>
             {
-                ForeignAmbassadorPosting posting = _foreignAmbassadors.LastOrDefault(x => x?.IsActive == true
+                ForeignAmbassadorPosting posting = court._foreignAmbassadors.LastOrDefault(x => x?.IsActive == true
                     && string.Equals(x.OriginKingdomStringId, setup.Item3.StringId, StringComparison.OrdinalIgnoreCase));
                 Hero envoy = FindHero(posting?.HeroStringId);
                 if (posting == null || envoy == null) return CapitalAmbassadorFailure(normalizedRunId, "prepare", "The production server did not return a usable foreign ambassador posting.");
@@ -261,21 +262,21 @@ namespace ReignBeta.Court
                     PreparedDay = CurrentDayFloat(),
                     DisposableSaveConfirmed = true
                 };
-                _capitalAmbassadorTestLedgers.Add(ledger);
+                court._capitalAmbassadorTestLedgers.Add(ledger);
                 if (forceResident)
                 {
                     posting.ArrivalDay = CurrentDayFloat();
-                    ProcessForeignAmbassadorTick();
+                    court.ProcessForeignAmbassadorTick();
                 }
-                JObject snapshot = CapitalAmbassadorSnapshot(ledger);
+                JObject snapshot = CapitalAmbassadorSnapshot(court, ledger);
                 ledger.PreparedFingerprint = CapitalAmbassadorFingerprint(snapshot);
                 RecordCapitalAmbassadorObservation(ledger, snapshot, "prepare");
                 JArray assertions = new JArray();
-                AddCapitalAmbassadorAssertion(assertions, "fixture_capital_designated", CurrentCapital == setup.Item1
-                    && CurrentCapitalDesignation()?.EverDesignated == true,
+                AddCapitalAmbassadorAssertion(assertions, "fixture_capital_designated", court.CurrentCapital == setup.Item1
+                    && court.CurrentCapitalDesignation()?.EverDesignated == true,
                     "The production designation path established the current safe owned town as capital.", snapshot["capital"]);
-                AddCapitalAmbassadorAssertion(assertions, "fixture_capital_session", IsRuleModeActive && HasRoyalCommandAccess
-                    && Session?.Scope == ReignCourtScope.Capital && ServerSessionOpened,
+                AddCapitalAmbassadorAssertion(assertions, "fixture_capital_session", court.IsRuleModeActive && court.HasRoyalCommandAccess
+                    && court.Session?.Scope == ReignCourtScope.Capital && court.ServerSessionOpened,
                     "The game and server agree on an active capital-scoped royal Court session.", snapshot["session"]);
                 AddCapitalAmbassadorAssertion(assertions, "fixture_production_posting", posting.IsActive
                     && posting.Charm >= 200 && posting.ArrivalDay - posting.AssignedDay >= 0f
@@ -303,13 +304,13 @@ namespace ReignBeta.Court
             return result;
         }
 
-        private JObject CapitalAmbassadorPreflight(string runId)
+        private static JObject CapitalAmbassadorPreflight(ReignCourtCampaignBehavior court, string runId)
         {
             Kingdom ours = Clan.PlayerClan?.Kingdom;
-            List<Settlement> towns = OwnedSafeTowns(ours);
+            List<Settlement> towns = OwnedSafeTowns(court, ours);
             List<Settlement> castles = Settlement.All.Where(x => x?.IsCastle == true && !x.IsUnderSiege && x.OwnerClan?.Kingdom == ours)
                 .OrderBy(x => x.StringId, StringComparer.Ordinal).ToList();
-            List<Kingdom> origins = EligibleFixtureOriginKingdoms(ours);
+            List<Kingdom> origins = EligibleFixtureOriginKingdoms(court, ours);
             Settlement current = Settlement.CurrentSettlement;
             JArray assertions = new JArray();
             AddCapitalAmbassadorAssertion(assertions, "capital_campaign_loaded", TaleWorlds.CampaignSystem.Campaign.Current != null,
@@ -336,20 +337,20 @@ namespace ReignBeta.Court
                 ["name"] = origin.Name?.ToString() ?? origin.StringId,
                 ["rulerId"] = origin.Leader?.StringId ?? string.Empty,
                 ["relation"] = Hero.MainHero?.GetRelation(origin.Leader) ?? -100,
-                ["candidateCount"] = EligibleForeignAmbassadorCandidates(origin).Count
+                ["candidateCount"] = court.EligibleForeignAmbassadorCandidates(origin).Count
             }));
-            result["occupiedOriginDiagnostics"] = new JArray(_foreignAmbassadors
+            result["occupiedOriginDiagnostics"] = new JArray(court._foreignAmbassadors
                 .Where(x => x?.IsActive == true)
                 .OrderBy(x => x.OriginKingdomStringId, StringComparer.Ordinal)
                 .ThenBy(x => x.PostingId, StringComparer.Ordinal)
-                .Select(x => OccupiedOriginDiagnostic(x, ours)));
-            result["activePostings"] = new JArray(_foreignAmbassadors.Where(x => x?.IsActive == true).Select(PostingJson));
-            result["legacyOutboundPostingCount"] = _ambassadors.Count;
+                .Select(x => OccupiedOriginDiagnostic(court, x, ours)));
+            result["activePostings"] = new JArray(court._foreignAmbassadors.Where(x => x?.IsActive == true).Select(PostingJson));
+            result["legacyOutboundPostingCount"] = court._ambassadors.Count;
             result["safety"] = "Run mutating phases only on the verified disposable baseline; capital moves, envoy placement, and simulated recall/loss require rollback.";
             return result;
         }
 
-        private JObject CapitalAmbassadorDeterministicMatrix(string runId)
+        private static JObject CapitalAmbassadorDeterministicMatrix(ReignCourtCampaignBehavior court, string runId)
         {
             JArray assertions = new JArray();
             bool designationMatrix = IsCapitalDesignationEligible(true,true,true,false,true)
@@ -439,21 +440,21 @@ namespace ReignBeta.Court
             return CapitalAmbassadorResult(runId,"deterministic",assertions);
         }
 
-        private JObject ObserveCapitalAmbassadorFixture(string runId, bool verifyReload)
+        private static JObject ObserveCapitalAmbassadorFixture(ReignCourtCampaignBehavior court, string runId, bool verifyReload)
         {
-            CapitalAmbassadorTestLedger ledger = FindCapitalAmbassadorLedger(runId);
+            CapitalAmbassadorTestLedger ledger = FindCapitalAmbassadorLedger(court, runId);
             if (ledger == null || !ledger.DisposableSaveConfirmed)
                 return CapitalAmbassadorFailure(runId,verifyReload?"verify_reload":"observe","No persisted disposable capital/ambassador ledger exists for this run.");
-            ForeignAmbassadorPosting posting = _foreignAmbassadors.FirstOrDefault(x=>string.Equals(x?.PostingId,ledger.PostingId,StringComparison.OrdinalIgnoreCase));
+            ForeignAmbassadorPosting posting = court._foreignAmbassadors.FirstOrDefault(x=>string.Equals(x?.PostingId,ledger.PostingId,StringComparison.OrdinalIgnoreCase));
             Hero envoy = FindHero(ledger.EnvoyHeroStringId);
-            JObject snapshot = CapitalAmbassadorSnapshot(ledger);
+            JObject snapshot = CapitalAmbassadorSnapshot(court, ledger);
             RecordCapitalAmbassadorObservation(ledger, snapshot, verifyReload ? "verify_reload" : "observe");
             JArray assertions = new JArray();
             AddCapitalAmbassadorAssertion(assertions,"fixture_ledger_persisted",!verifyReload
                 || string.Equals(ledger.CampaignId,ReignCampaignIdentity.CurrentCampaignId(),StringComparison.OrdinalIgnoreCase),
                 "The disposable fixture ledger belongs to this campaign and survived the requested load boundary.",null);
             AddCapitalAmbassadorAssertion(assertions,"fixture_posting_exactly_once",posting!=null
-                && _foreignAmbassadors.Count(x=>string.Equals(x?.PostingId,ledger.PostingId,StringComparison.OrdinalIgnoreCase))==1,
+                && court._foreignAmbassadors.Count(x=>string.Equals(x?.PostingId,ledger.PostingId,StringComparison.OrdinalIgnoreCase))==1,
                 "The foreign ambassador posting remains present exactly once.",snapshot["posting"]);
             bool lifecycle = posting!=null && (posting.IsResident
                 ? envoy!=null && envoy.PartyBelongedTo==null && envoy.CurrentSettlement?.StringId==posting.CapitalSettlementStringId
@@ -465,7 +466,7 @@ namespace ReignBeta.Court
             AddCapitalAmbassadorAssertion(assertions,"fixture_lifecycle_invariants",lifecycle,
                 "Travel, resident Keep placement, shelter, or terminal recall obeys the production posting invariants.",snapshot["posting"]);
             AddCapitalAmbassadorAssertion(assertions,"fixture_unique_active_origin",posting==null || !posting.IsActive
-                || _foreignAmbassadors.Count(x=>x?.IsActive==true && string.Equals(x.OriginKingdomStringId,posting.OriginKingdomStringId,StringComparison.OrdinalIgnoreCase))==1,
+                || court._foreignAmbassadors.Count(x=>x?.IsActive==true && string.Equals(x.OriginKingdomStringId,posting.OriginKingdomStringId,StringComparison.OrdinalIgnoreCase))==1,
                 "At most one active posting represents each foreign kingdom.",null);
             JObject charter = ParseObject(posting?.AuthorityCharterJson);
             AddCapitalAmbassadorAssertion(assertions,"fixture_authority_snapshot_shape",posting==null || !posting.IsActive
@@ -479,66 +480,66 @@ namespace ReignBeta.Court
             return result;
         }
 
-        private JObject MarkCapitalAmbassadorReload(string runId)
+        private static JObject MarkCapitalAmbassadorReload(ReignCourtCampaignBehavior court, string runId)
         {
-            CapitalAmbassadorTestLedger ledger = FindCapitalAmbassadorLedger(runId);
+            CapitalAmbassadorTestLedger ledger = FindCapitalAmbassadorLedger(court, runId);
             if (ledger==null) return CapitalAmbassadorFailure(runId,"mark_reload","No prepared fixture exists.");
             ledger.Phase="reload_marked";
-            JObject snapshot=CapitalAmbassadorSnapshot(ledger);
+            JObject snapshot=CapitalAmbassadorSnapshot(court, ledger);
             ledger.PreparedFingerprint=CapitalAmbassadorFingerprint(snapshot);
             return new JObject{{"ok",true},{"runId",runId},{"profile","capital_ambassador"},{"phase","mark_reload"},
                 {"fingerprint",ledger.PreparedFingerprint},{"snapshot",snapshot}};
         }
 
-        private JObject MoveCapitalAmbassadorFixture(string runId)
+        private static JObject MoveCapitalAmbassadorFixture(ReignCourtCampaignBehavior court, string runId)
         {
-            CapitalAmbassadorTestLedger ledger=FindCapitalAmbassadorLedger(runId);
+            CapitalAmbassadorTestLedger ledger=FindCapitalAmbassadorLedger(court, runId);
             Settlement alternate=Settlement.All.FirstOrDefault(x=>string.Equals(x?.StringId,ledger?.AlternateCapitalSettlementStringId,StringComparison.OrdinalIgnoreCase));
             if(ledger==null||alternate==null)return CapitalAmbassadorFailure(runId,"move_capital","The prepared alternate capital is unavailable.");
-            DesignateCapital(alternate);
+            court.DesignateCapital(alternate);
             ledger.Phase="capital_moved";
-            ForeignAmbassadorPosting posting=_foreignAmbassadors.FirstOrDefault(x=>string.Equals(x?.PostingId,ledger.PostingId,StringComparison.OrdinalIgnoreCase));
+            ForeignAmbassadorPosting posting=court._foreignAmbassadors.FirstOrDefault(x=>string.Equals(x?.PostingId,ledger.PostingId,StringComparison.OrdinalIgnoreCase));
             Hero envoy=FindHero(ledger.EnvoyHeroStringId);
             JArray assertions=new JArray();
-            AddCapitalAmbassadorAssertion(assertions,"capital_move_current",CurrentCapital==alternate,"The replacement town became the current capital without a cost or cooldown.",SettlementJson(CurrentCapital));
-            AddCapitalAmbassadorAssertion(assertions,"capital_move_old_session_local",Session?.Scope==ReignCourtScope.Local&&!HasRoyalCommandAccess,
-                "The still-open session at the old host immediately lost royal-command scope.",Session==null?null:JObject.FromObject(Session));
+            AddCapitalAmbassadorAssertion(assertions,"capital_move_current",court.CurrentCapital==alternate,"The replacement town became the current capital without a cost or cooldown.",SettlementJson(court.CurrentCapital));
+            AddCapitalAmbassadorAssertion(assertions,"capital_move_old_session_local",court.Session?.Scope==ReignCourtScope.Local&&!court.HasRoyalCommandAccess,
+                "The still-open session at the old host immediately lost royal-command scope.",court.Session==null?null:JObject.FromObject(court.Session));
             AddCapitalAmbassadorAssertion(assertions,"capital_move_resident_relocation",posting!=null
                 && posting.CapitalSettlementStringId==alternate.StringId && (!posting.IsResident || envoy?.CurrentSettlement==alternate),
                 "Resident ambassadors redirect or relocate to the new capital.",PostingJson(posting));
-            JObject result=CapitalAmbassadorResult(runId,"move_capital",assertions);result["snapshot"]=CapitalAmbassadorSnapshot(ledger);result["requiresBaselineRollback"]=true;return result;
+            JObject result=CapitalAmbassadorResult(runId,"move_capital",assertions);result["snapshot"]=CapitalAmbassadorSnapshot(court, ledger);result["requiresBaselineRollback"]=true;return result;
         }
 
-        private JObject SimulateCapitalLossFixture(string runId)
+        private static JObject SimulateCapitalLossFixture(ReignCourtCampaignBehavior court, string runId)
         {
-            CapitalAmbassadorTestLedger ledger=FindCapitalAmbassadorLedger(runId);
-            KingdomCapitalDesignation record=CurrentCapitalDesignation();
+            CapitalAmbassadorTestLedger ledger=FindCapitalAmbassadorLedger(court, runId);
+            KingdomCapitalDesignation record=court.CurrentCapitalDesignation();
             if(ledger==null||record==null)return CapitalAmbassadorFailure(runId,"simulate_loss","No prepared capital designation exists.");
-            HandleCapitalLoss(record,false);
+            court.HandleCapitalLoss(record,false);
             ledger.Phase="capital_lost";
-            ForeignAmbassadorPosting posting=_foreignAmbassadors.FirstOrDefault(x=>string.Equals(x?.PostingId,ledger.PostingId,StringComparison.OrdinalIgnoreCase));
+            ForeignAmbassadorPosting posting=court._foreignAmbassadors.FirstOrDefault(x=>string.Equals(x?.PostingId,ledger.PostingId,StringComparison.OrdinalIgnoreCase));
             Hero envoy=FindHero(ledger.EnvoyHeroStringId);
             JArray assertions=new JArray();
-            AddCapitalAmbassadorAssertion(assertions,"capital_loss_clears_current_only",record.EverDesignated&&CurrentCapital==null&&string.IsNullOrWhiteSpace(record.SettlementStringId),
+            AddCapitalAmbassadorAssertion(assertions,"capital_loss_clears_current_only",record.EverDesignated&&court.CurrentCapital==null&&string.IsNullOrWhiteSpace(record.SettlementStringId),
                 "The captured-capital callback core cleared the active capital while preserving first designation.",JObject.FromObject(record));
-            AddCapitalAmbassadorAssertion(assertions,"capital_loss_suspends_royal_commands",!HasRoyalCommandAccess&&Session?.Scope==ReignCourtScope.Local,
-                "Royal commands are suspended until replacement.",Session==null?null:JObject.FromObject(Session));
+            AddCapitalAmbassadorAssertion(assertions,"capital_loss_suspends_royal_commands",!court.HasRoyalCommandAccess&&court.Session?.Scope==ReignCourtScope.Local,
+                "Royal commands are suspended until replacement.",court.Session==null?null:JObject.FromObject(court.Session));
             AddCapitalAmbassadorAssertion(assertions,"capital_loss_shelters_envoy",posting!=null
                 && (string.Equals(posting.Status,"sheltered",StringComparison.OrdinalIgnoreCase)
                     ? !string.IsNullOrWhiteSpace(posting.ShelterSettlementStringId)&&envoy?.CurrentSettlement?.StringId==posting.ShelterSettlementStringId
                     : !posting.IsActive),
                 "The resident envoy is safely sheltered in another owned town or cleanly ended if none exists.",PostingJson(posting));
-            JObject result=CapitalAmbassadorResult(runId,"simulate_loss",assertions);result["snapshot"]=CapitalAmbassadorSnapshot(ledger);result["requiresBaselineRollback"]=true;return result;
+            JObject result=CapitalAmbassadorResult(runId,"simulate_loss",assertions);result["snapshot"]=CapitalAmbassadorSnapshot(court, ledger);result["requiresBaselineRollback"]=true;return result;
         }
 
-        private JObject SimulateAmbassadorWarFixture(string runId)
+        private static JObject SimulateAmbassadorWarFixture(ReignCourtCampaignBehavior court, string runId)
         {
-            CapitalAmbassadorTestLedger ledger=FindCapitalAmbassadorLedger(runId);
-            ForeignAmbassadorPosting posting=_foreignAmbassadors.FirstOrDefault(x=>string.Equals(x?.PostingId,ledger?.PostingId,StringComparison.OrdinalIgnoreCase));
+            CapitalAmbassadorTestLedger ledger=FindCapitalAmbassadorLedger(court, runId);
+            ForeignAmbassadorPosting posting=court._foreignAmbassadors.FirstOrDefault(x=>string.Equals(x?.PostingId,ledger?.PostingId,StringComparison.OrdinalIgnoreCase));
             Kingdom ours=Clan.PlayerClan?.Kingdom;
             Kingdom origin=Kingdom.All.FirstOrDefault(x=>string.Equals(x?.StringId,ledger?.OriginKingdomStringId,StringComparison.OrdinalIgnoreCase));
             if(ledger==null||posting==null||ours==null||origin==null)return CapitalAmbassadorFailure(runId,"simulate_war","The prepared posting or kingdoms are unavailable.");
-            OnAmbassadorWarDeclared(ours,origin,default(DeclareWarAction.DeclareWarDetail));
+            court.OnAmbassadorWarDeclared(ours,origin,default(DeclareWarAction.DeclareWarDetail));
             ledger.Phase="war_recalled";
             Hero envoy=FindHero(ledger.EnvoyHeroStringId);
             JArray assertions=new JArray();
@@ -548,12 +549,12 @@ namespace ReignBeta.Court
             AddCapitalAmbassadorAssertion(assertions,"ambassador_war_return_home",envoy==null||envoy.PartyBelongedTo!=null
                 || envoy.CurrentSettlement?.OwnerClan?.Kingdom==origin,
                 "A partyless recalled envoy returns to friendly territory.",HeroJson(envoy));
-            JObject result=CapitalAmbassadorResult(runId,"simulate_war",assertions);result["snapshot"]=CapitalAmbassadorSnapshot(ledger);result["requiresBaselineRollback"]=true;return result;
+            JObject result=CapitalAmbassadorResult(runId,"simulate_war",assertions);result["snapshot"]=CapitalAmbassadorSnapshot(court, ledger);result["requiresBaselineRollback"]=true;return result;
         }
 
-        private JObject RunCapitalLifecycleAFixture(string runId)
+        private static JObject RunCapitalLifecycleAFixture(ReignCourtCampaignBehavior court, string runId)
         {
-            CapitalAmbassadorTestLedger ledger = FindCapitalAmbassadorLedger(runId);
+            CapitalAmbassadorTestLedger ledger = FindCapitalAmbassadorLedger(court, runId);
             Settlement original = Settlement.All.FirstOrDefault(x => string.Equals(x?.StringId,
                 ledger?.CapitalSettlementStringId, StringComparison.OrdinalIgnoreCase));
             Settlement alternate = Settlement.All.FirstOrDefault(x => string.Equals(x?.StringId,
@@ -570,23 +571,23 @@ namespace ReignBeta.Court
             }
 
             JArray assertions = new JArray();
-            DesignateCapital(original);
+            court.DesignateCapital(original);
             AddCapitalAmbassadorAssertion(assertions, "lifecycle_a_designated",
-                CurrentCapital == original && CurrentCapitalDesignation()?.EverDesignated == true,
+                court.CurrentCapital == original && court.CurrentCapitalDesignation()?.EverDesignated == true,
                 "Lifecycle A designated the prepared safe owned town through the production capital path.",
-                SettlementJson(CurrentCapital));
+                SettlementJson(court.CurrentCapital));
 
-            DesignateCapital(alternate);
+            court.DesignateCapital(alternate);
             AddCapitalAmbassadorAssertion(assertions, "lifecycle_a_relocated",
-                CurrentCapital == alternate && CurrentCapitalDesignation()?.SettlementStringId == alternate.StringId,
+                court.CurrentCapital == alternate && court.CurrentCapitalDesignation()?.SettlementStringId == alternate.StringId,
                 "Lifecycle A relocated the capital through the same production path used by the player menu.",
-                SettlementJson(CurrentCapital));
+                SettlementJson(court.CurrentCapital));
 
             JObject beforeCapture = SettlementJson(alternate);
             beforeCapture["ownerClanId"] = alternate.OwnerClan?.StringId ?? string.Empty;
             ChangeOwnerOfSettlementAction.ApplyByGift(alternate, capturer);
-            KingdomCapitalDesignation lostRecord = CurrentCapitalDesignation();
-            ForeignAmbassadorPosting posting = _foreignAmbassadors.FirstOrDefault(x => string.Equals(
+            KingdomCapitalDesignation lostRecord = court.CurrentCapitalDesignation();
+            ForeignAmbassadorPosting posting = court._foreignAmbassadors.FirstOrDefault(x => string.Equals(
                 x?.PostingId, ledger.PostingId, StringComparison.OrdinalIgnoreCase));
             Hero envoy = FindHero(ledger.EnvoyHeroStringId);
             bool shelteredOrEnded = posting == null || !posting.IsActive
@@ -595,8 +596,8 @@ namespace ReignBeta.Court
                     && envoy?.CurrentSettlement?.StringId == posting.ShelterSettlementStringId;
             AddCapitalAmbassadorAssertion(assertions, "lifecycle_a_native_capture",
                 alternate.OwnerClan?.Kingdom == origin && lostRecord?.EverDesignated == true
-                    && CurrentCapital == null && string.IsNullOrWhiteSpace(lostRecord.SettlementStringId)
-                    && !HasRoyalCommandAccess && shelteredOrEnded,
+                    && court.CurrentCapital == null && string.IsNullOrWhiteSpace(lostRecord.SettlementStringId)
+                    && !court.HasRoyalCommandAccess && shelteredOrEnded,
                 "A native Bannerlord owner transfer captured the active capital, cleared only the current designation, suspended royal scope, and safely displaced any resident envoy.",
                 new JObject
                 {
@@ -606,8 +607,8 @@ namespace ReignBeta.Court
                     ["posting"] = PostingJson(posting)
                 });
 
-            DesignateCapital(original);
-            posting = _foreignAmbassadors.FirstOrDefault(x => string.Equals(
+            court.DesignateCapital(original);
+            posting = court._foreignAmbassadors.FirstOrDefault(x => string.Equals(
                 x?.PostingId, ledger.PostingId, StringComparison.OrdinalIgnoreCase));
             envoy = FindHero(ledger.EnvoyHeroStringId);
             bool envoyRecovered = posting == null || !posting.IsActive
@@ -615,13 +616,13 @@ namespace ReignBeta.Court
                 || posting.IsResident && posting.CapitalSettlementStringId == original.StringId
                     && envoy?.PartyBelongedTo == null && envoy.CurrentSettlement == original;
             AddCapitalAmbassadorAssertion(assertions, "lifecycle_a_recovered",
-                CurrentCapital == original && CurrentCapitalDesignation()?.EverDesignated == true
-                    && HasRoyalCommandAccess && envoyRecovered,
+                court.CurrentCapital == original && court.CurrentCapitalDesignation()?.EverDesignated == true
+                    && court.HasRoyalCommandAccess && envoyRecovered,
                 "Lifecycle A recovered by designating the surviving owned town and restoring capital authority and resident routing.",
-                CapitalAmbassadorSnapshot(ledger));
+                CapitalAmbassadorSnapshot(court, ledger));
 
             ledger.Phase = "lifecycle_a_recovered";
-            JObject snapshot = CapitalAmbassadorSnapshot(ledger);
+            JObject snapshot = CapitalAmbassadorSnapshot(court, ledger);
             RecordCapitalAmbassadorObservation(ledger, snapshot, "lifecycle_a");
             JObject result = CapitalAmbassadorResult(runId, "lifecycle_a", assertions);
             result["snapshot"] = snapshot;
@@ -631,9 +632,9 @@ namespace ReignBeta.Court
             return result;
         }
 
-        private JObject RunAmbassadorLifecycleBTransitionFixture(string runId)
+        private static JObject RunAmbassadorLifecycleBTransitionFixture(ReignCourtCampaignBehavior court, string runId)
         {
-            CapitalAmbassadorTestLedger ledger = FindCapitalAmbassadorLedger(runId);
+            CapitalAmbassadorTestLedger ledger = FindCapitalAmbassadorLedger(court, runId);
             Settlement original = Settlement.All.FirstOrDefault(x => string.Equals(x?.StringId,
                 ledger?.CapitalSettlementStringId, StringComparison.OrdinalIgnoreCase));
             Settlement alternate = Settlement.All.FirstOrDefault(x => string.Equals(x?.StringId,
@@ -641,7 +642,7 @@ namespace ReignBeta.Court
             Kingdom ours = Clan.PlayerClan?.Kingdom;
             Kingdom origin = Kingdom.All.FirstOrDefault(x => string.Equals(x?.StringId,
                 ledger?.OriginKingdomStringId, StringComparison.OrdinalIgnoreCase));
-            ForeignAmbassadorPosting posting = _foreignAmbassadors.FirstOrDefault(x => string.Equals(
+            ForeignAmbassadorPosting posting = court._foreignAmbassadors.FirstOrDefault(x => string.Equals(
                 x?.PostingId, ledger?.PostingId, StringComparison.OrdinalIgnoreCase));
             Hero envoy = FindHero(ledger?.EnvoyHeroStringId);
             if (ledger == null || original == null || alternate == null || ours == null || origin == null
@@ -658,15 +659,15 @@ namespace ReignBeta.Court
                 "Lifecycle B begins from the exact eligible, partyless resident ambassador baseline.",
                 PostingJson(posting));
 
-            DesignateCapital(alternate);
+            court.DesignateCapital(alternate);
             AddCapitalAmbassadorAssertion(assertions, "lifecycle_b_moves_with_capital",
-                CurrentCapital == alternate && posting.IsResident
+                court.CurrentCapital == alternate && posting.IsResident
                     && posting.CapitalSettlementStringId == alternate.StringId
                     && envoy.PartyBelongedTo == null && envoy.CurrentSettlement == alternate,
                 "The resident ambassador moved with the capital through the production relocation path.",
-                CapitalAmbassadorSnapshot(ledger));
+                CapitalAmbassadorSnapshot(court, ledger));
 
-            HandleCapitalLoss(CurrentCapitalDesignation(), false);
+            court.HandleCapitalLoss(court.CurrentCapitalDesignation(), false);
             bool sheltered = posting.IsActive
                 && string.Equals(posting.Status, "sheltered", StringComparison.OrdinalIgnoreCase)
                 && !string.IsNullOrWhiteSpace(posting.ShelterSettlementStringId)
@@ -677,15 +678,15 @@ namespace ReignBeta.Court
                 "The production capital-loss path sheltered the partyless resident in a safe owned town.",
                 PostingJson(posting));
 
-            DesignateCapital(original);
+            court.DesignateCapital(original);
             AddCapitalAmbassadorAssertion(assertions, "lifecycle_b_shelter_recovery",
-                CurrentCapital == original && posting.IsResident
+                court.CurrentCapital == original && posting.IsResident
                     && posting.CapitalSettlementStringId == original.StringId
                     && envoy.PartyBelongedTo == null && envoy.CurrentSettlement == original,
                 "Redesignating a surviving capital restored the sheltered ambassador to resident Keep placement.",
-                CapitalAmbassadorSnapshot(ledger));
+                CapitalAmbassadorSnapshot(court, ledger));
 
-            OnAmbassadorWarDeclared(ours, origin, default(DeclareWarAction.DeclareWarDetail));
+            court.OnAmbassadorWarDeclared(ours, origin, default(DeclareWarAction.DeclareWarDetail));
             AddCapitalAmbassadorAssertion(assertions, "lifecycle_b_war_recall_removal",
                 !posting.IsActive && string.Equals(posting.Status, "war_recalled", StringComparison.OrdinalIgnoreCase)
                     && (envoy.PartyBelongedTo != null || envoy.CurrentSettlement?.OwnerClan?.Kingdom == origin),
@@ -693,7 +694,7 @@ namespace ReignBeta.Court
                 PostingJson(posting));
 
             ledger.Phase = "lifecycle_b_recalled";
-            JObject snapshot = CapitalAmbassadorSnapshot(ledger);
+            JObject snapshot = CapitalAmbassadorSnapshot(court, ledger);
             RecordCapitalAmbassadorObservation(ledger, snapshot, "lifecycle_b_transition");
             JObject result = CapitalAmbassadorResult(runId, "lifecycle_b_transition", assertions);
             result["snapshot"] = snapshot;
@@ -701,31 +702,31 @@ namespace ReignBeta.Court
             return result;
         }
 
-        private JObject CleanupCapitalAmbassadorFixture(string runId)
+        private static JObject CleanupCapitalAmbassadorFixture(ReignCourtCampaignBehavior court, string runId)
         {
-            int removed=_capitalAmbassadorTestLedgers.RemoveAll(x=>string.Equals(x.RunId,runId,StringComparison.OrdinalIgnoreCase));
+            int removed=court._capitalAmbassadorTestLedgers.RemoveAll(x=>string.Equals(x.RunId,runId,StringComparison.OrdinalIgnoreCase));
             return new JObject{{"ok",true},{"runId",runId},{"profile","capital_ambassador"},{"phase","cleanup_marker"},
                 {"ledgersRemoved",removed},{"requiresBaselineRollback",true},
                 {"message","Restore the verified baseline to undo capital, envoy-location, server archive, referral, and recall test state; then delete only exact fixture saves and Save Sync points."}};
         }
 
-        private List<Settlement> OwnedSafeTowns(Kingdom kingdom)
+        private static List<Settlement> OwnedSafeTowns(ReignCourtCampaignBehavior court, Kingdom kingdom)
         {
             return Settlement.All.Where(x=>x?.IsTown==true&&!x.IsUnderSiege&&x.OwnerClan?.Kingdom==kingdom)
                 .OrderBy(x=>x.StringId,StringComparer.Ordinal).ToList();
         }
 
-        private List<Kingdom> EligibleFixtureOriginKingdoms(Kingdom ours)
+        private static List<Kingdom> EligibleFixtureOriginKingdoms(ReignCourtCampaignBehavior court, Kingdom ours)
         {
             return Kingdom.All.Where(origin=>origin!=null&&origin!=ours&&!origin.IsEliminated&&origin.Leader!=null
                     && origin.Leader.IsAlive&&origin.Leader.IsActive&&ours!=null&&!ours.IsAtWarWith(origin)
                     && (Hero.MainHero?.GetRelation(origin.Leader)??-100)>=-30
-                    && !_foreignAmbassadors.Any(x=>x?.IsActive==true&&string.Equals(x.OriginKingdomStringId,origin.StringId,StringComparison.OrdinalIgnoreCase))
-                    && EligibleForeignAmbassadorCandidates(origin).Count>0)
+                    && !court._foreignAmbassadors.Any(x=>x?.IsActive==true&&string.Equals(x.OriginKingdomStringId,origin.StringId,StringComparison.OrdinalIgnoreCase))
+                    && court.EligibleForeignAmbassadorCandidates(origin).Count>0)
                 .OrderBy(x=>x.StringId,StringComparer.Ordinal).ToList();
         }
 
-        private JObject OccupiedOriginDiagnostic(ForeignAmbassadorPosting posting, Kingdom ours)
+        private static JObject OccupiedOriginDiagnostic(ReignCourtCampaignBehavior court, ForeignAmbassadorPosting posting, Kingdom ours)
         {
             Kingdom origin = Kingdom.All.FirstOrDefault(k => string.Equals(k?.StringId,
                 posting?.OriginKingdomStringId, StringComparison.OrdinalIgnoreCase));
@@ -742,22 +743,22 @@ namespace ReignBeta.Court
                 ["atWar"] = ours != null && origin != null && ours.IsAtWarWith(origin),
                 ["relation"] = ruler == null ? -100 : Hero.MainHero?.GetRelation(ruler) ?? -100,
                 ["postingCharm"] = posting?.Charm ?? 0,
-                ["unassignedCandidateCount"] = origin == null ? 0 : EligibleForeignAmbassadorCandidates(origin).Count
+                ["unassignedCandidateCount"] = origin == null ? 0 : court.EligibleForeignAmbassadorCandidates(origin).Count
             };
         }
 
-        private CapitalAmbassadorTestLedger FindCapitalAmbassadorLedger(string runId)
+        private static CapitalAmbassadorTestLedger FindCapitalAmbassadorLedger(ReignCourtCampaignBehavior court, string runId)
         {
-            return _capitalAmbassadorTestLedgers.FirstOrDefault(x=>string.Equals(x.RunId,runId,StringComparison.OrdinalIgnoreCase));
+            return court._capitalAmbassadorTestLedgers.FirstOrDefault(x=>string.Equals(x.RunId,runId,StringComparison.OrdinalIgnoreCase));
         }
 
-        private void CompactCapitalAmbassadorTestLedgers()
+        internal static void CompactCapitalAmbassadorTestLedgers(ReignCourtCampaignBehavior court)
         {
-            _capitalAmbassadorTestLedgers = (_capitalAmbassadorTestLedgers ?? new List<CapitalAmbassadorTestLedger>())
+            court._capitalAmbassadorTestLedgers = (court._capitalAmbassadorTestLedgers ?? new List<CapitalAmbassadorTestLedger>())
                 .Where(x=>x!=null&&!string.IsNullOrWhiteSpace(x.RunId))
                 .GroupBy(x=>x.RunId,StringComparer.OrdinalIgnoreCase).Select(x=>x.Last())
                 .Take(CapitalAmbassadorLedgerMaxCount).ToList();
-            foreach(CapitalAmbassadorTestLedger ledger in _capitalAmbassadorTestLedgers)
+            foreach(CapitalAmbassadorTestLedger ledger in court._capitalAmbassadorTestLedgers)
                 CompactCapitalAmbassadorTestLedger(ledger);
         }
 
@@ -798,20 +799,20 @@ namespace ReignBeta.Court
             CompactCapitalAmbassadorTestLedger(ledger);
         }
 
-        private JObject CapitalAmbassadorSnapshot(CapitalAmbassadorTestLedger ledger)
+        private static JObject CapitalAmbassadorSnapshot(ReignCourtCampaignBehavior court, CapitalAmbassadorTestLedger ledger)
         {
-            ForeignAmbassadorPosting posting=_foreignAmbassadors.FirstOrDefault(x=>string.Equals(x?.PostingId,ledger?.PostingId,StringComparison.OrdinalIgnoreCase));
+            ForeignAmbassadorPosting posting=court._foreignAmbassadors.FirstOrDefault(x=>string.Equals(x?.PostingId,ledger?.PostingId,StringComparison.OrdinalIgnoreCase));
             Hero envoy=FindHero(ledger?.EnvoyHeroStringId);
-            KingdomCapitalDesignation designation=CurrentCapitalDesignation();
+            KingdomCapitalDesignation designation=court.CurrentCapitalDesignation();
             return new JObject
             {
                 ["campaignId"]=ReignCampaignIdentity.CurrentCampaignId(),["worldDay"]=CurrentDayFloat(),["ledgerPhase"]=ledger?.Phase??string.Empty,
                 ["capital"]=designation==null?JValue.CreateNull():JObject.FromObject(designation),
-                ["currentCapital"]=SettlementJson(CurrentCapital),
-                ["session"]=_session==null?JValue.CreateNull():JObject.FromObject(_session),
+                ["currentCapital"]=SettlementJson(court.CurrentCapital),
+                ["session"]=court._session==null?JValue.CreateNull():JObject.FromObject(court._session),
                 ["posting"]=PostingJson(posting),["envoy"]=HeroJson(envoy),
-                ["legacyOutboundPostingCount"]=_ambassadors.Count,
-                ["activeOriginPostingCount"]=posting==null?0:_foreignAmbassadors.Count(x=>x?.IsActive==true&&string.Equals(x.OriginKingdomStringId,posting.OriginKingdomStringId,StringComparison.OrdinalIgnoreCase))
+                ["legacyOutboundPostingCount"]=court._ambassadors.Count,
+                ["activeOriginPostingCount"]=posting==null?0:court._foreignAmbassadors.Count(x=>x?.IsActive==true&&string.Equals(x.OriginKingdomStringId,posting.OriginKingdomStringId,StringComparison.OrdinalIgnoreCase))
             };
         }
 
