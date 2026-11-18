@@ -23,10 +23,10 @@ namespace ReignBeta.Campaign
 {
     public sealed partial class ReignNpcLivesBehavior
     {
-        private bool _startingStoryEncounter;
-        private readonly Dictionary<string, MapEvent> _storyBattles = new Dictionary<string, MapEvent>();
+        internal bool _startingStoryEncounter;
+        internal readonly Dictionary<string, MapEvent> _storyBattles = new Dictionary<string, MapEvent>();
         private readonly Dictionary<string, PartyBase> _storyRescueCaptors = new Dictionary<string, PartyBase>();
-        private async void StartStoryEncounter(string storyId, string objectiveId)
+        internal async void StartStoryEncounter(string storyId, string objectiveId)
         {
             if (_startingStoryEncounter) return;
             _startingStoryEncounter = true;
