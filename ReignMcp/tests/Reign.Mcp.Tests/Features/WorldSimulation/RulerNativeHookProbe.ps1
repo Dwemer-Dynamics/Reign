@@ -19,6 +19,8 @@ $nativeMathAssertions=0;$nativeMathProviderCalls=-1;$nativeMathCampaignMutations
 $campaignOptionsObserved=$false
 try {
     $client=[Reflection.Assembly]::LoadFrom([IO.Path]::GetFullPath($ClientAssembly))
+    # The in-game test harness lives in ReignBeta.Testing.dll next to the client assembly.
+    $testing=[Reflection.Assembly]::LoadFrom((Join-Path ([IO.Path]::GetDirectoryName([IO.Path]::GetFullPath($ClientAssembly))) 'ReignBeta.Testing.dll'))
     $flags=[Reflection.BindingFlags]'Static,Public,NonPublic'
     $type=$client.GetType('ReignBeta.World.ReignRulerNativePatches',$true)
     $type.GetMethod('Apply',$flags).Invoke($null,@()) | Out-Null
@@ -29,7 +31,7 @@ try {
     $campaign=$native.GetType('TaleWorlds.CampaignSystem.Campaign',$true)
     if($null -eq $campaign.GetProperty('PlayerDefaultFaction',[Reflection.BindingFlags]'Instance,Public,NonPublic').GetSetMethod($true)){throw 'Player exile faction setter unavailable.'}
     $behaviorType=$client.GetType('ReignBeta.Campaign.ReignRulerCampaignBehavior',$true)
-    $fixtureType=$client.GetType('ReignBeta.Campaign.ReignRulerFixtureControls',$true)
+    $fixtureType=$testing.GetType('ReignBeta.Campaign.ReignRulerFixtureControls',$true)
     $optionJson=$behaviorType.GetMethod('ObserveCampaignOptions',$flags).Invoke($null,@()).ToString()
     [IO.File]::WriteAllText((Join-Path $probeRoot 'campaign-options-observation.json'),$optionJson,[Text.UTF8Encoding]::new($false))
     $options=$optionJson | ConvertFrom-Json
@@ -203,7 +205,7 @@ try {
     if($unboundStatus.available -or $unboundStatus.nativeHooks -ne 0){throw 'Runtime health falsely accepted missing ruler hooks.'}
     # Invoke the actual compiled diagnostic, so its success gate and all native
     # ExplainedNumber assertions are checked even before in-game acceptance.
-    $mathType=$client.GetType('ReignBeta.ClanAccords.ReignClanAccordNativeTests',$true)
+    $mathType=$testing.GetType('ReignBeta.ClanAccords.ReignClanAccordNativeTests',$true)
     $mathMethod=$mathType.GetMethod('Run',$flags)
     $mathJson=$mathMethod.Invoke($null,[object[]]@('isolated_ruler_native_math','contracts')).ToString()
     [IO.File]::WriteAllText((Join-Path $probeRoot 'native-math-report.json'),$mathJson,[Text.UTF8Encoding]::new($false))

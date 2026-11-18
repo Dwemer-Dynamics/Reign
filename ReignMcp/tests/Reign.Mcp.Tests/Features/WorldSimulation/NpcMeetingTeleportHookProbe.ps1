@@ -19,6 +19,8 @@ $rescueBound=$false;$rescueNoOp=$false;$rescueRemoved=$false;$rescueTarget=$null
 $shipDlcAvailable=$false;$shipNativeContextVerified=$false
 try {
     $client=[Reflection.Assembly]::LoadFrom([IO.Path]::GetFullPath($ClientAssembly))
+    # The in-game test harness lives in ReignBeta.Testing.dll next to the client assembly.
+    $testing=[Reflection.Assembly]::LoadFrom((Join-Path ([IO.Path]::GetDirectoryName([IO.Path]::GetFullPath($ClientAssembly))) 'ReignBeta.Testing.dll'))
     $native=[Reflection.Assembly]::LoadFrom((Join-Path $gameBin 'TaleWorlds.CampaignSystem.dll'))
     $static=[Reflection.BindingFlags]'Static,Public,NonPublic'
     $instance=[Reflection.BindingFlags]'Instance,Public,NonPublic'
@@ -130,7 +132,7 @@ try {
     if($owns.Invoke($lives,[object[]]@('returning'))){throw 'Native travel remained blocked after return lease retirement.'};$leaseChecks++
     # Exercise the compiled control's complete ownership cross-product and its
     # monotonic deadline, including nonfinite and negative elapsed values.
-    $announcementGuard=$client.GetType('ReignBeta.Campaign.ReignNpcLivesTestControls',$true).GetMethod('AnnouncementTransportScopeAllows',$static)
+    $announcementGuard=$testing.GetType('ReignBeta.Campaign.ReignNpcLivesTestControls',$true).GetMethod('AnnouncementTransportScopeAllows',$static)
     if($null -eq $announcementGuard){throw 'Compiled announcement transport scope guard is unavailable.'}
     $elapsedCases=@(0d,179.999d,180d,181d,-1d,[double]::NaN,[double]::PositiveInfinity,[double]::NegativeInfinity)
     for($mask=0;$mask -lt 256;$mask++){
