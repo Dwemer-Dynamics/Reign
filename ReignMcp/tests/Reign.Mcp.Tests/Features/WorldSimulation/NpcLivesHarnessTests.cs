@@ -167,7 +167,7 @@ public sealed class NpcLivesHarnessTests
     public void LeaveConversationKeepsAuthoredSpeechAndIndependentActionPublication()
     {
         string root = TestOptions.FindWorkspace();
-        string source = File.ReadAllText(Path.Combine(root, "ReignServer/src/Modules/Platform/Program.cs"));
+        string source = TestSourceLocator.ServerProgramText(root);
         const string guard = "ConstrainNpcLeaveReply(payload, heroId, parsed, ref reply);";
         Assert.DoesNotContain(guard, source);
         Assert.Contains("GenerateSinglePassConversation(dialogueLlmRequest, payload", source);

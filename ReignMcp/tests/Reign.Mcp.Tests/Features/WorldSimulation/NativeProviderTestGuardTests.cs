@@ -144,12 +144,14 @@ public sealed class NativeProviderTestGuardTests : IDisposable
     [Fact]
     public void EveryOutboundGenerationAdapterAndStatusKeepTheGuardBinding()
     {
-        string root = Path.Combine(TestOptions.FindWorkspace(), "ReignServer", "src", "Modules");
-        foreach (var entry in new[] { ("Platform/Program.cs", "http_text_or_image"), ("Platform/ProviderMiddleware.cs", "streaming_text"),
+        string workspace = TestOptions.FindWorkspace();
+        string root = Path.Combine(workspace, "ReignServer", "src", "Modules");
+        Assert.Contains("ProviderTestGuard.BeforeDispatch(\"http_text_or_image\")", TestSourceLocator.ServerProgramText(workspace));
+        foreach (var entry in new[] { ("Platform/ProviderMiddleware.cs", "streaming_text"),
             ("Platform/CodexAppServerProvider.cs", "codex_text"), ("Portraits/CodexImageProvider.cs", "codex_image"),
             ("Portraits/PortraitGeneration.cs", "atlas_reference_upload"), ("Portraits/PortraitGeneration.cs", "image_prediction_poll"),
             ("Portraits/PortraitGeneration.cs", "image_download") })
-            Assert.Contains("ProviderTestGuard.BeforeDispatch(\"" + entry.Item2 + "\")", File.ReadAllText(Path.Combine(root, entry.Item1)));
+            Assert.Contains("ProviderTestGuard.BeforeDispatch(\"" + entry.Item2 + "\")", TestSourceLocator.ServerFileGroupText(Path.Combine(root, entry.Item1)));
         Assert.Contains("[\"nativeProviderTestGuard\"] = ProviderTestGuard.Snapshot()", File.ReadAllText(Path.Combine(root, "Platform", "ProviderMiddleware.cs")));
     }
 

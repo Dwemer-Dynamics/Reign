@@ -739,9 +739,7 @@ public sealed class PartyAgencyHarnessContractTests
     public void TemporaryGuestScheduleIsCanonicalizedAndProvedEndToEnd()
     {
         string root = TestOptions.FindWorkspace();
-        string server = File.ReadAllText(TestSourceLocator.Unique(
-            Path.Combine(root, "ReignServer"), "Program.cs",
-            "/src/Modules/Platform/"));
+        string server = TestSourceLocator.ServerProgramText(root);
         string behavior = File.ReadAllText(TestSourceLocator.Unique(
             Path.Combine(root, "ReignBeta"), "ReignTemporaryPartyGuestCampaignBehavior.cs",
             "/src/Modules/WorldSimulation/PartyAgency/"));
@@ -776,9 +774,7 @@ public sealed class PartyAgencyHarnessContractTests
     public void AcceptedGuestInvitationSurvivesTheActionPlannerCandidateCut()
     {
         string root = TestOptions.FindWorkspace();
-        string server = File.ReadAllText(TestSourceLocator.Unique(
-            Path.Combine(root, "ReignServer"), "Program.cs",
-            "/src/Modules/Platform/"));
+        string server = TestSourceLocator.ServerProgramText(root);
 
         Assert.Contains("TemporaryPartyGuestCandidateToPreserve(actionGate, playerText, payload, hero)", server,
             StringComparison.Ordinal);
@@ -809,9 +805,7 @@ public sealed class PartyAgencyHarnessContractTests
     public void GuestLifecycleActionsBindToTheSpeakingNpcBeforeResolution()
     {
         string root = TestOptions.FindWorkspace();
-        string server = File.ReadAllText(TestSourceLocator.Unique(
-            Path.Combine(root, "ReignServer"), "Program.cs",
-            "/src/Modules/Platform/"));
+        string server = TestSourceLocator.ServerProgramText(root);
 
         int binding = server.IndexOf(
             "ApplyTemporaryPartyGuestActorBinding(raw, terms, payload",
@@ -836,9 +830,7 @@ public sealed class PartyAgencyHarnessContractTests
     public void GuestLifecycleActionsDoNotCreateRelationshipEffects()
     {
         string root = TestOptions.FindWorkspace();
-        string server = File.ReadAllText(TestSourceLocator.Unique(
-            Path.Combine(root, "ReignServer"), "Program.cs",
-            "/src/Modules/Platform/"));
+        string server = TestSourceLocator.ServerProgramText(root);
         string relationships = File.ReadAllText(TestSourceLocator.Unique(
             Path.Combine(root, "ReignServer"), "Relationships.cs",
             "/src/Modules/Relationships/"));
@@ -869,9 +861,7 @@ public sealed class PartyAgencyHarnessContractTests
     public void AcceptedGuestLifecycleRecoversFromAnEmptySecondaryPlannerResult()
     {
         string root = TestOptions.FindWorkspace();
-        string server = File.ReadAllText(TestSourceLocator.Unique(
-            Path.Combine(root, "ReignServer"), "Program.cs",
-            "/src/Modules/Platform/"));
+        string server = TestSourceLocator.ServerProgramText(root);
 
         Assert.Contains("BuildAcceptedTemporaryPartyGuestFallbackAction(", server,
             StringComparison.Ordinal);
