@@ -25,14 +25,14 @@ namespace ReignBeta.Integration
         internal static readonly HttpClient PinnedClient = CreateLocalServerHttpClient(2, 30, false);
         // Local response provenance for the two protocol import routes. A value is the
         // proven origin; an empty value marks a qualifying response whose origin is unproven.
-        internal static readonly System.Runtime.CompilerServices.ConditionalWeakTable<JObject, string> ResponseOrigins =
+        private static readonly System.Runtime.CompilerServices.ConditionalWeakTable<JObject, string> ResponseOrigins =
             new System.Runtime.CompilerServices.ConditionalWeakTable<JObject, string>();
-        internal static long _streamedPostRequests;
-        internal static long _streamedPostBytes;
-        internal static long _largeStreamedPostRequests;
-        internal static long _peakStreamedPostBytes;
-        internal static long _totalPostSerializationMs;
-        internal static long _peakPostSerializationMs;
+        private static long _streamedPostRequests;
+        private static long _streamedPostBytes;
+        private static long _largeStreamedPostRequests;
+        private static long _peakStreamedPostBytes;
+        private static long _totalPostSerializationMs;
+        private static long _peakPostSerializationMs;
 
         internal static HttpClient CreateLocalServerHttpClient(int maximumConnections, int timeoutSeconds = 360, bool allowAutoRedirect = true)
         {
