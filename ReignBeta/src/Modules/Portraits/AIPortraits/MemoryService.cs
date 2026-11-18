@@ -12,8 +12,6 @@ namespace AIPortraits;
 
 public static class MemoryService
 {
-	private const string MemoryKeyPrefix = "memory:";
-
 	private static volatile bool _generationRunning;
 
 	private static bool _migrationChecked;

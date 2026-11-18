@@ -65,12 +65,6 @@ public static class LordSourceExportService
 
 	private const double SettleSeconds = 1.2;
 
-	private const double RetryThrottleSeconds = 0.35;
-
-	private const double FreshOpenGapSeconds = 0.5;
-
-	private const double GiveUpWarnSeconds = 12.0;
-
 	private static readonly Stopwatch _clock = Stopwatch.StartNew();
 
 	private static Dictionary<string, double> _firstSeenTick = new Dictionary<string, double>(StringComparer.OrdinalIgnoreCase);

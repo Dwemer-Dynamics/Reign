@@ -669,20 +669,6 @@ namespace ReignBeta.World
                     StringComparison.OrdinalIgnoreCase);
         }
 
-        private static bool HasWarBlockingAgreement(Kingdom actor, Kingdom target)
-        {
-            float now = TaleWorlds.CampaignSystem.Campaign.Current == null ? 0f : (float)CampaignTime.Now.ToDays;
-            return ReignAICampaignBehavior.Instance?.Agreements.Any(x =>
-                x != null
-                && x.IsActive
-                && !x.IsExpired(now)
-                && BlocksWar(x.Kind)
-                && ((string.Equals(x.ActorKingdomStringId, actor.StringId, StringComparison.OrdinalIgnoreCase)
-                        && string.Equals(x.TargetKingdomStringId, target.StringId, StringComparison.OrdinalIgnoreCase))
-                    || (string.Equals(x.ActorKingdomStringId, target.StringId, StringComparison.OrdinalIgnoreCase)
-                        && string.Equals(x.TargetKingdomStringId, actor.StringId, StringComparison.OrdinalIgnoreCase)))) == true;
-        }
-
         private static bool BlocksWar(string kind)
         {
             string value = (kind ?? string.Empty).Trim().ToLowerInvariant();

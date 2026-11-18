@@ -206,15 +206,5 @@ namespace ReignBeta.Integration
                 InformationManager.DisplayMessage(new InformationMessage("[Bannerlord Reign] Could not open encyclopedia for " + hero.Name + ".", Color.FromUint(0xFFFFAA00)));
             }
         }
-
-        private static string ShortKey(string key)
-        {
-            if (string.IsNullOrWhiteSpace(key))
-            {
-                return string.Empty;
-            }
-
-            return key.Length <= 24 ? key : key.Substring(0, 24) + "...";
-        }
     }
 }

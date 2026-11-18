@@ -3198,16 +3198,6 @@ namespace ReignBeta.Campaign
             return result != null && result.Success ? string.Empty : result?.Message ?? "No execution result.";
         }
 
-        private static string SuccessOrProgress(GauntletContext c, ReignWorldActionRecord action, ReignActionResult result, JObject before, JObject after)
-        {
-            if (result == null || !result.Success)
-            {
-                return result?.Message ?? "No execution result.";
-            }
-
-            return result.Outcome == "progress" || result.Completed ? string.Empty : "Expected progress or completion, got " + result.Outcome + ".";
-        }
-
         private static Assertion MovementOrder(string expectedDetail)
         {
             return (c, action, result, before, after) =>
@@ -3262,18 +3252,6 @@ namespace ReignBeta.Campaign
                     && string.Equals(effectType, expectedType, StringComparison.OrdinalIgnoreCase));
                 return changed || effect ? string.Empty : "Expected verified native change/effect " + expectedType + ".";
             };
-        }
-
-        private static string PendingHook(GauntletContext c, ReignWorldActionRecord action, ReignActionResult result, JObject before, JObject after)
-        {
-            if (result == null || !result.Success)
-            {
-                return result?.Message ?? "No execution result.";
-            }
-
-            return result.ResultCode != null && result.ResultCode.IndexOf("pending", StringComparison.OrdinalIgnoreCase) >= 0
-                ? string.Empty
-                : "Expected a pending hook diagnostic result.";
         }
 
         private static string GoldChanged(GauntletContext c, ReignWorldActionRecord action, ReignActionResult result, JObject before, JObject after)

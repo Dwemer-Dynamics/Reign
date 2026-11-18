@@ -709,56 +709,6 @@ namespace ReignBeta.Court
             return hero != null && (hero.StringId.EndsWith("_father") || hero.StringId.EndsWith("_mother"));
         }
 
-        private static void AssignGeneratedFace(Hero hero, HashSet<string> usedFaces, bool inheritParents)
-        {
-            if (hero?.CharacterObject == null) return;
-            int baseSeed = StableSeed(hero.StringId);
-            BodyProperties fallback = default(BodyProperties);
-            bool hasFallback = false;
-            for (int attempt = 0; attempt < 64; attempt++)
-            {
-                int seed = unchecked(baseSeed + attempt * 7919);
-                BodyProperties generated;
-                if (inheritParents && hero.Mother != null && hero.Father != null)
-                {
-                    MBBodyProperty range = hero.CharacterObject.BodyPropertyRange;
-                    generated = BodyProperties.GetRandomBodyProperties(
-                        hero.CharacterObject.Race,
-                        hero.IsFemale,
-                        hero.Mother.BodyProperties,
-                        hero.Father.BodyProperties,
-                        1,
-                        seed,
-                        range.HairTags,
-                        range.BeardTags,
-                        range.TattooTags,
-                        0.15f);
-                }
-                else
-                {
-                    generated = hero.CharacterObject.GetBodyProperties(null, seed);
-                }
-
-                generated = ConstrainGeneratedAppearance(hero, generated, seed, inheritParents);
-                fallback = generated;
-                hasFallback = true;
-
-                string faceKey = StaticFaceKey(generated.StaticProperties);
-                if (usedFaces.Add(faceKey))
-                {
-                    hero.StaticBodyProperties = generated.StaticProperties;
-                    return;
-                }
-            }
-            if (hasFallback)
-            {
-                hero.StaticBodyProperties = fallback.StaticProperties;
-                ReignBeta.Integration.ReignLog.Warn("Using a non-unique constrained face fallback for court noble " + hero.StringId + ".");
-                return;
-            }
-            ReignBeta.Integration.ReignLog.Warn("Could not produce a unique generated face for court noble " + hero.StringId + ".");
-        }
-
         private static BodyProperties ConstrainGeneratedAppearance(Hero hero, BodyProperties generated, int seed, bool inheritedFromParents)
         {
             FaceGenerationParams parameters = FaceGenerationParams.Create();

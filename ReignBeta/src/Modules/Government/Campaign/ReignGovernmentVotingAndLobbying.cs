@@ -158,13 +158,5 @@ namespace ReignBeta.Government
                 lobby.Revision++;
             }
         }
-
-        private static int BribeCost(ReignGovernmentResolutionScale scale, int governmentLevel)
-        {
-            int baseCost = scale == ReignGovernmentResolutionScale.Minor ? 5000
-                : scale == ReignGovernmentResolutionScale.Standard ? 12500 : 30000;
-            return (int)Math.Round(baseCost * (1d + 0.25d * Clamp(governmentLevel - 1, 0, 4)),
-                MidpointRounding.AwayFromZero);
-        }
     }
 }

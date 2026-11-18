@@ -20,8 +20,6 @@ namespace AIPortraits
     /// </summary>
     public static class NanoGptClient
     {
-        private const string ImageGenerationsUrl = "https://nano-gpt.com/api/v1/images/generations";
-        private const string ChatCompletionsUrl = "https://nano-gpt.com/api/v1/chat/completions";
         private const string AtlasGenerateImageUrl = "https://api.atlascloud.ai/api/v1/model/generateImage";
         private const string AtlasUploadMediaUrl = "https://api.atlascloud.ai/api/v1/model/uploadMedia";
         private const string AtlasPredictionUrlPrefix = "https://api.atlascloud.ai/api/v1/model/prediction/";
@@ -32,8 +30,6 @@ namespace AIPortraits
             "Generate this character portrait using the shared prompt library configured in the Bannerlord Reign server.";
 
         public const string DefaultPrompt = DefaultPromptStyle;
-
-        private static readonly HttpClient _http = new HttpClient { Timeout = TimeSpan.FromSeconds(120) };
 
         public static string LastError { get; private set; }
 
@@ -254,57 +250,6 @@ namespace AIPortraits
             }
         }
 
-        private static async Task<byte[]> GenerateAtlasImageAsync(
-            AIEventsSettings settings,
-            string prompt,
-            byte[] sourceImagePng,
-            string outputSizeOverride,
-            CancellationToken ct)
-        {
-            if (sourceImagePng == null || sourceImagePng.Length == 0)
-            {
-                SetLastError("Atlas Cloud generation needs a source image.");
-                return null;
-            }
-
-            var model = settings.SelectedAtlasModel;
-            var outputSize = outputSizeOverride ?? settings.OutputSize;
-            TaleWorlds.Library.Debug.Print(
-                "[AIPortraits] Using Atlas Cloud image adapter: model=" + model + ", output_size=" + outputSize);
-
-            var sourceUrl = await UploadAtlasMediaAsync(settings, sourceImagePng, ct);
-            if (string.IsNullOrWhiteSpace(sourceUrl))
-                return null;
-
-            var payload = BuildAtlasImagePayload(model, prompt, sourceUrl, outputSize);
-            _lastImageProviderRequestLog.Value = BuildAtlasImageRequestLog(outputSize, payload);
-
-            using (var request = new HttpRequestMessage(HttpMethod.Post, AtlasGenerateImageUrl))
-            {
-                request.Content = new StringContent(payload.ToString(Formatting.None), Encoding.UTF8, "application/json");
-                request.Headers.Add("Authorization", "Bearer " + settings.AtlasApiKey);
-
-                using (var response = await _http.SendAsync(request, ct))
-                {
-                    var json = await response.Content.ReadAsStringAsync();
-                    if (!response.IsSuccessStatusCode)
-                    {
-                        SetLastError("Atlas Cloud image submit API error " + (int)response.StatusCode + ": " + json);
-                        return null;
-                    }
-
-                    var predictionId = ExtractAtlasPredictionId(json);
-                    if (string.IsNullOrWhiteSpace(predictionId))
-                    {
-                        SetLastError("Atlas Cloud image submit returned no prediction id. " + Shorten(json, 260));
-                        return null;
-                    }
-
-                    return await PollAtlasPredictionAsync(settings, predictionId, ct);
-                }
-            }
-        }
-
         private static JObject BuildAtlasImagePayload(
             string model,
             string prompt,
@@ -400,344 +345,6 @@ namespace AIPortraits
                 payload["image_url"] = sourceUrl;
 
             return payload;
-        }
-
-        private static string BuildAtlasImageRequestLog(string outputSize, JObject payload)
-        {
-            var sanitized = payload == null ? new JObject() : (JObject)payload.DeepClone();
-            RedactAtlasReferenceImages(sanitized);
-
-            return "POST " + AtlasGenerateImageUrl + Environment.NewLine +
-                   "Authorization: Bearer [Atlas key omitted]" + Environment.NewLine +
-                   "Uploaded reference image: [two-character portrait reference URL omitted]" + Environment.NewLine +
-                   "Requested output size: " + (outputSize ?? string.Empty) + Environment.NewLine +
-                   "Payload:" + Environment.NewLine +
-                   sanitized.ToString(Formatting.Indented);
-        }
-
-        private static void RedactAtlasReferenceImages(JObject payload)
-        {
-            if (payload == null)
-                return;
-
-            if (payload["image"] != null)
-                payload["image"] = "[uploaded two-character reference image omitted]";
-
-            if (payload["image_url"] != null)
-                payload["image_url"] = "[uploaded two-character reference image omitted]";
-
-            if (payload["images"] != null)
-                payload["images"] = new JArray("[uploaded two-character reference image omitted]");
-
-            if (payload["image_urls"] != null)
-                payload["image_urls"] = new JArray("[uploaded two-character reference image omitted]");
-        }
-
-        private static async Task<string> UploadAtlasMediaAsync(
-            AIEventsSettings settings,
-            byte[] sourceImagePng,
-            CancellationToken ct)
-        {
-            using (var content = new MultipartFormDataContent())
-            {
-                var imageContent = new ByteArrayContent(sourceImagePng);
-                imageContent.Headers.ContentType = new System.Net.Http.Headers.MediaTypeHeaderValue("image/png");
-                content.Add(imageContent, "file", "aiportraits_reference.png");
-
-                using (var request = new HttpRequestMessage(HttpMethod.Post, AtlasUploadMediaUrl))
-                {
-                    request.Content = content;
-                    request.Headers.Add("Authorization", "Bearer " + settings.AtlasApiKey);
-
-                    using (var response = await _http.SendAsync(request, ct))
-                    {
-                        var json = await response.Content.ReadAsStringAsync();
-                        if (!response.IsSuccessStatusCode)
-                        {
-                            SetLastError("Atlas Cloud upload API error " + (int)response.StatusCode + ": " + json);
-                            return null;
-                        }
-
-                        var uploadUrl = ExtractAtlasUploadUrl(json);
-                        if (string.IsNullOrWhiteSpace(uploadUrl))
-                        {
-                            SetLastError("Atlas Cloud upload returned no file URL. " + Shorten(json, 260));
-                            return null;
-                        }
-
-                        return uploadUrl;
-                    }
-                }
-            }
-        }
-
-        private static async Task<byte[]> PollAtlasPredictionAsync(
-            AIEventsSettings settings,
-            string predictionId,
-            CancellationToken ct)
-        {
-            var started = DateTime.UtcNow;
-            var predictionUrl = AtlasPredictionUrlPrefix + Uri.EscapeDataString(predictionId);
-
-            while ((DateTime.UtcNow - started).TotalMilliseconds < AtlasPollTimeoutMs)
-            {
-                ct.ThrowIfCancellationRequested();
-                using (var request = new HttpRequestMessage(HttpMethod.Get, predictionUrl))
-                {
-                    request.Headers.Add("Authorization", "Bearer " + settings.AtlasApiKey);
-
-                    using (var response = await _http.SendAsync(request, ct))
-                    {
-                        var json = await response.Content.ReadAsStringAsync();
-                        if (!response.IsSuccessStatusCode)
-                        {
-                            SetLastError("Atlas Cloud prediction API error " + (int)response.StatusCode + ": " + json);
-                            return null;
-                        }
-
-                        var root = ParseJsonOrError(json, "Atlas Cloud prediction");
-                        if (root == null)
-                            return null;
-
-                        var status = ExtractJsonString(root, "data.status") ?? ExtractJsonString(root, "status");
-                        if (string.Equals(status, "completed", StringComparison.OrdinalIgnoreCase) ||
-                            string.Equals(status, "succeeded", StringComparison.OrdinalIgnoreCase))
-                        {
-                            var outputUrl = ExtractAtlasOutputUrl(root);
-                            if (string.IsNullOrWhiteSpace(outputUrl))
-                            {
-                                SetLastError("Atlas Cloud prediction completed but returned no output URL. " + Shorten(json, 260));
-                                return null;
-                            }
-
-                            TaleWorlds.Library.Debug.Print("[AIPortraits] Atlas Cloud prediction completed; downloading image.");
-                            return await _http.GetByteArrayAsync(outputUrl);
-                        }
-
-                        if (string.Equals(status, "failed", StringComparison.OrdinalIgnoreCase) ||
-                            string.Equals(status, "canceled", StringComparison.OrdinalIgnoreCase) ||
-                            string.Equals(status, "cancelled", StringComparison.OrdinalIgnoreCase))
-                        {
-                            SetLastError("Atlas Cloud prediction failed: " + ExtractAtlasError(root));
-                            return null;
-                        }
-                    }
-                }
-
-                await Task.Delay(AtlasPollIntervalMs, ct);
-            }
-
-            SetLastError("Atlas Cloud prediction timed out after " + (AtlasPollTimeoutMs / 1000) + " seconds.");
-            return null;
-        }
-
-        private static async Task<byte[]> GenerateFluxKontextAsync(
-            AIEventsSettings settings,
-            string prompt,
-            byte[] sourceImagePng,
-            string outputSizeOverride,
-            CancellationToken ct)
-        {
-            // NanoGPT's Flux Kontext route accepts the source image as a base64 data URL.
-            var b64          = Convert.ToBase64String(sourceImagePng);
-            var imageDataUrl = "data:image/png;base64," + b64;
-
-            var payload = new
-            {
-                model               = settings.SelectedModel,
-                prompt              = prompt,
-                n                   = 1,
-                size                = outputSizeOverride ?? settings.OutputSize,
-                imageDataUrl        = imageDataUrl,
-                strength            = settings.ImageStrength,
-                guidance_scale      = settings.GuidanceScale,
-                num_inference_steps = settings.InferenceSteps,
-                response_format     = "b64_json"
-            };
-
-            using (var request = new HttpRequestMessage(
-                       HttpMethod.Post,
-                       ImageGenerationsUrl))
-            {
-                request.Content = new StringContent(
-                    JsonConvert.SerializeObject(payload),
-                    Encoding.UTF8,
-                    "application/json");
-                request.Headers.Add("Authorization", "Bearer " + settings.ApiKey);
-
-                var response = await _http.SendAsync(request, ct);
-                return await ReadImageResponseAsync(response, "Flux image generation");
-            }
-        }
-
-        private static async Task<byte[]> GenerateImageReferenceAsync(
-            AIEventsSettings settings,
-            string prompt,
-            byte[] sourceImagePng,
-            string outputSizeOverride,
-            CancellationToken ct)
-        {
-            var gptSize = MapToGptImageSize(outputSizeOverride ?? settings.OutputSize);
-            TaleWorlds.Library.Debug.Print(
-                "[AIPortraits] Using NanoGPT image reference adapter: model=" + settings.SelectedModel + ", size=" + gptSize);
-
-            var b64          = Convert.ToBase64String(sourceImagePng);
-            var imageDataUrl = "data:image/png;base64," + b64;
-
-            var payload = new
-            {
-                model           = settings.SelectedModel,
-                prompt          = prompt,
-                n               = 1,
-                size            = gptSize,
-                imageDataUrl    = imageDataUrl,
-                response_format = "b64_json"
-            };
-
-            using (var request = new HttpRequestMessage(
-                       HttpMethod.Post,
-                       ImageGenerationsUrl))
-            {
-                request.Content = new StringContent(
-                    JsonConvert.SerializeObject(payload),
-                    Encoding.UTF8,
-                    "application/json");
-                request.Headers.Add("Authorization", "Bearer " + settings.ApiKey);
-
-                var response = await _http.SendAsync(request, ct);
-                return await ReadImageResponseAsync(response, "Image reference generation");
-            }
-        }
-
-        private static async Task<byte[]> GenerateGeminiChatImageAsync(
-            AIEventsSettings settings,
-            string prompt,
-            byte[] sourceImagePng,
-            CancellationToken ct)
-        {
-            TaleWorlds.Library.Debug.Print(
-                "[AIPortraits] Using NanoGPT Gemini chat image adapter: model=" + settings.SelectedModel);
-
-            var b64 = Convert.ToBase64String(sourceImagePng);
-            var imageDataUrl = "data:image/png;base64," + b64;
-            var payload = new
-            {
-                model = settings.SelectedModel,
-                messages = new object[]
-                {
-                    new
-                    {
-                        role = "user",
-                        content = new object[]
-                        {
-                            new { type = "text", text = prompt },
-                            new { type = "image_url", image_url = new { url = imageDataUrl } }
-                        }
-                    }
-                },
-                stream = false
-            };
-
-            using (var request = new HttpRequestMessage(
-                       HttpMethod.Post,
-                       ChatCompletionsUrl))
-            {
-                request.Content = new StringContent(
-                    JsonConvert.SerializeObject(payload),
-                    Encoding.UTF8,
-                    "application/json");
-                request.Headers.Add("Authorization", "Bearer " + settings.ApiKey);
-
-                var response = await _http.SendAsync(request, ct);
-                return await ReadChatImageResponseAsync(response, "Gemini chat image generation");
-            }
-        }
-
-        private static async Task<byte[]> ReadImageResponseAsync(HttpResponseMessage response, string adapterName)
-        {
-            using (response)
-            {
-                if (!response.IsSuccessStatusCode)
-                {
-                    var err = await response.Content.ReadAsStringAsync();
-                    SetLastError(adapterName + " API error " + (int)response.StatusCode + ": " + err);
-                    return null;
-                }
-
-                var json   = await response.Content.ReadAsStringAsync();
-                var result = JsonConvert.DeserializeObject<NanoGptResponse>(json);
-
-                if (result?.Data == null || result.Data.Length == 0)
-                {
-                    SetLastError(adapterName + " API returned empty data.");
-                    return null;
-                }
-
-                var image = result.Data[0];
-                if (!string.IsNullOrEmpty(image.B64Json))
-                    return Convert.FromBase64String(image.B64Json);
-
-                if (!string.IsNullOrEmpty(image.Url))
-                {
-                    TaleWorlds.Library.Debug.Print("[AIPortraits] " + adapterName + " returned URL; downloading image.");
-                    return await _http.GetByteArrayAsync(image.Url);
-                }
-
-                SetLastError(adapterName + " API returned data without b64_json or url.");
-                return null;
-            }
-        }
-
-        private static async Task<byte[]> ReadChatImageResponseAsync(HttpResponseMessage response, string adapterName)
-        {
-            using (response)
-            {
-                if (!response.IsSuccessStatusCode)
-                {
-                    var err = await response.Content.ReadAsStringAsync();
-                    SetLastError(adapterName + " API error " + (int)response.StatusCode + ": " + err);
-                    return null;
-                }
-
-                var json = await response.Content.ReadAsStringAsync();
-                var imageBytes = await TryExtractImageBytesAsync(json, adapterName);
-                if (imageBytes != null)
-                    return imageBytes;
-
-                SetLastError(adapterName + " API returned no image data. " + SummarizeChatContent(json));
-                return null;
-            }
-        }
-
-        private static async Task<byte[]> TryExtractImageBytesAsync(string json, string adapterName)
-        {
-            JToken root;
-            try
-            {
-                root = JToken.Parse(json);
-            }
-            catch (Exception ex)
-            {
-                SetLastError(adapterName + " API returned invalid JSON: " + ex.Message);
-                return null;
-            }
-
-            var b64 = FindFirstPropertyString(root, "b64_json");
-            if (!string.IsNullOrWhiteSpace(b64) && TryDecodeBase64OrDataUrl(b64, out var b64Bytes))
-                return b64Bytes;
-
-            var dataUrl = FindDataImageUrl(root);
-            if (!string.IsNullOrWhiteSpace(dataUrl) && TryDecodeDataUrl(dataUrl, out var dataUrlBytes))
-                return dataUrlBytes;
-
-            var url = FindFirstImageUrl(root);
-            if (!string.IsNullOrWhiteSpace(url))
-            {
-                TaleWorlds.Library.Debug.Print("[AIPortraits] " + adapterName + " returned URL; downloading image.");
-                return await _http.GetByteArrayAsync(url);
-            }
-
-            return null;
         }
 
         private static string FindFirstPropertyString(JToken token, string propertyName)
@@ -997,26 +604,6 @@ namespace AIPortraits
             return string.IsNullOrWhiteSpace(error) ? "unknown error" : Shorten(error, 260);
         }
 
-        private static string SummarizeChatContent(string json)
-        {
-            try
-            {
-                var root = JToken.Parse(json);
-                var content = root.SelectToken("choices[0].message.content");
-                if (content == null)
-                    return "Raw response: " + Shorten(json, 260);
-
-                var text = content.Type == JTokenType.String
-                    ? content.Value<string>()
-                    : content.ToString(Formatting.None);
-                return "Text response: " + Shorten(text, 260);
-            }
-            catch
-            {
-                return "Raw response: " + Shorten(json, 260);
-            }
-        }
-
         private static string Shorten(string text, int maxLength)
         {
             if (string.IsNullOrWhiteSpace(text))
@@ -1217,11 +804,6 @@ namespace AIPortraits
             return prompt.ToString();
         }
 
-        private static string BuildDefaultPrompt(PortraitPromptContext context)
-        {
-            return ExpandIdentityTokens(DefaultPromptStyle, context);
-        }
-
         private static string GetCharacterName(PortraitPromptContext context) =>
             string.IsNullOrWhiteSpace(context?.CharacterName)
                 ? "this character"
@@ -1299,19 +881,6 @@ namespace AIPortraits
 			}
 			requirement.Append(". Preserve the source identity and depict the stated age accurately with age-appropriate facial structure and skin. Do not make the character significantly younger or older.");
             return requirement.ToString();
-        }
-
-        private static string BuildConciseIdentityRequirement(PortraitPromptContext context)
-        {
-            if (context == null || !context.HasMetadata)
-                return string.Empty;
-
-            return "Identity: " + GetCharacterName(context)
-                + (context.AgeYears.HasValue ? ", exact age " + context.AgeYears.Value : string.Empty)
-                + (!string.IsNullOrWhiteSpace(context.Gender) ? ", " + context.Gender.Trim() : string.Empty)
-                + ", " + GetCharacterCulture(context)
-				+ (context.ClanTier.HasValue ? ", clan tier " + context.ClanTier.Value + " (" + GetCharacterSocialStation(context) + ")" : string.Empty)
-                + ". Match stated age; do not de-age or over-age.";
         }
 
         private static void AppendPromptPart(StringBuilder prompt, string part)

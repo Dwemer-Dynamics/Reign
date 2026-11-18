@@ -1774,22 +1774,6 @@ namespace ReignBeta.UI.ViewModels
             ChatScrollVersion++;
         }
 
-        private List<Hero> BuildResponseOrder(IEnumerable<Hero> activeHeroes, string playerText)
-        {
-            var speakers = (activeHeroes ?? Enumerable.Empty<Hero>()).Where(hero => hero != null
-                    && !string.IsNullOrWhiteSpace(hero.StringId))
-                .GroupBy(hero => hero.StringId, StringComparer.OrdinalIgnoreCase).Select(group => group.First()).ToList();
-            var participants = speakers.Select(hero => new GroupTurnParticipant
-                { Id = hero.StringId, Name = hero.Name?.ToString() ?? string.Empty }).ToList();
-            var prior = (_session?.RecentTranscriptEntries ?? Array.Empty<ReignPartyChatTranscriptLine>())
-                .Select(line => new GroupTurnLine { SpeakerId = line.SpeakerHeroStringId, Role = line.Role, Text = line.Text });
-            string seed = (_session?.SessionId ?? string.Empty) + "|" + (_session?.CurrentSceneTurnId ?? string.Empty)
-                + "|" + (_session?.PlayerInputCount.ToString() ?? "0") + "|" + (playerText ?? string.Empty);
-            var addressed = GroupConversationTurnOrder.ResolveAddressed(participants, playerText, prior);
-            return GroupConversationTurnOrder.Order(participants, playerText, seed, addressed)
-                .Select(id => speakers.First(hero => hero.StringId.Equals(id, StringComparison.OrdinalIgnoreCase))).ToList();
-        }
-
         private List<ReignPartyChatTranscriptLine> _pendingRecoveredTranscript;
 
         private bool ApplyPendingRecoveredTranscript()
