@@ -35,6 +35,5 @@ namespace ReignBeta.UI.Portraits
             };
         }
         private static int Round(double value) => (int)Math.Round(value, MidpointRounding.AwayFromZero);
-        private static int Clamp(int value, int minimum, int maximum) => Math.Max(minimum, Math.Min(maximum, value));
     }
 }
