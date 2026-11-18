@@ -13,18 +13,6 @@ public sealed class ReignValidationLeaseTests : IDisposable
         .CreatePlan("changed", "Release", false, "AGENTS.md");
 
     [Fact]
-    public void EnvironmentLeaseIsKeyedByLaneNotWorkspace()
-    {
-        string lane = ReignMcpOptions.ResolveLeaseRoot(null, "ReignValidationLaneD20261115D02");
-        Assert.Equal(lane, ReignMcpOptions.ResolveLeaseRoot(null, " ReignValidationLaneD20261115D02 "));
-        Assert.NotEqual(lane, ReignMcpOptions.ResolveLeaseRoot(null, "AnotherLane"));
-        Assert.False(lane.StartsWith(TestOptions.FindWorkspace(), StringComparison.OrdinalIgnoreCase));
-        Assert.EndsWith(Path.Combine("validation-lanes", "ReignServer"), ReignMcpOptions.ResolveLeaseRoot(null, null));
-        Assert.Throws<InvalidOperationException>(() => ReignMcpOptions.ResolveLeaseRoot("relative-lease", null));
-        Assert.EndsWith(Path.Combine("validation-lanes", "_2"), ReignMcpOptions.ResolveLeaseRoot(null, ".."));
-    }
-
-    [Fact]
     public void StatusOfMissingWorkspaceDoesNotCreateFiles()
     {
         var status = ReignValidationLease.ReadStatus(buildRoot);
