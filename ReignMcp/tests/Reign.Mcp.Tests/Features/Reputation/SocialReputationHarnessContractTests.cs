@@ -238,7 +238,8 @@ public sealed class SocialReputationHarnessContractTests
         Assert.Contains("new Dictionary<string, object>(rareExposureOverride)", socialBalance, StringComparison.Ordinal);
         Assert.Contains("receiptResultJson", socialBalance, StringComparison.Ordinal);
         Assert.Contains("veryLowThreshold", socialBalance, StringComparison.Ordinal);
-        Assert.Contains("/tests/social-balance/affair/candidates", platform, StringComparison.Ordinal);
+        Assert.True(TestSourceLocator.ServerDeclaresRoute(TestSourceLocator.ServerRouterText(root), "/tests/social-balance/affair/candidates"),
+            "The server does not declare /tests/social-balance/affair/candidates.");
         Assert.Contains("court_conversation_signal_receipts", socialBalance, StringComparison.Ordinal);
         Assert.Contains("court_flirt_targets", socialBalance, StringComparison.Ordinal);
         Assert.Contains("clanTierScalingCorrect", socialBalance, StringComparison.Ordinal);

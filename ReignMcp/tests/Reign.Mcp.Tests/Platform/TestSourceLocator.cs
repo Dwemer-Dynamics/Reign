@@ -26,6 +26,28 @@ internal static class TestSourceLocator
         };
     }
 
+    // Server router text: the legacy HandleClient chain and every module's route-table
+    // registrations (Program*.cs, which includes Program.<Module>Routes.cs).
+    public static string ServerRouterText(string workspace) => string.Join(Environment.NewLine,
+        Enumerate(Path.Combine(workspace, "ReignServer", "src"), "Program*.cs")
+            .Order(StringComparer.OrdinalIgnoreCase)
+            .Select(File.ReadAllText));
+
+    // True when the server declares this exact route: as a legacy chain comparison or a
+    // route-table registration (routes.Get/Post). Other mentions, such as HTTP client calls, do not count.
+    public static bool ServerDeclaresRoute(string routerText, string route) =>
+        routerText.Contains($"request.Path == \"{route}\"", StringComparison.Ordinal)
+        || routerText.Contains($"case \"{route}\":", StringComparison.Ordinal)
+        || routerText.Contains($"routes.Get(\"{route}\",", StringComparison.Ordinal)
+        || routerText.Contains($"routes.Post(\"{route}\",", StringComparison.Ordinal);
+
+    // True when the server declares this route prefix: a legacy StartsWith comparison or a
+    // route-table prefix registration (routes.GetPrefix/PostPrefix).
+    public static bool ServerDeclaresRoutePrefix(string routerText, string prefix) =>
+        routerText.Contains($"request.Path.StartsWith(\"{prefix}\"", StringComparison.Ordinal)
+        || routerText.Contains($"routes.GetPrefix(\"{prefix}\",", StringComparison.Ordinal)
+        || routerText.Contains($"routes.PostPrefix(\"{prefix}\",", StringComparison.Ordinal);
+
     private static IEnumerable<string> Enumerate(string root, string fileName)
     {
         var layout = new Reign.Mcp.Server.ReignSourceLayout(TestOptions.FindWorkspace());
