@@ -2,6 +2,7 @@ using System.Threading.Tasks;
 using Newtonsoft.Json.Linq;
 using ReignBeta.Campaign;
 using ReignBeta.Court;
+using ReignBeta.Runtime;
 
 namespace ReignBeta.Integration
 {
@@ -23,9 +24,9 @@ namespace ReignBeta.Integration
 
         public static Task<JObject> RecordMissionMemoryAsync(ReignSpymasterMission mission, string phase)
         {
-            if (ReignSpymasterTestRuntime.Active)
+            if (ReignTestHarness.Current.Spymaster.Active)
             {
-                ReignSpymasterTestRuntime.RecordNativeIntent("memory_write", new JObject
+                ReignTestHarness.Current.Spymaster.RecordNativeIntent("memory_write", new JObject
                 {
                     ["missionId"] = mission?.MissionId ?? string.Empty,
                     ["phase"] = phase ?? "updated"
