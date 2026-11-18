@@ -809,11 +809,6 @@ namespace AIPortraits
                 ? "this character"
                 : context.CharacterName.Trim();
 
-        private static string GetCharacterAge(PortraitPromptContext context) =>
-            context?.AgeYears != null
-                ? context.AgeYears.Value.ToString()
-                : "unknown";
-
         private static string GetCharacterCulture(PortraitPromptContext context)
         {
             if (!string.IsNullOrWhiteSpace(context?.CultureName))
@@ -825,30 +820,8 @@ namespace AIPortraits
             return "unknown";
         }
 
-		private static string GetCharacterClanTier(PortraitPromptContext context) =>
-			context?.ClanTier != null ? context.ClanTier.Value.ToString() : "unknown";
-
 		private static string GetCharacterSocialStation(PortraitPromptContext context) =>
 			string.IsNullOrWhiteSpace(context?.SocialStation) ? "unranked" : context.SocialStation.Trim();
-
-        private static string BuildCustomPromptStyle(AIEventsSettings settings, PortraitPromptContext context)
-        {
-            var prompt = new StringBuilder();
-            AppendPromptPart(prompt, ExpandIdentityTokens(settings.PromptSuffix, context));
-            AppendPromptPart(prompt, BuildIdentityRequirement(context));
-            return prompt.ToString();
-        }
-
-        private static string ExpandIdentityTokens(string prompt, PortraitPromptContext context)
-        {
-            return (prompt ?? string.Empty)
-                .Replace("[CHARACTER NAME]", GetCharacterName(context))
-                .Replace("[AGE]", GetCharacterAge(context))
-				.Replace("[CULTURE]", GetCharacterCulture(context))
-				.Replace("[GENDER]", string.IsNullOrWhiteSpace(context?.Gender) ? "person" : context.Gender.Trim())
-				.Replace("[CLAN TIER]", GetCharacterClanTier(context))
-				.Replace("[SOCIAL STATION]", GetCharacterSocialStation(context));
-        }
 
         private static string BuildIdentityRequirement(PortraitPromptContext context)
         {

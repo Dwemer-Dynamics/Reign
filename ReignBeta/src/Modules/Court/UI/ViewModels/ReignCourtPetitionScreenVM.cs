@@ -38,7 +38,6 @@ namespace ReignBeta.UI.ViewModels
         private bool _busy;
         private bool _decisionComplete;
         private string _petitionerSpeech;
-        private string _inputText = string.Empty;
         private int _chatScrollVersion;
         private string _eventImageId;
         private readonly bool _calibrationMode;

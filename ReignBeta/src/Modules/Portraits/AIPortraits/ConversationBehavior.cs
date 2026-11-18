@@ -96,9 +96,4 @@ public class ConversationBehavior : CampaignBehaviorBase
 		return ReignBeta.Campaign.ReignEncounteredResidentsCampaignBehavior.Instance?.ConversationHero
             ?? CharacterObject.OneToOneConversationCharacter?.HeroObject;
 	}
-
-	private static void ShowMsg(string text, uint color)
-	{
-		InformationManager.DisplayMessage(new InformationMessage(text, Color.FromUint(color)));
-	}
 }

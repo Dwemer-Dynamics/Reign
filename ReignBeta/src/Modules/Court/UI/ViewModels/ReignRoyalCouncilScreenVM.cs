@@ -28,7 +28,6 @@ namespace ReignBeta.UI.ViewModels
         private readonly Action _close;
         private readonly string _sessionId = "royal_council_" + Guid.NewGuid().ToString("N");
         private bool _busy;
-        private string _inputText = string.Empty;
         private string _statusText = "The Royal Council is assembling.";
         private int _providerCallCount;
         private List<string> _lastRoles = new List<string>();
