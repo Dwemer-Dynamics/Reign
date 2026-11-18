@@ -36,8 +36,6 @@ public static class PortraitCache
 {
 	private static readonly ConcurrentDictionary<string, byte> _pending = new ConcurrentDictionary<string, byte>();
 
-	private static readonly ConcurrentDictionary<string, byte> _migrationChecked = new ConcurrentDictionary<string, byte>();
-
 	private static readonly ConcurrentDictionary<string, string> _characterPortraitPathCache = new ConcurrentDictionary<string, string>();
 
 	private static readonly ConcurrentDictionary<string, string> _seedPortraitPathByIdentity = new ConcurrentDictionary<string, string>();
@@ -1015,25 +1013,6 @@ public static class PortraitCache
 		if (!string.IsNullOrEmpty(id))
 		{
 			_pending.TryRemove(RequestCampaignFolder + "|" + id, out var _);
-		}
-	}
-
-	private static void CopyDirectory(string sourceDirectory, string destinationDirectory)
-	{
-		Directory.CreateDirectory(destinationDirectory);
-		foreach (string sourceFile in Directory.GetFiles(sourceDirectory))
-		{
-			string destinationFile = Path.Combine(destinationDirectory, Path.GetFileName(sourceFile));
-			if (!File.Exists(destinationFile))
-			{
-				File.Copy(sourceFile, destinationFile);
-			}
-		}
-
-		foreach (string sourceChild in Directory.GetDirectories(sourceDirectory))
-		{
-			string destinationChild = Path.Combine(destinationDirectory, Path.GetFileName(sourceChild));
-			CopyDirectory(sourceChild, destinationChild);
 		}
 	}
 
