@@ -845,7 +845,7 @@ public sealed class PartyAgencyHarnessContractTests
             StringComparison.Ordinal);
         Assert.Contains("relationshipUpdates.Clear();", server,
             StringComparison.Ordinal);
-        Assert.Matches(@"IsTemporaryPartyGuestLifecycleAction\((Program\.)?CanonicalCommand\(actionType\)\)",
+        Assert.Matches(@"IsTemporaryPartyGuestLifecycleAction\((Program\.|ActionPipelineService\.)?CanonicalCommand\(actionType\)\)",
             relationships);
         Assert.Contains("case \"accept_temporary_party_guest\"", relationships,
             StringComparison.Ordinal);

@@ -78,6 +78,17 @@ internal static class TestSourceLocator
             .FirstOrDefault(text => text.Contains(anchor, StringComparison.Ordinal))
         ?? throw new FileNotFoundException($"No server Program-area file contains {anchor}.");
 
+    // A server module's SQL text: every Modules/<module>/Data/*.cs file (stores and schema), ordinal name order.
+    // Server SQL lives in these stores, so a check that looked for a statement in a feature file also reads them.
+    // Empty when the module has no Data folder.
+    public static string ServerModuleDataText(string workspace, string module)
+    {
+        string data = Path.Combine(workspace, "ReignServer", "src", "Modules", module, "Data");
+        return Directory.Exists(data)
+            ? string.Join(Environment.NewLine, Directory.EnumerateFiles(data, "*.cs").Order(StringComparer.Ordinal).Select(File.ReadAllText))
+            : string.Empty;
+    }
+
     // A server source file plus its Name.*.cs partial-class siblings in the same folder (ordinal file-name order), so
     // a check that reads one logical file keeps working when the file is split into partial files. Accepts the
     // former single-file layout and the split layout.
