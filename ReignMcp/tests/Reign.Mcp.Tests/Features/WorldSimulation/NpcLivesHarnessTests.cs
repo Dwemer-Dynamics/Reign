@@ -173,7 +173,7 @@ public sealed class NpcLivesHarnessTests
         Assert.Contains("GenerateSinglePassConversation(dialogueLlmRequest, payload", source);
         Assert.Contains("GenerateSinglePassConversation(eventLlmRequest, payload", source);
         Assert.Contains("CaptureStructuredActionDecision(payload, parsed);", source);
-        string accepted = File.ReadAllText(Path.Combine(root, "ReignServer/src/Modules/Dialogue/ConversationAcceptedUnit.cs"));
+        string accepted = File.ReadAllText(Path.Combine(root, "ReignServer/src/Modules/Dialogue/Conversation/ConversationAcceptedUnit.cs"));
         Assert.Contains("RecordAcceptedNpcLives(connection, unit, sourceRows)", accepted);
         using var catalog = System.Text.Json.JsonDocument.Parse(File.ReadAllText(Path.Combine(root, "reign.testing.json")));
         Assert.Contains("single-pass", catalog.RootElement.GetProperty("npcLives").GetProperty("personalLeavePublication").GetString()!);

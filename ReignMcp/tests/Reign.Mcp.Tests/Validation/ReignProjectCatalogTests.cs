@@ -161,7 +161,7 @@ public sealed class ReignProjectCatalogTests
     [InlineData("ReignServer/src/Modules/Relationships/Relationships.cs", 2, "relationships", "server", "server")]
     [InlineData("ReignBeta/src/Modules/Relationships/Campaign/ReignRelationshipCampaignBehavior.cs", 2, "relationships", "bannerlord", "client")]
     [InlineData("ReignServer/src/Modules/Reputation/SocialReputation.cs", 2, "reputation", "server", "server")]
-    [InlineData("ReignServer/src/Modules/Dialogue/MotiveAwareConversation.cs", 2, "dialogue", "server", "server")]
+    [InlineData("ReignServer/src/Modules/Dialogue/Conversation/MotiveAwareConversation.cs", 2, "dialogue", "server", "server")]
     [InlineData("ReignBeta/src/Modules/Dialogue/Runtime/ReignConversationEligibility.cs", 2, "dialogue", "bannerlord", "client")]
     [InlineData("ReignServer/tests/ReignLiveTest/Features/Dialogue/QualificationRunner.cs", 2, "dialogue", "harness", "live-test")]
     [InlineData("ReignServer/src/Modules/Diplomacy/WorldDiplomacyDirector.cs", 2, "diplomacy", "server", "server")]

@@ -204,7 +204,7 @@
   "conversationCommunications": {
     "guide": "docs/agent/CONVERSATION_COMMUNICATION.md",
     "offlineSuite": "communications",
-    "source": "ReignServer/src/Modules/Dialogue/CommunicationCommitments.cs",
+    "source": "ReignServer/src/Modules/Dialogue/Communications/CommunicationCommitments.cs",
     "transport": "generation-bound /communications/scope and /communications/tick with complete current native presence; server workers never advance native time. Summons require an exact revision-bound native host reservation before dispatch; only the host waits, with fourteen-day bounded expiry after any promised dispatch delay, durable duty restoration and acceptance transfer.",
     "hostWaitEvidence": "2026-10-24: guarded NPC Lives snapshot exposes communicationHostReservations with a 64-row preview and complete count; no new inputs, mutations or authority. Prove host retention during letter travel and daily native relocation, no target movement before genuine acceptance, refusal-return release, expiry, native save/reload, accepted solo camp/journey, arrival, full stay and duty restoration. Direct written questions require an actual answer rather than another promise to write.",
     "nativeTesting": "Guarded campaign-test disposable Current; production conversation and scenario preparation helpers, individual/party while-open observations followed by the shipping ExecuteClose action and retained conversationEnd receipt, normal campaign time, native NPC Lives solo travel/camp/arrival/stay/return receipts",

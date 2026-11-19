@@ -56,7 +56,7 @@ test("catalog_drift", () => {
   assert.equal(catalog.hoursPerDrink, 2); assert.equal(catalog.veryIntoxicatedRatio, .5);
   assert.equal(catalog.releaseAlcoholBelowRatio, .5); assert.equal(catalog.overwhelmedRatio, 1);
   assert.deepEqual(catalog.servings, { drink: 1, half: .5, sip: .25 });
-  const server = read("ReignServer/src/Modules/Dialogue/ConversationIntoxication.cs");
+  const server = read("ReignServer/src/Modules/Dialogue/Drinking/ConversationIntoxication.cs");
   assert(server.includes(catalog.stateSchema) && server.includes(catalog.receiptSchema));
   assert(read(catalog.guide).includes("conversation_intoxication"));
   assert(read("docs/agent/TESTING_TOOL_GUIDE.md").includes("testing/DIALOGUE_AND_PROVIDERS.md"));
