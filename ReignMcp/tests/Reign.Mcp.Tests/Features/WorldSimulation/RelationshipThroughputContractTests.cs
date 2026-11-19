@@ -58,7 +58,10 @@ public sealed class RelationshipThroughputContractTests
         string source = File.ReadAllText(Path.Combine(root, "ReignServer/src/Modules/Relationships/RelationshipThroughputReplay.cs"));
         Assert.Contains("options.IsValidation", source);
         Assert.Contains("IPAddress.IsLoopback(address)", source);
-        Assert.Contains("SELECT length(@payload);", source);
+        string relationshipStores = string.Concat(Directory.GetFiles(
+            Path.Combine(root, "ReignServer/src/Modules/Relationships/Data"), "*.cs").OrderBy(path => path, StringComparer.Ordinal)
+            .Select(File.ReadAllText));
+        Assert.Contains("SELECT length(@payload);", relationshipStores);
         Assert.Contains("command.ExecuteScalarAsync().GetAwaiter().GetResult()", source);
         Assert.DoesNotContain("SslMode.Disable", source);
         Assert.Contains("inputs.Campaign != campaign", source);
