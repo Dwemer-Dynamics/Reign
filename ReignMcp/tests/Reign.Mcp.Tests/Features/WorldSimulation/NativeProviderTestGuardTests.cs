@@ -147,12 +147,13 @@ public sealed class NativeProviderTestGuardTests : IDisposable
         string workspace = TestOptions.FindWorkspace();
         string root = Path.Combine(workspace, "ReignServer", "src", "Modules");
         Assert.Contains("ProviderTestGuard.BeforeDispatch(\"http_text_or_image\")", TestSourceLocator.ServerProgramText(workspace));
-        foreach (var entry in new[] { ("Platform/ProviderMiddleware.cs", "streaming_text"),
-            ("Platform/CodexAppServerProvider.cs", "codex_text"), ("Portraits/CodexImageProvider.cs", "codex_image"),
+        foreach (var entry in new[] { ("Platform/Providers/ProviderMiddleware.cs", "streaming_text"),
+            ("Platform/Providers/CodexAppServerProvider.cs", "codex_text"), ("Portraits/CodexImageProvider.cs", "codex_image"),
             ("Portraits/PortraitGeneration.cs", "atlas_reference_upload"), ("Portraits/PortraitGeneration.cs", "image_prediction_poll"),
             ("Portraits/PortraitGeneration.cs", "image_download") })
             Assert.Contains("ProviderTestGuard.BeforeDispatch(\"" + entry.Item2 + "\")", TestSourceLocator.ServerFileGroupText(Path.Combine(root, entry.Item1)));
-        Assert.Contains("[\"nativeProviderTestGuard\"] = ProviderTestGuard.Snapshot()", File.ReadAllText(Path.Combine(root, "Platform", "ProviderMiddleware.cs")));
+        Assert.Matches(@"\[""nativeProviderTestGuard""\] = (Program\.)?ProviderTestGuard\.Snapshot\(\)",
+            File.ReadAllText(Path.Combine(root, "Platform", "Providers", "ProviderMiddleware.cs")));
     }
 
     [Fact]
