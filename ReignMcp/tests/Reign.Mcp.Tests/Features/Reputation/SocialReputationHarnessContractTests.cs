@@ -10,11 +10,11 @@ public sealed class SocialReputationHarnessContractTests
             Path.Combine(root, "ReignMcp"), "TestingTools.SocialReputation.cs"));
         string serverBridge = TestSourceLocator.ServerFileGroupText(TestSourceLocator.Unique(
             Path.Combine(root, "ReignServer"), "LiveInteractionTest.cs", "/src/"));
-        string clientHost = File.ReadAllText(TestSourceLocator.Unique(
+        string clientHost = TestSourceLocator.PartialTypeSourceText(TestSourceLocator.Unique(
             Path.Combine(root, "ReignBeta"), "ReignLiveInteractionSocialBalanceHost.cs", "/src/"));
         string clientHarness = File.ReadAllText(TestSourceLocator.Unique(
             Path.Combine(root, "ReignBeta"), "ReignSocialBalanceHarnessCampaignBehavior.cs", "/src/"));
-        string liveHost = File.ReadAllText(TestSourceLocator.Unique(
+        string liveHost = TestSourceLocator.PartialTypeSourceText(TestSourceLocator.Unique(
             Path.Combine(root, "ReignBeta"), "ReignLiveInteractionTestHost.cs", "/src/"));
         string individualVm = File.ReadAllText(TestSourceLocator.Unique(
             Path.Combine(root, "ReignBeta"), "ReignIndividualChatScreenVM.cs", "/src/"));
