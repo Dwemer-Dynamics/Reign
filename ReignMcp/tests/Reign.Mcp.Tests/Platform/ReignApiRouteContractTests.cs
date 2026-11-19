@@ -59,7 +59,7 @@ public sealed class ReignApiRouteContractTests
         var workspace = TestOptions.FindWorkspace();
         string dialogue = File.ReadAllText(TestSourceLocator.Unique(
             Path.Combine(workspace, "ReignServer"), "RulerDocketDialogue.cs",
-            "/src/Modules/Court/"));
+            "/src/Modules/Court/")) + Environment.NewLine + TestSourceLocator.ServerModuleDataText(workspace, "Court");
         string art = File.ReadAllText(TestSourceLocator.Unique(
             Path.Combine(workspace, "ReignBeta"), "ReignRulerPetitionSceneClient.cs",
             "/src/Modules/Court/"));
