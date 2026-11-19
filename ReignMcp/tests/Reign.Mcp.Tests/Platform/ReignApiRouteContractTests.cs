@@ -161,7 +161,7 @@ public sealed class ReignApiRouteContractTests
     {
         var workspace = TestOptions.FindWorkspace();
         string platform = TestSourceLocator.ServerProgramText(workspace);
-        string liveTests = File.ReadAllText(TestSourceLocator.Unique(
+        string liveTests = TestSourceLocator.ServerFileGroupText(TestSourceLocator.Unique(
             Path.Combine(workspace, "ReignServer"), "LiveInteractionTest.cs", "/src/Modules/WorldSimulation/"));
 
         Assert.Contains("LiveTestRunSummary(run, false)", liveTests, StringComparison.Ordinal);

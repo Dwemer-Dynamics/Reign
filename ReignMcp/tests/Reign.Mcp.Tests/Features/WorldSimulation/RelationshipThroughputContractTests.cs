@@ -20,7 +20,7 @@ public sealed class RelationshipThroughputContractTests
         Assert.Contains("restore_during_failure", cases);
         Assert.Contains("snapshot_during_failure", cases);
         Assert.True(File.Exists(Path.Combine(root, scope.GetProperty("procedure").GetString()!)));
-        string verifier = File.ReadAllText(Path.Combine(root, "ReignServer/src/Modules/Platform/VerificationLab.cs"));
+        string verifier = TestSourceLocator.ServerFileGroupText(Path.Combine(root, "ReignServer/src/Modules/Platform/VerificationLab.cs"));
         Assert.Contains("RunCampaignProviderWaitSelfTests()", verifier);
     }
 

@@ -8,7 +8,7 @@ public sealed class SocialReputationHarnessContractTests
         string root = TestOptions.FindWorkspace();
         string source = File.ReadAllText(TestSourceLocator.Unique(
             Path.Combine(root, "ReignMcp"), "TestingTools.SocialReputation.cs"));
-        string serverBridge = File.ReadAllText(TestSourceLocator.Unique(
+        string serverBridge = TestSourceLocator.ServerFileGroupText(TestSourceLocator.Unique(
             Path.Combine(root, "ReignServer"), "LiveInteractionTest.cs", "/src/"));
         string clientHost = TestSourceLocator.PartialTypeSourceText(TestSourceLocator.Unique(
             Path.Combine(root, "ReignBeta"), "ReignLiveInteractionSocialBalanceHost.cs", "/src/"));
@@ -22,7 +22,7 @@ public sealed class SocialReputationHarnessContractTests
             Path.Combine(root, "ReignBeta"), "ReignServerClient.cs", "/src/Modules/Platform/"));
         string courtProducer = File.ReadAllText(TestSourceLocator.Unique(
             Path.Combine(root, "ReignBeta"), "ReignCourtPersonalityReputationCampaignBehavior.cs", "/src/"));
-        string socialBalance = File.ReadAllText(TestSourceLocator.Unique(
+        string socialBalance = TestSourceLocator.ServerFileGroupText(TestSourceLocator.Unique(
             Path.Combine(root, "ReignServer"), "SocialBalanceTest.cs", "/src/"));
         string reputationServer = TestSourceLocator.ServerFileGroupText(TestSourceLocator.Unique(
             Path.Combine(root, "ReignServer"), "SocialReputation.cs", "/src/"));
@@ -289,7 +289,7 @@ public sealed class SocialReputationHarnessContractTests
     public void PassOnceManifestCoversPlayerRegularLordRulerAndRebellionProfiles()
     {
         string root = TestOptions.FindWorkspace();
-        string manifest = File.ReadAllText(TestSourceLocator.Unique(
+        string manifest = TestSourceLocator.ServerFileGroupText(TestSourceLocator.Unique(
             Path.Combine(root, "ReignServer"), "SocialBalanceTest.cs", "/src/"));
         foreach (string required in new[]
         {
@@ -311,7 +311,7 @@ public sealed class SocialReputationHarnessContractTests
         string root = TestOptions.FindWorkspace();
         string tools = File.ReadAllText(Path.Combine(root,
             "ReignMcp/src/Reign.Mcp.Server/Modules/Reputation/TestingTools.SocialReputation.cs"));
-        string server = File.ReadAllText(Path.Combine(root,
+        string server = TestSourceLocator.ServerFileGroupText(Path.Combine(root,
             "ReignServer/src/Modules/Reputation/SocialBalanceTest.cs"));
         string selfTests = TestSourceLocator.ServerFileGroupText(Path.Combine(root,
             "ReignServer/src/Modules/Reputation/SocialReputation.cs"));

@@ -94,7 +94,7 @@ public sealed class KingdomEventScenarioContractTests
         Assert.Equal(8, root.GetProperty("archetypes").EnumerateArray()
             .Count(item => item.GetProperty("polarity").GetString() == "beneficial"));
 
-        string liveServer = File.ReadAllText(TestSourceLocator.Unique(Path.Combine(workspace, "ReignServer"), "LiveInteractionTest.cs", "/src/"));
+        string liveServer = TestSourceLocator.ServerFileGroupText(TestSourceLocator.Unique(Path.Combine(workspace, "ReignServer"), "LiveInteractionTest.cs", "/src/"));
         string liveHost = File.ReadAllText(TestSourceLocator.Unique(
             Path.Combine(workspace, "ReignBeta"),
             "ReignLiveInteractionKingdomEventHost.cs",
