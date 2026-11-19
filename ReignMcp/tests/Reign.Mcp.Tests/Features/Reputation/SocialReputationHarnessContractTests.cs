@@ -23,7 +23,8 @@ public sealed class SocialReputationHarnessContractTests
         string courtProducer = File.ReadAllText(TestSourceLocator.Unique(
             Path.Combine(root, "ReignBeta"), "ReignCourtPersonalityReputationCampaignBehavior.cs", "/src/"));
         string socialBalance = TestSourceLocator.ServerFileGroupText(TestSourceLocator.Unique(
-            Path.Combine(root, "ReignServer"), "SocialBalanceTest.cs", "/src/"));
+            Path.Combine(root, "ReignServer"), "SocialBalanceTest.cs", "/src/"))
+            + Environment.NewLine + TestSourceLocator.ServerModuleDataText(root, "Reputation");
         string reputationServer = TestSourceLocator.ServerFileGroupText(TestSourceLocator.Unique(
             Path.Combine(root, "ReignServer"), "SocialReputation.cs", "/src/"));
         string courtReputationServer = File.ReadAllText(TestSourceLocator.Unique(
@@ -272,7 +273,8 @@ public sealed class SocialReputationHarnessContractTests
     {
         string root = TestOptions.FindWorkspace();
         string court = File.ReadAllText(TestSourceLocator.Unique(
-            Path.Combine(root, "ReignServer"), "CourtSocialReputation.cs", "/src/"));
+            Path.Combine(root, "ReignServer"), "CourtSocialReputation.cs", "/src/"))
+            + Environment.NewLine + TestSourceLocator.ServerModuleDataText(root, "Reputation");
         string standing = File.ReadAllText(TestSourceLocator.Unique(
             Path.Combine(root, "ReignServer"), "PublicStanding.cs", "/src/"));
         string relationships = TestSourceLocator.ServerFileGroupText(TestSourceLocator.Unique(
@@ -312,7 +314,8 @@ public sealed class SocialReputationHarnessContractTests
         string tools = File.ReadAllText(Path.Combine(root,
             "ReignMcp/src/Reign.Mcp.Server/Modules/Reputation/TestingTools.SocialReputation.cs"));
         string server = TestSourceLocator.ServerFileGroupText(Path.Combine(root,
-            "ReignServer/src/Modules/Reputation/SocialBalanceTest.cs"));
+            "ReignServer/src/Modules/Reputation/SocialBalanceTest.cs"))
+            + Environment.NewLine + TestSourceLocator.ServerModuleDataText(root, "Reputation");
         string selfTests = TestSourceLocator.ServerFileGroupText(Path.Combine(root,
             "ReignServer/src/Modules/Reputation/SocialReputation.cs"));
         Assert.Contains("bool includeSnapshots = true", tools, StringComparison.Ordinal);

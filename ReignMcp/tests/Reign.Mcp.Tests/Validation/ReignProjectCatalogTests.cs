@@ -153,7 +153,7 @@ public sealed class ReignProjectCatalogTests
 
     [Theory]
     [InlineData("ReignServer/shared/Reign.Core.Contracts/ReignRelationshipBaselinePolicy.cs", 1, "core", "domain", "core-contracts")]
-    [InlineData("ReignServer/src/Modules/Persistence/DatabaseParameterExtensions.cs", 2, "persistence", "server", "server")]
+    [InlineData("ReignServer/src/Modules/Persistence/Data/DatabaseParameterExtensions.cs", 2, "persistence", "server", "server")]
     [InlineData("ReignBeta/src/Modules/Persistence/Campaign/ReignSaveSyncCampaignBehavior.cs", 2, "persistence", "bannerlord", "client")]
     [InlineData("ReignServer/src/Modules/Characters/CharacterTraits.cs", 2, "characters", "server", "server")]
     [InlineData("ReignBeta/src/Modules/Characters/Family/ReignConceptionRecord.cs", 2, "characters", "bannerlord", "client")]
