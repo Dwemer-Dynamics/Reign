@@ -6,7 +6,7 @@ public sealed class SinglePassConversationTests
     [InlineData("ReignServer/src/Modules/Platform/Program.cs", "GenerateSinglePassConversation(dialogueLlmRequest", "llmMs = phaseTimer.ElapsedMilliseconds;")]
     [InlineData("ReignServer/src/Modules/Platform/Program.cs", "GenerateSinglePassConversation(eventLlmRequest", "llmMs = phaseTimer.ElapsedMilliseconds;")]
     [InlineData("ReignServer/src/Modules/Relationships/Relationships.cs", "GenerateSinglePassConversation(llmRequest", "PrepareCorrespondenceDelivery(llm);")]
-    [InlineData("ReignServer/src/Modules/Dialogue/ConversationRouteMemory.cs", "var result = GenerateSinglePassConversation(request", "context.Result = result;")]
+    [InlineData("ReignServer/src/Modules/Dialogue/Memory/ConversationRouteMemory.cs", "var result = GenerateSinglePassConversation(request", "context.Result = result;")]
     public void RuntimeDeliveryDoesNotDispatchRepairOrSemanticReview(string path, string start, string end)
     {
         // Server Program members may live in any Program*.cs partial: read the one holding the route.

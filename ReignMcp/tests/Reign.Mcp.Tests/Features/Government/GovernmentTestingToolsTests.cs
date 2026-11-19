@@ -137,7 +137,7 @@ public sealed class GovernmentTestingToolsTests
                     StringComparison.OrdinalIgnoreCase);
         });
         string dialogueSource = File.ReadAllText(Path.Combine(workspace, "ReignServer", "src",
-            "Modules", "Dialogue", "MotiveAwareConversation.cs"));
+            "Modules", "Dialogue", "Conversation", "MotiveAwareConversation.cs"));
         Assert.Contains("Government authority levels are hidden mechanics", dialogueSource,
             StringComparison.Ordinal);
         Assert.Contains("numbered levels/scale; describe small/modest/limited control change", dialogueSource,
