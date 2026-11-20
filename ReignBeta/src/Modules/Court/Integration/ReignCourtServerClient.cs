@@ -37,7 +37,8 @@ namespace ReignBeta.Court.Integration
 
     public static partial class ReignCourtServerClient
     {
-        private static readonly HttpClient Client = new HttpClient(new Reign.Core.Contracts.Platform.ReignProtocolHandler(new HttpClientHandler { UseProxy = false })) { Timeout = TimeSpan.FromSeconds(90) };
+        private static readonly HttpClient Client = new HttpClient(ReignHttpTransport.CreateProtocolPipeline(
+            new HttpClientHandler { UseProxy = false, AllowAutoRedirect = false })) { Timeout = TimeSpan.FromSeconds(90) };
 
         public static Task<ReignCourtServerResponse> OpenSessionAsync(CourtSession session, long expectedRevision, string commandId, JObject nativeSnapshot)
         {
@@ -521,23 +522,13 @@ namespace ReignBeta.Court.Integration
             }
             try { await ReignSaveSyncCoordinator.WaitForReadyAsync(route).ConfigureAwait(false); }
             catch (Exception ex) { return new ReignCourtServerResponse { Ok = false, Error = ex.Message }; }
-            if (!ReignServerEndpoint.TryBeginRequest(out string unavailable))
-            {
-                return new ReignCourtServerResponse { Ok = false, Error = unavailable };
-            }
-
             try
             {
                 string json = (payload ?? new JObject()).ToString(Formatting.None);
-                ReignHttpTransport.DirectJsonResponse response;
-                try { response = await ReignHttpTransport.PostDirectJsonAsync(Client, route, json).ConfigureAwait(false); }
-                catch (Exception ex) when (ReignServerEndpoint.IsTransportFailure(ex))
-                {
-                    // No candidate answered: the last transport failure, as before.
-                    return new ReignCourtServerResponse { Ok = false, Error = ex.Message };
-                }
+                ReignHttpTransport.DirectJsonResponse response =
+                    await ReignHttpTransport.PostDirectJsonAsync(Client, route, json, checkAvailability: true).ConfigureAwait(false);
                 if (!response.IsSuccessStatusCode) return new ReignCourtServerResponse { Ok = false, Error = "HTTP " + response.StatusCode + ": " + response.Body };
-                JObject result = JObject.Parse(response.Body);
+                JObject result = response.Json;
                 return new ReignCourtServerResponse
                 {
                     Ok = result.Value<bool?>("ok") == true,

@@ -17,7 +17,8 @@ namespace ReignBeta.Persistence.Integration
     internal static class ReignSaveSyncCoordinator
     {
         private static readonly object Gate = new object();
-        private static readonly HttpClient Client = new HttpClient(new Reign.Core.Contracts.Platform.ReignProtocolHandler(new HttpClientHandler { UseProxy = false })) { Timeout = TimeSpan.FromMinutes(6) };
+        private static readonly HttpClient Client = new HttpClient(ReignHttpTransport.CreateProtocolPipeline(
+            new HttpClientHandler { UseProxy = false, AllowAutoRedirect = false })) { Timeout = TimeSpan.FromMinutes(6) };
         private static TaskCompletionSource<bool> _ready = ReadySource(true);
         private static int _generation;
         private static string _campaignId = string.Empty;
@@ -547,7 +548,7 @@ namespace ReignBeta.Persistence.Integration
             string origin = final != null && Uri.TryCreate(response.RequestUrl, UriKind.Absolute, out Uri requested)
                 && string.Equals(final.AbsoluteUri, requested.AbsoluteUri, StringComparison.Ordinal)
                     ? ReignHttpTransport.PinnableOrigin(response.BaseUrl) : string.Empty;
-            return new System.Collections.Generic.KeyValuePair<JObject, string>(JObject.Parse(response.Body), origin);
+            return new System.Collections.Generic.KeyValuePair<JObject, string>(response.Json, origin);
         }
 
         private static bool IsCurrentGeneration(int generation, string campaignId)
