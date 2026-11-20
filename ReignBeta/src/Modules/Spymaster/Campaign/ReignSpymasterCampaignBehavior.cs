@@ -11,6 +11,7 @@ using TaleWorlds.CampaignSystem.Party;
 using TaleWorlds.CampaignSystem.Settlements;
 using TaleWorlds.Core;
 using TaleWorlds.Library;
+using ReignBeta.Characters.Integration;
 using ReignBeta.Platform.Integration;
 using ReignBeta.Platform.Runtime;
 using ReignBeta.Spymaster.Campaign;
@@ -24,6 +25,7 @@ namespace ReignBeta.Court.Campaign
         internal const int OrganicLedgerMaxObservations = 16;
         internal const int OrganicLedgerMaxStoredJsonChars = 2048;
         private bool _spymasterAgentTickInFlight;
+        private readonly HashSet<ReignSpymasterMission> _mitigationRequestsInFlight = new HashSet<ReignSpymasterMission>();
 
         public CourtOfficeAssignment ActiveSpymasterAssignment =>
             _offices.FirstOrDefault(x => x != null && x.IsActive && x.Office == ReignCourtOffice.Spymaster);
@@ -216,6 +218,14 @@ namespace ReignBeta.Court.Campaign
             ReignSpymasterState state = EnsureSpymasterState();
             float day = CurrentDayFloat();
             state.Effects.RemoveAll(x => x.EndDay <= day);
+            foreach (ReignSpymasterMission mission in state.Missions.Where(mission =>
+                mission.State == ReignSpymasterMissionState.Succeeded && IsSpymasterMitigation(mission)
+                && (mission.AgreementEffectState == "pending" || mission.AgreementEffectState == "uncertain")
+                && !_mitigationRequestsInFlight.Contains(mission)).ToList())
+            {
+                _ = ConfirmSpymasterMitigationAsync(mission, readReceipt: true);
+            }
+
             foreach (ReignSpymasterMission mission in state.Missions
                 .Where(x => x.State == ReignSpymasterMissionState.Active).ToList())
             {
@@ -286,7 +296,8 @@ namespace ReignBeta.Court.Campaign
                 ApplyFailedMissionConsequences(mission, spymaster);
             }
             AppendMissionHistory(mission, mission.ResultSummary, day);
-            _ = ReignSpymasterServerClient.RecordMissionMemoryAsync(mission, "resolved");
+            if (!succeeded || !IsSpymasterMitigation(mission))
+                _ = ReignSpymasterServerClient.RecordMissionMemoryAsync(mission, "resolved");
         }
 
         internal void ResolveSuccessfulSpymasterMission(ReignSpymasterMission mission, Hero spymaster, float day)
@@ -330,8 +341,13 @@ namespace ReignBeta.Court.Campaign
                     break;
                 default:
                     mission.ResultSummary = "The assigned operation was completed successfully.";
-                    if (mission.MissionType.StartsWith("mitigate_", StringComparison.OrdinalIgnoreCase)
-                        || mission.MissionType.StartsWith("fabricate_", StringComparison.OrdinalIgnoreCase))
+                    if (IsSpymasterMitigation(mission))
+                    {
+                        mission.ResultSummary = "The field operation succeeded. The social record is awaiting confirmation.";
+                        mission.AgreementEffectState = "pending";
+                        _ = ConfirmSpymasterMitigationAsync(mission, readReceipt: false);
+                    }
+                    else if (mission.MissionType.StartsWith("fabricate_", StringComparison.OrdinalIgnoreCase))
                     {
                         _ = ApplySocialOperationAndRecordAsync(mission);
                         ApplyPositiveSocialRelation(mission);
@@ -729,6 +745,71 @@ namespace ReignBeta.Court.Campaign
             }
             catch (Exception ex) { ReignLog.Warn("Foreign agent tick failed: " + ex.Message); }
             finally { _spymasterAgentTickInFlight = false; }
+        }
+
+        private static bool IsSpymasterMitigation(ReignSpymasterMission mission)
+            => mission.MissionType.StartsWith("mitigate_", StringComparison.Ordinal);
+
+        private async System.Threading.Tasks.Task ConfirmSpymasterMitigationAsync(
+            ReignSpymasterMission mission, bool readReceipt)
+        {
+            if (!_mitigationRequestsInFlight.Add(mission)) return;
+            Action fence = CourtActionContextFence();
+            string campaign = ReignCampaignIdentity.CurrentCampaignId();
+            string timeline = ReignServices.WorldHistory?.TimelineId ?? "main";
+            JObject result = null;
+            try
+            {
+                result = await (readReceipt ? ReignSpymasterServerClient.GetMitigationReceiptAsync(mission)
+                    : ReignSpymasterServerClient.ApplySocialOperationAsync(mission)).ConfigureAwait(false);
+            }
+            catch (Exception ex) { ReignLog.Warn("Spymaster mitigation confirmation unavailable: " + ex.Message); }
+
+            await ReignMainThread.InvokeAsync(() =>
+            {
+                _mitigationRequestsInFlight.Remove(mission);
+                try { fence(); } catch (InvalidOperationException) { return; }
+                if (!EnsureSpymasterState().Missions.Contains(mission)) return;
+
+                string outcome = (string)result?["outcome"];
+                string disposition = (string)result?["disposition"];
+                bool bound = result?["ok"]?.Type == JTokenType.Boolean && (bool)result["ok"]
+                    && (string)result["schema"] == "reign-spymaster-mitigation-v1"
+                    && (string)result["campaignId"] == campaign && (string)result["timelineId"] == timeline
+                    && (string)result["missionId"] == mission.MissionId && (string)result["missionType"] == mission.MissionType
+                    && (string)result["subjectId"] == mission.TargetStringId && (string)result["tagId"] == mission.SocialItemId
+                    && (float?)result["resolvedDay"] == mission.ResolvedDay
+                    && !string.IsNullOrWhiteSpace((string)result["scopeHash"]);
+                int matched = result?["matchedCount"]?.Type == JTokenType.Integer ? (int)result["matchedCount"] : -1;
+                int changed = result?["changedCount"]?.Type == JTokenType.Integer ? (int)result["changedCount"] : -1;
+                if (bound && disposition == "applied" && changed > 0 && changed <= matched
+                    && !string.IsNullOrWhiteSpace(outcome))
+                {
+                    mission.AgreementEffectState = "completed";
+                    mission.ResultSummary = "The social record confirms the operation. Result: " + outcome.Replace('_', ' ') + ".";
+                }
+                else if (bound && changed == 0 && ((disposition == "no_match" && matched == 0)
+                    || (disposition == "no_change" && matched > 0)))
+                {
+                    mission.AgreementEffectState = "no_effect";
+                    mission.ResultSummary = disposition == "no_match"
+                        ? "The field operation succeeded. No eligible social record remained at resolution."
+                        : "The field operation succeeded. The eligible social record already had no further effect to mitigate.";
+                }
+                else
+                {
+                    if (mission.AgreementEffectState == "uncertain") return;
+                    mission.AgreementEffectState = "uncertain";
+                    mission.ResultSummary = "The field operation succeeded. Its effect on the social record is unknown.";
+                    StateChanged?.Invoke();
+                    return;
+                }
+                mission.ReportJson = result.ToString(Formatting.None);
+                AppendMissionHistory(mission, mission.ResultSummary, mission.ResolvedDay);
+                ReignServices.Agreement?.RecheckPendingAgreements();
+                _ = ReignSpymasterServerClient.RecordMissionMemoryAsync(mission, "resolved");
+                StateChanged?.Invoke();
+            }).ConfigureAwait(false);
         }
 
         private async System.Threading.Tasks.Task ApplySocialOperationAndRecordAsync(ReignSpymasterMission mission)

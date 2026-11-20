@@ -59,6 +59,14 @@ namespace ReignBeta.Spymaster.Integration
             return ReignServerClient.PostJsonAsync("/court/spymaster/social/apply", payload);
         }
 
+        internal static Task<JObject> GetMitigationReceiptAsync(ReignSpymasterMission mission)
+        {
+            JObject payload = BasePayload();
+            payload["readMitigationReceipt"] = true;
+            payload["mission"] = JObject.FromObject(mission);
+            return ReignServerClient.PostJsonAsync("/court/spymaster/social/status", payload);
+        }
+
         public static Task<JObject> ApplyExposurePressureAsync(ReignSpymasterMission mission, int relationLoss)
         {
             JObject payload = BasePayload();
