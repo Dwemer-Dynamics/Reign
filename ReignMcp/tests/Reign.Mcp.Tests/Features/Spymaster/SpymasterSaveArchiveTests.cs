@@ -24,6 +24,7 @@ public sealed class SpymasterSaveArchiveTests
         Assert.Contains("payload[\"readMitigationReceipt\"] = true;", client);
         Assert.Contains("disposition == \"applied\" && changed > 0", behavior);
         Assert.Contains("Its effect on the social record is unknown.", behavior);
+        Assert.Contains("mission.AgreementEffectState = \"recovery_required\";", behavior);
     }
 
     [Fact]
