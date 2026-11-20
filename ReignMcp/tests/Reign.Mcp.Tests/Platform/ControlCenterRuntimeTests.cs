@@ -31,8 +31,23 @@ public sealed class ControlCenterRuntimeTests
                 . $env:REIGN_INPUT_HELPER
                 $Distro = $env:REIGN_WSL_DISTRO ?? 'ReignServer'
                 $program = Get-ReignDistroShellProgram $env:REIGN_INPUT_FIXTURE
-                $capture = Invoke-ReignWslWithInput $program @('-d', $Distro, '--exec', '/usr/bin/base64', '-w0')
+                $capture = Invoke-ReignWslWithInput $program @('/usr/bin/base64', '-w0') 'nobody'
                 if ($capture -ne 0) { throw "WSL byte capture exited $capture" }
+                $utf8 = [Text.UTF8Encoding]::new($false)
+                $digest = [Convert]::ToHexString([Security.Cryptography.SHA256]::HashData($utf8.GetBytes($program))).ToLowerInvariant()
+                # PowerShell appends CRLF here, as it did in the failing deployment.
+                $program | & wsl.exe -d $Distro -u nobody --exec /usr/bin/python3 -I -c $script:ReignDistroInputReceiver $digest /bin/sh -c 'echo unexpected; exit 37'
+                if ($LASTEXITCODE -ne 65) { throw "Altered input was not rejected before execution." }
+                $start = [Diagnostics.ProcessStartInfo]::new((Join-Path $env:SystemRoot 'System32/cmd.exe'), '/d /c exit 37')
+                $start.UseShellExecute = $false
+                $start.CreateNoWindow = $true
+                $start.RedirectStandardInput = $true
+                $child = [Diagnostics.Process]::Start($start)
+                try {
+                    $child.WaitForExit()
+                    $closed = Complete-ReignInputProcess $child ($utf8.GetBytes('short input'))
+                    if ($closed -ne 37) { throw "Buffered close masked child exit 37." }
+                } finally { $child.Dispose() }
                 $rejected = Invoke-ReignDistroShell $program @('--restore', 'unused', '')
                 if ($rejected -ne 37) { throw "Expected shell exit 37, received $rejected" }
                 $accepted = Invoke-ReignDistroShell $program @('--begin', 'path with "quotes"/café', '')
