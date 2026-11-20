@@ -53,6 +53,9 @@ namespace ReignBeta.Platform.Integration
 {
     public static partial class ReignServerClient
     {
+        internal static bool IsDelimitedSpeechOnlyResponse(JObject response) =>
+            response?["conversationExchange"]?["acceptedUnit"]?["outputContract"]?.Value<string>() == "ollama_delimited_speech";
+
         public static async Task<bool> IngestSocialEventAnnouncementAsync(SocialEventRecord record)
         {
             try
@@ -270,7 +273,7 @@ namespace ReignBeta.Platform.Integration
                             _ = ObservePlayerHistoricalClaimForListenersSafelyAsync(speaker, attendees, playerText, "social_event");
                         }
 
-                        if (string.IsNullOrWhiteSpace(response.Value<string>("privateAudienceHeroStringId")))
+                        if (!IsDelimitedSpeechOnlyResponse(response) && string.IsNullOrWhiteSpace(response.Value<string>("privateAudienceHeroStringId")))
                             _ = ObserveNpcHistoricalClaimForListenersSafelyAsync(speaker, attendees, reply.Text, "social_event");
                     }).ConfigureAwait(false);
                 }
@@ -473,7 +476,7 @@ namespace ReignBeta.Platform.Integration
                     ApplyHeroEncyclopediaText(speaker, reply.EncyclopediaText);
                     if (reply.Ok && Hero.MainHero != null && !familyChambers)
                     {
-                        if (string.IsNullOrWhiteSpace(reply.PrivateAudienceHeroStringId))
+                        if (!IsDelimitedSpeechOnlyResponse(response) && string.IsNullOrWhiteSpace(reply.PrivateAudienceHeroStringId))
                             _ = ObserveNpcHistoricalClaimForListenersSafelyAsync(speaker, activeHeroes, reply.Text, "party_chat");
                         _ = ObservePlayerHistoricalClaimForListenersSafelyAsync(speaker, activeHeroes, playerText, "party_chat");
                     }
