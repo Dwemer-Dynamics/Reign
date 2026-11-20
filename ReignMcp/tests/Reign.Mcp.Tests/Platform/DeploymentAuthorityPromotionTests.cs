@@ -188,6 +188,14 @@ public sealed class DeploymentAuthorityPromotionTests
         {
             Assert.StartsWith(Path.GetFullPath(Path.GetTempPath()), Path.GetFullPath(root), StringComparison.OrdinalIgnoreCase);
             Assert.StartsWith("reign-promotion-contract-", Path.GetFileName(root));
+            foreach (string projection in new[] { "alias", "from/Reign/ReignServer", "to/Reign/ReignServer" })
+            {
+                var link = new DirectoryInfo(Path.Combine(root, projection));
+                if (link.LinkTarget is not null) link.Delete();
+            }
+            var options = new EnumerationOptions { RecurseSubdirectories = true, AttributesToSkip = FileAttributes.ReparsePoint };
+            foreach (var file in new DirectoryInfo(root).EnumerateFiles("*", options))
+                if (file.IsReadOnly) file.IsReadOnly = false;
             Directory.Delete(root, true);
         }
     }
