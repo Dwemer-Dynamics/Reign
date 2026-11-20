@@ -66,6 +66,9 @@ public sealed class DeploymentAuthorityPromotionTests
                 $pointer=@{Schema='reign-deployment-authority-v1';CandidatePath=$candidate;CandidateSha256=Get-ReignFileSha $candidate;ReviewPath=$reviewPath;ReviewSha256=Get-ReignFileSha $reviewPath}
                 $pointerPath=Join-Path $Root 'deployment-source.json';$pointer|ConvertTo-Json|Set-Content $pointerPath
                 [void](Read-ReignDeploymentAuthority $pointerPath);$checks++
+                $promote=Join-Path (Split-Path $ModulePath) 'Promote-DeploymentCheckpoint.ps1'
+                $argsForPromotion=@{Candidate=$candidate;ReviewReceipt=$reviewPath;AuthorityPath=$pointerPath}
+                Reject {& $promote @argsForPromotion -MigrateRoots} 'marked candidate'
                 # Pin the altered review too: read-time coverage must still reject it.
                 $review.ReviewedPaths=@();$review|ConvertTo-Json -Depth 16|Set-Content $reviewPath
                 $pointer.ReviewSha256=Get-ReignFileSha $reviewPath;$pointer|ConvertTo-Json|Set-Content $pointerPath
@@ -73,14 +76,18 @@ public sealed class DeploymentAuthorityPromotionTests
                 if($checks -ne 12){throw "Unexpected contract count $checks"}
                 Write-Output 'PROMOTION_CONTRACTS_12_PASS'
 
+                function New-Repo($Path,$Leaf){
+                    git init --quiet $Path
+                    if($LASTEXITCODE){throw 'Could not initialize fixture Git checkout.'}
+                    git -C $Path remote add origin "https://github.com/Dwemer-Dynamics/$Leaf.git"
+                    if($LASTEXITCODE){throw 'Could not configure fixture origin.'}
+                    git -C $Path -c user.name=Fixture -c user.email=fixture@example.invalid -c commit.gpgsign=false -c core.hooksPath=$Root commit --allow-empty --quiet -m fixture
+                    if($LASTEXITCODE){throw 'Could not create a checked-out fixture commit.'}
+                }
                 function New-Pair($Name){
                     $parent=Join-Path $Root $Name
                     foreach($leaf in @('Reign','ReignServer')){
-                        $repo=Join-Path $parent $leaf
-                        git init --quiet $repo
-                        if($LASTEXITCODE){throw 'Could not initialize fixture Git checkout.'}
-                        git -C $repo remote add origin "https://github.com/Dwemer-Dynamics/$leaf.git"
-                        if($LASTEXITCODE){throw 'Could not configure fixture origin.'}
+                        New-Repo (Join-Path $parent $leaf) $leaf
                     }
                     $pair=@{WorkspaceRoot=Join-Path $parent Reign;ServerRoot=Join-Path $parent ReignServer}
                     New-Item -ItemType Junction -Path (Join-Path $pair.WorkspaceRoot ReignServer) -Target $pair.ServerRoot|Out-Null
@@ -95,6 +102,7 @@ public sealed class DeploymentAuthorityPromotionTests
                 Reject {Get-ReignRootMigration $null $new.WorkspaceRoot $new.ServerRoot $report $report} 'existing reviewed prior'
                 Reject {Get-ReignRootMigration $old $new.WorkspaceRoot $new.ServerRoot '' $report} 'both original'
                 Reject {Get-ReignRootMigration $old $new.WorkspaceRoot $new.ServerRoot $report ''} 'both original'
+                Reject {Get-ReignOriginalReport $report $new.WorkspaceRoot 'validation'} 'Foreign/copied report'
                 Reject {Get-ReignRootMigration $old $old.WorkspaceRoot $old.ServerRoot $report $report} 'distinct primary pairs'
                 Reject {Assert-ReignPrimaryPair $new.WorkspaceRoot $old.ServerRoot} 'physical Reign and ReignServer siblings'
                 $alias=Join-Path $Root 'alias'
@@ -114,7 +122,8 @@ public sealed class DeploymentAuthorityPromotionTests
                 [IO.File]::WriteAllText((Join-Path $linked '.git'),"gitdir: $($new.ServerRoot)/.git/worktrees/linked")
                 $linkedClient=Join-Path (Split-Path $linked) Reign
                 git init --quiet $linkedClient
-                git -C $linkedClient remote add origin 'https://github.com/Dwemer-Dynamics/Reign.git'
+                Reject {Assert-ReignPrimaryPair $linkedClient $linked} 'Source Git failed'
+                New-Repo $linkedClient 'Reign'
                 Reject {Assert-ReignPrimaryPair $linkedClient $linked} 'primary Git checkouts'
 
                 $content.RootMigration=$scope
@@ -128,8 +137,6 @@ public sealed class DeploymentAuthorityPromotionTests
                 $review.RootMigrationSha256=Get-ReignJsonSha $scope
                 $review|ConvertTo-Json -Depth 16|Set-Content $reviewPath
                 Assert-ReignCheckpointReview $parsed (Read-Review) $candidate
-                $promote=Join-Path (Split-Path $ModulePath) 'Promote-DeploymentCheckpoint.ps1'
-                $argsForPromotion=@{Candidate=$candidate;ReviewReceipt=$reviewPath;AuthorityPath=$pointerPath}
                 $fixtureHash=Get-ReignFileSha $pointerPath
                 Reject {& $promote @argsForPromotion} 'marked candidate'
                 Reject {& $promote @argsForPromotion -Initialize -MigrateRoots} 'marked candidate'
@@ -162,6 +169,8 @@ public sealed class DeploymentAuthorityPromotionTests
                 """);
             var start = new ProcessStartInfo("pwsh") { UseShellExecute = false, CreateNoWindow = true,
                 RedirectStandardInput = true, RedirectStandardOutput = true, RedirectStandardError = true };
+            foreach (string key in start.Environment.Keys.Where(key => key.StartsWith("GIT_", StringComparison.OrdinalIgnoreCase)).ToArray())
+                start.Environment.Remove(key);
             foreach (string arg in new[] { "-NoProfile", "-NonInteractive", "-File", script,
                 Path.Combine(TestOptions.FindWorkspace(), "ReignServer/scripts/ReignDeploymentAuthority.psm1"), root }) start.ArgumentList.Add(arg);
             using var process = Process.Start(start)!;
