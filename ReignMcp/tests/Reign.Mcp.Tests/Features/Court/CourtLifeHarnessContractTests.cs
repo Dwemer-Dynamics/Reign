@@ -353,6 +353,13 @@ public sealed class CourtLifeHarnessContractTests
         Assert.Contains("stay.Invitations.Any(x => x.InvitationId == id)", visitors, StringComparison.Ordinal);
         Assert.Contains("NpcAccepted = false", visitors, StringComparison.Ordinal);
         Assert.DoesNotContain("agreedInvitations", visitors, StringComparison.Ordinal);
+
+        string delivery = File.ReadAllText(Path.Combine(root,
+            "ReignBeta/src/Modules/Court/Campaign/ReignRulerDocketCampaignBehavior.cs"));
+        int legacyInvitation = delivery.IndexOf("job.EventType == \"noble_visitor_invitation\"", StringComparison.Ordinal);
+        int send = delivery.IndexOf("request = ReignCorrespondenceClient.RecordRulerDocketMemoryAsync(", StringComparison.Ordinal);
+        Assert.True(legacyInvitation >= 0 && send > legacyInvitation);
+        Assert.Contains("skipped_unconfirmed_invitation_", delivery[legacyInvitation..send], StringComparison.Ordinal);
     }
 
     [Fact]
