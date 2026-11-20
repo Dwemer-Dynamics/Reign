@@ -24,51 +24,10 @@ namespace ReignBeta.Rebellion.Integration
         public readonly List<JObject> Updates = new List<JObject>();
     }
 
-    public sealed class ReignEffectiveAttitudeResult
-    {
-        public bool Ok;
-        public string Error = string.Empty;
-        public readonly Dictionary<string, JObject> Attitudes =
-            new Dictionary<string, JObject>(StringComparer.OrdinalIgnoreCase);
-    }
-
     internal static class ReignRebellionServerClient
     {
-        internal static async Task<ReignEffectiveAttitudeResult>
-            ResolveEffectiveAttitudesAsync(JArray pairs)
-        {
-            ReignEffectiveAttitudeResult result = new ReignEffectiveAttitudeResult();
-            try
-            {
-                JObject response = await PostJsonAsync("/relationships/effective/batch",
-                    new JObject
-                    {
-                        ["campaignId"] = GetCampaignId(),
-                        ["timelineId"] = ReignServices.WorldHistory
-                            ?.TimelineId ?? "main",
-                        ["pairs"] = pairs ?? new JArray()
-                    }).ConfigureAwait(false);
-                result.Ok = response.Value<bool?>("ok") == true;
-                result.Error = ReadString(response, "error", string.Empty);
-                foreach (JObject attitude in (response["attitudes"] as JArray)
-                    ?.OfType<JObject>() ?? Enumerable.Empty<JObject>())
-                {
-                    string observerId = attitude.Value<string>("observerId")
-                        ?? string.Empty;
-                    string targetId = attitude.Value<string>("targetId")
-                        ?? string.Empty;
-                    if (!string.IsNullOrWhiteSpace(observerId)
-                        && !string.IsNullOrWhiteSpace(targetId))
-                        result.Attitudes[observerId + "|" + targetId] = attitude;
-                }
-            }
-            catch (Exception ex)
-            {
-                result.Error = ex.Message;
-                ReignLog.Warn("Effective relationship lookup failed: " + ex.Message);
-            }
-            return result;
-        }
+        internal static Task<JObject> RequestEffectiveAttitudesAsync(JObject payload, RequestFence fence) =>
+            PostJsonAsync("/relationships/effective/batch", payload, () => ReignMainThread.InvokeAsync(fence.IsCurrent));
 
         internal static async Task<ReignRebellionEvaluationResult> EvaluateRebellionsAsync(
             IReadOnlyList<ReignRebellionMovementRecord> movements,

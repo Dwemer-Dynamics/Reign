@@ -22,6 +22,8 @@ namespace ReignBeta.World
         [SaveableField(12)] public int PersonalAffinityToRuler;
         [SaveableField(13)] public int RulerPublicStanding;
         [SaveableField(14)] public int RulerStandingRevision;
+        [SaveableField(15)] public string LeaderHeroStringId;
+        [SaveableField(16)] public string RulerHeroStringId;
 
         public ReignRebellionWeeklyRollRecord()
         {
