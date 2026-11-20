@@ -748,7 +748,7 @@ namespace ReignBeta.Court.Campaign
         }
 
         private static bool IsSpymasterMitigation(ReignSpymasterMission mission)
-            => mission.MissionType.StartsWith("mitigate_", StringComparison.Ordinal);
+            => mission.MissionType?.StartsWith("mitigate_", StringComparison.Ordinal) == true;
 
         private const string MitigationReceiptSchema = "reign-spymaster-mitigation-v1";
 
@@ -756,13 +756,14 @@ namespace ReignBeta.Court.Campaign
             => (string)result?["schema"] == MitigationReceiptSchema
                 && (string)result["error"] is string error
                 && (error == "invalid_mitigation_terms" || error == "mitigation_terms_conflict"
-                    || error == "mitigation_inactive_timeline");
+                    || error == "mitigation_inactive_timeline" || error == "mitigation_generation_changed");
 
         private async System.Threading.Tasks.Task ConfirmSpymasterMitigationAsync(
             ReignSpymasterMission mission, bool readReceipt)
         {
             if (!_mitigationRequestsInFlight.Add(mission)) return;
-            Action fence = CourtActionContextFence();
+            var fence = ReignServerClient.RequestFence.Capture();
+            bool StillOwnsRequest() => fence.IsCurrent() && ReferenceEquals(Instance, this);
             string campaign = ReignCampaignIdentity.CurrentCampaignId();
             string timeline = ReignServices.WorldHistory?.TimelineId ?? "main";
             JObject result = null;
@@ -770,8 +771,8 @@ namespace ReignBeta.Court.Campaign
             {
                 try
                 {
-                    result = await (readReceipt ? ReignSpymasterServerClient.GetMitigationReceiptAsync(mission)
-                        : ReignSpymasterServerClient.ApplySocialOperationAsync(mission)).ConfigureAwait(false);
+                    result = await (readReceipt ? ReignSpymasterServerClient.GetMitigationReceiptAsync(mission, StillOwnsRequest)
+                        : ReignSpymasterServerClient.ApplyMitigationAsync(mission, fence.SharedActivityGeneration, StillOwnsRequest)).ConfigureAwait(false);
                 }
                 catch (Exception ex) { ReignLog.Warn("Spymaster mitigation confirmation unavailable. " + ex.Message); }
 
@@ -782,8 +783,9 @@ namespace ReignBeta.Court.Campaign
                     {
                         var lookup = await ReignMainThread.InvokeAsync(() =>
                         {
-                            fence();
-                            return ReignSpymasterServerClient.GetMitigationReceiptAsync(mission);
+                            return StillOwnsRequest()
+                                ? ReignSpymasterServerClient.GetMitigationReceiptAsync(mission, StillOwnsRequest)
+                                : System.Threading.Tasks.Task.FromResult<JObject>(null);
                         }).ConfigureAwait(false);
                         result = await lookup.ConfigureAwait(false);
                     }
@@ -792,10 +794,9 @@ namespace ReignBeta.Court.Campaign
 
                 var memoryWrite = await ReignMainThread.InvokeAsync(() =>
                 {
-                    try { fence(); } catch (InvalidOperationException) { return null; }
-                    if (!EnsureSpymasterState().Missions.Contains(mission)) return null;
+                    if (!StillOwnsRequest() || !EnsureSpymasterState().Missions.Contains(mission)) return null;
                     if (RecordMitigationResult(mission, campaign, timeline, result, readReceipt))
-                        return ReignSpymasterServerClient.RecordMissionMemoryAsync(mission, "resolved");
+                        return ReignSpymasterServerClient.RecordMissionMemoryAsync(mission, "resolved", StillOwnsRequest);
                     return null;
                 }).ConfigureAwait(false);
                 if (memoryWrite != null) await memoryWrite.ConfigureAwait(false);

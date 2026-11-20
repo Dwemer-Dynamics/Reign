@@ -20,8 +20,10 @@ public sealed class SpymasterSaveArchiveTests
         string behavior = File.ReadAllText(Path.Combine(root, "Campaign", "ReignSpymasterCampaignBehavior.cs"));
         string client = File.ReadAllText(Path.Combine(root, "Integration", "ReignSpymasterServerClient.cs"));
         Assert.Contains("ConfirmSpymasterMitigationAsync(mission, readReceipt: true)", behavior);
-        Assert.Contains("readReceipt ? ReignSpymasterServerClient.GetMitigationReceiptAsync(mission)", behavior);
+        Assert.Contains("readReceipt ? ReignSpymasterServerClient.GetMitigationReceiptAsync(mission, StillOwnsRequest)", behavior);
         Assert.Contains("payload[\"readMitigationReceipt\"] = true;", client);
+        Assert.Contains("fence.IsCurrent() && ReferenceEquals(Instance, this)", behavior);
+        Assert.Contains("payload[\"restoreGeneration\"] = restoreGeneration;", client);
         Assert.Contains("disposition == \"applied\" && changed > 0", behavior);
         Assert.Contains("Its effect on the social record is unknown.", behavior);
         Assert.Contains("mission.AgreementEffectState = \"recovery_required\";", behavior);
