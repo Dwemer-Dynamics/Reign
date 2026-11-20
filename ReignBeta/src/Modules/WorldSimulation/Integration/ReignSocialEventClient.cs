@@ -290,7 +290,8 @@ namespace ReignBeta.Platform.Integration
                         ApplyHeroEncyclopediaText(speaker, reply.EncyclopediaText);
                         if (!string.IsNullOrWhiteSpace(reply.Text))
                         {
-                            _ = ObserveNpcHistoricalClaimForListenersSafelyAsync(speaker, session.Record.GetAttendees(), reply.Text, "social_event");
+                            if (!IsDelimitedSpeechOnlyResponse(row))
+                                _ = ObserveNpcHistoricalClaimForListenersSafelyAsync(speaker, session.Record.GetAttendees(), reply.Text, "social_event");
                             _ = ObservePlayerHistoricalClaimForListenersSafelyAsync(speaker, session.Record.GetAttendees(), playerText, "social_event");
                         }
                     }

@@ -30,4 +30,18 @@ public sealed class SinglePassConversationTests
         int dispatch = source.IndexOf("result = await ReignMainThread.InvokeAsync", StringComparison.Ordinal);
         Assert.True(guard >= 0 && dispatch > guard);
     }
+
+    [Theory]
+    [InlineData("ReignServer/src/Modules/Court/ReignFamilyVisits.cs", "ProcessFamilyReconciliationReply(", "IsDelimitedSpeechOnlyResponse(response)) return;", "LlmProviderService.ChatWithLlm(")]
+    [InlineData("ReignServer/src/Modules/Characters/TavernHouseConversation.cs", "private static void FinalizeTavernHouseTerms(", "IsDelimitedSpeechOnlyResponse(response)) return;", "ExtractTavernHouseQuote(state,")]
+    [InlineData("ReignBeta/src/Modules/Court/UI/ViewModels/ReignCourtLifeScreenVM.cs", "ReignServerClient.IsDelimitedSpeechOnlyResponse(raw)", "if (needsInterpretation && !_matter.CompletedInterpretationKeys.Contains(key))", "\"/court/life/interpret\"")]
+    public void FallbackGuardsPrecedeSecondaryInterpretation(string path, string entry, string guard, string dispatch)
+    {
+        string source = File.ReadAllText(Path.Combine(TestOptions.FindWorkspace(), path));
+        int start = source.IndexOf(entry, StringComparison.Ordinal);
+        Assert.True(start >= 0, path);
+        int check = source.IndexOf(guard, start, StringComparison.Ordinal);
+        int call = source.IndexOf(dispatch, start, StringComparison.Ordinal);
+        Assert.True(check >= start && call > check, path);
+    }
 }

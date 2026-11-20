@@ -294,10 +294,13 @@ namespace ReignBeta.Court.UI
                         if (!_court.OwnsCourtLifeMatter(_matter)) throw new OperationCanceledException("The campaign or audience changed.");
                         AddLine(person.Name, visible, "assistant");
                         AddStatusLines(raw);
-                        _matter.CompletedReplyKeys.Add(key); _matter.ReplyTextsByKey[key] = visible; _court.NotifyCourtLifeChanged();
+                        _matter.CompletedReplyKeys.Add(key); _matter.ReplyTextsByKey[key] = visible;
+                        if (needsInterpretation && ReignServerClient.IsDelimitedSpeechOnlyResponse(raw))
+                            _matter.CompletedInterpretationKeys.Add(key);
+                        _court.NotifyCourtLifeChanged();
                     }).ConfigureAwait(false);
                     }
-                    if (needsInterpretation)
+                    if (needsInterpretation && !_matter.CompletedInterpretationKeys.Contains(key))
                     {
                         JObject interpretationPayload = null;
                         await ReignMainThread.InvokeAsync(() => {
