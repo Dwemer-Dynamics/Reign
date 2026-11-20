@@ -56,6 +56,7 @@ namespace ReignBeta.WorldSimulation.Runtime
                 bool needsPublish = store.PublishedSha256 == null;
 
                 double now = CampaignTime.Now.ToDays;
+                state.ValidateTimeline(CampaignTime.Never.ToDays, now, DaysPerYear);
                 foreach (Hero hero in Hero.AllAliveHeroes)
                 {
                     if (hero == null || string.IsNullOrWhiteSpace(hero.StringId) || state.AgeAnchors.ContainsKey(hero.StringId))
@@ -140,7 +141,7 @@ namespace ReignBeta.WorldSimulation.Runtime
                 var state = CurrentState;
                 if (state == null) return false;
                 day = state.CalendarDayAt(time.ToDays);
-                return !double.IsNaN(day) && !double.IsInfinity(day);
+                return ReignCalendarState.HasRepresentableYear(day, DaysPerYear);
             }
         }
 
@@ -152,6 +153,7 @@ namespace ReignBeta.WorldSimulation.Runtime
                 var state = CurrentState;
                 if (state == null || double.IsNaN(day) || double.IsInfinity(day)) return false;
                 double nativeDay = state.NativeDayAt(day);
+                if (!(Math.Abs(nativeDay) < CampaignTime.Never.ToDays)) return false;
                 // Days(float) also multiplies in single precision. Preserve the anchor through the
                 // native millisecond factory so half-day season boundaries do not drift a day in UI.
                 time = CampaignTime.Milliseconds((long)Math.Round(nativeDay * CampaignTime.Days(1f).ToMilliseconds));
@@ -175,6 +177,7 @@ namespace ReignBeta.WorldSimulation.Runtime
                 }
 
                 double totalDays = state.CalendarDayAt(time.ToDays);
+                if (!ReignCalendarState.HasRepresentableYear(totalDays, DaysPerYear)) return false;
                 year = FloorDiv(totalDays, DaysPerYear);
                 double withinYear = PositiveModulo(totalDays, DaysPerYear);
                 dayOfYear = (int)Math.Floor(withinYear);

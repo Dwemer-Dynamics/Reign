@@ -71,6 +71,22 @@ public sealed class ReignCalendarStoreTests : IDisposable
         Assert.True(Directory.Exists(Calendar));
     }
 
+    [Theory]
+    [InlineData(1e308, -1e308, 1000.25)]
+    [InlineData(1000.25, 1e100, 1000.25)]
+    [InlineData(1000.25, 1500.5, 1e90)]
+    public void Finite_but_unrepresentable_anchors_cannot_enable_adjusted_time(double native, double calendar, double heroDay)
+    {
+        var input = JObject.Parse(V1);
+        input["nativeDayAnchor"] = native;
+        input["calendarDayAnchor"] = calendar;
+        input["ageAnchors"]!["hero"]!["day"] = heroDay;
+        byte[] original = Write(input.ToString());
+        var store = Open();
+        Assert.Throws<InvalidDataException>(() => store.State.ValidateTimeline(1e9, 1000.25, 126));
+        Assert.Equal(original, File.ReadAllBytes(Calendar));
+    }
+
     [Fact]
     public void Restored_v1_preserves_its_dates_and_age_boundary_with_or_without_a_native_digest()
     {

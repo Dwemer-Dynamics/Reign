@@ -448,6 +448,8 @@ namespace ReignBeta.Persistence.Campaign
                 ["campaignLabel"] = ReignCampaignIdentity.CurrentCampaignLabel(),
                 ["savePointId"] = _savePointId ?? string.Empty,
                 ["savePointKind"] = _savePointKind ?? "native_save",
+                ["calendarSha256"] = _calendarSha256 ?? string.Empty,
+                ["calendarNativeDayLimit"] = CampaignTime.Never.ToDays,
                 ["capturedUtc"] = _capturedUtc ?? string.Empty,
                 ["campaignTimeDays"] = _campaignTimeDays,
                 ["campaignTimeMilliseconds"] = _campaignTimeMilliseconds,

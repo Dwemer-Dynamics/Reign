@@ -198,6 +198,24 @@ namespace ReignBeta.WorldSimulation.Runtime
 
         internal double CalendarDayAt(double nativeDay) => CalendarDayAnchor + (nativeDay - NativeDayAnchor);
         internal double NativeDayAt(double calendarDay) => NativeDayAnchor + (calendarDay - CalendarDayAnchor);
+
+        internal void ValidateTimeline(double nativeDayLimit, double now, double daysPerYear)
+        {
+            // CampaignTime uses a signed tick counter. Its day limit comes from the active time model.
+            if (double.IsInfinity(nativeDayLimit) || !(Math.Abs(NativeDayAnchor) < nativeDayLimit)
+                || !HasRepresentableYear(CalendarDayAnchor, daysPerYear)
+                || !HasRepresentableYear(CalendarDayAt(now), daysPerYear))
+                throw new InvalidDataException("Invalid Reign calendar day anchors outside the campaign time range.");
+            foreach (var anchor in AgeAnchors.Values)
+                if (!(Math.Abs(anchor.Day) < nativeDayLimit))
+                    throw new InvalidDataException("Invalid Reign calendar hero day outside the campaign time range.");
+        }
+
+        internal static bool HasRepresentableYear(double day, double daysPerYear)
+        {
+            double year = Math.Floor(day / daysPerYear);
+            return year >= int.MinValue && year <= int.MaxValue;
+        }
     }
 
     internal sealed class ReignAgeAnchor
