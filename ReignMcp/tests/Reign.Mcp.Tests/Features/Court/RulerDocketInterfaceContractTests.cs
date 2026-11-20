@@ -76,7 +76,7 @@ public sealed class RulerDocketInterfaceContractTests
         Assert.True(frozenContract.Success);
         string actualContractHash = Convert.ToHexString(SHA256.HashData(File.ReadAllBytes(
             Path.Combine(root, "GUI", "UiCalibration", "modern-style-contract.json")))).ToLowerInvariant();
-        Assert.Equal(actualContractHash, frozenContract.Groups[1].Value);
+        Assert.Equal(frozenContract.Groups[1].Value, actualContractHash);
     }
 
     [Fact]

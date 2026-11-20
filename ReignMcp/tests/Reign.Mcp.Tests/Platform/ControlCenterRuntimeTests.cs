@@ -1,10 +1,56 @@
 using System.Diagnostics;
+using System.Text;
 using System.Text.Json;
 
 namespace Reign.Mcp.Tests;
 
 public sealed class ControlCenterRuntimeTests
 {
+    [Fact]
+    public async Task WslReceivesExactInstallerInputArgumentsAndExitStatus()
+    {
+        const string body = """
+            [ "$#" -eq 3 ] && [ "$1" = '--begin' ] || exit 37
+            [ "$2" = 'path with "quotes"/café' ] && [ -z "$3" ] || exit 38
+            """;
+        string fixture = Path.GetTempFileName();
+        try
+        {
+            File.WriteAllText(fixture, body.ReplaceLineEndings("\r\n"), new UTF8Encoding(false));
+            var start = new ProcessStartInfo("pwsh")
+            {
+                UseShellExecute = false, CreateNoWindow = true, RedirectStandardOutput = true, RedirectStandardError = true
+            };
+            start.Environment["REIGN_INPUT_FIXTURE"] = fixture;
+            start.Environment["REIGN_INPUT_HELPER"] = Path.Combine(TestOptions.FindWorkspace(), "ReignServer/scripts/ReignDistroShell.ps1");
+            start.ArgumentList.Add("-NoProfile");
+            start.ArgumentList.Add("-NonInteractive");
+            start.ArgumentList.Add("-Command");
+            start.ArgumentList.Add("""
+                $ErrorActionPreference = 'Stop'
+                . $env:REIGN_INPUT_HELPER
+                $Distro = $env:REIGN_WSL_DISTRO ?? 'ReignServer'
+                $program = Get-ReignDistroShellProgram $env:REIGN_INPUT_FIXTURE
+                $capture = Invoke-ReignWslWithInput $program @('-d', $Distro, '--exec', '/usr/bin/base64', '-w0')
+                if ($capture -ne 0) { throw "WSL byte capture exited $capture" }
+                $rejected = Invoke-ReignDistroShell $program @('--restore', 'unused', '')
+                if ($rejected -ne 37) { throw "Expected shell exit 37, received $rejected" }
+                $accepted = Invoke-ReignDistroShell $program @('--begin', 'path with "quotes"/café', '')
+                if ($accepted -ne 0) { throw "Argument round trip exited $accepted" }
+                """);
+            using var process = Process.Start(start)!;
+            var stdout = process.StandardOutput.ReadToEndAsync();
+            var stderr = process.StandardError.ReadToEndAsync();
+            using var timeout = new CancellationTokenSource(TimeSpan.FromSeconds(30));
+            try { await process.WaitForExitAsync(timeout.Token); }
+            catch (OperationCanceledException) { process.Kill(true); throw new TimeoutException("WSL installer input fixture timed out."); }
+            Assert.True(process.ExitCode == 0, await stderr);
+            string expected = "{\n" + body.ReplaceLineEndings("\n") + "\n}\n";
+            Assert.Equal(Convert.ToBase64String(Encoding.UTF8.GetBytes(expected)), await stdout);
+        }
+        finally { File.Delete(fixture); }
+    }
+
     [Fact]
     public async Task LauncherReusesHealthyServerAndRecoversUnhealthyServer()
     {
