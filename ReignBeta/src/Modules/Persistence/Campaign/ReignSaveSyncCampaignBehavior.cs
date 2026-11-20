@@ -169,6 +169,7 @@ namespace ReignBeta.Persistence.Campaign
             payload["nativeSaveName"] = ActiveNativeSaveName();
             payload["nativeCreationUtc"] = NativeSaveCreationUtc();
             payload["registrationConfirmed"] = _registrationConfirmed;
+            payload["calendarFirstUse"] = CanCreateCalendar;
             ReignSaveSyncCoordinator.BeginLoadedSave(payload);
         }
 
