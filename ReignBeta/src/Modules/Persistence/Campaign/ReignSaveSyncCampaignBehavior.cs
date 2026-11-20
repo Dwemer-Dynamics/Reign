@@ -42,6 +42,7 @@ namespace ReignBeta.Persistence.Campaign
         private long _worldHistorySequence;
         private string _worldHistoryHeadEventId = string.Empty;
         private bool _registrationConfirmed;
+        private string _calendarSha256 = string.Empty;
 
         private string _previousSavePointId;
         private string _previousSavePointKind;
@@ -52,11 +53,15 @@ namespace ReignBeta.Persistence.Campaign
         private long _previousWorldHistorySequence;
         private string _previousWorldHistoryHeadEventId;
         private bool _previousRegistrationConfirmed;
+        private string _previousCalendarSha256;
         private bool _loadedFromNativeSave;
         private bool _registrationFailedForCurrentSave;
         private string _registrationFailureDetail = string.Empty;
 
         public static ReignSaveSyncCampaignBehavior Instance => ReignServices.SaveSync;
+
+        internal bool CanCreateCalendar { get; private set; }
+        internal string RegisteredCalendarSha256 => _registrationConfirmed ? _calendarSha256 : null;
 
         internal static bool IsNativeSaveInProgress => _nativeSaveInProgress;
 
@@ -100,11 +105,14 @@ namespace ReignBeta.Persistence.Campaign
             dataStore.SyncData("_reignSaveSync_worldHistorySequence", ref _worldHistorySequence);
             dataStore.SyncData("_reignSaveSync_worldHistoryHeadEventId", ref _worldHistoryHeadEventId);
             dataStore.SyncData("_reignSaveSync_registrationConfirmed", ref _registrationConfirmed);
+            dataStore.SyncData("_reignSaveSync_calendarSha256", ref _calendarSha256);
         }
 
         private void OnNewGameCreated(CampaignGameStarter starter)
         {
             ResetNativeSaveObservation();
+            ReignCalendarService.Reset();
+            CanCreateCalendar = true;
             _loadedFromNativeSave = false;
             ReignSaveSyncCoordinator.MarkReadyForNewCampaign();
         }
@@ -112,6 +120,8 @@ namespace ReignBeta.Persistence.Campaign
         private void OnGameLoaded(CampaignGameStarter starter)
         {
             ResetNativeSaveObservation();
+            ReignCalendarService.Reset();
+            CanCreateCalendar = false;
             _loadedFromNativeSave = true;
             ReignSaveSyncCoordinator.MarkLoadedSavePending();
         }
@@ -132,6 +142,10 @@ namespace ReignBeta.Persistence.Campaign
                 return;
             }
 
+            // Inspect the loaded native evidence before synthesizing a legacy point.
+            bool hasPoint = !string.IsNullOrEmpty(_savePointId) || !string.IsNullOrEmpty(_savePointKind);
+            CanCreateCalendar = ReignCalendarStore.CanCreateForLoadedSave(hasPoint, _registrationConfirmed,
+                _calendarSha256, ReignCampaignPreparationCampaignBehavior.Instance?.LoadedCalendarPrepared);
             ReignWorldHistoryCampaignBehavior history = ReignServices.WorldHistory;
             string timeline = string.IsNullOrWhiteSpace(_timelineId) ? history?.TimelineId ?? "main" : _timelineId;
             long sequence = _worldHistorySequence > 0 ? _worldHistorySequence : history?.Sequence ?? 0L;
@@ -150,9 +164,6 @@ namespace ReignBeta.Persistence.Campaign
                 _registrationConfirmed = false;
             }
 
-            // Calendar state is campaign-scoped on the server. Do not let a previous
-            // campaign's cached calendar survive while the load barrier is closed.
-            ReignCalendarService.Reset();
             ReignWorldHistoryTransport.ResetToSavePoint(campaignId, timeline, sequence);
             JObject payload = BuildPayload(campaignId);
             payload["nativeSaveName"] = ActiveNativeSaveName();
@@ -192,6 +203,7 @@ namespace ReignBeta.Persistence.Campaign
             _worldHistorySequence = history?.Sequence ?? 0L;
             _worldHistoryHeadEventId = history?.HeadEventId ?? string.Empty;
             _registrationConfirmed = false;
+            _calendarSha256 = string.Empty;
         }
 
         private void OnBeforeSave()
@@ -232,7 +244,9 @@ namespace ReignBeta.Persistence.Campaign
                         + historyTimer.ElapsedMilliseconds + " totalMs=" + totalTimer.ElapsedMilliseconds);
                     return;
                 }
-                JObject payload = BuildPayload(ReignCampaignIdentity.CurrentCampaignId());
+                string campaignId = ReignCampaignIdentity.CurrentCampaignId();
+                _calendarSha256 = ReignCalendarService.FlushForSavePoint(campaignId);
+                JObject payload = BuildPayload(campaignId);
                 lock (NativeSaveObservationGate)
                     payload["nativeSaveName"] = _expectedNativeSaveName ?? string.Empty;
                 payload["worldHistoryOutboxDrained"] = historyDrained;
@@ -455,6 +469,7 @@ namespace ReignBeta.Persistence.Campaign
             _previousWorldHistorySequence = _worldHistorySequence;
             _previousWorldHistoryHeadEventId = _worldHistoryHeadEventId;
             _previousRegistrationConfirmed = _registrationConfirmed;
+            _previousCalendarSha256 = _calendarSha256;
         }
 
         private void RestorePreviousPoint()
@@ -468,6 +483,7 @@ namespace ReignBeta.Persistence.Campaign
             _worldHistorySequence = _previousWorldHistorySequence;
             _worldHistoryHeadEventId = _previousWorldHistoryHeadEventId ?? string.Empty;
             _registrationConfirmed = _previousRegistrationConfirmed;
+            _calendarSha256 = _previousCalendarSha256;
         }
 
         private static void AddMetadata(List<KeyValuePair<string, string>> pairs, string key, string value)
@@ -486,7 +502,7 @@ namespace ReignBeta.Persistence.Campaign
             }
         }
 
-        private static bool IsDurableCampaignId(string campaignId)
+        internal static bool IsDurableCampaignId(string campaignId)
         {
             return !string.IsNullOrWhiteSpace(campaignId)
                 && !campaignId.Equals("unknown", StringComparison.OrdinalIgnoreCase)
