@@ -315,7 +315,13 @@ namespace ReignBeta.Court.UI
                             if (!_court.OwnsCourtLifeMatter(_matter)) throw new OperationCanceledException("The campaign or audience changed.");
                             if (interpreted?.Value<bool?>("ok") != true) throw new InvalidOperationException("The reply was saved, but its proposed terms could not be checked. Reopen the audience to retry.");
                             JObject decision = interpreted["decision"] as JObject;
-                            if (decision == null) throw new InvalidOperationException("The reply was saved, but its proposed terms were incomplete.");
+                            if (decision == null || decision.Value<string>("matterId") != _matter.MatterId)
+                                throw new InvalidOperationException("The reply was saved, but its proposed terms were incomplete.");
+                            if (_matter.PendingPlayerTurnId != turnId || _matter.PendingPlayerText != text
+                                || _matter.CompletedInterpretationKeys.Contains(key)
+                                || !_matter.ReplyTextsByKey.TryGetValue(key, out string acceptedReply) || acceptedReply != visible
+                                || !_matter.Participants.Any(x => x.ActorId == person.ActorId && x.HeroId == person.HeroId))
+                                return;
                             if (_matter.Source == ReignDocketSource.International && decision["proposedTerms"] is JObject proposed && proposed.HasValues)
                             {
                                 if (_court.TryCounterInternationalTerms(_matter, proposed, out string quoteSummary))
@@ -329,18 +335,37 @@ namespace ReignBeta.Court.UI
                                 StatusText = "The three destinations are ready to review with the commission terms.";
                                 _matter.CompletedInterpretationKeys.Add(key); _court.NotifyCourtLifeChanged(); Notify(); return;
                             }
-                            if (_matter.Source == ReignDocketSource.Visitor && decision.Value<bool?>("privateMeetingAccepted") == true)
-                                _court.RecordNobleVisitorInvitation(_matter.MatterId, person.HeroId, turnId,
-                                    decision.Value<string>("meetingWords") ?? "", true);
-                            if (decision.Value<bool?>("npcAccepted") == true)
+                            if (_matter.Source == ReignDocketSource.Visitor && decision["privateMeetingProposal"] is JObject invitation)
+                                _court.RecordNobleVisitorInvitationProposal(_matter.MatterId, person.HeroId, turnId,
+                                    invitation.Value<string>("speaker"), invitation.Value<string>("quote"));
+
+                            // An interpretation may select the same offered option for player review.
+                            // The player still has to confirm the decision through ApplyOption.
+                            string selected = decision.Value<string>("optionId");
+                            if (decision.Value<bool?>("playerCommitted") == true
+                                && SameOfferedOption(interpretationPayload, selected))
                             {
-                                decision = RetainPartyAcceptance(decision, person.HeroId);
-                                _matter.AcceptedDecisionJson = decision.ToString();
+                                if (selected == "refer")
+                                {
+                                    string referred = decision.Value<string>("referralOptionId");
+                                    if (SameOfferedOption(interpretationPayload, referred)
+                                        && JToken.DeepEquals(decision["referralTerms"],
+                                            ReignCourtCampaignBehavior.ParseCourtLifeJson(_matter.Options.First(x => x.OptionId == referred).TermsJson))
+                                        && ReignCourtCampaignBehavior.ParseCourtLifeJson(_matter.PayloadJson).Value<bool?>("nativeActionStarted") != true)
+                                    {
+                                        _matter.AcceptedDecisionJson = new JObject { ["optionId"] = selected,
+                                            ["playerCommitted"] = true, ["referralOptionId"] = referred,
+                                            ["referralTerms"] = decision["referralTerms"].DeepClone() }.ToString();
+                                    }
+                                    else selected = null;
+                                }
+                                if (selected != null)
+                                {
+                                    _matter.SelectedOptionId = selected;
+                                    StatusText = "Your decision is ready to confirm: " + SelectedOption()?.Label;
+                                    Notify();
+                                }
                             }
-                            // Player intent is offered for review. The visible confirmation
-                            // keeps negotiations from spending money merely by discussing it.
-                            if (decision.Value<bool?>("playerCommitted") == true && _matter.Options.Any(x => x.OptionId == decision.Value<string>("optionId")))
-                             { _matter.SelectedOptionId = decision.Value<string>("optionId"); StatusText = "Your decision is ready to confirm: " + SelectedOption()?.Label; Notify(); }
                             _matter.CompletedInterpretationKeys.Add(key); _court.NotifyCourtLifeChanged();
                         }).ConfigureAwait(false);
                     }
@@ -476,48 +501,28 @@ namespace ReignBeta.Court.UI
             }
             return payload;
         }
-        private JObject RetainPartyAcceptance(JObject incoming, string speakerId)
+        private bool SameOfferedOption(JObject payload, string optionId)
         {
-            if (_matter.Source != ReignDocketSource.International) return incoming;
-            JObject prior = ReignCourtCampaignBehavior.ParseCourtLifeJson(_matter.AcceptedDecisionJson);
-            bool sameAgreement = prior.Value<string>("optionId") == incoming.Value<string>("optionId")
-                && JToken.DeepEquals(prior["acceptedTerms"], incoming["acceptedTerms"]);
-            var tiers = new Dictionary<string, int>(StringComparer.Ordinal);
-            if (prior["acceptedPartyTiers"] is JObject recorded)
-                foreach (JProperty entry in recorded.Properties())
-                    if (entry.Value.Type == JTokenType.Integer && _matter.Participants.Any(x => x.HeroId == entry.Name))
-                        tiers[entry.Name] = entry.Value.Value<int>();
-            string priorSpeaker = prior.Value<string>("agreeingHeroId");
-            if (prior.Value<bool?>("npcAccepted") == true && !string.IsNullOrWhiteSpace(priorSpeaker)
-                && _matter.Participants.Any(x => x.HeroId == priorSpeaker))
-                tiers[priorSpeaker] = prior.Value<int?>("acceptanceTier") ?? 0;
-            // Keep each party's exact-terms assent while the top-level decision
-            // still carries the envoy's independent payment authorization.
-            JObject partyTiers = JObject.FromObject(ReignCourtPartyAcceptanceRules.Merge(
-                tiers, sameAgreement, speakerId, incoming.Value<string>("agreeingHeroId"),
-                incoming.Value<int?>("acceptanceTier") ?? 0));
-            string incomingActor = incoming.Value<string>("agreeingHeroId") ?? "";
-            if (prior.Value<bool?>("npcAccepted") == true
-                && ReignCourtPartyAcceptanceRules.AuthorizationActor(priorSpeaker ?? "", incomingActor, sameAgreement,
-                    _matter.Participants.Where(x => x.Role == "ambassador").Select(x => x.HeroId)) != incomingActor)
-            {
-                prior["playerCommitted"] = incoming["playerCommitted"]?.DeepClone();
-                prior["playerQuote"] = incoming["playerQuote"]?.DeepClone();
-                prior["acceptedPartyTiers"] = partyTiers;
-                return prior;
-            }
-            incoming["acceptedPartyTiers"] = partyTiers;
-            return incoming;
+            ReignCourtLifeOption current = _matter.Options.FirstOrDefault(x => x.OptionId == optionId);
+            JObject offered = (payload["options"] as JArray)?.OfType<JObject>().FirstOrDefault(x => x.Value<string>("optionId") == optionId);
+            return current != null && offered != null
+                && JToken.DeepEquals(offered["terms"], ReignCourtCampaignBehavior.ParseCourtLifeJson(current.TermsJson));
         }
 
         private bool ApplyOption(string id)
         {
-            JObject decision = ReignCourtCampaignBehavior.ParseCourtLifeJson(_matter.AcceptedDecisionJson);
-            if (decision.Value<string>("optionId") != id) decision = new JObject();
-            ReignCourtLifeOption option = _matter.Options.FirstOrDefault(x => x.OptionId == id);
-            if (decision.Value<bool?>("npcAccepted") == true && !JToken.DeepEquals(decision["acceptedTerms"], ReignCourtCampaignBehavior.ParseCourtLifeJson(option?.TermsJson)))
-                decision = new JObject();
-            decision["optionId"] = id;
+            var decision = new JObject { ["optionId"] = id };
+            // Older saves may carry prose-derived NPC flags here. Only forward
+            // the separately checked player instruction to refer exact terms.
+            if (id == "refer")
+            {
+                JObject prior = ReignCourtCampaignBehavior.ParseCourtLifeJson(_matter.AcceptedDecisionJson);
+                if (prior.Value<string>("optionId") == id && prior.Value<bool?>("playerCommitted") == true)
+                {
+                    decision["referralOptionId"] = prior["referralOptionId"]?.DeepClone();
+                    decision["referralTerms"] = prior["referralTerms"]?.DeepClone();
+                }
+            }
             bool result = _court.ApplyCourtLifeDecision(_matter, decision, out string summary);
             StatusText = summary;
             if (result) AddLine("Court Clerk", summary, "system");

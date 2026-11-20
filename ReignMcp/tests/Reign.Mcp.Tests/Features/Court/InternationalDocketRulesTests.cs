@@ -1,3 +1,4 @@
+using System.Text.Json;
 using Reign.Core.Contracts.Court;
 
 namespace Reign.Mcp.Tests.Features.Court;
@@ -76,6 +77,31 @@ public sealed class InternationalDocketRulesTests
     public void OnlyUnconditionalPrisonerReleaseIsAUnilateralAcceptDecision(
         string optionId, string remedy, bool ransom, bool expected)
         => Assert.Equal(expected, ReignInternationalDocketRules.RequiresForeignAcceptance(optionId, remedy, ransom));
+
+    [Fact]
+    public void UnusableSovereignResponseInThePersistedReferralIsTechnicallyUnavailable()
+    {
+        using var receipt = JsonDocument.Parse("""
+            {
+                "referral_id": "court_referral_1",
+                "status": "model_output_unusable",
+                "outcome": "format_failure",
+                "authoritative_receipt_json": "{\"technicalFailure\":true}"
+            }
+            """);
+        string? status = receipt.RootElement.GetProperty("status").GetString();
+        Assert.Equal("format_failure", receipt.RootElement.GetProperty("outcome").GetString());
+        Assert.Equal(ReignInternationalReplyDisposition.Unavailable,
+            ReignInternationalDocketRules.ReadSovereignReplyDisposition(status!));
+    }
+
+    [Theory]
+    [InlineData("accepted_awaiting_court", ReignInternationalReplyDisposition.Accepted)]
+    [InlineData("countered", ReignInternationalReplyDisposition.Countered)]
+    [InlineData("refused", ReignInternationalReplyDisposition.Refused)]
+    [InlineData("cancelled", ReignInternationalReplyDisposition.Unavailable)]
+    public void PersistedSovereignStatusesHaveDistinctDispositions(string status, ReignInternationalReplyDisposition expected)
+        => Assert.Equal(expected, ReignInternationalDocketRules.ReadSovereignReplyDisposition(status));
 
     [Fact]
     public void RulingForThePlayerActivelyReducesExistingForeignPressure()

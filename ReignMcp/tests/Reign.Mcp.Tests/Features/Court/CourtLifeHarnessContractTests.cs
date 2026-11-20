@@ -322,8 +322,52 @@ public sealed class CourtLifeHarnessContractTests
         Assert.Contains("string.IsNullOrWhiteSpace(data.Value<string>(\"referralId\")) && data[\"candidate\"] == null", docket, StringComparison.Ordinal);
         Assert.Contains("A standing-charter permission marked false limits your ability to invent or independently change terms", docket, StringComparison.Ordinal);
         Assert.Contains("Do not claim that the represented ruler must approve these same exact terms again", docket, StringComparison.Ordinal);
-        Assert.Contains("bool sovereignTerms = data.Value<bool?>(\"sovereignAuthorized\") == true", decisions, StringComparison.Ordinal);
+        Assert.Contains("HasExactSovereignOffer(matter, data, option, offeredTerms)", decisions, StringComparison.Ordinal);
+        Assert.Contains("JToken.DeepEquals(InternationalOfferedTerms(data, option", docket, StringComparison.Ordinal);
         Assert.Contains("data.Value<string>(\"remedy\") != \"goodwill\"", decisions, StringComparison.Ordinal);
+    }
+
+    [Fact]
+    public void CourtLifeInterpretationCannotApplyAnOptionOrPromoteSavedProse()
+    {
+        string root = TestOptions.FindWorkspace();
+        string viewModel = File.ReadAllText(Path.Combine(root,
+            "ReignBeta/src/Modules/Court/UI/ViewModels/ReignCourtLifeScreenVM.cs"));
+        int interpret = viewModel.IndexOf("private async Task ConverseAsync(", StringComparison.Ordinal);
+        int apply = viewModel.IndexOf("private bool ApplyOption(", StringComparison.Ordinal);
+        Assert.True(interpret >= 0 && apply > interpret);
+        Assert.DoesNotContain("_court.ApplyCourtLifeDecision(", viewModel[interpret..apply], StringComparison.Ordinal);
+        Assert.Contains("_court.ApplyCourtLifeDecision(_matter, decision", viewModel[apply..], StringComparison.Ordinal);
+        Assert.Contains("SameOfferedOption(interpretationPayload, selected)", viewModel[interpret..apply], StringComparison.Ordinal);
+        Assert.DoesNotContain("npcAccepted", viewModel, StringComparison.Ordinal);
+        Assert.DoesNotContain("privateMeetingAccepted", viewModel, StringComparison.Ordinal);
+
+        string decisions = File.ReadAllText(Path.Combine(root,
+            "ReignBeta/src/Modules/Court/Campaign/ReignInternationalDocketDecisions.cs"));
+        Assert.DoesNotContain("npcAccepted", decisions, StringComparison.Ordinal);
+        Assert.DoesNotContain("acceptedPartyTiers", decisions, StringComparison.Ordinal);
+        Assert.Contains("consensus && !effectCommitted && !HasExactSovereignOffer", decisions, StringComparison.Ordinal);
+
+        string visitors = File.ReadAllText(Path.Combine(root,
+            "ReignBeta/src/Modules/Court/Campaign/ReignNobleVisitorCampaignBehavior.cs"));
+        Assert.Contains("stay.Invitations.Any(x => x.InvitationId == id)", visitors, StringComparison.Ordinal);
+        Assert.Contains("NpcAccepted = false", visitors, StringComparison.Ordinal);
+        Assert.DoesNotContain("agreedInvitations", visitors, StringComparison.Ordinal);
+    }
+
+    [Fact]
+    public void SovereignCourtReplyAdmissionChecksReferralIdentityAndFrozenTerms()
+    {
+        string root = TestOptions.FindWorkspace();
+        string docket = File.ReadAllText(Path.Combine(root,
+            "ReignBeta/src/Modules/Court/Campaign/ReignInternationalDocket.cs"));
+        Assert.Contains("!MatchesInternationalReferral(matter, data, reply)", docket, StringComparison.Ordinal);
+        Assert.Contains("reply.Value<string>(\"referral_id\") != referralId", docket, StringComparison.Ordinal);
+        Assert.Contains("reply.Value<string>(\"matter_id\") != matter.MatterId", docket, StringComparison.Ordinal);
+        Assert.Contains("reply.Value<string>(\"campaign_id\") != matter.CampaignId", docket, StringComparison.Ordinal);
+        Assert.Contains("reply.Value<string>(\"timeline_id\") != matter.TimelineId", docket, StringComparison.Ordinal);
+        Assert.Contains("reply.Value<string>(\"terms_hash\") == termsHash", docket, StringComparison.Ordinal);
+        Assert.Contains("JToken.DeepEquals(exact, offered)", docket, StringComparison.Ordinal);
     }
 
     [Fact]
