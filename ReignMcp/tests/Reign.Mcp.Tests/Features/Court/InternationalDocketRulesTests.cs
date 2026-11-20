@@ -89,19 +89,24 @@ public sealed class InternationalDocketRulesTests
                 "authoritative_receipt_json": "{\"technicalFailure\":true}"
             }
             """);
-        string? status = receipt.RootElement.GetProperty("status").GetString();
-        Assert.Equal("format_failure", receipt.RootElement.GetProperty("outcome").GetString());
+        var persisted = receipt.RootElement;
         Assert.Equal(ReignInternationalReplyDisposition.Unavailable,
-            ReignInternationalDocketRules.ReadSovereignReplyDisposition(status!));
+            ReignInternationalDocketRules.ReadSovereignReplyDisposition(
+                persisted.GetProperty("status").GetString()!, persisted.GetProperty("outcome").GetString()!, false));
     }
 
     [Theory]
-    [InlineData("accepted_awaiting_court", ReignInternationalReplyDisposition.Accepted)]
-    [InlineData("countered", ReignInternationalReplyDisposition.Countered)]
-    [InlineData("refused", ReignInternationalReplyDisposition.Refused)]
-    [InlineData("cancelled", ReignInternationalReplyDisposition.Unavailable)]
-    public void PersistedSovereignStatusesHaveDistinctDispositions(string status, ReignInternationalReplyDisposition expected)
-        => Assert.Equal(expected, ReignInternationalDocketRules.ReadSovereignReplyDisposition(status));
+    [InlineData("accepted_awaiting_court", "accept", true, ReignInternationalReplyDisposition.Accepted)]
+    [InlineData("accepted_awaiting_court", "accept", false, ReignInternationalReplyDisposition.Unavailable)]
+    [InlineData("accepted_awaiting_court", "counter_accept", true, ReignInternationalReplyDisposition.Unavailable)]
+    [InlineData("countered", "counter", true, ReignInternationalReplyDisposition.Countered)]
+    [InlineData("countered", "counter", false, ReignInternationalReplyDisposition.Unavailable)]
+    [InlineData("refused", "refuse", false, ReignInternationalReplyDisposition.Refused)]
+    [InlineData("refused", "validation_failed", false, ReignInternationalReplyDisposition.Unavailable)]
+    [InlineData("cancelled", "posting_ended", false, ReignInternationalReplyDisposition.Unavailable)]
+    public void PersistedSovereignReplyRequiresTheExactOutcomeAndAction(
+        string status, string outcome, bool hasNormalizedAction, ReignInternationalReplyDisposition expected)
+        => Assert.Equal(expected, ReignInternationalDocketRules.ReadSovereignReplyDisposition(status, outcome, hasNormalizedAction));
 
     [Fact]
     public void RulingForThePlayerActivelyReducesExistingForeignPressure()

@@ -594,6 +594,15 @@ namespace ReignBeta.Court.Campaign
                     && JToken.DeepEquals(candidate, ParseObject(reply.Value<string>("exact_terms_json")));
         }
 
+        private static ReignInternationalReplyDisposition ReadSovereignCourtReply(JObject reply)
+        {
+            string status = reply?.Value<string>("status");
+            JObject normalized = status == "countered" ? reply["normalizedAction"] as JObject
+                : ParseObject(reply?.Value<string>("authoritative_receipt_json"))["normalizedAction"] as JObject;
+            return ReignInternationalDocketRules.ReadSovereignReplyDisposition(
+                status, reply?.Value<string>("outcome"), normalized?.HasValues == true);
+        }
+
         private static bool HasExactSovereignOffer(ReignCourtLifeMatter matter, JObject data, string option, JObject offered)
         {
             bool authorized = data.Value<bool?>("sovereignAuthorized") == true;
@@ -602,7 +611,7 @@ namespace ReignBeta.Court.Campaign
             if (data.Value<bool?>("replyPromoted") == true)
             {
                 JObject reply = data["reply"] as JObject;
-                var disposition = ReignInternationalDocketRules.ReadSovereignReplyDisposition(reply?.Value<string>("status"));
+                var disposition = ReadSovereignCourtReply(reply);
                 if (!authorized || (disposition != ReignInternationalReplyDisposition.Accepted
                     && disposition != ReignInternationalReplyDisposition.Countered)
                     || string.IsNullOrWhiteSpace(data.Value<string>("referralId"))
@@ -629,7 +638,7 @@ namespace ReignBeta.Court.Campaign
             if (data.Value<bool?>("replyPromoted") == true || data.Value<bool?>("replyReady") != true) return;
             JObject reply = data["reply"] as JObject;
             if (!MatchesInternationalReferral(matter, data, reply)) return;
-            var disposition = ReignInternationalDocketRules.ReadSovereignReplyDisposition(reply.Value<string>("status"));
+            var disposition = ReadSovereignCourtReply(reply);
             data["replyPromoted"] = true;
             data["replyReady"] = false;
             if (disposition == ReignInternationalReplyDisposition.Unavailable)
@@ -651,8 +660,7 @@ namespace ReignBeta.Court.Campaign
             {
                 data["counterCandidate"] = ParseObject(reply.Value<string>("counter_terms_json"));
                 data["candidate"] = data["counterCandidate"].DeepClone();
-                if (reply["normalizedAction"] is JObject) data["normalizedAction"] = reply["normalizedAction"].DeepClone();
-                else data["sovereignAuthorized"] = false;
+                data["normalizedAction"] = reply["normalizedAction"].DeepClone();
                 if (data.Value<bool?>("sovereignAuthorized") == true && data.Value<string>("remedy") != "proposal" && data.Value<string>("remedy") != "sign_trade_agreement")
                 {
                     JObject counter = data["candidate"] as JObject;
