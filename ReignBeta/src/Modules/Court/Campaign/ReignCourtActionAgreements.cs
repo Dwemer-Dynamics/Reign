@@ -300,7 +300,11 @@ namespace ReignBeta.Court.Campaign
                 if (mission == null) throw new AgreementRecoveryException("The dispatched intelligence operation is missing.", step.Snapshot, null);
                 if (mission.State == ReignSpymasterMissionState.Active) return false;
                 if (mission.State != ReignSpymasterMissionState.Succeeded) throw new InvalidOperationException("The promised intelligence mission did not succeed: " + mission.ResultSummary);
-                if (mission.AgreementEffectState == "uncertain") throw new AgreementRecoveryException("The intelligence effect needs reconciliation.", mission.ReportJson, null);
+                if (mission.AgreementEffectState == "no_effect") throw new InvalidOperationException(mission.ResultSummary);
+                if (IsSpymasterMitigation(mission) && mission.AgreementEffectState == "pending")
+                    return false;
+                if (mission.AgreementEffectState == "uncertain" || mission.AgreementEffectState == "recovery_required")
+                    throw new AgreementRecoveryException("The intelligence effect needs reconciliation. " + mission.ResultSummary, mission.ReportJson, null);
                 if (mission.AgreementEffectState == "pending" && !_courtAgreementSpyEffects.Contains(mission.MissionId))
                     throw new AgreementRecoveryException("The intelligence effect was interrupted before confirmation.", mission.ReportJson, null);
                 return mission.AgreementEffectState == "completed";
