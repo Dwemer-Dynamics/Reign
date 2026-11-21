@@ -1,3 +1,5 @@
+using Newtonsoft.Json.Linq;
+using ReignBeta.Platform.Integration;
 using ReignBeta.WorldSimulation.PartyAgency;
 using Xunit;
 
@@ -5,6 +7,49 @@ namespace Reign.Mcp.Tests.Platform;
 
 public sealed class ActionReliabilityContractTests
 {
+    [Fact]
+    public void PollIsolatesMalformedRowsAndKeepsHealthyIdentitiesInWireOrder()
+    {
+        var rows = JArray.Parse("""
+            [
+              {"actionId":"first","typeValue":1},
+              null,
+              {"actionId":"bad-number","typeValue":{}},
+              {"actionId":"overflow","typeValue":2147483648},
+              {"actionId":"wrong","serverActionId":"another","typeValue":2},
+              {"typeValue":2},
+              {"serverActionId":"unknown","typeValue":0},
+              {"serverActionId":"last","typeValue":3}
+            ]
+            """);
+        var rejected = new List<(int Index, string? ActionId, string Reason)>();
+
+        var accepted = ReignActionPollRows.Read(rows,
+            (row, id) => row.Value<int>("typeValue") > 0 ? id : null,
+            (index, id, reason) => rejected.Add((index, id, reason)));
+
+        Assert.Equal(new[] { "first", "last" }, accepted);
+        Assert.Equal(new (int, string?, string)[]
+        {
+            (1, null, "invalid_row"),
+            (2, "bad-number", "invalid_action_fields"),
+            (3, "overflow", "invalid_action_fields"),
+            (4, null, "invalid_action_identity"),
+            (5, null, "invalid_action_identity"),
+            (6, "unknown", "unknown_action_type")
+        }, rejected);
+    }
+
+    [Fact]
+    public void PollPreservesCallerCancellation()
+    {
+        var rows = new JArray(new JObject { ["actionId"] = "canceled" });
+
+        Assert.Throws<OperationCanceledException>(() => ReignActionPollRows.Read<string>(rows,
+            (_, _) => throw new OperationCanceledException(),
+            (_, _, _) => throw new InvalidOperationException("Cancellation is not a malformed row.")));
+    }
+
     [Theory]
     [InlineData(91081, 0, 0)]
     [InlineData(91112.499, 0, 0)]
