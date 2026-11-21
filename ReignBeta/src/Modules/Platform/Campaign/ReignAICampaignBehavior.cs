@@ -234,7 +234,7 @@ namespace ReignBeta.Platform.Campaign
             long lastTicks = Interlocked.Read(
                 ref _lastRealtimeActionPollUtcTicks);
             if (nowTicks - lastTicks >= RealtimeActionPollIntervalTicks
-                && !_serverActionPollInFlight)
+                && !_serverActionPollInFlight && !ReignSaveSyncCoordinator.IsAlignmentPending)
             {
                 Interlocked.Exchange(ref _lastRealtimeActionPollUtcTicks,
                     nowTicks);
@@ -658,7 +658,8 @@ namespace ReignBeta.Platform.Campaign
                 return;
             }
 
-            if (_serverActionPollInFlight || now - _lastServerActionPollDay < 0.25f)
+            if (_serverActionPollInFlight || now - _lastServerActionPollDay < 0.25f
+                || ReignSaveSyncCoordinator.IsAlignmentPending)
             {
                 return;
             }
@@ -674,19 +675,20 @@ namespace ReignBeta.Platform.Campaign
             {
                 // Started on the game thread: this fence is the loaded owner of the poll.
                 var importFence = ReignServerClient.RequestFence.Capture();
-                List<ReignWorldActionRecord> actions = await ReignServerClient.FetchActionCommandsAsync().ConfigureAwait(false);
+                List<ReignWorldActionRecord> actions = await ReignServerClient.FetchActionCommandsAsync(importFence).ConfigureAwait(false);
                 if (actions == null || actions.Count == 0)
                 {
                     return;
                 }
 
-                foreach (ReignWorldActionRecord action in actions)
-                    if (action != null) action.ImportFence = importFence;
-
                 lock (_pendingServerActionsLock)
                 {
                     _pendingServerActions.AddRange(actions);
                 }
+            }
+            catch (Exception ex)
+            {
+                ReignLog.Warn("Local server action poll failed: " + ex.Message);
             }
             finally
             {
@@ -711,7 +713,12 @@ namespace ReignBeta.Platform.Campaign
             int added = 0;
             foreach (ReignWorldActionRecord action in pending)
             {
-                if (action == null) continue;
+                if (!(action?.ImportFence is ReignServerClient.RequestFence fence)
+                    || !ReferenceEquals(Instance, this) || !fence.IsCurrentActionPoll())
+                {
+                    ReignLog.Warn("Discarded pending server action from an earlier loaded scope action=" + (action?.ActionId ?? ""));
+                    continue;
+                }
                 var existing = _actions.FirstOrDefault(x => x != null && x.ActionId == action.ActionId);
                 if (existing != null)
                 {
