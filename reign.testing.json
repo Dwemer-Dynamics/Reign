@@ -29,7 +29,7 @@
     "gates": "Never adopt unowned distros/modules/records. Preserve failed imports and unknown files. Updates need exact ownership and pre-update distro snapshot. No global WSL shutdown or automatic removal of tester state. Exclude credentials, campaigns, databases, game assemblies and developer caches from distribution.",
     "imageEvidence": "reign-tester-image-receipt-v1 binds clean Debian12 image, upstream provenance, requirement/model locks, clean-state audit and SHA-256. Reuse compatible verified images; never export player data as an image.",
     "sourceBinding": "Canonical fingerprints cover .sh, .service, reignctl and .psm1; ReignDeploymentSourceTests proves that changing each invalidates qualification. Final All and Linux use the fresh engine.",
-    "upload": "One complete ZIP on the user's Google Drive per unstable-targeting publication; metadata/size/checksum readback, observed file ID and link. Preserve sharing. Source push alone is incomplete."
+    "upload": "Retain one complete verified ZIP per unstable-targeting publication under E:\\CodexStorage\\Projects\\Reign with its local path, paired commits, original reports and fingerprints, inventory and SHA-256. External distribution requires separate user authorization for the destination."
   },
   "deploymentSourceAuthority": {
     "schema": "reign-deployment-authority-v1",
