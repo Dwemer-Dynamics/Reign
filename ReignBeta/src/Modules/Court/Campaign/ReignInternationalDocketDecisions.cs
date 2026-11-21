@@ -119,7 +119,9 @@ namespace ReignBeta.Court.Campaign
                 data.Value<string>("remedy"), data.Value<bool?>("ransom") == true);
             JObject offeredTerms = ParseObject(offered.TermsJson);
             // Court prose and older saved interpretation flags cannot establish consensus.
-            if (consensus && !effectCommitted && !HasExactSovereignOffer(matter, data, option, offeredTerms))
+            bool promotedOffer = data.Value<bool?>("replyPromoted") == true && data.Value<bool?>("sovereignAuthorized") == true
+                && option == (data.Value<string>("referredResolutionOption") ?? "accept");
+            if (!effectCommitted && (consensus || promotedOffer) && !HasExactSovereignOffer(matter, data, option, offeredTerms))
             { summary = "Refer these exact terms for the foreign ruler's decision before confirming the agreement."; return false; }
             JObject requestedTerms = decision["terms"] as JObject;
             if (requestedTerms != null && requestedTerms.Properties().Any(p => offeredTerms[p.Name] == null || !JToken.DeepEquals(offeredTerms[p.Name], p.Value)))
@@ -358,11 +360,17 @@ namespace ReignBeta.Court.Campaign
                 {
                     referralTerms["durationDays"] = 120;
                     referralTerms["isPublic"] = true;
-                    referralTerms["promise"] = "Accept this exact settlement of the court matter: " + DescribeInternationalTerms(exactTerms);
+                    JObject previousTerms = candidate?["terms"] as JObject;
+                    bool sameTerms = previousTerms != null
+                        && exactTerms.Properties().All(p => JToken.DeepEquals(p.Value, previousTerms[p.Name]));
+                    referralTerms["promise"] = (sameTerms ? previousTerms.Value<string>("promise") : null)
+                        ?? "Accept the exact terms of the proposed court settlement.";
                 }
                 candidate = new JObject { ["command"] = remedy == "sign_trade_agreement" ? remedy : "record_promise",
                     ["actorKingdomId"] = Clan.PlayerClan.Kingdom.StringId, ["targetKingdomId"] = matter.KingdomId,
-                    ["publicReason"] = candidate?.Value<string>("publicReason") ?? matter.Summary, ["terms"] = referralTerms };
+                    ["publicReason"] = candidate?.Value<string>("publicReason")
+                        ?? "The ruler referred the exact terms of a court matter for a sovereign decision.",
+                    ["terms"] = referralTerms };
             }
             else if (!JToken.DeepEquals(candidate["terms"], exactTerms))
             {

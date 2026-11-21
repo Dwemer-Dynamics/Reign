@@ -108,6 +108,51 @@ public sealed class InternationalDocketRulesTests
         string status, string outcome, bool hasNormalizedAction, ReignInternationalReplyDisposition expected)
         => Assert.Equal(expected, ReignInternationalDocketRules.ReadSovereignReplyDisposition(status, outcome, hasNormalizedAction));
 
+    [Theory]
+    [InlineData("sign_trade_agreement", "sign_trade_agreement", "sign_trade_agreement", "DiplomacySignTradeAgreement", true)]
+    [InlineData("sign_trade_agreement", "sign_trade_agreement", "sign_trade_agreement", "DiplomacySignDefensivePact", false)]
+    [InlineData("sign_trade_agreement", "sign_defensive_pact", "sign_defensive_pact", "DiplomacySignDefensivePact", false)]
+    [InlineData("record_promise", "record_promise", "record_promise", "DiplomacyRecordPromise", true)]
+    [InlineData("record_promise", "ransom_package", "ransom_package", "DiplomacyRansomPackage", false)]
+    public void SovereignCounterKeepsTheFrozenCommandAndFixedNativeActionType(
+        string frozen, string authored, string normalized, string nativeType, bool valid)
+        => Assert.Equal(valid, ReignInternationalDocketRules.MatchesSovereignReplyAction(frozen, authored, normalized, nativeType));
+
+    [Theory]
+    [InlineData("1", true)]
+    [InlineData("365", true)]
+    [InlineData("366", false)]
+    [InlineData("0", false)]
+    [InlineData("30.0", false)]
+    [InlineData("\"30\"", false)]
+    public void TradeDurationRequiresOneMaterialIntegerInRange(string duration, bool valid)
+    {
+        var terms = new Dictionary<string, string> { ["durationDays"] = duration };
+        Assert.Equal(valid, ReignInternationalDocketRules.BindsCourtTradeDuration(terms));
+        terms["gold"] = "200";
+        Assert.False(ReignInternationalDocketRules.BindsCourtTradeDuration(terms));
+        Assert.False(ReignInternationalDocketRules.BindsCourtTradeDuration(new Dictionary<string, string>()));
+    }
+
+    [Fact]
+    public void CaptiveCounterKeepsTheNamedCaptiveAndRansomMode()
+    {
+        var original = new Dictionary<string, string> { ["captiveId"] = "\"capt1\"", ["ransom"] = "true",
+            ["gold"] = "500", ["payerHeroId"] = "\"lord1\"", ["recipientHeroId"] = "\"lord2\"" };
+        var revised = new Dictionary<string, string>(original) { ["gold"] = "600" };
+        Assert.True(ReignInternationalDocketRules.BindsCourtSettlementTerms(original, revised));
+        revised["captiveId"] = "\"capt2\"";
+        Assert.False(ReignInternationalDocketRules.BindsCourtSettlementTerms(original, revised));
+        revised.Remove("captiveId");
+        Assert.False(ReignInternationalDocketRules.BindsCourtSettlementTerms(original, revised));
+        revised["captiveId"] = original["captiveId"];
+        revised["ransom"] = "false";
+        Assert.False(ReignInternationalDocketRules.BindsCourtSettlementTerms(original, revised));
+        revised["ransom"] = original["ransom"];
+        revised["newCaptiveId"] = "\"capt2\"";
+        Assert.False(ReignInternationalDocketRules.BindsCourtSettlementTerms(original, revised));
+    }
+
     [Fact]
     public void RulingForThePlayerActivelyReducesExistingForeignPressure()
     {

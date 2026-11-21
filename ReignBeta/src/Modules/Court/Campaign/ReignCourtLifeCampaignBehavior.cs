@@ -64,6 +64,7 @@ namespace ReignBeta.Court.Campaign
                 if (hero == null || !hero.IsAlive || hero.IsPrisoner)
                 { error = participant.Name + " is unavailable."; matter.TechnicalFailure = true; return false; }
             }
+            RefreshSavedInternationalOffer(matter);
             matter.State = ReignCourtLifeMatterState.Active;
             matter.TranscriptId = string.IsNullOrWhiteSpace(matter.TranscriptId) ? "court_life_" + matter.MatterId : matter.TranscriptId;
             StateChanged?.Invoke();
